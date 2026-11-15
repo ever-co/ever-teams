@@ -103,7 +103,6 @@ export function MergePlaceholderDialog({
 	const t = useTranslations();
 	const selectId = useId();
 	const [shown, setShown] = useState<MemberRowModel | null>(member);
-	const [openedFor, setOpenedFor] = useState<MemberRowModel | null>(member);
 	const [targetId, setTargetId] = useState('');
 	const [preview, setPreview] = useState<PreviewState>(NO_PREVIEW);
 	const [failure, setFailure] = useState<PlaceholderFailure | null>(null);
@@ -111,16 +110,11 @@ export function MergePlaceholderDialog({
 	// The answer of a preview asked for another member, or before the dialog closed, is dropped
 	const requestRef = useRef(0);
 
-	// Every opening starts afresh, the same member's again included (a preview read when it closed was dropped); the
-	// last member stays on screen while the dialog closes
-	if (member !== openedFor) {
-		setOpenedFor(member);
-		if (member) {
-			setShown(member);
-			setTargetId('');
-			setPreview(NO_PREVIEW);
-			setFailure(null);
-		}
+	if (member && member !== shown) {
+		setShown(member);
+		setTargetId('');
+		setPreview(NO_PREVIEW);
+		setFailure(null);
 	}
 	const name = shown?.name ?? '';
 	const employeeId = shown?.employeeId ?? null;
@@ -159,12 +153,20 @@ export function MergePlaceholderDialog({
 		void readPreview(nextTargetId);
 	};
 
+	// The dialog stays mounted: the next opening, of this member too, starts from no choice and no preview
+	const resetAndClose = () => {
+		requestRef.current += 1;
+		setTargetId('');
+		setPreview(NO_PREVIEW);
+		setFailure(null);
+		onClose();
+	};
+
 	const close = () => {
 		if (isMerging) {
 			return;
 		}
-		requestRef.current += 1;
-		onClose();
+		resetAndClose();
 	};
 
 	const confirm = async () => {
@@ -177,7 +179,7 @@ export function MergePlaceholderDialog({
 		try {
 			await onMerge(employeeId, targetId);
 			toastMoment(t('settings.members.placeholder.MERGED', { name, target: targetName }), <Users />);
-			onClose();
+			resetAndClose();
 		} catch (error) {
 			setFailure(placeholderFailureOf(error, 'merge'));
 		} finally {

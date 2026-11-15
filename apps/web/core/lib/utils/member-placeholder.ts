@@ -261,9 +261,10 @@ export function importPlaceholderCandidatesOf(rows: ReadonlyArray<ImportedRow>):
 			continue;
 		}
 		const member = memberOfCell(cell);
-		if (member) {
-			candidates.set(key, { key, member, rowCount: 1 });
+		if (!member) {
+			continue;
 		}
+		candidates.set(key, { key, member, rowCount: 1 });
 	}
 	return [...candidates.values()];
 }

@@ -93,9 +93,29 @@ interface TimeImportState {
 	hasCheckFailed: boolean;
 	hasPreviewChanged: boolean;
 	outcomes: ReadonlyMap<number, TimeImportOutcome>;
+	/** The run of the check whose verdicts are on screen: an answer started from another run is stale. */
+	previewRun: number;
 }
 
 const NO_OUTCOMES: ReadonlyMap<number, TimeImportOutcome> = new Map();
+
+interface OutsideTeam {
+	sheet: TimeImportSheet | null;
+	keys: ReadonlyArray<string>;
+}
+
+const NO_OUTSIDE_TEAM: OutsideTeam = { sheet: null, keys: [] };
+
+const NO_KEYS: ReadonlyArray<string> = [];
+
+/** The people a file named that the organization has outside this team, for that file only. */
+function outsideTeamOf(outsideTeam: OutsideTeam, sheet: TimeImportSheet | null): ReadonlyArray<string> {
+	const isSameFile = Boolean(sheet) && outsideTeam.sheet === sheet;
+	if (!isSameFile) {
+		return NO_KEYS;
+	}
+	return outsideTeam.keys;
+}
 
 const NO_HEADERS: ReadonlyArray<string> = [];
 
@@ -110,7 +130,8 @@ const IDLE: TimeImportState = {
 	rows: [],
 	hasCheckFailed: false,
 	hasPreviewChanged: false,
-	outcomes: NO_OUTCOMES
+	outcomes: NO_OUTCOMES,
+	previewRun: 0
 };
 
 function storedChoiceOf(headers: ReadonlyArray<string>): TimeImportColumnsChoice | null {
@@ -305,7 +326,9 @@ export function useTimeImport({ contextAt, saveScope, extraProjectsOf }: TimeImp
 
 	// Members added for the file (members without an account), named before the team reads them back
 	const addedMembersRef = useRef<ReadonlyArray<TimeImportMember>>([]);
-	// The screen now, for an answer that arrives after the member moved on (see `recheckWithMembers`)
+	// People of the file the organization already has outside this team: kept with their file across its checks
+	const [outsideTeam, setOutsideTeam] = useState<OutsideTeam>(NO_OUTSIDE_TEAM);
+	// What is on screen now, for an answer that arrives after the screen moved on
 	const stateRef = useRef(state);
 	useEffect(() => {
 		stateRef.current = state;
@@ -332,7 +355,7 @@ export function useTimeImport({ contextAt, saveScope, extraProjectsOf }: TimeImp
 			try {
 				const rows = await check(staged.sheet);
 				if (runRef.current === run) {
-					setState({ ...IDLE, ...staged, stage: 'preview', rows });
+					setState({ ...IDLE, ...staged, stage: 'preview', rows, previewRun: run });
 				}
 			} catch (error) {
 				logErrorInDev('Time import check failed', error);
@@ -388,23 +411,29 @@ export function useTimeImport({ contextAt, saveScope, extraProjectsOf }: TimeImp
 		}
 	}, [checkSheet, state]);
 
-	/**
-	 * Checks the previewed file again, its rows now able to name the members just added for it. Only while the preview
-	 * the Add was clicked on is still the screen: an import, another file or a reset started while Gauzy created the
-	 * members is never replaced (a new check would stop an import halfway). The next check names them all the same.
-	 */
+	/** Checks the previewed file again, its rows now able to name the members just added for it. */
 	const recheckWithMembers = useCallback(
-		async (members: ReadonlyArray<TimeImportMember>) => {
+		async (
+			members: ReadonlyArray<TimeImportMember>,
+			previewRun: number,
+			outsideTeamKeys: ReadonlyArray<string> = []
+		) => {
+			// The members exist now, whatever happened on screen meanwhile
 			addedMembersRef.current = [...addedMembersRef.current, ...members];
-			const staged = stagedFileOf(state);
-			const isPreview = state.stage === 'preview';
-			const isStillOnScreen = stateRef.current === state;
-			if (!staged || !isPreview || !isStillOnScreen) {
+			// Another file, a new check or the import started while the members were added: never replace it
+			const isSamePreview = runRef.current === previewRun;
+			const current = stateRef.current;
+			const staged = stagedFileOf(current);
+			if (!isSamePreview || !staged || current.stage !== 'preview') {
 				return;
 			}
+			setOutsideTeam((known) => ({
+				sheet: staged.sheet,
+				keys: [...outsideTeamOf(known, staged.sheet), ...outsideTeamKeys]
+			}));
 			await checkSheet(staged);
 		},
-		[checkSheet, state]
+		[checkSheet]
 	);
 
 	const reset = useCallback(() => {
@@ -565,6 +594,9 @@ export function useTimeImport({ contextAt, saveScope, extraProjectsOf }: TimeImp
 		report,
 		hasCheckFailed: state.hasCheckFailed,
 		hasPreviewChanged: state.hasPreviewChanged,
+		/** The preview a recheck with added members must still be on, or it is dropped. */
+		previewRun: state.previewRun,
+		outsideTeamKeys: outsideTeamOf(outsideTeam, state.sheet),
 		chooseFile,
 		retryCheck,
 		recheckWithMembers,

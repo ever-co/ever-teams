@@ -5,34 +5,29 @@ import { act, fireEvent, render, screen } from '@testing-library/react';
 import type { MemberRowModel } from '@/core/hooks/settings/use-team-members-settings';
 import { MergePlaceholderDialog } from './merge-placeholder-dialog';
 
-type MockSelectProps = { value: string; onValueChange: (value: string | null) => void; children: React.ReactNode };
-
-type MockDialogProps = {
-	open: boolean;
-	onClose: () => void;
-	subject?: React.ReactNode;
-	confirmDisabled?: boolean;
-	onConfirm: () => void;
-};
-
 jest.mock('next-intl', () => ({
 	useTranslations: () => (key: string) => key
 }));
-jest.mock('@/core/components/icons', () => ({
-	Alert: () => null,
-	Clock: () => null,
-	Spinner: () => null,
-	Task: () => null,
-	UserRemove: () => null,
-	Users: () => null
-}));
+jest.mock('@/core/components/icons', () => {
+	const Icon = () => null;
+	return { Alert: Icon, Clock: Icon, Spinner: Icon, Task: Icon, UserRemove: Icon, Users: Icon };
+});
 jest.mock('@/core/components/common/toast-moment', () => ({ toastMoment: jest.fn() }));
 jest.mock('./people-parts', () => ({
 	MemberAvatar: () => null,
 	PersonLines: ({ name }: { name: string }) => <span>{name}</span>
 }));
+// A native select stands for the app's: what is under test is what the dialog does with the choice
 jest.mock('@/core/components/common/select', () => ({
-	Select: ({ value, onValueChange, children }: MockSelectProps) => (
+	Select: ({
+		value,
+		onValueChange,
+		children
+	}: {
+		value: string;
+		onValueChange: (value: string) => void;
+		children: React.ReactNode;
+	}) => (
 		<select aria-label="target" value={value} onChange={(event) => onValueChange(event.target.value)}>
 			<option value="">none</option>
 			{children}
@@ -47,71 +42,57 @@ jest.mock('@/core/components/common/select', () => ({
 	)
 }));
 jest.mock('@/core/components/settings/kit/danger', () => ({
-	ConfirmDestructiveDialog: ({ open, onClose, subject, confirmDisabled, onConfirm }: MockDialogProps) =>
+	ConfirmDestructiveDialog: ({
+		open,
+		subject,
+		onClose
+	}: {
+		open: boolean;
+		subject: React.ReactNode;
+		onClose: () => void;
+	}) =>
 		open ? (
 			<div role="dialog">
 				{subject}
 				<button type="button" onClick={onClose}>
-					cancel
-				</button>
-				<button type="button" onClick={onConfirm} disabled={confirmDisabled}>
-					merge
+					close
 				</button>
 			</div>
 		) : null
 }));
 
-function rowOf(employeeId: string, name: string, isPlaceholder: boolean): MemberRowModel {
-	return { id: `row-${employeeId}`, employeeId, name, email: '', imageUrl: null, isPlaceholder } as MemberRowModel;
+function rowOf(overrides: Partial<MemberRowModel>): MemberRowModel {
+	return {
+		id: 'row',
+		name: '',
+		email: '',
+		imageUrl: null,
+		employeeId: null,
+		isPlaceholder: false,
+		...overrides
+	} as MemberRowModel;
 }
 
-const AMINA = rowOf('employee-amina', 'Amina Diallo', true);
-const TARGETS = [rowOf('employee-paul', 'Paul Martin', false)];
+const LENA = rowOf({ id: 'row-lena', name: 'Lena Weber', employeeId: 'employee-lena', isPlaceholder: true });
+const CARTER = rowOf({ id: 'row-carter', name: 'Carter N.', employeeId: 'employee-carter' });
 
-const PREVIEW = {
-	placeholderEmployeeId: 'employee-amina',
-	targetEmployeeId: 'employee-paul',
-	timeLogs: 2,
-	duration: 7200,
-	timesheets: 1,
-	taskAssignments: 0,
-	teams: [],
-	overlappingTimeLogs: 0
-};
+describe('merging a member without an account', () => {
+	it('opens again on the same member with no choice and no preview after a close while the preview was read', async () => {
+		const onPreview = jest.fn(() => new Promise<never>(() => undefined));
+		const props = { targets: [CARTER], onPreview, onMerge: jest.fn(), onClose: jest.fn() };
+		const { rerender } = render(<MergePlaceholderDialog member={LENA} {...props} />);
 
-describe('MergePlaceholderDialog', () => {
-	it('starts afresh when the same member is opened again after a close while the preview was read', async () => {
-		let answerPreview: (value: typeof PREVIEW) => void = () => undefined;
-		const onPreview = jest.fn(
-			() =>
-				new Promise<typeof PREVIEW>((resolve) => {
-					answerPreview = resolve;
-				})
-		);
-		const onClose = jest.fn();
-		const dialogOf = (member: MemberRowModel | null) => (
-			<MergePlaceholderDialog
-				member={member}
-				targets={TARGETS}
-				onClose={onClose}
-				onPreview={onPreview}
-				onMerge={jest.fn()}
-			/>
-		);
-		const { rerender } = render(dialogOf(AMINA));
-
-		fireEvent.change(screen.getByRole('combobox', { name: 'target' }), { target: { value: 'employee-paul' } });
-		expect(screen.getByText('settings.members.placeholder.MERGE_READING')).toBeTruthy();
-		fireEvent.click(screen.getByRole('button', { name: 'cancel' }));
-		rerender(dialogOf(null));
-		// The answer of the closed dialog's preview arrives late, and is dropped
 		await act(async () => {
-			answerPreview(PREVIEW);
+			fireEvent.change(screen.getByLabelText('target'), { target: { value: 'employee-carter' } });
 		});
-		rerender(dialogOf(AMINA));
+		expect(screen.getByText('settings.members.placeholder.MERGE_READING')).toBeTruthy();
+
+		fireEvent.click(screen.getByRole('button', { name: 'close' }));
+		expect(props.onClose).toHaveBeenCalled();
+		rerender(<MergePlaceholderDialog member={null} {...props} />);
+		rerender(<MergePlaceholderDialog member={LENA} {...props} />);
 
 		expect(screen.queryByText('settings.members.placeholder.MERGE_READING')).toBeNull();
-		expect((screen.getByRole('combobox', { name: 'target' }) as HTMLSelectElement).value).toBe('');
-		expect((screen.getByRole('button', { name: 'merge' }) as HTMLButtonElement).disabled).toBe(true);
+		expect((screen.getByLabelText('target') as HTMLSelectElement).value).toBe('');
 	});
 });

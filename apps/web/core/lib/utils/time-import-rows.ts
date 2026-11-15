@@ -137,7 +137,7 @@ interface Reading<Value> {
 	problems: TimeImportProblem[];
 }
 
-/** A name, an email or a title as typed: composed accents, single spaces and any case all read the same. */
+/** Case and spacing aside: "Lena  Weber" in a file is the member "Lena Weber". */
 function comparableOf(text: string): string {
 	const composed = text.normalize('NFC');
 	const spaced = composed.trim().replace(/\s+/g, ' ');

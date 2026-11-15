@@ -137,6 +137,8 @@ function timeImportOf(rows: TimeImportRow[], overrides: Partial<TimeImport> = {}
 		chooseFile: jest.fn(),
 		retryCheck: jest.fn(),
 		recheckWithMembers: jest.fn(),
+		previewRun: 1,
+		outsideTeamKeys: [],
 		chooseColumn: jest.fn(),
 		chooseDateOrder: jest.fn(),
 		confirmColumns: jest.fn(),

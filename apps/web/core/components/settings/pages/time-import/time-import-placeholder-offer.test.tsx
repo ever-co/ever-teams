@@ -1,23 +1,9 @@
 /** @jest-environment jsdom */
 
-import React, { useState } from 'react';
+import React from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import type { TimeImportRow } from '@/core/lib/utils/time-import-rows';
 import { TimeImportPlaceholderOffer } from './time-import-placeholder-offer';
-
-type OfferProps = React.ComponentProps<typeof TimeImportPlaceholderOffer>;
-
-/** The page keeps who Gauzy said is outside the team: the offer leaves the screen while the file is checked again. */
-function Offer(props: Readonly<Omit<OfferProps, 'notInTeamKeys' | 'onNotInTeam'>>) {
-	const [notInTeamKeys, setNotInTeamKeys] = useState<ReadonlyArray<string>>([]);
-	return (
-		<TimeImportPlaceholderOffer
-			{...props}
-			notInTeamKeys={notInTeamKeys}
-			onNotInTeam={(keys) => setNotInTeamKeys((current) => [...current, ...keys])}
-		/>
-	);
-}
 
 jest.mock('next-intl', () => ({
 	useTranslations: () => (key: string, values?: Record<string, unknown>) =>
@@ -61,7 +47,15 @@ describe('the offer to add the people of a file that nobody in the team is', () 
 			{ employee: { id: 'employee-ana' }, created: false }
 		]);
 		const onAdded = jest.fn();
-		render(<Offer rows={ROWS} onAdd={onAdd} onAdded={onAdded} />);
+		render(
+			<TimeImportPlaceholderOffer
+				previewRun={7}
+				outsideTeamKeys={[]}
+				rows={ROWS}
+				onAdd={onAdd}
+				onAdded={onAdded}
+			/>
+		);
 
 		await act(async () => {
 			fireEvent.click(screen.getByRole('button', { name: /timeImport\.placeholders\.ADD/ }));
@@ -72,17 +66,43 @@ describe('the offer to add the people of a file that nobody in the team is', () 
 			{ firstName: 'Lena', lastName: 'Weber' },
 			{ firstName: 'ana', email: 'ana@example.com' }
 		]);
-		expect(onAdded).toHaveBeenCalledWith([
-			{ employeeId: 'employee-paul', email: 'paul.martin@example.com', name: 'paul.martin' },
-			{ employeeId: 'employee-lena', email: '', name: 'Lena Weber' }
-		]);
-		// Ana already belongs to the organization, outside this team: she is not offered again
+		// The recheck goes with the preview the offer was made on, and keeps Ana, whom the organization has outside the team
+		expect(onAdded).toHaveBeenCalledWith(
+			[
+				{ employeeId: 'employee-paul', email: 'paul.martin@example.com', name: 'paul.martin' },
+				{ employeeId: 'employee-lena', email: '', name: 'Lena Weber' }
+			],
+			7,
+			['ana@example.com']
+		);
+	});
+
+	it('says to add a person of the organization to the team first, and does not offer them again', () => {
+		render(
+			<TimeImportPlaceholderOffer
+				previewRun={8}
+				outsideTeamKeys={['ana@example.com']}
+				rows={ROWS}
+				onAdd={jest.fn()}
+				onAdded={jest.fn()}
+			/>
+		);
+
 		expect(screen.getByText(/OUTSIDE_TEAM_TITLE/)).toBeTruthy();
+		expect(screen.getByRole('button', { name: /timeImport.placeholders.ADD/ }).textContent).toContain('"count":2');
 	});
 
 	it('says why when Gauzy refuses, and offers again', async () => {
 		const onAdd = jest.fn().mockRejectedValue({ response: { status: 403, data: { statusCode: 403 } } });
-		render(<Offer rows={ROWS} onAdd={onAdd} onAdded={jest.fn()} />);
+		render(
+			<TimeImportPlaceholderOffer
+				previewRun={7}
+				outsideTeamKeys={[]}
+				rows={ROWS}
+				onAdd={onAdd}
+				onAdded={jest.fn()}
+			/>
+		);
 
 		await act(async () => {
 			fireEvent.click(screen.getByRole('button', { name: /timeImport\.placeholders\.ADD/ }));
@@ -94,7 +114,13 @@ describe('the offer to add the people of a file that nobody in the team is', () 
 
 	it('shows nothing for a file whose people are all in the team', () => {
 		const { container } = render(
-			<Offer rows={[rowOf(2, 'x@example.com', 'projectUnknown')]} onAdd={jest.fn()} onAdded={jest.fn()} />
+			<TimeImportPlaceholderOffer
+				previewRun={1}
+				outsideTeamKeys={[]}
+				rows={[rowOf(2, 'x@example.com', 'projectUnknown')]}
+				onAdd={jest.fn()}
+				onAdded={jest.fn()}
+			/>
 		);
 		expect(container.textContent).toBe('');
 	});

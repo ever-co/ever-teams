@@ -168,6 +168,18 @@ describe('member-placeholder', () => {
 			expect(candidate.member).toEqual({ firstName: 'María', lastName: 'de la Cruz' });
 		});
 
+		it('offers no name longer than Gauzy keeps: the member would be named otherwise than the file', () => {
+			const longFirst = `${'A'.repeat(101)} Martin`;
+			const longLast = `Paul ${'B'.repeat(101)}`;
+
+			expect(
+				importPlaceholderCandidatesOf([
+					row(2, longFirst, 'memberNameUnknown'),
+					row(3, longLast, 'memberNameUnknown')
+				])
+			).toEqual([]);
+		});
+
 		it('offers nobody when every row names a known member', () => {
 			expect(importPlaceholderCandidatesOf([row(2, 'x@acme.com', 'memberNotAllowed')])).toEqual([]);
 		});

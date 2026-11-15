@@ -58,12 +58,6 @@ function TimeImportFlow({ access, modeSwitch }: Readonly<ImportFlowProps>) {
 	const { stage, chooseFile, columnsStep } = timeImport;
 	// Only who may book time for others meets rows of people outside the team, and only who may add members adds them
 	const offersPlaceholders = canImportForOthers && placeholders.isOffered;
-	// People of the organization outside the team, as Gauzy answered an Add: the offer leaves the screen while the
-	// file is checked again, and this must still say how to add them
-	const [notInTeamKeys, setNotInTeamKeys] = useState<ReadonlyArray<string>>([]);
-	const keepNotInTeam = useCallback((keys: ReadonlyArray<string>) => {
-		setNotInTeamKeys((current) => [...current, ...keys.filter((key) => !current.includes(key))]);
-	}, []);
 
 	const downloadTemplate = useCallback(() => {
 		const columns = timeImportTemplateCsvColumnsOf(canImportForOthers);
@@ -120,10 +114,10 @@ function TimeImportFlow({ access, modeSwitch }: Readonly<ImportFlowProps>) {
 						offersPlaceholders && (
 							<TimeImportPlaceholderOffer
 								rows={timeImport.rows}
+								previewRun={timeImport.previewRun}
+								outsideTeamKeys={timeImport.outsideTeamKeys}
 								onAdd={placeholders.addPlaceholders}
 								onAdded={timeImport.recheckWithMembers}
-								notInTeamKeys={notInTeamKeys}
-								onNotInTeam={keepNotInTeam}
 							/>
 						)
 					}

@@ -401,7 +401,12 @@ describe('useTimeImport', () => {
 		await act(() => result.current.chooseFile(csvFile(THREE_ROWS)));
 		mockGetTimeLogConflicts.mockClear();
 
-		await act(() => result.current.recheckWithMembers([{ employeeId: 'employee-lena', email: '', name: 'Lena' }]));
+		await act(() =>
+			result.current.recheckWithMembers(
+				[{ employeeId: 'employee-lena', email: '', name: 'Lena' }],
+				result.current.previewRun
+			)
+		);
 
 		expect(result.current.stage).toBe('preview');
 		expect(mockGetTimeLogConflicts).toHaveBeenCalledTimes(2);
@@ -411,7 +416,7 @@ describe('useTimeImport', () => {
 		const { result } = renderImport();
 		await act(() => result.current.chooseFile(csvFile(THREE_ROWS)));
 		// Add was clicked on this preview; Gauzy answers once the import is under way
-		const recheckOfAdd = result.current.recheckWithMembers;
+		const { previewRun, recheckWithMembers } = result.current;
 		let answerFirstSave: (value: unknown) => void = () => undefined;
 		mockAddManualTime.mockImplementationOnce(
 			() =>
@@ -425,7 +430,7 @@ describe('useTimeImport', () => {
 			confirming = result.current.confirm();
 		});
 		await waitFor(() => expect(mockAddManualTime).toHaveBeenCalledTimes(1));
-		await act(() => recheckOfAdd([{ employeeId: 'employee-lena', email: '', name: 'Lena' }]));
+		await act(() => recheckWithMembers([{ employeeId: 'employee-lena', email: '', name: 'Lena' }], previewRun));
 		await act(async () => {
 			answerFirstSave({});
 			await confirming;
@@ -434,18 +439,6 @@ describe('useTimeImport', () => {
 		expect(result.current.stage).toBe('done');
 		expect(mockAddManualTime).toHaveBeenCalledTimes(3);
 		expect(result.current.report).toMatchObject({ savedCount: 3, notSentCount: 0 });
-	});
-
-	it('never brings back the file members were added for once another file was chosen', async () => {
-		const { result } = renderImport();
-		await act(() => result.current.chooseFile(csvFile(THREE_ROWS, 'march.csv')));
-		const recheckOfAdd = result.current.recheckWithMembers;
-		await act(() => result.current.chooseFile(csvFile([THREE_ROWS[0]], 'april.csv')));
-
-		await act(() => recheckOfAdd([{ employeeId: 'employee-lena', email: '', name: 'Lena' }]));
-
-		expect(result.current.fileName).toBe('april.csv');
-		expect(result.current.rows).toHaveLength(1);
 	});
 });
 
@@ -618,5 +611,39 @@ describe('useTimeImport with the projects a workspace import plans', () => {
 
 		expect(result.current.summary.readyCount).toBe(0);
 		expect(result.current.rows[0].problems).toEqual([{ code: 'projectUnknown' }]);
+	});
+});
+
+describe('useTimeImport after members are added for the file', () => {
+	const AMINA = { employeeId: 'employee-amina', email: 'amina@acme.com', name: 'amina' };
+
+	it('drops the recheck of a preview the screen has left: another file stays on screen', async () => {
+		const { result } = renderImport();
+		await act(() => result.current.chooseFile(csvFile(THREE_ROWS)));
+		await waitFor(() => expect(result.current.stage).toBe('preview'));
+		const previewRun = result.current.previewRun;
+
+		await act(() => result.current.chooseFile(csvFile(THREE_ROWS.slice(0, 1), 'april.csv')));
+		await waitFor(() => expect(result.current.stage).toBe('preview'));
+		await act(() => result.current.recheckWithMembers([AMINA], previewRun, ['ana@acme.com']));
+
+		expect(result.current.fileName).toBe('april.csv');
+		expect(result.current.rows).toHaveLength(1);
+		expect(result.current.outsideTeamKeys).toEqual([]);
+	});
+
+	it('keeps the people the organization has outside the team across the recheck, for that file only', async () => {
+		const { result } = renderImport();
+		await act(() => result.current.chooseFile(csvFile(THREE_ROWS)));
+		await waitFor(() => expect(result.current.stage).toBe('preview'));
+
+		await act(() => result.current.recheckWithMembers([AMINA], result.current.previewRun, ['ana@acme.com']));
+		await waitFor(() => expect(result.current.stage).toBe('preview'));
+
+		expect(result.current.outsideTeamKeys).toEqual(['ana@acme.com']);
+
+		await act(() => result.current.chooseFile(csvFile(THREE_ROWS, 'april.csv')));
+		await waitFor(() => expect(result.current.stage).toBe('preview'));
+		expect(result.current.outsideTeamKeys).toEqual([]);
 	});
 });
