@@ -88,10 +88,25 @@ function withoutExpiry(names: string[]): [string, unknown][] {
 	return names.map((name) => [name, undefined]);
 }
 
+/**
+ * A write on the server, as proxy.ts and the sign-in routes make it: a NextRequest whose cookie store is the browser's
+ * jar (cookies-next writes each cookie on the request as well as on the response).
+ */
+function serverCtx() {
+	return {
+		req: { cookies: { get: (name: string) => (jar.has(name) ? { name, value: jar.get(name)?.value } : undefined) } },
+		res: {}
+	};
+}
+
 beforeEach(() => {
 	jest.clearAllMocks();
 	jar = new Map();
-	jest.mocked(getCookie).mockImplementation((name: string) => jar.get(name)?.value);
+	// As cookies-next reads: at once in the browser, and with a promise on the server (a context with req or res)
+	jest.mocked(getCookie).mockImplementation(((name: string, options?: { req?: unknown; res?: unknown }) =>
+		options?.req || options?.res
+			? Promise.resolve(jar.get(name)?.value)
+			: jar.get(name)?.value) as unknown as typeof getCookie);
 	jest.mocked(setCookie).mockImplementation((name: string, value: unknown, options: unknown) => {
 		jar.set(name, { value: String(value), options });
 	});
@@ -214,5 +229,69 @@ describe('A browser can be set to forget the session when it closes (#5315)', ()
 		expect(jar.get(SESSION_ENDS_WITH_BROWSER_COOKIE_NAME)?.options).toEqual({ maxAge: expect.any(Number) });
 		expect(sessionEndsWithBrowser()).toBe(true);
 		expect(jar.has(REFRESH_TOKEN_COOKIE_NAME)).toBe(false);
+	});
+});
+
+describe('A write on the server reads the cookies of the request, which cookies-next answers with a promise (#5315)', () => {
+	it('gives every cookie of the session the expiry of the pair the proxy renewal brings', () => {
+		const signedInUntil = nowS() + DAY_S;
+		signIn(refreshTokenExpiringAt(signedInUntil));
+		setActiveTaskIdCookie('task-1');
+		const renewedUntil = signedInUntil + DAY_S / 2;
+		const sessionCookies = [...SIGN_IN_COOKIES, ACTIVE_TASK_COOKIE_NAME];
+		const ctx = serverCtx();
+
+		// proxy.ts: the access token first, then the refresh token Gauzy rotated
+		setAccessTokenCookie('access-2', ctx);
+		setRefreshTokenCookie(refreshTokenExpiringAt(renewedUntil), ctx);
+
+		expect(jar.get(TOKEN_COOKIE_NAME)?.value).toBe('access-2');
+		expect(jar.get(TENANT_ID_COOKIE_NAME)?.value).toBe('tenant-1');
+		expect(optionsOf(sessionCookies)).toEqual(
+			sessionCookies.map((name) => [name, { ...ctx, expires: new Date(renewedUntil * 1000) }])
+		);
+	});
+
+	it('gives an access token the proxy renews without a new refresh token the expiry of the session', () => {
+		const exp = nowS() + DAY_S;
+		signIn(refreshTokenExpiringAt(exp));
+		const ctx = serverCtx();
+
+		setAccessTokenCookie('access-2', ctx);
+
+		expect(jar.get(TOKEN_COOKIE_NAME)?.options).toEqual({ ...ctx, expires: new Date(exp * 1000) });
+	});
+
+	it('keeps the cookies of a browser set to forget the session to the browser session, renewed by the proxy', () => {
+		signIn(refreshTokenExpiringAt(nowS() + DAY_S));
+		setSessionEndsWithBrowser(true);
+		const ctx = serverCtx();
+
+		setAccessTokenCookie('access-2', ctx);
+		setRefreshTokenCookie(refreshTokenExpiringAt(nowS() + 2 * DAY_S), ctx);
+
+		expect(optionsOf(SIGN_IN_COOKIES)).toEqual(SIGN_IN_COOKIES.map((name) => [name, ctx]));
+	});
+
+	it('keeps the cookies of a sign-in on the server to the browser session, in a browser set so', () => {
+		jar.set(SESSION_ENDS_WITH_BROWSER_COOKIE_NAME, { value: '1', options: undefined });
+		const ctx = serverCtx();
+
+		setAuthCookies(
+			{
+				refresh_token: { token: refreshTokenExpiringAt(nowS() + DAY_S) },
+				access_token: 'access-1',
+				teamId: 'team-1',
+				tenantId: 'tenant-1',
+				organizationId: 'organization-1',
+				languageId: 'fr',
+				noTeamPopup: true,
+				userId: 'user-1'
+			},
+			ctx
+		);
+
+		expect(sessionEndsWithBrowser(ctx)).toBe(true);
+		expect(optionsOf(SIGN_IN_COOKIES)).toEqual(SIGN_IN_COOKIES.map((name) => [name, ctx]));
 	});
 });

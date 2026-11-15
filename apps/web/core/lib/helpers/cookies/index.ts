@@ -54,11 +54,29 @@ function sessionExpiryOf(refreshToken: string | null | undefined): Date | undefi
 const SESSION_ENDS_WITH_BROWSER_MAX_AGE_S = 365 * 24 * 60 * 60;
 
 /**
+ * A cookie's value at once, in the browser and on the server. On the server `getCookie` answers a promise (cookies-next
+ * reads the request asynchronously), which a cookie write cannot wait for: the request's own cookies are read instead,
+ * which cookies-next keeps up to date with each write it makes. A NextRequest keeps them in a store, a Node request in
+ * a plain object.
+ */
+function cookieNow(name: string, ctx: NextCtx | undefined): string | undefined {
+	let value: unknown;
+	if (ctx?.req || ctx?.res) {
+		const cookies = ctx.req?.cookies;
+		value = typeof cookies?.get === 'function' ? cookies.get(name)?.value : cookies?.[name];
+	} else {
+		value = getCookie(name);
+	}
+	return typeof value === 'string' && value ? value : undefined;
+}
+
+/**
  * Whether this browser forgets the session when it closes (Settings > Profile > This browser), for a shared computer:
- * the cookies of the session are then written without expiry, as the browser's own session.
+ * the cookies of the session are then written without expiry, as the browser's own session. A write on the server (a
+ * sign-in route, the renewal in proxy.ts) reads the choice from the request, as a write in the browser does.
  */
 export function sessionEndsWithBrowser(ctx?: NextCtx): boolean {
-	return getCookie(SESSION_ENDS_WITH_BROWSER_COOKIE_NAME, ctx) === '1';
+	return cookieNow(SESSION_ENDS_WITH_BROWSER_COOKIE_NAME, ctx) === '1';
 }
 
 /**
@@ -68,7 +86,7 @@ export function sessionEndsWithBrowser(ctx?: NextCtx): boolean {
  */
 function sessionWrite(
 	ctx: NextCtx | undefined,
-	refreshToken: string | null | undefined = getRefreshTokenCookie(ctx)
+	refreshToken: string | null | undefined = cookieNow(REFRESH_TOKEN_COOKIE_NAME, ctx)
 ): CookieWrite {
 	const expires = sessionEndsWithBrowser(ctx) ? undefined : sessionExpiryOf(refreshToken);
 	if (!expires) {
@@ -98,17 +116,18 @@ export function setSessionEndsWithBrowser(endsWithBrowser: boolean): void {
  * Writes the cookies of the session again with `write`, each with the value it holds: the access token, whole or in
  * chunks, and the cookies the sign-out removes beside it. A renewal gives the session the expiry of its new refresh
  * token; the cookies written with the spent one's would leave first, and a restart would find the session without its
- * tenant or its organization.
+ * tenant or its organization. On the server (the renewal in proxy.ts) the values are the request's, the access token
+ * just renewed among them, so the response gives the browser a set that matches the pair it carries.
  */
 function writeSessionCookiesAgain(ctx: NextCtx | undefined, write: CookieWrite): void {
-	const chunkCount = tokenCookieChunkCount(getTotalChunksCookie(TOKEN_COOKIE_NAME, ctx));
+	const chunkCount = tokenCookieChunkCount(cookieNow(`${TOKEN_COOKIE_NAME}_totalChunks`, ctx));
 	const tokenCookies = chunkCount
 		? [...range(chunkCount).map((index) => `${TOKEN_COOKIE_NAME}${index}`), `${TOKEN_COOKIE_NAME}_totalChunks`]
 		: [TOKEN_COOKIE_NAME];
 	const others = cookiesKeys().filter((name) => name !== TOKEN_COOKIE_NAME && name !== REFRESH_TOKEN_COOKIE_NAME);
 	for (const name of [...tokenCookies, ...others]) {
-		const value = getCookie(name, ctx);
-		if (typeof value === 'string' && value) {
+		const value = cookieNow(name, ctx);
+		if (value) {
 			setCookie(name, value, write, tokenCookies.includes(name));
 		}
 	}
