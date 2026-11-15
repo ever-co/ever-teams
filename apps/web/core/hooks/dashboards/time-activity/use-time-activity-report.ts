@@ -503,7 +503,13 @@ export function useTimeActivityReport() {
 		if (isFilterLookupError) {
 			refetchClientLookup();
 		}
-	}, [isFilterLookupError, refetchBillableReport, refetchClientLookup, refetchProjectRates, retryBillingOrganization]);
+	}, [
+		isFilterLookupError,
+		refetchBillableReport,
+		refetchClientLookup,
+		refetchProjectRates,
+		retryBillingOrganization
+	]);
 	const billable = useMemo<TimeActivityBillable>(
 		() => ({
 			isOffered: readsBillable,
