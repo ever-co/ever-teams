@@ -94,7 +94,9 @@ function withoutExpiry(names: string[]): [string, unknown][] {
  */
 function serverCtx() {
 	return {
-		req: { cookies: { get: (name: string) => (jar.has(name) ? { name, value: jar.get(name)?.value } : undefined) } },
+		req: {
+			cookies: { get: (name: string) => (jar.has(name) ? { name, value: jar.get(name)?.value } : undefined) }
+		},
 		res: {}
 	};
 }
