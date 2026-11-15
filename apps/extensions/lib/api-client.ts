@@ -1,6 +1,7 @@
 import { withoutTrailingSlashes } from '~lib/address';
 import type { ApiFailure } from '~lib/refusal';
 import { loadSession, saveSession, withSessionLock } from '~lib/session-store';
+import { twoFactorChallengeIn, type TwoFactorChallenge } from '~lib/two-factor';
 import { isSessionRefused, renewalStepOf, renewedSessionOf, type Session } from '~lib/workspaces';
 
 /** A failed call to the API; status 0 when the API could not be reached at all. */
@@ -8,8 +9,10 @@ export class ApiError extends Error implements ApiFailure {
 	readonly status: number;
 	readonly code?: string;
 	readonly details?: { fields?: unknown };
+	/** What a sign-in answered instead of a session when the account asks for its two-factor code. */
+	readonly twoFactor?: TwoFactorChallenge;
 
-	constructor(status: number, message: string, code?: string, fields?: unknown) {
+	constructor(status: number, message: string, code?: string, fields?: unknown, twoFactor?: TwoFactorChallenge) {
 		super(message);
 		this.name = 'ApiError';
 		this.status = status;
@@ -18,6 +21,9 @@ export class ApiError extends Error implements ApiFailure {
 		}
 		if (fields !== undefined) {
 			this.details = { fields };
+		}
+		if (twoFactor) {
+			this.twoFactor = twoFactor;
 		}
 	}
 }
@@ -74,7 +80,9 @@ async function failureOf(response: Response): Promise<ApiError> {
 	// Gauzy names the request fields a refusal is about next to its code rather than under `details`
 	const fields = answer.fields ?? answer.details?.fields;
 
-	return new ApiError(response.status, messageOf(body, response.status), code, fields);
+	const twoFactor = twoFactorChallengeIn(body) ?? undefined;
+
+	return new ApiError(response.status, messageOf(body, response.status), code, fields, twoFactor);
 }
 
 /**
