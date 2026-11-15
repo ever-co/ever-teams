@@ -88,6 +88,12 @@ interface MeetingAgendaProps {
 	isLoading: boolean;
 	isError: boolean;
 	onRetry: () => void;
+	/**
+	 * The meetings one is invited to could not load (#5022): said above the meetings that did, which stay, with its own
+	 * way to try again.
+	 */
+	isInvitationsError?: boolean;
+	onRetryInvitations?: () => void;
 	isJitsi: boolean;
 	now: Date;
 	/** Who hosts the meetings listed: the person, whose own meetings these are. */
@@ -109,6 +115,8 @@ export function MeetingAgenda({
 	isLoading,
 	isError,
 	onRetry,
+	isInvitationsError = false,
+	onRetryInvitations,
 	isJitsi,
 	now,
 	hostName,
@@ -206,6 +214,9 @@ export function MeetingAgenda({
 			}
 		>
 			{isError && <DashboardErrorNotice onRetry={onRetry} />}
+			{!isError && !isLoading && isInvitationsError && onRetryInvitations && (
+				<DashboardErrorNotice onRetry={onRetryInvitations} className="mx-4 mt-4" />
+			)}
 			{!isError && isLoading && (
 				<div className="flex flex-col gap-3 p-4" aria-hidden="true">
 					<span className={cn(SKELETON_BAR, 'h-3 w-40')} />

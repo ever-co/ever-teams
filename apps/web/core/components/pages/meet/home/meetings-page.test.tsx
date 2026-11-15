@@ -80,12 +80,13 @@ jest.mock('@/core/hooks/meetings/use-scheduled-meetings', () => ({
 // The meetings others host that the person is invited to (#5022)
 let mockInvited: ScheduledMeeting[] = [];
 let mockInvitedError = false;
+let mockInvitedLoading = false;
 const mockRefetchInvited = jest.fn();
 const mockRefetchScheduled = jest.fn();
 jest.mock('@/core/hooks/meetings/use-invited-meetings', () => ({
 	useInvitedMeetings: () => ({
 		meetings: mockInvited,
-		isLoading: false,
+		isLoading: mockInvitedLoading,
 		isError: mockInvitedError,
 		refetch: mockRefetchInvited
 	})
@@ -120,6 +121,7 @@ describe('MeetingsPage', () => {
 		mockScheduled = { meetings: [], canSchedule: true };
 		mockInvited = [];
 		mockInvitedError = false;
+		mockInvitedLoading = false;
 		mockRefetchInvited.mockReset();
 		mockRefetchScheduled.mockReset();
 		// The notices' orb asks whether motion is reduced; jsdom has no matchMedia
@@ -309,15 +311,57 @@ describe('MeetingsPage', () => {
 		expect(await screen.findByText('meetings.INVITE_HINT_PARTICIPANTS')).toBeTruthy();
 	});
 
-	it('says so when the meetings one is invited to fail to load, and tries both lists again (#5022)', () => {
+	it("says so when the meetings one is invited to fail to load, keeps one's own, and tries the invitations again (#5022)", () => {
+		mockScheduled.meetings = [
+			{
+				id: 'appointment-1',
+				title: 'Daily standup',
+				description: null,
+				start: new Date(Date.now() + 60 * 60 * 1000),
+				end: new Date(Date.now() + 90 * 60 * 1000),
+				link: null
+			}
+		];
 		mockInvitedError = true;
 		render(<MeetingsPage />);
 
 		expect(screen.getByText('dashboard.states.ERROR_TITLE')).toBeTruthy();
-		fireEvent.click(screen.getByRole('button', { name: 'pages.unauthorized.TRY_AGAIN' }));
+		// The meeting one hosts stays, with its ways in and out
+		if (!screen.queryByText('Daily standup')) fireEvent.click(screen.getByRole('button', { name: 'meetings.NEXT_DAY' }));
+		expect(screen.getByText('Daily standup')).toBeTruthy();
 
-		expect(mockRefetchScheduled).toHaveBeenCalledTimes(1);
+		fireEvent.click(screen.getByRole('button', { name: 'pages.unauthorized.TRY_AGAIN' }));
 		expect(mockRefetchInvited).toHaveBeenCalledTimes(1);
+		expect(mockRefetchScheduled).not.toHaveBeenCalled();
+	});
+
+	it('waits for the meetings one is invited to before saying the day has none (#5022)', () => {
+		mockInvitedLoading = true;
+		render(<MeetingsPage />);
+
+		expect(screen.queryByText('meetings.NO_MEETINGS_TODAY')).toBeNull();
+		expect(screen.queryByTestId('meetings-agenda-day')).toBeNull();
+	});
+
+	it('marks a meeting one is invited to as such, its host named or not (#5022)', () => {
+		mockInvited = [
+			{
+				id: 'appointment-9',
+				title: 'Planning',
+				description: null,
+				start: new Date(Date.now() + 60 * 60 * 1000),
+				end: new Date(Date.now() + 90 * 60 * 1000),
+				link: null,
+				isInvited: true,
+				hostName: null
+			}
+		];
+		render(<MeetingsPage />);
+		if (!screen.queryByText('Planning')) fireEvent.click(screen.getByRole('button', { name: 'meetings.NEXT_DAY' }));
+
+		const card = screen.getByTestId('scheduled-meeting');
+		expect(within(card).getByText('meetings.INVITED')).toBeTruthy();
+		expect(within(card).queryByText(/^meetings\.HOST/)).toBeNull();
 	});
 
 	it('lists the meetings others host that the person is invited to: its host, a way to join, and no edit (#5022)', async () => {

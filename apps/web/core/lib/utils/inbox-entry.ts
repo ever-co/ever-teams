@@ -266,7 +266,8 @@ export function toInboxEntry(item: IInboxItem): InboxEntry {
 		rawTitle,
 		subject,
 		message: message && message !== subject && message !== rawTitle ? message : null,
-		senderName: isNotification ? senderNameFromTitle(rawTitle) : null,
+		// A meeting's title names no one: a word of the meeting's own title is no sender (#5022)
+		senderName: isNotification && type !== EEmployeeNotificationType.Meeting ? senderNameFromTitle(rawTitle) : null,
 		sentByEmployeeId: stringOf(metadata['sentByEmployeeId']),
 		entity,
 		entityId,

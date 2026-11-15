@@ -151,20 +151,23 @@ describe('InboxDetail of a meeting notification (#5022)', () => {
 			metadata: { notificationType: 'Meeting', sentByEmployeeId: 'employee-1' }
 		});
 
+	const MINUTE = 60 * 1000;
+	/** The meeting one is invited to, starting `startsIn` from now. */
+	const invitedTo = (startsIn: number): ScheduledMeeting => ({
+		id: 'appointment-9',
+		title: 'Planning',
+		description: null,
+		start: new Date(Date.now() + startsIn),
+		end: new Date(Date.now() + startsIn + 30 * MINUTE),
+		link,
+		isInvited: true,
+		hostName: 'Ana Silva'
+	});
+
 	beforeEach(() => {
 		mockPush.mockReset();
-		mockInvited = [
-			{
-				id: 'appointment-9',
-				title: 'Planning',
-				description: null,
-				start: new Date('2099-11-12T13:00:00.000Z'),
-				end: new Date('2099-11-12T13:30:00.000Z'),
-				link,
-				isInvited: true,
-				hostName: 'Ana Silva'
-			}
-		];
+		// Five minutes from now: within the minutes before the start in which a meeting opens to join
+		mockInvited = [invitedTo(5 * MINUTE)];
 	});
 
 	it("says who invited, in the reader's language, with the meeting's time, and joins it", () => {
@@ -183,6 +186,14 @@ describe('InboxDetail of a meeting notification (#5022)', () => {
 	it('offers no way to join a meeting cancelled, or one the person was removed from', () => {
 		mount(meeting('"Planning" was cancelled'), null);
 		expect(screen.getByText('notifications.MEETING.CANCELLED')).toBeTruthy();
+		expect(screen.queryByRole('button', { name: /meetings\.JOIN_MEETING_OF/ })).toBeNull();
+	});
+
+	it('offers no way to join a meeting days ahead: the meetings page opens it', () => {
+		mockInvited = [invitedTo(3 * 24 * 60 * MINUTE)];
+		mount(meeting('You are invited to "Planning"'), null);
+
+		expect(screen.getByRole('button', { name: 'notifications.MEETING.OPEN' })).toBeTruthy();
 		expect(screen.queryByRole('button', { name: /meetings\.JOIN_MEETING_OF/ })).toBeNull();
 	});
 });

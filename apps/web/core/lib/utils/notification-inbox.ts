@@ -178,9 +178,11 @@ function distinctMessageOf(notification: IEmployeeNotification, subject: string 
 export function toNotificationEntry(notification: IEmployeeNotification): NotificationEntry {
 	const rawTitle = firstFilled([notification.title]) ?? '';
 	const sender = notification.sentByEmployee;
-	const senderName = firstFilled([sender?.fullName, sender?.user?.name, senderNameFromTitle(rawTitle)]);
-	const subject = quotedSubjectOf(rawTitle);
 	const type = knownTypeOf(notification.type);
+	// A meeting's title names no one: a word of the meeting's own title is no sender (#5022)
+	const titleSender = type === EEmployeeNotificationType.Meeting ? null : senderNameFromTitle(rawTitle);
+	const senderName = firstFilled([sender?.fullName, sender?.user?.name, titleSender]);
+	const subject = quotedSubjectOf(rawTitle);
 
 	return {
 		id: notification.id,

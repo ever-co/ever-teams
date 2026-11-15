@@ -193,6 +193,21 @@ describe('a meeting notification (#5022)', () => {
 	it('is nothing for another kind', () => {
 		expect(toInboxEntry(item()).meeting).toBeNull();
 	});
+
+	it('takes no sender from a title whose words happen to read like one', () => {
+		const entry = toInboxEntry(
+			item({
+				title: '"Proposal sent to customer" was changed',
+				entity: 'EmployeeAppointment',
+				entityId: 'appointment-1',
+				taskId: null,
+				metadata: { notificationType: 'Meeting' }
+			})
+		);
+
+		expect(entry.senderName).toBeNull();
+		expect(entry.subject).toBe('Proposal sent to customer');
+	});
 });
 
 describe('filters', () => {
@@ -560,6 +575,7 @@ describe("a project's entry where the platform has no inbox extension (#5022)", 
 			entityId: 'project-1',
 			href: '/projects/project-1',
 			timerReminder: null,
+			meeting: null,
 			createdAt: new Date('2026-11-07T10:00:00.000Z')
 		});
 		expect(entry.entity).toBe('OrganizationProject');

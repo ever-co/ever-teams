@@ -219,12 +219,13 @@ export function MeetingsPage() {
 				{scheduled.canSchedule && (
 					<MeetingAgenda
 						meetings={agendaMeetings}
-						isLoading={scheduled.isLoading}
-						isError={scheduled.isError || invited.isError}
-						onRetry={() => {
-							void scheduled.refetch();
-							void invited.refetch();
-						}}
+						// Both lists are waited for: one's own may answer empty while the invitations are on their way
+						isLoading={scheduled.isLoading || invited.isLoading}
+						isError={scheduled.isError}
+						onRetry={() => void scheduled.refetch()}
+						// The invitations failing hides none of one's own meetings: it is said above them
+						isInvitationsError={invited.isError}
+						onRetryInvitations={() => void invited.refetch()}
 						isJitsi={isJitsi}
 						now={now}
 						hostName={scheduled.hostName}

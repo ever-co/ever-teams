@@ -12,9 +12,9 @@ import { isJitsiMeeting } from '@/core/lib/utils/collaboration';
 import { meetingPathOfInput, scheduledMeetingStateOf } from '@/core/lib/utils/meetings';
 
 /**
- * The "Join" of a meeting notification (#5022), while the meeting it is about still takes place and has a meeting
- * link: among the person's own meetings, or those they are invited to. A meeting cancelled, or one they were removed
- * from, has nothing to join.
+ * The "Join" of a meeting notification (#5022), while the meeting it is about can be joined (from shortly before its
+ * start to its end) and has a meeting link: among the person's own meetings, or those they are invited to. A meeting
+ * cancelled, or one they were removed from, has nothing to join; one days ahead is opened from the meetings page.
  */
 export function MeetingJoin({ notice }: Readonly<{ notice: MeetingNotice }>) {
 	const t = useTranslations();
@@ -27,7 +27,9 @@ export function MeetingJoin({ notice }: Readonly<{ notice: MeetingNotice }>) {
 		? undefined
 		: [...invited.meetings, ...own.meetings].find((candidate) => candidate.id === notice.appointmentId);
 	const path = meeting?.link ? meetingPathOfInput(meeting.link, isJitsi) : null;
-	if (!meeting || !path || scheduledMeetingStateOf(meeting, new Date()) === 'ended') return null;
+	// Joinable from shortly before the start to the end: a meeting days ahead opens from the meetings page
+	const state = meeting ? scheduledMeetingStateOf(meeting, new Date()) : 'ended';
+	if (!meeting || !path || (state !== 'live' && state !== 'soon')) return null;
 	const title = meeting.title || t('meetings.UNTITLED');
 	return (
 		<Button

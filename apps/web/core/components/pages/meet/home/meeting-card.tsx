@@ -127,15 +127,12 @@ export function MeetingCard({
 					</p>
 				</div>
 			</div>
-			{shownHost && (
+			{(shownHost || isInvited) && (
 				<p className="flex flex-wrap items-center gap-x-1.5 text-xs text-muted-foreground">
-					<span>{t('meetings.HOST', { name: shownHost })}</span>
-					{isInvited && (
-						<>
-							<span aria-hidden="true">·</span>
-							<span className="font-medium text-foreground/80">{t('meetings.INVITED')}</span>
-						</>
-					)}
+					{shownHost && <span>{t('meetings.HOST', { name: shownHost })}</span>}
+					{shownHost && isInvited && <span aria-hidden="true">·</span>}
+					{/* A meeting one is invited to says so, its host named or not */}
+					{isInvited && <span className="font-medium text-foreground/80">{t('meetings.INVITED')}</span>}
 				</p>
 			)}
 			{isLive && (
