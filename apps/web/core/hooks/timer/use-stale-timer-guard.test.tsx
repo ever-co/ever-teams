@@ -683,6 +683,53 @@ describe('useStaleTimerGuard, with time the run went on without the app', () => 
 		}
 	);
 
+	it('keeps a stop waiting through a check that fails, and has that check tried again at once', async () => {
+		jest.useFakeTimers();
+		const page = loadPage();
+		mockGetLastTimerLog.mockRejectedValueOnce(new Error('Network Error')).mockResolvedValue(lastLogAnswer(1));
+		const owner = page.mountOwner();
+		await page.settle();
+		// The check failed: what becomes of the time since the last heartbeat is still to be settled
+		expect(owner.result.current).toBe(false);
+		expect(page.isUnsettled()).toBe(true);
+		expect(mockGetLastTimerLog).toHaveBeenCalledTimes(1);
+
+		const stop = await page.askToStop();
+		await page.settle();
+
+		// No minute went by: the stop had the check tried again, and goes ahead now that it went through
+		expect(mockGetLastTimerLog).toHaveBeenCalledTimes(2);
+		expect(stop.stoppedThere).toBe(false);
+		expect(owner.result.current).toBe(true);
+	});
+
+	it('keeps a stop waiting when the check under way fails, until one goes through', async () => {
+		jest.useFakeTimers();
+		const page = loadPage();
+		let failTheCheck: (error: Error) => void = () => undefined;
+		mockGetLastTimerLog
+			.mockReturnValueOnce(
+				new Promise((_resolve, reject) => {
+					failTheCheck = reject;
+				})
+			)
+			.mockResolvedValue(lastLogAnswer(1));
+		const owner = page.mountOwner();
+		await page.settle();
+		const stop = await page.askToStop();
+
+		failTheCheck(new Error('Network Error'));
+		await page.settle();
+
+		// Sent now, the stop would end the run at the present whatever the time since its last heartbeat
+		expect(stop.stoppedThere).toBeUndefined();
+		expect(page.isUnsettled()).toBe(true);
+
+		await page.settle(SYNC_TIMER_INTERVAL);
+		expect(stop.stoppedThere).toBe(false);
+		expect(owner.result.current).toBe(true);
+	});
+
 	it.each([
 		['keep', 'the run goes on, and the stop is sent', false],
 		['stop', 'the run is stopped at its last heartbeat, and the stop has nothing left to end', true]

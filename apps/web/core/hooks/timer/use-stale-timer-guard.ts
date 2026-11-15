@@ -281,18 +281,23 @@ let stopsAtLastHeartbeat = 0;
  * The page's sleeps (#5123). When its scripts stopped running for longer than the app's ordinary pace (the computer
  * slept, the browser paused the tab), the page no longer kept the run alive, and the check runs again: this is the
  * one case in which a page checks twice. Until that check is over no heartbeat is sent, as on a page load.
+ *
+ * A check is due from the moment a guard is mounted for an employee this page has not checked, and again after each
+ * sleep, until one goes through. A check that fails leaves it due: the heartbeat stays held and a stop keeps
+ * waiting, or the time since the last heartbeat would be counted before anyone has said what becomes of it.
  */
 let sleeps = 0;
-let isCheckDueAfterSleep = false;
+let isCheckDue = false;
+let hasSleptSinceLastCheck = false;
 let hasCheckedOnce = false;
 let mountedGuards = 0;
 let whenSettled: { promise: Promise<void>; settle: () => void } | null = null;
+/** Runs at once the check a mounted guard is waiting to try again after a failure, when there is one. */
+let retryCheckNow: (() => void) | null = null;
 const sleepListeners = new Set<() => void>();
 
-function onPageSlept(): void {
-	sleeps += 1;
-	isCheckDueAfterSleep = true;
-	checkedEmployees.clear();
+function checkIsDue(): void {
+	isCheckDue = true;
 	if (!whenSettled) {
 		let settle: () => void = () => undefined;
 		const promise = new Promise<void>((resolve) => {
@@ -300,12 +305,20 @@ function onPageSlept(): void {
 		});
 		whenSettled = { promise, settle };
 	}
+}
+
+function onPageSlept(): void {
+	sleeps += 1;
+	hasSleptSinceLastCheck = true;
+	checkedEmployees.clear();
+	checkIsDue();
 	for (const listener of [...sleepListeners]) listener();
 }
 
 function onChecked(): void {
 	hasCheckedOnce = true;
-	isCheckDueAfterSleep = false;
+	isCheckDue = false;
+	hasSleptSinceLastCheck = false;
 	whenSettled?.settle();
 	whenSettled = null;
 }
@@ -324,17 +337,18 @@ function subscribeToSleeps(listener: () => void): () => void {
 
 /**
  * Whether the time a run went on without the app is still to be settled, on a page that settles it (the guard is
- * mounted): a check is due after a sleep, or one is under way. The sender of a heartbeat asks first, and sends none
- * meanwhile, or the heartbeat would put that time in the run before the person has said what becomes of it.
+ * mounted): a check is due, or one is under way. The sender of a heartbeat asks first, and sends none meanwhile, or
+ * the heartbeat would put that time in the run before the person has said what becomes of it.
  */
 export function isUnfollowedTimeUnsettled(): boolean {
 	lookAtPageClock();
-	return mountedGuards > 0 && (isCheckDueAfterSleep || checksInFlight.size > 0);
+	return mountedGuards > 0 && (isCheckDue || checksInFlight.size > 0);
 }
 
 /**
  * The moment that time is settled, or null when nothing is to be settled. A stop asked meanwhile waits for it: sent
- * at once, it would end the run at the present, with that time in it.
+ * at once, it would end the run at the present, with that time in it. It waits through a check that fails too, and
+ * has that check tried again at once instead of a minute later.
  *
  * @returns Whether the run was stopped at its last heartbeat meanwhile: the stop that waited then sends nothing.
  */
@@ -343,8 +357,11 @@ export function whenUnfollowedTimeIsSettled(): Promise<boolean> | null {
 		return null;
 	}
 	const stopsBefore = stopsAtLastHeartbeat;
-	const checks = [...checksInFlight.values()].map((check) => check.catch(() => undefined));
-	return Promise.all([...checks, whenSettled?.promise]).then(() => stopsAtLastHeartbeat !== stopsBefore);
+	retryCheckNow?.();
+	// Without a check that is due, only checks under way are left to wait for
+	const settled =
+		whenSettled?.promise ?? Promise.all([...checksInFlight.values()].map((check) => check.catch(() => undefined)));
+	return settled.then(() => stopsAtLastHeartbeat !== stopsBefore);
 }
 
 // The person's runs, as this page knew them, go with the session (sign-out-cleanups.ts)
@@ -403,6 +420,7 @@ export function useStaleTimerGuard(
 	useEffect(() => {
 		if (!enabled || !employeeId) return;
 		mountedGuards += 1;
+		if (!checkedEmployees.has(employeeId)) checkIsDue();
 		const stopWatching = watchPageSleep(() => onPageSlept(), UNFOLLOWED_TIME_FLOOR_MS);
 		return () => {
 			mountedGuards -= 1;
@@ -423,8 +441,9 @@ export function useStaleTimerGuard(
 		}
 		let isCurrent = true;
 		let retryTimer: number | undefined;
+		let retry: (() => void) | undefined;
 		// A tab the browser discarded and loaded again was not closed by the person: it slept
-		const wasAsleep = isCheckDueAfterSleep || (!hasCheckedOnce && wasPageDiscarded());
+		const wasAsleep = hasSleptSinceLastCheck || (!hasCheckedOnce && wasPageDiscarded());
 		// The stop the employee asked for comes first: the closed-tab rule would end its run at the last heartbeat.
 		// An employee who is not tracking time has no run left behind
 		const check = async () => {
@@ -448,12 +467,20 @@ export function useStaleTimerGuard(
 				// Releasing the heartbeat now would move a stale log's stoppedAt to the present and credit the
 				// closed-tab gap, so it keeps waiting until a check goes through.
 				if (!isCurrent) return;
-				retryTimer = window.setTimeout(() => setAttempt((count) => count + 1), SYNC_TIMER_INTERVAL);
+				retry = () => {
+					window.clearTimeout(retryTimer);
+					if (retryCheckNow === retry) retryCheckNow = null;
+					setAttempt((count) => count + 1);
+				};
+				retryTimer = window.setTimeout(retry, SYNC_TIMER_INTERVAL);
+				// A stop that waits for this check does not wait a minute for it (whenUnfollowedTimeIsSettled)
+				retryCheckNow = retry;
 			}
 		);
 		return () => {
 			isCurrent = false;
 			window.clearTimeout(retryTimer);
+			if (retry && retryCheckNow === retry) retryCheckNow = null;
 		};
 	}, [applySavedStop, attempt, enabled, employeeId, isTrackingTime, pageSleeps, settleUnfollowedTime]);
 
