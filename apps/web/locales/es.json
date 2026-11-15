@@ -4048,7 +4048,9 @@
 			"RATE_CHANGE_REQUEST": "<b>{name}</b> pidió un cambio de tarifa",
 			"TIMER_REMINDER": "Tu temporizador sigue en marcha",
 			"TASK_UPDATE": "<b>{name}</b> hizo un cambio",
-			"TASK_DUE_REMINDER": "Una tarea vence pronto"
+			"TASK_DUE_REMINDER": "Una tarea vence pronto",
+			"BOARD_SHARE": "<b>{name}</b> compartió una pizarra contigo",
+			"BOARD_MENTION": "<b>{name}</b> te mencionó en una pizarra"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "Asignación",
@@ -4061,7 +4063,9 @@
 			"RATE_CHANGE_REQUEST": "Solicitud de cambio de tarifa",
 			"TIMER_REMINDER": "Recordatorio de temporizador",
 			"TASK_UPDATE": "Cambio",
-			"TASK_DUE_REMINDER": "Recordatorio de vencimiento"
+			"TASK_DUE_REMINDER": "Recordatorio de vencimiento",
+			"BOARD_SHARE": "Pizarra compartida",
+			"BOARD_MENTION": "Mención en una pizarra"
 		},
 		"SOMEONE": "Alguien",
 		"MARK_READ": "Marcar como leída",

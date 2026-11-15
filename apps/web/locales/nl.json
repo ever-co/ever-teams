@@ -4048,7 +4048,9 @@
 			"RATE_CHANGE_REQUEST": "<b>{name}</b> vroeg om een tariefwijziging",
 			"TIMER_REMINDER": "Je timer loopt nog steeds",
 			"TASK_UPDATE": "<b>{name}</b> heeft iets gewijzigd",
-			"TASK_DUE_REMINDER": "Een taak verloopt binnenkort"
+			"TASK_DUE_REMINDER": "Een taak verloopt binnenkort",
+			"BOARD_SHARE": "<b>{name}</b> heeft een bord met je gedeeld",
+			"BOARD_MENTION": "<b>{name}</b> heeft je vermeld in een bord"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "Toewijzing",
@@ -4061,7 +4063,9 @@
 			"RATE_CHANGE_REQUEST": "Aanvraag tariefwijziging",
 			"TIMER_REMINDER": "Timerherinnering",
 			"TASK_UPDATE": "Wijziging",
-			"TASK_DUE_REMINDER": "Herinnering vervaldatum"
+			"TASK_DUE_REMINDER": "Herinnering vervaldatum",
+			"BOARD_SHARE": "Bord gedeeld",
+			"BOARD_MENTION": "Vermelding in een bord"
 		},
 		"SOMEONE": "Iemand",
 		"MARK_READ": "Markeren als gelezen",

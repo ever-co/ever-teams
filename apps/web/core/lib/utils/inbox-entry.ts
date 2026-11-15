@@ -10,6 +10,7 @@ import {
 import { readRuntimeEnv } from '@/env-config';
 import { timerReminderNoticeOf, type TimerReminderNotice } from '@/core/lib/notifications/timer-reminders';
 import { boardInvitationHref, isBoardInvitation } from '@/core/lib/notifications/board-invitations';
+import { boardNotificationHrefOf, isBoardNotificationType, notificationBoardOf } from '@/core/lib/notifications/board-notifications';
 import { docsInboxHrefOf, isDocsInboxEntry } from './docs-links';
 import { isDocsEnabled } from './docs-enabled';
 import {
@@ -155,6 +156,8 @@ export function showsInboxSheet(entry: Pick<InboxEntry, 'taskId' | 'href' | 'cha
 function hrefOf(type: EEmployeeNotificationType | null, entry: Pick<InboxEntry, 'entity' | 'entityId' | 'rawTitle'>, metadata: Record<string, unknown> | null = null): string | null {
 	if (type === EEmployeeNotificationType.RateChangeRequest) return RATE_CHANGE_REQUEST_HREF;
 	if (isBoardInvitation({ type, entity: entry.entity, rawTitle: entry.rawTitle })) return boardInvitationHref();
+	// A Board shared, or a mention in one, opens the Board at the link sent with it, when the link is the Boards app's
+	if (isBoardNotificationType(type)) return boardNotificationHrefOf(notificationBoardOf(metadata));
 	if (type === EEmployeeNotificationType.TimerReminder) return TIMER_REMINDER_HREF;
 	const projectHref = projectHrefOf(entry.entity, entry.entityId);
 	if (projectHref) return projectHref;
@@ -373,7 +376,7 @@ export function matchesInboxFilter(entry: InboxEntry, filter: InboxFilter, sourc
 		case 'unread':
 			return entry.isUnread;
 		case 'mentions':
-			return entry.type === EEmployeeNotificationType.Mention;
+			return entry.type === EEmployeeNotificationType.Mention || entry.type === EEmployeeNotificationType.BoardMention;
 		case 'assigned':
 			return entry.type === EEmployeeNotificationType.Assignment;
 		default:

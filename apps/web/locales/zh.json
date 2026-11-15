@@ -4048,7 +4048,9 @@
 			"RATE_CHANGE_REQUEST": "<b>{name}</b> 申请调整费率",
 			"TIMER_REMINDER": "你的计时器仍在运行",
 			"TASK_UPDATE": "<b>{name}</b> 做了更改",
-			"TASK_DUE_REMINDER": "任务即将到期"
+			"TASK_DUE_REMINDER": "任务即将到期",
+			"BOARD_SHARE": "<b>{name}</b> 与你共享了一个白板",
+			"BOARD_MENTION": "<b>{name}</b> 在白板中提到了你"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "分配",
@@ -4061,7 +4063,9 @@
 			"RATE_CHANGE_REQUEST": "费率调整申请",
 			"TIMER_REMINDER": "计时器提醒",
 			"TASK_UPDATE": "更改",
-			"TASK_DUE_REMINDER": "到期提醒"
+			"TASK_DUE_REMINDER": "到期提醒",
+			"BOARD_SHARE": "白板已共享",
+			"BOARD_MENTION": "白板中的提及"
 		},
 		"SOMEONE": "有人",
 		"MARK_READ": "标为已读",

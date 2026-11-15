@@ -4048,7 +4048,9 @@
 			"RATE_CHANGE_REQUEST": "<b>{name}</b> ביקש/ה שינוי תעריף",
 			"TIMER_REMINDER": "הטיימר עדיין פועל",
 			"TASK_UPDATE": "<b>{name}</b> ביצע/ה שינוי",
-			"TASK_DUE_REMINDER": "מועד של משימה מתקרב"
+			"TASK_DUE_REMINDER": "מועד של משימה מתקרב",
+			"BOARD_SHARE": "<b>{name}</b> שיתף/ה איתך לוח",
+			"BOARD_MENTION": "<b>{name}</b> הזכיר/ה אותך בלוח"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "שיוך",
@@ -4061,7 +4063,9 @@
 			"RATE_CHANGE_REQUEST": "בקשה לשינוי תעריף",
 			"TIMER_REMINDER": "תזכורת לטיימר",
 			"TASK_UPDATE": "שינוי",
-			"TASK_DUE_REMINDER": "תזכורת למועד"
+			"TASK_DUE_REMINDER": "תזכורת למועד",
+			"BOARD_SHARE": "לוח ששותף",
+			"BOARD_MENTION": "אזכור בלוח"
 		},
 		"SOMEONE": "מישהו",
 		"MARK_READ": "סימון כנקראה",

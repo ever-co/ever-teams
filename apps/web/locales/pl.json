@@ -4048,7 +4048,9 @@
 			"RATE_CHANGE_REQUEST": "<b>{name}</b> prosi o zmianę stawki",
 			"TIMER_REMINDER": "Twój licznik czasu wciąż działa",
 			"TASK_UPDATE": "<b>{name}</b> wprowadził(a) zmianę",
-			"TASK_DUE_REMINDER": "Zbliża się termin zadania"
+			"TASK_DUE_REMINDER": "Zbliża się termin zadania",
+			"BOARD_SHARE": "<b>{name}</b> udostępnił(a) Ci tablicę",
+			"BOARD_MENTION": "<b>{name}</b> wspomniał(a) o Tobie na tablicy"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "Przypisanie",
@@ -4061,7 +4063,9 @@
 			"RATE_CHANGE_REQUEST": "Prośba o zmianę stawki",
 			"TIMER_REMINDER": "Przypomnienie o liczniku czasu",
 			"TASK_UPDATE": "Zmiana",
-			"TASK_DUE_REMINDER": "Przypomnienie o terminie"
+			"TASK_DUE_REMINDER": "Przypomnienie o terminie",
+			"BOARD_SHARE": "Udostępniona tablica",
+			"BOARD_MENTION": "Wzmianka na tablicy"
 		},
 		"SOMEONE": "Ktoś",
 		"MARK_READ": "Oznacz jako przeczytane",

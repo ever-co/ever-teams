@@ -4048,7 +4048,9 @@
 			"RATE_CHANGE_REQUEST": "<b>{name}</b> запросил(а) изменение ставки",
 			"TIMER_REMINDER": "Ваш таймер всё ещё работает",
 			"TASK_UPDATE": "<b>{name}</b> внес(ла) изменение",
-			"TASK_DUE_REMINDER": "Скоро срок задачи"
+			"TASK_DUE_REMINDER": "Скоро срок задачи",
+			"BOARD_SHARE": "<b>{name}</b> поделился(-ась) с вами доской",
+			"BOARD_MENTION": "<b>{name}</b> упоминает вас на доске"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "Назначение",
@@ -4061,7 +4063,9 @@
 			"RATE_CHANGE_REQUEST": "Запрос на изменение ставки",
 			"TIMER_REMINDER": "Напоминание о таймере",
 			"TASK_UPDATE": "Изменение",
-			"TASK_DUE_REMINDER": "Напоминание о сроке"
+			"TASK_DUE_REMINDER": "Напоминание о сроке",
+			"BOARD_SHARE": "Доска открыта вам",
+			"BOARD_MENTION": "Упоминание на доске"
 		},
 		"SOMEONE": "Кто-то",
 		"MARK_READ": "Отметить как прочитанное",

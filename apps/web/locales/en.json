@@ -4048,7 +4048,9 @@
 			"RATE_CHANGE_REQUEST": "<b>{name}</b> asked for a rate change",
 			"TIMER_REMINDER": "Your timer is still running",
 			"TASK_UPDATE": "<b>{name}</b> made a change",
-			"TASK_DUE_REMINDER": "A task is due soon"
+			"TASK_DUE_REMINDER": "A task is due soon",
+			"BOARD_SHARE": "<b>{name}</b> shared a Board with you",
+			"BOARD_MENTION": "<b>{name}</b> mentioned you in a Board"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "Assignment",
@@ -4061,7 +4063,9 @@
 			"RATE_CHANGE_REQUEST": "Rate change request",
 			"TIMER_REMINDER": "Timer reminder",
 			"TASK_UPDATE": "Update",
-			"TASK_DUE_REMINDER": "Due date reminder"
+			"TASK_DUE_REMINDER": "Due date reminder",
+			"BOARD_SHARE": "Board shared",
+			"BOARD_MENTION": "Board mention"
 		},
 		"SOMEONE": "Someone",
 		"MARK_READ": "Mark as read",

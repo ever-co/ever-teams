@@ -9,6 +9,7 @@ import {
 	Megaphone,
 	MessageCircle,
 	Notification,
+	Share,
 	Timer,
 	UserAdd,
 	Wallet
@@ -32,7 +33,9 @@ const TYPE_LOOK: Record<EEmployeeNotificationType, TypeLook> = {
 	[EEmployeeNotificationType.RateChangeRequest]: { glyph: <DollarCircle />, hue: '[--chip:hsl(var(--warning))]' },
 	[EEmployeeNotificationType.TimerReminder]: { glyph: <Timer />, hue: '[--chip:hsl(var(--warning))]' },
 	[EEmployeeNotificationType.TaskUpdate]: { glyph: <Edit />, hue: '[--chip:hsl(var(--info))]' },
-	[EEmployeeNotificationType.TaskDueReminder]: { glyph: <Calendar />, hue: '[--chip:hsl(var(--warning))]' }
+	[EEmployeeNotificationType.TaskDueReminder]: { glyph: <Calendar />, hue: '[--chip:hsl(var(--warning))]' },
+	[EEmployeeNotificationType.BoardShare]: { glyph: <Share />, hue: '[--chip:hsl(var(--success))]' },
+	[EEmployeeNotificationType.BoardMention]: { glyph: <AtSign />, hue: '[--chip:hsl(var(--primary))]' }
 };
 
 const UNKNOWN_LOOK: TypeLook = { glyph: <Notification />, hue: '[--chip:hsl(var(--muted-foreground))]' };

@@ -4048,7 +4048,9 @@
 			"RATE_CHANGE_REQUEST": "<b>{name}</b> заяви промяна на ставката",
 			"TIMER_REMINDER": "Таймерът ви още работи",
 			"TASK_UPDATE": "<b>{name}</b> направи промяна",
-			"TASK_DUE_REMINDER": "Наближава срокът на задача"
+			"TASK_DUE_REMINDER": "Наближава срокът на задача",
+			"BOARD_SHARE": "<b>{name}</b> сподели табло с вас",
+			"BOARD_MENTION": "<b>{name}</b> ви спомена в табло"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "Възлагане",
@@ -4061,7 +4063,9 @@
 			"RATE_CHANGE_REQUEST": "Заявка за промяна на ставката",
 			"TIMER_REMINDER": "Напомняне за таймера",
 			"TASK_UPDATE": "Промяна",
-			"TASK_DUE_REMINDER": "Напомняне за срок"
+			"TASK_DUE_REMINDER": "Напомняне за срок",
+			"BOARD_SHARE": "Споделено табло",
+			"BOARD_MENTION": "Споменаване в табло"
 		},
 		"SOMEONE": "Някой",
 		"MARK_READ": "Маркиране като прочетено",

@@ -4048,7 +4048,9 @@
 			"RATE_CHANGE_REQUEST": "<b>{name}</b> hat eine Satzänderung angefragt",
 			"TIMER_REMINDER": "Dein Timer läuft noch immer",
 			"TASK_UPDATE": "<b>{name}</b> hat etwas geändert",
-			"TASK_DUE_REMINDER": "Eine Aufgabe ist bald fällig"
+			"TASK_DUE_REMINDER": "Eine Aufgabe ist bald fällig",
+			"BOARD_SHARE": "<b>{name}</b> hat ein Board mit dir geteilt",
+			"BOARD_MENTION": "<b>{name}</b> hat dich in einem Board erwähnt"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "Zuweisung",
@@ -4061,7 +4063,9 @@
 			"RATE_CHANGE_REQUEST": "Anfrage zur Satzänderung",
 			"TIMER_REMINDER": "Timer-Erinnerung",
 			"TASK_UPDATE": "Änderung",
-			"TASK_DUE_REMINDER": "Fälligkeitserinnerung"
+			"TASK_DUE_REMINDER": "Fälligkeitserinnerung",
+			"BOARD_SHARE": "Board geteilt",
+			"BOARD_MENTION": "Erwähnung im Board"
 		},
 		"SOMEONE": "Jemand",
 		"MARK_READ": "Als gelesen markieren",

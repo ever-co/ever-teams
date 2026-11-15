@@ -4048,7 +4048,9 @@
 			"RATE_CHANGE_REQUEST": "طلب <b>{name}</b> تغيير الأجر",
 			"TIMER_REMINDER": "ما زال المؤقت يعمل",
 			"TASK_UPDATE": "أجرى <b>{name}</b> تغييرًا",
-			"TASK_DUE_REMINDER": "موعد مهمة يقترب"
+			"TASK_DUE_REMINDER": "موعد مهمة يقترب",
+			"BOARD_SHARE": "شارك <b>{name}</b> لوحة معك",
+			"BOARD_MENTION": "أشار إليك <b>{name}</b> في لوحة"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "إسناد",
@@ -4061,7 +4063,9 @@
 			"RATE_CHANGE_REQUEST": "طلب تغيير الأجر",
 			"TIMER_REMINDER": "تذكير بالمؤقت",
 			"TASK_UPDATE": "تغيير",
-			"TASK_DUE_REMINDER": "تذكير بالموعد النهائي"
+			"TASK_DUE_REMINDER": "تذكير بالموعد النهائي",
+			"BOARD_SHARE": "لوحة مشتركة",
+			"BOARD_MENTION": "إشارة في لوحة"
 		},
 		"SOMEONE": "شخص ما",
 		"MARK_READ": "تعليم كمقروء",

@@ -29,7 +29,9 @@ const INBOX_EVENT_KEYS: Record<EEmployeeNotificationType, DottedLanguageObjectSt
 	[EEmployeeNotificationType.RateChangeRequest]: 'notifications.EVENTS.RATE_CHANGE_REQUEST',
 	[EEmployeeNotificationType.TimerReminder]: 'notifications.EVENTS.TIMER_REMINDER',
 	[EEmployeeNotificationType.TaskUpdate]: 'notifications.EVENTS.TASK_UPDATE',
-	[EEmployeeNotificationType.TaskDueReminder]: 'notifications.EVENTS.TASK_DUE_REMINDER'
+	[EEmployeeNotificationType.TaskDueReminder]: 'notifications.EVENTS.TASK_DUE_REMINDER',
+	[EEmployeeNotificationType.BoardShare]: 'notifications.EVENTS.BOARD_SHARE',
+	[EEmployeeNotificationType.BoardMention]: 'notifications.EVENTS.BOARD_MENTION'
 };
 
 /** The glyph of an entry that has no sender to show: what it came from. */

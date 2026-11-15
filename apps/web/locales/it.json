@@ -4048,7 +4048,9 @@
 			"RATE_CHANGE_REQUEST": "<b>{name}</b> ha chiesto un cambio di tariffa",
 			"TIMER_REMINDER": "Il tuo timer è ancora in funzione",
 			"TASK_UPDATE": "<b>{name}</b> ha fatto una modifica",
-			"TASK_DUE_REMINDER": "Un’attività sta per scadere"
+			"TASK_DUE_REMINDER": "Un’attività sta per scadere",
+			"BOARD_SHARE": "<b>{name}</b> ha condiviso una lavagna con te",
+			"BOARD_MENTION": "<b>{name}</b> ti ha menzionato in una lavagna"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "Assegnazione",
@@ -4061,7 +4063,9 @@
 			"RATE_CHANGE_REQUEST": "Richiesta di cambio tariffa",
 			"TIMER_REMINDER": "Promemoria del timer",
 			"TASK_UPDATE": "Modifica",
-			"TASK_DUE_REMINDER": "Promemoria di scadenza"
+			"TASK_DUE_REMINDER": "Promemoria di scadenza",
+			"BOARD_SHARE": "Lavagna condivisa",
+			"BOARD_MENTION": "Menzione in una lavagna"
 		},
 		"SOMEONE": "Qualcuno",
 		"MARK_READ": "Segna come letta",

@@ -1,5 +1,10 @@
 import { timerReminderNoticeOf, type TimerReminderNotice } from '@/core/lib/notifications/timer-reminders';
 import { boardInvitationHref, isBoardInvitation } from '@/core/lib/notifications/board-invitations';
+import {
+	boardNotificationHrefOf,
+	isBoardNotificationType,
+	notificationBoardOf
+} from '@/core/lib/notifications/board-notifications';
 import { EBaseEntityEnum } from '@/core/types/generics/enums/entity';
 import { EEmployeeNotificationType, IEmployeeNotification } from '@/core/types/interfaces/common/employee-notification';
 import { docsInboxHrefOf } from './docs-links';
@@ -55,7 +60,11 @@ const TITLE_ACTION_WORDS = [
 	' published ',
 	' sent ',
 	' replied ',
-	' asked for '
+	' asked for ',
+	// A Board shared, or a mention in one (`board-notification.ts`)
+	' shared the Board ',
+	' shared a Board ',
+	' mentioned you in '
 ];
 
 function firstFilled(candidates: ReadonlyArray<string | null | undefined>): string | null {
@@ -131,6 +140,10 @@ function hrefOf(type: EEmployeeNotificationType | null, notification: IEmployeeN
 	if (isBoardInvitation({ type, entity: notification.entity, rawTitle: notification.title })) {
 		return boardInvitationHref();
 	}
+	// A Board shared, or a mention in one, opens the Board at the link sent with it, when the link is the Boards app's
+	if (isBoardNotificationType(type)) {
+		return boardNotificationHrefOf(notificationBoardOf(notification.metadata));
+	}
 	const projectHref = projectHrefOf(notification.entity, notification.entityId);
 	if (projectHref) {
 		return projectHref;
@@ -199,7 +212,9 @@ function matchesFilter(entry: NotificationEntry, filter: NotificationFilter): bo
 		return entry.isUnread;
 	}
 	if (filter === 'mentions') {
-		return entry.type === EEmployeeNotificationType.Mention;
+		return (
+			entry.type === EEmployeeNotificationType.Mention || entry.type === EEmployeeNotificationType.BoardMention
+		);
 	}
 	if (filter === 'assigned') {
 		return entry.type === EEmployeeNotificationType.Assignment;

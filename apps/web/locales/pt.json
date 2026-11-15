@@ -4048,7 +4048,9 @@
 			"RATE_CHANGE_REQUEST": "<b>{name}</b> pediu uma mudança de taxa",
 			"TIMER_REMINDER": "O seu temporizador continua a correr",
 			"TASK_UPDATE": "<b>{name}</b> fez uma alteração",
-			"TASK_DUE_REMINDER": "Uma tarefa vence em breve"
+			"TASK_DUE_REMINDER": "Uma tarefa vence em breve",
+			"BOARD_SHARE": "<b>{name}</b> compartilhou um quadro com você",
+			"BOARD_MENTION": "<b>{name}</b> mencionou você em um quadro"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "Atribuição",
@@ -4061,7 +4063,9 @@
 			"RATE_CHANGE_REQUEST": "Pedido de mudança de taxa",
 			"TIMER_REMINDER": "Lembrete de temporizador",
 			"TASK_UPDATE": "Alteração",
-			"TASK_DUE_REMINDER": "Lembrete de prazo"
+			"TASK_DUE_REMINDER": "Lembrete de prazo",
+			"BOARD_SHARE": "Quadro compartilhado",
+			"BOARD_MENTION": "Menção em um quadro"
 		},
 		"SOMEONE": "Alguém",
 		"MARK_READ": "Marcar como lida",
