@@ -46,7 +46,7 @@ export function twoFactorProofOf(value: string): TwoFactorProof | null {
 		return { code: compact };
 	}
 	const recoveryCode = compact.toUpperCase().replace(/[^A-Z0-9-]/g, '');
-	const isRecoveryCode = recoveryCode.replace(/-/g, '').length >= RECOVERY_CODE_MIN_CHARACTERS;
+	const isRecoveryCode = recoveryCode.replaceAll('-', '').length >= RECOVERY_CODE_MIN_CHARACTERS;
 	if (isRecoveryCode) {
 		return { recoveryCode };
 	}
