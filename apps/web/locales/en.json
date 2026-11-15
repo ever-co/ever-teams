@@ -3982,7 +3982,9 @@
 			"BROADCAST": "<b>{name}</b> published an announcement",
 			"PAYMENT": "A payment was recorded for you",
 			"RATE_CHANGE_REQUEST": "<b>{name}</b> asked for a rate change",
-			"TIMER_REMINDER": "Your timer is still running"
+			"TIMER_REMINDER": "Your timer is still running",
+			"TASK_UPDATE": "<b>{name}</b> made a change",
+			"TASK_DUE_REMINDER": "A task is due soon"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "Assignment",
@@ -3993,7 +3995,9 @@
 			"BROADCAST": "Announcement",
 			"PAYMENT": "Payment",
 			"RATE_CHANGE_REQUEST": "Rate change request",
-			"TIMER_REMINDER": "Timer reminder"
+			"TIMER_REMINDER": "Timer reminder",
+			"TASK_UPDATE": "Update",
+			"TASK_DUE_REMINDER": "Due date reminder"
 		},
 		"SOMEONE": "Someone",
 		"MARK_READ": "Mark as read",
@@ -4120,6 +4124,10 @@
 			"FORGOTTEN_DESCRIPTION": "Did you forget it? Stop it, then correct the time in your timesheet if needed.",
 			"STOP": "Stop timer",
 			"OPEN": "Open timer"
+		},
+		"TASK_DUE": {
+			"BY_END_OF_DAY": "Due by the end of {date}",
+			"AT": "Due {date}"
 		}
 	},
 	"toasts": {

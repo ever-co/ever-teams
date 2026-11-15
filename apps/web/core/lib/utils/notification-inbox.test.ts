@@ -66,3 +66,22 @@ describe('toNotificationEntry for a timer reminder', () => {
 		expect(entry.timerReminder).toEqual({ level: 2, hours: 16, timeLogId: 'log-1' });
 	});
 });
+
+
+describe('toNotificationEntry for a due date reminder (#5022)', () => {
+	it('opens the task of a due date reminder, which names no sender', () => {
+		const entry = toNotificationEntry(
+			notification({
+				title: 'The Task "Login" is due in 3 hours',
+				message: 'Due at 2026-11-19 17:00 (Europe/Paris).',
+				type: EEmployeeNotificationType.TaskDueReminder,
+				entity: EBaseEntityEnum.Task,
+				entityId: 'task-1'
+			})
+		);
+		expect(entry.type).toBe(EEmployeeNotificationType.TaskDueReminder);
+		expect(entry.taskId).toBe('task-1');
+		expect(entry.href).toBeNull();
+		expect(entry.senderName).toBeNull();
+	});
+});

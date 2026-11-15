@@ -3982,7 +3982,9 @@
 			"BROADCAST": "<b>{name}</b> ha pubblicato un annuncio",
 			"PAYMENT": "È stato registrato un pagamento per te",
 			"RATE_CHANGE_REQUEST": "<b>{name}</b> ha chiesto un cambio di tariffa",
-			"TIMER_REMINDER": "Il tuo timer è ancora in funzione"
+			"TIMER_REMINDER": "Il tuo timer è ancora in funzione",
+			"TASK_UPDATE": "<b>{name}</b> ha fatto una modifica",
+			"TASK_DUE_REMINDER": "Un’attività sta per scadere"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "Assegnazione",
@@ -3993,7 +3995,9 @@
 			"BROADCAST": "Annuncio",
 			"PAYMENT": "Pagamento",
 			"RATE_CHANGE_REQUEST": "Richiesta di cambio tariffa",
-			"TIMER_REMINDER": "Promemoria del timer"
+			"TIMER_REMINDER": "Promemoria del timer",
+			"TASK_UPDATE": "Modifica",
+			"TASK_DUE_REMINDER": "Promemoria di scadenza"
 		},
 		"SOMEONE": "Qualcuno",
 		"MARK_READ": "Segna come letta",
@@ -4120,6 +4124,10 @@
 			"FORGOTTEN_DESCRIPTION": "L’hai dimenticato? Fermalo, poi correggi il tempo nel tuo foglio ore se serve.",
 			"STOP": "Ferma il timer",
 			"OPEN": "Apri il timer"
+		},
+		"TASK_DUE": {
+			"BY_END_OF_DAY": "Scade alla fine del {date}",
+			"AT": "Scade il {date}"
 		}
 	},
 	"toasts": {

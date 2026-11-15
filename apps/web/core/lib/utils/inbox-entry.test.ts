@@ -440,3 +440,21 @@ describe('opening an entry on a phone and on a large screen', () => {
 		expect(showsInboxSheet(taskQuestion, true)).toBe(true);
 	});
 });
+
+
+describe('a due date reminder (#5022)', () => {
+	it('opens its task', () => {
+		const entry = toInboxEntry(
+			item({
+				title: 'The Task "Login" is due in 3 hours',
+				body: 'Due by the end of 2026-11-20.',
+				metadata: { notificationType: 'TaskDueReminder' }
+			})
+		);
+		expect(entry.type).toBe('TaskDueReminder');
+		expect(entry.taskId).toBe('t1');
+		expect(entry.subject).toBe('Login');
+		expect(entry.senderName).toBeNull();
+		expect(entry.sourceGroup).toBe('tasks');
+	});
+});

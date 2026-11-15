@@ -3982,7 +3982,9 @@
 			"BROADCAST": "نشر <b>{name}</b> إعلانًا",
 			"PAYMENT": "تم تسجيل دفعة لك",
 			"RATE_CHANGE_REQUEST": "طلب <b>{name}</b> تغيير الأجر",
-			"TIMER_REMINDER": "ما زال المؤقت يعمل"
+			"TIMER_REMINDER": "ما زال المؤقت يعمل",
+			"TASK_UPDATE": "أجرى <b>{name}</b> تغييرًا",
+			"TASK_DUE_REMINDER": "موعد مهمة يقترب"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "إسناد",
@@ -3993,7 +3995,9 @@
 			"BROADCAST": "إعلان",
 			"PAYMENT": "دفعة",
 			"RATE_CHANGE_REQUEST": "طلب تغيير الأجر",
-			"TIMER_REMINDER": "تذكير بالمؤقت"
+			"TIMER_REMINDER": "تذكير بالمؤقت",
+			"TASK_UPDATE": "تغيير",
+			"TASK_DUE_REMINDER": "تذكير بالموعد النهائي"
 		},
 		"SOMEONE": "شخص ما",
 		"MARK_READ": "تعليم كمقروء",
@@ -4120,6 +4124,10 @@
 			"FORGOTTEN_DESCRIPTION": "هل نسيته؟ أوقفه ثم صحّح الوقت في سجل ساعاتك إن لزم.",
 			"STOP": "إيقاف المؤقت",
 			"OPEN": "فتح المؤقت"
+		},
+		"TASK_DUE": {
+			"BY_END_OF_DAY": "الموعد النهائي: نهاية {date}",
+			"AT": "الموعد النهائي: {date}"
 		}
 	},
 	"toasts": {
