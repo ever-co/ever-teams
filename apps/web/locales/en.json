@@ -3061,6 +3061,12 @@
 				"TRACKER_RUN": "This run is recorded by the desktop app or the agent, which keep its time themselves, so it cannot be discarded here.",
 				"GENERIC": "The run could not be discarded. Check your connection, then try again."
 			}
+		},
+		"unfollowed": {
+			"TITLE": "Your timer ran without the app",
+			"TEXT": "From {from} to {until}, the app was not following your timer. Keep this time, or stop the timer at {from}?",
+			"KEEP": "Keep this time",
+			"STOP": "Stop at {from}"
 		}
 	},
 	"task": {
@@ -4240,7 +4246,9 @@
 			"NOTES_NOT_SAVED": "The notes changed while the timer ran were not saved",
 			"NOTES_NOT_SAVED_HINT": "The entry kept the notes it started with. Edit the entry in Timesheets to change them.",
 			"ALREADY_RUNNING_ON_TASK": "The timer is already running on this task",
-			"SAVED_STOP_HINT": "This is the stop you asked for before your session ended."
+			"SAVED_STOP_HINT": "This is the stop you asked for before your session ended.",
+			"UNFOLLOWED_STOPPED_HINT": "The app could not follow it after that: the computer slept or the browser paused this tab. Add any later work as manual time.",
+			"UNFOLLOWED_STOP_CHOSEN_HINT": "You chose not to keep the time after that."
 		},
 		"plans": {
 			"CREATE_FAILED": "The plan was not created",
@@ -5689,7 +5697,33 @@
 			"EXPORTING": "Exporting…",
 			"EXPORT_DONE": "Workspace data exported",
 			"EXPORT_FAILED": "The export did not finish",
-			"EXPORT_FAILED_DESCRIPTION": "Nothing was saved. A large workspace takes a while: try again in a moment."
+			"EXPORT_FAILED_DESCRIPTION": "Nothing was saved. A large workspace takes a while: try again in a moment.",
+			"deletion": {
+				"DANGER_SECTION": "Danger zone",
+				"DELETE_LABEL": "Delete this organization",
+				"DELETE_CONSEQUENCE": "Its teams, memberships and invitations go for everyone. The workspace's last organization stays.",
+				"DELETE_ACTION": "Delete organization",
+				"DELETE_TITLE": "Delete {organization}?",
+				"DELETE_DESCRIPTION": "Its teams, members and invitations leave Ever Teams with it. Its projects, tracked time and invoices stay on the server but can no longer be reached here.",
+				"CONSEQUENCE_TEAMS": "{count, plural, one {# team is removed, with everyone's place in it} other {# teams are removed, with everyone's place in them}}",
+				"CONSEQUENCE_MEMBERS": "{count, plural, one {# member loses} other {# members lose}} access to this organization",
+				"CONSEQUENCE_WORK": "{projects, plural, one {# project} other {# projects}} and {hours, number} tracked hours can no longer be reached",
+				"CONSEQUENCE_INVOICES": "{count, plural, one {# invoice} other {# invoices}} can no longer be reached",
+				"CONSEQUENCE_LANDING": "You continue in {organization}",
+				"CONSEQUENCE_PICKER": "You have no other organization in this workspace: you sign in again to pick a workspace",
+				"COUNTS_LOADING": "Counting what this organization holds…",
+				"COUNTS_FAILED": "What this organization holds could not be counted",
+				"COUNTS_FAILED_DESCRIPTION": "The delete stays off until the counts load.",
+				"UNSUPPORTED": "This server cannot delete organizations yet",
+				"UNSUPPORTED_DESCRIPTION": "Deleting an organization safely needs a newer Ever Gauzy API. Ask the person who runs your server to update it.",
+				"LAST_ORGANIZATION": "This is the workspace's last organization",
+				"LAST_ORGANIZATION_DESCRIPTION": "A workspace keeps at least one organization. Deleting your account removes the workspace too, but only when you are its last member.",
+				"LAST_ORGANIZATION_ACTION": "Go to account deletion",
+				"LAST_ORGANIZATION_REFUSED": "This is now the workspace's last organization, so it stays. Deleting your account removes the workspace too, but only when you are its last member.",
+				"TIMER_RUNNING": "Stop your timer first",
+				"TIMER_RUNNING_DESCRIPTION": "Your timer is running. Stop it, then delete the organization: a timer left in a deleted organization keeps counting where nobody can stop it.",
+				"EXPORT_FIRST": "Keep a copy first: export the workspace's data before you delete this organization."
+			}
 		},
 		"automations": {
 			"NEW_RULE": "New rule",

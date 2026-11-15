@@ -2067,12 +2067,17 @@ describe('Ever Teams feature surface preservation', () => {
 		// [id]/archive PUT, [id]/restore PUT; #5213).
 		// 381 files and 481 verbs with the signed-in user's sessions (/api/auth/sessions GET, sign-out-others POST, [id]
 		// DELETE; #5220, ever-gauzy #11943).
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(386);
+		// 388 files and 488 verbs with the deletion of an organization (/api/organization/[id]/counts GET,
+		// [id]/soft DELETE; #5207, ever-gauzy #11970).
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(388);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(486);
+		).toHaveLength(488);
 		expect(routes).toEqual(
 			expect.arrayContaining([
+				// Proxy mode twins of Gauzy's routes of an organization's deletion (#5207, ever-gauzy #11970)
+				'apps/web/app/api/organization/[id]/counts/route.ts::GET',
+				'apps/web/app/api/organization/[id]/soft/route.ts::DELETE',
 				// Proxy mode twins of Gauzy's members without an account (ever-gauzy #11913, #5202)
 				'apps/web/app/api/employee-placeholder/route.ts::POST',
 				'apps/web/app/api/employee-placeholder/bulk/route.ts::POST',

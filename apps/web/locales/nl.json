@@ -3061,6 +3061,12 @@
 				"TRACKER_RUN": "Deze sessie wordt vastgelegd door de desktop-app of de agent, die de tijd zelf bijhouden, dus ze kan hier niet worden verworpen.",
 				"GENERIC": "De sessie kon niet worden verworpen. Controleer je verbinding en probeer het opnieuw."
 			}
+		},
+		"unfollowed": {
+			"TITLE": "Je timer liep door zonder de app",
+			"TEXT": "Van {from} tot {until} volgde de app je timer niet. Deze tijd behouden, of de timer stoppen om {from}?",
+			"KEEP": "Deze tijd behouden",
+			"STOP": "Stoppen om {from}"
 		}
 	},
 	"task": {
@@ -4240,7 +4246,9 @@
 			"NOTES_NOT_SAVED": "De notities die tijdens de timer zijn gewijzigd, zijn niet opgeslagen",
 			"NOTES_NOT_SAVED_HINT": "De registratie heeft de notities van de start behouden. Bewerk de registratie in Urenstaten om ze te wijzigen.",
 			"ALREADY_RUNNING_ON_TASK": "De timer loopt al voor deze taak",
-			"SAVED_STOP_HINT": "Dit is de stop die je vroeg voordat je sessie afliep."
+			"SAVED_STOP_HINT": "Dit is de stop die je vroeg voordat je sessie afliep.",
+			"UNFOLLOWED_STOPPED_HINT": "Daarna kon de app hem niet volgen: de computer sliep of de browser pauzeerde dit tabblad. Voeg later werk toe als handmatige tijd.",
+			"UNFOLLOWED_STOP_CHOSEN_HINT": "Je koos ervoor de tijd daarna niet te behouden."
 		},
 		"plans": {
 			"CREATE_FAILED": "Het plan is niet aangemaakt",
@@ -5689,7 +5697,33 @@
 			"EXPORTING": "Bezig met exporteren…",
 			"EXPORT_DONE": "Gegevens van de werkruimte geëxporteerd",
 			"EXPORT_FAILED": "De export is niet voltooid",
-			"EXPORT_FAILED_DESCRIPTION": "Er is niets opgeslagen. Een grote werkruimte kost tijd: probeer het zo opnieuw."
+			"EXPORT_FAILED_DESCRIPTION": "Er is niets opgeslagen. Een grote werkruimte kost tijd: probeer het zo opnieuw.",
+			"deletion": {
+				"DANGER_SECTION": "Gevarenzone",
+				"DELETE_LABEL": "Deze organisatie verwijderen",
+				"DELETE_CONSEQUENCE": "De teams, lidmaatschappen en uitnodigingen verdwijnen voor iedereen. De laatste organisatie van de werkruimte blijft.",
+				"DELETE_ACTION": "Organisatie verwijderen",
+				"DELETE_TITLE": "{organization} verwijderen?",
+				"DELETE_DESCRIPTION": "De teams, leden en uitnodigingen verlaten Ever Teams mee. De projecten, geregistreerde tijd en facturen blijven op de server, maar zijn hier niet meer bereikbaar.",
+				"CONSEQUENCE_TEAMS": "{count, plural, one {# team wordt verwijderd} other {# teams worden verwijderd}}, met ieders plek erin",
+				"CONSEQUENCE_MEMBERS": "{count, plural, one {# lid verliest} other {# leden verliezen}} de toegang tot deze organisatie",
+				"CONSEQUENCE_WORK": "{projects, plural, one {# project} other {# projecten}} en {hours, number} geregistreerde uren zijn niet meer bereikbaar",
+				"CONSEQUENCE_INVOICES": "{count, plural, one {# factuur is} other {# facturen zijn}} niet meer bereikbaar",
+				"CONSEQUENCE_LANDING": "Je gaat verder in {organization}",
+				"CONSEQUENCE_PICKER": "Je hebt geen andere organisatie in deze werkruimte: je meldt je opnieuw aan om een werkruimte te kiezen",
+				"COUNTS_LOADING": "Inhoud van deze organisatie wordt geteld…",
+				"COUNTS_FAILED": "De inhoud van deze organisatie kon niet worden geteld",
+				"COUNTS_FAILED_DESCRIPTION": "Verwijderen blijft uitgeschakeld tot de aantallen geladen zijn.",
+				"UNSUPPORTED": "Deze server kan nog geen organisaties verwijderen",
+				"UNSUPPORTED_DESCRIPTION": "Een organisatie veilig verwijderen vraagt een nieuwere Ever Gauzy API. Vraag de beheerder van je server om die bij te werken.",
+				"LAST_ORGANIZATION": "Dit is de laatste organisatie van de werkruimte",
+				"LAST_ORGANIZATION_DESCRIPTION": "Een werkruimte houdt minstens één organisatie. Je account verwijderen verwijdert ook de werkruimte, maar alleen als je er het laatste lid van bent.",
+				"LAST_ORGANIZATION_ACTION": "Naar accountverwijdering",
+				"LAST_ORGANIZATION_REFUSED": "Dit is nu de laatste organisatie van de werkruimte, dus ze blijft. Je account verwijderen verwijdert ook de werkruimte, maar alleen als je er het laatste lid van bent.",
+				"TIMER_RUNNING": "Stop eerst je timer",
+				"TIMER_RUNNING_DESCRIPTION": "Je timer loopt. Stop hem en verwijder daarna de organisatie: een timer die in een verwijderde organisatie achterblijft, blijft tellen zonder dat iemand hem kan stoppen.",
+				"EXPORT_FIRST": "Bewaar eerst een kopie: exporteer de gegevens van de werkruimte voordat je deze organisatie verwijdert."
+			}
 		},
 		"automations": {
 			"NEW_RULE": "Nieuwe regel",

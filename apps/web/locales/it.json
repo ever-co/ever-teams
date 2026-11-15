@@ -3061,6 +3061,12 @@
 				"TRACKER_RUN": "Questa sessione è registrata dall'app desktop o dall'agente, che tengono da soli il suo tempo, quindi non può essere scartata qui.",
 				"GENERIC": "Non è stato possibile scartare la sessione. Controlla la connessione e riprova."
 			}
+		},
+		"unfollowed": {
+			"TITLE": "Il tuo timer è rimasto in esecuzione senza l'app",
+			"TEXT": "Dalle {from} alle {until} l'app non seguiva il tuo timer. Tenere questo tempo o fermare il timer alle {from}?",
+			"KEEP": "Tieni questo tempo",
+			"STOP": "Ferma alle {from}"
 		}
 	},
 	"task": {
@@ -4240,7 +4246,9 @@
 			"NOTES_NOT_SAVED": "Le note modificate mentre il timer era attivo non sono state salvate",
 			"NOTES_NOT_SAVED_HINT": "La voce ha mantenuto le note dell'avvio. Modifica la voce nei fogli presenze per cambiarle.",
 			"ALREADY_RUNNING_ON_TASK": "Il timer è già attivo su questa attività",
-			"SAVED_STOP_HINT": "È l'arresto che avevi richiesto prima della fine della sessione."
+			"SAVED_STOP_HINT": "È l'arresto che avevi richiesto prima della fine della sessione.",
+			"UNFOLLOWED_STOPPED_HINT": "Dopo, l'app non ha potuto seguirlo: il computer era in sospensione o il browser ha messo in pausa questa scheda. Aggiungi il lavoro successivo come tempo manuale.",
+			"UNFOLLOWED_STOP_CHOSEN_HINT": "Hai scelto di non tenere il tempo successivo."
 		},
 		"plans": {
 			"CREATE_FAILED": "Il piano non è stato creato",
@@ -5689,7 +5697,33 @@
 			"EXPORTING": "Esportazione…",
 			"EXPORT_DONE": "Dati dello spazio di lavoro esportati",
 			"EXPORT_FAILED": "L'esportazione non è stata completata",
-			"EXPORT_FAILED_DESCRIPTION": "Non è stato salvato nulla. Uno spazio di lavoro grande richiede tempo: riprova tra un momento."
+			"EXPORT_FAILED_DESCRIPTION": "Non è stato salvato nulla. Uno spazio di lavoro grande richiede tempo: riprova tra un momento.",
+			"deletion": {
+				"DANGER_SECTION": "Zona pericolosa",
+				"DELETE_LABEL": "Elimina questa organizzazione",
+				"DELETE_CONSEQUENCE": "I suoi team, le iscrizioni e gli inviti spariscono per tutti. L'ultima organizzazione dello spazio di lavoro resta.",
+				"DELETE_ACTION": "Elimina organizzazione",
+				"DELETE_TITLE": "Eliminare {organization}?",
+				"DELETE_DESCRIPTION": "I suoi team, membri e inviti lasciano Ever Teams con essa. I suoi progetti, il tempo registrato e le fatture restano sul server ma non sono più raggiungibili qui.",
+				"CONSEQUENCE_TEAMS": "{count, plural, one {# team viene rimosso} other {# team vengono rimossi}}, con il posto di ciascuno",
+				"CONSEQUENCE_MEMBERS": "{count, plural, one {# membro perde} other {# membri perdono}} l'accesso a questa organizzazione",
+				"CONSEQUENCE_WORK": "{projects, plural, one {# progetto} other {# progetti}} e {hours, number} ore registrate non sono più raggiungibili",
+				"CONSEQUENCE_INVOICES": "{count, plural, one {# fattura non è più raggiungibile} other {# fatture non sono più raggiungibili}}",
+				"CONSEQUENCE_LANDING": "Continui in {organization}",
+				"CONSEQUENCE_PICKER": "Non hai altre organizzazioni in questo spazio di lavoro: accedi di nuovo per scegliere uno spazio di lavoro",
+				"COUNTS_LOADING": "Conteggio del contenuto di questa organizzazione…",
+				"COUNTS_FAILED": "Il contenuto di questa organizzazione non è stato contato",
+				"COUNTS_FAILED_DESCRIPTION": "L'eliminazione resta disattivata finché i conteggi non vengono caricati.",
+				"UNSUPPORTED": "Questo server non può ancora eliminare le organizzazioni",
+				"UNSUPPORTED_DESCRIPTION": "Eliminare un'organizzazione in sicurezza richiede un'API Ever Gauzy più recente. Chiedi a chi gestisce il server di aggiornarla.",
+				"LAST_ORGANIZATION": "Questa è l'ultima organizzazione dello spazio di lavoro",
+				"LAST_ORGANIZATION_DESCRIPTION": "Uno spazio di lavoro mantiene almeno un'organizzazione. Eliminare il tuo account rimuove anche lo spazio di lavoro, ma solo se ne sei l'ultimo membro.",
+				"LAST_ORGANIZATION_ACTION": "Vai all'eliminazione dell'account",
+				"LAST_ORGANIZATION_REFUSED": "Ora è l'ultima organizzazione dello spazio di lavoro, quindi resta. Eliminare il tuo account rimuove anche lo spazio di lavoro, ma solo se ne sei l'ultimo membro.",
+				"TIMER_RUNNING": "Ferma prima il timer",
+				"TIMER_RUNNING_DESCRIPTION": "Il tuo timer è in esecuzione. Fermalo, poi elimina l'organizzazione: un timer lasciato in un'organizzazione eliminata continua a contare e nessuno può più fermarlo.",
+				"EXPORT_FIRST": "Conserva prima una copia: esporta i dati dello spazio di lavoro prima di eliminare questa organizzazione."
+			}
 		},
 		"automations": {
 			"NEW_RULE": "Nuova regola",

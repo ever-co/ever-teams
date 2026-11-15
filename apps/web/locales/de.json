@@ -3061,6 +3061,12 @@
 				"TRACKER_RUN": "Dieser Lauf wird von der Desktop-App oder dem Agenten erfasst, die seine Zeit selbst führen, daher kann er hier nicht verworfen werden.",
 				"GENERIC": "Der Lauf konnte nicht verworfen werden. Prüfen Sie Ihre Verbindung und versuchen Sie es erneut."
 			}
+		},
+		"unfollowed": {
+			"TITLE": "Ihr Timer lief ohne die App weiter",
+			"TEXT": "Von {from} bis {until} hat die App Ihren Timer nicht begleitet. Diese Zeit behalten oder den Timer um {from} stoppen?",
+			"KEEP": "Zeit behalten",
+			"STOP": "Um {from} stoppen"
 		}
 	},
 	"task": {
@@ -4240,7 +4246,9 @@
 			"NOTES_NOT_SAVED": "Die während des laufenden Timers geänderten Notizen wurden nicht gespeichert",
 			"NOTES_NOT_SAVED_HINT": "Der Eintrag hat die Notizen vom Start behalten. Bearbeiten Sie den Eintrag in den Stundenzetteln, um sie zu ändern.",
 			"ALREADY_RUNNING_ON_TASK": "Der Timer läuft bereits für diese Aufgabe",
-			"SAVED_STOP_HINT": "Das ist der Stopp, den du vor dem Ende deiner Sitzung angefordert hast."
+			"SAVED_STOP_HINT": "Das ist der Stopp, den du vor dem Ende deiner Sitzung angefordert hast.",
+			"UNFOLLOWED_STOPPED_HINT": "Danach konnte die App ihn nicht mehr begleiten: Der Computer war im Ruhezustand oder der Browser hat diesen Tab pausiert. Tragen Sie spätere Arbeit als manuelle Zeit nach.",
+			"UNFOLLOWED_STOP_CHOSEN_HINT": "Sie haben entschieden, die Zeit danach nicht zu behalten."
 		},
 		"plans": {
 			"CREATE_FAILED": "Der Plan wurde nicht erstellt",
@@ -5689,7 +5697,33 @@
 			"EXPORTING": "Wird exportiert…",
 			"EXPORT_DONE": "Daten des Arbeitsbereichs exportiert",
 			"EXPORT_FAILED": "Der Export wurde nicht abgeschlossen",
-			"EXPORT_FAILED_DESCRIPTION": "Es wurde nichts gespeichert. Ein großer Arbeitsbereich braucht Zeit: Versuchen Sie es gleich noch einmal."
+			"EXPORT_FAILED_DESCRIPTION": "Es wurde nichts gespeichert. Ein großer Arbeitsbereich braucht Zeit: Versuchen Sie es gleich noch einmal.",
+			"deletion": {
+				"DANGER_SECTION": "Gefahrenbereich",
+				"DELETE_LABEL": "Diese Organisation löschen",
+				"DELETE_CONSEQUENCE": "Ihre Teams, Mitgliedschaften und Einladungen verschwinden für alle. Die letzte Organisation des Arbeitsbereichs bleibt.",
+				"DELETE_ACTION": "Organisation löschen",
+				"DELETE_TITLE": "{organization} löschen?",
+				"DELETE_DESCRIPTION": "Ihre Teams, Mitglieder und Einladungen verlassen Ever Teams mit ihr. Ihre Projekte, erfasste Zeit und Rechnungen bleiben auf dem Server, sind hier aber nicht mehr erreichbar.",
+				"CONSEQUENCE_TEAMS": "{count, plural, one {# Team wird entfernt} other {# Teams werden entfernt}}, samt aller Plätze darin",
+				"CONSEQUENCE_MEMBERS": "{count, plural, one {# Mitglied verliert} other {# Mitglieder verlieren}} den Zugang zu dieser Organisation",
+				"CONSEQUENCE_WORK": "{projects, plural, one {# Projekt} other {# Projekte}} und {hours, number} erfasste Stunden sind nicht mehr erreichbar",
+				"CONSEQUENCE_INVOICES": "{count, plural, one {# Rechnung ist} other {# Rechnungen sind}} nicht mehr erreichbar",
+				"CONSEQUENCE_LANDING": "Sie machen in {organization} weiter",
+				"CONSEQUENCE_PICKER": "Sie haben keine andere Organisation in diesem Arbeitsbereich: Sie melden sich erneut an, um einen Arbeitsbereich zu wählen",
+				"COUNTS_LOADING": "Inhalt dieser Organisation wird gezählt…",
+				"COUNTS_FAILED": "Der Inhalt dieser Organisation konnte nicht gezählt werden",
+				"COUNTS_FAILED_DESCRIPTION": "Das Löschen bleibt deaktiviert, bis die Zahlen geladen sind.",
+				"UNSUPPORTED": "Dieser Server kann noch keine Organisationen löschen",
+				"UNSUPPORTED_DESCRIPTION": "Eine Organisation sicher zu löschen erfordert eine neuere Ever Gauzy API. Bitten Sie die Person, die Ihren Server betreibt, sie zu aktualisieren.",
+				"LAST_ORGANIZATION": "Dies ist die letzte Organisation des Arbeitsbereichs",
+				"LAST_ORGANIZATION_DESCRIPTION": "Ein Arbeitsbereich behält mindestens eine Organisation. Wenn Sie Ihr Konto löschen, wird auch der Arbeitsbereich entfernt, aber nur, wenn Sie sein letztes Mitglied sind.",
+				"LAST_ORGANIZATION_ACTION": "Zur Kontolöschung",
+				"LAST_ORGANIZATION_REFUSED": "Dies ist jetzt die letzte Organisation des Arbeitsbereichs, daher bleibt sie. Wenn Sie Ihr Konto löschen, wird auch der Arbeitsbereich entfernt, aber nur, wenn Sie sein letztes Mitglied sind.",
+				"TIMER_RUNNING": "Stoppen Sie zuerst Ihren Timer",
+				"TIMER_RUNNING_DESCRIPTION": "Ihr Timer läuft. Stoppen Sie ihn und löschen Sie dann die Organisation: Ein Timer, der in einer gelöschten Organisation bleibt, zählt weiter, ohne dass ihn jemand stoppen kann.",
+				"EXPORT_FIRST": "Behalten Sie zuerst eine Kopie: Exportieren Sie die Daten des Arbeitsbereichs, bevor Sie diese Organisation löschen."
+			}
 		},
 		"automations": {
 			"NEW_RULE": "Neue Regel",
