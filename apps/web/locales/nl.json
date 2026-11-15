@@ -4031,7 +4031,9 @@
 			"BROADCAST": "<b>{name}</b> heeft een aankondiging geplaatst",
 			"PAYMENT": "Er is een betaling voor je geregistreerd",
 			"RATE_CHANGE_REQUEST": "<b>{name}</b> vroeg om een tariefwijziging",
-			"TIMER_REMINDER": "Je timer loopt nog steeds"
+			"TIMER_REMINDER": "Je timer loopt nog steeds",
+			"TASK_UPDATE": "<b>{name}</b> heeft iets gewijzigd",
+			"TASK_DUE_REMINDER": "Een taak verloopt binnenkort"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "Toewijzing",
@@ -4042,7 +4044,9 @@
 			"BROADCAST": "Aankondiging",
 			"PAYMENT": "Betaling",
 			"RATE_CHANGE_REQUEST": "Aanvraag tariefwijziging",
-			"TIMER_REMINDER": "Timerherinnering"
+			"TIMER_REMINDER": "Timerherinnering",
+			"TASK_UPDATE": "Wijziging",
+			"TASK_DUE_REMINDER": "Herinnering vervaldatum"
 		},
 		"SOMEONE": "Iemand",
 		"MARK_READ": "Markeren als gelezen",
@@ -4119,6 +4123,14 @@
 				"OFF": "Uit",
 				"AFTER_HOURS": "Na {hours, plural, one {# uur} other {# uur}}"
 			},
+			"TASK_DUE": {
+				"TITLE": "Vervaldatums",
+				"INTRO": "Een herinnering voordat een aan jou toegewezen taak vervalt, zolang die niet klaar is.",
+				"LABEL": "Herinnering vervaldatum",
+				"TEXT": "Altijd in je inbox. Per e-mail en op je apparaten zoals je kiest.",
+				"OFF": "Uit",
+				"BEFORE_HOURS": "{hours, plural, one {# uur} other {# uur}} van tevoren"
+			},
 			"INTRO": "Kies wat er in je inbox binnenkomt. Als je een type uitzet, komen er geen nieuwe meldingen van dat type meer; bestaande blijven staan.",
 			"LOAD_ERROR": "Je meldingsinstellingen konden niet worden geladen.",
 			"SAVE_FAILED": "Die instelling is niet opgeslagen. Probeer het opnieuw.",
@@ -4169,6 +4181,10 @@
 			"FORGOTTEN_DESCRIPTION": "Vergeten? Stop hem en corrigeer de tijd zo nodig in je urenstaat.",
 			"STOP": "Timer stoppen",
 			"OPEN": "Timer openen"
+		},
+		"TASK_DUE": {
+			"BY_END_OF_DAY": "Uiterlijk eind {date}",
+			"AT": "Vervalt op {date}"
 		}
 	},
 	"toasts": {
@@ -7755,6 +7771,87 @@
 			"NOT_FOUND_MESSAGE": "Misschien is ze verwijderd, of komt de link uit een andere werkruimte.",
 			"ALL_INVOICES": "Alle facturen",
 			"ERROR_TITLE": "De factuur kon niet worden geladen"
+		},
+		"schedule": {
+			"TITLE": "Geplande facturering",
+			"NONE_HINT": "De factuur van deze klant vanzelf maken, elke week, elke twee weken of elke maand, uit de factureerbare tijd die nog niet is gefactureerd.",
+			"SET_UP": "Facturering plannen",
+			"EDIT": "Bewerken",
+			"PAUSE": "Pauzeren",
+			"RESUME": "Hervatten",
+			"PAUSED": "Gepauzeerd",
+			"ACTIVE": "Actief",
+			"SUMMARY": "{frequency} vanaf {day}",
+			"DELIVERY_DRAFT": "Blijft een concept",
+			"DELIVERY_SEND": "Verzonden naar {email}",
+			"DELIVERY_SEND_NO_EMAIL": "Verzonden naar het e-mailadres van de klant",
+			"NEXT": "Volgende factuur op {day}, voor {period}",
+			"NEXT_PAUSED": "Zolang hij gepauzeerd is, wordt er geen factuur gemaakt",
+			"RUNS": "Laatste runs",
+			"NO_RUNS": "Nog geen run",
+			"RUNS_ERROR": "De laatste runs konden niet worden geladen",
+			"ERROR": "De geplande facturering kon niet worden geladen",
+			"OPEN_INVOICE": "Factuur openen",
+			"LEFT_OUT": "{hours} u van de periode weggelaten: zonder tarief of in een andere valuta",
+			"LIST_TITLE": "Volgens schema gefactureerd",
+			"LIST_NEXT": "volgende op {day}",
+			"LIST_PAUSED": "gepauzeerd",
+			"frequency": {
+				"WEEKLY": "Elke week",
+				"BIWEEKLY": "Elke twee weken",
+				"MONTHLY": "Elke maand"
+			},
+			"grouping": {
+				"PROJECT": "Per project",
+				"MEMBER": "Per lid",
+				"TASK": "Per taak"
+			},
+			"run": {
+				"CLAIMED": "Bezig",
+				"DRAFTED": "Concept gemaakt",
+				"SENT": "Verzonden",
+				"NOT_SENT": "Gemaakt, niet verzonden",
+				"NO_TIME": "Niets te factureren",
+				"FAILED": "Niet gemaakt"
+			},
+			"reason": {
+				"NO_BILLABLE_TIME": "De periode had geen factureerbare tijd meer om te factureren.",
+				"NO_PRICED_TIME": "De tijd van de periode heeft geen tarief om tegen te factureren. Een week lang wordt het elk uur opnieuw geprobeerd.",
+				"AUTHOR_CANNOT_INVOICE": "Wie het schema het laatst heeft opgeslagen, kan geen facturen meer maken. Sla het op om het over te nemen; een week lang wordt het elk uur opnieuw geprobeerd.",
+				"CLIENT_HAS_NO_EMAIL": "De klant heeft geen e-mailadres: de factuur bleef een concept.",
+				"EMAIL_NOT_SENT": "De e-mail kon niet worden verzonden: de factuur bleef een concept.",
+				"INVOICE_NOT_SAVED": "De factuur kon niet worden opgeslagen. Een week lang wordt het elk uur opnieuw geprobeerd."
+			},
+			"form": {
+				"CREATE_TITLE": "Volgens schema factureren",
+				"EDIT_TITLE": "Geplande facturering bewerken",
+				"FREQUENCY": "Hoe vaak",
+				"START_DAY": "Eerste dag van de eerste periode",
+				"START_HINT": "Elke factuur wordt gemaakt op de dag na het einde van haar periode, in de tijdzone van de werkruimte. Geen enkele periode die vóór vandaag eindigde, wordt gefactureerd.",
+				"START_INVALID": "Kies een dag.",
+				"GROUPING": "Regels",
+				"DELIVERY": "Eenmaal gemaakt",
+				"DRAFT": "Als concept houden",
+				"SEND": "Naar de klant mailen",
+				"DRAFT_HINT": "Elke factuur wacht als concept tot u haar nakijkt en verzendt.",
+				"SEND_HINT": "Elke factuur gaat met haar pdf naar {email} en wordt als Verzonden gemarkeerd.",
+				"SEND_NO_EMAIL": "Deze klant heeft geen e-mailadres: zijn facturen blijven concepten tot hij er een heeft.",
+				"SAVE": "Opslaan",
+				"SAVE_FAILED": "Het schema kon niet worden opgeslagen. Probeer het opnieuw.",
+				"EXISTS": "Deze klant heeft al een schema. Sluit en open het opnieuw om het te wijzigen.",
+				"START_AFTER_BILLED": "Dit schema heeft al perioden gefactureerd: het nieuwe schema moet beginnen na de laatst gefactureerde periode, {day}."
+			},
+			"delete": {
+				"TITLE": "Deze geplande facturering verwijderen?",
+				"BODY": "Voor {name} wordt geen factuur meer vanzelf gemaakt. De gemaakte facturen blijven."
+			},
+			"toasts": {
+				"SAVED": "De geplande facturering van {name} is opgeslagen",
+				"PAUSED": "De geplande facturering van {name} is gepauzeerd",
+				"RESUMED": "De geplande facturering van {name} is hervat: volgende factuur op {day}",
+				"DELETED": "De geplande facturering van {name} is verwijderd",
+				"FAILED": "De wijziging kon niet worden opgeslagen. Probeer het opnieuw."
+			}
 		}
 	},
 	"timeReports": {

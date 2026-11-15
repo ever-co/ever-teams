@@ -22,6 +22,7 @@ import type { InvoiceActionTarget } from './invoice-action-dialogs';
 import { InvoiceActionDialogs, useInvoiceActionFlow } from './invoice-action-flow';
 import { InvoiceAccessGuard, INVOICES_PATH, replacementInvoicePathOf } from './invoice-access-guard';
 import { InvoicesLedger } from './invoices-ledger';
+import { InvoiceSchedulesStrip } from './invoice-schedules-strip';
 import {
 	InvoicesEmptyState,
 	InvoicesErrorState,
@@ -97,6 +98,9 @@ function InvoicesContent() {
 				/>
 			}
 		>
+			<div className="pb-4 empty:hidden">
+				<InvoiceSchedulesStrip />
+			</div>
 			{list.isLoading && <InvoicesLedgerSkeleton />}
 			{showsError && <InvoicesErrorState onRetry={() => void list.refetch()} />}
 			{showsEmpty && <InvoicesEmptyState canCreate={access.canCreate} />}
