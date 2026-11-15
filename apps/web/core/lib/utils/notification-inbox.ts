@@ -137,7 +137,12 @@ function hrefOf(type: EEmployeeNotificationType | null, notification: IEmployeeN
 	}
 	// A page (shared, reviewed, commented while followed) opens in Docs where the deployment has it.
 	if (isDocsEnabled() && notification.entity === EBaseEntityEnum.Document) {
-		return docsInboxHrefOf(notification.entity, notification.entityId, null, type === EEmployeeNotificationType.Comment);
+		return docsInboxHrefOf(
+			notification.entity,
+			notification.entityId,
+			null,
+			type === EEmployeeNotificationType.Comment
+		);
 	}
 	return null;
 }
