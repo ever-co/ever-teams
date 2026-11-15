@@ -1,6 +1,6 @@
 'use client';
 
-import { useId } from 'react';
+import { useId, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/core/components/common/select';
 import { SettingsRow, SettingsSection, SettingsSurface } from '@/core/components/settings/kit/settings-page';
@@ -124,9 +124,20 @@ export function TeamNotificationDefaultsSection({
 		{ value: 'on', label: t('settings.teamGeneral.ON') },
 		{ value: 'off', label: t('settings.teamGeneral.OFF') }
 	];
-	// Each save sends the whole defaults with one key changed: the team read last is what the other keys keep
-	const save = <K extends TTeamDefaultKey>(key: K, value: TTeamNotificationDefaults[K] | undefined) =>
-		saveNotificationDefaults(withTeamDefault(defaults, key, value));
+	// Each save sends the whole defaults with one key changed. Two changes made before the first save answers both build
+	// on the latest defaults, the one the earlier change left, so neither undoes the other; the team read again replaces it.
+	const latest = useRef<{ read: TTeamNotificationDefaults | null; next: TTeamNotificationDefaults | null }>({
+		read: defaults,
+		next: defaults
+	});
+	if (latest.current.read !== defaults) {
+		latest.current = { read: defaults, next: defaults };
+	}
+	const save = <K extends TTeamDefaultKey>(key: K, value: TTeamNotificationDefaults[K] | undefined) => {
+		const next = withTeamDefault(latest.current.next, key, value);
+		latest.current.next = next;
+		return saveNotificationDefaults(next);
+	};
 
 	return (
 		<SettingsSection
