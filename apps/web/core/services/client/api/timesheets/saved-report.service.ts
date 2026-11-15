@@ -82,4 +82,9 @@ class SavedReportService extends APIService {
 	};
 }
 
-export const savedReportService = new SavedReportService(GAUZY_API_BASE_SERVER_URL.value);
+/** The address of a shared report holds the token that opens it: none of this service's logs writes it. */
+const SHARED_REPORT_ADDRESS = /\/public\/saved-reports\//;
+
+export const savedReportService = new SavedReportService(GAUZY_API_BASE_SERVER_URL.value, {
+	loggerConfig: { excludeUrls: [SHARED_REPORT_ADDRESS] }
+});

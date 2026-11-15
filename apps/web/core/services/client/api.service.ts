@@ -326,7 +326,7 @@ export class APIService {
 	 * Log request details for debugging
 	 */
 	private logRequest(config: AxiosRequestConfig) {
-		if (this.config.enableLogging) {
+		if (this.config.enableLogging && !this.isUnlogged(config.url)) {
 			this.logger.debug(`🚀 Request: ${config.method?.toUpperCase()} ${config.url}`, {
 				headers: config.headers,
 				params: config.params,
@@ -339,7 +339,7 @@ export class APIService {
 	 * Log response details for debugging
 	 */
 	private logResponse(response: AxiosResponse) {
-		if (this.config.enableLogging) {
+		if (this.config.enableLogging && !this.isUnlogged(response.config.url)) {
 			// A request that asked for it keeps its answer out of the log: the answer holds a secret shown once.
 			const hidesBody = (response.config as APIConfig).secretResponse === true;
 			this.logger.debug(
@@ -350,6 +350,18 @@ export class APIService {
 				}
 			);
 		}
+	}
+
+	/**
+	 * Whether a request's address is one the service's `loggerConfig.excludeUrls` keeps out of every log: its request,
+	 * its answer and its error (an address that holds a secret, such as the token of a shared link).
+	 */
+	private isUnlogged(url: string | undefined): boolean {
+		const patterns: RegExp[] = this.config.loggerConfig?.excludeUrls ?? [];
+		if (!url) {
+			return false;
+		}
+		return patterns.some((pattern) => pattern.test(url));
 	}
 
 	/**
@@ -372,6 +384,10 @@ export class APIService {
 	private logError(error: any) {
 		if (axios.isCancel(error)) {
 			console.debug(`⚠️ Request canceled: ${error.message}`);
+			return;
+		}
+
+		if (this.isUnlogged(error?.config?.url)) {
 			return;
 		}
 

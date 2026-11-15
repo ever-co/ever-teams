@@ -86,10 +86,86 @@ describe('savedReportService', () => {
 	});
 
 	it('reads a shared report by its link, the token kept in one path segment', async () => {
-		const get = jest.spyOn(savedReportService, 'get').mockResolvedValue({ data: { name: 'Report' } } as never);
+		const asked: string[] = [];
+		const service = isolatedServiceAnswering((config) => {
+			asked.push(String(config.url));
+			return { status: 200, data: { name: 'Report' } };
+		});
 
-		await savedReportService.readShared('a/b');
+		const report = await service.readShared('a/b');
 
-		expect(get).toHaveBeenCalledWith('/public/saved-reports/a%2Fb');
+		expect(asked.filter((url) => url.startsWith('/public/'))).toEqual(['/public/saved-reports/a%2Fb']);
+		expect(report).toEqual({ name: 'Report' });
+	});
+
+	it("writes a link's token in none of this app's logs, read or refused, even in development", async () => {
+		const written: string[] = [];
+		const service = isolatedServiceAnswering(
+			(config) =>
+				config.url?.endsWith('tok-live')
+					? { status: 200, data: { name: 'Report' } }
+					: { status: 500, data: { message: 'Down' } },
+			written
+		);
+
+		await service.readShared('tok-live');
+		await expect(service.readShared('tok-down')).rejects.toBeTruthy();
+
+		expect(written.length).toBeGreaterThan(0);
+		expect(written.filter((line) => line.includes('tok-'))).toEqual([]);
 	});
 });
+
+type Answer = { status: number; data: unknown };
+
+/**
+ * The service as a development build loads it, its requests answered by `answer` instead of the network, and every
+ * line its logger writes collected in `written` (a request of another service shows the logger writes at all).
+ */
+function isolatedServiceAnswering(
+	answer: (config: { url?: string }) => Answer,
+	written: string[] = []
+): typeof savedReportService {
+	let service: typeof savedReportService | undefined;
+	const environment = process.env as Record<string, string | undefined>;
+	const nodeEnvironment = environment.NODE_ENV;
+	environment.NODE_ENV = 'development';
+	try {
+		jest.isolateModules(() => {
+			// eslint-disable-next-line @typescript-eslint/no-require-imports
+			const axios = require('axios').default;
+			axios.defaults.adapter = async (config: { url?: string }) => {
+				const { status, data } = answer(config);
+				const response = { status, data, headers: {}, config, statusText: String(status) };
+				if (status >= 400) {
+					throw new axios.AxiosError('Request failed', 'ERR_BAD_RESPONSE', config, null, response);
+				}
+				return response;
+			};
+			// eslint-disable-next-line @typescript-eslint/no-require-imports
+			const { Logger } = require('@/core/services/logs/logger.service');
+			for (const level of ['debug', 'log'] as const) {
+				jest.spyOn(console, level).mockImplementation((...args: unknown[]) => {
+					written.push(JSON.stringify(args));
+				});
+			}
+			for (const level of ['debug', 'info', 'warn', 'error'] as const) {
+				jest.spyOn(Logger.prototype, level).mockImplementation((...args: unknown[]) => {
+					written.push(JSON.stringify(args));
+				});
+			}
+			// eslint-disable-next-line @typescript-eslint/no-require-imports
+			const { APIService } = require('@/core/services/client/api.service');
+			// eslint-disable-next-line @typescript-eslint/no-require-imports
+			service = require('./saved-report.service').savedReportService;
+			// A plain request of the same build, so the test fails if the logger wrote nothing at all
+			void new APIService('http://localhost').get('/other/free').catch(() => undefined);
+		});
+	} finally {
+		environment.NODE_ENV = nodeEnvironment;
+	}
+	if (!service) {
+		throw new Error('The service did not load');
+	}
+	return service;
+}
