@@ -5988,6 +5988,12 @@
 			"REQUIRED_TITLE": "La tua organizzazione ti chiede di attivarla",
 			"REQUIRED_DESCRIPTION": "I suoi membri accedono anche con un codice da un’app di autenticazione.",
 			"QR_ALT": "Codice QR di questo account per l’app di autenticazione"
+		},
+		"thisBrowser": {
+			"TITLE": "Questo browser",
+			"DESCRIPTION": "Per quanto tempo resti connesso su questo browser. Gli altri browser e le altre app mantengono le proprie sessioni.",
+			"SIGN_OUT_ON_CLOSE": "Esci quando chiudi questo browser",
+			"SIGN_OUT_ON_CLOSE_HINT": "Per un computer condiviso. Se è disattivato, resti connesso dopo la chiusura del browser, finché la sessione non scade."
 		}
 	},
 	"taskDetail": {
@@ -7721,6 +7727,87 @@
 			"NOT_FOUND_MESSAGE": "Potrebbe essere stata eliminata, oppure il link viene da un altro spazio di lavoro.",
 			"ALL_INVOICES": "Tutte le fatture",
 			"ERROR_TITLE": "Impossibile caricare la fattura"
+		},
+		"schedule": {
+			"TITLE": "Fatturazione programmata",
+			"NONE_HINT": "Fare la fattura di questo cliente da sola ogni settimana, ogni due settimane o ogni mese, dal tempo fatturabile non ancora fatturato.",
+			"SET_UP": "Programma la fatturazione",
+			"EDIT": "Modifica",
+			"PAUSE": "Sospendi",
+			"RESUME": "Riprendi",
+			"PAUSED": "Sospesa",
+			"ACTIVE": "Attiva",
+			"SUMMARY": "{frequency} dal {day}",
+			"DELIVERY_DRAFT": "Resta una bozza",
+			"DELIVERY_SEND": "Inviata a {email}",
+			"DELIVERY_SEND_NO_EMAIL": "Inviata all’e-mail del cliente",
+			"NEXT": "Prossima fattura il {day}, per {period}",
+			"NEXT_PAUSED": "Nessuna fattura finché è sospesa",
+			"RUNS": "Ultime esecuzioni",
+			"NO_RUNS": "Ancora nessuna esecuzione",
+			"RUNS_ERROR": "Impossibile caricare le ultime esecuzioni",
+			"ERROR": "Impossibile caricare la fatturazione programmata",
+			"OPEN_INVOICE": "Apri la fattura",
+			"LEFT_OUT": "{hours} h del periodo escluse: senza tariffa o in un’altra valuta",
+			"LIST_TITLE": "Fatturati secondo un calendario",
+			"LIST_NEXT": "prossima il {day}",
+			"LIST_PAUSED": "sospesa",
+			"frequency": {
+				"WEEKLY": "Ogni settimana",
+				"BIWEEKLY": "Ogni due settimane",
+				"MONTHLY": "Ogni mese"
+			},
+			"grouping": {
+				"PROJECT": "Per progetto",
+				"MEMBER": "Per membro",
+				"TASK": "Per attività"
+			},
+			"run": {
+				"CLAIMED": "In corso",
+				"DRAFTED": "Bozza creata",
+				"SENT": "Inviata",
+				"NOT_SENT": "Creata, non inviata",
+				"NO_TIME": "Niente da fatturare",
+				"FAILED": "Non creata"
+			},
+			"reason": {
+				"NO_BILLABLE_TIME": "Il periodo non aveva più tempo fatturabile da fatturare.",
+				"NO_PRICED_TIME": "Il tempo del periodo non ha una tariffa con cui fatturarlo. Nuovo tentativo ogni ora per una settimana.",
+				"AUTHOR_CANNOT_INVOICE": "La persona che ha salvato per ultima il calendario non può più creare fatture. Salvalo per prenderlo in carico; nuovo tentativo ogni ora per una settimana.",
+				"CLIENT_HAS_NO_EMAIL": "Il cliente non ha un indirizzo e-mail: la fattura è rimasta una bozza.",
+				"EMAIL_NOT_SENT": "Impossibile inviare l’e-mail: la fattura è rimasta una bozza.",
+				"INVOICE_NOT_SAVED": "Impossibile salvare la fattura. Nuovo tentativo ogni ora per una settimana."
+			},
+			"form": {
+				"CREATE_TITLE": "Fattura secondo un calendario",
+				"EDIT_TITLE": "Modifica la fatturazione programmata",
+				"FREQUENCY": "Frequenza",
+				"START_DAY": "Primo giorno del primo periodo",
+				"START_HINT": "Ogni fattura viene creata il giorno dopo la fine del suo periodo, nel fuso orario dello spazio di lavoro. Nessun periodo terminato prima di oggi viene fatturato.",
+				"START_INVALID": "Scegli un giorno.",
+				"GROUPING": "Righe",
+				"DELIVERY": "Una volta creata",
+				"DRAFT": "Tieni come bozza",
+				"SEND": "Invia al cliente",
+				"DRAFT_HINT": "Ogni fattura resta una bozza finché non la controlli e la invii.",
+				"SEND_HINT": "Ogni fattura va a {email} con il suo PDF ed è segnata come Inviata.",
+				"SEND_NO_EMAIL": "Questo cliente non ha un indirizzo e-mail: le sue fatture resteranno bozze finché non ne avrà uno.",
+				"SAVE": "Salva",
+				"SAVE_FAILED": "Impossibile salvare il calendario. Riprova.",
+				"EXISTS": "Questo cliente ha già un calendario. Chiudi e riaprilo per modificarlo.",
+				"START_AFTER_BILLED": "Questo calendario ha già fatturato dei periodi: il nuovo calendario deve iniziare dopo l’ultimo periodo fatturato, {day}."
+			},
+			"delete": {
+				"TITLE": "Eliminare questa fatturazione programmata?",
+				"BODY": "Nessuna fattura verrà più creata da sola per {name}. Le fatture create restano."
+			},
+			"toasts": {
+				"SAVED": "La fatturazione programmata di {name} è salvata",
+				"PAUSED": "La fatturazione programmata di {name} è sospesa",
+				"RESUMED": "La fatturazione programmata di {name} riprende: prossima fattura il {day}",
+				"DELETED": "La fatturazione programmata di {name} è eliminata",
+				"FAILED": "Impossibile salvare la modifica. Riprova."
+			}
 		}
 	},
 	"timeReports": {
