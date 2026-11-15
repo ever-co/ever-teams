@@ -234,7 +234,7 @@ describe('member-placeholder', () => {
 			const cell = ' María  de la Cruz ';
 			expect(memberCodesOf(cell, [])).toEqual(['memberNameUnknown']);
 			const candidates = importPlaceholderCandidatesOf([
-				{ row: 2, cells: { memberEmail: cell }, problems: [{ code: 'memberNameUnknown' }] }
+				{ cells: { memberEmail: cell }, problems: [{ code: 'memberNameUnknown' }] }
 			]);
 			const { added } = importMembersAddedOf(candidates, [{ employee: { id: 'employee-maria' }, created: true }]);
 
