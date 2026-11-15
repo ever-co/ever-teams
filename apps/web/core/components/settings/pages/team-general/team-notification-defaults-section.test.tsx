@@ -5,7 +5,15 @@ import messages from '@/locales/en.json';
 import { TeamNotificationDefaultsSection } from './team-notification-defaults-section';
 
 jest.mock('@/core/components/common/select', () => ({
-	Select: ({ children, onValueChange, value }: { children: React.ReactNode; onValueChange: (v: string) => void; value: string }) => (
+	Select: ({
+		children,
+		onValueChange,
+		value
+	}: {
+		children: React.ReactNode;
+		onValueChange: (v: string) => void;
+		value: string;
+	}) => (
 		<div data-value={value}>
 			{children}
 			<button type="button" onClick={() => onValueChange('__test__')}>
