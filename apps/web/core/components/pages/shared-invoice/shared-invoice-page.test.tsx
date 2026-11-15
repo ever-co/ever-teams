@@ -138,7 +138,14 @@ describe('SharedInvoicePage (ever-co/ever-gauzy#11856)', () => {
 		expect(screen.queryByRole('button', { name: /invoices\.shared\.PAY/ })).toBeNull();
 	});
 
-	it('back from the provider, says the payment is being confirmed, and offers no second Pay', async () => {
+	it('back from the provider, says the payment is being confirmed', async () => {
+		search.set('paid', '1');
+		show();
+
+		expect(await screen.findByText('invoices.shared.RETURNED_TITLE')).toBeTruthy();
+	});
+
+	it('back from the provider, offers no second Pay while the payment is confirmed', async () => {
 		search.set('paid', '1');
 		show();
 
