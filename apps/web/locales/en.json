@@ -7767,7 +7767,8 @@
 				"SEND_NO_EMAIL": "This client has no email address: its invoices will be kept as drafts until it has one.",
 				"SAVE": "Save schedule",
 				"SAVE_FAILED": "The schedule could not be saved. Try again.",
-				"EXISTS": "This client already has a schedule. Close and open it again to change it."
+				"EXISTS": "This client already has a schedule. Close and open it again to change it.",
+				"START_AFTER_BILLED": "This schedule already billed periods: its new timeline must start after the last period billed, {day}."
 			},
 			"delete": {
 				"TITLE": "Delete this billing schedule?",

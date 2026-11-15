@@ -7767,7 +7767,8 @@
 				"SEND_NO_EMAIL": "Questo cliente non ha un indirizzo e-mail: le sue fatture resteranno bozze finché non ne avrà uno.",
 				"SAVE": "Salva",
 				"SAVE_FAILED": "Impossibile salvare il calendario. Riprova.",
-				"EXISTS": "Questo cliente ha già un calendario. Chiudi e riaprilo per modificarlo."
+				"EXISTS": "Questo cliente ha già un calendario. Chiudi e riaprilo per modificarlo.",
+				"START_AFTER_BILLED": "Questo calendario ha già fatturato dei periodi: il nuovo calendario deve iniziare dopo l’ultimo periodo fatturato, {day}."
 			},
 			"delete": {
 				"TITLE": "Eliminare questa fatturazione programmata?",

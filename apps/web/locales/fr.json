@@ -7767,7 +7767,8 @@
 				"SEND_NO_EMAIL": "Ce client n’a pas d’adresse e-mail : ses factures resteront en brouillon tant qu’il n’en a pas.",
 				"SAVE": "Enregistrer",
 				"SAVE_FAILED": "Le calendrier n’a pas pu être enregistré. Réessayez.",
-				"EXISTS": "Ce client a déjà un calendrier. Fermez et rouvrez-le pour le modifier."
+				"EXISTS": "Ce client a déjà un calendrier. Fermez et rouvrez-le pour le modifier.",
+				"START_AFTER_BILLED": "Ce calendrier a déjà facturé des périodes : son nouveau calendrier doit commencer après la dernière période facturée, {day}."
 			},
 			"delete": {
 				"TITLE": "Supprimer cette facturation planifiée ?",

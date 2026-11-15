@@ -7767,7 +7767,8 @@
 				"SEND_NO_EMAIL": "Dieser Kunde hat keine E-Mail-Adresse: Seine Rechnungen bleiben Entwürfe, bis er eine hat.",
 				"SAVE": "Speichern",
 				"SAVE_FAILED": "Der Plan konnte nicht gespeichert werden. Versuchen Sie es erneut.",
-				"EXISTS": "Dieser Kunde hat bereits einen Plan. Schließen und öffnen Sie ihn erneut, um ihn zu ändern."
+				"EXISTS": "Dieser Kunde hat bereits einen Plan. Schließen und öffnen Sie ihn erneut, um ihn zu ändern.",
+				"START_AFTER_BILLED": "Dieser Plan hat bereits Zeiträume abgerechnet: Der neue Plan muss nach dem zuletzt abgerechneten Zeitraum beginnen, {day}."
 			},
 			"delete": {
 				"TITLE": "Diese geplante Abrechnung löschen?",

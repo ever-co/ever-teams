@@ -1,7 +1,7 @@
 'use client';
 
 import { useId, useState, type FormEvent, type ReactNode } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { AppDialog, AppDialogHeader, APP_DIALOG_BODY, APP_DIALOG_FOOTER } from '@/core/components/common/app-dialog';
 import { Button } from '@/core/components/common/button';
@@ -11,6 +11,7 @@ import { SegmentedControl, type SegmentedControlItem } from '@/core/components/c
 import type { InvoiceScheduleChange } from '@/core/hooks/invoices/use-invoice-schedules';
 import { cn } from '@/core/lib/helpers';
 import { ApiErrorService } from '@/core/services/client/api-error.service';
+import { invoiceDayTextOf } from '@/core/lib/utils/invoices';
 import {
 	changedScheduleFieldsOf,
 	defaultInvoiceScheduleInput,
@@ -68,9 +69,26 @@ function Field({ label, htmlFor, children }: Readonly<{ label: string; htmlFor?:
 	);
 }
 
-/** A 409 from the API: another tab set this client's schedule since the dialog opened. */
-function isScheduleConflict(error: unknown) {
-	return ApiErrorService.isApiError(error) && error.httpResponseStatus === 409;
+type SaveFailure = 'failed' | 'exists' | 'startAfterBilled';
+
+/** The API's code for a new timeline that would bill again a period already billed. */
+const START_AFTER_BILLED = 'INVOICE_SCHEDULE_START_AFTER_BILLED';
+
+/**
+ * Why a save failed: another tab set this client's schedule since the dialog opened (409), the new timeline starts
+ * before the end of the last period billed, or anything else.
+ */
+function saveFailureOf(error: unknown): SaveFailure {
+	if (!ApiErrorService.isApiError(error)) {
+		return 'failed';
+	}
+	if (error.httpResponseStatus === 409) {
+		return 'exists';
+	}
+	if (error.message?.includes(START_AFTER_BILLED)) {
+		return 'startAfterBilled';
+	}
+	return 'failed';
 }
 
 function InvoiceScheduleForm({
@@ -82,11 +100,12 @@ function InvoiceScheduleForm({
 	onClose
 }: Readonly<InvoiceScheduleFormProps>) {
 	const t = useTranslations();
+	const locale = useLocale();
 	const fieldId = useId();
 	const saved = schedule ? invoiceScheduleInputOf(schedule) : null;
 	const [input, setInput] = useState<InvoiceScheduleInput>(() => saved ?? defaultInvoiceScheduleInput(todayKey));
 	const [isSaving, setIsSaving] = useState(false);
-	const [failure, setFailure] = useState<'failed' | 'exists' | null>(null);
+	const [failure, setFailure] = useState<SaveFailure | null>(null);
 	const [hasTriedSubmit, setHasTriedSubmit] = useState(false);
 
 	const isStartValid = isRealDayKey(input.startDay);
@@ -137,7 +156,7 @@ function InvoiceScheduleForm({
 			toast.success(t('invoices.schedule.toasts.SAVED', { name: client.name }));
 			onClose();
 		} catch (error) {
-			setFailure(isScheduleConflict(error) ? 'exists' : 'failed');
+			setFailure(saveFailureOf(error));
 		} finally {
 			setIsSaving(false);
 		}
@@ -153,6 +172,15 @@ function InvoiceScheduleForm({
 			: t('invoices.schedule.form.SEND_NO_EMAIL');
 	}
 	const title = saved ? t('invoices.schedule.form.EDIT_TITLE') : t('invoices.schedule.form.CREATE_TITLE');
+	const lastBilledDay = schedule?.lastRun?.periodEnd ?? '';
+	let failureText = t('invoices.schedule.form.SAVE_FAILED');
+	if (failure === 'exists') {
+		failureText = t('invoices.schedule.form.EXISTS');
+	} else if (failure === 'startAfterBilled') {
+		failureText = t('invoices.schedule.form.START_AFTER_BILLED', {
+			day: invoiceDayTextOf(lastBilledDay, locale) ?? lastBilledDay
+		});
+	}
 
 	return (
 		<>
@@ -234,9 +262,7 @@ function InvoiceScheduleForm({
 				<div className={APP_DIALOG_FOOTER}>
 					{failure && (
 						<p role="alert" className="mr-auto text-xs text-destructive-ink">
-							{failure === 'exists'
-								? t('invoices.schedule.form.EXISTS')
-								: t('invoices.schedule.form.SAVE_FAILED')}
+							{failureText}
 						</p>
 					)}
 					<Button

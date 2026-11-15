@@ -7767,7 +7767,8 @@
 				"SEND_NO_EMAIL": "Deze klant heeft geen e-mailadres: zijn facturen blijven concepten tot hij er een heeft.",
 				"SAVE": "Opslaan",
 				"SAVE_FAILED": "Het schema kon niet worden opgeslagen. Probeer het opnieuw.",
-				"EXISTS": "Deze klant heeft al een schema. Sluit en open het opnieuw om het te wijzigen."
+				"EXISTS": "Deze klant heeft al een schema. Sluit en open het opnieuw om het te wijzigen.",
+				"START_AFTER_BILLED": "Dit schema heeft al perioden gefactureerd: het nieuwe schema moet beginnen na de laatst gefactureerde periode, {day}."
 			},
 			"delete": {
 				"TITLE": "Deze geplande facturering verwijderen?",
