@@ -75,7 +75,14 @@ class InvoiceScheduleService extends APIService {
 		scope?: InvoicesScope
 	): Promise<TInvoiceSchedule> => {
 		const workspace = this.scopeOf(scope);
-		const body = { ...input, organizationContactId: clientId, organizationId: workspace.organizationId };
+		// The body names the workspace too: left out, the service would fill it from the cookies, which another tab may
+		// have switched since the schedules were read
+		const body = {
+			...input,
+			organizationContactId: clientId,
+			organizationId: workspace.organizationId,
+			tenantId: workspace.tenantId
+		};
 		const response = await this.post<unknown>('/invoice-schedules', body, { tenantId: workspace.tenantId });
 		return validateApiResponse(invoiceScheduleSchema, response.data, 'createSchedule API response');
 	};
@@ -90,7 +97,7 @@ class InvoiceScheduleService extends APIService {
 		scope?: InvoicesScope
 	): Promise<TInvoiceSchedule> => {
 		const workspace = this.scopeOf(scope);
-		const body = { ...change, organizationId: workspace.organizationId };
+		const body = { ...change, organizationId: workspace.organizationId, tenantId: workspace.tenantId };
 		const url = `/invoice-schedules/${encodeURIComponent(scheduleId)}`;
 		const response = await this.put<unknown>(url, body, { tenantId: workspace.tenantId });
 		return validateApiResponse(invoiceScheduleSchema, response.data, 'updateSchedule API response');
