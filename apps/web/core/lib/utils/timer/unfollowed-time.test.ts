@@ -5,14 +5,17 @@
  * Up to the closed-tab delay that time was kept without a word: a tab reopened within ten minutes carried on, and a
  * tab that woke up after a sleep sent a heartbeat that put the whole sleep in the run. The person is now asked.
  */
-import { ETimeLogSource } from '@/core/types/generics/enums/timer';
+import { ETimeLogSource, ETimeLogType } from '@/core/types/generics/enums/timer';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import {
+	announceUnfollowedTimeSettled,
 	answerUnfollowedTime,
 	askAboutUnfollowedTime,
 	decideUnfollowedTime,
 	dropUnfollowedTimeQuestion,
 	forgetHeartbeat,
+	inOneTabAtATime,
+	isUnfollowedTimeKept,
 	rememberHeartbeat,
 	rememberedHeartbeat,
 	unfollowedTimeQuestion,
@@ -87,6 +90,13 @@ describe('the time since a running web timer`s last heartbeat', () => {
 		expect(decideAfter(600, { lastLog: runningLog(members) })).toBe('follow');
 	});
 
+	it('never asks about a break, nor stops one: a break is never counted', () => {
+		const onBreak = runningLog({ logType: ETimeLogType.BREAK });
+
+		expect(decideAfter(7, { lastLog: onBreak })).toBe('follow');
+		expect(decideAfter(30, { lastLog: onBreak })).toBe('follow');
+	});
+
 	it('answers nothing for an employee without a log', () => {
 		expect(decideAfter(7, { lastLog: null })).toBe('follow');
 	});
@@ -152,6 +162,7 @@ describe('the last heartbeat a browser remembers', () => {
 	it.each([
 		['a stopped run', runningLog({ isRunning: false })],
 		['a run of the desktop app', runningLog({ source: ETimeLogSource.DESKTOP })],
+		['a break', runningLog({ logType: ETimeLogType.BREAK })],
 		['no run', null]
 	])('is not replaced by %s', (_case, lastLog) => {
 		rememberHeartbeat(runningLog(), LAST_HEARTBEAT);
@@ -209,41 +220,111 @@ describe('the question put to the person', () => {
 		expect(unfollowedTimeQuestion()).toBeNull();
 	});
 
-	it('goes when the person answers it in another tab, which acts on the answer', async () => {
+	/** What another tab writes to the storage the tabs share once it settled the time of a run, as this tab hears it. */
+	const settledInAnotherTab = (timeLogId: string) =>
+		new StorageEvent('storage', {
+			key: 'ever-teams.timer.unfollowed-time-settled',
+			newValue: JSON.stringify({ timeLogId, from: asked.from, kept: false, at: Date.now() })
+		});
+
+	it('goes when another tab settled the time of the run, so the run is read again', async () => {
 		const ended = askAboutUnfollowedTime(asked, 3 * MINUTE);
 
-		// What the other tab's answer writes to the storage the tabs share
-		window.dispatchEvent(
-			new StorageEvent('storage', {
-				key: 'ever-teams.timer.unfollowed-time-answer',
-				newValue: JSON.stringify({ timeLogId: 'log-1', at: Date.now() })
-			})
-		);
+		window.dispatchEvent(settledInAnotherTab('log-1'));
 
 		await expect(ended).resolves.toBe('elsewhere');
 		expect(unfollowedTimeQuestion()).toBeNull();
 	});
 
-	it('stays when another tab answers about another run', async () => {
+	it('stays when another tab settled the time of another run', async () => {
 		void askAboutUnfollowedTime(asked, 3 * MINUTE);
 
-		window.dispatchEvent(
-			new StorageEvent('storage', {
-				key: 'ever-teams.timer.unfollowed-time-answer',
-				newValue: JSON.stringify({ timeLogId: 'log-0', at: Date.now() })
-			})
-		);
+		window.dispatchEvent(settledInAnotherTab('log-0'));
 
 		expect(unfollowedTimeQuestion()).toEqual(asked);
 	});
 
-	it('tells the other tabs of the browser that it was answered', () => {
+	it('tells the other tabs nothing as the person answers: they hear of it once the answer is applied', () => {
 		void askAboutUnfollowedTime(asked, 3 * MINUTE);
 
-		answerUnfollowedTime('keep');
+		answerUnfollowedTime('stop');
 
-		expect(JSON.parse(String(window.localStorage.getItem('ever-teams.timer.unfollowed-time-answer')))).toEqual(
-			expect.objectContaining({ timeLogId: 'log-1' })
+		expect(window.localStorage.length).toBe(0);
+	});
+
+	it('is not put in a tab the person cannot see, and goes when the tab is hidden', async () => {
+		let visibility: DocumentVisibilityState = 'hidden';
+		Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => visibility });
+		try {
+			await expect(askAboutUnfollowedTime(asked, 3 * MINUTE)).resolves.toBe('hidden');
+			expect(unfollowedTimeQuestion()).toBeNull();
+
+			visibility = 'visible';
+			const ended = askAboutUnfollowedTime(asked, 3 * MINUTE);
+			expect(unfollowedTimeQuestion()).toEqual(asked);
+			visibility = 'hidden';
+			document.dispatchEvent(new Event('visibilitychange'));
+
+			await expect(ended).resolves.toBe('hidden');
+			expect(unfollowedTimeQuestion()).toBeNull();
+		} finally {
+			delete (document as { visibilityState?: unknown }).visibilityState;
+		}
+	});
+
+	it('is dropped when another question takes its place, or the person signs out', async () => {
+		const first = askAboutUnfollowedTime(asked, 3 * MINUTE);
+		const second = askAboutUnfollowedTime({ ...asked, timeLogId: 'log-2' }, 3 * MINUTE);
+		await expect(first).resolves.toBe('dropped');
+
+		dropUnfollowedTimeQuestion();
+
+		await expect(second).resolves.toBe('dropped');
+	});
+});
+
+describe('the time a tab of the browser settled', () => {
+	const FROM = '2026-11-14T14:05:00.000Z';
+
+	it('tells the other tabs which run, from when, and whether it was kept', () => {
+		announceUnfollowedTimeSettled('log-1', FROM, true);
+
+		expect(JSON.parse(String(window.localStorage.getItem('ever-teams.timer.unfollowed-time-settled')))).toEqual(
+			expect.objectContaining({ timeLogId: 'log-1', from: FROM, kept: true })
 		);
+	});
+
+	it('stands as kept for that run and that heartbeat, for the moments the other tabs take to read the run again', () => {
+		const settledAt = Date.now();
+		announceUnfollowedTimeSettled('log-1', FROM, true);
+
+		expect(isUnfollowedTimeKept('log-1', FROM, settledAt + FLOOR)).toBe(true);
+		expect(isUnfollowedTimeKept('log-1', FROM, settledAt + FLOOR + 1 + 1000)).toBe(false);
+		expect(isUnfollowedTimeKept('log-1', '2026-11-14T14:06:00.000Z', settledAt)).toBe(false);
+		expect(isUnfollowedTimeKept('log-2', FROM, settledAt)).toBe(false);
+	});
+
+	it('is not kept when the run was stopped at its last heartbeat', () => {
+		announceUnfollowedTimeSettled('log-1', FROM, false);
+
+		expect(isUnfollowedTimeKept('log-1', FROM)).toBe(false);
+	});
+});
+
+describe('one tab at a time', () => {
+	afterEach(() => {
+		delete (navigator as { locks?: unknown }).locks;
+	});
+
+	it('settles under the lock the tabs of the browser share, and gives what it settled', async () => {
+		const request = jest.fn((_name: string, callback: () => Promise<unknown>) => Promise.resolve(callback()));
+		Object.defineProperty(navigator, 'locks', { configurable: true, value: { request } });
+
+		await expect(inOneTabAtATime(async () => 'settled')).resolves.toBe('settled');
+		expect(request).toHaveBeenCalledWith('ever-teams.timer.unfollowed-time', expect.any(Function));
+	});
+
+	it('settles at once in a browser without Web Locks', async () => {
+		await expect(inOneTabAtATime(async () => 'settled')).resolves.toBe('settled');
 	});
 });

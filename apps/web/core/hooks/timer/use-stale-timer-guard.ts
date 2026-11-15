@@ -11,14 +11,19 @@ import { logErrorInDev } from '@/core/lib/helpers/error-message';
 import { isRunningTeamsLog, isStaleTeamsTimer } from '@/core/lib/helpers/timer-policy';
 import { lookAtPageClock, watchPageSleep } from '@/core/lib/utils/timer/page-sleep';
 import { forgetSavedStop, parseSavedStop, storedSavedStop } from '@/core/lib/utils/timer/saved-stop';
+import { isBreakLog } from '@/core/lib/utils/timer/timer-break';
 import {
+	announceUnfollowedTimeSettled,
 	askAboutUnfollowedTime,
 	decideUnfollowedTime,
 	dropUnfollowedTimeQuestion,
 	forgetHeartbeat,
+	inOneTabAtATime,
+	isUnfollowedTimeKept,
 	rememberHeartbeat,
 	rememberedHeartbeat,
-	UNFOLLOWED_TIME_FLOOR_MS
+	UNFOLLOWED_TIME_FLOOR_MS,
+	whenPageShows
 } from '@/core/lib/utils/timer/unfollowed-time';
 import { queryKeys } from '@/core/query/keys';
 import { ApiErrorService } from '@/core/services/client/api-error.service';
@@ -27,6 +32,7 @@ import { ETimeLogSource } from '@/core/types/generics/enums/timer';
 import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import { TEmployee } from '@/core/types/schemas/organization/employee.schema';
 import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
+import { startUnderTimerGuard, trackTimerCommand } from '@/core/hooks/timer/timer-command-guard';
 import { dateFormatOf } from '@/core/lib/utils/workspace-formats';
 
 /** The employee's last log, with the present the closed-tab rule goes by. */
@@ -64,12 +70,15 @@ function useStopAtLastHeartbeat() {
 				});
 			} catch (error) {
 				if (!ApiErrorService.isApiError(error)) throw error;
-				// 409: another run is the running one by then, which this stop may not end
-				if (timeLogId && error.hasHttpResponseStatus(409)) return;
+				// 409: another run is the running one by then, which this stop may not end. The run it names ended
+				if (timeLogId && error.hasHttpResponseStatus(409)) {
+					runsEndedWhileUnsettled += 1;
+					return;
+				}
 				// 406: another tab or device stopped it first.
 				if (!error.hasHttpResponseStatus(406)) throw error;
 			}
-			stopsAtLastHeartbeat += 1;
+			runsEndedWhileUnsettled += 1;
 
 			const stoppedAt = dateFormatOf(locale, {
 				dateStyle: 'medium',
@@ -85,6 +94,8 @@ function useStopAtLastHeartbeat() {
 		[locale, queryClient, t]
 	);
 }
+
+type StopAtLastHeartbeat = ReturnType<typeof useStopAtLastHeartbeat>;
 
 /**
  * Stops a TEAMS timer that a closed tab left running, at its last heartbeat rather than now, so the time
@@ -105,6 +116,120 @@ export function useStopStaleTeamsTimer() {
 	);
 }
 
+/** Whether the log is the run, still running, with the last heartbeat it had: nothing changed it meanwhile. */
+function isRunAsItWas(log: ITimeLog | null | undefined, timeLogId: string, heartbeat: number): boolean {
+	return (
+		isRunningTeamsLog(log) && log.id === timeLogId && new Date(log.stoppedAt ?? Number.NaN).getTime() === heartbeat
+	);
+}
+
+/**
+ * The stop at its last heartbeat this page owes a run, until it is applied: the person chose it, or the closed-tab
+ * delay was reached. A check that runs again after that stop failed applies it rather than asking again.
+ */
+let owedStop: { timeLogId: string; heartbeat: number; hint: StoppedAtHeartbeatHint } | null = null;
+
+/**
+ * Stops the run at its last heartbeat, as a timer command under the start guard every timer shares: a start asked
+ * meanwhile waits for it, where it would otherwise end the run at the present (Gauzy's start ends whatever runs), and
+ * a heartbeat's status read cannot put the run back on screen. It names the run, and reads it again first: a run
+ * started meanwhile, or this one kept from another tab or device, is never ended.
+ */
+async function stopAtHeartbeatUnderGuard(
+	stopAtLastHeartbeat: StopAtLastHeartbeat,
+	employeeId: string,
+	run: ITimeLog & { stoppedAt: Date },
+	hint: StoppedAtHeartbeatHint
+): Promise<void> {
+	const heartbeat = new Date(run.stoppedAt).getTime();
+	const stop = async () => {
+		const latest = (await readLastLog(employeeId)).lastLog;
+		if (isRunAsItWas(latest, run.id, heartbeat)) {
+			await stopAtLastHeartbeat(run, hint, run.id);
+			return;
+		}
+		// Stopped meanwhile, or another run took its place: a stop that waited has nothing left to end
+		if (!isRunningTeamsLog(latest) || latest.id !== run.id) {
+			runsEndedWhileUnsettled += 1;
+		}
+	};
+	// A command that already holds the guard is not waited for: it may itself wait for this time to be settled (a break,
+	// whose stop of the work waits), and neither would ever end. The stop then goes as a timer command beside it, still
+	// naming its run once read again: a start landing first has ended the run, and the stop finds nothing to end
+	await (startUnderTimerGuard(stop) ?? trackTimerCommand(stop()));
+}
+
+/** The heartbeat of a run whose time the person keeps: the run ends at the present again. */
+async function keepUnfollowedTime(employeeId: string, timeLogId: string): Promise<void> {
+	try {
+		const kept = await timerService.syncTimer({
+			source: ETimeLogSource.TEAMS,
+			user: { employee: { id: employeeId } },
+			timeLogId
+		});
+		rememberHeartbeat(kept?.data?.lastLog);
+	} catch (error) {
+		// The heartbeat the app sends each minute takes over: the answer stands, for the other tabs too
+		logErrorInDev('[Timer] The heartbeat of a kept run failed:', error);
+	}
+}
+
+/**
+ * Settles the time of the run in this tab, which alone does so (inOneTabAtATime): it reads the run again, since
+ * another tab may have settled it while this one waited, then asks the person, and applies the answer. Resolves
+ * `hidden` when the page was hidden before they answered: the question is put again once it shows.
+ */
+async function settleInThisTab(
+	stopAtLastHeartbeat: StopAtLastHeartbeat,
+	employeeId: string,
+	runId: string,
+	unansweredHint: StoppedAtHeartbeatHint
+): Promise<'settled' | 'hidden'> {
+	const facts = await readLastLog(employeeId);
+	const { lastLog } = facts;
+	if (!isRunningTeamsLog(lastLog) || lastLog.id !== runId) {
+		// Stopped at its last heartbeat in another tab, or ended meanwhile: a stop that waited has nothing left to end
+		runsEndedWhileUnsettled += 1;
+		return 'settled';
+	}
+	const decision = decideUnfollowedTime({ ...facts, remembered: rememberedHeartbeat() });
+	if (decision === 'follow' || !lastLog.stoppedAt) return 'settled';
+
+	const run = lastLog as ITimeLog & { stoppedAt: Date };
+	const heartbeat = new Date(run.stoppedAt).getTime();
+	const from = new Date(heartbeat).toISOString();
+	let hint: StoppedAtHeartbeatHint | null = null;
+	if (decision === 'stop') {
+		hint = unansweredHint;
+	} else if (owedStop?.timeLogId === runId && owedStop.heartbeat === heartbeat) {
+		hint = owedStop.hint;
+	} else if (isUnfollowedTimeKept(runId, from)) {
+		// Kept in another tab, whose heartbeat failed: the answer stands
+		return 'settled';
+	} else {
+		const answer = await askAboutUnfollowedTime(
+			{ employeeId, timeLogId: runId, from, until: facts.clientNow },
+			STALE_TIMER_THRESHOLD.value - (facts.now - heartbeat)
+		);
+		if (answer === 'hidden') return 'hidden';
+		if (answer === 'dropped') return 'settled';
+		// Another tab settled it: what it did is read again
+		if (answer === 'elsewhere') return settleInThisTab(stopAtLastHeartbeat, employeeId, runId, unansweredHint);
+		if (answer === 'keep') {
+			await keepUnfollowedTime(employeeId, runId);
+			announceUnfollowedTimeSettled(runId, from, true);
+			return 'settled';
+		}
+		hint = answer === 'stop' ? 'UNFOLLOWED_STOP_CHOSEN_HINT' : unansweredHint;
+	}
+
+	owedStop = { timeLogId: runId, heartbeat, hint };
+	await stopAtHeartbeatUnderGuard(stopAtLastHeartbeat, employeeId, run, hint);
+	owedStop = null;
+	announceUnfollowedTimeSettled(runId, from, false);
+	return 'settled';
+}
+
 /**
  * Settles the time the employee's run went on without a heartbeat (unfollowed-time.ts), as the app loads or as
  * the page wakes up: nothing for a moment, the stop at the last heartbeat past the closed-tab delay, and in between
@@ -114,7 +239,8 @@ export function useStopStaleTeamsTimer() {
  * - They stop the run at its last heartbeat, or leave the question unanswered until the closed-tab delay is
  *   reached: the run is stopped there, if it is still as it was when the question was asked. One that went on
  *   meanwhile, kept from another device, is left alone.
- * - They answer in another tab: that tab applies the answer.
+ * - With several tabs open, one asks: the one the person sees, and one at a time. The others wait, then find the time
+ *   settled when they read the run again.
  */
 function useSettleUnfollowedTime() {
 	const stopAtLastHeartbeat = useStopAtLastHeartbeat();
@@ -122,49 +248,30 @@ function useSettleUnfollowedTime() {
 	return useCallback(
 		/** @param wasAsleep Whether the page's scripts had stopped running, rather than the app being opened. */
 		async (employeeId: string, wasAsleep: boolean) => {
-			const { lastLog, now, clientNow } = await readLastLog(employeeId);
-			const decision = decideUnfollowedTime({ lastLog, now, clientNow, remembered: rememberedHeartbeat() });
+			const facts = await readLastLog(employeeId);
+			const { lastLog } = facts;
+			const decision = decideUnfollowedTime({ ...facts, remembered: rememberedHeartbeat() });
 			if (decision === 'follow' || !lastLog?.id || !lastLog.stoppedAt) return;
 
-			const run = lastLog as ITimeLog & { stoppedAt: Date };
+			const runId = lastLog.id;
 			const unansweredHint = wasAsleep ? 'UNFOLLOWED_STOPPED_HINT' : 'STALE_STOPPED_HINT';
 			if (decision === 'stop') {
-				await stopAtLastHeartbeat(run, unansweredHint);
+				const run = lastLog as ITimeLog & { stoppedAt: Date };
+				await inOneTabAtATime(() =>
+					stopAtHeartbeatUnderGuard(stopAtLastHeartbeat, employeeId, run, unansweredHint)
+				);
+				announceUnfollowedTimeSettled(runId, new Date(run.stoppedAt).toISOString(), false);
 				return;
 			}
 
-			const heartbeat = new Date(run.stoppedAt).getTime();
-			const answer = await askAboutUnfollowedTime(
-				{ employeeId, timeLogId: lastLog.id, from: new Date(heartbeat).toISOString(), until: clientNow },
-				STALE_TIMER_THRESHOLD.value - (now - heartbeat)
-			);
-			if (answer === 'elsewhere') return;
-			if (answer === 'keep') {
-				try {
-					const kept = await timerService.syncTimer({
-						source: ETimeLogSource.TEAMS,
-						user: { employee: { id: employeeId } },
-						timeLogId: lastLog.id
-					});
-					rememberHeartbeat(kept?.data?.lastLog);
-				} catch (error) {
-					// The heartbeat the app sends each minute takes over: the answer stands
-					logErrorInDev('[Timer] The heartbeat of a kept run failed:', error);
-				}
-				return;
-			}
-
-			const latest = (await readLastLog(employeeId)).lastLog;
-			const isAsAsked =
-				isRunningTeamsLog(latest) &&
-				latest.id === lastLog.id &&
-				new Date(latest.stoppedAt ?? Number.NaN).getTime() === heartbeat;
-			if (!isAsAsked) return;
-			await stopAtLastHeartbeat(
-				run,
-				answer === 'stop' ? 'UNFOLLOWED_STOP_CHOSEN_HINT' : unansweredHint,
-				lastLog.id
-			);
+			let outcome: 'settled' | 'hidden';
+			do {
+				// A question is put where the person can see it: a hidden tab waits until it shows
+				await whenPageShows();
+				outcome = await inOneTabAtATime(() =>
+					settleInThisTab(stopAtLastHeartbeat, employeeId, runId, unansweredHint)
+				);
+			} while (outcome === 'hidden');
 		},
 		[stopAtLastHeartbeat]
 	);
@@ -254,8 +361,11 @@ function useApplySavedStop() {
  */
 const checkedEmployees = new Set<string>();
 const checksInFlight = new Map<string, Promise<void>>();
-/** How many runs this page stopped at their last heartbeat: a stop that waited for one has nothing left to end. */
-let stopsAtLastHeartbeat = 0;
+/**
+ * How many runs this page found ended while their time without the app was settled: stopped at their last heartbeat,
+ * here or in another tab, or ended meanwhile. A stop that waited for one has nothing left to end.
+ */
+let runsEndedWhileUnsettled = 0;
 
 /**
  * The page's sleeps (#5123). When its scripts stopped running for longer than the app's ordinary pace (the computer
@@ -263,16 +373,19 @@ let stopsAtLastHeartbeat = 0;
  * one case in which a page checks twice. Until that check is over no heartbeat is sent, as on a page load.
  */
 let sleeps = 0;
-let isCheckDueAfterSleep = false;
+/**
+ * Whether a check is due: from the page's load, from the start of each check and after each sleep, until a check
+ * goes through. One that failed leaves it due: it runs again, and the heartbeat and the stops wait for it meanwhile.
+ */
+let isCheckDue = true;
+let hasSleptSinceCheck = false;
 let hasCheckedOnce = false;
 let mountedGuards = 0;
 let whenSettled: { promise: Promise<void>; settle: () => void } | null = null;
 const sleepListeners = new Set<() => void>();
 
-function onPageSlept(): void {
-	sleeps += 1;
-	isCheckDueAfterSleep = true;
-	checkedEmployees.clear();
+/** The moment the check that is due goes through. */
+function settledPromise(): Promise<void> {
 	if (!whenSettled) {
 		let settle: () => void = () => undefined;
 		const promise = new Promise<void>((resolve) => {
@@ -280,14 +393,28 @@ function onPageSlept(): void {
 		});
 		whenSettled = { promise, settle };
 	}
+	return whenSettled.promise;
+}
+
+/** The stops that wait go ahead. */
+function releaseWaitingStops(): void {
+	whenSettled?.settle();
+	whenSettled = null;
+}
+
+function onPageSlept(): void {
+	sleeps += 1;
+	isCheckDue = true;
+	hasSleptSinceCheck = true;
+	checkedEmployees.clear();
 	for (const listener of [...sleepListeners]) listener();
 }
 
 function onChecked(): void {
 	hasCheckedOnce = true;
-	isCheckDueAfterSleep = false;
-	whenSettled?.settle();
-	whenSettled = null;
+	isCheckDue = false;
+	hasSleptSinceCheck = false;
+	releaseWaitingStops();
 }
 
 /** Whether the browser discarded this tab to free memory, and loaded it again when the person came back to it. */
@@ -304,42 +431,48 @@ function subscribeToSleeps(listener: () => void): () => void {
 
 /**
  * Whether the time a run went on without the app is still to be settled, on a page that settles it (the guard is
- * mounted): a check is due after a sleep, or one is under way. The sender of a heartbeat asks first, and sends none
- * meanwhile, or the heartbeat would put that time in the run before the person has said what becomes of it.
+ * mounted): a check is due, on a page load or after a sleep, and none went through yet. The sender of a heartbeat
+ * asks first, and sends none meanwhile, or the heartbeat would put that time in the run before the person has said
+ * what becomes of it.
  */
 export function isUnfollowedTimeUnsettled(): boolean {
 	lookAtPageClock();
-	return mountedGuards > 0 && (isCheckDueAfterSleep || checksInFlight.size > 0);
+	return mountedGuards > 0 && isCheckDue;
 }
 
 /**
  * The moment that time is settled, or null when nothing is to be settled. A stop asked meanwhile waits for it: sent
- * at once, it would end the run at the present, with that time in it.
+ * at once, it would end the run at the present, with that time in it. A check that fails does not settle it: the
+ * stop waits for the check that goes through.
  *
- * @returns Whether the run was stopped at its last heartbeat meanwhile: the stop that waited then sends nothing.
+ * @returns Whether the run ended meanwhile (stopped at its last heartbeat, here or in another tab): the stop that
+ * waited then sends nothing.
  */
 export function whenUnfollowedTimeIsSettled(): Promise<boolean> | null {
 	if (!isUnfollowedTimeUnsettled()) {
 		return null;
 	}
-	const stopsBefore = stopsAtLastHeartbeat;
-	const checks = [...checksInFlight.values()].map((check) => check.catch(() => undefined));
-	return Promise.all([...checks, whenSettled?.promise]).then(() => stopsAtLastHeartbeat !== stopsBefore);
+	const endedBefore = runsEndedWhileUnsettled;
+	return settledPromise().then(() => runsEndedWhileUnsettled !== endedBefore);
 }
 
-// The person's runs, as this page knew them, go with the session (sign-out-cleanups.ts)
+// The person's runs, as this page knew them, go with the session (sign-out-cleanups.ts). Nothing is left to settle
 onSignOut(() => {
 	checkedEmployees.clear();
 	checksInFlight.clear();
 	dropUnfollowedTimeQuestion();
 	forgetHeartbeat();
-	onChecked();
+	owedStop = null;
+	isCheckDue = false;
+	hasSleptSinceCheck = false;
+	releaseWaitingStops();
 });
 
 /** Runs the employee's check unless this page ran it: a check in flight is shared, a failed one runs again. */
 function checkOncePerPage(employeeId: string, check: () => Promise<unknown>): Promise<void> {
 	const inFlight = checksInFlight.get(employeeId);
 	if (inFlight) return inFlight;
+	isCheckDue = true;
 	const sleepsAtStart = sleeps;
 	const request: Promise<void> = check()
 		.then(() => {
@@ -389,8 +522,7 @@ export function useStaleTimerGuard(
 			stopWatching();
 			// Nobody is left on this page to settle it for now: a stop that waits goes ahead. The check stays due
 			if (mountedGuards === 0) {
-				whenSettled?.settle();
-				whenSettled = null;
+				releaseWaitingStops();
 			}
 		};
 	}, [enabled, employeeId]);
@@ -404,7 +536,7 @@ export function useStaleTimerGuard(
 		let isCurrent = true;
 		let retryTimer: number | undefined;
 		// A tab the browser discarded and loaded again was not closed by the person: it slept
-		const wasAsleep = isCheckDueAfterSleep || (!hasCheckedOnce && wasPageDiscarded());
+		const wasAsleep = hasSleptSinceCheck || (!hasCheckedOnce && wasPageDiscarded());
 		// The stop the employee asked for comes first: the closed-tab rule would end its run at the last heartbeat.
 		// An employee who is not tracking time has no run left behind
 		const check = async () => {
@@ -451,11 +583,17 @@ export function lastTimerLogQuery(employeeId: string | null | undefined) {
 	};
 }
 
+/** A TEAMS run of work: a break is never kept alive by a heartbeat, which would count it as tracked time. */
+function isRunningTeamsWork(log: ITimeLog | null | undefined): boolean {
+	return isRunningTeamsLog(log) && !isBreakLog(log);
+}
+
 /**
  * /timesheet/timer/status only sees logs started on the server's current day, so a timer still running past the
  * server's midnight reads as stopped there, and without its heartbeat the stale check would cut it at that midnight.
  * When the status says stopped although this tab saw the timer run or the employee is tracking time, the last log
  * (any day) tells whether a TEAMS timer still runs. It is polled only while one does, so the heartbeat stops with it.
+ * A break is not one: the status says stopped during a break too, and no heartbeat goes then (#5216).
  */
 export function useTimerRunningPastMidnight(
 	employee: Pick<TEmployee, 'id' | 'isTrackingTime'> | null | undefined,
@@ -477,8 +615,8 @@ export function useTimerRunningPastMidnight(
 		// A failed read keeps polling: a first read that fails has no data, and stopping there would end the
 		// heartbeat of a timer that may still run.
 		refetchInterval: (query) =>
-			query.state.status === 'error' || isRunningTeamsLog(query.state.data) ? SYNC_TIMER_INTERVAL : false
+			query.state.status === 'error' || isRunningTeamsWork(query.state.data) ? SYNC_TIMER_INTERVAL : false
 	});
 
-	return statusRunning || (checkLastLog && isRunningTeamsLog(lastLog));
+	return statusRunning || (checkLastLog && isRunningTeamsWork(lastLog));
 }
