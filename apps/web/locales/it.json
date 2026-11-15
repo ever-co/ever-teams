@@ -4074,6 +4074,14 @@
 				"OFF": "Disattivato",
 				"AFTER_HOURS": "Dopo {hours, plural, one {# ora} other {# ore}}"
 			},
+			"TASK_DUE": {
+				"TITLE": "Scadenze",
+				"INTRO": "Un promemoria prima della scadenza di un’attività assegnata a te, finché non è completata.",
+				"LABEL": "Promemoria di scadenza",
+				"TEXT": "Sempre nella tua casella. Per email e sui tuoi dispositivi come preferisci.",
+				"OFF": "Disattivato",
+				"BEFORE_HOURS": "{hours, plural, one {# ora} other {# ore}} prima"
+			},
 			"INTRO": "Scegli cosa arriva nella tua posta. Disattivando un tipo si fermano le nuove notifiche di quel tipo; quelle già ricevute restano.",
 			"LOAD_ERROR": "Non è stato possibile caricare le impostazioni delle notifiche.",
 			"SAVE_FAILED": "L'impostazione non è stata salvata. Riprova.",

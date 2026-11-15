@@ -4074,6 +4074,14 @@
 				"OFF": "Desactivado",
 				"AFTER_HOURS": "Después de {hours, plural, one {# hora} other {# horas}}"
 			},
+			"TASK_DUE": {
+				"TITLE": "Vencimientos",
+				"INTRO": "Un recordatorio antes de que venza una tarea que tienes asignada, mientras no esté terminada.",
+				"LABEL": "Recordatorio de vencimiento",
+				"TEXT": "Siempre en tu bandeja de entrada. Por correo y en tus dispositivos, como elijas.",
+				"OFF": "Desactivado",
+				"BEFORE_HOURS": "{hours, plural, one {# hora} other {# horas}} antes"
+			},
 			"INTRO": "Elige qué llega a tu bandeja. Al desactivar un tipo se detienen las notificaciones nuevas de ese tipo; las que ya tienes se quedan.",
 			"LOAD_ERROR": "No se pudieron cargar tus ajustes de notificaciones.",
 			"SAVE_FAILED": "Ese ajuste no se guardó. Inténtalo de nuevo.",

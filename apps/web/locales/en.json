@@ -4074,6 +4074,14 @@
 				"OFF": "Off",
 				"AFTER_HOURS": "After {hours, plural, one {# hour} other {# hours}}"
 			},
+			"TASK_DUE": {
+				"TITLE": "Due dates",
+				"INTRO": "A reminder before a task you are assigned to is due, as long as it is not done.",
+				"LABEL": "Due date reminder",
+				"TEXT": "Always in your inbox. By email and on your devices as you choose.",
+				"OFF": "Off",
+				"BEFORE_HOURS": "{hours, plural, one {# hour} other {# hours}} before"
+			},
 			"INTRO": "Choose what reaches your inbox. Turning a type off stops new notifications of that type; the ones already there stay.",
 			"LOAD_ERROR": "Your notification settings could not load.",
 			"SAVE_FAILED": "That setting was not saved. Try again.",

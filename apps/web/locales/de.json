@@ -4074,6 +4074,14 @@
 				"OFF": "Aus",
 				"AFTER_HOURS": "Nach {hours, plural, one {# Stunde} other {# Stunden}}"
 			},
+			"TASK_DUE": {
+				"TITLE": "Fälligkeiten",
+				"INTRO": "Eine Erinnerung, bevor eine dir zugewiesene Aufgabe fällig wird, solange sie nicht erledigt ist.",
+				"LABEL": "Fälligkeitserinnerung",
+				"TEXT": "Immer in deinem Posteingang. Per E-Mail und auf deinen Geräten nach deiner Wahl.",
+				"OFF": "Aus",
+				"BEFORE_HOURS": "{hours, plural, one {# Stunde} other {# Stunden}} vorher"
+			},
 			"INTRO": "Wähle, was in deinem Posteingang ankommt. Wenn du einen Typ ausschaltest, kommen keine neuen Benachrichtigungen dieses Typs mehr; vorhandene bleiben.",
 			"LOAD_ERROR": "Deine Benachrichtigungseinstellungen konnten nicht geladen werden.",
 			"SAVE_FAILED": "Diese Einstellung wurde nicht gespeichert. Versuche es erneut.",

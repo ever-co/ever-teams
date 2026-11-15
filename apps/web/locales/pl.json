@@ -4074,6 +4074,14 @@
 				"OFF": "Wyłączone",
 				"AFTER_HOURS": "Po {hours, plural, one {# godzinie} other {# godzinach}}"
 			},
+			"TASK_DUE": {
+				"TITLE": "Terminy",
+				"INTRO": "Przypomnienie przed terminem zadania przypisanego do Ciebie, dopóki nie jest ukończone.",
+				"LABEL": "Przypomnienie o terminie",
+				"TEXT": "Zawsze w skrzynce odbiorczej. E-mailem i na Twoich urządzeniach, jak wybierzesz.",
+				"OFF": "Wyłączone",
+				"BEFORE_HOURS": "{hours, plural, one {# godzinę} few {# godziny} many {# godzin} other {# godziny}} wcześniej"
+			},
 			"INTRO": "Wybierz, co trafia do Twojej skrzynki. Wyłączenie typu zatrzymuje nowe powiadomienia tego typu; te, które już masz, zostają.",
 			"LOAD_ERROR": "Nie udało się wczytać ustawień powiadomień.",
 			"SAVE_FAILED": "To ustawienie nie zostało zapisane. Spróbuj ponownie.",

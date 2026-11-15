@@ -4074,6 +4074,14 @@
 				"OFF": "Uit",
 				"AFTER_HOURS": "Na {hours, plural, one {# uur} other {# uur}}"
 			},
+			"TASK_DUE": {
+				"TITLE": "Vervaldatums",
+				"INTRO": "Een herinnering voordat een aan jou toegewezen taak vervalt, zolang die niet klaar is.",
+				"LABEL": "Herinnering vervaldatum",
+				"TEXT": "Altijd in je inbox. Per e-mail en op je apparaten zoals je kiest.",
+				"OFF": "Uit",
+				"BEFORE_HOURS": "{hours, plural, one {# uur} other {# uur}} van tevoren"
+			},
 			"INTRO": "Kies wat er in je inbox binnenkomt. Als je een type uitzet, komen er geen nieuwe meldingen van dat type meer; bestaande blijven staan.",
 			"LOAD_ERROR": "Je meldingsinstellingen konden niet worden geladen.",
 			"SAVE_FAILED": "Die instelling is niet opgeslagen. Probeer het opnieuw.",

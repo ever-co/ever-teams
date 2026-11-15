@@ -98,6 +98,11 @@ export interface INotificationPreferences {
 	 * A second one follows at twice that.
 	 */
 	timerReminderHours?: number | null;
+	/**
+	 * How many hours before a task's due date its assignees are reminded of it (#5022); 24 when unset, `null` (or 0) for
+	 * no reminder.
+	 */
+	taskDueReminderHours?: number | null;
 }
 
 export type TEmployeeNotificationSettingKey =

@@ -4074,6 +4074,14 @@
 				"OFF": "Désactivé",
 				"AFTER_HOURS": "Après {hours, plural, one {# heure} other {# heures}}"
 			},
+			"TASK_DUE": {
+				"TITLE": "Échéances",
+				"INTRO": "Un rappel avant l'échéance d'une tâche qui vous est assignée, tant qu'elle n'est pas terminée.",
+				"LABEL": "Rappel d'échéance",
+				"TEXT": "Toujours dans votre boîte de réception. Par e-mail et sur vos appareils selon votre choix.",
+				"OFF": "Désactivé",
+				"BEFORE_HOURS": "{hours, plural, one {# heure} other {# heures}} avant"
+			},
 			"INTRO": "Choisissez ce qui arrive dans votre boîte. Désactiver un type arrête les nouvelles notifications de ce type ; celles déjà reçues restent.",
 			"LOAD_ERROR": "Vos réglages de notifications n'ont pas pu être chargés.",
 			"SAVE_FAILED": "Ce réglage n'a pas été enregistré. Réessayez.",
