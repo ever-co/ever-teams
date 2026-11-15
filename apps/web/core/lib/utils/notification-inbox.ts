@@ -1,4 +1,5 @@
 import { timerReminderNoticeOf, type TimerReminderNotice } from '@/core/lib/notifications/timer-reminders';
+import { boardInvitationHref, isBoardInvitation } from '@/core/lib/notifications/board-invitations';
 import { EBaseEntityEnum } from '@/core/types/generics/enums/entity';
 import { EEmployeeNotificationType, IEmployeeNotification } from '@/core/types/interfaces/common/employee-notification';
 import { docsInboxHrefOf } from './docs-links';
@@ -124,6 +125,9 @@ function hrefOf(type: EEmployeeNotificationType | null, notification: IEmployeeN
 	}
 	if (type === EEmployeeNotificationType.TimerReminder) {
 		return TIMER_REMINDER_HREF;
+	}
+	if (isBoardInvitation({ type, entity: notification.entity, rawTitle: notification.title })) {
+		return boardInvitationHref();
 	}
 	const projectHref = projectHrefOf(notification.entity, notification.entityId);
 	if (projectHref) {

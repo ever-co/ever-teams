@@ -4136,6 +4136,9 @@
 		"TASK_DUE": {
 			"BY_END_OF_DAY": "Scade alla fine del {date}",
 			"AT": "Scade il {date}"
+		},
+		"BOARD_INVITATION": {
+			"TEXT": "Ti ha invitato su una lavagna: aprila per unirti."
 		}
 	},
 	"toasts": {

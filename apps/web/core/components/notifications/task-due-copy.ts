@@ -1,4 +1,5 @@
 import type { useTranslations } from 'next-intl';
+import { isBoardInvitation } from '@/core/lib/notifications/board-invitations';
 import { taskDueNoticeOf } from '@/core/lib/notifications/task-due-reminders';
 import { EEmployeeNotificationType } from '@/core/types/interfaces/common/employee-notification';
 
@@ -11,8 +12,17 @@ type Translate = ReturnType<typeof useTranslations>;
 export function notificationMessageOf(
 	t: Translate,
 	locale: string,
-	entry: { type: EEmployeeNotificationType | null; message: string | null }
+	entry: {
+		type: EEmployeeNotificationType | null;
+		message: string | null;
+		entity?: string | null;
+		rawTitle?: string | null;
+	}
 ): string | null {
+	// An invitation to a Board says where it leads (#5022): the platform's title names the team only
+	if (isBoardInvitation(entry)) {
+		return t('notifications.BOARD_INVITATION.TEXT');
+	}
 	if (entry.type !== EEmployeeNotificationType.TaskDueReminder) {
 		return entry.message;
 	}
