@@ -8017,6 +8017,15 @@
 		"TYPE_BREAK": "Pause",
 		"BREAK_HINT": "Eine Pause ist nie abrechenbar und zählt nie als Arbeitszeit."
 	},
+	"tabOrganizationNotice": {
+		"TITLE": "In einem anderen Tab ist eine andere Organisation geöffnet",
+		"KEEPS_WORKING": "Dieser Tab arbeitet weiter in {organization}, mit seinem Timer und seinen Seiten.",
+		"CANNOT_WORK_TITLE": "Dieser Tab kann nicht mehr in {organization} arbeiten",
+		"CANNOT_WORK": "In einem anderen Tab ist eine andere Organisation geöffnet. Wählen Sie, wo dieser Tab arbeitet.",
+		"STOP_TIMER_FIRST": "Sein Timer läuft in {organization}: Stoppen Sie ihn, bevor Sie die andere Organisation hier öffnen.",
+		"OPEN_HERE": "Die andere Organisation hier öffnen",
+		"BRING_BACK": "{organization} in allen Tabs verwenden"
+	},
 	"timeZoneNotice": {
 		"TITLE": "Dein Profil verwendet {profileZone} ({profileOffset}). Dieser Browser ist in {browserZone} ({browserOffset}).",
 		"DESCRIPTION": "Stundenzettel zählen deine Tage in der Zeitzone deines Profils, die übrigen Berichte in der dieses Browsers: Ein Eintrag um Mitternacht kann auf einen anderen Tag fallen.",

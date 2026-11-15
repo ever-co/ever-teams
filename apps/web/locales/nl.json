@@ -8017,6 +8017,15 @@
 		"TYPE_BREAK": "Pauze",
 		"BREAK_HINT": "Een pauze is nooit factureerbaar en telt nooit als gewerkte tijd."
 	},
+	"tabOrganizationNotice": {
+		"TITLE": "Er is een andere organisatie geopend in een ander tabblad",
+		"KEEPS_WORKING": "Dit tabblad blijft werken in {organization}, met zijn timer en zijn pagina’s.",
+		"CANNOT_WORK_TITLE": "Dit tabblad kan niet meer werken in {organization}",
+		"CANNOT_WORK": "Er is een andere organisatie geopend in een ander tabblad. Kies waar dit tabblad werkt.",
+		"STOP_TIMER_FIRST": "De timer loopt in {organization}: stop hem voordat je de andere organisatie hier opent.",
+		"OPEN_HERE": "De andere organisatie hier openen",
+		"BRING_BACK": "{organization} in alle tabbladen gebruiken"
+	},
 	"timeZoneNotice": {
 		"TITLE": "Je profiel gebruikt {profileZone} ({profileOffset}). Deze browser staat in {browserZone} ({browserOffset}).",
 		"DESCRIPTION": "Urenstaten tellen je dagen in de tijdzone van je profiel en de andere rapporten in die van deze browser, dus een registratie rond middernacht kan op een andere dag vallen.",

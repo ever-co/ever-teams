@@ -8017,6 +8017,15 @@
 		"TYPE_BREAK": "Descanso",
 		"BREAK_HINT": "Un descanso nunca es facturable ni cuenta como tiempo trabajado."
 	},
+	"tabOrganizationNotice": {
+		"TITLE": "Hay otra organización abierta en otra pestaña",
+		"KEEPS_WORKING": "Esta pestaña sigue trabajando en {organization}, con su temporizador y sus páginas.",
+		"CANNOT_WORK_TITLE": "Esta pestaña ya no puede trabajar en {organization}",
+		"CANNOT_WORK": "Hay otra organización abierta en otra pestaña. Elige dónde trabaja esta pestaña.",
+		"STOP_TIMER_FIRST": "Su temporizador corre en {organization}: detenlo antes de abrir aquí la otra organización.",
+		"OPEN_HERE": "Abrir aquí la otra organización",
+		"BRING_BACK": "Usar {organization} en todas las pestañas"
+	},
 	"timeZoneNotice": {
 		"TITLE": "Tu perfil usa {profileZone} ({profileOffset}). Este navegador está en {browserZone} ({browserOffset}).",
 		"DESCRIPTION": "Las hojas de horas cuentan tus días en la zona de tu perfil y los demás informes en la de este navegador, así que una entrada cerca de la medianoche puede caer en otro día.",
