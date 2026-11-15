@@ -1,6 +1,6 @@
 /** @jest-environment jsdom */
 import type { ReactNode } from 'react';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { periodOfPreset } from '@/core/lib/utils/dashboard-period';
 import type { TimeActivityFilters } from '@/core/lib/utils/dashboards/time-activity';
 import type { ISavedReport } from '@/core/types/interfaces/timesheet/saved-report';
@@ -112,17 +112,20 @@ const NO_FILTERS: TimeActivityFilters = {
 
 const mockSetLinkParams = jest.fn();
 
-function reportProps(filters: TimeActivityFilters = { ...NO_FILTERS, clientIds: ['client-a'] }) {
+function reportProps(
+	filters: TimeActivityFilters = { ...NO_FILTERS, clientIds: ['client-a'] },
+	setLinkParams: jest.Mock = mockSetLinkParams
+) {
 	return {
 		period: periodOfPreset('lastMonth', 1),
 		user: { id: 'user-1', tenantId: 'tenant-1', employee: { organizationId: 'organization-1' } },
-		settings: { filters, grouping: 'project', setLinkParams: mockSetLinkParams }
+		settings: { filters, grouping: 'project', setLinkParams }
 	} as never;
 }
 
 /** What the link becomes after the last change asked of it. */
-function linkAfterLastChange(current = '') {
-	const change = mockSetLinkParams.mock.calls.at(-1)?.[0] as ((next: URLSearchParams) => void) | undefined;
+function linkAfterLastChange(current = '', setLinkParams: jest.Mock = mockSetLinkParams) {
+	const change = setLinkParams.mock.calls.at(-1)?.[0] as ((next: URLSearchParams) => void) | undefined;
 	if (!change) {
 		throw new Error('The link was never asked to change');
 	}
@@ -152,10 +155,10 @@ describe('TimeActivitySavedReports', () => {
 		jest.clearAllMocks();
 		mockSearchParams = new URLSearchParams();
 		mockSaved = { reports: [CLIENT_A], availability: 'ready', linkTokens: {} };
+		mockUpdatePending = false;
 	});
 
 	it('shows nothing against an API without saved reports, so the page works as before', () => {
-		mockUpdatePending = false;
 		mockSaved = { reports: [], availability: 'unsupported', linkTokens: {} };
 
 		const { container } = render(<TimeActivitySavedReports report={reportProps()} />);
@@ -189,6 +192,33 @@ describe('TimeActivitySavedReports', () => {
 		});
 		await waitFor(() => expect(mockSetLinkParams).toHaveBeenCalled());
 		expect(linkAfterLastChange('period=lastMonth')).toBe('period=lastMonth&report=r2');
+	});
+
+	it('names the new report in the link as it is once saved, keeping a filter changed while the save was pending', async () => {
+		mockSaved = { reports: [], availability: 'ready', linkTokens: {} };
+		let answerSave: (report: ISavedReport) => void = () => undefined;
+		mockCreate.mockReturnValue(
+			new Promise<ISavedReport>((resolve) => {
+				answerSave = resolve;
+			})
+		);
+		const { rerender } = render(<TimeActivitySavedReports report={reportProps()} />);
+		const [nameField] = screen.getAllByLabelText('dashboard.savedReports.NAME');
+		fireEvent.change(nameField, { target: { value: 'Client A, last month' } });
+		fireEvent.submit(nameField.closest('form') as HTMLFormElement);
+		await waitFor(() => expect(mockCreate).toHaveBeenCalledTimes(1));
+
+		// The member picks client B while the save is pending: the page's link moved on
+		const setLaterLinkParams = jest.fn();
+		rerender(
+			<TimeActivitySavedReports report={reportProps({ ...NO_FILTERS, clientIds: ['client-b'] }, setLaterLinkParams)} />
+		);
+		await act(async () => answerSave({ ...CLIENT_A, id: 'r2' }));
+
+		expect(mockSetLinkParams).not.toHaveBeenCalled();
+		expect(linkAfterLastChange('period=lastMonth&clients=client-b', setLaterLinkParams)).toBe(
+			'period=lastMonth&clients=client-b&report=r2'
+		);
 	});
 
 	it('refuses an empty name and saves nothing', () => {
@@ -228,6 +258,17 @@ describe('TimeActivitySavedReports', () => {
 		});
 	});
 
+	it('offers no second update while one is still waiting for its answer', () => {
+		mockSearchParams = new URLSearchParams('report=r1');
+		mockUpdatePending = true;
+		render(<TimeActivitySavedReports report={reportProps({ ...NO_FILTERS, clientIds: ['client-b'] })} />);
+
+		const update = screen.getByText('dashboard.savedReports.UPDATE').closest('button') as HTMLButtonElement;
+		expect(update.disabled).toBe(true);
+		fireEvent.click(update);
+		expect(mockUpdate).not.toHaveBeenCalled();
+	});
+
 	it('has nothing to update while the view is the one saved', () => {
 		mockSearchParams = new URLSearchParams('report=r1');
 		render(<TimeActivitySavedReports report={reportProps()} />);
@@ -249,6 +290,19 @@ describe('TimeActivitySavedReports', () => {
 		expect(linkAfterLastChange('period=lastMonth&report=r1')).toBe('period=lastMonth');
 	});
 
+	it('leaves the link alone when it names another report by the time the delete is done', async () => {
+		mockSearchParams = new URLSearchParams('report=r1');
+		mockRemove.mockResolvedValue(undefined);
+		render(<TimeActivitySavedReports report={reportProps()} />);
+
+		fireEvent.click(screen.getByText('dashboard.savedReports.DELETE'));
+		fireEvent.click(screen.getByText('confirm delete'));
+
+		await waitFor(() => expect(mockRemove).toHaveBeenCalledWith('r1'));
+		await waitFor(() => expect(mockToastSuccess).toHaveBeenCalled());
+		expect(linkAfterLastChange('period=today&report=r9')).toBe('period=today&report=r9');
+	});
+
 	it('turns the link of the open report on, with the end day picked', async () => {
 		mockSearchParams = new URLSearchParams('report=r1');
 		mockShare.mockResolvedValue({ token: 'tok', sharedAt: 'now', shareExpiresAt: null });
@@ -258,17 +312,6 @@ describe('TimeActivitySavedReports', () => {
 		fireEvent.click(screen.getByText('dashboard.savedReports.TURN_ON'));
 
 		await waitFor(() => expect(mockShare).toHaveBeenCalledTimes(1));
-	it('offers no second update while one is still waiting for its answer', () => {
-		mockSearchParams = new URLSearchParams('report=r1');
-		mockUpdatePending = true;
-		render(<TimeActivitySavedReports report={reportProps({ ...NO_FILTERS, clientIds: ['client-b'] })} />);
-
-		const update = screen.getByText('dashboard.savedReports.UPDATE').closest('button') as HTMLButtonElement;
-		expect(update.disabled).toBe(true);
-		fireEvent.click(update);
-		expect(mockUpdate).not.toHaveBeenCalled();
-	});
-
 		expect(mockShare).toHaveBeenCalledWith({
 			id: 'r1',
 			expiresAt: new Date(2099, 11, 31, 23, 59, 59, 999).toISOString()
@@ -329,7 +372,6 @@ describe('TimeActivitySavedReports', () => {
 
 		await waitFor(() => expect(mockUpdate).toHaveBeenCalledWith({ id: 'r1', input: { includeAmounts: true } }));
 	});
-});
 
 	it('holds the amounts switch while its last change is waiting for its answer, so two writes never cross', () => {
 		mockSearchParams = new URLSearchParams('report=r1');
@@ -341,3 +383,4 @@ describe('TimeActivitySavedReports', () => {
 		fireEvent.click(amounts);
 		expect(mockUpdate).not.toHaveBeenCalled();
 	});
+});

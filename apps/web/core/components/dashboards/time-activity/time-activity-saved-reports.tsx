@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/core/compone
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { Bookmark, Share } from '@/core/components/icons';
+import { useCallbackRef } from '@/core/hooks/common/use-callback-ref';
 import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 import { useWorkspaceWeekStart } from '@/core/hooks/common/use-workspace-week-start';
 import type { TimeActivityReport } from '@/core/hooks/dashboards/time-activity/use-time-activity-report';
@@ -168,6 +169,8 @@ export function TimeActivitySavedReports({ report }: Readonly<{ report: TimeActi
 	const searchParams = useSearchParams();
 	const view = useView(report);
 	const { setLinkParams } = report.settings;
+	// A write that ends after the link moved (a filter picked meanwhile) changes the link as it is then
+	const latestSetLinkParams = useCallbackRef(setLinkParams);
 	const saved = useSavedReports({
 		tenantId: report.user?.tenantId,
 		organizationId: report.user?.employee?.organizationId,
@@ -183,9 +186,16 @@ export function TimeActivitySavedReports({ report }: Readonly<{ report: TimeActi
 	const saveView = useCallback(
 		async (name: string) => {
 			const input = savedReportInputOf(view, weekStart, getDefaultTimezone());
+			const savedFrom = activeId;
 			try {
 				const created = await saved.create.mutateAsync({ ...input, name });
-				setLinkParams((next) => next.set(SAVED_REPORT_PARAM, created.id));
+				latestSetLinkParams.current((next) => {
+					// A report opened while the save was pending stays the one the link names
+					const isStillFrom = (next.get(SAVED_REPORT_PARAM) ?? null) === savedFrom;
+					if (isStillFrom) {
+						next.set(SAVED_REPORT_PARAM, created.id);
+					}
+				});
 				toast.success(t('dashboard.savedReports.SAVED', { name: created.name }));
 				return true;
 			} catch {
@@ -193,13 +203,17 @@ export function TimeActivitySavedReports({ report }: Readonly<{ report: TimeActi
 				return false;
 			}
 		},
-		[saved.create, setLinkParams, t, view, weekStart]
+		[activeId, latestSetLinkParams, saved.create, t, view, weekStart]
 	);
 
 	const openReport = useCallback((target: ISavedReport) => openReportIn(setLinkParams, target), [setLinkParams]);
 
 	const updateReport = useCallback(
 		async (target: ISavedReport) => {
+			// One change at a time: a second one could reach the API first and be overwritten by the earlier view
+			if (saved.update.isPending) {
+				return;
+			}
 			const input = savedReportInputOf(view, weekStart, getDefaultTimezone());
 			try {
 				await saved.update.mutateAsync({ id: target.id, input });
@@ -210,10 +224,6 @@ export function TimeActivitySavedReports({ report }: Readonly<{ report: TimeActi
 		},
 		[saved.update, t, view, weekStart]
 	);
-			// One change at a time: a second one could reach the API first and be overwritten by the earlier view
-			if (saved.update.isPending) {
-				return;
-			}
 
 	const renameReport = useCallback(
 		async (name: string) => {
@@ -235,17 +245,21 @@ export function TimeActivitySavedReports({ report }: Readonly<{ report: TimeActi
 		if (!deleting) {
 			return;
 		}
+		const deletedId = deleting.id;
 		try {
-			await saved.remove.mutateAsync(deleting.id);
-			if (deleting.id === activeId) {
-				setLinkParams((next) => next.delete(SAVED_REPORT_PARAM));
-			}
+			await saved.remove.mutateAsync(deletedId);
+			// Only a link that still names the deleted report loses that name; anything else in it stays as it is now
+			latestSetLinkParams.current((next) => {
+				if (next.get(SAVED_REPORT_PARAM) === deletedId) {
+					next.delete(SAVED_REPORT_PARAM);
+				}
+			});
 			toast.success(t('dashboard.savedReports.DELETED', { name: deleting.name }));
 			setDeleting(null);
 		} catch {
 			toast.error(t('dashboard.savedReports.DELETE_FAILED'));
 		}
-	}, [activeId, deleting, saved.remove, setLinkParams, t]);
+	}, [deleting, latestSetLinkParams, saved.remove, t]);
 
 	const urlOf = useCallback(
 		(target: ISavedReport) => {
@@ -287,6 +301,10 @@ export function TimeActivitySavedReports({ report }: Readonly<{ report: TimeActi
 				}
 			},
 			onIncludeAmountsChange: async (includeAmounts) => {
+				// The switch waits for its last change: two writes in flight could land in the wrong order
+				if (saved.update.isPending) {
+					return;
+				}
 				try {
 					await saved.update.mutateAsync({ id: target.id, input: { includeAmounts } });
 				} catch {
@@ -305,10 +323,6 @@ export function TimeActivitySavedReports({ report }: Readonly<{ report: TimeActi
 		[saved.share, saved.unshare, saved.update, t]
 	);
 
-				// The switch waits for its last change: two writes in flight could land in the wrong order
-				if (saved.update.isPending) {
-					return;
-				}
 	// Shown once the API answered: an API without saved reports never shows them, not even for a moment
 	const isAnswered = saved.availability === 'ready' || saved.availability === 'error';
 	if (!isAnswered) {
@@ -322,6 +336,7 @@ export function TimeActivitySavedReports({ report }: Readonly<{ report: TimeActi
 				activeReport={activeReport}
 				availability={saved.availability}
 				showsSavedView={isActiveViewSaved}
+				isUpdating={saved.update.isPending}
 				onOpen={openReport}
 				onUpdate={(target) => void updateReport(target)}
 				onRename={setRenaming}
@@ -336,7 +351,6 @@ export function TimeActivitySavedReports({ report }: Readonly<{ report: TimeActi
 				isSaving={saved.create.isPending}
 				shareActionsOf={shareActionsOf}
 				urlOf={urlOf}
-				isUpdating={saved.update.isPending}
 			/>
 			<Dialog open={renaming !== null} onOpenChange={(isOpen) => !isOpen && setRenaming(null)}>
 				<DialogContent className="sm:max-w-sm">
