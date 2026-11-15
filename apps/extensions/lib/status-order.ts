@@ -16,9 +16,10 @@ export function createStatusOrder() {
 		isLatest(ticket: number): boolean {
 			return ticket === latest;
 		},
-		/** The popup reported a status it read: every read already out is older than it. */
-		reported(): void {
+		/** The popup reported a status it read: every read already out is older than it. Answers its own ticket. */
+		reported(): number {
 			latest += 1;
+			return latest;
 		},
 		/**
 		 * The badge was cleared for a sign-out: every read already out was made for the session that ended, and its

@@ -34,6 +34,8 @@ interface RequestOptions {
 	method?: Method;
 	body?: unknown;
 	query?: Record<string, string | undefined>;
+	/** Cancels the call, its answer's body included: a cancelled call fails as one that could not reach the API. */
+	signal?: AbortSignal;
 }
 
 /** The API origin a person typed, as the base of every route: no trailing slash and no `/api` suffix. */
@@ -115,7 +117,10 @@ async function send(
 }
 
 async function readJson<T>(response: Response): Promise<T> {
-	const text = await response.text();
+	// A body cut off (the connection dropped, or the call was cancelled) is an API that could not be reached
+	const text = await response.text().catch(() => {
+		throw new ApiError(0, 'offline');
+	});
 	if (!text) {
 		return undefined as T;
 	}
@@ -201,11 +206,11 @@ async function renewedNow(session: Session): Promise<Session | null> {
 export async function sessionRequest<T>(session: Session, path: string, options: RequestOptions = {}): Promise<T> {
 	const url = urlOf(session.apiUrl, path, options.query);
 	const method = options.method ?? 'GET';
-	let response = await send(url, method, options.body, sessionHeaders(session));
+	let response = await send(url, method, options.body, sessionHeaders(session), options.signal);
 	if (response.status === 401) {
 		const next = await renewed(session);
 		if (next) {
-			response = await send(url, method, options.body, sessionHeaders(next));
+			response = await send(url, method, options.body, sessionHeaders(next), options.signal);
 		}
 	}
 	if (!response.ok) {

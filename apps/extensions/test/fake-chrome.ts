@@ -40,7 +40,8 @@ function fakeEvent() {
 			listeners.splice(listeners.indexOf(listener) >>> 0, 1);
 		},
 		emit: (...args: unknown[]) => {
-			for (const listener of [...listeners]) {
+			// A copy: a listener may remove itself while the event is told
+			for (const listener of listeners.slice()) {
 				(listener as (...values: unknown[]) => unknown)(...args);
 			}
 		}
@@ -88,13 +89,31 @@ export function installFakeExtension(initial: Record<string, unknown> = {}) {
 	};
 	chromeLike.storage.onChanged = onChanged;
 
-	const badge = { text: '', history: [] as string[] };
+	let colorSet: Promise<void> | null = null;
+	const badge = {
+		text: '',
+		history: [] as string[],
+		/** Holds the next color calls until the returned function is called, as a slow browser would. */
+		holdColor: () => {
+			let release = () => undefined as void;
+			colorSet = new Promise<void>((resolve) => {
+				release = () => {
+					colorSet = null;
+					resolve();
+				};
+			});
+			return release;
+		}
+	};
 	chromeLike.action = {
-		setBadgeText: async ({ text }: { text: string }) => {
+		setBadgeText: ({ text }: { text: string }) => {
 			badge.text = text;
 			badge.history.push(text);
+			return Promise.resolve();
 		},
-		setBadgeBackgroundColor: async () => undefined
+		setBadgeBackgroundColor: async () => {
+			await colorSet;
+		}
 	};
 	const alarms = { created: [] as string[], onAlarm: fakeEvent() };
 	chromeLike.alarms = { create: (name: string) => alarms.created.push(name), onAlarm: alarms.onAlarm };

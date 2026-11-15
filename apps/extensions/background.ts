@@ -1,4 +1,5 @@
 import { createCoalescedRunner } from '~lib/coalesce';
+import { withDeadline } from '~lib/deadline';
 import { getTimerStatus, sendHeartbeat, type TimerStatus } from '~lib/gauzy';
 import { isOwnPagePort } from '~lib/ports';
 import { sendsHeartbeat } from '~lib/run-policy';
@@ -16,6 +17,8 @@ const REFRESH_ALARM = 'refresh-timer-status';
 const REFRESH_EVERY_MINUTES = 1;
 // The primary color of the web's timer button
 const BADGE_COLOR = '#6366f1';
+// A call to the API with no answer by then is cancelled: the refreshes go one at a time, and it would hold them all
+const CALL_DEADLINE_MS = 30_000;
 
 const ports = new Set<chrome.runtime.Port>();
 
@@ -37,7 +40,8 @@ function broadcast(status: TimerStatus | null): void {
 	}
 }
 
-async function showBadge(status: TimerStatus | null): Promise<void> {
+/** Shows a status on the badge; `isCurrent` says whether it is still the newest, after the badge's color was set. */
+async function showBadge(status: TimerStatus | null, isCurrent: () => boolean = () => true): Promise<void> {
 	const run = status?.lastLog;
 	const isRunning = Boolean(status?.running && run);
 	if (!isRunning || !run) {
@@ -45,6 +49,10 @@ async function showBadge(status: TimerStatus | null): Promise<void> {
 		return;
 	}
 	await browser.action.setBadgeBackgroundColor({ color: BADGE_COLOR });
+	// A sign-out (or a newer status) while the color was set: the badge stays as that left it
+	if (!isCurrent()) {
+		return;
+	}
 	await browser.action.setBadgeText({ text: badgeText(secondsSince(run.startedAt, Date.now())) });
 }
 
@@ -83,7 +91,7 @@ async function creditOwnRun(session: Session, status: TimerStatus): Promise<void
 		return;
 	}
 	try {
-		await sendHeartbeat(session, run);
+		await withDeadline(CALL_DEADLINE_MS, (signal) => sendHeartbeat(session, run, { signal }));
 	} catch (error) {
 		// The run goes on and the badge shows it: only this minute is not credited yet, and the next heartbeat credits
 		// the time since the last one that landed. Told apart from a failed read, which keeps the badge silently.
@@ -105,19 +113,24 @@ async function refresh(heartbeat: boolean): Promise<void> {
 		return;
 	}
 	const ticket = statusOrder.readSent();
+	const isCurrent = () => statusOrder.isLatest(ticket);
 	let status: TimerStatus;
 	try {
-		status = await getTimerStatus(session);
+		status = await withDeadline(CALL_DEADLINE_MS, (signal) => getTimerStatus(session, { signal }));
 	} catch (error) {
 		await signOutIfRefused(session, error);
 		// Offline or a server error: the badge keeps its last value, and the next heartbeat credits the missed time
 		return;
 	}
 	// A newer read, a status the popup reported after a start or a stop, or a sign-out came first: this answer is older
-	if (!statusOrder.isLatest(ticket)) {
+	if (!isCurrent()) {
 		return;
 	}
-	await showBadge(status);
+	await showBadge(status, isCurrent);
+	// Checked again: after a sign-out while the badge was set, this answer is neither told to the popups nor credited
+	if (!isCurrent()) {
+		return;
+	}
 	broadcast(status);
 	if (heartbeat) {
 		await creditOwnRun(session, status);
@@ -133,12 +146,17 @@ async function refresh(heartbeat: boolean): Promise<void> {
 const refreshOneAtATime = createCoalescedRunner(refresh, (waiting: boolean, next: boolean) => waiting || next);
 
 async function requestRefresh(heartbeat = false): Promise<void> {
-	// Nothing to read when signed out: the badge clears at once, even while a read of the ended session is out
-	if (!(await loadSession())) {
-		await showSignedOut();
-		return;
+	try {
+		// Nothing to read when signed out: the badge clears at once, even while a read of the ended session is out
+		if (!(await loadSession())) {
+			await showSignedOut();
+			return;
+		}
+		await refreshOneAtATime(heartbeat);
+	} catch (error) {
+		// The storage or the badge failed (not the API, whose failures a refresh handles): the next alarm tries again
+		console.warn('Ever Teams: the timer badge could not be refreshed.', error);
 	}
-	await refreshOneAtATime(heartbeat);
 }
 
 function scheduleRefresh(): void {
@@ -175,8 +193,8 @@ browser.runtime.onConnect.addListener((port) => {
 	port.onMessage.addListener((message: IPostMessage<TimerStatus>) => {
 		const isStatusRead = message.type === MessageTypesToBackgroundEnum.statusRead && message.payload;
 		if (isStatusRead) {
-			statusOrder.reported();
-			void showBadge(message.payload ?? null);
+			const ticket = statusOrder.reported();
+			void showBadge(message.payload ?? null, () => statusOrder.isLatest(ticket));
 		}
 	});
 });
