@@ -18,6 +18,7 @@ import {
 	decimalHoursOf,
 	formatOwed,
 	owedExportRowsOf,
+	owedNoteKeyOf,
 	type OwedExportRow,
 	type OwedFigures,
 	type OwedMemberGroup,
@@ -25,6 +26,7 @@ import {
 	roundedAmountOf
 } from '@/core/lib/utils/dashboards/payments-due';
 import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
+import { usePastTimeRule } from '@/core/hooks/organizations/rates/use-past-time-rule';
 import { dateFormatOf, type FormatLocale } from '@/core/lib/utils/workspace-formats';
 import type { PaymentsPdfContent, PaymentsPdfRow, PaymentsPdfTotal } from './payments-due-pdf';
 
@@ -58,6 +60,9 @@ function pdfRateOf(group: OwedMemberGroup, locale: FormatLocale, t: Translate) {
 	const shown = rateShownOf(group);
 	if (shown === 'noRate') {
 		return t('dashboard.paymentsDue.NO_RATE');
+	}
+	if (shown === 'several') {
+		return t('dashboard.paymentsDue.SEVERAL_RATES');
 	}
 	if (group.rate === null) {
 		return MISSING_FIGURE;
@@ -114,13 +119,14 @@ function pdfTotalsOf(figures: OwedFigures, locale: FormatLocale, t: Translate): 
 
 interface PdfInput {
 	shown: PaymentsDueShown;
+	note: string;
 	title: string;
 	periodText: string;
 	locale: FormatLocale;
 	t: Translate;
 }
 
-function pdfContentOf({ shown, title, periodText, locale, t }: PdfInput): PaymentsPdfContent {
+function pdfContentOf({ shown, note, title, periodText, locale, t }: PdfInput): PaymentsPdfContent {
 	const generatedFormat = dateFormatOf(locale, { dateStyle: 'medium', timeStyle: 'short' });
 	const generatedDate = generatedFormat.format(new Date());
 	const generatedOn = t('dashboard.paymentsDue.export.GENERATED_ON', { date: generatedDate });
@@ -128,7 +134,7 @@ function pdfContentOf({ shown, title, periodText, locale, t }: PdfInput): Paymen
 		title: pdfTextOf(title),
 		period: pdfTextOf(periodText),
 		generatedOn: pdfTextOf(generatedOn),
-		note: t('dashboard.paymentsDue.NOTE'),
+		note,
 		columns: {
 			member: t('common.MEMBER'),
 			rate: t('common.RATE'),
@@ -153,6 +159,7 @@ export function usePaymentsDueExportOptions({
 }: Readonly<{ shown: PaymentsDueShown | null; teamName: string }>): ExportOption[] {
 	const t = useTranslations();
 	const locale = useWorkspaceLocale();
+	const noteKey = owedNoteKeyOf(usePastTimeRule());
 
 	return useMemo(() => {
 		if (!shown) {
@@ -162,7 +169,7 @@ export function usePaymentsDueExportOptions({
 		const title = t('dashboard.paymentsDue.export.PDF_TITLE', { team: teamName, period: periodText });
 		const pdfFileName = periodFileNameOf(FILE_PREFIX, shown.period.from, shown.period.to, 'pdf');
 		const csvFileName = periodFileNameOf(FILE_PREFIX, shown.period.from, shown.period.to, 'csv');
-		const pdfInput: PdfInput = { shown, title, periodText, locale, t };
+		const pdfInput: PdfInput = { shown, note: t(noteKey), title, periodText, locale, t };
 
 		return [
 			{
@@ -182,5 +189,5 @@ export function usePaymentsDueExportOptions({
 				}
 			}
 		];
-	}, [locale, shown, t, teamName]);
+	}, [locale, noteKey, shown, t, teamName]);
 }

@@ -1458,7 +1458,9 @@
 				"SHOW_MORE_MEMBERS": "{count, plural, one {Mostrar # miembro más} other {Mostrar # miembros más}}",
 				"SHOW_FEWER": "Mostrar menos",
 				"UNPRICED_TITLE": "{count, plural, one {# miembro registró} other {# miembros registraron}} {duration} sin tarifa."
-			}
+			},
+			"NOTE_STORED_RATES": "Importes adeudados a la tarifa de cada registro cuando se registró. Ever Teams no registra los pagos.",
+			"SEVERAL_RATES": "Varias tarifas"
 		},
 		"projectBudget": {
 			"TITLE": "Presupuesto de proyectos",
@@ -1527,7 +1529,8 @@
 			"LANE_SHOW_MORE": "{count, plural, one {Mostrar # proyecto más} other {Mostrar # proyectos más}}",
 			"LANE_SHOW_FEWER": "Mostrar menos",
 			"PORTFOLIO_OTHERS": "{count, plural, one {# proyecto más} other {# proyectos más}}",
-			"UNBUDGETED_NOTE": "Define un presupuesto en estos proyectos para colocarlos en el tablero."
+			"UNBUDGETED_NOTE": "Define un presupuesto en estos proyectos para colocarlos en el tablero.",
+			"COST_NOTE_STORED_RATES": "Un costo es el tiempo registrado a la tarifa de cada registro cuando se registró, en la moneda del proyecto y sin conversión."
 		},
 		"actualExpected": {
 			"TITLE": "Horas reales y previstas",
@@ -5608,6 +5611,15 @@
 			"EVERY_PAGE_OUTCOME": "Todas las páginas y exportaciones lo usan ahora.",
 			"READ_ONLY_NOTE": "Solo los administradores del espacio de trabajo pueden cambiar estos ajustes.",
 			"LOAD_FAILED": "No se pudieron cargar los ajustes del espacio de trabajo.",
+			"RATES_SECTION": "Tarifas",
+			"RATES_DESCRIPTION": "Qué hace un cambio de tarifa con el tiempo ya registrado.",
+			"KEEP_RATES_LABEL": "El tiempo pasado conserva su tarifa",
+			"KEEP_RATES_DESCRIPTION": "Activado, una nueva tarifa valora solo el tiempo registrado a partir de entonces, salvo que se elija un día al guardarla. Desactivado, valora todo el tiempo ya registrado, como antes.",
+			"KEEP_RATES_ON": "Activado",
+			"KEEP_RATES_OFF": "Desactivado",
+			"KEEP_RATES_SAVED_ON": "El tiempo pasado ahora conserva su tarifa",
+			"KEEP_RATES_SAVED_OFF": "Una nueva tarifa ahora valora todo el tiempo ya registrado",
+			"KEEP_RATES_NOT_SAVED": "No se guardó el ajuste de tarifas",
 			"DATA_SECTION": "Datos",
 			"EXPORT_LABEL": "Exportar todos los datos",
 			"EXPORT_DESCRIPTION": "Un ZIP de archivos CSV, uno por tabla: todas las organizaciones del espacio de trabajo, en el formato que la importación vuelve a leer.",
@@ -6063,7 +6075,22 @@
 		"REQUEST_SENT": "Solicitud enviada. Se avisó a los administradores de tu organización.",
 		"REQUEST_NOBODY": "Tu organización aún no tiene administradores a quienes avisar. Pregunta directamente al propietario del espacio de trabajo.",
 		"REQUEST_UNAVAILABLE": "Este servidor aún no acepta solicitudes de cambio de tarifa. Pregunta directamente a tu administrador.",
-		"REQUEST_FAILED": "La solicitud no se envió."
+		"REQUEST_FAILED": "La solicitud no se envió.",
+		"APPLY_QUESTION": "¿Aplicar al tiempo ya registrado?",
+		"APPLY_FROM_NOW": "No, a partir de ahora",
+		"APPLY_FROM_NOW_DETAIL": "El tiempo ya registrado conserva su precio.",
+		"APPLY_ALL_TIME": "Sí, a todo",
+		"APPLY_ALL_TIME_DETAIL": "Todo el tiempo ya registrado toma la nueva tarifa.",
+		"APPLY_FROM_DAY": "Sí, desde una fecha",
+		"APPLY_FROM_DAY_DETAIL": "El tiempo registrado ese día o después toma la nueva tarifa.",
+		"APPLY_DAY": "Desde",
+		"APPLY_DAY_MISSING": "Elige el día desde el que se aplica la nueva tarifa.",
+		"APPLY_WORKSPACE_HINT": "El tiempo ya registrado conserva su precio por defecto cuando «El tiempo pasado conserva su tarifa» está activado en Ajustes > Espacio de trabajo.",
+		"RATE_SAVED": "Tarifa guardada",
+		"ENTRIES_REPRICED": "{count, plural, =0 {Ningún registro de tiempo cambió de precio.} one {# registro de tiempo cambió de precio.} other {# registros de tiempo cambiaron de precio.}}",
+		"PAST_TIME_KEPT": "El tiempo ya registrado conserva su precio.",
+		"APPLY_BILLED_KEPT": "El tiempo que ya figura en una factura o un presupuesto conserva el precio al que se facturó.",
+		"REPRICE_UNFINISHED": "El guardado no terminó. Es posible que la nueva tarifa se haya guardado mientras el tiempo ya registrado conservó su precio anterior: guarde de nuevo para terminar."
 	},
 	"auth": {
 		"code": {

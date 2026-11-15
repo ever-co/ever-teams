@@ -1458,7 +1458,9 @@
 				"SHOW_MORE_MEMBERS": "{count, plural, one {Nog # lid tonen} other {Nog # leden tonen}}",
 				"SHOW_FEWER": "Minder tonen",
 				"UNPRICED_TITLE": "{count, plural, one {# lid registreerde} other {# leden registreerden}} {duration} zonder tarief."
-			}
+			},
+			"NOTE_STORED_RATES": "Verschuldigde bedragen tegen het tarief van elke registratie op het moment dat die werd geregistreerd. Betalingen worden niet vastgelegd in Ever Teams.",
+			"SEVERAL_RATES": "Meerdere tarieven"
 		},
 		"projectBudget": {
 			"TITLE": "Projectbudget",
@@ -1527,7 +1529,8 @@
 			"LANE_SHOW_MORE": "{count, plural, one {Nog # project tonen} other {Nog # projecten tonen}}",
 			"LANE_SHOW_FEWER": "Minder tonen",
 			"PORTFOLIO_OTHERS": "{count, plural, one {# ander project} other {# andere projecten}}",
-			"UNBUDGETED_NOTE": "Stel een budget in op deze projecten om ze op het bord te zetten."
+			"UNBUDGETED_NOTE": "Stel een budget in op deze projecten om ze op het bord te zetten.",
+			"COST_NOTE_STORED_RATES": "Kosten zijn de geregistreerde tijd tegen het tarief van elke registratie op het moment dat die werd geregistreerd, in de valuta van het project, zonder omrekening."
 		},
 		"actualExpected": {
 			"TITLE": "Werkelijke en verwachte uren",
@@ -5608,6 +5611,15 @@
 			"EVERY_PAGE_OUTCOME": "Elke pagina en export gebruikt het nu.",
 			"READ_ONLY_NOTE": "Alleen beheerders van de werkruimte kunnen deze instellingen wijzigen.",
 			"LOAD_FAILED": "De instellingen van de werkruimte konden niet worden geladen.",
+			"RATES_SECTION": "Tarieven",
+			"RATES_DESCRIPTION": "Wat een tariefwijziging doet met de al geregistreerde tijd.",
+			"KEEP_RATES_LABEL": "Eerdere tijd houdt zijn tarief",
+			"KEEP_RATES_DESCRIPTION": "Aan: een nieuw tarief prijst alleen de tijd die vanaf dan wordt geregistreerd, tenzij bij het opslaan een dag wordt gekozen. Uit: het prijst alle al geregistreerde tijd, zoals voorheen.",
+			"KEEP_RATES_ON": "Aan",
+			"KEEP_RATES_OFF": "Uit",
+			"KEEP_RATES_SAVED_ON": "Eerdere tijd houdt nu zijn tarief",
+			"KEEP_RATES_SAVED_OFF": "Een nieuw tarief prijst nu alle al geregistreerde tijd",
+			"KEEP_RATES_NOT_SAVED": "De tariefinstelling is niet opgeslagen",
 			"DATA_SECTION": "Gegevens",
 			"EXPORT_LABEL": "Alle gegevens exporteren",
 			"EXPORT_DESCRIPTION": "Een ZIP met CSV-bestanden, één per tabel: elke organisatie van de werkruimte, in het formaat dat de import weer inleest.",
@@ -6063,7 +6075,22 @@
 		"REQUEST_SENT": "Aanvraag verstuurd. De admins van je organisatie hebben een melding gekregen.",
 		"REQUEST_NOBODY": "Je organisatie heeft nog geen admin om te melden. Vraag het direct aan de eigenaar van de werkruimte.",
 		"REQUEST_UNAVAILABLE": "Deze server neemt nog geen aanvragen voor tariefwijziging aan. Vraag het direct aan je admin.",
-		"REQUEST_FAILED": "De aanvraag is niet verstuurd."
+		"REQUEST_FAILED": "De aanvraag is niet verstuurd.",
+		"APPLY_QUESTION": "Toepassen op al geregistreerde tijd?",
+		"APPLY_FROM_NOW": "Nee, vanaf nu",
+		"APPLY_FROM_NOW_DETAIL": "Al geregistreerde tijd houdt zijn prijs.",
+		"APPLY_ALL_TIME": "Ja, op alles",
+		"APPLY_ALL_TIME_DETAIL": "Alle al geregistreerde tijd krijgt het nieuwe tarief.",
+		"APPLY_FROM_DAY": "Ja, vanaf een datum",
+		"APPLY_FROM_DAY_DETAIL": "Tijd die op of na deze dag is geregistreerd krijgt het nieuwe tarief.",
+		"APPLY_DAY": "Vanaf",
+		"APPLY_DAY_MISSING": "Kies de dag vanaf wanneer het nieuwe tarief geldt.",
+		"APPLY_WORKSPACE_HINT": "Al geregistreerde tijd houdt standaard zijn prijs wanneer „Eerdere tijd houdt zijn tarief” aan staat in Instellingen > Werkruimte.",
+		"RATE_SAVED": "Tarief opgeslagen",
+		"ENTRIES_REPRICED": "{count, plural, =0 {Geen tijdregistratie is van prijs veranderd.} one {# tijdregistratie is van prijs veranderd.} other {# tijdregistraties zijn van prijs veranderd.}}",
+		"PAST_TIME_KEPT": "Al geregistreerde tijd houdt zijn prijs.",
+		"APPLY_BILLED_KEPT": "Tijd die al op een factuur of offerte staat, behoudt de prijs waartegen die is gefactureerd.",
+		"REPRICE_UNFINISHED": "Het opslaan is niet voltooid. Het nieuwe tarief is mogelijk opgeslagen terwijl de al geregistreerde tijd zijn oude prijs heeft behouden: sla opnieuw op om het af te ronden."
 	},
 	"auth": {
 		"code": {

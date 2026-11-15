@@ -1458,7 +1458,9 @@
 				"SHOW_MORE_MEMBERS": "{count, plural, one {# weiteres Mitglied anzeigen} other {# weitere Mitglieder anzeigen}}",
 				"SHOW_FEWER": "Weniger anzeigen",
 				"UNPRICED_TITLE": "{count, plural, one {# Mitglied hat} other {# Mitglieder haben}} {duration} ohne Satz erfasst."
-			}
+			},
+			"NOTE_STORED_RATES": "Geschuldete Beträge zum Satz jedes Eintrags zum Zeitpunkt seiner Erfassung. Zahlungen werden in Ever Teams nicht erfasst.",
+			"SEVERAL_RATES": "Mehrere Sätze"
 		},
 		"projectBudget": {
 			"TITLE": "Projektbudget",
@@ -1527,7 +1529,8 @@
 			"LANE_SHOW_MORE": "{count, plural, one {# weiteres Projekt anzeigen} other {# weitere Projekte anzeigen}}",
 			"LANE_SHOW_FEWER": "Weniger anzeigen",
 			"PORTFOLIO_OTHERS": "{count, plural, one {# weiteres Projekt} other {# weitere Projekte}}",
-			"UNBUDGETED_NOTE": "Lege für diese Projekte ein Budget fest, um sie auf das Board zu bringen."
+			"UNBUDGETED_NOTE": "Lege für diese Projekte ein Budget fest, um sie auf das Board zu bringen.",
+			"COST_NOTE_STORED_RATES": "Kosten sind die erfasste Zeit zum Satz jedes Eintrags zum Zeitpunkt seiner Erfassung, in der Währung des Projekts und ohne Umrechnung."
 		},
 		"actualExpected": {
 			"TITLE": "Ist- und Sollstunden",
@@ -5608,6 +5611,15 @@
 			"EVERY_PAGE_OUTCOME": "Jede Seite und jeder Export verwendet es jetzt.",
 			"READ_ONLY_NOTE": "Nur Administratoren des Arbeitsbereichs können diese Einstellungen ändern.",
 			"LOAD_FAILED": "Die Einstellungen des Arbeitsbereichs konnten nicht geladen werden.",
+			"RATES_SECTION": "Sätze",
+			"RATES_DESCRIPTION": "Was eine Satzänderung mit der bereits erfassten Zeit macht.",
+			"KEEP_RATES_LABEL": "Vergangene Zeit behält ihren Satz",
+			"KEEP_RATES_DESCRIPTION": "An: Ein neuer Satz bewertet nur die ab dann erfasste Zeit, außer beim Speichern wird ein Tag gewählt. Aus: Er bewertet die gesamte bereits erfasste Zeit, wie bisher.",
+			"KEEP_RATES_ON": "An",
+			"KEEP_RATES_OFF": "Aus",
+			"KEEP_RATES_SAVED_ON": "Vergangene Zeit behält jetzt ihren Satz",
+			"KEEP_RATES_SAVED_OFF": "Ein neuer Satz bewertet jetzt die gesamte bereits erfasste Zeit",
+			"KEEP_RATES_NOT_SAVED": "Die Satzeinstellung wurde nicht gespeichert",
 			"DATA_SECTION": "Daten",
 			"EXPORT_LABEL": "Alle Daten exportieren",
 			"EXPORT_DESCRIPTION": "Ein ZIP mit CSV-Dateien, eine pro Tabelle: jede Organisation des Arbeitsbereichs, im Format, das der Import wieder einliest.",
@@ -6063,7 +6075,22 @@
 		"REQUEST_SENT": "Anfrage gesendet. Die Admins Ihrer Organisation wurden benachrichtigt.",
 		"REQUEST_NOBODY": "Ihre Organisation hat noch keinen Admin, der benachrichtigt werden kann. Fragen Sie direkt den Inhaber des Arbeitsbereichs.",
 		"REQUEST_UNAVAILABLE": "Dieser Server nimmt noch keine Anfragen zur Satzänderung an. Fragen Sie direkt Ihren Admin.",
-		"REQUEST_FAILED": "Die Anfrage wurde nicht gesendet."
+		"REQUEST_FAILED": "Die Anfrage wurde nicht gesendet.",
+		"APPLY_QUESTION": "Auf bereits erfasste Zeit anwenden?",
+		"APPLY_FROM_NOW": "Nein, ab jetzt",
+		"APPLY_FROM_NOW_DETAIL": "Bereits erfasste Zeit behält ihren Preis.",
+		"APPLY_ALL_TIME": "Ja, auf die gesamte",
+		"APPLY_ALL_TIME_DETAIL": "Die gesamte bereits erfasste Zeit erhält den neuen Satz.",
+		"APPLY_FROM_DAY": "Ja, ab einem Datum",
+		"APPLY_FROM_DAY_DETAIL": "Ab diesem Tag erfasste Zeit erhält den neuen Satz.",
+		"APPLY_DAY": "Ab",
+		"APPLY_DAY_MISSING": "Wählen Sie den Tag, ab dem der neue Satz gilt.",
+		"APPLY_WORKSPACE_HINT": "Bereits erfasste Zeit behält standardmäßig ihren Preis, wenn „Vergangene Zeit behält ihren Satz“ unter Einstellungen > Arbeitsbereich aktiviert ist.",
+		"RATE_SAVED": "Satz gespeichert",
+		"ENTRIES_REPRICED": "{count, plural, =0 {Kein Zeiteintrag hat seinen Preis geändert.} one {# Zeiteintrag hat seinen Preis geändert.} other {# Zeiteinträge haben ihren Preis geändert.}}",
+		"PAST_TIME_KEPT": "Bereits erfasste Zeit behält ihren Preis.",
+		"APPLY_BILLED_KEPT": "Zeit, die bereits auf einer Rechnung oder einem Angebot steht, behält den abgerechneten Preis.",
+		"REPRICE_UNFINISHED": "Das Speichern wurde nicht abgeschlossen. Der neue Satz ist möglicherweise gespeichert, während die bereits erfasste Zeit ihren alten Preis behalten hat: Speichern Sie erneut, um es abzuschließen."
 	},
 	"auth": {
 		"code": {

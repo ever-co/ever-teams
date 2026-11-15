@@ -27,6 +27,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 			projectId: parsedProjectId.data,
 			employeeId: parsedEmployeeId.data,
 			billRateValue: parsedBody.data.billRateValue,
+			applyFrom: parsedBody.data.applyFrom,
 			organizationId,
 			bearer_token: access_token,
 			tenantId

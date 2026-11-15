@@ -448,7 +448,7 @@ export function useTeamMembersSettings() {
 	const saveMemberRates = useCallback(
 		async (rowId: string, rates: IEmployeeRatesInput) => {
 			const { employeeId } = findMember(rowId);
-			await saveEmployeeRates({ employeeId, rates });
+			return await saveEmployeeRates({ employeeId, rates });
 		},
 		[findMember, saveEmployeeRates]
 	);

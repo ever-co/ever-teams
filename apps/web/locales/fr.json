@@ -1458,7 +1458,9 @@
 				"SHOW_MORE_MEMBERS": "{count, plural, one {Afficher # membre de plus} other {Afficher # membres de plus}}",
 				"SHOW_FEWER": "Afficher moins",
 				"UNPRICED_TITLE": "{count, plural, one {# membre a suivi} other {# membres ont suivi}} {duration} sans taux."
-			}
+			},
+			"NOTE_STORED_RATES": "Montants dus au taux de chaque entrée au moment où elle a été suivie. Les paiements ne sont pas enregistrés dans Ever Teams.",
+			"SEVERAL_RATES": "Plusieurs taux"
 		},
 		"projectBudget": {
 			"TITLE": "Budget des projets",
@@ -1527,7 +1529,8 @@
 			"LANE_SHOW_MORE": "{count, plural, one {Afficher # projet de plus} other {Afficher # projets de plus}}",
 			"LANE_SHOW_FEWER": "Afficher moins",
 			"PORTFOLIO_OTHERS": "{count, plural, one {# autre projet} other {# autres projets}}",
-			"UNBUDGETED_NOTE": "Définissez un budget sur ces projets pour les placer sur le tableau."
+			"UNBUDGETED_NOTE": "Définissez un budget sur ces projets pour les placer sur le tableau.",
+			"COST_NOTE_STORED_RATES": "Un coût est le temps suivi au taux de chaque entrée au moment où elle a été suivie, compté dans la devise du projet, sans conversion."
 		},
 		"actualExpected": {
 			"TITLE": "Heures réelles et prévues",
@@ -5608,6 +5611,15 @@
 			"EVERY_PAGE_OUTCOME": "Chaque page et chaque export l'utilisent désormais.",
 			"READ_ONLY_NOTE": "Seuls les administrateurs de l'espace de travail peuvent modifier ces réglages.",
 			"LOAD_FAILED": "Les réglages de l'espace de travail n'ont pas pu être chargés.",
+			"RATES_SECTION": "Taux",
+			"RATES_DESCRIPTION": "Ce qu’un changement de taux fait au temps déjà suivi.",
+			"KEEP_RATES_LABEL": "Le temps passé garde son taux",
+			"KEEP_RATES_DESCRIPTION": "Activé, un nouveau taux ne valorise que le temps suivi à partir de là, sauf si un jour est choisi à l’enregistrement. Désactivé, il valorise tout le temps déjà suivi, comme avant.",
+			"KEEP_RATES_ON": "Activé",
+			"KEEP_RATES_OFF": "Désactivé",
+			"KEEP_RATES_SAVED_ON": "Le temps passé garde désormais son taux",
+			"KEEP_RATES_SAVED_OFF": "Un nouveau taux valorise désormais tout le temps déjà suivi",
+			"KEEP_RATES_NOT_SAVED": "Le réglage des taux n’a pas été enregistré",
 			"DATA_SECTION": "Données",
 			"EXPORT_LABEL": "Exporter toutes les données",
 			"EXPORT_DESCRIPTION": "Un ZIP de fichiers CSV, un par table : toutes les organisations de l'espace de travail, au format que l'import relit.",
@@ -6063,7 +6075,22 @@
 		"REQUEST_SENT": "Demande envoyée. Les admins de votre organisation ont été prévenus.",
 		"REQUEST_NOBODY": "Votre organisation n'a pas encore d'admin à prévenir. Demandez directement au propriétaire de l'espace de travail.",
 		"REQUEST_UNAVAILABLE": "Ce serveur ne prend pas encore les demandes de changement de taux. Demandez directement à votre admin.",
-		"REQUEST_FAILED": "La demande n'a pas été envoyée."
+		"REQUEST_FAILED": "La demande n'a pas été envoyée.",
+		"APPLY_QUESTION": "Appliquer au temps déjà suivi ?",
+		"APPLY_FROM_NOW": "Non, à partir de maintenant",
+		"APPLY_FROM_NOW_DETAIL": "Le temps déjà suivi garde son prix.",
+		"APPLY_ALL_TIME": "Oui, à tout",
+		"APPLY_ALL_TIME_DETAIL": "Tout le temps déjà suivi prend le nouveau taux.",
+		"APPLY_FROM_DAY": "Oui, à partir d’une date",
+		"APPLY_FROM_DAY_DETAIL": "Le temps suivi ce jour-là ou après prend le nouveau taux.",
+		"APPLY_DAY": "À partir du",
+		"APPLY_DAY_MISSING": "Choisissez le jour à partir duquel le nouveau taux s’applique.",
+		"APPLY_WORKSPACE_HINT": "Le temps déjà suivi garde son prix par défaut quand « Le temps passé garde son taux » est activé dans Paramètres > Espace de travail.",
+		"RATE_SAVED": "Taux enregistré",
+		"ENTRIES_REPRICED": "{count, plural, =0 {Aucune entrée de temps n’a changé de prix.} one {# entrée de temps a changé de prix.} other {# entrées de temps ont changé de prix.}}",
+		"PAST_TIME_KEPT": "Le temps déjà suivi garde son prix.",
+		"APPLY_BILLED_KEPT": "Le temps déjà sur une facture ou un devis garde le prix auquel il a été facturé.",
+		"REPRICE_UNFINISHED": "L'enregistrement n'a pas abouti. Le nouveau taux est peut-être enregistré alors que le temps déjà suivi a gardé son ancien prix : enregistrez à nouveau pour terminer."
 	},
 	"auth": {
 		"code": {

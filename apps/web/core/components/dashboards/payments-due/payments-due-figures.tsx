@@ -20,11 +20,13 @@ import {
 	formatOwed,
 	formatOwedTick,
 	maxValueOf,
+	owedNoteKeyOf,
 	type OwedCurrencyTotal,
 	type OwedFigures,
 	type PaymentsChartKey
 } from '@/core/lib/utils/dashboards/payments-due';
 import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
+import { usePastTimeRule } from '@/core/hooks/organizations/rates/use-past-time-rule';
 import type { FormatLocale } from '@/core/lib/utils/workspace-formats';
 import { MISSING_FIGURE } from './payments-due-cells';
 
@@ -232,9 +234,10 @@ const OwedChart = memo(function OwedChart({
 
 function OwedNote() {
 	const t = useTranslations();
+	const noteKey = owedNoteKeyOf(usePastTimeRule());
 	return (
 		<p className="px-4 py-2 text-xs text-muted-foreground text-pretty hairline-t border-dashed border-border">
-			{t('dashboard.paymentsDue.NOTE')}
+			{t(noteKey)}
 		</p>
 	);
 }

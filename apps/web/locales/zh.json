@@ -1458,7 +1458,9 @@
 				"SHOW_MORE_MEMBERS": "{count, plural, other {再显示 # 位成员}}",
 				"SHOW_FEWER": "收起",
 				"UNPRICED_TITLE": "{count, plural, other {# 位成员}}在没有费率的情况下记录了 {duration}。"
-			}
+			},
+			"NOTE_STORED_RATES": "按每条记录在记录时的费率计算的应付金额。Ever Teams 不记录付款。",
+			"SEVERAL_RATES": "多个费率"
 		},
 		"projectBudget": {
 			"TITLE": "项目预算",
@@ -1527,7 +1529,8 @@
 			"LANE_SHOW_MORE": "{count, plural, other {再显示 # 个项目}}",
 			"LANE_SHOW_FEWER": "收起",
 			"PORTFOLIO_OTHERS": "{count, plural, other {其他 # 个项目}}",
-			"UNBUDGETED_NOTE": "为这些项目设置预算后，它们会出现在看板上。"
+			"UNBUDGETED_NOTE": "为这些项目设置预算后，它们会出现在看板上。",
+			"COST_NOTE_STORED_RATES": "成本按每条记录在记录时的费率计算记录的时间，以项目货币计，不做换算。"
 		},
 		"actualExpected": {
 			"TITLE": "实际与预期工时",
@@ -5608,6 +5611,15 @@
 			"EVERY_PAGE_OUTCOME": "现在每个页面和导出都使用它。",
 			"READ_ONLY_NOTE": "只有工作区管理员可以更改这些设置。",
 			"LOAD_FAILED": "无法加载工作区设置。",
+			"RATES_SECTION": "费率",
+			"RATES_DESCRIPTION": "费率变更对已记录时间的影响。",
+			"KEEP_RATES_LABEL": "过去的时间保留其费率",
+			"KEEP_RATES_DESCRIPTION": "开启时，新费率仅计价此后记录的时间，除非保存时选择了日期。关闭时，它会计价所有已记录的时间，与以前相同。",
+			"KEEP_RATES_ON": "开启",
+			"KEEP_RATES_OFF": "关闭",
+			"KEEP_RATES_SAVED_ON": "过去的时间现在保留其费率",
+			"KEEP_RATES_SAVED_OFF": "新费率现在会计价所有已记录的时间",
+			"KEEP_RATES_NOT_SAVED": "费率设置未保存",
 			"DATA_SECTION": "数据",
 			"EXPORT_LABEL": "导出全部数据",
 			"EXPORT_DESCRIPTION": "由 CSV 文件组成的 ZIP，每张表一个文件：包含工作区的所有组织，采用导入功能可以读回的格式。",
@@ -6063,7 +6075,22 @@
 		"REQUEST_SENT": "申请已发送，已通知组织管理员。",
 		"REQUEST_NOBODY": "你的组织还没有可通知的管理员。请直接联系工作区所有者。",
 		"REQUEST_UNAVAILABLE": "此服务器暂不支持费率调整申请。请直接联系管理员。",
-		"REQUEST_FAILED": "申请未发送。"
+		"REQUEST_FAILED": "申请未发送。",
+		"APPLY_QUESTION": "应用于已记录的时间？",
+		"APPLY_FROM_NOW": "否，从现在起",
+		"APPLY_FROM_NOW_DETAIL": "已记录的时间保留其价格。",
+		"APPLY_ALL_TIME": "是，全部",
+		"APPLY_ALL_TIME_DETAIL": "所有已记录的时间都采用新费率。",
+		"APPLY_FROM_DAY": "是，从某个日期起",
+		"APPLY_FROM_DAY_DETAIL": "在该日期当天或之后记录的时间采用新费率。",
+		"APPLY_DAY": "起始日期",
+		"APPLY_DAY_MISSING": "请选择新费率开始生效的日期。",
+		"APPLY_WORKSPACE_HINT": "在“设置 > 工作区”中开启“过去的时间保留其费率”后，已记录的时间默认保留其价格。",
+		"RATE_SAVED": "费率已保存",
+		"ENTRIES_REPRICED": "{count, plural, =0 {没有时间记录改变价格。} other {# 条时间记录改变了价格。}}",
+		"PAST_TIME_KEPT": "已记录的时间保留其价格。",
+		"APPLY_BILLED_KEPT": "已列入发票或报价单的时间保留其开票时的价格。",
+		"REPRICE_UNFINISHED": "保存未完成。新费率可能已保存，但已记录的时间仍保持原价：请再次保存以完成。"
 	},
 	"auth": {
 		"code": {

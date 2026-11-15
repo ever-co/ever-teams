@@ -1458,7 +1458,9 @@
 				"SHOW_MORE_MEMBERS": "{count, plural, one {Show # more member} other {Show # more members}}",
 				"SHOW_FEWER": "Show fewer",
 				"UNPRICED_TITLE": "{count, plural, one {# member} other {# members}} tracked {duration} without a rate."
-			}
+			},
+			"NOTE_STORED_RATES": "Amounts owed at the rate of each entry when it was tracked. Payments are not recorded in Ever Teams.",
+			"SEVERAL_RATES": "Several rates"
 		},
 		"projectBudget": {
 			"TITLE": "Project budget",
@@ -1527,7 +1529,8 @@
 			"LANE_SHOW_MORE": "{count, plural, one {Show # more project} other {Show # more projects}}",
 			"LANE_SHOW_FEWER": "Show fewer",
 			"PORTFOLIO_OTHERS": "{count, plural, one {# other project} other {# other projects}}",
-			"UNBUDGETED_NOTE": "Set a budget on these projects to place them on the board."
+			"UNBUDGETED_NOTE": "Set a budget on these projects to place them on the board.",
+			"COST_NOTE_STORED_RATES": "A cost is the tracked time at the rate of each entry when it was tracked, counted in the project's currency without conversion."
 		},
 		"actualExpected": {
 			"TITLE": "Actual & expected hours",
@@ -5608,6 +5611,15 @@
 			"EVERY_PAGE_OUTCOME": "Every page and export now uses it.",
 			"READ_ONLY_NOTE": "Only workspace admins can change these settings.",
 			"LOAD_FAILED": "The workspace settings could not load.",
+			"RATES_SECTION": "Rates",
+			"RATES_DESCRIPTION": "What a rate change does to the time already tracked.",
+			"KEEP_RATES_LABEL": "Past time keeps its rate",
+			"KEEP_RATES_DESCRIPTION": "On, a new rate prices only the time tracked from then on, unless a day is picked when it is saved. Off, it prices all the time already tracked, as before.",
+			"KEEP_RATES_ON": "On",
+			"KEEP_RATES_OFF": "Off",
+			"KEEP_RATES_SAVED_ON": "Past time now keeps its rate",
+			"KEEP_RATES_SAVED_OFF": "A new rate now prices all the time already tracked",
+			"KEEP_RATES_NOT_SAVED": "The rate setting was not saved",
 			"DATA_SECTION": "Data",
 			"EXPORT_LABEL": "Export all data",
 			"EXPORT_DESCRIPTION": "A ZIP of CSV files, one per table: every organization of the workspace, in the format the import reads back.",
@@ -6063,7 +6075,22 @@
 		"REQUEST_SENT": "Request sent. Your organization's admins were notified.",
 		"REQUEST_NOBODY": "Your organization has no admin to notify yet. Ask your workspace owner directly.",
 		"REQUEST_UNAVAILABLE": "This server cannot take rate change requests yet. Ask your admin directly.",
-		"REQUEST_FAILED": "The request was not sent."
+		"REQUEST_FAILED": "The request was not sent.",
+		"APPLY_QUESTION": "Apply to time already tracked?",
+		"APPLY_FROM_NOW": "No, from now on",
+		"APPLY_FROM_NOW_DETAIL": "Time already tracked keeps its price.",
+		"APPLY_ALL_TIME": "Yes, all of it",
+		"APPLY_ALL_TIME_DETAIL": "All the time already tracked takes the new rate.",
+		"APPLY_FROM_DAY": "Yes, from a date",
+		"APPLY_FROM_DAY_DETAIL": "Time tracked on or after this day takes the new rate.",
+		"APPLY_DAY": "From",
+		"APPLY_DAY_MISSING": "Pick the day the new rate applies from.",
+		"APPLY_WORKSPACE_HINT": "Time already tracked keeps its price by default when “Past time keeps its rate” is on in Settings > Workspace.",
+		"RATE_SAVED": "Rate saved",
+		"ENTRIES_REPRICED": "{count, plural, =0 {No time entry changed price.} one {# time entry changed price.} other {# time entries changed price.}}",
+		"PAST_TIME_KEPT": "Time already tracked keeps its price.",
+		"APPLY_BILLED_KEPT": "Time already on an invoice or an estimate keeps the price it was billed at.",
+		"REPRICE_UNFINISHED": "The save did not finish. The new rate may be saved while the time already tracked kept its old price: save again to finish."
 	},
 	"auth": {
 		"code": {

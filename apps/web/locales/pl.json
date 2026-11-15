@@ -1458,7 +1458,9 @@
 				"SHOW_MORE_MEMBERS": "{count, plural, one {Pokaż jeszcze # członka} few {Pokaż jeszcze # członków} many {Pokaż jeszcze # członków} other {Pokaż jeszcze # członka}}",
 				"SHOW_FEWER": "Pokaż mniej",
 				"UNPRICED_TITLE": "{count, plural, one {# członek zarejestrował} few {# członków zarejestrowało} many {# członków zarejestrowało} other {# członka zarejestrowało}} {duration} bez stawki."
-			}
+			},
+			"NOTE_STORED_RATES": "Kwoty należne według stawki każdego wpisu z chwili, gdy został zarejestrowany. Płatności nie są rejestrowane w Ever Teams.",
+			"SEVERAL_RATES": "Kilka stawek"
 		},
 		"projectBudget": {
 			"TITLE": "Budżet projektów",
@@ -1527,7 +1529,8 @@
 			"LANE_SHOW_MORE": "{count, plural, one {Pokaż jeszcze # projekt} few {Pokaż jeszcze # projekty} many {Pokaż jeszcze # projektów} other {Pokaż jeszcze # projektu}}",
 			"LANE_SHOW_FEWER": "Pokaż mniej",
 			"PORTFOLIO_OTHERS": "{count, plural, one {# inny projekt} few {# inne projekty} many {# innych projektów} other {# innego projektu}}",
-			"UNBUDGETED_NOTE": "Ustaw budżet tych projektów, aby umieścić je na tablicy."
+			"UNBUDGETED_NOTE": "Ustaw budżet tych projektów, aby umieścić je na tablicy.",
+			"COST_NOTE_STORED_RATES": "Koszt to zarejestrowany czas według stawki każdego wpisu z chwili, gdy został zarejestrowany, w walucie projektu, bez przeliczania."
 		},
 		"actualExpected": {
 			"TITLE": "Godziny rzeczywiste i planowane",
@@ -5608,6 +5611,15 @@
 			"EVERY_PAGE_OUTCOME": "Każda strona i każdy eksport używają go teraz.",
 			"READ_ONLY_NOTE": "Tylko administratorzy obszaru roboczego mogą zmieniać te ustawienia.",
 			"LOAD_FAILED": "Nie udało się wczytać ustawień obszaru roboczego.",
+			"RATES_SECTION": "Stawki",
+			"RATES_DESCRIPTION": "Co zmiana stawki robi z już zarejestrowanym czasem.",
+			"KEEP_RATES_LABEL": "Miniony czas zachowuje swoją stawkę",
+			"KEEP_RATES_DESCRIPTION": "Włączone: nowa stawka wycenia tylko czas zarejestrowany od tej chwili, chyba że przy zapisie wybrano dzień. Wyłączone: wycenia cały już zarejestrowany czas, jak dotąd.",
+			"KEEP_RATES_ON": "Włączone",
+			"KEEP_RATES_OFF": "Wyłączone",
+			"KEEP_RATES_SAVED_ON": "Miniony czas zachowuje teraz swoją stawkę",
+			"KEEP_RATES_SAVED_OFF": "Nowa stawka wycenia teraz cały już zarejestrowany czas",
+			"KEEP_RATES_NOT_SAVED": "Ustawienie stawek nie zostało zapisane",
 			"DATA_SECTION": "Dane",
 			"EXPORT_LABEL": "Eksportuj wszystkie dane",
 			"EXPORT_DESCRIPTION": "Archiwum ZIP z plikami CSV, po jednym na tabelę: wszystkie organizacje obszaru roboczego, w formacie, który import odczyta z powrotem.",
@@ -6063,7 +6075,22 @@
 		"REQUEST_SENT": "Prośba wysłana. Administratorzy Twojej organizacji zostali powiadomieni.",
 		"REQUEST_NOBODY": "Twoja organizacja nie ma jeszcze administratora do powiadomienia. Zapytaj bezpośrednio właściciela obszaru roboczego.",
 		"REQUEST_UNAVAILABLE": "Ten serwer nie przyjmuje jeszcze próśb o zmianę stawki. Zapytaj bezpośrednio administratora.",
-		"REQUEST_FAILED": "Prośba nie została wysłana."
+		"REQUEST_FAILED": "Prośba nie została wysłana.",
+		"APPLY_QUESTION": "Zastosować do już zarejestrowanego czasu?",
+		"APPLY_FROM_NOW": "Nie, od teraz",
+		"APPLY_FROM_NOW_DETAIL": "Już zarejestrowany czas zachowuje swoją cenę.",
+		"APPLY_ALL_TIME": "Tak, do całego",
+		"APPLY_ALL_TIME_DETAIL": "Cały już zarejestrowany czas otrzymuje nową stawkę.",
+		"APPLY_FROM_DAY": "Tak, od daty",
+		"APPLY_FROM_DAY_DETAIL": "Czas zarejestrowany tego dnia lub później otrzymuje nową stawkę.",
+		"APPLY_DAY": "Od",
+		"APPLY_DAY_MISSING": "Wybierz dzień, od którego obowiązuje nowa stawka.",
+		"APPLY_WORKSPACE_HINT": "Już zarejestrowany czas domyślnie zachowuje swoją cenę, gdy w Ustawienia > Obszar roboczy włączono „Miniony czas zachowuje swoją stawkę”.",
+		"RATE_SAVED": "Stawka zapisana",
+		"ENTRIES_REPRICED": "{count, plural, =0 {Żaden wpis czasu nie zmienił ceny.} one {# wpis czasu zmienił cenę.} few {# wpisy czasu zmieniły cenę.} many {# wpisów czasu zmieniło cenę.} other {# wpisu czasu zmieniło cenę.}}",
+		"PAST_TIME_KEPT": "Już zarejestrowany czas zachowuje swoją cenę.",
+		"APPLY_BILLED_KEPT": "Czas, który jest już na fakturze lub w ofercie, zachowuje cenę, po jakiej został zafakturowany.",
+		"REPRICE_UNFINISHED": "Zapisywanie nie zostało ukończone. Nowa stawka mogła zostać zapisana, a już zarejestrowany czas zachował starą cenę: zapisz ponownie, aby dokończyć."
 	},
 	"auth": {
 		"code": {

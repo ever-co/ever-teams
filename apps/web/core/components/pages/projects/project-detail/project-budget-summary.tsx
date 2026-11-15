@@ -25,9 +25,11 @@ import {
 	budgetTypeOf,
 	isHoursBudget,
 	projectBudgetPathOf,
-	type BudgetRow
+	type BudgetRow,
+	costNoteKeyOf
 } from '@/core/lib/utils/dashboards/project-budget';
 import { budgetUseOf, CONSUMPTION_SCOPE, hasProjectBudget } from '@/core/lib/utils/project-consumption';
+import { usePastTimeRule } from '@/core/hooks/organizations/rates/use-past-time-rule';
 import type { TOrganizationProject } from '@/core/types/schemas';
 
 type Translate = ReturnType<typeof useTranslations>;
@@ -179,6 +181,7 @@ export function ProjectBudgetSummary({ project }: Readonly<{ project: TOrganizat
 	const locale = useLocale();
 	const showsConsumption = useCanSeeProjectConsumption();
 	const consumption = useProjectConsumption({ isEnabled: showsConsumption });
+	const pastTimeRule = usePastTimeRule();
 
 	if (!consumption.isAvailable) {
 		return null;
@@ -210,6 +213,7 @@ export function ProjectBudgetSummary({ project }: Readonly<{ project: TOrganizat
 	const spentLabel = spentLabelOf(isHoursType, t);
 	const items = summaryItemsOf(row, spentLabel, locale, t);
 	const showsCostNote = Boolean(row) && !isHoursType;
+	const costNoteKey = costNoteKeyOf(pastTimeRule);
 
 	return (
 		<SummaryFrame
@@ -223,11 +227,7 @@ export function ProjectBudgetSummary({ project }: Readonly<{ project: TOrganizat
 					<BudgetPillMeter amounts={budgetUse} />
 				</MeterRow>
 			)}
-			{showsCostNote && (
-				<p className="px-4 pb-3 text-xs text-muted-foreground text-pretty">
-					{t('dashboard.projectBudget.COST_NOTE')}
-				</p>
-			)}
+			{showsCostNote && <p className="px-4 pb-3 text-xs text-muted-foreground text-pretty">{t(costNoteKey)}</p>}
 		</SummaryFrame>
 	);
 }

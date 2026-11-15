@@ -11,6 +11,7 @@ import { WorkspaceBreaksSection } from './workspace-breaks-section';
 import { WorkspaceDataSection } from './workspace-data-section';
 import { WorkspaceFormatsSection } from './workspace-formats-section';
 import { WorkspaceIdentitySection } from './workspace-identity-section';
+import { WorkspaceRatesSection } from './workspace-rates-section';
 import { WorkspaceSettingsSkeleton } from './workspace-settings-skeleton';
 
 export function WorkspaceSettingsPage() {
@@ -63,6 +64,12 @@ export function WorkspaceSettingsPage() {
 				saveClock={settings.saveClock}
 				saveCurrencyPosition={settings.saveCurrencyPosition}
 				saveDurationRounding={settings.saveDurationRounding}
+			/>
+			<WorkspaceRatesSection
+				key={`rates-${organization.id}`}
+				organization={organization}
+				canEdit={settings.canEdit}
+				saveTimeLogsKeepTheirRates={settings.saveTimeLogsKeepTheirRates}
 			/>
 			<WorkspaceBreaksSection
 				key={`breaks-${organization.id}`}

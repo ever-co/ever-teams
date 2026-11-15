@@ -1458,7 +1458,9 @@
 				"SHOW_MORE_MEMBERS": "{count, plural, one {Mostra # altro membro} other {Mostra altri # membri}}",
 				"SHOW_FEWER": "Mostra meno",
 				"UNPRICED_TITLE": "{count, plural, one {# membro ha registrato} other {# membri hanno registrato}} {duration} senza tariffa."
-			}
+			},
+			"NOTE_STORED_RATES": "Importi dovuti alla tariffa di ogni voce al momento in cui è stata registrata. Ever Teams non registra i pagamenti.",
+			"SEVERAL_RATES": "Più tariffe"
 		},
 		"projectBudget": {
 			"TITLE": "Budget dei progetti",
@@ -1527,7 +1529,8 @@
 			"LANE_SHOW_MORE": "{count, plural, one {Mostra # altro progetto} other {Mostra altri # progetti}}",
 			"LANE_SHOW_FEWER": "Mostra meno",
 			"PORTFOLIO_OTHERS": "{count, plural, one {# altro progetto} other {altri # progetti}}",
-			"UNBUDGETED_NOTE": "Imposta un budget su questi progetti per inserirli nella bacheca."
+			"UNBUDGETED_NOTE": "Imposta un budget su questi progetti per inserirli nella bacheca.",
+			"COST_NOTE_STORED_RATES": "Un costo è il tempo registrato alla tariffa di ogni voce al momento in cui è stata registrata, nella valuta del progetto e senza conversione."
 		},
 		"actualExpected": {
 			"TITLE": "Ore effettive e previste",
@@ -5608,6 +5611,15 @@
 			"EVERY_PAGE_OUTCOME": "Ora ogni pagina ed esportazione lo usa.",
 			"READ_ONLY_NOTE": "Solo gli amministratori dello spazio di lavoro possono cambiare queste impostazioni.",
 			"LOAD_FAILED": "Non è stato possibile caricare le impostazioni dello spazio di lavoro.",
+			"RATES_SECTION": "Tariffe",
+			"RATES_DESCRIPTION": "Cosa fa un cambio di tariffa al tempo già registrato.",
+			"KEEP_RATES_LABEL": "Il tempo passato mantiene la sua tariffa",
+			"KEEP_RATES_DESCRIPTION": "Attivo, una nuova tariffa valorizza solo il tempo registrato da quel momento, a meno che non si scelga un giorno al salvataggio. Disattivo, valorizza tutto il tempo già registrato, come prima.",
+			"KEEP_RATES_ON": "Attivo",
+			"KEEP_RATES_OFF": "Disattivo",
+			"KEEP_RATES_SAVED_ON": "Il tempo passato ora mantiene la sua tariffa",
+			"KEEP_RATES_SAVED_OFF": "Una nuova tariffa ora valorizza tutto il tempo già registrato",
+			"KEEP_RATES_NOT_SAVED": "L’impostazione delle tariffe non è stata salvata",
 			"DATA_SECTION": "Dati",
 			"EXPORT_LABEL": "Esporta tutti i dati",
 			"EXPORT_DESCRIPTION": "Uno ZIP di file CSV, uno per tabella: tutte le organizzazioni dello spazio di lavoro, nel formato che l'importazione rilegge.",
@@ -6063,7 +6075,22 @@
 		"REQUEST_SENT": "Richiesta inviata. Gli admin della tua organizzazione sono stati avvisati.",
 		"REQUEST_NOBODY": "La tua organizzazione non ha ancora un admin da avvisare. Chiedi direttamente al proprietario dello spazio di lavoro.",
 		"REQUEST_UNAVAILABLE": "Questo server non accetta ancora richieste di cambio tariffa. Chiedi direttamente al tuo admin.",
-		"REQUEST_FAILED": "La richiesta non è stata inviata."
+		"REQUEST_FAILED": "La richiesta non è stata inviata.",
+		"APPLY_QUESTION": "Applicare al tempo già registrato?",
+		"APPLY_FROM_NOW": "No, da ora in poi",
+		"APPLY_FROM_NOW_DETAIL": "Il tempo già registrato mantiene il suo prezzo.",
+		"APPLY_ALL_TIME": "Sì, a tutto",
+		"APPLY_ALL_TIME_DETAIL": "Tutto il tempo già registrato prende la nuova tariffa.",
+		"APPLY_FROM_DAY": "Sì, da una data",
+		"APPLY_FROM_DAY_DETAIL": "Il tempo registrato in quel giorno o dopo prende la nuova tariffa.",
+		"APPLY_DAY": "Dal",
+		"APPLY_DAY_MISSING": "Scegli il giorno da cui si applica la nuova tariffa.",
+		"APPLY_WORKSPACE_HINT": "Il tempo già registrato mantiene il suo prezzo per impostazione predefinita quando «Il tempo passato mantiene la sua tariffa» è attivo in Impostazioni > Spazio di lavoro.",
+		"RATE_SAVED": "Tariffa salvata",
+		"ENTRIES_REPRICED": "{count, plural, =0 {Nessuna voce di tempo ha cambiato prezzo.} one {# voce di tempo ha cambiato prezzo.} other {# voci di tempo hanno cambiato prezzo.}}",
+		"PAST_TIME_KEPT": "Il tempo già registrato mantiene il suo prezzo.",
+		"APPLY_BILLED_KEPT": "Il tempo già presente in una fattura o in un preventivo mantiene il prezzo a cui è stato fatturato.",
+		"REPRICE_UNFINISHED": "Il salvataggio non è terminato. La nuova tariffa potrebbe essere salvata mentre il tempo già registrato ha mantenuto il prezzo precedente: salva di nuovo per completare."
 	},
 	"auth": {
 		"code": {

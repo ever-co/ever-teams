@@ -1458,7 +1458,9 @@
 				"SHOW_MORE_MEMBERS": "{count, plural, one {Mostrar mais # membro} other {Mostrar mais # membros}}",
 				"SHOW_FEWER": "Mostrar menos",
 				"UNPRICED_TITLE": "{count, plural, one {# membro registrou} other {# membros registraram}} {duration} sem taxa."
-			}
+			},
+			"NOTE_STORED_RATES": "Valores devidos à taxa de cada registro no momento em que foi registrado. O Ever Teams não registra pagamentos.",
+			"SEVERAL_RATES": "Várias taxas"
 		},
 		"projectBudget": {
 			"TITLE": "Orçamento de projetos",
@@ -1527,7 +1529,8 @@
 			"LANE_SHOW_MORE": "{count, plural, one {Mostrar mais # projeto} other {Mostrar mais # projetos}}",
 			"LANE_SHOW_FEWER": "Mostrar menos",
 			"PORTFOLIO_OTHERS": "{count, plural, one {# outro projeto} other {# outros projetos}}",
-			"UNBUDGETED_NOTE": "Defina um orçamento nestes projetos para colocá-los no quadro."
+			"UNBUDGETED_NOTE": "Defina um orçamento nestes projetos para colocá-los no quadro.",
+			"COST_NOTE_STORED_RATES": "Um custo é o tempo registrado à taxa de cada registro no momento em que foi registrado, na moeda do projeto e sem conversão."
 		},
 		"actualExpected": {
 			"TITLE": "Horas reais e previstas",
@@ -5608,6 +5611,15 @@
 			"EVERY_PAGE_OUTCOME": "Todas as páginas e exportações passam a usá-lo.",
 			"READ_ONLY_NOTE": "Só os administradores do espaço de trabalho podem mudar estas configurações.",
 			"LOAD_FAILED": "Não foi possível carregar as configurações do espaço de trabalho.",
+			"RATES_SECTION": "Taxas",
+			"RATES_DESCRIPTION": "O que uma mudança de taxa faz com o tempo já registrado.",
+			"KEEP_RATES_LABEL": "O tempo passado mantém sua taxa",
+			"KEEP_RATES_DESCRIPTION": "Ativado, uma nova taxa valoriza apenas o tempo registrado a partir de então, a menos que um dia seja escolhido ao salvar. Desativado, valoriza todo o tempo já registrado, como antes.",
+			"KEEP_RATES_ON": "Ativado",
+			"KEEP_RATES_OFF": "Desativado",
+			"KEEP_RATES_SAVED_ON": "O tempo passado agora mantém sua taxa",
+			"KEEP_RATES_SAVED_OFF": "Uma nova taxa agora valoriza todo o tempo já registrado",
+			"KEEP_RATES_NOT_SAVED": "A configuração de taxas não foi salva",
 			"DATA_SECTION": "Dados",
 			"EXPORT_LABEL": "Exportar todos os dados",
 			"EXPORT_DESCRIPTION": "Um ZIP de arquivos CSV, um por tabela: todas as organizações do espaço de trabalho, no formato que a importação lê de volta.",
@@ -6063,7 +6075,22 @@
 		"REQUEST_SENT": "Pedido enviado. Os admins da sua organização foram avisados.",
 		"REQUEST_NOBODY": "Sua organização ainda não tem admin para avisar. Pergunte diretamente ao dono do espaço de trabalho.",
 		"REQUEST_UNAVAILABLE": "Este servidor ainda não aceita pedidos de mudança de taxa. Pergunte diretamente ao seu admin.",
-		"REQUEST_FAILED": "O pedido não foi enviado."
+		"REQUEST_FAILED": "O pedido não foi enviado.",
+		"APPLY_QUESTION": "Aplicar ao tempo já registrado?",
+		"APPLY_FROM_NOW": "Não, a partir de agora",
+		"APPLY_FROM_NOW_DETAIL": "O tempo já registrado mantém seu preço.",
+		"APPLY_ALL_TIME": "Sim, a todo",
+		"APPLY_ALL_TIME_DETAIL": "Todo o tempo já registrado recebe a nova taxa.",
+		"APPLY_FROM_DAY": "Sim, a partir de uma data",
+		"APPLY_FROM_DAY_DETAIL": "O tempo registrado nesse dia ou depois recebe a nova taxa.",
+		"APPLY_DAY": "A partir de",
+		"APPLY_DAY_MISSING": "Escolha o dia a partir do qual a nova taxa se aplica.",
+		"APPLY_WORKSPACE_HINT": "O tempo já registrado mantém seu preço por padrão quando “O tempo passado mantém sua taxa” está ativado em Configurações > Espaço de trabalho.",
+		"RATE_SAVED": "Taxa salva",
+		"ENTRIES_REPRICED": "{count, plural, =0 {Nenhum registro de tempo mudou de preço.} one {# registro de tempo mudou de preço.} other {# registros de tempo mudaram de preço.}}",
+		"PAST_TIME_KEPT": "O tempo já registrado mantém seu preço.",
+		"APPLY_BILLED_KEPT": "O tempo que já consta numa fatura ou num orçamento mantém o preço a que foi faturado.",
+		"REPRICE_UNFINISHED": "O salvamento não terminou. A nova taxa pode ter sido salva enquanto o tempo já registrado manteve o preço antigo: salve novamente para concluir."
 	},
 	"auth": {
 		"code": {
