@@ -19,6 +19,13 @@ export function createStatusOrder() {
 		/** The popup reported a status it read: every read already out is older than it. */
 		reported(): void {
 			latest += 1;
+		},
+		/**
+		 * The badge was cleared for a sign-out: every read already out was made for the session that ended, and its
+		 * answer must not show that session's timer again.
+		 */
+		cleared(): void {
+			latest += 1;
 		}
 	};
 }
