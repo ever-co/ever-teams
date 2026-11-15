@@ -435,6 +435,18 @@ describe('useTimeImport', () => {
 		expect(mockAddManualTime).toHaveBeenCalledTimes(3);
 		expect(result.current.report).toMatchObject({ savedCount: 3, notSentCount: 0 });
 	});
+
+	it('never brings back the file members were added for once another file was chosen', async () => {
+		const { result } = renderImport();
+		await act(() => result.current.chooseFile(csvFile(THREE_ROWS, 'march.csv')));
+		const recheckOfAdd = result.current.recheckWithMembers;
+		await act(() => result.current.chooseFile(csvFile([THREE_ROWS[0]], 'april.csv')));
+
+		await act(() => recheckOfAdd([{ employeeId: 'employee-lena', email: '', name: 'Lena' }]));
+
+		expect(result.current.fileName).toBe('april.csv');
+		expect(result.current.rows).toHaveLength(1);
+	});
 });
 
 describe('useTimeImport for a file from another tool', () => {
