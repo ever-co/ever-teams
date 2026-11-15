@@ -51,9 +51,11 @@ function requiredFieldsKey(fields: unknown): string {
 
 // What says nothing against the request itself: the API was not reached, timed out, was busy or failed
 const RETRYABLE_STATUSES: ReadonlySet<number> = new Set([0, 408, 429]);
+// Server answers that the same request gets again: not implemented, an HTTP version not supported
+const LASTING_SERVER_STATUSES: ReadonlySet<number> = new Set([501, 505]);
 
 function isRetryable(status: number): boolean {
-	return RETRYABLE_STATUSES.has(status) || status >= 500;
+	return RETRYABLE_STATUSES.has(status) || (status >= 500 && !LASTING_SERVER_STATUSES.has(status));
 }
 
 /** The words to show for a failed call of the timer or the task list, and whether trying again may help. */

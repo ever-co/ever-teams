@@ -8,7 +8,7 @@ const SECONDS_PER_MINUTE = 60;
 /** Whether a part of an estimate is a whole number from 0 to `max`, written with at most as many digits as `max`. */
 function isPartWithin(part: string, max: number): boolean {
 	const digits = String(max).length;
-	return new RegExp(`^\\d{1,${digits}}$`).test(part) && Number(part) <= max;
+	return new RegExp(String.raw`^\d{1,${digits}}$`).test(part) && Number(part) <= max;
 }
 
 /**

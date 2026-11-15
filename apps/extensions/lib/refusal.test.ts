@@ -48,7 +48,7 @@ describe('refusalOf', () => {
 	});
 
 	it('marks no refusal of the request itself as worth trying again unchanged', () => {
-		for (const status of [400, 401, 403, 404, 409, 422]) {
+		for (const status of [400, 401, 403, 404, 409, 422, 501, 505]) {
 			assert.equal(refusalOf({ status, message: 'Refused' }).retryable, undefined, `status ${status}`);
 		}
 		assert.equal(refusalOf({ status: 422, code: 'DAILY_PLAN_REQUIRED' }).retryable, undefined);

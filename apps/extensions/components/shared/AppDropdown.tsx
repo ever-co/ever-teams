@@ -44,8 +44,8 @@ export const AppDropdown: FC<IAppDropdownProps> = ({
 		}
 	}, [disabled]);
 
-	// Escape closes the menu and gives the focus back to the button that opened it
-	const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+	// Escape, on the button or in the menu, closes the menu and gives the focus back to the button that opened it
+	const onKeyDown = (event: KeyboardEvent<HTMLElement>) => {
 		if (event.key !== 'Escape' || !isOpen) {
 			return;
 		}
@@ -85,7 +85,7 @@ export const AppDropdown: FC<IAppDropdownProps> = ({
 	});
 
 	return (
-		<div ref={ref} className="relative" onKeyDown={onKeyDown}>
+		<div ref={ref} className="relative">
 			<button
 				ref={toggleRef}
 				type="button"
@@ -95,6 +95,7 @@ export const AppDropdown: FC<IAppDropdownProps> = ({
 				disabled={disabled}
 				className={classNames('inline-flex items-center justify-between', buttonClassNames)}
 				onClick={() => setHidden((prev) => !prev)}
+				onKeyDown={onKeyDown}
 			>
 				<span className={classNames(textEllipsis, inheritTextSize)}>{buttonTitle}</span>
 				{svgCaret}
@@ -106,7 +107,7 @@ export const AppDropdown: FC<IAppDropdownProps> = ({
 					optionContainerClassNames
 				)}
 			>
-				<ul role="listbox" className="text-zinc-700 dark:text-zinc-200">
+				<ul role="listbox" className="text-zinc-700 dark:text-zinc-200" onKeyDown={onKeyDown}>
 					{optionElements}
 				</ul>
 			</div>
