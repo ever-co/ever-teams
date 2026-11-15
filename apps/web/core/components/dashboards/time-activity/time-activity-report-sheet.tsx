@@ -73,7 +73,7 @@ function useChartLabels(): AreaChartLabels {
 const CHART_PART = 'px-4 pt-1 pb-4';
 
 /** Where an admin sets the rate that prices time no other rate prices. */
-export const DEFAULT_RATE_SETTINGS_PATH = '/settings/workspace#formats';
+const DEFAULT_RATE_SETTINGS_PATH = '/settings/workspace#formats';
 
 /**
  * Billable time no rate prices is left out of the billable amount and counted here, apart, with the way to price it

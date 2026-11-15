@@ -1269,7 +1269,7 @@ export interface BreakdownFact {
 }
 
 /** Billable time of a fact and what it bills at the price chain's rate. */
-export interface FactBillable {
+interface FactBillable {
 	seconds: number;
 	/** Null when no rate prices the time. */
 	amount: number | null;
