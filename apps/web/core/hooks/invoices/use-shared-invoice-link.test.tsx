@@ -26,6 +26,14 @@ describe('useSharedInvoiceLink (ever-co/ever-gauzy#11856)', () => {
 		expect(result.current).toEqual({ id: ID, token: TOKEN });
 	});
 
+	it("reads the email link's own route too, as the address is before the router replaced it", () => {
+		visit(`/shared-invoice#/share/invoices/${ID}/${TOKEN}`);
+
+		const { result } = renderHook(() => useSharedInvoiceLink());
+
+		expect(result.current).toEqual({ id: ID, token: TOKEN });
+	});
+
 	it('says an address without a link that can be one opens nothing', () => {
 		visit(`/shared-invoice#id=42&token=${TOKEN}`);
 

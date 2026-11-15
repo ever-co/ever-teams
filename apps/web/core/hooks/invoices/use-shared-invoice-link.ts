@@ -5,6 +5,7 @@ import {
 	PAID_RETURN_QUERY,
 	sharedInvoiceFragmentOf,
 	sharedInvoiceLinkOf,
+	sharedInvoicePageOfHash,
 	type SharedInvoiceLink
 } from '@/core/lib/utils/shared-invoice';
 
@@ -32,6 +33,11 @@ function keptLinkFragment(): string | null {
 /** The fragment that names the invoice: the address's own, or, back from paying, the one the tab kept. */
 function linkFragmentOfAddress(): string {
 	const hash = window.location.hash;
+	// The email link's own route, as the page may first render it while the router replaces the address
+	const emailPage = sharedInvoicePageOfHash(hash);
+	if (emailPage) {
+		return emailPage.slice(emailPage.indexOf('#'));
+	}
 	if (sharedInvoiceLinkOf(hash) || !isPaymentReturn()) {
 		return hash;
 	}
