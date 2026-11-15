@@ -146,6 +146,7 @@ describe('organizationDeletionStatusOf', () => {
 		isError: false,
 		error: null,
 		isSuccess: true,
+		isMenuFetching: false,
 		isMenuError: false,
 		isMenuSuccess: true
 	};
@@ -156,6 +157,10 @@ describe('organizationDeletionStatusOf', () => {
 
 	it('is loading while the counts are read again, so counts from an earlier opening never let the delete run', () => {
 		expect(organizationDeletionStatusOf({ ...settled, isFetching: true })).toBe('loading');
+	});
+
+	it('is loading while the person’s organizations are read again, which decide where they land', () => {
+		expect(organizationDeletionStatusOf({ ...settled, isMenuFetching: true })).toBe('loading');
 	});
 
 	it('is loading until both reads answered', () => {

@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthenticateUser } from '@/core/hooks/auth/use-authenticate-user';
 import { useSwitchOrganization } from '@/core/hooks/organizations/teams/use-switch-organization';
@@ -70,6 +71,16 @@ export function useOrganizationDeletion(
 		refetchOnWindowFocus: false
 	});
 
+	// The team menu keeps the person's organizations for ten minutes: one they joined since would be missed as the
+	// organization to land in, and the delete would sign them out instead of opening it
+	const refetchMemberships = menuOrganizations.refetch;
+	const readsMemberships = canDelete && isConfirmOpen;
+	useEffect(() => {
+		if (readsMemberships) {
+			void refetchMemberships();
+		}
+	}, [readsMemberships, refetchMemberships]);
+
 	const menu = menuOrganizations.data;
 	const memberships = menu ? [menu.current, ...menu.others].filter(isOrganization) : [];
 	const landing = organizationId ? organizationToLandInAfterDeletion(memberships, organizationId) : null;
@@ -80,6 +91,7 @@ export function useOrganizationDeletion(
 		isError: facts.isError,
 		error: facts.error,
 		isSuccess: facts.isSuccess,
+		isMenuFetching: readsMemberships && menuOrganizations.isFetching,
 		isMenuError: menuOrganizations.isError,
 		isMenuSuccess: menuOrganizations.isSuccess
 	});

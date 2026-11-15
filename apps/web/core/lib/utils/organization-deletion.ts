@@ -80,7 +80,8 @@ export interface OrganizationDeletionReads {
 	isError: boolean;
 	error: unknown;
 	isSuccess: boolean;
-	/** The person's organizations, which decide where they land. */
+	/** The person's organizations, which decide where they land, read again each time the confirmation opens. */
+	isMenuFetching: boolean;
 	isMenuError: boolean;
 	isMenuSuccess: boolean;
 }
@@ -90,7 +91,7 @@ export interface OrganizationDeletionReads {
  * stays off until the fresh ones are in.
  */
 export function organizationDeletionStatusOf(reads: OrganizationDeletionReads): OrganizationDeletionStatus {
-	if (reads.isFetching) {
+	if (reads.isFetching || reads.isMenuFetching) {
 		return 'loading';
 	}
 	if (reads.isError) {
