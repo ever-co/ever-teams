@@ -7700,6 +7700,41 @@
 			"NOT_FOUND_MESSAGE": "Potrebbe essere stata eliminata, oppure il link viene da un altro spazio di lavoro.",
 			"ALL_INVOICES": "Tutte le fatture",
 			"ERROR_TITLE": "Impossibile caricare la fattura"
+		},
+		"shared": {
+			"PAY": "Paga {amount}",
+			"PAYING": "Apertura del pagamento…",
+			"PAY_FAILED": "Non è stato possibile avviare il pagamento. Riprova tra un momento.",
+			"DOWNLOAD_FAILED": "Non è stato possibile scaricare il PDF. Riprova.",
+			"FROM_SENDER": "Da {name}",
+			"RETURNED_TITLE": "Grazie per il pagamento",
+			"RETURNED_MESSAGE": "È in corso di conferma. Questa pagina mostra la fattura come pagata non appena il fornitore di pagamenti lo conferma.",
+			"PAID_TITLE": "Questa fattura è pagata",
+			"PAID_MESSAGE": "Non resta nulla da pagare. Grazie.",
+			"CLOSED_TITLE": "Questo link non apre più una fattura",
+			"CLOSED_MESSAGE": "Il link è stato revocato o la fattura è stata annullata. Chiedi un nuovo link al mittente.",
+			"FOOTER": "Inviato con {app}"
+		},
+		"payments": {
+			"TITLE": "Pagamento online delle fatture",
+			"DESCRIPTION": "Permetti ai clienti di pagare una fattura dalla sua pagina, tramite il connettore di pagamento del tuo spazio di lavoro. Le chiavi del tuo fornitore di pagamenti restano nel connettore.",
+			"ENDPOINT": "Indirizzo di pagamento",
+			"ENDPOINT_HINT": "L’indirizzo HTTPS del tuo connettore che apre un pagamento.",
+			"ENABLED": "Offri il pagamento online nelle pagine delle fatture",
+			"TEST_MODE": "Modalità di prova: i pagamenti sono registrati nel log, mai sulle fatture",
+			"CONNECT": "Collega",
+			"SAVE": "Salva",
+			"SAVED": "Salvato",
+			"SAVE_FAILED": "Non è stato possibile salvare il collegamento. Controlla l'indirizzo e riprova.",
+			"LOAD_FAILED": "Non è stato possibile caricare il collegamento.",
+			"NOTIFICATION_URL": "Indirizzo di notifica",
+			"NOTIFICATION_URL_HINT": "Il tuo connettore invia qui ogni pagamento confermato dal fornitore.",
+			"SECRET": "Segreto di firma",
+			"SECRET_ONCE": "Copialo ora nel tuo connettore: viene mostrato solo questa volta.",
+			"ROTATE": "Nuovo segreto di firma",
+			"ROTATE_HINT": "Il segreto attuale smette subito di funzionare.",
+			"COPY": "Copia",
+			"COPIED": "Copiato"
 		}
 	},
 	"timeReports": {

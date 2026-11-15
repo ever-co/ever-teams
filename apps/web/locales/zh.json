@@ -7700,6 +7700,41 @@
 			"NOT_FOUND_MESSAGE": "它可能已被删除，或者链接来自另一个工作区。",
 			"ALL_INVOICES": "全部发票",
 			"ERROR_TITLE": "无法加载发票"
+		},
+		"shared": {
+			"PAY": "支付 {amount}",
+			"PAYING": "正在打开支付…",
+			"PAY_FAILED": "无法开始支付。请稍后再试。",
+			"DOWNLOAD_FAILED": "无法下载 PDF。请重试。",
+			"FROM_SENDER": "来自 {name}",
+			"RETURNED_TITLE": "感谢您的付款",
+			"RETURNED_MESSAGE": "付款正在确认中。支付服务商确认后，此页面会立即显示发票已付款。",
+			"PAID_TITLE": "此发票已付款",
+			"PAID_MESSAGE": "已无待付款项。谢谢。",
+			"CLOSED_TITLE": "此链接已无法打开发票",
+			"CLOSED_MESSAGE": "链接已被撤销，或发票已作废。请向发件人索取新链接。",
+			"FOOTER": "通过 {app} 发送"
+		},
+		"payments": {
+			"TITLE": "在线支付发票",
+			"DESCRIPTION": "让客户通过工作区的支付连接器，在发票页面上直接付款。您的支付服务商密钥保留在连接器中。",
+			"ENDPOINT": "结账地址",
+			"ENDPOINT_HINT": "连接器中用于发起支付的 HTTPS 地址。",
+			"ENABLED": "在发票页面上提供在线支付",
+			"TEST_MODE": "测试模式：付款只记入日志，绝不记入发票",
+			"CONNECT": "连接",
+			"SAVE": "保存",
+			"SAVED": "已保存",
+			"SAVE_FAILED": "无法保存连接。请检查地址后重试。",
+			"LOAD_FAILED": "无法加载连接。",
+			"NOTIFICATION_URL": "通知地址",
+			"NOTIFICATION_URL_HINT": "连接器会将服务商确认的每笔付款发送到这里。",
+			"SECRET": "签名密钥",
+			"SECRET_ONCE": "请立即复制到连接器中：它只显示这一次。",
+			"ROTATE": "新的签名密钥",
+			"ROTATE_HINT": "当前密钥会立即失效。",
+			"COPY": "复制",
+			"COPIED": "已复制"
 		}
 	},
 	"timeReports": {
