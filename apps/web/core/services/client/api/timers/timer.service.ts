@@ -316,7 +316,8 @@ class TimerService extends APIService {
 		timeLogId
 	}: {
 		source: ETimeLogSource;
-		user?: TUser | null;
+		/** The person whose timer it is: only their employee is read. */
+		user?: { employee?: Pick<NonNullable<TUser['employee']>, 'id'> | null } | null;
 		timeLogId?: string;
 	}) => {
 		// Advanced before the request so overlapping syncs never credit the same seconds twice.

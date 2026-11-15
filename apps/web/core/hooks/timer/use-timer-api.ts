@@ -26,6 +26,7 @@ import {
 } from '@/core/lib/helpers/timer-errors';
 import { notesToSendAtStart, notesToSendAtStop, timerNotesAfterStart } from '@/core/lib/utils/timer/timer-notes';
 import { forgetSavedStop, saveStop } from '@/core/lib/utils/timer/saved-stop';
+import { rememberHeartbeat } from '@/core/lib/utils/timer/unfollowed-time';
 import { notesForStartOf } from '@/core/lib/utils/timer/timer-start-notes';
 import { startTaskOf } from '@/core/lib/utils/timer/timer-start-task';
 import { queryKeys } from '@/core/query/keys';
@@ -65,7 +66,11 @@ import { useUpdateTask } from '../organizations/teams/use-update-task';
 import { useTaskStatusesQuery } from '../tasks/use-task-statuses-query';
 import type { ApiRequestScope } from '@/core/services/client/api-request-scope';
 import { useScopeGuard } from '../bootstrap/use-scope-guard';
-import { useStopStaleTeamsTimer } from './use-stale-timer-guard';
+import {
+	isUnfollowedTimeUnsettled,
+	useStopStaleTeamsTimer,
+	whenUnfollowedTimeIsSettled
+} from './use-stale-timer-guard';
 import { useStopNotesWarning } from './use-stop-notes-warning';
 import { useResolveTimerBillable } from './use-timer-billable';
 import { takePendingTimerStartNotes } from './use-timer-start-notes';
@@ -522,6 +527,11 @@ export function useTimerApi({
 		if (syncTimerPending) {
 			return;
 		}
+		// The app did not follow this run for a while (the computer slept, the browser paused the tab): a heartbeat
+		// would put that time in the run before the person has said what becomes of it (#5123)
+		if (isUnfollowedTimeUnsettled()) {
+			return;
+		}
 		// No status update from a sync that starts while a command is pending, e.g. a slow stop from another instance
 		const commandSeq = timerCommandsInFlight === 0 ? timerCommandSeq : null;
 		return syncTimerMutate({
@@ -532,6 +542,8 @@ export function useTimerApi({
 			// A hidden tab, or one without auto refresh, never refetches the status: this is how its heartbeat
 			// learns that the timer was stopped elsewhere. The proxy route answers null when its status read fails.
 			const status = res?.data;
+			// The browser remembers the heartbeat it sent: the time without one is counted from it (unfollowed-time.ts)
+			rememberHeartbeat(status?.lastLog);
 			if (
 				typeof status?.running === 'boolean' &&
 				commandSeq === timerCommandSeq &&
@@ -947,7 +959,7 @@ export function useTimerApi({
 	// ==================== STOP TIMER ====================
 
 	const stopTimerMutate = stopTimerMutation.mutateAsync;
-	const stopTimer = useCallback(() => {
+	const stopTimerNow = useCallback(() => {
 		const previousLocalTimerStatus = localTimerStatusRef.current;
 		updateLocalTimerStatus({
 			lastTaskId: taskId.current || null,
@@ -1110,6 +1122,18 @@ export function useTimerApi({
 		store,
 		warnWhenStopLostNotes
 	]);
+
+	// What becomes of the time the app did not follow is settled first (#5123): sent at once, the stop would end the
+	// run at the present, with that time in it. When the run is stopped at its last heartbeat there, the stop that
+	// waited has nothing left to end.
+	const stopTimerNowRef = useSyncRef(stopTimerNow);
+	const stopTimer = useCallback((): Promise<void> => {
+		const settled = whenUnfollowedTimeIsSettled();
+		if (!settled) {
+			return stopTimerNow();
+		}
+		return settled.then((wasStoppedThere) => (wasStoppedThere ? undefined : stopTimerNowRef.current()));
+	}, [stopTimerNow, stopTimerNowRef]);
 
 	// ==================== SIDE EFFECTS ====================
 

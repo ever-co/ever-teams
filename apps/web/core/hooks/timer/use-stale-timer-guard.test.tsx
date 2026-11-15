@@ -8,6 +8,10 @@
  * #5248: a stop the person asked for as their session ended is kept in the browser (saved-stop.ts). The check applies
  * it first, at the time it was asked for: the closed-tab rule alone ended that run at its last heartbeat, and the
  * time worked between the two was lost.
+ *
+ * #5123: below the closed-tab delay, the time a run went on without a heartbeat was kept without a word, and a tab
+ * that woke up after a sleep sent a heartbeat that put the whole sleep in the run. The person is asked, and the
+ * check runs again when the page wakes up.
  */
 import type { ReactNode } from 'react';
 import type { RenderHookResult, waitFor as WaitFor } from '@testing-library/react';
@@ -21,13 +25,15 @@ process.env.RTL_SKIP_AUTO_CLEANUP = 'true';
 
 const mockGetLastTimerLog = jest.fn();
 const mockStopTimer = jest.fn();
+const mockSyncTimer = jest.fn();
 const mockToastInfo = jest.fn();
 const mockTranslate = (key: string) => key;
 
 jest.mock('@/core/services/client/api/timers', () => ({
 	timerService: {
 		getLastTimerLog: (...args: unknown[]) => mockGetLastTimerLog(...args),
-		stopTimer: (...args: unknown[]) => mockStopTimer(...args)
+		stopTimer: (...args: unknown[]) => mockStopTimer(...args),
+		syncTimer: (...args: unknown[]) => mockSyncTimer(...args)
 	}
 }));
 jest.mock('sonner', () => ({ toast: { info: (...args: unknown[]) => mockToastInfo(...args) } }));
@@ -73,6 +79,16 @@ interface Page {
 	settle: (ms?: number) => Promise<void>;
 	/** A sign-out in this page: the cleanups its modules registered, as the sign-out runs them. */
 	signOut: () => void;
+	/** The question about time without the app that waits for an answer in this page, or null. */
+	question: () => { employeeId: string; timeLogId: string; from: string; until: number } | null;
+	/** The person's answer to it. */
+	answer: (answer: 'keep' | 'stop') => Promise<void>;
+	/** The computer sleeps: the clock moves on, no timer of the page runs, and the page then looks at the clock. */
+	sleep: (ms: number) => Promise<void>;
+	/** What the sender of a heartbeat asks first: whether that time is still to be settled. */
+	isUnsettled: () => boolean;
+	/** What a stop waits for: the moment that time is settled, with whether the run was stopped there, or null. */
+	whenSettled: () => Promise<boolean> | null;
 	cleanup: () => void;
 }
 
@@ -87,7 +103,12 @@ function loadPage(): Page {
 		require('@testing-library/react') as typeof import('@testing-library/react');
 	const { QueryClient, QueryClientProvider } =
 		require('@tanstack/react-query') as typeof import('@tanstack/react-query');
-	const { useStaleTimerGuard } = require('./use-stale-timer-guard') as typeof import('./use-stale-timer-guard');
+	const { useStaleTimerGuard, isUnfollowedTimeUnsettled, whenUnfollowedTimeIsSettled } =
+		require('./use-stale-timer-guard') as typeof import('./use-stale-timer-guard');
+	const { answerUnfollowedTime, unfollowedTimeQuestion } =
+		require('@/core/lib/utils/timer/unfollowed-time') as typeof import('@/core/lib/utils/timer/unfollowed-time');
+	const { lookAtPageClock } =
+		require('@/core/lib/utils/timer/page-sleep') as typeof import('@/core/lib/utils/timer/page-sleep');
 	const { runSignOutCleanups } =
 		require('@/core/lib/auth/sign-out-cleanups') as typeof import('@/core/lib/auth/sign-out-cleanups');
 	const { ApiErrorService } =
@@ -108,6 +129,20 @@ function loadPage(): Page {
 				for (let step = 0; step < 20; step += 1) await Promise.resolve();
 			}),
 		signOut: runSignOutCleanups,
+		question: unfollowedTimeQuestion,
+		answer: (answer: 'keep' | 'stop') =>
+			act(async () => {
+				answerUnfollowedTime(answer);
+				for (let step = 0; step < 20; step += 1) await Promise.resolve();
+			}),
+		sleep: (ms: number) =>
+			act(async () => {
+				jest.setSystemTime(Date.now() + ms);
+				lookAtPageClock();
+				for (let step = 0; step < 20; step += 1) await Promise.resolve();
+			}),
+		isUnsettled: isUnfollowedTimeUnsettled,
+		whenSettled: whenUnfollowedTimeIsSettled,
 		cleanup
 	};
 	pages.push(page);
@@ -420,5 +455,270 @@ describe('useStaleTimerGuard, with a stop the person asked for as their session 
 		);
 		expect(owner.result.current).toBe(true);
 		expect(keptStop()).toBeNull();
+	});
+});
+
+describe('useStaleTimerGuard, with time the run went on without the app', () => {
+	const HEARTBEAT_OF_KEPT_RUN = '2026-11-12T09:07:00.000Z';
+	/** Gauzy's answer once a later heartbeat was taken for the same run, read `minutes` after the first one. */
+	const answerAfterLaterHeartbeat = (minutes: number) => {
+		const answered = lastLogAnswer(minutes);
+		answered.data[0].lastLog.stoppedAt = HEARTBEAT_OF_KEPT_RUN;
+		return answered;
+	};
+	/** A page that opens `minutes` after the run's last heartbeat, and its owner. */
+	const openAppAfter = (minutes: number) => {
+		const page = loadPage();
+		mockGetLastTimerLog.mockResolvedValue(lastLogAnswer(minutes));
+		return { page, owner: page.mountOwner() };
+	};
+	const STOPPED_AT_LAST_HEARTBEAT = {
+		source: ETimeLogSource.TEAMS,
+		startedAt: STARTED_AT,
+		stoppedAt: LAST_HEARTBEAT,
+		timeLogId: 'log-1'
+	};
+
+	beforeEach(() => {
+		mockGetLastTimerLog.mockReset();
+		mockStopTimer.mockReset().mockResolvedValue({ data: { running: false } });
+		mockSyncTimer.mockReset().mockResolvedValue({ data: { running: true, lastLog: null } });
+		mockToastInfo.mockReset();
+		window.localStorage.clear();
+	});
+
+	afterEach(() => {
+		pages.forEach((page) => page.signOut());
+		pages.forEach((page) => page.cleanup());
+		pages = [];
+		jest.useRealTimers();
+	});
+
+	it('asks, when the app opens within the closed-tab delay, instead of keeping that time without a word', async () => {
+		const { page, owner } = openAppAfter(7);
+
+		await page.waitFor(() => expect(page.question()).not.toBeNull());
+
+		expect(page.question()).toEqual(
+			expect.objectContaining({ employeeId: EMPLOYEE.id, timeLogId: 'log-1', from: LAST_HEARTBEAT })
+		);
+		// Nothing of that time is counted yet: the run is not stopped, and no heartbeat goes
+		expect(mockStopTimer).not.toHaveBeenCalled();
+		expect(owner.result.current).toBe(false);
+		expect(page.isUnsettled()).toBe(true);
+	});
+
+	it('asks nothing after three minutes without a heartbeat, the ordinary pace of a tab in the background', async () => {
+		const { page, owner } = openAppAfter(3);
+
+		await page.waitFor(() => expect(owner.result.current).toBe(true));
+
+		expect(page.question()).toBeNull();
+		expect(mockStopTimer).not.toHaveBeenCalled();
+		expect(page.isUnsettled()).toBe(false);
+	});
+
+	it('keeps the time when the person says so: a heartbeat goes at once, and the run goes on', async () => {
+		const { page, owner } = openAppAfter(7);
+		await page.waitFor(() => expect(page.question()).not.toBeNull());
+
+		await page.answer('keep');
+
+		await page.waitFor(() => expect(owner.result.current).toBe(true));
+		expect(mockSyncTimer).toHaveBeenCalledTimes(1);
+		expect(mockSyncTimer).toHaveBeenCalledWith({
+			source: ETimeLogSource.TEAMS,
+			user: { employee: { id: EMPLOYEE.id } },
+			timeLogId: 'log-1'
+		});
+		expect(mockStopTimer).not.toHaveBeenCalled();
+		expect(mockToastInfo).not.toHaveBeenCalled();
+		expect(page.question()).toBeNull();
+	});
+
+	it('keeps the time even when that heartbeat fails: the one the app sends each minute takes over', async () => {
+		const { page, owner } = openAppAfter(7);
+		mockSyncTimer.mockRejectedValue(new Error('Network Error'));
+		await page.waitFor(() => expect(page.question()).not.toBeNull());
+
+		await page.answer('keep');
+
+		await page.waitFor(() => expect(owner.result.current).toBe(true));
+		expect(mockStopTimer).not.toHaveBeenCalled();
+		expect(page.question()).toBeNull();
+	});
+
+	it('stops the run at its last heartbeat when the person says so, and says it was their choice', async () => {
+		const { page, owner } = openAppAfter(7);
+		await page.waitFor(() => expect(page.question()).not.toBeNull());
+
+		await page.answer('stop');
+
+		await page.waitFor(() => expect(owner.result.current).toBe(true));
+		expect(mockStopTimer).toHaveBeenCalledTimes(1);
+		expect(mockStopTimer).toHaveBeenCalledWith(STOPPED_AT_LAST_HEARTBEAT);
+		expect(mockToastInfo).toHaveBeenCalledWith('toasts.timer.STALE_STOPPED', {
+			id: 'timer-stale-stopped',
+			description: 'toasts.timer.UNFOLLOWED_STOP_CHOSEN_HINT'
+		});
+		expect(mockSyncTimer).not.toHaveBeenCalled();
+	});
+
+	it('stops the run at its last heartbeat once the closed-tab delay is reached without an answer', async () => {
+		jest.useFakeTimers();
+		const { page, owner } = openAppAfter(7);
+		await page.settle();
+		expect(page.question()).not.toBeNull();
+
+		// Seven minutes had gone by: three are left before the delay
+		await page.settle(3 * MINUTE - 1);
+		expect(page.question()).not.toBeNull();
+		expect(mockStopTimer).not.toHaveBeenCalled();
+		await page.settle(1);
+
+		expect(page.question()).toBeNull();
+		expect(mockStopTimer).toHaveBeenCalledWith(STOPPED_AT_LAST_HEARTBEAT);
+		expect(mockToastInfo).toHaveBeenCalledWith('toasts.timer.STALE_STOPPED', {
+			id: 'timer-stale-stopped',
+			description: 'toasts.timer.STALE_STOPPED_HINT'
+		});
+		expect(owner.result.current).toBe(true);
+	});
+
+	it('leaves alone a run that went on meanwhile, kept from another device', async () => {
+		const page = loadPage();
+		mockGetLastTimerLog.mockResolvedValueOnce(lastLogAnswer(7)).mockResolvedValue(answerAfterLaterHeartbeat(8));
+		const owner = page.mountOwner();
+		await page.waitFor(() => expect(page.question()).not.toBeNull());
+
+		await page.answer('stop');
+
+		await page.waitFor(() => expect(owner.result.current).toBe(true));
+		expect(mockStopTimer).not.toHaveBeenCalled();
+		expect(mockToastInfo).not.toHaveBeenCalled();
+	});
+
+	it('does nothing when the person answers in another tab, which acts on the answer', async () => {
+		const { page, owner } = openAppAfter(7);
+		await page.waitFor(() => expect(page.question()).not.toBeNull());
+
+		// What the other tab's answer writes to the storage the tabs share
+		window.dispatchEvent(
+			new StorageEvent('storage', {
+				key: 'ever-teams.timer.unfollowed-time-answer',
+				newValue: JSON.stringify({ timeLogId: 'log-1', at: Date.now() })
+			})
+		);
+
+		await page.waitFor(() => expect(owner.result.current).toBe(true));
+		expect(page.question()).toBeNull();
+		expect(mockStopTimer).not.toHaveBeenCalled();
+		expect(mockSyncTimer).not.toHaveBeenCalled();
+	});
+
+	it.each([
+		['keep', 'the run goes on, and the stop is sent', false],
+		['stop', 'the run is stopped at its last heartbeat, and the stop has nothing left to end', true]
+	] as const)(
+		'lets a stop wait until the person has answered (%s): %s',
+		async (answer, _outcome, wasStoppedThere) => {
+			const { page } = openAppAfter(7);
+			await page.waitFor(() => expect(page.question()).not.toBeNull());
+			let settled: boolean | undefined;
+			void page.whenSettled()?.then((stoppedThere) => {
+				settled = stoppedThere;
+			});
+			await page.settle();
+			expect(settled).toBeUndefined();
+
+			await page.answer(answer);
+
+			await page.waitFor(() => expect(settled).toBe(wasStoppedThere));
+			expect(page.whenSettled()).toBeNull();
+		}
+	);
+
+	describe('when the page wakes up from a sleep', () => {
+		/** A page that follows the run, a minute after its last heartbeat, with Jest moving the time. */
+		const followRun = async () => {
+			jest.useFakeTimers();
+			jest.setSystemTime(Date.parse(LAST_HEARTBEAT) + MINUTE);
+			const page = loadPage();
+			mockGetLastTimerLog.mockResolvedValueOnce(lastLogAnswer(1));
+			const owner = page.mountOwner();
+			await page.settle();
+			expect(owner.result.current).toBe(true);
+			return { page, owner };
+		};
+
+		it('checks again, holds the heartbeat, and asks about the time it slept through', async () => {
+			const { page, owner } = await followRun();
+			mockGetLastTimerLog.mockResolvedValue(lastLogAnswer(8));
+
+			await page.sleep(7 * MINUTE);
+
+			expect(mockGetLastTimerLog).toHaveBeenCalledTimes(2);
+			expect(page.question()).toEqual(expect.objectContaining({ timeLogId: 'log-1', from: LAST_HEARTBEAT }));
+			expect(owner.result.current).toBe(false);
+			expect(mockStopTimer).not.toHaveBeenCalled();
+
+			await page.answer('keep');
+			await page.settle();
+			expect(owner.result.current).toBe(true);
+			expect(mockSyncTimer).toHaveBeenCalledTimes(1);
+		});
+
+		it('holds a heartbeat that comes due before the page has looked at the clock', async () => {
+			const { page } = await followRun();
+			mockGetLastTimerLog.mockResolvedValue(lastLogAnswer(8));
+			// The computer wakes up: the heartbeat's timer may be the first to run
+			jest.setSystemTime(Date.now() + 7 * MINUTE);
+
+			expect(page.isUnsettled()).toBe(true);
+			await page.settle();
+		});
+
+		it('stops a run it slept through for longer than the delay, and says the app could not follow it', async () => {
+			const { page, owner } = await followRun();
+			mockGetLastTimerLog.mockResolvedValue(lastLogAnswer(31));
+
+			await page.sleep(30 * MINUTE);
+
+			expect(mockStopTimer).toHaveBeenCalledTimes(1);
+			expect(mockStopTimer).toHaveBeenCalledWith({
+				source: ETimeLogSource.TEAMS,
+				startedAt: STARTED_AT,
+				stoppedAt: LAST_HEARTBEAT
+			});
+			expect(mockToastInfo).toHaveBeenCalledWith('toasts.timer.STALE_STOPPED', {
+				id: 'timer-stale-stopped',
+				description: 'toasts.timer.UNFOLLOWED_STOPPED_HINT'
+			});
+			expect(page.question()).toBeNull();
+			expect(owner.result.current).toBe(true);
+		});
+
+		it('carries on with a run another device kept alive meanwhile', async () => {
+			const { page, owner } = await followRun();
+			// Read a minute after a heartbeat the other device sent
+			mockGetLastTimerLog.mockResolvedValue(answerAfterLaterHeartbeat(8));
+
+			await page.sleep(7 * MINUTE);
+
+			expect(mockGetLastTimerLog).toHaveBeenCalledTimes(2);
+			expect(page.question()).toBeNull();
+			expect(mockStopTimer).not.toHaveBeenCalled();
+			expect(owner.result.current).toBe(true);
+		});
+
+		it('does not check again after a sleep of two minutes', async () => {
+			const { page, owner } = await followRun();
+
+			await page.sleep(2 * MINUTE);
+
+			expect(mockGetLastTimerLog).toHaveBeenCalledTimes(1);
+			expect(owner.result.current).toBe(true);
+			expect(page.isUnsettled()).toBe(false);
+		});
 	});
 });

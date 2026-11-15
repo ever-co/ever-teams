@@ -5,6 +5,9 @@
  * read while a start elsewhere was landing): a run just started on another device was stopped, and the start could
  * still be refused afterwards. The status is read again first; a run it finds refuses the start and keeps going, and
  * this tab shows it at once, so its Stop reaches it.
+ *
+ * #5123: while the time a run went on without the app is still to be settled (the person is being asked), the
+ * heartbeat and a stop would each put that time in the run: neither is sent before the answer.
  */
 import { act, renderHook } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -99,6 +102,12 @@ const mockUpdateActiveTask = jest.fn(async () => undefined);
 const mockUpdateTask = jest.fn();
 const mockSetActiveTask = jest.fn();
 const mockResolveBillable = jest.fn(async () => false);
+/** The heartbeats sent, each answered with the status Gauzy has then. */
+const mockSyncTimer = jest.fn(async () => ({
+	data: { running: !!mockGauzy.lastLog?.isRunning, lastLog: mockGauzy.lastLog }
+}));
+/** What the guard of the app shell says of the time a run went on without the app: still to be settled, or not. */
+const mockUnfollowedTime: { settled: Promise<boolean> | null } = { settled: null };
 
 // The shipped 10-minute threshold, whatever NEXT_PUBLIC_STALE_TIMER_THRESHOLD_MINUTES the env files loaded for Jest set
 jest.mock('@/core/constants/config/constants', () => {
@@ -135,9 +144,14 @@ jest.mock('@/core/services/client/api/timers', () => ({
 			mockStartBodies.push(body);
 			return mockStartTimer();
 		},
-		// The heartbeat a stop sends first: its status read plays no part here
-		syncTimer: async () => ({ data: null })
+		// The heartbeat, which a stop sends first too
+		syncTimer: () => mockSyncTimer()
 	}
+}));
+jest.mock('./use-stale-timer-guard', () => ({
+	...jest.requireActual('./use-stale-timer-guard'),
+	isUnfollowedTimeUnsettled: () => mockUnfollowedTime.settled !== null,
+	whenUnfollowedTimeIsSettled: () => mockUnfollowedTime.settled
 }));
 jest.mock('@/core/hooks/auth/use-authenticate-user', () => ({
 	useAuthenticateUser: () => ({ user: mockUser, $user: { current: mockUser }, refreshUserData: mockRefreshUserData })
@@ -642,5 +656,143 @@ describe('Start while a break is being taken', () => {
 
 		landBreak();
 		await first;
+	});
+});
+
+describe('while the time a run went on without the app is still to be settled', () => {
+	/** A tab that shows the employee's run, started an hour ago with a heartbeat a moment ago. */
+	function renderTabWithRun() {
+		mockGauzy.lastLog = {
+			id: 'log-1',
+			source: ETimeLogSource.TEAMS,
+			isRunning: true,
+			startedAt: minutesAgo(60),
+			stoppedAt: minutesAgo(1)
+		};
+		mockGauzy.isTrackingTime = true;
+		const tab = renderTab();
+		act(() => tab.store.set(timerStatusState, { running: true, lastLog: mockGauzy.lastLog } as never));
+		const sendHeartbeat = async () => {
+			await act(async () => {
+				await tab.result.current.syncTimer();
+			});
+		};
+		return { ...tab, sendHeartbeat };
+	}
+	/**
+	 * The person is being asked: nothing is settled until the function this returns is called, with whether the run
+	 * was stopped at its last heartbeat (their answer, or none before the closed-tab delay).
+	 */
+	function holdUntilAnswered() {
+		let answer: (wasStoppedThere: boolean) => void = () => undefined;
+		mockUnfollowedTime.settled = new Promise<boolean>((resolve) => {
+			answer = (wasStoppedThere) => {
+				mockUnfollowedTime.settled = null;
+				resolve(wasStoppedThere);
+			};
+		});
+		return answer;
+	}
+
+	// The module remembers when it last stopped, to debounce the automatic stops: each test runs an hour after the
+	// previous one
+	const realNow = Date.now;
+	let clockOffset = 0;
+
+	beforeEach(() => {
+		clockOffset += 60 * MINUTE;
+		jest.spyOn(Date, 'now').mockImplementation(() => realNow() + clockOffset);
+		mockUnfollowedTime.settled = null;
+		mockGauzy.statusReadFails = false;
+		mockGauzy.lastLogReadFails = false;
+		window.localStorage.clear();
+	});
+
+	afterEach(() => {
+		jest.restoreAllMocks();
+	});
+
+	it('sends no heartbeat, which would put that time in the run', async () => {
+		const tab = renderTabWithRun();
+		const answer = holdUntilAnswered();
+
+		await tab.sendHeartbeat();
+		expect(mockSyncTimer).not.toHaveBeenCalled();
+
+		answer(false);
+		await tab.sendHeartbeat();
+		expect(mockSyncTimer).toHaveBeenCalledTimes(1);
+	});
+
+	it('holds a stop until the person has answered, then sends it', async () => {
+		const tab = renderTabWithRun();
+		const answer = holdUntilAnswered();
+
+		let stopped = false;
+		let stop: Promise<void> = Promise.resolve();
+		act(() => {
+			stop = Promise.resolve(tab.result.current.stopTimer()).then(() => {
+				stopped = true;
+			});
+		});
+		await act(async () => {
+			for (let step = 0; step < 20; step += 1) await Promise.resolve();
+		});
+		expect(mockStopTimer).not.toHaveBeenCalled();
+		expect(stopped).toBe(false);
+
+		// They keep the time: the stop then ends the run at the present
+		await act(async () => {
+			answer(false);
+			await stop;
+		});
+		expect(mockStopTimer).toHaveBeenCalledTimes(1);
+		expect(stopped).toBe(true);
+	});
+
+	it('sends no stop when the person stopped the run at its last heartbeat there', async () => {
+		const tab = renderTabWithRun();
+		const answer = holdUntilAnswered();
+		let stop: Promise<void> = Promise.resolve();
+		act(() => {
+			stop = Promise.resolve(tab.result.current.stopTimer());
+		});
+
+		// The status of the tab still says running: its read after that stop has not landed yet
+		await act(async () => {
+			answer(true);
+			await stop;
+		});
+
+		expect(mockStopTimer).not.toHaveBeenCalled();
+	});
+});
+
+describe('a heartbeat the API took', () => {
+	beforeEach(() => {
+		mockUnfollowedTime.settled = null;
+		window.localStorage.clear();
+	});
+
+	it('is remembered by the browser, which counts the time without the app from it', async () => {
+		mockGauzy.lastLog = {
+			id: 'log-1',
+			source: ETimeLogSource.TEAMS,
+			isRunning: true,
+			startedAt: minutesAgo(60),
+			stoppedAt: minutesAgo(0)
+		};
+		const tab = renderTab();
+		act(() => tab.store.set(timerStatusState, { running: true, lastLog: mockGauzy.lastLog } as never));
+
+		await act(async () => {
+			await tab.result.current.syncTimer();
+		});
+
+		expect(JSON.parse(String(window.localStorage.getItem('ever-teams.timer.last-heartbeat')))).toEqual({
+			timeLogId: 'log-1',
+			at: expect.any(Number),
+			stoppedAt: minutesAgo(0)
+		});
 	});
 });

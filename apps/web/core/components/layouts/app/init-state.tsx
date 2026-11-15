@@ -30,6 +30,7 @@ import { queryKeys } from '@/core/query/keys';
 import { getShellCriticalQueryKeys, useScopeTransitionGuard } from './use-scope-transition-guard';
 import { teamDefaultProjectId } from '@/core/lib/helpers/team-default-project';
 import { TimerReminders } from './timer-reminders';
+import { UnfollowedTimeQuestion } from '@/core/components/timer/unfollowed-time-question';
 
 const SHELL_REFRESH_INTERVAL = 60_000;
 
@@ -272,12 +273,16 @@ export function InitState() {
 		}
 	}, [criticalReady, readyScope]);
 
-	// A timer left running is worth a reminder, on every page (#5022)
+	// A timer left running is worth a reminder, on every page (#5022). And time it ran without the app following
+	// it is put to the person wherever they are (#5123)
 	return (
-		<TimerReminders
-			stopTimer={timerOwner.stopTimer}
-			employeeId={user?.employee?.id}
-			runsPastMidnight={timerRunning && !timerOwner.rawTimerRunning}
-		/>
+		<>
+			<TimerReminders
+				stopTimer={timerOwner.stopTimer}
+				employeeId={user?.employee?.id}
+				runsPastMidnight={timerRunning && !timerOwner.rawTimerRunning}
+			/>
+			<UnfollowedTimeQuestion />
+		</>
 	);
 }
