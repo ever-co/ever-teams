@@ -19,10 +19,12 @@ import {
 	ChevronDown,
 	MoreHorizontal,
 	Pencil,
+	Send,
 	ShieldCheck,
 	Spinner,
 	UserBlock,
 	UserRemove,
+	Users,
 	Wallet
 } from '@/core/components/icons';
 import { ERoleName } from '@/core/types/generics/enums/role';
@@ -79,6 +81,9 @@ export interface MemberRowActions {
 	onRequestResetTwoFactor?: (row: MemberRowModel) => void;
 	onRename: (rowId: string, firstName: string, lastName: string) => Promise<void>;
 	onSaveRates: (rowId: string, rates: IEmployeeRatesInput) => Promise<RateSaveOutcome | void>;
+	/** Set where the API has members without an account and the viewer may add members. */
+	onRequestClaim?: (row: MemberRowModel) => void;
+	onRequestMerge?: (row: MemberRowModel) => void;
 }
 
 function TeamRoleItems({
@@ -201,8 +206,8 @@ function hasExitActions(row: MemberRowModel): boolean {
 	return row.canDeactivate || row.canRemove;
 }
 
-function hasMenuActions(row: MemberRowModel, showsTwoFactorReset: boolean): boolean {
-	return hasEditActions(row) || hasExitActions(row) || showsTwoFactorReset;
+function hasMenuActions(row: MemberRowModel, showsTwoFactorReset: boolean, showsPlaceholderActions: boolean): boolean {
+	return hasEditActions(row) || hasExitActions(row) || showsTwoFactorReset || showsPlaceholderActions;
 }
 
 function RowMenu({
@@ -212,7 +217,9 @@ function RowMenu({
 	onToggleTracking,
 	onRequestRemove,
 	onRequestDeactivate,
-	onRequestResetTwoFactor
+	onRequestResetTwoFactor,
+	onRequestClaim,
+	onRequestMerge
 }: Readonly<{
 	row: MemberRowModel;
 	onEditName: () => void;
@@ -221,10 +228,14 @@ function RowMenu({
 	onRequestRemove: MemberRowActions['onRequestRemove'];
 	onRequestDeactivate: MemberRowActions['onRequestDeactivate'];
 	onRequestResetTwoFactor: MemberRowActions['onRequestResetTwoFactor'];
+	onRequestClaim: MemberRowActions['onRequestClaim'];
+	onRequestMerge: MemberRowActions['onRequestMerge'];
 }>) {
 	const t = useTranslations();
 	const showsTwoFactorReset = row.canResetTwoFactor && Boolean(onRequestResetTwoFactor);
-	if (!hasMenuActions(row, showsTwoFactorReset)) {
+	const hasPlaceholderActions = Boolean(onRequestClaim) && Boolean(onRequestMerge);
+	const showsPlaceholderActions = row.isPlaceholder && hasPlaceholderActions;
+	if (!hasMenuActions(row, showsTwoFactorReset, showsPlaceholderActions)) {
 		return <span aria-hidden="true" className="size-7 shrink-0" />;
 	}
 
@@ -242,6 +253,19 @@ function RowMenu({
 				</Button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align="end" className="w-52">
+				{showsPlaceholderActions && (
+					<>
+						<DropdownMenuItem onSelect={() => onRequestClaim?.(row)}>
+							<Send />
+							{t('settings.members.placeholder.CLAIM')}
+						</DropdownMenuItem>
+						<DropdownMenuItem onSelect={() => onRequestMerge?.(row)}>
+							<Users />
+							{t('settings.members.placeholder.MERGE')}
+						</DropdownMenuItem>
+						{hasEditActions(row) && <DropdownMenuSeparator />}
+					</>
+				)}
 				{row.canEditName && (
 					<DropdownMenuItem onSelect={onEditName}>
 						<Pencil />
@@ -426,16 +450,71 @@ function WorkspaceAdminChip({ roleName }: Readonly<{ roleName: string | null }>)
 	return <PersonChip hue="warning">{workspaceRoleLabelOf(roleName, t)}</PersonChip>;
 }
 
+/**
+ * A member without an account, and the claim sent to them from this page, if any. Beside the name from `sm` up; on a
+ * phone the chips would leave the name two letters, so the detail line says it instead (see `PlaceholderDetail`).
+ */
+function PlaceholderChips({ row, claimSentTo }: Readonly<{ row: MemberRowModel; claimSentTo: string | null }>) {
+	const t = useTranslations();
+	if (!row.isPlaceholder) {
+		return null;
+	}
+	return (
+		<span className="hidden items-center gap-1.5 sm:inline-flex">
+			<PersonChip hue="neutral">{t('settings.members.placeholder.NO_ACCOUNT')}</PersonChip>
+			{claimSentTo && (
+				<span title={t('settings.members.placeholder.CLAIM_PENDING_TO', { email: claimSentTo })}>
+					<PersonChip hue="info" icon={<Send aria-hidden="true" />}>
+						{t('settings.members.placeholder.CLAIM_PENDING')}
+					</PersonChip>
+				</span>
+			)}
+		</span>
+	);
+}
+
+/** What the row says under the name: the email, or that a member without an account was given none. */
+function detailOf(row: MemberRowModel, t: Translate): string {
+	if (row.email) {
+		return row.email;
+	}
+	if (row.isPlaceholder) {
+		return t('settings.members.placeholder.NO_EMAIL');
+	}
+	return '';
+}
+
+/** The detail line; on a phone a member without an account reads "No account · ..." there, in place of the chips. */
+function PlaceholderDetail({ row, claimSentTo }: Readonly<{ row: MemberRowModel; claimSentTo: string | null }>) {
+	const t = useTranslations();
+	const detail = detailOf(row, t);
+	if (!row.isPlaceholder) {
+		return detail;
+	}
+	const states = [t('settings.members.placeholder.NO_ACCOUNT')];
+	if (claimSentTo) {
+		states.push(t('settings.members.placeholder.CLAIM_PENDING'));
+	}
+	return (
+		<>
+			<span className="sm:hidden">{`${states.join(' · ')} · `}</span>
+			{detail}
+		</>
+	);
+}
+
 export function MemberRow({
 	row,
 	assignableRoles,
 	formatJoined,
-	actions
+	actions,
+	claimSentTo = null
 }: Readonly<{
 	row: MemberRowModel;
 	assignableRoles: ReadonlyArray<WorkspaceRole>;
 	formatJoined: Formatter;
 	actions: MemberRowActions;
+	claimSentTo?: string | null;
 }>) {
 	const t = useTranslations();
 	const [editing, setEditing] = useState<'name' | 'rate' | null>(null);
@@ -448,17 +527,23 @@ export function MemberRow({
 		return <MemberRateEditor row={row} onCancel={stopEditing} onSaveRates={actions.onSaveRates} />;
 	}
 
+	const hasDetail = Boolean(row.email) || row.isPlaceholder;
 	const chips = (
 		<>
 			{row.isYou && <PersonChip hue="neutral">{t('settings.members.YOU')}</PersonChip>}
 			<WorkspaceAdminChip roleName={row.workspaceRoleName} />
+			<PlaceholderChips row={row} claimSentTo={claimSentTo} />
 		</>
 	);
 
 	return (
 		<li className={PERSON_ROW}>
 			<MemberAvatar name={row.name} imageUrl={row.imageUrl} />
-			<PersonLines name={row.name} detail={row.email} adornment={chips} />
+			<PersonLines
+				name={row.name}
+				detail={hasDetail && <PlaceholderDetail row={row} claimSentTo={claimSentTo} />}
+				adornment={chips}
+			/>
 			{row.joinedAt && (
 				<span className="hidden shrink-0 text-xs text-muted-foreground tabular-nums md:block">
 					{formatJoined(row.joinedAt)}
@@ -479,6 +564,8 @@ export function MemberRow({
 				onRequestRemove={actions.onRequestRemove}
 				onRequestDeactivate={actions.onRequestDeactivate}
 				onRequestResetTwoFactor={actions.onRequestResetTwoFactor}
+				onRequestClaim={actions.onRequestClaim}
+				onRequestMerge={actions.onRequestMerge}
 			/>
 		</li>
 	);

@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useStore } from 'jotai';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
@@ -12,11 +12,57 @@ import { breakElapsedSecondsOf, breakRefusalKeyOf, timerBreakStateOf } from '@/c
 import { queryKeys } from '@/core/query/keys';
 import { timerService } from '@/core/services/client/api/timers/timer.service';
 import { startUnderTimerGuard } from '@/core/hooks/timer/use-timer-api';
-import { activeTeamIdState } from '@/core/stores';
+import { activeTeamIdState, timerStartsInFlightState } from '@/core/stores';
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
 import type { ITimerStatus } from '@/core/types/interfaces/timer/timer-status';
 
 const SECOND_MS = 1000;
+
+/** Gauzy's answer to a stop naming a run that is no longer the running one: nothing was stopped. */
+const RUN_CHANGED_STATUS = 409;
+
+/**
+ * Ends the break this tab shows, and nothing else: Gauzy's stop ends whatever runs. The break is read afresh and named
+ * in the stop, so work another tab or device started meanwhile goes on. A fresh status showing another run, or Gauzy's
+ * 409 to a stop that reached it after the run changed, means the run changed: nothing is stopped, and the display
+ * follows the run that goes on.
+ *
+ * @param shownBreakId The break this tab shows; null when it does not know its id, and nothing is stopped then.
+ * @param source The app the break was started with, which the stop names.
+ */
+async function endShownBreak(shownBreakId: string | null, source: ETimeLogSource): Promise<void> {
+	const { data: status } = await timerService.getTimerStatus();
+	const freshBreakId = timerBreakStateOf(status).isOnBreak ? status?.lastLog?.id : undefined;
+	const isShownBreak = Boolean(freshBreakId) && freshBreakId === shownBreakId;
+	if (!isShownBreak) {
+		return;
+	}
+	try {
+		await timerService.stopTimer({ source, timeLogId: freshBreakId });
+	} catch (error) {
+		const isRunChanged = ApiErrorService.isApiError(error) && error.hasHttpResponseStatus(RUN_CHANGED_STATUS);
+		if (isRunChanged) {
+			return;
+		}
+		throw error;
+	}
+}
+
+type TStore = ReturnType<typeof useStore>;
+
+/**
+ * Runs a break's requests counted among the timer requests the organization switch waits for (#5204, #5263). They are
+ * plain service calls, outside the mutations the switch also waits for, and the timer shows stopped meanwhile: a switch
+ * then would leave the break running, or not ended, in the organization left behind.
+ */
+async function countedInSwitchGuard<T>(store: TStore, run: () => Promise<T>): Promise<T> {
+	store.set(timerStartsInFlightState, (count) => count + 1);
+	try {
+		return await run();
+	} finally {
+		store.set(timerStartsInFlightState, (count) => Math.max(0, count - 1));
+	}
+}
 
 /** The break request on its way, which disables the timer's buttons until its answer. */
 export type TPendingBreakAction = 'take' | 'end' | null;
@@ -33,21 +79,28 @@ export type TPendingBreakAction = 'take' | 'end' | null;
 export function useTimerBreak(timerStatus: ITimerStatus | null | undefined, stopWork: () => Promise<unknown> | void) {
 	const t = useTranslations();
 	const queryClient = useQueryClient();
+	const store = useStore();
 	const allowsBreaks = useBreaksAllowed();
 	const organizationTeamId = useAtomValue(activeTeamIdState);
 	const breakState = timerBreakStateOf(timerStatus);
 	const [pendingAction, setPendingAction] = useState<TPendingBreakAction>(null);
 	const taskId = timerStatus?.lastLog?.taskId ?? null;
 	const breakSource = timerStatus?.lastLog?.source ?? ETimeLogSource.TEAMS;
+	const shownBreakId = breakState.isOnBreak ? (timerStatus?.lastLog?.id ?? null) : null;
 
-	// The timer, the team's cards and the entries the break changed
+	// The timer, the team's cards and the entries the break changed. It settles once the timer's status is read again,
+	// which the switch guard and the timer's buttons wait for; the other reads go on by themselves. A read that fails
+	// leaves the display to the next status read.
 	const refreshAfterBreak = useCallback(async () => {
-		await Promise.all([
-			queryClient.invalidateQueries({ queryKey: queryKeys.timer.all }),
-			queryClient.invalidateQueries({ queryKey: queryKeys.organizationTeams.all }),
-			queryClient.invalidateQueries({ queryKey: queryKeys.activities.all }),
-			queryClient.invalidateQueries({ queryKey: queryKeys.timesheet.all })
-		]);
+		const keepsGoing = () => undefined;
+		queryClient.invalidateQueries({ queryKey: queryKeys.organizationTeams.all }).catch(keepsGoing);
+		queryClient.invalidateQueries({ queryKey: queryKeys.activities.all }).catch(keepsGoing);
+		queryClient.invalidateQueries({ queryKey: queryKeys.timesheet.all }).catch(keepsGoing);
+		try {
+			await queryClient.invalidateQueries({ queryKey: queryKeys.timer.all });
+		} catch {
+			// The status is read again at its next interval
+		}
 	}, [queryClient]);
 
 	// The work's stop, then the break's start. True once the break's start was asked, whatever its answer.
@@ -67,50 +120,54 @@ export function useTimerBreak(timerStatus: ITimerStatus | null | undefined, stop
 		return true;
 	}, [organizationTeamId, stopWork, t, taskId]);
 
+	// Counted in the switch guard, with the buttons pending, until the timer shows the break: the status read after it
+	// still shows the timer stopped, and a switch then would leave the new break behind. Released on any failure.
 	const takeBreak = useCallback(async () => {
-		let asksBreak = false;
-		// Under the start guard every timer shares, from the stop to the break's start: a start asked meanwhile (the
-		// other timer, a task card, the start key) cannot land beside the break and be ended by it, or end it
-		const breakStart = startUnderTimerGuard(async () => {
-			asksBreak = await stopWorkThenStartBreak();
+		await countedInSwitchGuard(store, async () => {
+			let asksBreak = false;
+			// Under the start guard every timer shares, from the stop to the break's start: a start asked meanwhile (the
+			// other timer, a task card, the start key) cannot land beside the break and be ended by it, or end it
+			const breakStart = startUnderTimerGuard(async () => {
+				asksBreak = await stopWorkThenStartBreak();
+			});
+			if (!breakStart) {
+				toast.warning(t('toasts.timer.START_IN_PROGRESS'), { id: 'timer-start-in-progress' });
+				return;
+			}
+			setPendingAction('take');
+			try {
+				await breakStart;
+				if (asksBreak) {
+					await refreshAfterBreak();
+				}
+			} finally {
+				setPendingAction(null);
+			}
 		});
-		if (!breakStart) {
-			toast.warning(t('toasts.timer.START_IN_PROGRESS'), { id: 'timer-start-in-progress' });
-			return;
-		}
-		setPendingAction('take');
-		try {
-			await breakStart;
-		} finally {
-			setPendingAction(null);
-		}
-		if (asksBreak) {
-			await refreshAfterBreak();
-		}
-	}, [refreshAfterBreak, stopWorkThenStartBreak, t]);
+	}, [refreshAfterBreak, stopWorkThenStartBreak, store, t]);
 
 	// Ends the break without starting work, the end of the day for one: Gauzy's stop ends a running break
+	// As for a break's start, the guard and the pending buttons hold until the status is read again
 	const endBreak = useCallback(async () => {
 		setPendingAction('end');
 		try {
-			// Gauzy's stop ends whatever runs: when another tab or device went back to work since this one read its
-			// status, that work goes on, and this tab only shows it
-			const { data: status } = await timerService.getTimerStatus();
-			if (timerBreakStateOf(status).isOnBreak) {
-				await timerService.stopTimer({ source: breakSource });
-			}
-		} catch (error) {
-			// 406: another tab or device ended it first
-			const isAlreadyEnded = ApiErrorService.isApiError(error) && error.hasHttpResponseStatus(406);
-			if (!isAlreadyEnded) {
-				const reasonKey = errorReasonKeyOf(error) as DottedLanguageObjectStringPaths;
-				toast.error(t('breaks.NOT_ENDED'), { id: 'timer-break-not-ended', description: t(reasonKey) });
-			}
+			await countedInSwitchGuard(store, async () => {
+				try {
+					await endShownBreak(shownBreakId, breakSource);
+				} catch (error) {
+					// 406: another tab or device ended it first
+					const isAlreadyEnded = ApiErrorService.isApiError(error) && error.hasHttpResponseStatus(406);
+					if (!isAlreadyEnded) {
+						const reasonKey = errorReasonKeyOf(error) as DottedLanguageObjectStringPaths;
+						toast.error(t('breaks.NOT_ENDED'), { id: 'timer-break-not-ended', description: t(reasonKey) });
+					}
+				}
+				await refreshAfterBreak();
+			});
 		} finally {
 			setPendingAction(null);
-			await refreshAfterBreak();
 		}
-	}, [breakSource, refreshAfterBreak, t]);
+	}, [breakSource, refreshAfterBreak, shownBreakId, store, t]);
 
 	return { allowsBreaks, breakState, pendingAction, takeBreak, endBreak };
 }

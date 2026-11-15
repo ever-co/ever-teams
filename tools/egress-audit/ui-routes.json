@@ -149,6 +149,11 @@
       "source": "router"
     },
     {
+      "path": "/:locale/goals",
+      "file": "apps/web/app/[locale]/(main)/goals/page.tsx",
+      "source": "router"
+    },
+    {
       "path": "/:locale/inbox",
       "file": "apps/web/app/[locale]/(main)/inbox/page.tsx",
       "source": "router"
@@ -286,6 +291,11 @@
     {
       "path": "/:locale/settings/personal/preferences",
       "file": "apps/web/app/[locale]/(main)/settings/personal/preferences/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/settings/personal/security",
+      "file": "apps/web/app/[locale]/(main)/settings/personal/security/page.tsx",
       "source": "router"
     },
     {

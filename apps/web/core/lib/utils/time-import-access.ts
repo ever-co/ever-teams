@@ -1,5 +1,10 @@
-import { employeeIdOf, memberEmailOf, memberNameOf } from '@/core/lib/utils/settings-team';
-import type { TimeImportMember, TimeImportProject, TimeImportTask } from '@/core/lib/utils/time-import-rows';
+import { employeeIdOf, memberEmailOf, memberIsPlaceholderOf, memberNameOf } from '@/core/lib/utils/settings-team';
+import type {
+	TimeImportContext,
+	TimeImportMember,
+	TimeImportProject,
+	TimeImportTask
+} from '@/core/lib/utils/time-import-rows';
 import type { TOrganizationTeam, TOrganizationTeamEmployee } from '@/core/types/schemas';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
 
@@ -26,13 +31,32 @@ export function timeImportRefusalOf(
 	return null;
 }
 
+/** A member without an account may have been given no email: a file names them by name. */
 function importMemberOf(member: TOrganizationTeamEmployee): TimeImportMember | null {
 	const employeeId = employeeIdOf(member);
 	const email = memberEmailOf(member);
-	if (!employeeId || !email) {
+	const isNamedOnly = memberIsPlaceholderOf(member);
+	const isNameable = Boolean(email) || isNamedOnly;
+	if (!employeeId || !isNameable) {
 		return null;
 	}
 	return { employeeId, email, name: memberNameOf(member) };
+}
+
+/**
+ * The context of a check, with the members added for the file (members without an account) that the team does not
+ * list yet: the team reads them back a moment later. Each member is named once.
+ */
+export function withImportMembersAdded(
+	context: TimeImportContext,
+	added: ReadonlyArray<TimeImportMember>
+): TimeImportContext {
+	if (added.length === 0) {
+		return context;
+	}
+	const known = new Set(context.members.map((member) => member.employeeId));
+	const missing = added.filter((member) => !known.has(member.employeeId));
+	return { ...context, members: [...context.members, ...missing] };
 }
 
 /** The members of the team a file may name by email: those the team lists with an employee and an email. */

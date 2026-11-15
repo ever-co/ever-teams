@@ -5313,7 +5313,52 @@
 			"RESET_TWO_FACTOR_CONFIRM": "Reimposta",
 			"RESET_TWO_FACTOR_DONE": "L’autenticazione a due fattori di {name} è stata reimpostata",
 			"RESET_TWO_FACTOR_NOTHING": "{name} non aveva un’autenticazione a due fattori da reimpostare",
-			"RESET_TWO_FACTOR_FAILED": "Non è stato possibile reimpostare l’autenticazione a due fattori di {name}"
+			"RESET_TWO_FACTOR_FAILED": "Non è stato possibile reimpostare l’autenticazione a due fattori di {name}",
+			"placeholder": {
+				"ADD": "Aggiungi senza account",
+				"ADD_TITLE": "Aggiungi una persona senza account",
+				"ADD_DESCRIPTION": "Per chi ha lavorato con il team e non ha un account. Non riceve email, non può accedere e non avvia mai un timer. Il suo tempo conta in report, fogli ore, budget e fatture come quello di ogni membro.",
+				"EMAIL": "Email",
+				"OPTIONAL": "facoltativa",
+				"EMAIL_HINT": "Conservata per invitarla più avanti a rivendicare il suo tempo. Ora non viene inviato nulla.",
+				"EMAIL_INVALID": "Inserisci un'email valida o lascia il campo vuoto.",
+				"ADD_CONFIRM": "Aggiungi membro",
+				"ADD_FAILED": "Il membro non è stato aggiunto.",
+				"ADDED": "{name} è stato aggiunto senza account.",
+				"NO_ACCOUNT": "Senza account",
+				"NO_EMAIL": "Nessuna email",
+				"CLAIM": "Invita a rivendicare",
+				"CLAIM_TITLE": "Invita {name} a rivendicare il suo tempo",
+				"CLAIM_DESCRIPTION": "{name} riceve un invito via email. Quando lo accetta, il suo tempo, i suoi team e le sue tariffe passano al suo account.",
+				"CLAIM_CONFIRM": "Invia invito",
+				"CLAIM_FAILED": "L'invito non è stato inviato.",
+				"CLAIM_SENT": "Invito inviato a {email}. Il tempo di {name} passa al suo account quando accetta.",
+				"CLAIM_PENDING": "Invito inviato",
+				"CLAIM_PENDING_TO": "Invito a rivendicare inviato a {email}",
+				"MERGE": "Unisci a un membro",
+				"MERGE_TITLE": "Unisci {name} a un membro",
+				"MERGE_DESCRIPTION": "Tutto ciò che appartiene a questo membro senza account passa al membro scelto. Un'unione non si può annullare.",
+				"MERGE_INTO": "Unisci a",
+				"MERGE_PICK": "Scegli un membro",
+				"MERGE_NO_TARGET": "Nessuno in questo team ha ancora un account a cui unire.",
+				"MERGE_READING": "Lettura di ciò che verrebbe spostato…",
+				"MERGE_PREVIEW_FAILED": "Non è stato possibile leggere ciò che verrebbe spostato.",
+				"RETRY": "Riprova",
+				"MERGE_MOVES_TIME": "{target} riceve {count, plural, one {# voce} other {# voci}} ({duration}).",
+				"MERGE_MOVES_WORK": "{timesheets, plural, one {# foglio ore} other {# fogli ore}} e {tasks, plural, one {# assegnazione di attività} other {# assegnazioni di attività}} passano con esse.",
+				"MERGE_MOVES_TEAMS": "{target} entra nei suoi team: {teams}.",
+				"MERGE_OVERLAPS": "{count, plural, one {# di queste voci si sovrappone} other {# di queste voci si sovrappongono}} al tempo di {target}.",
+				"MERGE_REMOVES": "{name} viene rimosso dai membri.",
+				"MERGE_CONFIRM": "Unisci",
+				"MERGE_FAILED": "I membri non sono stati uniti.",
+				"MERGED": "{name} unito a {target}",
+				"errors": {
+					"EMAIL_TAKEN": "Un membro di questa organizzazione ha già quest'email.",
+					"CLAIM_HAS_ACCOUNT": "Quest'email ha già un account. Unisci invece il membro al membro di quella persona.",
+					"MERGE_TIME_OFF": "Entrambi i membri hanno un saldo di assenze per la stessa regola e lo stesso anno ({years}). Sistemalo su uno dei due, poi unisci di nuovo. Non è stato spostato nulla.",
+					"MERGE_TIME_OFF_ANY": "Entrambi i membri hanno un saldo di assenze per la stessa regola e lo stesso anno. Sistemalo su uno dei due, poi unisci di nuovo. Non è stato spostato nulla."
+				}
+			}
 		},
 		"sessions": {
 			"TITLE": "Sessioni",
@@ -7894,6 +7939,15 @@
 			"FAILED_DESCRIPTION": "Nessuna voce di tempo è stata salvata. Ciò che è stato creato prima resta nello spazio di lavoro e viene riutilizzato quando importi di nuovo gli stessi file.",
 			"CREATED_TITLE": "Clienti, progetti ed etichette sono nello spazio di lavoro",
 			"PAGE_DESCRIPTION": "Clienti, progetti, etichette e voci di tempo da un altro strumento di monitoraggio del tempo."
+		},
+		"placeholders": {
+			"TITLE": "{count, plural, one {# persona di questo file non è} other {# persone di questo file non sono}} in questo team ({rows, plural, one {# riga} other {# righe}})",
+			"DESCRIPTION": "Aggiungile come membri senza account: non ricevono email e non possono accedere. Le loro righe vengono poi ricontrollate e importate come quelle di ogni membro.",
+			"NAMES": "{names}{more, plural, =0 {} other { e altri #}}",
+			"ADD": "Aggiungi {count, plural, one {# membro} other {# membri}} senza account",
+			"FAILED": "Non sono stati aggiunti.",
+			"OUTSIDE_TEAM_TITLE": "{count, plural, one {# persona fa già parte} other {# persone fanno già parte}} dell'organizzazione, non di questo team",
+			"OUTSIDE_TEAM_DESCRIPTION": "{names}: aggiungile a questo team in Impostazioni > Membri, poi scegli di nuovo il file."
 		}
 	},
 	"recordSheet": {

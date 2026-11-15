@@ -76,5 +76,3 @@ export function useRateApplyQuestion() {
 
 	return { rule, choice, pickChoice, day: dayText, setDay, isDayMissing, reset, applyFromOfSave, confirmSaved };
 }
-
-export type RateApplyQuestionState = ReturnType<typeof useRateApplyQuestion>;
