@@ -80,9 +80,14 @@ describe('columns and orderings read from the budget report', () => {
 });
 
 describe('isProjectOpenTo (#5022)', () => {
-	const ofTeamB = { id: 'p1', name: 'Website', teams: [{ id: 'team-b' }], members: [{ employeeId: 'employee-1' }] } as never;
+	const ofTeamB = {
+		id: 'p1',
+		name: 'Website',
+		teams: [{ id: 'team-b' }],
+		members: [{ employeeId: 'employee-1' }]
+	} as never;
 
-	it("opens a project of another team to its member, as a notification about it leads there", () => {
+	it('opens a project of another team to its member, as a notification about it leads there', () => {
 		expect(isProjectOpenTo(ofTeamB, 'team-a', 'employee-1')).toBe(true);
 	});
 

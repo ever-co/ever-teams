@@ -217,7 +217,8 @@ export function isProjectOpenTo(
 	employeeId: string | null | undefined
 ) {
 	const isMember =
-		!!employeeId && (project.members ?? []).some((member) => (member?.employeeId ?? member?.employee?.id) === employeeId);
+		!!employeeId &&
+		(project.members ?? []).some((member) => (member?.employeeId ?? member?.employee?.id) === employeeId);
 	return isMember || isProjectVisibleInTeam(project, activeTeamId);
 }
 
