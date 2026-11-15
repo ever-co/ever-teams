@@ -231,7 +231,28 @@ describe('a member without an account', () => {
 		renderRow(placeholder());
 
 		expect(screen.getByText('settings.members.placeholder.NO_ACCOUNT')).toBeTruthy();
-		expect(screen.getByText('settings.members.placeholder.NO_EMAIL')).toBeTruthy();
+		expect(screen.getAllByText(/settings\.members\.placeholder\.NO_EMAIL$/).length).toBeGreaterThan(0);
+	});
+
+	it('says it on the detail line on a phone, where the chips beside the name are hidden', () => {
+		const { container } = render(
+			<ul>
+				<MemberRow
+					row={placeholder()}
+					assignableRoles={[]}
+					formatJoined={() => ''}
+					actions={actionsOf()}
+					claimSentTo="amina@acme.com"
+				/>
+			</ul>
+		);
+
+		const phoneLine = container.querySelector('.sm\\:hidden');
+		expect(phoneLine?.textContent).toBe(
+			'settings.members.placeholder.NO_ACCOUNT · settings.members.placeholder.CLAIM_PENDING · '
+		);
+		const chip = screen.getByText('settings.members.placeholder.NO_ACCOUNT');
+		expect(chip.closest('.sm\\:inline-flex')).not.toBeNull();
 	});
 
 	it('offers to invite the person to claim, and to merge, to a viewer who may add members', () => {

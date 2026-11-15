@@ -450,14 +450,17 @@ function WorkspaceAdminChip({ roleName }: Readonly<{ roleName: string | null }>)
 	return <PersonChip hue="warning">{workspaceRoleLabelOf(roleName, t)}</PersonChip>;
 }
 
-/** A member without an account, and the claim sent to them from this page, if any. */
+/**
+ * A member without an account, and the claim sent to them from this page, if any. Beside the name from `sm` up; on a
+ * phone the chips would leave the name two letters, so the detail line says it instead (see `PlaceholderDetail`).
+ */
 function PlaceholderChips({ row, claimSentTo }: Readonly<{ row: MemberRowModel; claimSentTo: string | null }>) {
 	const t = useTranslations();
 	if (!row.isPlaceholder) {
 		return null;
 	}
 	return (
-		<>
+		<span className="hidden items-center gap-1.5 sm:inline-flex">
 			<PersonChip hue="neutral">{t('settings.members.placeholder.NO_ACCOUNT')}</PersonChip>
 			{claimSentTo && (
 				<span title={t('settings.members.placeholder.CLAIM_PENDING_TO', { email: claimSentTo })}>
@@ -466,7 +469,7 @@ function PlaceholderChips({ row, claimSentTo }: Readonly<{ row: MemberRowModel; 
 					</PersonChip>
 				</span>
 			)}
-		</>
+		</span>
 	);
 }
 
@@ -479,6 +482,25 @@ function detailOf(row: MemberRowModel, t: Translate): string {
 		return t('settings.members.placeholder.NO_EMAIL');
 	}
 	return '';
+}
+
+/** The detail line; on a phone a member without an account reads "No account · ..." there, in place of the chips. */
+function PlaceholderDetail({ row, claimSentTo }: Readonly<{ row: MemberRowModel; claimSentTo: string | null }>) {
+	const t = useTranslations();
+	const detail = detailOf(row, t);
+	if (!row.isPlaceholder) {
+		return detail;
+	}
+	const states = [t('settings.members.placeholder.NO_ACCOUNT')];
+	if (claimSentTo) {
+		states.push(t('settings.members.placeholder.CLAIM_PENDING'));
+	}
+	return (
+		<>
+			<span className="sm:hidden">{`${states.join(' · ')} · `}</span>
+			{detail}
+		</>
+	);
 }
 
 export function MemberRow({
@@ -505,6 +527,7 @@ export function MemberRow({
 		return <MemberRateEditor row={row} onCancel={stopEditing} onSaveRates={actions.onSaveRates} />;
 	}
 
+	const hasDetail = Boolean(row.email) || row.isPlaceholder;
 	const chips = (
 		<>
 			{row.isYou && <PersonChip hue="neutral">{t('settings.members.YOU')}</PersonChip>}
@@ -516,7 +539,11 @@ export function MemberRow({
 	return (
 		<li className={PERSON_ROW}>
 			<MemberAvatar name={row.name} imageUrl={row.imageUrl} />
-			<PersonLines name={row.name} detail={detailOf(row, t)} adornment={chips} />
+			<PersonLines
+				name={row.name}
+				detail={hasDetail && <PlaceholderDetail row={row} claimSentTo={claimSentTo} />}
+				adornment={chips}
+			/>
 			{row.joinedAt && (
 				<span className="hidden shrink-0 text-xs text-muted-foreground tabular-nums md:block">
 					{formatJoined(row.joinedAt)}
