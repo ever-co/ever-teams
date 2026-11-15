@@ -1,4 +1,6 @@
+import type { WeekStart } from '@/core/lib/utils/dashboard-period';
 import type {
+	InvoiceScheduleFrequency,
 	InvoiceScheduleInput,
 	InvoiceScheduleRunReason,
 	InvoiceScheduleRunStatus,
@@ -36,6 +38,28 @@ export function firstDayOfMonthOf(dayKey: string): string {
 		return dayKey;
 	}
 	return `${match[1]}-${match[2]}-01`;
+}
+
+const DAYS_PER_WEEK = 7;
+
+/** The first day of the week a day key falls in, the week starting on `weekStart` (0 for Sunday, 1 for Monday). */
+function firstDayOfWeekOf(dayKey: string, weekStart: WeekStart): string {
+	const match = DAY_KEY_PATTERN.exec(dayKey);
+	if (!match) {
+		return dayKey;
+	}
+	const day = new Date(Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3])));
+	const daysIntoWeek = (day.getUTCDay() - weekStart + DAYS_PER_WEEK) % DAYS_PER_WEEK;
+	day.setUTCDate(day.getUTCDate() - daysIntoWeek);
+	return day.toISOString().slice(0, 10);
+}
+
+/**
+ * The first day a new schedule of that frequency starts from: the first day of this month, or of this week as the
+ * workspace counts its weeks (#5264), so its periods are the months or the weeks every report of the workspace shows.
+ */
+export function defaultStartDayOf(frequency: InvoiceScheduleFrequency, todayKey: string, weekStart: WeekStart): string {
+	return frequency === 'MONTHLY' ? firstDayOfMonthOf(todayKey) : firstDayOfWeekOf(todayKey, weekStart);
 }
 
 /**
@@ -122,8 +146,12 @@ export function explainedReasonOf(run: Pick<TInvoiceScheduleRun, 'reason'>): Exp
 	return EXPLAINED_RUN_REASONS.find((explained) => explained === reason) ?? null;
 }
 
-/** Schedules by their next run day, the soonest first; a paused one, which has none, comes last. */
+/** Schedules by their next run day, the soonest first; the paused ones last, whatever next period they state. */
 export function compareSchedulesByNextRun(first: TInvoiceSchedule, second: TInvoiceSchedule): number {
+	const isFirstPaused = isPausedSchedule(first);
+	if (isFirstPaused !== isPausedSchedule(second)) {
+		return isFirstPaused ? 1 : -1;
+	}
 	const firstDay = first.nextPeriod?.runDay ?? '9999-12-31';
 	const secondDay = second.nextPeriod?.runDay ?? '9999-12-31';
 	if (firstDay !== secondDay) {

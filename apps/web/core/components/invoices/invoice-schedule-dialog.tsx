@@ -8,6 +8,7 @@ import { Button } from '@/core/components/common/button';
 import { EntityTile } from '@/core/components/common/entity-tile';
 import { controlRecipe } from '@/core/components/common/input';
 import { SegmentedControl, type SegmentedControlItem } from '@/core/components/common/segmented-control';
+import { useWorkspaceWeekStart } from '@/core/hooks/common/use-workspace-week-start';
 import type { InvoiceScheduleChange } from '@/core/hooks/invoices/use-invoice-schedules';
 import { cn } from '@/core/lib/helpers';
 import { ApiErrorService } from '@/core/services/client/api-error.service';
@@ -15,6 +16,7 @@ import { invoiceDayTextOf } from '@/core/lib/utils/invoices';
 import {
 	changedScheduleFieldsOf,
 	defaultInvoiceScheduleInput,
+	defaultStartDayOf,
 	invoiceScheduleInputOf,
 	isRealDayKey
 } from '@/core/lib/utils/invoice-schedules';
@@ -102,8 +104,12 @@ function InvoiceScheduleForm({
 	const t = useTranslations();
 	const locale = useLocale();
 	const fieldId = useId();
-	const saved = schedule ? invoiceScheduleInputOf(schedule) : null;
+	const weekStart = useWorkspaceWeekStart();
+	// The schedule as the dialog opened on it: a read that lands meanwhile (another tab set one) does not turn a new
+	// schedule's form into a change of that one, which its person has not seen
+	const [saved] = useState(() => (schedule ? invoiceScheduleInputOf(schedule) : null));
 	const [input, setInput] = useState<InvoiceScheduleInput>(() => saved ?? defaultInvoiceScheduleInput(todayKey));
+	const [isStartPicked, setIsStartPicked] = useState(false);
 	const [isSaving, setIsSaving] = useState(false);
 	const [failure, setFailure] = useState<SaveFailure | null>(null);
 	const [hasTriedSubmit, setHasTriedSubmit] = useState(false);
@@ -116,6 +122,21 @@ function InvoiceScheduleForm({
 	const update = (patch: Partial<InvoiceScheduleInput>) => {
 		setInput((current) => ({ ...current, ...patch }));
 		setFailure(null);
+	};
+
+	// Until its person picks a day, a new schedule starts on the first day of this month, or of this week as the
+	// workspace counts weeks: a weekly schedule then bills the weeks its reports show
+	const pickFrequency = (frequency: InvoiceScheduleFrequency) => {
+		if (saved || isStartPicked) {
+			update({ frequency });
+			return;
+		}
+		update({ frequency, startDay: defaultStartDayOf(frequency, todayKey, weekStart) });
+	};
+
+	const pickStartDay = (startDay: string) => {
+		setIsStartPicked(true);
+		update({ startDay });
 	};
 
 	const frequencyItems: SegmentedControlItem<InvoiceScheduleFrequency>[] = INVOICE_SCHEDULE_FREQUENCIES.map(
@@ -137,10 +158,9 @@ function InvoiceScheduleForm({
 			await onCreate(input);
 			return;
 		}
-		const changes = changedScheduleFieldsOf(saved, input);
-		if (Object.keys(changes).length > 0) {
-			await onUpdate(changes);
-		}
+		// Sent even when nothing changed: whoever saves a schedule takes it over, and its runs use their access from
+		// then on, which is how a schedule whose last author can no longer make invoices bills again
+		await onUpdate(changedScheduleFieldsOf(saved, input));
 	};
 
 	const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -205,7 +225,7 @@ function InvoiceScheduleForm({
 							<SegmentedControl<InvoiceScheduleFrequency>
 								items={frequencyItems}
 								value={input.frequency}
-								onValueChange={(frequency) => update({ frequency })}
+								onValueChange={pickFrequency}
 								ariaLabel={t('invoices.schedule.form.FREQUENCY')}
 							/>
 						</div>
@@ -217,7 +237,7 @@ function InvoiceScheduleForm({
 							value={input.startDay}
 							aria-invalid={showsStartError || undefined}
 							aria-describedby={startHintId}
-							onChange={(event) => update({ startDay: event.target.value })}
+							onChange={(event) => pickStartDay(event.target.value)}
 							className={DATE_FIELD}
 						/>
 						{showsStartError && (

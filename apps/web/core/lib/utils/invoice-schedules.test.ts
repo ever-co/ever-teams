@@ -2,6 +2,7 @@ import {
 	changedScheduleFieldsOf,
 	compareSchedulesByNextRun,
 	defaultInvoiceScheduleInput,
+	defaultStartDayOf,
 	explainedReasonOf,
 	firstDayOfMonthOf,
 	invoiceScheduleRunToneOf,
@@ -37,6 +38,15 @@ describe('invoice schedules', () => {
 		});
 	});
 
+	it('starts a weekly schedule on the first day of this week, as the workspace counts its weeks', () => {
+		// Sunday 15 November 2026
+		expect(defaultStartDayOf('WEEKLY', '2026-11-15', 1)).toBe('2026-11-09');
+		expect(defaultStartDayOf('BIWEEKLY', '2026-11-15', 0)).toBe('2026-11-15');
+		expect(defaultStartDayOf('WEEKLY', '2026-11-15', 6)).toBe('2026-11-14');
+		expect(defaultStartDayOf('WEEKLY', '2027-01-02', 1)).toBe('2026-12-28');
+		expect(defaultStartDayOf('MONTHLY', '2026-11-15', 1)).toBe('2026-11-01');
+	});
+
 	it('tells a day that exists from one that does not', () => {
 		expect(isRealDayKey('2028-02-29')).toBe(true);
 		expect(isRealDayKey('2026-02-29')).toBe(false);
@@ -68,6 +78,13 @@ describe('invoice schedules', () => {
 		// The time left out is told by its hours, not by a sentence of its own
 		expect(explainedReasonOf({ reason: 'TIME_LEFT_OUT' })).toBeNull();
 		expect(explainedReasonOf({ reason: null })).toBeNull();
+	});
+
+	it('lists a paused schedule last even when it still states a next invoice', () => {
+		const paused = schedule('Paused', '2026-11-20', '2026-11-10T09:00:00Z');
+		const active = schedule('Active', '2026-12-01');
+
+		expect([paused, active].sort(compareSchedulesByNextRun).map(({ id }) => id)).toEqual(['Active', 'Paused']);
 	});
 
 	it('lists the schedules by their next invoice, the soonest first, the paused ones last', () => {
