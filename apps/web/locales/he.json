@@ -5422,7 +5422,8 @@
 			"SIGN_OUT_INCOMPLETE": "הפעלה התחדשה בזמן הניתוק שלה. יש לנסות שוב.",
 			"SIGN_OUT_OTHERS_FAILED": "ניתוק ההפעלות האחרות לא הסתיים. {reason}",
 			"SIGN_OUT_OTHERS_CONFIRM": "{count, plural, one {ניתוק הפעלה אחת} two {ניתוק שתי הפעלות} other {ניתוק # הפעלות}}",
-			"SIGNED_OUT_OTHERS": "{count, plural, =0 {לא הייתה הפעלה אחרת מחוברת.} one {הפעלה אחרת אחת נותקה.} two {שתי הפעלות אחרות נותקו.} other {# הפעלות אחרות נותקו.}}"
+			"SIGNED_OUT_OTHERS": "{count, plural, =0 {לא הייתה הפעלה אחרת מחוברת.} one {הפעלה אחרת אחת נותקה.} two {שתי הפעלות אחרות נותקו.} other {# הפעלות אחרות נותקו.}}",
+			"APP_ON_DEVICE": "{app} · {device}"
 		},
 		"profile": {
 			"SECTION_PROFILE": "פרופיל",

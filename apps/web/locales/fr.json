@@ -5422,7 +5422,8 @@
 			"SIGN_OUT_INCOMPLETE": "Une session s'est renouvelée pendant sa déconnexion. Réessayez.",
 			"SIGN_OUT_OTHERS_FAILED": "La déconnexion des autres sessions ne s'est pas terminée. {reason}",
 			"SIGN_OUT_OTHERS_CONFIRM": "{count, plural, one {Déconnecter # session} other {Déconnecter # sessions}}",
-			"SIGNED_OUT_OTHERS": "{count, plural, =0 {Aucune autre session n'était connectée.} one {# autre session a été déconnectée.} other {# autres sessions ont été déconnectées.}}"
+			"SIGNED_OUT_OTHERS": "{count, plural, =0 {Aucune autre session n'était connectée.} one {# autre session a été déconnectée.} other {# autres sessions ont été déconnectées.}}",
+			"APP_ON_DEVICE": "{app} · {device}"
 		},
 		"profile": {
 			"SECTION_PROFILE": "Profil",

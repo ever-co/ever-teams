@@ -110,6 +110,26 @@ describe('SessionsSection', () => {
 		expect(screen.getAllByRole('button', { name: /settings\.sessions\.SIGN_OUT_SESSION/ })).toHaveLength(2);
 	});
 
+	it('names the app of a session before its device: this app by its own name, another by what it told (#11983)', () => {
+		mockState = stateWith({
+			sessions: [
+				{ ...THIS_DEVICE, appOrigin: 'localhost' },
+				{ ...LAPTOP, appName: 'Ever Gauzy', appOrigin: 'app.gauzy.co' },
+				{ ...LAPTOP, id: 'session-4', appOrigin: 'cloc.ever.co' },
+				UNKNOWN
+			]
+		});
+
+		render(<SessionsSection />);
+
+		expect(screen.getByText(/settings\.sessions\.APP_ON_DEVICE .*"app":"Ever Teams".*Chrome 131/)).toBeTruthy();
+		expect(screen.getByText(/settings\.sessions\.APP_ON_DEVICE .*"app":"Ever Gauzy".*Firefox 133/)).toBeTruthy();
+		expect(
+			screen.getByText(/settings\.sessions\.APP_ON_DEVICE .*"app":"cloc\.ever\.co".*Firefox 133/)
+		).toBeTruthy();
+		expect(screen.getByText('settings.sessions.UNKNOWN_DEVICE')).toBeTruthy();
+	});
+
 	it('offers to sign out the other sessions and opens the confirmation with their count', () => {
 		mockState = stateWith({ sessions: [THIS_DEVICE, LAPTOP, UNKNOWN] });
 		render(<SessionsSection />);
