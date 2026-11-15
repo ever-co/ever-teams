@@ -3982,7 +3982,8 @@
 			"BROADCAST": "<b>{name}</b> 发布了一则公告",
 			"PAYMENT": "已为你登记一笔付款",
 			"RATE_CHANGE_REQUEST": "<b>{name}</b> 申请调整费率",
-			"TIMER_REMINDER": "你的计时器仍在运行"
+			"TIMER_REMINDER": "你的计时器仍在运行",
+			"MEETING": "你参加的会议有变动"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "分配",
@@ -3993,7 +3994,8 @@
 			"BROADCAST": "公告",
 			"PAYMENT": "付款",
 			"RATE_CHANGE_REQUEST": "费率调整申请",
-			"TIMER_REMINDER": "计时器提醒"
+			"TIMER_REMINDER": "计时器提醒",
+			"MEETING": "会议"
 		},
 		"SOMEONE": "有人",
 		"MARK_READ": "标为已读",
@@ -4070,6 +4072,14 @@
 				"OFF": "关闭",
 				"AFTER_HOURS": "{hours} 小时后"
 			},
+			"MEETINGS": {
+				"TITLE": "会议",
+				"INTRO": "关于你主持或受邀参加的会议的通知，以及每场会议开始前的提醒。",
+				"LABEL": "会议提醒",
+				"TEXT": "在你受邀时、会议变更或取消时、开始前以及开始时。按你的选择发送到收件箱、邮件和你的设备。",
+				"OFF": "仅在开始时",
+				"BEFORE_MINUTES": "提前 {minutes} 分钟"
+			},
 			"INTRO": "选择哪些内容进入你的收件箱。关闭某一类型后，不再收到该类型的新通知；已有的通知会保留。",
 			"LOAD_ERROR": "无法加载你的通知设置。",
 			"SAVE_FAILED": "该设置未保存，请重试。",
@@ -4120,6 +4130,16 @@
 			"FORGOTTEN_DESCRIPTION": "是否忘记了？请停止它，并按需在工时表中更正时间。",
 			"STOP": "停止计时器",
 			"OPEN": "打开计时器"
+		},
+		"MEETING": {
+			"INVITED": "<b>{name}</b> 邀请你参加会议",
+			"REMOVED": "<b>{name}</b> 将你移出了会议",
+			"CHANGED": "<b>{name}</b> 修改了会议",
+			"CANCELLED": "<b>{name}</b> 取消了会议",
+			"REMINDER": "你的会议将在 {minutes} 分钟后开始",
+			"SOON": "你的会议即将开始",
+			"STARTING": "你的会议正在开始",
+			"OPEN": "打开会议"
 		}
 	},
 	"toasts": {
@@ -4403,6 +4423,7 @@
 		"JOIN_MEETING": "加入会议",
 		"MEETING_ACTIONS_OF": "{title} 的操作",
 		"HOST": "主持人：{name}",
+		"INVITED": "受邀",
 		"STARTED_AGO": "{ago}开始",
 		"CANCEL_MEETING": "取消会议",
 		"CANCEL_CONFIRM_TITLE": "取消此会议？",

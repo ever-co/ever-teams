@@ -3982,7 +3982,8 @@
 			"BROADCAST": "<b>{name}</b> opublikował(a) ogłoszenie",
 			"PAYMENT": "Zarejestrowano dla Ciebie płatność",
 			"RATE_CHANGE_REQUEST": "<b>{name}</b> prosi o zmianę stawki",
-			"TIMER_REMINDER": "Twój licznik czasu wciąż działa"
+			"TIMER_REMINDER": "Twój licznik czasu wciąż działa",
+			"MEETING": "Spotkanie, w którym uczestniczysz, zostało zmienione"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "Przypisanie",
@@ -3993,7 +3994,8 @@
 			"BROADCAST": "Ogłoszenie",
 			"PAYMENT": "Płatność",
 			"RATE_CHANGE_REQUEST": "Prośba o zmianę stawki",
-			"TIMER_REMINDER": "Przypomnienie o liczniku czasu"
+			"TIMER_REMINDER": "Przypomnienie o liczniku czasu",
+			"MEETING": "Spotkanie"
 		},
 		"SOMEONE": "Ktoś",
 		"MARK_READ": "Oznacz jako przeczytane",
@@ -4070,6 +4072,14 @@
 				"OFF": "Wyłączone",
 				"AFTER_HOURS": "Po {hours, plural, one {# godzinie} other {# godzinach}}"
 			},
+			"MEETINGS": {
+				"TITLE": "Spotkania",
+				"INTRO": "Powiadomienia o spotkaniach, które organizujesz lub na które Cię zaproszono, oraz przypomnienie przed rozpoczęciem każdego z nich.",
+				"LABEL": "Przypomnienie o spotkaniu",
+				"TEXT": "Gdy zostaniesz zaproszony, gdy spotkanie się zmieni lub zostanie odwołane, przed jego rozpoczęciem i gdy się zaczyna. W Twojej skrzynce, e-mailem i na Twoich urządzeniach, zgodnie z Twoim wyborem.",
+				"OFF": "Tylko na początku",
+				"BEFORE_MINUTES": "{minutes, plural, one {# minutę} few {# minuty} many {# minut} other {# minuty}} wcześniej"
+			},
 			"INTRO": "Wybierz, co trafia do Twojej skrzynki. Wyłączenie typu zatrzymuje nowe powiadomienia tego typu; te, które już masz, zostają.",
 			"LOAD_ERROR": "Nie udało się wczytać ustawień powiadomień.",
 			"SAVE_FAILED": "To ustawienie nie zostało zapisane. Spróbuj ponownie.",
@@ -4120,6 +4130,16 @@
 			"FORGOTTEN_DESCRIPTION": "Zapomniany? Zatrzymaj go, a w razie potrzeby popraw czas w karcie czasu pracy.",
 			"STOP": "Zatrzymaj licznik",
 			"OPEN": "Otwórz licznik"
+		},
+		"MEETING": {
+			"INVITED": "<b>{name}</b> zaprosił(a) Cię na spotkanie",
+			"REMOVED": "<b>{name}</b> usunął(a) Cię ze spotkania",
+			"CHANGED": "<b>{name}</b> zmienił(a) spotkanie",
+			"CANCELLED": "<b>{name}</b> odwołał(a) spotkanie",
+			"REMINDER": "Twoje spotkanie zaczyna się za {minutes, plural, one {# minutę} few {# minuty} many {# minut} other {# minuty}}",
+			"SOON": "Twoje spotkanie wkrótce się zacznie",
+			"STARTING": "Twoje spotkanie się zaczyna",
+			"OPEN": "Otwórz spotkania"
 		}
 	},
 	"toasts": {
@@ -4403,6 +4423,7 @@
 		"JOIN_MEETING": "Dołącz do spotkania",
 		"MEETING_ACTIONS_OF": "Działania dla {title}",
 		"HOST": "Organizator: {name}",
+		"INVITED": "Zaproszenie",
 		"STARTED_AGO": "Rozpoczęte {ago}",
 		"CANCEL_MEETING": "Odwołaj spotkanie",
 		"CANCEL_CONFIRM_TITLE": "Odwołać to spotkanie?",

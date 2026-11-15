@@ -3982,7 +3982,8 @@
 			"BROADCAST": "<b>{name}</b> published an announcement",
 			"PAYMENT": "A payment was recorded for you",
 			"RATE_CHANGE_REQUEST": "<b>{name}</b> asked for a rate change",
-			"TIMER_REMINDER": "Your timer is still running"
+			"TIMER_REMINDER": "Your timer is still running",
+			"MEETING": "A meeting you attend changed"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "Assignment",
@@ -3993,7 +3994,8 @@
 			"BROADCAST": "Announcement",
 			"PAYMENT": "Payment",
 			"RATE_CHANGE_REQUEST": "Rate change request",
-			"TIMER_REMINDER": "Timer reminder"
+			"TIMER_REMINDER": "Timer reminder",
+			"MEETING": "Meeting"
 		},
 		"SOMEONE": "Someone",
 		"MARK_READ": "Mark as read",
@@ -4070,6 +4072,14 @@
 				"OFF": "Off",
 				"AFTER_HOURS": "After {hours, plural, one {# hour} other {# hours}}"
 			},
+			"MEETINGS": {
+				"TITLE": "Meetings",
+				"INTRO": "Notices about the meetings you host or are invited to, and a reminder before each one starts.",
+				"LABEL": "Meeting reminder",
+				"TEXT": "When you are invited, when a meeting changes or is cancelled, before it starts and when it is starting. In your inbox, by email and on your devices as you choose.",
+				"OFF": "Only when it starts",
+				"BEFORE_MINUTES": "{minutes, plural, one {# minute} other {# minutes}} before"
+			},
 			"INTRO": "Choose what reaches your inbox. Turning a type off stops new notifications of that type; the ones already there stay.",
 			"LOAD_ERROR": "Your notification settings could not load.",
 			"SAVE_FAILED": "That setting was not saved. Try again.",
@@ -4120,6 +4130,16 @@
 			"FORGOTTEN_DESCRIPTION": "Did you forget it? Stop it, then correct the time in your timesheet if needed.",
 			"STOP": "Stop timer",
 			"OPEN": "Open timer"
+		},
+		"MEETING": {
+			"INVITED": "<b>{name}</b> invited you to a meeting",
+			"REMOVED": "<b>{name}</b> removed you from a meeting",
+			"CHANGED": "<b>{name}</b> changed a meeting",
+			"CANCELLED": "<b>{name}</b> cancelled a meeting",
+			"REMINDER": "Your meeting starts in {minutes, plural, one {# minute} other {# minutes}}",
+			"SOON": "Your meeting starts soon",
+			"STARTING": "Your meeting is starting",
+			"OPEN": "Open meetings"
 		}
 	},
 	"toasts": {
@@ -4403,6 +4423,7 @@
 		"JOIN_MEETING": "Join meeting",
 		"MEETING_ACTIONS_OF": "Actions for {title}",
 		"HOST": "Host: {name}",
+		"INVITED": "Invited",
 		"STARTED_AGO": "Started {ago}",
 		"CANCEL_MEETING": "Cancel meeting",
 		"CANCEL_CONFIRM_TITLE": "Cancel this meeting?",

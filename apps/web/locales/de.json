@@ -3982,7 +3982,8 @@
 			"BROADCAST": "<b>{name}</b> hat eine Ankündigung veröffentlicht",
 			"PAYMENT": "Eine Zahlung wurde für dich erfasst",
 			"RATE_CHANGE_REQUEST": "<b>{name}</b> hat eine Satzänderung angefragt",
-			"TIMER_REMINDER": "Dein Timer läuft noch immer"
+			"TIMER_REMINDER": "Dein Timer läuft noch immer",
+			"MEETING": "Ein Meeting, an dem Sie teilnehmen, wurde geändert"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "Zuweisung",
@@ -3993,7 +3994,8 @@
 			"BROADCAST": "Ankündigung",
 			"PAYMENT": "Zahlung",
 			"RATE_CHANGE_REQUEST": "Anfrage zur Satzänderung",
-			"TIMER_REMINDER": "Timer-Erinnerung"
+			"TIMER_REMINDER": "Timer-Erinnerung",
+			"MEETING": "Meeting"
 		},
 		"SOMEONE": "Jemand",
 		"MARK_READ": "Als gelesen markieren",
@@ -4070,6 +4072,14 @@
 				"OFF": "Aus",
 				"AFTER_HOURS": "Nach {hours, plural, one {# Stunde} other {# Stunden}}"
 			},
+			"MEETINGS": {
+				"TITLE": "Meetings",
+				"INTRO": "Hinweise zu den Meetings, die Sie leiten oder zu denen Sie eingeladen sind, und eine Erinnerung vor dem Beginn jedes Meetings.",
+				"LABEL": "Meeting-Erinnerung",
+				"TEXT": "Wenn Sie eingeladen werden, wenn ein Meeting geändert oder abgesagt wird, vor dem Beginn und wenn es beginnt. In Ihrem Posteingang, per E-Mail und auf Ihren Geräten nach Ihrer Wahl.",
+				"OFF": "Nur zu Beginn",
+				"BEFORE_MINUTES": "{minutes, plural, one {# Minute} other {# Minuten}} vorher"
+			},
 			"INTRO": "Wähle, was in deinem Posteingang ankommt. Wenn du einen Typ ausschaltest, kommen keine neuen Benachrichtigungen dieses Typs mehr; vorhandene bleiben.",
 			"LOAD_ERROR": "Deine Benachrichtigungseinstellungen konnten nicht geladen werden.",
 			"SAVE_FAILED": "Diese Einstellung wurde nicht gespeichert. Versuche es erneut.",
@@ -4120,6 +4130,16 @@
 			"FORGOTTEN_DESCRIPTION": "Hast du ihn vergessen? Stoppe ihn und korrigiere die Zeit bei Bedarf in deinem Stundenzettel.",
 			"STOP": "Timer stoppen",
 			"OPEN": "Timer öffnen"
+		},
+		"MEETING": {
+			"INVITED": "<b>{name}</b> hat Sie zu einem Meeting eingeladen",
+			"REMOVED": "<b>{name}</b> hat Sie aus einem Meeting entfernt",
+			"CHANGED": "<b>{name}</b> hat ein Meeting geändert",
+			"CANCELLED": "<b>{name}</b> hat ein Meeting abgesagt",
+			"REMINDER": "Ihr Meeting beginnt in {minutes, plural, one {# Minute} other {# Minuten}}",
+			"SOON": "Ihr Meeting beginnt bald",
+			"STARTING": "Ihr Meeting beginnt jetzt",
+			"OPEN": "Meetings öffnen"
 		}
 	},
 	"toasts": {
@@ -4403,6 +4423,7 @@
 		"JOIN_MEETING": "Besprechung beitreten",
 		"MEETING_ACTIONS_OF": "Aktionen für {title}",
 		"HOST": "Gastgeber: {name}",
+		"INVITED": "Eingeladen",
 		"STARTED_AGO": "Begonnen {ago}",
 		"CANCEL_MEETING": "Besprechung absagen",
 		"CANCEL_CONFIRM_TITLE": "Diese Besprechung absagen?",

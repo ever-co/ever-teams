@@ -3982,7 +3982,8 @@
 			"BROADCAST": "<b>{name}</b> ha pubblicato un annuncio",
 			"PAYMENT": "È stato registrato un pagamento per te",
 			"RATE_CHANGE_REQUEST": "<b>{name}</b> ha chiesto un cambio di tariffa",
-			"TIMER_REMINDER": "Il tuo timer è ancora in funzione"
+			"TIMER_REMINDER": "Il tuo timer è ancora in funzione",
+			"MEETING": "È cambiata una riunione a cui partecipi"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "Assegnazione",
@@ -3993,7 +3994,8 @@
 			"BROADCAST": "Annuncio",
 			"PAYMENT": "Pagamento",
 			"RATE_CHANGE_REQUEST": "Richiesta di cambio tariffa",
-			"TIMER_REMINDER": "Promemoria del timer"
+			"TIMER_REMINDER": "Promemoria del timer",
+			"MEETING": "Riunione"
 		},
 		"SOMEONE": "Qualcuno",
 		"MARK_READ": "Segna come letta",
@@ -4070,6 +4072,14 @@
 				"OFF": "Disattivato",
 				"AFTER_HOURS": "Dopo {hours, plural, one {# ora} other {# ore}}"
 			},
+			"MEETINGS": {
+				"TITLE": "Riunioni",
+				"INTRO": "Avvisi sulle riunioni che organizzi o a cui sei invitato, e un promemoria prima dell’inizio di ciascuna.",
+				"LABEL": "Promemoria riunione",
+				"TEXT": "Quando sei invitato, quando una riunione cambia o viene annullata, prima che inizi e quando inizia. Nella tua posta in arrivo, via email e sui tuoi dispositivi, come preferisci.",
+				"OFF": "Solo all’inizio",
+				"BEFORE_MINUTES": "{minutes, plural, one {# minuto} other {# minuti}} prima"
+			},
 			"INTRO": "Scegli cosa arriva nella tua posta. Disattivando un tipo si fermano le nuove notifiche di quel tipo; quelle già ricevute restano.",
 			"LOAD_ERROR": "Non è stato possibile caricare le impostazioni delle notifiche.",
 			"SAVE_FAILED": "L'impostazione non è stata salvata. Riprova.",
@@ -4120,6 +4130,16 @@
 			"FORGOTTEN_DESCRIPTION": "L’hai dimenticato? Fermalo, poi correggi il tempo nel tuo foglio ore se serve.",
 			"STOP": "Ferma il timer",
 			"OPEN": "Apri il timer"
+		},
+		"MEETING": {
+			"INVITED": "<b>{name}</b> ti ha invitato a una riunione",
+			"REMOVED": "<b>{name}</b> ti ha rimosso da una riunione",
+			"CHANGED": "<b>{name}</b> ha modificato una riunione",
+			"CANCELLED": "<b>{name}</b> ha annullato una riunione",
+			"REMINDER": "La tua riunione inizia tra {minutes, plural, one {# minuto} other {# minuti}}",
+			"SOON": "La tua riunione inizia a breve",
+			"STARTING": "La tua riunione sta iniziando",
+			"OPEN": "Apri le riunioni"
 		}
 	},
 	"toasts": {
@@ -4403,6 +4423,7 @@
 		"JOIN_MEETING": "Partecipa alla riunione",
 		"MEETING_ACTIONS_OF": "Azioni per {title}",
 		"HOST": "Organizzatore: {name}",
+		"INVITED": "Invitato",
 		"STARTED_AGO": "Iniziata {ago}",
 		"CANCEL_MEETING": "Annulla riunione",
 		"CANCEL_CONFIRM_TITLE": "Annullare questa riunione?",

@@ -3982,7 +3982,8 @@
 			"BROADCAST": "<b>{name}</b> a publié une annonce",
 			"PAYMENT": "Un paiement a été enregistré pour vous",
 			"RATE_CHANGE_REQUEST": "<b>{name}</b> demande un changement de taux",
-			"TIMER_REMINDER": "Votre chronomètre tourne encore"
+			"TIMER_REMINDER": "Votre chronomètre tourne encore",
+			"MEETING": "Une réunion à laquelle vous participez a changé"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "Assignation",
@@ -3993,7 +3994,8 @@
 			"BROADCAST": "Annonce",
 			"PAYMENT": "Paiement",
 			"RATE_CHANGE_REQUEST": "Demande de changement de taux",
-			"TIMER_REMINDER": "Rappel de chronomètre"
+			"TIMER_REMINDER": "Rappel de chronomètre",
+			"MEETING": "Réunion"
 		},
 		"SOMEONE": "Quelqu'un",
 		"MARK_READ": "Marquer comme lue",
@@ -4070,6 +4072,14 @@
 				"OFF": "Désactivé",
 				"AFTER_HOURS": "Après {hours, plural, one {# heure} other {# heures}}"
 			},
+			"MEETINGS": {
+				"TITLE": "Réunions",
+				"INTRO": "Les avis sur les réunions que vous organisez ou auxquelles vous êtes invité, et un rappel avant le début de chacune.",
+				"LABEL": "Rappel de réunion",
+				"TEXT": "Quand vous êtes invité, quand une réunion change ou est annulée, avant son début et quand elle commence. Dans votre boîte de réception, par e-mail et sur vos appareils selon vos choix.",
+				"OFF": "Seulement au début",
+				"BEFORE_MINUTES": "{minutes, plural, one {# minute} other {# minutes}} avant"
+			},
 			"INTRO": "Choisissez ce qui arrive dans votre boîte. Désactiver un type arrête les nouvelles notifications de ce type ; celles déjà reçues restent.",
 			"LOAD_ERROR": "Vos réglages de notifications n'ont pas pu être chargés.",
 			"SAVE_FAILED": "Ce réglage n'a pas été enregistré. Réessayez.",
@@ -4120,6 +4130,16 @@
 			"FORGOTTEN_DESCRIPTION": "L’avez-vous oublié ? Arrêtez-le, puis corrigez le temps dans votre feuille de temps si besoin.",
 			"STOP": "Arrêter le chronomètre",
 			"OPEN": "Ouvrir le chronomètre"
+		},
+		"MEETING": {
+			"INVITED": "<b>{name}</b> vous a invité à une réunion",
+			"REMOVED": "<b>{name}</b> vous a retiré d’une réunion",
+			"CHANGED": "<b>{name}</b> a modifié une réunion",
+			"CANCELLED": "<b>{name}</b> a annulé une réunion",
+			"REMINDER": "Votre réunion commence dans {minutes, plural, one {# minute} other {# minutes}}",
+			"SOON": "Votre réunion commence bientôt",
+			"STARTING": "Votre réunion commence",
+			"OPEN": "Ouvrir les réunions"
 		}
 	},
 	"toasts": {
@@ -4403,6 +4423,7 @@
 		"JOIN_MEETING": "Rejoindre la réunion",
 		"MEETING_ACTIONS_OF": "Actions pour {title}",
 		"HOST": "Organisateur : {name}",
+		"INVITED": "Invité",
 		"STARTED_AGO": "Commencée {ago}",
 		"CANCEL_MEETING": "Annuler la réunion",
 		"CANCEL_CONFIRM_TITLE": "Annuler cette réunion ?",

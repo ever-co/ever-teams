@@ -3982,7 +3982,8 @@
 			"BROADCAST": "<b>{name}</b> heeft een aankondiging geplaatst",
 			"PAYMENT": "Er is een betaling voor je geregistreerd",
 			"RATE_CHANGE_REQUEST": "<b>{name}</b> vroeg om een tariefwijziging",
-			"TIMER_REMINDER": "Je timer loopt nog steeds"
+			"TIMER_REMINDER": "Je timer loopt nog steeds",
+			"MEETING": "Een vergadering waaraan je deelneemt is gewijzigd"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "Toewijzing",
@@ -3993,7 +3994,8 @@
 			"BROADCAST": "Aankondiging",
 			"PAYMENT": "Betaling",
 			"RATE_CHANGE_REQUEST": "Aanvraag tariefwijziging",
-			"TIMER_REMINDER": "Timerherinnering"
+			"TIMER_REMINDER": "Timerherinnering",
+			"MEETING": "Vergadering"
 		},
 		"SOMEONE": "Iemand",
 		"MARK_READ": "Markeren als gelezen",
@@ -4070,6 +4072,14 @@
 				"OFF": "Uit",
 				"AFTER_HOURS": "Na {hours, plural, one {# uur} other {# uur}}"
 			},
+			"MEETINGS": {
+				"TITLE": "Vergaderingen",
+				"INTRO": "Meldingen over de vergaderingen die je organiseert of waarvoor je bent uitgenodigd, en een herinnering voordat elke vergadering begint.",
+				"LABEL": "Vergaderherinnering",
+				"TEXT": "Als je wordt uitgenodigd, als een vergadering wijzigt of wordt geannuleerd, voordat ze begint en als ze begint. In je inbox, per e-mail en op je apparaten, zoals je kiest.",
+				"OFF": "Alleen bij de start",
+				"BEFORE_MINUTES": "{minutes, plural, one {# minuut} other {# minuten}} van tevoren"
+			},
 			"INTRO": "Kies wat er in je inbox binnenkomt. Als je een type uitzet, komen er geen nieuwe meldingen van dat type meer; bestaande blijven staan.",
 			"LOAD_ERROR": "Je meldingsinstellingen konden niet worden geladen.",
 			"SAVE_FAILED": "Die instelling is niet opgeslagen. Probeer het opnieuw.",
@@ -4120,6 +4130,16 @@
 			"FORGOTTEN_DESCRIPTION": "Vergeten? Stop hem en corrigeer de tijd zo nodig in je urenstaat.",
 			"STOP": "Timer stoppen",
 			"OPEN": "Timer openen"
+		},
+		"MEETING": {
+			"INVITED": "<b>{name}</b> heeft je uitgenodigd voor een vergadering",
+			"REMOVED": "<b>{name}</b> heeft je uit een vergadering verwijderd",
+			"CHANGED": "<b>{name}</b> heeft een vergadering gewijzigd",
+			"CANCELLED": "<b>{name}</b> heeft een vergadering geannuleerd",
+			"REMINDER": "Je vergadering begint over {minutes, plural, one {# minuut} other {# minuten}}",
+			"SOON": "Je vergadering begint zo",
+			"STARTING": "Je vergadering begint nu",
+			"OPEN": "Vergaderingen openen"
 		}
 	},
 	"toasts": {
@@ -4403,6 +4423,7 @@
 		"JOIN_MEETING": "Deelnemen aan vergadering",
 		"MEETING_ACTIONS_OF": "Acties voor {title}",
 		"HOST": "Organisator: {name}",
+		"INVITED": "Uitgenodigd",
 		"STARTED_AGO": "Begonnen {ago}",
 		"CANCEL_MEETING": "Vergadering annuleren",
 		"CANCEL_CONFIRM_TITLE": "Deze vergadering annuleren?",
