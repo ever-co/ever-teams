@@ -2,8 +2,8 @@
 
 import { useId, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { Input } from '@/core/components/common/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/core/components/common/select';
+import { TimeField } from '@/core/components/common/time-field';
 import { SettingsRow, SettingsSurface } from '@/core/components/settings/kit/settings-page';
 import { SettingsSwitch } from '@/core/components/settings/kit/settings-switch';
 import { cn } from '@/core/lib/helpers';
@@ -40,12 +40,26 @@ type EmailModeSelectProps = {
 };
 
 /** At once, in the daily digest, never — and, for a kind, the default of every kind. */
-export function EmailModeSelect({ id, value, disabled, ariaLabel, className, allowDefault, onChange }: Readonly<EmailModeSelectProps>) {
+export function EmailModeSelect({
+	id,
+	value,
+	disabled,
+	ariaLabel,
+	className,
+	allowDefault,
+	onChange
+}: Readonly<EmailModeSelectProps>) {
 	const t = useTranslations();
-	const choices: readonly EmailModeChoice[] = allowDefault ? ['default', ...NOTIFICATION_EMAIL_MODES] : NOTIFICATION_EMAIL_MODES;
+	const choices: readonly EmailModeChoice[] = allowDefault
+		? ['default', ...NOTIFICATION_EMAIL_MODES]
+		: NOTIFICATION_EMAIL_MODES;
 	return (
 		<Select value={value} onValueChange={(next) => onChange(next as EmailModeChoice)} disabled={disabled}>
-			<SelectTrigger id={id} aria-label={ariaLabel} className={cn('h-8 text-[13px]', className ?? 'w-full sm:w-44')}>
+			<SelectTrigger
+				id={id}
+				aria-label={ariaLabel}
+				className={cn('h-8 text-[13px]', className ?? 'w-full sm:w-44')}
+			>
 				<SelectValue>{t(MODE_KEYS[value])}</SelectValue>
 			</SelectTrigger>
 			<SelectContent>
@@ -76,7 +90,12 @@ export function EmailDefaultRow({ value, disabled, onChange }: Readonly<EmailDef
 				description={t('notifications.SETTINGS_PAGE.CHANNELS.DEFAULT_TEXT')}
 				htmlFor={triggerId}
 			>
-				<EmailModeSelect id={triggerId} value={value} disabled={disabled} onChange={(mode) => onChange(mode as TNotificationEmailMode)} />
+				<EmailModeSelect
+					id={triggerId}
+					value={value}
+					disabled={disabled}
+					onChange={(mode) => onChange(mode as TNotificationEmailMode)}
+				/>
 			</SettingsRow>
 		</SettingsSurface>
 	);
@@ -134,23 +153,23 @@ export function QuietHoursRow({ window, disabled, onChange }: Readonly<QuietHour
 			{isOn && (
 				<span className="flex items-center gap-2 text-xs text-muted-foreground">
 					<label htmlFor={fromId}>{t('notifications.SETTINGS_PAGE.CHANNELS.QUIET_FROM')}</label>
-					<Input
+					<TimeField
 						id={fromId}
-						type="time"
 						value={start}
 						disabled={disabled}
-						className="h-8 w-28 text-[13px]"
-						onChange={(event) => setStart(event.target.value)}
+						className="w-32"
+						inputClassName="h-8 text-[13px]"
+						onChange={setStart}
 						onBlur={() => save({ start, end })}
 					/>
 					<label htmlFor={toId}>{t('notifications.SETTINGS_PAGE.CHANNELS.QUIET_TO')}</label>
-					<Input
+					<TimeField
 						id={toId}
-						type="time"
 						value={end}
 						disabled={disabled}
-						className="h-8 w-28 text-[13px]"
-						onChange={(event) => setEnd(event.target.value)}
+						className="w-32"
+						inputClassName="h-8 text-[13px]"
+						onChange={setEnd}
 						onBlur={() => save({ start, end })}
 					/>
 				</span>
@@ -159,7 +178,9 @@ export function QuietHoursRow({ window, disabled, onChange }: Readonly<QuietHour
 				id={switchId}
 				checked={isOn}
 				pending={disabled}
-				onCheckedChange={(next) => onChange(next ? { ...DEFAULT_QUIET_HOURS, timeZone: browserTimeZone() } : null)}
+				onCheckedChange={(next) =>
+					onChange(next ? { ...DEFAULT_QUIET_HOURS, timeZone: browserTimeZone() } : null)
+				}
 			/>
 		</SettingsRow>
 	);

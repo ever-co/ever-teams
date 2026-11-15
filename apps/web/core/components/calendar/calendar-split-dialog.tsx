@@ -7,7 +7,7 @@ import { toast } from 'sonner';
 import { AppDialog, APP_DIALOG_FOOTER } from '@/core/components/common/app-dialog';
 import { DialogDescription, DialogTitle } from '@/core/components/common/dialog';
 import { DialogFieldLabel } from '@/core/components/common/dialog-field-label';
-import { Input } from '@/core/components/common/input';
+import { TimeField } from '@/core/components/common/time-field';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { ChevronsUpDown, CircleAlert, Info, Plus, Scissors, Spinner, X } from '@/core/components/icons';
 import { TaskPickerMenu } from '@/core/components/tasks/detail/task-picker-menu';
@@ -182,11 +182,10 @@ function SplitForm({
 			<div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain px-5 pb-5">
 				<div className="mt-4 flex flex-col">
 					<DialogFieldLabel htmlFor={timeId}>{t('dashboard.calendar.SPLIT.TIME_LABEL')}</DialogFieldLabel>
-					<Input
+					<TimeField
 						id={timeId}
-						type="time"
 						value={clockText}
-						onChange={(event) => setClockText(event.target.value)}
+						onChange={setClockText}
 						onKeyDown={(event) => {
 							if (event.key === 'Enter' && canSave) {
 								event.preventDefault();
@@ -197,7 +196,7 @@ function SplitForm({
 						aria-invalid={!isTimeInside}
 						aria-describedby={isTimeInside ? undefined : errorId}
 						data-initial-focus=""
-						className="w-32 tabular-nums"
+						className="w-36"
 					/>
 					{!isTimeInside && (
 						<p id={errorId} className="mt-1.5 text-xs text-destructive-ink">

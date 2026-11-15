@@ -9,7 +9,8 @@ import {
 } from '@/core/components';
 import { cn } from '@/core/lib/helpers';
 import { Calendar, CircleAlert } from '@/core/components/icons';
-import { Input, controlGroupRecipe, controlRecipe } from '@/core/components/common/input';
+import { controlGroupRecipe, controlRecipe } from '@/core/components/common/input';
+import { TimeField } from '@/core/components/common/time-field';
 import { BillableSwitch } from '@/core/components/common/billable-switch';
 import { SegmentedControl } from '@/core/components/common/segmented-control';
 import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
@@ -701,27 +702,13 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 							<DialogFieldLabel htmlFor={startTimeId} isRequired>
 								{t('manualTime.START_TIME')}
 							</DialogFieldLabel>
-							<Input
-								id={startTimeId}
-								type="time"
-								value={startTime}
-								onChange={(e) => setStartTime(e.target.value)}
-								className="tabular-nums"
-								required
-							/>
+							<TimeField id={startTimeId} value={startTime} onChange={setStartTime} required />
 						</div>
 						<div className="flex min-w-0 flex-col">
 							<DialogFieldLabel htmlFor={endTimeId} isRequired>
 								{t('manualTime.END_TIME')}
 							</DialogFieldLabel>
-							<Input
-								id={endTimeId}
-								type="time"
-								value={endTime}
-								onChange={(e) => setEndTime(e.target.value)}
-								className="tabular-nums"
-								required
-							/>
+							<TimeField id={endTimeId} value={endTime} onChange={setEndTime} required />
 						</div>
 					</div>
 					<DurationField entry={durationEntry} />
