@@ -382,6 +382,8 @@ let hasSleptSinceCheck = false;
 let hasCheckedOnce = false;
 let mountedGuards = 0;
 let whenSettled: { promise: Promise<void>; settle: () => void } | null = null;
+/** Runs at once the check a mounted guard waits to try again after a failure, when there is one. */
+let retryCheckNow: (() => void) | null = null;
 const sleepListeners = new Set<() => void>();
 
 /** The moment the check that is due goes through. */
@@ -443,7 +445,7 @@ export function isUnfollowedTimeUnsettled(): boolean {
 /**
  * The moment that time is settled, or null when nothing is to be settled. A stop asked meanwhile waits for it: sent
  * at once, it would end the run at the present, with that time in it. A check that fails does not settle it: the
- * stop waits for the check that goes through.
+ * stop waits for the check that goes through, and has a failed one tried again at once rather than a minute later.
  *
  * @returns Whether the run ended meanwhile (stopped at its last heartbeat, here or in another tab): the stop that
  * waited then sends nothing.
@@ -453,7 +455,9 @@ export function whenUnfollowedTimeIsSettled(): Promise<boolean> | null {
 		return null;
 	}
 	const endedBefore = runsEndedWhileUnsettled;
-	return settledPromise().then(() => runsEndedWhileUnsettled !== endedBefore);
+	const settled = settledPromise();
+	retryCheckNow?.();
+	return settled.then(() => runsEndedWhileUnsettled !== endedBefore);
 }
 
 // The person's runs, as this page knew them, go with the session (sign-out-cleanups.ts). Nothing is left to settle
@@ -535,6 +539,7 @@ export function useStaleTimerGuard(
 		}
 		let isCurrent = true;
 		let retryTimer: number | undefined;
+		let retry: (() => void) | undefined;
 		// A tab the browser discarded and loaded again was not closed by the person: it slept
 		const wasAsleep = hasSleptSinceCheck || (!hasCheckedOnce && wasPageDiscarded());
 		// The stop the employee asked for comes first: the closed-tab rule would end its run at the last heartbeat.
@@ -560,12 +565,20 @@ export function useStaleTimerGuard(
 				// Releasing the heartbeat now would move a stale log's stoppedAt to the present and credit the
 				// closed-tab gap, so it keeps waiting until a check goes through.
 				if (!isCurrent) return;
-				retryTimer = window.setTimeout(() => setAttempt((count) => count + 1), SYNC_TIMER_INTERVAL);
+				retry = () => {
+					window.clearTimeout(retryTimer);
+					if (retryCheckNow === retry) retryCheckNow = null;
+					setAttempt((count) => count + 1);
+				};
+				retryTimer = window.setTimeout(retry, SYNC_TIMER_INTERVAL);
+				// A stop that waits for this check does not wait a minute for it (whenUnfollowedTimeIsSettled)
+				retryCheckNow = retry;
 			}
 		);
 		return () => {
 			isCurrent = false;
 			window.clearTimeout(retryTimer);
+			if (retry && retryCheckNow === retry) retryCheckNow = null;
 		};
 	}, [applySavedStop, attempt, enabled, employeeId, isTrackingTime, pageSleeps, settleUnfollowedTime]);
 

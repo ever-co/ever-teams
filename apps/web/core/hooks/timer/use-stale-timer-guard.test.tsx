@@ -761,6 +761,90 @@ describe('useStaleTimerGuard, with time the run went on without the app', () => 
 		expect(owner.result.current).toBe(true);
 	});
 
+	it('keeps a stop waiting through a check that fails, and has that check tried again at once', async () => {
+		jest.useFakeTimers();
+		const page = loadPage();
+		mockGetLastTimerLog.mockRejectedValueOnce(new Error('Network Error')).mockResolvedValue(lastLogAnswer(1));
+		const owner = page.mountOwner();
+		await page.settle();
+		// The check failed: what becomes of the time since the last heartbeat is still to be settled
+		expect(owner.result.current).toBe(false);
+		expect(page.isUnsettled()).toBe(true);
+		expect(mockGetLastTimerLog).toHaveBeenCalledTimes(1);
+
+		let waitingStop: () => boolean | undefined = () => undefined;
+		await page.act(() => {
+			waitingStop = followWaitingStop(page);
+		});
+		await page.settle();
+
+		// No minute went by: the stop had the check tried again, and goes ahead now that it went through
+		expect(mockGetLastTimerLog).toHaveBeenCalledTimes(2);
+		expect(waitingStop()).toBe(false);
+		expect(owner.result.current).toBe(true);
+	});
+
+	it('keeps a stop waiting when the check under way fails, until one goes through', async () => {
+		jest.useFakeTimers();
+		const page = loadPage();
+		let failTheCheck: (error: Error) => void = () => undefined;
+		mockGetLastTimerLog
+			.mockReturnValueOnce(
+				new Promise((_resolve, reject) => {
+					failTheCheck = reject;
+				})
+			)
+			.mockResolvedValue(lastLogAnswer(1));
+		const owner = page.mountOwner();
+		await page.settle();
+		const waitingStop = followWaitingStop(page);
+
+		await page.act(() => failTheCheck(new Error('Network Error')));
+		await page.settle();
+
+		// Sent now, the stop would end the run at the present whatever the time since its last heartbeat
+		expect(waitingStop()).toBeUndefined();
+		expect(page.isUnsettled()).toBe(true);
+
+		await page.settle(SYNC_TIMER_INTERVAL);
+		await page.settle();
+		expect(waitingStop()).toBe(false);
+		expect(owner.result.current).toBe(true);
+	});
+
+	it.each([
+		['stop', false, () => mockStopTimer],
+		['keep', true, () => mockSyncTimer]
+	] as const)(
+		'tells the other tabs once the answer (%s) is applied, not as it is given: a stop that waits there waits on',
+		async (answer, kept, request) => {
+			const { page, owner } = openAppAfter(7);
+			await page.waitFor(() => expect(page.question()).not.toBeNull());
+			let answerOfTheApi: (value: unknown) => void = () => undefined;
+			request()
+				.mockReset()
+				.mockReturnValue(
+					new Promise((resolve) => {
+						answerOfTheApi = resolve;
+					})
+				);
+			const shared = () => window.localStorage.getItem('ever-teams.timer.unfollowed-time-settled');
+
+			await page.answer(answer);
+			await page.waitFor(() => expect(request()).toHaveBeenCalledTimes(1));
+
+			// The request is on its way: nothing is settled yet, here or in the other tabs
+			expect(shared()).toBeNull();
+			expect(page.isUnsettled()).toBe(true);
+
+			await page.act(() => answerOfTheApi({ data: { running: answer === 'keep', lastLog: null } }));
+			await page.waitFor(() => expect(owner.result.current).toBe(true));
+			expect(JSON.parse(String(shared()))).toEqual(
+				expect.objectContaining({ timeLogId: 'log-1', from: LAST_HEARTBEAT, kept })
+			);
+		}
+	);
+
 	it('applies the stop the person chose at the next try when it failed, without asking again, a stop that waits held meanwhile', async () => {
 		jest.useFakeTimers();
 		const { page, owner } = openAppAfter(7);
