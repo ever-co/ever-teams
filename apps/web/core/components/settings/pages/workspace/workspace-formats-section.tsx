@@ -500,6 +500,8 @@ function weekDayOf(choice: string): EWeekDays | null {
 interface WorkspaceFormatsSectionProps {
 	organization: TOrganization;
 	canEdit: boolean;
+	/** Rates are shown only to a role that may read them: the default billing rate is one. */
+	canReadRates?: boolean;
 	saveCurrency: (currency: string) => Promise<void>;
 	saveDateFormat: (dateFormat: WorkspaceDateFormat | null) => Promise<void>;
 	saveNumberFormat: (numberFormat: WorkspaceNumberFormat | null) => Promise<void>;
@@ -513,6 +515,7 @@ interface WorkspaceFormatsSectionProps {
 export function WorkspaceFormatsSection({
 	organization,
 	canEdit,
+	canReadRates = false,
 	saveCurrency,
 	saveDateFormat,
 	saveNumberFormat,
@@ -523,6 +526,7 @@ export function WorkspaceFormatsSection({
 	saveDefaultBillRate
 }: Readonly<WorkspaceFormatsSectionProps>) {
 	const t = useTranslations();
+	const showsDefaultRate = canReadRates && storesDefaultBillRate(organization);
 	const { dateOptions, numberOptions } = useFormatOptions();
 	const { weekStartOptions, clockOptions, currencyPositionOptions } = useCalendarAndMoneyOptions(organization);
 
@@ -573,7 +577,7 @@ export function WorkspaceFormatsSection({
 		>
 			<SettingsSurface>
 				<CurrencyRow currency={organization.currency ?? ''} canEdit={canEdit} onSave={saveCurrency} />
-				{storesDefaultBillRate(organization) && (
+				{showsDefaultRate && (
 					<DefaultRateRow organization={organization} canEdit={canEdit} onSave={saveDefaultBillRate} />
 				)}
 				<ChoiceRow

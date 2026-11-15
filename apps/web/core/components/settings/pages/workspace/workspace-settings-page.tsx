@@ -57,6 +57,7 @@ export function WorkspaceSettingsPage() {
 				key={`formats-${organization.id}`}
 				organization={organization}
 				canEdit={settings.canEdit}
+				canReadRates={settings.canReadRates}
 				saveCurrency={settings.saveCurrency}
 				saveDateFormat={settings.saveDateFormat}
 				saveNumberFormat={settings.saveNumberFormat}

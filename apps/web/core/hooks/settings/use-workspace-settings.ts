@@ -11,6 +11,7 @@ import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { useMyRolePermissionsQuery } from '@/core/hooks/roles/use-my-role-permissions-query';
 import { getAccessTokenCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
+import { holdsRateAdminPermission } from '@/core/lib/utils/rates';
 import {
 	UnfinishedRenameError,
 	canEditWorkspace,
@@ -385,6 +386,8 @@ export function useWorkspaceSettings() {
 		organization,
 		name,
 		canEdit: canEditWorkspace(myPermissions),
+		// The default billing rate is a rate: only a role that may read rates sees it, as on reports and invoices
+		canReadRates: holdsRateAdminPermission(myPermissions),
 		canRename: canRenameWorkspace(user?.role?.name, myPermissions),
 		isLoading,
 		isLoadFailed,

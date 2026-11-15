@@ -24,6 +24,7 @@ function settingsOf(overrides: Record<string, unknown> = {}) {
 		organization: ORGANIZATION,
 		name: 'Acme',
 		canEdit: true,
+		canReadRates: true,
 		canRename: true,
 		isLoading: false,
 		isLoadFailed: false,
@@ -419,6 +420,13 @@ describe('WorkspaceSettingsPage', () => {
 		}
 		return row;
 	}
+
+	it('shows the default billing rate only to a role that may read rates', () => {
+		mockSettings = settingsOf({ canReadRates: false, organization: { ...ORGANIZATION, defaultBillRateValue: 80 } });
+		render(<WorkspaceSettingsPage />);
+
+		expect(screen.queryByText(DEFAULT_RATE)).toBeNull();
+	});
 
 	it('offers no default billing rate against an API that does not store one', () => {
 		render(<WorkspaceSettingsPage />);
