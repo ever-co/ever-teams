@@ -2167,7 +2167,6 @@
 				"EVERYONE_DETAIL": "Widoczny dla każdego, kto widzi projekty.",
 				"PRIVATE_TITLE": "Tylko członkowie i menadżerowie",
 				"PRIVATE_DETAIL": "Widoczny tylko dla jego członków i menadżerów oraz administratorów.",
-				"PRIVATE_HINT": "Ten projekt widzą tylko jego członkowie i menadżerowie",
 				"NOT_ENFORCED": "Wszyscy nadal go widzą, dopóki administrator nie włączy Projektów prywatnych w ustawieniach obszaru roboczego.",
 				"SETTING_SECTION": "Projekty prywatne",
 				"SETTING_LABEL": "Pokazuj projekty prywatne tylko ich ludziom",

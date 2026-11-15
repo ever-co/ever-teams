@@ -2164,7 +2164,6 @@
 				"EVERYONE_DETAIL": "Zichtbaar voor iedereen die projecten ziet.",
 				"PRIVATE_TITLE": "Alleen leden en managers",
 				"PRIVATE_DETAIL": "Alleen zichtbaar voor de leden en managers, en voor beheerders.",
-				"PRIVATE_HINT": "Alleen de leden en managers zien dit project",
 				"NOT_ENFORCED": "Iedereen ziet het nog tot een beheerder Privéprojecten aanzet in de instellingen van de werkruimte.",
 				"SETTING_SECTION": "Privéprojecten",
 				"SETTING_LABEL": "Privéprojecten alleen aan hun mensen tonen",

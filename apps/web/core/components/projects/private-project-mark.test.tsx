@@ -8,14 +8,15 @@ import type { TOrganization, TOrganizationProject } from '@/core/types/schemas';
 import { PrivateProjectMark } from './private-project-mark';
 import { ProjectVisibilityProperty } from './project-properties';
 
-const HINT = 'Only its members and managers see this project';
+// The sentence of the project dialog: admins see a private project too, so the lock names them as the API applies it
+const HINT = 'Listed only to its members and managers, and to admins.';
 const NOT_ENFORCED = 'Everyone still sees it until an admin turns on Private projects in the workspace settings.';
 
 jest.mock('next-intl', () => ({
 	useLocale: () => 'en',
 	useTranslations: () => (key: string) => {
 		const messages: Record<string, string> = {
-			'pages.projects.visibility.PRIVATE_HINT': HINT,
+			'pages.projects.visibility.PRIVATE_DETAIL': HINT,
 			'pages.projects.visibility.NOT_ENFORCED': NOT_ENFORCED,
 			'pages.projects.visibility.LABEL': 'Visibility',
 			'pages.projects.visibility.PRIVATE_TITLE': 'Members and managers only',

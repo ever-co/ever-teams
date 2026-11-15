@@ -2167,7 +2167,6 @@
 				"EVERYONE_DETAIL": "Visível para todos que veem projetos.",
 				"PRIVATE_TITLE": "Só membros e gerentes",
 				"PRIVATE_DETAIL": "Visível só para os seus membros e gerentes, e para os administradores.",
-				"PRIVATE_HINT": "Só os seus membros e gerentes veem este projeto",
 				"NOT_ENFORCED": "Todos ainda o veem até que um administrador ative Projetos privados nas configurações do espaço de trabalho.",
 				"SETTING_SECTION": "Projetos privados",
 				"SETTING_LABEL": "Reservar os projetos privados à sua equipe",

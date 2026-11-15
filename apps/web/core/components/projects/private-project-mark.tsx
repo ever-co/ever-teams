@@ -45,7 +45,7 @@ export function PrivateProjectMark({
 	if (!isEnforced || !isPrivateProject(project)) {
 		return null;
 	}
-	const hint = t('pages.projects.visibility.PRIVATE_HINT');
+	const hint = t('pages.projects.visibility.PRIVATE_DETAIL');
 	return (
 		<Tooltip open={isOpenedHere || isHintOpen} onOpenChange={(isOpen) => setIsOpenedHere(isOpen)}>
 			<TooltipTrigger asChild delay={TOOLTIP_DELAY_MS}>

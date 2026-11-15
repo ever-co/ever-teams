@@ -2103,7 +2103,6 @@
 				"EVERYONE_DETAIL": "所有能查看项目的人都能看到。",
 				"PRIVATE_TITLE": "仅成员和管理员",
 				"PRIVATE_DETAIL": "只有它的成员和管理员，以及工作区管理员能看到。",
-				"PRIVATE_HINT": "只有该项目的成员和管理员能看到它",
 				"NOT_ENFORCED": "在工作区管理员于工作区设置中开启“私有项目”之前，所有人仍能看到它。",
 				"SETTING_SECTION": "私有项目",
 				"SETTING_LABEL": "私有项目仅对其成员可见",
