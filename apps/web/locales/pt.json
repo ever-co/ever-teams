@@ -7883,6 +7883,41 @@
 				"DELETED": "A faturação programada de {name} foi eliminada",
 				"FAILED": "Não foi possível guardar a alteração. Tente novamente."
 			}
+		},
+		"shared": {
+			"PAY": "Pagar {amount}",
+			"PAYING": "Abrindo o pagamento…",
+			"PAY_FAILED": "Não foi possível iniciar o pagamento. Tente novamente em instantes.",
+			"DOWNLOAD_FAILED": "Não foi possível baixar o PDF. Tente novamente.",
+			"FROM_SENDER": "De {name}",
+			"RETURNED_TITLE": "Obrigado pelo seu pagamento",
+			"RETURNED_MESSAGE": "Ele está sendo confirmado. Esta página mostrará a fatura como paga assim que o provedor de pagamento confirmar.",
+			"PAID_TITLE": "Esta fatura está paga",
+			"PAID_MESSAGE": "Não há mais nada a pagar. Obrigado.",
+			"CLOSED_TITLE": "Este link não abre mais uma fatura",
+			"CLOSED_MESSAGE": "O link foi revogado ou a fatura foi anulada. Peça um novo link ao remetente.",
+			"FOOTER": "Enviado com {app}"
+		},
+		"payments": {
+			"TITLE": "Pagamento de faturas online",
+			"DESCRIPTION": "Permita que os clientes paguem uma fatura na página dela, pelo conector de pagamento do seu espaço de trabalho. As chaves do seu provedor de pagamento ficam no conector.",
+			"ENDPOINT": "Endereço de pagamento",
+			"ENDPOINT_HINT": "O endereço HTTPS do seu conector que abre um pagamento.",
+			"ENABLED": "Oferecer pagamento online nas páginas das faturas",
+			"TEST_MODE": "Modo de teste: os pagamentos são registrados no log, nunca nas faturas",
+			"CONNECT": "Conectar",
+			"SAVE": "Salvar",
+			"SAVED": "Salvo",
+			"SAVE_FAILED": "Não foi possível salvar a conexão. Verifique o endereço e tente novamente.",
+			"LOAD_FAILED": "Não foi possível carregar a conexão.",
+			"NOTIFICATION_URL": "Endereço de notificação",
+			"NOTIFICATION_URL_HINT": "Seu conector envia para cá cada pagamento que o provedor confirma.",
+			"SECRET": "Segredo de assinatura",
+			"SECRET_ONCE": "Copie-o agora para o seu conector: ele é mostrado só desta vez.",
+			"ROTATE": "Novo segredo de assinatura",
+			"ROTATE_HINT": "O segredo atual deixa de funcionar imediatamente.",
+			"COPY": "Copiar",
+			"COPIED": "Copiado"
 		}
 	},
 	"timeReports": {

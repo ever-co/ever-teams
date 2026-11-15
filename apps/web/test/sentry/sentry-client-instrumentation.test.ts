@@ -112,6 +112,26 @@ describe('browser Sentry (sentry.client.config.ts)', () => {
 		}
 	);
 
+	it.each([
+		'/shared-invoice#id=0b6e4c2a-1d3f-4e5a-8b7c-9d0e1f2a3b4c&token=test-header.test-payload.test-signature',
+		'/fr/shared-invoice?paid=1',
+		'/#/share/invoices/0b6e4c2a-1d3f-4e5a-8b7c-9d0e1f2a3b4c/test-header.test-payload.test-signature',
+		'/auth/passcode#/share/invoices/0b6e4c2a-1d3f-4e5a-8b7c-9d0e1f2a3b4c/test-header.test-payload.test-signature'
+	])(
+		"stays off, without downloading the SDK, on a page load that starts on %s (an invoice link's token)",
+		async (address) => {
+			setRuntimeEnv({ NEXT_PUBLIC_SENTRY_DSN: RUNTIME_DSN });
+			window.history.replaceState(null, '', address);
+			try {
+				await expect(loadClientConfig().initSentryClient()).resolves.toBeUndefined();
+				expect(mockSdkLoads).toBe(0);
+				expect(mockInit).not.toHaveBeenCalled();
+			} finally {
+				window.history.replaceState(null, '', '/');
+			}
+		}
+	);
+
 	it('reads environment, release, sample rate and debug overrides from the runtime env', async () => {
 		setRuntimeEnv({
 			NEXT_PUBLIC_SENTRY_DSN: RUNTIME_DSN,

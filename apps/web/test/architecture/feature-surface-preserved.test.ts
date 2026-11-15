@@ -2073,10 +2073,13 @@ describe('Ever Teams feature surface preservation', () => {
 		// and DELETE, [id]/runs GET; #5323, ever-gauzy #11855).
 		// 395 files and 500 verbs with the saved reports proxies (/api/saved-reports GET and POST, [id] PUT and DELETE,
 		// [id]/share POST and DELETE, /api/public/saved-reports/[token] GET; #5200).
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(395);
+		// 401 files and 507 verbs with an invoice's public page and paying it online (/api/public/invoice/[id]/[token]
+		// GET and download GET, /api/public/invoice-payments/invoice/[id]/[token] GET and checkout POST,
+		// /api/invoice-payments/connection GET and PUT, rotate-secret POST; ever-gauzy #11856).
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(401);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(500);
+		).toHaveLength(507);
 		expect(routes).toEqual(
 			expect.arrayContaining([
 				// Proxy mode twins of Gauzy's saved reports routes and the read of a shared report (ever-gauzy #11912, #5200)
@@ -2087,6 +2090,14 @@ describe('Ever Teams feature surface preservation', () => {
 				'apps/web/app/api/saved-reports/[id]/share/route.ts::POST',
 				'apps/web/app/api/saved-reports/[id]/share/route.ts::DELETE',
 				'apps/web/app/api/public/saved-reports/[token]/route.ts::GET',
+				// Proxy mode twins of Gauzy's public invoice and online payment routes (ever-gauzy #11856)
+				'apps/web/app/api/public/invoice/[id]/[token]/route.ts::GET',
+				'apps/web/app/api/public/invoice/[id]/[token]/download/route.ts::GET',
+				'apps/web/app/api/public/invoice-payments/invoice/[id]/[token]/route.ts::GET',
+				'apps/web/app/api/public/invoice-payments/invoice/[id]/[token]/checkout/route.ts::POST',
+				'apps/web/app/api/invoice-payments/connection/route.ts::GET',
+				'apps/web/app/api/invoice-payments/connection/route.ts::PUT',
+				'apps/web/app/api/invoice-payments/connection/rotate-secret/route.ts::POST',
 				// Proxy mode twins of Gauzy's billing schedules of clients (#5323, ever-gauzy #11855)
 				'apps/web/app/api/invoice-schedules/route.ts::GET',
 				'apps/web/app/api/invoice-schedules/route.ts::POST',
