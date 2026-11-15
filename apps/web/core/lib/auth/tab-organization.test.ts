@@ -5,25 +5,15 @@
  * (#5134). A tab now keeps working in the organization of its own team.
  */
 const mockCookies = { token: '', organizationId: '' };
-let mockTabReader: (() => { organizationId: string; teamId: string | null; projectId: string | null } | null) | null =
-	null;
-let mockSessionReplaced: (() => void) | null = null;
-let mockProjectChosen: ((projectId: string | null) => void) | null = null;
 
 jest.mock('@/core/lib/helpers/cookies', () => ({
 	getAccessTokenCookie: () => mockCookies.token || null,
 	getSharedOrganizationIdCookie: () => mockCookies.organizationId,
-	registerTabWorkScope: (
-		reader: typeof mockTabReader,
-		onSessionReplaced: typeof mockSessionReplaced,
-		onProjectChosen: typeof mockProjectChosen
-	) => {
-		mockTabReader = reader;
-		mockSessionReplaced = onSessionReplaced;
-		mockProjectChosen = onProjectChosen;
-	}
+	// tab-organization.ts registers its readers here when it loads
+	registerTabWorkScope: jest.fn()
 }));
 
+import { registerTabWorkScope } from '@/core/lib/helpers/cookies';
 import {
 	TAB_SCOPE_CHANGED_EVENT,
 	forgetTabAccessToken,
@@ -34,6 +24,14 @@ import {
 	resetTabOrganizationState,
 	tabScope
 } from './tab-organization';
+
+type TabReader = () => { organizationId: string; teamId: string | null; projectId: string | null } | null;
+/** What tab-organization.ts registered with the cookie readers when it loaded. */
+const [mockTabReader, mockSessionReplaced, mockProjectChosen] = (registerTabWorkScope as jest.Mock).mock.calls[0] as [
+	TabReader,
+	() => void,
+	(projectId: string | null) => void
+];
 
 /** An access token that decodes (only its payload is read). */
 function token(
