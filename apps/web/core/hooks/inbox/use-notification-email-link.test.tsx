@@ -148,4 +148,27 @@ describe('useNotificationEmailLink', () => {
 			expect(replace).not.toHaveBeenCalled();
 		});
 	});
+	describe('the invoice link of an email (ever-co/ever-gauzy#11856)', () => {
+		const INVOICE_ID = '0b6e4c2a-1d3f-4e5a-8b7c-9d0e1f2a3b4c';
+		const TOKEN = 'eyJhbGciOiJIUzI1NiJ9.eyJpZCI6IngifQ.c2lnbmF0dXJl';
+
+		it("opens the invoice's public page from the home page", () => {
+			show('/', `#/share/invoices/${INVOICE_ID}/${TOKEN}`);
+
+			expect(replace).toHaveBeenCalledWith(`/shared-invoice/${INVOICE_ID}/${TOKEN}`);
+		});
+
+		it('opens it at once from a sign-in page, since the page needs no sign-in', () => {
+			show('/auth/passcode', `#/share/invoices/${INVOICE_ID}/${TOKEN}`);
+
+			expect(replace).toHaveBeenCalledWith(`/shared-invoice/${INVOICE_ID}/${TOKEN}`);
+			expect(window.sessionStorage.length).toBe(0);
+		});
+
+		it('goes nowhere with an invoice link that cannot be one', () => {
+			show('/', '#/share/invoices/42/not-a-token');
+
+			expect(replace).not.toHaveBeenCalled();
+		});
+	});
 });

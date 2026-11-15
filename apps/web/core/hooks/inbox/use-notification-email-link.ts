@@ -8,6 +8,7 @@ import {
 	takeNotificationEmailPage
 } from '@/core/lib/notifications/notification-email-link';
 import { stripLocalePrefix } from '@/core/lib/utils/navigation-path';
+import { sharedInvoicePageOfHash } from '@/core/lib/utils/shared-invoice';
 
 /** The page a sign-in ends on, unless something else was asked of it (navigate-after-sign-in.ts). */
 const HOME_PAGE = '/';
@@ -27,6 +28,12 @@ export function useNotificationEmailLink() {
 
 	useEffect(() => {
 		const openLinkedPage = () => {
+			// An invoice link of an email opens the invoice's public page, which needs no sign-in: from any page, at once
+			const invoicePage = sharedInvoicePageOfHash(window.location.hash);
+			if (invoicePage) {
+				router.replace(invoicePage);
+				return;
+			}
 			const linked = pageOfNotificationEmailLink(window.location.hash);
 			const path = stripLocalePrefix(pathname ?? '');
 
