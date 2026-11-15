@@ -7883,6 +7883,41 @@
 				"DELETED": "{name}'s billing schedule is deleted",
 				"FAILED": "The change could not be saved. Try again."
 			}
+		},
+		"shared": {
+			"PAY": "Pay {amount}",
+			"PAYING": "Opening the payment…",
+			"PAY_FAILED": "The payment could not be started. Try again in a moment.",
+			"DOWNLOAD_FAILED": "The PDF could not be downloaded. Try again.",
+			"FROM_SENDER": "From {name}",
+			"RETURNED_TITLE": "Thank you for your payment",
+			"RETURNED_MESSAGE": "It is being confirmed. This page shows the invoice as paid as soon as the payment provider confirms it.",
+			"PAID_TITLE": "This invoice is paid",
+			"PAID_MESSAGE": "Nothing is left to pay. Thank you.",
+			"CLOSED_TITLE": "This link no longer opens an invoice",
+			"CLOSED_MESSAGE": "The link was revoked, or the invoice was voided. Ask the sender for a new link.",
+			"FOOTER": "Sent with {app}"
+		},
+		"payments": {
+			"TITLE": "Online invoice payments",
+			"DESCRIPTION": "Let clients pay an invoice from its page, through your workspace's payment connector. Your payment provider's keys stay with the connector.",
+			"ENDPOINT": "Checkout endpoint",
+			"ENDPOINT_HINT": "The HTTPS address of your connector that opens a checkout.",
+			"ENABLED": "Offer online payment on invoice pages",
+			"TEST_MODE": "Test mode: payments are logged, never recorded on invoices",
+			"CONNECT": "Connect",
+			"SAVE": "Save",
+			"SAVED": "Saved",
+			"SAVE_FAILED": "The connection could not be saved. Check the address and try again.",
+			"LOAD_FAILED": "The connection could not be loaded.",
+			"NOTIFICATION_URL": "Notification address",
+			"NOTIFICATION_URL_HINT": "Your connector posts each payment the provider confirms here.",
+			"SECRET": "Signing secret",
+			"SECRET_ONCE": "Copy it into your connector now: it is shown only this once.",
+			"ROTATE": "New signing secret",
+			"ROTATE_HINT": "The current secret stops working at once.",
+			"COPY": "Copy",
+			"COPIED": "Copied"
 		}
 	},
 	"timeReports": {

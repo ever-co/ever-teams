@@ -7883,6 +7883,41 @@
 				"DELETED": "La facturation planifiée de {name} est supprimée",
 				"FAILED": "La modification n’a pas pu être enregistrée. Réessayez."
 			}
+		},
+		"shared": {
+			"PAY": "Payer {amount}",
+			"PAYING": "Ouverture du paiement…",
+			"PAY_FAILED": "Le paiement n'a pas pu démarrer. Réessayez dans un instant.",
+			"DOWNLOAD_FAILED": "Le PDF n'a pas pu être téléchargé. Réessayez.",
+			"FROM_SENDER": "De {name}",
+			"RETURNED_TITLE": "Merci pour votre paiement",
+			"RETURNED_MESSAGE": "Il est en cours de confirmation. Cette page affiche la facture comme payée dès que le prestataire de paiement le confirme.",
+			"PAID_TITLE": "Cette facture est payée",
+			"PAID_MESSAGE": "Il ne reste rien à payer. Merci.",
+			"CLOSED_TITLE": "Ce lien n'ouvre plus de facture",
+			"CLOSED_MESSAGE": "Le lien a été révoqué ou la facture a été annulée. Demandez un nouveau lien à l'expéditeur.",
+			"FOOTER": "Envoyé avec {app}"
+		},
+		"payments": {
+			"TITLE": "Paiement des factures en ligne",
+			"DESCRIPTION": "Permettez à vos clients de payer une facture depuis sa page, via le connecteur de paiement de votre espace de travail. Les clés de votre prestataire de paiement restent dans le connecteur.",
+			"ENDPOINT": "Adresse de paiement",
+			"ENDPOINT_HINT": "L’adresse HTTPS de votre connecteur qui ouvre un paiement.",
+			"ENABLED": "Proposer le paiement en ligne sur les pages des factures",
+			"TEST_MODE": "Mode test : les paiements sont journalisés, jamais enregistrés sur les factures",
+			"CONNECT": "Connecter",
+			"SAVE": "Enregistrer",
+			"SAVED": "Enregistré",
+			"SAVE_FAILED": "La connexion n'a pas pu être enregistrée. Vérifiez l'adresse et réessayez.",
+			"LOAD_FAILED": "La connexion n'a pas pu être chargée.",
+			"NOTIFICATION_URL": "Adresse de notification",
+			"NOTIFICATION_URL_HINT": "Votre connecteur y envoie chaque paiement que le prestataire confirme.",
+			"SECRET": "Secret de signature",
+			"SECRET_ONCE": "Copiez-le maintenant dans votre connecteur : il n'est affiché qu'une fois.",
+			"ROTATE": "Nouveau secret de signature",
+			"ROTATE_HINT": "Le secret actuel cesse aussitôt de fonctionner.",
+			"COPY": "Copier",
+			"COPIED": "Copié"
 		}
 	},
 	"timeReports": {
