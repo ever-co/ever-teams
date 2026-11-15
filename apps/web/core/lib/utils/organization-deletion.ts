@@ -1,5 +1,8 @@
-/** Gauzy guards the organization routes, its delete included, with this permission. */
+/** Gauzy guards the organization routes, its delete and its counts included, with this permission. */
 const ORGANIZATION_DELETE_PERMISSION = 'ALL_ORG_EDIT';
+
+/** The permissions the app's own routes ask before forwarding a deletion or its counts. */
+export const ORGANIZATION_DELETE_PERMISSIONS: readonly string[] = Object.freeze([ORGANIZATION_DELETE_PERMISSION]);
 
 /** Why an organization cannot be deleted from its settings. */
 export type OrganizationDeletionBlock = 'lastOrganization';
