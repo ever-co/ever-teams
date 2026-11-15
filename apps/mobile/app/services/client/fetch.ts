@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
 import Config from '../../config';
 import { translate } from '../../i18n/translate';
@@ -13,17 +14,25 @@ type ServerRequest = {
 };
 
 /**
- * The name this app gives itself to the API (ever-co/ever-gauzy#11983), which records it with a session it signs in or
- * renews: the sessions list then tells this phone's session from the person's other apps.
+ * The header in which this app names itself to the API (ever-co/ever-gauzy#11983), which records the name with a
+ * session it signs in or renews: the sessions list then tells this phone's session from the person's other apps. Sent
+ * by the native app only: in a browser (the web build) a header the API does not allow fails its CORS check, and every
+ * call with it. The name is the build's (`APP_NAME`), when a header can carry it as is (printable ASCII, 64 at most).
  */
-const CLIENT_APP = 'Ever Teams';
+export function clientAppHeaders(
+	platform: string = Platform.OS,
+	appName: string = Config.branding.appName
+): Record<string, string> {
+	const name = appName.trim();
+	return platform !== 'web' && /^[\x20-\x7E]{1,64}$/.test(name) ? { 'X-Client-App': name } : {};
+}
 
 /** Sends the request once and answers whatever the API answers. */
 function send<T>({ path, method, body, init, bearer_token, tenantId }: ServerRequest) {
 	const headers: HeadersInit = {
 		'Content-Type': 'application/json',
 		Accept: 'application/json',
-		'X-Client-App': CLIENT_APP
+		...clientAppHeaders()
 	};
 
 	if (bearer_token) {
