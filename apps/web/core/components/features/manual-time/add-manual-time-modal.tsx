@@ -196,7 +196,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 	} = useOrganizationProjectsQuery();
 	const pickedTask = tasks.find((task) => task.id === taskId);
 	const entryProjectId = entryProjectIdOf(pickedTask, projectId);
-	const entryProject = findProject(entryProjectId, organizationProjects ?? []);
+	const entryProject = findProject(entryProjectId, organizationProjects);
 	const isBillable = entryBillableOf(billableChoice, entryProject);
 	// A Billable nobody set follows the entry's project, unknown until the projects have loaded: Save waits for them
 	const hasUnknownBillableDefault = billableChoice === null && Boolean(entryProjectId) && !entryProject;
