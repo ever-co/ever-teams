@@ -37,8 +37,9 @@ export function tabSessionOf(
 	const token = authorization.startsWith('Bearer ') ? authorization.slice('Bearer '.length).trim() : '';
 	if (!token || !sharedToken) return null;
 	const team = req.headers.get(TAB_TEAM_HEADER) ?? '';
+	const teamId = TEAM_ID_PATTERN.test(team) ? team : undefined;
 	// Only a tab working in its own organization names its team: the session's own requests never do
-	const namesTabTeam = team.length > 0;
+	const namesTabTeam = !!teamId;
 	if (token === sharedToken && !namesTabTeam) return null;
 	const tab = decodeJWT(token) as Claims;
 	const shared = token === sharedToken ? tab : (decodeJWT(sharedToken) as Claims);
@@ -54,9 +55,5 @@ export function tabSessionOf(
 	const isOtherThanSession = tabOrganizationId !== (shared?.organizationId ?? null);
 	const isOtherThanCookie = namesTabTeam && !!sharedOrganizationId && tabOrganizationId !== sharedOrganizationId;
 	if (!isOtherThanSession && !isOtherThanCookie) return null;
-	return {
-		accessToken: token,
-		organizationId: tabOrganizationId,
-		teamId: TEAM_ID_PATTERN.test(team) ? team : undefined
-	};
+	return { accessToken: token, organizationId: tabOrganizationId, teamId };
 }

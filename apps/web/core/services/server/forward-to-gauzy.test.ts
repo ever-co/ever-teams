@@ -67,7 +67,7 @@ describe('forwardToGauzy, a tab working in its own organization', () => {
 		const payload = { id: userId, tenantId: 'tenant-1', organizationId, iat: issuedAt, exp: issuedAt + 3600 };
 		return `${encode({ alg: 'HS256', typ: 'JWT' })}.${encode(payload)}.sig-${organizationId}-${userId}`;
 	};
-	// Made once: a token made again after a second boundary has other dates (CodeRabbit on #5321)
+	// Built once: a token built again a second later would differ from it
 	const sharedToken = jwt('org-b');
 	const tabRequest = (authorization: string) =>
 		new Request('https://app.ever.team/api/timer/started-at', {

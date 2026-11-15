@@ -241,3 +241,43 @@ describe('authenticatedGuard, a tab bringing its organization back', () => {
 		expect(guard.teamId).toBe('team-a');
 	});
 });
+
+describe('authenticatedGuard, another tab wrote its organization cookie before its token', () => {
+	const jwt = (organizationId: string) => {
+		const encode = (part: object) => Buffer.from(JSON.stringify(part)).toString('base64url');
+		const issuedAt = Math.floor(Date.now() / 1000);
+		const payload = { id: 'user-1', tenantId: 'tenant-1', organizationId, iat: issuedAt, exp: issuedAt + 3600 };
+		return `${encode({ alg: 'HS256', typ: 'JWT' })}.${encode(payload)}.sig-${organizationId}`;
+	};
+	// The cookies name organization B and its team, and still hold the session's token of organization A
+	const tokenOfA = jwt('org-a');
+	const request = (tabTeamId?: string) =>
+		new Request('http://localhost:3030/api/timer/stop', {
+			headers: {
+				cookie: `${TOKEN_COOKIE_NAME}=${tokenOfA}; ${TENANT_ID_COOKIE_NAME}=tenant-1; ${ORGANIZATION_ID_COOKIE_NAME}=org-b; ${ACTIVE_TEAM_COOKIE_NAME}=team-b`,
+				authorization: `Bearer ${tokenOfA}`,
+				...(tabTeamId ? { [TAB_TEAM_HEADER]: tabTeamId } : {})
+			}
+		});
+
+	beforeEach(() => {
+		sessionChecks.clear();
+		mockCurrentAuthenticatedUserRequest.mockReset();
+		mockCurrentAuthenticatedUserRequest.mockResolvedValue({ data: user });
+	});
+
+	it("acts in the tab's organization and team, the token's, never a mix with the cookies'", async () => {
+		const guard = await authenticatedGuard(request('team-a'), new NextResponse());
+
+		expect(guard.access_token).toBe(tokenOfA);
+		expect(guard.organizationId).toBe('org-a');
+		expect(guard.teamId).toBe('team-a');
+	});
+
+	it('acts with the cookies, as before, for a request that names no tab team', async () => {
+		const guard = await authenticatedGuard(request(), new NextResponse());
+
+		expect(guard.organizationId).toBe('org-b');
+		expect(guard.teamId).toBe('team-b');
+	});
+});

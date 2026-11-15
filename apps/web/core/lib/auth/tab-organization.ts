@@ -250,12 +250,13 @@ export function isTabAccessToken(token: string | null | undefined): boolean {
 /**
  * Writes this tab's organization, team and project to the cookies, shared by every tab, so that the session can follow
  * them back ("Use … in every tab"). The tab stays on its team as it is, with its tasks and the project it chose
- * (CodeRabbit on #5321). Answers the organization the session is to switch to, or null while the tab works with the
- * cookies anyway.
+ * (CodeRabbit on #5321). Answers the organization the session is to switch to, or null while no other tab has another
+ * organization open.
  */
 export function bringTabOrganizationBack(): string | null {
 	const scope = tabScope();
-	if (!scope.held) return null;
+	// Nothing to bring back while the organization cookie is this tab's already (its switch back is on its way)
+	if (!scope.held || !scope.isOtherOrganizationOpen) return null;
 	const { organizationId, teamId, projectId } = scope;
 	// The organization first: the cookie readers then answer the cookies again, and the project goes to its cookie
 	setOrganizationIdCookie(organizationId);

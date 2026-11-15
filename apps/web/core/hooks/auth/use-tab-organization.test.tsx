@@ -96,6 +96,25 @@ describe('useTabOrganization, bringing this tab organization back to every tab',
 		expect(mockSyncTokenOrganization).toHaveBeenCalledWith('org-a');
 	});
 
+	it('does nothing while no other tab has another organization open', () => {
+		setAuthCookies({
+			access_token: token('org-a'),
+			refresh_token: { token: 'refresh-a' },
+			tenantId: 'tenant-1',
+			teamId: 'team-a',
+			organizationId: 'org-a',
+			languageId: 'en',
+			noTeamPopup: true,
+			userId: 'user-1'
+		} as never);
+		rememberTabTeam(TEAM_A);
+		const { result } = renderTab();
+
+		act(() => result.current.bringOwnOrganizationBack());
+
+		expect(mockSyncTokenOrganization).not.toHaveBeenCalled();
+	});
+
 	it('keeps its tasks and its active task', () => {
 		twoTabsInTwoOrganizations();
 		const { result, store } = renderTab();
