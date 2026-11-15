@@ -77,7 +77,7 @@ describe('useSidebarPages', () => {
 		expect(settingsUrlsOf(offered.result.current)).toContain('/settings/team/automations');
 	});
 
-	it('asks the platform for the optional pages only once the palette is open, never on a page load', () => {
+	it('asks the platform for the optional pages only once a manager has the palette open', () => {
 		mockCanManageTeam = true;
 		renderHook(() => useSidebarPages(LINKS, GROUPS));
 		expect(mockUseHiddenSettingsEntries).toHaveBeenLastCalledWith(true, false);
@@ -85,14 +85,15 @@ describe('useSidebarPages', () => {
 		mockIsPaletteOpen = true;
 		renderHook(() => useSidebarPages(LINKS, GROUPS));
 		expect(mockUseHiddenSettingsEntries).toHaveBeenLastCalledWith(true, true);
+	});
 
-		// A member's palette lists the Account pages (API tokens, security) too: asked once it is open
-		mockCanManageTeam = false;
-		renderHook(() => useSidebarPages(LINKS, GROUPS));
-		expect(mockUseHiddenSettingsEntries).toHaveBeenLastCalledWith(false, true);
-
-		mockIsPaletteOpen = false;
+	// The automations are a manager's; API tokens and security are everyone's Account pages
+	it("asks a member's optional pages once the palette is open too, never on a page load", () => {
 		renderHook(() => useSidebarPages(LINKS, GROUPS));
 		expect(mockUseHiddenSettingsEntries).toHaveBeenLastCalledWith(false, false);
+
+		mockIsPaletteOpen = true;
+		renderHook(() => useSidebarPages(LINKS, GROUPS));
+		expect(mockUseHiddenSettingsEntries).toHaveBeenLastCalledWith(false, true);
 	});
 });
