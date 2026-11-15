@@ -4150,6 +4150,13 @@
 				"OFF": "Aus",
 				"BEFORE_HOURS": "{hours, plural, one {# Stunde} other {# Stunden}} vorher"
 			},
+			"BOARDS": {
+				"TITLE": "Boards",
+				"INTRO": "Wenn eine Kollegin oder ein Kollege ein Board mit dir teilt oder dich darin erwähnt, in der Boards-App.",
+				"SHARE_LABEL": "Mit dir geteilt",
+				"MENTION_LABEL": "In einem Board erwähnt",
+				"TEXT": "Immer in deinem Posteingang. Per E-Mail und auf deinen Geräten nach deiner Wahl."
+			},
 			"INTRO": "Wähle, was in deinem Posteingang ankommt. Wenn du einen Typ ausschaltest, kommen keine neuen Benachrichtigungen dieses Typs mehr; vorhandene bleiben.",
 			"TEAM_DEFAULTS_TITLE": "Dein Team {team} legt Standard-Benachrichtigungen fest",
 			"TEAM_DEFAULTS_TEXT": "Was du hier nicht wählst, folgt ihnen. Deine eigenen Einstellungen haben immer Vorrang.",

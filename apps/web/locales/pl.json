@@ -4150,6 +4150,13 @@
 				"OFF": "Wyłączone",
 				"BEFORE_HOURS": "{hours, plural, one {# godzinę} few {# godziny} many {# godzin} other {# godziny}} wcześniej"
 			},
+			"BOARDS": {
+				"TITLE": "Tablice",
+				"INTRO": "Gdy współpracownik udostępni Ci tablicę lub wspomni o Tobie na niej, w aplikacji tablic.",
+				"SHARE_LABEL": "Udostępnione Tobie",
+				"MENTION_LABEL": "Wzmianka na tablicy",
+				"TEXT": "Zawsze w skrzynce odbiorczej. E-mailem i na Twoich urządzeniach, jak wybierzesz."
+			},
 			"INTRO": "Wybierz, co trafia do Twojej skrzynki. Wyłączenie typu zatrzymuje nowe powiadomienia tego typu; te, które już masz, zostają.",
 			"TEAM_DEFAULTS_TITLE": "Twój zespół {team} ustala domyślne powiadomienia",
 			"TEAM_DEFAULTS_TEXT": "To, czego tu nie wybierzesz, podąża za nimi. Twoje wybory zawsze mają pierwszeństwo.",

@@ -4150,6 +4150,13 @@
 				"OFF": "Off",
 				"BEFORE_HOURS": "{hours, plural, one {# hour} other {# hours}} before"
 			},
+			"BOARDS": {
+				"TITLE": "Boards",
+				"INTRO": "When a colleague shares a Board with you or mentions you in one, in the Boards app.",
+				"SHARE_LABEL": "Shared with you",
+				"MENTION_LABEL": "Mentioned in a Board",
+				"TEXT": "Always in your inbox. By email and on your devices as you choose."
+			},
 			"INTRO": "Choose what reaches your inbox. Turning a type off stops new notifications of that type; the ones already there stay.",
 			"TEAM_DEFAULTS_TITLE": "Your team {team} sets notification defaults",
 			"TEAM_DEFAULTS_TEXT": "What you leave unset here follows them. Your own choices always win.",

@@ -20,6 +20,7 @@ import {
 	type INotificationPreferences,
 	type TEmployeeNotificationSettingKey
 } from '@/core/types/interfaces/common/employee-notification';
+import { BOARD_NOTIFICATION_KINDS } from './board-notification-rows';
 import { TYPE_COPY } from './notification-type-copy';
 
 const SUBHEADING = 'px-1 pt-2 text-xs font-medium text-muted-foreground';
@@ -132,7 +133,8 @@ type PushKindRowsProps = {
 
 /**
  * Which kinds reach the devices: one switch per kind, saved as the kind's own choice. The reminders are the last kinds:
- * their threshold (the timer's in Time tracking, the due dates' in Due dates) is what turns them on or off.
+ * their threshold (the timer's in Time tracking, the due dates' in Due dates) is what turns them on or off. The Board
+ * kinds close the list.
  */
 function PushKindRows({
 	isKindOn,
@@ -155,7 +157,14 @@ function PushKindRows({
 			id: 'notification-push-task-due-reminder',
 			label: t('notifications.SETTINGS_PAGE.TASK_DUE.LABEL'),
 			isOn: isTaskDueReminderOn
-		}
+		},
+		// A Board shared, or a mention in one: always filed, so their push switch is always free
+		...BOARD_NOTIFICATION_KINDS.map((kind) => ({
+			type: kind.type,
+			id: `${kind.id}-push`,
+			label: t(kind.labelKey),
+			isOn: true
+		}))
 	];
 	return (
 		<>

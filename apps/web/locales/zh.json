@@ -4150,6 +4150,13 @@
 				"OFF": "关闭",
 				"BEFORE_HOURS": "提前 {hours, plural, other {# 小时}}"
 			},
+			"BOARDS": {
+				"TITLE": "白板",
+				"INTRO": "当同事在白板应用中与你共享白板或在其中提到你时。",
+				"SHARE_LABEL": "与你共享",
+				"MENTION_LABEL": "在白板中被提到",
+				"TEXT": "始终在收件箱中。按你的选择通过电子邮件和设备通知。"
+			},
 			"INTRO": "选择哪些内容进入你的收件箱。关闭某一类型后，不再收到该类型的新通知；已有的通知会保留。",
 			"TEAM_DEFAULTS_TITLE": "你的团队 {team} 设置了默认通知",
 			"TEAM_DEFAULTS_TEXT": "你在此处未选择的项将遵循这些默认值。你自己的选择始终优先。",

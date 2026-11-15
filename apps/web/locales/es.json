@@ -4150,6 +4150,13 @@
 				"OFF": "Desactivado",
 				"BEFORE_HOURS": "{hours, plural, one {# hora} other {# horas}} antes"
 			},
+			"BOARDS": {
+				"TITLE": "Pizarras",
+				"INTRO": "Cuando un compañero comparte una pizarra contigo o te menciona en ella, en la aplicación de pizarras.",
+				"SHARE_LABEL": "Compartida contigo",
+				"MENTION_LABEL": "Mención en una pizarra",
+				"TEXT": "Siempre en tu bandeja de entrada. Por correo y en tus dispositivos, como elijas."
+			},
 			"INTRO": "Elige qué llega a tu bandeja. Al desactivar un tipo se detienen las notificaciones nuevas de ese tipo; las que ya tienes se quedan.",
 			"TEAM_DEFAULTS_TITLE": "Tu equipo {team} define notificaciones predeterminadas",
 			"TEAM_DEFAULTS_TEXT": "Lo que dejes sin elegir aquí las sigue. Tus propias elecciones siempre prevalecen.",
