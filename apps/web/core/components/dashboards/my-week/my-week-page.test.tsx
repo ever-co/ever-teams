@@ -165,7 +165,8 @@ function stateOf(overrides: Partial<MyWeekPageState> = {}): MyWeekPageState {
 			isOffered: false,
 			figures: { amounts: [], seconds: 0, unpricedSeconds: 0 },
 			isPending: false,
-			isError: false
+			isError: false,
+			retry: jest.fn()
 		},
 		target: WITHIN_TARGET,
 		weeklyLimitSeconds: 40 * HOUR,
@@ -226,7 +227,8 @@ describe('MyWeekPage', () => {
 					unpricedSeconds: 2 * HOUR
 				},
 				isPending: false,
-				isError: false
+				isError: false,
+				retry: jest.fn()
 			}
 		});
 		render(<MyWeekPage />);
@@ -239,6 +241,25 @@ describe('MyWeekPage', () => {
 			'dashboard.myWeek.BILLABLE_RATES_HINT'
 		);
 		expect(within(figures).getByText('dashboard.myWeek.BILLABLE_UNPRICED:{"duration":"2h 0m"}')).toBeTruthy();
+	});
+
+	it('offers to read the amount again once its organization or rates read failed (Greptile P2 on #5312)', () => {
+		const retry = jest.fn();
+		mockState = stateOf({
+			billable: {
+				isOffered: true,
+				figures: { amounts: [], seconds: 0, unpricedSeconds: 0 },
+				isPending: false,
+				isError: true,
+				retry
+			}
+		});
+		render(<MyWeekPage />);
+
+		const figures = summary();
+		expect(within(figures).getByText('dashboard.timeActivity.figures.UNAVAILABLE')).toBeTruthy();
+		fireEvent.click(within(figures).getByRole('button', { name: 'pages.unauthorized.TRY_AGAIN' }));
+		expect(retry).toHaveBeenCalledTimes(1);
 	});
 
 	it('shows no billable amount to a role that may not read client rates', () => {
