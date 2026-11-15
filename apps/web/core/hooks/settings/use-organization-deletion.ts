@@ -6,10 +6,12 @@ import { useAtomValue } from 'jotai';
 import { useAuthenticateUser } from '@/core/hooks/auth/use-authenticate-user';
 import { useSwitchOrganization } from '@/core/hooks/organizations/teams/use-switch-organization';
 import { useTeamMenuOrganizations } from '@/core/hooks/organizations/teams/use-team-menu-organizations';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { useMyRolePermissionsQuery } from '@/core/hooks/roles/use-my-role-permissions-query';
 import {
 	canDeleteOrganization,
 	deleteOrganizationAndLand,
+	isRunGoingOn,
 	organizationDeletionBlock,
 	organizationDeletionStatusOf,
 	organizationToLandInAfterDeletion,
@@ -20,6 +22,7 @@ import {
 import { queryKeys } from '@/core/query/keys';
 import { authService } from '@/core/services/client/api/auth/auth.service';
 import { organizationService } from '@/core/services/client/api/organizations';
+import { timerService } from '@/core/services/client/api/timers';
 import { localTimerStatusState, timerStartsInFlightState, timerStatusState } from '@/core/stores';
 import type { TOrganizationCounts } from '@/core/types/schemas/organization/organization-counts.schema';
 
@@ -31,6 +34,21 @@ export interface OrganizationDeletion {
 	landing: DeletableOrganization | null;
 	retry: () => void;
 	deleteOrganization: () => Promise<void>;
+}
+
+/**
+ * Whether a run of the person goes on in the current organization, read afresh from Gauzy: a break, or a run started
+ * before midnight, which this tab's timer state does not show. A person with no employee record tracks no time, and
+ * Gauzy's timer status answers them a 404.
+ */
+function readRunGoingOn(employeeId: string | null | undefined): Promise<boolean> {
+	if (!employeeId) {
+		return Promise.resolve(false);
+	}
+	return isRunGoingOn({
+		readStatus: async () => (await timerService.getTimerStatus()).data,
+		readLastLog: async () => (await timerService.getLastTimerLog(employeeId)).data?.[0]?.lastLog
+	});
 }
 
 function isOrganization(organization: DeletableOrganization | null | undefined): organization is DeletableOrganization {
@@ -50,6 +68,8 @@ export function useOrganizationDeletion(
 	const { logOut } = useAuthenticateUser();
 	const menuOrganizations = useTeamMenuOrganizations();
 	const switchOrganization = useSwitchOrganization();
+	const { data: user } = useUserQuery();
+	const employeeId = user?.employee?.id ?? null;
 	const organizationId = organization?.id ?? null;
 	const canDelete = canDeleteOrganization(myPermissions);
 	// The person's timer, read as the team menu reads it before a switch: this tab's start counts before the server's
@@ -62,11 +82,12 @@ export function useOrganizationDeletion(
 		queryKey: queryKeys.organizations.deletionFacts(organizationId),
 		queryFn: async () => {
 			const id = organizationId as string;
-			const [counts, workspaceOrganizationCount] = await Promise.all([
+			const [counts, workspaceOrganizationCount, hasRunGoingOn] = await Promise.all([
 				organizationService.getOrganizationCounts(id),
-				organizationService.countWorkspaceOrganizations()
+				organizationService.countWorkspaceOrganizations(),
+				readRunGoingOn(employeeId)
 			]);
-			return { counts, workspaceOrganizationCount };
+			return { counts, workspaceOrganizationCount, hasRunGoingOn };
 		},
 		enabled: canDelete && isConfirmOpen && Boolean(organizationId),
 		// Read each time the confirmation opens: another admin may have changed the workspace since
@@ -89,7 +110,10 @@ export function useOrganizationDeletion(
 	const menu = menuOrganizations.data;
 	const memberships = menu ? [menu.current, ...menu.others].filter(isOrganization) : [];
 	const landing = organizationId ? organizationToLandInAfterDeletion(memberships, organizationId) : null;
-	const block = organizationDeletionBlock(facts.data?.workspaceOrganizationCount ?? null, isTimerOn);
+	const block = organizationDeletionBlock(
+		facts.data?.workspaceOrganizationCount ?? null,
+		isTimerOn || facts.data?.hasRunGoingOn === true
+	);
 
 	const status = organizationDeletionStatusOf({
 		isFetching: facts.isFetching,
@@ -113,6 +137,7 @@ export function useOrganizationDeletion(
 			return;
 		}
 		await deleteOrganizationAndLand(landing, {
+			isRunGoingOn: () => readRunGoingOn(employeeId),
 			softDelete: () => organizationService.softDeleteOrganization(organizationId),
 			renewSession: async () => {
 				await authService.refreshToken();

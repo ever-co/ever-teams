@@ -207,6 +207,15 @@ it("keeps the delete off while the person's timer runs, and says to stop it firs
 	expect((confirmButton() as HTMLButtonElement).disabled).toBe(true);
 });
 
+it('reads the run again when the person stopped it elsewhere, without closing the confirmation', () => {
+	mockDeletion = deletionOf({ block: 'timerRunning' });
+	openConfirmation();
+
+	fireEvent.click(screen.getByRole('button', { name: 'notifications.RETRY' }));
+
+	expect(mockRetry).toHaveBeenCalledTimes(1);
+});
+
 it('offers the workspace export before the delete, to a person who may run it', () => {
 	const onExport = jest.fn();
 	render(<WorkspaceDangerSection organization={ORGANIZATION} dataExport={{ isExporting: false, onExport }} />);
