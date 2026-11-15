@@ -24,9 +24,17 @@ export const invoicePayOptionSchema = z.object({
 	currency: z.string().nullable().optional()
 });
 
-/** `POST /public/invoice-payments/invoice/:id/:token/checkout`: the provider's checkout page the client is sent to. */
+/**
+ * `POST /public/invoice-payments/invoice/:id/:token/checkout`: the provider's checkout page the client is sent to. Only
+ * an https page: the page goes there with `location.assign`, which would run a `javascript:` address in its own origin.
+ */
 export const invoiceCheckoutSchema = z.object({
-	url: z.string().url()
+	url: z
+		.string()
+		.url()
+		.refine((url) => URL.canParse(url) && new URL(url).protocol === 'https:', {
+			message: 'The checkout is not an https page'
+		})
 });
 
 export type TSharedInvoice = z.infer<typeof sharedInvoiceSchema>;
