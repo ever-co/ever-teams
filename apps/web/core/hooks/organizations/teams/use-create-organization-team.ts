@@ -12,6 +12,7 @@ import { createElement, useCallback } from 'react';
 import { useAtom, useSetAtom } from 'jotai';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { syncTokenOrganization } from '@/core/lib/auth/token-organization';
+import { rememberTabTeam } from '@/core/lib/auth/tab-organization';
 import { organizationTeamService } from '@/core/services/client/api/organizations/teams';
 import { useSyncRef } from '../../common';
 import { useAuthenticateUser } from '../../auth';
@@ -56,6 +57,8 @@ export function useCreateOrganizationTeam() {
 			setTeamTasks([]);
 			setActiveTeamTask(null);
 
+			// This tab works in the new team's organization, before the cookies, shared by every tab, follow it (#5134)
+			rememberTabTeam(team);
 			setActiveTeamIdCookie(team?.id);
 			setOrganizationIdCookie(team?.organizationId || '');
 			// Gauzy confines a non-admin to the token's organization: a team of another organization needs a token
