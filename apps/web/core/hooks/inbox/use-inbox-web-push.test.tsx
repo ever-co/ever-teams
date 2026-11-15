@@ -1,7 +1,7 @@
 /** @jest-environment jsdom */
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { inboxPushService } from '@/core/services/client/api/inbox';
-import { useInboxWebPush } from './use-inbox-web-push';
+import { forgetThisBrowserPush, useInboxWebPush } from './use-inbox-web-push';
 
 jest.mock('@/core/services/client/api/inbox', () => ({
 	inboxPushService: {
@@ -96,5 +96,19 @@ describe('useInboxWebPush, a browser that is subscribed', () => {
 		expect(enabled).toBe(true);
 		expect(service.register).toHaveBeenCalledTimes(1);
 		expect(result.current.state).toBe('on');
+	});
+});
+
+describe('forgetThisBrowserPush, on sign-out', () => {
+	it('never throws when the browser cannot read its worker, so the sign-out still clears the session', async () => {
+		subscribedBrowser();
+		service.remove.mockClear();
+		Object.defineProperty(navigator, 'serviceWorker', {
+			configurable: true,
+			value: { getRegistration: jest.fn().mockRejectedValue(new Error('no active worker')) }
+		});
+
+		await expect(forgetThisBrowserPush()).resolves.toBeUndefined();
+		expect(service.remove).not.toHaveBeenCalled();
 	});
 });
