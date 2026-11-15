@@ -103,6 +103,7 @@ export function MergePlaceholderDialog({
 	const t = useTranslations();
 	const selectId = useId();
 	const [shown, setShown] = useState<MemberRowModel | null>(member);
+	const [openedFor, setOpenedFor] = useState<MemberRowModel | null>(member);
 	const [targetId, setTargetId] = useState('');
 	const [preview, setPreview] = useState<PreviewState>(NO_PREVIEW);
 	const [failure, setFailure] = useState<PlaceholderFailure | null>(null);
@@ -110,11 +111,16 @@ export function MergePlaceholderDialog({
 	// The answer of a preview asked for another member, or before the dialog closed, is dropped
 	const requestRef = useRef(0);
 
-	if (member && member !== shown) {
-		setShown(member);
-		setTargetId('');
-		setPreview(NO_PREVIEW);
-		setFailure(null);
+	// Every opening starts afresh, the same member's again included (a preview read when it closed was dropped); the
+	// last member stays on screen while the dialog closes
+	if (member !== openedFor) {
+		setOpenedFor(member);
+		if (member) {
+			setShown(member);
+			setTargetId('');
+			setPreview(NO_PREVIEW);
+			setFailure(null);
+		}
 	}
 	const name = shown?.name ?? '';
 	const employeeId = shown?.employeeId ?? null;
