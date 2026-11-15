@@ -17,6 +17,18 @@ describe('Board invitations (#5022)', () => {
 		expect(isBoardInvitation({ ...invitation, entity: 'Task' })).toBe(false);
 	});
 
+	it('reads the action before the quoted team name, so a team named after it is still a team invitation', () => {
+		expect(
+			isBoardInvitation({
+				...invitation,
+				rawTitle: 'Ana Invited you to join the OrganizationTeam "Design Invited you to a Board with the Team"'
+			})
+		).toBe(false);
+		expect(
+			isBoardInvitation({ ...invitation, rawTitle: 'Ana Invited you to a Board with the Team "A "quoted" team"' })
+		).toBe(true);
+	});
+
 	it('opens the Board app, told which deployment opened it, or the in-app board without one', () => {
 		const href = new URL(boardInvitationHref('https://board.ever.team', 'https://app.ever.team'));
 		expect(href.origin).toBe('https://board.ever.team');

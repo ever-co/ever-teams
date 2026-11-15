@@ -10,16 +10,22 @@ import { EEmployeeNotificationType } from '@/core/types/interfaces/common/employ
  */
 const BOARD_INVITATION_MARK = ' Invited you to a Board ';
 
-/** Whether a notification is an invitation to a Board. */
+/**
+ * Whether a notification is an invitation to a Board. The action is read before the quoted team name only, so a team
+ * named `… Invited you to a Board …` keeps its invitations to join it.
+ */
 export function isBoardInvitation(notification: {
 	type: EEmployeeNotificationType | null;
 	entity?: string | null;
 	rawTitle?: string | null;
 }): boolean {
+	const title = notification.rawTitle ?? '';
+	const quoteAt = title.indexOf('"');
+	const action = quoteAt === -1 ? title : title.slice(0, quoteAt);
 	return (
 		notification.type === EEmployeeNotificationType.Invitation &&
 		notification.entity === EBaseEntityEnum.OrganizationTeam &&
-		(notification.rawTitle ?? '').includes(BOARD_INVITATION_MARK)
+		action.includes(BOARD_INVITATION_MARK)
 	);
 }
 
