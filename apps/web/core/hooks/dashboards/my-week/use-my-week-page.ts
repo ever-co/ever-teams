@@ -9,6 +9,7 @@ import { useProjectClientRates } from '@/core/hooks/organizations/rates/use-proj
 import { useMyRolePermissionsQuery } from '@/core/hooks/roles/use-my-role-permissions-query';
 import { linePriceOf } from '@/core/lib/utils/invoices';
 import { defaultBillRateOf, holdsRateAdminPermission } from '@/core/lib/utils/rates';
+import { durationRoundingRuleOf } from '@/core/lib/utils/duration-rounding';
 import { NO_BILLABLE_FIGURES, type BillableFigures } from '@/core/lib/utils/dashboards/time-activity';
 import { currentOrganizationState } from '@/core/stores/user/user-organizations';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
@@ -157,6 +158,8 @@ export function useMyWeekPage() {
 			return NO_BILLABLE_FIGURES;
 		}
 		const defaultRate = defaultBillRateOf(organization);
+		// Billed as an invoice bills it: each entry rounded by the workspace's rule (#5279)
+		const roundingRule = durationRoundingRuleOf(organization);
 		const organizationCurrency = organization?.currency ?? null;
 		const priceOf = (projectId: string | null) =>
 			linePriceOf({
@@ -167,7 +170,7 @@ export function useMyWeekPage() {
 				organizationCurrency,
 				defaultRate
 			});
-		return myWeekBillableOf(entries, priceOf);
+		return myWeekBillableOf(entries, priceOf, roundingRule);
 	}, [employeeId, entries, organization, ownRate, ratesByProject, readsBillable]);
 	const billable = useMemo<MyWeekBillable>(
 		() => ({

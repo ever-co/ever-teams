@@ -14,6 +14,8 @@ import type { ProjectShareItem } from '@/core/lib/utils/dashboards/team';
 import { logDurationSeconds, NO_PROJECT_VALUE, startOfLog } from '@/core/lib/utils/dashboards/timesheets';
 import { LIMIT_WEEK_START, WORK_DAYS_PER_WEEK } from '@/core/lib/utils/dashboards/weekly-limit';
 import { employeeRateValueOf } from '@/core/lib/utils/rates';
+import { type DurationRoundingRule, roundedSecondsOf } from '@/core/lib/utils/duration-rounding';
+import { isBreakLog } from '@/core/lib/utils/timer/timer-break';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 
 export type MyWeekPeriodKey = Extract<PeriodPresetKey, 'thisWeek' | 'lastWeek' | 'thisMonth'>;
@@ -239,23 +241,34 @@ export function myWeekFiguresOf(entries: ReadonlyArray<MyWeekEntry>, days: Reado
 }
 
 /** The price of an hour of the person's own time on a project, or on no project, through an invoice line's chain. */
-export type PriceOfProject = (projectId: string | null) => LinePrice;
+type PriceOfProject = (projectId: string | null) => LinePrice;
 
 const NO_PROJECT_KEY = '';
 
 const DEFAULT_AMOUNT_CURRENCY = 'USD';
 
-/** The person's billable seconds per project; time without a project is kept under its own key. */
-export function billableSecondsByProjectOf(entries: ReadonlyArray<MyWeekEntry>): Map<string, number> {
+/** A break is never billed (#5216), whatever its billable flag says. */
+function isBilledEntry(entry: MyWeekEntry): boolean {
+	return entry.isBillable && !isBreakLog(entry.log);
+}
+
+/**
+ * The person's billable seconds per project, each entry rounded by the workspace's rule (#5279) as an invoice and Time
+ * & activity bill it; time without a project is kept under its own key.
+ */
+function billableSecondsByProjectOf(
+	entries: ReadonlyArray<MyWeekEntry>,
+	roundingRule: DurationRoundingRule | null = null
+): Map<string, number> {
 	const byProject = new Map<string, number>();
 	for (const entry of entries) {
-		if (!entry.isBillable) {
+		if (!isBilledEntry(entry)) {
 			continue;
 		}
 		// The project the time was logged on prices it, whether or not it came with a readable name
 		const key = entry.log.projectId ?? entry.log.project?.id ?? NO_PROJECT_KEY;
 		const seconds = byProject.get(key) ?? 0;
-		byProject.set(key, seconds + entry.seconds);
+		byProject.set(key, seconds + roundedSecondsOf(entry.seconds, roundingRule));
 	}
 	return byProject;
 }
@@ -269,13 +282,18 @@ export function billableProjectIdsOfEntries(entries: ReadonlyArray<MyWeekEntry>)
 
 /**
  * What the person's billable time of the period bills, each project's time at its price, per currency and never
- * added across currencies; time no rate prices is counted apart. The time is priced as the page shows it.
+ * added across currencies; time no rate prices is counted apart. With a rounding rule each entry is billed rounded, as
+ * an invoice bills it, while the page shows the time as tracked. Breaks are never billed.
  */
-export function myWeekBillableOf(entries: ReadonlyArray<MyWeekEntry>, priceOf: PriceOfProject): BillableFigures {
+export function myWeekBillableOf(
+	entries: ReadonlyArray<MyWeekEntry>,
+	priceOf: PriceOfProject,
+	roundingRule: DurationRoundingRule | null = null
+): BillableFigures {
 	const totals = new Map<string, number>();
 	let seconds = 0;
 	let unpricedSeconds = 0;
-	for (const [key, projectSeconds] of billableSecondsByProjectOf(entries)) {
+	for (const [key, projectSeconds] of billableSecondsByProjectOf(entries, roundingRule)) {
 		seconds += projectSeconds;
 		let projectId: string | null = key;
 		if (key === NO_PROJECT_KEY) {

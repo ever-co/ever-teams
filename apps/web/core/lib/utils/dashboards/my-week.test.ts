@@ -1,7 +1,7 @@
 import { localDayKeyOf } from '@/core/lib/utils/dashboard-export';
 import { formatDurationShort } from '@/core/lib/utils/dashboard-figures';
 import { totalDurationOf } from '@/core/lib/utils/dashboards/timesheets';
-import { ETimeLogSource } from '@/core/types/generics/enums/timer';
+import { ETimeLogSource, ETimeLogType } from '@/core/types/generics/enums/timer';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import type { LinePrice } from '@/core/lib/utils/invoices';
 import {
@@ -314,6 +314,31 @@ describe('myWeekBillableOf', () => {
 
 		expect(myWeekBillableOf(entries, priceOf).amounts).toEqual([{ currency: 'EUR', amount: 80 }]);
 		expect(billableProjectIdsOfEntries(entries)).toEqual(['project-web']);
+	});
+
+	it('bills each entry rounded by the workspace rule, as an invoice bills it (#5279)', () => {
+		// 10 minutes of billable time without a project, rounded up to a quarter of an hour, at 60 an hour
+		const tenMinutes = log('short-call', new Date(2026, 10, 11, 9, 0), new Date(2026, 10, 11, 9, 10), {
+			isBillable: true
+		});
+		const { entries } = weekOf([tenMinutes]);
+		const atSixty = (): LinePrice => ({ rate: 60, currency: 'EUR', source: 'default' });
+
+		const figures = myWeekBillableOf(entries, atSixty, { intervalMinutes: 15, direction: 'UP' });
+
+		expect(figures.amounts).toEqual([{ currency: 'EUR', amount: 15 }]);
+		expect(figures.seconds).toBe(15 * 60);
+	});
+
+	it('never bills a break, whatever its billable flag says (#5216)', () => {
+		const breakLog = {
+			...log('lunch', new Date(2026, 10, 11, 12, 0), new Date(2026, 10, 11, 13, 0), { isBillable: true }),
+			logType: ETimeLogType.BREAK
+		} as ITimeLog;
+		const { entries } = weekOf([breakLog]);
+		const atSixty = (): LinePrice => ({ rate: 60, currency: 'EUR', source: 'default' });
+
+		expect(myWeekBillableOf(entries, atSixty)).toEqual({ amounts: [], seconds: 0, unpricedSeconds: 0 });
 	});
 
 	it('names the projects whose client rates price the billable time, once each', () => {
