@@ -452,6 +452,14 @@ describe('useTimeActivityReport billable amounts', () => {
 		expect(report.billable.facts).toEqual([]);
 	});
 
+	it('reads the projects again from the billable retry when their lookup failed under a client filter', () => {
+		const report = reportUnder([NO_CLIENT_FILTER_VALUE], { isPending: false, isError: true });
+
+		expect(report.billable.isError).toBe(true);
+		report.billable.refetch();
+		expect(mockRefetchProjectClients).toHaveBeenCalledTimes(1);
+	});
+
 	it('gives no billable amount to a role that may not read client rates', () => {
 		mockPermissions = ['ORG_TIME_TRACKING'];
 

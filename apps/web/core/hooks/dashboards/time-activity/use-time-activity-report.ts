@@ -489,10 +489,14 @@ export function useTimeActivityReport() {
 	const canSetDefaultRate = storesDefault && canEditWorkspace(myPermissions);
 	const { refetch: refetchBillableReport } = billableQuery;
 	const { refetch: refetchProjectRates } = projectRates;
+	const refetchClientLookup = projectClients.refetch;
 	const refetchBillable = useCallback(() => {
 		void refetchBillableReport();
 		refetchProjectRates();
-	}, [refetchBillableReport, refetchProjectRates]);
+		if (isFilterLookupError) {
+			refetchClientLookup();
+		}
+	}, [isFilterLookupError, refetchBillableReport, refetchClientLookup, refetchProjectRates]);
 	const billable = useMemo<TimeActivityBillable>(
 		() => ({
 			isOffered: readsBillable,
