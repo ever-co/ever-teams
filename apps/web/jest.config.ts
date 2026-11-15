@@ -36,7 +36,7 @@ const config: Config = {
 	clearMocks: true,
 	// CI pods run on shared, loaded nodes: a test gets 20 s there instead of Jest's 5 s, and Testing Library's
 	// async assertions wait longer (jest.setup.ts). Locally the defaults stay.
-	...(process.env.CI ? { testTimeout: 20_000 } : {}),
+	testTimeout: process.env.CI ? 20_000 : 5_000,
 	setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
 	moduleNameMapper: {
 		// tsconfig.json "paths" — next/jest does NOT derive these; keep this list mirroring tsconfig.
