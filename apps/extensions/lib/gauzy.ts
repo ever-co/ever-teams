@@ -3,7 +3,7 @@ import { idListOf, optionalField } from '~lib/optional';
 import type { PlanLike } from '~lib/plan-rule';
 import { EXTENSION_SOURCE, heartbeatSecondsOf, stopSourceOf } from '~lib/run-policy';
 import type { TwoFactorProof } from '~lib/two-factor';
-import { sessionFrom, workspacesOf, type Session, type WorkspaceChoice } from '~lib/workspaces';
+import { activeTeamIdOf, sessionFrom, workspacesOf, type Session, type WorkspaceChoice } from '~lib/workspaces';
 
 export { EXTENSION_SOURCE };
 
@@ -25,6 +25,11 @@ export interface RunningLog {
 	source?: string | null;
 	task?: { title?: string | null } | null;
 	isRunning?: boolean | null;
+}
+
+/** What a caller may give a call to the API: a signal that cancels it (the background's deadline). */
+export interface CallOptions {
+	signal?: AbortSignal;
 }
 
 /** The timer as `GET /timesheet/timer/status` answers it: whether a run goes on, and today's worked seconds. */
@@ -50,7 +55,11 @@ export async function confirmSignInCode(apiUrl: string, email: string, code: str
 	return workspacesOf(answer);
 }
 
-/** Enters one workspace; null when the API answered no session. */
+/**
+ * Enters one workspace; null when the API answered no session. The workspace token the confirmed code answered is the
+ * proof: the code is not sent again. The team the session opens goes as `lastTeamId`, as the web sends the team chosen
+ * (Gauzy keeps it as the person's last team, and drops any field it does not read).
+ */
 export async function enterWorkspace(
 	apiUrl: string,
 	email: string,
@@ -58,7 +67,7 @@ export async function enterWorkspace(
 ): Promise<Session | null> {
 	const answer = await publicRequest<unknown>(apiUrl, '/auth/signin.workspace', {
 		method: 'POST',
-		body: { email, token: workspace.token, ...optionalField('teamId', workspace.lastTeamId) }
+		body: { email, token: workspace.token, ...optionalField('lastTeamId', activeTeamIdOf(workspace)) }
 	});
 	return sessionFrom(answer, workspace, apiUrl);
 }
@@ -104,19 +113,26 @@ export function todayPlanDay(now = new Date()): string {
  * shows still going is put in the day's status. Without it the run vanished at midnight: Start showed, the badge
  * cleared and the heartbeats stopped. A failed read of the last log leaves the day's status as it is.
  */
-export async function getTimerStatus(session: Session): Promise<TimerStatus> {
+export async function getTimerStatus(session: Session, call: CallOptions = {}): Promise<TimerStatus> {
 	const status = await sessionRequest<TimerStatus>(session, '/timesheet/timer/status', {
 		query: {
 			tenantId: session.tenantId,
 			organizationId: session.organizationId,
 			'relations[0]': 'task',
 			...todayRange()
-		}
+		},
+		signal: call.signal
 	});
 	if (status?.running || !session.employeeId) {
 		return status;
 	}
-	const lastLog = await lastLogOf(session, session.employeeId).catch(() => null);
+	const lastLog = await lastLogOf(session, session.employeeId, call).catch((error: unknown) => {
+		// Cancelled, the whole read is: the day's status alone would show a run past midnight as stopped
+		if (call.signal?.aborted) {
+			throw error;
+		}
+		return null;
+	});
 	if (!lastLog?.isRunning) {
 		return status;
 	}
@@ -124,11 +140,14 @@ export async function getTimerStatus(session: Session): Promise<TimerStatus> {
 }
 
 /** The person's last log of any day (`GET /timesheet/timer/status/worked`), or null when Gauzy names none. */
-async function lastLogOf(session: Session, employeeId: string): Promise<RunningLog | null> {
+async function lastLogOf(session: Session, employeeId: string, call: CallOptions): Promise<RunningLog | null> {
 	const statuses = await sessionRequest<Array<{ lastLog?: RunningLog | null }>>(
 		session,
 		'/timesheet/timer/status/worked',
-		{ query: { tenantId: session.tenantId, organizationId: session.organizationId, employeeId } }
+		{
+			query: { tenantId: session.tenantId, organizationId: session.organizationId, employeeId },
+			signal: call.signal
+		}
 	);
 	return statuses?.[0]?.lastLog ?? null;
 }
@@ -156,8 +175,8 @@ export async function startTimer(session: Session, task: TaskItem): Promise<void
  * Credits the run's time since its last heartbeat as a time slot, as the web does each minute: worked-time totals,
  * reports and the Work diary count a run's time from its slots.
  */
-export async function sendHeartbeat(session: Session, run: RunningLog, now = Date.now()): Promise<void> {
-	const duration = heartbeatSecondsOf(run, now);
+export async function sendHeartbeat(session: Session, run: RunningLog, call: CallOptions = {}): Promise<void> {
+	const duration = heartbeatSecondsOf(run, Date.now());
 	if (duration === 0) {
 		return;
 	}
@@ -171,7 +190,8 @@ export async function sendHeartbeat(session: Session, run: RunningLog, now = Dat
 			logType: 'TRACKED',
 			source: EXTENSION_SOURCE,
 			duration
-		}
+		},
+		signal: call.signal
 	});
 }
 

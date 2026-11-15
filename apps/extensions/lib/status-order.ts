@@ -16,8 +16,16 @@ export function createStatusOrder() {
 		isLatest(ticket: number): boolean {
 			return ticket === latest;
 		},
-		/** The popup reported a status it read: every read already out is older than it. */
-		reported(): void {
+		/** The popup reported a status it read: every read already out is older than it. Answers its own ticket. */
+		reported(): number {
+			latest += 1;
+			return latest;
+		},
+		/**
+		 * The session the reads were made for ended (a sign-out, another person or API signed in): every read already
+		 * out answers for it, and must not show its timer again.
+		 */
+		sessionEnded(): void {
 			latest += 1;
 		}
 	};

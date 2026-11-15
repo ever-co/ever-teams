@@ -152,6 +152,9 @@
 	"tasksAddFailed": {
 		"message": "לא ניתן ליצור את המשימה."
 	},
+	"tasksEstimateInvalid": {
+		"message": "הזינו את ההערכה בשעות שלמות (עד 999) ובדקות (0 עד 59)."
+	},
 	"refusalPlanRequired": {
 		"message": "הצוות שלך דורש תוכנית יומית לפני מעקב זמן. תכננו קודם את היום."
 	},

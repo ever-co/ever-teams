@@ -152,6 +152,9 @@
 	"tasksAddFailed": {
 		"message": "De taak kon niet worden aangemaakt."
 	},
+	"tasksEstimateInvalid": {
+		"message": "Vul de schatting in als hele uren (tot 999) en minuten (0 tot 59)."
+	},
 	"refusalPlanRequired": {
 		"message": "Je team vereist een dagplanning voordat je tijd registreert. Plan eerst je dag."
 	},

@@ -152,6 +152,9 @@
 	"tasksAddFailed": {
 		"message": "Die Aufgabe konnte nicht erstellt werden."
 	},
+	"tasksEstimateInvalid": {
+		"message": "Geben Sie die Schätzung in ganzen Stunden (bis 999) und Minuten (0 bis 59) ein."
+	},
 	"refusalPlanRequired": {
 		"message": "Ihr Team verlangt einen Tagesplan, bevor Sie Zeit erfassen. Planen Sie zuerst Ihren Tag."
 	},

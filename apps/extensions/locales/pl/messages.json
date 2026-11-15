@@ -152,6 +152,9 @@
 	"tasksAddFailed": {
 		"message": "Nie udało się utworzyć zadania."
 	},
+	"tasksEstimateInvalid": {
+		"message": "Wpisz szacunek w pełnych godzinach (do 999) i minutach (od 0 do 59)."
+	},
 	"refusalPlanRequired": {
 		"message": "Twój zespół wymaga planu dnia przed rejestrowaniem czasu. Najpierw zaplanuj dzień."
 	},

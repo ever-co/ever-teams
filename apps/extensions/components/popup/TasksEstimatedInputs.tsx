@@ -1,6 +1,7 @@
 import classNames from 'classnames';
-import React, { useEffect, useState, type FC } from 'react';
+import React, { useEffect, useState, type ChangeEvent, type FC } from 'react';
 
+import { estimateFieldOf, MAX_ESTIMATE_HOURS, MAX_ESTIMATE_MINUTES } from '~lib/estimate';
 import { t } from '~lib/i18n';
 import { underlineInput } from '~misc/tailwindClasses';
 import type { ITask } from '~typescript/types/Tasks';
@@ -22,25 +23,22 @@ const TasksEstimatedInputs: FC<ITasksEstimatedInputs> = ({ task, onEstimateChang
 	}, [task]);
 
 	useEffect(() => {
-		onEstimateChange(hoursEst, minutesEst);
+		onEstimateChange?.(hoursEst, minutesEst);
 	}, [hoursEst, minutesEst]);
 
-	const onHoursChange = (event) => {
-		const value = event.target.value;
-		if (value > 999 || value.split('').length > 3 || +value < 0) {
-			return setHoursEstimate('');
+	// Whole hours up to 999 and minutes up to 59, the rule the estimate is read with: anything else typed is not taken
+	const onHoursChange = (event: ChangeEvent<HTMLInputElement>) => {
+		const accepted = estimateFieldOf(event.target.value, MAX_ESTIMATE_HOURS);
+		if (accepted !== null) {
+			setHoursEstimate(accepted);
 		}
-
-		setHoursEstimate(value);
 	};
 
-	const onMinuteChange = (event) => {
-		const value = event.target.value;
-		if (value > 60 || value.split('').length > 2 || +value < 0) {
-			return setMinutesEstimate('');
+	const onMinuteChange = (event: ChangeEvent<HTMLInputElement>) => {
+		const accepted = estimateFieldOf(event.target.value, MAX_ESTIMATE_MINUTES);
+		if (accepted !== null) {
+			setMinutesEstimate(accepted);
 		}
-
-		setMinutesEstimate(value);
 	};
 
 	const onHoursEstimateBlur = (event) => {
@@ -69,7 +67,10 @@ const TasksEstimatedInputs: FC<ITasksEstimatedInputs> = ({ task, onEstimateChang
 			<input
 				className={classNames(underlineInput, 'w-8')}
 				aria-label={t('tasksEstimateHours')}
-				type="number"
+				type="text"
+				inputMode="numeric"
+				autoComplete="off"
+				maxLength={String(MAX_ESTIMATE_HOURS).length}
 				placeholder="00"
 				value={hoursEst}
 				onChange={onHoursChange}
@@ -79,7 +80,10 @@ const TasksEstimatedInputs: FC<ITasksEstimatedInputs> = ({ task, onEstimateChang
 			<input
 				className={classNames(underlineInput, 'w-6')}
 				aria-label={t('tasksEstimateMinutes')}
-				type="number"
+				type="text"
+				inputMode="numeric"
+				autoComplete="off"
+				maxLength={String(MAX_ESTIMATE_MINUTES).length}
 				placeholder="00"
 				value={minutesEst}
 				onChange={onMinuteChange}

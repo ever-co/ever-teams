@@ -4,6 +4,7 @@ import React, { useMemo, useState, type FC, type FormEvent } from 'react';
 import { SearchIcon, SpinnerIcon } from '~components/shared/Icons';
 import Notice from '~components/shared/Notice';
 import { ApiError } from '~lib/api-client';
+import { estimateSecondsOf } from '~lib/estimate';
 import { createTask, type TaskItem } from '~lib/gauzy';
 import { t } from '~lib/i18n';
 import { refusalOf, type Refusal } from '~lib/refusal';
@@ -34,12 +35,6 @@ function numberOf(task: TaskItem): string {
 		return '';
 	}
 	return `#${task.taskNumber}`;
-}
-
-/** Seconds from the estimate fields, "hh:mm". */
-function estimateSecondsOf(estimate: string): number {
-	const [hours, minutes] = estimate.split(':').map((part) => Number(part) || 0);
-	return hours * 3600 + minutes * 60;
 }
 
 function ListState({
@@ -122,11 +117,17 @@ const Tasks: FC<Props> = ({
 		if (!title) {
 			return;
 		}
+		// Refused rather than read as something else: minutes from 60 on, or a value that is not hours and minutes
+		const estimate = estimateSecondsOf(newEstimate);
+		if (estimate === null) {
+			setAddError({ key: 'tasksEstimateInvalid' });
+			return;
+		}
 		setAdding(true);
 		setAddError(null);
 		try {
 			const teamId = session.teamId;
-			const created = await createTask(session, title, estimateSecondsOf(newEstimate));
+			const created = await createTask(session, title, estimate);
 			onCreated(created, teamId);
 			setNewTitle('');
 			setNewEstimate('');

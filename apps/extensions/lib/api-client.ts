@@ -34,6 +34,8 @@ interface RequestOptions {
 	method?: Method;
 	body?: unknown;
 	query?: Record<string, string | undefined>;
+	/** Cancels the call, its answer's body included: a cancelled call fails as one that could not reach the API. */
+	signal?: AbortSignal;
 }
 
 /** The API origin a person typed, as the base of every route: no trailing slash and no `/api` suffix. */
@@ -115,7 +117,10 @@ async function send(
 }
 
 async function readJson<T>(response: Response): Promise<T> {
-	const text = await response.text();
+	// A body cut off (the connection dropped, or the call was cancelled) is an API that could not be reached
+	const text = await response.text().catch(() => {
+		throw new ApiError(0, 'offline');
+	});
 	if (!text) {
 		return undefined as T;
 	}
@@ -153,9 +158,10 @@ export async function revokeSession(session: Session): Promise<void> {
  * Trades the refresh token for a new access token and keeps it, alone among the extension's views and its
  * background (the session lock): two renewals with one refresh token would have the API refuse the second, as a
  * token already rotated. Returns the renewed session (or the one another view renewed meanwhile), or null when the
- * session cannot be renewed (signed out, expired).
+ * session cannot be renewed (signed out, expired). The caller's `signal` bounds the wait for the lock only: a
+ * renewal under way keeps its own deadline, as the API may already have rotated the token it must save.
  */
-function renewed(refused: Session): Promise<Session | null> {
+function renewed(refused: Session, signal?: AbortSignal): Promise<Session | null> {
 	return withSessionLock(async () => {
 		const stored = await loadSession();
 		const step = renewalStepOf(stored, refused);
@@ -166,7 +172,7 @@ function renewed(refused: Session): Promise<Session | null> {
 			return stored;
 		}
 		return renewedNow(stored);
-	});
+	}, signal);
 }
 
 async function renewedNow(session: Session): Promise<Session | null> {
@@ -201,11 +207,11 @@ async function renewedNow(session: Session): Promise<Session | null> {
 export async function sessionRequest<T>(session: Session, path: string, options: RequestOptions = {}): Promise<T> {
 	const url = urlOf(session.apiUrl, path, options.query);
 	const method = options.method ?? 'GET';
-	let response = await send(url, method, options.body, sessionHeaders(session));
+	let response = await send(url, method, options.body, sessionHeaders(session), options.signal);
 	if (response.status === 401) {
-		const next = await renewed(session);
+		const next = await renewed(session, options.signal);
 		if (next) {
-			response = await send(url, method, options.body, sessionHeaders(next));
+			response = await send(url, method, options.body, sessionHeaders(next), options.signal);
 		}
 	}
 	if (!response.ok) {
