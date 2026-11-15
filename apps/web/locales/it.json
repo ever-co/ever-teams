@@ -6044,7 +6044,8 @@
 		"RATE_SAVED": "Tariffa salvata",
 		"ENTRIES_REPRICED": "{count, plural, =0 {Nessuna voce di tempo ha cambiato prezzo.} one {# voce di tempo ha cambiato prezzo.} other {# voci di tempo hanno cambiato prezzo.}}",
 		"PAST_TIME_KEPT": "Il tempo già registrato mantiene il suo prezzo.",
-		"APPLY_BILLED_KEPT": "Il tempo già presente in una fattura o in un preventivo mantiene il prezzo a cui è stato fatturato."
+		"APPLY_BILLED_KEPT": "Il tempo già presente in una fattura o in un preventivo mantiene il prezzo a cui è stato fatturato.",
+		"REPRICE_UNFINISHED": "Il salvataggio non è terminato. La nuova tariffa potrebbe essere salvata mentre il tempo già registrato ha mantenuto il prezzo precedente: salva di nuovo per completare."
 	},
 	"auth": {
 		"code": {

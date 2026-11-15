@@ -6044,7 +6044,8 @@
 		"RATE_SAVED": "Satz gespeichert",
 		"ENTRIES_REPRICED": "{count, plural, =0 {Kein Zeiteintrag hat seinen Preis geändert.} one {# Zeiteintrag hat seinen Preis geändert.} other {# Zeiteinträge haben ihren Preis geändert.}}",
 		"PAST_TIME_KEPT": "Bereits erfasste Zeit behält ihren Preis.",
-		"APPLY_BILLED_KEPT": "Zeit, die bereits auf einer Rechnung oder einem Angebot steht, behält den abgerechneten Preis."
+		"APPLY_BILLED_KEPT": "Zeit, die bereits auf einer Rechnung oder einem Angebot steht, behält den abgerechneten Preis.",
+		"REPRICE_UNFINISHED": "Das Speichern wurde nicht abgeschlossen. Der neue Satz ist möglicherweise gespeichert, während die bereits erfasste Zeit ihren alten Preis behalten hat: Speichern Sie erneut, um es abzuschließen."
 	},
 	"auth": {
 		"code": {

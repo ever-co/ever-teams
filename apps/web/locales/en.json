@@ -6044,7 +6044,8 @@
 		"RATE_SAVED": "Rate saved",
 		"ENTRIES_REPRICED": "{count, plural, =0 {No time entry changed price.} one {# time entry changed price.} other {# time entries changed price.}}",
 		"PAST_TIME_KEPT": "Time already tracked keeps its price.",
-		"APPLY_BILLED_KEPT": "Time already on an invoice or an estimate keeps the price it was billed at."
+		"APPLY_BILLED_KEPT": "Time already on an invoice or an estimate keeps the price it was billed at.",
+		"REPRICE_UNFINISHED": "The save did not finish. The new rate may be saved while the time already tracked kept its old price: save again to finish."
 	},
 	"auth": {
 		"code": {

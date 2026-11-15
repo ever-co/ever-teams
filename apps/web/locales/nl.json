@@ -6044,7 +6044,8 @@
 		"RATE_SAVED": "Tarief opgeslagen",
 		"ENTRIES_REPRICED": "{count, plural, =0 {Geen tijdregistratie is van prijs veranderd.} one {# tijdregistratie is van prijs veranderd.} other {# tijdregistraties zijn van prijs veranderd.}}",
 		"PAST_TIME_KEPT": "Al geregistreerde tijd houdt zijn prijs.",
-		"APPLY_BILLED_KEPT": "Tijd die al op een factuur of offerte staat, behoudt de prijs waartegen die is gefactureerd."
+		"APPLY_BILLED_KEPT": "Tijd die al op een factuur of offerte staat, behoudt de prijs waartegen die is gefactureerd.",
+		"REPRICE_UNFINISHED": "Het opslaan is niet voltooid. Het nieuwe tarief is mogelijk opgeslagen terwijl de al geregistreerde tijd zijn oude prijs heeft behouden: sla opnieuw op om het af te ronden."
 	},
 	"auth": {
 		"code": {

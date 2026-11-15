@@ -6044,7 +6044,8 @@
 		"RATE_SAVED": "Tarifa guardada",
 		"ENTRIES_REPRICED": "{count, plural, =0 {Ningún registro de tiempo cambió de precio.} one {# registro de tiempo cambió de precio.} other {# registros de tiempo cambiaron de precio.}}",
 		"PAST_TIME_KEPT": "El tiempo ya registrado conserva su precio.",
-		"APPLY_BILLED_KEPT": "El tiempo que ya figura en una factura o un presupuesto conserva el precio al que se facturó."
+		"APPLY_BILLED_KEPT": "El tiempo que ya figura en una factura o un presupuesto conserva el precio al que se facturó.",
+		"REPRICE_UNFINISHED": "El guardado no terminó. Es posible que la nueva tarifa se haya guardado mientras el tiempo ya registrado conservó su precio anterior: guarde de nuevo para terminar."
 	},
 	"auth": {
 		"code": {

@@ -1,4 +1,5 @@
 import { formatISO, isValid } from 'date-fns';
+import { errorReasonKeyOf, errorStatusOf } from '@/core/lib/utils/error-feedback';
 import type { RateSaveOutcome } from '@/core/types/schemas/organization/rates.schema';
 
 /**
@@ -117,6 +118,26 @@ export function rateSavedDescriptionOf(choice: RateApplyChoice, outcome: RateSav
 		return { key: 'rates.PAST_TIME_KEPT', count: 0 };
 	}
 	return null;
+}
+
+/**
+ * The sentence for a failed save of a member's own rates (`PUT /employee/:id`, `/profile`). Gauzy writes the new rates
+ * first and re-prices the time already tracked after, apart: a server error, or an answer lost on the way, after a save
+ * that asked for a re-pricing may leave the new rate saved and past time at its old price. The editor says so rather
+ * than "not saved"; saving again finishes it, Gauzy writing only the entries still at another rate. A refusal (4xx)
+ * comes before anything is written.
+ */
+export function memberRateSaveFailureKeyOf(error: unknown, asksRepricing: boolean): string {
+	const reasonKey = errorReasonKeyOf(error);
+	if (!asksRepricing) {
+		return reasonKey;
+	}
+	const status = errorStatusOf(error);
+	const mayHaveSaved = status === null || status >= 500;
+	if (!mayHaveSaved) {
+		return reasonKey;
+	}
+	return 'rates.REPRICE_UNFINISHED';
 }
 
 const RATE_FIELDS = ['billRateValue', 'billRateCurrency', 'payRateValue', 'payRateCurrency'] as const;

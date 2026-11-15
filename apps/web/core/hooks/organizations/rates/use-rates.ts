@@ -139,7 +139,8 @@ export function useEmployeeRatesMutation() {
 	const mutation = useMutation({
 		mutationFn: ({ employeeId, rates }: { employeeId: string; rates: IEmployeeRatesInput }) =>
 			rateService.updateEmployeeRates(employeeId, rates),
-		onSuccess: async (_updated, { employeeId }) => {
+		// After a failure too: Gauzy may have saved the rate before re-pricing the time failed (memberRateSaveFailureKeyOf)
+		onSettled: async (_updated, _error, { employeeId }) => {
 			await queryClient.invalidateQueries({ queryKey: queryKeys.organizationTeams.all });
 			await queryClient.invalidateQueries({ queryKey: queryKeys.rates.all });
 			await queryClient.invalidateQueries({ queryKey: queryKeys.timesheet.reports.all });
@@ -183,7 +184,8 @@ export function useOwnRatesMutation(editsEmployees: boolean) {
 			}
 			return rateService.updateOwnProfileRates(employeeId, ownProfileRatesOf(rates));
 		},
-		onSuccess: async () => {
+		// After a failure too: Gauzy may have saved the rate before re-pricing the time failed (memberRateSaveFailureKeyOf)
+		onSettled: async () => {
 			await queryClient.invalidateQueries({ queryKey: queryKeys.users.me });
 			await queryClient.invalidateQueries({ queryKey: queryKeys.organizationTeams.all });
 			await queryClient.invalidateQueries({ queryKey: queryKeys.rates.all });

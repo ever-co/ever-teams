@@ -6044,7 +6044,8 @@
 		"RATE_SAVED": "Stawka zapisana",
 		"ENTRIES_REPRICED": "{count, plural, =0 {Żaden wpis czasu nie zmienił ceny.} one {# wpis czasu zmienił cenę.} few {# wpisy czasu zmieniły cenę.} many {# wpisów czasu zmieniło cenę.} other {# wpisu czasu zmieniło cenę.}}",
 		"PAST_TIME_KEPT": "Już zarejestrowany czas zachowuje swoją cenę.",
-		"APPLY_BILLED_KEPT": "Czas, który jest już na fakturze lub w ofercie, zachowuje cenę, po jakiej został zafakturowany."
+		"APPLY_BILLED_KEPT": "Czas, który jest już na fakturze lub w ofercie, zachowuje cenę, po jakiej został zafakturowany.",
+		"REPRICE_UNFINISHED": "Zapisywanie nie zostało ukończone. Nowa stawka mogła zostać zapisana, a już zarejestrowany czas zachował starą cenę: zapisz ponownie, aby dokończyć."
 	},
 	"auth": {
 		"code": {

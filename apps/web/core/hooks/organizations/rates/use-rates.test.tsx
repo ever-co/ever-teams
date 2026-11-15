@@ -126,6 +126,37 @@ describe('the day a rate change applies from', () => {
 		});
 	});
 
+	it("reads a member's rates again after a failed save, which Gauzy may have written before re-pricing failed", async () => {
+		mockUpdateEmployeeRates.mockRejectedValue({ status: 500 });
+		const { result, invalidated } = renderMutation();
+
+		await act(async () => {
+			await result.current
+				.saveEmployeeRates({
+					employeeId: 'employee-ana',
+					rates: { billRateValue: 60, ratesApplyFrom: '2026-10-01T00:00:00Z' }
+				})
+				.catch(() => undefined);
+		});
+
+		expect(invalidatedKeys(invalidated)).toContainEqual(queryKeys.rates.all);
+		expect(invalidatedKeys(invalidated)).toContainEqual(queryKeys.organizationTeams.all);
+	});
+
+	it("reads one's own rates again after a failed save, for the same reason", async () => {
+		mockUpdateOwnProfileRates.mockRejectedValue({ status: 500 });
+		const { result, invalidated } = renderOwnRatesMutation(false);
+
+		await act(async () => {
+			await result.current
+				.saveOwnRates({ employeeId: 'employee-ana', rates: { billRateValue: 60 } })
+				.catch(() => undefined);
+		});
+
+		expect(invalidatedKeys(invalidated)).toContainEqual(queryKeys.users.me);
+		expect(invalidatedKeys(invalidated)).toContainEqual(queryKeys.rates.all);
+	});
+
 	it('answers how many entries changed price, as Gauzy states it', async () => {
 		mockUpdateEmployeeRates.mockResolvedValue({ repricedTimeLogs: 7 });
 		const { result } = renderMutation();

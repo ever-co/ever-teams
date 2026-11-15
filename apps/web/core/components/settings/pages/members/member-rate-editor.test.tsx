@@ -178,6 +178,31 @@ describe('the question about the time already tracked', () => {
 		});
 	});
 
+	it('says the rate may be saved without past time re-priced when the server fails a re-pricing save', async () => {
+		const { onSaveRates, onCancel } = openWith({
+			id: 'organization-1',
+			currency: 'EUR',
+			timeLogsKeepTheirRates: false
+		});
+		onSaveRates.mockRejectedValue({ status: 500 });
+
+		raiseRateTo('50');
+		await save();
+
+		expect(screen.getByRole('alert').textContent).toBe('rates.REPRICE_UNFINISHED');
+		expect(onCancel).not.toHaveBeenCalled();
+	});
+
+	it('gives the plain reason when Gauzy refuses the save, which then wrote nothing', async () => {
+		const { onSaveRates } = openWith({ id: 'organization-1', currency: 'EUR', timeLogsKeepTheirRates: false });
+		onSaveRates.mockRejectedValue({ status: 403 });
+
+		raiseRateTo('50');
+		await save();
+
+		expect(screen.getByRole('alert').textContent).toBe('toasts.REASONS.PERMISSION');
+	});
+
 	it('does not say "from now on" leaves billed time aside, as it re-prices nothing', () => {
 		openWith({ id: 'organization-1', currency: 'EUR', timeLogsKeepTheirRates: true });
 

@@ -2,6 +2,7 @@ import {
 	ALL_TIME_APPLY_FROM,
 	applyFromOfChoice,
 	changesRateIn,
+	memberRateSaveFailureKeyOf,
 	pastTimeRuleOf,
 	rateApplyChoiceOf,
 	rateApplyChoicesOf,
@@ -111,5 +112,23 @@ describe('changesRateIn', () => {
 		expect(changesRateIn({ payRateValue: null })).toBe(true);
 		expect(changesRateIn({ payRateCurrency: 'EUR' })).toBe(true);
 		expect(changesRateIn({ reWeeklyLimit: 30 } as Record<string, unknown>)).toBe(false);
+	});
+});
+
+describe('memberRateSaveFailureKeyOf', () => {
+	it('says the rate may be saved without past time re-priced when the server failed a re-pricing save', () => {
+		// Gauzy writes a member's rates first and re-prices their time apart: a 5xx or a lost answer may follow the save
+		expect(memberRateSaveFailureKeyOf({ status: 500 }, true)).toBe('rates.REPRICE_UNFINISHED');
+		expect(memberRateSaveFailureKeyOf({ statusCode: 503 }, true)).toBe('rates.REPRICE_UNFINISHED');
+		expect(memberRateSaveFailureKeyOf(new Error('Network Error'), true)).toBe('rates.REPRICE_UNFINISHED');
+	});
+
+	it('gives the plain reason for a refusal, which comes before anything is written', () => {
+		expect(memberRateSaveFailureKeyOf({ status: 403 }, true)).toBe('toasts.REASONS.PERMISSION');
+		expect(memberRateSaveFailureKeyOf({ status: 400 }, true)).toBe('toasts.REASONS.INVALID');
+	});
+
+	it('gives the plain reason for a save that asked for no re-pricing', () => {
+		expect(memberRateSaveFailureKeyOf({ status: 500 }, false)).toBe('toasts.REASONS.SERVER');
 	});
 });

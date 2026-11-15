@@ -8,13 +8,12 @@ import { Button } from '@/core/components/duplicated-components/_button';
 import { Spinner } from '@/core/components/icons';
 import { CurrencySelect } from '@/core/components/rates/currency-select';
 import { RateApplyQuestion } from '@/core/components/rates/rate-apply-question';
-import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
 import { SETTINGS_SKELETON_BAR } from '@/core/components/settings/kit/settings-page';
 import { useEmployeePayRate } from '@/core/hooks/organizations/rates/use-rates';
 import { useRateApplyQuestion } from '@/core/hooks/organizations/rates/use-rate-apply-question';
 import { useGetCurrentOrganization } from '@/core/hooks/auth/use-current-organization';
 import { cn } from '@/core/lib/helpers';
-import { changesRateIn } from '@/core/lib/utils/rate-apply';
+import { changesRateIn, memberRateSaveFailureKeyOf } from '@/core/lib/utils/rate-apply';
 import {
 	changedEmployeeRatesOf,
 	changedPayRateOf,
@@ -167,7 +166,8 @@ export function MemberRateEditor({
 			}
 			onCancel();
 		} catch (saveError) {
-			const reasonKey = errorReasonKeyOf(saveError) as DottedLanguageObjectStringPaths;
+			const asksRepricing = changes.ratesApplyFrom !== undefined;
+			const reasonKey = memberRateSaveFailureKeyOf(saveError, asksRepricing) as DottedLanguageObjectStringPaths;
 			setError(t(reasonKey));
 		} finally {
 			setIsSaving(false);
