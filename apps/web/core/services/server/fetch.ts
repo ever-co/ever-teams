@@ -7,7 +7,7 @@ import { clientIpHeaders } from './client-ip';
  * apps on the same API. Only this server sends it: a browser call would need Gauzy to allow the header first (CORS),
  * and Gauzy records a browser's origin by itself.
  */
-export const CLIENT_APP_HEADER = 'X-Client-App';
+const CLIENT_APP_HEADER = 'X-Client-App';
 
 /**
  * The header naming `appName`, or none for a name a header cannot carry as is (fetch refuses characters beyond
