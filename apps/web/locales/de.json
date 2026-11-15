@@ -4085,6 +4085,7 @@
 			"INTRO": "Wähle, was in deinem Posteingang ankommt. Wenn du einen Typ ausschaltest, kommen keine neuen Benachrichtigungen dieses Typs mehr; vorhandene bleiben.",
 			"TEAM_DEFAULTS_TITLE": "Dein Team {team} legt Standard-Benachrichtigungen fest",
 			"TEAM_DEFAULTS_TEXT": "Was du hier nicht wählst, folgt ihnen. Deine eigenen Einstellungen haben immer Vorrang.",
+			"TASK_UPDATE_TEXT": "Eine Status-, Termin- oder Mitgliederänderung einer Aufgabe oder eines Projekts, dem du folgst. Aus erreicht sie trotzdem deinen Posteingang, ohne E-Mail oder Push.",
 			"LOAD_ERROR": "Deine Benachrichtigungseinstellungen konnten nicht geladen werden.",
 			"SAVE_FAILED": "Diese Einstellung wurde nicht gespeichert. Versuche es erneut.",
 			"ROWS": {

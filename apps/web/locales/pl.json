@@ -4085,6 +4085,7 @@
 			"INTRO": "Wybierz, co trafia do Twojej skrzynki. Wyłączenie typu zatrzymuje nowe powiadomienia tego typu; te, które już masz, zostają.",
 			"TEAM_DEFAULTS_TITLE": "Twój zespół {team} ustala domyślne powiadomienia",
 			"TEAM_DEFAULTS_TEXT": "To, czego tu nie wybierzesz, podąża za nimi. Twoje wybory zawsze mają pierwszeństwo.",
+			"TASK_UPDATE_TEXT": "Zmiana statusu, dat lub członków zadania albo projektu, które obserwujesz. Wyłączone nadal trafia do skrzynki, bez e-maila i powiadomienia.",
 			"LOAD_ERROR": "Nie udało się wczytać ustawień powiadomień.",
 			"SAVE_FAILED": "To ustawienie nie zostało zapisane. Spróbuj ponownie.",
 			"ROWS": {

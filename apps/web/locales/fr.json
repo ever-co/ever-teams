@@ -4085,6 +4085,7 @@
 			"INTRO": "Choisissez ce qui arrive dans votre boîte. Désactiver un type arrête les nouvelles notifications de ce type ; celles déjà reçues restent.",
 			"TEAM_DEFAULTS_TITLE": "Votre équipe {team} définit des notifications par défaut",
 			"TEAM_DEFAULTS_TEXT": "Ce que vous laissez sans choix ici les suit. Vos propres choix l'emportent toujours.",
+			"TASK_UPDATE_TEXT": "Un changement de statut, de date ou de membres d'une tâche ou d'un projet que vous suivez. Désactivé, il arrive quand même dans votre boîte de réception, sans e-mail ni notification.",
 			"LOAD_ERROR": "Vos réglages de notifications n'ont pas pu être chargés.",
 			"SAVE_FAILED": "Ce réglage n'a pas été enregistré. Réessayez.",
 			"ROWS": {

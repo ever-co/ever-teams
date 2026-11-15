@@ -217,6 +217,22 @@ export function NotificationsSettingsPage() {
 							onToggle={onToggle}
 							onEmailMode={onEmailMode}
 						/>
+						<SettingsSurface>
+							<SettingsRow
+								label={t('settings.teamGeneral.TASK_UPDATE_DEFAULT_LABEL')}
+								description={t('notifications.SETTINGS_PAGE.TASK_UPDATE_TEXT')}
+								leading={<NotificationTypeBadge type={EEmployeeNotificationType.TaskUpdate} size="md" />}
+								htmlFor="notification-task-update"
+							>
+								<SettingsSwitch
+									id="notification-task-update"
+									checked={applied.taskUpdate !== false}
+									pending={isSavingPreferences}
+									ariaLabel={t('settings.teamGeneral.TASK_UPDATE_DEFAULT_LABEL')}
+									onCheckedChange={(isOn) => onPreferences({ taskUpdate: isOn })}
+								/>
+							</SettingsRow>
+						</SettingsSurface>
 					</SettingsSection>
 					<SettingsSection title={t('settings.notifications.GROUP_PEOPLE')}>
 						<TypeRows

@@ -4085,6 +4085,7 @@
 			"INTRO": "Elige qué llega a tu bandeja. Al desactivar un tipo se detienen las notificaciones nuevas de ese tipo; las que ya tienes se quedan.",
 			"TEAM_DEFAULTS_TITLE": "Tu equipo {team} define notificaciones predeterminadas",
 			"TEAM_DEFAULTS_TEXT": "Lo que dejes sin elegir aquí las sigue. Tus propias elecciones siempre prevalecen.",
+			"TASK_UPDATE_TEXT": "Un cambio de estado, fecha o miembros de una tarea o proyecto que sigues. Desactivado, sigue llegando a tu bandeja, sin correo ni notificación.",
 			"LOAD_ERROR": "No se pudieron cargar tus ajustes de notificaciones.",
 			"SAVE_FAILED": "Ese ajuste no se guardó. Inténtalo de nuevo.",
 			"ROWS": {

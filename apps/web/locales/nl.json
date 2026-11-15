@@ -4085,6 +4085,7 @@
 			"INTRO": "Kies wat er in je inbox binnenkomt. Als je een type uitzet, komen er geen nieuwe meldingen van dat type meer; bestaande blijven staan.",
 			"TEAM_DEFAULTS_TITLE": "Je team {team} stelt standaardmeldingen in",
 			"TEAM_DEFAULTS_TEXT": "Wat je hier niet kiest, volgt die. Je eigen keuzes gaan altijd voor.",
+			"TASK_UPDATE_TEXT": "Een wijziging van status, datum of leden van een taak of project dat je volgt. Uit komt het nog steeds in je inbox, zonder e-mail of melding.",
 			"LOAD_ERROR": "Je meldingsinstellingen konden niet worden geladen.",
 			"SAVE_FAILED": "Die instelling is niet opgeslagen. Probeer het opnieuw.",
 			"ROWS": {

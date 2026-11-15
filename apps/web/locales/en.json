@@ -4085,6 +4085,7 @@
 			"INTRO": "Choose what reaches your inbox. Turning a type off stops new notifications of that type; the ones already there stay.",
 			"TEAM_DEFAULTS_TITLE": "Your team {team} sets notification defaults",
 			"TEAM_DEFAULTS_TEXT": "What you leave unset here follows them. Your own choices always win.",
+			"TASK_UPDATE_TEXT": "A status, date or member change of a task or project you follow. Off, it still reaches your inbox; it is not emailed or pushed.",
 			"LOAD_ERROR": "Your notification settings could not load.",
 			"SAVE_FAILED": "That setting was not saved. Try again.",
 			"ROWS": {
