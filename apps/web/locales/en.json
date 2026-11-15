@@ -3061,6 +3061,12 @@
 				"TRACKER_RUN": "This run is recorded by the desktop app or the agent, which keep its time themselves, so it cannot be discarded here.",
 				"GENERIC": "The run could not be discarded. Check your connection, then try again."
 			}
+		},
+		"unfollowed": {
+			"TITLE": "Your timer ran without the app",
+			"TEXT": "From {from} to {until}, the app was not following your timer. Keep this time, or stop the timer at {from}?",
+			"KEEP": "Keep this time",
+			"STOP": "Stop at {from}"
 		}
 	},
 	"task": {
@@ -4240,7 +4246,9 @@
 			"NOTES_NOT_SAVED": "The notes changed while the timer ran were not saved",
 			"NOTES_NOT_SAVED_HINT": "The entry kept the notes it started with. Edit the entry in Timesheets to change them.",
 			"ALREADY_RUNNING_ON_TASK": "The timer is already running on this task",
-			"SAVED_STOP_HINT": "This is the stop you asked for before your session ended."
+			"SAVED_STOP_HINT": "This is the stop you asked for before your session ended.",
+			"UNFOLLOWED_STOPPED_HINT": "The app could not follow it after that: the computer slept or the browser paused this tab. Add any later work as manual time.",
+			"UNFOLLOWED_STOP_CHOSEN_HINT": "You chose not to keep the time after that."
 		},
 		"plans": {
 			"CREATE_FAILED": "The plan was not created",

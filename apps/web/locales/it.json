@@ -3061,6 +3061,12 @@
 				"TRACKER_RUN": "Questa sessione è registrata dall'app desktop o dall'agente, che tengono da soli il suo tempo, quindi non può essere scartata qui.",
 				"GENERIC": "Non è stato possibile scartare la sessione. Controlla la connessione e riprova."
 			}
+		},
+		"unfollowed": {
+			"TITLE": "Il tuo timer è rimasto in esecuzione senza l'app",
+			"TEXT": "Dalle {from} alle {until} l'app non seguiva il tuo timer. Tenere questo tempo o fermare il timer alle {from}?",
+			"KEEP": "Tieni questo tempo",
+			"STOP": "Ferma alle {from}"
 		}
 	},
 	"task": {
@@ -4240,7 +4246,9 @@
 			"NOTES_NOT_SAVED": "Le note modificate mentre il timer era attivo non sono state salvate",
 			"NOTES_NOT_SAVED_HINT": "La voce ha mantenuto le note dell'avvio. Modifica la voce nei fogli presenze per cambiarle.",
 			"ALREADY_RUNNING_ON_TASK": "Il timer è già attivo su questa attività",
-			"SAVED_STOP_HINT": "È l'arresto che avevi richiesto prima della fine della sessione."
+			"SAVED_STOP_HINT": "È l'arresto che avevi richiesto prima della fine della sessione.",
+			"UNFOLLOWED_STOPPED_HINT": "Dopo, l'app non ha potuto seguirlo: il computer era in sospensione o il browser ha messo in pausa questa scheda. Aggiungi il lavoro successivo come tempo manuale.",
+			"UNFOLLOWED_STOP_CHOSEN_HINT": "Hai scelto di non tenere il tempo successivo."
 		},
 		"plans": {
 			"CREATE_FAILED": "Il piano non è stato creato",

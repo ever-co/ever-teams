@@ -3061,6 +3061,12 @@
 				"TRACKER_RUN": "此次计时由桌面应用或代理程序记录，它们会自行保存时间，因此无法在此放弃。",
 				"GENERIC": "无法放弃本次计时。请检查网络连接后重试。"
 			}
+		},
+		"unfollowed": {
+			"TITLE": "计时器在应用未跟进时仍在运行",
+			"TEXT": "从 {from} 到 {until}，应用没有跟进你的计时器。保留这段时间，还是在 {from} 停止计时器？",
+			"KEEP": "保留这段时间",
+			"STOP": "在 {from} 停止"
 		}
 	},
 	"task": {
@@ -4240,7 +4246,9 @@
 			"NOTES_NOT_SAVED": "计时器运行期间修改的备注未保存",
 			"NOTES_NOT_SAVED_HINT": "该记录保留了启动时的备注。请在工时表中编辑该记录以进行更改。",
 			"ALREADY_RUNNING_ON_TASK": "计时器已在此任务上运行",
-			"SAVED_STOP_HINT": "这是你在会话结束前要求的停止。"
+			"SAVED_STOP_HINT": "这是你在会话结束前要求的停止。",
+			"UNFOLLOWED_STOPPED_HINT": "之后应用无法跟进它：电脑进入了睡眠，或浏览器暂停了此标签页。之后的工作请作为手动时间添加。",
+			"UNFOLLOWED_STOP_CHOSEN_HINT": "你选择了不保留之后的时间。"
 		},
 		"plans": {
 			"CREATE_FAILED": "计划未创建",

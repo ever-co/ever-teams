@@ -3061,6 +3061,12 @@
 				"TRACKER_RUN": "Esta sesión la registra la aplicación de escritorio o el agente, que guardan su tiempo ellos mismos, así que no se puede descartar aquí.",
 				"GENERIC": "No se pudo descartar la sesión. Comprueba tu conexión y vuelve a intentarlo."
 			}
+		},
+		"unfollowed": {
+			"TITLE": "Tu temporizador siguió en marcha sin la aplicación",
+			"TEXT": "De {from} a {until}, la aplicación no seguía tu temporizador. ¿Conservar este tiempo o detener el temporizador a las {from}?",
+			"KEEP": "Conservar este tiempo",
+			"STOP": "Detener a las {from}"
 		}
 	},
 	"task": {
@@ -4240,7 +4246,9 @@
 			"NOTES_NOT_SAVED": "Las notas cambiadas mientras corría el temporizador no se guardaron",
 			"NOTES_NOT_SAVED_HINT": "La entrada conservó las notas del inicio. Edita la entrada en las hojas de tiempo para cambiarlas.",
 			"ALREADY_RUNNING_ON_TASK": "El temporizador ya está en marcha en esta tarea",
-			"SAVED_STOP_HINT": "Es la detención que pediste antes de que terminara tu sesión."
+			"SAVED_STOP_HINT": "Es la detención que pediste antes de que terminara tu sesión.",
+			"UNFOLLOWED_STOPPED_HINT": "La aplicación no pudo seguirlo después: el ordenador estaba en reposo o el navegador pausó esta pestaña. Añade el trabajo posterior como tiempo manual.",
+			"UNFOLLOWED_STOP_CHOSEN_HINT": "Elegiste no conservar el tiempo posterior."
 		},
 		"plans": {
 			"CREATE_FAILED": "El plan no se creó",
