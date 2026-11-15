@@ -5627,7 +5627,30 @@
 			"EXPORTING": "Eksportowanie…",
 			"EXPORT_DONE": "Dane obszaru roboczego wyeksportowane",
 			"EXPORT_FAILED": "Eksport nie został ukończony",
-			"EXPORT_FAILED_DESCRIPTION": "Nic nie zostało zapisane. Duży obszar roboczy wymaga czasu: spróbuj ponownie za chwilę."
+			"EXPORT_FAILED_DESCRIPTION": "Nic nie zostało zapisane. Duży obszar roboczy wymaga czasu: spróbuj ponownie za chwilę.",
+			"deletion": {
+				"DANGER_SECTION": "Strefa zagrożenia",
+				"DELETE_LABEL": "Usuń tę organizację",
+				"DELETE_CONSEQUENCE": "Jej zespoły, członkostwa i zaproszenia znikają dla wszystkich. Ostatnia organizacja obszaru roboczego zostaje.",
+				"DELETE_ACTION": "Usuń organizację",
+				"DELETE_TITLE": "Usunąć {organization}?",
+				"DELETE_DESCRIPTION": "Jej zespoły, członkowie i zaproszenia opuszczają Ever Teams razem z nią. Jej projekty, zarejestrowany czas i faktury zostają na serwerze, ale nie są już tutaj dostępne.",
+				"CONSEQUENCE_TEAMS": "{count, plural, one {# zespół zostaje usunięty} few {# zespoły zostają usunięte} many {# zespołów zostaje usuniętych} other {# zespołu zostaje usuniętych}}, razem z miejscem każdego w nich",
+				"CONSEQUENCE_MEMBERS": "{count, plural, one {# członek traci} few {# członków traci} many {# członków traci} other {# członka traci}} dostęp do tej organizacji",
+				"CONSEQUENCE_WORK": "Projekty ({projects, number}) i {hours, number} zarejestrowanych godzin nie są już dostępne",
+				"CONSEQUENCE_INVOICES": "Faktury ({count, number}) nie są już dostępne",
+				"CONSEQUENCE_LANDING": "Kontynuujesz w {organization}",
+				"CONSEQUENCE_PICKER": "Nie masz innej organizacji w tym obszarze roboczym: zalogujesz się ponownie, aby wybrać obszar roboczy",
+				"COUNTS_LOADING": "Liczenie zawartości tej organizacji…",
+				"COUNTS_FAILED": "Nie udało się policzyć zawartości tej organizacji",
+				"COUNTS_FAILED_DESCRIPTION": "Usuwanie pozostaje wyłączone, dopóki liczby się nie wczytają.",
+				"UNSUPPORTED": "Ten serwer nie może jeszcze usuwać organizacji",
+				"UNSUPPORTED_DESCRIPTION": "Bezpieczne usunięcie organizacji wymaga nowszego API Ever Gauzy. Poproś osobę zarządzającą serwerem o jego aktualizację.",
+				"LAST_ORGANIZATION": "To ostatnia organizacja obszaru roboczego",
+				"LAST_ORGANIZATION_DESCRIPTION": "Obszar roboczy zachowuje co najmniej jedną organizację. Aby usunąć cały obszar roboczy, usuń swoje konto.",
+				"LAST_ORGANIZATION_ACTION": "Przejdź do usuwania konta",
+				"LAST_ORGANIZATION_REFUSED": "To teraz ostatnia organizacja obszaru roboczego, więc zostaje. Aby usunąć obszar roboczy, usuń swoje konto."
+			}
 		},
 		"automations": {
 			"NEW_RULE": "Nowa reguła",
