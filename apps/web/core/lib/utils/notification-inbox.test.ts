@@ -67,6 +67,25 @@ describe('toNotificationEntry for a timer reminder', () => {
 	});
 });
 
+describe('toNotificationEntry for a project (#5022)', () => {
+	it('opens the project, and reads who changed it off the title', () => {
+		const entry = toNotificationEntry(
+			notification({
+				title: 'Ana Lima Updated the Project "Website"',
+				message: 'The project was archived.',
+				type: EEmployeeNotificationType.TaskUpdate,
+				entity: EBaseEntityEnum.OrganizationProject,
+				entityId: 'project-1'
+			})
+		);
+		expect(entry.type).toBe(EEmployeeNotificationType.TaskUpdate);
+		expect(entry.href).toBe('/projects/project-1');
+		expect(entry.taskId).toBeNull();
+		expect(entry.subject).toBe('Website');
+		expect(entry.senderName).toBe('Ana Lima');
+		expect(entry.message).toBe('The project was archived.');
+	});
+});
 
 describe('toNotificationEntry for a due date reminder (#5022)', () => {
 	it('opens the task of a due date reminder, which names no sender', () => {

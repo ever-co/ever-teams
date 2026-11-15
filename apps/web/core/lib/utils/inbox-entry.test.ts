@@ -441,6 +441,43 @@ describe('opening an entry on a phone and on a large screen', () => {
 	});
 });
 
+describe('a project its member hears of (#5022)', () => {
+	it('opens the project an assignment added the member to, in the work family', () => {
+		const entry = toInboxEntry(
+			item({
+				title: 'Ana Assigned you to the Project "Website"',
+				entity: 'OrganizationProject',
+				entityId: 'project-1',
+				taskId: null,
+				metadata: { notificationType: 'Assignment' }
+			})
+		);
+		expect(entry.type).toBe('Assignment');
+		expect(entry.href).toBe('/projects/project-1');
+		expect(entry.taskId).toBeNull();
+		expect(entry.subject).toBe('Website');
+		expect(entry.senderName).toBe('Ana');
+		expect(entry.sourceGroup).toBe('tasks');
+		expect(hasInboxTarget(entry)).toBe(true);
+	});
+
+	it('opens the project whose state or dates changed, with what changed as its text and the editor as sender', () => {
+		const entry = toInboxEntry(
+			item({
+				title: 'Ana Lima Updated the Project "Website"',
+				body: 'Status: in progress → completed.',
+				entity: 'OrganizationProject',
+				entityId: 'project-1',
+				taskId: null,
+				metadata: { notificationType: 'TaskUpdate' }
+			})
+		);
+		expect(entry.type).toBe('TaskUpdate');
+		expect(entry.href).toBe('/projects/project-1');
+		expect(entry.senderName).toBe('Ana Lima');
+		expect(entry.message).toBe('Status: in progress → completed.');
+	});
+});
 
 describe('a due date reminder (#5022)', () => {
 	it('opens its task', () => {

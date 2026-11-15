@@ -34,9 +34,15 @@ const RATE_CHANGE_REQUEST_HREF = '/settings/team/members';
 /** A timer reminder opens the page the timer is on. */
 export const TIMER_REMINDER_HREF = '/';
 
+/** A project's page, for a notification about one (its member was added to it, or its state or dates changed). */
+export function projectHrefOf(entity: string | null | undefined, entityId: string | null | undefined): string | null {
+	return entity === EBaseEntityEnum.OrganizationProject && entityId ? `/projects/${encodeURIComponent(entityId)}` : null;
+}
+
 /** The verbs of Gauzy's title templates (`employee-notification.helper.ts`), in the order they are tried. */
 const TITLE_ACTION_WORDS = [
 	' Assigned ',
+	' Updated ',
 	' Mentioned ',
 	' Commented ',
 	' Invited ',
@@ -115,6 +121,10 @@ function hrefOf(type: EEmployeeNotificationType | null, notification: IEmployeeN
 	}
 	if (type === EEmployeeNotificationType.TimerReminder) {
 		return TIMER_REMINDER_HREF;
+	}
+	const projectHref = projectHrefOf(notification.entity, notification.entityId);
+	if (projectHref) {
+		return projectHref;
 	}
 	// A page (shared, reviewed, commented while followed) opens in Docs where the deployment has it.
 	if (isDocsEnabled() && notification.entity === EBaseEntityEnum.Document) {
