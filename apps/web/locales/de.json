@@ -5995,6 +5995,12 @@
 			"REQUIRED_TITLE": "Deine Organisation bittet dich, sie einzuschalten",
 			"REQUIRED_DESCRIPTION": "Ihre Mitglieder melden sich zusätzlich mit einem Code aus einer Authenticator-App an.",
 			"QR_ALT": "QR-Code dieses Kontos für deine Authenticator-App"
+		},
+		"thisBrowser": {
+			"TITLE": "Dieser Browser",
+			"DESCRIPTION": "Wie lange du in diesem Browser angemeldet bleibst. Deine anderen Browser und Apps behalten ihre eigenen Sitzungen.",
+			"SIGN_OUT_ON_CLOSE": "Abmelden, wenn dieser Browser geschlossen wird",
+			"SIGN_OUT_ON_CLOSE_HINT": "Für einen gemeinsam genutzten Computer. Wenn es aus ist, bleibst du nach dem Schließen des Browsers angemeldet, bis deine Sitzung abläuft."
 		}
 	},
 	"taskDetail": {
@@ -7728,6 +7734,87 @@
 			"NOT_FOUND_MESSAGE": "Sie wurde vielleicht gelöscht, oder der Link stammt aus einem anderen Arbeitsbereich.",
 			"ALL_INVOICES": "Alle Rechnungen",
 			"ERROR_TITLE": "Die Rechnung konnte nicht geladen werden"
+		},
+		"schedule": {
+			"TITLE": "Geplante Abrechnung",
+			"NONE_HINT": "Die Rechnung dieses Kunden jede Woche, alle zwei Wochen oder jeden Monat von selbst erstellen, aus der noch nicht abgerechneten abrechenbaren Zeit.",
+			"SET_UP": "Abrechnung planen",
+			"EDIT": "Bearbeiten",
+			"PAUSE": "Pausieren",
+			"RESUME": "Fortsetzen",
+			"PAUSED": "Pausiert",
+			"ACTIVE": "Aktiv",
+			"SUMMARY": "{frequency} ab {day}",
+			"DELIVERY_DRAFT": "Bleibt ein Entwurf",
+			"DELIVERY_SEND": "Wird an {email} gesendet",
+			"DELIVERY_SEND_NO_EMAIL": "Wird an die E-Mail des Kunden gesendet",
+			"NEXT": "Nächste Rechnung am {day}, für {period}",
+			"NEXT_PAUSED": "Solange sie pausiert ist, wird keine Rechnung erstellt",
+			"RUNS": "Letzte Läufe",
+			"NO_RUNS": "Noch kein Lauf",
+			"RUNS_ERROR": "Die letzten Läufe konnten nicht geladen werden",
+			"ERROR": "Die geplante Abrechnung konnte nicht geladen werden",
+			"OPEN_INVOICE": "Rechnung öffnen",
+			"LEFT_OUT": "{hours} Std. des Zeitraums ausgelassen: ohne Satz oder in einer anderen Währung",
+			"LIST_TITLE": "Nach Plan abgerechnet",
+			"LIST_NEXT": "nächste am {day}",
+			"LIST_PAUSED": "pausiert",
+			"frequency": {
+				"WEEKLY": "Jede Woche",
+				"BIWEEKLY": "Alle zwei Wochen",
+				"MONTHLY": "Jeden Monat"
+			},
+			"grouping": {
+				"PROJECT": "Nach Projekt",
+				"MEMBER": "Nach Mitglied",
+				"TASK": "Nach Aufgabe"
+			},
+			"run": {
+				"CLAIMED": "Läuft",
+				"DRAFTED": "Entwurf erstellt",
+				"SENT": "Gesendet",
+				"NOT_SENT": "Erstellt, nicht gesendet",
+				"NO_TIME": "Nichts abzurechnen",
+				"FAILED": "Nicht erstellt"
+			},
+			"reason": {
+				"NO_BILLABLE_TIME": "Im Zeitraum war keine abrechenbare Zeit mehr abzurechnen.",
+				"NO_PRICED_TIME": "Für die Zeit des Zeitraums gibt es keinen Satz. Eine Woche lang wird es stündlich erneut versucht.",
+				"AUTHOR_CANNOT_INVOICE": "Die Person, die den Plan zuletzt gespeichert hat, kann keine Rechnungen mehr erstellen. Speichern Sie ihn, um ihn zu übernehmen; eine Woche lang wird es stündlich erneut versucht.",
+				"CLIENT_HAS_NO_EMAIL": "Der Kunde hat keine E-Mail-Adresse: Die Rechnung blieb ein Entwurf.",
+				"EMAIL_NOT_SENT": "Die E-Mail konnte nicht gesendet werden: Die Rechnung blieb ein Entwurf.",
+				"INVOICE_NOT_SAVED": "Die Rechnung konnte nicht gespeichert werden. Eine Woche lang wird es stündlich erneut versucht."
+			},
+			"form": {
+				"CREATE_TITLE": "Nach Plan abrechnen",
+				"EDIT_TITLE": "Geplante Abrechnung bearbeiten",
+				"FREQUENCY": "Wie oft",
+				"START_DAY": "Erster Tag des ersten Zeitraums",
+				"START_HINT": "Jede Rechnung wird am Tag nach dem Ende ihres Zeitraums erstellt, in der Zeitzone des Arbeitsbereichs. Kein Zeitraum, der vor heute endete, wird abgerechnet.",
+				"START_INVALID": "Wählen Sie einen Tag.",
+				"GROUPING": "Positionen",
+				"DELIVERY": "Nach dem Erstellen",
+				"DRAFT": "Als Entwurf behalten",
+				"SEND": "An den Kunden senden",
+				"DRAFT_HINT": "Jede Rechnung wartet als Entwurf, bis Sie sie prüfen und senden.",
+				"SEND_HINT": "Jede Rechnung geht mit ihrem PDF an {email} und wird als Gesendet markiert.",
+				"SEND_NO_EMAIL": "Dieser Kunde hat keine E-Mail-Adresse: Seine Rechnungen bleiben Entwürfe, bis er eine hat.",
+				"SAVE": "Speichern",
+				"SAVE_FAILED": "Der Plan konnte nicht gespeichert werden. Versuchen Sie es erneut.",
+				"EXISTS": "Dieser Kunde hat bereits einen Plan. Schließen und öffnen Sie ihn erneut, um ihn zu ändern.",
+				"START_AFTER_BILLED": "Dieser Plan hat bereits Zeiträume abgerechnet: Der neue Plan muss nach dem zuletzt abgerechneten Zeitraum beginnen, {day}."
+			},
+			"delete": {
+				"TITLE": "Diese geplante Abrechnung löschen?",
+				"BODY": "Für {name} wird keine Rechnung mehr von selbst erstellt. Die erstellten Rechnungen bleiben."
+			},
+			"toasts": {
+				"SAVED": "Die geplante Abrechnung von {name} ist gespeichert",
+				"PAUSED": "Die geplante Abrechnung von {name} ist pausiert",
+				"RESUMED": "Die geplante Abrechnung von {name} läuft wieder: nächste Rechnung am {day}",
+				"DELETED": "Die geplante Abrechnung von {name} ist gelöscht",
+				"FAILED": "Die Änderung konnte nicht gespeichert werden. Versuchen Sie es erneut."
+			}
 		}
 	},
 	"timeReports": {

@@ -66,7 +66,9 @@ export function useInboxSentence(entry: InboxEntry, person: Person | null): Reac
 export function useInboxMessage(entry: InboxEntry): string | null {
 	const t = useTranslations();
 	const locale = useLocale();
-	return entry.timerReminder ? timerReminderDescriptionOf(t, entry.timerReminder) : notificationMessageOf(t, locale, entry);
+	return entry.timerReminder
+		? timerReminderDescriptionOf(t, entry.timerReminder)
+		: notificationMessageOf(t, locale, entry);
 }
 
 /** Who an entry is from: the team member, or just the name the platform gave (drawn as initials). */

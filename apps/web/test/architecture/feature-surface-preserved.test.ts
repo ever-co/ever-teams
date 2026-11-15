@@ -2069,12 +2069,20 @@ describe('Ever Teams feature surface preservation', () => {
 		// DELETE; #5220, ever-gauzy #11943).
 		// 388 files and 488 verbs with the deletion of an organization (/api/organization/[id]/counts GET,
 		// [id]/soft DELETE; #5207, ever-gauzy #11970).
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(388);
+		// 391 files and 493 verbs with the clients' billing schedules (/api/invoice-schedules GET and POST, [id] PUT
+		// and DELETE, [id]/runs GET; #5323, ever-gauzy #11855).
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(391);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(488);
+		).toHaveLength(493);
 		expect(routes).toEqual(
 			expect.arrayContaining([
+				// Proxy mode twins of Gauzy's billing schedules of clients (#5323, ever-gauzy #11855)
+				'apps/web/app/api/invoice-schedules/route.ts::GET',
+				'apps/web/app/api/invoice-schedules/route.ts::POST',
+				'apps/web/app/api/invoice-schedules/[id]/route.ts::PUT',
+				'apps/web/app/api/invoice-schedules/[id]/route.ts::DELETE',
+				'apps/web/app/api/invoice-schedules/[id]/runs/route.ts::GET',
 				// Proxy mode twins of Gauzy's routes of an organization's deletion (#5207, ever-gauzy #11970)
 				'apps/web/app/api/organization/[id]/counts/route.ts::GET',
 				'apps/web/app/api/organization/[id]/soft/route.ts::DELETE',

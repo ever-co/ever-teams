@@ -5995,6 +5995,12 @@
 			"REQUIRED_TITLE": "Twoja organizacja prosi o włączenie",
 			"REQUIRED_DESCRIPTION": "Jej członkowie logują się też kodem z aplikacji uwierzytelniającej.",
 			"QR_ALT": "Kod QR tego konta dla aplikacji uwierzytelniającej"
+		},
+		"thisBrowser": {
+			"TITLE": "Ta przeglądarka",
+			"DESCRIPTION": "Jak długo pozostajesz zalogowany w tej przeglądarce. Twoje inne przeglądarki i aplikacje mają własne sesje.",
+			"SIGN_OUT_ON_CLOSE": "Wyloguj po zamknięciu tej przeglądarki",
+			"SIGN_OUT_ON_CLOSE_HINT": "Na współdzielony komputer. Gdy jest wyłączone, pozostajesz zalogowany po zamknięciu przeglądarki, aż sesja wygaśnie."
 		}
 	},
 	"taskDetail": {
@@ -7728,6 +7734,87 @@
 			"NOT_FOUND_MESSAGE": "Mogła zostać usunięta albo link pochodzi z innej przestrzeni roboczej.",
 			"ALL_INVOICES": "Wszystkie faktury",
 			"ERROR_TITLE": "Nie udało się wczytać faktury"
+		},
+		"schedule": {
+			"TITLE": "Fakturowanie według harmonogramu",
+			"NONE_HINT": "Wystawiaj fakturę tego klienta samoczynnie co tydzień, co dwa tygodnie lub co miesiąc, z czasu rozliczalnego jeszcze niezafakturowanego.",
+			"SET_UP": "Ustaw harmonogram",
+			"EDIT": "Edytuj",
+			"PAUSE": "Wstrzymaj",
+			"RESUME": "Wznów",
+			"PAUSED": "Wstrzymany",
+			"ACTIVE": "Aktywny",
+			"SUMMARY": "{frequency} od {day}",
+			"DELIVERY_DRAFT": "Zostaje szkicem",
+			"DELIVERY_SEND": "Wysyłana na {email}",
+			"DELIVERY_SEND_NO_EMAIL": "Wysyłana na adres e-mail klienta",
+			"NEXT": "Następna faktura {day}, za {period}",
+			"NEXT_PAUSED": "Podczas wstrzymania nie powstaje żadna faktura",
+			"RUNS": "Ostatnie uruchomienia",
+			"NO_RUNS": "Jeszcze żadnego uruchomienia",
+			"RUNS_ERROR": "Nie udało się wczytać ostatnich uruchomień",
+			"ERROR": "Nie udało się wczytać harmonogramu fakturowania",
+			"OPEN_INVOICE": "Otwórz fakturę",
+			"LEFT_OUT": "Pominięto {hours} h okresu: bez stawki lub w innej walucie",
+			"LIST_TITLE": "Fakturowani według harmonogramu",
+			"LIST_NEXT": "następna {day}",
+			"LIST_PAUSED": "wstrzymany",
+			"frequency": {
+				"WEEKLY": "Co tydzień",
+				"BIWEEKLY": "Co dwa tygodnie",
+				"MONTHLY": "Co miesiąc"
+			},
+			"grouping": {
+				"PROJECT": "Według projektu",
+				"MEMBER": "Według członka",
+				"TASK": "Według zadania"
+			},
+			"run": {
+				"CLAIMED": "W toku",
+				"DRAFTED": "Utworzono szkic",
+				"SENT": "Wysłana",
+				"NOT_SENT": "Utworzona, niewysłana",
+				"NO_TIME": "Nic do zafakturowania",
+				"FAILED": "Nie utworzono"
+			},
+			"reason": {
+				"NO_BILLABLE_TIME": "W okresie nie pozostał czas rozliczalny do zafakturowania.",
+				"NO_PRICED_TIME": "Czas okresu nie ma stawki, według której można go zafakturować. Ponowna próba co godzinę przez tydzień.",
+				"AUTHOR_CANNOT_INVOICE": "Osoba, która ostatnio zapisała harmonogram, nie może już wystawiać faktur. Zapisz go, aby go przejąć; ponowna próba co godzinę przez tydzień.",
+				"CLIENT_HAS_NO_EMAIL": "Klient nie ma adresu e-mail: faktura pozostała szkicem.",
+				"EMAIL_NOT_SENT": "Nie udało się wysłać wiadomości: faktura pozostała szkicem.",
+				"INVOICE_NOT_SAVED": "Nie udało się zapisać faktury. Ponowna próba co godzinę przez tydzień."
+			},
+			"form": {
+				"CREATE_TITLE": "Fakturuj według harmonogramu",
+				"EDIT_TITLE": "Edytuj harmonogram fakturowania",
+				"FREQUENCY": "Jak często",
+				"START_DAY": "Pierwszy dzień pierwszego okresu",
+				"START_HINT": "Każda faktura powstaje dzień po zakończeniu swojego okresu, w strefie czasowej obszaru roboczego. Żaden okres zakończony przed dzisiaj nie jest fakturowany.",
+				"START_INVALID": "Wybierz dzień.",
+				"GROUPING": "Pozycje",
+				"DELIVERY": "Po utworzeniu",
+				"DRAFT": "Zachowaj jako szkic",
+				"SEND": "Wyślij do klienta",
+				"DRAFT_HINT": "Każda faktura czeka jako szkic, aż ją sprawdzisz i wyślesz.",
+				"SEND_HINT": "Każda faktura trafia na {email} z plikiem PDF i jest oznaczana jako Wysłana.",
+				"SEND_NO_EMAIL": "Ten klient nie ma adresu e-mail: jego faktury pozostaną szkicami, dopóki go nie poda.",
+				"SAVE": "Zapisz",
+				"SAVE_FAILED": "Nie udało się zapisać harmonogramu. Spróbuj ponownie.",
+				"EXISTS": "Ten klient ma już harmonogram. Zamknij i otwórz go ponownie, aby go zmienić.",
+				"START_AFTER_BILLED": "Ten harmonogram zafakturował już okresy: nowy harmonogram musi zacząć się po ostatnim zafakturowanym okresie, {day}."
+			},
+			"delete": {
+				"TITLE": "Usunąć ten harmonogram fakturowania?",
+				"BODY": "Dla {name} nie powstanie już żadna faktura samoczynnie. Wystawione faktury zostają."
+			},
+			"toasts": {
+				"SAVED": "Zapisano harmonogram fakturowania: {name}",
+				"PAUSED": "Wstrzymano harmonogram fakturowania: {name}",
+				"RESUMED": "Wznowiono harmonogram fakturowania: {name}, następna faktura {day}",
+				"DELETED": "Usunięto harmonogram fakturowania: {name}",
+				"FAILED": "Nie udało się zapisać zmiany. Spróbuj ponownie."
+			}
 		}
 	},
 	"timeReports": {
