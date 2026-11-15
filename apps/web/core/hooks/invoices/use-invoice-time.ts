@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useMemo } from 'react';
-import { useQueries, useQuery, useQueryClient, type UseQueryResult } from '@tanstack/react-query';
+import { useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAtomValue } from 'jotai';
 import { addDays, endOfDay, startOfDay, subDays } from 'date-fns';
 import { queryKeys } from '@/core/query/keys';
@@ -11,6 +11,11 @@ import {
 	type TimeLogReportRange
 } from '@/core/services/client/api/timesheets/time-log-report.service';
 import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
+import {
+	projectRatesStatesOf,
+	retriesRatesRead,
+	type ProjectRatesState
+} from '@/core/hooks/organizations/rates/use-project-client-rates';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { getDefaultTimezone } from '@/core/lib/helpers/date-and-time';
 import type { Period } from '@/core/lib/utils/dashboard-period';
@@ -35,7 +40,7 @@ import {
 	type UnpricedTime
 } from '@/core/lib/utils/invoices';
 import { clientIdOf } from '@/core/lib/utils/project-list';
-import { isRatesReadUnavailable } from '@/core/lib/utils/rates';
+import { defaultBillRateOf } from '@/core/lib/utils/rates';
 import { currentOrganizationState } from '@/core/stores/user/user-organizations';
 import type { TOrganizationProject } from '@/core/types/schemas';
 import type { TBillableTimeLog } from '@/core/types/schemas/organization/invoice.schema';
@@ -65,36 +70,6 @@ export interface NamedUnpricedTime extends UnpricedTime {
 
 interface EmployeeOfReport extends EmployeeBillingRate {
 	name: string;
-}
-
-interface ProjectRatesState {
-	rates: TProjectRates | null;
-	isLoading: boolean;
-	isRefreshing: boolean;
-	hasFailed: boolean;
-}
-
-function retriesRatesRead(failureCount: number, error: unknown) {
-	if (isRatesReadUnavailable(error)) {
-		return false;
-	}
-	return failureCount < 2;
-}
-
-/**
- * A project whose client rates the API does not serve (404, an API without those routes) or refuses (403) has none
- * here: its time is priced at each member's own rate, as everywhere else in the app. Any other failure is an error.
- */
-function projectRatesStatesOf(results: ReadonlyArray<UseQueryResult<TProjectRates>>): ProjectRatesState[] {
-	return results.map((result) => {
-		const isUnavailable = isRatesReadUnavailable(result.error);
-		return {
-			rates: result.data ?? null,
-			isLoading: result.isLoading,
-			isRefreshing: result.isFetching && !result.isLoading,
-			hasFailed: result.isError && !isUnavailable
-		};
-	});
 }
 
 function nameOfEmployee(employee: TOwedReportEmployee) {
@@ -298,6 +273,8 @@ export function useInvoiceTime({
 	const queryClient = useQueryClient();
 	const organization = useAtomValue(currentOrganizationState);
 	const organizationCurrency = organization?.currency ?? null;
+	// Time no other rate prices is billed at the workspace's default, as the API's reports price it
+	const defaultRate = useMemo(() => defaultBillRateOf(organization), [organization]);
 	const roundingRule = useMemo(() => durationRoundingRuleOf(organization), [organization]);
 	const timeZone = useMemo(() => getDefaultTimezone(), []);
 	const projectsQuery = useOrganizationProjectsQuery();
@@ -470,9 +447,10 @@ export function useInvoiceTime({
 				projectRates: ratesByProject.get(projectId),
 				projectCurrency: offeredProjectsById.get(projectId)?.currency,
 				employeeRate: employees.get(employeeId),
-				organizationCurrency
+				organizationCurrency,
+				defaultRate
 			}),
-		[employees, offeredProjectsById, organizationCurrency, ratesByProject]
+		[defaultRate, employees, offeredProjectsById, organizationCurrency, ratesByProject]
 	);
 
 	const names = useMemo<InvoiceLineNames>(

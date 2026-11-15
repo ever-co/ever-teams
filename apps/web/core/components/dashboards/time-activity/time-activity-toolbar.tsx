@@ -100,6 +100,7 @@ export function TimeActivityToolbar({ report }: Readonly<{ report: TimeActivityR
 							<TimeActivityViewMenu
 								grouping={settings.grouping}
 								isManager={report.isManager}
+								readsBillable={report.billable.isOffered}
 								hiddenColumns={settings.hiddenColumns}
 								onToggleColumn={settings.toggleColumn}
 							/>

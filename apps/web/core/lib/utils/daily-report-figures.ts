@@ -26,6 +26,8 @@ export interface DailyReportRow {
 	tasks: DailyReportTask[];
 	/** Time a team member logged without a team, which a team report gathers in its own "No team" group. */
 	isWithoutTeam?: boolean;
+	/** Only on time without a team: the project it was logged on, which its client rates price it by. */
+	loggedProjectId?: string | null;
 	/** On the rows of a member's project day split by rate (#5212): the key they share, as one row had before. */
 	keyAcrossRates?: string;
 }
@@ -229,7 +231,13 @@ interface RowContext {
 /** Time without a team is listed apart from the projects, under its own name: its project is not this team's. */
 function projectFieldsOf(context: RowContext, part: EmployeeLogPart) {
 	if (part.isWithoutTeam) {
-		return { projectId: null, projectName: context.withoutTeamLabel, projectImageUrl: null, projectColor: null };
+		return {
+			projectId: null,
+			projectName: context.withoutTeamLabel,
+			projectImageUrl: null,
+			projectColor: null,
+			loggedProjectId: context.project?.id ?? null
+		};
 	}
 	const project = context.project;
 	return {
