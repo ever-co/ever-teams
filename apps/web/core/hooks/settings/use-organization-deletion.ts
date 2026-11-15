@@ -7,21 +7,20 @@ import { useTeamMenuOrganizations } from '@/core/hooks/organizations/teams/use-t
 import { useMyRolePermissionsQuery } from '@/core/hooks/roles/use-my-role-permissions-query';
 import {
 	canDeleteOrganization,
-	countsFailureOf,
 	deleteOrganizationAndLand,
 	organizationDeletionBlock,
+	organizationDeletionStatusOf,
 	organizationToLandInAfterDeletion,
 	type DeletableOrganization,
-	type OrganizationCountsFailure,
-	type OrganizationDeletionBlock
+	type OrganizationDeletionBlock,
+	type OrganizationDeletionStatus
 } from '@/core/lib/utils/organization-deletion';
 import { queryKeys } from '@/core/query/keys';
 import { authService } from '@/core/services/client/api/auth/auth.service';
 import { organizationService } from '@/core/services/client/api/organizations';
 import type { TOrganizationCounts } from '@/core/types/schemas/organization/organization-counts.schema';
 
-/** What the confirmation can show: the counts are loading, failed, missing from an older API, or ready. */
-export type OrganizationDeletionStatus = 'loading' | OrganizationCountsFailure | 'ready';
+export type { OrganizationDeletionStatus };
 
 export interface OrganizationDeletion {
 	canDelete: boolean;
@@ -76,14 +75,14 @@ export function useOrganizationDeletion(
 	const landing = organizationId ? organizationToLandInAfterDeletion(memberships, organizationId) : null;
 	const block = facts.data ? organizationDeletionBlock(facts.data.workspaceOrganizationCount) : null;
 
-	let status: OrganizationDeletionStatus = 'loading';
-	if (facts.isError) {
-		status = countsFailureOf(facts.error);
-	} else if (menuOrganizations.isError) {
-		status = 'failed';
-	} else if (facts.isSuccess && menuOrganizations.isSuccess) {
-		status = 'ready';
-	}
+	const status = organizationDeletionStatusOf({
+		isFetching: facts.isFetching,
+		isError: facts.isError,
+		error: facts.error,
+		isSuccess: facts.isSuccess,
+		isMenuError: menuOrganizations.isError,
+		isMenuSuccess: menuOrganizations.isSuccess
+	});
 
 	const retry = () => {
 		void facts.refetch();

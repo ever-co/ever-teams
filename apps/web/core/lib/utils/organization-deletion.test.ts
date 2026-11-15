@@ -4,6 +4,7 @@ import {
 	deleteOrganizationAndLand,
 	deletionErrorKeyOf,
 	organizationDeletionBlock,
+	organizationDeletionStatusOf,
 	organizationToLandInAfterDeletion,
 	trackedHoursOf
 } from '@/core/lib/utils/organization-deletion';
@@ -136,5 +137,40 @@ describe('deleteOrganizationAndLand', () => {
 		await deleteOrganizationAndLand(labs, steps);
 
 		expect(calls).toEqual(['delete', 'restart']);
+	});
+});
+
+describe('organizationDeletionStatusOf', () => {
+	const settled = {
+		isFetching: false,
+		isError: false,
+		error: null,
+		isSuccess: true,
+		isMenuError: false,
+		isMenuSuccess: true
+	};
+
+	it('is ready once the counts and the person’s organizations are read', () => {
+		expect(organizationDeletionStatusOf(settled)).toBe('ready');
+	});
+
+	it('is loading while the counts are read again, so counts from an earlier opening never let the delete run', () => {
+		expect(organizationDeletionStatusOf({ ...settled, isFetching: true })).toBe('loading');
+	});
+
+	it('is loading until both reads answered', () => {
+		expect(organizationDeletionStatusOf({ ...settled, isSuccess: false })).toBe('loading');
+		expect(organizationDeletionStatusOf({ ...settled, isMenuSuccess: false })).toBe('loading');
+	});
+
+	it('tells an API without the counts from a failure a new try may fix', () => {
+		const missingRoute = { response: { status: 404, data: { message: 'Cannot GET /api/organization/x/counts' } } };
+		expect(organizationDeletionStatusOf({ ...settled, isSuccess: false, isError: true, error: missingRoute })).toBe(
+			'unsupported'
+		);
+		expect(
+			organizationDeletionStatusOf({ ...settled, isSuccess: false, isError: true, error: new Error('offline') })
+		).toBe('failed');
+		expect(organizationDeletionStatusOf({ ...settled, isMenuError: true, isMenuSuccess: false })).toBe('failed');
 	});
 });

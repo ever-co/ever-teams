@@ -71,6 +71,40 @@ export function countsFailureOf(error: unknown): OrganizationCountsFailure {
 	return 'failed';
 }
 
+/** What the confirmation can show: the counts are loading, failed, missing from an older API, or ready. */
+export type OrganizationDeletionStatus = 'loading' | OrganizationCountsFailure | 'ready';
+
+export interface OrganizationDeletionReads {
+	/** The counts and the workspace's organizations, read each time the confirmation opens. */
+	isFetching: boolean;
+	isError: boolean;
+	error: unknown;
+	isSuccess: boolean;
+	/** The person's organizations, which decide where they land. */
+	isMenuError: boolean;
+	isMenuSuccess: boolean;
+}
+
+/**
+ * Loading while the counts are read, even again: the counts of an earlier opening may be out of date, and the delete
+ * stays off until the fresh ones are in.
+ */
+export function organizationDeletionStatusOf(reads: OrganizationDeletionReads): OrganizationDeletionStatus {
+	if (reads.isFetching) {
+		return 'loading';
+	}
+	if (reads.isError) {
+		return countsFailureOf(reads.error);
+	}
+	if (reads.isMenuError) {
+		return 'failed';
+	}
+	if (reads.isSuccess && reads.isMenuSuccess) {
+		return 'ready';
+	}
+	return 'loading';
+}
+
 /** What a failed delete says: the refusal of the workspace's last organization has its own reason. */
 export function deletionErrorKeyOf(error: unknown): string {
 	if (gauzyErrorCodeOf(error) === LAST_OF_WORKSPACE_CODE) {
