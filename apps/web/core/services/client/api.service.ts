@@ -326,7 +326,7 @@ export class APIService {
 	 * Log request details for debugging
 	 */
 	private logRequest(config: AxiosRequestConfig) {
-		if (this.config.enableLogging && !this.isUnlogged(config.url)) {
+		if (this.config.enableLogging && !this.isUnlogged(config)) {
 			this.logger.debug(`🚀 Request: ${config.method?.toUpperCase()} ${config.url}`, {
 				headers: config.headers,
 				params: config.params,
@@ -339,7 +339,7 @@ export class APIService {
 	 * Log response details for debugging
 	 */
 	private logResponse(response: AxiosResponse) {
-		if (this.config.enableLogging && !this.isUnlogged(response.config.url)) {
+		if (this.config.enableLogging && !this.isUnlogged(response.config)) {
 			// A request that asked for it keeps its answer out of the log: the answer holds a secret shown once.
 			const hidesBody = (response.config as APIConfig).secretResponse === true;
 			this.logger.debug(
@@ -353,15 +353,11 @@ export class APIService {
 	}
 
 	/**
-	 * Whether a request's address is one the service's `loggerConfig.excludeUrls` keeps out of every log: its request,
-	 * its answer and its error (an address that holds a secret, such as the token of a shared link).
+	 * Whether a request asked to stay out of every log (`APIConfig.secretAddress`: its address holds a secret, such as
+	 * the token of a shared link). The flag travels with the request, so the proxy mode client honours it too.
 	 */
-	private isUnlogged(url: string | undefined): boolean {
-		const patterns: RegExp[] = this.config.loggerConfig?.excludeUrls ?? [];
-		if (!url) {
-			return false;
-		}
-		return patterns.some((pattern) => pattern.test(url));
+	private isUnlogged(config: AxiosRequestConfig | undefined): boolean {
+		return (config as APIConfig | undefined)?.secretAddress === true;
 	}
 
 	/**
@@ -387,7 +383,7 @@ export class APIService {
 			return;
 		}
 
-		if (this.isUnlogged(error?.config?.url)) {
+		if (this.isUnlogged(error?.config)) {
 			return;
 		}
 

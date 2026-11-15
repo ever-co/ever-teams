@@ -75,16 +75,16 @@ class SavedReportService extends APIService {
 		await this.delete(`${reportPathOf(id)}/share`);
 	};
 
-	/** A shared report, read through its link without a session. Every link that does not open one answers 404. */
+	/**
+	 * A shared report, read through its link without a session. Every link that does not open one answers 404. The
+	 * address holds the token that opens the report, so no log writes it (`secretAddress`).
+	 */
 	readShared = async (token: string): Promise<IPublicSavedReport> => {
-		const { data } = await this.get<IPublicSavedReport>(`/public/saved-reports/${encodeURIComponent(token)}`);
+		const { data } = await this.get<IPublicSavedReport>(`/public/saved-reports/${encodeURIComponent(token)}`, {
+			secretAddress: true
+		});
 		return data;
 	};
 }
 
-/** The address of a shared report holds the token that opens it: none of this service's logs writes it. */
-const SHARED_REPORT_ADDRESS = /\/public\/saved-reports\//;
-
-export const savedReportService = new SavedReportService(GAUZY_API_BASE_SERVER_URL.value, {
-	loggerConfig: { excludeUrls: [SHARED_REPORT_ADDRESS] }
-});
+export const savedReportService = new SavedReportService(GAUZY_API_BASE_SERVER_URL.value);
