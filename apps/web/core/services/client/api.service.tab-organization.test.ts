@@ -118,6 +118,30 @@ describe('a tab whose shared cookies another tab moved to another organization',
 		expect(getActiveProjectIdCookie()).toBe('project-a');
 	});
 
+	it('remembers the project it picked before another tab switched, not its team default', () => {
+		setAuthCookies({
+			access_token: TOKEN_A,
+			refresh_token: { token: 'refresh-a' },
+			tenantId: 'tenant-1',
+			teamId: 'team-a',
+			organizationId: 'org-a',
+			languageId: 'en',
+			noTeamPopup: true,
+			userId: 'user-1'
+		} as never);
+		rememberTabTeam({ id: 'team-a', organizationId: 'org-a', defaultProjectId: 'project-a' });
+		// The person picks another project of the team while the cookies are still this tab's
+		setActiveProjectIdCookie('project-a2');
+		expect(document.cookie).toContain(`${ACTIVE_PROJECT_COOKIE_NAME}=project-a2`);
+
+		// Then another tab switches to organization B
+		document.cookie = `${ACTIVE_PROJECT_COOKIE_NAME}=project-b; path=/`;
+		setOrganizationIdCookie('org-b');
+		setAccessTokenCookie(TOKEN_B);
+
+		expect(getActiveProjectIdCookie()).toBe('project-a2');
+	});
+
 	it("keeps the project it chooses to itself, and leaves the other tab's project cookie as it is", () => {
 		twoTabsInTwoOrganizations();
 

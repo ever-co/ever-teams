@@ -291,7 +291,7 @@ registerTabWorkScope?.(
 		announceIfChanged(SHARED);
 	},
 	(projectId) => {
-		// The project this tab chose while it works in its own organization (its team's default moved, say)
+		// The project this tab picks, before or while it works in its own organization
 		if (tabTeam) tabTeam = { ...tabTeam, projectId };
 	}
 );

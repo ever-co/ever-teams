@@ -349,11 +349,10 @@ export function getActiveProjectIdCookie(ctx?: NextCtx) {
 }
 
 export function setActiveProjectIdCookie(teamIds: string, ctx?: NextCtx) {
+	// The tab remembers the project it picks, for when another tab moves the cookies to another organization
+	if (!ctx && typeof window !== 'undefined') onTabProjectChosen?.(teamIds || null);
 	// A tab working in its own organization keeps its project to itself: the cookie is the other tab's
-	if (tabWorkScope(ctx)) {
-		onTabProjectChosen?.(teamIds || null);
-		return;
-	}
+	if (tabWorkScope(ctx)) return;
 	return setCookie(ACTIVE_PROJECT_COOKIE_NAME, teamIds, ctx);
 }
 
