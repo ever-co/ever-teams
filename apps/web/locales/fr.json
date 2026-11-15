@@ -6016,6 +6016,12 @@
 			"REQUIRED_TITLE": "Votre organisation vous demande de l’activer",
 			"REQUIRED_DESCRIPTION": "Ses membres se connectent aussi avec un code d’une application d’authentification.",
 			"QR_ALT": "QR code de ce compte pour votre application d’authentification"
+		},
+		"thisBrowser": {
+			"TITLE": "Ce navigateur",
+			"DESCRIPTION": "Combien de temps vous restez connecté sur ce navigateur. Vos autres navigateurs et applications gardent leurs propres sessions.",
+			"SIGN_OUT_ON_CLOSE": "Me déconnecter à la fermeture de ce navigateur",
+			"SIGN_OUT_ON_CLOSE_HINT": "Pour un ordinateur partagé. Désactivé, vous restez connecté après la fermeture du navigateur, jusqu'à l'expiration de votre session."
 		}
 	},
 	"taskDetail": {
