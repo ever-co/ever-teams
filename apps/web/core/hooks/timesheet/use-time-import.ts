@@ -532,7 +532,7 @@ export function useTimeImport({ contextAt, saveScope, extraProjectsOf }: TimeImp
 		} catch (error) {
 			logErrorInDev('Time import check before saving failed', error);
 			if (runRef.current === run) {
-				setState((current) => ({ ...current, stage: 'preview', hasCheckFailed: true }));
+				setState((current) => ({ ...current, stage: 'preview', hasCheckFailed: true, previewRun: run }));
 			}
 			return;
 		}
@@ -541,7 +541,7 @@ export function useTimeImport({ contextAt, saveScope, extraProjectsOf }: TimeImp
 		}
 		const isPreviewStillTrue = haveSameReadyRows(previewRows, rows);
 		if (!isPreviewStillTrue) {
-			setState((current) => ({ ...current, stage: 'preview', rows, hasPreviewChanged: true }));
+			setState((current) => ({ ...current, stage: 'preview', rows, hasPreviewChanged: true, previewRun: run }));
 			return;
 		}
 		setState((current) => ({ ...current, stage: 'importing', rows, outcomes: NO_OUTCOMES }));
