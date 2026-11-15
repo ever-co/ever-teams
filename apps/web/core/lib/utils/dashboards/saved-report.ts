@@ -1,6 +1,6 @@
 import { endOfDay } from 'date-fns';
 import { localDayKeyOf } from '@/core/lib/utils/dashboard-export';
-import { SHARED_REPORT_PATH } from '@/core/lib/utils/shared-report-path';
+import { SHARED_REPORT_PATH, sharedReportFragmentOf } from '@/core/lib/utils/shared-report-path';
 import { DEFAULT_PERIOD_PRESETS, type Period, type WeekStart, presetOfPeriod } from '@/core/lib/utils/dashboard-period';
 import { BILLABLE_ONLY_VALUE, isBillableOnly, writeReportUrlFilter } from '@/core/lib/utils/dashboards/report-filters';
 import {
@@ -160,12 +160,15 @@ export function showsSavedView(report: ISavedReport, view: TimeActivityView, wee
 	return samePeriod && sameGrouping && sameFilters(report.filters ?? {}, shown.filters ?? {});
 }
 
-/** The address of a shared report, with the locale prefix when the author does not use the default one. */
+/**
+ * The address of a shared report, with the locale prefix when the author does not use the default one. The token is
+ * its fragment (`#token=<token>`), so no server, proxy or error report in between ever records it with the address.
+ */
 export function sharedReportUrlOf(origin: string, token: string, locale?: string | null, defaultLocale = 'en'): string {
 	let base = origin;
 	while (base.endsWith('/')) base = base.slice(0, -1);
 	const prefix = locale && locale !== defaultLocale ? `/${locale}` : '';
-	return `${base}${prefix}${SHARED_REPORT_PATH}/${encodeURIComponent(token)}`;
+	return `${base}${prefix}${SHARED_REPORT_PATH}${sharedReportFragmentOf(token)}`;
 }
 
 /** A link that ends on a day stops working at the end of that day, in the author's time zone. */

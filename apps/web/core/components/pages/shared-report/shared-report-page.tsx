@@ -63,10 +63,10 @@ function shouldRetryRead(failureCount: number, error: unknown) {
 	return failureCount < 2;
 }
 
-function useSharedReport(token: string) {
+function useSharedReport(token: string | null) {
 	return useQuery({
 		queryKey: queryKeys.savedReports.shared(token),
-		queryFn: () => savedReportService.readShared(token),
+		queryFn: () => savedReportService.readShared(token ?? ''),
 		enabled: Boolean(token),
 		staleTime: 60_000,
 		retry: shouldRetryRead
@@ -296,17 +296,20 @@ function SharedReport({ report }: Readonly<{ report: IPublicSavedReport }>) {
 
 /**
  * A saved report read through its link, without an account: its name, period, figures, chart and table, read only. No
- * navigation and nothing to change. A link that does not work (unknown, turned off, replaced or ended) says so.
+ * navigation and nothing to change. A link that does not work (unknown, turned off, replaced or ended, or an address
+ * that carries no token) says so. `token` is `null` until the address has been read.
  */
-export function SharedReportPage({ token }: Readonly<{ token: string }>) {
+export function SharedReportPage({ token }: Readonly<{ token: string | null }>) {
 	const query = useSharedReport(token);
-	const isGone = query.isError && errorStatusOf(query.error) === NOT_FOUND;
+	const hasNoToken = token === '';
+	const isGone = hasNoToken || (query.isError && errorStatusOf(query.error) === NOT_FOUND);
 	const isFailed = query.isError && !isGone;
+	const isReading = query.isPending && !hasNoToken;
 	return (
 		<div className="min-h-dvh bg-background">
 			<SharedReportHeader />
 			<main>
-				{query.isPending && <SharedReportSkeleton />}
+				{isReading && <SharedReportSkeleton />}
 				{isGone && (
 					<div className={PAGE}>
 						<NotWorking />

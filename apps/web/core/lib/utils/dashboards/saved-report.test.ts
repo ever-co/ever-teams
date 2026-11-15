@@ -144,13 +144,24 @@ describe('showsSavedView', () => {
 
 describe('sharedReportUrlOf', () => {
 	it('builds the address of the shared report, with the locale only when it is not the default one', () => {
-		expect(sharedReportUrlOf('https://app.ever.team/', 'tok-1')).toBe('https://app.ever.team/shared-report/tok-1');
+		expect(sharedReportUrlOf('https://app.ever.team/', 'tok-1')).toBe(
+			'https://app.ever.team/shared-report#token=tok-1'
+		);
 		expect(sharedReportUrlOf('https://app.ever.team', 'tok-1', 'fr')).toBe(
-			'https://app.ever.team/fr/shared-report/tok-1'
+			'https://app.ever.team/fr/shared-report#token=tok-1'
 		);
 		expect(sharedReportUrlOf('https://app.ever.team', 'tok-1', 'en')).toBe(
-			'https://app.ever.team/shared-report/tok-1'
+			'https://app.ever.team/shared-report#token=tok-1'
 		);
+	});
+
+	it('keeps the token out of every part of the address a server receives', () => {
+		const address = new URL(sharedReportUrlOf('https://app.ever.team', 'gsr_secret-token', 'fr'));
+
+		expect(address.pathname).toBe('/fr/shared-report');
+		expect(address.search).toBe('');
+		expect(`${address.origin}${address.pathname}${address.search}`).not.toContain('gsr_secret-token');
+		expect(address.hash).toBe('#token=gsr_secret-token');
 	});
 });
 

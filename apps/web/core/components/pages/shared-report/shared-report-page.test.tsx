@@ -170,6 +170,26 @@ describe('SharedReportPage', () => {
 		expect(screen.getByText('pages.unauthorized.TRY_AGAIN')).toBeTruthy();
 	}, 15000);
 
+	it('says an address that carries no token does not work, and reads nothing', () => {
+		renderPage('');
+
+		expect(screen.getByText('sharedReport.NOT_WORKING_TITLE')).toBeTruthy();
+		expect(screen.queryByLabelText('sharedReport.LOADING')).toBeNull();
+		expect(mockReadShared).not.toHaveBeenCalled();
+	});
+
+	it('waits while the address has not been read yet', () => {
+		render(
+			<QueryClientProvider client={new QueryClient()}>
+				<SharedReportPage token={null} />
+			</QueryClientProvider>
+		);
+
+		expect(screen.getByLabelText('sharedReport.LOADING')).toBeTruthy();
+		expect(screen.queryByText('sharedReport.NOT_WORKING_TITLE')).toBeNull();
+		expect(mockReadShared).not.toHaveBeenCalled();
+	});
+
 	it('says no time was tracked in an empty period', async () => {
 		mockReadShared.mockResolvedValue(sharedReport({ days: [], totals: { duration: 0 } }));
 

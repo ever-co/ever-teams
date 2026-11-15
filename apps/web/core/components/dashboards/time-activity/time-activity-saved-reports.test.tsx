@@ -331,7 +331,7 @@ describe('TimeActivitySavedReports', () => {
 		Object.assign(navigator, { clipboard: { writeText } });
 		render(<TimeActivitySavedReports report={reportProps()} />);
 
-		const address = `${window.location.origin}/fr/shared-report/tok-1`;
+		const address = `${window.location.origin}/fr/shared-report#token=tok-1`;
 		expect(screen.getByDisplayValue(address)).toBeTruthy();
 		fireEvent.click(screen.getByText('dashboard.savedReports.COPY'));
 
