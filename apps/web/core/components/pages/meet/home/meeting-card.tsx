@@ -13,6 +13,7 @@ import {
 import { Button } from '@/core/components/duplicated-components/_button';
 import { CalendarPlus, Copy, Edit, Link, MoreHorizontal, Trash, VideoCall } from '@/core/components/icons';
 import { cn } from '@/core/lib/helpers';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 import {
 	meetingPathOfInput,
 	scheduledMeetingStateOf,
@@ -77,6 +78,8 @@ export function MeetingCard({
 }: Readonly<MeetingCardProps>) {
 	const t = useTranslations();
 	const locale = useLocale();
+	// The times on the workspace's clock (#5264), as every other page writes them
+	const workspaceLocale = useWorkspaceLocale();
 	const router = useRouter();
 	const state = scheduledMeetingStateOf(meeting, now);
 	const title = meeting.title || t('meetings.UNTITLED');
@@ -123,7 +126,7 @@ export function MeetingCard({
 							{whenWordOf(state, meeting, now, locale, t)}
 						</span>
 						<span aria-hidden="true">·</span>
-						<span className="tabular-nums">{meetingTimesOf(meeting, locale)}</span>
+						<span className="tabular-nums">{meetingTimesOf(meeting, workspaceLocale)}</span>
 					</p>
 				</div>
 			</div>
