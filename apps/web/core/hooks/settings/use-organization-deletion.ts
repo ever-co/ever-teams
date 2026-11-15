@@ -66,12 +66,15 @@ export function useOrganizationDeletion(
 ): OrganizationDeletion {
 	const { myPermissions } = useMyRolePermissionsQuery();
 	const { logOut } = useAuthenticateUser();
-	const menuOrganizations = useTeamMenuOrganizations();
+	const canDelete = canDeleteOrganization(myPermissions);
+	// The organizations to land in are read once someone who may delete opens the confirmation: never as the
+	// Workspace settings open, and never for someone who cannot delete (ever-co/ever-teams#5309)
+	const readsMemberships = canDelete && isConfirmOpen;
+	const menuOrganizations = useTeamMenuOrganizations({ enabled: readsMemberships });
 	const switchOrganization = useSwitchOrganization();
 	const { data: user } = useUserQuery();
 	const employeeId = user?.employee?.id ?? null;
 	const organizationId = organization?.id ?? null;
-	const canDelete = canDeleteOrganization(myPermissions);
 	// The person's timer, read as the team menu reads it before a switch: this tab's start counts before the server's
 	const timerStatus = useAtomValue(timerStatusState);
 	const localTimerStatus = useAtomValue(localTimerStatusState);
@@ -98,12 +101,12 @@ export function useOrganizationDeletion(
 	});
 
 	// The team menu keeps the person's organizations for ten minutes: one they joined since would be missed as the
-	// organization to land in, and the delete would sign them out instead of opening it
+	// organization to land in, and the delete would sign them out instead of opening it. Without cancelling: when the
+	// opening itself starts a read (a cached answer gone stale), the refetch joins it rather than sending a second one
 	const refetchMemberships = menuOrganizations.refetch;
-	const readsMemberships = canDelete && isConfirmOpen;
 	useEffect(() => {
 		if (readsMemberships) {
-			void refetchMemberships();
+			void refetchMemberships({ cancelRefetch: false });
 		}
 	}, [readsMemberships, refetchMemberships]);
 
