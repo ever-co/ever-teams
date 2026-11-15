@@ -395,6 +395,46 @@ describe('useTimeImport', () => {
 		expect(result.current.rows).toEqual([]);
 		expect(result.current.fileName).toBe('');
 	});
+
+	it('checks the previewed file again once members are added for it', async () => {
+		const { result } = renderImport();
+		await act(() => result.current.chooseFile(csvFile(THREE_ROWS)));
+		mockGetTimeLogConflicts.mockClear();
+
+		await act(() => result.current.recheckWithMembers([{ employeeId: 'employee-lena', email: '', name: 'Lena' }]));
+
+		expect(result.current.stage).toBe('preview');
+		expect(mockGetTimeLogConflicts).toHaveBeenCalledTimes(2);
+	});
+
+	it('never lets members added late stop an import that started meanwhile', async () => {
+		const { result } = renderImport();
+		await act(() => result.current.chooseFile(csvFile(THREE_ROWS)));
+		// Add was clicked on this preview; Gauzy answers once the import is under way
+		const recheckOfAdd = result.current.recheckWithMembers;
+		let answerFirstSave: (value: unknown) => void = () => undefined;
+		mockAddManualTime.mockImplementationOnce(
+			() =>
+				new Promise((resolve) => {
+					answerFirstSave = resolve;
+				})
+		);
+
+		let confirming: Promise<void> = Promise.resolve();
+		act(() => {
+			confirming = result.current.confirm();
+		});
+		await waitFor(() => expect(mockAddManualTime).toHaveBeenCalledTimes(1));
+		await act(() => recheckOfAdd([{ employeeId: 'employee-lena', email: '', name: 'Lena' }]));
+		await act(async () => {
+			answerFirstSave({});
+			await confirming;
+		});
+
+		expect(result.current.stage).toBe('done');
+		expect(mockAddManualTime).toHaveBeenCalledTimes(3);
+		expect(result.current.report).toMatchObject({ savedCount: 3, notSentCount: 0 });
+	});
 });
 
 describe('useTimeImport for a file from another tool', () => {

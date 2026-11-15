@@ -305,6 +305,11 @@ export function useTimeImport({ contextAt, saveScope, extraProjectsOf }: TimeImp
 
 	// Members added for the file (members without an account), named before the team reads them back
 	const addedMembersRef = useRef<ReadonlyArray<TimeImportMember>>([]);
+	// The screen now, for an answer that arrives after the member moved on (see `recheckWithMembers`)
+	const stateRef = useRef(state);
+	useEffect(() => {
+		stateRef.current = state;
+	}, [state]);
 
 	const check = useCallback(
 		async (sheet: TimeImportSheet): Promise<TimeImportRow[]> => {
@@ -383,13 +388,18 @@ export function useTimeImport({ contextAt, saveScope, extraProjectsOf }: TimeImp
 		}
 	}, [checkSheet, state]);
 
-	/** Checks the previewed file again, its rows now able to name the members just added for it. */
+	/**
+	 * Checks the previewed file again, its rows now able to name the members just added for it. Only while the preview
+	 * the Add was clicked on is still the screen: an import, another file or a reset started while Gauzy created the
+	 * members is never replaced (a new check would stop an import halfway). The next check names them all the same.
+	 */
 	const recheckWithMembers = useCallback(
 		async (members: ReadonlyArray<TimeImportMember>) => {
 			addedMembersRef.current = [...addedMembersRef.current, ...members];
 			const staged = stagedFileOf(state);
 			const isPreview = state.stage === 'preview';
-			if (!staged || !isPreview) {
+			const isStillOnScreen = stateRef.current === state;
+			if (!staged || !isPreview || !isStillOnScreen) {
 				return;
 			}
 			await checkSheet(staged);
