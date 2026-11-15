@@ -1,6 +1,13 @@
 import { decodeJWT } from '@/core/lib/auth/jwt-utils';
 import { teamDefaultProjectId } from '@/core/lib/helpers/team-default-project';
-import { getAccessTokenCookie, getSharedOrganizationIdCookie, registerTabWorkScope } from '@/core/lib/helpers/cookies';
+import {
+	getAccessTokenCookie,
+	getSharedOrganizationIdCookie,
+	registerTabWorkScope,
+	setActiveProjectIdCookie,
+	setActiveTeamIdCookie,
+	setOrganizationIdCookie
+} from '@/core/lib/helpers/cookies';
 
 /**
  * The organization a tab works in (#5134).
@@ -234,6 +241,24 @@ export function isTabAccessToken(token: string | null | undefined): boolean {
 	if (!token) return false;
 	const scope = tabScope();
 	return scope.held && scope.accessToken === token;
+}
+
+/**
+ * Writes this tab's organization, team and project to the cookies, shared by every tab, so that the session can follow
+ * them back ("Use … in every tab"). The tab stays on its team as it is, with its tasks and the project it chose
+ * (CodeRabbit on #5321). Answers the organization the session is to switch to, or null while the tab works with the
+ * cookies anyway.
+ */
+export function bringTabOrganizationBack(): string | null {
+	const scope = tabScope();
+	if (!scope.held) return null;
+	const { organizationId, teamId, projectId } = scope;
+	// The organization first: the cookie readers then answer the cookies again, and the project goes to its cookie
+	setOrganizationIdCookie(organizationId);
+	if (teamId) setActiveTeamIdCookie(teamId);
+	// Even none: the project cookie names one of the other organization
+	setActiveProjectIdCookie(projectId ?? '');
+	return organizationId;
 }
 
 /** The API refused this tab's own token: it is not sent again, and the tab asks the person where it works. */

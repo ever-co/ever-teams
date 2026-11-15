@@ -2,10 +2,13 @@
 
 import { useCallback, useSyncExternalStore } from 'react';
 import { useAtomValue } from 'jotai';
-import { TAB_SCOPE_CHANGED_EVENT, tabScope } from '@/core/lib/auth/tab-organization';
+import { useQueryClient } from '@tanstack/react-query';
+import { LAST_WORKSPACE_AND_TEAM } from '@/core/constants/config/constants';
+import { TAB_SCOPE_CHANGED_EVENT, bringTabOrganizationBack, tabScope } from '@/core/lib/auth/tab-organization';
+import { syncTokenOrganization } from '@/core/lib/auth/token-organization';
+import { queryKeys } from '@/core/query/keys';
 import { activeTeamState, timerStartsInFlightState, timerStatusState } from '@/core/stores';
 import { currentOrganizationState } from '@/core/stores/user/user-organizations';
-import { useCreateOrganizationTeam } from '@/core/hooks/organizations/teams/use-create-organization-team';
 
 /**
  * Another tab switches the cookies without telling this one, and a cookie change fires no event of its own where the
@@ -83,17 +86,25 @@ export function useTabOrganization() {
 	const timerStatus = useAtomValue(timerStatusState);
 	// A start still on its way counts: the API may already run it, as the team menu holds a switch for it too
 	const timerStartsInFlight = useAtomValue(timerStartsInFlightState);
-	const { setActiveTeam } = useCreateOrganizationTeam();
+	const queryClient = useQueryClient();
 
 	// The page starts again on the cookies, which name the other organization and its team
 	const openSharedOrganization = useCallback(() => {
 		globalThis.window?.location.reload();
 	}, []);
 
-	// This tab's team again for every tab: the cookies and the session move back to its organization
+	// This tab's organization, team and project again for every tab: the cookies and the session move back to them. The
+	// tab stays on its team, so a team switch, which empties its tasks and takes the team's default project, is not made.
+	const activeTeamId = activeTeam?.id;
 	const bringOwnOrganizationBack = useCallback(() => {
-		if (activeTeam) setActiveTeam(activeTeam);
-	}, [activeTeam, setActiveTeam]);
+		const organizationId = bringTabOrganizationBack();
+		if (!organizationId) return;
+		if (activeTeamId) globalThis.window?.localStorage.setItem(LAST_WORKSPACE_AND_TEAM, activeTeamId);
+		void syncTokenOrganization(organizationId).then((switched) => {
+			// The user (its employee) is read again for that organization, as after a team switch
+			if (switched) queryClient.invalidateQueries({ queryKey: queryKeys.users.me });
+		});
+	}, [activeTeamId, queryClient]);
 
 	const ownOrganizationName =
 		currentOrganization?.id === activeTeam?.organizationId ? currentOrganization?.name : undefined;
