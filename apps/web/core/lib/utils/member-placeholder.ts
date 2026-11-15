@@ -8,7 +8,7 @@ import type { IEmployeePlaceholderMemberInput } from '@/core/types/interfaces/or
  */
 
 /** What Gauzy asks for to add, claim and merge a member without an account. */
-export const PLACEHOLDER_PERMISSION = 'ORG_EMPLOYEES_EDIT';
+const PLACEHOLDER_PERMISSION = 'ORG_EMPLOYEES_EDIT';
 
 /** Gauzy's limits on a member's name and email: longer ones are refused. */
 const NAME_MAX_LENGTH = 100;
@@ -18,7 +18,7 @@ export function canManagePlaceholders(permissions: ReadonlyArray<string>): boole
 	return permissions.includes(PLACEHOLDER_PERMISSION);
 }
 
-export interface PlaceholderFields {
+interface PlaceholderFields {
 	isPlaceholder?: boolean | null;
 	placeholderEmail?: string | null;
 }
@@ -78,7 +78,7 @@ export function placeholderMemberInputOf(form: PlaceholderForm): IEmployeePlaceh
 	return member;
 }
 
-export type PlaceholderAction = 'create' | 'claim' | 'merge';
+type PlaceholderAction = 'create' | 'claim' | 'merge';
 
 /** A sentence of the app, with its values: Gauzy's own text is never shown. */
 export interface PlaceholderFailure {
@@ -162,7 +162,7 @@ interface ImportedRow {
 	problems: ReadonlyArray<{ code: string }>;
 }
 
-export interface ImportPlaceholderCandidate {
+interface ImportPlaceholderCandidate {
 	/** The email or the name, lowercased: two rows naming the same person count once. */
 	key: string;
 	member: IEmployeePlaceholderMemberInput;
@@ -212,7 +212,7 @@ export interface ImportMemberAdded {
 	name: string;
 }
 
-export interface ImportMembersAdded {
+interface ImportMembersAdded {
 	/** The members created for the file, named the way the file names them. */
 	added: ImportMemberAdded[];
 	/** Emails a member of the organization outside this team already has: Gauzy created nobody for them. */

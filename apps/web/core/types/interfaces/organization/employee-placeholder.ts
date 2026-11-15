@@ -58,7 +58,7 @@ export interface IEmployeePlaceholderMergeInput extends IPlaceholderScope {
 }
 
 /** What moves from a member without an account to a member with one. */
-export interface IEmployeePlaceholderTransferSummary {
+interface IEmployeePlaceholderTransferSummary {
 	timeLogs: number;
 	/** Seconds of those entries. */
 	duration: number;
