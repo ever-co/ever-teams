@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { Button } from '@/core/components/common/button';
 import { DialogFieldLabel } from '@/core/components/common/dialog-field-label';
 import { Input } from '@/core/components/common/input';
+import { TimeField } from '@/core/components/common/time-field';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
 import { Clock } from '@/core/components/icons';
 import { useGetCurrentOrganization } from '@/core/hooks/auth/use-current-organization';
@@ -211,17 +212,15 @@ function TimerStartForm({
 				<DialogFieldLabel htmlFor={timeId} isRequired>
 					{t('timer.startMove.NEW_START')}
 				</DialogFieldLabel>
-				<Input
+				<TimeField
 					id={timeId}
-					type="time"
 					value={timeText}
 					min={laterOnly ? startText : undefined}
-					onChange={(event) => {
-						setTimeText(event.target.value);
+					onChange={(time) => {
+						setTimeText(time);
 						setErrorKey(null);
 					}}
 					aria-invalid={hasError}
-					className="tabular-nums"
 					required
 				/>
 				{laterOnly && <p className="mt-1.5 text-xs text-muted-foreground">{t('timer.startMove.LATER_ONLY')}</p>}
