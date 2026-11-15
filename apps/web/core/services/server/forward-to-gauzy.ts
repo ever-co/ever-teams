@@ -54,6 +54,11 @@ interface ForwardToGauzyOptions {
 	 * secret shown once (a chat webhook's URL and signing secret), which no cache on the way may keep.
 	 */
 	noStore?: boolean;
+	/**
+	 * What the outage log names instead of `path`, for a path that holds an id no server log may keep (the id of one
+	 * of the user's sessions).
+	 */
+	logPath?: string;
 }
 
 /**
@@ -112,7 +117,7 @@ export async function forwardToGauzy(
 		const timedOut = upstream.name === 'TimeoutError';
 		const status = timedOut ? 504 : 502;
 		const message = timedOut ? 'The Gauzy API did not answer in time' : 'The Gauzy API is unreachable';
-		console.error(`[WEB][API] ${req.method} ${path}: ${message}`, upstream);
+		console.error(`[WEB][API] ${req.method} ${options.logPath ?? path}: ${message}`, upstream);
 		return NextResponse.json({ statusCode: status, message }, { status });
 	}
 

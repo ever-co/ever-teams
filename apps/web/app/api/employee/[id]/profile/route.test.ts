@@ -74,3 +74,15 @@ it("passes Gauzy's refusal on with its status", async () => {
 
 	expect((await putRates({ billRateValue: 55 })).status).toBe(403);
 });
+
+it('passes the day the new rates apply from on', async () => {
+	mockUpdateOwnProfileRates.mockResolvedValue({ data: { id: EMPLOYEE_ID, repricedTimeLogs: 2 } });
+
+	const response = await putRates({ billRateValue: 55, ratesApplyFrom: '2026-10-01T00:00:00Z' });
+
+	expect(response.status).toBe(200);
+	expect(mockUpdateOwnProfileRates).toHaveBeenCalledWith(
+		expect.objectContaining({ rates: { billRateValue: 55, ratesApplyFrom: '2026-10-01T00:00:00Z' } })
+	);
+	expect((await putRates({ billRateValue: 55, ratesApplyFrom: 'yesterday' })).status).toBe(400);
+});

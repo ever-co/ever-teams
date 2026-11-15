@@ -11,6 +11,7 @@ import { cn } from '@/core/lib/helpers';
 import { Calendar, CircleAlert } from '@/core/components/icons';
 import { Input, controlGroupRecipe, controlRecipe } from '@/core/components/common/input';
 import { BillableSwitch } from '@/core/components/common/billable-switch';
+import { SegmentedControl } from '@/core/components/common/segmented-control';
 import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
 import { entryProjectIdOf, findProject } from '@/core/lib/utils/dashboards/time-entry-task';
 import { entryBillableOf } from '@/core/lib/utils/project-billable';
@@ -21,6 +22,9 @@ import { FormEvent, useCallback, useEffect, useId, useMemo, useRef, useState } f
 
 import { manualTimeReasons } from '@/core/constants/config/constants';
 import { useManualTime } from '@/core/hooks/activities/use-manual-time';
+import { useBreaksAllowed } from '@/core/hooks/timer/use-breaks-allowed';
+import { breakOverlapKeyOf } from '@/core/lib/utils/timer/timer-break';
+import { ETimeLogType } from '@/core/types/generics/enums/timer';
 import { useTimeOverlapGuard } from '@/core/hooks/timesheet/use-time-overlap-guard';
 import { useOpenSession } from '@/core/hooks/common/use-open-session';
 import { TimeOverlapCheckError, TimeOverlapConfirmDialog } from './time-overlap-confirm-dialog';
@@ -92,6 +96,9 @@ function dateLabelOf(date: Date | undefined, locale: string, placeholder: string
 	return formatter.format(date);
 }
 
+/** What an entry added by hand records: work, or a break where the organization allows breaks (#5216). */
+type TManualEntryType = 'work' | 'break';
+
 /** Whether the listed task belongs to the team, so time is never saved with a team and a task of another team. */
 function isTaskOfTeam(tasks: TTask[], taskId: string, teamId: string | undefined): boolean {
 	if (!teamId) {
@@ -129,6 +136,10 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 	const [taskId, setTaskId] = useState<string>('');
 	const [projectId, setProjectId] = useState<string>('');
 	const [employeeId, setEmployeeId] = useState<string>('');
+	const allowsBreaks = useBreaksAllowed();
+	const [entryType, setEntryType] = useState<TManualEntryType>('work');
+	// Work unless the person picks Break, which only an organization that allows breaks offers
+	const isBreakEntry = allowsBreaks && entryType === 'break';
 	// A copied entry keeps its own task or none: the active task never stands in for it
 	const copiedTaskId = prefill?.taskId ?? '';
 	const isTaskPickedRef = useRef(copiedTaskId !== '');
@@ -295,13 +306,16 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 
 			const requestData: Omit<IAddManualTimeRequest, 'tenantId' | 'employeeId' | 'logType' | 'source'> & {
 				employeeId?: string;
+				logType?: ETimeLogType.BREAK;
 			} = {
 				startedAt,
 				stoppedAt,
 				taskId,
 				description,
 				reason,
-				isBillable,
+				// A break is never billable (Gauzy keeps it so too)
+				isBillable: isBillable && !isBreakEntry,
+				...(isBreakEntry ? { logType: ETimeLogType.BREAK } : {}),
 				organizationId: team?.organizationId,
 				organizationTeamId: teamToSave?.id,
 				...pickedFields
@@ -345,6 +359,12 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 			}
 
 			const period = { start: startedAt, end: stoppedAt };
+			// A break never cuts other entries: Gauzy refuses one over recorded time, with its reason, so it is not
+			// offered to replace that time first
+			if (isBreakEntry) {
+				void saveUnlessRefused(period, () => addManualTime(requestData));
+				return;
+			}
 			// A copied entry is refused over another entry; any other time over recorded time asks first
 			void saveUnlessRefused(period, () =>
 				saveAfterOverlapCheck({
@@ -365,6 +385,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 			description,
 			endTime,
 			isBillable,
+			isBreakEntry,
 			reason,
 			startTime,
 			taskId,
@@ -425,11 +446,13 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 	// Handle manual time addition errors - keep modal open and show error
 	useEffect(() => {
 		if (addManualTimeError && addManualTimeFailure) {
-			// The reason in words, never the server's own text
-			const reasonKey = manualTimeRefusalKeyOf(addManualTimeFailure) as DottedLanguageObjectStringPaths;
+			// The reason in words, never the server's own text; a break's rules say which entry runs over which
+			const overlapKey = breakOverlapKeyOf(addManualTimeFailure, isBreakEntry);
+			const refusalKey = overlapKey ?? manualTimeRefusalKeyOf(addManualTimeFailure);
+			const reasonKey = refusalKey as DottedLanguageObjectStringPaths;
 			setErrorMsg(t(reasonKey));
 		}
-	}, [addManualTimeError, addManualTimeFailure, t]);
+	}, [addManualTimeError, addManualTimeFailure, isBreakEntry, t]);
 
 	// Reset states when modal opens - use ref to prevent infinite loops
 	const isOpenRef = useRef(isOpen);
@@ -631,6 +654,20 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 			className="max-h-[calc(100dvh-2rem)] w-full max-w-lg overflow-y-auto"
 		>
 			<form onSubmit={submitUnlessDurationRefused} className="flex w-full flex-col gap-4 text-sm">
+				{allowsBreaks && (
+					<div className="flex flex-col">
+						<DialogFieldLabel>{t('breaks.TYPE_LABEL')}</DialogFieldLabel>
+						<SegmentedControl<TManualEntryType>
+							items={[
+								{ value: 'work', label: t('breaks.TYPE_WORK') },
+								{ value: 'break', label: t('breaks.TYPE_BREAK') }
+							]}
+							value={entryType}
+							onValueChange={setEntryType}
+							ariaLabel={t('breaks.TYPE_LABEL')}
+						/>
+					</div>
+				)}
 				<div className="flex flex-col gap-2">
 					<div className="grid grid-cols-2 gap-3 sm:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1fr)]">
 						<div className="col-span-2 flex min-w-0 flex-col sm:col-span-1">
@@ -832,11 +869,15 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 					</div>
 				)}
 				<div className="flex flex-wrap items-center justify-between gap-3 pt-1">
-					<BillableSwitch
-						isBillable={isBillable}
-						onChange={setBillableChoice}
-						label={t('dashboard.timesheets.BILLABLE')}
-					/>
+					{isBreakEntry ? (
+						<p className="text-xs text-muted-foreground">{t('breaks.BREAK_HINT')}</p>
+					) : (
+						<BillableSwitch
+							isBillable={isBillable}
+							onChange={setBillableChoice}
+							label={t('dashboard.timesheets.BILLABLE')}
+						/>
+					)}
 					<div className="ml-auto flex items-center gap-2">
 						{params === 'AddTime' && (
 							<Button variant="ghost" size="default" className={modalSecondaryActionClass} type="button">

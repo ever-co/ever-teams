@@ -178,6 +178,12 @@ export interface ITimerTaskLog {
 	organizationTeamId?: string | null;
 	/** Set only once the workspace's rule rounded `duration` (`roundedDailyReportOf`): the duration as tracked. */
 	trackedDuration?: number;
+	/**
+	 * The billing rate that prices the entry and its currency (empty: the organization's), stated once Gauzy stores
+	 * rates on time entries (#5212): the rate the entry stores, or the member's current one for an entry that stores none.
+	 */
+	billRateValue?: number | string | null;
+	billRateCurrency?: string | null;
 }
 
 export interface ITimerEmployeeLog {

@@ -3,6 +3,7 @@ import type { TOrganizationProject } from '@/core/types/schemas';
 import type { TProjectBudgetReport } from '@/core/types/schemas/timer/time-log-reports.schema';
 import {
 	BUDGET_PROJECT_PARAM,
+	costNoteKeyOf,
 	budgetFiltersOfLink,
 	budgetRowsOf,
 	EMPTY_BUDGET_FILTERS,
@@ -119,5 +120,13 @@ describe('budgetRowsOf', () => {
 		expect(rows[0].hasTime).toBe(false);
 		expect(rows[0].risk).toBe('noTime');
 		expect(rows[0].spent).toBe(0);
+	});
+});
+
+describe('costNoteKeyOf', () => {
+	it('says a cost is each entry at its own rate where time keeps its rate (#5212), else at the current rate', () => {
+		expect(costNoteKeyOf('keepsItsRate')).toBe('dashboard.projectBudget.COST_NOTE_STORED_RATES');
+		expect(costNoteKeyOf('takesNewRate')).toBe('dashboard.projectBudget.COST_NOTE');
+		expect(costNoteKeyOf(null)).toBe('dashboard.projectBudget.COST_NOTE');
 	});
 });

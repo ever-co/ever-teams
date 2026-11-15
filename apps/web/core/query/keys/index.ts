@@ -20,7 +20,10 @@ export const queryKeys = {
 			signOut: ['auth', 'sign-out'] as const,
 			refreshToken: ['auth', 'refresh-token'] as const,
 			verifyEmail: ['auth', 'verify-email'] as const,
-			resetPassword: ['auth', 'reset-password'] as const
+			resetPassword: ['auth', 'reset-password'] as const,
+			// Where the signed-in user is signed in (Gauzy /auth/sessions): kept out of ['users'], which every saved
+			// profile field refreshes, while the sessions do not depend on the profile
+			sessions: (userId: string | undefined | null) => ['auth', 'sessions', ...(userId ? [userId] : [])] as const
 		},
 		emailReset: {
 			all: ['users', 'email-reset'] as const,
@@ -275,6 +278,19 @@ export const queryKeys = {
 			userId: string | undefined | null
 		) => ['organization-teams', 'list-scope', tenantId ?? null, organizationId ?? null, userId ?? null] as const,
 		paginated: (params: Record<string, string>) => ['organization-teams', 'paginated', params] as const,
+		/** The person's organizations of the workspace, as the team menu groups them (#5204). */
+		menuOrganizations: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			userId: string | undefined | null
+		) =>
+			[
+				'organization-teams',
+				'menu-organizations',
+				tenantId ?? null,
+				organizationId ?? null,
+				userId ?? null
+			] as const,
 		detail: (teamId: string | undefined | null) => ['organization-teams', ...(teamId ? [teamId] : [])] as const,
 		detailByScope: (
 			tenantId: string | undefined | null,
@@ -464,6 +480,41 @@ export const queryKeys = {
 		) => ['notifications', 'settings', tenantId ?? null, organizationId ?? null, employeeId ?? null] as const
 	},
 
+	// Goals: the goals a person may read, and where they (or each member of a team they manage) stand against them.
+	// The user is part of every key: what one sign-in may read never shows for the next one.
+	timeGoals: {
+		all: ['time-goals'] as const,
+		list: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			userId: string | undefined | null
+		) => ['time-goals', 'list', tenantId ?? null, organizationId ?? null, userId ?? null] as const,
+		progress: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			userId: string | undefined | null,
+			teamId: string | undefined | null
+		) =>
+			[
+				'time-goals',
+				'progress',
+				tenantId ?? null,
+				organizationId ?? null,
+				userId ?? null,
+				teamId ?? null
+			] as const
+	},
+
+	// Settings → API tokens: whether the server offers them, and the person's own tokens. The tenant and the user are
+	// part of every key: one sign-in's tokens never show for the next one.
+	userApiTokens: {
+		all: ['user-api-tokens'] as const,
+		config: (tenantId: string | undefined | null, userId: string | undefined | null) =>
+			['user-api-tokens', 'config', tenantId ?? null, userId ?? null] as const,
+		list: (tenantId: string | undefined | null, userId: string | undefined | null) =>
+			['user-api-tokens', 'list', tenantId ?? null, userId ?? null] as const
+	},
+
 	// Settings → Automations: the organization's rules, the templates and a rule's run history. The user is part of
 	// every key: what one sign-in read (or was refused) never shows for the next one.
 	taskAutomations: {
@@ -593,6 +644,8 @@ export const queryKeys = {
 		daily: (params: Record<string, any>) => ['activities', 'daily-activity-report', params] as const,
 		weekly: (params: Record<string, any>) => ['activities', 'weekly-activity-report', params] as const,
 		statisticsCounts: (params: Record<string, any>) => ['activities', 'statistics-counts', params] as const,
+		/** The time on breaks of a Time & Activity period (#5216). */
+		breaks: (params: Record<string, unknown>) => ['activities', 'breaks', params] as const,
 		activityReport: (params: Record<string, any>) => ['activities', 'activity-report', params] as const
 	},
 
@@ -848,6 +901,12 @@ export const queryKeys = {
 				...(endDate ? [endDate] : [])
 			] as const,
 		timeLog: (logId: string | null | undefined) => ['timesheet', 'time-log', ...(logId ? [logId] : [])] as const,
+		// Under `timesheet` so an edit, a deletion or a status change refreshes the history it adds a row to.
+		history: {
+			entry: (scope: { tenantId: string; organizationId: string; entryId: string }) =>
+				['timesheet', 'history', 'entry', scope] as const,
+			period: (params: Record<string, unknown>) => ['timesheet', 'history', 'period', params] as const
+		},
 		// Under `timesheet` so a saved or removed entry never leaves a stale overlap answer behind.
 		conflicts: (params: {
 			tenantId: string | null;

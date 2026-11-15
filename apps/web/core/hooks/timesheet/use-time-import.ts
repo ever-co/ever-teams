@@ -35,6 +35,7 @@ import {
 	type TimeImportLookup,
 	type TimeImportMember,
 	type TimeImportOutcome,
+	type TimeImportProject,
 	type TimeImportRow,
 	type TimeImportRun,
 	type TimeImportSaveScope
@@ -250,6 +251,23 @@ async function saveRowIfStillFree(
 interface TimeImportOptions {
 	contextAt: (now: Date) => TimeImportContext;
 	saveScope: TimeImportSaveScope;
+	/**
+	 * Projects a file may name beyond the team's: the workspace import adds the projects it creates before the
+	 * entries, under stand-in ids until they exist, so that their rows are judged like the others.
+	 */
+	extraProjectsOf?: (sheet: TimeImportSheet, context: TimeImportContext) => TimeImportProject[];
+}
+
+function contextWithExtraProjects(
+	sheet: TimeImportSheet,
+	context: TimeImportContext,
+	extraProjectsOf: TimeImportOptions['extraProjectsOf']
+): TimeImportContext {
+	if (!extraProjectsOf) {
+		return context;
+	}
+	const extraProjects = extraProjectsOf(sheet, context);
+	return { ...context, projects: [...context.projects, ...extraProjects] };
 }
 
 /**
@@ -260,7 +278,7 @@ interface TimeImportOptions {
  * saves the ready rows one after the other through the manual time call, each after one more read of its day,
  * stopping at the first refusal or at the first row whose time was recorded meanwhile.
  */
-export function useTimeImport({ contextAt, saveScope }: TimeImportOptions) {
+export function useTimeImport({ contextAt, saveScope, extraProjectsOf }: TimeImportOptions) {
 	const queryClient = useQueryClient();
 	const { invalidateTimesheetData } = useTimesheetInvalidation();
 	const [state, setState] = useState<TimeImportState>(IDLE);
@@ -291,13 +309,14 @@ export function useTimeImport({ contextAt, saveScope }: TimeImportOptions) {
 	const check = useCallback(
 		async (sheet: TimeImportSheet): Promise<TimeImportRow[]> => {
 			const now = new Date();
-			const context = withImportMembersAdded(contextAt(now), addedMembersRef.current);
+			const withProjects = contextWithExtraProjects(sheet, contextAt(now), extraProjectsOf);
+			const context = withImportMembersAdded(withProjects, addedMembersRef.current);
 			const drafts = draftRowsOf(sheet.rows, context, sheet.dateOrder);
 			const lookups = timeImportLookupsOf(drafts);
 			const logsByLookup = await readRecordedLogs(queryClient, lookups);
 			return checkedRowsOf({ rows: drafts, logsByLookup, now });
 		},
-		[contextAt, queryClient]
+		[contextAt, extraProjectsOf, queryClient]
 	);
 
 	const checkSheet = useCallback(

@@ -94,6 +94,14 @@ export const organizationSchema = z
 		requireTeam: z.boolean().optional().nullable(),
 		// Whether only someone of a higher role turns a person's time tracking on or off (#5015); absent before Gauzy has it
 		restrictTrackingSwitchToHigherRoles: z.boolean().optional().nullable(),
+		// Whether a rate change without a day prices only new time (#5212); absent before Gauzy stores rates on time entries
+		timeLogsKeepTheirRates: z.boolean().optional().nullable(),
+		// Whether members may take breaks from the timer, off by default; absent before Gauzy has it (#11940)
+		allowBreaks: z.boolean().optional().nullable(),
+		// Whether a member may discard their own running timer, null meaning allowed (#5219); absent before Gauzy has it
+		allowDiscardTimer: z.boolean().optional().nullable(),
+		// When set, a running timer may be discarded only within this many minutes of its start; null: no limit
+		discardTimerWithinMinutes: z.number().optional().nullable(),
 		timeFormat: timeFormatSchema.optional().nullable(),
 		defaultStartTime: z.string().optional().nullable(),
 		defaultEndTime: z.string().optional().nullable(),

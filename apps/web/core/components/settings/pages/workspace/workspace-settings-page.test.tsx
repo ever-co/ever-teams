@@ -11,6 +11,7 @@ const mockSaveWeekStart = jest.fn(async () => undefined);
 const mockSaveClock = jest.fn(async () => undefined);
 const mockSaveCurrencyPosition = jest.fn(async () => undefined);
 const mockSaveDurationRounding = jest.fn(async () => undefined);
+const mockSaveTimeLogsKeepTheirRates = jest.fn(async () => undefined);
 const mockRetryLoad = jest.fn();
 
 const ORGANIZATION = { id: 'organization-a', name: 'Acme', currency: 'USD', dateFormat: null, numberFormat: null };
@@ -34,10 +35,15 @@ function settingsOf(overrides: Record<string, unknown> = {}) {
 		saveClock: mockSaveClock,
 		saveCurrencyPosition: mockSaveCurrencyPosition,
 		saveDurationRounding: mockSaveDurationRounding,
+		saveTimeLogsKeepTheirRates: mockSaveTimeLogsKeepTheirRates,
 		...overrides
 	};
 }
 
+// The Breaks section (#5216) reads the organization through its own hook, which these tests leave out
+jest.mock('@/core/hooks/settings/use-organization-tracking-requirements', () => ({
+	useOrganizationBreaksSwitch: () => ({ organization: null, saveAllowBreaks: jest.fn() })
+}));
 jest.mock('next-intl', () => ({
 	useTranslations: () => (key: string, values?: Record<string, unknown>) => {
 		if (!values) {
@@ -49,6 +55,12 @@ jest.mock('next-intl', () => ({
 }));
 jest.mock('@/core/hooks/settings/use-workspace-settings', () => ({
 	useWorkspaceSettings: () => mockSettings
+}));
+const mockExportAll = jest.fn(async () => undefined);
+const NO_EXPORT = { canExport: false, isExporting: false, isFailed: false, exportAll: mockExportAll };
+let mockDataExport = NO_EXPORT;
+jest.mock('@/core/hooks/settings/use-workspace-data-export', () => ({
+	useWorkspaceDataExport: () => mockDataExport
 }));
 jest.mock('@/core/components/common/select', () => {
 	const { createContext, useContext } = jest.requireActual<typeof React>('react');
@@ -106,6 +118,26 @@ describe('WorkspaceSettingsPage', () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
 		mockSettings = settingsOf();
+		mockDataExport = NO_EXPORT;
+	});
+
+	it('offers the workspace owner to export all data, below the formats', () => {
+		mockDataExport = { ...NO_EXPORT, canExport: true };
+		render(<WorkspaceSettingsPage />);
+
+		const data = screen.getByRole('heading', { name: 'settings.workspace.DATA_SECTION' });
+		const formats = screen.getByRole('heading', { name: 'settings.workspace.FORMATS_SECTION' });
+		const dataComesAfterFormats = formats.compareDocumentPosition(data) === Node.DOCUMENT_POSITION_FOLLOWING;
+		expect(dataComesAfterFormats).toBe(true);
+		fireEvent.click(screen.getByRole('button', { name: 'settings.workspace.EXPORT_ACTION' }));
+		expect(mockExportAll).toHaveBeenCalledTimes(1);
+	});
+
+	it('shows no Data section to anyone else', () => {
+		render(<WorkspaceSettingsPage />);
+
+		expect(screen.queryByRole('heading', { name: 'settings.workspace.DATA_SECTION' })).toBeNull();
+		expect(screen.queryByRole('button', { name: 'settings.workspace.EXPORT_ACTION' })).toBeNull();
 	});
 
 	it('shows its sections loading until the workspace is read', () => {
@@ -351,5 +383,42 @@ describe('WorkspaceSettingsPage', () => {
 		expect(mockSaveWeekStart).toHaveBeenCalledWith('SUNDAY');
 		expect(mockSaveClock).toHaveBeenCalledWith(24);
 		expect(mockSaveCurrencyPosition).toHaveBeenCalledWith('RIGHT');
+	});
+
+	describe('whether past time keeps its rate', () => {
+		const KEEP_RATES = 'settings.workspace.KEEP_RATES_LABEL';
+
+		it('is not offered by a Gauzy that does not store rates on time entries', () => {
+			render(<WorkspaceSettingsPage />);
+
+			expect(screen.queryByText(KEEP_RATES)).toBeNull();
+		});
+
+		it('lets an admin turn it on, off by default', async () => {
+			mockSettings = settingsOf({ organization: { ...ORGANIZATION, timeLogsKeepTheirRates: null } });
+			render(<WorkspaceSettingsPage />);
+			const toggle = screen.getByRole('switch');
+
+			expect(screen.getByText(KEEP_RATES)).toBeTruthy();
+			expect(toggle.getAttribute('aria-checked')).toBe('false');
+
+			await act(async () => {
+				fireEvent.click(toggle);
+			});
+
+			expect(mockSaveTimeLogsKeepTheirRates).toHaveBeenCalledWith(true);
+		});
+
+		it('shows a member whether it is on, with nothing to change', () => {
+			mockSettings = settingsOf({
+				canEdit: false,
+				canRename: false,
+				organization: { ...ORGANIZATION, timeLogsKeepTheirRates: true }
+			});
+			render(<WorkspaceSettingsPage />);
+
+			expect(within(rowOf(KEEP_RATES)).getByText('settings.workspace.KEEP_RATES_ON')).toBeTruthy();
+			expect(screen.queryByRole('switch')).toBeNull();
+		});
 	});
 });

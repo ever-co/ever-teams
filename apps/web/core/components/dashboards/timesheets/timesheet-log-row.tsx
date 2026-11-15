@@ -8,36 +8,33 @@ import {
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuSeparator,
-	DropdownMenuSub,
-	DropdownMenuSubContent,
-	DropdownMenuSubTrigger,
 	DropdownMenuTrigger
 } from '@/core/components/common/dropdown-menu';
 import { EntityTile } from '@/core/components/common/entity-tile';
-import { SelectedMark } from '@/core/components/common/selected-mark';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/core/components/common/tooltip';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { MemberCell } from '@/core/components/dashboards/kit/member-cell';
 import { TaskDrawerLink } from '@/core/components/tasks/drawer/task-drawer-link';
 import { TaskPropertyIcon } from '@/core/components/tasks/task-property-icon';
-import { Check, CheckCircle2, DollarCircle, MoreHorizontal, Pencil, Trash, X } from '@/core/components/icons';
+import { Check, MoreHorizontal, Pencil, Trash, X } from '@/core/components/icons';
 import { canEditLog, type TimesheetPermissions } from '@/core/hooks/dashboards/timesheets/use-timesheets-page';
 import { cn } from '@/core/lib/helpers';
 import { formatDurationShort } from '@/core/lib/utils/dashboard-figures';
 import {
 	logDurationSeconds,
 	statusOfLog,
-	TIMESHEET_STATUS_ORDER,
 	type TimesheetFormatters,
 	timeRangeTextOf
 } from '@/core/lib/utils/dashboards/timesheets';
+import { isBreakLog } from '@/core/lib/utils/timer/timer-break';
 import { ETimeLogType } from '@/core/types/generics/enums/timer';
 import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import { type TimeEntryReuseHandlers, TimeEntryReuseMenuItems } from './time-entry-reuse';
 import { EntryNotesLine, LogChangeChips, ManualReasonLine } from './timesheet-log-changes';
-import { STATUS_LABEL_KEYS, TimesheetStatusChip, TimesheetStatusDot } from './timesheet-status';
-import { DEFERRED_ROW, logGridOf, NARROW_ONLY, WIDE_ONLY } from './timesheets-grid';
+import { BillableSubmenu, StatusSubmenu } from './timesheet-menu-parts';
+import { TimesheetStatusChip } from './timesheet-status';
+import { DEFERRED_ROW, logGridOf, NARROW_ONLY, NESTED_ROW, NESTED_TASK_INDENT, WIDE_ONLY } from './timesheets-grid';
 
 export interface TimesheetRowHandlers {
 	toggleLog: (logId: string) => void;
@@ -51,7 +48,7 @@ export interface TimesheetRowHandlers {
 	reuse?: TimeEntryReuseHandlers;
 }
 
-/** Manual time is said by its Added chip, so the time column names only the other log types. */
+/** Manual time and breaks are said by their chips, so the time column names only the other log types. */
 export const LOG_TYPE_LABEL_KEYS: Partial<Record<ETimeLogType, DottedLanguageObjectStringPaths>> = {
 	[ETimeLogType.IDLE]: 'dashboard.timesheets.LOG_TYPE.IDLE',
 	[ETimeLogType.RESUMED]: 'dashboard.timesheets.LOG_TYPE.RESUMED'
@@ -59,7 +56,7 @@ export const LOG_TYPE_LABEL_KEYS: Partial<Record<ETimeLogType, DottedLanguageObj
 
 const QUICK_ACTION = 'size-7 text-muted-foreground';
 
-function taskNumberOf(log: ITimeLog) {
+export function taskNumberOf(log: ITimeLog) {
 	const taskNumber = log.task?.taskNumber;
 	if (taskNumber) {
 		return taskNumber;
@@ -89,7 +86,7 @@ export function TaskTitle({ log }: Readonly<{ log: ITimeLog }>) {
 	);
 }
 
-function ProjectName({ log }: Readonly<{ log: ITimeLog }>) {
+export function ProjectName({ log }: Readonly<{ log: ITimeLog }>) {
 	const t = useTranslations();
 	const project = log.project;
 	if (!project?.name) {
@@ -124,7 +121,8 @@ function LogMenu({
 	const t = useTranslations();
 	const canEdit = canEditLog(log, permissions);
 	const isBillable = Boolean(log.isBillable);
-	const isNotBillable = !isBillable;
+	// A break is never billable: Gauzy keeps it so whatever is sent (#5216)
+	const offersBillable = !isBreakLog(log);
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
@@ -147,40 +145,11 @@ function LogMenu({
 					</DropdownMenuItem>
 				)}
 				{permissions.canApprove && (
-					<DropdownMenuSub>
-						<DropdownMenuSubTrigger>
-							<CheckCircle2 />
-							<span>{t('common.CHANGE_STATUS')}</span>
-						</DropdownMenuSubTrigger>
-						<DropdownMenuSubContent className="min-w-44">
-							{TIMESHEET_STATUS_ORDER.map((option) => (
-								<DropdownMenuItem key={option} onClick={() => handlers.changeStatus(log, option)}>
-									<TimesheetStatusDot status={option} />
-									<span className="flex-1">{t(STATUS_LABEL_KEYS[option])}</span>
-									{option === status && <SelectedMark />}
-								</DropdownMenuItem>
-							))}
-						</DropdownMenuSubContent>
-					</DropdownMenuSub>
+					<StatusSubmenu status={status} onChange={(option) => handlers.changeStatus(log, option)} />
 				)}
-				<DropdownMenuSub>
-					<DropdownMenuSubTrigger>
-						<DollarCircle />
-						<span>{t('dashboard.timesheets.BILLABLE')}</span>
-					</DropdownMenuSubTrigger>
-					<DropdownMenuSubContent className="min-w-36">
-						<DropdownMenuItem onClick={() => handlers.setBillable(log, true)}>
-							<Check />
-							<span className="flex-1">{t('pages.timesheet.BILLABLE.YES')}</span>
-							{isBillable && <SelectedMark />}
-						</DropdownMenuItem>
-						<DropdownMenuItem onClick={() => handlers.setBillable(log, false)}>
-							<X />
-							<span className="flex-1">{t('pages.timesheet.BILLABLE.NO')}</span>
-							{isNotBillable && <SelectedMark />}
-						</DropdownMenuItem>
-					</DropdownMenuSubContent>
-				</DropdownMenuSub>
+				{offersBillable && (
+					<BillableSubmenu isBillable={isBillable} onChange={(value) => handlers.setBillable(log, value)} />
+				)}
 				{canEdit && (
 					<>
 						<DropdownMenuSeparator />
@@ -247,7 +216,8 @@ export function rejectionReasonOf(log: ITimeLog, status: ETimesheetStatus | null
 /**
  * One time log: the checkbox, its status, the task (opening in the task drawer), project, member, the time it ran
  * and its duration, then the quick approve and reject of a pending log and the row menu. Added and Edited chips
- * follow the task; a log added by hand quotes its reason under it, and a rejected log says why.
+ * follow the task; a log added by hand quotes its reason under it, and a rejected log says why. Under the row of a
+ * group of similar entries, a log is drawn nested in it.
  */
 export const TimesheetLogRow = memo(function TimesheetLogRow({
 	log,
@@ -255,7 +225,8 @@ export const TimesheetLogRow = memo(function TimesheetLogRow({
 	showsMember,
 	permissions,
 	formatters,
-	handlers
+	handlers,
+	isNested = false
 }: Readonly<{
 	log: ITimeLog;
 	isSelected: boolean;
@@ -263,6 +234,7 @@ export const TimesheetLogRow = memo(function TimesheetLogRow({
 	permissions: TimesheetPermissions;
 	formatters: TimesheetFormatters;
 	handlers: TimesheetRowHandlers;
+	isNested?: boolean;
 }>) {
 	const t = useTranslations();
 	const status = statusOfLog(log);
@@ -289,6 +261,7 @@ export const TimesheetLogRow = memo(function TimesheetLogRow({
 				logGridOf(showsMember),
 				DEFERRED_ROW,
 				'min-h-11 py-1.5',
+				isNested && NESTED_ROW,
 				isSelected && 'bg-foreground/[0.03]'
 			)}
 		>
@@ -302,7 +275,7 @@ export const TimesheetLogRow = memo(function TimesheetLogRow({
 			<span role="cell" className={cn('min-w-0', WIDE_ONLY)}>
 				<TimesheetStatusChip status={status} />
 			</span>
-			<span role="cell" className="flex min-w-0 flex-col gap-0.5 py-0.5">
+			<span role="cell" className={cn('flex min-w-0 flex-col gap-0.5 py-0.5', isNested && NESTED_TASK_INDENT)}>
 				<span className="flex min-w-0 items-center gap-1.5 text-[13px]">
 					{hasTask && <TaskPropertyIcon kind="issueType" name={log.task?.issueType} />}
 					{taskNumber && (
@@ -314,7 +287,7 @@ export const TimesheetLogRow = memo(function TimesheetLogRow({
 							<TaskPropertyIcon kind="size" name={taskSize} className="size-3.5" />
 						</span>
 					)}
-					<LogChangeChips log={log} formatters={formatters} className={WIDE_ONLY} />
+					<LogChangeChips log={log} formatters={formatters} opensHistory className={WIDE_ONLY} />
 				</span>
 				<EntryNotesLine log={log} />
 				<ManualReasonLine log={log} />
@@ -323,9 +296,16 @@ export const TimesheetLogRow = memo(function TimesheetLogRow({
 						{t('dashboard.timesheets.REJECTION_REASON', { reason: rejectionReason })}
 					</span>
 				)}
-				<span className={cn('flex min-w-0 items-center gap-2 text-xs text-muted-foreground', NARROW_ONLY)}>
+				<span
+					className={cn(
+						'flex min-w-0 items-center gap-2 text-xs text-muted-foreground',
+						// Indented under its group, the line has less room: it wraps rather than run past the column
+						isNested && 'flex-wrap gap-y-1',
+						NARROW_ONLY
+					)}
+				>
 					<TimesheetStatusChip status={status} className="h-5 px-1.5" />
-					<LogChangeChips log={log} formatters={formatters} />
+					<LogChangeChips log={log} formatters={formatters} opensHistory />
 					<span className="shrink-0 tabular-nums">{timeRange}</span>
 					{showsMember && <span className="truncate">{memberName}</span>}
 				</span>
@@ -342,7 +322,14 @@ export const TimesheetLogRow = memo(function TimesheetLogRow({
 				<span className="truncate text-[13px] tabular-nums text-foreground">{timeRange}</span>
 				{logTypeKey && <span className="truncate text-[11px] text-muted-foreground">{t(logTypeKey)}</span>}
 			</span>
-			<span role="cell" className="text-right text-[13px] font-medium tabular-nums text-foreground">
+			<span
+				role="cell"
+				className={cn(
+					'text-right text-[13px] font-medium tabular-nums text-foreground',
+					// A break's time is listed, never counted as worked
+					isBreakLog(log) && 'font-normal text-muted-foreground'
+				)}
+			>
 				{duration}
 			</span>
 			<span role="cell" className="flex items-center justify-end gap-1">

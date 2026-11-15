@@ -24,7 +24,8 @@ const ACTION_WIDTHS = ['w-24'];
 
 const CONTROL_WIDTHS = ['w-30', 'w-40'];
 
-const TRAILING_WIDTHS = ['w-44'];
+// The grid settings button, then the view switch
+const TRAILING_WIDTHS = ['w-8', 'w-44'];
 
 const NO_PLANS = new Map<string, CalendarDayPlan>();
 

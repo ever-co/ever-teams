@@ -57,4 +57,13 @@ describe('timesheetPageLogsRequestOf', () => {
 		expect(mockGetTimeLogs).toHaveBeenLastCalledWith({ ...plainRead, withTaskLabels: true });
 		expect(labelled.queryKey).not.toEqual(plain.queryKey);
 	});
+
+	it('asks the breaks when told, under a key of its own (#5216)', async () => {
+		const plain = timesheetPageLogsRequestOf(period, { ...scope, userTimeZone: 'UTC' });
+		const withBreaks = timesheetPageLogsRequestOf(period, { ...scope, userTimeZone: 'UTC' }, { withBreaks: true });
+		await withBreaks.queryFn();
+
+		expect(mockGetTimeLogs).toHaveBeenLastCalledWith({ ...plainRead, includeBreaks: true });
+		expect(withBreaks.queryKey).not.toEqual(plain.queryKey);
+	});
 });

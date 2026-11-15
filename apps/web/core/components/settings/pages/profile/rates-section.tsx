@@ -135,7 +135,7 @@ export function ProfileRatesSection({
 		if (!employeeId) {
 			return;
 		}
-		await saveOwnRates({ employeeId, rates });
+		return await saveOwnRates({ employeeId, rates });
 	};
 	const showsEditAction = canEditOwnRates && !isEditing;
 	let editAction: ReactNode = null;

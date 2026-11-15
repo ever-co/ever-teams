@@ -4,6 +4,11 @@ import { useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import type { EntriesPdfContent, EntriesPdfGroup } from '@/core/components/dashboards/kit/entries-pdf';
 import type { ExportOption } from '@/core/components/dashboards/kit/export-menu';
+import {
+	HISTORY_FIELD_LABEL_KEYS,
+	historyValueFormatOf,
+	type MemberNameOf
+} from '@/core/components/dashboards/timesheets/time-log-history';
 import { STATUS_LABEL_KEYS } from '@/core/components/dashboards/timesheets/timesheet-status';
 import { FilePdf, FileSheet } from '@/core/components/icons';
 import { APP_NAME } from '@/core/constants/config/constants';
@@ -15,10 +20,13 @@ import {
 	clockDateTimeOf,
 	type EditsFigures,
 	type EditsGroup,
+	type EditsMember,
 	type ManualTimeEntry,
 	pdfDateTimeOf,
-	pdfDayOf
+	pdfDayOf,
+	pdfTimeOf
 } from '@/core/lib/utils/dashboards/manual-time-edits';
+import { changeSideTextOf, type HistoryValueFormat } from '@/core/lib/utils/time-log-history';
 import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 import { dateFormatOf, type FormatLocale } from '@/core/lib/utils/workspace-formats';
 
@@ -27,10 +35,10 @@ type Translate = ReturnType<typeof useTranslations>;
 const FILE_PREFIX = 'manual-time-edits';
 
 /**
- * Date, member, project, task, start, end, duration, added, edited at, billable, status, reason: the widths of the
- * export columns on a landscape page, in that order.
+ * Date, member, project, task, start, end, duration, added, edited at, before, after, billable, status, reason: the
+ * widths of the export columns on a landscape page, in that order.
  */
-const PDF_COLUMN_WIDTHS = ['7%', '10%', '10%', '15%', '5%', '5%', '6%', '5%', '9%', '5%', '7%', '16%'];
+const PDF_COLUMN_WIDTHS = ['6%', '8%', '8%', '11%', '4%', '4%', '5%', '4%', '8%', '10%', '10%', '4%', '6%', '12%'];
 
 function yesNoOf(value: boolean, t: Translate) {
 	if (value) {
@@ -56,35 +64,88 @@ function statusCellOf(entry: ManualTimeEntry, t: Translate) {
 
 type EntryText = (entry: ManualTimeEntry) => string;
 
+/** The values of the last edit, written like the other cells: a start or an end with its day, and hours:minutes. */
+function fileValueFormatOf(t: Translate, memberNameOf: MemberNameOf, moment: DateText): HistoryValueFormat {
+	const format = historyValueFormatOf(t, moment, memberNameOf);
+	return { ...format, duration: hoursMinutesOf };
+}
+
+/** Before and after of the entry's last edit; a deleted entry is the row itself, then "Deleted". */
+function changeCellsOf(t: Translate, memberNameOf: MemberNameOf, moment: DateText) {
+	const format = fileValueFormatOf(t, memberNameOf, moment);
+	const labelOf = (field: keyof typeof HISTORY_FIELD_LABEL_KEYS) => t(HISTORY_FIELD_LABEL_KEYS[field]);
+	const updateOf = (entry: ManualTimeEntry) => {
+		const change = entry.lastChange;
+		const isUpdate = change?.action === 'updated';
+		if (!change || !isUpdate) {
+			return null;
+		}
+		return change;
+	};
+	return {
+		before: (entry: ManualTimeEntry) => {
+			const change = updateOf(entry);
+			if (!change) {
+				return '';
+			}
+			return changeSideTextOf(change, 'before', format, labelOf);
+		},
+		after: (entry: ManualTimeEntry) => {
+			if (entry.isDeleted) {
+				return t('dashboard.manualTimeEdits.DELETED');
+			}
+			const change = updateOf(entry);
+			if (!change) {
+				return '';
+			}
+			return changeSideTextOf(change, 'after', format, labelOf);
+		}
+	};
+}
+
+type DateText = (date: Date) => string;
+
 interface DateCells {
 	day: EntryText;
+	/** The start and the end of the entry, on the same clock as the Before and After cells. */
+	time: (date: Date | null) => string;
 	editedAt: EntryText;
+	/** A start or an end in the Before and After cells: an edit can move an entry to another day. */
+	moment: DateText;
 }
 
 /** A file read by a spreadsheet keeps both as data it can sort, whatever the workspace's date format. */
 const FILE_DATE_CELLS: DateCells = {
 	day: (entry) => entry.dayKey,
-	editedAt: (entry) => clockDateTimeOf(entry.editedAt)
+	time: clockTimeOf,
+	editedAt: (entry) => clockDateTimeOf(entry.editedAt),
+	moment: (date) => clockDateTimeOf(date)
 };
 
+/** The PDF is read by people: its days take the workspace's date format, its times the workspace's clock. */
 function pdfDateCellsOf(locale: FormatLocale): DateCells {
 	return {
 		day: (entry) => pdfDayOf(entry.day, locale),
-		editedAt: (entry) => pdfDateTimeOf(entry.editedAt, locale)
+		time: (date) => pdfTimeOf(date, locale),
+		editedAt: (entry) => pdfDateTimeOf(entry.editedAt, locale),
+		moment: (date) => pdfDateTimeOf(date, locale)
 	};
 }
 
-function columnsOf(t: Translate, dates: DateCells): CsvColumn<ManualTimeEntry>[] {
+function columnsOf(t: Translate, dates: DateCells, memberNameOf: MemberNameOf): CsvColumn<ManualTimeEntry>[] {
+	const changeCells = changeCellsOf(t, memberNameOf, dates.moment);
 	return [
 		{ header: t('dashboard.timesheets.COLUMNS.DATE'), valueOf: dates.day },
 		{ header: t('common.MEMBER'), valueOf: (entry) => entry.memberName },
 		{ header: t('dashboard.timesheets.COLUMNS.PROJECT'), valueOf: (entry) => projectCellOf(entry, t) },
 		{ header: t('dashboard.timesheets.COLUMNS.TASK'), valueOf: (entry) => taskCellOf(entry, t) },
-		{ header: t('dashboard.timesheets.COLUMNS.START'), valueOf: (entry) => clockTimeOf(entry.start) },
-		{ header: t('dashboard.timesheets.COLUMNS.END'), valueOf: (entry) => clockTimeOf(entry.end) },
+		{ header: t('dashboard.timesheets.COLUMNS.START'), valueOf: (entry) => dates.time(entry.start) },
+		{ header: t('dashboard.timesheets.COLUMNS.END'), valueOf: (entry) => dates.time(entry.end) },
 		{ header: t('dashboard.timesheets.COLUMNS.DURATION'), valueOf: (entry) => hoursMinutesOf(entry.seconds) },
 		{ header: t('dashboard.manualTimeEdits.ADDED'), valueOf: (entry) => yesNoOf(entry.isAdded, t) },
 		{ header: t('dashboard.manualTimeEdits.COLUMN_EDITED_AT'), valueOf: dates.editedAt },
+		{ header: t('dashboard.manualTimeEdits.COLUMN_BEFORE'), valueOf: changeCells.before },
+		{ header: t('dashboard.manualTimeEdits.COLUMN_AFTER'), valueOf: changeCells.after },
 		{ header: t('dashboard.timesheets.COLUMNS.BILLABLE'), valueOf: (entry) => yesNoOf(entry.isBillable, t) },
 		{ header: t('dashboard.timesheets.COLUMNS.STATUS'), valueOf: (entry) => statusCellOf(entry, t) },
 		{ header: t('dashboard.manualTimeEdits.COLUMN_REASON'), valueOf: (entry) => entry.reason ?? '' }
@@ -132,6 +193,7 @@ interface ExportInput {
 	teamName: string;
 	locale: FormatLocale;
 	t: Translate;
+	memberNameOf: MemberNameOf;
 }
 
 function summaryOf(figures: EditsFigures, t: Translate) {
@@ -147,12 +209,12 @@ function summaryOf(figures: EditsFigures, t: Translate) {
 	];
 }
 
-function pdfContentOf({ groups, figures, period, teamName, locale, t }: ExportInput): EntriesPdfContent {
+function pdfContentOf({ groups, figures, period, teamName, locale, t, memberNameOf }: ExportInput): EntriesPdfContent {
 	const title = t('dashboard.manualTimeEdits.TITLE');
 	const periodText = formatPeriod(period, locale);
 	const generatedFormat = dateFormatOf(locale, { dateStyle: 'long' });
 	const generatedDate = generatedFormat.format(new Date());
-	const columns = columnsOf(t, pdfDateCellsOf(locale));
+	const columns = columnsOf(t, pdfDateCellsOf(locale), memberNameOf);
 	return {
 		title,
 		period: t('dashboard.manualTimeEdits.PDF_SUBTITLE', { team: teamName, period: periodText }),
@@ -177,26 +239,37 @@ async function runPdf(input: ExportInput) {
 
 function runCsv(input: ExportInput) {
 	const rows = input.groups.flatMap((group) => group.entries);
-	const columns = columnsOf(input.t, FILE_DATE_CELLS);
+	const columns = columnsOf(input.t, FILE_DATE_CELLS, input.memberNameOf);
 	const fileName = periodFileNameOf(FILE_PREFIX, input.period.from, input.period.to, 'csv');
 	downloadCsv(rows, columns, fileName);
+}
+
+function memberNamesOf(members: ReadonlyArray<EditsMember>): MemberNameOf {
+	const names = new Map<string, string>();
+	for (const member of members) {
+		names.set(member.employeeId, member.name);
+	}
+	return (employeeId) => names.get(employeeId) ?? null;
 }
 
 export function useManualTimeEditsExportOptions({
 	groups,
 	figures,
 	period,
-	teamName
+	teamName,
+	members
 }: Readonly<{
 	groups: ReadonlyArray<EditsGroup>;
 	figures: EditsFigures;
 	period: Period;
 	teamName: string;
+	members: ReadonlyArray<EditsMember>;
 }>): ExportOption[] {
 	const t = useTranslations();
 	const locale = useWorkspaceLocale();
 	return useMemo(() => {
-		const input: ExportInput = { groups, figures, period, teamName, locale, t };
+		const memberNameOf = memberNamesOf(members);
+		const input: ExportInput = { groups, figures, period, teamName, locale, t, memberNameOf };
 		return [
 			{
 				key: 'csv',
@@ -211,5 +284,5 @@ export function useManualTimeEditsExportOptions({
 				run: () => runPdf(input)
 			}
 		];
-	}, [figures, groups, locale, period, t, teamName]);
+	}, [figures, groups, locale, members, period, t, teamName]);
 }
