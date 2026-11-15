@@ -20,8 +20,19 @@ function reportPathOf(id: string) {
 	return `/saved-reports/${encodeURIComponent(id)}`;
 }
 
-export function listSavedReportsRequest({ organizationId, ...session }: ISession & { organizationId: string }) {
+export function listSavedReportsRequest({
+	organizationId,
+	skip,
+	take,
+	...session
+}: ISession & { organizationId: string; skip?: string; take?: string }) {
 	const query = new URLSearchParams({ organizationId });
+	if (skip !== undefined) {
+		query.set('skip', skip);
+	}
+	if (take !== undefined) {
+		query.set('take', take);
+	}
 	return serverFetch<PaginationResponse<ISavedReport>>({
 		path: `/saved-reports?${query.toString()}`,
 		method: 'GET',

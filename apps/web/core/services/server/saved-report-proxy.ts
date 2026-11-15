@@ -60,7 +60,21 @@ function refused(): NextResponse {
 	return NextResponse.json({ message: 'You may not use saved reports.' }, { status: 403, headers: NO_STORE });
 }
 
-/** `GET /api/saved-reports?organizationId=`: the caller's saved reports of an organization. */
+/** The page of the list a request asks for (`skip`, `take`), passed on as given: Gauzy checks it. */
+function listPageOf(searchParams: URLSearchParams): { skip?: string; take?: string } {
+	const page: { skip?: string; take?: string } = {};
+	const skip = searchParams.get('skip');
+	if (skip !== null) {
+		page.skip = skip;
+	}
+	const take = searchParams.get('take');
+	if (take !== null) {
+		page.take = take;
+	}
+	return page;
+}
+
+/** `GET /api/saved-reports?organizationId=&skip=&take=`: one page of the caller's saved reports of an organization. */
 export async function proxyListSavedReports(req: Request): Promise<NextResponse> {
 	const { $res, user, access_token, tenantId, organizationId } = await authenticatedGuard(req, new NextResponse());
 	if (!user) return $res('Unauthorized');
@@ -70,7 +84,11 @@ export async function proxyListSavedReports(req: Request): Promise<NextResponse>
 	const session = { bearer_token: access_token, tenantId };
 	try {
 		if (!(await mayUseSavedReports(session))) return refused();
-		const { data } = await listSavedReportsRequest({ ...session, organizationId: askedOrganizationId });
+		const { data } = await listSavedReportsRequest({
+			...session,
+			organizationId: askedOrganizationId,
+			...listPageOf(searchParams)
+		});
 		return NextResponse.json(data, { headers: NO_STORE });
 	} catch (error) {
 		return withNoStore(await gauzyErrorResponse(error, 'The saved reports could not be read.'));

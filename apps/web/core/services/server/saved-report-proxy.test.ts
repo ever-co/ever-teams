@@ -78,6 +78,14 @@ describe('saved reports proxy routes', () => {
 		expect(await response.json()).toEqual({ items: [{ id: 'r1' }], total: 1 });
 	});
 
+	it('passes the page asked for on to Gauzy, so every report of a long list can be read', async () => {
+		mockList.mockResolvedValue({ data: { items: [], total: 201 } });
+
+		await proxyListSavedReports(request('/api/saved-reports?organizationId=o&skip=200&take=200'));
+
+		expect(mockList).toHaveBeenCalledWith({ ...SESSION, organizationId: 'o', skip: '200', take: '200' });
+	});
+
 	it('refuses a signed-out caller and asks Gauzy nothing', async () => {
 		mockAuthenticatedGuard.mockResolvedValue(SIGNED_OUT);
 

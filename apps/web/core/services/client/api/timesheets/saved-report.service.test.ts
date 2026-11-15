@@ -14,7 +14,35 @@ describe('savedReportService', () => {
 
 		await savedReportService.list('organization 1');
 
-		expect(get).toHaveBeenCalledWith('/saved-reports?organizationId=organization+1');
+		expect(get).toHaveBeenCalledTimes(1);
+		expect(get).toHaveBeenCalledWith('/saved-reports?organizationId=organization+1&skip=0&take=200');
+	});
+
+	it('reads every page of the list, so no report is left out of the menu', async () => {
+		const firstPage = Array.from({ length: 200 }, (_, index) => ({ id: `r${index}` }));
+		const get = jest
+			.spyOn(savedReportService, 'get')
+			.mockResolvedValueOnce({ data: { items: firstPage, total: 201 } } as never)
+			.mockResolvedValueOnce({ data: { items: [{ id: 'r200' }], total: 201 } } as never);
+
+		const list = await savedReportService.list('o');
+
+		expect(get).toHaveBeenNthCalledWith(1, '/saved-reports?organizationId=o&skip=0&take=200');
+		expect(get).toHaveBeenNthCalledWith(2, '/saved-reports?organizationId=o&skip=200&take=200');
+		expect(list.items).toHaveLength(201);
+		expect(list.total).toBe(201);
+	});
+
+	it('stops at a page that brings nothing, whatever total the API states', async () => {
+		const get = jest
+			.spyOn(savedReportService, 'get')
+			.mockResolvedValueOnce({ data: { items: [{ id: 'r1' }], total: 5 } } as never)
+			.mockResolvedValueOnce({ data: { items: [], total: 5 } } as never);
+
+		const list = await savedReportService.list('o');
+
+		expect(get).toHaveBeenCalledTimes(2);
+		expect(list.items).toEqual([{ id: 'r1' }]);
 	});
 
 	it('saves a report with the tenant and organization it states, nothing added', async () => {
