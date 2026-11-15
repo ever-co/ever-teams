@@ -79,13 +79,15 @@ jest.mock('@/core/components/common/dropdown-menu', () => {
 });
 
 const labsDesign = { id: 'labs-design', name: 'Labs Design', organizationId: 'labs', members: [] };
+const readMenuOrganizations = {
+	current: { id: 'studio', name: 'Studio' },
+	others: [{ id: 'labs', name: 'Labs', teams: [labsDesign], teamsListed: true }]
+};
+let mockMenuOrganizations: typeof readMenuOrganizations | undefined = readMenuOrganizations;
 const mockUseTeamMenuOrganizations = jest.fn((options: { enabled?: boolean }) => {
 	void options;
 	return {
-		data: {
-			current: { id: 'studio', name: 'Studio' },
-			others: [{ id: 'labs', name: 'Labs', teams: [labsDesign], teamsListed: true }]
-		},
+		data: mockMenuOrganizations,
 		isLoading: false,
 		isError: false,
 		refetch: jest.fn()
@@ -117,10 +119,16 @@ const studioTeams = [
 function renderDropdown({
 	startsInFlight = 0,
 	isLocalTimerRunning = false,
-	queryClient = new QueryClient()
-}: { startsInFlight?: number; isLocalTimerRunning?: boolean; queryClient?: QueryClient } = {}) {
+	queryClient = new QueryClient(),
+	teams = studioTeams
+}: {
+	startsInFlight?: number;
+	isLocalTimerRunning?: boolean;
+	queryClient?: QueryClient;
+	teams?: Array<{ id: string; name: string; organizationId: string; members: never[] }>;
+} = {}) {
 	const store = createStore();
-	store.set(organizationTeamsState, studioTeams as never);
+	store.set(organizationTeamsState, teams as never);
 	store.set(activeTeamIdState, 'studio-design');
 	store.set(timerStatusState, { running: false } as never);
 	store.set(timerStartsInFlightState, startsInFlight);
@@ -221,6 +229,7 @@ describe('TeamsDropDown while another organization opens', () => {
 describe('TeamsDropDown reading the other organizations', () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
+		mockMenuOrganizations = readMenuOrganizations;
 	});
 
 	// The menu is on every page: a page load must not read them (startup-performance.cy.ts)
@@ -239,5 +248,15 @@ describe('TeamsDropDown reading the other organizations', () => {
 		fireEvent.focus(screen.getByRole('button', { name: /Studio Design/ }));
 
 		expect(mockUseTeamMenuOrganizations).toHaveBeenLastCalledWith({ enabled: true });
+	});
+
+	// A workspace admin's team list (proxy mode) holds the other organizations' teams too: until the menu has read
+	// which organization each belongs to, one of them must not be picked as a team of this one (no switch checks then)
+	it("offers only the current organization's teams until the other organizations are read", () => {
+		mockMenuOrganizations = undefined;
+		renderDropdown({ teams: [...studioTeams, labsDesign] });
+
+		expect(studioOps()).toBeTruthy();
+		expect(screen.queryByRole('menuitem', { name: /Labs Design/ })).toBeNull();
 	});
 });

@@ -44,7 +44,12 @@ import { TOrganizationTeam } from '@/core/types/schemas';
 import { useActiveTeamSnapshot } from '@/core/hooks/organizations/teams/use-active-team-snapshot';
 import { useTeamMenuOrganizations } from '@/core/hooks/organizations/teams/use-team-menu-organizations';
 import { useSwitchOrganization } from '@/core/hooks/organizations/teams/use-switch-organization';
-import { teamsOutsideOtherOrganizations, type ITeamMenuOrganization } from '@/core/lib/utils/team-menu-organizations';
+import {
+	teamsOfCurrentOrganization,
+	teamsOutsideOtherOrganizations,
+	type ITeamMenuOrganization
+} from '@/core/lib/utils/team-menu-organizations';
+import { getOrganizationIdCookie } from '@/core/lib/helpers/cookies';
 import { TeamMenuOrganizations, teamImageOf } from './team-menu-organizations';
 
 const TEAM_SWITCH_BLOCKED_TOAST_ID = 'team-switch-blocked-timer-running';
@@ -186,10 +191,16 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 		[isSwitchingOrganization, selectTeam]
 	);
 
-	const teamsOfThisOrganization = useMemo(
-		() => teamsOutsideOtherOrganizations(orderedTeams, otherOrganizations),
-		[orderedTeams, otherOrganizations]
-	);
+	// Until the other organizations are read (the menu asks as the person reaches for it), the first group offers the
+	// current organization's teams only: another organization's team picked there would skip the switch's checks
+	const hasReadOrganizations = Boolean(menuOrganizations.data);
+	const currentOrganizationId = activeTeam?.organizationId ?? getOrganizationIdCookie();
+	const teamsOfThisOrganization = useMemo(() => {
+		if (!hasReadOrganizations) {
+			return teamsOfCurrentOrganization(orderedTeams, currentOrganizationId);
+		}
+		return teamsOutsideOtherOrganizations(orderedTeams, otherOrganizations);
+	}, [currentOrganizationId, hasReadOrganizations, orderedTeams, otherOrganizations]);
 
 	const openOtherOrganization = useCallback(
 		(organization: ITeamMenuOrganization, team?: TOrganizationTeam) => {
