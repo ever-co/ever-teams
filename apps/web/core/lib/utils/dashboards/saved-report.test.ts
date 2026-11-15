@@ -230,4 +230,40 @@ describe('dailyReportOfPublic', () => {
 		expect(employeeLog.tasks[0].duration).toBe(3600);
 		expect(employeeLog.tasks[0].organizationTeamId).toBeNull();
 	});
+
+	it('keeps the rate each entry states, so its row is priced at the rate the entry stores, as on the report page', () => {
+		const entry = (fields: Record<string, unknown>) => ({ task: null, duration: 3600, client: null, ...fields });
+		const shared = {
+			days: [
+				{
+					date: '2026-10-02',
+					sum: 7200,
+					logs: [
+						{
+							project: null,
+							employeeLogs: [
+								{
+									employee: {
+										id: 'ada',
+										fullName: 'Ada L',
+										user: {},
+										billRateValue: 60,
+										billRateCurrency: 'EUR'
+									},
+									sum: 7200,
+									// Logged at 40 EUR, the rate the entry stores; and an entry of an API that states no rate
+									tasks: [entry({ billRateValue: 40, billRateCurrency: 'EUR' }), entry({})]
+								}
+							]
+						}
+					]
+				}
+			]
+		} as unknown as IPublicSavedReport;
+
+		const [stored, unstated] = dailyReportOfPublic(shared)[0].logs[0].employeeLogs[0].tasks;
+
+		expect(stored).toMatchObject({ billRateValue: 40, billRateCurrency: 'EUR' });
+		expect('billRateValue' in unstated).toBe(false);
+	});
 });
