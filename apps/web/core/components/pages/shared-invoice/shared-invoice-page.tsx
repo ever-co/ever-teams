@@ -42,6 +42,10 @@ function useSharedInvoice(id: string, token: string, isReturn: boolean) {
 		queryFn: () => sharedInvoiceService.getSharedInvoice(id, token),
 		retry: (count, error) => errorStatusOf(error) !== 403 && count < 2,
 		refetchInterval: (query) => {
+			// A link the API no longer honours is not read again: the page says so, with nothing to wait for
+			if (errorStatusOf(query.state.error) === 403) {
+				return false;
+			}
 			const status = query.state.data?.status ?? '';
 			const isWaiting =
 				isReturn && !PAID_STATUSES.has(status) && Date.now() - returnedAt < CONFIRMATION_POLL_LIMIT_MS;

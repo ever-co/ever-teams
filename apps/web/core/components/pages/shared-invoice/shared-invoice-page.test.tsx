@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 const search = new URLSearchParams();
 
@@ -138,5 +138,23 @@ describe('SharedInvoicePage (ever-co/ever-gauzy#11856)', () => {
 		show();
 
 		expect(await screen.findByText('invoices.shared.RETURNED_TITLE')).toBeTruthy();
+	});
+
+	it('back from the provider, stops reading a link the API closed meanwhile', async () => {
+		jest.useFakeTimers();
+		try {
+			search.set('paid', '1');
+			service.getSharedInvoice.mockRejectedValue({ response: { status: 403 }, status: 403 });
+			show();
+
+			expect(await screen.findByText('invoices.shared.CLOSED_TITLE')).toBeTruthy();
+			await act(async () => {
+				jest.advanceTimersByTime(30_000);
+			});
+
+			expect(service.getSharedInvoice).toHaveBeenCalledTimes(1);
+		} finally {
+			jest.useRealTimers();
+		}
 	});
 });
