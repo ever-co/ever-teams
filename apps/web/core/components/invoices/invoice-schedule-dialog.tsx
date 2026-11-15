@@ -137,10 +137,9 @@ function InvoiceScheduleForm({
 			await onCreate(input);
 			return;
 		}
-		const changes = changedScheduleFieldsOf(saved, input);
-		if (Object.keys(changes).length > 0) {
-			await onUpdate(changes);
-		}
+		// Sent even when no field changed: saving the schedule is also taking it over, so its invoices are made as the
+		// person who saves it (what a run that the previous author could not make asks for)
+		await onUpdate(changedScheduleFieldsOf(saved, input));
 	};
 
 	const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
