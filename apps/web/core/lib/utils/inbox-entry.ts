@@ -9,6 +9,7 @@ import {
 } from '@/core/types/interfaces/common/inbox-item';
 import { readRuntimeEnv } from '@/env-config';
 import { timerReminderNoticeOf, type TimerReminderNotice } from '@/core/lib/notifications/timer-reminders';
+import { MEETINGS_HREF, meetingNoticeOf, type MeetingNotice } from '@/core/lib/notifications/meeting-notices';
 import { boardInvitationHref, isBoardInvitation } from '@/core/lib/notifications/board-invitations';
 import { docsInboxHrefOf, isDocsInboxEntry } from './docs-links';
 import { isDocsEnabled } from './docs-enabled';
@@ -56,6 +57,8 @@ export interface InboxEntry {
 	href: string | null;
 	/** A reminder of a timer left running: its level, the hours it names and its run, read in the reader's language. */
 	timerReminder: TimerReminderNotice | null;
+	/** A notice about a meeting the person hosts or is invited to: its kind, its title and its appointment. */
+	meeting: MeetingNotice | null;
 	isUnread: boolean;
 	isArchived: boolean;
 	isDone: boolean;
@@ -156,6 +159,7 @@ function hrefOf(type: EEmployeeNotificationType | null, entry: Pick<InboxEntry, 
 	if (type === EEmployeeNotificationType.RateChangeRequest) return RATE_CHANGE_REQUEST_HREF;
 	if (isBoardInvitation({ type, entity: entry.entity, rawTitle: entry.rawTitle })) return boardInvitationHref();
 	if (type === EEmployeeNotificationType.TimerReminder) return TIMER_REMINDER_HREF;
+	if (type === EEmployeeNotificationType.Meeting) return MEETINGS_HREF;
 	const projectHref = projectHrefOf(entry.entity, entry.entityId);
 	if (projectHref) return projectHref;
 	// Without the chat pages a conversation has nowhere to open: the entry is not a link.
@@ -235,6 +239,20 @@ export class InboxFieldRequests {
 	}
 }
 
+/** What a notification alone carries: the timer reminder or meeting notice it is, and the sender its title names. */
+function notificationPartsOf(
+	isNotification: boolean,
+	notice: { type: EEmployeeNotificationType | null; title: string; entity: string | null; entityId: string | null }
+): Pick<InboxEntry, 'timerReminder' | 'meeting' | 'senderName'> {
+	if (!isNotification) return { timerReminder: null, meeting: null, senderName: null };
+	return {
+		timerReminder: timerReminderNoticeOf(notice),
+		meeting: meetingNoticeOf(notice),
+		// A meeting's title names no one: a word of the meeting's own title is no sender (#5022)
+		senderName: notice.type === EEmployeeNotificationType.Meeting ? null : senderNameFromTitle(notice.title)
+	};
+}
+
 /** An entry from a platform inbox item. */
 export function toInboxEntry(item: IInboxItem): InboxEntry {
 	const metadata = item.metadata ?? {};
@@ -244,7 +262,12 @@ export function toInboxEntry(item: IInboxItem): InboxEntry {
 	const recipient = item.recipient;
 	const entity = stringOf(item.entity);
 	const entityId = stringOf(item.entityId);
-	const timerReminder = isNotification ? timerReminderNoticeOf({ type, title: rawTitle, entity, entityId }) : null;
+	const { timerReminder, meeting, senderName } = notificationPartsOf(isNotification, {
+		type,
+		title: rawTitle,
+		entity,
+		entityId
+	});
 	const itemTaskId = stringOf(item.taskId) ?? (entity === EBaseEntityEnum.Task ? entityId : null);
 	// A timer reminder is about its run: it opens the timer, not a task its item may name
 	const taskId = timerReminder ? null : itemTaskId;
@@ -262,7 +285,7 @@ export function toInboxEntry(item: IInboxItem): InboxEntry {
 		rawTitle,
 		subject,
 		message: message && message !== subject && message !== rawTitle ? message : null,
-		senderName: isNotification ? senderNameFromTitle(rawTitle) : null,
+		senderName,
 		sentByEmployeeId: stringOf(metadata['sentByEmployeeId']),
 		entity,
 		entityId,
@@ -270,6 +293,7 @@ export function toInboxEntry(item: IInboxItem): InboxEntry {
 		chatMessageId: entity === 'ChatMessage' ? entityId : null,
 		href: null,
 		timerReminder,
+		meeting,
 		isUnread: recipient ? recipient.isRead !== true : true,
 		isArchived: !!recipient?.isArchived,
 		isDone: !!(recipient?.doneAt || recipient?.isDone),
@@ -328,6 +352,7 @@ export function fromNotificationEntry(notification: NotificationEntry): InboxEnt
 		chatMessageId: null,
 		href: notification.href,
 		timerReminder: notification.timerReminder,
+		meeting: notification.meeting,
 		isUnread: notification.isUnread,
 		isArchived: false,
 		isDone: false,

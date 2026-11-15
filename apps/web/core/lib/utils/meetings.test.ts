@@ -4,6 +4,7 @@ import {
 	appointmentInputOf,
 	appointmentUpdateOf,
 	dayAfter,
+	invitedMeetingOf,
 	isRoomTokenStale,
 	meetingDaysOf,
 	meetingIcsOf,
@@ -18,6 +19,7 @@ import {
 	roomNameOfParam,
 	scheduledMeetingOf,
 	scheduledMeetingStateOf,
+	withInvitedMeetings,
 	searchWithoutSharing,
 	sharingScreenPathOf,
 	startOfDay,
@@ -204,7 +206,7 @@ describe('scheduled meetings', () => {
 
 	it('offers the team members with an address, by name, once each and without oneself', () => {
 		const member = (email: string | null, name?: string, fullName?: string) => ({
-			employee: { fullName, user: { email, name } }
+			employee: { id: `employee-of-${email}`, fullName, user: { email, name } }
 		});
 
 		expect(
@@ -220,9 +222,62 @@ describe('scheduled meetings', () => {
 				'ME@acme.com'
 			)
 		).toEqual([
-			{ email: 'ana@acme.com', name: 'Ana Silva' },
-			{ email: 'zoe@acme.com', name: 'Zoe Martin' }
+			{ email: 'ana@acme.com', name: 'Ana Silva', employeeId: 'employee-of-ana@acme.com' },
+			{ email: 'zoe@acme.com', name: 'Zoe Martin', employeeId: 'employee-of-Zoe@Acme.com' }
 		]);
+	});
+
+	it('invites the team members among the participants as members, and keeps the other addresses as emails (#5022)', () => {
+		const input = appointmentInputOf(
+			{
+				title: 'Sprint review',
+				start: new Date('2026-11-12T14:00:00.000Z'),
+				durationMinutes: 30,
+				link: 'https://app.example.com/meet/jitsi?room=abc',
+				participantEmails: ['ana@acme.com', 'guest@example.org', 'ANA@acme.com', 'zoe@acme.com'],
+				invitees: [
+					{ email: 'ana@acme.com', name: 'Ana Silva', employeeId: 'employee-ana' },
+					{ email: 'zoe@acme.com', name: 'Zoe Martin', employeeId: 'employee-zoe' },
+					{ email: 'noid@acme.com', name: 'No id', employeeId: null }
+				]
+			},
+			'employee-1'
+		);
+
+		expect(input.inviteeEmployeeIds).toEqual(['employee-ana', 'employee-zoe']);
+		expect(input.emails).toBe('guest@example.org');
+	});
+
+	it("reads a meeting one is invited to as one its host runs, and lists it once beside one's own (#5022)", () => {
+		const invited = invitedMeetingOf({
+			id: 'appointment-2',
+			agenda: 'Planning',
+			location: 'https://app.example.com/meet/jitsi?room=xyz',
+			startDateTime: '2026-11-12T15:00:00.000Z',
+			endDateTime: '2026-11-12T15:30:00.000Z',
+			host: { employeeId: 'employee-9', name: ' Ruslan K ' }
+		});
+		expect(invited).toEqual(
+			expect.objectContaining({ id: 'appointment-2', title: 'Planning', isInvited: true, hostName: 'Ruslan K' })
+		);
+		expect(
+			invitedMeetingOf({
+				id: 'gone',
+				status: 'Cancelled',
+				startDateTime: '2026-11-12T15:00:00.000Z',
+				endDateTime: '2026-11-12T15:30:00.000Z'
+			})
+		).toBeNull();
+
+		const own = scheduledMeetingOf({
+			id: 'appointment-2',
+			agenda: 'Planning',
+			startDateTime: '2026-11-12T15:00:00.000Z',
+			endDateTime: '2026-11-12T15:30:00.000Z'
+		});
+		const merged = withInvitedMeetings(own ? [own] : [], invited ? [invited] : []);
+		expect(merged).toHaveLength(1);
+		expect(merged[0].isInvited).toBeUndefined();
 	});
 
 	it('adds the addresses typed or pasted as participants, once each, and tells what was no address', () => {

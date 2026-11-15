@@ -155,6 +155,13 @@ function PushKindRows({
 			id: 'notification-push-task-due-reminder',
 			label: t('notifications.SETTINGS_PAGE.TASK_DUE.LABEL'),
 			isOn: isTaskDueReminderOn
+		},
+		// The meetings are always filed: their invitations and changes come whatever the reminder's lead (#5022)
+		{
+			type: EEmployeeNotificationType.Meeting,
+			id: 'notification-push-meeting',
+			label: t('notifications.SETTINGS_PAGE.MEETINGS.LABEL'),
+			isOn: true
 		}
 	];
 	return (

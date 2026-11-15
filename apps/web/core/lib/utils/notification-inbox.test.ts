@@ -143,3 +143,37 @@ describe('toNotificationEntry for a Board invitation (#5022)', () => {
 		expect(entry.subject).toBe('Design');
 	});
 });
+
+describe('toNotificationEntry for a meeting (#5022)', () => {
+	it('opens the meetings page, reads its kind and title, and takes no sender from the title', () => {
+		const entry = toNotificationEntry(
+			notification({
+				type: EEmployeeNotificationType.Meeting,
+				title: '"Proposal sent to customer" was changed',
+				entity: EBaseEntityEnum.EmployeeAppointment,
+				entityId: 'appointment-1'
+			})
+		);
+
+		expect(entry.href).toBe('/meet');
+		expect(entry.meeting).toEqual({
+			kind: 'changed',
+			title: 'Proposal sent to customer',
+			minutes: null,
+			appointmentId: 'appointment-1'
+		});
+		expect(entry.senderName).toBeNull();
+	});
+
+	it('names the employee the platform says sent it', () => {
+		const entry = toNotificationEntry(
+			notification({
+				type: EEmployeeNotificationType.Meeting,
+				title: 'You are invited to "Planning"',
+				sentByEmployee: { fullName: 'Ana Silva' } as IEmployeeNotification['sentByEmployee']
+			})
+		);
+
+		expect(entry.senderName).toBe('Ana Silva');
+	});
+});

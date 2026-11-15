@@ -9,6 +9,7 @@ import { TaskPropertyIcon } from '@/core/components/tasks/task-property-icon';
 import { NotificationTypeBadge } from '../notification-type-badge';
 import { notificationMessageOf } from '../task-due-copy';
 import { timerReminderDescriptionOf, timerReminderSentenceOf } from '../timer-reminder-copy';
+import { meetingSentenceOf } from '../meeting-notice-copy';
 import { formatNotificationAge, formatNotificationDate, NotificationEntry } from '@/core/lib/utils/notification-inbox';
 import { EEmployeeNotificationType } from '@/core/types/interfaces/common/employee-notification';
 
@@ -39,6 +40,7 @@ const EVENT_KEYS: Record<EEmployeeNotificationType, DottedLanguageObjectStringPa
 	[EEmployeeNotificationType.Payment]: 'notifications.EVENTS.PAYMENT',
 	[EEmployeeNotificationType.RateChangeRequest]: 'notifications.EVENTS.RATE_CHANGE_REQUEST',
 	[EEmployeeNotificationType.TimerReminder]: 'notifications.EVENTS.TIMER_REMINDER',
+	[EEmployeeNotificationType.Meeting]: 'notifications.EVENTS.MEETING',
 	[EEmployeeNotificationType.TaskUpdate]: 'notifications.EVENTS.TASK_UPDATE',
 	[EEmployeeNotificationType.TaskDueReminder]: 'notifications.EVENTS.TASK_DUE_REMINDER'
 };
@@ -53,6 +55,7 @@ const TYPE_KEYS: Record<EEmployeeNotificationType, DottedLanguageObjectStringPat
 	[EEmployeeNotificationType.Payment]: 'notifications.TYPES.PAYMENT',
 	[EEmployeeNotificationType.RateChangeRequest]: 'notifications.TYPES.RATE_CHANGE_REQUEST',
 	[EEmployeeNotificationType.TimerReminder]: 'notifications.TYPES.TIMER_REMINDER',
+	[EEmployeeNotificationType.Meeting]: 'notifications.TYPES.MEETING',
 	[EEmployeeNotificationType.TaskUpdate]: 'notifications.TYPES.TASK_UPDATE',
 	[EEmployeeNotificationType.TaskDueReminder]: 'notifications.TYPES.TASK_DUE_REMINDER'
 };
@@ -95,6 +98,9 @@ function useEventSentence(entry: NotificationEntry): ReactNode {
 	const t = useTranslations();
 	if (entry.timerReminder) {
 		return timerReminderSentenceOf(t, entry.timerReminder);
+	}
+	if (entry.meeting) {
+		return meetingSentenceOf(t, entry.meeting, entry.senderName);
 	}
 	if (!entry.type) {
 		return entry.rawTitle;

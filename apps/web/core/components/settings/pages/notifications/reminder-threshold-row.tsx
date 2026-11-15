@@ -28,6 +28,8 @@ interface ReminderThresholdCopy {
 	description: string;
 	/** The name of a threshold, or of none (off). */
 	labelOf: (hours: number | null) => string;
+	/** The kind still sends notices with no reminder chosen (a meeting's invitations), so its email mode stays. */
+	isFiledWithoutReminder?: boolean;
 }
 
 /**
@@ -44,7 +46,8 @@ export function ReminderThresholdRow({
 	disabled,
 	onChange,
 	emailMode,
-	onEmailMode
+	onEmailMode,
+	isFiledWithoutReminder = false
 }: Readonly<ReminderThresholdRowProps & ReminderThresholdCopy>) {
 	const t = useTranslations();
 	const triggerId = useId();
@@ -59,7 +62,7 @@ export function ReminderThresholdRow({
 			htmlFor={triggerId}
 			controlClassName="flex-wrap"
 		>
-			{value !== null && (
+			{(value !== null || isFiledWithoutReminder) && (
 				<EmailModeSelect
 					value={emailMode}
 					allowDefault

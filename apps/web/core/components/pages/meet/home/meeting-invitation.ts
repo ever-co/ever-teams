@@ -1,6 +1,7 @@
 import type { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { meetingIcsOf, type ScheduledMeeting } from '@/core/lib/utils/meetings';
+import { dateFormatOf, type FormatLocale } from '@/core/lib/utils/workspace-formats';
 
 /** "Thursday, November 12, 2026, 2:00 – 2:45 PM", in the reader's language. */
 export function meetingWhenOf(meeting: Pick<ScheduledMeeting, 'start' | 'end'>, locale: string): string {
@@ -8,9 +9,12 @@ export function meetingWhenOf(meeting: Pick<ScheduledMeeting, 'start' | 'end'>, 
 	return format.formatRange(meeting.start, meeting.end);
 }
 
-/** "2:00 – 2:45 PM": the time range alone, for an agenda that already says the day. */
-export function meetingTimesOf(meeting: Pick<ScheduledMeeting, 'start' | 'end'>, locale: string): string {
-	const format = new Intl.DateTimeFormat(locale, { timeStyle: 'short' });
+/**
+ * "2:00 – 2:45 PM": the time range alone, for an agenda that already says the day, on the workspace's clock when the
+ * locale carries one (#5264): "14:00 – 14:45" for a 24-hour workspace, whatever the reader's language.
+ */
+export function meetingTimesOf(meeting: Pick<ScheduledMeeting, 'start' | 'end'>, locale: FormatLocale): string {
+	const format = dateFormatOf(locale, { timeStyle: 'short' });
 	return format.formatRange(meeting.start, meeting.end);
 }
 

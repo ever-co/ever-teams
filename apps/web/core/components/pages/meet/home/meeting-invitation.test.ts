@@ -1,5 +1,23 @@
 // cspell:ignore Équipe
-import { meetingIcsFileNameOf, meetingStartedAgoOf } from './meeting-invitation';
+import { meetingIcsFileNameOf, meetingStartedAgoOf, meetingTimesOf } from './meeting-invitation';
+
+describe('meetingTimesOf', () => {
+	// Local times: the agenda writes a meeting's times in the reader's own time zone
+	const meeting = { start: new Date(2026, 10, 12, 14, 0), end: new Date(2026, 10, 12, 14, 45) };
+	const workspace = (clock: 12 | 24 | null) => ({ tag: 'en-US', dateFormat: null, numberFormat: null, clock });
+	// The runtime's formats put narrow and thin spaces around the times
+	const plain = (text: string) => text.replace(/[\u00a0\u2009\u202f]/g, ' ');
+
+	it("writes the times on the workspace's clock (#5264), whatever the reader's language would", () => {
+		expect(plain(meetingTimesOf(meeting, workspace(24)))).toBe('14:00 – 14:45');
+		expect(plain(meetingTimesOf(meeting, workspace(12)))).toBe('2:00 – 2:45 PM');
+	});
+
+	it("writes them as the reader's language does without a workspace clock", () => {
+		expect(plain(meetingTimesOf(meeting, workspace(null)))).toBe('2:00 – 2:45 PM');
+		expect(plain(meetingTimesOf(meeting, 'en-US'))).toBe('2:00 – 2:45 PM');
+	});
+});
 
 describe('meetingStartedAgoOf', () => {
 	const start = new Date('2026-11-12T14:00:00Z');

@@ -4047,6 +4047,7 @@
 			"PAYMENT": "È stato registrato un pagamento per te",
 			"RATE_CHANGE_REQUEST": "<b>{name}</b> ha chiesto un cambio di tariffa",
 			"TIMER_REMINDER": "Il tuo timer è ancora in funzione",
+			"MEETING": "È cambiata una riunione a cui partecipi",
 			"TASK_UPDATE": "<b>{name}</b> ha fatto una modifica",
 			"TASK_DUE_REMINDER": "Un’attività sta per scadere"
 		},
@@ -4060,6 +4061,7 @@
 			"PAYMENT": "Pagamento",
 			"RATE_CHANGE_REQUEST": "Richiesta di cambio tariffa",
 			"TIMER_REMINDER": "Promemoria del timer",
+			"MEETING": "Riunione",
 			"TASK_UPDATE": "Modifica",
 			"TASK_DUE_REMINDER": "Promemoria di scadenza"
 		},
@@ -4138,6 +4140,14 @@
 				"OFF": "Disattivato",
 				"AFTER_HOURS": "Dopo {hours, plural, one {# ora} other {# ore}}"
 			},
+			"MEETINGS": {
+				"TITLE": "Riunioni",
+				"INTRO": "Avvisi sulle riunioni che organizzi o a cui sei invitato, e un promemoria prima dell’inizio di ciascuna.",
+				"LABEL": "Promemoria riunione",
+				"TEXT": "Quando sei invitato, quando una riunione cambia o viene annullata, prima che inizi e quando inizia. Nella tua posta in arrivo, via email e sui tuoi dispositivi, come preferisci.",
+				"OFF": "Solo all’inizio",
+				"BEFORE_MINUTES": "{minutes} min prima"
+			},
 			"TASK_DUE": {
 				"TITLE": "Scadenze",
 				"INTRO": "Un promemoria prima della scadenza di un’attività assegnata a te, finché non è completata.",
@@ -4199,6 +4209,16 @@
 			"FORGOTTEN_DESCRIPTION": "L’hai dimenticato? Fermalo, poi correggi il tempo nel tuo foglio ore se serve.",
 			"STOP": "Ferma il timer",
 			"OPEN": "Apri il timer"
+		},
+		"MEETING": {
+			"INVITED": "<b>{name}</b> ti ha invitato a una riunione",
+			"REMOVED": "<b>{name}</b> ti ha rimosso da una riunione",
+			"CHANGED": "<b>{name}</b> ha modificato una riunione",
+			"CANCELLED": "<b>{name}</b> ha annullato una riunione",
+			"REMINDER": "La tua riunione inizia tra {minutes, plural, one {# minuto} other {# minuti}}",
+			"SOON": "La tua riunione inizia a breve",
+			"STARTING": "La tua riunione sta iniziando",
+			"OPEN": "Apri le riunioni"
 		},
 		"TASK_DUE": {
 			"BY_END_OF_DAY": "Scade alla fine del {date}",
@@ -4465,7 +4485,7 @@
 		"ADD_TO_CALENDAR": "Aggiungi al calendario",
 		"DONE": "Fatto",
 		"AGENDA": "Agenda",
-		"AGENDA_HINT": "Riunioni che hai pianificato",
+		"AGENDA_HINT": "Riunioni che hai pianificato o a cui sei invitato",
 		"TODAY": "Oggi",
 		"TOMORROW": "Domani",
 		"YESTERDAY": "Ieri",
@@ -4489,6 +4509,7 @@
 		"JOIN_MEETING": "Partecipa alla riunione",
 		"MEETING_ACTIONS_OF": "Azioni per {title}",
 		"HOST": "Organizzatore: {name}",
+		"INVITED": "Invitato",
 		"STARTED_AGO": "Iniziata {ago}",
 		"CANCEL_MEETING": "Annulla riunione",
 		"CANCEL_CONFIRM_TITLE": "Annullare questa riunione?",

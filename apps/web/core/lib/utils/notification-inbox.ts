@@ -1,4 +1,5 @@
 import { timerReminderNoticeOf, type TimerReminderNotice } from '@/core/lib/notifications/timer-reminders';
+import { MEETINGS_HREF, meetingNoticeOf, type MeetingNotice } from '@/core/lib/notifications/meeting-notices';
 import { boardInvitationHref, isBoardInvitation } from '@/core/lib/notifications/board-invitations';
 import { EBaseEntityEnum } from '@/core/types/generics/enums/entity';
 import { EEmployeeNotificationType, IEmployeeNotification } from '@/core/types/interfaces/common/employee-notification';
@@ -29,6 +30,8 @@ export interface NotificationEntry {
 	href: string | null;
 	/** A reminder of a timer left running: its level, the hours it names and its run, read in the reader's language. */
 	timerReminder: TimerReminderNotice | null;
+	/** A notice about a meeting the person hosts or is invited to: its kind, its title and its appointment. */
+	meeting: MeetingNotice | null;
 	createdAt: Date;
 }
 
@@ -128,6 +131,9 @@ function hrefOf(type: EEmployeeNotificationType | null, notification: IEmployeeN
 	if (type === EEmployeeNotificationType.TimerReminder) {
 		return TIMER_REMINDER_HREF;
 	}
+	if (type === EEmployeeNotificationType.Meeting) {
+		return MEETINGS_HREF;
+	}
 	if (isBoardInvitation({ type, entity: notification.entity, rawTitle: notification.title })) {
 		return boardInvitationHref();
 	}
@@ -172,9 +178,11 @@ function distinctMessageOf(notification: IEmployeeNotification, subject: string 
 export function toNotificationEntry(notification: IEmployeeNotification): NotificationEntry {
 	const rawTitle = firstFilled([notification.title]) ?? '';
 	const sender = notification.sentByEmployee;
-	const senderName = firstFilled([sender?.fullName, sender?.user?.name, senderNameFromTitle(rawTitle)]);
-	const subject = quotedSubjectOf(rawTitle);
 	const type = knownTypeOf(notification.type);
+	// A meeting's title names no one: a word of the meeting's own title is no sender (#5022)
+	const titleSender = type === EEmployeeNotificationType.Meeting ? null : senderNameFromTitle(rawTitle);
+	const senderName = firstFilled([sender?.fullName, sender?.user?.name, titleSender]);
+	const subject = quotedSubjectOf(rawTitle);
 
 	return {
 		id: notification.id,
@@ -190,6 +198,7 @@ export function toNotificationEntry(notification: IEmployeeNotification): Notifi
 		entityId: notification.entityId ?? null,
 		href: hrefOf(type, notification),
 		timerReminder: timerReminderNoticeOf(notification),
+		meeting: meetingNoticeOf(notification),
 		createdAt: new Date(notification.createdAt)
 	};
 }

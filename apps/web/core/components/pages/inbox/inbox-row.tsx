@@ -11,6 +11,7 @@ import {
 	timerReminderDescriptionOf,
 	timerReminderSentenceOf
 } from '@/core/components/notifications/timer-reminder-copy';
+import { meetingSentenceOf } from '@/core/components/notifications/meeting-notice-copy';
 import { PersonAvatar, type Person } from '@/core/components/teams/people-avatars';
 import { formatNotificationAge, formatNotificationDate } from '@/core/lib/utils/notification-inbox';
 import { InboxEntry, InboxSourceGroup } from '@/core/lib/utils/inbox-entry';
@@ -28,6 +29,7 @@ const INBOX_EVENT_KEYS: Record<EEmployeeNotificationType, DottedLanguageObjectSt
 	[EEmployeeNotificationType.Payment]: 'notifications.EVENTS.PAYMENT',
 	[EEmployeeNotificationType.RateChangeRequest]: 'notifications.EVENTS.RATE_CHANGE_REQUEST',
 	[EEmployeeNotificationType.TimerReminder]: 'notifications.EVENTS.TIMER_REMINDER',
+	[EEmployeeNotificationType.Meeting]: 'notifications.EVENTS.MEETING',
 	[EEmployeeNotificationType.TaskUpdate]: 'notifications.EVENTS.TASK_UPDATE',
 	[EEmployeeNotificationType.TaskDueReminder]: 'notifications.EVENTS.TASK_DUE_REMINDER'
 };
@@ -54,6 +56,7 @@ function SenderName({ children }: Readonly<{ children: ReactNode }>) {
 export function useInboxSentence(entry: InboxEntry, person: Person | null): ReactNode {
 	const t = useTranslations();
 	if (entry.timerReminder) return timerReminderSentenceOf(t, entry.timerReminder);
+	if (entry.meeting) return meetingSentenceOf(t, entry.meeting, person?.name || entry.senderName);
 	if (!entry.type) return entry.rawTitle;
 	const name = person?.name || entry.senderName || t('notifications.SOMEONE');
 	return t.rich(INBOX_EVENT_KEYS[entry.type], { name, b: (chunks) => <SenderName>{chunks}</SenderName> });
