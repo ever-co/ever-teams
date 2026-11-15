@@ -4248,7 +4248,8 @@
 			"ALREADY_RUNNING_ON_TASK": "Timer już działa dla tego zadania",
 			"SAVED_STOP_HINT": "To zatrzymanie zażądane przed wygaśnięciem sesji.",
 			"UNFOLLOWED_STOPPED_HINT": "Potem aplikacja nie mogła go śledzić: komputer był uśpiony albo przeglądarka wstrzymała tę kartę. Późniejszą pracę dodaj jako czas ręczny.",
-			"UNFOLLOWED_STOP_CHOSEN_HINT": "Wybrano, aby nie zachowywać późniejszego czasu."
+			"UNFOLLOWED_STOP_CHOSEN_HINT": "Wybrano, aby nie zachowywać późniejszego czasu.",
+			"UNFOLLOWED_KEEP_CHANGED": "Nie zachowano czasu: w międzyczasie timer zmienił się gdzie indziej. Sprawdź go i w razie potrzeby dodaj czas ręcznie."
 		},
 		"plans": {
 			"CREATE_FAILED": "Nie utworzono planu",

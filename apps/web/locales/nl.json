@@ -4248,7 +4248,8 @@
 			"ALREADY_RUNNING_ON_TASK": "De timer loopt al voor deze taak",
 			"SAVED_STOP_HINT": "Dit is de stop die je vroeg voordat je sessie afliep.",
 			"UNFOLLOWED_STOPPED_HINT": "Daarna kon de app hem niet volgen: de computer sliep of de browser pauzeerde dit tabblad. Voeg later werk toe als handmatige tijd.",
-			"UNFOLLOWED_STOP_CHOSEN_HINT": "Je koos ervoor de tijd daarna niet te behouden."
+			"UNFOLLOWED_STOP_CHOSEN_HINT": "Je koos ervoor de tijd daarna niet te behouden.",
+			"UNFOLLOWED_KEEP_CHANGED": "Er is geen tijd behouden: de timer is intussen ergens anders gewijzigd. Controleer hem en voeg de tijd zo nodig handmatig toe."
 		},
 		"plans": {
 			"CREATE_FAILED": "Het plan is niet aangemaakt",

@@ -120,6 +120,20 @@ interface UnfollowedTimeFacts {
 }
 
 /**
+ * How long a run went on since its last heartbeat (`heartbeat`, on the API's clock): on the computer's clock alone
+ * when this browser sent that heartbeat, else from the API's heartbeat to the present the closed-tab rule goes by.
+ */
+export function unfollowedTimeOf(
+	lastLog: Pick<ITimeLog, 'id'>,
+	heartbeat: number,
+	{ now, clientNow, remembered = null }: Pick<UnfollowedTimeFacts, 'now' | 'clientNow' | 'remembered'>
+): number {
+	const isOwnHeartbeat =
+		!!remembered && remembered.timeLogId === lastLog.id && Date.parse(remembered.stoppedAt) === heartbeat;
+	return isOwnHeartbeat ? clientNow - remembered.at : now - heartbeat;
+}
+
+/**
  * Decides what becomes of the time since a run's last heartbeat.
  *
  * The closed-tab rule itself is unchanged (isStaleTeamsTimer). Below it, the time without a heartbeat is the time
@@ -143,9 +157,7 @@ export function decideUnfollowedTime({
 	// No heartbeat yet: the run's age proves nothing (see isStaleTeamsTimer)
 	if (Number.isNaN(heartbeat) || heartbeat <= new Date(lastLog.startedAt).getTime()) return 'follow';
 
-	const isOwnHeartbeat =
-		!!remembered && remembered.timeLogId === lastLog.id && Date.parse(remembered.stoppedAt) === heartbeat;
-	const unfollowedFor = isOwnHeartbeat ? clientNow - remembered.at : now - heartbeat;
+	const unfollowedFor = unfollowedTimeOf(lastLog, heartbeat, { now, clientNow, remembered });
 	// A delay set shorter than the floor leaves nothing to ask about
 	if (unfollowedFor <= Math.min(floorMs, thresholdMs)) return 'follow';
 	return isStaleTeamsTimer(lastLog, now, thresholdMs) ? 'stop' : 'ask';

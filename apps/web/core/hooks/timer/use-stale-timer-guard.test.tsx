@@ -17,6 +17,7 @@ import type { ReactNode } from 'react';
 import type { RenderHookResult, waitFor as WaitFor } from '@testing-library/react';
 import { SYNC_TIMER_INTERVAL } from '@/core/constants/config/constants';
 import { forgetSavedStop, parseSavedStop, saveStop, storedSavedStop } from '@/core/lib/utils/timer/saved-stop';
+import { timeSlotsBetween } from '@/core/lib/helpers/timer';
 import { ETimeLogSource, ETimeLogType } from '@/core/types/generics/enums/timer';
 
 // Each page below loads React Testing Library afresh, inside a test, where it cannot register its own cleanup
@@ -25,7 +26,7 @@ process.env.RTL_SKIP_AUTO_CLEANUP = 'true';
 
 const mockGetLastTimerLog = jest.fn();
 const mockStopTimer = jest.fn();
-const mockSyncTimer = jest.fn();
+const mockCatchUpTimeSlots = jest.fn();
 const mockToastInfo = jest.fn();
 const mockTranslate = (key: string) => key;
 
@@ -33,7 +34,7 @@ jest.mock('@/core/services/client/api/timers', () => ({
 	timerService: {
 		getLastTimerLog: (...args: unknown[]) => mockGetLastTimerLog(...args),
 		stopTimer: (...args: unknown[]) => mockStopTimer(...args),
-		syncTimer: (...args: unknown[]) => mockSyncTimer(...args)
+		catchUpTimeSlots: (...args: unknown[]) => mockCatchUpTimeSlots(...args)
 	}
 }));
 jest.mock('sonner', () => ({ toast: { info: (...args: unknown[]) => mockToastInfo(...args) } }));
@@ -506,7 +507,7 @@ describe('useStaleTimerGuard, with time the run went on without the app', () => 
 	beforeEach(() => {
 		mockGetLastTimerLog.mockReset();
 		mockStopTimer.mockReset().mockResolvedValue({ data: { running: false } });
-		mockSyncTimer.mockReset().mockResolvedValue({ data: { running: true, lastLog: null } });
+		mockCatchUpTimeSlots.mockReset().mockResolvedValue({ data: { running: true, lastLog: null } });
 		mockToastInfo.mockReset();
 		window.localStorage.clear();
 	});
@@ -542,34 +543,175 @@ describe('useStaleTimerGuard, with time the run went on without the app', () => 
 		expect(page.isUnsettled()).toBe(false);
 	});
 
-	it('keeps the time when the person says so: a heartbeat goes at once, and the run goes on', async () => {
+	it('keeps the whole time since the last heartbeat when the person says so, on a page that just opened', async () => {
 		const { page, owner } = openAppAfter(7);
 		await page.waitFor(() => expect(page.question()).not.toBeNull());
 
 		await page.answer('keep');
 
 		await page.waitFor(() => expect(owner.result.current).toBe(true));
-		expect(mockSyncTimer).toHaveBeenCalledTimes(1);
-		expect(mockSyncTimer).toHaveBeenCalledWith({
-			source: ETimeLogSource.TEAMS,
-			user: { employee: { id: EMPLOYEE.id } },
-			timeLogId: 'log-1'
-		});
+		// The seven minutes from the last heartbeat, for that run: an ordinary heartbeat wrote one minute, on the present
+		expect(mockCatchUpTimeSlots).toHaveBeenCalledTimes(1);
+		expect(mockCatchUpTimeSlots).toHaveBeenCalledWith(
+			expect.objectContaining({
+				source: ETimeLogSource.TEAMS,
+				employeeId: EMPLOYEE.id,
+				timeLogId: 'log-1',
+				fromMs: Date.parse(LAST_HEARTBEAT)
+			})
+		);
+		const [{ fromMs, toMs }] = mockCatchUpTimeSlots.mock.calls[0];
+		// To the present: the milliseconds between the read and the write go on with it
+		expect(toMs - fromMs).toBeGreaterThanOrEqual(7 * MINUTE);
+		expect(toMs - fromMs).toBeLessThan(7 * MINUTE + 1000);
+		const written = timeSlotsBetween(fromMs, toMs).reduce((seconds, slot) => seconds + slot.duration, 0);
+		expect(written).toBe(7 * 60);
 		expect(mockStopTimer).not.toHaveBeenCalled();
 		expect(mockToastInfo).not.toHaveBeenCalled();
 		expect(page.question()).toBeNull();
 	});
 
-	it('keeps the time even when that heartbeat fails: the one the app sends each minute takes over', async () => {
+	it('keeps the time at the next try when its write fails, without asking again, a stop that waits held meanwhile', async () => {
+		jest.useFakeTimers();
 		const { page, owner } = openAppAfter(7);
-		mockSyncTimer.mockRejectedValue(new Error('Network Error'));
+		await page.settle();
+		expect(page.question()).not.toBeNull();
+		const waitingStop = followWaitingStop(page);
+		mockCatchUpTimeSlots.mockRejectedValueOnce(new Error('Network Error'));
+
+		await page.answer('keep');
+		await page.settle();
+		expect(mockCatchUpTimeSlots).toHaveBeenCalledTimes(1);
+		// The heartbeat stays held: the minute it would write is not the time the person kept
+		expect(page.isUnsettled()).toBe(true);
+		expect(waitingStop()).toBeUndefined();
+
+		await page.settle(SYNC_TIMER_INTERVAL);
+		await page.settle();
+		expect(page.question()).toBeNull();
+		expect(mockCatchUpTimeSlots).toHaveBeenCalledTimes(2);
+		expect(mockCatchUpTimeSlots).toHaveBeenLastCalledWith(
+			expect.objectContaining({ timeLogId: 'log-1', fromMs: Date.parse(LAST_HEARTBEAT) })
+		);
+		expect(waitingStop()).toBe(false);
+		expect(owner.result.current).toBe(true);
+	});
+
+	it('writes the rest of a Keep whose write failed part way, from the last slot written, without asking again', async () => {
+		jest.useFakeTimers();
+		const { page, owner } = openAppAfter(7);
+		await page.settle();
+		const heartbeat = Date.parse(LAST_HEARTBEAT);
+		// The slot up to 09:00:00 is written, then the next write fails: the run's heartbeat moved to the present
+		mockCatchUpTimeSlots.mockImplementationOnce(async ({ onWritten }) => {
+			onWritten(heartbeat + 3 * MINUTE);
+			throw new Error('Network Error');
+		});
+
+		await page.answer('keep');
+		await page.settle();
+		mockGetLastTimerLog.mockResolvedValue(answerAfterLaterHeartbeat(8));
+		await page.settle(SYNC_TIMER_INTERVAL);
+		await page.settle();
+
+		expect(page.question()).toBeNull();
+		expect(mockCatchUpTimeSlots).toHaveBeenCalledTimes(2);
+		const [{ fromMs, toMs }] = mockCatchUpTimeSlots.mock.calls[1];
+		expect(fromMs).toBe(heartbeat + 3 * MINUTE);
+		// On to the present: the minute the retry waited is time the person kept too
+		expect(toMs).toBe(heartbeat + 8 * MINUTE);
+		expect(owner.result.current).toBe(true);
+	});
+
+	it('writes a Keep whose write failed at the next try even past the closed-tab delay, rather than stop the run', async () => {
+		jest.useFakeTimers();
+		const page = loadPage();
+		// Kept at nine and a half minutes; read again a minute later, past the ten-minute delay
+		const answerAt = (minutes: number) => lastLogAnswer(minutes);
+		mockGetLastTimerLog.mockResolvedValue(answerAt(9.5));
+		const owner = page.mountOwner();
+		await page.settle();
+		expect(page.question()).not.toBeNull();
+		mockCatchUpTimeSlots.mockRejectedValueOnce(new Error('Network Error'));
+
+		await page.answer('keep');
+		await page.settle();
+		mockGetLastTimerLog.mockResolvedValue(answerAt(10.5));
+		await page.settle(SYNC_TIMER_INTERVAL);
+		await page.settle();
+
+		expect(mockStopTimer).not.toHaveBeenCalled();
+		expect(mockCatchUpTimeSlots).toHaveBeenCalledTimes(2);
+		expect(mockCatchUpTimeSlots).toHaveBeenLastCalledWith(
+			expect.objectContaining({ fromMs: Date.parse(LAST_HEARTBEAT) })
+		);
+		expect(owner.result.current).toBe(true);
+	});
+
+	it("keeps the time on the computer's clock where the API gives no clock, not five minutes less", async () => {
+		jest.useFakeTimers();
+		const heartbeat = Date.parse(LAST_HEARTBEAT);
+		// Nine minutes away. Without Gauzy's clock the closed-tab rule allows the computer's five fast: it asks
+		jest.setSystemTime(heartbeat + 9 * MINUTE);
+		const page = loadPage();
+		const withoutClock = lastLogAnswer(9);
+		Object.assign(withoutClock, { headers: {} });
+		mockGetLastTimerLog.mockResolvedValue(withoutClock);
+		const owner = page.mountOwner();
+		await page.settle();
+		expect(page.question()).not.toBeNull();
+
+		await page.answer('keep');
+		await page.settle();
+
+		expect(mockCatchUpTimeSlots).toHaveBeenCalledWith(
+			expect.objectContaining({ fromMs: heartbeat, toMs: heartbeat + 9 * MINUTE })
+		);
+		expect(owner.result.current).toBe(true);
+	});
+
+	it('keeps nothing when another device stopped the run and started another before the answer, and says so', async () => {
+		const page = loadPage();
+		const replacement = lastLogAnswer(8);
+		replacement.data[0].lastLog.id = 'log-2';
+		// Read as the check starts and as it asks; read again just before the keep, once the other device replaced it
+		mockGetLastTimerLog
+			.mockResolvedValueOnce(lastLogAnswer(7))
+			.mockResolvedValueOnce(lastLogAnswer(7))
+			.mockResolvedValue(replacement);
+		const owner = page.mountOwner();
 		await page.waitFor(() => expect(page.question()).not.toBeNull());
+		const waitingStop = followWaitingStop(page);
 
 		await page.answer('keep');
 
 		await page.waitFor(() => expect(owner.result.current).toBe(true));
-		expect(mockStopTimer).not.toHaveBeenCalled();
-		expect(page.question()).toBeNull();
+		// The other run is not credited the time, and the run asked about ended: a stop that waited sends nothing
+		expect(mockCatchUpTimeSlots).not.toHaveBeenCalled();
+		expect(mockToastInfo).toHaveBeenCalledWith('toasts.timer.UNFOLLOWED_KEEP_CHANGED', {
+			id: 'timer-unfollowed-keep-changed'
+		});
+		expect(waitingStop()).toBe(true);
+		expect(window.localStorage.getItem('ever-teams.timer.unfollowed-time-settled')).toBeNull();
+	});
+
+	it('keeps nothing more when the run was kept from another device before the answer, and says so', async () => {
+		const page = loadPage();
+		mockGetLastTimerLog
+			.mockResolvedValueOnce(lastLogAnswer(7))
+			.mockResolvedValueOnce(lastLogAnswer(7))
+			.mockResolvedValue(answerAfterLaterHeartbeat(8));
+		const owner = page.mountOwner();
+		await page.waitFor(() => expect(page.question()).not.toBeNull());
+		const waitingStop = followWaitingStop(page);
+
+		await page.answer('keep');
+
+		await page.waitFor(() => expect(owner.result.current).toBe(true));
+		expect(mockCatchUpTimeSlots).not.toHaveBeenCalled();
+		expect(mockToastInfo).toHaveBeenCalledWith('toasts.timer.UNFOLLOWED_KEEP_CHANGED', expect.anything());
+		// The run goes on: the stop that waited is sent
+		expect(waitingStop()).toBe(false);
 	});
 
 	it('stops the run at its last heartbeat when the person says so, and says it was their choice', async () => {
@@ -585,7 +727,7 @@ describe('useStaleTimerGuard, with time the run went on without the app', () => 
 			id: 'timer-stale-stopped',
 			description: 'toasts.timer.UNFOLLOWED_STOP_CHOSEN_HINT'
 		});
-		expect(mockSyncTimer).not.toHaveBeenCalled();
+		expect(mockCatchUpTimeSlots).not.toHaveBeenCalled();
 	});
 
 	it('stops the run at its last heartbeat once the closed-tab delay is reached without an answer', async () => {
@@ -661,7 +803,7 @@ describe('useStaleTimerGuard, with time the run went on without the app', () => 
 		expect(page.question()).toBeNull();
 		expect(waitingStop()).toBe(true);
 		expect(mockStopTimer).not.toHaveBeenCalled();
-		expect(mockSyncTimer).not.toHaveBeenCalled();
+		expect(mockCatchUpTimeSlots).not.toHaveBeenCalled();
 	});
 
 	it('carries on, asking nothing more, once another tab kept that time', async () => {
@@ -814,7 +956,7 @@ describe('useStaleTimerGuard, with time the run went on without the app', () => 
 
 	it.each([
 		['stop', false, () => mockStopTimer],
-		['keep', true, () => mockSyncTimer]
+		['keep', true, () => mockCatchUpTimeSlots]
 	] as const)(
 		'tells the other tabs once the answer (%s) is applied, not as it is given: a stop that waits there waits on',
 		async (answer, kept, request) => {
@@ -883,7 +1025,7 @@ describe('useStaleTimerGuard, with time the run went on without the app', () => 
 		await page.waitFor(() => expect(owner.result.current).toBe(true));
 		expect(page.question()).toBeNull();
 		expect(mockStopTimer).not.toHaveBeenCalled();
-		expect(mockSyncTimer).not.toHaveBeenCalled();
+		expect(mockCatchUpTimeSlots).not.toHaveBeenCalled();
 	});
 
 	it('sends no heartbeat during a break, which the status reads stopped: a heartbeat would count it as tracked time', async () => {
@@ -1066,7 +1208,7 @@ describe('useStaleTimerGuard, with time the run went on without the app', () => 
 			await page.answer('keep');
 			await page.settle();
 			expect(owner.result.current).toBe(true);
-			expect(mockSyncTimer).toHaveBeenCalledTimes(1);
+			expect(mockCatchUpTimeSlots).toHaveBeenCalledTimes(1);
 		});
 
 		it('holds a heartbeat that comes due before the page has looked at the clock', async () => {

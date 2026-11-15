@@ -4248,7 +4248,8 @@
 			"ALREADY_RUNNING_ON_TASK": "The timer is already running on this task",
 			"SAVED_STOP_HINT": "This is the stop you asked for before your session ended.",
 			"UNFOLLOWED_STOPPED_HINT": "The app could not follow it after that: the computer slept or the browser paused this tab. Add any later work as manual time.",
-			"UNFOLLOWED_STOP_CHOSEN_HINT": "You chose not to keep the time after that."
+			"UNFOLLOWED_STOP_CHOSEN_HINT": "You chose not to keep the time after that.",
+			"UNFOLLOWED_KEEP_CHANGED": "No time was kept: the timer changed elsewhere meanwhile. Check it, then add the time manually if needed."
 		},
 		"plans": {
 			"CREATE_FAILED": "The plan was not created",

@@ -4248,7 +4248,8 @@
 			"ALREADY_RUNNING_ON_TASK": "计时器已在此任务上运行",
 			"SAVED_STOP_HINT": "这是你在会话结束前要求的停止。",
 			"UNFOLLOWED_STOPPED_HINT": "之后应用无法跟进它：电脑进入了睡眠，或浏览器暂停了此标签页。之后的工作请作为手动时间添加。",
-			"UNFOLLOWED_STOP_CHOSEN_HINT": "你选择了不保留之后的时间。"
+			"UNFOLLOWED_STOP_CHOSEN_HINT": "你选择了不保留之后的时间。",
+			"UNFOLLOWED_KEEP_CHANGED": "没有保留任何时间：计时器在此期间已在别处更改。请检查它，如有需要请手动添加时间。"
 		},
 		"plans": {
 			"CREATE_FAILED": "计划未创建",

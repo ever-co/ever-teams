@@ -4248,7 +4248,8 @@
 			"ALREADY_RUNNING_ON_TASK": "O temporizador já está em execução nesta tarefa",
 			"SAVED_STOP_HINT": "É a parada que você pediu antes de a sessão terminar.",
 			"UNFOLLOWED_STOPPED_HINT": "Depois disso o app não pôde acompanhá-lo: o computador estava em repouso ou o navegador pausou esta aba. Adicione o trabalho posterior como tempo manual.",
-			"UNFOLLOWED_STOP_CHOSEN_HINT": "Você escolheu não manter o tempo depois disso."
+			"UNFOLLOWED_STOP_CHOSEN_HINT": "Você escolheu não manter o tempo depois disso.",
+			"UNFOLLOWED_KEEP_CHANGED": "Nenhum tempo foi mantido: o temporizador mudou noutro lugar entretanto. Verifique-o e adicione o tempo manualmente, se necessário."
 		},
 		"plans": {
 			"CREATE_FAILED": "O plano não foi criado",
