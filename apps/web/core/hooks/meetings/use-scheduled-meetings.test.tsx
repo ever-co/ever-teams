@@ -20,10 +20,10 @@ jest.mock('../queries/user-user.query', () => ({
 	useUserQuery: () => ({ data: { name: 'Ruslan Konviser', employee: { id: 'employee-1' } } })
 }));
 
+import { queryKeys } from '@/core/query/keys';
 import { useScheduledMeetings } from './use-scheduled-meetings';
 
-function renderScheduledMeetings() {
-	const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+function renderScheduledMeetings(queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })) {
 	const wrapper = ({ children }: { children: ReactNode }) => (
 		<QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
 	);
@@ -65,6 +65,37 @@ describe('useScheduledMeetings', () => {
 			const [input] = mockScheduleMeeting.mock.calls[0];
 			expect(input.emails).toBe('ana@acme.com, guest@example.org');
 			expect(input).not.toHaveProperty('inviteeEmployeeIds');
+		}
+	);
+
+	it.each([
+		{
+			agenda: 'listed the invitations',
+			answer: () => Promise.resolve([]),
+			emails: 'guest@example.org',
+			members: ['employee-ana']
+		},
+		{
+			agenda: 'met a missing route (406)',
+			answer: () => Promise.reject(apiError(406)),
+			emails: 'ana@acme.com, guest@example.org',
+			members: undefined
+		}
+	])(
+		'reuses the answer of an agenda that $agenda, asking the platform nothing more',
+		async ({ answer, emails, members }) => {
+			const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+			await queryClient.prefetchQuery({ queryKey: queryKeys.meetings.invited('employee-1'), queryFn: answer });
+			const { result } = renderScheduledMeetings(queryClient);
+
+			await act(async () => {
+				await result.current.scheduleMeeting(draft);
+			});
+
+			expect(mockGetInvitedMeetings).not.toHaveBeenCalled();
+			const [input] = mockScheduleMeeting.mock.calls[0];
+			expect(input.emails).toBe(emails);
+			expect(input.inviteeEmployeeIds).toEqual(members);
 		}
 	);
 
