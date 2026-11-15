@@ -92,9 +92,10 @@ export function useTimerBreak(timerStatus: ITimerStatus | null | undefined, stop
 	// which the switch guard and the timer's buttons wait for; the other reads go on by themselves. A read that fails
 	// leaves the display to the next status read.
 	const refreshAfterBreak = useCallback(async () => {
-		void queryClient.invalidateQueries({ queryKey: queryKeys.organizationTeams.all });
-		void queryClient.invalidateQueries({ queryKey: queryKeys.activities.all });
-		void queryClient.invalidateQueries({ queryKey: queryKeys.timesheet.all });
+		const keepsGoing = () => undefined;
+		queryClient.invalidateQueries({ queryKey: queryKeys.organizationTeams.all }).catch(keepsGoing);
+		queryClient.invalidateQueries({ queryKey: queryKeys.activities.all }).catch(keepsGoing);
+		queryClient.invalidateQueries({ queryKey: queryKeys.timesheet.all }).catch(keepsGoing);
 		try {
 			await queryClient.invalidateQueries({ queryKey: queryKeys.timer.all });
 		} catch {
