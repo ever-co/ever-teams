@@ -165,6 +165,31 @@ describe('SharedInvoicePage (ever-co/ever-gauzy#11856)', () => {
 		}
 	});
 
+	it('back from the provider, says no payment failed to start while the payment just made is confirmed', async () => {
+		jest.useFakeTimers();
+		try {
+			search.set('paid', '1');
+			service.getPayOption.mockRejectedValue({ response: { status: 502 }, status: 502 });
+			show();
+			expect(await screen.findByText('invoices.shared.RETURNED_TITLE')).toBeTruthy();
+			await act(async () => {
+				jest.advanceTimersByTime(1_000);
+			});
+
+			expect(service.getPayOption).toHaveBeenCalled();
+			expect(screen.queryByRole('alert')).toBeNull();
+			expect(screen.queryByRole('button', { name: 'pages.unauthorized.TRY_AGAIN' })).toBeNull();
+
+			await act(async () => {
+				jest.advanceTimersByTime(2 * 60_000 + 1_000);
+			});
+
+			expect(await screen.findByRole('alert')).toHaveProperty('textContent', 'invoices.shared.PAY_FAILED');
+		} finally {
+			jest.useRealTimers();
+		}
+	});
+
 	it('back from the provider, stops reading a link the API closed meanwhile', async () => {
 		jest.useFakeTimers();
 		try {

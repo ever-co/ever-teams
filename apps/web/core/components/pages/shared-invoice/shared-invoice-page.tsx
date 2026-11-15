@@ -242,8 +242,10 @@ function SharedInvoiceView({ id, token, isReturn }: Readonly<{ id: string; token
 	// Back from the provider, a second Pay would ask the client to pay again while the first payment is confirmed
 	const canPay = Boolean(option?.payable) && typeof option?.amountDue === 'number' && !isPaid && !isConfirmingPayment;
 	// Whether Pay is offered could not be read: said, with a retry. An API without online payments answers 404, which
-	// is no failure: the page offers no Pay there.
-	const hasPayOptionFailed = payOption.isError && errorStatusOf(payOption.error) !== 404 && !isPaid;
+	// is no failure: the page offers no Pay there. Back from the provider it is not said while the payment just made is
+	// confirmed: the client would read that their payment could not be started, next to the thanks for it.
+	const hasPayOptionFailed =
+		payOption.isError && errorStatusOf(payOption.error) !== 404 && !isPaid && !isConfirmingPayment;
 	const payLabel = canPay
 		? t('invoices.shared.PAY', {
 				amount: formatOwed(option.amountDue as number, option.currency ?? shown.currency ?? null, locale)
