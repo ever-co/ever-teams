@@ -204,6 +204,9 @@ function TimerStartForm({
 	};
 
 	const laterOnly = !earlierAllowed;
+	// The list knows a time of one day only: a run started before midnight takes later times of the next day, which a
+	// time of the run's day as the earliest would rule out. Save still refuses an earlier start (#5325).
+	const startsToday = runStart.toDateString() === new Date().toDateString();
 	const hasError = errorKey !== null;
 
 	return (
@@ -215,7 +218,7 @@ function TimerStartForm({
 				<TimeField
 					id={timeId}
 					value={timeText}
-					min={laterOnly ? startText : undefined}
+					min={laterOnly && startsToday ? startText : undefined}
 					onChange={(time) => {
 						setTimeText(time);
 						setErrorKey(null);
