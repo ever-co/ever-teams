@@ -73,6 +73,8 @@ export interface MyWeekBillable {
 	figures: BillableFigures;
 	isPending: boolean;
 	isError: boolean;
+	/** Reads again what failed: the project rates, and the organization once its read failed. */
+	retry: () => void;
 }
 
 function isPeriodKey(value: string | null): value is MyWeekPeriodKey {
@@ -175,12 +177,19 @@ export function useMyWeekPage() {
 			});
 		return myWeekBillableOf(entries, priceOf, roundingRule);
 	}, [employeeId, entries, organization, ownRate, ratesByProject, readsBillable]);
+	const { refetch: refetchProjectRates } = projectRates;
+	const { retry: retryBillingOrganization } = billingOrganization;
+	const retryBillable = useCallback(() => {
+		refetchProjectRates();
+		retryBillingOrganization();
+	}, [refetchProjectRates, retryBillingOrganization]);
 	const billable = useMemo<MyWeekBillable>(
 		() => ({
 			isOffered: readsBillable,
 			figures: billableFigures,
 			isPending: projectRates.isLoading || billingOrganization.isPending,
-			isError: projectRates.hasFailed || billingOrganization.isError
+			isError: projectRates.hasFailed || billingOrganization.isError,
+			retry: retryBillable
 		}),
 		[
 			billableFigures,
@@ -188,7 +197,8 @@ export function useMyWeekPage() {
 			billingOrganization.isPending,
 			projectRates.hasFailed,
 			projectRates.isLoading,
-			readsBillable
+			readsBillable,
+			retryBillable
 		]
 	);
 

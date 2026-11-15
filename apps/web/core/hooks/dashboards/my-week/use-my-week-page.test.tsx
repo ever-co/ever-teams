@@ -25,11 +25,12 @@ jest.mock('@/core/hooks/roles/use-my-role-permissions-query', () => ({
 }));
 // The organization's read, which fills the current organization the amount is priced with
 const mockReadOrganization = jest.fn();
+const mockRefetchOrganization = jest.fn();
 let mockOrganizationReadFailed = false;
 jest.mock('@/core/hooks/auth/use-current-organization', () => ({
 	useGetCurrentOrganization: (options: { enabled?: boolean }) => {
 		mockReadOrganization(options);
-		return { isError: mockOrganizationReadFailed, refetch: jest.fn() };
+		return { isError: mockOrganizationReadFailed, refetch: mockRefetchOrganization };
 	}
 }));
 jest.mock('@/core/lib/helpers/cookies', () => ({
@@ -114,6 +115,7 @@ describe('useMyWeekPage', () => {
 		mockPermissions = [];
 		mockOrganizationReadFailed = false;
 		mockReadOrganization.mockClear();
+		mockRefetchOrganization.mockClear();
 		getDefaultStore().set(currentOrganizationState, null);
 	});
 
@@ -260,6 +262,9 @@ describe('useMyWeekPage', () => {
 
 		expect(result.current.billable.isError).toBe(true);
 		expect(result.current.billable.isPending).toBe(false);
+
+		act(() => result.current.billable.retry());
+		expect(mockRefetchOrganization).toHaveBeenCalledTimes(1);
 	});
 
 	it('reports a failed read, and reads again on retry', async () => {

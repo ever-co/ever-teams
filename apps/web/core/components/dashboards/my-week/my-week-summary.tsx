@@ -18,6 +18,7 @@ import {
 import type { MyWeekPeriodKey, MyWeekTarget } from '@/core/lib/utils/dashboards/my-week';
 import { leftOf, limitShareLabelOf, overrunOf } from '@/core/lib/utils/dashboards/weekly-limit';
 import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
+import { Button } from '@/core/components/duplicated-components/_button';
 import { MyWeekDays } from './my-week-days';
 import { MY_WEEK_FIGURE_PANE, MY_WEEK_SUMMARY_GRID } from './my-week-recipes';
 
@@ -162,7 +163,16 @@ function BillableAmountFigure({ billable }: Readonly<{ billable: MyWeekBillable 
 		return <SupportingFigure label={label} value={<span className={cn('block h-4 w-20', SKELETON_BAR)} />} />;
 	}
 	if (billable.isError) {
-		return <SupportingFigure label={label} value="–" hint={t('dashboard.timeActivity.figures.UNAVAILABLE')} />;
+		// The organization's or the rates' read gave up: the amount offers to read them again, as Time & activity does
+		const retry = (
+			<span className="flex items-center gap-2">
+				–
+				<Button type="button" variant="ghost" size="sm" onClick={billable.retry} className="h-6 px-2">
+					{t('pages.unauthorized.TRY_AGAIN')}
+				</Button>
+			</span>
+		);
+		return <SupportingFigure label={label} value={retry} hint={t('dashboard.timeActivity.figures.UNAVAILABLE')} />;
 	}
 	const { amounts } = billable.figures;
 	let value = '–';
