@@ -191,15 +191,19 @@ describe('/api/employee-appointment/invited (#5022)', () => {
 		expect(init.method).toBe('GET');
 	});
 
-	it("keeps the status of a platform that has no such route, and answers 401 without a session", async () => {
+	it('keeps the status of a platform that has no such route, and answers 401 without a session', async () => {
 		const consoleError = jest.spyOn(console, 'error').mockImplementation(() => undefined);
 		fetchMock.mockResolvedValue(Response.json({ statusCode: 404, message: 'Not Found' }, { status: 404 }));
-		expect((await GET_INVITED(new Request('https://app.ever.team/api/employee-appointment/invited'))).status).toBe(404);
+		expect((await GET_INVITED(new Request('https://app.ever.team/api/employee-appointment/invited'))).status).toBe(
+			404
+		);
 		consoleError.mockRestore();
 
 		fetchMock.mockClear();
 		mockAuthenticatedGuard.mockResolvedValue({ $res: jest.fn(), user: null, status: 401 });
-		expect((await GET_INVITED(new Request('https://app.ever.team/api/employee-appointment/invited'))).status).toBe(401);
+		expect((await GET_INVITED(new Request('https://app.ever.team/api/employee-appointment/invited'))).status).toBe(
+			401
+		);
 		expect(fetchMock).not.toHaveBeenCalled();
 	});
 });

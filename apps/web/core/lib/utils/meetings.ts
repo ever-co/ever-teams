@@ -317,7 +317,7 @@ export function appointmentInputOf(draft: ScheduleMeetingDraft, employeeId: stri
 }
 
 /** The participants told apart: the team members among them (their employee ids, each once) and the other addresses. */
-export function participantsOf(
+function participantsOf(
 	participantEmails: readonly string[],
 	invitees: readonly MeetingInvitee[]
 ): { memberIds: string[]; emails: string[] } {

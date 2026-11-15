@@ -248,7 +248,7 @@ describe('scheduled meetings', () => {
 		expect(input.emails).toBe('guest@example.org');
 	});
 
-	it('reads a meeting one is invited to as one its host runs, and lists it once beside one\'s own (#5022)', () => {
+	it("reads a meeting one is invited to as one its host runs, and lists it once beside one's own (#5022)", () => {
 		const invited = invitedMeetingOf({
 			id: 'appointment-2',
 			agenda: 'Planning',
@@ -260,7 +260,14 @@ describe('scheduled meetings', () => {
 		expect(invited).toEqual(
 			expect.objectContaining({ id: 'appointment-2', title: 'Planning', isInvited: true, hostName: 'Ruslan K' })
 		);
-		expect(invitedMeetingOf({ id: 'gone', status: 'Cancelled', startDateTime: '2026-11-12T15:00:00.000Z', endDateTime: '2026-11-12T15:30:00.000Z' })).toBeNull();
+		expect(
+			invitedMeetingOf({
+				id: 'gone',
+				status: 'Cancelled',
+				startDateTime: '2026-11-12T15:00:00.000Z',
+				endDateTime: '2026-11-12T15:30:00.000Z'
+			})
+		).toBeNull();
 
 		const own = scheduledMeetingOf({
 			id: 'appointment-2',

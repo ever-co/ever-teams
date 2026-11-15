@@ -239,6 +239,20 @@ export class InboxFieldRequests {
 	}
 }
 
+/** What a notification alone carries: the timer reminder or meeting notice it is, and the sender its title names. */
+function notificationPartsOf(
+	isNotification: boolean,
+	notice: { type: EEmployeeNotificationType | null; title: string; entity: string | null; entityId: string | null }
+): Pick<InboxEntry, 'timerReminder' | 'meeting' | 'senderName'> {
+	if (!isNotification) return { timerReminder: null, meeting: null, senderName: null };
+	return {
+		timerReminder: timerReminderNoticeOf(notice),
+		meeting: meetingNoticeOf(notice),
+		// A meeting's title names no one: a word of the meeting's own title is no sender (#5022)
+		senderName: notice.type === EEmployeeNotificationType.Meeting ? null : senderNameFromTitle(notice.title)
+	};
+}
+
 /** An entry from a platform inbox item. */
 export function toInboxEntry(item: IInboxItem): InboxEntry {
 	const metadata = item.metadata ?? {};
@@ -248,7 +262,12 @@ export function toInboxEntry(item: IInboxItem): InboxEntry {
 	const recipient = item.recipient;
 	const entity = stringOf(item.entity);
 	const entityId = stringOf(item.entityId);
-	const timerReminder = isNotification ? timerReminderNoticeOf({ type, title: rawTitle, entity, entityId }) : null;
+	const { timerReminder, meeting, senderName } = notificationPartsOf(isNotification, {
+		type,
+		title: rawTitle,
+		entity,
+		entityId
+	});
 	const itemTaskId = stringOf(item.taskId) ?? (entity === EBaseEntityEnum.Task ? entityId : null);
 	// A timer reminder is about its run: it opens the timer, not a task its item may name
 	const taskId = timerReminder ? null : itemTaskId;
@@ -266,8 +285,7 @@ export function toInboxEntry(item: IInboxItem): InboxEntry {
 		rawTitle,
 		subject,
 		message: message && message !== subject && message !== rawTitle ? message : null,
-		// A meeting's title names no one: a word of the meeting's own title is no sender (#5022)
-		senderName: isNotification && type !== EEmployeeNotificationType.Meeting ? senderNameFromTitle(rawTitle) : null,
+		senderName,
 		sentByEmployeeId: stringOf(metadata['sentByEmployeeId']),
 		entity,
 		entityId,
@@ -275,7 +293,7 @@ export function toInboxEntry(item: IInboxItem): InboxEntry {
 		chatMessageId: entity === 'ChatMessage' ? entityId : null,
 		href: null,
 		timerReminder,
-		meeting: isNotification ? meetingNoticeOf({ type, title: rawTitle, entity, entityId }) : null,
+		meeting,
 		isUnread: recipient ? recipient.isRead !== true : true,
 		isArchived: !!recipient?.isArchived,
 		isDone: !!(recipient?.doneAt || recipient?.isDone),

@@ -329,7 +329,8 @@ describe('MeetingsPage', () => {
 
 		expect(screen.getByText('dashboard.states.ERROR_TITLE')).toBeTruthy();
 		// The meeting one hosts stays, with its ways in and out
-		if (!screen.queryByText('Daily standup')) fireEvent.click(screen.getByRole('button', { name: 'meetings.NEXT_DAY' }));
+		if (!screen.queryByText('Daily standup'))
+			fireEvent.click(screen.getByRole('button', { name: 'meetings.NEXT_DAY' }));
 		expect(screen.getByText('Daily standup')).toBeTruthy();
 
 		fireEvent.click(screen.getByRole('button', { name: 'pages.unauthorized.TRY_AGAIN' }));
@@ -420,13 +421,20 @@ describe('MeetingsPage', () => {
 			fireEvent.click(join);
 			expect(mockPush).toHaveBeenCalledWith(meetPathFor('Ever-Planning-AbCdEfGhIj', true));
 
-			fireEvent.click(within(card).getByRole('button', { name: 'meetings.MEETING_ACTIONS_OF:{"title":"Planning"}' }));
+			fireEvent.click(
+				within(card).getByRole('button', { name: 'meetings.MEETING_ACTIONS_OF:{"title":"Planning"}' })
+			);
 			const menu = await screen.findByRole('menu');
 			expect(
 				within(menu)
 					.getAllByRole('menuitem')
 					.map((item) => item.textContent)
-			).toEqual(['meetings.JOIN_MEETING', 'meetings.COPY_INVITATION', 'meetings.COPY_LINK', 'meetings.ADD_TO_CALENDAR']);
+			).toEqual([
+				'meetings.JOIN_MEETING',
+				'meetings.COPY_INVITATION',
+				'meetings.COPY_LINK',
+				'meetings.ADD_TO_CALENDAR'
+			]);
 		} finally {
 			jest.useRealTimers();
 		}

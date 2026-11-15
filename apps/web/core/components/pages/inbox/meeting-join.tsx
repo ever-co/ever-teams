@@ -12,7 +12,7 @@ import { isJitsiMeeting } from '@/core/lib/utils/collaboration';
 import { meetingPathOfInput, scheduledMeetingStateOf, type ScheduledMeeting } from '@/core/lib/utils/meetings';
 
 /** How often an open detail checks again whether its meeting opened or closed to joining: the agenda's own pace. */
-export const MEETING_JOIN_CLOCK_MS = 30_000;
+const MEETING_JOIN_CLOCK_MS = 30_000;
 
 /** Now, moving on every MEETING_JOIN_CLOCK_MS while the detail is open. */
 function useClock(): number {
@@ -28,6 +28,11 @@ function useClock(): number {
 function isJoinable(meeting: ScheduledMeeting, now: number): boolean {
 	const state = scheduledMeetingStateOf(meeting, new Date(now));
 	return state === 'live' || state === 'soon';
+}
+
+/** Whether the meeting can be joined at this very moment: what a click checks, the clock moving every half minute. */
+function isJoinableNow(meeting: ScheduledMeeting): boolean {
+	return isJoinable(meeting, Date.now());
 }
 
 /**
@@ -52,7 +57,7 @@ export function MeetingJoin({ notice }: Readonly<{ notice: MeetingNotice }>) {
 	const title = meeting.title || t('meetings.UNTITLED');
 	const join = () => {
 		// The clock moves every half minute: the moment of the click is the one that counts
-		if (isJoinable(meeting, Date.now())) router.push(path);
+		if (isJoinableNow(meeting)) router.push(path);
 	};
 	return (
 		<Button size="sm" variant="outline" onClick={join} aria-label={t('meetings.JOIN_MEETING_OF', { title })}>
