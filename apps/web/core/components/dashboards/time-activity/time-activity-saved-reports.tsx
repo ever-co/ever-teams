@@ -301,6 +301,10 @@ export function TimeActivitySavedReports({ report }: Readonly<{ report: TimeActi
 		[saved.share, saved.unshare, saved.update, t]
 	);
 
+				// The switch waits for its last change: two writes in flight could land in the wrong order
+				if (saved.update.isPending) {
+					return;
+				}
 	// Shown once the API answered: an API without saved reports never shows them, not even for a moment
 	const isAnswered = saved.availability === 'ready' || saved.availability === 'error';
 	if (!isAnswered) {

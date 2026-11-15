@@ -188,6 +188,7 @@ export function SavedReportSharePanel({
 						isBillable={Boolean(report.includeAmounts)}
 						onChange={actions.onIncludeAmountsChange}
 						label={t('dashboard.savedReports.INCLUDE_AMOUNTS')}
+						isDisabled={actions.isSavingAmounts}
 					/>
 					{actions.isSavingAmounts && <Spinner className="size-3.5" />}
 				</div>

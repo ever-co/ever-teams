@@ -22,9 +22,11 @@ interface SavedState {
 }
 
 let mockSaved: SavedState = { reports: [], availability: 'ready', linkTokens: {} };
+/** Whether a change of a saved report is still waiting for its answer. */
+let mockUpdatePending = false;
 
-function mutation(mutateAsync: jest.Mock) {
-	return { mutateAsync, isPending: false };
+function mutation(mutateAsync: jest.Mock, isPending = false) {
+	return { mutateAsync, isPending };
 }
 
 jest.mock('next-intl', () => ({
@@ -46,7 +48,7 @@ jest.mock('@/core/hooks/dashboards/time-activity/use-saved-reports', () => ({
 		isLoading: false,
 		retry: mockRetry,
 		create: mutation(mockCreate),
-		update: mutation(mockUpdate),
+		update: mutation(mockUpdate, mockUpdatePending),
 		remove: mutation(mockRemove),
 		share: mutation(mockShare),
 		unshare: mutation(mockUnshare)
@@ -153,6 +155,7 @@ describe('TimeActivitySavedReports', () => {
 	});
 
 	it('shows nothing against an API without saved reports, so the page works as before', () => {
+		mockUpdatePending = false;
 		mockSaved = { reports: [], availability: 'unsupported', linkTokens: {} };
 
 		const { container } = render(<TimeActivitySavedReports report={reportProps()} />);
@@ -316,3 +319,14 @@ describe('TimeActivitySavedReports', () => {
 		await waitFor(() => expect(mockUpdate).toHaveBeenCalledWith({ id: 'r1', input: { includeAmounts: true } }));
 	});
 });
+
+	it('holds the amounts switch while its last change is waiting for its answer, so two writes never cross', () => {
+		mockSearchParams = new URLSearchParams('report=r1');
+		mockUpdatePending = true;
+		render(<TimeActivitySavedReports report={reportProps()} />);
+
+		const amounts = screen.getByRole('switch') as HTMLButtonElement;
+		expect(amounts.disabled).toBe(true);
+		fireEvent.click(amounts);
+		expect(mockUpdate).not.toHaveBeenCalled();
+	});
