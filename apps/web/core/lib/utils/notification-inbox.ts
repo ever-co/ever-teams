@@ -1,4 +1,5 @@
 import { timerReminderNoticeOf, type TimerReminderNotice } from '@/core/lib/notifications/timer-reminders';
+import { boardInvitationHref, isBoardInvitation } from '@/core/lib/notifications/board-invitations';
 import { EBaseEntityEnum } from '@/core/types/generics/enums/entity';
 import { EEmployeeNotificationType, IEmployeeNotification } from '@/core/types/interfaces/common/employee-notification';
 import { docsInboxHrefOf } from './docs-links';
@@ -21,6 +22,9 @@ export interface NotificationEntry {
 	rawTitle: string;
 	message: string | null;
 	taskId: string | null;
+	/** The record the notification is about (a task, a project), as Gauzy names it; unknown when not given. */
+	entity?: string | null;
+	entityId?: string | null;
 	/** Where opening the notification leads when it is not about a task. */
 	href: string | null;
 	/** A reminder of a timer left running: its level, the hours it names and its run, read in the reader's language. */
@@ -34,9 +38,17 @@ const RATE_CHANGE_REQUEST_HREF = '/settings/team/members';
 /** A timer reminder opens the page the timer is on. */
 export const TIMER_REMINDER_HREF = '/';
 
+/** A project's page, for a notification about one (its member was added to it, or its state or dates changed). */
+export function projectHrefOf(entity: string | null | undefined, entityId: string | null | undefined): string | null {
+	return entity === EBaseEntityEnum.OrganizationProject && entityId
+		? `/projects/${encodeURIComponent(entityId)}`
+		: null;
+}
+
 /** The verbs of Gauzy's title templates (`employee-notification.helper.ts`), in the order they are tried. */
 const TITLE_ACTION_WORDS = [
 	' Assigned ',
+	' Updated ',
 	' Mentioned ',
 	' Commented ',
 	' Invited ',
@@ -78,10 +90,10 @@ export function quotedSubjectOf(title: string): string | null {
 
 /** The actor's name, read off the platform's English title (`Ana Assigned you …`). */
 export function senderNameFromTitle(title: string): string | null {
-	// A chat title quotes the message after `: `, and its text can hold any of the verbs: only the head is searched,
-	// and the verb that comes first in it is the one after the name.
-	const colon = title.indexOf(': ');
-	const head = colon >= 0 ? title.slice(0, colon) : title;
+	// A chat title quotes the message after `: `, and a quoted subject (a task's title) can hold any of the verbs too:
+	// only the head before either is searched, and the verb that comes first in it is the one after the name.
+	const ends = [title.indexOf(': '), title.indexOf('"')].filter((index) => index >= 0);
+	const head = ends.length ? title.slice(0, Math.min(...ends)) : title;
 	let first = -1;
 	for (const word of TITLE_ACTION_WORDS) {
 		const position = head.indexOf(word);
@@ -116,9 +128,21 @@ function hrefOf(type: EEmployeeNotificationType | null, notification: IEmployeeN
 	if (type === EEmployeeNotificationType.TimerReminder) {
 		return TIMER_REMINDER_HREF;
 	}
+	if (isBoardInvitation({ type, entity: notification.entity, rawTitle: notification.title })) {
+		return boardInvitationHref();
+	}
+	const projectHref = projectHrefOf(notification.entity, notification.entityId);
+	if (projectHref) {
+		return projectHref;
+	}
 	// A page (shared, reviewed, commented while followed) opens in Docs where the deployment has it.
 	if (isDocsEnabled() && notification.entity === EBaseEntityEnum.Document) {
-		return docsInboxHrefOf(notification.entity, notification.entityId, null, type === EEmployeeNotificationType.Comment);
+		return docsInboxHrefOf(
+			notification.entity,
+			notification.entityId,
+			null,
+			type === EEmployeeNotificationType.Comment
+		);
 	}
 	return null;
 }
@@ -162,6 +186,8 @@ export function toNotificationEntry(notification: IEmployeeNotification): Notifi
 		rawTitle,
 		message: distinctMessageOf(notification, subject),
 		taskId: taskIdOf(notification),
+		entity: notification.entity ?? null,
+		entityId: notification.entityId ?? null,
 		href: hrefOf(type, notification),
 		timerReminder: timerReminderNoticeOf(notification),
 		createdAt: new Date(notification.createdAt)

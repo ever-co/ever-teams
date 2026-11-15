@@ -32,6 +32,7 @@ export function registerUserRequest(data: IRegisterDataRequest) {
 
 	return serverFetch<TUser>({
 		path: '/auth/register',
+		browserUserAgent: true,
 		method: 'POST',
 		body
 	});
@@ -61,6 +62,7 @@ export function signInEmailRequest(email: string, callbackUrl?: string) {
 export function signInEmailPasswordRequest(email: string, password: string) {
 	return serverFetch<ISigninEmailConfirmResponse>({
 		path: '/auth/signin.email.password',
+		browserUserAgent: true,
 		method: 'POST',
 		body: { email, password, includeTeams: true }
 	});
@@ -69,6 +71,7 @@ export function signInEmailPasswordRequest(email: string, password: string) {
 export function signWithSocialLoginsRequest(provider: EProvider, token: string) {
 	return serverFetch<ISigninEmailConfirmResponse>({
 		path: '/auth/signin.email.social',
+		browserUserAgent: true,
 		method: 'POST',
 		body: { provider, token, includeTeams: true }
 	});
@@ -79,6 +82,7 @@ export const signInEmailConfirmRequest = (data: { code: string; email: string })
 
 	return serverFetch<ISigninEmailConfirmResponse>({
 		path: '/auth/signin.email/confirm',
+		browserUserAgent: true,
 		method: 'POST',
 		body: { code, email, includeTeams: true }
 	});
@@ -87,6 +91,7 @@ export const signInEmailConfirmRequest = (data: { code: string; email: string })
 export function signInWorkspaceRequest(input: ISigninWorkspaceInput) {
 	return serverFetch<IAuthResponse>({
 		path: '/auth/signin.workspace',
+		browserUserAgent: true,
 		method: 'POST',
 		body: input,
 		bearer_token: input.token
@@ -96,6 +101,7 @@ export function signInWorkspaceRequest(input: ISigninWorkspaceInput) {
 export function verifyAuthCodeRequest(email: string, code: string) {
 	return serverFetch<IAuthResponse>({
 		path: '/auth/verify-code',
+		browserUserAgent: true,
 		method: 'POST',
 		body: { email, code }
 	});
@@ -104,6 +110,7 @@ export function verifyAuthCodeRequest(email: string, code: string) {
 export const loginUserRequest = (email: string, password: string) => {
 	return serverFetch<IAuthResponse>({
 		path: '/auth/login',
+		browserUserAgent: true,
 		method: 'POST',
 		body: {
 			email,
@@ -151,13 +158,18 @@ export const currentAuthenticatedUserRequest = ({
 	});
 };
 
-export const refreshTokenRequest = (refresh_token: string) => {
+/**
+ * Renews a session. The browser's user agent goes along so that Gauzy keeps naming the session's device
+ * (ever-co/ever-gauzy#11983): read from the request being handled, unless the caller gives it (the proxy).
+ */
+export const refreshTokenRequest = (refresh_token: string, browserUserAgent: true | string = true) => {
 	return serverFetch<{ token: string; refresh_token: string }>({
 		path: '/auth/refresh-token',
 		method: 'POST',
 		body: {
 			refresh_token
-		}
+		},
+		browserUserAgent
 	});
 };
 
@@ -267,6 +279,7 @@ export const openWorkspaceServerRequest = (bearerToken: string, tenantId: string
 	return serverFetch<{ email: string; token: string }>({
 		method: 'POST',
 		path: '/auth/workspaces',
+		browserUserAgent: true,
 		body: {},
 		tenantId,
 		bearer_token: bearerToken
@@ -281,6 +294,7 @@ export const switchWorkspaceServerRequest = (data: { tenantId: string }, bearerT
 	return serverFetch<IAuthResponse>({
 		method: 'POST',
 		path: `/auth/switch-workspace`,
+		browserUserAgent: true,
 		body: data,
 		tenantId: data.tenantId,
 		bearer_token: bearerToken
@@ -299,6 +313,7 @@ export const switchOrganizationServerRequest = (
 	return serverFetch<IAuthResponse | null>({
 		method: 'POST',
 		path: '/auth/switch-organization',
+		browserUserAgent: true,
 		body: { organizationId: data.organizationId },
 		tenantId: data.tenantId,
 		bearer_token: bearerToken

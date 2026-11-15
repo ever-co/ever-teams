@@ -20,16 +20,29 @@ export function BillableSwitch({
 	isBillable,
 	onChange,
 	label,
-	isLabelVisible = true
+	isLabelVisible = true,
+	isDisabled = false
 }: Readonly<{
 	isBillable: boolean;
 	onChange: (isBillable: boolean) => void;
 	label: string;
 	isLabelVisible?: boolean;
+	/** Holds the switch, for example while its last change is still being saved. */
+	isDisabled?: boolean;
 }>) {
 	return (
-		<label className="flex cursor-pointer items-center gap-2 text-[13px] text-foreground select-none">
-			<Switch checked={isBillable} onChange={onChange} className={BILLABLE_TRACK_CLASS_NAME}>
+		<label
+			className={cn(
+				'flex items-center gap-2 text-[13px] text-foreground select-none',
+				isDisabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'
+			)}
+		>
+			<Switch
+				checked={isBillable}
+				onChange={onChange}
+				disabled={isDisabled}
+				className={BILLABLE_TRACK_CLASS_NAME}
+			>
 				<span aria-hidden="true" className={BILLABLE_THUMB_CLASS_NAME} />
 			</Switch>
 			<SwitchLabelText label={label} isVisible={isLabelVisible} />

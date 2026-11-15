@@ -1,7 +1,7 @@
 import { decodeJWT } from '@/core/lib/auth/jwt-utils';
 import {
 	getAccessTokenCookie,
-	getOrganizationIdCookie,
+	getSharedOrganizationIdCookie,
 	setAccessTokenCookie,
 	setOrganizationIdCookie,
 	setRefreshTokenCookie
@@ -54,7 +54,7 @@ export function tokenOrganizationId(token = getAccessTokenCookie()): string | nu
  * the token, false when nothing was needed or Gauzy refused.
  */
 export function syncTokenOrganization(
-	organizationId: string | null | undefined = getOrganizationIdCookie()
+	organizationId: string | null | undefined = getSharedOrganizationIdCookie()
 ): Promise<boolean> {
 	const target = organizationId || null;
 	const token = getAccessTokenCookie();
@@ -72,7 +72,7 @@ export function syncTokenOrganization(
 			if (!data?.token) return false;
 			// The answer is late: the user chose another organization meanwhile (it no longer is the cookie's), or
 			// signed out. Saving it would put the tokens out of step with the active team.
-			const chosen = getOrganizationIdCookie() || null;
+			const chosen = getSharedOrganizationIdCookie() || null;
 			// The answer is for the token that asked only: once the cookie holds another one (a sign-in as someone else in
 			// another tab, a refresh, a newer switch that answered first), saving it would replace newer tokens.
 			if (getAccessTokenCookie() !== token || (chosen && chosen !== target)) return false;

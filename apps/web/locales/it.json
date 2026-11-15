@@ -1792,6 +1792,55 @@
 			"NOT_KEPT": "I valori precedenti non sono stati conservati",
 			"COLUMN_BEFORE": "Prima",
 			"COLUMN_AFTER": "Dopo"
+		},
+		"savedReports": {
+			"MENU": "Report salvati",
+			"LOADING": "Lettura dei report salvati…",
+			"LOAD_ERROR": "Non è stato possibile leggere i report salvati.",
+			"TRY_AGAIN": "Riprova",
+			"EMPTY": "Nessun report salvato per ora. Salva questa vista per riaprirla con un clic.",
+			"UPDATE": "Aggiorna con questa vista",
+			"RENAME": "Rinomina",
+			"RENAME_TITLE": "Rinomina il report",
+			"DELETE": "Elimina",
+			"SAVE": "Salva",
+			"SAVE_TITLE": "Salva questo report",
+			"SAVE_HINT": "Conserva il periodo, i filtri e il raggruppamento. Riaprilo da Report salvati.",
+			"NAME": "Nome",
+			"NAME_PLACEHOLDER": "Cliente A, mese scorso",
+			"NAME_REQUIRED": "Dai un nome al report.",
+			"NAME_TOO_LONG": "Al massimo 100 caratteri.",
+			"SAVED": "«{name}» salvato",
+			"UPDATED": "«{name}» aggiornato",
+			"RENAMED": "Report rinominato",
+			"DELETED": "«{name}» eliminato",
+			"DELETE_TITLE": "Eliminare «{name}»?",
+			"DELETE_DESCRIPTION": "Il report salvato viene rimosso e il suo link smette di funzionare. Il tempo che mostra resta.",
+			"SAVE_FAILED": "Non è stato possibile salvare il report.",
+			"DELETE_FAILED": "Non è stato possibile eliminare il report.",
+			"SHARE": "Condividi",
+			"SHARE_TITLE": "Condividi un link di sola lettura",
+			"SHARE_NEEDS_SAVE": "Un link condivide un report salvato. Dai un nome a questa vista per salvarla, poi attiva il suo link.",
+			"SHARE_HINT": "Chi ha il link vede il nome del report, il periodo, i numeri, il grafico e la tabella, senza account. Non si può modificare nulla e mostra solo ciò che puoi vedere tu.",
+			"LINK_ADDRESS": "Indirizzo del link",
+			"COPY": "Copia",
+			"COPIED": "Link copiato",
+			"COPY_FAILED": "Non è stato possibile copiare il link. Selezionalo e copialo tu.",
+			"LINK_OFF": "Nessun link attivo.",
+			"LINK_ENDED": "Il link è scaduto il {date}.",
+			"LINK_HIDDEN": "Il link è attivo. Il suo indirizzo viene mostrato solo alla creazione: Sostituisci link ne crea uno nuovo da copiare e il vecchio smette di funzionare.",
+			"EXPIRES": "Smette di funzionare dopo il {date}.",
+			"ENDS_ON": "Termina il",
+			"ENDS_ON_HINT": "Facoltativo. Vale quando il link viene attivato o sostituito.",
+			"TURN_ON": "Attiva link",
+			"TURN_OFF": "Disattiva",
+			"REPLACE": "Sostituisci link",
+			"REPLACE_HINT": "Sostituire o disattivare ferma subito l’indirizzo attuale.",
+			"INCLUDE_AMOUNTS": "Includi importi",
+			"INCLUDE_AMOUNTS_HINT": "Le tariffe e quanto vale il tempo. Disattivato: solo durate.",
+			"SHARE_FAILED": "Non è stato possibile modificare il link.",
+			"SHARE_REFUSED": "Un link si può attivare solo dal tuo accesso, non da una sessione avviata con un token API.",
+			"TURNED_OFF": "Link disattivato: il suo indirizzo non funziona più."
 		}
 	},
 	"timeActivity": {
@@ -2067,6 +2116,18 @@
 			"billable": {
 				"LABEL": "Fatturabile per impostazione predefinita",
 				"HELP": "Vale per le nuove voci; quelle salvate non cambiano."
+			},
+			"visibility": {
+				"LABEL": "Visibilità",
+				"EVERYONE_TITLE": "Tutta l'organizzazione",
+				"EVERYONE_DETAIL": "Visibile a chiunque veda i progetti.",
+				"PRIVATE_TITLE": "Solo membri e manager",
+				"PRIVATE_DETAIL": "Visibile solo ai suoi membri e manager, e agli amministratori.",
+				"NOT_ENFORCED": "Tutti lo vedono ancora finché un amministratore non attiva Progetti privati nelle impostazioni dell'area di lavoro.",
+				"SETTING_SECTION": "Progetti privati",
+				"SETTING_LABEL": "Riservare i progetti privati alle loro persone",
+				"SETTING_DESCRIPTION": "Un progetto impostato su Solo membri e manager è visibile solo a loro e agli amministratori. Disattivato, tutti vedono tutti i progetti.",
+				"SETTING_NOT_SAVED": "L'impostazione non è stata salvata."
 			},
 			"bulkActions": {
 				"bulkArchiveModal": {
@@ -3982,7 +4043,9 @@
 			"BROADCAST": "<b>{name}</b> ha pubblicato un annuncio",
 			"PAYMENT": "È stato registrato un pagamento per te",
 			"RATE_CHANGE_REQUEST": "<b>{name}</b> ha chiesto un cambio di tariffa",
-			"TIMER_REMINDER": "Il tuo timer è ancora in funzione"
+			"TIMER_REMINDER": "Il tuo timer è ancora in funzione",
+			"TASK_UPDATE": "<b>{name}</b> ha fatto una modifica",
+			"TASK_DUE_REMINDER": "Un’attività sta per scadere"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "Assegnazione",
@@ -3993,7 +4056,9 @@
 			"BROADCAST": "Annuncio",
 			"PAYMENT": "Pagamento",
 			"RATE_CHANGE_REQUEST": "Richiesta di cambio tariffa",
-			"TIMER_REMINDER": "Promemoria del timer"
+			"TIMER_REMINDER": "Promemoria del timer",
+			"TASK_UPDATE": "Modifica",
+			"TASK_DUE_REMINDER": "Promemoria di scadenza"
 		},
 		"SOMEONE": "Qualcuno",
 		"MARK_READ": "Segna come letta",
@@ -4070,7 +4135,18 @@
 				"OFF": "Disattivato",
 				"AFTER_HOURS": "Dopo {hours, plural, one {# ora} other {# ore}}"
 			},
+			"TASK_DUE": {
+				"TITLE": "Scadenze",
+				"INTRO": "Un promemoria prima della scadenza di un’attività assegnata a te, finché non è completata.",
+				"LABEL": "Promemoria di scadenza",
+				"TEXT": "Sempre nella tua casella. Per email e sui tuoi dispositivi come preferisci.",
+				"OFF": "Disattivato",
+				"BEFORE_HOURS": "{hours, plural, one {# ora} other {# ore}} prima"
+			},
 			"INTRO": "Scegli cosa arriva nella tua posta. Disattivando un tipo si fermano le nuove notifiche di quel tipo; quelle già ricevute restano.",
+			"TEAM_DEFAULTS_TITLE": "Il tuo team {team} imposta notifiche predefinite",
+			"TEAM_DEFAULTS_TEXT": "Ciò che lasci senza scelta qui le segue. Le tue scelte prevalgono sempre.",
+			"TASK_UPDATE_TEXT": "Una modifica di stato, date o membri di un’attività o di un progetto che segui. Disattivato, arriva comunque nella tua casella, senza email né notifiche.",
 			"LOAD_ERROR": "Non è stato possibile caricare le impostazioni delle notifiche.",
 			"SAVE_FAILED": "L'impostazione non è stata salvata. Riprova.",
 			"ROWS": {
@@ -4120,6 +4196,13 @@
 			"FORGOTTEN_DESCRIPTION": "L’hai dimenticato? Fermalo, poi correggi il tempo nel tuo foglio ore se serve.",
 			"STOP": "Ferma il timer",
 			"OPEN": "Apri il timer"
+		},
+		"TASK_DUE": {
+			"BY_END_OF_DAY": "Scade alla fine del {date}",
+			"AT": "Scade il {date}"
+		},
+		"BOARD_INVITATION": {
+			"TEXT": "Ti ha invitato su una lavagna: aprila per unirti."
 		}
 	},
 	"toasts": {
@@ -5187,6 +5270,15 @@
 			"SHARE_PROFILES_DESCRIPTION": "I membri vedono i piani giornalieri e le statistiche degli altri nelle pagine profilo.",
 			"REQUIRE_PLAN_LABEL": "Richiedi un piano giornaliero per monitorare",
 			"REQUIRE_PLAN_DESCRIPTION": "Il timer parte solo quando il membro ha pianificato la giornata.",
+			"NOTIFICATIONS_SECTION": "Notifiche predefinite",
+			"NOTIFICATIONS_DESCRIPTION": "Cosa riceve un membro che non ha scelto nulla nelle proprie impostazioni delle notifiche. Le sue scelte prevalgono sempre.",
+			"MEMBERS_CHOOSE": "Scelgono i membri",
+			"EMAIL_DEFAULT_DESCRIPTION": "Come ogni tipo raggiunge i membri via email.",
+			"PUSH_DEFAULT_DESCRIPTION": "Sui dispositivi dove i membri le hanno attivate.",
+			"TASK_UPDATE_DEFAULT_LABEL": "Modifiche di attività e progetti seguiti",
+			"TASK_UPDATE_DEFAULT_DESCRIPTION": "Una modifica di stato, date o membri di un’attività o di un progetto che il membro segue.",
+			"TIMER_DEFAULT_DESCRIPTION": "Dopo quanto tempo un timer in corso merita un promemoria.",
+			"TASK_DUE_DEFAULT_DESCRIPTION": "Quanto prima della scadenza di un’attività vengono avvisati gli assegnatari.",
 			"ORGANIZATION_TRACKING_SECTION": "Requisiti delle registrazioni di tempo",
 			"ORGANIZATION_TRACKING_DESCRIPTION": "Vale per tutti i team di {organization}.",
 			"REQUIRE_TEAM_LABEL": "Richiedi un team",
@@ -5422,7 +5514,8 @@
 			"SIGN_OUT_INCOMPLETE": "Una sessione si è rinnovata mentre veniva chiusa. Riprova.",
 			"SIGN_OUT_OTHERS_FAILED": "La chiusura delle altre sessioni non è terminata. {reason}",
 			"SIGN_OUT_OTHERS_CONFIRM": "{count, plural, one {Chiudi # sessione} other {Chiudi # sessioni}}",
-			"SIGNED_OUT_OTHERS": "{count, plural, =0 {Nessun'altra sessione era aperta.} one {# altra sessione è stata chiusa.} other {# altre sessioni sono state chiuse.}}"
+			"SIGNED_OUT_OTHERS": "{count, plural, =0 {Nessun'altra sessione era aperta.} one {# altra sessione è stata chiusa.} other {# altre sessioni sono state chiuse.}}",
+			"APP_ON_DEVICE": "{app} · {device}"
 		},
 		"profile": {
 			"SECTION_PROFILE": "Profilo",
@@ -5967,6 +6060,12 @@
 			"REQUIRED_TITLE": "La tua organizzazione ti chiede di attivarla",
 			"REQUIRED_DESCRIPTION": "I suoi membri accedono anche con un codice da un’app di autenticazione.",
 			"QR_ALT": "Codice QR di questo account per l’app di autenticazione"
+		},
+		"thisBrowser": {
+			"TITLE": "Questo browser",
+			"DESCRIPTION": "Per quanto tempo resti connesso su questo browser. Gli altri browser e le altre app mantengono le proprie sessioni.",
+			"SIGN_OUT_ON_CLOSE": "Esci quando chiudi questo browser",
+			"SIGN_OUT_ON_CLOSE_HINT": "Per un computer condiviso. Se è disattivato, resti connesso dopo la chiusura del browser, finché la sessione non scade."
 		}
 	},
 	"taskDetail": {
@@ -7701,6 +7800,87 @@
 			"ALL_INVOICES": "Tutte le fatture",
 			"ERROR_TITLE": "Impossibile caricare la fattura"
 		},
+		"schedule": {
+			"TITLE": "Fatturazione programmata",
+			"NONE_HINT": "Fare la fattura di questo cliente da sola ogni settimana, ogni due settimane o ogni mese, dal tempo fatturabile non ancora fatturato.",
+			"SET_UP": "Programma la fatturazione",
+			"EDIT": "Modifica",
+			"PAUSE": "Sospendi",
+			"RESUME": "Riprendi",
+			"PAUSED": "Sospesa",
+			"ACTIVE": "Attiva",
+			"SUMMARY": "{frequency} dal {day}",
+			"DELIVERY_DRAFT": "Resta una bozza",
+			"DELIVERY_SEND": "Inviata a {email}",
+			"DELIVERY_SEND_NO_EMAIL": "Inviata all’e-mail del cliente",
+			"NEXT": "Prossima fattura il {day}, per {period}",
+			"NEXT_PAUSED": "Nessuna fattura finché è sospesa",
+			"RUNS": "Ultime esecuzioni",
+			"NO_RUNS": "Ancora nessuna esecuzione",
+			"RUNS_ERROR": "Impossibile caricare le ultime esecuzioni",
+			"ERROR": "Impossibile caricare la fatturazione programmata",
+			"OPEN_INVOICE": "Apri la fattura",
+			"LEFT_OUT": "{hours} h del periodo escluse: senza tariffa o in un’altra valuta",
+			"LIST_TITLE": "Fatturati secondo un calendario",
+			"LIST_NEXT": "prossima il {day}",
+			"LIST_PAUSED": "sospesa",
+			"frequency": {
+				"WEEKLY": "Ogni settimana",
+				"BIWEEKLY": "Ogni due settimane",
+				"MONTHLY": "Ogni mese"
+			},
+			"grouping": {
+				"PROJECT": "Per progetto",
+				"MEMBER": "Per membro",
+				"TASK": "Per attività"
+			},
+			"run": {
+				"CLAIMED": "In corso",
+				"DRAFTED": "Bozza creata",
+				"SENT": "Inviata",
+				"NOT_SENT": "Creata, non inviata",
+				"NO_TIME": "Niente da fatturare",
+				"FAILED": "Non creata"
+			},
+			"reason": {
+				"NO_BILLABLE_TIME": "Il periodo non aveva più tempo fatturabile da fatturare.",
+				"NO_PRICED_TIME": "Il tempo del periodo non ha una tariffa con cui fatturarlo. Nuovo tentativo ogni ora per una settimana.",
+				"AUTHOR_CANNOT_INVOICE": "La persona che ha salvato per ultima il calendario non può più creare fatture. Salvalo per prenderlo in carico; nuovo tentativo ogni ora per una settimana.",
+				"CLIENT_HAS_NO_EMAIL": "Il cliente non ha un indirizzo e-mail: la fattura è rimasta una bozza.",
+				"EMAIL_NOT_SENT": "Impossibile inviare l’e-mail: la fattura è rimasta una bozza.",
+				"INVOICE_NOT_SAVED": "Impossibile salvare la fattura. Nuovo tentativo ogni ora per una settimana."
+			},
+			"form": {
+				"CREATE_TITLE": "Fattura secondo un calendario",
+				"EDIT_TITLE": "Modifica la fatturazione programmata",
+				"FREQUENCY": "Frequenza",
+				"START_DAY": "Primo giorno del primo periodo",
+				"START_HINT": "Ogni fattura viene creata il giorno dopo la fine del suo periodo, nel fuso orario dello spazio di lavoro. Nessun periodo terminato prima di oggi viene fatturato.",
+				"START_INVALID": "Scegli un giorno.",
+				"GROUPING": "Righe",
+				"DELIVERY": "Una volta creata",
+				"DRAFT": "Tieni come bozza",
+				"SEND": "Invia al cliente",
+				"DRAFT_HINT": "Ogni fattura resta una bozza finché non la controlli e la invii.",
+				"SEND_HINT": "Ogni fattura va a {email} con il suo PDF ed è segnata come Inviata.",
+				"SEND_NO_EMAIL": "Questo cliente non ha un indirizzo e-mail: le sue fatture resteranno bozze finché non ne avrà uno.",
+				"SAVE": "Salva",
+				"SAVE_FAILED": "Impossibile salvare il calendario. Riprova.",
+				"EXISTS": "Questo cliente ha già un calendario. Chiudi e riaprilo per modificarlo.",
+				"START_AFTER_BILLED": "Questo calendario ha già fatturato dei periodi: il nuovo calendario deve iniziare dopo l’ultimo periodo fatturato, {day}."
+			},
+			"delete": {
+				"TITLE": "Eliminare questa fatturazione programmata?",
+				"BODY": "Nessuna fattura verrà più creata da sola per {name}. Le fatture create restano."
+			},
+			"toasts": {
+				"SAVED": "La fatturazione programmata di {name} è salvata",
+				"PAUSED": "La fatturazione programmata di {name} è sospesa",
+				"RESUMED": "La fatturazione programmata di {name} riprende: prossima fattura il {day}",
+				"DELETED": "La fatturazione programmata di {name} è eliminata",
+				"FAILED": "Impossibile salvare la modifica. Riprova."
+			}
+		},
 		"shared": {
 			"PAY": "Paga {amount}",
 			"PAYING": "Apertura del pagamento…",
@@ -8052,6 +8232,15 @@
 		"TYPE_BREAK": "Pausa",
 		"BREAK_HINT": "Una pausa non è mai fatturabile e non conta mai come tempo lavorato."
 	},
+	"tabOrganizationNotice": {
+		"TITLE": "Un’altra organizzazione è aperta in un’altra scheda",
+		"KEEPS_WORKING": "Questa scheda continua a lavorare in {organization}, con il suo timer e le sue pagine.",
+		"CANNOT_WORK_TITLE": "Questa scheda non può più lavorare in {organization}",
+		"CANNOT_WORK": "Un’altra organizzazione è aperta in un’altra scheda. Scegli dove lavora questa scheda.",
+		"STOP_TIMER_FIRST": "Il suo timer è in corso in {organization}: fermalo prima di aprire qui l’altra organizzazione.",
+		"OPEN_HERE": "Apri qui l’altra organizzazione",
+		"BRING_BACK": "Usa {organization} in tutte le schede"
+	},
 	"timeZoneNotice": {
 		"TITLE": "Il tuo profilo usa {profileZone} ({profileOffset}). Questo browser è in {browserZone} ({browserOffset}).",
 		"DESCRIPTION": "I fogli di presenza contano le tue giornate nel fuso del tuo profilo e gli altri report in quello di questo browser: una voce vicina alla mezzanotte può cadere in un altro giorno.",
@@ -8063,5 +8252,15 @@
 		"SAVE_FAILED": "Non è stato possibile salvare il tuo fuso orario.",
 		"SAVE_FAILED_DESCRIPTION": "Il tuo profilo non è cambiato. Controlla la connessione e riprova.",
 		"TRY_AGAIN": "Riprova"
+	},
+	"sharedReport": {
+		"READ_ONLY_BADGE": "Sola lettura",
+		"READ_ONLY": "Un report di sola lettura condiviso da {app}. Dati al {time}.",
+		"NOT_WORKING_TITLE": "Questo link non funziona più",
+		"NOT_WORKING_MESSAGE": "Il suo autore lo ha disattivato, sostituito o lasciato scadere. Chiedigli un nuovo link.",
+		"ERROR_TITLE": "Non è stato possibile leggere il report",
+		"ERROR_MESSAGE": "Controlla la connessione e riprova.",
+		"LOADING": "Caricamento del report…",
+		"EMPTY": "Nessun tempo registrato in questo periodo."
 	}
 }

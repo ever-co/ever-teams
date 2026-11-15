@@ -43,6 +43,7 @@ import {
 import { ERoleName } from '@/core/types/generics/enums/role';
 import type { EProjectBilling, EProjectBudgetType } from '@/core/types/generics/enums/project';
 import type { TClient, TOrganizationProject, TTag } from '@/core/types/schemas';
+import type { ProjectVisibility } from '@/core/lib/utils/project-visibility';
 
 export type ProjectComposerMode = 'create' | 'edit';
 
@@ -399,6 +400,7 @@ export function useProjectComposer({ mode, project, onDone }: UseProjectComposer
 	const setBilling = useCallback((billing: EProjectBilling) => updateDraft({ billing }), [updateDraft]);
 
 	const setBillable = useCallback((billable: boolean) => updateDraft({ billable }), [updateDraft]);
+	const setVisibility = useCallback((visibility: ProjectVisibility) => updateDraft({ visibility }), [updateDraft]);
 
 	const uploadImage = useCallback(async (): Promise<ProjectImageAsset | null | 'failed'> => {
 		if (!imageFile) {
@@ -518,6 +520,7 @@ export function useProjectComposer({ mode, project, onDone }: UseProjectComposer
 		setCurrency,
 		setBilling,
 		setBillable,
+		setVisibility,
 		restoreFields,
 		submit
 	};

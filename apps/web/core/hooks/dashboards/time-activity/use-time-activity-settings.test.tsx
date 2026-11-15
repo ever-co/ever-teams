@@ -95,6 +95,58 @@ describe('useTimeActivitySettings', () => {
 		expect(mockRouter.replace).toHaveBeenLastCalledWith('/reports/time-and-activity?clients=acme', NOT_SCROLLING);
 	});
 
+	it('reads the filters the browser saved while the link names no period', () => {
+		window.localStorage.setItem('ever-teams-activity-filters', JSON.stringify({ projectIds: ['saved-project'] }));
+		const { result } = settingsUnder('groupBy=project', MAY_READ_CLIENTS);
+
+		expect(result.current.holdsView).toBe(false);
+		expect(result.current.linkedPeriod).toBeNull();
+		expect(result.current.filters.projectIds).toEqual(['saved-project']);
+	});
+
+	it('reads every filter from a link that names a period, whatever the browser saved', () => {
+		window.localStorage.setItem('ever-teams-activity-filters', JSON.stringify({ projectIds: ['saved-project'] }));
+		const { result } = settingsUnder('period=lastMonth&members=ada&clients=acme', MAY_READ_CLIENTS);
+
+		expect(result.current.holdsView).toBe(true);
+		expect(result.current.filters.projectIds).toEqual([]);
+		expect(result.current.filters.employeeIds).toEqual(['ada']);
+		expect(result.current.filters.clientIds).toEqual(['acme']);
+	});
+
+	it('writes the period and the saved filters into the link the first time, so the link holds the view', () => {
+		window.localStorage.setItem('ever-teams-activity-filters', JSON.stringify({ teamIds: ['team-1'] }));
+		const { result } = settingsUnder('groupBy=project', MAY_READ_CLIENTS);
+
+		act(() => result.current.setPeriod({ from: new Date(2025, 0, 3), to: new Date(2025, 0, 9, 23, 59) }));
+
+		expect(mockRouter.replace).toHaveBeenLastCalledWith(
+			'/reports/time-and-activity?groupBy=project&from=2025-01-03&to=2025-01-09&teams=team-1',
+			NOT_SCROLLING
+		);
+	});
+
+	it('writes a picked member into the link once it holds the view, and still saves it in the browser', () => {
+		const { result } = settingsUnder('period=today', MAY_READ_CLIENTS);
+
+		act(() => result.current.setFilterValues('employeeIds', ['ada']));
+
+		expect(mockRouter.replace).toHaveBeenLastCalledWith(
+			'/reports/time-and-activity?period=today&members=ada',
+			NOT_SCROLLING
+		);
+		const saved = JSON.parse(window.localStorage.getItem('ever-teams-activity-filters') ?? '{}');
+		expect(saved.employeeIds).toEqual(['ada']);
+	});
+
+	it('clears the linked filters with the others, and keeps the period', () => {
+		const { result } = settingsUnder('period=today&members=ada&teams=t&clients=acme', MAY_READ_CLIENTS);
+
+		act(() => result.current.clearFilters());
+
+		expect(mockRouter.replace).toHaveBeenLastCalledWith('/reports/time-and-activity?period=today', NOT_SCROLLING);
+	});
+
 	it('keeps the grouping in the link when the filters are cleared', () => {
 		const { result } = settingsUnder('groupBy=client&clients=acme', MAY_READ_CLIENTS);
 

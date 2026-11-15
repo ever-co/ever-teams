@@ -1,5 +1,6 @@
 import { EBaseEntityEnum } from '@/core/types/generics/enums/entity';
 import { EEmployeeNotificationType, IEmployeeNotification } from '@/core/types/interfaces/common/employee-notification';
+import { boardInvitationHref } from '@/core/lib/notifications/board-invitations';
 import { toNotificationEntry } from './notification-inbox';
 
 function notification(overrides: Partial<IEmployeeNotification>): IEmployeeNotification {
@@ -64,5 +65,81 @@ describe('toNotificationEntry for a timer reminder', () => {
 		expect(entry.subject).toBe('Ship it');
 		expect(entry.senderName).toBeNull();
 		expect(entry.timerReminder).toEqual({ level: 2, hours: 16, timeLogId: 'log-1' });
+	});
+});
+
+describe('toNotificationEntry for a project (#5022)', () => {
+	it('opens the project, and reads who changed it off the title', () => {
+		const entry = toNotificationEntry(
+			notification({
+				title: 'Ana Lima Updated the Project "Website"',
+				message: 'The project was archived.',
+				type: EEmployeeNotificationType.TaskUpdate,
+				entity: EBaseEntityEnum.OrganizationProject,
+				entityId: 'project-1'
+			})
+		);
+		expect(entry.type).toBe(EEmployeeNotificationType.TaskUpdate);
+		expect(entry.href).toBe('/projects/project-1');
+		expect(entry.taskId).toBeNull();
+		expect(entry.subject).toBe('Website');
+		expect(entry.senderName).toBe('Ana Lima');
+		expect(entry.message).toBe('The project was archived.');
+	});
+});
+
+describe('toNotificationEntry for a due date reminder (#5022)', () => {
+	it('opens the task of a due date reminder, which names no sender', () => {
+		const entry = toNotificationEntry(
+			notification({
+				title: 'The Task "Login" is due in 3 hours',
+				message: 'Due at 2026-11-19 17:00 (Europe/Paris).',
+				type: EEmployeeNotificationType.TaskDueReminder,
+				entity: EBaseEntityEnum.Task,
+				entityId: 'task-1'
+			})
+		);
+		expect(entry.type).toBe(EEmployeeNotificationType.TaskDueReminder);
+		expect(entry.taskId).toBe('task-1');
+		expect(entry.href).toBeNull();
+		expect(entry.senderName).toBeNull();
+	});
+});
+
+describe('senderNameFromTitle and a quoted subject (#5022)', () => {
+	it('reads no sender from a verb inside the quoted subject', () => {
+		const entry = toNotificationEntry(
+			notification({
+				title: 'The Task "Review Updated API" is due in 3 hours',
+				type: EEmployeeNotificationType.TaskDueReminder,
+				entity: EBaseEntityEnum.Task,
+				entityId: 'task-1'
+			})
+		);
+		expect(entry.senderName).toBeNull();
+		expect(entry.subject).toBe('Review Updated API');
+	});
+
+	it('still reads the sender before the subject', () => {
+		const entry = toNotificationEntry(notification({ title: 'Ana Lima Updated the Task "Assigned to nobody"' }));
+		expect(entry.senderName).toBe('Ana Lima');
+	});
+});
+
+describe('toNotificationEntry for a Board invitation (#5022)', () => {
+	it('opens the Board app this deployment is set up with, else the in-app board', () => {
+		const entry = toNotificationEntry(
+			notification({
+				title: 'Ana Lima Invited you to a Board with the Team "Design"',
+				message: null,
+				type: EEmployeeNotificationType.Invitation,
+				entity: EBaseEntityEnum.OrganizationTeam,
+				entityId: 'team-1'
+			})
+		);
+		expect(entry.href).toBe(boardInvitationHref());
+		expect(entry.href).not.toBeNull();
+		expect(entry.senderName).toBe('Ana Lima');
+		expect(entry.subject).toBe('Design');
 	});
 });
