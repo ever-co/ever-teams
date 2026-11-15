@@ -4047,6 +4047,7 @@
 			"PAYMENT": "Se registró un pago para ti",
 			"RATE_CHANGE_REQUEST": "<b>{name}</b> pidió un cambio de tarifa",
 			"TIMER_REMINDER": "Tu temporizador sigue en marcha",
+			"MEETING": "Cambió una reunión a la que asistes",
 			"TASK_UPDATE": "<b>{name}</b> hizo un cambio",
 			"TASK_DUE_REMINDER": "Una tarea vence pronto",
 			"BOARD_SHARE": "<b>{name}</b> compartió una pizarra contigo",
@@ -4062,6 +4063,7 @@
 			"PAYMENT": "Pago",
 			"RATE_CHANGE_REQUEST": "Solicitud de cambio de tarifa",
 			"TIMER_REMINDER": "Recordatorio de temporizador",
+			"MEETING": "Reunión",
 			"TASK_UPDATE": "Cambio",
 			"TASK_DUE_REMINDER": "Recordatorio de vencimiento",
 			"BOARD_SHARE": "Pizarra compartida",
@@ -4142,6 +4144,14 @@
 				"OFF": "Desactivado",
 				"AFTER_HOURS": "Después de {hours, plural, one {# hora} other {# horas}}"
 			},
+			"MEETINGS": {
+				"TITLE": "Reuniones",
+				"INTRO": "Avisos sobre las reuniones que organizas o a las que te invitan, y un recordatorio antes de que empiece cada una.",
+				"LABEL": "Recordatorio de reunión",
+				"TEXT": "Cuando te invitan, cuando una reunión cambia o se cancela, antes de que empiece y cuando empieza. En tu bandeja de entrada, por correo y en tus dispositivos, como elijas.",
+				"OFF": "Solo al empezar",
+				"BEFORE_MINUTES": "{minutes} min antes"
+			},
 			"TASK_DUE": {
 				"TITLE": "Vencimientos",
 				"INTRO": "Un recordatorio antes de que venza una tarea que tienes asignada, mientras no esté terminada.",
@@ -4210,6 +4220,16 @@
 			"FORGOTTEN_DESCRIPTION": "¿Lo olvidaste? Detenlo y corrige el tiempo en tu hoja de horas si hace falta.",
 			"STOP": "Detener temporizador",
 			"OPEN": "Abrir temporizador"
+		},
+		"MEETING": {
+			"INVITED": "<b>{name}</b> te invitó a una reunión",
+			"REMOVED": "<b>{name}</b> te quitó de una reunión",
+			"CHANGED": "<b>{name}</b> cambió una reunión",
+			"CANCELLED": "<b>{name}</b> canceló una reunión",
+			"REMINDER": "Tu reunión empieza en {minutes, plural, one {# minuto} other {# minutos}}",
+			"SOON": "Tu reunión empieza pronto",
+			"STARTING": "Tu reunión está empezando",
+			"OPEN": "Abrir reuniones"
 		},
 		"TASK_DUE": {
 			"BY_END_OF_DAY": "Vence al final del {date}",
@@ -4476,7 +4496,7 @@
 		"ADD_TO_CALENDAR": "Añadir al calendario",
 		"DONE": "Listo",
 		"AGENDA": "Agenda",
-		"AGENDA_HINT": "Reuniones que programaste",
+		"AGENDA_HINT": "Reuniones que programaste o a las que te invitaron",
 		"TODAY": "Hoy",
 		"TOMORROW": "Mañana",
 		"YESTERDAY": "Ayer",
@@ -4500,6 +4520,7 @@
 		"JOIN_MEETING": "Unirse a la reunión",
 		"MEETING_ACTIONS_OF": "Acciones de {title}",
 		"HOST": "Anfitrión: {name}",
+		"INVITED": "Invitado",
 		"STARTED_AGO": "Empezó {ago}",
 		"CANCEL_MEETING": "Cancelar reunión",
 		"CANCEL_CONFIRM_TITLE": "¿Cancelar esta reunión?",

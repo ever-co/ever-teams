@@ -4047,6 +4047,7 @@
 			"PAYMENT": "Eine Zahlung wurde für dich erfasst",
 			"RATE_CHANGE_REQUEST": "<b>{name}</b> hat eine Satzänderung angefragt",
 			"TIMER_REMINDER": "Dein Timer läuft noch immer",
+			"MEETING": "Ein Meeting, an dem Sie teilnehmen, wurde geändert",
 			"TASK_UPDATE": "<b>{name}</b> hat etwas geändert",
 			"TASK_DUE_REMINDER": "Eine Aufgabe ist bald fällig",
 			"BOARD_SHARE": "<b>{name}</b> hat ein Board mit dir geteilt",
@@ -4062,6 +4063,7 @@
 			"PAYMENT": "Zahlung",
 			"RATE_CHANGE_REQUEST": "Anfrage zur Satzänderung",
 			"TIMER_REMINDER": "Timer-Erinnerung",
+			"MEETING": "Meeting",
 			"TASK_UPDATE": "Änderung",
 			"TASK_DUE_REMINDER": "Fälligkeitserinnerung",
 			"BOARD_SHARE": "Board geteilt",
@@ -4142,6 +4144,14 @@
 				"OFF": "Aus",
 				"AFTER_HOURS": "Nach {hours, plural, one {# Stunde} other {# Stunden}}"
 			},
+			"MEETINGS": {
+				"TITLE": "Meetings",
+				"INTRO": "Hinweise zu den Meetings, die Sie leiten oder zu denen Sie eingeladen sind, und eine Erinnerung vor dem Beginn jedes Meetings.",
+				"LABEL": "Meeting-Erinnerung",
+				"TEXT": "Wenn Sie eingeladen werden, wenn ein Meeting geändert oder abgesagt wird, vor dem Beginn und wenn es beginnt. In Ihrem Posteingang, per E-Mail und auf Ihren Geräten nach Ihrer Wahl.",
+				"OFF": "Nur zu Beginn",
+				"BEFORE_MINUTES": "{minutes} Min. vorher"
+			},
 			"TASK_DUE": {
 				"TITLE": "Fälligkeiten",
 				"INTRO": "Eine Erinnerung, bevor eine dir zugewiesene Aufgabe fällig wird, solange sie nicht erledigt ist.",
@@ -4210,6 +4220,16 @@
 			"FORGOTTEN_DESCRIPTION": "Hast du ihn vergessen? Stoppe ihn und korrigiere die Zeit bei Bedarf in deinem Stundenzettel.",
 			"STOP": "Timer stoppen",
 			"OPEN": "Timer öffnen"
+		},
+		"MEETING": {
+			"INVITED": "<b>{name}</b> hat Sie zu einem Meeting eingeladen",
+			"REMOVED": "<b>{name}</b> hat Sie aus einem Meeting entfernt",
+			"CHANGED": "<b>{name}</b> hat ein Meeting geändert",
+			"CANCELLED": "<b>{name}</b> hat ein Meeting abgesagt",
+			"REMINDER": "Ihr Meeting beginnt in {minutes, plural, one {# Minute} other {# Minuten}}",
+			"SOON": "Ihr Meeting beginnt bald",
+			"STARTING": "Ihr Meeting beginnt jetzt",
+			"OPEN": "Meetings öffnen"
 		},
 		"TASK_DUE": {
 			"BY_END_OF_DAY": "Fällig bis Ende {date}",
@@ -4476,7 +4496,7 @@
 		"ADD_TO_CALENDAR": "Zum Kalender hinzufügen",
 		"DONE": "Fertig",
 		"AGENDA": "Agenda",
-		"AGENDA_HINT": "Von dir geplante Besprechungen",
+		"AGENDA_HINT": "Von dir geplante Besprechungen und solche, zu denen du eingeladen bist",
 		"TODAY": "Heute",
 		"TOMORROW": "Morgen",
 		"YESTERDAY": "Gestern",
@@ -4500,6 +4520,7 @@
 		"JOIN_MEETING": "Besprechung beitreten",
 		"MEETING_ACTIONS_OF": "Aktionen für {title}",
 		"HOST": "Gastgeber: {name}",
+		"INVITED": "Eingeladen",
 		"STARTED_AGO": "Begonnen {ago}",
 		"CANCEL_MEETING": "Besprechung absagen",
 		"CANCEL_CONFIRM_TITLE": "Diese Besprechung absagen?",

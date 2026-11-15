@@ -13,6 +13,7 @@ import {
 import { Button } from '@/core/components/duplicated-components/_button';
 import { CalendarPlus, Copy, Edit, Link, MoreHorizontal, Trash, VideoCall } from '@/core/components/icons';
 import { cn } from '@/core/lib/helpers';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 import {
 	meetingPathOfInput,
 	scheduledMeetingStateOf,
@@ -77,11 +78,17 @@ export function MeetingCard({
 }: Readonly<MeetingCardProps>) {
 	const t = useTranslations();
 	const locale = useLocale();
+	// The times on the workspace's clock (#5264), as every other page writes them
+	const workspaceLocale = useWorkspaceLocale();
 	const router = useRouter();
 	const state = scheduledMeetingStateOf(meeting, now);
 	const title = meeting.title || t('meetings.UNTITLED');
 	const path = meeting.link ? meetingPathOfInput(meeting.link, isJitsi) : null;
 	const isLive = state === 'live';
+	// A meeting someone else hosts and invited the person to (#5022): they join it; only its host edits or cancels it
+	const isInvited = meeting.isInvited === true;
+	const shownHost = isInvited ? meeting.hostName : hostName;
+	const joinsRatherThanStarts = isLive || isInvited;
 
 	const copyLink = async () => {
 		if (!meeting.link) return;
@@ -119,11 +126,18 @@ export function MeetingCard({
 							{whenWordOf(state, meeting, now, locale, t)}
 						</span>
 						<span aria-hidden="true">·</span>
-						<span className="tabular-nums">{meetingTimesOf(meeting, locale)}</span>
+						<span className="tabular-nums">{meetingTimesOf(meeting, workspaceLocale)}</span>
 					</p>
 				</div>
 			</div>
-			{hostName && <p className="text-xs text-muted-foreground">{t('meetings.HOST', { name: hostName })}</p>}
+			{(shownHost || isInvited) && (
+				<p className="flex flex-wrap items-center gap-x-1.5 text-xs text-muted-foreground">
+					{shownHost && <span>{t('meetings.HOST', { name: shownHost })}</span>}
+					{shownHost && isInvited && <span aria-hidden="true">·</span>}
+					{/* A meeting one is invited to says so, its host named or not */}
+					{isInvited && <span className="font-medium text-foreground/80">{t('meetings.INVITED')}</span>}
+				</p>
+			)}
 			{isLive && (
 				<p className="flex items-center gap-1.5 text-xs font-medium text-destructive-ink">
 					<span aria-hidden="true" className="size-2 shrink-0 animate-pulse rounded-full bg-destructive" />
@@ -138,13 +152,13 @@ export function MeetingCard({
 						variant={isLive ? 'default' : 'secondary'}
 						onClick={open}
 						aria-label={
-							isLive
+							joinsRatherThanStarts
 								? t('meetings.JOIN_MEETING_OF', { title })
 								: t('meetings.START_MEETING_OF', { title })
 						}
 					>
 						<VideoCall className="size-4" aria-hidden="true" />
-						{isLive ? t('meetings.JOIN') : t('meetings.START')}
+						{joinsRatherThanStarts ? t('meetings.JOIN') : t('meetings.START')}
 					</Button>
 				)}
 				<span className="flex-1" />
@@ -164,7 +178,7 @@ export function MeetingCard({
 						{path && state !== 'ended' && (
 							<DropdownMenuItem onClick={open}>
 								<VideoCall />
-								{isLive ? t('meetings.JOIN_MEETING') : t('meetings.START_MEETING')}
+								{joinsRatherThanStarts ? t('meetings.JOIN_MEETING') : t('meetings.START_MEETING')}
 							</DropdownMenuItem>
 						)}
 						{meeting.link && (
@@ -187,19 +201,23 @@ export function MeetingCard({
 								</DropdownMenuItem>
 							</>
 						)}
-						<DropdownMenuItem onClick={() => onEdit(meeting)}>
-							<Edit />
-							{t('common.EDIT')}
-						</DropdownMenuItem>
-						<DropdownMenuSeparator />
-						<DropdownMenuItem
-							variant="destructive"
-							disabled={isCancelling}
-							onClick={() => onCancel(meeting)}
-						>
-							<Trash />
-							{t('common.DELETE')}
-						</DropdownMenuItem>
+						{!isInvited && (
+							<>
+								<DropdownMenuItem onClick={() => onEdit(meeting)}>
+									<Edit />
+									{t('common.EDIT')}
+								</DropdownMenuItem>
+								<DropdownMenuSeparator />
+								<DropdownMenuItem
+									variant="destructive"
+									disabled={isCancelling}
+									onClick={() => onCancel(meeting)}
+								>
+									<Trash />
+									{t('common.DELETE')}
+								</DropdownMenuItem>
+							</>
+						)}
 					</DropdownMenuContent>
 				</DropdownMenu>
 			</div>

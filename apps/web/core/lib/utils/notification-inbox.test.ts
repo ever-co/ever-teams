@@ -144,6 +144,38 @@ describe('toNotificationEntry for a Board invitation (#5022)', () => {
 	});
 });
 
+describe('toNotificationEntry for a meeting (#5022)', () => {
+	it('opens the meetings page, reads its kind and title, and takes no sender from the title', () => {
+		const entry = toNotificationEntry(
+			notification({
+				type: EEmployeeNotificationType.Meeting,
+				title: '"Proposal sent to customer" was changed',
+				entity: EBaseEntityEnum.EmployeeAppointment,
+				entityId: 'appointment-1'
+			})
+		);
+
+		expect(entry.href).toBe('/meet');
+		expect(entry.meeting).toEqual({
+			kind: 'changed',
+			title: 'Proposal sent to customer',
+			minutes: null,
+			appointmentId: 'appointment-1'
+		});
+		expect(entry.senderName).toBeNull();
+	});
+
+	it('names the employee the platform says sent it', () => {
+		const entry = toNotificationEntry(
+			notification({
+				type: EEmployeeNotificationType.Meeting,
+				title: 'You are invited to "Planning"',
+				sentByEmployee: { fullName: 'Ana Silva' } as IEmployeeNotification['sentByEmployee']
+			})
+		);
+
+		expect(entry.senderName).toBe('Ana Silva');
+
 describe('toNotificationEntry for a Board shared or a mention in one (#5022)', () => {
 	const configured = process.env.NEXT_PUBLIC_BOARD_APP_DOMAIN;
 	const link = 'https://board.ever.team/#room=r00m,secret-key';

@@ -1217,7 +1217,10 @@ export const queryKeys = {
 	meetings: {
 		all: ['meetings'] as const,
 		scheduled: (employeeId: string | undefined | null) =>
-			['meetings', 'scheduled', ...(employeeId ? [employeeId] : [])] as const
+			['meetings', 'scheduled', ...(employeeId ? [employeeId] : [])] as const,
+		// The meetings others host that the member is invited to (#5022)
+		invited: (employeeId: string | undefined | null) =>
+			['meetings', 'invited', ...(employeeId ? [employeeId] : [])] as const
 	},
 
 	timeLogs: {

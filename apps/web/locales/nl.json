@@ -4047,6 +4047,7 @@
 			"PAYMENT": "Er is een betaling voor je geregistreerd",
 			"RATE_CHANGE_REQUEST": "<b>{name}</b> vroeg om een tariefwijziging",
 			"TIMER_REMINDER": "Je timer loopt nog steeds",
+			"MEETING": "Een vergadering waaraan je deelneemt is gewijzigd",
 			"TASK_UPDATE": "<b>{name}</b> heeft iets gewijzigd",
 			"TASK_DUE_REMINDER": "Een taak verloopt binnenkort",
 			"BOARD_SHARE": "<b>{name}</b> heeft een bord met je gedeeld",
@@ -4062,6 +4063,7 @@
 			"PAYMENT": "Betaling",
 			"RATE_CHANGE_REQUEST": "Aanvraag tariefwijziging",
 			"TIMER_REMINDER": "Timerherinnering",
+			"MEETING": "Vergadering",
 			"TASK_UPDATE": "Wijziging",
 			"TASK_DUE_REMINDER": "Herinnering vervaldatum",
 			"BOARD_SHARE": "Bord gedeeld",
@@ -4142,6 +4144,14 @@
 				"OFF": "Uit",
 				"AFTER_HOURS": "Na {hours, plural, one {# uur} other {# uur}}"
 			},
+			"MEETINGS": {
+				"TITLE": "Vergaderingen",
+				"INTRO": "Meldingen over de vergaderingen die je organiseert of waarvoor je bent uitgenodigd, en een herinnering voordat elke vergadering begint.",
+				"LABEL": "Vergaderherinnering",
+				"TEXT": "Als je wordt uitgenodigd, als een vergadering wijzigt of wordt geannuleerd, voordat ze begint en als ze begint. In je inbox, per e-mail en op je apparaten, zoals je kiest.",
+				"OFF": "Alleen bij de start",
+				"BEFORE_MINUTES": "{minutes} min vooraf"
+			},
 			"TASK_DUE": {
 				"TITLE": "Vervaldatums",
 				"INTRO": "Een herinnering voordat een aan jou toegewezen taak vervalt, zolang die niet klaar is.",
@@ -4210,6 +4220,16 @@
 			"FORGOTTEN_DESCRIPTION": "Vergeten? Stop hem en corrigeer de tijd zo nodig in je urenstaat.",
 			"STOP": "Timer stoppen",
 			"OPEN": "Timer openen"
+		},
+		"MEETING": {
+			"INVITED": "<b>{name}</b> heeft je uitgenodigd voor een vergadering",
+			"REMOVED": "<b>{name}</b> heeft je uit een vergadering verwijderd",
+			"CHANGED": "<b>{name}</b> heeft een vergadering gewijzigd",
+			"CANCELLED": "<b>{name}</b> heeft een vergadering geannuleerd",
+			"REMINDER": "Je vergadering begint over {minutes, plural, one {# minuut} other {# minuten}}",
+			"SOON": "Je vergadering begint zo",
+			"STARTING": "Je vergadering begint nu",
+			"OPEN": "Vergaderingen openen"
 		},
 		"TASK_DUE": {
 			"BY_END_OF_DAY": "Uiterlijk eind {date}",
@@ -4476,7 +4496,7 @@
 		"ADD_TO_CALENDAR": "Aan agenda toevoegen",
 		"DONE": "Klaar",
 		"AGENDA": "Agenda",
-		"AGENDA_HINT": "Vergaderingen die je plande",
+		"AGENDA_HINT": "Vergaderingen die je plande of waarvoor je bent uitgenodigd",
 		"TODAY": "Vandaag",
 		"TOMORROW": "Morgen",
 		"YESTERDAY": "Gisteren",
@@ -4500,6 +4520,7 @@
 		"JOIN_MEETING": "Deelnemen aan vergadering",
 		"MEETING_ACTIONS_OF": "Acties voor {title}",
 		"HOST": "Organisator: {name}",
+		"INVITED": "Uitgenodigd",
 		"STARTED_AGO": "Begonnen {ago}",
 		"CANCEL_MEETING": "Vergadering annuleren",
 		"CANCEL_CONFIRM_TITLE": "Deze vergadering annuleren?",

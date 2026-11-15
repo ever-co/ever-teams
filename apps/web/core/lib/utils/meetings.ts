@@ -147,6 +147,10 @@ export interface ScheduledMeeting {
 	start: Date;
 	end: Date;
 	link: string | null;
+	/** Someone else hosts it and invited the person (#5022): they join it, but only its host edits or cancels it. */
+	isInvited?: boolean;
+	/** Who hosts a meeting the person is invited to, as the platform names them. */
+	hostName?: string | null;
 }
 
 /** Where a scheduled meeting stands: running, open to join soon, later, or over. */
@@ -219,6 +223,30 @@ export interface MeetingAppointment {
 	status?: string | null;
 }
 
+/** A meeting the person is invited to, as Gauzy lists it (`GET /employee-appointment/invited`, #5022). */
+export interface MeetingInvitation extends MeetingAppointment {
+	/** Who hosts it: the employee whose appointment it is. */
+	host?: { employeeId?: string | null; name?: string | null } | null;
+}
+
+/** The meeting an invitation holds, marked as one the person attends rather than hosts; null as for an appointment. */
+export function invitedMeetingOf(invitation: MeetingInvitation): ScheduledMeeting | null {
+	const meeting = scheduledMeetingOf(invitation);
+	if (!meeting) {
+		return null;
+	}
+	return { ...meeting, isInvited: true, hostName: invitation.host?.name?.trim() || null };
+}
+
+/** The person's own meetings, then those they are invited to that are not already among them (a host invited too). */
+export function withInvitedMeetings(
+	own: readonly ScheduledMeeting[],
+	invited: readonly ScheduledMeeting[]
+): ScheduledMeeting[] {
+	const ownIds = new Set(own.map((meeting) => meeting.id));
+	return [...own, ...invited.filter((meeting) => !ownIds.has(meeting.id))];
+}
+
 /** The scheduled meeting an appointment holds, or null when its times are missing or it was cancelled. */
 export function scheduledMeetingOf(appointment: MeetingAppointment): ScheduledMeeting | null {
 	const start = appointment.startDateTime ? new Date(appointment.startDateTime) : null;
@@ -247,6 +275,8 @@ export interface ScheduleMeetingDraft {
 	link: string;
 	/** The addresses of the people invited: team members and others. */
 	participantEmails?: string[];
+	/** The team members one can invite: the participants among them are invited as members (#5022). */
+	invitees?: readonly MeetingInvitee[];
 }
 
 export interface MeetingAppointmentInput {
@@ -258,17 +288,38 @@ export interface MeetingAppointmentInput {
 	employeeId: string;
 	/** The invitees' addresses, as Gauzy reads them: one string, the addresses separated by a comma and a space. */
 	emails?: string;
+	/** The team members invited, whom Gauzy tells with a notification and lets read the meeting (#5022). */
+	inviteeEmployeeIds?: string[];
 }
 
 /**
- * The appointment Ever Gauzy stores for a scheduled meeting, owned by the person who schedules it. The people invited
- * go in its `emails`, which Gauzy splits on ", " to send each a short "new appointment" message; that message carries
- * neither the time nor the link, so the confirmation still gives the invitation to copy and the calendar file.
+ * Whether the platform lists a member's invitations (`GET /employee-appointment/invited`, #5022), which an Ever Gauzy
+ * that invites team members itself does: `missing` on an older one, `unknown` when asking it failed.
  */
-export function appointmentInputOf(draft: ScheduleMeetingDraft, employeeId: string): MeetingAppointmentInput {
+export type InvitationsRoute = 'present' | 'missing' | 'unknown';
+
+/**
+ * The appointment Ever Gauzy stores for a scheduled meeting, owned by the person who schedules it. The team members
+ * invited go in its `inviteeEmployeeIds`: Gauzy tells each one in their Inbox, by email and push as they chose, with
+ * the time and the way to join, reminds them before it starts, and lists it among the meetings they are invited to.
+ * The other people invited go in its `emails`, which Gauzy splits on ", " to send each a short "new appointment"
+ * message; that message carries neither the time nor the link, so the confirmation still gives the invitation to copy
+ * and the calendar file.
+ *
+ * An older Gauzy (`missing`) invites no team member: every participant goes in `emails`, as before #5022, so each still
+ * gets that message. When it is not known (`unknown`), the team members go in both, so no one is left uninvited.
+ */
+export function appointmentInputOf(
+	draft: ScheduleMeetingDraft,
+	employeeId: string,
+	invitationsRoute: InvitationsRoute = 'present'
+): MeetingAppointmentInput {
 	const end = new Date(draft.start.getTime() + draft.durationMinutes * MINUTE);
 	const description = draft.description?.trim();
-	const emails = draft.participantEmails ?? [];
+	const participantEmails = draft.participantEmails ?? [];
+	const participants = participantsOf(participantEmails, draft.invitees ?? []);
+	const emails = invitationsRoute === 'present' ? participants.emails : participantEmails;
+	const memberIds = invitationsRoute === 'missing' ? [] : participants.memberIds;
 	return {
 		agenda: draft.title.trim(),
 		...(description ? { description } : {}),
@@ -276,19 +327,43 @@ export function appointmentInputOf(draft: ScheduleMeetingDraft, employeeId: stri
 		startDateTime: draft.start.toISOString(),
 		endDateTime: end.toISOString(),
 		employeeId,
-		...(emails.length > 0 ? { emails: emails.join(', ') } : {})
+		...(emails.length > 0 ? { emails: emails.join(', ') } : {}),
+		...(memberIds.length > 0 ? { inviteeEmployeeIds: memberIds } : {})
 	};
+}
+
+/** The participants told apart: the team members among them (their employee ids, each once) and the other addresses. */
+function participantsOf(
+	participantEmails: readonly string[],
+	invitees: readonly MeetingInvitee[]
+): { memberIds: string[]; emails: string[] } {
+	const employeeIdOf = new Map(invitees.map((invitee) => [invitee.email.toLowerCase(), invitee.employeeId]));
+	const memberIds: string[] = [];
+	const emails: string[] = [];
+	for (const email of participantEmails) {
+		const employeeId = employeeIdOf.get(email.trim().toLowerCase());
+		if (!employeeId) {
+			emails.push(email);
+		} else if (!memberIds.includes(employeeId)) {
+			memberIds.push(employeeId);
+		}
+	}
+	return { memberIds, emails };
 }
 
 /** A team member one can invite to a meeting. */
 export interface MeetingInvitee {
 	email: string;
 	name: string;
+	/** Their employee, whom the platform tells and lets read the meeting; null when the team list does not name it. */
+	employeeId: string | null;
 }
 
 /** The parts of a team member the invitation needs. */
 interface InvitableMember {
+	employeeId?: string | null;
 	employee?: {
+		id?: string | null;
 		fullName?: string | null;
 		user?: { email?: string | null; name?: string | null } | null;
 	} | null;
@@ -304,7 +379,8 @@ export function meetingInviteesOf(members: readonly InvitableMember[], ownEmail?
 			continue;
 		}
 		const name = member.employee?.user?.name?.trim() || member.employee?.fullName?.trim() || email;
-		byEmail.set(email, { email, name });
+		const employeeId = member.employee?.id || member.employeeId || null;
+		byEmail.set(email, { email, name, employeeId });
 	}
 	return [...byEmail.values()].sort((first, second) => first.name.localeCompare(second.name));
 }

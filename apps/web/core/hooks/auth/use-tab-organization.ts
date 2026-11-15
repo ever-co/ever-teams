@@ -4,7 +4,12 @@ import { useCallback, useSyncExternalStore } from 'react';
 import { useAtomValue } from 'jotai';
 import { useQueryClient } from '@tanstack/react-query';
 import { LAST_WORKSPACE_AND_TEAM } from '@/core/constants/config/constants';
-import { TAB_SCOPE_CHANGED_EVENT, bringTabOrganizationBack, tabScope } from '@/core/lib/auth/tab-organization';
+import {
+	TAB_SCOPE_CHANGED_EVENT,
+	bringTabOrganizationBack,
+	putBackLeftCookies,
+	tabScope
+} from '@/core/lib/auth/tab-organization';
 import { syncTokenOrganization } from '@/core/lib/auth/token-organization';
 import { queryKeys } from '@/core/query/keys';
 import { activeTeamState, timerStartsInFlightState, timerStatusState } from '@/core/stores';
@@ -102,7 +107,12 @@ export function useTabOrganization() {
 		if (activeTeamId) globalThis.window?.localStorage.setItem(LAST_WORKSPACE_AND_TEAM, activeTeamId);
 		void syncTokenOrganization(organizationId).then((switched) => {
 			// The user (its employee) is read again for that organization, as after a team switch
-			if (switched) queryClient.invalidateQueries({ queryKey: queryKeys.users.me });
+			if (switched) {
+				queryClient.invalidateQueries({ queryKey: queryKeys.users.me });
+				return;
+			}
+			// Refused, or no answer: the session stays where it is, and so do the cookies again
+			putBackLeftCookies(organizationId);
 		});
 	}, [activeTeamId, queryClient]);
 

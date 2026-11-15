@@ -158,6 +158,13 @@ function PushKindRows({
 			label: t('notifications.SETTINGS_PAGE.TASK_DUE.LABEL'),
 			isOn: isTaskDueReminderOn
 		},
+		// The meetings are always filed: their invitations and changes come whatever the reminder's lead (#5022)
+		{
+			type: EEmployeeNotificationType.Meeting,
+			id: 'notification-push-meeting',
+			label: t('notifications.SETTINGS_PAGE.MEETINGS.LABEL'),
+			isOn: true
+		},
 		// A Board shared, or a mention in one: always filed, so their push switch is always free
 		...BOARD_NOTIFICATION_KINDS.map((kind) => ({
 			type: kind.type,

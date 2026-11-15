@@ -4047,6 +4047,7 @@
 			"PAYMENT": "Un paiement a été enregistré pour vous",
 			"RATE_CHANGE_REQUEST": "<b>{name}</b> demande un changement de taux",
 			"TIMER_REMINDER": "Votre chronomètre tourne encore",
+			"MEETING": "Une réunion à laquelle vous participez a changé",
 			"TASK_UPDATE": "<b>{name}</b> a fait une modification",
 			"TASK_DUE_REMINDER": "Une tâche arrive à échéance",
 			"BOARD_SHARE": "<b>{name}</b> a partagé un tableau avec vous",
@@ -4062,6 +4063,7 @@
 			"PAYMENT": "Paiement",
 			"RATE_CHANGE_REQUEST": "Demande de changement de taux",
 			"TIMER_REMINDER": "Rappel de chronomètre",
+			"MEETING": "Réunion",
 			"TASK_UPDATE": "Modification",
 			"TASK_DUE_REMINDER": "Rappel d'échéance",
 			"BOARD_SHARE": "Tableau partagé",
@@ -4142,6 +4144,14 @@
 				"OFF": "Désactivé",
 				"AFTER_HOURS": "Après {hours, plural, one {# heure} other {# heures}}"
 			},
+			"MEETINGS": {
+				"TITLE": "Réunions",
+				"INTRO": "Les avis sur les réunions que vous organisez ou auxquelles vous êtes invité, et un rappel avant le début de chacune.",
+				"LABEL": "Rappel de réunion",
+				"TEXT": "Quand vous êtes invité, quand une réunion change ou est annulée, avant son début et quand elle commence. Dans votre boîte de réception, par e-mail et sur vos appareils selon vos choix.",
+				"OFF": "Seulement au début",
+				"BEFORE_MINUTES": "{minutes} min avant"
+			},
 			"TASK_DUE": {
 				"TITLE": "Échéances",
 				"INTRO": "Un rappel avant l'échéance d'une tâche qui vous est assignée, tant qu'elle n'est pas terminée.",
@@ -4210,6 +4220,16 @@
 			"FORGOTTEN_DESCRIPTION": "L’avez-vous oublié ? Arrêtez-le, puis corrigez le temps dans votre feuille de temps si besoin.",
 			"STOP": "Arrêter le chronomètre",
 			"OPEN": "Ouvrir le chronomètre"
+		},
+		"MEETING": {
+			"INVITED": "<b>{name}</b> vous a invité à une réunion",
+			"REMOVED": "<b>{name}</b> vous a retiré d’une réunion",
+			"CHANGED": "<b>{name}</b> a modifié une réunion",
+			"CANCELLED": "<b>{name}</b> a annulé une réunion",
+			"REMINDER": "Votre réunion commence dans {minutes, plural, one {# minute} other {# minutes}}",
+			"SOON": "Votre réunion commence bientôt",
+			"STARTING": "Votre réunion commence",
+			"OPEN": "Ouvrir les réunions"
 		},
 		"TASK_DUE": {
 			"BY_END_OF_DAY": "À rendre au plus tard le {date}",
@@ -4476,7 +4496,7 @@
 		"ADD_TO_CALENDAR": "Ajouter à l’agenda",
 		"DONE": "Terminé",
 		"AGENDA": "Agenda",
-		"AGENDA_HINT": "Les réunions que vous avez planifiées",
+		"AGENDA_HINT": "Les réunions que vous avez planifiées ou auxquelles vous êtes invité",
 		"TODAY": "Aujourd’hui",
 		"TOMORROW": "Demain",
 		"YESTERDAY": "Hier",
@@ -4500,6 +4520,7 @@
 		"JOIN_MEETING": "Rejoindre la réunion",
 		"MEETING_ACTIONS_OF": "Actions pour {title}",
 		"HOST": "Organisateur : {name}",
+		"INVITED": "Invité",
 		"STARTED_AGO": "Commencée {ago}",
 		"CANCEL_MEETING": "Annuler la réunion",
 		"CANCEL_CONFIRM_TITLE": "Annuler cette réunion ?",

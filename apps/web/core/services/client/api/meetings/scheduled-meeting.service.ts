@@ -2,7 +2,12 @@ import qs from 'qs';
 import { APIService } from '../../api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import type { PaginationResponse } from '@/core/types/interfaces/common/data-response';
-import type { MeetingAppointment, MeetingAppointmentInput, MeetingAppointmentUpdate } from '@/core/lib/utils/meetings';
+import type {
+	MeetingAppointment,
+	MeetingAppointmentInput,
+	MeetingAppointmentUpdate,
+	MeetingInvitation
+} from '@/core/lib/utils/meetings';
 
 /**
  * Scheduled meetings are Ever Gauzy employee appointments whose location is the meeting link: Gauzy has no meeting
@@ -31,6 +36,16 @@ class ScheduledMeetingService extends APIService {
 
 	cancelScheduledMeeting = async (appointmentId: string): Promise<void> => {
 		await this.delete(`/employee-appointment/${appointmentId}`);
+	};
+
+	/**
+	 * The meetings others host that the member is invited to (#5022), from a moment on: Gauzy lists another member's
+	 * appointment to its invitees through this route only, neither cancelled nor deleted, with its host's name.
+	 */
+	getInvitedMeetings = async (from: Date): Promise<MeetingInvitation[]> => {
+		const query = qs.stringify({ startDate: from.toISOString() });
+		const response = await this.get<MeetingInvitation[]>(`/employee-appointment/invited?${query}`);
+		return Array.isArray(response.data) ? response.data : [];
 	};
 }
 

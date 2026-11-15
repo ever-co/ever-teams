@@ -2076,12 +2076,16 @@ describe('Ever Teams feature surface preservation', () => {
 		// 401 files and 507 verbs with an invoice's public page and paying it online (/api/public/invoice/[id]/[token]
 		// GET and download GET, /api/public/invoice-payments/invoice/[id]/[token] GET and checkout POST,
 		// /api/invoice-payments/connection GET and PUT, rotate-secret POST; ever-gauzy #11856).
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(401);
+		// 402 files and 508 verbs with the meetings one is invited to (/api/employee-appointment/invited GET; #5022,
+		// ever-gauzy #11995).
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(402);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(507);
+		).toHaveLength(508);
 		expect(routes).toEqual(
 			expect.arrayContaining([
+				// Proxy mode twin of Gauzy's list of the meetings one is invited to (ever-gauzy #11995, #5022)
+				'apps/web/app/api/employee-appointment/invited/route.ts::GET',
 				// Proxy mode twins of Gauzy's saved reports routes and the read of a shared report (ever-gauzy #11912, #5200)
 				'apps/web/app/api/saved-reports/route.ts::GET',
 				'apps/web/app/api/saved-reports/route.ts::POST',

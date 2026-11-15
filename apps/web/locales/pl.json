@@ -4047,6 +4047,7 @@
 			"PAYMENT": "Zarejestrowano dla Ciebie płatność",
 			"RATE_CHANGE_REQUEST": "<b>{name}</b> prosi o zmianę stawki",
 			"TIMER_REMINDER": "Twój licznik czasu wciąż działa",
+			"MEETING": "Spotkanie, w którym uczestniczysz, zostało zmienione",
 			"TASK_UPDATE": "<b>{name}</b> wprowadził(a) zmianę",
 			"TASK_DUE_REMINDER": "Zbliża się termin zadania",
 			"BOARD_SHARE": "<b>{name}</b> udostępnił(a) Ci tablicę",
@@ -4062,6 +4063,7 @@
 			"PAYMENT": "Płatność",
 			"RATE_CHANGE_REQUEST": "Prośba o zmianę stawki",
 			"TIMER_REMINDER": "Przypomnienie o liczniku czasu",
+			"MEETING": "Spotkanie",
 			"TASK_UPDATE": "Zmiana",
 			"TASK_DUE_REMINDER": "Przypomnienie o terminie",
 			"BOARD_SHARE": "Udostępniona tablica",
@@ -4142,6 +4144,14 @@
 				"OFF": "Wyłączone",
 				"AFTER_HOURS": "Po {hours, plural, one {# godzinie} other {# godzinach}}"
 			},
+			"MEETINGS": {
+				"TITLE": "Spotkania",
+				"INTRO": "Powiadomienia o spotkaniach, które organizujesz lub na które Cię zaproszono, oraz przypomnienie przed rozpoczęciem każdego z nich.",
+				"LABEL": "Przypomnienie o spotkaniu",
+				"TEXT": "Gdy zostaniesz zaproszony, gdy spotkanie się zmieni lub zostanie odwołane, przed jego rozpoczęciem i gdy się zaczyna. W Twojej skrzynce, e-mailem i na Twoich urządzeniach, zgodnie z Twoim wyborem.",
+				"OFF": "Tylko na początku",
+				"BEFORE_MINUTES": "{minutes} min wcześniej"
+			},
 			"TASK_DUE": {
 				"TITLE": "Terminy",
 				"INTRO": "Przypomnienie przed terminem zadania przypisanego do Ciebie, dopóki nie jest ukończone.",
@@ -4210,6 +4220,16 @@
 			"FORGOTTEN_DESCRIPTION": "Zapomniany? Zatrzymaj go, a w razie potrzeby popraw czas w karcie czasu pracy.",
 			"STOP": "Zatrzymaj licznik",
 			"OPEN": "Otwórz licznik"
+		},
+		"MEETING": {
+			"INVITED": "<b>{name}</b> zaprosił(a) Cię na spotkanie",
+			"REMOVED": "<b>{name}</b> usunął(a) Cię ze spotkania",
+			"CHANGED": "<b>{name}</b> zmienił(a) spotkanie",
+			"CANCELLED": "<b>{name}</b> odwołał(a) spotkanie",
+			"REMINDER": "Twoje spotkanie zaczyna się za {minutes, plural, one {# minutę} few {# minuty} many {# minut} other {# minuty}}",
+			"SOON": "Twoje spotkanie wkrótce się zacznie",
+			"STARTING": "Twoje spotkanie się zaczyna",
+			"OPEN": "Otwórz spotkania"
 		},
 		"TASK_DUE": {
 			"BY_END_OF_DAY": "Termin: do końca {date}",
@@ -4476,7 +4496,7 @@
 		"ADD_TO_CALENDAR": "Dodaj do kalendarza",
 		"DONE": "Gotowe",
 		"AGENDA": "Agenda",
-		"AGENDA_HINT": "Spotkania zaplanowane przez ciebie",
+		"AGENDA_HINT": "Spotkania zaplanowane przez ciebie lub na które cię zaproszono",
 		"TODAY": "Dzisiaj",
 		"TOMORROW": "Jutro",
 		"YESTERDAY": "Wczoraj",
@@ -4500,6 +4520,7 @@
 		"JOIN_MEETING": "Dołącz do spotkania",
 		"MEETING_ACTIONS_OF": "Działania dla {title}",
 		"HOST": "Organizator: {name}",
+		"INVITED": "Zaproszenie",
 		"STARTED_AGO": "Rozpoczęte {ago}",
 		"CANCEL_MEETING": "Odwołaj spotkanie",
 		"CANCEL_CONFIRM_TITLE": "Odwołać to spotkanie?",

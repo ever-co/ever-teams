@@ -15,6 +15,11 @@ export enum EEmployeeNotificationType {
 	/** A timer left running, at the employee's threshold, then at twice it (#5022): about the run's time log. */
 	TimerReminder = 'TimerReminder',
 	/**
+	 * A meeting the person hosts or is invited to (#5022): they were invited or removed, it was changed or cancelled, it
+	 * starts soon or it is starting. About the meeting's appointment; the title says which (`meetingNoticeOf`).
+	 */
+	Meeting = 'Meeting',
+	/**
 	 * A record the employee follows changed (#5022): a task's status, priority, due date or members, or a project's
 	 * status, dates or archiving (its members follow it). The message says what changed.
 	 */
@@ -116,6 +121,11 @@ export interface INotificationPreferences {
 	 * A second one follows at twice that.
 	 */
 	timerReminderHours?: number | null;
+	/**
+	 * How many minutes before a meeting the person hosts or is invited to they are reminded of it (#5022); 15 when
+	 * unset, `null` (or 0) for no reminder before. The notice that it is starting comes either way.
+	 */
+	meetingReminderMinutes?: number | null;
 	/**
 	 * How many hours before a task's due date its assignees are reminded of it (#5022); 24 when unset, `null` (or 0) for
 	 * no reminder.
