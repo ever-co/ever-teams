@@ -1,0 +1,178 @@
+/** @jest-environment jsdom */
+
+import {
+	ACTIVE_LANGUAGE_COOKIE_NAME,
+	ACTIVE_TASK_COOKIE_NAME,
+	ACTIVE_TEAM_COOKIE_NAME,
+	ACTIVE_USER_ID_COOKIE_NAME,
+	NO_TEAM_POPUP_SHOW_COOKIE_NAME,
+	ORGANIZATION_ID_COOKIE_NAME,
+	REFRESH_TOKEN_COOKIE_NAME,
+	TENANT_ID_COOKIE_NAME,
+	TOKEN_COOKIE_NAME
+} from '@/core/constants/config/constants';
+import { deleteCookie, deleteCookieCrossSite, getCookie, setCookie } from './helpers';
+import {
+	setAccessTokenCookie,
+	setActiveTaskIdCookie,
+	setActiveTeamIdCookie,
+	setAuthCookies,
+	setRefreshTokenCookie
+} from './index';
+
+jest.mock('./helpers', () => ({
+	deleteCookie: jest.fn(),
+	deleteCookieCrossSite: jest.fn(),
+	getCookie: jest.fn(),
+	setCookie: jest.fn()
+}));
+
+/** The browser's cookies as the mocked helpers read and write them, each with the options it was last written with. */
+let jar: Map<string, { value: string; options: unknown }>;
+
+const DAY_S = 24 * 60 * 60;
+
+function nowS(): number {
+	return Math.floor(Date.now() / 1000);
+}
+
+function base64Url(value: object): string {
+	return btoa(JSON.stringify(value)).replace(/=+$/, '').replace(/\+/g, '-').replace(/\//g, '_');
+}
+
+/** A refresh token as Gauzy signs it, which expires at `exp` (in seconds). */
+function refreshTokenExpiringAt(exp: number): string {
+	const header = base64Url({ alg: 'HS256', typ: 'JWT' });
+	return `${header}.${base64Url({ id: 'user-1', iat: exp - DAY_S, exp })}.signature`;
+}
+
+/** The cookies a sign-in writes: the sign-out removes them all. */
+const SIGN_IN_COOKIES = [
+	TOKEN_COOKIE_NAME,
+	REFRESH_TOKEN_COOKIE_NAME,
+	ACTIVE_TEAM_COOKIE_NAME,
+	TENANT_ID_COOKIE_NAME,
+	ORGANIZATION_ID_COOKIE_NAME,
+	ACTIVE_LANGUAGE_COOKIE_NAME,
+	NO_TEAM_POPUP_SHOW_COOKIE_NAME,
+	ACTIVE_USER_ID_COOKIE_NAME
+];
+
+function signIn(refreshToken: string, accessToken = 'access-1'): void {
+	setAuthCookies({
+		refresh_token: { token: refreshToken },
+		access_token: accessToken,
+		teamId: 'team-1',
+		tenantId: 'tenant-1',
+		organizationId: 'organization-1',
+		languageId: 'fr',
+		noTeamPopup: true,
+		userId: 'user-1'
+	});
+}
+
+/** Each cookie named with the options it was last written with, so that a failure names the cookie. */
+function optionsOf(names: string[]): [string, unknown][] {
+	return names.map((name) => [name, jar.get(name)?.options]);
+}
+
+function expiringAt(names: string[], exp: number): [string, unknown][] {
+	return names.map((name) => [name, { expires: new Date(exp * 1000) }]);
+}
+
+function withoutExpiry(names: string[]): [string, unknown][] {
+	return names.map((name) => [name, undefined]);
+}
+
+beforeEach(() => {
+	jest.clearAllMocks();
+	jar = new Map();
+	jest.mocked(getCookie).mockImplementation((name: string) => jar.get(name)?.value);
+	jest.mocked(setCookie).mockImplementation((name: string, value: unknown, options: unknown) => {
+		jar.set(name, { value: String(value), options });
+	});
+	jest.mocked(deleteCookie).mockImplementation((name: string) => {
+		jar.delete(name);
+	});
+	jest.mocked(deleteCookieCrossSite).mockImplementation((name: string) => {
+		jar.delete(name);
+	});
+});
+
+describe('The cookies of a session last until its refresh token expires (#5315)', () => {
+	it("writes every cookie of a sign-in with the refresh token's expiry", () => {
+		const exp = nowS() + 7 * DAY_S;
+
+		signIn(refreshTokenExpiringAt(exp));
+
+		expect(optionsOf(SIGN_IN_COOKIES)).toEqual(expiringAt(SIGN_IN_COOKIES, exp));
+	});
+
+	it('writes a long access token in chunks that all expire with the session', () => {
+		const exp = nowS() + DAY_S;
+		const chunks = [`${TOKEN_COOKIE_NAME}0`, `${TOKEN_COOKIE_NAME}1`, `${TOKEN_COOKIE_NAME}_totalChunks`];
+
+		signIn(refreshTokenExpiringAt(exp), 'x'.repeat(4097));
+
+		expect(optionsOf(chunks)).toEqual(expiringAt(chunks, exp));
+	});
+
+	it('gives every cookie of the session the expiry of the refresh token a renewal brings', () => {
+		const signedInUntil = nowS() + DAY_S;
+		signIn(refreshTokenExpiringAt(signedInUntil));
+		setActiveTaskIdCookie('task-1');
+		const renewedUntil = signedInUntil + DAY_S / 2;
+		const sessionCookies = [...SIGN_IN_COOKIES, ACTIVE_TASK_COOKIE_NAME];
+
+		// The order of every renewal: the access token first, then the refresh token that replaces the spent one
+		setAccessTokenCookie('access-2');
+		setRefreshTokenCookie(refreshTokenExpiringAt(renewedUntil));
+
+		expect(jar.get(TOKEN_COOKIE_NAME)?.value).toBe('access-2');
+		expect(jar.get(ACTIVE_TASK_COOKIE_NAME)?.value).toBe('task-1');
+		expect(optionsOf(sessionCookies)).toEqual(expiringAt(sessionCookies, renewedUntil));
+	});
+
+	it('gives an access token renewed without a new refresh token the expiry of the one it was renewed with', () => {
+		const exp = nowS() + DAY_S;
+		signIn(refreshTokenExpiringAt(exp));
+
+		setAccessTokenCookie('access-2');
+
+		expect(optionsOf([TOKEN_COOKIE_NAME])).toEqual(expiringAt([TOKEN_COOKIE_NAME], exp));
+	});
+
+	it('gives a cookie the session gains later the expiry of the session', () => {
+		const exp = nowS() + DAY_S;
+		signIn(refreshTokenExpiringAt(exp));
+
+		setActiveTeamIdCookie('team-2');
+
+		expect(jar.get(ACTIVE_TEAM_COOKIE_NAME)).toEqual({
+			value: 'team-2',
+			options: { expires: new Date(exp * 1000) }
+		});
+	});
+
+	it('keeps the request and the response of a write on the server beside the expiry', () => {
+		const exp = nowS() + DAY_S;
+		const ctx = { req: {}, res: {} };
+
+		setRefreshTokenCookie(refreshTokenExpiringAt(exp), ctx);
+
+		expect(jar.get(REFRESH_TOKEN_COOKIE_NAME)?.options).toEqual({
+			req: ctx.req,
+			res: ctx.res,
+			expires: new Date(exp * 1000)
+		});
+	});
+
+	it.each([
+		['cannot be read', () => 'not-a-token'],
+		['has expired', () => refreshTokenExpiringAt(nowS() - 60)]
+	])('leaves the cookies to the browser session, as before, for a refresh token that %s', (_, refreshToken) => {
+		signIn(refreshToken());
+
+		expect(optionsOf(SIGN_IN_COOKIES)).toEqual(withoutExpiry(SIGN_IN_COOKIES));
+	});
+});

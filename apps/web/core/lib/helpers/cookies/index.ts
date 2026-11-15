@@ -13,6 +13,7 @@ import {
 	MEET_JWT_TOKEN_COOKIE_NAME,
 	ACTIVE_PROJECT_COOKIE_NAME
 } from '@/core/constants/config/constants';
+import { jwtDecode } from 'jwt-decode';
 import { IDecodedRefreshToken } from '@/core/types/interfaces/auth/auth';
 import { deleteCookie, getCookie, setCookie, deleteCookieCrossSite as _deleteCookieCrossSite } from './helpers';
 import { chunk, range } from '@/core/lib/helpers';
@@ -26,7 +27,62 @@ type NextCtx = {
 	res: any;
 };
 
+/** The options of a cookie write: the Next.js context of a write on the server, and the expiry of a session's cookie. */
+type CookieWrite = (Partial<NextCtx> & { expires?: Date }) | undefined;
+
 export const ACCESS_TOKEN_REFRESHED_EVENT = 'ever-teams:access-token-refreshed';
+
+/**
+ * When the cookies of a session expire: when its refresh token does, so that the session outlives a browser restart
+ * for as long as Gauzy would renew it (#5315). None for a refresh token that tells no expiry still to come: the cookies
+ * then last as long as the browser, as they did before, and an expiry already passed never deletes them.
+ */
+function sessionExpiryOf(refreshToken: string | null | undefined): Date | undefined {
+	if (!refreshToken) {
+		return undefined;
+	}
+	try {
+		const { exp } = jwtDecode<{ exp?: number }>(refreshToken);
+		return typeof exp === 'number' && exp * 1000 > Date.now() ? new Date(exp * 1000) : undefined;
+	} catch {
+		return undefined;
+	}
+}
+
+/**
+ * The options a cookie of the session is written with: its context, and the expiry of the refresh token given, else
+ * of the one the cookies hold. The context alone, the same object, when there is no expiry to give.
+ */
+function sessionWrite(
+	ctx: NextCtx | undefined,
+	refreshToken: string | null | undefined = getRefreshTokenCookie(ctx)
+): CookieWrite {
+	const expires = sessionExpiryOf(refreshToken);
+	if (!expires) {
+		return ctx;
+	}
+	return { ...ctx, expires };
+}
+
+/**
+ * Writes the cookies of the session again with `write`, each with the value it holds: the access token, whole or in
+ * chunks, and the cookies the sign-out removes beside it. A renewal gives the session the expiry of its new refresh
+ * token; the cookies written with the spent one's would leave first, and a restart would find the session without its
+ * tenant or its organization.
+ */
+function writeSessionCookiesAgain(ctx: NextCtx | undefined, write: CookieWrite): void {
+	const chunkCount = tokenCookieChunkCount(getTotalChunksCookie(TOKEN_COOKIE_NAME, ctx));
+	const tokenCookies = chunkCount
+		? [...range(chunkCount).map((index) => `${TOKEN_COOKIE_NAME}${index}`), `${TOKEN_COOKIE_NAME}_totalChunks`]
+		: [TOKEN_COOKIE_NAME];
+	const others = cookiesKeys().filter((name) => name !== TOKEN_COOKIE_NAME && name !== REFRESH_TOKEN_COOKIE_NAME);
+	for (const name of [...tokenCookies, ...others]) {
+		const value = getCookie(name, ctx);
+		if (typeof value === 'string' && value) {
+			setCookie(name, value, write, tokenCookies.includes(name));
+		}
+	}
+}
 
 /**
  * Clears all existing chunks for a given cookie name.
@@ -86,7 +142,8 @@ export const setLargeStringInCookies = (
 	COOKIE_NAME: string,
 	largeString: string,
 	ctx: NextCtx | undefined,
-	crossSite = false
+	crossSite = false,
+	write: CookieWrite = ctx
 ) => {
 	// Clear any existing chunks before setting new ones to prevent duplication
 	clearExistingChunks(COOKIE_NAME, ctx, crossSite);
@@ -97,10 +154,10 @@ export const setLargeStringInCookies = (
 	chunks.forEach((chunk, index) => {
 		const cookieValue = chunk.join('');
 
-		setCookie(`${COOKIE_NAME}${index}`, cookieValue, ctx, crossSite);
+		setCookie(`${COOKIE_NAME}${index}`, cookieValue, write, crossSite);
 	});
 
-	setCookie(`${COOKIE_NAME}_totalChunks`, String(chunks.length), ctx, crossSite);
+	setCookie(`${COOKIE_NAME}_totalChunks`, String(chunks.length), write, crossSite);
 };
 
 export const getLargeStringFromCookies = (COOKIE_NAME: string, ctx?: NextCtx) => {
@@ -136,6 +193,8 @@ export function setAuthCookies(datas: CookiesDataType, ctx?: NextCtx) {
 	} = datas;
 
 	// const expires = addHours(6, changeTimezone(new Date(), timezone));
+	// Every cookie of the session lasts until its refresh token expires (#5315)
+	const write = sessionWrite(ctx, refresh_token.token);
 
 	// Handle Large Access Token
 	// Cookie can support upto 4096 characters only!
@@ -143,19 +202,19 @@ export function setAuthCookies(datas: CookiesDataType, ctx?: NextCtx) {
 		// Clear any existing chunks before setting a non-chunked token
 		// This handles the case where the previous token was chunked but the new one fits in a single cookie
 		clearExistingChunks(TOKEN_COOKIE_NAME, ctx, true);
-		setCookie(TOKEN_COOKIE_NAME, access_token, ctx, true); // cross site cookie
+		setCookie(TOKEN_COOKIE_NAME, access_token, write, true); // cross site cookie
 	} else {
 		// setLargeStringInCookies already calls clearExistingChunks internally
-		setLargeStringInCookies(TOKEN_COOKIE_NAME, access_token, ctx, true); // cross site cookie
+		setLargeStringInCookies(TOKEN_COOKIE_NAME, access_token, ctx, true, write); // cross site cookie
 	}
 
-	setCookie(REFRESH_TOKEN_COOKIE_NAME, refresh_token.token, ctx); // cross site cookie
-	setCookie(ACTIVE_TEAM_COOKIE_NAME, teamId, ctx);
-	setCookie(TENANT_ID_COOKIE_NAME, tenantId, ctx);
-	setCookie(ORGANIZATION_ID_COOKIE_NAME, organizationId, ctx);
-	setCookie(ACTIVE_LANGUAGE_COOKIE_NAME, languageId, ctx);
-	setCookie(NO_TEAM_POPUP_SHOW_COOKIE_NAME, noTeamPopup, ctx);
-	setCookie(ACTIVE_USER_ID_COOKIE_NAME, userId, ctx);
+	setCookie(REFRESH_TOKEN_COOKIE_NAME, refresh_token.token, write); // cross site cookie
+	setCookie(ACTIVE_TEAM_COOKIE_NAME, teamId, write);
+	setCookie(TENANT_ID_COOKIE_NAME, tenantId, write);
+	setCookie(ORGANIZATION_ID_COOKIE_NAME, organizationId, write);
+	setCookie(ACTIVE_LANGUAGE_COOKIE_NAME, languageId, write);
+	setCookie(NO_TEAM_POPUP_SHOW_COOKIE_NAME, noTeamPopup, write);
+	setCookie(ACTIVE_USER_ID_COOKIE_NAME, userId, write);
 }
 
 export function cookiesKeys() {
@@ -253,20 +312,24 @@ export function getRefreshTokenCookie(ctx?: NextCtx) {
 }
 
 export function setRefreshTokenCookie(refreshToken: string, ctx?: NextCtx) {
-	return setCookie(REFRESH_TOKEN_COOKIE_NAME, refreshToken, ctx);
+	const write = sessionWrite(ctx, refreshToken);
+	setCookie(REFRESH_TOKEN_COOKIE_NAME, refreshToken, write);
+	// The session's other cookies, the access token just renewed among them, follow the new refresh token's expiry
+	writeSessionCookiesAgain(ctx, write);
 }
 
 export function setAccessTokenCookie(accessToken: string, ctx?: NextCtx) {
+	const write = sessionWrite(ctx);
 	// Handle Large Access Token
 	// Cookie can support upto 4096 characters only!
 	if (accessToken.length <= 4096) {
 		// Clear any existing chunks before setting a non-chunked token
 		// This handles the case where the previous token was chunked but the new one fits in a single cookie
 		clearExistingChunks(TOKEN_COOKIE_NAME, ctx, true);
-		setCookie(TOKEN_COOKIE_NAME, accessToken, ctx, true); // cross site cookie
+		setCookie(TOKEN_COOKIE_NAME, accessToken, write, true); // cross site cookie
 	} else {
 		// setLargeStringInCookies already calls clearExistingChunks internally
-		setLargeStringInCookies(TOKEN_COOKIE_NAME, accessToken, ctx, true); // cross site cookie
+		setLargeStringInCookies(TOKEN_COOKIE_NAME, accessToken, ctx, true, write); // cross site cookie
 	}
 
 	// Fast, scope-pinned API owners need to replace their Authorization token after
@@ -282,7 +345,7 @@ export function getActiveTeamIdCookie(ctx?: NextCtx) {
 }
 
 export function setActiveTeamIdCookie(teamIds: string, ctx?: NextCtx) {
-	return setCookie(ACTIVE_TEAM_COOKIE_NAME, teamIds, ctx);
+	return setCookie(ACTIVE_TEAM_COOKIE_NAME, teamIds, sessionWrite(ctx));
 }
 
 // Active Project id
@@ -300,7 +363,7 @@ export function getOrganizationIdCookie(ctx?: NextCtx) {
 }
 
 export function setOrganizationIdCookie(orgId: string, ctx?: NextCtx) {
-	return setCookie(ORGANIZATION_ID_COOKIE_NAME, orgId, ctx);
+	return setCookie(ORGANIZATION_ID_COOKIE_NAME, orgId, sessionWrite(ctx));
 }
 
 // Tenant Id
@@ -315,7 +378,7 @@ export function getActiveTaskIdCookie(ctx?: NextCtx) {
 }
 
 export function setActiveTaskIdCookie(taskId: string, ctx?: NextCtx) {
-	return setCookie(ACTIVE_TASK_COOKIE_NAME, taskId, ctx);
+	return setCookie(ACTIVE_TASK_COOKIE_NAME, taskId, sessionWrite(ctx));
 }
 
 // Active userId
@@ -324,18 +387,18 @@ export function getActiveUserIdCookie(ctx?: NextCtx) {
 }
 
 export function setActiveUserIdCookie(userId: string, ctx?: NextCtx) {
-	return setCookie(ACTIVE_USER_ID_COOKIE_NAME, userId, ctx);
+	return setCookie(ACTIVE_USER_ID_COOKIE_NAME, userId, sessionWrite(ctx));
 }
 
 export function getNoTeamPopupShowCookie(ctx?: NextCtx) {
 	return !!getCookie(NO_TEAM_POPUP_SHOW_COOKIE_NAME, ctx);
 }
 export function setNoTeamPopupShowCookie(show: boolean, ctx?: NextCtx) {
-	return setCookie(NO_TEAM_POPUP_SHOW_COOKIE_NAME, show, ctx);
+	return setCookie(NO_TEAM_POPUP_SHOW_COOKIE_NAME, show, sessionWrite(ctx));
 }
 
 export function setActiveUserTaskCookie(data: { taskId: string; userId: string }, ctx?: NextCtx) {
-	return setCookie(ACTIVE_USER_TASK_COOKIE_NAME, JSON.stringify(data), ctx);
+	return setCookie(ACTIVE_USER_TASK_COOKIE_NAME, JSON.stringify(data), sessionWrite(ctx));
 }
 
 export function getActiveUserTaskCookie(ctx?: NextCtx) {
@@ -356,7 +419,7 @@ export function getActiveLanguageIdCookie(ctx?: NextCtx) {
 }
 
 export function setActiveLanguageIdCookie(languageIds: string, ctx?: NextCtx) {
-	return setCookie(ACTIVE_LANGUAGE_COOKIE_NAME, languageIds, ctx);
+	return setCookie(ACTIVE_LANGUAGE_COOKIE_NAME, languageIds, sessionWrite(ctx));
 }
 
 // Timezone
