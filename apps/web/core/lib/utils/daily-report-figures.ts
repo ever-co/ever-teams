@@ -45,7 +45,7 @@ type EmployeeLog = ITimeLogGroupedDailyReport['logs'][number]['employeeLogs'][nu
 type TaskLog = EmployeeLog['tasks'][number];
 
 /** A billing rate and its currency, as a report row states them. */
-export interface StatedRate {
+interface StatedRate {
 	value: number | null;
 	currency: string | null;
 }
