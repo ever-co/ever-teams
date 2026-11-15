@@ -30,7 +30,8 @@ const MISSING_VALUE = '–';
 const BAND =
 	'm-2 grid grid-cols-1 gap-2 rounded-lg bg-foreground/[0.03] py-2 ps-3 pe-2 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center';
 
-const FIGURES = 'grid grid-cols-2 gap-x-4 gap-y-1.5 sm:flex sm:flex-wrap sm:items-center sm:gap-x-6';
+const FIGURES =
+	'grid grid-flow-row-dense grid-cols-2 gap-x-4 gap-y-1.5 sm:flex sm:flex-wrap sm:items-center sm:gap-x-6';
 
 const FIGURE = 'flex min-h-8 min-w-0 items-center gap-1.5';
 
@@ -52,6 +53,8 @@ interface BandFigure {
 	note?: string | null;
 	/** This figure alone is still read: it waits while the others show. */
 	isLoading?: boolean;
+	/** Where the figure sits in the band, when it needs more room than a cell. */
+	className?: string;
 }
 
 function MissingValue({ reason }: Readonly<{ reason: string }>) {
@@ -176,6 +179,9 @@ function missingBillableReasonOf(billable: TimeActivityBillable, t: Translate) {
 	return t('dashboard.timeActivity.figures.BILLABLE_NO_RATES');
 }
 
+/** On a phone the amounts take the band's whole width: written apart per currency, they never fit half of it. */
+const BILLABLE_FIGURE_CLASS = 'max-sm:col-span-2';
+
 /**
  * What the period's billable time bills, priced like an invoice line, beside that time. Amounts in different
  * currencies are written apart, never added.
@@ -201,6 +207,7 @@ function billableFigureOf(billable: TimeActivityBillable, locale: FormatLocale, 
 		key,
 		label,
 		value: <span className="truncate">{text}</span>,
+		className: BILLABLE_FIGURE_CLASS,
 		note: t('dashboard.timeActivity.figures.BILLABLE_TIME', { duration: formatDurationShort(seconds) }),
 		hint: t('dashboard.timeActivity.figures.BILLABLE_HINT')
 	};
@@ -257,7 +264,7 @@ const FigureItem = memo(function FigureItem({
 }: Readonly<{ figure: BandFigure; isLoading: boolean }>) {
 	const showsSkeleton = isLoading || figure.isLoading === true;
 	return (
-		<div className={FIGURE} title={figure.hint}>
+		<div className={cn(FIGURE, figure.className)} title={figure.hint}>
 			<dt className="shrink-0 text-xs text-muted-foreground">{figure.label}</dt>
 			{showsSkeleton && <dd className={cn('h-2.5 w-12', SKELETON_BAR)} />}
 			{!showsSkeleton && (
