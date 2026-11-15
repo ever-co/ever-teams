@@ -5,7 +5,7 @@ import {
 } from '@/core/types/interfaces/common/employee-notification';
 
 /** What a meeting notification tells: invited, no longer invited, changed, cancelled, starting soon, or starting. */
-export type MeetingNoticeKind = 'invited' | 'removed' | 'changed' | 'cancelled' | 'reminder' | 'starting';
+type MeetingNoticeKind = 'invited' | 'removed' | 'changed' | 'cancelled' | 'reminder' | 'starting';
 
 /** A meeting notification, read in the reader's language. */
 export interface MeetingNotice {
@@ -21,15 +21,17 @@ export interface MeetingNotice {
 /**
  * The titles Gauzy files for a meeting (`meeting-notification.rules.ts` there), which are its only record of the kind:
  * the notification has no field of its own for it. Pinned word for word by a test on each side ("the titles Gauzy
- * files" here, "the titles Ever Teams reads back" there): change both, or neither.
+ * files" here, "the titles Ever Teams reads back" there): change both, or neither. The titles whose ending is fixed
+ * are read before the reminder's, whose ending varies: a meeting titled `Sync" starts in 5 minutes` that is starting
+ * stays a meeting that is starting.
  */
 const TITLES: ReadonlyArray<{ kind: MeetingNoticeKind; pattern: RegExp }> = [
 	{ kind: 'invited', pattern: /^You are invited to "(.*)"$/ },
 	{ kind: 'removed', pattern: /^You are no longer invited to "(.*)"$/ },
 	{ kind: 'changed', pattern: /^"(.*)" was changed$/ },
 	{ kind: 'cancelled', pattern: /^"(.*)" was cancelled$/ },
-	{ kind: 'reminder', pattern: /^"(.*)" starts in (.+)$/ },
-	{ kind: 'starting', pattern: /^"(.*)" is starting$/ }
+	{ kind: 'starting', pattern: /^"(.*)" is starting$/ },
+	{ kind: 'reminder', pattern: /^"(.*)" starts in (.+)$/ }
 ];
 
 /** `in 15 minutes`, `in 1 hour 30 minutes`, `in 2 hours`: the minutes they name, or null. */
@@ -78,7 +80,7 @@ export function meetingNoticeOf(notification: {
 export const MEETINGS_HREF = '/meet';
 
 /** How many minutes before a meeting its reminder comes when the person chose none (Gauzy's default). */
-export const DEFAULT_MEETING_REMINDER_MINUTES = 15;
+const DEFAULT_MEETING_REMINDER_MINUTES = 15;
 
 /** The leads the settings offer. */
 export const MEETING_REMINDER_MINUTE_CHOICES: readonly number[] = [5, 10, 15, 30, 60];

@@ -51,6 +51,22 @@ describe('meetingNoticeOf', () => {
 		});
 	});
 
+	it('keeps a meeting that is starting one that is starting, whatever its title says about when it starts', () => {
+		expect(meetingNoticeOf(meeting('"Sync" starts in 5 minutes" is starting'))).toEqual({
+			kind: 'starting',
+			title: 'Sync" starts in 5 minutes',
+			minutes: null,
+			appointmentId: 'appointment-1'
+		});
+		// And the reminder of a meeting titled with the starting words stays a reminder
+		expect(meetingNoticeOf(meeting('"Sync" is starting" starts in 15 minutes'))).toEqual({
+			kind: 'reminder',
+			title: 'Sync" is starting',
+			minutes: 15,
+			appointmentId: 'appointment-1'
+		});
+	});
+
 	it('reads a title of another shape as a change of the meeting, and nothing of another kind', () => {
 		expect(meetingNoticeOf(meeting('Something new happened'))).toEqual({
 			kind: 'changed',
@@ -58,7 +74,9 @@ describe('meetingNoticeOf', () => {
 			minutes: null,
 			appointmentId: 'appointment-1'
 		});
-		expect(meetingNoticeOf({ ...meeting('"x" was changed'), type: EEmployeeNotificationType.Assignment })).toBeNull();
+		expect(
+			meetingNoticeOf({ ...meeting('"x" was changed'), type: EEmployeeNotificationType.Assignment })
+		).toBeNull();
 		expect(meetingNoticeOf({ ...meeting('"x" was changed'), entity: 'Task' })?.appointmentId).toBeNull();
 	});
 });
