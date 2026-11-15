@@ -70,10 +70,12 @@ class RealtimeService extends APIService {
 		const base = String(this.axiosInstance.defaults.baseURL ?? this.baseURL ?? '').replace(/\/+$/, '');
 		// This tab's token and organization: its own while another tab has another organization open (#5134)
 		const token = requestAccessToken();
+		// None: this tab can no longer act in its own organization, and the cookies' session is another organization's
+		if (!token) return;
 		const tenantId = getTenantIdCookie();
 		const organizationId = getOrganizationIdCookie();
 		const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-		if (token) headers['Authorization'] = `Bearer ${token}`;
+		headers['Authorization'] = `Bearer ${token}`;
 		if (tenantId) headers['tenant-id'] = tenantId;
 		if (organizationId) headers['organization-id'] = organizationId;
 		void fetch(`${base}/realtime/presence`, {
