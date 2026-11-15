@@ -137,10 +137,11 @@ interface Reading<Value> {
 	problems: TimeImportProblem[];
 }
 
+/** A name, an email or a title as typed: composed accents, single spaces and any case all read the same. */
 function comparableOf(text: string): string {
 	const composed = text.normalize('NFC');
-	const trimmed = composed.trim();
-	return trimmed.toLowerCase();
+	const spaced = composed.trim().replace(/\s+/g, ' ');
+	return spaced.toLowerCase();
 }
 
 function isSameName(first: string, second: string): boolean {

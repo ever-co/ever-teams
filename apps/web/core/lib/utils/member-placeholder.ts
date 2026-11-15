@@ -10,8 +10,9 @@ import type { IEmployeePlaceholderMemberInput } from '@/core/types/interfaces/or
 /** What Gauzy asks for to add, claim and merge a member without an account. */
 export const PLACEHOLDER_PERMISSION = 'ORG_EMPLOYEES_EDIT';
 
-/** Gauzy's limits on a member's name: longer names are refused. */
+/** Gauzy's limits on a member's name and email: longer ones are refused. */
 const NAME_MAX_LENGTH = 100;
+const EMAIL_MAX_LENGTH = 254;
 
 export function canManagePlaceholders(permissions: ReadonlyArray<string>): boolean {
 	return permissions.includes(PLACEHOLDER_PERMISSION);
@@ -174,26 +175,32 @@ function namesUnknownMember(row: ImportedRow): boolean {
 	return row.problems.some((problem) => UNKNOWN_MEMBER_CODES.has(problem.code));
 }
 
-function clipped(text: string): string {
-	return text.slice(0, NAME_MAX_LENGTH);
-}
-
 /**
  * The member a cell names. An email gives no name: the part before the "@" stands for it until someone renames the
- * member. A name is split at its first space, the rest kept whole as the last name.
+ * member. A name is split at its first space, the rest kept whole as the last name. None for a cell Gauzy would
+ * refuse (one such row fails the whole Add) or have to cut: the file's rows could never name that member afterwards,
+ * and every Add would create another one.
  */
-function memberOfCell(cell: string): IEmployeePlaceholderMemberInput {
+function memberOfCell(cell: string): IEmployeePlaceholderMemberInput | null {
 	const text = cell.trim();
 	if (text.includes('@')) {
 		const email = text.toLowerCase();
+		const isAcceptedEmail = email.length <= EMAIL_MAX_LENGTH && isEmail(email);
+		if (!isAcceptedEmail) {
+			return null;
+		}
 		const [localPart] = email.split('@');
-		return { firstName: clipped(localPart || email), email };
+		return { firstName: localPart, email };
 	}
-	const words = text.split(/\s+/);
-	const [firstName, ...rest] = words;
-	const member: IEmployeePlaceholderMemberInput = { firstName: clipped(firstName) };
-	if (rest.length > 0) {
-		member.lastName = clipped(rest.join(' '));
+	const [firstName, ...rest] = text.split(/\s+/);
+	const lastName = rest.join(' ');
+	const isCut = firstName.length > NAME_MAX_LENGTH || lastName.length > NAME_MAX_LENGTH;
+	if (isCut) {
+		return null;
+	}
+	const member: IEmployeePlaceholderMemberInput = { firstName };
+	if (lastName) {
+		member.lastName = lastName;
 	}
 	return member;
 }
@@ -242,7 +249,8 @@ export function importPlaceholderCandidatesOf(rows: ReadonlyArray<ImportedRow>):
 		if (!namesUnknownMember(row)) {
 			continue;
 		}
-		const cell = row.cells.memberEmail.trim().replace(/\s+/g, ' ');
+		// Compared as the import compares names: composed accents, single spaces, any case
+		const cell = row.cells.memberEmail.normalize('NFC').trim().replace(/\s+/g, ' ');
 		if (!cell) {
 			continue;
 		}
@@ -252,7 +260,10 @@ export function importPlaceholderCandidatesOf(rows: ReadonlyArray<ImportedRow>):
 			known.rowCount += 1;
 			continue;
 		}
-		candidates.set(key, { key, member: memberOfCell(cell), rowCount: 1 });
+		const member = memberOfCell(cell);
+		if (member) {
+			candidates.set(key, { key, member, rowCount: 1 });
+		}
 	}
 	return [...candidates.values()];
 }

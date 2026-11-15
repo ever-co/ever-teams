@@ -9,6 +9,9 @@ import {
 	placeholderFormProblemOf,
 	placeholderMemberInputOf
 } from './member-placeholder';
+import { withImportMembersAdded } from './time-import-access';
+import { draftRowsOf, type TimeImportContext } from './time-import-rows';
+import type { TimeImportSheetRow } from './time-import-sheet';
 
 function gauzyRefusal(status: number, message: string) {
 	return { response: { status, data: { statusCode: status, message } } };
@@ -167,6 +170,79 @@ describe('member-placeholder', () => {
 
 		it('offers nobody when every row names a known member', () => {
 			expect(importPlaceholderCandidatesOf([row(2, 'x@acme.com', 'memberNotAllowed')])).toEqual([]);
+		});
+
+		it('offers nobody Gauzy would refuse or cut, since their rows could never name them', () => {
+			const longWord = 'a'.repeat(101);
+			const candidates = importPlaceholderCandidatesOf([
+				row(2, `${longWord} Martin`, 'memberNameUnknown'),
+				row(3, `Paul ${'b '.repeat(60)}`, 'memberNameUnknown'),
+				row(4, 'ana@', 'memberUnknown'),
+				row(5, 'Lena Weber', 'memberNameUnknown')
+			]);
+			expect(candidates.map((candidate) => candidate.key)).toEqual(['lena weber']);
+		});
+
+		it('counts a name once however its accents are encoded', () => {
+			const composed = 'José Diaz';
+			const decomposed = 'José Diaz';
+			const candidates = importPlaceholderCandidatesOf([
+				row(2, composed, 'memberNameUnknown'),
+				row(3, decomposed, 'memberNameUnknown')
+			]);
+			expect(candidates).toHaveLength(1);
+			expect(candidates[0].rowCount).toBe(2);
+		});
+	});
+
+	describe('a row of the import once its member is added', () => {
+		const context: TimeImportContext = {
+			now: new Date(2026, 10, 5, 18, 0),
+			allowsFutureDates: false,
+			requiresProject: false,
+			teamHasDefaultProject: false,
+			viewerEmployeeId: 'employee-viewer',
+			viewerEmail: 'viewer@acme.com',
+			canImportForOthers: true,
+			matchesEveryTeamTask: false,
+			members: [{ employeeId: 'employee-viewer', email: 'viewer@acme.com', name: 'Viewer' }],
+			projects: [],
+			tasks: []
+		};
+		const sheetRow = (memberEmail: string): TimeImportSheetRow => ({
+			row: 2,
+			cells: {
+				date: '2026-11-03',
+				startTime: '09:00',
+				endDate: '',
+				endTime: '10:00',
+				duration: '',
+				project: '',
+				task: '',
+				notes: '',
+				billable: '',
+				memberEmail
+			},
+			extraCellCount: 0
+		});
+		const memberCodesOf = (cell: string, members: TimeImportContext['members']) => {
+			const [drafted] = draftRowsOf([sheetRow(cell)], { ...context, members: [...context.members, ...members] });
+			return drafted.problems.map((problem) => problem.code).filter((code) => code.startsWith('member'));
+		};
+
+		it('names the member added for it, whatever spaces the file put in the name', () => {
+			const cell = ' María  de la Cruz ';
+			expect(memberCodesOf(cell, [])).toEqual(['memberNameUnknown']);
+			const candidates = importPlaceholderCandidatesOf([
+				{ row: 2, cells: { memberEmail: cell }, problems: [{ code: 'memberNameUnknown' }] }
+			]);
+			const { added } = importMembersAddedOf(candidates, [{ employee: { id: 'employee-maria' }, created: true }]);
+
+			// Before the team reads the member back, then as the team lists it
+			expect(memberCodesOf(cell, withImportMembersAdded(context, added).members)).toEqual([]);
+			expect(memberCodesOf(cell, [{ employeeId: 'employee-maria', email: '', name: 'María de la Cruz' }])).toEqual(
+				[]
+			);
 		});
 	});
 
