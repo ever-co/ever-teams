@@ -81,8 +81,8 @@ function nameOf(user: unknown): string {
 	return textOf(fieldOf(user, 'name')) || textOf(fieldOf(user, 'email'));
 }
 
-/** The workspace's last team when it is one of its teams, else its first team. */
-function activeTeamIdOf(workspace: WorkspaceChoice): string | null {
+/** The workspace's last team when it is one of its teams, else its first team: the team its session opens. */
+export function activeTeamIdOf(workspace: WorkspaceChoice): string | null {
 	const lastTeam = workspace.teams.find((team) => team.id === workspace.lastTeamId);
 	if (lastTeam) {
 		return lastTeam.id;

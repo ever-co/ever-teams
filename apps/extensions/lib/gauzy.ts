@@ -3,7 +3,7 @@ import { idListOf, optionalField } from '~lib/optional';
 import type { PlanLike } from '~lib/plan-rule';
 import { EXTENSION_SOURCE, heartbeatSecondsOf, stopSourceOf } from '~lib/run-policy';
 import type { TwoFactorProof } from '~lib/two-factor';
-import { sessionFrom, workspacesOf, type Session, type WorkspaceChoice } from '~lib/workspaces';
+import { activeTeamIdOf, sessionFrom, workspacesOf, type Session, type WorkspaceChoice } from '~lib/workspaces';
 
 export { EXTENSION_SOURCE };
 
@@ -50,7 +50,11 @@ export async function confirmSignInCode(apiUrl: string, email: string, code: str
 	return workspacesOf(answer);
 }
 
-/** Enters one workspace; null when the API answered no session. */
+/**
+ * Enters one workspace; null when the API answered no session. The workspace token the confirmed code answered is the
+ * proof: the code is not sent again. The team the session opens goes as `lastTeamId`, as the web sends the team chosen
+ * (Gauzy keeps it as the person's last team, and drops any field it does not read).
+ */
 export async function enterWorkspace(
 	apiUrl: string,
 	email: string,
@@ -58,7 +62,7 @@ export async function enterWorkspace(
 ): Promise<Session | null> {
 	const answer = await publicRequest<unknown>(apiUrl, '/auth/signin.workspace', {
 		method: 'POST',
-		body: { email, token: workspace.token, ...optionalField('teamId', workspace.lastTeamId) }
+		body: { email, token: workspace.token, ...optionalField('lastTeamId', activeTeamIdOf(workspace)) }
 	});
 	return sessionFrom(answer, workspace, apiUrl);
 }
