@@ -5487,7 +5487,8 @@
 			"SIGN_OUT_INCOMPLETE": "Една сесия се поднови, докато се прекратяваше. Опитайте отново.",
 			"SIGN_OUT_OTHERS_FAILED": "Прекратяването на другите сесии не завърши. {reason}",
 			"SIGN_OUT_OTHERS_CONFIRM": "{count, plural, one {Прекратяване на # сесия} other {Прекратяване на # сесии}}",
-			"SIGNED_OUT_OTHERS": "{count, plural, =0 {Нямаше друга активна сесия.} one {# друга сесия беше прекратена.} other {# други сесии бяха прекратени.}}"
+			"SIGNED_OUT_OTHERS": "{count, plural, =0 {Нямаше друга активна сесия.} one {# друга сесия беше прекратена.} other {# други сесии бяха прекратени.}}",
+			"APP_ON_DEVICE": "{app} · {device}"
 		},
 		"profile": {
 			"SECTION_PROFILE": "Профил",

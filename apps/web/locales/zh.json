@@ -5487,7 +5487,8 @@
 			"SIGN_OUT_INCOMPLETE": "有会话在退出过程中自行续期。请重试。",
 			"SIGN_OUT_OTHERS_FAILED": "退出其他会话未完成。{reason}",
 			"SIGN_OUT_OTHERS_CONFIRM": "{count, plural, other {退出 # 个会话}}",
-			"SIGNED_OUT_OTHERS": "{count, plural, =0 {没有其他已登录的会话。} other {已退出另外 # 个会话。}}"
+			"SIGNED_OUT_OTHERS": "{count, plural, =0 {没有其他已登录的会话。} other {已退出另外 # 个会话。}}",
+			"APP_ON_DEVICE": "{app} · {device}"
 		},
 		"profile": {
 			"SECTION_PROFILE": "个人资料",

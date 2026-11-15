@@ -5487,7 +5487,8 @@
 			"SIGN_OUT_INCOMPLETE": "Een sessie werd vernieuwd terwijl die werd uitgelogd. Probeer het opnieuw.",
 			"SIGN_OUT_OTHERS_FAILED": "Het uitloggen van de andere sessies is niet voltooid. {reason}",
 			"SIGN_OUT_OTHERS_CONFIRM": "{count, plural, one {# sessie uitloggen} other {# sessies uitloggen}}",
-			"SIGNED_OUT_OTHERS": "{count, plural, =0 {Er was geen andere sessie ingelogd.} one {# andere sessie is uitgelogd.} other {# andere sessies zijn uitgelogd.}}"
+			"SIGNED_OUT_OTHERS": "{count, plural, =0 {Er was geen andere sessie ingelogd.} one {# andere sessie is uitgelogd.} other {# andere sessies zijn uitgelogd.}}",
+			"APP_ON_DEVICE": "{app} · {device}"
 		},
 		"profile": {
 			"SECTION_PROFILE": "Profiel",

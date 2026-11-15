@@ -5487,7 +5487,8 @@
 			"SIGN_OUT_INCOMPLETE": "Sesja odnowiła się podczas wylogowywania. Spróbuj ponownie.",
 			"SIGN_OUT_OTHERS_FAILED": "Wylogowywanie innych sesji nie zostało ukończone. {reason}",
 			"SIGN_OUT_OTHERS_CONFIRM": "{count, plural, one {Wyloguj # sesję} few {Wyloguj # sesje} many {Wyloguj # sesji} other {Wyloguj # sesji}}",
-			"SIGNED_OUT_OTHERS": "{count, plural, =0 {Żadna inna sesja nie była zalogowana.} one {Wylogowano # inną sesję.} few {Wylogowano # inne sesje.} many {Wylogowano # innych sesji.} other {Wylogowano # innej sesji.}}"
+			"SIGNED_OUT_OTHERS": "{count, plural, =0 {Żadna inna sesja nie była zalogowana.} one {Wylogowano # inną sesję.} few {Wylogowano # inne sesje.} many {Wylogowano # innych sesji.} other {Wylogowano # innej sesji.}}",
+			"APP_ON_DEVICE": "{app} · {device}"
 		},
 		"profile": {
 			"SECTION_PROFILE": "Profil",
