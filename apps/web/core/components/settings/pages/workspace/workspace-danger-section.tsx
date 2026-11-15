@@ -110,6 +110,12 @@ function DeletionNotice({ deletion }: Readonly<{ deletion: OrganizationDeletion 
 				tone="warning"
 				title={t('settings.workspace.deletion.TIMER_RUNNING')}
 				description={t('settings.workspace.deletion.TIMER_RUNNING_DESCRIPTION')}
+				actions={
+					// A run stopped in another tab or on another device lets the delete go once it is read again
+					<Button type="button" variant="outline" onClick={deletion.retry}>
+						{t('notifications.RETRY')}
+					</Button>
+				}
 			/>
 		);
 	}
