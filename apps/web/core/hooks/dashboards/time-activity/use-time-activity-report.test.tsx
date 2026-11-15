@@ -486,6 +486,8 @@ describe('useTimeActivityReport billable amounts', () => {
 
 		expect(report.billable.isError).toBe(true);
 		expect(report.billable.isPending).toBe(false);
+		// No facts priced without the organization reach the breakdown (CodeRabbit on #5312)
+		expect(report.billable.facts).toEqual([]);
 		report.billable.refetch();
 		expect(mockRefetchOrganization).toHaveBeenCalledTimes(1);
 	});

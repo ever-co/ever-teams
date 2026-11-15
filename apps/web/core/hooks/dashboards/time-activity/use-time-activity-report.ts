@@ -484,12 +484,13 @@ export function useTimeActivityReport() {
 	const isWaitingForBillable =
 		isReadingBillable || projectRates.isLoading || isFilterLookupPending || billingOrganization.isPending;
 	const isBillablePending = readsBillable && isWaitingForBillable && !isBillableError;
+	// Facts priced while a read is missing or failed would carry fallback prices: none are given then
 	const shownBillableFacts = useMemo(() => {
-		if (isBillablePending) {
+		if (isBillablePending || isBillableError) {
 			return NO_BILLABLE_FACTS;
 		}
 		return billableFacts;
-	}, [billableFacts, isBillablePending]);
+	}, [billableFacts, isBillableError, isBillablePending]);
 	const storesDefault = organization !== null && storesDefaultBillRate(organization);
 	const canSetDefaultRate = storesDefault && canEditWorkspace(myPermissions);
 	const { refetch: refetchBillableReport } = billableQuery;
