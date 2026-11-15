@@ -3,7 +3,7 @@
 import { useCallback, useSyncExternalStore } from 'react';
 import { useAtomValue } from 'jotai';
 import { TAB_SCOPE_CHANGED_EVENT, tabScope } from '@/core/lib/auth/tab-organization';
-import { activeTeamState, timerStatusState } from '@/core/stores';
+import { activeTeamState, timerStartsInFlightState, timerStatusState } from '@/core/stores';
 import { currentOrganizationState } from '@/core/stores/user/user-organizations';
 import { useCreateOrganizationTeam } from '@/core/hooks/organizations/teams/use-create-organization-team';
 
@@ -22,7 +22,8 @@ let stopListening: (() => void) | null = null;
 
 function readState(): TabOrganizationState {
 	const scope = tabScope();
-	if (!scope.held) return 'shared';
+	// This tab's own switch back to its organization on its way is nothing to tell
+	if (!scope.held || !scope.isOtherOrganizationOpen) return 'shared';
 	return scope.accessToken ? 'own' : 'lost';
 }
 
@@ -80,6 +81,8 @@ export function useTabOrganization() {
 	const activeTeam = useAtomValue(activeTeamState);
 	const currentOrganization = useAtomValue(currentOrganizationState);
 	const timerStatus = useAtomValue(timerStatusState);
+	// A start still on its way counts: the API may already run it, as the team menu holds a switch for it too
+	const timerStartsInFlight = useAtomValue(timerStartsInFlightState);
 	const { setActiveTeam } = useCreateOrganizationTeam();
 
 	// The page starts again on the cookies, which name the other organization and its team
@@ -100,7 +103,7 @@ export function useTabOrganization() {
 		/** The name of this tab's organization, else of its team. */
 		ownOrganizationName: ownOrganizationName || activeTeam?.name || '',
 		/** A run of this tab's timer keeps going in this tab's organization: the tab does not leave it meanwhile. */
-		isTimerRunning: Boolean(timerStatus?.running),
+		isTimerRunning: Boolean(timerStatus?.running) || timerStartsInFlight > 0,
 		canBringOwnOrganizationBack: Boolean(activeTeam),
 		openSharedOrganization,
 		bringOwnOrganizationBack
