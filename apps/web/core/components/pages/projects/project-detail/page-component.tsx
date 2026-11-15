@@ -137,7 +137,10 @@ export default function ProjectDetailPageComponent() {
 	);
 
 	const isDenied = isHiddenFromTeam(project, activeTeam?.id, user?.employee?.id ?? user?.employeeId ?? undefined);
-	const taskCount = taskStatsCountOf(taskStats, project?.id);
+	// The task statistics are the active team's: for a project of another team, opened by its member, they do not count
+	// its tasks, so no count is shown rather than a false zero
+	const isOutsideActiveTeam = !!project && !isProjectVisibleInTeam(project, activeTeam?.id);
+	const taskCount = isOutsideActiveTeam ? undefined : taskStatsCountOf(taskStats, project?.id);
 
 	const projectsTitle = t('pages.projects.projectTitle.PLURAL');
 	const breadcrumbPaths = [

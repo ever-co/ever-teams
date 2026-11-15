@@ -8,7 +8,7 @@ import type { INotificationPreferences } from '@/core/types/interfaces/common/em
 /** The threshold when the person chose none, as Gauzy reads it: a day. */
 export const DEFAULT_TASK_DUE_REMINDER_HOURS = 24;
 
-const HOUR_MS = 60 * 60 * 1000;
+const DAY_MS = 24 * 60 * 60 * 1000;
 
 /** The longest threshold Gauzy reads as one: a week. */
 const MAX_TASK_DUE_REMINDER_HOURS = 7 * 24;
@@ -52,32 +52,26 @@ export function taskDueNoticeOf(message: string | null | undefined): TaskDueNoti
 		return null;
 	}
 	const [, date, hours, minutes, timeZone] = moment;
-	const at = wallClockIn(date, Number(hours), Number(minutes), timeZone);
-	// A wall-clock time the zone shows twice (the hour clocks go back) names two moments: the message is kept as it is
-	if (!at || isRepeatedIn(at, timeZone)) {
-		return null;
-	}
-	return { kind: 'moment', at, timeZone };
+	// A wall-clock time the zone shows twice (clocks go back, by an hour or by less) or never names no single moment:
+	// the message is kept as it is
+	const at = onlyMomentOf(date, Number(hours), Number(minutes), timeZone);
+	return at ? { kind: 'moment', at, timeZone } : null;
 }
 
-/** Whether the zone shows the same wall-clock time an hour before or after `at` too. */
-function isRepeatedIn(at: Date, timeZone: string): boolean {
-	const wall = (instant: number) => instant + offsetOf(instant, timeZone);
-	const shown = wall(at.getTime());
-	return [-HOUR_MS, HOUR_MS].some((shift) => wall(at.getTime() + shift) === shown);
-}
-
-/** The instant a wall-clock time names in a zone, or null for a zone the browser does not know. */
-function wallClockIn(date: string, hours: number, minutes: number, timeZone: string): Date | null {
+/**
+ * The one instant a wall-clock time names in a zone: each offset the zone has around that day gives a candidate, kept
+ * when the zone shows that wall-clock time then. Null when two are kept (the time repeats), none is (it is skipped), or
+ * the browser does not know the zone.
+ */
+function onlyMomentOf(date: string, hours: number, minutes: number, timeZone: string): Date | null {
 	const [year, month, day] = date.split('-').map(Number);
 	const asUtc = Date.UTC(year, month - 1, day, hours, minutes);
 	try {
-		// The zone's offset at that moment, read back from how the zone writes it, applied once more for a DST edge
-		let instant = asUtc;
-		for (let pass = 0; pass < 2; pass++) {
-			instant = asUtc - offsetOf(instant, timeZone);
-		}
-		return new Date(instant);
+		const offsets = new Set([-DAY_MS, 0, DAY_MS].map((shift) => offsetOf(asUtc + shift, timeZone)));
+		const moments = [...new Set([...offsets].map((offset) => asUtc - offset))].filter(
+			(instant) => instant + offsetOf(instant, timeZone) === asUtc
+		);
+		return moments.length === 1 ? new Date(moments[0]) : null;
 	} catch {
 		return null;
 	}
