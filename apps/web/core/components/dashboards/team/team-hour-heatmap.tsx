@@ -1,7 +1,7 @@
 'use client';
 
 import { memo, useMemo } from 'react';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { DashboardErrorNotice } from '@/core/components/dashboards/kit/dashboard-states';
 import { SKELETON_BAR } from '@/core/components/dashboards/kit/recipes';
 import { cn } from '@/core/lib/helpers';
@@ -9,6 +9,8 @@ import { formatDurationShort } from '@/core/lib/utils/dashboard-figures';
 import { heatCellKeyOf, type HourHeat } from '@/core/lib/utils/dashboards/team-day';
 import { TeamCard } from './team-card';
 import { NARROW_SPAN } from './team-grid';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
+import { dateFormatOf } from '@/core/lib/utils/workspace-formats';
 
 type Translate = ReturnType<typeof useTranslations>;
 
@@ -117,12 +119,12 @@ export function TeamHourHeatmap({
 	onRetry
 }: Readonly<{ heat: HourHeat; isLoading: boolean; isError: boolean; onRetry: () => void }>) {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const formats = useMemo(
 		() => ({
-			weekday: new Intl.DateTimeFormat(locale, { weekday: 'long' }),
-			short: new Intl.DateTimeFormat(locale, { weekday: 'narrow' }),
-			hour: new Intl.DateTimeFormat(locale, { hour: 'numeric' })
+			weekday: dateFormatOf(locale, { weekday: 'long' }),
+			short: dateFormatOf(locale, { weekday: 'narrow' }),
+			hour: dateFormatOf(locale, { hour: 'numeric' })
 		}),
 		[locale]
 	);

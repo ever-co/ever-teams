@@ -14,7 +14,7 @@ import { DASHBOARD_STACK } from '@/core/components/dashboards/kit/recipes';
 import { AppliedMemberFilters, MemberFilterMenu } from '@/core/components/dashboards/weekly-limit/weekly-limit-toolbar';
 import { usePaymentsDueReport } from '@/core/hooks/dashboards/payments-due/use-payments-due-report';
 import { formatPeriod, shiftPeriod } from '@/core/lib/utils/dashboard-period';
-import { type OwedDayGroup, type OwedMemberGroup, PAYMENTS_WEEK_START } from '@/core/lib/utils/dashboards/payments-due';
+import { type OwedDayGroup, type OwedMemberGroup } from '@/core/lib/utils/dashboards/payments-due';
 import { isTrackingEnabledState } from '@/core/stores';
 import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 import { PaymentsDueBalanceTiles } from './payments-due-balance-tiles';
@@ -23,6 +23,7 @@ import { PaymentsDueStatements } from './payments-due-statements';
 import { PaymentsDueEmpty } from './payments-due-table';
 import { PaymentsGroupingControl } from './payments-due-toolbar';
 import { PaymentsDueUnpricedCallout } from './payments-due-unpriced-callout';
+import { useWorkspaceWeekStart } from '@/core/hooks/common/use-workspace-week-start';
 
 const PAGE_PATH = '/reports/payments-due';
 
@@ -32,6 +33,7 @@ const EMPTY_DAY_GROUPS: OwedDayGroup[] = [];
 
 export function PaymentsDuePage() {
 	const t = useTranslations();
+	const weekStart = useWorkspaceWeekStart();
 	const locale = useWorkspaceLocale();
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
 	const report = usePaymentsDueReport({ unnamedLabel: t('timeActivity.UNNAMED_EMPLOYEE') });
@@ -80,7 +82,7 @@ export function PaymentsDuePage() {
 							<PeriodPicker
 								value={period}
 								onChange={setPeriod}
-								weekStartsOn={PAYMENTS_WEEK_START}
+								weekStartsOn={weekStart}
 								locale={locale}
 							/>
 							<MemberFilterMenu

@@ -10,7 +10,7 @@ import { MemberCell } from '@/core/components/dashboards/kit/member-cell';
 import { ChevronLeft, ChevronRight, ChevronsUpDown } from '@/core/components/icons';
 import { cn } from '@/core/lib/helpers';
 import type { CalendarMember, CalendarView } from '@/core/lib/utils/calendar-view';
-import { ENTRY_HATCHED, ENTRY_SOLID, PLANNED_OUTLINE } from './calendar-recipes';
+import { ENTRY_BREAK, ENTRY_HATCHED, ENTRY_SOLID, PLANNED_OUTLINE } from './calendar-recipes';
 
 const GROUP =
 	'inline-flex h-8 min-w-0 shrink-0 items-center rounded-full bg-card p-0.5 hairline-ring ring-foreground/10 shadow-[0_1px_2px_rgb(0_0_0/0.06)] dark:bg-foreground/5';
@@ -167,7 +167,11 @@ function LegendSwatch({ className }: Readonly<{ className: string }>) {
 }
 
 /** What the three fills mean: tracked time solid, time added by hand hatched, planned work outlined. */
-export function CalendarLegend({ className }: Readonly<{ className?: string }>) {
+/** `showsBreaks`: where the organization allows breaks, their neutral fill is named too (#5216). */
+export function CalendarLegend({
+	className,
+	showsBreaks = false
+}: Readonly<{ className?: string; showsBreaks?: boolean }>) {
 	const t = useTranslations();
 	return (
 		<ul
@@ -182,6 +186,12 @@ export function CalendarLegend({ className }: Readonly<{ className?: string }>) 
 				<LegendSwatch className={ENTRY_HATCHED} />
 				{t('dashboard.calendar.LEGEND.MANUAL')}
 			</li>
+			{showsBreaks && (
+				<li className="flex items-center gap-1.5">
+					<LegendSwatch className={ENTRY_BREAK} />
+					{t('breaks.BREAK')}
+				</li>
+			)}
 			<li className="flex items-center gap-1.5">
 				<LegendSwatch className={PLANNED_OUTLINE} />
 				{t('dashboard.calendar.LEGEND.PLANNED')}

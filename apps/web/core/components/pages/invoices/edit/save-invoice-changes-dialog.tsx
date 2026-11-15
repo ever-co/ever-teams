@@ -97,6 +97,9 @@ function useChangeRows(changes: InvoiceChanges, currency: string | null): Projec
 	if (changes.isNoteRewritten) {
 		rows.push({ key: 'note', icon: <FileText />, text: t('invoices.edit.confirm.NOTE') });
 	}
+	if (changes.recordsBilledTime) {
+		rows.push({ key: 'billedTime', icon: <Clock />, text: t('invoices.edit.confirm.RECORDS_TIME') });
+	}
 	return rows;
 }
 
@@ -123,6 +126,9 @@ function useFailureText(failure: EditFailure | null, number: string): string | n
 	if (failure.status === 'putBack') {
 		return t('invoices.edit.confirm.PUT_BACK');
 	}
+	if (failure.status === 'timeBilled') {
+		return t('invoices.billedTime.EDIT_REFUSED');
+	}
 	if (failure.lineCount === null) {
 		return t('invoices.edit.confirm.NOT_PUT_BACK');
 	}
@@ -137,13 +143,16 @@ export function SaveInvoiceChangesDialog({
 	open,
 	invoice,
 	onClose,
-	onLockedRefusal
+	onLockedRefusal,
+	onSaveFailed
 }: Readonly<{
 	open: boolean;
 	invoice: InvoiceEditState;
 	onClose: () => void;
 	/** The save was refused because the invoice was paid or voided since it was opened; the refusal stays on screen. */
 	onLockedRefusal?: () => void;
+	/** Any save that did not go through: the page reads the invoice again once this dialog is closed. */
+	onSaveFailed?: () => void;
 }>) {
 	const t = useTranslations();
 	const locale = useLocale();
@@ -180,6 +189,7 @@ export function SaveInvoiceChangesDialog({
 
 	const refuse = (outcome: EditFailure) => {
 		setFailure(outcome);
+		onSaveFailed?.();
 		const isLocked = outcome.status === 'locked';
 		if (isLocked) {
 			onLockedRefusal?.();
@@ -205,7 +215,7 @@ export function SaveInvoiceChangesDialog({
 		setFailure(null);
 		const result = await invoice.save();
 		if (!result) {
-			setFailure(NOT_SAVED);
+			refuse(NOT_SAVED);
 			return;
 		}
 		if (result.outcome.status !== 'saved') {
@@ -238,7 +248,7 @@ export function SaveInvoiceChangesDialog({
 		}
 		const result = await invoice.saveAndSend(email);
 		if (!result) {
-			setFailure(NOT_SAVED);
+			refuse(NOT_SAVED);
 			return;
 		}
 		if (result.outcome.status !== 'saved') {

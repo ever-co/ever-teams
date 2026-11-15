@@ -102,19 +102,26 @@ export function useEmployeePayRates(employeeIds: ReadonlyArray<string>): Employe
 	return useMemo(() => payRatesOf(employeeIds, states), [employeeIds, states]);
 }
 
+/** A client rate saved on a project, and the day it prices tracked time from when the editor picked one. */
+export interface ProjectRateSave {
+	billRateValue: number | null;
+	applyFrom?: string;
+}
+
 export function useProjectRateMutations(projectId: string) {
 	const queryClient = useQueryClient();
 	const invalidateRates = () => queryClient.invalidateQueries({ queryKey: queryKeys.rates.all });
 
 	const projectRate = useMutation({
-		mutationFn: (billRateValue: number | null) => rateService.updateProjectRate(projectId, billRateValue),
+		mutationFn: ({ billRateValue, applyFrom }: ProjectRateSave) =>
+			rateService.updateProjectRate(projectId, billRateValue, applyFrom),
 		onSuccess: invalidateRates,
 		meta: { handlesOwnError: true }
 	});
 
 	const memberRate = useMutation({
-		mutationFn: ({ employeeId, billRateValue }: { employeeId: string; billRateValue: number | null }) =>
-			rateService.updateProjectMemberRate(projectId, employeeId, billRateValue),
+		mutationFn: ({ employeeId, billRateValue, applyFrom }: ProjectRateSave & { employeeId: string }) =>
+			rateService.updateProjectMemberRate(projectId, employeeId, billRateValue, applyFrom),
 		onSuccess: invalidateRates,
 		meta: { handlesOwnError: true }
 	});
@@ -132,7 +139,8 @@ export function useEmployeeRatesMutation() {
 	const mutation = useMutation({
 		mutationFn: ({ employeeId, rates }: { employeeId: string; rates: IEmployeeRatesInput }) =>
 			rateService.updateEmployeeRates(employeeId, rates),
-		onSuccess: async (_updated, { employeeId }) => {
+		// After a failure too: Gauzy may have saved the rate before re-pricing the time failed (memberRateSaveFailureKeyOf)
+		onSettled: async (_updated, _error, { employeeId }) => {
 			await queryClient.invalidateQueries({ queryKey: queryKeys.organizationTeams.all });
 			await queryClient.invalidateQueries({ queryKey: queryKeys.rates.all });
 			await queryClient.invalidateQueries({ queryKey: queryKeys.timesheet.reports.all });
@@ -157,6 +165,9 @@ function ownProfileRatesOf(rates: IEmployeeRatesInput): IOwnProfileRatesInput {
 	if (rates.reWeeklyLimit !== undefined) {
 		profileRates.reWeeklyLimit = rates.reWeeklyLimit;
 	}
+	if (rates.ratesApplyFrom !== undefined) {
+		profileRates.ratesApplyFrom = rates.ratesApplyFrom;
+	}
 	return profileRates;
 }
 
@@ -173,7 +184,8 @@ export function useOwnRatesMutation(editsEmployees: boolean) {
 			}
 			return rateService.updateOwnProfileRates(employeeId, ownProfileRatesOf(rates));
 		},
-		onSuccess: async () => {
+		// After a failure too: Gauzy may have saved the rate before re-pricing the time failed (memberRateSaveFailureKeyOf)
+		onSettled: async () => {
 			await queryClient.invalidateQueries({ queryKey: queryKeys.users.me });
 			await queryClient.invalidateQueries({ queryKey: queryKeys.organizationTeams.all });
 			await queryClient.invalidateQueries({ queryKey: queryKeys.rates.all });

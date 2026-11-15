@@ -27,8 +27,15 @@ export function useReportClientChoices(projects: ReadonlyArray<TOrganizationProj
  */
 export function useReportProjectClients({
 	includesArchived,
-	isEnabled
-}: Readonly<{ includesArchived: boolean; isEnabled: boolean }>) {
+	isEnabled,
+	readsListOnlyWhenEnabled = false
+}: Readonly<{
+	includesArchived: boolean;
+	isEnabled: boolean;
+	/** Reads the projects list itself only while enabled too, for a block that needs no project before it is asked. */
+	readsListOnlyWhenEnabled?: boolean;
+}>) {
+	const readsList = isEnabled || !readsListOnlyWhenEnabled;
 	const tenantId = getTenantIdCookie();
 	const organizationId = getOrganizationIdCookie();
 	const {
@@ -36,7 +43,7 @@ export function useReportProjectClients({
 		isOrganizationProjectsLoaded,
 		isOrganizationProjectsError,
 		refetchOrganizationProjects
-	} = useOrganizationProjectsQuery();
+	} = useOrganizationProjectsQuery({ enabled: readsList });
 
 	const hasScope = Boolean(tenantId) && Boolean(organizationId);
 	const wantsArchived = includesArchived && isEnabled;

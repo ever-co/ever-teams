@@ -489,3 +489,30 @@ describe('Time & Activity week grid from the daily rows', () => {
 		expect(grid).toEqual([]);
 	});
 });
+
+describe('the earnings of an export at the rate each entry stores (#5212)', () => {
+	const ratedEmployee = { ...employee, billRateValue: 50, billRateCurrency: 'EUR' };
+
+	it('prices a task at the rate its entry states, not the current one', () => {
+		const october = { ...task('october', 3600), billRateValue: 40, billRateCurrency: 'EUR' };
+		const report = reportOf([october] as ReturnType<typeof task>[], ratedEmployee);
+
+		const [row] = exportRowsOf(report, null, 'No team', 'USD');
+
+		expect(row.earnings).toBe(40);
+		expect(row.currency).toBe('EUR');
+	});
+
+	it('prices a task at the current rate from a Gauzy that states none, as before', () => {
+		const [row] = exportRowsOf(reportOf([task('home', 3600)], ratedEmployee), null, 'No team', 'USD');
+
+		expect(row.earnings).toBe(50);
+	});
+
+	it('gives no earnings to an entry that stores no rate', () => {
+		const before = { ...task('before', 3600), billRateValue: null, billRateCurrency: null };
+		const [row] = exportRowsOf(reportOf([before] as ReturnType<typeof task>[], ratedEmployee), null, null, 'USD');
+
+		expect(row.earnings).toBeNull();
+	});
+});

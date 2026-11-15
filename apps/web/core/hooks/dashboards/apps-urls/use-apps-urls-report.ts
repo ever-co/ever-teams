@@ -27,7 +27,7 @@ import { isLiveDayRange, liveQueryOptionsOf } from '@/core/lib/utils/dashboard-l
 const VIEW_STORAGE_KEY = 'group-by-type';
 
 /** Monday weeks, as the dashboards' previous date picker. */
-export const APPS_URLS_WEEK_START = 1;
+const APPS_URLS_WEEK_START = 1;
 
 /**
  * Only these roles see other members here: the activity report returns the caller's own data to anyone without

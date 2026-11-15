@@ -15,13 +15,15 @@ import { AccountScene, InboxScene, PickedWorkspaceScene } from '@/core/component
 import { CredentialsStep } from './credentials-step';
 import { CodeStep } from './code-step';
 import { CodeWorkspaceStep, PasswordWorkspaceStep, type WorkspaceSelection } from './workspace-steps';
+import { TwoFactorStep } from './two-factor-step';
 
-type SignInStep = 'credentials' | 'code' | 'workspace';
+type SignInStep = 'credentials' | 'code' | 'workspace' | 'second-factor';
 
 const STEP_ORDER: Record<SignInStep, number> = {
 	credentials: 0,
 	code: 1,
-	workspace: 2
+	workspace: 2,
+	'second-factor': 3
 };
 
 function isAuthMethod(value: string | null | undefined): value is AuthMethod {
@@ -123,7 +125,13 @@ export function SignInPage({ defaultMethod }: Readonly<{ defaultMethod: AuthMeth
 	const isCodeUnderWay = codeScreen !== 'email';
 	const shownMethod = shownMethodOf(method, isCodeUnderWay);
 	const isCodeMethod = shownMethod === 'code';
-	const step = stepOf(shownMethod, codeScreen, password.authScreen.screen);
+	// An account with two-factor authentication on answers its workspace sign-in with a challenge: its code comes next
+	const twoFactor = shownMethod === 'code' ? code.twoFactor : password.twoFactor;
+	const asksSecondFactor = Boolean(twoFactor.pending);
+	let step = stepOf(shownMethod, codeScreen, password.authScreen.screen);
+	if (asksSecondFactor) {
+		step = 'second-factor';
+	}
 	const isCredentialsStep = step === 'credentials';
 	const isWorkspaceStep = step === 'workspace';
 	const selection: WorkspaceSelection = { selectedWorkspace, setSelectedWorkspace, selectedTeam, setSelectedTeam };
@@ -131,6 +139,18 @@ export function SignInPage({ defaultMethod }: Readonly<{ defaultMethod: AuthMeth
 	const changeMethod = (next: AuthMethod) => {
 		setMethod(next);
 		writeMethodToAddressBar(next);
+	};
+
+	// Back to the first step: another account, or a sign-in whose challenge ended (the workspace step would sign in again)
+	const restartSignIn = () => {
+		twoFactor.cancel();
+		if (isCodeMethod) {
+			code.setErrors({});
+			code.authScreen.setScreen('email');
+			return;
+		}
+		password.setErrors({});
+		password.authScreen.setScreen('login');
 	};
 
 	let email = password.formValues.email;
@@ -165,6 +185,16 @@ export function SignInPage({ defaultMethod }: Readonly<{ defaultMethod: AuthMeth
 		);
 	}
 
+	if (asksSecondFactor) {
+		scene = (
+			<AccountScene
+				title={t('auth.twoFactor.SCENE_TITLE')}
+				description={t('auth.twoFactor.SCENE_TEXT')}
+				email={email}
+			/>
+		);
+	}
+
 	const showsCodeWorkspace = isWorkspaceStep && isCodeMethod;
 	const showsPasswordWorkspace = isWorkspaceStep && !isCodeMethod;
 
@@ -190,6 +220,7 @@ export function SignInPage({ defaultMethod }: Readonly<{ defaultMethod: AuthMeth
 				{step === 'code' && <CodeStep form={code} />}
 				{showsCodeWorkspace && <CodeWorkspaceStep form={code} selection={selection} />}
 				{showsPasswordWorkspace && <PasswordWorkspaceStep form={password} selection={selection} />}
+				{asksSecondFactor && <TwoFactorStep twoFactor={twoFactor} email={email} onRestart={restartSignIn} />}
 			</AuthSteps>
 		</AuthLayout>
 	);

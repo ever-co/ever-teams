@@ -14,7 +14,9 @@ import { Clock, Plus } from '@/core/components/icons';
 import { TimerTaskStartLayer } from '@/core/components/timer/timer-task-start';
 import { useAddTimeAccess } from '@/core/hooks/dashboards/timesheets/use-add-time-access';
 import { useBulkEditDialog } from '@/core/hooks/dashboards/timesheets/use-bulk-edit-dialog';
+import { useSimilarEntryGrouping } from '@/core/hooks/dashboards/timesheets/use-similar-entry-grouping';
 import { useTimesheetDialogs } from '@/core/hooks/dashboards/timesheets/use-timesheet-dialogs';
+import { useTimesheetGroupChange } from '@/core/hooks/dashboards/timesheets/use-timesheet-group-change';
 import { useTimesheetLogActions } from '@/core/hooks/dashboards/timesheets/use-timesheet-log-actions';
 import { useSheetEditing } from '@/core/hooks/dashboards/timesheets/use-sheet-editing';
 import { useSheetEmptyMembers } from '@/core/hooks/dashboards/timesheets/use-sheet-empty-members';
@@ -28,6 +30,7 @@ import { useTimeEntryContinue } from '@/core/hooks/timer/use-time-entry-continue
 import { useTimerTaskStart } from '@/core/hooks/timer/use-timer-task-start';
 import { useTimeEntryDuplicate } from '@/core/hooks/timesheet/use-time-entry-duplicate';
 import { canMemberTrackTime } from '@/core/lib/helpers/team-member-tracking';
+import { isBreakLog } from '@/core/lib/utils/timer/timer-break';
 import { formatDurationShort } from '@/core/lib/utils/dashboard-figures';
 import type { BulkEditResult } from '@/core/lib/utils/dashboards/timesheet-bulk-edit';
 import { ADD_TIME_ENTRY_STEP_MINUTES, canDuplicateLog } from '@/core/lib/utils/time-entry-reuse';
@@ -46,6 +49,7 @@ import type { TimesheetRowHandlers } from './timesheet-log-row';
 import { TimesheetsBulkEdit } from './timesheets-bulk-edit';
 import { TimesheetsMonthView, TimesheetsWeekView } from './timesheets-calendar';
 import { TimesheetsDialogs } from './timesheets-dialogs';
+import { TimesheetsGroupChangeDialog } from './timesheets-group-change-dialog';
 import { useTimesheetExportOptions } from './timesheets-export';
 import { useTimesheetFilterCategories, useTimesheetFilterControls } from './timesheets-filters';
 import { TimesheetsList } from './timesheets-list';
@@ -55,6 +59,7 @@ import { TimesheetsSheetView } from './timesheets-sheet-view';
 import { TimesheetsSelectionBar } from './timesheets-states';
 import { TimesheetsStatusCards } from './timesheets-status-cards';
 import { TimesheetsToolbar } from './timesheets-toolbar';
+import { TimesheetsViewMenu } from './timesheets-view-menu';
 
 const NO_MEMBERS: TOrganizationTeamEmployee[] = [];
 
@@ -74,11 +79,20 @@ function isTrackingEnabledFor(team: TOrganizationTeam | null | undefined, userId
 }
 
 /** The sheet groups the logs by member and task only while it is the view on screen. */
+/** The sheet adds up work per task and day: a break is no work, so it never reaches a cell (#5216). */
 function sheetLogsOf(view: TimesheetView, logs: ITimeLog[]) {
 	if (view === 'sheet') {
-		return logs;
+		return workLogsOf(logs);
 	}
 	return NO_LOGS;
+}
+
+function workLogsOf(logs: ITimeLog[]) {
+	const hasBreak = logs.some((log) => isBreakLog(log));
+	if (!hasBreak) {
+		return logs;
+	}
+	return logs.filter((log) => !isBreakLog(log));
 }
 
 /** The screenshots open on the one member the filter holds, when it holds one. */
@@ -93,7 +107,7 @@ function filteredMemberIdOf(filteredMembers: ReadonlyArray<string>) {
 /** The screenshots list the members with time in the period only while they are the view on screen. */
 function diaryLogsOf(view: TimesheetView, logs: ITimeLog[]) {
 	if (view === 'screenshots') {
-		return logs;
+		return workLogsOf(logs);
 	}
 	return NO_LOGS;
 }
@@ -111,6 +125,8 @@ interface PageMetaFacts {
 	showsError: boolean;
 	showsMember: boolean;
 	totalSeconds: number;
+	/** The time on breaks, never in the total (#5216). */
+	breakSeconds: number;
 	memberCount: number;
 }
 
@@ -119,6 +135,12 @@ function pageMetaOf(facts: PageMetaFacts, t: ReturnType<typeof useTranslations>)
 	if (!facts.showsError) {
 		const totalText = formatDurationShort(facts.totalSeconds);
 		metaParts.push(totalText);
+	}
+	// The breaks of the period beside the worked time, once there are some (#5216)
+	const showsBreaks = facts.breakSeconds > 0 && !facts.showsError;
+	if (showsBreaks) {
+		const breaksText = t('breaks.FIGURE', { duration: formatDurationShort(facts.breakSeconds) });
+		metaParts.push(breaksText);
 	}
 	const showsMemberCount = facts.showsMember && !facts.showsError;
 	if (showsMemberCount) {
@@ -177,6 +199,7 @@ export function TimesheetsPage({ params }: Readonly<{ params: Promise<{ memberId
 			showsError: page.showsError,
 			showsMember,
 			totalSeconds: page.periodFigures.totalSeconds,
+			breakSeconds: page.periodFigures.breakSeconds,
 			memberCount: page.periodFigures.memberCount
 		},
 		t
@@ -184,6 +207,8 @@ export function TimesheetsPage({ params }: Readonly<{ params: Promise<{ memberId
 
 	const { changeStatus, setBillable, deleteLogs, isChangingStatus, isDeleting } = actions;
 	const { openReject, openEdit, openDelete } = dialogs;
+	const grouping = useSimilarEntryGrouping();
+	const groupChange = useTimesheetGroupChange({ permissions, changeStatus, openReject, openDelete });
 
 	const timerStart = useTimerTaskStart();
 	const { canContinue, continueLog } = useTimeEntryContinue(timerStart.startOn);
@@ -239,6 +264,13 @@ export function TimesheetsPage({ params }: Readonly<{ params: Promise<{ memberId
 	const canEditSelection = selectedLogs.some((log) => canEditLog(log, permissions));
 	const selectedSeconds = useMemo(() => totalDurationOf(selectedLogs), [selectedLogs]);
 	const isSheetView = page.view === 'sheet';
+	const isListView = page.view === 'list';
+	let listViewMenu: ReactNode = null;
+	if (isListView) {
+		listViewMenu = (
+			<TimesheetsViewMenu isGrouping={grouping.isGrouping} onGroupingChange={grouping.setIsGrouping} />
+		);
+	}
 	const isScreenshotsView = page.view === 'screenshots';
 	const isSelectableView = !isSheetView && !isScreenshotsView;
 	const showsSelectionBar = hasSelection && isSelectableView;
@@ -436,6 +468,8 @@ export function TimesheetsPage({ params }: Readonly<{ params: Promise<{ memberId
 				sort={page.sort}
 				onSort={page.sortBy}
 				emptyContent={emptyMessage}
+				grouping={grouping}
+				groupHandlers={groupChange.handlers}
 			/>
 		);
 	}
@@ -493,6 +527,7 @@ export function TimesheetsPage({ params }: Readonly<{ params: Promise<{ memberId
 					filterMenu={filterControls.menu}
 					appliedFilters={filterControls.chips}
 					actions={actionsNode}
+					viewMenu={listViewMenu}
 				/>
 			}
 		>
@@ -521,6 +556,7 @@ export function TimesheetsPage({ params }: Readonly<{ params: Promise<{ memberId
 				onDeleteConfirmed={handleDeleteConfirmed}
 				duplicate={duplicate}
 			/>
+			<TimesheetsGroupChangeDialog state={groupChange} />
 			<TimerTaskStartLayer request={timerStart.request} />
 		</PageLayout>
 	);

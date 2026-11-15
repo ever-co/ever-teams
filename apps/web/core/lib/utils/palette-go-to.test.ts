@@ -1,0 +1,206 @@
+import {
+	goToCommandIdOf,
+	goToRowsOf,
+	openablePageHandlers,
+	paletteListedGroups,
+	withGoToPreview
+} from './palette-go-to';
+import type { SidebarPage } from './sidebar-pages';
+
+const MEMBER_PAGES: SidebarPage[] = [
+	{ title: 'Home', url: '/' },
+	{ title: "Team's tasks", url: '/team/tasks', section: 'Tasks' },
+	{ title: 'My tasks', url: '/profile/u-1?name=Ann', section: 'Tasks' },
+	{ title: 'All projects', url: '/projects', section: 'Projects' },
+	{ title: 'Archived', url: '/projects?archived=true', section: 'Projects' },
+	{ title: 'Time & activity', url: '/reports/time-and-activity', section: 'My work' }
+];
+
+const MANAGER_PAGES: SidebarPage[] = [
+	...MEMBER_PAGES,
+	{ title: 'Timesheets', url: '/reports/timesheet/u-1?name=Ann', section: 'Reports' },
+	{ title: 'Weekly limit', url: '/reports/weekly-limit', section: 'Reports' },
+	{ title: 'Time & activity', url: '/reports/time-and-activity', section: 'Reports' }
+];
+
+describe('goToCommandIdOf', () => {
+	it('names the registry command that leads to the same page', () => {
+		expect(goToCommandIdOf('/')).toBe('goHome');
+		expect(goToCommandIdOf('/team/tasks')).toBe('goTasks');
+		expect(goToCommandIdOf('/views')).toBe('goViews');
+		expect(goToCommandIdOf('/views/overdue')).toBe('goOverdue');
+		expect(goToCommandIdOf('/reports/time-and-activity')).toBe('goTimeActivity');
+	});
+
+	it('finds the profile and the timesheet commands by the page under their path, whoever it is of', () => {
+		expect(goToCommandIdOf('/profile/u-1?name=Ann')).toBe('goProfile');
+		expect(goToCommandIdOf('/reports/timesheet/u-1?name=Ann')).toBe('goTimesheets');
+		expect(goToCommandIdOf('/profile')).toBeUndefined();
+	});
+
+	it('names none for a page no command leads to, and none for a link that adds a query to a command page', () => {
+		expect(goToCommandIdOf('/calendar')).toBeUndefined();
+		expect(goToCommandIdOf('/projects')).toBe('goProjects');
+		expect(goToCommandIdOf('/projects?archived=true')).toBeUndefined();
+	});
+});
+
+describe('goToRowsOf', () => {
+	it('reads a page under a group with the group first, and a first-level page by its name alone', () => {
+		const rows = goToRowsOf(MEMBER_PAGES);
+		expect(rows.map((row) => row.label)).toEqual([
+			'Home',
+			"Tasks › Team's tasks",
+			'Tasks › My tasks',
+			'Projects › All projects',
+			'Projects › Archived',
+			'My work › Time & activity'
+		]);
+	});
+
+	it('keeps the group apart from the name, so the row can write the group muted', () => {
+		const [home, teamTasks] = goToRowsOf(MEMBER_PAGES);
+		expect(home).toMatchObject({ title: 'Home', section: undefined });
+		expect(teamTasks).toMatchObject({ title: "Team's tasks", section: 'Tasks' });
+	});
+
+	it('lists once a page the sidebar links twice, under the group that comes first', () => {
+		const labels = goToRowsOf(MANAGER_PAGES).map((row) => row.label);
+		expect(labels).toContain('My work › Time & activity');
+		expect(labels).not.toContain('Reports › Time & activity');
+		expect(labels).toContain('Reports › Timesheets');
+	});
+
+	it('lists every page that reads like another, each later one with a value of its own for the palette', () => {
+		const rows = goToRowsOf([
+			{ title: 'Sprint', url: '/views/v-1', section: 'Views' },
+			{ title: 'Sprint', url: '/views/v-2', section: 'Views' },
+			{ title: 'Sprint', url: '/views/v-3', section: 'Views' }
+		]);
+		expect(rows.map((row) => row.url)).toEqual(['/views/v-1', '/views/v-2', '/views/v-3']);
+		expect(rows.map((row) => row.label)).toEqual(['Views › Sprint', 'Views › Sprint', 'Views › Sprint']);
+		expect(rows[0].value).toBeUndefined();
+		expect(new Set(rows.map((row) => row.value ?? row.label)).size).toBe(3);
+	});
+
+	it('keeps a saved view named like a built-in one, beside the built-in view and its keys', () => {
+		const rows = goToRowsOf([
+			{ title: 'Overdue', url: '/views/overdue', section: 'Views' },
+			{ title: 'Overdue', url: '/views/v-9', section: 'Views' }
+		]);
+		expect(rows.map((row) => row.url)).toEqual(['/views/overdue', '/views/v-9']);
+		expect(rows[0].commandId).toBe('goOverdue');
+		expect(rows[1].commandId).toBeUndefined();
+		expect(rows[1].value).not.toBe(rows[1].label);
+	});
+
+	it('ties each row to the command that leads to its page, and a command to one row only', () => {
+		const rows = goToRowsOf([...MEMBER_PAGES, { title: 'Ann', url: '/profile/u-2?name=Bob', section: 'People' }]);
+		const commandOf = (label: string) => rows.find((row) => row.label === label)?.commandId;
+		expect(commandOf('Home')).toBe('goHome');
+		expect(commandOf('Tasks › My tasks')).toBe('goProfile');
+		expect(commandOf('People › Ann')).toBeUndefined();
+		expect(commandOf('Projects › All projects')).toBe('goProjects');
+		expect(commandOf('Projects › Archived')).toBeUndefined();
+	});
+});
+
+describe('openablePageHandlers', () => {
+	const handlers = {
+		themeToggle: 'theme',
+		goHome: 'home',
+		goTimeActivity: 'time and activity',
+		goTimesheets: 'timesheets',
+		goWeeklyLimit: 'weekly limit'
+	};
+
+	it('keeps every handler while the sidebar has handed no list', () => {
+		expect(openablePageHandlers(handlers, undefined)).toBe(handlers);
+	});
+
+	it('drops the "go to" handlers of the pages the sidebar does not list for a member, and nothing else', () => {
+		expect(Object.keys(openablePageHandlers(handlers, MEMBER_PAGES))).toEqual([
+			'themeToggle',
+			'goHome',
+			'goTimeActivity'
+		]);
+	});
+
+	it('keeps them for a manager, whose sidebar lists the reports', () => {
+		expect(openablePageHandlers(handlers, MANAGER_PAGES)).toEqual(handlers);
+	});
+});
+
+describe('paletteListedGroups', () => {
+	const suggestions = { id: 'suggestions', commands: [{ commandId: 'themeToggle', shortcutDisplay: 'TH' }] };
+	const navigation = {
+		id: 'navigation',
+		commands: [
+			{ commandId: 'goKanban', shortcutDisplay: '⌘K' },
+			{ commandId: 'goTimesheets', shortcutDisplay: '⌘TS', shortcutKeys: ['G', 'S'] }
+		]
+	};
+	const goTo = {
+		id: 'goTo',
+		commands: [
+			{ commandId: 'goKanban', shortcutDisplay: '' },
+			{ commandId: undefined, shortcutDisplay: '' },
+			{ commandId: 'goMine', shortcutDisplay: '', shortcutKeys: ['G', 'M'] }
+		]
+	};
+
+	it('leaves the groups as they are while the sidebar has handed no list', () => {
+		expect(paletteListedGroups([suggestions, navigation, goTo], undefined)).toEqual([
+			suggestions,
+			navigation,
+			goTo
+		]);
+	});
+
+	it('lists no "navigation" group once the pages are rows of "Go to", and keeps the other groups', () => {
+		const listed = paletteListedGroups([suggestions, navigation, goTo], MEMBER_PAGES);
+		expect(listed.map((group) => group.id)).toEqual(['suggestions', 'goTo']);
+		expect(listed[0]).toBe(suggestions);
+	});
+
+	it('gives a row the keys of the hard-coded link it takes the place of, and leaves the other rows their own', () => {
+		const [, listedGoTo] = paletteListedGroups([suggestions, navigation, goTo], MEMBER_PAGES);
+		expect(listedGoTo.commands).toEqual([
+			{ commandId: 'goKanban', shortcutDisplay: '⌘K', shortcutKeys: undefined },
+			{ commandId: undefined, shortcutDisplay: '' },
+			{ commandId: 'goMine', shortcutDisplay: '', shortcutKeys: ['G', 'M'] }
+		]);
+	});
+});
+
+describe('withGoToPreview', () => {
+	const home = { commandId: 'goHome', shortcutDisplay: '⌘H' };
+	const calendar = { commandId: undefined, shortcutDisplay: '' };
+	const kanban = { commandId: 'goKanban', shortcutDisplay: '⌘K' };
+	const suggestions = { id: 'suggestions', commands: [{ commandId: undefined, shortcutDisplay: 'AM' }] };
+
+	it('keeps the pages that have keys, in their order, and says the group has more', () => {
+		const [, goTo] = withGoToPreview([suggestions, { id: 'goTo', commands: [home, calendar, kanban] }]);
+		expect(goTo.commands).toEqual([home, kanban]);
+		expect(goTo.hasMorePages).toBe(true);
+	});
+
+	it('leaves out a page tied to a command whose row shows no keys: none answered here, or none left', () => {
+		const chatWithoutKeys = { commandId: 'goChat', shortcutDisplay: '' };
+		const docsWithoutBinding = { commandId: 'goDocs', shortcutDisplay: '', shortcutKeys: [] };
+		const [goTo] = withGoToPreview([{ id: 'goTo', commands: [home, chatWithoutKeys, docsWithoutBinding, kanban] }]);
+		expect(goTo.commands).toEqual([home, kanban]);
+		expect(goTo.hasMorePages).toBe(true);
+	});
+
+	it('leaves the group whole when every page has keys, or when none has', () => {
+		const everyPageKeyed = { id: 'goTo', commands: [home, kanban] };
+		const noPageKeyed = { id: 'goTo', commands: [calendar] };
+		expect(withGoToPreview([everyPageKeyed])[0]).toBe(everyPageKeyed);
+		expect(withGoToPreview([noPageKeyed])[0]).toBe(noPageKeyed);
+	});
+
+	it('leaves the other groups as they are, even with an entry that has no keys', () => {
+		expect(withGoToPreview([suggestions])[0]).toBe(suggestions);
+	});
+});

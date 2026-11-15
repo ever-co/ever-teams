@@ -51,6 +51,42 @@ describe('reading the invoices already saved for a client, a page at a time', ()
 	});
 });
 
+describe('reading the invoices in some statuses, one status after the other', () => {
+	afterEach(() => {
+		jest.restoreAllMocks();
+	});
+
+	it('keeps one copy of an invoice met in two statuses, its latest', async () => {
+		jest.spyOn(invoiceService, 'get').mockImplementation(async (url) => {
+			const where = queryOf(url).where as Record<string, unknown>;
+			if (where.status === 'DRAFT') {
+				return {
+					data: {
+						items: [{ id: 'invoice-7', status: 'DRAFT', updatedAt: '2026-11-13T10:00:00.000Z' }],
+						total: 1
+					}
+				} as never;
+			}
+			return {
+				data: {
+					items: [
+						{ id: 'invoice-7', status: 'SENT', updatedAt: '2026-11-13T10:05:00.000Z' },
+						{ id: 'invoice-8', status: 'SENT', updatedAt: '2026-11-12T09:00:00.000Z' }
+					],
+					total: 2
+				}
+			} as never;
+		});
+
+		const invoices = await invoiceService.getInvoicesInStatuses(['DRAFT', 'SENT']);
+
+		expect(invoices.map((invoice) => [invoice.id, invoice.status])).toEqual([
+			['invoice-7', 'SENT'],
+			['invoice-8', 'SENT']
+		]);
+	});
+});
+
 describe('reading a page of the invoices list', () => {
 	afterEach(() => {
 		jest.restoreAllMocks();

@@ -17,6 +17,7 @@ import {
 	subMonths
 } from 'date-fns';
 import { dateFormatOf, type FormatLocale } from '@/core/lib/utils/workspace-formats';
+import { EWeekDays } from '@/core/types/generics/enums/date';
 
 export interface Period {
 	from: Date;
@@ -34,6 +35,26 @@ export type PeriodPresetKey =
 	| 'lastMonth';
 
 export type WeekStart = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+
+const MONDAY_START: WeekStart = 1;
+
+const WEEK_START_OF_DAY: Record<EWeekDays, WeekStart> = {
+	[EWeekDays.SUNDAY]: 0,
+	[EWeekDays.MONDAY]: 1,
+	[EWeekDays.TUESDAY]: 2,
+	[EWeekDays.WEDNESDAY]: 3,
+	[EWeekDays.THURSDAY]: 4,
+	[EWeekDays.FRIDAY]: 5,
+	[EWeekDays.SATURDAY]: 6
+};
+
+/** The organisation's first day of the week, Monday when it has none. */
+export function weekStartOf(startWeekOn: EWeekDays | null | undefined): WeekStart {
+	if (!startWeekOn) {
+		return MONDAY_START;
+	}
+	return WEEK_START_OF_DAY[startWeekOn] ?? MONDAY_START;
+}
 
 export const DEFAULT_PERIOD_PRESETS: ReadonlyArray<PeriodPresetKey> = [
 	'today',

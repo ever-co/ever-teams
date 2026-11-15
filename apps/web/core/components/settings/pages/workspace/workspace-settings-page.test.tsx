@@ -7,6 +7,11 @@ const mockSaveName = jest.fn(async () => undefined);
 const mockSaveCurrency = jest.fn(async () => undefined);
 const mockSaveDateFormat = jest.fn(async () => undefined);
 const mockSaveNumberFormat = jest.fn(async () => undefined);
+const mockSaveWeekStart = jest.fn(async () => undefined);
+const mockSaveClock = jest.fn(async () => undefined);
+const mockSaveCurrencyPosition = jest.fn(async () => undefined);
+const mockSaveDurationRounding = jest.fn(async () => undefined);
+const mockSaveTimeLogsKeepTheirRates = jest.fn(async () => undefined);
 const mockRetryLoad = jest.fn();
 
 const ORGANIZATION = { id: 'organization-a', name: 'Acme', currency: 'USD', dateFormat: null, numberFormat: null };
@@ -26,13 +31,36 @@ function settingsOf(overrides: Record<string, unknown> = {}) {
 		saveCurrency: mockSaveCurrency,
 		saveDateFormat: mockSaveDateFormat,
 		saveNumberFormat: mockSaveNumberFormat,
+		saveWeekStart: mockSaveWeekStart,
+		saveClock: mockSaveClock,
+		saveCurrencyPosition: mockSaveCurrencyPosition,
+		saveDurationRounding: mockSaveDurationRounding,
+		saveTimeLogsKeepTheirRates: mockSaveTimeLogsKeepTheirRates,
 		...overrides
 	};
 }
 
-jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key, useLocale: () => 'en' }));
+// The Breaks section (#5216) reads the organization through its own hook, which these tests leave out
+jest.mock('@/core/hooks/settings/use-organization-tracking-requirements', () => ({
+	useOrganizationBreaksSwitch: () => ({ organization: null, saveAllowBreaks: jest.fn() })
+}));
+jest.mock('next-intl', () => ({
+	useTranslations: () => (key: string, values?: Record<string, unknown>) => {
+		if (!values) {
+			return key;
+		}
+		return `${key} ${JSON.stringify(values)}`;
+	},
+	useLocale: () => 'en'
+}));
 jest.mock('@/core/hooks/settings/use-workspace-settings', () => ({
 	useWorkspaceSettings: () => mockSettings
+}));
+const mockExportAll = jest.fn(async () => undefined);
+const NO_EXPORT = { canExport: false, isExporting: false, isFailed: false, exportAll: mockExportAll };
+let mockDataExport = NO_EXPORT;
+jest.mock('@/core/hooks/settings/use-workspace-data-export', () => ({
+	useWorkspaceDataExport: () => mockDataExport
 }));
 jest.mock('@/core/components/common/select', () => {
 	const { createContext, useContext } = jest.requireActual<typeof React>('react');
@@ -63,7 +91,10 @@ jest.mock('@/core/components/common/select', () => {
 import { WorkspaceSettingsPage } from './workspace-settings-page';
 
 const AUTOMATIC = 'settings.workspace.FORMAT_AUTOMATIC';
-const EDIT_NAME = 'settings.common.EDIT_FIELD';
+const ROUNDING = 'settings.workspace.ROUNDING_LABEL';
+const NOT_ROUNDING = { ...ORGANIZATION, durationRoundingInterval: null, durationRoundingDirection: null };
+const ROUNDING_UP_15 = { ...ORGANIZATION, durationRoundingInterval: 15, durationRoundingDirection: 'UP' };
+const EDIT_NAME = /^settings.common.EDIT_FIELD/;
 const YEAR = new Date().getFullYear();
 
 function rowOf(label: string): HTMLElement {
@@ -87,6 +118,26 @@ describe('WorkspaceSettingsPage', () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
 		mockSettings = settingsOf();
+		mockDataExport = NO_EXPORT;
+	});
+
+	it('offers the workspace owner to export all data, below the formats', () => {
+		mockDataExport = { ...NO_EXPORT, canExport: true };
+		render(<WorkspaceSettingsPage />);
+
+		const data = screen.getByRole('heading', { name: 'settings.workspace.DATA_SECTION' });
+		const formats = screen.getByRole('heading', { name: 'settings.workspace.FORMATS_SECTION' });
+		const dataComesAfterFormats = formats.compareDocumentPosition(data) === Node.DOCUMENT_POSITION_FOLLOWING;
+		expect(dataComesAfterFormats).toBe(true);
+		fireEvent.click(screen.getByRole('button', { name: 'settings.workspace.EXPORT_ACTION' }));
+		expect(mockExportAll).toHaveBeenCalledTimes(1);
+	});
+
+	it('shows no Data section to anyone else', () => {
+		render(<WorkspaceSettingsPage />);
+
+		expect(screen.queryByRole('heading', { name: 'settings.workspace.DATA_SECTION' })).toBeNull();
+		expect(screen.queryByRole('button', { name: 'settings.workspace.EXPORT_ACTION' })).toBeNull();
 	});
 
 	it('shows its sections loading until the workspace is read', () => {
@@ -148,7 +199,7 @@ describe('WorkspaceSettingsPage', () => {
 		expect(screen.getByText('settings.workspace.NAME_SUPER_ADMIN_ONLY')).toBeTruthy();
 		expect(screen.queryByRole('button', { name: EDIT_NAME })).toBeNull();
 		expect(screen.getByRole('combobox')).toBeTruthy();
-		expect(screen.getAllByTestId('format-select')).toHaveLength(2);
+		expect(screen.getAllByTestId('format-select')).toHaveLength(5);
 		expect(screen.queryByText('settings.workspace.READ_ONLY_NOTE')).toBeNull();
 	});
 
@@ -224,5 +275,150 @@ describe('WorkspaceSettingsPage', () => {
 		});
 
 		expect(mockSaveDateFormat).not.toHaveBeenCalled();
+	});
+
+	it('shows no duration rounding for a workspace whose API does not store it', () => {
+		render(<WorkspaceSettingsPage />);
+
+		expect(screen.queryByText(ROUNDING)).toBeNull();
+	});
+
+	it('shows a member the rounding rule as text, with what it does to an entry', () => {
+		mockSettings = settingsOf({ canEdit: false, canRename: false, organization: ROUNDING_UP_15 });
+
+		render(<WorkspaceSettingsPage />);
+		const roundingRow = rowOf(ROUNDING);
+
+		expect(within(roundingRow).getByText('settings.workspace.ROUNDING_RULE_UP {"minutes":15}')).toBeTruthy();
+		expect(
+			within(roundingRow).getByText('settings.workspace.ROUNDING_EXAMPLE {"tracked":"1h 7m","rounded":"1h 15m"}')
+		).toBeTruthy();
+		expect(screen.queryByRole('button')).toBeNull();
+	});
+
+	it('shows Off and no direction for a workspace that does not round', () => {
+		mockSettings = settingsOf({ organization: NOT_ROUNDING });
+
+		render(<WorkspaceSettingsPage />);
+		const roundingRow = rowOf(ROUNDING);
+
+		expect(
+			within(roundingRow)
+				.getAllByTestId('shown-format')
+				.map((shown) => shown.textContent)
+		).toEqual(['settings.workspace.ROUNDING_OFF']);
+		expect(within(roundingRow).queryByText(/ROUNDING_EXAMPLE/)).toBeNull();
+	});
+
+	it('turns rounding on at the interval an admin picks, rounding up', async () => {
+		mockSettings = settingsOf({ organization: NOT_ROUNDING });
+		render(<WorkspaceSettingsPage />);
+		const roundingRow = rowOf(ROUNDING);
+
+		await act(async () => {
+			fireEvent.click(
+				within(roundingRow).getByRole('button', { name: 'settings.workspace.ROUNDING_INTERVAL {"minutes":15}' })
+			);
+		});
+
+		expect(mockSaveDurationRounding).toHaveBeenCalledWith({ intervalMinutes: 15, direction: 'UP' });
+	});
+
+	it('changes the direction of the rule and keeps its interval', async () => {
+		mockSettings = settingsOf({ organization: ROUNDING_UP_15 });
+		render(<WorkspaceSettingsPage />);
+		const roundingRow = rowOf(ROUNDING);
+
+		await act(async () => {
+			fireEvent.click(within(roundingRow).getByRole('button', { name: 'settings.workspace.ROUNDING_NEAREST' }));
+		});
+
+		expect(mockSaveDurationRounding).toHaveBeenCalledWith({ intervalMinutes: 15, direction: 'NEAREST' });
+	});
+
+	it('turns rounding off as no rule', async () => {
+		mockSettings = settingsOf({ organization: ROUNDING_UP_15 });
+		render(<WorkspaceSettingsPage />);
+		const roundingRow = rowOf(ROUNDING);
+
+		await act(async () => {
+			fireEvent.click(within(roundingRow).getByRole('button', { name: 'settings.workspace.ROUNDING_OFF' }));
+		});
+
+		expect(mockSaveDurationRounding).toHaveBeenCalledWith(null);
+	});
+
+	// The translations mock writes a string's values after its key: these strings carry a sample
+	const CLOCK_24 = /^settings\.workspace\.CLOCK_24\b/;
+	const SYMBOL_AFTER = /^settings\.workspace\.CURRENCY_POSITION_AFTER\b/;
+
+	it('shows a member the week start, the clock and the currency symbol side as text', () => {
+		mockSettings = settingsOf({
+			canEdit: false,
+			organization: { ...ORGANIZATION, startWeekOn: 'SUNDAY', timeFormat: 24, currencyPosition: 'RIGHT' }
+		});
+		render(<WorkspaceSettingsPage />);
+
+		expect(within(rowOf('settings.workspace.WEEK_START_LABEL')).getByText('Sunday')).toBeTruthy();
+		expect(within(rowOf('settings.workspace.CLOCK_LABEL')).getByText(CLOCK_24)).toBeTruthy();
+		expect(within(rowOf('settings.workspace.CURRENCY_POSITION_LABEL')).getByText(SYMBOL_AFTER)).toBeTruthy();
+	});
+
+	it('saves the week start, the clock and the currency symbol side an admin picks', async () => {
+		render(<WorkspaceSettingsPage />);
+
+		await act(async () => {
+			fireEvent.click(
+				within(rowOf('settings.workspace.WEEK_START_LABEL')).getByRole('button', { name: 'Sunday' })
+			);
+		});
+		await act(async () => {
+			fireEvent.click(within(rowOf('settings.workspace.CLOCK_LABEL')).getByRole('button', { name: CLOCK_24 }));
+		});
+		await act(async () => {
+			const sideRow = rowOf('settings.workspace.CURRENCY_POSITION_LABEL');
+			fireEvent.click(within(sideRow).getByRole('button', { name: SYMBOL_AFTER }));
+		});
+
+		expect(mockSaveWeekStart).toHaveBeenCalledWith('SUNDAY');
+		expect(mockSaveClock).toHaveBeenCalledWith(24);
+		expect(mockSaveCurrencyPosition).toHaveBeenCalledWith('RIGHT');
+	});
+
+	describe('whether past time keeps its rate', () => {
+		const KEEP_RATES = 'settings.workspace.KEEP_RATES_LABEL';
+
+		it('is not offered by a Gauzy that does not store rates on time entries', () => {
+			render(<WorkspaceSettingsPage />);
+
+			expect(screen.queryByText(KEEP_RATES)).toBeNull();
+		});
+
+		it('lets an admin turn it on, off by default', async () => {
+			mockSettings = settingsOf({ organization: { ...ORGANIZATION, timeLogsKeepTheirRates: null } });
+			render(<WorkspaceSettingsPage />);
+			const toggle = screen.getByRole('switch');
+
+			expect(screen.getByText(KEEP_RATES)).toBeTruthy();
+			expect(toggle.getAttribute('aria-checked')).toBe('false');
+
+			await act(async () => {
+				fireEvent.click(toggle);
+			});
+
+			expect(mockSaveTimeLogsKeepTheirRates).toHaveBeenCalledWith(true);
+		});
+
+		it('shows a member whether it is on, with nothing to change', () => {
+			mockSettings = settingsOf({
+				canEdit: false,
+				canRename: false,
+				organization: { ...ORGANIZATION, timeLogsKeepTheirRates: true }
+			});
+			render(<WorkspaceSettingsPage />);
+
+			expect(within(rowOf(KEEP_RATES)).getByText('settings.workspace.KEEP_RATES_ON')).toBeTruthy();
+			expect(screen.queryByRole('switch')).toBeNull();
+		});
 	});
 });

@@ -1,7 +1,7 @@
 'use client';
 
 import { type CSSProperties, memo, useCallback, useMemo, useState } from 'react';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { ActivityIcon } from '@/core/components/activities/activity-icon';
 import { AnimatedHeight } from '@/core/components/common/animated-height';
 import { DashboardSection } from '@/core/components/dashboards/kit/dashboard-layout';
@@ -17,6 +17,8 @@ import type { AppsUrlsDayState } from '@/core/hooks/dashboards/apps-urls/use-app
 import { cn } from '@/core/lib/helpers';
 import { formatDurationShort, formatPercent, type ShareRow } from '@/core/lib/utils/dashboard-figures';
 import type { AppDay, AppDaySegment, AppHourRow, AppShare } from '@/core/lib/utils/dashboards/app-activity';
+import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
+import { dateFormatOf } from '@/core/lib/utils/workspace-formats';
 
 const OTHER_TONE = 'hsl(var(--foreground) / 0.22)';
 
@@ -120,7 +122,7 @@ function DayLegend({
 	seconds
 }: Readonly<{ legend: ReadonlyArray<AppShare>; otherCount: number; tones: ToneMap; seconds: number }>) {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	let legendSeconds = 0;
 	for (const share of legend) {
 		legendSeconds += share.seconds;
@@ -297,10 +299,10 @@ function DayBody({
 	memberName
 }: Readonly<{ state: AppsUrlsDayState; dayText: string; memberName: string }>) {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const [openHours, setOpenHours] = useState<ReadonlySet<number>>(() => new Set());
-	const timeFormat = useMemo(() => new Intl.DateTimeFormat(locale, { hour: 'numeric', minute: '2-digit' }), [locale]);
-	const hourFormat = useMemo(() => new Intl.DateTimeFormat(locale, { hour: 'numeric' }), [locale]);
+	const timeFormat = useMemo(() => dateFormatOf(locale, { hour: 'numeric', minute: '2-digit' }), [locale]);
+	const hourFormat = useMemo(() => dateFormatOf(locale, { hour: 'numeric' }), [locale]);
 	const { appDay } = state;
 	const tones = useMemo(() => tonesOf(appDay.legend), [appDay.legend]);
 	const toggleHour = useCallback((hour: number) => {
@@ -361,9 +363,9 @@ function DayBody({
  */
 export function AppsUrlsDay({ state, canPickMember }: Readonly<{ state: AppsUrlsDayState; canPickMember: boolean }>) {
 	const t = useTranslations();
-	const locale = useLocale();
+	const locale = useWorkspaceLocale();
 	const dayFormat = useMemo(
-		() => new Intl.DateTimeFormat(locale, { weekday: 'short', month: 'short', day: 'numeric' }),
+		() => dateFormatOf(locale, { weekday: 'short', month: 'short', day: 'numeric' }),
 		[locale]
 	);
 	if (!state.hasDay) {

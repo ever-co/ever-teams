@@ -16,6 +16,7 @@ import { PhoneRow } from './phone-row';
 import { PhotoRow } from './photo-row';
 import { ProfileSectionsSkeleton } from './profile-settings-skeleton';
 import { ProfileRatesSection } from './rates-section';
+import { SessionsSection } from './sessions-section';
 
 type ProfileField = 'firstName' | 'lastName' | 'phoneNumber';
 
@@ -102,6 +103,7 @@ export function ProfileSettingsPage() {
 							imageUrl={user.imageUrl ?? null}
 						/>
 					)}
+					<SessionsSection />
 					<AccountDangerSection />
 				</>
 			)}

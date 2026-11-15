@@ -84,6 +84,7 @@ import { getMyWorkNavigation } from './my-work-navigation';
 import { isInboxEnabled } from '@/core/lib/utils/inbox-enabled';
 import { isChatEnabled } from '@/core/lib/utils/chat-enabled';
 import { CommandPaletteTrigger } from './default-layout/header/command-palette-trigger';
+import { useSidebarPages } from './use-sidebar-pages';
 import { DefaultCreateAction } from '../features/layouts/header/create-default-action';
 import { SettingsNav } from '../settings/kit/settings-nav';
 import { isSettingsPath } from '../settings/kit/settings-entries';
@@ -96,6 +97,7 @@ import { useInboxAvailability } from '@/core/hooks/inbox/use-inbox-availability'
 import { useInboxCounts } from '@/core/hooks/inbox/use-inbox-items';
 import { useUnreadNotificationCount } from '@/core/hooks/notifications/use-notification-inbox';
 import { useInvoiceAccess } from '@/core/hooks/invoices/use-invoice-access';
+import { useTimeGoals } from '@/core/hooks/time-goals/use-time-goals';
 
 type AppSidebarProps = React.ComponentProps<typeof Sidebar> & { publicTeam: boolean | undefined };
 
@@ -134,6 +136,9 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	const activeTeam = useAtomValue(activeTeamState);
 	const pathname = usePathname();
 	const myWorkNavigation = getMyWorkNavigation();
+	// Goals is listed where the platform has time goals (ever-co/ever-gauzy#11918); an older one answers 404
+	const { availability: goalsAvailability } = useTimeGoals();
+	const showsGoals = goalsAvailability === 'available';
 
 	// The sidebar lists the projects of the team picked in the header. "All teams" is the
 	// /all-teams page (the header entry links there), not a cleared team: activeTeamState falls
@@ -459,7 +464,10 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 						title: t('dashboard.myWeek.TITLE'),
 						label: 'my-week',
 						url: myWorkNavigation.myWeek
-					}
+					},
+					...(showsGoals
+						? [{ title: t('dashboard.goals.TITLE'), label: 'goals', url: myWorkNavigation.goals }]
+						: [])
 				]
 			},
 			...(isTeamManager ? [reportsEntry] : [])
@@ -479,6 +487,8 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 		myWorkNavigation.timeAndActivity,
 		myWorkNavigation.workDiary,
 		myWorkNavigation.myWeek,
+		myWorkNavigation.goals,
+		showsGoals,
 		isTeamManager,
 		canViewInvoices,
 		savedViews
@@ -486,6 +496,13 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 
 	const showsSettingsNav = isSettingsPath(stripLocalePrefix(pathname ?? ''));
 	useRememberAppPath(pathname, showsSettingsNav);
+
+	// The command palette's "Go to" lists the pages of this sidebar from the entries above: one list, the same rules.
+	const firstLevelLinks = useMemo(
+		() => [...homeEntries, { title: t('chatView.ASSISTANT'), url: ASSISTANT_PATH }],
+		[homeEntries, t]
+	);
+	const sidebarPages = useSidebarPages(firstLevelLinks, navMain);
 
 	const showAccountMenu = !publicTeam;
 	const showCreateTeamModal = !publicTeam && isOpen && Boolean(user?.isEmailVerified);
@@ -543,7 +560,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 			{/* Command palette - rendered once for the entire app (outside the mobile sheet), so its
 			    shortcuts work on every page; the sidebar's CommandPaletteTrigger opens it. */}
 			<Suspense fallback={null}>
-				<LazySidebarCommandModal publicTeam={publicTeam || false} variant="none" />
+				<LazySidebarCommandModal publicTeam={publicTeam || false} variant="none" pages={sidebarPages} />
 			</Suspense>
 
 			{/* Rendered once for the entire app. */}

@@ -8,7 +8,7 @@ import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/c
 import { getDefaultTimezone } from '@/core/lib/helpers/date-and-time';
 import { localDayKeyOf } from '@/core/lib/utils/dashboard-export';
 import { isLiveDayRange, liveQueryOptionsOf } from '@/core/lib/utils/dashboard-live';
-import { periodLengthInDays, periodOfPreset, type Period } from '@/core/lib/utils/dashboard-period';
+import { periodLengthInDays, periodOfPreset, type Period, type WeekStart } from '@/core/lib/utils/dashboard-period';
 import {
 	activeGroupsOf,
 	actualByMemberDayOf,
@@ -20,7 +20,6 @@ import {
 	idleDaysOf,
 	idleMembersOf,
 	memberDaysOf,
-	PLAN_WEEK_START,
 	planChartDaysOf,
 	planDaysOf,
 	planFiguresOf,
@@ -45,6 +44,12 @@ import type { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 import type { TTimeLogReportWeekly } from '@/core/types/schemas/timer/time-log.schema';
 import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 import { dateFormatOf, type FormatLocale } from '@/core/lib/utils/workspace-formats';
+import { useWorkspaceWeekPeriod } from '@/core/hooks/common/use-workspace-week-period';
+
+/** This week, counted from the workspace's first day. */
+function thisWeekOf(weekStart: WeekStart): Period {
+	return periodOfPreset('thisWeek', weekStart);
+}
 
 /** Keeps this report's entries apart from the Time & Activity week grid, which caches the bare report array. */
 const REPORT_KEY = 'actual-expected';
@@ -242,7 +247,7 @@ export function useActualExpectedReport({ unnamedLabel }: Readonly<{ unnamedLabe
 	const timeZone = useMemo(() => getDefaultTimezone(), []);
 	const collator = useMemo(() => new Intl.Collator(locale.tag), [locale.tag]);
 
-	const [period, setPeriod] = useState<Period>(() => periodOfPreset('thisWeek', PLAN_WEEK_START));
+	const [period, setPeriod] = useWorkspaceWeekPeriod(thisWeekOf);
 	const [grouping, setGrouping] = useState<PlanGrouping>('member');
 	const [selectedEmployeeIds, setSelectedEmployeeIds] = useState<string[]>([]);
 

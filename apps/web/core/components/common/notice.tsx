@@ -54,7 +54,7 @@ export function Notice({
 				)}
 			</div>
 			{actions && (
-				<div className="flex shrink-0 items-center gap-2 self-center max-sm:basis-full max-sm:pl-[30px]">
+				<div className="flex shrink-0 items-center gap-2 self-center max-sm:order-3 max-sm:basis-full max-sm:pl-[30px]">
 					{actions}
 				</div>
 			)}
@@ -66,7 +66,8 @@ export function Notice({
 					onClick={onDismiss}
 					aria-label={dismissLabel}
 					title={dismissLabel}
-					className="-my-0.5 -mr-1 shrink-0 text-muted-foreground"
+					// On a phone the actions take a row of their own: the close button stays on the title's row
+					className="-my-0.5 -mr-1 shrink-0 text-muted-foreground max-sm:order-2"
 				>
 					<X className="size-3.5" />
 				</Button>

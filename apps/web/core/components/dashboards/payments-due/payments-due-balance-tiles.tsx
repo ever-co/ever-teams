@@ -5,7 +5,14 @@ import { useTranslations } from 'next-intl';
 import { DASHBOARD_SURFACE, SKELETON_BAR } from '@/core/components/dashboards/kit/recipes';
 import { cn } from '@/core/lib/helpers';
 import { formatDurationShort } from '@/core/lib/utils/dashboard-figures';
-import { formatOwed, type OwedColumn, type OwedFigures, type OwedTile } from '@/core/lib/utils/dashboards/payments-due';
+import {
+	formatOwed,
+	owedNoteKeyOf,
+	type OwedColumn,
+	type OwedFigures,
+	type OwedTile
+} from '@/core/lib/utils/dashboards/payments-due';
+import { usePastTimeRule } from '@/core/hooks/organizations/rates/use-past-time-rule';
 import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 import { dateFormatOf } from '@/core/lib/utils/workspace-formats';
 import { OwedAmount } from './payments-due-amount';
@@ -169,7 +176,8 @@ function UnpricedTile({ figures }: Readonly<{ figures: OwedFigures }>) {
 
 function OwedNote() {
 	const t = useTranslations();
-	return <p className="px-1 text-xs text-muted-foreground text-pretty">{t('dashboard.paymentsDue.NOTE')}</p>;
+	const noteKey = owedNoteKeyOf(usePastTimeRule());
+	return <p className="px-1 text-xs text-muted-foreground text-pretty">{t(noteKey)}</p>;
 }
 
 function TileSkeleton() {
