@@ -3982,7 +3982,9 @@
 			"BROADCAST": "<b>{name}</b> published an announcement",
 			"PAYMENT": "A payment was recorded for you",
 			"RATE_CHANGE_REQUEST": "<b>{name}</b> asked for a rate change",
-			"TIMER_REMINDER": "Your timer is still running"
+			"TIMER_REMINDER": "Your timer is still running",
+			"TASK_UPDATE": "<b>{name}</b> made a change",
+			"TASK_DUE_REMINDER": "A task is due soon"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "Assignment",
@@ -3993,7 +3995,9 @@
 			"BROADCAST": "Announcement",
 			"PAYMENT": "Payment",
 			"RATE_CHANGE_REQUEST": "Rate change request",
-			"TIMER_REMINDER": "Timer reminder"
+			"TIMER_REMINDER": "Timer reminder",
+			"TASK_UPDATE": "Update",
+			"TASK_DUE_REMINDER": "Due date reminder"
 		},
 		"SOMEONE": "Someone",
 		"MARK_READ": "Mark as read",
@@ -4070,6 +4074,14 @@
 				"OFF": "Off",
 				"AFTER_HOURS": "After {hours, plural, one {# hour} other {# hours}}"
 			},
+			"TASK_DUE": {
+				"TITLE": "Due dates",
+				"INTRO": "A reminder before a task you are assigned to is due, as long as it is not done.",
+				"LABEL": "Due date reminder",
+				"TEXT": "Always in your inbox. By email and on your devices as you choose.",
+				"OFF": "Off",
+				"BEFORE_HOURS": "{hours, plural, one {# hour} other {# hours}} before"
+			},
 			"INTRO": "Choose what reaches your inbox. Turning a type off stops new notifications of that type; the ones already there stay.",
 			"LOAD_ERROR": "Your notification settings could not load.",
 			"SAVE_FAILED": "That setting was not saved. Try again.",
@@ -4120,6 +4132,10 @@
 			"FORGOTTEN_DESCRIPTION": "Did you forget it? Stop it, then correct the time in your timesheet if needed.",
 			"STOP": "Stop timer",
 			"OPEN": "Open timer"
+		},
+		"TASK_DUE": {
+			"BY_END_OF_DAY": "Due by the end of {date}",
+			"AT": "Due {date}"
 		}
 	},
 	"toasts": {
@@ -7706,6 +7722,87 @@
 			"NOT_FOUND_MESSAGE": "It may have been deleted, or the link comes from another workspace.",
 			"ALL_INVOICES": "All invoices",
 			"ERROR_TITLE": "The invoice could not be loaded"
+		},
+		"schedule": {
+			"TITLE": "Billing schedule",
+			"NONE_HINT": "Make this client's invoice by itself every week, two weeks or month, from the billable time not billed yet.",
+			"SET_UP": "Set up a schedule",
+			"EDIT": "Edit",
+			"PAUSE": "Pause",
+			"RESUME": "Resume",
+			"PAUSED": "Paused",
+			"ACTIVE": "Active",
+			"SUMMARY": "{frequency} from {day}",
+			"DELIVERY_DRAFT": "Kept as a draft",
+			"DELIVERY_SEND": "Sent to {email}",
+			"DELIVERY_SEND_NO_EMAIL": "Sent to the client's email",
+			"NEXT": "Next invoice on {day}, for {period}",
+			"NEXT_PAUSED": "No invoice is made while it is paused",
+			"RUNS": "Last runs",
+			"NO_RUNS": "No run yet",
+			"RUNS_ERROR": "The last runs could not be loaded",
+			"ERROR": "The billing schedule could not be loaded",
+			"OPEN_INVOICE": "Open the invoice",
+			"LEFT_OUT": "{hours} h of the period left out: no rate, or another currency",
+			"LIST_TITLE": "Billed on a schedule",
+			"LIST_NEXT": "next on {day}",
+			"LIST_PAUSED": "paused",
+			"frequency": {
+				"WEEKLY": "Every week",
+				"BIWEEKLY": "Every two weeks",
+				"MONTHLY": "Every month"
+			},
+			"grouping": {
+				"PROJECT": "By project",
+				"MEMBER": "By member",
+				"TASK": "By task"
+			},
+			"run": {
+				"CLAIMED": "In progress",
+				"DRAFTED": "Draft made",
+				"SENT": "Sent",
+				"NOT_SENT": "Made, not sent",
+				"NO_TIME": "Nothing to bill",
+				"FAILED": "Not made"
+			},
+			"reason": {
+				"NO_BILLABLE_TIME": "The period had no billable time left to bill.",
+				"NO_PRICED_TIME": "The period's time has no rate to bill it at. It is tried again every hour for a week.",
+				"AUTHOR_CANNOT_INVOICE": "The person who last saved the schedule can no longer make invoices. Save it to take it over; it is tried again every hour for a week.",
+				"CLIENT_HAS_NO_EMAIL": "The client has no email address: the invoice was kept as a draft.",
+				"EMAIL_NOT_SENT": "The email could not be sent: the invoice was kept as a draft.",
+				"INVOICE_NOT_SAVED": "The invoice could not be saved. It is tried again every hour for a week."
+			},
+			"form": {
+				"CREATE_TITLE": "Bill on a schedule",
+				"EDIT_TITLE": "Edit the billing schedule",
+				"FREQUENCY": "How often",
+				"START_DAY": "First day of the first period",
+				"START_HINT": "Each invoice is made the day after its period ends, in the workspace's time zone. No period that ended before today is billed.",
+				"START_INVALID": "Pick a day.",
+				"GROUPING": "Lines",
+				"DELIVERY": "Once made",
+				"DRAFT": "Keep as a draft",
+				"SEND": "Email to the client",
+				"DRAFT_HINT": "Each invoice waits as a draft for you to check and send.",
+				"SEND_HINT": "Each invoice goes to {email} with its PDF and is marked Sent.",
+				"SEND_NO_EMAIL": "This client has no email address: its invoices will be kept as drafts until it has one.",
+				"SAVE": "Save schedule",
+				"SAVE_FAILED": "The schedule could not be saved. Try again.",
+				"EXISTS": "This client already has a schedule. Close and open it again to change it.",
+				"START_AFTER_BILLED": "This schedule already billed periods: its new timeline must start after the last period billed, {day}."
+			},
+			"delete": {
+				"TITLE": "Delete this billing schedule?",
+				"BODY": "No more invoice will be made by itself for {name}. The invoices it made stay."
+			},
+			"toasts": {
+				"SAVED": "{name}'s billing schedule is saved",
+				"PAUSED": "{name}'s billing schedule is paused",
+				"RESUMED": "{name}'s billing schedule is resumed: next invoice on {day}",
+				"DELETED": "{name}'s billing schedule is deleted",
+				"FAILED": "The change could not be saved. Try again."
+			}
 		}
 	},
 	"timeReports": {
