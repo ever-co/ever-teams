@@ -45,6 +45,19 @@ describe('QuietHoursRow', () => {
 		expect(onChange).toHaveBeenCalledWith({ start: '23:15', end: '07:00', timeZone: 'Europe/Paris' });
 	});
 
+	it('does not save, and redraw, while the focus moves from a typed start to its list', () => {
+		const onChange = renderRow();
+
+		fireEvent.focus(fromField());
+		fireEvent.change(fromField(), { target: { value: '23:15' } });
+		fireEvent.blur(fromField(), {
+			relatedTarget: screen.getAllByRole('button', { name: 'common.PICK_A_TIME' })[0]
+		});
+
+		expect(onChange).not.toHaveBeenCalled();
+		expect(fromField().value).toBe('23:15');
+	});
+
 	it('saves a start picked in the list once the field is left', async () => {
 		const onChange = renderRow();
 

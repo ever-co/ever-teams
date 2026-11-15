@@ -174,6 +174,42 @@ describe('TimeField', () => {
 		expect(field().value).toBe('2:45 PM');
 	});
 
+	it('keeps Enter from the form while what is typed reads as none, and puts the time back', () => {
+		const onKeyDown = jest.fn();
+		const onSubmit = jest.fn((event: React.FormEvent) => event.preventDefault());
+		render(
+			<form onSubmit={onSubmit}>
+				<Harness initial="09:00" onKeyDown={onKeyDown} />
+			</form>
+		);
+
+		fireEvent.focus(field());
+		fireEvent.change(field(), { target: { value: '25:99' } });
+		const isLetThrough = fireEvent.keyDown(field(), { key: 'Enter' });
+
+		expect(isLetThrough).toBe(false);
+		expect(onKeyDown).not.toHaveBeenCalled();
+		expect(valueSent()).toBe('09:00');
+		expect(field().value).toBe('9:00 AM');
+	});
+
+	it('is left once the focus leaves its text, its button and its list, not when it moves between them', () => {
+		const onBlur = jest.fn();
+		render(<Harness initial="09:00" onBlur={onBlur} />);
+		const button = screen.getByRole('button', { name: 'common.PICK_A_TIME' });
+
+		// A click on the button keeps the focus in the text, which the list then takes
+		expect(fireEvent.mouseDown(button)).toBe(false);
+		fireEvent.focus(field());
+		fireEvent.blur(field(), { relatedTarget: button });
+		const option = within(openList()).getByRole('option', { name: '9:00 AM' });
+		fireEvent.blur(button, { relatedTarget: option });
+		expect(onBlur).not.toHaveBeenCalled();
+
+		fireEvent.blur(option, { relatedTarget: null });
+		expect(onBlur).toHaveBeenCalledTimes(1);
+	});
+
 	it('cannot be typed in or opened when disabled', () => {
 		render(<Harness initial="09:00" disabled />);
 

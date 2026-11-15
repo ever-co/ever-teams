@@ -18,7 +18,7 @@ import { Popover, PopoverContent, PopoverTrigger } from './popover';
 
 type InputAttributes = Omit<
 	InputHTMLAttributes<HTMLInputElement>,
-	'value' | 'defaultValue' | 'onChange' | 'type' | 'min' | 'max' | 'step' | 'children'
+	'value' | 'defaultValue' | 'onChange' | 'onBlur' | 'type' | 'min' | 'max' | 'step' | 'children'
 >;
 
 /** What a date field and a time field take: the attributes of their text, with the value of the native field. */
@@ -33,6 +33,11 @@ export interface PickerFieldProps extends InputAttributes {
 	min?: string;
 	/** The latest value that can be sent, as the native field's `max`. */
 	max?: string;
+	/**
+	 * The focus left the field: its text, its button and its picker. Moving between them is not leaving, so a form that
+	 * saves when the field is left does not save, and redraw, while its picker opens (#5325).
+	 */
+	onBlur?: () => void;
 }
 
 interface PickerFieldShellProps extends PickerFieldProps {
@@ -97,6 +102,7 @@ export function PickerField({
 	const boxRef = useRef<HTMLDivElement>(null);
 	const inputRef = useRef<HTMLInputElement>(null);
 	const popupRef = useRef<HTMLDivElement>(null);
+	const lastLeaveRef = useRef<Event | null>(null);
 	const written = writing.textOf(value);
 	const [text, setText] = useState(written);
 	const [isTyping, setIsTyping] = useState(false);
@@ -117,19 +123,21 @@ export function PickerField({
 		}
 	};
 
+	/** Sends what is typed, or puts the value back when it reads as none; false when it did not read. */
 	const settle = () => {
 		if (text.trim() === '') {
 			send('');
 			setText('');
-			return;
+			return true;
 		}
 		const typed = writing.read(text);
 		if (typed === null) {
 			setText(written);
-			return;
+			return false;
 		}
 		send(typed);
 		setText(writing.textOf(typed));
+		return true;
 	};
 
 	const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -151,8 +159,11 @@ export function PickerField({
 			setIsOpen(true);
 			return;
 		}
-		if (event.key === 'Enter') {
-			settle();
+		// Enter on a text that does not read puts the value back and stops there: neither the form nor the field's own
+		// Enter handler acts on a value other than the one typed (#5325)
+		if (event.key === 'Enter' && !settle()) {
+			event.preventDefault();
+			return;
 		}
 		onKeyDown?.(event);
 	};
@@ -163,12 +174,27 @@ export function PickerField({
 		onFocus?.(event);
 	};
 
-	const handleBlur = (event: FocusEvent<HTMLInputElement>) => {
+	const handleBlur = () => {
 		if (isTyping) {
 			setIsTyping(false);
 			settle();
 		}
-		onBlur?.(event);
+	};
+
+	/**
+	 * The focus left the text, the button or the picker. The picker is drawn in a portal, whose focus events come
+	 * through here, and can come twice: one leaving is told once.
+	 */
+	const handleLeave = (event: FocusEvent<HTMLDivElement>) => {
+		if (lastLeaveRef.current === event.nativeEvent) {
+			return;
+		}
+		lastLeaveRef.current = event.nativeEvent;
+		const next = event.relatedTarget instanceof Node ? event.relatedTarget : null;
+		const staysInField = next !== null && (boxRef.current?.contains(next) || popupRef.current?.contains(next));
+		if (!staysInField) {
+			onBlur?.();
+		}
 	};
 
 	const pick = (next: string) => {
@@ -180,7 +206,7 @@ export function PickerField({
 	const initialFocus = () => popupRef.current?.querySelector<HTMLElement>(`[${PICKER_FOCUS_ATTRIBUTE}]`) ?? true;
 
 	return (
-		<div ref={boxRef} className={cn('relative w-full min-w-0', className)}>
+		<div ref={boxRef} className={cn('relative w-full min-w-0', className)} onBlur={handleLeave}>
 			<Input
 				ref={inputRef}
 				type="text"
@@ -203,6 +229,8 @@ export function PickerField({
 						aria-label={pickerLabel}
 						title={pickerLabel}
 						disabled={disabled}
+						// A click keeps the focus in the text, which the picker then takes: the field is not left
+						onMouseDown={(event) => event.preventDefault()}
 						className="absolute inset-y-0 end-0 flex w-8 items-center justify-center rounded-e-md text-muted-foreground outline-none transition-colors hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/25 disabled:pointer-events-none disabled:opacity-50 [&_svg]:size-4"
 					>
 						{pickerIcon}
