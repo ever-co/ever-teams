@@ -191,8 +191,8 @@ function DeleteOrganizationDialog({
 		try {
 			// On success the app opens the next organization: the pending state holds until the page is replaced
 			await deletion.deleteOrganization();
-		} catch (failure) {
-			setError(t(deletionErrorKeyOf(failure) as DottedLanguageObjectStringPaths));
+		} catch (error_) {
+			setError(t(deletionErrorKeyOf(error_) as DottedLanguageObjectStringPaths));
 			setIsPending(false);
 		}
 	};
