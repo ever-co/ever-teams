@@ -10,7 +10,7 @@ export const ORGANIZATION_DELETE_PERMISSIONS: readonly string[] = Object.freeze(
 const LAST_OF_WORKSPACE_CODE = 'ORGANIZATION_LAST_OF_WORKSPACE';
 
 /** Why an organization cannot be deleted from its settings. */
-export type OrganizationDeletionBlock = 'lastOrganization';
+export type OrganizationDeletionBlock = 'lastOrganization' | 'timerRunning';
 
 /** Why the counts the confirmation shows did not come: an API without them, or a failure a new try may fix. */
 export type OrganizationCountsFailure = 'unsupported' | 'failed';
@@ -27,11 +27,20 @@ export function canDeleteOrganization(permissions: ReadonlyArray<string>): boole
 /**
  * The last organization of a workspace stays, as Gauzy refuses it: removing it would leave the workspace with nowhere
  * to sign in to, and only an account deletion removes a workspace. Counted over the whole workspace, since an admin
- * may delete an organization while other ones they are not a member of remain.
+ * may delete an organization while other ones they are not a member of remain (null until it is read).
+ *
+ * The person's own timer holds the delete while it runs or starts, as it holds the team menu's switch: Gauzy leaves a
+ * running time log of the deleted organization running, where no page can stop it any more.
  */
-export function organizationDeletionBlock(workspaceOrganizationCount: number): OrganizationDeletionBlock | null {
-	if (workspaceOrganizationCount <= 1) {
+export function organizationDeletionBlock(
+	workspaceOrganizationCount: number | null,
+	isTimerOn: boolean
+): OrganizationDeletionBlock | null {
+	if (workspaceOrganizationCount !== null && workspaceOrganizationCount <= 1) {
 		return 'lastOrganization';
+	}
+	if (isTimerOn) {
+		return 'timerRunning';
 	}
 	return null;
 }

@@ -5711,7 +5711,9 @@
 				"LAST_ORGANIZATION": "Questa è l'ultima organizzazione dello spazio di lavoro",
 				"LAST_ORGANIZATION_DESCRIPTION": "Uno spazio di lavoro mantiene almeno un'organizzazione. Eliminare il tuo account rimuove anche lo spazio di lavoro, ma solo se ne sei l'ultimo membro.",
 				"LAST_ORGANIZATION_ACTION": "Vai all'eliminazione dell'account",
-				"LAST_ORGANIZATION_REFUSED": "Ora è l'ultima organizzazione dello spazio di lavoro, quindi resta. Eliminare il tuo account rimuove anche lo spazio di lavoro, ma solo se ne sei l'ultimo membro."
+				"LAST_ORGANIZATION_REFUSED": "Ora è l'ultima organizzazione dello spazio di lavoro, quindi resta. Eliminare il tuo account rimuove anche lo spazio di lavoro, ma solo se ne sei l'ultimo membro.",
+				"TIMER_RUNNING": "Ferma prima il timer",
+				"TIMER_RUNNING_DESCRIPTION": "Il tuo timer è in esecuzione. Fermalo, poi elimina l'organizzazione: un timer lasciato in un'organizzazione eliminata continua a contare e nessuno può più fermarlo."
 			}
 		},
 		"automations": {

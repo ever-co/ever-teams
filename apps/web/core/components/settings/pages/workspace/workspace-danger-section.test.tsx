@@ -197,6 +197,16 @@ it("explains why the workspace's last organization stays and points to account d
 	expect((confirmButton() as HTMLButtonElement).disabled).toBe(true);
 });
 
+it("keeps the delete off while the person's timer runs, and says to stop it first", () => {
+	mockDeletion = deletionOf({ block: 'timerRunning' });
+	const dialog = openConfirmation();
+
+	expect(dialog.textContent).toContain('settings.workspace.deletion.TIMER_RUNNING');
+	expect(dialog.textContent).not.toContain('CONSEQUENCE_TEAMS');
+	expect(dialog.textContent).not.toContain('type Trial');
+	expect((confirmButton() as HTMLButtonElement).disabled).toBe(true);
+});
+
 it('deletes the organization once confirmed', async () => {
 	openConfirmation();
 

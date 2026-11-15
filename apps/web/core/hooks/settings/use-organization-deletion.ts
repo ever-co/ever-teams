@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useAtomValue } from 'jotai';
 import { useAuthenticateUser } from '@/core/hooks/auth/use-authenticate-user';
 import { useSwitchOrganization } from '@/core/hooks/organizations/teams/use-switch-organization';
 import { useTeamMenuOrganizations } from '@/core/hooks/organizations/teams/use-team-menu-organizations';
@@ -19,6 +20,7 @@ import {
 import { queryKeys } from '@/core/query/keys';
 import { authService } from '@/core/services/client/api/auth/auth.service';
 import { organizationService } from '@/core/services/client/api/organizations';
+import { localTimerStatusState, timerStartsInFlightState, timerStatusState } from '@/core/stores';
 import type { TOrganizationCounts } from '@/core/types/schemas/organization/organization-counts.schema';
 
 export type { OrganizationDeletionStatus };
@@ -52,6 +54,11 @@ export function useOrganizationDeletion(
 	const switchOrganization = useSwitchOrganization();
 	const organizationId = organization?.id ?? null;
 	const canDelete = canDeleteOrganization(myPermissions);
+	// The person's timer, read as the team menu reads it before a switch: this tab's start counts before the server's
+	const timerStatus = useAtomValue(timerStatusState);
+	const localTimerStatus = useAtomValue(localTimerStatusState);
+	const isTimerStarting = useAtomValue(timerStartsInFlightState) > 0;
+	const isTimerOn = Boolean(timerStatus?.running) || Boolean(localTimerStatus?.running) || isTimerStarting;
 
 	const facts = useQuery({
 		queryKey: queryKeys.organizations.deletionFacts(organizationId),
@@ -84,7 +91,7 @@ export function useOrganizationDeletion(
 	const menu = menuOrganizations.data;
 	const memberships = menu ? [menu.current, ...menu.others].filter(isOrganization) : [];
 	const landing = organizationId ? organizationToLandInAfterDeletion(memberships, organizationId) : null;
-	const block = facts.data ? organizationDeletionBlock(facts.data.workspaceOrganizationCount) : null;
+	const block = organizationDeletionBlock(facts.data?.workspaceOrganizationCount ?? null, isTimerOn);
 
 	const status = organizationDeletionStatusOf({
 		isFetching: facts.isFetching,

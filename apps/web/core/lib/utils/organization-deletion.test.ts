@@ -30,11 +30,26 @@ describe('canDeleteOrganization', () => {
 
 describe('organizationDeletionBlock', () => {
 	it('blocks the last organization of the workspace, which only an account deletion removes', () => {
-		expect(organizationDeletionBlock(1)).toBe('lastOrganization');
+		expect(organizationDeletionBlock(1, false)).toBe('lastOrganization');
 	});
 
 	it('lets an organization go while the workspace holds another one, a member of it or not', () => {
-		expect(organizationDeletionBlock(2)).toBeNull();
+		expect(organizationDeletionBlock(2, false)).toBeNull();
+	});
+});
+
+describe('organizationDeletionBlock, the person’s timer', () => {
+	it('holds the delete while their timer runs or starts, which Gauzy would leave running in the deleted organization', () => {
+		expect(organizationDeletionBlock(3, true)).toBe('timerRunning');
+	});
+
+	it('holds it before the workspace’s organizations are read, as the timer is known at once', () => {
+		expect(organizationDeletionBlock(null, true)).toBe('timerRunning');
+		expect(organizationDeletionBlock(null, false)).toBeNull();
+	});
+
+	it('says first that the last organization stays, which stopping the timer would not change', () => {
+		expect(organizationDeletionBlock(1, true)).toBe('lastOrganization');
 	});
 });
 

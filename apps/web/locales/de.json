@@ -5711,7 +5711,9 @@
 				"LAST_ORGANIZATION": "Dies ist die letzte Organisation des Arbeitsbereichs",
 				"LAST_ORGANIZATION_DESCRIPTION": "Ein Arbeitsbereich behält mindestens eine Organisation. Wenn Sie Ihr Konto löschen, wird auch der Arbeitsbereich entfernt, aber nur, wenn Sie sein letztes Mitglied sind.",
 				"LAST_ORGANIZATION_ACTION": "Zur Kontolöschung",
-				"LAST_ORGANIZATION_REFUSED": "Dies ist jetzt die letzte Organisation des Arbeitsbereichs, daher bleibt sie. Wenn Sie Ihr Konto löschen, wird auch der Arbeitsbereich entfernt, aber nur, wenn Sie sein letztes Mitglied sind."
+				"LAST_ORGANIZATION_REFUSED": "Dies ist jetzt die letzte Organisation des Arbeitsbereichs, daher bleibt sie. Wenn Sie Ihr Konto löschen, wird auch der Arbeitsbereich entfernt, aber nur, wenn Sie sein letztes Mitglied sind.",
+				"TIMER_RUNNING": "Stoppen Sie zuerst Ihren Timer",
+				"TIMER_RUNNING_DESCRIPTION": "Ihr Timer läuft. Stoppen Sie ihn und löschen Sie dann die Organisation: Ein Timer, der in einer gelöschten Organisation bleibt, zählt weiter, ohne dass ihn jemand stoppen kann."
 			}
 		},
 		"automations": {

@@ -5711,7 +5711,9 @@
 				"LAST_ORGANIZATION": "Esta é a última organização do espaço de trabalho",
 				"LAST_ORGANIZATION_DESCRIPTION": "Um espaço de trabalho mantém pelo menos uma organização. Excluir sua conta também remove o espaço de trabalho, mas só quando você é o último membro dele.",
 				"LAST_ORGANIZATION_ACTION": "Ir para a exclusão da conta",
-				"LAST_ORGANIZATION_REFUSED": "Agora esta é a última organização do espaço de trabalho, então ela permanece. Excluir sua conta também remove o espaço de trabalho, mas só quando você é o último membro dele."
+				"LAST_ORGANIZATION_REFUSED": "Agora esta é a última organização do espaço de trabalho, então ela permanece. Excluir sua conta também remove o espaço de trabalho, mas só quando você é o último membro dele.",
+				"TIMER_RUNNING": "Pare primeiro o cronômetro",
+				"TIMER_RUNNING_DESCRIPTION": "Seu cronômetro está em execução. Pare-o e depois exclua a organização: um cronômetro deixado em uma organização excluída continua contando sem que ninguém possa pará-lo."
 			}
 		},
 		"automations": {

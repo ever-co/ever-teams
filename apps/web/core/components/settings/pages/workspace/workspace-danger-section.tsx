@@ -98,6 +98,15 @@ function DeletionNotice({ deletion }: Readonly<{ deletion: OrganizationDeletion 
 			/>
 		);
 	}
+	if (deletion.block === 'timerRunning') {
+		return (
+			<Notice
+				tone="warning"
+				title={t('settings.workspace.deletion.TIMER_RUNNING')}
+				description={t('settings.workspace.deletion.TIMER_RUNNING_DESCRIPTION')}
+			/>
+		);
+	}
 	if (deletion.block === 'lastOrganization') {
 		return (
 			<Notice
