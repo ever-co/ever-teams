@@ -120,7 +120,10 @@ function reportProps(filters: TimeActivityFilters = { ...NO_FILTERS, clientIds: 
 
 /** What the link becomes after the last change asked of it. */
 function linkAfterLastChange(current = '') {
-	const change = mockSetLinkParams.mock.calls.at(-1)?.[0] as (next: URLSearchParams) => void;
+	const change = mockSetLinkParams.mock.calls.at(-1)?.[0] as ((next: URLSearchParams) => void) | undefined;
+	if (!change) {
+		throw new Error('The link was never asked to change');
+	}
 	const next = new URLSearchParams(current);
 	change(next);
 	return next.toString();
