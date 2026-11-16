@@ -3,7 +3,6 @@
 import type { ReactNode } from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
-import { CALENDAR_LOGS_KEY_PART } from '@/core/hooks/calendar/use-calendar-logs';
 import { queryKeys } from '@/core/query/keys';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 
@@ -26,7 +25,7 @@ jest.mock('@/core/components/features/entry-labels/entry-labels-picker', () => (
 	)
 }));
 
-import { EntryLabelsLine } from './calendar-entry-labels';
+import { CalendarEntriesRead, EntryLabelsLine } from './calendar-entry-labels';
 
 const meeting = { id: 'meeting', name: 'meeting', color: '#2563eb' };
 const support = { id: 'support', name: 'support', color: '#16a34a' };
@@ -39,23 +38,30 @@ function entryWith(tags: Array<typeof meeting>) {
 /** The Calendar's read of the entry, answered in turn by each answer queued with `mockResolvedValueOnce`. */
 const mockReadEntry = jest.fn();
 
-/** The Calendar's read of the entries, under the key it has in `useCalendarLogs`. */
-const CALENDAR_READ_KEY = [
-	...queryKeys.timesheet.logs('tenant-1', 'organization-1', '2026-11-16', '2026-11-22', ['employee-1']),
-	CALENDAR_LOGS_KEY_PART,
-	{ timeZone: 'UTC' }
-];
+/** The key of a read of one member's entries, as `useCalendarLogs` makes it for the Calendar and the Work diary. */
+function entriesKeyOf(startDate: string, endDate: string) {
+	return [
+		...queryKeys.timesheet.logs('tenant-1', 'organization-1', startDate, endDate, ['employee-1']),
+		'calendar',
+		{ timeZone: 'UTC' }
+	];
+}
 
+/** The Calendar page: its read of the entries, and the card of the one entry it shows. */
 function CalendarCard() {
-	const { data } = useQuery({
-		queryKey: CALENDAR_READ_KEY,
+	const { data, dataUpdatedAt } = useQuery({
+		queryKey: entriesKeyOf('2026-11-16', '2026-11-22'),
 		queryFn: async () => ({ request: {}, logs: [await mockReadEntry()] })
 	});
 	const log = data?.logs[0];
 	if (!log) {
 		return null;
 	}
-	return <EntryLabelsLine log={log} canEdit />;
+	return (
+		<CalendarEntriesRead readAt={dataUpdatedAt}>
+			<EntryLabelsLine log={log} canEdit />
+		</CalendarEntriesRead>
+	);
 }
 
 /** The card of an entry the Calendar read with these labels. */
@@ -72,13 +78,17 @@ async function renderCard(tags: Array<typeof meeting>) {
 			await queryClient.refetchQueries({ queryKey: queryKeys.timesheet.all });
 		});
 	};
-	/** A read of another list of the `timesheet` family, as a report or an overlap lookup makes. */
-	const readAReport = async () => {
+	/** A read of the same entry by another page (the Work diary's own days), or of another list of the family. */
+	const readElsewhere = async () => {
 		await act(async () => {
+			await queryClient.fetchQuery({
+				queryKey: entriesKeyOf('2026-11-01', '2026-11-30'),
+				queryFn: async () => ({ request: {}, logs: [entryWith([meeting])] })
+			});
 			await queryClient.fetchQuery({ queryKey: queryKeys.timesheet.reports.all, queryFn: async () => [] });
 		});
 	};
-	return { readEntriesAgain, readAReport };
+	return { readEntriesAgain, readElsewhere };
 }
 
 async function addSupport(shown: string) {
@@ -89,9 +99,16 @@ async function addSupport(shown: string) {
 
 describe('the labels of an entry on its Calendar card (#5368)', () => {
 	beforeEach(() => {
+		// Each read of the entries at its own time, however fast the test runs
+		let clock = Date.parse('2026-11-16T10:00:00.000Z');
+		jest.spyOn(Date, 'now').mockImplementation(() => (clock += 1));
 		mockUpdateTimeLogLabels.mockReset().mockResolvedValue(entryWith([meeting, support]));
 		mockReadEntry.mockReset();
 		mockToastError.mockReset();
+	});
+
+	afterEach(() => {
+		jest.restoreAllMocks();
 	});
 
 	it('follows the entry read again after the save', async () => {
@@ -126,13 +143,13 @@ describe('the labels of an entry on its Calendar card (#5368)', () => {
 		await waitFor(() => expect(screen.getByRole('button', { name: 'labels: meeting' })).toBeTruthy());
 	});
 
-	it("waits for the Calendar's read of the entry, not for a read of another timesheet list", async () => {
+	it("waits for the Calendar's own read, not for another page's read of the entry or of another list", async () => {
 		const card = await renderCard([meeting]);
 		mockReadEntry.mockRejectedValueOnce(new Error('Network Error'));
 		await addSupport('meeting');
 
-		// A report read meanwhile says nothing of this entry: the saved labels stay
-		await card.readAReport();
+		// The Work diary's read of its days holds the entry as it was, and a report is read: the saved labels stay
+		await card.readElsewhere();
 		expect(screen.getByRole('button', { name: 'labels: meeting,support' })).toBeTruthy();
 
 		// The Calendar reads the entry again, with the labels from before the save: the card follows it

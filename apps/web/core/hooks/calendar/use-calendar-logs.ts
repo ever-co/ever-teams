@@ -1,6 +1,6 @@
 'use client';
 
-import { type Query, useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { timeLogService } from '@/core/services/client/api/timesheets/time-log.service';
 import { localDayKeyOf } from '@/core/lib/utils/dashboard-export';
@@ -11,8 +11,6 @@ import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import { useEntryLabelsSupport } from '@/core/hooks/timer/use-entry-labels-support';
 
 const STALE_TIME = 1000 * 60 * 3;
-/** The part of its key that tells the Calendar's read of the entries from the other time-log lists. */
-export const CALENDAR_LOGS_KEY_PART = 'calendar';
 const GC_TIME = 1000 * 60 * 15;
 
 export interface CalendarLogsRequest {
@@ -64,20 +62,6 @@ function previousOfSameScope(previous: CalendarLogsResult | undefined, scopeKey:
 	return previous;
 }
 
-/**
- * Whether a query is the Calendar's read of the entries and its answer holds this entry (#5368): an entry's card follows
- * that read, not a report or an overlap lookup of the same `timesheet` key family.
- */
-export function isCalendarReadOfEntry(query: Pick<Query, 'queryKey' | 'state'>, logId: string): boolean {
-	const [family, list] = query.queryKey;
-	const isTimeLogList = family === queryKeys.timesheet.all[0] && list === 'logs';
-	if (!isTimeLogList || !query.queryKey.includes(CALENDAR_LOGS_KEY_PART)) {
-		return false;
-	}
-	const result = query.state.data as CalendarLogsResult | undefined;
-	return Boolean(result?.logs?.some((log) => log.id === logId));
-}
-
 async function fetchCalendarLogs(request: CalendarLogsRequest): Promise<CalendarLogsResult> {
 	const logs = await timeLogService.getTimeLogs({
 		startDate: request.startDate,
@@ -124,7 +108,7 @@ export function useCalendarLogs(scope: CalendarLogsScope) {
 	return useQuery({
 		queryKey: [
 			...logsKey,
-			CALENDAR_LOGS_KEY_PART,
+			'calendar',
 			{ timeZone: scope.timeZone, includeBreaks: request.includeBreaks, withEntryLabels: supportsEntryLabels }
 		],
 		queryFn: () => fetchCalendarLogs(request),
