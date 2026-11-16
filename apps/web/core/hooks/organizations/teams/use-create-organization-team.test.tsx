@@ -10,7 +10,7 @@ import { act, renderHook } from '@testing-library/react';
 import { Provider, createStore } from 'jotai';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-const mockSyncTokenOrganization = jest.fn(async (_organizationId?: string | null) => true);
+const mockSyncTokenOrganization = jest.fn<Promise<boolean>, [string | null | undefined]>(async () => true);
 const mockSetActiveTeamIdCookie = jest.fn();
 const mockSetOrganizationIdCookie = jest.fn();
 const mockRefreshToken = jest.fn(async () => undefined);
@@ -31,7 +31,7 @@ jest.mock('@/core/services/client/api/organizations/teams', () => ({
 	organizationTeamService: { createOrganizationTeam: (...args: unknown[]) => mockCreateOrganizationTeam(...args) }
 }));
 jest.mock('../../common', () => {
-	const React = require('react') as typeof import('react');
+	const React = jest.requireActual<typeof import('react')>('react');
 	return {
 		useSyncRef: <T,>(value: T) => {
 			const ref = React.useRef(value);
