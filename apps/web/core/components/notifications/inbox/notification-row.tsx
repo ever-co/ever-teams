@@ -42,7 +42,9 @@ const EVENT_KEYS: Record<EEmployeeNotificationType, DottedLanguageObjectStringPa
 	[EEmployeeNotificationType.TimerReminder]: 'notifications.EVENTS.TIMER_REMINDER',
 	[EEmployeeNotificationType.Meeting]: 'notifications.EVENTS.MEETING',
 	[EEmployeeNotificationType.TaskUpdate]: 'notifications.EVENTS.TASK_UPDATE',
-	[EEmployeeNotificationType.TaskDueReminder]: 'notifications.EVENTS.TASK_DUE_REMINDER'
+	[EEmployeeNotificationType.TaskDueReminder]: 'notifications.EVENTS.TASK_DUE_REMINDER',
+	[EEmployeeNotificationType.BoardShare]: 'notifications.EVENTS.BOARD_SHARE',
+	[EEmployeeNotificationType.BoardMention]: 'notifications.EVENTS.BOARD_MENTION'
 };
 
 const TYPE_KEYS: Record<EEmployeeNotificationType, DottedLanguageObjectStringPaths> = {
@@ -57,7 +59,9 @@ const TYPE_KEYS: Record<EEmployeeNotificationType, DottedLanguageObjectStringPat
 	[EEmployeeNotificationType.TimerReminder]: 'notifications.TYPES.TIMER_REMINDER',
 	[EEmployeeNotificationType.Meeting]: 'notifications.TYPES.MEETING',
 	[EEmployeeNotificationType.TaskUpdate]: 'notifications.TYPES.TASK_UPDATE',
-	[EEmployeeNotificationType.TaskDueReminder]: 'notifications.TYPES.TASK_DUE_REMINDER'
+	[EEmployeeNotificationType.TaskDueReminder]: 'notifications.TYPES.TASK_DUE_REMINDER',
+	[EEmployeeNotificationType.BoardShare]: 'notifications.TYPES.BOARD_SHARE',
+	[EEmployeeNotificationType.BoardMention]: 'notifications.TYPES.BOARD_MENTION'
 };
 
 const ROW_ACTION_CLASS =

@@ -584,3 +584,67 @@ describe("a project's entry where the platform has no inbox extension (#5022)", 
 		expect(entry.href).toBe('/projects/project-1');
 	});
 });
+
+describe('a Board shared or a mention in one (#5022)', () => {
+	const configured = process.env.NEXT_PUBLIC_BOARD_APP_DOMAIN;
+	const board = { roomId: 'r00m', name: 'Sprint plan', link: 'https://board.ever.team/#room=r00m,secret-key' };
+
+	beforeEach(() => {
+		process.env.NEXT_PUBLIC_BOARD_APP_DOMAIN = 'https://board.ever.team';
+	});
+
+	afterEach(() => {
+		if (configured === undefined) {
+			delete process.env.NEXT_PUBLIC_BOARD_APP_DOMAIN;
+		} else {
+			process.env.NEXT_PUBLIC_BOARD_APP_DOMAIN = configured;
+		}
+	});
+
+	it('opens the Board at the link its entry carries, and counts a mention among the mentions', () => {
+		const entry = toInboxEntry(
+			item({
+				title: 'Ana Lima mentioned you in the Board "Sprint plan"',
+				entity: 'Organization',
+				entityId: 'org-1',
+				taskId: null,
+				metadata: { notificationType: 'BoardMention', sentByEmployeeId: 'e9', board }
+			})
+		);
+		expect(entry.type).toBe('BoardMention');
+		expect(new URL(entry.href as string).origin).toBe('https://board.ever.team');
+		expect(entry.subject).toBe('Sprint plan');
+		expect(entry.senderName).toBe('Ana Lima');
+		expect(entry.sourceGroup).toBe('other');
+		expect(hasInboxTarget(entry)).toBe(true);
+		expect(filterInboxEntries([entry], 'mentions')).toEqual([entry]);
+	});
+
+	it('opens nothing when its entry carries no link: the sheet says who shared which Board', () => {
+		const entry = toInboxEntry(
+			item({
+				title: 'Ana Lima shared the Board "Sprint plan" with you',
+				entity: 'Organization',
+				entityId: 'org-1',
+				taskId: null,
+				metadata: { notificationType: 'BoardShare', board: { roomId: 'r00m', name: 'Sprint plan' } }
+			})
+		);
+		expect(entry.href).toBeNull();
+		expect(showsInboxSheet(entry, false)).toBe(true);
+		expect(filterInboxEntries([entry], 'mentions')).toEqual([]);
+	});
+	it("reads the sender and the Board from the title's fixed ending and the metadata, quotes and all", () => {
+		const entry = toInboxEntry(
+			item({
+				title: 'Ana "Nina" Lima mentioned you in the Board "Sprint plan"',
+				entity: 'Organization',
+				entityId: 'org-1',
+				taskId: null,
+				metadata: { notificationType: 'BoardMention', board }
+			})
+		);
+		expect(entry.senderName).toBe('Ana "Nina" Lima');
+		expect(entry.subject).toBe('Sprint plan');
+	});
+});

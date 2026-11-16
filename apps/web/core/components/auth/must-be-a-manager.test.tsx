@@ -139,6 +139,32 @@ describe('MustBeAManager', () => {
 		expect(mockReplace).toHaveBeenCalledWith('/');
 	});
 
+	it('keeps the page mounted while the known user is read again in the background (#5334)', () => {
+		setState({
+			user: { id: 'u1' },
+			teams: [{ id: 't1' }],
+			activeTeam: { members: [OTHER, SELF] },
+			isTeamManager: true
+		});
+		const { rerender } = render(<MustBeAManager useRedirect>{<div>child</div>}</MustBeAManager>);
+		const shown = screen.getByText('child');
+
+		// A timer start, a token renewal or a refocus re-reads `users.me`: the query fetches while its data stays
+		setState({ userLoading: true });
+		rerender(<MustBeAManager useRedirect>{<div>child</div>}</MustBeAManager>);
+
+		expect(screen.queryByTestId('skeleton')).toBeNull();
+		expect(screen.getByText('child')).toBe(shown);
+		expect(mockReplace).not.toHaveBeenCalled();
+	});
+
+	it('still waits for the user on a first load, even while the user query is fetching', () => {
+		setState({ user: null, userLoading: true, teams: [{ id: 't1' }], activeTeam: { members: [SELF] } });
+		render(<MustBeAManager useRedirect>{<div>child</div>}</MustBeAManager>);
+		expect(screen.getByTestId('skeleton')).toBeTruthy();
+		expect(mockReplace).not.toHaveBeenCalled();
+	});
+
 	it('gives up waiting after the bounded delay instead of pinning the skeleton forever', () => {
 		setState({ user: { id: 'u1' }, teams: [{ id: 't1' }], activeTeam: null, isTeamManager: false });
 		render(<MustBeAManager useRedirect>{<div>child</div>}</MustBeAManager>);

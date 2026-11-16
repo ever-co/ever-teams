@@ -4049,7 +4049,9 @@
 			"TIMER_REMINDER": "Twój licznik czasu wciąż działa",
 			"MEETING": "Spotkanie, w którym uczestniczysz, zostało zmienione",
 			"TASK_UPDATE": "<b>{name}</b> wprowadził(a) zmianę",
-			"TASK_DUE_REMINDER": "Zbliża się termin zadania"
+			"TASK_DUE_REMINDER": "Zbliża się termin zadania",
+			"BOARD_SHARE": "<b>{name}</b> udostępnił(a) Ci tablicę",
+			"BOARD_MENTION": "<b>{name}</b> wspomniał(a) o Tobie na tablicy"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "Przypisanie",
@@ -4063,7 +4065,9 @@
 			"TIMER_REMINDER": "Przypomnienie o liczniku czasu",
 			"MEETING": "Spotkanie",
 			"TASK_UPDATE": "Zmiana",
-			"TASK_DUE_REMINDER": "Przypomnienie o terminie"
+			"TASK_DUE_REMINDER": "Przypomnienie o terminie",
+			"BOARD_SHARE": "Udostępniona tablica",
+			"BOARD_MENTION": "Wzmianka na tablicy"
 		},
 		"SOMEONE": "Ktoś",
 		"MARK_READ": "Oznacz jako przeczytane",
@@ -4155,6 +4159,13 @@
 				"TEXT": "Zawsze w skrzynce odbiorczej. E-mailem i na Twoich urządzeniach, jak wybierzesz.",
 				"OFF": "Wyłączone",
 				"BEFORE_HOURS": "{hours, plural, one {# godzinę} few {# godziny} many {# godzin} other {# godziny}} wcześniej"
+			},
+			"BOARDS": {
+				"TITLE": "Tablice",
+				"INTRO": "Gdy współpracownik udostępni Ci tablicę lub wspomni o Tobie na niej, w aplikacji tablic.",
+				"SHARE_LABEL": "Udostępnione Tobie",
+				"MENTION_LABEL": "Wzmianka na tablicy",
+				"TEXT": "Zawsze w skrzynce odbiorczej. E-mailem i na Twoich urządzeniach, jak wybierzesz."
 			},
 			"INTRO": "Wybierz, co trafia do Twojej skrzynki. Wyłączenie typu zatrzymuje nowe powiadomienia tego typu; te, które już masz, zostają.",
 			"TEAM_DEFAULTS_TITLE": "Twój zespół {team} ustala domyślne powiadomienia",

@@ -4049,7 +4049,9 @@
 			"TIMER_REMINDER": "你的计时器仍在运行",
 			"MEETING": "你参加的会议有变动",
 			"TASK_UPDATE": "<b>{name}</b> 做了更改",
-			"TASK_DUE_REMINDER": "任务即将到期"
+			"TASK_DUE_REMINDER": "任务即将到期",
+			"BOARD_SHARE": "<b>{name}</b> 与你共享了一个白板",
+			"BOARD_MENTION": "<b>{name}</b> 在白板中提到了你"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "分配",
@@ -4063,7 +4065,9 @@
 			"TIMER_REMINDER": "计时器提醒",
 			"MEETING": "会议",
 			"TASK_UPDATE": "更改",
-			"TASK_DUE_REMINDER": "到期提醒"
+			"TASK_DUE_REMINDER": "到期提醒",
+			"BOARD_SHARE": "白板已共享",
+			"BOARD_MENTION": "白板中的提及"
 		},
 		"SOMEONE": "有人",
 		"MARK_READ": "标为已读",
@@ -4155,6 +4159,13 @@
 				"TEXT": "始终在收件箱中。按你的选择通过电子邮件和设备通知。",
 				"OFF": "关闭",
 				"BEFORE_HOURS": "提前 {hours, plural, other {# 小时}}"
+			},
+			"BOARDS": {
+				"TITLE": "白板",
+				"INTRO": "当同事在白板应用中与你共享白板或在其中提到你时。",
+				"SHARE_LABEL": "与你共享",
+				"MENTION_LABEL": "在白板中被提到",
+				"TEXT": "始终在收件箱中。按你的选择通过电子邮件和设备通知。"
 			},
 			"INTRO": "选择哪些内容进入你的收件箱。关闭某一类型后，不再收到该类型的新通知；已有的通知会保留。",
 			"TEAM_DEFAULTS_TITLE": "你的团队 {team} 设置了默认通知",
