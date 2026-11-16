@@ -9,18 +9,23 @@
  * this app's (`refuseForeignOrigin`) before it reads the session or the body, and still serves this app's own pages
  * and a client that sends no Origin (no browser). The newer routes got the same guard in #5376.
  *
- * The session check is a stand-in that answers "signed out": a request that gets past the origin check stops there,
- * and no request leaves the test.
+ * The session checks (authenticatedGuard, and routeSession for the Ever Platform routes) are stand-ins that answer
+ * "signed out": a request that gets past the origin check stops there, and no request leaves the test.
  */
 import { NextResponse } from 'next/server';
 import { TENANT_ID_COOKIE_NAME, TOKEN_COOKIE_NAME } from '@/core/constants/config/constants';
 import { APP_ORIGIN, FOREIGN_ORIGIN_HEADERS, SAME_ORIGIN_HEADERS } from '@/test/api/request-origin';
 
 const mockAuthenticatedGuard = jest.fn();
+const mockRouteSession = jest.fn();
 
 jest.mock('@/core/services/server/guards/authenticated-guard-app', () => ({
 	...jest.requireActual('@/core/services/server/guards/authenticated-guard-app'),
 	authenticatedGuard: (...args: unknown[]) => mockAuthenticatedGuard(...args)
+}));
+jest.mock('@/core/services/server/ever-platform/route-helpers', () => ({
+	...jest.requireActual('@/core/services/server/ever-platform/route-helpers'),
+	routeSession: (...args: unknown[]) => mockRouteSession(...args)
 }));
 
 type WriteMethod = 'POST' | 'PUT' | 'PATCH' | 'DELETE';
@@ -153,6 +158,11 @@ const SESSION_WRITES: ReadonlyArray<[route: string, method: WriteMethod]> = [
 /** The Ever Platform routes read the session's token from the cookies directly (routeSession), not through the guard. */
 const READS_COOKIES_DIRECTLY = new Set(['ever-connect/[...path]', 'ever-stats/enabled']);
 
+/** The session check `route` reaches once a request gets past the origin check. */
+function sessionCheckOf(route: string): jest.Mock {
+	return READS_COOKIES_DIRECTLY.has(route) ? mockRouteSession : mockAuthenticatedGuard;
+}
+
 const ID = '3db49a7e-69d2-471a-9495-3b69ece6fc54';
 
 /** The body a route checks before the session (every other route gets `{}`). */
@@ -160,20 +170,31 @@ const BODIES: Record<string, unknown> = {
 	'timer/timesheet/bulk-delete': { logIds: [ID] }
 };
 
-/** What Next hands a dynamic route: every segment name these routes use. */
-const CONTEXT = {
-	params: Promise.resolve({
-		id: ID,
-		employeeId: ID,
-		planId: ID,
-		userId: ID,
-		folder: 'profile_pictures',
-		action: 'accept',
-		path: ['integrations']
-	})
+/** One ever-connect write rule of each method (connect-proxy-rules.ts): anything else is its 404. */
+const EVER_CONNECT_PATHS: Partial<Record<WriteMethod, string[]>> = {
+	POST: ['integrations', 'refresh'],
+	PUT: ['integrations', 'jira'],
+	DELETE: ['links', ID]
 };
 
-type Handler = (req: Request, context: typeof CONTEXT) => Promise<Response | undefined> | Response | undefined;
+type RouteContext = { params: Promise<Record<string, string | string[]>> };
+
+/** What Next hands the dynamic route: every segment name these routes use. */
+function contextOf(method: WriteMethod): RouteContext {
+	return {
+		params: Promise.resolve({
+			id: ID,
+			employeeId: ID,
+			planId: ID,
+			userId: ID,
+			folder: 'profile_pictures',
+			action: 'accept',
+			path: EVER_CONNECT_PATHS[method] ?? []
+		})
+	};
+}
+
+type Handler = (req: Request, context: RouteContext) => Promise<Response | undefined> | Response | undefined;
 
 const SIGNED_OUT = {
 	user: null,
@@ -191,14 +212,23 @@ const CROSS_SITE_REFUSAL = { statusCode: 403, message: 'Cross-site request refus
 const originalFetch = global.fetch;
 const fetchMock = jest.fn(() => Promise.reject(new Error('No request leaves this test')));
 
+const ORIGINAL_ENV = process.env;
+
+beforeAll(() => {
+	// The Ever Platform routes are mounted, so a write gets as far as their session check
+	process.env = { ...ORIGINAL_ENV, NEXT_PUBLIC_EVER_CONNECT_ENABLED: 'true', EVER_STATS_ENABLED: 'true' };
+});
+
 beforeEach(() => {
 	jest.clearAllMocks();
 	mockAuthenticatedGuard.mockResolvedValue(SIGNED_OUT);
+	mockRouteSession.mockReturnValue(null);
 	global.fetch = fetchMock as unknown as typeof fetch;
 });
 
 afterAll(() => {
 	global.fetch = originalFetch;
+	process.env = ORIGINAL_ENV;
 });
 
 async function handlerOf(route: string, method: WriteMethod): Promise<Handler> {
@@ -238,11 +268,12 @@ describe.each(SESSION_WRITES)('%s %s', (route, method) => {
 			const handler = await handlerOf(route, method);
 			const req = write(route, method, headers);
 
-			const response = await handler(req, CONTEXT);
+			const response = await handler(req, contextOf(method));
 
 			expect(response?.status).toBe(403);
 			await expect(response?.json()).resolves.toEqual(CROSS_SITE_REFUSAL);
 			expect(mockAuthenticatedGuard).not.toHaveBeenCalled();
+			expect(mockRouteSession).not.toHaveBeenCalled();
 			expect(fetchMock).not.toHaveBeenCalled();
 			expect(req.bodyUsed).toBe(false);
 		}
@@ -253,12 +284,13 @@ describe.each(SESSION_WRITES)('%s %s', (route, method) => {
 		['a client that sends no Origin', {}]
 	])('reaches the session check from %s', async (_label, headers) => {
 		const handler = await handlerOf(route, method);
+		const req = write(route, method, headers);
 
-		const response = await handler(write(route, method, headers), CONTEXT);
+		const response = await handler(req, contextOf(method));
 
 		await expect(isCrossSiteRefusal(response)).resolves.toBe(false);
-		if (!READS_COOKIES_DIRECTLY.has(route)) {
-			expect(mockAuthenticatedGuard).toHaveBeenCalledTimes(1);
-		}
+		// The check of the route's own session, with this very request
+		expect(sessionCheckOf(route)).toHaveBeenCalledTimes(1);
+		expect(sessionCheckOf(route).mock.calls[0][0]).toBe(req);
 	});
 });
