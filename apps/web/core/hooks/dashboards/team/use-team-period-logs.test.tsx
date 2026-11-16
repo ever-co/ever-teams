@@ -95,7 +95,29 @@ describe('useTeamPeriodLogs', () => {
 
 		rerender({ period: runsToToday, employeeIds: ['ada', 'bob'] });
 
-		expect(mockGetTimeLogs.mock.calls.length).toBe(readsBefore);
+		expect(mockGetTimeLogs.mock.calls).toHaveLength(readsBefore);
+		expect(result.current.period).toBe(runsToToday);
+	});
+
+	it('keeps the period last drawn, not the one that made the shared read, while another period is read', async () => {
+		const day = 24 * 60 * 60 * 1000;
+		const now = new Date();
+		const sameStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
+		const endedEarlier: Period = { from: sameStart, to: new Date(now.getTime() - 3 * day) };
+		const runsToToday: Period = { from: sameStart, to: now };
+		const weeksBefore: Period = {
+			from: new Date(sameStart.getTime() - 14 * day),
+			to: new Date(sameStart.getTime() - 8 * day)
+		};
+		const { result, rerender } = renderTeamLogs({ period: endedEarlier, employeeIds: ['ada', 'bob'] });
+		await waitFor(() => expect(result.current.logs).toHaveLength(2));
+		rerender({ period: runsToToday, employeeIds: ['ada', 'bob'] });
+		expect(result.current.period).toBe(runsToToday);
+
+		rerender({ period: weeksBefore, employeeIds: ['ada', 'bob'] });
+
+		await waitFor(() => expect(mockGetTimeLogs).toHaveBeenCalledTimes(2));
+		expect(result.current.logs).toHaveLength(2);
 		expect(result.current.period).toBe(runsToToday);
 	});
 

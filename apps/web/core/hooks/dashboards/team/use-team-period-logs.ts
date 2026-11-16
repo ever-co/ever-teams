@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { timeLogService } from '@/core/services/client/api/timesheets/time-log.service';
@@ -17,10 +17,9 @@ const STALE_TIME = 1000 * 60 * 3;
 const GC_TIME = 1000 * 60 * 15;
 const NO_LOGS: ITimeLog[] = [];
 
-/** The logs with the period and the workspace they were read for. */
+/** The logs with the workspace they were read for. */
 interface TeamPeriodLogs {
 	logs: ITimeLog[];
-	period: Period;
 	scopeKey: string;
 }
 
@@ -29,11 +28,10 @@ async function fetchTeamLogs(
 	endDate: string,
 	timeZone: string,
 	employeeIds: string[],
-	period: Period,
 	scopeKey: string
 ): Promise<TeamPeriodLogs> {
 	const logs = await timeLogService.getTimeLogs({ startDate, endDate, timeZone, employeeIds });
-	return { logs: logs ?? NO_LOGS, period, scopeKey };
+	return { logs: logs ?? NO_LOGS, scopeKey };
 }
 
 /** Another period or member set of the same workspace keeps the logs on screen until its own come (#5353). */
@@ -81,7 +79,7 @@ export function useTeamPeriodLogs({
 	const canFetch = isReady && isEnabled;
 	const query = useQuery({
 		queryKey: [...logsKey, 'team-dashboard', { timeZone }],
-		queryFn: () => fetchTeamLogs(startDate, endDate, timeZone, sortedIds, period, scopeKey),
+		queryFn: () => fetchTeamLogs(startDate, endDate, timeZone, sortedIds, scopeKey),
 		enabled: canFetch,
 		placeholderData: (previous: TeamPeriodLogs | undefined) => previousOfSameScope(previous, scopeKey),
 		staleTime: STALE_TIME,
@@ -89,8 +87,15 @@ export function useTeamPeriodLogs({
 		...liveQueryOptionsOf(isLive)
 	});
 
-	const shown = query.data;
-	const shownLogs = shown?.logs ?? NO_LOGS;
+	const shownLogs = query.data?.logs ?? NO_LOGS;
+	// The period the logs on screen were last drawn for. A placeholder keeps it rather than the period its read was
+	// first made for: two periods can share one read (the range always runs through today), and the screen may already
+	// have moved to the second one when the next period is picked.
+	const [drawnPeriod, setDrawnPeriod] = useState<Period>(period);
+	const isDrawnPeriodBehind = !query.isPlaceholderData && drawnPeriod !== period;
+	if (isDrawnPeriodBehind) {
+		setDrawnPeriod(period);
+	}
 	// A member the filter no longer picks leaves at once, without waiting for the next read
 	const logs = useMemo(() => {
 		if (!query.isPlaceholderData) {
@@ -102,11 +107,10 @@ export function useTeamPeriodLogs({
 	return {
 		logs,
 		/**
-		 * The period the logs on screen cover: the previous answer's own period while it stands in for the next read,
-		 * the requested one otherwise. Two periods can share one read (the range always runs through today), so a
-		 * cached answer's own period may be another one that the same logs cover.
+		 * The period the logs on screen cover: the one they were last drawn for while they stand in for the next read,
+		 * the requested one otherwise (a cached answer covers it, even when another period made the read).
 		 */
-		period: query.isPlaceholderData && shown ? shown.period : period,
+		period: query.isPlaceholderData ? drawnPeriod : period,
 		isLoading: query.isPending && canFetch,
 		isError: query.isError,
 		refetch: query.refetch
