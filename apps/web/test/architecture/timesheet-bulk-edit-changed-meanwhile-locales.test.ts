@@ -16,6 +16,15 @@ function changedMeanwhileOf(file: string): unknown {
 }
 
 const LOCALE_FILES = readdirSync(LOCALES_DIRECTORY).filter((file) => file.endsWith('.json'));
+
+/** The plural forms a count takes in each language beyond `other`, as the other bulk edit reasons state them. */
+const PLURAL_FORMS: Record<string, string[]> = {
+	'ar.json': ['zero', 'one', 'two', 'few', 'many'],
+	'he.json': ['one', 'two'],
+	'pl.json': ['one', 'few', 'many'],
+	'ru.json': ['one', 'few', 'many'],
+	'zh.json': []
+};
 const ENGLISH = changedMeanwhileOf('en.json');
 
 describe('the reason of time entries a bulk edit found changed meanwhile', () => {
@@ -32,5 +41,13 @@ describe('the reason of time entries a bulk edit found changed meanwhile', () =>
 		expect(typeof message).toBe('string');
 		expect(message).not.toBe(ENGLISH);
 		expect(message as string).toMatch(/^\{count, plural, .*other \{[^}]*#[^}]*\}\}$/);
+	});
+
+	it.each(LOCALE_FILES)('states every plural form %s has', (file) => {
+		const message = changedMeanwhileOf(file) as string;
+		const forms = PLURAL_FORMS[file] ?? ['one'];
+		const stated = [...message.matchAll(/(\w+) \{/g)].map((match) => match[1]);
+
+		expect(stated).toEqual([...forms, 'other']);
 	});
 });
