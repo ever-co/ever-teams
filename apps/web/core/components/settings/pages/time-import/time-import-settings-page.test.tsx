@@ -190,6 +190,7 @@ function timeImportOf(overrides: Partial<TimeImport> = {}): TimeImport {
 		report: null,
 		hasCheckFailed: false,
 		hasPreviewChanged: false,
+		isWaitingForLabelRules: false,
 		chooseFile: jest.fn(),
 		retryCheck: jest.fn(),
 		recheckWithMembers: jest.fn(),

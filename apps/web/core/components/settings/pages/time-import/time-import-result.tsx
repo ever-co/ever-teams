@@ -261,7 +261,12 @@ export function TimeImportResult({ timeImport, copy, onDownloadReport, offer }: 
 								{t('timeImport.CHOOSE_ANOTHER')}
 							</Button>
 							{hasReadyRows && (
-								<Button type="button" onClick={() => void timeImport.confirm()}>
+								<Button
+									type="button"
+									disabled={timeImport.isWaitingForLabelRules}
+									aria-busy={timeImport.isWaitingForLabelRules}
+									onClick={() => void timeImport.confirm()}
+								>
 									{t('timeImport.IMPORT_ACTION', { count: summary.readyCount })}
 								</Button>
 							)}

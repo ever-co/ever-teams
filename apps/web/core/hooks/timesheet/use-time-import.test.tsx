@@ -32,9 +32,12 @@ jest.mock('@/core/lib/helpers/timer-errors', () => ({
 import { useTimeImport } from './use-time-import';
 
 // An API without labels on entries (#5368): the import writes its entries as before
-jest.mock('@/core/hooks/timer/use-entry-labels-support', () => ({ useEntryLabelsSupport: () => false }));
+jest.mock('@/core/hooks/timer/use-entry-labels-support', () => ({
+	useEntryLabelsSupport: () => false,
+	useEntryLabelsSupportState: () => ({ isSupported: false, isKnown: true })
+}));
 jest.mock('@/core/hooks/roles/use-my-role-permissions-query', () => ({
-	useMyRolePermissionsQuery: () => ({ myPermissions: [] })
+	useMyRolePermissionsQuery: () => ({ myPermissions: [], isLoaded: true, isLoading: false })
 }));
 jest.mock('@/core/hooks/tasks/use-create-task-label', () => ({
 	useCreateTaskLabel: () => ({ createTaskLabels: jest.fn() })
