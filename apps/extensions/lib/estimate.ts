@@ -24,9 +24,23 @@ export function estimateFieldOf(value: string, max: number): string | null {
 }
 
 /**
+ * What an estimate field shows once the person leaves it: the same number on at least two digits, without the extra
+ * leading zeros typed ("5" and "005" show "05", "010" shows "10", "0" shows "00"). An empty field stays empty, and a
+ * value the field would not keep is left as it is. The number is the same: estimateSecondsOf reads "005" as 5 too.
+ */
+export function paddedEstimateField(value: string): string {
+	const isWholeNumber = /^\d+$/.test(value);
+	if (!isWholeNumber) {
+		return value;
+	}
+	return String(Number(value)).padStart(2, '0');
+}
+
+/**
  * The seconds of an estimate written "hh:mm" (hours 0 to 999, minutes 0 to 59, an empty part being 0; hours alone are
  * read as hours). Null when it is not one: more parts than hours and minutes, a part that is not a whole number (a
- * sign, decimals, an exponent), minutes from 60 on, or hours beyond the field.
+ * sign, decimals, an exponent), minutes from 60 on, or hours beyond the field. 0 is a task with no estimate, as the
+ * web creates one when nothing is typed (`estimate: 0`) and shows its fields empty.
  */
 export function estimateSecondsOf(estimate: string): number | null {
 	const parts = estimate.trim().split(':');

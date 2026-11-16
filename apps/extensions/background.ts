@@ -1,3 +1,4 @@
+import { ApiError } from '~lib/api-client';
 import { createCoalescedRunner } from '~lib/coalesce';
 import { withDeadline } from '~lib/deadline';
 import { getTimerStatus, sendHeartbeat, type TimerStatus } from '~lib/gauzy';
@@ -40,38 +41,58 @@ function broadcast(status: TimerStatus | null): void {
 	}
 }
 
-/** Shows a status on the badge; `isCurrent` says whether it is still the newest, after the badge's color was set. */
+/**
+ * Shows a status on the badge while `isCurrent` says it is still the newest. Checked first, before the badge is
+ * touched: a status a sign-out (or a newer status) came before sets neither the color nor the text. The color and the
+ * text are then sent together, so nothing comes between them: a sign-out told meanwhile sends its clear after both,
+ * and the browser runs the badge's calls in the order they were sent.
+ */
 async function showBadge(status: TimerStatus | null, isCurrent: () => boolean = () => true): Promise<void> {
+	if (!isCurrent()) {
+		return;
+	}
 	const run = status?.lastLog;
 	const isRunning = Boolean(status?.running && run);
 	if (!isRunning || !run) {
 		await browser.action.setBadgeText({ text: '' });
 		return;
 	}
-	await browser.action.setBadgeBackgroundColor({ color: BADGE_COLOR });
-	// A sign-out (or a newer status) while the color was set: the badge stays as that left it
-	if (!isCurrent()) {
-		return;
-	}
-	await browser.action.setBadgeText({ text: badgeText(secondsSince(run.startedAt, Date.now())) });
+	await Promise.all([
+		browser.action.setBadgeBackgroundColor({ color: BADGE_COLOR }),
+		browser.action.setBadgeText({ text: badgeText(secondsSince(run.startedAt, Date.now())) })
+	]);
 }
 
 /**
  * Signed out: the badge clears and an open popup hears it at once. Every read still out was made for the session that
- * ended: its answer must not bring the badge back, nor credit a heartbeat.
+ * ended: its answer must not bring the badge back, nor credit a heartbeat. One sign-out reaches here by several paths
+ * (a refresh, a requested refresh, the storage listener, a refused call) and each alarm while signed out: the reads
+ * end and the popups hear it once, while the badge is cleared each time, so a clear that failed is tried again.
  */
 async function showSignedOut(): Promise<void> {
-	statusOrder.sessionEnded();
-	broadcast(null);
+	const ended = statusOrder.sessionEnded();
+	if (ended) {
+		broadcast(null);
+	}
 	await showBadge(null);
 }
 
-/** The HTTP status of a failed call; 0 when the API could not be reached. */
+/**
+ * The HTTP status the API answered a failed call with; 0 when it could not be reached (a cancelled call included).
+ * Nothing else carries one: a deadline that ended the wait for the session lock rejects with a `TimeoutError`, which
+ * has no status, so it can never pass for a 401.
+ */
 function statusOf(error: unknown): number | undefined {
-	return (error as { status?: number } | null)?.status;
+	if (error instanceof ApiError) {
+		return error.status;
+	}
+	return undefined;
 }
 
-/** A 401 the token renewal did not cure: the person was signed out elsewhere, and this browser follows. */
+/**
+ * A 401 the token renewal did not cure: the person was signed out elsewhere, and this browser follows. Only the API's
+ * own 401 signs out: a call cut at its deadline or that could not reach the API keeps the person signed in.
+ */
 async function signOutIfRefused(session: Session, error: unknown): Promise<void> {
 	if (statusOf(error) !== 401) {
 		return;
