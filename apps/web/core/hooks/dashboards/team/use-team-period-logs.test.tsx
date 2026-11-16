@@ -39,14 +39,14 @@ const bobLog = {
 
 type Props = { period: Period; employeeIds: string[] };
 
-function renderTeamLogs() {
+function renderTeamLogs(initialProps: Props = { period: thisWeek, employeeIds: ['ada', 'bob'] }) {
 	const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 	const wrapper = ({ children }: { children: React.ReactNode }) => (
 		<QueryClientProvider client={client}>{children}</QueryClientProvider>
 	);
 	return renderHook(({ period, employeeIds }: Props) => useTeamPeriodLogs({ period, employeeIds, isEnabled: true }), {
 		wrapper,
-		initialProps: { period: thisWeek, employeeIds: ['ada', 'bob'] }
+		initialProps
 	});
 }
 
@@ -80,6 +80,23 @@ describe('useTeamPeriodLogs', () => {
 		await waitFor(() => expect(mockGetTimeLogs).toHaveBeenCalledTimes(2));
 		expect(result.current.isLoading).toBe(false);
 		expect(result.current.logs.map((log) => log.id)).toEqual(['log-ada']);
+	});
+
+	it('gives the period asked for when it shares its read with the previous one (both run through today)', async () => {
+		const day = 24 * 60 * 60 * 1000;
+		const now = new Date();
+		const sameStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
+		const endedEarlier: Period = { from: sameStart, to: new Date(now.getTime() - 3 * day) };
+		const runsToToday: Period = { from: sameStart, to: now };
+		const { result, rerender } = renderTeamLogs({ period: endedEarlier, employeeIds: ['ada', 'bob'] });
+		await waitFor(() => expect(result.current.logs).toHaveLength(2));
+		expect(result.current.period).toBe(endedEarlier);
+		const readsBefore = mockGetTimeLogs.mock.calls.length;
+
+		rerender({ period: runsToToday, employeeIds: ['ada', 'bob'] });
+
+		expect(mockGetTimeLogs.mock.calls.length).toBe(readsBefore);
+		expect(result.current.period).toBe(runsToToday);
 	});
 
 	it('CONTROL: another workspace starts from its loading state', async () => {

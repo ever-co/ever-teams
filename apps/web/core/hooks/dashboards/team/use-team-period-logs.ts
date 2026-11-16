@@ -101,8 +101,12 @@ export function useTeamPeriodLogs({
 
 	return {
 		logs,
-		/** The period the logs on screen were read for: the requested one once its own logs are there. */
-		period: shown?.period ?? period,
+		/**
+		 * The period the logs on screen cover: the previous answer's own period while it stands in for the next read,
+		 * the requested one otherwise. Two periods can share one read (the range always runs through today), so a
+		 * cached answer's own period may be another one that the same logs cover.
+		 */
+		period: query.isPlaceholderData && shown ? shown.period : period,
 		isLoading: query.isPending && canFetch,
 		isError: query.isError,
 		refetch: query.refetch
