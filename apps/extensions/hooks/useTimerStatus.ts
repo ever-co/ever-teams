@@ -112,6 +112,11 @@ export function useTimerStatus(session: Session | null) {
 	 * "Try again" after a failed read, or a start or a stop the server failed: the notice goes and the timer is read
 	 * again, so the popup shows whether the run started or stopped before the person presses the button again. The
 	 * action itself is not sent again: a start the server failed may have started the run all the same.
+	 *
+	 * For transient failures only: the popup offers it only for a refusal marked `retryable` (offline, a timeout, too
+	 * many requests, a server error), and each press reads once; nothing calls it in a loop. A 401 is never marked
+	 * so: `sessionRequest` already renewed the token once, and a 401 that renewal did not cure shows the expired
+	 * session with no "Try again", while the background signs this browser out.
 	 */
 	const retry = useCallback(() => {
 		setRefusal(null);

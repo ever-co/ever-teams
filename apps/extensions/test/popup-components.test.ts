@@ -48,6 +48,13 @@ describe('Timer', () => {
 		assert.doesNotMatch(timerWith(refusalOf({ status: 422, code: 'DAILY_PLAN_REQUIRED' })), /actionRetry/);
 		assert.doesNotMatch(timerWith(refusalOf({ status: 400, message: 'Task is archived' })), /actionRetry/);
 	});
+
+	it('offers no retry for a session the API refused (401): the read was already renewed once, and would loop', () => {
+		const html = timerWith(refusalOf({ status: 401, message: 'Unauthorized' }));
+
+		assert.match(html, /errorSessionExpired/);
+		assert.doesNotMatch(html, /actionRetry/);
+	});
 });
 
 const TEAMS = [
