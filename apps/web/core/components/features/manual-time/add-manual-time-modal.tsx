@@ -122,6 +122,49 @@ function isEmployeeOfTeam(team: TOrganizationTeam | null | undefined, employeeId
 	});
 }
 
+/** The notes of the entry and, where the API keeps them, its labels (#5368): the same in both layouts of the dialog. */
+function NotesAndLabelsFields({
+	descriptionId,
+	description,
+	onDescriptionChange,
+	labelIds,
+	onLabelIdsChange,
+	areLabelsShown,
+	optionalLabel
+}: Readonly<{
+	descriptionId: string;
+	description: string;
+	onDescriptionChange: (description: string) => void;
+	labelIds: string[];
+	onLabelIdsChange: (labelIds: string[]) => void;
+	areLabelsShown: boolean;
+	optionalLabel: string;
+}>) {
+	const t = useTranslations();
+	return (
+		<>
+			<div className="flex flex-col">
+				<DialogFieldLabel htmlFor={descriptionId} optionalLabel={optionalLabel}>
+					{t('manualTime.DESCRIPTION')}
+				</DialogFieldLabel>
+				<textarea
+					id={descriptionId}
+					value={description}
+					placeholder={t('modals.manualTime.descriptionPlaceholder')}
+					onChange={(e) => onDescriptionChange(e.target.value)}
+					className={cn(controlRecipe, DESCRIPTION_FIELD_CLASS_NAME)}
+				/>
+			</div>
+			<EntryLabelsField
+				labelIds={labelIds}
+				onChange={onLabelIdsChange}
+				isShown={areLabelsShown}
+				optionalLabel={optionalLabel}
+			/>
+		</>
+	);
+}
+
 export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 	const { closeModal, isOpen, params, timeSheetStatus, initialStart, initialEnd, prefill, checkBeforeSave } = props;
 	const refusalOfOverlap = props.refusalOfOverlap;
@@ -737,22 +780,13 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 							itemToString={itemToString}
 							itemToValue={itemToValue}
 						/>
-						<div className="flex flex-col">
-							<DialogFieldLabel htmlFor={descriptionId} optionalLabel={optionalLabel}>
-								{t('manualTime.DESCRIPTION')}
-							</DialogFieldLabel>
-							<textarea
-								id={descriptionId}
-								value={description}
-								placeholder={t('modals.manualTime.descriptionPlaceholder')}
-								onChange={(e) => setDescription(e.target.value)}
-								className={cn(controlRecipe, DESCRIPTION_FIELD_CLASS_NAME)}
-							/>
-						</div>
-						<EntryLabelsField
+						<NotesAndLabelsFields
+							descriptionId={descriptionId}
+							description={description}
+							onDescriptionChange={setDescription}
 							labelIds={labelIds}
-							onChange={setLabelIds}
-							isShown={supportsEntryLabels && !isBreakEntry}
+							onLabelIdsChange={setLabelIds}
+							areLabelsShown={supportsEntryLabels && !isBreakEntry}
 							optionalLabel={optionalLabel}
 						/>
 					</>
@@ -816,22 +850,13 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 							/>
 						</div>
 
-						<div className="flex flex-col">
-							<DialogFieldLabel htmlFor={descriptionId} optionalLabel={optionalLabel}>
-								{t('manualTime.DESCRIPTION')}
-							</DialogFieldLabel>
-							<textarea
-								id={descriptionId}
-								value={description}
-								placeholder={t('modals.manualTime.descriptionPlaceholder')}
-								onChange={(e) => setDescription(e.target.value)}
-								className={cn(controlRecipe, DESCRIPTION_FIELD_CLASS_NAME)}
-							/>
-						</div>
-						<EntryLabelsField
+						<NotesAndLabelsFields
+							descriptionId={descriptionId}
+							description={description}
+							onDescriptionChange={setDescription}
 							labelIds={labelIds}
-							onChange={setLabelIds}
-							isShown={supportsEntryLabels && !isBreakEntry}
+							onLabelIdsChange={setLabelIds}
+							areLabelsShown={supportsEntryLabels && !isBreakEntry}
 							optionalLabel={optionalLabel}
 						/>
 
