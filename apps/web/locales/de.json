@@ -3008,7 +3008,8 @@
 			"OVERLAP_MESSAGE": "Ein Eintrag mit mehreren Labels zählt unter jedem davon, daher ergeben die Gruppen zusammen mehr als die Summe.",
 			"CREATE": "„{name}“ erstellen",
 			"SEARCH": "Labels suchen",
-			"CREATE_FAILED": "Das Label konnte nicht erstellt werden"
+			"CREATE_FAILED": "Das Label konnte nicht erstellt werden",
+			"IMPORT_NOT_ATTACHED": "Nicht zugeordnet: {names}. Das Team hat kein Label mit {count, plural, one {diesem Namen} other {diesen Namen}}, und es konnte keines hinzugefügt werden."
 		},
 		"START_TIMER": "Bitte wählen oder erstellen Sie eine neue Aufgabe, um die Zeit zu tracken oder einen Plan erstellen",
 		"ALREADY_TRACKING_MESSAGE": "Sie verfolgen bereits die Zeit in einem anderen Tab oder Gerät.",

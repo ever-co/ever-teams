@@ -31,6 +31,18 @@ jest.mock('@/core/lib/helpers/timer-errors', () => ({
 
 import { useTimeImport } from './use-time-import';
 
+// An API without labels on entries (#5368): the import writes its entries as before
+jest.mock('@/core/hooks/timer/use-entry-labels-support', () => ({ useEntryLabelsSupport: () => false }));
+jest.mock('@/core/hooks/roles/use-my-role-permissions-query', () => ({
+	useMyRolePermissionsQuery: () => ({ myPermissions: [] })
+}));
+jest.mock('@/core/hooks/tasks/use-create-task-label', () => ({
+	useCreateTaskLabel: () => ({ createTaskLabels: jest.fn() })
+}));
+jest.mock('@/core/services/client/api/tasks/task-label.service', () => ({
+	taskLabelService: { getTaskLabelsList: jest.fn() }
+}));
+
 const VIEWER_ID = 'employee-viewer';
 
 const HEADER = 'date,start time,end time,task,notes,billable';
@@ -204,7 +216,8 @@ describe('useTimeImport', () => {
 			leftOutCount: 0,
 			failedCount: 0,
 			notSentCount: 0,
-			refusal: null
+			refusal: null,
+			labelsNotAttached: []
 		});
 	});
 
@@ -223,7 +236,8 @@ describe('useTimeImport', () => {
 			leftOutCount: 0,
 			failedCount: 1,
 			notSentCount: 1,
-			refusal: { row: 3, reasonKey: 'toasts.REASONS.PERMISSION' }
+			refusal: { row: 3, reasonKey: 'toasts.REASONS.PERMISSION' },
+			labelsNotAttached: []
 		});
 	});
 
@@ -323,7 +337,8 @@ describe('useTimeImport', () => {
 			leftOutCount: 0,
 			failedCount: 1,
 			notSentCount: 1,
-			refusal: { row: 3, reasonKey: 'timeImport.problems.RECORDED_MEANWHILE' }
+			refusal: { row: 3, reasonKey: 'timeImport.problems.RECORDED_MEANWHILE' },
+			labelsNotAttached: []
 		});
 	});
 
@@ -369,7 +384,8 @@ describe('useTimeImport', () => {
 			savedCount: 1,
 			failedCount: 1,
 			notSentCount: 1,
-			refusal: { row: 3, reasonKey: 'toasts.REASONS.SERVER' }
+			refusal: { row: 3, reasonKey: 'toasts.REASONS.SERVER' },
+			labelsNotAttached: []
 		});
 	});
 

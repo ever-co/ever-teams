@@ -3008,7 +3008,8 @@
 			"OVERLAP_MESSAGE": "带有多个标签的条目会计入每个标签，因此各分组之和大于总计。",
 			"CREATE": "创建“{name}”",
 			"SEARCH": "搜索标签",
-			"CREATE_FAILED": "无法创建标签"
+			"CREATE_FAILED": "无法创建标签",
+			"IMPORT_NOT_ATTACHED": "未附加：{names}。团队没有{count, plural, other {这些名称}}的标签，且无法添加。"
 		},
 		"START_TIMER": "请选择或创建新任务以开始计时 或製定計劃",
 		"ALREADY_TRACKING_MESSAGE": "您已经在另一个标签页或设备上跟踪时间。",

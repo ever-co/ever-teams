@@ -46,6 +46,9 @@ jest.mock('@/core/components/dashboards/kit/metric-strip', () => ({
 
 import { WorkspaceImportPlanPanel } from './workspace-import-plan-panel';
 
+// An API without labels on entries (#5368): the import writes its entries as before
+jest.mock('@/core/hooks/timer/use-entry-labels-support', () => ({ useEntryLabelsSupport: () => false }));
+
 const PLAN: WorkspaceImportPlan = {
 	clients: { create: ['Acme', 'Globex'], reuse: [{ id: 'client-initech', name: 'Initech' }] },
 	projects: {

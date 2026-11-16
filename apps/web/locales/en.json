@@ -3008,7 +3008,8 @@
 			"OVERLAP_MESSAGE": "An entry with several labels counts under each of them, so the groups add up to more than the total.",
 			"CREATE": "Create “{name}”",
 			"SEARCH": "Search labels",
-			"CREATE_FAILED": "The label could not be created"
+			"CREATE_FAILED": "The label could not be created",
+			"IMPORT_NOT_ATTACHED": "Not attached: {names}. The team has no label of {count, plural, one {that name} other {those names}} and none could be added."
 		},
 		"START_TIMER": "Please, select or create a new task to start tracking the time or create a plan",
 		"ALREADY_TRACKING_MESSAGE": "You're already tracking time in another tab or device.",

@@ -3008,7 +3008,8 @@
 			"OVERLAP_MESSAGE": "Wpis z kilkoma etykietami liczy się pod każdą z nich, więc suma grup przekracza łączny czas.",
 			"CREATE": "Utwórz „{name}”",
 			"SEARCH": "Szukaj etykiet",
-			"CREATE_FAILED": "Nie udało się utworzyć etykiety"
+			"CREATE_FAILED": "Nie udało się utworzyć etykiety",
+			"IMPORT_NOT_ATTACHED": "Nie przypisano: {names}. Zespół nie ma etykiety o {count, plural, one {tej nazwie} few {tych nazwach} many {tych nazwach} other {tych nazwach}} i nie udało się żadnej dodać."
 		},
 		"START_TIMER": "Proszę wybrać lub utworzyć nowe zadanie, aby rozpocząć śledzenie czasu lub utwórz plan",
 		"ALREADY_TRACKING_MESSAGE": "Już śledzisz czas w innej karcie lub urządzeniu.",

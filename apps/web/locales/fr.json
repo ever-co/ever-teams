@@ -3008,7 +3008,8 @@
 			"OVERLAP_MESSAGE": "Une entrée qui porte plusieurs étiquettes compte sous chacune d’elles : les groupes additionnés dépassent le total.",
 			"CREATE": "Créer « {name} »",
 			"SEARCH": "Rechercher une étiquette",
-			"CREATE_FAILED": "L’étiquette n’a pas pu être créée"
+			"CREATE_FAILED": "L’étiquette n’a pas pu être créée",
+			"IMPORT_NOT_ATTACHED": "Non attachées : {names}. L’équipe n’a pas d’étiquette de {count, plural, one {ce nom} other {ces noms}} et aucune n’a pu être ajoutée."
 		},
 		"START_TIMER": "Veuillez sélectionner ou créer une nouvelle tâche pour commencer le suivi du temps ou créer un plan",
 		"ALREADY_TRACKING_MESSAGE": "Vous suivez déjà le temps dans un autre onglet ou appareil.",

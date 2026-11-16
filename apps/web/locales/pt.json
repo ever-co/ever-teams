@@ -3008,7 +3008,8 @@
 			"OVERLAP_MESSAGE": "Uma entrada com várias etiquetas conta em cada uma delas, então a soma dos grupos passa do total.",
 			"CREATE": "Criar “{name}”",
 			"SEARCH": "Pesquisar etiquetas",
-			"CREATE_FAILED": "Não foi possível criar a etiqueta"
+			"CREATE_FAILED": "Não foi possível criar a etiqueta",
+			"IMPORT_NOT_ATTACHED": "Não anexadas: {names}. A equipe não tem etiqueta com {count, plural, one {esse nome} other {esses nomes}} e nenhuma pôde ser adicionada."
 		},
 		"START_TIMER": "Por favor, selecione ou crie uma nova tarefa para começar a rastrear o tempo ou crie um plano",
 		"ALREADY_TRACKING_MESSAGE": "Você já está rastreando o tempo em outra aba ou dispositivo.",
