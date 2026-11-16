@@ -4,6 +4,7 @@
  * day differ from the local one, and restored once the file is done.
  */
 import { runInThisContext } from 'node:vm';
+import { ApiErrorService } from '@/core/services/client/api-error.service';
 import { ETimeLogType } from '@/core/types/generics/enums/timer';
 import { timeLogService } from './time-log.service';
 
@@ -338,18 +339,19 @@ describe('TimeLogService entry labels probe (#5368)', () => {
 	});
 
 	it('reads the refusal of an API without labels on entries as no labels: it names the tags property', async () => {
-		// What a Gauzy without ever-co/ever-gauzy#12029 answers: a 500 naming the property it does not have
-		const refusal = {
-			statusCode: 500,
-			message: 'Property "tags" was not found in "TimeLog". Make sure your query is correct.'
-		};
+		// What a Gauzy without ever-co/ever-gauzy#12029 answers, as the client throws it: a 500 naming the property
+		const refusal = new ApiErrorService(
+			'Property "tags" was not found in "TimeLog". Make sure your query is correct.',
+			500
+		);
 		jest.spyOn(timeLogService, 'get').mockRejectedValue(refusal);
 
 		await expect(timeLogService.supportsEntryLabels()).resolves.toBe(false);
 	});
 
 	it('throws a refusal for another reason, so it is read again rather than kept as no labels', async () => {
-		const otherRefusal = { response: { status: 400 }, message: 'Start date must be before to the end date' };
+		// As the client throws it: the status in `statusCode`, the API's message as its own
+		const otherRefusal = new ApiErrorService('Start date must be before to the end date', 400);
 		jest.spyOn(timeLogService, 'get').mockRejectedValue(otherRefusal);
 
 		await expect(timeLogService.supportsEntryLabels()).rejects.toBe(otherRefusal);
