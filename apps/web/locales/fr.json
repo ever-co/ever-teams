@@ -7916,6 +7916,8 @@
 				"PAUSED": "La facturation planifiée de {name} est suspendue",
 				"RESUMED": "La facturation planifiée de {name} reprend : prochaine facture le {day}",
 				"DELETED": "La facturation planifiée de {name} est supprimée",
+				"ALREADY_DELETED": "La facturation planifiée de {name} était déjà supprimée",
+				"REPLACED": "La facturation planifiée de {name} a été remplacée par une autre. Rien n’a été supprimé.",
 				"FAILED": "La modification n’a pas pu être enregistrée. Réessayez."
 			}
 		},

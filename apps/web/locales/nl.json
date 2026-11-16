@@ -7916,6 +7916,8 @@
 				"PAUSED": "De geplande facturering van {name} is gepauzeerd",
 				"RESUMED": "De geplande facturering van {name} is hervat: volgende factuur op {day}",
 				"DELETED": "De geplande facturering van {name} is verwijderd",
+				"ALREADY_DELETED": "De geplande facturering van {name} was al verwijderd",
+				"REPLACED": "De geplande facturering van {name} is door een andere vervangen. Er is niets verwijderd.",
 				"FAILED": "De wijziging kon niet worden opgeslagen. Probeer het opnieuw."
 			}
 		},

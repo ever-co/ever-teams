@@ -7916,6 +7916,8 @@
 				"PAUSED": "{name}'s billing schedule is paused",
 				"RESUMED": "{name}'s billing schedule is resumed: next invoice on {day}",
 				"DELETED": "{name}'s billing schedule is deleted",
+				"ALREADY_DELETED": "{name}'s billing schedule was already deleted",
+				"REPLACED": "{name}'s billing schedule was replaced by another. Nothing was deleted.",
 				"FAILED": "The change could not be saved. Try again."
 			}
 		},

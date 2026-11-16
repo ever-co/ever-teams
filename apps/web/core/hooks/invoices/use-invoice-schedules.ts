@@ -96,6 +96,9 @@ export function useInvoiceScheduleRuns(scheduleId: string | null, { enabled }: R
 /** What a change to a schedule says. */
 export type InvoiceScheduleChange = Partial<InvoiceScheduleInput> & { paused?: boolean };
 
+/** What a confirmed deletion did: deleted the schedule, or found it deleted already. */
+export type InvoiceScheduleDeletion = 'deleted' | 'alreadyDeleted';
+
 /**
  * Set, change, pause, resume and delete a client's billing schedule, in the workspace the schedules were read in; every
  * read of the schedules is refreshed afterwards, after a refusal too: a create refused because another tab set the
@@ -170,11 +173,59 @@ export function useInvoiceScheduleMutations(workspace: InvoicesScope | null) {
 		[refresh, updateScheduleById]
 	);
 
+	const deleteScheduleById = deleteMutation.mutateAsync;
+
+	/**
+	 * Deletes the schedule a confirmation opened on, and never another: the deletion is sent to that schedule's id
+	 * only, so a schedule that replaced it, even one set after this check, is never deleted. When the latest read
+	 * already shows it replaced by another (another tab deleted it and set a new one), nothing is sent, the schedules
+	 * are read again, and the deletion fails as an `OpenedScheduleGoneError`: the section then shows the new one,
+	 * which its person has not chosen to delete. When the latest read shows no schedule left, or the API answers it
+	 * no longer exists (404), what its person asked is done already: `alreadyDeleted`, after the schedules are read
+	 * again. While the client's schedule is not read (another tab switched the workspace and its read is still on the
+	 * way, or it failed with nothing to show), nothing is sent and the deletion fails as any failed deletion does.
+	 */
+	const deleteOpenedSchedule = useCallback(
+		async ({
+			scheduleId,
+			latest
+		}: {
+			/** The schedule the confirmation opened on. */
+			scheduleId: string;
+			/** The client's schedule as last read, null when it has none, undefined while nothing was read. */
+			latest: TInvoiceSchedule | null | undefined;
+		}): Promise<InvoiceScheduleDeletion> => {
+			if (latest === undefined) {
+				throw new Error('The client’s billing schedule is not read yet, so nothing was deleted');
+			}
+			const fate = openedScheduleFateOf(scheduleId, latest);
+			if (fate !== 'current') {
+				await refresh();
+				if (fate === 'replaced') {
+					throw new OpenedScheduleGoneError(fate);
+				}
+				return 'alreadyDeleted';
+			}
+			try {
+				await deleteScheduleById(scheduleId);
+				return 'deleted';
+			} catch (error) {
+				// The mutation read the schedules again already (onSettled), before this answer
+				if (errorStatusOf(error) === 404) {
+					return 'alreadyDeleted';
+				}
+				throw error;
+			}
+		},
+		[deleteScheduleById, refresh]
+	);
+
 	return {
 		createSchedule: createMutation.mutateAsync,
 		updateSchedule: updateMutation.mutateAsync,
 		updateOpenedSchedule,
 		deleteSchedule: deleteMutation.mutateAsync,
+		deleteOpenedSchedule,
 		isSaving: createMutation.isPending || updateMutation.isPending,
 		isDeleting: deleteMutation.isPending
 	};

@@ -7916,6 +7916,8 @@
 				"PAUSED": "{name} 的定期开票已暂停",
 				"RESUMED": "{name} 的定期开票已恢复：下一张发票于 {day} 开具",
 				"DELETED": "{name} 的定期开票已删除",
+				"ALREADY_DELETED": "{name} 的定期开票此前已被删除",
+				"REPLACED": "{name} 的定期开票已被另一个替换。未删除任何内容。",
 				"FAILED": "更改保存失败，请重试。"
 			}
 		},
