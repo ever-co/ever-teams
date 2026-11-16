@@ -2,6 +2,7 @@
 
 import { renderHook } from '@testing-library/react';
 import { NO_CLIENT_FILTER_VALUE } from '@/core/lib/utils/project-list';
+import { localDayKeyOf } from '@/core/lib/utils/dashboard-export';
 import type {
 	ClientGroupingAccess,
 	TimeActivityFilters,
@@ -83,10 +84,15 @@ let mockLookup: ClientLookup = PROJECTS_READ;
 let mockGrouping: TimeActivityGrouping = 'project';
 let mockAccess: ClientGroupingAccess = 'granted';
 let mockClientsList: ClientsList = CLIENTS_READ;
+const LINKED_PERIOD = { from: new Date(2026, 10, 3), to: new Date(2026, 10, 3, 23, 59, 59) };
+let mockLinkedPeriod: { from: Date; to: Date } | null = LINKED_PERIOD;
+const mockSetPeriod = jest.fn();
 /** A role that may read client rates, unless a test takes it away. */
 let mockPermissions: string[] = ['CHANGE_SELECTED_EMPLOYEE'];
 /** The daily reads still show the previous period or filters while the next ones load. */
 let mockShowsPreviousRead = false;
+/** What the daily read answers: the report of November 3, unless a test reads another day. */
+let mockDailyReport: typeof DAILY_REPORT | undefined = DAILY_REPORT;
 const mockRatesByProject = new Map([['website', { id: 'website', billRateValue: 90, currency: 'EUR', members: [] }]]);
 
 // Breaks (#5216) off, as in a workspace that never turned them on, unless a test turns them on
@@ -113,7 +119,14 @@ jest.mock('@/core/hooks/organizations/teams/use-organization-teams-managers', ()
 	useOrganizationAndTeamManagers: () => ({ userManagedTeams: [] })
 }));
 jest.mock('./use-time-activity-settings', () => ({
-	useTimeActivitySettings: () => ({ filters: mockFilters, grouping: mockGrouping, clientGroupingAccess: mockAccess })
+	useTimeActivitySettings: () => ({
+		filters: mockFilters,
+		grouping: mockGrouping,
+		clientGroupingAccess: mockAccess,
+		linkedPeriod: mockLinkedPeriod,
+		holdsView: mockLinkedPeriod !== null,
+		setPeriod: mockSetPeriod
+	})
 }));
 jest.mock('@/core/hooks/clients/use-clients-query', () => ({
 	useClientsQuery: (options: { includeArchived?: boolean; enabled?: boolean }) => {
@@ -131,7 +144,7 @@ jest.mock('./use-time-activity-queries', () => ({
 	// Breaks (#5216): their figure's read, off unless a test turns breaks on
 	useTimeActivityBreaksQuery: () => mockBreaksQuery,
 	useTimeActivityDailyQuery: () => ({
-		data: DAILY_REPORT,
+		data: mockDailyReport,
 		isPlaceholderData: mockShowsPreviousRead,
 		isPending: false,
 		isError: false,
@@ -412,6 +425,94 @@ describe('useTimeActivityReport with a duration rounding rule', () => {
 		expect(report.roundingRule).toBeNull();
 		expect(report.isDailyPending).toBe(false);
 		expect(report.weekDailySource).toBeNull();
+	});
+});
+
+describe('useTimeActivityReport and the period of the page link', () => {
+	beforeEach(() => {
+		resetMocks('project');
+		mockSetPeriod.mockClear();
+		mockLinkedPeriod = LINKED_PERIOD;
+	});
+
+	afterEach(() => {
+		mockShowsPreviousRead = false;
+		mockDailyReport = DAILY_REPORT;
+	});
+
+	afterAll(() => {
+		mockLinkedPeriod = LINKED_PERIOD;
+	});
+
+	it('reads the period the link names and leaves the link alone', () => {
+		const report = reportUnder([], PROJECTS_READ);
+
+		expect(report.period).toBe(LINKED_PERIOD);
+		expect(report.request?.startDate).toBe('2026-11-03');
+		expect(report.request?.endDate).toBe('2026-11-03');
+		expect(mockSetPeriod).not.toHaveBeenCalled();
+	});
+
+	it('writes the last 7 days into a link that names no period', () => {
+		mockLinkedPeriod = null;
+
+		const report = reportUnder([], PROJECTS_READ);
+
+		expect(mockSetPeriod).toHaveBeenCalledTimes(1);
+		expect(mockSetPeriod).toHaveBeenCalledWith(report.period);
+		expect(report.request?.endDate).toBe(localDayKeyOf(new Date()));
+	});
+
+	it('keeps the chart on the days of the rows it shows while another period is read (#5342)', () => {
+		const nextDay = { from: new Date(2026, 10, 4), to: new Date(2026, 10, 4, 23, 59, 59) };
+		const { result, rerender } = renderHook(() => useTimeActivityReport());
+		const chartOf = (report: typeof result.current) => report.chartDays.map((day) => [day.key, day.value]);
+		const firstDay = [[localDayKeyOf(LINKED_PERIOD.from), 1200]];
+		expect(chartOf(result.current)).toEqual(firstDay);
+
+		// The next period is asked for: its read is on the way, the previous rows stay on screen
+		mockLinkedPeriod = nextDay;
+		mockShowsPreviousRead = true;
+		rerender();
+
+		expect(result.current.period).toBe(nextDay);
+		expect(chartOf(result.current)).toEqual(firstDay);
+
+		// Its own rows came: the chart draws the new period with them
+		mockDailyReport = DAILY_REPORT.map((day) => ({ ...day, date: '2026-11-04' }));
+		mockShowsPreviousRead = false;
+		rerender();
+
+		expect(chartOf(result.current)).toEqual([[localDayKeyOf(nextDay.from), 1200]]);
+	});
+
+	it('keeps the chart on the shown rows when a failed read of another period is tried again', () => {
+		const nextDay = { from: new Date(2026, 10, 4), to: new Date(2026, 10, 4, 23, 59, 59) };
+		const { result, rerender } = renderHook(() => useTimeActivityReport());
+		const chartOf = (report: typeof result.current) => report.chartDays.map((day) => [day.key, day.value]);
+		const firstDay = [[localDayKeyOf(LINKED_PERIOD.from), 1200]];
+
+		// The next period's read failed without rows: nothing of the previous period is on screen
+		mockLinkedPeriod = nextDay;
+		mockDailyReport = undefined;
+		rerender();
+		expect(chartOf(result.current)).toEqual([[localDayKeyOf(nextDay.from), 0]]);
+
+		// It is tried again: the last rows that came back are on screen again, on their own days
+		mockDailyReport = DAILY_REPORT;
+		mockShowsPreviousRead = true;
+		rerender();
+
+		expect(chartOf(result.current)).toEqual(firstDay);
+	});
+
+	it('writes a picked period into the link', () => {
+		const report = reportUnder([], PROJECTS_READ);
+		const picked = { from: new Date(2026, 9, 1), to: new Date(2026, 9, 31, 23, 59, 59) };
+
+		report.setPeriod(picked);
+
+		expect(mockSetPeriod).toHaveBeenCalledWith(picked);
 	});
 });
 

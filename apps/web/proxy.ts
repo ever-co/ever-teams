@@ -80,9 +80,13 @@ function setUserHeader(response: NextResponse, user: unknown): void {
 }
 
 // serverFetch rejects with a promise holding Gauzy's body: unwrap it so a refused refresh token is recognized.
-async function requestTokenRefresh(refreshToken: string) {
+// The browser's user agent goes along: Gauzy names the device of the session it renews with it, and `next/headers`,
+// from which the renewal would read it elsewhere, does not answer here (ever-co/ever-gauzy#11983).
+async function requestTokenRefresh(refreshToken: string, browserUserAgent: string | null) {
 	try {
-		return await refreshTokenRequest(refreshToken);
+		return await (browserUserAgent
+			? refreshTokenRequest(refreshToken, browserUserAgent)
+			: refreshTokenRequest(refreshToken));
 	} catch (error) {
 		throw await unwrapRejection(error);
 	}
@@ -211,7 +215,7 @@ export async function proxy(request: NextRequest) {
 
 	// Gauzy's new token pair, written on `response` as soon as it arrives
 	const refreshTokenPair = async (refreshToken: string) => {
-		const refreshRes = await requestTokenRefresh(refreshToken);
+		const refreshRes = await requestTokenRefresh(refreshToken, request.headers.get('user-agent'));
 		if (refreshRes?.data?.token) {
 			// Update cookie with new token
 			setAccessTokenCookie(refreshRes.data.token, { res: response, req: request });

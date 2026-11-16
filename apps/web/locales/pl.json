@@ -433,6 +433,9 @@
 		"NO_TEAM_MEMBERS_FOUND": "Nie znaleziono członków zespołu",
 		"NO_TEAM_MEMBERS_FOUND_MESSAGE": "Spróbuj dostosować wyszukiwanie lub filtr, aby znaleźć to, czego szukasz.",
 		"PICK_A_DATE": "Wybierz datę",
+		"PICK_A_TIME": "Wybierz godzinę",
+		"PICK_THIS_OR_LATER": "Wybierz {value} lub później.",
+		"PICK_THIS_OR_EARLIER": "Wybierz {value} lub wcześniej.",
 		"THIS_WEEK": "Ten tydzień",
 		"LAST_WEEK": "Ostatni tydzień",
 		"COST_BASED": "Na podstawie kosztów",
@@ -1792,6 +1795,55 @@
 			"NOT_KEPT": "Wcześniejsze wartości nie zostały zachowane",
 			"COLUMN_BEFORE": "Przed",
 			"COLUMN_AFTER": "Po"
+		},
+		"savedReports": {
+			"MENU": "Zapisane raporty",
+			"LOADING": "Odczytywanie zapisanych raportów…",
+			"LOAD_ERROR": "Nie udało się odczytać zapisanych raportów.",
+			"TRY_AGAIN": "Spróbuj ponownie",
+			"EMPTY": "Brak zapisanych raportów. Zapisz ten widok, aby otworzyć go ponownie jednym kliknięciem.",
+			"UPDATE": "Zaktualizuj tym widokiem",
+			"RENAME": "Zmień nazwę",
+			"RENAME_TITLE": "Zmień nazwę raportu",
+			"DELETE": "Usuń",
+			"SAVE": "Zapisz",
+			"SAVE_TITLE": "Zapisz ten raport",
+			"SAVE_HINT": "Zachowuje okres, filtry i grupowanie. Otwórz go ponownie z Zapisanych raportów.",
+			"NAME": "Nazwa",
+			"NAME_PLACEHOLDER": "Klient A, poprzedni miesiąc",
+			"NAME_REQUIRED": "Nadaj raportowi nazwę.",
+			"NAME_TOO_LONG": "Najwyżej 100 znaków.",
+			"SAVED": "Zapisano „{name}”",
+			"UPDATED": "Zaktualizowano „{name}”",
+			"RENAMED": "Zmieniono nazwę raportu",
+			"DELETED": "Usunięto „{name}”",
+			"DELETE_TITLE": "Usunąć „{name}”?",
+			"DELETE_DESCRIPTION": "Zapisany raport zostanie usunięty, a jego link przestanie działać. Czas, który pokazuje, pozostaje.",
+			"SAVE_FAILED": "Nie udało się zapisać raportu.",
+			"DELETE_FAILED": "Nie udało się usunąć raportu.",
+			"SHARE": "Udostępnij",
+			"SHARE_TITLE": "Udostępnij link tylko do odczytu",
+			"SHARE_NEEDS_SAVE": "Link udostępnia zapisany raport. Nazwij ten widok, aby go zapisać, a potem włącz jego link.",
+			"SHARE_HINT": "Każdy, kto ma link, widzi bez konta nazwę raportu, okres, liczby, wykres i tabelę. Niczego nie można zmienić, a pokazuje tylko to, co możesz zobaczyć.",
+			"LINK_ADDRESS": "Adres linku",
+			"COPY": "Kopiuj",
+			"COPIED": "Skopiowano link",
+			"COPY_FAILED": "Nie udało się skopiować linku. Zaznacz go i skopiuj samodzielnie.",
+			"LINK_OFF": "Żaden link nie jest włączony.",
+			"LINK_ENDED": "Link wygasł {date}.",
+			"LINK_HIDDEN": "Link jest włączony. Jego adres jest pokazywany tylko przy tworzeniu: Zastąp link daje nowy do skopiowania, a stary przestaje działać.",
+			"EXPIRES": "Przestaje działać po {date}.",
+			"ENDS_ON": "Kończy się",
+			"ENDS_ON_HINT": "Opcjonalnie. Stosowane przy włączaniu lub zastępowaniu linku.",
+			"TURN_ON": "Włącz link",
+			"TURN_OFF": "Wyłącz",
+			"REPLACE": "Zastąp link",
+			"REPLACE_HINT": "Zastąpienie lub wyłączenie od razu zatrzymuje obecny adres.",
+			"INCLUDE_AMOUNTS": "Pokaż kwoty",
+			"INCLUDE_AMOUNTS_HINT": "Stawki i wartość czasu. Wyłączone: tylko czas trwania.",
+			"SHARE_FAILED": "Nie udało się zmienić linku.",
+			"SHARE_REFUSED": "Link można włączyć tylko z własnego logowania, a nie z sesji rozpoczętej tokenem API.",
+			"TURNED_OFF": "Link wyłączony: jego adres już nie działa."
 		}
 	},
 	"timeActivity": {
@@ -2111,6 +2163,18 @@
 			"billable": {
 				"LABEL": "Domyślnie do rozliczenia",
 				"HELP": "Dotyczy nowych wpisów; zapisane pozostają bez zmian."
+			},
+			"visibility": {
+				"LABEL": "Widoczność",
+				"EVERYONE_TITLE": "Wszyscy w organizacji",
+				"EVERYONE_DETAIL": "Widoczny dla każdego, kto widzi projekty.",
+				"PRIVATE_TITLE": "Tylko członkowie i menadżerowie",
+				"PRIVATE_DETAIL": "Widoczny tylko dla jego członków i menadżerów oraz administratorów.",
+				"NOT_ENFORCED": "Wszyscy nadal go widzą, dopóki administrator nie włączy Projektów prywatnych w ustawieniach obszaru roboczego.",
+				"SETTING_SECTION": "Projekty prywatne",
+				"SETTING_LABEL": "Pokazuj projekty prywatne tylko ich ludziom",
+				"SETTING_DESCRIPTION": "Projekt ustawiony na Tylko członkowie i menadżerowie widzą tylko oni i administratorzy. Wyłączone: wszyscy widzą wszystkie projekty.",
+				"SETTING_NOT_SAVED": "Ustawienie nie zostało zapisane."
 			},
 			"bulkActions": {
 				"bulkArchiveModal": {
@@ -3982,7 +4046,12 @@
 			"BROADCAST": "<b>{name}</b> opublikował(a) ogłoszenie",
 			"PAYMENT": "Zarejestrowano dla Ciebie płatność",
 			"RATE_CHANGE_REQUEST": "<b>{name}</b> prosi o zmianę stawki",
-			"TIMER_REMINDER": "Twój licznik czasu wciąż działa"
+			"TIMER_REMINDER": "Twój licznik czasu wciąż działa",
+			"MEETING": "Spotkanie, w którym uczestniczysz, zostało zmienione",
+			"TASK_UPDATE": "<b>{name}</b> wprowadził(a) zmianę",
+			"TASK_DUE_REMINDER": "Zbliża się termin zadania",
+			"BOARD_SHARE": "<b>{name}</b> udostępnił(a) Ci tablicę",
+			"BOARD_MENTION": "<b>{name}</b> wspomniał(a) o Tobie na tablicy"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "Przypisanie",
@@ -3993,7 +4062,12 @@
 			"BROADCAST": "Ogłoszenie",
 			"PAYMENT": "Płatność",
 			"RATE_CHANGE_REQUEST": "Prośba o zmianę stawki",
-			"TIMER_REMINDER": "Przypomnienie o liczniku czasu"
+			"TIMER_REMINDER": "Przypomnienie o liczniku czasu",
+			"MEETING": "Spotkanie",
+			"TASK_UPDATE": "Zmiana",
+			"TASK_DUE_REMINDER": "Przypomnienie o terminie",
+			"BOARD_SHARE": "Udostępniona tablica",
+			"BOARD_MENTION": "Wzmianka na tablicy"
 		},
 		"SOMEONE": "Ktoś",
 		"MARK_READ": "Oznacz jako przeczytane",
@@ -4070,7 +4144,33 @@
 				"OFF": "Wyłączone",
 				"AFTER_HOURS": "Po {hours, plural, one {# godzinie} other {# godzinach}}"
 			},
+			"MEETINGS": {
+				"TITLE": "Spotkania",
+				"INTRO": "Powiadomienia o spotkaniach, które organizujesz lub na które Cię zaproszono, oraz przypomnienie przed rozpoczęciem każdego z nich.",
+				"LABEL": "Przypomnienie o spotkaniu",
+				"TEXT": "Gdy zostaniesz zaproszony, gdy spotkanie się zmieni lub zostanie odwołane, przed jego rozpoczęciem i gdy się zaczyna. W Twojej skrzynce, e-mailem i na Twoich urządzeniach, zgodnie z Twoim wyborem.",
+				"OFF": "Tylko na początku",
+				"BEFORE_MINUTES": "{minutes} min wcześniej"
+			},
+			"TASK_DUE": {
+				"TITLE": "Terminy",
+				"INTRO": "Przypomnienie przed terminem zadania przypisanego do Ciebie, dopóki nie jest ukończone.",
+				"LABEL": "Przypomnienie o terminie",
+				"TEXT": "Zawsze w skrzynce odbiorczej. E-mailem i na Twoich urządzeniach, jak wybierzesz.",
+				"OFF": "Wyłączone",
+				"BEFORE_HOURS": "{hours, plural, one {# godzinę} few {# godziny} many {# godzin} other {# godziny}} wcześniej"
+			},
+			"BOARDS": {
+				"TITLE": "Tablice",
+				"INTRO": "Gdy współpracownik udostępni Ci tablicę lub wspomni o Tobie na niej, w aplikacji tablic.",
+				"SHARE_LABEL": "Udostępnione Tobie",
+				"MENTION_LABEL": "Wzmianka na tablicy",
+				"TEXT": "Zawsze w skrzynce odbiorczej. E-mailem i na Twoich urządzeniach, jak wybierzesz."
+			},
 			"INTRO": "Wybierz, co trafia do Twojej skrzynki. Wyłączenie typu zatrzymuje nowe powiadomienia tego typu; te, które już masz, zostają.",
+			"TEAM_DEFAULTS_TITLE": "Twój zespół {team} ustala domyślne powiadomienia",
+			"TEAM_DEFAULTS_TEXT": "To, czego tu nie wybierzesz, podąża za nimi. Twoje wybory zawsze mają pierwszeństwo.",
+			"TASK_UPDATE_TEXT": "Zmiana statusu, dat lub członków zadania albo projektu, które obserwujesz. Wyłączone nadal trafia do skrzynki, bez e-maila i powiadomienia.",
 			"LOAD_ERROR": "Nie udało się wczytać ustawień powiadomień.",
 			"SAVE_FAILED": "To ustawienie nie zostało zapisane. Spróbuj ponownie.",
 			"ROWS": {
@@ -4120,6 +4220,23 @@
 			"FORGOTTEN_DESCRIPTION": "Zapomniany? Zatrzymaj go, a w razie potrzeby popraw czas w karcie czasu pracy.",
 			"STOP": "Zatrzymaj licznik",
 			"OPEN": "Otwórz licznik"
+		},
+		"MEETING": {
+			"INVITED": "<b>{name}</b> zaprosił(a) Cię na spotkanie",
+			"REMOVED": "<b>{name}</b> usunął(a) Cię ze spotkania",
+			"CHANGED": "<b>{name}</b> zmienił(a) spotkanie",
+			"CANCELLED": "<b>{name}</b> odwołał(a) spotkanie",
+			"REMINDER": "Twoje spotkanie zaczyna się za {minutes, plural, one {# minutę} few {# minuty} many {# minut} other {# minuty}}",
+			"SOON": "Twoje spotkanie wkrótce się zacznie",
+			"STARTING": "Twoje spotkanie się zaczyna",
+			"OPEN": "Otwórz spotkania"
+		},
+		"TASK_DUE": {
+			"BY_END_OF_DAY": "Termin: do końca {date}",
+			"AT": "Termin: {date}"
+		},
+		"BOARD_INVITATION": {
+			"TEXT": "Zaprasza Cię do tablicy: otwórz ją, aby dołączyć."
 		}
 	},
 	"toasts": {
@@ -4379,7 +4496,7 @@
 		"ADD_TO_CALENDAR": "Dodaj do kalendarza",
 		"DONE": "Gotowe",
 		"AGENDA": "Agenda",
-		"AGENDA_HINT": "Spotkania zaplanowane przez ciebie",
+		"AGENDA_HINT": "Spotkania zaplanowane przez ciebie lub na które cię zaproszono",
 		"TODAY": "Dzisiaj",
 		"TOMORROW": "Jutro",
 		"YESTERDAY": "Wczoraj",
@@ -4403,6 +4520,7 @@
 		"JOIN_MEETING": "Dołącz do spotkania",
 		"MEETING_ACTIONS_OF": "Działania dla {title}",
 		"HOST": "Organizator: {name}",
+		"INVITED": "Zaproszenie",
 		"STARTED_AGO": "Rozpoczęte {ago}",
 		"CANCEL_MEETING": "Odwołaj spotkanie",
 		"CANCEL_CONFIRM_TITLE": "Odwołać to spotkanie?",
@@ -5187,6 +5305,15 @@
 			"SHARE_PROFILES_DESCRIPTION": "Członkowie widzą na stronach profilu nawzajem swoje plany dnia i statystyki.",
 			"REQUIRE_PLAN_LABEL": "Wymagaj planu dnia do śledzenia czasu",
 			"REQUIRE_PLAN_DESCRIPTION": "Licznik startuje dopiero, gdy członek zaplanuje dzień.",
+			"NOTIFICATIONS_SECTION": "Domyślne powiadomienia",
+			"NOTIFICATIONS_DESCRIPTION": "Co dostaje członek, który niczego nie wybrał we własnych ustawieniach powiadomień. Jego wybory zawsze mają pierwszeństwo.",
+			"MEMBERS_CHOOSE": "Wybierają członkowie",
+			"EMAIL_DEFAULT_DESCRIPTION": "Jak każdy rodzaj trafia do członków e-mailem.",
+			"PUSH_DEFAULT_DESCRIPTION": "Na urządzeniach, na których członkowie je włączyli.",
+			"TASK_UPDATE_DEFAULT_LABEL": "Zmiany obserwowanych zadań i projektów",
+			"TASK_UPDATE_DEFAULT_DESCRIPTION": "Zmiana statusu, dat lub członków zadania albo projektu, które członek obserwuje.",
+			"TIMER_DEFAULT_DESCRIPTION": "Po jakim czasie działający licznik zasługuje na przypomnienie.",
+			"TASK_DUE_DEFAULT_DESCRIPTION": "Jak długo przed terminem zadania przypisane osoby dostają przypomnienie.",
 			"ORGANIZATION_TRACKING_SECTION": "Wymagania wpisów czasu",
 			"ORGANIZATION_TRACKING_DESCRIPTION": "Dotyczy wszystkich zespołów {organization}.",
 			"REQUIRE_TEAM_LABEL": "Wymagaj zespołu",
@@ -5422,7 +5549,8 @@
 			"SIGN_OUT_INCOMPLETE": "Sesja odnowiła się podczas wylogowywania. Spróbuj ponownie.",
 			"SIGN_OUT_OTHERS_FAILED": "Wylogowywanie innych sesji nie zostało ukończone. {reason}",
 			"SIGN_OUT_OTHERS_CONFIRM": "{count, plural, one {Wyloguj # sesję} few {Wyloguj # sesje} many {Wyloguj # sesji} other {Wyloguj # sesji}}",
-			"SIGNED_OUT_OTHERS": "{count, plural, =0 {Żadna inna sesja nie była zalogowana.} one {Wylogowano # inną sesję.} few {Wylogowano # inne sesje.} many {Wylogowano # innych sesji.} other {Wylogowano # innej sesji.}}"
+			"SIGNED_OUT_OTHERS": "{count, plural, =0 {Żadna inna sesja nie była zalogowana.} one {Wylogowano # inną sesję.} few {Wylogowano # inne sesje.} many {Wylogowano # innych sesji.} other {Wylogowano # innej sesji.}}",
+			"APP_ON_DEVICE": "{app} · {device}"
 		},
 		"profile": {
 			"SECTION_PROFILE": "Profil",
@@ -5967,6 +6095,12 @@
 			"REQUIRED_TITLE": "Twoja organizacja prosi o włączenie",
 			"REQUIRED_DESCRIPTION": "Jej członkowie logują się też kodem z aplikacji uwierzytelniającej.",
 			"QR_ALT": "Kod QR tego konta dla aplikacji uwierzytelniającej"
+		},
+		"thisBrowser": {
+			"TITLE": "Ta przeglądarka",
+			"DESCRIPTION": "Jak długo pozostajesz zalogowany w tej przeglądarce. Twoje inne przeglądarki i aplikacje mają własne sesje.",
+			"SIGN_OUT_ON_CLOSE": "Wyloguj po zamknięciu tej przeglądarki",
+			"SIGN_OUT_ON_CLOSE_HINT": "Na współdzielony komputer. Gdy jest wyłączone, pozostajesz zalogowany po zamknięciu przeglądarki, aż sesja wygaśnie."
 		}
 	},
 	"taskDetail": {
@@ -7700,6 +7834,122 @@
 			"NOT_FOUND_MESSAGE": "Mogła zostać usunięta albo link pochodzi z innej przestrzeni roboczej.",
 			"ALL_INVOICES": "Wszystkie faktury",
 			"ERROR_TITLE": "Nie udało się wczytać faktury"
+		},
+		"schedule": {
+			"TITLE": "Fakturowanie według harmonogramu",
+			"NONE_HINT": "Wystawiaj fakturę tego klienta samoczynnie co tydzień, co dwa tygodnie lub co miesiąc, z czasu rozliczalnego jeszcze niezafakturowanego.",
+			"SET_UP": "Ustaw harmonogram",
+			"EDIT": "Edytuj",
+			"PAUSE": "Wstrzymaj",
+			"RESUME": "Wznów",
+			"PAUSED": "Wstrzymany",
+			"ACTIVE": "Aktywny",
+			"SUMMARY": "{frequency} od {day}",
+			"DELIVERY_DRAFT": "Zostaje szkicem",
+			"DELIVERY_SEND": "Wysyłana na {email}",
+			"DELIVERY_SEND_NO_EMAIL": "Wysyłana na adres e-mail klienta",
+			"NEXT": "Następna faktura {day}, za {period}",
+			"NEXT_PAUSED": "Podczas wstrzymania nie powstaje żadna faktura",
+			"RUNS": "Ostatnie uruchomienia",
+			"NO_RUNS": "Jeszcze żadnego uruchomienia",
+			"RUNS_ERROR": "Nie udało się wczytać ostatnich uruchomień",
+			"ERROR": "Nie udało się wczytać harmonogramu fakturowania",
+			"OPEN_INVOICE": "Otwórz fakturę",
+			"LEFT_OUT": "Pominięto {hours} h okresu: bez stawki lub w innej walucie",
+			"LIST_TITLE": "Fakturowani według harmonogramu",
+			"LIST_NEXT": "następna {day}",
+			"LIST_PAUSED": "wstrzymany",
+			"frequency": {
+				"WEEKLY": "Co tydzień",
+				"BIWEEKLY": "Co dwa tygodnie",
+				"MONTHLY": "Co miesiąc"
+			},
+			"grouping": {
+				"PROJECT": "Według projektu",
+				"MEMBER": "Według członka",
+				"TASK": "Według zadania"
+			},
+			"run": {
+				"CLAIMED": "W toku",
+				"DRAFTED": "Utworzono szkic",
+				"SENT": "Wysłana",
+				"NOT_SENT": "Utworzona, niewysłana",
+				"NO_TIME": "Nic do zafakturowania",
+				"FAILED": "Nie utworzono"
+			},
+			"reason": {
+				"NO_BILLABLE_TIME": "W okresie nie pozostał czas rozliczalny do zafakturowania.",
+				"NO_PRICED_TIME": "Czas okresu nie ma stawki, według której można go zafakturować. Ponowna próba co godzinę przez tydzień.",
+				"AUTHOR_CANNOT_INVOICE": "Osoba, która ostatnio zapisała harmonogram, nie może już wystawiać faktur. Zapisz go, aby go przejąć; ponowna próba co godzinę przez tydzień.",
+				"CLIENT_HAS_NO_EMAIL": "Klient nie ma adresu e-mail: faktura pozostała szkicem.",
+				"EMAIL_NOT_SENT": "Nie udało się wysłać wiadomości: faktura pozostała szkicem.",
+				"INVOICE_NOT_SAVED": "Nie udało się zapisać faktury. Ponowna próba co godzinę przez tydzień."
+			},
+			"form": {
+				"CREATE_TITLE": "Fakturuj według harmonogramu",
+				"EDIT_TITLE": "Edytuj harmonogram fakturowania",
+				"FREQUENCY": "Jak często",
+				"START_DAY": "Pierwszy dzień pierwszego okresu",
+				"START_HINT": "Każda faktura powstaje dzień po zakończeniu swojego okresu, w strefie czasowej obszaru roboczego. Żaden okres zakończony przed dzisiaj nie jest fakturowany.",
+				"START_INVALID": "Wybierz dzień.",
+				"GROUPING": "Pozycje",
+				"DELIVERY": "Po utworzeniu",
+				"DRAFT": "Zachowaj jako szkic",
+				"SEND": "Wyślij do klienta",
+				"DRAFT_HINT": "Każda faktura czeka jako szkic, aż ją sprawdzisz i wyślesz.",
+				"SEND_HINT": "Każda faktura trafia na {email} z plikiem PDF i jest oznaczana jako Wysłana.",
+				"SEND_NO_EMAIL": "Ten klient nie ma adresu e-mail: jego faktury pozostaną szkicami, dopóki go nie poda.",
+				"SAVE": "Zapisz",
+				"SAVE_FAILED": "Nie udało się zapisać harmonogramu. Spróbuj ponownie.",
+				"EXISTS": "Ten klient ma już harmonogram. Zamknij i otwórz go ponownie, aby go zmienić.",
+				"START_AFTER_BILLED": "Ten harmonogram zafakturował już okresy: nowy harmonogram musi zacząć się po ostatnim zafakturowanym okresie, {day}."
+			},
+			"delete": {
+				"TITLE": "Usunąć ten harmonogram fakturowania?",
+				"BODY": "Dla {name} nie powstanie już żadna faktura samoczynnie. Wystawione faktury zostają."
+			},
+			"toasts": {
+				"SAVED": "Zapisano harmonogram fakturowania: {name}",
+				"PAUSED": "Wstrzymano harmonogram fakturowania: {name}",
+				"RESUMED": "Wznowiono harmonogram fakturowania: {name}, następna faktura {day}",
+				"DELETED": "Usunięto harmonogram fakturowania: {name}",
+				"FAILED": "Nie udało się zapisać zmiany. Spróbuj ponownie."
+			}
+		},
+		"shared": {
+			"PAY": "Zapłać {amount}",
+			"PAYING": "Otwieranie płatności…",
+			"PAY_FAILED": "Nie udało się rozpocząć płatności. Spróbuj ponownie za chwilę.",
+			"DOWNLOAD_FAILED": "Nie udało się pobrać pliku PDF. Spróbuj ponownie.",
+			"FROM_SENDER": "Od {name}",
+			"RETURNED_TITLE": "Dziękujemy za płatność",
+			"RETURNED_MESSAGE": "Trwa jej potwierdzanie. Ta strona pokaże fakturę jako opłaconą, gdy tylko dostawca płatności to potwierdzi.",
+			"PAID_TITLE": "Ta faktura jest opłacona",
+			"PAID_MESSAGE": "Nie ma już nic do zapłaty. Dziękujemy.",
+			"CLOSED_TITLE": "Ten link nie otwiera już faktury",
+			"CLOSED_MESSAGE": "Link został unieważniony albo faktura została anulowana. Poproś nadawcę o nowy link.",
+			"FOOTER": "Wysłano przez {app}"
+		},
+		"payments": {
+			"TITLE": "Płatności online za faktury",
+			"DESCRIPTION": "Pozwól klientom opłacić fakturę z jej strony przez łącznik płatności Twojej przestrzeni roboczej. Klucze dostawcy płatności pozostają w łączniku.",
+			"ENDPOINT": "Adres płatności",
+			"ENDPOINT_HINT": "Adres HTTPS Twojego łącznika, który otwiera płatność.",
+			"ENABLED": "Oferuj płatność online na stronach faktur",
+			"TEST_MODE": "Tryb testowy: płatności są zapisywane w dzienniku, nigdy na fakturach",
+			"CONNECT": "Połącz",
+			"SAVE": "Zapisz",
+			"SAVED": "Zapisano",
+			"SAVE_FAILED": "Nie udało się zapisać połączenia. Sprawdź adres i spróbuj ponownie.",
+			"LOAD_FAILED": "Nie udało się wczytać połączenia.",
+			"NOTIFICATION_URL": "Adres powiadomień",
+			"NOTIFICATION_URL_HINT": "Twój łącznik wysyła tu każdą płatność potwierdzoną przez dostawcę.",
+			"SECRET": "Sekret podpisu",
+			"SECRET_ONCE": "Skopiuj go teraz do łącznika: jest pokazywany tylko ten jeden raz.",
+			"ROTATE": "Nowy sekret podpisu",
+			"ROTATE_HINT": "Obecny sekret od razu przestaje działać.",
+			"COPY": "Kopiuj",
+			"COPIED": "Skopiowano"
 		}
 	},
 	"timeReports": {
@@ -8017,6 +8267,15 @@
 		"TYPE_BREAK": "Przerwa",
 		"BREAK_HINT": "Przerwa nigdy nie jest rozliczana i nigdy nie liczy się jako czas pracy."
 	},
+	"tabOrganizationNotice": {
+		"TITLE": "Inna organizacja jest otwarta w innej karcie",
+		"KEEPS_WORKING": "Ta karta nadal pracuje w {organization}, ze swoim licznikiem czasu i swoimi stronami.",
+		"CANNOT_WORK_TITLE": "Ta karta nie może już pracować w {organization}",
+		"CANNOT_WORK": "Inna organizacja jest otwarta w innej karcie. Wybierz, gdzie ta karta ma pracować.",
+		"STOP_TIMER_FIRST": "Jej licznik czasu działa w {organization}: zatrzymaj go, zanim otworzysz tutaj drugą organizację.",
+		"OPEN_HERE": "Otwórz tutaj drugą organizację",
+		"BRING_BACK": "Używaj {organization} we wszystkich kartach"
+	},
 	"timeZoneNotice": {
 		"TITLE": "Twój profil używa strefy {profileZone} ({profileOffset}). Ta przeglądarka jest w strefie {browserZone} ({browserOffset}).",
 		"DESCRIPTION": "Karty czasu liczą twoje dni w strefie z twojego profilu, a pozostałe raporty w strefie tej przeglądarki, więc wpis blisko północy może trafić na inny dzień.",
@@ -8028,5 +8287,15 @@
 		"SAVE_FAILED": "Nie udało się zapisać twojej strefy czasowej.",
 		"SAVE_FAILED_DESCRIPTION": "Twój profil się nie zmienił. Sprawdź połączenie i spróbuj ponownie.",
 		"TRY_AGAIN": "Spróbuj ponownie"
+	},
+	"sharedReport": {
+		"READ_ONLY_BADGE": "Tylko do odczytu",
+		"READ_ONLY": "Raport tylko do odczytu udostępniony z {app}. Dane na {time}.",
+		"NOT_WORKING_TITLE": "Ten link już nie działa",
+		"NOT_WORKING_MESSAGE": "Autor go wyłączył, zastąpił lub pozwolił mu wygasnąć. Poproś o nowy link.",
+		"ERROR_TITLE": "Nie udało się odczytać raportu",
+		"ERROR_MESSAGE": "Sprawdź połączenie i spróbuj ponownie.",
+		"LOADING": "Wczytywanie raportu…",
+		"EMPTY": "W tym okresie nie zarejestrowano czasu."
 	}
 }

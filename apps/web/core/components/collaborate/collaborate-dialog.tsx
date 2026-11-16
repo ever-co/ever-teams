@@ -23,6 +23,7 @@ import { getTimerStatusValue, TimerStatus } from '@/core/components/timer/timer-
 import { preloadLiveKit } from '@/core/components/optimized-components/meet';
 import { activeTeamState, timerStatusState } from '@/core/stores';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { useBoardInvitations } from '@/core/hooks/notifications/use-board-invitations';
 import { BOARD_APP_DOMAIN } from '@/core/constants/config/constants';
 import { cn } from '@/core/lib/helpers';
 import {
@@ -358,6 +359,7 @@ function CollaborateBody({ onClose }: Readonly<{ onClose: () => void }>) {
 	const meetPath = meetPathFor(roomName, isJitsi);
 	const roomLink = `${originOf()}${meetPath}`;
 	const pickedPersonIds = pickedPeople.map((person) => person.id);
+	const inviteToBoard = useBoardInvitations();
 	const board = boardTargetFor(pickedPersonIds, BOARD_APP_DOMAIN.value, originOf());
 	const hasBoardApp = Boolean(BOARD_APP_DOMAIN.value);
 	const everyone: Person[] = [...meOf(user), ...pickedPeople];
@@ -401,6 +403,8 @@ function CollaborateBody({ onClose }: Readonly<{ onClose: () => void }>) {
 	const openBoard = () => {
 		onClose();
 		if (board.isExternal) {
+			// The people picked find the Board in their Inbox too; the in-app board is this browser's own
+			inviteToBoard(pickedPersonIds);
 			window.open(board.href, '_blank', 'noreferrer');
 			return;
 		}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useAtomValue } from 'jotai';
 import { useTranslations } from 'next-intl';
 import { useAuthenticateUser } from '@/core/hooks/auth';
@@ -14,7 +14,7 @@ import { useMyRolePermissionsQuery } from '@/core/hooks/roles/use-my-role-permis
 import { getDefaultTimezone } from '@/core/lib/helpers/date-and-time';
 import { clientNamesOf } from '@/core/lib/utils/clients';
 import { localDayKeyOf } from '@/core/lib/utils/dashboard-export';
-import { daysOfPeriod, type Period, periodOfPreset } from '@/core/lib/utils/dashboard-period';
+import { daysOfPeriod, isSamePeriod, type Period, periodOfPreset } from '@/core/lib/utils/dashboard-period';
 import {
 	activityPercentOf,
 	type DailyReportRow,
@@ -337,6 +337,26 @@ function clientLookupStateOf(input: ClientLookupInput) {
 	};
 }
 
+/**
+ * The period the daily rows on screen were read for. While another period is read, the previous rows stay on screen
+ * (placeholder data): drawn on the next period's days, none of them would fall on a day and the chart would say no
+ * time was tracked (#5342). The requested period once its own rows are there.
+ *
+ * Only a period's own answer settles it: a read that failed without rows does not, since its retry shows the last
+ * answered rows again as placeholder data.
+ */
+function useShownPeriod(period: Period, isShowingPreviousRows: boolean, hasRows: boolean): Period {
+	const [settledPeriod, setSettledPeriod] = useState(period);
+	const isOwnAnswer = hasRows && !isShowingPreviousRows;
+	if (isOwnAnswer && !isSamePeriod(settledPeriod, period)) {
+		setSettledPeriod(period);
+	}
+	if (isShowingPreviousRows) {
+		return settledPeriod;
+	}
+	return period;
+}
+
 export function useTimeActivityReport() {
 	const t = useTranslations();
 	const locale = useWorkspaceLocale();
@@ -346,7 +366,19 @@ export function useTimeActivityReport() {
 	const { userManagedTeams } = useOrganizationAndTeamManagers();
 	const ownEmployeeId = user?.employee?.id;
 	const settings = useTimeActivitySettings();
-	const [period, setPeriod] = useState<Period>(defaultPeriodOf);
+	const [defaultPeriod] = useState<Period>(defaultPeriodOf);
+	const { linkedPeriod, holdsView, setPeriod: writePeriod } = settings;
+	const period = linkedPeriod ?? defaultPeriod;
+
+	// A visit whose link names no period writes its view into the link at once, so its address can be copied
+	useEffect(() => {
+		if (holdsView) {
+			return;
+		}
+		writePeriod(defaultPeriod);
+	}, [defaultPeriod, holdsView, writePeriod]);
+
+	const setPeriod = useCallback((nextPeriod: Period) => writePeriod(nextPeriod), [writePeriod]);
 
 	const request = useMemo(() => {
 		const access: ReportAccess = { isManager, isOrganizationWide, managedTeams: userManagedTeams };
@@ -532,11 +564,12 @@ export function useTimeActivityReport() {
 		]
 	);
 
+	const chartPeriod = useShownPeriod(period, dailyQuery.isPlaceholderData, hasDailyData);
 	const chartDays = useMemo(() => {
-		const days = daysOfPeriod(period);
+		const days = daysOfPeriod(chartPeriod);
 		const labels = chartLabelsOf(locale, days.length);
 		return chartDaysOf(days, dayFiguresOf(rows), todayKeyOf(), labels);
-	}, [locale, period, rows]);
+	}, [locale, chartPeriod, rows]);
 
 	const tableGrouping = tableGroupingOf(settings.grouping);
 	const breakdownGrouping = breakdownGroupingOf(settings.grouping);

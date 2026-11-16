@@ -9,9 +9,18 @@ import {
 } from '@/core/types/interfaces/common/inbox-item';
 import { readRuntimeEnv } from '@/env-config';
 import { timerReminderNoticeOf, type TimerReminderNotice } from '@/core/lib/notifications/timer-reminders';
+import { MEETINGS_HREF, meetingNoticeOf, type MeetingNotice } from '@/core/lib/notifications/meeting-notices';
+import { boardInvitationHref, isBoardInvitation } from '@/core/lib/notifications/board-invitations';
+import { boardNoticeOf, boardNotificationHrefOf, isBoardNotificationType, notificationBoardOf, type BoardNotice } from '@/core/lib/notifications/board-notifications';
 import { docsInboxHrefOf, isDocsInboxEntry } from './docs-links';
 import { isDocsEnabled } from './docs-enabled';
-import { NotificationEntry, quotedSubjectOf, senderNameFromTitle, TIMER_REMINDER_HREF } from './notification-inbox';
+import {
+	NotificationEntry,
+	projectHrefOf,
+	quotedSubjectOf,
+	senderNameFromTitle,
+	TIMER_REMINDER_HREF
+} from './notification-inbox';
 
 /** The families an entry is grouped and filtered by. */
 export type InboxSourceGroup = 'tasks' | 'chat' | 'docs' | 'email' | 'integrations' | 'people' | 'other';
@@ -49,6 +58,8 @@ export interface InboxEntry {
 	href: string | null;
 	/** A reminder of a timer left running: its level, the hours it names and its run, read in the reader's language. */
 	timerReminder: TimerReminderNotice | null;
+	/** A notice about a meeting the person hosts or is invited to: its kind, its title and its appointment. */
+	meeting: MeetingNotice | null;
 	isUnread: boolean;
 	isArchived: boolean;
 	isDone: boolean;
@@ -97,6 +108,8 @@ export function sourceGroupOf(
 	// A comment on a page (the platform names its record in the metadata) is a Docs entry, not a task's.
 	if (!item.taskId && isDocsInboxEntry(entity, item.metadata ?? null)) return 'docs';
 	if (item.taskId || entity === EBaseEntityEnum.Task || entity === 'Comment') return 'tasks';
+	// A project its member was added to, or whose state or dates changed: the work family, as its tasks
+	if (entity === EBaseEntityEnum.OrganizationProject) return 'tasks';
 	if (entity === 'ChatMessage' || entity === 'ChatConversation' || type === EEmployeeNotificationType.Message) return 'chat';
 	if (entity === 'Document' || entity === 'DocumentLink') return 'docs';
 	if (type === EEmployeeNotificationType.Invitation || type === EEmployeeNotificationType.RateChangeRequest || entity === 'Employee') return 'people';
@@ -143,9 +156,15 @@ export function showsInboxSheet(entry: Pick<InboxEntry, 'taskId' | 'href' | 'cha
 	return !!entry.decision || !hasInboxTarget(entry, chatPages);
 }
 
-function hrefOf(type: EEmployeeNotificationType | null, entry: Pick<InboxEntry, 'entity' | 'entityId'>, metadata: Record<string, unknown> | null = null): string | null {
+function hrefOf(type: EEmployeeNotificationType | null, entry: Pick<InboxEntry, 'entity' | 'entityId' | 'rawTitle'>, metadata: Record<string, unknown> | null = null): string | null {
 	if (type === EEmployeeNotificationType.RateChangeRequest) return RATE_CHANGE_REQUEST_HREF;
+	if (isBoardInvitation({ type, entity: entry.entity, rawTitle: entry.rawTitle })) return boardInvitationHref();
+	// A Board shared, or a mention in one, opens the Board at the link sent with it, when the link is the Boards app's
+	if (isBoardNotificationType(type)) return boardNotificationHrefOf(notificationBoardOf(metadata));
 	if (type === EEmployeeNotificationType.TimerReminder) return TIMER_REMINDER_HREF;
+	if (type === EEmployeeNotificationType.Meeting) return MEETINGS_HREF;
+	const projectHref = projectHrefOf(entry.entity, entry.entityId);
+	if (projectHref) return projectHref;
 	// Without the chat pages a conversation has nowhere to open: the entry is not a link.
 	if (entry.entity === 'ChatConversation' && entry.entityId && hasChatPages()) return `/chat/${entry.entityId}`;
 	// A page, or a comment on one (its thread), opens in Docs where the deployment has it.
@@ -223,6 +242,25 @@ export class InboxFieldRequests {
 	}
 }
 
+/**
+ * What a notification alone carries: the timer reminder or meeting notice it is, the sender its title names, and the
+ * Board a `BoardShare` or a `BoardMention` names (read from its title's fixed ending and its metadata).
+ */
+function notificationPartsOf(
+	isNotification: boolean,
+	notice: { type: EEmployeeNotificationType | null; title: string; entity: string | null; entityId: string | null; metadata: unknown }
+): Pick<InboxEntry, 'timerReminder' | 'meeting' | 'senderName'> & { board: BoardNotice | null } {
+	if (!isNotification) return { timerReminder: null, meeting: null, senderName: null, board: null };
+	const board = boardNoticeOf(notice);
+	return {
+		timerReminder: timerReminderNoticeOf(notice),
+		meeting: meetingNoticeOf(notice),
+		// A meeting's title names no one: a word of the meeting's own title is no sender (#5022)
+		senderName: notice.type === EEmployeeNotificationType.Meeting ? null : (board?.senderName ?? senderNameFromTitle(notice.title)),
+		board
+	};
+}
+
 /** An entry from a platform inbox item. */
 export function toInboxEntry(item: IInboxItem): InboxEntry {
 	const metadata = item.metadata ?? {};
@@ -232,14 +270,21 @@ export function toInboxEntry(item: IInboxItem): InboxEntry {
 	const recipient = item.recipient;
 	const entity = stringOf(item.entity);
 	const entityId = stringOf(item.entityId);
-	const timerReminder = isNotification ? timerReminderNoticeOf({ type, title: rawTitle, entity, entityId }) : null;
+	const { timerReminder, meeting, senderName, board } = notificationPartsOf(isNotification, {
+		type,
+		title: rawTitle,
+		entity,
+		entityId,
+		metadata
+	});
 	const itemTaskId = stringOf(item.taskId) ?? (entity === EBaseEntityEnum.Task ? entityId : null);
 	// A timer reminder is about its run: it opens the timer, not a task its item may name
 	const taskId = timerReminder ? null : itemTaskId;
 	// A chat notification carries its channel and its text in the title; a quote inside the text is not a subject.
 	const chatParts = isNotification && entity === 'ChatMessage' ? messagePartsOfTitle(rawTitle) : null;
 	const quoted = isNotification && !chatParts ? quotedSubjectOf(rawTitle) : null;
-	const subject = subjectOf(entity, chatParts, quoted);
+	// A Board's name is the one its metadata keeps, else the one its title's fixed ending closes (#5022)
+	const subject = board ? board.subject : subjectOf(entity, chatParts, quoted);
 	const message = stringOf(item.body) ?? chatParts?.preview ?? null;
 	const entry: InboxEntry = {
 		id: item.id,
@@ -250,7 +295,7 @@ export function toInboxEntry(item: IInboxItem): InboxEntry {
 		rawTitle,
 		subject,
 		message: message && message !== subject && message !== rawTitle ? message : null,
-		senderName: isNotification ? senderNameFromTitle(rawTitle) : null,
+		senderName,
 		sentByEmployeeId: stringOf(metadata['sentByEmployeeId']),
 		entity,
 		entityId,
@@ -258,6 +303,7 @@ export function toInboxEntry(item: IInboxItem): InboxEntry {
 		chatMessageId: entity === 'ChatMessage' ? entityId : null,
 		href: null,
 		timerReminder,
+		meeting,
 		isUnread: recipient ? recipient.isRead !== true : true,
 		isArchived: !!recipient?.isArchived,
 		isDone: !!(recipient?.doneAt || recipient?.isDone),
@@ -310,12 +356,13 @@ export function fromNotificationEntry(notification: NotificationEntry): InboxEnt
 		message: notification.message,
 		senderName: notification.senderName,
 		sentByEmployeeId: null,
-		entity: notification.taskId ? EBaseEntityEnum.Task : null,
-		entityId: notification.taskId,
+		entity: notification.entity ?? (notification.taskId ? EBaseEntityEnum.Task : null),
+		entityId: notification.entityId ?? notification.taskId,
 		taskId: notification.taskId,
 		chatMessageId: null,
 		href: notification.href,
 		timerReminder: notification.timerReminder,
+		meeting: notification.meeting,
 		isUnread: notification.isUnread,
 		isArchived: false,
 		isDone: false,
@@ -361,7 +408,7 @@ export function matchesInboxFilter(entry: InboxEntry, filter: InboxFilter, sourc
 		case 'unread':
 			return entry.isUnread;
 		case 'mentions':
-			return entry.type === EEmployeeNotificationType.Mention;
+			return entry.type === EEmployeeNotificationType.Mention || entry.type === EEmployeeNotificationType.BoardMention;
 		case 'assigned':
 			return entry.type === EEmployeeNotificationType.Assignment;
 		default:

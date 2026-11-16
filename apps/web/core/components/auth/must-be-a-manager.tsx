@@ -28,7 +28,7 @@ function boundedWaitOf(teamsSettled: boolean) {
 /** Restricts report content to team managers and tenant-wide administrators. */
 export default function MustBeAManager({ children, redirectTo = '/', useRedirect = true, fallback }: Readonly<Props>) {
 	// All hooks must be called before any conditional returns
-	const { user, userLoading: isUserLoading, isTeamManager } = useAuthenticateUser();
+	const { user, isTeamManager } = useAuthenticateUser();
 	const { getOrganizationTeamsLoading: isTeamsLoading, teams, activeTeam } = useOrganizationTeamsQuery();
 	const areTeamsSettled = useAreTeamsSettled();
 	const router = useRouter();
@@ -46,7 +46,9 @@ export default function MustBeAManager({ children, redirectTo = '/', useRedirect
 	// got bounced from /reports/* to "/" (2026-08-17). Also: the teams query is disabled until the
 	// user is known, and a disabled query reports isLoading=false. Treat all of that as "still
 	// loading" until the membership data the decision depends on is really there.
-	const userReady = !!user?.id && !isUserLoading;
+	// A known user is ready: a background re-read of `users.me` (timer start, token renewal, refocus) must not swap the
+	// whole report for its skeleton and lose its filters (#5334). The first load still waits, since `user` is empty then.
+	const userReady = !!user?.id;
 	// The manager check compares member.employee.userId (or employeeId) with the current user, so wait
 	// for the CURRENT USER'S OWN membership row to be present — "some members are loaded" was not
 	// enough: on a cold first load the list can be present before the employee relation is, and

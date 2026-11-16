@@ -1,5 +1,5 @@
 import { DeleteResponse, PaginationResponse } from '@/core/types/interfaces/common/data-response';
-import type { MeetingAppointment } from '@/core/lib/utils/meetings';
+import type { MeetingAppointment, MeetingInvitation } from '@/core/lib/utils/meetings';
 import { serverFetch } from '../fetch';
 
 /** A member's own appointments (`GET /employee-appointment`), the query as the client sent it. */
@@ -76,5 +76,28 @@ export function deleteEmployeeAppointmentRequest({
 		method: 'DELETE',
 		bearer_token,
 		tenantId
+	});
+}
+
+/**
+ * The meetings others host that the member is invited to (`GET /employee-appointment/invited`, #5022), the range as
+ * the client sent it.
+ */
+export function getInvitedMeetingsRequest({
+	query,
+	bearer_token,
+	tenantId
+}: {
+	query: string;
+	bearer_token: string;
+	tenantId: string;
+}) {
+	return serverFetch<MeetingInvitation[]>({
+		path: query ? `/employee-appointment/invited?${query}` : '/employee-appointment/invited',
+		method: 'GET',
+		bearer_token,
+		tenantId,
+		// An older platform answers 404 for the route: the client then lists the member's own meetings only
+		keepsStatusOnError: true
 	});
 }

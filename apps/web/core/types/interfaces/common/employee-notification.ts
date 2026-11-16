@@ -13,7 +13,35 @@ export enum EEmployeeNotificationType {
 	Broadcast = 'Broadcast',
 	RateChangeRequest = 'RateChangeRequest',
 	/** A timer left running, at the employee's threshold, then at twice it (#5022): about the run's time log. */
-	TimerReminder = 'TimerReminder'
+	TimerReminder = 'TimerReminder',
+	/**
+	 * A meeting the person hosts or is invited to (#5022): they were invited or removed, it was changed or cancelled, it
+	 * starts soon or it is starting. About the meeting's appointment; the title says which (`meetingNoticeOf`).
+	 */
+	Meeting = 'Meeting',
+	/**
+	 * A record the employee follows changed (#5022): a task's status, priority, due date or members, or a project's
+	 * status, dates or archiving (its members follow it). The message says what changed.
+	 */
+	TaskUpdate = 'TaskUpdate',
+	/** A task the employee is assigned to is due soon, at their threshold before its due date (#5022): about the task. */
+	TaskDueReminder = 'TaskDueReminder',
+	/** A colleague shared a Board with the employee, in the Boards app (#5022): the Board is in `metadata.board`. */
+	BoardShare = 'BoardShare',
+	/** A colleague mentioned the employee in a Board, in the Boards app (#5022): the Board is in `metadata.board`. */
+	BoardMention = 'BoardMention'
+}
+
+/**
+ * The Board a `BoardShare` or a `BoardMention` names. A Board is no record of the platform: it is named by its room or
+ * its snapshot, with the name and the link the sender's Boards app sent, each as sent (`board-notification.ts` there).
+ */
+export interface INotificationBoard {
+	roomId?: string | null;
+	snapshotId?: string | null;
+	name?: string | null;
+	/** The address that opens the Board; its `#` part holds the Board's key when the sender chose to send it. */
+	link?: string | null;
 }
 
 export interface IEmployeeNotification {
@@ -32,6 +60,8 @@ export interface IEmployeeNotification {
 	sentByEmployeeId?: ID | null;
 	sentByEmployee?: IRecordAuthorEmployee | null;
 	receiverEmployeeId?: ID | null;
+	/** What the notification says about a thing outside the platform: the Board of a `BoardShare` or a `BoardMention`. */
+	metadata?: { board?: INotificationBoard | null } | null;
 	createdAt: string;
 }
 
@@ -91,6 +121,16 @@ export interface INotificationPreferences {
 	 * A second one follows at twice that.
 	 */
 	timerReminderHours?: number | null;
+	/**
+	 * How many minutes before a meeting the person hosts or is invited to they are reminded of it (#5022); 15 when
+	 * unset, `null` (or 0) for no reminder before. The notice that it is starting comes either way.
+	 */
+	meetingReminderMinutes?: number | null;
+	/**
+	 * How many hours before a task's due date its assignees are reminded of it (#5022); 24 when unset, `null` (or 0) for
+	 * no reminder.
+	 */
+	taskDueReminderHours?: number | null;
 }
 
 export type TEmployeeNotificationSettingKey =

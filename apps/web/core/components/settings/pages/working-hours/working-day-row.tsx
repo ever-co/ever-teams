@@ -1,8 +1,8 @@
 'use client';
 
-import { ChangeEvent, Fragment, useId } from 'react';
+import { Fragment, useId } from 'react';
 import { useTranslations } from 'next-intl';
-import { controlRecipe } from '@/core/components/common/input';
+import { TimeField } from '@/core/components/common/time-field';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { ArrowRight, Plus, X } from '@/core/components/icons';
 import { SETTINGS_ROW_LABEL } from '@/core/components/settings/kit/settings-page';
@@ -19,7 +19,7 @@ import {
 	WorkingDay
 } from '@/core/lib/utils/settings-working-hours';
 
-const TIME_FIELD = cn(controlRecipe, 'h-8 w-[6.75rem] px-2 text-[13px] tabular-nums');
+const TIME_FIELD_INPUT = 'h-8 px-2 text-[13px]';
 
 const PROBLEM_KEYS: Record<SlotProblem, 'settings.workingHours.RANGE_ORDER' | 'settings.workingHours.RANGE_OVERLAP'> = {
 	order: 'settings.workingHours.RANGE_ORDER',
@@ -68,8 +68,7 @@ export function WorkingDayRow({
 	const showsLoneAdd = day.isWorking && hasNoSlot;
 	const addLabel = t('pages.settingsPersonal.ADD_HOURS_FOR', { day: dayLabel });
 
-	const changeTime = (slotId: string, field: SlotField) => (event: ChangeEvent<HTMLInputElement>) => {
-		const value = event.target.value;
+	const changeTime = (slotId: string, field: SlotField) => (value: string) => {
 		const isComplete = minutesOfTime(value) !== null;
 		if (!isComplete) {
 			return;
@@ -119,25 +118,25 @@ export function WorkingDayRow({
 						return (
 							<Fragment key={slot.id}>
 								<div className="flex flex-wrap items-center gap-2">
-									<input
-										type="time"
+									<TimeField
 										value={slot.start}
 										onChange={changeTime(slot.id, 'start')}
 										aria-label={t('settings.workingHours.START_OF', { day: dayLabel, position })}
-										className={TIME_FIELD}
+										className="w-32"
+										inputClassName={TIME_FIELD_INPUT}
 									/>
 									<ArrowRight
 										aria-hidden="true"
 										className="size-3.5 shrink-0 text-muted-foreground"
 									/>
-									<input
-										type="time"
+									<TimeField
 										value={slot.end}
 										onChange={changeTime(slot.id, 'end')}
 										aria-label={t('settings.workingHours.END_OF', { day: dayLabel, position })}
 										aria-invalid={Boolean(problem) || undefined}
 										aria-describedby={describedByOf(problem, errorId)}
-										className={TIME_FIELD}
+										className="w-32"
+										inputClassName={TIME_FIELD_INPUT}
 									/>
 									{canRemoveSlot && (
 										<Button

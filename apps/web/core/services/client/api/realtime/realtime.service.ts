@@ -1,6 +1,7 @@
 import { APIService } from '@/core/services/client/api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
-import { getAccessTokenCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
+import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
+import { requestAccessToken } from '@/core/lib/auth/tab-organization';
 import type { RealtimeCatchUp, RealtimeCatchUpQuery, RealtimePresenceStatus } from '@/core/lib/realtime/events';
 import type { RealtimeDelivery } from '@/core/lib/realtime/delivery';
 
@@ -27,7 +28,10 @@ interface RealtimeTypingInput {
 }
 
 /** Body of `POST /realtime/presence`: the status, and the tab's connection when it has one. */
-function presenceBody(status: RealtimePresenceStatus, connectionId?: string): { status: RealtimePresenceStatus; connectionId?: string } {
+function presenceBody(
+	status: RealtimePresenceStatus,
+	connectionId?: string
+): { status: RealtimePresenceStatus; connectionId?: string } {
 	return connectionId ? { status, connectionId } : { status };
 }
 
@@ -56,7 +60,12 @@ class RealtimeService extends APIService {
 	 */
 	presence = async (status: RealtimePresenceStatus, connectionId?: string): Promise<unknown> => {
 		// The platform's own DTOs: no tenant or organization members in the body (the token and headers say them).
-		const response = await this.post<unknown>('/realtime/presence', presenceBody(status, connectionId), undefined, false);
+		const response = await this.post<unknown>(
+			'/realtime/presence',
+			presenceBody(status, connectionId),
+			undefined,
+			false
+		);
 		return response.data;
 	};
 
@@ -67,11 +76,16 @@ class RealtimeService extends APIService {
 	presenceOnUnload = (status: RealtimePresenceStatus, connectionId?: string): void => {
 		if (typeof fetch !== 'function') return;
 		const base = String(this.axiosInstance.defaults.baseURL ?? this.baseURL ?? '').replace(/\/+$/, '');
-		const token = getAccessTokenCookie();
+		// This tab's token and organization: its own while another tab has another organization open (#5134)
+		const token = requestAccessToken();
+		// None: the cookies' token would act for it, in the other organization once this tab's own token is gone
+		if (!token) return;
 		const tenantId = getTenantIdCookie();
 		const organizationId = getOrganizationIdCookie();
-		const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-		if (token) headers['Authorization'] = `Bearer ${token}`;
+		const headers: Record<string, string> = {
+			'Content-Type': 'application/json',
+			Authorization: `Bearer ${token}`
+		};
 		if (tenantId) headers['tenant-id'] = tenantId;
 		if (organizationId) headers['organization-id'] = organizationId;
 		void fetch(`${base}/realtime/presence`, {

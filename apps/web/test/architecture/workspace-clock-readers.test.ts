@@ -9,6 +9,7 @@ const WEB = resolve(__dirname, '../..');
  */
 const TIME_WRITERS = [
 	'core/components/calendar/calendar-page-skeleton.tsx',
+	'core/components/common/time-field.tsx',
 	'core/components/dashboards/apps-urls/apps-urls-day.tsx',
 	'core/components/dashboards/kit/hour-axis.tsx',
 	'core/components/dashboards/my-week/my-week-recent-entries.tsx',

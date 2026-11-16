@@ -1,15 +1,17 @@
 'use client';
 
 import { memo, type ReactNode } from 'react';
-import { type DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
+import { type DottedLanguageObjectStringPaths, useLocale, useTranslations } from 'next-intl';
 import { Archive, Check, Clock, FileText, Integration, Mail, MailOpen, MessageCircle, RotateLeft, Task, Users } from '@/core/components/icons';
 import { Checkbox } from '@/core/components/common/checkbox';
 import { cn } from '@/core/lib/helpers';
 import { NotificationTypeBadge } from '@/core/components/notifications/notification-type-badge';
+import { notificationMessageOf } from '@/core/components/notifications/task-due-copy';
 import {
 	timerReminderDescriptionOf,
 	timerReminderSentenceOf
 } from '@/core/components/notifications/timer-reminder-copy';
+import { meetingSentenceOf } from '@/core/components/notifications/meeting-notice-copy';
 import { PersonAvatar, type Person } from '@/core/components/teams/people-avatars';
 import { formatNotificationAge, formatNotificationDate } from '@/core/lib/utils/notification-inbox';
 import { InboxEntry, InboxSourceGroup } from '@/core/lib/utils/inbox-entry';
@@ -26,7 +28,12 @@ const INBOX_EVENT_KEYS: Record<EEmployeeNotificationType, DottedLanguageObjectSt
 	[EEmployeeNotificationType.Broadcast]: 'notifications.EVENTS.BROADCAST',
 	[EEmployeeNotificationType.Payment]: 'notifications.EVENTS.PAYMENT',
 	[EEmployeeNotificationType.RateChangeRequest]: 'notifications.EVENTS.RATE_CHANGE_REQUEST',
-	[EEmployeeNotificationType.TimerReminder]: 'notifications.EVENTS.TIMER_REMINDER'
+	[EEmployeeNotificationType.TimerReminder]: 'notifications.EVENTS.TIMER_REMINDER',
+	[EEmployeeNotificationType.Meeting]: 'notifications.EVENTS.MEETING',
+	[EEmployeeNotificationType.TaskUpdate]: 'notifications.EVENTS.TASK_UPDATE',
+	[EEmployeeNotificationType.TaskDueReminder]: 'notifications.EVENTS.TASK_DUE_REMINDER',
+	[EEmployeeNotificationType.BoardShare]: 'notifications.EVENTS.BOARD_SHARE',
+	[EEmployeeNotificationType.BoardMention]: 'notifications.EVENTS.BOARD_MENTION'
 };
 
 /** The glyph of an entry that has no sender to show: what it came from. */
@@ -51,15 +58,22 @@ function SenderName({ children }: Readonly<{ children: ReactNode }>) {
 export function useInboxSentence(entry: InboxEntry, person: Person | null): ReactNode {
 	const t = useTranslations();
 	if (entry.timerReminder) return timerReminderSentenceOf(t, entry.timerReminder);
+	if (entry.meeting) return meetingSentenceOf(t, entry.meeting, person?.name || entry.senderName);
 	if (!entry.type) return entry.rawTitle;
 	const name = person?.name || entry.senderName || t('notifications.SOMEONE');
 	return t.rich(INBOX_EVENT_KEYS[entry.type], { name, b: (chunks) => <SenderName>{chunks}</SenderName> });
 }
 
-/** The entry's text; a timer reminder's in the reader's language (the platform's is English, as is its title). */
+/**
+ * The entry's text; a timer reminder's, and when a due date reminder's task is due, in the reader's language (the
+ * platform's is English, as is its title).
+ */
 export function useInboxMessage(entry: InboxEntry): string | null {
 	const t = useTranslations();
-	return entry.timerReminder ? timerReminderDescriptionOf(t, entry.timerReminder) : entry.message;
+	const locale = useLocale();
+	return entry.timerReminder
+		? timerReminderDescriptionOf(t, entry.timerReminder)
+		: notificationMessageOf(t, locale, entry);
 }
 
 /** Who an entry is from: the team member, or just the name the platform gave (drawn as initials). */

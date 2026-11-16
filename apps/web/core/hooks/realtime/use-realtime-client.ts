@@ -5,7 +5,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useSetAtom } from 'jotai';
 import { useReactiveAccessTokenCookie } from '@/core/hooks/auth/use-reactive-access-token-cookie';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
-import { getAccessTokenCookie } from '@/core/lib/helpers/cookies';
+import { requestAccessToken } from '@/core/lib/auth/tab-organization';
 import { realtimeBus } from '@/core/lib/realtime/bus';
 import { RealtimeClient } from '@/core/lib/realtime/client';
 import { isRealtimeEnabled, realtimeSocketUrl } from '@/core/lib/realtime/config';
@@ -58,7 +58,8 @@ export function useRealtimeClient(): void {
 		const client = new RealtimeClient({
 			socketUrl,
 			credentials: () => {
-				const token = getAccessTokenCookie() ?? tokenRef.current;
+				// This tab's token: its own for its organization while another tab has another one open (#5134)
+				const token = requestAccessToken() ?? tokenRef.current;
 				return token ? { accessToken: token, tenantId, organizationId } : null;
 			},
 			catchUp: (query) => realtimeService.catchUp(query),

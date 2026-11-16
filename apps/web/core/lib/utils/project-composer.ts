@@ -1,6 +1,7 @@
 import { addDays, differenceInDays, isAfter, isEqual } from 'date-fns';
 import type { DottedLanguageObjectStringPaths } from 'next-intl';
 import { billableFieldOf } from '@/core/lib/utils/project-billable';
+import { visibilityFieldOf, visibilityOfProject, type ProjectVisibility } from '@/core/lib/utils/project-visibility';
 import { isValidUrl } from '@/core/lib/utils/is-valid-url';
 import { clientIdOf, personFromProjectMember, realDateOf, type ProjectPerson } from '@/core/lib/utils/project-list';
 import { EProjectBilling, EProjectBudgetType } from '@/core/types/generics/enums/project';
@@ -73,6 +74,8 @@ export interface ProjectDraft {
 	budget: number | null;
 	/** Whether time on the project starts as billable; null while nobody chose, and the save then leaves it out. */
 	billable: boolean | null;
+	/** Who sees the project; null while nobody chose (it reads as Everyone), and the save then leaves it out. */
+	visibility: ProjectVisibility | null;
 	currency: string | null;
 	billing: EProjectBilling;
 	clientId: string | null;
@@ -153,6 +156,7 @@ export function emptyProjectDraft(activeTeamId: string | null | undefined, today
 		budgetType: EProjectBudgetType.HOURS,
 		budget: null,
 		billable: null,
+		visibility: null,
 		currency: null,
 		billing: EProjectBilling.FLAT_FEE,
 		clientId: null
@@ -200,6 +204,7 @@ export function draftFromProject(project: TOrganizationProject, activeTeamId: st
 		budgetType: project.budgetType ?? EProjectBudgetType.HOURS,
 		budget: budgetOf(project.budget),
 		billable: project.billable ?? null,
+		visibility: visibilityOfProject(project),
 		currency: project.currency ?? null,
 		billing: project.billing ?? EProjectBilling.FLAT_FEE,
 		clientId: clientIdOf(project)
@@ -462,6 +467,7 @@ export function buildProjectRequest(draft: ProjectDraft, context: ProjectRequest
 		budgetType: draft.budgetType,
 		billing: draft.billing,
 		...billableFieldOf(draft.billable),
+		...visibilityFieldOf(draft.visibility),
 		teams: selectedTeams,
 		status: status as ETaskStatusName,
 		isActive: base?.isActive ?? true,

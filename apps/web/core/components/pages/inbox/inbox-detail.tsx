@@ -21,6 +21,7 @@ import { formatNotificationDate } from '@/core/lib/utils/notification-inbox';
 import { InboxEntry, hasInboxTarget } from '@/core/lib/utils/inbox-entry';
 import { timerReminderTargetState } from '@/core/stores/timer/timer-reminder';
 import { InboxDecisionPanel } from './inbox-decision';
+import { MeetingJoin } from './meeting-join';
 import { InboxAvatar, useInboxMessage, useInboxSentence } from './inbox-row';
 import { SnoozeMenu } from './snooze-menu';
 
@@ -68,6 +69,7 @@ export function InboxDetail(props: Readonly<InboxDetailProps>) {
 function openLabelOf(entry: InboxEntry, t: ReturnType<typeof useTranslations>): string {
 	// A timer reminder opens its timer, even one whose item names a task
 	if (entry.timerReminder) return t('notifications.TIMER_REMINDER.OPEN');
+	if (entry.meeting) return t('notifications.MEETING.OPEN');
 	if (entry.taskId) return t('inbox.DETAIL.OPEN_TASK');
 	return t('inbox.DETAIL.OPEN');
 }
@@ -148,6 +150,7 @@ function InboxDetailEntry({
 					</Button>
 				)}
 				{entry.timerReminder && <TimerReminderStop entry={entry} />}
+				{entry.meeting && <MeetingJoin notice={entry.meeting} />}
 				<span className="ms-auto flex items-center gap-0.5">
 					<BarAction label={entry.isUnread ? t('notifications.MARK_READ') : t('notifications.MARK_UNREAD')} onClick={() => onToggleRead(entry)}>
 						{entry.isUnread ? <MailOpen /> : <Mail />}

@@ -70,6 +70,7 @@ function ClientRecordView({ client, access, breadcrumb }: Readonly<ClientRecordV
 				onRetryProjects={projects.retry}
 				access={access}
 				canViewInvoices={invoiceAccess.canView}
+				canManageSchedule={invoiceAccess.canCreate}
 				onEdit={dialogs.edit}
 			/>
 			<ClientDialogs dialogs={dialogs} />

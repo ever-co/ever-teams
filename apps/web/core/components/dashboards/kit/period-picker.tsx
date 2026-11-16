@@ -23,7 +23,7 @@ import {
 import { endOfDay, startOfDay } from 'date-fns';
 import type { FormatLocale } from '@/core/lib/utils/workspace-formats';
 
-const PRESET_LABEL_KEYS: Record<PeriodPresetKey, DottedLanguageObjectStringPaths> = {
+export const PRESET_LABEL_KEYS: Record<PeriodPresetKey, DottedLanguageObjectStringPaths> = {
 	today: 'common.TODAY',
 	yesterday: 'common.YESTERDAY',
 	thisWeek: 'common.THIS_WEEK',
