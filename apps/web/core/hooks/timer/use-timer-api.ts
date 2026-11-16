@@ -574,6 +574,8 @@ export function useTimerApi({
 	const keepRunOrClearStuckFlag = useCallback(
 		async (employeeId: string): Promise<boolean> => {
 			const commandSeq = timerCommandMark();
+			// Labels saved on the run while the read is on its way are kept over the ones it brings (#5368)
+			const labelSavesSeen = labelSavesLanded();
 			let runGoingOn: RunGoingOn | null;
 			try {
 				runGoingOn = await readRunGoingOn(employeeId);
@@ -593,12 +595,17 @@ export function useTimerApi({
 			toast.warning(t('timer.ALREADY_TRACKING_MESSAGE'), { id: ALREADY_TRACKING_TOAST_ID });
 			// Shown now, so this tab's Stop reaches the run: a default instance never reads its status again. Not after
 			// a command sent meanwhile, which the read may predate.
+			const runStatus = statusKeepingSavedLabels(
+				runGoingOn.status,
+				store.get(timerLabelsSavedState),
+				labelSavesSeen
+			);
 			if (
 				isTimerCommandMarkCurrent(commandSeq) &&
 				(!statusEnabled || isCurrentScope()) &&
-				!isEqual(timerStatusRef.current, runGoingOn.status)
+				!isEqual(timerStatusRef.current, runStatus)
 			) {
-				setTimerStatus(runGoingOn.status);
+				setTimerStatus(runStatus);
 			}
 			// The status queries catch up too, unless the day's status leaves the run out: read again, it would show
 			// the run stopped
@@ -607,7 +614,7 @@ export function useTimerApi({
 			}
 			return true;
 		},
-		[isCurrentScope, queryClient, setTimerStatus, statusEnabled, t, timerStatusRef]
+		[isCurrentScope, queryClient, setTimerStatus, statusEnabled, store, t, timerStatusRef]
 	);
 
 	// Check if the user is tracking time in another tab or device

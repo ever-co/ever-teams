@@ -41,6 +41,7 @@ interface TimeLog {
 	isRunning: boolean;
 	startedAt: string;
 	stoppedAt: string;
+	tags?: Array<{ id: string; name: string }>;
 }
 
 /** Gauzy as the start's checks see it: the employee's last time log and tracking flag, and a failing status read. */
@@ -49,6 +50,8 @@ const mockGauzy: {
 	isTrackingTime: boolean;
 	statusReadFails: boolean;
 	lastLogReadFails?: boolean;
+	/** A status read waits for it: a read on its way while something else happens. */
+	statusReadHold?: Promise<void>;
 } = {
 	lastLog: null,
 	isTrackingTime: false,
@@ -131,6 +134,7 @@ jest.mock('@/core/services/client/api/timers', () => ({
 	timerService: {
 		// The day's status of a Gauzy before its past-midnight fix (ever-gauzy 531c63ac6): only the logs started today
 		getTimerStatus: async () => {
+			await mockGauzy.statusReadHold;
 			if (mockGauzy.statusReadFails) throw new Error('Network Error');
 			const lastLog =
 				mockGauzy.lastLog && Date.parse(mockGauzy.lastLog.startedAt) >= TODAY_START ? mockGauzy.lastLog : null;
@@ -236,6 +240,7 @@ describe('Start while the tracking flag says a timer runs and this tab says stop
 		mockGauzy.isTrackingTime = false;
 		mockGauzy.statusReadFails = false;
 		mockGauzy.lastLogReadFails = false;
+		mockGauzy.statusReadHold = undefined;
 	});
 
 	it('refuses the start and keeps the run another device started since this tab read its status', async () => {
@@ -261,6 +266,43 @@ describe('Start while the tracking flag says a timer runs and this tab says stop
 
 		expect(mockStopTimer).toHaveBeenCalledWith({ source: ETimeLogSource.DESKTOP });
 		expect(mockGauzy.lastLog).toMatchObject({ id: 'log-desktop', isRunning: false });
+	});
+
+	it('keeps the labels saved on that run while the fresh read of it was on its way (#5368)', async () => {
+		const meeting = { id: 'meeting', name: 'meeting' };
+		const support = { id: 'support', name: 'support' };
+		mockGauzy.lastLog = {
+			id: 'log-desktop',
+			source: ETimeLogSource.DESKTOP,
+			isRunning: true,
+			startedAt: minutesAgo(0.5),
+			stoppedAt: minutesAgo(0.5),
+			tags: [meeting]
+		};
+		mockGauzy.isTrackingTime = true;
+		const tab = renderTab();
+		let releaseRead: () => void = () => undefined;
+		mockGauzy.statusReadHold = new Promise<void>((resolve) => (releaseRead = resolve));
+
+		let start: Promise<unknown> | undefined;
+		await act(async () => {
+			start = tab.result.current.startTimer(TASK);
+		});
+		// Meanwhile a poll showed the run, and "support" was saved on it
+		act(() => {
+			const shown = { ...mockGauzy.lastLog, tags: [meeting, support] };
+			tab.store.set(timerStatusState, { running: true, lastLog: shown } as never);
+			const saved = { logId: 'log-desktop', tags: [meeting, support], saveNumber: landLabelSave() };
+			tab.store.set(timerLabelsSavedState, saved as never);
+		});
+		// The fresh read, asked before that save, then lands with "meeting" alone
+		await act(async () => {
+			releaseRead();
+			await start;
+		});
+
+		expect(mockStartTimer).not.toHaveBeenCalled();
+		expect(tab.store.get(timerStatusState)?.lastLog?.tags).toEqual([meeting, support]);
 	});
 
 	it("refuses the start and keeps a run another device kept going past midnight, which the day's status leaves out", async () => {
