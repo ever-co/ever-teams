@@ -243,6 +243,47 @@ export function myWeekFiguresOf(entries: ReadonlyArray<MyWeekEntry>, days: Reado
 /** The price of an hour of the person's own time on a project, or on no project, through an invoice line's chain. */
 type PriceOfProject = (projectId: string | null) => LinePrice;
 
+/** The price of one entry at the rates it kept; null to price it as its project is priced today. */
+export type KeptPriceOfEntry = (entry: MyWeekEntry) => LinePrice | null;
+
+/** The billable time of one project at one price: today's, or a rate its entries kept. */
+interface BillableGroup {
+	projectId: string | null;
+	seconds: number;
+	kept: LinePrice | null;
+}
+
+/**
+ * The person's billable seconds per project, and per kept price within a project: each entry rounded by the
+ * workspace's rule, as {@link billableSecondsByProjectOf} counts them.
+ */
+function billableGroupsOf(
+	entries: ReadonlyArray<MyWeekEntry>,
+	roundingRule: DurationRoundingRule | null,
+	keptPriceOf: KeptPriceOfEntry | undefined
+): BillableGroup[] {
+	const groups = new Map<string, BillableGroup>();
+	for (const entry of entries) {
+		if (!isBilledEntry(entry)) {
+			continue;
+		}
+		const projectKey = entry.log.projectId ?? entry.log.project?.id ?? NO_PROJECT_KEY;
+		let projectId: string | null = projectKey;
+		if (projectKey === NO_PROJECT_KEY) {
+			projectId = null;
+		}
+		const kept = keptPriceOf?.(entry) ?? null;
+		let key = projectKey;
+		if (kept) {
+			key = [projectKey, 'kept', kept.rate ?? 'none', kept.currency ?? ''].join('|');
+		}
+		const group = groups.get(key) ?? { projectId, seconds: 0, kept };
+		group.seconds += roundedSecondsOf(entry.seconds, roundingRule);
+		groups.set(key, group);
+	}
+	return [...groups.values()];
+}
+
 const NO_PROJECT_KEY = '';
 
 const DEFAULT_AMOUNT_CURRENCY = 'USD';
@@ -288,18 +329,17 @@ export function billableProjectIdsOfEntries(entries: ReadonlyArray<MyWeekEntry>)
 export function myWeekBillableOf(
 	entries: ReadonlyArray<MyWeekEntry>,
 	priceOf: PriceOfProject,
-	roundingRule: DurationRoundingRule | null = null
+	roundingRule: DurationRoundingRule | null = null,
+	keptPriceOf?: KeptPriceOfEntry
 ): BillableFigures {
 	const totals = new Map<string, number>();
 	let seconds = 0;
 	let unpricedSeconds = 0;
-	for (const [key, projectSeconds] of billableSecondsByProjectOf(entries, roundingRule)) {
+	for (const group of billableGroupsOf(entries, roundingRule, keptPriceOf)) {
+		const projectSeconds = group.seconds;
 		seconds += projectSeconds;
-		let projectId: string | null = key;
-		if (key === NO_PROJECT_KEY) {
-			projectId = null;
-		}
-		const { rate, currency } = priceOf(projectId);
+		// An entry that kept its rates is billed at them, as a draft invoice of the same time bills it
+		const { rate, currency } = group.kept ?? priceOf(group.projectId);
 		if (rate === null) {
 			unpricedSeconds += projectSeconds;
 			continue;

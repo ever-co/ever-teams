@@ -490,3 +490,35 @@ describe('My week counts its week from the workspace week start', () => {
 		expect([localDayKeyOf(mondayWeek.from), localDayKeyOf(mondayWeek.to)]).toEqual(['2026-11-02', '2026-11-08']);
 	});
 });
+
+describe('myWeekBillableOf at the rates each entry kept (CORE-29)', () => {
+	const todays = (projectId: string | null): LinePrice => {
+		if (projectId === 'project-web') {
+			return { rate: 80, currency: 'EUR', source: 'project' };
+		}
+		return { rate: null, currency: null, source: null };
+	};
+
+	it("bills an entry that kept another client rate at that rate, and the others at today's", () => {
+		const { entries } = weekOf(WEEK_LOGS);
+		const keptPriceOf = (entry: { log: ITimeLog }): LinePrice | null => {
+			if (entry.log.id === 'monday-design') {
+				return { rate: 60, currency: 'EUR', source: 'project' };
+			}
+			return null;
+		};
+
+		// Monday's 3 h at the 60 they kept, Tuesday's 4 h at today's 80
+		expect(myWeekBillableOf(entries, todays, null, keptPriceOf)).toEqual({
+			amounts: [{ currency: 'EUR', amount: 500 }],
+			seconds: 7 * HOUR,
+			unpricedSeconds: 0
+		});
+	});
+
+	it('bills as before when no entry states a kept rate', () => {
+		const { entries } = weekOf(WEEK_LOGS);
+
+		expect(myWeekBillableOf(entries, todays, null, () => null)).toEqual(myWeekBillableOf(entries, todays));
+	});
+});
