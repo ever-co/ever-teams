@@ -1,9 +1,14 @@
 /// <reference types="cypress" />
 
+import { shownMomentOf } from '../support/field-values';
+
 const dateInputOf = (date: Date) =>
 	[date.getFullYear(), date.getMonth() + 1, date.getDate()].map((part) => String(part).padStart(2, '0')).join('-');
 
-/** When the meeting Schedule proposes starts: the dialog reads its date and time in the fixture user's zone, UTC. */
+/**
+ * When the meeting Schedule proposes starts: the dialog reads its date and time in the fixture user's zone, UTC. Its
+ * fields write them as the reader's language does since #5325 (`11/16/2026`, `2:30 PM`), which no ISO parsing reads.
+ */
 function rememberTheProposedStart() {
 	cy.get('#meeting-date')
 		.invoke('val')
@@ -11,7 +16,7 @@ function rememberTheProposedStart() {
 			cy.get('#meeting-time')
 				.invoke('val')
 				.then((time) => {
-					cy.wrap(new Date(`${date}T${time}:00Z`)).as('proposedStart');
+					cy.wrap(shownMomentOf(String(date), String(time))).as('proposedStart');
 				});
 		});
 }
