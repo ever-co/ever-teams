@@ -194,9 +194,11 @@ export function useTimesheetsPage() {
 		{ withTaskLabels: true, ...breaksReadOf(allowsBreaks) }
 	);
 
-	// A log names its project and nothing about that project's client, so the client filter waits for the projects
+	// A log names its project and nothing about that project's client, so the client filter waits for the projects.
+	// They are read with the page, archived ones included: read only once a client was picked, the report went behind
+	// its skeleton until they came (#5357). With them read, a client picked narrows the report at once.
 	const hasClientFilter = linkedFilters.clients.length > 0;
-	const projectClients = useReportProjectClients({ includesArchived: true, isEnabled: hasClientFilter });
+	const projectClients = useReportProjectClients({ includesArchived: true, isEnabled: true });
 	const clientChoices = useReportClientChoices(projectClients.projects);
 	const isClientLookupPending = hasClientFilter && projectClients.isPending;
 	const isClientLookupError = hasClientFilter && projectClients.isError;

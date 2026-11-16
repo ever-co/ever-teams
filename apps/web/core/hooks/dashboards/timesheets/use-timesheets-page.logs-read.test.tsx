@@ -23,6 +23,7 @@ jest.mock('@/core/hooks/roles/use-my-role-permissions-query', () => {
 	const permissions = { myPermissions: [] };
 	return { useMyRolePermissionsQuery: () => permissions };
 });
+const mockProjectClientsOptions = jest.fn();
 const mockProjectClients = {
 	projects: [],
 	clientIds: new Map<string, string | null>(),
@@ -37,7 +38,13 @@ const mockUrlFilters = {
 };
 jest.mock('@/core/hooks/dashboards/use-report-clients', () => {
 	const choices: unknown[] = [];
-	return { useReportProjectClients: () => mockProjectClients, useReportClientChoices: () => choices };
+	return {
+		useReportProjectClients: (options: unknown) => {
+			mockProjectClientsOptions(options);
+			return mockProjectClients;
+		},
+		useReportClientChoices: () => choices
+	};
 });
 jest.mock('@/core/hooks/dashboards/use-report-url-filters', () => ({
 	useReportUrlFilters: () => mockUrlFilters
@@ -108,5 +115,20 @@ describe('the Timesheets page under a client filter', () => {
 
 		const shownIds = result.current.shownLogs.map((log) => log.id).sort();
 		expect(shownIds).toEqual(['active-project-log', 'archived-project-log']);
+	});
+});
+
+describe('the Timesheets page and the projects a client filter needs (#5357)', () => {
+	beforeEach(() => {
+		mockProjectClientsOptions.mockClear();
+		mockUrlFilters.filters.clients = [];
+	});
+
+	it('reads the projects, archived ones included, before any client is picked', () => {
+		renderHook(() => useTimesheetsPage());
+
+		expect(mockProjectClientsOptions).toHaveBeenLastCalledWith(
+			expect.objectContaining({ includesArchived: true, isEnabled: true })
+		);
 	});
 });
