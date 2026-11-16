@@ -7,6 +7,7 @@ import { TDailyPlan } from '@/core/types/schemas';
 import { PlanHeader } from './plan-header';
 
 const mockUpdateDailyPlan = jest.fn();
+const mockUseGetTimeLogs = jest.fn<{ data: unknown[] }, unknown[]>(() => ({ data: [] }));
 
 jest.mock('@/core/hooks', () => ({
 	useAuthenticateUser: () => ({ isTeamManager: true }),
@@ -22,7 +23,7 @@ jest.mock('@/core/hooks/daily-plans/use-delete-daily-plan', () => ({
 }));
 
 jest.mock('@/core/hooks/activities/time-logs/use-get-time-logs', () => ({
-	useGetTimeLogs: () => ({ data: [] })
+	useGetTimeLogs: (...args: unknown[]) => mockUseGetTimeLogs(...args)
 }));
 
 // A message is its key followed by its values, so English text in a toast stands out
@@ -91,5 +92,20 @@ describe('PlanHeader planned time toasts', () => {
 		expect(title).toBe('toasts.plans.SAVE_FAILED');
 		expect(String(options.description)).not.toMatch(/^Error:/);
 		expect(mockUpdateDailyPlan).toHaveBeenCalledWith({ workTimePlanned: 3.5, employeeId: 'employee-1' }, 'plan-1');
+	});
+});
+
+describe('PlanHeader worked time', () => {
+	const task = (id: string) => ({ id }) as NonNullable<TDailyPlan['tasks']>[number];
+
+	it('reads the logs of the same tasks whatever their order in the plan, so a reorder reads nothing again', () => {
+		const { rerender } = render(
+			<PlanHeader plan={{ ...plan, tasks: [task('task-b'), task('task-a')] }} planMode="Today Tasks" />
+		);
+		rerender(<PlanHeader plan={{ ...plan, tasks: [task('task-a'), task('task-b')] }} planMode="Today Tasks" />);
+
+		const taskIdsRead = mockUseGetTimeLogs.mock.calls.map(([params]) => (params as { taskIds: string[] }).taskIds);
+		expect(taskIdsRead.at(0)).toEqual(['task-a', 'task-b']);
+		expect(taskIdsRead.at(-1)).toEqual(['task-a', 'task-b']);
 	});
 });
