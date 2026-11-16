@@ -730,6 +730,7 @@
 					"UNCHANGED": "{count, plural, one {# entrada ya tiene estos valores.} other {# entradas ya tienen estos valores.}}",
 					"OVERLAP": "{count, plural, one {# entrada se solapa con otro tiempo registrado: guardarla eliminaría ese tiempo.} other {# entradas se solapan con otro tiempo registrado: guardarlas eliminaría ese tiempo.}}",
 					"CHECK_FAILED": "{count, plural, one {No se pudo comprobar si # entrada se solapa con otro tiempo, así que no se guardó.} other {No se pudo comprobar si # entradas se solapan con otro tiempo, así que no se guardaron.}}",
+					"CHANGED_MEANWHILE": "{count, plural, one {# entrada se cambió en otro lugar durante esta edición, así que no se guardó nada en ella.} other {# entradas se cambiaron en otro lugar durante esta edición, así que no se guardó nada en ellas.}}",
 					"FAILED": "{count, plural, one {No se pudo guardar # entrada.} other {No se pudieron guardar # entradas.}}"
 				}
 			},
