@@ -87,6 +87,9 @@ const FINAL_FAILURES = new Set<CalendarSplitFailure>([
 /** The failures that ask for a reason, which the form then shows a field for. */
 const REASON_FAILURES = new Set<CalendarSplitFailure>(['reason-required', 'reason-too-long']);
 
+/** The failures whose outcome is not known yet: the next try sends the same split, so the fields stay as sent. */
+const UNSETTLED_FAILURES = new Set<CalendarSplitFailure>(['retry']);
+
 const NOTICE = 'mt-4 flex items-start gap-2 rounded-xl px-3.5 py-3 text-[13px] leading-5';
 
 const TASK_TRIGGER =
@@ -287,7 +290,10 @@ function SplitForm({
 	// After a partial or unconfirmed split of the two writes, trying again could write over what was saved, and after a
 	// refusal no second try goes better: the dialog only closes
 	const isFinal = failure !== null && FINAL_FAILURES.has(failure);
-	const isLocked = split.isSaving || isFinal;
+	// After an unknown outcome the next try must send the same split, which the API never makes twice: the fields keep
+	// what was sent (another time would split what the first try may already have cut)
+	const isUnsettled = failure !== null && UNSETTLED_FAILURES.has(failure);
+	const isLocked = split.isSaving || isFinal || isUnsettled;
 
 	const showsSlotHint = onSlots && !timeError;
 	let describedBy: string | undefined;
