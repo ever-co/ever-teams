@@ -414,6 +414,33 @@ describe('TimerService.catchUpTimeSlots', () => {
 			expect(gauzy.get(windowOf('2026-11-04T22:20:00.000Z'))).toBe(270);
 		});
 
+		it('takes a slot sent without an answer as landed when the run has no start to read its window from', async () => {
+			losesAnswerOf = '2026-11-04T22:17:30.000Z';
+			let unanswered: SentTimeSlot | undefined;
+			await expect(
+				timerService.catchUpTimeSlots({
+					...kept,
+					onSending: (slot) => {
+						unanswered = slot;
+					}
+				})
+			).rejects.toThrow('Network Error');
+
+			const onWritten = jest.fn();
+			const nextTry = timerService.catchUpTimeSlots({
+				...kept,
+				runStartedAtMs: Number.NaN,
+				unanswered,
+				onWritten
+			});
+			await jest.advanceTimersByTimeAsync(60_000);
+			await nextTry;
+
+			// Read from the window alone, it would show none of the run's slots: the slot would be sent again
+			expect(gauzy.get(windowOf('2026-11-04T22:10:00.000Z'))).toBe(300);
+			expect(onWritten).toHaveBeenNthCalledWith(1, Date.parse('2026-11-04T22:20:00.000Z'));
+		});
+
 		it('waits out a slot still landing on Gauzy before it reads its window: a page reloaded at once', async () => {
 			// The page gives the request up as it reloads; Gauzy carries it out ten seconds later
 			mockFallbackPost.mockImplementationOnce(

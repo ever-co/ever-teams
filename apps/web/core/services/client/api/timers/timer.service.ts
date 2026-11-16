@@ -413,6 +413,13 @@ class TimerService extends APIService {
 		let answered: { data?: ITimerStatus } | undefined;
 		let writeFromMs = fromMs;
 		let sentBefore = unanswered && Date.parse(unanswered.startedAt) === fromMs ? unanswered : null;
+		// Without the run's start, its window cannot be read (Gauzy leaves the run's slots out): the slot sent without
+		// an answer is taken as landed. It may then be lost, but is never counted twice
+		if (sentBefore && !Number.isFinite(runStartedAtMs)) {
+			onWritten?.(sentBefore.untilMs);
+			writeFromMs = sentBefore.untilMs;
+			sentBefore = null;
+		}
 		if (sentBefore) await whenSentTimeSlotSettled(sentBefore);
 		// One after the other: each write moves the run's end, and the last one leaves it at the present
 		let slot = timeSlotsBetween(writeFromMs, toMs).at(0);
