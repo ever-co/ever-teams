@@ -95,6 +95,33 @@ describe('PlanHeader planned time toasts', () => {
 	});
 });
 
+describe('PlanHeader worked time of the plan owner (#5351)', () => {
+	const task = (id: string) => ({ id }) as NonNullable<TDailyPlan['tasks']>[number];
+
+	beforeEach(() => {
+		mockUseGetTimeLogs.mockClear();
+	});
+
+	it("reads only the plan owner's logs on the plan's tasks, not every member's", () => {
+		render(<PlanHeader plan={{ ...plan, tasks: [task('task-a')] }} planMode="Today Tasks" />);
+
+		const [params, options] = mockUseGetTimeLogs.mock.calls.at(-1) as [
+			{ employeeIds?: string[]; taskIds: string[] },
+			{ enabled?: boolean }
+		];
+		expect(params.employeeIds).toEqual(['employee-1']);
+		expect(params.taskIds).toEqual(['task-a']);
+		expect(options.enabled).not.toBe(false);
+	});
+
+	it('reads nothing for a plan without tasks, whose worked time is none', () => {
+		render(<PlanHeader plan={{ ...plan, tasks: [] }} planMode="Today Tasks" />);
+
+		const [, options] = mockUseGetTimeLogs.mock.calls.at(-1) as [unknown, { enabled?: boolean }];
+		expect(options.enabled).toBe(false);
+	});
+});
+
 describe('PlanHeader worked time', () => {
 	const task = (id: string) => ({ id }) as NonNullable<TDailyPlan['tasks']>[number];
 
