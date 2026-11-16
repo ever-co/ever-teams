@@ -1,6 +1,7 @@
 import {
 	billableEntriesOf,
 	buildInvoiceRequest,
+	entryPriceOf,
 	dueDayAfter,
 	hoursOfLines,
 	invoiceCurrenciesOf,
@@ -16,6 +17,7 @@ import {
 	invoiceSaveFailureOf,
 	invoiceTimeOf,
 	invoiceWaitsOf,
+	keptLinePriceOf,
 	keptLinesOf,
 	lineAmountOf,
 	lineDescriptionOf,
@@ -31,6 +33,7 @@ import {
 	type BillableEntry,
 	type BillableLogLike,
 	type InvoiceLineNames,
+	type KeptRatesLike,
 	type LinePrice
 } from './invoices';
 import { invoiceTotalsOf } from './invoice-totals';
@@ -1021,5 +1024,105 @@ describe('a save refused because its time was billed elsewhere meanwhile', () =>
 		});
 
 		expect(invoiceSaveFailureOf(billedElsewhere)).toBe('timeBilled');
+	});
+});
+
+describe('time priced at the rates each entry keeps', () => {
+	const today: LinePrice = { rate: 110, currency: 'USD', source: 'project' };
+	const keptAt = (projectBillRateValue: number): BillableLogLike & KeptRatesLike => ({
+		ratesStored: true,
+		billRateValue: 50,
+		billRateCurrency: 'USD',
+		clientRates: {
+			projectBillRateValue,
+			projectMemberBillRateValue: null,
+			projectBillRateCurrency: 'USD',
+			projectMemberBillRateCurrency: 'USD'
+		}
+	});
+	const priceOfLog = (entry: BillableLogLike & KeptRatesLike) =>
+		entryPriceOf(entry, today, (kept) => keptLinePriceOf({ kept, organizationCurrency: 'USD' }));
+
+	it('reads the chain from the entry: its member client rate, its project client rate, its billing rate', () => {
+		const priced = (kept: KeptRatesLike, defaultRate: { value: number; currency: string | null } | null = null) =>
+			keptLinePriceOf({ kept, organizationCurrency: 'USD', defaultRate });
+
+		expect(
+			priced({
+				billRateValue: 40,
+				clientRates: {
+					projectMemberBillRateValue: '70.00',
+					projectMemberBillRateCurrency: 'EUR',
+					projectBillRateValue: 90,
+					projectBillRateCurrency: 'GBP'
+				}
+			})
+		).toEqual({ rate: 70, currency: 'EUR', source: 'member' });
+		expect(
+			priced({ billRateValue: 40, clientRates: { projectBillRateValue: 90, projectBillRateCurrency: 'GBP' } })
+		).toEqual({ rate: 90, currency: 'GBP', source: 'project' });
+		expect(priced({ billRateValue: 40, clientRates: {} })).toEqual({
+			rate: 40,
+			currency: 'USD',
+			source: 'employee'
+		});
+		// A member whose own rate was cleared kept 0: the workspace's default prices the time, as today
+		expect(priced({ billRateValue: 0, clientRates: {} }, { value: 55, currency: null })).toEqual({
+			rate: 55,
+			currency: 'USD',
+			source: 'default'
+		});
+	});
+
+	it("prices an entry that keeps no rate, or an older API's entry, at today's rate", () => {
+		expect(priceOfLog(log())).toBe(today);
+		expect(priceOfLog({ ...log(), ...keptAt(90), ratesStored: false })).toBe(today);
+		expect(priceOfLog({ ...log(), ratesStored: true })).toBe(today);
+	});
+
+	it('makes one line per rate when a member worked at two rates in the period, each saying so where it differs', () => {
+		const logs = [
+			{ ...log({ id: 'a', duration: 40 * HOUR }), ...keptAt(90) },
+			{ ...log({ id: 'b', duration: 2 * HOUR }), ...keptAt(110) }
+		];
+
+		const entries = billableEntriesOf(logs, new Set(['p1']), null, priceOfLog);
+		const { lines } = invoiceTimeOf({ entries, grouping: 'member', priceOf: () => today });
+
+		expect(
+			lines.map(({ hours, rate, amount, timeLogIds, todaysPrice }) => ({
+				hours,
+				rate,
+				amount,
+				timeLogIds,
+				todaysPrice
+			}))
+		).toEqual([
+			{ hours: 40, rate: 90, amount: 3600, timeLogIds: ['a'], todaysPrice: { rate: 110, currency: 'USD' } },
+			{ hours: 2, rate: 110, amount: 220, timeLogIds: ['b'], todaysPrice: undefined }
+		]);
+		expect(new Set(lines.map(({ key }) => key)).size).toBe(2);
+	});
+
+	it('keeps one line, with the key it had, for time priced as today whether it kept its rate or not', () => {
+		const keptAtToday = { ...log({ id: 'b' }), ...keptAt(110) };
+		const entries = billableEntriesOf([log({ id: 'a' }), keptAtToday], new Set(['p1']), null, priceOfLog);
+		const { lines } = invoiceTimeOf({ entries, grouping: 'member', priceOf: () => today });
+
+		expect(lines).toHaveLength(1);
+		expect(lines[0]).toMatchObject({ key: 'p1|ana', hours: 2, rate: 110, amount: 220 });
+		expect(lines[0].todaysPrice).toBeUndefined();
+	});
+
+	it('by project: the hours at their kept rates make the average', () => {
+		const logs = [
+			{ ...log({ id: 'a', duration: 3 * HOUR }), ...keptAt(90) },
+			{ ...log({ id: 'b', duration: 3 * HOUR }), ...keptAt(110) }
+		];
+
+		const entries = billableEntriesOf(logs, new Set(['p1']), null, priceOfLog);
+		const { lines } = invoiceTimeOf({ entries, grouping: 'project', priceOf: () => today });
+
+		expect(lines).toMatchObject([{ hours: 6, rate: 100, amount: 600, isAverageRate: true }]);
 	});
 });

@@ -18,7 +18,8 @@ import { invoiceTotalsOf, NO_ADJUSTMENTS, type InvoiceAdjustments } from '@/core
 import { effectiveBillRate, employeeRateValueOf, rateValueOf, type DefaultBillRate } from '@/core/lib/utils/rates';
 import { ApiErrorService } from '@/core/services/client/api-error.service';
 
-export interface BillableLogLike {
+/** A billable time entry as the pricing reads it, with the rates it keeps when the API answers them. */
+export interface BillableLogLike extends KeptRatesLike {
 	id?: string | null;
 	projectId?: string | null;
 	employeeId?: string | null;
@@ -29,6 +30,22 @@ export interface BillableLogLike {
 	stoppedAt?: string | Date | null;
 }
 
+/** The client rates a time entry keeps, as an API that answers them states them (`withClientRates`). */
+export interface KeptClientRates {
+	projectBillRateValue?: unknown;
+	projectMemberBillRateValue?: unknown;
+	projectBillRateCurrency?: string | null;
+	projectMemberBillRateCurrency?: string | null;
+}
+
+/** The rates a time entry keeps: its client rates, and the billing rate it was recorded with. */
+export interface KeptRatesLike {
+	ratesStored?: boolean | null;
+	clientRates?: KeptClientRates | null;
+	billRateValue?: unknown;
+	billRateCurrency?: string | null;
+}
+
 export interface BillableEntry {
 	projectId: string;
 	employeeId: string;
@@ -36,7 +53,12 @@ export interface BillableEntry {
 	seconds: number;
 	/** The time logs it adds up, as far as they state their id. */
 	timeLogIds?: ReadonlyArray<string>;
+	/** The price of each hour, when each entry was priced on its own: the logs of one entry share it. */
+	price?: LinePrice;
 }
+
+/** The price of one log's time, when each log is priced at the rates it keeps. */
+export type LogPriceOf = (log: BillableLogLike) => LinePrice;
 
 const MILLISECONDS_PER_SECOND = 1000;
 
@@ -112,15 +134,34 @@ function entryKeyOf(projectId: string, employeeId: string, taskId: string | null
 	return [projectId, employeeId, taskId ?? ''].join('|');
 }
 
+/** The key time priced the same goes under: the same rate in the same currency, from the same source. */
+function priceKeyOf(price: LinePrice) {
+	return [price.rate ?? 'none', price.currency ?? '', price.source ?? ''].join('|');
+}
+
 /**
- * The billable time of the given projects, per project, member and task. A log counts only when the API states it is
- * billable: the filter the request also asks for is not trusted alone, an older API ignores it. With the workspace's
- * rounding rule, each log is rounded before the time adds up, as Time & activity shows it.
+ * A key, followed by the entry's own price when it was priced at a kept rate other than today's, so two rates make two
+ * lines. Time priced as today keeps the key it had, and goes on one line whether it kept its rate or not.
+ */
+function withPriceKey(key: string, entry: Pick<BillableEntry, 'price'>) {
+	const isPricedApart = Boolean(entry.price) && differsFromToday(entry.price as LinePrice);
+	if (!isPricedApart) {
+		return key;
+	}
+	return [key, priceKeyOf(entry.price as LinePrice)].join('|');
+}
+
+/**
+ * The billable time of the given projects, per project, member and task, and per price when each log is priced on its
+ * own. A log counts only when the API states it is billable: the filter the request also asks for is not trusted
+ * alone, an older API ignores it. With the workspace's rounding rule, each log is rounded before the time adds up, as
+ * Time & activity shows it.
  */
 export function billableEntriesOf(
 	logs: ReadonlyArray<BillableLogLike>,
 	projectIds: ReadonlySet<string>,
-	roundingRule: DurationRoundingRule | null = null
+	roundingRule: DurationRoundingRule | null = null,
+	priceOfLog?: LogPriceOf
 ): BillableEntry[] {
 	const byKey = new Map<string, BillableEntry>();
 	const logIdsByKey = new Map<string, string[]>();
@@ -141,8 +182,12 @@ export function billableEntriesOf(
 			continue;
 		}
 		const taskId = log.taskId ?? null;
-		const key = entryKeyOf(projectId, employeeId, taskId);
-		const entry = byKey.get(key) ?? { projectId, employeeId, taskId, seconds: 0 };
+		const priced: Pick<BillableEntry, 'price'> = {};
+		if (priceOfLog) {
+			priced.price = priceOfLog(log);
+		}
+		const key = withPriceKey(entryKeyOf(projectId, employeeId, taskId), priced);
+		const entry = byKey.get(key) ?? { projectId, employeeId, taskId, seconds: 0, ...priced };
 		entry.seconds += seconds;
 		const logId = log.id;
 		if (logId) {
@@ -173,6 +218,8 @@ export interface LinePrice {
 	rate: number | null;
 	currency: string | null;
 	source: InvoiceRateSource | null;
+	/** On a price read from the rates an entry keeps: what the same time is billed today, for a line to tell them apart. */
+	today?: LinePrice;
 }
 
 const NO_PRICE: LinePrice = { rate: null, currency: null, source: null };
@@ -244,6 +291,69 @@ export function linePriceOf({
 	return { rate, source, currency: currencyOf(clientCurrency, organizationCurrency) };
 }
 
+/** Whether an entry states the client rates it keeps: an API that answers them, and an entry recorded with them. */
+export function keepsClientRates(entry: KeptRatesLike | null | undefined): boolean {
+	const statesClientRates = Boolean(entry?.clientRates);
+	return statesClientRates && entry?.ratesStored === true;
+}
+
+/**
+ * What an hour of an entry is billed at the rates it keeps, by the same chain as {@link linePriceOf}: the member's
+ * client rate on the project it kept, else the project's, else the billing rate it kept, else the workspace's default,
+ * which no entry keeps. Each client rate is in the currency it kept.
+ */
+export function keptLinePriceOf({
+	kept,
+	organizationCurrency,
+	defaultRate = null
+}: Readonly<{
+	kept: KeptRatesLike;
+	organizationCurrency: string | null;
+	defaultRate?: DefaultBillRate | null;
+}>): LinePrice {
+	const clientRates = kept.clientRates ?? {};
+	const keepsMemberRate = rateValueOf(clientRates.projectMemberBillRateValue) !== null;
+	let clientCurrency = clientRates.projectBillRateCurrency ?? null;
+	if (keepsMemberRate) {
+		clientCurrency = clientRates.projectMemberBillRateCurrency ?? null;
+	}
+	const ownMember = 'kept';
+	return linePriceOf({
+		employeeId: ownMember,
+		projectRates: {
+			billRateValue: clientRates.projectBillRateValue,
+			currency: clientCurrency,
+			members: [{ employeeId: ownMember, billRateValue: clientRates.projectMemberBillRateValue }]
+		},
+		projectCurrency: null,
+		employeeRate: { billRateValue: kept.billRateValue, billRateCurrency: kept.billRateCurrency ?? null },
+		organizationCurrency,
+		defaultRate
+	});
+}
+
+/**
+ * The price of an entry: at the rates it keeps when it states them, beside today's for a line to tell them apart;
+ * else today's, as every entry was priced before the rates were kept.
+ */
+export function entryPriceOf(entry: KeptRatesLike, todays: LinePrice, keptPriceOf: (kept: KeptRatesLike) => LinePrice) {
+	if (!keepsClientRates(entry)) {
+		return todays;
+	}
+	return { ...keptPriceOf(entry), today: todays };
+}
+
+/** Whether a price read from kept rates differs from today's: its line says so. */
+export function differsFromToday(price: LinePrice): boolean {
+	const today = price.today;
+	if (!today) {
+		return false;
+	}
+	const isOtherRate = today.rate !== price.rate;
+	const isOtherCurrency = currencyKeyOf(today.currency) !== currencyKeyOf(price.currency);
+	return isOtherRate || isOtherCurrency;
+}
+
 export type InvoiceGrouping = 'project' | 'member' | 'task';
 
 export interface InvoiceLine {
@@ -268,6 +378,8 @@ export interface InvoiceLine {
 	 * read.
 	 */
 	timeLogIds?: ReadonlyArray<string>;
+	/** On a line priced at a rate its time kept that differs from today's: today's, which its rate note states. */
+	todaysPrice?: Pick<LinePrice, 'rate' | 'currency'>;
 }
 
 export interface UnpricedTime {
@@ -292,7 +404,7 @@ function groupedEntriesOf(entries: ReadonlyArray<BillableEntry>, grouping: Invoi
 	}
 	const byMember = new Map<string, BillableEntry>();
 	for (const entry of entries) {
-		const key = memberKeyOf(entry.projectId, entry.employeeId);
+		const key = withPriceKey(memberKeyOf(entry.projectId, entry.employeeId), entry);
 		const current = byMember.get(key) ?? { ...entry, taskId: null, seconds: 0, timeLogIds: undefined };
 		current.seconds += entry.seconds;
 		current.timeLogIds = joinedTimeLogIds(current.timeLogIds, entry.timeLogIds);
@@ -303,9 +415,25 @@ function groupedEntriesOf(entries: ReadonlyArray<BillableEntry>, grouping: Invoi
 
 function lineKeyOf(entry: BillableEntry, grouping: InvoiceGrouping) {
 	if (grouping === 'task') {
-		return entryKeyOf(entry.projectId, entry.employeeId, entry.taskId);
+		return withPriceKey(entryKeyOf(entry.projectId, entry.employeeId, entry.taskId), entry);
 	}
-	return memberKeyOf(entry.projectId, entry.employeeId);
+	return withPriceKey(memberKeyOf(entry.projectId, entry.employeeId), entry);
+}
+
+/** An entry's price: its own when each entry was priced on its own, else the member's on the project. */
+function priceOfEntry(entry: BillableEntry, priceOf: LinePriceOf): LinePrice {
+	if (entry.price) {
+		return entry.price;
+	}
+	return priceOf(entry.projectId, entry.employeeId);
+}
+
+/** Today's price on a line whose kept price differs from it; nothing otherwise. */
+function todaysPriceOf(price: LinePrice): Pick<InvoiceLine, 'todaysPrice'> {
+	if (!differsFromToday(price)) {
+		return {};
+	}
+	return { todaysPrice: { rate: price.today?.rate ?? null, currency: price.today?.currency ?? null } };
 }
 
 function addUnpriced(byMember: Map<string, UnpricedTime>, entry: BillableEntry) {
@@ -426,7 +554,7 @@ function projectTimeOf(entries: ReadonlyArray<BillableEntry>, priceOf: LinePrice
 	const byProject = new Map<string, ProjectWorth>();
 	const unpricedByMember = new Map<string, UnpricedTime>();
 	for (const entry of groupedEntriesOf(entries, 'member')) {
-		const { rate, source, currency } = priceOf(entry.projectId, entry.employeeId);
+		const { rate, source, currency } = priceOfEntry(entry, priceOf);
 		if (rate === null || source === null) {
 			addUnpriced(unpricedByMember, entry);
 			continue;
@@ -462,7 +590,8 @@ export function invoiceTimeOf({
 	const lines: InvoiceLine[] = [];
 	const unpricedByMember = new Map<string, UnpricedTime>();
 	for (const entry of groupedEntriesOf(entries, grouping)) {
-		const { rate, source, currency } = priceOf(entry.projectId, entry.employeeId);
+		const price = priceOfEntry(entry, priceOf);
+		const { rate, source, currency } = price;
 		if (rate === null || source === null) {
 			addUnpriced(unpricedByMember, entry);
 			continue;
@@ -472,6 +601,7 @@ export function invoiceTimeOf({
 			continue;
 		}
 		lines.push({
+			...todaysPriceOf(price),
 			key: lineKeyOf(entry, grouping),
 			projectId: entry.projectId,
 			employeeId: entry.employeeId,
