@@ -37,26 +37,33 @@ function dueDayOf(task: TTask): DueDay | null {
 
 /** The id comes from Gauzy; the UID keeps its letters, digits and dashes only. */
 function uidOf(task: TTask): string {
-	return `task-${task.id.replace(/[^\w-]/g, '')}@ever-teams`;
+	return `task-${task.id.replace(/[^A-Za-z0-9-]/g, '')}@ever-teams`;
+}
+
+/** Whether a view has a task whose due date the file can hold: the export is offered only then. */
+export function hasIcsDueDate(tasks: readonly TTask[]): boolean {
+	return tasks.some((task) => dueDayOf(task) !== null);
 }
 
 /**
  * A calendar file (iCalendar) of the tasks a view lists: one all-day event on the day each task is due, to follow the
  * due dates in one's own calendar app. A task with no due date has no day and is left out, and a task that a view
- * lists twice is written once. Null when no task has a due date, so the caller offers no empty file.
+ * lists twice is written once (by its UID, which a calendar app reads as the event's identity, so no two events share
+ * one). Null when no task has a due date, so the caller offers no empty file.
  */
 export function teamTasksIcsOf(tasks: readonly TTask[], now: Date = new Date()): string | null {
 	const written = new Set<string>();
 	const events: string[] = [];
 	for (const task of tasks) {
 		const day = dueDayOf(task);
-		if (!day || written.has(task.id)) {
+		const uid = uidOf(task);
+		if (!day || written.has(uid)) {
 			continue;
 		}
-		written.add(task.id);
+		written.add(uid);
 		events.push(
 			'BEGIN:VEVENT',
-			`UID:${uidOf(task)}`,
+			`UID:${uid}`,
 			`DTSTAMP:${icsDateOf(now)}`,
 			`DTSTART;VALUE=DATE:${day.start}`,
 			`DTEND;VALUE=DATE:${day.end}`,

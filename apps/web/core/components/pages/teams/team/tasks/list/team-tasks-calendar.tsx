@@ -26,7 +26,7 @@ import { cn } from '@/core/lib/helpers';
 import { shiftedAnchorOf } from '@/core/lib/utils/calendar-view';
 import { downloadBlob } from '@/core/lib/utils/dashboard-export';
 import { weekStartOf } from '@/core/lib/utils/dashboard-period';
-import { TEAM_TASKS_ICS_FILE_NAME, teamTasksIcsOf } from '@/core/lib/utils/team-tasks-ics';
+import { hasIcsDueDate, TEAM_TASKS_ICS_FILE_NAME, teamTasksIcsOf } from '@/core/lib/utils/team-tasks-ics';
 import { teamTasksCalendarMonthOf, type TeamTasksCalendarDay } from '@/core/lib/utils/team-tasks-calendar';
 import { dayOfStoredDate } from '@/core/lib/utils/team-tasks-timeline';
 import { isTaskViewsEnabled } from '@/core/lib/utils/task-views-enabled';
@@ -546,7 +546,7 @@ export function TeamTasksCalendarView({
 	const showToday = () => setAnchor(startOfMonth(today));
 	const toggleUndated = () => setIsUndatedOpen((current) => !current);
 	// The file holds every task the view lists that has a due date, not only the month on screen
-	const hasDatedTasks = month.undated.length < tasks.length;
+	const hasDatedTasks = useMemo(() => hasIcsDueDate(tasks), [tasks]);
 	const exportDueDates = () => {
 		const file = teamTasksIcsOf(tasks);
 		if (file === null) {

@@ -178,6 +178,16 @@ function openTaskTitlesIn(container: HTMLElement) {
 	return chips.map((chip) => chip.getAttribute('title'));
 }
 
+/** What a downloaded file holds: jsdom's Blob has no `text()`, and its FileReader does not wait on the fake timers. */
+function textOfBlob(blob: Blob): Promise<string> {
+	return new Promise((resolve, reject) => {
+		const reader = new FileReader();
+		reader.onload = () => resolve(String(reader.result));
+		reader.onerror = () => reject(reader.error);
+		reader.readAsText(blob);
+	});
+}
+
 const NO_DROP_TARGET: DragLocation = { current: { dropTargets: [] } };
 
 function registrationOn<T extends { element: HTMLElement }>(registrations: T[], element: HTMLElement) {
@@ -261,7 +271,7 @@ describe('TeamTasksCalendarView', () => {
 		mockTaskViewsEnabled = false;
 	});
 
-	it('saves the due dates of the view as a calendar file, the months not on screen included', () => {
+	it('saves the due dates of the view as a calendar file, the months not on screen included', async () => {
 		renderCalendar([
 			openTask('a', 'Ship the release', '2026-11-12'),
 			openTask('b', 'Plan the year', '2027-03-04'),
@@ -276,8 +286,14 @@ describe('TeamTasksCalendarView', () => {
 		const [blob, fileName] = mockDownloadBlob.mock.calls[0] as [Blob, string];
 		expect(fileName).toBe('ever-teams-due-dates.ics');
 		expect(blob.type).toBe('text/calendar;charset=utf-8');
-		// What the file holds is covered with `teamTasksIcsOf`; here it is the calendar file of this view's tasks
-		expect(blob.size).toBeGreaterThan(0);
+		const lines = (await textOfBlob(blob)).split('\r\n');
+		// cspell:ignore DTSTART
+		expect(lines).toContain('SUMMARY:Ship the release');
+		expect(lines).toContain('DTSTART;VALUE=DATE:20261112');
+		// March is not the month on screen, and its task is in the file all the same; the undated one is not
+		expect(lines).toContain('SUMMARY:Plan the year');
+		expect(lines).toContain('DTSTART;VALUE=DATE:20270304');
+		expect(lines).not.toContain('SUMMARY:Someday');
 	});
 
 	it('offers no calendar file while no task of the view has a due date', () => {
@@ -287,6 +303,13 @@ describe('TeamTasksCalendarView', () => {
 		expect((exportButton as HTMLButtonElement).disabled).toBe(true);
 		fireEvent.click(exportButton);
 		expect(mockDownloadBlob).not.toHaveBeenCalled();
+	});
+
+	it('offers no calendar file when the only due date is one the file cannot hold', () => {
+		renderCalendar([openTask('far', 'Far away', '+275000-01-01T00:00:00.000Z'), openTask('c', 'Someday')]);
+		const exportButton = screen.getByRole('button', { name: 'pages.teamTasks.CALENDAR_EXPORT' });
+
+		expect((exportButton as HTMLButtonElement).disabled).toBe(true);
 	});
 
 	it('draws the month as the list of its busy days where seven columns do not fit, and never both', () => {

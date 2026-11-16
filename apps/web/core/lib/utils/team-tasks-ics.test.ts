@@ -1,5 +1,6 @@
+// cspell:ignore DTEND DTSTAMP DTSTART PRODID VCALENDAR VEVENT
 import type { TTask } from '@/core/types/schemas/task/task.schema';
-import { teamTasksIcsOf } from './team-tasks-ics';
+import { hasIcsDueDate, teamTasksIcsOf } from './team-tasks-ics';
 
 const NOW = new Date('2026-11-12T09:30:00.000Z');
 
@@ -85,13 +86,39 @@ describe('teamTasksIcsOf', () => {
 	});
 
 	it('keeps only letters, digits and dashes of an id in the UID', () => {
-		const file = teamTasksIcsOf([taskOf('x y\r\nz@1', 'Odd id', '2026-11-12')], NOW) as string;
+		const file = teamTasksIcsOf(
+			[taskOf('x y\r\nz@1', 'Odd id', '2026-11-12'), taskOf('a_b', 'Underscore', '2026-11-12')],
+			NOW
+		) as string;
 
-		expect(unfoldedLinesOf(file)).toContain('UID:task-xyz1@ever-teams');
+		const uids = unfoldedLinesOf(file).filter((line) => line.startsWith('UID:'));
+		expect(uids).toEqual(['UID:task-xyz1@ever-teams', 'UID:task-ab@ever-teams']);
+	});
+
+	it('writes no two events with one UID, even when two ids differ only in what the UID leaves out', () => {
+		const file = teamTasksIcsOf(
+			[
+				taskOf('a b', 'Spaced', '2026-11-12'),
+				taskOf('ab', 'Plain', '2026-11-13'),
+				taskOf('c', 'Other', '2026-11-14')
+			],
+			NOW
+		) as string;
+
+		const uids = unfoldedLinesOf(file).filter((line) => line.startsWith('UID:'));
+		expect(uids).toEqual(['UID:task-ab@ever-teams', 'UID:task-c@ever-teams']);
+	});
+
+	it('tells whether a view has a due date the file can hold, the rule the export button follows', () => {
+		expect(hasIcsDueDate([])).toBe(false);
+		expect(hasIcsDueDate([taskOf('a', 'Never'), taskOf('b', 'Broken', 'not a date')])).toBe(false);
+		expect(hasIcsDueDate([taskOf('a', 'Far away', new Date('+275000-01-01T00:00:00.000Z'))])).toBe(false);
+		expect(hasIcsDueDate([taskOf('a', 'Never'), taskOf('b', 'Dated', '2026-11-12')])).toBe(true);
 	});
 
 	it('folds a long title over several lines that read back as one', () => {
-		const title = 'A very long task title that goes well beyond the seventy-five octets one line may hold in a file';
+		const title =
+			'A very long task title that goes well beyond the seventy-five octets one line may hold in a file';
 		const file = teamTasksIcsOf([taskOf('a', title, '2026-11-12')], NOW) as string;
 
 		expect(file).toContain('\r\n ');
