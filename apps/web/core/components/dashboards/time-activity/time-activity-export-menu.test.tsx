@@ -1,21 +1,32 @@
 /** @jest-environment jsdom */
 import { render } from '@testing-library/react';
 import type { ExportOption } from '@/core/components/dashboards/kit/export-menu';
-import type { TimeActivityFigures } from '@/core/hooks/dashboards/time-activity/use-time-activity-report';
+import type {
+	TimeActivityBillable,
+	TimeActivityFigures
+} from '@/core/hooks/dashboards/time-activity/use-time-activity-report';
 import type { TimeActivityFilterOptions } from '@/core/hooks/dashboards/time-activity/use-time-activity-filter-options';
 import type { CsvColumn } from '@/core/lib/utils/dashboard-export';
 import { formatDurationShort } from '@/core/lib/utils/dashboard-figures';
 import type { Period } from '@/core/lib/utils/dashboard-period';
+import { flattenDailyReport } from '@/core/lib/utils/daily-report-figures';
 import type { DurationRoundingRule } from '@/core/lib/utils/duration-rounding';
 import {
 	type BreakdownGrouping,
 	type ClientOfProjectLog,
+	billableFiguresOfFacts,
 	breakdownFactsOf,
 	breakdownTreeOf,
 	clientOfProjectLogOf,
 	clientRowsOf,
 	reportTotalsOf
 } from '@/core/lib/utils/dashboards/time-activity';
+import {
+	type PriceOfRow,
+	billableFactsOf as pricedFactsOf,
+	pricedProjectIdOf
+} from '@/core/lib/utils/dashboards/time-activity-billable';
+import { linePriceOf, type ProjectClientRates } from '@/core/lib/utils/invoices';
 import type { ITimeLogGroupedDailyReport } from '@/core/types/interfaces/activity/activity-report';
 import type { PdfGroup, TimeActivityPdfContent } from './time-activity-report-pdf';
 
@@ -244,5 +255,192 @@ describe('Time & Activity exports grouped by client', () => {
 		const { headers } = csvTableOf();
 		expect(headers[0]).toBe('common.DATE');
 		expect(headers).not.toContain('common.CLIENT');
+	});
+});
+
+const HOUR = 3600;
+
+const billedTaskOf = (title: string, duration: number) => ({ task: { id: title, title }, description: '', duration });
+
+function billedLogOf(employee: object, tasks: ReadonlyArray<{ title: string; seconds: number }>) {
+	const sum = tasks.reduce((total, task) => total + task.seconds, 0);
+	return { employee, sum, activity: 40, tasks: tasks.map((task) => billedTaskOf(task.title, task.seconds)) };
+}
+
+const ana = { id: 'ana', fullName: 'Ana' };
+const bo = { id: 'bo', fullName: 'Bo', billRateValue: 60, billRateCurrency: 'EUR' };
+const cy = { id: 'cy', fullName: 'Cy' };
+const dee = { id: 'dee', fullName: 'Dee', billRateValue: 50, billRateCurrency: 'USD' };
+
+const ANA_BILLED = [
+	{ title: 'Home', seconds: 4 * HOUR },
+	{ title: 'Home', seconds: 6 * HOUR }
+];
+const BO_BILLED = [{ title: 'API', seconds: 5 * HOUR }];
+const CY_BILLED = [{ title: 'Docs', seconds: 2 * HOUR }];
+const DEE_BILLED = [{ title: 'Support', seconds: HOUR }];
+
+/** One day: Ana bills 10 h on Website and logs 1 h there she does not bill, Bo bills 5 h on App, Cy 2 h unrated. */
+function billingReportOf(withUnbilled: boolean, withDollars: boolean) {
+	const anaTasks = [...ANA_BILLED];
+	if (withUnbilled) {
+		anaTasks.push({ title: 'Home', seconds: HOUR });
+	}
+	const logs = [
+		{ project: { id: 'website', name: 'Website' }, employeeLogs: [billedLogOf(ana, anaTasks)] },
+		{ project: { id: 'app', name: 'App' }, employeeLogs: [billedLogOf(bo, BO_BILLED), billedLogOf(cy, CY_BILLED)] }
+	];
+	if (withDollars) {
+		logs.push({ project: { id: 'support', name: 'Support' }, employeeLogs: [billedLogOf(dee, DEE_BILLED)] });
+	}
+	return [{ date: '2026-11-03', logs }] as unknown as ITimeLogGroupedDailyReport[];
+}
+
+const WEBSITE_RATES = new Map<string, ProjectClientRates>([
+	['website', { billRateValue: 90, currency: 'EUR', members: [] }]
+]);
+
+const priceOfRow: PriceOfRow = (row) =>
+	linePriceOf({
+		employeeId: row.employeeId,
+		projectRates: WEBSITE_RATES.get(pricedProjectIdOf(row) ?? ''),
+		projectCurrency: null,
+		employeeRate: { billRateValue: row.billRateValue, billRateCurrency: row.billRateCurrency },
+		organizationCurrency: 'EUR',
+		defaultRate: null
+	});
+
+/** What the page holds for a reader who may read client rates: the billable time read apart, priced. */
+function billableOf(withDollars: boolean, overrides: Partial<TimeActivityBillable> = {}): TimeActivityBillable {
+	const billableRows = flattenDailyReport(billingReportOf(false, withDollars));
+	const facts = pricedFactsOf(billableRows, priceOfRow);
+	return {
+		isOffered: true,
+		facts,
+		figures: billableFiguresOfFacts(facts),
+		isPending: false,
+		isError: false,
+		canSetDefaultRate: false,
+		refetch: () => undefined,
+		...overrides
+	};
+}
+
+function billingOptions(billable: TimeActivityBillable | null, withDollars = false) {
+	mockExportMenuProps.mockClear();
+	render(
+		<TimeActivityExportMenu
+			report={billingReportOf(true, withDollars)}
+			period={period}
+			grouping="project"
+			clientOf={null}
+			isManager
+			ownEmployeeId="ana"
+			figures={FIGURES}
+			filters={{ teamIds: [], employeeIds: [], projectIds: [], taskIds: [], clientIds: [], billable: [] }}
+			filterOptions={NO_OPTIONS}
+			billable={billable}
+			isDisabled={false}
+		/>
+	);
+	const [props] = mockExportMenuProps.mock.lastCall as [{ options: ExportOption[]; isDisabled?: boolean }];
+	return props;
+}
+
+interface Table {
+	headers: string[];
+	lines: unknown[][];
+}
+
+function cellsOf(table: Table, header: string) {
+	const index = table.headers.indexOf(header);
+	return table.lines.map((line) => line[index]);
+}
+
+function amountsByCurrencyOf(table: Table) {
+	const amounts = cellsOf(table, 'dashboard.timeActivity.columns.BILLABLE');
+	const currencies = cellsOf(table, 'dashboard.timeActivity.export.BILLABLE_CURRENCY');
+	const totals = new Map<unknown, number>();
+	amounts.forEach((amount, index) => {
+		if (typeof amount !== 'number') {
+			return;
+		}
+		const currency = currencies[index];
+		const previous = totals.get(currency) ?? 0;
+		totals.set(currency, previous + amount);
+	});
+	return totals;
+}
+
+describe('billable amounts in the Time & activity spreadsheets', () => {
+	beforeEach(() => {
+		mockDownloadCsv.mockClear();
+		mockExportToXLSX.mockClear();
+	});
+
+	it('adds the billable hours, amount and currency after Earnings in the Excel file', async () => {
+		await run(billingOptions(billableOf(false)).options, 'xlsx');
+
+		const { headers } = sheetTableOf();
+		expect(headers.slice(-6)).toEqual([
+			'dashboard.timeActivity.columns.EARNINGS',
+			'dashboard.timeActivity.export.CURRENCY',
+			'dashboard.timeActivity.export.BILLABLE_HOURS',
+			'dashboard.timeActivity.columns.BILLABLE',
+			'dashboard.timeActivity.export.BILLABLE_CURRENCY',
+			'dashboard.timeActivity.columns.ACTIVITY'
+		]);
+	});
+
+	it('prices 10 h at the client rate of 90 and 5 h at a billing rate of 60 so the rows add up to 1,200 EUR', async () => {
+		await run(billingOptions(billableOf(false)).options, 'xlsx');
+
+		const totals = amountsByCurrencyOf(sheetTableOf());
+		expect([...totals.entries()]).toEqual([['EUR', 1200]]);
+	});
+
+	it('keeps 2 h of billable time no rate prices, without an amount, and says so in its currency', async () => {
+		await run(billingOptions(billableOf(false)).options, 'csv');
+
+		const table = csvTableOf();
+		const cyIndex = cellsOf(table, 'common.MEMBER').indexOf('Cy');
+		const cyCells = [
+			cellsOf(table, 'dashboard.timeActivity.export.BILLABLE_HOURS')[cyIndex],
+			cellsOf(table, 'dashboard.timeActivity.columns.BILLABLE')[cyIndex],
+			cellsOf(table, 'dashboard.timeActivity.export.BILLABLE_CURRENCY')[cyIndex]
+		];
+		expect(cyCells).toEqual([2, null, 'dashboard.timeActivity.export.NO_RATE']);
+	});
+
+	it('leaves the hour Ana did not bill without billable time', async () => {
+		await run(billingOptions(billableOf(false)).options, 'csv');
+
+		const table = csvTableOf();
+		const members = cellsOf(table, 'common.MEMBER');
+		const hours = cellsOf(table, 'dashboard.timeActivity.export.BILLABLE_HOURS');
+		const anaHours = hours.filter((_hour, index) => members[index] === 'Ana');
+		expect(anaHours).toEqual([6, 4, 0]);
+	});
+
+	it('writes the same file as today for a reader the page shows no billable amount', async () => {
+		await run(billingOptions(null).options, 'csv');
+		const today = csvTableOf();
+
+		await run(billingOptions(billableOf(false, { isOffered: false })).options, 'csv');
+
+		expect(csvTableOf()).toEqual(today);
+		expect(today.headers).not.toContain('dashboard.timeActivity.export.BILLABLE_HOURS');
+	});
+
+	it('waits for the billable amounts before it offers a file', () => {
+		const props = billingOptions(billableOf(false, { isPending: true }));
+
+		expect(props.isDisabled).toBe(true);
+	});
+
+	it('leaves the billable columns out when the page could not read the amounts', async () => {
+		await run(billingOptions(billableOf(false, { isError: true })).options, 'xlsx');
+
+		expect(sheetTableOf().headers).not.toContain('dashboard.timeActivity.columns.BILLABLE');
 	});
 });

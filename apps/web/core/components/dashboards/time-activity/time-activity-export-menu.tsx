@@ -6,7 +6,10 @@ import { type DottedLanguageObjectStringPaths, useTranslations } from 'next-intl
 import { type ExportOption, ExportMenu } from '@/core/components/dashboards/kit/export-menu';
 import { FilePdf, FileSheet, FileText } from '@/core/components/icons';
 import { APP_NAME } from '@/core/constants/config/constants';
-import type { TimeActivityFigures } from '@/core/hooks/dashboards/time-activity/use-time-activity-report';
+import type {
+	TimeActivityBillable,
+	TimeActivityFigures
+} from '@/core/hooks/dashboards/time-activity/use-time-activity-report';
 import type { TimeActivityFilterOptions } from '@/core/hooks/dashboards/time-activity/use-time-activity-filter-options';
 import { formatDurationShort } from '@/core/lib/utils/dashboard-figures';
 import { type CsvColumn, downloadCsv, downloadPdf, periodFileNameOf } from '@/core/lib/utils/dashboard-export';
@@ -19,6 +22,7 @@ import {
 	formatAmounts
 } from '@/core/lib/utils/daily-report-figures';
 import {
+	type BreakdownFact,
 	type ClientExportLine,
 	type ClientLabels,
 	type ClientOfProjectLog,
@@ -37,6 +41,11 @@ import {
 	exportRowsOf,
 	recordedActivityOf
 } from '@/core/lib/utils/dashboards/time-activity';
+import {
+	type ExportBillables,
+	type ExportRowBillable,
+	exportBillablesOf
+} from '@/core/lib/utils/dashboards/time-activity-export-billable';
 import { ROUNDING_NOTE_KEYS } from '@/core/lib/utils/dashboards/time-activity-rounding';
 import type { DurationRoundingRule } from '@/core/lib/utils/duration-rounding';
 import { exportToXLSX } from '@/core/lib/utils/export-utils';
@@ -78,9 +87,20 @@ interface ExportContext {
 	filterOptions: TimeActivityFilterOptions;
 	/** The workspace rounds each entry: the rows already are, and the PDF says so. */
 	roundingRule: DurationRoundingRule | null;
+	/**
+	 * The page's facts of the billable time, priced as on screen; null when the page shows this reader no billable
+	 * amount, or could not read them, and the file then has none either.
+	 */
+	billableFacts: ReadonlyArray<BreakdownFact> | null;
 	locale: FormatLocale;
 	workspaceCurrency: string | null;
 	t: Translate;
+}
+
+/** The rows of a file, and what the billable time of each bills when the file carries billable amounts. */
+interface ExportData {
+	rows: TimeActivityExportRow[];
+	billables: ExportBillables | null;
 }
 
 interface NamedRow {
@@ -90,6 +110,8 @@ interface NamedRow {
 	client: string;
 	task: string;
 	status: string;
+	/** Null for a row without billable time. */
+	billable: ExportRowBillable | null;
 }
 
 interface ExportLabels extends ClientLabels {
@@ -136,25 +158,45 @@ function exportRowsOfContext(context: ExportContext) {
 	return exportRowsInGroupOrderOf(rows, context.grouping);
 }
 
+function showsBillable(context: ExportContext) {
+	return context.billableFacts !== null;
+}
+
+/** The rows are read once per file, so the billable time placed on a row is found again by that row. */
+function exportDataOf(context: ExportContext): ExportData {
+	const rows = exportRowsOfContext(context);
+	if (context.billableFacts === null) {
+		return { rows, billables: null };
+	}
+	return { rows, billables: exportBillablesOf(rows, context.billableFacts) };
+}
+
+function billableOfRow(row: TimeActivityExportRow, billables: ExportBillables | null) {
+	if (!billables) {
+		return null;
+	}
+	return billables.get(row) ?? null;
+}
+
 function clientOfRow(row: TimeActivityExportRow) {
 	return row.client ?? NO_CLIENT;
 }
 
-function namedRowOf(row: TimeActivityExportRow, labels: ExportLabels): NamedRow {
+function namedRowOf(row: TimeActivityExportRow, labels: ExportLabels, billables: ExportBillables | null): NamedRow {
 	return {
 		row,
 		member: row.member || labels.unnamed,
 		project: row.project ?? labels.noProject,
 		client: clientLabelOf(clientOfRow(row), labels),
 		task: row.task ?? labels.noTask,
-		status: row.status ?? ''
+		status: row.status ?? '',
+		billable: billableOfRow(row, billables)
 	};
 }
 
-function namedRowsOf(context: ExportContext): NamedRow[] {
+function namedRowsOf(context: ExportContext, data: ExportData): NamedRow[] {
 	const labels = exportLabelsOf(context.t);
-	const rows = exportRowsOfContext(context);
-	return rows.map((row) => namedRowOf(row, labels));
+	return data.rows.map((row) => namedRowOf(row, labels, data.billables));
 }
 
 function roundedTo2(value: number) {
@@ -179,6 +221,51 @@ function spreadsheetAmountOf(earnings: number | null) {
 		return '';
 	}
 	return roundedTo2(earnings);
+}
+
+function billableSecondsOf(named: NamedRow) {
+	if (!named.billable) {
+		return 0;
+	}
+	return named.billable.seconds;
+}
+
+function billableAmountOf(named: NamedRow) {
+	if (!named.billable) {
+		return null;
+	}
+	return named.billable.amount;
+}
+
+/** Billable time no rate prices says so where its currency would be; a row without billable time has none. */
+function billableCurrencyOf(named: NamedRow, noRateLabel: string) {
+	const { billable } = named;
+	if (!billable) {
+		return null;
+	}
+	if (billable.amount === null) {
+		return noRateLabel;
+	}
+	return billable.currency;
+}
+
+function csvBillableColumnsOf(context: ExportContext): CsvColumn<NamedRow>[] {
+	if (!showsBillable(context)) {
+		return [];
+	}
+	const { t } = context;
+	const noRateLabel = t('dashboard.timeActivity.export.NO_RATE');
+	return [
+		{
+			header: t('dashboard.timeActivity.export.BILLABLE_HOURS'),
+			valueOf: (named) => hoursOf(billableSecondsOf(named))
+		},
+		{ header: t('dashboard.timeActivity.columns.BILLABLE'), valueOf: billableAmountOf },
+		{
+			header: t('dashboard.timeActivity.export.BILLABLE_CURRENCY'),
+			valueOf: (named) => billableCurrencyOf(named, noRateLabel)
+		}
+	];
 }
 
 function csvClientColumnsOf(context: ExportContext): CsvColumn<NamedRow>[] {
@@ -208,7 +295,7 @@ function csvColumnsOf(context: ExportContext): CsvColumn<NamedRow>[] {
 			{ header: t('dashboard.timeActivity.export.CURRENCY'), valueOf: (named) => named.row.currency }
 		);
 	}
-	columns.push({
+	columns.push(...csvBillableColumnsOf(context), {
 		header: t('dashboard.timeActivity.export.ACTIVITY_PERCENT'),
 		valueOf: (named) => Math.round(named.row.activity)
 	});
@@ -216,7 +303,7 @@ function csvColumnsOf(context: ExportContext): CsvColumn<NamedRow>[] {
 }
 
 function runCsv(context: ExportContext) {
-	const rows = namedRowsOf(context);
+	const rows = namedRowsOf(context, exportDataOf(context));
 	const fileName = periodFileNameOf(FILE_PREFIX, context.period.from, context.period.to, 'csv');
 	downloadCsv(rows, csvColumnsOf(context), fileName);
 }
@@ -226,6 +313,34 @@ interface XlsxColumn {
 	value: (named: NamedRow) => string | number;
 	width?: number;
 	format?: string;
+}
+
+/** Beside Earnings: the billable time as a duration, its amount as a number and the currency of that amount. */
+function xlsxBillableColumnsOf(context: ExportContext): XlsxColumn[] {
+	if (!showsBillable(context)) {
+		return [];
+	}
+	const { t } = context;
+	const noRateLabel = t('dashboard.timeActivity.export.NO_RATE');
+	return [
+		{
+			header: t('dashboard.timeActivity.export.BILLABLE_HOURS'),
+			value: (named) => billableSecondsOf(named) / SECONDS_PER_DAY,
+			format: '[h]:mm',
+			width: 14
+		},
+		{
+			header: t('dashboard.timeActivity.columns.BILLABLE'),
+			value: (named) => spreadsheetAmountOf(billableAmountOf(named)),
+			format: '#,##0.00',
+			width: 16
+		},
+		{
+			header: t('dashboard.timeActivity.export.BILLABLE_CURRENCY'),
+			value: (named) => billableCurrencyOf(named, noRateLabel) ?? '',
+			width: 14
+		}
+	];
 }
 
 function xlsxClientColumnsOf(context: ExportContext): XlsxColumn[] {
@@ -267,7 +382,7 @@ function xlsxColumnsOf(context: ExportContext): XlsxColumn[] {
 			}
 		);
 	}
-	columns.push({
+	columns.push(...xlsxBillableColumnsOf(context), {
 		header: t('dashboard.timeActivity.columns.ACTIVITY'),
 		value: (named) => named.row.activity / 100,
 		format: '0%',
@@ -277,7 +392,7 @@ function xlsxColumnsOf(context: ExportContext): XlsxColumn[] {
 }
 
 async function runXlsx(context: ExportContext) {
-	const rows = namedRowsOf(context);
+	const rows = namedRowsOf(context, exportDataOf(context));
 	const fileName = periodFileNameOf(FILE_PREFIX, context.period.from, context.period.to, 'xlsx');
 	await exportToXLSX(rows, xlsxColumnsOf(context), fileName);
 }
@@ -473,7 +588,7 @@ function pdfGroupsOf(context: ExportContext, layout: PdfLayout): PdfGroup[] {
 		return clientPdfGroupsOf(context);
 	}
 	const { locale } = context;
-	const namedRows = namedRowsOf(context);
+	const namedRows = namedRowsOf(context, exportDataOf(context));
 	const namedByRow = new Map(namedRows.map((named) => [named.row, named]));
 	const groups = exportGroupsOf(
 		namedRows.map((named) => named.row),
@@ -560,6 +675,19 @@ async function runPdf(context: ExportContext) {
 	}, fileName);
 }
 
+/** A file carries the billable amounts the page shows this reader: none when it shows none or could not read them. */
+function billableFactsOf(billable: TimeActivityBillable | null): ReadonlyArray<BreakdownFact> | null {
+	if (!billable) {
+		return null;
+	}
+	const isRead = !billable.isPending && !billable.isError;
+	const isShown = billable.isOffered && isRead;
+	if (!isShown) {
+		return null;
+	}
+	return billable.facts;
+}
+
 /** Rows are built on the click; the PDF renderer, its document and the sheet writer are imported then. */
 export function TimeActivityExportMenu({
 	report,
@@ -572,16 +700,23 @@ export function TimeActivityExportMenu({
 	filters,
 	filterOptions,
 	roundingRule = null,
+	billable = null,
 	isDisabled
 }: Readonly<
-	Omit<ExportContext, 'locale' | 'workspaceCurrency' | 't' | 'roundingRule'> & {
+	Omit<ExportContext, 'locale' | 'workspaceCurrency' | 't' | 'roundingRule' | 'billableFacts'> & {
 		roundingRule?: DurationRoundingRule | null;
+		/** What the page's billable time bills, for a reader it shows billable amounts to. */
+		billable?: TimeActivityBillable | null;
 		isDisabled: boolean;
 	}
 >) {
 	const t = useTranslations();
 	const locale = useWorkspaceLocale();
 	const workspaceCurrency = useAtomValue(currentOrganizationState)?.currency ?? null;
+	const billableFacts = useMemo(() => billableFactsOf(billable), [billable]);
+	// A file made while the amounts are read would leave them out where the page is about to show them
+	const isBillableReading = billable !== null && billable.isOffered && billable.isPending;
+	const isMenuDisabled = isDisabled || isBillableReading;
 
 	const options = useMemo<ExportOption[]>(() => {
 		const context: ExportContext = {
@@ -595,6 +730,7 @@ export function TimeActivityExportMenu({
 			filters,
 			filterOptions,
 			roundingRule,
+			billableFacts,
 			locale,
 			workspaceCurrency,
 			t
@@ -620,6 +756,7 @@ export function TimeActivityExportMenu({
 			}
 		];
 	}, [
+		billableFacts,
 		clientOf,
 		figures,
 		filterOptions,
@@ -635,5 +772,5 @@ export function TimeActivityExportMenu({
 		workspaceCurrency
 	]);
 
-	return <ExportMenu options={options} isDisabled={isDisabled} />;
+	return <ExportMenu options={options} isDisabled={isMenuDisabled} />;
 }
