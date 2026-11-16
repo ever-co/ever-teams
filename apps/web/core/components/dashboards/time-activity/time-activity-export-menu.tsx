@@ -42,8 +42,11 @@ import {
 	recordedActivityOf
 } from '@/core/lib/utils/dashboards/time-activity';
 import {
+	type ExportBillableTotals,
 	type ExportBillables,
 	type ExportRowBillable,
+	clientLineBillablesOf,
+	exportBillableTotalsOf,
 	exportBillablesOf
 } from '@/core/lib/utils/dashboards/time-activity-export-billable';
 import { ROUNDING_NOTE_KEYS } from '@/core/lib/utils/dashboards/time-activity-rounding';
@@ -466,20 +469,94 @@ function activitySummaryOf(figures: TimeActivityFigures) {
 	return `${rounded}%`;
 }
 
-function summaryOf(context: ExportContext): PdfFigure[] {
+/** What the file's billable time bills: one line per currency, and the part no rate prices under them. */
+function billableSummaryOf(context: ExportContext, data: ExportData): PdfFigure | null {
+	if (!data.billables) {
+		return null;
+	}
+	const { t, locale } = context;
+	const totals = exportBillableTotalsOf(data.rows, data.billables);
+	const [first, ...others] = totals.amounts.map((amount) => formatAmount(amount, locale));
+	const figure: PdfFigure = {
+		label: t('dashboard.timeActivity.columns.BILLABLE'),
+		value: first ?? MISSING_VALUE,
+		lines: others
+	};
+	const hasUnpricedTime = totals.unpricedSeconds > 0;
+	if (hasUnpricedTime) {
+		const duration = formatDurationShort(totals.unpricedSeconds);
+		figure.note = t('dashboard.timeActivity.export.BILLABLE_UNPRICED', { duration });
+	}
+	return figure;
+}
+
+/**
+ * Beside the billable amount the summary's figures are narrower: the earnings are then written one currency per line,
+ * as the billable amounts are, rather than broken wherever their line runs out.
+ */
+function earningsSummaryOf(context: ExportContext, data: ExportData): PdfFigure {
 	const { t, figures, locale } = context;
+	const label = t('dashboard.timeActivity.figures.EARNINGS');
+	const amounts = figures.totals.earnings;
+	const hasSeveralCurrencies = amounts.length > 1;
+	const writesLines = data.billables !== null && hasSeveralCurrencies;
+	if (!writesLines) {
+		return { label, value: amountsTextOf(amounts, locale) };
+	}
+	const [first, ...others] = amounts.map((amount) => formatAmount(amount, locale));
+	return { label, value: first ?? MISSING_VALUE, lines: others };
+}
+
+function summaryOf(context: ExportContext, data: ExportData): PdfFigure[] {
+	const { t, figures } = context;
 	const summary: PdfFigure[] = [
 		{ label: t('dashboard.timeActivity.figures.TRACKED'), value: trackedSummaryOf(figures) },
 		{ label: t('dashboard.timeActivity.figures.ACTIVITY'), value: activitySummaryOf(figures) }
 	];
 	if (context.isManager) {
-		summary.push({
-			label: t('dashboard.timeActivity.figures.EARNINGS'),
-			value: amountsTextOf(figures.totals.earnings, locale)
-		});
+		summary.push(earningsSummaryOf(context, data));
+	}
+	const billable = billableSummaryOf(context, data);
+	if (billable) {
+		summary.push(billable);
 	}
 	summary.push({ label: t('dashboard.timeActivity.figures.MEMBERS'), value: String(figures.totals.memberCount) });
 	return summary;
+}
+
+/** A row's billable amount as on screen; billable time no rate prices says so, as a printed page cannot hover. */
+function rowBillableTextOf(billable: ExportRowBillable | null, context: ExportContext) {
+	if (!billable) {
+		return MISSING_VALUE;
+	}
+	const { amount, currency } = billable;
+	const isPriced = amount !== null && currency !== null;
+	if (!isPriced) {
+		return context.t('dashboard.timeActivity.export.NO_RATE');
+	}
+	return formatAmount({ amount, currency }, context.locale);
+}
+
+/** What several rows bill together, one currency per line. */
+function totalsBillableTextOf(totals: ExportBillableTotals, context: ExportContext) {
+	const hasAmounts = totals.amounts.length > 0;
+	if (hasAmounts) {
+		const lines = totals.amounts.map((amount) => formatAmount(amount, context.locale));
+		return lines.join('\n');
+	}
+	const hasBillableTime = totals.seconds > 0;
+	if (hasBillableTime) {
+		return context.t('dashboard.timeActivity.export.NO_RATE');
+	}
+	return MISSING_VALUE;
+}
+
+/** The billable cell of a row or a group, only in a file that carries billable amounts. */
+function billableCellOf(text: () => string, data: ExportData): Pick<PdfRow, 'billable'> {
+	if (!data.billables) {
+		return {};
+	}
+	return { billable: text() };
 }
 
 interface PdfLayout {
@@ -548,14 +625,23 @@ function pdfLayoutOf(context: ExportContext): PdfLayout {
 	};
 }
 
-function clientPdfRowOf(groupKey: string, line: ClientExportLine, labels: ExportLabels, locale: FormatLocale): PdfRow {
+const NO_LINE_BILLABLE: ExportBillableTotals = { amounts: [], seconds: 0, unpricedSeconds: 0 };
+
+function clientPdfRowOf(
+	groupKey: string,
+	line: ClientExportLine,
+	labels: ExportLabels,
+	context: ExportContext,
+	billable: Pick<PdfRow, 'billable'>
+): PdfRow {
 	return {
 		key: `${groupKey}:${line.key}`,
 		first: line.project ?? labels.noProject,
 		second: line.member || labels.unnamed,
 		task: line.task ?? labels.noTask,
 		tracked: formatDurationShort(line.seconds),
-		earnings: rowAmountTextOf(line, locale),
+		earnings: rowAmountTextOf(line, context.locale),
+		...billable,
 		activity: percentTextOf(line)
 	};
 }
@@ -565,30 +651,50 @@ function clientOfGroup(group: ExportGroup) {
 	return firstRow?.client ?? NO_CLIENT;
 }
 
-function clientPdfGroupsOf(context: ExportContext): PdfGroup[] {
+function lineBillablesOf(rows: ReadonlyArray<TimeActivityExportRow>, data: ExportData) {
+	if (!data.billables) {
+		return new Map<string, ExportBillableTotals>();
+	}
+	return clientLineBillablesOf(rows, data.billables);
+}
+
+function groupBillableTotalsOf(rows: ReadonlyArray<TimeActivityExportRow>, data: ExportData) {
+	if (!data.billables) {
+		return NO_LINE_BILLABLE;
+	}
+	return exportBillableTotalsOf(rows, data.billables);
+}
+
+function clientPdfGroupsOf(context: ExportContext, data: ExportData): PdfGroup[] {
 	const { locale } = context;
 	const labels = exportLabelsOf(context.t);
-	const rows = exportRowsOfContext(context);
-	const groups = exportGroupsOf(rows, context.grouping);
+	const groups = exportGroupsOf(data.rows, context.grouping);
 	return groups.map((group) => {
 		const lines = clientExportLinesOf(group.rows);
+		const lineBillables = lineBillablesOf(group.rows, data);
+		const groupBillable = groupBillableTotalsOf(group.rows, data);
 		return {
 			key: group.key,
 			title: clientLabelOf(clientOfGroup(group), labels),
 			tracked: formatDurationShort(group.seconds),
 			earnings: amountsTextOf(group.earnings, locale),
+			...billableCellOf(() => totalsBillableTextOf(groupBillable, context), data),
 			activity: percentTextOf(group),
-			rows: lines.map((line) => clientPdfRowOf(group.key, line, labels, locale))
+			rows: lines.map((line) => {
+				const lineBillable = lineBillables.get(line.key) ?? NO_LINE_BILLABLE;
+				const billable = billableCellOf(() => totalsBillableTextOf(lineBillable, context), data);
+				return clientPdfRowOf(group.key, line, labels, context, billable);
+			})
 		};
 	});
 }
 
-function pdfGroupsOf(context: ExportContext, layout: PdfLayout): PdfGroup[] {
+function pdfGroupsOf(context: ExportContext, layout: PdfLayout, data: ExportData): PdfGroup[] {
 	if (isClientExport(context)) {
-		return clientPdfGroupsOf(context);
+		return clientPdfGroupsOf(context, data);
 	}
 	const { locale } = context;
-	const namedRows = namedRowsOf(context, exportDataOf(context));
+	const namedRows = namedRowsOf(context, data);
 	const namedByRow = new Map(namedRows.map((named) => [named.row, named]));
 	const groups = exportGroupsOf(
 		namedRows.map((named) => named.row),
@@ -608,13 +714,16 @@ function pdfGroupsOf(context: ExportContext, layout: PdfLayout): PdfGroup[] {
 			task: named.task,
 			tracked: formatDurationShort(named.row.seconds),
 			earnings: rowAmountTextOf(named.row, locale),
+			...billableCellOf(() => rowBillableTextOf(named.billable, context), data),
 			activity: `${Math.round(named.row.activity)}%`
 		}));
+		const groupBillable = groupBillableTotalsOf(group.rows, data);
 		pdfGroups.push({
 			key: group.key,
 			title: layout.groupTitle(group, firstNamed),
 			tracked: formatDurationShort(group.seconds),
 			earnings: amountsTextOf(group.earnings, locale),
+			...billableCellOf(() => totalsBillableTextOf(groupBillable, context), data),
 			activity: percentTextOf(group),
 			rows
 		});
@@ -636,6 +745,7 @@ function compactNamed(rows: ReadonlyArray<TimeActivityExportRow>, namedByRow: Ma
 function pdfContentOf(context: ExportContext): TimeActivityPdfContent {
 	const { t, locale } = context;
 	const layout = pdfLayoutOf(context);
+	const data = exportDataOf(context);
 	const title = t('dashboard.timeActivity.export.DOCUMENT_TITLE');
 	const generatedDate = dateFormatOf(locale, { dateStyle: 'long' }).format(new Date());
 	let generatedOn: string = t('dashboard.timeActivity.export.GENERATED_ON', { date: generatedDate });
@@ -650,17 +760,19 @@ function pdfContentOf(context: ExportContext): TimeActivityPdfContent {
 		generatedOn,
 		filtersTitle: t('dashboard.timeActivity.export.FILTERS'),
 		filters: filterLinesOf(context),
-		summary: summaryOf(context),
+		summary: summaryOf(context, data),
 		columns: {
 			first: layout.firstHeader,
 			second: layout.secondHeader,
 			task: t('dashboard.timeActivity.export.TASK'),
 			tracked: t('dashboard.timeActivity.columns.TRACKED'),
 			earnings: t('dashboard.timeActivity.columns.EARNINGS'),
+			billable: t('dashboard.timeActivity.columns.BILLABLE'),
 			activity: t('dashboard.timeActivity.columns.ACTIVITY')
 		},
 		showsEarnings: context.isManager,
-		groups: pdfGroupsOf(context, layout),
+		showsBillable: data.billables !== null,
+		groups: pdfGroupsOf(context, layout, data),
 		footer: `${APP_NAME} · ${title}`,
 		pageLabel: (page, total) => t('dashboard.timeActivity.export.PAGE', { page, total })
 	};

@@ -310,9 +310,22 @@ const priceOfRow: PriceOfRow = (row) =>
 		defaultRate: null
 	});
 
+/** The page names each row's client when it groups by client, the billable rows as the others. */
+function billableRowsOf(withDollars: boolean, clientOfLog: ClientOfProjectLog | null) {
+	const report = billingReportOf(false, withDollars);
+	if (clientOfLog) {
+		return clientRowsOf(report, clientOfLog, null);
+	}
+	return flattenDailyReport(report);
+}
+
 /** What the page holds for a reader who may read client rates: the billable time read apart, priced. */
-function billableOf(withDollars: boolean, overrides: Partial<TimeActivityBillable> = {}): TimeActivityBillable {
-	const billableRows = flattenDailyReport(billingReportOf(false, withDollars));
+function billableOf(
+	withDollars: boolean,
+	overrides: Partial<TimeActivityBillable> = {},
+	clientOfLog: ClientOfProjectLog | null = null
+): TimeActivityBillable {
+	const billableRows = billableRowsOf(withDollars, clientOfLog);
 	const facts = pricedFactsOf(billableRows, priceOfRow);
 	return {
 		isOffered: true,
@@ -326,7 +339,7 @@ function billableOf(withDollars: boolean, overrides: Partial<TimeActivityBillabl
 	};
 }
 
-function billingOptions(billable: TimeActivityBillable | null, withDollars = false) {
+function billingOptions(billable: TimeActivityBillable | null, withDollars = false, figures = FIGURES) {
 	mockExportMenuProps.mockClear();
 	render(
 		<TimeActivityExportMenu
@@ -336,7 +349,7 @@ function billingOptions(billable: TimeActivityBillable | null, withDollars = fal
 			clientOf={null}
 			isManager
 			ownEmployeeId="ana"
-			figures={FIGURES}
+			figures={figures}
 			filters={{ teamIds: [], employeeIds: [], projectIds: [], taskIds: [], clientIds: [], billable: [] }}
 			filterOptions={NO_OPTIONS}
 			billable={billable}
@@ -442,5 +455,111 @@ describe('billable amounts in the Time & activity spreadsheets', () => {
 		await run(billingOptions(billableOf(false, { isError: true })).options, 'xlsx');
 
 		expect(sheetTableOf().headers).not.toContain('dashboard.timeActivity.columns.BILLABLE');
+	});
+});
+
+function billableFigureOf(content: TimeActivityPdfContent) {
+	return content.summary.find((figure) => figure.label === 'dashboard.timeActivity.columns.BILLABLE');
+}
+
+describe('billable amounts in the Time & activity PDF', () => {
+	beforeEach(() => {
+		mockDownloadPdf.mockClear();
+		mockBuildPdf.mockClear();
+	});
+
+	it('writes 1,200 EUR and 50 USD on two lines of its summary, and the billable time no rate prices', async () => {
+		await run(billingOptions(billableOf(true), true).options, 'pdf');
+
+		const figure = billableFigureOf(await pdfContentOf());
+		expect(figure?.value).toMatch(/1,200\.00/);
+		expect(figure?.value).toMatch(/€|EUR/);
+		expect(figure?.lines).toHaveLength(1);
+		expect(figure?.lines?.[0]).toMatch(/\$50\.00|USD/);
+		expect(figure?.note).toBe('dashboard.timeActivity.export.BILLABLE_UNPRICED');
+	});
+
+	it('gives each table the billable amount column, as on screen', async () => {
+		await run(billingOptions(billableOf(false)).options, 'pdf');
+
+		const content = await pdfContentOf();
+		expect(content.showsBillable).toBe(true);
+		expect(content.columns.billable).toBe('dashboard.timeActivity.columns.BILLABLE');
+		const groups = content.groups.map((group) => [group.title, group.billable]);
+		expect(groups).toEqual([
+			['Website', expect.stringMatching(/900\.00/)],
+			['App', expect.stringMatching(/300\.00/)]
+		]);
+		const appRows = content.groups[1].rows.map((row) => [row.second, row.billable]);
+		expect(appRows).toEqual([
+			['Bo', expect.stringMatching(/300\.00/)],
+			['Cy', 'dashboard.timeActivity.export.NO_RATE']
+		]);
+	});
+
+	it('adds up the billable time of each line of a client group', async () => {
+		const acmeOf = clientOfProjectLogOf(new Map([['website', 'acme']]), new Map([['acme', 'Acme']]));
+		mockExportMenuProps.mockClear();
+		render(
+			<TimeActivityExportMenu
+				report={billingReportOf(true, false)}
+				period={period}
+				grouping="client"
+				clientOf={acmeOf}
+				isManager
+				ownEmployeeId="ana"
+				figures={FIGURES}
+				filters={{ teamIds: [], employeeIds: [], projectIds: [], taskIds: [], clientIds: [], billable: [] }}
+				filterOptions={NO_OPTIONS}
+				billable={billableOf(false, {}, acmeOf)}
+				isDisabled={false}
+			/>
+		);
+		const [props] = mockExportMenuProps.mock.lastCall as [{ options: ExportOption[] }];
+
+		await run(props.options, 'pdf');
+
+		const acme = (await pdfContentOf()).groups.find((group) => group.title === 'Acme');
+		expect(acme?.billable).toMatch(/900\.00/);
+		expect(acme?.rows.map((row) => row.billable)).toEqual([expect.stringMatching(/900\.00/)]);
+	});
+
+	it('writes the earnings beside it one currency per line too, so the narrower figure never breaks mid-amount', async () => {
+		const earnings = [
+			{ currency: 'EUR', amount: 597 },
+			{ currency: 'USD', amount: 50 }
+		];
+		const figures = { ...FIGURES, totals: { ...FIGURES.totals, earnings } };
+
+		await run(billingOptions(billableOf(true), true, figures).options, 'pdf');
+
+		const summary = (await pdfContentOf()).summary;
+		const earningsFigure = summary.find((figure) => figure.label === 'dashboard.timeActivity.figures.EARNINGS');
+		expect(earningsFigure?.value).toMatch(/597\.00/);
+		expect(earningsFigure?.value).not.toMatch(/50\.00/);
+		expect(earningsFigure?.lines).toEqual([expect.stringMatching(/50\.00/)]);
+	});
+
+	it('keeps the earnings on one line in a file without billable amounts, as today', async () => {
+		const earnings = [
+			{ currency: 'EUR', amount: 597 },
+			{ currency: 'USD', amount: 50 }
+		];
+		const figures = { ...FIGURES, totals: { ...FIGURES.totals, earnings } };
+
+		await run(billingOptions(null, true, figures).options, 'pdf');
+
+		const summary = (await pdfContentOf()).summary;
+		const earningsFigure = summary.find((figure) => figure.label === 'dashboard.timeActivity.figures.EARNINGS');
+		expect(earningsFigure?.value).toMatch(/597\.00.*50\.00/);
+		expect(earningsFigure?.lines).toBeUndefined();
+	});
+
+	it('prints no billable column for a reader the page shows no billable amount', async () => {
+		await run(billingOptions(null).options, 'pdf');
+
+		const content = await pdfContentOf();
+		expect(content.showsBillable).toBe(false);
+		expect(billableFigureOf(content)).toBeUndefined();
 	});
 });
