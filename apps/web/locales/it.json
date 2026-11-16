@@ -7903,6 +7903,8 @@
 				"SAVE": "Salva",
 				"SAVE_FAILED": "Impossibile salvare il calendario. Riprova.",
 				"EXISTS": "Questo cliente ha già un calendario. Chiudi e riaprilo per modificarlo.",
+				"REPLACED": "Questo calendario è stato sostituito da un altro da quando l’hai aperto. Non è stato salvato nulla: chiudi e riaprilo per modificarlo.",
+				"DELETED": "Questo calendario è stato eliminato da quando l’hai aperto. Non è stato salvato nulla.",
 				"START_AFTER_BILLED": "Questo calendario ha già fatturato dei periodi: il nuovo calendario deve iniziare dopo l’ultimo periodo fatturato, {day}."
 			},
 			"delete": {

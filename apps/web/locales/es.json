@@ -7903,6 +7903,8 @@
 				"SAVE": "Guardar",
 				"SAVE_FAILED": "No se pudo guardar el calendario. Inténtelo de nuevo.",
 				"EXISTS": "Este cliente ya tiene un calendario. Ciérrelo y vuelva a abrirlo para cambiarlo.",
+				"REPLACED": "Este calendario fue reemplazado por otro desde que lo abrió. No se guardó nada: ciérrelo y vuelva a abrirlo para cambiarlo.",
+				"DELETED": "Este calendario se eliminó desde que lo abrió. No se guardó nada.",
 				"START_AFTER_BILLED": "Este calendario ya facturó periodos: su nuevo calendario debe empezar después del último periodo facturado, {day}."
 			},
 			"delete": {

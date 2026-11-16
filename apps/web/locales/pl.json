@@ -7903,6 +7903,8 @@
 				"SAVE": "Zapisz",
 				"SAVE_FAILED": "Nie udało się zapisać harmonogramu. Spróbuj ponownie.",
 				"EXISTS": "Ten klient ma już harmonogram. Zamknij i otwórz go ponownie, aby go zmienić.",
+				"REPLACED": "Od czasu otwarcia ten harmonogram został zastąpiony innym. Nic nie zostało zapisane: zamknij i otwórz go ponownie, aby go zmienić.",
+				"DELETED": "Od czasu otwarcia ten harmonogram został usunięty. Nic nie zostało zapisane.",
 				"START_AFTER_BILLED": "Ten harmonogram zafakturował już okresy: nowy harmonogram musi zacząć się po ostatnim zafakturowanym okresie, {day}."
 			},
 			"delete": {

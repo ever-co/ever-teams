@@ -7903,6 +7903,8 @@
 				"SAVE": "Opslaan",
 				"SAVE_FAILED": "Het schema kon niet worden opgeslagen. Probeer het opnieuw.",
 				"EXISTS": "Deze klant heeft al een schema. Sluit en open het opnieuw om het te wijzigen.",
+				"REPLACED": "Dit schema is sinds u het opende door een ander vervangen. Er is niets opgeslagen: sluit en open het opnieuw om het te wijzigen.",
+				"DELETED": "Dit schema is verwijderd sinds u het opende. Er is niets opgeslagen.",
 				"START_AFTER_BILLED": "Dit schema heeft al perioden gefactureerd: het nieuwe schema moet beginnen na de laatst gefactureerde periode, {day}."
 			},
 			"delete": {
