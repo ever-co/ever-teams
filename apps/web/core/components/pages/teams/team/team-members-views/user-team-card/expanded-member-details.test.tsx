@@ -84,7 +84,6 @@ jest.mock('@/core/lib/utils', () => ({ clsxm: (...values: unknown[]) => values.f
 jest.mock('@/core/constants/config/constants', () => ({ ITEMS_LENGTH_TO_VIRTUALIZED: 15 }));
 jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
 
-
 const panel = () => (
 	<ExpandedMemberDetails
 		employeeId="employee-1"
