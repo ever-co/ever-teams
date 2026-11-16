@@ -18,11 +18,16 @@ export function dayMembersOf(rows: ReadonlyArray<AppUsageRow>): UsagePerson[] {
 
 /**
  * The member who leads the report: the one held, while they still have time in it, else whoever spent the most time
- * in apps and sites. A live report is read again every minute, and the ranking moving must not move the panel.
+ * in apps and sites. A live report is read again every minute, and the ranking moving must not move the panel. A held
+ * member left with only empty rows has no day to show, so the lead passes on.
  */
-export function leadingDayMemberIdOf(members: ReadonlyArray<UsagePerson>, heldId: string | null) {
-	const isHeldKnown = heldId !== null && members.some((member) => member.id === heldId);
-	if (isHeldKnown) {
+export function leadingDayMemberIdOf(
+	rows: ReadonlyArray<AppUsageRow>,
+	members: ReadonlyArray<UsagePerson>,
+	heldId: string | null
+) {
+	const hasHeldTime = heldId !== null && rows.some((row) => row.employee.id === heldId && row.seconds > 0);
+	if (hasHeldTime) {
 		return heldId;
 	}
 	return members[0]?.id ?? null;

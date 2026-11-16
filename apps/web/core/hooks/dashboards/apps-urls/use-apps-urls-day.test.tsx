@@ -65,6 +65,15 @@ describe("the Apps & URLs day panel's member, nobody picked", () => {
 		expect(result.current.member?.id).toBe('bob');
 	});
 
+	it('goes to the member with the most time once that member is left with only empty rows', () => {
+		const { result, rerender } = renderDay([rowOf('ada', 3600), rowOf('bob', 1800)]);
+
+		rerender({ rows: [rowOf('ada', 0), rowOf('bob', 1800)], selectedEmployeeIds: [] });
+
+		expect(result.current.member?.id).toBe('bob');
+		expect(result.current.hasDay).toBe(true);
+	});
+
 	it('CONTROL: a member picked in the filter still wins', () => {
 		const { result, rerender } = renderDay([rowOf('ada', 3600), rowOf('bob', 1800)]);
 

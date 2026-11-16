@@ -40,7 +40,7 @@ export function useAppsUrlsDay({
 	// Nobody picked, the panel holds the member it opened on: the live report's ranking moving every minute moved it
 	// to another member, whose day it read behind its skeleton.
 	const [heldLeadingId, setHeldLeadingId] = useState<string | null>(null);
-	const leadingId = leadingDayMemberIdOf(members, heldLeadingId);
+	const leadingId = leadingDayMemberIdOf(rows, members, heldLeadingId);
 	if (leadingId !== heldLeadingId) {
 		setHeldLeadingId(leadingId);
 	}
