@@ -159,8 +159,15 @@ async function takeTurn(): Promise<Storage | null> {
 			// A storage that does not keep what it is given has nothing to share the turn through
 			if (!readLease(storage)) return null;
 			// Another tab's lease, written out of this tab's sight a moment ago (or its renewal as it was about to write),
-			// reaches it meanwhile and is then the one read back: that tab keeps its turn, and this one waits for it
-			await wait(ONE_TAB_LEASE_SETTLE_MS);
+			// reaches it meanwhile and is then the one read back: that tab keeps its turn, and this one waits for it. A
+			// page that goes away meanwhile gives its lease back, as one that holds it does (hold)
+			const onPageHide = () => giveBack(storage);
+			window.addEventListener('pagehide', onPageHide);
+			try {
+				await wait(ONE_TAB_LEASE_SETTLE_MS);
+			} finally {
+				window.removeEventListener('pagehide', onPageHide);
+			}
 			if (readLease(storage)?.tab === thisTabId()) return storage;
 			continue;
 		}

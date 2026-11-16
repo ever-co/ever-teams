@@ -241,6 +241,23 @@ describe('one tab at a time, without Web Locks', () => {
 		expect(window.localStorage.getItem(LEASE_KEY)).toBeNull();
 	});
 
+	it('gives the lease back as the page goes away while it waits to read it back: a reload does not wait for it', async () => {
+		const tab = openTab();
+		const settle = jest.fn(async () => 'settled');
+		void tab.inOneTabByLease(settle);
+		await advance(100);
+		expect(storedLease()).not.toBeNull();
+
+		window.dispatchEvent(new Event('pagehide'));
+
+		expect(window.localStorage.getItem(LEASE_KEY)).toBeNull();
+		// The reloaded page takes its turn at once, not once the lease expired
+		const reloaded = openTab();
+		const settled = reloaded.inOneTabByLease(async () => 'reloaded');
+		await advance(SETTLE_MS);
+		await expect(settled).resolves.toBe('reloaded');
+	});
+
 	it('runs the calls of one tab one after the other, as under a lock', async () => {
 		const tab = openTab();
 		const order: string[] = [];
