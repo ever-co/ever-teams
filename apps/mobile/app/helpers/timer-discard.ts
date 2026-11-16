@@ -37,6 +37,8 @@ interface ITimerDiscardInput {
 	/** The organization as read, whichever fields its API answers. */
 	organization: object | null | undefined;
 	running: boolean;
+	/** The running log, which a confirmation names: without it, nothing says which run a discard would remove. */
+	runningLogId: string | null | undefined;
 	/** Where the running log was started: the desktop app records its own time, which the API never discards. */
 	source?: TimerSource | string | null;
 	/** The running log's start, in milliseconds; null when the status does not say. */
@@ -74,19 +76,20 @@ function closingTimeOf(limitMinutes: number | null | undefined, startedAt: numbe
 }
 
 /**
- * Whether the running timer offers Discard, as the API would allow it: a timer runs, it is not the desktop app's, the
- * API knows the discard (its organization read carries the switch), the organization does not turn it off (null
- * counts as allowed), and the run is younger than the organization's limit. `closesAt` is when that limit ends the
- * offer, for the timer to read it again then.
+ * Whether the running timer offers Discard, as the API would allow it: a timer runs and its status names the run, it is
+ * not the desktop app's, the API knows the discard (its organization read carries the switch), the organization does
+ * not turn it off (null counts as allowed), and the run is younger than the organization's limit. `closesAt` is when
+ * that limit ends the offer, for the timer to read it again then.
  */
 export function timerDiscardAvailabilityOf({
 	organization,
 	running,
+	runningLogId,
 	source,
 	startedAt,
 	now
 }: ITimerDiscardInput): TimerDiscardAvailability {
-	if (!running) {
+	if (!running || !runningLogId) {
 		return { available: false, reason: 'NOT_RUNNING' };
 	}
 	if (source === TimerSource.DESKTOP) {

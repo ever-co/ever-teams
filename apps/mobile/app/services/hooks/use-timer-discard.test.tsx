@@ -83,7 +83,7 @@ describe('Discarding the running timer from the phone', () => {
 
 		let discarded = false;
 		await act(async () => {
-			discarded = await timer.current.discard();
+			discarded = await timer.current.discard(timer.current.runningLogId);
 		});
 
 		expect(discarded).toBe(true);
@@ -102,7 +102,7 @@ describe('Discarding the running timer from the phone', () => {
 		await offersDiscard(timer);
 
 		await act(async () => {
-			await timer.current.discard();
+			await timer.current.discard(timer.current.runningLogId);
 		});
 
 		const [request] = gauzy.sentTo('POST', '/timesheet/timer/discard');
@@ -145,7 +145,7 @@ describe('Discarding the running timer from the phone', () => {
 
 		let discarded = true;
 		await act(async () => {
-			discarded = await timer.current.discard();
+			discarded = await timer.current.discard(timer.current.runningLogId);
 		});
 
 		expect(discarded).toBe(false);
@@ -167,7 +167,7 @@ describe('Discarding the running timer from the phone', () => {
 		) as unknown as typeof fetch;
 
 		await act(async () => {
-			await timer.current.discard();
+			await timer.current.discard(timer.current.runningLogId);
 		});
 
 		expect(gauzy.timer()?.isRunning).toBe(true);
@@ -178,6 +178,20 @@ describe('Discarding the running timer from the phone', () => {
 				type: 'danger'
 			})
 		);
+	});
+
+	it('discards nothing for a confirmation that named no run, even once a run is shown', async () => {
+		const timer = await openTimer();
+		await offersDiscard(timer);
+
+		let discarded = true;
+		await act(async () => {
+			discarded = await timer.current.discard(undefined);
+		});
+
+		expect(discarded).toBe(false);
+		expect(gauzy.sentTo('POST', '/timesheet/timer/discard')).toHaveLength(0);
+		expect(gauzy.timer()?.isRunning).toBe(true);
 	});
 
 	it('discards only the run the person confirmed: another run started meanwhile goes on', async () => {

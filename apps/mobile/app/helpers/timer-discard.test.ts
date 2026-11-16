@@ -13,6 +13,7 @@ describe('timerDiscardAvailabilityOf', () => {
 	const running = {
 		organization: OPEN_ORGANIZATION,
 		running: true,
+		runningLogId: 'log-running' as string | undefined,
 		source: TimerSource.MOBILE,
 		startedAt: STARTED_AT,
 		now: STARTED_AT + 2 * MINUTE_MS
@@ -72,6 +73,13 @@ describe('timerDiscardAvailabilityOf', () => {
 		expect(timerDiscardAvailabilityOf({ ...running, source: TimerSource.DESKTOP })).toEqual({
 			available: false,
 			reason: 'TRACKER_RUN'
+		});
+	});
+
+	it('offers nothing while the status does not name the running run: a confirmation must name what it discards', () => {
+		expect(timerDiscardAvailabilityOf({ ...running, runningLogId: undefined })).toEqual({
+			available: false,
+			reason: 'NOT_RUNNING'
 		});
 	});
 });

@@ -62,6 +62,7 @@ export function useTimerDiscard() {
 	const availability = timerDiscardAvailabilityOf({
 		organization: organizationQuery.data ?? null,
 		running,
+		runningLogId: runningLog?.id,
 		source: runningLog?.source,
 		startedAt: runStartOf(timerStatus),
 		now: Date.now()
@@ -109,16 +110,15 @@ export function useTimerDiscard() {
 	);
 
 	/**
-	 * Discards the run named by `confirmedRunId`, the one the confirmation was opened for (the running one when none is
-	 * named). The API refuses it (409) when another run is the running one by then.
+	 * Discards the run `timeLogId`, the one the confirmation was opened for. The API refuses it (409) when
+	 * another run is the running one by then.
 	 */
 	const discard = useCallback(
-		async (confirmedRunId?: string): Promise<boolean> => {
+		async (timeLogId: string | undefined): Promise<boolean> => {
 			if (discarding) {
 				return false;
 			}
-			const timeLogId = confirmedRunId ?? runningLog?.id;
-			// Without the run the person confirmed, the API would remove whichever runs now
+			// A confirmation that named no run discards nothing: the running one now may be another the person never saw
 			if (!timeLogId) {
 				tellFailure('CHANGED');
 				return false;
@@ -163,7 +163,6 @@ export function useTimerDiscard() {
 			discarding,
 			organizationId,
 			readAgainAfter,
-			runningLog?.id,
 			setTimerStatus,
 			statusAfterDiscard,
 			tenantId,
