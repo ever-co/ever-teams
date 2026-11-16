@@ -90,6 +90,16 @@ jest.mock('@/core/components', () => ({
 
 jest.mock('../../timesheet/timesheet-action', () => ({ statusTable: [] }));
 jest.mock('../../pages/timesheet/timesheet-filter-date', () => ({ DatePickerFilter: () => null }));
+// The start and the end are the app's time fields, tested on their own (common/time-field.test.tsx): a text field
+// that sends the time it holds, as `HH:mm`, stands in for them
+jest.mock('@/core/components/common/time-field', () => ({
+	TimeField: ({
+		onChange,
+		...props
+	}: Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange'> & { onChange: (time: string) => void }) => (
+		<input {...props} onChange={(event) => onChange(event.target.value)} />
+	)
+}));
 jest.mock('@/core/components/tasks/task-displays', () => ({ TaskNameInfoDisplay: () => null }));
 
 jest.mock('@/core/components/teams/manage-member-component', () => ({

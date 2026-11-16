@@ -14,6 +14,7 @@ import { shiftPeriod } from '@/core/lib/utils/dashboard-period';
 import { isTrackingEnabledState } from '@/core/stores';
 import { TimeActivityBreakdown, breakdownColumnsOf } from './time-activity-breakdown';
 import { TimeActivityReportSheet } from './time-activity-report-sheet';
+import { TimeActivitySavedReports } from './time-activity-saved-reports';
 import { TimeActivityBandExport } from './time-activity-summary-band';
 import { TimeActivityTimeSplit } from './time-activity-time-split';
 import { TimeActivityToolbar } from './time-activity-toolbar';
@@ -51,8 +52,14 @@ export function TimeActivityPage() {
 	const title = t('timeActivity.TIME_AND_ACTIVITY');
 
 	const columns = useMemo(
-		() => breakdownColumnsOf(report.breakdownGrouping, settings.hiddenColumns, report.isManager),
-		[report.breakdownGrouping, report.isManager, settings.hiddenColumns]
+		() =>
+			breakdownColumnsOf(
+				report.breakdownGrouping,
+				settings.hiddenColumns,
+				report.isManager,
+				report.billable.isOffered
+			),
+		[report.billable.isOffered, report.breakdownGrouping, report.isManager, settings.hiddenColumns]
 	);
 
 	const breadcrumbPaths = useMemo(
@@ -85,8 +92,14 @@ export function TimeActivityPage() {
 					isCountsError={report.isCountsError}
 					onRetryDaily={retryDaily}
 					onRetryCounts={retryCounts}
-					exportSlot={<TimeActivityBandExport report={report} />}
+					exportSlot={
+						<div className="flex flex-wrap items-center justify-end gap-2">
+							<TimeActivitySavedReports report={report} />
+							<TimeActivityBandExport report={report} />
+						</div>
+					}
 					roundingRule={report.roundingRule}
+					billable={report.billable}
 				/>
 				<TimeActivityTimeSplit report={report} />
 				{isWeekGrid && (
@@ -104,6 +117,9 @@ export function TimeActivityPage() {
 						key={report.breakdownGrouping}
 						grouping={report.breakdownGrouping}
 						rows={report.rows}
+						billableFacts={report.billable.facts}
+						isBillablePending={report.billable.isPending}
+						isBillableError={report.billable.isError}
 						columns={columns}
 						period={period}
 						isLoading={report.isBreakdownPending}

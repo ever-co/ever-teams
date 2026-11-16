@@ -102,6 +102,7 @@ function reportOf(grouping: TimeActivityGrouping) {
 		isDailyPending: false,
 		isUpdating: false,
 		isManager: true,
+		billable: { isOffered: false },
 		totals: { memberCount: 1 }
 	};
 	return report as unknown as TimeActivityReport;

@@ -83,6 +83,22 @@ describe('JitsuRoot configuration', () => {
 		expect(renderedOptions()).toEqual({ disabled: true });
 	});
 
+	it.each([
+		'/shared-invoice#id=0b6e4c2a-1d3f-4e5a-8b7c-9d0e1f2a3b4c&token=test-header.test-payload.test-signature',
+		'/#/share/invoices/0b6e4c2a-1d3f-4e5a-8b7c-9d0e1f2a3b4c/test-header.test-payload.test-signature'
+	])("stays disabled on a page load that starts on %s, whose address carries an invoice link's token", (address) => {
+		(globalThis as Record<string, unknown>)[GLOBAL] = {
+			NEXT_PUBLIC_JITSU_BROWSER_URL: 'https://jitsu.example.org',
+			NEXT_PUBLIC_JITSU_BROWSER_WRITE_KEY: 'runtime-write-key'
+		};
+		window.history.replaceState(null, '', address);
+		try {
+			expect(renderedOptions()).toEqual({ disabled: true });
+		} finally {
+			window.history.replaceState(null, '', '/');
+		}
+	});
+
 	it('keeps using an explicit pageProps configuration', () => {
 		(globalThis as Record<string, unknown>)[GLOBAL] = {
 			NEXT_PUBLIC_JITSU_BROWSER_URL: 'https://jitsu.example.org',

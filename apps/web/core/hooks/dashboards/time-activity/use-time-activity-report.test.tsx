@@ -2,6 +2,7 @@
 
 import { renderHook } from '@testing-library/react';
 import { NO_CLIENT_FILTER_VALUE } from '@/core/lib/utils/project-list';
+import { localDayKeyOf } from '@/core/lib/utils/dashboard-export';
 import type {
 	ClientGroupingAccess,
 	TimeActivityFilters,
@@ -83,6 +84,16 @@ let mockLookup: ClientLookup = PROJECTS_READ;
 let mockGrouping: TimeActivityGrouping = 'project';
 let mockAccess: ClientGroupingAccess = 'granted';
 let mockClientsList: ClientsList = CLIENTS_READ;
+const LINKED_PERIOD = { from: new Date(2026, 10, 3), to: new Date(2026, 10, 3, 23, 59, 59) };
+let mockLinkedPeriod: { from: Date; to: Date } | null = LINKED_PERIOD;
+const mockSetPeriod = jest.fn();
+/** A role that may read client rates, unless a test takes it away. */
+let mockPermissions: string[] = ['CHANGE_SELECTED_EMPLOYEE'];
+/** The daily reads still show the previous period or filters while the next ones load. */
+let mockShowsPreviousRead = false;
+/** What the daily read answers: the report of November 3, unless a test reads another day. */
+let mockDailyReport: typeof DAILY_REPORT | undefined = DAILY_REPORT;
+const mockRatesByProject = new Map([['website', { id: 'website', billRateValue: 90, currency: 'EUR', members: [] }]]);
 
 // Breaks (#5216) off, as in a workspace that never turned them on, unless a test turns them on
 let mockAllowsBreaks = false;
@@ -108,7 +119,14 @@ jest.mock('@/core/hooks/organizations/teams/use-organization-teams-managers', ()
 	useOrganizationAndTeamManagers: () => ({ userManagedTeams: [] })
 }));
 jest.mock('./use-time-activity-settings', () => ({
-	useTimeActivitySettings: () => ({ filters: mockFilters, grouping: mockGrouping, clientGroupingAccess: mockAccess })
+	useTimeActivitySettings: () => ({
+		filters: mockFilters,
+		grouping: mockGrouping,
+		clientGroupingAccess: mockAccess,
+		linkedPeriod: mockLinkedPeriod,
+		holdsView: mockLinkedPeriod !== null,
+		setPeriod: mockSetPeriod
+	})
 }));
 jest.mock('@/core/hooks/clients/use-clients-query', () => ({
 	useClientsQuery: (options: { includeArchived?: boolean; enabled?: boolean }) => {
@@ -126,7 +144,8 @@ jest.mock('./use-time-activity-queries', () => ({
 	// Breaks (#5216): their figure's read, off unless a test turns breaks on
 	useTimeActivityBreaksQuery: () => mockBreaksQuery,
 	useTimeActivityDailyQuery: () => ({
-		data: DAILY_REPORT,
+		data: mockDailyReport,
+		isPlaceholderData: mockShowsPreviousRead,
 		isPending: false,
 		isError: false,
 		isFetching: false,
@@ -137,6 +156,23 @@ jest.mock('./use-time-activity-queries', () => ({
 		isPending: true,
 		isError: false,
 		isFetching: false,
+		refetch: jest.fn()
+	})
+}));
+// The organization's read, which fills the current organization the amounts are priced with
+const mockRefetchOrganization = jest.fn();
+let mockOrganizationReadFailed = false;
+jest.mock('@/core/hooks/auth/use-current-organization', () => ({
+	useGetCurrentOrganization: () => ({ isError: mockOrganizationReadFailed, refetch: mockRefetchOrganization })
+}));
+jest.mock('@/core/hooks/roles/use-my-role-permissions-query', () => ({
+	useMyRolePermissionsQuery: () => ({ myPermissions: mockPermissions, isLoaded: true })
+}));
+jest.mock('@/core/hooks/organizations/rates/use-project-client-rates', () => ({
+	useProjectClientRates: () => ({
+		ratesByProject: mockRatesByProject,
+		isLoading: false,
+		hasFailed: false,
 		refetch: jest.fn()
 	})
 }));
@@ -389,6 +425,182 @@ describe('useTimeActivityReport with a duration rounding rule', () => {
 		expect(report.roundingRule).toBeNull();
 		expect(report.isDailyPending).toBe(false);
 		expect(report.weekDailySource).toBeNull();
+	});
+});
+
+describe('useTimeActivityReport and the period of the page link', () => {
+	beforeEach(() => {
+		resetMocks('project');
+		mockSetPeriod.mockClear();
+		mockLinkedPeriod = LINKED_PERIOD;
+	});
+
+	afterEach(() => {
+		mockShowsPreviousRead = false;
+		mockDailyReport = DAILY_REPORT;
+	});
+
+	afterAll(() => {
+		mockLinkedPeriod = LINKED_PERIOD;
+	});
+
+	it('reads the period the link names and leaves the link alone', () => {
+		const report = reportUnder([], PROJECTS_READ);
+
+		expect(report.period).toBe(LINKED_PERIOD);
+		expect(report.request?.startDate).toBe('2026-11-03');
+		expect(report.request?.endDate).toBe('2026-11-03');
+		expect(mockSetPeriod).not.toHaveBeenCalled();
+	});
+
+	it('writes the last 7 days into a link that names no period', () => {
+		mockLinkedPeriod = null;
+
+		const report = reportUnder([], PROJECTS_READ);
+
+		expect(mockSetPeriod).toHaveBeenCalledTimes(1);
+		expect(mockSetPeriod).toHaveBeenCalledWith(report.period);
+		expect(report.request?.endDate).toBe(localDayKeyOf(new Date()));
+	});
+
+	it('keeps the chart on the days of the rows it shows while another period is read (#5342)', () => {
+		const nextDay = { from: new Date(2026, 10, 4), to: new Date(2026, 10, 4, 23, 59, 59) };
+		const { result, rerender } = renderHook(() => useTimeActivityReport());
+		const chartOf = (report: typeof result.current) => report.chartDays.map((day) => [day.key, day.value]);
+		const firstDay = [[localDayKeyOf(LINKED_PERIOD.from), 1200]];
+		expect(chartOf(result.current)).toEqual(firstDay);
+
+		// The next period is asked for: its read is on the way, the previous rows stay on screen
+		mockLinkedPeriod = nextDay;
+		mockShowsPreviousRead = true;
+		rerender();
+
+		expect(result.current.period).toBe(nextDay);
+		expect(chartOf(result.current)).toEqual(firstDay);
+
+		// Its own rows came: the chart draws the new period with them
+		mockDailyReport = DAILY_REPORT.map((day) => ({ ...day, date: '2026-11-04' }));
+		mockShowsPreviousRead = false;
+		rerender();
+
+		expect(chartOf(result.current)).toEqual([[localDayKeyOf(nextDay.from), 1200]]);
+	});
+
+	it('keeps the chart on the shown rows when a failed read of another period is tried again', () => {
+		const nextDay = { from: new Date(2026, 10, 4), to: new Date(2026, 10, 4, 23, 59, 59) };
+		const { result, rerender } = renderHook(() => useTimeActivityReport());
+		const chartOf = (report: typeof result.current) => report.chartDays.map((day) => [day.key, day.value]);
+		const firstDay = [[localDayKeyOf(LINKED_PERIOD.from), 1200]];
+
+		// The next period's read failed without rows: nothing of the previous period is on screen
+		mockLinkedPeriod = nextDay;
+		mockDailyReport = undefined;
+		rerender();
+		expect(chartOf(result.current)).toEqual([[localDayKeyOf(nextDay.from), 0]]);
+
+		// It is tried again: the last rows that came back are on screen again, on their own days
+		mockDailyReport = DAILY_REPORT;
+		mockShowsPreviousRead = true;
+		rerender();
+
+		expect(chartOf(result.current)).toEqual(firstDay);
+	});
+
+	it('writes a picked period into the link', () => {
+		const report = reportUnder([], PROJECTS_READ);
+		const picked = { from: new Date(2026, 9, 1), to: new Date(2026, 9, 31, 23, 59, 59) };
+
+		report.setPeriod(picked);
+
+		expect(mockSetPeriod).toHaveBeenCalledWith(picked);
+	});
+});
+
+describe('useTimeActivityReport billable amounts', () => {
+	beforeEach(() => {
+		resetMocks('project');
+		mockPermissions = ['CHANGE_SELECTED_EMPLOYEE'];
+		mockOrganizationReadFailed = false;
+		mockRefetchOrganization.mockClear();
+		// Read, without a default rate: the amounts wait for nothing more
+		getDefaultStore().set(currentOrganizationState, { id: 'organization' } as TOrganization);
+	});
+
+	it('prices the billable time at the client rate, and counts the time no rate prices apart', () => {
+		const report = reportUnder([], PROJECTS_READ);
+
+		expect(report.billable.isOffered).toBe(true);
+		expect(report.billable.isPending).toBe(false);
+		expect(report.billable.figures).toEqual({
+			amounts: [{ currency: 'EUR', amount: 15 }],
+			seconds: 1200,
+			unpricedSeconds: 600
+		});
+	});
+
+	it('prices the time no other rate prices at the workspace default', () => {
+		const organization = {
+			id: 'organization',
+			currency: 'EUR',
+			defaultBillRateValue: 60
+		} as unknown as TOrganization;
+		getDefaultStore().set(currentOrganizationState, organization);
+
+		const report = reportUnder([], PROJECTS_READ);
+
+		expect(report.billable.figures.amounts).toEqual([{ currency: 'EUR', amount: 25 }]);
+		expect(report.billable.figures.unpricedSeconds).toBe(0);
+	});
+
+	it('waits instead of pricing a previous read beside the time now shown', () => {
+		mockShowsPreviousRead = true;
+
+		const report = reportUnder([], PROJECTS_READ);
+		mockShowsPreviousRead = false;
+
+		expect(report.billable.isPending).toBe(true);
+		expect(report.billable.facts).toEqual([]);
+	});
+
+	it('reads the projects again from the billable retry when their lookup failed under a client filter', () => {
+		const report = reportUnder([NO_CLIENT_FILTER_VALUE], { isPending: false, isError: true });
+
+		expect(report.billable.isError).toBe(true);
+		report.billable.refetch();
+		expect(mockRefetchProjectClients).toHaveBeenCalledTimes(1);
+	});
+
+	it('waits for the organization, whose default rate, currency and rounding price the amounts (Greptile P2 on #5310)', () => {
+		getDefaultStore().set(currentOrganizationState, null);
+
+		const report = reportUnder([], PROJECTS_READ);
+
+		expect(report.billable.isPending).toBe(true);
+		expect(report.billable.facts).toEqual([]);
+	});
+
+	it('shows no amount once the organization could not be read, and reads it again from the billable retry', () => {
+		getDefaultStore().set(currentOrganizationState, null);
+		mockOrganizationReadFailed = true;
+
+		const report = reportUnder([], PROJECTS_READ);
+
+		expect(report.billable.isError).toBe(true);
+		expect(report.billable.isPending).toBe(false);
+		// No facts priced without the organization reach the breakdown (CodeRabbit on #5312)
+		expect(report.billable.facts).toEqual([]);
+		report.billable.refetch();
+		expect(mockRefetchOrganization).toHaveBeenCalledTimes(1);
+	});
+
+	it('gives no billable amount to a role that may not read client rates', () => {
+		mockPermissions = ['ORG_TIME_TRACKING'];
+
+		const report = reportUnder([], PROJECTS_READ);
+
+		expect(report.billable.isOffered).toBe(false);
+		expect(report.billable.facts).toEqual([]);
+		expect(report.billable.figures.amounts).toEqual([]);
 	});
 });
 

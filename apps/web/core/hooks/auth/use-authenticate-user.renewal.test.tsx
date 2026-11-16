@@ -39,6 +39,7 @@ jest.mock('@/core/hooks/organizations/teams/use-active-team-member', () => ({
 	useActiveTeamMemberUserId: () => undefined
 }));
 
+import { forgetThisBrowserPush } from '@/core/hooks/inbox/use-inbox-web-push';
 import { clearSessionEndedNotice, storedSessionEndedNotice } from '@/core/lib/auth/session-ended-notice';
 import { getRefreshTokenCookie } from '@/core/lib/helpers/cookies';
 import { authService } from '@/core/services/client/api/auth/auth.service';
@@ -128,5 +129,18 @@ describe('a sign-out the person asked for', () => {
 		expect(page.leftAfterSignOut).toHaveBeenCalledTimes(1);
 		expect(getRefreshTokenCookie()).toBeFalsy();
 		expect(storedSessionEndedNotice()).toBeNull();
+	});
+});
+
+describe('a sign-out whose push subscription cannot be read', () => {
+	it('still ends the session: a failed lookup never leaves the cookies behind', async () => {
+		// `pushManager.getSubscription()` rejects, for one, when the service worker registration has no active worker
+		jest.mocked(forgetThisBrowserPush).mockRejectedValueOnce(new Error('no active service worker'));
+		const { signOut } = await openSignedInPage();
+
+		await signOut();
+
+		expect(page.leftAfterSignOut).toHaveBeenCalledTimes(1);
+		expect(getRefreshTokenCookie()).toBeFalsy();
 	});
 });

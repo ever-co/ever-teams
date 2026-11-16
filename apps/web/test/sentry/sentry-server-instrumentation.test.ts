@@ -16,6 +16,14 @@ jest.mock('@sentry/nextjs', () => {
 	return { init: mockInit, captureRequestError: mockCaptureRequestError };
 });
 
+// register() also starts the anonymous statistics reporter. A real one keeps a 10-minute timer: in a long in-band CI run
+// it fires during a later test file and logs after this file's tests are done, and Jest then exits with code 1 although
+// every test passed (the web gate on #5345).
+jest.mock('@/core/services/server/ever-stats/scheduler', () => ({
+	startEverStats: jest.fn(() => null),
+	stopEverStats: jest.fn()
+}));
+
 type ServerConfig = typeof ServerConfigModule;
 type InstrumentationModule = typeof InstrumentationModuleExports;
 

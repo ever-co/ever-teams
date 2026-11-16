@@ -433,6 +433,9 @@
 		"NO_TEAM_MEMBERS_FOUND": "Keine Teammitglieder gefunden",
 		"NO_TEAM_MEMBERS_FOUND_MESSAGE": "Versuchen Sie, Ihre Suche oder Filter anzupassen, um zu finden, wonach Sie suchen.",
 		"PICK_A_DATE": "Datum auswählen",
+		"PICK_A_TIME": "Uhrzeit auswählen",
+		"PICK_THIS_OR_LATER": "Wählen Sie {value} oder später.",
+		"PICK_THIS_OR_EARLIER": "Wählen Sie {value} oder früher.",
 		"THIS_WEEK": "Diese Woche",
 		"LAST_WEEK": "Letzte Woche",
 		"THIS_MONTH": "Diesen Monat",
@@ -771,6 +774,8 @@
 			"LIMIT_SHARE": "{percent} Ihres Wochenlimits",
 			"NO_LIMIT": "In Ihrem Profil ist kein Wochenlimit festgelegt.",
 			"LIMIT_BY_WEEK": "Ihr Wochenlimit von {limit} wird Woche für Woche gemessen.",
+			"BILLABLE_UNPRICED": "{duration} ohne Satz",
+			"BILLABLE_RATES_HINT": "Zu heutigen Sätzen bepreist: Ihr Kundensatz im Projekt, sonst der des Projekts, sonst Ihr Abrechnungssatz, sonst der Standardsatz des Arbeitsbereichs.",
 			"DAILY_LIMIT_LINE": "{limit} pro Tag",
 			"DAILY_LIMIT_HINT": "Die gestrichelte Linie ist ein Fünftel Ihres Wochenlimits",
 			"PROJECTS_TITLE": "Zeit pro Projekt",
@@ -1288,6 +1293,7 @@
 				"PROJECTS": "Projekte",
 				"TRACKED": "Erfasst",
 				"EARNINGS": "Einnahmen",
+				"BILLABLE": "Abrechenbarer Betrag",
 				"ACTIVITY": "Aktivität",
 				"SHARE": "Anteil"
 			},
@@ -1312,6 +1318,10 @@
 				"NO_TIME": "Keine erfasste Zeit",
 				"EARNINGS": "Einnahmen",
 				"EARNINGS_FROM_RATES": "Aus den Stundensätzen",
+				"BILLABLE_TIME": "{duration} abrechenbar",
+				"BILLABLE_NONE": "Keine abrechenbare Zeit",
+				"BILLABLE_NO_RATES": "Kein Satz bepreist diese abrechenbare Zeit",
+				"BILLABLE_HINT": "Abrechenbare Zeit wie eine Rechnungszeile bepreist: der Kundensatz des Mitglieds im Projekt, sonst der des Projekts, sonst der Abrechnungssatz des Mitglieds, sonst der Standardsatz des Arbeitsbereichs. Kundensätze und der Standardsatz gelten mit ihrem heutigen Wert, der Abrechnungssatz eines Mitglieds mit dem, den jeder Eintrag behält.",
 				"EARNINGS_MISSING_RATES": "{count, plural, one {# Mitglied hat keinen Stundensatz} other {# Mitglieder haben keinen Stundensatz}}",
 				"EARNINGS_NO_RATES": "Kein Mitglied hat einen Stundensatz",
 				"MEMBERS": "Mitglieder",
@@ -1369,6 +1379,9 @@
 				"LABEL": "Bericht des Zeitraums",
 				"SUMMARY": "Zusammenfassung des Zeitraums",
 				"NO_ACTIVITY": "In diesem Zeitraum wurde keine Aktivität erfasst",
+				"UNPRICED_NOTE": "{duration} abrechenbare Zeit haben keinen Satz und fehlen im abrechenbaren Betrag.",
+				"SET_DEFAULT_RATE": "Standardsatz festlegen",
+				"BILLABLE_FAILED": "Der abrechenbare Betrag konnte nicht geladen werden.",
 				"CHART_LABEL": "Erfasste Zeit und Aktivität pro Tag",
 				"BY_TIMER": "{duration} per Timer",
 				"ROUNDED_UP": "Pro Eintrag auf {minutes} Min. aufgerundet",
@@ -1782,6 +1795,55 @@
 			"NOT_KEPT": "Frühere Werte wurden nicht gespeichert",
 			"COLUMN_BEFORE": "Vorher",
 			"COLUMN_AFTER": "Nachher"
+		},
+		"savedReports": {
+			"MENU": "Gespeicherte Berichte",
+			"LOADING": "Gespeicherte Berichte werden gelesen…",
+			"LOAD_ERROR": "Die gespeicherten Berichte konnten nicht gelesen werden.",
+			"TRY_AGAIN": "Erneut versuchen",
+			"EMPTY": "Noch kein gespeicherter Bericht. Speichern Sie diese Ansicht, um sie mit einem Klick wieder zu öffnen.",
+			"UPDATE": "Mit dieser Ansicht aktualisieren",
+			"RENAME": "Umbenennen",
+			"RENAME_TITLE": "Bericht umbenennen",
+			"DELETE": "Löschen",
+			"SAVE": "Speichern",
+			"SAVE_TITLE": "Diesen Bericht speichern",
+			"SAVE_HINT": "Behält Zeitraum, Filter und Gruppierung. Öffnen Sie ihn wieder über Gespeicherte Berichte.",
+			"NAME": "Name",
+			"NAME_PLACEHOLDER": "Kunde A, letzter Monat",
+			"NAME_REQUIRED": "Geben Sie dem Bericht einen Namen.",
+			"NAME_TOO_LONG": "Höchstens 100 Zeichen.",
+			"SAVED": "„{name}“ gespeichert",
+			"UPDATED": "„{name}“ aktualisiert",
+			"RENAMED": "Bericht umbenannt",
+			"DELETED": "„{name}“ gelöscht",
+			"DELETE_TITLE": "„{name}“ löschen?",
+			"DELETE_DESCRIPTION": "Der gespeicherte Bericht wird entfernt und sein Link funktioniert nicht mehr. Die gezeigte Zeit bleibt erhalten.",
+			"SAVE_FAILED": "Der Bericht konnte nicht gespeichert werden.",
+			"DELETE_FAILED": "Der Bericht konnte nicht gelöscht werden.",
+			"SHARE": "Teilen",
+			"SHARE_TITLE": "Einen schreibgeschützten Link teilen",
+			"SHARE_NEEDS_SAVE": "Ein Link teilt einen gespeicherten Bericht. Benennen Sie diese Ansicht, um sie zu speichern, und schalten Sie dann ihren Link ein.",
+			"SHARE_HINT": "Wer den Link hat, sieht ohne Konto den Namen des Berichts, seinen Zeitraum, die Zahlen, das Diagramm und die Tabelle. Nichts kann geändert werden, und er zeigt nur, was Sie sehen dürfen.",
+			"LINK_ADDRESS": "Linkadresse",
+			"COPY": "Kopieren",
+			"COPIED": "Link kopiert",
+			"COPY_FAILED": "Der Link konnte nicht kopiert werden. Markieren und kopieren Sie ihn selbst.",
+			"LINK_OFF": "Kein Link ist eingeschaltet.",
+			"LINK_ENDED": "Der Link ist am {date} abgelaufen.",
+			"LINK_HIDDEN": "Der Link ist eingeschaltet. Seine Adresse wird nur beim Erstellen gezeigt: Link ersetzen erzeugt eine neue zum Kopieren, und die alte funktioniert nicht mehr.",
+			"EXPIRES": "Funktioniert nach dem {date} nicht mehr.",
+			"ENDS_ON": "Endet am",
+			"ENDS_ON_HINT": "Optional. Gilt, wenn der Link eingeschaltet oder ersetzt wird.",
+			"TURN_ON": "Link einschalten",
+			"TURN_OFF": "Ausschalten",
+			"REPLACE": "Link ersetzen",
+			"REPLACE_HINT": "Ersetzen oder Ausschalten stoppt die aktuelle Adresse sofort.",
+			"INCLUDE_AMOUNTS": "Beträge einschließen",
+			"INCLUDE_AMOUNTS_HINT": "Die Sätze und was die Zeit wert ist. Aus: nur Dauern.",
+			"SHARE_FAILED": "Der Link konnte nicht geändert werden.",
+			"SHARE_REFUSED": "Ein Link kann nur aus Ihrer eigenen Anmeldung eingeschaltet werden, nicht aus einer mit einem API-Token gestarteten Sitzung.",
+			"TURNED_OFF": "Link ausgeschaltet: Seine Adresse funktioniert nicht mehr."
 		}
 	},
 	"timeActivity": {
@@ -2101,6 +2163,18 @@
 			"billable": {
 				"LABEL": "Standardmäßig abrechenbar",
 				"HELP": "Gilt für neue Einträge; gespeicherte bleiben gleich."
+			},
+			"visibility": {
+				"LABEL": "Sichtbarkeit",
+				"EVERYONE_TITLE": "Alle in der Organisation",
+				"EVERYONE_DETAIL": "Für alle sichtbar, die Projekte sehen.",
+				"PRIVATE_TITLE": "Nur Mitglieder und Manager",
+				"PRIVATE_DETAIL": "Nur für seine Mitglieder und Manager sowie für Admins sichtbar.",
+				"NOT_ENFORCED": "Noch sehen es alle, bis ein Admin „Private Projekte“ in den Einstellungen des Arbeitsbereichs einschaltet.",
+				"SETTING_SECTION": "Private Projekte",
+				"SETTING_LABEL": "Private Projekte nur ihren Leuten zeigen",
+				"SETTING_DESCRIPTION": "Ein Projekt mit „Nur Mitglieder und Manager“ sehen nur diese und die Admins. Aus: Alle sehen alle Projekte.",
+				"SETTING_NOT_SAVED": "Die Einstellung wurde nicht gespeichert."
 			},
 			"bulkActions": {
 				"bulkArchiveModal": {
@@ -3051,6 +3125,12 @@
 				"TRACKER_RUN": "Dieser Lauf wird von der Desktop-App oder dem Agenten erfasst, die seine Zeit selbst führen, daher kann er hier nicht verworfen werden.",
 				"GENERIC": "Der Lauf konnte nicht verworfen werden. Prüfen Sie Ihre Verbindung und versuchen Sie es erneut."
 			}
+		},
+		"unfollowed": {
+			"TITLE": "Ihr Timer lief ohne die App weiter",
+			"TEXT": "Von {from} bis {until} hat die App Ihren Timer nicht begleitet. Diese Zeit behalten oder den Timer um {from} stoppen?",
+			"KEEP": "Zeit behalten",
+			"STOP": "Um {from} stoppen"
 		}
 	},
 	"task": {
@@ -3966,7 +4046,12 @@
 			"BROADCAST": "<b>{name}</b> hat eine Ankündigung veröffentlicht",
 			"PAYMENT": "Eine Zahlung wurde für dich erfasst",
 			"RATE_CHANGE_REQUEST": "<b>{name}</b> hat eine Satzänderung angefragt",
-			"TIMER_REMINDER": "Dein Timer läuft noch immer"
+			"TIMER_REMINDER": "Dein Timer läuft noch immer",
+			"MEETING": "Ein Meeting, an dem Sie teilnehmen, wurde geändert",
+			"TASK_UPDATE": "<b>{name}</b> hat etwas geändert",
+			"TASK_DUE_REMINDER": "Eine Aufgabe ist bald fällig",
+			"BOARD_SHARE": "<b>{name}</b> hat ein Board mit dir geteilt",
+			"BOARD_MENTION": "<b>{name}</b> hat dich in einem Board erwähnt"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "Zuweisung",
@@ -3977,7 +4062,12 @@
 			"BROADCAST": "Ankündigung",
 			"PAYMENT": "Zahlung",
 			"RATE_CHANGE_REQUEST": "Anfrage zur Satzänderung",
-			"TIMER_REMINDER": "Timer-Erinnerung"
+			"TIMER_REMINDER": "Timer-Erinnerung",
+			"MEETING": "Meeting",
+			"TASK_UPDATE": "Änderung",
+			"TASK_DUE_REMINDER": "Fälligkeitserinnerung",
+			"BOARD_SHARE": "Board geteilt",
+			"BOARD_MENTION": "Erwähnung im Board"
 		},
 		"SOMEONE": "Jemand",
 		"MARK_READ": "Als gelesen markieren",
@@ -4054,7 +4144,33 @@
 				"OFF": "Aus",
 				"AFTER_HOURS": "Nach {hours, plural, one {# Stunde} other {# Stunden}}"
 			},
+			"MEETINGS": {
+				"TITLE": "Meetings",
+				"INTRO": "Hinweise zu den Meetings, die Sie leiten oder zu denen Sie eingeladen sind, und eine Erinnerung vor dem Beginn jedes Meetings.",
+				"LABEL": "Meeting-Erinnerung",
+				"TEXT": "Wenn Sie eingeladen werden, wenn ein Meeting geändert oder abgesagt wird, vor dem Beginn und wenn es beginnt. In Ihrem Posteingang, per E-Mail und auf Ihren Geräten nach Ihrer Wahl.",
+				"OFF": "Nur zu Beginn",
+				"BEFORE_MINUTES": "{minutes} Min. vorher"
+			},
+			"TASK_DUE": {
+				"TITLE": "Fälligkeiten",
+				"INTRO": "Eine Erinnerung, bevor eine dir zugewiesene Aufgabe fällig wird, solange sie nicht erledigt ist.",
+				"LABEL": "Fälligkeitserinnerung",
+				"TEXT": "Immer in deinem Posteingang. Per E-Mail und auf deinen Geräten nach deiner Wahl.",
+				"OFF": "Aus",
+				"BEFORE_HOURS": "{hours, plural, one {# Stunde} other {# Stunden}} vorher"
+			},
+			"BOARDS": {
+				"TITLE": "Boards",
+				"INTRO": "Wenn eine Kollegin oder ein Kollege ein Board mit dir teilt oder dich darin erwähnt, in der Boards-App.",
+				"SHARE_LABEL": "Mit dir geteilt",
+				"MENTION_LABEL": "In einem Board erwähnt",
+				"TEXT": "Immer in deinem Posteingang. Per E-Mail und auf deinen Geräten nach deiner Wahl."
+			},
 			"INTRO": "Wähle, was in deinem Posteingang ankommt. Wenn du einen Typ ausschaltest, kommen keine neuen Benachrichtigungen dieses Typs mehr; vorhandene bleiben.",
+			"TEAM_DEFAULTS_TITLE": "Dein Team {team} legt Standard-Benachrichtigungen fest",
+			"TEAM_DEFAULTS_TEXT": "Was du hier nicht wählst, folgt ihnen. Deine eigenen Einstellungen haben immer Vorrang.",
+			"TASK_UPDATE_TEXT": "Eine Status-, Termin- oder Mitgliederänderung einer Aufgabe oder eines Projekts, dem du folgst. Aus erreicht sie trotzdem deinen Posteingang, ohne E-Mail oder Push.",
 			"LOAD_ERROR": "Deine Benachrichtigungseinstellungen konnten nicht geladen werden.",
 			"SAVE_FAILED": "Diese Einstellung wurde nicht gespeichert. Versuche es erneut.",
 			"ROWS": {
@@ -4104,6 +4220,23 @@
 			"FORGOTTEN_DESCRIPTION": "Hast du ihn vergessen? Stoppe ihn und korrigiere die Zeit bei Bedarf in deinem Stundenzettel.",
 			"STOP": "Timer stoppen",
 			"OPEN": "Timer öffnen"
+		},
+		"MEETING": {
+			"INVITED": "<b>{name}</b> hat Sie zu einem Meeting eingeladen",
+			"REMOVED": "<b>{name}</b> hat Sie aus einem Meeting entfernt",
+			"CHANGED": "<b>{name}</b> hat ein Meeting geändert",
+			"CANCELLED": "<b>{name}</b> hat ein Meeting abgesagt",
+			"REMINDER": "Ihr Meeting beginnt in {minutes, plural, one {# Minute} other {# Minuten}}",
+			"SOON": "Ihr Meeting beginnt bald",
+			"STARTING": "Ihr Meeting beginnt jetzt",
+			"OPEN": "Meetings öffnen"
+		},
+		"TASK_DUE": {
+			"BY_END_OF_DAY": "Fällig bis Ende {date}",
+			"AT": "Fällig am {date}"
+		},
+		"BOARD_INVITATION": {
+			"TEXT": "Hat dich zu einem Board eingeladen: öffne es, um mitzumachen."
 		}
 	},
 	"toasts": {
@@ -4230,7 +4363,10 @@
 			"NOTES_NOT_SAVED": "Die während des laufenden Timers geänderten Notizen wurden nicht gespeichert",
 			"NOTES_NOT_SAVED_HINT": "Der Eintrag hat die Notizen vom Start behalten. Bearbeiten Sie den Eintrag in den Stundenzetteln, um sie zu ändern.",
 			"ALREADY_RUNNING_ON_TASK": "Der Timer läuft bereits für diese Aufgabe",
-			"SAVED_STOP_HINT": "Das ist der Stopp, den du vor dem Ende deiner Sitzung angefordert hast."
+			"SAVED_STOP_HINT": "Das ist der Stopp, den du vor dem Ende deiner Sitzung angefordert hast.",
+			"UNFOLLOWED_STOPPED_HINT": "Danach konnte die App ihn nicht mehr begleiten: Der Computer war im Ruhezustand oder der Browser hat diesen Tab pausiert. Tragen Sie spätere Arbeit als manuelle Zeit nach.",
+			"UNFOLLOWED_STOP_CHOSEN_HINT": "Sie haben entschieden, die Zeit danach nicht zu behalten.",
+			"UNFOLLOWED_KEEP_CHANGED": "Es wurde keine Zeit behalten: Der Timer wurde inzwischen anderswo geändert. Prüfen Sie ihn und tragen Sie die Zeit bei Bedarf manuell ein."
 		},
 		"plans": {
 			"CREATE_FAILED": "Der Plan wurde nicht erstellt",
@@ -4360,7 +4496,7 @@
 		"ADD_TO_CALENDAR": "Zum Kalender hinzufügen",
 		"DONE": "Fertig",
 		"AGENDA": "Agenda",
-		"AGENDA_HINT": "Von dir geplante Besprechungen",
+		"AGENDA_HINT": "Von dir geplante Besprechungen und solche, zu denen du eingeladen bist",
 		"TODAY": "Heute",
 		"TOMORROW": "Morgen",
 		"YESTERDAY": "Gestern",
@@ -4384,6 +4520,7 @@
 		"JOIN_MEETING": "Besprechung beitreten",
 		"MEETING_ACTIONS_OF": "Aktionen für {title}",
 		"HOST": "Gastgeber: {name}",
+		"INVITED": "Eingeladen",
 		"STARTED_AGO": "Begonnen {ago}",
 		"CANCEL_MEETING": "Besprechung absagen",
 		"CANCEL_CONFIRM_TITLE": "Diese Besprechung absagen?",
@@ -5168,6 +5305,15 @@
 			"SHARE_PROFILES_DESCRIPTION": "Mitglieder sehen auf den Profilseiten die Tagespläne und Statistiken der anderen.",
 			"REQUIRE_PLAN_LABEL": "Tagesplan für die Zeiterfassung verlangen",
 			"REQUIRE_PLAN_DESCRIPTION": "Der Timer startet erst, wenn ein Mitglied seinen Tag geplant hat.",
+			"NOTIFICATIONS_SECTION": "Standard-Benachrichtigungen",
+			"NOTIFICATIONS_DESCRIPTION": "Was ein Mitglied erhält, das in seinen eigenen Benachrichtigungseinstellungen nichts gewählt hat. Eigene Einstellungen haben immer Vorrang.",
+			"MEMBERS_CHOOSE": "Wählen die Mitglieder",
+			"EMAIL_DEFAULT_DESCRIPTION": "Wie jede Art die Mitglieder per E-Mail erreicht.",
+			"PUSH_DEFAULT_DESCRIPTION": "Auf den Geräten, auf denen die Mitglieder sie aktiviert haben.",
+			"TASK_UPDATE_DEFAULT_LABEL": "Änderungen an verfolgten Aufgaben und Projekten",
+			"TASK_UPDATE_DEFAULT_DESCRIPTION": "Eine Status-, Termin- oder Mitgliederänderung einer Aufgabe oder eines Projekts, dem das Mitglied folgt.",
+			"TIMER_DEFAULT_DESCRIPTION": "Nach welcher Zeit ein laufender Timer eine Erinnerung wert ist.",
+			"TASK_DUE_DEFAULT_DESCRIPTION": "Wie lange vor der Fälligkeit einer Aufgabe die Zuständigen erinnert werden.",
 			"ORGANIZATION_TRACKING_SECTION": "Pflichtangaben für Zeiteinträge",
 			"ORGANIZATION_TRACKING_DESCRIPTION": "Gilt für alle Teams von {organization}.",
 			"REQUIRE_TEAM_LABEL": "Team verlangen",
@@ -5313,7 +5459,52 @@
 			"RESET_TWO_FACTOR_CONFIRM": "Zurücksetzen",
 			"RESET_TWO_FACTOR_DONE": "Die Zwei-Faktor-Authentifizierung von {name} ist zurückgesetzt",
 			"RESET_TWO_FACTOR_NOTHING": "{name} hatte keine Zwei-Faktor-Authentifizierung zum Zurücksetzen",
-			"RESET_TWO_FACTOR_FAILED": "Die Zwei-Faktor-Authentifizierung von {name} konnte nicht zurückgesetzt werden"
+			"RESET_TWO_FACTOR_FAILED": "Die Zwei-Faktor-Authentifizierung von {name} konnte nicht zurückgesetzt werden",
+			"placeholder": {
+				"ADD": "Ohne Konto hinzufügen",
+				"ADD_TITLE": "Jemanden ohne Konto hinzufügen",
+				"ADD_DESCRIPTION": "Für jemanden, der mit dem Team gearbeitet hat und kein Konto hat. Die Person erhält keine E-Mail, kann sich nicht anmelden und startet nie einen Timer. Ihre Zeit zählt in Berichten, Zeitnachweisen, Budgets und Rechnungen wie die jedes Mitglieds.",
+				"EMAIL": "E-Mail",
+				"OPTIONAL": "optional",
+				"EMAIL_HINT": "Wird gespeichert, um die Person später einzuladen, ihre Zeit zu übernehmen. Jetzt wird nichts gesendet.",
+				"EMAIL_INVALID": "Gib eine gültige E-Mail ein oder lass das Feld leer.",
+				"ADD_CONFIRM": "Mitglied hinzufügen",
+				"ADD_FAILED": "Das Mitglied wurde nicht hinzugefügt.",
+				"ADDED": "{name} wurde ohne Konto hinzugefügt.",
+				"NO_ACCOUNT": "Kein Konto",
+				"NO_EMAIL": "Keine E-Mail",
+				"CLAIM": "Zur Übernahme einladen",
+				"CLAIM_TITLE": "{name} einladen, die eigene Zeit zu übernehmen",
+				"CLAIM_DESCRIPTION": "{name} erhält eine Einladung per E-Mail. Mit der Annahme gehen Zeit, Teams und Sätze auf das eigene Konto über.",
+				"CLAIM_CONFIRM": "Einladung senden",
+				"CLAIM_FAILED": "Die Einladung wurde nicht gesendet.",
+				"CLAIM_SENT": "Einladung an {email} gesendet. Die Zeit von {name} geht mit der Annahme auf das eigene Konto über.",
+				"CLAIM_PENDING": "Einladung gesendet",
+				"CLAIM_PENDING_TO": "Einladung zur Übernahme an {email} gesendet",
+				"MERGE": "Mit einem Mitglied zusammenführen",
+				"MERGE_TITLE": "{name} mit einem Mitglied zusammenführen",
+				"MERGE_DESCRIPTION": "Alles dieses Mitglieds ohne Konto geht auf das gewählte Mitglied über. Eine Zusammenführung lässt sich nicht rückgängig machen.",
+				"MERGE_INTO": "Zusammenführen mit",
+				"MERGE_PICK": "Mitglied wählen",
+				"MERGE_NO_TARGET": "In diesem Team hat noch niemand ein Konto zum Zusammenführen.",
+				"MERGE_READING": "Lese, was übertragen würde…",
+				"MERGE_PREVIEW_FAILED": "Was übertragen würde, konnte nicht gelesen werden.",
+				"RETRY": "Erneut versuchen",
+				"MERGE_MOVES_TIME": "{target} erhält {count, plural, one {# Eintrag} other {# Einträge}} ({duration}).",
+				"MERGE_MOVES_WORK": "{timesheets, plural, one {# Zeitnachweis} other {# Zeitnachweise}} und {tasks, plural, one {# Aufgabenzuweisung} other {# Aufgabenzuweisungen}} gehen mit.",
+				"MERGE_MOVES_TEAMS": "{target} tritt den Teams bei: {teams}.",
+				"MERGE_OVERLAPS": "{count, plural, one {# dieser Einträge überschneidet sich} other {# dieser Einträge überschneiden sich}} mit der Zeit von {target}.",
+				"MERGE_REMOVES": "{name} wird aus den Mitgliedern entfernt.",
+				"MERGE_CONFIRM": "Zusammenführen",
+				"MERGE_FAILED": "Die Mitglieder wurden nicht zusammengeführt.",
+				"MERGED": "{name} mit {target} zusammengeführt",
+				"errors": {
+					"EMAIL_TAKEN": "Ein Mitglied dieser Organisation hat diese E-Mail bereits.",
+					"CLAIM_HAS_ACCOUNT": "Diese E-Mail hat bereits ein Konto. Führe das Mitglied stattdessen mit dem Mitglied dieser Person zusammen.",
+					"MERGE_TIME_OFF": "Beide Mitglieder haben ein Abwesenheitsguthaben für dieselbe Regel und dasselbe Jahr ({years}). Kläre es bei einem der beiden und führe dann erneut zusammen. Es wurde nichts übertragen.",
+					"MERGE_TIME_OFF_ANY": "Beide Mitglieder haben ein Abwesenheitsguthaben für dieselbe Regel und dasselbe Jahr. Kläre es bei einem der beiden und führe dann erneut zusammen. Es wurde nichts übertragen."
+				}
+			}
 		},
 		"sessions": {
 			"TITLE": "Sitzungen",
@@ -5358,7 +5549,8 @@
 			"SIGN_OUT_INCOMPLETE": "Eine Sitzung hat sich während der Abmeldung erneuert. Versuche es erneut.",
 			"SIGN_OUT_OTHERS_FAILED": "Das Abmelden der anderen Sitzungen wurde nicht abgeschlossen. {reason}",
 			"SIGN_OUT_OTHERS_CONFIRM": "{count, plural, one {# Sitzung abmelden} other {# Sitzungen abmelden}}",
-			"SIGNED_OUT_OTHERS": "{count, plural, =0 {Keine andere Sitzung war angemeldet.} one {# weitere Sitzung wurde abgemeldet.} other {# weitere Sitzungen wurden abgemeldet.}}"
+			"SIGNED_OUT_OTHERS": "{count, plural, =0 {Keine andere Sitzung war angemeldet.} one {# weitere Sitzung wurde abgemeldet.} other {# weitere Sitzungen wurden abgemeldet.}}",
+			"APP_ON_DEVICE": "{app} · {device}"
 		},
 		"profile": {
 			"SECTION_PROFILE": "Profil",
@@ -5565,6 +5757,13 @@
 			"CURRENCY_OUTCOME": "Neue Sätze und Budgets beginnen in dieser Währung.",
 			"CURRENCY_NOT_SAVED": "Die Währung wurde nicht gespeichert",
 			"CURRENCY_NOT_SET": "Nicht angegeben",
+			"DEFAULT_RATE_LABEL": "Standard-Abrechnungssatz",
+			"DEFAULT_RATE_DESCRIPTION": "Rechnet die Zeit eines Mitglieds ohne eigenen Abrechnungssatz und ohne Kundensatz im Projekt ab. Leer bleibt diese Zeit ohne Preis.",
+			"DEFAULT_RATE_SAVED": "Standard-Abrechnungssatz gespeichert",
+			"DEFAULT_RATE_OUTCOME": "Berichte und neue Rechnungen bepreisen Zeit ohne anderen Satz damit.",
+			"DEFAULT_RATE_CLEARED": "Standard-Abrechnungssatz entfernt",
+			"DEFAULT_RATE_CLEARED_OUTCOME": "Zeit ohne anderen Satz wird wieder getrennt ausgewiesen.",
+			"DEFAULT_RATE_NOT_SAVED": "Der Standard-Abrechnungssatz wurde nicht gespeichert",
 			"DATE_FORMAT_LABEL": "Datumsformat",
 			"DATE_FORMAT_DESCRIPTION": "Wie Berichte und ihre Exporte Datumsangaben schreiben. Automatisch folgt der Sprache jedes Mitglieds.",
 			"DATE_FORMAT_SAVED": "Datumsformat gespeichert",
@@ -5627,7 +5826,33 @@
 			"EXPORTING": "Wird exportiert…",
 			"EXPORT_DONE": "Daten des Arbeitsbereichs exportiert",
 			"EXPORT_FAILED": "Der Export wurde nicht abgeschlossen",
-			"EXPORT_FAILED_DESCRIPTION": "Es wurde nichts gespeichert. Ein großer Arbeitsbereich braucht Zeit: Versuchen Sie es gleich noch einmal."
+			"EXPORT_FAILED_DESCRIPTION": "Es wurde nichts gespeichert. Ein großer Arbeitsbereich braucht Zeit: Versuchen Sie es gleich noch einmal.",
+			"deletion": {
+				"DANGER_SECTION": "Gefahrenbereich",
+				"DELETE_LABEL": "Diese Organisation löschen",
+				"DELETE_CONSEQUENCE": "Ihre Teams, Mitgliedschaften und Einladungen verschwinden für alle. Die letzte Organisation des Arbeitsbereichs bleibt.",
+				"DELETE_ACTION": "Organisation löschen",
+				"DELETE_TITLE": "{organization} löschen?",
+				"DELETE_DESCRIPTION": "Ihre Teams, Mitglieder und Einladungen verlassen Ever Teams mit ihr. Ihre Projekte, erfasste Zeit und Rechnungen bleiben auf dem Server, sind hier aber nicht mehr erreichbar.",
+				"CONSEQUENCE_TEAMS": "{count, plural, one {# Team wird entfernt} other {# Teams werden entfernt}}, samt aller Plätze darin",
+				"CONSEQUENCE_MEMBERS": "{count, plural, one {# Mitglied verliert} other {# Mitglieder verlieren}} den Zugang zu dieser Organisation",
+				"CONSEQUENCE_WORK": "{projects, plural, one {# Projekt} other {# Projekte}} und {hours, number} erfasste Stunden sind nicht mehr erreichbar",
+				"CONSEQUENCE_INVOICES": "{count, plural, one {# Rechnung ist} other {# Rechnungen sind}} nicht mehr erreichbar",
+				"CONSEQUENCE_LANDING": "Sie machen in {organization} weiter",
+				"CONSEQUENCE_PICKER": "Sie haben keine andere Organisation in diesem Arbeitsbereich: Sie melden sich erneut an, um einen Arbeitsbereich zu wählen",
+				"COUNTS_LOADING": "Inhalt dieser Organisation wird gezählt…",
+				"COUNTS_FAILED": "Der Inhalt dieser Organisation konnte nicht gezählt werden",
+				"COUNTS_FAILED_DESCRIPTION": "Das Löschen bleibt deaktiviert, bis die Zahlen geladen sind.",
+				"UNSUPPORTED": "Dieser Server kann noch keine Organisationen löschen",
+				"UNSUPPORTED_DESCRIPTION": "Eine Organisation sicher zu löschen erfordert eine neuere Ever Gauzy API. Bitten Sie die Person, die Ihren Server betreibt, sie zu aktualisieren.",
+				"LAST_ORGANIZATION": "Dies ist die letzte Organisation des Arbeitsbereichs",
+				"LAST_ORGANIZATION_DESCRIPTION": "Ein Arbeitsbereich behält mindestens eine Organisation. Wenn Sie Ihr Konto löschen, wird auch der Arbeitsbereich entfernt, aber nur, wenn Sie sein letztes Mitglied sind.",
+				"LAST_ORGANIZATION_ACTION": "Zur Kontolöschung",
+				"LAST_ORGANIZATION_REFUSED": "Dies ist jetzt die letzte Organisation des Arbeitsbereichs, daher bleibt sie. Wenn Sie Ihr Konto löschen, wird auch der Arbeitsbereich entfernt, aber nur, wenn Sie sein letztes Mitglied sind.",
+				"TIMER_RUNNING": "Stoppen Sie zuerst Ihren Timer",
+				"TIMER_RUNNING_DESCRIPTION": "Ihr Timer läuft. Stoppen Sie ihn und löschen Sie dann die Organisation: Ein Timer, der in einer gelöschten Organisation bleibt, zählt weiter, ohne dass ihn jemand stoppen kann.",
+				"EXPORT_FIRST": "Behalten Sie zuerst eine Kopie: Exportieren Sie die Daten des Arbeitsbereichs, bevor Sie diese Organisation löschen."
+			}
 		},
 		"automations": {
 			"NEW_RULE": "Neue Regel",
@@ -5870,6 +6095,12 @@
 			"REQUIRED_TITLE": "Deine Organisation bittet dich, sie einzuschalten",
 			"REQUIRED_DESCRIPTION": "Ihre Mitglieder melden sich zusätzlich mit einem Code aus einer Authenticator-App an.",
 			"QR_ALT": "QR-Code dieses Kontos für deine Authenticator-App"
+		},
+		"thisBrowser": {
+			"TITLE": "Dieser Browser",
+			"DESCRIPTION": "Wie lange du in diesem Browser angemeldet bleibst. Deine anderen Browser und Apps behalten ihre eigenen Sitzungen.",
+			"SIGN_OUT_ON_CLOSE": "Abmelden, wenn dieser Browser geschlossen wird",
+			"SIGN_OUT_ON_CLOSE_HINT": "Für einen gemeinsam genutzten Computer. Wenn es aus ist, bleibst du nach dem Schließen des Browsers angemeldet, bis deine Sitzung abläuft."
 		}
 	},
 	"taskDetail": {
@@ -7339,6 +7570,7 @@
 			"RATE_SOURCE_MEMBER": "Kundensatz des Mitglieds in diesem Projekt",
 			"RATE_SOURCE_PROJECT": "Kundensatz des Projekts",
 			"RATE_SOURCE_EMPLOYEE": "Eigener Abrechnungssatz des Mitglieds",
+			"RATE_SOURCE_DEFAULT": "Der Standard-Abrechnungssatz des Arbeitsbereichs",
 			"DESCRIPTION_OF": "Beschreibung der Position {name}",
 			"REMOVE_LINE": "Position {name} entfernen",
 			"REMOVED_LINES": "{count, plural, one {# Position entfernt} other {# Positionen entfernt}}",
@@ -7602,6 +7834,122 @@
 			"NOT_FOUND_MESSAGE": "Sie wurde vielleicht gelöscht, oder der Link stammt aus einem anderen Arbeitsbereich.",
 			"ALL_INVOICES": "Alle Rechnungen",
 			"ERROR_TITLE": "Die Rechnung konnte nicht geladen werden"
+		},
+		"schedule": {
+			"TITLE": "Geplante Abrechnung",
+			"NONE_HINT": "Die Rechnung dieses Kunden jede Woche, alle zwei Wochen oder jeden Monat von selbst erstellen, aus der noch nicht abgerechneten abrechenbaren Zeit.",
+			"SET_UP": "Abrechnung planen",
+			"EDIT": "Bearbeiten",
+			"PAUSE": "Pausieren",
+			"RESUME": "Fortsetzen",
+			"PAUSED": "Pausiert",
+			"ACTIVE": "Aktiv",
+			"SUMMARY": "{frequency} ab {day}",
+			"DELIVERY_DRAFT": "Bleibt ein Entwurf",
+			"DELIVERY_SEND": "Wird an {email} gesendet",
+			"DELIVERY_SEND_NO_EMAIL": "Wird an die E-Mail des Kunden gesendet",
+			"NEXT": "Nächste Rechnung am {day}, für {period}",
+			"NEXT_PAUSED": "Solange sie pausiert ist, wird keine Rechnung erstellt",
+			"RUNS": "Letzte Läufe",
+			"NO_RUNS": "Noch kein Lauf",
+			"RUNS_ERROR": "Die letzten Läufe konnten nicht geladen werden",
+			"ERROR": "Die geplante Abrechnung konnte nicht geladen werden",
+			"OPEN_INVOICE": "Rechnung öffnen",
+			"LEFT_OUT": "{hours} Std. des Zeitraums ausgelassen: ohne Satz oder in einer anderen Währung",
+			"LIST_TITLE": "Nach Plan abgerechnet",
+			"LIST_NEXT": "nächste am {day}",
+			"LIST_PAUSED": "pausiert",
+			"frequency": {
+				"WEEKLY": "Jede Woche",
+				"BIWEEKLY": "Alle zwei Wochen",
+				"MONTHLY": "Jeden Monat"
+			},
+			"grouping": {
+				"PROJECT": "Nach Projekt",
+				"MEMBER": "Nach Mitglied",
+				"TASK": "Nach Aufgabe"
+			},
+			"run": {
+				"CLAIMED": "Läuft",
+				"DRAFTED": "Entwurf erstellt",
+				"SENT": "Gesendet",
+				"NOT_SENT": "Erstellt, nicht gesendet",
+				"NO_TIME": "Nichts abzurechnen",
+				"FAILED": "Nicht erstellt"
+			},
+			"reason": {
+				"NO_BILLABLE_TIME": "Im Zeitraum war keine abrechenbare Zeit mehr abzurechnen.",
+				"NO_PRICED_TIME": "Für die Zeit des Zeitraums gibt es keinen Satz. Eine Woche lang wird es stündlich erneut versucht.",
+				"AUTHOR_CANNOT_INVOICE": "Die Person, die den Plan zuletzt gespeichert hat, kann keine Rechnungen mehr erstellen. Speichern Sie ihn, um ihn zu übernehmen; eine Woche lang wird es stündlich erneut versucht.",
+				"CLIENT_HAS_NO_EMAIL": "Der Kunde hat keine E-Mail-Adresse: Die Rechnung blieb ein Entwurf.",
+				"EMAIL_NOT_SENT": "Die E-Mail konnte nicht gesendet werden: Die Rechnung blieb ein Entwurf.",
+				"INVOICE_NOT_SAVED": "Die Rechnung konnte nicht gespeichert werden. Eine Woche lang wird es stündlich erneut versucht."
+			},
+			"form": {
+				"CREATE_TITLE": "Nach Plan abrechnen",
+				"EDIT_TITLE": "Geplante Abrechnung bearbeiten",
+				"FREQUENCY": "Wie oft",
+				"START_DAY": "Erster Tag des ersten Zeitraums",
+				"START_HINT": "Jede Rechnung wird am Tag nach dem Ende ihres Zeitraums erstellt, in der Zeitzone des Arbeitsbereichs. Kein Zeitraum, der vor heute endete, wird abgerechnet.",
+				"START_INVALID": "Wählen Sie einen Tag.",
+				"GROUPING": "Positionen",
+				"DELIVERY": "Nach dem Erstellen",
+				"DRAFT": "Als Entwurf behalten",
+				"SEND": "An den Kunden senden",
+				"DRAFT_HINT": "Jede Rechnung wartet als Entwurf, bis Sie sie prüfen und senden.",
+				"SEND_HINT": "Jede Rechnung geht mit ihrem PDF an {email} und wird als Gesendet markiert.",
+				"SEND_NO_EMAIL": "Dieser Kunde hat keine E-Mail-Adresse: Seine Rechnungen bleiben Entwürfe, bis er eine hat.",
+				"SAVE": "Speichern",
+				"SAVE_FAILED": "Der Plan konnte nicht gespeichert werden. Versuchen Sie es erneut.",
+				"EXISTS": "Dieser Kunde hat bereits einen Plan. Schließen und öffnen Sie ihn erneut, um ihn zu ändern.",
+				"START_AFTER_BILLED": "Dieser Plan hat bereits Zeiträume abgerechnet: Der neue Plan muss nach dem zuletzt abgerechneten Zeitraum beginnen, {day}."
+			},
+			"delete": {
+				"TITLE": "Diese geplante Abrechnung löschen?",
+				"BODY": "Für {name} wird keine Rechnung mehr von selbst erstellt. Die erstellten Rechnungen bleiben."
+			},
+			"toasts": {
+				"SAVED": "Die geplante Abrechnung von {name} ist gespeichert",
+				"PAUSED": "Die geplante Abrechnung von {name} ist pausiert",
+				"RESUMED": "Die geplante Abrechnung von {name} läuft wieder: nächste Rechnung am {day}",
+				"DELETED": "Die geplante Abrechnung von {name} ist gelöscht",
+				"FAILED": "Die Änderung konnte nicht gespeichert werden. Versuchen Sie es erneut."
+			}
+		},
+		"shared": {
+			"PAY": "{amount} bezahlen",
+			"PAYING": "Zahlung wird geöffnet…",
+			"PAY_FAILED": "Die Zahlung konnte nicht gestartet werden. Versuchen Sie es gleich noch einmal.",
+			"DOWNLOAD_FAILED": "Das PDF konnte nicht heruntergeladen werden. Versuchen Sie es erneut.",
+			"FROM_SENDER": "Von {name}",
+			"RETURNED_TITLE": "Vielen Dank für Ihre Zahlung",
+			"RETURNED_MESSAGE": "Sie wird gerade bestätigt. Diese Seite zeigt die Rechnung als bezahlt, sobald der Zahlungsanbieter es bestätigt.",
+			"PAID_TITLE": "Diese Rechnung ist bezahlt",
+			"PAID_MESSAGE": "Es ist nichts mehr zu zahlen. Vielen Dank.",
+			"CLOSED_TITLE": "Dieser Link öffnet keine Rechnung mehr",
+			"CLOSED_MESSAGE": "Der Link wurde widerrufen oder die Rechnung storniert. Bitten Sie den Absender um einen neuen Link.",
+			"FOOTER": "Gesendet mit {app}"
+		},
+		"payments": {
+			"TITLE": "Online-Zahlung von Rechnungen",
+			"DESCRIPTION": "Lassen Sie Kunden eine Rechnung auf ihrer Seite bezahlen, über den Zahlungskonnektor Ihres Arbeitsbereichs. Die Schlüssel Ihres Zahlungsanbieters bleiben beim Konnektor.",
+			"ENDPOINT": "Checkout-Adresse",
+			"ENDPOINT_HINT": "Die HTTPS-Adresse Ihres Konnektors, die einen Bezahlvorgang öffnet.",
+			"ENABLED": "Online-Zahlung auf Rechnungsseiten anbieten",
+			"TEST_MODE": "Testmodus: Zahlungen werden protokolliert, nie auf Rechnungen verbucht",
+			"CONNECT": "Verbinden",
+			"SAVE": "Speichern",
+			"SAVED": "Gespeichert",
+			"SAVE_FAILED": "Die Verbindung konnte nicht gespeichert werden. Prüfen Sie die Adresse und versuchen Sie es erneut.",
+			"LOAD_FAILED": "Die Verbindung konnte nicht geladen werden.",
+			"NOTIFICATION_URL": "Benachrichtigungsadresse",
+			"NOTIFICATION_URL_HINT": "Ihr Konnektor sendet hierher jede Zahlung, die der Anbieter bestätigt.",
+			"SECRET": "Signaturgeheimnis",
+			"SECRET_ONCE": "Kopieren Sie es jetzt in Ihren Konnektor: Es wird nur dieses eine Mal angezeigt.",
+			"ROTATE": "Neues Signaturgeheimnis",
+			"ROTATE_HINT": "Das aktuelle Geheimnis funktioniert sofort nicht mehr.",
+			"COPY": "Kopieren",
+			"COPIED": "Kopiert"
 		}
 	},
 	"timeReports": {
@@ -7871,6 +8219,15 @@
 			"FAILED_DESCRIPTION": "Kein Zeiteintrag wurde gespeichert. Was vorher angelegt wurde, bleibt im Workspace und wird beim erneuten Import derselben Dateien wiederverwendet.",
 			"CREATED_TITLE": "Kunden, Projekte und Labels sind im Workspace",
 			"PAGE_DESCRIPTION": "Kunden, Projekte, Labels und Zeiteinträge aus einem anderen Zeiterfassungstool."
+		},
+		"placeholders": {
+			"TITLE": "{count, plural, one {# Person aus dieser Datei ist} other {# Personen aus dieser Datei sind}} nicht in diesem Team ({rows, plural, one {# Zeile} other {# Zeilen}})",
+			"DESCRIPTION": "Füge sie als Mitglieder ohne Konto hinzu: Sie erhalten keine E-Mail und können sich nicht anmelden. Danach werden ihre Zeilen erneut geprüft und wie die jedes Mitglieds importiert.",
+			"NAMES": "{names}{more, plural, =0 {} other { und # weitere}}",
+			"ADD": "{count, plural, one {# Mitglied} other {# Mitglieder}} ohne Konto hinzufügen",
+			"FAILED": "Sie wurden nicht hinzugefügt.",
+			"OUTSIDE_TEAM_TITLE": "{count, plural, one {# Person gehört} other {# Personen gehören}} bereits zur Organisation, nicht zu diesem Team",
+			"OUTSIDE_TEAM_DESCRIPTION": "{names}: Füge sie unter Einstellungen > Mitglieder diesem Team hinzu und wähle die Datei dann erneut."
 		}
 	},
 	"recordSheet": {
@@ -7910,6 +8267,15 @@
 		"TYPE_BREAK": "Pause",
 		"BREAK_HINT": "Eine Pause ist nie abrechenbar und zählt nie als Arbeitszeit."
 	},
+	"tabOrganizationNotice": {
+		"TITLE": "In einem anderen Tab ist eine andere Organisation geöffnet",
+		"KEEPS_WORKING": "Dieser Tab arbeitet weiter in {organization}, mit seinem Timer und seinen Seiten.",
+		"CANNOT_WORK_TITLE": "Dieser Tab kann nicht mehr in {organization} arbeiten",
+		"CANNOT_WORK": "In einem anderen Tab ist eine andere Organisation geöffnet. Wählen Sie, wo dieser Tab arbeitet.",
+		"STOP_TIMER_FIRST": "Sein Timer läuft in {organization}: Stoppen Sie ihn, bevor Sie die andere Organisation hier öffnen.",
+		"OPEN_HERE": "Die andere Organisation hier öffnen",
+		"BRING_BACK": "{organization} in allen Tabs verwenden"
+	},
 	"timeZoneNotice": {
 		"TITLE": "Dein Profil verwendet {profileZone} ({profileOffset}). Dieser Browser ist in {browserZone} ({browserOffset}).",
 		"DESCRIPTION": "Stundenzettel zählen deine Tage in der Zeitzone deines Profils, die übrigen Berichte in der dieses Browsers: Ein Eintrag um Mitternacht kann auf einen anderen Tag fallen.",
@@ -7921,5 +8287,15 @@
 		"SAVE_FAILED": "Deine Zeitzone konnte nicht gespeichert werden.",
 		"SAVE_FAILED_DESCRIPTION": "Dein Profil ist unverändert. Prüfe deine Verbindung und versuche es erneut.",
 		"TRY_AGAIN": "Erneut versuchen"
+	},
+	"sharedReport": {
+		"READ_ONLY_BADGE": "Schreibgeschützt",
+		"READ_ONLY": "Ein schreibgeschützter Bericht, geteilt aus {app}. Zahlen vom {time}.",
+		"NOT_WORKING_TITLE": "Dieser Link funktioniert nicht mehr",
+		"NOT_WORKING_MESSAGE": "Sein Autor hat ihn ausgeschaltet, ersetzt oder ablaufen lassen. Bitten Sie um einen neuen Link.",
+		"ERROR_TITLE": "Der Bericht konnte nicht gelesen werden",
+		"ERROR_MESSAGE": "Prüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
+		"LOADING": "Bericht wird geladen…",
+		"EMPTY": "In diesem Zeitraum wurde keine Zeit erfasst."
 	}
 }

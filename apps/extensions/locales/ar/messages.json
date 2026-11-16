@@ -44,6 +44,24 @@
 	"signInChooseWorkspace": {
 		"message": "اختر مساحة عمل"
 	},
+	"signInTwoFactorLabel": {
+		"message": "رمز المصادقة"
+	},
+	"signInTwoFactorHint": {
+		"message": "رمز من 6 أرقام من تطبيق المصادقة، أو أحد رموز الاسترداد."
+	},
+	"signInTwoFactorIncomplete": {
+		"message": "أدخل رمزًا من 6 أرقام أو رمز استرداد كاملًا."
+	},
+	"signInTwoFactorWrongCode": {
+		"message": "هذا الرمز غير صحيح. أدخل الرمز الذي يعرضه التطبيق الآن، أو رمز استرداد."
+	},
+	"signInTwoFactorExpired": {
+		"message": "انتظر تسجيل الدخول هذا رمزه طويلًا. سجّل الدخول من جديد."
+	},
+	"signInTwoFactorTooMany": {
+		"message": "رموز خاطئة كثيرة. انتظر بضع دقائق ثم حاول مرة أخرى."
+	},
 	"headerTeam": {
 		"message": "الفريق"
 	},
@@ -133,6 +151,9 @@
 	},
 	"tasksAddFailed": {
 		"message": "تعذر إنشاء المهمة."
+	},
+	"tasksEstimateInvalid": {
+		"message": "أدخل التقدير بساعات كاملة (حتى 999) ودقائق (من 0 إلى 59)."
 	},
 	"refusalPlanRequired": {
 		"message": "يتطلب فريقك خطة يومية قبل تسجيل الوقت. خطط ليومك أولًا."

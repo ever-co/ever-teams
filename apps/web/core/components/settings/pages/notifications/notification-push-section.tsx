@@ -20,6 +20,7 @@ import {
 	type INotificationPreferences,
 	type TEmployeeNotificationSettingKey
 } from '@/core/types/interfaces/common/employee-notification';
+import { BOARD_NOTIFICATION_KINDS } from './board-notification-rows';
 import { TYPE_COPY } from './notification-type-copy';
 
 const SUBHEADING = 'px-1 pt-2 text-xs font-medium text-muted-foreground';
@@ -29,6 +30,8 @@ type BrowserPushSectionProps = {
 	isKindOn: (key: TEmployeeNotificationSettingKey) => boolean;
 	/** Whether the timer reminders are on (their threshold in Time tracking, above). */
 	isTimerReminderOn: boolean;
+	/** Whether the due date reminders are on (their threshold in Due dates, above). */
+	isTaskDueReminderOn: boolean;
 	preferences: INotificationPreferences | null | undefined;
 	isSavingPreferences: boolean;
 	onPreferences: (patch: Partial<INotificationPreferences>) => void;
@@ -42,6 +45,7 @@ type BrowserPushSectionProps = {
 export function BrowserPushSection({
 	isKindOn,
 	isTimerReminderOn,
+	isTaskDueReminderOn,
 	preferences,
 	isSavingPreferences,
 	onPreferences
@@ -100,6 +104,7 @@ export function BrowserPushSection({
 				<PushKindRows
 					isKindOn={isKindOn}
 					isTimerReminderOn={isTimerReminderOn}
+					isTaskDueReminderOn={isTaskDueReminderOn}
 					preferences={preferences}
 					disabled={isSavingPreferences}
 					onPreferences={onPreferences}
@@ -120,25 +125,54 @@ export function BrowserPushSection({
 type PushKindRowsProps = {
 	isKindOn: (key: TEmployeeNotificationSettingKey) => boolean;
 	isTimerReminderOn: boolean;
+	isTaskDueReminderOn: boolean;
 	preferences: INotificationPreferences | null | undefined;
 	disabled: boolean;
 	onPreferences: (patch: Partial<INotificationPreferences>) => void;
 };
 
 /**
- * Which kinds reach the devices: one switch per kind, saved as the kind's own choice. The timer reminders are the last
- * kind: their threshold, in Time tracking, is what turns them on or off.
+ * Which kinds reach the devices: one switch per kind, saved as the kind's own choice. The reminders are the last kinds:
+ * their threshold (the timer's in Time tracking, the due dates' in Due dates) is what turns them on or off. The Board
+ * kinds close the list.
  */
 function PushKindRows({
 	isKindOn,
 	isTimerReminderOn,
+	isTaskDueReminderOn,
 	preferences,
 	disabled,
 	onPreferences
 }: Readonly<PushKindRowsProps>) {
 	const t = useTranslations();
-	const timerLabel = t('notifications.SETTINGS_PAGE.TIMER.LABEL');
-	const timerSwitchId = 'notification-push-timer-reminder';
+	const reminders = [
+		{
+			type: EEmployeeNotificationType.TimerReminder,
+			id: 'notification-push-timer-reminder',
+			label: t('notifications.SETTINGS_PAGE.TIMER.LABEL'),
+			isOn: isTimerReminderOn
+		},
+		{
+			type: EEmployeeNotificationType.TaskDueReminder,
+			id: 'notification-push-task-due-reminder',
+			label: t('notifications.SETTINGS_PAGE.TASK_DUE.LABEL'),
+			isOn: isTaskDueReminderOn
+		},
+		// The meetings are always filed: their invitations and changes come whatever the reminder's lead (#5022)
+		{
+			type: EEmployeeNotificationType.Meeting,
+			id: 'notification-push-meeting',
+			label: t('notifications.SETTINGS_PAGE.MEETINGS.LABEL'),
+			isOn: true
+		},
+		// A Board shared, or a mention in one: always filed, so their push switch is always free
+		...BOARD_NOTIFICATION_KINDS.map((kind) => ({
+			type: kind.type,
+			id: `${kind.id}-push`,
+			label: t(kind.labelKey),
+			isOn: true
+		}))
+	];
 	return (
 		<>
 			<h3 className={SUBHEADING}>{t('notifications.SETTINGS_PAGE.CHANNELS.PUSH_KINDS_TITLE')}</h3>
@@ -166,25 +200,26 @@ function PushKindRows({
 						</SettingsRow>
 					);
 				})}
-				<SettingsRow
-					label={timerLabel}
-					description={
-						isTimerReminderOn ? undefined : t('notifications.SETTINGS_PAGE.CHANNELS.PUSH_KIND_OFF')
-					}
-					leading={<NotificationTypeBadge type={EEmployeeNotificationType.TimerReminder} size="md" />}
-					htmlFor={timerSwitchId}
-				>
-					<SettingsSwitch
-						id={timerSwitchId}
-						checked={isTimerReminderOn && pushOnFor(preferences, EEmployeeNotificationType.TimerReminder)}
-						disabled={!isTimerReminderOn}
-						pending={disabled}
-						ariaLabel={`${t('notifications.SETTINGS_PAGE.CHANNELS.PUSH_TITLE')}: ${timerLabel}`}
-						onCheckedChange={(isOn) =>
-							onPreferences({ pushByType: { [EEmployeeNotificationType.TimerReminder]: isOn } })
+				{reminders.map((reminder) => (
+					<SettingsRow
+						key={reminder.type}
+						label={reminder.label}
+						description={
+							reminder.isOn ? undefined : t('notifications.SETTINGS_PAGE.CHANNELS.PUSH_KIND_OFF')
 						}
-					/>
-				</SettingsRow>
+						leading={<NotificationTypeBadge type={reminder.type} size="md" />}
+						htmlFor={reminder.id}
+					>
+						<SettingsSwitch
+							id={reminder.id}
+							checked={reminder.isOn && pushOnFor(preferences, reminder.type)}
+							disabled={!reminder.isOn}
+							pending={disabled}
+							ariaLabel={`${t('notifications.SETTINGS_PAGE.CHANNELS.PUSH_TITLE')}: ${reminder.label}`}
+							onCheckedChange={(isOn) => onPreferences({ pushByType: { [reminder.type]: isOn } })}
+						/>
+					</SettingsRow>
+				))}
 			</SettingsSurface>
 		</>
 	);

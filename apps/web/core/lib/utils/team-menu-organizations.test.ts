@@ -1,6 +1,7 @@
 import type { TOrganizationTeam } from '@/core/types/schemas';
 import {
 	readTeamMenuOrganizations,
+	teamsOfCurrentOrganization,
 	teamsOutsideOtherOrganizations,
 	teamMenuOrganizationsOf,
 	teamToOpenAfterSwitch,
@@ -131,6 +132,20 @@ describe('teamsOutsideOtherOrganizations', () => {
 		const teams = [team('a', 'studio'), team('b', 'labs')];
 
 		expect(teamsOutsideOtherOrganizations(teams, [])).toEqual(teams);
+	});
+});
+
+describe('teamsOfCurrentOrganization', () => {
+	it("offers only the current organization's teams while the other organizations are not read", () => {
+		const teams = [team('a', 'studio'), team('b', 'labs'), { id: 'c', name: 'C' } as TOrganizationTeam];
+
+		expect(teamsOfCurrentOrganization(teams, 'studio').map((kept) => kept.id)).toEqual(['a', 'c']);
+	});
+
+	it('keeps every team while the current organization is unknown', () => {
+		const teams = [team('a', 'studio'), team('b', 'labs')];
+
+		expect(teamsOfCurrentOrganization(teams, null)).toEqual(teams);
 	});
 });
 

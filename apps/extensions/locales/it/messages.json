@@ -44,6 +44,24 @@
 	"signInChooseWorkspace": {
 		"message": "Scegli uno spazio di lavoro"
 	},
+	"signInTwoFactorLabel": {
+		"message": "Codice di autenticazione"
+	},
+	"signInTwoFactorHint": {
+		"message": "Un codice di 6 cifre dall’app di autenticazione, o uno dei tuoi codici di recupero."
+	},
+	"signInTwoFactorIncomplete": {
+		"message": "Inserisci un codice di 6 cifre o un codice di recupero completo."
+	},
+	"signInTwoFactorWrongCode": {
+		"message": "Questo codice non è corretto. Inserisci il codice che l’app mostra ora, o un codice di recupero."
+	},
+	"signInTwoFactorExpired": {
+		"message": "Questo accesso ha atteso troppo il suo codice. Accedi di nuovo."
+	},
+	"signInTwoFactorTooMany": {
+		"message": "Troppi codici errati. Attendi qualche minuto, poi riprova."
+	},
 	"headerTeam": {
 		"message": "Team"
 	},
@@ -133,6 +151,9 @@
 	},
 	"tasksAddFailed": {
 		"message": "Impossibile creare l’attività."
+	},
+	"tasksEstimateInvalid": {
+		"message": "Inserisci la stima in ore intere (fino a 999) e minuti (da 0 a 59)."
 	},
 	"refusalPlanRequired": {
 		"message": "Il tuo team richiede un piano giornaliero prima di registrare il tempo. Pianifica prima la giornata."

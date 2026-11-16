@@ -106,6 +106,9 @@ jest.mock('@/core/hooks/timesheet/use-time-import-access', () => ({
 jest.mock('@/core/hooks/timesheet/use-time-import', () => ({
 	useTimeImport: () => mockTimeImport()
 }));
+jest.mock('@/core/hooks/settings/use-member-placeholders', () => ({
+	useMemberPlaceholders: () => ({ isOffered: false, addPlaceholders: jest.fn() })
+}));
 jest.mock('@/core/lib/utils/dashboard-export', () => ({
 	...jest.requireActual('@/core/lib/utils/dashboard-export'),
 	downloadCsv: (...args: unknown[]) => mockDownloadCsv(...args)
@@ -188,6 +191,9 @@ function timeImportOf(overrides: Partial<TimeImport> = {}): TimeImport {
 		hasPreviewChanged: false,
 		chooseFile: jest.fn(),
 		retryCheck: jest.fn(),
+		recheckWithMembers: jest.fn(),
+		previewRun: 1,
+		outsideTeamKeys: [],
 		chooseColumn: jest.fn(),
 		chooseDateOrder: jest.fn(),
 		confirmColumns: jest.fn(),

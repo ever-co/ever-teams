@@ -439,6 +439,9 @@
 		"NO_TEAM_MEMBERS_FOUND": "Geen teamleden gevonden",
 		"NO_TEAM_MEMBERS_FOUND_MESSAGE": "Probeer je zoekopdracht of filter aan te passen om te vinden wat je zoekt.",
 		"PICK_A_DATE": "Kies een datum",
+		"PICK_A_TIME": "Kies een tijd",
+		"PICK_THIS_OR_LATER": "Kies {value} of later.",
+		"PICK_THIS_OR_EARLIER": "Kies {value} of eerder.",
 		"THIS_WEEK": "Deze week",
 		"LAST_WEEK": "Vorige week",
 		"THIS_MONTH": "Deze maand",
@@ -771,6 +774,8 @@
 			"LIMIT_SHARE": "{percent} van je weeklimiet",
 			"NO_LIMIT": "In je profiel is geen weeklimiet ingesteld.",
 			"LIMIT_BY_WEEK": "Je weeklimiet van {limit} wordt week voor week gemeten.",
+			"BILLABLE_UNPRICED": "{duration} zonder tarief",
+			"BILLABLE_RATES_HINT": "Geprijsd tegen de tarieven van vandaag: je klanttarief op het project, anders dat van het project, anders je factuurtarief, anders het standaardtarief van de werkruimte.",
 			"DAILY_LIMIT_LINE": "{limit} per dag",
 			"DAILY_LIMIT_HINT": "De stippellijn is een vijfde van je weeklimiet",
 			"PROJECTS_TITLE": "Tijd per project",
@@ -1288,6 +1293,7 @@
 				"PROJECTS": "Projecten",
 				"TRACKED": "Geregistreerd",
 				"EARNINGS": "Inkomsten",
+				"BILLABLE": "Factureerbaar bedrag",
 				"ACTIVITY": "Activiteit",
 				"SHARE": "Aandeel"
 			},
@@ -1312,6 +1318,10 @@
 				"NO_TIME": "Geen geregistreerde tijd",
 				"EARNINGS": "Inkomsten",
 				"EARNINGS_FROM_RATES": "Op basis van uurtarieven",
+				"BILLABLE_TIME": "{duration} factureerbaar",
+				"BILLABLE_NONE": "Geen factureerbare tijd",
+				"BILLABLE_NO_RATES": "Geen tarief prijst deze factureerbare tijd",
+				"BILLABLE_HINT": "Factureerbare tijd geprijsd als een factuurregel: het klanttarief van het lid op het project, anders dat van het project, anders het factuurtarief van het lid, anders het standaardtarief van de werkruimte. Klanttarieven en het standaardtarief gelden tegen hun huidige waarde; het factuurtarief van een lid tegen het tarief dat elke registratie behoudt.",
 				"EARNINGS_MISSING_RATES": "{count, plural, one {# lid heeft geen uurtarief} other {# leden hebben geen uurtarief}}",
 				"EARNINGS_NO_RATES": "Geen enkel lid heeft een uurtarief",
 				"MEMBERS": "Leden",
@@ -1369,6 +1379,9 @@
 				"LABEL": "Rapport van de periode",
 				"SUMMARY": "Samenvatting van de periode",
 				"NO_ACTIVITY": "Geen activiteit vastgelegd in deze periode",
+				"UNPRICED_NOTE": "{duration} factureerbare tijd heeft geen tarief en telt niet mee in het factureerbare bedrag.",
+				"SET_DEFAULT_RATE": "Standaardtarief instellen",
+				"BILLABLE_FAILED": "Het factureerbare bedrag kon niet worden geladen.",
 				"CHART_LABEL": "Geregistreerde tijd en activiteit per dag",
 				"BY_TIMER": "{duration} via de timer",
 				"ROUNDED_UP": "Per registratie naar boven afgerond op {minutes} min",
@@ -1782,6 +1795,55 @@
 			"NOT_KEPT": "Eerdere waarden zijn niet bewaard",
 			"COLUMN_BEFORE": "Voor",
 			"COLUMN_AFTER": "Na"
+		},
+		"savedReports": {
+			"MENU": "Opgeslagen rapporten",
+			"LOADING": "Opgeslagen rapporten worden gelezen…",
+			"LOAD_ERROR": "De opgeslagen rapporten konden niet worden gelezen.",
+			"TRY_AGAIN": "Opnieuw proberen",
+			"EMPTY": "Nog geen opgeslagen rapport. Sla deze weergave op om haar met één klik weer te openen.",
+			"UPDATE": "Bijwerken met deze weergave",
+			"RENAME": "Hernoemen",
+			"RENAME_TITLE": "Het rapport hernoemen",
+			"DELETE": "Verwijderen",
+			"SAVE": "Opslaan",
+			"SAVE_TITLE": "Dit rapport opslaan",
+			"SAVE_HINT": "Bewaart de periode, de filters en de groepering. Open het weer via Opgeslagen rapporten.",
+			"NAME": "Naam",
+			"NAME_PLACEHOLDER": "Klant A, vorige maand",
+			"NAME_REQUIRED": "Geef het rapport een naam.",
+			"NAME_TOO_LONG": "Hoogstens 100 tekens.",
+			"SAVED": "‘{name}’ opgeslagen",
+			"UPDATED": "‘{name}’ bijgewerkt",
+			"RENAMED": "Rapport hernoemd",
+			"DELETED": "‘{name}’ verwijderd",
+			"DELETE_TITLE": "‘{name}’ verwijderen?",
+			"DELETE_DESCRIPTION": "Het opgeslagen rapport verdwijnt en de link werkt niet meer. De tijd die het toont blijft.",
+			"SAVE_FAILED": "Het rapport kon niet worden opgeslagen.",
+			"DELETE_FAILED": "Het rapport kon niet worden verwijderd.",
+			"SHARE": "Delen",
+			"SHARE_TITLE": "Een alleen-lezen link delen",
+			"SHARE_NEEDS_SAVE": "Een link deelt een opgeslagen rapport. Geef deze weergave een naam om haar op te slaan en zet daarna haar link aan.",
+			"SHARE_HINT": "Wie de link heeft, ziet zonder account de naam van het rapport, de periode, de cijfers, de grafiek en de tabel. Er kan niets worden gewijzigd en het toont alleen wat u mag zien.",
+			"LINK_ADDRESS": "Linkadres",
+			"COPY": "Kopiëren",
+			"COPIED": "Link gekopieerd",
+			"COPY_FAILED": "De link kon niet worden gekopieerd. Selecteer en kopieer hem zelf.",
+			"LINK_OFF": "Er staat geen link aan.",
+			"LINK_ENDED": "De link is verlopen op {date}.",
+			"LINK_HIDDEN": "De link staat aan. Het adres wordt alleen getoond bij het maken: Link vervangen geeft een nieuwe om te kopiëren en de oude werkt niet meer.",
+			"EXPIRES": "Werkt niet meer na {date}.",
+			"ENDS_ON": "Eindigt op",
+			"ENDS_ON_HINT": "Optioneel. Geldt wanneer de link wordt aangezet of vervangen.",
+			"TURN_ON": "Link aanzetten",
+			"TURN_OFF": "Uitzetten",
+			"REPLACE": "Link vervangen",
+			"REPLACE_HINT": "Vervangen of uitzetten stopt het huidige adres meteen.",
+			"INCLUDE_AMOUNTS": "Bedragen tonen",
+			"INCLUDE_AMOUNTS_HINT": "De tarieven en wat de tijd waard is. Uit: alleen duur.",
+			"SHARE_FAILED": "De link kon niet worden gewijzigd.",
+			"SHARE_REFUSED": "Een link kan alleen vanuit uw eigen aanmelding worden aangezet, niet vanuit een sessie die met een API-token is gestart.",
+			"TURNED_OFF": "Link uitgezet: het adres werkt niet meer."
 		}
 	},
 	"timeActivity": {
@@ -2098,6 +2160,18 @@
 			"billable": {
 				"LABEL": "Standaard factureerbaar",
 				"HELP": "Geldt voor nieuwe registraties; oude blijven gelijk."
+			},
+			"visibility": {
+				"LABEL": "Zichtbaarheid",
+				"EVERYONE_TITLE": "Iedereen in de organisatie",
+				"EVERYONE_DETAIL": "Zichtbaar voor iedereen die projecten ziet.",
+				"PRIVATE_TITLE": "Alleen leden en managers",
+				"PRIVATE_DETAIL": "Alleen zichtbaar voor de leden en managers, en voor beheerders.",
+				"NOT_ENFORCED": "Iedereen ziet het nog tot een beheerder Privéprojecten aanzet in de instellingen van de werkruimte.",
+				"SETTING_SECTION": "Privéprojecten",
+				"SETTING_LABEL": "Privéprojecten alleen aan hun mensen tonen",
+				"SETTING_DESCRIPTION": "Een project op Alleen leden en managers zien alleen zij en de beheerders. Uit: iedereen ziet alle projecten.",
+				"SETTING_NOT_SAVED": "De instelling is niet opgeslagen."
 			},
 			"bulkActions": {
 				"bulkArchiveModal": {
@@ -3051,6 +3125,12 @@
 				"TRACKER_RUN": "Deze sessie wordt vastgelegd door de desktop-app of de agent, die de tijd zelf bijhouden, dus ze kan hier niet worden verworpen.",
 				"GENERIC": "De sessie kon niet worden verworpen. Controleer je verbinding en probeer het opnieuw."
 			}
+		},
+		"unfollowed": {
+			"TITLE": "Je timer liep door zonder de app",
+			"TEXT": "Van {from} tot {until} volgde de app je timer niet. Deze tijd behouden, of de timer stoppen om {from}?",
+			"KEEP": "Deze tijd behouden",
+			"STOP": "Stoppen om {from}"
 		}
 	},
 	"task": {
@@ -3966,7 +4046,12 @@
 			"BROADCAST": "<b>{name}</b> heeft een aankondiging geplaatst",
 			"PAYMENT": "Er is een betaling voor je geregistreerd",
 			"RATE_CHANGE_REQUEST": "<b>{name}</b> vroeg om een tariefwijziging",
-			"TIMER_REMINDER": "Je timer loopt nog steeds"
+			"TIMER_REMINDER": "Je timer loopt nog steeds",
+			"MEETING": "Een vergadering waaraan je deelneemt is gewijzigd",
+			"TASK_UPDATE": "<b>{name}</b> heeft iets gewijzigd",
+			"TASK_DUE_REMINDER": "Een taak verloopt binnenkort",
+			"BOARD_SHARE": "<b>{name}</b> heeft een bord met je gedeeld",
+			"BOARD_MENTION": "<b>{name}</b> heeft je vermeld in een bord"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "Toewijzing",
@@ -3977,7 +4062,12 @@
 			"BROADCAST": "Aankondiging",
 			"PAYMENT": "Betaling",
 			"RATE_CHANGE_REQUEST": "Aanvraag tariefwijziging",
-			"TIMER_REMINDER": "Timerherinnering"
+			"TIMER_REMINDER": "Timerherinnering",
+			"MEETING": "Vergadering",
+			"TASK_UPDATE": "Wijziging",
+			"TASK_DUE_REMINDER": "Herinnering vervaldatum",
+			"BOARD_SHARE": "Bord gedeeld",
+			"BOARD_MENTION": "Vermelding in een bord"
 		},
 		"SOMEONE": "Iemand",
 		"MARK_READ": "Markeren als gelezen",
@@ -4054,7 +4144,33 @@
 				"OFF": "Uit",
 				"AFTER_HOURS": "Na {hours, plural, one {# uur} other {# uur}}"
 			},
+			"MEETINGS": {
+				"TITLE": "Vergaderingen",
+				"INTRO": "Meldingen over de vergaderingen die je organiseert of waarvoor je bent uitgenodigd, en een herinnering voordat elke vergadering begint.",
+				"LABEL": "Vergaderherinnering",
+				"TEXT": "Als je wordt uitgenodigd, als een vergadering wijzigt of wordt geannuleerd, voordat ze begint en als ze begint. In je inbox, per e-mail en op je apparaten, zoals je kiest.",
+				"OFF": "Alleen bij de start",
+				"BEFORE_MINUTES": "{minutes} min vooraf"
+			},
+			"TASK_DUE": {
+				"TITLE": "Vervaldatums",
+				"INTRO": "Een herinnering voordat een aan jou toegewezen taak vervalt, zolang die niet klaar is.",
+				"LABEL": "Herinnering vervaldatum",
+				"TEXT": "Altijd in je inbox. Per e-mail en op je apparaten zoals je kiest.",
+				"OFF": "Uit",
+				"BEFORE_HOURS": "{hours, plural, one {# uur} other {# uur}} van tevoren"
+			},
+			"BOARDS": {
+				"TITLE": "Borden",
+				"INTRO": "Wanneer een collega een bord met je deelt of je erin vermeldt, in de borden-app.",
+				"SHARE_LABEL": "Met je gedeeld",
+				"MENTION_LABEL": "Vermeld in een bord",
+				"TEXT": "Altijd in je inbox. Per e-mail en op je apparaten zoals je kiest."
+			},
 			"INTRO": "Kies wat er in je inbox binnenkomt. Als je een type uitzet, komen er geen nieuwe meldingen van dat type meer; bestaande blijven staan.",
+			"TEAM_DEFAULTS_TITLE": "Je team {team} stelt standaardmeldingen in",
+			"TEAM_DEFAULTS_TEXT": "Wat je hier niet kiest, volgt die. Je eigen keuzes gaan altijd voor.",
+			"TASK_UPDATE_TEXT": "Een wijziging van status, datum of leden van een taak of project dat je volgt. Uit komt het nog steeds in je inbox, zonder e-mail of melding.",
 			"LOAD_ERROR": "Je meldingsinstellingen konden niet worden geladen.",
 			"SAVE_FAILED": "Die instelling is niet opgeslagen. Probeer het opnieuw.",
 			"ROWS": {
@@ -4104,6 +4220,23 @@
 			"FORGOTTEN_DESCRIPTION": "Vergeten? Stop hem en corrigeer de tijd zo nodig in je urenstaat.",
 			"STOP": "Timer stoppen",
 			"OPEN": "Timer openen"
+		},
+		"MEETING": {
+			"INVITED": "<b>{name}</b> heeft je uitgenodigd voor een vergadering",
+			"REMOVED": "<b>{name}</b> heeft je uit een vergadering verwijderd",
+			"CHANGED": "<b>{name}</b> heeft een vergadering gewijzigd",
+			"CANCELLED": "<b>{name}</b> heeft een vergadering geannuleerd",
+			"REMINDER": "Je vergadering begint over {minutes, plural, one {# minuut} other {# minuten}}",
+			"SOON": "Je vergadering begint zo",
+			"STARTING": "Je vergadering begint nu",
+			"OPEN": "Vergaderingen openen"
+		},
+		"TASK_DUE": {
+			"BY_END_OF_DAY": "Uiterlijk eind {date}",
+			"AT": "Vervalt op {date}"
+		},
+		"BOARD_INVITATION": {
+			"TEXT": "Heeft je uitgenodigd voor een bord: open het om mee te doen."
 		}
 	},
 	"toasts": {
@@ -4230,7 +4363,10 @@
 			"NOTES_NOT_SAVED": "De notities die tijdens de timer zijn gewijzigd, zijn niet opgeslagen",
 			"NOTES_NOT_SAVED_HINT": "De registratie heeft de notities van de start behouden. Bewerk de registratie in Urenstaten om ze te wijzigen.",
 			"ALREADY_RUNNING_ON_TASK": "De timer loopt al voor deze taak",
-			"SAVED_STOP_HINT": "Dit is de stop die je vroeg voordat je sessie afliep."
+			"SAVED_STOP_HINT": "Dit is de stop die je vroeg voordat je sessie afliep.",
+			"UNFOLLOWED_STOPPED_HINT": "Daarna kon de app hem niet volgen: de computer sliep of de browser pauzeerde dit tabblad. Voeg later werk toe als handmatige tijd.",
+			"UNFOLLOWED_STOP_CHOSEN_HINT": "Je koos ervoor de tijd daarna niet te behouden.",
+			"UNFOLLOWED_KEEP_CHANGED": "Er is geen tijd behouden: de timer is intussen ergens anders gewijzigd. Controleer hem en voeg de tijd zo nodig handmatig toe."
 		},
 		"plans": {
 			"CREATE_FAILED": "Het plan is niet aangemaakt",
@@ -4360,7 +4496,7 @@
 		"ADD_TO_CALENDAR": "Aan agenda toevoegen",
 		"DONE": "Klaar",
 		"AGENDA": "Agenda",
-		"AGENDA_HINT": "Vergaderingen die je plande",
+		"AGENDA_HINT": "Vergaderingen die je plande of waarvoor je bent uitgenodigd",
 		"TODAY": "Vandaag",
 		"TOMORROW": "Morgen",
 		"YESTERDAY": "Gisteren",
@@ -4384,6 +4520,7 @@
 		"JOIN_MEETING": "Deelnemen aan vergadering",
 		"MEETING_ACTIONS_OF": "Acties voor {title}",
 		"HOST": "Organisator: {name}",
+		"INVITED": "Uitgenodigd",
 		"STARTED_AGO": "Begonnen {ago}",
 		"CANCEL_MEETING": "Vergadering annuleren",
 		"CANCEL_CONFIRM_TITLE": "Deze vergadering annuleren?",
@@ -5168,6 +5305,15 @@
 			"SHARE_PROFILES_DESCRIPTION": "Leden zien op de profielpagina's elkaars dagplanningen en statistieken.",
 			"REQUIRE_PLAN_LABEL": "Dagplanning verplicht voor tijdregistratie",
 			"REQUIRE_PLAN_DESCRIPTION": "De timer start pas als een lid zijn dag heeft gepland.",
+			"NOTIFICATIONS_SECTION": "Standaardmeldingen",
+			"NOTIFICATIONS_DESCRIPTION": "Wat een lid krijgt dat in de eigen meldingsinstellingen niets heeft gekozen. Eigen keuzes gaan altijd voor.",
+			"MEMBERS_CHOOSE": "Leden kiezen zelf",
+			"EMAIL_DEFAULT_DESCRIPTION": "Hoe elk soort de leden per e-mail bereikt.",
+			"PUSH_DEFAULT_DESCRIPTION": "Op de apparaten waar leden ze hebben aangezet.",
+			"TASK_UPDATE_DEFAULT_LABEL": "Wijzigingen van gevolgde taken en projecten",
+			"TASK_UPDATE_DEFAULT_DESCRIPTION": "Een wijziging van status, datum of leden van een taak of project dat het lid volgt.",
+			"TIMER_DEFAULT_DESCRIPTION": "Na hoe lang een lopende timer een herinnering waard is.",
+			"TASK_DUE_DEFAULT_DESCRIPTION": "Hoe lang voor de vervaldatum van een taak de toegewezenen een herinnering krijgen.",
 			"ORGANIZATION_TRACKING_SECTION": "Vereisten voor tijdregistraties",
 			"ORGANIZATION_TRACKING_DESCRIPTION": "Geldt voor alle teams van {organization}.",
 			"REQUIRE_TEAM_LABEL": "Team verplichten",
@@ -5313,7 +5459,52 @@
 			"RESET_TWO_FACTOR_CONFIRM": "Resetten",
 			"RESET_TWO_FACTOR_DONE": "Tweestapsverificatie van {name} is gereset",
 			"RESET_TWO_FACTOR_NOTHING": "{name} had geen tweestapsverificatie om te resetten",
-			"RESET_TWO_FACTOR_FAILED": "Tweestapsverificatie van {name} kon niet worden gereset"
+			"RESET_TWO_FACTOR_FAILED": "Tweestapsverificatie van {name} kon niet worden gereset",
+			"placeholder": {
+				"ADD": "Toevoegen zonder account",
+				"ADD_TITLE": "Iemand zonder account toevoegen",
+				"ADD_DESCRIPTION": "Voor iemand die met het team werkte en geen account heeft. Diegene krijgt geen e-mail, kan niet inloggen en start nooit een timer. Hun tijd telt mee in rapporten, urenstaten, budgetten en facturen zoals die van elk lid.",
+				"EMAIL": "E-mail",
+				"OPTIONAL": "optioneel",
+				"EMAIL_HINT": "Bewaard om diegene later uit te nodigen hun tijd op te eisen. Er wordt nu niets verstuurd.",
+				"EMAIL_INVALID": "Voer een geldig e-mailadres in of laat het leeg.",
+				"ADD_CONFIRM": "Lid toevoegen",
+				"ADD_FAILED": "Het lid is niet toegevoegd.",
+				"ADDED": "{name} is toegevoegd zonder account.",
+				"NO_ACCOUNT": "Geen account",
+				"NO_EMAIL": "Geen e-mail",
+				"CLAIM": "Uitnodigen om op te eisen",
+				"CLAIM_TITLE": "{name} uitnodigen om hun tijd op te eisen",
+				"CLAIM_DESCRIPTION": "{name} krijgt een uitnodiging per e-mail. Bij het accepteren gaan hun tijd, teams en tarieven naar hun eigen account.",
+				"CLAIM_CONFIRM": "Uitnodiging versturen",
+				"CLAIM_FAILED": "De uitnodiging is niet verstuurd.",
+				"CLAIM_SENT": "Uitnodiging verstuurd naar {email}. De tijd van {name} gaat naar hun account zodra ze accepteren.",
+				"CLAIM_PENDING": "Uitnodiging verstuurd",
+				"CLAIM_PENDING_TO": "Uitnodiging om op te eisen verstuurd naar {email}",
+				"MERGE": "Samenvoegen met een lid",
+				"MERGE_TITLE": "{name} samenvoegen met een lid",
+				"MERGE_DESCRIPTION": "Alles van dit lid zonder account gaat naar het lid dat je kiest. Samenvoegen kan niet ongedaan worden gemaakt.",
+				"MERGE_INTO": "Samenvoegen met",
+				"MERGE_PICK": "Kies een lid",
+				"MERGE_NO_TARGET": "Niemand in dit team heeft nog een account om mee samen te voegen.",
+				"MERGE_READING": "Lezen wat er zou verplaatsen…",
+				"MERGE_PREVIEW_FAILED": "Wat er zou verplaatsen kon niet worden gelezen.",
+				"RETRY": "Opnieuw proberen",
+				"MERGE_MOVES_TIME": "{target} krijgt {count, plural, one {# registratie} other {# registraties}} ({duration}).",
+				"MERGE_MOVES_WORK": "{timesheets, plural, one {# urenstaat} other {# urenstaten}} en {tasks, plural, one {# taaktoewijzing} other {# taaktoewijzingen}} gaan mee.",
+				"MERGE_MOVES_TEAMS": "{target} komt in hun teams: {teams}.",
+				"MERGE_OVERLAPS": "{count, plural, one {# van deze registraties overlapt} other {# van deze registraties overlappen}} met de tijd van {target}.",
+				"MERGE_REMOVES": "{name} wordt uit de leden verwijderd.",
+				"MERGE_CONFIRM": "Samenvoegen",
+				"MERGE_FAILED": "De leden zijn niet samengevoegd.",
+				"MERGED": "{name} samengevoegd met {target}",
+				"errors": {
+					"EMAIL_TAKEN": "Een lid van deze organisatie heeft dit e-mailadres al.",
+					"CLAIM_HAS_ACCOUNT": "Dit e-mailadres heeft al een account. Voeg het lid in plaats daarvan samen met het lid van die persoon.",
+					"MERGE_TIME_OFF": "Beide leden hebben een verlofsaldo voor hetzelfde beleid en hetzelfde jaar ({years}). Regel het bij een van beiden en voeg dan opnieuw samen. Er is niets verplaatst.",
+					"MERGE_TIME_OFF_ANY": "Beide leden hebben een verlofsaldo voor hetzelfde beleid en hetzelfde jaar. Regel het bij een van beiden en voeg dan opnieuw samen. Er is niets verplaatst."
+				}
+			}
 		},
 		"sessions": {
 			"TITLE": "Sessies",
@@ -5358,7 +5549,8 @@
 			"SIGN_OUT_INCOMPLETE": "Een sessie werd vernieuwd terwijl die werd uitgelogd. Probeer het opnieuw.",
 			"SIGN_OUT_OTHERS_FAILED": "Het uitloggen van de andere sessies is niet voltooid. {reason}",
 			"SIGN_OUT_OTHERS_CONFIRM": "{count, plural, one {# sessie uitloggen} other {# sessies uitloggen}}",
-			"SIGNED_OUT_OTHERS": "{count, plural, =0 {Er was geen andere sessie ingelogd.} one {# andere sessie is uitgelogd.} other {# andere sessies zijn uitgelogd.}}"
+			"SIGNED_OUT_OTHERS": "{count, plural, =0 {Er was geen andere sessie ingelogd.} one {# andere sessie is uitgelogd.} other {# andere sessies zijn uitgelogd.}}",
+			"APP_ON_DEVICE": "{app} · {device}"
 		},
 		"profile": {
 			"SECTION_PROFILE": "Profiel",
@@ -5565,6 +5757,13 @@
 			"CURRENCY_OUTCOME": "Nieuwe tarieven en budgetten beginnen in deze valuta.",
 			"CURRENCY_NOT_SAVED": "De valuta is niet opgeslagen",
 			"CURRENCY_NOT_SET": "Niet ingesteld",
+			"DEFAULT_RATE_LABEL": "Standaard factuurtarief",
+			"DEFAULT_RATE_DESCRIPTION": "Factureert de tijd van een lid zonder eigen factuurtarief en zonder klanttarief op het project. Leeg blijft die tijd zonder prijs.",
+			"DEFAULT_RATE_SAVED": "Standaard factuurtarief opgeslagen",
+			"DEFAULT_RATE_OUTCOME": "Rapporten en nieuwe facturen prijzen tijd zonder ander tarief hiermee.",
+			"DEFAULT_RATE_CLEARED": "Standaard factuurtarief gewist",
+			"DEFAULT_RATE_CLEARED_OUTCOME": "Tijd zonder ander tarief wordt weer apart getoond.",
+			"DEFAULT_RATE_NOT_SAVED": "Het standaard factuurtarief is niet opgeslagen",
 			"DATE_FORMAT_LABEL": "Datumnotatie",
 			"DATE_FORMAT_DESCRIPTION": "Hoe rapporten en hun exports datums schrijven. Automatisch volgt de taal van elk lid.",
 			"DATE_FORMAT_SAVED": "Datumnotatie opgeslagen",
@@ -5627,7 +5826,33 @@
 			"EXPORTING": "Bezig met exporteren…",
 			"EXPORT_DONE": "Gegevens van de werkruimte geëxporteerd",
 			"EXPORT_FAILED": "De export is niet voltooid",
-			"EXPORT_FAILED_DESCRIPTION": "Er is niets opgeslagen. Een grote werkruimte kost tijd: probeer het zo opnieuw."
+			"EXPORT_FAILED_DESCRIPTION": "Er is niets opgeslagen. Een grote werkruimte kost tijd: probeer het zo opnieuw.",
+			"deletion": {
+				"DANGER_SECTION": "Gevarenzone",
+				"DELETE_LABEL": "Deze organisatie verwijderen",
+				"DELETE_CONSEQUENCE": "De teams, lidmaatschappen en uitnodigingen verdwijnen voor iedereen. De laatste organisatie van de werkruimte blijft.",
+				"DELETE_ACTION": "Organisatie verwijderen",
+				"DELETE_TITLE": "{organization} verwijderen?",
+				"DELETE_DESCRIPTION": "De teams, leden en uitnodigingen verlaten Ever Teams mee. De projecten, geregistreerde tijd en facturen blijven op de server, maar zijn hier niet meer bereikbaar.",
+				"CONSEQUENCE_TEAMS": "{count, plural, one {# team wordt verwijderd} other {# teams worden verwijderd}}, met ieders plek erin",
+				"CONSEQUENCE_MEMBERS": "{count, plural, one {# lid verliest} other {# leden verliezen}} de toegang tot deze organisatie",
+				"CONSEQUENCE_WORK": "{projects, plural, one {# project} other {# projecten}} en {hours, number} geregistreerde uren zijn niet meer bereikbaar",
+				"CONSEQUENCE_INVOICES": "{count, plural, one {# factuur is} other {# facturen zijn}} niet meer bereikbaar",
+				"CONSEQUENCE_LANDING": "Je gaat verder in {organization}",
+				"CONSEQUENCE_PICKER": "Je hebt geen andere organisatie in deze werkruimte: je meldt je opnieuw aan om een werkruimte te kiezen",
+				"COUNTS_LOADING": "Inhoud van deze organisatie wordt geteld…",
+				"COUNTS_FAILED": "De inhoud van deze organisatie kon niet worden geteld",
+				"COUNTS_FAILED_DESCRIPTION": "Verwijderen blijft uitgeschakeld tot de aantallen geladen zijn.",
+				"UNSUPPORTED": "Deze server kan nog geen organisaties verwijderen",
+				"UNSUPPORTED_DESCRIPTION": "Een organisatie veilig verwijderen vraagt een nieuwere Ever Gauzy API. Vraag de beheerder van je server om die bij te werken.",
+				"LAST_ORGANIZATION": "Dit is de laatste organisatie van de werkruimte",
+				"LAST_ORGANIZATION_DESCRIPTION": "Een werkruimte houdt minstens één organisatie. Je account verwijderen verwijdert ook de werkruimte, maar alleen als je er het laatste lid van bent.",
+				"LAST_ORGANIZATION_ACTION": "Naar accountverwijdering",
+				"LAST_ORGANIZATION_REFUSED": "Dit is nu de laatste organisatie van de werkruimte, dus ze blijft. Je account verwijderen verwijdert ook de werkruimte, maar alleen als je er het laatste lid van bent.",
+				"TIMER_RUNNING": "Stop eerst je timer",
+				"TIMER_RUNNING_DESCRIPTION": "Je timer loopt. Stop hem en verwijder daarna de organisatie: een timer die in een verwijderde organisatie achterblijft, blijft tellen zonder dat iemand hem kan stoppen.",
+				"EXPORT_FIRST": "Bewaar eerst een kopie: exporteer de gegevens van de werkruimte voordat je deze organisatie verwijdert."
+			}
 		},
 		"automations": {
 			"NEW_RULE": "Nieuwe regel",
@@ -5870,6 +6095,12 @@
 			"REQUIRED_TITLE": "Je organisatie vraagt je dit aan te zetten",
 			"REQUIRED_DESCRIPTION": "Haar leden loggen ook in met een code uit een authenticator-app.",
 			"QR_ALT": "QR-code van dit account voor je authenticator-app"
+		},
+		"thisBrowser": {
+			"TITLE": "Deze browser",
+			"DESCRIPTION": "Hoe lang je in deze browser ingelogd blijft. Je andere browsers en apps houden hun eigen sessies.",
+			"SIGN_OUT_ON_CLOSE": "Uitloggen wanneer deze browser sluit",
+			"SIGN_OUT_ON_CLOSE_HINT": "Voor een gedeelde computer. Als dit uit staat, blijf je ingelogd nadat de browser is gesloten, tot je sessie verloopt."
 		}
 	},
 	"taskDetail": {
@@ -7339,6 +7570,7 @@
 			"RATE_SOURCE_MEMBER": "Klanttarief van het lid op dit project",
 			"RATE_SOURCE_PROJECT": "Klanttarief van het project",
 			"RATE_SOURCE_EMPLOYEE": "Eigen factuurtarief van het lid",
+			"RATE_SOURCE_DEFAULT": "Het standaard factuurtarief van de werkruimte",
 			"DESCRIPTION_OF": "Omschrijving van de regel {name}",
 			"REMOVE_LINE": "Regel {name} verwijderen",
 			"REMOVED_LINES": "{count, plural, one {# regel verwijderd} other {# regels verwijderd}}",
@@ -7602,6 +7834,122 @@
 			"NOT_FOUND_MESSAGE": "Misschien is ze verwijderd, of komt de link uit een andere werkruimte.",
 			"ALL_INVOICES": "Alle facturen",
 			"ERROR_TITLE": "De factuur kon niet worden geladen"
+		},
+		"schedule": {
+			"TITLE": "Geplande facturering",
+			"NONE_HINT": "De factuur van deze klant vanzelf maken, elke week, elke twee weken of elke maand, uit de factureerbare tijd die nog niet is gefactureerd.",
+			"SET_UP": "Facturering plannen",
+			"EDIT": "Bewerken",
+			"PAUSE": "Pauzeren",
+			"RESUME": "Hervatten",
+			"PAUSED": "Gepauzeerd",
+			"ACTIVE": "Actief",
+			"SUMMARY": "{frequency} vanaf {day}",
+			"DELIVERY_DRAFT": "Blijft een concept",
+			"DELIVERY_SEND": "Verzonden naar {email}",
+			"DELIVERY_SEND_NO_EMAIL": "Verzonden naar het e-mailadres van de klant",
+			"NEXT": "Volgende factuur op {day}, voor {period}",
+			"NEXT_PAUSED": "Zolang hij gepauzeerd is, wordt er geen factuur gemaakt",
+			"RUNS": "Laatste runs",
+			"NO_RUNS": "Nog geen run",
+			"RUNS_ERROR": "De laatste runs konden niet worden geladen",
+			"ERROR": "De geplande facturering kon niet worden geladen",
+			"OPEN_INVOICE": "Factuur openen",
+			"LEFT_OUT": "{hours} u van de periode weggelaten: zonder tarief of in een andere valuta",
+			"LIST_TITLE": "Volgens schema gefactureerd",
+			"LIST_NEXT": "volgende op {day}",
+			"LIST_PAUSED": "gepauzeerd",
+			"frequency": {
+				"WEEKLY": "Elke week",
+				"BIWEEKLY": "Elke twee weken",
+				"MONTHLY": "Elke maand"
+			},
+			"grouping": {
+				"PROJECT": "Per project",
+				"MEMBER": "Per lid",
+				"TASK": "Per taak"
+			},
+			"run": {
+				"CLAIMED": "Bezig",
+				"DRAFTED": "Concept gemaakt",
+				"SENT": "Verzonden",
+				"NOT_SENT": "Gemaakt, niet verzonden",
+				"NO_TIME": "Niets te factureren",
+				"FAILED": "Niet gemaakt"
+			},
+			"reason": {
+				"NO_BILLABLE_TIME": "De periode had geen factureerbare tijd meer om te factureren.",
+				"NO_PRICED_TIME": "De tijd van de periode heeft geen tarief om tegen te factureren. Een week lang wordt het elk uur opnieuw geprobeerd.",
+				"AUTHOR_CANNOT_INVOICE": "Wie het schema het laatst heeft opgeslagen, kan geen facturen meer maken. Sla het op om het over te nemen; een week lang wordt het elk uur opnieuw geprobeerd.",
+				"CLIENT_HAS_NO_EMAIL": "De klant heeft geen e-mailadres: de factuur bleef een concept.",
+				"EMAIL_NOT_SENT": "De e-mail kon niet worden verzonden: de factuur bleef een concept.",
+				"INVOICE_NOT_SAVED": "De factuur kon niet worden opgeslagen. Een week lang wordt het elk uur opnieuw geprobeerd."
+			},
+			"form": {
+				"CREATE_TITLE": "Volgens schema factureren",
+				"EDIT_TITLE": "Geplande facturering bewerken",
+				"FREQUENCY": "Hoe vaak",
+				"START_DAY": "Eerste dag van de eerste periode",
+				"START_HINT": "Elke factuur wordt gemaakt op de dag na het einde van haar periode, in de tijdzone van de werkruimte. Geen enkele periode die vóór vandaag eindigde, wordt gefactureerd.",
+				"START_INVALID": "Kies een dag.",
+				"GROUPING": "Regels",
+				"DELIVERY": "Eenmaal gemaakt",
+				"DRAFT": "Als concept houden",
+				"SEND": "Naar de klant mailen",
+				"DRAFT_HINT": "Elke factuur wacht als concept tot u haar nakijkt en verzendt.",
+				"SEND_HINT": "Elke factuur gaat met haar pdf naar {email} en wordt als Verzonden gemarkeerd.",
+				"SEND_NO_EMAIL": "Deze klant heeft geen e-mailadres: zijn facturen blijven concepten tot hij er een heeft.",
+				"SAVE": "Opslaan",
+				"SAVE_FAILED": "Het schema kon niet worden opgeslagen. Probeer het opnieuw.",
+				"EXISTS": "Deze klant heeft al een schema. Sluit en open het opnieuw om het te wijzigen.",
+				"START_AFTER_BILLED": "Dit schema heeft al perioden gefactureerd: het nieuwe schema moet beginnen na de laatst gefactureerde periode, {day}."
+			},
+			"delete": {
+				"TITLE": "Deze geplande facturering verwijderen?",
+				"BODY": "Voor {name} wordt geen factuur meer vanzelf gemaakt. De gemaakte facturen blijven."
+			},
+			"toasts": {
+				"SAVED": "De geplande facturering van {name} is opgeslagen",
+				"PAUSED": "De geplande facturering van {name} is gepauzeerd",
+				"RESUMED": "De geplande facturering van {name} is hervat: volgende factuur op {day}",
+				"DELETED": "De geplande facturering van {name} is verwijderd",
+				"FAILED": "De wijziging kon niet worden opgeslagen. Probeer het opnieuw."
+			}
+		},
+		"shared": {
+			"PAY": "{amount} betalen",
+			"PAYING": "Betaling wordt geopend…",
+			"PAY_FAILED": "De betaling kon niet worden gestart. Probeer het zo opnieuw.",
+			"DOWNLOAD_FAILED": "De pdf kon niet worden gedownload. Probeer het opnieuw.",
+			"FROM_SENDER": "Van {name}",
+			"RETURNED_TITLE": "Bedankt voor uw betaling",
+			"RETURNED_MESSAGE": "Deze wordt bevestigd. Deze pagina toont de factuur als betaald zodra de betaalprovider dat bevestigt.",
+			"PAID_TITLE": "Deze factuur is betaald",
+			"PAID_MESSAGE": "Er hoeft niets meer betaald te worden. Bedankt.",
+			"CLOSED_TITLE": "Deze link opent geen factuur meer",
+			"CLOSED_MESSAGE": "De link is ingetrokken of de factuur is geannuleerd. Vraag de afzender om een nieuwe link.",
+			"FOOTER": "Verzonden met {app}"
+		},
+		"payments": {
+			"TITLE": "Online betaling van facturen",
+			"DESCRIPTION": "Laat klanten een factuur op de pagina ervan betalen, via de betaalconnector van uw werkruimte. De sleutels van uw betaalprovider blijven bij de connector.",
+			"ENDPOINT": "Betaaladres",
+			"ENDPOINT_HINT": "Het HTTPS-adres van uw connector dat een betaling opent.",
+			"ENABLED": "Online betalen aanbieden op factuurpagina’s",
+			"TEST_MODE": "Testmodus: betalingen worden gelogd, nooit op facturen geboekt",
+			"CONNECT": "Verbinden",
+			"SAVE": "Opslaan",
+			"SAVED": "Opgeslagen",
+			"SAVE_FAILED": "De verbinding kon niet worden opgeslagen. Controleer het adres en probeer het opnieuw.",
+			"LOAD_FAILED": "De verbinding kon niet worden geladen.",
+			"NOTIFICATION_URL": "Meldingsadres",
+			"NOTIFICATION_URL_HINT": "Uw connector stuurt hierheen elke betaling die de provider bevestigt.",
+			"SECRET": "Ondertekeningsgeheim",
+			"SECRET_ONCE": "Kopieer het nu naar uw connector: het wordt maar één keer getoond.",
+			"ROTATE": "Nieuw ondertekeningsgeheim",
+			"ROTATE_HINT": "Het huidige geheim werkt meteen niet meer.",
+			"COPY": "Kopiëren",
+			"COPIED": "Gekopieerd"
 		}
 	},
 	"timeReports": {
@@ -7871,6 +8219,15 @@
 			"FAILED_DESCRIPTION": "Er is geen tijdregistratie opgeslagen. Wat eerder is aangemaakt blijft in de workspace en wordt hergebruikt als je dezelfde bestanden opnieuw importeert.",
 			"CREATED_TITLE": "De klanten, projecten en labels staan in de workspace",
 			"PAGE_DESCRIPTION": "Klanten, projecten, labels en tijdregistraties uit een andere tool voor tijdregistratie."
+		},
+		"placeholders": {
+			"TITLE": "{count, plural, one {# persoon uit dit bestand zit} other {# personen uit dit bestand zitten}} niet in dit team ({rows, plural, one {# rij} other {# rijen}})",
+			"DESCRIPTION": "Voeg ze toe als leden zonder account: ze krijgen geen e-mail en kunnen niet inloggen. Daarna worden hun rijen opnieuw gecontroleerd en geïmporteerd zoals die van elk lid.",
+			"NAMES": "{names}{more, plural, =0 {} other { en nog #}}",
+			"ADD": "{count, plural, one {# lid} other {# leden}} zonder account toevoegen",
+			"FAILED": "Ze zijn niet toegevoegd.",
+			"OUTSIDE_TEAM_TITLE": "{count, plural, one {# persoon hoort} other {# personen horen}} al bij de organisatie, niet bij dit team",
+			"OUTSIDE_TEAM_DESCRIPTION": "{names}: voeg ze toe aan dit team via Instellingen > Leden en kies het bestand daarna opnieuw."
 		}
 	},
 	"recordSheet": {
@@ -7910,6 +8267,15 @@
 		"TYPE_BREAK": "Pauze",
 		"BREAK_HINT": "Een pauze is nooit factureerbaar en telt nooit als gewerkte tijd."
 	},
+	"tabOrganizationNotice": {
+		"TITLE": "Er is een andere organisatie geopend in een ander tabblad",
+		"KEEPS_WORKING": "Dit tabblad blijft werken in {organization}, met zijn timer en zijn pagina’s.",
+		"CANNOT_WORK_TITLE": "Dit tabblad kan niet meer werken in {organization}",
+		"CANNOT_WORK": "Er is een andere organisatie geopend in een ander tabblad. Kies waar dit tabblad werkt.",
+		"STOP_TIMER_FIRST": "De timer loopt in {organization}: stop hem voordat je de andere organisatie hier opent.",
+		"OPEN_HERE": "De andere organisatie hier openen",
+		"BRING_BACK": "{organization} in alle tabbladen gebruiken"
+	},
 	"timeZoneNotice": {
 		"TITLE": "Je profiel gebruikt {profileZone} ({profileOffset}). Deze browser staat in {browserZone} ({browserOffset}).",
 		"DESCRIPTION": "Urenstaten tellen je dagen in de tijdzone van je profiel en de andere rapporten in die van deze browser, dus een registratie rond middernacht kan op een andere dag vallen.",
@@ -7921,5 +8287,15 @@
 		"SAVE_FAILED": "Je tijdzone kon niet worden opgeslagen.",
 		"SAVE_FAILED_DESCRIPTION": "Je profiel is niet gewijzigd. Controleer je verbinding en probeer het opnieuw.",
 		"TRY_AGAIN": "Opnieuw proberen"
+	},
+	"sharedReport": {
+		"READ_ONLY_BADGE": "Alleen lezen",
+		"READ_ONLY": "Een alleen-lezen rapport gedeeld vanuit {app}. Cijfers van {time}.",
+		"NOT_WORKING_TITLE": "Deze link werkt niet meer",
+		"NOT_WORKING_MESSAGE": "De maker heeft hem uitgezet, vervangen of laten verlopen. Vraag om een nieuwe link.",
+		"ERROR_TITLE": "Het rapport kon niet worden gelezen",
+		"ERROR_MESSAGE": "Controleer uw verbinding en probeer het opnieuw.",
+		"LOADING": "Rapport wordt geladen…",
+		"EMPTY": "In deze periode is geen tijd geregistreerd."
 	}
 }

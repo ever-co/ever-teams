@@ -19,7 +19,8 @@ import {
 } from '@/core/services/client/api/organizations/invoice.service';
 import { queryKeys } from '@/core/query/keys';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
-import { getAccessTokenCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
+import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
+import { requestAccessToken } from '@/core/lib/auth/tab-organization';
 import { downloadBlob } from '@/core/lib/utils/dashboard-export';
 import {
 	invoiceActionsOf,
@@ -324,7 +325,8 @@ function editPinnedToSession(edit: InvoiceEdit): InvoiceEdit {
 	if (!keepsToken) {
 		return edit;
 	}
-	const scope = { ...edit.scope, accessToken: getAccessTokenCookie() };
+	// This tab's token: its own for its organization while another tab has another one open (#5134)
+	const scope = { ...edit.scope, accessToken: requestAccessToken() };
 	return { ...edit, scope };
 }
 

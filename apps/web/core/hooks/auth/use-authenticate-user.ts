@@ -142,7 +142,11 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 		}
 
 		// This browser stops receiving the person's inbox notifications (a shared browser), bounded like the timer stop.
-		await Promise.race([forgetThisBrowserPush(), new Promise((resolve) => window.setTimeout(resolve, 3000))]);
+		// A failed lookup (a registration without an active worker) must not stop the sign-out before the cookies go.
+		const forgetPush = forgetThisBrowserPush().catch((error) =>
+			logErrorInDev('[Auth] Push subscription not forgotten before logout:', error)
+		);
+		await Promise.race([forgetPush, new Promise((resolve) => window.setTimeout(resolve, 3000))]);
 
 		removeAuthCookies();
 		queryClient.clear();

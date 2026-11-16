@@ -439,6 +439,9 @@
 		"NO_TEAM_MEMBERS_FOUND": "Nenhum membro da equipe encontrado",
 		"NO_TEAM_MEMBERS_FOUND_MESSAGE": "Tente ajustar sua pesquisa ou filtro para encontrar o que você está procurando.",
 		"PICK_A_DATE": "Escolha uma data",
+		"PICK_A_TIME": "Escolha um horário",
+		"PICK_THIS_OR_LATER": "Escolha {value} ou depois.",
+		"PICK_THIS_OR_EARLIER": "Escolha {value} ou antes.",
 		"THIS_WEEK": "Esta semana",
 		"LAST_WEEK": "Semana passada",
 		"THIS_MONTH": "Este mês",
@@ -771,6 +774,8 @@
 			"LIMIT_SHARE": "{percent} do seu limite semanal",
 			"NO_LIMIT": "Nenhum limite semanal está definido no seu perfil.",
 			"LIMIT_BY_WEEK": "Seu limite semanal de {limit} é medido semana a semana.",
+			"BILLABLE_UNPRICED": "{duration} sem taxa",
+			"BILLABLE_RATES_HINT": "Valorizado às taxas de hoje: a sua taxa de cliente no projeto, senão a do projeto, senão a sua taxa de faturação, senão a padrão do espaço de trabalho.",
 			"DAILY_LIMIT_LINE": "{limit} por dia",
 			"DAILY_LIMIT_HINT": "A linha tracejada é um quinto do seu limite semanal",
 			"PROJECTS_TITLE": "Tempo por projeto",
@@ -1288,6 +1293,7 @@
 				"PROJECTS": "Projetos",
 				"TRACKED": "Registrado",
 				"EARNINGS": "Ganhos",
+				"BILLABLE": "Valor faturável",
 				"ACTIVITY": "Atividade",
 				"SHARE": "Parcela"
 			},
@@ -1312,6 +1318,10 @@
 				"NO_TIME": "Nenhum tempo registrado",
 				"EARNINGS": "Ganhos",
 				"EARNINGS_FROM_RATES": "Com base nas taxas por hora",
+				"BILLABLE_TIME": "{duration} faturáveis",
+				"BILLABLE_NONE": "Sem tempo faturável",
+				"BILLABLE_NO_RATES": "Nenhuma taxa valoriza este tempo faturável",
+				"BILLABLE_HINT": "Tempo faturável valorizado como uma linha de fatura: a taxa de cliente do membro no projeto, senão a do projeto, senão a taxa de faturação do membro, senão a padrão do espaço de trabalho. As taxas de cliente e a padrão aplicam-se com o valor de hoje; a taxa de faturação do membro, com a que cada registo mantém.",
 				"EARNINGS_MISSING_RATES": "{count, plural, one {# membro não tem taxa por hora} other {# membros não têm taxa por hora}}",
 				"EARNINGS_NO_RATES": "Nenhum membro tem taxa por hora",
 				"MEMBERS": "Membros",
@@ -1369,6 +1379,9 @@
 				"LABEL": "Relatório do período",
 				"SUMMARY": "Resumo do período",
 				"NO_ACTIVITY": "Nenhuma atividade registrada neste período",
+				"UNPRICED_NOTE": "{duration} de tempo faturável não têm taxa e ficam fora do valor faturável.",
+				"SET_DEFAULT_RATE": "Definir uma taxa padrão",
+				"BILLABLE_FAILED": "Não foi possível carregar o valor faturável.",
 				"CHART_LABEL": "Tempo registrado e atividade por dia",
 				"BY_TIMER": "{duration} pelo timer",
 				"ROUNDED_UP": "Arredondado para cima em {minutes} min por registro",
@@ -1782,6 +1795,55 @@
 			"NOT_KEPT": "Os valores anteriores não foram guardados",
 			"COLUMN_BEFORE": "Antes",
 			"COLUMN_AFTER": "Depois"
+		},
+		"savedReports": {
+			"MENU": "Relatórios salvos",
+			"LOADING": "Lendo os relatórios salvos…",
+			"LOAD_ERROR": "Não foi possível ler os relatórios salvos.",
+			"TRY_AGAIN": "Tentar novamente",
+			"EMPTY": "Nenhum relatório salvo ainda. Salve esta visualização para reabri-la com um clique.",
+			"UPDATE": "Atualizar com esta visualização",
+			"RENAME": "Renomear",
+			"RENAME_TITLE": "Renomear o relatório",
+			"DELETE": "Excluir",
+			"SAVE": "Salvar",
+			"SAVE_TITLE": "Salvar este relatório",
+			"SAVE_HINT": "Guarda o período, os filtros e o agrupamento. Reabra-o em Relatórios salvos.",
+			"NAME": "Nome",
+			"NAME_PLACEHOLDER": "Cliente A, mês passado",
+			"NAME_REQUIRED": "Dê um nome ao relatório.",
+			"NAME_TOO_LONG": "No máximo 100 caracteres.",
+			"SAVED": "“{name}” salvo",
+			"UPDATED": "“{name}” atualizado",
+			"RENAMED": "Relatório renomeado",
+			"DELETED": "“{name}” excluído",
+			"DELETE_TITLE": "Excluir “{name}”?",
+			"DELETE_DESCRIPTION": "O relatório salvo é removido e seu link deixa de funcionar. O tempo que ele mostra permanece.",
+			"SAVE_FAILED": "Não foi possível salvar o relatório.",
+			"DELETE_FAILED": "Não foi possível excluir o relatório.",
+			"SHARE": "Compartilhar",
+			"SHARE_TITLE": "Compartilhar um link somente leitura",
+			"SHARE_NEEDS_SAVE": "Um link compartilha um relatório salvo. Dê um nome a esta visualização para salvá-la e depois ative o link.",
+			"SHARE_HINT": "Quem tiver o link vê o nome do relatório, o período, os números, o gráfico e a tabela, sem conta. Nada pode ser alterado e ele mostra apenas o que você pode ver.",
+			"LINK_ADDRESS": "Endereço do link",
+			"COPY": "Copiar",
+			"COPIED": "Link copiado",
+			"COPY_FAILED": "Não foi possível copiar o link. Selecione-o e copie você mesmo.",
+			"LINK_OFF": "Nenhum link está ativo.",
+			"LINK_ENDED": "O link terminou em {date}.",
+			"LINK_HIDDEN": "O link está ativo. Seu endereço só aparece quando é criado: Substituir link gera um novo para copiar, e o antigo deixa de funcionar.",
+			"EXPIRES": "Deixa de funcionar depois de {date}.",
+			"ENDS_ON": "Termina em",
+			"ENDS_ON_HINT": "Opcional. Vale quando o link é ativado ou substituído.",
+			"TURN_ON": "Ativar link",
+			"TURN_OFF": "Desativar",
+			"REPLACE": "Substituir link",
+			"REPLACE_HINT": "Substituir ou desativar interrompe na hora o endereço atual.",
+			"INCLUDE_AMOUNTS": "Incluir valores",
+			"INCLUDE_AMOUNTS_HINT": "As tarifas e quanto vale o tempo. Desativado: só durações.",
+			"SHARE_FAILED": "Não foi possível alterar o link.",
+			"SHARE_REFUSED": "Um link só pode ser ativado a partir do seu próprio login, não de uma sessão iniciada com um token de API.",
+			"TURNED_OFF": "Link desativado: seu endereço não funciona mais."
 		}
 	},
 	"timeActivity": {
@@ -2101,6 +2163,18 @@
 			"billable": {
 				"LABEL": "Faturável por padrão",
 				"HELP": "Vale para novos registros; os salvos não mudam."
+			},
+			"visibility": {
+				"LABEL": "Visibilidade",
+				"EVERYONE_TITLE": "Toda a organização",
+				"EVERYONE_DETAIL": "Visível para todos que veem projetos.",
+				"PRIVATE_TITLE": "Só membros e gerentes",
+				"PRIVATE_DETAIL": "Visível só para os seus membros e gerentes, e para os administradores.",
+				"NOT_ENFORCED": "Todos ainda o veem até que um administrador ative Projetos privados nas configurações do espaço de trabalho.",
+				"SETTING_SECTION": "Projetos privados",
+				"SETTING_LABEL": "Reservar os projetos privados à sua equipe",
+				"SETTING_DESCRIPTION": "Um projeto em Só membros e gerentes só é visto por eles e pelos administradores. Desativado, todos veem todos os projetos.",
+				"SETTING_NOT_SAVED": "A definição não foi guardada."
 			},
 			"bulkActions": {
 				"bulkArchiveModal": {
@@ -3051,6 +3125,12 @@
 				"TRACKER_RUN": "Esta sessão é registrada pelo aplicativo de desktop ou pelo agente, que guardam o tempo por conta própria, por isso não pode ser descartada aqui.",
 				"GENERIC": "Não foi possível descartar a sessão. Verifique a ligação e tente novamente."
 			}
+		},
+		"unfollowed": {
+			"TITLE": "Seu temporizador continuou rodando sem o app",
+			"TEXT": "De {from} a {until}, o app não acompanhou seu temporizador. Manter esse tempo ou parar o temporizador às {from}?",
+			"KEEP": "Manter esse tempo",
+			"STOP": "Parar às {from}"
 		}
 	},
 	"task": {
@@ -3966,7 +4046,12 @@
 			"BROADCAST": "<b>{name}</b> publicou um anúncio",
 			"PAYMENT": "Um pagamento foi registrado para você",
 			"RATE_CHANGE_REQUEST": "<b>{name}</b> pediu uma mudança de taxa",
-			"TIMER_REMINDER": "O seu temporizador continua a correr"
+			"TIMER_REMINDER": "O seu temporizador continua a correr",
+			"MEETING": "Uma reunião de que você participa mudou",
+			"TASK_UPDATE": "<b>{name}</b> fez uma alteração",
+			"TASK_DUE_REMINDER": "Uma tarefa vence em breve",
+			"BOARD_SHARE": "<b>{name}</b> compartilhou um quadro com você",
+			"BOARD_MENTION": "<b>{name}</b> mencionou você em um quadro"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "Atribuição",
@@ -3977,7 +4062,12 @@
 			"BROADCAST": "Anúncio",
 			"PAYMENT": "Pagamento",
 			"RATE_CHANGE_REQUEST": "Pedido de mudança de taxa",
-			"TIMER_REMINDER": "Lembrete de temporizador"
+			"TIMER_REMINDER": "Lembrete de temporizador",
+			"MEETING": "Reunião",
+			"TASK_UPDATE": "Alteração",
+			"TASK_DUE_REMINDER": "Lembrete de prazo",
+			"BOARD_SHARE": "Quadro compartilhado",
+			"BOARD_MENTION": "Menção em um quadro"
 		},
 		"SOMEONE": "Alguém",
 		"MARK_READ": "Marcar como lida",
@@ -4054,7 +4144,33 @@
 				"OFF": "Desativado",
 				"AFTER_HOURS": "Após {hours, plural, one {# hora} other {# horas}}"
 			},
+			"MEETINGS": {
+				"TITLE": "Reuniões",
+				"INTRO": "Avisos sobre as reuniões que você organiza ou para as quais foi convidado, e um lembrete antes de cada uma começar.",
+				"LABEL": "Lembrete de reunião",
+				"TEXT": "Quando você é convidado, quando uma reunião muda ou é cancelada, antes de começar e quando está começando. Na sua caixa de entrada, por e-mail e nos seus dispositivos, como preferir.",
+				"OFF": "Só no início",
+				"BEFORE_MINUTES": "{minutes} min antes"
+			},
+			"TASK_DUE": {
+				"TITLE": "Prazos",
+				"INTRO": "Um lembrete antes do prazo de uma tarefa atribuída a você, enquanto ela não estiver concluída.",
+				"LABEL": "Lembrete de prazo",
+				"TEXT": "Sempre na sua caixa de entrada. Por e-mail e nos seus dispositivos, como preferir.",
+				"OFF": "Desligado",
+				"BEFORE_HOURS": "{hours, plural, one {# hora} other {# horas}} antes"
+			},
+			"BOARDS": {
+				"TITLE": "Quadros",
+				"INTRO": "Quando um colega compartilha um quadro com você ou menciona você nele, no aplicativo de quadros.",
+				"SHARE_LABEL": "Compartilhado com você",
+				"MENTION_LABEL": "Mencionado em um quadro",
+				"TEXT": "Sempre na sua caixa de entrada. Por e-mail e nos seus dispositivos, como preferir."
+			},
 			"INTRO": "Escolha o que chega à sua caixa de entrada. Desativar um tipo interrompe as novas notificações desse tipo; as que já chegaram continuam lá.",
+			"TEAM_DEFAULTS_TITLE": "Sua equipe {team} define notificações padrão",
+			"TEAM_DEFAULTS_TEXT": "O que você deixar sem escolha aqui segue essas definições. Suas escolhas sempre prevalecem.",
+			"TASK_UPDATE_TEXT": "Uma alteração de status, datas ou membros de uma tarefa ou projeto que você segue. Desligado, ainda chega à sua caixa de entrada, sem e-mail nem notificação.",
 			"LOAD_ERROR": "Não foi possível carregar suas configurações de notificações.",
 			"SAVE_FAILED": "Essa configuração não foi salva. Tente de novo.",
 			"ROWS": {
@@ -4104,6 +4220,23 @@
 			"FORGOTTEN_DESCRIPTION": "Esqueceu-se dele? Pare-o e corrija o tempo na sua folha de horas, se necessário.",
 			"STOP": "Parar temporizador",
 			"OPEN": "Abrir temporizador"
+		},
+		"MEETING": {
+			"INVITED": "<b>{name}</b> convidou você para uma reunião",
+			"REMOVED": "<b>{name}</b> removeu você de uma reunião",
+			"CHANGED": "<b>{name}</b> alterou uma reunião",
+			"CANCELLED": "<b>{name}</b> cancelou uma reunião",
+			"REMINDER": "Sua reunião começa em {minutes, plural, one {# minuto} other {# minutos}}",
+			"SOON": "Sua reunião começa em breve",
+			"STARTING": "Sua reunião está começando",
+			"OPEN": "Abrir reuniões"
+		},
+		"TASK_DUE": {
+			"BY_END_OF_DAY": "Vence no fim de {date}",
+			"AT": "Vence em {date}"
+		},
+		"BOARD_INVITATION": {
+			"TEXT": "Convidou você para um quadro: abra-o para participar."
 		}
 	},
 	"toasts": {
@@ -4230,7 +4363,10 @@
 			"NOTES_NOT_SAVED": "As notas alteradas enquanto o temporizador corria não foram salvas",
 			"NOTES_NOT_SAVED_HINT": "A entrada manteve as notas do início. Edite a entrada nas folhas de horas para alterá-las.",
 			"ALREADY_RUNNING_ON_TASK": "O temporizador já está em execução nesta tarefa",
-			"SAVED_STOP_HINT": "É a parada que você pediu antes de a sessão terminar."
+			"SAVED_STOP_HINT": "É a parada que você pediu antes de a sessão terminar.",
+			"UNFOLLOWED_STOPPED_HINT": "Depois disso o app não pôde acompanhá-lo: o computador estava em repouso ou o navegador pausou esta aba. Adicione o trabalho posterior como tempo manual.",
+			"UNFOLLOWED_STOP_CHOSEN_HINT": "Você escolheu não manter o tempo depois disso.",
+			"UNFOLLOWED_KEEP_CHANGED": "Nenhum tempo foi mantido: o temporizador mudou noutro lugar entretanto. Verifique-o e adicione o tempo manualmente, se necessário."
 		},
 		"plans": {
 			"CREATE_FAILED": "O plano não foi criado",
@@ -4360,7 +4496,7 @@
 		"ADD_TO_CALENDAR": "Adicionar à agenda",
 		"DONE": "Concluído",
 		"AGENDA": "Agenda",
-		"AGENDA_HINT": "Reuniões que você agendou",
+		"AGENDA_HINT": "Reuniões que você agendou ou para as quais foi convidado",
 		"TODAY": "Hoje",
 		"TOMORROW": "Amanhã",
 		"YESTERDAY": "Ontem",
@@ -4384,6 +4520,7 @@
 		"JOIN_MEETING": "Entrar na reunião",
 		"MEETING_ACTIONS_OF": "Ações de {title}",
 		"HOST": "Anfitrião: {name}",
+		"INVITED": "Convidado",
 		"STARTED_AGO": "Começou {ago}",
 		"CANCEL_MEETING": "Cancelar reunião",
 		"CANCEL_CONFIRM_TITLE": "Cancelar esta reunião?",
@@ -5168,6 +5305,15 @@
 			"SHARE_PROFILES_DESCRIPTION": "Os membros veem os planos do dia e as estatísticas uns dos outros nas páginas de perfil.",
 			"REQUIRE_PLAN_LABEL": "Exigir um plano do dia para registrar tempo",
 			"REQUIRE_PLAN_DESCRIPTION": "O cronômetro só começa depois que o membro planeja o dia.",
+			"NOTIFICATIONS_SECTION": "Notificações padrão",
+			"NOTIFICATIONS_DESCRIPTION": "O que recebe um membro que não escolheu nada nas próprias configurações de notificações. As escolhas dele sempre prevalecem.",
+			"MEMBERS_CHOOSE": "Cada membro escolhe",
+			"EMAIL_DEFAULT_DESCRIPTION": "Como cada tipo chega aos membros por e-mail.",
+			"PUSH_DEFAULT_DESCRIPTION": "Nos dispositivos em que os membros as ativaram.",
+			"TASK_UPDATE_DEFAULT_LABEL": "Alterações de tarefas e projetos seguidos",
+			"TASK_UPDATE_DEFAULT_DESCRIPTION": "Uma alteração de status, datas ou membros de uma tarefa ou projeto que o membro segue.",
+			"TIMER_DEFAULT_DESCRIPTION": "Depois de quanto tempo um cronômetro em andamento merece um lembrete.",
+			"TASK_DUE_DEFAULT_DESCRIPTION": "Quanto tempo antes do prazo de uma tarefa os responsáveis são lembrados.",
 			"ORGANIZATION_TRACKING_SECTION": "Requisitos dos registros de tempo",
 			"ORGANIZATION_TRACKING_DESCRIPTION": "Vale para todas as equipes de {organization}.",
 			"REQUIRE_TEAM_LABEL": "Exigir uma equipe",
@@ -5313,7 +5459,52 @@
 			"RESET_TWO_FACTOR_CONFIRM": "Repor",
 			"RESET_TWO_FACTOR_DONE": "A autenticação de dois fatores de {name} foi reposta",
 			"RESET_TWO_FACTOR_NOTHING": "{name} não tinha autenticação de dois fatores para repor",
-			"RESET_TWO_FACTOR_FAILED": "Não foi possível repor a autenticação de dois fatores de {name}"
+			"RESET_TWO_FACTOR_FAILED": "Não foi possível repor a autenticação de dois fatores de {name}",
+			"placeholder": {
+				"ADD": "Adicionar sem conta",
+				"ADD_TITLE": "Adicionar alguém sem conta",
+				"ADD_DESCRIPTION": "Para alguém que trabalhou com a equipe e não tem conta. Não recebe e-mail, não pode entrar e nunca inicia um cronômetro. O seu tempo conta em relatórios, folhas de horas, orçamentos e faturas como o de qualquer membro.",
+				"EMAIL": "E-mail",
+				"OPTIONAL": "opcional",
+				"EMAIL_HINT": "Guardado para convidar a pessoa mais tarde a reivindicar o seu tempo. Nada é enviado agora.",
+				"EMAIL_INVALID": "Insira um e-mail válido ou deixe o campo vazio.",
+				"ADD_CONFIRM": "Adicionar membro",
+				"ADD_FAILED": "O membro não foi adicionado.",
+				"ADDED": "{name} foi adicionado sem conta.",
+				"NO_ACCOUNT": "Sem conta",
+				"NO_EMAIL": "Sem e-mail",
+				"CLAIM": "Convidar a reivindicar",
+				"CLAIM_TITLE": "Convidar {name} a reivindicar o seu tempo",
+				"CLAIM_DESCRIPTION": "{name} recebe um convite por e-mail. Ao aceitar, o seu tempo, equipes e tarifas passam para a sua própria conta.",
+				"CLAIM_CONFIRM": "Enviar convite",
+				"CLAIM_FAILED": "O convite não foi enviado.",
+				"CLAIM_SENT": "Convite enviado para {email}. O tempo de {name} passa para a sua conta quando aceitar.",
+				"CLAIM_PENDING": "Convite enviado",
+				"CLAIM_PENDING_TO": "Convite para reivindicar enviado para {email}",
+				"MERGE": "Mesclar com um membro",
+				"MERGE_TITLE": "Mesclar {name} com um membro",
+				"MERGE_DESCRIPTION": "Tudo deste membro sem conta passa para o membro escolhido. Uma mesclagem não pode ser desfeita.",
+				"MERGE_INTO": "Mesclar com",
+				"MERGE_PICK": "Escolha um membro",
+				"MERGE_NO_TARGET": "Ninguém nesta equipe tem ainda uma conta para mesclar.",
+				"MERGE_READING": "Lendo o que seria movido…",
+				"MERGE_PREVIEW_FAILED": "Não foi possível ler o que seria movido.",
+				"RETRY": "Tentar novamente",
+				"MERGE_MOVES_TIME": "{target} recebe {count, plural, one {# registro} other {# registros}} ({duration}).",
+				"MERGE_MOVES_WORK": "{timesheets, plural, one {# folha de horas} other {# folhas de horas}} e {tasks, plural, one {# atribuição de tarefa} other {# atribuições de tarefa}} acompanham.",
+				"MERGE_MOVES_TEAMS": "{target} entra nas suas equipes: {teams}.",
+				"MERGE_OVERLAPS": "{count, plural, one {# destes registros se sobrepõe} other {# destes registros se sobrepõem}} ao tempo de {target}.",
+				"MERGE_REMOVES": "{name} é removido dos membros.",
+				"MERGE_CONFIRM": "Mesclar",
+				"MERGE_FAILED": "Os membros não foram mesclados.",
+				"MERGED": "{name} mesclado com {target}",
+				"errors": {
+					"EMAIL_TAKEN": "Um membro desta organização já tem este e-mail.",
+					"CLAIM_HAS_ACCOUNT": "Este e-mail já tem uma conta. Mescle o membro com o membro dessa pessoa.",
+					"MERGE_TIME_OFF": "Ambos os membros têm um saldo de ausências para a mesma política e o mesmo ano ({years}). Resolva-o num deles e mescle novamente. Nada foi movido.",
+					"MERGE_TIME_OFF_ANY": "Ambos os membros têm um saldo de ausências para a mesma política e o mesmo ano. Resolva-o num deles e mescle novamente. Nada foi movido."
+				}
+			}
 		},
 		"sessions": {
 			"TITLE": "Sessões",
@@ -5358,7 +5549,8 @@
 			"SIGN_OUT_INCOMPLETE": "Uma sessão se renovou enquanto era encerrada. Tente novamente.",
 			"SIGN_OUT_OTHERS_FAILED": "O encerramento das outras sessões não terminou. {reason}",
 			"SIGN_OUT_OTHERS_CONFIRM": "{count, plural, one {Encerrar # sessão} other {Encerrar # sessões}}",
-			"SIGNED_OUT_OTHERS": "{count, plural, =0 {Nenhuma outra sessão estava conectada.} one {# outra sessão foi encerrada.} other {# outras sessões foram encerradas.}}"
+			"SIGNED_OUT_OTHERS": "{count, plural, =0 {Nenhuma outra sessão estava conectada.} one {# outra sessão foi encerrada.} other {# outras sessões foram encerradas.}}",
+			"APP_ON_DEVICE": "{app} · {device}"
 		},
 		"profile": {
 			"SECTION_PROFILE": "Perfil",
@@ -5565,6 +5757,13 @@
 			"CURRENCY_OUTCOME": "Novas taxas e novos orçamentos começam nesta moeda.",
 			"CURRENCY_NOT_SAVED": "A moeda não foi salva",
 			"CURRENCY_NOT_SET": "Não informada",
+			"DEFAULT_RATE_LABEL": "Taxa de faturação padrão",
+			"DEFAULT_RATE_DESCRIPTION": "Fatura o tempo de um membro sem taxa de faturação nem taxa de cliente no projeto. Vazia, esse tempo fica sem preço.",
+			"DEFAULT_RATE_SAVED": "Taxa de faturação padrão guardada",
+			"DEFAULT_RATE_OUTCOME": "Os relatórios e as novas faturas valorizam a esta taxa o tempo sem outra taxa.",
+			"DEFAULT_RATE_CLEARED": "Taxa de faturação padrão removida",
+			"DEFAULT_RATE_CLEARED_OUTCOME": "O tempo sem outra taxa volta a aparecer à parte.",
+			"DEFAULT_RATE_NOT_SAVED": "A taxa de faturação padrão não foi guardada",
 			"DATE_FORMAT_LABEL": "Formato de data",
 			"DATE_FORMAT_DESCRIPTION": "Como os relatórios e suas exportações escrevem as datas. Automático segue o idioma de cada membro.",
 			"DATE_FORMAT_SAVED": "Formato de data salvo",
@@ -5627,7 +5826,33 @@
 			"EXPORTING": "Exportando…",
 			"EXPORT_DONE": "Dados do espaço de trabalho exportados",
 			"EXPORT_FAILED": "A exportação não foi concluída",
-			"EXPORT_FAILED_DESCRIPTION": "Nada foi salvo. Um espaço de trabalho grande leva algum tempo: tente de novo em instantes."
+			"EXPORT_FAILED_DESCRIPTION": "Nada foi salvo. Um espaço de trabalho grande leva algum tempo: tente de novo em instantes.",
+			"deletion": {
+				"DANGER_SECTION": "Zona de perigo",
+				"DELETE_LABEL": "Excluir esta organização",
+				"DELETE_CONSEQUENCE": "Suas equipes, associações e convites somem para todos. A última organização do espaço de trabalho permanece.",
+				"DELETE_ACTION": "Excluir organização",
+				"DELETE_TITLE": "Excluir {organization}?",
+				"DELETE_DESCRIPTION": "Suas equipes, membros e convites saem do Ever Teams com ela. Seus projetos, tempo registrado e faturas ficam no servidor, mas não podem mais ser acessados aqui.",
+				"CONSEQUENCE_TEAMS": "{count, plural, one {# equipe é removida} other {# equipes são removidas}}, com o lugar de cada pessoa nelas",
+				"CONSEQUENCE_MEMBERS": "{count, plural, one {# membro perde} other {# membros perdem}} o acesso a esta organização",
+				"CONSEQUENCE_WORK": "{projects, plural, one {# projeto} other {# projetos}} e {hours, number} horas registradas não podem mais ser acessados",
+				"CONSEQUENCE_INVOICES": "{count, plural, one {# fatura não pode mais ser acessada} other {# faturas não podem mais ser acessadas}}",
+				"CONSEQUENCE_LANDING": "Você continua em {organization}",
+				"CONSEQUENCE_PICKER": "Você não tem outra organização neste espaço de trabalho: você entra novamente para escolher um espaço de trabalho",
+				"COUNTS_LOADING": "Contando o que esta organização contém…",
+				"COUNTS_FAILED": "Não foi possível contar o que esta organização contém",
+				"COUNTS_FAILED_DESCRIPTION": "A exclusão fica desativada até os números carregarem.",
+				"UNSUPPORTED": "Este servidor ainda não pode excluir organizações",
+				"UNSUPPORTED_DESCRIPTION": "Excluir uma organização com segurança exige uma API do Ever Gauzy mais recente. Peça a quem administra seu servidor para atualizá-la.",
+				"LAST_ORGANIZATION": "Esta é a última organização do espaço de trabalho",
+				"LAST_ORGANIZATION_DESCRIPTION": "Um espaço de trabalho mantém pelo menos uma organização. Excluir sua conta também remove o espaço de trabalho, mas só quando você é o último membro dele.",
+				"LAST_ORGANIZATION_ACTION": "Ir para a exclusão da conta",
+				"LAST_ORGANIZATION_REFUSED": "Agora esta é a última organização do espaço de trabalho, então ela permanece. Excluir sua conta também remove o espaço de trabalho, mas só quando você é o último membro dele.",
+				"TIMER_RUNNING": "Pare primeiro o cronômetro",
+				"TIMER_RUNNING_DESCRIPTION": "Seu cronômetro está em execução. Pare-o e depois exclua a organização: um cronômetro deixado em uma organização excluída continua contando sem que ninguém possa pará-lo.",
+				"EXPORT_FIRST": "Guarde uma cópia primeiro: exporte os dados do espaço de trabalho antes de excluir esta organização."
+			}
 		},
 		"automations": {
 			"NEW_RULE": "Nova regra",
@@ -5870,6 +6095,12 @@
 			"REQUIRED_TITLE": "A sua organização pede-lhe que a ative",
 			"REQUIRED_DESCRIPTION": "Os seus membros iniciam sessão também com um código de uma aplicação de autenticação.",
 			"QR_ALT": "Código QR desta conta para a sua aplicação de autenticação"
+		},
+		"thisBrowser": {
+			"TITLE": "Este navegador",
+			"DESCRIPTION": "Por quanto tempo você continua conectado neste navegador. Seus outros navegadores e aplicativos mantêm as próprias sessões.",
+			"SIGN_OUT_ON_CLOSE": "Sair ao fechar este navegador",
+			"SIGN_OUT_ON_CLOSE_HINT": "Para um computador compartilhado. Quando está desativado, você continua conectado depois de fechar o navegador, até sua sessão expirar."
 		}
 	},
 	"taskDetail": {
@@ -7339,6 +7570,7 @@
 			"RATE_SOURCE_MEMBER": "Tarifa de cliente do membro neste projeto",
 			"RATE_SOURCE_PROJECT": "Tarifa de cliente do projeto",
 			"RATE_SOURCE_EMPLOYEE": "Tarifa de faturação própria do membro",
+			"RATE_SOURCE_DEFAULT": "A taxa de faturação padrão do espaço de trabalho",
 			"DESCRIPTION_OF": "Descrição da linha {name}",
 			"REMOVE_LINE": "Remover a linha {name}",
 			"REMOVED_LINES": "{count, plural, one {# linha removida} other {# linhas removidas}}",
@@ -7602,6 +7834,122 @@
 			"NOT_FOUND_MESSAGE": "Pode ter sido eliminada, ou a ligação vem de outro espaço de trabalho.",
 			"ALL_INVOICES": "Todas as faturas",
 			"ERROR_TITLE": "Não foi possível carregar a fatura"
+		},
+		"schedule": {
+			"TITLE": "Faturação programada",
+			"NONE_HINT": "Fazer a fatura deste cliente sozinha todas as semanas, a cada duas semanas ou todos os meses, a partir do tempo faturável ainda não faturado.",
+			"SET_UP": "Programar a faturação",
+			"EDIT": "Editar",
+			"PAUSE": "Pausar",
+			"RESUME": "Retomar",
+			"PAUSED": "Em pausa",
+			"ACTIVE": "Ativa",
+			"SUMMARY": "{frequency} a partir de {day}",
+			"DELIVERY_DRAFT": "Fica como rascunho",
+			"DELIVERY_SEND": "Enviada para {email}",
+			"DELIVERY_SEND_NO_EMAIL": "Enviada para o e-mail do cliente",
+			"NEXT": "Próxima fatura em {day}, referente a {period}",
+			"NEXT_PAUSED": "Nenhuma fatura é feita enquanto está em pausa",
+			"RUNS": "Últimas execuções",
+			"NO_RUNS": "Ainda sem execuções",
+			"RUNS_ERROR": "Não foi possível carregar as últimas execuções",
+			"ERROR": "Não foi possível carregar a faturação programada",
+			"OPEN_INVOICE": "Abrir a fatura",
+			"LEFT_OUT": "{hours} h do período ficaram de fora: sem tarifa ou noutra moeda",
+			"LIST_TITLE": "Faturados segundo um calendário",
+			"LIST_NEXT": "próxima em {day}",
+			"LIST_PAUSED": "em pausa",
+			"frequency": {
+				"WEEKLY": "Todas as semanas",
+				"BIWEEKLY": "A cada duas semanas",
+				"MONTHLY": "Todos os meses"
+			},
+			"grouping": {
+				"PROJECT": "Por projeto",
+				"MEMBER": "Por membro",
+				"TASK": "Por tarefa"
+			},
+			"run": {
+				"CLAIMED": "Em curso",
+				"DRAFTED": "Rascunho criado",
+				"SENT": "Enviada",
+				"NOT_SENT": "Criada, não enviada",
+				"NO_TIME": "Nada a faturar",
+				"FAILED": "Não criada"
+			},
+			"reason": {
+				"NO_BILLABLE_TIME": "O período não tinha tempo faturável por faturar.",
+				"NO_PRICED_TIME": "O tempo do período não tem tarifa para o faturar. Nova tentativa a cada hora durante uma semana.",
+				"AUTHOR_CANNOT_INVOICE": "A pessoa que guardou o calendário por último já não pode criar faturas. Guarde-o para o assumir; nova tentativa a cada hora durante uma semana.",
+				"CLIENT_HAS_NO_EMAIL": "O cliente não tem endereço de e-mail: a fatura ficou como rascunho.",
+				"EMAIL_NOT_SENT": "Não foi possível enviar o e-mail: a fatura ficou como rascunho.",
+				"INVOICE_NOT_SAVED": "Não foi possível guardar a fatura. Nova tentativa a cada hora durante uma semana."
+			},
+			"form": {
+				"CREATE_TITLE": "Faturar segundo um calendário",
+				"EDIT_TITLE": "Editar a faturação programada",
+				"FREQUENCY": "Frequência",
+				"START_DAY": "Primeiro dia do primeiro período",
+				"START_HINT": "Cada fatura é criada no dia seguinte ao fim do seu período, no fuso horário do espaço de trabalho. Nenhum período terminado antes de hoje é faturado.",
+				"START_INVALID": "Escolha um dia.",
+				"GROUPING": "Linhas",
+				"DELIVERY": "Depois de criada",
+				"DRAFT": "Manter como rascunho",
+				"SEND": "Enviar ao cliente",
+				"DRAFT_HINT": "Cada fatura fica como rascunho até a verificar e enviar.",
+				"SEND_HINT": "Cada fatura vai para {email} com o seu PDF e fica marcada como Enviada.",
+				"SEND_NO_EMAIL": "Este cliente não tem endereço de e-mail: as suas faturas ficarão como rascunhos até ter um.",
+				"SAVE": "Guardar",
+				"SAVE_FAILED": "Não foi possível guardar o calendário. Tente novamente.",
+				"EXISTS": "Este cliente já tem um calendário. Feche e volte a abri-lo para o alterar.",
+				"START_AFTER_BILLED": "Este calendário já faturou períodos: o novo calendário tem de começar depois do último período faturado, {day}."
+			},
+			"delete": {
+				"TITLE": "Eliminar esta faturação programada?",
+				"BODY": "Nenhuma fatura será feita sozinha para {name}. As faturas já feitas ficam."
+			},
+			"toasts": {
+				"SAVED": "A faturação programada de {name} foi guardada",
+				"PAUSED": "A faturação programada de {name} foi pausada",
+				"RESUMED": "A faturação programada de {name} foi retomada: próxima fatura em {day}",
+				"DELETED": "A faturação programada de {name} foi eliminada",
+				"FAILED": "Não foi possível guardar a alteração. Tente novamente."
+			}
+		},
+		"shared": {
+			"PAY": "Pagar {amount}",
+			"PAYING": "Abrindo o pagamento…",
+			"PAY_FAILED": "Não foi possível iniciar o pagamento. Tente novamente em instantes.",
+			"DOWNLOAD_FAILED": "Não foi possível baixar o PDF. Tente novamente.",
+			"FROM_SENDER": "De {name}",
+			"RETURNED_TITLE": "Obrigado pelo seu pagamento",
+			"RETURNED_MESSAGE": "Ele está sendo confirmado. Esta página mostrará a fatura como paga assim que o provedor de pagamento confirmar.",
+			"PAID_TITLE": "Esta fatura está paga",
+			"PAID_MESSAGE": "Não há mais nada a pagar. Obrigado.",
+			"CLOSED_TITLE": "Este link não abre mais uma fatura",
+			"CLOSED_MESSAGE": "O link foi revogado ou a fatura foi anulada. Peça um novo link ao remetente.",
+			"FOOTER": "Enviado com {app}"
+		},
+		"payments": {
+			"TITLE": "Pagamento de faturas online",
+			"DESCRIPTION": "Permita que os clientes paguem uma fatura na página dela, pelo conector de pagamento do seu espaço de trabalho. As chaves do seu provedor de pagamento ficam no conector.",
+			"ENDPOINT": "Endereço de pagamento",
+			"ENDPOINT_HINT": "O endereço HTTPS do seu conector que abre um pagamento.",
+			"ENABLED": "Oferecer pagamento online nas páginas das faturas",
+			"TEST_MODE": "Modo de teste: os pagamentos são registrados no log, nunca nas faturas",
+			"CONNECT": "Conectar",
+			"SAVE": "Salvar",
+			"SAVED": "Salvo",
+			"SAVE_FAILED": "Não foi possível salvar a conexão. Verifique o endereço e tente novamente.",
+			"LOAD_FAILED": "Não foi possível carregar a conexão.",
+			"NOTIFICATION_URL": "Endereço de notificação",
+			"NOTIFICATION_URL_HINT": "Seu conector envia para cá cada pagamento que o provedor confirma.",
+			"SECRET": "Segredo de assinatura",
+			"SECRET_ONCE": "Copie-o agora para o seu conector: ele é mostrado só desta vez.",
+			"ROTATE": "Novo segredo de assinatura",
+			"ROTATE_HINT": "O segredo atual deixa de funcionar imediatamente.",
+			"COPY": "Copiar",
+			"COPIED": "Copiado"
 		}
 	},
 	"timeReports": {
@@ -7871,6 +8219,15 @@
 			"FAILED_DESCRIPTION": "Nenhum registo de tempo foi guardado. O que foi criado antes fica no espaço de trabalho e é reutilizado quando importar de novo os mesmos ficheiros.",
 			"CREATED_TITLE": "Os clientes, projetos e etiquetas estão no espaço de trabalho",
 			"PAGE_DESCRIPTION": "Clientes, projetos, etiquetas e registos de tempo de outra ferramenta de registo de tempo."
+		},
+		"placeholders": {
+			"TITLE": "{count, plural, one {# pessoa deste arquivo não está} other {# pessoas deste arquivo não estão}} nesta equipe ({rows, plural, one {# linha} other {# linhas}})",
+			"DESCRIPTION": "Adicione-as como membros sem conta: não recebem e-mail e não podem entrar. As suas linhas são depois verificadas de novo e importadas como as de qualquer membro.",
+			"NAMES": "{names}{more, plural, =0 {} other { e mais #}}",
+			"ADD": "Adicionar {count, plural, one {# membro} other {# membros}} sem conta",
+			"FAILED": "Não foram adicionados.",
+			"OUTSIDE_TEAM_TITLE": "{count, plural, one {# pessoa já pertence} other {# pessoas já pertencem}} à organização, não a esta equipe",
+			"OUTSIDE_TEAM_DESCRIPTION": "{names}: adicione-as a esta equipe em Configurações > Membros e escolha o arquivo novamente."
 		}
 	},
 	"recordSheet": {
@@ -7910,6 +8267,15 @@
 		"TYPE_BREAK": "Pausa",
 		"BREAK_HINT": "Uma pausa nunca é faturável e nunca conta como tempo trabalhado."
 	},
+	"tabOrganizationNotice": {
+		"TITLE": "Outra organização está aberta em outra aba",
+		"KEEPS_WORKING": "Esta aba continua trabalhando em {organization}, com seu cronômetro e suas páginas.",
+		"CANNOT_WORK_TITLE": "Esta aba não pode mais trabalhar em {organization}",
+		"CANNOT_WORK": "Outra organização está aberta em outra aba. Escolha onde esta aba trabalha.",
+		"STOP_TIMER_FIRST": "O cronômetro está rodando em {organization}: pare-o antes de abrir a outra organização aqui.",
+		"OPEN_HERE": "Abrir a outra organização aqui",
+		"BRING_BACK": "Usar {organization} em todas as abas"
+	},
 	"timeZoneNotice": {
 		"TITLE": "Seu perfil usa {profileZone} ({profileOffset}). Este navegador está em {browserZone} ({browserOffset}).",
 		"DESCRIPTION": "As folhas de ponto contam seus dias no fuso do seu perfil e os outros relatórios no deste navegador, então um registro perto da meia-noite pode cair em outro dia.",
@@ -7921,5 +8287,15 @@
 		"SAVE_FAILED": "Não foi possível salvar seu fuso horário.",
 		"SAVE_FAILED_DESCRIPTION": "Seu perfil não mudou. Verifique sua conexão e tente novamente.",
 		"TRY_AGAIN": "Tentar novamente"
+	},
+	"sharedReport": {
+		"READ_ONLY_BADGE": "Somente leitura",
+		"READ_ONLY": "Um relatório somente leitura compartilhado do {app}. Números de {time}.",
+		"NOT_WORKING_TITLE": "Este link não funciona mais",
+		"NOT_WORKING_MESSAGE": "O autor o desativou, substituiu ou deixou expirar. Peça um novo link.",
+		"ERROR_TITLE": "Não foi possível ler o relatório",
+		"ERROR_MESSAGE": "Verifique sua conexão e tente novamente.",
+		"LOADING": "Carregando o relatório…",
+		"EMPTY": "Nenhum tempo foi registrado neste período."
 	}
 }

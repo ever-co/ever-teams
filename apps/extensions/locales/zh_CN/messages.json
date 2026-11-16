@@ -44,6 +44,24 @@
 	"signInChooseWorkspace": {
 		"message": "选择工作区"
 	},
+	"signInTwoFactorLabel": {
+		"message": "验证码"
+	},
+	"signInTwoFactorHint": {
+		"message": "身份验证器应用中的 6 位验证码，或您的某个恢复码。"
+	},
+	"signInTwoFactorIncomplete": {
+		"message": "请输入 6 位验证码或完整的恢复码。"
+	},
+	"signInTwoFactorWrongCode": {
+		"message": "验证码不正确。请输入应用当前显示的验证码或恢复码。"
+	},
+	"signInTwoFactorExpired": {
+		"message": "此次登录等待验证码的时间过长。请重新登录。"
+	},
+	"signInTwoFactorTooMany": {
+		"message": "错误验证码过多。请等待几分钟后重试。"
+	},
 	"headerTeam": {
 		"message": "团队"
 	},
@@ -133,6 +151,9 @@
 	},
 	"tasksAddFailed": {
 		"message": "无法创建任务。"
+	},
+	"tasksEstimateInvalid": {
+		"message": "请以整小时（最多 999）和分钟（0 到 59）输入预估。"
 	},
 	"refusalPlanRequired": {
 		"message": "你的团队要求先制定每日计划才能计时。请先规划今天。"

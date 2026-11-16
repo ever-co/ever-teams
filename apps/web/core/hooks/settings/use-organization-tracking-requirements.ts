@@ -30,7 +30,11 @@ export const TRACKING_REQUIREMENTS: ReadonlyArray<TTrackingRequirement> = [
 ];
 
 /** An organization switch its admins turn on or off from the settings. */
-type TOrganizationSwitch = TTrackingRequirement | 'restrictTrackingSwitchToHigherRoles' | 'allowBreaks';
+type TOrganizationSwitch =
+	| TTrackingRequirement
+	| 'restrictTrackingSwitchToHigherRoles'
+	| 'allowBreaks'
+	| 'enforcePrivateProjects';
 
 /**
  * The current organization and the save of one of its switches. A failed save shows `notSavedKey` with its reason and
@@ -109,4 +113,17 @@ export function useOrganizationTrackingSwitchRule() {
 		[saveSwitch]
 	);
 	return { organization, saveRestriction };
+}
+
+/**
+ * Whether the current organization keeps a project marked private to its members and managers (`enforcePrivateProjects`,
+ * ever-gauzy#11465), and its save. A failed save shows its reason and throws, so the switch goes back to the stored value.
+ */
+export function useOrganizationPrivateProjectsSwitch() {
+	const { organization, saveSwitch } = useOrganizationSwitch('pages.projects.visibility.SETTING_NOT_SAVED');
+	const saveEnforcePrivateProjects = useCallback(
+		(enforces: boolean) => saveSwitch('enforcePrivateProjects', enforces),
+		[saveSwitch]
+	);
+	return { organization, saveEnforcePrivateProjects };
 }

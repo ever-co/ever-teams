@@ -37,6 +37,10 @@ jest.mock('./page-content-scroller', () => ({
 jest.mock('./time-zone-notice', () => ({
 	TimeZoneNotice: () => <div data-testid="time-zone-notice" />
 }));
+// Says nothing while the tab works with the shared cookies (tab-organization-notice.test.tsx)
+jest.mock('./tab-organization-notice', () => ({
+	TabOrganizationNotice: () => null
+}));
 
 beforeEach(() => {
 	mockSetActiveTimer.mockReset();

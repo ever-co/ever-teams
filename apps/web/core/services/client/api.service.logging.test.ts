@@ -1,5 +1,5 @@
 // cspell:ignore IJKL MNOP
-import { AxiosAdapter, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
+import { AxiosAdapter, AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 
 const mockDebug = jest.fn();
 
@@ -108,6 +108,62 @@ describe('development request log', () => {
 		expect(logged).not.toContain('refresh-token-1');
 		expect(logged).not.toContain('refresh-token-2');
 		expect(logged).not.toContain('access-token-2');
+	});
+});
+
+describe('a request whose address holds a secret (the token of a shared link)', () => {
+	beforeEach(() => mockDebug.mockReset());
+
+	/** Answers a report, or a server failure for an address that ends with `tok-down`. */
+	function answering(): AxiosAdapter {
+		return async (config) => {
+			const response = {
+				config,
+				data: { name: 'Report' },
+				headers: {},
+				status: 200,
+				statusText: 'OK'
+			} as AxiosResponse;
+			if (String(config.url).endsWith('tok-down')) {
+				throw new AxiosError('Request failed', 'ERR_BAD_RESPONSE', config, null, { ...response, status: 500 });
+			}
+			return response;
+		};
+	}
+
+	function httpLoggerOf(service: APIService) {
+		return (service as unknown as { httpLogger: { logError: jest.Mock } }).httpLogger;
+	}
+
+	it('writes neither the request, its answer nor its error to a log, and logs the same request without it', async () => {
+		const service = new APIService('https://api.example.test', { enableLogging: true });
+		service.axiosInstance.defaults.adapter = answering();
+		const secret = { secretAddress: true } as APIConfig;
+
+		await service.axiosInstance.get('/public/saved-reports/tok-live', secret);
+		await expect(service.axiosInstance.get('/public/saved-reports/tok-down', secret)).rejects.toBeTruthy();
+
+		expect(JSON.stringify(mockDebug.mock.calls)).not.toContain('tok-');
+		expect(httpLoggerOf(service).logError).not.toHaveBeenCalled();
+
+		await service.axiosInstance.get('/public/saved-reports/tok-live');
+		await expect(service.axiosInstance.get('/public/saved-reports/tok-down')).rejects.toBeTruthy();
+		expect(JSON.stringify(mockDebug.mock.calls)).toContain('tok-live');
+		expect(httpLoggerOf(service).logError).toHaveBeenCalledTimes(1);
+	});
+
+	it('keeps it out of the logs of the proxy mode client too, which sends it when no API address is set', async () => {
+		const { getAPI } = await import('./axios');
+		const proxyClient = await getAPI();
+		(proxyClient as unknown as { config: { enableLogging: boolean } }).config.enableLogging = true;
+		proxyClient.axiosInstance.defaults.adapter = answering();
+		const service = new APIService('', { enableLogging: true });
+
+		await service.get('/public/saved-reports/tok-live', { secretAddress: true });
+		await expect(service.get('/public/saved-reports/tok-down', { secretAddress: true })).rejects.toBeTruthy();
+
+		expect(JSON.stringify(mockDebug.mock.calls)).not.toContain('tok-');
+		expect(httpLoggerOf(proxyClient).logError).not.toHaveBeenCalled();
 	});
 });
 

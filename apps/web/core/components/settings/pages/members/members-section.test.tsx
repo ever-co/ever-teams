@@ -23,6 +23,15 @@ jest.mock('@/core/hooks/settings/use-member-two-factor-reset', () => ({
 jest.mock('@/core/hooks/settings/use-inactive-members', () => ({
 	useInactiveMembers: (isShown: boolean) => mockUseInactiveMembers(isShown)
 }));
+jest.mock('@/core/hooks/settings/use-member-placeholders', () => ({
+	useMemberPlaceholders: () => ({
+		isOffered: false,
+		claimsSent: {},
+		sendClaim: jest.fn(),
+		previewMerge: jest.fn(),
+		merge: jest.fn()
+	})
+}));
 // The row's menus have their own primitives: here a row only hands its member to the section.
 jest.mock('./member-row', () => ({
 	MemberRow: ({

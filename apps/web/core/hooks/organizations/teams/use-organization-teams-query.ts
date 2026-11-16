@@ -33,6 +33,7 @@ import type { ApiRequestScope } from '@/core/services/client/api-request-scope';
 import { useScopeGuard } from '../../bootstrap/use-scope-guard';
 import { useReactiveAccessTokenCookie } from '../../auth/use-reactive-access-token-cookie';
 import { syncTokenOrganization } from '@/core/lib/auth/token-organization';
+import { rememberTabTeam } from '@/core/lib/auth/tab-organization';
 import { teamDefaultProjectId } from '@/core/lib/helpers/team-default-project';
 
 interface UseOrganizationTeamsQueryOptions {
@@ -170,6 +171,8 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 			setTeamTasks([]);
 			setActiveTeamTask(null);
 
+			// This tab works in the team's organization from now on, before the cookies, shared by every tab, follow it
+			rememberTabTeam(team);
 			setActiveTeamIdCookie(team?.id);
 			setOrganizationIdCookie(team?.organizationId || '');
 			// Gauzy confines a non-admin to the token's organization: a team of another organization needs a token for
@@ -193,6 +196,21 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 		},
 		[queryClient, setActiveTeamId, setActiveTeamTask, setTeamTasks, updateUserLastTeam, user]
 	);
+
+	// The team this tab shows, however it came to show it (a reload opens it without picking it again): the tab works in
+	// its organization, whatever organization another tab switches the shared cookies to (#5134)
+	const activeTeamOrganizationId = activeTeam?.organizationId;
+	const activeTeamIdOfTab = activeTeam?.id;
+	const activeTeamProjectId = teamDefaultProjectId(activeTeam);
+	useEffect(() => {
+		if (activeTeamIdOfTab && activeTeamOrganizationId) {
+			rememberTabTeam({
+				id: activeTeamIdOfTab,
+				organizationId: activeTeamOrganizationId,
+				defaultProjectId: activeTeamProjectId
+			});
+		}
+	}, [activeTeamIdOfTab, activeTeamOrganizationId, activeTeamProjectId]);
 
 	// ==================== QUERIES ====================
 

@@ -24,14 +24,15 @@ const SESSION_LOCK = 'ever-teams-session';
 /**
  * Runs `work` while no other view of the extension, nor its background, changes the stored session: a renewal, a
  * sign-in, a sign-out, a team picked. Where the browser has no Web Locks, it runs at once. Not re-entrant: `work`
- * never calls a function that takes the lock itself.
+ * never calls a function that takes the lock itself. A `signal` (a caller's deadline) gives up the wait for the lock,
+ * never the work once it holds it.
  */
-export function withSessionLock<T>(work: () => Promise<T>): Promise<T> {
+export function withSessionLock<T>(work: () => Promise<T>, signal?: AbortSignal): Promise<T> {
 	const locks = (globalThis.navigator as Navigator | undefined)?.locks;
 	if (!locks) {
 		return work();
 	}
-	return locks.request(SESSION_LOCK, work) as Promise<T>;
+	return locks.request(SESSION_LOCK, signal ? { signal } : {}, work) as Promise<T>;
 }
 
 async function read<T>(key: string): Promise<T | undefined> {

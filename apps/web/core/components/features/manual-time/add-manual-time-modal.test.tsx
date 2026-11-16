@@ -126,6 +126,11 @@ jest.mock('@/core/constants/config/constants', () => ({ manualTimeReasons: [] })
 
 jest.mock('@/core/lib/helpers', () => ({ cn: () => '' }));
 
+// A workspace on a 24-hour clock, so the start and the end read as the values they hold
+jest.mock('@/core/hooks/common/use-workspace-locale', () => ({
+	useWorkspaceLocale: () => ({ tag: 'en', dateFormat: null, numberFormat: null, clock: 24 })
+}));
+
 jest.mock('@/core/lib/utils', () => ({ clsxm: () => '' }));
 
 jest.mock('@/core/components', () => ({
@@ -225,16 +230,21 @@ const teamBTasks = () => [taskB, sharedTask];
 
 const closeModal = jest.fn();
 
-function fillTimes(container: HTMLElement) {
-	const timeInputs = container.querySelectorAll('input[type="time"]');
-	const [startInput, endInput] = Array.from(timeInputs);
+function timeInputs() {
+	return [/^manualTime.START_TIME/, /^manualTime.END_TIME/].map(
+		(label) => screen.getByLabelText(label) as HTMLInputElement
+	);
+}
+
+function fillTimes() {
+	const [startInput, endInput] = timeInputs();
 	fireEvent.change(startInput, { target: { value: '09:00' } });
 	fireEvent.change(endInput, { target: { value: '11:00' } });
 }
 
 function renderAddTimeDialog() {
 	const view = render(<AddManualTimeModal isOpen params="AddTime" closeModal={closeModal} />);
-	fillTimes(view.container);
+	fillTimes();
 	return view;
 }
 
@@ -247,7 +257,7 @@ function calendarDialog() {
 
 function renderCalendarDialog() {
 	const view = render(calendarDialog());
-	fillTimes(view.container);
+	fillTimes();
 	return view;
 }
 
@@ -410,9 +420,8 @@ function durationInput(): DurationEntryInput {
 	return input;
 }
 
-function timeInputValues(container: HTMLElement) {
-	const timeInputs = container.querySelectorAll<HTMLInputElement>('input[type="time"]');
-	return Array.from(timeInputs).map((input) => input.value);
+function timeInputValues() {
+	return timeInputs().map((input) => input.value);
 }
 
 describe('AddManualTimeModal duration', () => {
@@ -442,12 +451,12 @@ describe('AddManualTimeModal duration', () => {
 	});
 
 	it('shows a proposed interval as the start and the end, and saves it to the minute', () => {
-		const { container } = renderAddTimeDialog();
+		renderAddTimeDialog();
 		const interval = { start: new Date(2026, 10, 10, 10, 30), end: new Date(2026, 10, 10, 12, 0) };
 
 		act(() => durationInput().onInterval(interval));
 
-		expect(timeInputValues(container)).toEqual(['10:30', '12:00']);
+		expect(timeInputValues()).toEqual(['10:30', '12:00']);
 
 		submitDialog();
 
@@ -465,11 +474,11 @@ describe('AddManualTimeModal duration', () => {
 	});
 
 	it('empties the start and the end when the asked duration found no room, so nothing is saved', () => {
-		const { container } = renderAddTimeDialog();
+		renderAddTimeDialog();
 
 		act(() => durationInput().onInterval(null));
 
-		expect(timeInputValues(container)).toEqual(['', '']);
+		expect(timeInputValues()).toEqual(['', '']);
 
 		submitDialog();
 
@@ -742,11 +751,11 @@ describe('AddManualTimeModal billable status', () => {
 	});
 
 	it('keeps Billable as set by hand while other fields change', () => {
-		const { container } = renderAddTimeDialog();
+		renderAddTimeDialog();
 
 		pickInSelect('task', 'task-site');
 		setBillableByHand(false);
-		fillTimes(container);
+		fillTimes();
 		submitDialog();
 
 		expect(savedBillable()).toBe(false);

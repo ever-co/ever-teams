@@ -154,6 +154,21 @@ export function teamsOutsideOtherOrganizations<TTeam extends ITeamMenuTeam>(
 }
 
 /**
+ * The teams of the menu's first group while its organizations are not read yet (the menu reads them once the person
+ * reaches for it): the current organization's only. A workspace admin's team list in proxy mode holds the other
+ * organizations' teams too, which only the switch may open, with its timer and pending-write checks.
+ */
+export function teamsOfCurrentOrganization<TTeam extends ITeamMenuTeam>(
+	teams: readonly TTeam[],
+	organizationId: string | null | undefined
+): TTeam[] {
+	if (!organizationId) {
+		return [...teams];
+	}
+	return teams.filter((team) => !team.organizationId || team.organizationId === organizationId);
+}
+
+/**
  * The team to open in an organization just switched to: the first of `preferredTeamIds` that is one of its teams
  * (the team last opened there, then the person's last team), else its first team; null when it has none.
  */

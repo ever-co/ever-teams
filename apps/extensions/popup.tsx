@@ -175,7 +175,7 @@ function SignedIn({
 				onStart={onStart}
 				onStop={onStop}
 				onCheckTeam={onCheckTeam}
-				onRetry={() => void timer.refresh()}
+				onRetry={() => void timer.retry()}
 			/>
 			<Tasks
 				session={session}

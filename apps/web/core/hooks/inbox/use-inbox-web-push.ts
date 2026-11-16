@@ -33,7 +33,8 @@ async function currentSubscription(): Promise<PushSubscription | null> {
 export async function forgetThisBrowserPush(): Promise<void> {
 	if (!supportsWebPush()) return;
 	try {
-		const subscription = await currentSubscription();
+		// A worker that cannot be read (none active, a browser refusing it) leaves no subscription to forget here
+		const subscription = await currentSubscription().catch(() => null);
 		if (!subscription) return;
 		const devices = await inboxPushService.devices().catch(() => []);
 		const device = devices.find((candidate) => candidate.endpoint === subscription.endpoint);
@@ -134,7 +135,10 @@ export function useInboxWebPush(enabled: boolean) {
 			const publicKey = await inboxPushService.publicKey();
 			const subscription =
 				(await registration.pushManager.getSubscription()) ??
-				(await registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: base64UrlToBytes(publicKey) as BufferSource }));
+				(await registration.pushManager.subscribe({
+					userVisibleOnly: true,
+					applicationServerKey: base64UrlToBytes(publicKey) as BufferSource
+				}));
 			try {
 				await inboxPushService.register(deviceInputOf(subscription));
 			} catch (error) {

@@ -9,8 +9,10 @@ import { useGetCurrentOrganization } from '@/core/hooks/auth/use-current-organiz
 import { useWorkspaces } from '@/core/hooks/auth/use-workspaces';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { useMyRolePermissionsQuery } from '@/core/hooks/roles/use-my-role-permissions-query';
-import { getAccessTokenCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
+import { getTenantIdCookie } from '@/core/lib/helpers/cookies';
+import { requestAccessToken } from '@/core/lib/auth/tab-organization';
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
+import { holdsRateAdminPermission } from '@/core/lib/utils/rates';
 import {
 	UnfinishedRenameError,
 	canEditWorkspace,
@@ -47,6 +49,7 @@ type WorkspaceChanges = Pick<
 	| 'currencyPosition'
 	| 'durationRoundingInterval'
 	| 'durationRoundingDirection'
+	| 'defaultBillRateValue'
 	| 'timeLogsKeepTheirRates'
 >;
 
@@ -141,7 +144,8 @@ export function useWorkspaceSettings() {
 			throw new Error('No current organization');
 		}
 		const tenantId = getTenantIdCookie();
-		const accessToken = getAccessTokenCookie();
+		// This tab's token: its own for its organization while another tab has another one open (#5134)
+		const accessToken = requestAccessToken();
 		return {
 			tenantId,
 			accessToken,
@@ -317,6 +321,33 @@ export function useWorkspaceSettings() {
 		[reportedSave, saveOrganization, scopeOfSave, t]
 	);
 
+	// Only the value is sent: a currency another app stored with the default stays, and none prices it in the workspace's
+	const saveDefaultBillRate = useCallback(
+		async (typedValue: number | null) => {
+			const scope = scopeOfSave();
+			// A default of zero prices nothing, as the API reads it: it is saved as no default, and said so
+			const isRate = typedValue !== null && typedValue > 0;
+			let defaultBillRateValue: number | null = null;
+			if (isRate) {
+				defaultBillRateValue = typedValue;
+			}
+			let text: SaveText = {
+				failureKey: 'settings.workspace.DEFAULT_RATE_NOT_SAVED',
+				saved: t('settings.workspace.DEFAULT_RATE_CLEARED'),
+				outcome: t('settings.workspace.DEFAULT_RATE_CLEARED_OUTCOME')
+			};
+			if (isRate) {
+				text = {
+					failureKey: 'settings.workspace.DEFAULT_RATE_NOT_SAVED',
+					saved: t('settings.workspace.DEFAULT_RATE_SAVED'),
+					outcome: t('settings.workspace.DEFAULT_RATE_OUTCOME')
+				};
+			}
+			await reportedSave(() => saveOrganization(scope, { defaultBillRateValue }), text);
+		},
+		[reportedSave, saveOrganization, scopeOfSave, t]
+	);
+
 	const saveWeekStart = useCallback(
 		async (startWeekOn: EWeekDays) => {
 			const scope = scopeOfSave();
@@ -357,6 +388,8 @@ export function useWorkspaceSettings() {
 		organization,
 		name,
 		canEdit: canEditWorkspace(myPermissions),
+		// The default billing rate is a rate: only a role that may read rates sees it, as on reports and invoices
+		canReadRates: holdsRateAdminPermission(myPermissions),
 		canRename: canRenameWorkspace(user?.role?.name, myPermissions),
 		isLoading,
 		isLoadFailed,
@@ -369,6 +402,7 @@ export function useWorkspaceSettings() {
 		saveClock,
 		saveCurrencyPosition,
 		saveDurationRounding,
+		saveDefaultBillRate,
 		saveTimeLogsKeepTheirRates
 	};
 }

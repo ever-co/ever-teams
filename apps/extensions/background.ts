@@ -1,10 +1,12 @@
+import { createCoalescedRunner } from '~lib/coalesce';
+import { withDeadline } from '~lib/deadline';
 import { getTimerStatus, sendHeartbeat, type TimerStatus } from '~lib/gauzy';
 import { isOwnPagePort } from '~lib/ports';
 import { sendsHeartbeat } from '~lib/run-policy';
 import { createStatusOrder } from '~lib/status-order';
 import { loadSession, takeSessionOut } from '~lib/session-store';
 import { badgeText, secondsSince } from '~lib/time-format';
-import { isSameSignIn, type Session } from '~lib/workspaces';
+import { isSamePerson, isSameSignIn, type Session } from '~lib/workspaces';
 import browser from '~misc/browser';
 import { MessageTypesFromBackgroundEnum, MessageTypesToBackgroundEnum } from '~typescript/enums/MessageTypesEnum';
 import type { IPostMessage } from '~typescript/interfaces/PostMessage';
@@ -15,6 +17,8 @@ const REFRESH_ALARM = 'refresh-timer-status';
 const REFRESH_EVERY_MINUTES = 1;
 // The primary color of the web's timer button
 const BADGE_COLOR = '#6366f1';
+// A call to the API with no answer by then is cancelled: the refreshes go one at a time, and it would hold them all
+const CALL_DEADLINE_MS = 30_000;
 
 const ports = new Set<chrome.runtime.Port>();
 
@@ -27,11 +31,17 @@ function broadcast(status: TimerStatus | null): void {
 		payload: status
 	};
 	for (const port of ports) {
-		port.postMessage(message);
+		try {
+			port.postMessage(message);
+		} catch {
+			// A popup closed while the status was on its way: its port is gone, and the other popups still hear it
+			ports.delete(port);
+		}
 	}
 }
 
-async function showBadge(status: TimerStatus | null): Promise<void> {
+/** Shows a status on the badge; `isCurrent` says whether it is still the newest, after the badge's color was set. */
+async function showBadge(status: TimerStatus | null, isCurrent: () => boolean = () => true): Promise<void> {
 	const run = status?.lastLog;
 	const isRunning = Boolean(status?.running && run);
 	if (!isRunning || !run) {
@@ -39,7 +49,38 @@ async function showBadge(status: TimerStatus | null): Promise<void> {
 		return;
 	}
 	await browser.action.setBadgeBackgroundColor({ color: BADGE_COLOR });
+	// A sign-out (or a newer status) while the color was set: the badge stays as that left it
+	if (!isCurrent()) {
+		return;
+	}
 	await browser.action.setBadgeText({ text: badgeText(secondsSince(run.startedAt, Date.now())) });
+}
+
+/**
+ * Signed out: the badge clears and an open popup hears it at once. Every read still out was made for the session that
+ * ended: its answer must not bring the badge back, nor credit a heartbeat.
+ */
+async function showSignedOut(): Promise<void> {
+	statusOrder.sessionEnded();
+	broadcast(null);
+	await showBadge(null);
+}
+
+/** The HTTP status of a failed call; 0 when the API could not be reached. */
+function statusOf(error: unknown): number | undefined {
+	return (error as { status?: number } | null)?.status;
+}
+
+/** A 401 the token renewal did not cure: the person was signed out elsewhere, and this browser follows. */
+async function signOutIfRefused(session: Session, error: unknown): Promise<void> {
+	if (statusOf(error) !== 401) {
+		return;
+	}
+	// A sign-in made while this call was out is not the one that failed, and stays
+	const signedOut = await takeSessionOut((stored) => isSameSignIn(stored, session));
+	if (signedOut) {
+		await showSignedOut();
+	}
 }
 
 /** Credits the minute of a run started here; a run started by another app is left to that app. */
@@ -49,47 +90,85 @@ async function creditOwnRun(session: Session, status: TimerStatus): Promise<void
 	if (!isOwnRun || !run) {
 		return;
 	}
-	await sendHeartbeat(session, run);
+	try {
+		await withDeadline(CALL_DEADLINE_MS, (signal) => sendHeartbeat(session, run, { signal }));
+	} catch (error) {
+		// The run goes on and the badge shows it: only this minute is not credited yet, and the next heartbeat credits
+		// the time since the last one that landed. Told apart from a failed read, which keeps the badge silently.
+		console.warn(
+			`Ever Teams: the heartbeat of run ${run.id} failed (status ${statusOf(error) ?? 'unknown'}); the next one credits its time.`
+		);
+		await signOutIfRefused(session, error);
+	}
 }
 
 /**
  * Reads the timer of the signed-in person and shows it on the toolbar badge; nothing when signed out or stopped.
  * With `heartbeat`, also credits the running time of a run started here.
  */
-async function refresh(heartbeat = false): Promise<void> {
+async function refresh(heartbeat: boolean): Promise<void> {
 	const session = await loadSession();
 	if (!session) {
-		await showBadge(null);
-		broadcast(null);
+		await showSignedOut();
 		return;
 	}
 	const ticket = statusOrder.readSent();
+	const isCurrent = () => statusOrder.isLatest(ticket);
+	let status: TimerStatus;
 	try {
-		const status = await getTimerStatus(session);
-		// A newer read, or a status the popup reported after a start or a stop, came first: this answer is older
-		if (!statusOrder.isLatest(ticket)) {
+		status = await withDeadline(CALL_DEADLINE_MS, (signal) => getTimerStatus(session, { signal }));
+	} catch (error) {
+		await signOutIfRefused(session, error);
+		// Offline or a server error: the badge keeps its last value, and the next heartbeat credits the missed time
+		return;
+	}
+	// A newer read, a status the popup reported after a start or a stop, or a sign-out came first: this answer is older
+	if (!isCurrent()) {
+		return;
+	}
+	await showBadge(status, isCurrent);
+	// Checked again: after a sign-out while the badge was set, this answer is neither told to the popups nor credited
+	if (!isCurrent()) {
+		return;
+	}
+	broadcast(status);
+	if (heartbeat) {
+		await creditOwnRun(session, status);
+	}
+}
+
+/** The storage or the badge failed (not the API, whose failures a refresh handles): the next alarm tries again. */
+function reportRefreshFailure(error: unknown): void {
+	console.warn('Ever Teams: the timer badge could not be refreshed.', error);
+}
+
+/**
+ * One refresh at a time, its heartbeat included: an alarm while a read (or its heartbeat) is on its way waits for it,
+ * and the refreshes asked for meanwhile run once after it, with a heartbeat when one of them asked for it. Two
+ * heartbeats on their way at once would credit the same seconds twice: both read the run's last heartbeat before
+ * either landed. The runner ends a failed run silently, so a refresh reports its own failure.
+ */
+const refreshOneAtATime = createCoalescedRunner(
+	(heartbeat: boolean) => refresh(heartbeat).catch(reportRefreshFailure),
+	(waiting: boolean, next: boolean) => waiting || next
+);
+
+async function requestRefresh(heartbeat = false): Promise<void> {
+	try {
+		// Nothing to read when signed out: the badge clears at once, even while a read of the ended session is out
+		if (!(await loadSession())) {
+			await showSignedOut();
 			return;
 		}
-		await showBadge(status);
-		broadcast(status);
-		if (heartbeat) {
-			await creditOwnRun(session, status);
-		}
+		await refreshOneAtATime(heartbeat);
 	} catch (error) {
-		const isSignedOutElsewhere = (error as { status?: number }).status === 401;
-		// A sign-in made while this read was out is not the one that failed, and stays
-		const signedOut = isSignedOutElsewhere && (await takeSessionOut((stored) => isSameSignIn(stored, session)));
-		if (signedOut) {
-			await showBadge(null);
-			broadcast(null);
-		}
-		// Offline or a server error: the badge keeps its last value, and the next heartbeat credits the missed time
+		reportRefreshFailure(error);
 	}
 }
 
 function scheduleRefresh(): void {
 	browser.alarms.create(REFRESH_ALARM, { periodInMinutes: REFRESH_EVERY_MINUTES });
-	void refresh();
+	void requestRefresh();
 }
 
 browser.runtime.onInstalled.addListener(scheduleRefresh);
@@ -97,16 +176,26 @@ browser.runtime.onStartup.addListener(scheduleRefresh);
 
 browser.alarms.onAlarm.addListener((alarm) => {
 	if (alarm.name === REFRESH_ALARM) {
-		void refresh(true);
+		void requestRefresh(true);
 	}
 });
 
 // A sign-in, a sign-out or another active team: the badge follows at once instead of at the next minute
 browser.storage.onChanged.addListener((changes, area) => {
 	const sessionChanged = area === 'local' && 'session' in changes;
-	if (sessionChanged) {
-		void refresh();
+	if (!sessionChanged) {
+		return;
 	}
+	const before = changes.session.oldValue as Session | undefined;
+	const after = changes.session.newValue as Session | undefined;
+	// Another person or API now: the session before ended, as at a sign-out. Its badge and status go at once, whatever
+	// the new person's first read answers, and a read still out for it is dropped. A renewed token or another team is
+	// the same person, whose read stays good (and keeps its heartbeat); a sign-out is handled by requestRefresh.
+	const isAnotherPerson = Boolean(before && after && !isSamePerson(before, after));
+	if (isAnotherPerson) {
+		void showSignedOut().catch(reportRefreshFailure);
+	}
+	void requestRefresh();
 });
 
 // The popup read the timer (after a start or a stop, or a run stopped elsewhere): the badge shows what it shows
@@ -121,8 +210,8 @@ browser.runtime.onConnect.addListener((port) => {
 	port.onMessage.addListener((message: IPostMessage<TimerStatus>) => {
 		const isStatusRead = message.type === MessageTypesToBackgroundEnum.statusRead && message.payload;
 		if (isStatusRead) {
-			statusOrder.reported();
-			void showBadge(message.payload ?? null);
+			const ticket = statusOrder.reported();
+			void showBadge(message.payload ?? null, () => statusOrder.isLatest(ticket));
 		}
 	});
 });

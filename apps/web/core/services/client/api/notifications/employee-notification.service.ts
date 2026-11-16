@@ -104,6 +104,19 @@ class EmployeeNotificationService extends APIService {
 		return response.data;
 	};
 
+	/**
+	 * Invites teammates to the Board the caller opens with them (#5022): Gauzy files an invitation in the Inbox of each
+	 * active member of the team among them, as the caller.
+	 */
+	inviteToBoard = async (input: {
+		organizationTeamId: string;
+		receiverEmployeeIds: string[];
+	}): Promise<{ invited: number }> => {
+		const response = await this.post<{ invited: number }>('/employee-notification/board-invitation', input);
+
+		return response.data;
+	};
+
 	/** Gauzy marks the caller's own notifications only, whatever their role. */
 	markAllAsRead = async (): Promise<IMarkAllNotificationsReadResponse> => {
 		const response = await this.put<IMarkAllNotificationsReadResponse>('/employee-notification/mark-all-read', {});

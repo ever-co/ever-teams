@@ -137,10 +137,11 @@ interface Reading<Value> {
 	problems: TimeImportProblem[];
 }
 
+/** Case and spacing aside: "Lena  Weber" in a file is the member "Lena Weber". */
 function comparableOf(text: string): string {
 	const composed = text.normalize('NFC');
-	const trimmed = composed.trim();
-	return trimmed.toLowerCase();
+	const spaced = composed.trim().replace(/\s+/g, ' ');
+	return spaced.toLowerCase();
 }
 
 function isSameName(first: string, second: string): boolean {

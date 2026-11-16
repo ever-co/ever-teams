@@ -93,6 +93,7 @@ describe('toInboxEntry', () => {
 			taskId: 't1',
 			href: null,
 			timerReminder: null,
+			meeting: null,
 			createdAt: new Date('2026-11-07T10:00:00.000Z')
 		});
 		expect(entry.taskId).toBe('t1');
@@ -136,6 +137,7 @@ describe('a timer reminder (#5022)', () => {
 			taskId: null,
 			href: '/',
 			timerReminder,
+			meeting: null,
 			createdAt: new Date('2026-11-07T10:00:00.000Z')
 		});
 		expect(entry.timerReminder).toEqual(timerReminder);
@@ -144,6 +146,67 @@ describe('a timer reminder (#5022)', () => {
 
 	it('is nothing for another kind', () => {
 		expect(toInboxEntry(item()).timerReminder).toBeNull();
+	});
+});
+
+describe('a meeting notification (#5022)', () => {
+	const invitation = item({
+		title: 'You are invited to "Sprint review"',
+		body: 'Thursday, November 12, 2026, 2:00 – 2:30 PM (Europe/Paris)',
+		entity: 'EmployeeAppointment',
+		entityId: 'appointment-1',
+		taskId: null,
+		metadata: { notificationType: 'Meeting', sentByEmployeeId: 'host-1' }
+	});
+
+	it('opens the meetings page, and carries its kind, title and appointment', () => {
+		const entry = toInboxEntry(invitation);
+		expect(entry.type).toBe('Meeting');
+		expect(entry.href).toBe('/meet');
+		expect(hasInboxTarget(entry)).toBe(true);
+		expect(entry.subject).toBe('Sprint review');
+		expect(entry.message).toBe('Thursday, November 12, 2026, 2:00 – 2:30 PM (Europe/Paris)');
+		expect(entry.meeting).toEqual({ kind: 'invited', title: 'Sprint review', minutes: null, appointmentId: 'appointment-1' });
+	});
+
+	it("keeps it where the platform has no inbox extension (the bell's own entry)", () => {
+		const meeting = { kind: 'starting' as const, title: 'Sprint review', minutes: null, appointmentId: 'appointment-1' };
+		const entry = fromNotificationEntry({
+			id: 'n1',
+			type: 'Meeting' as never,
+			isUnread: true,
+			senderName: null,
+			senderImageUrl: null,
+			subject: 'Sprint review',
+			rawTitle: '"Sprint review" is starting',
+			message: null,
+			taskId: null,
+			href: '/meet',
+			timerReminder: null,
+			meeting,
+			createdAt: new Date('2026-11-07T10:00:00.000Z')
+		});
+		expect(entry.meeting).toEqual(meeting);
+		expect(entry.href).toBe('/meet');
+	});
+
+	it('is nothing for another kind', () => {
+		expect(toInboxEntry(item()).meeting).toBeNull();
+	});
+
+	it('takes no sender from a title whose words happen to read like one', () => {
+		const entry = toInboxEntry(
+			item({
+				title: '"Proposal sent to customer" was changed',
+				entity: 'EmployeeAppointment',
+				entityId: 'appointment-1',
+				taskId: null,
+				metadata: { notificationType: 'Meeting' }
+			})
+		);
+
+		expect(entry.senderName).toBeNull();
+		expect(entry.subject).toBe('Proposal sent to customer');
 	});
 });
 
@@ -438,5 +501,150 @@ describe('opening an entry on a phone and on a large screen', () => {
 		const taskQuestion = { ...task, decision: { options: [] } as never };
 		expect(opensInboxTarget(taskQuestion, phone)).toBe(true);
 		expect(showsInboxSheet(taskQuestion, true)).toBe(true);
+	});
+});
+
+describe('a project its member hears of (#5022)', () => {
+	it('opens the project an assignment added the member to, in the work family', () => {
+		const entry = toInboxEntry(
+			item({
+				title: 'Ana Assigned you to the Project "Website"',
+				entity: 'OrganizationProject',
+				entityId: 'project-1',
+				taskId: null,
+				metadata: { notificationType: 'Assignment' }
+			})
+		);
+		expect(entry.type).toBe('Assignment');
+		expect(entry.href).toBe('/projects/project-1');
+		expect(entry.taskId).toBeNull();
+		expect(entry.subject).toBe('Website');
+		expect(entry.senderName).toBe('Ana');
+		expect(entry.sourceGroup).toBe('tasks');
+		expect(hasInboxTarget(entry)).toBe(true);
+	});
+
+	it('opens the project whose state or dates changed, with what changed as its text and the editor as sender', () => {
+		const entry = toInboxEntry(
+			item({
+				title: 'Ana Lima Updated the Project "Website"',
+				body: 'Status: in progress → completed.',
+				entity: 'OrganizationProject',
+				entityId: 'project-1',
+				taskId: null,
+				metadata: { notificationType: 'TaskUpdate' }
+			})
+		);
+		expect(entry.type).toBe('TaskUpdate');
+		expect(entry.href).toBe('/projects/project-1');
+		expect(entry.senderName).toBe('Ana Lima');
+		expect(entry.message).toBe('Status: in progress → completed.');
+	});
+});
+
+describe('a due date reminder (#5022)', () => {
+	it('opens its task', () => {
+		const entry = toInboxEntry(
+			item({
+				title: 'The Task "Login" is due in 3 hours',
+				body: 'Due by the end of 2026-11-20.',
+				metadata: { notificationType: 'TaskDueReminder' }
+			})
+		);
+		expect(entry.type).toBe('TaskDueReminder');
+		expect(entry.taskId).toBe('t1');
+		expect(entry.subject).toBe('Login');
+		expect(entry.senderName).toBeNull();
+		expect(entry.sourceGroup).toBe('tasks');
+	});
+});
+
+describe("a project's entry where the platform has no inbox extension (#5022)", () => {
+	it('keeps the project, so it opens it and stays in the work family', () => {
+		const entry = fromNotificationEntry({
+			id: 'n2',
+			type: 'TaskUpdate' as never,
+			isUnread: true,
+			senderName: 'Ana',
+			senderImageUrl: null,
+			subject: 'Website',
+			rawTitle: 'Ana Updated the Project "Website"',
+			message: 'The project was archived.',
+			taskId: null,
+			entity: 'OrganizationProject',
+			entityId: 'project-1',
+			href: '/projects/project-1',
+			timerReminder: null,
+			meeting: null,
+			createdAt: new Date('2026-11-07T10:00:00.000Z')
+		});
+		expect(entry.entity).toBe('OrganizationProject');
+		expect(entry.entityId).toBe('project-1');
+		expect(entry.sourceGroup).toBe('tasks');
+		expect(entry.href).toBe('/projects/project-1');
+	});
+});
+
+describe('a Board shared or a mention in one (#5022)', () => {
+	const configured = process.env.NEXT_PUBLIC_BOARD_APP_DOMAIN;
+	const board = { roomId: 'r00m', name: 'Sprint plan', link: 'https://board.ever.team/#room=r00m,secret-key' };
+
+	beforeEach(() => {
+		process.env.NEXT_PUBLIC_BOARD_APP_DOMAIN = 'https://board.ever.team';
+	});
+
+	afterEach(() => {
+		if (configured === undefined) {
+			delete process.env.NEXT_PUBLIC_BOARD_APP_DOMAIN;
+		} else {
+			process.env.NEXT_PUBLIC_BOARD_APP_DOMAIN = configured;
+		}
+	});
+
+	it('opens the Board at the link its entry carries, and counts a mention among the mentions', () => {
+		const entry = toInboxEntry(
+			item({
+				title: 'Ana Lima mentioned you in the Board "Sprint plan"',
+				entity: 'Organization',
+				entityId: 'org-1',
+				taskId: null,
+				metadata: { notificationType: 'BoardMention', sentByEmployeeId: 'e9', board }
+			})
+		);
+		expect(entry.type).toBe('BoardMention');
+		expect(new URL(entry.href as string).origin).toBe('https://board.ever.team');
+		expect(entry.subject).toBe('Sprint plan');
+		expect(entry.senderName).toBe('Ana Lima');
+		expect(entry.sourceGroup).toBe('other');
+		expect(hasInboxTarget(entry)).toBe(true);
+		expect(filterInboxEntries([entry], 'mentions')).toEqual([entry]);
+	});
+
+	it('opens nothing when its entry carries no link: the sheet says who shared which Board', () => {
+		const entry = toInboxEntry(
+			item({
+				title: 'Ana Lima shared the Board "Sprint plan" with you',
+				entity: 'Organization',
+				entityId: 'org-1',
+				taskId: null,
+				metadata: { notificationType: 'BoardShare', board: { roomId: 'r00m', name: 'Sprint plan' } }
+			})
+		);
+		expect(entry.href).toBeNull();
+		expect(showsInboxSheet(entry, false)).toBe(true);
+		expect(filterInboxEntries([entry], 'mentions')).toEqual([]);
+	});
+	it("reads the sender and the Board from the title's fixed ending and the metadata, quotes and all", () => {
+		const entry = toInboxEntry(
+			item({
+				title: 'Ana "Nina" Lima mentioned you in the Board "Sprint plan"',
+				entity: 'Organization',
+				entityId: 'org-1',
+				taskId: null,
+				metadata: { notificationType: 'BoardMention', board }
+			})
+		);
+		expect(entry.senderName).toBe('Ana "Nina" Lima');
+		expect(entry.subject).toBe('Sprint plan');
 	});
 });
