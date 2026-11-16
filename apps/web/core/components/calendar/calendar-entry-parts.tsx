@@ -1,5 +1,7 @@
 'use client';
 
+import { PRIVATE_PROJECTS_KEY } from '@/core/lib/utils/project-visibility';
+import { HiddenProjectName } from '@/core/components/projects/hidden-project-mark';
 import { memo } from 'react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/core/components/duplicated-components/_button';
@@ -82,6 +84,9 @@ export function ReasonQuote({ reason }: Readonly<{ reason: string | null }>) {
 
 export function ProjectLine({ entry }: Readonly<{ entry: CalendarEntry }>) {
 	const t = useTranslations();
+	if (entry.projectKey === PRIVATE_PROJECTS_KEY) {
+		return <HiddenProjectName label={t('common.PRIVATE_PROJECT')} className="text-xs text-muted-foreground" />;
+	}
 	if (!entry.projectName) {
 		return <span className="truncate text-xs text-muted-foreground">{t('dashboard.timesheets.NO_PROJECT')}</span>;
 	}

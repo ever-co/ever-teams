@@ -1,3 +1,4 @@
+import { PRIVATE_PROJECTS_KEY } from '@/core/lib/utils/project-visibility';
 import {
 	addDays,
 	addMinutes,
@@ -311,6 +312,8 @@ export interface DiaryTask {
 	seconds: number;
 	projectName: string | null;
 	projectColor: string | null;
+	/** Its project is one the API keeps from the reader (CORE-27): named as a private project. */
+	isProjectHidden?: boolean;
 	isRunning: boolean;
 	/** The time tracked without a task: listed with the tasks, but not one of them. */
 	isUntasked: boolean;
@@ -339,6 +342,14 @@ function addEntryNotes(task: DiaryTask, log: ITimeLog) {
 
 const NO_TASK_KEY = 'no-task';
 
+// Tasks of projects the reader may see keep the shape they had before the API could keep a project from them
+function hiddenProjectFlagOf(entry: CalendarEntry): Pick<DiaryTask, 'isProjectHidden'> {
+	if (entry.projectKey !== PRIVATE_PROJECTS_KEY) {
+		return {};
+	}
+	return { isProjectHidden: true };
+}
+
 /** The tasks a day's entries went to, longest first; the time tracked without a task comes as one more row. */
 export function diaryTasksOf(entries: ReadonlyArray<CalendarEntry>): DiaryTask[] {
 	const byKey = new Map<string, DiaryTask>();
@@ -357,6 +368,7 @@ export function diaryTasksOf(entries: ReadonlyArray<CalendarEntry>): DiaryTask[]
 				seconds: entry.daySeconds,
 				projectName: entry.projectName,
 				projectColor: entry.projectColor,
+				...hiddenProjectFlagOf(entry),
 				isRunning: entry.isRunning,
 				isUntasked: taskId === null,
 				notes: notesListOf(entry.log)
