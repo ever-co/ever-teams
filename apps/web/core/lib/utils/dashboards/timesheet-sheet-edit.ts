@@ -647,8 +647,9 @@ export function rowIdentityOfTask(
 	teamId: string | null
 ): SheetRowIdentity {
 	const projectId = task.projectId ?? null;
+	const isBillable = project?.billable === true;
 	return {
-		key: sheetRowKeyFor(projectId, task.id),
+		key: sheetRowKeyFor(projectId, task.id, [], isBillable),
 		projectId,
 		taskId: task.id,
 		organizationTeamId: teamId,
@@ -658,7 +659,7 @@ export function rowIdentityOfTask(
 		taskTitle: task.title,
 		taskNumber: taskNumberTextOf(task),
 		issueType: task.issueType ?? null,
-		isBillable: project?.billable === true
+		isBillable
 	};
 }
 

@@ -20,8 +20,7 @@ import {
 	logsOfMember,
 	type SheetCell,
 	type SheetDay,
-	type SheetRowIdentity,
-	sheetRowKeyFor
+	type SheetRowIdentity
 } from '@/core/lib/utils/dashboards/timesheets';
 import { activeTeamState } from '@/core/stores/teams/organization-team';
 import { tasksByTeamState } from '@/core/stores/teams/team-tasks';
@@ -233,13 +232,13 @@ export function useSheetEditing(source: SheetEditingSource, sheet: TimesheetShee
 
 	const isTaskShown = useCallback(
 		(task: TTask) => {
-			const projectId = task.projectId ?? null;
-			const rowKey = sheetRowKeyFor(projectId, task.id);
+			const project = organizationProjects.find((candidate) => candidate.id === task.projectId);
+			const rowKey = rowIdentityOfTask(task, project, teamId).key;
 			const isLogged = loggedTaskIds.has(task.id);
 			const isDraft = draftRows.some((row) => row.key === rowKey);
 			return isLogged || isDraft;
 		},
-		[draftRows, loggedTaskIds]
+		[draftRows, loggedTaskIds, organizationProjects, teamId]
 	);
 
 	const copyWeek = useCopyPreviousWeek({

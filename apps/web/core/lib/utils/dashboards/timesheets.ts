@@ -934,13 +934,29 @@ export function sheetRowKeyOf(log: ITimeLog) {
 	const projectValue = projectValueOf(log);
 	const taskValue = taskValueOf(log);
 	const labelIds = entryLabelsOf(log).map((label) => label.id);
-	return withLabelsKey(`${projectValue}:${taskValue}`, labelIds);
+	const isBillable = log.isBillable === true;
+	const key = withBillableKey(`${projectValue}:${taskValue}`, isBillable);
+	return withLabelsKey(key, labelIds);
 }
 
-export function sheetRowKeyFor(projectId: string | null, taskId: string | null, labelIds: ReadonlyArray<string> = []) {
+export function sheetRowKeyFor(
+	projectId: string | null,
+	taskId: string | null,
+	labelIds: ReadonlyArray<string> = [],
+	isBillable = false
+) {
 	const projectValue = projectId ?? NO_PROJECT_VALUE;
 	const taskValue = taskId ?? NO_TASK_VALUE;
-	return withLabelsKey(`${projectValue}:${taskValue}`, labelIds);
+	const key = withBillableKey(`${projectValue}:${taskValue}`, isBillable);
+	return withLabelsKey(key, labelIds);
+}
+
+/** A row's key with its Billable state (#5368): a not billable row keeps the key it always had. */
+function withBillableKey(key: string, isBillable: boolean) {
+	if (!isBillable) {
+		return key;
+	}
+	return `${key}:billable`;
 }
 
 /** A row's key with its labels, in a fixed order; a row without labels keeps the key it always had. */
