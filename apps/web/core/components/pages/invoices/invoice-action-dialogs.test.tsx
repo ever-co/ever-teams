@@ -168,16 +168,18 @@ describe('voiding and deleting an invoice from the list', () => {
 		expect(onClose).toHaveBeenCalledTimes(1);
 	});
 
-	it('says the invoice changed since it was shown when the void is refused as changed meanwhile (#5382)', async () => {
+	it('closes onto the list, saying the invoice changed since it was shown, when refused as changed meanwhile (#5382)', async () => {
 		mockChangeStatus.mockRejectedValue(Object.assign(new Error('INVOICE_CHANGED'), { status: 409 }));
 		const onClose = jest.fn();
 		render(<VoidInvoiceDialog open scope={LIST_SCOPE} target={targetIn('SENT')} onClose={onClose} />);
 
 		await confirm('invoices.void.CONFIRM');
 
-		expect(screen.getByText('invoices.actions.CHANGED_MEANWHILE')).toBeTruthy();
+		// The dialog shows the invoice as it was opened: the list behind it is read again and shows it as it is now
+		expect(mockToast.error).toHaveBeenCalledWith('invoices.actions.CHANGED_MEANWHILE');
+		expect(onClose).toHaveBeenCalledTimes(1);
+		expect(mockToast.success).not.toHaveBeenCalled();
 		expect(screen.queryByText('invoices.void.FAILED')).toBeNull();
-		expect(onClose).not.toHaveBeenCalled();
 	});
 
 	it('says the void failed for any other refusal', async () => {
@@ -243,7 +245,7 @@ describe('voiding a paid invoice to replace it', () => {
 		expect(onClose).not.toHaveBeenCalled();
 	});
 
-	it('says the invoice changed since it was shown, and opens no replacement, when refused as changed meanwhile', async () => {
+	it('closes onto the list, saying the invoice changed, and opens no replacement, when refused as changed meanwhile', async () => {
 		mockVoidToReplace.mockRejectedValue(Object.assign(new Error('INVOICE_CHANGED'), { status: 409 }));
 		const onClose = jest.fn();
 		const onVoided = jest.fn();
@@ -252,9 +254,9 @@ describe('voiding a paid invoice to replace it', () => {
 
 		await confirm('invoices.replace.CONFIRM');
 
-		expect(screen.getByText('invoices.actions.CHANGED_MEANWHILE')).toBeTruthy();
+		expect(mockToast.error).toHaveBeenCalledWith('invoices.actions.CHANGED_MEANWHILE');
+		expect(onClose).toHaveBeenCalledTimes(1);
 		expect(onVoided).not.toHaveBeenCalled();
-		expect(onClose).not.toHaveBeenCalled();
 	});
 
 	it('says why and opens no replacement when the invoice screen cannot rebuild it, which stays as it was', async () => {

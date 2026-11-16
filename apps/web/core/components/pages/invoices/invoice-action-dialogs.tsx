@@ -164,8 +164,7 @@ export function SendInvoiceDialog({ open, target, scope, onClose }: Readonly<Inv
 	);
 }
 
-/** `changed`: the invoice changed since it was read, so nothing was written (#5382). */
-type VoidFailure = 'failed' | 'changed';
+type VoidFailure = 'failed';
 
 export function VoidInvoiceDialog({ open, target, scope, onClose }: Readonly<InvoiceActionDialogProps>) {
 	const t = useTranslations();
@@ -192,8 +191,14 @@ export function VoidInvoiceDialog({ open, target, scope, onClose }: Readonly<Inv
 			toast.success(t('invoices.void.DONE', { number: numberText }));
 			onClose();
 		} catch (error) {
-			// Changed since it was read: nothing was written, and the invoices are read again (#5382)
-			setFailure(isInvoiceActionChangedMeanwhile(error) ? 'changed' : 'failed');
+			if (isInvoiceActionChangedMeanwhile(error)) {
+				// Changed since it was read: nothing was written, and the invoices are read again (#5382). The dialog
+				// shows the invoice as it was opened, so it closes onto the list, which shows it as it is now.
+				toast.error(t('invoices.actions.CHANGED_MEANWHILE'));
+				onClose();
+				return;
+			}
+			setFailure('failed');
 		}
 	};
 
@@ -204,9 +209,6 @@ export function VoidInvoiceDialog({ open, target, scope, onClose }: Readonly<Inv
 	let error: string | null = null;
 	if (failure === 'failed') {
 		error = t('invoices.void.FAILED');
-	}
-	if (failure === 'changed') {
-		error = t('invoices.actions.CHANGED_MEANWHILE');
 	}
 
 	return (
@@ -287,8 +289,7 @@ export function DeleteInvoiceDialog({ open, target, scope, onClose, onDeleted }:
 	);
 }
 
-/** `changed`: the invoice changed since it was read, so nothing was written (#5382). */
-type VoidAndReplaceFailure = 'notVoided' | 'notRebuildable' | 'changed';
+type VoidAndReplaceFailure = 'notVoided' | 'notRebuildable';
 
 /**
  * A paid invoice is never changed: it is voided, and a new invoice bills the same time instead. The new one is made
@@ -325,8 +326,14 @@ export function VoidAndReplaceDialog({
 		try {
 			outcome = await voidToReplace({ invoiceId: target.invoice.id, scope });
 		} catch (error) {
-			// Changed since it was read: nothing was written, and the invoices are read again (#5382)
-			setFailure(isInvoiceActionChangedMeanwhile(error) ? 'changed' : 'notVoided');
+			if (isInvoiceActionChangedMeanwhile(error)) {
+				// Changed since it was read: nothing was written, and the invoices are read again (#5382). The dialog
+				// shows the invoice as it was opened, so it closes onto the list, which shows it as it is now.
+				toast.error(t('invoices.actions.CHANGED_MEANWHILE'));
+				onClose();
+				return;
+			}
+			setFailure('notVoided');
 			return;
 		}
 		if (outcome === 'notRebuildable') {
@@ -354,9 +361,6 @@ export function VoidAndReplaceDialog({
 	}
 	if (failure === 'notRebuildable') {
 		error = t('invoices.replace.NOT_REBUILDABLE', { number: numberText });
-	}
-	if (failure === 'changed') {
-		error = t('invoices.actions.CHANGED_MEANWHILE');
 	}
 
 	return (
