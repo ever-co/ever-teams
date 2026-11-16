@@ -8,7 +8,8 @@ import {
 	activeDayKeysOf,
 	dayMembersOf,
 	dayOfKey,
-	defaultDayMemberIdOf
+	defaultDayMemberIdOf,
+	leadingDayMemberIdOf
 } from '@/core/lib/utils/dashboards/apps-urls-day';
 
 function shownDayKeyOf(dayKeys: ReadonlyArray<string>, pickedKey: string | null) {
@@ -21,7 +22,8 @@ function shownDayKeyOf(dayKeys: ReadonlyArray<string>, pickedKey: string | null)
 
 /**
  * One member's day in apps and sites, for the Apps & URLs page: the member (picked, else the viewer, else the one with
- * the most time) and the day (picked, else their latest day with time), stepping only between days that have some.
+ * the most time, held while they keep time in the report) and the day (picked, else their latest day with time),
+ * stepping only between days that have some.
  */
 export function useAppsUrlsDay({
 	rows,
@@ -35,7 +37,14 @@ export function useAppsUrlsDay({
 	const [pickedEmployeeId, setPickedEmployeeId] = useState<string | null>(null);
 	const [pickedDayKey, setPickedDayKey] = useState<string | null>(null);
 	const members = useMemo(() => dayMembersOf(rows), [rows]);
-	const defaultEmployeeId = defaultDayMemberIdOf(members, selectedEmployeeIds, ownEmployeeId);
+	// Nobody picked, the panel holds the member it opened on: the live report's ranking moving every minute moved it
+	// to another member, whose day it read behind its skeleton.
+	const [heldLeadingId, setHeldLeadingId] = useState<string | null>(null);
+	const leadingId = leadingDayMemberIdOf(members, heldLeadingId);
+	if (leadingId !== heldLeadingId) {
+		setHeldLeadingId(leadingId);
+	}
+	const defaultEmployeeId = defaultDayMemberIdOf(members, selectedEmployeeIds, ownEmployeeId, leadingId);
 	const isPickedKnown = members.some((member) => member.id === pickedEmployeeId);
 	let employeeId = defaultEmployeeId;
 	if (isPickedKnown) {
