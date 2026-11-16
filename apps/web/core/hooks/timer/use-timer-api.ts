@@ -752,8 +752,8 @@ export function useTimerApi({
 					!isEqual(timerStatus, res.data) &&
 					setTimerStatus(res.data);
 				onRequestLanded?.();
-				// The picked labels went with this start: they are the running entry's now
-				store.set(timerLabelsState, []);
+				// The labels this start sent are the running entry's now; one picked while it was on its way stays picked
+				store.set(timerLabelsState, (current) => current.filter((id) => !labelIdsToUse.includes(id)));
 				// Notes typed before this start are the notes of the entry it created, and of no entry found running later.
 				// Not once the member changed team meanwhile: the draft this start sent was dropped then, and the notes
 				// typed since are for the next team's start. The team is read from the store, as the card that asked for

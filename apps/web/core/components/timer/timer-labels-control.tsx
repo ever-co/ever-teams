@@ -1,7 +1,7 @@
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
-import { useAtom } from 'jotai';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useAtom, useAtomValue } from 'jotai';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 
@@ -9,8 +9,19 @@ import { EntryLabelsPicker } from '@/core/components/features/entry-labels/entry
 import { useEntryLabelsSupport } from '@/core/hooks/timer/use-entry-labels-support';
 import { entryLabelsOf } from '@/core/lib/utils/time-log-labels';
 import { timeLogService } from '@/core/services/client/api/timesheets/time-log.service';
-import { timerLabelsState, timerStatusState } from '@/core/stores';
+import { activeTeamIdState, timerLabelsState, timerStatusState } from '@/core/stores';
+import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import type { ITimerStatus } from '@/core/types/interfaces/timer/timer-status';
+
+/** The status with the saved labels on its entry, unless that entry is no longer the one it shows. */
+function withSavedLabels(current: ITimerStatus | null, savedLogId: string, tags: ITimeLog['tags']) {
+	const lastLog = current?.lastLog;
+	const isStillThisRun = lastLog?.id === savedLogId;
+	if (!current || !lastLog || !isStillThisRun) {
+		return current;
+	}
+	return { ...current, lastLog: { ...lastLog, tags } };
+}
 
 /** The entry that runs, or none while the timer is stopped. */
 function runningLogOf(timerStatus: ITimerStatus | null) {
@@ -31,6 +42,15 @@ export function TimerLabelsControl({ className }: Readonly<{ className?: string 
 	const [pickedLabelIds, setPickedLabelIds] = useAtom(timerLabelsState);
 	const [timerStatus, setTimerStatus] = useAtom(timerStatusState);
 	const [isSaving, setIsSaving] = useState(false);
+	const activeTeamId = useAtomValue(activeTeamIdState);
+	const teamOfDraftRef = useRef(activeTeamId);
+	useEffect(() => {
+		if (teamOfDraftRef.current === activeTeamId) {
+			return;
+		}
+		teamOfDraftRef.current = activeTeamId;
+		setPickedLabelIds([]);
+	}, [activeTeamId, setPickedLabelIds]);
 
 	const runningLog = runningLogOf(timerStatus);
 	const runningLogId = runningLog?.id;
@@ -45,18 +65,15 @@ export function TimerLabelsControl({ className }: Readonly<{ className?: string 
 			setIsSaving(true);
 			try {
 				const updated = await timeLogService.updateTimeLogLabels(runningLogId, labelIds);
-				const lastLog = timerStatus?.lastLog;
-				const isStillThisRun = lastLog?.id === runningLogId;
-				if (isStillThisRun && timerStatus && lastLog) {
-					setTimerStatus({ ...timerStatus, lastLog: { ...lastLog, tags: updated?.tags ?? [] } });
-				}
+				// The status as it is now: a stop or another start may have landed while the labels were saved
+				setTimerStatus((current) => withSavedLabels(current, runningLogId, updated?.tags ?? []));
 			} catch {
 				toast.error(t('timer.labels.SAVE_FAILED'));
 			} finally {
 				setIsSaving(false);
 			}
 		},
-		[runningLogId, setTimerStatus, t, timerStatus]
+		[runningLogId, setTimerStatus, t]
 	);
 
 	if (!supportsLabels) {
