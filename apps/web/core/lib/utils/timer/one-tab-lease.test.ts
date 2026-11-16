@@ -281,6 +281,25 @@ describe('one tab at a time, without Web Locks', () => {
 		expect(order).toEqual(['first', 'first done', 'second']);
 	});
 
+	it('refuses a write outside any turn, and after the turn ended: such a write would go beside another tab', async () => {
+		const tab = openTab();
+		expect(tab.isThisTabsTurn()).toBe(false);
+
+		const settled = tab.inOneTabByLease(async () => tab.isThisTabsTurn());
+		await advance(SETTLE_MS);
+		await expect(settled).resolves.toBe(true);
+		expect(tab.isThisTabsTurn()).toBe(false);
+	});
+
+	it('lets a tab that acts alone, the storage refused, write in its turn', async () => {
+		const tab = openTab();
+		jest.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+			throw new DOMException('Quota exceeded', 'QuotaExceededError');
+		});
+
+		await expect(tab.inOneTabByLease(async () => tab.isThisTabsTurn())).resolves.toBe(true);
+	});
+
 	it('acts alone when the browser refuses the storage the tabs share', async () => {
 		const tab = openTab();
 		jest.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {

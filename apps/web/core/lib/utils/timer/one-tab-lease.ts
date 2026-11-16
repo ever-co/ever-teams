@@ -208,14 +208,15 @@ function hasWebLocks(): boolean {
 /**
  * Whether this tab may still send what one tab at a time sends, asked again just before each write to Gauzy: true
  * under Web Locks, which the browser holds for the tab, and for a tab that acts alone. Under the lease, true while the
- * lease names this tab. False once another tab took it: it took over, from what is recorded.
+ * lease names this tab. False once another tab took it: it took over, from what is recorded. False outside a turn too
+ * (inOneTabByLease): a write of what one tab at a time writes never goes without one.
  *
  * Not a plain read, on purpose: a write is about to go, so a lease that still names this tab is renewed for it, and a
  * lease found taken ends this tab's hold for the rest of its turn (it stops renewing, and every later check is false).
  */
 export function isThisTabsTurn(): boolean {
-	if (hasWebLocks() || turn === 'alone' || turn === null) return true;
-	if (turn === 'lost') return false;
+	if (hasWebLocks() || turn === 'alone') return true;
+	if (turn === null || turn === 'lost') return false;
 	const storage = sharedStorage();
 	if (!storage) return true;
 	if (readLease(storage)?.tab !== thisTabId()) {
