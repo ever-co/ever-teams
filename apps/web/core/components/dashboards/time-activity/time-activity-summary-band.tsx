@@ -378,6 +378,7 @@ export function TimeActivityBandExport({ report }: Readonly<{ report: TimeActivi
 			filters={report.settings.filters}
 			filterOptions={filterOptions}
 			roundingRule={report.roundingRule}
+			billable={report.billable}
 			isDisabled={!canExport}
 		/>
 	);
