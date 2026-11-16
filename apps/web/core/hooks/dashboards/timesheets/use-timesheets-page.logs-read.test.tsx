@@ -1,6 +1,9 @@
 /** @jest-environment jsdom */
 
 import { renderHook } from '@testing-library/react';
+import type { ReactNode } from 'react';
+import { createStore, Provider } from 'jotai';
+import { shellSettledState } from '@/core/stores/common/shell';
 
 const mockUseTimesheetPageLogs = jest.fn();
 
@@ -124,8 +127,31 @@ describe('the Timesheets page and the projects a client filter needs (#5357)', (
 		mockUrlFilters.filters.clients = [];
 	});
 
+	function renderPage(isShellSettled: boolean) {
+		const store = createStore();
+		store.set(shellSettledState, isShellSettled);
+		const wrapper = ({ children }: { children: ReactNode }) => <Provider store={store}>{children}</Provider>;
+		return renderHook(() => useTimesheetsPage(), { wrapper });
+	}
+
 	it('reads the projects, archived ones included, before any client is picked', () => {
-		renderHook(() => useTimesheetsPage());
+		renderPage(true);
+
+		expect(mockProjectClientsOptions).toHaveBeenLastCalledWith(
+			expect.objectContaining({ includesArchived: true, isEnabled: true })
+		);
+	});
+
+	it('asks Gauzy for them only once the shell has settled when no client is picked', () => {
+		renderPage(false);
+
+		expect(mockProjectClientsOptions).toHaveBeenLastCalledWith(expect.objectContaining({ isEnabled: false }));
+	});
+
+	it('CONTROL: reads them at once when the page opens on a client', () => {
+		mockUrlFilters.filters.clients = ['client-acme'];
+
+		renderPage(false);
 
 		expect(mockProjectClientsOptions).toHaveBeenLastCalledWith(
 			expect.objectContaining({ includesArchived: true, isEnabled: true })
