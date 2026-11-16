@@ -81,6 +81,22 @@ cookies of each deployment stay on its own host. They work together through
   are on one site (`board.example.com` and `teams.example.com`); a Board on
   another site would need `NEXT_PUBLIC_COOKIE_SAME_SITE=none` and a browser that
   accepts third-party cookies.
+- The Board holds no token, so it tells colleagues that a Board was shared
+  with them, or that they were mentioned in one, through the same deployment
+  (`core/lib/board/board-notify.ts`). `GET <origin>/api/board/members` lists
+  the colleagues to offer: the members of the person's teams without
+  themself, as `{ items: [{ employeeId, name, imageUrl }] }`.
+- `POST <origin>/api/board/notify` takes a JSON body with `kind` (`share` or
+  `mention`), `receiverEmployeeIds`, `roomId` or `snapshotId`, and optionally
+  `boardName` and `link`. It is forwarded to Gauzy's
+  `/employee-notification/board-share` or `/board-mention` with the session
+  of the cookies, and answers 201 `{ notified }` or Gauzy's own refusal (400,
+  401, 403, 429). At most 50 colleagues a request; the `link` must be an
+  address of the Board app, and its `#` part (the room's key) goes along only
+  when the Board sends it.
+- Both answer the Board origin only (CORS with credentials): any other origin,
+  or none, gets 403 before the session is checked, and `notify` reads only an
+  `application/json` body, so a plain form cannot reach it.
 
 ## Client IP for Gauzy's rate limits
 

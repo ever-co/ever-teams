@@ -1,5 +1,11 @@
 # @ever-teams/api
 
+## 0.2.0
+
+### Minor Changes
+
+- a878d88: Export `finishAccountSetup(loginResult, tenantName)`: finishes the Teams setup of a signed-in account whose setup stopped before its tenant (tenant, default organization + team, employee, refreshed token) and answers an account with a tenant as is. `createCompleteAccount` now runs it after the sign-up, unchanged in behaviour.
+
 ## 0.1.9
 
 ### Patch Changes

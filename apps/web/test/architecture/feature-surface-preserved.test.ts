@@ -2078,12 +2078,23 @@ describe('Ever Teams feature surface preservation', () => {
 		// /api/invoice-payments/connection GET and PUT, rotate-secret POST; ever-gauzy #11856).
 		// 402 files and 508 verbs with the meetings one is invited to (/api/employee-appointment/invited GET; #5022,
 		// ever-gauzy #11995).
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(402);
+		// 403 files and 509 verbs with the read of a window of time slots that a Keep's catch-up write goes by
+		// (/api/timer/slot/window GET; #5123).
+		// 405 files and 513 verbs with the Board app's share and mention notifications (/api/board/notify POST and
+		// /api/board/members GET, each with its CORS OPTIONS; #5022, ever-gauzy #12007).
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(405);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(508);
+		).toHaveLength(513);
 		expect(routes).toEqual(
 			expect.arrayContaining([
+				// The Board app's share and mention notifications, forwarded with the session of the cookies (#5022)
+				'apps/web/app/api/board/notify/route.ts::POST',
+				'apps/web/app/api/board/notify/route.ts::OPTIONS',
+				'apps/web/app/api/board/members/route.ts::GET',
+				'apps/web/app/api/board/members/route.ts::OPTIONS',
+				// Proxy mode read of a window of time slots, which a Keep's catch-up write goes by (#5123)
+				'apps/web/app/api/timer/slot/window/route.ts::GET',
 				// Proxy mode twin of Gauzy's list of the meetings one is invited to (ever-gauzy #11995, #5022)
 				'apps/web/app/api/employee-appointment/invited/route.ts::GET',
 				// Proxy mode twins of Gauzy's saved reports routes and the read of a shared report (ever-gauzy #11912, #5200)
