@@ -47,8 +47,8 @@ function entriesKeyOf(startDate: string, endDate: string) {
 	];
 }
 
-/** The Calendar page: its read of the entries, and the card of the one entry it shows. */
-function CalendarCard() {
+/** The Calendar page: its read of the entries, and the card of the one entry it shows while that card is open. */
+function CalendarCard({ isOpen = true }: Readonly<{ isOpen?: boolean }>) {
 	const { data, dataUpdatedAt } = useQuery({
 		queryKey: entriesKeyOf('2026-11-16', '2026-11-22'),
 		queryFn: async () => ({ request: {}, logs: [await mockReadEntry()] })
@@ -59,7 +59,7 @@ function CalendarCard() {
 	}
 	return (
 		<CalendarEntriesRead readAt={dataUpdatedAt}>
-			<EntryLabelsLine log={log} canEdit />
+			{isOpen && <EntryLabelsLine log={log} canEdit />}
 		</CalendarEntriesRead>
 	);
 }
@@ -71,7 +71,7 @@ async function renderCard(tags: Array<typeof meeting>) {
 	const Wrapper = ({ children }: { children?: ReactNode }) => (
 		<QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
 	);
-	render(<CalendarCard />, { wrapper: Wrapper });
+	const view = render(<CalendarCard />, { wrapper: Wrapper });
 	await screen.findByRole('button', { name: `labels: ${tags.map((tag) => tag.id).join(',')}` });
 	const readEntriesAgain = async () => {
 		await act(async () => {
@@ -88,7 +88,9 @@ async function renderCard(tags: Array<typeof meeting>) {
 			await queryClient.fetchQuery({ queryKey: queryKeys.timesheet.reports.all, queryFn: async () => [] });
 		});
 	};
-	return { readEntriesAgain, readElsewhere };
+	const closeCard = () => view.rerender(<CalendarCard isOpen={false} />);
+	const openCard = () => view.rerender(<CalendarCard isOpen />);
+	return { readEntriesAgain, readElsewhere, closeCard, openCard };
 }
 
 async function addSupport(shown: string) {
@@ -153,6 +155,21 @@ describe('the labels of an entry on its Calendar card (#5368)', () => {
 		expect(screen.getByRole('button', { name: 'labels: meeting,support' })).toBeTruthy();
 
 		// The Calendar reads the entry again, with the labels from before the save: the card follows it
+		mockReadEntry.mockResolvedValueOnce(entryWith([meeting]));
+		await card.readEntriesAgain();
+		await waitFor(() => expect(screen.getByRole('button', { name: 'labels: meeting' })).toBeTruthy());
+	});
+
+	it('keeps the labels it saved when the card is closed and opened again before the Calendar reads the entries', async () => {
+		const card = await renderCard([meeting]);
+		mockReadEntry.mockRejectedValueOnce(new Error('Network Error'));
+		await addSupport('meeting');
+
+		card.closeCard();
+		card.openCard();
+		expect(screen.getByRole('button', { name: 'labels: meeting,support' })).toBeTruthy();
+
+		// The Calendar then reads the entries: the card opened again follows that read
 		mockReadEntry.mockResolvedValueOnce(entryWith([meeting]));
 		await card.readEntriesAgain();
 		await waitFor(() => expect(screen.getByRole('button', { name: 'labels: meeting' })).toBeTruthy());
