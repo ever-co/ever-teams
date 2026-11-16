@@ -403,7 +403,12 @@ describe('the team switch when the browser refuses its storage', () => {
 		renderHook(
 			() =>
 				useOrganizationTeamsQuery({
-					scope: { tenantId: 'tenant-a', organizationId: 'organization-a', userId: 'user-a', accessToken: 'token-a' }
+					scope: {
+						tenantId: 'tenant-a',
+						organizationId: 'organization-a',
+						userId: 'user-a',
+						accessToken: 'token-a'
+					}
 				}),
 			{ wrapper }
 		);

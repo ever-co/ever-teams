@@ -86,7 +86,12 @@ describe('useWorkspaceSwitcher', () => {
 		await waitFor(() => expect(location.href).toBe('/'));
 		expect(mockSwitchWorkspace).toHaveBeenCalledWith('tenant-b');
 		expect(mockSetAuthCookies).toHaveBeenCalledWith(
-			expect.objectContaining({ access_token: 'token-b', teamId: 'team-b2', tenantId: 'tenant-b', organizationId: 'org-b' })
+			expect.objectContaining({
+				access_token: 'token-b',
+				teamId: 'team-b2',
+				tenantId: 'tenant-b',
+				organizationId: 'org-b'
+			})
 		);
 		expect(window.localStorage.getItem(LAST_WORKSPACE_AND_TEAM)).toBe('team-b2');
 		expect(window.localStorage.getItem(USER_SAW_OUTSTANDING_NOTIFICATION)).toBeNull();
