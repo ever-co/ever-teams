@@ -104,6 +104,22 @@ describe('the report of a time import', () => {
 		});
 	});
 
+	it('keeps the labels of each row, so a corrected report is imported again with them (#5368)', () => {
+		const report = csvOf(
+			[lineOf({ labels: 'meeting; support' }, 2)],
+			timeImportReportCsvColumnsOf(false, false, true)
+		);
+		const [headerLine] = report.split('\r\n');
+		const reading = timeImportReadingOf(report);
+
+		expect(headerLine).toContain(',labels,');
+		expect(reading).toMatchObject({
+			kind: 'sheet',
+			readsAsTemplate: true,
+			sheet: { ignoredHeaders: [], rows: [{ cells: { labels: 'meeting; support' } }] }
+		});
+	});
+
 	it('writes a separate end date before the end time, so an entry that ends the next day comes back as one', () => {
 		const overnight = lineOf({ startTime: '22:00', endDate: '2026-11-04', endTime: '01:30' });
 		const oneColumn = lineOf({ endDate: '2026-11-04 01:30', endTime: '2026-11-04 01:30' }, 3);

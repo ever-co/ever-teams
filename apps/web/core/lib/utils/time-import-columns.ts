@@ -11,6 +11,7 @@ import {
 	REPORT_ONLY_HEADERS,
 	TIME_IMPORT_FIELDS,
 	TIME_IMPORT_HEADERS,
+	TIME_IMPORT_LABELS_HEADER,
 	headerWordsOf,
 	ignoredHeadersOf,
 	missingColumnsOf,
@@ -143,7 +144,12 @@ const UNUSED_HEADERS: ReadonlySet<string> = new Set([
 	'weekday'
 ]);
 
-const TEMPLATE_HEADERS: ReadonlySet<string> = new Set(Object.values(TIME_IMPORT_HEADERS));
+// The labels column the report writes counts as the template's own, so a corrected report reads its dates as the
+// template does (#5368)
+const TEMPLATE_HEADERS: ReadonlySet<string> = new Set([
+	...Object.values(TIME_IMPORT_HEADERS),
+	TIME_IMPORT_LABELS_HEADER
+]);
 
 function fieldByHeaderOf(): Map<string, TimeImportField> {
 	const fieldByHeader = new Map<string, TimeImportField>();

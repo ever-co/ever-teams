@@ -38,6 +38,9 @@ export const TIME_IMPORT_HEADERS: Readonly<Record<TimeImportColumn, string>> = {
 	memberEmail: 'member email'
 };
 
+/** The header of the entries' own labels (#5368): not in the template, written by the report when rows have labels. */
+export const TIME_IMPORT_LABELS_HEADER = 'labels';
+
 /** The columns the import's own report adds, so a corrected report can be imported as it is. */
 export const TIME_IMPORT_REPORT_HEADERS = { row: 'row', status: 'status', reason: 'reason' } as const;
 

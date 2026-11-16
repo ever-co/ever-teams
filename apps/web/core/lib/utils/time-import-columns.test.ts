@@ -270,6 +270,13 @@ describe('timeImportReadingOf for a file from another tool', () => {
 		expect(rows[1].problems).toEqual([{ code: 'dateUnreadable', order: 'yearFirst' }]);
 	});
 
+	it('keeps reading year first a template with a Labels column, and leaves out only the row dated another way (#5368)', () => {
+		const labelled = 'date,start time,end time,labels\n2026-11-03,09:00,10:00,meeting\n03/11/2026,11:00,12:00,\n';
+
+		expect(timeImportReadingOf(labelled)).toMatchObject({ kind: 'sheet', readsAsTemplate: true });
+		expect(rowProblemsOf(labelled)).toEqual([[], [{ code: 'dateUnreadable', order: 'yearFirst' }]]);
+	});
+
 	it('keeps reading year first a template whose dates are written two ways, and leaves only those rows out', () => {
 		const dayAfterYear = 'date,start time,end time\n2026-11-03,09:00,10:00\n25/10/2026,11:00,12:00\n';
 		const yearAfterDay = 'date,start time,end time\n25/10/2026,11:00,12:00\n2026-11-03,09:00,10:00\n';
