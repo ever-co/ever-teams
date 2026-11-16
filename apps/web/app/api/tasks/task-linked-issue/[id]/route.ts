@@ -4,10 +4,13 @@ import { authenticatedGuard } from '@/core/services/server/guards/authenticated-
 import { deleteTaskLinkedIssue } from '@/core/services/server/requests';
 import { gauzyErrorResponse } from '@/core/services/server/gauzy-error-response';
 import { INextParams } from '@/core/types/interfaces/common/data-response';
+import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
 
 const linkedIssueIdSchema = z.uuid();
 
 export async function DELETE(req: Request, props: INextParams) {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
 	const params = await props.params;
 	const parsedId = linkedIssueIdSchema.safeParse(params.id);
 	if (!parsedId.success) {

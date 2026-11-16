@@ -5,6 +5,7 @@ import { transcribeDictation } from '@/core/lib/ai/transcription';
 import { rateLimitedResponse, takeAiCall, type AiRateLimit } from '@/core/lib/ai/rate-limit';
 import { readCappedFormData } from '@/core/lib/auth/ever-id/body';
 import type { TDictationAvailability, TDictationErrorCode } from '@/core/types/schemas/ai/dictation.schema';
+import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
 
 export const runtime = 'nodejs';
 
@@ -64,6 +65,8 @@ export async function GET(req: Request) {
  * train on it; nothing is stored. The text goes back to the field it was dictated into.
  */
 export async function POST(req: Request) {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
 	const guard = await authenticatedGuard(req, new NextResponse());
 	if (!guard.user) return guard.deny();
 

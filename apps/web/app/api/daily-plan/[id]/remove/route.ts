@@ -2,8 +2,11 @@ import { authenticatedGuard } from '@/core/services/server/guards/authenticated-
 import { deleteDailyPlansManyRequest } from '@/core/services/server/requests';
 import { IRemoveTaskFromManyPlansRequest } from '@/core/types/interfaces/task/daily-plan/daily-plan';
 import { NextResponse } from 'next/server';
+import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
 
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
 	const id = (await params).id;
 	const res = new NextResponse();
 	if (!id) {

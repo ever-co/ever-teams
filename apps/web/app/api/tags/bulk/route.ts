@@ -4,12 +4,15 @@ import { apiErrorStatusOf, unwrapRejection } from '@/core/services/server/fetch'
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { createLabelsBulkRequest } from '@/core/services/server/requests/task-labels';
 import { tagCreateSchema } from '@/core/types/schemas/tag/tag.schema';
+import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
 
 /** Each item is a label as `POST /tags` takes it; Gauzy's tag bulk route files 1 to 200 items per request. */
 const bulkBody = z.object({ items: z.array(tagCreateSchema).min(1).max(200) });
 
 /** The proxy-mode twin of Gauzy's `POST /tags/bulk`: the items as the client sent them, one outcome per item back. */
 export async function POST(req: Request) {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
 	const res = new NextResponse();
 	const { $res, user, access_token, tenantId, status } = await authenticatedGuard(req, res);
 
