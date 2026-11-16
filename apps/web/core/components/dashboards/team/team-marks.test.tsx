@@ -8,6 +8,7 @@ jest.mock('next-intl', () => ({
 	useTranslations: () => (key: string) => key
 }));
 
+import { TopProjectChip } from './team-top-project-chip';
 import { ProjectChip } from './team-project-chip';
 import { ProjectMark } from './team-marks';
 
@@ -43,5 +44,16 @@ describe('ProjectChip, a project kept from the reader', () => {
 
 		expect(screen.getByText('Private projects')).toBeTruthy();
 		expect(screen.getByRole('img', { name: HINT }).hasAttribute('tabindex')).toBe(false);
+	});
+});
+
+describe('TopProjectChip of a member card, a project kept from the reader', () => {
+	it('keeps the lock reachable by keyboard and read with its hint, the duplicate name kept from assistive technology', () => {
+		const { container } = render(<TopProjectChip project={hiddenProjects} memberSeconds={7200} />);
+
+		const lock = screen.getByRole('img', { name: HINT });
+		expect(lock.getAttribute('tabindex')).toBe('0');
+		expect(lock.closest('[aria-hidden="true"]')).toBeNull();
+		expect(container.querySelector('.sr-only')?.textContent).toBe('dashboard.team.figures.TOP_PROJECT');
 	});
 });
