@@ -416,6 +416,7 @@ export function useTimesheetsPage() {
 		search,
 		setSearch,
 		filters,
+		supportsEntryLabels,
 		setFilter,
 		removeFilterValue,
 		clearFilters,
@@ -472,7 +473,8 @@ function isNarrowed(page: TimesheetsPageState) {
 	const hasClients = page.filters.clients.length > 0;
 	const hasBillable = page.filters.billable.length > 0;
 	const hasLabels = page.filters.labels.length > 0;
-	const hasEntryLabels = page.filters.entryLabels.length > 0;
+	// A link's entry labels the API cannot apply hide nothing, so they leave the sheet open (#5368)
+	const hasEntryLabels = supportedEntryLabelsOf(page.filters.entryLabels, page.supportsEntryLabels).length > 0;
 	const narrowings = [
 		hasStatus,
 		hasSearch,
