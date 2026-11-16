@@ -67,4 +67,36 @@ describe('reading the billable time of an invoice', () => {
 
 		expect(logs.map((log) => log.invoiceItemId)).toEqual(['line-1', null, undefined]);
 	});
+	it('asks the client rates each log keeps only when told to, and keeps what the API answers', async () => {
+		const answered = [
+			{
+				id: 'log-1',
+				ratesStored: true,
+				billRateValue: '50.00',
+				clientRates: {
+					projectBillRateValue: '90.00',
+					projectMemberBillRateValue: null,
+					projectBillRateCurrency: 'USD'
+				}
+			},
+			{ id: 'log-2' }
+		];
+		const get = jest.spyOn(timeLogReportService, 'get').mockResolvedValue({ data: answered } as never);
+
+		const logs = await timeLogReportService.getBillableTimeLogs(october, [], {
+			notInvoiced: true,
+			scope: keyScope,
+			withClientRates: true
+		});
+		await timeLogReportService.getBillableTimeLogs(october, [], { notInvoiced: true, scope: keyScope });
+
+		expect(queryOf(get.mock.calls[0][0]).withClientRates).toBe('true');
+		expect(queryOf(get.mock.calls[1][0])).not.toHaveProperty('withClientRates');
+		expect(logs[0]).toMatchObject({
+			ratesStored: true,
+			billRateValue: 50,
+			clientRates: { projectBillRateValue: 90 }
+		});
+		expect(logs[1].clientRates).toBeUndefined();
+	});
 });
