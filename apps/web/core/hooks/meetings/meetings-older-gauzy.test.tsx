@@ -57,6 +57,22 @@ function renderMeetingsPageData() {
 
 const start = new Date(Date.now() + 2 * 60 * 60 * 1000);
 
+/** A meeting with a team member and an address typed, as the gate's emails test schedules it. */
+const kickOff = {
+	title: 'Kick-off',
+	start,
+	durationMinutes: 30,
+	link: 'https://app.example.com/meet/jitsi?room=kick&title=Kick-off',
+	participantEmails: ['teammate@example.test', 'guest@example.org'],
+	invitees: [{ email: 'teammate@example.test', name: 'Fixture Teammate', employeeId: 'employee-2' }]
+};
+
+async function scheduleKickOff(own: ReturnType<typeof useScheduledMeetings>) {
+	await act(async () => {
+		await own.scheduleMeeting(kickOff);
+	});
+}
+
 describe('the meetings page on a Gauzy without the invitations route (the browser gate, Teams prod)', () => {
 	afterEach(() => jest.restoreAllMocks());
 
@@ -89,16 +105,7 @@ describe('the meetings page on a Gauzy without the invitations route (the browse
 		// The agenda has read the invitations first, as on the page
 		await waitFor(() => expect(result.current.invited.isLoading).toBe(false));
 
-		await act(async () => {
-			await result.current.own.scheduleMeeting({
-				title: 'Kick-off',
-				start,
-				durationMinutes: 30,
-				link: 'https://app.example.com/meet/jitsi?room=kick&title=Kick-off',
-				participantEmails: ['teammate@example.test', 'guest@example.org'],
-				invitees: [{ email: 'teammate@example.test', name: 'Fixture Teammate', employeeId: 'employee-2' }]
-			});
-		});
+		await scheduleKickOff(result.current.own);
 
 		expect(posted).toHaveLength(1);
 		expect(posted[0].emails).toBe('teammate@example.test, guest@example.org');
@@ -111,16 +118,7 @@ describe('the meetings page on a Gauzy without the invitations route (the browse
 		const { result } = renderMeetingsPageData();
 		await waitFor(() => expect(result.current.invited.isLoading).toBe(false));
 
-		await act(async () => {
-			await result.current.own.scheduleMeeting({
-				title: 'Kick-off',
-				start,
-				durationMinutes: 30,
-				link: 'https://app.example.com/meet/jitsi?room=kick&title=Kick-off',
-				participantEmails: ['teammate@example.test', 'guest@example.org'],
-				invitees: [{ email: 'teammate@example.test', name: 'Fixture Teammate', employeeId: 'employee-2' }]
-			});
-		});
+		await scheduleKickOff(result.current.own);
 
 		expect(posted[0].emails).toBe('guest@example.org');
 		expect(posted[0].inviteeEmployeeIds).toEqual(['employee-2']);
