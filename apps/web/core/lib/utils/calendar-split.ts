@@ -72,7 +72,7 @@ export function slotMarksInside(window: TimeWindow): Date[] {
 /** The slot marks nearest to a time off them that split the entry, one before and one after, when there are. */
 export function nearestSlotMarksOf(window: TimeWindow, time: Date): { before: Date | null; after: Date | null } {
 	const marks = slotMarksInside(window);
-	const before = marks.filter((mark) => mark.getTime() < time.getTime()).at(-1) ?? null;
+	const before = marks.findLast((mark) => mark.getTime() < time.getTime()) ?? null;
 	const after = marks.find((mark) => mark.getTime() > time.getTime()) ?? null;
 	return { before, after };
 }
@@ -133,7 +133,7 @@ export function defaultSplitTimeOf(window: TimeWindow, onSlots = false): Date {
 			return mark;
 		}
 		return nearest;
-	});
+	}, marks[0]);
 }
 
 function clockTimeOn(day: Date, minutes: number) {
