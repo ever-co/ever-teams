@@ -35,6 +35,9 @@ function isInvitationsRouteMissing(error: unknown): boolean {
 	return status !== null && MISSING_ROUTE_STATUSES.has(status);
 }
 
+/** What an answer of the route says of the platform: a list from one that has it, null from one that has not. */
+const routeOfAnswer = (answer: unknown): InvitationsRoute => (Array.isArray(answer) ? 'present' : 'missing');
+
 /**
  * The meetings others host that the signed-in member is invited to (#5022), from a month ago on, read again every
  * minute while the page is open and when it comes back to the front. A platform that does not list them yet answers
@@ -64,17 +67,16 @@ export function useInvitedMeetings() {
 
 /**
  * Whether the platform lists invitations (#5022), which tells whether it invites team members itself: read from the
- * agenda's own answer when it has one, else asked once. `missing` on an older Ever Gauzy (404 or 406), `unknown` when
- * asking failed for another reason.
+ * agenda's own answer when it has one, else asked once. `missing` on an older Ever Gauzy (404 or 406, or an answer
+ * that is no list), `unknown` when asking failed for another reason.
  */
 export async function invitationsRouteOf(queryClient: QueryClient, employeeId: string): Promise<InvitationsRoute> {
 	const queryKey = queryKeys.meetings.invited(employeeId);
 	const known = queryClient.getQueryState(queryKey);
-	if (known?.status === 'success') return 'present';
+	if (known?.status === 'success') return routeOfAnswer(known.data);
 	if (known?.status === 'error' && isInvitationsRouteMissing(known.error)) return 'missing';
 	try {
-		await queryClient.fetchQuery({ queryKey, queryFn: fetchInvitedMeetings });
-		return 'present';
+		return routeOfAnswer(await queryClient.fetchQuery({ queryKey, queryFn: fetchInvitedMeetings }));
 	} catch (error) {
 		return isInvitationsRouteMissing(error) ? 'missing' : 'unknown';
 	}

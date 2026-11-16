@@ -41,11 +41,14 @@ class ScheduledMeetingService extends APIService {
 	/**
 	 * The meetings others host that the member is invited to (#5022), from a moment on: Gauzy lists another member's
 	 * appointment to its invitees through this route only, neither cancelled nor deleted, with its host's name.
+	 *
+	 * Gauzy answers it with a list. Any other answer is no such route (a server that answers every path alike, as the
+	 * browser gate's Gauzy double does): null, which the app reads as an older Gauzy, as a 404 or a 406.
 	 */
-	getInvitedMeetings = async (from: Date): Promise<MeetingInvitation[]> => {
+	getInvitedMeetings = async (from: Date): Promise<MeetingInvitation[] | null> => {
 		const query = qs.stringify({ startDate: from.toISOString() });
-		const response = await this.get<MeetingInvitation[]>(`/employee-appointment/invited?${query}`);
-		return Array.isArray(response.data) ? response.data : [];
+		const response = await this.get<unknown>(`/employee-appointment/invited?${query}`);
+		return Array.isArray(response.data) ? (response.data as MeetingInvitation[]) : null;
 	};
 }
 
