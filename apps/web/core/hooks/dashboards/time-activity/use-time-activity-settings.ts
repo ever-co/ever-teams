@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useMemo } from 'react';
+import { useEntryLabelsSupport } from '@/core/hooks/timer/use-entry-labels-support';
 import { useLocalStorageState } from '@/core/hooks/common/use-local-storage-state';
 import { useReportUrlFilters } from '@/core/hooks/dashboards/use-report-url-filters';
 import { useWorkspaceWeekStart } from '@/core/hooks/common/use-workspace-week-start';
@@ -82,10 +83,12 @@ export function useTimeActivitySettings() {
 	const clientGroupingAccess = clientGroupingAccessOf(mayReadClients, arePermissionsPending);
 	const groupingParam = linkParams.get(TIME_ACTIVITY_GROUPING_PARAM);
 	const linkedGrouping = groupingOfParam(groupingParam);
-	const grouping = effectiveGroupingOf(linkedGrouping, clientGroupingAccess);
+	// The Label grouping (Gauzy #12029) only where the API stores the labels of entries
+	const supportsEntryLabels = useEntryLabelsSupport();
+	const grouping = effectiveGroupingOf(linkedGrouping, clientGroupingAccess, supportsEntryLabels);
 	const groupings = useMemo(
-		() => offeredGroupingsOf(clientGroupingAccess, linkedGrouping),
-		[clientGroupingAccess, linkedGrouping]
+		() => offeredGroupingsOf(clientGroupingAccess, linkedGrouping, supportsEntryLabels),
+		[clientGroupingAccess, linkedGrouping, supportsEntryLabels]
 	);
 
 	const setGrouping = useCallback(
