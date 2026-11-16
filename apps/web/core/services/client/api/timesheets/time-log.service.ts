@@ -63,11 +63,37 @@ interface ITimeLogsReportFilters {
 	includeTimeWithoutTeam?: boolean;
 }
 
-/** Whether an error is the API's refusal of a request (400): the shape the HTTP client gives a status in varies. */
+type ProbeFailure = {
+	status?: number;
+	statusCode?: number;
+	message?: unknown;
+	response?: { status?: number; data?: { message?: unknown } };
+} | null;
+
+const TAGS_PROPERTY = /\btags\b/i;
+
+function messageTextOf(message: unknown): string {
+	if (Array.isArray(message)) {
+		return message.join(' ');
+	}
+	if (typeof message === 'string') {
+		return message;
+	}
+	return '';
+}
+
+/**
+ * Whether an error is the refusal of an API without labels on entries: it names the `tags` property it does not have
+ * (a Gauzy before ever-co/ever-gauzy#12029 answers 500, "Property "tags" was not found in "TimeLog""). A refusal for
+ * another reason is not taken as no labels: it is read again.
+ */
 function isRefusalOfRelation(error: unknown): boolean {
-	const withStatus = error as { status?: number; statusCode?: number; response?: { status?: number } } | null;
-	const status = withStatus?.response?.status ?? withStatus?.status ?? withStatus?.statusCode;
-	return status === 400;
+	const failure = error as ProbeFailure;
+	const status = failure?.response?.status ?? failure?.status ?? failure?.statusCode;
+	const isRefusalStatus = status === 400 || status === 500;
+	const message = `${messageTextOf(failure?.message)} ${messageTextOf(failure?.response?.data?.message)}`;
+	const namesTheTagsProperty = TAGS_PROPERTY.test(message);
+	return isRefusalStatus && namesTheTagsProperty;
 }
 
 class TimeLogService extends APIService {
@@ -331,7 +357,7 @@ class TimeLogService extends APIService {
 			await this.get<ITimeLog[]>(`/timesheet/time-log?${params.toString()}`, { tenantId: this.tenantId });
 			return true;
 		} catch (error) {
-			// An API without labels on entries refuses the relation (400); anything else is a failure to read again
+			// An API without labels on entries refuses the tags property; anything else is a failure to read again
 			if (isRefusalOfRelation(error)) {
 				return false;
 			}

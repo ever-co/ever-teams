@@ -337,10 +337,22 @@ describe('TimeLogService entry labels probe (#5368)', () => {
 		expect(sent.get('relations[0]')).toBe('tags');
 	});
 
-	it('reads a refusal of the relation (400) as an API without labels on entries', async () => {
-		jest.spyOn(timeLogService, 'get').mockRejectedValue({ response: { status: 400 } });
+	it('reads the refusal of an API without labels on entries as no labels: it names the tags property', async () => {
+		// What a Gauzy without ever-co/ever-gauzy#12029 answers: a 500 naming the property it does not have
+		const refusal = {
+			statusCode: 500,
+			message: 'Property "tags" was not found in "TimeLog". Make sure your query is correct.'
+		};
+		jest.spyOn(timeLogService, 'get').mockRejectedValue(refusal);
 
 		await expect(timeLogService.supportsEntryLabels()).resolves.toBe(false);
+	});
+
+	it('throws a refusal for another reason, so it is read again rather than kept as no labels', async () => {
+		const otherRefusal = { response: { status: 400 }, message: 'Start date must be before to the end date' };
+		jest.spyOn(timeLogService, 'get').mockRejectedValue(otherRefusal);
+
+		await expect(timeLogService.supportsEntryLabels()).rejects.toBe(otherRefusal);
 	});
 
 	it('throws another failure, so the answer is read again rather than kept as no labels', async () => {
