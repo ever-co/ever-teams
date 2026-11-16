@@ -143,6 +143,24 @@ describe('Moving the start of the running timer from the phone', () => {
 		expect(panel.current.access).toEqual({ kind: 'view', why: 'tracker' });
 	});
 
+	it('leaves a newer timer state as it is when the status read after the move fails', async () => {
+		const panel = await openPanel();
+		const gauzyFetch = global.fetch;
+		global.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+			const isStatusRead = typeof input === 'string' && input.includes('/timesheet/timer/status');
+			if (isStatusRead) {
+				// The timer was stopped on another device and the screen shows it, then the phone lost its connection
+				timerStore.setTimerStatus({ duration: 0, running: false });
+				throw new TypeError('Network request failed');
+			}
+			return gauzyFetch(input, init);
+		}) as typeof fetch;
+
+		await act(() => panel.current.moveStart({ startedAt: new Date('2026-11-16T09:00:00.000Z') }));
+
+		expect(timerStore.timerStatus.running).toBe(false);
+	});
+
 	it('shows the start alone against an API without the route, and the timer works as today', async () => {
 		gauzy.withoutStartMove();
 

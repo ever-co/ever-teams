@@ -48,15 +48,17 @@ function isRunningLog(data: ITimer | IApiRefusal | undefined): data is ITimer {
  * for an earlier start, adding time by hand. Until the organization, the role's permissions and the route are known,
  * the panel shows the start alone.
  *
- * A move answered by the API replaces the timer's status, so the clock jumps at once and keeps running; the views that
- * count today's time read again. A refusal leaves the timer as it was and is thrown to the caller, which says why.
+ * A move answered by the API replaces the timer's status, so the clock jumps at once and keeps running, unless the
+ * screen shows another state of the timer by then (stopped or another run, from another device); the views that count
+ * today's time read again. A refusal leaves the timer as it was and is thrown to the caller, which says why.
  */
 export function useTimerStartMove({ enabled }: { enabled: boolean }) {
 	const queryClient = useQueryClient();
 	const {
 		authenticationStore: { authToken, tenantId, organizationId, user },
-		TimerStore: { timerStatus, setTimerStatus }
+		TimerStore: timerStore
 	} = useStores();
+	const { timerStatus, setTimerStatus } = timerStore;
 	const [saving, setSaving] = useState(false);
 
 	const running = timerStatus?.running === true;
@@ -156,13 +158,20 @@ export function useTimerStartMove({ enabled }: { enabled: boolean }) {
 					const failure: ITimerStartMoveFailure = { status: response.status, code: refusal.code };
 					throw failure;
 				}
-				setTimerStatus(await statusAfterMove(data));
+				const status = await statusAfterMove(data);
+				// The screen may show another state by then: it is not replaced by a status of the moved run, and the
+				// timer is read again instead
+				const shown = timerStore.timerStatus;
+				const stillShowsMovedRun = shown?.running === true && shown?.lastLog?.id === data.id;
+				if (stillShowsMovedRun) {
+					setTimerStatus(status);
+				}
 				readAgain();
 			} finally {
 				setSaving(false);
 			}
 		},
-		[authToken, queryClient, readAgain, setTimerStatus, statusAfterMove, tenantId]
+		[authToken, queryClient, readAgain, setTimerStatus, statusAfterMove, tenantId, timerStore]
 	);
 
 	return { running, runStart, source: runningLog?.source, access, saving, moveStart };
