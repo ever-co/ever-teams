@@ -1387,16 +1387,19 @@ describe('saving an edit to an invoice', () => {
 			expect(mockUpdateInvoice).not.toHaveBeenCalled();
 		});
 
+		/** Written after the read the save was made under: by the save, or from elsewhere. */
+		const WRITTEN_AT = '2026-11-16T10:20:31.000Z';
+
 		it.each([
 			[
-				'saved when the invoice read back holds the edit',
+				'saved when its lines were replaced and it holds the edit',
 				serverFailure(),
-				{ ...readAt('SENT', [{ id: 'item-7', ...editedLine }]), totalValue: 960 },
+				{ ...readAt('SENT', [{ id: 'item-7', ...editedLine }]), totalValue: 960, updatedAt: WRITTEN_AT },
 				{ status: 'saved' }
 			],
-			['not saved when it holds what was read', serverFailure(), readAt('SENT'), { status: 'notSaved' }],
+			['not saved when it is as it was read', serverFailure(), readAt('SENT'), { status: 'notSaved' }],
 			[
-				'not reached when the connection failed and it holds what was read',
+				'not reached when the connection failed and it is as it was read',
 				ApiErrorService.fromAxiosError({ message: 'Network Error', code: 'ERR_NETWORK' }),
 				readAt('SENT'),
 				{ status: 'notReached' }
@@ -1404,8 +1407,14 @@ describe('saving an edit to an invoice', () => {
 			[
 				'not put back when it holds something saved from elsewhere',
 				serverFailure(),
-				{ ...readAt('SENT', []), terms: 'Changed elsewhere' },
+				{ ...readAt('SENT', []), terms: 'Changed elsewhere', updatedAt: WRITTEN_AT },
 				{ status: 'notPutBack', lineCount: 0 }
+			],
+			[
+				'not put back when it was written but keeps the lines it was opened with: not this save',
+				serverFailure(),
+				{ ...readAt('SENT'), totalValue: 960, updatedAt: WRITTEN_AT },
+				{ status: 'notPutBack', lineCount: 1 }
 			]
 		])('reads the invoice back after an unanswered save: %s', async (_label, error, after, outcome) => {
 			mockGetInvoice.mockResolvedValueOnce(readAt('SENT')).mockResolvedValueOnce(after);
@@ -1417,6 +1426,62 @@ describe('saving an edit to an invoice', () => {
 			expect(saved).toEqual({ outcome, sending: null });
 			expect(mockUpdateInvoice).not.toHaveBeenCalled();
 			expect(mockReplaceInvoiceLines).not.toHaveBeenCalled();
+		});
+
+		it('does not take an unanswered save that only records billed time as saved when the invoice is as it was', async () => {
+			// Its fields and line figures are the ones read: only the time its line bills differs, which no read shows
+			const recordsBilledTime = {
+				...edit,
+				revision: {
+					update: { ...fields, totalValue: 800 },
+					lines: [{ ...previousLine, timeLogIds: ['log-1'] }]
+				}
+			} as unknown as InvoiceEdit;
+			mockGetInvoice.mockResolvedValue(readAt('SENT'));
+			mockSaveInvoiceWithLines.mockRejectedValue(serverFailure());
+			const { result } = renderSaveEdit();
+
+			let saved: unknown = null;
+			await act(async () => {
+				saved = await result.current.saveInvoiceEdit({ edit: recordsBilledTime, sending: null });
+			});
+
+			expect(saved).toEqual({ outcome: { status: 'notSaved' }, sending: null });
+		});
+
+		it('takes an unanswered save that only records billed time as saved once its lines were replaced', async () => {
+			const recordsBilledTime = {
+				...edit,
+				revision: {
+					update: { ...fields, totalValue: 800 },
+					lines: [{ ...previousLine, timeLogIds: ['log-1'] }]
+				}
+			} as unknown as InvoiceEdit;
+			mockGetInvoice
+				.mockResolvedValueOnce(readAt('SENT'))
+				.mockResolvedValueOnce({
+					...readAt('SENT', [{ id: 'item-8', ...previousLine }]),
+					updatedAt: WRITTEN_AT
+				});
+			mockSaveInvoiceWithLines.mockRejectedValue(serverFailure());
+			const { result } = renderSaveEdit();
+
+			let saved: unknown = null;
+			await act(async () => {
+				saved = await result.current.saveInvoiceEdit({ edit: recordsBilledTime, sending: null });
+			});
+
+			expect(saved).toEqual({ outcome: { status: 'saved' }, sending: null });
+		});
+
+		it('reads an invoice read without an updatedAt as untouched while it keeps the lines it was opened with', async () => {
+			mockGetInvoice.mockResolvedValue(invoiceRead('SENT'));
+			mockSaveInvoiceWithLines.mockRejectedValue(serverFailure());
+			const { result } = renderSaveEdit();
+
+			const saved = await saveWith(result);
+
+			expect(saved).toEqual({ outcome: { status: 'notSaved' }, sending: null });
 		});
 
 		it('states no updatedAt when the invoice was read without one', async () => {

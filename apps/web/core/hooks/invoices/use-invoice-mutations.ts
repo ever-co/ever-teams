@@ -561,10 +561,19 @@ function holdsRevision(current: TSavedInvoice, revision: InvoiceRevision) {
 }
 
 /**
- * A save in one request that got no answer saying whether it went through. The API writes both or neither, so the
- * invoice read back holds the edit, or what was read, or something saved from elsewhere since.
+ * A save in one request that got no answer saying whether it went through. The API writes both or neither, and a save
+ * replaces every line (new ids) and moves the invoice's `updatedAt`, so the invoice read back tells which:
+ * - untouched since the read the save was made under (the same `updatedAt`; without one, the lines it was opened with,
+ *   holding what was read): nothing was saved;
+ * - its lines replaced, holding the edit: saved. The fields and the line figures alone would not tell an edit that only
+ *   records the time its lines bill, since the read-back does not show which time a line bills;
+ * - anything else: saved from elsewhere since, and it is checked rather than taken as this save.
  */
-async function outcomeOfUnconfirmedSave(edit: InvoiceEdit, error: unknown): Promise<InvoiceEditOutcome> {
+async function outcomeOfUnconfirmedSave(
+	edit: InvoiceEdit,
+	error: unknown,
+	readVersion: string | null
+): Promise<InvoiceEditOutcome> {
 	if (!reachesItsTenant(edit)) {
 		return NOT_PUT_BACK_UNREAD;
 	}
@@ -572,19 +581,29 @@ async function outcomeOfUnconfirmedSave(edit: InvoiceEdit, error: unknown): Prom
 	if (!current) {
 		return NOT_PUT_BACK_UNREAD;
 	}
-	if (holdsRevision(current, edit.revision)) {
+	const currentLines = current.invoiceItems ?? [];
+	const keepsItsLines = haveSameLineIds(currentLines, edit.previousLineIds);
+	const isUntouched =
+		readVersion === null
+			? keepsItsLines && holdsRevision(current, edit.previous)
+			: readVersionOf(current) === readVersion;
+	if (isUntouched) {
+		if (didNotReachApi(error)) {
+			return { status: 'notReached' };
+		}
+		return { status: 'notSaved' };
+	}
+	if (!keepsItsLines && holdsRevision(current, edit.revision)) {
 		return { status: 'saved' };
 	}
-	if (!holdsRevision(current, edit.previous)) {
-		return { status: 'notPutBack', lineCount: lineCountOf(current) };
-	}
-	if (didNotReachApi(error)) {
-		return { status: 'notReached' };
-	}
-	return { status: 'notSaved' };
+	return { status: 'notPutBack', lineCount: lineCountOf(current) };
 }
 
-async function outcomeOfFailedSaveAtOnce(edit: InvoiceEdit, error: unknown): Promise<InvoiceEditOutcome> {
+async function outcomeOfFailedSaveAtOnce(
+	edit: InvoiceEdit,
+	error: unknown,
+	readVersion: string | null
+): Promise<InvoiceEditOutcome> {
 	if (isChangedMeanwhile(error)) {
 		return { status: 'changedMeanwhile' };
 	}
@@ -595,7 +614,7 @@ async function outcomeOfFailedSaveAtOnce(edit: InvoiceEdit, error: unknown): Pro
 	if (failure === 'refused') {
 		return { status: 'notSaved' };
 	}
-	return outcomeOfUnconfirmedSave(edit, error);
+	return outcomeOfUnconfirmedSave(edit, error, readVersion);
 }
 
 /**
@@ -615,7 +634,7 @@ async function writeInvoiceEditAtOnce(
 		if (isSaveAtOnceMissing(error)) {
 			return null;
 		}
-		return outcomeOfFailedSaveAtOnce(edit, error);
+		return outcomeOfFailedSaveAtOnce(edit, error, readVersion);
 	}
 }
 
