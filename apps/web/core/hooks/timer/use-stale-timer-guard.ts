@@ -37,6 +37,15 @@ import { startUnderTimerGuard, trackTimerCommand } from '@/core/hooks/timer/time
 import { dateFormatOf } from '@/core/lib/utils/workspace-formats';
 import { forgetOwedKeep, oweKeep, type OwedKeep, owedKeepNow, owedKeepsOf } from '@/core/lib/utils/timer/owed-keep';
 import { whenSentTimeSlotSettled } from '@/core/lib/helpers/timer';
+import { isThisTabsTurn } from '@/core/lib/utils/timer/one-tab-lease';
+
+/**
+ * Refuses a Keep's next write once another tab of the browser took over (one-tab-lease.ts): it goes on from what is
+ * recorded, and a write sent here as well would count those minutes twice.
+ */
+function assertThisTabsTurn(): void {
+	if (!isThisTabsTurn()) throw new Error('Another tab of this browser took over writing the time kept');
+}
 
 /** The employee's last log, with the present the closed-tab rule goes by. */
 async function readLastLog(employeeId: string) {
@@ -207,6 +216,8 @@ async function keepUnderGuard(employeeId: string, run: ITimeLog & { stoppedAt: D
 			writtenAtMs: toMs,
 			keptAt: Date.now()
 		};
+		// A record of the same run and heartbeat may be another tab's, being written: it is never replaced from here
+		assertThisTabsTurn();
 		// Owed until all of it is written, for every tab and the next load of the page (owed-keep.ts)
 		oweKeep(owed);
 		await writeOwedKeep(employeeId, owed, toMs, run.startedAt);
@@ -236,11 +247,14 @@ async function writeOwedKeep(
 		runStartedAtMs: new Date(runStartedAt ?? Number.NaN).getTime(),
 		// A slot sent before without an answer may have landed: its window tells, before it is sent again
 		unanswered: owed.unanswered,
+		// Each write, and each record of how far they got, only while no other tab took over (one-tab-lease.ts)
 		onSending: (slot) => {
+			assertThisTabsTurn();
 			owed.unanswered = slot;
 			oweKeep(owed);
 		},
 		onWritten: (writtenUntilMs) => {
+			assertThisTabsTurn();
 			owed.fromMs = writtenUntilMs;
 			owed.unanswered = undefined;
 			owed.writtenAtMs = Date.now() + owed.apiOffsetMs;
