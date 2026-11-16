@@ -1147,7 +1147,8 @@ describe('time priced at the rates each entry keeps', () => {
 
 			const carried = carriedLineEdits([at90], split, edits);
 
-			expect([...carried.removedKeys].sort()).toEqual(['p1|ana', 'p1|ana|110:USD', 'p1|ana|90:USD']);
+			// The key of the line split is read again by time, not kept: a later merge would otherwise hide new time
+			expect([...carried.removedKeys].sort()).toEqual(['p1|ana|110:USD', 'p1|ana|90:USD']);
 			expect(split.filter((line) => !carried.removedKeys.has(line.key))).toEqual([]);
 			expect(carried.descriptions.get('p1|ana|90:USD')).toBe('Design');
 			expect(carried.descriptions.get('p1|ana|110:USD')).toBe('Design');
@@ -1177,6 +1178,43 @@ describe('time priced at the rates each entry keeps', () => {
 			expect(offeredAgain.descriptions.has('p1|ana')).toBe(false);
 			expect(stillRemoved.removedKeys.has('p1|ana')).toBe(true);
 			expect(stillRemoved.descriptions.get('p1|ana')).toBe('Design');
+		});
+
+		it('offers again a line that keeps its key but gains time that was not removed', () => {
+			const threePrices = [
+				{ key: 'p1|ana|90:USD', timeLogIds: ['kept-90'] },
+				{ key: 'p1|ana|110:USD', timeLogIds: ['kept-110'] },
+				{ key: 'p1|ana|120:USD', timeLogIds: ['today'] }
+			];
+			// Today's rate becomes 110: today's time joins the line at 110, which keeps its key
+			const twoPrices = [
+				{ key: 'p1|ana|90:USD', timeLogIds: ['kept-90'] },
+				{ key: 'p1|ana|110:USD', timeLogIds: ['kept-110', 'today'] }
+			];
+			const edits = { removedKeys: new Set(['p1|ana|110:USD']), descriptions: new Map<string, string>() };
+
+			const carried = carriedLineEdits(threePrices, twoPrices, edits);
+
+			expect(carried.removedKeys.size).toBe(0);
+		});
+
+		it('keeps no edit on a key it read again by time, so a split then a merge with new time hides nothing', () => {
+			const edits = { removedKeys: new Set(['p1|ana']), descriptions: new Map([['p1|ana', 'Design']]) };
+			const afterSplit = carriedLineEdits([at90], split, edits);
+			const mergedWithNewTime = [{ key: 'p1|ana', timeLogIds: ['kept', 'today', 'new'] }];
+
+			const afterMerge = carriedLineEdits(split, mergedWithNewTime, afterSplit);
+
+			expect(afterMerge.removedKeys.size).toBe(0);
+			expect(afterMerge.descriptions.size).toBe(0);
+		});
+
+		it('keeps on its key what was written on a line not shown yet, as a saved line read before its time', () => {
+			const edits = { removedKeys: new Set<string>(), descriptions: new Map([['p1|ana', 'Saved text']]) };
+
+			const carried = carriedLineEdits([], [at90], edits);
+
+			expect(carried).toBe(edits);
 		});
 
 		it('gives the edits back as they were when every line keeps its key', () => {

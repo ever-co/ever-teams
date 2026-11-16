@@ -723,19 +723,21 @@ export interface InvoiceLineEdits {
 
 type LineTime = Pick<InvoiceLine, 'key' | 'timeLogIds'>;
 
-/** The time logs of the lines a read again no longer holds, with what was removed or written on each. */
-function editsOfGoneLines(previous: ReadonlyArray<LineTime>, lines: ReadonlyArray<LineTime>, edits: InvoiceLineEdits) {
-	const keys = new Set(lines.map(({ key }) => key));
+/** The time logs of the lines last shown, with what was removed or written on each, and the keys they held. */
+function editsByLogOf(previous: ReadonlyArray<LineTime>, edits: InvoiceLineEdits) {
 	const removedLogs = new Set<string>();
 	const descriptionByLog = new Map<string, string>();
+	const loggedKeys = new Set<string>();
 	for (const line of previous) {
-		const isGone = !keys.has(line.key);
-		if (!isGone) {
+		const logIds = line.timeLogIds ?? [];
+		if (logIds.length === 0) {
 			continue;
 		}
+		loggedKeys.add(line.key);
+		const isRemoved = edits.removedKeys.has(line.key);
 		const description = edits.descriptions.get(line.key);
-		for (const logId of line.timeLogIds ?? []) {
-			if (edits.removedKeys.has(line.key)) {
+		for (const logId of logIds) {
+			if (isRemoved) {
 				removedLogs.add(logId);
 			}
 			if (description !== undefined) {
@@ -743,7 +745,7 @@ function editsOfGoneLines(previous: ReadonlyArray<LineTime>, lines: ReadonlyArra
 			}
 		}
 	}
-	return { removedLogs, descriptionByLog };
+	return { removedLogs, descriptionByLog, loggedKeys };
 }
 
 /** The one description all of a line's time bore, if it bore one. */
@@ -757,25 +759,33 @@ function sharedDescriptionOf(logIds: ReadonlyArray<string>, descriptionByLog: Re
 	return description;
 }
 
+function sameEdits(first: InvoiceLineEdits, second: InvoiceLineEdits): boolean {
+	const sameRemovals =
+		first.removedKeys.size === second.removedKeys.size &&
+		[...first.removedKeys].every((key) => second.removedKeys.has(key));
+	const sameDescriptions =
+		first.descriptions.size === second.descriptions.size &&
+		[...first.descriptions].every(([key, description]) => second.descriptions.get(key) === description);
+	return sameRemovals && sameDescriptions;
+}
+
 /**
- * What was removed from lines, or written on them, carried to the lines that hold their time once a read again keyed
- * that time otherwise: a member's time at one price split into two prices, or two prices merged into one, when today's
- * rate changed. A line all of whose time was removed stays removed; a line all of whose time bore one description
- * keeps it. A line that holds removed time beside other time is offered again: nothing is billed without being shown.
- * The edits come back unchanged when there is nothing to carry.
+ * What was removed from lines, or written on them, read again by time log: a read again can key the time otherwise
+ * (a member's time at one price split into two prices, or two prices merged into one, when today's rate changed), or
+ * bring time to a line that was not there. A line all of whose time was removed stays removed, and a line all of whose
+ * time bore one description keeps it; a line that holds other time beside removed time is offered again, so nothing is
+ * billed without being shown. The keys of the lines last shown are read again this way and never kept as such; an edit
+ * on a line not shown yet (a saved line's description), or on a line whose time names no log, stays on its key. The
+ * edits come back as the same object when nothing changed.
  */
 export function carriedLineEdits(
 	previous: ReadonlyArray<LineTime>,
 	lines: ReadonlyArray<LineTime>,
 	edits: InvoiceLineEdits
 ): InvoiceLineEdits {
-	const { removedLogs, descriptionByLog } = editsOfGoneLines(previous, lines, edits);
-	const hasNothingToCarry = removedLogs.size === 0 && descriptionByLog.size === 0;
-	if (hasNothingToCarry) {
-		return edits;
-	}
-	const removedKeys = new Set(edits.removedKeys);
-	const descriptions = new Map(edits.descriptions);
+	const { removedLogs, descriptionByLog, loggedKeys } = editsByLogOf(previous, edits);
+	const removedKeys = new Set([...edits.removedKeys].filter((key) => !loggedKeys.has(key)));
+	const descriptions = new Map([...edits.descriptions].filter(([key]) => !loggedKeys.has(key)));
 	for (const line of lines) {
 		const logIds = line.timeLogIds ?? [];
 		if (logIds.length === 0) {
@@ -786,16 +796,15 @@ export function carriedLineEdits(
 			removedKeys.add(line.key);
 		}
 		const description = sharedDescriptionOf(logIds, descriptionByLog);
-		const isUndescribed = !descriptions.has(line.key);
-		if (description !== null && isUndescribed) {
+		if (description !== null) {
 			descriptions.set(line.key, description);
 		}
 	}
-	const hasCarried = removedKeys.size !== edits.removedKeys.size || descriptions.size !== edits.descriptions.size;
-	if (!hasCarried) {
+	const carried = { removedKeys, descriptions };
+	if (sameEdits(carried, edits)) {
 		return edits;
 	}
-	return { removedKeys, descriptions };
+	return carried;
 }
 
 export function keptLinesOf<T extends InvoiceLine>(lines: ReadonlyArray<T>, removedKeys: ReadonlySet<string>): T[] {
