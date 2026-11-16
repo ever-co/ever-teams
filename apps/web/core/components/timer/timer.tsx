@@ -89,6 +89,17 @@ function timerButtonClassNameOf(compact: boolean) {
 }
 
 /**
+ * The home timer's Labels move on a phone to the row under it, beside Discard (#5368); a compact timer has no such row
+ * and keeps them, as it keeps its run menu.
+ */
+function phoneLabelsClassNameOf(compact: boolean) {
+	if (compact) {
+		return undefined;
+	}
+	return 'max-sm:hidden';
+}
+
+/**
  * A phone's timer row has no room for the break button beside Billable: the button takes Billable's place while it
  * shows. Billable is locked while work runs, and the start after a break keeps the choice made before it.
  */
@@ -273,7 +284,7 @@ export function Timer({ className, showTimerButton = true, compact = false }: IC
 						className="gap-2"
 						toggleClassName={timerButtonClassName}
 						billableClassName={phoneBillableClassNameOf(showsBreakButton)}
-						labelsClassName="max-sm:hidden"
+						labelsClassName={phoneLabelsClassNameOf(compact)}
 					/>
 				)}
 				<div className="flex min-w-0 items-start gap-2">
