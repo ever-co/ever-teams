@@ -8,10 +8,25 @@ import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
 import { useWorkspaces } from './use-workspaces';
 import { workspaceService } from '@/core/services/client/api/auth';
 import { TWorkspace } from '@/core/types/schemas/team/organization-team.schema';
-import { LAST_WORKSPACE_AND_TEAM, USER_SAW_OUTSTANDING_NOTIFICATION } from '@/core/constants/config/constants';
+import { USER_SAW_OUTSTANDING_NOTIFICATION } from '@/core/constants/config/constants';
+import { readLastOpenedTeamId, storeLastOpenedTeamId } from '@/core/lib/auth/last-opened-team';
 import { findMostRecentWorkspace } from '@/core/lib/utils/date-comparison.utils';
 import { useUserQuery } from '../queries/user-user.query';
 import { setAuthCookies, getOrganizationIdCookie, getActiveLanguageIdCookie } from '@/core/lib/helpers/cookies';
+
+/**
+ * What this browser keeps of the workspace it opens: its team for the next start, and the outstanding tasks notice to
+ * show again. Storage is a convenience: a browser that refuses it (blocked, private window, full) still switches, and
+ * the cookies, written first, carry the new session and its team (Greptile on #5345).
+ */
+function rememberWorkspaceTeam(selectedTeam: string) {
+	try {
+		globalThis.window?.localStorage.removeItem(USER_SAW_OUTSTANDING_NOTIFICATION);
+	} catch {
+		// The notice is then not shown again for this workspace
+	}
+	storeLastOpenedTeamId(selectedTeam);
+}
 
 export function useWorkspaceSwitcher() {
 	const { data: user } = useUserQuery();
@@ -57,8 +72,7 @@ export function useWorkspaceSwitcher() {
 			}
 
 			// Priority 1: Last selected team from localStorage
-			const lastSelectedTeamFromStorage =
-				typeof window !== 'undefined' ? window.localStorage.getItem(LAST_WORKSPACE_AND_TEAM) : null;
+			const lastSelectedTeamFromStorage = readLastOpenedTeamId();
 
 			// Priority 2: Last team from API
 			const lastSelectedTeamFromAPI = getLastTeamIdWithRecentLogout();
@@ -115,6 +129,8 @@ export function useWorkspaceSwitcher() {
 				noTeamPopup: true,
 				userId
 			});
+			// Only once the switch is done: a refused switch leaves this browser's last team as it was
+			rememberWorkspaceTeam(selectedTeam);
 
 			// NOTE_CRITICAL: Do NOT update Jotai states here!
 			// Updating states while components are mounted causes "Maximum update depth exceeded"
@@ -153,13 +169,7 @@ export function useWorkspaceSwitcher() {
 				// Smart team selection
 				const selectedTeam = getSmartTeamSelection(workspace);
 
-				// Update localStorage (EXACT same as password component)
-				if (typeof window !== 'undefined') {
-					window.localStorage.removeItem(USER_SAW_OUTSTANDING_NOTIFICATION);
-					window.localStorage.setItem(LAST_WORKSPACE_AND_TEAM, selectedTeam);
-				}
-
-				// Execute the switch using the proven flow
+				// Execute the switch using the proven flow; the browser keeps its team once it is done (onSuccess)
 				switchWorkspaceMutate({ workspace, selectedTeam });
 			} catch (error) {
 				console.error('Error preparing workspace switch:', error);

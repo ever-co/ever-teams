@@ -34,6 +34,8 @@ export function createCoalescedRunner<T>(
 		const next: { argument: T; ended: Promise<void> } = { argument, ended: Promise.resolve() };
 		next.ended = running.then(() => {
 			waiting = null;
+			// `next === waiting` (set below) on purpose: the calls asked for meanwhile merged their arguments into
+			// `waiting.argument`, so `next.argument` is the merged one. A copy of it would lose those merges.
 			return run(next.argument);
 		});
 		waiting = next;

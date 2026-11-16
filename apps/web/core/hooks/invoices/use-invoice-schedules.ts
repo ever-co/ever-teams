@@ -5,6 +5,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAtomValue } from 'jotai';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { errorStatusOf } from '@/core/lib/utils/error-feedback';
+import { OpenedScheduleGoneError, openedScheduleFateOf } from '@/core/lib/utils/invoice-schedules';
 import { queryKeys } from '@/core/query/keys';
 import { invoiceScheduleService } from '@/core/services/client/api/organizations/invoice-schedule.service';
 import type { InvoicesScope } from '@/core/services/client/api/organizations/invoice.service';
@@ -95,6 +96,9 @@ export function useInvoiceScheduleRuns(scheduleId: string | null, { enabled }: R
 /** What a change to a schedule says. */
 export type InvoiceScheduleChange = Partial<InvoiceScheduleInput> & { paused?: boolean };
 
+/** What a confirmed deletion did: deleted the schedule, or found it deleted already. */
+export type InvoiceScheduleDeletion = 'deleted' | 'alreadyDeleted';
+
 /**
  * Set, change, pause, resume and delete a client's billing schedule, in the workspace the schedules were read in; every
  * read of the schedules is refreshed afterwards, after a refusal too: a create refused because another tab set the
@@ -123,10 +127,105 @@ export function useInvoiceScheduleMutations(workspace: InvoicesScope | null) {
 		onSettled: refresh
 	});
 
+	const updateScheduleById = updateMutation.mutateAsync;
+
+	/**
+	 * Saves a form's change to the schedule it opened on, and never to another: the change is sent to that schedule's
+	 * id only, so a schedule that replaced it, even one set after this check, is never written. When the latest read
+	 * already shows it deleted, or replaced by another (another tab deleted it and set a new one), nothing is sent
+	 * and the schedules are read again before the save fails, so the section shows what is there now. An API that
+	 * answers the schedule no longer exists (404) changed nothing either: that save fails as `deleted`, even when
+	 * another schedule replaced it after the check, since the one it opened on was deleted all the same, and the
+	 * reload shows the replacement. Either way the save fails with the reason, as an `OpenedScheduleGoneError`.
+	 * While the client's schedule is not read (another tab switched the workspace and its read is still on the way,
+	 * or it failed with nothing to show), nothing tells what became of it: nothing is sent, and the save fails as any
+	 * failed save does, without saying the schedule was deleted.
+	 */
+	const updateOpenedSchedule = useCallback(
+		async ({
+			scheduleId,
+			latest,
+			change
+		}: {
+			/** The schedule the form opened on. */
+			scheduleId: string;
+			/** The client's schedule as last read, null when it has none, undefined while nothing was read. */
+			latest: TInvoiceSchedule | null | undefined;
+			change: InvoiceScheduleChange;
+		}): Promise<TInvoiceSchedule> => {
+			if (latest === undefined) {
+				throw new Error('The client’s billing schedule is not read yet, so the change was not saved');
+			}
+			const fate = openedScheduleFateOf(scheduleId, latest);
+			if (fate !== 'current') {
+				await refresh();
+				throw new OpenedScheduleGoneError(fate);
+			}
+			try {
+				return await updateScheduleById({ scheduleId, change });
+			} catch (error) {
+				if (errorStatusOf(error) === 404) {
+					throw new OpenedScheduleGoneError('deleted');
+				}
+				throw error;
+			}
+		},
+		[refresh, updateScheduleById]
+	);
+
+	const deleteScheduleById = deleteMutation.mutateAsync;
+
+	/**
+	 * Deletes the schedule a confirmation opened on, and never another: the deletion is sent to that schedule's id
+	 * only, so a schedule that replaced it, even one set after this check, is never deleted. When the latest read
+	 * already shows it replaced by another (another tab deleted it and set a new one), nothing is sent, the schedules
+	 * are read again, and the deletion fails as an `OpenedScheduleGoneError`: the section then shows the new one,
+	 * which its person has not chosen to delete. When the latest read shows no schedule left, or the API answers it
+	 * no longer exists (404), what its person asked is done already: `alreadyDeleted`, after the schedules are read
+	 * again. While the client's schedule is not read (another tab switched the workspace and its read is still on the
+	 * way, or it failed with nothing to show), nothing is sent and the deletion fails as any failed deletion does.
+	 */
+	const deleteOpenedSchedule = useCallback(
+		async ({
+			scheduleId,
+			latest
+		}: {
+			/** The schedule the confirmation opened on. */
+			scheduleId: string;
+			/** The client's schedule as last read, null when it has none, undefined while nothing was read. */
+			latest: TInvoiceSchedule | null | undefined;
+		}): Promise<InvoiceScheduleDeletion> => {
+			if (latest === undefined) {
+				throw new Error('The client’s billing schedule is not read yet, so nothing was deleted');
+			}
+			const fate = openedScheduleFateOf(scheduleId, latest);
+			if (fate !== 'current') {
+				await refresh();
+				if (fate === 'replaced') {
+					throw new OpenedScheduleGoneError(fate);
+				}
+				return 'alreadyDeleted';
+			}
+			try {
+				await deleteScheduleById(scheduleId);
+				return 'deleted';
+			} catch (error) {
+				// The mutation read the schedules again already (onSettled), before this answer
+				if (errorStatusOf(error) === 404) {
+					return 'alreadyDeleted';
+				}
+				throw error;
+			}
+		},
+		[deleteScheduleById, refresh]
+	);
+
 	return {
 		createSchedule: createMutation.mutateAsync,
 		updateSchedule: updateMutation.mutateAsync,
-		deleteSchedule: deleteMutation.mutateAsync,
+		updateOpenedSchedule,
+		// No deletion by id alone: a schedule is deleted only as the one its confirmation opened on
+		deleteOpenedSchedule,
 		isSaving: createMutation.isPending || updateMutation.isPending,
 		isDeleting: deleteMutation.isPending
 	};

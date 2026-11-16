@@ -95,6 +95,37 @@ export function isRealDayKey(dayKey: string): boolean {
 	return date.toISOString().slice(0, 10) === dayKey;
 }
 
+/** What became of the schedule a form opened on: still the client's, replaced by another one, or deleted. */
+export type OpenedScheduleFate = 'current' | 'replaced' | 'deleted';
+
+/**
+ * What became of the schedule a form opened on, by the latest read of its client's schedule: a client has one at
+ * most, so another one there replaced it, and none there means it was deleted.
+ */
+export function openedScheduleFateOf(
+	openedScheduleId: string,
+	latest: Pick<TInvoiceSchedule, 'id'> | null
+): OpenedScheduleFate {
+	if (!latest) {
+		return 'deleted';
+	}
+	return latest.id === openedScheduleId ? 'current' : 'replaced';
+}
+
+/**
+ * A change or a deletion that was not made: the schedule its form or its confirmation opened on was deleted, or
+ * replaced by another, since. Nothing of the client's schedule changed, and the form or the section says which.
+ */
+export class OpenedScheduleGoneError extends Error {
+	readonly fate: Exclude<OpenedScheduleFate, 'current'>;
+
+	constructor(fate: Exclude<OpenedScheduleFate, 'current'>) {
+		super(`The billing schedule was ${fate} after it was opened, so nothing was changed`);
+		this.name = 'OpenedScheduleGoneError';
+		this.fate = fate;
+	}
+}
+
 /** What the form changed of a saved schedule; nothing when it changed nothing. */
 export function changedScheduleFieldsOf(
 	saved: InvoiceScheduleInput,

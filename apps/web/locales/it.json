@@ -7904,6 +7904,8 @@
 				"SAVE": "Salva",
 				"SAVE_FAILED": "Impossibile salvare il calendario. Riprova.",
 				"EXISTS": "Questo cliente ha già un calendario. Chiudi e riaprilo per modificarlo.",
+				"REPLACED": "Questo calendario è stato sostituito da un altro da quando l’hai aperto. Non è stato salvato nulla: chiudi e riaprilo per modificarlo.",
+				"DELETED": "Questo calendario è stato eliminato da quando l’hai aperto. Non è stato salvato nulla.",
 				"START_AFTER_BILLED": "Questo calendario ha già fatturato dei periodi: il nuovo calendario deve iniziare dopo l’ultimo periodo fatturato, {day}."
 			},
 			"delete": {
@@ -7915,6 +7917,8 @@
 				"PAUSED": "La fatturazione programmata di {name} è sospesa",
 				"RESUMED": "La fatturazione programmata di {name} riprende: prossima fattura il {day}",
 				"DELETED": "La fatturazione programmata di {name} è eliminata",
+				"ALREADY_DELETED": "La fatturazione programmata di {name} era già stata eliminata",
+				"REPLACED": "La fatturazione programmata di {name} è stata sostituita da un’altra. Non è stato eliminato nulla.",
 				"FAILED": "Impossibile salvare la modifica. Riprova."
 			}
 		},

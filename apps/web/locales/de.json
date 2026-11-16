@@ -7904,6 +7904,8 @@
 				"SAVE": "Speichern",
 				"SAVE_FAILED": "Der Plan konnte nicht gespeichert werden. Versuchen Sie es erneut.",
 				"EXISTS": "Dieser Kunde hat bereits einen Plan. Schließen und öffnen Sie ihn erneut, um ihn zu ändern.",
+				"REPLACED": "Dieser Plan wurde seit dem Öffnen durch einen anderen ersetzt. Nichts wurde gespeichert: Schließen und öffnen Sie ihn erneut, um ihn zu ändern.",
+				"DELETED": "Dieser Plan wurde seit dem Öffnen gelöscht. Nichts wurde gespeichert.",
 				"START_AFTER_BILLED": "Dieser Plan hat bereits Zeiträume abgerechnet: Der neue Plan muss nach dem zuletzt abgerechneten Zeitraum beginnen, {day}."
 			},
 			"delete": {
@@ -7915,6 +7917,8 @@
 				"PAUSED": "Die geplante Abrechnung von {name} ist pausiert",
 				"RESUMED": "Die geplante Abrechnung von {name} läuft wieder: nächste Rechnung am {day}",
 				"DELETED": "Die geplante Abrechnung von {name} ist gelöscht",
+				"ALREADY_DELETED": "Die geplante Abrechnung von {name} war bereits gelöscht",
+				"REPLACED": "Die geplante Abrechnung von {name} wurde durch eine andere ersetzt. Nichts wurde gelöscht.",
 				"FAILED": "Die Änderung konnte nicht gespeichert werden. Versuchen Sie es erneut."
 			}
 		},

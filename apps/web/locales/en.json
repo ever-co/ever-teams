@@ -7904,6 +7904,8 @@
 				"SAVE": "Save schedule",
 				"SAVE_FAILED": "The schedule could not be saved. Try again.",
 				"EXISTS": "This client already has a schedule. Close and open it again to change it.",
+				"REPLACED": "This schedule was replaced by another since you opened it. Nothing was saved: close and open it again to change it.",
+				"DELETED": "This schedule was deleted since you opened it. Nothing was saved.",
 				"START_AFTER_BILLED": "This schedule already billed periods: its new timeline must start after the last period billed, {day}."
 			},
 			"delete": {
@@ -7915,6 +7917,8 @@
 				"PAUSED": "{name}'s billing schedule is paused",
 				"RESUMED": "{name}'s billing schedule is resumed: next invoice on {day}",
 				"DELETED": "{name}'s billing schedule is deleted",
+				"ALREADY_DELETED": "{name}'s billing schedule was already deleted",
+				"REPLACED": "{name}'s billing schedule was replaced by another. Nothing was deleted.",
 				"FAILED": "The change could not be saved. Try again."
 			}
 		},
