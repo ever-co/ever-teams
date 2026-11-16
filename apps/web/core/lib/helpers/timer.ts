@@ -36,6 +36,23 @@ export interface SentTimeSlot {
 	duration: number;
 	/** The seconds the slot's window held before it was sent. */
 	windowBefore: number;
+	/** When it was sent, on the computer's clock. */
+	sentAt: number;
+}
+
+/** How long a slot sent without an answer may still be landing on Gauzy: as long as the app waits for a request. */
+const SENT_TIME_SLOT_MAY_LAND_FOR_MS = 60_000;
+
+/**
+ * Resolves once a slot sent without an answer can no longer be landing on Gauzy (a page that reloads gives up its
+ * requests, which the API may still carry out): its window then tells whether it landed.
+ */
+export function whenSentTimeSlotSettled(slot: SentTimeSlot, now: number = Date.now()): Promise<void> {
+	const landingFor = slot.sentAt + SENT_TIME_SLOT_MAY_LAND_FOR_MS - now;
+	if (landingFor <= 0) return Promise.resolve();
+	return new Promise((resolve) => {
+		setTimeout(resolve, landingFor);
+	});
 }
 
 /** Whether a window that holds `windowSeconds` holds the slot sent into it: Gauzy caps a window at 600 seconds. */

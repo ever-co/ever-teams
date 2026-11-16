@@ -662,7 +662,8 @@ describe('useStaleTimerGuard, with time the run went on without the app', () => 
 			startedAt: LAST_HEARTBEAT,
 			untilMs: heartbeat + 7 * MINUTE,
 			duration: 420,
-			windowBefore: 120
+			windowBefore: 120,
+			sentAt: Date.now()
 		};
 		// The slot is sent, and its answer never comes: Gauzy may hold it, or not
 		mockCatchUpTimeSlots.mockImplementationOnce(async ({ onSending }) => {
@@ -676,7 +677,12 @@ describe('useStaleTimerGuard, with time the run went on without the app', () => 
 		const reloaded = loadPage();
 		reloaded.mountOwner();
 		await reloaded.settle();
+		// It may still be landing for as long as the app waits for a request: nothing is sent meanwhile
+		expect(mockCatchUpTimeSlots).toHaveBeenCalledTimes(1);
+		expect(reloaded.pendingStart()).toBeNull();
 
+		await reloaded.settle(60_000);
+		await reloaded.settle();
 		expect(mockCatchUpTimeSlots).toHaveBeenCalledTimes(2);
 		expect(mockCatchUpTimeSlots).toHaveBeenLastCalledWith(
 			expect.objectContaining({ fromMs: heartbeat, unanswered: sent })

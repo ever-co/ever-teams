@@ -12,7 +12,8 @@ import {
 	TIME_SLOT_WINDOW_MS,
 	timeSlotsBetween,
 	timeSlotWindowStartOf,
-	toTimeSlotDuration
+	toTimeSlotDuration,
+	whenSentTimeSlotSettled
 } from '@/core/lib/helpers/timer';
 import type { ITimeSlot } from '@/core/types/interfaces/timer/time-slot/time-slot';
 import { ITimerStatus, IToggleTimerStatusParams } from '@/core/types/interfaces/timer/timer-status';
@@ -378,7 +379,8 @@ class TimerService extends APIService {
 	 * Gauzy adds every slot it is sent, and has no key to tell a write sent again from a new one: a write whose answer
 	 * was lost may have landed. So each slot's window is read before the slot is sent (`onSending` is told what it
 	 * held), and a slot sent before without an answer (`unanswered`) is sent again only if its window does not hold
-	 * it. A window written meanwhile by another device may then lose that slot, but no slot is counted twice.
+	 * it, once it can no longer be landing, on the read that the next send goes by. A window written meanwhile by
+	 * another device may then lose that slot, but no slot is counted twice.
 	 *
 	 * @param runStartedAtMs When the run started: Gauzy reads the slots of the runs started within the dates it is
 	 * given only, so a window is read from there.
@@ -410,21 +412,29 @@ class TimerService extends APIService {
 		const isDirect = Boolean(GAUZY_API_BASE_SERVER_URL.value);
 		let answered: { data?: ITimerStatus } | undefined;
 		let writeFromMs = fromMs;
-		if (unanswered && Date.parse(unanswered.startedAt) === fromMs) {
-			const windowSeconds = await this.timeSlotWindowSeconds(employeeId, fromMs, runStartedAtMs);
-			if (isSentTimeSlotHeld(unanswered, windowSeconds)) {
-				onWritten?.(unanswered.untilMs);
-				writeFromMs = unanswered.untilMs;
-			}
-		}
+		let sentBefore = unanswered && Date.parse(unanswered.startedAt) === fromMs ? unanswered : null;
+		if (sentBefore) await whenSentTimeSlotSettled(sentBefore);
 		// One after the other: each write moves the run's end, and the last one leaves it at the present
-		for (const slot of timeSlotsBetween(writeFromMs, toMs)) {
+		let slot = timeSlotsBetween(writeFromMs, toMs).at(0);
+		while (slot) {
 			const windowBefore = await this.timeSlotWindowSeconds(
 				employeeId,
 				Date.parse(slot.startedAt),
 				runStartedAtMs
 			);
-			onSending?.({ ...slot, windowBefore });
+			// The slot sent without an answer is judged on this very read, which the next send goes by
+			const landed =
+				sentBefore?.startedAt === slot.startedAt && isSentTimeSlotHeld(sentBefore, windowBefore)
+					? sentBefore
+					: null;
+			sentBefore = null;
+			if (landed) {
+				onWritten?.(landed.untilMs);
+				writeFromMs = landed.untilMs;
+				slot = timeSlotsBetween(writeFromMs, toMs).at(0);
+				continue;
+			}
+			onSending?.({ ...slot, windowBefore, sentAt: Date.now() });
 			if (isDirect) {
 				await this.post('/timesheet/time-slot', {
 					tenantId: this.tenantId,
@@ -446,6 +456,8 @@ class TimerService extends APIService {
 				});
 			}
 			onWritten?.(slot.untilMs);
+			writeFromMs = slot.untilMs;
+			slot = timeSlotsBetween(writeFromMs, toMs).at(0);
 		}
 		this.lastTimeSlotSync = { at: Date.now(), timeLogId };
 		return isDirect ? this.getTimerStatus() : answered;

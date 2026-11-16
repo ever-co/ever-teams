@@ -71,7 +71,13 @@ describe('a Keep whose writing is not over', () => {
 	});
 
 	it('keeps the slot sent without an answer, which the next try checks before sending it again', () => {
-		const unanswered = { startedAt: '2026-11-15T09:50:00.000Z', untilMs: KEPT_AT, duration: 420, windowBefore: 60 };
+		const unanswered = {
+			startedAt: '2026-11-15T09:50:00.000Z',
+			untilMs: KEPT_AT,
+			duration: 420,
+			windowBefore: 60,
+			sentAt: KEPT_AT
+		};
 		const keep = owedKeep({ unanswered });
 		oweKeep(keep);
 

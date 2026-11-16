@@ -56,7 +56,8 @@ function isSentTimeSlot(value: Partial<SentTimeSlot> | undefined): boolean {
 		typeof value?.startedAt === 'string' &&
 		isFiniteNumber(value.untilMs) &&
 		isFiniteNumber(value.duration) &&
-		isFiniteNumber(value.windowBefore)
+		isFiniteNumber(value.windowBefore) &&
+		isFiniteNumber(value.sentAt)
 	);
 }
 

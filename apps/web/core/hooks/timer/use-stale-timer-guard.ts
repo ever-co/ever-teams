@@ -36,6 +36,7 @@ import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 import { startUnderTimerGuard, trackTimerCommand } from '@/core/hooks/timer/timer-command-guard';
 import { dateFormatOf } from '@/core/lib/utils/workspace-formats';
 import { forgetOwedKeep, oweKeep, type OwedKeep, owedKeepNow, owedKeepsOf } from '@/core/lib/utils/timer/owed-keep';
+import { whenSentTimeSlotSettled } from '@/core/lib/helpers/timer';
 
 /** The employee's last log, with the present the closed-tab rule goes by. */
 async function readLastLog(employeeId: string) {
@@ -329,6 +330,8 @@ async function resumeOwedKeepsHere(
 	const outcomes: OwedKeepOutcome[] = [];
 	// One after the other: each reads the run, which the one before may have stopped
 	for (const owed of owedKeepsOf(employeeId)) {
+		// A slot sent without an answer may still be landing: waited out here, not with the start guard held
+		if (owed.unanswered) await whenSentTimeSlotSettled(owed.unanswered);
 		const resume = async () => {
 			outcomes.push(await resumeOwedKeep(stopAtLastHeartbeat, employeeId, owed));
 		};

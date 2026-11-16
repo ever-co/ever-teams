@@ -379,7 +379,10 @@ describe('TimerService.catchUpTimeSlots', () => {
 			);
 
 			const onWritten = jest.fn();
-			await timerService.catchUpTimeSlots({ ...kept, unanswered, onWritten });
+			const nextTry = timerService.catchUpTimeSlots({ ...kept, unanswered, onWritten });
+			// It may still be landing for as long as the app waits for a request
+			await jest.advanceTimersByTimeAsync(60_000);
+			await nextTry;
 
 			// 150 seconds before, and the 150 the lost answer was for: not 450
 			expect(gauzy.get(windowOf('2026-11-04T22:10:00.000Z'))).toBe(300);
@@ -403,10 +406,40 @@ describe('TimerService.catchUpTimeSlots', () => {
 				})
 			).rejects.toThrow('Network Error');
 
-			await timerService.catchUpTimeSlots({ ...kept, unanswered });
+			const nextTry = timerService.catchUpTimeSlots({ ...kept, unanswered });
+			await jest.advanceTimersByTimeAsync(60_000);
+			await nextTry;
 
 			expect(gauzy.get(windowOf('2026-11-04T22:10:00.000Z'))).toBe(300);
 			expect(gauzy.get(windowOf('2026-11-04T22:20:00.000Z'))).toBe(270);
+		});
+
+		it('waits out a slot still landing on Gauzy before it reads its window: a page reloaded at once', async () => {
+			// The page gives the request up as it reloads; Gauzy carries it out ten seconds later
+			mockFallbackPost.mockImplementationOnce(
+				async (_url: string, body: { startedAt: string; duration: number }) => {
+					setTimeout(() => {
+						const window = windowOf(body.startedAt);
+						gauzy.set(window, Math.min(600, (gauzy.get(window) ?? 0) + body.duration));
+					}, 10_000);
+					throw new Error('Network Error');
+				}
+			);
+			let unanswered: SentTimeSlot | undefined;
+			await expect(
+				timerService.catchUpTimeSlots({
+					...kept,
+					onSending: (slot) => {
+						unanswered = slot;
+					}
+				})
+			).rejects.toThrow('Network Error');
+
+			const nextTry = timerService.catchUpTimeSlots({ ...kept, unanswered });
+			await jest.advanceTimersByTimeAsync(60_000);
+			await nextTry;
+
+			expect(gauzy.get(windowOf('2026-11-04T22:10:00.000Z'))).toBe(300);
 		});
 
 		it("reads the window of each slot from the run's start, which Gauzy reads the slots of, in its own mode", async () => {
