@@ -27,6 +27,8 @@ export function estimateFieldOf(value: string, max: number): string | null {
  * What an estimate field shows once the person leaves it: the same number on at least two digits, without the extra
  * leading zeros typed ("5" and "005" show "05", "010" shows "10", "0" shows "00"). An empty field stays empty, and a
  * value the field would not keep is left as it is. The number is the same: estimateSecondsOf reads "005" as 5 too.
+ * Meant for the estimate fields only, which keep at most three digits (estimateFieldOf): `Number` reads those exactly,
+ * where a value past 2^53 would lose digits.
  */
 export function paddedEstimateField(value: string): string {
 	const isWholeNumber = /^\d+$/.test(value);

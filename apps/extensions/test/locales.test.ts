@@ -31,12 +31,13 @@ function sourcesIn(folder: URL): URL[] {
 }
 
 // Where the code writes a key as a literal, in any quotes (a template literal without `${}` included): a call of t, a
-// refusal's `key`, and the two keys of a sign-in button's label
+// refusal's `key`, and the two keys of a sign-in button's label. labelWhile's first argument is read up to its comma:
+// a plain name (`busy`) at every call site, and a call or expression in it would be read too while it has no comma.
 const KEY = String.raw`(['"\x60])([A-Za-z0-9_]+)\1`;
 const LITERAL_KEYS = [
 	new RegExp(String.raw`\bt\(\s*${KEY}`, 'g'),
 	new RegExp(String.raw`\bkey:\s*${KEY}`, 'g'),
-	new RegExp(String.raw`\blabelWhile\([^,()]+,\s*${KEY},\s*(['"\x60])([A-Za-z0-9_]+)\3`, 'g')
+	new RegExp(String.raw`\blabelWhile\([^,]+,\s*${KEY},\s*(['"\x60])([A-Za-z0-9_]+)\3`, 'g')
 ];
 
 /**
