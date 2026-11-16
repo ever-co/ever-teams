@@ -2082,12 +2082,16 @@ describe('Ever Teams feature surface preservation', () => {
 		// (/api/timer/slot/window GET; #5123).
 		// 405 files and 513 verbs with the Board app's share and mention notifications (/api/board/notify POST and
 		// /api/board/members GET, each with its CORS OPTIONS; #5022, ever-gauzy #12007).
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(405);
+		// 406 files and 514 verbs with the change of a time entry's own labels (/api/timesheet/time-log/[id]/tags PUT;
+		// #5368, ever-gauzy #12029).
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(406);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(513);
+		).toHaveLength(514);
 		expect(routes).toEqual(
 			expect.arrayContaining([
+				// Proxy mode twin of Gauzy's change of a time entry's own labels (ever-gauzy #12029, #5368)
+				'apps/web/app/api/timesheet/time-log/[id]/tags/route.ts::PUT',
 				// The Board app's share and mention notifications, forwarded with the session of the cookies (#5022)
 				'apps/web/app/api/board/notify/route.ts::POST',
 				'apps/web/app/api/board/notify/route.ts::OPTIONS',

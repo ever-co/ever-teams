@@ -319,3 +319,27 @@ describe('TimeLogService time logs with the breaks (#5216)', () => {
 		expect(sentQueryOf(get).has('includeBreaks')).toBe(false);
 	});
 });
+
+describe('TimeLogService entry labels probe (#5368)', () => {
+	afterEach(() => jest.restoreAllMocks());
+
+	it('asks the tags of the entries of the last minute, a range the API accepts: its start before its end', async () => {
+		const get = jest.spyOn(timeLogService, 'get');
+		get.mockResolvedValue({ data: [] } as never);
+
+		await expect(timeLogService.supportsEntryLabels()).resolves.toBe(true);
+
+		const [url] = get.mock.calls[0];
+		const sent = new URL(url, 'https://client.test').searchParams;
+		const start = Date.parse(sent.get('startDate') ?? '');
+		const end = Date.parse(sent.get('endDate') ?? '');
+		expect(start).toBeLessThan(end);
+		expect(sent.get('relations[0]')).toBe('tags');
+	});
+
+	it('reads a refusal as an API without labels on entries', async () => {
+		jest.spyOn(timeLogService, 'get').mockRejectedValue(new Error('400'));
+
+		await expect(timeLogService.supportsEntryLabels()).resolves.toBe(false);
+	});
+});
