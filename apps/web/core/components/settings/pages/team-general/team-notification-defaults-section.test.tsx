@@ -204,6 +204,26 @@ describe('TeamNotificationDefaultsSection (#5022)', () => {
 		expect(server.requests[1].defaults).toHaveProperty('taskDueReminderHours');
 	});
 
+	it('builds on a newer read that holds the same defaults as before, once the save on its way answers', async () => {
+		const server = gauzy();
+		const { rerender } = render(
+			sectionOf({ notificationDefaults: null, updatedAt: '2026-11-16T10:00:01.000Z' }, server.save)
+		);
+
+		await act(async () => {
+			screen.getAllByRole('button', { name: 'pick' })[0].click();
+		});
+		// Another manager left email to the members again just after the email save reached Gauzy: the newer read holds
+		// no defaults, as the one before it did
+		rerender(sectionOf({ notificationDefaults: null, updatedAt: '2026-11-16T10:00:03.000Z' }, server.save));
+		await server.landLatestFirst();
+		await act(async () => {
+			screen.getAllByRole('button', { name: 'pick' })[1].click();
+		});
+
+		expect(server.requests[1].defaults).toEqual({ push: false });
+	});
+
 	it('never takes a read of the team older than one already seen', async () => {
 		const save = jest.fn().mockResolvedValue(undefined);
 		const { container, rerender } = render(

@@ -161,8 +161,11 @@ export function TeamNotificationDefaultsSection({
 	const hasChangedAt = !Number.isNaN(changedAt);
 	const isOlderRead = hasChangedAt && changedAt < latest.current.readChangedAt;
 	if (!isOlderRead) {
+		// While saves wait or run, a newer read counts even when it holds the same defaults as the last one: another
+		// manager may have taken back what the save on its way sends
+		const isNewerRead = hasChangedAt && changedAt > latest.current.readChangedAt;
 		if (hasChangedAt) latest.current.readChangedAt = changedAt;
-		if (latest.current.read !== defaults) {
+		if (latest.current.read !== defaults || (isNewerRead && latest.current.pending > 0)) {
 			latest.current.read = defaults;
 			if (latest.current.pending === 0) {
 				latest.current.next = defaults;
