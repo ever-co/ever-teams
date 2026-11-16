@@ -167,7 +167,12 @@ function ProjectsSection({ dashboard, member }: Readonly<{ dashboard: TeamDashbo
 				rows={shares}
 				renderName={(item) => (
 					<>
-						<ProjectMark imageUrl={item.imageUrl} color={item.color} isNoProject={item.isNoProject} />
+						<ProjectMark
+							imageUrl={item.imageUrl}
+							color={item.color}
+							isNoProject={item.isNoProject}
+							isHidden={item.isProjectHidden}
+						/>
 						<span className="truncate">{projectNameOf(item, t)}</span>
 					</>
 				)}

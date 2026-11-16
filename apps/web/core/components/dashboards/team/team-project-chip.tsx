@@ -30,7 +30,12 @@ export function ProjectChip({ project, className }: Readonly<{ project: ProjectS
 			)}
 			style={chipStyleOf(project)}
 		>
-			<ProjectMark imageUrl={project.imageUrl} color={project.color} isNoProject={project.isNoProject} />
+			<ProjectMark
+				imageUrl={project.imageUrl}
+				color={project.color}
+				isNoProject={project.isNoProject}
+				isHidden={project.isProjectHidden}
+			/>
 			<span className="truncate">{name}</span>
 		</span>
 	);

@@ -200,7 +200,12 @@ function TopProjectChip({ project, memberSeconds }: Readonly<{ project: ProjectS
 				)}
 				style={projectChipStyleOf(project)}
 			>
-				<ProjectMark imageUrl={project.imageUrl} color={project.color} isNoProject={project.isNoProject} />
+				<ProjectMark
+					imageUrl={project.imageUrl}
+					color={project.color}
+					isNoProject={project.isNoProject}
+					isHidden={project.isProjectHidden}
+				/>
 				<span className="truncate">{name}</span>
 				<span className="shrink-0 tabular-nums opacity-70">{formatPercent(share)}</span>
 			</span>

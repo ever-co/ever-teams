@@ -1,3 +1,4 @@
+import { HiddenProjectMark } from '@/core/components/projects/hidden-project-mark';
 import { memo } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/core/components/common/avatar';
 import { cn } from '@/core/lib/helpers';
@@ -35,13 +36,18 @@ export const MemberFace = memo(function MemberFace({
 
 /**
  * A project beside its name: its own image when it has one, otherwise a dot in its colour; time logged without a
- * project gets an empty ring so it never passes for a project.
+ * project gets an empty ring so it never passes for a project, and the time of the projects the API keeps from the
+ * reader the lock of private projects (CORE-27).
  */
 export const ProjectMark = memo(function ProjectMark({
 	imageUrl,
 	color,
-	isNoProject
-}: Readonly<{ imageUrl: string | null; color: string | null; isNoProject: boolean }>) {
+	isNoProject,
+	isHidden = false
+}: Readonly<{ imageUrl: string | null; color: string | null; isNoProject: boolean; isHidden?: boolean }>) {
+	if (isHidden) {
+		return <HiddenProjectMark />;
+	}
 	if (isNoProject) {
 		return <span aria-hidden="true" className="size-2 shrink-0 rounded-full hairline-ring ring-foreground/30" />;
 	}
