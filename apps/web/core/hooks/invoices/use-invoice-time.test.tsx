@@ -482,6 +482,25 @@ describe('the lines of a new invoice regrouped (#5355)', () => {
 		mockRates.getProjectRates.mockResolvedValue(siteRates);
 	});
 
+	type Grouping = Parameters<typeof useInvoiceTime>[0]['grouping'];
+
+	/** The new invoice's time under one grouping; a rerender switches it. */
+	function renderRegrouped(initialGrouping: Grouping) {
+		const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+		const store = createStore();
+		store.set(currentOrganizationState, organization);
+		const wrapper = ({ children }: Readonly<{ children: React.ReactNode }>) => (
+			<QueryClientProvider client={queryClient}>
+				<Provider store={store}>{children}</Provider>
+			</QueryClientProvider>
+		);
+		return renderHook(
+			({ grouping }: { grouping: Grouping }) =>
+				useInvoiceTime({ clientId: 'client-acme', period: october, grouping, labels }),
+			{ wrapper, initialProps: { grouping: initialGrouping } }
+		);
+	}
+
 	it('regroups the time already read by task, without reading it again or showing the loading state', async () => {
 		// Two tasks of one member: one line by member, two named lines by task
 		const homepageTime = {
@@ -497,20 +516,7 @@ describe('the lines of a new invoice regrouped (#5355)', () => {
 			duration: 3600
 		};
 		mockReports.getBillableTimeLogs.mockResolvedValue([homepageTime, checkoutTime]);
-		const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-		const store = createStore();
-		store.set(currentOrganizationState, organization);
-		const wrapper = ({ children }: Readonly<{ children: React.ReactNode }>) => (
-			<QueryClientProvider client={queryClient}>
-				<Provider store={store}>{children}</Provider>
-			</QueryClientProvider>
-		);
-		type Grouping = Parameters<typeof useInvoiceTime>[0]['grouping'];
-		const { result, rerender } = renderHook(
-			({ grouping }: { grouping: Grouping }) =>
-				useInvoiceTime({ clientId: 'client-acme', period: october, grouping, labels }),
-			{ wrapper, initialProps: { grouping: 'member' as Grouping } }
-		);
+		const { result, rerender } = renderRegrouped('member');
 		await waitFor(() => expect(result.current.isLoading).toBe(false));
 		const readsBefore = mockReports.getBillableTimeLogs.mock.calls.length;
 		// The time is read with its tasks from the start
@@ -533,20 +539,7 @@ describe('the lines of a new invoice regrouped (#5355)', () => {
 		const checkoutTime = { ...adaTime, id: 'log-checkout', taskId: 'task-checkout', duration: 3600 };
 		const untaskedTime = { ...adaTime, id: 'log-none', taskId: null, duration: 1800 };
 		mockReports.getBillableTimeLogs.mockResolvedValue([homepageTime, checkoutTime, untaskedTime]);
-		const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-		const store = createStore();
-		store.set(currentOrganizationState, organization);
-		const wrapper = ({ children }: Readonly<{ children: React.ReactNode }>) => (
-			<QueryClientProvider client={queryClient}>
-				<Provider store={store}>{children}</Provider>
-			</QueryClientProvider>
-		);
-		type Grouping = Parameters<typeof useInvoiceTime>[0]['grouping'];
-		const { result, rerender } = renderHook(
-			({ grouping }: { grouping: Grouping }) =>
-				useInvoiceTime({ clientId: 'client-acme', period: october, grouping, labels }),
-			{ wrapper, initialProps: { grouping: 'project' as Grouping } }
-		);
+		const { result, rerender } = renderRegrouped('project');
 		await waitFor(() => expect(result.current.lines).toHaveLength(1));
 		const readsBefore = mockReports.getBillableTimeLogs.mock.calls.length;
 		const totalsOf = () => {
