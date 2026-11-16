@@ -1,6 +1,6 @@
 import qs from 'qs';
 import { serverFetch } from '../../fetch';
-import { ITimerSlotDataRequest } from '@/core/types/interfaces/timer/time-slot/time-slot';
+import { ITimerSlotDataRequest, ITimeSlot } from '@/core/types/interfaces/timer/time-slot/time-slot';
 
 export function getEmployeeTimeSlotsRequest({
 	bearer_token,
@@ -43,6 +43,44 @@ export function getEmployeeTimeSlotsRequest({
 
 	return serverFetch<ITimerSlotDataRequest>({
 		path: `/timesheet/statistics/time-slots?${query}`,
+		method: 'GET',
+		bearer_token,
+		tenantId
+	});
+}
+
+/**
+ * The employee's own time slots that start between `startDate` and `endDate`, both included, of runs started between
+ * them too: Gauzy reads no others. What a window of a catch-up write holds, read from its run's start (#5123).
+ */
+export function getEmployeeWindowTimeSlotsRequest({
+	bearer_token,
+	tenantId,
+	organizationId,
+	employeeId,
+	startDate,
+	endDate
+}: {
+	bearer_token: string;
+	tenantId: string;
+	organizationId: string;
+	employeeId: string;
+	startDate: Date;
+	endDate: Date;
+}) {
+	const query = qs.stringify(
+		{
+			tenantId,
+			organizationId,
+			startDate: startDate.toISOString(),
+			endDate: endDate.toISOString(),
+			employeeIds: [employeeId]
+		},
+		{ arrayFormat: 'indices' }
+	);
+
+	return serverFetch<ITimeSlot[]>({
+		path: `/timesheet/time-slot?${query}`,
 		method: 'GET',
 		bearer_token,
 		tenantId
