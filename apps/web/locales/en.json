@@ -1700,12 +1700,21 @@
 				"FAILED_FIRST_PART_KEPT": "The first part was saved, but the second part ({range}) could not be added. Add it with Add time.",
 				"FAILED_UNKNOWN": "The split could not be confirmed. Reload the calendar and check this entry before you try again.",
 				"ADD_REST": "Add the second part",
+				"CHECKING": "Checking whether this entry can be split…",
+				"SLOT_STEP": "Tracked time splits on its 10-minute slots, so each one goes whole, with its screenshots and activity, to one part.",
+				"OFF_SLOT": "Tracked time splits on a 10-minute mark, such as {before} or {after}.",
+				"OFF_SLOT_ONE": "Tracked time splits on a 10-minute mark, such as {time}.",
+				"REASON_LABEL": "Reason",
+				"REASON_REQUIRED": "Your organization asks for a reason when time changes. Add one, then split again.",
+				"REASON_TOO_LONG": "The reason can hold at most 255 characters.",
+				"FAILED_RETRY": "The split could not be confirmed. Try again: a split that already went through is never made twice.",
 				"REFUSED": {
 					"TRACKED": "Tracked time carries its activity and screenshots, which only the server can share between two entries. Only time added by hand can be split for now.",
 					"RUNNING": "The timer is still running. Stop it, then split the entry.",
 					"TOO_SHORT": "This entry is too short: each part must last at least a minute.",
 					"APPROVED": "This day belongs to an approved timesheet, so its time can't be changed.",
-					"PERMISSION": "Your role or your organization doesn't allow changing time or adding time by hand."
+					"PERMISSION": "Your role or your organization doesn't allow changing time or adding time by hand.",
+					"INVOICED": "An invoice bills this entry, so it can't be split."
 				}
 			},
 			"SETTINGS": {

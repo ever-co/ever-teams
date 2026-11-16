@@ -450,6 +450,8 @@ export function CalendarPage() {
 				entry={split.entry}
 				isOpen={split.isOpen}
 				refusal={split.refusal}
+				isChecking={split.isChecking}
+				viaApi={split.viaApi}
 				formatters={formatters}
 				onClose={split.close}
 				onAddTime={openAddTimeIn}

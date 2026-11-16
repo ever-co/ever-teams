@@ -1700,12 +1700,21 @@
 				"FAILED_FIRST_PART_KEPT": "Der erste Teil wurde gespeichert, aber der zweite Teil ({range}) konnte nicht hinzugefügt werden. Füge ihn mit „Zeit hinzufügen“ hinzu.",
 				"FAILED_UNKNOWN": "Die Teilung konnte nicht bestätigt werden. Lade den Kalender neu und prüfe diesen Eintrag, bevor du es erneut versuchst.",
 				"ADD_REST": "Zweiten Teil hinzufügen",
+				"CHECKING": "Es wird geprüft, ob dieser Eintrag geteilt werden kann…",
+				"SLOT_STEP": "Erfasste Zeit wird an ihren 10-Minuten-Abschnitten geteilt: Jeder geht ganz, mit seinen Screenshots und seiner Aktivität, in einen Teil.",
+				"OFF_SLOT": "Erfasste Zeit wird an einer 10-Minuten-Marke geteilt, etwa {before} oder {after}.",
+				"OFF_SLOT_ONE": "Erfasste Zeit wird an einer 10-Minuten-Marke geteilt, etwa {time}.",
+				"REASON_LABEL": "Grund",
+				"REASON_REQUIRED": "Deine Organisation verlangt einen Grund, wenn sich Zeit ändert. Gib einen an und teile erneut.",
+				"REASON_TOO_LONG": "Der Grund darf höchstens 255 Zeichen lang sein.",
+				"FAILED_RETRY": "Die Teilung konnte nicht bestätigt werden. Versuche es erneut: Eine bereits erfolgte Teilung wird nie doppelt ausgeführt.",
 				"REFUSED": {
 					"TRACKED": "Erfasste Zeit trägt ihre Aktivität und Screenshots, die nur der Server auf zwei Einträge aufteilen kann. Vorerst lässt sich nur manuell hinzugefügte Zeit teilen.",
 					"RUNNING": "Der Timer läuft noch. Stoppe ihn und teile dann den Eintrag.",
 					"TOO_SHORT": "Dieser Eintrag ist zu kurz: Jeder Teil muss mindestens eine Minute dauern.",
 					"APPROVED": "Dieser Tag gehört zu einem genehmigten Stundenzettel, daher kann seine Zeit nicht geändert werden.",
-					"PERMISSION": "Deine Rolle oder deine Organisation erlaubt weder das Ändern von Zeit noch das manuelle Hinzufügen."
+					"PERMISSION": "Deine Rolle oder deine Organisation erlaubt weder das Ändern von Zeit noch das manuelle Hinzufügen.",
+					"INVOICED": "Eine Rechnung enthält diesen Eintrag, daher kann er nicht geteilt werden."
 				}
 			},
 			"SETTINGS": {

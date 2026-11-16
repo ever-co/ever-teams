@@ -16,6 +16,7 @@ import { queryKeys } from '@/core/query/keys';
 import { activeTeamState, tasksByTeamState } from '@/core/stores';
 import type { CalendarEntryMoves } from './use-calendar-entry-moves';
 import type { CalendarPageState } from './use-calendar-page';
+import { useTimeLogSplitSupport } from './use-time-log-split-support';
 
 interface CalendarMenuOptions {
 	page: CalendarPageState;
@@ -80,15 +81,29 @@ export function useCalendarMenu({ page, handlers, moves, onAddTime }: CalendarMe
 		[addTimeMember, canAddTime, canEdit, onAddTime, onDelete, onEdit, openDuplicate, ownEmployeeId, store]
 	);
 
+	// Whether the API splits in one write, its slots included (ever-co/ever-gauzy#12030): asked once, when the dialog
+	// first opens on an entry that is not running
+	const isStoppedEntry = splitEntry !== null && !splitEntry.isRunning;
+	const splitSupport = useTimeLogSplitSupport(splitEntry?.log ?? null, isSplitOpen && isStoppedEntry);
+	const splitsThroughApi = splitSupport === 'supported';
+
 	let splitRefusal: SplitRefusal = 'none';
 	if (splitEntry) {
 		const window = { start: splitEntry.start, end: splitEntry.end };
+		// The API's split is an edit of the entry: the rest is the same time, not time added by hand
+		let mayChangeTime = moves.allowsTimeChanges && canAddTime;
+		if (splitsThroughApi) {
+			mayChangeTime = moves.allowsTimeChanges;
+		}
 		const rules = {
 			isOnApprovedDay: moves.isOnApprovedDay(splitEntry),
-			mayChangeTime: moves.allowsTimeChanges && canAddTime
+			mayChangeTime,
+			canSplitTracked: splitsThroughApi
 		};
 		splitRefusal = splitRefusalOf(splitEntry.log, window, rules);
 	}
+	// The dialog waits for that answer, once per session, before it says whether the entry can be split and how
+	const isCheckingSplit = isStoppedEntry && splitSupport === 'checking';
 
 	const closeSplit = useCallback(() => setIsSplitOpen(false), []);
 
@@ -102,7 +117,14 @@ export function useCalendarMenu({ page, handlers, moves, onAddTime }: CalendarMe
 	return {
 		menu: { target, isOpen, open, setIsOpen, clearTarget },
 		actions,
-		split: { entry: splitEntry, isOpen: isSplitOpen, refusal: splitRefusal, close: closeSplit },
+		split: {
+			entry: splitEntry,
+			isOpen: isSplitOpen,
+			refusal: splitRefusal,
+			isChecking: isCheckingSplit,
+			viaApi: splitsThroughApi,
+			close: closeSplit
+		},
 		stop: { isAsked: isStopAsked, finish: finishStop },
 		duplicate,
 		addTimeMember

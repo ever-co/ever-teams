@@ -1700,12 +1700,21 @@
 				"FAILED_FIRST_PART_KEPT": "A primeira parte foi salva, mas a segunda ({range}) não pôde ser adicionada. Adicione-a com Adicionar tempo.",
 				"FAILED_UNKNOWN": "Não foi possível confirmar a divisão. Recarregue o calendário e confira este registro antes de tentar novamente.",
 				"ADD_REST": "Adicionar a segunda parte",
+				"CHECKING": "Verificando se esta entrada pode ser dividida…",
+				"SLOT_STEP": "O tempo rastreado é dividido nos seus intervalos de 10 minutos: cada um vai inteiro, com capturas e atividade, para uma só parte.",
+				"OFF_SLOT": "O tempo rastreado é dividido numa marca de 10 minutos, como {before} ou {after}.",
+				"OFF_SLOT_ONE": "O tempo rastreado é dividido numa marca de 10 minutos, como {time}.",
+				"REASON_LABEL": "Motivo",
+				"REASON_REQUIRED": "Sua organização pede um motivo quando o tempo muda. Adicione um e divida novamente.",
+				"REASON_TOO_LONG": "O motivo pode ter no máximo 255 caracteres.",
+				"FAILED_RETRY": "Não foi possível confirmar a divisão. Tente de novo: uma divisão já feita nunca é repetida.",
 				"REFUSED": {
 					"TRACKED": "O tempo rastreado carrega sua atividade e capturas de tela, que só o servidor pode repartir entre dois registros. Por enquanto, só o tempo adicionado à mão pode ser dividido.",
 					"RUNNING": "O temporizador ainda está em execução. Pare-o e depois divida o registro.",
 					"TOO_SHORT": "Este registro é curto demais: cada parte deve durar pelo menos um minuto.",
 					"APPROVED": "Este dia pertence a uma folha de horas aprovada, então seu tempo não pode ser alterado.",
-					"PERMISSION": "Sua função ou sua organização não permite alterar o tempo nem adicioná-lo à mão."
+					"PERMISSION": "Sua função ou sua organização não permite alterar o tempo nem adicioná-lo à mão.",
+					"INVOICED": "Uma fatura inclui esta entrada, por isso ela não pode ser dividida."
 				}
 			},
 			"SETTINGS": {
