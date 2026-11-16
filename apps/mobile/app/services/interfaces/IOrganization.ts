@@ -50,6 +50,10 @@ export interface IOrganization {
 	inactivityTimeLimit: number;
 	activityProofDuration: number;
 	requireReason: boolean;
+	/** Whether members may discard a running timer; absent from an API without the discard, null counts as allowed. */
+	allowDiscardTimer?: boolean | null;
+	/** How many minutes after its start a run may still be discarded; null or 0 means no limit. */
+	discardTimerWithinMinutes?: number | null;
 	requireDescription: boolean;
 	requireProject: boolean;
 	requireTask: boolean;

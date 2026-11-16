@@ -83,6 +83,27 @@ export type IToggleTimerParams = ITimerStatusParams & {
 	taskId: string;
 };
 
+/** The body of `PUT /timesheet/timer/started-at`: the new start of the running timer, and why it changes. */
+export type ITimerStartMoveParams = {
+	/** The new start, as an ISO date. */
+	startedAt: string;
+	reason?: string;
+};
+
+/** The body of `POST /timesheet/timer/discard`: the running run the discard is for, in its organization. */
+export type ITimerDiscardParams = {
+	timeLogId: string;
+	tenantId: string;
+	organizationId: string;
+};
+
+/** The body of a refusal from the API: its `code` names the rule that refused. */
+export type IApiRefusal = {
+	statusCode?: number;
+	message?: string | string[];
+	code?: string;
+};
+
 // ===================== TImesheet ===============
 
 export interface ITasksTimesheet {
