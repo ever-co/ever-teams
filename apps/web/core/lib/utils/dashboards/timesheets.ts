@@ -964,7 +964,7 @@ function withLabelsKey(key: string, labelIds: ReadonlyArray<string>) {
 	if (labelIds.length === 0) {
 		return key;
 	}
-	const sorted = [...labelIds].sort();
+	const sorted = [...labelIds].sort((first, second) => first.localeCompare(second));
 	return `${key}:labels=${sorted.join(',')}`;
 }
 
