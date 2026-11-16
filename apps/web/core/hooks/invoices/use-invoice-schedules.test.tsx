@@ -171,6 +171,16 @@ describe('use-invoice-schedules', () => {
 			await waitFor(() => expect(invalidate).toHaveBeenCalledWith({ queryKey: queryKeys.invoiceSchedules.all }));
 		});
 
+		it('keeps the same function from one render to the next', () => {
+			const { wrapper } = setup();
+			const { result, rerender } = renderHook(() => useInvoiceScheduleMutations(WORKSPACE), { wrapper });
+			const first = result.current.updateOpenedSchedule;
+
+			rerender();
+
+			expect(result.current.updateOpenedSchedule).toBe(first);
+		});
+
 		it('passes any other refusal on as it came', async () => {
 			mockService.updateSchedule.mockRejectedValue(apiError(400));
 			const { wrapper } = setup();

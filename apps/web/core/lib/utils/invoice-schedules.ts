@@ -120,7 +120,7 @@ export class OpenedScheduleGoneError extends Error {
 	readonly fate: Exclude<OpenedScheduleFate, 'current'>;
 
 	constructor(fate: Exclude<OpenedScheduleFate, 'current'>) {
-		super(`The billing schedule this change was made on was ${fate} since`);
+		super(`The billing schedule was ${fate} after its form opened, so the change was not saved`);
 		this.name = 'OpenedScheduleGoneError';
 		this.fate = fate;
 	}

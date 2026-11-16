@@ -124,37 +124,44 @@ export function useInvoiceScheduleMutations(workspace: InvoicesScope | null) {
 		onSettled: refresh
 	});
 
+	const updateScheduleById = updateMutation.mutateAsync;
+
 	/**
-	 * Saves a form's change to the schedule it opened on, and never to another: when the latest read shows that
-	 * schedule deleted, or replaced by another (another tab deleted it and set a new one), nothing is sent and the
-	 * schedules are read again. An API that answers the schedule no longer exists (404) changed nothing either.
-	 * Either way the save fails with the reason, as an `OpenedScheduleGoneError`.
+	 * Saves a form's change to the schedule it opened on, and never to another: the change is sent to that schedule's
+	 * id only, so a schedule that replaced it, even one set after this check, is never written. When the latest read
+	 * already shows it deleted, or replaced by another (another tab deleted it and set a new one), nothing is sent
+	 * and the schedules are read again before the save fails, so the section shows what is there now. An API that
+	 * answers the schedule no longer exists (404) changed nothing either. Either way the save fails with the reason,
+	 * as an `OpenedScheduleGoneError`.
 	 */
-	const updateOpenedSchedule = async ({
-		scheduleId,
-		latest,
-		change
-	}: {
-		/** The schedule the form opened on. */
-		scheduleId: string;
-		/** The client's schedule as last read, or null when it has none. */
-		latest: TInvoiceSchedule | null;
-		change: InvoiceScheduleChange;
-	}): Promise<TInvoiceSchedule> => {
-		const fate = openedScheduleFateOf(scheduleId, latest);
-		if (fate !== 'current') {
-			void refresh();
-			throw new OpenedScheduleGoneError(fate);
-		}
-		try {
-			return await updateMutation.mutateAsync({ scheduleId, change });
-		} catch (error) {
-			if (errorStatusOf(error) === 404) {
-				throw new OpenedScheduleGoneError('deleted');
+	const updateOpenedSchedule = useCallback(
+		async ({
+			scheduleId,
+			latest,
+			change
+		}: {
+			/** The schedule the form opened on. */
+			scheduleId: string;
+			/** The client's schedule as last read, or null when it has none. */
+			latest: TInvoiceSchedule | null;
+			change: InvoiceScheduleChange;
+		}): Promise<TInvoiceSchedule> => {
+			const fate = openedScheduleFateOf(scheduleId, latest);
+			if (fate !== 'current') {
+				await refresh();
+				throw new OpenedScheduleGoneError(fate);
 			}
-			throw error;
-		}
-	};
+			try {
+				return await updateScheduleById({ scheduleId, change });
+			} catch (error) {
+				if (errorStatusOf(error) === 404) {
+					throw new OpenedScheduleGoneError('deleted');
+				}
+				throw error;
+			}
+		},
+		[refresh, updateScheduleById]
+	);
 
 	return {
 		createSchedule: createMutation.mutateAsync,
