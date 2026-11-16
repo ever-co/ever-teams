@@ -8,7 +8,7 @@ import type { TimerLabelsSave } from '@/core/lib/utils/timer-status-labels';
 export const timerLabelsState = atom<string[]>([]);
 
 /**
- * The labels last saved on a running entry and when the save landed (#5368): a status read asked before then keeps
- * them rather than putting back the labels the run had before.
+ * The labels last saved on a running entry and the number of that save (#5368): a status read asked before it landed
+ * keeps them rather than putting back the labels the run had before.
  */
 export const timerLabelsSavedState = atom<TimerLabelsSave | null>(null);

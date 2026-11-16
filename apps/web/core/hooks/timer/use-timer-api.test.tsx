@@ -23,6 +23,8 @@ import {
 	timerStartsInFlightState,
 	timerStatusState
 } from '@/core/stores';
+import { landLabelSave } from '@/core/lib/utils/timer-status-labels';
+import { timerLabelsSavedState } from '@/core/stores/timer/timer-labels';
 import { timerStartNotesState } from '@/core/stores/timer/timer-start-notes';
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
@@ -794,5 +796,46 @@ describe('a heartbeat the API took', () => {
 			at: expect.any(Number),
 			stoppedAt: minutesAgo(0)
 		});
+	});
+
+	it('keeps the labels saved on the run while it was on its way, rather than the ones its answer read (#5368)', async () => {
+		const meeting = { id: 'meeting', name: 'meeting' };
+		const support = { id: 'support', name: 'support' };
+		const run = {
+			id: 'log-1',
+			source: ETimeLogSource.TEAMS,
+			isRunning: true,
+			startedAt: minutesAgo(60),
+			stoppedAt: minutesAgo(0)
+		};
+		mockGauzy.lastLog = run;
+		const tab = renderTab();
+		act(() => tab.store.set(timerStatusState, { running: true, lastLog: { ...run, tags: [meeting] } } as never));
+		// The answer read the run before the save below: "meeting" alone
+		let answerHeartbeat: (answer: unknown) => void = () => undefined;
+		mockSyncTimer.mockImplementationOnce(
+			() =>
+				new Promise((resolve) => (answerHeartbeat = resolve as (answer: unknown) => void)) as ReturnType<
+					typeof mockSyncTimer
+				>
+		);
+
+		let heartbeat: Promise<unknown> | undefined;
+		// Sent: the heartbeat is on its way once the request has gone out
+		await act(async () => {
+			heartbeat = tab.result.current.syncTimer();
+		});
+		expect(mockSyncTimer).toHaveBeenCalled();
+		act(() => {
+			const saved = { logId: 'log-1', tags: [meeting, support], saveNumber: landLabelSave() };
+			tab.store.set(timerLabelsSavedState, saved as never);
+			tab.store.set(timerStatusState, { running: true, lastLog: { ...run, tags: [meeting, support] } } as never);
+		});
+		await act(async () => {
+			answerHeartbeat({ data: { running: true, lastLog: { ...run, tags: [meeting] } } });
+			await heartbeat;
+		});
+
+		expect(tab.store.get(timerStatusState)?.lastLog?.tags).toEqual([meeting, support]);
 	});
 });

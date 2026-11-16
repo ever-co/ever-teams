@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import { EntryLabelsPicker } from '@/core/components/features/entry-labels/entry-labels-picker';
 import { useEntryLabelsSupport } from '@/core/hooks/timer/use-entry-labels-support';
 import { entryLabelsOf } from '@/core/lib/utils/time-log-labels';
+import { landLabelSave } from '@/core/lib/utils/timer-status-labels';
 import { timeLogService } from '@/core/services/client/api/timesheets/time-log.service';
 import { activeTeamIdState, timerLabelsState, timerStatusState } from '@/core/stores';
 import { teamTimerStatusState } from '@/core/stores/timer/team-timer-status';
@@ -71,8 +72,8 @@ export function TimerLabelsControl({ className }: Readonly<{ className?: string 
 			try {
 				const updated = await timeLogService.updateTimeLogLabels(runningLogId, labelIds);
 				const savedTags = updated?.tags ?? [];
-				// A status read asked before this moment keeps these labels rather than the ones the run had before
-				setLabelsSaved({ logId: runningLogId, tags: savedTags, savedAt: Date.now() });
+				// A status read asked before this save landed keeps these labels rather than the ones the run had before
+				setLabelsSaved({ logId: runningLogId, tags: savedTags, saveNumber: landLabelSave() });
 				// The status as it is now: a stop or another start may have landed while the labels were saved
 				setTimerStatus((current) => withSavedLabels(current, runningLogId, savedTags));
 			} catch {

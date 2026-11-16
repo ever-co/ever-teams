@@ -29,7 +29,7 @@ import { forgetSavedStop, saveStop } from '@/core/lib/utils/timer/saved-stop';
 import { rememberHeartbeat } from '@/core/lib/utils/timer/unfollowed-time';
 import { notesForStartOf } from '@/core/lib/utils/timer/timer-start-notes';
 import { startTaskOf } from '@/core/lib/utils/timer/timer-start-task';
-import { statusKeepingSavedLabels } from '@/core/lib/utils/timer-status-labels';
+import { labelSavesLanded, statusKeepingSavedLabels } from '@/core/lib/utils/timer-status-labels';
 import { queryKeys } from '@/core/query/keys';
 import { ApiErrorService } from '@/core/services/client/api-error.service';
 import { timerService } from '@/core/services/client/api/timers';
@@ -296,11 +296,11 @@ export function useTimerApi({
 	);
 	const scopedStatusQuery = useQuery({
 		queryKey: statusKey,
-		// When the read was asked: labels saved on the run after that moment are kept over the ones it brings (#5368)
+		// The label saves landed when the read was asked: labels saved on the run after it are kept over its own (#5368)
 		queryFn: async ({ signal }) => {
-			const requestedAt = Date.now();
+			const labelSavesSeen = labelSavesLanded();
 			const response = await timerService.getTimerStatus({ scope: scope!, signal });
-			return { ...response, requestedAt };
+			return { ...response, labelSavesSeen };
 		},
 		enabled: statusEnabled && enabled && scopedStatusReady,
 		refetchInterval: statusEnabled ? statusRefetchInterval : false,
@@ -317,9 +317,9 @@ export function useTimerApi({
 		queryClient.fetchQuery({
 			queryKey: queryKeys.timer.timer(activeTeamId),
 			queryFn: async () => {
-				const requestedAt = Date.now();
+				const labelSavesSeen = labelSavesLanded();
 				const response = await timerService.getTimerStatus();
-				return { ...response, requestedAt };
+				return { ...response, labelSavesSeen };
 			}
 		})
 	);
@@ -330,7 +330,7 @@ export function useTimerApi({
 		const nextStatus = statusKeepingSavedLabels(
 			read?.data,
 			store.get(timerLabelsSavedState),
-			read?.requestedAt ?? 0
+			read?.labelSavesSeen ?? 0
 		);
 		if (statusEnabled && nextStatus && isCurrentScope() && !isEqual(timerStatusRef.current, nextStatus)) {
 			setTimerStatus(nextStatus);
@@ -467,7 +467,7 @@ export function useTimerApi({
 				const readStatus = statusKeepingSavedLabels(
 					res?.data,
 					store.get(timerLabelsSavedState),
-					res?.requestedAt ?? 0
+					res?.labelSavesSeen ?? 0
 				);
 				if (readStatus && (!statusEnabled || isCurrentScope()) && !isEqual(timerStatus, readStatus)) {
 					setTimerStatus((t: ITimerStatus | null) => {
@@ -527,6 +527,8 @@ export function useTimerApi({
 		}
 		// No status update from a sync that starts while a command is pending, e.g. a slow stop from another instance
 		const commandSeq = timerCommandMark();
+		// Labels saved on the run once the heartbeat is sent are kept over the ones its answer brings (#5368)
+		const labelSavesSeen = labelSavesLanded();
 		return syncTimerMutate({
 			source: timerStatus?.lastLog?.source || ETimeLogSource.TEAMS,
 			user: $user.current,
@@ -534,7 +536,7 @@ export function useTimerApi({
 		}).then((res) => {
 			// A hidden tab, or one without auto refresh, never refetches the status: this is how its heartbeat
 			// learns that the timer was stopped elsewhere. The proxy route answers null when its status read fails.
-			const status = res?.data;
+			const status = statusKeepingSavedLabels(res?.data, store.get(timerLabelsSavedState), labelSavesSeen);
 			// The browser remembers the heartbeat it sent: the time without one is counted from it (unfollowed-time.ts)
 			rememberHeartbeat(status?.lastLog);
 			if (
@@ -547,7 +549,16 @@ export function useTimerApi({
 			}
 			return res;
 		});
-	}, [isCurrentScope, setTimerStatus, statusEnabled, syncTimerMutate, syncTimerPending, timerStatus, timerStatusRef]);
+	}, [
+		isCurrentScope,
+		setTimerStatus,
+		statusEnabled,
+		store,
+		syncTimerMutate,
+		syncTimerPending,
+		timerStatus,
+		timerStatusRef
+	]);
 
 	// ==================== START TIMER ====================
 
