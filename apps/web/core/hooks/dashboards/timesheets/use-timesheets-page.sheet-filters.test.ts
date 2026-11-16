@@ -10,7 +10,8 @@ const NO_FILTERS: TimesheetFilterSelection = {
 	tasks: [],
 	clients: [],
 	billable: [],
-	labels: []
+	labels: [],
+	entryLabels: []
 };
 
 /** The values the sheet's editing reads from the Timesheets page, for the viewer's own week with every log read. */
