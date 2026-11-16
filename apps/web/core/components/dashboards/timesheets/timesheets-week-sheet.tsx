@@ -1,6 +1,7 @@
 'use client';
 
 import { type CSSProperties, memo, useMemo } from 'react';
+import { EntryLabelChips } from '@/core/components/features/entry-labels/entry-label-chips';
 import { useTranslations } from 'next-intl';
 import { Checkbox } from '@/core/components/common/checkbox';
 import { EntityTile } from '@/core/components/common/entity-tile';
@@ -201,6 +202,7 @@ function RowTask({ identity }: Readonly<{ identity: SheetRowIdentity }>) {
 				<RowTaskTitle identity={identity} />
 			</span>
 			<RowProject identity={identity} />
+			{identity.labels && identity.labels.length > 0 && <EntryLabelChips labels={identity.labels} max={3} />}
 		</span>
 	);
 }
