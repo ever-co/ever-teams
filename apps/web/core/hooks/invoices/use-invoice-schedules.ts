@@ -97,7 +97,7 @@ export function useInvoiceScheduleRuns(scheduleId: string | null, { enabled }: R
 export type InvoiceScheduleChange = Partial<InvoiceScheduleInput> & { paused?: boolean };
 
 /** What a confirmed deletion did: deleted the schedule, or found it deleted already. */
-export type InvoiceScheduleDeletion = 'deleted' | 'alreadyDeleted';
+type InvoiceScheduleDeletion = 'deleted' | 'alreadyDeleted';
 
 /**
  * Set, change, pause, resume and delete a client's billing schedule, in the workspace the schedules were read in; every

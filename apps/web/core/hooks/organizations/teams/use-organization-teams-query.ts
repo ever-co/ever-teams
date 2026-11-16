@@ -173,11 +173,11 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 
 			// This tab works in the team's organization from now on, before the cookies, shared by every tab, follow it
 			rememberTabTeam(team);
-			setActiveTeamIdCookie(team?.id);
-			setOrganizationIdCookie(team?.organizationId || '');
+			setActiveTeamIdCookie(team.id);
+			setOrganizationIdCookie(team.organizationId || '');
 			// Gauzy confines a non-admin to the token's organization: a team of another organization needs a token for
 			// it, and the user (its employee) is read again for that organization
-			void syncTokenOrganization(team?.organizationId).then((switched) => {
+			void syncTokenOrganization(team.organizationId).then((switched) => {
 				if (switched) queryClient.invalidateQueries({ queryKey: queryKeys.users.me });
 			});
 
@@ -192,7 +192,7 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 				updateUserLastTeam({ id: user.id, lastTeamId: team.id });
 			}
 
-			setActiveTeamId(team?.id);
+			setActiveTeamId(team.id);
 		},
 		[queryClient, setActiveTeamId, setActiveTeamTask, setTeamTasks, updateUserLastTeam, user]
 	);
