@@ -6,6 +6,7 @@ import {
 	IMarkAllNotificationsReadResponse
 } from '@/core/types/interfaces/common/employee-notification';
 import { serverFetch } from '../fetch';
+import { BOARD_NOTIFY_PATHS, type BoardNotifyInput, type BoardNotifyKind } from '@/core/lib/board/board-notify';
 
 interface IGauzyCall {
 	bearer_token: string;
@@ -85,5 +86,26 @@ export function updateEmployeeNotificationSettingRequest({
 		body: data,
 		bearer_token,
 		tenantId
+	});
+}
+
+/**
+ * Tells colleagues that the caller shared a Board with them, or mentioned them in one (ever-co/ever-gauzy#12007),
+ * for the Board app (`/api/board/notify`). Gauzy takes the tenant from the token: these routes take no tenant header.
+ */
+export function notifyBoardRequest({
+	kind,
+	data,
+	bearer_token
+}: {
+	kind: BoardNotifyKind;
+	data: BoardNotifyInput & { organizationId?: string };
+	bearer_token: string;
+}) {
+	return serverFetch<{ notified: number }>({
+		path: BOARD_NOTIFY_PATHS[kind],
+		method: 'POST',
+		body: data,
+		bearer_token
 	});
 }
