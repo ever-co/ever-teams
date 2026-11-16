@@ -7703,7 +7703,8 @@
 			"NUMBER_FREE": "Het nummer kan aan een andere factuur worden gegeven.",
 			"CONFIRM": "Factuur verwijderen",
 			"DONE": "Factuur {number} is verwijderd",
-			"FAILED": "De factuur is niet verwijderd. Probeer het opnieuw."
+			"FAILED": "De factuur is niet verwijderd. Probeer het opnieuw.",
+			"CHANGED_MEANWHILE": "Factuur {number} is gewijzigd sinds hij werd getoond, dus hij is niet verwijderd. Vernieuw hem om de huidige versie te zien en probeer het daarna opnieuw."
 		},
 		"edit": {
 			"TITLE": "Factuur {number} bewerken",

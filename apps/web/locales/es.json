@@ -7703,7 +7703,8 @@
 			"NUMBER_FREE": "Su número se podrá dar a otra factura.",
 			"CONFIRM": "Eliminar la factura",
 			"DONE": "La factura {number} se eliminó",
-			"FAILED": "La factura no se eliminó. Vuelve a intentarlo."
+			"FAILED": "La factura no se eliminó. Vuelve a intentarlo.",
+			"CHANGED_MEANWHILE": "La factura {number} cambió desde que se mostró, así que no se eliminó. Actualízala para ver su versión actual y vuelve a intentarlo."
 		},
 		"edit": {
 			"TITLE": "Editar la factura {number}",

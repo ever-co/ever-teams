@@ -340,9 +340,21 @@ class InvoiceService extends APIService {
 		await this.put(`/invoices/${encodeURIComponent(invoiceId)}/action`, body, { tenantId: statusScope.tenantId });
 	};
 
-	deleteInvoice = async (invoiceId: string, scope?: InvoicesScope): Promise<void> => {
+	/**
+	 * Deletes the invoice (`DELETE /invoices/:id`). With `expectedUpdatedAt`, the `updatedAt` the invoice was read at,
+	 * Ever Gauzy deletes it only while the invoice still holds it, and answers 409 `INVOICE_CHANGED` otherwise, having
+	 * deleted nothing (#5382). It travels in the query string, where the route reads it: a DELETE carries no body. An
+	 * older Ever Gauzy ignores the query string of this route and deletes the invoice as it always did.
+	 */
+	deleteInvoice = async (
+		invoiceId: string,
+		scope?: InvoicesScope,
+		expectedUpdatedAt?: string | null
+	): Promise<void> => {
 		const deletionScope = scope ?? this.currentScope();
-		await this.delete(`/invoices/${encodeURIComponent(invoiceId)}`, { tenantId: deletionScope.tenantId });
+		const path = `/invoices/${encodeURIComponent(invoiceId)}`;
+		const url = expectedUpdatedAt ? `${path}?${qs.stringify({ expectedUpdatedAt })}` : path;
+		await this.delete(url, { tenantId: deletionScope.tenantId });
 	};
 
 	/** One invoice with its lines, their projects and its client, read in the tenant the caller's cache key holds. */
