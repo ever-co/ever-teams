@@ -6,12 +6,24 @@ import { type DottedLanguageObjectStringPaths, useTranslations } from 'next-intl
 import { EntityTile } from '@/core/components/common/entity-tile';
 import { SelectedMark } from '@/core/components/common/selected-mark';
 import { Button } from '@/core/components/duplicated-components/_button';
-import { Building, ChevronRight, DollarCircle, Filter, Folder, Tag, Task, Users, UsersGroup, X } from '@/core/components/icons';
+import {
+	Building,
+	ChevronRight,
+	DollarCircle,
+	Filter,
+	Folder,
+	Tag,
+	Task,
+	Users,
+	UsersGroup,
+	X
+} from '@/core/components/icons';
 import { MENU_POPUP_RECIPE, MENU_ROW_RECIPE } from '@/core/components/tasks/task-property-menu';
 import type {
 	TimeActivityFilterOption,
 	TimeActivityFilterOptions
 } from '@/core/hooks/dashboards/time-activity/use-time-activity-filter-options';
+import { useEntryLabelsSupport } from '@/core/hooks/timer/use-entry-labels-support';
 import { cn } from '@/core/lib/helpers';
 import {
 	TIME_ACTIVITY_FILTER_FIELDS,
@@ -218,6 +230,9 @@ export function TimeActivityFilterMenu({
 }>) {
 	const t = useTranslations();
 	const hasActiveFilters = activeFilterCount > 0;
+	// Labels of entries need an API that stores them (#5368): elsewhere the field is left out, as Timesheets does
+	const supportsEntryLabels = useEntryLabelsSupport();
+	const shownFields = TIME_ACTIVITY_FILTER_FIELDS.filter((field) => field !== 'entryLabels' || supportsEntryLabels);
 
 	return (
 		<MenuPrimitive.Root>
@@ -229,7 +244,7 @@ export function TimeActivityFilterMenu({
 			<MenuPrimitive.Portal>
 				<MenuPrimitive.Positioner className={POSITIONER} align="start" sideOffset={6}>
 					<MenuPrimitive.Popup className={cn(MENU_POPUP_RECIPE, 'w-56 p-1')}>
-						{TIME_ACTIVITY_FILTER_FIELDS.map((field) => (
+						{shownFields.map((field) => (
 							<FilterFieldSubmenu
 								key={field}
 								field={field}
