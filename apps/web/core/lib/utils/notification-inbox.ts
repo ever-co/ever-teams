@@ -1,6 +1,12 @@
 import { timerReminderNoticeOf, type TimerReminderNotice } from '@/core/lib/notifications/timer-reminders';
 import { MEETINGS_HREF, meetingNoticeOf, type MeetingNotice } from '@/core/lib/notifications/meeting-notices';
 import { boardInvitationHref, isBoardInvitation } from '@/core/lib/notifications/board-invitations';
+import {
+	boardNoticeOf,
+	boardNotificationHrefOf,
+	isBoardNotificationType,
+	notificationBoardOf
+} from '@/core/lib/notifications/board-notifications';
 import { EBaseEntityEnum } from '@/core/types/generics/enums/entity';
 import { EEmployeeNotificationType, IEmployeeNotification } from '@/core/types/interfaces/common/employee-notification';
 import { docsInboxHrefOf } from './docs-links';
@@ -137,6 +143,10 @@ function hrefOf(type: EEmployeeNotificationType | null, notification: IEmployeeN
 	if (isBoardInvitation({ type, entity: notification.entity, rawTitle: notification.title })) {
 		return boardInvitationHref();
 	}
+	// A Board shared, or a mention in one, opens the Board at the link sent with it, when the link is the Boards app's
+	if (isBoardNotificationType(type)) {
+		return boardNotificationHrefOf(notificationBoardOf(notification.metadata));
+	}
 	const projectHref = projectHrefOf(notification.entity, notification.entityId);
 	if (projectHref) {
 		return projectHref;
@@ -179,10 +189,13 @@ export function toNotificationEntry(notification: IEmployeeNotification): Notifi
 	const rawTitle = firstFilled([notification.title]) ?? '';
 	const sender = notification.sentByEmployee;
 	const type = knownTypeOf(notification.type);
+	// A Board's title is read from its fixed ending, its name from the metadata (#5022)
+	const board = boardNoticeOf({ type, title: rawTitle, metadata: notification.metadata });
 	// A meeting's title names no one: a word of the meeting's own title is no sender (#5022)
-	const titleSender = type === EEmployeeNotificationType.Meeting ? null : senderNameFromTitle(rawTitle);
+	const titleSender =
+		type === EEmployeeNotificationType.Meeting ? null : (board?.senderName ?? senderNameFromTitle(rawTitle));
 	const senderName = firstFilled([sender?.fullName, sender?.user?.name, titleSender]);
-	const subject = quotedSubjectOf(rawTitle);
+	const subject = board ? board.subject : quotedSubjectOf(rawTitle);
 
 	return {
 		id: notification.id,
@@ -208,7 +221,9 @@ function matchesFilter(entry: NotificationEntry, filter: NotificationFilter): bo
 		return entry.isUnread;
 	}
 	if (filter === 'mentions') {
-		return entry.type === EEmployeeNotificationType.Mention;
+		return (
+			entry.type === EEmployeeNotificationType.Mention || entry.type === EEmployeeNotificationType.BoardMention
+		);
 	}
 	if (filter === 'assigned') {
 		return entry.type === EEmployeeNotificationType.Assignment;

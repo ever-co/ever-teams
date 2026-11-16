@@ -4049,7 +4049,9 @@
 			"TIMER_REMINDER": "Tu temporizador sigue en marcha",
 			"MEETING": "Cambió una reunión a la que asistes",
 			"TASK_UPDATE": "<b>{name}</b> hizo un cambio",
-			"TASK_DUE_REMINDER": "Una tarea vence pronto"
+			"TASK_DUE_REMINDER": "Una tarea vence pronto",
+			"BOARD_SHARE": "<b>{name}</b> compartió una pizarra contigo",
+			"BOARD_MENTION": "<b>{name}</b> te mencionó en una pizarra"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "Asignación",
@@ -4063,7 +4065,9 @@
 			"TIMER_REMINDER": "Recordatorio de temporizador",
 			"MEETING": "Reunión",
 			"TASK_UPDATE": "Cambio",
-			"TASK_DUE_REMINDER": "Recordatorio de vencimiento"
+			"TASK_DUE_REMINDER": "Recordatorio de vencimiento",
+			"BOARD_SHARE": "Pizarra compartida",
+			"BOARD_MENTION": "Mención en una pizarra"
 		},
 		"SOMEONE": "Alguien",
 		"MARK_READ": "Marcar como leída",
@@ -4155,6 +4159,13 @@
 				"TEXT": "Siempre en tu bandeja de entrada. Por correo y en tus dispositivos, como elijas.",
 				"OFF": "Desactivado",
 				"BEFORE_HOURS": "{hours, plural, one {# hora} other {# horas}} antes"
+			},
+			"BOARDS": {
+				"TITLE": "Pizarras",
+				"INTRO": "Cuando un compañero comparte una pizarra contigo o te menciona en ella, en la aplicación de pizarras.",
+				"SHARE_LABEL": "Compartida contigo",
+				"MENTION_LABEL": "Mención en una pizarra",
+				"TEXT": "Siempre en tu bandeja de entrada. Por correo y en tus dispositivos, como elijas."
 			},
 			"INTRO": "Elige qué llega a tu bandeja. Al desactivar un tipo se detienen las notificaciones nuevas de ese tipo; las que ya tienes se quedan.",
 			"TEAM_DEFAULTS_TITLE": "Tu equipo {team} define notificaciones predeterminadas",

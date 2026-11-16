@@ -4049,7 +4049,9 @@
 			"TIMER_REMINDER": "Il tuo timer è ancora in funzione",
 			"MEETING": "È cambiata una riunione a cui partecipi",
 			"TASK_UPDATE": "<b>{name}</b> ha fatto una modifica",
-			"TASK_DUE_REMINDER": "Un’attività sta per scadere"
+			"TASK_DUE_REMINDER": "Un’attività sta per scadere",
+			"BOARD_SHARE": "<b>{name}</b> ha condiviso una lavagna con te",
+			"BOARD_MENTION": "<b>{name}</b> ti ha menzionato in una lavagna"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "Assegnazione",
@@ -4063,7 +4065,9 @@
 			"TIMER_REMINDER": "Promemoria del timer",
 			"MEETING": "Riunione",
 			"TASK_UPDATE": "Modifica",
-			"TASK_DUE_REMINDER": "Promemoria di scadenza"
+			"TASK_DUE_REMINDER": "Promemoria di scadenza",
+			"BOARD_SHARE": "Lavagna condivisa",
+			"BOARD_MENTION": "Menzione in una lavagna"
 		},
 		"SOMEONE": "Qualcuno",
 		"MARK_READ": "Segna come letta",
@@ -4155,6 +4159,13 @@
 				"TEXT": "Sempre nella tua casella. Per email e sui tuoi dispositivi come preferisci.",
 				"OFF": "Disattivato",
 				"BEFORE_HOURS": "{hours, plural, one {# ora} other {# ore}} prima"
+			},
+			"BOARDS": {
+				"TITLE": "Lavagne",
+				"INTRO": "Quando un collega condivide una lavagna con te o ti menziona in essa, nell'app delle lavagne.",
+				"SHARE_LABEL": "Condivisa con te",
+				"MENTION_LABEL": "Menzione in una lavagna",
+				"TEXT": "Sempre nella tua casella. Per email e sui tuoi dispositivi come preferisci."
 			},
 			"INTRO": "Scegli cosa arriva nella tua posta. Disattivando un tipo si fermano le nuove notifiche di quel tipo; quelle già ricevute restano.",
 			"TEAM_DEFAULTS_TITLE": "Il tuo team {team} imposta notifiche predefinite",

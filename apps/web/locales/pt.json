@@ -4049,7 +4049,9 @@
 			"TIMER_REMINDER": "O seu temporizador continua a correr",
 			"MEETING": "Uma reunião de que você participa mudou",
 			"TASK_UPDATE": "<b>{name}</b> fez uma alteração",
-			"TASK_DUE_REMINDER": "Uma tarefa vence em breve"
+			"TASK_DUE_REMINDER": "Uma tarefa vence em breve",
+			"BOARD_SHARE": "<b>{name}</b> compartilhou um quadro com você",
+			"BOARD_MENTION": "<b>{name}</b> mencionou você em um quadro"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "Atribuição",
@@ -4063,7 +4065,9 @@
 			"TIMER_REMINDER": "Lembrete de temporizador",
 			"MEETING": "Reunião",
 			"TASK_UPDATE": "Alteração",
-			"TASK_DUE_REMINDER": "Lembrete de prazo"
+			"TASK_DUE_REMINDER": "Lembrete de prazo",
+			"BOARD_SHARE": "Quadro compartilhado",
+			"BOARD_MENTION": "Menção em um quadro"
 		},
 		"SOMEONE": "Alguém",
 		"MARK_READ": "Marcar como lida",
@@ -4155,6 +4159,13 @@
 				"TEXT": "Sempre na sua caixa de entrada. Por e-mail e nos seus dispositivos, como preferir.",
 				"OFF": "Desligado",
 				"BEFORE_HOURS": "{hours, plural, one {# hora} other {# horas}} antes"
+			},
+			"BOARDS": {
+				"TITLE": "Quadros",
+				"INTRO": "Quando um colega compartilha um quadro com você ou menciona você nele, no aplicativo de quadros.",
+				"SHARE_LABEL": "Compartilhado com você",
+				"MENTION_LABEL": "Mencionado em um quadro",
+				"TEXT": "Sempre na sua caixa de entrada. Por e-mail e nos seus dispositivos, como preferir."
 			},
 			"INTRO": "Escolha o que chega à sua caixa de entrada. Desativar um tipo interrompe as novas notificações desse tipo; as que já chegaram continuam lá.",
 			"TEAM_DEFAULTS_TITLE": "Sua equipe {team} define notificações padrão",

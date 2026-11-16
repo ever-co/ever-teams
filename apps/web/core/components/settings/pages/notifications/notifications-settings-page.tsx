@@ -46,6 +46,7 @@ import {
 	EmailModeSelect,
 	QuietHoursRow
 } from './notification-channel-rows';
+import { BoardNotificationsSection } from './board-notification-rows';
 import { BrowserPushSection, SoundSection } from './notification-push-section';
 import { TYPE_COPY } from './notification-type-copy';
 import { NotificationGroupsSkeleton } from './notifications-settings-skeleton';
@@ -297,6 +298,11 @@ export function NotificationsSettingsPage() {
 							/>
 						</SettingsSurface>
 					</SettingsSection>
+					<BoardNotificationsSection
+						preferences={preferences}
+						disabled={isSavingPreferences}
+						onEmailMode={onEmailMode}
+					/>
 					<SettingsSection
 						id="notification-meetings"
 						title={t('notifications.SETTINGS_PAGE.MEETINGS.TITLE')}
