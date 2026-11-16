@@ -224,7 +224,7 @@ export function useInvoiceScheduleMutations(workspace: InvoicesScope | null) {
 		createSchedule: createMutation.mutateAsync,
 		updateSchedule: updateMutation.mutateAsync,
 		updateOpenedSchedule,
-		deleteSchedule: deleteMutation.mutateAsync,
+		// No deletion by id alone: a schedule is deleted only as the one its confirmation opened on
 		deleteOpenedSchedule,
 		isSaving: createMutation.isPending || updateMutation.isPending,
 		isDeleting: deleteMutation.isPending

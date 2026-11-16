@@ -75,7 +75,6 @@ const mutations = {
 	createSchedule: jest.fn(),
 	updateSchedule: jest.fn(),
 	updateOpenedSchedule: jest.fn(),
-	deleteSchedule: jest.fn(),
 	deleteOpenedSchedule: jest.fn(),
 	isSaving: false,
 	isDeleting: false
@@ -314,7 +313,9 @@ describe('ClientBillingScheduleSection', () => {
 				scheduleId: 'schedule-1',
 				latest: replacement
 			});
-			expect(mutations.deleteSchedule).not.toHaveBeenCalledWith('schedule-2');
+			expect(mutations.deleteOpenedSchedule).not.toHaveBeenCalledWith(
+				expect.objectContaining({ scheduleId: 'schedule-2' })
+			);
 			expect(toast.success).not.toHaveBeenCalled();
 			expect(screen.queryByRole('button', { name: 'confirm delete' })).toBeNull();
 		});
