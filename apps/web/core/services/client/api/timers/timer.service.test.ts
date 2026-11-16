@@ -28,6 +28,7 @@ jest.mock('moment', () => {
 });
 
 const mockFallbackPost = jest.fn();
+const mockFallbackGet = jest.fn();
 
 // Another tab has switched the team cookie every tab shares to its own team
 jest.mock('@/core/lib/helpers/cookies', () => ({
@@ -37,11 +38,11 @@ jest.mock('@/core/lib/helpers/cookies', () => ({
 
 jest.mock('../../api.service', () => ({
 	...jest.requireActual('../../api.service'),
-	getFallbackAPI: async () => ({ post: mockFallbackPost })
+	getFallbackAPI: async () => ({ post: mockFallbackPost, get: mockFallbackGet })
 }));
 
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
-import { timeSlotsBetween } from '@/core/lib/helpers/timer';
+import { type SentTimeSlot, timeSlotsBetween } from '@/core/lib/helpers/timer';
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
 import { timerService } from './timer.service';
 
@@ -54,6 +55,8 @@ beforeEach(() => {
 		doNotFake: ['nextTick', 'setImmediate', 'queueMicrotask']
 	});
 	mockFallbackPost.mockResolvedValue({ data: {} });
+	// The windows of Gauzy's slots hold nothing yet
+	mockFallbackGet.mockResolvedValue({ data: [] });
 });
 
 afterEach(() => {
@@ -256,12 +259,15 @@ describe('TimerService.catchUpTimeSlots', () => {
 		employeeId: 'employee-1',
 		timeLogId: 'log-1',
 		fromMs: Date.parse('2026-11-04T22:17:30.000Z'),
-		toMs: Date.parse('2026-11-04T22:24:30.000Z')
+		toMs: Date.parse('2026-11-04T22:24:30.000Z'),
+		// The run started at 20:00, before the windows it is owed
+		runStartedAtMs: Date.parse('2026-11-04T20:00:00.000Z')
 	};
 
 	it('writes the whole time to Gauzy in direct mode, one slot per window, starting at the last heartbeat', async () => {
 		publishedApiOrigin.value = 'https://api.example.test';
 		const post = jest.spyOn(timerService, 'post').mockResolvedValue({ data: {} } as never);
+		jest.spyOn(timerService, 'get').mockResolvedValue({ data: [] } as never);
 		jest.spyOn(timerService, 'getTimerStatus').mockResolvedValue({ data: { running: true } } as never);
 
 		await timerService.catchUpTimeSlots(kept);
@@ -320,6 +326,163 @@ describe('TimerService.catchUpTimeSlots', () => {
 		await expect(timerService.catchUpTimeSlots({ ...kept, onWritten })).rejects.toThrow('Network Error');
 
 		expect(onWritten.mock.calls).toEqual([[Date.parse('2026-11-04T22:20:00.000Z')]]);
+	});
+
+	describe('when the answer of a slot written is lost', () => {
+		/** Gauzy's windows of slots: the seconds each holds, added up per slot and capped at 600, as its merge does. */
+		const gauzy = new Map<number, number>();
+		const windowOf = (startedAt: string) => Math.floor(Date.parse(startedAt) / 600_000) * 600_000;
+		let losesAnswerOf: string | null = null;
+
+		beforeEach(() => {
+			gauzy.clear();
+			// 22:10-22:20 held 150 seconds of heartbeats before the run went on without the app
+			gauzy.set(windowOf('2026-11-04T22:10:00.000Z'), 150);
+			mockFallbackPost.mockImplementation(async (_url: string, body: { startedAt: string; duration: number }) => {
+				const window = windowOf(body.startedAt);
+				gauzy.set(window, Math.min(600, (gauzy.get(window) ?? 0) + body.duration));
+				if (body.startedAt === losesAnswerOf) throw new Error('Network Error');
+				return { data: { running: true } };
+			});
+			// Gauzy answers the slots of the runs started between the dates, which the read starts at the run's start for
+			mockFallbackGet.mockImplementation(async (url: string) => {
+				const query = new URLSearchParams(url.split('?')[1]);
+				const startDate = Date.parse(query.get('startDate') ?? '');
+				const endDate = Date.parse(query.get('endDate') ?? '');
+				const isRunIncluded = startDate <= kept.runStartedAtMs && kept.runStartedAtMs <= endDate;
+				const slots = [...gauzy].map(([window, duration]) => ({
+					startedAt: new Date(window).toISOString(),
+					duration
+				}));
+				return {
+					data: isRunIncluded ? slots.filter((slot) => Date.parse(slot.startedAt) <= endDate) : []
+				};
+			});
+		});
+
+		afterEach(() => {
+			losesAnswerOf = null;
+		});
+
+		it('writes each window once when the next try resumes after a slot that landed', async () => {
+			losesAnswerOf = '2026-11-04T22:17:30.000Z';
+			let unanswered: SentTimeSlot | undefined;
+			const firstTry = timerService.catchUpTimeSlots({
+				...kept,
+				onSending: (slot) => {
+					unanswered = slot;
+				}
+			});
+			await expect(firstTry).rejects.toThrow('Network Error');
+			expect(unanswered).toEqual(
+				expect.objectContaining({ startedAt: '2026-11-04T22:17:30.000Z', windowBefore: 150 })
+			);
+
+			const onWritten = jest.fn();
+			const nextTry = timerService.catchUpTimeSlots({ ...kept, unanswered, onWritten });
+			// It may still be landing for as long as the app waits for a request
+			await jest.advanceTimersByTimeAsync(60_000);
+			await nextTry;
+
+			// 150 seconds before, and the 150 the lost answer was for: not 450
+			expect(gauzy.get(windowOf('2026-11-04T22:10:00.000Z'))).toBe(300);
+			expect(gauzy.get(windowOf('2026-11-04T22:20:00.000Z'))).toBe(270);
+			expect(mockFallbackPost).toHaveBeenCalledTimes(2);
+			expect(onWritten.mock.calls).toEqual([
+				[Date.parse('2026-11-04T22:20:00.000Z')],
+				[Date.parse('2026-11-04T22:24:30.000Z')]
+			]);
+		});
+
+		it('sends a slot again whose window does not hold it: that write failed before Gauzy took it', async () => {
+			mockFallbackPost.mockRejectedValueOnce(new Error('Network Error'));
+			let unanswered: SentTimeSlot | undefined;
+			await expect(
+				timerService.catchUpTimeSlots({
+					...kept,
+					onSending: (slot) => {
+						unanswered = slot;
+					}
+				})
+			).rejects.toThrow('Network Error');
+
+			const nextTry = timerService.catchUpTimeSlots({ ...kept, unanswered });
+			await jest.advanceTimersByTimeAsync(60_000);
+			await nextTry;
+
+			expect(gauzy.get(windowOf('2026-11-04T22:10:00.000Z'))).toBe(300);
+			expect(gauzy.get(windowOf('2026-11-04T22:20:00.000Z'))).toBe(270);
+		});
+
+		it('takes a slot sent without an answer as landed when the run has no start to read its window from', async () => {
+			losesAnswerOf = '2026-11-04T22:17:30.000Z';
+			let unanswered: SentTimeSlot | undefined;
+			await expect(
+				timerService.catchUpTimeSlots({
+					...kept,
+					onSending: (slot) => {
+						unanswered = slot;
+					}
+				})
+			).rejects.toThrow('Network Error');
+
+			const onWritten = jest.fn();
+			const nextTry = timerService.catchUpTimeSlots({
+				...kept,
+				runStartedAtMs: Number.NaN,
+				unanswered,
+				onWritten
+			});
+			await jest.advanceTimersByTimeAsync(60_000);
+			await nextTry;
+
+			// Read from the window alone, it would show none of the run's slots: the slot would be sent again
+			expect(gauzy.get(windowOf('2026-11-04T22:10:00.000Z'))).toBe(300);
+			expect(onWritten).toHaveBeenNthCalledWith(1, Date.parse('2026-11-04T22:20:00.000Z'));
+		});
+
+		it('waits out a slot still landing on Gauzy before it reads its window: a page reloaded at once', async () => {
+			// The page gives the request up as it reloads; Gauzy carries it out ten seconds later
+			mockFallbackPost.mockImplementationOnce(
+				async (_url: string, body: { startedAt: string; duration: number }) => {
+					setTimeout(() => {
+						const window = windowOf(body.startedAt);
+						gauzy.set(window, Math.min(600, (gauzy.get(window) ?? 0) + body.duration));
+					}, 10_000);
+					throw new Error('Network Error');
+				}
+			);
+			let unanswered: SentTimeSlot | undefined;
+			await expect(
+				timerService.catchUpTimeSlots({
+					...kept,
+					onSending: (slot) => {
+						unanswered = slot;
+					}
+				})
+			).rejects.toThrow('Network Error');
+
+			const nextTry = timerService.catchUpTimeSlots({ ...kept, unanswered });
+			await jest.advanceTimersByTimeAsync(60_000);
+			await nextTry;
+
+			expect(gauzy.get(windowOf('2026-11-04T22:10:00.000Z'))).toBe(300);
+		});
+
+		it("reads the window of each slot from the run's start, which Gauzy reads the slots of, in its own mode", async () => {
+			publishedApiOrigin.value = 'https://api.example.test';
+			jest.spyOn(timerService, 'post').mockResolvedValue({ data: {} } as never);
+			jest.spyOn(timerService, 'getTimerStatus').mockResolvedValue({ data: { running: true } } as never);
+			const get = jest.spyOn(timerService, 'get').mockResolvedValue({ data: [] } as never);
+
+			await timerService.catchUpTimeSlots(kept);
+
+			expect(get).toHaveBeenCalledTimes(2);
+			const query = new URLSearchParams(String(get.mock.calls[0][0]).split('?')[1]);
+			expect(query.get('startDate')).toBe('2026-11-04T20:00:00.000Z');
+			expect(query.get('endDate')).toBe('2026-11-04T22:19:59.999Z');
+			expect(query.get('employeeIds[0]')).toBe('employee-1');
+		});
 	});
 
 	it('leaves the next heartbeat to write the minute after it, not the time it wrote again', async () => {
