@@ -114,6 +114,20 @@ describe('PlanHeader worked time of the plan owner (#5351)', () => {
 		expect(options.enabled).not.toBe(false);
 	});
 
+	it('shows no worked time once the plan has no task left, whatever the last read holds or says', () => {
+		const workedFigure = () => screen.getByText('common.WORKED').parentElement?.textContent ?? '';
+		mockUseGetTimeLogs.mockReturnValue({ data: [{ duration: 3600 }] });
+		const { rerender } = render(<PlanHeader plan={{ ...plan, tasks: [task('task-a')] }} planMode="Today Tasks" />);
+		expect(workedFigure()).toContain('1h 0m');
+
+		// The read kept from the plan with a task, still loading or failed, must not stand for the empty plan
+		mockUseGetTimeLogs.mockReturnValue({ data: [{ duration: 3600 }], isLoading: true, isError: true } as never);
+		rerender(<PlanHeader plan={{ ...plan, tasks: [] }} planMode="Today Tasks" />);
+
+		expect(workedFigure()).toContain('0h 0m');
+		mockUseGetTimeLogs.mockReturnValue({ data: [] });
+	});
+
 	it('reads nothing for a plan without tasks, whose worked time is none', () => {
 		render(<PlanHeader plan={{ ...plan, tasks: [] }} planMode="Today Tasks" />);
 
