@@ -1,7 +1,7 @@
 import { EBaseEntityEnum } from '@/core/types/generics/enums/entity';
 import { EEmployeeNotificationType, IEmployeeNotification } from '@/core/types/interfaces/common/employee-notification';
 import { boardInvitationHref } from '@/core/lib/notifications/board-invitations';
-import { toNotificationEntry } from './notification-inbox';
+import { filterNotificationEntries, toNotificationEntry } from './notification-inbox';
 
 function notification(overrides: Partial<IEmployeeNotification>): IEmployeeNotification {
 	return {
@@ -175,5 +175,84 @@ describe('toNotificationEntry for a meeting (#5022)', () => {
 		);
 
 		expect(entry.senderName).toBe('Ana Silva');
+	});
+});
+
+describe('toNotificationEntry for a Board shared or a mention in one (#5022)', () => {
+	const configured = process.env.NEXT_PUBLIC_BOARD_APP_DOMAIN;
+	const link = 'https://board.ever.team/#room=r00m,secret-key';
+
+	beforeEach(() => {
+		process.env.NEXT_PUBLIC_BOARD_APP_DOMAIN = 'https://board.ever.team';
+	});
+
+	afterEach(() => {
+		if (configured === undefined) {
+			delete process.env.NEXT_PUBLIC_BOARD_APP_DOMAIN;
+		} else {
+			process.env.NEXT_PUBLIC_BOARD_APP_DOMAIN = configured;
+		}
+	});
+
+	it('opens the Board at the link sent with it, and names who shared which Board', () => {
+		const entry = toNotificationEntry(
+			notification({
+				title: 'Ana Lima shared the Board "Sprint plan" with you',
+				message: null,
+				type: EEmployeeNotificationType.BoardShare,
+				metadata: { board: { roomId: 'r00m', name: 'Sprint plan', link } }
+			})
+		);
+		const href = new URL(entry.href as string);
+		expect(href.origin).toBe('https://board.ever.team');
+		expect(href.hash).toBe('#room=r00m,secret-key');
+		expect(entry.senderName).toBe('Ana Lima');
+		expect(entry.subject).toBe('Sprint plan');
+		expect(entry.taskId).toBeNull();
+	});
+
+	it('opens nothing without a link, or for a link elsewhere, and still says who mentioned them', () => {
+		const withoutLink = toNotificationEntry(
+			notification({
+				title: 'Ana Lima mentioned you in a Board',
+				message: null,
+				type: EEmployeeNotificationType.BoardMention,
+				metadata: { board: { roomId: 'r00m' } }
+			})
+		);
+		expect(withoutLink.href).toBeNull();
+		expect(withoutLink.senderName).toBe('Ana Lima');
+		expect(withoutLink.subject).toBeNull();
+		const elsewhere = toNotificationEntry(
+			notification({
+				title: 'Ana Lima shared a Board with you',
+				type: EEmployeeNotificationType.BoardShare,
+				metadata: { board: { roomId: 'r00m', link: 'https://evil.example/#room=r00m,key' } }
+			})
+		);
+		expect(elsewhere.href).toBeNull();
+	});
+
+	it('counts a mention in a Board among the mentions', () => {
+		const mention = toNotificationEntry(
+			notification({ title: 'Ana Lima mentioned you in a Board', type: EEmployeeNotificationType.BoardMention })
+		);
+		const share = toNotificationEntry(
+			notification({ title: 'Ana Lima shared a Board with you', type: EEmployeeNotificationType.BoardShare })
+		);
+		expect(filterNotificationEntries([mention, share], 'mentions')).toEqual([mention]);
+	});
+	it("reads the Board's name from the metadata, whatever quotes the sender's name holds", () => {
+		const entry = toNotificationEntry(
+			notification({
+				title: 'Ana "Nina" Lima shared the Board "Sprint plan" with you',
+				message: null,
+				type: EEmployeeNotificationType.BoardShare,
+				sentByEmployee: null,
+				metadata: { board: { roomId: 'r00m', name: 'Sprint plan', link } }
+			})
+		);
+		expect(entry.subject).toBe('Sprint plan');
+		expect(entry.senderName).toBe('Ana "Nina" Lima');
 	});
 });

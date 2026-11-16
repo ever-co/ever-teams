@@ -25,7 +25,23 @@ export enum EEmployeeNotificationType {
 	 */
 	TaskUpdate = 'TaskUpdate',
 	/** A task the employee is assigned to is due soon, at their threshold before its due date (#5022): about the task. */
-	TaskDueReminder = 'TaskDueReminder'
+	TaskDueReminder = 'TaskDueReminder',
+	/** A colleague shared a Board with the employee, in the Boards app (#5022): the Board is in `metadata.board`. */
+	BoardShare = 'BoardShare',
+	/** A colleague mentioned the employee in a Board, in the Boards app (#5022): the Board is in `metadata.board`. */
+	BoardMention = 'BoardMention'
+}
+
+/**
+ * The Board a `BoardShare` or a `BoardMention` names. A Board is no record of the platform: it is named by its room or
+ * its snapshot, with the name and the link the sender's Boards app sent, each as sent (`board-notification.ts` there).
+ */
+export interface INotificationBoard {
+	roomId?: string | null;
+	snapshotId?: string | null;
+	name?: string | null;
+	/** The address that opens the Board; its `#` part holds the Board's key when the sender chose to send it. */
+	link?: string | null;
 }
 
 export interface IEmployeeNotification {
@@ -44,6 +60,8 @@ export interface IEmployeeNotification {
 	sentByEmployeeId?: ID | null;
 	sentByEmployee?: IRecordAuthorEmployee | null;
 	receiverEmployeeId?: ID | null;
+	/** What the notification says about a thing outside the platform: the Board of a `BoardShare` or a `BoardMention`. */
+	metadata?: { board?: INotificationBoard | null } | null;
 	createdAt: string;
 }
 
