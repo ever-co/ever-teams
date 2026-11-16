@@ -248,6 +248,26 @@ describe('ClientBillingScheduleSection', () => {
 			);
 			expect(mutations.updateSchedule).not.toHaveBeenCalled();
 		});
+
+		it.each([
+			['is read again with nothing to show yet', { isLoading: true }],
+			['could not be read, with nothing to show', { isError: true }]
+		] as const)('tells the save nothing is known while the schedule %s', async (_case, readState) => {
+			const { rerender } = openOnMonthly();
+
+			read.schedule = null;
+			Object.assign(read, readState);
+			rerender(<ClientBillingScheduleSection client={client} todayKey="2026-11-15" canManage />);
+			fireEvent.click(screen.getByRole('button', { name: 'save schedule' }));
+
+			await waitFor(() =>
+				expect(mutations.updateOpenedSchedule).toHaveBeenCalledWith({
+					scheduleId: 'schedule-1',
+					latest: undefined,
+					change: { grouping: 'TASK' }
+				})
+			);
+		});
 	});
 
 	it('deletes the schedule once the deletion is confirmed', async () => {

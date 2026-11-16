@@ -134,6 +134,9 @@ export function useInvoiceScheduleMutations(workspace: InvoicesScope | null) {
 	 * answers the schedule no longer exists (404) changed nothing either: that save fails as `deleted`, even when
 	 * another schedule replaced it after the check, since the one it opened on was deleted all the same, and the
 	 * reload shows the replacement. Either way the save fails with the reason, as an `OpenedScheduleGoneError`.
+	 * While the client's schedule is not read (another tab switched the workspace and its read is still on the way,
+	 * or it failed with nothing to show), nothing tells what became of it: nothing is sent, and the save fails as any
+	 * failed save does, without saying the schedule was deleted.
 	 */
 	const updateOpenedSchedule = useCallback(
 		async ({
@@ -143,10 +146,13 @@ export function useInvoiceScheduleMutations(workspace: InvoicesScope | null) {
 		}: {
 			/** The schedule the form opened on. */
 			scheduleId: string;
-			/** The client's schedule as last read, or null when it has none. */
-			latest: TInvoiceSchedule | null;
+			/** The client's schedule as last read, null when it has none, undefined while nothing was read. */
+			latest: TInvoiceSchedule | null | undefined;
 			change: InvoiceScheduleChange;
 		}): Promise<TInvoiceSchedule> => {
+			if (latest === undefined) {
+				throw new Error('The client’s billing schedule is not read yet, so the change was not saved');
+			}
 			const fate = openedScheduleFateOf(scheduleId, latest);
 			if (fate !== 'current') {
 				await refresh();

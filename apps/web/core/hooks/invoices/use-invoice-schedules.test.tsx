@@ -171,6 +171,21 @@ describe('use-invoice-schedules', () => {
 			await waitFor(() => expect(invalidate).toHaveBeenCalledWith({ queryKey: queryKeys.invoiceSchedules.all }));
 		});
 
+		it('changes nothing while the client’s schedule is not read, and does not say it was deleted', async () => {
+			const { wrapper } = setup();
+			const { result } = renderHook(() => useInvoiceScheduleMutations(WORKSPACE), { wrapper });
+
+			const saving = result.current.updateOpenedSchedule({
+				scheduleId: 'schedule-1',
+				latest: undefined,
+				change: {}
+			});
+
+			await expect(saving).rejects.toThrow('not read yet');
+			await expect(saving).rejects.not.toBeInstanceOf(OpenedScheduleGoneError);
+			expect(mockService.updateSchedule).not.toHaveBeenCalled();
+		});
+
 		it('keeps the same function from one render to the next', () => {
 			const { wrapper } = setup();
 			const { result, rerender } = renderHook(() => useInvoiceScheduleMutations(WORKSPACE), { wrapper });

@@ -297,9 +297,14 @@ export function ClientBillingScheduleSection({
 					todayKey={todayKey}
 					onCreate={(input) => mutations.createSchedule({ clientId: client.id, input })}
 					// The schedule the form opened on, checked against the latest read: a change is never saved to a
-					// schedule that replaced it since, and a save with no schedule left fails instead of passing
+					// schedule that replaced it since, and a save with no schedule left fails instead of passing. A
+					// read still on the way, or failed with nothing to show, tells nothing (undefined), not a deletion
 					onUpdate={(scheduleId, change) =>
-						mutations.updateOpenedSchedule({ scheduleId, latest: schedule, change })
+						mutations.updateOpenedSchedule({
+							scheduleId,
+							latest: schedule ?? (isLoading || isError ? undefined : null),
+							change
+						})
 					}
 					onClose={() => setIsFormOpen(false)}
 				/>
