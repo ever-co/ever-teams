@@ -730,6 +730,7 @@
 					"UNCHANGED": "{count, plural, other {# 条记录已经是这些值。}}",
 					"OVERLAP": "{count, plural, other {# 条记录与其他已记录的时间重叠：保存会删除那些时间。}}",
 					"CHECK_FAILED": "{count, plural, other {无法检查 # 条记录是否与其他时间重叠，因此未保存。}}",
+					"CHANGED_MEANWHILE": "{count, plural, other {# 条记录在此次编辑期间已在别处被更改，因此未保存任何内容。}}",
 					"FAILED": "{count, plural, other {# 条记录无法保存。}}"
 				}
 			},
@@ -7692,6 +7693,7 @@
 			"MARKED_PAID": "第 {number} 号发票已标记为已付清",
 			"MARKED_UNPAID": "第 {number} 号发票已回到已发送，未付",
 			"CHANGE_FAILED": "第 {number} 号发票未更改",
+			"CHANGED_MEANWHILE": "此发票在显示后已更改，因此未做任何更改。请刷新以查看其当前版本，然后重试。",
 			"DOWNLOAD": "下载 PDF"
 		},
 		"send": {

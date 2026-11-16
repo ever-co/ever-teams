@@ -730,6 +730,7 @@
 					"UNCHANGED": "{count, plural, one {# entry already has these values.} other {# entries already have these values.}}",
 					"OVERLAP": "{count, plural, one {# entry overlaps other recorded time: saving it would remove that time.} other {# entries overlap other recorded time: saving them would remove that time.}}",
 					"CHECK_FAILED": "{count, plural, one {# entry could not be checked for overlapping time, so it was not saved.} other {# entries could not be checked for overlapping time, so they were not saved.}}",
+					"CHANGED_MEANWHILE": "{count, plural, one {# entry was changed elsewhere while this edit ran, so nothing was saved to it.} other {# entries were changed elsewhere while this edit ran, so nothing was saved to them.}}",
 					"FAILED": "{count, plural, one {# entry could not be saved.} other {# entries could not be saved.}}"
 				}
 			},
@@ -7692,6 +7693,7 @@
 			"MARKED_PAID": "Invoice {number} is marked paid",
 			"MARKED_UNPAID": "Invoice {number} is back to Sent, unpaid",
 			"CHANGE_FAILED": "Invoice {number} was not changed",
+			"CHANGED_MEANWHILE": "This invoice changed since it was shown, so nothing was changed. Refresh it to see its current version, then try again.",
 			"DOWNLOAD": "Download PDF"
 		},
 		"send": {

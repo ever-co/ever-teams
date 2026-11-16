@@ -730,6 +730,7 @@
 					"UNCHANGED": "{count, plural, one {# Eintrag hat diese Werte bereits.} other {# Einträge haben diese Werte bereits.}}",
 					"OVERLAP": "{count, plural, one {# Eintrag überschneidet sich mit anderer erfasster Zeit: Beim Speichern würde diese Zeit entfernt.} other {# Einträge überschneiden sich mit anderer erfasster Zeit: Beim Speichern würde diese Zeit entfernt.}}",
 					"CHECK_FAILED": "{count, plural, one {Bei # Eintrag konnte die Überschneidung nicht geprüft werden, er wurde daher nicht gespeichert.} other {Bei # Einträgen konnte die Überschneidung nicht geprüft werden, sie wurden daher nicht gespeichert.}}",
+					"CHANGED_MEANWHILE": "{count, plural, one {# Eintrag wurde währenddessen an anderer Stelle geändert, daher wurde nichts darin gespeichert.} other {# Einträge wurden währenddessen an anderer Stelle geändert, daher wurde nichts darin gespeichert.}}",
 					"FAILED": "{count, plural, one {# Eintrag konnte nicht gespeichert werden.} other {# Einträge konnten nicht gespeichert werden.}}"
 				}
 			},
@@ -7692,6 +7693,7 @@
 			"MARKED_PAID": "Rechnung {number} ist als bezahlt markiert",
 			"MARKED_UNPAID": "Rechnung {number} steht wieder auf Gesendet, unbezahlt",
 			"CHANGE_FAILED": "Rechnung {number} wurde nicht geändert",
+			"CHANGED_MEANWHILE": "Diese Rechnung hat sich geändert, seit sie angezeigt wurde, daher wurde nichts geändert. Aktualisieren Sie sie, um ihre aktuelle Version zu sehen, und versuchen Sie es dann erneut.",
 			"DOWNLOAD": "Als PDF herunterladen"
 		},
 		"send": {

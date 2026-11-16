@@ -730,6 +730,7 @@
 					"UNCHANGED": "{count, plural, one {# wpis ma już te wartości.} few {# wpisy mają już te wartości.} many {# wpisów ma już te wartości.} other {# wpisu ma już te wartości.}}",
 					"OVERLAP": "{count, plural, one {# wpis pokrywa się z innym zarejestrowanym czasem: zapisanie usunęłoby ten czas.} few {# wpisy pokrywają się z innym zarejestrowanym czasem: zapisanie usunęłoby ten czas.} many {# wpisów pokrywa się z innym zarejestrowanym czasem: zapisanie usunęłoby ten czas.} other {# wpisu pokrywa się z innym zarejestrowanym czasem: zapisanie usunęłoby ten czas.}}",
 					"CHECK_FAILED": "{count, plural, one {Nie udało się sprawdzić, czy # wpis pokrywa się z innym czasem, więc nie został zapisany.} few {Nie udało się sprawdzić, czy # wpisy pokrywają się z innym czasem, więc nie zostały zapisane.} many {Nie udało się sprawdzić, czy # wpisów pokrywa się z innym czasem, więc nie zostały zapisane.} other {Nie udało się sprawdzić, czy # wpisu pokrywa się z innym czasem, więc nie zostały zapisane.}}",
+					"CHANGED_MEANWHILE": "{count, plural, one {# wpis zmieniono w międzyczasie gdzie indziej, więc nic w nim nie zapisano.} few {# wpisy zmieniono w międzyczasie gdzie indziej, więc nic w nich nie zapisano.} many {# wpisów zmieniono w międzyczasie gdzie indziej, więc nic w nich nie zapisano.} other {# wpisu zmieniono w międzyczasie gdzie indziej, więc nic w nich nie zapisano.}}",
 					"FAILED": "{count, plural, one {Nie udało się zapisać # wpisu.} few {Nie udało się zapisać # wpisów.} many {Nie udało się zapisać # wpisów.} other {Nie udało się zapisać # wpisu.}}"
 				}
 			},
@@ -7692,6 +7693,7 @@
 			"MARKED_PAID": "Faktura {number} jest oznaczona jako opłacona",
 			"MARKED_UNPAID": "Faktura {number} wróciła do stanu Wysłana, nieopłacona",
 			"CHANGE_FAILED": "Faktura {number} nie została zmieniona",
+			"CHANGED_MEANWHILE": "Ta faktura zmieniła się od czasu jej wyświetlenia, więc nic nie zostało zmienione. Odśwież ją, aby zobaczyć jej aktualną wersję, a następnie spróbuj ponownie.",
 			"DOWNLOAD": "Pobierz jako PDF"
 		},
 		"send": {
