@@ -2919,6 +2919,7 @@
 			"CALENDAR_UNDATED_HINT": "Этих задач нет в календаре. Задайте срок, чтобы они появились.",
 			"CALENDAR_UNDATED_DRAG_HINT": "Этих задач нет в календаре. Перетащите задачу на день или задайте ей срок.",
 			"CALENDAR_DRAG_HINT": "Перетащите на другой день, чтобы изменить срок.",
+			"CALENDAR_EXPORT": "Экспорт сроков (.ics)",
 			"TIMELINE_ZOOM": "Масштаб",
 			"TIMELINE_ZOOM_WEEKS": "Недели",
 			"TIMELINE_ZOOM_MONTHS": "Месяцы",

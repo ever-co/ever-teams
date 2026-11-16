@@ -14,7 +14,7 @@ import {
 import { CalendarRangeStepper } from '@/core/components/calendar/calendar-toolbar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
 import { Button } from '@/core/components/duplicated-components/_button';
-import { Calendar } from '@/core/components/icons';
+import { Calendar, Download } from '@/core/components/icons';
 import { TaskPropertyIcon, TaskPropertyPlaceholderIcon } from '@/core/components/tasks/task-property-icon';
 import { PersonAvatar, personFromTaskMember } from '@/core/components/teams/people-avatars';
 import { useCurrentOrganizationOwner } from '@/core/hooks/bootstrap/use-feature-data';
@@ -24,7 +24,9 @@ import { useTeamTaskUpdates } from '@/core/hooks/tasks/use-team-task-updates';
 import type { TeamTasksViewState } from '@/core/hooks/tasks/use-team-tasks-view';
 import { cn } from '@/core/lib/helpers';
 import { shiftedAnchorOf } from '@/core/lib/utils/calendar-view';
+import { downloadBlob } from '@/core/lib/utils/dashboard-export';
 import { weekStartOf } from '@/core/lib/utils/dashboard-period';
+import { hasIcsDueDate, TEAM_TASKS_ICS_FILE_NAME, teamTasksIcsOf } from '@/core/lib/utils/team-tasks-ics';
 import { teamTasksCalendarMonthOf, type TeamTasksCalendarDay } from '@/core/lib/utils/team-tasks-calendar';
 import { dayOfStoredDate } from '@/core/lib/utils/team-tasks-timeline';
 import { isTaskViewsEnabled } from '@/core/lib/utils/task-views-enabled';
@@ -543,6 +545,15 @@ export function TeamTasksCalendarView({
 	const showNext = () => setAnchor((current) => shiftedAnchorOf('month', current, 1));
 	const showToday = () => setAnchor(startOfMonth(today));
 	const toggleUndated = () => setIsUndatedOpen((current) => !current);
+	// The file holds every task the view lists that has a due date, not only the month on screen
+	const hasDatedTasks = useMemo(() => hasIcsDueDate(tasks), [tasks]);
+	const exportDueDates = () => {
+		const file = teamTasksIcsOf(tasks);
+		if (file === null) {
+			return;
+		}
+		downloadBlob(new Blob([file], { type: 'text/calendar;charset=utf-8' }), TEAM_TASKS_ICS_FILE_NAME);
+	};
 
 	const monthTitle = formats.monthTitle.format(anchor);
 	const undatedCount = month.undated.length;
@@ -570,6 +581,17 @@ export function TeamTasksCalendarView({
 				/>
 				<div className="flex flex-wrap items-center gap-3">
 					<span className="text-xs tabular-nums text-muted-foreground">{dueText}</span>
+					<Button
+						type="button"
+						variant="outline"
+						size="sm"
+						disabled={!hasDatedTasks}
+						onClick={exportDueDates}
+						data-testid="team-tasks-calendar-export"
+					>
+						<Download />
+						{t('pages.teamTasks.CALENDAR_EXPORT')}
+					</Button>
 					{hasUndated && (
 						<Button
 							type="button"

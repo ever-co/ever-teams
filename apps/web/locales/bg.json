@@ -2919,6 +2919,7 @@
 			"CALENDAR_UNDATED_HINT": "Тези задачи не са в календара. Задайте краен срок, за да се появят.",
 			"CALENDAR_UNDATED_DRAG_HINT": "Тези задачи не са в календара. Плъзнете някоя към ден или ѝ задайте краен срок.",
 			"CALENDAR_DRAG_HINT": "Плъзнете я към друг ден, за да смените крайния ѝ срок.",
+			"CALENDAR_EXPORT": "Експорт на крайните срокове (.ics)",
 			"TIMELINE_ZOOM": "Мащаб",
 			"TIMELINE_ZOOM_WEEKS": "Седмици",
 			"TIMELINE_ZOOM_MONTHS": "Месеци",

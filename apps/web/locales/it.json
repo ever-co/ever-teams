@@ -2919,6 +2919,7 @@
 			"CALENDAR_UNDATED_HINT": "Queste attività non sono sul calendario. Imposta una scadenza per collocarle.",
 			"CALENDAR_UNDATED_DRAG_HINT": "Queste attività non sono sul calendario. Trascinane una su un giorno, oppure imposta la sua scadenza.",
 			"CALENDAR_DRAG_HINT": "Trascinala su un altro giorno per cambiarne la scadenza.",
+			"CALENDAR_EXPORT": "Esporta le scadenze (.ics)",
 			"TIMELINE_ZOOM": "Zoom",
 			"TIMELINE_ZOOM_WEEKS": "Settimane",
 			"TIMELINE_ZOOM_MONTHS": "Mesi",

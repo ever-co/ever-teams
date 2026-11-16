@@ -2919,6 +2919,7 @@
 			"CALENDAR_UNDATED_HINT": "Tych zadań nie ma w kalendarzu. Ustaw termin, aby je umieścić.",
 			"CALENDAR_UNDATED_DRAG_HINT": "Tych zadań nie ma w kalendarzu. Przeciągnij jedno na dzień albo ustaw mu termin.",
 			"CALENDAR_DRAG_HINT": "Przeciągnij na inny dzień, aby zmienić termin.",
+			"CALENDAR_EXPORT": "Eksportuj terminy (.ics)",
 			"TIMELINE_ZOOM": "Powiększenie",
 			"TIMELINE_ZOOM_WEEKS": "Tygodnie",
 			"TIMELINE_ZOOM_MONTHS": "Miesiące",

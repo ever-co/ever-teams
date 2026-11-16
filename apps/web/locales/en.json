@@ -2919,6 +2919,7 @@
 			"CALENDAR_UNDATED_HINT": "These tasks are not on the calendar. Set a due date to place them.",
 			"CALENDAR_UNDATED_DRAG_HINT": "These tasks are not on the calendar. Drag one onto a day, or set its due date.",
 			"CALENDAR_DRAG_HINT": "Drag to another day to change its due date.",
+			"CALENDAR_EXPORT": "Export due dates (.ics)",
 			"TIMELINE_ZOOM": "Zoom",
 			"TIMELINE_ZOOM_WEEKS": "Weeks",
 			"TIMELINE_ZOOM_MONTHS": "Months",

@@ -2919,6 +2919,7 @@
 			"CALENDAR_UNDATED_HINT": "המשימות האלה אינן בלוח השנה. קבעו תאריך יעד כדי למקם אותן.",
 			"CALENDAR_UNDATED_DRAG_HINT": "המשימות האלה אינן בלוח השנה. גררו אחת מהן ליום, או קבעו לה תאריך יעד.",
 			"CALENDAR_DRAG_HINT": "גררו אותה ליום אחר כדי לשנות את תאריך היעד שלה.",
+			"CALENDAR_EXPORT": "ייצוא תאריכי יעד (.ics)",
 			"TIMELINE_ZOOM": "זום",
 			"TIMELINE_ZOOM_WEEKS": "שבועות",
 			"TIMELINE_ZOOM_MONTHS": "חודשים",

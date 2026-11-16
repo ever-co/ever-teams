@@ -2919,6 +2919,7 @@
 			"CALENDAR_UNDATED_HINT": "هذه المهام ليست على التقويم. حدّد تاريخ استحقاق لوضعها عليه.",
 			"CALENDAR_UNDATED_DRAG_HINT": "هذه المهام ليست على التقويم. اسحب إحداها إلى يوم، أو حدّد تاريخ استحقاقها.",
 			"CALENDAR_DRAG_HINT": "اسحبها إلى يوم آخر لتغيير تاريخ استحقاقها.",
+			"CALENDAR_EXPORT": "تصدير تواريخ الاستحقاق (.ics)",
 			"TIMELINE_ZOOM": "التكبير",
 			"TIMELINE_ZOOM_WEEKS": "أسابيع",
 			"TIMELINE_ZOOM_MONTHS": "أشهر",
