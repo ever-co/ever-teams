@@ -27,15 +27,15 @@ export type TimerDiscardAvailability =
 	| { available: true; closesAt: number | null }
 	| { available: false; reason: TimerDiscardUnavailableReason };
 
-/** The organization as read; an API without the discard sends neither setting. */
-type TDiscardOrganization = {
+/** The organization's discard settings; an API without the discard sends neither. */
+type TDiscardSettings = {
 	allowDiscardTimer?: boolean | null;
 	discardTimerWithinMinutes?: number | null;
-	[field: string]: unknown;
-} | null;
+};
 
 interface ITimerDiscardInput {
-	organization: TDiscardOrganization | undefined;
+	/** The organization as read, whichever fields its API answers. */
+	organization: object | null | undefined;
 	running: boolean;
 	/** Where the running log was started: the desktop app records its own time, which the API never discards. */
 	source?: TimerSource | string | null;
@@ -52,14 +52,16 @@ interface IDiscardAnswer {
 
 const MS_PER_MINUTE = 60 * 1000;
 
-/** Whether the organization read carries the discard switch: only an API that knows the discard sends it. */
-function hasDiscardSettings(
-	organization: TDiscardOrganization | undefined
-): organization is NonNullable<TDiscardOrganization> {
+/** The discard settings of the organization read, or null when it carries no switch: its API has no discard. */
+function discardSettingsOf(organization: object | null | undefined): TDiscardSettings | null {
 	if (!organization) {
-		return false;
+		return null;
 	}
-	return Object.prototype.hasOwnProperty.call(organization, 'allowDiscardTimer');
+	const carriesSwitch = Object.prototype.hasOwnProperty.call(organization, 'allowDiscardTimer');
+	if (!carriesSwitch) {
+		return null;
+	}
+	return organization as TDiscardSettings;
 }
 
 /** When the organization's age limit closes the discard of a run started at `startedAt`; null without a limit. */
@@ -90,13 +92,14 @@ export function timerDiscardAvailabilityOf({
 	if (source === TimerSource.DESKTOP) {
 		return { available: false, reason: 'TRACKER_RUN' };
 	}
-	if (!hasDiscardSettings(organization)) {
+	const settings = discardSettingsOf(organization);
+	if (!settings) {
 		return { available: false, reason: 'NOT_SUPPORTED' };
 	}
-	if (organization.allowDiscardTimer === false) {
+	if (settings.allowDiscardTimer === false) {
 		return { available: false, reason: 'DISABLED' };
 	}
-	const closesAt = closingTimeOf(organization.discardTimerWithinMinutes, startedAt);
+	const closesAt = closingTimeOf(settings.discardTimerWithinMinutes, startedAt);
 	const isTooLate = closesAt !== null && now >= closesAt;
 	if (isTooLate) {
 		return { available: false, reason: 'TOO_LATE' };
