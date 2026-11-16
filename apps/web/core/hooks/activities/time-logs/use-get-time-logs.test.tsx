@@ -16,6 +16,7 @@ jest.mock('@/core/services/client/api', () => ({
 }));
 
 const day = '2026-11-15T00:00:00.000Z';
+const nextDay = '2026-11-16T00:00:00.000Z';
 const firstLogs = [{ id: 'log-1', duration: 600 }];
 
 function renderTimeLogs(keepsPreviousData: boolean) {
@@ -24,9 +25,9 @@ function renderTimeLogs(keepsPreviousData: boolean) {
 		<QueryClientProvider client={client}>{children}</QueryClientProvider>
 	);
 	return renderHook(
-		({ taskIds }: { taskIds: string[] }) =>
-			useGetTimeLogs({ startDate: day, endDate: day, taskIds }, { keepsPreviousData }),
-		{ wrapper, initialProps: { taskIds: ['task-1'] } }
+		({ taskIds, date = day }: { taskIds: string[]; date?: string }) =>
+			useGetTimeLogs({ startDate: date, endDate: date, taskIds }, { keepsPreviousData }),
+		{ wrapper, initialProps: { taskIds: ['task-1'] } as { taskIds: string[]; date?: string } }
 	);
 }
 
@@ -47,6 +48,17 @@ describe('useGetTimeLogs', () => {
 		await waitFor(() => expect(mockGetTimeLogs).toHaveBeenCalledTimes(2));
 		expect(result.current.isLoading).toBe(false);
 		expect(result.current.data).toEqual(firstLogs);
+	});
+
+	it('never shows the logs of other days in place of the new ones, as for another plan', async () => {
+		const { result, rerender } = renderTimeLogs(true);
+		await waitFor(() => expect(result.current.data).toEqual(firstLogs));
+
+		rerender({ taskIds: ['task-1'], date: nextDay });
+
+		await waitFor(() => expect(mockGetTimeLogs).toHaveBeenCalledTimes(2));
+		expect(result.current.isLoading).toBe(true);
+		expect(result.current.data).toBeUndefined();
 	});
 
 	it('still starts empty for other readers that do not ask to keep them', async () => {
