@@ -288,9 +288,12 @@ async function resumeOwedKeep(
 	employeeId: string,
 	listed: OwedKeep
 ): Promise<OwedKeepOutcome> {
+	if (!owedKeepNow(listed)) return 'none';
+	const facts = await readLastLog(employeeId);
+	// Read again once the run is read, nearest the write: another tab may have written some of it meanwhile, sent a
+	// slot of it, or written all of it
 	const owed = owedKeepNow(listed);
 	if (!owed) return 'none';
-	const facts = await readLastLog(employeeId);
 	const latest = facts.lastLog;
 	if (latest?.id !== owed.timeLogId) {
 		forgetOwedKeep(owed);

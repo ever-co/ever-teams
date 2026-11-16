@@ -121,6 +121,14 @@ function openTab(): Tab {
 	return tab;
 }
 
+/** Gauzy taking a slot: added to its window, capped at 600 seconds; a running run's end moves to Gauzy's present. */
+async function writeSlot(_url: string, body: { startedAt: string; duration: number }) {
+	const window = Math.floor(Date.parse(body.startedAt) / WINDOW_MS) * WINDOW_MS;
+	gauzy.set(window, Math.min(600, (gauzy.get(window) ?? 0) + body.duration));
+	if (run.isRunning) run.stoppedAt = new Date(GAUZY_NOW).toISOString();
+	return { data: { running: run.isRunning } };
+}
+
 /** Gauzy's answer to a window read: the slots it holds up to the end of the dates read. */
 async function readWindows(url: string) {
 	const endDate = Date.parse(new URLSearchParams(url.split('?')[1]).get('endDate') ?? '');
@@ -183,14 +191,7 @@ describe('useStaleTimerGuard, in a browser without Web Locks', () => {
 			data: [{ lastLog: { ...run } }],
 			headers: { date: new Date(GAUZY_NOW).toUTCString() }
 		}));
-		mockGauzyPost
-			.mockReset()
-			.mockImplementation(async (_url: string, body: { startedAt: string; duration: number }) => {
-				const window = Math.floor(Date.parse(body.startedAt) / WINDOW_MS) * WINDOW_MS;
-				gauzy.set(window, Math.min(600, (gauzy.get(window) ?? 0) + body.duration));
-				if (run.isRunning) run.stoppedAt = new Date(GAUZY_NOW).toISOString();
-				return { data: { running: run.isRunning } };
-			});
+		mockGauzyPost.mockReset().mockImplementation(writeSlot);
 		mockGauzyGet.mockReset().mockImplementation(readWindows);
 	});
 
@@ -198,6 +199,8 @@ describe('useStaleTimerGuard, in a browser without Web Locks', () => {
 		tabs.forEach((tab) => tab.signOut());
 		tabs.forEach((tab) => tab.cleanup());
 		tabs = [];
+		jest.restoreAllMocks();
+		jest.useRealTimers();
 	});
 
 	it('writes an owed Keep once when two tabs open at the same moment', async () => {
@@ -275,5 +278,60 @@ describe('useStaleTimerGuard, in a browser without Web Locks', () => {
 		expect(gauzy.get(WINDOW_0900)).toBe(360);
 		expect(gauzy.get(WINDOW_0910)).toBe(180);
 		expect(mockGauzyPost).toHaveBeenCalledTimes(2);
+	}, 30_000);
+	it("writes a Keep once when another tab's lease lands after this tab checked its own and sent a slot", async () => {
+		jest.useFakeTimers({ doNotFake: ['nextTick', 'setImmediate', 'queueMicrotask'] });
+		const advance = (ms: number) => jest.advanceTimersByTimeAsync(ms);
+		const advanceUntil = async (isDone: () => boolean) => {
+			for (let step = 0; step < 200 && !isDone(); step += 1) await advance(50);
+			expect(isDone()).toBe(true);
+		};
+		oweTheKeep();
+		// The first tab's first slot is on its way, and Gauzy takes it only later
+		let landFirstSlot: () => void = () => undefined;
+		mockGauzyPost.mockImplementationOnce(async (url: string, body: { startedAt: string; duration: number }) => {
+			await new Promise<void>((resolve) => {
+				landFirstSlot = resolve;
+			});
+			return writeSlot(url, body);
+		});
+		const first = openTab();
+		first.mountOwner();
+		await advanceUntil(() => mockGauzyPost.mock.calls.length === 1);
+		// It checked its lease, renewed it and recorded the slot before it sent it
+		expect(JSON.parse(String(window.localStorage.getItem(OWED_KEY))).unanswered).toEqual(
+			expect.objectContaining({ startedAt: new Date(HEARTBEAT).toISOString(), duration: 240 })
+		);
+
+		// A second tab opens. Its storage has not yet received the lease the first tab just renewed, so it reads none
+		// and takes the lease: its write lands after the first tab's check
+		const getItem = Storage.prototype.getItem;
+		let isLeaseOutOfSight = true;
+		jest.spyOn(Storage.prototype, 'getItem').mockImplementation(function (this: Storage, key: string) {
+			if (key === LEASE_KEY && isLeaseOutOfSight) {
+				isLeaseOutOfSight = false;
+				return null;
+			}
+			return getItem.call(this, key);
+		});
+		const second = openTab();
+		const secondOwner = second.mountOwner();
+		await advanceUntil(() => !isLeaseOutOfSight);
+		await advance(1_000);
+		expect(mockGauzyPost).toHaveBeenCalledTimes(1);
+
+		// The first slot lands: the first tab finds the other tab's lease as it records it, and sends nothing more
+		landFirstSlot();
+		await advance(1_000);
+		expect(mockGauzyPost).toHaveBeenCalledTimes(1);
+
+		// The second tab waits out the slot sent without an answer (a minute, gone by in one step), finds it in its
+		// window, and writes the rest once
+		jest.advanceTimersByTime(60_000);
+		await advanceUntil(() => secondOwner.result.current === true);
+		expect(gauzy.get(WINDOW_0900)).toBe(360);
+		expect(gauzy.get(WINDOW_0910)).toBe(180);
+		expect(mockGauzyPost).toHaveBeenCalledTimes(2);
+		expect(window.localStorage.getItem(OWED_KEY)).toBeNull();
 	}, 30_000);
 });

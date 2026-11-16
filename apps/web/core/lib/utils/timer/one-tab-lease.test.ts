@@ -29,6 +29,9 @@ const storedLease = () =>
 /** Lets what waits on the fake clock, and the promises after it, go on. */
 const advance = (ms: number) => jest.advanceTimersByTimeAsync(ms);
 
+/** How long a tab that wrote its lease waits before it reads it back. */
+const SETTLE_MS = 250;
+
 describe('one tab at a time, without Web Locks', () => {
 	beforeEach(() => {
 		jest.useFakeTimers({ now: new Date('2026-11-16T10:00:00.000Z') });
@@ -43,6 +46,8 @@ describe('one tab at a time, without Web Locks', () => {
 
 	it('runs at once when no tab holds the lease, holds it meanwhile, and gives it back once done', async () => {
 		const tab = openTab();
+		expect(tab.ONE_TAB_LEASE_SETTLE_MS).toBe(SETTLE_MS);
+		const takenAt = Date.now();
 		let release: () => void = () => undefined;
 		const settled = tab.inOneTabByLease(
 			() =>
@@ -50,9 +55,9 @@ describe('one tab at a time, without Web Locks', () => {
 					release = () => resolve('settled');
 				})
 		);
-		await advance(0);
+		await advance(SETTLE_MS);
 
-		expect(storedLease()).toEqual(expect.objectContaining({ until: Date.now() + tab.ONE_TAB_LEASE_TTL_MS }));
+		expect(storedLease()).toEqual(expect.objectContaining({ until: takenAt + tab.ONE_TAB_LEASE_TTL_MS }));
 		expect(tab.isThisTabsTurn()).toBe(true);
 		release();
 		await expect(settled).resolves.toBe('settled');
@@ -69,7 +74,7 @@ describe('one tab at a time, without Web Locks', () => {
 		expect(settle).not.toHaveBeenCalled();
 
 		window.localStorage.removeItem(LEASE_KEY);
-		await advance(500);
+		await advance(500 + SETTLE_MS);
 		await expect(settled).resolves.toBe('settled');
 		expect(settle).toHaveBeenCalledTimes(1);
 	});
@@ -82,7 +87,7 @@ describe('one tab at a time, without Web Locks', () => {
 		const settled = tab.inOneTabByLease(settle);
 		await advance(19_999);
 		expect(settle).not.toHaveBeenCalled();
-		await advance(500);
+		await advance(500 + SETTLE_MS);
 
 		await expect(settled).resolves.toBe('settled');
 	});
@@ -96,7 +101,7 @@ describe('one tab at a time, without Web Locks', () => {
 
 		window.localStorage.removeItem(LEASE_KEY);
 		window.dispatchEvent(new StorageEvent('storage', { key: LEASE_KEY, newValue: null }));
-		await advance(0);
+		await advance(SETTLE_MS);
 
 		await expect(settled).resolves.toBe('settled');
 	});
@@ -110,7 +115,7 @@ describe('one tab at a time, without Web Locks', () => {
 					release = resolve;
 				})
 		);
-		await advance(0);
+		await advance(SETTLE_MS);
 
 		await advance(2 * tab.ONE_TAB_LEASE_TTL_MS);
 		expect(storedLease().until).toBeGreaterThan(Date.now());
@@ -138,9 +143,29 @@ describe('one tab at a time, without Web Locks', () => {
 		expect(order).toEqual(['first']);
 
 		releaseFirst();
-		await advance(500);
+		await advance(500 + SETTLE_MS);
 		await Promise.all([firstSettled, secondSettled]);
 		expect(order).toEqual(['first', 'first done', 'second']);
+	});
+
+	it("waits when another tab's lease reaches it before it reads its own back: that tab took it out of its sight", async () => {
+		const tab = openTab();
+		const settle = jest.fn(async () => 'settled');
+		const settled = tab.inOneTabByLease(settle);
+		await advance(100);
+
+		// Another tab wrote its lease a moment before this one (or renewed it as it was about to write to Gauzy), and
+		// that write reaches this tab only now: it lands over this tab's own
+		leaseOfAnotherTab(Date.now() + 30_000);
+		await advance(SETTLE_MS);
+		expect(settle).not.toHaveBeenCalled();
+		expect(storedLease().tab).toBe('another-tab');
+
+		// That tab gives it back once its turn is over: this one takes its turn then
+		window.localStorage.removeItem(LEASE_KEY);
+		await advance(500 + SETTLE_MS);
+		await expect(settled).resolves.toBe('settled');
+		expect(settle).toHaveBeenCalledTimes(1);
 	});
 
 	it("refuses this tab's next write once another tab took the lease, for the rest of the turn", async () => {
@@ -152,7 +177,7 @@ describe('one tab at a time, without Web Locks', () => {
 					release = resolve;
 				})
 		);
-		await advance(0);
+		await advance(SETTLE_MS);
 		expect(tab.isThisTabsTurn()).toBe(true);
 
 		// The page was frozen past its lease, and another tab took it
@@ -178,7 +203,7 @@ describe('one tab at a time, without Web Locks', () => {
 					release = resolve;
 				})
 		);
-		await advance(0);
+		await advance(SETTLE_MS);
 
 		leaseOfAnotherTab(Date.now() + 30_000);
 		await advance(10_000);
@@ -193,18 +218,22 @@ describe('one tab at a time, without Web Locks', () => {
 	it('gives the lease back when what it ran fails, so the other tabs are not held back', async () => {
 		const tab = openTab();
 
-		await expect(tab.inOneTabByLease(async () => Promise.reject(new Error('Network Error')))).rejects.toThrow(
-			'Network Error'
-		);
+		const failed = expect(
+			tab.inOneTabByLease(async () => Promise.reject(new Error('Network Error')))
+		).rejects.toThrow('Network Error');
+		await advance(SETTLE_MS);
+		await failed;
 
 		expect(window.localStorage.getItem(LEASE_KEY)).toBeNull();
-		await expect(tab.inOneTabByLease(async () => 'again')).resolves.toBe('again');
+		const again = tab.inOneTabByLease(async () => 'again');
+		await advance(SETTLE_MS);
+		await expect(again).resolves.toBe('again');
 	});
 
 	it('gives the lease back as the page goes away: a reload does not hold the other tabs back', async () => {
 		const tab = openTab();
 		void tab.inOneTabByLease(() => new Promise<void>(() => undefined));
-		await advance(0);
+		await advance(SETTLE_MS);
 		expect(window.localStorage.getItem(LEASE_KEY)).not.toBeNull();
 
 		window.dispatchEvent(new Event('pagehide'));
@@ -226,10 +255,11 @@ describe('one tab at a time, without Web Locks', () => {
 		const second = tab.inOneTabByLease(async () => {
 			order.push('second');
 		});
-		await advance(0);
+		await advance(SETTLE_MS);
 		expect(order).toEqual(['first']);
 
 		releaseFirst();
+		await advance(SETTLE_MS);
 		await Promise.all([first, second]);
 		expect(order).toEqual(['first', 'first done', 'second']);
 	});
