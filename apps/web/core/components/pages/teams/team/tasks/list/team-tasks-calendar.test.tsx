@@ -1,6 +1,7 @@
 /** @jest-environment jsdom */
 
 import React from 'react';
+import { TextDecoder, TextEncoder } from 'node:util';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import { createStore, Provider } from 'jotai';
 import { dayNumberOf } from '@/core/lib/utils/team-tasks-timeline';
@@ -9,6 +10,9 @@ import { currentOrganizationState } from '@/core/stores/user/user-organizations'
 import { EWeekDays } from '@/core/types/generics/enums/date';
 import type { TOrganization } from '@/core/types/schemas/organization/organization.schema';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
+
+// jsdom has no TextEncoder of its own, and the calendar file's line folding measures its lines in bytes with one.
+Object.assign(globalThis, { TextEncoder, TextDecoder });
 
 jest.mock('next-intl', () => ({
 	useTranslations: () => (key: string, values?: Record<string, unknown>) =>
