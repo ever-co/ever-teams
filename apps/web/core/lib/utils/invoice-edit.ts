@@ -4,6 +4,7 @@ import {
 	compareNamedLines,
 	invoiceDayOf,
 	invoiceLineKeyOf,
+	linePriceKeyOf,
 	invoicePeriodOfTerms,
 	invoiceStatusOf,
 	lineDescriptionOf,
@@ -244,13 +245,38 @@ interface SavedLinesContext {
 	unnamedProject: string;
 }
 
+/** The keys under which saved lines of one member (or task) hold several rates: those lines each state their rate. */
+function keysAtSeveralRatesOf(parts: ReadonlyArray<SavedLineParts>, context: SavedLinesContext): Set<string> {
+	const ratesByKey = new Map<string, Set<number>>();
+	for (const part of parts) {
+		const baseKey = invoiceLineKeyOf({ ...part, currency: context.currency }, context.grouping);
+		const rates = ratesByKey.get(baseKey) ?? new Set<number>();
+		rates.add(part.rate);
+		ratesByKey.set(baseKey, rates);
+	}
+	const keys = [...ratesByKey.entries()].filter(([, rates]) => rates.size > 1).map(([key]) => key);
+	return new Set(keys);
+}
+
+/**
+ * A saved line's key: the one the same line takes when the invoice's time is taken again (`invoiceTimeOf`), so
+ * what was written on it stays on it. Lines of one member at several rates each state their rate, as rebuilt lines do.
+ */
+function savedLineKeyOf(part: SavedLineParts, context: SavedLinesContext, keysAtSeveralRates: ReadonlySet<string>) {
+	const baseKey = invoiceLineKeyOf({ ...part, currency: context.currency }, context.grouping);
+	if (!keysAtSeveralRates.has(baseKey)) {
+		return baseKey;
+	}
+	return [baseKey, linePriceKeyOf(part.rate, context.currency)].join('|');
+}
+
 function namedSavedLinesOf(parts: ReadonlyArray<SavedLineParts>, context: SavedLinesContext) {
 	const seen = new Map<string, number>();
 	const descriptions = new Map<string, string>();
 	const lineIds = new Map<string, string>();
+	const keysAtSeveralRates = keysAtSeveralRatesOf(parts, context);
 	const lines = parts.map((part) => {
-		const baseKey = invoiceLineKeyOf({ ...part, currency: context.currency }, context.grouping);
-		const key = uniqueKeyOf(baseKey, seen);
+		const key = uniqueKeyOf(savedLineKeyOf(part, context, keysAtSeveralRates), seen);
 		const projectName = part.projectName ?? context.unnamedProject;
 		let label = part.description;
 		if (!label) {

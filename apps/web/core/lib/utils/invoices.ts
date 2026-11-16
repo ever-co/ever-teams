@@ -135,20 +135,39 @@ function entryKeyOf(projectId: string, employeeId: string, taskId: string | null
 }
 
 /** The key time priced the same goes under: the same rate in the same currency, from the same source. */
-function priceKeyOf(price: LinePrice) {
-	return [price.rate ?? 'none', price.currency ?? '', price.source ?? ''].join('|');
+/** A price as a line key states it: the same on a line built from time and on a saved line. */
+export function linePriceKeyOf(rate: number | null, currency: string | null): string {
+	return [rate ?? 'none', currencyKeyOf(currency)].join(':');
 }
 
 /**
- * A key, followed by the entry's own price when it was priced at a kept rate other than today's, so two rates make two
- * lines. Time priced as today keeps the key it had, and goes on one line whether it kept its rate or not.
+ * A key, followed by the entry's own price when each entry was priced on its own: time at one price goes together,
+ * time at two prices makes two entries, whatever today's rate is.
  */
 function withPriceKey(key: string, entry: Pick<BillableEntry, 'price'>) {
-	const isPricedApart = Boolean(entry.price) && differsFromToday(entry.price as LinePrice);
-	if (!isPricedApart) {
+	if (!entry.price) {
 		return key;
 	}
-	return [key, priceKeyOf(entry.price as LinePrice)].join('|');
+	return [key, linePriceKeyOf(entry.price.rate, entry.price.currency)].join('|');
+}
+
+/**
+ * The lines that share a key, the same member's time at several prices, each take their price in their key, as saved
+ * lines do (`invoice-edit.ts`). A line alone keeps its key whatever its price, so what was written on it or
+ * removed stays with it when today's rate changes.
+ */
+function keyedByPrice(lines: InvoiceLine[]): InvoiceLine[] {
+	const linesByKey = new Map<string, number>();
+	for (const line of lines) {
+		linesByKey.set(line.key, (linesByKey.get(line.key) ?? 0) + 1);
+	}
+	return lines.map((line) => {
+		const sharesItsKey = (linesByKey.get(line.key) ?? 0) > 1;
+		if (!sharesItsKey) {
+			return line;
+		}
+		return { ...line, key: [line.key, linePriceKeyOf(line.rate, line.currency)].join('|') };
+	});
 }
 
 /**
@@ -340,7 +359,12 @@ export function entryPriceOf(entry: KeptRatesLike, todays: LinePrice, keptPriceO
 	if (!keepsClientRates(entry)) {
 		return todays;
 	}
-	return { ...keptPriceOf(entry), today: todays };
+	const kept = keptPriceOf(entry);
+	// Rates kept empty (none was set when the time was worked) price nothing: today's rates price the time, as before
+	if (kept.rate === null) {
+		return todays;
+	}
+	return { ...kept, today: todays };
 }
 
 /** Whether a price read from kept rates differs from today's: its line says so. */
@@ -415,9 +439,9 @@ function groupedEntriesOf(entries: ReadonlyArray<BillableEntry>, grouping: Invoi
 
 function lineKeyOf(entry: BillableEntry, grouping: InvoiceGrouping) {
 	if (grouping === 'task') {
-		return withPriceKey(entryKeyOf(entry.projectId, entry.employeeId, entry.taskId), entry);
+		return entryKeyOf(entry.projectId, entry.employeeId, entry.taskId);
 	}
-	return withPriceKey(memberKeyOf(entry.projectId, entry.employeeId), entry);
+	return memberKeyOf(entry.projectId, entry.employeeId);
 }
 
 /** An entry's price: its own when each entry was priced on its own, else the member's on the project. */
@@ -474,6 +498,8 @@ interface ProjectWorth {
 	/** What the time is worth before any rounding: each member's hours times their rate. */
 	worth: number;
 	rates: Set<number>;
+	/** Today's price of the time, by price: one that differs from the project's one rate is stated on its line. */
+	todays: Map<string, NonNullable<InvoiceLine['todaysPrice']>>;
 	secondsBySource: Map<InvoiceRateSource, number>;
 	timeLogIds?: ReadonlyArray<string>;
 }
@@ -486,6 +512,8 @@ interface KnownPrice {
 	rate: number;
 	source: InvoiceRateSource;
 	currency: string | null;
+	/** Today's price, on time priced at a rate it kept. */
+	today?: LinePrice['today'];
 }
 
 function addProjectWorth(byProject: Map<string, ProjectWorth>, entry: BillableEntry, price: KnownPrice) {
@@ -497,11 +525,14 @@ function addProjectWorth(byProject: Map<string, ProjectWorth>, entry: BillableEn
 		seconds: 0,
 		worth: 0,
 		rates: new Set<number>(),
+		todays: new Map<string, NonNullable<InvoiceLine['todaysPrice']>>(),
 		secondsBySource: new Map<InvoiceRateSource, number>()
 	};
 	current.seconds += entry.seconds;
 	current.worth += (entry.seconds / SECONDS_PER_HOUR) * price.rate;
 	current.rates.add(price.rate);
+	const today = { rate: price.today?.rate ?? price.rate, currency: price.today?.currency ?? price.currency };
+	current.todays.set(linePriceKeyOf(today.rate, today.currency), today);
 	const sourceSeconds = current.secondsBySource.get(price.source) ?? 0;
 	current.secondsBySource.set(price.source, sourceSeconds + entry.seconds);
 	current.timeLogIds = joinedTimeLogIds(current.timeLogIds, entry.timeLogIds);
@@ -526,6 +557,23 @@ function mainRateSourceOf(secondsBySource: ReadonlyMap<InvoiceRateSource, number
  * One line for a project: its hours, the amount they are worth divided by those hours as the rate, to the cent, and
  * hours times that rate as the amount, so the arithmetic on the document holds.
  */
+/** Today's price on a project's line priced at one kept rate that differs from it; nothing otherwise. */
+function projectTodaysPriceOf(project: ProjectWorth, rate: number): Pick<InvoiceLine, 'todaysPrice'> {
+	const todays = [...project.todays.values()];
+	const isOneRate = project.rates.size === 1;
+	const isOneToday = todays.length === 1;
+	if (!isOneRate || !isOneToday) {
+		return {};
+	}
+	const [today] = todays;
+	const isOtherRate = today.rate !== rate;
+	const isOtherCurrency = currencyKeyOf(today.currency) !== currencyKeyOf(project.currency);
+	if (!isOtherRate && !isOtherCurrency) {
+		return {};
+	}
+	return { todaysPrice: today };
+}
+
 function projectLineOf(project: ProjectWorth): InvoiceLine | null {
 	const hours = decimalHoursOf(project.seconds);
 	if (hours <= 0) {
@@ -545,7 +593,8 @@ function projectLineOf(project: ProjectWorth): InvoiceLine | null {
 		amount: lineAmountOf(hours, rate),
 		rateSource: mainRateSourceOf(project.secondsBySource),
 		isAverageRate: project.rates.size > 1,
-		timeLogIds: project.timeLogIds
+		timeLogIds: project.timeLogIds,
+		...projectTodaysPriceOf(project, [...project.rates][0])
 	};
 }
 
@@ -554,12 +603,13 @@ function projectTimeOf(entries: ReadonlyArray<BillableEntry>, priceOf: LinePrice
 	const byProject = new Map<string, ProjectWorth>();
 	const unpricedByMember = new Map<string, UnpricedTime>();
 	for (const entry of groupedEntriesOf(entries, 'member')) {
-		const { rate, source, currency } = priceOfEntry(entry, priceOf);
+		const price = priceOfEntry(entry, priceOf);
+		const { rate, source, currency } = price;
 		if (rate === null || source === null) {
 			addUnpriced(unpricedByMember, entry);
 			continue;
 		}
-		addProjectWorth(byProject, entry, { rate, source, currency });
+		addProjectWorth(byProject, entry, { rate, source, currency, today: price.today });
 	}
 	const lines: InvoiceLine[] = [];
 	for (const project of byProject.values()) {
@@ -616,7 +666,7 @@ export function invoiceTimeOf({
 			timeLogIds: entry.timeLogIds
 		});
 	}
-	return { lines, unpriced: [...unpricedByMember.values()] };
+	return { lines: keyedByPrice(lines), unpriced: [...unpricedByMember.values()] };
 }
 
 const HUNDREDTHS = 100;

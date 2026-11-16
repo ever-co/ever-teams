@@ -1074,6 +1074,66 @@ describe('time priced at the rates each entry keeps', () => {
 		});
 	});
 
+	it("prices at today's rate an entry whose kept rates price nothing: none was set when it was worked", () => {
+		const keptEmpty = {
+			...log(),
+			ratesStored: true,
+			billRateValue: null,
+			clientRates: {
+				projectBillRateValue: null,
+				projectMemberBillRateValue: null,
+				projectBillRateCurrency: null,
+				projectMemberBillRateCurrency: null
+			}
+		};
+
+		expect(priceOfLog(keptEmpty)).toBe(today);
+	});
+
+	it("keeps a line's key while it holds one price, whatever today's rate, so what was written on it stays", () => {
+		const logs = [{ ...log({ id: 'a', duration: 40 * HOUR }), ...keptAt(90) }];
+		const keysWhenTodayIs = (rate: number) => {
+			const todays: LinePrice = { rate, currency: 'USD', source: 'project' };
+			const priced = (entry: BillableLogLike & KeptRatesLike) =>
+				entryPriceOf(entry, todays, (kept) => keptLinePriceOf({ kept, organizationCurrency: 'USD' }));
+			const entries = billableEntriesOf(logs, new Set(['p1']), null, priced);
+			return invoiceTimeOf({ entries, grouping: 'member', priceOf: () => todays }).lines.map(({ key }) => key);
+		};
+
+		expect(keysWhenTodayIs(110)).toEqual(['p1|ana']);
+		expect(keysWhenTodayIs(90)).toEqual(['p1|ana']);
+		expect(keysWhenTodayIs(120)).toEqual(['p1|ana']);
+	});
+
+	it('gives each price its key when a member’s time holds two, as the saved lines of that time are keyed', () => {
+		const logs = [
+			{ ...log({ id: 'a', duration: 40 * HOUR }), ...keptAt(90) },
+			{ ...log({ id: 'b', duration: 2 * HOUR }), ...keptAt(110) }
+		];
+
+		const entries = billableEntriesOf(logs, new Set(['p1']), null, priceOfLog);
+		const { lines } = invoiceTimeOf({ entries, grouping: 'member', priceOf: () => today });
+
+		expect(lines.map(({ key, rate }) => [key, rate])).toEqual([
+			['p1|ana|90:USD', 90],
+			['p1|ana|110:USD', 110]
+		]);
+	});
+
+	it("states today's rate on a project's line priced at one kept rate that differs from it", () => {
+		const logs = [
+			{ ...log({ id: 'a', duration: 40 * HOUR }), ...keptAt(90) },
+			{ ...log({ id: 'b', employeeId: 'bo', duration: 10 * HOUR }), ...keptAt(90) }
+		];
+
+		const entries = billableEntriesOf(logs, new Set(['p1']), null, priceOfLog);
+		const { lines } = invoiceTimeOf({ entries, grouping: 'project', priceOf: () => today });
+
+		expect(
+			lines.map(({ hours, rate, isAverageRate, todaysPrice }) => ({ hours, rate, isAverageRate, todaysPrice }))
+		).toEqual([{ hours: 50, rate: 90, isAverageRate: false, todaysPrice: { rate: 110, currency: 'USD' } }]);
+	});
+
 	it("prices an entry that keeps no rate, or an older API's entry, at today's rate", () => {
 		expect(priceOfLog(log())).toBe(today);
 		expect(priceOfLog({ ...log(), ...keptAt(90), ratesStored: false })).toBe(today);
