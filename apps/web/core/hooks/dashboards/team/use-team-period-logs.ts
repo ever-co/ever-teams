@@ -10,16 +10,39 @@ import { requestDaysOf } from '@/core/lib/utils/calendar-view';
 import { localDayKeyOf } from '@/core/lib/utils/dashboard-export';
 import { isLiveDayRange, liveQueryOptionsOf } from '@/core/lib/utils/dashboard-live';
 import type { Period } from '@/core/lib/utils/dashboard-period';
-import { requestRangeOf } from '@/core/lib/utils/dashboards/team-day';
+import { isLogOfEmployee, requestRangeOf } from '@/core/lib/utils/dashboards/team-day';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 
 const STALE_TIME = 1000 * 60 * 3;
 const GC_TIME = 1000 * 60 * 15;
 const NO_LOGS: ITimeLog[] = [];
 
-async function fetchTeamLogs(startDate: string, endDate: string, timeZone: string, employeeIds: string[]) {
+/** The logs with the period and the workspace they were read for. */
+interface TeamPeriodLogs {
+	logs: ITimeLog[];
+	period: Period;
+	scopeKey: string;
+}
+
+async function fetchTeamLogs(
+	startDate: string,
+	endDate: string,
+	timeZone: string,
+	employeeIds: string[],
+	period: Period,
+	scopeKey: string
+): Promise<TeamPeriodLogs> {
 	const logs = await timeLogService.getTimeLogs({ startDate, endDate, timeZone, employeeIds });
-	return logs ?? NO_LOGS;
+	return { logs: logs ?? NO_LOGS, period, scopeKey };
+}
+
+/** Another period or member set of the same workspace keeps the logs on screen until its own come (#5353). */
+function previousOfSameScope(previous: TeamPeriodLogs | undefined, scopeKey: string) {
+	const isSameScope = previous?.scopeKey === scopeKey;
+	if (!isSameScope) {
+		return undefined;
+	}
+	return previous;
 }
 
 /**
@@ -27,6 +50,10 @@ async function fetchTeamLogs(startDate: string, endDate: string, timeZone: strin
  * The daily report only has totals per day; the timeline and the hour heatmap need the hours. Read on the time-log
  * list and under its key family, so every add, edit and delete refreshes it. The list's bounds are midnight UTC of
  * the dates, so one more day is asked on each side and the helpers keep what starts inside.
+ *
+ * Everything shown derives from the read's own request: while another period or member set is read, the previous
+ * logs stay with their own period (the heatmap is never drawn for the next period with them), kept to the members
+ * picked now.
  */
 export function useTeamPeriodLogs({
 	period,
@@ -49,19 +76,33 @@ export function useTeamPeriodLogs({
 	const lastKey = localDayKeyOf(requestRange.to);
 	const isLive = isLiveDayRange(firstKey, lastKey);
 	const logsKey = queryKeys.timesheet.logs(tenantId, organizationId, startDate, endDate, sortedIds);
+	const scopeKey = `${tenantId}:${organizationId}:${timeZone}`;
 
 	const canFetch = isReady && isEnabled;
 	const query = useQuery({
 		queryKey: [...logsKey, 'team-dashboard', { timeZone }],
-		queryFn: () => fetchTeamLogs(startDate, endDate, timeZone, sortedIds),
+		queryFn: () => fetchTeamLogs(startDate, endDate, timeZone, sortedIds, period, scopeKey),
 		enabled: canFetch,
+		placeholderData: (previous: TeamPeriodLogs | undefined) => previousOfSameScope(previous, scopeKey),
 		staleTime: STALE_TIME,
 		gcTime: GC_TIME,
 		...liveQueryOptionsOf(isLive)
 	});
 
+	const shown = query.data;
+	const shownLogs = shown?.logs ?? NO_LOGS;
+	// A member the filter no longer picks leaves at once, without waiting for the next read
+	const logs = useMemo(() => {
+		if (!query.isPlaceholderData) {
+			return shownLogs;
+		}
+		return shownLogs.filter((log) => sortedIds.some((employeeId) => isLogOfEmployee(log, employeeId)));
+	}, [query.isPlaceholderData, shownLogs, sortedIds]);
+
 	return {
-		logs: query.data ?? NO_LOGS,
+		logs,
+		/** The period the logs on screen were read for: the requested one once its own logs are there. */
+		period: shown?.period ?? period,
 		isLoading: query.isPending && canFetch,
 		isError: query.isError,
 		refetch: query.refetch
