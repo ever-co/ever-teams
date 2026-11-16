@@ -41,11 +41,18 @@ export function HiddenProjectMark({ isFocusable = true, className }: Readonly<Hi
 	);
 }
 
-/** A record's project the API keeps from the reader, named as one: the lock, then "Private project". */
-export function HiddenProjectName({ label, className }: Readonly<{ label: string; className?: string }>) {
+/**
+ * A record's project the API keeps from the reader, named as one: the lock, then "Private project".
+ * `isFocusable={false}` inside a control (a row toggle, a button): the lock then leaves the focus to it.
+ */
+export function HiddenProjectName({
+	label,
+	className,
+	isFocusable = true
+}: Readonly<{ label: string; className?: string; isFocusable?: boolean }>) {
 	return (
 		<span className={cn('flex min-w-0 items-center gap-1.5 text-foreground', className)}>
-			<HiddenProjectMark />
+			<HiddenProjectMark isFocusable={isFocusable} />
 			<span className="truncate">{label}</span>
 		</span>
 	);

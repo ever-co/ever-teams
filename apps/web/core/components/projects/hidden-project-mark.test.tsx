@@ -50,6 +50,12 @@ describe('the lock of a project the API keeps from the reader', () => {
 		expect(screen.getByRole('img', { name: HINT })).toBeTruthy();
 	});
 
+	it('names a hidden project inside a control with a lock that leaves the focus to the control', () => {
+		render(<HiddenProjectName label="Private projects" isFocusable={false} />);
+
+		expect(screen.getByRole('img', { name: HINT }).hasAttribute('tabindex')).toBe(false);
+	});
+
 	it('takes the place of the project tile on the "Private projects" row of a report', () => {
 		const privateProjects = {
 			key: PRIVATE_PROJECTS_KEY,

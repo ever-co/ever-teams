@@ -105,10 +105,14 @@ export const FIGURE_TEXT = 'text-[13px] tabular-nums';
 
 const EMPTY_TILE_GLYPH = 'inline-block size-4 shrink-0 rounded-[28%] border border-dashed border-foreground/25';
 
-export const ProjectGlyph = memo(function ProjectGlyph({ project }: Readonly<{ project: ReportProjectRef }>) {
+/** A project's tile. `isFocusable={false}` inside a button: the lock of the hidden projects then takes no focus. */
+export const ProjectGlyph = memo(function ProjectGlyph({
+	project,
+	isFocusable = true
+}: Readonly<{ project: ReportProjectRef; isFocusable?: boolean }>) {
 	// The time of the projects the API keeps from the reader: the lock of private projects in place of a tile
 	if (project.key === PRIVATE_PROJECTS_KEY) {
-		return <HiddenProjectMark />;
+		return <HiddenProjectMark isFocusable={isFocusable} />;
 	}
 	const hasProject = project.name !== null;
 	if (!hasProject) {

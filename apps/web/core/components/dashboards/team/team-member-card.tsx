@@ -205,6 +205,7 @@ function TopProjectChip({ project, memberSeconds }: Readonly<{ project: ProjectS
 					color={project.color}
 					isNoProject={project.isNoProject}
 					isHidden={project.isProjectHidden}
+					isFocusable={false}
 				/>
 				<span className="truncate">{name}</span>
 				<span className="shrink-0 tabular-nums opacity-70">{formatPercent(share)}</span>

@@ -18,7 +18,12 @@ function neutralToneOf(project: ProjectShareItem) {
 	return '[--chip:hsl(var(--muted-foreground))]';
 }
 
-export function ProjectChip({ project, className }: Readonly<{ project: ProjectShareItem; className?: string }>) {
+/** A project as a chip. `isFocusable={false}` inside a button: the lock of a hidden project then takes no focus. */
+export function ProjectChip({
+	project,
+	className,
+	isFocusable = true
+}: Readonly<{ project: ProjectShareItem; className?: string; isFocusable?: boolean }>) {
 	const t = useTranslations();
 	const name = project.name || t('dashboard.team.projects.NONE');
 	return (
@@ -35,6 +40,7 @@ export function ProjectChip({ project, className }: Readonly<{ project: ProjectS
 				color={project.color}
 				isNoProject={project.isNoProject}
 				isHidden={project.isProjectHidden}
+				isFocusable={isFocusable}
 			/>
 			<span className="truncate">{name}</span>
 		</span>

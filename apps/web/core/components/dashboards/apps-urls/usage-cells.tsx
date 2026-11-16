@@ -86,15 +86,21 @@ export function ProjectMark({ project }: Readonly<{ project: UsageProject }>) {
 	);
 }
 
+/** A project's cell. `isFocusable={false}` in a group toggle: the lock of the hidden projects then takes no focus. */
 export const ProjectCell = memo(function ProjectCell({
 	project,
-	className
-}: Readonly<{ project: UsageProject; className?: string }>) {
+	className,
+	isFocusable = true
+}: Readonly<{ project: UsageProject; className?: string; isFocusable?: boolean }>) {
 	const t = useTranslations();
 	const name = project.name;
 	if (project.isHidden) {
 		return (
-			<HiddenProjectName label={t('common.PRIVATE_PROJECTS')} className={cn('gap-2 text-[13px]', className)} />
+			<HiddenProjectName
+				label={t('common.PRIVATE_PROJECTS')}
+				className={cn('gap-2 text-[13px]', className)}
+				isFocusable={isFocusable}
+			/>
 		);
 	}
 	return (
