@@ -248,6 +248,25 @@ describe('scheduled meetings', () => {
 		expect(input.emails).toBe('guest@example.org');
 	});
 
+	it('emails every participant on an older Gauzy, and invites the members both ways when the platform is unknown', () => {
+		const draft = {
+			title: 'Sprint review',
+			start: new Date('2026-11-12T14:00:00.000Z'),
+			durationMinutes: 30,
+			link: 'https://app.example.com/meet/jitsi?room=abc',
+			participantEmails: ['ana@acme.com', 'guest@example.org'],
+			invitees: [{ email: 'ana@acme.com', name: 'Ana Silva', employeeId: 'employee-ana' }]
+		};
+
+		const older = appointmentInputOf(draft, 'employee-1', 'missing');
+		expect(older.emails).toBe('ana@acme.com, guest@example.org');
+		expect(older).not.toHaveProperty('inviteeEmployeeIds');
+
+		const unknown = appointmentInputOf(draft, 'employee-1', 'unknown');
+		expect(unknown.emails).toBe('ana@acme.com, guest@example.org');
+		expect(unknown.inviteeEmployeeIds).toEqual(['employee-ana']);
+	});
+
 	it("reads a meeting one is invited to as one its host runs, and lists it once beside one's own (#5022)", () => {
 		const invited = invitedMeetingOf({
 			id: 'appointment-2',
