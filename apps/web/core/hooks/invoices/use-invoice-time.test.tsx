@@ -483,6 +483,20 @@ describe('the lines of a new invoice regrouped (#5355)', () => {
 	});
 
 	it('regroups the time already read by task, without reading it again or showing the loading state', async () => {
+		// Two tasks of one member: one line by member, two named lines by task
+		const homepageTime = {
+			...adaTime,
+			taskId: 'task-home',
+			task: { id: 'task-home', number: 12, title: 'Homepage' },
+			duration: 7200
+		};
+		const checkoutTime = {
+			...adaTime,
+			taskId: 'task-checkout',
+			task: { id: 'task-checkout', number: 13, title: 'Checkout' },
+			duration: 3600
+		};
+		mockReports.getBillableTimeLogs.mockResolvedValue([homepageTime, checkoutTime]);
 		const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 		const store = createStore();
 		store.set(currentOrganizationState, organization);
@@ -501,11 +515,15 @@ describe('the lines of a new invoice regrouped (#5355)', () => {
 		const readsBefore = mockReports.getBillableTimeLogs.mock.calls.length;
 		// The time is read with its tasks from the start
 		expect(mockReports.getBillableTimeLogs.mock.calls[0][1]).toEqual(['task']);
+		expect(result.current.lines.map((line) => line.seconds)).toEqual([10800]);
 
 		rerender({ grouping: 'task' });
 
 		expect(result.current.isLoading).toBe(false);
-		expect(result.current.lines).toHaveLength(1);
+		expect(result.current.lines.map((line) => [line.label, line.seconds])).toEqual([
+			[expect.stringMatching(/^#12 Homepage · /), 7200],
+			[expect.stringMatching(/^#13 Checkout · /), 3600]
+		]);
 		expect(mockReports.getBillableTimeLogs.mock.calls.length).toBe(readsBefore);
 	});
 });
