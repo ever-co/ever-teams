@@ -1156,7 +1156,7 @@ export interface ClientExportLine {
 	currency: string | null;
 }
 
-function clientLineKeyOf(row: TimeActivityExportRow) {
+export function clientLineKeyOf(row: TimeActivityExportRow) {
 	const parts = [row.projectKey, row.employeeId, row.taskKey];
 	return JSON.stringify(parts);
 }
