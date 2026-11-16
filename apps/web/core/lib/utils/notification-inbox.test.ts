@@ -242,4 +242,17 @@ describe('toNotificationEntry for a Board shared or a mention in one (#5022)', (
 		);
 		expect(filterNotificationEntries([mention, share], 'mentions')).toEqual([mention]);
 	});
+	it("reads the Board's name from the metadata, whatever quotes the sender's name holds", () => {
+		const entry = toNotificationEntry(
+			notification({
+				title: 'Ana "Nina" Lima shared the Board "Sprint plan" with you',
+				message: null,
+				type: EEmployeeNotificationType.BoardShare,
+				sentByEmployee: null,
+				metadata: { board: { roomId: 'r00m', name: 'Sprint plan', link } }
+			})
+		);
+		expect(entry.subject).toBe('Sprint plan');
+		expect(entry.senderName).toBe('Ana "Nina" Lima');
+	});
 });

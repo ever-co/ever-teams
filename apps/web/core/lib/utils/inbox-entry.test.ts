@@ -634,4 +634,17 @@ describe('a Board shared or a mention in one (#5022)', () => {
 		expect(showsInboxSheet(entry, false)).toBe(true);
 		expect(filterInboxEntries([entry], 'mentions')).toEqual([]);
 	});
+	it("reads the sender and the Board from the title's fixed ending and the metadata, quotes and all", () => {
+		const entry = toInboxEntry(
+			item({
+				title: 'Ana "Nina" Lima mentioned you in the Board "Sprint plan"',
+				entity: 'Organization',
+				entityId: 'org-1',
+				taskId: null,
+				metadata: { notificationType: 'BoardMention', board }
+			})
+		);
+		expect(entry.senderName).toBe('Ana "Nina" Lima');
+		expect(entry.subject).toBe('Sprint plan');
+	});
 });

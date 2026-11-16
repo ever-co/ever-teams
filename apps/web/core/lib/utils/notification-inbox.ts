@@ -2,6 +2,7 @@ import { timerReminderNoticeOf, type TimerReminderNotice } from '@/core/lib/noti
 import { MEETINGS_HREF, meetingNoticeOf, type MeetingNotice } from '@/core/lib/notifications/meeting-notices';
 import { boardInvitationHref, isBoardInvitation } from '@/core/lib/notifications/board-invitations';
 import {
+	boardNoticeOf,
 	boardNotificationHrefOf,
 	isBoardNotificationType,
 	notificationBoardOf
@@ -63,11 +64,7 @@ const TITLE_ACTION_WORDS = [
 	' published ',
 	' sent ',
 	' replied ',
-	' asked for ',
-	// A Board shared, or a mention in one (`board-notification.ts`)
-	' shared the Board ',
-	' shared a Board ',
-	' mentioned you in '
+	' asked for '
 ];
 
 function firstFilled(candidates: ReadonlyArray<string | null | undefined>): string | null {
@@ -192,10 +189,13 @@ export function toNotificationEntry(notification: IEmployeeNotification): Notifi
 	const rawTitle = firstFilled([notification.title]) ?? '';
 	const sender = notification.sentByEmployee;
 	const type = knownTypeOf(notification.type);
+	// A Board's title is read from its fixed ending, its name from the metadata (#5022)
+	const board = boardNoticeOf({ type, title: rawTitle, metadata: notification.metadata });
 	// A meeting's title names no one: a word of the meeting's own title is no sender (#5022)
-	const titleSender = type === EEmployeeNotificationType.Meeting ? null : senderNameFromTitle(rawTitle);
+	const titleSender =
+		type === EEmployeeNotificationType.Meeting ? null : (board?.senderName ?? senderNameFromTitle(rawTitle));
 	const senderName = firstFilled([sender?.fullName, sender?.user?.name, titleSender]);
-	const subject = quotedSubjectOf(rawTitle);
+	const subject = board ? board.subject : quotedSubjectOf(rawTitle);
 
 	return {
 		id: notification.id,

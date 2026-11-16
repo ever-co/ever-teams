@@ -11,7 +11,7 @@ import { readRuntimeEnv } from '@/env-config';
 import { timerReminderNoticeOf, type TimerReminderNotice } from '@/core/lib/notifications/timer-reminders';
 import { MEETINGS_HREF, meetingNoticeOf, type MeetingNotice } from '@/core/lib/notifications/meeting-notices';
 import { boardInvitationHref, isBoardInvitation } from '@/core/lib/notifications/board-invitations';
-import { boardNotificationHrefOf, isBoardNotificationType, notificationBoardOf } from '@/core/lib/notifications/board-notifications';
+import { boardNoticeOf, boardNotificationHrefOf, isBoardNotificationType, notificationBoardOf, type BoardNotice } from '@/core/lib/notifications/board-notifications';
 import { docsInboxHrefOf, isDocsInboxEntry } from './docs-links';
 import { isDocsEnabled } from './docs-enabled';
 import {
@@ -242,17 +242,22 @@ export class InboxFieldRequests {
 	}
 }
 
-/** What a notification alone carries: the timer reminder or meeting notice it is, and the sender its title names. */
+/**
+ * What a notification alone carries: the timer reminder or meeting notice it is, the sender its title names, and the
+ * Board a `BoardShare` or a `BoardMention` names (read from its title's fixed ending and its metadata).
+ */
 function notificationPartsOf(
 	isNotification: boolean,
-	notice: { type: EEmployeeNotificationType | null; title: string; entity: string | null; entityId: string | null }
-): Pick<InboxEntry, 'timerReminder' | 'meeting' | 'senderName'> {
-	if (!isNotification) return { timerReminder: null, meeting: null, senderName: null };
+	notice: { type: EEmployeeNotificationType | null; title: string; entity: string | null; entityId: string | null; metadata: unknown }
+): Pick<InboxEntry, 'timerReminder' | 'meeting' | 'senderName'> & { board: BoardNotice | null } {
+	if (!isNotification) return { timerReminder: null, meeting: null, senderName: null, board: null };
+	const board = boardNoticeOf(notice);
 	return {
 		timerReminder: timerReminderNoticeOf(notice),
 		meeting: meetingNoticeOf(notice),
 		// A meeting's title names no one: a word of the meeting's own title is no sender (#5022)
-		senderName: notice.type === EEmployeeNotificationType.Meeting ? null : senderNameFromTitle(notice.title)
+		senderName: notice.type === EEmployeeNotificationType.Meeting ? null : (board?.senderName ?? senderNameFromTitle(notice.title)),
+		board
 	};
 }
 
@@ -265,11 +270,12 @@ export function toInboxEntry(item: IInboxItem): InboxEntry {
 	const recipient = item.recipient;
 	const entity = stringOf(item.entity);
 	const entityId = stringOf(item.entityId);
-	const { timerReminder, meeting, senderName } = notificationPartsOf(isNotification, {
+	const { timerReminder, meeting, senderName, board } = notificationPartsOf(isNotification, {
 		type,
 		title: rawTitle,
 		entity,
-		entityId
+		entityId,
+		metadata
 	});
 	const itemTaskId = stringOf(item.taskId) ?? (entity === EBaseEntityEnum.Task ? entityId : null);
 	// A timer reminder is about its run: it opens the timer, not a task its item may name
@@ -277,7 +283,8 @@ export function toInboxEntry(item: IInboxItem): InboxEntry {
 	// A chat notification carries its channel and its text in the title; a quote inside the text is not a subject.
 	const chatParts = isNotification && entity === 'ChatMessage' ? messagePartsOfTitle(rawTitle) : null;
 	const quoted = isNotification && !chatParts ? quotedSubjectOf(rawTitle) : null;
-	const subject = subjectOf(entity, chatParts, quoted);
+	// A Board's name is the one its metadata keeps, else the one its title's fixed ending closes (#5022)
+	const subject = board ? board.subject : subjectOf(entity, chatParts, quoted);
 	const message = stringOf(item.body) ?? chatParts?.preview ?? null;
 	const entry: InboxEntry = {
 		id: item.id,
