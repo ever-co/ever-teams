@@ -133,20 +133,26 @@ export function TeamNotificationDefaultsSection({
 	// Each save sends the whole defaults: every change joins them at once, so a change made before an earlier one's save
 	// answers builds on it. The saves run one at a time, each sending the defaults as they are when its turn comes, so a
 	// request that reaches Gauzy late never writes older defaults over newer ones. A refused change is taken back out, so
-	// the next save does not send it again. The team read again replaces the defaults once no save is waiting or on its
-	// way (a read that lands before a later save is older than it), and never with a read of the team older than one
-	// already seen (a team list fetched before the last save, landing after it).
+	// the next save does not send it again. The team read again replaces the defaults at once when no save is waiting or
+	// on its way, else once the last of them answers (a read that lands before a later save is older than it), and never
+	// with a read of the team older than one already seen (a team list fetched before the last save, landing after it).
 	const latest = useRef<{
 		read: TTeamNotificationDefaults | null;
 		readChangedAt: number;
 		next: TTeamNotificationDefaults | null;
 		pending: number;
+		/**
+		 * Whether a read landed while the last save sent was on its way: it may hold a change made after that save, so it
+		 * replaces the defaults once the saves answer. A read that landed before the last save was sent is older than it.
+		 */
+		readWhileSaving: boolean;
 		queue: Promise<void>;
 	}>({
 		read: defaults,
 		readChangedAt: Number.NEGATIVE_INFINITY,
 		next: defaults,
 		pending: 0,
+		readWhileSaving: false,
 		queue: Promise.resolve()
 	});
 	// The newest time a read said the team changed advances with every newer read, the defaults the same or not. A read
@@ -158,7 +164,11 @@ export function TeamNotificationDefaultsSection({
 		if (hasChangedAt) latest.current.readChangedAt = changedAt;
 		if (latest.current.read !== defaults) {
 			latest.current.read = defaults;
-			if (latest.current.pending === 0) latest.current.next = defaults;
+			if (latest.current.pending === 0) {
+				latest.current.next = defaults;
+			} else {
+				latest.current.readWhileSaving = true;
+			}
 		}
 	}
 	const shown = latest.current.read;
@@ -166,6 +176,7 @@ export function TeamNotificationDefaultsSection({
 		latest.current.next = withTeamDefault(latest.current.next, key, value);
 		latest.current.pending += 1;
 		const turn = latest.current.queue.then(async () => {
+			latest.current.readWhileSaving = false;
 			try {
 				await saveNotificationDefaults(latest.current.next);
 			} catch (error) {
@@ -173,6 +184,10 @@ export function TeamNotificationDefaultsSection({
 				throw error;
 			} finally {
 				latest.current.pending -= 1;
+				if (latest.current.pending === 0 && latest.current.readWhileSaving) {
+					latest.current.next = latest.current.read;
+					latest.current.readWhileSaving = false;
+				}
 			}
 		});
 		latest.current.queue = turn.catch(() => undefined);

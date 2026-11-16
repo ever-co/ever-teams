@@ -180,6 +180,30 @@ describe('TeamNotificationDefaultsSection (#5022)', () => {
 		expect(server.stored).toHaveProperty('timerReminderHours');
 	});
 
+	it('builds the next change on a read that landed while a save was on its way, once that save answers', async () => {
+		const server = gauzy();
+		const { rerender } = render(sectionOf({ notificationDefaults: null }, server.save));
+
+		await act(async () => {
+			screen.getAllByRole('button', { name: 'pick' })[0].click();
+		});
+		// Another manager turned browser notifications off just after the email save reached Gauzy: the read holding both
+		// lands while that save is still on its way, and the save's own answer changes nothing more
+		rerender(
+			sectionOf(
+				{ notificationDefaults: { email: '__test__', push: false }, updatedAt: '2026-11-16T10:00:02.000Z' },
+				server.save
+			)
+		);
+		await server.landLatestFirst();
+		await act(async () => {
+			screen.getAllByRole('button', { name: 'pick' })[4].click();
+		});
+
+		expect(server.requests[1].defaults).toEqual(expect.objectContaining({ email: '__test__', push: false }));
+		expect(server.requests[1].defaults).toHaveProperty('taskDueReminderHours');
+	});
+
 	it('never takes a read of the team older than one already seen', async () => {
 		const save = jest.fn().mockResolvedValue(undefined);
 		const { container, rerender } = render(
