@@ -315,6 +315,11 @@ function billableSecondsByProjectOf(
 }
 
 /** The projects whose client rates price the person's billable time, each once and in a stable order. */
+/** Whether the period holds time that is billed, with a project or without. */
+export function hasBilledTime(entries: ReadonlyArray<MyWeekEntry>): boolean {
+	return entries.some(isBilledEntry);
+}
+
 export function billableProjectIdsOfEntries(entries: ReadonlyArray<MyWeekEntry>): string[] {
 	const keys = [...billableSecondsByProjectOf(entries).keys()];
 	const projectIds = keys.filter((key) => key !== NO_PROJECT_KEY);

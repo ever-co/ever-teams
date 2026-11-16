@@ -1,7 +1,7 @@
 /** @jest-environment jsdom */
 
 import React from 'react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { onlineManager, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook, waitFor } from '@testing-library/react';
 
 const mockReports = { getBillableTimeLogs: jest.fn() };
@@ -40,8 +40,13 @@ const keptAt90 = {
 	}
 };
 
-function renderKeptRates(range: typeof lastWeek | null, isEnabled = true) {
-	const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+type KeptRange = Omit<typeof lastWeek, 'projectIds'> & { projectIds?: string[]; teamIds?: string[] };
+
+function renderKeptRates(
+	range: KeptRange | null,
+	isEnabled = true,
+	queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+) {
 	const wrapper = ({ children }: Readonly<{ children: React.ReactNode }>) => (
 		<QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
 	);
@@ -69,16 +74,63 @@ describe('the client rates the entries of My week kept (CORE-29)', () => {
 		expect(result.current.hasFailed).toBe(false);
 	});
 
-	it('reads nothing for a week without billable projects, or for a role that does not see the amount', async () => {
-		const withoutProjects = renderKeptRates({ ...lastWeek, projectIds: [] });
+	it('reads the time without a project too: it keeps its billing rate', async () => {
+		const withoutProject = { ...keptAt90, id: 'log-admin', projectId: null };
+		mockReports.getBillableTimeLogs.mockResolvedValue([withoutProject]);
+		const anyProject = {
+			from: lastWeek.from,
+			to: lastWeek.to,
+			timeZone: lastWeek.timeZone,
+			employeeIds: lastWeek.employeeIds
+		};
+
+		const { result } = renderKeptRates(anyProject);
+		await waitFor(() => expect(result.current.keptById.size).toBe(1));
+
+		expect(mockReports.getBillableTimeLogs.mock.calls[0][0]).not.toHaveProperty('projectIds');
+		expect(result.current.keptById.get('log-admin')).toEqual(withoutProject);
+	});
+
+	it('reads nothing for a role that does not see the amount', async () => {
 		const notOffered = renderKeptRates(lastWeek, false);
 		await act(async () => {
 			await Promise.resolve();
 		});
 
 		expect(mockReports.getBillableTimeLogs).not.toHaveBeenCalled();
-		expect(withoutProjects.result.current.isLoading).toBe(false);
+		expect(notOffered.result.current.isLoading).toBe(false);
 		expect(notOffered.result.current.keptById.size).toBe(0);
+	});
+
+	it('reads two ranges that differ only by their teams apart', async () => {
+		mockReports.getBillableTimeLogs.mockResolvedValue([keptAt90]);
+		const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+
+		const first = renderKeptRates({ ...lastWeek, teamIds: ['team-a'] }, true, queryClient);
+		const second = renderKeptRates({ ...lastWeek, teamIds: ['team-b'] }, true, queryClient);
+		await waitFor(() => expect(first.result.current.keptById.size).toBe(1));
+		await waitFor(() => expect(second.result.current.keptById.size).toBe(1));
+
+		expect(mockReports.getBillableTimeLogs.mock.calls.map(([range]) => range.teamIds)).toEqual([
+			['team-a'],
+			['team-b']
+		]);
+	});
+
+	it('is still loading while its first read waits offline, so My week prices nothing at today’s rates meanwhile', async () => {
+		mockReports.getBillableTimeLogs.mockResolvedValue([keptAt90]);
+		onlineManager.setOnline(false);
+		try {
+			const { result } = renderKeptRates(lastWeek);
+			await act(async () => {
+				await Promise.resolve();
+			});
+
+			expect(mockReports.getBillableTimeLogs).not.toHaveBeenCalled();
+			expect(result.current.isLoading).toBe(true);
+		} finally {
+			onlineManager.setOnline(true);
+		}
 	});
 
 	it('leaves every entry at today’s rates when the API refuses the kept rates, without calling it a failure', async () => {

@@ -22,6 +22,7 @@ import { type Period, presetOfPeriod, type WeekStart } from '@/core/lib/utils/da
 import { useWorkspaceWeekStart } from '@/core/hooks/common/use-workspace-week-start';
 import {
 	billableProjectIdsOfEntries,
+	hasBilledTime,
 	dailyLimitSecondsOf,
 	DEFAULT_MY_WEEK_PERIOD,
 	isWeekPeriod,
@@ -155,14 +156,16 @@ export function useMyWeekPage() {
 	const billableProjectIds = useMemo(() => billableProjectIdsOfEntries(entries), [entries]);
 	const projectRates = useProjectClientRates(billableProjectIds, readsBillable);
 	const { ratesByProject } = projectRates;
-	// The rates each entry kept: an hour is billed at the price it was worked at, as a draft invoice bills it
+	// The rates each entry kept, with a project or without: an hour is billed at the price it was worked at, as a
+	// draft invoice bills it
 	const keptRange = useMemo(() => {
 		if (!employeeId) {
 			return null;
 		}
-		return { ...shownPeriod, timeZone, employeeIds: [employeeId], projectIds: billableProjectIds };
-	}, [billableProjectIds, employeeId, shownPeriod, timeZone]);
-	const keptRates = useKeptClientRates(keptRange, readsBillable);
+		return { ...shownPeriod, timeZone, employeeIds: [employeeId] };
+	}, [employeeId, shownPeriod, timeZone]);
+	const billsTime = useMemo(() => hasBilledTime(entries), [entries]);
+	const keptRates = useKeptClientRates(keptRange, readsBillable && billsTime);
 	const { keptById } = keptRates;
 	// The default rate, the currency and the rounding rule price the amount too: it waits for them
 	const billingOrganization = useBillingOrganization(readsBillable);

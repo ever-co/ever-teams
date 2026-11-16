@@ -33,8 +33,8 @@ export function useKeptClientRates(range: TimeLogReportRange | null, isEnabled: 
 	const tenantId = getTenantIdCookie();
 	const organizationId = getOrganizationIdCookie();
 	const scope = useMemo(() => ({ tenantId, organizationId }), [organizationId, tenantId]);
-	const hasProjects = (range?.projectIds?.length ?? 0) > 0;
-	const reads = isEnabled && range !== null && hasProjects;
+	// Time without a project keeps its billing rate too: the caller does not narrow the read to projects
+	const reads = isEnabled && range !== null;
 	const query = useQuery({
 		queryKey: queryKeys.timesheet.reports.billableLogs({
 			tenantId,
@@ -44,6 +44,7 @@ export function useKeptClientRates(range: TimeLogReportRange | null, isEnabled: 
 			timeZone: range?.timeZone,
 			employeeIds: range?.employeeIds,
 			projectIds: range?.projectIds,
+			teamIds: range?.teamIds,
 			notInvoiced: false,
 			withClientRates: true,
 			purpose: 'kept-client-rates'
@@ -69,9 +70,11 @@ export function useKeptClientRates(range: TimeLogReportRange | null, isEnabled: 
 	const refetch = useCallback(() => {
 		void refetchQuery();
 	}, [refetchQuery]);
+	// A first read paused while offline has not answered yet: it waits, it does not price at today's rates meanwhile
+	const isPausedFirstRead = query.isPending && query.fetchStatus === 'paused';
 	return {
 		keptById,
-		isLoading: reads && query.isLoading,
+		isLoading: reads && (query.isLoading || isPausedFirstRead),
 		hasFailed: reads && query.isError && !isUnavailable,
 		refetch
 	};
