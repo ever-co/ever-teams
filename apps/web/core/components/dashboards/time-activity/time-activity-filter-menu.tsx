@@ -6,17 +6,7 @@ import { type DottedLanguageObjectStringPaths, useTranslations } from 'next-intl
 import { EntityTile } from '@/core/components/common/entity-tile';
 import { SelectedMark } from '@/core/components/common/selected-mark';
 import { Button } from '@/core/components/duplicated-components/_button';
-import {
-	Building,
-	ChevronRight,
-	DollarCircle,
-	Filter,
-	Folder,
-	Task,
-	Users,
-	UsersGroup,
-	X
-} from '@/core/components/icons';
+import { Building, ChevronRight, DollarCircle, Filter, Folder, Tag, Task, Users, UsersGroup, X } from '@/core/components/icons';
 import { MENU_POPUP_RECIPE, MENU_ROW_RECIPE } from '@/core/components/tasks/task-property-menu';
 import type {
 	TimeActivityFilterOption,
@@ -46,7 +36,8 @@ const LABEL_KEYS: Record<TimeActivityFilterField, DottedLanguageObjectStringPath
 	projectIds: 'dashboard.timeActivity.filters.PROJECTS',
 	taskIds: 'dashboard.timeActivity.filters.TASKS',
 	clientIds: 'clients.TITLE',
-	billable: 'dashboard.timesheets.BILLABLE'
+	billable: 'dashboard.timesheets.BILLABLE',
+	entryLabels: 'common.LABELS'
 };
 
 const FIELD_ICONS: Record<TimeActivityFilterField, ReactNode> = {
@@ -55,7 +46,8 @@ const FIELD_ICONS: Record<TimeActivityFilterField, ReactNode> = {
 	projectIds: <Folder />,
 	taskIds: <Task />,
 	clientIds: <Building />,
-	billable: <DollarCircle />
+	billable: <DollarCircle />,
+	entryLabels: <Tag />
 };
 
 const SUBMENU_WIDTHS: Record<TimeActivityFilterField, string> = {
@@ -64,7 +56,8 @@ const SUBMENU_WIDTHS: Record<TimeActivityFilterField, string> = {
 	projectIds: 'w-60',
 	taskIds: 'w-80',
 	clientIds: 'w-60',
-	billable: 'w-52'
+	billable: 'w-52',
+	entryLabels: 'w-60'
 };
 
 const OPTION_ICON = 'size-4 shrink-0 text-muted-foreground';

@@ -127,6 +127,8 @@ export interface TimeActivityFilters {
 	clientIds: string[];
 	/** Kept in the page link; holds the one value that asks for billable time only. */
 	billable: string[];
+	/** Kept in the page link: the entry's own labels (Gauzy #12029); `no-label` stands for the time without one. */
+	entryLabels: string[];
 }
 
 export type TimeActivityFilterField = keyof TimeActivityFilters;
@@ -137,7 +139,8 @@ export const TIME_ACTIVITY_FILTER_FIELDS: ReadonlyArray<TimeActivityFilterField>
 	'projectIds',
 	'taskIds',
 	'clientIds',
-	'billable'
+	'billable',
+	'entryLabels'
 ];
 
 /** The filters the page saves in the browser, under the keys of the previous page. */

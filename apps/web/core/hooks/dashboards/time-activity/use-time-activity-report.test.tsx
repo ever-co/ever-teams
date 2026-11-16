@@ -21,7 +21,8 @@ const NO_FILTERS: TimeActivityFilters = {
 	projectIds: [],
 	taskIds: [],
 	clientIds: [],
-	billable: []
+	billable: [],
+	entryLabels: []
 };
 
 const employeeLogs = [{ employee: { id: 'ada' }, sum: 600, activity: 50, tasks: [] }];

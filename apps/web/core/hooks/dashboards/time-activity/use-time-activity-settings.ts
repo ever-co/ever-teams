@@ -41,7 +41,8 @@ type LinkedFilterField = Exclude<TimeActivityFilterField, StoredTimeActivityFilt
 
 const URL_FIELD_OF: Record<LinkedFilterField, ReportUrlFilterField> = {
 	clientIds: 'clients',
-	billable: 'billable'
+	billable: 'billable',
+	entryLabels: 'entryLabels'
 };
 
 function withToggledColumn(hidden: TimeActivityColumn[], column: TimeActivityColumn) {
@@ -102,8 +103,13 @@ export function useTimeActivitySettings() {
 		return filtersFromStorage(storedFilters);
 	}, [holdsView, linkParams, storedFilters]);
 	const filters = useMemo<TimeActivityFilters>(
-		() => ({ ...savedFilters, clientIds: linkedFilters.clients, billable: linkedFilters.billable }),
-		[linkedFilters.billable, linkedFilters.clients, savedFilters]
+		() => ({
+			...savedFilters,
+			clientIds: linkedFilters.clients,
+			billable: linkedFilters.billable,
+			entryLabels: linkedFilters.entryLabels
+		}),
+		[linkedFilters.billable, linkedFilters.clients, linkedFilters.entryLabels, savedFilters]
 	);
 	const hiddenColumns = useMemo(() => hiddenColumnsFromStorage(storedColumns), [storedColumns]);
 	const activeFilterCount = activeFilterCountOf(filters);
