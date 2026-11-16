@@ -556,6 +556,44 @@ describe("the popup's stop, through the background", () => {
 		assert.equal((server.sentTo(STOP_PATH)[0].body as { source: string }).source, 'TEAMS');
 	});
 
+	it('credits nothing to a run stopped meanwhile from elsewhere, and sends the stop all the same', async () => {
+		const extension = installFakeExtension({ session: SESSION });
+		server = holdRequests();
+		const remote = runningServer();
+		await startBackground();
+
+		const answer = extension.sendMessage(STOP_RUN);
+		// The run was stopped from another app a minute ago: credited now, it would get the minute since its stop
+		const stopped = { ...remote.run, isRunning: false };
+		(await server.next(STATUS_PATH)).answer(200, { running: false, duration: 300, lastLog: stopped });
+		(await server.next('/status/worked')).answer(200, [{ lastLog: stopped }]);
+		(await server.next(STOP_PATH)).answer(200, {});
+
+		assert.deepEqual(await answer, { stopped: true });
+		assert.equal(server.sentTo(SLOT_PATH).length, 0);
+	});
+
+	it('signs out when the read of the last credit is refused and the renewal cannot cure it, and still sends the stop', async () => {
+		const extension = installFakeExtension({ session: SESSION });
+		server = holdRequests();
+		await startBackground();
+
+		const answer = extension.sendMessage(STOP_RUN);
+		(await server.next(STATUS_PATH)).answer(401, { message: 'Unauthorized' });
+		(await server.next('/auth/refresh-token')).answer(401, { message: 'Unauthorized' });
+		await until(() => !extension.stored.has('session'), 'the session taken out');
+		(await server.next(STOP_PATH)).answer(401, { message: 'Unauthorized' });
+		await server.answerAll(401, { message: 'Unauthorized' });
+
+		const answered = (await answer) as { stopped: boolean; failure?: { status: number } };
+		assert.equal(answered.stopped, false);
+		assert.equal(answered.failure?.status, 401);
+		assert.equal(server.sentTo(SLOT_PATH).length, 0);
+		// The sign-out reaches the background by its storage event too: told before the next test's extension API
+		await until(() => extension.storageEvents.told > 0, 'the sign-out told');
+		await settle();
+	});
+
 	it("stops nothing for a message a web page's script sent, and leaves other messages alone", async () => {
 		const extension = installFakeExtension({ session: SESSION });
 		server = holdRequests();

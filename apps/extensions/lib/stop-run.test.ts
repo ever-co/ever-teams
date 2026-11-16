@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
-import { beforeEach, describe, it } from 'node:test';
+import { afterEach, beforeEach, describe, it, mock } from 'node:test';
 
 import { installFakeChrome, installFakeFetch } from '../test/fake-chrome.ts';
 import { ApiError } from './api-client.ts';
 import { refusalOf } from './refusal.ts';
-import { runToStopOf, stopFailureOf, stopThroughBackground } from './stop-run.ts';
+import { BACKGROUND_STOP_DEADLINE_MS, runToStopOf, stopFailureOf, stopThroughBackground } from './stop-run.ts';
 import type { Session } from './workspaces.ts';
 
 const SESSION: Session = {
@@ -97,6 +97,63 @@ describe("the popup's stop", () => {
 
 		assert.equal(calls.length, 1);
 		assert.ok(calls[0].url.includes('/timesheet/timer/stop'));
+	});
+});
+
+describe("the popup's stop, when the background or the API does not answer", () => {
+	beforeEach(() => {
+		installFakeChrome({ session: SESSION });
+		mock.timers.enable({ apis: ['setTimeout'] });
+	});
+
+	afterEach(() => {
+		mock.timers.reset();
+	});
+
+	/** Lets the promises the stop is waiting on go on. */
+	const turn = () => new Promise((resolve) => setImmediate(resolve));
+
+	it('stops the run itself, without a credit, when the background has not answered by its deadline', async () => {
+		const calls = installFakeFetch(() => ({ status: 200, body: {} }));
+		backgroundAnswering(() => new Promise(() => undefined));
+		assert.equal(BACKGROUND_STOP_DEADLINE_MS, 160_000, 'five calls of 30 seconds, and a little more');
+
+		const stopped = stopThroughBackground(SESSION, RUN);
+		await turn();
+		mock.timers.tick(BACKGROUND_STOP_DEADLINE_MS - 1);
+		await turn();
+		assert.equal(calls.length, 0, 'the background may still be stopping it');
+		mock.timers.tick(1);
+		await stopped;
+
+		assert.deepEqual(
+			calls.map((call) => call.url.replace(/\?.*/, '')),
+			['https://api.example.test/api/timesheet/timer/stop']
+		);
+	});
+
+	it('fails its own stop at the deadline of every call when the API never answers, as offline', async () => {
+		installFakeFetch(
+			(_url, init) =>
+				new Promise((_resolve, reject) => {
+					init.signal?.addEventListener('abort', () => reject(init.signal?.reason));
+				})
+		);
+		backgroundAnswering(async () => {
+			throw new Error('Could not establish connection. Receiving end does not exist.');
+		});
+
+		const stopped = stopThroughBackground(SESSION, RUN).then(
+			() => null,
+			(error: unknown) => error
+		);
+		for (let step = 0; step < 5; step += 1) await turn();
+		mock.timers.tick(30_000);
+		const failed = await stopped;
+
+		assert.ok(failed instanceof ApiError);
+		assert.equal(failed.status, 0);
+		assert.equal(refusalOf(failed).retryable, true);
 	});
 });
 

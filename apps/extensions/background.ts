@@ -1,6 +1,6 @@
 import { ApiError } from '~lib/api-client';
 import { createCoalescedRunner } from '~lib/coalesce';
-import { withDeadline } from '~lib/deadline';
+import { CALL_DEADLINE_MS, withDeadline } from '~lib/deadline';
 import { getTimerStatus, sendHeartbeat, stopTimer, type TimerStatus } from '~lib/gauzy';
 import { isOwnPagePort } from '~lib/ports';
 import { sendsHeartbeat } from '~lib/run-policy';
@@ -20,8 +20,6 @@ const REFRESH_ALARM = 'refresh-timer-status';
 const REFRESH_EVERY_MINUTES = 1;
 // The primary color of the web's timer button
 const BADGE_COLOR = '#6366f1';
-// A call to the API with no answer by then is cancelled: the refreshes go one at a time, and it would hold them all
-const CALL_DEADLINE_MS = 30_000;
 
 const ports = new Set<chrome.runtime.Port>();
 
@@ -186,20 +184,33 @@ const refreshOneAtATime = createCoalescedRunner(
 );
 
 /**
+ * A call of the stop's last credit that failed: a 401 the renewal did not cure signs out, as any call of the background
+ * does, and the stop is sent all the same.
+ */
+async function signOutIfCreditRefused(session: Session, error: unknown): Promise<void> {
+	await signOutIfRefused(session, error).catch(reportRefreshFailure);
+}
+
+/**
  * Credits a run's last seconds before its stop, from a fresh read: the popup's copy of the run can predate the last
- * heartbeat, and would credit that minute again. A failed credit must not keep the timer running.
+ * heartbeat, and would credit that minute again. Only a run that still goes on is credited: one stopped meanwhile (from
+ * another app or device) would be credited the time since its stop. Never fails: a failed credit must not keep the
+ * timer running.
  */
 async function creditLastSeconds(session: Session, run: RunToStop): Promise<void> {
 	const fresh = await withDeadline(CALL_DEADLINE_MS, (signal) => getTimerStatus(session, { signal })).catch(
-		() => null
+		async (error: unknown) => {
+			await signOutIfCreditRefused(session, error);
+			return null;
+		}
 	);
 	const freshRun = fresh?.lastLog;
-	const isSameRun = freshRun?.id === run.id;
-	if (!isSameRun || !freshRun) {
+	const isSameRunGoingOn = Boolean(fresh?.running && freshRun?.id === run.id);
+	if (!isSameRunGoingOn || !freshRun) {
 		return;
 	}
 	await withDeadline(CALL_DEADLINE_MS, (signal) => sendHeartbeat(session, freshRun, { signal })).catch(
-		() => undefined
+		(error: unknown) => signOutIfCreditRefused(session, error)
 	);
 }
 

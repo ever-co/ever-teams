@@ -1,4 +1,5 @@
 import { ApiError } from '~lib/api-client';
+import { CALL_DEADLINE_MS, withDeadline } from '~lib/deadline';
 import { stopTimer, type RunningLog } from '~lib/gauzy';
 import type { ApiFailure } from '~lib/refusal';
 import type { Session } from '~lib/workspaces';
@@ -50,14 +51,29 @@ export function runToStopOf(message: unknown): RunToStop | null {
 	return { id: payload.id, source: typeof payload.source === 'string' ? payload.source : null };
 }
 
-/** Asks the background to stop the run; null when it could not be reached or gave no answer. */
+/**
+ * How long the popup waits for the background's answer: longer than the background can take. A refresh already on its
+ * way (its read, then its heartbeat) and this stop (its read, its credit, then the stop) are five calls, each cancelled
+ * after CALL_DEADLINE_MS, and a little more.
+ */
+export const BACKGROUND_STOP_DEADLINE_MS = 5 * CALL_DEADLINE_MS + 10_000;
+
+/** What `answer` gives, or null once `ms` went by without it. */
+function answerWithin(ms: number, answer: Promise<unknown>): Promise<unknown> {
+	return new Promise((resolve, reject) => {
+		const timer = setTimeout(() => resolve(null), ms);
+		answer.then(resolve, reject).finally(() => clearTimeout(timer));
+	});
+}
+
+/** Asks the background to stop the run; null when it could not be reached or gave no answer in time. */
 async function askBackgroundToStop(run: RunToStop): Promise<StopRunAnswer | null> {
 	const message: IPostMessage<RunToStop> = {
 		type: MessageTypesToBackgroundEnum.stopRun,
 		payload: { id: run.id, source: run.source ?? null }
 	};
 	try {
-		const answer: unknown = await browser.runtime.sendMessage(message);
+		const answer = await answerWithin(BACKGROUND_STOP_DEADLINE_MS, browser.runtime.sendMessage(message));
 		return isStopRunAnswer(answer) ? answer : null;
 	} catch {
 		return null;
@@ -72,7 +88,8 @@ async function askBackgroundToStop(run: RunToStop): Promise<StopRunAnswer | null
 export async function stopThroughBackground(session: Session, run: RunToStop): Promise<void> {
 	const answer = await askBackgroundToStop(run);
 	if (!answer) {
-		await stopTimer(session, run);
+		// Under the same deadline as the background's calls: an API that never answers fails the stop, offline
+		await withDeadline(CALL_DEADLINE_MS, (signal) => stopTimer(session, run, { signal }));
 		return;
 	}
 	if (answer.stopped) {
