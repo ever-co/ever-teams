@@ -84,7 +84,10 @@ export function useCalendarMenu({ page, handlers, moves, onAddTime }: CalendarMe
 	// Whether the API splits in one write, its slots included (ever-co/ever-gauzy#12030): asked once, when the dialog
 	// first opens on an entry that is not running
 	const isStoppedEntry = splitEntry !== null && !splitEntry.isRunning;
-	const splitSupport = useTimeLogSplitSupport(splitEntry?.log ?? null, isSplitOpen && isStoppedEntry);
+	const { support: splitSupport, recheck: recheckSplit } = useTimeLogSplitSupport(
+		splitEntry?.log ?? null,
+		isSplitOpen && isStoppedEntry
+	);
 	const splitsThroughApi = splitSupport === 'supported';
 
 	let splitRefusal: SplitRefusal = 'none';
@@ -104,6 +107,8 @@ export function useCalendarMenu({ page, handlers, moves, onAddTime }: CalendarMe
 	}
 	// The dialog waits for that answer, once per session, before it says whether the entry can be split and how
 	const isCheckingSplit = isStoppedEntry && splitSupport === 'checking';
+	// An outage says neither yes nor no: the dialog offers to ask again rather than fall back on the two writes
+	const isSplitCheckFailed = isStoppedEntry && splitSupport === 'unknown';
 
 	const closeSplit = useCallback(() => setIsSplitOpen(false), []);
 
@@ -122,6 +127,8 @@ export function useCalendarMenu({ page, handlers, moves, onAddTime }: CalendarMe
 			isOpen: isSplitOpen,
 			refusal: splitRefusal,
 			isChecking: isCheckingSplit,
+			checkFailed: isSplitCheckFailed,
+			recheck: recheckSplit,
 			viaApi: splitsThroughApi,
 			close: closeSplit
 		},

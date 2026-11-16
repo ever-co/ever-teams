@@ -1,5 +1,6 @@
 'use client';
 
+import { useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { type ApiSplitSupport, apiSplitSupportOf } from '@/core/lib/utils/time-log-split';
 import { timeLogService } from '@/core/services/client/api/timesheets/time-log.service';
@@ -7,6 +8,12 @@ import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 
 /** Whether the API splits an entry in one write: being checked, yes, no, or not known (the check failed). */
 export type SplitSupport = 'checking' | ApiSplitSupport | 'unknown';
+
+/** Whether the API splits entries, and asking it again after a check that failed. */
+export interface TimeLogSplitSupport {
+	support: SplitSupport;
+	recheck: () => void;
+}
 
 /** One check per API for the whole session: whether it splits does not change while the page is open. */
 const SPLIT_SUPPORT_KEY = ['time-log-split', 'support'] as const;
@@ -27,7 +34,7 @@ export async function checkSplitSupport(log: ITimeLog): Promise<ApiSplitSupport>
 }
 
 /** Whether the API splits entries, checked once with the entry the dialog opens on, when `enabled`. */
-export function useTimeLogSplitSupport(log: ITimeLog | null, enabled: boolean): SplitSupport {
+export function useTimeLogSplitSupport(log: ITimeLog | null, enabled: boolean): TimeLogSplitSupport {
 	const isEnabled = enabled && log !== null;
 	const query = useQuery({
 		queryKey: SPLIT_SUPPORT_KEY,
@@ -37,11 +44,20 @@ export function useTimeLogSplitSupport(log: ITimeLog | null, enabled: boolean): 
 		gcTime: Infinity,
 		retry: false
 	});
-	if (query.data) {
-		return query.data;
-	}
+	const { refetch } = query;
+	const recheck = useCallback(() => {
+		void refetch();
+	}, [refetch]);
+	let support: SplitSupport = 'checking';
 	if (query.isError) {
-		return 'unknown';
+		support = 'unknown';
 	}
-	return 'checking';
+	// A check asked again is being checked, not failed
+	if (query.isFetching) {
+		support = 'checking';
+	}
+	if (query.data) {
+		support = query.data;
+	}
+	return { support, recheck };
 }

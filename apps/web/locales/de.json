@@ -1701,6 +1701,8 @@
 				"FAILED_UNKNOWN": "Die Teilung konnte nicht bestätigt werden. Lade den Kalender neu und prüfe diesen Eintrag, bevor du es erneut versuchst.",
 				"ADD_REST": "Zweiten Teil hinzufügen",
 				"CHECKING": "Es wird geprüft, ob dieser Eintrag geteilt werden kann…",
+				"CHECK_FAILED": "Es konnte nicht geprüft werden, ob dieser Eintrag geteilt werden kann. Prüfe deine Verbindung und versuche es erneut.",
+				"CHECK_AGAIN": "Erneut versuchen",
 				"SLOT_STEP": "Erfasste Zeit wird an ihren 10-Minuten-Abschnitten geteilt: Jeder geht ganz, mit seinen Screenshots und seiner Aktivität, in einen Teil.",
 				"OFF_SLOT": "Erfasste Zeit wird an einer 10-Minuten-Marke geteilt, etwa {before} oder {after}.",
 				"OFF_SLOT_ONE": "Erfasste Zeit wird an einer 10-Minuten-Marke geteilt, etwa {time}.",

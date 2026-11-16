@@ -1701,6 +1701,8 @@
 				"FAILED_UNKNOWN": "Non è stato possibile confermare la divisione. Ricarica il calendario e controlla questa voce prima di riprovare.",
 				"ADD_REST": "Aggiungi la seconda parte",
 				"CHECKING": "Verifica in corso: questa voce si può dividere?",
+				"CHECK_FAILED": "Non è stato possibile verificare se questa voce si può dividere. Controlla la connessione e riprova.",
+				"CHECK_AGAIN": "Riprova",
 				"SLOT_STEP": "Il tempo tracciato si divide sui suoi intervalli di 10 minuti: ognuno va intero, con screenshot e attività, in una sola parte.",
 				"OFF_SLOT": "Il tempo tracciato si divide su un segno di 10 minuti, ad esempio {before} o {after}.",
 				"OFF_SLOT_ONE": "Il tempo tracciato si divide su un segno di 10 minuti, ad esempio {time}.",

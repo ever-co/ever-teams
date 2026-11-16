@@ -1701,6 +1701,8 @@
 				"FAILED_UNKNOWN": "Nie udało się potwierdzić podziału. Odśwież kalendarz i sprawdź ten wpis, zanim spróbujesz ponownie.",
 				"ADD_REST": "Dodaj drugą część",
 				"CHECKING": "Sprawdzanie, czy ten wpis można podzielić…",
+				"CHECK_FAILED": "Nie udało się sprawdzić, czy ten wpis można podzielić. Sprawdź połączenie i spróbuj ponownie.",
+				"CHECK_AGAIN": "Spróbuj ponownie",
 				"SLOT_STEP": "Śledzony czas dzieli się na jego 10-minutowych odcinkach: każdy trafia w całości, ze zrzutami ekranu i aktywnością, do jednej części.",
 				"OFF_SLOT": "Śledzony czas dzieli się na znaczniku co 10 minut, np. {before} lub {after}.",
 				"OFF_SLOT_ONE": "Śledzony czas dzieli się na znaczniku co 10 minut, np. {time}.",

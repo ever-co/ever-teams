@@ -450,6 +450,29 @@ function CheckingBody({ onClose }: Readonly<{ onClose: () => void }>) {
 }
 
 /**
+ * The API could not be asked whether it splits (an outage, a lost answer): neither yes nor no, so the dialog neither
+ * refuses tracked time nor falls back on the two writes of time added by hand, and offers to ask again.
+ */
+function CheckFailedBody({ onRecheck, onClose }: Readonly<{ onRecheck: () => void; onClose: () => void }>) {
+	const t = useTranslations();
+	return (
+		<>
+			<div className="px-5 pb-5">
+				<FailureNotice text={t('dashboard.calendar.SPLIT.CHECK_FAILED')} />
+			</div>
+			<div className={APP_DIALOG_FOOTER}>
+				<Button type="button" variant="ghost" onClick={onClose} className="ml-auto">
+					{t('common.CANCEL')}
+				</Button>
+				<Button type="button" variant="default" onClick={onRecheck} data-initial-focus="">
+					{t('dashboard.calendar.SPLIT.CHECK_AGAIN')}
+				</Button>
+			</div>
+		</>
+	);
+}
+
+/**
  * Split, from the Calendar's menu: the split time (the middle of the entry by default, on a slot mark for tracked
  * time), the two parts it makes and the task of the second one. Where the API splits in one write (ever-co/ever-gauzy
  * #12030), tracked time splits too, each slot going with its screenshots and activity to one part. An entry the web
@@ -460,6 +483,8 @@ export function CalendarSplitDialog({
 	isOpen,
 	refusal,
 	isChecking = false,
+	checkFailed = false,
+	onRecheck,
 	viaApi = false,
 	formatters,
 	onClose,
@@ -470,6 +495,10 @@ export function CalendarSplitDialog({
 	refusal: SplitRefusal;
 	/** The API is being asked whether it splits in one write. */
 	isChecking?: boolean;
+	/** The API could not be asked whether it splits in one write. */
+	checkFailed?: boolean;
+	/** Asks the API again, after a check that failed. */
+	onRecheck?: () => void;
 	/** The API splits in one write, its slots included. */
 	viaApi?: boolean;
 	formatters: TimesheetFormatters;
@@ -478,7 +507,9 @@ export function CalendarSplitDialog({
 }>) {
 	const t = useTranslations();
 	const title = entry ? <EntrySummary entry={entry} formatters={formatters} /> : null;
-	const isRefused = refusal !== 'none' && !isChecking;
+	const isAnswerMissing = isChecking || checkFailed;
+	const isRefused = refusal !== 'none' && !isAnswerMissing;
+	const showsCheckFailed = checkFailed && !isChecking;
 	// The writes of a split go on after a close: nothing closes the dialog until they end, so their outcome is seen
 	const split = useCalendarEntrySplit();
 	const { isSaving, reset } = split;
@@ -516,8 +547,9 @@ export function CalendarSplitDialog({
 				</DialogDescription>
 			</div>
 			{entry && isChecking && <CheckingBody onClose={close} />}
-			{entry && !isChecking && isRefused && <RefusedBody refusal={refusal} onClose={close} />}
-			{entry && !isChecking && !isRefused && (
+			{entry && showsCheckFailed && onRecheck && <CheckFailedBody onRecheck={onRecheck} onClose={close} />}
+			{entry && !isAnswerMissing && isRefused && <RefusedBody refusal={refusal} onClose={close} />}
+			{entry && !isAnswerMissing && !isRefused && (
 				<SplitForm
 					key={entry.log.id}
 					entry={entry}

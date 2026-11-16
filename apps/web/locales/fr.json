@@ -1701,6 +1701,8 @@
 				"FAILED_UNKNOWN": "La scission n'a pas pu être confirmée. Rechargez le calendrier et vérifiez cette entrée avant de réessayer.",
 				"ADD_REST": "Ajouter la seconde partie",
 				"CHECKING": "Vérification que cette entrée peut être divisée…",
+				"CHECK_FAILED": "Impossible de vérifier si cette entrée peut être divisée. Vérifiez votre connexion, puis réessayez.",
+				"CHECK_AGAIN": "Réessayer",
 				"SLOT_STEP": "Le temps suivi se divise sur ses créneaux de 10 minutes : chacun va entier, avec ses captures et son activité, dans une seule partie.",
 				"OFF_SLOT": "Le temps suivi se divise sur une marque de 10 minutes, par exemple {before} ou {after}.",
 				"OFF_SLOT_ONE": "Le temps suivi se divise sur une marque de 10 minutes, par exemple {time}.",

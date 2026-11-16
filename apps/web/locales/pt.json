@@ -1701,6 +1701,8 @@
 				"FAILED_UNKNOWN": "Não foi possível confirmar a divisão. Recarregue o calendário e confira este registro antes de tentar novamente.",
 				"ADD_REST": "Adicionar a segunda parte",
 				"CHECKING": "Verificando se esta entrada pode ser dividida…",
+				"CHECK_FAILED": "Não foi possível verificar se esta entrada pode ser dividida. Verifique sua conexão e tente de novo.",
+				"CHECK_AGAIN": "Tentar de novo",
 				"SLOT_STEP": "O tempo rastreado é dividido nos seus intervalos de 10 minutos: cada um vai inteiro, com capturas e atividade, para uma só parte.",
 				"OFF_SLOT": "O tempo rastreado é dividido numa marca de 10 minutos, como {before} ou {after}.",
 				"OFF_SLOT_ONE": "O tempo rastreado é dividido numa marca de 10 minutos, como {time}.",

@@ -1701,6 +1701,8 @@
 				"FAILED_UNKNOWN": "The split could not be confirmed. Reload the calendar and check this entry before you try again.",
 				"ADD_REST": "Add the second part",
 				"CHECKING": "Checking whether this entry can be split…",
+				"CHECK_FAILED": "We couldn't check whether this entry can be split. Check your connection, then try again.",
+				"CHECK_AGAIN": "Try again",
 				"SLOT_STEP": "Tracked time splits on its 10-minute slots, so each one goes whole, with its screenshots and activity, to one part.",
 				"OFF_SLOT": "Tracked time splits on a 10-minute mark, such as {before} or {after}.",
 				"OFF_SLOT_ONE": "Tracked time splits on a 10-minute mark, such as {time}.",

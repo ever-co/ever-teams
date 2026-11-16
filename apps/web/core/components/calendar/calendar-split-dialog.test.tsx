@@ -106,6 +106,20 @@ describe('CalendarSplitDialog (#5369)', () => {
 		mockSplit.save.mockClear();
 	});
 
+	it('offers to ask the API again after a check that failed, instead of refusing tracked time', () => {
+		const onRecheck = jest.fn();
+		// What the menu works out while the API has not said it splits: tracked time is not split in two writes
+		renderDialog({ refusal: 'tracked', viaApi: false, checkFailed: true, onRecheck });
+
+		expect(screen.getByText('dashboard.calendar.SPLIT.CHECK_FAILED')).toBeTruthy();
+		expect(screen.queryByText('dashboard.calendar.SPLIT.REFUSED.TRACKED')).toBeNull();
+		expect(screen.queryByRole('button', { name: 'dashboard.calendar.SPLIT.ACTION' })).toBeNull();
+
+		fireEvent.click(screen.getByRole('button', { name: 'dashboard.calendar.SPLIT.CHECK_AGAIN' }));
+
+		expect(onRecheck).toHaveBeenCalledTimes(1);
+	});
+
 	it('keeps the time and the task as sent after an unknown outcome, so the next try repeats that split', async () => {
 		mockSplit.failure = 'retry';
 		renderDialog();

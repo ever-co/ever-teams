@@ -1701,6 +1701,8 @@
 				"FAILED_UNKNOWN": "Het splitsen kon niet worden bevestigd. Laad de kalender opnieuw en controleer deze registratie voordat je het opnieuw probeert.",
 				"ADD_REST": "Tweede deel toevoegen",
 				"CHECKING": "Controleren of deze registratie gesplitst kan worden…",
+				"CHECK_FAILED": "We konden niet controleren of deze registratie gesplitst kan worden. Controleer je verbinding en probeer het opnieuw.",
+				"CHECK_AGAIN": "Opnieuw proberen",
 				"SLOT_STEP": "Bijgehouden tijd wordt gesplitst op de blokken van 10 minuten: elk blok gaat in zijn geheel, met schermafbeeldingen en activiteit, naar één deel.",
 				"OFF_SLOT": "Bijgehouden tijd wordt gesplitst op een 10-minutenmarkering, zoals {before} of {after}.",
 				"OFF_SLOT_ONE": "Bijgehouden tijd wordt gesplitst op een 10-minutenmarkering, zoals {time}.",

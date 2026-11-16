@@ -1701,6 +1701,8 @@
 				"FAILED_UNKNOWN": "No se pudo confirmar la división. Recarga el calendario y revisa esta entrada antes de volver a intentarlo.",
 				"ADD_REST": "Añadir la segunda parte",
 				"CHECKING": "Comprobando si esta entrada se puede dividir…",
+				"CHECK_FAILED": "No se pudo comprobar si esta entrada se puede dividir. Revisa tu conexión e inténtalo de nuevo.",
+				"CHECK_AGAIN": "Reintentar",
 				"SLOT_STEP": "El tiempo registrado se divide en sus intervalos de 10 minutos: cada uno va entero, con sus capturas y su actividad, a una sola parte.",
 				"OFF_SLOT": "El tiempo registrado se divide en una marca de 10 minutos, como {before} o {after}.",
 				"OFF_SLOT_ONE": "El tiempo registrado se divide en una marca de 10 minutos, como {time}.",
