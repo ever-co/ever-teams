@@ -1,7 +1,7 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { matchQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 
@@ -24,21 +24,27 @@ export function EntryLabelsLine({ log, canEdit }: Readonly<{ log: ITimeLog; canE
 	const carriedLabels = useMemo(() => entryLabelsOf(log), [log]);
 	const [labelIds, setLabelIds] = useState<string[]>(() => carriedLabels.map((label) => label.id));
 	const [isSaving, setIsSaving] = useState(false);
+	// A save landed but the entries could not be read again after it: the entry as read predates the save, so the card
+	// keeps the saved labels until the next read of the entries succeeds, whatever labels that read brings
+	const [waitsForReadAfterSave, setWaitsForReadAfterSave] = useState(false);
 	const carriedKey = carriedLabels.map((label) => label.id).join(',');
-	// The labels the entry was read with before a save that landed: a read still showing them predates the save (the
-	// refetch after it may fail, and leaves that read in place), so the saved labels stay until a read shows others
-	const keyBeforeSaveRef = useRef<string | null>(null);
 	useEffect(() => {
-		if (isSaving) {
+		if (isSaving || waitsForReadAfterSave) {
 			return;
 		}
-		const isReadBeforeSave = carriedKey === keyBeforeSaveRef.current;
-		if (isReadBeforeSave) {
-			return;
-		}
-		keyBeforeSaveRef.current = null;
 		setLabelIds(carriedKey ? carriedKey.split(',') : []);
-	}, [carriedKey, isSaving]);
+	}, [carriedKey, isSaving, waitsForReadAfterSave]);
+	useEffect(() => {
+		if (!waitsForReadAfterSave) {
+			return;
+		}
+		return queryClient.getQueryCache().subscribe((event) => {
+			const isRead = event.type === 'updated' && event.action.type === 'success';
+			if (isRead && matchQuery({ queryKey: queryKeys.timesheet.all }, event.query)) {
+				setWaitsForReadAfterSave(false);
+			}
+		});
+	}, [queryClient, waitsForReadAfterSave]);
 
 	const save = useCallback(
 		async (next: string[]) => {
@@ -47,17 +53,21 @@ export function EntryLabelsLine({ log, canEdit }: Readonly<{ log: ITimeLog; canE
 			setIsSaving(true);
 			try {
 				await timeLogService.updateTimeLogLabels(log.id, next);
-				const isChanged = next.join(',') !== carriedKey;
-				keyBeforeSaveRef.current = isChanged ? carriedKey : null;
-				await queryClient.invalidateQueries({ queryKey: queryKeys.timesheet.all });
 			} catch {
 				setLabelIds(previous);
 				toast.error(t('timer.labels.SAVE_FAILED'));
+				setIsSaving(false);
+				return;
+			}
+			try {
+				await queryClient.invalidateQueries({ queryKey: queryKeys.timesheet.all }, { throwOnError: true });
+			} catch {
+				setWaitsForReadAfterSave(true);
 			} finally {
 				setIsSaving(false);
 			}
 		},
-		[carriedKey, labelIds, log.id, queryClient, t]
+		[labelIds, log.id, queryClient, t]
 	);
 
 	if (!supportsLabels) {

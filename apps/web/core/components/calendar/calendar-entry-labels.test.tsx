@@ -1,8 +1,9 @@
 /** @jest-environment jsdom */
 
 import type { ReactNode } from 'react';
-import { act, fireEvent, render, screen } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
+import { queryKeys } from '@/core/query/keys';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 
 jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
@@ -34,56 +35,95 @@ function entryWith(tags: Array<typeof meeting>) {
 	return { id: 'log-1', tags } as unknown as ITimeLog;
 }
 
-/** The card of an entry, in a Calendar whose refetch brings nothing new: the read of the entry stays as it was. */
-function renderCard(log: ITimeLog) {
-	const queryClient = new QueryClient();
+/** The Calendar's read of the entry, answered in turn by each answer queued with `mockResolvedValueOnce`. */
+const mockReadEntry = jest.fn();
+
+function CalendarCard() {
+	const { data } = useQuery({ queryKey: [...queryKeys.timesheet.all, 'calendar'], queryFn: () => mockReadEntry() });
+	if (!data) {
+		return null;
+	}
+	return <EntryLabelsLine log={data} canEdit />;
+}
+
+/** The card of an entry the Calendar read with these labels. */
+async function renderCard(tags: Array<typeof meeting>) {
+	mockReadEntry.mockResolvedValueOnce(entryWith(tags));
+	const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 	const Wrapper = ({ children }: { children?: ReactNode }) => (
 		<QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
 	);
-	const view = render(<EntryLabelsLine log={log} canEdit />, { wrapper: Wrapper });
-	return { ...view, showEntry: (next: ITimeLog) => view.rerender(<EntryLabelsLine log={next} canEdit />) };
+	render(<CalendarCard />, { wrapper: Wrapper });
+	await screen.findByRole('button', { name: `labels: ${tags.map((tag) => tag.id).join(',')}` });
+	const readEntriesAgain = async () => {
+		await act(async () => {
+			await queryClient.refetchQueries({ queryKey: queryKeys.timesheet.all });
+		});
+	};
+	return { readEntriesAgain };
+}
+
+async function addSupport(shown: string) {
+	await act(async () => {
+		fireEvent.click(screen.getByRole('button', { name: `labels: ${shown}` }));
+	});
 }
 
 describe('the labels of an entry on its Calendar card (#5368)', () => {
 	beforeEach(() => {
-		mockUpdateTimeLogLabels.mockReset();
+		mockUpdateTimeLogLabels.mockReset().mockResolvedValue(entryWith([meeting, support]));
+		mockReadEntry.mockReset();
 		mockToastError.mockReset();
 	});
 
-	it('keeps the labels it saved while the entry has not been read again, as when the refetch fails', async () => {
-		mockUpdateTimeLogLabels.mockResolvedValue(entryWith([meeting, support]));
-		renderCard(entryWith([meeting]));
+	it('follows the entry read again after the save', async () => {
+		await renderCard([meeting]);
+		mockReadEntry.mockResolvedValueOnce(entryWith([meeting, support]));
 
-		await act(async () => {
-			fireEvent.click(screen.getByRole('button', { name: 'labels: meeting' }));
-		});
+		await addSupport('meeting');
 
 		expect(mockUpdateTimeLogLabels).toHaveBeenCalledWith('log-1', ['meeting', 'support']);
-		expect(screen.getByRole('button', { name: 'labels: meeting,support' })).toBeTruthy();
+		await screen.findByRole('button', { name: 'labels: meeting,support' });
 	});
 
-	it("takes the entry's labels again once it is read with other labels than before the save", async () => {
-		mockUpdateTimeLogLabels.mockResolvedValue(entryWith([meeting, support]));
-		const card = renderCard(entryWith([meeting]));
-		await act(async () => {
-			fireEvent.click(screen.getByRole('button', { name: 'labels: meeting' }));
-		});
+	it('keeps the labels it saved when the entries cannot be read again after the save', async () => {
+		await renderCard([meeting]);
+		mockReadEntry.mockRejectedValueOnce(new Error('Network Error'));
 
-		card.showEntry(entryWith([meeting, support]));
+		await addSupport('meeting');
+
 		expect(screen.getByRole('button', { name: 'labels: meeting,support' })).toBeTruthy();
+		expect(mockToastError).not.toHaveBeenCalled();
+	});
 
-		// Changed elsewhere afterwards
-		card.showEntry(entryWith([design]));
-		expect(screen.getByRole('button', { name: 'labels: design' })).toBeTruthy();
+	it('takes the next read of the entries, even when it shows the labels from before the save', async () => {
+		const card = await renderCard([meeting]);
+		mockReadEntry.mockRejectedValueOnce(new Error('Network Error'));
+		await addSupport('meeting');
+
+		// Someone else removed "support" meanwhile: the next read that succeeds shows "meeting" again
+		mockReadEntry.mockResolvedValueOnce(entryWith([meeting]));
+		await card.readEntriesAgain();
+
+		await waitFor(() => expect(screen.getByRole('button', { name: 'labels: meeting' })).toBeTruthy());
+	});
+
+	it('follows a later change made elsewhere', async () => {
+		const card = await renderCard([meeting]);
+		mockReadEntry.mockResolvedValueOnce(entryWith([meeting, support]));
+		await addSupport('meeting');
+
+		mockReadEntry.mockResolvedValueOnce(entryWith([design]));
+		await card.readEntriesAgain();
+
+		await screen.findByRole('button', { name: 'labels: design' });
 	});
 
 	it('puts back the labels it showed when the save fails', async () => {
-		mockUpdateTimeLogLabels.mockRejectedValue(new Error('Network Error'));
-		renderCard(entryWith([meeting]));
+		mockUpdateTimeLogLabels.mockReset().mockRejectedValue(new Error('Network Error'));
+		await renderCard([meeting]);
 
-		await act(async () => {
-			fireEvent.click(screen.getByRole('button', { name: 'labels: meeting' }));
-		});
+		await addSupport('meeting');
 
 		expect(screen.getByRole('button', { name: 'labels: meeting' })).toBeTruthy();
 		expect(mockToastError).toHaveBeenCalledWith('timer.labels.SAVE_FAILED');
