@@ -47,7 +47,7 @@ const ACTION_ENGLISH = actionChangedMeanwhileOf('en.json');
 describe('the message of an invoice status action refused as changed meanwhile', () => {
 	it('is stated in English', () => {
 		expect(ACTION_ENGLISH).toBe(
-			'This invoice changed since it was shown, so nothing was changed. Its current version is shown now: check it, then try again.'
+			'This invoice changed since it was shown, so nothing was changed. Refresh it to see its current version, then try again.'
 		);
 	});
 

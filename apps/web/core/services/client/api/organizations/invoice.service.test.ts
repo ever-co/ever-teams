@@ -171,13 +171,25 @@ describe('e-mailing, settling and deleting an invoice in the workspace the list 
 		await expect(invoiceService.getInvoiceState('invoice-1', listScope)).resolves.toEqual(data);
 	});
 
-	it('reads no updatedAt from an answer that states none', async () => {
-		jest.spyOn(invoiceService, 'get').mockResolvedValue({ data: { status: 'SENT' } } as never);
+	it.each([
+		['states none', { status: 'SENT' }],
+		['states it null', { status: 'SENT', updatedAt: null }]
+	])('reads no updatedAt from an answer that %s, never 1970', async (_label, data) => {
+		jest.spyOn(invoiceService, 'get').mockResolvedValue({ data } as never);
 
 		await expect(invoiceService.getInvoiceState('invoice-1', listScope)).resolves.toEqual({
 			status: 'SENT',
 			updatedAt: null
 		});
+	});
+
+	it('reads a null updatedAt of the invoice the editor opens as none, never 1970 (#5382)', async () => {
+		const data = { id: 'invoice-1', invoiceNumber: 42, totalValue: 100, status: 'SENT', updatedAt: null };
+		jest.spyOn(invoiceService, 'get').mockResolvedValue({ data } as never);
+
+		const invoice = await invoiceService.getInvoice('invoice-1');
+
+		expect(invoice.updatedAt).toBeNull();
 	});
 
 	it('reads the status an invoice holds now under the tenant of the list', async () => {

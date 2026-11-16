@@ -7674,7 +7674,7 @@
 			"MARKED_PAID": "Factuur {number} is gemarkeerd als betaald",
 			"MARKED_UNPAID": "Factuur {number} staat weer op Verzonden, onbetaald",
 			"CHANGE_FAILED": "Factuur {number} is niet gewijzigd",
-			"CHANGED_MEANWHILE": "Deze factuur is gewijzigd sinds hij werd getoond, dus er is niets gewijzigd. De huidige versie wordt nu getoond: controleer hem en probeer het opnieuw.",
+			"CHANGED_MEANWHILE": "Deze factuur is gewijzigd sinds hij werd getoond, dus er is niets gewijzigd. Vernieuw hem om de huidige versie te zien en probeer het daarna opnieuw.",
 			"DOWNLOAD": "Als pdf downloaden"
 		},
 		"send": {
