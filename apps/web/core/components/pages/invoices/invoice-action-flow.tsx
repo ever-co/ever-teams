@@ -3,7 +3,11 @@
 import { useCallback, useState } from 'react';
 import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
 import { toast } from 'sonner';
-import { useChangeInvoiceStatus, type InvoicePaymentAction } from '@/core/hooks/invoices/use-invoice-mutations';
+import {
+	isInvoiceActionChangedMeanwhile,
+	useChangeInvoiceStatus,
+	type InvoicePaymentAction
+} from '@/core/hooks/invoices/use-invoice-mutations';
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
 import type { InvoiceMenuAction } from '@/core/lib/utils/invoice-actions';
 import type { InvoicesScope } from '@/core/services/client/api/organizations/invoice.service';
@@ -47,7 +51,10 @@ export function useInvoiceActionFlow(scope: InvoicesScope | null) {
 				await changeStatus({ invoiceId: target.invoice.id, payment, scope });
 				toast.success(t(doneKey, { number }));
 			} catch (error) {
-				const reasonKey = errorReasonKeyOf(error) as DottedLanguageObjectStringPaths;
+				// Changed since it was read: nothing was written, and the invoices are read again (#5382)
+				const reasonKey = isInvoiceActionChangedMeanwhile(error)
+					? 'invoices.actions.CHANGED_MEANWHILE'
+					: (errorReasonKeyOf(error) as DottedLanguageObjectStringPaths);
 				toast.error(t('invoices.actions.CHANGE_FAILED', { number }), { description: t(reasonKey) });
 			}
 		},

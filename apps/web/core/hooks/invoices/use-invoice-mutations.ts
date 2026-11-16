@@ -157,12 +157,13 @@ interface InvoiceSending {
  * reached meanwhile (paid, void) is never taken back.
  */
 async function markSentWhileDraft(invoiceId: string, workspace: InvoicesScope): Promise<boolean> {
-	const currentStatus = await invoiceService.getInvoiceStatus(invoiceId, workspace);
-	const status = invoiceStatusOf(currentStatus);
+	const current = await invoiceService.getInvoiceState(invoiceId, workspace);
+	const status = invoiceStatusOf(current.status);
 	if (!isDraftInvoice(status)) {
 		return false;
 	}
-	await invoiceService.changeInvoiceStatus(invoiceId, SENT_CHANGE, workspace);
+	// Under the read just made: a change saved after it refuses the mark (409) rather than being written over (#5382)
+	await invoiceService.changeInvoiceStatus(invoiceId, SENT_CHANGE, workspace, current.updatedAt);
 	return true;
 }
 
@@ -667,8 +668,8 @@ function refusedEdit(refusal: InvoiceEditOutcome): InvoiceEditCheck {
 	return { refusal, status: null, readVersion: null };
 }
 
-/** The `updatedAt` an invoice was read at, as the API states it: what a save is made under. */
-function readVersionOf(invoice: TSavedInvoice): string | null {
+/** The `updatedAt` an invoice was read at, as the API states it: what a save or a status action is made under. */
+function readVersionOf(invoice: Pick<TSavedInvoice, 'updatedAt'>): string | null {
 	if (!invoice.updatedAt) {
 		return null;
 	}
@@ -783,6 +784,15 @@ function changedInvoiceIdOf(change: Mutation) {
 	return request.invoiceId;
 }
 
+/**
+ * A status action refused because the invoice changed since it was read, with nothing written: by the check made here
+ * before the write (the status no longer offers the action), or by Ever Gauzy under the `updatedAt` the action was made
+ * under (409 `INVOICE_CHANGED`, #5382). Either way the invoices are read again, and the dialog or the toast says so.
+ */
+export function isInvoiceActionChangedMeanwhile(error: unknown): boolean {
+	return error instanceof InvoiceActionWithdrawnError || isChangedMeanwhile(error);
+}
+
 /** Refused before any write: the invoice's status changed since it was listed and no longer offers the action. */
 class InvoiceActionWithdrawnError extends Error {
 	/** Read as a conflict: someone changed the invoice at the same time. */
@@ -799,15 +809,21 @@ class InvoiceActionWithdrawnError extends Error {
  * the invoice may have been sent, paid or voided since. Nothing is written once another tab switched the workspace
  * while the invoice was read.
  */
-async function assertActionOffered(invoiceId: string, action: InvoiceAction, workspace: InvoicesScope) {
-	const currentStatus = await invoiceService.getInvoiceStatus(invoiceId, workspace);
-	const isOffered = invoiceActionsOf(invoiceStatusOf(currentStatus)).includes(action);
+async function assertActionOffered(
+	invoiceId: string,
+	action: InvoiceAction,
+	workspace: InvoicesScope
+): Promise<string | null> {
+	const current = await invoiceService.getInvoiceState(invoiceId, workspace);
+	const isOffered = invoiceActionsOf(invoiceStatusOf(current.status)).includes(action);
 	if (!isOffered) {
 		throw new InvoiceActionWithdrawnError(action);
 	}
 	if (!isChosenWorkspace(workspace)) {
 		throw new Error(WORKSPACE_SWITCHED);
 	}
+	// The `updatedAt` of this read: the action is made under it (#5382)
+	return current.updatedAt;
 }
 
 /** The action a fixed change makes when the invoice's status must still offer it: Void, once paid, is refused. */
@@ -826,17 +842,19 @@ async function currentPaymentChangeOf(
 	invoiceId: string,
 	payment: InvoicePaymentAction,
 	workspace: InvoicesScope
-): Promise<InvoiceStatusChange> {
+): Promise<{ change: InvoiceStatusChange; readVersion: string | null }> {
 	const invoice = await invoiceService.getInvoice(invoiceId, { tenantId: workspace.tenantId });
 	const status = invoiceStatusOf(invoice.status);
 	const isOffered = invoiceActionsOf(status).includes(payment);
 	if (!isOffered) {
 		throw new InvoiceActionWithdrawnError(payment);
 	}
+	// The amounts come from this read, and so does the `updatedAt` the change is made under (#5382)
+	const readVersion = readVersionOf(invoice);
 	if (payment === 'markPaid') {
-		return paidChangeOf(invoice.totalValue);
+		return { change: paidChangeOf(invoice.totalValue), readVersion };
 	}
-	return unpaidChangeOf(invoice.totalValue);
+	return { change: unpaidChangeOf(invoice.totalValue), readVersion };
 }
 
 /** The change made, so the list shows the status it was given. */
@@ -844,19 +862,20 @@ async function changeStatusInItsWorkspace(request: InvoiceStatusChangeRequest): 
 	const workspace = workspaceToActIn(request.scope);
 	if ('change' in request) {
 		const action = actionOfFixedChange(request.change);
+		let readVersion: string | null = null;
 		if (action) {
-			await assertActionOffered(request.invoiceId, action, workspace);
+			readVersion = await assertActionOffered(request.invoiceId, action, workspace);
 		}
-		await invoiceService.changeInvoiceStatus(request.invoiceId, request.change, workspace);
+		await invoiceService.changeInvoiceStatus(request.invoiceId, request.change, workspace, readVersion);
 		return request.change;
 	}
-	const change = await currentPaymentChangeOf(request.invoiceId, request.payment, workspace);
+	const { change, readVersion } = await currentPaymentChangeOf(request.invoiceId, request.payment, workspace);
 	// Another tab may have switched the workspace while the invoice was read: nothing is written then, and the write
 	// goes to the workspace the invoice was read in
 	if (!isChosenWorkspace(workspace)) {
 		throw new Error(WORKSPACE_SWITCHED);
 	}
-	await invoiceService.changeInvoiceStatus(request.invoiceId, change, workspace);
+	await invoiceService.changeInvoiceStatus(request.invoiceId, change, workspace, readVersion);
 	return change;
 }
 
@@ -902,7 +921,8 @@ async function voidToReplace({ invoiceId, scope }: InvoiceToReplace): Promise<Vo
 	}
 	// Another tab may have switched the workspace while the invoice was read
 	const voidScope = workspaceToActIn(scope);
-	await invoiceService.changeInvoiceStatus(invoiceId, VOID_CHANGE, voidScope);
+	// Under the read it was rebuilt from: a change saved since refuses the void (409) rather than being voided (#5382)
+	await invoiceService.changeInvoiceStatus(invoiceId, VOID_CHANGE, voidScope, readVersionOf(invoice));
 	return 'voided';
 }
 
