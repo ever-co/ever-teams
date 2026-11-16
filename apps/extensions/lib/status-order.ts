@@ -33,6 +33,8 @@ export function createStatusOrder() {
 			if (latest === endedAt) {
 				return false;
 			}
+			// In this order: the end takes a number of its own, past every ticket given, and `endedAt` records it, so
+			// only a ticket given after it (which moves `latest` on) makes the next end count
 			latest += 1;
 			endedAt = latest;
 			return true;

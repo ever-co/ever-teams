@@ -44,10 +44,10 @@ function broadcast(status: TimerStatus | null): void {
 /**
  * Shows a status on the badge while `isCurrent` says it is still the newest. Checked first, before the badge is
  * touched: a status a sign-out (or a newer status) came before sets neither the color nor the text. The color and the
- * text are then sent in the same synchronous step as the check, so no other code (a sign-out's clear included) runs
- * between the check and either call. A sign-out told meanwhile sends its clear after both, the browser runs the
- * badge's calls in the order they were sent, and the end state is the same whichever of the two answers first: the
- * clear empties the text, and the color shows only behind a text.
+ * text calls are then issued together, right after the check with no await between: no other code (a sign-out's clear
+ * included) can issue a badge call between the check and either of them. The browser runs them asynchronously, in the
+ * order they were issued, so a sign-out told meanwhile clears after both; and the end state is the same whichever of
+ * the two answers first: the clear empties the text, and the color shows only behind a text.
  */
 async function showBadge(status: TimerStatus | null, isCurrent: () => boolean = () => true): Promise<void> {
 	if (!isCurrent()) {
