@@ -15,6 +15,7 @@ import { useTeamTasks } from './features/use-team-tasks';
 import useFetchTimerStatus from '../client/queries/timer/timer';
 import { useTaskStatistics } from './features/use-task-statistics';
 import moment from 'moment-timezone';
+import { runStartOf } from '../../helpers/timer-run-start';
 
 const LOCAL_TIMER_STORAGE_KEY = 'local-timer-ever-teams';
 
@@ -70,9 +71,12 @@ function useLocalTimeCounter(timerStatus: ITimerStatus | null, activeTeamTask: I
 				const localStatus = await getLocalCounterStatus();
 				localStatus && setLocalTimerStatus(localStatus);
 
-				const timerStatusDate = timerStatus?.lastLog?.createdAt
+				// The run's start, which a start moved on the web or on the phone changes; an API whose status names no
+				// start leaves the clock counting from the entry's creation, as before
+				const createdAtStart = timerStatus?.lastLog?.createdAt
 					? moment(timerStatus?.lastLog?.createdAt).unix() * 1000 - timerStatus?.lastLog?.duration
 					: 0;
+				const timerStatusDate = runStartOf(timerStatus) ?? createdAtStart;
 
 				timerStatus &&
 					updateLocalTimerStatus({
