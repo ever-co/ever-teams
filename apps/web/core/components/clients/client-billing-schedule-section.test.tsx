@@ -344,6 +344,7 @@ describe('ClientBillingScheduleSection', () => {
 			fireEvent.click(screen.getByRole('button', { name: 'confirm delete' }));
 
 			await waitFor(() => expect(toast.error).toHaveBeenCalledWith('invoices.schedule.toasts.FAILED'));
+			expect(screen.queryByRole('button', { name: 'confirm delete' })).toBeNull();
 			expect(mutations.deleteOpenedSchedule).toHaveBeenCalledWith({
 				scheduleId: 'schedule-1',
 				latest: undefined

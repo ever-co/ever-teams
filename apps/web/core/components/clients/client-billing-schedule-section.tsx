@@ -218,9 +218,11 @@ export function ClientBillingScheduleSection({
 	// Deletes the schedule the confirmation opened on, never one that replaced it since; one deleted meanwhile is
 	// gone, as asked, and the toast says it already was
 	const remove = async (target: TInvoiceSchedule) => {
+		// The confirmation closes on Delete, as its button closes it, whatever comes of it: the toast tells that, and
+		// asking again opens it on the schedule the section shows then
+		setDeleteTarget(null);
 		try {
 			const deletion = await mutations.deleteOpenedSchedule({ scheduleId: target.id, latest: latestSchedule });
-			setDeleteTarget(null);
 			if (deletion === 'alreadyDeleted') {
 				toast.info(t('invoices.schedule.toasts.ALREADY_DELETED', { name: client.name }));
 				return;
@@ -228,7 +230,6 @@ export function ClientBillingScheduleSection({
 			toast.success(t('invoices.schedule.toasts.DELETED', { name: client.name }));
 		} catch (error) {
 			if (error instanceof OpenedScheduleGoneError) {
-				setDeleteTarget(null);
 				toast.error(t('invoices.schedule.toasts.REPLACED', { name: client.name }));
 				return;
 			}
