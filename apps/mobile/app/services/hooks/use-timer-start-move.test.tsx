@@ -9,6 +9,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook, waitFor } from '@testing-library/react-native';
 import { TimerStore, TimerStoreModel } from '../../models/timer/timer-store';
 import { createFakeGauzy, FakeGauzy, ORGANIZATION_ID } from '../../../test/fake-gauzy-session';
+import type { ITimer } from '../interfaces/ITimer';
 import { ITimerStartMoveFailure, useTimerStartMove } from './use-timer-start-move';
 
 let mockStores: Record<string, unknown> = {};
@@ -159,6 +160,44 @@ describe('Moving the start of the running timer from the phone', () => {
 		await act(() => panel.current.moveStart({ startedAt: new Date('2026-11-16T09:00:00.000Z') }));
 
 		expect(timerStore.timerStatus.running).toBe(false);
+	});
+
+	it('leaves a start moved again elsewhere as it is when the status read after the move fails', async () => {
+		const panel = await openPanel();
+		const gauzyFetch = global.fetch;
+		global.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+			const isStatusRead = typeof input === 'string' && input.includes('/timesheet/timer/status');
+			if (isStatusRead) {
+				// The start of the same run was moved again on the web and the screen shows it, then the phone lost
+				// its connection
+				const shown = timerStore.timerStatus;
+				const sameRun = { ...shown.lastLog, startedAt: '2026-11-16T08:45:00.000Z' } as ITimer;
+				timerStore.setTimerStatus({ ...shown, lastLog: sameRun });
+				throw new TypeError('Network request failed');
+			}
+			return gauzyFetch(input, init);
+		}) as typeof fetch;
+
+		await act(() => panel.current.moveStart({ startedAt: new Date('2026-11-16T09:00:00.000Z') }));
+
+		expect(timerStore.timerStatus.lastLog?.startedAt).toBe('2026-11-16T08:45:00.000Z');
+	});
+
+	it('leaves the timer as it is when the person changed organization while the status was read', async () => {
+		const panel = await openPanel();
+		const gauzyFetch = global.fetch;
+		global.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+			const isStatusRead = typeof input === 'string' && input.includes('/timesheet/timer/status');
+			if (isStatusRead) {
+				// The answer is the timer of the organization the move was made in, no longer the one on screen
+				(mockStores.authenticationStore as { organizationId: string }).organizationId = 'organization-2';
+			}
+			return gauzyFetch(input, init);
+		}) as typeof fetch;
+
+		await act(() => panel.current.moveStart({ startedAt: new Date('2026-11-16T09:00:00.000Z') }));
+
+		expect(timerStore.timerStatus.lastLog?.startedAt).toBe(STARTED_AT);
 	});
 
 	it('shows the start alone against an API without the route, and the timer works as today', async () => {

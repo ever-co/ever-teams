@@ -40,6 +40,15 @@ function isRunningLog(data: ITimer | IApiRefusal | undefined): data is ITimer {
 }
 
 /**
+ * Whether the timer still shows run `runId` running from the start it showed when the move was sent: no stop, no
+ * other run and no start moved again elsewhere came in meanwhile.
+ */
+function showsSameRun(before: ITimerStatus | undefined, now: ITimerStatus | undefined, runId: string): boolean {
+	const sameRun = now?.running === true && now.lastLog?.id === runId && before?.lastLog?.id === runId;
+	return sameRun && now.lastLog?.startedAt === before?.lastLog?.startedAt;
+}
+
+/**
  * The start of the caller's running timer (ever-co/ever-teams#5373): where it is, what its panel offers, and the move
  * itself.
  *
@@ -49,15 +58,13 @@ function isRunningLog(data: ITimer | IApiRefusal | undefined): data is ITimer {
  * the panel shows the start alone.
  *
  * A move answered by the API replaces the timer's status, so the clock jumps at once and keeps running, unless the
- * screen shows another state of the timer by then (stopped or another run, from another device); the views that count
- * today's time read again. A refusal leaves the timer as it was and is thrown to the caller, which says why.
+ * screen shows another state of the timer by then (stopped, another run or a start moved again, from another device)
+ * or another session; the views that count today's time read again. A refusal leaves the timer as it was and is thrown to the caller, which says why.
  */
 export function useTimerStartMove({ enabled }: { enabled: boolean }) {
 	const queryClient = useQueryClient();
-	const {
-		authenticationStore: { authToken, tenantId, organizationId, user },
-		TimerStore: timerStore
-	} = useStores();
+	const { authenticationStore, TimerStore: timerStore } = useStores();
+	const { authToken, tenantId, organizationId, user } = authenticationStore;
 	const { timerStatus, setTimerStatus } = timerStore;
 	const [saving, setSaving] = useState(false);
 
@@ -135,6 +142,8 @@ export function useTimerStartMove({ enabled }: { enabled: boolean }) {
 	const moveStart = useCallback(
 		async ({ startedAt, reason }: { startedAt: Date; reason?: string }): Promise<void> => {
 			setSaving(true);
+			// What the screen shows as the move is sent: only that is replaced by the status read after it
+			const shownBefore = timerStore.timerStatus;
 			try {
 				const trimmedReason = reason?.trim();
 				const reasonField = trimmedReason ? { reason: trimmedReason } : {};
@@ -159,11 +168,13 @@ export function useTimerStartMove({ enabled }: { enabled: boolean }) {
 					throw failure;
 				}
 				const status = await statusAfterMove(data);
-				// The screen may show another state by then: it is not replaced by a status of the moved run, and the
-				// timer is read again instead
-				const shown = timerStore.timerStatus;
-				const stillShowsMovedRun = shown?.running === true && shown?.lastLog?.id === data.id;
-				if (stillShowsMovedRun) {
+				// The screen may show another state or another session by then: it is not replaced by a status of the
+				// moved run, and the timer is read again instead
+				const sameSession =
+					authenticationStore.tenantId === tenantId &&
+					authenticationStore.organizationId === organizationId &&
+					authenticationStore.user?.id === user?.id;
+				if (sameSession && showsSameRun(shownBefore, timerStore.timerStatus, data.id)) {
 					setTimerStatus(status);
 				}
 				readAgain();
@@ -171,7 +182,18 @@ export function useTimerStartMove({ enabled }: { enabled: boolean }) {
 				setSaving(false);
 			}
 		},
-		[authToken, queryClient, readAgain, setTimerStatus, statusAfterMove, tenantId, timerStore]
+		[
+			authToken,
+			authenticationStore,
+			organizationId,
+			queryClient,
+			readAgain,
+			setTimerStatus,
+			statusAfterMove,
+			tenantId,
+			timerStore,
+			user?.id
+		]
 	);
 
 	return { running, runStart, source: runningLog?.source, access, saving, moveStart };
