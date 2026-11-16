@@ -383,7 +383,12 @@ export function diaryTasksOf(entries: ReadonlyArray<CalendarEntry>): DiaryTask[]
 		if (!hasTitle && entry.log.task?.title) {
 			existing.log = entry.log;
 		}
-		existing.projectName ??= entry.projectName;
+		// The row names the first project its entries name, a hidden one by its lock, and that one only
+		const namesProject = existing.projectName != null || existing.isProjectHidden === true;
+		if (!namesProject) {
+			existing.projectName = entry.projectName;
+			Object.assign(existing, hiddenProjectFlagOf(entry));
+		}
 		existing.projectColor ??= entry.projectColor;
 	}
 	return [...byKey.values()].sort((first, second) => second.seconds - first.seconds);
