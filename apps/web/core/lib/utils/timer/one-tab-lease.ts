@@ -45,13 +45,16 @@ interface Lease {
 
 let thisTab: string | null = null;
 
-/** This tab's id, random and the same for every lease it takes. */
+/**
+ * This tab's id, random and the same for every lease it takes. Random values exist in every browser, a page served
+ * over plain HTTP included (`randomUUID` needs a secure context); without them, the page's own clock tells tabs apart.
+ */
 function thisTabId(): string {
 	if (thisTab) return thisTab;
 	const random =
 		typeof crypto !== 'undefined' && typeof crypto.getRandomValues === 'function'
 			? Array.from(crypto.getRandomValues(new Uint32Array(4)), (part) => part.toString(36)).join('')
-			: Math.random().toString(36).slice(2);
+			: String(typeof performance === 'undefined' ? 0 : performance.now()).replace('.', '');
 	thisTab = `${Date.now().toString(36)}-${random}`;
 	return thisTab;
 }
@@ -171,7 +174,8 @@ async function takeTurn(): Promise<Storage | null> {
 			if (readLease(storage)?.tab === thisTabId()) return storage;
 			continue;
 		}
-		await lookAgainSoon(Math.max(1, Math.min(lease.until - now, LOOK_AGAIN_MS)));
+		// One look after the other, on purpose: waiting is what this loop is for
+		await lookAgainSoon(Math.max(1, Math.min(lease.until - now, LOOK_AGAIN_MS))); // NOSONAR
 	}
 }
 
