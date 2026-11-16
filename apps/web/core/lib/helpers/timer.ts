@@ -19,7 +19,46 @@ export const toTimeSlotDuration = (elapsedSeconds: unknown): number => {
 };
 
 /** The window Gauzy merges time slots into, on the UTC clock. */
-const TIME_SLOT_WINDOW_MS = MAX_TIME_SLOT_SECONDS * 1000;
+export const TIME_SLOT_WINDOW_MS = MAX_TIME_SLOT_SECONDS * 1000;
+
+/** Where the 10-minute window Gauzy merges a slot starting at `ms` into starts. */
+export function timeSlotWindowStartOf(ms: number): number {
+	return Math.floor(ms / TIME_SLOT_WINDOW_MS) * TIME_SLOT_WINDOW_MS;
+}
+
+/**
+ * A slot whose write was sent, with the seconds its window held just before (#5123). Gauzy adds every slot it is
+ * sent, and a write whose answer was lost may have landed: it is sent again only if its window does not hold it.
+ */
+export interface SentTimeSlot {
+	startedAt: string;
+	untilMs: number;
+	duration: number;
+	/** The seconds the slot's window held before it was sent. */
+	windowBefore: number;
+	/** When it was sent, on the computer's clock. */
+	sentAt: number;
+}
+
+/** How long a slot sent without an answer may still be landing on Gauzy: as long as the app waits for a request. */
+const SENT_TIME_SLOT_MAY_LAND_FOR_MS = 60_000;
+
+/**
+ * Resolves once a slot sent without an answer can no longer be landing on Gauzy (a page that reloads gives up its
+ * requests, which the API may still carry out): its window then tells whether it landed.
+ */
+export function whenSentTimeSlotSettled(slot: SentTimeSlot, now: number = Date.now()): Promise<void> {
+	const landingFor = slot.sentAt + SENT_TIME_SLOT_MAY_LAND_FOR_MS - now;
+	if (landingFor <= 0) return Promise.resolve();
+	return new Promise((resolve) => {
+		setTimeout(resolve, landingFor);
+	});
+}
+
+/** Whether a window that holds `windowSeconds` holds the slot sent into it: Gauzy caps a window at 600 seconds. */
+export function isSentTimeSlotHeld(slot: SentTimeSlot, windowSeconds: number): boolean {
+	return windowSeconds >= Math.min(MAX_TIME_SLOT_SECONDS, slot.windowBefore + slot.duration);
+}
 
 /** A time slot to write: when it starts, on the API's clock, the seconds it holds, and where the time it holds ends. */
 interface TimeSlotToWrite {

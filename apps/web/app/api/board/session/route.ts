@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { requestAccessToken, requestCookies } from '@/core/services/server/request-cookies';
+import { boardPreflight, forBoard, forbiddenForBoard } from '@/core/services/server/board-cors';
 import { boardSessionUser, isTrustedBoardOrigin } from '@/core/lib/board/board-app';
 
 /**
@@ -14,28 +15,10 @@ import { boardSessionUser, isTrustedBoardOrigin } from '@/core/lib/board/board-a
  *
  * Only the Board calls this route: any other origin, or a request without one, gets 403 and no session check.
  */
-
-function privateAnswer(response: NextResponse): NextResponse {
-	// One person's answer, for one origin: never kept by a cache, never reused for another caller
-	response.headers.set('Cache-Control', 'no-store');
-	response.headers.set('Vary', 'Origin, Cookie');
-	return response;
-}
-
-function forBoard(response: NextResponse, origin: string): NextResponse {
-	response.headers.set('Access-Control-Allow-Origin', origin);
-	response.headers.set('Access-Control-Allow-Credentials', 'true');
-	return privateAnswer(response);
-}
-
-function forbidden(): NextResponse {
-	return privateAnswer(NextResponse.json({ message: 'Forbidden' }, { status: 403 }));
-}
-
 export async function GET(req: Request) {
 	const origin = req.headers.get('origin');
 	if (!isTrustedBoardOrigin(origin)) {
-		return forbidden();
+		return forbiddenForBoard();
 	}
 
 	// No session cookie at all: no one is signed in here, and the API is not asked about an empty token
@@ -54,14 +37,5 @@ export async function GET(req: Request) {
 
 // A plain GET needs no preflight; this answers one should the Board's request ever need it.
 export function OPTIONS(req: Request) {
-	const origin = req.headers.get('origin');
-	if (!isTrustedBoardOrigin(origin)) {
-		return forbidden();
-	}
-
-	const response = new NextResponse(null, { status: 204 });
-	response.headers.set('Access-Control-Allow-Methods', 'GET');
-	response.headers.set('Access-Control-Allow-Headers', 'Accept, Content-Type');
-	response.headers.set('Access-Control-Max-Age', '600');
-	return forBoard(response, origin);
+	return boardPreflight(req, 'GET');
 }
