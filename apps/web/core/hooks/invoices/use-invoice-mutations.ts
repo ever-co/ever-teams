@@ -540,9 +540,10 @@ function isChangedMeanwhile(error: unknown): boolean {
 /**
  * An Ever Gauzy without `PUT /invoices/:id/with-items` (#5243) answers it as any route it does not have: 404
  * "Cannot PUT …". The route's own 404, for an invoice deleted meanwhile, names no route. A gateway that does not pass
- * the method on answers 405 or 501.
+ * the method on answers 405 or 501. Any other 404 is not read as a missing route: the two writes would then write to an
+ * invoice deleted meanwhile.
  */
-const MISSING_ROUTE_MESSAGE = /^Cannot PUT\b/;
+const MISSING_ROUTE_MESSAGE = /^cannot put\b/i;
 
 function isSaveAtOnceMissing(error: unknown): boolean {
 	if (!ApiErrorService.isApiError(error)) {
@@ -639,8 +640,10 @@ async function writeInvoiceEditAtOnce(
 }
 
 /**
- * Saves an edit at once where the API can, else in two writes. The two writes begin only while the workspace the edit
- * was checked in is still the chosen one, as `checkInvoiceEdit` makes sure before the first request.
+ * Saves an edit at once where the API can, else in two writes. Any answer of the one request other than "no such route"
+ * is the outcome, a refusal included: the API wrote nothing then, and two writes would only write what it refused. The
+ * two writes begin only while the workspace the edit was checked in is still the chosen one, as `checkInvoiceEdit`
+ * makes sure before the first request.
  */
 async function saveInvoiceEditWrites(edit: InvoiceEdit, readVersion: string | null): Promise<InvoiceEditOutcome> {
 	const savedAtOnce = await writeInvoiceEditAtOnce(edit, readVersion);

@@ -223,6 +223,11 @@ describe('an edit that could not be saved', () => {
 			'nothing was saved when something was paid on it, or it was voided, since it was opened',
 			{ status: 'locked' },
 			'LOCKED_NOW'
+		],
+		[
+			'the invoice changed since it was opened when the API refused the save as changed meanwhile (#5243)',
+			{ status: 'changedMeanwhile' },
+			'CHANGED_MEANWHILE'
 		]
 	])('says %s, and stays on the invoice', async (_says, outcome, messageKey) => {
 		const message = await failingWith(outcome);
@@ -316,13 +321,6 @@ describe('an edit that could not be saved', () => {
 		const message = await failingWith({ status: 'changed' });
 
 		expect(message.textContent).toBe('invoices.edit.confirm.CHANGED');
-		expect(mockPush).not.toHaveBeenCalled();
-	});
-
-	it('says the invoice changed since it was opened when the API refused the save as changed meanwhile (#5243)', async () => {
-		const message = await failingWith({ status: 'changedMeanwhile' });
-
-		expect(message.textContent).toBe('invoices.edit.confirm.CHANGED_MEANWHILE');
 		expect(mockPush).not.toHaveBeenCalled();
 	});
 

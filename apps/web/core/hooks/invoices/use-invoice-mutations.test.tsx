@@ -1328,6 +1328,21 @@ describe('saving an edit to an invoice', () => {
 			expect(mockReplaceInvoiceLines).toHaveBeenCalledWith('inv-42', edit.revision.lines, workspace);
 		});
 
+		it('takes the missing route whatever case its message is written in', async () => {
+			mockGetInvoice.mockResolvedValue(readAt('SENT'));
+			mockSaveInvoiceWithLines.mockRejectedValue(
+				apiAnswer(404, { message: 'cannot put /api/invoices/inv-42/with-items' })
+			);
+			mockUpdateInvoice.mockResolvedValue(undefined);
+			mockReplaceInvoiceLines.mockResolvedValue(undefined);
+			const { result } = renderSaveEdit();
+
+			const saved = await saveWith(result);
+
+			expect(saved).toEqual({ outcome: { status: 'saved' }, sending: null });
+			expect(mockUpdateInvoice).toHaveBeenCalledTimes(1);
+		});
+
 		it.each([405, 501])('takes a gateway answering %s as no such request', async (status) => {
 			mockGetInvoice.mockResolvedValue(readAt('SENT'));
 			mockSaveInvoiceWithLines.mockRejectedValue(apiAnswer(status));
@@ -1457,12 +1472,10 @@ describe('saving an edit to an invoice', () => {
 					lines: [{ ...previousLine, timeLogIds: ['log-1'] }]
 				}
 			} as unknown as InvoiceEdit;
-			mockGetInvoice
-				.mockResolvedValueOnce(readAt('SENT'))
-				.mockResolvedValueOnce({
-					...readAt('SENT', [{ id: 'item-8', ...previousLine }]),
-					updatedAt: WRITTEN_AT
-				});
+			mockGetInvoice.mockResolvedValueOnce(readAt('SENT')).mockResolvedValueOnce({
+				...readAt('SENT', [{ id: 'item-8', ...previousLine }]),
+				updatedAt: WRITTEN_AT
+			});
 			mockSaveInvoiceWithLines.mockRejectedValue(serverFailure());
 			const { result } = renderSaveEdit();
 
