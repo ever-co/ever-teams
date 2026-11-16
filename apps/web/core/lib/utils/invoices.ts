@@ -715,6 +715,89 @@ export function removedLineCountOf(lines: ReadonlyArray<InvoiceLine>, removedKey
 	return removedLines.length;
 }
 
+/** What was removed from the lines of an invoice, and written on them, by line key. */
+export interface InvoiceLineEdits {
+	removedKeys: ReadonlySet<string>;
+	descriptions: ReadonlyMap<string, string>;
+}
+
+type LineTime = Pick<InvoiceLine, 'key' | 'timeLogIds'>;
+
+/** The time logs of the lines a read again no longer holds, with what was removed or written on each. */
+function editsOfGoneLines(previous: ReadonlyArray<LineTime>, lines: ReadonlyArray<LineTime>, edits: InvoiceLineEdits) {
+	const keys = new Set(lines.map(({ key }) => key));
+	const removedLogs = new Set<string>();
+	const descriptionByLog = new Map<string, string>();
+	for (const line of previous) {
+		const isGone = !keys.has(line.key);
+		if (!isGone) {
+			continue;
+		}
+		const description = edits.descriptions.get(line.key);
+		for (const logId of line.timeLogIds ?? []) {
+			if (edits.removedKeys.has(line.key)) {
+				removedLogs.add(logId);
+			}
+			if (description !== undefined) {
+				descriptionByLog.set(logId, description);
+			}
+		}
+	}
+	return { removedLogs, descriptionByLog };
+}
+
+/** The one description all of a line's time bore, if it bore one. */
+function sharedDescriptionOf(logIds: ReadonlyArray<string>, descriptionByLog: ReadonlyMap<string, string>) {
+	const descriptions = new Set(logIds.map((logId) => descriptionByLog.get(logId)));
+	const [description] = descriptions;
+	const isShared = descriptions.size === 1 && description !== undefined;
+	if (!isShared) {
+		return null;
+	}
+	return description;
+}
+
+/**
+ * What was removed from lines, or written on them, carried to the lines that hold their time once a read again keyed
+ * that time otherwise: a member's time at one price split into two prices, or two prices merged into one, when today's
+ * rate changed. A line all of whose time was removed stays removed; a line all of whose time bore one description
+ * keeps it. A line that holds removed time beside other time is offered again: nothing is billed without being shown.
+ * The edits come back unchanged when there is nothing to carry.
+ */
+export function carriedLineEdits(
+	previous: ReadonlyArray<LineTime>,
+	lines: ReadonlyArray<LineTime>,
+	edits: InvoiceLineEdits
+): InvoiceLineEdits {
+	const { removedLogs, descriptionByLog } = editsOfGoneLines(previous, lines, edits);
+	const hasNothingToCarry = removedLogs.size === 0 && descriptionByLog.size === 0;
+	if (hasNothingToCarry) {
+		return edits;
+	}
+	const removedKeys = new Set(edits.removedKeys);
+	const descriptions = new Map(edits.descriptions);
+	for (const line of lines) {
+		const logIds = line.timeLogIds ?? [];
+		if (logIds.length === 0) {
+			continue;
+		}
+		const wasAllRemoved = logIds.every((logId) => removedLogs.has(logId));
+		if (wasAllRemoved) {
+			removedKeys.add(line.key);
+		}
+		const description = sharedDescriptionOf(logIds, descriptionByLog);
+		const isUndescribed = !descriptions.has(line.key);
+		if (description !== null && isUndescribed) {
+			descriptions.set(line.key, description);
+		}
+	}
+	const hasCarried = removedKeys.size !== edits.removedKeys.size || descriptions.size !== edits.descriptions.size;
+	if (!hasCarried) {
+		return edits;
+	}
+	return { removedKeys, descriptions };
+}
+
 export function keptLinesOf<T extends InvoiceLine>(lines: ReadonlyArray<T>, removedKeys: ReadonlySet<string>): T[] {
 	return lines.filter((line) => !removedKeys.has(line.key));
 }

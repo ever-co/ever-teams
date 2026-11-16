@@ -1,4 +1,5 @@
 import {
+	carriedLineEdits,
 	billableEntriesOf,
 	buildInvoiceRequest,
 	entryPriceOf,
@@ -1132,6 +1133,57 @@ describe('time priced at the rates each entry keeps', () => {
 		expect(
 			lines.map(({ hours, rate, isAverageRate, todaysPrice }) => ({ hours, rate, isAverageRate, todaysPrice }))
 		).toEqual([{ hours: 50, rate: 90, isAverageRate: false, todaysPrice: { rate: 110, currency: 'USD' } }]);
+	});
+
+	describe('what was removed or written on lines a read again keys otherwise', () => {
+		const at90 = { key: 'p1|ana', timeLogIds: ['kept', 'today'] };
+		const split = [
+			{ key: 'p1|ana|90:USD', timeLogIds: ['kept'] },
+			{ key: 'p1|ana|110:USD', timeLogIds: ['today'] }
+		];
+
+		it('follows the time when one price splits into two: both lines stay removed and keep the description', () => {
+			const edits = { removedKeys: new Set(['p1|ana']), descriptions: new Map([['p1|ana', 'Design']]) };
+
+			const carried = carriedLineEdits([at90], split, edits);
+
+			expect([...carried.removedKeys].sort()).toEqual(['p1|ana', 'p1|ana|110:USD', 'p1|ana|90:USD']);
+			expect(split.filter((line) => !carried.removedKeys.has(line.key))).toEqual([]);
+			expect(carried.descriptions.get('p1|ana|90:USD')).toBe('Design');
+			expect(carried.descriptions.get('p1|ana|110:USD')).toBe('Design');
+		});
+
+		it('keeps a merged line removed only when all of its time was, and its description only when all bore it', () => {
+			const merged = [{ key: 'p1|ana', timeLogIds: ['kept', 'today'] }];
+			const oneRemoved = {
+				removedKeys: new Set(['p1|ana|90:USD']),
+				descriptions: new Map([
+					['p1|ana|90:USD', 'Design'],
+					['p1|ana|110:USD', 'Build']
+				])
+			};
+			const bothRemoved = {
+				removedKeys: new Set(['p1|ana|90:USD', 'p1|ana|110:USD']),
+				descriptions: new Map([
+					['p1|ana|90:USD', 'Design'],
+					['p1|ana|110:USD', 'Design']
+				])
+			};
+
+			const offeredAgain = carriedLineEdits(split, merged, oneRemoved);
+			const stillRemoved = carriedLineEdits(split, merged, bothRemoved);
+
+			expect(offeredAgain.removedKeys.has('p1|ana')).toBe(false);
+			expect(offeredAgain.descriptions.has('p1|ana')).toBe(false);
+			expect(stillRemoved.removedKeys.has('p1|ana')).toBe(true);
+			expect(stillRemoved.descriptions.get('p1|ana')).toBe('Design');
+		});
+
+		it('gives the edits back as they were when every line keeps its key', () => {
+			const edits = { removedKeys: new Set(['p1|ana']), descriptions: new Map([['p1|ana', 'Design']]) };
+
+			expect(carriedLineEdits([at90], [at90], edits)).toBe(edits);
+		});
 	});
 
 	it("prices an entry that keeps no rate, or an older API's entry, at today's rate", () => {
