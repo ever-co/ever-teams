@@ -5,8 +5,20 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import { EditTaskModal } from './edit-task-modal';
 
-// An API without labels on entries (#5368): the labels controls stay out, as before
-jest.mock('@/core/hooks/timer/use-entry-labels-support', () => ({ useEntryLabelsSupport: () => false }));
+// An API without labels on entries (#5368) unless a test says otherwise: the labels controls stay out, as before
+let mockSupportsEntryLabels = false;
+jest.mock('@/core/hooks/timer/use-entry-labels-support', () => ({
+	useEntryLabelsSupport: () => mockSupportsEntryLabels
+}));
+// The labels picker has its own tests: here a button picks "support"
+jest.mock('@/core/components/features/entry-labels/entry-labels-field', () => ({
+	EntryLabelsField: ({ isShown, onChange }: { isShown: boolean; onChange: (labelIds: string[]) => void }) =>
+		isShown ? (
+			<button type="button" onClick={() => onChange(['support'])}>
+				pick support
+			</button>
+		) : null
+}));
 
 type MockChildrenProps = { children?: React.ReactNode };
 
@@ -154,5 +166,38 @@ describe('EditTaskModal overlap with time already recorded', () => {
 		expect(mockUpdateTimeLog).toHaveBeenCalledWith(
 			expect.objectContaining({ timeLogId: 'log-1', employeeId: 'employee-a', startedAt, stoppedAt })
 		);
+	});
+});
+
+describe('EditTaskModal and the labels of the entry (#5368)', () => {
+	beforeEach(() => {
+		mockSupportsEntryLabels = true;
+		mockUpdateTimeLog.mockReset();
+		mockUpdateTimeLog.mockResolvedValue(undefined);
+	});
+
+	afterEach(() => {
+		mockSupportsEntryLabels = false;
+	});
+
+	it('keeps the labels read after the editor opened when only the notes change', () => {
+		const { rerender } = render(<EditTaskModal isOpen closeModal={closeModal} timeLogData={editedLog} />);
+		const labelledLog = { ...editedLog, tags: [{ id: 'meeting', name: 'meeting', color: '#2563eb' }] } as ITimeLog;
+		rerender(<EditTaskModal isOpen closeModal={closeModal} timeLogData={labelledLog} />);
+
+		submitEditDialog();
+
+		expect(mockUpdateTimeLog).toHaveBeenCalledTimes(1);
+		const [payload] = mockUpdateTimeLog.mock.calls[0];
+		expect(payload.tags).not.toEqual([]);
+	});
+
+	it('sends the labels the person picked', () => {
+		renderEditDialog();
+
+		fireEvent.click(screen.getByRole('button', { name: 'pick support' }));
+		submitEditDialog();
+
+		expect(mockUpdateTimeLog).toHaveBeenCalledWith(expect.objectContaining({ tags: ['support'] }));
 	});
 });

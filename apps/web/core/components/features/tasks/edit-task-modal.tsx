@@ -89,13 +89,18 @@ export function EditTaskModal({ isOpen, closeModal, timeLogData }: IEditTaskModa
 	// The entry's own labels (Gauzy #12029), changed here and saved with the rest when the API has them
 	const supportsEntryLabels = useEntryLabelsSupport();
 	const carriedLabels = useMemo(() => entryLabelsOf(timeLogData), [timeLogData]);
-	const [labelIds, setLabelIds] = useState<string[]>(() => carriedLabels.map((label) => label.id));
+	const carriedLabelIds = useMemo(() => carriedLabels.map((label) => label.id), [carriedLabels]);
+	// Until the person changes them, the entry's own labels are shown, read late or not, and none are sent: a save of
+	// the notes alone keeps the labels the entry has
+	const [pickedLabelIds, setPickedLabelIds] = useState<string[] | null>(null);
+	const labelIds = pickedLabelIds ?? carriedLabelIds;
+	const hasPickedLabels = pickedLabelIds !== null;
 	// The dialog stays mounted once closed: a reopening starts from the entry's labels, not from a change left unsaved
 	const [wasOpen, setWasOpen] = useState(isOpen);
 	if (wasOpen !== isOpen) {
 		setWasOpen(isOpen);
 		if (isOpen) {
-			setLabelIds(carriedLabels.map((label) => label.id));
+			setPickedLabelIds(null);
 		}
 	}
 	const [timesheetData, setTimesheetData] = useState({
@@ -185,7 +190,7 @@ export function EditTaskModal({ isOpen, closeModal, timeLogData }: IEditTaskModa
 				description: timesheetData.notes,
 				projectId: timesheetData.projectId,
 				...taskChoice.changedFields,
-				...entryLabelsFieldOf(labelIds, supportsEntryLabels),
+				...entryLabelsFieldOf(labelIds, supportsEntryLabels && hasPickedLabels),
 				startedAt,
 				stoppedAt
 			};
@@ -235,6 +240,7 @@ export function EditTaskModal({ isOpen, closeModal, timeLogData }: IEditTaskModa
 			timesheetData.notes,
 			timesheetData.projectId,
 			labelIds,
+			hasPickedLabels,
 			supportsEntryLabels,
 			taskChoice.changedFields,
 			taskChoice.keepSavedTask,
@@ -406,7 +412,7 @@ export function EditTaskModal({ isOpen, closeModal, timeLogData }: IEditTaskModa
 					</div>
 					<EntryLabelsField
 						labelIds={labelIds}
-						onChange={setLabelIds}
+						onChange={setPickedLabelIds}
 						isShown={supportsEntryLabels}
 						carriedLabels={carriedLabels}
 					/>
