@@ -8,6 +8,14 @@ import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 /** The permissions the API asks for to add a label; any one is enough (the workspace import asks the same). */
 export const LABEL_CREATE_PERMISSIONS = ['ALL_ORG_EDIT', 'ORG_TAGS_ADD'] as const;
 
+/** The entry labels a link picks, kept only where the API stores labels on entries: elsewhere they match nothing. */
+export function supportedEntryLabelsOf(picked: ReadonlyArray<string>, isSupported: boolean): string[] {
+	if (!isSupported) {
+		return [];
+	}
+	return [...picked];
+}
+
 /** The value of the "No label" choice of the entry Labels filter, and the key of its group. */
 export const NO_LABEL_VALUE = 'no-label';
 

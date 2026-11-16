@@ -1,5 +1,6 @@
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import {
+	supportedEntryLabelsOf,
 	NO_LABEL_VALUE,
 	entryLabelGroupsOverlap,
 	entryLabelNamesOf,
@@ -67,5 +68,10 @@ describe('time entry labels', () => {
 	it('writes the labels of an entry as one export cell', () => {
 		expect(entryLabelNamesOf(supportLog)).toBe('Design, support');
 		expect(entryLabelNamesOf(unlabelledLog)).toBe('');
+	});
+
+	it("keeps a link's entry labels only where the API stores labels on entries (#5368)", () => {
+		expect(supportedEntryLabelsOf(['meeting', 'no-label'], true)).toEqual(['meeting', 'no-label']);
+		expect(supportedEntryLabelsOf(['meeting'], false)).toEqual([]);
 	});
 });

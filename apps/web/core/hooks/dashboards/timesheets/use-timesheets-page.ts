@@ -9,6 +9,7 @@ import { useLocalStorageState } from '@/core/hooks/common/use-local-storage-stat
 import { useReportClientChoices, useReportProjectClients } from '@/core/hooks/dashboards/use-report-clients';
 import { useReportUrlFilters } from '@/core/hooks/dashboards/use-report-url-filters';
 import { useEntryLabelsSupport } from '@/core/hooks/timer/use-entry-labels-support';
+import { supportedEntryLabelsOf } from '@/core/lib/utils/time-log-labels';
 import { useBreaksAllowed } from '@/core/hooks/timer/use-breaks-allowed';
 import { activeTeamState } from '@/core/stores/teams/organization-team';
 import { shellSettledState } from '@/core/stores/common/shell';
@@ -185,6 +186,14 @@ export function useTimesheetsPage() {
 	// Breaks are listed among the entries only where the organization turned them on (#5216)
 	const allowsBreaks = useBreaksAllowed();
 	const supportsEntryLabels = useEntryLabelsSupport();
+	// A link's entry labels count only where the API stores them (#5368): elsewhere they would hide every entry
+	const effectiveFilters = useMemo(
+		() => ({
+			...linkedFilters,
+			entryLabels: supportedEntryLabelsOf(linkedFilters.entryLabels, supportsEntryLabels)
+		}),
+		[linkedFilters, supportsEntryLabels]
+	);
 	const logsQuery = useTimesheetPageLogs(
 		period,
 		{
@@ -233,8 +242,8 @@ export function useTimesheetsPage() {
 		const byProjectAndTask = allLogs.filter((log) =>
 			logMatchesPickedProjectsAndTasks(log, pageFilters.projects, pageFilters.tasks)
 		);
-		return byProjectAndTask.filter((log) => logMatchesReportFilters(log, linkedFilters, projectClientIds));
-	}, [allLogs, linkedFilters, pageFilters.projects, pageFilters.tasks, projectClientIds]);
+		return byProjectAndTask.filter((log) => logMatchesReportFilters(log, effectiveFilters, projectClientIds));
+	}, [allLogs, effectiveFilters, pageFilters.projects, pageFilters.tasks, projectClientIds]);
 
 	const narrowedLogs = useMemo(
 		() => filteredLogs.filter((log) => logMatchesSearch(log, normalizedQuery)),

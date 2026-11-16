@@ -19,9 +19,10 @@ export function useEntryLabelsSupport(): boolean {
 		queryKey: queryKeys.timeLogs.entryLabelsSupport(tenantId, organizationId),
 		queryFn: () => timeLogService.supportsEntryLabels(),
 		enabled: hasWorkspace,
+		// An answer holds for the session; a failure to read it is tried again, so labels return with the API
 		staleTime: Infinity,
 		gcTime: Infinity,
-		retry: false
+		retry: 3
 	});
 	return data === true;
 }

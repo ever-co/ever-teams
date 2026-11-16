@@ -63,6 +63,13 @@ interface ITimeLogsReportFilters {
 	includeTimeWithoutTeam?: boolean;
 }
 
+/** Whether an error is the API's refusal of a request (400): the shape the HTTP client gives a status in varies. */
+function isRefusalOfRelation(error: unknown): boolean {
+	const withStatus = error as { status?: number; statusCode?: number; response?: { status?: number } } | null;
+	const status = withStatus?.response?.status ?? withStatus?.status ?? withStatus?.statusCode;
+	return status === 400;
+}
+
 class TimeLogService extends APIService {
 	getTimeLimitsReport = async (params: TGetTimeLimitReport): Promise<TTimeLimitReportList[]> => {
 		const convertedParams = { ...params, tenantId: this.tenantId, organizationId: this.organizationId };
@@ -323,8 +330,12 @@ class TimeLogService extends APIService {
 		try {
 			await this.get<ITimeLog[]>(`/timesheet/time-log?${params.toString()}`, { tenantId: this.tenantId });
 			return true;
-		} catch {
-			return false;
+		} catch (error) {
+			// An API without labels on entries refuses the relation (400); anything else is a failure to read again
+			if (isRefusalOfRelation(error)) {
+				return false;
+			}
+			throw error;
 		}
 	};
 

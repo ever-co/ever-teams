@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo } from 'react';
 import { useEntryLabelsSupport } from '@/core/hooks/timer/use-entry-labels-support';
+import { supportedEntryLabelsOf } from '@/core/lib/utils/time-log-labels';
 import { useLocalStorageState } from '@/core/hooks/common/use-local-storage-state';
 import { useReportUrlFilters } from '@/core/hooks/dashboards/use-report-url-filters';
 import { useWorkspaceWeekStart } from '@/core/hooks/common/use-workspace-week-start';
@@ -110,9 +111,9 @@ export function useTimeActivitySettings() {
 			...savedFilters,
 			clientIds: linkedFilters.clients,
 			billable: linkedFilters.billable,
-			entryLabels: linkedFilters.entryLabels
+			entryLabels: supportedEntryLabelsOf(linkedFilters.entryLabels, supportsEntryLabels)
 		}),
-		[linkedFilters.billable, linkedFilters.clients, linkedFilters.entryLabels, savedFilters]
+		[linkedFilters.billable, linkedFilters.clients, linkedFilters.entryLabels, savedFilters, supportsEntryLabels]
 	);
 	const hiddenColumns = useMemo(() => hiddenColumnsFromStorage(storedColumns), [storedColumns]);
 	const activeFilterCount = activeFilterCountOf(filters);

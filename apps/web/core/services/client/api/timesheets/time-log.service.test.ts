@@ -337,9 +337,15 @@ describe('TimeLogService entry labels probe (#5368)', () => {
 		expect(sent.get('relations[0]')).toBe('tags');
 	});
 
-	it('reads a refusal as an API without labels on entries', async () => {
-		jest.spyOn(timeLogService, 'get').mockRejectedValue(new Error('400'));
+	it('reads a refusal of the relation (400) as an API without labels on entries', async () => {
+		jest.spyOn(timeLogService, 'get').mockRejectedValue({ response: { status: 400 } });
 
 		await expect(timeLogService.supportsEntryLabels()).resolves.toBe(false);
+	});
+
+	it('throws another failure, so the answer is read again rather than kept as no labels', async () => {
+		jest.spyOn(timeLogService, 'get').mockRejectedValue(new Error('Network Error'));
+
+		await expect(timeLogService.supportsEntryLabels()).rejects.toThrow('Network Error');
 	});
 });
