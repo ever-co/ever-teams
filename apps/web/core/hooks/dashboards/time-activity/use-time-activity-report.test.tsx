@@ -91,6 +91,8 @@ const mockSetPeriod = jest.fn();
 let mockPermissions: string[] = ['CHANGE_SELECTED_EMPLOYEE'];
 /** The daily reads still show the previous period or filters while the next ones load. */
 let mockShowsPreviousRead = false;
+/** What the daily read answers: the report of November 3, unless a test reads another day. */
+let mockDailyReport: typeof DAILY_REPORT | undefined = DAILY_REPORT;
 const mockRatesByProject = new Map([['website', { id: 'website', billRateValue: 90, currency: 'EUR', members: [] }]]);
 
 // Breaks (#5216) off, as in a workspace that never turned them on, unless a test turns them on
@@ -142,7 +144,7 @@ jest.mock('./use-time-activity-queries', () => ({
 	// Breaks (#5216): their figure's read, off unless a test turns breaks on
 	useTimeActivityBreaksQuery: () => mockBreaksQuery,
 	useTimeActivityDailyQuery: () => ({
-		data: DAILY_REPORT,
+		data: mockDailyReport,
 		isPlaceholderData: mockShowsPreviousRead,
 		isPending: false,
 		isError: false,
@@ -433,6 +435,11 @@ describe('useTimeActivityReport and the period of the page link', () => {
 		mockLinkedPeriod = LINKED_PERIOD;
 	});
 
+	afterEach(() => {
+		mockShowsPreviousRead = false;
+		mockDailyReport = DAILY_REPORT;
+	});
+
 	afterAll(() => {
 		mockLinkedPeriod = LINKED_PERIOD;
 	});
@@ -454,6 +461,49 @@ describe('useTimeActivityReport and the period of the page link', () => {
 		expect(mockSetPeriod).toHaveBeenCalledTimes(1);
 		expect(mockSetPeriod).toHaveBeenCalledWith(report.period);
 		expect(report.request?.endDate).toBe(localDayKeyOf(new Date()));
+	});
+
+	it('keeps the chart on the days of the rows it shows while another period is read (#5342)', () => {
+		const nextDay = { from: new Date(2026, 10, 4), to: new Date(2026, 10, 4, 23, 59, 59) };
+		const { result, rerender } = renderHook(() => useTimeActivityReport());
+		const chartOf = (report: typeof result.current) => report.chartDays.map((day) => [day.key, day.value]);
+		const firstDay = [[localDayKeyOf(LINKED_PERIOD.from), 1200]];
+		expect(chartOf(result.current)).toEqual(firstDay);
+
+		// The next period is asked for: its read is on the way, the previous rows stay on screen
+		mockLinkedPeriod = nextDay;
+		mockShowsPreviousRead = true;
+		rerender();
+
+		expect(result.current.period).toBe(nextDay);
+		expect(chartOf(result.current)).toEqual(firstDay);
+
+		// Its own rows came: the chart draws the new period with them
+		mockDailyReport = DAILY_REPORT.map((day) => ({ ...day, date: '2026-11-04' }));
+		mockShowsPreviousRead = false;
+		rerender();
+
+		expect(chartOf(result.current)).toEqual([[localDayKeyOf(nextDay.from), 1200]]);
+	});
+
+	it('keeps the chart on the shown rows when a failed read of another period is tried again', () => {
+		const nextDay = { from: new Date(2026, 10, 4), to: new Date(2026, 10, 4, 23, 59, 59) };
+		const { result, rerender } = renderHook(() => useTimeActivityReport());
+		const chartOf = (report: typeof result.current) => report.chartDays.map((day) => [day.key, day.value]);
+		const firstDay = [[localDayKeyOf(LINKED_PERIOD.from), 1200]];
+
+		// The next period's read failed without rows: nothing of the previous period is on screen
+		mockLinkedPeriod = nextDay;
+		mockDailyReport = undefined;
+		rerender();
+		expect(chartOf(result.current)).toEqual([[localDayKeyOf(nextDay.from), 0]]);
+
+		// It is tried again: the last rows that came back are on screen again, on their own days
+		mockDailyReport = DAILY_REPORT;
+		mockShowsPreviousRead = true;
+		rerender();
+
+		expect(chartOf(result.current)).toEqual(firstDay);
 	});
 
 	it('writes a picked period into the link', () => {
