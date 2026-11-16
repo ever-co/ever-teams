@@ -293,17 +293,33 @@ export interface MeetingAppointmentInput {
 }
 
 /**
+ * Whether the platform lists a member's invitations (`GET /employee-appointment/invited`, #5022), which an Ever Gauzy
+ * that invites team members itself does: `missing` on an older one, `unknown` when asking it failed.
+ */
+export type InvitationsRoute = 'present' | 'missing' | 'unknown';
+
+/**
  * The appointment Ever Gauzy stores for a scheduled meeting, owned by the person who schedules it. The team members
  * invited go in its `inviteeEmployeeIds`: Gauzy tells each one in their Inbox, by email and push as they chose, with
  * the time and the way to join, reminds them before it starts, and lists it among the meetings they are invited to.
  * The other people invited go in its `emails`, which Gauzy splits on ", " to send each a short "new appointment"
  * message; that message carries neither the time nor the link, so the confirmation still gives the invitation to copy
  * and the calendar file.
+ *
+ * An older Gauzy (`missing`) invites no team member: every participant goes in `emails`, as before #5022, so each still
+ * gets that message. When it is not known (`unknown`), the team members go in both, so no one is left uninvited.
  */
-export function appointmentInputOf(draft: ScheduleMeetingDraft, employeeId: string): MeetingAppointmentInput {
+export function appointmentInputOf(
+	draft: ScheduleMeetingDraft,
+	employeeId: string,
+	invitationsRoute: InvitationsRoute = 'present'
+): MeetingAppointmentInput {
 	const end = new Date(draft.start.getTime() + draft.durationMinutes * MINUTE);
 	const description = draft.description?.trim();
-	const { memberIds, emails } = participantsOf(draft.participantEmails ?? [], draft.invitees ?? []);
+	const participantEmails = draft.participantEmails ?? [];
+	const participants = participantsOf(participantEmails, draft.invitees ?? []);
+	const emails = invitationsRoute === 'present' ? participants.emails : participantEmails;
+	const memberIds = invitationsRoute === 'missing' ? [] : participants.memberIds;
 	return {
 		agenda: draft.title.trim(),
 		...(description ? { description } : {}),

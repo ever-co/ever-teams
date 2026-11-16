@@ -13,6 +13,7 @@ import {
 	type ScheduleMeetingDraft
 } from '@/core/lib/utils/meetings';
 import { useUserQuery } from '../queries/user-user.query';
+import { invitationsRouteOf } from './use-invited-meetings';
 
 const isMeeting = (meeting: ScheduledMeeting | null): meeting is ScheduledMeeting => meeting !== null;
 
@@ -40,8 +41,11 @@ export function useScheduledMeetings() {
 	);
 
 	const scheduleMutation = useMutation({
-		mutationFn: (draft: ScheduleMeetingDraft) =>
-			scheduledMeetingService.scheduleMeeting(appointmentInputOf(draft, employeeId)),
+		mutationFn: async (draft: ScheduleMeetingDraft) => {
+			// An older Gauzy invites no team member itself: they then get its "new appointment" email, as before #5022
+			const invitationsRoute = await invitationsRouteOf(queryClient, employeeId);
+			return scheduledMeetingService.scheduleMeeting(appointmentInputOf(draft, employeeId, invitationsRoute));
+		},
 		onSuccess: invalidateMeetings
 	});
 

@@ -1,11 +1,11 @@
 'use client';
 
 import { useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, type QueryClient } from '@tanstack/react-query';
 import { scheduledMeetingService } from '@/core/services/client/api/meetings';
 import { queryKeys } from '@/core/query/keys';
 import { errorStatusOf } from '@/core/lib/utils/error-feedback';
-import { invitedMeetingOf, type ScheduledMeeting } from '@/core/lib/utils/meetings';
+import { invitedMeetingOf, type InvitationsRoute, type ScheduledMeeting } from '@/core/lib/utils/meetings';
 import { useUserQuery } from '../queries/user-user.query';
 
 /** How far back the agenda can show a meeting one was invited to. */
@@ -18,6 +18,10 @@ const INVITED_HISTORY_MS = 31 * 24 * 60 * 60 * 1000;
 export const INVITED_MEETINGS_REFRESH_MS = 60 * 1000;
 
 const isMeeting = (meeting: ScheduledMeeting | null): meeting is ScheduledMeeting => meeting !== null;
+
+/** The invitations from a month ago on: what the agenda lists, and what scheduling asks to know the platform. */
+const fetchInvitedMeetings = () =>
+	scheduledMeetingService.getInvitedMeetings(new Date(Date.now() - INVITED_HISTORY_MS));
 
 /**
  * A platform without the route lists no invitations, which is no failure. An older Ever Gauzy reads `invited` as the
@@ -43,7 +47,7 @@ export function useInvitedMeetings() {
 
 	const query = useQuery({
 		queryKey: queryKeys.meetings.invited(employeeId),
-		queryFn: () => scheduledMeetingService.getInvitedMeetings(new Date(Date.now() - INVITED_HISTORY_MS)),
+		queryFn: fetchInvitedMeetings,
 		enabled: Boolean(employeeId),
 		staleTime: 30 * 1000,
 		refetchInterval: INVITED_MEETINGS_REFRESH_MS,
@@ -56,4 +60,22 @@ export function useInvitedMeetings() {
 	const isError = query.isError && !isInvitationsRouteMissing(query.error);
 
 	return { meetings, isLoading: query.isLoading, isError, refetch: query.refetch };
+}
+
+/**
+ * Whether the platform lists invitations (#5022), which tells whether it invites team members itself: read from the
+ * agenda's own answer when it has one, else asked once. `missing` on an older Ever Gauzy (404 or 406), `unknown` when
+ * asking failed for another reason.
+ */
+export async function invitationsRouteOf(queryClient: QueryClient, employeeId: string): Promise<InvitationsRoute> {
+	const queryKey = queryKeys.meetings.invited(employeeId);
+	const known = queryClient.getQueryState(queryKey);
+	if (known?.status === 'success') return 'present';
+	if (known?.status === 'error' && isInvitationsRouteMissing(known.error)) return 'missing';
+	try {
+		await queryClient.fetchQuery({ queryKey, queryFn: fetchInvitedMeetings });
+		return 'present';
+	} catch (error) {
+		return isInvitationsRouteMissing(error) ? 'missing' : 'unknown';
+	}
 }
