@@ -3,7 +3,7 @@
 import { useCallback, useSyncExternalStore } from 'react';
 import { useAtomValue } from 'jotai';
 import { useQueryClient } from '@tanstack/react-query';
-import { LAST_WORKSPACE_AND_TEAM } from '@/core/constants/config/constants';
+import { storeLastOpenedTeamId } from '@/core/lib/auth/last-opened-team';
 import {
 	TAB_SCOPE_CHANGED_EVENT,
 	bringTabOrganizationBack,
@@ -80,6 +80,22 @@ const getSnapshot = () => snapshot;
 const getServerSnapshot = (): TabOrganizationState => 'shared';
 
 /**
+ * Moves the session's token to `organizationId`. Resolves false when it did not move: Gauzy refused or did not answer,
+ * or the call itself failed, so that the caller puts the cookies back in every case.
+ */
+function switchSessionTo(organizationId: string): Promise<boolean> {
+	try {
+		return syncTokenOrganization(organizationId).catch((error: unknown) => {
+			console.error('[Auth] Could not move the session back to the organization of this tab:', error);
+			return false;
+		});
+	} catch (error) {
+		console.error('[Auth] Could not move the session back to the organization of this tab:', error);
+		return Promise.resolve(false);
+	}
+}
+
+/**
  * Whether this tab works in its own organization while another tab opened another one (`own`), can no longer do so
  * because its token for it is gone (`lost`), or works with the cookies as usual (`shared`); and the two ways out:
  * open the other organization in this tab too, or bring this tab's organization back in every tab.
@@ -104,16 +120,19 @@ export function useTabOrganization() {
 	const bringOwnOrganizationBack = useCallback(() => {
 		const organizationId = bringTabOrganizationBack();
 		if (!organizationId) return;
-		if (activeTeamId) globalThis.window?.localStorage.setItem(LAST_WORKSPACE_AND_TEAM, activeTeamId);
-		void syncTokenOrganization(organizationId).then((switched) => {
+		// The session follows the cookies right after they moved, before anything that could throw: a step failing in
+		// between left the cookies on this tab's organization while the token stayed on the other one (Greptile on #5345)
+		void switchSessionTo(organizationId).then((switched) => {
 			// The user (its employee) is read again for that organization, as after a team switch
 			if (switched) {
 				queryClient.invalidateQueries({ queryKey: queryKeys.users.me });
 				return;
 			}
-			// Refused, or no answer: the session stays where it is, and so do the cookies again
+			// Refused, no answer, or the switch failed: the session stays where it is, and so do the cookies again
 			putBackLeftCookies(organizationId);
 		});
+		// For this browser's next start, where the browser lets it be stored: never needed for the switch itself
+		if (activeTeamId) storeLastOpenedTeamId(activeTeamId);
 	}, [activeTeamId, queryClient]);
 
 	const ownOrganizationName =

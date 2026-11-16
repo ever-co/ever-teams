@@ -11,7 +11,7 @@ import {
 	setOrganizationIdCookie,
 	setRefreshTokenCookie
 } from '@/core/lib/helpers/cookies';
-import { LAST_WORKSPACE_AND_TEAM } from '@/core/constants/config/constants';
+import { readLastOpenedTeamId, storeLastOpenedTeamId } from '@/core/lib/auth/last-opened-team';
 import { teamToOpenAfterSwitch } from '@/core/lib/utils/team-menu-organizations';
 import { rememberTabTeam } from '@/core/lib/auth/tab-organization';
 import { authService } from '@/core/services/client/api/auth/auth.service';
@@ -22,26 +22,6 @@ interface ISwitchOrganizationInput {
 	organizationId: string;
 	/** The team picked in the menu; without one, the person's team there is opened. */
 	team?: TOrganizationTeam;
-}
-
-/** The team the browser last opened, kept by the team switches. */
-function lastOpenedTeamId(): string | null {
-	if (globalThis.window === undefined) {
-		return null;
-	}
-	return globalThis.window.localStorage.getItem(LAST_WORKSPACE_AND_TEAM);
-}
-
-/**
- * Keeps the team for this browser's next start. Storage is optional (full, or disabled): the team cookie already names
- * the team, and the new session is installed, so the switch goes on without it.
- */
-function rememberOpenedTeam(teamId: string) {
-	try {
-		globalThis.window?.localStorage.setItem(LAST_WORKSPACE_AND_TEAM, teamId);
-	} catch {
-		// The team cookie is enough to open the team
-	}
 }
 
 /**
@@ -76,7 +56,9 @@ export function useSwitchOrganization() {
 			if (teamToOpen) {
 				setActiveTeamIdCookie(teamToOpen.id);
 				rememberTabTeam(teamToOpen);
-				rememberOpenedTeam(teamToOpen.id);
+				// Storage is optional (full, or disabled): the team cookie already names the team, and the new session is
+				// installed, so the switch goes on without it
+				storeLastOpenedTeamId(teamToOpen.id);
 			}
 			return { organizationId, teamId: teamToOpen?.id ?? null };
 		},
@@ -101,7 +83,8 @@ async function personsTeamIn(
 			scope: { tenantId: getTenantIdCookie(), organizationId, userId, accessToken }
 		});
 		const teamsThere = (data.items ?? []).filter((team) => team.organizationId === organizationId);
-		return teamToOpenAfterSwitch(teamsThere, [lastOpenedTeamId(), lastTeamId]);
+		// A browser that refuses its storage still opens the person's last team, not none
+		return teamToOpenAfterSwitch(teamsThere, [readLastOpenedTeamId(), lastTeamId]);
 	} catch {
 		return null;
 	}
