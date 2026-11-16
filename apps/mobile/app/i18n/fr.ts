@@ -29,6 +29,7 @@ const fr = {
 				"L'ajout de temps à la main ne vous est pas permis : le début ne peut être déplacé que plus tard.",
 			save: 'Enregistrer',
 			saving: 'Enregistrement…',
+			close: 'Fermer',
 			saved: 'Le chronomètre commence maintenant à {{time}}.',
 			checking: 'Vérification que le début peut changer…',
 			viewTracker: "Ce chronomètre tourne dans l'application de bureau. Modifiez son début là-bas.",

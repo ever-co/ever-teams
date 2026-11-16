@@ -28,6 +28,7 @@ const es = {
 			laterOnly: 'No tienes permitido añadir tiempo a mano, así que el inicio solo puede moverse más tarde.',
 			save: 'Guardar',
 			saving: 'Guardando…',
+			close: 'Cerrar',
 			saved: 'El temporizador empieza ahora a las {{time}}.',
 			checking: 'Comprobando si el inicio puede cambiar…',
 			viewTracker: 'Este temporizador corre en la aplicación de escritorio. Cambia su inicio allí.',

@@ -28,6 +28,7 @@ const en = {
 			laterOnly: 'Adding time by hand is not allowed for you, so the start can only move later.',
 			save: 'Save',
 			saving: 'Saving…',
+			close: 'Close',
 			saved: 'The timer now starts at {{time}}.',
 			checking: 'Checking whether the start can change…',
 			viewTracker: 'This timer runs in the desktop app. Change its start there.',

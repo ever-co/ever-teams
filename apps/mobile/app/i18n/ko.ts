@@ -30,6 +30,7 @@ const ko: Translations = {
 			laterOnly: '시간을 직접 추가할 수 없으므로 시작은 더 늦게만 옮길 수 있습니다.',
 			save: '저장',
 			saving: '저장 중…',
+			close: '닫기',
 			saved: '이제 타이머가 {{time}}에 시작합니다.',
 			checking: '시작을 바꿀 수 있는지 확인하는 중…',
 			viewTracker: '이 타이머는 데스크톱 앱에서 실행 중입니다. 시작은 그곳에서 바꾸세요.',
