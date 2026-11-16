@@ -95,4 +95,35 @@ describe('The clock of a running timer', () => {
 
 		expect(timerStore.localTimerStatus.runnedDateTime).toBe(Date.parse('2026-11-16T09:00:00.000Z'));
 	});
+
+	it('counts the worked seconds again from a start moved later, so they shrink with the clock', async () => {
+		const { rerender } = await openTimerScreen('2026-11-16T09:00:00.000Z');
+		// The screen renders again as the stores change (its components observe them): the hook here is told so
+		const renderAgain = async () => {
+			await rerender({});
+			await rerender({});
+		};
+		/** The clock runs for a second, and the screen renders what it counted. */
+		const clockRunsASecond = async () => {
+			await act(async () => {
+				jest.advanceTimersByTime(1000);
+			});
+			await renderAgain();
+		};
+		await renderAgain();
+		await clockRunsASecond();
+		// 30 minutes and a second since 9:00
+		expect(timerStore.timerSecondsState).toBeGreaterThanOrEqual(30 * 60);
+
+		// The start moves to 9:25: five minutes worked, not thirty
+		await act(async () => {
+			timerStore.setTimerStatus(runningStatus('2026-11-16T09:25:00.000Z'));
+		});
+		await renderAgain();
+		await settle();
+		await renderAgain();
+		await clockRunsASecond();
+
+		expect(timerStore.timerSecondsState).toBeLessThan(6 * 60);
+	});
 });

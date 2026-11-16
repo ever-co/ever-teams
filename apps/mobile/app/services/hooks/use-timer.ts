@@ -91,9 +91,24 @@ function useLocalTimeCounter(timerStatus: ITimerStatus | null, activeTeamTask: I
 		}
 	}, [firstLoad, timerStatus]);
 
+	// The run's start moved, here or on another device: the count taken then is still the old start's, so the next
+	// count is taken as it is, and the worked seconds can shrink with the clock
+	const runStartedAt = localTimerStatus?.runnedDateTime;
+	const countedRunStart = useRef(runStartedAt);
+	const countOfOldStart = useRef<number | null>(null);
+	if (countedRunStart.current !== runStartedAt) {
+		countedRunStart.current = runStartedAt;
+		countOfOldStart.current = seconds;
+	}
+
 	// THis is form constant update of the progress line
 	timerSecondsRef.current = useMemo(() => {
 		if (firstLoad) return 0;
+		const countsFromMovedStart = countOfOldStart.current !== null && seconds !== countOfOldStart.current;
+		if (countsFromMovedStart) {
+			countOfOldStart.current = null;
+			return seconds;
+		}
 		if (seconds > timerSecondsRef.current) {
 			return seconds;
 		}
