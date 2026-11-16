@@ -29,10 +29,10 @@ import { TimerLabelsControl } from './timer-labels-control';
 
 const meeting = { id: 'meeting', name: 'meeting', color: '#2563eb' };
 
-function runOfTeam(teamId: string): ITimerStatus {
+function runOfTeam(teamId: string, logId = 'run-1'): ITimerStatus {
 	return {
 		running: true,
-		lastLog: { id: 'run-1', organizationTeamId: teamId, tags: [meeting] }
+		lastLog: { id: logId, organizationTeamId: teamId, tags: [meeting] }
 	} as unknown as ITimerStatus;
 }
 
@@ -71,5 +71,30 @@ describe('the labels control of the timer (#5368)', () => {
 
 		expect(mockUpdateTimeLogLabels).toHaveBeenCalledWith('run-1', ['meeting', 'support']);
 		expect(store.get(timerLabelsSavedState)).toMatchObject({ logId: 'run-1', tags: [meeting, { id: 'support' }] });
+	});
+
+	it('keeps the record of the newer run when the save of an earlier run lands after it', async () => {
+		const store = createStore();
+		store.set(activeTeamIdState, 'team-a');
+		store.set(timerStatusState, runOfTeam('team-a', 'run-1'));
+		let landEarlierSave: (log: unknown) => void = () => undefined;
+		mockUpdateTimeLogLabels
+			.mockImplementationOnce(() => new Promise((resolve) => (landEarlierSave = resolve)))
+			.mockResolvedValueOnce({ id: 'run-2', tags: [meeting, { id: 'support' }] });
+		renderControl(store);
+
+		// A change on run 1, whose save is slow; run 1 stops and run 2 starts meanwhile, and a change is saved on it
+		fireEvent.click(screen.getByRole('button', { name: 'labels: meeting' }));
+		act(() => store.set(timerStatusState, runOfTeam('team-a', 'run-2')));
+		await act(async () => {
+			fireEvent.click(screen.getByRole('button', { name: 'labels: meeting' }));
+		});
+		await act(async () => {
+			landEarlierSave({ id: 'run-1', tags: [meeting, { id: 'support' }] });
+		});
+
+		expect(mockUpdateTimeLogLabels).toHaveBeenNthCalledWith(1, 'run-1', ['meeting', 'support']);
+		expect(mockUpdateTimeLogLabels).toHaveBeenNthCalledWith(2, 'run-2', ['meeting', 'support']);
+		expect(store.get(timerLabelsSavedState)).toMatchObject({ logId: 'run-2' });
 	});
 });

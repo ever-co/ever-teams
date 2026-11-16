@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom, useStore } from 'jotai';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 
@@ -47,6 +47,7 @@ export function TimerLabelsControl({ className }: Readonly<{ className?: string 
 	const timerStatus = useAtomValue(teamTimerStatusState);
 	const setTimerStatus = useSetAtom(timerStatusState);
 	const setLabelsSaved = useSetAtom(timerLabelsSavedState);
+	const store = useStore();
 	const [isSaving, setIsSaving] = useState(false);
 	const activeTeamId = useAtomValue(activeTeamIdState);
 	const teamOfDraftRef = useRef(activeTeamId);
@@ -72,8 +73,12 @@ export function TimerLabelsControl({ className }: Readonly<{ className?: string 
 			try {
 				const updated = await timeLogService.updateTimeLogLabels(runningLogId, labelIds);
 				const savedTags = updated?.tags ?? [];
-				// A status read asked before this save landed keeps these labels rather than the ones the run had before
-				setLabelsSaved({ logId: runningLogId, tags: savedTags, saveNumber: landLabelSave() });
+				// A status read asked before this save landed keeps these labels rather than the ones the run had before,
+				// as long as the run is still the timer's: a late save of an earlier run leaves the record of the newer one
+				const isStillTheRun = store.get(timerStatusState)?.lastLog?.id === runningLogId;
+				if (isStillTheRun) {
+					setLabelsSaved({ logId: runningLogId, tags: savedTags, saveNumber: landLabelSave() });
+				}
 				// The status as it is now: a stop or another start may have landed while the labels were saved
 				setTimerStatus((current) => withSavedLabels(current, runningLogId, savedTags));
 			} catch {
@@ -82,7 +87,7 @@ export function TimerLabelsControl({ className }: Readonly<{ className?: string 
 				setIsSaving(false);
 			}
 		},
-		[runningLogId, setLabelsSaved, setTimerStatus, t]
+		[runningLogId, setLabelsSaved, setTimerStatus, store, t]
 	);
 
 	if (!supportsLabels) {
