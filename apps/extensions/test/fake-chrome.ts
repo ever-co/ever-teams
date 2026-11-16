@@ -99,6 +99,8 @@ export function installFakeExtension(initial: Record<string, unknown> = {}) {
 	const badge = {
 		text: '',
 		history: [] as string[],
+		/** Each color the badge was asked to take, in order. */
+		colors: [] as string[],
 		/** The next text call fails, as a browser API call can. */
 		failNextText: false,
 		/** Holds the next color calls until the returned function is called, as a slow browser would. */
@@ -123,7 +125,8 @@ export function installFakeExtension(initial: Record<string, unknown> = {}) {
 			badge.history.push(text);
 			return Promise.resolve();
 		},
-		setBadgeBackgroundColor: async () => {
+		setBadgeBackgroundColor: async ({ color }: { color: string }) => {
+			badge.colors.push(color);
 			await colorSet;
 		}
 	};

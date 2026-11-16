@@ -53,8 +53,6 @@ const NO_REPORT: TOwedReportDay[] = [];
 
 const TASK_RELATIONS: ReadonlyArray<string> = ['task'];
 
-const NO_RELATIONS: ReadonlyArray<string> = [];
-
 const NO_BILLED_LINES: BilledLinesRead = { lineIds: new Set(), projectIds: [] };
 
 export interface InvoiceTimeLabels {
@@ -334,11 +332,11 @@ export function useInvoiceTime({
 	const readsMembers = takesTime && offersProjects;
 	const readsRates = enabled && hasScope;
 	const readsBilledTime = hasScope && hasBilledLines;
-	const namesTasks = grouping === 'task';
-	let relations = NO_RELATIONS;
-	if (namesTasks) {
-		relations = TASK_RELATIONS;
-	}
+	// The time is read with its tasks whatever the grouping: By project, By member and By task regroup the same answer,
+	// so a switch reads nothing and never puts the invoice behind its skeleton (#5355). The key keeps naming the tasks,
+	// so it never meets a read made without them.
+	const namesTasks = true;
+	const relations = TASK_RELATIONS;
 
 	// Read again whenever the screen opens: another invoice may bill part of this time since the last read.
 	const freeQuery = useQuery({

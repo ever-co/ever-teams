@@ -37,7 +37,9 @@ export function useTeamDayBoard(dashboard: TeamDashboardState) {
 	const people = useMemo(() => knownPeopleOf(liveMembers), [liveMembers]);
 
 	const timeline = useMemo(() => dayTimelineOf(logs, new Date(), new Date(), people), [logs, people]);
-	const heat = useMemo(() => hourHeatOf(logs, dashboard.period, new Date()), [dashboard.period, logs]);
+	// The period the logs were read for: while the next period is read, its logs are not there yet (#5353)
+	const heatPeriod = logsState.period;
+	const heat = useMemo(() => hourHeatOf(logs, heatPeriod, new Date()), [heatPeriod, logs]);
 	const notStarted = useMemo(() => {
 		const tracked = new Set(timeline.lanes.map((lane) => lane.person.employeeId));
 		return liveMembers.filter((member) => !tracked.has(member.employeeId));

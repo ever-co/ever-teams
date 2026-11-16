@@ -5,6 +5,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAtomValue } from 'jotai';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { errorStatusOf } from '@/core/lib/utils/error-feedback';
+import { OpenedScheduleGoneError, openedScheduleFateOf } from '@/core/lib/utils/invoice-schedules';
 import { queryKeys } from '@/core/query/keys';
 import { invoiceScheduleService } from '@/core/services/client/api/organizations/invoice-schedule.service';
 import type { InvoicesScope } from '@/core/services/client/api/organizations/invoice.service';
@@ -123,9 +124,56 @@ export function useInvoiceScheduleMutations(workspace: InvoicesScope | null) {
 		onSettled: refresh
 	});
 
+	const updateScheduleById = updateMutation.mutateAsync;
+
+	/**
+	 * Saves a form's change to the schedule it opened on, and never to another: the change is sent to that schedule's
+	 * id only, so a schedule that replaced it, even one set after this check, is never written. When the latest read
+	 * already shows it deleted, or replaced by another (another tab deleted it and set a new one), nothing is sent
+	 * and the schedules are read again before the save fails, so the section shows what is there now. An API that
+	 * answers the schedule no longer exists (404) changed nothing either: that save fails as `deleted`, even when
+	 * another schedule replaced it after the check, since the one it opened on was deleted all the same, and the
+	 * reload shows the replacement. Either way the save fails with the reason, as an `OpenedScheduleGoneError`.
+	 * While the client's schedule is not read (another tab switched the workspace and its read is still on the way,
+	 * or it failed with nothing to show), nothing tells what became of it: nothing is sent, and the save fails as any
+	 * failed save does, without saying the schedule was deleted.
+	 */
+	const updateOpenedSchedule = useCallback(
+		async ({
+			scheduleId,
+			latest,
+			change
+		}: {
+			/** The schedule the form opened on. */
+			scheduleId: string;
+			/** The client's schedule as last read, null when it has none, undefined while nothing was read. */
+			latest: TInvoiceSchedule | null | undefined;
+			change: InvoiceScheduleChange;
+		}): Promise<TInvoiceSchedule> => {
+			if (latest === undefined) {
+				throw new Error('The client’s billing schedule is not read yet, so the change was not saved');
+			}
+			const fate = openedScheduleFateOf(scheduleId, latest);
+			if (fate !== 'current') {
+				await refresh();
+				throw new OpenedScheduleGoneError(fate);
+			}
+			try {
+				return await updateScheduleById({ scheduleId, change });
+			} catch (error) {
+				if (errorStatusOf(error) === 404) {
+					throw new OpenedScheduleGoneError('deleted');
+				}
+				throw error;
+			}
+		},
+		[refresh, updateScheduleById]
+	);
+
 	return {
 		createSchedule: createMutation.mutateAsync,
 		updateSchedule: updateMutation.mutateAsync,
+		updateOpenedSchedule,
 		deleteSchedule: deleteMutation.mutateAsync,
 		isSaving: createMutation.isPending || updateMutation.isPending,
 		isDeleting: deleteMutation.isPending

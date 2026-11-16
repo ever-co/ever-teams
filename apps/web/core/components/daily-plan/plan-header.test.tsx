@@ -95,6 +95,47 @@ describe('PlanHeader planned time toasts', () => {
 	});
 });
 
+describe('PlanHeader worked time of the plan owner (#5351)', () => {
+	const task = (id: string) => ({ id }) as NonNullable<TDailyPlan['tasks']>[number];
+
+	beforeEach(() => {
+		mockUseGetTimeLogs.mockClear();
+	});
+
+	it("reads only the plan owner's logs on the plan's tasks, not every member's", () => {
+		render(<PlanHeader plan={{ ...plan, tasks: [task('task-a')] }} planMode="Today Tasks" />);
+
+		const [params, options] = mockUseGetTimeLogs.mock.calls.at(-1) as [
+			{ employeeIds?: string[]; taskIds: string[] },
+			{ enabled?: boolean }
+		];
+		expect(params.employeeIds).toEqual(['employee-1']);
+		expect(params.taskIds).toEqual(['task-a']);
+		expect(options.enabled).not.toBe(false);
+	});
+
+	it('shows no worked time once the plan has no task left, whatever the last read holds or says', () => {
+		const workedFigure = () => screen.getByText('common.WORKED').parentElement?.textContent ?? '';
+		mockUseGetTimeLogs.mockReturnValue({ data: [{ duration: 3600 }] });
+		const { rerender } = render(<PlanHeader plan={{ ...plan, tasks: [task('task-a')] }} planMode="Today Tasks" />);
+		expect(workedFigure()).toContain('1h 0m');
+
+		// The read kept from the plan with a task, still loading or failed, must not stand for the empty plan
+		mockUseGetTimeLogs.mockReturnValue({ data: [{ duration: 3600 }], isLoading: true, isError: true } as never);
+		rerender(<PlanHeader plan={{ ...plan, tasks: [] }} planMode="Today Tasks" />);
+
+		expect(workedFigure()).toContain('0h 0m');
+		mockUseGetTimeLogs.mockReturnValue({ data: [] });
+	});
+
+	it('reads nothing for a plan without tasks, whose worked time is none', () => {
+		render(<PlanHeader plan={{ ...plan, tasks: [] }} planMode="Today Tasks" />);
+
+		const [, options] = mockUseGetTimeLogs.mock.calls.at(-1) as [unknown, { enabled?: boolean }];
+		expect(options.enabled).toBe(false);
+	});
+});
+
 describe('PlanHeader worked time', () => {
 	const task = (id: string) => ({ id }) as NonNullable<TDailyPlan['tasks']>[number];
 
