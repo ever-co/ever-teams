@@ -42,8 +42,8 @@ const TasksEstimatedInputs: FC<ITasksEstimatedInputs> = ({ task, onEstimateChang
 	};
 
 	// Left, a field shows its number on two digits at least, without extra leading zeros: "005" shows "05"
-	const onHoursEstimateBlur = () => setHoursEstimate(paddedEstimateField);
-	const onMinutesEstimateBlur = () => setMinutesEstimate(paddedEstimateField);
+	const onHoursEstimateBlur = () => setHoursEstimate((typed) => paddedEstimateField(typed));
+	const onMinutesEstimateBlur = () => setMinutesEstimate((typed) => paddedEstimateField(typed));
 
 	return (
 		<>
