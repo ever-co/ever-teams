@@ -180,6 +180,46 @@ describe('Discarding the running timer from the phone', () => {
 		);
 	});
 
+	it('discards only the run the person confirmed: another run started meanwhile goes on', async () => {
+		const timer = await openTimer();
+		await offersDiscard(timer);
+
+		let discarded = true;
+		await act(async () => {
+			// The confirmation was opened for a run another device has stopped since
+			discarded = await timer.current.discard('log-stopped-meanwhile');
+		});
+
+		expect(discarded).toBe(false);
+		expect(gauzy.timer()?.isRunning).toBe(true);
+		expect(showMessage).toHaveBeenCalledWith(
+			expect.objectContaining({ message: expect.stringContaining('timer.discard.failures.changed') })
+		);
+	});
+
+	it('leaves a newer timer state as it is when the status read after the discard fails', async () => {
+		const timer = await openTimer();
+		await offersDiscard(timer);
+		const runB = { duration: 3 * 3600, running: true, lastLog: { id: 'log-b', startedAt: STARTED_AT } as never };
+		const gauzyFetch = global.fetch;
+		global.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+			const isStatusRead = typeof input === 'string' && input.includes('/timesheet/timer/status');
+			if (isStatusRead) {
+				// A new run started on another device reached the screen first, then the phone lost its connection
+				timerStore.setTimerStatus(runB);
+				throw new TypeError('Network request failed');
+			}
+			return gauzyFetch(input, init);
+		}) as typeof fetch;
+
+		await act(async () => {
+			await timer.current.discard('log-running');
+		});
+
+		expect(timerStore.timerStatus.lastLog?.id).toBe('log-b');
+		expect(timerStore.timerStatus.running).toBe(true);
+	});
+
 	it('names where a run started on another device, since it stops there too', async () => {
 		const timer = await openTimer({ source: 'TEAMS' });
 

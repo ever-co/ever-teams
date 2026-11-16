@@ -29,22 +29,36 @@ jest.mock('../theme', () => ({
 
 const mockedUseTimerDiscard = useTimerDiscard as jest.Mock;
 
-function givenDiscard({ available = true, sourceKey = null as string | null } = {}) {
-	const discard = jest.fn(() => Promise.resolve(true));
+const discard = jest.fn((_timeLogId?: string) => Promise.resolve(true));
+
+function givenDiscard({
+	available = true,
+	sourceKey = null as string | null,
+	runningLogId = 'log-a' as string | undefined
+} = {}) {
 	const availability = available ? { available: true, closesAt: null } : { available: false, reason: 'DISABLED' };
-	mockedUseTimerDiscard.mockReturnValue({ availability, discard, discarding: false, sourceKey });
+	mockedUseTimerDiscard.mockReturnValue({ availability, discard, discarding: false, sourceKey, runningLogId });
 	return discard;
 }
 
 async function renderMenu() {
 	const onChangeStart = jest.fn();
-	await render(
+	const menu = (
 		<PaperProvider>
 			<TimerActionsMenu onChangeStart={onChangeStart} />
 		</PaperProvider>
 	);
-	return { onChangeStart };
+	const view = await render(menu);
+	/** The screen reads the timer again: the menu renders with what the hook now says. */
+	const readAgain = async () => {
+		await view.rerender(menu);
+	};
+	return { onChangeStart, readAgain };
 }
+
+beforeEach(() => {
+	discard.mockClear();
+});
 
 async function openMenu() {
 	await fireEvent.press(screen.getByTestId('timer-actions-trigger'));
@@ -73,6 +87,20 @@ describe('The menu of the running timer', () => {
 		await fireEvent.press(screen.getByText(/timer\.discard\.confirm/));
 
 		await waitFor(() => expect(discard).toHaveBeenCalledTimes(1));
+	});
+
+	it('discards the run the confirmation was opened for, even if another one runs by then', async () => {
+		givenDiscard({ runningLogId: 'log-a' });
+		const { readAgain } = await renderMenu();
+
+		await openMenu();
+		await fireEvent.press(await screen.findByTestId('timer-discard'));
+		// Another device stopped run A and started run B while the confirmation is open
+		givenDiscard({ runningLogId: 'log-b' });
+		await readAgain();
+		await fireEvent.press(await screen.findByText(/timer\.discard\.confirm/));
+
+		await waitFor(() => expect(discard).toHaveBeenCalledWith('log-a'));
 	});
 
 	it('discards nothing when the person cancels', async () => {

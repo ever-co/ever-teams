@@ -1,4 +1,4 @@
-import React, { FC, useState } from 'react';
+import React, { FC, useRef, useState } from 'react';
 import { ActivityIndicator, StyleSheet, TouchableOpacity } from 'react-native';
 import { Menu } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
@@ -22,9 +22,11 @@ interface ITimerActionsMenuProps {
  */
 const TimerActionsMenu: FC<ITimerActionsMenuProps> = observer(({ onChangeStart }) => {
 	const { colors } = useAppTheme();
-	const { availability, discard, discarding, sourceKey } = useTimerDiscard();
+	const { availability, discard, discarding, sourceKey, runningLogId } = useTimerDiscard();
 	const [menuOpen, setMenuOpen] = useState(false);
 	const [confirming, setConfirming] = useState(false);
+	// The run the confirmation is opened for: a run started meanwhile on another device is never the one discarded
+	const confirmedRunId = useRef<string | undefined>(undefined);
 
 	const description = sourceKey
 		? translate('timer.discard.descriptionElsewhere', { source: translate(sourceKey) })
@@ -40,6 +42,7 @@ const TimerActionsMenu: FC<ITimerActionsMenuProps> = observer(({ onChangeStart }
 
 	const askToDiscard = () => {
 		closeMenu();
+		confirmedRunId.current = runningLogId;
 		setConfirming(true);
 	};
 
@@ -87,7 +90,7 @@ const TimerActionsMenu: FC<ITimerActionsMenuProps> = observer(({ onChangeStart }
 				visible={confirming}
 				onDismiss={() => setConfirming(false)}
 				onConfirm={() => {
-					void discard();
+					void discard(confirmedRunId.current);
 				}}
 				confirmationText={translate('timer.discard.title')}
 				description={description}
