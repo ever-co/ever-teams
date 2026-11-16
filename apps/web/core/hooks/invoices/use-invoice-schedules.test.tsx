@@ -19,14 +19,30 @@ jest.mock('@/core/services/client/api/organizations/invoice-schedule.service', (
 	}
 }));
 
+import { OpenedScheduleGoneError } from '@/core/lib/utils/invoice-schedules';
 import { queryKeys } from '@/core/query/keys';
 import { invoiceScheduleService } from '@/core/services/client/api/organizations/invoice-schedule.service';
 import { shellSettledState } from '@/core/stores/common/shell';
+import type { TInvoiceSchedule } from '@/core/types/schemas/organization/invoice-schedule.schema';
 import { useClientInvoiceSchedule, useInvoiceScheduleMutations } from './use-invoice-schedules';
 
 const mockService = jest.mocked(invoiceScheduleService);
 
 const WORKSPACE = { tenantId: 'tenant-1', organizationId: 'org-1' };
+
+function monthlySchedule(id: string): TInvoiceSchedule {
+	return {
+		id,
+		organizationContactId: 'client-1',
+		frequency: 'MONTHLY',
+		startDay: '2026-10-01',
+		grouping: 'PROJECT',
+		sendInvoice: false,
+		pausedAt: null,
+		activeSince: '2026-10-20T09:00:00Z',
+		nextPeriod: { startDay: '2026-11-01', endDay: '2026-11-30', runDay: '2026-12-01' }
+	};
+}
 
 function setup({ shellSettled = true }: { shellSettled?: boolean } = {}) {
 	// One retry, as every read of the app (query config), without its wait
@@ -90,5 +106,79 @@ describe('use-invoice-schedules', () => {
 		).rejects.toThrow('HTTP 409');
 
 		expect(invalidate).toHaveBeenCalledWith({ queryKey: queryKeys.invoiceSchedules.all });
+	});
+
+	describe('a change saved from a form that opened on a schedule', () => {
+		const opened = monthlySchedule('schedule-1');
+
+		it('saves it to that schedule while it is still the client’s', async () => {
+			mockService.updateSchedule.mockResolvedValue({ ...opened, grouping: 'TASK' });
+			const { wrapper } = setup();
+			const { result } = renderHook(() => useInvoiceScheduleMutations(WORKSPACE), { wrapper });
+
+			await expect(
+				result.current.updateOpenedSchedule({
+					scheduleId: 'schedule-1',
+					latest: opened,
+					change: { grouping: 'TASK' }
+				})
+			).resolves.toMatchObject({ id: 'schedule-1', grouping: 'TASK' });
+
+			expect(mockService.updateSchedule).toHaveBeenCalledWith('schedule-1', { grouping: 'TASK' }, WORKSPACE);
+		});
+
+		it('changes nothing when another tab replaced it, says so, and reads the schedules again', async () => {
+			const { queryClient, wrapper } = setup();
+			const invalidate = jest.spyOn(queryClient, 'invalidateQueries');
+			const { result } = renderHook(() => useInvoiceScheduleMutations(WORKSPACE), { wrapper });
+
+			const saving = result.current.updateOpenedSchedule({
+				scheduleId: 'schedule-1',
+				latest: monthlySchedule('schedule-2'),
+				change: { grouping: 'TASK' }
+			});
+
+			await expect(saving).rejects.toBeInstanceOf(OpenedScheduleGoneError);
+			await expect(saving).rejects.toMatchObject({ fate: 'replaced' });
+			expect(mockService.updateSchedule).not.toHaveBeenCalled();
+			expect(invalidate).toHaveBeenCalledWith({ queryKey: queryKeys.invoiceSchedules.all });
+		});
+
+		it('changes nothing when no schedule is left, fails instead of passing, and reads the schedules again', async () => {
+			const { queryClient, wrapper } = setup();
+			const invalidate = jest.spyOn(queryClient, 'invalidateQueries');
+			const { result } = renderHook(() => useInvoiceScheduleMutations(WORKSPACE), { wrapper });
+
+			await expect(
+				result.current.updateOpenedSchedule({ scheduleId: 'schedule-1', latest: null, change: {} })
+			).rejects.toMatchObject({ name: 'OpenedScheduleGoneError', fate: 'deleted' });
+
+			expect(mockService.updateSchedule).not.toHaveBeenCalled();
+			expect(invalidate).toHaveBeenCalledWith({ queryKey: queryKeys.invoiceSchedules.all });
+		});
+
+		it('fails as deleted when the API answers that the schedule no longer exists', async () => {
+			mockService.updateSchedule.mockRejectedValue(apiError(404));
+			const { queryClient, wrapper } = setup();
+			const invalidate = jest.spyOn(queryClient, 'invalidateQueries');
+			const { result } = renderHook(() => useInvoiceScheduleMutations(WORKSPACE), { wrapper });
+
+			await expect(
+				result.current.updateOpenedSchedule({ scheduleId: 'schedule-1', latest: opened, change: {} })
+			).rejects.toMatchObject({ name: 'OpenedScheduleGoneError', fate: 'deleted' });
+
+			expect(mockService.updateSchedule).toHaveBeenCalledWith('schedule-1', {}, WORKSPACE);
+			await waitFor(() => expect(invalidate).toHaveBeenCalledWith({ queryKey: queryKeys.invoiceSchedules.all }));
+		});
+
+		it('passes any other refusal on as it came', async () => {
+			mockService.updateSchedule.mockRejectedValue(apiError(400));
+			const { wrapper } = setup();
+			const { result } = renderHook(() => useInvoiceScheduleMutations(WORKSPACE), { wrapper });
+
+			await expect(
+				result.current.updateOpenedSchedule({ scheduleId: 'schedule-1', latest: opened, change: {} })
+			).rejects.toThrow('HTTP 400');
+		});
 	});
 });

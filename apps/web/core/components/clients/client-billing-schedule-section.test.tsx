@@ -26,9 +26,33 @@ jest.mock('sonner', () => ({ toast: { success: jest.fn(), error: jest.fn() } }))
 jest.mock('@/core/components/dashboards/kit/dashboard-states', () => ({
 	DashboardErrorNotice: ({ title }: { title: string }) => <p role="alert">{title}</p>
 }));
-jest.mock('@/core/components/invoices/invoice-schedule-dialog', () => ({
-	InvoiceScheduleDialog: ({ open }: { open: boolean }) => (open ? <div role="dialog">schedule form</div> : null)
-}));
+// As the form does, the dialog keeps the schedule it opened on, whatever reads land while it is open
+jest.mock('@/core/components/invoices/invoice-schedule-dialog', () => {
+	const { useState } = jest.requireActual<typeof import('react')>('react');
+	function ScheduleForm({
+		schedule,
+		onUpdate
+	}: {
+		schedule: { id: string } | null;
+		onUpdate: (scheduleId: string, change: Record<string, unknown>) => Promise<unknown>;
+	}) {
+		const [openedId] = useState(() => schedule?.id ?? null);
+		return (
+			<div role="dialog">
+				schedule form
+				{openedId && (
+					<button type="button" onClick={() => void onUpdate(openedId, { grouping: 'TASK' }).catch(() => {})}>
+						save schedule
+					</button>
+				)}
+			</div>
+		);
+	}
+	return {
+		InvoiceScheduleDialog: ({ open, ...form }: { open: boolean } & Parameters<typeof ScheduleForm>[0]) =>
+			open ? <ScheduleForm {...form} /> : null
+	};
+});
 jest.mock('@/core/components/common/alert-dialog-confirmation', () => ({
 	AlertDialogConfirmation: ({ isOpen, onConfirm }: { isOpen: boolean; onConfirm: () => void }) =>
 		isOpen ? (
@@ -50,6 +74,7 @@ const runsRead = { runs: [] as TInvoiceScheduleRun[], isLoading: false, isError:
 const mutations = {
 	createSchedule: jest.fn(),
 	updateSchedule: jest.fn(),
+	updateOpenedSchedule: jest.fn(),
 	deleteSchedule: jest.fn(),
 	isSaving: false,
 	isDeleting: false
@@ -162,6 +187,67 @@ describe('ClientBillingScheduleSection', () => {
 				change: { paused: false }
 			})
 		);
+	});
+
+	describe('saving the dialog', () => {
+		const replacement: TInvoiceSchedule = { ...monthly, id: 'schedule-2', frequency: 'WEEKLY' };
+
+		function openOnMonthly() {
+			read.schedule = monthly;
+			mutations.updateOpenedSchedule.mockResolvedValue(monthly);
+			const view = renderSection();
+			fireEvent.click(screen.getByRole('button', { name: 'invoices.schedule.EDIT' }));
+			return view;
+		}
+
+		it('saves the change to the schedule the dialog opened on', async () => {
+			openOnMonthly();
+
+			fireEvent.click(screen.getByRole('button', { name: 'save schedule' }));
+
+			await waitFor(() =>
+				expect(mutations.updateOpenedSchedule).toHaveBeenCalledWith({
+					scheduleId: 'schedule-1',
+					latest: monthly,
+					change: { grouping: 'TASK' }
+				})
+			);
+		});
+
+		it('checks the change against the schedule that replaced it while the dialog was open', async () => {
+			const { rerender } = openOnMonthly();
+
+			read.schedule = replacement;
+			rerender(<ClientBillingScheduleSection client={client} todayKey="2026-11-15" canManage />);
+			fireEvent.click(screen.getByRole('button', { name: 'save schedule' }));
+
+			await waitFor(() =>
+				expect(mutations.updateOpenedSchedule).toHaveBeenCalledWith({
+					scheduleId: 'schedule-1',
+					latest: replacement,
+					change: { grouping: 'TASK' }
+				})
+			);
+			expect(mutations.updateSchedule).not.toHaveBeenCalled();
+		});
+
+		it('checks the change against no schedule at all once it was deleted while the dialog was open', async () => {
+			const { rerender } = openOnMonthly();
+
+			read.schedule = null;
+			rerender(<ClientBillingScheduleSection client={client} todayKey="2026-11-15" canManage />);
+			expect(screen.getByText('invoices.schedule.NONE_HINT')).toBeTruthy();
+			fireEvent.click(screen.getByRole('button', { name: 'save schedule' }));
+
+			await waitFor(() =>
+				expect(mutations.updateOpenedSchedule).toHaveBeenCalledWith({
+					scheduleId: 'schedule-1',
+					latest: null,
+					change: { grouping: 'TASK' }
+				})
+			);
+			expect(mutations.updateSchedule).not.toHaveBeenCalled();
+		});
 	});
 
 	it('deletes the schedule once the deletion is confirmed', async () => {
