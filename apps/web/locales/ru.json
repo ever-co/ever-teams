@@ -7572,6 +7572,7 @@
 			"RATE_SOURCE_PROJECT": "Клиентская ставка проекта",
 			"RATE_SOURCE_EMPLOYEE": "Собственная ставка участника",
 			"RATE_SOURCE_DEFAULT": "Ставка выставления счетов по умолчанию для рабочего пространства",
+			"KEPT_RATE_HINT": "{source}, сохранённая на момент работы. Сегодня: {rate} в час.",
 			"DESCRIPTION_OF": "Описание строки {name}",
 			"REMOVE_LINE": "Убрать строку {name}",
 			"REMOVED_LINES": "{count, plural, one {Убрана # строка} few {Убрано # строки} many {Убрано # строк} other {Убрано # строки}}",

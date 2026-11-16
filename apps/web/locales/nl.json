@@ -7572,6 +7572,7 @@
 			"RATE_SOURCE_PROJECT": "Klanttarief van het project",
 			"RATE_SOURCE_EMPLOYEE": "Eigen factuurtarief van het lid",
 			"RATE_SOURCE_DEFAULT": "Het standaard factuurtarief van de werkruimte",
+			"KEPT_RATE_HINT": "{source}, behouden van toen de tijd werd gewerkt. Vandaag: {rate} per uur.",
 			"DESCRIPTION_OF": "Omschrijving van de regel {name}",
 			"REMOVE_LINE": "Regel {name} verwijderen",
 			"REMOVED_LINES": "{count, plural, one {# regel verwijderd} other {# regels verwijderd}}",

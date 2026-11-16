@@ -7572,6 +7572,7 @@
 			"RATE_SOURCE_PROJECT": "Tarif client du projet",
 			"RATE_SOURCE_EMPLOYEE": "Tarif de facturation du membre",
 			"RATE_SOURCE_DEFAULT": "Le taux de facturation par défaut de l'espace de travail",
+			"KEPT_RATE_HINT": "{source}, conservé depuis le moment où le temps a été travaillé. Aujourd’hui : {rate} de l’heure.",
 			"DESCRIPTION_OF": "Description de la ligne {name}",
 			"REMOVE_LINE": "Retirer la ligne {name}",
 			"REMOVED_LINES": "{count, plural, one {# ligne retirée} other {# lignes retirées}}",

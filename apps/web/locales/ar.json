@@ -7572,6 +7572,7 @@
 			"RATE_SOURCE_PROJECT": "سعر العميل الخاص بالمشروع",
 			"RATE_SOURCE_EMPLOYEE": "سعر الفوترة الخاص بالعضو",
 			"RATE_SOURCE_DEFAULT": "سعر الفوترة الافتراضي لمساحة العمل",
+			"KEPT_RATE_HINT": "{source}، محفوظ منذ وقت العمل. اليوم: {rate} للساعة.",
 			"DESCRIPTION_OF": "وصف البند {name}",
 			"REMOVE_LINE": "إزالة البند {name}",
 			"REMOVED_LINES": "{count, plural, zero {لم يُزل أي بند} one {أُزيل بند واحد} two {أُزيل بندان} few {أُزيلت # بنود} many {أُزيل # بندًا} other {أُزيل # بند}}",
