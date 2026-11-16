@@ -162,6 +162,7 @@ function sheetRowOf(row: number, cells: Partial<TimeImportCells>): TimeImportShe
 			notes: '',
 			billable: '',
 			memberEmail: '',
+			labels: '',
 			...cells
 		},
 		extraCellCount: 0

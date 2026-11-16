@@ -105,6 +105,21 @@ export interface TimeImportEntry {
 	taskTitle: string | null;
 	notes: string;
 	isBillable: boolean;
+	/** The labels the row names (#5368), as written; the team's labels of those names are put on the entry. */
+	labelNames: string[];
+}
+
+/** Splits a labels cell: commas or semicolons between the names, each once. */
+export function importLabelNamesOf(cell: string): string[] {
+	const names = new Map<string, string>();
+	for (const part of cell.split(/[,;]/u)) {
+		const name = part.trim();
+		const key = name.toLowerCase();
+		if (name && !names.has(key)) {
+			names.set(key, name);
+		}
+	}
+	return [...names.values()];
 }
 
 export interface TimeImportRow {
@@ -502,7 +517,8 @@ function draftRowOf(sheetRow: TimeImportSheetRow, context: TimeImportContext, or
 		taskId: task.value?.id ?? null,
 		taskTitle: task.value?.title ?? null,
 		notes: cells.notes,
-		isBillable: billable.value ?? false
+		isBillable: billable.value ?? false,
+		labelNames: importLabelNamesOf(cells.labels ?? '')
 	};
 	return { row, cells, entry, problems };
 }
@@ -721,6 +737,23 @@ export interface TimeImportSaveScope {
 	organizationId: string | null;
 	/** The team the time is saved with: the one whose projects and tasks the file was matched against. */
 	organizationTeamId: string;
+	/**
+	 * The team's labels by lowercase name, set once the run has created what it may (#5368); an API without labels on
+	 * entries gets none, and its entries are written as before.
+	 */
+	labelIdsByName?: ReadonlyMap<string, string>;
+}
+
+/** The ids of the team's labels an entry names: a name the team has no label of is left off. */
+export function importLabelIdsOf(entry: TimeImportEntry, labelIdsByName: ReadonlyMap<string, string>): string[] {
+	const ids = new Set<string>();
+	for (const name of entry.labelNames) {
+		const id = labelIdsByName.get(name.toLowerCase());
+		if (id) {
+			ids.add(id);
+		}
+	}
+	return [...ids];
 }
 
 /** The body of the manual time call, with the fields the Add time dialog sends. */
@@ -743,7 +776,81 @@ export function manualTimeRequestOf(entry: TimeImportEntry, scope: TimeImportSav
 	if (entry.taskId) {
 		request.taskId = entry.taskId;
 	}
+	const labelIds = importLabelIdsOf(entry, scope.labelIdsByName ?? new Map());
+	if (labelIds.length > 0) {
+		request.tags = labelIds;
+	}
 	return request;
+}
+
+export interface ImportLabelChoice {
+	/** The team's labels by lowercase name, the ones the run created among them. */
+	labelIdsByName: Map<string, string>;
+	/** The names no label was found or created for. */
+	notAttached: string[];
+}
+
+/**
+ * Finds the labels a file names among the team's (any case), and creates the others when the role may add labels
+ * (#5368). A label it could not create is listed as not attached, and the run goes on. An API without labels on
+ * entries gets none: every name is listed.
+ */
+export async function chooseImportLabels(
+	names: ReadonlyArray<string>,
+	teamLabels: ReadonlyArray<{ id?: string; name?: string | null }>,
+	options: { isSupported: boolean; canCreate: boolean; create: (name: string) => Promise<string | null> }
+): Promise<ImportLabelChoice> {
+	const labelIdsByName = new Map<string, string>();
+	const notAttached: string[] = [];
+	if (!options.isSupported) {
+		return { labelIdsByName, notAttached: [...names] };
+	}
+	for (const label of teamLabels) {
+		if (label.id && label.name) {
+			labelIdsByName.set(label.name.toLowerCase(), label.id);
+		}
+	}
+	for (const name of names) {
+		const key = name.toLowerCase();
+		if (labelIdsByName.has(key)) {
+			continue;
+		}
+		const createdId = await createdLabelIdOf(name, options);
+		if (createdId) {
+			labelIdsByName.set(key, createdId);
+			continue;
+		}
+		notAttached.push(name);
+	}
+	return { labelIdsByName, notAttached };
+}
+
+async function createdLabelIdOf(
+	name: string,
+	options: { canCreate: boolean; create: (name: string) => Promise<string | null> }
+): Promise<string | null> {
+	if (!options.canCreate) {
+		return null;
+	}
+	try {
+		return await options.create(name);
+	} catch {
+		return null;
+	}
+}
+
+/** The label names the ready rows use, each once (the first spelling met), for the run to find or create. */
+export function importLabelNamesOfRows(rows: ReadonlyArray<TimeImportRow>): string[] {
+	const names = new Map<string, string>();
+	for (const row of rows) {
+		for (const name of row.entry?.labelNames ?? []) {
+			const key = name.toLowerCase();
+			if (!names.has(key)) {
+				names.set(key, name);
+			}
+		}
+	}
+	return [...names.values()];
 }
 
 export type TimeImportOutcome = { kind: 'saved' } | { kind: 'failed'; reasonKey: string };
@@ -780,8 +887,9 @@ export interface TimeImportReport {
 	failedCount: number;
 	/** Ready rows the run never sent, because it stopped at a refusal before them. */
 	notSentCount: number;
-	/** The row the API refused, where the run stopped, with the key of the reason; null when every row was saved. */
 	refusal: { row: number; reasonKey: string } | null;
+	/** The labels the rows named that were not put on their entries: the role may not add them, or the API has none. */
+	labelsNotAttached?: string[];
 }
 
 export function timeImportReportOf(rows: ReadonlyArray<TimeImportRow>, run: TimeImportRun): TimeImportReport {

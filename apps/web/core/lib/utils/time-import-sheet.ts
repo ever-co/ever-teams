@@ -51,7 +51,7 @@ const COLUMN_BY_HEADER: ReadonlyMap<string, TimeImportColumn> = new Map(
  * What the import reads from a row: the columns of the template, and the day an entry ends, which a file from
  * another tool may give in a column of its own.
  */
-export type TimeImportField = TimeImportColumn | 'endDate';
+export type TimeImportField = TimeImportColumn | 'endDate' | 'labels';
 
 export const TIME_IMPORT_FIELDS: ReadonlyArray<TimeImportField> = [
 	'date',
@@ -63,7 +63,8 @@ export const TIME_IMPORT_FIELDS: ReadonlyArray<TimeImportField> = [
 	'task',
 	'notes',
 	'billable',
-	'memberEmail'
+	'memberEmail',
+	'labels'
 ];
 
 export type TimeImportCells = Readonly<Record<TimeImportField, string>>;
@@ -81,7 +82,8 @@ export const NO_TIME_IMPORT_COLUMNS: TimeImportMapping = {
 	task: null,
 	notes: null,
 	billable: null,
-	memberEmail: null
+	memberEmail: null,
+	labels: null
 };
 
 /** The columns a file is read through, and the format of its dates when its own dates do not tell it. */
@@ -264,7 +266,8 @@ function cellsOf(record: ReadonlyArray<string>, mapping: TimeImportMapping): Tim
 		task: cellOf('task'),
 		notes: cellOf('notes'),
 		billable: cellOf('billable'),
-		memberEmail: cellOf('memberEmail')
+		memberEmail: cellOf('memberEmail'),
+		labels: cellOf('labels')
 	};
 }
 

@@ -49,7 +49,8 @@ const REQUIREMENTS: Readonly<Record<TimeImportField, Requirement>> = {
 	task: 'optional',
 	notes: 'optional',
 	billable: 'optional',
-	memberEmail: 'optional'
+	memberEmail: 'optional',
+	labels: 'optional'
 };
 
 interface ColumnOption {

@@ -87,6 +87,8 @@ const FIELD_HEADERS: Readonly<Record<TimeImportField, ReadonlyArray<string>>> = 
 	task: ['task', 'task name', 'task title'],
 	notes: ['notes', 'note', 'description', 'comment', 'comments', 'memo', 'details'],
 	billable: ['billable', 'is billable'],
+	// The entry's own labels (#5368), by name, separated by commas or semicolons
+	labels: ['labels', 'label', 'tags', 'tag'],
 	memberEmail: [
 		'member email',
 		'email',
@@ -106,10 +108,6 @@ const UNUSED_HEADERS: ReadonlySet<string> = new Set([
 	'client',
 	'client name',
 	'customer',
-	'tags',
-	'tag',
-	'labels',
-	'label',
 	'amount',
 	'rate',
 	'hourly rate',

@@ -37,6 +37,7 @@ function lineOf(cells: Partial<TimeImportCells>, row = 2): TimeImportReportLine 
 			notes: '',
 			billable: 'yes',
 			memberEmail: '',
+			labels: '',
 			...cells
 		},
 		status: 'Left out',

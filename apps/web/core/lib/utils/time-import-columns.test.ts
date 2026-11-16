@@ -78,7 +78,8 @@ describe('timeImportReadingOf', () => {
 					task: 'Fix login',
 					notes: 'Pairing, then review',
 					billable: 'yes',
-					memberEmail: ''
+					memberEmail: '',
+					labels: ''
 				},
 				extraCellCount: 0
 			}
@@ -311,10 +312,12 @@ describe('timeImportReadingOf for a file from another tool', () => {
 		});
 	});
 
-	it('names the columns of a time export it does not read', () => {
+	it('names the columns of a time export it does not read, and reads its Tags as the labels', () => {
 		const sheet = sheetOf('Date,Start,End,Client,Tags,Amount,Rate\n2026-11-03,09:00,10:00,Acme,web,150,100\n');
 
-		expect(sheet.ignoredHeaders).toEqual(['Client', 'Tags', 'Amount', 'Rate']);
+		expect(sheet.ignoredHeaders).toEqual(['Client', 'Amount', 'Rate']);
+		// Its Tags are the entry labels (#5368)
+		expect(sheet.rows[0].cells.labels).toBe('web');
 	});
 
 	it('asks the member when two headers name the same part, and refuses one header written twice', () => {
@@ -410,7 +413,8 @@ describe('dateOrderReadingOf', () => {
 		task: null,
 		notes: null,
 		billable: null,
-		memberEmail: null
+		memberEmail: null,
+		labels: null
 	};
 
 	it('tells nothing when the file writes no date', () => {
