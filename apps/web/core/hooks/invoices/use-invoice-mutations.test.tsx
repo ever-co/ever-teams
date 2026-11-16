@@ -1412,12 +1412,23 @@ describe('saving an edit to an invoice', () => {
 				{ ...readAt('SENT', [{ id: 'item-7', ...editedLine }]), totalValue: 960, updatedAt: WRITTEN_AT },
 				{ status: 'saved' }
 			],
-			['not saved when it is as it was read', serverFailure(), readAt('SENT'), { status: 'notSaved' }],
 			[
-				'not reached when the connection failed and it is as it was read',
+				'not saved when the API answered and it is as it was read',
+				serverFailure(),
+				readAt('SENT'),
+				{ status: 'notSaved' }
+			],
+			[
+				'unknown when no answer came and it is as it was read: the save may still be committed after the read',
 				ApiErrorService.fromAxiosError({ message: 'Network Error', code: 'ERR_NETWORK' }),
 				readAt('SENT'),
-				{ status: 'notReached' }
+				{ status: 'notPutBack', lineCount: null }
+			],
+			[
+				'unknown when a gateway gave up and it is as it was read',
+				apiAnswer(504),
+				readAt('SENT'),
+				{ status: 'notPutBack', lineCount: null }
 			],
 			[
 				'not put back when it holds something saved from elsewhere',

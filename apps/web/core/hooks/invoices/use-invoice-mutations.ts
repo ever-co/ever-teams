@@ -565,7 +565,9 @@ function holdsRevision(current: TSavedInvoice, revision: InvoiceRevision) {
  * A save in one request that got no answer saying whether it went through. The API writes both or neither, and a save
  * replaces every line (new ids) and moves the invoice's `updatedAt`, so the invoice read back tells which:
  * - untouched since the read the save was made under (the same `updatedAt`; without one, the lines it was opened with,
- *   holding what was read): nothing was saved;
+ *   holding what was read): nothing was saved, once the API itself answered, since its answer ends its transaction.
+ *   Without an answer from it (none at all, or a gateway's), the request may have been sent and still be committed
+ *   after this read: what it holds is not known, and it is to be checked;
  * - its lines replaced, holding the edit: saved. The fields and the line figures alone would not tell an edit that only
  *   records the time its lines bill, since the read-back does not show which time a line bills;
  * - anything else: saved from elsewhere since, and it is checked rather than taken as this save.
@@ -590,7 +592,7 @@ async function outcomeOfUnconfirmedSave(
 			: readVersionOf(current) === readVersion;
 	if (isUntouched) {
 		if (didNotReachApi(error)) {
-			return { status: 'notReached' };
+			return NOT_PUT_BACK_UNREAD;
 		}
 		return { status: 'notSaved' };
 	}
