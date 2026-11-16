@@ -7,14 +7,11 @@ import { refuseForeignOrigin } from '@/core/services/server/same-origin-request'
  * read can answer that secret too, so it is refused, as the write is, unless it comes from this app's own pages (a
  * client that is no browser sends no Origin and is left to the session check).
  */
-export async function GET(req: Request) {
+async function forwardConnection(req: Request) {
 	const foreign = refuseForeignOrigin(req);
 	if (foreign) return foreign;
 	return forwardToGauzy(req, '/invoice-payments/connection', { noStore: true });
 }
 
-export async function PUT(req: Request) {
-	const foreign = refuseForeignOrigin(req);
-	if (foreign) return foreign;
-	return forwardToGauzy(req, '/invoice-payments/connection', { noStore: true });
-}
+export const GET = forwardConnection;
+export const PUT = forwardConnection;
