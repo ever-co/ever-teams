@@ -52,6 +52,9 @@ import type {
 } from '@/core/lib/utils/time-entry-reuse';
 import type { OverlapSummary } from '@/core/lib/utils/time-log-overlap';
 import { useDurationEntry } from '@/core/hooks/timesheet/use-duration-entry';
+import { useEntryLabelsSupport } from '@/core/hooks/timer/use-entry-labels-support';
+import { EntryLabelsField } from '@/core/components/features/entry-labels/entry-labels-field';
+import { entryLabelsFieldOf } from '@/core/lib/utils/time-log-labels-request';
 
 /**
  * Interface for the properties of the `AddManualTimeModal` component.
@@ -127,6 +130,9 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 	// Set by hand, or the copied entry's; until then the entry is billable as its project starts its time
 	const [billableChoice, setBillableChoice] = useState<boolean | null>(prefill?.isBillable ?? null);
 	const [description, setDescription] = useState<string>(prefill?.description ?? '');
+	// The labels the entry is filed under (Gauzy #12029), sent only to an API that has them
+	const supportsEntryLabels = useEntryLabelsSupport();
+	const [labelIds, setLabelIds] = useState<string[]>([]);
 	const [isCheckingSave, setIsCheckingSave] = useState(false);
 	const [reason, setReason] = useState<string>('');
 	const [errorMsg, setErrorMsg] = useState<string>('');
@@ -317,6 +323,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 				// A break is never billable (Gauzy keeps it so too)
 				isBillable: isBillable && !isBreakEntry,
 				...(isBreakEntry ? { logType: ETimeLogType.BREAK } : {}),
+				...entryLabelsFieldOf(labelIds, supportsEntryLabels && !isBreakEntry),
 				organizationId: team?.organizationId,
 				organizationTeamId: teamToSave?.id,
 				...pickedFields
@@ -387,6 +394,8 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 			endTime,
 			isBillable,
 			isBreakEntry,
+			labelIds,
+			supportsEntryLabels,
 			reason,
 			startTime,
 			taskId,
@@ -740,6 +749,12 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 								className={cn(controlRecipe, DESCRIPTION_FIELD_CLASS_NAME)}
 							/>
 						</div>
+						<EntryLabelsField
+							labelIds={labelIds}
+							onChange={setLabelIds}
+							isShown={supportsEntryLabels && !isBreakEntry}
+							optionalLabel={optionalLabel}
+						/>
 					</>
 				) : (
 					<>
@@ -813,6 +828,12 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 								className={cn(controlRecipe, DESCRIPTION_FIELD_CLASS_NAME)}
 							/>
 						</div>
+						<EntryLabelsField
+							labelIds={labelIds}
+							onChange={setLabelIds}
+							isShown={supportsEntryLabels && !isBreakEntry}
+							optionalLabel={optionalLabel}
+						/>
 
 						<div className="flex flex-col">
 							<DialogFieldLabel optionalLabel={optionalLabel}>{t('manualTime.REASON')}</DialogFieldLabel>

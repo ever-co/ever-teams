@@ -5,6 +5,9 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import { EditTaskModal } from './edit-task-modal';
 
+// An API without labels on entries (#5368): the labels controls stay out, as before
+jest.mock('@/core/hooks/timer/use-entry-labels-support', () => ({ useEntryLabelsSupport: () => false }));
+
 type MockChildrenProps = { children?: React.ReactNode };
 
 type MockOverlapRequest = {
