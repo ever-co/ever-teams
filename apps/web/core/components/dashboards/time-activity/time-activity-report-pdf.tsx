@@ -11,6 +11,8 @@ export interface PdfRow {
 	first: string;
 	second: string;
 	task: string;
+	/** The entry's own labels (Gauzy #12029), by name. */
+	labels: string;
 	tracked: string;
 	earnings: string;
 	activity: string;
@@ -32,7 +34,15 @@ export interface TimeActivityPdfContent {
 	filtersTitle: string;
 	filters: PdfFigure[];
 	summary: PdfFigure[];
-	columns: { first: string; second: string; task: string; tracked: string; earnings: string; activity: string };
+	columns: {
+		first: string;
+		second: string;
+		task: string;
+		labels: string;
+		tracked: string;
+		earnings: string;
+		activity: string;
+	};
 	showsEarnings: boolean;
 	groups: PdfGroup[];
 	footer: string;
@@ -85,6 +95,7 @@ const styles = StyleSheet.create({
 	first: { width: '20%', paddingRight: 6 },
 	second: { width: '18%', paddingRight: 6 },
 	task: { flex: 1, paddingRight: 6 },
+	labels: { width: '13%', paddingRight: 6 },
 	figure: { width: '11%', textAlign: 'right' },
 	muted: { color: MUTED },
 	footer: {
@@ -142,6 +153,7 @@ function TableHeader({ content }: Readonly<{ content: TimeActivityPdfContent }>)
 			<Text style={[styles.headerCell, styles.first]}>{columns.first}</Text>
 			<Text style={[styles.headerCell, styles.second]}>{columns.second}</Text>
 			<Text style={[styles.headerCell, styles.task]}>{columns.task}</Text>
+			<Text style={[styles.headerCell, styles.labels]}>{columns.labels}</Text>
 			<Text style={[styles.headerCell, styles.figure]}>{columns.tracked}</Text>
 			{content.showsEarnings && <Text style={[styles.headerCell, styles.figure]}>{columns.earnings}</Text>}
 			<Text style={[styles.headerCell, styles.figure]}>{columns.activity}</Text>
@@ -163,6 +175,7 @@ function GroupBlock({ group, showsEarnings }: Readonly<{ group: PdfGroup; showsE
 					<Text style={styles.first}>{row.first}</Text>
 					<Text style={[styles.second, styles.muted]}>{row.second}</Text>
 					<Text style={styles.task}>{row.task}</Text>
+					<Text style={[styles.labels, styles.muted]}>{row.labels}</Text>
 					<Text style={styles.figure}>{row.tracked}</Text>
 					{showsEarnings && <Text style={styles.figure}>{row.earnings}</Text>}
 					<Text style={styles.figure}>{row.activity}</Text>

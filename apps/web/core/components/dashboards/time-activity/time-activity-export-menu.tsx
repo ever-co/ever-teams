@@ -91,6 +91,7 @@ interface NamedRow {
 	client: string;
 	task: string;
 	status: string;
+	labels: string;
 }
 
 interface ExportLabels extends ClientLabels {
@@ -148,7 +149,8 @@ function namedRowOf(row: TimeActivityExportRow, labels: ExportLabels): NamedRow 
 		project: row.project ?? labels.noProject,
 		client: clientLabelOf(clientOfRow(row), labels),
 		task: row.task ?? labels.noTask,
-		status: row.status ?? ''
+		status: row.status ?? '',
+		labels: row.labels
 	};
 }
 
@@ -198,6 +200,7 @@ function csvColumnsOf(context: ExportContext): CsvColumn<NamedRow>[] {
 		{ header: t('dashboard.timeActivity.grouping.PROJECT'), valueOf: (named) => named.project },
 		{ header: t('dashboard.timeActivity.export.TASK'), valueOf: (named) => named.task },
 		{ header: t('dashboard.timeActivity.export.STATUS'), valueOf: (named) => named.status },
+		{ header: t('common.LABELS'), valueOf: (named) => named.labels },
 		{ header: t('dashboard.timeActivity.export.TRACKED_HOURS'), valueOf: (named) => hoursOf(named.row.seconds) }
 	];
 	if (context.isManager) {
@@ -246,6 +249,7 @@ function xlsxColumnsOf(context: ExportContext): XlsxColumn[] {
 		{ header: t('dashboard.timeActivity.grouping.PROJECT'), value: (named) => named.project, width: 24 },
 		{ header: t('dashboard.timeActivity.export.TASK'), value: (named) => named.task, width: 40 },
 		{ header: t('dashboard.timeActivity.export.STATUS'), value: (named) => named.status, width: 16 },
+		{ header: t('common.LABELS'), value: (named) => named.labels, width: 24 },
 		{
 			header: t('dashboard.timeActivity.columns.TRACKED'),
 			value: (named) => named.row.seconds / SECONDS_PER_DAY,
@@ -440,6 +444,7 @@ function clientPdfRowOf(groupKey: string, line: ClientExportLine, labels: Export
 		first: line.project ?? labels.noProject,
 		second: line.member || labels.unnamed,
 		task: line.task ?? labels.noTask,
+		labels: line.labels,
 		tracked: formatDurationShort(line.seconds),
 		earnings: rowAmountTextOf(line, locale),
 		activity: percentTextOf(line)
@@ -492,6 +497,7 @@ function pdfGroupsOf(context: ExportContext, layout: PdfLayout): PdfGroup[] {
 			first: layout.first(named),
 			second: layout.second(named),
 			task: named.task,
+			labels: named.labels,
 			tracked: formatDurationShort(named.row.seconds),
 			earnings: rowAmountTextOf(named.row, locale),
 			activity: `${Math.round(named.row.activity)}%`
@@ -541,6 +547,7 @@ function pdfContentOf(context: ExportContext): TimeActivityPdfContent {
 			first: layout.firstHeader,
 			second: layout.secondHeader,
 			task: t('dashboard.timeActivity.export.TASK'),
+			labels: t('common.LABELS'),
 			tracked: t('dashboard.timeActivity.columns.TRACKED'),
 			earnings: t('dashboard.timeActivity.columns.EARNINGS'),
 			activity: t('dashboard.timeActivity.columns.ACTIVITY')
