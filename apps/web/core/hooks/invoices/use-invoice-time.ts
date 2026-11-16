@@ -29,18 +29,23 @@ import {
 import { periodOfDays, type BilledLinesRead } from '@/core/lib/utils/invoice-edit';
 import {
 	billableEntriesOf,
+	entryPriceOf,
 	invoiceTimeOf,
+	keptLinePriceOf,
 	linePriceOf,
 	namedLinesOf,
 	type EmployeeBillingRate,
 	type InvoiceGrouping,
 	type InvoiceLineNames,
 	type InvoicePeriodDays,
+	type KeptRatesLike,
+	type LogPriceOf,
 	type NamedInvoiceLine,
 	type UnpricedTime
 } from '@/core/lib/utils/invoices';
 import { clientIdOf } from '@/core/lib/utils/project-list';
-import { defaultBillRateOf } from '@/core/lib/utils/rates';
+import { defaultBillRateOf, holdsRateAdminPermission } from '@/core/lib/utils/rates';
+import { useMyRolePermissionsQuery } from '@/core/hooks/roles/use-my-role-permissions-query';
 import { currentOrganizationState } from '@/core/stores/user/user-organizations';
 import type { TOrganizationProject } from '@/core/types/schemas';
 import type { TBillableTimeLog } from '@/core/types/schemas/organization/invoice.schema';
@@ -220,6 +225,11 @@ interface TimeReads {
 	readsAllTime: boolean;
 }
 
+/** A read held back until the permissions are known is being read already: "no time" is not known yet. */
+function waitingForPermissions(query: QueryFlags, isHeldBack: boolean): QueryFlags {
+	return { isLoading: query.isLoading || isHeldBack, isError: query.isError, isFetching: query.isFetching };
+}
+
 function isRefreshing(query: QueryFlags) {
 	return query.isFetching && !query.isLoading;
 }
@@ -331,6 +341,13 @@ export function useInvoiceTime({
 	const offersProjects = allProjectIds.length > 0;
 	const readsMembers = takesTime && offersProjects;
 	const readsRates = enabled && hasScope;
+	// The client rates each entry kept price it at what it was worked at: read by a role that may read every
+	// project's client rates, as the API answers them; anyone else prices at today's rates, as before
+	const permissions = useMyRolePermissionsQuery();
+	const withClientRates = permissions.isLoaded && holdsRateAdminPermission(permissions.myPermissions);
+	// The time waits for the permissions to be read, or to have failed: an admin's time is then read once, kept rates
+	// included, rather than priced at today's rates and again a moment later
+	const arePermissionsSettled = permissions.isLoaded || !permissions.isLoading;
 	const readsBilledTime = hasScope && hasBilledLines;
 	// The time is read with its tasks whatever the grouping: By project, By member and By task regroup the same answer,
 	// so a switch reads nothing and never puts the invoice behind its skeleton (#5355). The key keeps naming the tasks,
@@ -340,9 +357,19 @@ export function useInvoiceTime({
 
 	// Read again whenever the screen opens: another invoice may bill part of this time since the last read.
 	const freeQuery = useQuery({
-		queryKey: queryKeys.timesheet.reports.billableLogs({ ...rangeKey, namesTasks, notInvoiced: true }),
-		queryFn: () => timeLogReportService.getBillableTimeLogs(range, relations, { notInvoiced: true, scope }),
-		enabled: readsTime,
+		queryKey: queryKeys.timesheet.reports.billableLogs({
+			...rangeKey,
+			namesTasks,
+			notInvoiced: true,
+			withClientRates
+		}),
+		queryFn: () =>
+			timeLogReportService.getBillableTimeLogs(range, relations, {
+				notInvoiced: true,
+				scope,
+				...(withClientRates && { withClientRates })
+			}),
+		enabled: readsTime && arePermissionsSettled,
 		staleTime: 0
 	});
 	// Every offered project (the client's, and those its saved lines bill) over the days the billed time is read in: a
@@ -378,10 +405,16 @@ export function useInvoiceTime({
 			to: allTo.toISOString(),
 			projectIds: allProjectIds,
 			namesTasks,
-			notInvoiced: false
+			notInvoiced: false,
+			withClientRates
 		}),
-		queryFn: () => timeLogReportService.getBillableTimeLogs(allRange, relations, { notInvoiced: false, scope }),
-		enabled: readsAllTime,
+		queryFn: () =>
+			timeLogReportService.getBillableTimeLogs(allRange, relations, {
+				notInvoiced: false,
+				scope,
+				...(withClientRates && { withClientRates })
+			}),
+		enabled: readsAllTime && arePermissionsSettled,
 		staleTime: 0
 	});
 
@@ -463,7 +496,17 @@ export function useInvoiceTime({
 		[employees, labels.noTask, labels.unnamedMember, labels.unnamedProject, logs, offeredProjectsById]
 	);
 
-	const time = useMemo(() => invoiceTimeOf({ entries, grouping, priceOf }), [entries, grouping, priceOf]);
+	// Each entry at the rates it kept (a line says so where they differ from today's), else at today's
+	const pricedEntries = useMemo(() => {
+		const keptPriceOf = (kept: KeptRatesLike) => keptLinePriceOf({ kept, organizationCurrency, defaultRate });
+		const priceOfLog: LogPriceOf = (log) =>
+			entryPriceOf(log, priceOf(log.projectId ?? '', log.employeeId ?? ''), keptPriceOf);
+		return billableEntriesOf(logs, offeredProjectIdSet, roundingRule, priceOfLog);
+	}, [defaultRate, logs, offeredProjectIdSet, organizationCurrency, priceOf, roundingRule]);
+	const time = useMemo(
+		() => invoiceTimeOf({ entries: pricedEntries, grouping, priceOf }),
+		[grouping, priceOf, pricedEntries]
+	);
 	const lines = useMemo<NamedInvoiceLine[]>(
 		() => namedLinesOf(time.lines, grouping, names),
 		[grouping, names, time.lines]
@@ -483,8 +526,8 @@ export function useInvoiceTime({
 			isLoaded: projectsQuery.isOrganizationProjectsLoaded,
 			isError: projectsQuery.isOrganizationProjectsError
 		},
-		free: freeQuery,
-		all: allQuery,
+		free: waitingForPermissions(freeQuery, readsTime && !arePermissionsSettled),
+		all: waitingForPermissions(allQuery, readsAllTime && !arePermissionsSettled),
 		employees: employeesQuery,
 		rates: ratesStates,
 		readsBilledTime,
