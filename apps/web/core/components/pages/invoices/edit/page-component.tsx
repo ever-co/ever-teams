@@ -27,6 +27,8 @@ interface EditInvoiceScreenProps {
 	onSaveLocked: () => void;
 	/** Any save that did not go through: the invoice is read again once its dialog is closed. */
 	onSaveFailed: () => void;
+	/** A save the API refused because the invoice changed after it was read: the editor opens again on it. */
+	onSaveChangedMeanwhile: () => void;
 	onSaveDialogClosed: () => void;
 }
 
@@ -35,6 +37,7 @@ function EditInvoiceScreen({
 	saved,
 	onSaveLocked,
 	onSaveFailed,
+	onSaveChangedMeanwhile,
 	onSaveDialogClosed
 }: Readonly<EditInvoiceScreenProps>) {
 	const t = useTranslations();
@@ -63,6 +66,7 @@ function EditInvoiceScreen({
 				invoice={invoice}
 				onLockedRefusal={onSaveLocked}
 				onSaveFailed={onSaveFailed}
+				onChangedMeanwhile={onSaveChangedMeanwhile}
 			/>
 		);
 	};
@@ -84,6 +88,12 @@ function EditInvoiceContent() {
 	const readAgain = read.retry;
 	const markSaveRefused = useCallback(() => setWasSaveRefused(true), []);
 	const markSaveFailed = useCallback(() => setReadsAfterDialog(true), []);
+	// A save the API refused because the invoice changed after it was read (#5243) opens the editor again on what the
+	// invoice holds now: once its dialog is closed, on the first read that answers after that.
+	const [reopensAfterDialog, setReopensAfterDialog] = useState(false);
+	const [reopensOnReadAfter, setReopensOnReadAfter] = useState<number | null>(null);
+	const [editorRound, setEditorRound] = useState(0);
+	const markSaveChangedMeanwhile = useCallback(() => setReopensAfterDialog(true), []);
 	// A save that did not go through leaves the invoice's read for its dialog to close: its answer may replace the
 	// editor (an invoice paid meanwhile turns into the locked message), and the dialog with it.
 	const readAgainAfterFailure = useCallback(() => {
@@ -91,8 +101,18 @@ function EditInvoiceContent() {
 			return;
 		}
 		setReadsAfterDialog(false);
+		if (reopensAfterDialog) {
+			setReopensAfterDialog(false);
+			setReopensOnReadAfter(Date.now());
+		}
 		readAgain();
-	}, [readAgain, readsAfterDialog, wasSaveRefused]);
+	}, [readAgain, readsAfterDialog, reopensAfterDialog, wasSaveRefused]);
+	const isReopening = reopensOnReadAfter !== null;
+	const hasReopeningRead = isReopening && read.readAt > reopensOnReadAfter;
+	if (hasReopeningRead) {
+		setReopensOnReadAfter(null);
+		setEditorRound((round) => round + 1);
+	}
 	// Details kept from an earlier visit may be older than the invoice, and the editor keeps the invoice it opens on:
 	// it opens only on an invoice read during this visit. Once that read is in, a later one (a refresh, failed or
 	// not) never reopens the editor.
@@ -128,6 +148,17 @@ function EditInvoiceContent() {
 	if (!saved || !isEditorOpen) {
 		return <EditInvoicePageSkeleton />;
 	}
+	// Reopening on the invoice as it is now: the edit made on the earlier version is not offered again
+	if (isReopening && !hasReopeningRead) {
+		if (read.hasReadFailed) {
+			return (
+				<InvoiceScreenFrame title={loadingTitle} href={editPath}>
+					<SavedInvoiceMessage status="error" number={read.number} onRetry={read.retry} />
+				</InvoiceScreenFrame>
+			);
+		}
+		return <EditInvoicePageSkeleton />;
+	}
 	const isEditable = invoiceRevisionsOf(saved.status).includes('edit');
 	if (!isEditable) {
 		return (
@@ -138,10 +169,11 @@ function EditInvoiceContent() {
 	}
 	return (
 		<EditInvoiceScreen
-			key={saved.id}
+			key={`${saved.id}:${editorRound}`}
 			saved={saved}
 			onSaveLocked={markSaveRefused}
 			onSaveFailed={markSaveFailed}
+			onSaveChangedMeanwhile={markSaveChangedMeanwhile}
 			onSaveDialogClosed={readAgainAfterFailure}
 		/>
 	);

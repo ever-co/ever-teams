@@ -7753,6 +7753,7 @@
 				"NOT_CHECKED": "Die Rechnung konnte vor dem Speichern nicht erneut gelesen werden, deshalb wurde nichts gespeichert. Versuchen Sie es erneut.",
 				"NOT_REACHED": "Die Verbindung ist fehlgeschlagen: Die Änderungen wurden nicht gespeichert, die Rechnung ist unverändert. Prüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
 				"CHANGED": "Seit dem Öffnen wurde Rechnung {number} geändert: Es wurde nichts gespeichert. Öffnen Sie sie erneut aus der Rechnungsliste, um von ihrer aktuellen Fassung auszugehen.",
+				"CHANGED_MEANWHILE": "Diese Rechnung hat sich geändert, seit Sie sie geöffnet haben, daher wurde nichts gespeichert. Schließen Sie dies, um ihre aktuelle Version zu sehen.",
 				"RECORDS_TIME": "Hält die Stunden fest, die seine Positionen abrechnen, damit keine andere Rechnung sie erneut abrechnet."
 			}
 		},
