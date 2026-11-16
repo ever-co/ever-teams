@@ -150,8 +150,81 @@ describe('the background timer', () => {
 		await settle();
 
 		assert.equal(extension.badge.text, '');
+		assert.deepEqual(extension.badge.colors, [], 'the older answer set no color either');
 		assert.deepEqual(popup.received.at(-1), { type: 'statusUpdate', payload: null });
 		assert.equal(server.sentTo(SLOT_PATH).length, 0, 'no heartbeat for a session signed out');
+	});
+
+	it("sets the badge's color and text together, after one check that the status is still the newest", async () => {
+		const extension = installFakeExtension({ session: SESSION });
+		server = holdRequests();
+		const { status } = runningServer();
+		await startBackground();
+
+		const releaseColor = extension.badge.holdColor();
+		extension.runtime.onStartup.emit();
+		(await server.next(STATUS_PATH)).answer(200, status());
+		// The text is not sent after the color: nothing can come between the check and either of them
+		await until(() => extension.badge.text === '0:05', 'the run shown while the color is still being set');
+		assert.deepEqual(extension.badge.colors, ['#6366f1']);
+		releaseColor();
+		await settle();
+		assert.equal(extension.badge.text, '0:05');
+	});
+
+	it('signs out once when the API refuses the session and the renewal cannot cure it', async () => {
+		const extension = installFakeExtension({ session: SESSION });
+		server = holdRequests();
+		const { status } = runningServer();
+		await startBackground();
+		const popup = extension.connect();
+		extension.runtime.onStartup.emit();
+		(await server.next(STATUS_PATH)).answer(200, status());
+		await until(() => extension.badge.text === '0:05', 'the run shown');
+
+		extension.alarms.onAlarm.emit(REFRESH_ALARM);
+		(await server.next(STATUS_PATH)).answer(401, { message: 'Unauthorized' });
+		(await server.next('/auth/refresh-token')).answer(401, { message: 'Unauthorized' });
+		await until(() => !extension.stored.has('session'), 'the session taken out');
+		// The same sign-out reaches the background again by its storage event, then by each alarm while signed out
+		await until(() => extension.storageEvents.told > 0, 'the sign-out told');
+		extension.alarms.onAlarm.emit(REFRESH_ALARM);
+		await settle();
+
+		assert.equal(extension.badge.text, '');
+		const signedOut = popup.received.filter((message) => (message as { payload: unknown }).payload === null);
+		assert.equal(signedOut.length, 1, 'the popups hear the sign-out once');
+		assert.equal(server.sentTo(SLOT_PATH).length, 0, 'no heartbeat for a session refused');
+	});
+
+	it('signs nobody out when a read or a heartbeat ends at its deadline or offline: only a 401 does', async () => {
+		mock.timers.enable({ apis: ['setTimeout'] });
+		mock.method(console, 'warn', () => undefined);
+		const extension = installFakeExtension({ session: SESSION });
+		server = holdRequests();
+		const { status } = runningServer();
+		await startBackground();
+
+		// A read that never answers, cancelled at its deadline
+		extension.alarms.onAlarm.emit(REFRESH_ALARM);
+		await server.next(STATUS_PATH);
+		mock.timers.tick(30_000);
+		await settle();
+		// A read that cannot reach the API
+		extension.alarms.onAlarm.emit(REFRESH_ALARM);
+		(await server.next(STATUS_PATH)).fail();
+		await settle();
+		// A heartbeat that never answers, cancelled at its deadline
+		extension.alarms.onAlarm.emit(REFRESH_ALARM);
+		(await server.next(STATUS_PATH)).answer(200, status());
+		await server.next(SLOT_PATH);
+		mock.timers.tick(30_000);
+		await settle();
+
+		assert.equal(server.openTo('/api/').length, 0, 'every call ended');
+		assert.ok(extension.stored.has('session'), 'still signed in');
+		assert.equal(server.sentTo('/auth/refresh-token').length, 0, 'no renewal: nothing was refused');
+		assert.equal(extension.badge.text, '0:05');
 	});
 
 	it('keeps the badge cleared when the sign-out lands while an older answer is being shown', async () => {
@@ -163,7 +236,7 @@ describe('the background timer', () => {
 
 		extension.alarms.onAlarm.emit(REFRESH_ALARM);
 		const read = await server.next(STATUS_PATH);
-		// The answer is the latest when it lands, and the badge starts showing it: its color first
+		// The answer is the latest when it lands, and the badge starts showing it: its color is still being set
 		const releaseColor = extension.badge.holdColor();
 		read.answer(200, status());
 		await settle();

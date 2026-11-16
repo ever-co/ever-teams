@@ -9,9 +9,18 @@ const SESSION = { token: 'session-token-1', tenantId: 'tenant-1' } as const;
 
 const originalFetch = global.fetch;
 
-/** A request from a signed-in browser, with a JSON body when one is given. */
-export function signedInRequest(url: string, method = 'GET', body?: unknown): Request {
+/**
+ * A request from a signed-in browser, with a JSON body when one is given, and the `extraHeaders` a test adds (the
+ * `Origin` and `Sec-Fetch-Site` a browser sends, see `test/api/request-origin`).
+ */
+export function signedInRequest(
+	url: string,
+	method = 'GET',
+	body?: unknown,
+	extraHeaders: Record<string, string> = {}
+): Request {
 	const headers: Record<string, string> = {
+		...extraHeaders,
 		cookie: `${TOKEN_COOKIE_NAME}=${SESSION.token}; ${TENANT_ID_COOKIE_NAME}=${SESSION.tenantId}`
 	};
 	if (body === undefined) return new Request(url, { method, headers });
