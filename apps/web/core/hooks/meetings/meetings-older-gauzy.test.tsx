@@ -3,18 +3,6 @@ import type { ReactNode } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook, waitFor } from '@testing-library/react';
 
-jest.mock('@/core/lib/helpers/cookies', () => ({
-	getAccessTokenCookie: () => null,
-	getActiveTeamIdCookie: () => 'team-1',
-	getOrganizationIdCookie: () => 'organization-1',
-	getTenantIdCookie: () => 'tenant-1'
-}));
-jest.mock('@/core/services/logs/logger.service', () => ({
-	Logger: { getInstance: () => ({ debug: jest.fn(), error: jest.fn() }) }
-}));
-jest.mock('@/core/services/logs/logger-adapter.service', () => ({
-	HttpLoggerAdapter: jest.fn().mockImplementation(() => ({ logError: jest.fn() }))
-}));
 jest.mock('../queries/user-user.query', () => ({
 	useUserQuery: () => ({ data: { name: 'Fixture Manager', employee: { id: 'employee-1' } } })
 }));
