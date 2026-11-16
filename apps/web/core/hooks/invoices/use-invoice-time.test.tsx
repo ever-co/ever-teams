@@ -473,3 +473,39 @@ describe('the time of a saved invoice', () => {
 		await waitFor(() => expect(result.current.hasBilledTimeFailed).toBe(true));
 	});
 });
+
+describe('the lines of a new invoice regrouped (#5355)', () => {
+	beforeEach(() => {
+		mockReports.getBillableTimeLogs.mockReset();
+		mockReports.getBillableTimeLogs.mockResolvedValue([adaTime]);
+		mockReports.getOwedAmountReport.mockResolvedValue(owedReport);
+		mockRates.getProjectRates.mockResolvedValue(siteRates);
+	});
+
+	it('regroups the time already read by task, without reading it again or showing the loading state', async () => {
+		const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+		const store = createStore();
+		store.set(currentOrganizationState, organization);
+		const wrapper = ({ children }: Readonly<{ children: React.ReactNode }>) => (
+			<QueryClientProvider client={queryClient}>
+				<Provider store={store}>{children}</Provider>
+			</QueryClientProvider>
+		);
+		type Grouping = Parameters<typeof useInvoiceTime>[0]['grouping'];
+		const { result, rerender } = renderHook(
+			({ grouping }: { grouping: Grouping }) =>
+				useInvoiceTime({ clientId: 'client-acme', period: october, grouping, labels }),
+			{ wrapper, initialProps: { grouping: 'member' as Grouping } }
+		);
+		await waitFor(() => expect(result.current.isLoading).toBe(false));
+		const readsBefore = mockReports.getBillableTimeLogs.mock.calls.length;
+		// The time is read with its tasks from the start
+		expect(mockReports.getBillableTimeLogs.mock.calls[0][1]).toEqual(['task']);
+
+		rerender({ grouping: 'task' });
+
+		expect(result.current.isLoading).toBe(false);
+		expect(result.current.lines).toHaveLength(1);
+		expect(mockReports.getBillableTimeLogs.mock.calls.length).toBe(readsBefore);
+	});
+});
