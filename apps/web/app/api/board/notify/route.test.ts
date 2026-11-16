@@ -167,6 +167,37 @@ describe('POST /api/board/notify', () => {
 		expect(fetchMock).not.toHaveBeenCalled();
 	});
 
+	it('refuses a body over the size cap while reading it, before the session is checked', async () => {
+		const fetchMock = gauzyAnswers(Response.json({ notified: 1 }, { status: 201 }));
+
+		const response = await POST(notifyRequest({ ...SHARE, padding: 'x'.repeat(20_000) }));
+
+		expect(response.status).toBe(413);
+		expect(response.headers.get('access-control-allow-origin')).toBe(BOARD_ORIGIN);
+		expect(mockAuthenticatedGuard).not.toHaveBeenCalled();
+		expect(fetchMock).not.toHaveBeenCalled();
+	});
+
+	it('forwards the Board name on one line, without control characters or marks that reorder the title', async () => {
+		const fetchMock = gauzyAnswers(Response.json({ notified: 1 }, { status: 201 }));
+
+		await POST(notifyRequest({ ...SHARE, boardName: '\u202Eevil\u202C\r\n plan\u0000\u2066x\u2069' }));
+
+		expect(JSON.parse((fetchMock.mock.calls[0] as [string, RequestInit])[1].body as string).boardName).toBe(
+			'evil plan x'
+		);
+	});
+
+	it('leaves out a Board name that is nothing but control characters', async () => {
+		const fetchMock = gauzyAnswers(Response.json({ notified: 1 }, { status: 201 }));
+
+		await POST(notifyRequest({ ...SHARE, boardName: '\u202E\n\t' }));
+
+		expect(JSON.parse((fetchMock.mock.calls[0] as [string, RequestInit])[1].body as string)).not.toHaveProperty(
+			'boardName'
+		);
+	});
+
 	it('answers 401 at once when the browser sent no session cookie', async () => {
 		const fetchMock = gauzyAnswers(Response.json({ notified: 1 }, { status: 201 }));
 
@@ -191,7 +222,9 @@ describe('POST /api/board/notify', () => {
 
 	it.each([
 		[403, { statusCode: 403, message: 'Not an employee of this organization' }],
-		[429, { statusCode: 429, message: 'ThrottlerException: Too Many Requests' }]
+		[429, { statusCode: 429, message: 'ThrottlerException: Too Many Requests' }],
+		// An API from before ever-co/ever-gauzy#12007 has no such route
+		[404, { statusCode: 404, message: 'Cannot POST /api/employee-notification/board-share', error: 'Not Found' }]
 	])("passes Gauzy's refusal (%i) on to the Board, with its status", async (status, body) => {
 		gauzyAnswers(Response.json(body, { status }));
 

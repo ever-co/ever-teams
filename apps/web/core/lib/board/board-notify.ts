@@ -9,7 +9,7 @@ import { boardReturnUrl, boardSessionUser, type BoardTrust, configuredBoardTrust
  */
 
 /** Gauzy takes at most 50 colleagues in one request. */
-export const BOARD_NOTIFY_MAX_RECEIVERS = 50;
+const BOARD_NOTIFY_MAX_RECEIVERS = 50;
 
 /** The Gauzy route of each kind. */
 export const BOARD_NOTIFY_PATHS = {
@@ -22,13 +22,28 @@ export type BoardNotifyKind = keyof typeof BOARD_NOTIFY_PATHS;
 // A live room's or a saved snapshot's id, as Gauzy accepts it
 const boardIdSchema = z.string().regex(/^[A-Za-z0-9_-]{1,128}$/, 'must be a Board id');
 
+// Control characters, and the marks that reorder text on screen (bidi embeddings, overrides and isolates)
+// eslint-disable-next-line no-control-regex -- matching control characters is the point
+const UNSAFE_NAME_CHARACTERS = /[\u0000-\u001F\u007F-\u009F\u061C\u200E\u200F\u202A-\u202E\u2066-\u2069]/g;
+
+/**
+ * The Board's name as the colleagues read it, on one line, in the title Gauzy writes after the sender's name: without
+ * control characters or the marks that reorder text on screen, so that a name can never show its title (who shared,
+ * what was shared) other than it reads. A Board is no record of the platform, so its name can only come from the
+ * Board app; the sender is the one the session names.
+ */
+function boardNameOf(name: string): string | undefined {
+	const cleaned = name.replace(UNSAFE_NAME_CHARACTERS, ' ').replace(/\s+/g, ' ').trim();
+	return cleaned || undefined;
+}
+
 const boardNotifyBodySchema = z
 	.object({
 		kind: z.enum(['share', 'mention']),
 		receiverEmployeeIds: z.array(z.uuid()).min(1).max(BOARD_NOTIFY_MAX_RECEIVERS),
 		roomId: boardIdSchema.optional(),
 		snapshotId: boardIdSchema.optional(),
-		boardName: z.string().max(200).optional(),
+		boardName: z.string().max(200).transform(boardNameOf).optional(),
 		link: z.string().max(2048).optional()
 	})
 	.refine((body) => Boolean(body.roomId) !== Boolean(body.snapshotId), {
@@ -44,7 +59,7 @@ export interface BoardNotifyInput {
 	link?: string;
 }
 
-export type BoardNotifyRequest =
+type BoardNotifyRequest =
 	| { ok: true; kind: BoardNotifyKind; input: BoardNotifyInput }
 	| { ok: false; messages: string[] };
 
@@ -77,7 +92,7 @@ export function readBoardNotifyRequest(body: unknown, trust: BoardTrust = config
 }
 
 /** A colleague the Board can name in a share or a mention. */
-export interface BoardMember {
+interface BoardMember {
 	employeeId: string;
 	name: string;
 	imageUrl: string | null;

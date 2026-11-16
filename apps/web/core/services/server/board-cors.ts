@@ -9,7 +9,7 @@ import { isTrustedBoardOrigin } from '@/core/lib/board/board-app';
  */
 
 /** One person's answer, for one origin: never kept by a cache, never reused for another caller. */
-export function privateBoardAnswer(response: NextResponse): NextResponse {
+function privateBoardAnswer(response: NextResponse): NextResponse {
 	response.headers.set('Cache-Control', 'no-store');
 	response.headers.set('Vary', 'Origin, Cookie');
 	return response;
