@@ -41,6 +41,7 @@ import {
 	localTimerStatusState,
 	organizationOpeningState,
 	timerNotesState,
+	timerLabelsState,
 	timerStartsInFlightState,
 	timerStatusFetchingState,
 	timerStatusState,
@@ -326,15 +327,24 @@ export function useTimerApi({
 			projectId,
 			organizationTeamId,
 			isBillable,
-			description
+			description,
+			labelIds
 		}: {
 			taskId: string;
 			projectId?: string | null;
 			organizationTeamId?: string;
 			isBillable: boolean;
 			description?: string;
+			labelIds?: string[];
 		}) => {
-			return await timerService.startTimer({ taskId, projectId, organizationTeamId, isBillable, description });
+			return await timerService.startTimer({
+				taskId,
+				projectId,
+				organizationTeamId,
+				isBillable,
+				description,
+				labelIds
+			});
 		},
 		// runStartTimer shows the translated TIMER_START_FAILED toast; this keeps the raw global
 		// "Mutation Error" toast from showing a second one
@@ -725,13 +735,16 @@ export function useTimerApi({
 			const notesToUse = continuedNotes ?? notesToSendAtStart(store.get(timerNotesState));
 			// Until Gauzy answers, the status still says stopped: the team menu reads this instead (#5204)
 			store.set(timerStartsInFlightState, (count) => count + 1);
+			// The labels picked for this start: the entry's own from now on, so the next start begins without any
+			const labelIdsToUse = store.get(timerLabelsState);
 			const startRequest = startTimerMutate({
 				taskId: taskIdToUse,
 				projectId: projectIdToUse,
 				// This tab's team: the team cookie is shared by every tab and may name another tab's team (#5120)
 				organizationTeamId: teamIdAtStart,
 				isBillable: isBillableToUse,
-				description: notesToUse
+				description: notesToUse,
+				labelIds: labelIdsToUse
 			});
 			const promise = trackTimerCommand(startRequest).then(async (res) => {
 				res.data &&
@@ -739,6 +752,8 @@ export function useTimerApi({
 					!isEqual(timerStatus, res.data) &&
 					setTimerStatus(res.data);
 				onRequestLanded?.();
+				// The picked labels went with this start: they are the running entry's now
+				store.set(timerLabelsState, []);
 				// Notes typed before this start are the notes of the entry it created, and of no entry found running later.
 				// Not once the member changed team meanwhile: the draft this start sent was dropped then, and the notes
 				// typed since are for the next team's start. The team is read from the store, as the card that asked for

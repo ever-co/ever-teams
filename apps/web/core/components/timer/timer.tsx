@@ -273,6 +273,7 @@ export function Timer({ className, showTimerButton = true, compact = false }: IC
 						className="gap-2"
 						toggleClassName={timerButtonClassName}
 						billableClassName={phoneBillableClassNameOf(showsBreakButton)}
+						labelsClassName="max-sm:hidden"
 					/>
 				)}
 				<div className="flex min-w-0 items-start gap-2">

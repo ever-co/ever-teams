@@ -48,6 +48,14 @@ const notesFieldOf = (description?: string): { description?: string } => {
 	return { description };
 };
 
+// Labels travel only when some were picked: an API without labels on entries is sent nothing new (Gauzy #12029).
+const labelsFieldOf = (labelIds: string[]): { labelIds?: string[] } => {
+	if (labelIds.length === 0) {
+		return {};
+	}
+	return { labelIds };
+};
+
 // A reason travels only when one was typed: Gauzy keeps none that is empty.
 const reasonFieldOf = (reason?: string): { reason?: string } => {
 	const typedReason = reason?.trim();
@@ -95,7 +103,8 @@ class TimerService extends APIService {
 		projectId,
 		organizationTeamId,
 		isBillable,
-		description
+		description,
+		labelIds = []
 	}: {
 		taskId: string;
 		projectId?: string | null;
@@ -103,6 +112,8 @@ class TimerService extends APIService {
 		organizationTeamId?: string | null;
 		isBillable: boolean;
 		description?: string;
+		/** The labels the entry is filed under (Gauzy #12029); none for an API without them. */
+		labelIds?: string[];
 	}) => {
 		const startedAt = Date.now();
 		const projectField = projectFieldOf(projectId);
@@ -117,7 +128,7 @@ class TimerService extends APIService {
 				...projectField,
 				logType: 'TRACKED',
 				source: ETimeLogSource.TEAMS,
-				tags: [],
+				tags: labelIds,
 				isBillable,
 				...notesField,
 				organizationTeamId: organizationTeamId || this.activeTeamId,
@@ -137,6 +148,7 @@ class TimerService extends APIService {
 				...(organizationTeamId ? { organizationTeamId } : {}),
 				isBillable,
 				...notesField,
+				...labelsFieldOf(labelIds),
 				planDay
 			})
 		);
