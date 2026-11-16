@@ -2078,12 +2078,16 @@ describe('Ever Teams feature surface preservation', () => {
 		// /api/invoice-payments/connection GET and PUT, rotate-secret POST; ever-gauzy #11856).
 		// 402 files and 508 verbs with the meetings one is invited to (/api/employee-appointment/invited GET; #5022,
 		// ever-gauzy #11995).
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(402);
+		// 403 files and 509 verbs with the read of a window of time slots that a Keep's catch-up write goes by
+		// (/api/timer/slot/window GET; #5123).
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(403);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(508);
+		).toHaveLength(509);
 		expect(routes).toEqual(
 			expect.arrayContaining([
+				// Proxy mode read of a window of time slots, which a Keep's catch-up write goes by (#5123)
+				'apps/web/app/api/timer/slot/window/route.ts::GET',
 				// Proxy mode twin of Gauzy's list of the meetings one is invited to (ever-gauzy #11995, #5022)
 				'apps/web/app/api/employee-appointment/invited/route.ts::GET',
 				// Proxy mode twins of Gauzy's saved reports routes and the read of a shared report (ever-gauzy #11912, #5200)
