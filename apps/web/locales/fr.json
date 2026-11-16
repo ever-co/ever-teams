@@ -7903,6 +7903,8 @@
 				"SAVE": "Enregistrer",
 				"SAVE_FAILED": "Le calendrier n’a pas pu être enregistré. Réessayez.",
 				"EXISTS": "Ce client a déjà un calendrier. Fermez et rouvrez-le pour le modifier.",
+				"REPLACED": "Ce calendrier a été remplacé par un autre depuis que vous l’avez ouvert. Rien n’a été enregistré : fermez et rouvrez-le pour le modifier.",
+				"DELETED": "Ce calendrier a été supprimé depuis que vous l’avez ouvert. Rien n’a été enregistré.",
 				"START_AFTER_BILLED": "Ce calendrier a déjà facturé des périodes : son nouveau calendrier doit commencer après la dernière période facturée, {day}."
 			},
 			"delete": {

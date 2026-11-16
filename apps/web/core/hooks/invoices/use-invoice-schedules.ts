@@ -5,6 +5,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAtomValue } from 'jotai';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { errorStatusOf } from '@/core/lib/utils/error-feedback';
+import { OpenedScheduleGoneError, openedScheduleFateOf } from '@/core/lib/utils/invoice-schedules';
 import { queryKeys } from '@/core/query/keys';
 import { invoiceScheduleService } from '@/core/services/client/api/organizations/invoice-schedule.service';
 import type { InvoicesScope } from '@/core/services/client/api/organizations/invoice.service';
@@ -123,9 +124,42 @@ export function useInvoiceScheduleMutations(workspace: InvoicesScope | null) {
 		onSettled: refresh
 	});
 
+	/**
+	 * Saves a form's change to the schedule it opened on, and never to another: when the latest read shows that
+	 * schedule deleted, or replaced by another (another tab deleted it and set a new one), nothing is sent and the
+	 * schedules are read again. An API that answers the schedule no longer exists (404) changed nothing either.
+	 * Either way the save fails with the reason, as an `OpenedScheduleGoneError`.
+	 */
+	const updateOpenedSchedule = async ({
+		scheduleId,
+		latest,
+		change
+	}: {
+		/** The schedule the form opened on. */
+		scheduleId: string;
+		/** The client's schedule as last read, or null when it has none. */
+		latest: TInvoiceSchedule | null;
+		change: InvoiceScheduleChange;
+	}): Promise<TInvoiceSchedule> => {
+		const fate = openedScheduleFateOf(scheduleId, latest);
+		if (fate !== 'current') {
+			void refresh();
+			throw new OpenedScheduleGoneError(fate);
+		}
+		try {
+			return await updateMutation.mutateAsync({ scheduleId, change });
+		} catch (error) {
+			if (errorStatusOf(error) === 404) {
+				throw new OpenedScheduleGoneError('deleted');
+			}
+			throw error;
+		}
+	};
+
 	return {
 		createSchedule: createMutation.mutateAsync,
 		updateSchedule: updateMutation.mutateAsync,
+		updateOpenedSchedule,
 		deleteSchedule: deleteMutation.mutateAsync,
 		isSaving: createMutation.isPending || updateMutation.isPending,
 		isDeleting: deleteMutation.isPending

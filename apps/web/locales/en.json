@@ -7903,6 +7903,8 @@
 				"SAVE": "Save schedule",
 				"SAVE_FAILED": "The schedule could not be saved. Try again.",
 				"EXISTS": "This client already has a schedule. Close and open it again to change it.",
+				"REPLACED": "This schedule was replaced by another since you opened it. Nothing was saved: close and open it again to change it.",
+				"DELETED": "This schedule was deleted since you opened it. Nothing was saved.",
 				"START_AFTER_BILLED": "This schedule already billed periods: its new timeline must start after the last period billed, {day}."
 			},
 			"delete": {
