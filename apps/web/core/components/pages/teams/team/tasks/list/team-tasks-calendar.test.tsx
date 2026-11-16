@@ -99,6 +99,11 @@ jest.mock(
 	() => ({ autoScrollForElements: () => () => undefined }),
 	{ virtual: true }
 );
+// The export hands its file to the browser's download; the test reads what it hands over.
+const mockDownloadBlob = jest.fn();
+jest.mock('@/core/lib/utils/dashboard-export', () => ({
+	downloadBlob: (blob: Blob, fileName: string) => mockDownloadBlob(blob, fileName)
+}));
 // The platform's bulk update, which brings one due date for a whole selection.
 let mockTaskViewsEnabled = false;
 jest.mock('@/core/lib/utils/task-views-enabled', () => ({ isTaskViewsEnabled: () => mockTaskViewsEnabled }));
@@ -248,7 +253,36 @@ describe('TeamTasksCalendarView', () => {
 		mockFitsMonthGrid = true;
 		mockHasFinePointer = true;
 		mockMoveToDay.mockReset();
+		mockDownloadBlob.mockReset();
 		mockTaskViewsEnabled = false;
+	});
+
+	it('saves the due dates of the view as a calendar file, the months not on screen included', () => {
+		renderCalendar([
+			openTask('a', 'Ship the release', '2026-11-12'),
+			openTask('b', 'Plan the year', '2027-03-04'),
+			openTask('c', 'Someday')
+		]);
+		const exportButton = screen.getByRole('button', { name: 'pages.teamTasks.CALENDAR_EXPORT' });
+		expect((exportButton as HTMLButtonElement).disabled).toBe(false);
+
+		fireEvent.click(exportButton);
+
+		expect(mockDownloadBlob).toHaveBeenCalledTimes(1);
+		const [blob, fileName] = mockDownloadBlob.mock.calls[0] as [Blob, string];
+		expect(fileName).toBe('ever-teams-due-dates.ics');
+		expect(blob.type).toBe('text/calendar;charset=utf-8');
+		// What the file holds is covered with `teamTasksIcsOf`; here it is the calendar file of this view's tasks
+		expect(blob.size).toBeGreaterThan(0);
+	});
+
+	it('offers no calendar file while no task of the view has a due date', () => {
+		renderCalendar([openTask('c', 'Someday')]);
+		const exportButton = screen.getByRole('button', { name: 'pages.teamTasks.CALENDAR_EXPORT' });
+
+		expect((exportButton as HTMLButtonElement).disabled).toBe(true);
+		fireEvent.click(exportButton);
+		expect(mockDownloadBlob).not.toHaveBeenCalled();
 	});
 
 	it('draws the month as the list of its busy days where seven columns do not fit, and never both', () => {

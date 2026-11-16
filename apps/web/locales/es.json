@@ -2919,6 +2919,7 @@
 			"CALENDAR_UNDATED_HINT": "Estas tareas no están en el calendario. Fija una fecha límite para colocarlas.",
 			"CALENDAR_UNDATED_DRAG_HINT": "Estas tareas no están en el calendario. Arrastra una a un día o fija su fecha límite.",
 			"CALENDAR_DRAG_HINT": "Arrástrala a otro día para cambiar su fecha límite.",
+			"CALENDAR_EXPORT": "Exportar fechas límite (.ics)",
 			"TIMELINE_ZOOM": "Zoom",
 			"TIMELINE_ZOOM_WEEKS": "Semanas",
 			"TIMELINE_ZOOM_MONTHS": "Meses",
