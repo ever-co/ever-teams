@@ -16,11 +16,29 @@ export function dayMembersOf(rows: ReadonlyArray<AppUsageRow>): UsagePerson[] {
 	return ranked.map((entry) => entry.person);
 }
 
-/** The picked member when there is one, then the viewer, then whoever spent the most time in apps and sites. */
+/**
+ * The member who leads the report: the one held, while they still have time in it, else whoever spent the most time
+ * in apps and sites. A live report is read again every minute, and the ranking moving must not move the panel. A held
+ * member left with only empty rows has no day to show, so the lead passes on.
+ */
+export function leadingDayMemberIdOf(
+	rows: ReadonlyArray<AppUsageRow>,
+	members: ReadonlyArray<UsagePerson>,
+	heldId: string | null
+) {
+	const hasHeldTime = heldId !== null && rows.some((row) => row.employee.id === heldId && row.seconds > 0);
+	if (hasHeldTime) {
+		return heldId;
+	}
+	return members[0]?.id ?? null;
+}
+
+/** The picked member when there is one, then the viewer, then the member leading the report. */
 export function defaultDayMemberIdOf(
 	members: ReadonlyArray<UsagePerson>,
 	selectedIds: ReadonlyArray<string>,
-	ownEmployeeId: string | null
+	ownEmployeeId: string | null,
+	leadingId: string | null = members[0]?.id ?? null
 ) {
 	const ids = new Set(members.map((member) => member.id));
 	const firstSelected = selectedIds.find((id) => ids.has(id));
@@ -31,7 +49,7 @@ export function defaultDayMemberIdOf(
 	if (hasOwn) {
 		return ownEmployeeId;
 	}
-	return members[0]?.id ?? null;
+	return leadingId;
 }
 
 /** The days the member has app or site time on in the period, oldest first, by the report's day keys. */
