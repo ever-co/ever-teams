@@ -2993,6 +2993,23 @@
 		}
 	},
 	"timer": {
+		"labels": {
+			"LABELS": "Etiquetas",
+			"LABEL": "Etiqueta",
+			"PICK_LABELS": "Adicionar etiquetas",
+			"NO_LABELS_YET": "Ainda não há etiquetas",
+			"DELETED": "Excluída",
+			"SAVE_FAILED": "Não foi possível salvar as etiquetas",
+			"TASK_LABELS": "Etiquetas da tarefa",
+			"NO_LABEL": "Sem etiqueta",
+			"BY_LABEL_TITLE": "Tempo por etiqueta",
+			"COUNT": "{count, plural, one {# etiqueta} other {# etiquetas}}",
+			"OVERLAP_TITLE": "Os grupos se sobrepõem",
+			"OVERLAP_MESSAGE": "Uma entrada com várias etiquetas conta em cada uma delas, então a soma dos grupos passa do total.",
+			"CREATE": "Criar “{name}”",
+			"SEARCH": "Pesquisar etiquetas",
+			"CREATE_FAILED": "Não foi possível criar a etiqueta"
+		},
 		"START_TIMER": "Por favor, selecione ou crie uma nova tarefa para começar a rastrear o tempo ou crie um plano",
 		"ALREADY_TRACKING_MESSAGE": "Você já está rastreando o tempo em outra aba ou dispositivo.",
 		"TRACKING_DISABLED_MESSAGE": "O registro de tempo está desativado para você. Um administrador da organização pode ativá-lo.",

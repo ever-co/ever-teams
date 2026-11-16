@@ -2993,6 +2993,23 @@
 		}
 	},
 	"timer": {
+		"labels": {
+			"LABELS": "Étiquettes",
+			"LABEL": "Étiquette",
+			"PICK_LABELS": "Ajouter des étiquettes",
+			"NO_LABELS_YET": "Aucune étiquette pour l’instant",
+			"DELETED": "Supprimée",
+			"SAVE_FAILED": "Les étiquettes n’ont pas pu être enregistrées",
+			"TASK_LABELS": "Étiquettes de la tâche",
+			"NO_LABEL": "Sans étiquette",
+			"BY_LABEL_TITLE": "Temps par étiquette",
+			"COUNT": "{count, plural, one {# étiquette} other {# étiquettes}}",
+			"OVERLAP_TITLE": "Les groupes se recoupent",
+			"OVERLAP_MESSAGE": "Une entrée qui porte plusieurs étiquettes compte sous chacune d’elles : les groupes additionnés dépassent le total.",
+			"CREATE": "Créer « {name} »",
+			"SEARCH": "Rechercher une étiquette",
+			"CREATE_FAILED": "L’étiquette n’a pas pu être créée"
+		},
 		"START_TIMER": "Veuillez sélectionner ou créer une nouvelle tâche pour commencer le suivi du temps ou créer un plan",
 		"ALREADY_TRACKING_MESSAGE": "Vous suivez déjà le temps dans un autre onglet ou appareil.",
 		"TRACKING_DISABLED_MESSAGE": "Le suivi du temps est désactivé pour vous. Un administrateur de l'organisation peut le réactiver.",

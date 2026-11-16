@@ -2993,6 +2993,23 @@
 		}
 	},
 	"timer": {
+		"labels": {
+			"LABELS": "Etykiety",
+			"LABEL": "Etykieta",
+			"PICK_LABELS": "Dodaj etykiety",
+			"NO_LABELS_YET": "Brak etykiet",
+			"DELETED": "Usunięta",
+			"SAVE_FAILED": "Nie udało się zapisać etykiet",
+			"TASK_LABELS": "Etykiety zadania",
+			"NO_LABEL": "Bez etykiety",
+			"BY_LABEL_TITLE": "Czas według etykiety",
+			"COUNT": "{count, plural, one {# etykieta} few {# etykiety} many {# etykiet} other {# etykiety}}",
+			"OVERLAP_TITLE": "Grupy się nakładają",
+			"OVERLAP_MESSAGE": "Wpis z kilkoma etykietami liczy się pod każdą z nich, więc suma grup przekracza łączny czas.",
+			"CREATE": "Utwórz „{name}”",
+			"SEARCH": "Szukaj etykiet",
+			"CREATE_FAILED": "Nie udało się utworzyć etykiety"
+		},
 		"START_TIMER": "Proszę wybrać lub utworzyć nowe zadanie, aby rozpocząć śledzenie czasu lub utwórz plan",
 		"ALREADY_TRACKING_MESSAGE": "Już śledzisz czas w innej karcie lub urządzeniu.",
 		"TRACKING_DISABLED_MESSAGE": "Śledzenie czasu jest dla Ciebie wyłączone. Administrator organizacji może je włączyć.",

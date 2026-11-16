@@ -2993,6 +2993,23 @@
 		}
 	},
 	"timer": {
+		"labels": {
+			"LABELS": "Labels",
+			"LABEL": "Label",
+			"PICK_LABELS": "Labels hinzufügen",
+			"NO_LABELS_YET": "Noch keine Labels",
+			"DELETED": "Gelöscht",
+			"SAVE_FAILED": "Die Labels konnten nicht gespeichert werden",
+			"TASK_LABELS": "Aufgaben-Labels",
+			"NO_LABEL": "Kein Label",
+			"BY_LABEL_TITLE": "Zeit nach Label",
+			"COUNT": "{count, plural, one {# Label} other {# Labels}}",
+			"OVERLAP_TITLE": "Gruppen überschneiden sich",
+			"OVERLAP_MESSAGE": "Ein Eintrag mit mehreren Labels zählt unter jedem davon, daher ergeben die Gruppen zusammen mehr als die Summe.",
+			"CREATE": "„{name}“ erstellen",
+			"SEARCH": "Labels suchen",
+			"CREATE_FAILED": "Das Label konnte nicht erstellt werden"
+		},
 		"START_TIMER": "Bitte wählen oder erstellen Sie eine neue Aufgabe, um die Zeit zu tracken oder einen Plan erstellen",
 		"ALREADY_TRACKING_MESSAGE": "Sie verfolgen bereits die Zeit in einem anderen Tab oder Gerät.",
 		"TRACKING_DISABLED_MESSAGE": "Die Zeiterfassung ist für Sie deaktiviert. Ein Administrator der Organisation kann sie aktivieren.",
