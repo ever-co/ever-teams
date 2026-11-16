@@ -9,6 +9,11 @@ import { TimerStartMoveAccess } from '../helpers/timer-start-move';
 import { TimerStartPanel } from './timer-start-panel';
 
 jest.mock('react-native-flash-message', () => ({ showMessage: jest.fn() }));
+// The fields are the sheet's own inputs: the library's stand-in, marked as an ES module
+jest.mock('@gorhom/bottom-sheet', () => ({
+	__esModule: true,
+	...jest.requireActual<object>('@gorhom/bottom-sheet/mock')
+}));
 jest.mock('../theme', () => ({
 	...jest.requireActual('../theme'),
 	useAppTheme: () => ({
@@ -32,8 +37,15 @@ async function renderPanel({
 	onSave?: jest.Mock;
 } = {}) {
 	const onClose = jest.fn();
-	await render(<TimerStartPanel access={access} runStart={RUN_START} saving={saving} onSave={onSave} onClose={onClose} />);
-	return { onSave, onClose };
+	const panelAt = (runStart: number) => (
+		<TimerStartPanel access={access} runStart={runStart} saving={saving} onSave={onSave} onClose={onClose} />
+	);
+	const view = await render(panelAt(RUN_START));
+	/** A status read brings a start moved elsewhere while the panel is open. */
+	const startMovedElsewhere = async (runStart: number) => {
+		await view.rerender(panelAt(runStart));
+	};
+	return { onSave, onClose, startMovedElsewhere };
 }
 
 async function typeStart(time: string) {
@@ -44,6 +56,30 @@ async function typeStart(time: string) {
 beforeEach(() => {
 	jest.setSystemTime(NOW);
 	(showMessage as jest.Mock).mockClear();
+});
+
+describe('The panel of the running time, while its start moves elsewhere', () => {
+	it('shows the new start in the untouched field, so Save never writes the old one back', async () => {
+		const { onSave, startMovedElsewhere } = await renderPanel();
+
+		// The start moved to 9:00 on the web while the sheet is open
+		await startMovedElsewhere(new Date(2026, 10, 16, 9, 0).getTime());
+
+		expect(screen.getByTestId('timer-start-time').props.value).toBe('09:00');
+		await fireEvent.press(screen.getByTestId('timer-start-save'));
+		expect(onSave).not.toHaveBeenCalled();
+	});
+
+	it('says the start changed elsewhere when the person had typed a time, and keeps the new start', async () => {
+		const { onSave, startMovedElsewhere } = await renderPanel();
+		await fireEvent.changeText(screen.getByTestId('timer-start-time'), '09:10');
+
+		await startMovedElsewhere(new Date(2026, 10, 16, 9, 0).getTime());
+
+		expect(screen.getByTestId('timer-start-time').props.value).toBe('09:00');
+		expect(screen.getByTestId('timer-start-error').props.children).toContain('timer.startMove.changed');
+		expect(onSave).not.toHaveBeenCalled();
+	});
 });
 
 describe('The panel of the running time', () => {
@@ -90,7 +126,9 @@ describe('The panel of the running time', () => {
 	});
 
 	it('offers only a later start where time may not be added by hand', async () => {
-		const { onSave } = await renderPanel({ access: { kind: 'edit', earlierAllowed: false, reasonRequired: false } });
+		const { onSave } = await renderPanel({
+			access: { kind: 'edit', earlierAllowed: false, reasonRequired: false }
+		});
 
 		expect(screen.getByText(/timer\.startMove\.laterOnly/)).toBeTruthy();
 		await typeStart('09:00');

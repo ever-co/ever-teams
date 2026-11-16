@@ -1,5 +1,6 @@
-import React, { FC, useState } from 'react';
-import { ActivityIndicator, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import React, { FC, useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { BottomSheetTextInput } from '@gorhom/bottom-sheet';
 import { showMessage } from 'react-native-flash-message';
 import type { TxKeyPath } from '../i18n/i18n';
 import { translate } from '../i18n';
@@ -56,6 +57,27 @@ export const TimerStartPanel: FC<ITimerStartPanelProps> = ({ access, runStart, s
 	const [timeText, setTimeText] = useState(() => (runStart === null ? '' : timeTextOf(new Date(runStart))));
 	const [reason, setReason] = useState('');
 	const [errorKey, setErrorKey] = useState<TxKeyPath | null>(null);
+	// Whether the person typed a time since the field last showed the run's start
+	const typedTime = useRef(false);
+	const shownRunStart = useRef(runStart);
+
+	// A status read brings a start moved elsewhere: the field shows it, so Save never writes the old start back, and
+	// a time the person had typed is dropped with a word that the start changed
+	useEffect(() => {
+		const startMoved = shownRunStart.current !== runStart;
+		if (!startMoved) {
+			return;
+		}
+		shownRunStart.current = runStart;
+		if (runStart === null) {
+			return;
+		}
+		setTimeText(timeTextOf(new Date(runStart)));
+		if (typedTime.current) {
+			setErrorKey('timer.startMove.changed');
+		}
+		typedTime.current = false;
+	}, [runStart]);
 
 	const isRunning = runStart !== null;
 	const isEditable = isRunning && access.kind === 'edit';
@@ -105,6 +127,7 @@ export const TimerStartPanel: FC<ITimerStartPanelProps> = ({ access, runStart, s
 	};
 
 	const changeTime = (text: string) => {
+		typedTime.current = true;
 		setTimeText(text);
 		setErrorKey(null);
 	};
@@ -135,7 +158,7 @@ export const TimerStartPanel: FC<ITimerStartPanelProps> = ({ access, runStart, s
 					<Text style={[styles.label, { color: colors.primary }]}>
 						{translate('timer.startMove.newStart')}
 					</Text>
-					<TextInput
+					<BottomSheetTextInput
 						testID="timer-start-time"
 						style={[styles.input, { color: colors.primary, borderColor: FIELD_BORDER_COLOR }]}
 						value={timeText}
@@ -158,7 +181,7 @@ export const TimerStartPanel: FC<ITimerStartPanelProps> = ({ access, runStart, s
 							<Text style={[styles.label, { color: colors.primary }]}>
 								{translate('timer.startMove.reason')}
 							</Text>
-							<TextInput
+							<BottomSheetTextInput
 								testID="timer-start-reason"
 								style={[styles.input, { color: colors.primary, borderColor: FIELD_BORDER_COLOR }]}
 								value={reason}
