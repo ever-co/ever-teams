@@ -7,10 +7,13 @@ import {
 } from '@/core/services/server/requests';
 import { inviteEmailsBodySchema, MAX_EMAILS_PER_INVITE } from '@/core/lib/validation/invite';
 import { NextResponse } from 'next/server';
+import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
 
 const INVALID_INVITE_MESSAGE = `Send 1 to ${MAX_EMAILS_PER_INVITE} valid email addresses, and a valid role id when a role is picked`;
 
 export async function POST(req: Request) {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
 	const res = new NextResponse();
 	const { $res, user, organizationId, access_token, teamId, tenantId, status } = await authenticatedGuard(req, res);
 	if (!user) return NextResponse.json({ errors: 'Unauthorized' }, { status: status ?? 401 });

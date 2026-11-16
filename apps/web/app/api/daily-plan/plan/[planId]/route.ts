@@ -2,8 +2,11 @@ import { authenticatedGuard } from '@/core/services/server/guards/authenticated-
 import { addTaskToDailyPlanRequest, removeTaskFromPlanRequest } from '@/core/services/server/requests';
 import { IDailyPlanTasksUpdate } from '@/core/types/interfaces/task/daily-plan/daily-plan';
 import { NextResponse } from 'next/server';
+import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
 
 export async function POST(req: Request, { params }: { params: Promise<{ planId: string }> }) {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
 	const planId = (await params).planId;
 	const res = new NextResponse();
 
@@ -27,6 +30,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ planId:
 }
 
 export async function PUT(req: Request, { params }: { params: Promise<{ planId: string }> }) {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
 	const planId = (await params).planId;
 	const res = new NextResponse();
 

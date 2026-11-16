@@ -2,8 +2,11 @@ import { ICreateDailyPlan } from '@/core/types/interfaces/task/daily-plan/daily-
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { createPlanRequest, getAllDayPlans } from '@/core/services/server/requests';
 import { NextRequest, NextResponse } from 'next/server';
+import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
 
 export async function POST(req: NextRequest) {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
 	const res = new NextResponse();
 	const { $res, user, access_token: bearer_token, tenantId } = await authenticatedGuard(req, res);
 

@@ -7,6 +7,7 @@ import {
 } from '@/core/services/server/requests';
 import { INextParams } from '@/core/types/interfaces/common/data-response';
 import { NextResponse } from 'next/server';
+import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
 	const id = (await params).id;
@@ -33,6 +34,8 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
 }
 
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
 	const id = (await params).id;
 	const res = new NextResponse();
 
@@ -61,6 +64,8 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 }
 
 export async function DELETE(req: Request, props: INextParams) {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
 	const params = await props.params;
 	const res = new NextResponse();
 

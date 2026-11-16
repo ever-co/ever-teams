@@ -2,8 +2,11 @@ import { authenticatedGuard } from '@/core/services/server/guards/authenticated-
 import { createTaskRequest, getTeamTasksIRequest, getTeamTasksRequest } from '@/core/services/server/requests';
 import { taskSchema } from '@/core/types/schemas/task/task.schema';
 import { NextResponse } from 'next/server';
+import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
 
 export async function POST(req: Request) {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
 	const res = new NextResponse();
 	const { $res, user, tenantId, organizationId, access_token, projectId, teamId } = await authenticatedGuard(
 		req,

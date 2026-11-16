@@ -3,8 +3,11 @@ import { authenticatedGuard } from '@/core/services/server/guards/authenticated-
 import { deleteTaskVersionRequest, editTaskVersionRequest } from '@/core/services/server/requests/task-version';
 import { NextResponse } from 'next/server';
 import { TTaskVersionCreate } from '@/core/types/schemas/task/task-version.schema';
+import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
 
 export async function PUT(req: Request, props: INextParams) {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
 	const params = await props.params;
 	const res = new NextResponse();
 
@@ -29,6 +32,8 @@ export async function PUT(req: Request, props: INextParams) {
 }
 
 export async function DELETE(req: Request, props: INextParams) {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
 	const params = await props.params;
 	const res = new NextResponse();
 

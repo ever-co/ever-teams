@@ -2,11 +2,14 @@ import { z } from 'zod';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { updateEmployeePresenceRequest } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
+import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
 
 // Not strict: the client API service adds tenantId and organizationId to every PUT body.
 const presenceBody = z.object({ isIdle: z.boolean() });
 
 export async function PUT(req: Request) {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
 	const res = new NextResponse();
 	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
 	if (!user) return $res('Unauthorized');
@@ -31,7 +34,8 @@ export async function PUT(req: Request) {
 			() => undefined,
 			(gauzyError) => gauzyError
 		);
-		const status = typeof rejection?.statusCode === 'number' && rejection.statusCode >= 400 ? rejection.statusCode : 502;
+		const status =
+			typeof rejection?.statusCode === 'number' && rejection.statusCode >= 400 ? rejection.statusCode : 502;
 		return NextResponse.json(rejection ?? { message: 'Presence heartbeat failed' }, { status });
 	}
 }

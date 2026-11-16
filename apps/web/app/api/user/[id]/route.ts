@@ -5,6 +5,7 @@ import { INextParams } from '@/core/types/interfaces/common/data-response';
 import { TUser } from '@/core/types/schemas';
 import { NextResponse } from 'next/server';
 import { gauzyErrorResponse } from '@/core/services/server/gauzy-error-response';
+import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
 
 export async function GET(req: Request, props: INextParams) {
 	const params = await props.params;
@@ -29,6 +30,8 @@ export async function GET(req: Request, props: INextParams) {
 }
 
 export async function PUT(req: Request, props: INextParams) {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
 	const params = await props.params;
 	const res = new NextResponse();
 
@@ -61,6 +64,8 @@ export async function PUT(req: Request, props: INextParams) {
 }
 
 export async function DELETE(req: Request, props: INextParams) {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
 	const params = await props.params;
 	const res = new NextResponse();
 

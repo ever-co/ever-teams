@@ -1,8 +1,11 @@
 import { deleteTaskTimesheetRequest } from '@/core/services/server/requests';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { NextResponse } from 'next/server';
+import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
 
 export async function DELETE(req: Request) {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
 	const res = new NextResponse();
 	const body = await req.json();
 	const { logIds = [] } = body;
