@@ -7916,6 +7916,8 @@
 				"PAUSED": "Se pausó la facturación programada de {name}",
 				"RESUMED": "Se reanudó la facturación programada de {name}: próxima factura el {day}",
 				"DELETED": "Se eliminó la facturación programada de {name}",
+				"ALREADY_DELETED": "La facturación programada de {name} ya se había eliminado",
+				"REPLACED": "La facturación programada de {name} se reemplazó por otra. No se eliminó nada.",
 				"FAILED": "No se pudo guardar el cambio. Inténtelo de nuevo."
 			}
 		},

@@ -7916,6 +7916,8 @@
 				"PAUSED": "Die geplante Abrechnung von {name} ist pausiert",
 				"RESUMED": "Die geplante Abrechnung von {name} läuft wieder: nächste Rechnung am {day}",
 				"DELETED": "Die geplante Abrechnung von {name} ist gelöscht",
+				"ALREADY_DELETED": "Die geplante Abrechnung von {name} war bereits gelöscht",
+				"REPLACED": "Die geplante Abrechnung von {name} wurde durch eine andere ersetzt. Nichts wurde gelöscht.",
 				"FAILED": "Die Änderung konnte nicht gespeichert werden. Versuchen Sie es erneut."
 			}
 		},

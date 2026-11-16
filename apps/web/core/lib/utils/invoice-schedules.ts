@@ -113,14 +113,14 @@ export function openedScheduleFateOf(
 }
 
 /**
- * A change that was not made: the schedule its form opened on was deleted, or replaced by another, since. Nothing of
- * the client's schedule changed, and the form says which.
+ * A change or a deletion that was not made: the schedule its form or its confirmation opened on was deleted, or
+ * replaced by another, since. Nothing of the client's schedule changed, and the form or the section says which.
  */
 export class OpenedScheduleGoneError extends Error {
 	readonly fate: Exclude<OpenedScheduleFate, 'current'>;
 
 	constructor(fate: Exclude<OpenedScheduleFate, 'current'>) {
-		super(`The billing schedule was ${fate} after its form opened, so the change was not saved`);
+		super(`The billing schedule was ${fate} after it was opened, so nothing was changed`);
 		this.name = 'OpenedScheduleGoneError';
 		this.fate = fate;
 	}

@@ -7916,6 +7916,8 @@
 				"PAUSED": "La fatturazione programmata di {name} è sospesa",
 				"RESUMED": "La fatturazione programmata di {name} riprende: prossima fattura il {day}",
 				"DELETED": "La fatturazione programmata di {name} è eliminata",
+				"ALREADY_DELETED": "La fatturazione programmata di {name} era già stata eliminata",
+				"REPLACED": "La fatturazione programmata di {name} è stata sostituita da un’altra. Non è stato eliminato nulla.",
 				"FAILED": "Impossibile salvare la modifica. Riprova."
 			}
 		},

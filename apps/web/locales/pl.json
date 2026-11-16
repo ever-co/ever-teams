@@ -7916,6 +7916,8 @@
 				"PAUSED": "Wstrzymano harmonogram fakturowania: {name}",
 				"RESUMED": "Wznowiono harmonogram fakturowania: {name}, następna faktura {day}",
 				"DELETED": "Usunięto harmonogram fakturowania: {name}",
+				"ALREADY_DELETED": "Harmonogram fakturowania był już usunięty: {name}",
+				"REPLACED": "Harmonogram fakturowania został zastąpiony innym: {name}. Nic nie zostało usunięte.",
 				"FAILED": "Nie udało się zapisać zmiany. Spróbuj ponownie."
 			}
 		},

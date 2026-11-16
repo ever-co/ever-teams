@@ -21,7 +21,7 @@ jest.mock('next/link', () => ({
 		</a>
 	)
 }));
-jest.mock('sonner', () => ({ toast: { success: jest.fn(), error: jest.fn() } }));
+jest.mock('sonner', () => ({ toast: { success: jest.fn(), error: jest.fn(), info: jest.fn() } }));
 // The notice's motion reads matchMedia, which jsdom lacks: its title is what this section says
 jest.mock('@/core/components/dashboards/kit/dashboard-states', () => ({
 	DashboardErrorNotice: ({ title }: { title: string }) => <p role="alert">{title}</p>
@@ -75,7 +75,7 @@ const mutations = {
 	createSchedule: jest.fn(),
 	updateSchedule: jest.fn(),
 	updateOpenedSchedule: jest.fn(),
-	deleteSchedule: jest.fn(),
+	deleteOpenedSchedule: jest.fn(),
 	isSaving: false,
 	isDeleting: false
 };
@@ -85,6 +85,8 @@ jest.mock('@/core/hooks/invoices/use-invoice-schedules', () => ({
 	useInvoiceScheduleMutations: () => mutations
 }));
 
+import { toast } from 'sonner';
+import { OpenedScheduleGoneError } from '@/core/lib/utils/invoice-schedules';
 import { ClientBillingScheduleSection } from './client-billing-schedule-section';
 
 const client = { id: 'client-1', name: 'Acme', primaryEmail: 'billing@acme.test' };
@@ -270,15 +272,85 @@ describe('ClientBillingScheduleSection', () => {
 		});
 	});
 
-	it('deletes the schedule once the deletion is confirmed', async () => {
-		read.schedule = monthly;
-		mutations.deleteSchedule.mockResolvedValue(undefined);
-		renderSection();
+	describe('deleting the schedule', () => {
+		const replacement: TInvoiceSchedule = { ...monthly, id: 'schedule-2', frequency: 'WEEKLY' };
+		const deletedToast = 'invoices.schedule.toasts.DELETED {"name":"Acme"}';
 
-		fireEvent.click(screen.getByRole('button', { name: 'common.DELETE' }));
-		fireEvent.click(screen.getByRole('button', { name: 'confirm delete' }));
+		function confirmOnMonthly() {
+			read.schedule = monthly;
+			const view = renderSection();
+			fireEvent.click(screen.getByRole('button', { name: 'common.DELETE' }));
+			return view;
+		}
 
-		await waitFor(() => expect(mutations.deleteSchedule).toHaveBeenCalledWith('schedule-1'));
+		function rerenderSection(rerender: (ui: React.ReactElement) => void) {
+			rerender(<ClientBillingScheduleSection client={client} todayKey="2026-11-15" canManage />);
+		}
+
+		it('deletes the schedule once the deletion is confirmed', async () => {
+			mutations.deleteOpenedSchedule.mockResolvedValue('deleted');
+			confirmOnMonthly();
+
+			fireEvent.click(screen.getByRole('button', { name: 'confirm delete' }));
+
+			await waitFor(() => expect(toast.success).toHaveBeenCalledWith(deletedToast));
+			expect(mutations.deleteOpenedSchedule).toHaveBeenCalledWith({ scheduleId: 'schedule-1', latest: monthly });
+			expect(screen.queryByRole('button', { name: 'confirm delete' })).toBeNull();
+		});
+
+		it('never deletes the schedule that replaced the one the confirmation opened on, and says so', async () => {
+			mutations.deleteOpenedSchedule.mockRejectedValue(new OpenedScheduleGoneError('replaced'));
+			const { rerender } = confirmOnMonthly();
+
+			read.schedule = replacement;
+			rerenderSection(rerender);
+			fireEvent.click(screen.getByRole('button', { name: 'confirm delete' }));
+
+			await waitFor(() =>
+				expect(toast.error).toHaveBeenCalledWith('invoices.schedule.toasts.REPLACED {"name":"Acme"}')
+			);
+			expect(mutations.deleteOpenedSchedule).toHaveBeenCalledWith({
+				scheduleId: 'schedule-1',
+				latest: replacement
+			});
+			expect(mutations.deleteOpenedSchedule).not.toHaveBeenCalledWith(
+				expect.objectContaining({ scheduleId: 'schedule-2' })
+			);
+			expect(toast.success).not.toHaveBeenCalled();
+			expect(screen.queryByRole('button', { name: 'confirm delete' })).toBeNull();
+		});
+
+		it('says the schedule was already deleted when it was deleted while the confirmation was open', async () => {
+			mutations.deleteOpenedSchedule.mockResolvedValue('alreadyDeleted');
+			const { rerender } = confirmOnMonthly();
+
+			read.schedule = null;
+			rerenderSection(rerender);
+			fireEvent.click(screen.getByRole('button', { name: 'confirm delete' }));
+
+			await waitFor(() =>
+				expect(toast.info).toHaveBeenCalledWith('invoices.schedule.toasts.ALREADY_DELETED {"name":"Acme"}')
+			);
+			expect(mutations.deleteOpenedSchedule).toHaveBeenCalledWith({ scheduleId: 'schedule-1', latest: null });
+			expect(toast.success).not.toHaveBeenCalled();
+		});
+
+		it('deletes nothing while the schedule is read again with nothing to show, and says it failed', async () => {
+			mutations.deleteOpenedSchedule.mockRejectedValue(new Error('not read yet'));
+			const { rerender } = confirmOnMonthly();
+
+			read.schedule = null;
+			read.isLoading = true;
+			rerenderSection(rerender);
+			fireEvent.click(screen.getByRole('button', { name: 'confirm delete' }));
+
+			await waitFor(() => expect(toast.error).toHaveBeenCalledWith('invoices.schedule.toasts.FAILED'));
+			expect(screen.queryByRole('button', { name: 'confirm delete' })).toBeNull();
+			expect(mutations.deleteOpenedSchedule).toHaveBeenCalledWith({
+				scheduleId: 'schedule-1',
+				latest: undefined
+			});
+		});
 	});
 
 	it('says when the schedule could not be read', () => {
