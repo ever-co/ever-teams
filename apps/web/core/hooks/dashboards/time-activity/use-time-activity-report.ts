@@ -341,11 +341,14 @@ function clientLookupStateOf(input: ClientLookupInput) {
  * The period the daily rows on screen were read for. While another period is read, the previous rows stay on screen
  * (placeholder data): drawn on the next period's days, none of them would fall on a day and the chart would say no
  * time was tracked (#5342). The requested period once its own rows are there.
+ *
+ * Only a period's own answer settles it: a read that failed without rows does not, since its retry shows the last
+ * answered rows again as placeholder data.
  */
-function useShownPeriod(period: Period, isShowingPreviousRows: boolean): Period {
+function useShownPeriod(period: Period, isShowingPreviousRows: boolean, hasRows: boolean): Period {
 	const [settledPeriod, setSettledPeriod] = useState(period);
-	const isSettled = !isShowingPreviousRows;
-	if (isSettled && !isSamePeriod(settledPeriod, period)) {
+	const isOwnAnswer = hasRows && !isShowingPreviousRows;
+	if (isOwnAnswer && !isSamePeriod(settledPeriod, period)) {
 		setSettledPeriod(period);
 	}
 	if (isShowingPreviousRows) {
@@ -561,7 +564,7 @@ export function useTimeActivityReport() {
 		]
 	);
 
-	const chartPeriod = useShownPeriod(period, dailyQuery.isPlaceholderData);
+	const chartPeriod = useShownPeriod(period, dailyQuery.isPlaceholderData, hasDailyData);
 	const chartDays = useMemo(() => {
 		const days = daysOfPeriod(chartPeriod);
 		const labels = chartLabelsOf(locale, days.length);

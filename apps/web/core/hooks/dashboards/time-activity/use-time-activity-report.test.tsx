@@ -92,7 +92,7 @@ let mockPermissions: string[] = ['CHANGE_SELECTED_EMPLOYEE'];
 /** The daily reads still show the previous period or filters while the next ones load. */
 let mockShowsPreviousRead = false;
 /** What the daily read answers: the report of November 3, unless a test reads another day. */
-let mockDailyReport = DAILY_REPORT;
+let mockDailyReport: typeof DAILY_REPORT | undefined = DAILY_REPORT;
 const mockRatesByProject = new Map([['website', { id: 'website', billRateValue: 90, currency: 'EUR', members: [] }]]);
 
 // Breaks (#5216) off, as in a workspace that never turned them on, unless a test turns them on
@@ -484,6 +484,26 @@ describe('useTimeActivityReport and the period of the page link', () => {
 		rerender();
 
 		expect(chartOf(result.current)).toEqual([[localDayKeyOf(nextDay.from), 1200]]);
+	});
+
+	it('keeps the chart on the shown rows when a failed read of another period is tried again', () => {
+		const nextDay = { from: new Date(2026, 10, 4), to: new Date(2026, 10, 4, 23, 59, 59) };
+		const { result, rerender } = renderHook(() => useTimeActivityReport());
+		const chartOf = (report: typeof result.current) => report.chartDays.map((day) => [day.key, day.value]);
+		const firstDay = [[localDayKeyOf(LINKED_PERIOD.from), 1200]];
+
+		// The next period's read failed without rows: nothing of the previous period is on screen
+		mockLinkedPeriod = nextDay;
+		mockDailyReport = undefined;
+		rerender();
+		expect(chartOf(result.current)).toEqual([[localDayKeyOf(nextDay.from), 0]]);
+
+		// It is tried again: the last rows that came back are on screen again, on their own days
+		mockDailyReport = DAILY_REPORT;
+		mockShowsPreviousRead = true;
+		rerender();
+
+		expect(chartOf(result.current)).toEqual(firstDay);
 	});
 
 	it('writes a picked period into the link', () => {
