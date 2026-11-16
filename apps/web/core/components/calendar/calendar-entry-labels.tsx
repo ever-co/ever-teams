@@ -1,12 +1,13 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { matchQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 
 import { EntryLabelChips } from '@/core/components/features/entry-labels/entry-label-chips';
 import { EntryLabelsPicker } from '@/core/components/features/entry-labels/entry-labels-picker';
+import { isCalendarReadOfEntry } from '@/core/hooks/calendar/use-calendar-logs';
 import { useEntryLabelsSupport } from '@/core/hooks/timer/use-entry-labels-support';
 import { entryLabelsOf } from '@/core/lib/utils/time-log-labels';
 import { queryKeys } from '@/core/query/keys';
@@ -25,7 +26,7 @@ export function EntryLabelsLine({ log, canEdit }: Readonly<{ log: ITimeLog; canE
 	const [labelIds, setLabelIds] = useState<string[]>(() => carriedLabels.map((label) => label.id));
 	const [isSaving, setIsSaving] = useState(false);
 	// A save landed but the entries could not be read again after it: the entry as read predates the save, so the card
-	// keeps the saved labels until the next read of the entries succeeds, whatever labels that read brings
+	// keeps the saved labels until the Calendar reads the entry again, whatever labels that read brings
 	const [waitsForReadAfterSave, setWaitsForReadAfterSave] = useState(false);
 	const carriedKey = carriedLabels.map((label) => label.id).join(',');
 	useEffect(() => {
@@ -40,11 +41,11 @@ export function EntryLabelsLine({ log, canEdit }: Readonly<{ log: ITimeLog; canE
 		}
 		return queryClient.getQueryCache().subscribe((event) => {
 			const isRead = event.type === 'updated' && event.action.type === 'success';
-			if (isRead && matchQuery({ queryKey: queryKeys.timesheet.all }, event.query)) {
+			if (isRead && isCalendarReadOfEntry(event.query, log.id)) {
 				setWaitsForReadAfterSave(false);
 			}
 		});
-	}, [queryClient, waitsForReadAfterSave]);
+	}, [log.id, queryClient, waitsForReadAfterSave]);
 
 	const save = useCallback(
 		async (next: string[]) => {

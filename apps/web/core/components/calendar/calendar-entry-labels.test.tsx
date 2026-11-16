@@ -3,6 +3,7 @@
 import type { ReactNode } from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
+import { CALENDAR_LOGS_KEY_PART } from '@/core/hooks/calendar/use-calendar-logs';
 import { queryKeys } from '@/core/query/keys';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 
@@ -38,12 +39,23 @@ function entryWith(tags: Array<typeof meeting>) {
 /** The Calendar's read of the entry, answered in turn by each answer queued with `mockResolvedValueOnce`. */
 const mockReadEntry = jest.fn();
 
+/** The Calendar's read of the entries, under the key it has in `useCalendarLogs`. */
+const CALENDAR_READ_KEY = [
+	...queryKeys.timesheet.logs('tenant-1', 'organization-1', '2026-11-16', '2026-11-22', ['employee-1']),
+	CALENDAR_LOGS_KEY_PART,
+	{ timeZone: 'UTC' }
+];
+
 function CalendarCard() {
-	const { data } = useQuery({ queryKey: [...queryKeys.timesheet.all, 'calendar'], queryFn: () => mockReadEntry() });
-	if (!data) {
+	const { data } = useQuery({
+		queryKey: CALENDAR_READ_KEY,
+		queryFn: async () => ({ request: {}, logs: [await mockReadEntry()] })
+	});
+	const log = data?.logs[0];
+	if (!log) {
 		return null;
 	}
-	return <EntryLabelsLine log={data} canEdit />;
+	return <EntryLabelsLine log={log} canEdit />;
 }
 
 /** The card of an entry the Calendar read with these labels. */
@@ -60,7 +72,13 @@ async function renderCard(tags: Array<typeof meeting>) {
 			await queryClient.refetchQueries({ queryKey: queryKeys.timesheet.all });
 		});
 	};
-	return { readEntriesAgain };
+	/** A read of another list of the `timesheet` family, as a report or an overlap lookup makes. */
+	const readAReport = async () => {
+		await act(async () => {
+			await queryClient.fetchQuery({ queryKey: queryKeys.timesheet.reports.all, queryFn: async () => [] });
+		});
+	};
+	return { readEntriesAgain, readAReport };
 }
 
 async function addSupport(shown: string) {
@@ -105,6 +123,21 @@ describe('the labels of an entry on its Calendar card (#5368)', () => {
 		mockReadEntry.mockResolvedValueOnce(entryWith([meeting]));
 		await card.readEntriesAgain();
 
+		await waitFor(() => expect(screen.getByRole('button', { name: 'labels: meeting' })).toBeTruthy());
+	});
+
+	it("waits for the Calendar's read of the entry, not for a read of another timesheet list", async () => {
+		const card = await renderCard([meeting]);
+		mockReadEntry.mockRejectedValueOnce(new Error('Network Error'));
+		await addSupport('meeting');
+
+		// A report read meanwhile says nothing of this entry: the saved labels stay
+		await card.readAReport();
+		expect(screen.getByRole('button', { name: 'labels: meeting,support' })).toBeTruthy();
+
+		// The Calendar reads the entry again, with the labels from before the save: the card follows it
+		mockReadEntry.mockResolvedValueOnce(entryWith([meeting]));
+		await card.readEntriesAgain();
 		await waitFor(() => expect(screen.getByRole('button', { name: 'labels: meeting' })).toBeTruthy());
 	});
 
