@@ -730,6 +730,7 @@
 					"UNCHANGED": "{count, plural, one {# invoer heeft deze waarden al.} other {# invoeren hebben deze waarden al.}}",
 					"OVERLAP": "{count, plural, one {# invoer overlapt andere geregistreerde tijd: bij opslaan zou die tijd worden verwijderd.} other {# invoeren overlappen andere geregistreerde tijd: bij opslaan zou die tijd worden verwijderd.}}",
 					"CHECK_FAILED": "{count, plural, one {Van # invoer kon de overlap niet worden gecontroleerd, dus die is niet opgeslagen.} other {Van # invoeren kon de overlap niet worden gecontroleerd, dus die zijn niet opgeslagen.}}",
+					"CHANGED_MEANWHILE": "{count, plural, one {# invoer is ondertussen ergens anders gewijzigd, dus er is niets in opgeslagen.} other {# invoeren zijn ondertussen ergens anders gewijzigd, dus er is niets in opgeslagen.}}",
 					"FAILED": "{count, plural, one {# invoer kon niet worden opgeslagen.} other {# invoeren konden niet worden opgeslagen.}}"
 				}
 			},

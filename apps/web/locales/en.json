@@ -730,6 +730,7 @@
 					"UNCHANGED": "{count, plural, one {# entry already has these values.} other {# entries already have these values.}}",
 					"OVERLAP": "{count, plural, one {# entry overlaps other recorded time: saving it would remove that time.} other {# entries overlap other recorded time: saving them would remove that time.}}",
 					"CHECK_FAILED": "{count, plural, one {# entry could not be checked for overlapping time, so it was not saved.} other {# entries could not be checked for overlapping time, so they were not saved.}}",
+					"CHANGED_MEANWHILE": "{count, plural, one {# entry was changed elsewhere while this edit ran, so nothing was saved to it.} other {# entries were changed elsewhere while this edit ran, so nothing was saved to them.}}",
 					"FAILED": "{count, plural, one {# entry could not be saved.} other {# entries could not be saved.}}"
 				}
 			},

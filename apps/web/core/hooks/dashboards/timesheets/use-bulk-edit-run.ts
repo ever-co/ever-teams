@@ -5,7 +5,7 @@ import { type QueryClient, useQueryClient } from '@tanstack/react-query';
 import { overlapOfPeriods } from '@/core/hooks/timesheet/use-time-overlap-guard';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { logErrorInDev } from '@/core/lib/helpers/error-message';
-import { writeErrorKeyOf } from '@/core/lib/utils/dashboards/time-write-error';
+import { isTimeEntryChangedMeanwhile, writeErrorKeyOf } from '@/core/lib/utils/dashboards/time-write-error';
 import {
 	type BulkEditOutcome,
 	type BulkEditPayload,
@@ -59,11 +59,16 @@ function isInCurrentWorkspace(save: BulkEditSave, atStart: Workspace): boolean {
 	return now.organizationId === organizationId && now.tenantId === tenantId;
 }
 
-/** A save that ended in an error may still have been applied: a request that timed out after the update, for one. */
+/**
+ * Whether the views may show an entry as it no longer is after this outcome. A save that ended in an error may still
+ * have been applied: a request that timed out after the update, for one. An entry changed meanwhile was saved from
+ * elsewhere: the views show it as it is now.
+ */
 function mayHaveChangedEntry(outcome: BulkEditOutcome): boolean {
 	const isUpdated = outcome.status === 'updated';
 	const isFailed = outcome.status === 'failed';
-	return isUpdated || isFailed;
+	const isChangedMeanwhile = outcome.status === 'changedMeanwhile';
+	return isUpdated || isFailed || isChangedMeanwhile;
 }
 
 /**
@@ -94,6 +99,10 @@ export async function currentLogOf(log: ITimeLog): Promise<ITimeLog | null> {
  * The update of the entry built from what the API holds now: the dialog's copy may be older, and its start and end
  * sent back would undo a change made since (a shortened entry would get its removed time back). An entry whose task,
  * project or billable choice changed since is not saved: its fields were worked out from the old ones.
+ *
+ * The update carries the `updatedAt` of that read (#5382), so an entry saved from elsewhere between the read and the
+ * write is refused by the API instead of written over. An older Ever Gauzy leaves the precondition out (its route keeps
+ * only the members it declares) and saves as it did before, after the same read.
  */
 async function currentPayloadOf(save: BulkEditSave): Promise<BulkEditPayload | null> {
 	const currentLog = await currentLogOf(save.log);
@@ -133,8 +142,13 @@ async function outcomeOfSave(
 		return { logId, status: 'failed' };
 	}
 	try {
+		// Under the version just read (`expectedUpdatedAt`): an entry saved from elsewhere since is refused, not written over
 		await timeLogService.updateTimeLog(payload);
 	} catch (error) {
+		// Changed meanwhile: the API wrote nothing, and nothing is written back
+		if (isTimeEntryChangedMeanwhile(error)) {
+			return { logId, status: 'changedMeanwhile' };
+		}
 		return { logId, status: 'failed', detailKey: writeErrorKeyOf(error) };
 	}
 	return { logId, status: 'updated' };

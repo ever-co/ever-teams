@@ -730,6 +730,7 @@
 					"UNCHANGED": "{count, plural, one {# entrada já tem estes valores.} other {# entradas já têm estes valores.}}",
 					"OVERLAP": "{count, plural, one {# entrada se sobrepõe a outro tempo registrado: salvá-la removeria esse tempo.} other {# entradas se sobrepõem a outro tempo registrado: salvá-las removeria esse tempo.}}",
 					"CHECK_FAILED": "{count, plural, one {Não foi possível verificar a sobreposição de # entrada, por isso ela não foi salva.} other {Não foi possível verificar a sobreposição de # entradas, por isso elas não foram salvas.}}",
+					"CHANGED_MEANWHILE": "{count, plural, one {# entrada foi alterada em outro lugar durante esta edição, por isso nada foi salvo nela.} other {# entradas foram alteradas em outro lugar durante esta edição, por isso nada foi salvo nelas.}}",
 					"FAILED": "{count, plural, one {Não foi possível salvar # entrada.} other {Não foi possível salvar # entradas.}}"
 				}
 			},
