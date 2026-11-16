@@ -119,7 +119,10 @@ describe('TeamNotificationDefaultsSection (#5022)', () => {
 						});
 					})
 			),
-			/** Lands every request on its way, the one sent last first, until none is left. */
+			/**
+			 * Lands every request on its way, the one sent last first, until none is left: requests sent together land
+			 * out of order, and a request sent once an earlier one landed lands too.
+			 */
 			landLatestFirst: async () => {
 				let landed = 0;
 				while (landed < requests.length) {
@@ -150,6 +153,7 @@ describe('TeamNotificationDefaultsSection (#5022)', () => {
 		expect(server.save).toHaveBeenCalledTimes(1);
 		await server.landLatestFirst();
 
+		expect(server.save).toHaveBeenCalledTimes(2);
 		expect(server.stored).toEqual({ email: '__test__', push: false });
 	});
 
@@ -190,6 +194,36 @@ describe('TeamNotificationDefaultsSection (#5022)', () => {
 		});
 
 		expect(save).toHaveBeenLastCalledWith({ push: false, email: '__test__' });
+	});
+
+	it('takes the time of every newer read, even one whose defaults did not change', async () => {
+		const save = jest.fn().mockResolvedValue(undefined);
+		const { container, rerender } = render(
+			sectionOf({ notificationDefaults: null, updatedAt: '2026-11-16T10:00:01.000Z' }, save)
+		);
+
+		// Another manager set browser notifications off (time 2) and then left them to the members again (time 3); the
+		// team list read at time 2 lands last
+		rerender(sectionOf({ notificationDefaults: null, updatedAt: '2026-11-16T10:00:03.000Z' }, save));
+		rerender(sectionOf({ notificationDefaults: { push: false }, updatedAt: '2026-11-16T10:00:02.000Z' }, save));
+		expect(container.querySelectorAll('[data-value]')[1].getAttribute('data-value')).toBe('members');
+		await act(async () => {
+			screen.getAllByRole('button', { name: 'pick' })[0].click();
+		});
+
+		expect(save).toHaveBeenLastCalledWith({ email: '__test__' });
+	});
+
+	it('orders the reads that say when the team changed even after one that does not say', async () => {
+		const save = jest.fn().mockResolvedValue(undefined);
+		const { container, rerender } = render(
+			sectionOf({ notificationDefaults: { push: false }, updatedAt: '2026-11-16T10:00:02.000Z' }, save)
+		);
+
+		rerender(sectionOf({ notificationDefaults: { push: false } }, save));
+		rerender(sectionOf({ notificationDefaults: null, updatedAt: '2026-11-16T10:00:01.000Z' }, save));
+
+		expect(container.querySelectorAll('[data-value]')[1].getAttribute('data-value')).toBe('off');
 	});
 
 	it('offers nothing on a Gauzy that keeps no team defaults, which reads a team without the key', () => {

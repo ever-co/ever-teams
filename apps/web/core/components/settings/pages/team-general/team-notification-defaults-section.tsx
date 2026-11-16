@@ -142,13 +142,24 @@ export function TeamNotificationDefaultsSection({
 		next: TTeamNotificationDefaults | null;
 		pending: number;
 		queue: Promise<void>;
-	}>({ read: defaults, readChangedAt: changedAtOf(team), next: defaults, pending: 0, queue: Promise.resolve() });
+	}>({
+		read: defaults,
+		readChangedAt: Number.NEGATIVE_INFINITY,
+		next: defaults,
+		pending: 0,
+		queue: Promise.resolve()
+	});
+	// The newest time a read said the team changed advances with every newer read, the defaults the same or not. A read
+	// that says no time cannot be ordered: it is taken, and leaves that time as it is.
 	const changedAt = changedAtOf(team);
-	const isOlderRead = changedAt < latest.current.readChangedAt;
-	if (latest.current.read !== defaults && !isOlderRead) {
-		latest.current.read = defaults;
-		latest.current.readChangedAt = changedAt;
-		if (latest.current.pending === 0) latest.current.next = defaults;
+	const hasChangedAt = !Number.isNaN(changedAt);
+	const isOlderRead = hasChangedAt && changedAt < latest.current.readChangedAt;
+	if (!isOlderRead) {
+		if (hasChangedAt) latest.current.readChangedAt = changedAt;
+		if (latest.current.read !== defaults) {
+			latest.current.read = defaults;
+			if (latest.current.pending === 0) latest.current.next = defaults;
+		}
 	}
 	const shown = latest.current.read;
 	const save = <K extends TTeamDefaultKey>(key: K, value: TTeamNotificationDefaults[K] | undefined) => {
