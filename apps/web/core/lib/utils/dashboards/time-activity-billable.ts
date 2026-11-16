@@ -7,8 +7,16 @@ const SECONDS_PER_HOUR = 3600;
 /** The price of a row's time: its member on its project, through the chain an invoice line prices it with. */
 export type PriceOfRow = (row: DailyReportRow) => LinePrice;
 
-/** The project whose client rates price a row: time without a team keeps the project it was logged on. */
-export function pricedProjectIdOf(row: Pick<DailyReportRow, 'projectId' | 'loggedProjectId'>): string | null {
+/**
+ * The project whose client rates price a row: time without a team, and time of a project the API keeps from the caller
+ * (shown under the key all of them share), keep the project they were logged on.
+ */
+export function pricedProjectIdOf(
+	row: Pick<DailyReportRow, 'projectId' | 'loggedProjectId' | 'isProjectHidden'>
+): string | null {
+	if (row.isProjectHidden) {
+		return row.loggedProjectId ?? null;
+	}
 	if (row.projectId) {
 		return row.projectId;
 	}

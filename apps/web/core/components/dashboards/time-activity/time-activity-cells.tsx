@@ -3,11 +3,13 @@
 import { type CSSProperties, memo } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/core/components/common/avatar';
 import { EntityTile } from '@/core/components/common/entity-tile';
+import { HiddenProjectMark } from '@/core/components/projects/hidden-project-mark';
 import { ActivityFigure } from '@/core/components/dashboards/kit/meters';
 import { SKELETON_BAR } from '@/core/components/dashboards/kit/recipes';
 import { cn } from '@/core/lib/helpers';
 import { formatDurationShort } from '@/core/lib/utils/dashboard-figures';
 import { activityPercentOf, type CurrencyAmount, formatAmounts } from '@/core/lib/utils/daily-report-figures';
+import { PRIVATE_PROJECTS_KEY } from '@/core/lib/utils/project-visibility';
 import {
 	type BillableFigures,
 	type ReportClientRef,
@@ -104,6 +106,10 @@ export const FIGURE_TEXT = 'text-[13px] tabular-nums';
 const EMPTY_TILE_GLYPH = 'inline-block size-4 shrink-0 rounded-[28%] border border-dashed border-foreground/25';
 
 export const ProjectGlyph = memo(function ProjectGlyph({ project }: Readonly<{ project: ReportProjectRef }>) {
+	// The time of the projects the API keeps from the reader: the lock of private projects in place of a tile
+	if (project.key === PRIVATE_PROJECTS_KEY) {
+		return <HiddenProjectMark />;
+	}
 	const hasProject = project.name !== null;
 	if (!hasProject) {
 		return <span aria-hidden="true" className={EMPTY_TILE_GLYPH} />;
