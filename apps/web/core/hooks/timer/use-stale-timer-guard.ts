@@ -208,23 +208,40 @@ async function keepUnderGuard(employeeId: string, run: ITimeLog & { stoppedAt: D
 		};
 		// Owed until all of it is written, for every tab and the next load of the page (owed-keep.ts)
 		oweKeep(owed);
-		await writeOwedKeep(employeeId, owed, toMs);
+		await writeOwedKeep(employeeId, owed, toMs, run.startedAt);
 		isKept = true;
 	};
 	await (startUnderTimerGuard(keep) ?? trackTimerCommand(keep()));
 	return isKept;
 }
 
-/** Writes a kept run's time from where its writing stands to `untilMs`, telling every tab how far it got. */
-async function writeOwedKeep(employeeId: string, owed: OwedKeep, untilMs: number): Promise<void> {
+/**
+ * Writes a kept run's time from where its writing stands to `untilMs`, telling every tab how far it got.
+ *
+ * @param runStartedAt When the run started, from where its slots are read (timerService.catchUpTimeSlots).
+ */
+async function writeOwedKeep(
+	employeeId: string,
+	owed: OwedKeep,
+	untilMs: number,
+	runStartedAt: ITimeLog['startedAt']
+): Promise<void> {
 	const kept = await timerService.catchUpTimeSlots({
 		source: ETimeLogSource.TEAMS,
 		employeeId,
 		timeLogId: owed.timeLogId,
 		fromMs: owed.fromMs,
 		toMs: untilMs,
+		runStartedAtMs: new Date(runStartedAt ?? Number.NaN).getTime(),
+		// A slot sent before without an answer may have landed: its window tells, before it is sent again
+		unanswered: owed.unanswered,
+		onSending: (slot) => {
+			owed.unanswered = slot;
+			oweKeep(owed);
+		},
 		onWritten: (writtenUntilMs) => {
 			owed.fromMs = writtenUntilMs;
+			owed.unanswered = undefined;
 			owed.writtenAtMs = Date.now() + owed.apiOffsetMs;
 			oweKeep(owed);
 		}
@@ -266,8 +283,9 @@ async function resumeOwedKeep(
 		runsEndedWhileUnsettled += 1;
 		return 'none';
 	}
+	const runStartedAt = latest?.startedAt;
 	if (!isRunningTeamsLog(latest)) {
-		await writeOwedKeep(employeeId, owed, owed.toMs);
+		await writeOwedKeep(employeeId, owed, owed.toMs, runStartedAt);
 		return 'settled';
 	}
 	const readHeartbeat = new Date(latest.stoppedAt ?? Number.NaN).getTime();
@@ -275,12 +293,12 @@ async function resumeOwedKeep(
 	const apiNow = facts.serverNow ?? Date.now() + owed.apiOffsetMs;
 	if (heartbeat > Math.max(owed.writtenAtMs, owed.toMs) + OWN_WRITE_LEEWAY_MS) {
 		if (apiNow - heartbeat > UNFOLLOWED_TIME_FLOOR_MS) return 'waiting';
-		await writeOwedKeep(employeeId, owed, owed.toMs);
+		await writeOwedKeep(employeeId, owed, owed.toMs, latest.startedAt);
 		return 'settled';
 	}
 	const followedUntil = Math.max(heartbeat, owed.toMs);
 	if (apiNow - followedUntil <= UNFOLLOWED_TIME_FLOOR_MS) {
-		await writeOwedKeep(employeeId, owed, apiNow);
+		await writeOwedKeep(employeeId, owed, apiNow, latest.startedAt);
 		return 'settled';
 	}
 	await stopAtLastHeartbeat({ ...latest, stoppedAt: new Date(followedUntil) }, 'UNFOLLOWED_STOPPED_HINT', latest.id);
@@ -289,7 +307,7 @@ async function resumeOwedKeep(
 		forgetOwedKeep(owed);
 		return 'settled';
 	}
-	await writeOwedKeep(employeeId, owed, owed.toMs);
+	await writeOwedKeep(employeeId, owed, owed.toMs, latest.startedAt);
 	return 'settled';
 }
 

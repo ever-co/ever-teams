@@ -70,6 +70,23 @@ describe('a Keep whose writing is not over', () => {
 		expect(owedKeepNow(keep)).toBeNull();
 	});
 
+	it('keeps the slot sent without an answer, which the next try checks before sending it again', () => {
+		const unanswered = { startedAt: '2026-11-15T09:50:00.000Z', untilMs: KEPT_AT, duration: 420, windowBefore: 60 };
+		const keep = owedKeep({ unanswered });
+		oweKeep(keep);
+
+		expect(owedKeepNow(keep)?.unanswered).toEqual(unanswered);
+	});
+
+	it('ignores a record whose slot sent without an answer cannot be read', () => {
+		window.localStorage.setItem(
+			'ever-teams.timer.owed-keep.log-1@1',
+			JSON.stringify({ ...owedKeep({ heartbeat: 1 }), unanswered: { startedAt: 'soon' } })
+		);
+
+		expect(owedKeepsOf('employee-1', KEPT_AT)).toEqual([]);
+	});
+
 	it('ignores what cannot be read', () => {
 		window.localStorage.setItem('ever-teams.timer.owed-keep.log-1@1', 'not json');
 		window.localStorage.setItem('ever-teams.timer.owed-keep.log-1@2', JSON.stringify({ timeLogId: 'log-1' }));

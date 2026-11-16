@@ -19,7 +19,29 @@ export const toTimeSlotDuration = (elapsedSeconds: unknown): number => {
 };
 
 /** The window Gauzy merges time slots into, on the UTC clock. */
-const TIME_SLOT_WINDOW_MS = MAX_TIME_SLOT_SECONDS * 1000;
+export const TIME_SLOT_WINDOW_MS = MAX_TIME_SLOT_SECONDS * 1000;
+
+/** Where the 10-minute window Gauzy merges a slot starting at `ms` into starts. */
+export function timeSlotWindowStartOf(ms: number): number {
+	return Math.floor(ms / TIME_SLOT_WINDOW_MS) * TIME_SLOT_WINDOW_MS;
+}
+
+/**
+ * A slot whose write was sent, with the seconds its window held just before (#5123). Gauzy adds every slot it is
+ * sent, and a write whose answer was lost may have landed: it is sent again only if its window does not hold it.
+ */
+export interface SentTimeSlot {
+	startedAt: string;
+	untilMs: number;
+	duration: number;
+	/** The seconds the slot's window held before it was sent. */
+	windowBefore: number;
+}
+
+/** Whether a window that holds `windowSeconds` holds the slot sent into it: Gauzy caps a window at 600 seconds. */
+export function isSentTimeSlotHeld(slot: SentTimeSlot, windowSeconds: number): boolean {
+	return windowSeconds >= Math.min(MAX_TIME_SLOT_SECONDS, slot.windowBefore + slot.duration);
+}
 
 /** A time slot to write: when it starts, on the API's clock, the seconds it holds, and where the time it holds ends. */
 interface TimeSlotToWrite {
