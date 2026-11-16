@@ -19,7 +19,10 @@ export function readLastOpenedTeamId(): string | null {
 	}
 }
 
-/** Keeps `teamId` for this browser's next start. Answers false when the browser refused it; it never throws. */
+/**
+ * Keeps `teamId` for this browser's next start. It never throws. False means only that the team was not kept (no
+ * browser, or storage refused), never that the switch failed: callers go on with the switch either way.
+ */
 export function storeLastOpenedTeamId(teamId: string): boolean {
 	try {
 		const storage = globalThis.window?.localStorage;

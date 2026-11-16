@@ -106,7 +106,8 @@ describe('useWorkspaceSwitcher', () => {
 
 		await waitFor(() => expect(location.href).toBe('/'));
 		expect(mockSwitchWorkspace).toHaveBeenCalledWith('tenant-b');
-		// The cookies carry the new session and its team: the first one, as no last team could be read
+		// The cookies carry the new session and its team: the first one, as no last team could be read from storage,
+		// and the person's last team (team-a, of their most recent workspace A) is not one of workspace B
 		expect(mockSetAuthCookies).toHaveBeenCalledWith(
 			expect.objectContaining({ access_token: 'token-b', teamId: 'team-b1', tenantId: 'tenant-b' })
 		);

@@ -13,6 +13,7 @@ import {
 	organizationTeamsState
 } from '@/core/stores';
 import { queryKeys } from '@/core/query/keys';
+import { LAST_WORKSPACE_AND_TEAM } from '@/core/constants/config/constants';
 
 let mockUserId = 'user-a';
 
@@ -389,29 +390,22 @@ describe('the team switch when the browser refuses its storage', () => {
 
 	afterEach(() => jest.restoreAllMocks());
 
+	const scopeA = { tenantId: 'tenant-a', organizationId: 'organization-a', userId: 'user-a', accessToken: 'token-a' };
+
+	/** The tab opens with no team yet; the team list brings team B only, which the tab then switches to. */
 	function renderTeams() {
-		mockGetOrganizationTeams.mockResolvedValueOnce({ data: { items: [teamB], total: 1 } } as never);
-		const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 		const store = createStore();
-		store.set(organizationTeamsState, []);
+		const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+		mockGetOrganizationTeams.mockResolvedValueOnce({ data: { items: [teamB], total: 1 } } as never);
 		store.set(activeTeamIdState, '');
-		const wrapper = ({ children }: PropsWithChildren) => (
-			<QueryClientProvider client={client}>
-				<Provider store={store}>{children}</Provider>
-			</QueryClientProvider>
-		);
-		renderHook(
-			() =>
-				useOrganizationTeamsQuery({
-					scope: {
-						tenantId: 'tenant-a',
-						organizationId: 'organization-a',
-						userId: 'user-a',
-						accessToken: 'token-a'
-					}
-				}),
-			{ wrapper }
-		);
+		store.set(organizationTeamsState, []);
+		renderHook(() => useOrganizationTeamsQuery({ scope: scopeA }), {
+			wrapper: ({ children }: PropsWithChildren) => (
+				<Provider store={store}>
+					<QueryClientProvider client={client}>{children}</QueryClientProvider>
+				</Provider>
+			)
+		});
 		return store;
 	}
 
@@ -422,7 +416,7 @@ describe('the team switch when the browser refuses its storage', () => {
 		expect(mockCookieModule.setActiveTeamIdCookie).toHaveBeenCalledWith('team-b');
 		expect(mockCookieModule.setOrganizationIdCookie).toHaveBeenCalledWith('organization-b');
 		expect(mockSyncTokenOrganization).toHaveBeenCalledWith('organization-b');
-		expect(window.localStorage.getItem('last-workspace-and-team')).toBe('team-b');
+		expect(window.localStorage.getItem(LAST_WORKSPACE_AND_TEAM)).toBe('team-b');
 	});
 
 	it.each([

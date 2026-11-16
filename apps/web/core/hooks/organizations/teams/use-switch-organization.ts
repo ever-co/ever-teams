@@ -83,7 +83,7 @@ async function personsTeamIn(
 			scope: { tenantId: getTenantIdCookie(), organizationId, userId, accessToken }
 		});
 		const teamsThere = (data.items ?? []).filter((team) => team.organizationId === organizationId);
-		// A browser that refuses its storage still opens the person's last team, not none
+		// The storage read never throws (no last team when the browser refuses it), so it cannot drop the teams just read
 		return teamToOpenAfterSwitch(teamsThere, [readLastOpenedTeamId(), lastTeamId]);
 	} catch {
 		return null;

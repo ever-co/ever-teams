@@ -81,17 +81,14 @@ const getServerSnapshot = (): TabOrganizationState => 'shared';
 
 /**
  * Moves the session's token to `organizationId`. Resolves false when it did not move: Gauzy refused or did not answer,
- * or the call itself failed, so that the caller puts the cookies back in every case.
+ * or the call itself threw or rejected, so that the caller puts the cookies back in every case.
  */
-function switchSessionTo(organizationId: string): Promise<boolean> {
+async function switchSessionTo(organizationId: string): Promise<boolean> {
 	try {
-		return syncTokenOrganization(organizationId).catch((error: unknown) => {
-			console.error('[Auth] Could not move the session back to the organization of this tab:', error);
-			return false;
-		});
+		return await syncTokenOrganization(organizationId);
 	} catch (error) {
 		console.error('[Auth] Could not move the session back to the organization of this tab:', error);
-		return Promise.resolve(false);
+		return false;
 	}
 }
 
@@ -123,16 +120,17 @@ export function useTabOrganization() {
 		// The session follows the cookies right after they moved, before anything that could throw: a step failing in
 		// between left the cookies on this tab's organization while the token stayed on the other one (Greptile on #5345)
 		void switchSessionTo(organizationId).then((switched) => {
-			// The user (its employee) is read again for that organization, as after a team switch
 			if (switched) {
+				// This browser's next start opens the team too, only once the session followed it. The write never throws
+				// and gates nothing: refused storage only loses that convenience
+				if (activeTeamId) storeLastOpenedTeamId(activeTeamId);
+				// The user (its employee) is read again for that organization, as after a team switch
 				queryClient.invalidateQueries({ queryKey: queryKeys.users.me });
 				return;
 			}
 			// Refused, no answer, or the switch failed: the session stays where it is, and so do the cookies again
 			putBackLeftCookies(organizationId);
 		});
-		// For this browser's next start, where the browser lets it be stored: never needed for the switch itself
-		if (activeTeamId) storeLastOpenedTeamId(activeTeamId);
 	}, [activeTeamId, queryClient]);
 
 	const ownOrganizationName =

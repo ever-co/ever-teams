@@ -110,18 +110,34 @@ beforeEach(() => {
 afterEach(() => jest.restoreAllMocks());
 
 describe('useTabOrganization, bringing this tab organization back to every tab', () => {
-	it('moves the cookies and the session to its organization, team and chosen project', () => {
+	it('moves the cookies and the session to its organization, team and chosen project', async () => {
 		twoTabsInTwoOrganizations();
 		const { result } = renderTab();
 
-		act(() => result.current.bringOwnOrganizationBack());
+		await act(async () => {
+			result.current.bringOwnOrganizationBack();
+		});
 
 		expect(getSharedOrganizationIdCookie()).toBe('org-a');
 		expect(document.cookie).toContain(`${ACTIVE_TEAM_COOKIE_NAME}=team-a`);
 		expect(document.cookie).toContain(`${ACTIVE_PROJECT_COOKIE_NAME}=project-a2`);
 		expect(mockSyncTokenOrganization).toHaveBeenCalledWith('org-a');
-		// Its team for this browser's next start
+		// Its team for this browser's next start, once the session followed
 		expect(window.localStorage.getItem(LAST_WORKSPACE_AND_TEAM)).toBe('team-a');
+	});
+
+	it("leaves this browser's last team as it was when Gauzy refuses the switch", async () => {
+		twoTabsInTwoOrganizations();
+		window.localStorage.setItem(LAST_WORKSPACE_AND_TEAM, 'team-b');
+		mockSyncTokenOrganization.mockResolvedValue(false);
+		const { result } = renderTab();
+
+		await act(async () => {
+			result.current.bringOwnOrganizationBack();
+		});
+
+		expect(getSharedOrganizationIdCookie()).toBe('org-b');
+		expect(window.localStorage.getItem(LAST_WORKSPACE_AND_TEAM)).toBe('team-b');
 	});
 
 	it('ends with the cookies and the session in its organization once Gauzy switched the token', async () => {
