@@ -4,6 +4,7 @@ import { createWorkspaceBodySchema } from '@/core/lib/validation/workspace';
 import { createWorkspace } from '@/core/services/server/create-workspace';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { requestCookies } from '@/core/services/server/request-cookies';
+import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
 
 const NO_STORE = { 'Cache-Control': 'no-store' };
 
@@ -20,6 +21,8 @@ const NO_STORE = { 'Cache-Control': 'no-store' };
  * after the tenant, which a sign-in with the new account resumes) or FAILED (a step before the tenant failed).
  */
 export async function POST(req: Request) {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
 	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, new NextResponse());
 	// The guard's own status: 401 for a refused session, 503 when Gauzy could not answer
 	if (!user) return $res('Unauthorized');

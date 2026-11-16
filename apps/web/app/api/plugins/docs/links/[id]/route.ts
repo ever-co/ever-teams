@@ -3,11 +3,14 @@ import { NextResponse } from 'next/server';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { gauzyErrorResponse } from '@/core/services/server/gauzy-error-response';
 import { deleteEntityFileLinkRequest } from '@/core/services/server/requests/entity-files';
+import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
 
 const linkIdSchema = z.guid();
 
 /** Takes a file off a record; the document stays in the organization's documents. */
 export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
 	const parsedId = linkIdSchema.safeParse((await params).id);
 	if (!parsedId.success) {
 		return NextResponse.json({ error: 'A link id is required' }, { status: 400 });

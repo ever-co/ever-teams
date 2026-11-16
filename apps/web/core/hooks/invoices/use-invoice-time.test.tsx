@@ -473,3 +473,95 @@ describe('the time of a saved invoice', () => {
 		await waitFor(() => expect(result.current.hasBilledTimeFailed).toBe(true));
 	});
 });
+
+describe('the lines of a new invoice regrouped (#5355)', () => {
+	beforeEach(() => {
+		mockReports.getBillableTimeLogs.mockReset();
+		mockReports.getBillableTimeLogs.mockResolvedValue([adaTime]);
+		mockReports.getOwedAmountReport.mockResolvedValue(owedReport);
+		mockRates.getProjectRates.mockResolvedValue(siteRates);
+	});
+
+	type Grouping = Parameters<typeof useInvoiceTime>[0]['grouping'];
+
+	/** The new invoice's time under one grouping; a rerender switches it. */
+	function renderRegrouped(initialGrouping: Grouping) {
+		const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+		const store = createStore();
+		store.set(currentOrganizationState, organization);
+		const wrapper = ({ children }: Readonly<{ children: React.ReactNode }>) => (
+			<QueryClientProvider client={queryClient}>
+				<Provider store={store}>{children}</Provider>
+			</QueryClientProvider>
+		);
+		return renderHook(
+			({ grouping }: { grouping: Grouping }) =>
+				useInvoiceTime({ clientId: 'client-acme', period: october, grouping, labels }),
+			{ wrapper, initialProps: { grouping: initialGrouping } }
+		);
+	}
+
+	it('regroups the time already read by task, without reading it again or showing the loading state', async () => {
+		// Two tasks of one member: one line by member, two named lines by task
+		const homepageTime = {
+			...adaTime,
+			taskId: 'task-home',
+			task: { id: 'task-home', number: 12, title: 'Homepage' },
+			duration: 7200
+		};
+		const checkoutTime = {
+			...adaTime,
+			taskId: 'task-checkout',
+			task: { id: 'task-checkout', number: 13, title: 'Checkout' },
+			duration: 3600
+		};
+		mockReports.getBillableTimeLogs.mockResolvedValue([homepageTime, checkoutTime]);
+		const { result, rerender } = renderRegrouped('member');
+		await waitFor(() => expect(result.current.isLoading).toBe(false));
+		const readsBefore = mockReports.getBillableTimeLogs.mock.calls.length;
+		// The time is read with its tasks from the start
+		expect(mockReports.getBillableTimeLogs.mock.calls[0][1]).toEqual(['task']);
+		expect(result.current.lines.map((line) => line.seconds)).toEqual([10800]);
+
+		rerender({ grouping: 'task' });
+
+		expect(result.current.isLoading).toBe(false);
+		expect(result.current.lines.map((line) => [line.label, line.seconds])).toEqual([
+			[expect.stringMatching(/^#12 Homepage · /), 7200],
+			[expect.stringMatching(/^#13 Checkout · /), 3600]
+		]);
+		expect(mockReports.getBillableTimeLogs.mock.calls).toHaveLength(readsBefore);
+	});
+
+	it('keeps every second, every time log and the amount whichever way the lines are grouped', async () => {
+		// 2 h and 1 h on two tasks and 30 min on none, at 80 USD an hour: 280 USD in every grouping
+		const homepageTime = { ...adaTime, id: 'log-home', taskId: 'task-home', duration: 7200 };
+		const checkoutTime = { ...adaTime, id: 'log-checkout', taskId: 'task-checkout', duration: 3600 };
+		const untaskedTime = { ...adaTime, id: 'log-none', taskId: null, duration: 1800 };
+		mockReports.getBillableTimeLogs.mockResolvedValue([homepageTime, checkoutTime, untaskedTime]);
+		const { result, rerender } = renderRegrouped('project');
+		await waitFor(() => expect(result.current.lines).toHaveLength(1));
+		const readsBefore = mockReports.getBillableTimeLogs.mock.calls.length;
+		const totalsOf = () => {
+			const { lines } = result.current;
+			return {
+				seconds: lines.reduce((sum, line) => sum + line.seconds, 0),
+				amount: lines.reduce((sum, line) => sum + line.amount, 0),
+				timeLogIds: lines.flatMap((line) => line.timeLogIds ?? []).sort((a, b) => a.localeCompare(b))
+			};
+		};
+		const expected = { seconds: 12600, amount: 280, timeLogIds: ['log-checkout', 'log-home', 'log-none'] };
+		expect(totalsOf()).toEqual(expected);
+
+		rerender({ grouping: 'member' });
+		expect(result.current.lines).toHaveLength(1);
+		expect(totalsOf()).toEqual(expected);
+
+		rerender({ grouping: 'task' });
+		const taskSeconds = result.current.lines.map((line) => line.seconds);
+		expect(taskSeconds.sort((a, b) => a - b)).toEqual([1800, 3600, 7200]);
+		expect(totalsOf()).toEqual(expected);
+		expect(result.current.isLoading).toBe(false);
+		expect(mockReports.getBillableTimeLogs.mock.calls).toHaveLength(readsBefore);
+	});
+});

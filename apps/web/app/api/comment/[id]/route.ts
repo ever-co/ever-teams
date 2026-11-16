@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { deleteCommentRequest, updateCommentRequest } from '@/core/services/server/requests/comment';
 import { gauzyErrorResponse } from '@/core/services/server/gauzy-error-response';
+import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
 
 const commentIdSchema = z.guid();
 
@@ -34,6 +35,8 @@ type RouteContext = { params: Promise<{ id: string }> };
 
 /** Proxy mode twin of Gauzy's `PUT /comment/:id` (edit, resolve, reopen). */
 export async function PUT(req: Request, { params }: RouteContext) {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
 	const parsedId = commentIdSchema.safeParse((await params).id);
 	if (!parsedId.success) {
 		return NextResponse.json({ error: 'A comment id is required' }, { status: 400 });
@@ -46,11 +49,19 @@ export async function PUT(req: Request, { params }: RouteContext) {
 	const requestBody: unknown = await req.json().catch(() => null);
 	const parsed = commentUpdateBody.safeParse(requestBody);
 	if (!parsed.success) {
-		return NextResponse.json({ error: 'A comment update takes a text, a resolved state or mentions' }, { status: 400 });
+		return NextResponse.json(
+			{ error: 'A comment update takes a text, a resolved state or mentions' },
+			{ status: 400 }
+		);
 	}
 
 	try {
-		const response = await updateCommentRequest({ id: parsedId.data, data: parsed.data, bearer_token: access_token, tenantId });
+		const response = await updateCommentRequest({
+			id: parsedId.data,
+			data: parsed.data,
+			bearer_token: access_token,
+			tenantId
+		});
 
 		return $res(response.data);
 	} catch (error) {
@@ -60,6 +71,8 @@ export async function PUT(req: Request, { params }: RouteContext) {
 
 /** Proxy mode twin of Gauzy's `DELETE /comment/:id`. */
 export async function DELETE(req: Request, { params }: RouteContext) {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
 	const parsedId = commentIdSchema.safeParse((await params).id);
 	if (!parsedId.success) {
 		return NextResponse.json({ error: 'A comment id is required' }, { status: 400 });

@@ -7771,6 +7771,7 @@
 				"NOT_CHECKED": "No se pudo volver a leer la factura antes de guardar, así que no se guardó nada. Vuelve a intentarlo.",
 				"NOT_REACHED": "La conexión falló: los cambios no se guardaron y la factura sigue como estaba. Comprueba tu conexión y vuelve a intentarlo.",
 				"CHANGED": "Desde que se abrió, la factura {number} cambió: no se guardó nada. Ábrela de nuevo desde la lista de facturas para partir de su versión actual.",
+				"CHANGED_MEANWHILE": "Esta factura cambió desde que la abriste, así que no se guardó nada. Cierra esto para ver su versión actual.",
 				"RECORDS_TIME": "Registra las horas que facturan sus líneas, para que ninguna otra factura vuelva a facturarlas."
 			}
 		},
@@ -7921,6 +7922,8 @@
 				"SAVE": "Guardar",
 				"SAVE_FAILED": "No se pudo guardar el calendario. Inténtelo de nuevo.",
 				"EXISTS": "Este cliente ya tiene un calendario. Ciérrelo y vuelva a abrirlo para cambiarlo.",
+				"REPLACED": "Este calendario fue reemplazado por otro desde que lo abrió. No se guardó nada: ciérrelo y vuelva a abrirlo para cambiarlo.",
+				"DELETED": "Este calendario se eliminó desde que lo abrió. No se guardó nada.",
 				"START_AFTER_BILLED": "Este calendario ya facturó periodos: su nuevo calendario debe empezar después del último periodo facturado, {day}."
 			},
 			"delete": {
@@ -7932,6 +7935,8 @@
 				"PAUSED": "Se pausó la facturación programada de {name}",
 				"RESUMED": "Se reanudó la facturación programada de {name}: próxima factura el {day}",
 				"DELETED": "Se eliminó la facturación programada de {name}",
+				"ALREADY_DELETED": "La facturación programada de {name} ya se había eliminado",
+				"REPLACED": "La facturación programada de {name} se reemplazó por otra. No se eliminó nada.",
 				"FAILED": "No se pudo guardar el cambio. Inténtelo de nuevo."
 			}
 		},

@@ -2,6 +2,7 @@ import { INextParams } from '@/core/types/interfaces/common/data-response';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { deleteEmployeeFromTasksRequest, getEmployeeTasksRequest } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
+import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
 
 export async function GET(req: Request, props: INextParams) {
 	const params = await props.params;
@@ -32,6 +33,8 @@ export async function GET(req: Request, props: INextParams) {
 }
 
 export async function DELETE(req: Request, props: INextParams) {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
 	const params = await props.params;
 	const res = new NextResponse();
 

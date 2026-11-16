@@ -7771,6 +7771,7 @@
 				"NOT_CHECKED": "De factuur kon voor het opslaan niet opnieuw worden gelezen, dus er is niets opgeslagen. Probeer het opnieuw.",
 				"NOT_REACHED": "De verbinding is mislukt: de wijzigingen zijn niet opgeslagen en de factuur is gebleven zoals hij was. Controleer je verbinding en probeer het opnieuw.",
 				"CHANGED": "Sinds hij werd geopend, is factuur {number} gewijzigd: er is niets opgeslagen. Open hem opnieuw vanuit de factuurlijst om van de huidige versie uit te gaan.",
+				"CHANGED_MEANWHILE": "Deze factuur is gewijzigd sinds je hem opende, dus er is niets opgeslagen. Sluit dit om de huidige versie te zien.",
 				"RECORDS_TIME": "Legt de uren vast die de regels factureren, zodat geen andere factuur ze opnieuw factureert."
 			}
 		},
@@ -7921,6 +7922,8 @@
 				"SAVE": "Opslaan",
 				"SAVE_FAILED": "Het schema kon niet worden opgeslagen. Probeer het opnieuw.",
 				"EXISTS": "Deze klant heeft al een schema. Sluit en open het opnieuw om het te wijzigen.",
+				"REPLACED": "Dit schema is sinds u het opende door een ander vervangen. Er is niets opgeslagen: sluit en open het opnieuw om het te wijzigen.",
+				"DELETED": "Dit schema is verwijderd sinds u het opende. Er is niets opgeslagen.",
 				"START_AFTER_BILLED": "Dit schema heeft al perioden gefactureerd: het nieuwe schema moet beginnen na de laatst gefactureerde periode, {day}."
 			},
 			"delete": {
@@ -7932,6 +7935,8 @@
 				"PAUSED": "De geplande facturering van {name} is gepauzeerd",
 				"RESUMED": "De geplande facturering van {name} is hervat: volgende factuur op {day}",
 				"DELETED": "De geplande facturering van {name} is verwijderd",
+				"ALREADY_DELETED": "De geplande facturering van {name} was al verwijderd",
+				"REPLACED": "De geplande facturering van {name} is door een andere vervangen. Er is niets verwijderd.",
 				"FAILED": "De wijziging kon niet worden opgeslagen. Probeer het opnieuw."
 			}
 		},

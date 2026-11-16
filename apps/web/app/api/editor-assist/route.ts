@@ -18,6 +18,7 @@ import {
 	type TEditorAssistErrorCode,
 	type TEditorAssistRequest
 } from '@/core/types/schemas/ai/editor-assist.schema';
+import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
 
 const MAX_OUTPUT_TOKENS = 3000;
 
@@ -142,6 +143,8 @@ export async function GET(req: Request) {
  * proposal goes back to the editor, which applies it only when the user accepts it.
  */
 export async function POST(req: Request) {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
 	const guard = await authenticatedGuard(req, new NextResponse());
 	if (!guard.user) return guard.deny();
 

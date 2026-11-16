@@ -119,6 +119,25 @@ describe('useSwitchOrganization', () => {
 		await waitFor(() => expect(assign).toHaveBeenCalledWith('/'));
 	});
 
+	it("opens the person's last team there when the browser blocks its storage", async () => {
+		mockGetOrganizationTeams.mockResolvedValue({
+			data: { items: [labsTeam('labs-design'), labsTeam('labs-research')] }
+		});
+		const blocked = jest.spyOn(window, 'localStorage', 'get').mockImplementation(() => {
+			throw new DOMException('Access is denied for this document.', 'SecurityError');
+		});
+		const { result } = renderHook(() => useSwitchOrganization(), { wrapper });
+
+		await act(async () => {
+			await result.current.mutateAsync({ organizationId: 'labs' });
+		});
+		blocked.mockRestore();
+
+		// The read of the last opened team no longer throws away the teams just read: the person's last team opens
+		expect(mockCookies.setActiveTeamIdCookie).toHaveBeenCalledWith('labs-research');
+		await waitFor(() => expect(assign).toHaveBeenCalledWith('/'));
+	});
+
 	it('changes nothing when Gauzy refuses the switch', async () => {
 		mockSwitchOrganizationRaw.mockRejectedValue(Object.assign(new Error('401'), { httpResponseStatus: 401 }));
 		const { result } = renderHook(() => useSwitchOrganization(), { wrapper });

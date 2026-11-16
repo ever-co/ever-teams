@@ -5,6 +5,7 @@ import { ETimeLogSource } from '@/core/types/generics/enums/timer';
 import type { IUpdateTimerStatusParams, TTimerStartLogType } from '@/core/types/interfaces/timer/timer-status';
 import { NextResponse } from 'next/server';
 import { TIMER_NOTES_MAX_LENGTH, readTimerNotes } from '@/core/lib/utils/timer/timer-notes';
+import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
 
 const NOTES_REFUSAL = `description must be a string of at most ${TIMER_NOTES_MAX_LENGTH} characters`;
 
@@ -82,6 +83,8 @@ function labelsOfStart(labelIds: string[], startsBreak: boolean): string[] {
 }
 
 export async function POST(req: Request) {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
 	const res = new NextResponse();
 	const {
 		$res,

@@ -17,6 +17,7 @@ import {
 	type ProxyMethod,
 	webAppOrigin
 } from '@/core/services/server/ever-platform/connect-proxy-rules';
+import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
 
 export const dynamic = 'force-dynamic';
 
@@ -86,13 +87,19 @@ export async function GET(req: Request, { params }: Context) {
 }
 
 export async function POST(req: Request, { params }: Context) {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
 	return handle('POST', req, params);
 }
 
 export async function PUT(req: Request, { params }: Context) {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
 	return handle('PUT', req, params);
 }
 
 export async function DELETE(req: Request, { params }: Context) {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
 	return handle('DELETE', req, params);
 }
