@@ -131,8 +131,9 @@ export function useInvoiceScheduleMutations(workspace: InvoicesScope | null) {
 	 * id only, so a schedule that replaced it, even one set after this check, is never written. When the latest read
 	 * already shows it deleted, or replaced by another (another tab deleted it and set a new one), nothing is sent
 	 * and the schedules are read again before the save fails, so the section shows what is there now. An API that
-	 * answers the schedule no longer exists (404) changed nothing either. Either way the save fails with the reason,
-	 * as an `OpenedScheduleGoneError`.
+	 * answers the schedule no longer exists (404) changed nothing either: that save fails as `deleted`, even when
+	 * another schedule replaced it after the check, since the one it opened on was deleted all the same, and the
+	 * reload shows the replacement. Either way the save fails with the reason, as an `OpenedScheduleGoneError`.
 	 */
 	const updateOpenedSchedule = useCallback(
 		async ({
