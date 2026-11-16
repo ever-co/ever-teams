@@ -329,7 +329,7 @@ class InvoiceService extends APIService {
 		// A copy, with the list's workspace: the request would otherwise fill in the cookies' organization and tenant,
 		// which another tab may have switched since the list was read.
 		const statusScope = scope ?? this.currentScope();
-		const body: Record<string, unknown> = {
+		const body: InvoiceStatusChange & InvoicesScope & { expectedUpdatedAt?: string } = {
 			...change,
 			organizationId: statusScope.organizationId,
 			tenantId: statusScope.tenantId
