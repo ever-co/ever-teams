@@ -441,7 +441,8 @@ class TimeLogService extends APIService {
 		teamIds = [],
 		activityLevel = { start: 0, end: 100 },
 		includeTimeWithoutTeam = false,
-		billableOnly = false
+		billableOnly = false,
+		withClientRates = false
 	}: ITimeLogReportDailyRequest) => {
 		if (!this.organizationId || !this.tenantId || !startDate || !endDate) {
 			throw new Error(
@@ -486,6 +487,9 @@ class TimeLogService extends APIService {
 		// Sent only when asked: without the parameter Gauzy counts every log, billable or not
 		if (billableOnly) {
 			queryParams.billableOnly = 'true';
+		}
+		if (withClientRates) {
+			queryParams.withClientRates = 'true';
 		}
 
 		const queryString = new URLSearchParams(queryParams).toString();
