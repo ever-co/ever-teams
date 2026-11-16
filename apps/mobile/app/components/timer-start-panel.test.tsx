@@ -30,17 +30,19 @@ const EDIT: TimerStartMoveAccess = { kind: 'edit', earlierAllowed: true, reasonR
 async function renderPanel({
 	access = EDIT,
 	saving = false,
-	onSave = jest.fn(() => Promise.resolve())
+	onSave = jest.fn(() => Promise.resolve()),
+	runStart: firstRunStart = RUN_START
 }: {
 	access?: TimerStartMoveAccess;
 	saving?: boolean;
 	onSave?: jest.Mock;
+	runStart?: number;
 } = {}) {
 	const onClose = jest.fn();
 	const panelAt = (runStart: number) => (
 		<TimerStartPanel access={access} runStart={runStart} saving={saving} onSave={onSave} onClose={onClose} />
 	);
-	const view = await render(panelAt(RUN_START));
+	const view = await render(panelAt(firstRunStart));
 	/** A status read brings a start moved elsewhere while the panel is open. */
 	const startMovedElsewhere = async (runStart: number) => {
 		await view.rerender(panelAt(runStart));
@@ -79,6 +81,45 @@ describe('The panel of the running time, while its start moves elsewhere', () =>
 		expect(screen.getByTestId('timer-start-time').props.value).toBe('09:00');
 		expect(screen.getByTestId('timer-start-error').props.children).toContain('timer.startMove.changed');
 		expect(onSave).not.toHaveBeenCalled();
+	});
+});
+
+describe('The panel of a run that started before midnight', () => {
+	// Started at 23:50 on the 15th, now 00:20 on the 16th: a typed time could mean either day
+	const BEFORE_MIDNIGHT = new Date(2026, 10, 15, 23, 50).getTime();
+
+	beforeEach(() => {
+		jest.setSystemTime(new Date(2026, 10, 16, 0, 20).getTime());
+	});
+
+	it('asks which day the new start is on before anything is sent', async () => {
+		const { onSave } = await renderPanel({ runStart: BEFORE_MIDNIGHT });
+
+		await typeStart('12:00');
+
+		expect(onSave).not.toHaveBeenCalled();
+		expect(screen.getByTestId('timer-start-error').props.children).toContain('timer.startMove.chooseDay');
+	});
+
+	it('refuses 12:00 on the day after as a start in the future', async () => {
+		const { onSave } = await renderPanel({ runStart: BEFORE_MIDNIGHT });
+
+		await fireEvent.press(screen.getByTestId('timer-start-day-1'));
+		await typeStart('12:00');
+
+		expect(onSave).not.toHaveBeenCalled();
+		expect(screen.getByTestId('timer-start-error').props.children).toContain('timer.startMove.inFuture');
+	});
+
+	it('moves the start to 12:00 on the day the run started, once that day is chosen', async () => {
+		const { onSave } = await renderPanel({ runStart: BEFORE_MIDNIGHT });
+
+		await fireEvent.press(screen.getByTestId('timer-start-day-0'));
+		await typeStart('12:00');
+
+		await waitFor(() =>
+			expect(onSave).toHaveBeenCalledWith({ startedAt: new Date(2026, 10, 15, 12, 0), reason: '' })
+		);
 	});
 });
 

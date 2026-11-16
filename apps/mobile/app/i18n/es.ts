@@ -35,6 +35,7 @@ const es = {
 			viewNotAllowed: 'No tienes permitido cambiar el tiempo registrado en esta organización.',
 			unsupported: 'El inicio de un temporizador en curso aún no se puede cambiar en este servidor.',
 			invalidTime: 'Escribe una hora como 09:00.',
+			chooseDay: 'El temporizador empezó antes de la medianoche: elige el día del nuevo inicio.',
 			notRunning: 'El temporizador ya no está en marcha.',
 			trackerRun:
 				'Este temporizador corre en la aplicación de escritorio o el agente, que registran su tiempo ellos mismos. Cambia su inicio allí.',

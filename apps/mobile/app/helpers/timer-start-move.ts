@@ -138,29 +138,41 @@ function atTimeOn(day: Date, hours: number, minutes: number): Date {
 	return moment;
 }
 
+/** The start of the day of `moment`, in local time. */
+function dayOf(moment: Date): Date {
+	return atTimeOn(moment, 0, 0);
+}
+
+/** The start of the day after `day`, in local time. */
+function dayAfter(day: Date): Date {
+	const next = new Date(day);
+	next.setDate(next.getDate() + 1);
+	return dayOf(next);
+}
+
 /**
- * The start a time field asks for, in local time, or null when the field does not hold a time. A run that started
- * before midnight and still runs spans two days: the time is read on the day the run started or on the next one,
- * whichever is nearer the run's start. A time that is then later than now stays as it is, for the panel to refuse as
- * a start in the future: it is never read as the same time a day earlier.
+ * The days a run spans, from the day it started to today, each at its local midnight. A run that started before
+ * midnight and still runs spans two days or more: a time typed alone could then mean either, so the panel asks which
+ * day the new start is on, and never guesses.
  */
-export function startFromTimeText(runStart: Date, timeText: string): Date | null {
+export function daysOfRun(runStart: Date, now: Date): Date[] {
+	const days = [dayOf(runStart)];
+	const today = dayOf(now).getTime();
+	let next = dayAfter(days[0]);
+	while (next.getTime() <= today) {
+		days.push(next);
+		next = dayAfter(next);
+	}
+	return days;
+}
+
+/** The start a time field asks for on `day`, in local time, or null when the field does not hold a time. */
+export function startOnDay(day: Date, timeText: string): Date | null {
 	const match = TIME_TEXT.exec(timeText.trim());
 	if (!match) {
 		return null;
 	}
-	const hours = Number(match[1]);
-	const minutes = Number(match[2]);
-	const onRunDay = atTimeOn(runStart, hours, minutes);
-	const nextDay = new Date(runStart);
-	nextDay.setDate(nextDay.getDate() + 1);
-	const onNextDay = atTimeOn(nextDay, hours, minutes);
-	const distanceToRunStart = (candidate: Date) => Math.abs(candidate.getTime() - runStart.getTime());
-	const nextDayIsNearer = distanceToRunStart(onNextDay) < distanceToRunStart(onRunDay);
-	if (nextDayIsNearer) {
-		return onNextDay;
-	}
-	return onRunDay;
+	return atTimeOn(day, Number(match[1]), Number(match[2]));
 }
 
 function twoDigits(value: number): string {

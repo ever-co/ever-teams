@@ -36,6 +36,7 @@ const fr = {
 			viewNotAllowed: 'La modification du temps suivi ne vous est pas permise dans cette organisation.',
 			unsupported: "Le début d'un chronomètre en cours ne peut pas encore être modifié sur ce serveur.",
 			invalidTime: 'Saisissez une heure comme 09:00.',
+			chooseDay: 'Le minuteur a démarré avant minuit : choisissez le jour du nouveau début.',
 			notRunning: 'Le chronomètre ne tourne plus.',
 			trackerRun:
 				"Ce chronomètre tourne dans l'application de bureau ou l'agent, qui enregistrent eux-mêmes son temps. Modifiez son début là-bas.",

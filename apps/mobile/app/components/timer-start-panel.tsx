@@ -8,9 +8,10 @@ import {
 	TIMER_START_REASON_MAX_LENGTH,
 	TimerStartMoveAccess,
 	TimerStartViewReason,
+	daysOfRun,
 	isSameStartMinute,
 	localStartMoveRefusalKeyOf,
-	startFromTimeText,
+	startOnDay,
 	timeTextOf,
 	timerStartMoveRefusalKeyOf
 } from '../helpers/timer-start-move';
@@ -33,6 +34,8 @@ const CANCEL_TEXT_COLOR = '#1A1C1E';
 const SAVE_TEXT_COLOR = '#FFF';
 const ACCENT_LIGHT = '#3826A6';
 const ACCENT_DARK = '#6755C9';
+/** A day of the run as its choice shows it, in the phone's language: `Sun 15 Nov`. */
+const DAY_FORMAT: Intl.DateTimeFormatOptions = { weekday: 'short', day: 'numeric', month: 'short' };
 /** The Save button while the save is under way. */
 const SAVING_OPACITY = 0.7;
 
@@ -48,15 +51,18 @@ interface ITimerStartPanelProps {
 
 /**
  * The panel of the running time (ever-co/ever-teams#5373): when the run started and, where the person may change it,
- * a time field to move the start, with the reason the organization may ask for. A start later than now, an earlier
- * start where time may not be added by hand, and a missing reason are told before anything is sent; the API's
- * refusals, a failed save and an offline phone are told after.
+ * a time field to move the start (with the day of the new start for a run that started before midnight, never guessed),
+ * and the reason the organization may ask for. A start later than now, an earlier start where time may not be added
+ * by hand, and a missing reason are told before anything is sent; the API's refusals, a failed save and an offline
+ * phone are told after.
  */
 export const TimerStartPanel: FC<ITimerStartPanelProps> = ({ access, runStart, saving, onSave, onClose }) => {
 	const { colors, dark } = useAppTheme();
 	const [timeText, setTimeText] = useState(() => (runStart === null ? '' : timeTextOf(new Date(runStart))));
 	const [reason, setReason] = useState('');
 	const [errorKey, setErrorKey] = useState<TxKeyPath | null>(null);
+	// The day of the new start the person chose, at its local midnight, when the run spans more than one day
+	const [chosenDay, setChosenDay] = useState<number | null>(null);
 	// Whether the person typed a time since the field last showed the run's start
 	const typedTime = useRef(false);
 	const shownRunStart = useRef(runStart);
@@ -73,6 +79,7 @@ export const TimerStartPanel: FC<ITimerStartPanelProps> = ({ access, runStart, s
 			return;
 		}
 		setTimeText(timeTextOf(new Date(runStart)));
+		setChosenDay(null);
 		if (typedTime.current) {
 			setErrorKey('timer.startMove.changed');
 		}
@@ -81,6 +88,9 @@ export const TimerStartPanel: FC<ITimerStartPanelProps> = ({ access, runStart, s
 
 	const isRunning = runStart !== null;
 	const isEditable = isRunning && access.kind === 'edit';
+	// A run that started before midnight spans more than one day: the person says which day the new start is on
+	const runDays = isRunning ? daysOfRun(new Date(runStart), new Date()) : [];
+	const asksForDay = runDays.length > 1;
 	const startedAtText = isRunning
 		? translate('timer.startMove.startedAt', { time: timeTextOf(new Date(runStart)) })
 		: '';
@@ -94,7 +104,10 @@ export const TimerStartPanel: FC<ITimerStartPanelProps> = ({ access, runStart, s
 		}
 		const now = new Date();
 		const runStartDate = new Date(runStart);
-		const start = startFromTimeText(runStartDate, timeText);
+		const days = daysOfRun(runStartDate, now);
+		const day = days.length === 1 ? days[0] : days.find((candidate) => candidate.getTime() === chosenDay);
+		// Read on the run's day until a day is chosen, to tell a field that still shows the start
+		const start = startOnDay(day ?? days[0], timeText);
 		if (!start) {
 			setErrorKey('timer.startMove.invalidTime');
 			return;
@@ -102,6 +115,10 @@ export const TimerStartPanel: FC<ITimerStartPanelProps> = ({ access, runStart, s
 		// The minute the run started: nothing to change
 		if (isSameStartMinute(start, runStartDate)) {
 			onClose();
+			return;
+		}
+		if (!day) {
+			setErrorKey('timer.startMove.chooseDay');
 			return;
 		}
 		const localRefusal = localStartMoveRefusalKeyOf({
@@ -132,6 +149,11 @@ export const TimerStartPanel: FC<ITimerStartPanelProps> = ({ access, runStart, s
 		setErrorKey(null);
 	};
 
+	const chooseDay = (day: number) => {
+		setChosenDay(day);
+		setErrorKey(null);
+	};
+
 	const changeReason = (text: string) => {
 		setReason(text);
 		setErrorKey(null);
@@ -158,6 +180,33 @@ export const TimerStartPanel: FC<ITimerStartPanelProps> = ({ access, runStart, s
 					<Text style={[styles.label, { color: colors.primary }]}>
 						{translate('timer.startMove.newStart')}
 					</Text>
+					{asksForDay ? (
+						<View style={styles.days} accessibilityRole="radiogroup">
+							{runDays.map((day, index) => {
+								const isChosen = day.getTime() === chosenDay;
+								const dayTextColor = isChosen ? SAVE_TEXT_COLOR : colors.primary;
+								return (
+									<TouchableOpacity
+										key={day.getTime()}
+										testID={`timer-start-day-${index}`}
+										style={[
+											styles.day,
+											{ borderColor: isChosen ? accentColor : FIELD_BORDER_COLOR },
+											isChosen ? { backgroundColor: accentColor } : null
+										]}
+										onPress={() => chooseDay(day.getTime())}
+										disabled={saving}
+										accessibilityRole="radio"
+										accessibilityState={{ checked: isChosen, disabled: saving }}
+									>
+										<Text style={[styles.dayText, { color: dayTextColor }]}>
+											{day.toLocaleDateString(undefined, DAY_FORMAT)}
+										</Text>
+									</TouchableOpacity>
+								);
+							})}
+						</View>
+					) : null}
 					<BottomSheetTextInput
 						testID="timer-start-time"
 						style={[styles.input, { color: colors.primary, borderColor: FIELD_BORDER_COLOR }]}
@@ -255,6 +304,23 @@ const styles = StyleSheet.create({
 		paddingBottom: 32,
 		paddingHorizontal: 24,
 		paddingTop: 8
+	},
+	day: {
+		borderRadius: 12,
+		borderWidth: 1,
+		height: 40,
+		justifyContent: 'center',
+		paddingHorizontal: 14
+	},
+	dayText: {
+		fontFamily: typography.primary.medium,
+		fontSize: 14
+	},
+	days: {
+		flexDirection: 'row',
+		flexWrap: 'wrap',
+		gap: 8,
+		marginTop: 8
 	},
 	error: {
 		color: ERROR_COLOR,

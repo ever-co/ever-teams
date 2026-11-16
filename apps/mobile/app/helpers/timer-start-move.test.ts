@@ -4,9 +4,10 @@
  */
 import { TimerSource } from '../services/interfaces/ITimer';
 import {
+	daysOfRun,
 	isSameStartMinute,
 	localStartMoveRefusalKeyOf,
-	startFromTimeText,
+	startOnDay,
 	timeTextOf,
 	timerStartMoveAccessOf,
 	timerStartMoveRefusalKeyOf,
@@ -156,37 +157,6 @@ describe('timerStartMoveRefusalKeyOf', () => {
 	});
 });
 
-describe('startFromTimeText', () => {
-	it('reads the time on the day the run started', () => {
-		expect(startFromTimeText(at(9, 25), '09:00')).toEqual(at(9, 0));
-		expect(startFromTimeText(at(9, 25), '9:05')).toEqual(at(9, 5));
-	});
-
-	it('reads a run that started before midnight on the day the time belongs to', () => {
-		// Started at 23:50 and still running at 00:20: 00:05 is after midnight, 23:40 before it
-		expect(startFromTimeText(at(23, 50, 15), '00:05')).toEqual(at(0, 5, 16));
-		expect(startFromTimeText(at(23, 50, 15), '23:40')).toEqual(at(23, 40, 15));
-	});
-
-	it('reads a time just after now as a start in the future, never as the same time a day earlier', () => {
-		// Started at 23:50 and still running at 00:20: 00:30 is ten minutes from now, not 23 hours before the start
-		const start = startFromTimeText(at(23, 50, 15), '00:30');
-
-		expect(start).toEqual(at(0, 30, 16));
-	});
-
-	it('keeps a time later than now on the run day, for the panel to refuse', () => {
-		expect(startFromTimeText(at(9, 25), '10:00')).toEqual(at(10, 0));
-	});
-
-	it('reads nothing that is not a time', () => {
-		expect(startFromTimeText(at(9, 25), '')).toBeNull();
-		expect(startFromTimeText(at(9, 25), '9')).toBeNull();
-		expect(startFromTimeText(at(9, 25), '24:00')).toBeNull();
-		expect(startFromTimeText(at(9, 25), '09:60')).toBeNull();
-	});
-});
-
 describe('timeTextOf', () => {
 	it('writes a time as the field shows it', () => {
 		expect(timeTextOf(at(9, 5))).toBe('09:05');
@@ -200,6 +170,36 @@ describe('isSameStartMinute', () => {
 
 		expect(isSameStartMinute(at(9, 25), runStart)).toBe(true);
 		expect(isSameStartMinute(at(9, 24), runStart)).toBe(false);
+	});
+});
+
+describe('daysOfRun', () => {
+	it('gives the one day of a run that started today: no day to choose', () => {
+		expect(daysOfRun(at(9, 25), at(9, 30))).toEqual([at(0, 0)]);
+	});
+
+	it('gives each day of a run that started before midnight, for the person to choose the day of the new start', () => {
+		expect(daysOfRun(at(23, 50, 15), at(0, 20, 16))).toEqual([at(0, 0, 15), at(0, 0, 16)]);
+	});
+});
+
+describe('startOnDay', () => {
+	it('reads the time on the day of the run', () => {
+		expect(startOnDay(at(0, 0), '09:00')).toEqual(at(9, 0));
+		expect(startOnDay(at(0, 0), '9:05')).toEqual(at(9, 5));
+	});
+
+	it('reads the time on the day the person chose, whichever day is nearer the start', () => {
+		// Started at 23:50 on the 15th, now 00:20 on the 16th: 12:00 means the day chosen, never a guess
+		expect(startOnDay(at(0, 0, 15), '12:00')).toEqual(at(12, 0, 15));
+		expect(startOnDay(at(0, 0, 16), '12:00')).toEqual(at(12, 0, 16));
+	});
+
+	it('reads nothing that is not a time', () => {
+		expect(startOnDay(at(0, 0), '')).toBeNull();
+		expect(startOnDay(at(0, 0), '9')).toBeNull();
+		expect(startOnDay(at(0, 0), '24:00')).toBeNull();
+		expect(startOnDay(at(0, 0), '09:60')).toBeNull();
 	});
 });
 

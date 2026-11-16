@@ -35,6 +35,7 @@ const en = {
 			viewNotAllowed: 'Changing tracked time is not allowed for you in this organization.',
 			unsupported: 'The start of a running timer cannot be changed on this server yet.',
 			invalidTime: 'Type a time such as 09:00.',
+			chooseDay: 'The run started before midnight: choose the day of the new start.',
 			notRunning: 'The timer is no longer running.',
 			trackerRun:
 				'This timer runs in the desktop app or the agent, which record its time themselves. Change its start there.',
