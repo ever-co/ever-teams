@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 
@@ -10,6 +10,7 @@ import { useEntryLabelsSupport } from '@/core/hooks/timer/use-entry-labels-suppo
 import { entryLabelsOf } from '@/core/lib/utils/time-log-labels';
 import { timeLogService } from '@/core/services/client/api/timesheets/time-log.service';
 import { activeTeamIdState, timerLabelsState, timerStatusState } from '@/core/stores';
+import { teamTimerStatusState } from '@/core/stores/timer/team-timer-status';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import type { ITimerStatus } from '@/core/types/interfaces/timer/timer-status';
 
@@ -40,7 +41,9 @@ export function TimerLabelsControl({ className }: Readonly<{ className?: string 
 	const t = useTranslations();
 	const supportsLabels = useEntryLabelsSupport();
 	const [pickedLabelIds, setPickedLabelIds] = useAtom(timerLabelsState);
-	const [timerStatus, setTimerStatus] = useAtom(timerStatusState);
+	// The status the timer shows: a run of another team reads as stopped, so the labels picked are the next start's
+	const timerStatus = useAtomValue(teamTimerStatusState);
+	const setTimerStatus = useSetAtom(timerStatusState);
 	const [isSaving, setIsSaving] = useState(false);
 	const activeTeamId = useAtomValue(activeTeamIdState);
 	const teamOfDraftRef = useRef(activeTeamId);
