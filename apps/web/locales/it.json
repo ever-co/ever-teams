@@ -7674,6 +7674,7 @@
 			"MARKED_PAID": "La fattura {number} è segnata come pagata",
 			"MARKED_UNPAID": "La fattura {number} torna a Inviata, non pagata",
 			"CHANGE_FAILED": "La fattura {number} non è stata modificata",
+			"CHANGED_MEANWHILE": "Questa fattura è cambiata da quando è stata mostrata, quindi non è stato modificato nulla. Ora è mostrata la sua versione attuale: controllala e riprova.",
 			"DOWNLOAD": "Scarica in PDF"
 		},
 		"send": {

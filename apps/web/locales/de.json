@@ -7674,6 +7674,7 @@
 			"MARKED_PAID": "Rechnung {number} ist als bezahlt markiert",
 			"MARKED_UNPAID": "Rechnung {number} steht wieder auf Gesendet, unbezahlt",
 			"CHANGE_FAILED": "Rechnung {number} wurde nicht geändert",
+			"CHANGED_MEANWHILE": "Diese Rechnung hat sich geändert, seit sie angezeigt wurde, daher wurde nichts geändert. Ihre aktuelle Version wird jetzt angezeigt: Prüfen Sie sie und versuchen Sie es erneut.",
 			"DOWNLOAD": "Als PDF herunterladen"
 		},
 		"send": {

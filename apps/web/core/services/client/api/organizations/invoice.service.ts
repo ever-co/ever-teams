@@ -43,7 +43,25 @@ function latestOfEachInvoice(invoices: ReadonlyArray<TInvoice>): TInvoice[] {
 	return [...byId.values()];
 }
 
-const invoiceStatusSchema = invoiceSchema.pick({ status: true });
+const invoiceStatusSchema = invoiceSchema.pick({ status: true, updatedAt: true });
+
+/** An invoice's status, and the `updatedAt` it was read at: what a status action is made under (#5382). */
+export interface InvoiceState {
+	status: string | null;
+	/** ISO 8601; null when the API states none. */
+	updatedAt: string | null;
+}
+
+function isoOf(value: Date | string | null | undefined): string | null {
+	if (!value) {
+		return null;
+	}
+	const instant = new Date(value);
+	if (Number.isNaN(instant.getTime())) {
+		return null;
+	}
+	return instant.toISOString();
+}
 
 export interface InvoicesPage {
 	items: TInvoice[];
@@ -278,27 +296,47 @@ class InvoiceService extends APIService {
 	};
 
 	getInvoiceStatus = async (invoiceId: string, scope?: InvoicesScope): Promise<string | null> => {
+		const state = await this.getInvoiceState(invoiceId, scope);
+		return state.status;
+	};
+
+	/** The invoice's status and the `updatedAt` it is read at, which a status action is then made under (#5382). */
+	getInvoiceState = async (invoiceId: string, scope?: InvoicesScope): Promise<InvoiceState> => {
 		try {
 			const readScope = scope ?? this.currentScope();
 			const url = `/invoices/${encodeURIComponent(invoiceId)}`;
 			const response = await this.get(url, { tenantId: readScope.tenantId });
 			const invoice = validateApiResponse(invoiceStatusSchema, response.data, 'getInvoiceStatus API response');
-			return invoice.status ?? null;
+			return { status: invoice.status ?? null, updatedAt: isoOf(invoice.updatedAt) };
 		} catch (error) {
 			this.logValidationError(error, 'Invoice status validation failed:');
 			throw error;
 		}
 	};
 
+	/**
+	 * A status action (`PUT /invoices/:id/action`). With `expectedUpdatedAt`, the `updatedAt` the invoice was read at,
+	 * Ever Gauzy writes it only while the invoice still holds it, and answers 409 `INVOICE_CHANGED` otherwise, having
+	 * written nothing (#5382). An older Ever Gauzy drops the member (the route keeps only the members it declares) and
+	 * writes the action as it always did.
+	 */
 	changeInvoiceStatus = async (
 		invoiceId: string,
 		change: InvoiceStatusChange,
-		scope?: InvoicesScope
+		scope?: InvoicesScope,
+		expectedUpdatedAt?: string | null
 	): Promise<void> => {
 		// A copy, with the list's workspace: the request would otherwise fill in the cookies' organization and tenant,
 		// which another tab may have switched since the list was read.
 		const statusScope = scope ?? this.currentScope();
-		const body = { ...change, organizationId: statusScope.organizationId, tenantId: statusScope.tenantId };
+		const body: Record<string, unknown> = {
+			...change,
+			organizationId: statusScope.organizationId,
+			tenantId: statusScope.tenantId
+		};
+		if (expectedUpdatedAt) {
+			body.expectedUpdatedAt = expectedUpdatedAt;
+		}
 		await this.put(`/invoices/${encodeURIComponent(invoiceId)}/action`, body, { tenantId: statusScope.tenantId });
 	};
 

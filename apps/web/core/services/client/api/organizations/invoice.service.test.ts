@@ -149,6 +149,37 @@ describe('e-mailing, settling and deleting an invoice in the workspace the list 
 		expect(remove.mock.calls[0][1]?.tenantId).toBe('tenant-1');
 	});
 
+	it('states the updatedAt a status action is made under, and nothing when none was read (#5382)', async () => {
+		const put = jest.spyOn(invoiceService, 'put').mockResolvedValue({} as never);
+
+		await invoiceService.changeInvoiceStatus('invoice-1', VOID_CHANGE, listScope, '2026-11-16T10:20:30.456Z');
+		await invoiceService.changeInvoiceStatus('invoice-1', VOID_CHANGE, listScope, null);
+
+		expect(put.mock.calls[0][0]).toBe('/invoices/invoice-1/action');
+		expect(put.mock.calls[0][1]).toEqual({
+			...VOID_CHANGE,
+			...listScope,
+			expectedUpdatedAt: '2026-11-16T10:20:30.456Z'
+		});
+		expect(put.mock.calls[1][1]).toEqual({ ...VOID_CHANGE, ...listScope });
+	});
+
+	it('reads the status an invoice holds now with the updatedAt it holds it at (#5382)', async () => {
+		const data = { status: 'SENT', updatedAt: '2026-11-16T10:20:30.456Z' };
+		jest.spyOn(invoiceService, 'get').mockResolvedValue({ data } as never);
+
+		await expect(invoiceService.getInvoiceState('invoice-1', listScope)).resolves.toEqual(data);
+	});
+
+	it('reads no updatedAt from an answer that states none', async () => {
+		jest.spyOn(invoiceService, 'get').mockResolvedValue({ data: { status: 'SENT' } } as never);
+
+		await expect(invoiceService.getInvoiceState('invoice-1', listScope)).resolves.toEqual({
+			status: 'SENT',
+			updatedAt: null
+		});
+	});
+
 	it('reads the status an invoice holds now under the tenant of the list', async () => {
 		const get = jest.spyOn(invoiceService, 'get').mockResolvedValue({ data: { status: 'FULLY_PAID' } } as never);
 

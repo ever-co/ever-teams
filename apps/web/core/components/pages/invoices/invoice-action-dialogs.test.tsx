@@ -43,7 +43,9 @@ jest.mock('@/core/hooks/invoices/use-invoice-mutations', () => ({
 	useSendInvoice: () => ({ sendInvoice: mockSendInvoice, isSending: false }),
 	useChangeInvoiceStatus: () => ({ changeStatus: mockChangeStatus, isChanging: false, changingIds: new Set() }),
 	useDeleteInvoice: () => ({ deleteInvoice: mockDeleteInvoice, isDeleting: false }),
-	useVoidToReplace: () => ({ voidToReplace: mockVoidToReplace, isVoiding: false })
+	useVoidToReplace: () => ({ voidToReplace: mockVoidToReplace, isVoiding: false }),
+	// A refusal because the invoice changed since it was read is a 409 (#5382)
+	isInvoiceActionChangedMeanwhile: (error: unknown) => (error as { status?: number } | null)?.status === 409
 }));
 jest.mock('@/core/components/projects/dialogs/project-confirm-dialog', () => ({
 	ProjectConfirmDialog: (props: MockConfirmDialogProps) => {
@@ -166,6 +168,27 @@ describe('voiding and deleting an invoice from the list', () => {
 		expect(onClose).toHaveBeenCalledTimes(1);
 	});
 
+	it('says the invoice changed since it was shown when the void is refused as changed meanwhile (#5382)', async () => {
+		mockChangeStatus.mockRejectedValue(Object.assign(new Error('INVOICE_CHANGED'), { status: 409 }));
+		const onClose = jest.fn();
+		render(<VoidInvoiceDialog open scope={LIST_SCOPE} target={targetIn('SENT')} onClose={onClose} />);
+
+		await confirm('invoices.void.CONFIRM');
+
+		expect(screen.getByText('invoices.actions.CHANGED_MEANWHILE')).toBeTruthy();
+		expect(screen.queryByText('invoices.void.FAILED')).toBeNull();
+		expect(onClose).not.toHaveBeenCalled();
+	});
+
+	it('says the void failed for any other refusal', async () => {
+		mockChangeStatus.mockRejectedValue(new Error('Forbidden'));
+		render(<VoidInvoiceDialog open scope={LIST_SCOPE} target={targetIn('SENT')} onClose={jest.fn()} />);
+
+		await confirm('invoices.void.CONFIRM');
+
+		expect(screen.getByText('invoices.void.FAILED')).toBeTruthy();
+	});
+
 	it('deletes the draft in the API once confirmed and says so', async () => {
 		mockDeleteInvoice.mockResolvedValue(undefined);
 		const onClose = jest.fn();
@@ -216,6 +239,20 @@ describe('voiding a paid invoice to replace it', () => {
 		await confirm('invoices.replace.CONFIRM');
 
 		expect(screen.getByText('invoices.void.FAILED')).toBeTruthy();
+		expect(onVoided).not.toHaveBeenCalled();
+		expect(onClose).not.toHaveBeenCalled();
+	});
+
+	it('says the invoice changed since it was shown, and opens no replacement, when refused as changed meanwhile', async () => {
+		mockVoidToReplace.mockRejectedValue(Object.assign(new Error('INVOICE_CHANGED'), { status: 409 }));
+		const onClose = jest.fn();
+		const onVoided = jest.fn();
+		const target = targetIn('FULLY_PAID');
+		render(<VoidAndReplaceDialog open scope={LIST_SCOPE} target={target} onClose={onClose} onVoided={onVoided} />);
+
+		await confirm('invoices.replace.CONFIRM');
+
+		expect(screen.getByText('invoices.actions.CHANGED_MEANWHILE')).toBeTruthy();
 		expect(onVoided).not.toHaveBeenCalled();
 		expect(onClose).not.toHaveBeenCalled();
 	});

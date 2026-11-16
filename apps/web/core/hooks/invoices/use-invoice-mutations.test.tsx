@@ -4,7 +4,7 @@ import React from 'react';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
-import { paidChangeOf } from '@/core/lib/utils/invoice-actions';
+import { paidChangeOf, VOID_CHANGE } from '@/core/lib/utils/invoice-actions';
 import { invoiceTermsOf } from '@/core/lib/utils/invoices';
 import { ApiErrorService } from '@/core/services/client/api-error.service';
 
@@ -17,6 +17,8 @@ const mockGetInvoice = jest.fn();
 const mockUpdateInvoice = jest.fn();
 const mockReplaceInvoiceLines = jest.fn();
 const mockSaveInvoiceWithLines = jest.fn();
+/** The `updatedAt` the status reads answer with; none by default, as an older read would. */
+const mockReadAt: { value: string | null } = { value: null };
 
 jest.mock('@/core/services/client/api/organizations/invoice.service', () => ({
 	invoiceService: {
@@ -24,6 +26,11 @@ jest.mock('@/core/services/client/api/organizations/invoice.service', () => ({
 		sendInvoiceByEmail: (...args: unknown[]) => mockSendInvoiceByEmail(...args),
 		changeInvoiceStatus: (...args: unknown[]) => mockChangeInvoiceStatus(...args),
 		getInvoiceStatus: (...args: unknown[]) => mockGetInvoiceStatus(...args),
+		// The status read with the `updatedAt` it was read at (#5382): the status the tests script, at `mockReadAt`
+		getInvoiceState: async (...args: unknown[]) => ({
+			status: await mockGetInvoiceStatus(...args),
+			updatedAt: mockReadAt.value
+		}),
 		deleteInvoice: (...args: unknown[]) => mockDeleteInvoice(...args),
 		getInvoice: (...args: unknown[]) => mockGetInvoice(...args),
 		updateInvoice: (...args: unknown[]) => mockUpdateInvoice(...args),
@@ -43,6 +50,7 @@ jest.mock('@/core/constants/config/constants', () => ({
 }));
 
 import {
+	isInvoiceActionChangedMeanwhile,
 	useChangeInvoiceStatus,
 	useCreateInvoice,
 	useDeleteInvoice,
@@ -125,6 +133,7 @@ beforeEach(() => {
 	mockChangeInvoiceStatus.mockReset();
 	mockGetInvoiceStatus.mockReset();
 	mockGetInvoiceStatus.mockResolvedValue('DRAFT');
+	mockReadAt.value = null;
 	mockDeleteInvoice.mockReset();
 	mockGetInvoice.mockReset();
 	mockUpdateInvoice.mockReset();
@@ -188,7 +197,7 @@ describe('saving a new invoice and sending it', () => {
 		expect(saved).toEqual({ invoice: { id: 'inv-9', invoiceNumber: 9 }, outcome: 'sent' });
 		expect(mockSendInvoiceByEmail.mock.calls[0][0]).toMatchObject({ invoiceId: 'inv-9', invoiceNumber: 9 });
 		expect(mockSendInvoiceByEmail.mock.calls[0][1]).toEqual(LIST_SCOPE);
-		expect(mockChangeInvoiceStatus).toHaveBeenCalledWith('inv-9', { status: 'SENT' }, LIST_SCOPE);
+		expect(mockChangeInvoiceStatus).toHaveBeenCalledWith('inv-9', { status: 'SENT' }, LIST_SCOPE, null);
 	});
 
 	it('leaves the saved draft unsent when another tab switched the workspace during the save', async () => {
@@ -253,7 +262,7 @@ describe('sending an invoice to its client', () => {
 			email: 'billing@acme.test'
 		});
 		expect(mockSendInvoiceByEmail.mock.calls[0][1]).toEqual(LIST_SCOPE);
-		expect(mockChangeInvoiceStatus).toHaveBeenCalledWith('inv-1', { status: 'SENT' }, LIST_SCOPE);
+		expect(mockChangeInvoiceStatus).toHaveBeenCalledWith('inv-1', { status: 'SENT' }, LIST_SCOPE, null);
 		expect(listedStatusOf(queryClient)).toBe('SENT');
 	});
 
@@ -354,7 +363,7 @@ describe('settling and deleting an invoice', () => {
 			await result.current.changeStatus({ invoiceId: 'inv-1', change: paidChangeOf(1080), scope: LIST_SCOPE });
 		});
 
-		expect(mockChangeInvoiceStatus).toHaveBeenCalledWith('inv-1', paidChangeOf(1080), LIST_SCOPE);
+		expect(mockChangeInvoiceStatus).toHaveBeenCalledWith('inv-1', paidChangeOf(1080), LIST_SCOPE, null);
 		expect(listedStatusOf(queryClient)).toBe('FULLY_PAID');
 	});
 
@@ -477,7 +486,7 @@ describe('marking a listed invoice paid or unpaid', () => {
 
 		expect(mockGetInvoice).toHaveBeenCalledWith('inv-1', { tenantId: 'tenant-1' });
 		const paid = { status: 'FULLY_PAID', paid: true, alreadyPaid: 960, amountDue: 0 };
-		expect(mockChangeInvoiceStatus).toHaveBeenCalledWith('inv-1', paid, LIST_SCOPE);
+		expect(mockChangeInvoiceStatus).toHaveBeenCalledWith('inv-1', paid, LIST_SCOPE, null);
 		expect(mockGetInvoice.mock.invocationCallOrder[0]).toBeLessThan(
 			mockChangeInvoiceStatus.mock.invocationCallOrder[0]
 		);
@@ -494,7 +503,7 @@ describe('marking a listed invoice paid or unpaid', () => {
 		});
 
 		const unpaid = { status: 'SENT', paid: false, alreadyPaid: 0, amountDue: 960 };
-		expect(mockChangeInvoiceStatus).toHaveBeenCalledWith('inv-1', unpaid, LIST_SCOPE);
+		expect(mockChangeInvoiceStatus).toHaveBeenCalledWith('inv-1', unpaid, LIST_SCOPE, null);
 		expect(listedStatusOf(queryClient)).toBe('SENT');
 	});
 
@@ -599,7 +608,7 @@ describe('voiding a paid invoice to replace it', () => {
 
 		expect(outcome).toBe('voided');
 		expect(mockGetInvoice).toHaveBeenCalledWith('inv-1', { tenantId: 'tenant-1' });
-		expect(mockChangeInvoiceStatus).toHaveBeenCalledWith('inv-1', { status: 'VOID' }, LIST_SCOPE);
+		expect(mockChangeInvoiceStatus).toHaveBeenCalledWith('inv-1', { status: 'VOID' }, LIST_SCOPE, null);
 		expect(listedStatusOf(queryClient)).toBe('VOID');
 	});
 
@@ -618,6 +627,166 @@ describe('voiding a paid invoice to replace it', () => {
 
 		expect(outcome).toBe('notRebuildable');
 		expect(mockChangeInvoiceStatus).not.toHaveBeenCalled();
+	});
+});
+
+describe('status actions under the updatedAt the invoice was read at (#5382)', () => {
+	const READ_AT = '2026-11-16T10:20:30.456Z';
+	const CHANGED = {
+		message: 'INVOICE_CHANGED: the invoice changed since it was read.',
+		code: 'CONCURRENT_MODIFICATION'
+	};
+	const rebuildable = {
+		id: 'inv-1',
+		invoiceNumber: 42,
+		invoiceDate: '2026-10-31T23:00:00.000Z',
+		dueDate: '2026-11-30T22:59:59.999Z',
+		currency: 'USD',
+		totalValue: 800,
+		status: 'FULLY_PAID',
+		terms: invoiceTermsOf({ fromDay: '2026-10-01', toDay: '2026-10-31' }, ''),
+		toContactId: 'client-acme',
+		organizationId: 'organization-1',
+		tenantId: 'tenant-1',
+		invoiceType: 'BY_PROJECT_HOURS',
+		invoiceItems: [
+			{ id: 'item-1', description: 'Ana Lima', price: 80, quantity: 10, totalValue: 800, projectId: 'p1' }
+		],
+		updatedAt: READ_AT
+	};
+
+	function renderStatusChange() {
+		const queryClient = clientWithDraftListed();
+		const invalidateQueries = jest.spyOn(queryClient, 'invalidateQueries');
+		const rendered = renderWith(queryClient, () => useChangeInvoiceStatus());
+		return { ...rendered, queryClient, invalidateQueries };
+	}
+
+	it('voids under the updatedAt the status was read at', async () => {
+		mockGetInvoiceStatus.mockResolvedValue('SENT');
+		mockReadAt.value = READ_AT;
+		mockChangeInvoiceStatus.mockResolvedValue(undefined);
+		const { result } = renderStatusChange();
+
+		await act(async () => {
+			await result.current.changeStatus({ invoiceId: 'inv-1', change: VOID_CHANGE, scope: LIST_SCOPE });
+		});
+
+		expect(mockChangeInvoiceStatus).toHaveBeenCalledWith('inv-1', VOID_CHANGE, LIST_SCOPE, READ_AT);
+	});
+
+	it.each([
+		['paid', 'markPaid', 'SENT'],
+		['unpaid', 'markUnpaid', 'FULLY_PAID']
+	] as const)('marks %s under the updatedAt of the read its amounts come from', async (_label, payment, status) => {
+		mockGetInvoice.mockResolvedValue({
+			id: 'inv-1',
+			invoiceNumber: 42,
+			totalValue: 960,
+			status,
+			updatedAt: READ_AT
+		});
+		mockChangeInvoiceStatus.mockResolvedValue(undefined);
+		const { result } = renderStatusChange();
+
+		await act(async () => {
+			await result.current.changeStatus({ invoiceId: 'inv-1', payment, scope: LIST_SCOPE });
+		});
+
+		expect(mockChangeInvoiceStatus.mock.calls[0][3]).toBe(READ_AT);
+	});
+
+	it('marks a draft sent, once e-mailed, under the updatedAt of the read made after the e-mail', async () => {
+		mockGetInvoiceStatus.mockResolvedValue('DRAFT');
+		mockReadAt.value = READ_AT;
+		mockSendInvoiceByEmail.mockResolvedValue(undefined);
+		mockChangeInvoiceStatus.mockResolvedValue(undefined);
+		const { result } = renderWith(clientWithDraftListed(), () => useSendInvoice());
+
+		await act(async () => {
+			await result.current.sendInvoice(draftToSend);
+		});
+
+		expect(mockChangeInvoiceStatus).toHaveBeenCalledWith('inv-1', { status: 'SENT' }, LIST_SCOPE, READ_AT);
+	});
+
+	it('voids an invoice to replace it under the updatedAt of the read it is rebuilt from', async () => {
+		mockGetInvoice.mockResolvedValue(rebuildable);
+		mockChangeInvoiceStatus.mockResolvedValue(undefined);
+		const { result } = renderWith(clientWithDraftListed(), () => useVoidToReplace());
+
+		await act(async () => {
+			await result.current.voidToReplace({ invoiceId: 'inv-1', scope: LIST_SCOPE });
+		});
+
+		expect(mockChangeInvoiceStatus).toHaveBeenCalledWith('inv-1', VOID_CHANGE, LIST_SCOPE, READ_AT);
+	});
+
+	it('takes a 409 INVOICE_CHANGED as changed meanwhile: nothing shown as changed, the invoices read again', async () => {
+		mockGetInvoiceStatus.mockResolvedValue('SENT');
+		mockReadAt.value = READ_AT;
+		mockChangeInvoiceStatus.mockRejectedValue(apiAnswer(409, CHANGED));
+		const { result, queryClient, invalidateQueries } = renderStatusChange();
+
+		let refusal: unknown = null;
+		await act(async () => {
+			refusal = await result.current
+				.changeStatus({ invoiceId: 'inv-1', change: VOID_CHANGE, scope: LIST_SCOPE })
+				.catch((error: unknown) => error);
+		});
+
+		expect(isInvoiceActionChangedMeanwhile(refusal)).toBe(true);
+		// The list keeps what it read until it is read again, which the failure asks for
+		expect(listedStatusOf(queryClient)).toBe('DRAFT');
+		expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: ['invoices'] });
+	});
+
+	it('leaves the e-mail sent but the draft unmarked when the mark is refused as changed meanwhile', async () => {
+		mockGetInvoiceStatus.mockResolvedValue('DRAFT');
+		mockReadAt.value = READ_AT;
+		mockSendInvoiceByEmail.mockResolvedValue(undefined);
+		mockChangeInvoiceStatus.mockRejectedValue(apiAnswer(409, CHANGED));
+		const { result } = renderWith(clientWithDraftListed(), () => useSendInvoice());
+
+		let outcome: unknown = null;
+		await act(async () => {
+			outcome = await result.current.sendInvoice(draftToSend);
+		});
+
+		expect(outcome).toBe('sentNotMarked');
+	});
+
+	it.each([
+		['a status that no longer offers the action, found before the write', null, true],
+		['the 409 INVOICE_CHANGED of Ever Gauzy', apiAnswer(409, CHANGED), true],
+		['another 409', apiAnswer(409, { message: 'BILLED_TIME_CHANGING: try again.' }), false],
+		['a server failure', apiAnswer(500), false]
+	])('tells %s as changed meanwhile: %p', async (_label, error, expected) => {
+		if (error === null) {
+			mockGetInvoiceStatus.mockResolvedValue('VOID');
+			const { result } = renderStatusChange();
+			let refusal: unknown = null;
+			await act(async () => {
+				refusal = await result.current
+					.changeStatus({ invoiceId: 'inv-1', change: VOID_CHANGE, scope: LIST_SCOPE })
+					.catch((caught: unknown) => caught);
+			});
+			expect(isInvoiceActionChangedMeanwhile(refusal)).toBe(expected);
+			return;
+		}
+		expect(isInvoiceActionChangedMeanwhile(error)).toBe(expected);
+	});
+
+	it('states no updatedAt when the read gave none, as an older Ever Gauzy answers', async () => {
+		mockGetInvoiceStatus.mockResolvedValue('SENT');
+		mockChangeInvoiceStatus.mockResolvedValue(undefined);
+		const { result } = renderStatusChange();
+
+		await act(async () => {
+			await result.current.changeStatus({ invoiceId: 'inv-1', change: VOID_CHANGE, scope: LIST_SCOPE });
+		});
+
+		expect(mockChangeInvoiceStatus).toHaveBeenCalledWith('inv-1', VOID_CHANGE, LIST_SCOPE, null);
 	});
 });
 
@@ -1052,7 +1221,7 @@ describe('saving an edit to an invoice', () => {
 		const saved = await saveWith(result, sending);
 
 		expect(saved).toEqual({ outcome: { status: 'saved' }, sending: 'sent' });
-		expect(mockChangeInvoiceStatus).toHaveBeenCalledWith('inv-42', { status: 'SENT' }, workspace);
+		expect(mockChangeInvoiceStatus).toHaveBeenCalledWith('inv-42', { status: 'SENT' }, workspace, null);
 	});
 
 	it('takes no status back when the draft the editor opened was sent and viewed from elsewhere since', async () => {

@@ -7674,6 +7674,7 @@
 			"MARKED_PAID": "第 {number} 号发票已标记为已付清",
 			"MARKED_UNPAID": "第 {number} 号发票已回到已发送，未付",
 			"CHANGE_FAILED": "第 {number} 号发票未更改",
+			"CHANGED_MEANWHILE": "此发票在显示后已更改，因此未做任何更改。现在显示的是其当前版本：请检查后重试。",
 			"DOWNLOAD": "下载 PDF"
 		},
 		"send": {

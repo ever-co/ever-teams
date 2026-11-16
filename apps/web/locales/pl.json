@@ -7674,6 +7674,7 @@
 			"MARKED_PAID": "Faktura {number} jest oznaczona jako opłacona",
 			"MARKED_UNPAID": "Faktura {number} wróciła do stanu Wysłana, nieopłacona",
 			"CHANGE_FAILED": "Faktura {number} nie została zmieniona",
+			"CHANGED_MEANWHILE": "Ta faktura zmieniła się od czasu jej wyświetlenia, więc nic nie zostało zmienione. Teraz wyświetlana jest jej aktualna wersja: sprawdź ją i spróbuj ponownie.",
 			"DOWNLOAD": "Pobierz jako PDF"
 		},
 		"send": {

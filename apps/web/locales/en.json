@@ -7674,6 +7674,7 @@
 			"MARKED_PAID": "Invoice {number} is marked paid",
 			"MARKED_UNPAID": "Invoice {number} is back to Sent, unpaid",
 			"CHANGE_FAILED": "Invoice {number} was not changed",
+			"CHANGED_MEANWHILE": "This invoice changed since it was shown, so nothing was changed. Its current version is shown now: check it, then try again.",
 			"DOWNLOAD": "Download PDF"
 		},
 		"send": {
