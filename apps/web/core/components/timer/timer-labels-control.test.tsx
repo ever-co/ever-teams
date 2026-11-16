@@ -1,9 +1,10 @@
 /** @jest-environment jsdom */
 
 import type { ReactNode } from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { Provider, createStore } from 'jotai';
 import { activeTeamIdState, timerLabelsState, timerStatusState } from '@/core/stores';
+import { timerLabelsSavedState } from '@/core/stores/timer/timer-labels';
 import type { ITimerStatus } from '@/core/types/interfaces/timer/timer-status';
 
 jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
@@ -55,5 +56,20 @@ describe('the labels control of the timer (#5368)', () => {
 
 		expect(mockUpdateTimeLogLabels).not.toHaveBeenCalled();
 		expect(store.get(timerLabelsState)).toEqual(['support']);
+	});
+
+	it('saves on the running entry of the active team, and remembers when that save landed', async () => {
+		const store = createStore();
+		store.set(activeTeamIdState, 'team-a');
+		store.set(timerStatusState, runOfTeam('team-a'));
+		mockUpdateTimeLogLabels.mockResolvedValue({ id: 'run-1', tags: [meeting, { id: 'support' }] });
+		renderControl(store);
+
+		await act(async () => {
+			fireEvent.click(screen.getByRole('button', { name: 'labels: meeting' }));
+		});
+
+		expect(mockUpdateTimeLogLabels).toHaveBeenCalledWith('run-1', ['meeting', 'support']);
+		expect(store.get(timerLabelsSavedState)).toMatchObject({ logId: 'run-1', tags: [meeting, { id: 'support' }] });
 	});
 });

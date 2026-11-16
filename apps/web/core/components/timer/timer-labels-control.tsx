@@ -11,6 +11,7 @@ import { entryLabelsOf } from '@/core/lib/utils/time-log-labels';
 import { timeLogService } from '@/core/services/client/api/timesheets/time-log.service';
 import { activeTeamIdState, timerLabelsState, timerStatusState } from '@/core/stores';
 import { teamTimerStatusState } from '@/core/stores/timer/team-timer-status';
+import { timerLabelsSavedState } from '@/core/stores/timer/timer-labels';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import type { ITimerStatus } from '@/core/types/interfaces/timer/timer-status';
 
@@ -44,6 +45,7 @@ export function TimerLabelsControl({ className }: Readonly<{ className?: string 
 	// The status the timer shows: a run of another team reads as stopped, so the labels picked are the next start's
 	const timerStatus = useAtomValue(teamTimerStatusState);
 	const setTimerStatus = useSetAtom(timerStatusState);
+	const setLabelsSaved = useSetAtom(timerLabelsSavedState);
 	const [isSaving, setIsSaving] = useState(false);
 	const activeTeamId = useAtomValue(activeTeamIdState);
 	const teamOfDraftRef = useRef(activeTeamId);
@@ -68,15 +70,18 @@ export function TimerLabelsControl({ className }: Readonly<{ className?: string 
 			setIsSaving(true);
 			try {
 				const updated = await timeLogService.updateTimeLogLabels(runningLogId, labelIds);
+				const savedTags = updated?.tags ?? [];
+				// A status read asked before this moment keeps these labels rather than the ones the run had before
+				setLabelsSaved({ logId: runningLogId, tags: savedTags, savedAt: Date.now() });
 				// The status as it is now: a stop or another start may have landed while the labels were saved
-				setTimerStatus((current) => withSavedLabels(current, runningLogId, updated?.tags ?? []));
+				setTimerStatus((current) => withSavedLabels(current, runningLogId, savedTags));
 			} catch {
 				toast.error(t('timer.labels.SAVE_FAILED'));
 			} finally {
 				setIsSaving(false);
 			}
 		},
-		[runningLogId, setTimerStatus, t]
+		[runningLogId, setLabelsSaved, setTimerStatus, t]
 	);
 
 	if (!supportsLabels) {

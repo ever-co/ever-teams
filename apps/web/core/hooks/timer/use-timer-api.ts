@@ -29,6 +29,7 @@ import { forgetSavedStop, saveStop } from '@/core/lib/utils/timer/saved-stop';
 import { rememberHeartbeat } from '@/core/lib/utils/timer/unfollowed-time';
 import { notesForStartOf } from '@/core/lib/utils/timer/timer-start-notes';
 import { startTaskOf } from '@/core/lib/utils/timer/timer-start-task';
+import { statusKeepingSavedLabels } from '@/core/lib/utils/timer-status-labels';
 import { queryKeys } from '@/core/query/keys';
 import { ApiErrorService } from '@/core/services/client/api-error.service';
 import { timerService } from '@/core/services/client/api/timers';
@@ -48,6 +49,7 @@ import {
 	workspaceOpeningState
 } from '@/core/stores';
 import { teamTimerStatusState } from '@/core/stores/timer/team-timer-status';
+import { timerLabelsSavedState } from '@/core/stores/timer/timer-labels';
 import { ETaskStatusName } from '@/core/types/generics/enums/task';
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
 import { ILocalTimerStatus, ITimerStatus } from '@/core/types/interfaces/timer/timer-status';
@@ -294,7 +296,12 @@ export function useTimerApi({
 	);
 	const scopedStatusQuery = useQuery({
 		queryKey: statusKey,
-		queryFn: ({ signal }) => timerService.getTimerStatus({ scope: scope!, signal }),
+		// When the read was asked: labels saved on the run after that moment are kept over the ones it brings (#5368)
+		queryFn: async ({ signal }) => {
+			const requestedAt = Date.now();
+			const response = await timerService.getTimerStatus({ scope: scope!, signal });
+			return { ...response, requestedAt };
+		},
 		enabled: statusEnabled && enabled && scopedStatusReady,
 		refetchInterval: statusEnabled ? statusRefetchInterval : false,
 		refetchIntervalInBackground: false,
@@ -309,17 +316,26 @@ export function useTimerApi({
 	} = useQueryCall(async () =>
 		queryClient.fetchQuery({
 			queryKey: queryKeys.timer.timer(activeTeamId),
-			queryFn: () => timerService.getTimerStatus()
+			queryFn: async () => {
+				const requestedAt = Date.now();
+				const response = await timerService.getTimerStatus();
+				return { ...response, requestedAt };
+			}
 		})
 	);
 	const loading = statusEnabled ? scopedStatusQuery.isLoading : fallbackLoading;
 
 	useEffect(() => {
-		const nextStatus = scopedStatusQuery.data?.data;
+		const read = scopedStatusQuery.data;
+		const nextStatus = statusKeepingSavedLabels(
+			read?.data,
+			store.get(timerLabelsSavedState),
+			read?.requestedAt ?? 0
+		);
 		if (statusEnabled && nextStatus && isCurrentScope() && !isEqual(timerStatusRef.current, nextStatus)) {
 			setTimerStatus(nextStatus);
 		}
-	}, [isCurrentScope, scopedStatusQuery.data, setTimerStatus, statusEnabled, timerStatusRef]);
+	}, [isCurrentScope, scopedStatusQuery.data, setTimerStatus, statusEnabled, store, timerStatusRef]);
 
 	const startTimerMutation = useMutation({
 		mutationFn: async ({
@@ -448,12 +464,17 @@ export function useTimerApi({
 			}
 			const request = statusEnabled ? scopedStatusQuery.refetch().then((result) => result.data) : queryCall();
 			return request.then((res) => {
-				if (res?.data && (!statusEnabled || isCurrentScope()) && !isEqual(timerStatus, res.data)) {
+				const readStatus = statusKeepingSavedLabels(
+					res?.data,
+					store.get(timerLabelsSavedState),
+					res?.requestedAt ?? 0
+				);
+				if (readStatus && (!statusEnabled || isCurrentScope()) && !isEqual(timerStatus, readStatus)) {
 					setTimerStatus((t: ITimerStatus | null) => {
 						if (deepCheck) {
-							return res.data.running !== t?.running ? res.data : t;
+							return readStatus.running !== t?.running ? readStatus : t;
 						}
-						return res.data;
+						return readStatus;
 					});
 				}
 				return res;
@@ -466,6 +487,7 @@ export function useTimerApi({
 			scopedStatusQuery,
 			setTimerStatus,
 			statusEnabled,
+			store,
 			timerStatus,
 			user?.tenantId
 		]
