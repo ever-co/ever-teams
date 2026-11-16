@@ -1,7 +1,6 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { startOfLog } from '@/core/lib/utils/dashboards/timesheets';
 import { type ApiSplitSupport, apiSplitSupportOf } from '@/core/lib/utils/time-log-split';
 import { timeLogService } from '@/core/services/client/api/timesheets/time-log.service';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
@@ -13,17 +12,13 @@ export type SplitSupport = 'checking' | ApiSplitSupport | 'unknown';
 const SPLIT_SUPPORT_KEY = ['time-log-split', 'support'] as const;
 
 /**
- * Asks the API whether it splits an entry (ever-co/ever-gauzy#12030) with a split it refuses before writing
- * anything: at the very start of the entry, which leaves no first part. Its own refusal says it splits; the 404 of a
- * missing route says it does not.
+ * Asks the API whether it splits an entry (ever-co/ever-gauzy#12030), with a request its validation refuses before the
+ * route reads or writes anything (see `probeSplitTimeLog`): its own refusal says it splits, the 404 of a missing route
+ * says it does not, and an outage says neither (thrown).
  */
 export async function checkSplitSupport(log: ITimeLog): Promise<ApiSplitSupport> {
-	const start = startOfLog(log);
-	if (!start) {
-		throw new Error('An entry without a start cannot be checked');
-	}
 	try {
-		await timeLogService.splitTimeLog({ timeLogId: log.id, splitAt: start });
+		await timeLogService.probeSplitTimeLog(log.id);
 	} catch (error) {
 		return apiSplitSupportOf(error);
 	}

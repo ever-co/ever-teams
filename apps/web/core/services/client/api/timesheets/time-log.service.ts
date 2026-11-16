@@ -379,6 +379,22 @@ class TimeLogService extends APIService {
 		return response.data;
 	};
 
+	/**
+	 * Asks the split route of an entry with an empty body, which the API's validation refuses (no `splitAt`) before the
+	 * route reads or writes anything, whatever the entry has become since the page read it: an API with the route
+	 * answers 400, one without it 404. The error is thrown as the API answered it (see `time-log-split.ts`).
+	 */
+	probeSplitTimeLog = async (timeLogId: string): Promise<void> => {
+		if (!this.organizationId || !this.tenantId) {
+			throw new Error('Required parameters missing: organizationId and tenantId are required');
+		}
+		await this.post<unknown>(
+			`/timesheet/time-log/${encodeURIComponent(timeLogId)}/split`,
+			{},
+			{ tenantId: this.tenantId }
+		);
+	};
+
 	updateTimesheetFrom = async (params: IUpdateTimesheetRequest) => {
 		const { id, ...data } = params;
 		if (!this.organizationId || !this.tenantId) {
