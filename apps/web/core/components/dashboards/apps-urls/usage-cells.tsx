@@ -1,3 +1,4 @@
+import { HiddenProjectName } from '@/core/components/projects/hidden-project-mark';
 import { memo } from 'react';
 import { useTranslations } from 'next-intl';
 import { ActivityIcon } from '@/core/components/activities/activity-icon';
@@ -91,6 +92,11 @@ export const ProjectCell = memo(function ProjectCell({
 }: Readonly<{ project: UsageProject; className?: string }>) {
 	const t = useTranslations();
 	const name = project.name;
+	if (project.isHidden) {
+		return (
+			<HiddenProjectName label={t('common.PRIVATE_PROJECTS')} className={cn('gap-2 text-[13px]', className)} />
+		);
+	}
 	return (
 		<span className={cn('flex min-w-0 items-center gap-2', className)}>
 			<ProjectMark project={project} />
