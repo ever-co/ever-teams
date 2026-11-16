@@ -627,12 +627,13 @@ export function useTimeActivityReport() {
 	// The weekly report has no project in its rows and rounds nothing: with a client picked or a rounding rule, the
 	// week grid is built from these rows
 	const weekDailySource = useMemo<WeekDailySource | null>(() => {
-		const readsRows = hasClientFilter || isRounding;
+		// The weekly report knows no labels of entries either (#5368): picked, the grid is built from these rows too
+		const readsRows = hasClientFilter || isRounding || hasEntryLabelFilter;
 		if (!readsRows) {
 			return null;
 		}
 		return { rows, isLoading: isDailyPending, isError: isDailyError, refetch: () => void refetchDaily() };
-	}, [hasClientFilter, isDailyError, isDailyPending, isRounding, refetchDaily, rows]);
+	}, [hasClientFilter, hasEntryLabelFilter, isDailyError, isDailyPending, isRounding, refetchDaily, rows]);
 
 	return {
 		user,

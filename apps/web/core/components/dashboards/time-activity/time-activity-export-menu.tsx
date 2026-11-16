@@ -420,6 +420,15 @@ function pdfLayoutOf(context: ExportContext): PdfLayout {
 			second: (named) => named.member
 		};
 	}
+	if (context.grouping === 'label') {
+		return {
+			firstHeader: projectHeader,
+			secondHeader: memberHeader,
+			groupTitle: (_group, named) => named.labels || t('timer.labels.NO_LABEL'),
+			first: (named) => named.project,
+			second: (named) => named.member
+		};
+	}
 	if (isClientExport(context)) {
 		return {
 			firstHeader: projectHeader,
