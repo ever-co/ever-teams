@@ -5,6 +5,7 @@ import { billableFiguresOfFacts, exportRowsOf } from './time-activity';
 import { type PriceOfRow, billableFactsOf as pricedFactsOf, pricedProjectIdOf } from './time-activity-billable';
 import {
 	centsAddingUpOf,
+	centsOfAmount,
 	clientLineBillablesOf,
 	exportBillableTotalsOf,
 	exportBillablesOf
@@ -40,7 +41,8 @@ function dayOf(date: string, logs: Array<{ project: string; employeeLogs: object
 
 const CLIENT_RATES = new Map<string, ProjectClientRates>([
 	['website', { billRateValue: 90, currency: 'EUR', members: [] }],
-	['thirds', { billRateValue: 100, currency: 'EUR', members: [] }]
+	['thirds', { billRateValue: 100, currency: 'EUR', members: [] }],
+	['halfcent', { billRateValue: 2.01, currency: 'EUR', members: [] }]
 ]);
 
 const priceOf: PriceOfRow = (row) =>
@@ -177,7 +179,52 @@ describe('billable time of the Time & activity export rows', () => {
 	});
 });
 
+describe('billable entries that look alike', () => {
+	it('gives equal entries of one task the amount of the rate each one keeps', () => {
+		const entryAt = (rate: number) => ({
+			...taskOf({ task: 'Home', seconds: HOUR }),
+			billRateValue: rate,
+			billRateCurrency: 'EUR'
+		});
+		const log = { employee: ana, sum: 3 * HOUR, activity: 50, tasks: [entryAt(60), entryAt(90), entryAt(60)] };
+		const report = [dayOf('2026-11-06', [{ project: 'norate', employeeLogs: [log] }])];
+
+		const rows = rowsOf(report);
+		const billables = exportBillablesOf(rows, factsOf(report));
+
+		expect(rows.map((row) => billables.get(row)?.amount)).toEqual(rows.map((row) => row.earnings));
+		expect(rows.map((row) => row.earnings)).toEqual([60, 90, 60]);
+	});
+
+	it('keeps the billable part of a row Gauzy sent without its entries', () => {
+		const fullLog = { employee: bo, sum: 3 * HOUR, activity: 50, tasks: [] };
+		const billableLog = { employee: bo, sum: 2 * HOUR, activity: 50, tasks: [] };
+		const report = [dayOf('2026-11-06', [{ project: 'app', employeeLogs: [fullLog] }])];
+		const billableReport = [dayOf('2026-11-06', [{ project: 'app', employeeLogs: [billableLog] }])];
+
+		const rows = rowsOf(report);
+		const billables = exportBillablesOf(rows, factsOf(billableReport));
+
+		expect(billables.get(rows[0])).toEqual({ seconds: 2 * HOUR, amount: 120, currency: 'EUR' });
+	});
+
+	it('rounds a half cent as the page writes the amount', () => {
+		const log = employeeLogOf(ana, [{ task: 'Review', seconds: HOUR / 2 }]);
+		const report = [dayOf('2026-11-07', [{ project: 'halfcent', employeeLogs: [log] }])];
+
+		const rows = rowsOf(report);
+		const billables = exportBillablesOf(rows, factsOf(report));
+
+		expect(billables.get(rows[0])?.amount).toBe(1.01);
+		expect(exportBillableTotalsOf(rows, billables).amounts).toEqual([{ currency: 'EUR', amount: 1.01 }]);
+	});
+});
+
 describe('cents of a currency', () => {
+	it('reads an amount in cents the way the page writes it', () => {
+		expect(centsOfAmount(1.005)).toBe(101);
+	});
+
 	it('gives each amount its whole cents and the leftover cents to the amounts rounded down the most', () => {
 		expect(centsAddingUpOf([10.005, 10.005, 10.004])).toEqual([1001, 1000, 1000]);
 	});
