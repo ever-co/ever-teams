@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
@@ -25,10 +25,18 @@ export function EntryLabelsLine({ log, canEdit }: Readonly<{ log: ITimeLog; canE
 	const [labelIds, setLabelIds] = useState<string[]>(() => carriedLabels.map((label) => label.id));
 	const [isSaving, setIsSaving] = useState(false);
 	const carriedKey = carriedLabels.map((label) => label.id).join(',');
+	// The labels the entry was read with before a save that landed: a read still showing them predates the save (the
+	// refetch after it may fail, and leaves that read in place), so the saved labels stay until a read shows others
+	const keyBeforeSaveRef = useRef<string | null>(null);
 	useEffect(() => {
 		if (isSaving) {
 			return;
 		}
+		const isReadBeforeSave = carriedKey === keyBeforeSaveRef.current;
+		if (isReadBeforeSave) {
+			return;
+		}
+		keyBeforeSaveRef.current = null;
 		setLabelIds(carriedKey ? carriedKey.split(',') : []);
 	}, [carriedKey, isSaving]);
 
@@ -39,6 +47,8 @@ export function EntryLabelsLine({ log, canEdit }: Readonly<{ log: ITimeLog; canE
 			setIsSaving(true);
 			try {
 				await timeLogService.updateTimeLogLabels(log.id, next);
+				const isChanged = next.join(',') !== carriedKey;
+				keyBeforeSaveRef.current = isChanged ? carriedKey : null;
 				await queryClient.invalidateQueries({ queryKey: queryKeys.timesheet.all });
 			} catch {
 				setLabelIds(previous);
@@ -47,7 +57,7 @@ export function EntryLabelsLine({ log, canEdit }: Readonly<{ log: ITimeLog; canE
 				setIsSaving(false);
 			}
 		},
-		[labelIds, log.id, queryClient, t]
+		[carriedKey, labelIds, log.id, queryClient, t]
 	);
 
 	if (!supportsLabels) {
