@@ -357,3 +357,92 @@ describe('the active project cookie when the team is chosen', () => {
 		expect(mockSetActiveProjectIdCookie).toHaveBeenCalledWith('project-b');
 	});
 });
+
+/**
+ * A team switch writes the team to local storage for this browser's next start. A browser that refuses its storage
+ * (full, blocked) made that write throw after the cookies and the session's token had moved to the new team, and before
+ * the tab's active team followed them (Greptile on #5345).
+ */
+describe('the team switch when the browser refuses its storage', () => {
+	const mockCookieModule = jest.requireMock('@/core/lib/helpers/cookies') as {
+		setActiveTeamIdCookie: jest.Mock;
+		setOrganizationIdCookie: jest.Mock;
+	};
+	const mockSyncTokenOrganization = jest.mocked(
+		(jest.requireMock('@/core/lib/auth/token-organization') as { syncTokenOrganization: jest.Mock })
+			.syncTokenOrganization
+	);
+	const teamB = {
+		id: 'team-b',
+		name: 'Team B',
+		organizationId: 'organization-b',
+		tenantId: 'tenant-a',
+		members: [],
+		projects: []
+	};
+
+	beforeEach(() => {
+		jest.clearAllMocks();
+		mockUserId = 'user-a';
+		window.localStorage.clear();
+	});
+
+	afterEach(() => jest.restoreAllMocks());
+
+	function renderTeams() {
+		mockGetOrganizationTeams.mockResolvedValueOnce({ data: { items: [teamB], total: 1 } } as never);
+		const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+		const store = createStore();
+		store.set(organizationTeamsState, []);
+		store.set(activeTeamIdState, '');
+		const wrapper = ({ children }: PropsWithChildren) => (
+			<QueryClientProvider client={client}>
+				<Provider store={store}>{children}</Provider>
+			</QueryClientProvider>
+		);
+		renderHook(
+			() =>
+				useOrganizationTeamsQuery({
+					scope: { tenantId: 'tenant-a', organizationId: 'organization-a', userId: 'user-a', accessToken: 'token-a' }
+				}),
+			{ wrapper }
+		);
+		return store;
+	}
+
+	it('switches the cookies, the session and the active team, and keeps the team for the next start', async () => {
+		const store = renderTeams();
+
+		await waitFor(() => expect(store.get(activeTeamIdState)).toBe('team-b'));
+		expect(mockCookieModule.setActiveTeamIdCookie).toHaveBeenCalledWith('team-b');
+		expect(mockCookieModule.setOrganizationIdCookie).toHaveBeenCalledWith('organization-b');
+		expect(mockSyncTokenOrganization).toHaveBeenCalledWith('organization-b');
+		expect(window.localStorage.getItem('last-workspace-and-team')).toBe('team-b');
+	});
+
+	it.each([
+		[
+			'full',
+			() =>
+				jest.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+					throw new DOMException('The quota has been exceeded.', 'QuotaExceededError');
+				})
+		],
+		[
+			'blocked',
+			() =>
+				jest.spyOn(window, 'localStorage', 'get').mockImplementation(() => {
+					throw new DOMException('Access is denied for this document.', 'SecurityError');
+				})
+		]
+	])('still finishes the switch when the storage is %s', async (_label, refuseStorage) => {
+		refuseStorage();
+		const store = renderTeams();
+
+		// The cookies, the session and the tab's active team all move to team B: none is left on the old team
+		await waitFor(() => expect(store.get(activeTeamIdState)).toBe('team-b'));
+		expect(mockCookieModule.setActiveTeamIdCookie).toHaveBeenCalledWith('team-b');
+		expect(mockCookieModule.setOrganizationIdCookie).toHaveBeenCalledWith('organization-b');
+		expect(mockSyncTokenOrganization).toHaveBeenCalledWith('organization-b');
+	});
+});
