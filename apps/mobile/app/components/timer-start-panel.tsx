@@ -72,7 +72,7 @@ export const TimerStartPanel: FC<ITimerStartPanelProps> = ({ access, runStart, s
 		}
 		const now = new Date();
 		const runStartDate = new Date(runStart);
-		const start = startFromTimeText(runStartDate, timeText, now);
+		const start = startFromTimeText(runStartDate, timeText);
 		if (!start) {
 			setErrorKey('timer.startMove.invalidTime');
 			return;

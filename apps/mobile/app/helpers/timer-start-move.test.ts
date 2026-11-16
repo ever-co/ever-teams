@@ -158,25 +158,32 @@ describe('timerStartMoveRefusalKeyOf', () => {
 
 describe('startFromTimeText', () => {
 	it('reads the time on the day the run started', () => {
-		expect(startFromTimeText(at(9, 25), '09:00', at(9, 30))).toEqual(at(9, 0));
-		expect(startFromTimeText(at(9, 25), '9:05', at(9, 30))).toEqual(at(9, 5));
+		expect(startFromTimeText(at(9, 25), '09:00')).toEqual(at(9, 0));
+		expect(startFromTimeText(at(9, 25), '9:05')).toEqual(at(9, 5));
 	});
 
 	it('reads a run that started before midnight on the day the time belongs to', () => {
 		// Started at 23:50 and still running at 00:20: 00:05 is after midnight, 23:40 before it
-		expect(startFromTimeText(at(23, 50, 15), '00:05', at(0, 20, 16))).toEqual(at(0, 5, 16));
-		expect(startFromTimeText(at(23, 50, 15), '23:40', at(0, 20, 16))).toEqual(at(23, 40, 15));
+		expect(startFromTimeText(at(23, 50, 15), '00:05')).toEqual(at(0, 5, 16));
+		expect(startFromTimeText(at(23, 50, 15), '23:40')).toEqual(at(23, 40, 15));
+	});
+
+	it('reads a time just after now as a start in the future, never as the same time a day earlier', () => {
+		// Started at 23:50 and still running at 00:20: 00:30 is ten minutes from now, not 23 hours before the start
+		const start = startFromTimeText(at(23, 50, 15), '00:30');
+
+		expect(start).toEqual(at(0, 30, 16));
 	});
 
 	it('keeps a time later than now on the run day, for the panel to refuse', () => {
-		expect(startFromTimeText(at(9, 25), '10:00', at(9, 30))).toEqual(at(10, 0));
+		expect(startFromTimeText(at(9, 25), '10:00')).toEqual(at(10, 0));
 	});
 
 	it('reads nothing that is not a time', () => {
-		expect(startFromTimeText(at(9, 25), '', at(9, 30))).toBeNull();
-		expect(startFromTimeText(at(9, 25), '9', at(9, 30))).toBeNull();
-		expect(startFromTimeText(at(9, 25), '24:00', at(9, 30))).toBeNull();
-		expect(startFromTimeText(at(9, 25), '09:60', at(9, 30))).toBeNull();
+		expect(startFromTimeText(at(9, 25), '')).toBeNull();
+		expect(startFromTimeText(at(9, 25), '9')).toBeNull();
+		expect(startFromTimeText(at(9, 25), '24:00')).toBeNull();
+		expect(startFromTimeText(at(9, 25), '09:60')).toBeNull();
 	});
 });
 

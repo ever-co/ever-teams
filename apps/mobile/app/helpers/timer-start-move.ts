@@ -141,10 +141,10 @@ function atTimeOn(day: Date, hours: number, minutes: number): Date {
 /**
  * The start a time field asks for, in local time, or null when the field does not hold a time. A run that started
  * before midnight and still runs spans two days: the time is read on the day the run started or on the next one,
- * leaving out a moment later than `now`, and the one nearest the run's start is taken. A time later than now on both
- * days stays on the run's day, for the panel to refuse as a start in the future.
+ * whichever is nearer the run's start. A time that is then later than now stays as it is, for the panel to refuse as
+ * a start in the future: it is never read as the same time a day earlier.
  */
-export function startFromTimeText(runStart: Date, timeText: string, now: Date): Date | null {
+export function startFromTimeText(runStart: Date, timeText: string): Date | null {
 	const match = TIME_TEXT.exec(timeText.trim());
 	if (!match) {
 		return null;
@@ -156,15 +156,11 @@ export function startFromTimeText(runStart: Date, timeText: string, now: Date): 
 	nextDay.setDate(nextDay.getDate() + 1);
 	const onNextDay = atTimeOn(nextDay, hours, minutes);
 	const distanceToRunStart = (candidate: Date) => Math.abs(candidate.getTime() - runStart.getTime());
-	let nearest: Date | null = null;
-	for (const candidate of [onRunDay, onNextDay]) {
-		const isLaterThanNow = candidate.getTime() > now.getTime();
-		const isNearer = nearest === null || distanceToRunStart(candidate) < distanceToRunStart(nearest);
-		if (!isLaterThanNow && isNearer) {
-			nearest = candidate;
-		}
+	const nextDayIsNearer = distanceToRunStart(onNextDay) < distanceToRunStart(onRunDay);
+	if (nextDayIsNearer) {
+		return onNextDay;
 	}
-	return nearest ?? onRunDay;
+	return onRunDay;
 }
 
 function twoDigits(value: number): string {
