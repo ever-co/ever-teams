@@ -90,6 +90,14 @@ export function EditTaskModal({ isOpen, closeModal, timeLogData }: IEditTaskModa
 	const supportsEntryLabels = useEntryLabelsSupport();
 	const carriedLabels = useMemo(() => entryLabelsOf(timeLogData), [timeLogData]);
 	const [labelIds, setLabelIds] = useState<string[]>(() => carriedLabels.map((label) => label.id));
+	// The dialog stays mounted once closed: a reopening starts from the entry's labels, not from a change left unsaved
+	const [wasOpen, setWasOpen] = useState(isOpen);
+	if (wasOpen !== isOpen) {
+		setWasOpen(isOpen);
+		if (isOpen) {
+			setLabelIds(carriedLabels.map((label) => label.id));
+		}
+	}
 	const [timesheetData, setTimesheetData] = useState({
 		isBillable: timeLogData.isBillable ?? true,
 		projectId: timeLogData.project?.id || '',

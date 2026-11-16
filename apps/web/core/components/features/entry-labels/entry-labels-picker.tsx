@@ -188,6 +188,8 @@ export function EntryLabelsPicker({
 	}, [createTaskLabels, onChange, t, trimmedQuery, value]);
 
 	const hasNoLabels = !taskLabelsLoading && labels.length === 0 && !offersCreate;
+	// A save or a creation on its way: another change now would be sent from the labels before it
+	const isBusy = isSaving || createTaskLabelsLoading;
 	const triggerLabel = t('timer.labels.LABELS');
 
 	const triggerProps = { triggerLabel, isSaving, disabled, className, picked };
@@ -221,7 +223,11 @@ export function EntryLabelsPicker({
 						return (
 							<li key={label.id}>
 								<label className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-gray-100 dark:hover:bg-dark--theme-light">
-									<Checkbox checked={isPicked} onCheckedChange={() => toggle(label.id)} />
+									<Checkbox
+										checked={isPicked}
+										onCheckedChange={() => toggle(label.id)}
+										disabled={isBusy}
+									/>
 									<span
 										aria-hidden="true"
 										className="size-2.5 shrink-0 rounded-full"
@@ -242,7 +248,7 @@ export function EntryLabelsPicker({
 					<button
 						type="button"
 						onClick={create}
-						disabled={createTaskLabelsLoading}
+						disabled={isBusy}
 						aria-busy={createTaskLabelsLoading}
 						className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm hover:bg-gray-100 disabled:opacity-60 dark:hover:bg-dark--theme-light"
 					>

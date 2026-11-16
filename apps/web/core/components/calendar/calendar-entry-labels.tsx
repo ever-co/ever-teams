@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
@@ -24,6 +24,13 @@ export function EntryLabelsLine({ log, canEdit }: Readonly<{ log: ITimeLog; canE
 	const carriedLabels = useMemo(() => entryLabelsOf(log), [log]);
 	const [labelIds, setLabelIds] = useState<string[]>(() => carriedLabels.map((label) => label.id));
 	const [isSaving, setIsSaving] = useState(false);
+	const carriedKey = carriedLabels.map((label) => label.id).join(',');
+	useEffect(() => {
+		if (isSaving) {
+			return;
+		}
+		setLabelIds(carriedKey ? carriedKey.split(',') : []);
+	}, [carriedKey, isSaving]);
 
 	const save = useCallback(
 		async (next: string[]) => {
