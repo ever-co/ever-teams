@@ -166,13 +166,21 @@ export function daysOfRun(runStart: Date, now: Date): Date[] {
 	return days;
 }
 
-/** The start a time field asks for on `day`, in local time, or null when the field does not hold a time. */
+/**
+ * The start a time field asks for on `day`, in local time, or null when the field does not hold a time, or holds one
+ * the clocks skip that day (02:30 where they go forward from 02:00 to 03:00): it is never read as an hour later.
+ */
 export function startOnDay(day: Date, timeText: string): Date | null {
 	const match = TIME_TEXT.exec(timeText.trim());
 	if (!match) {
 		return null;
 	}
-	return atTimeOn(day, Number(match[1]), Number(match[2]));
+	const hours = Number(match[1]);
+	const minutes = Number(match[2]);
+	const start = atTimeOn(day, hours, minutes);
+	const keepsTypedTime =
+		start.getDate() === day.getDate() && start.getHours() === hours && start.getMinutes() === minutes;
+	return keepsTypedTime ? start : null;
 }
 
 function twoDigits(value: number): string {

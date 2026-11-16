@@ -195,6 +195,23 @@ describe('startOnDay', () => {
 		expect(startOnDay(at(0, 0, 16), '12:00')).toEqual(at(12, 0, 16));
 	});
 
+	it('reads nothing for a time the clocks skip that day, rather than a start an hour later than typed', () => {
+		// Where clocks go forward from 02:00 to 03:00, 02:30 does not exist that day: the phone's date lands on 03:30
+		const datePrototype = Object.getPrototypeOf(at(0, 0)) as Date;
+		const setHours = datePrototype.setHours;
+		function setHoursSkippingTwoOClock(this: Date, hours: number, minutes = 0, seconds = 0, ms = 0): number {
+			const skipped = hours === 2;
+			return setHours.call(this, skipped ? 3 : hours, minutes, seconds, ms);
+		}
+		const clocksSkipTwoOClock = jest.spyOn(datePrototype, 'setHours').mockImplementation(setHoursSkippingTwoOClock);
+		try {
+			expect(startOnDay(at(0, 0), '02:30')).toBeNull();
+			expect(startOnDay(at(0, 0), '09:05')).toEqual(at(9, 5));
+		} finally {
+			clocksSkipTwoOClock.mockRestore();
+		}
+	});
+
 	it('reads nothing that is not a time', () => {
 		expect(startOnDay(at(0, 0), '')).toBeNull();
 		expect(startOnDay(at(0, 0), '9')).toBeNull();
