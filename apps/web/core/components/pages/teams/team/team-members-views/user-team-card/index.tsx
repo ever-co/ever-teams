@@ -458,13 +458,14 @@ type ExpandedMemberDetailsProps = Omit<MemberActivityPanelProps, 'isLoading'> & 
 };
 
 // Mounted only while the row is expanded: the member's plans query and their calculations do not run for every row
-function ExpandedMemberDetails({
+export function ExpandedMemberDetails({
 	employeeId,
 	showsActivityPanel,
 	...panelProps
 }: Readonly<ExpandedMemberDetailsProps>) {
-	const { isLoading, isFetching } = useEmployeeDailyPlans(employeeId);
-	const isLoadingMemberData = isLoading || isFetching;
+	// Only the first read of the member's plans: a background re-read (after a task or plan edit, or from a task menu)
+	// keeps the panel, its tab, its list and its scroll on screen (#5335)
+	const { isLoading: isLoadingMemberData } = useEmployeeDailyPlans(employeeId);
 
 	if (!showsActivityPanel) {
 		return (
