@@ -158,6 +158,8 @@ export interface ITimeLogRequestParams {
 	includeTimeWithoutTeam?: boolean;
 	/** Counts billable time only. The daily and weekly report routes forward it. */
 	billableOnly?: boolean;
+	/** States the client rates each entry keeps. The daily report route forwards it; Gauzy decides who may read them. */
+	withClientRates?: boolean;
 }
 
 // export type LogType = 'TRACKED' | 'MANUAL' | 'IDLE';
@@ -256,6 +258,10 @@ function buildTimeLogParams(params: ITimeLogRequestParams): URLSearchParams {
 
 	if (params.billableOnly) {
 		baseParams.append('billableOnly', 'true');
+	}
+
+	if (params.withClientRates) {
+		baseParams.append('withClientRates', 'true');
 	}
 
 	return baseParams;
