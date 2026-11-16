@@ -1,7 +1,7 @@
 /** @jest-environment jsdom */
 
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 
 interface MockSaved {
 	id: string;
@@ -23,6 +23,15 @@ const mockRead: { current: MockRead } = {
 	current: { status: 'loading', saved: null, isRefreshing: false, readAt: 0, hasReadFailed: false, number: 42 }
 };
 
+const mockRetry = jest.fn();
+
+interface MockSaveDialogProps {
+	open: boolean;
+	onClose: () => void;
+	onSaveFailed?: () => void;
+	onChangedMeanwhile?: () => void;
+}
+
 jest.mock('next/navigation', () => ({ useParams: () => ({ id: 'inv-42' }) }));
 jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key, useLocale: () => 'en' }));
 jest.mock('@/core/components/layouts/app/authenticator', () => ({
@@ -37,7 +46,7 @@ jest.mock('@/core/hooks/invoices/use-invoice-edit', () => ({
 	}
 }));
 jest.mock('@/core/hooks/invoices/use-saved-invoice', () => ({
-	useSavedInvoice: () => ({ ...mockRead.current, retry: jest.fn() })
+	useSavedInvoice: () => ({ ...mockRead.current, retry: mockRetry })
 }));
 jest.mock('@/core/lib/utils/dashboard-period', () => ({ formatPeriod: () => '' }));
 jest.mock('../invoice-access-guard', () => ({
@@ -48,11 +57,41 @@ jest.mock('../new/invoice-screen', () => ({
 	CancelInvoiceLink: () => null,
 	TakeTimeAgainButton: () => null,
 	InvoiceScreenFrame: ({ children }: Readonly<{ children?: React.ReactNode }>) => <>{children}</>,
-	RevisedInvoiceBody: ({ invoice }: Readonly<{ invoice: { opened: MockSaved } }>) => (
-		<p>editor of the {invoice.opened.version} invoice</p>
+	RevisedInvoiceBody: ({
+		invoice,
+		renderSaveDialog
+	}: Readonly<{
+		invoice: { opened: MockSaved };
+		renderSaveDialog: (dialog: { open: boolean; onClose: () => void }) => React.ReactNode;
+	}>) => (
+		<>
+			<p>editor of the {invoice.opened.version} invoice</p>
+			{renderSaveDialog({ open: true, onClose: () => undefined })}
+		</>
 	)
 }));
-jest.mock('./save-invoice-changes-dialog', () => ({ SaveInvoiceChangesDialog: () => null }));
+// The save dialog's answers, as buttons: a save refused as changed meanwhile, another failed save, and closing it
+jest.mock('./save-invoice-changes-dialog', () => ({
+	SaveInvoiceChangesDialog: ({ onClose, onSaveFailed, onChangedMeanwhile }: MockSaveDialogProps) => (
+		<>
+			<button
+				type="button"
+				onClick={() => {
+					onSaveFailed?.();
+					onChangedMeanwhile?.();
+				}}
+			>
+				refused as changed meanwhile
+			</button>
+			<button type="button" onClick={() => onSaveFailed?.()}>
+				not saved
+			</button>
+			<button type="button" onClick={onClose}>
+				close
+			</button>
+		</>
+	)
+}));
 jest.mock('./saved-invoice-states', () => ({
 	EditInvoicePageSkeleton: () => <p>skeleton</p>,
 	LockedInvoiceMessage: () => <p>locked</p>,
@@ -110,5 +149,69 @@ describe('the invoice editor', () => {
 
 		expect(screen.getByText('skeleton')).toBeTruthy();
 		expect(screen.queryByText(/editor of/)).toBeNull();
+	});
+});
+
+describe('the invoice editor after a save refused because the invoice changed meanwhile (#5243)', () => {
+	let now = 1_000;
+
+	beforeEach(() => {
+		now = 1_000;
+		jest.spyOn(Date, 'now').mockImplementation(() => now);
+		mockRetry.mockReset();
+	});
+
+	afterEach(() => jest.restoreAllMocks());
+
+	function readAt(version: string, readAtTime: number, hasReadFailed = false): MockRead {
+		const saved = { id: 'inv-42', number: 42, status: 'SENT', version };
+		return { status: 'ready', saved, isRefreshing: false, readAt: readAtTime, hasReadFailed, number: 42 };
+	}
+
+	function refuseAsChangedMeanwhileAndClose() {
+		fireEvent.click(screen.getByRole('button', { name: 'refused as changed meanwhile' }));
+		now = 2_000;
+		fireEvent.click(screen.getByRole('button', { name: 'close' }));
+	}
+
+	it('reads the invoice again once the dialog is closed, and opens on what it holds now', () => {
+		mockRead.current = readAt('opened', 1_000);
+		const { rerender } = render(<EditInvoicePage />);
+		expect(screen.getByText('editor of the opened invoice')).toBeTruthy();
+
+		refuseAsChangedMeanwhileAndClose();
+
+		expect(mockRetry).toHaveBeenCalledTimes(1);
+		// The edit made on the earlier version is not offered again while the current one is read
+		expect(screen.getByText('skeleton')).toBeTruthy();
+		mockRead.current = readAt('current', 3_000);
+		rerender(<EditInvoicePage />);
+		expect(screen.getByText('editor of the current invoice')).toBeTruthy();
+	});
+
+	it('offers to read again when that read fails', () => {
+		mockRead.current = readAt('opened', 1_000);
+		const { rerender } = render(<EditInvoicePage />);
+
+		refuseAsChangedMeanwhileAndClose();
+		mockRead.current = readAt('opened', 1_000, true);
+		rerender(<EditInvoicePage />);
+
+		expect(screen.getByText('message')).toBeTruthy();
+		expect(screen.queryByText(/editor of/)).toBeNull();
+	});
+
+	it('keeps the editor on its invoice after any other failed save, as before', () => {
+		mockRead.current = readAt('opened', 1_000);
+		const { rerender } = render(<EditInvoicePage />);
+
+		fireEvent.click(screen.getByRole('button', { name: 'not saved' }));
+		now = 2_000;
+		fireEvent.click(screen.getByRole('button', { name: 'close' }));
+		mockRead.current = readAt('current', 3_000);
+		rerender(<EditInvoicePage />);
+
+		expect(mockRetry).toHaveBeenCalledTimes(1);
+		expect(screen.getByText('editor of the opened invoice')).toBeTruthy();
 	});
 });

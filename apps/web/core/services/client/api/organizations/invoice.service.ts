@@ -4,7 +4,7 @@ import { scopedReadConfig, scopedWriteConfig } from '../../api-request-scope';
 import type { APIConfig } from '../../axios';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import type { InvoiceStatusChange } from '@/core/lib/utils/invoice-actions';
-import type { InvoiceUpdate } from '@/core/lib/utils/invoice-edit';
+import type { InvoiceRevision, InvoiceUpdate } from '@/core/lib/utils/invoice-edit';
 import type { InvoiceItemRequest, InvoiceRequest, InvoiceStatus } from '@/core/lib/utils/invoices';
 import { validateApiResponse, validatePaginationResponse, ZodValidationError } from '@/core/types/schemas';
 import {
@@ -327,6 +327,28 @@ class InvoiceService extends APIService {
 		const body = { ...update };
 		const updateScope = scope ?? this.currentScope();
 		await this.put(`/invoices/${encodeURIComponent(invoiceId)}`, body, writeConfigOf(updateScope));
+	};
+
+	/**
+	 * The invoice's fields and all its lines in one request (`PUT /invoices/:id/with-items`), which the API saves in one
+	 * transaction: both or neither. With `expectedUpdatedAt`, the `updatedAt` the invoice was read with, only while the
+	 * invoice still holds it: the API answers 409 otherwise, and writes nothing. An API without the route answers 404
+	 * "Cannot PUT" (see `isSaveAtOnceMissing`), and the edit is then saved in the two writes below.
+	 */
+	saveInvoiceWithLines = async (
+		invoiceId: string,
+		revision: InvoiceRevision,
+		expectedUpdatedAt: string | null,
+		scope?: InvoiceWriteScope
+	): Promise<void> => {
+		// A copy: the request writes the tenant and the organization into the object it is given.
+		const body: Record<string, unknown> = { ...revision.update, invoiceItems: [...revision.lines] };
+		if (expectedUpdatedAt) {
+			body.expectedUpdatedAt = expectedUpdatedAt;
+		}
+		const saveScope = scope ?? this.currentScope();
+		const url = `/invoices/${encodeURIComponent(invoiceId)}/with-items`;
+		await this.put(url, body, writeConfigOf(saveScope));
 	};
 
 	/**

@@ -7753,6 +7753,7 @@
 				"NOT_CHECKED": "Não foi possível voltar a ler a fatura antes de guardar, por isso nada foi guardado. Tente novamente.",
 				"NOT_REACHED": "A ligação falhou: as alterações não foram guardadas e a fatura ficou como estava. Verifique a sua ligação e tente novamente.",
 				"CHANGED": "Desde que foi aberta, a fatura {number} foi alterada: nada foi guardado. Abra-a de novo na lista de faturas para começar pela versão atual.",
+				"CHANGED_MEANWHILE": "Esta fatura mudou desde que você a abriu, então nada foi salvo. Feche isto para ver a versão atual.",
 				"RECORDS_TIME": "Regista as horas que as suas linhas faturam, para que nenhuma outra fatura as volte a faturar."
 			}
 		},

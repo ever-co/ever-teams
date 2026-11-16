@@ -7753,6 +7753,7 @@
 				"NOT_CHECKED": "Nie udało się ponownie odczytać faktury przed zapisem, więc nic nie zostało zapisane. Spróbuj ponownie.",
 				"NOT_REACHED": "Połączenie nie powiodło się: zmiany nie zostały zapisane, a faktura pozostała bez zmian. Sprawdź połączenie i spróbuj ponownie.",
 				"CHANGED": "Od otwarcia faktura {number} została zmieniona: nic nie zostało zapisane. Otwórz ją ponownie z listy faktur, aby zacząć od jej aktualnej wersji.",
+				"CHANGED_MEANWHILE": "Ta faktura zmieniła się od czasu jej otwarcia, więc nic nie zostało zapisane. Zamknij to, aby zobaczyć jej aktualną wersję.",
 				"RECORDS_TIME": "Zapisuje godziny, które fakturują jej pozycje, aby żadna inna faktura nie zafakturowała ich ponownie."
 			}
 		},
