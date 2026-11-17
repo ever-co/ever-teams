@@ -68,7 +68,7 @@ function useOwnTimerStatus(
 			const interval = setInterval(fetchTimerStatus, TIMER_STATUS_REFRESH_MS);
 			return () => clearInterval(interval);
 		}
-	}, [user, organizationId, enabled]);
+	}, [user, token, organizationId, enabled]);
 
 	return timerStatus;
 }

@@ -35,7 +35,9 @@ const stubs = {
 		globalThis.__reads = [];
 		globalThis.__actions = [];
 		export const getTimerStatus = (user, token, organizationId) =>
-			new Promise((resolve, reject) => globalThis.__reads.push(Object.assign(resolve, { organizationId, reject })));
+			new Promise((resolve, reject) =>
+				globalThis.__reads.push(Object.assign(resolve, { token, organizationId, reject }))
+			);
 		const action = (kind) => () =>
 			new Promise((resolve, reject) => globalThis.__actions.push(Object.assign(resolve, { kind, reject })));
 		export const startTimer = action('start');
@@ -56,6 +58,7 @@ let createRoot;
 let TimerStatusProvider;
 let useTimerStatusContext;
 let useTimer;
+let useTimerStatus;
 let bundleDir;
 
 before(async () => {
@@ -63,8 +66,11 @@ before(async () => {
 	const outfile = path.join(bundleDir, 'provider.mjs');
 	await esbuild.build({
 		stdin: {
-			contents:
-				"export * from './context/teams-timer-status-context'; export { useTimer } from './hooks/useTimer';",
+			contents: [
+				"export * from './context/teams-timer-status-context';",
+				"export { useTimer } from './hooks/useTimer';",
+				"export { useTimerStatus } from './hooks/useTimerStatus';"
+			].join('\n'),
 			resolveDir: lib,
 			loader: 'ts'
 		},
@@ -100,7 +106,9 @@ before(async () => {
 	React = require('react');
 	({ act } = React);
 	({ createRoot } = require('react-dom/client'));
-	({ TimerStatusProvider, useTimerStatusContext, useTimer } = await import(pathToFileURL(outfile).href));
+	({ TimerStatusProvider, useTimerStatusContext, useTimer, useTimerStatus } = await import(
+		pathToFileURL(outfile).href
+	));
 });
 
 after(async () => {
@@ -480,5 +488,34 @@ test('a running timer widget leaves no interval behind once unmounted', async ()
 		for (const id of live) realClear(id);
 		globalThis.setInterval = realSet;
 		globalThis.clearInterval = realClear;
+	}
+});
+
+test('outside a provider, useTimerStatus reads again with a new token at once, and polls with it', async () => {
+	await reset();
+	mock.timers.enable({ apis: ['setInterval'] });
+	try {
+		const user = { id: 'u', tenantId: 't', employee: { id: 'e' } };
+		const Standalone = ({ token }) => {
+			useTimerStatus(user, token, 'org');
+			return null;
+		};
+		const container = document.createElement('div');
+		const root = createRoot(container);
+		roots.push(root);
+		await act(async () => root.render(React.createElement(Standalone, { token: 'first' })));
+		assert.deepEqual(
+			globalThis.__reads.map((r) => r.token),
+			['first']
+		);
+
+		await act(async () => root.render(React.createElement(Standalone, { token: 'second' })));
+		await act(async () => mock.timers.tick(60_000));
+		assert.deepEqual(
+			globalThis.__reads.map((r) => r.token),
+			['first', 'second', 'second']
+		);
+	} finally {
+		mock.timers.reset();
 	}
 });
