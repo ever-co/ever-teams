@@ -68,4 +68,16 @@ describe('POST /api/timesheet/time-log/[id]/split', () => {
 		expect(response.status).toBe(401);
 		expect(fetchMock).not.toHaveBeenCalled();
 	});
+
+	it('refuses a request another site makes with the session cookies, before anything reaches Gauzy', async () => {
+		const fetchMock = gauzyAnswers(Response.json({}, { status: 201 }));
+
+		const response = await POST(
+			signedInRequest(URL, 'POST', BODY, { 'sec-fetch-site': 'cross-site' }),
+			idParams('log-1')
+		);
+
+		expect(response.status).toBe(403);
+		expect(fetchMock).not.toHaveBeenCalled();
+	});
 });
