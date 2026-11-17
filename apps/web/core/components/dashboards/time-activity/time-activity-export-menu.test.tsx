@@ -54,6 +54,11 @@ jest.mock('@/core/components/dashboards/kit/export-menu', () => ({
 		return null;
 	}
 }));
+// An API without labels on entries (#5368), as every Gauzy today, unless a test says otherwise
+let mockSupportsEntryLabels = false;
+jest.mock('@/core/hooks/timer/use-entry-labels-support', () => ({
+	useEntryLabelsSupport: () => mockSupportsEntryLabels
+}));
 
 import { TimeActivityExportMenu } from './time-activity-export-menu';
 
@@ -132,12 +137,13 @@ const FIGURES: TimeActivityFigures = {
 function optionsUnder(
 	grouping: BreakdownGrouping,
 	clientOfProjectLog: ClientOfProjectLog | null,
-	roundingRule: DurationRoundingRule | null = null
+	roundingRule: DurationRoundingRule | null = null,
+	report: ITimeLogGroupedDailyReport[] = REPORT
 ) {
 	mockExportMenuProps.mockClear();
 	render(
 		<TimeActivityExportMenu
-			report={REPORT}
+			report={report}
 			period={period}
 			grouping={grouping}
 			clientOf={clientOfProjectLog}
@@ -264,6 +270,114 @@ describe('Time & Activity exports grouped by client', () => {
 		const { headers } = csvTableOf();
 		expect(headers[0]).toBe('common.DATE');
 		expect(headers).not.toContain('common.CLIENT');
+	});
+});
+
+/** Ada's hour on the website on November 3, filed under the label "design" (#5368). */
+const LABELLED_REPORT = [
+	{
+		date: '2026-11-03',
+		logs: [
+			{
+				project: { id: 'website', name: 'Website' },
+				employeeLogs: [
+					{
+						employee: ada,
+						sum: 600,
+						activity: 50,
+						tasks: [{ ...taskOf('Home', 600), tags: [{ id: 'design', name: 'design' }] }]
+					}
+				]
+			}
+		]
+	}
+] as unknown as ITimeLogGroupedDailyReport[];
+
+/** The columns every file had before the labels of entries, in their places. */
+const CSV_HEADERS_WITHOUT_LABELS = [
+	'common.DATE',
+	'common.MEMBER',
+	'dashboard.timeActivity.grouping.PROJECT',
+	'dashboard.timeActivity.export.TASK',
+	'dashboard.timeActivity.export.STATUS',
+	'dashboard.timeActivity.export.TRACKED_HOURS',
+	'dashboard.timeActivity.columns.EARNINGS',
+	'dashboard.timeActivity.export.CURRENCY',
+	'dashboard.timeActivity.export.ACTIVITY_PERCENT'
+];
+
+const SHEET_HEADERS_WITHOUT_LABELS = [
+	'common.DATE',
+	'common.MEMBER',
+	'dashboard.timeActivity.grouping.PROJECT',
+	'dashboard.timeActivity.export.TASK',
+	'dashboard.timeActivity.export.STATUS',
+	'dashboard.timeActivity.columns.TRACKED',
+	'dashboard.timeActivity.columns.EARNINGS',
+	'dashboard.timeActivity.export.CURRENCY',
+	'dashboard.timeActivity.columns.ACTIVITY'
+];
+
+/** The same columns with the entry's labels after its status, where the API stores them. */
+function withLabelsColumn(headers: ReadonlyArray<string>) {
+	const statusIndex = headers.indexOf('dashboard.timeActivity.export.STATUS');
+	return [...headers.slice(0, statusIndex + 1), 'common.LABELS', ...headers.slice(statusIndex + 1)];
+}
+
+describe('the labels of entries in the Time & activity files (#5368)', () => {
+	beforeEach(() => {
+		mockDownloadCsv.mockClear();
+		mockDownloadPdf.mockClear();
+		mockExportToXLSX.mockClear();
+		mockBuildPdf.mockClear();
+	});
+
+	afterEach(() => {
+		mockSupportsEntryLabels = false;
+	});
+
+	it('writes the CSV and the Excel file with the columns they always had where the API has no entry labels', async () => {
+		const options = optionsUnder('project', null);
+
+		await run(options, 'csv');
+		await run(options, 'xlsx');
+
+		const csv = csvTableOf();
+		expect(csv.headers).toEqual(CSV_HEADERS_WITHOUT_LABELS);
+		expect(csv.lines.every((line) => line.length === CSV_HEADERS_WITHOUT_LABELS.length)).toBe(true);
+		expect(sheetTableOf().headers).toEqual(SHEET_HEADERS_WITHOUT_LABELS);
+	});
+
+	it('prints no labels column where the API has no entry labels', async () => {
+		await run(optionsUnder('project', null), 'pdf');
+
+		const content = await pdfContentOf();
+		expect(content.showsLabels).toBe(false);
+	});
+
+	it('writes the labels of each entry after its status where the API stores them', async () => {
+		mockSupportsEntryLabels = true;
+		const options = optionsUnder('project', null, null, LABELLED_REPORT);
+
+		await run(options, 'csv');
+		await run(options, 'xlsx');
+
+		const csv = csvTableOf();
+		expect(csv.headers).toEqual(withLabelsColumn(CSV_HEADERS_WITHOUT_LABELS));
+		expect(cellsOf(csv, 'common.LABELS')).toEqual(['design']);
+		const sheet = sheetTableOf();
+		expect(sheet.headers).toEqual(withLabelsColumn(SHEET_HEADERS_WITHOUT_LABELS));
+		expect(cellsOf(sheet, 'common.LABELS')).toEqual(['design']);
+	});
+
+	it('prints the labels column where the API stores them', async () => {
+		mockSupportsEntryLabels = true;
+		await run(optionsUnder('project', null, null, LABELLED_REPORT), 'pdf');
+
+		const content = await pdfContentOf();
+		expect(content.showsLabels).toBe(true);
+		expect(content.columns.labels).toBe('common.LABELS');
+		expect(content.groups[0].rows[0].labels).toBe('design');
 	});
 });
 

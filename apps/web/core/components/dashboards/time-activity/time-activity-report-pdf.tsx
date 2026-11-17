@@ -54,6 +54,8 @@ export interface TimeActivityPdfContent {
 	};
 	showsEarnings: boolean;
 	showsBillable: boolean;
+	/** Only where the API stores labels on entries (#5368): elsewhere the table keeps the columns it always had. */
+	showsLabels: boolean;
 	groups: PdfGroup[];
 	footer: string;
 	pageLabel: (page: number, total: number) => string;
@@ -184,7 +186,7 @@ function TableHeader({ content }: Readonly<{ content: TimeActivityPdfContent }>)
 			<Text style={[styles.headerCell, names.first]}>{columns.first}</Text>
 			<Text style={[styles.headerCell, names.second]}>{columns.second}</Text>
 			<Text style={[styles.headerCell, styles.task]}>{columns.task}</Text>
-			<Text style={[styles.headerCell, styles.labels]}>{columns.labels}</Text>
+			{content.showsLabels && <Text style={[styles.headerCell, styles.labels]}>{columns.labels}</Text>}
 			<Text style={[styles.headerCell, styles.figure]}>{columns.tracked}</Text>
 			{content.showsEarnings && <Text style={[styles.headerCell, styles.figure]}>{columns.earnings}</Text>}
 			{content.showsBillable && <Text style={[styles.headerCell, styles.figure]}>{columns.billable}</Text>}
@@ -196,8 +198,9 @@ function TableHeader({ content }: Readonly<{ content: TimeActivityPdfContent }>)
 function GroupBlock({
 	group,
 	showsEarnings,
-	showsBillable
-}: Readonly<{ group: PdfGroup; showsEarnings: boolean; showsBillable: boolean }>) {
+	showsBillable,
+	showsLabels
+}: Readonly<{ group: PdfGroup; showsEarnings: boolean; showsBillable: boolean; showsLabels: boolean }>) {
 	const names = nameStylesOf(showsBillable);
 	return (
 		<View>
@@ -213,7 +216,7 @@ function GroupBlock({
 					<Text style={names.first}>{row.first}</Text>
 					<Text style={[names.second, styles.muted]}>{row.second}</Text>
 					<Text style={styles.task}>{row.task}</Text>
-					<Text style={[styles.labels, styles.muted]}>{row.labels}</Text>
+					{showsLabels && <Text style={[styles.labels, styles.muted]}>{row.labels}</Text>}
 					<Text style={styles.figure}>{row.tracked}</Text>
 					{showsEarnings && <Text style={styles.figure}>{row.earnings}</Text>}
 					{showsBillable && <Text style={styles.figure}>{row.billable}</Text>}
@@ -244,6 +247,7 @@ export function buildTimeActivityPdf(content: TimeActivityPdfContent): ReactElem
 						group={group}
 						showsEarnings={content.showsEarnings}
 						showsBillable={content.showsBillable}
+						showsLabels={content.showsLabels}
 					/>
 				))}
 				<View style={styles.footer} fixed>
