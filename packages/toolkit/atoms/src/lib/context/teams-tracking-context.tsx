@@ -4,7 +4,6 @@ import React, { createContext, useContext, useState, useCallback, useEffect, use
 import { ITeamsSession, isSuccessResponse, ITrackingApiHeaders } from '@ever-teams/toolkit-types';
 import { trackingApiClient } from '@ever-teams/api';
 import { useTeamsContext } from './teams-context';
-import { convertSessionDatesToTimezone, getUserTimezone } from '@lib/utils/time-zone';
 
 /**
  * Global Filter State Interface
@@ -142,6 +141,13 @@ export const TrackingProvider: React.FC<ITrackingProviderProps> = ({ children, c
 			}
 
 			if (isSuccessResponse(response)) {
+				// The time-zone helpers carry the whole zone database: they load with the first sessions to convert, so a page
+				// that shows no session list never downloads it.
+				const { convertSessionDatesToTimezone, getUserTimezone } = await import('@lib/utils/time-zone');
+				if (!isLatest()) {
+					return;
+				}
+
 				// Get the user's timezone with fallback priority
 				const userTimezone = getUserTimezone(user?.timeZone);
 
