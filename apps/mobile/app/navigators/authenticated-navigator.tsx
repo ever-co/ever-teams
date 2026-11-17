@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Platform, TextStyle, View, ViewStyle } from 'react-native';
 import { BottomTabScreenProps, createBottomTabNavigator, BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { createDrawerNavigator, DrawerScreenProps } from '@react-navigation/drawer';
-import type { StackNavigationProp } from '@react-navigation/stack';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { CompositeScreenProps, CompositeNavigationProp, RouteProp, useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -84,12 +84,12 @@ export type AuthenticatedDrawerScreenProps<T extends keyof AuthenticatedDrawerPa
 
 export type SettingScreenNavigationProp<T extends keyof AuthenticatedTabParamList> = CompositeNavigationProp<
 	BottomTabNavigationProp<AuthenticatedTabParamList, T>,
-	StackNavigationProp<AppStackParamList>
+	NativeStackNavigationProp<AppStackParamList>
 >;
 
 export type DrawerNavigationProp<T extends keyof AuthenticatedDrawerParamList> = CompositeNavigationProp<
 	BottomTabNavigationProp<AuthenticatedDrawerParamList, T>,
-	StackNavigationProp<AppStackParamList>
+	NativeStackNavigationProp<AppStackParamList>
 >;
 
 // Define route props for each screen that needs route parameters
