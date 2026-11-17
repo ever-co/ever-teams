@@ -43,15 +43,20 @@ function givenDiscard({
 
 async function renderMenu() {
 	const onChangeStart = jest.fn();
-	const menu = (
+	const tree = (callback: () => void) => (
 		<PaperProvider>
-			<TimerActionsMenu onChangeStart={onChangeStart} />
+			<TimerActionsMenu onChangeStart={callback} />
 		</PaperProvider>
 	);
-	const view = await render(menu);
-	/** The screen reads the timer again: the menu renders with what the hook now says. */
+	const view = await render(tree(onChangeStart));
+	/**
+	 * The screen reads the timer again: a new prop makes the memoized menu render with what the hook now says (the same
+	 * element would not render it again, and a test of a newer run would pass whatever id the menu sends).
+	 */
 	const readAgain = async () => {
-		await view.rerender(menu);
+		const callsBefore = mockedUseTimerDiscard.mock.calls.length;
+		await view.rerender(tree(() => onChangeStart()));
+		expect(mockedUseTimerDiscard.mock.calls.length).toBeGreaterThan(callsBefore);
 	};
 	return { onChangeStart, readAgain };
 }
