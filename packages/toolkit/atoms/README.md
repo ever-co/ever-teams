@@ -98,6 +98,7 @@ export default function App() {
 | Prop of `TeamsProvider` | Default                     | What it does                                                                                                                                                                                                                                                 |
 | ----------------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `config.apiUrl`         | `https://api.ever.team/api` | The Ever Teams API every request goes to, with the token in the `Authorization` header. Always set it. With your own server, give its address ending with `/api`.                                                                                            |
+| `config.getToken`       | none                        | Signs people in from your backend: see [Sign in from your backend](#sign-in-from-your-backend). Without it, the sign-in dialog asks for an Ever Teams password or token inside your page.                                                                    |
 | `lang`                  | `'en'`                      | Language of the components: `'en'` or `'fr'`. A language chosen earlier in the language switch, kept in `localStorage`, wins.                                                                                                                                |
 | `theme`                 | `defaultTheme`              | A theme object: `defaultTheme` and `theme1` to `theme14` are exported.                                                                                                                                                                                       |
 | `scopedStyles`          | `false`                     | Renders the kit root that `@ever-teams/atoms/styles.css` is scoped under, and a container in `document.body` for the kit's dialogs, popovers, menus and selects. Set it with the stylesheet; leave it off when your own Tailwind compiles the kit's classes. |
@@ -111,9 +112,79 @@ export default function App() {
 The API must accept your site's origin: on a self-hosted Gauzy API, add it to `ALLOWED_ORIGINS` (comma-separated)
 and restart the API.
 
+## Sign in from your backend
+
+On a site that is not the Ever Teams workspace itself, do not let the kit ask for an Ever Teams password: your
+backend already knows who is signed in. It exchanges an embed credential of the workspace for a short-lived token for
+that person, and `config.getToken` hands it to the kit.
+
+What you need: an Ever Teams API with embed credentials turned on (`GAUZY_EMBED_TOKENS_ENABLED=true`,
+[ever-co/ever-gauzy#12069](https://github.com/ever-co/ever-gauzy/pull/12069)) and an embed credential created by an
+admin of the organization (`POST /api/embed-credentials`). Keep the credential on your server, never in the page.
+
+On your server, a route that answers the token for the person signed in to your product (Next.js route handler):
+
+```ts
+// app/api/ever-teams-token/route.ts
+import { NextResponse } from 'next/server';
+import { currentUser } from '@/lib/session'; // your own sign-in
+
+export async function POST() {
+	const user = await currentUser();
+	if (!user) {
+		return NextResponse.json({ error: 'Not signed in' }, { status: 401 });
+	}
+	const answer = await fetch(`${process.env.EVER_TEAMS_API_URL}/embed/token`, {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify({ credential: process.env.EVER_TEAMS_EMBED_CREDENTIAL, email: user.email }),
+		cache: 'no-store'
+	});
+	if (!answer.ok) {
+		return NextResponse.json({ error: 'No Ever Teams token' }, { status: answer.status });
+	}
+	const { token, expiresAt } = await answer.json();
+	return NextResponse.json({ token, expiresAt }, { headers: { 'Cache-Control': 'no-store' } });
+}
+```
+
+In the page:
+
+```tsx
+'use client';
+import { TeamsProvider, TeamsBasicTimer } from '@ever-teams/atoms';
+
+async function getToken() {
+	const answer = await fetch('/api/ever-teams-token', { method: 'POST' });
+	if (!answer.ok) {
+		throw new Error('Not signed in');
+	}
+	return answer.json(); // { token, expiresAt }
+}
+
+export function Timer() {
+	return (
+		<TeamsProvider scopedStyles config={{ apiUrl: 'https://your-api.example.com/api', getToken }}>
+			<TeamsBasicTimer />
+		</TeamsProvider>
+	);
+}
+```
+
+What the kit does with it:
+
+- It calls `getToken` once at start, again about a minute before the token expires, and once more if the API
+  refuses the token (until a request succeeds again). Calls never overlap: the widgets of a provider share one.
+- The token stays in memory: nothing is written to `localStorage`, and the user menu shows no token and no sign-out.
+- The kit reads the organization from the token and lists no other: the token reaches only the timer of that person.
+- When `getToken` throws or rejects, the widgets show the person as signed out, and `TeamsLoginDialog` says
+  "Sign in to this site to use your Ever Teams timer." instead of asking for a password.
+- When a person signs out of your product, unmount the `TeamsProvider` (or reload the page): until then the kit keeps
+  the token it holds, at most until it expires.
+
 ## Security: where tokens live today, and what is planned
 
-Today:
+Without `config.getToken`:
 
 - The sign-in dialog (`TeamsLoginDialog`) takes the user's email and password inside your page and sends them to
   `{apiUrl}/auth/login`. A "Token" tab also accepts a pasted access token.
@@ -129,9 +200,11 @@ Today:
   set ([ever-co/ever-teams#5406](https://github.com/ever-co/ever-teams/issues/5406)): on 0.2.x, upgrade, and always
   set `apiUrl`.
 
-Planned ([ever-co/ever-teams#5405](https://github.com/ever-co/ever-teams/issues/5405)): your backend hands the
-widget a short-lived token, limited to the timer and to one person, kept in memory only; the workspace lists the
-sites allowed to embed it and can revoke them.
+With `config.getToken` (above), none of that applies: the token comes from your backend, is limited to the timer
+and to one person, lives a few minutes and stays in memory; a revoked embed credential ends its tokens.
+
+Planned ([ever-co/ever-teams#5405](https://github.com/ever-co/ever-teams/issues/5405)): the workspace lists the sites
+allowed to embed it.
 
 ## Troubleshooting
 
