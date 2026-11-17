@@ -121,6 +121,9 @@ that person, and `config.getToken` hands it to the kit.
 What you need: an Ever Teams API with embed credentials turned on (`GAUZY_EMBED_TOKENS_ENABLED=true`,
 [ever-co/ever-gauzy#12069](https://github.com/ever-co/ever-gauzy/pull/12069)) and an embed credential created by an
 admin of the organization (`POST /api/embed-credentials`). Keep the credential on your server, never in the page.
+An API that also checks allowed origins ([ever-co/ever-gauzy#12066](https://github.com/ever-co/ever-gauzy/issues/12066))
+needs your site in the organization's list (`POST /api/embed-allowed-origins`): the backend sends the page's origin
+with each exchange, and the token then works only from that site.
 
 On your server, a route that answers the token for the person signed in to your product (Next.js route handler):
 
@@ -137,7 +140,12 @@ export async function POST() {
 	const answer = await fetch(`${process.env.EVER_TEAMS_API_URL}/embed/token`, {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({ credential: process.env.EVER_TEAMS_EMBED_CREDENTIAL, email: user.email }),
+		body: JSON.stringify({
+			credential: process.env.EVER_TEAMS_EMBED_CREDENTIAL,
+			email: user.email,
+			// The site the widget runs on, as the organization allows it (https://app.example.com).
+			origin: process.env.APP_ORIGIN
+		}),
 		cache: 'no-store'
 	});
 	if (!answer.ok) {
