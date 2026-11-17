@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { beforeEach, describe, it } from 'node:test';
+import { beforeEach, describe, it, mock } from 'node:test';
 
 import { installFakeChrome, installFakeFetch } from '../test/fake-chrome.ts';
 import { ApiError } from './api-client.ts';
@@ -99,20 +99,23 @@ describe("the popup's start or stop", () => {
 	});
 
 	it('never rejects, and unlocks the buttons, when the read after it fails', async () => {
+		const readFailure = new ApiError(0, 'offline');
 		const popup = popupView(async () => {
-			throw new ApiError(0, 'offline');
+			throw readFailure;
 		});
-		const warn = console.warn;
-		console.warn = () => undefined;
+		const warn = mock.method(console, 'warn', () => undefined);
 		try {
 			await runPopupAction(async () => {
 				throw new Error('The run could not be stopped');
 			}, popup.view);
 		} finally {
-			console.warn = warn;
+			warn.mock.restore();
 		}
 
 		assert.deepEqual(popup.shown.at(-1), { busy: false });
 		assert.deepEqual(popup.shown[2], { refusal: { key: 'errorGeneric' } });
+		// The read's failure is not lost: it is told on the console
+		assert.equal(warn.mock.callCount(), 1);
+		assert.equal(warn.mock.calls[0].arguments[1], readFailure);
 	});
 });
