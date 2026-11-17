@@ -56,18 +56,18 @@ type Export = [name: string, source: string];
 
 /** `export const POST = forwardMappings`, `export const POST: Handler = async (req) => {}`, `export const { POST } = x`. */
 function exportsOfVariables(file: ts.SourceFile, statement: ts.VariableStatement): Export[] {
-	const text = statement.getText(file);
 	return statement.declarationList.declarations.flatMap((declaration): Export[] => {
+		// Only this declaration: in `export const POST = ..., PUT = ...` each handler is read from its own
+		const text = declaration.getText(file);
 		if (ts.isObjectBindingPattern(declaration.name)) {
 			return declaration.name.elements.flatMap((e): Export[] =>
 				ts.isIdentifier(e.name) ? [[e.name.text, text]] : []
 			);
 		}
 		if (!ts.isIdentifier(declaration.name)) return [];
-		// Only this declaration: in `export const POST = ..., PUT = ...` each handler is read from its own
 		const init = declaration.initializer;
 		const named = init && ts.isIdentifier(init) ? localDeclarationOf(file, init.text) : null;
-		return [[declaration.name.text, named ?? declaration.getText(file)]];
+		return [[declaration.name.text, named ?? text]];
 	});
 }
 

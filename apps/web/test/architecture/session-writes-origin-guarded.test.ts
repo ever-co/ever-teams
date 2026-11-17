@@ -109,6 +109,11 @@ describe('app/api write handlers keep another site out', () => {
 			'export const POST = async () => Response.json({ ok: true }), PUT = (req: Request) => refuseForeignOrigin(req);'
 		);
 		expect(together.filter(callsRefuseForeignOrigin).map(key)).toEqual(['fixture PUT']);
+		const destructured = writeHandlersIn(
+			'fixture',
+			'export const { POST } = handlers, PUT = (req: Request) => refuseForeignOrigin(req);'
+		);
+		expect(destructured.filter(callsRefuseForeignOrigin).map(key)).toEqual(['fixture PUT']);
 	});
 
 	it('check the origin, forward through a helper that does, or are listed with a reason', () => {
