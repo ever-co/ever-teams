@@ -4,7 +4,13 @@ import { Platform, TextStyle, View, ViewStyle } from 'react-native';
 import { BottomTabScreenProps, createBottomTabNavigator, BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { createDrawerNavigator, DrawerScreenProps } from '@react-navigation/drawer';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { CompositeScreenProps, CompositeNavigationProp, RouteProp, useIsFocused, useNavigation } from '@react-navigation/native';
+import {
+	CompositeScreenProps,
+	CompositeNavigationProp,
+	RouteProp,
+	useIsFocused,
+	useNavigation
+} from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 // COMPONENTS
