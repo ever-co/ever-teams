@@ -31,10 +31,11 @@ jest.mock('@/core/lib/helpers/timer-errors', () => ({
 
 import { useTimeImport } from './use-time-import';
 
-// An API without labels on entries (#5368): the import writes its entries as before
+// An API without labels on entries (#5368): the import writes its entries as before, unless a test says otherwise
+let mockSupportsEntryLabels = false;
 jest.mock('@/core/hooks/timer/use-entry-labels-support', () => ({
-	useEntryLabelsSupport: () => false,
-	useEntryLabelsSupportState: () => ({ isSupported: false, isKnown: true })
+	useEntryLabelsSupport: () => mockSupportsEntryLabels,
+	useEntryLabelsSupportState: () => ({ isSupported: mockSupportsEntryLabels, isKnown: true })
 }));
 jest.mock('@/core/hooks/roles/use-my-role-permissions-query', () => ({
 	useMyRolePermissionsQuery: () => ({ myPermissions: [], isLoaded: true, isLoading: false })
@@ -42,8 +43,9 @@ jest.mock('@/core/hooks/roles/use-my-role-permissions-query', () => ({
 jest.mock('@/core/hooks/tasks/use-create-task-label', () => ({
 	useCreateTaskLabel: () => ({ createTaskLabels: jest.fn() })
 }));
+const mockGetTaskLabelsList = jest.fn();
 jest.mock('@/core/services/client/api/tasks/task-label.service', () => ({
-	taskLabelService: { getTaskLabelsList: jest.fn() }
+	taskLabelService: { getTaskLabelsList: () => mockGetTaskLabelsList() }
 }));
 
 const VIEWER_ID = 'employee-viewer';
@@ -458,6 +460,50 @@ describe('useTimeImport', () => {
 		expect(result.current.stage).toBe('done');
 		expect(mockAddManualTime).toHaveBeenCalledTimes(3);
 		expect(result.current.report).toMatchObject({ savedCount: 3, notSentCount: 0 });
+	});
+});
+
+describe('useTimeImport with the labels of entries (#5368)', () => {
+	beforeEach(() => {
+		mockSupportsEntryLabels = true;
+		mockGetTaskLabelsList.mockReset();
+	});
+
+	afterEach(() => {
+		mockSupportsEntryLabels = false;
+	});
+
+	it("never lets the labels found for an import left meanwhile replace the next import's", async () => {
+		// The first file names a label the team lacks; its run waits on the team's labels until the screen moved on
+		let answerTeamLabels: (list: unknown) => void = () => undefined;
+		mockGetTaskLabelsList.mockImplementationOnce(
+			() =>
+				new Promise((resolve) => {
+					answerTeamLabels = resolve;
+				})
+		);
+		const { result } = renderImport();
+		const labelled = textFile(`${HEADER},labels\n2024-03-05,09:00,10:00,Fix login,Pairing,yes,Design\n`);
+		await act(() => result.current.chooseFile(labelled));
+		let firstRun: Promise<void> = Promise.resolve();
+		act(() => {
+			firstRun = result.current.confirm();
+		});
+		await waitFor(() => expect(mockGetTaskLabelsList).toHaveBeenCalledTimes(1));
+
+		// Back to the start, and another file, without labels, imported to its end
+		act(() => result.current.reset());
+		await act(() => result.current.chooseFile(csvFile(['2024-03-06,09:00,09:30,,,'])));
+		await act(() => result.current.confirm());
+		expect(result.current.report).toMatchObject({ savedCount: 1, labelsNotAttached: [] });
+
+		await act(async () => {
+			answerTeamLabels({ data: { items: [] } });
+			await firstRun;
+		});
+
+		expect(result.current.report).toMatchObject({ savedCount: 1, labelsNotAttached: [] });
+		expect(mockAddManualTime).toHaveBeenCalledTimes(1);
 	});
 });
 

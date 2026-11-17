@@ -611,6 +611,10 @@ export function useTimeImport({ contextAt, saveScope, extraProjectsOf }: TimeImp
 		}
 		setState((current) => ({ ...current, stage: 'importing', rows, outcomes: NO_OUTCOMES }));
 		const labels = await chooseRunLabels(rows);
+		// Left, or another run started, while the labels were found: their answer is never this run's any more
+		if (runRef.current !== run) {
+			return;
+		}
 		labelIdsRef.current = labels.labelIdsByName;
 		setLabelsNotAttached(labels.notAttached);
 		const outcomes = await saveRows(run, rows);
