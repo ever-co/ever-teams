@@ -1,9 +1,11 @@
-import { getUser } from '@ever-teams/api';
-import { useEffect } from 'react';
+import { apiConfigManager, getUser } from '@ever-teams/api';
+import { useEffect, useRef, useState } from 'react';
 import { IHookResponse, IUser } from '@ever-teams/toolkit-types';
-import { useAtom } from 'jotai';
+import { useAtom, useSetAtom } from 'jotai';
 import { selectedEmployeeAtom, userAtom } from '../teams-jotai/atoms/teams-atoms';
-import { toast } from '@ever-teams/toolkit-ui';
+import { kindOfFailedRequest, noticeOfFailure } from '@lib/errors/kit-error';
+import { kitNoticeAtom } from '@lib/errors/kit-notice-atom';
+import { errorMessageOf } from '@lib/context/teams-timer-status-context';
 
 // Helper function to update session
 export const updateSession = (user: IUser, token: string) => {
@@ -22,8 +24,17 @@ export const updateSession = (user: IUser, token: string) => {
 const useAuthUser = (token: string): IHookResponse<IUser> => {
 	const [user, setUser] = useAtom(userAtom);
 	const [, setSelectedEmployee] = useAtom(selectedEmployeeAtom);
+	const setNotice = useSetAtom(kitNoticeAtom);
+	// The read of the user found Ever Teams unreachable: it is read again once the browser is back online or the page
+	// comes back to the person, without a reload.
+	const [readAgainWhenBack, setReadAgainWhenBack] = useState(false);
+	// Only the read started last may set the user, the notice or the read again: one for an earlier token is dropped.
+	const latestRead = useRef(0);
 
 	const handleUserAuthentication = async () => {
+		latestRead.current += 1;
+		const read = latestRead.current;
+		const isCurrent = () => read === latestRead.current;
 		try {
 			if (!token) {
 				return;
@@ -38,21 +49,25 @@ const useAuthUser = (token: string): IHookResponse<IUser> => {
 			setUser((prev) => ({ ...prev, loading: true }));
 
 			const authUser = await getUser({ token, includeEmployee: true, includeOrganization: true });
+			if (!isCurrent()) {
+				return;
+			}
 
 			if ('message' in authUser || 'error' in authUser) {
-				const errorMessage =
-					'message' in authUser
-						? Array.isArray(authUser.message)
-							? authUser.message.join(', ')
-							: authUser.message
-						: String(authUser.error);
-
 				setUser((prev) => ({ ...prev, loading: false }));
-
-				toast({
-					description: errorMessage,
-					variant: 'destructive'
-				});
+				// A stored session the API refuses (401) shows "Your session ended" in the widgets, not a toast on the
+				// page; a read that got no answer (no status) says whether this site is not allowed or Ever Teams is
+				// unreachable.
+				const notice = await noticeOfFailure(
+					authUser,
+					errorMessageOf(authUser),
+					apiConfigManager.getConfig().apiUrl
+				);
+				if (!isCurrent()) {
+					return;
+				}
+				setNotice(notice);
+				setReadAgainWhenBack(notice.kind === 'unreachable');
 				return;
 			}
 
@@ -62,19 +77,44 @@ const useAuthUser = (token: string): IHookResponse<IUser> => {
 
 			setUser({ data: authUser, loading: false });
 			updateSession(authUser, token);
-		} catch (error) {
-			toast({
-				title: 'Ever Teams Error',
-				description: (error as Error).message || 'Unknown Error',
-				variant: 'destructive'
-			});
+			// A read that succeeds ends the notice an earlier one left (Ever Teams unreachable while the page loaded).
+			setNotice(null);
+		} catch {
+			const kind = await kindOfFailedRequest(apiConfigManager.getConfig().apiUrl);
+			if (!isCurrent()) {
+				return;
+			}
+			setNotice({ kind });
+			setReadAgainWhenBack(kind === 'unreachable');
 			setUser((prev) => ({ ...prev, loading: false }));
 		}
 	};
 
 	useEffect(() => {
-		handleUserAuthentication();
+		setReadAgainWhenBack(false);
+		void handleUserAuthentication();
 	}, [token]);
+
+	useEffect(() => {
+		if (!readAgainWhenBack) {
+			return;
+		}
+		const readAgain = () => {
+			if (document.visibilityState === 'hidden') {
+				return;
+			}
+			setReadAgainWhenBack(false);
+			void handleUserAuthentication();
+		};
+		window.addEventListener('online', readAgain);
+		window.addEventListener('focus', readAgain);
+		document.addEventListener('visibilitychange', readAgain);
+		return () => {
+			window.removeEventListener('online', readAgain);
+			window.removeEventListener('focus', readAgain);
+			document.removeEventListener('visibilitychange', readAgain);
+		};
+	}, [readAgainWhenBack, token]);
 
 	return user;
 };
