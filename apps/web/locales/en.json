@@ -7742,7 +7742,8 @@
 			"NUMBER_FREE": "Its number can be given to another invoice.",
 			"CONFIRM": "Delete invoice",
 			"DONE": "Invoice {number} was deleted",
-			"FAILED": "The invoice was not deleted. Try again."
+			"FAILED": "The invoice was not deleted. Try again.",
+			"CHANGED_MEANWHILE": "Invoice {number} changed since it was shown, so it was not deleted. Refresh it to see its current version, then try again."
 		},
 		"edit": {
 			"TITLE": "Edit invoice {number}",

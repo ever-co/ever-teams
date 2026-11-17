@@ -410,7 +410,7 @@ describe('settling and deleting an invoice', () => {
 			await result.current.deleteInvoice({ invoiceId: 'inv-1', scope: LIST_SCOPE });
 		});
 
-		expect(mockDeleteInvoice).toHaveBeenCalledWith('inv-1', LIST_SCOPE);
+		expect(mockDeleteInvoice).toHaveBeenCalledWith('inv-1', LIST_SCOPE, null);
 		expect(listedPagesOf(queryClient)).toEqual([{ items: [], total: 0 }]);
 	});
 
@@ -775,6 +775,64 @@ describe('status actions under the updatedAt the invoice was read at (#5382)', (
 			return;
 		}
 		expect(isInvoiceActionChangedMeanwhile(error)).toBe(expected);
+	});
+
+	it('deletes a draft under the updatedAt its status was read at', async () => {
+		mockReadAt.value = READ_AT;
+		mockDeleteInvoice.mockResolvedValue(undefined);
+		const { result } = renderWith(clientWithDraftListed(), () => useDeleteInvoice());
+
+		await act(async () => {
+			await result.current.deleteInvoice({ invoiceId: 'inv-1', scope: LIST_SCOPE });
+		});
+
+		expect(mockDeleteInvoice).toHaveBeenCalledWith('inv-1', LIST_SCOPE, READ_AT);
+	});
+
+	it('takes a 409 INVOICE_CHANGED of a delete as changed meanwhile: the draft stays listed, the invoices read again', async () => {
+		mockReadAt.value = READ_AT;
+		mockDeleteInvoice.mockRejectedValue(apiAnswer(409, CHANGED));
+		const queryClient = clientWithDraftListed();
+		const invalidateQueries = jest.spyOn(queryClient, 'invalidateQueries');
+		const { result } = renderWith(queryClient, () => useDeleteInvoice());
+
+		let refusal: unknown = null;
+		await act(async () => {
+			refusal = await result.current
+				.deleteInvoice({ invoiceId: 'inv-1', scope: LIST_SCOPE })
+				.catch((error: unknown) => error);
+		});
+
+		expect(isInvoiceActionChangedMeanwhile(refusal)).toBe(true);
+		// Nothing was deleted: the list keeps the draft until it is read again, which the failure asks for
+		expect(listedPagesOf(queryClient)[0]?.items).toEqual([{ id: 'inv-1', status: 'DRAFT' }]);
+		expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: ['invoices'] });
+	});
+
+	it('tells a draft sent since its delete dialog opened, found before the delete, as changed meanwhile', async () => {
+		mockGetInvoiceStatus.mockResolvedValue('SENT');
+		const { result } = renderWith(clientWithDraftListed(), () => useDeleteInvoice());
+
+		let refusal: unknown = null;
+		await act(async () => {
+			refusal = await result.current
+				.deleteInvoice({ invoiceId: 'inv-1', scope: LIST_SCOPE })
+				.catch((error: unknown) => error);
+		});
+
+		expect(isInvoiceActionChangedMeanwhile(refusal)).toBe(true);
+		expect(mockDeleteInvoice).not.toHaveBeenCalled();
+	});
+
+	it('states no updatedAt for a delete when the read gave none, as an older Ever Gauzy answers', async () => {
+		mockDeleteInvoice.mockResolvedValue(undefined);
+		const { result } = renderWith(clientWithDraftListed(), () => useDeleteInvoice());
+
+		await act(async () => {
+			await result.current.deleteInvoice({ invoiceId: 'inv-1', scope: LIST_SCOPE });
+		});
+
+		expect(mockDeleteInvoice).toHaveBeenCalledWith('inv-1', LIST_SCOPE, null);
 	});
 
 	it('states no updatedAt when the read gave none, as an older Ever Gauzy answers', async () => {

@@ -7742,7 +7742,8 @@
 			"NUMBER_FREE": "O número pode ser dado a outra fatura.",
 			"CONFIRM": "Eliminar a fatura",
 			"DONE": "A fatura {number} foi eliminada",
-			"FAILED": "A fatura não foi eliminada. Tente novamente."
+			"FAILED": "A fatura não foi eliminada. Tente novamente.",
+			"CHANGED_MEANWHILE": "A fatura {number} mudou desde que foi exibida, então não foi eliminada. Atualize-a para ver a versão atual e tente novamente."
 		},
 		"edit": {
 			"TITLE": "Editar a fatura {number}",
