@@ -1791,7 +1791,9 @@ function projectOfRow(row: DailyReportRow): ProjectShareItem | null {
 		imageUrl: row.projectImageUrl,
 		color: row.projectColor,
 		isNoProject: false,
-		seconds: row.seconds
+		seconds: row.seconds,
+		// A project the API keeps from the reader keeps its lock beside "Private project" (#5385)
+		...(row.isProjectHidden ? { isProjectHidden: true as const } : {})
 	};
 }
 

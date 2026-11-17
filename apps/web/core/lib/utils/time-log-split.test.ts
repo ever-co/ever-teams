@@ -61,6 +61,14 @@ describe('apiSplitSupportOf', () => {
 		);
 	});
 
+	it('throws a probe that timed out or was cancelled, which no answer of the API says anything about', () => {
+		const timeout = refusal(408, 'ECONNABORTED');
+		const cancelled = refusal(499, 'ERR_CANCELED');
+
+		expect(() => apiSplitSupportOf(timeout)).toThrow(timeout);
+		expect(() => apiSplitSupportOf(cancelled)).toThrow(cancelled);
+	});
+
 	it('throws an outage, which says neither', () => {
 		const outage = refusal(503);
 

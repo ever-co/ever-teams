@@ -414,13 +414,14 @@ export function useTimeActivityReport() {
 	const hasTaskFilter = settings.filters.taskIds.length > 0;
 	const hasClientFilter = pickedClients.length > 0;
 	const billableOnly = isBillableOnly(settings.filters.billable);
-	// A break has no client and is never billable: with either filter on, there are no breaks to show
+	const hasEntryLabelFilter = settings.filters.entryLabels.length > 0;
+	// A break has no client and is never billable: with either filter on, there are no breaks to show. The read of the
+	// breaks sends no labels of entries (#5368): with them picked, it would count breaks the labels leave out
 	const allowsBreaks = useBreaksAllowed();
-	const readsBreaks = allowsBreaks && !billableOnly && !hasClientFilter;
+	const readsBreaks = allowsBreaks && !billableOnly && !hasClientFilter && !hasEntryLabelFilter;
 	const breaksQuery = useTimeActivityBreaksQuery(request, readsBreaks);
 	const breakSeconds = breakSecondsShownOf(readsBreaks, breaksQuery);
 	// The counts endpoint knows nothing of the entry's labels either: with them picked, the rows give the figures
-	const hasEntryLabelFilter = settings.filters.entryLabels.length > 0;
 	const sumsFiguresFromRows = hasTaskFilter || hasClientFilter || billableOnly || isRounding || hasEntryLabelFilter;
 	const isClientGrouping = settings.grouping === 'client';
 	const needsProjectClients = hasClientFilter || isClientGrouping;

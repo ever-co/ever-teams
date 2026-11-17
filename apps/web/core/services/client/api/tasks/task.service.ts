@@ -298,8 +298,12 @@ class TaskService extends APIService {
 				cleanedData,
 				'updateTask input data'
 			) as Partial<TTask>;
+			// The task's project is read for display (#5385), never written back: an API that only handles a move would save
+			// the old relation over a removed project (Gauzy master keeps the task's project when `projectId` is null)
+			const writableInput = { ...validatedInput };
+			delete writableInput.project;
 			if (GAUZY_API_BASE_SERVER_URL.value) {
-				const nBody = { ...validatedInput };
+				const nBody = { ...writableInput };
 				delete nBody.selectedTeam;
 				delete nBody.rootEpic;
 				const directBody = withTimeLogMove(nBody, moveTimeLogs);
@@ -309,7 +313,7 @@ class TaskService extends APIService {
 				return zodStrictApiResponseValidate(taskSchema, response.data, 'updateTask API response');
 			}
 
-			const proxyBody = withTimeLogMove(validatedInput, moveTimeLogs);
+			const proxyBody = withTimeLogMove(writableInput, moveTimeLogs);
 			const response = await this.put<TTask>(`/tasks/${taskId}`, proxyBody);
 
 			// Validate the response data

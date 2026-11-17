@@ -29,7 +29,7 @@ jest.mock('@/core/stores/teams/team-tasks', () => ({ tasksByTeamState: {} }));
 jest.mock('jotai', () => ({ ...jest.requireActual('jotai'), useAtomValue: () => [] }));
 jest.mock('@/core/components/tasks/detail/task-picker-menu', () => ({
 	TaskPickerMenu: ({ disabled, children }: { disabled?: boolean; children: ReactNode }) => (
-		<button type="button" disabled={disabled}>
+		<button type="button" disabled={disabled} data-testid="task-picker">
 			{children}
 		</button>
 	)
@@ -135,6 +135,16 @@ describe('CalendarSplitDialog (#5369)', () => {
 		expect(mockSplit.save).toHaveBeenCalledWith(
 			expect.objectContaining({ splitAt: at('11:00'), secondTask: null })
 		);
+	});
+
+	it('offers no task for the second part of a break, which stays a break', () => {
+		const { unmount } = renderDialog();
+		expect(screen.getByTestId('task-picker')).toBeTruthy();
+		unmount();
+
+		renderDialog({ entry: { ...trackedEntry(), isBreak: true } });
+
+		expect(screen.queryByTestId('task-picker')).toBeNull();
 	});
 
 	it('leaves the fields open after a refusal the person can fix, such as a missing reason', () => {

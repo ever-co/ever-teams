@@ -365,18 +365,23 @@ function SplitForm({
 							window={parts.second}
 							formatters={formatters}
 						>
-							<TaskPickerMenu
-								tasks={tasks}
-								onPick={setSecondTask}
-								isSelected={(task) => task.id === shownTaskId}
-								searchPlaceholder={t('dashboard.calendar.SPLIT.TASK_SEARCH')}
-								triggerLabel={t('dashboard.calendar.SPLIT.TASK_LABEL', { task: secondTitle })}
-								triggerClassName={TASK_TRIGGER}
-								disabled={isLocked}
-							>
-								<span className="truncate">{secondTitle}</span>
-								<ChevronsUpDown aria-hidden="true" />
-							</TaskPickerMenu>
+							{entry.isBreak ? (
+								// A break stays a break on both sides: the API refuses a task for its second part
+								<span className="truncate text-[13px] text-muted-foreground">{secondTitle}</span>
+							) : (
+								<TaskPickerMenu
+									tasks={tasks}
+									onPick={setSecondTask}
+									isSelected={(task) => task.id === shownTaskId}
+									searchPlaceholder={t('dashboard.calendar.SPLIT.TASK_SEARCH')}
+									triggerLabel={t('dashboard.calendar.SPLIT.TASK_LABEL', { task: secondTitle })}
+									triggerClassName={TASK_TRIGGER}
+									disabled={isLocked}
+								>
+									<span className="truncate">{secondTitle}</span>
+									<ChevronsUpDown aria-hidden="true" />
+								</TaskPickerMenu>
+							)}
 						</PartRow>
 					</ul>
 				)}

@@ -336,7 +336,8 @@ export function TimesheetsPage({ params }: Readonly<{ params: Promise<{ memberId
 		period: page.period,
 		appliedFilters: filterControls.applied,
 		statusFilter: page.statusFilter,
-		search: page.search
+		search: page.search,
+		withEntryLabels: supportsEntryLabels
 	});
 	const hasShownLogs = shownLogs.length > 0;
 
