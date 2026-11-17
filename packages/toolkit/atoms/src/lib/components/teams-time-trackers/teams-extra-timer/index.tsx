@@ -21,6 +21,7 @@ export function TeamsExtraTimer({ progress, ...props }: Readonly<TeamsExtraTimer
 		<>
 			<BaseAtom
 				{...control.action}
+				{...control.defaults}
 				{...props}
 				{...control.state}
 				{...(progress && { progress: (control.seconds / 100) * 60 })}

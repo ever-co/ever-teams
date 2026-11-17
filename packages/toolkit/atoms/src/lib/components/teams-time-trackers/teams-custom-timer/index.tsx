@@ -22,6 +22,7 @@ export function TeamsCustomTimer({ progress, ...props }: Readonly<TeamsCustomTim
 		<>
 			<BaseAtom
 				{...control.action}
+				{...control.defaults}
 				{...props}
 				{...control.state}
 				{...(progress && { progress: (control.seconds / 100) * 60 })}
