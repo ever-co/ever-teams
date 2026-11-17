@@ -76,6 +76,24 @@ describe('GET /api/timesheet/time-log/report/daily', () => {
 
 		expect(upstreamQuery()).not.toHaveProperty('billableOnly');
 	});
+	it('asks Gauzy for the client rates each entry keeps when the report does, and only then', async () => {
+		await GET(dailyRequest(new URLSearchParams({ ...baseParams, withClientRates: 'true' })));
+		expect(upstreamQuery()).toEqual(expect.objectContaining({ withClientRates: 'true' }));
+
+		fetchMock.mockClear();
+		await GET(dailyRequest(new URLSearchParams(baseParams)));
+		expect(upstreamQuery()).not.toHaveProperty('withClientRates');
+	});
+
+	it("passes Gauzy's refusal on as it is, so a client never takes it for a server error", async () => {
+		const refusal = { statusCode: 403, message: 'Only an admin reads the client rates of its time.' };
+		fetchMock.mockResolvedValue(Response.json(refusal, { status: 403 }));
+
+		const response = await GET(dailyRequest(new URLSearchParams({ ...baseParams, withClientRates: 'true' })));
+
+		expect(response.status).toBe(403);
+		await expect(response.json()).resolves.toMatchObject(refusal);
+	});
 
 	it("forwards the entry's own label filters, and none when the report asks for none (#5368)", async () => {
 		const query = new URLSearchParams({ ...baseParams, 'tagIds[0]': 'meeting', untagged: 'true' });

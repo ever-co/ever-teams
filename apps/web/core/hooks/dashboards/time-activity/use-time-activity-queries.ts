@@ -29,6 +29,8 @@ export interface TimeActivityRequest {
 	includeTimeWithoutTeam?: boolean;
 	/** The daily and weekly reports count billable time only; the counts endpoint has no such filter. */
 	billableOnly?: boolean;
+	/** The daily report states the client rates each entry keeps (a role that may read every client rate). */
+	withClientRates?: boolean;
 	/** The entry's own labels (Gauzy #12029): only the daily report narrows by them. */
 	tagIds?: string[];
 	untagged?: boolean;
@@ -69,6 +71,7 @@ async function fetchDailyReport(request: TimeActivityRequest): Promise<ITimeLogG
 		activityLevel: ACTIVITY_LEVEL,
 		includeTimeWithoutTeam: request.includeTimeWithoutTeam,
 		billableOnly: request.billableOnly,
+		withClientRates: request.withClientRates,
 		tagIds: request.tagIds ?? [],
 		untagged: request.untagged === true
 	});

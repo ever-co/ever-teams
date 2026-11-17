@@ -54,6 +54,7 @@ import { roundedDailyReportOf } from '@/core/lib/utils/dashboards/time-activity-
 import {
 	billableFactsOf,
 	billableProjectIdsOf,
+	keptPriceOfRow,
 	pricedProjectIdOf
 } from '@/core/lib/utils/dashboards/time-activity-billable';
 import { linePriceOf } from '@/core/lib/utils/invoices';
@@ -210,7 +211,10 @@ function rowsOfReport(
 	return clientRowsOf(report, clientOf, withoutTeamLabel, workspaceCurrency, hiddenProjectLabels);
 }
 
-/** The same read, of billable time only: none for a role that may not read client rates, which price it. */
+/**
+ * The same read, of billable time only, with the client rates each entry keeps: none for a role that may not read
+ * client rates, which price it.
+ */
 function billableRequestOf(request: TimeActivityRequest | null, readsBillable: boolean): TimeActivityRequest | null {
 	if (!request) {
 		return null;
@@ -218,7 +222,7 @@ function billableRequestOf(request: TimeActivityRequest | null, readsBillable: b
 	if (!readsBillable) {
 		return null;
 	}
-	return { ...request, billableOnly: true };
+	return { ...request, billableOnly: true, withClientRates: true };
 }
 
 /** What the billable time of the period bills, the facts each breakdown row adds up, and how far they are read. */
@@ -530,8 +534,8 @@ export function useTimeActivityReport() {
 	const defaultRate = useMemo(() => defaultBillRateOf(organization), [organization]);
 	// Each row is priced as an invoice line: client rate of the member on the project, of the project, own rate, default
 	const billableFacts = useMemo(() => {
-		const priceOf = (row: DailyReportRow) =>
-			linePriceOf({
+		const priceOf = (row: DailyReportRow) => {
+			const todays = linePriceOf({
 				employeeId: row.employeeId,
 				projectRates: ratesByProject.get(pricedProjectIdOf(row) ?? ''),
 				projectCurrency: null,
@@ -539,6 +543,9 @@ export function useTimeActivityReport() {
 				organizationCurrency: workspaceCurrency,
 				defaultRate
 			});
+			// At the client rates its entries kept, as a draft invoice of the same time bills it
+			return keptPriceOfRow(row, todays, workspaceCurrency, defaultRate);
+		};
 		return billableFactsOf(billableRows, priceOf);
 	}, [billableRows, defaultRate, ratesByProject, workspaceCurrency]);
 	const billableFigures = useMemo(() => billableFiguresOfFacts(billableFacts), [billableFacts]);

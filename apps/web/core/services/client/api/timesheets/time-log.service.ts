@@ -562,6 +562,7 @@ class TimeLogService extends APIService {
 		activityLevel = { start: 0, end: 100 },
 		includeTimeWithoutTeam = false,
 		billableOnly = false,
+		withClientRates = false,
 		tagIds = [],
 		untagged = false
 	}: ITimeLogReportDailyRequest) => {
@@ -608,6 +609,9 @@ class TimeLogService extends APIService {
 		// Sent only when asked: without the parameter Gauzy counts every log, billable or not
 		if (billableOnly) {
 			queryParams.billableOnly = 'true';
+		}
+		if (withClientRates) {
+			queryParams.withClientRates = 'true';
 		}
 		// The entry's own labels (Gauzy #12029), sent only when picked: an API without them is sent nothing new
 		if (tagIds.length) addArrayParams(queryParams, 'tagIds', tagIds);

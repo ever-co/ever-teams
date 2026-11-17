@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { getTimeLogReportDailyRequest } from '@/core/services/server/requests/timesheet';
 import { ITimeLogRequestParams, readArrayParam } from '@/core/services/server/requests/timesheet';
+import { gauzyErrorResponse } from '@/core/services/server/gauzy-error-response';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -56,6 +57,11 @@ export async function GET(req: NextRequest) {
 			params.billableOnly = true;
 		}
 
+		// Gauzy answers the client rates only to a role that may read them, and 403 to anyone else
+		if (searchParams.get('withClientRates') === 'true') {
+			params.withClientRates = true;
+		}
+
 		// The entry's own labels (#5368, ever-gauzy #12029)
 		const tagIds = readArrayParam(searchParams, 'tagIds');
 		if (tagIds.length) params.tagIds = tagIds;
@@ -82,18 +88,7 @@ export async function GET(req: NextRequest) {
 			}
 		});
 	} catch (error) {
-		console.error('Error in daily report API:', error);
-		return new Response(
-			JSON.stringify({
-				message: 'Internal server error',
-				error: error instanceof Error ? error.message : 'Unknown error'
-			}),
-			{
-				status: 500,
-				headers: {
-					'Content-Type': 'application/json'
-				}
-			}
-		);
+		// Gauzy's own answer goes on (a 403 stays one); a failure without one is a 502
+		return gauzyErrorResponse(error, 'The daily report could not be read');
 	}
 }

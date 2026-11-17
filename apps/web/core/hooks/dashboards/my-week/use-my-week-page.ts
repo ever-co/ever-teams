@@ -7,6 +7,7 @@ import { useCalendarLogs } from '@/core/hooks/calendar/use-calendar-logs';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { useProjectClientRates } from '@/core/hooks/organizations/rates/use-project-client-rates';
 import { useBillingOrganization } from '@/core/hooks/organizations/rates/use-billing-organization';
+import { useKeptClientRates } from '@/core/hooks/organizations/rates/use-kept-client-rates';
 import { useMyRolePermissionsQuery } from '@/core/hooks/roles/use-my-role-permissions-query';
 import { linePriceOf } from '@/core/lib/utils/invoices';
 import { defaultBillRateOf, holdsRateAdminPermission } from '@/core/lib/utils/rates';
@@ -21,9 +22,11 @@ import { type Period, presetOfPeriod, type WeekStart } from '@/core/lib/utils/da
 import { useWorkspaceWeekStart } from '@/core/hooks/common/use-workspace-week-start';
 import {
 	billableProjectIdsOfEntries,
+	hasBilledTime,
 	dailyLimitSecondsOf,
 	DEFAULT_MY_WEEK_PERIOD,
 	isWeekPeriod,
+	keptPriceOfEntryOf,
 	MY_WEEK_PERIODS,
 	type MyWeekEntry,
 	type MyWeekPeriodKey,
@@ -154,6 +157,18 @@ export function useMyWeekPage() {
 	const billableProjectIds = useMemo(() => billableProjectIdsOfEntries(entries), [entries]);
 	const projectRates = useProjectClientRates(billableProjectIds, readsBillable);
 	const { ratesByProject } = projectRates;
+	// The rates each entry kept, with a project or without: an hour is billed at the price it was worked at, as a
+	// draft invoice bills it
+	const keptRange = useMemo(() => {
+		if (!employeeId) {
+			return null;
+		}
+		return { ...shownPeriod, timeZone, employeeIds: [employeeId] };
+	}, [employeeId, shownPeriod, timeZone]);
+	const billsTime = useMemo(() => hasBilledTime(entries), [entries]);
+	const readsKeptRates = readsBillable && billsTime;
+	const keptRates = useKeptClientRates(keptRange, readsKeptRates);
+	const { keptById } = keptRates;
 	// The default rate, the currency and the rounding rule price the amount too: it waits for them
 	const billingOrganization = useBillingOrganization(readsBillable);
 	const organization = useAtomValue(currentOrganizationState);
@@ -175,26 +190,31 @@ export function useMyWeekPage() {
 				organizationCurrency,
 				defaultRate
 			});
-		return myWeekBillableOf(entries, priceOf, roundingRule);
-	}, [employeeId, entries, organization, ownRate, ratesByProject, readsBillable]);
+		const keptPriceOf = keptPriceOfEntryOf(keptById, organizationCurrency, defaultRate);
+		return myWeekBillableOf(entries, priceOf, roundingRule, keptPriceOf);
+	}, [employeeId, entries, keptById, organization, ownRate, ratesByProject, readsBillable]);
 	const { refetch: refetchProjectRates } = projectRates;
 	const { retry: retryBillingOrganization } = billingOrganization;
+	const { refetch: refetchKeptRates } = keptRates;
 	const retryBillable = useCallback(() => {
 		refetchProjectRates();
 		retryBillingOrganization();
-	}, [refetchProjectRates, retryBillingOrganization]);
+		refetchKeptRates();
+	}, [refetchKeptRates, refetchProjectRates, retryBillingOrganization]);
 	const billable = useMemo<MyWeekBillable>(
 		() => ({
 			isOffered: readsBillable,
 			figures: billableFigures,
-			isPending: projectRates.isLoading || billingOrganization.isPending,
-			isError: projectRates.hasFailed || billingOrganization.isError,
+			isPending: projectRates.isLoading || billingOrganization.isPending || keptRates.isLoading,
+			isError: projectRates.hasFailed || billingOrganization.isError || keptRates.hasFailed,
 			retry: retryBillable
 		}),
 		[
 			billableFigures,
 			billingOrganization.isError,
 			billingOrganization.isPending,
+			keptRates.hasFailed,
+			keptRates.isLoading,
 			projectRates.hasFailed,
 			projectRates.isLoading,
 			readsBillable,
@@ -220,9 +240,13 @@ export function useMyWeekPage() {
 	const isEmpty = hasData && entries.length === 0;
 
 	const refetchLogs = logsQuery.refetch;
+	// The entries a refresh brings are priced at the rates they kept: those are read again with them
 	const refetch = useCallback(() => {
 		void refetchLogs();
-	}, [refetchLogs]);
+		if (readsKeptRates) {
+			refetchKeptRates();
+		}
+	}, [readsKeptRates, refetchKeptRates, refetchLogs]);
 
 	return {
 		periodKey,

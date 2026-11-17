@@ -1,4 +1,7 @@
-import type { ITimeLogGroupedDailyReport } from '@/core/types/interfaces/activity/activity-report';
+import type {
+	ITimeEntryClientRates,
+	ITimeLogGroupedDailyReport
+} from '@/core/types/interfaces/activity/activity-report';
 import { type EntryLabel, entryLabelsOf } from '@/core/lib/utils/time-log-labels';
 import { numberFormatOf, type FormatLocale } from '@/core/lib/utils/workspace-formats';
 import { isHiddenProject, PRIVATE_PROJECTS_KEY, type HiddenProjectLabels } from '@/core/lib/utils/project-visibility';
@@ -32,6 +35,8 @@ export interface DailyReportRow {
 	loggedProjectId?: string | null;
 	/** On the rows of a member's project day split by rate (#5212): the key they share, as one row had before. */
 	keyAcrossRates?: string;
+	/** On a report that states them (`withClientRates`): the client rates the row's entries keep, which price it. */
+	keptClientRates?: ITimeEntryClientRates;
 	/**
 	 * Only on time of a project the API keeps from the caller (CORE-27): `projectId` is then the key every such project
 	 * shares, so the report shows them on one row, and `loggedProjectId` the project itself.
@@ -57,10 +62,12 @@ type EmployeeLog = ITimeLogGroupedDailyReport['logs'][number]['employeeLogs'][nu
 
 type TaskLog = EmployeeLog['tasks'][number];
 
-/** A billing rate and its currency, as a report row states them. */
+/** A billing rate and its currency, as a report row states them, and the client rates its entry keeps. */
 interface StatedRate {
 	value: number | null;
 	currency: string | null;
+	/** Only from a report that asks for them, on an entry that keeps its rates. */
+	clientRates?: ITimeEntryClientRates;
 }
 
 /** The part of a member's project row that was logged with a team, or without one, at one rate. */
@@ -161,14 +168,40 @@ export function statedRateOf(task: TaskLog): StatedRate | undefined {
 		return undefined;
 	}
 	const currency = task.billRateCurrency?.trim() || null;
-	return { value: positiveOrNull(task.billRateValue), currency };
+	const rate: StatedRate = { value: positiveOrNull(task.billRateValue), currency };
+	const keepsClientRates = Boolean(task.clientRates) && task.ratesStored === true;
+	if (keepsClientRates) {
+		rate.clientRates = task.clientRates ?? undefined;
+	}
+	return rate;
+}
+
+/** A client rate in a key: the same number whether a database answered it as a number or as text ("90.00"). */
+function clientRateKeyOf(value: number | string | null | undefined) {
+	const isMissing = value === null || value === undefined || value === '';
+	if (isMissing) {
+		return 'none';
+	}
+	return String(Number(value));
+}
+
+/** The client rates of a key: each with its currency, as each prices on its own. */
+function clientRatesKeyOf(clientRates: ITimeEntryClientRates | undefined) {
+	if (!clientRates) {
+		return '';
+	}
+	// A client rate of 0 bills nothing, where no client rate leaves the time to the billing rate: both stay apart
+	const member = clientRateKeyOf(clientRates.projectMemberBillRateValue);
+	const project = clientRateKeyOf(clientRates.projectBillRateValue);
+	const currencies = `${clientRates.projectMemberBillRateCurrency ?? ''}/${clientRates.projectBillRateCurrency ?? ''}`;
+	return `|client:${member}|${project}|${currencies}`;
 }
 
 function statedRateKeyOf(rate: StatedRate | undefined) {
 	if (!rate) {
 		return '';
 	}
-	return `${rate.value ?? 'none'}|${rate.currency ?? ''}`;
+	return `${rate.value ?? 'none'}|${rate.currency ?? ''}${clientRatesKeyOf(rate.clientRates)}`;
 }
 
 /** A part whose entries store several rates becomes one part per rate, so each is priced at its own. */
@@ -297,13 +330,23 @@ function rowKeysOf(context: RowContext, part: EmployeeLogPart): Pick<DailyReport
 	return { key: `${keyAcrossRates}:${part.rateKey}`, keyAcrossRates };
 }
 
-/** The rate a row is priced at: the one its entries store, else the member's current rate, as before (#5212). */
+/**
+ * The rate a row is priced at: the one its entries store, else the member's current rate, as before (#5212), and the
+ * client rates its entries keep when the report states them.
+ */
 function rowRateOf(
 	context: RowContext,
 	part: EmployeeLogPart
-): Pick<DailyReportRow, 'billRateValue' | 'billRateCurrency'> {
+): Pick<DailyReportRow, 'billRateValue' | 'billRateCurrency' | 'keptClientRates'> {
 	if (part.rate) {
-		return { billRateValue: part.rate.value, billRateCurrency: part.rate.currency || context.workspaceCurrency };
+		const rate = {
+			billRateValue: part.rate.value,
+			billRateCurrency: part.rate.currency || context.workspaceCurrency
+		};
+		if (!part.rate.clientRates) {
+			return rate;
+		}
+		return { ...rate, keptClientRates: part.rate.clientRates };
 	}
 	const employee = context.employeeLog.employee;
 	const ownCurrency = employee?.billRateCurrency ?? null;

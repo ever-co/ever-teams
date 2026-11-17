@@ -284,6 +284,37 @@ describe('an invoice opened to be edited', () => {
 	});
 });
 
+describe('the time of an edited invoice taken again while it is read', () => {
+	afterEach(() => {
+		mockTime.isLoading = false;
+		mockTime.billedTimeByLine = new Map();
+	});
+
+	it('keeps what was written on its lines, and removed from them, until the time is read', () => {
+		// The saved lines name the time they bill
+		mockTime.billedTimeByLine = new Map([
+			['item-1', ['log-ana']],
+			['item-2', ['log-bo']]
+		]);
+		const { result, rerender } = renderEdit(savedOf(sentInvoice()));
+		act(() => result.current.removeLine('p1|bo'));
+
+		// Taken again, the time is read first: no line is priced yet
+		mockTime.isLoading = true;
+		mockTime.lines = [];
+		act(() => result.current.takeTimeAgain());
+		mockTime.isLoading = false;
+		mockTime.lines = [
+			timeLine({ timeLogIds: ['log-ana'] }),
+			timeLine({ key: 'p1|bo', employeeId: 'bo', label: 'Bo Chen', timeLogIds: ['log-bo'] })
+		];
+		rerender();
+
+		expect(result.current.descriptions.get('p1|ana')).toBe('Ana Lima, design');
+		expect(result.current.keptLines.map((line) => line.key)).toEqual(['p1|ana']);
+	});
+});
+
 describe('an invoice read again while its editor is open', () => {
 	it('is saved against the invoice as the editor opened it', async () => {
 		const opened = savedOf(sentInvoice());

@@ -37,6 +37,14 @@ export const highestInvoiceNumberSchema = z.object({
 	max: z.union([z.number(), z.string()]).nullable().optional()
 });
 
+/** The client rates a time log keeps, as `withClientRates` answers them. */
+const keptClientRatesSchema = z.object({
+	projectBillRateValue: decimalSchema.catch(null),
+	projectMemberBillRateValue: decimalSchema.catch(null),
+	projectBillRateCurrency: z.string().nullable().optional().catch(null),
+	projectMemberBillRateCurrency: z.string().nullable().optional().catch(null)
+});
+
 const billableTaskSchema = z.object({
 	id: z.string(),
 	title: z.string().nullable().optional(),
@@ -57,7 +65,13 @@ export const billableTimeLogSchema = z.object({
 	 * The invoice line that bills the log, null when none does. An API that records billed time states it on every
 	 * log; an older one leaves the key out.
 	 */
-	invoiceItemId: z.string().nullable().optional()
+	invoiceItemId: z.string().nullable().optional(),
+	/** Whether the log keeps the rates that priced it, and the billing rate it kept. */
+	ratesStored: z.boolean().nullable().optional().catch(null),
+	billRateValue: decimalSchema.catch(null),
+	billRateCurrency: z.string().nullable().optional().catch(null),
+	/** The client rates the log keeps, on a read that asks for them (`withClientRates`); an older API leaves them out. */
+	clientRates: keptClientRatesSchema.nullable().optional().catch(null)
 });
 
 const savedLineProjectSchema = z.object({

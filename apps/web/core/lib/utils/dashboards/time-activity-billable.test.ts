@@ -2,7 +2,13 @@ import type { DailyReportRow } from '@/core/lib/utils/daily-report-figures';
 import { linePriceOf, type ProjectClientRates } from '@/core/lib/utils/invoices';
 import type { DefaultBillRate } from '@/core/lib/utils/rates';
 import { breakdownFactsOf, breakdownTreeOf } from './time-activity';
-import { billableFactsOf, billableProjectIdsOf, pricedProjectIdOf, type PriceOfRow } from './time-activity-billable';
+import {
+	billableFactsOf,
+	billableProjectIdsOf,
+	keptPriceOfRow,
+	pricedProjectIdOf,
+	type PriceOfRow
+} from './time-activity-billable';
 
 const HOUR = 3600;
 
@@ -148,5 +154,27 @@ describe('pricedProjectIdOf and billableProjectIdsOf', () => {
 			'app',
 			'website'
 		]);
+	});
+});
+
+describe('a row priced at the client rates its entries kept (CORE-29)', () => {
+	const today = { rate: 110, currency: 'EUR', source: 'project' as const };
+
+	it("bills the client rate the entries kept, not today's, beside today's for the note", () => {
+		const row = rowOf({
+			billRateValue: 50,
+			keptClientRates: { projectBillRateValue: 90, projectBillRateCurrency: 'EUR' }
+		});
+
+		expect(keptPriceOfRow(row, today, 'EUR', null)).toEqual({
+			rate: 90,
+			currency: 'EUR',
+			source: 'project',
+			today
+		});
+	});
+
+	it("bills a row of a report that states no client rate at today's rate, as before", () => {
+		expect(keptPriceOfRow(rowOf({ billRateValue: 50 }), today, 'EUR', null)).toBe(today);
 	});
 });

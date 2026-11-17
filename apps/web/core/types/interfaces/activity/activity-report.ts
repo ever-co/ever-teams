@@ -6,6 +6,17 @@ import { IOrganizationProject } from '../project/organization-project';
 import type { ITaggable } from '../common/base-interfaces';
 import { TUser } from '@/core/types/schemas';
 
+/** A kept rate as the API answers it: a number, or a decimal as text ("90.00"), or none. */
+type KeptRateValue = number | string | null;
+
+/** The client rates a time entry keeps, as a report that asks for them (`withClientRates`) states them. */
+export interface ITimeEntryClientRates {
+	projectBillRateValue?: KeptRateValue;
+	projectMemberBillRateValue?: KeptRateValue;
+	projectBillRateCurrency?: string | null;
+	projectMemberBillRateCurrency?: string | null;
+}
+
 /**
  * Base interface for entities with tenant and organization
  */
@@ -185,6 +196,9 @@ export interface ITimerTaskLog {
 	 */
 	billRateValue?: number | string | null;
 	billRateCurrency?: string | null;
+	/** On a report that asks for them (`withClientRates`): whether the entry keeps its rates, and its client rates. */
+	ratesStored?: boolean;
+	clientRates?: ITimeEntryClientRates | null;
 	/** The entry's own labels (Gauzy #12029), stated once the API has them: one row per entry, so its own labels. */
 	tags?: NonNullable<ITaggable['tags']>;
 }
@@ -230,6 +244,11 @@ export interface ITimeLogReportDailyRequest {
 	includeTimeWithoutTeam?: boolean;
 	/** Counts billable time only; without it the report counts every log. */
 	billableOnly?: boolean;
+	/**
+	 * States on each row the client rates its entry keeps, for a role that may read every project's client rates. An
+	 * API that does not answer them leaves them out.
+	 */
+	withClientRates?: boolean;
 	/** Counts the entries carrying one of these labels of their own (Gauzy #12029). */
 	tagIds?: string[];
 	/** Counts the entries carrying no label: alone, or beside `tagIds`. */
