@@ -1,6 +1,6 @@
-// TimerStatusProvider: node --test test/ (from packages/toolkit/atoms).
-// esbuild bundles the provider with its context, API client, toasts and translations replaced by the stubs below;
-// React renders it in jsdom, and node:test's fake timers drive the one-minute poll.
+// TimerStatusProvider and useTimer: yarn test (from packages/toolkit/atoms).
+// esbuild bundles the provider and useTimer with their context, API client, toasts and translations replaced by the
+// stubs below; React renders them in jsdom, and node:test's fake timers drive the one-minute poll.
 import { test, before, after, mock } from 'node:test';
 import assert from 'node:assert/strict';
 import path from 'node:path';
@@ -22,7 +22,7 @@ let visibility = 'visible';
 Object.defineProperty(dom.window.document, 'visibilityState', { get: () => visibility });
 
 const stubs = {
-	'./teams-context': `
+	'teams-context': `
 		// A store with stable references, as the kit's jotai atoms give them; a test can switch organization.
 		import { useSyncExternalStore } from 'react';
 		const listeners = new Set();
@@ -33,27 +33,41 @@ const stubs = {
 		export const useTeamsContext = () => useSyncExternalStore(subscribe, () => identity);`,
 	'@ever-teams/api': `
 		globalThis.__reads = [];
+		globalThis.__actions = [];
 		export const getTimerStatus = (user, token, organizationId) =>
-			new Promise((resolve, reject) => globalThis.__reads.push(Object.assign(resolve, { organizationId, reject })));`,
+			new Promise((resolve, reject) => globalThis.__reads.push(Object.assign(resolve, { organizationId, reject })));
+		const action = (kind) => () =>
+			new Promise((resolve, reject) => globalThis.__actions.push(Object.assign(resolve, { kind, reject })));
+		export const startTimer = action('start');
+		export const stopTimer = action('stop');
+		export const addTimeSlot = async () => {};`,
 	'@ever-teams/toolkit-ui': 'globalThis.__toasts = []; export const toast = (t) => globalThis.__toasts.push(t);',
 	'@ever-teams/toolkit-types': 'export {};',
 	'react-i18next': 'export const useTranslation = () => ({ t: (key) => key });'
 };
-const stubbed =
-	/^(\.\/teams-context|@ever-teams\/api|@ever-teams\/toolkit-ui|@ever-teams\/toolkit-types|react-i18next)$/;
+const stubbed = /^(@ever-teams\/api|@ever-teams\/toolkit-ui|@ever-teams\/toolkit-types|react-i18next)$/;
+// The provider imports its context as ./teams-context and useTimer as @lib/context/teams-context: one stub for both.
+const teamsContext = /^(\.\/teams-context|@lib\/context\/teams-context)$/;
+const lib = path.join(here, '..', 'src', 'lib');
 
 let React;
 let act;
 let createRoot;
 let TimerStatusProvider;
 let useTimerStatusContext;
+let useTimer;
 let bundleDir;
 
 before(async () => {
 	bundleDir = fs.mkdtempSync(path.join(os.tmpdir(), 'timer-status-'));
 	const outfile = path.join(bundleDir, 'provider.mjs');
 	await esbuild.build({
-		entryPoints: [path.join(here, '..', 'src', 'lib', 'context', 'teams-timer-status-context.tsx')],
+		stdin: {
+			contents:
+				"export * from './context/teams-timer-status-context'; export { useTimer } from './hooks/useTimer';",
+			resolveDir: lib,
+			loader: 'ts'
+		},
 		bundle: true,
 		format: 'esm',
 		platform: 'neutral',
@@ -65,6 +79,10 @@ before(async () => {
 				name: 'stubs',
 				setup(build) {
 					build.onResolve({ filter: stubbed }, (args) => ({ path: args.path, namespace: 'stub' }));
+					build.onResolve({ filter: teamsContext }, () => ({ path: 'teams-context', namespace: 'stub' }));
+					build.onResolve({ filter: /^@lib\// }, (args) => ({
+						path: path.join(lib, `${args.path.slice('@lib/'.length)}.tsx`)
+					}));
 					build.onLoad({ filter: /.*/, namespace: 'stub' }, (args) => ({
 						contents: stubs[args.path],
 						loader: 'js'
@@ -82,7 +100,7 @@ before(async () => {
 	React = require('react');
 	({ act } = React);
 	({ createRoot } = require('react-dom/client'));
-	({ TimerStatusProvider, useTimerStatusContext } = await import(pathToFileURL(outfile).href));
+	({ TimerStatusProvider, useTimerStatusContext, useTimer } = await import(pathToFileURL(outfile).href));
 });
 
 after(async () => {
@@ -119,6 +137,7 @@ async function mount(widgets) {
 async function reset() {
 	for (const root of roots.splice(0)) await act(async () => root.unmount());
 	globalThis.__reads.length = 0;
+	globalThis.__actions.length = 0;
 	globalThis.__toasts.length = 0;
 	visibility = 'visible';
 	await act(async () => globalThis.__setIdentity(null));
@@ -340,4 +359,120 @@ test('a focus event on a hidden page reads nothing', async () => {
 	await act(async () => window.dispatchEvent(new window.Event('focus')));
 
 	assert.equal(globalThis.__reads.length, 1);
+});
+
+test('a refresh kept from before a switch of organization reads nothing, and the new read still sets the status', async () => {
+	await reset();
+	const seen = {};
+	await mount([probe(seen)]);
+	await answer(0, {});
+	const refetchForOldOrganization = seen.shared.refetch;
+
+	await act(async () => globalThis.__setIdentity({ selectedOrganization: 'org-2' }));
+	const forNewOrganization = globalThis.__reads.at(-1);
+	await act(async () => {
+		refetchForOldOrganization();
+	});
+	assert.equal(globalThis.__reads.at(-1), forNewOrganization, 'the old refresh starts no read');
+
+	await act(async () => forNewOrganization({ running: false, duration: 7, lastLog: null }));
+	assert.equal(seen.shared.status?.duration, 7);
+	assert.equal(seen.shared.loading, false);
+});
+
+test('a refresh queued during a read reads nothing once the last timer widget is gone', async () => {
+	await reset();
+	let refetch;
+	const Refresher = () => {
+		refetch = useTimerStatusContext().refetch;
+		return null;
+	};
+	const refresher = React.createElement(Refresher, { key: 'r' });
+	const { root } = await mount([widget('a'), refresher]);
+	const pending = globalThis.__reads[0];
+	await act(async () => {
+		refetch();
+	});
+
+	await act(async () => root.render(React.createElement(TimerStatusProvider, null, refresher)));
+	await act(async () => pending({ running: false, duration: 0, lastLog: null }));
+
+	assert.equal(globalThis.__reads.length, 1);
+});
+
+// A timer widget as the kit's are: useTimer, with its start and stop.
+function timer(key, seen) {
+	const Timer = () => {
+		seen[key] = useTimer();
+		return null;
+	};
+	return React.createElement(Timer, { key });
+}
+
+test('one start at a time for the page: a second click, in the same widget or another, and a stop meanwhile send nothing', async () => {
+	await reset();
+	mock.timers.enable({ apis: ['setInterval'] });
+	try {
+		const seen = {};
+		await mount([timer('a', seen), timer('b', seen)]);
+		assert.equal(globalThis.__reads.length, 1, 'two timers, one read');
+		await answer(0, { running: false });
+
+		await act(async () => {
+			seen.a.startTimer();
+			seen.a.startTimer();
+			seen.b.startTimer();
+			seen.b.stopTimer();
+		});
+		assert.deepEqual(
+			globalThis.__actions.map((a) => a.kind),
+			['start']
+		);
+		assert.deepEqual([seen.a.timerLoading, seen.b.timerLoading], [true, true]);
+
+		await act(async () => globalThis.__actions[0]({ id: 'log' }));
+		await answer(1, { running: true, lastLog: { startedAt: new Date().toISOString() } });
+		assert.deepEqual([seen.a.isRunning, seen.b.isRunning], [true, true]);
+		assert.deepEqual([seen.a.timerLoading, seen.b.timerLoading], [false, false]);
+		assert.equal(seen.b.timerActionLabel, 'TIME_TRACKER.STOP_TIMER');
+
+		await act(async () => {
+			seen.b.stopTimer();
+		});
+		assert.deepEqual(
+			globalThis.__actions.map((a) => a.kind),
+			['start', 'stop']
+		);
+	} finally {
+		mock.timers.reset();
+	}
+});
+
+test('a running timer widget leaves no interval behind once unmounted', async () => {
+	await reset();
+	const live = new Set();
+	const { setInterval: realSet, clearInterval: realClear } = globalThis;
+	globalThis.setInterval = (...args) => {
+		const id = realSet(...args);
+		live.add(id);
+		return id;
+	};
+	globalThis.clearInterval = (id) => {
+		live.delete(id);
+		return realClear(id);
+	};
+	try {
+		const seen = {};
+		const { root } = await mount([timer('a', seen)]);
+		await answer(0, { running: true, lastLog: { startedAt: new Date().toISOString() } });
+		assert.equal(seen.a.isRunning, true);
+
+		await act(async () => root.unmount());
+		roots.splice(roots.indexOf(root), 1);
+		assert.equal(live.size, 0);
+	} finally {
+		for (const id of live) realClear(id);
+		globalThis.setInterval = realSet;
+		globalThis.clearInterval = realClear;
+	}
 });

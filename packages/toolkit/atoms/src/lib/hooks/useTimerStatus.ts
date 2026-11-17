@@ -62,7 +62,7 @@ function useOwnTimerStatus(
 	};
 
 	useEffect(() => {
-		const signedIn = Boolean(user && user.employee && token && organizationId);
+		const signedIn = Boolean(user?.employee && token && organizationId);
 		if (enabled && signedIn) {
 			fetchTimerStatus(); // Initial fetch on mount
 			const interval = setInterval(fetchTimerStatus, TIMER_STATUS_REFRESH_MS);

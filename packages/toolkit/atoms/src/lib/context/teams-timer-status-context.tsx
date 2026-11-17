@@ -1,6 +1,16 @@
 'use client';
 
-import { createContext, useCallback, useContext, useEffect, useRef, useState, ReactNode, CSSProperties } from 'react';
+import {
+	createContext,
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+	ReactNode,
+	CSSProperties
+} from 'react';
 import { useTranslation } from 'react-i18next';
 import { getTimerStatus } from '@ever-teams/api';
 import { IServerError, ITimerStatus } from '@ever-teams/toolkit-types';
@@ -17,6 +27,10 @@ export interface ITimerStatusContext {
 	// Registers a component that shows the timer; returns its unregister function. The status is read only while
 	// at least one is mounted.
 	registerConsumer: () => () => void;
+	// True while a start or a stop runs in one of the widgets: every widget shows it as loading.
+	actionPending: boolean;
+	// Runs a start or a stop unless one already runs for this provider: a second one, from any widget, is ignored.
+	runAction: (action: () => Promise<void>) => Promise<void>;
 }
 
 const TimerStatusContext = createContext<ITimerStatusContext | null>(null);
@@ -59,12 +73,14 @@ const pageIsVisible = () => document.visibilityState !== 'hidden';
  * One timer status for every widget under a TeamsProvider: one read feeds them all, and a start or a stop in one of
  * them refreshes the others at once (`refetch`).
  */
-export function TimerStatusProvider({ children }: { children?: ReactNode }) {
+export function TimerStatusProvider({ children }: Readonly<{ children?: ReactNode }>) {
 	const { t } = useTranslation();
 	const { authenticatedUser: user, token, selectedOrganization: organizationId } = useTeamsContext();
 	const [status, setStatus] = useState<ITimerStatus | null>(null);
 	const [loading, setLoading] = useState(false);
 	const [consumerCount, setConsumerCount] = useState(0);
+	const [actionPending, setActionPending] = useState(false);
+	const actionInFlight = useRef(false);
 	const [announcement, setAnnouncement] = useState('');
 	// The pending reads for one identity; again: a refresh was asked while they ran.
 	const inFlight = useRef<{ identity: string; promise: Promise<void>; again: boolean } | null>(null);
@@ -77,6 +93,8 @@ export function TimerStatusProvider({ children }: { children?: ReactNode }) {
 	const signedIn = Boolean(token && organizationId);
 	const ready = hasEmployee && signedIn;
 	const hasConsumers = consumerCount > 0;
+	// The same count, for a queued read that settles after the last widget unmounted.
+	const consumers = useRef(0);
 
 	// Whose status this is: an answer read for another user, token or organization is dropped.
 	const identity = `${user?.id ?? ''}|${token}|${organizationId ?? ''}`;
@@ -84,8 +102,12 @@ export function TimerStatusProvider({ children }: { children?: ReactNode }) {
 	currentIdentity.current = identity;
 
 	const registerConsumer = useCallback(() => {
+		consumers.current += 1;
 		setConsumerCount((count) => count + 1);
-		return () => setConsumerCount((count) => count - 1);
+		return () => {
+			consumers.current -= 1;
+			setConsumerCount((count) => count - 1);
+		};
 	}, []);
 
 	// One notice for an outage, not one per read: the next successful read ends it.
@@ -131,7 +153,10 @@ export function TimerStatusProvider({ children }: { children?: ReactNode }) {
 	// A refresh asked while a read is pending runs one more read after it: the pending read may predate a start or a
 	// stop, and its answer must not be the last word. The caller waits for that fresh read.
 	const refetch = useCallback(async () => {
-		if (!ready) {
+		// A refetch kept from an earlier render (a start that ends after a switch of organization) reads nothing: its
+		// read would supersede the current identity's pending read, whose answer would then be dropped.
+		const obsolete = currentIdentity.current !== identity;
+		if (!ready || obsolete) {
 			return;
 		}
 		const pending = inFlight.current;
@@ -141,8 +166,9 @@ export function TimerStatusProvider({ children }: { children?: ReactNode }) {
 			return pending.promise;
 		}
 		const record = { identity, promise: Promise.resolve(), again: false };
-		// A hidden page leaves the queued read to the next visibility change.
-		const readsAgain = () => record.again && currentIdentity.current === identity && pageIsVisible();
+		// A hidden page leaves the queued read to the next visibility change; with no timer widget left, nothing reads.
+		const readsAgain = () =>
+			record.again && currentIdentity.current === identity && consumers.current > 0 && pageIsVisible();
 		const reads = (async () => {
 			do {
 				record.again = false;
@@ -157,6 +183,22 @@ export function TimerStatusProvider({ children }: { children?: ReactNode }) {
 		inFlight.current = record;
 		return record.promise;
 	}, [ready, readOnce, identity]);
+
+	// One start or stop at a time for every widget of the page, so two clicks (in one widget or two) never start or
+	// stop the timer twice, and a stop cannot run while a start is still in flight.
+	const runAction = useCallback(async (action: () => Promise<void>) => {
+		if (actionInFlight.current) {
+			return;
+		}
+		actionInFlight.current = true;
+		setActionPending(true);
+		try {
+			await action();
+		} finally {
+			actionInFlight.current = false;
+			setActionPending(false);
+		}
+	}, []);
 
 	// Another user, token or organization: the previous status is dropped at once, and no change is announced.
 	useEffect(() => {
@@ -207,8 +249,13 @@ export function TimerStatusProvider({ children }: { children?: ReactNode }) {
 		setAnnouncement(t('TIME_TRACKER.TIMER_STOPPED'));
 	}, [status, t]);
 
+	const value = useMemo(
+		() => ({ status, loading, refetch, registerConsumer, actionPending, runAction }),
+		[status, loading, refetch, registerConsumer, actionPending, runAction]
+	);
+
 	return (
-		<TimerStatusContext.Provider value={{ status, loading, refetch, registerConsumer }}>
+		<TimerStatusContext.Provider value={value}>
 			{children}
 			<span aria-live="polite" role="status" style={visuallyHidden}>
 				{announcement}

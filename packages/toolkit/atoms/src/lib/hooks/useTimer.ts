@@ -14,14 +14,6 @@ import { useTimerStatusContext } from '@lib/context/teams-timer-status-context';
  *
  * @returns Timer state and control functions
  */
-// The name screen readers give the start and stop control of every timer widget.
-function timerActionLabelOf(isRunning: boolean, t: (key: string) => string): string {
-	if (isRunning) {
-		return t('TIME_TRACKER.STOP_TIMER');
-	}
-	return t('TIME_TRACKER.START_TIMER');
-}
-
 export const useTimer = () => {
 	// Get dependencies from context
 	const { authenticatedUser: user, token, selectedOrganization: organizationId } = useTeamsContext();
@@ -64,7 +56,25 @@ export const useTimer = () => {
 
 	const interval = useRef<number>(0);
 
-	const startTimer = async () => {
+	// One start or stop at a time: under a TeamsProvider for every widget of the page, otherwise for this widget. A
+	// second click while one runs (a double click, or a stop while the start is in flight) is ignored.
+	const ownActionInFlight = useRef(false);
+	const runAction = async (action: () => Promise<void>) => {
+		if (sharedStatus) {
+			return sharedStatus.runAction(action);
+		}
+		if (ownActionInFlight.current) {
+			return;
+		}
+		ownActionInFlight.current = true;
+		try {
+			await action();
+		} finally {
+			ownActionInFlight.current = false;
+		}
+	};
+
+	const startTimerNow = async () => {
 		try {
 			setTimerLoading(true);
 			const timeSlot = await startApiTimer(user, token, currentTeamsState, organizationId);
@@ -98,7 +108,7 @@ export const useTimer = () => {
 		}
 	};
 
-	const stopTimer = async () => {
+	const stopTimerNow = async () => {
 		clearInterval(interval.current);
 		try {
 			setTimerLoading(true);
@@ -163,7 +173,11 @@ export const useTimer = () => {
 		}
 	}, [timerStatus]);
 
-	const timerActionLabel = timerActionLabelOf(isRunning, t);
+	const startTimer = () => runAction(startTimerNow);
+	const stopTimer = () => runAction(stopTimerNow);
+
+	// The name screen readers give the start and stop control of every timer widget.
+	const timerActionLabel = t(isRunning ? 'TIME_TRACKER.STOP_TIMER' : 'TIME_TRACKER.START_TIMER');
 
 	return {
 		timerActionLabel,
@@ -182,7 +196,8 @@ export const useTimer = () => {
 		setTime,
 		todayTrackedTime,
 		setTodayTrackedTime,
-		timerLoading,
+		// A start or a stop in any widget of the page shows in all of them.
+		timerLoading: timerLoading || Boolean(sharedStatus?.actionPending),
 		currentTeamsState,
 		setCurrentTeamsState
 	};
