@@ -99,3 +99,34 @@ test('a style passed by the host still wins', async () => {
 	assert.equal(button.style.background, 'green');
 	await act(async () => root.unmount());
 });
+
+// The color useThemeColor gives for the kit theme, inside the given outer providers' themes.
+async function themeColor(kitTheme, ...outerThemes) {
+	let seen;
+	const Probe = () => {
+		seen = useThemeColor('mainColor');
+		return null;
+	};
+	let element = React.createElement(ThemeUIProvider, { theme: kitTheme }, React.createElement(Probe));
+	for (const theme of outerThemes) {
+		element = React.createElement(ThemeUIProvider, { theme }, element);
+	}
+	const root = createRoot(document.createElement('div'));
+	await act(async () => root.render(element));
+	await act(async () => root.unmount());
+	return seen;
+}
+
+test("with custom properties off, the kit's own color wins over a host provider's raw colors", async () => {
+	const kitTheme = { config: { useCustomProperties: false }, colors: { mainColor: 'red' } };
+
+	assert.equal(await themeColor(kitTheme, { colors: { mainColor: 'blue' } }), 'red');
+});
+
+test('a nested color scale gives its __default value, as an sx color does', async () => {
+	assert.equal(await themeColor({ colors: { mainColor: { __default: 'red', light: 'pink' } } }), 'red');
+	assert.equal(
+		await themeColor({ config: { useCustomProperties: false }, colors: { mainColor: { __default: 'red' } } }),
+		'red'
+	);
+});

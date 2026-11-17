@@ -59,6 +59,7 @@ const TeamsButton = ({
 	startTimer,
 	stopTimer,
 	timerLoading,
+	style,
 	...props
 }: ITeamsButtonProps & {
 	ref?: React.RefObject<HTMLButtonElement>;
@@ -86,7 +87,8 @@ const TeamsButton = ({
 					(timerLoading || !authenticatedUser) && 'opacity-50  scale-105 cursor-not-allowed'
 				)}
 				ref={ref}
-				style={{ background: mainColor }}
+				// A host style adds to the theme's color, and replaces it only where it sets a background itself.
+				style={{ background: mainColor, ...style }}
 				onClick={isRunning ? stopTimer : startTimer}
 				{...props}
 				disabled={timerLoading || !authenticatedUser || !authenticatedUser.employee}
