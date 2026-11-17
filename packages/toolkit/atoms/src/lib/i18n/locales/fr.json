@@ -67,7 +67,7 @@
 		"SESSION": "Votre session a pris fin. Reconnectez-vous.",
 		"SIGN_IN_AGAIN": "Se reconnecter",
 		"PERMISSION": "Vous n'avez pas l'autorisation de suivre votre temps dans cet espace. Demandez à votre administrateur.",
-		"UNREACHABLE": "Ever Teams est injoignable. Votre minuteur continue sur le serveur ; nous nous reconnecterons."
+		"UNREACHABLE": "Ever Teams est injoignable. Vérifiez votre connexion et réessayez."
 	},
 	"TIME_TRACKER": {
 		"title": "Muniteur",

@@ -1,6 +1,6 @@
 'use client';
 import { IAuthLogin, IServerError } from '@ever-teams/toolkit-types';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
 import { apiConfigManager, authLogin } from '@ever-teams/api';
 import { reportError, toast } from '@ever-teams/toolkit-ui';
@@ -32,9 +32,12 @@ export const usePasswordLoginForm = ({ redirectHandler }: UsePasswordLoginFormPa
 	const { t } = useTranslation();
 	const { setAccessToken } = useAccessToken();
 	const { setToken, setAuthenticatedUser: setUser } = useTeamsContext();
+	// Counts the edits: a failure that comes back after an edit is not shown, since the edit cleared the error.
+	const edits = useRef(0);
 
 	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const { name, value } = e.target;
+		edits.current += 1;
 		if (error) setError(undefined);
 		setFormData((prev) => ({ ...prev, [name]: value }));
 	};
@@ -43,6 +46,12 @@ export const usePasswordLoginForm = ({ redirectHandler }: UsePasswordLoginFormPa
 		e.preventDefault();
 		setLoading(true);
 		setError(undefined);
+		const editsAtSubmit = edits.current;
+		const showError = (message: string) => {
+			if (edits.current === editsAtSubmit) {
+				setError(message);
+			}
+		};
 
 		try {
 			const { email, password } = formData;
@@ -53,20 +62,20 @@ export const usePasswordLoginForm = ({ redirectHandler }: UsePasswordLoginFormPa
 				// the API down: the kit's own words, inside the form and with no toast on the host page.
 				const kind = await kindOfSignInFailure(authResponse, apiConfigManager.getConfig().apiUrl);
 				if (kind) {
-					setError(t(KIT_ERROR_MESSAGE_KEYS[kind]));
+					showError(t(KIT_ERROR_MESSAGE_KEYS[kind]));
 					setLoading(false);
 					return;
 				}
 
 				if ('statusCode' in authResponse && authResponse.statusCode === 401) {
-					setError(t('ERROR.invalid_password_or_email'));
+					showError(t('ERROR.invalid_password_or_email'));
 					reportError(t('ERROR.invalid_password_or_email'));
 					setLoading(false);
 					return;
 				}
 				const errorMessage = errorMessageOf(authResponse);
 
-				setError(errorMessage);
+				showError(errorMessage);
 				toast({
 					variant: 'destructive',
 					description: errorMessage
@@ -84,7 +93,7 @@ export const usePasswordLoginForm = ({ redirectHandler }: UsePasswordLoginFormPa
 		} catch {
 			// No answer: say whether this site is not allowed or Ever Teams is unreachable, inside the form.
 			const kind = await kindOfFailedRequest(apiConfigManager.getConfig().apiUrl);
-			setError(t(KIT_ERROR_MESSAGE_KEYS[kind]));
+			showError(t(KIT_ERROR_MESSAGE_KEYS[kind]));
 		} finally {
 			setLoading(false);
 		}

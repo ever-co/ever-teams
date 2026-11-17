@@ -1,5 +1,5 @@
 import { apiConfigManager, getUser } from '@ever-teams/api';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { IHookResponse, IUser } from '@ever-teams/toolkit-types';
 import { useAtom, useSetAtom } from 'jotai';
 import { selectedEmployeeAtom, userAtom } from '../teams-jotai/atoms/teams-atoms';
@@ -35,10 +35,15 @@ const useAuthUser = (token: string): IHookResponse<IUser> => {
 		updateSession(data, token);
 	};
 	// The read of the user found Ever Teams unreachable: it is read again once the browser is back online or the page
-	// comes back to the person, so the notice's "we'll reconnect" holds without a reload.
+	// comes back to the person, without a reload.
 	const [readAgainWhenBack, setReadAgainWhenBack] = useState(false);
+	// Only the read started last may set the user, the notice or the read again: one for an earlier token is dropped.
+	const latestRead = useRef(0);
 
 	const handleUserAuthentication = async () => {
+		latestRead.current += 1;
+		const read = latestRead.current;
+		const isCurrent = () => read === latestRead.current;
 		try {
 			if (!token) {
 				return;
@@ -53,6 +58,9 @@ const useAuthUser = (token: string): IHookResponse<IUser> => {
 			setUser((prev) => ({ ...prev, loading: true }));
 
 			const authUser = await getUser({ token, includeEmployee: true, includeOrganization: true });
+			if (!isCurrent()) {
+				return;
+			}
 
 			if ('message' in authUser || 'error' in authUser) {
 				setUser((prev) => ({ ...prev, loading: false }));
@@ -64,6 +72,9 @@ const useAuthUser = (token: string): IHookResponse<IUser> => {
 					errorMessageOf(authUser),
 					apiConfigManager.getConfig().apiUrl
 				);
+				if (!isCurrent()) {
+					return;
+				}
 				setNotice(notice);
 				setReadAgainWhenBack(notice.kind === 'unreachable');
 				return;
@@ -79,6 +90,9 @@ const useAuthUser = (token: string): IHookResponse<IUser> => {
 			setNotice(null);
 		} catch {
 			const kind = await kindOfFailedRequest(apiConfigManager.getConfig().apiUrl);
+			if (!isCurrent()) {
+				return;
+			}
 			setNotice({ kind });
 			setReadAgainWhenBack(kind === 'unreachable');
 			setUser((prev) => ({ ...prev, loading: false }));
