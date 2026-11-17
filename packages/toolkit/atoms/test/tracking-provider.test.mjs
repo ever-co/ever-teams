@@ -92,7 +92,13 @@ before(async () => {
 
 after(() => {
 	const link = path.join(bundleDir, 'node_modules', 'react');
-	if (fs.existsSync(link)) fs.rmdirSync(link);
+	// A symbolic link on POSIX, a junction on Windows: remove the link itself, never what it points to.
+	if (!fs.existsSync(link)) return;
+	try {
+		fs.unlinkSync(link);
+	} catch {
+		fs.rmdirSync(link);
+	}
 });
 
 const answer = (request, sessions) => request.resolve({ success: true, data: { sessions } });
