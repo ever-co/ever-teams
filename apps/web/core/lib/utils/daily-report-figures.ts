@@ -4,6 +4,7 @@ import type {
 } from '@/core/types/interfaces/activity/activity-report';
 import { type EntryLabel, entryLabelsOf } from '@/core/lib/utils/time-log-labels';
 import { numberFormatOf, type FormatLocale } from '@/core/lib/utils/workspace-formats';
+import { isHiddenProject, PRIVATE_PROJECTS_KEY, type HiddenProjectLabels } from '@/core/lib/utils/project-visibility';
 
 /** One member's time on one project on one day, the finest grain the daily report gives. */
 export interface DailyReportRow {
@@ -36,6 +37,13 @@ export interface DailyReportRow {
 	keyAcrossRates?: string;
 	/** On a report that states them (`withClientRates`): the client rates the row's entries keep, which price it. */
 	keptClientRates?: ITimeEntryClientRates;
+	/**
+	 * Only on time of a project the API keeps from the caller (CORE-27): `projectId` is then the key every such project
+	 * shares, so the report shows them on one row, and `loggedProjectId` the project itself.
+	 */
+	isProjectHidden?: true;
+	/** Only on time of a hidden project: the name of the row all of them share, where `projectName` names one. */
+	projectGroupName?: string | null;
 }
 
 export interface DailyReportTask {
@@ -271,6 +279,7 @@ interface RowContext {
 	employeeId: string;
 	withoutTeamLabel: string | null;
 	workspaceCurrency: string | null;
+	hiddenProjectLabels: HiddenProjectLabels | null;
 }
 
 /** Time without a team is listed apart from the projects, under its own name: its project is not this team's. */
@@ -285,6 +294,17 @@ function projectFieldsOf(context: RowContext, part: EmployeeLogPart) {
 		};
 	}
 	const project = context.project;
+	if (isHiddenProject(project)) {
+		return {
+			projectId: PRIVATE_PROJECTS_KEY,
+			projectName: context.hiddenProjectLabels?.one ?? null,
+			projectGroupName: context.hiddenProjectLabels?.many ?? null,
+			projectImageUrl: null,
+			projectColor: null,
+			loggedProjectId: project?.id ?? null,
+			isProjectHidden: true as const
+		};
+	}
 	return {
 		projectId: project?.id ?? null,
 		projectName: project?.name ?? null,
@@ -374,12 +394,14 @@ function rowOf(context: RowContext, part: EmployeeLogPart): DailyReportRow {
 /**
  * One row per member, project and day. A team report that counts the time logged without a team (Gauzy states each
  * task row's team then) gets that time in rows of its own, named `withoutTeamLabel`. A rate without a currency of its
- * own is in the workspace's, as Gauzy counts it.
+ * own is in the workspace's, as Gauzy counts it. The time of every project the API keeps from the caller shares one
+ * project key, named by `hiddenProjectLabels` (CORE-27).
  */
 export function flattenDailyReport(
 	report: ReadonlyArray<ITimeLogGroupedDailyReport>,
 	withoutTeamLabel: string | null = null,
-	workspaceCurrency: string | null = null
+	workspaceCurrency: string | null = null,
+	hiddenProjectLabels: HiddenProjectLabels | null = null
 ): DailyReportRow[] {
 	const rows: DailyReportRow[] = [];
 	for (const day of report) {
@@ -396,7 +418,8 @@ export function flattenDailyReport(
 					employeeLog,
 					employeeId,
 					withoutTeamLabel,
-					workspaceCurrency
+					workspaceCurrency,
+					hiddenProjectLabels
 				};
 				for (const part of partsOf(employeeLog)) {
 					rows.push(rowOf(context, part));

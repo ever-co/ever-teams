@@ -9,6 +9,7 @@ import { DASHBOARD_SURFACE, SKELETON_BAR } from '@/core/components/dashboards/ki
 import { Clock, DollarCircle } from '@/core/components/icons';
 import { LANE_SURFACE } from '@/core/components/pages/kanban/board/kanban-recipes';
 import { AvatarStack } from '@/core/components/teams/people-avatars';
+import { HiddenProjectMark } from '@/core/components/projects/hidden-project-mark';
 import { cn } from '@/core/lib/helpers';
 import {
 	amountTextOf,
@@ -143,22 +144,33 @@ const BudgetCard = memo(function BudgetCard({ row }: Readonly<{ row: BudgetRow }
 	return (
 		<li className={CARD_SURFACE}>
 			<div className="flex min-w-0 items-start gap-2.5">
-				<span aria-hidden="true" className="flex shrink-0">
-					<EntityTile
-						name={project.name}
-						color={project.color}
-						imageUrl={project.imageUrl}
-						className="size-7 text-[11px]"
-					/>
-				</span>
+				{project.isHidden && <HiddenProjectMark className="size-7 [&_svg]:size-4" />}
+				{!project.isHidden && (
+					<span aria-hidden="true" className="flex shrink-0">
+						<EntityTile
+							name={project.name}
+							color={project.color}
+							imageUrl={project.imageUrl}
+							className="size-7 text-[11px]"
+						/>
+					</span>
+				)}
 				<div className="flex min-w-0 flex-1 flex-col gap-1.5">
-					<Link
-						href={projectPathOf(project.id)}
-						prefetch={false}
-						className="line-clamp-2 text-[13px] font-medium leading-5 text-foreground outline-none after:absolute after:inset-0 after:rounded-xl"
-					>
-						{project.name}
-					</Link>
+					{/* A project the API keeps from the reader has no page to lead to (CORE-27) */}
+					{project.isHidden && (
+						<span className="line-clamp-2 text-[13px] font-medium leading-5 text-foreground">
+							{project.name}
+						</span>
+					)}
+					{!project.isHidden && (
+						<Link
+							href={projectPathOf(project.id)}
+							prefetch={false}
+							className="line-clamp-2 text-[13px] font-medium leading-5 text-foreground outline-none after:absolute after:inset-0 after:rounded-xl"
+						>
+							{project.name}
+						</Link>
+					)}
 					<BudgetTypeChip row={row} />
 				</div>
 			</div>

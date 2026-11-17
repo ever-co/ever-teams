@@ -58,7 +58,10 @@ function memberNameOf(row: { employee: { name: string } }, t: Translate) {
 	return t('dashboard.appsUrls.UNKNOWN_MEMBER');
 }
 
-function projectNameOf(row: { project: { name: string | null } }, t: Translate) {
+function projectNameOf(row: { project: { name: string | null; isHidden?: true } }, t: Translate) {
+	if (row.project.isHidden) {
+		return t('common.PRIVATE_PROJECT');
+	}
 	if (row.project.name) {
 		return row.project.name;
 	}

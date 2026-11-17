@@ -9,7 +9,7 @@ const mockUseTimesheetPageLogs = jest.fn();
 
 // Breaks (#5216) off, as in a workspace that never turned them on
 jest.mock('@/core/hooks/timer/use-breaks-allowed', () => ({ useBreaksAllowed: () => false }));
-jest.mock('next-intl', () => ({ useLocale: () => 'en' }));
+jest.mock('next-intl', () => ({ useLocale: () => 'en', useTranslations: () => (key: string) => key }));
 jest.mock('@/core/hooks/queries/user-user.query', () => {
 	const user = {
 		id: 'user',

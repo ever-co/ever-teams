@@ -51,6 +51,7 @@ import type { ITimeLogGroupedDailyReport } from '@/core/types/interfaces/activit
 import type { TOrganizationTeam } from '@/core/types/schemas';
 import { useTeamDailyReportQuery, useTeamStatisticsQuery } from './use-team-report-queries';
 import { useTeamLiveBoard } from './use-team-live-board';
+import { useHiddenProjectLabels } from '@/core/hooks/organizations/projects/use-hidden-project-labels';
 
 const SECONDS_PER_HOUR = 3600;
 
@@ -217,7 +218,11 @@ export function useTeamDashboard({ routeTeamId }: Readonly<{ routeTeamId?: strin
 
 	const report = reportQuery.data;
 	const withoutTeamLabel = t('dashboard.NO_TEAM_GROUP');
-	const rows = useMemo(() => flattenDailyReport(report ?? [], withoutTeamLabel), [report, withoutTeamLabel]);
+	const hiddenProjectLabels = useHiddenProjectLabels();
+	const rows = useMemo(
+		() => flattenDailyReport(report ?? [], withoutTeamLabel, null, hiddenProjectLabels),
+		[hiddenProjectLabels, report, withoutTeamLabel]
+	);
 	const totals = useMemo(() => teamTotalsOf(rows), [rows]);
 
 	const members = useMemo(() => {

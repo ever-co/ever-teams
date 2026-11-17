@@ -1,5 +1,6 @@
 'use client';
 
+import { HiddenProjectName } from '@/core/components/projects/hidden-project-mark';
 import { memo, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { useAtomValue } from 'jotai';
@@ -55,6 +56,15 @@ function dayTextOf(start: Date, formatters: TimesheetFormatters, t: Translate) {
 }
 
 function EntryProject({ project }: Readonly<{ project: MyWeekEntryProject }>) {
+	const t = useTranslations();
+	if (project.isProjectHidden) {
+		return (
+			<>
+				<HiddenProjectName label={t('common.PRIVATE_PROJECT')} className="max-w-[45%] text-inherit" />
+				<span aria-hidden="true">·</span>
+			</>
+		);
+	}
 	return (
 		<>
 			<ProjectMark imageUrl={project.imageUrl} color={project.color} isNoProject={false} />

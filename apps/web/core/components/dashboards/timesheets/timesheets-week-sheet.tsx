@@ -5,6 +5,7 @@ import { EntryLabelChips } from '@/core/components/features/entry-labels/entry-l
 import { useTranslations } from 'next-intl';
 import { Checkbox } from '@/core/components/common/checkbox';
 import { EntityTile } from '@/core/components/common/entity-tile';
+import { HiddenProjectName } from '@/core/components/projects/hidden-project-mark';
 import { DollarCircle } from '@/core/components/icons';
 import { SKELETON_BAR } from '@/core/components/dashboards/kit/recipes';
 import { TaskDrawerLink } from '@/core/components/tasks/drawer/task-drawer-link';
@@ -156,6 +157,9 @@ function RowStatus({ status }: Readonly<{ status: ETimesheetStatus | null }>) {
 
 function RowProject({ identity }: Readonly<{ identity: SheetRowIdentity }>) {
 	const t = useTranslations();
+	if (identity.isProjectHidden) {
+		return <HiddenProjectName label={t('common.PRIVATE_PROJECT')} className="text-xs text-muted-foreground" />;
+	}
 	if (!identity.projectName) {
 		return <span className="truncate text-xs text-muted-foreground">{t('dashboard.timesheets.NO_PROJECT')}</span>;
 	}

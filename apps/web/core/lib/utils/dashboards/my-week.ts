@@ -1,3 +1,4 @@
+import { isHiddenProject, PRIVATE_PROJECTS_KEY } from '@/core/lib/utils/project-visibility';
 import { isStaleTeamsTimer } from '@/core/lib/helpers/timer-policy';
 import { keepsClientRates, keptLinePriceOf, type KeptRatesLike, type LinePrice } from '@/core/lib/utils/invoices';
 import type { BillableFigures } from '@/core/lib/utils/dashboards/time-activity';
@@ -47,6 +48,8 @@ export interface MyWeekEntryProject {
 	name: string;
 	color: string | null;
 	imageUrl: string | null;
+	/** A project the API keeps from the reader (CORE-27): `id` is the key all of them share, and `name` is empty. */
+	isProjectHidden?: true;
 }
 
 export interface MyWeekEntry {
@@ -76,6 +79,9 @@ function trimmedOrNull(value: string | null | undefined) {
 
 function projectOfLog(log: ITimeLog): MyWeekEntryProject | null {
 	const project = log.project;
+	if (isHiddenProject(project)) {
+		return { id: PRIVATE_PROJECTS_KEY, name: '', color: null, imageUrl: null, isProjectHidden: true };
+	}
 	const name = trimmedOrNull(project?.name);
 	if (!project || !name) {
 		return null;
@@ -439,8 +445,17 @@ function projectItemOf(project: MyWeekEntryProject | null): ProjectShareItem {
 		imageUrl: project.imageUrl,
 		color: project.color,
 		isNoProject: false,
-		seconds: 0
+		seconds: 0,
+		...hiddenShareFlagOf(project)
 	};
+}
+
+// Rows of projects the reader may see keep the shape they had before the API could keep a project from them
+function hiddenShareFlagOf(project: MyWeekEntryProject): Pick<ProjectShareItem, 'isProjectHidden'> {
+	if (!project.isProjectHidden) {
+		return {};
+	}
+	return { isProjectHidden: true };
 }
 
 function byLongestThenName(first: ProjectShareItem, second: ProjectShareItem) {

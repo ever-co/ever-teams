@@ -78,7 +78,9 @@ class TaskService extends APIService {
 	 */
 	getTaskById = async (taskId: string): Promise<TTask> => {
 		try {
-			const query = qs.stringify({ ...this.baseQueries, includeRootEpic: 'true' });
+			// The detail also reads its project, so that a project the API keeps from the reader can be named as one
+			const relations = this.relationQueries([...this.baseRelations, 'project']);
+			const query = qs.stringify({ ...this.baseQueries, ...relations, includeRootEpic: 'true' });
 
 			const endpoint = GAUZY_API_BASE_SERVER_URL.value ? `/tasks/${taskId}?${query}` : `/tasks/${taskId}`;
 

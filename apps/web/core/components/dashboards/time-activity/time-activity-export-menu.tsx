@@ -155,7 +155,8 @@ function exportRowsOfContext(context: ExportContext) {
 		onlyEmployeeId,
 		withoutTeamLabel,
 		context.workspaceCurrency,
-		context.clientOf
+		context.clientOf,
+		context.t('common.PRIVATE_PROJECT')
 	);
 	if (!isClientExport(context)) {
 		return rows;

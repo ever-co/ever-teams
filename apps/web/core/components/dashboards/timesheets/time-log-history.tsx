@@ -82,7 +82,8 @@ export function historyValueFormatOf(
 		no: t('common.NO'),
 		none: t('dashboard.timesheets.HISTORY.NONE'),
 		statusLabel: (status) => statusLabelOf(status, t),
-		memberName: memberNameOf
+		memberName: memberNameOf,
+		hiddenProject: t('common.PRIVATE_PROJECT')
 	};
 }
 
@@ -109,8 +110,8 @@ function clockOfField(field: HistoryFieldChange, formatters: TimesheetFormatters
 /** The label of a field and its values before and after, written the way the page writes them. */
 function fieldTextsOf(field: HistoryFieldChange, format: HistoryValueFormat, formatters: TimesheetFormatters) {
 	const fieldFormat = { ...format, time: clockOfField(field, formatters) };
-	const before = historyValueTextOf(field.field, field.before, field.beforeName, fieldFormat);
-	const after = historyValueTextOf(field.field, field.after, field.afterName, fieldFormat);
+	const before = historyValueTextOf(field.field, field.before, field.beforeName, fieldFormat, field.isBeforeHidden);
+	const after = historyValueTextOf(field.field, field.after, field.afterName, fieldFormat, field.isAfterHidden);
 	return { before, after };
 }
 

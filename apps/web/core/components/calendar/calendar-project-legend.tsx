@@ -1,5 +1,7 @@
 'use client';
 
+import { PRIVATE_PROJECTS_KEY } from '@/core/lib/utils/project-visibility';
+import { HiddenProjectName } from '@/core/components/projects/hidden-project-mark';
 import { useTranslations } from 'next-intl';
 import { formatDurationShort } from '@/core/lib/utils/dashboard-figures';
 import type { CalendarProjectTotal } from '@/core/lib/utils/calendar-view';
@@ -11,6 +13,15 @@ function ProjectTotal({ total }: Readonly<{ total: CalendarProjectTotal }>) {
 	const t = useTranslations();
 	const name = total.name ?? t('dashboard.timesheets.NO_PROJECT');
 	const duration = formatDurationShort(total.seconds);
+	// The time of every project the API keeps from the reader, as one total (CORE-27)
+	if (total.key === PRIVATE_PROJECTS_KEY) {
+		return (
+			<li className="flex min-w-0 items-center gap-1.5 text-xs">
+				<HiddenProjectName label={t('common.PRIVATE_PROJECTS')} className="max-w-40" />
+				<span className="shrink-0 tabular-nums text-muted-foreground">{duration}</span>
+			</li>
+		);
+	}
 	return (
 		<li className="flex min-w-0 items-center gap-1.5 text-xs">
 			<ProjectDot color={total.color} projectKey={total.key} />

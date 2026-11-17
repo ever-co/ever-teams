@@ -418,7 +418,12 @@ function TeamProjectsBreakdown({ dashboard }: Readonly<{ dashboard: TeamDashboar
 				rows={projectShares}
 				renderName={(item) => (
 					<>
-						<ProjectMark imageUrl={item.imageUrl} color={item.color} isNoProject={item.isNoProject} />
+						<ProjectMark
+							imageUrl={item.imageUrl}
+							color={item.color}
+							isNoProject={item.isNoProject}
+							isHidden={item.isProjectHidden}
+						/>
 						<span className="truncate">{projectNameOf(item, t)}</span>
 					</>
 				)}
