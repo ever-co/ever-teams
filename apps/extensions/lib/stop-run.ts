@@ -66,7 +66,16 @@ function answerWithin(ms: number, answer: Promise<unknown>): Promise<unknown> {
 	});
 }
 
-/** Asks the background to stop the run; null when it could not be reached or gave no answer in time. */
+/**
+ * Asks the background to stop the run; null when it could not be reached or gave no answer in time.
+ *
+ * Every failure of the message is one the background did not answer: its listener answers each stop, a failure
+ * included (as `{ stopped: false }`, which the popup shows), so the message fails only when no listener answered: a
+ * worker that is not running, failed to start, or was torn down before its answer (an update of the extension). The
+ * popup stops the run itself then, whatever the browser's words for it: they are not an API, and a popup that misread
+ * them could not stop the run at all. Its own stop credits nothing, so it cannot count a second time what the
+ * background may have credited before it went.
+ */
 async function askBackgroundToStop(run: RunToStop): Promise<StopRunAnswer | null> {
 	const message: IPostMessage<RunToStop> = {
 		type: MessageTypesToBackgroundEnum.stopRun,

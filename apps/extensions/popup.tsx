@@ -8,24 +8,17 @@ import { SpinnerIcon } from '~components/shared/Icons';
 import { useSession } from '~hooks/useSession';
 import { useTasks } from '~hooks/useTasks';
 import { useTimerStatus } from '~hooks/useTimerStatus';
-import { ApiError } from '~lib/api-client';
 import { EXTENSION_SOURCE, type RunningLog, myPlans, startTimer, teamRequiresPlan, todayPlanDay } from '~lib/gauzy';
 import { t } from '~lib/i18n';
 import { planRefusalOf } from '~lib/plan-rule';
-import { refusalOf, type Refusal } from '~lib/refusal';
+import { runPopupAction } from '~lib/popup-action';
+import { refusalOf } from '~lib/refusal';
 import { loadSettings, type Settings } from '~lib/session-store';
 import { stopThroughBackground } from '~lib/stop-run';
 import type { Session } from '~lib/workspaces';
 import browser from '~misc/browser';
 
 import './style.css';
-
-function refusalFrom(error: unknown): Refusal {
-	if (error instanceof ApiError) {
-		return refusalOf(error);
-	}
-	return { key: 'errorGeneric' };
-}
 
 /** The run the clock counts: the last log while the timer runs, none otherwise. */
 function runningLogOf(isRunning: boolean, lastLog: RunningLog | null | undefined): RunningLog | null {
@@ -64,19 +57,10 @@ function SignedIn({
 	const taskTitle = shownTaskTitle(running?.task?.title ?? runningTask?.title, tasks.selectedTask?.title);
 	const canStart = Boolean(tasks.selectedTask);
 
+	// A failure shows as the notice and the action never rejects (popup-action.ts): the clicks below need not await it
 	const act = useCallback(
-		async (work: () => Promise<void>) => {
-			setBusy(true);
-			timer.setRefusal(null);
-			try {
-				await work();
-			} catch (error) {
-				timer.setRefusal(refusalFrom(error));
-			} finally {
-				await timer.refresh();
-				setBusy(false);
-			}
-		},
+		(work: () => Promise<void>) =>
+			runPopupAction(work, { setBusy, setRefusal: timer.setRefusal, refresh: timer.refresh }),
 		[timer]
 	);
 

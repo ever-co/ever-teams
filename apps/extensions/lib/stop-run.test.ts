@@ -90,6 +90,20 @@ describe("the popup's stop", () => {
 		assert.equal((calls[0].body as { timeLogId: string }).timeLogId, 'log-1');
 	});
 
+	it('stops the run itself, still without a credit, when the background went before its answer', async () => {
+		backgroundAnswering(async () => {
+			throw new Error('The message port closed before a response was received.');
+		});
+
+		await stopThroughBackground(SESSION, RUN);
+
+		// Torn down mid-stop (an update of the extension): it may have credited them, and the popup credits nothing
+		assert.deepEqual(
+			calls.map((call) => call.url.replace(/\?.*/, '')),
+			['https://api.example.test/api/timesheet/timer/stop']
+		);
+	});
+
 	it('stops the run itself when the background gives no answer', async () => {
 		backgroundAnswering(async () => undefined);
 
