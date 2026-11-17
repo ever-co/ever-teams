@@ -74,6 +74,7 @@ export function useEntryLabelsSupportState(): EntryLabelsSupport {
 		gcTime: Infinity,
 		retry: 3
 	});
+	// Outside a workspace the status says nothing for it: no answer, known at once, every label control away
 	const answer = data ?? (hasWorkspace ? answerOfStatus : undefined);
 	const isKnown = answer !== undefined || isError || !hasWorkspace;
 	return { isSupported: answer === true, isKnown };
