@@ -149,6 +149,34 @@ describe('setupRootStore and the session', () => {
 		expect(store.authenticationStore.tenantId).toBe('');
 	});
 
+	it('never signs back in from tokens a sign-out left in the secure storage', async () => {
+		await AsyncStorage.setItem(ROOT_KEY, JSON.stringify({ authenticationStore: { tenantId: '', user: null } }));
+		mockSecureValues.set(ACCESS_KEY, 'access-left');
+		mockSecureValues.set(REFRESH_KEY, 'refresh-left');
+		const store = createStore();
+
+		const setup = await setupRootStore(store);
+		unsubscribe = setup.unsubscribe;
+
+		expect(store.authenticationStore.isAuthenticated).toBe(false);
+		expect(mockSecureValues.size).toBe(0);
+		expect(setup.sessionEnded).toBe(false);
+	});
+
+	it('forgets the tokens it could not read, so a later launch cannot sign the person back in', async () => {
+		await AsyncStorage.setItem(ROOT_KEY, JSON.stringify({ authenticationStore: { tenantId: 'tenant-1' } }));
+		mockSecureValues.set(ACCESS_KEY, 'access-unreadable');
+		mockSecureValues.set(REFRESH_KEY, 'refresh-unreadable');
+		jest.mocked(SecureStore.getItemAsync).mockRejectedValueOnce(new Error('could not decrypt'));
+		const store = createStore();
+
+		const setup = await setupRootStore(store);
+		unsubscribe = setup.unsubscribe;
+
+		expect(setup.sessionEnded).toBe(true);
+		expect(mockSecureValues.size).toBe(0);
+	});
+
 	it('reports nothing on a first launch, when nobody was signed in', async () => {
 		jest.mocked(SecureStore.getItemAsync).mockRejectedValueOnce(new Error('could not decrypt'));
 		const store = createStore();

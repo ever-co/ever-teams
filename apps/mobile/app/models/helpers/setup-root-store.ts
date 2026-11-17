@@ -14,6 +14,7 @@ import { applySnapshot, getSnapshot, IDisposer, onSnapshot } from 'mobx-state-tr
 import type { RootStore } from '../root-store';
 import * as storage from '../../utils/storage';
 import {
+	forgetStoredSession,
 	hasTokens,
 	moveSessionToSecureStorage,
 	readStoredSession,
@@ -54,7 +55,16 @@ async function restoreSession(rootStore: RootStore, restoredState: unknown): Pro
 		if (ended) {
 			authentication.logout();
 		}
+		await forgetStoredSession();
 		return { inSecureStorage: true, ended };
+	}
+	// logout() clears the tenant and the user, which the snapshot keeps: tokens found while it says nobody is signed in
+	// were left by a sign-out whose delete did not go through, or by an iOS Keychain that outlived the app
+	const signedOut = !someoneWasSignedIn(restoredState);
+	const leftOver = signedOut && hasTokens(stored);
+	if (leftOver) {
+		await forgetStoredSession();
+		return { inSecureStorage: true, ended: false };
 	}
 	authentication.setAuthToken(stored.accessToken);
 	authentication.setRefreshToken(stored.refreshToken ?? '');

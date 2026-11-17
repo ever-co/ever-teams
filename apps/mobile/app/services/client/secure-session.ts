@@ -64,15 +64,15 @@ export async function moveSessionToSecureStorage(session: StoredSession): Promis
 	} catch {
 		// what was written is forgotten below
 	}
-	await forgetPartialSession();
+	await forgetStoredSession();
 	return false;
 }
 
 /**
- * A move that failed halfway must leave nothing: the session stays in root-v1 for this launch, and a token left here
- * would be read back at the next launch even after the person signed out.
+ * Deletes both tokens, and never throws: a move that failed halfway, or tokens nobody may sign in with anymore, must
+ * not be read back at a later launch.
  */
-async function forgetPartialSession(): Promise<void> {
+export async function forgetStoredSession(): Promise<void> {
 	try {
 		await writeStoredSession({});
 	} catch {
