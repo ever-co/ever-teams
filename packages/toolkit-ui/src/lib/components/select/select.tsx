@@ -5,6 +5,9 @@ import * as React from 'react';
 import * as SelectPrimitive from '@radix-ui/react-select';
 import { Check, ChevronDown, ChevronUp, LoaderCircle } from 'lucide-react';
 import { cn } from '@/lib/utils/utils';
+import { withKitContainer } from '../portal-container';
+
+const SelectContentPortal = withKitContainer(SelectPrimitive.Portal);
 
 const ShadCnSelect = SelectPrimitive.Root;
 
@@ -101,7 +104,7 @@ const SelectContent = ({
 }: React.ComponentPropsWithoutRef<typeof SelectPrimitive.Content> & {
 	ref?: React.RefObject<React.ElementRef<typeof SelectPrimitive.Content>>;
 }) => (
-	<SelectPrimitive.Portal>
+	<SelectContentPortal>
 		<SelectPrimitive.Content
 			ref={ref}
 			className={cn(
@@ -125,7 +128,7 @@ const SelectContent = ({
 			</SelectPrimitive.Viewport>
 			<SelectScrollDownButton />
 		</SelectPrimitive.Content>
-	</SelectPrimitive.Portal>
+	</SelectContentPortal>
 );
 SelectContent.displayName = SelectPrimitive.Content.displayName;
 
