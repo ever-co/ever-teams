@@ -3,8 +3,12 @@
  * Tailwind CSS 4, without preflight. The build scopes each rule under the kit root ([data-ever-teams-kit], rendered by
  * <TeamsProvider scopedStyles>) and moves the :root tokens onto it, so nothing applies to the host page.
  */
-@import 'tailwindcss/theme.css';
-@import 'tailwindcss/utilities.css';
+
+/* Tailwind's own layer order: the build flattens the layers in this order, so the reset (base) comes before the
+ * utilities and loses to them at equal specificity. */
+@layer theme, base, components, utilities;
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/utilities.css' layer(utilities);
 
 @source '../lib';
 @source '../../../../toolkit-ui/src';
@@ -112,45 +116,48 @@
 /*
  * A small reset inside the kit root only, instead of Tailwind's preflight on the whole page: it keeps a host's rules on
  * bare elements (button, div, h1...) from reaching the widget. Its selectors are more specific than a host's element
- * rules and less specific than the kit's utilities, which therefore still win.
+ * rules and at most as specific as the kit's utilities, which therefore still win: by specificity, or by coming later
+ * from the utilities layer when equal (space-y-* selects the children with :where(), which adds none).
  */
-[data-ever-teams-kit] *,
-[data-ever-teams-kit] ::before,
-[data-ever-teams-kit] ::after {
-	box-sizing: border-box;
-	border: 0 solid;
-	margin: 0;
-	padding: 0;
-}
-[data-ever-teams-kit] :is(button, input, select, textarea) {
-	font: inherit;
-	letter-spacing: inherit;
-	color: inherit;
-	background-color: transparent;
-	border-radius: 0;
-	text-transform: none;
-}
-[data-ever-teams-kit] button {
-	cursor: pointer;
-}
-[data-ever-teams-kit] :is(h1, h2, h3, h4, h5, h6) {
-	font-size: inherit;
-	font-weight: inherit;
-}
-[data-ever-teams-kit] :is(ol, ul, menu) {
-	list-style: none;
-}
-[data-ever-teams-kit] :is(img, svg, video, canvas) {
-	display: block;
-	vertical-align: middle;
-}
-[data-ever-teams-kit] :is(img, video) {
-	max-width: 100%;
-	height: auto;
-}
-[data-ever-teams-kit] a {
-	color: inherit;
-	text-decoration: inherit;
+@layer base {
+	[data-ever-teams-kit] *,
+	[data-ever-teams-kit] ::before,
+	[data-ever-teams-kit] ::after {
+		box-sizing: border-box;
+		border: 0 solid;
+		margin: 0;
+		padding: 0;
+	}
+	[data-ever-teams-kit] :is(button, input, select, textarea) {
+		font: inherit;
+		letter-spacing: inherit;
+		color: inherit;
+		background-color: transparent;
+		border-radius: 0;
+		text-transform: none;
+	}
+	[data-ever-teams-kit] button {
+		cursor: pointer;
+	}
+	[data-ever-teams-kit] :is(h1, h2, h3, h4, h5, h6) {
+		font-size: inherit;
+		font-weight: inherit;
+	}
+	[data-ever-teams-kit] :is(ol, ul, menu) {
+		list-style: none;
+	}
+	[data-ever-teams-kit] :is(img, svg, video, canvas) {
+		display: block;
+		vertical-align: middle;
+	}
+	[data-ever-teams-kit] :is(img, video) {
+		max-width: 100%;
+		height: auto;
+	}
+	[data-ever-teams-kit] a {
+		color: inherit;
+		text-decoration: inherit;
+	}
 }
 
 /* The scrollbar of the kit's lists (src/lib/styles/global.css). */

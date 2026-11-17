@@ -1029,7 +1029,8 @@
 		"RRGGBB",
 		"otpauth",
 		"qrcode",
-		"totp"
+		"totp",
+		"unlayered"
 	],
 	"useGitignore": true,
 	"ignorePaths": [

@@ -1,4 +1,5 @@
-// The Radix Portals wrapped with withKitContainer keep their props: node --test test/ (from packages/toolkit-ui).
+// The Radix Portals wrapped with withKitContainer keep their props: node --test test/*.test.mjs
+// (from packages/toolkit-ui).
 // Type-checks the five components that wrap one, with the package's own compiler options.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';

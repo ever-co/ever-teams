@@ -1,9 +1,13 @@
 import { ITeamsConfig } from '../types';
 
+export const DEFAULT_TEAMS_API_URL = 'https://api.ever.team/api';
+
 export const createUploader = (config: ITeamsConfig) => {
 	return async (data: string) => {
 		const { tenantId, organizationId, token: bearer_token, apiUrl } = config;
-		const TEAMS_API_URL = apiUrl || 'https://apidemo.gauzy.co/api'; // Default to demo API if not provided (https://apidemo.gauzy.co/api)
+		// Without an apiUrl, recordings go to the same default API as the rest of the kit (@ever-teams/api), never to
+		// another server: they carry the user's token.
+		const TEAMS_API_URL = apiUrl || DEFAULT_TEAMS_API_URL;
 
 		try {
 			const headers: HeadersInit = {

@@ -1,4 +1,4 @@
-// The kit stylesheet's scoping (scripts/build-styles.mjs): node --test test/ (from packages/toolkit/atoms).
+// The kit stylesheet's scoping (scripts/build-styles.mjs): node --test test/*.test.mjs (from packages/toolkit/atoms).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -9,6 +9,18 @@ import { buildStyles, scopeSelector, scopeStylesheet, KIT_ROOT } from '../script
 
 const require = createRequire(import.meta.url);
 const postcss = require('postcss');
+
+// Builds the stylesheet in a folder of its own and returns it, leaving nothing in the OS temp folder.
+async function buildStylesheet() {
+	const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'kit-styles-'));
+	try {
+		const output = path.join(dir, 'styles.css');
+		await buildStyles({ output });
+		return fs.readFileSync(output, 'utf8');
+	} finally {
+		fs.rmSync(dir, { recursive: true, force: true });
+	}
+}
 
 test('a utility applies only inside the kit root', () => {
 	assert.equal(scopeSelector('.flex'), `${KIT_ROOT} .flex`);
@@ -38,6 +50,17 @@ test('layers are flattened; keyframes and registered properties get the kit name
 	assert.match(out, /@property --ever-teams-tw-x/);
 });
 
+test('flattened layers keep their order: an earlier layer first, unlayered rules last', () => {
+	const css =
+		'@layer theme, base, utilities;@layer utilities{:where(.space-y-6>:not(:last-child)){margin-block-start:1.5rem}}.custom{color:red}@layer base{*{margin:0}}@layer theme{:root{--a:1}}';
+	const out = scopeStylesheet(postcss.parse(css)).toString();
+	const position = (text) => out.indexOf(text);
+
+	assert.ok(position('--a:1') < position('{margin:0}'), out);
+	assert.ok(position('{margin:0}') < position('margin-block-start'), out);
+	assert.ok(position('margin-block-start') < position('color:red'), out);
+});
+
 test('a keyframes name is renamed where an animation or a custom property names it, and nowhere else', () => {
 	const css =
 		':root{--animate-spin:spin 1s linear infinite;--align:center}.animate-spin{animation:var(--animate-spin)}.animate-in{animation:enter .15s,spin 2s}.spinner{animation-name:spin}@keyframes spin{to{opacity:1}}@keyframes enter{from{opacity:0}}';
@@ -64,9 +87,8 @@ test('every --tw- property is renamed where it is declared, read and registered'
 });
 
 test('every rule of the built stylesheet applies only inside a kit root, and none to html, body or bare elements', async () => {
-	const output = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'kit-styles-')), 'styles.css');
-	await buildStyles({ output });
-	const root = postcss.parse(fs.readFileSync(output, 'utf8'));
+	const css = await buildStylesheet();
+	const root = postcss.parse(css);
 	const unscoped = [];
 	root.walkRules((rule) => {
 		const inKeyframes = rule.parent?.type === 'atrule' && /keyframes$/.test(rule.parent.name);
@@ -82,13 +104,29 @@ test('every rule of the built stylesheet applies only inside a kit root, and non
 
 	assert.deepEqual(unscoped, []);
 	assert.equal(layers, 0);
-	assert.match(fs.readFileSync(output, 'utf8'), /\[data-ever-teams-kit\] \.outline-hidden/);
+	assert.match(css, /\[data-ever-teams-kit\] \.outline-hidden/);
+});
+
+test('the built reset comes before the utilities, so space-y-* keeps its margins against the reset of the same specificity', async () => {
+	const css = await buildStylesheet();
+	const root = postcss.parse(css);
+	const rules = [];
+	root.walkRules((rule) => {
+		rules.push(rule);
+	});
+	const resetsMargins = (rule) =>
+		rule.selectors.includes(`${KIT_ROOT} *`) && rule.nodes.some((d) => d.prop === 'margin' && d.value === '0');
+	const reset = rules.findIndex(resetsMargins);
+	const spaceY = rules.findIndex((rule) => rule.selector.includes(':where(.space-y-6>'));
+
+	assert.ok(reset >= 0, 'the reset is in the stylesheet');
+	assert.ok(spaceY >= 0, 'space-y-6 is in the stylesheet');
+	assert.ok(reset < spaceY, `the reset (rule ${reset}) comes before space-y-6 (rule ${spaceY})`);
 });
 
 test('the built stylesheet names no keyframes and registers no property a host could also use', async () => {
-	const output = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'kit-styles-')), 'styles.css');
-	await buildStyles({ output });
-	const root = postcss.parse(fs.readFileSync(output, 'utf8'));
+	const css = await buildStylesheet();
+	const root = postcss.parse(css);
 	const keyframes = [];
 	const properties = [];
 	root.walkAtRules(/keyframes$/, (atRule) => keyframes.push(atRule.params));
@@ -104,5 +142,5 @@ test('the built stylesheet names no keyframes and registers no property a host c
 		properties.filter((name) => !name.startsWith('--ever-teams-')),
 		[]
 	);
-	assert.doesNotMatch(fs.readFileSync(output, 'utf8'), /--tw-/);
+	assert.doesNotMatch(css, /--tw-/);
 });
