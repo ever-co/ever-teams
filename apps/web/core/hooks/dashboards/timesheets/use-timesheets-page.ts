@@ -8,6 +8,8 @@ import { useMyRolePermissionsQuery } from '@/core/hooks/roles/use-my-role-permis
 import { useLocalStorageState } from '@/core/hooks/common/use-local-storage-state';
 import { useReportClientChoices, useReportProjectClients } from '@/core/hooks/dashboards/use-report-clients';
 import { useReportUrlFilters } from '@/core/hooks/dashboards/use-report-url-filters';
+import { useEntryLabelsSupport } from '@/core/hooks/timer/use-entry-labels-support';
+import { supportedEntryLabelsOf } from '@/core/lib/utils/time-log-labels';
 import { useBreaksAllowed } from '@/core/hooks/timer/use-breaks-allowed';
 import { activeTeamState } from '@/core/stores/teams/organization-team';
 import { shellSettledState } from '@/core/stores/common/shell';
@@ -183,6 +185,15 @@ export function useTimesheetsPage() {
 	const hasScope = isManage || Boolean(ownEmployeeId);
 	// Breaks are listed among the entries only where the organization turned them on (#5216)
 	const allowsBreaks = useBreaksAllowed();
+	const supportsEntryLabels = useEntryLabelsSupport();
+	// A link's entry labels count only where the API stores them (#5368): elsewhere they would hide every entry
+	const effectiveFilters = useMemo(
+		() => ({
+			...linkedFilters,
+			entryLabels: supportedEntryLabelsOf(linkedFilters.entryLabels, supportsEntryLabels)
+		}),
+		[linkedFilters, supportsEntryLabels]
+	);
 	const logsQuery = useTimesheetPageLogs(
 		period,
 		{
@@ -192,7 +203,7 @@ export function useTimesheetsPage() {
 			employeeIds,
 			isEnabled: isTeamKnown && hasScope
 		},
-		{ withTaskLabels: true, ...breaksReadOf(allowsBreaks) }
+		{ withTaskLabels: true, withEntryLabels: supportsEntryLabels, ...breaksReadOf(allowsBreaks) }
 	);
 
 	// A log names its project and nothing about that project's client, so the client filter waits for the projects.
@@ -231,8 +242,8 @@ export function useTimesheetsPage() {
 		const byProjectAndTask = allLogs.filter((log) =>
 			logMatchesPickedProjectsAndTasks(log, pageFilters.projects, pageFilters.tasks)
 		);
-		return byProjectAndTask.filter((log) => logMatchesReportFilters(log, linkedFilters, projectClientIds));
-	}, [allLogs, linkedFilters, pageFilters.projects, pageFilters.tasks, projectClientIds]);
+		return byProjectAndTask.filter((log) => logMatchesReportFilters(log, effectiveFilters, projectClientIds));
+	}, [allLogs, effectiveFilters, pageFilters.projects, pageFilters.tasks, projectClientIds]);
 
 	const narrowedLogs = useMemo(
 		() => filteredLogs.filter((log) => logMatchesSearch(log, normalizedQuery)),
@@ -405,6 +416,7 @@ export function useTimesheetsPage() {
 		search,
 		setSearch,
 		filters,
+		supportsEntryLabels,
 		setFilter,
 		removeFilterValue,
 		clearFilters,
@@ -461,7 +473,19 @@ function isNarrowed(page: TimesheetsPageState) {
 	const hasClients = page.filters.clients.length > 0;
 	const hasBillable = page.filters.billable.length > 0;
 	const hasLabels = page.filters.labels.length > 0;
-	return hasStatus || hasSearch || hasProjects || hasTasks || hasClients || hasBillable || hasLabels;
+	// A link's entry labels the API cannot apply hide nothing, so they leave the sheet open (#5368)
+	const hasEntryLabels = supportedEntryLabelsOf(page.filters.entryLabels, page.supportsEntryLabels).length > 0;
+	const narrowings = [
+		hasStatus,
+		hasSearch,
+		hasProjects,
+		hasTasks,
+		hasClients,
+		hasBillable,
+		hasLabels,
+		hasEntryLabels
+	];
+	return narrowings.some(Boolean);
 }
 
 export function sheetEditingSourceOf(page: TimesheetsPageState): SheetEditingSource {

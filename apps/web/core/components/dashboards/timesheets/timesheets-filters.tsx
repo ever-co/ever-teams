@@ -26,6 +26,7 @@ import {
 } from '@/core/lib/utils/dashboards/timesheets';
 import { PRIVATE_PROJECTS_KEY } from '@/core/lib/utils/project-visibility';
 import { NO_CLIENT_FILTER_VALUE } from '@/core/lib/utils/project-list';
+import { NO_LABEL_VALUE, entryLabelsOfLogs } from '@/core/lib/utils/time-log-labels';
 import type { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 
@@ -138,6 +139,19 @@ function clientOptionsOf(clients: ReadonlyArray<ReportClientChoice>, noClientLab
 	return options;
 }
 
+/** The entry's own labels worked in the period (Gauzy #12029), and "No label" for the time without any. */
+function entryLabelOptionsOf(logs: ReadonlyArray<ITimeLog>, noLabelName: string): PropertyFilterOption[] {
+	const options: PropertyFilterOption[] = [{ value: NO_LABEL_VALUE, name: noLabelName, icon: <Tag /> }];
+	for (const label of entryLabelsOfLogs(logs)) {
+		options.push({
+			value: label.id,
+			name: label.name,
+			icon: <TaskPropertyIcon kind="label" name={label.name} color={label.color} />
+		});
+	}
+	return options;
+}
+
 function labelOptionsOf(logs: ReadonlyArray<ITimeLog>): PropertyFilterOption[] {
 	const labels = labelsOfLogs(logs);
 	return labels.map((label) => ({
@@ -160,7 +174,8 @@ export function useTimesheetFilterCategories({
 	logs,
 	clients,
 	canFilterByClient,
-	hasPickedClient
+	hasPickedClient,
+	supportsEntryLabels = false
 }: Readonly<{
 	isManage: boolean;
 	members: ReadonlyArray<TOrganizationTeamEmployee>;
@@ -168,6 +183,8 @@ export function useTimesheetFilterCategories({
 	clients: ReadonlyArray<ReportClientChoice>;
 	canFilterByClient: boolean;
 	hasPickedClient: boolean;
+	/** Entries carry labels of their own: the Labels filter reads them, beside the Task labels one. */
+	supportsEntryLabels?: boolean;
 }>) {
 	const t = useTranslations();
 	const showsClients = canFilterByClient || hasPickedClient;
@@ -228,12 +245,21 @@ export function useTimesheetFilterCategories({
 				field: 'labels',
 				keepsCase: true,
 				icon: <Tag />,
-				label: t('common.LABELS'),
+				label: t('timer.labels.TASK_LABELS'),
 				options: labelOptionsOf(logs)
 			}
 		);
+		if (supportsEntryLabels) {
+			categories.push({
+				field: 'entryLabels',
+				keepsCase: true,
+				icon: <Tag />,
+				label: t('common.LABELS'),
+				options: entryLabelOptionsOf(logs, t('timer.labels.NO_LABEL'))
+			});
+		}
 		return categories;
-	}, [clients, isManage, logs, members, showsClients, t]);
+	}, [clients, isManage, logs, members, showsClients, supportsEntryLabels, t]);
 }
 
 interface AppliedFilter {

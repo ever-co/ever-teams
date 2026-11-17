@@ -3012,6 +3012,24 @@
 		}
 	},
 	"timer": {
+		"labels": {
+			"LABELS": "Etichette",
+			"LABEL": "Etichetta",
+			"PICK_LABELS": "Aggiungi etichette",
+			"NO_LABELS_YET": "Ancora nessuna etichetta",
+			"DELETED": "Eliminata",
+			"SAVE_FAILED": "Impossibile salvare le etichette",
+			"TASK_LABELS": "Etichette dell’attività",
+			"NO_LABEL": "Nessuna etichetta",
+			"BY_LABEL_TITLE": "Tempo per etichetta",
+			"COUNT": "{count, plural, one {# etichetta} other {# etichette}}",
+			"OVERLAP_TITLE": "I gruppi si sovrappongono",
+			"OVERLAP_MESSAGE": "Una voce con più etichette conta sotto ciascuna di esse, quindi i gruppi sommati superano il totale.",
+			"CREATE": "Crea «{name}»",
+			"SEARCH": "Cerca etichette",
+			"CREATE_FAILED": "Impossibile creare l’etichetta",
+			"IMPORT_NOT_ATTACHED": "Non associate: {names}. Il team non ha etichette con {count, plural, one {quel nome} other {quei nomi}} e non è stato possibile aggiungerne."
+		},
 		"START_TIMER": "Per favore, seleziona o crea un nuovo compito per iniziare a tracciare il tempo o creare un piano",
 		"ALREADY_TRACKING_MESSAGE": "Stai già tracciando il tempo in un'altra scheda o dispositivo.",
 		"TRACKING_DISABLED_MESSAGE": "Il monitoraggio del tempo è disattivato per te. Un amministratore dell'organizzazione può attivarlo.",

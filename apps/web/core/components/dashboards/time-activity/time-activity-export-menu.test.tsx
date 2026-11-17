@@ -118,7 +118,8 @@ const NO_OPTIONS: TimeActivityFilterOptions = {
 	projectIds: [],
 	taskIds: [],
 	clientIds: [],
-	billable: []
+	billable: [],
+	entryLabels: []
 };
 
 const FIGURES: TimeActivityFigures = {
@@ -143,7 +144,15 @@ function optionsUnder(
 			isManager
 			ownEmployeeId="ada"
 			figures={FIGURES}
-			filters={{ teamIds: [], employeeIds: [], projectIds: [], taskIds: [], clientIds: [], billable: [] }}
+			filters={{
+				teamIds: [],
+				employeeIds: [],
+				projectIds: [],
+				taskIds: [],
+				clientIds: [],
+				billable: [],
+				entryLabels: []
+			}}
 			filterOptions={NO_OPTIONS}
 			roundingRule={roundingRule}
 			isDisabled={false}

@@ -46,8 +46,11 @@ const SHEET_DURATION_WIDTH = 12;
 
 const SHEET_NOTES_WIDTH = 48;
 
-/** Start, end, member, project, task, status, billable, duration: the widths of the printed columns, in that order. */
-const PDF_COLUMN_WIDTHS = ['6%', '6%', '16%', '16%', '32%', '10%', '7%', '7%'];
+/**
+ * Start, end, member, project, task, status, billable, labels, duration: the widths of the printed columns, in that
+ * order.
+ */
+const PDF_COLUMN_WIDTHS = ['6%', '6%', '14%', '14%', '26%', '9%', '7%', '11%', '7%'];
 
 const VALUE_SEPARATOR = ', ';
 
@@ -83,7 +86,8 @@ function entryColumnsOf(t: Translate): TextColumn[] {
 		{ header: t('dashboard.timesheets.COLUMNS.PROJECT'), text: (row) => row.project, sheetWidth: 24 },
 		{ header: t('dashboard.timesheets.COLUMNS.TASK'), text: (row) => row.task, sheetWidth: 40 },
 		{ header: t('dashboard.timesheets.COLUMNS.STATUS'), text: (row) => statusLabelOf(row, t), sheetWidth: 14 },
-		{ header: t('dashboard.timesheets.COLUMNS.BILLABLE'), text: (row) => billableLabelOf(row, t), sheetWidth: 10 }
+		{ header: t('dashboard.timesheets.COLUMNS.BILLABLE'), text: (row) => billableLabelOf(row, t), sheetWidth: 10 },
+		{ header: t('common.LABELS'), text: (row) => row.labels, sheetWidth: 24 }
 	];
 }
 

@@ -72,7 +72,8 @@ const FILTER_LABEL_KEYS: Record<TimeActivityFilterField, DottedLanguageObjectStr
 	projectIds: 'dashboard.timeActivity.filters.PROJECTS',
 	taskIds: 'dashboard.timeActivity.filters.TASKS',
 	clientIds: 'clients.TITLE',
-	billable: 'dashboard.timesheets.BILLABLE'
+	billable: 'dashboard.timesheets.BILLABLE',
+	entryLabels: 'common.LABELS'
 };
 
 type Translate = ReturnType<typeof useTranslations>;
@@ -115,6 +116,7 @@ interface NamedRow {
 	status: string;
 	/** Null for a row without billable time. */
 	billable: ExportRowBillable | null;
+	labels: string;
 }
 
 interface ExportLabels extends ClientLabels {
@@ -194,7 +196,8 @@ function namedRowOf(row: TimeActivityExportRow, labels: ExportLabels, billables:
 		client: clientLabelOf(clientOfRow(row), labels),
 		task: row.task ?? labels.noTask,
 		status: row.status ?? '',
-		billable: billableOfRow(row, billables)
+		billable: billableOfRow(row, billables),
+		labels: row.labels
 	};
 }
 
@@ -288,6 +291,7 @@ function csvColumnsOf(context: ExportContext): CsvColumn<NamedRow>[] {
 		{ header: t('dashboard.timeActivity.grouping.PROJECT'), valueOf: (named) => named.project },
 		{ header: t('dashboard.timeActivity.export.TASK'), valueOf: (named) => named.task },
 		{ header: t('dashboard.timeActivity.export.STATUS'), valueOf: (named) => named.status },
+		{ header: t('common.LABELS'), valueOf: (named) => named.labels },
 		{ header: t('dashboard.timeActivity.export.TRACKED_HOURS'), valueOf: (named) => hoursOf(named.row.seconds) }
 	];
 	if (context.isManager) {
@@ -364,6 +368,7 @@ function xlsxColumnsOf(context: ExportContext): XlsxColumn[] {
 		{ header: t('dashboard.timeActivity.grouping.PROJECT'), value: (named) => named.project, width: 24 },
 		{ header: t('dashboard.timeActivity.export.TASK'), value: (named) => named.task, width: 40 },
 		{ header: t('dashboard.timeActivity.export.STATUS'), value: (named) => named.status, width: 16 },
+		{ header: t('common.LABELS'), value: (named) => named.labels, width: 24 },
 		{
 			header: t('dashboard.timeActivity.columns.TRACKED'),
 			value: (named) => named.row.seconds / SECONDS_PER_DAY,
@@ -608,6 +613,15 @@ function pdfLayoutOf(context: ExportContext): PdfLayout {
 			second: (named) => named.member
 		};
 	}
+	if (context.grouping === 'label') {
+		return {
+			firstHeader: projectHeader,
+			secondHeader: memberHeader,
+			groupTitle: (_group, named) => named.labels || t('timer.labels.NO_LABEL'),
+			first: (named) => named.project,
+			second: (named) => named.member
+		};
+	}
 	if (isClientExport(context)) {
 		return {
 			firstHeader: projectHeader,
@@ -640,6 +654,7 @@ function clientPdfRowOf(
 		first: line.project ?? labels.noProject,
 		second: line.member || labels.unnamed,
 		task: line.task ?? labels.noTask,
+		labels: line.labels,
 		tracked: formatDurationShort(line.seconds),
 		earnings: rowAmountTextOf(line, context.locale),
 		...billable,
@@ -713,6 +728,7 @@ function pdfGroupsOf(context: ExportContext, layout: PdfLayout, data: ExportData
 			first: layout.first(named),
 			second: layout.second(named),
 			task: named.task,
+			labels: named.labels,
 			tracked: formatDurationShort(named.row.seconds),
 			earnings: rowAmountTextOf(named.row, locale),
 			...billableCellOf(() => rowBillableTextOf(named.billable, context), data),
@@ -766,6 +782,7 @@ function pdfContentOf(context: ExportContext): TimeActivityPdfContent {
 			first: layout.firstHeader,
 			second: layout.secondHeader,
 			task: t('dashboard.timeActivity.export.TASK'),
+			labels: t('common.LABELS'),
 			tracked: t('dashboard.timeActivity.columns.TRACKED'),
 			earnings: t('dashboard.timeActivity.columns.EARNINGS'),
 			billable: t('dashboard.timeActivity.columns.BILLABLE'),

@@ -160,6 +160,9 @@ export interface ITimeLogRequestParams {
 	billableOnly?: boolean;
 	/** States the client rates each entry keeps. The daily report route forwards it; Gauzy decides who may read them. */
 	withClientRates?: boolean;
+	/** The entry's own labels (#5368): the entries carrying one of them, or none with `untagged`. */
+	tagIds?: string[];
+	untagged?: boolean;
 }
 
 // export type LogType = 'TRACKED' | 'MANUAL' | 'IDLE';
@@ -262,6 +265,10 @@ function buildTimeLogParams(params: ITimeLogRequestParams): URLSearchParams {
 
 	if (params.withClientRates) {
 		baseParams.append('withClientRates', 'true');
+	}
+	(params.tagIds ?? []).forEach((tagId, index) => baseParams.append(`tagIds[${index}]`, tagId));
+	if (params.untagged) {
+		baseParams.append('untagged', 'true');
 	}
 
 	return baseParams;

@@ -28,6 +28,9 @@ jest.mock('@/core/components/timer/timer', () => ({ Timer: () => <div data-testi
 jest.mock('@/core/components/timer/timer-run-menu', () => ({
 	TimerRunMenu: ({ className }: { className?: string }) => <span data-testid="run-menu" className={className} />
 }));
+jest.mock('@/core/components/timer/timer-labels-control', () => ({
+	TimerLabelsControl: ({ className }: { className?: string }) => <span data-testid="labels" className={className} />
+}));
 
 const REASON = 'timer.TRACKING_DISABLED_MESSAGE';
 
@@ -56,6 +59,16 @@ describe('the home task block, where the timer stands', () => {
 
 		expect(runMenu.parentElement).toBe(inputToggle.parentElement);
 		expect(runMenu.classList).toContain('sm:hidden');
+	});
+
+	it("gives a phone the timer's Labels beside Discard, in the row under the timer (#5368)", async () => {
+		await renderBlock(storeWith({ employeeTracking: true, running: true }));
+
+		const labels = await screen.findByTestId('labels');
+		const runMenu = await screen.findByTestId('run-menu');
+
+		expect(labels.parentElement).toBe(runMenu.parentElement);
+		expect(labels.classList).toContain('sm:hidden');
 	});
 
 	it('gives a member whose tracking is off the reason instead of the timer', async () => {

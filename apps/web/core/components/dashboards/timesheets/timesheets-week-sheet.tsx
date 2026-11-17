@@ -1,10 +1,12 @@
 'use client';
 
 import { type CSSProperties, memo, useMemo } from 'react';
+import { EntryLabelChips } from '@/core/components/features/entry-labels/entry-label-chips';
 import { useTranslations } from 'next-intl';
 import { Checkbox } from '@/core/components/common/checkbox';
 import { EntityTile } from '@/core/components/common/entity-tile';
 import { HiddenProjectName } from '@/core/components/projects/hidden-project-mark';
+import { DollarCircle } from '@/core/components/icons';
 import { SKELETON_BAR } from '@/core/components/dashboards/kit/recipes';
 import { TaskDrawerLink } from '@/core/components/tasks/drawer/task-drawer-link';
 import { TaskPropertyIcon } from '@/core/components/tasks/task-property-icon';
@@ -204,7 +206,27 @@ function RowTask({ identity }: Readonly<{ identity: SheetRowIdentity }>) {
 				)}
 				<RowTaskTitle identity={identity} />
 			</span>
-			<RowProject identity={identity} />
+			<span className="flex min-w-0 items-center gap-1.5">
+				<RowProject identity={identity} />
+				{identity.isBillable && <RowBillableMark />}
+			</span>
+			{identity.labels && identity.labels.length > 0 && <EntryLabelChips labels={identity.labels} max={3} />}
+		</span>
+	);
+}
+
+/** Billable is part of a row (#5368): the same task's billable and not billable time are two rows, told apart here. */
+function RowBillableMark() {
+	const t = useTranslations();
+	const label = t('dashboard.timesheets.BILLABLE');
+	return (
+		<span
+			role="img"
+			aria-label={label}
+			title={label}
+			className="inline-flex size-4 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary-ink dark:bg-primary/15"
+		>
+			<DollarCircle aria-hidden="true" className="size-3" />
 		</span>
 	);
 }

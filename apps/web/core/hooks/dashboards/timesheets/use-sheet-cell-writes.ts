@@ -129,6 +129,18 @@ function freeWindowsOfDay(
  * read from the API just before it, so neither another cell nor time saved elsewhere since the page was read is
  * ever written over.
  */
+/**
+ * The labels time typed in a row is filed under: the row's own (#5368). A row with labels was read from an API that
+ * stores them; a row without any sends nothing new.
+ */
+function labelsOfRow(identity: SheetRowIdentity): { tags?: string[] } {
+	const labelIds = (identity.labels ?? []).map((label) => label.id);
+	if (labelIds.length === 0) {
+		return {};
+	}
+	return { tags: labelIds };
+}
+
 export function useSheetCellWrites(scope: SheetWriteScope) {
 	const t = useTranslations();
 	const queryClient = useQueryClient();
@@ -188,6 +200,7 @@ export function useSheetCellWrites(scope: SheetWriteScope) {
 					taskId: identity.taskId ?? undefined,
 					organizationTeamId: teamId ?? undefined,
 					isBillable: identity.isBillable,
+					...labelsOfRow(identity),
 					logType: ETimeLogType.MANUAL,
 					source: ETimeLogSource.TEAMS
 				});

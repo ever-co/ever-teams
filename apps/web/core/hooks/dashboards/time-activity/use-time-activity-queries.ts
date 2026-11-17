@@ -31,6 +31,9 @@ export interface TimeActivityRequest {
 	billableOnly?: boolean;
 	/** The daily report states the client rates each entry keeps (a role that may read every client rate). */
 	withClientRates?: boolean;
+	/** The entry's own labels (Gauzy #12029): only the daily report narrows by them. */
+	tagIds?: string[];
+	untagged?: boolean;
 }
 
 const ACTIVITY_LEVEL = { start: 0, end: 100 };
@@ -68,7 +71,9 @@ async function fetchDailyReport(request: TimeActivityRequest): Promise<ITimeLogG
 		activityLevel: ACTIVITY_LEVEL,
 		includeTimeWithoutTeam: request.includeTimeWithoutTeam,
 		billableOnly: request.billableOnly,
-		withClientRates: request.withClientRates
+		withClientRates: request.withClientRates,
+		tagIds: request.tagIds ?? [],
+		untagged: request.untagged === true
 	});
 	const days = response.data;
 	if (!Array.isArray(days)) {

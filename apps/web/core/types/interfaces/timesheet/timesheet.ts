@@ -47,7 +47,8 @@ export interface ITimesheetCountsStatistics {
 }
 
 export interface IUpdateTimesheetRequest
-	extends Pick<
+	extends
+		Pick<
 			Partial<ITimeLog>,
 			| 'id'
 			| 'reason'
@@ -64,4 +65,6 @@ export interface IUpdateTimesheetRequest
 		>,
 		Pick<ITimeLog, 'startedAt' | 'stoppedAt'> {
 	isBillable: boolean;
+	/** The labels the new entry is filed under (#5368), by id; left out, it has none. */
+	tags?: string[];
 }

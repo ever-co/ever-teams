@@ -34,6 +34,8 @@ import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import { type TimeEntryReuseHandlers, TimeEntryReuseMenuItems } from './time-entry-reuse';
 import { EntryNotesLine, LogChangeChips, ManualReasonLine } from './timesheet-log-changes';
+import { EntryLabelChips } from '@/core/components/features/entry-labels/entry-label-chips';
+import { entryLabelsOf } from '@/core/lib/utils/time-log-labels';
 import { BillableSubmenu, StatusSubmenu } from './timesheet-menu-parts';
 import { TimesheetStatusChip } from './timesheet-status';
 import { DEFERRED_ROW, logGridOf, NARROW_ONLY, NESTED_ROW, NESTED_TASK_INDENT, WIDE_ONLY } from './timesheets-grid';
@@ -295,6 +297,7 @@ export const TimesheetLogRow = memo(function TimesheetLogRow({
 					<LogChangeChips log={log} formatters={formatters} opensHistory className={WIDE_ONLY} />
 				</span>
 				<EntryNotesLine log={log} />
+				<EntryLabelChips labels={entryLabelsOf(log)} className="mt-0.5" />
 				<ManualReasonLine log={log} />
 				{rejectionReason && (
 					<span className="truncate text-xs text-destructive-ink">

@@ -10,6 +10,9 @@ import type { TOrganizationTeam } from '@/core/types/schemas';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
 import { EditTaskModal } from './edit-task-modal';
 
+// An API without labels on entries (#5368): the labels controls stay out, as before
+jest.mock('@/core/hooks/timer/use-entry-labels-support', () => ({ useEntryLabelsSupport: () => false }));
+
 const mockUpdateTimeLog = jest.fn();
 const mockProjects: Array<{ id: string; name: string }> = [];
 

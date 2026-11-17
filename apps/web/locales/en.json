@@ -3012,6 +3012,24 @@
 		}
 	},
 	"timer": {
+		"labels": {
+			"LABELS": "Labels",
+			"LABEL": "Label",
+			"PICK_LABELS": "Add labels",
+			"NO_LABELS_YET": "No labels yet",
+			"DELETED": "Deleted",
+			"SAVE_FAILED": "The labels could not be saved",
+			"TASK_LABELS": "Task labels",
+			"NO_LABEL": "No label",
+			"BY_LABEL_TITLE": "Time by label",
+			"COUNT": "{count, plural, one {# label} other {# labels}}",
+			"OVERLAP_TITLE": "Groups overlap",
+			"OVERLAP_MESSAGE": "An entry with several labels counts under each of them, so the groups add up to more than the total.",
+			"CREATE": "Create “{name}”",
+			"SEARCH": "Search labels",
+			"CREATE_FAILED": "The label could not be created",
+			"IMPORT_NOT_ATTACHED": "Not attached: {names}. The team has no label of {count, plural, one {that name} other {those names}} and none could be added."
+		},
 		"START_TIMER": "Please, select or create a new task to start tracking the time or create a plan",
 		"ALREADY_TRACKING_MESSAGE": "You're already tracking time in another tab or device.",
 		"TRACKING_DISABLED_MESSAGE": "Time tracking is turned off for you. An organization admin can turn it on.",

@@ -114,10 +114,10 @@ describe('the files of the Timesheets page', () => {
 		const [rows, columns, fileName] = mockDownloadCsv.mock.calls[0] as [unknown[], CsvColumn<unknown>[], string];
 		expect(fileName).toBe('timesheets-2026-11-02-2026-11-08.csv');
 		expect(csvOf(rows, columns).split('\r\n')).toEqual([
-			'dashboard.timesheets.COLUMNS.DATE,dashboard.timesheets.COLUMNS.START,dashboard.timesheets.COLUMNS.END,dashboard.timesheets.COLUMNS.MEMBER,dashboard.timesheets.COLUMNS.PROJECT,dashboard.timesheets.COLUMNS.TASK,dashboard.timesheets.COLUMNS.STATUS,dashboard.timesheets.COLUMNS.BILLABLE,dashboard.timesheets.COLUMNS.DURATION,common.NOTES',
-			'2026-11-02,09:05,10:35,Ada Lovelace,Website,Header,dashboard.timesheets.STATUS.APPROVED,pages.timesheet.BILLABLE.YES,1:30,',
-			'2026-11-03,08:30,09:15,Ada Lovelace,,,,pages.timesheet.BILLABLE.NO,0:45,',
-			'2026-11-03,14:00,14:30,Grace Hopper,,,,pages.timesheet.BILLABLE.NO,0:30,'
+			'dashboard.timesheets.COLUMNS.DATE,dashboard.timesheets.COLUMNS.START,dashboard.timesheets.COLUMNS.END,dashboard.timesheets.COLUMNS.MEMBER,dashboard.timesheets.COLUMNS.PROJECT,dashboard.timesheets.COLUMNS.TASK,dashboard.timesheets.COLUMNS.STATUS,dashboard.timesheets.COLUMNS.BILLABLE,common.LABELS,dashboard.timesheets.COLUMNS.DURATION,common.NOTES',
+			'2026-11-02,09:05,10:35,Ada Lovelace,Website,Header,dashboard.timesheets.STATUS.APPROVED,pages.timesheet.BILLABLE.YES,,1:30,',
+			'2026-11-03,08:30,09:15,Ada Lovelace,,,,pages.timesheet.BILLABLE.NO,,0:45,',
+			'2026-11-03,14:00,14:30,Grace Hopper,,,,pages.timesheet.BILLABLE.NO,,0:30,'
 		]);
 	});
 
@@ -134,7 +134,7 @@ describe('the files of the Timesheets page', () => {
 		const durationColumn = columns[columns.length - 2];
 
 		expect(fileName).toBe('timesheets-2026-11-02-2026-11-08.xlsx');
-		expect(columns).toHaveLength(10);
+		expect(columns).toHaveLength(11);
 		expect(columns[columns.length - 1].header).toBe('common.NOTES');
 		expect(durationColumn.format).toBe('[h]:mm');
 		expect(lines.map(cellsOf)).toEqual([
@@ -147,6 +147,7 @@ describe('the files of the Timesheets page', () => {
 				'Header',
 				'dashboard.timesheets.STATUS.APPROVED',
 				'pages.timesheet.BILLABLE.YES',
+				'',
 				5400 / SECONDS_PER_DAY,
 				''
 			],
@@ -159,6 +160,7 @@ describe('the files of the Timesheets page', () => {
 				'',
 				'',
 				'pages.timesheet.BILLABLE.NO',
+				'',
 				2700 / SECONDS_PER_DAY,
 				''
 			],
@@ -171,10 +173,11 @@ describe('the files of the Timesheets page', () => {
 				'',
 				'',
 				'pages.timesheet.BILLABLE.NO',
+				'',
 				1800 / SECONDS_PER_DAY,
 				''
 			],
-			['common.TOTAL', '', '', '', '', '', '', '', TOTAL_SECONDS / SECONDS_PER_DAY, '']
+			['common.TOTAL', '', '', '', '', '', '', '', '', TOTAL_SECONDS / SECONDS_PER_DAY, '']
 		]);
 		expect(lines.map(sheetOptions.isBoldRow)).toEqual([false, false, false, true]);
 	});
@@ -202,6 +205,7 @@ describe('the files of the Timesheets page', () => {
 			'Header',
 			'dashboard.timesheets.STATUS.APPROVED',
 			'pages.timesheet.BILLABLE.YES',
+			'',
 			'1h 30m'
 		]);
 		expect(mockDownloadPdf.mock.calls[0][1]).toBe('timesheets-2026-11-02-2026-11-08.pdf');

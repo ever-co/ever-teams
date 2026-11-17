@@ -3012,6 +3012,24 @@
 		}
 	},
 	"timer": {
+		"labels": {
+			"LABELS": "Labels",
+			"LABEL": "Label",
+			"PICK_LABELS": "Labels toevoegen",
+			"NO_LABELS_YET": "Nog geen labels",
+			"DELETED": "Verwijderd",
+			"SAVE_FAILED": "De labels konden niet worden opgeslagen",
+			"TASK_LABELS": "Taaklabels",
+			"NO_LABEL": "Geen label",
+			"BY_LABEL_TITLE": "Tijd per label",
+			"COUNT": "{count, plural, one {# label} other {# labels}}",
+			"OVERLAP_TITLE": "Groepen overlappen",
+			"OVERLAP_MESSAGE": "Een invoer met meerdere labels telt onder elk ervan mee, dus de groepen tellen op tot meer dan het totaal.",
+			"CREATE": "“{name}” maken",
+			"SEARCH": "Labels zoeken",
+			"CREATE_FAILED": "Het label kon niet worden gemaakt",
+			"IMPORT_NOT_ATTACHED": "Niet gekoppeld: {names}. Het team heeft geen label met {count, plural, one {die naam} other {die namen}} en er kon er geen worden toegevoegd."
+		},
 		"START_TIMER": "Selecteer of maak een nieuwe taak aan om de tijd bij te houden of maak een plan",
 		"ALREADY_TRACKING_MESSAGE": "Je houdt al tijd bij in een ander tabblad of apparaat.",
 		"TRACKING_DISABLED_MESSAGE": "Tijdregistratie staat voor jou uit. Een beheerder van de organisatie kan het inschakelen.",
