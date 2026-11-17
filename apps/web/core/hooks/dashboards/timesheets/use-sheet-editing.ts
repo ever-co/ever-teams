@@ -57,6 +57,11 @@ export interface SheetEditingSource {
 	organizationId: string | null | undefined;
 	/** The zone the page reads its logs in, as `timesheetPageLogsRequestOf` takes it. */
 	userTimeZone: string | null | undefined;
+	/**
+	 * The page reads each entry's own labels (#5368): the reads before a write ask them too, or a row keyed by its labels
+	 * would find none of its entries there, and time typed in it would be added on top of the time it shows.
+	 */
+	withEntryLabels?: boolean;
 }
 
 /**
@@ -117,7 +122,7 @@ export function useSheetEditing(source: SheetEditingSource, sheet: TimesheetShee
 	const { organizationProjects } = useOrganizationProjectsQuery();
 	const { myPermissions, isLoading: isLoadingPermissions } = useMyRolePermissionsQuery();
 	const { ownEmployeeId, hasOrganizationRole, period, periodLogs, hasPeriodLogs, isFiltered } = source;
-	const { tenantId, organizationId, userTimeZone } = source;
+	const { tenantId, organizationId, userTimeZone, withEntryLabels = false } = source;
 
 	const memberId = sheet.member?.id ?? null;
 	const isOwnSheet = Boolean(memberId) && memberId === ownEmployeeId;
@@ -182,18 +187,18 @@ export function useSheetEditing(source: SheetEditingSource, sheet: TimesheetShee
 		// the profile names, so a saved entry at either end of the week is never missed (a write over it would make
 		// the API remove it unseen)
 		const browserTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-		const request = timesheetPageLogsRequestOf(period, {
-			...logsScope,
-			userTimeZone: browserTimeZone,
-			employeeIds: [memberId]
-		});
+		const request = timesheetPageLogsRequestOf(
+			period,
+			{ ...logsScope, userTimeZone: browserTimeZone, employeeIds: [memberId] },
+			{ withEntryLabels }
+		);
 		const logs = await queryClient.fetchQuery({
 			queryKey: request.queryKey,
 			queryFn: request.queryFn,
 			staleTime: 0
 		});
 		return logsOfMember(logs, memberId);
-	}, [logsScope, memberId, period, queryClient]);
+	}, [logsScope, memberId, period, queryClient, withEntryLabels]);
 
 	const teamId = activeTeam?.id ?? null;
 	const writes = useSheetCellWrites({
@@ -245,6 +250,7 @@ export function useSheetEditing(source: SheetEditingSource, sheet: TimesheetShee
 		sheetKey,
 		period,
 		logsScope,
+		withEntryLabels,
 		memberId,
 		days: sheet.days,
 		rows: sheet.sheet.rows,

@@ -501,6 +501,7 @@ export function sheetEditingSourceOf(page: TimesheetsPageState): SheetEditingSou
 		isFiltered: isNarrowed(page),
 		tenantId: user?.tenantId,
 		organizationId: user?.employee?.organizationId,
-		userTimeZone: user?.timeZone
+		userTimeZone: user?.timeZone,
+		withEntryLabels: page.supportsEntryLabels
 	};
 }
