@@ -48,7 +48,13 @@ export const useStores = () => useContext(RootStoreContext);
  * and then rehydrates it. It connects everything with Reactotron
  * and then lets the app know that everything is ready to go.
  */
-export const useInitialRootStore = (callback: () => void | Promise<void>) => {
+/** What the app learns once the store is rehydrated. */
+export interface Rehydration {
+	/** The stored session could not be read: the person was signed out and must be told. */
+	sessionEnded: boolean;
+}
+
+export const useInitialRootStore = (callback: (rehydration: Rehydration) => void | Promise<void>) => {
 	const rootStore = useStores();
 	const [rehydrated, setRehydrated] = useState(false);
 
@@ -57,7 +63,7 @@ export const useInitialRootStore = (callback: () => void | Promise<void>) => {
 		let _unsubscribe;
 		(async () => {
 			// set up the RootStore (returns the state restored from AsyncStorage)
-			const { restoredState, unsubscribe } = await setupRootStore(rootStore);
+			const { restoredState, unsubscribe, sessionEnded } = await setupRootStore(rootStore);
 			_unsubscribe = unsubscribe;
 
 			// reactotron integration with the MST root store (DEV only)
@@ -67,7 +73,7 @@ export const useInitialRootStore = (callback: () => void | Promise<void>) => {
 			setRehydrated(true);
 
 			// invoke the callback, if provided
-			if (callback) callback();
+			if (callback) void callback({ sessionEnded });
 		})();
 
 		return () => {
