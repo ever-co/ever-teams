@@ -18,6 +18,7 @@ import { TeamsContext } from '@lib/context/teams-context';
 import i18n from '@lib/i18n/init';
 import { apiConfigManager, IApiTeamsConfig } from '@ever-teams/api';
 import TrackingProvider from '@lib/context/teams-tracking-context';
+import { TimerStatusProvider } from '@lib/context/teams-timer-status-context';
 import { ChartData } from '@ever-teams/toolkit-types';
 import { useSelectedOrganization } from '@hooks/useSelectedOrganization';
 import { KitOptionsProvider, KitRoot } from './kit-root';
@@ -120,7 +121,9 @@ const TeamsDataProvider = ({ children, config: apiConfig, theme, lang = 'en', sc
 			<TrackingProvider
 				config={{ baseUrl: apiConfig?.apiUrl, defaultBaseUrl: apiConfigManager.getConfig().apiUrl }}
 			>
-				<I18nextProvider i18n={i18n}>{themed}</I18nextProvider>
+				<I18nextProvider i18n={i18n}>
+					<TimerStatusProvider>{themed}</TimerStatusProvider>
+				</I18nextProvider>
 			</TrackingProvider>
 		</TeamsContext.Provider>
 	);
