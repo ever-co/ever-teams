@@ -24,6 +24,7 @@ import {
 	clientIdOfProjectLog
 } from '@/core/lib/utils/dashboards/report-filters';
 import { NO_CLIENT_FILTER_VALUE } from '@/core/lib/utils/project-list';
+import { isHiddenProject, PRIVATE_PROJECTS_KEY, type HiddenProjectLabels } from '@/core/lib/utils/project-visibility';
 import { type EntryLabel, NO_LABEL_VALUE, entryLabelNamesOf } from '@/core/lib/utils/time-log-labels';
 
 export type TimeActivityGrouping = 'date' | 'member' | 'project' | 'task' | 'week' | 'client' | 'label';
@@ -357,7 +358,7 @@ function dimensionKeyOf(row: DailyReportRow, dimension: Dimension) {
 function projectRefOf(row: DailyReportRow, seconds: number): ReportProjectRef {
 	return {
 		key: projectKeyOf(row),
-		name: row.projectName,
+		name: row.projectGroupName ?? row.projectName,
 		imageUrl: row.projectImageUrl,
 		color: row.projectColor,
 		seconds
@@ -583,14 +584,20 @@ export function clientRowsOf(
 	report: ReadonlyArray<ITimeLogGroupedDailyReport>,
 	clientOf: ClientOfProjectLog,
 	withoutTeamLabel: string | null,
-	workspaceCurrency: string | null = null
+	workspaceCurrency: string | null = null,
+	hiddenProjectLabels: HiddenProjectLabels | null = null
 ): TimeActivityRow[] {
 	const rows: TimeActivityRow[] = [];
 	for (const day of report) {
 		for (const projectLog of day?.logs ?? []) {
 			const client = clientOf(projectLog);
 			const dayOfProject = { ...day, logs: [projectLog] };
-			const projectRows = flattenDailyReport([dayOfProject], withoutTeamLabel, workspaceCurrency);
+			const projectRows = flattenDailyReport(
+				[dayOfProject],
+				withoutTeamLabel,
+				workspaceCurrency,
+				hiddenProjectLabels
+			);
 			for (const row of projectRows) {
 				rows.push({ ...row, client });
 			}
@@ -849,6 +856,14 @@ function exportClientOf(projectLog: ReportProjectLog, clientOf: ClientOfProjectL
 	return clientOf(projectLog);
 }
 
+/** The project an export row names: a project the API keeps from the caller is named as one (CORE-27). */
+function exportProjectOf(projectLog: ReportProjectLog, hiddenProjectLabel: string | null) {
+	if (isHiddenProject(projectLog?.project)) {
+		return { project: hiddenProjectLabel, projectId: PRIVATE_PROJECTS_KEY };
+	}
+	return { project: projectLog?.project?.name ?? null, projectId: projectLog?.project?.id ?? null };
+}
+
 /**
  * Export rows built from the raw daily report on the click. `onlyEmployeeId` keeps a member's own rows when the
  * reader does not manage the others. A rate without a currency of its own is in the workspace's. `clientOf` gives
@@ -859,15 +874,15 @@ export function exportRowsOf(
 	onlyEmployeeId: string | null,
 	withoutTeamLabel: string | null = null,
 	workspaceCurrency: string | null = null,
-	clientOf: ClientOfProjectLog | null = null
+	clientOf: ClientOfProjectLog | null = null,
+	hiddenProjectLabel: string | null = null
 ): TimeActivityExportRow[] {
 	const rows: TimeActivityExportRow[] = [];
 	for (const day of report) {
 		const rawDate = String(day?.date ?? '');
 		const dateKey = rawDate.slice(0, 10);
 		for (const projectLog of day?.logs ?? []) {
-			const project = projectLog?.project?.name ?? null;
-			const projectId = projectLog?.project?.id ?? null;
+			const { project, projectId } = exportProjectOf(projectLog, hiddenProjectLabel);
 			const client = exportClientOf(projectLog, clientOf);
 			for (const employeeLog of projectLog?.employeeLogs ?? []) {
 				const employeeId = employeeLog?.employee?.id;

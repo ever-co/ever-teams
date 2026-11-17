@@ -1,4 +1,10 @@
-import { isPrivateProject, shownVisibilityOf, visibilityFieldOf, visibilityOfProject } from './project-visibility';
+import {
+	isHiddenProject,
+	isPrivateProject,
+	shownVisibilityOf,
+	visibilityFieldOf,
+	visibilityOfProject
+} from './project-visibility';
 import { buildProjectRequest, draftFromProject, emptyProjectDraft } from './project-composer';
 import type { TOrganizationProject } from '@/core/types/schemas';
 
@@ -61,5 +67,14 @@ describe('the project form and who sees the project', () => {
 		const draft = { ...draftFromProject(stored, null), visibility: 'everyone' as const };
 
 		expect(buildProjectRequest(draft, { ...context, base: stored })).toMatchObject({ public: true });
+	});
+});
+
+describe('a project the API keeps from the caller (CORE-27)', () => {
+	it('is the one answered with `projectHidden`, and no other', () => {
+		expect(isHiddenProject({ projectHidden: true })).toBe(true);
+		expect(isHiddenProject({ projectHidden: false })).toBe(false);
+		expect(isHiddenProject({})).toBe(false);
+		expect(isHiddenProject(null)).toBe(false);
 	});
 });

@@ -29,7 +29,10 @@ function uniqueValuesOf<T extends string>(values: ReadonlyArray<T>): T[] {
 	return [...new Set(values)];
 }
 
-export function useProjectBudgetReport({ unnamedLabel }: Readonly<{ unnamedLabel: string }>) {
+export function useProjectBudgetReport({
+	unnamedLabel,
+	hiddenLabel
+}: Readonly<{ unnamedLabel: string; hiddenLabel?: string }>) {
 	const searchParams = useSearchParams();
 	const linkedProjectId = searchParams?.get(BUDGET_PROJECT_PARAM);
 
@@ -37,7 +40,14 @@ export function useProjectBudgetReport({ unnamedLabel }: Readonly<{ unnamedLabel
 	const [period, setPeriod] = useState<Period>(() => periodOfPreset('thisMonth', BUDGET_WEEK_START));
 	const [filters, setFilters] = useState<BudgetFilters>(() => budgetFiltersOfLink(linkedProjectId));
 
-	const budgets = useProjectBudgetRows({ scope, period, unnamedLabel, followsLiveTime: true, isEnabled: true });
+	const budgets = useProjectBudgetRows({
+		scope,
+		period,
+		unnamedLabel,
+		hiddenLabel,
+		followsLiveTime: true,
+		isEnabled: true
+	});
 	const { shown, organizationProjects } = budgets;
 
 	const allRows = shown?.rows;

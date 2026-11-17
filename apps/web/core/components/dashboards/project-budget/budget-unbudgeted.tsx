@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { AnimatedHeight } from '@/core/components/common/animated-height';
 import { EntityTile } from '@/core/components/common/entity-tile';
+import { HiddenProjectMark } from '@/core/components/projects/hidden-project-mark';
 import { GroupToggle } from '@/core/components/dashboards/kit/dashboard-layout';
 import { DASHBOARD_SURFACE, SECTION_HEADER, SECTION_META } from '@/core/components/dashboards/kit/recipes';
 import { cn } from '@/core/lib/helpers';
@@ -43,17 +44,24 @@ const UnbudgetedRow = memo(function UnbudgetedRow({ row }: Readonly<{ row: Budge
 	const spentText = amountTextOf(row.spent, row, locale);
 	return (
 		<li className={ROW}>
-			<span aria-hidden="true" className="flex shrink-0">
-				<EntityTile name={project.name} color={project.color} imageUrl={project.imageUrl} />
-			</span>
+			{project.isHidden && <HiddenProjectMark className="size-6 [&_svg]:size-3.5" />}
+			{!project.isHidden && (
+				<span aria-hidden="true" className="flex shrink-0">
+					<EntityTile name={project.name} color={project.color} imageUrl={project.imageUrl} />
+				</span>
+			)}
 			<span className="flex min-w-0 flex-1 flex-col">
-				<Link
-					href={projectPathOf(project.id)}
-					prefetch={false}
-					className="truncate text-[13px] text-foreground outline-none after:absolute after:inset-0 focus-visible:underline"
-				>
-					{project.name}
-				</Link>
+				{/* A project the API keeps from the reader has no page to lead to (CORE-27) */}
+				{project.isHidden && <span className="truncate text-[13px] text-foreground">{project.name}</span>}
+				{!project.isHidden && (
+					<Link
+						href={projectPathOf(project.id)}
+						prefetch={false}
+						className="truncate text-[13px] text-foreground outline-none after:absolute after:inset-0 focus-visible:underline"
+					>
+						{project.name}
+					</Link>
+				)}
 				<span className="truncate text-xs text-muted-foreground">{rowMetaOf(row, t)}</span>
 			</span>
 			<span className="flex shrink-0 items-baseline gap-1.5 tabular-nums">

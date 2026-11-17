@@ -121,7 +121,7 @@ function runCsv({ logs, period, t }: ExportInput) {
 		valueOf: (row) => hoursMinutesOf(row.seconds)
 	});
 	columns.push({ header: t('common.NOTES'), valueOf: (row) => row.notes });
-	const rows = timesheetExportRowsOf(logs);
+	const rows = timesheetExportRowsOf(logs, t('common.PRIVATE_PROJECT'));
 	const fileName = periodFileNameOf(FILE_PREFIX, period.from, period.to, 'csv');
 	downloadCsv(rows, columns, fileName);
 }
@@ -137,7 +137,7 @@ function sheetDurationOf(seconds: number) {
 
 async function runXlsx({ logs, period, t }: ExportInput) {
 	const textColumns = [dayColumnOf(t), ...entryColumnsOf(t)];
-	const rows = timesheetExportRowsOf(logs);
+	const rows = timesheetExportRowsOf(logs, t('common.PRIVATE_PROJECT'));
 	const lines: SheetLine[] = rows.map((row) => {
 		const texts = textColumns.map((column) => column.text(row));
 		return { cells: [...texts, sheetDurationOf(row.seconds), row.notes], isTotal: false };
@@ -222,7 +222,7 @@ function pdfContentOf(input: ExportInput): EntriesPdfContent {
 	});
 	const generatedFormat = dateFormatOf(locale, { dateStyle: 'long' });
 	const generatedDate = generatedFormat.format(new Date());
-	const days = timesheetExportDaysOf(logs);
+	const days = timesheetExportDaysOf(logs, t('common.PRIVATE_PROJECT'));
 	return {
 		title,
 		period: pdfTextOf(formatPeriod(period, locale)),

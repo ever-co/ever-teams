@@ -38,6 +38,8 @@ interface ProjectBudgetRowsOptions {
 	/** The period picked in the `period` scope; the `whole` scope does not read it. */
 	period: Period | null;
 	unnamedLabel: string;
+	/** How a project the API keeps from the reader is named (CORE-27); `unnamedLabel` without it. */
+	hiddenLabel?: string;
 	/**
 	 * The report follows the time being tracked, one read a minute while it shows today. A page that only quotes its
 	 * figures reads them when it opens: Gauzy goes through every time log of the range to answer.
@@ -85,6 +87,7 @@ export function useProjectBudgetRows({
 	scope,
 	period,
 	unnamedLabel,
+	hiddenLabel,
 	followsLiveTime,
 	isEnabled
 }: Readonly<ProjectBudgetRowsOptions>) {
@@ -147,10 +150,11 @@ export function useProjectBudgetRows({
 			reports: result.reports,
 			projects: organizationProjects,
 			organizationCurrency,
-			unnamedLabel
+			unnamedLabel,
+			hiddenLabel
 		});
 		return { scope: result.request.scope, period: result.request.period, rows };
-	}, [organizationCurrency, organizationProjects, result, unnamedLabel]);
+	}, [hiddenLabel, organizationCurrency, organizationProjects, result, unnamedLabel]);
 
 	const isOrganizationReady = organization !== null;
 	const hasData = result !== undefined;

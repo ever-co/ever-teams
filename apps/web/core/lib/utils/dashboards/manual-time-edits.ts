@@ -9,12 +9,13 @@ import {
 	endOfLog,
 	logDurationSeconds,
 	NO_PROJECT_VALUE,
-	projectValueOf,
+	projectFilterValueOf,
 	startOfLog,
 	statusOfLog,
 	workDayOfLog
 } from '@/core/lib/utils/dashboards/timesheets';
 import { dateFormatOf, hasDateFormat, type FormatLocale } from '@/core/lib/utils/workspace-formats';
+import { isHiddenProject } from '@/core/lib/utils/project-visibility';
 import { ETimeLogType } from '@/core/types/generics/enums/timer';
 import type { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 import type { ChangeKindValue, TimeLogHistoryChange } from '@/core/lib/utils/time-log-history';
@@ -59,6 +60,8 @@ export interface ManualTimeEntry {
 	projectValue: string;
 	projectName: string | null;
 	projectColor: string | null;
+	/** Its project is one the API keeps from the reader (CORE-27): named "Private project", grouped under one key. */
+	isProjectHidden?: true;
 	taskTitle: string | null;
 	start: Date | null;
 	end: Date | null;
@@ -192,6 +195,14 @@ interface ChangedLog {
 	isListedEdited: boolean;
 }
 
+// Entries of a project the reader sees keep the shape they had before the API could keep a project from them
+function hiddenProjectFlagOf(log: ITimeLog): Pick<ManualTimeEntry, 'isProjectHidden'> {
+	if (!isHiddenProject(log.project)) {
+		return {};
+	}
+	return { isProjectHidden: true };
+}
+
 function entryOf(
 	changed: ChangedLog,
 	members: ReadonlyMap<string, EditsMember>,
@@ -215,9 +226,10 @@ function entryOf(
 		employeeId,
 		memberName: logMemberNameOf(log, member, unnamedLabel),
 		memberImageUrl: logMemberImageOf(log, member),
-		projectValue: projectValueOf(log),
+		projectValue: projectFilterValueOf(log),
 		projectName: log.project?.name ?? null,
 		projectColor: log.project?.color ?? null,
+		...hiddenProjectFlagOf(log),
 		taskTitle: taskTitleOf(log),
 		start: startOfLog(log),
 		end: endOfLog(log),
@@ -662,6 +674,8 @@ export function railPositionOf(index: number, count: number): RailPosition {
 export interface ManualRankItem {
 	key: string;
 	name: string | null;
+	/** The projects the API keeps from the reader, ranked as one (CORE-27). */
+	isProjectHidden?: true;
 	imageUrl: string | null;
 	color: string | null;
 	seconds: number;
@@ -713,7 +727,8 @@ function projectSeedOf(entry: ManualTimeEntry): ManualRankItem {
 		imageUrl: null,
 		color: entry.projectColor,
 		seconds: 0,
-		count: 0
+		count: 0,
+		...(entry.isProjectHidden ? { isProjectHidden: true as const } : {})
 	};
 }
 

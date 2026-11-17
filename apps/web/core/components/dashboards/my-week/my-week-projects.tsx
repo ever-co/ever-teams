@@ -1,5 +1,6 @@
 'use client';
 
+import { HiddenProjectName } from '@/core/components/projects/hidden-project-mark';
 import { useCallback, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { DashboardSection } from '@/core/components/dashboards/kit/dashboard-layout';
@@ -23,6 +24,9 @@ function projectKeyOf(project: ProjectShareItem) {
 
 function ProjectName({ project }: Readonly<{ project: ProjectShareItem }>) {
 	const t = useTranslations();
+	if (project.isProjectHidden) {
+		return <HiddenProjectName label={t('common.PRIVATE_PROJECTS')} />;
+	}
 	const name = project.name ?? t('dashboard.timesheets.NO_PROJECT');
 	return (
 		<>
