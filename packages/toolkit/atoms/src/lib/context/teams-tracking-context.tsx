@@ -194,6 +194,15 @@ export const TrackingProvider: React.FC<ITrackingProviderProps> = ({ children, c
 		}
 	}, [selectedEmployee]);
 
+	// Another user, organization or employee: the sessions read for the previous one are dropped at once, even
+	// when no component shows them, so a component mounted later never shows them.
+	useEffect(() => {
+		latestRead.current += 1;
+		setSessions([]);
+		setError(null);
+		setLoading(false);
+	}, [selectedOrganization, selectedEmployee, token]);
+
 	// Auto-fetch sessions when context values change, only while a component shows them
 	useEffect(() => {
 		const signedIn = Boolean(selectedOrganization && selectedEmployee && token);

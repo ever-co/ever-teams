@@ -144,6 +144,32 @@ test('two session components share one read', async () => {
 	await act(async () => root.unmount());
 });
 
+test('a session component mounted after a change of user never shows the previous user’s sessions', async () => {
+	await reset();
+	let latest;
+	const reader = React.createElement(Reader, { onRender: (c) => (latest = c) });
+	const root = await mount(reader);
+	await act(async () => answer(globalThis.__requests[0], [{ id: 'first-user-session' }]));
+	assert.equal(latest.sessions.length, 1);
+
+	// No session component while another user signs in, then one appears.
+	await act(async () => root.render(React.createElement(TrackingProvider, null, null)));
+	await act(async () => globalThis.__setIdentity({ token: 'token-other-user', selectedEmployee: 'employee-2' }));
+	const firstRenders = [];
+	await act(async () =>
+		root.render(
+			React.createElement(
+				TrackingProvider,
+				null,
+				React.createElement(Reader, { onRender: (c) => firstRenders.push(c.sessions.map((s) => s.id)) })
+			)
+		)
+	);
+
+	assert.deepEqual(firstRenders[0], []);
+	await act(async () => root.unmount());
+});
+
 test('the answer of a superseded read never replaces a newer one', async () => {
 	await reset();
 	let latest;
