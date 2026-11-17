@@ -17,7 +17,8 @@ export const currentTimerSource = (): TimerSource => {
 const refusesSource = (response: unknown): boolean => {
 	const error = response as { statusCode?: number; message?: unknown } | null;
 	const isBadRequest = error?.statusCode === 400;
-	const namesSource = JSON.stringify(error?.message ?? '').includes('source');
+	// The validation message names the field ("source must be one of ..."); "resource" is not it
+	const namesSource = /\bsource\b/.test(JSON.stringify(error?.message ?? ''));
 	return isBadRequest && namesSource;
 };
 

@@ -71,3 +71,18 @@ test('another 400 is returned as it is, without a retry', async () => {
 	assert.equal(answer.statusCode, 400);
 	assert.deepEqual(sent, ['EMBED']);
 });
+
+test('a 400 that only contains the letters of source in another word is not a refusal of the source', async () => {
+	sent = [];
+	globalThis.fetch = async (_url, init) => {
+		sent.push(JSON.parse(init.body).source);
+		return new Response(JSON.stringify({ statusCode: 400, message: 'resource is not available' }), {
+			status: 400
+		});
+	};
+
+	const answer = await startTimer(user, 'token', state, 'org-1');
+
+	assert.equal(answer.statusCode, 400);
+	assert.deepEqual(sent, ['EMBED']);
+});
