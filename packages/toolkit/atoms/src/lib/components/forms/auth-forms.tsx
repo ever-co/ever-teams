@@ -31,6 +31,7 @@ import { TeamsTokenLoginForm } from './teams-token-login-form';
 import { useKitOptions } from '@components/teams-provider/kit-root';
 import { warnOnce } from '@lib/utils/warn-once';
 import { useRegistrationForm } from '@hooks/useRegistrationForm';
+import { useClearKitSession } from '@hooks/useClearKitSession';
 
 type FormSource = 'storybook' | 'example';
 
@@ -220,8 +221,9 @@ export function MenuIndicator() {
 }
 
 export const UserNavMenu = ({ children }: { children?: React.ReactNode }) => {
-	const { authenticatedUser: user, token, setToken, setAuthenticatedUser } = useTeamsContext();
+	const { authenticatedUser: user, token } = useTeamsContext();
 	const { onSignOut, scoped } = useKitOptions();
+	const clearSession = useClearKitSession();
 	const { t } = useTranslation();
 
 	const logOut = async () => {
@@ -234,9 +236,8 @@ export const UserNavMenu = ({ children }: { children?: React.ReactNode }) => {
 			};
 
 			window.localStorage.setItem('_teams-store', JSON.stringify(resetStore));
-			// The kit forgets the session at once: the widgets show their signed-out state without a reload.
-			setToken('');
-			setAuthenticatedUser({ data: null, loading: false });
+			// The kit forgets the account at once: the widgets show their signed-out state without a reload.
+			clearSession();
 			if (onSignOut) {
 				onSignOut();
 				return;
@@ -252,6 +253,11 @@ export const UserNavMenu = ({ children }: { children?: React.ReactNode }) => {
 			window.location.href = '/';
 		}
 	};
+
+	// Signed out while the menu stays on the page (scopedStyles, onSignOut): there is no user to show.
+	if (!user) {
+		return null;
+	}
 
 	return (
 		<div className="text-sm text-gray-800 dark:text-gray-100">
