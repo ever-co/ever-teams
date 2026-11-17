@@ -135,6 +135,14 @@ function App() {
 }
 ```
 
+The components use Tailwind CSS 4 class names: in the CSS file that imports Tailwind, let it see the kit (paths relative to that file; details in the [atoms README](https://github.com/ever-co/ever-teams/tree/develop/packages/toolkit/atoms#readme)):
+
+```css
+@import "tailwindcss";
+@source "../node_modules/@ever-teams/atoms/dist";
+@source "../node_modules/@ever-teams/toolkit-ui/dist";
+```
+
 ## Explore More
 
 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 my-8">

@@ -123,6 +123,17 @@ function App() {
 }`}
 				</pre>
 
+				<p className="mt-4">
+					The components use Tailwind CSS 4 class names: in the CSS file that imports Tailwind, let it see the kit (paths
+					relative to that file; details in the atoms README).
+				</p>
+
+				<pre className="bg-slate-900 text-slate-100 rounded p-4 overflow-auto mt-4">
+					{`@import "tailwindcss";
+@source "../node_modules/@ever-teams/atoms/dist";
+@source "../node_modules/@ever-teams/toolkit-ui/dist";`}
+				</pre>
+
 				<h2>Explore More</h2>
 
 				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 my-8">
