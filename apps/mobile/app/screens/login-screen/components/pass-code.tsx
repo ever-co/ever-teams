@@ -17,6 +17,7 @@ import { EMAIL_REGEX } from '../../../helpers/regex';
 import UserTenants from './user-tenants';
 import { IWorkspace, VerificationResponse } from '../../../services/interfaces/IAuthentication';
 import { CodeInputField } from '../../../components/code-field';
+import { isCompleteEmailedCode } from '../../../helpers/emailed-code';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface Props {
@@ -152,7 +153,7 @@ const PassCode: FC<Props> = observer(
 		const onChangeAuthCode = (text: string) => {
 			setAuthInviteCode(text);
 
-			if (text.length === 6) {
+			if (isCompleteEmailedCode(text)) {
 				setIsValid({
 					...isValid,
 					step2: true
@@ -176,7 +177,7 @@ const PassCode: FC<Props> = observer(
 				setIsWorkspaceScreen(false);
 			}
 
-			if (step === 'Code' && authInviteCode.length === 6) {
+			if (step === 'Code' && isCompleteEmailedCode(authInviteCode)) {
 				setIsValid({
 					...isValid,
 					step2: true
