@@ -45,6 +45,15 @@ describe('timerDiscardAvailabilityOf', () => {
 		});
 	});
 
+	it('offers nothing when the organization keeps all time, which Gauzy refuses a discard for too', () => {
+		const organization = { ...OPEN_ORGANIZATION, allowDiscardTimer: true, allowDeleteTime: false };
+
+		expect(timerDiscardAvailabilityOf({ ...running, organization })).toEqual({
+			available: false,
+			reason: 'DISABLED'
+		});
+	});
+
 	it('offers Discard until the organization limit, then no more', () => {
 		const organization = { ...OPEN_ORGANIZATION, discardTimerWithinMinutes: 5 };
 		const closesAt = STARTED_AT + 5 * MINUTE_MS;
