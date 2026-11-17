@@ -11,7 +11,8 @@ export const PortalContainerContext = React.createContext<HTMLElement | null>(nu
 
 export const usePortalContainer = (): HTMLElement | undefined => React.useContext(PortalContainerContext) ?? undefined;
 
-type PortalProps = { container?: HTMLElement | null };
+// The type Radix Portals give their container, so a wrapped Portal keeps all its own props.
+type PortalProps = { container?: Element | DocumentFragment | null };
 
 // A Radix Portal that mounts in the provided container; a `container` prop given by the caller still wins.
 export function withKitContainer<P extends PortalProps>(Portal: React.ComponentType<P>) {
