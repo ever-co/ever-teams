@@ -4,6 +4,7 @@ export * from './lib/teams-jotai/atoms/teams-atoms';
 
 export * from './lib/components/teams-progress-circle/teams-progress-circle';
 export * from './lib/components/teams-provider/teams-provider';
+export type { GetKitToken, KitHostToken } from './lib/session/host-token';
 export * from './lib/components/teams-report/basic-member/basic-teams-member';
 export * from './lib/components/teams-report/basic-member/teams-member';
 export * from './lib/components/teams-report/basic-report/teams-basic-report';
