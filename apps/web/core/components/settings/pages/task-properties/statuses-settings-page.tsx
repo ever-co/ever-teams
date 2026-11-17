@@ -69,6 +69,7 @@ function StatusesSettingsContent() {
 				skeletonRows={STATUSES_SKELETON_ROWS}
 				isGrouped={model.isGrouped}
 				onMove={model.move}
+				canMove={model.canMove}
 				renderDeleteDialog={renderStatusDeleteDialog}
 			/>
 		</SettingsPage>

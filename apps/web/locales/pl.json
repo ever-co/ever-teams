@@ -5223,6 +5223,7 @@
 			"MOVE_UP": "Przesuń w górę",
 			"MOVE_DOWN": "Przesuń w dół",
 			"BUILT_IN_DELETE": "Wbudowany: nie można go usunąć",
+			"BUILT_IN_MOVE": "Wbudowany: nie można go przenieść",
 			"DRAG": "Przeciągnij, aby zmienić kolejność",
 			"groups": {
 				"todo": "Do zrobienia",

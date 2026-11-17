@@ -5223,6 +5223,7 @@
 			"MOVE_UP": "Monter",
 			"MOVE_DOWN": "Descendre",
 			"BUILT_IN_DELETE": "Intégré : impossible à supprimer",
+			"BUILT_IN_MOVE": "Intégré : impossible à déplacer",
 			"DRAG": "Glisser pour réordonner",
 			"groups": {
 				"todo": "À faire",

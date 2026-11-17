@@ -5223,6 +5223,7 @@
 			"MOVE_UP": "Move up",
 			"MOVE_DOWN": "Move down",
 			"BUILT_IN_DELETE": "Built in: it cannot be deleted",
+			"BUILT_IN_MOVE": "Built in: it cannot be moved",
 			"DRAG": "Drag to reorder",
 			"groups": {
 				"todo": "To do",

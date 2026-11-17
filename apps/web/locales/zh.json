@@ -5223,6 +5223,7 @@
 			"MOVE_UP": "上移",
 			"MOVE_DOWN": "下移",
 			"BUILT_IN_DELETE": "内置项：无法删除",
+			"BUILT_IN_MOVE": "内置项：无法移动",
 			"DRAG": "拖动以调整顺序",
 			"groups": {
 				"todo": "待办",

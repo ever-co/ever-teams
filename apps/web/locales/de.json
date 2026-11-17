@@ -5223,6 +5223,7 @@
 			"MOVE_UP": "Nach oben",
 			"MOVE_DOWN": "Nach unten",
 			"BUILT_IN_DELETE": "Integriert: kann nicht gelöscht werden",
+			"BUILT_IN_MOVE": "Integriert: kann nicht verschoben werden",
 			"DRAG": "Zum Sortieren ziehen",
 			"groups": {
 				"todo": "Zu erledigen",

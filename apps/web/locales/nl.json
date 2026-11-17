@@ -5223,6 +5223,7 @@
 			"MOVE_UP": "Omhoog",
 			"MOVE_DOWN": "Omlaag",
 			"BUILT_IN_DELETE": "Ingebouwd: kan niet worden verwijderd",
+			"BUILT_IN_MOVE": "Ingebouwd: kan niet worden verplaatst",
 			"DRAG": "Sleep om te herschikken",
 			"groups": {
 				"todo": "Te doen",
