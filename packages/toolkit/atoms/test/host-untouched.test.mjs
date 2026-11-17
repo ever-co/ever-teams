@@ -223,6 +223,54 @@ test('without scopedStyles and without a picked font, the body keeps the host fo
 	await act(async () => root.unmount());
 });
 
+test('the server snapshot is the same object from call to call, as React requires for hydration', () => {
+	assert.equal(kit.getServerKitPreferences(), kit.getServerKitPreferences());
+	assert.equal(kit.getServerKitPreferences().font, null);
+});
+
+test('a storage that refuses writes keeps the font in memory, and the widgets still hear of it', () => {
+	window.localStorage.setItem('selected-font', ROBOTO);
+	const setItem = Object.getOwnPropertyDescriptor(window.Storage.prototype, 'setItem');
+	Object.defineProperty(window.Storage.prototype, 'setItem', {
+		...setItem,
+		value() {
+			throw new window.DOMException('quota', 'QuotaExceededError');
+		}
+	});
+	try {
+		kit.resetKitPreferences();
+		assert.equal(kit.getKitPreferences().font, ROBOTO);
+
+		let heard = 0;
+		const unsubscribe = kit.subscribeKitPreferences(() => heard++);
+		kit.setKitPreferences({ font: POPPINS });
+		unsubscribe();
+
+		assert.equal(kit.getKitPreferences().font, POPPINS);
+		assert.equal(heard, 1);
+	} finally {
+		Object.defineProperty(window.Storage.prototype, 'setItem', setItem);
+	}
+});
+
+test('two font updates in a row build on each other', async () => {
+	let setSelectedFont;
+	function Setter() {
+		({ setSelectedFont } = kit.useFontSelector());
+		return null;
+	}
+	kit.setKitPreferences({ font: 'A' });
+	const { root } = await render(inKit(true, React.createElement(Setter)));
+
+	await act(async () => {
+		setSelectedFont((font) => `${font}B`);
+		setSelectedFont((font) => `${font}C`);
+	});
+
+	assert.equal(kit.getKitPreferences().font, 'ABC');
+	await act(async () => root.unmount());
+});
+
 test('system follows the system scheme, light and dark are kept as chosen', () => {
 	assert.equal(kit.resolveColorScheme('system', true), 'dark');
 	assert.equal(kit.resolveColorScheme('system', false), 'light');

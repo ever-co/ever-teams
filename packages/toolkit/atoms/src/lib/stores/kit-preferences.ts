@@ -21,6 +21,8 @@ const LEGACY_DEFAULT_FONT = FONT_OPTIONS[0].value;
 const listeners = new Set<() => void>();
 let preferences: KitPreferences = { font: null, loadGoogleFonts: false, colorScheme: 'system' };
 let fontRead = false;
+// The server snapshot, kept until the scheme changes: React requires the same object from consecutive calls.
+let serverPreferences: KitPreferences = { font: null, loadGoogleFonts: false, colorScheme: 'system' };
 
 function storage(): Storage | null {
 	if (typeof window === 'undefined') {
@@ -30,6 +32,15 @@ function storage(): Storage | null {
 		return window.localStorage;
 	} catch {
 		return null;
+	}
+}
+
+// A storage that refuses writes (quota, private mode) leaves the font in memory for this page.
+function storeFont(store: Storage | null, font: string): void {
+	try {
+		store?.setItem(FONT_STORAGE_KEY, font);
+	} catch {
+		// The font stays in memory; the migration runs again on a later load.
 	}
 }
 
@@ -46,7 +57,7 @@ function readStoredFont(): string | null {
 	if (!legacy || legacy === LEGACY_DEFAULT_FONT) {
 		return null;
 	}
-	store.setItem(FONT_STORAGE_KEY, legacy);
+	storeFont(store, legacy);
 	return legacy;
 }
 
@@ -60,7 +71,10 @@ export function getKitPreferences(): KitPreferences {
 
 // For server rendering: no stored choice is visible there.
 export function getServerKitPreferences(): KitPreferences {
-	return { font: null, loadGoogleFonts: false, colorScheme: preferences.colorScheme };
+	if (serverPreferences.colorScheme !== preferences.colorScheme) {
+		serverPreferences = { ...serverPreferences, colorScheme: preferences.colorScheme };
+	}
+	return serverPreferences;
 }
 
 export function subscribeKitPreferences(listener: () => void): () => void {
@@ -75,7 +89,7 @@ export function setKitPreferences(next: Partial<KitPreferences>): void {
 	preferences = { ...current, ...next };
 	const fontChanged = 'font' in next && next.font !== current.font;
 	if (fontChanged && next.font) {
-		storage()?.setItem(FONT_STORAGE_KEY, next.font);
+		storeFont(storage(), next.font);
 	}
 	listeners.forEach((listener) => listener());
 }

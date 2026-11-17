@@ -23,7 +23,8 @@ const useFontSelector = () => {
 	const setSelectedFont = (next: SetStateAction<string>) => {
 		let font = next as string;
 		if (typeof next === 'function') {
-			font = next(selectedFont);
+			// The store's current font, not this render's: two updates in a row then build on each other.
+			font = next(getKitPreferences().font ?? FONT_OPTIONS[0].value);
 		}
 		setKitPreferences({ font });
 	};
