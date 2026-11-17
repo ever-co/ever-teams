@@ -280,7 +280,13 @@ export function useInvoiceDraft(start: InvoiceDraftStart = NEW_INVOICE) {
 	// A read again can split a member's time at one price into two prices, or merge two, when today's rate changed:
 	// what was removed from the lines it replaced, or written on them, follows their time
 	const previousLinesRef = useRef(lines);
+	// Time taken again is read in parts (the permissions, the time, the members and their rates): until it is read,
+	// its lines are not the time's yet, and carrying the edits onto them (none, on the first render) would lose them
+	const isTimeRead = linesSource === 'saved' || (!time.isLoading && !time.isError);
 	useEffect(() => {
+		if (!isTimeRead) {
+			return;
+		}
 		const previous = previousLinesRef.current;
 		previousLinesRef.current = lines;
 		if (previous === lines) {
@@ -293,7 +299,7 @@ export function useInvoiceDraft(start: InvoiceDraftStart = NEW_INVOICE) {
 		if (carried.descriptions !== descriptions) {
 			setDescriptions(carried.descriptions);
 		}
-	}, [descriptions, lines, removedKeys]);
+	}, [descriptions, isTimeRead, lines, removedKeys]);
 
 	const currencies = useMemo(() => invoiceCurrenciesOf(lines), [lines]);
 	const currencyKey = invoiceCurrencyKeyOf(currencies, pickedCurrencyKey);
