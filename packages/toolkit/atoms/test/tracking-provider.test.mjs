@@ -143,3 +143,28 @@ test('two session components share one read', async () => {
 	assert.equal(seen.at(-1), 1);
 	await act(async () => root.unmount());
 });
+
+test('the answer of a superseded read never replaces a newer one', async () => {
+	await reset();
+	let latest;
+	const withReader = () =>
+		React.createElement(TrackingProvider, null, React.createElement(Reader, { onRender: (c) => (latest = c) }));
+	const root = await mount(React.createElement(Reader, { onRender: (c) => (latest = c) }));
+	const older = globalThis.__requests[0];
+
+	// The last session component leaves and comes back while the first read is still pending.
+	await act(async () => root.render(React.createElement(TrackingProvider, null, null)));
+	await act(async () => root.render(withReader()));
+	const newer = globalThis.__requests[1];
+	await act(async () => answer(newer, [{ id: 'fresh' }]));
+	await act(async () => refuse(older));
+	await flush();
+
+	assert.deepEqual(
+		latest.sessions.map((s) => s.id),
+		['fresh']
+	);
+	assert.equal(latest.error, null);
+	assert.equal(latest.loading, false);
+	await act(async () => root.unmount());
+});

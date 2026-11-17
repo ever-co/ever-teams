@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, useRef, ReactNode } from 'react';
 import { ITeamsSession, isSuccessResponse, ITrackingApiHeaders } from '@ever-teams/toolkit-types';
 import { trackingApiClient } from '@ever-teams/api';
 import { useTeamsContext } from './teams-context';
@@ -92,6 +92,9 @@ export const TrackingProvider: React.FC<ITrackingProviderProps> = ({ children, c
 	const [consumerCount, setConsumerCount] = useState(0);
 	const hasConsumers = consumerCount > 0;
 
+	// Only the latest read may write the state: an older one that ends later is ignored.
+	const latestRead = useRef(0);
+
 	const registerConsumer = useCallback(() => {
 		setConsumerCount((count) => count + 1);
 		return () => setConsumerCount((count) => count - 1);
@@ -101,6 +104,9 @@ export const TrackingProvider: React.FC<ITrackingProviderProps> = ({ children, c
 	 * Fetch sessions from API with current filter parameters
 	 */
 	const fetchSessions = useCallback(async () => {
+		const read = latestRead.current + 1;
+		latestRead.current = read;
+		const isLatest = () => read === latestRead.current;
 		setLoading(true);
 		setError(null);
 
@@ -131,6 +137,10 @@ export const TrackingProvider: React.FC<ITrackingProviderProps> = ({ children, c
 				token!
 			);
 
+			if (!isLatest()) {
+				return;
+			}
+
 			if (isSuccessResponse(response)) {
 				// Get the user's timezone with fallback priority
 				const userTimezone = getUserTimezone(user?.timeZone);
@@ -148,10 +158,15 @@ export const TrackingProvider: React.FC<ITrackingProviderProps> = ({ children, c
 				setSessions([]);
 			}
 		} catch (err) {
+			if (!isLatest()) {
+				return;
+			}
 			setError(err instanceof Error ? err.message : 'An unexpected error occurred');
 			setSessions([]);
 		} finally {
-			setLoading(false);
+			if (isLatest()) {
+				setLoading(false);
+			}
 		}
 	}, [formData, selectedOrganization, selectedEmployee, token, user]);
 
