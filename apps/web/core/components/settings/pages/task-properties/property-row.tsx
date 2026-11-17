@@ -145,9 +145,11 @@ export const PropertyRow = memo(function PropertyRow(props: Readonly<PropertyRow
 	const { kind, item, listId, groupKey, index } = props;
 	const isReadOnly = Boolean(props.readOnlyHint);
 	const hasMove = Boolean(props.onMove);
-	const canReorder = hasMove && !isReadOnly && !isMoveRefused(kind, item);
+	const canReorder = hasMove && !isReadOnly;
+	// A built-in status keeps its place but still takes a drop: a status of the team may land next to it
+	const canDrag = canReorder && !isMoveRefused(kind, item);
 	const dragData = propertyRowData(listId, groupKey, item.id, index);
-	const { rowRef, handleRef, dragState } = usePropertyRowDrag(dragData, canReorder);
+	const { rowRef, handleRef, dragState } = usePropertyRowDrag(dragData, canReorder, canDrag);
 	const isDragging = dragState.type === 'dragging';
 	const dropEdge = dropEdgeOfState(dragState);
 	const isTitleCase = KINDS_IN_TITLE_CASE.has(kind);
@@ -158,7 +160,7 @@ export const PropertyRow = memo(function PropertyRow(props: Readonly<PropertyRow
 			data-property-row={item.id}
 			className={cn(PROPERTY_ROW, 'group/row', isDragging && 'opacity-40')}
 		>
-			{canReorder && (
+			{canDrag && (
 				<span
 					ref={handleRef}
 					aria-hidden="true"

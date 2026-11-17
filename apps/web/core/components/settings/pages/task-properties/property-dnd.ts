@@ -65,7 +65,11 @@ export function dropEdgeOfState(state: RowDragState): DropEdge | null {
 	return state.edge;
 }
 
-export function usePropertyRowDrag(data: PropertyRowData, isEnabled: boolean) {
+/**
+ * Makes a row a drop target of its group and, when `isDraggable`, a row its handle drags. A row that keeps its place
+ * (a built-in status) still takes drops: a row of the team may land next to it, as its menu's moves allow.
+ */
+export function usePropertyRowDrag(data: PropertyRowData, isEnabled: boolean, isDraggable = isEnabled) {
 	const rowRef = useRef<HTMLLIElement>(null);
 	const handleRef = useRef<HTMLSpanElement>(null);
 	const [dragState, setDragState] = useState<RowDragState>(IDLE);
@@ -73,14 +77,39 @@ export function usePropertyRowDrag(data: PropertyRowData, isEnabled: boolean) {
 
 	useEffect(() => {
 		const row = rowRef.current;
-		const handle = handleRef.current;
-		if (!row || !handle) {
+		if (!row) {
 			return;
 		}
 		if (!isEnabled) {
 			return;
 		}
 		const ownData = propertyRowData(listId, groupKey, itemId, index);
+		const dropTarget = dropTargetForElements({
+			element: row,
+			canDrop: ({ source }) => {
+				if (!isPropertyRowData(source.data)) {
+					return false;
+				}
+				return isSameRowGroup(source.data, ownData);
+			},
+			getIsSticky: () => true,
+			getData: ({ input }) =>
+				attachClosestEdge(ownData, { element: row, input, allowedEdges: ['top', 'bottom'] }),
+			onDrag: ({ self, source }) => {
+				const isSelf = source.element === row;
+				if (isSelf) {
+					return;
+				}
+				const edge = rowDropEdgeOf(self.data);
+				setDragState((current) => overEdge(current, edge));
+			},
+			onDragLeave: () => setDragState(idleUnlessDragging),
+			onDrop: () => setDragState(IDLE)
+		});
+		const handle = handleRef.current;
+		if (!isDraggable || !handle) {
+			return dropTarget;
+		}
 		return combine(
 			draggable({
 				element: row,
@@ -89,30 +118,9 @@ export function usePropertyRowDrag(data: PropertyRowData, isEnabled: boolean) {
 				onDragStart: () => setDragState({ type: 'dragging' }),
 				onDrop: () => setDragState(IDLE)
 			}),
-			dropTargetForElements({
-				element: row,
-				canDrop: ({ source }) => {
-					if (!isPropertyRowData(source.data)) {
-						return false;
-					}
-					return isSameRowGroup(source.data, ownData);
-				},
-				getIsSticky: () => true,
-				getData: ({ input }) =>
-					attachClosestEdge(ownData, { element: row, input, allowedEdges: ['top', 'bottom'] }),
-				onDrag: ({ self, source }) => {
-					const isSelf = source.element === row;
-					if (isSelf) {
-						return;
-					}
-					const edge = rowDropEdgeOf(self.data);
-					setDragState((current) => overEdge(current, edge));
-				},
-				onDragLeave: () => setDragState(idleUnlessDragging),
-				onDrop: () => setDragState(IDLE)
-			})
+			dropTarget
 		);
-	}, [groupKey, index, isEnabled, itemId, listId]);
+	}, [groupKey, index, isDraggable, isEnabled, itemId, listId]);
 
 	return { rowRef, handleRef, dragState };
 }

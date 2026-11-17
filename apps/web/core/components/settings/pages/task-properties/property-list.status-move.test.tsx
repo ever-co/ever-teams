@@ -42,6 +42,40 @@ jest.mock('@/core/components/tasks/task-property-icon', () => ({
 jest.mock('./property-editor-row', () => ({ PropertyEditorRow: () => null }));
 jest.mock('./property-delete-dialog', () => ({ PropertyDeleteDialog: () => null }));
 
+type TDragRecord = Record<string | symbol, unknown>;
+interface TDraggableConfig {
+	element: Element;
+	getInitialData: () => TDragRecord;
+}
+interface TDropTargetConfig {
+	element: Element;
+	getData: (args: { input: { clientX: number; clientY: number }; element: Element }) => TDragRecord;
+}
+interface TMonitorConfig {
+	onDrop: (args: {
+		source: { data: TDragRecord };
+		location: { current: { dropTargets: { data: TDragRecord }[] } };
+	}) => void;
+}
+const mockDraggables: TDraggableConfig[] = [];
+const mockDropTargets: TDropTargetConfig[] = [];
+const mockMonitors: TMonitorConfig[] = [];
+// jsdom has no native drag events: the rows' drag sources and drop targets are recorded, and a drop is replayed
+jest.mock('@atlaskit/pragmatic-drag-and-drop/element/adapter', () => ({
+	draggable: (config: TDraggableConfig) => {
+		mockDraggables.push(config);
+		return () => undefined;
+	},
+	dropTargetForElements: (config: TDropTargetConfig) => {
+		mockDropTargets.push(config);
+		return () => undefined;
+	},
+	monitorForElements: (config: TMonitorConfig) => {
+		mockMonitors.push(config);
+		return () => undefined;
+	}
+}));
+
 import {
 	isStatusOrderSaved,
 	OrderedPropertySource,
@@ -86,14 +120,35 @@ function StatusList({
 function renderStatuses(statuses: OrderedPropertySource[]) {
 	const onMove = jest.fn().mockResolvedValue(undefined);
 	const { container } = render(<StatusList items={statusItemsOf(statuses)} onMove={onMove} />);
-	const rowOf = (id: string) => {
+	const rowElementOf = (id: string) => {
 		const row = container.querySelector<HTMLElement>(`[data-property-row="${id}"]`);
 		if (!row) {
 			throw new Error(`No row ${id}`);
 		}
-		return within(row);
+		return row;
 	};
-	return { onMove, rowOf };
+	const rowOf = (id: string) => within(rowElementOf(id));
+	return { onMove, rowOf, rowElementOf };
+}
+
+/** Drops `sourceRow` near the `edge` of `targetRow`, as the list's drag and drop monitor receives it. */
+async function dropOn(sourceRow: HTMLElement, targetRow: HTMLElement, edge: 'top' | 'bottom') {
+	const source = mockDraggables.find((config) => config.element === sourceRow);
+	const target = mockDropTargets.find((config) => config.element === targetRow);
+	if (!source || !target) {
+		throw new Error('The rows are not both in the drag and drop');
+	}
+	const rect = { x: 0, y: 0, top: 0, left: 0, right: 200, bottom: 32, width: 200, height: 32 };
+	targetRow.getBoundingClientRect = () => ({ ...rect, toJSON: () => rect }) as DOMRect;
+	const clientY = edge === 'top' ? 2 : 30;
+	const targetData = target.getData({ input: { clientX: 10, clientY }, element: targetRow });
+	const monitor = mockMonitors.at(-1);
+	await act(async () =>
+		monitor?.onDrop({
+			source: { data: source.getInitialData() },
+			location: { current: { dropTargets: [{ data: targetData }] } }
+		})
+	);
 }
 
 describe('the statuses list, moving a status (#5359)', () => {
@@ -146,5 +201,48 @@ describe('the statuses list, moving a status (#5359)', () => {
 		await act(async () => fireEvent.click(doing.getByRole('menuitem', { name: MOVE_UP })));
 
 		expect(onMove).toHaveBeenCalledWith(['doing', 'todo', 'shipped']);
+	});
+});
+
+describe('the statuses list, dragging a status of the team next to a built-in one (#5359)', () => {
+	beforeEach(() => {
+		mockDraggables.length = 0;
+		mockDropTargets.length = 0;
+		mockMonitors.length = 0;
+	});
+
+	it('drops it below a built-in status, as Move down does, though the built-in one does not drag', async () => {
+		const { onMove, rowElementOf } = renderStatuses([
+			{ id: 'mine', name: 'mine', order: 0, ...OWN },
+			{ id: 'built-in', name: 'blocked', order: 1, ...BUILT_IN }
+		]);
+
+		expect(mockDraggables.some((config) => config.element === rowElementOf('built-in'))).toBe(false);
+		await dropOn(rowElementOf('mine'), rowElementOf('built-in'), 'bottom');
+
+		expect(onMove).toHaveBeenCalledWith(['built-in', 'mine']);
+	});
+
+	it('drops it above a built-in status when the built-in one keeps its order', async () => {
+		const { onMove, rowElementOf } = renderStatuses([
+			{ id: 'built-in', name: 'blocked', order: 5, ...BUILT_IN },
+			{ id: 'mine', name: 'mine', order: 6, ...OWN }
+		]);
+
+		await dropOn(rowElementOf('mine'), rowElementOf('built-in'), 'top');
+
+		expect(onMove).toHaveBeenCalledWith(['mine', 'built-in']);
+	});
+
+	it('drops nothing where Gauzy could not save it', async () => {
+		const { onMove, rowElementOf } = renderStatuses([
+			{ id: 'mine-first', name: 'mine-first', order: 0, ...OWN },
+			{ id: 'built-in', name: 'blocked', order: 1, ...BUILT_IN },
+			{ id: 'mine-second', name: 'mine-second', order: 2, ...OWN }
+		]);
+
+		await dropOn(rowElementOf('mine-second'), rowElementOf('built-in'), 'top');
+
+		expect(onMove).not.toHaveBeenCalled();
 	});
 });
