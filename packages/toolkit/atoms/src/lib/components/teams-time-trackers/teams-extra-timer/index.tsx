@@ -4,6 +4,7 @@ import Pause from '../common/pause';
 import Play from '../common/play';
 import type { TeamsExtraBaseTimerProps } from './timer';
 import BaseAtom from './timer';
+import { KitNotice } from '../../teams-ui-components/kit-notice';
 import { useTimerControl } from '../common/use-timer-control';
 
 export interface TeamsExtraTimerProps extends Omit<TeamsExtraBaseTimerProps, 'time' | 'progress'> {
@@ -26,6 +27,7 @@ export function TeamsExtraTimer({ progress, ...props }: Readonly<TeamsExtraTimer
 				customButtonIcon={<ActionButton />}
 			/>
 			{control.description}
+			<KitNotice />
 		</>
 	);
 }

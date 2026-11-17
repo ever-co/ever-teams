@@ -3,6 +3,7 @@
 
 import type { BasicTimerProps } from './timer';
 import BaseAtom from './timer';
+import { KitNotice } from '../../teams-ui-components/kit-notice';
 import { useTimerControl } from '../common/use-timer-control';
 
 export interface TeamsBasicTimerProps extends Omit<BasicTimerProps, 'time' | 'progress'> {
@@ -22,6 +23,7 @@ export function TeamsBasicTimer({ progress, ...props }: TeamsBasicTimerProps) {
 				{...(progress && { progress: (control.seconds / 100) * 60 })}
 			/>
 			{control.description}
+			<KitNotice />
 		</>
 	);
 }

@@ -6,6 +6,7 @@ import Pause from '../common/pause';
 import Play from '../common/play';
 import type TeamsBasicTimer from './timer';
 import BaseAtom from './timer';
+import { KitNotice } from '../../teams-ui-components/kit-notice';
 import { TimeFormat } from '@lib/constants';
 import { useTimerControl } from '../common/use-timer-control';
 
@@ -31,6 +32,7 @@ export function TeamsEssentialTimer({ progress, ...props }: Readonly<TeamsEssent
 				customButtonIcon={<ActionButton />}
 			/>
 			{control.description}
+			<KitNotice />
 		</>
 	);
 }
