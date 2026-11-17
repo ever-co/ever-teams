@@ -1,3 +1,4 @@
+import { isHiddenProject, PRIVATE_PROJECTS_KEY } from '@/core/lib/utils/project-visibility';
 import {
 	addDays,
 	addMonths,
@@ -285,6 +286,17 @@ export function logMatchesSearch(log: ITimeLog, normalizedQuery: string) {
 	return fields.some((field) => normalizedSearchTextOf(field).includes(normalizedQuery));
 }
 
+/**
+ * The project choice an entry falls under in the filter: its project, "No project", or the one choice every project
+ * the API keeps from the reader shares (CORE-27).
+ */
+export function projectFilterValueOf(log: ITimeLog) {
+	if (isHiddenProject(log.project)) {
+		return PRIVATE_PROJECTS_KEY;
+	}
+	return projectValueOf(log);
+}
+
 export function projectValueOf(log: ITimeLog) {
 	const projectId = log.project?.id ?? log.projectId;
 	if (projectId) {
@@ -313,7 +325,7 @@ export function logMatchesPickedProjectsAndTasks(
 	projects: ReadonlyArray<string>,
 	tasks: ReadonlyArray<string>
 ) {
-	const matchesProject = matchesPicked(projectValueOf(log), projects);
+	const matchesProject = matchesPicked(projectFilterValueOf(log), projects);
 	const matchesTask = matchesPicked(taskValueOf(log), tasks);
 	return matchesProject && matchesTask;
 }
@@ -903,6 +915,8 @@ export interface SheetRowIdentity {
 	projectName: string | null;
 	projectColor: string | null;
 	projectImageUrl: string | null;
+	/** A project the API keeps from the reader (CORE-27): named as a private project, without a name of its own. */
+	isProjectHidden?: true;
 	taskTitle: string | null;
 	taskNumber: string | null;
 	issueType: string | null;
@@ -979,8 +993,17 @@ export function rowIdentityOfLog(log: ITimeLog): SheetRowIdentity {
 		taskTitle: textOrNull(log.task?.title),
 		taskNumber: rowTaskNumberOf(log),
 		issueType: textOrNull(log.task?.issueType),
-		isBillable: log.isBillable === true
+		isBillable: log.isBillable === true,
+		...hiddenProjectFlagOf(log)
 	};
+}
+
+// Rows of a project the reader may see keep the shape they had before the API could keep a project from them
+function hiddenProjectFlagOf(log: ITimeLog): Pick<SheetRowIdentity, 'isProjectHidden'> {
+	if (!isHiddenProject(log.project)) {
+		return {};
+	}
+	return { isProjectHidden: true };
 }
 
 function latestLogOf(logs: ReadonlyArray<ITimeLog>): ITimeLog | undefined {

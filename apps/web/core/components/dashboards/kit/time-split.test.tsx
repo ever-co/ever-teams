@@ -62,6 +62,25 @@ describe('TimeSplitBody', () => {
 		expect(screen.getByText('42h 0m')).toBeTruthy();
 	});
 
+	it('shows the time of the projects kept from the reader with the lock of private projects', () => {
+		const items: TimeSplitItem[] = [
+			{ ...itemOf('private-projects', 'Private projects', 4 * HOUR), isHidden: true },
+			...PROJECT_ITEMS
+		];
+
+		render(
+			<TimeSplitBody
+				split={splitOf({ rows: splitRowsOf(items) })}
+				isLoading={false}
+				isError={false}
+				onRetry={noop}
+			/>
+		);
+
+		expect(screen.getByText('Private projects')).toBeTruthy();
+		expect(screen.getByRole('img', { name: 'common.PRIVATE_PROJECT_HINT' })).toBeTruthy();
+	});
+
 	it('names the time without a client, and gathers the smallest clients', () => {
 		const clients = [
 			...[5, 4, 3, 2, 1, 1].map((hours, index) => itemOf(`c${index}`, `Client ${index}`, hours * HOUR)),

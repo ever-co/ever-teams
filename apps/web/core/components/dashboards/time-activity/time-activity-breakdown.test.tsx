@@ -119,3 +119,36 @@ describe('TimeActivityBreakdown grouped by client', () => {
 		expect(screen.queryAllByRole('rowgroup')).toHaveLength(1);
 	});
 });
+
+describe('TimeActivityBreakdown, the projects kept from the reader', () => {
+	const HIDDEN_REPORT = [
+		{
+			date: '2026-11-03',
+			logs: [{ project: { id: 'client-x-redesign', projectHidden: true }, employeeLogs }]
+		}
+	] as unknown as ITimeLogGroupedDailyReport[];
+	const labels = { one: 'Private project', many: 'Private projects' };
+
+	it('names them once, with a lock that leaves the focus to the row toggle it sits in', () => {
+		render(
+			<TimeActivityBreakdown
+				grouping="project"
+				rows={flattenDailyReport(HIDDEN_REPORT, null, null, labels)}
+				columns={breakdownColumnsOf('project', [], true)}
+				period={PERIOD}
+				isLoading={false}
+				isError={false}
+				hasFilters={false}
+				onRetry={jest.fn()}
+				onClearFilters={jest.fn()}
+				onPreviousPeriod={jest.fn()}
+			/>
+		);
+
+		const toggle = screen.getByText('Private projects').closest('button');
+		expect(toggle).toBeTruthy();
+		const lock = screen.getByRole('img', { name: 'common.PRIVATE_PROJECT_HINT' });
+		expect(toggle?.contains(lock)).toBe(true);
+		expect(lock.hasAttribute('tabindex')).toBe(false);
+	});
+});

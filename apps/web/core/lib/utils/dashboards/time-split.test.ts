@@ -1,4 +1,5 @@
 import type { DailyReportRow } from '@/core/lib/utils/daily-report-figures';
+import { PRIVATE_PROJECTS_KEY } from '@/core/lib/utils/project-visibility';
 import { NO_CLIENT, type TimeActivityRow } from './time-activity';
 import {
 	clientSplitItemsOf,
@@ -68,6 +69,31 @@ describe('projectSplitItemsOf', () => {
 			{ key: 'b', name: 'Project b', imageUrl: null, color: null, isNone: false, seconds: 10 * HOUR },
 			{ key: 'no-project', name: null, imageUrl: null, color: null, isNone: true, seconds: 2 * HOUR }
 		]);
+	});
+
+	it('names the time of the projects kept from the reader once, as private projects with the lock', () => {
+		const hidden = {
+			projectName: 'Private project',
+			projectGroupName: 'Private projects',
+			isProjectHidden: true as const
+		};
+
+		const items = projectSplitItemsOf([
+			rowOf(PRIVATE_PROJECTS_KEY, 3 * HOUR, hidden),
+			rowOf('a', HOUR),
+			rowOf(PRIVATE_PROJECTS_KEY, HOUR, hidden)
+		]);
+
+		expect(items[0]).toEqual({
+			key: PRIVATE_PROJECTS_KEY,
+			name: 'Private projects',
+			imageUrl: null,
+			color: null,
+			isNone: false,
+			isHidden: true,
+			seconds: 4 * HOUR
+		});
+		expect(items[1]).not.toHaveProperty('isHidden');
 	});
 });
 

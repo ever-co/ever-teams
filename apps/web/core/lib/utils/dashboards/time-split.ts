@@ -13,6 +13,8 @@ export interface TimeSplitItem {
 	color: string | null;
 	/** The time without a project, or without a client. */
 	isNone: boolean;
+	/** The time of the projects the API keeps from the reader, gathered under "Private projects" with the lock. */
+	isHidden?: true;
 	seconds: number;
 }
 
@@ -66,16 +68,21 @@ export function wholeSharesOf(values: readonly number[]): number[] {
 	return shares;
 }
 
-/** The time of each project; the time logged without a team keeps its own "No team" group, as everywhere else. */
+/**
+ * The time of each project; the time logged without a team keeps its own "No team" group, as everywhere else, and the
+ * projects the API keeps from the reader share one "Private projects" group.
+ */
 export function projectSplitItemsOf(rows: ReadonlyArray<DailyReportRow>): TimeSplitItem[] {
 	return groupRowsBy(rows, projectKeyOf).map((group) => {
 		const first = group.rows[0];
+		const isHidden = first?.isProjectHidden === true;
 		return {
 			key: group.key,
-			name: first?.projectName ?? null,
+			name: (isHidden ? first?.projectGroupName : first?.projectName) ?? null,
 			imageUrl: first?.projectImageUrl ?? null,
 			color: first?.projectColor ?? null,
 			isNone: isNoProjectKey(group.key),
+			...(isHidden ? { isHidden: true as const } : {}),
 			seconds: group.seconds
 		};
 	});

@@ -65,6 +65,8 @@ import {
 	useTimeActivityDailyQuery
 } from './use-time-activity-queries';
 import { useBreaksAllowed } from '@/core/hooks/timer/use-breaks-allowed';
+import { useHiddenProjectLabels } from '@/core/hooks/organizations/projects/use-hidden-project-labels';
+import type { HiddenProjectLabels } from '@/core/lib/utils/project-visibility';
 import { useTimeActivitySettings } from './use-time-activity-settings';
 import type { WeekDailySource } from './use-time-activity-week';
 
@@ -187,12 +189,13 @@ function rowsOfReport(
 	report: ReadonlyArray<ITimeLogGroupedDailyReport>,
 	withoutTeamLabel: string,
 	workspaceCurrency: string | null,
-	clientOf: ClientOfProjectLog | null
+	clientOf: ClientOfProjectLog | null,
+	hiddenProjectLabels: HiddenProjectLabels
 ): TimeActivityRow[] {
 	if (!clientOf) {
-		return flattenDailyReport(report, withoutTeamLabel, workspaceCurrency);
+		return flattenDailyReport(report, withoutTeamLabel, workspaceCurrency, hiddenProjectLabels);
 	}
-	return clientRowsOf(report, clientOf, withoutTeamLabel, workspaceCurrency);
+	return clientRowsOf(report, clientOf, withoutTeamLabel, workspaceCurrency, hiddenProjectLabels);
 }
 
 /** The same read, of billable time only: none for a role that may not read client rates, which price it. */
@@ -446,13 +449,28 @@ export function useTimeActivityReport() {
 	}, [canTellRowClients, clientNames, isClientGrouping, projectClientIds]);
 
 	const withoutTeamLabel = t('dashboard.NO_TEAM_GROUP');
+	const hiddenProjectLabels = useHiddenProjectLabels();
 	const workspaceCurrency = organization?.currency ?? null;
 	// The rows, the totals and the exports all come from this report: with a rule, each entry in it is rounded
 	const roundedReport = useMemo(() => roundedDailyReportOf(report, roundingRule), [report, roundingRule]);
 	const rows = useMemo(() => {
-		const allRows = rowsOfReport(roundedReport, withoutTeamLabel, workspaceCurrency, clientOfProjectLog);
+		const allRows = rowsOfReport(
+			roundedReport,
+			withoutTeamLabel,
+			workspaceCurrency,
+			clientOfProjectLog,
+			hiddenProjectLabels
+		);
 		return visibleRowsOf(allRows, isManager, ownEmployeeId);
-	}, [clientOfProjectLog, isManager, ownEmployeeId, roundedReport, withoutTeamLabel, workspaceCurrency]);
+	}, [
+		clientOfProjectLog,
+		hiddenProjectLabels,
+		isManager,
+		ownEmployeeId,
+		roundedReport,
+		withoutTeamLabel,
+		workspaceCurrency
+	]);
 
 	const totals = useMemo(() => reportTotalsOf(rows), [rows]);
 
@@ -470,11 +488,18 @@ export function useTimeActivityReport() {
 		}
 		const filtered = filterDailyReportByClients(loadedBillableReport, pickedClients, projectClientIds);
 		const rounded = roundedDailyReportOf(filtered, roundingRule);
-		const allRows = rowsOfReport(rounded, withoutTeamLabel, workspaceCurrency, clientOfProjectLog);
+		const allRows = rowsOfReport(
+			rounded,
+			withoutTeamLabel,
+			workspaceCurrency,
+			clientOfProjectLog,
+			hiddenProjectLabels
+		);
 		return visibleRowsOf(allRows, isManager, ownEmployeeId);
 	}, [
 		canFilterByClients,
 		clientOfProjectLog,
+		hiddenProjectLabels,
 		isManager,
 		loadedBillableReport,
 		ownEmployeeId,

@@ -342,7 +342,12 @@ function ClientLabel({ client, text }: Readonly<{ client: ReportClientRef; text:
 	);
 }
 
-function SubjectLabel({ subject, text }: Readonly<{ subject: BreakdownSubject; text: BreakdownText }>) {
+/** A row's subject. `isInToggle` when it sits in the row's toggle button, whose focus a glyph must not take. */
+function SubjectLabel({
+	subject,
+	text,
+	isInToggle = false
+}: Readonly<{ subject: BreakdownSubject; text: BreakdownText; isInToggle?: boolean }>) {
 	if (subject.kind === 'day') {
 		return <DayLabel dateKey={subject.dateKey} text={text} />;
 	}
@@ -359,7 +364,7 @@ function SubjectLabel({ subject, text }: Readonly<{ subject: BreakdownSubject; t
 		const hasProject = subject.project.name !== null;
 		return (
 			<span className="flex min-w-0 items-center gap-2">
-				<ProjectGlyph project={subject.project} />
+				<ProjectGlyph project={subject.project} isFocusable={!isInToggle} />
 				<span className={cn('truncate', !hasProject && 'text-muted-foreground')}>
 					{projectNameOf(subject.project, text.noProject)}
 				</span>
@@ -457,7 +462,7 @@ function SubjectCell({
 					isOpen && 'rotate-90'
 				)}
 			/>
-			<SubjectLabel subject={node.subject} text={text} />
+			<SubjectLabel subject={node.subject} text={text} isInToggle />
 		</button>
 	);
 }

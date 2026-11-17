@@ -1,4 +1,5 @@
 import { localDayKeyOf } from '@/core/lib/utils/dashboard-export';
+import { isHiddenProject } from '@/core/lib/utils/project-visibility';
 import {
 	clockTimeOf,
 	distinctMemberCountOf,
@@ -47,7 +48,15 @@ function startTimeValueOf(log: ITimeLog) {
 	return start.getTime();
 }
 
-function timesheetExportRowOf(log: ITimeLog): TimesheetExportRow {
+/** The project an exported entry names: a project the API keeps from the reader is named as one (CORE-27). */
+function exportedProjectOf(log: ITimeLog, hiddenProjectLabel: string) {
+	if (isHiddenProject(log.project)) {
+		return hiddenProjectLabel;
+	}
+	return log.project?.name ?? '';
+}
+
+function timesheetExportRowOf(log: ITimeLog, hiddenProjectLabel: string): TimesheetExportRow {
 	const start = startOfLog(log);
 	const end = endOfLog(log);
 	return {
@@ -56,7 +65,7 @@ function timesheetExportRowOf(log: ITimeLog): TimesheetExportRow {
 		start: clockTimeOf(start),
 		end: clockTimeOf(end),
 		member: log.employee?.fullName ?? '',
-		project: log.project?.name ?? '',
+		project: exportedProjectOf(log, hiddenProjectLabel),
 		task: log.task?.title ?? '',
 		status: statusOfLog(log),
 		isBillable: Boolean(log.isBillable),
@@ -74,9 +83,9 @@ function exportedLogsOf(logs: ReadonlyArray<ITimeLog>): ITimeLog[] {
 }
 
 /** The rows of a flat file (CSV, XLSX): one per log of work, in the order the logs started. */
-export function timesheetExportRowsOf(logs: ReadonlyArray<ITimeLog>): TimesheetExportRow[] {
+export function timesheetExportRowsOf(logs: ReadonlyArray<ITimeLog>, hiddenProjectLabel = ''): TimesheetExportRow[] {
 	const sorted = exportedLogsOf(logs).sort((first, second) => startTimeValueOf(first) - startTimeValueOf(second));
-	return sorted.map(timesheetExportRowOf);
+	return sorted.map((log) => timesheetExportRowOf(log, hiddenProjectLabel));
 }
 
 export interface TimesheetExportDay {
@@ -87,13 +96,13 @@ export interface TimesheetExportDay {
 }
 
 /** The rows of a printed file, grouped as the list shows them: one group per day worked, the latest day first. */
-export function timesheetExportDaysOf(logs: ReadonlyArray<ITimeLog>): TimesheetExportDay[] {
+export function timesheetExportDaysOf(logs: ReadonlyArray<ITimeLog>, hiddenProjectLabel = ''): TimesheetExportDay[] {
 	const days = groupLogsByWorkDay(exportedLogsOf(logs));
 	return days.map((day) => ({
 		key: day.key,
 		date: day.date,
 		seconds: day.totalSeconds,
-		rows: day.logs.map(timesheetExportRowOf)
+		rows: day.logs.map((log) => timesheetExportRowOf(log, hiddenProjectLabel))
 	}));
 }
 
