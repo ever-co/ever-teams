@@ -1,0 +1,21 @@
+# A person starts the timer, sees it run, and stops it.
+appId: ${APP_ID}
+env:
+  EMAIL: kofi.arden@example.com
+---
+- runFlow: common/sign-in.yaml
+- runFlow: common/timer-stopped.yaml
+- runFlow: common/task-chosen.yaml
+- tapOn:
+    id: "timer-start"
+- extendedWaitUntil:
+    visible:
+      id: "timer-stop"
+    timeout: 20000
+- takeScreenshot: running
+- tapOn:
+    id: "timer-stop"
+- extendedWaitUntil:
+    visible:
+      id: "timer-start"
+    timeout: 20000

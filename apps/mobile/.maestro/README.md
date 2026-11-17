@@ -1,0 +1,48 @@
+# End-to-end flows
+
+These flows use the app the way a person does, on an Android emulator or an iOS simulator, against a Gauzy API with test data. They are written for [Maestro](https://maestro.dev), the tool of Expo's end-to-end guide (https://docs.expo.dev/build-reference/e2e-tests/).
+
+| Flow | What the person does |
+| --- | --- |
+| `sign-in.yaml` | signs in with the code sent by e-mail |
+| `timer-start-stop.yaml` | starts the timer and stops it |
+| `timer-after-kill.yaml` | closes the app while the timer runs, opens it again, and finds the timer still running |
+| `timer-correct-start.yaml` | moves the start of the running timer one minute earlier |
+| `timer-discard.yaml` | discards a run started by mistake |
+| `team.yaml` | opens the Team tab and sees the team and its members |
+| `sign-out.yaml` | signs out, and still sees the sign-in screen when the app starts again |
+
+Each flow starts from a cleared app and signs in first (`common/sign-in.yaml`), so the flows can run in any order.
+
+## What a run needs
+
+- Maestro 2 (`curl -fsSL "https://get.maestro.mobile.dev" | bash`) and Java 17.
+- A release or development build of the app, installed on a booted emulator or simulator, and pointed at the Gauzy API of the run (`GAUZY_API_URL` in `apps/mobile/.env` before `yarn config:mobile`; from the Android emulator, the computer is `10.0.2.2`).
+- A Gauzy API on develop with test data: a person who belongs to one workspace and one team, whose organization allows tracking time and adding time by hand. The defaults in the flows are `kofi.arden@example.com`, the team `Field Crew North` and the member `Priya Holt`; pass others with `-e`.
+- The code helper. Signing in needs the code Gauzy just sent by e-mail, which a test cannot read from a mailbox. On a local setup, a small HTTP service answers `GET <HELPER>/code?email=<address>` with that person's latest code, read from the local database (`SELECT code FROM "user" WHERE email = $1 AND code IS NOT NULL ORDER BY "updatedAt" DESC LIMIT 1`). It only exists on that test setup; the app never calls it.
+
+## Run
+
+```bash
+maestro test apps/mobile/.maestro \
+  -e APP_ID=<the app's Android package or iOS bundle identifier> \
+  -e HELPER=http://127.0.0.1:3999
+```
+
+`runScript` steps run on the computer that runs Maestro, so `HELPER` is an address seen from that computer, not from the emulator. One flow: `maestro test apps/mobile/.maestro/team.yaml -e ...`.
+
+## Checking a run on another device
+
+- `--format junit --output report.xml` writes one result per flow, and `--debug-output <folder>` keeps each step's screenshot and the logs.
+- On iOS, the same command runs on a Mac with a booted simulator, with `APP_ID` set to the bundle identifier and `HELPER` reachable from the Mac.
+- A recording of a flow: `adb shell screenrecord /sdcard/flow.mp4` on Android, `xcrun simctl io booted recordVideo flow.mp4` on iOS, started before the flow.
+
+## Test IDs
+
+The flows find the controls by test ID, never by their English text, so they also run with the app in another language. Keep these IDs when a screen is redrawn:
+
+- sign-in: `sign-in-email`, `sign-in-continue`, `sign-in-back`, `sign-in-resend-code`, `emailed-code-input`;
+- tabs and menu: `tab-work`, `tab-tasks`, `tab-team`, `open-menu`, `menu-work`, `menu-team`, `menu-tasks`, `menu-settings`, `menu-log-out`;
+- task: `task-picker-field`, `task-picker-option`;
+- timer: `timer-start`, `timer-stop`, `timer-card-time`, `timer-actions-trigger`, `timer-change-start`, `timer-discard`, `timer-start-time`, `timer-start-reason`, `timer-start-save`, `timer-start-error`;
+- confirmation dialogs: `confirmation-confirm`, `confirmation-cancel`.

@@ -1,0 +1,29 @@
+# A person who started the timer by mistake discards the run: no time is kept.
+appId: ${APP_ID}
+env:
+  EMAIL: kofi.arden@example.com
+---
+- runFlow: common/sign-in.yaml
+- runFlow: common/timer-stopped.yaml
+- runFlow: common/task-chosen.yaml
+- tapOn:
+    id: "timer-start"
+- extendedWaitUntil:
+    visible:
+      id: "timer-stop"
+    timeout: 20000
+- tapOn:
+    id: "timer-actions-trigger"
+- tapOn:
+    id: "timer-discard"
+- extendedWaitUntil:
+    visible:
+      id: "confirmation-confirm"
+    timeout: 10000
+- tapOn:
+    id: "confirmation-confirm"
+- extendedWaitUntil:
+    visible:
+      id: "timer-start"
+    timeout: 20000
+- takeScreenshot: discarded

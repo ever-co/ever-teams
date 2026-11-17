@@ -1,0 +1,20 @@
+# Opens the Work tab with the timer stopped: a run left by an earlier flow is stopped first.
+appId: ${APP_ID}
+---
+- tapOn:
+    id: "tab-work"
+- extendedWaitUntil:
+    visible:
+      id: "timer-(start|stop)"
+    timeout: 30000
+- runFlow:
+    when:
+      visible:
+        id: "timer-stop"
+    commands:
+      - tapOn:
+          id: "timer-stop"
+- extendedWaitUntil:
+    visible:
+      id: "timer-start"
+    timeout: 30000

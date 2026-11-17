@@ -1,0 +1,29 @@
+# A person closes the app while the timer runs; opened again, the app shows the timer still running.
+appId: ${APP_ID}
+env:
+  EMAIL: kofi.arden@example.com
+---
+- runFlow: common/sign-in.yaml
+- runFlow: common/timer-stopped.yaml
+- runFlow: common/task-chosen.yaml
+- tapOn:
+    id: "timer-start"
+- extendedWaitUntil:
+    visible:
+      id: "timer-stop"
+    timeout: 20000
+- stopApp
+- launchApp
+- tapOn:
+    id: "tab-work"
+- extendedWaitUntil:
+    visible:
+      id: "timer-stop"
+    timeout: 30000
+- takeScreenshot: still-running
+- tapOn:
+    id: "timer-stop"
+- extendedWaitUntil:
+    visible:
+      id: "timer-start"
+    timeout: 20000

@@ -1,0 +1,51 @@
+# A person who started the timer late moves its start one minute earlier.
+appId: ${APP_ID}
+env:
+  EMAIL: kofi.arden@example.com
+---
+- runFlow: common/sign-in.yaml
+- runFlow: common/timer-stopped.yaml
+- runFlow: common/task-chosen.yaml
+- tapOn:
+    id: "timer-start"
+- extendedWaitUntil:
+    visible:
+      id: "timer-stop"
+    timeout: 20000
+- runScript:
+    file: common/one-minute-earlier.js
+- tapOn:
+    id: "timer-actions-trigger"
+- tapOn:
+    id: "timer-change-start"
+- extendedWaitUntil:
+    visible:
+      id: "timer-start-time"
+    timeout: 20000
+- tapOn:
+    id: "timer-start-time"
+- eraseText: 5
+- inputText: ${output.earlier}
+- runFlow:
+    when:
+      visible:
+        id: "timer-start-reason"
+    commands:
+      - tapOn:
+          id: "timer-start-reason"
+      - inputText: "Started on the way in"
+- tapOn:
+    id: "timer-start-save"
+- extendedWaitUntil:
+    notVisible:
+      id: "timer-start-time"
+    timeout: 20000
+- assertNotVisible:
+    id: "timer-start-error"
+- takeScreenshot: start-moved
+- tapOn:
+    id: "timer-stop"
+- extendedWaitUntil:
+    visible:
+      id: "timer-start"
+    timeout: 20000
