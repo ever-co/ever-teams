@@ -38,8 +38,14 @@ export function ApiCall<T>({ path, method, body, init, bearer_token, tenantId, o
 		credentials: 'same-origin'
 	}).then(async (res: Response) => {
 		if (!res.ok) {
-			// throw Promise.reject(data);
-			return (await res.json()) as IServerError;
+			// An error answer keeps its HTTP status, even when its body is empty or not JSON (a gateway's HTML page):
+			// a caller can then tell an answer from a request that got none, which comes back with no status.
+			const body: unknown = await res.json().catch(() => null);
+			if (body && typeof body === 'object' && !Array.isArray(body)) {
+				return { statusCode: res.status, ...body } as IServerError;
+			}
+			const text = res.statusText || `HTTP ${res.status}`;
+			return { statusCode: res.status, message: text, error: text } as IServerError;
 		}
 		const data = (await res.json()) as T;
 		return {

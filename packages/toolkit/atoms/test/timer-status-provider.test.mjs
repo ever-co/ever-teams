@@ -25,6 +25,8 @@ globalThis.__apiDown = false;
 globalThis.__probes = [];
 globalThis.fetch = async (url, init) => {
 	globalThis.__probes.push({ url, mode: init?.mode });
+	// A test can hold the probe's answer back.
+	await globalThis.__probeHeld;
 	if (globalThis.__apiDown) throw new TypeError('Failed to fetch');
 	return {};
 };
@@ -56,19 +58,26 @@ const stubs = {
 		globalThis.__userReads = [];
 		export const getUser = ({ token }) =>
 			new Promise((resolve) => globalThis.__userReads.push(Object.assign(resolve, { token })));
+		globalThis.__logins = [];
+		export const authLogin = () => new Promise((resolve) => globalThis.__logins.push(resolve));
 		export const apiConfigManager = { getConfig: () => ({ apiUrl: 'http://api.test/api' }) };`,
-	'@ever-teams/toolkit-ui': 'globalThis.__toasts = []; export const toast = (t) => globalThis.__toasts.push(t);',
-	// The two atoms useAuthUser reads and writes, without the rest of the kit's atoms.
+	'@ever-teams/toolkit-ui': `
+		globalThis.__toasts = [];
+		export const toast = (t) => globalThis.__toasts.push(t);
+		export const reportError = () => {};`,
+	// The atoms useAuthUser and the sign-in form use, without the rest of the kit's atoms.
 	'teams-atoms': `
 		import { atom } from 'jotai';
 		export const userAtom = atom({ data: null, loading: false });
-		export const selectedEmployeeAtom = atom('all');`,
+		export const selectedEmployeeAtom = atom('all');
+		export const accessTokenAtom = atom('');`,
 	'@ever-teams/toolkit-types': 'export {};',
 	'react-i18next': 'export const useTranslation = () => ({ t: (key) => key });'
 };
 const stubbed = /^(@ever-teams\/api|@ever-teams\/toolkit-ui|@ever-teams\/toolkit-types|react-i18next)$/;
-// The provider imports its context as ./teams-context and useTimer as @lib/context/teams-context: one stub for both.
-const teamsContext = /^(\.\/teams-context|@lib\/context\/teams-context)$/;
+// The provider imports its context as ./teams-context, the sign-in form as ../context/teams-context and useTimer as
+// @lib/context/teams-context: one stub for all.
+const teamsContext = /^(\.\/teams-context|\.\.\/context\/teams-context|@lib\/context\/teams-context)$/;
 const lib = path.join(here, '..', 'src', 'lib');
 
 let React;
@@ -82,6 +91,7 @@ let kitNoticeAtom;
 let getDefaultStore;
 let useAtomValue;
 let useAuthUser;
+let usePasswordLoginForm;
 let userAtom;
 let bundleDir;
 
@@ -97,6 +107,7 @@ before(async () => {
 				// The page's notice lives in jotai's default store here (no TeamsProvider): each test starts it empty.
 				"export { kitNoticeAtom } from './errors/kit-notice-atom';",
 				"export { useAuthUser } from './hooks/useAuthUser';",
+				"export { usePasswordLoginForm } from './hooks/usePasswordLoginForm';",
 				"export { userAtom } from './teams-jotai/atoms/teams-atoms';",
 				"export { getDefaultStore, useAtomValue } from 'jotai';"
 			].join('\n'),
@@ -151,6 +162,7 @@ before(async () => {
 		getDefaultStore,
 		useAtomValue,
 		useAuthUser,
+		usePasswordLoginForm,
 		userAtom
 	} = await import(pathToFileURL(outfile).href));
 });
@@ -201,6 +213,8 @@ async function reset() {
 	globalThis.__probes.length = 0;
 	getDefaultStore().set(kitNoticeAtom, null);
 	globalThis.__userReads.length = 0;
+	globalThis.__logins.length = 0;
+	globalThis.__probeHeld = undefined;
 	getDefaultStore().set(userAtom, { data: null, loading: false });
 	visibility = 'visible';
 	await act(async () => globalThis.__setIdentity(null));
@@ -741,4 +755,38 @@ test('a stored session the API refuses says the session ended, and is not read a
 
 	await act(async () => window.dispatchEvent(new window.Event('online')));
 	assert.equal(globalThis.__userReads.length, 1);
+});
+
+test('a failed sign-in shows its message in the form, unless the person edited a field while it was checked', async () => {
+	await reset();
+	const seen = {};
+	const SignIn = () => {
+		seen.form = usePasswordLoginForm({});
+		return null;
+	};
+	const root = createRoot(document.createElement('div'));
+	roots.push(root);
+	await act(async () => root.render(React.createElement(SignIn)));
+	const submit = () => seen.form.handleSubmit({ preventDefault() {} });
+	const edit = (value) => seen.form.handleInputChange({ target: { name: 'email', value } });
+
+	await act(async () => {
+		submit();
+	});
+	await act(async () => globalThis.__logins[0]({ message: 'Failed to fetch' }));
+	await flush();
+	assert.equal(seen.form.error, 'KIT_ERRORS.ORIGIN');
+
+	await act(async () => edit('a@b.c'));
+	let release;
+	globalThis.__probeHeld = new Promise((resolve) => (release = resolve));
+	await act(async () => {
+		submit();
+	});
+	await act(async () => globalThis.__logins[1]({ message: 'Failed to fetch' }));
+	await act(async () => edit('a@b.co'));
+	release();
+	await flush();
+	assert.equal(seen.form.error, undefined);
+	assert.equal(seen.form.loading, false);
 });

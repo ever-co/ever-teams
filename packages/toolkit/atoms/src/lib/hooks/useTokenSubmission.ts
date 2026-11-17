@@ -1,5 +1,5 @@
 import { apiConfigManager, getUser } from '@ever-teams/api';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { useAccessToken } from './useAccessToken';
 import { useTeamsContext } from '../context/teams-context';
 import { toast } from '@ever-teams/toolkit-ui';
@@ -16,10 +16,13 @@ export const useTokenSubmission = (redirectHandler?: () => void) => {
 	const [isFormOpen, setIsFormOpen] = useState<boolean>(true);
 	const { setAccessToken } = useAccessToken();
 	const { setToken, setAuthenticatedUser: setUser } = useTeamsContext();
+	// Counts the edits: a failure that comes back after an edit is not shown, since the edit cleared the error.
+	const edits = useRef(0);
 
 	// Event handler for input change
 	const handleInputChange = useCallback(
 		(e: React.ChangeEvent<HTMLInputElement>) => {
+			edits.current += 1;
 			setTokenInput(e.target.value);
 			if (error) setError('');
 		},
@@ -37,6 +40,12 @@ export const useTokenSubmission = (redirectHandler?: () => void) => {
 			}
 			setIsLoading(true);
 			setError('');
+			const editsAtSubmit = edits.current;
+			const showError = (message: string) => {
+				if (edits.current === editsAtSubmit) {
+					setError(message);
+				}
+			};
 
 			try {
 				const user = await getUser({
@@ -50,20 +59,20 @@ export const useTokenSubmission = (redirectHandler?: () => void) => {
 					// or the API down: the kit's own words, inside the form and with no toast on the host page.
 					const kind = await kindOfSignInFailure(user, apiConfigManager.getConfig().apiUrl);
 					if (kind) {
-						setError(t(KIT_ERROR_MESSAGE_KEYS[kind]));
+						showError(t(KIT_ERROR_MESSAGE_KEYS[kind]));
 						setUser((prev) => ({ ...prev, loading: false }));
 						return;
 					}
 
 					if ('statusCode' in user && user.statusCode === 401) {
-						setError('Invalid token');
+						showError('Invalid token');
 						setUser((prev) => ({ ...prev, loading: false }));
 						return;
 					}
 					const errorMessage = errorMessageOf(user);
 
 					setUser((prev) => ({ ...prev, loading: false }));
-					setError(errorMessage);
+					showError(errorMessage);
 
 					toast({
 						description: errorMessage,
@@ -81,7 +90,7 @@ export const useTokenSubmission = (redirectHandler?: () => void) => {
 			} catch {
 				// No answer: say whether this site is not allowed or Ever Teams is unreachable, inside the form.
 				const kind = await kindOfFailedRequest(apiConfigManager.getConfig().apiUrl);
-				setError(t(KIT_ERROR_MESSAGE_KEYS[kind]));
+				showError(t(KIT_ERROR_MESSAGE_KEYS[kind]));
 			} finally {
 				setIsLoading(false);
 			}
