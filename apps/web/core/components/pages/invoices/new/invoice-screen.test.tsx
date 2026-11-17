@@ -54,8 +54,8 @@ function shownNotice() {
 }
 
 describe('the notice about time priced at today’s rates although past time keeps its rate', () => {
-	function invoiceOf(pricesKeptTimeToday: boolean) {
-		return { time: { pricesKeptTimeToday } } as unknown as InvoiceDraftState;
+	function invoiceOf(pricesKeptTimeToday: boolean, linesSource: 'time' | 'saved' = 'time') {
+		return { linesSource, time: { pricesKeptTimeToday } } as unknown as InvoiceDraftState;
 	}
 
 	it('warns before the save that every hour is at today’s rates', () => {
@@ -70,6 +70,12 @@ describe('the notice about time priced at today’s rates although past time kee
 
 	it('says nothing when the time states the rates it kept', () => {
 		const { container } = render(<KeptRatesNotice invoice={invoiceOf(false)} />);
+
+		expect(container.innerHTML).toBe('');
+	});
+
+	it('says nothing over the lines an invoice was saved with, which keep their rates', () => {
+		const { container } = render(<KeptRatesNotice invoice={invoiceOf(true, 'saved')} />);
 
 		expect(container.innerHTML).toBe('');
 	});

@@ -6,10 +6,13 @@ import { IOrganizationProject } from '../project/organization-project';
 import type { ITaggable } from '../common/base-interfaces';
 import { TUser } from '@/core/types/schemas';
 
+/** A kept rate as the API answers it: a number, or a decimal as text ("90.00"), or none. */
+type KeptRateValue = number | string | null;
+
 /** The client rates a time entry keeps, as a report that asks for them (`withClientRates`) states them. */
 export interface ITimeEntryClientRates {
-	projectBillRateValue?: number | string | null;
-	projectMemberBillRateValue?: number | string | null;
+	projectBillRateValue?: KeptRateValue;
+	projectMemberBillRateValue?: KeptRateValue;
 	projectBillRateCurrency?: string | null;
 	projectMemberBillRateCurrency?: string | null;
 }

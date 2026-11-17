@@ -166,7 +166,8 @@ export function useMyWeekPage() {
 		return { ...shownPeriod, timeZone, employeeIds: [employeeId] };
 	}, [employeeId, shownPeriod, timeZone]);
 	const billsTime = useMemo(() => hasBilledTime(entries), [entries]);
-	const keptRates = useKeptClientRates(keptRange, readsBillable && billsTime);
+	const readsKeptRates = readsBillable && billsTime;
+	const keptRates = useKeptClientRates(keptRange, readsKeptRates);
 	const { keptById } = keptRates;
 	// The default rate, the currency and the rounding rule price the amount too: it waits for them
 	const billingOrganization = useBillingOrganization(readsBillable);
@@ -239,9 +240,13 @@ export function useMyWeekPage() {
 	const isEmpty = hasData && entries.length === 0;
 
 	const refetchLogs = logsQuery.refetch;
+	// The entries a refresh brings are priced at the rates they kept: those are read again with them
 	const refetch = useCallback(() => {
 		void refetchLogs();
-	}, [refetchLogs]);
+		if (readsKeptRates) {
+			refetchKeptRates();
+		}
+	}, [readsKeptRates, refetchKeptRates, refetchLogs]);
 
 	return {
 		periodKey,

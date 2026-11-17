@@ -226,6 +226,28 @@ interface TimeReads {
 	readsAllTime: boolean;
 }
 
+type BillableReadScope = Parameters<typeof timeLogReportService.getBillableTimeLogs>[2]['scope'];
+
+/** The options of a read of billable time: the client rates each entry kept are asked only by a role that may read them. */
+function billableReadOptionsOf(notInvoiced: boolean, scope: BillableReadScope, withClientRates: boolean) {
+	if (!withClientRates) {
+		return { notInvoiced, scope };
+	}
+	return { notInvoiced, scope, withClientRates };
+}
+
+/**
+ * Past time keeps its rate, but none of the time states the rate it kept (an API that does not answer them, or a role
+ * that may not read them): every hour is then billed at today's rates, and the invoice says so.
+ */
+function pricesKeptTimeTodayOf(
+	organization: { timeLogsKeepTheirRates?: boolean | null } | null,
+	logs: ReadonlyArray<KeptRatesLike>
+): boolean {
+	const keepsPastRates = organization?.timeLogsKeepTheirRates === true;
+	return keepsPastRates && logs.length > 0 && !statesKeptClientRates(logs);
+}
+
 /** A read held back until the permissions are known is being read already: "no time" is not known yet. */
 function waitingForPermissions(query: QueryFlags, isHeldBack: boolean): QueryFlags {
 	return { isLoading: query.isLoading || isHeldBack, isError: query.isError, isFetching: query.isFetching };
@@ -365,11 +387,11 @@ export function useInvoiceTime({
 			withClientRates
 		}),
 		queryFn: () =>
-			timeLogReportService.getBillableTimeLogs(range, relations, {
-				notInvoiced: true,
-				scope,
-				...(withClientRates && { withClientRates })
-			}),
+			timeLogReportService.getBillableTimeLogs(
+				range,
+				relations,
+				billableReadOptionsOf(true, scope, withClientRates)
+			),
 		enabled: readsTime && arePermissionsSettled,
 		staleTime: 0
 	});
@@ -410,11 +432,11 @@ export function useInvoiceTime({
 			withClientRates
 		}),
 		queryFn: () =>
-			timeLogReportService.getBillableTimeLogs(allRange, relations, {
-				notInvoiced: false,
-				scope,
-				...(withClientRates && { withClientRates })
-			}),
+			timeLogReportService.getBillableTimeLogs(
+				allRange,
+				relations,
+				billableReadOptionsOf(false, scope, withClientRates)
+			),
 		enabled: readsAllTime && arePermissionsSettled,
 		staleTime: 0
 	});
@@ -447,11 +469,7 @@ export function useInvoiceTime({
 		() => offeredProjectsOf(organizationProjects, offeredProjectIdSet),
 		[offeredProjectIdSet, organizationProjects]
 	);
-	// Past time keeps its rate, but none of the time states the rate it kept (an API that does not answer them, or a
-	// role that may not read them): every hour is then billed at today's rates, and the invoice says so
-	const keepsPastRates = organization?.timeLogsKeepTheirRates === true;
-	const statesKeptRates = useMemo(() => statesKeptClientRates(logs), [logs]);
-	const pricesKeptTimeToday = keepsPastRates && logs.length > 0 && !statesKeptRates;
+	const pricesKeptTimeToday = useMemo(() => pricesKeptTimeTodayOf(organization, logs), [logs, organization]);
 	// The lines bill each entry rounded with the workspace's rule, as Time & activity shows it
 	const entries = useMemo(
 		() => billableEntriesOf(logs, offeredProjectIdSet, roundingRule),

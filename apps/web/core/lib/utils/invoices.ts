@@ -521,7 +521,7 @@ interface KnownPrice {
 	source: InvoiceRateSource;
 	currency: string | null;
 	/** Today's price, on time priced at a rate it kept. */
-	today?: LinePrice['today'];
+	today?: LinePrice;
 }
 
 function addProjectWorth(byProject: Map<string, ProjectWorth>, entry: BillableEntry, price: KnownPrice) {

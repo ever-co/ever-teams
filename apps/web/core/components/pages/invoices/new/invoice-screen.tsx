@@ -60,9 +60,10 @@ export function OverlapNotice({ invoice }: Readonly<{ invoice: InvoiceDraftState
  * Past time keeps its rate in the workspace, but the time read states none it kept (an API that does not answer them,
  * or a role that may not read them): the lines bill every hour at today's rates, and say so before the invoice is saved.
  */
-export function KeptRatesNotice({ invoice }: Readonly<{ invoice: Pick<InvoiceDraftState, 'time'> }>) {
+export function KeptRatesNotice({ invoice }: Readonly<{ invoice: Pick<InvoiceDraftState, 'time' | 'linesSource'> }>) {
 	const t = useTranslations();
-	if (!invoice.time.pricesKeptTimeToday) {
+	const pricesLinesToday = invoice.linesSource === 'time' && invoice.time.pricesKeptTimeToday;
+	if (!pricesLinesToday) {
 		return null;
 	}
 	return (
