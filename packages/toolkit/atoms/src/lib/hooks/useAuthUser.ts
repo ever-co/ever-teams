@@ -6,6 +6,7 @@ import { selectedEmployeeAtom, userAtom } from '../teams-jotai/atoms/teams-atoms
 import { kindOfFailedRequest, noticeOfFailure } from '@lib/errors/kit-error';
 import { kitNoticeAtom } from '@lib/errors/kit-notice-atom';
 import { errorMessageOf } from '@lib/context/teams-timer-status-context';
+import { useKitOptions } from '@components/teams-provider/kit-options';
 
 // Helper function to update session
 export const updateSession = (user: IUser, token: string) => {
@@ -25,6 +26,14 @@ const useAuthUser = (token: string): IHookResponse<IUser> => {
 	const [user, setUser] = useAtom(userAtom);
 	const [, setSelectedEmployee] = useAtom(selectedEmployeeAtom);
 	const setNotice = useSetAtom(kitNoticeAtom);
+	// With the host's getToken the token stays in memory: the session is not written to the browser's storage.
+	const { hostSignIn } = useKitOptions();
+	const keepSession = (data: IUser) => {
+		if (hostSignIn) {
+			return;
+		}
+		updateSession(data, token);
+	};
 	// The read of the user found Ever Teams unreachable: it is read again once the browser is back online or the page
 	// comes back to the person, so the notice's "we'll reconnect" holds without a reload.
 	const [readAgainWhenBack, setReadAgainWhenBack] = useState(false);
@@ -37,7 +46,7 @@ const useAuthUser = (token: string): IHookResponse<IUser> => {
 
 			// If we have user data in state and token is NOT from env, update session but don't fetch
 			if (user.data && !user.loading) {
-				updateSession(user.data, token);
+				keepSession(user.data);
 				return;
 			}
 
@@ -65,7 +74,7 @@ const useAuthUser = (token: string): IHookResponse<IUser> => {
 			}
 
 			setUser({ data: authUser, loading: false });
-			updateSession(authUser, token);
+			keepSession(authUser);
 			// A read that succeeds ends the notice an earlier one left (Ever Teams unreachable while the page loaded).
 			setNotice(null);
 		} catch {
