@@ -3,7 +3,7 @@
 import React, { FC, useEffect, useRef, useState } from 'react';
 import * as Animatable from 'react-native-animatable';
 import EStyleSheet from 'react-native-extended-stylesheet';
-import { View, Text, Dimensions, TextInput, ViewStyle, TouchableOpacity, FlatList, Keyboard } from 'react-native';
+import { View, Text, Dimensions, TextInput, ViewStyle, TouchableOpacity, FlatList } from 'react-native';
 import { observer } from 'mobx-react-lite';
 import { Feather } from '@expo/vector-icons';
 import { ActivityIndicator } from 'react-native-paper';
@@ -166,8 +166,6 @@ const PassCode: FC<Props> = observer(
 			}
 		};
 
-		const [isKeyboardOpen, setIsKeyboardOpen] = React.useState(false);
-
 		useEffect(() => {
 			if (step === 'Email' && EMAIL_REGEX.test(authEmail)) {
 				setIsValid({
@@ -188,20 +186,6 @@ const PassCode: FC<Props> = observer(
 				setIsWorkspaceScreen(true);
 			}
 		}, [step]);
-
-		useEffect(() => {
-			const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
-				setIsKeyboardOpen(true);
-			});
-			const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
-				setIsKeyboardOpen(false);
-			});
-
-			return () => {
-				keyboardDidShowListener.remove();
-				keyboardDidHideListener.remove();
-			};
-		}, []);
 
 		return (
 			<Animatable.View
@@ -240,25 +224,18 @@ const PassCode: FC<Props> = observer(
 					</>
 				) : step === 'Code' ? (
 					<View>
-						{authEmail && (
-							<Text
-								numberOfLines={1}
-								style={{
-									fontSize: 11,
-									textAlign: 'center',
-									color: '#fff',
-									top: -50,
-									opacity: isKeyboardOpen ? 0 : 1
-								}}
-							>
-								{translate('loginScreen.codeSentTo')}{' '}
-								<Text style={{ fontWeight: '600' }}>{authEmail}</Text>
-							</Text>
-						)}
-
 						<Text style={{ ...styles.text, alignSelf: 'center', color: colors.primary }}>
 							{translate('loginScreen.inviteCodeFieldLabel')}
 						</Text>
+						{authEmail && (
+							<Text
+								numberOfLines={2}
+								style={{ fontSize: 13, textAlign: 'center', color: colors.tertiary, marginBottom: 16 }}
+							>
+								{translate('loginScreen.codeSentTo')}{' '}
+								<Text style={{ fontWeight: '600', color: colors.primary }}>{authEmail}</Text>
+							</Text>
+						)}
 						<CodeInputField editable onChange={onChangeAuthCode} defaultValue={authInviteCode} />
 						{joinError ? <Text style={styles.verifyError}>{joinError}</Text> : null}
 						<TouchableOpacity onPress={() => getAuthCode()}>
