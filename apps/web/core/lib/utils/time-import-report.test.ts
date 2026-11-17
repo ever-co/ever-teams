@@ -37,6 +37,7 @@ function lineOf(cells: Partial<TimeImportCells>, row = 2): TimeImportReportLine 
 			notes: '',
 			billable: 'yes',
 			memberEmail: '',
+			labels: '',
 			...cells
 		},
 		status: 'Left out',
@@ -100,6 +101,22 @@ describe('the report of a time import', () => {
 				ignoredHeaders: [],
 				rows: [{ cells: { startTime: '09:00' } }, { cells: { startTime: '11:00' } }]
 			}
+		});
+	});
+
+	it('keeps the labels of each row, so a corrected report is imported again with them (#5368)', () => {
+		const report = csvOf(
+			[lineOf({ labels: 'meeting; support' }, 2)],
+			timeImportReportCsvColumnsOf(false, false, true)
+		);
+		const [headerLine] = report.split('\r\n');
+		const reading = timeImportReadingOf(report);
+
+		expect(headerLine).toContain(',labels,');
+		expect(reading).toMatchObject({
+			kind: 'sheet',
+			readsAsTemplate: true,
+			sheet: { ignoredHeaders: [], rows: [{ cells: { labels: 'meeting; support' } }] }
 		});
 	});
 

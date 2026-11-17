@@ -9,7 +9,11 @@ import { DashboardBreadcrumb } from '@/core/components/dashboards/kit/dashboard-
 import { Button } from '@/core/components/duplicated-components/_button';
 import { DASHBOARD_STACK } from '@/core/components/dashboards/kit/recipes';
 import { Chart } from '@/core/components/icons';
-import { useTimeActivityReport } from '@/core/hooks/dashboards/time-activity/use-time-activity-report';
+import {
+	type TimeActivityReport,
+	useTimeActivityReport
+} from '@/core/hooks/dashboards/time-activity/use-time-activity-report';
+import { breakdownFactsOf, labelGroupsOverlap } from '@/core/lib/utils/dashboards/time-activity';
 import { shiftPeriod } from '@/core/lib/utils/dashboard-period';
 import { isTrackingEnabledState } from '@/core/stores';
 import { TimeActivityBreakdown, breakdownColumnsOf } from './time-activity-breakdown';
@@ -25,6 +29,34 @@ function periodKeyOf(from: Date, to: Date) {
 }
 
 /** Grouped by client, a clients list that could not load leaves archived clients unnamed: said quietly, with a retry. */
+/** Under the Label grouping, an entry with several labels counts under each: the groups add up to more than the total. */
+function LabelOverlapNotice() {
+	const t = useTranslations();
+	return (
+		<Notice
+			tone="info"
+			title={t('timer.labels.OVERLAP_TITLE')}
+			description={t('timer.labels.OVERLAP_MESSAGE')}
+			className="mx-3 mt-3"
+		/>
+	);
+}
+
+function BreakdownNotice({ report }: Readonly<{ report: TimeActivityReport }>) {
+	const isLabelGrouping = report.breakdownGrouping === 'label';
+	const overlaps = useMemo(
+		() => isLabelGrouping && labelGroupsOverlap(breakdownFactsOf(report.rows)),
+		[isLabelGrouping, report.rows]
+	);
+	if (report.isClientNamesError) {
+		return <ClientNamesNotice onRetry={report.retryClientNames} />;
+	}
+	if (overlaps) {
+		return <LabelOverlapNotice />;
+	}
+	return null;
+}
+
 function ClientNamesNotice({ onRetry }: Readonly<{ onRetry: () => void }>) {
 	const t = useTranslations();
 	return (
@@ -124,7 +156,7 @@ export function TimeActivityPage() {
 						period={period}
 						isLoading={report.isBreakdownPending}
 						isError={report.isBreakdownError}
-						notice={report.isClientNamesError && <ClientNamesNotice onRetry={report.retryClientNames} />}
+						notice={<BreakdownNotice report={report} />}
 						hasFilters={hasFilters}
 						onRetry={retryDaily}
 						onClearFilters={settings.clearFilters}

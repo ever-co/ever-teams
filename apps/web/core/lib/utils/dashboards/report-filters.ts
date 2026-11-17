@@ -2,11 +2,15 @@ import type { ITimeLogGroupedDailyReport } from '@/core/types/interfaces/activit
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import type { TOrganizationProject } from '@/core/types/schemas';
 import { NO_CLIENT_FILTER_VALUE, clientIdOf } from '@/core/lib/utils/project-list';
+import { logMatchesEntryLabels } from '@/core/lib/utils/time-log-labels';
 
-/** The report filters a link carries, each under a query parameter of its name. */
-export type ReportUrlFilterField = 'clients' | 'billable' | 'labels';
+/**
+ * The report filters a link carries, each under a query parameter of its name. `labels` is the labels of the entry's
+ * task ("Task labels"), as links made before entries had labels of their own mean it; `entryLabels` is the entry's own.
+ */
+export type ReportUrlFilterField = 'clients' | 'billable' | 'labels' | 'entryLabels';
 
-const REPORT_URL_FILTER_FIELDS: ReadonlyArray<ReportUrlFilterField> = ['clients', 'billable', 'labels'];
+const REPORT_URL_FILTER_FIELDS: ReadonlyArray<ReportUrlFilterField> = ['clients', 'billable', 'labels', 'entryLabels'];
 
 type ReportUrlFilters = Record<ReportUrlFilterField, string[]>;
 
@@ -42,7 +46,8 @@ export function readReportUrlFilters(params: Pick<URLSearchParams, 'get'>): Repo
 	return {
 		clients: listParamOf(params, 'clients'),
 		billable: billableParamOf(params),
-		labels: listParamOf(params, 'labels')
+		labels: listParamOf(params, 'labels'),
+		entryLabels: listParamOf(params, 'entryLabels')
 	};
 }
 
@@ -172,12 +177,13 @@ export function logMatchesLabels(log: ITimeLog, picked: ReadonlyArray<string>) {
 	return labels.some((label) => picked.includes(label.id));
 }
 
-/** A log the three filters keep: each filter narrows the others, a filter that holds nothing keeps every log. */
+/** A log the filters keep: each filter narrows the others, a filter that holds nothing keeps every log. */
 export function logMatchesReportFilters(log: ITimeLog, filters: ReportUrlFilters, clientIds: ProjectClientIds) {
 	const matchesClients = logMatchesClients(log, filters.clients, clientIds);
 	const matchesBillable = logMatchesBillable(log, isBillableOnly(filters.billable));
-	const matchesLabels = logMatchesLabels(log, filters.labels);
-	const checks = [matchesClients, matchesBillable, matchesLabels];
+	const matchesTaskLabels = logMatchesLabels(log, filters.labels);
+	const matchesEntryLabels = logMatchesEntryLabels(log, filters.entryLabels);
+	const checks = [matchesClients, matchesBillable, matchesTaskLabels, matchesEntryLabels];
 	return checks.every(Boolean);
 }
 

@@ -123,6 +123,18 @@ function freeWindowsOfDay(
 }
 
 /**
+ * The labels time typed in a row is filed under: the row's own (#5368). A row with labels was read from an API that
+ * stores them; a row without any sends nothing new.
+ */
+function labelsOfRow(identity: SheetRowIdentity): { tags?: string[] } {
+	const labelIds = (identity.labels ?? []).map((label) => label.id);
+	if (labelIds.length === 0) {
+		return {};
+	}
+	return { tags: labelIds };
+}
+
+/**
  * The writes of the editable week sheet. A typed duration becomes manual time placed in the member's free time of
  * the day (Gauzy deletes whatever a manual entry overlaps, so nothing is ever placed over another entry), and a
  * lower one takes time back from manual entries only. Writes run one at a time, each planned on the member's logs
@@ -188,6 +200,7 @@ export function useSheetCellWrites(scope: SheetWriteScope) {
 					taskId: identity.taskId ?? undefined,
 					organizationTeamId: teamId ?? undefined,
 					isBillable: identity.isBillable,
+					...labelsOfRow(identity),
 					logType: ETimeLogType.MANUAL,
 					source: ETimeLogSource.TEAMS
 				});

@@ -14,6 +14,7 @@ import { isBreakLog } from '@/core/lib/utils/timer/timer-break';
 import { entryNotesOf } from '@/core/lib/utils/timer/timer-notes';
 import type { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
+import { entryLabelNamesOf } from '@/core/lib/utils/time-log-labels';
 
 /** One log as every export of the Timesheets page writes it: local day, 24-hour start and end, names, duration, notes. */
 export interface TimesheetExportRow {
@@ -29,6 +30,8 @@ export interface TimesheetExportRow {
 	seconds: number;
 	/** The entry's notes, trimmed; empty when it has none. */
 	notes: string;
+	/** The entry's own labels (Gauzy #12029), by name and separated by commas; empty when it has none. */
+	labels: string;
 }
 
 function dayKeyOf(log: ITimeLog) {
@@ -61,7 +64,8 @@ function timesheetExportRowOf(log: ITimeLog): TimesheetExportRow {
 		status: statusOfLog(log),
 		isBillable: Boolean(log.isBillable),
 		seconds: logDurationSeconds(log),
-		notes: entryNotesOf(log) ?? ''
+		notes: entryNotesOf(log) ?? '',
+		labels: entryLabelNamesOf(log)
 	};
 }
 

@@ -78,7 +78,8 @@ describe('timeImportReadingOf', () => {
 					task: 'Fix login',
 					notes: 'Pairing, then review',
 					billable: 'yes',
-					memberEmail: ''
+					memberEmail: '',
+					labels: ''
 				},
 				extraCellCount: 0
 			}
@@ -269,6 +270,13 @@ describe('timeImportReadingOf for a file from another tool', () => {
 		expect(rows[1].problems).toEqual([{ code: 'dateUnreadable', order: 'yearFirst' }]);
 	});
 
+	it('keeps reading year first a template with a Labels column, and leaves out only the row dated another way (#5368)', () => {
+		const labelled = 'date,start time,end time,labels\n2026-11-03,09:00,10:00,meeting\n03/11/2026,11:00,12:00,\n';
+
+		expect(timeImportReadingOf(labelled)).toMatchObject({ kind: 'sheet', readsAsTemplate: true });
+		expect(rowProblemsOf(labelled)).toEqual([[], [{ code: 'dateUnreadable', order: 'yearFirst' }]]);
+	});
+
 	it('keeps reading year first a template whose dates are written two ways, and leaves only those rows out', () => {
 		const dayAfterYear = 'date,start time,end time\n2026-11-03,09:00,10:00\n25/10/2026,11:00,12:00\n';
 		const yearAfterDay = 'date,start time,end time\n25/10/2026,11:00,12:00\n2026-11-03,09:00,10:00\n';
@@ -311,10 +319,12 @@ describe('timeImportReadingOf for a file from another tool', () => {
 		});
 	});
 
-	it('names the columns of a time export it does not read', () => {
+	it('names the columns of a time export it does not read, and reads its Tags as the labels', () => {
 		const sheet = sheetOf('Date,Start,End,Client,Tags,Amount,Rate\n2026-11-03,09:00,10:00,Acme,web,150,100\n');
 
-		expect(sheet.ignoredHeaders).toEqual(['Client', 'Tags', 'Amount', 'Rate']);
+		expect(sheet.ignoredHeaders).toEqual(['Client', 'Amount', 'Rate']);
+		// Its Tags are the entry labels (#5368)
+		expect(sheet.rows[0].cells.labels).toBe('web');
 	});
 
 	it('asks the member when two headers name the same part, and refuses one header written twice', () => {
@@ -410,7 +420,8 @@ describe('dateOrderReadingOf', () => {
 		task: null,
 		notes: null,
 		billable: null,
-		memberEmail: null
+		memberEmail: null,
+		labels: null
 	};
 
 	it('tells nothing when the file writes no date', () => {

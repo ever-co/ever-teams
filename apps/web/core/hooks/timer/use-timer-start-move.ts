@@ -1,13 +1,15 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useSetAtom } from 'jotai';
+import { useSetAtom, useStore } from 'jotai';
 import { useCallback } from 'react';
 import { trackTimerCommand } from '@/core/hooks/timer/use-timer-api';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
+import { labelSavesLanded, statusKeepingSavedLabels } from '@/core/lib/utils/timer-status-labels';
 import { queryKeys } from '@/core/query/keys';
 import { timerService } from '@/core/services/client/api/timers/timer.service';
 import { timerStatusState } from '@/core/stores/timer/timer';
+import { timerLabelsSavedState } from '@/core/stores/timer/timer-labels';
 import type { TimerStartMoveSupport } from '@/core/lib/utils/timer/timer-start-move';
 
 /** Whether the API behind the app can move a running start: asked once per session. */
@@ -52,17 +54,20 @@ function workspaceScope() {
 export function useMoveTimerStart() {
 	const queryClient = useQueryClient();
 	const setTimerStatus = useSetAtom(timerStatusState);
+	const store = useStore();
 
 	const mutation = useMutation({
 		mutationFn: async ({ move, scope }: { move: TimerStartMove; scope: string }) => {
+			// Labels saved on the run while the move is on its way are kept over the ones its answer brings (#5368)
+			const labelSavesSeen = labelSavesLanded();
 			const response = await trackTimerCommand(timerService.moveTimerStart(move));
-			return { response, sameWorkspace: workspaceScope() === scope };
+			return { response, sameWorkspace: workspaceScope() === scope, labelSavesSeen };
 		},
-		onSuccess: ({ response, sameWorkspace }) => {
+		onSuccess: ({ response, sameWorkspace, labelSavesSeen }) => {
 			if (!sameWorkspace) {
 				return;
 			}
-			const status = response?.data;
+			const status = statusKeepingSavedLabels(response?.data, store.get(timerLabelsSavedState), labelSavesSeen);
 			if (status) {
 				setTimerStatus(status);
 			}

@@ -45,6 +45,8 @@ export interface CopyPreviousWeekInput {
 	sheetKey: string | null;
 	period: Period;
 	logsScope: Omit<TimesheetPageLogsScope, 'isEnabled' | 'employeeIds'>;
+	/** Last week is read with each entry's own labels where the page reads them, so a copied row keeps them (#5368). */
+	withEntryLabels?: boolean;
 	memberId: string | null;
 	days: ReadonlyArray<SheetDay>;
 	rows: ReadonlyArray<SheetRow>;
@@ -91,7 +93,8 @@ export function useCopyPreviousWeek(input: CopyPreviousWeekInput) {
 	const queryClient = useQueryClient();
 	const [isReading, setIsReading] = useState(false);
 	const [pendingCopy, setPendingCopy] = useState<PendingCopy | null>(null);
-	const { sheetKey, period, logsScope, memberId, days, rows, draftRows, dayLockOf, addRows, writes } = input;
+	const { sheetKey, period, logsScope, withEntryLabels = false, memberId, days, rows, draftRows } = input;
+	const { dayLockOf, addRows, writes } = input;
 	const hasMember = Boolean(memberId);
 	const isAvailable = hasMember && isOneWeek(period);
 
@@ -113,7 +116,11 @@ export function useCopyPreviousWeek(input: CopyPreviousWeekInput) {
 			return null;
 		}
 		const previousWeek = previousWeekOf(period);
-		const request = timesheetPageLogsRequestOf(previousWeek, { ...logsScope, employeeIds: [memberId] });
+		const request = timesheetPageLogsRequestOf(
+			previousWeek,
+			{ ...logsScope, employeeIds: [memberId] },
+			{ withEntryLabels }
+		);
 		setIsReading(true);
 		try {
 			const logs = await queryClient.fetchQuery({
@@ -135,7 +142,7 @@ export function useCopyPreviousWeek(input: CopyPreviousWeekInput) {
 		} finally {
 			setIsReading(false);
 		}
-	}, [logsScope, memberId, period, queryClient, sheetKey, t]);
+	}, [logsScope, memberId, period, queryClient, sheetKey, t, withEntryLabels]);
 
 	const copyRows = useCallback(async () => {
 		const previousRows = await readPreviousRows();

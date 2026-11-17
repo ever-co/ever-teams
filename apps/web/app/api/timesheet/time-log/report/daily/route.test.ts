@@ -76,4 +76,16 @@ describe('GET /api/timesheet/time-log/report/daily', () => {
 
 		expect(upstreamQuery()).not.toHaveProperty('billableOnly');
 	});
+
+	it("forwards the entry's own label filters, and none when the report asks for none (#5368)", async () => {
+		const query = new URLSearchParams({ ...baseParams, 'tagIds[0]': 'meeting', untagged: 'true' });
+
+		await GET(dailyRequest(query));
+
+		expect(upstreamQuery()).toEqual(expect.objectContaining({ 'tagIds[0]': 'meeting', untagged: 'true' }));
+		fetchMock.mockClear();
+		await GET(dailyRequest(new URLSearchParams(baseParams)));
+		expect(upstreamQuery()).not.toHaveProperty('tagIds[0]');
+		expect(upstreamQuery()).not.toHaveProperty('untagged');
+	});
 });

@@ -118,7 +118,8 @@ const NO_OPTIONS: TimeActivityFilterOptions = {
 	projectIds: [],
 	taskIds: [],
 	clientIds: [],
-	billable: []
+	billable: [],
+	entryLabels: []
 };
 
 const FIGURES: TimeActivityFigures = {
@@ -143,7 +144,15 @@ function optionsUnder(
 			isManager
 			ownEmployeeId="ada"
 			figures={FIGURES}
-			filters={{ teamIds: [], employeeIds: [], projectIds: [], taskIds: [], clientIds: [], billable: [] }}
+			filters={{
+				teamIds: [],
+				employeeIds: [],
+				projectIds: [],
+				taskIds: [],
+				clientIds: [],
+				billable: [],
+				entryLabels: []
+			}}
 			filterOptions={NO_OPTIONS}
 			roundingRule={roundingRule}
 			isDisabled={false}
@@ -350,7 +359,15 @@ function billingOptions(billable: TimeActivityBillable | null, withDollars = fal
 			isManager
 			ownEmployeeId="ana"
 			figures={figures}
-			filters={{ teamIds: [], employeeIds: [], projectIds: [], taskIds: [], clientIds: [], billable: [] }}
+			filters={{
+				teamIds: [],
+				employeeIds: [],
+				projectIds: [],
+				taskIds: [],
+				clientIds: [],
+				billable: [],
+				entryLabels: []
+			}}
 			filterOptions={NO_OPTIONS}
 			billable={billable}
 			isDisabled={false}
@@ -509,7 +526,15 @@ describe('billable amounts in the Time & activity PDF', () => {
 				isManager
 				ownEmployeeId="ana"
 				figures={FIGURES}
-				filters={{ teamIds: [], employeeIds: [], projectIds: [], taskIds: [], clientIds: [], billable: [] }}
+				filters={{
+					teamIds: [],
+					employeeIds: [],
+					projectIds: [],
+					taskIds: [],
+					clientIds: [],
+					billable: [],
+					entryLabels: []
+				}}
 				filterOptions={NO_OPTIONS}
 				billable={billableOf(false, {}, acmeOf)}
 				isDisabled={false}

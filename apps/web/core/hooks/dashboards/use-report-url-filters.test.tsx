@@ -29,7 +29,12 @@ describe('useReportUrlFilters', () => {
 
 		const { result } = renderHook(() => useReportUrlFilters());
 
-		expect(result.current.filters).toEqual({ clients: ['acme', 'none'], billable: ['true'], labels: ['bug'] });
+		expect(result.current.filters).toEqual({
+			clients: ['acme', 'none'],
+			billable: ['true'],
+			labels: ['bug'],
+			entryLabels: []
+		});
 	});
 
 	it('writes a picked value into the link, beside what the link already holds', () => {
@@ -62,7 +67,7 @@ describe('useReportUrlFilters', () => {
 			'/reports/time-and-activity?clients=acme&labels=bug',
 			NOT_SCROLLING
 		);
-		expect(result.current.filters).toEqual({ clients: ['acme'], billable: [], labels: ['bug'] });
+		expect(result.current.filters).toEqual({ clients: ['acme'], billable: [], labels: ['bug'], entryLabels: [] });
 	});
 
 	it('follows the link once it has moved, wherever it went', () => {
@@ -104,7 +109,7 @@ describe('useReportUrlFilters', () => {
 
 		expect(mockRouter.replace).toHaveBeenCalledTimes(1);
 		expect(mockRouter.replace).toHaveBeenCalledWith('/reports/time-and-activity?date=2026-11-03', NOT_SCROLLING);
-		expect(result.current.filters).toEqual({ clients: [], billable: [], labels: [] });
+		expect(result.current.filters).toEqual({ clients: [], billable: [], labels: [], entryLabels: [] });
 	});
 
 	it('leaves the link alone when clearing changes nothing', () => {

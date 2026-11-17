@@ -1,6 +1,7 @@
 import { addDays, addWeeks, endOfDay, endOfWeek, getISOWeek, max, min, startOfDay, startOfWeek } from 'date-fns';
 import type { DayBarDatum } from '@/core/components/dashboards/kit/day-bars-chart';
 import type { ITimeLogGroupedDailyReport } from '@/core/types/interfaces/activity/activity-report';
+import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import type { TTimeLogReportWeekly } from '@/core/types/schemas/timer/time-log.schema';
 import { localDayKeyOf } from '@/core/lib/utils/dashboard-export';
 import type { Period, WeekStart } from '@/core/lib/utils/dashboard-period';
@@ -23,8 +24,9 @@ import {
 	clientIdOfProjectLog
 } from '@/core/lib/utils/dashboards/report-filters';
 import { NO_CLIENT_FILTER_VALUE } from '@/core/lib/utils/project-list';
+import { type EntryLabel, NO_LABEL_VALUE, entryLabelNamesOf } from '@/core/lib/utils/time-log-labels';
 
-export type TimeActivityGrouping = 'date' | 'member' | 'project' | 'task' | 'week' | 'client';
+export type TimeActivityGrouping = 'date' | 'member' | 'project' | 'task' | 'week' | 'client' | 'label';
 
 /** The groupings of the first table of this page, whose components stay in the folder. */
 export type TableGrouping = 'date' | 'member' | 'project';
@@ -41,9 +43,10 @@ const DEFAULT_GROUPING: TimeActivityGrouping = 'date';
 
 function isTimeActivityGrouping(value: string): value is TimeActivityGrouping {
 	const isClient = value === 'client';
+	const isLabel = value === 'label';
 	const groupings: ReadonlyArray<string> = TIME_ACTIVITY_GROUPINGS;
 	const isAlwaysOffered = groupings.includes(value);
-	return isClient || isAlwaysOffered;
+	return isClient || isLabel || isAlwaysOffered;
 }
 
 export function groupingOfParam(value: string | null | undefined): TimeActivityGrouping {
@@ -80,11 +83,20 @@ export function clientGroupingAccessOf(mayReadClients: boolean, arePermissionsPe
 }
 
 /** A link on the client grouping opens on the date grouping for a reader who does not get the client grouping. */
-export function effectiveGroupingOf(linked: TimeActivityGrouping, access: ClientGroupingAccess): TimeActivityGrouping {
+export function effectiveGroupingOf(
+	linked: TimeActivityGrouping,
+	access: ClientGroupingAccess,
+	supportsEntryLabels = false
+): TimeActivityGrouping {
 	const asksClient = linked === 'client';
 	const isRefused = access === 'refused';
 	const fallsBack = asksClient && isRefused;
 	if (fallsBack) {
+		return DEFAULT_GROUPING;
+	}
+	// The labels of entries (Gauzy #12029): against an API without them, every entry would read "No label"
+	const asksLabel = linked === 'label';
+	if (asksLabel && !supportsEntryLabels) {
 		return DEFAULT_GROUPING;
 	}
 	return linked;
@@ -100,10 +112,18 @@ function offersClientGrouping(access: ClientGroupingAccess, linked: TimeActivity
 }
 
 /** The switch offers Client last, so the other groupings keep their places; a link on it shows it while it waits. */
-export function offeredGroupingsOf(access: ClientGroupingAccess, linked: TimeActivityGrouping): TimeActivityGrouping[] {
+export function offeredGroupingsOf(
+	access: ClientGroupingAccess,
+	linked: TimeActivityGrouping,
+	supportsEntryLabels = false
+): TimeActivityGrouping[] {
 	const groupings = [...TIME_ACTIVITY_GROUPINGS];
 	if (offersClientGrouping(access, linked)) {
 		groupings.push('client');
+	}
+	// Last again, so the others keep their places; only where the API stores the labels of entries
+	if (supportsEntryLabels) {
+		groupings.push('label');
 	}
 	return groupings;
 }
@@ -127,6 +147,8 @@ export interface TimeActivityFilters {
 	clientIds: string[];
 	/** Kept in the page link; holds the one value that asks for billable time only. */
 	billable: string[];
+	/** Kept in the page link: the entry's own labels (Gauzy #12029); `no-label` stands for the time without one. */
+	entryLabels: string[];
 }
 
 export type TimeActivityFilterField = keyof TimeActivityFilters;
@@ -137,7 +159,8 @@ export const TIME_ACTIVITY_FILTER_FIELDS: ReadonlyArray<TimeActivityFilterField>
 	'projectIds',
 	'taskIds',
 	'clientIds',
-	'billable'
+	'billable',
+	'entryLabels'
 ];
 
 /** The filters the page saves in the browser, under the keys of the previous page. */
@@ -631,6 +654,8 @@ export interface TimeActivityExportRow {
 	task: string | null;
 	taskKey: string;
 	status: string | null;
+	/** The entry's own labels (Gauzy #12029), by name and separated by commas; empty without any. */
+	labels: string;
 	seconds: number;
 	/** Only when the workspace's rule rounded `seconds`: the time as tracked, which `activity` is measured on. */
 	trackedSeconds?: number;
@@ -738,10 +763,12 @@ interface ExportTask {
 	key: string;
 	title: string | null;
 	status: string | null;
+	labels: string;
 }
 
 function exportTaskOf(taskLog: TaskLog): ExportTask {
-	return { key: taskKeyOf(taskLog), title: taskTitleOf(taskLog), status: taskStatusOf(taskLog) };
+	const labels = entryLabelNamesOf(taskLog as Pick<ITimeLog, 'tags'>);
+	return { key: taskKeyOf(taskLog), title: taskTitleOf(taskLog), status: taskStatusOf(taskLog), labels };
 }
 
 /** The time of an export row, rounded or as tracked; a row of time as tracked keeps the shape it always had. */
@@ -769,6 +796,7 @@ function exportRowOf(context: ExportRowContext, task: ExportTask, time: ExportSe
 		task: task.title,
 		taskKey: task.key,
 		status: task.status,
+		labels: task.labels,
 		seconds,
 		...trackedExportFieldOf(time),
 		earnings: earningsFor(seconds, context.memberRate.rate),
@@ -791,7 +819,7 @@ function exportRowsOfEmployeeLog(context: ExportRowContext, employeeLog: Employe
 	if (tasks.length === 0) {
 		const seconds = finiteOrZero(employeeLog.sum);
 		const trackedSeconds = finiteOrZero(employeeLog.trackedSum ?? employeeLog.sum);
-		const noTask: ExportTask = { key: NO_TASK_KEY, title: null, status: null };
+		const noTask: ExportTask = { key: NO_TASK_KEY, title: null, status: null, labels: '' };
 		return [exportRowOf(context, noTask, { seconds, trackedSeconds })];
 	}
 	return tasks.map((taskLog) => {
@@ -1025,6 +1053,9 @@ export function tableGroupingOf(grouping: TimeActivityGrouping): TableGrouping {
 	if (grouping === 'client') {
 		return 'project';
 	}
+	if (grouping === 'label') {
+		return 'project';
+	}
 	return grouping;
 }
 
@@ -1074,6 +1105,10 @@ function exportGroupKeyOf(row: TimeActivityExportRow, grouping: BreakdownGroupin
 	}
 	if (grouping === 'client') {
 		return row.client?.key ?? NO_CLIENT_KEY;
+	}
+	// An entry with two labels is one row of a file, never two: the file groups the rows by their set of labels
+	if (grouping === 'label') {
+		return row.labels;
 	}
 	return row.project ?? '';
 }
@@ -1149,11 +1184,24 @@ export interface ClientExportLine {
 	project: string | null;
 	projectKey: string;
 	task: string | null;
+	/** The labels of the entries the line adds up, each once, by name and separated by commas. */
+	labels: string;
 	seconds: number;
 	activeSeconds: number;
 	trackedSeconds: number;
 	earnings: number | null;
 	currency: string | null;
+}
+
+/** Two lists of label names written as one, each name once, in the order first seen. */
+function mergedLabelNamesOf(first: string, second: string) {
+	const names = new Set<string>();
+	for (const name of [...first.split(', '), ...second.split(', ')]) {
+		if (name) {
+			names.add(name);
+		}
+	}
+	return [...names].join(', ');
 }
 
 export function clientLineKeyOf(row: TimeActivityExportRow) {
@@ -1168,6 +1216,7 @@ function emptyClientLineOf(row: TimeActivityExportRow, key: string): ClientExpor
 		project: row.project,
 		projectKey: row.projectKey,
 		task: row.task,
+		labels: '',
 		seconds: 0,
 		activeSeconds: 0,
 		trackedSeconds: 0,
@@ -1228,6 +1277,7 @@ export function clientExportLinesOf(rows: ReadonlyArray<TimeActivityExportRow>):
 		line.activeSeconds += activeSecondsOfExportRow(row);
 		line.trackedSeconds += trackedSecondsOf(row);
 		line.earnings = addedEarnings(line.earnings, row.earnings);
+		line.labels = mergedLabelNamesOf(line.labels, row.labels);
 		lines.set(key, line);
 	}
 	const merged = [...lines.values()];
@@ -1235,14 +1285,15 @@ export function clientExportLinesOf(rows: ReadonlyArray<TimeActivityExportRow>):
 	return merged.sort(compareClientLines(projectSeconds));
 }
 
-export type BreakdownDimension = 'day' | 'member' | 'project' | 'task' | 'client';
+export type BreakdownDimension = 'day' | 'member' | 'project' | 'task' | 'client' | 'label';
 
 export const BREAKDOWN_PATHS: Record<BreakdownGrouping, ReadonlyArray<BreakdownDimension>> = {
 	date: ['day', 'member', 'project'],
 	member: ['member', 'project', 'task'],
 	project: ['project', 'task', 'member'],
 	task: ['task', 'member', 'day'],
-	client: ['client', 'project', 'member']
+	client: ['client', 'project', 'member'],
+	label: ['label', 'project', 'member']
 };
 
 export const NO_TASK_KEY = 'no-task';
@@ -1264,6 +1315,8 @@ export interface BreakdownFact {
 	trackedSeconds: number;
 	rate: number | null;
 	currency: string | null;
+	/** The entry's own labels (Gauzy #12029): under the Label grouping the fact counts once under each. */
+	labels: EntryLabel[];
 	/** Only on a fact of the billable time, which carries no time of its own: what that time bills. */
 	billable?: FactBillable;
 }
@@ -1330,7 +1383,13 @@ function rateOfRow(row: DailyReportRow): MemberRate {
  * Gauzy measures activity per member, project and day. A task gets its time's share of it, so every level that
  * gathers whole rows adds up exactly; the task levels themselves never show it (`hasExactActivity`).
  */
-function factOf(row: TimeActivityRow, taskKey: string, taskTitle: string | null, seconds: number): BreakdownFact {
+function factOf(
+	row: TimeActivityRow,
+	taskKey: string,
+	taskTitle: string | null,
+	seconds: number,
+	labels: EntryLabel[] = []
+): BreakdownFact {
 	const share = shareOfRow(seconds, row);
 	const memberRate = rateOfRow(row);
 	return {
@@ -1346,7 +1405,8 @@ function factOf(row: TimeActivityRow, taskKey: string, taskTitle: string | null,
 		activeSeconds: row.activeSeconds * share,
 		trackedSeconds: trackedSecondsOf(row) * share,
 		rate: memberRate.rate,
-		currency: memberRate.currency
+		currency: memberRate.currency,
+		labels
 	};
 }
 
@@ -1368,7 +1428,7 @@ function factsOfRow(row: TimeActivityRow): BreakdownFact[] {
 		}
 		taskSeconds += task.seconds;
 		const title = taskTitleOrNull(task.title);
-		const fact = factOf(row, task.key, title, task.seconds);
+		const fact = factOf(row, task.key, title, task.seconds, task.labels ?? []);
 		facts.push(fact);
 	}
 	const remainingSeconds = row.seconds - taskSeconds;
@@ -1397,7 +1457,9 @@ export type BreakdownSubject =
 	| { kind: 'member'; employeeId: string; name: string; imageUrl: string | null }
 	| { kind: 'project'; project: ReportProjectRef }
 	| { kind: 'task'; title: string | null }
-	| { kind: 'client'; client: ReportClientRef };
+	| { kind: 'client'; client: ReportClientRef }
+	/** `label` is null for the time without one. */
+	| { kind: 'label'; label: EntryLabel | null };
 
 export interface BreakdownNode {
 	/** The keys from the top row down, so a row keeps its open state while the period changes. */
@@ -1448,7 +1510,14 @@ function bucketKeyOf(fact: BreakdownFact, dimension: BreakdownDimension) {
 	return fact.taskKey;
 }
 
-function subjectOfFact(fact: BreakdownFact, dimension: BreakdownDimension): BreakdownSubject {
+function labelOfKey(fact: BreakdownFact, key: string): EntryLabel | null {
+	return fact.labels.find((label) => label.id === key) ?? null;
+}
+
+function subjectOfFact(fact: BreakdownFact, dimension: BreakdownDimension, key: string): BreakdownSubject {
+	if (dimension === 'label') {
+		return { kind: 'label', label: labelOfKey(fact, key) };
+	}
 	if (dimension === 'day') {
 		return { kind: 'day', dateKey: fact.dateKey };
 	}
@@ -1469,15 +1538,32 @@ function subjectOfFact(fact: BreakdownFact, dimension: BreakdownDimension): Brea
 	return { kind: 'task', title: fact.taskTitle };
 }
 
+/** The buckets a fact falls in: one, but one per label under the Label grouping, and "No label" without any. */
+function factBucketKeysOf(fact: BreakdownFact, dimension: BreakdownDimension): string[] {
+	if (dimension !== 'label') {
+		return [bucketKeyOf(fact, dimension)];
+	}
+	if (fact.labels.length === 0) {
+		return [NO_LABEL_VALUE];
+	}
+	return fact.labels.map((label) => label.id);
+}
+
 function factBucketsOf(facts: ReadonlyArray<BreakdownFact>, dimension: BreakdownDimension) {
 	const buckets = new Map<string, BreakdownFact[]>();
 	for (const fact of facts) {
-		const key = bucketKeyOf(fact, dimension);
-		const bucket = buckets.get(key) ?? [];
-		bucket.push(fact);
-		buckets.set(key, bucket);
+		for (const key of factBucketKeysOf(fact, dimension)) {
+			const bucket = buckets.get(key) ?? [];
+			bucket.push(fact);
+			buckets.set(key, bucket);
+		}
 	}
 	return buckets;
+}
+
+/** Whether the Label grouping counts an entry under two labels: its groups then add up to more than the total. */
+export function labelGroupsOverlap(facts: ReadonlyArray<Pick<BreakdownFact, 'labels'>>): boolean {
+	return facts.some((fact) => fact.labels.length > 1);
 }
 
 function figuresOfFacts(facts: ReadonlyArray<BreakdownFact>) {
@@ -1561,7 +1647,7 @@ function nodesOf(facts: ReadonlyArray<BreakdownFact>, level: NodeLevel): Breakdo
 		nodes.push({
 			key,
 			dimension,
-			subject: subjectOfFact(bucket[0], dimension),
+			subject: subjectOfFact(bucket[0], dimension, bucketKey),
 			depth: level.depth,
 			seconds: figures.seconds,
 			activeSeconds: figures.activeSeconds,

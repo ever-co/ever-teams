@@ -8,6 +8,12 @@ import { formatDurationShort } from '@/core/lib/utils/dashboard-figures';
 import type { TimeImportEntry, TimeImportRow, TimeImportRowStatus } from '@/core/lib/utils/time-import-rows';
 import type { TimeImportCells } from '@/core/lib/utils/time-import-sheet';
 import { FILE_NAME_TEXT, type TimeImportCopy } from './time-import-copy';
+import { EntryLabelChips } from '@/core/components/features/entry-labels/entry-label-chips';
+
+/** The labels a row names (#5368), as chips without a color until the run finds or creates them. */
+function importedLabelsOf(names: ReadonlyArray<string>) {
+	return names.map((name) => ({ id: name, name, color: null }));
+}
 
 const PART_SEPARATOR = ' · ';
 
@@ -94,6 +100,7 @@ export function TimeImportRowItem({ row, status, reasons, copy }: Readonly<TimeI
 	let when = typedWhenOf(cells);
 	let duration: string | null = null;
 	let details = typedDetailsOf(cells);
+	const labelNames = entry?.labelNames ?? [];
 	if (entry) {
 		when = copy.rangeOf(entry.start, entry.end);
 		duration = formatDurationShort(entry.seconds);
@@ -118,6 +125,7 @@ export function TimeImportRowItem({ row, status, reasons, copy }: Readonly<TimeI
 					</p>
 				)}
 				{details && <p className="truncate text-xs text-muted-foreground">{details}</p>}
+				{labelNames.length > 0 && <EntryLabelChips labels={importedLabelsOf(labelNames)} />}
 				{reasons.map((reason) => (
 					<p
 						key={reason}

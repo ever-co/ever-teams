@@ -61,6 +61,27 @@ function startNotesFieldOf(description: string | undefined, hasBodyTaskId: boole
 	return { description: notes };
 }
 
+/** The label ids a body sends: none when it sends no list, refused when the list holds anything but ids. */
+function readLabelIds(sent: unknown): { isValid: boolean; labelIds: string[] } {
+	if (sent === undefined) {
+		return { isValid: true, labelIds: [] };
+	}
+	if (!Array.isArray(sent)) {
+		return { isValid: false, labelIds: [] };
+	}
+	const labelIds = sent.filter((id): id is string => typeof id === 'string' && id.trim() !== '');
+	const isValid = labelIds.length === sent.length;
+	return { isValid, labelIds };
+}
+
+/** A break carries no labels: it is not work. */
+function labelsOfStart(labelIds: string[], startsBreak: boolean): string[] {
+	if (startsBreak) {
+		return [];
+	}
+	return labelIds;
+}
+
 export async function POST(req: Request) {
 	const foreign = refuseForeignOrigin(req);
 	if (foreign) return foreign;
@@ -114,6 +135,12 @@ export async function POST(req: Request) {
 		return NextResponse.json({ error: 'organizationTeamId must be a non-empty string' }, { status: 400 });
 	}
 
+	// The labels the entry is filed under (Gauzy #12029): ids, or none
+	const labelReading = readLabelIds((body as { labelIds?: unknown }).labelIds);
+	if (!labelReading.isValid) {
+		return NextResponse.json({ error: 'labelIds must be a list of label ids' }, { status: 400 });
+	}
+
 	const logType = logTypeOf(body);
 	if (!logType) {
 		return NextResponse.json({ error: LOG_TYPE_REFUSAL }, { status: 400 });
@@ -130,7 +157,7 @@ export async function POST(req: Request) {
 		taskId: taskId || '',
 		logType,
 		source: ETimeLogSource.TEAMS,
-		tags: [],
+		tags: labelsOfStart(labelReading.labelIds, startsBreak),
 		isBillable: isBillable && !startsBreak,
 		organizationTeamId,
 		planDay: planDayOf(body),

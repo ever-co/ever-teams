@@ -12,6 +12,7 @@ import {
 	DollarCircle,
 	Filter,
 	Folder,
+	Tag,
 	Task,
 	Users,
 	UsersGroup,
@@ -22,6 +23,7 @@ import type {
 	TimeActivityFilterOption,
 	TimeActivityFilterOptions
 } from '@/core/hooks/dashboards/time-activity/use-time-activity-filter-options';
+import { useEntryLabelsSupport } from '@/core/hooks/timer/use-entry-labels-support';
 import { cn } from '@/core/lib/helpers';
 import {
 	TIME_ACTIVITY_FILTER_FIELDS,
@@ -46,7 +48,8 @@ const LABEL_KEYS: Record<TimeActivityFilterField, DottedLanguageObjectStringPath
 	projectIds: 'dashboard.timeActivity.filters.PROJECTS',
 	taskIds: 'dashboard.timeActivity.filters.TASKS',
 	clientIds: 'clients.TITLE',
-	billable: 'dashboard.timesheets.BILLABLE'
+	billable: 'dashboard.timesheets.BILLABLE',
+	entryLabels: 'common.LABELS'
 };
 
 const FIELD_ICONS: Record<TimeActivityFilterField, ReactNode> = {
@@ -55,7 +58,8 @@ const FIELD_ICONS: Record<TimeActivityFilterField, ReactNode> = {
 	projectIds: <Folder />,
 	taskIds: <Task />,
 	clientIds: <Building />,
-	billable: <DollarCircle />
+	billable: <DollarCircle />,
+	entryLabels: <Tag />
 };
 
 const SUBMENU_WIDTHS: Record<TimeActivityFilterField, string> = {
@@ -64,7 +68,8 @@ const SUBMENU_WIDTHS: Record<TimeActivityFilterField, string> = {
 	projectIds: 'w-60',
 	taskIds: 'w-80',
 	clientIds: 'w-60',
-	billable: 'w-52'
+	billable: 'w-52',
+	entryLabels: 'w-60'
 };
 
 const OPTION_ICON = 'size-4 shrink-0 text-muted-foreground';
@@ -225,6 +230,9 @@ export function TimeActivityFilterMenu({
 }>) {
 	const t = useTranslations();
 	const hasActiveFilters = activeFilterCount > 0;
+	// Labels of entries need an API that stores them (#5368): elsewhere the field is left out, as Timesheets does
+	const supportsEntryLabels = useEntryLabelsSupport();
+	const shownFields = TIME_ACTIVITY_FILTER_FIELDS.filter((field) => field !== 'entryLabels' || supportsEntryLabels);
 
 	return (
 		<MenuPrimitive.Root>
@@ -236,7 +244,7 @@ export function TimeActivityFilterMenu({
 			<MenuPrimitive.Portal>
 				<MenuPrimitive.Positioner className={POSITIONER} align="start" sideOffset={6}>
 					<MenuPrimitive.Popup className={cn(MENU_POPUP_RECIPE, 'w-56 p-1')}>
-						{TIME_ACTIVITY_FILTER_FIELDS.map((field) => (
+						{shownFields.map((field) => (
 							<FilterFieldSubmenu
 								key={field}
 								field={field}

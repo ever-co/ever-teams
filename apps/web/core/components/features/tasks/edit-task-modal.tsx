@@ -24,6 +24,10 @@ import {
 	TimeOverlapConfirmDialog
 } from '@/core/components/features/manual-time/time-overlap-confirm-dialog';
 import { ITimeLogUpdatePayload } from '@/core/types/interfaces/timesheet/time-log.interface';
+import { useEntryLabelsSupport } from '@/core/hooks/timer/use-entry-labels-support';
+import { EntryLabelsField } from '@/core/components/features/entry-labels/entry-labels-field';
+import { entryLabelsOf } from '@/core/lib/utils/time-log-labels';
+import { entryLabelsFieldOf } from '@/core/lib/utils/time-log-labels-request';
 import { useMyRolePermissionsQuery } from '@/core/hooks';
 import { useTimeLogTaskChoice } from '@/core/hooks/timesheet/use-time-log-task-choice';
 
@@ -82,6 +86,23 @@ export function EditTaskModal({ isOpen, closeModal, timeLogData }: IEditTaskModa
 			[key]: value
 		}));
 	};
+	// The entry's own labels (Gauzy #12029), changed here and saved with the rest when the API has them
+	const supportsEntryLabels = useEntryLabelsSupport();
+	const carriedLabels = useMemo(() => entryLabelsOf(timeLogData), [timeLogData]);
+	const carriedLabelIds = useMemo(() => carriedLabels.map((label) => label.id), [carriedLabels]);
+	// Until the person changes them, the entry's own labels are shown, read late or not, and none are sent: a save of
+	// the notes alone keeps the labels the entry has
+	const [pickedLabelIds, setPickedLabelIds] = useState<string[] | null>(null);
+	const labelIds = pickedLabelIds ?? carriedLabelIds;
+	const hasPickedLabels = pickedLabelIds !== null;
+	// The dialog stays mounted once closed: a reopening starts from the entry's labels, not from a change left unsaved
+	const [wasOpen, setWasOpen] = useState(isOpen);
+	if (wasOpen !== isOpen) {
+		setWasOpen(isOpen);
+		if (isOpen) {
+			setPickedLabelIds(null);
+		}
+	}
 	const [timesheetData, setTimesheetData] = useState({
 		isBillable: timeLogData.isBillable ?? true,
 		projectId: timeLogData.project?.id || '',
@@ -169,6 +190,7 @@ export function EditTaskModal({ isOpen, closeModal, timeLogData }: IEditTaskModa
 				description: timesheetData.notes,
 				projectId: timesheetData.projectId,
 				...taskChoice.changedFields,
+				...entryLabelsFieldOf(labelIds, supportsEntryLabels && hasPickedLabels),
 				startedAt,
 				stoppedAt
 			};
@@ -217,6 +239,9 @@ export function EditTaskModal({ isOpen, closeModal, timeLogData }: IEditTaskModa
 			timesheetData.employeeId,
 			timesheetData.notes,
 			timesheetData.projectId,
+			labelIds,
+			hasPickedLabels,
+			supportsEntryLabels,
 			taskChoice.changedFields,
 			taskChoice.keepSavedTask,
 			closeModal,
@@ -385,6 +410,12 @@ export function EditTaskModal({ isOpen, closeModal, timeLogData }: IEditTaskModa
 							/>
 						</div>
 					</div>
+					<EntryLabelsField
+						labelIds={labelIds}
+						onChange={setPickedLabelIds}
+						isShown={supportsEntryLabels}
+						carriedLabels={carriedLabels}
+					/>
 					<div className="flex flex-col w-full">
 						<span className="mb-1 text-xs font-medium text-muted-foreground">{t('common.NOTES')}</span>
 						<textarea

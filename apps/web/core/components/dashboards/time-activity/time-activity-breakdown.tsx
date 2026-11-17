@@ -6,7 +6,7 @@ import { type DottedLanguageObjectStringPaths, useTranslations } from 'next-intl
 import { AnimatedHeight } from '@/core/components/common/animated-height';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/core/components/common/tooltip';
 import { Button } from '@/core/components/duplicated-components/_button';
-import { ChevronRight, Task } from '@/core/components/icons';
+import { ChevronRight, Tag, Task } from '@/core/components/icons';
 import { DashboardSection, ReportHeaderRow, ReportTotalsRow } from '@/core/components/dashboards/kit/dashboard-layout';
 import { BlockEmptyMessage, DashboardErrorNotice } from '@/core/components/dashboards/kit/dashboard-states';
 import { ActivityFigure, ShareMeter } from '@/core/components/dashboards/kit/meters';
@@ -38,6 +38,8 @@ import {
 	todayKeyOf
 } from '@/core/lib/utils/dashboards/time-activity';
 import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
+import { EntryLabelChips } from '@/core/components/features/entry-labels/entry-label-chips';
+import type { EntryLabel } from '@/core/lib/utils/time-log-labels';
 import { dateFormatOf, type FormatLocale } from '@/core/lib/utils/workspace-formats';
 import {
 	BillableText,
@@ -56,7 +58,8 @@ const TITLE_KEYS: Record<BreakdownGrouping, DottedLanguageObjectStringPaths> = {
 	member: 'dashboard.timeActivity.table.TITLE_MEMBER',
 	project: 'dashboard.timeActivity.table.TITLE_PROJECT',
 	task: 'dashboard.timeActivity.table.TITLE_TASK',
-	client: 'clientGrouping.TITLE'
+	client: 'clientGrouping.TITLE',
+	label: 'timer.labels.BY_LABEL_TITLE'
 };
 
 const DIMENSION_LABEL_KEYS: Record<BreakdownDimension, DottedLanguageObjectStringPaths> = {
@@ -64,7 +67,8 @@ const DIMENSION_LABEL_KEYS: Record<BreakdownDimension, DottedLanguageObjectStrin
 	member: 'dashboard.timeActivity.grouping.MEMBER',
 	project: 'dashboard.timeActivity.grouping.PROJECT',
 	task: 'dashboard.timeActivity.grouping.TASK',
-	client: 'common.CLIENT'
+	client: 'common.CLIENT',
+	label: 'timer.labels.LABEL'
 };
 
 export interface BreakdownColumns {
@@ -204,6 +208,7 @@ interface BreakdownText {
 	noProject: string;
 	clientLabels: ClientLabels;
 	noTask: string;
+	noLabel: string;
 	noRate: string;
 	noBillable: string;
 	unavailable: string;
@@ -241,6 +246,9 @@ function countLabelOf(dimension: BreakdownDimension, count: number, t: Translate
 	if (dimension === 'client') {
 		return t('clientGrouping.CLIENTS', { count });
 	}
+	if (dimension === 'label') {
+		return t('timer.labels.COUNT', { count });
+	}
 	return t('dashboard.timeActivity.breakdown.TASKS', { count });
 }
 
@@ -262,6 +270,7 @@ function useBreakdownText(): BreakdownText {
 			noProject: t('common.NO_PROJECT'),
 			clientLabels: { noClient: t('common.NO_CLIENT'), unnamedClient: t('common.CLIENT') },
 			noTask: t('dashboard.timeActivity.export.NO_TASK'),
+			noLabel: t('timer.labels.NO_LABEL'),
 			noRate: t('dashboard.timeActivity.table.NO_RATE'),
 			noBillable: t('dashboard.timeActivity.figures.BILLABLE_NONE'),
 			unavailable: t('dashboard.timeActivity.figures.UNAVAILABLE'),
@@ -331,6 +340,23 @@ function TaskLabel({ title, text }: Readonly<{ title: string | null; text: Break
 	);
 }
 
+/** A label group's name: its chip, in the label's color; the time without a label is named "No label". */
+function EntryLabelName({ label, text }: Readonly<{ label: EntryLabel | null; text: BreakdownText }>) {
+	if (!label) {
+		return (
+			<span className="flex min-w-0 items-center gap-2">
+				<Tag aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />
+				<span className="truncate text-muted-foreground">{text.noLabel}</span>
+			</span>
+		);
+	}
+	return (
+		<span className="flex min-w-0 items-center" title={label.name}>
+			<EntryLabelChips labels={[label]} />
+		</span>
+	);
+}
+
 function ClientLabel({ client, text }: Readonly<{ client: ReportClientRef; text: BreakdownText }>) {
 	const name = clientLabelOf(client, text.clientLabels);
 	const isNoClient = !hasClient(client);
@@ -368,6 +394,9 @@ function SubjectLabel({ subject, text }: Readonly<{ subject: BreakdownSubject; t
 	}
 	if (subject.kind === 'client') {
 		return <ClientLabel client={subject.client} text={text} />;
+	}
+	if (subject.kind === 'label') {
+		return <EntryLabelName label={subject.label} text={text} />;
 	}
 	return <TaskLabel title={subject.title} text={text} />;
 }
