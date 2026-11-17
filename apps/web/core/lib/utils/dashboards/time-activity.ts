@@ -1204,7 +1204,7 @@ function mergedLabelNamesOf(first: string, second: string) {
 	return [...names].join(', ');
 }
 
-function clientLineKeyOf(row: TimeActivityExportRow) {
+export function clientLineKeyOf(row: TimeActivityExportRow) {
 	const parts = [row.projectKey, row.employeeId, row.taskKey];
 	return JSON.stringify(parts);
 }
@@ -1296,7 +1296,7 @@ export const BREAKDOWN_PATHS: Record<BreakdownGrouping, ReadonlyArray<BreakdownD
 	label: ['label', 'project', 'member']
 };
 
-const NO_TASK_KEY = 'no-task';
+export const NO_TASK_KEY = 'no-task';
 
 /** One task of a member on a project on a day: the finest grain of the daily report, under every breakdown. */
 export interface BreakdownFact {
@@ -1327,6 +1327,8 @@ interface FactBillable {
 	/** Null when no rate prices the time. */
 	amount: number | null;
 	currency: string | null;
+	/** The rate the entry itself states or its member had, so an export finds the entry among equal ones. */
+	rateKey?: string;
 }
 
 /** What billable time bills, per currency and never added across currencies, and the part no rate prices. */

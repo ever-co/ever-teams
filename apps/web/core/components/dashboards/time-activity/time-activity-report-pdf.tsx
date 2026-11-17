@@ -4,6 +4,10 @@ import { Document, type DocumentProps, Page, StyleSheet, Text, View } from '@rea
 export interface PdfFigure {
 	label: string;
 	value: string;
+	/** Further values written under the first, one per line: amounts of other currencies. */
+	lines?: string[];
+	/** A short muted line under the values. */
+	note?: string;
 }
 
 export interface PdfRow {
@@ -15,6 +19,8 @@ export interface PdfRow {
 	labels: string;
 	tracked: string;
 	earnings: string;
+	/** Only in a file that carries billable amounts. */
+	billable?: string;
 	activity: string;
 }
 
@@ -23,6 +29,8 @@ export interface PdfGroup {
 	title: string;
 	tracked: string;
 	earnings: string;
+	/** Only in a file that carries billable amounts: one line per currency. */
+	billable?: string;
 	activity: string;
 	rows: PdfRow[];
 }
@@ -41,9 +49,11 @@ export interface TimeActivityPdfContent {
 		labels: string;
 		tracked: string;
 		earnings: string;
+		billable: string;
 		activity: string;
 	};
 	showsEarnings: boolean;
+	showsBillable: boolean;
 	groups: PdfGroup[];
 	footer: string;
 	pageLabel: (page: number, total: number) => string;
@@ -81,6 +91,7 @@ const styles = StyleSheet.create({
 	summaryFirstCell: { flex: 1, paddingVertical: 8, paddingHorizontal: 10 },
 	summaryLabel: { fontSize: 8, color: MUTED, marginBottom: 3 },
 	summaryValue: { fontSize: 12, fontFamily: 'Helvetica-Bold' },
+	summaryNote: { fontSize: 8, color: MUTED, marginTop: 3 },
 	tableHeader: { flexDirection: 'row', paddingVertical: 5, borderBottomWidth: 0.5, borderColor: HAIRLINE },
 	headerCell: { fontSize: 8, color: MUTED },
 	groupRow: { flexDirection: 'row', paddingVertical: 5, paddingHorizontal: 4, backgroundColor: BAND, marginTop: 6 },
@@ -94,6 +105,9 @@ const styles = StyleSheet.create({
 	},
 	first: { width: '20%', paddingRight: 6 },
 	second: { width: '18%', paddingRight: 6 },
+	// Beside the billable amount, the two name columns give it the room it takes
+	firstBesideBillable: { width: '17%', paddingRight: 6 },
+	secondBesideBillable: { width: '14%', paddingRight: 6 },
 	task: { flex: 1, paddingRight: 6 },
 	labels: { width: '13%', paddingRight: 6 },
 	figure: { width: '11%', textAlign: 'right' },
@@ -122,15 +136,31 @@ function SummaryBand({ summary }: Readonly<{ summary: PdfFigure[] }>) {
 		<View style={styles.summary}>
 			{summary.map((figure, index) => {
 				const cellStyle = summaryCellStyleOf(index);
+				const lines = figure.lines ?? [];
+				const hasNote = Boolean(figure.note);
 				return (
 					<View key={figure.label} style={cellStyle}>
 						<Text style={styles.summaryLabel}>{figure.label}</Text>
 						<Text style={styles.summaryValue}>{figure.value}</Text>
+						{lines.map((line) => (
+							<Text key={line} style={styles.summaryValue}>
+								{line}
+							</Text>
+						))}
+						{hasNote && <Text style={styles.summaryNote}>{figure.note}</Text>}
 					</View>
 				);
 			})}
 		</View>
 	);
+}
+
+/** The two name columns, narrower when the billable amount sits beside the earnings. */
+function nameStylesOf(showsBillable: boolean) {
+	if (showsBillable) {
+		return { first: styles.firstBesideBillable, second: styles.secondBesideBillable };
+	}
+	return { first: styles.first, second: styles.second };
 }
 
 function FiltersBlock({ title, filters }: Readonly<{ title: string; filters: PdfFigure[] }>) {
@@ -148,36 +178,45 @@ function FiltersBlock({ title, filters }: Readonly<{ title: string; filters: Pdf
 
 function TableHeader({ content }: Readonly<{ content: TimeActivityPdfContent }>) {
 	const { columns } = content;
+	const names = nameStylesOf(content.showsBillable);
 	return (
 		<View style={styles.tableHeader} fixed>
-			<Text style={[styles.headerCell, styles.first]}>{columns.first}</Text>
-			<Text style={[styles.headerCell, styles.second]}>{columns.second}</Text>
+			<Text style={[styles.headerCell, names.first]}>{columns.first}</Text>
+			<Text style={[styles.headerCell, names.second]}>{columns.second}</Text>
 			<Text style={[styles.headerCell, styles.task]}>{columns.task}</Text>
 			<Text style={[styles.headerCell, styles.labels]}>{columns.labels}</Text>
 			<Text style={[styles.headerCell, styles.figure]}>{columns.tracked}</Text>
 			{content.showsEarnings && <Text style={[styles.headerCell, styles.figure]}>{columns.earnings}</Text>}
+			{content.showsBillable && <Text style={[styles.headerCell, styles.figure]}>{columns.billable}</Text>}
 			<Text style={[styles.headerCell, styles.figure]}>{columns.activity}</Text>
 		</View>
 	);
 }
 
-function GroupBlock({ group, showsEarnings }: Readonly<{ group: PdfGroup; showsEarnings: boolean }>) {
+function GroupBlock({
+	group,
+	showsEarnings,
+	showsBillable
+}: Readonly<{ group: PdfGroup; showsEarnings: boolean; showsBillable: boolean }>) {
+	const names = nameStylesOf(showsBillable);
 	return (
 		<View>
 			<View style={styles.groupRow} wrap={false}>
 				<Text style={[styles.groupTitle, { flex: 1 }]}>{group.title}</Text>
 				<Text style={[styles.groupTitle, styles.figure]}>{group.tracked}</Text>
 				{showsEarnings && <Text style={[styles.groupTitle, styles.figure]}>{group.earnings}</Text>}
+				{showsBillable && <Text style={[styles.groupTitle, styles.figure]}>{group.billable}</Text>}
 				<Text style={[styles.groupTitle, styles.figure]}>{group.activity}</Text>
 			</View>
 			{group.rows.map((row) => (
 				<View key={row.key} style={styles.row} wrap={false}>
-					<Text style={styles.first}>{row.first}</Text>
-					<Text style={[styles.second, styles.muted]}>{row.second}</Text>
+					<Text style={names.first}>{row.first}</Text>
+					<Text style={[names.second, styles.muted]}>{row.second}</Text>
 					<Text style={styles.task}>{row.task}</Text>
 					<Text style={[styles.labels, styles.muted]}>{row.labels}</Text>
 					<Text style={styles.figure}>{row.tracked}</Text>
 					{showsEarnings && <Text style={styles.figure}>{row.earnings}</Text>}
+					{showsBillable && <Text style={styles.figure}>{row.billable}</Text>}
 					<Text style={styles.figure}>{row.activity}</Text>
 				</View>
 			))}
@@ -200,7 +239,12 @@ export function buildTimeActivityPdf(content: TimeActivityPdfContent): ReactElem
 				<SummaryBand summary={content.summary} />
 				<TableHeader content={content} />
 				{content.groups.map((group) => (
-					<GroupBlock key={group.key} group={group} showsEarnings={content.showsEarnings} />
+					<GroupBlock
+						key={group.key}
+						group={group}
+						showsEarnings={content.showsEarnings}
+						showsBillable={content.showsBillable}
+					/>
 				))}
 				<View style={styles.footer} fixed>
 					<Text>{content.footer}</Text>
