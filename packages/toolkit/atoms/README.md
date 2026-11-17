@@ -44,11 +44,12 @@ Without those two lines the widget renders unstyled. The kit does not ship its o
 
 ## Next.js (App Router)
 
-1. `npx create-next-app@latest my-app` (TypeScript, Tailwind, App Router), then `cd my-app` and
-   `npm install @ever-teams/atoms`.
+1. `npx create-next-app@latest my-app` (TypeScript, Tailwind, App Router; answer No to the `src/` directory),
+   then `cd my-app` and `npm install @ever-teams/atoms`.
 2. Create `app/ever-teams-timer.tsx` with the component of the quick start. The `'use client'` line is required:
    the provider uses state and the browser.
-3. Add the two `@source` lines to `app/globals.css`, under `@import "tailwindcss";`, with `../` paths as above.
+3. Add the two `@source` lines to `app/globals.css`, under `@import "tailwindcss";`, with `../` paths as above. With
+   a `src/` directory the file is `src/app/globals.css` and the paths start with `../../`.
 4. Use it in a page:
 
 ```tsx
