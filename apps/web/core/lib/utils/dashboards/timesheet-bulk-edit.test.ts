@@ -214,6 +214,22 @@ describe('update sent for an entry', () => {
 		expect(payload?.stoppedAt).toEqual(new Date('2026-11-10T10:00:00.000Z'));
 	});
 
+	it('sends the update under the updatedAt the entry was read at, as the API states it (#5382)', () => {
+		const updatedAt = '2026-11-16T10:20:30.456Z' as unknown as Date;
+		const payload = bulkEditPayloadOf({ log: logOf({ id: 'a', updatedAt }), fields: { isBillable: true } });
+
+		expect(payload?.expectedUpdatedAt).toBe('2026-11-16T10:20:30.456Z');
+	});
+
+	it('states no version for an entry read without a readable updatedAt', () => {
+		const unreadable = 'not a date' as unknown as Date;
+
+		expect(bulkEditPayloadOf({ log: logOf({ id: 'a' }), fields: {} })).not.toHaveProperty('expectedUpdatedAt');
+		expect(bulkEditPayloadOf({ log: logOf({ updatedAt: unreadable }), fields: {} })).not.toHaveProperty(
+			'expectedUpdatedAt'
+		);
+	});
+
 	it('sends nothing for an entry without an interval or without a member', () => {
 		const withoutEnd = logOf({ stoppedAt: undefined });
 		const withoutMember = logOf({ employeeId: undefined });
@@ -299,6 +315,24 @@ describe('report of a bulk edit', () => {
 		expect(result.updatedCount).toBe(1);
 		expect(result.notUpdatedCount).toBe(4);
 		expect(result.releasedLogIds).toEqual(['allowed', 'already']);
+	});
+
+	it('counts an entry changed meanwhile apart, after the ones not checked and before the failures', () => {
+		const outcomes: BulkEditOutcome[] = [
+			{ logId: 'allowed', status: 'failed', detailKey: 'toasts.REASONS.SERVER' },
+			{ logId: 'second', status: 'changedMeanwhile' },
+			{ logId: 'third', status: 'checkFailed' }
+		];
+		const result = bulkEditResultOf(plan, outcomes);
+
+		expect(result.reasons.map((line) => line.reason)).toEqual([
+			'notAllowed',
+			'running',
+			'checkFailed',
+			'changedMeanwhile',
+			'failed'
+		]);
+		expect(result.releasedLogIds).toEqual(['already']);
 	});
 
 	it('gives failed saves one line per cause', () => {

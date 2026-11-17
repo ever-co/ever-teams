@@ -4,6 +4,7 @@ import {
 	getEmployeeTimeSlotsRequest
 } from '@/core/services/server/requests/timer/timer-slot';
 import { NextResponse } from 'next/server';
+import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
 
 export async function GET(req: Request) {
 	const res = new NextResponse();
@@ -21,7 +22,9 @@ export async function GET(req: Request) {
 
 	// The client sends employeeIds[0] and teamIds[n] (qs indices); a plain employeeId is still accepted
 	const listParam = (key: string) =>
-		[...searchParams].filter(([name]) => name === key || (name.startsWith(`${key}[`) && name.endsWith(']'))).map(([, value]) => value);
+		[...searchParams]
+			.filter(([name]) => name === key || (name.startsWith(`${key}[`) && name.endsWith(']')))
+			.map(([, value]) => value);
 
 	const { data } = await getEmployeeTimeSlotsRequest({
 		tenantId,
@@ -38,6 +41,8 @@ export async function GET(req: Request) {
 }
 
 export async function DELETE(req: Request) {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
 	const res = new NextResponse();
 	const { $res, user, tenantId, organizationId, access_token } = await authenticatedGuard(req, res);
 	if (!user) return $res('Unauthorized');

@@ -18,7 +18,8 @@ import {
 	defaultInvoiceScheduleInput,
 	defaultStartDayOf,
 	invoiceScheduleInputOf,
-	isRealDayKey
+	isRealDayKey,
+	OpenedScheduleGoneError
 } from '@/core/lib/utils/invoice-schedules';
 import {
 	INVOICE_SCHEDULE_FREQUENCIES,
@@ -46,7 +47,11 @@ interface InvoiceScheduleFormProps {
 	schedule?: TInvoiceSchedule | null;
 	todayKey: string;
 	onCreate: (input: InvoiceScheduleInput) => Promise<unknown>;
-	onUpdate: (change: InvoiceScheduleChange) => Promise<unknown>;
+	/**
+	 * Saves the change to the schedule the form opened on, named by its id: the client's schedule may have been
+	 * replaced since. Fails with an `OpenedScheduleGoneError` when that schedule is no longer the client's.
+	 */
+	onUpdate: (scheduleId: string, change: InvoiceScheduleChange) => Promise<unknown>;
 	onClose: () => void;
 }
 
@@ -69,16 +74,20 @@ function Field({ label, htmlFor, children }: Readonly<{ label: string; htmlFor?:
 	);
 }
 
-type SaveFailure = 'failed' | 'exists' | 'startAfterBilled';
+type SaveFailure = 'failed' | 'exists' | 'startAfterBilled' | 'replaced' | 'deleted';
 
 /** The API's code for a new timeline that would bill again a period already billed. */
 const START_AFTER_BILLED = 'INVOICE_SCHEDULE_START_AFTER_BILLED';
 
 /**
- * Why a save failed: another tab set this client's schedule since the dialog opened (409), the new timeline starts
- * before the end of the last period billed, or anything else.
+ * Why a save failed: the schedule the dialog opened on was replaced or deleted since, another tab set this client's
+ * schedule since the dialog opened (409), the new timeline starts before the end of the last period billed, or
+ * anything else.
  */
 function saveFailureOf(error: unknown): SaveFailure {
+	if (error instanceof OpenedScheduleGoneError) {
+		return error.fate;
+	}
 	if (!ApiErrorService.isApiError(error)) {
 		return 'failed';
 	}
@@ -103,9 +112,13 @@ function InvoiceScheduleForm({
 	const locale = useLocale();
 	const fieldId = useId();
 	const weekStart = useWorkspaceWeekStart();
-	// The schedule as the dialog opened on it: a read that lands meanwhile (another tab set one) does not turn a new
-	// schedule's form into a change of that one, which its person has not seen
-	const [saved] = useState(() => (schedule ? invoiceScheduleInputOf(schedule) : null));
+	// The schedule as the dialog opened on it: a read that lands meanwhile does not turn a new schedule's form into a
+	// change of the one another tab set, and a change is saved to the schedule it was made on, never to one that
+	// replaced it since, which its person has not seen
+	const [opened] = useState(() =>
+		schedule ? { scheduleId: schedule.id, input: invoiceScheduleInputOf(schedule) } : null
+	);
+	const saved = opened?.input ?? null;
 	const [input, setInput] = useState<InvoiceScheduleInput>(() => saved ?? defaultInvoiceScheduleInput(todayKey));
 	const [isStartPicked, setIsStartPicked] = useState(false);
 	const [isSaving, setIsSaving] = useState(false);
@@ -152,13 +165,13 @@ function InvoiceScheduleForm({
 	];
 
 	const save = async () => {
-		if (!saved) {
+		if (!opened) {
 			await onCreate(input);
 			return;
 		}
 		// Sent even when nothing changed: whoever saves a schedule takes it over, and its runs use their access from
 		// then on, which is how a schedule whose last author can no longer make invoices bills again
-		await onUpdate(changedScheduleFieldsOf(saved, input));
+		await onUpdate(opened.scheduleId, changedScheduleFieldsOf(opened.input, input));
 	};
 
 	const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -194,6 +207,10 @@ function InvoiceScheduleForm({
 	let failureText = t('invoices.schedule.form.SAVE_FAILED');
 	if (failure === 'exists') {
 		failureText = t('invoices.schedule.form.EXISTS');
+	} else if (failure === 'replaced') {
+		failureText = t('invoices.schedule.form.REPLACED');
+	} else if (failure === 'deleted') {
+		failureText = t('invoices.schedule.form.DELETED');
 	} else if (failure === 'startAfterBilled') {
 		failureText = t('invoices.schedule.form.START_AFTER_BILLED', {
 			day: invoiceDayTextOf(lastBilledDay, locale) ?? lastBilledDay

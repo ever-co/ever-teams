@@ -6,7 +6,16 @@ import { APIService, getFallbackAPI } from '../../api.service';
 
 import { getActiveTaskIdCookie } from '@/core/lib/helpers/cookies';
 import { getTodayPlanDay } from '@/core/lib/helpers/daily-plan-day';
-import { timeSlotsBetween, toTimeSlotDuration } from '@/core/lib/helpers/timer';
+import {
+	isSentTimeSlotHeld,
+	type SentTimeSlot,
+	TIME_SLOT_WINDOW_MS,
+	timeSlotsBetween,
+	timeSlotWindowStartOf,
+	toTimeSlotDuration,
+	whenSentTimeSlotSettled
+} from '@/core/lib/helpers/timer';
+import type { ITimeSlot } from '@/core/types/interfaces/timer/time-slot/time-slot';
 import { ITimerStatus, IToggleTimerStatusParams } from '@/core/types/interfaces/timer/timer-status';
 import { TUser } from '@/core/types/schemas';
 import { scopedReadConfig, type ScopedReadOptions } from '../../api-request-scope';
@@ -367,6 +376,16 @@ class TimerService extends APIService {
 	 * Gauzy writes a slot to the employee's newest run of the source, whatever run it names: the caller reads the run
 	 * again just before. The run's id goes along all the same, for a Gauzy that finds no run otherwise.
 	 *
+	 * Gauzy adds every slot it is sent, and has no key to tell a write sent again from a new one: a write whose answer
+	 * was lost may have landed. So each slot's window is read before the slot is sent (`onSending` is told what it
+	 * held), and a slot sent before without an answer (`unanswered`) is sent again only if its window does not hold
+	 * it, once it can no longer be landing, on the read that the next send goes by. A window written meanwhile by
+	 * another device may then lose that slot, but no slot is counted twice.
+	 *
+	 * @param runStartedAtMs When the run started: Gauzy reads the slots of the runs started within the dates it is
+	 * given only, so a window is read from there.
+	 * @param unanswered The slot last sent without an answer, where the writing resumes.
+	 * @param onSending Told each slot, with what its window held, before it is sent.
 	 * @param onWritten Told the end of each slot once it is written: a write that fails part way resumes there.
 	 */
 	catchUpTimeSlots = async ({
@@ -375,6 +394,9 @@ class TimerService extends APIService {
 		timeLogId,
 		fromMs,
 		toMs,
+		runStartedAtMs,
+		unanswered,
+		onSending,
 		onWritten
 	}: {
 		source: ETimeLogSource;
@@ -382,13 +404,49 @@ class TimerService extends APIService {
 		timeLogId: string;
 		fromMs: number;
 		toMs: number;
+		runStartedAtMs: number;
+		unanswered?: SentTimeSlot | null;
+		onSending?: (slot: SentTimeSlot) => void;
 		onWritten?: (untilMs: number) => void;
 	}) => {
 		const isDirect = Boolean(GAUZY_API_BASE_SERVER_URL.value);
 		let answered: { data?: ITimerStatus } | undefined;
+		let writeFromMs = fromMs;
+		let sentBefore = unanswered && Date.parse(unanswered.startedAt) === fromMs ? unanswered : null;
+		// Without the run's start, its window cannot be read (Gauzy leaves the run's slots out): the slot sent without
+		// an answer is taken as landed. It may then be lost, but is never counted twice
+		if (sentBefore && !Number.isFinite(runStartedAtMs)) {
+			onWritten?.(sentBefore.untilMs);
+			writeFromMs = sentBefore.untilMs;
+			sentBefore = null;
+		}
+		if (sentBefore) await whenSentTimeSlotSettled(sentBefore);
 		// One after the other: each write moves the run's end, and the last one leaves it at the present
-		for (const slot of timeSlotsBetween(fromMs, toMs)) {
-			if (isDirect) {
+		let slot = timeSlotsBetween(writeFromMs, toMs).at(0);
+		while (slot) {
+			const windowBefore = await this.timeSlotWindowSeconds(
+				employeeId,
+				Date.parse(slot.startedAt),
+				runStartedAtMs
+			);
+			// The slot sent without an answer is judged on this very read, which the next send goes by
+			const landed =
+				sentBefore?.startedAt === slot.startedAt && isSentTimeSlotHeld(sentBefore, windowBefore)
+					? sentBefore
+					: null;
+			sentBefore = null;
+			if (landed) {
+				onWritten?.(landed.untilMs);
+				writeFromMs = landed.untilMs;
+				slot = timeSlotsBetween(writeFromMs, toMs).at(0);
+				continue;
+			}
+			// Whatever the send waits for comes first: `onSending` may check that this tab may still write (a tab of the
+			// browser takes its turn through a lease that can lapse while the page is frozen), and that check is the last
+			// word before the request goes, with nothing awaited in between
+			const fallbackApi = isDirect ? null : await getFallbackAPI();
+			onSending?.({ ...slot, windowBefore, sentAt: Date.now() });
+			if (!fallbackApi) {
 				await this.post('/timesheet/time-slot', {
 					tenantId: this.tenantId,
 					organizationId: this.organizationId,
@@ -400,8 +458,7 @@ class TimerService extends APIService {
 					duration: slot.duration
 				});
 			} else {
-				const api = await getFallbackAPI();
-				answered = await api.post<ITimerStatus>(`/timer/sync?${getTodayRangeQuery()}`, {
+				answered = await fallbackApi.post<ITimerStatus>(`/timer/sync?${getTodayRangeQuery()}`, {
 					source,
 					timeLogId,
 					startedAt: slot.startedAt,
@@ -409,9 +466,52 @@ class TimerService extends APIService {
 				});
 			}
 			onWritten?.(slot.untilMs);
+			writeFromMs = slot.untilMs;
+			slot = timeSlotsBetween(writeFromMs, toMs).at(0);
 		}
 		this.lastTimeSlotSync = { at: Date.now(), timeLogId };
 		return isDirect ? this.getTimerStatus() : answered;
+	};
+
+	/**
+	 * The seconds Gauzy holds for the employee in the 10-minute window of the slot starting at `ms`. Gauzy reads the
+	 * slots of the runs started within the dates it is given only (its query drops any other filter): the slots are
+	 * read from the run's start, and those of the window kept.
+	 */
+	private readonly timeSlotWindowSeconds = async (
+		employeeId: string,
+		ms: number,
+		runStartedAtMs: number
+	): Promise<number> => {
+		const windowStart = timeSlotWindowStartOf(ms);
+		const windowEnd = windowStart + TIME_SLOT_WINDOW_MS;
+		const from = Number.isFinite(runStartedAtMs) ? Math.min(runStartedAtMs, windowStart) : windowStart;
+		const startDate = new Date(from).toISOString();
+		// Gauzy reads both ends: the next window's first moment is left out
+		const endDate = new Date(windowEnd - 1).toISOString();
+		let slots: ITimeSlot[] | null | undefined;
+		if (GAUZY_API_BASE_SERVER_URL.value) {
+			const query = qs.stringify(
+				{
+					tenantId: this.tenantId,
+					organizationId: this.organizationId,
+					startDate,
+					endDate,
+					employeeIds: [employeeId]
+				},
+				{ arrayFormat: 'indices' }
+			);
+			slots = (await this.get<ITimeSlot[]>(`/timesheet/time-slot?${query}`)).data;
+		} else {
+			const api = await getFallbackAPI();
+			slots = (await api.get<ITimeSlot[]>(`/timer/slot/window?${qs.stringify({ startDate, endDate })}`)).data;
+		}
+		return (slots ?? [])
+			.filter((slot) => {
+				const startedAt = new Date(slot.startedAt).getTime();
+				return startedAt >= windowStart && startedAt < windowEnd;
+			})
+			.reduce((seconds, slot) => seconds + (Number(slot.duration) || 0), 0);
 	};
 
 	getTaskStatusList = async ({ employeeId }: { employeeId: string }) => {

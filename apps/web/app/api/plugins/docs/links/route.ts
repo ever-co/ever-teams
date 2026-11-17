@@ -6,6 +6,7 @@ import {
 	createEntityFileLinkSchema,
 	entityFileLinksQuerySchema
 } from '@/core/types/schemas/documents/entity-file.schema';
+import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
 
 /** The files linked to a task, a project or a comment of the caller's organization. */
 export async function GET(req: Request) {
@@ -37,6 +38,8 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
 	const { $res, user, access_token, tenantId, organizationId } = await authenticatedGuard(req, new NextResponse());
 
 	if (!user) return $res('Unauthorized');

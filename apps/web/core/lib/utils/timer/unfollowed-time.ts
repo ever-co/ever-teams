@@ -1,5 +1,6 @@
 import { STALE_TIMER_THRESHOLD, SYNC_TIMER_INTERVAL } from '@/core/constants/config/constants';
 import { isRunningTeamsLog, isStaleTeamsTimer } from '@/core/lib/helpers/timer-policy';
+import { inOneTabByLease } from '@/core/lib/utils/timer/one-tab-lease';
 import { isBreakLog } from '@/core/lib/utils/timer/timer-break';
 import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 
@@ -358,14 +359,15 @@ export function whenPageShows(): Promise<void> {
 }
 
 /**
- * Runs `settle` in one tab of this browser at a time (Web Locks), so only one tab asks: the others wait, then read the
- * run again and find its time settled. A browser without Web Locks (an insecure context) runs it at once, and the
- * question of every tab that put one goes when one of them settles that time (announceUnfollowedTimeSettled).
+ * Runs `settle` in one tab of this browser at a time (Web Locks), so only one tab asks, and one tab writes a Keep:
+ * the others wait, then read the run again and find its time settled. A browser without Web Locks (a page served over
+ * plain HTTP, not a secure context) takes turns through a lease in the storage the tabs share instead
+ * (one-tab-lease.ts). What a Keep writes is checked against that lease again just before it is sent (isThisTabsTurn).
  */
 export function inOneTabAtATime<T>(settle: () => Promise<T>): Promise<T> {
 	const locks = typeof navigator === 'undefined' ? undefined : (navigator.locks as LockManager | undefined);
 	if (!locks) {
-		return settle();
+		return inOneTabByLease(settle);
 	}
 	// The lock is held until what `settle` returns is settled
 	return locks.request(LOCK_NAME, settle).then((settled) => settled);

@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 import React, { useEffect, useState, type ChangeEvent, type FC } from 'react';
 
-import { estimateFieldOf, MAX_ESTIMATE_HOURS, MAX_ESTIMATE_MINUTES } from '~lib/estimate';
+import { estimateFieldOf, MAX_ESTIMATE_HOURS, MAX_ESTIMATE_MINUTES, paddedEstimateField } from '~lib/estimate';
 import { t } from '~lib/i18n';
 import { underlineInput } from '~misc/tailwindClasses';
 import type { ITask } from '~typescript/types/Tasks';
@@ -41,25 +41,9 @@ const TasksEstimatedInputs: FC<ITasksEstimatedInputs> = ({ task, onEstimateChang
 		}
 	};
 
-	const onHoursEstimateBlur = (event) => {
-		if (!event.target.value) return;
-
-		if (+hoursEst < 10 && hoursEst[0] !== '0') {
-			const hours = hoursEst ? hoursEst : '0';
-			const format = '0' + hours;
-			setHoursEstimate(format);
-		}
-	};
-
-	const onMinutesEstimateBlur = (event) => {
-		if (!event.target.value) return;
-
-		if (+minutesEst < 10 && minutesEst[0] !== '0') {
-			const mins = minutesEst ? minutesEst : '0';
-			const format = '0' + mins;
-			setMinutesEstimate(format);
-		}
-	};
+	// Left, a field shows its number on two digits at least, without extra leading zeros: "005" shows "05"
+	const onHoursEstimateBlur = () => setHoursEstimate((typed) => paddedEstimateField(typed));
+	const onMinutesEstimateBlur = () => setMinutesEstimate((typed) => paddedEstimateField(typed));
 
 	return (
 		<>

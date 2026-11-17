@@ -59,20 +59,25 @@ function PlanWorkedFigure({ plan }: Readonly<{ plan: TDailyPlan }>) {
 	// A task added to or removed from the plan changes the parameters: the last total stays until the new one comes.
 	// The ids are sorted: the total does not depend on their order, so a reorder of the plan reads nothing again.
 	const taskIds = useMemo(() => (plan.tasks ?? []).map((task) => task.id).sort(), [plan.tasks]);
+	// The plan owner's time only: without the employee, a manager reads every member's time on these tasks, and
+	// without tasks the read has no task filter and returns every log of the day (#5351). An empty plan reads nothing.
+	const employeeIds = useMemo(() => (plan.employeeId ? [plan.employeeId] : []), [plan.employeeId]);
+	const readsWorkedTime = taskIds.length > 0 && employeeIds.length > 0;
 	const timeLogsQuery = useGetTimeLogs(
 		{
 			startDate: plan.date,
 			endDate: plan.date,
-			taskIds
+			taskIds,
+			employeeIds
 		},
-		{ keepsPreviousData: true }
+		{ keepsPreviousData: true, enabled: readsWorkedTime }
 	);
-	const timeLogs = timeLogsQuery.data;
+	const timeLogs = readsWorkedTime ? timeLogsQuery.data : undefined;
 	const totalWorkedSeconds = useMemo(() => {
 		return timeLogs?.reduce((total, log) => total + (log.duration || 0), 0) || 0;
 	}, [timeLogs]);
-	const isPending = timeLogsQuery.isLoading;
-	const hasFailed = timeLogsQuery.isError;
+	const isPending = readsWorkedTime && timeLogsQuery.isLoading;
+	const hasFailed = readsWorkedTime && timeLogsQuery.isError;
 	const showsValue = !isPending && !hasFailed;
 
 	return (

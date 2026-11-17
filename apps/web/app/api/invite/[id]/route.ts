@@ -8,6 +8,7 @@ import {
 } from '@/core/services/server/requests';
 import { EInviteAction } from '@/core/types/generics/enums/invite';
 import { NextResponse } from 'next/server';
+import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
 
 export async function GET(req: Request, props: { params: Promise<{ id: string }> }) {
 	const params = await props.params;
@@ -25,6 +26,8 @@ export async function GET(req: Request, props: { params: Promise<{ id: string }>
 }
 
 export async function DELETE(req: Request, props: { params: Promise<{ id: string }> }) {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
 	const params = await props.params;
 	const res = new NextResponse();
 	const invitationId = params.id;
@@ -56,6 +59,8 @@ export async function DELETE(req: Request, props: { params: Promise<{ id: string
 }
 
 export async function PUT(req: Request, props: { params: Promise<{ id: string }> }) {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
 	const params = await props.params;
 	const res = new NextResponse();
 	const { $res, user, access_token, tenantId, status } = await authenticatedGuard(req, res);

@@ -102,6 +102,11 @@ function switchOfToken(token: string): boolean | undefined {
 	return token === 'on';
 }
 
+/** When the team was last changed, as read, in milliseconds; NaN when the read does not say. */
+function changedAtOf(team: TOrganizationTeam): number {
+	return team.updatedAt ? new Date(team.updatedAt).getTime() : Number.NaN;
+}
+
 interface TeamNotificationDefaultsSectionProps {
 	team: TOrganizationTeam;
 	canEdit: boolean;
@@ -125,31 +130,71 @@ export function TeamNotificationDefaultsSection({
 		{ value: 'on', label: t('settings.teamGeneral.ON') },
 		{ value: 'off', label: t('settings.teamGeneral.OFF') }
 	];
-	// Each save sends the whole defaults with one key changed. Two changes made before the first save answers both build
-	// on the latest defaults, the one the earlier change left, so neither undoes the other. The team read again replaces
-	// them once no save is on its way (a read that lands before a later save is older than it), and a refused change
-	// is taken back out, so the next change does not send it again.
+	// Each save sends the whole defaults: every change joins them at once, so a change made before an earlier one's save
+	// answers builds on it. The saves run one at a time, each sending the defaults as they are when its turn comes, so a
+	// request that reaches Gauzy late never writes older defaults over newer ones. A refused change is taken back out, so
+	// the next save does not send it again. The team read again replaces the defaults at once when no save is waiting or
+	// on its way, else once the last of them answers (a read that lands before a later save is older than it), and never
+	// with a read of the team older than one already seen (a team list fetched before the last save, landing after it).
 	const latest = useRef<{
 		read: TTeamNotificationDefaults | null;
+		readChangedAt: number;
 		next: TTeamNotificationDefaults | null;
 		pending: number;
-	}>({ read: defaults, next: defaults, pending: 0 });
-	if (latest.current.read !== defaults) {
-		latest.current.read = defaults;
-		if (latest.current.pending === 0) latest.current.next = defaults;
-	}
-	const save = async <K extends TTeamDefaultKey>(key: K, value: TTeamNotificationDefaults[K] | undefined) => {
-		const next = withTeamDefault(latest.current.next, key, value);
-		latest.current.next = next;
-		latest.current.pending += 1;
-		try {
-			await saveNotificationDefaults(next);
-		} catch (error) {
-			latest.current.next = withTeamDefault(latest.current.next, key, latest.current.read?.[key]);
-			throw error;
-		} finally {
-			latest.current.pending -= 1;
+		/**
+		 * Whether a read landed while the last save sent was on its way: it may hold a change made after that save, so it
+		 * replaces the defaults once the saves answer. A read that landed before the last save was sent is older than it.
+		 */
+		readWhileSaving: boolean;
+		queue: Promise<void>;
+	}>({
+		read: defaults,
+		readChangedAt: Number.NEGATIVE_INFINITY,
+		next: defaults,
+		pending: 0,
+		readWhileSaving: false,
+		queue: Promise.resolve()
+	});
+	// The newest time a read said the team changed advances with every newer read, the defaults the same or not. A read
+	// that says no time cannot be ordered: it is taken, and leaves that time as it is.
+	const changedAt = changedAtOf(team);
+	const hasChangedAt = !Number.isNaN(changedAt);
+	const isOlderRead = hasChangedAt && changedAt < latest.current.readChangedAt;
+	if (!isOlderRead) {
+		// While saves wait or run, a newer read counts even when it holds the same defaults as the last one: another
+		// manager may have taken back what the save on its way sends
+		const isNewerRead = hasChangedAt && changedAt > latest.current.readChangedAt;
+		if (hasChangedAt) latest.current.readChangedAt = changedAt;
+		if (latest.current.read !== defaults || (isNewerRead && latest.current.pending > 0)) {
+			latest.current.read = defaults;
+			if (latest.current.pending === 0) {
+				latest.current.next = defaults;
+			} else {
+				latest.current.readWhileSaving = true;
+			}
 		}
+	}
+	const shown = latest.current.read;
+	const save = <K extends TTeamDefaultKey>(key: K, value: TTeamNotificationDefaults[K] | undefined) => {
+		latest.current.next = withTeamDefault(latest.current.next, key, value);
+		latest.current.pending += 1;
+		const turn = latest.current.queue.then(async () => {
+			latest.current.readWhileSaving = false;
+			try {
+				await saveNotificationDefaults(latest.current.next);
+			} catch (error) {
+				latest.current.next = withTeamDefault(latest.current.next, key, latest.current.read?.[key]);
+				throw error;
+			} finally {
+				latest.current.pending -= 1;
+				if (latest.current.pending === 0 && latest.current.readWhileSaving) {
+					latest.current.next = latest.current.read;
+					latest.current.readWhileSaving = false;
+				}
+			}
+		});
+		latest.current.queue = turn.catch(() => undefined);
+		return turn;
 	};
 
 	// A Gauzy that keeps no team defaults reads a team without the key (one that keeps them reads it as null): the
@@ -172,7 +217,7 @@ export function TeamNotificationDefaultsSection({
 						{ value: 'digest', label: t('notifications.SETTINGS_PAGE.CHANNELS.MODE_DIGEST') },
 						{ value: 'off', label: t('notifications.SETTINGS_PAGE.CHANNELS.MODE_OFF') }
 					]}
-					stored={teamEmailModeOf(defaults?.email) ?? MEMBERS}
+					stored={teamEmailModeOf(shown?.email) ?? MEMBERS}
 					canEdit={canEdit}
 					save={(token) =>
 						save('email', token === MEMBERS ? undefined : (token as 'immediate' | 'digest' | 'off'))
@@ -182,7 +227,7 @@ export function TeamNotificationDefaultsSection({
 					label={t('notifications.SETTINGS_PAGE.CHANNELS.PUSH_TITLE')}
 					description={t('settings.teamGeneral.PUSH_DEFAULT_DESCRIPTION')}
 					choices={onOff}
-					stored={switchToken(defaults?.push)}
+					stored={switchToken(shown?.push)}
 					canEdit={canEdit}
 					save={(token) => save('push', switchOfToken(token))}
 				/>
@@ -190,7 +235,7 @@ export function TeamNotificationDefaultsSection({
 					label={t('settings.teamGeneral.TASK_UPDATE_DEFAULT_LABEL')}
 					description={t('settings.teamGeneral.TASK_UPDATE_DEFAULT_DESCRIPTION')}
 					choices={onOff}
-					stored={switchToken(defaults?.taskUpdate)}
+					stored={switchToken(shown?.taskUpdate)}
 					canEdit={canEdit}
 					save={(token) => save('taskUpdate', switchOfToken(token))}
 				/>
@@ -199,12 +244,12 @@ export function TeamNotificationDefaultsSection({
 					description={t('settings.teamGeneral.TIMER_DEFAULT_DESCRIPTION')}
 					choices={[
 						membersChoose,
-						...hourChoices(TIMER_REMINDER_HOUR_CHOICES, defaults?.timerReminderHours, (hours) =>
+						...hourChoices(TIMER_REMINDER_HOUR_CHOICES, shown?.timerReminderHours, (hours) =>
 							t('notifications.SETTINGS_PAGE.TIMER.AFTER_HOURS', { hours })
 						),
 						{ value: NONE, label: t('notifications.SETTINGS_PAGE.TIMER.OFF') }
 					]}
-					stored={hoursToken(defaults?.timerReminderHours)}
+					stored={hoursToken(shown?.timerReminderHours)}
 					canEdit={canEdit}
 					save={(token) => save('timerReminderHours', hoursOfToken(token))}
 				/>
@@ -213,12 +258,12 @@ export function TeamNotificationDefaultsSection({
 					description={t('settings.teamGeneral.TASK_DUE_DEFAULT_DESCRIPTION')}
 					choices={[
 						membersChoose,
-						...hourChoices(TASK_DUE_REMINDER_HOUR_CHOICES, defaults?.taskDueReminderHours, (hours) =>
+						...hourChoices(TASK_DUE_REMINDER_HOUR_CHOICES, shown?.taskDueReminderHours, (hours) =>
 							t('notifications.SETTINGS_PAGE.TASK_DUE.BEFORE_HOURS', { hours })
 						),
 						{ value: NONE, label: t('notifications.SETTINGS_PAGE.TASK_DUE.OFF') }
 					]}
-					stored={hoursToken(defaults?.taskDueReminderHours)}
+					stored={hoursToken(shown?.taskDueReminderHours)}
 					canEdit={canEdit}
 					save={(token) => save('taskDueReminderHours', hoursOfToken(token))}
 				/>

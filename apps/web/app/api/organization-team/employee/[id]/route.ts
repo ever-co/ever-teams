@@ -4,8 +4,11 @@ import {
 	removeEmployeeOrganizationTeamRequest
 } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
+import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
 
 export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
 	const id = (await params).id;
 	const res = new NextResponse();
 
@@ -27,6 +30,8 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
 }
 
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
 	const id = (await params).id;
 	const res = new NextResponse();
 

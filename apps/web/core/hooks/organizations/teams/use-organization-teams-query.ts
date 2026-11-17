@@ -20,7 +20,7 @@ import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import isEqual from 'lodash/isEqual';
-import { LAST_WORKSPACE_AND_TEAM } from '@/core/constants/config/constants';
+import { readLastOpenedTeamId, storeLastOpenedTeamId } from '@/core/lib/auth/last-opened-team';
 import { organizationTeamService } from '@/core/services/client/api/organizations/teams';
 import { useFirstLoad } from '../../common/use-first-load';
 import { useSyncRef } from '../../common/use-sync-ref';
@@ -173,11 +173,11 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 
 			// This tab works in the team's organization from now on, before the cookies, shared by every tab, follow it
 			rememberTabTeam(team);
-			setActiveTeamIdCookie(team?.id);
-			setOrganizationIdCookie(team?.organizationId || '');
+			setActiveTeamIdCookie(team.id);
+			setOrganizationIdCookie(team.organizationId || '');
 			// Gauzy confines a non-admin to the token's organization: a team of another organization needs a token for
 			// it, and the user (its employee) is read again for that organization
-			void syncTokenOrganization(team?.organizationId).then((switched) => {
+			void syncTokenOrganization(team.organizationId).then((switched) => {
 				if (switched) queryClient.invalidateQueries({ queryKey: queryKeys.users.me });
 			});
 
@@ -185,14 +185,14 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 			if (defaultProjectId) {
 				setActiveProjectIdCookie(defaultProjectId);
 			}
-			if (globalThis.window !== undefined) {
-				globalThis.window.localStorage.setItem(LAST_WORKSPACE_AND_TEAM, team.id);
-			}
+			// Blocked or full storage must not stop the switch halfway, cookies and token on the new team while this
+			// tab still shows the old one (Greptile on #5345)
+			storeLastOpenedTeamId(team.id);
 			if (user && user.lastTeamId !== team.id) {
 				updateUserLastTeam({ id: user.id, lastTeamId: team.id });
 			}
 
-			setActiveTeamId(team?.id);
+			setActiveTeamId(team.id);
 		},
 		[queryClient, setActiveTeamId, setActiveTeamTask, setTeamTasks, updateUserLastTeam, user]
 	);
@@ -347,9 +347,7 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 		const keepsOwnTeam = latestTeams.some((team) => team.id === activeTeamIdRef.current);
 		if (keepsOwnTeam) return;
 		let selectedId = getActiveTeamIdCookie();
-		if (!selectedId && typeof window !== 'undefined') {
-			selectedId = window.localStorage.getItem(LAST_WORKSPACE_AND_TEAM) || '';
-		}
+		if (!selectedId) selectedId = readLastOpenedTeamId() || '';
 		if (!selectedId) selectedId = user?.lastTeamId || '';
 		const selected = latestTeams.find((team) => team.id === selectedId) ?? latestTeams[0];
 		if (selected?.id && activeTeamIdRef.current !== selected.id) setActiveTeam(selected);
@@ -407,9 +405,7 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 		// TEAM SELECTION PRIORITY LOGIC: the cookie, else this browser's last team, else the user's last team
 		let storedTeamId = getActiveTeamIdCookie();
 
-		if (!storedTeamId && typeof window !== 'undefined') {
-			storedTeamId = window.localStorage.getItem(LAST_WORKSPACE_AND_TEAM) || '';
-		}
+		if (!storedTeamId) storedTeamId = readLastOpenedTeamId() || '';
 
 		if (!storedTeamId && user?.lastTeamId) {
 			storedTeamId = user.lastTeamId;

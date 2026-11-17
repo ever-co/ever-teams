@@ -5,6 +5,7 @@ import { uploadDocumentsRequest } from '@/core/services/server/requests/entity-f
 import { readCappedFormData } from '@/core/lib/auth/ever-id/body';
 import { ENTITY_FILE_MAX_BYTES, ENTITY_FILES_PER_UPLOAD } from '@/core/types/schemas/documents/entity-file.schema';
 import { passedUploadFieldsOf } from '@/core/lib/utils/document-upload-fields';
+import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
 
 /** Room for the multipart boundaries and part headers around the largest upload Gauzy accepts. */
 const MULTIPART_OVERHEAD_BYTES = 1024 * 1024;
@@ -21,6 +22,8 @@ function isFile(part: FormDataEntryValue): part is File {
  * Gauzy checks each file's content, type and size.
  */
 export async function POST(req: Request) {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
 	const { $res, user, access_token, tenantId, organizationId } = await authenticatedGuard(req, new NextResponse());
 
 	if (!user) return $res('Unauthorized');

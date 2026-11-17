@@ -5,6 +5,7 @@ import { act, renderHook } from '@testing-library/react';
 import type { PropsWithChildren } from 'react';
 import type { BulkEditOutcome, BulkEditSave } from '@/core/lib/utils/dashboards/timesheet-bulk-edit';
 import { queryKeys } from '@/core/query/keys';
+import { ApiErrorService } from '@/core/services/client/api-error.service';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 
 const mockGetTimeLogConflicts = jest.fn();
@@ -97,6 +98,23 @@ function pendingCall<Value>() {
 	});
 	return { promise, settle: (value: Value) => settle(value) };
 }
+
+/** The error a request answered with `status` and `body` rejects with, wrapped as the time log service wraps it. */
+function refusedUpdate(status: number, body: Record<string, unknown>) {
+	const answer = ApiErrorService.fromAxiosError({
+		message: `Request failed with status code ${status}`,
+		status,
+		response: { data: { statusCode: status, ...body }, headers: {}, status, statusText: '' }
+	});
+	return new Error('Failed to update time-log', { cause: answer });
+}
+
+/** Ever Gauzy's refusal of an update made under an `updatedAt` the entry no longer holds (#5382). */
+const changedMeanwhile = () =>
+	refusedUpdate(409, {
+		code: 'CONCURRENT_MODIFICATION',
+		message: 'TIME_LOG_CHANGED: the time entry changed since it was read. Nothing was saved.'
+	});
 
 async function flushPromises() {
 	await act(async () => {
@@ -209,6 +227,81 @@ describe('useBulkEditRun', () => {
 		expect(outcomes).toEqual([{ logId: 'a', status: 'failed' }]);
 		expect(mockGetTimeLogConflicts).not.toHaveBeenCalled();
 		expect(mockUpdateTimeLog).not.toHaveBeenCalled();
+	});
+
+	describe('under the version read (#5382)', () => {
+		it('saves each entry under the updatedAt it holds now, not the one the dialog read', async () => {
+			const save = saveOf('a', { updatedAt: '2026-11-10T08:00:00.000Z' as unknown as Date });
+			// Another tab saved the entry while the dialog was open, keeping its fields
+			(storedLog('a') as { updatedAt?: unknown }).updatedAt = '2026-11-10T08:30:00.123Z';
+			const { result } = renderRun();
+
+			await act(async () => {
+				await result.current.run([save]);
+			});
+
+			expect(mockUpdateTimeLog).toHaveBeenCalledWith(
+				expect.objectContaining({ timeLogId: 'a', expectedUpdatedAt: '2026-11-10T08:30:00.123Z' })
+			);
+		});
+
+		it('takes a refusal of an entry changed meanwhile as such: nothing written back, the next entries saved', async () => {
+			const changed = saveOf('a', { updatedAt: '2026-11-10T08:00:00.000Z' as unknown as Date });
+			const next = saveOf('b', { updatedAt: '2026-11-10T08:00:00.000Z' as unknown as Date });
+			mockUpdateTimeLog.mockRejectedValueOnce(changedMeanwhile());
+			const { result, invalidate } = renderRun();
+
+			let outcomes: BulkEditOutcome[] | null = null;
+			await act(async () => {
+				outcomes = await result.current.run([changed, next]);
+			});
+
+			expect(outcomes).toEqual([
+				{ logId: 'a', status: 'changedMeanwhile' },
+				{ logId: 'b', status: 'updated' }
+			]);
+			// One write per entry: the refused one is neither sent again nor put back
+			expect(mockUpdateTimeLog).toHaveBeenCalledTimes(2);
+			expect(invalidate).toHaveBeenCalledWith({ queryKey: queryKeys.timeLogs.all });
+		});
+
+		it('reads the views again after a run whose only outcome is an entry changed meanwhile', async () => {
+			mockUpdateTimeLog.mockRejectedValueOnce(changedMeanwhile());
+			const { result, invalidate } = renderRun();
+
+			await act(async () => {
+				await result.current.run([saveOf('a', { updatedAt: '2026-11-10T08:00:00.000Z' as unknown as Date })]);
+			});
+
+			expect(invalidate).toHaveBeenCalledWith({ queryKey: queryKeys.timeLogs.all });
+		});
+
+		it('takes another 409, a range over a running timer, as a failure, as before', async () => {
+			mockUpdateTimeLog.mockRejectedValueOnce(
+				refusedUpdate(409, { code: 'CONCURRENT_MODIFICATION', message: 'RUNNING_TIMER_OVERLAP' })
+			);
+			const { result } = renderRun();
+
+			let outcomes: BulkEditOutcome[] | null = null;
+			await act(async () => {
+				outcomes = await result.current.run([saveOf('a')]);
+			});
+
+			expect(outcomes).toEqual([{ logId: 'a', status: 'failed', detailKey: expect.any(String) }]);
+		});
+
+		it('saves as before on an older Ever Gauzy, which leaves the version out and answers the update', async () => {
+			const { result } = renderRun();
+
+			let outcomes: BulkEditOutcome[] | null = null;
+			await act(async () => {
+				outcomes = await result.current.run([
+					saveOf('a', { updatedAt: '2026-11-10T08:00:00.000Z' as unknown as Date })
+				]);
+			});
+
+			expect(outcomes).toEqual([{ logId: 'a', status: 'updated' }]);
+		});
 	});
 
 	it('saves each entry with its own interval and member, and the changed fields only', async () => {

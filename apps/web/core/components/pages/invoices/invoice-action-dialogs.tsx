@@ -10,6 +10,7 @@ import {
 	type ProjectConsequence
 } from '@/core/components/projects/dialogs/project-confirm-dialog';
 import {
+	isInvoiceActionChangedMeanwhile,
 	useDeleteInvoice,
 	useChangeInvoiceStatus,
 	useSendInvoice,
@@ -163,18 +164,20 @@ export function SendInvoiceDialog({ open, target, scope, onClose }: Readonly<Inv
 	);
 }
 
+type VoidFailure = 'failed';
+
 export function VoidInvoiceDialog({ open, target, scope, onClose }: Readonly<InvoiceActionDialogProps>) {
 	const t = useTranslations();
 	const { changeStatus, isChanging } = useChangeInvoiceStatus();
 	const runOnce = useSingleRun();
-	const [hasFailed, setHasFailed] = useState(false);
+	const [failure, setFailure] = useState<VoidFailure | null>(null);
 	const numberText = target?.numberText ?? '';
 
 	const close = () => {
 		if (isChanging) {
 			return;
 		}
-		setHasFailed(false);
+		setFailure(null);
 		onClose();
 	};
 
@@ -182,13 +185,20 @@ export function VoidInvoiceDialog({ open, target, scope, onClose }: Readonly<Inv
 		if (!target) {
 			return;
 		}
-		setHasFailed(false);
+		setFailure(null);
 		try {
 			await changeStatus({ invoiceId: target.invoice.id, change: VOID_CHANGE, scope });
 			toast.success(t('invoices.void.DONE', { number: numberText }));
 			onClose();
-		} catch {
-			setHasFailed(true);
+		} catch (error) {
+			if (isInvoiceActionChangedMeanwhile(error)) {
+				// Changed since it was read: nothing was written, and the invoices are read again (#5382). The dialog
+				// shows the invoice as it was opened, so it closes onto the list, which shows it as it is now.
+				toast.error(t('invoices.actions.CHANGED_MEANWHILE'));
+				onClose();
+				return;
+			}
+			setFailure('failed');
 		}
 	};
 
@@ -197,7 +207,7 @@ export function VoidInvoiceDialog({ open, target, scope, onClose }: Readonly<Inv
 		{ key: 'final', icon: <CircleX />, text: t('invoices.void.FINAL'), tone: 'danger' }
 	];
 	let error: string | null = null;
-	if (hasFailed) {
+	if (failure === 'failed') {
 		error = t('invoices.void.FAILED');
 	}
 
@@ -315,7 +325,14 @@ export function VoidAndReplaceDialog({
 		let outcome: VoidToReplaceOutcome;
 		try {
 			outcome = await voidToReplace({ invoiceId: target.invoice.id, scope });
-		} catch {
+		} catch (error) {
+			if (isInvoiceActionChangedMeanwhile(error)) {
+				// Changed since it was read: nothing was written, and the invoices are read again (#5382). The dialog
+				// shows the invoice as it was opened, so it closes onto the list, which shows it as it is now.
+				toast.error(t('invoices.actions.CHANGED_MEANWHILE'));
+				onClose();
+				return;
+			}
 			setFailure('notVoided');
 			return;
 		}

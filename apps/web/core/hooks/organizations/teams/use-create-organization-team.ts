@@ -21,7 +21,7 @@ import { ZodValidationError } from '@/core/types/schemas/utils/validation';
 import { queryKeys } from '@/core/query/keys';
 import { useTranslations } from 'next-intl';
 import { useCacheInvalidation } from '../../common/use-cache-invalidation';
-import { LAST_WORKSPACE_AND_TEAM } from '@/core/constants/config/constants';
+import { storeLastOpenedTeamId } from '@/core/lib/auth/last-opened-team';
 import { useSettings } from '../../users';
 import { toastMoment } from '@/core/components/common/toast-moment';
 import { UsersGroup } from '@/core/components/icons';
@@ -59,11 +59,11 @@ export function useCreateOrganizationTeam() {
 
 			// This tab works in the new team's organization, before the cookies, shared by every tab, follow it (#5134)
 			rememberTabTeam(team);
-			setActiveTeamIdCookie(team?.id);
-			setOrganizationIdCookie(team?.organizationId || '');
+			setActiveTeamIdCookie(team.id);
+			setOrganizationIdCookie(team.organizationId || '');
 			// Gauzy confines a non-admin to the token's organization: a team of another organization needs a token
 			// for it, and the user (its employee) is read again for that organization
-			void syncTokenOrganization(team?.organizationId).then((switched) => {
+			void syncTokenOrganization(team.organizationId).then((switched) => {
 				if (switched) queryClient.invalidateQueries({ queryKey: queryKeys.users.me });
 			});
 
@@ -71,7 +71,9 @@ export function useCreateOrganizationTeam() {
 			if (defaultProjectId) {
 				setActiveProjectIdCookie(defaultProjectId);
 			}
-			globalThis.window && globalThis.window?.localStorage.setItem(LAST_WORKSPACE_AND_TEAM, team.id);
+			// Blocked or full storage must not stop the switch halfway, cookies and token on the new team while this
+			// tab still shows the old one (Greptile on #5345)
+			storeLastOpenedTeamId(team.id);
 			// Only update user last team if it's different to avoid unnecessary API calls
 			if (user && user.lastTeamId !== team.id) {
 				updateUserLastTeam({ id: user.id, lastTeamId: team.id });
@@ -79,7 +81,7 @@ export function useCreateOrganizationTeam() {
 
 			// Set active team ID AFTER teams are updated to ensure proper synchronization
 			// This must be called at the end (Update store)
-			setActiveTeamId(team?.id);
+			setActiveTeamId(team.id);
 		},
 		[queryClient, setActiveTeamId, setActiveTeamTask, setTeamTasks, updateUserLastTeam, user]
 	);

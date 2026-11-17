@@ -6,6 +6,8 @@
  * writes the rest, once, and a tab that finds it gone knows another one wrote it.
  */
 
+import type { SentTimeSlot } from '@/core/lib/helpers/timer';
+
 /** A Keep whose writing is not over. Times are on the API's clock unless said otherwise. */
 export interface OwedKeep {
 	employeeId: string;
@@ -22,6 +24,8 @@ export interface OwedKeep {
 	writtenAtMs: number;
 	/** When it was kept, on the computer's clock. */
 	keptAt: number;
+	/** The slot sent without an answer yet: it may have landed, which its window tells (timerService). */
+	unanswered?: SentTimeSlot;
 }
 
 const KEY_PREFIX = 'ever-teams.timer.owed-keep.';
@@ -43,13 +47,28 @@ function browserStorage(): Storage | null {
 	}
 }
 
+function isFiniteNumber(value: unknown): value is number {
+	return typeof value === 'number' && Number.isFinite(value);
+}
+
+function isSentTimeSlot(value: Partial<SentTimeSlot> | undefined): boolean {
+	return (
+		typeof value?.startedAt === 'string' &&
+		isFiniteNumber(value.untilMs) &&
+		isFiniteNumber(value.duration) &&
+		isFiniteNumber(value.windowBefore) &&
+		isFiniteNumber(value.sentAt)
+	);
+}
+
 function isOwedKeep(value: Partial<OwedKeep> | null): value is OwedKeep {
 	const times = [value?.heartbeat, value?.fromMs, value?.toMs, value?.apiOffsetMs, value?.writtenAtMs, value?.keptAt];
 	return (
 		typeof value?.employeeId === 'string' &&
 		typeof value.timeLogId === 'string' &&
 		!!value.timeLogId &&
-		times.every((time) => typeof time === 'number' && Number.isFinite(time))
+		times.every(isFiniteNumber) &&
+		(value.unanswered === undefined || isSentTimeSlot(value.unanswered))
 	);
 }
 

@@ -2,6 +2,7 @@ import { ITagCreate } from '@/core/types/interfaces/tag/tag';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { createLabelsRequest, getTaskLabelsListRequest } from '@/core/services/server/requests/task-labels';
 import { NextResponse } from 'next/server';
+import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
 
 export async function GET(req: Request) {
 	const res = new NextResponse();
@@ -25,6 +26,8 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
 	const res = new NextResponse();
 	const body = (await req.json()) as ITagCreate;
 

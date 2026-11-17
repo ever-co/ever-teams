@@ -9,22 +9,12 @@ import { useSession } from '~hooks/useSession';
 import { useTasks } from '~hooks/useTasks';
 import { useTimerStatus } from '~hooks/useTimerStatus';
 import { ApiError } from '~lib/api-client';
-import {
-	EXTENSION_SOURCE,
-	getTimerStatus,
-	type RunningLog,
-	myPlans,
-	sendHeartbeat,
-	startTimer,
-	stopTimer,
-	teamRequiresPlan,
-	todayPlanDay
-} from '~lib/gauzy';
+import { EXTENSION_SOURCE, type RunningLog, myPlans, startTimer, teamRequiresPlan, todayPlanDay } from '~lib/gauzy';
 import { t } from '~lib/i18n';
 import { planRefusalOf } from '~lib/plan-rule';
 import { refusalOf, type Refusal } from '~lib/refusal';
-import { sendsHeartbeat } from '~lib/run-policy';
 import { loadSettings, type Settings } from '~lib/session-store';
+import { stopThroughBackground } from '~lib/stop-run';
 import type { Session } from '~lib/workspaces';
 import browser from '~misc/browser';
 
@@ -35,20 +25,6 @@ function refusalFrom(error: unknown): Refusal {
 		return refusalOf(error);
 	}
 	return { key: 'errorGeneric' };
-}
-
-/**
- * Credits a run's last seconds before its stop, from a fresh read: the popup's copy of the run can predate the
- * background's last heartbeat, and would credit that minute again. A failed credit must not keep the timer running.
- */
-async function creditLastSeconds(session: Session, run: RunningLog): Promise<void> {
-	const fresh = await getTimerStatus(session).catch(() => null);
-	const freshRun = fresh?.lastLog;
-	const isSameRun = freshRun?.id === run.id;
-	if (!isSameRun || !freshRun) {
-		return;
-	}
-	await sendHeartbeat(session, freshRun).catch(() => undefined);
 }
 
 /** The run the clock counts: the last log while the timer runs, none otherwise. */
@@ -133,12 +109,8 @@ function SignedIn({
 		if (!running) {
 			return;
 		}
-		void act(async () => {
-			if (sendsHeartbeat(running)) {
-				await creditLastSeconds(session, running);
-			}
-			await stopTimer(session, running);
-		});
+		// The background credits the run's last seconds and stops it, in turn with its own heartbeats (stop-run.ts)
+		void act(() => stopThroughBackground(session, running));
 	};
 
 	const onCheckTeam = () => {

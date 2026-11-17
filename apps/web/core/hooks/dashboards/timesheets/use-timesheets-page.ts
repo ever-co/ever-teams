@@ -10,6 +10,7 @@ import { useReportClientChoices, useReportProjectClients } from '@/core/hooks/da
 import { useReportUrlFilters } from '@/core/hooks/dashboards/use-report-url-filters';
 import { useBreaksAllowed } from '@/core/hooks/timer/use-breaks-allowed';
 import { activeTeamState } from '@/core/stores/teams/organization-team';
+import { shellSettledState } from '@/core/stores/common/shell';
 import { formatPeriod, type Period, periodOfPreset, type WeekStart } from '@/core/lib/utils/dashboard-period';
 import {
 	isReportUrlFilterField,
@@ -194,9 +195,14 @@ export function useTimesheetsPage() {
 		{ withTaskLabels: true, ...breaksReadOf(allowsBreaks) }
 	);
 
-	// A log names its project and nothing about that project's client, so the client filter waits for the projects
+	// A log names its project and nothing about that project's client, so the client filter waits for the projects.
+	// They are read with the page, archived ones included: read only once a client was picked, the report went behind
+	// its skeleton until they came (#5357). With them read, a client picked narrows the report at once. Nothing on the
+	// first screen waits for them without a client filter, so they are then asked once the shell has settled (shell.ts).
 	const hasClientFilter = linkedFilters.clients.length > 0;
-	const projectClients = useReportProjectClients({ includesArchived: true, isEnabled: hasClientFilter });
+	const shellSettled = useAtomValue(shellSettledState);
+	const readsProjectClients = hasClientFilter || shellSettled;
+	const projectClients = useReportProjectClients({ includesArchived: true, isEnabled: readsProjectClients });
 	const clientChoices = useReportClientChoices(projectClients.projects);
 	const isClientLookupPending = hasClientFilter && projectClients.isPending;
 	const isClientLookupError = hasClientFilter && projectClients.isError;
