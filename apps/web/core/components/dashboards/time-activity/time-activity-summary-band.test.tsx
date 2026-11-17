@@ -26,10 +26,18 @@ jest.mock('next/link', () => ({
 	__esModule: true,
 	default: ({ href, children }: { href: string; children: React.ReactNode }) => <a href={href}>{children}</a>
 }));
+const mockExportMenu = jest.fn();
+jest.mock('./time-activity-export-menu', () => ({
+	TimeActivityExportMenu: (props: unknown) => {
+		mockExportMenu(props);
+		return null;
+	}
+}));
 
 import React from 'react';
+import type { TimeActivityReport } from '@/core/hooks/dashboards/time-activity/use-time-activity-report';
 import { UnpricedBillableNote } from './time-activity-report-sheet';
-import { TimeActivitySummaryBand } from './time-activity-summary-band';
+import { TimeActivityBandExport, TimeActivitySummaryBand } from './time-activity-summary-band';
 
 const HOUR = 3600;
 
@@ -196,5 +204,38 @@ describe('TimeActivitySummaryBand breaks figure (#5216)', () => {
 
 		expect(screen.getByText('breaks.FIGURE_LABEL')).toBeTruthy();
 		expect(screen.getAllByText('dashboard.timeActivity.figures.UNAVAILABLE').length).toBeGreaterThan(0);
+	});
+});
+
+describe('TimeActivityBandExport', () => {
+	it('gives the files the billable amounts the band shows', () => {
+		const billable: TimeActivityBillable = {
+			isOffered: true,
+			facts: [],
+			figures: { amounts: [{ currency: 'EUR', amount: 1200 }], seconds: 15 * HOUR, unpricedSeconds: 0 },
+			isPending: false,
+			isError: false,
+			canSetDefaultRate: false,
+			refetch: () => undefined
+		};
+		const report = {
+			rows: [{}],
+			isBreakdownPending: false,
+			isBreakdownError: false,
+			report: [],
+			period: { from: new Date(2026, 10, 1), to: new Date(2026, 10, 30) },
+			breakdownGrouping: 'project',
+			clientOfProjectLog: null,
+			isManager: true,
+			ownEmployeeId: 'ana',
+			figures: FIGURES,
+			settings: { filters: {} },
+			roundingRule: null,
+			billable
+		} as unknown as TimeActivityReport;
+
+		render(<TimeActivityBandExport report={report} />);
+
+		expect(mockExportMenu.mock.lastCall?.[0]).toMatchObject({ billable });
 	});
 });

@@ -16,7 +16,68 @@ const en = {
 	},
 	timer: {
 		stopFailedTitle: 'The timer could not stop',
-		stopFailedMessage: 'It is still running. Try again in a moment.'
+		stopFailedMessage: 'It is still running. Try again in a moment.',
+		startMove: {
+			title: 'Start of the running timer',
+			startedAt: 'Started at {{time}}',
+			open: 'Started at {{time}}. Change the start',
+			newStart: 'New start',
+			timePlaceholder: 'HH:MM',
+			reason: 'Reason',
+			reasonPlaceholder: 'Why the start changes',
+			laterOnly: 'Adding time by hand is not allowed for you, so the start can only move later.',
+			save: 'Save',
+			saving: 'Saving…',
+			close: 'Close',
+			saved: 'The timer now starts at {{time}}.',
+			checking: 'Checking whether the start can change…',
+			viewTracker: 'This timer runs in the desktop app. Change its start there.',
+			viewNotAllowed: 'Changing tracked time is not allowed for you in this organization.',
+			unsupported: 'The start of a running timer cannot be changed on this server yet.',
+			invalidTime: 'Type a time such as 09:00.',
+			chooseDay: 'The run started before midnight: choose the day of the new start.',
+			notRunning: 'The timer is no longer running.',
+			trackerRun:
+				'This timer runs in the desktop app or the agent, which record its time themselves. Change its start there.',
+			inFuture: 'The start cannot be later than now.',
+			editNotAllowed: 'Changing tracked time is not allowed for you.',
+			manualNotAllowed: 'An earlier start adds time by hand, which is not allowed for you. Choose a later start.',
+			reasonRequired: 'Your organization asks for a reason.',
+			reasonTooLong: 'The reason is too long: 255 characters at most.',
+			overlap: 'Another of your entries covers that time. Choose a start after it ends.',
+			changed: 'The start just changed elsewhere. Check it and try again.',
+			saveFailed: 'The start could not be saved. Try again.',
+			offline: 'You are offline, so the start did not change. Try again once connected.'
+		},
+		discard: {
+			menu: 'More timer actions',
+			changeStart: 'Change the start',
+			action: 'Discard this run',
+			title: 'Discard this run?',
+			description: 'Nothing is saved.',
+			descriptionElsewhere: 'This run was started from {{source}}, and it stops there too. Nothing is saved.',
+			confirm: 'Discard',
+			discarding: 'Discarding…',
+			discarded: 'Run discarded',
+			discardedHint: 'The timer is stopped and nothing was saved.',
+			sources: {
+				web: 'the web app',
+				browserExtension: 'the browser extension',
+				other: 'another app'
+			},
+			failures: {
+				notRunning: 'No timer runs anymore, so nothing was discarded.',
+				disabled: 'Your organization does not allow discarding a run.',
+				tooLate: 'This run started too long ago to be discarded. Stop it, then edit the entry.',
+				forbidden: 'Your role does not allow discarding this run.',
+				notSupported: 'This server does not offer discarding a run yet.',
+				changed: 'Another run started meanwhile, so nothing was discarded.',
+				trackerRun:
+					'This run is recorded by the desktop app or the agent, which keep its time themselves, so it cannot be discarded here.',
+				offline: 'You are offline, so nothing was discarded. Try again once connected.',
+				generic: 'The run could not be discarded. Try again.'
+			}
+		}
 	},
 	welcomeScreen: {
 		postscript:

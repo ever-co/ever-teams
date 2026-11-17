@@ -13,8 +13,11 @@ const invoiceClientSchema = z.object({
 /** An invoice as the list shows it. Its lines and taxes are left out of what the page holds. */
 export const invoiceSchema = z.object({
 	id: z.string(),
-	/** Tells the latest copy apart when two reads meet the same invoice. */
-	updatedAt: z.coerce.date().optional(),
+	/**
+	 * Tells the latest copy apart when two reads meet the same invoice, and is what a save or a status action is made
+	 * under. A null stays null: coerced, it would read as 1970 and be sent as that precondition (#5382).
+	 */
+	updatedAt: z.coerce.date().nullish(),
 	invoiceNumber: decimalSchema,
 	invoiceDate: z.string().nullable().optional(),
 	dueDate: z.string().nullable().optional(),

@@ -120,11 +120,12 @@ function memberEmployeeId(member: TeamMemberFields): string {
 /**
  * The colleagues of the teams `selfEmployeeId` belongs to, each once, without themself: their employee id, name and
  * picture, nothing more (no e-mail address, role or tenant). Members who left a team, or whose employment ended, are
- * left out, as Gauzy would leave them out of the notification anyway.
+ * left out, as Gauzy would leave them out of the notification anyway. A team the person left, or every team once their
+ * own employment ended, is no longer theirs: its colleagues are not listed.
  */
 export function boardMembersOf(teams: TeamFields[], selfEmployeeId: string | null | undefined): BoardMember[] {
 	const ownTeams = teams.filter((team) =>
-		(team.members ?? []).some((member) => memberEmployeeId(member) === selfEmployeeId)
+		(team.members ?? []).some((member) => memberEmployeeId(member) === selfEmployeeId && isActiveMember(member))
 	);
 	const members = new Map<string, BoardMember>();
 	for (const member of ownTeams.flatMap((team) => team.members ?? [])) {

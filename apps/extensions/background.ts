@@ -1,10 +1,12 @@
 import { ApiError } from '~lib/api-client';
 import { createCoalescedRunner } from '~lib/coalesce';
-import { withDeadline } from '~lib/deadline';
-import { getTimerStatus, sendHeartbeat, type TimerStatus } from '~lib/gauzy';
+import { CALL_DEADLINE_MS, withDeadline } from '~lib/deadline';
+import { getTimerStatus, sendHeartbeat, stopTimer, type TimerStatus } from '~lib/gauzy';
 import { isOwnPagePort } from '~lib/ports';
 import { sendsHeartbeat } from '~lib/run-policy';
+import { createSerialQueue } from '~lib/serial';
 import { createStatusOrder } from '~lib/status-order';
+import { runToStopOf, stopFailureOf, type RunToStop, type StopRunAnswer } from '~lib/stop-run';
 import { loadSession, takeSessionOut } from '~lib/session-store';
 import { badgeText, secondsSince } from '~lib/time-format';
 import { isSamePerson, isSameSignIn, type Session } from '~lib/workspaces';
@@ -18,8 +20,6 @@ const REFRESH_ALARM = 'refresh-timer-status';
 const REFRESH_EVERY_MINUTES = 1;
 // The primary color of the web's timer button
 const BADGE_COLOR = '#6366f1';
-// A call to the API with no answer by then is cancelled: the refreshes go one at a time, and it would hold them all
-const CALL_DEADLINE_MS = 30_000;
 
 const ports = new Set<chrome.runtime.Port>();
 
@@ -166,15 +166,75 @@ function reportRefreshFailure(error: unknown): void {
 }
 
 /**
+ * The background's calls about the timer, one at a time: a refresh with its heartbeat, and a stop the popup asks for
+ * with its last credit. Each reads the run's last heartbeat and credits the seconds since: two of them on their way at
+ * once would both read it before either landed, and credit the same seconds twice.
+ */
+const timerCallsInTurn = createSerialQueue();
+
+/**
  * One refresh at a time, its heartbeat included: an alarm while a read (or its heartbeat) is on its way waits for it,
- * and the refreshes asked for meanwhile run once after it, with a heartbeat when one of them asked for it. Two
- * heartbeats on their way at once would credit the same seconds twice: both read the run's last heartbeat before
- * either landed. The runner ends a failed run silently, so a refresh reports its own failure.
+ * and the refreshes asked for meanwhile run once after it, with a heartbeat when one of them asked for it. A refresh
+ * also waits for a stop on its way (timerCallsInTurn). The runner ends a failed run silently, so a refresh reports its
+ * own failure.
  */
 const refreshOneAtATime = createCoalescedRunner(
-	(heartbeat: boolean) => refresh(heartbeat).catch(reportRefreshFailure),
+	(heartbeat: boolean) => timerCallsInTurn(() => refresh(heartbeat)).catch(reportRefreshFailure),
 	(waiting: boolean, next: boolean) => waiting || next
 );
+
+/**
+ * A call of the stop's last credit that failed: a 401 the renewal did not cure signs out, as any call of the background
+ * does, and the stop is sent all the same.
+ */
+async function signOutIfCreditRefused(session: Session, error: unknown): Promise<void> {
+	await signOutIfRefused(session, error).catch(reportRefreshFailure);
+}
+
+/**
+ * Credits a run's last seconds before its stop, from a fresh read: the popup's copy of the run can predate the last
+ * heartbeat, and would credit that minute again. Only a run that still goes on is credited: one stopped meanwhile (from
+ * another app or device) would be credited the time since its stop. Never fails: a failed credit must not keep the
+ * timer running.
+ */
+async function creditLastSeconds(session: Session, run: RunToStop): Promise<void> {
+	const fresh = await withDeadline(CALL_DEADLINE_MS, (signal) => getTimerStatus(session, { signal })).catch(
+		async (error: unknown) => {
+			await signOutIfCreditRefused(session, error);
+			return null;
+		}
+	);
+	const freshRun = fresh?.lastLog;
+	const isSameRunGoingOn = Boolean(fresh?.running && freshRun?.id === run.id);
+	if (!isSameRunGoingOn || !freshRun) {
+		return;
+	}
+	await withDeadline(CALL_DEADLINE_MS, (signal) => sendHeartbeat(session, freshRun, { signal })).catch(
+		(error: unknown) => signOutIfCreditRefused(session, error)
+	);
+}
+
+/**
+ * Stops the run the popup asked to stop, its last seconds credited first when it was started here. In turn with the
+ * refreshes and their heartbeats (timerCallsInTurn): the popup used to credit those seconds itself, beside the alarm's
+ * heartbeat, and both could credit them. Answers the failure for the popup to show.
+ */
+async function stopRun(run: RunToStop): Promise<StopRunAnswer> {
+	const session = await loadSession();
+	if (!session) {
+		return stopFailureOf(new ApiError(401, 'Signed out'));
+	}
+	try {
+		if (sendsHeartbeat(run)) {
+			await creditLastSeconds(session, run);
+		}
+		await withDeadline(CALL_DEADLINE_MS, (signal) => stopTimer(session, run, { signal }));
+		return { stopped: true };
+	} catch (error) {
+		await signOutIfRefused(session, error);
+		return stopFailureOf(error);
+	}
+}
 
 async function requestRefresh(heartbeat = false): Promise<void> {
 	try {
@@ -219,6 +279,20 @@ browser.storage.onChanged.addListener((changes, area) => {
 		void showSignedOut().catch(reportRefreshFailure);
 	}
 	void requestRefresh();
+});
+
+// The popup's Stop: the run is credited and stopped here, in turn with the alarm's heartbeats (stop-run.ts)
+browser.runtime.onMessage.addListener((message: unknown, sender, sendResponse) => {
+	const run = runToStopOf(message);
+	// A message a web page's script sent (it names its tab) stops nothing
+	if (!run || !isOwnPagePort({ sender })) {
+		return undefined;
+	}
+	void timerCallsInTurn(() => stopRun(run))
+		.catch((): StopRunAnswer => ({ stopped: false }))
+		.then(sendResponse);
+	// The answer is sent once the stop is done
+	return true;
 });
 
 // The popup read the timer (after a start or a stop, or a run stopped elsewhere): the badge shows what it shows

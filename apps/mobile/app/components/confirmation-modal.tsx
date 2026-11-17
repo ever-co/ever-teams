@@ -20,6 +20,10 @@ interface IConfirmation {
 	visible: boolean
 	onConfirm: () => void
 	confirmationText: string
+	/** A line under the question, saying what confirming does. */
+	description?: string
+	/** The label of the confirming button; "Delete" when none is given. */
+	confirmLabel?: string
 }
 
 const ConfirmationModal: FC<IConfirmation> = ({
@@ -27,6 +31,8 @@ const ConfirmationModal: FC<IConfirmation> = ({
 	visible,
 	onConfirm,
 	confirmationText,
+	description,
+	confirmLabel,
 }) => {
 	const { colors } = useAppTheme()
 	return (
@@ -35,6 +41,9 @@ const ConfirmationModal: FC<IConfirmation> = ({
 				<Text style={{ color: colors.primary, fontSize: 17, textAlign: "center" }}>
 					{confirmationText}
 				</Text>
+				{description ? (
+					<Text style={[styles.description, { color: colors.tertiary }]}>{description}</Text>
+				) : null}
 				<View style={styles.wrapButtons}>
 					<TouchableOpacity style={styles.cancelBtn} onPress={() => onDismiss()}>
 						<Text style={styles.cancelTxt}>
@@ -50,7 +59,7 @@ const ConfirmationModal: FC<IConfirmation> = ({
 							onDismiss()
 						}}
 					>
-						<Text style={styles.confirmTxt}>Delete</Text>
+						<Text style={styles.confirmTxt}>{confirmLabel ?? "Delete"}</Text>
 					</TouchableOpacity>
 				</View>
 			</View>
@@ -142,6 +151,12 @@ const styles = StyleSheet.create({
 		borderRadius: 20,
 		padding: 20,
 		width: "90%",
+	},
+	description: {
+		fontFamily: typography.primary.medium,
+		fontSize: 14,
+		marginTop: 8,
+		textAlign: "center",
 	},
 	wrapButtons: {
 		flexDirection: "row",

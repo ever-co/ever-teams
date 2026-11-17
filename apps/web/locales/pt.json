@@ -730,6 +730,7 @@
 					"UNCHANGED": "{count, plural, one {# entrada já tem estes valores.} other {# entradas já têm estes valores.}}",
 					"OVERLAP": "{count, plural, one {# entrada se sobrepõe a outro tempo registrado: salvá-la removeria esse tempo.} other {# entradas se sobrepõem a outro tempo registrado: salvá-las removeria esse tempo.}}",
 					"CHECK_FAILED": "{count, plural, one {Não foi possível verificar a sobreposição de # entrada, por isso ela não foi salva.} other {Não foi possível verificar a sobreposição de # entradas, por isso elas não foram salvas.}}",
+					"CHANGED_MEANWHILE": "{count, plural, one {# entrada foi alterada em outro lugar durante esta edição, por isso nada foi salvo nela.} other {# entradas foram alteradas em outro lugar durante esta edição, por isso nada foi salvo nelas.}}",
 					"FAILED": "{count, plural, one {Não foi possível salvar # entrada.} other {Não foi possível salvar # entradas.}}"
 				}
 			},
@@ -1371,6 +1372,10 @@
 				"STATUS": "Status",
 				"TRACKED_HOURS": "Registrado (horas)",
 				"CURRENCY": "Moeda",
+				"BILLABLE_HOURS": "Horas faturáveis",
+				"BILLABLE_CURRENCY": "Moeda faturável",
+				"NO_RATE": "Sem taxa",
+				"BILLABLE_UNPRICED": "{duration} de tempo faturável sem taxa",
 				"ACTIVITY_PERCENT": "Atividade (%)",
 				"NO_TASK": "Sem tarefa",
 				"PAGE": "Página {page} de {total}"
@@ -7675,6 +7680,7 @@
 			"MARKED_PAID": "A fatura {number} está marcada como paga",
 			"MARKED_UNPAID": "A fatura {number} voltou a Enviada, por pagar",
 			"CHANGE_FAILED": "A fatura {number} não foi alterada",
+			"CHANGED_MEANWHILE": "Esta fatura mudou desde que foi exibida, então nada foi alterado. Atualize-a para ver a versão atual e tente novamente.",
 			"DOWNLOAD": "Descarregar em PDF"
 		},
 		"send": {
@@ -7754,6 +7760,7 @@
 				"NOT_CHECKED": "Não foi possível voltar a ler a fatura antes de guardar, por isso nada foi guardado. Tente novamente.",
 				"NOT_REACHED": "A ligação falhou: as alterações não foram guardadas e a fatura ficou como estava. Verifique a sua ligação e tente novamente.",
 				"CHANGED": "Desde que foi aberta, a fatura {number} foi alterada: nada foi guardado. Abra-a de novo na lista de faturas para começar pela versão atual.",
+				"CHANGED_MEANWHILE": "Esta fatura mudou desde que você a abriu, então nada foi salvo. Feche isto para ver a versão atual.",
 				"RECORDS_TIME": "Regista as horas que as suas linhas faturam, para que nenhuma outra fatura as volte a faturar."
 			}
 		},

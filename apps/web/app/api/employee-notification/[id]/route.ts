@@ -4,10 +4,13 @@ import { authenticatedGuard } from '@/core/services/server/guards/authenticated-
 import { updateEmployeeNotificationRequest } from '@/core/services/server/requests/employee-notification';
 import { gauzyErrorResponse } from '@/core/services/server/gauzy-error-response';
 import { notificationPatchSchema } from '@/core/lib/validation/employee-notification';
+import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
 
 const notificationIdSchema = z.guid();
 
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
 	const parsedId = notificationIdSchema.safeParse((await params).id);
 	if (!parsedId.success) {
 		return NextResponse.json({ error: 'A notification id is required' }, { status: 400 });

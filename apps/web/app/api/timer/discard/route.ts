@@ -2,6 +2,7 @@ import { authenticatedGuard } from '@/core/services/server/guards/authenticated-
 import { gauzyErrorResponse } from '@/core/services/server/gauzy-error-response';
 import { discardTimerRequest, getTimerStatusRequest, readTodayRange } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
+import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
 
 /** The run the member saw, when the body names one: undefined without one, null when it is not a string. */
 function timeLogIdOf(body: unknown): string | undefined | null {
@@ -24,6 +25,8 @@ function timeLogIdOf(body: unknown): string | undefined | null {
  * organization's settings): its refusals keep their status and body, so the client reads their code.
  */
 export async function POST(req: Request) {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
 	const res = new NextResponse();
 	const { $res, user, tenantId, access_token, organizationId } = await authenticatedGuard(req, res);
 	if (!user) return $res('Unauthorized');

@@ -19,7 +19,9 @@ export function refuseForeignOrigin(req: Request): NextResponse | null {
 
 	const origin = req.headers.get('origin');
 	if (origin) {
-		const host = (req.headers.get('x-forwarded-host') ?? req.headers.get('host') ?? new URL(req.url).host).split(',')[0].trim();
+		const host = (req.headers.get('x-forwarded-host') ?? req.headers.get('host') ?? new URL(req.url).host)
+			.split(',')[0]
+			.trim();
 		let originHost: string | null = null;
 		try {
 			originHost = new URL(origin).host;
@@ -31,6 +33,21 @@ export function refuseForeignOrigin(req: Request): NextResponse | null {
 	return null;
 }
 
+/**
+ * `refuseForeignOrigin` for a write only: a request of any method but GET and HEAD must come from this app's own pages,
+ * while a read is left as it is.
+ *
+ * @param req The incoming request.
+ * @returns A 403 answer, or null when the request is a read or comes from this app.
+ */
+export function refuseForeignWrite(req: Request): NextResponse | null {
+	if (req.method === 'GET' || req.method === 'HEAD') return null;
+	return refuseForeignOrigin(req);
+}
+
 function refused(): NextResponse {
-	return NextResponse.json({ statusCode: 403, message: 'Cross-site request refused' }, { status: 403, headers: { 'Cache-Control': 'no-store' } });
+	return NextResponse.json(
+		{ statusCode: 403, message: 'Cross-site request refused' },
+		{ status: 403, headers: { 'Cache-Control': 'no-store' } }
+	);
 }

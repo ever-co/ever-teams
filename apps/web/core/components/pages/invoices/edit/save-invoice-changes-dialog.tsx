@@ -120,6 +120,9 @@ function useFailureText(failure: EditFailure | null, number: string): string | n
 	if (failure.status === 'changed') {
 		return t('invoices.edit.confirm.CHANGED', { number });
 	}
+	if (failure.status === 'changedMeanwhile') {
+		return t('invoices.edit.confirm.CHANGED_MEANWHILE');
+	}
 	if (failure.status === 'notChecked') {
 		return t('invoices.edit.confirm.NOT_CHECKED');
 	}
@@ -144,7 +147,8 @@ export function SaveInvoiceChangesDialog({
 	invoice,
 	onClose,
 	onLockedRefusal,
-	onSaveFailed
+	onSaveFailed,
+	onChangedMeanwhile
 }: Readonly<{
 	open: boolean;
 	invoice: InvoiceEditState;
@@ -153,6 +157,11 @@ export function SaveInvoiceChangesDialog({
 	onLockedRefusal?: () => void;
 	/** Any save that did not go through: the page reads the invoice again once this dialog is closed. */
 	onSaveFailed?: () => void;
+	/**
+	 * The API refused the save because the invoice was saved from elsewhere after it was read (#5243): the page opens
+	 * the editor again on what it holds now, once this dialog is closed.
+	 */
+	onChangedMeanwhile?: () => void;
 }>) {
 	const t = useTranslations();
 	const locale = useLocale();
@@ -193,6 +202,10 @@ export function SaveInvoiceChangesDialog({
 		const isLocked = outcome.status === 'locked';
 		if (isLocked) {
 			onLockedRefusal?.();
+		}
+		const isChangedMeanwhile = outcome.status === 'changedMeanwhile';
+		if (isChangedMeanwhile) {
+			onChangedMeanwhile?.();
 		}
 	};
 

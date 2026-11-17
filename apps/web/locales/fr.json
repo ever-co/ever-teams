@@ -730,6 +730,7 @@
 					"UNCHANGED": "{count, plural, one {# entrée a déjà ces valeurs.} other {# entrées ont déjà ces valeurs.}}",
 					"OVERLAP": "{count, plural, one {# entrée chevauche d'autre temps enregistré : l'enregistrer supprimerait ce temps.} other {# entrées chevauchent d'autre temps enregistré : les enregistrer supprimerait ce temps.}}",
 					"CHECK_FAILED": "{count, plural, one {Le chevauchement de # entrée n'a pas pu être vérifié, elle n'a donc pas été enregistrée.} other {Le chevauchement de # entrées n'a pas pu être vérifié, elles n'ont donc pas été enregistrées.}}",
+					"CHANGED_MEANWHILE": "{count, plural, one {# entrée a été modifiée ailleurs pendant cette modification, rien n'y a donc été enregistré.} other {# entrées ont été modifiées ailleurs pendant cette modification, rien n'y a donc été enregistré.}}",
 					"FAILED": "{count, plural, one {# entrée n'a pas pu être enregistrée.} other {# entrées n'ont pas pu être enregistrées.}}"
 				}
 			},
@@ -1371,6 +1372,10 @@
 				"STATUS": "Statut",
 				"TRACKED_HOURS": "Suivi (heures)",
 				"CURRENCY": "Devise",
+				"BILLABLE_HOURS": "Heures facturables",
+				"BILLABLE_CURRENCY": "Devise facturable",
+				"NO_RATE": "Aucun taux",
+				"BILLABLE_UNPRICED": "{duration} de temps facturable sans taux",
 				"ACTIVITY_PERCENT": "Activité (%)",
 				"NO_TASK": "Sans tâche",
 				"PAGE": "Page {page} sur {total}"
@@ -7675,6 +7680,7 @@
 			"MARKED_PAID": "La facture {number} est marquée comme payée",
 			"MARKED_UNPAID": "La facture {number} repasse à Envoyée, impayée",
 			"CHANGE_FAILED": "La facture {number} n’a pas été modifiée",
+			"CHANGED_MEANWHILE": "Cette facture a changé depuis son affichage : rien n'a été modifié. Actualisez-la pour voir sa version actuelle, puis réessayez.",
 			"DOWNLOAD": "Télécharger en PDF"
 		},
 		"send": {
@@ -7754,6 +7760,7 @@
 				"NOT_CHECKED": "La facture n’a pas pu être relue avant l’enregistrement, donc rien n’a été enregistré. Réessayez.",
 				"NOT_REACHED": "La connexion a échoué : les modifications n’ont pas été enregistrées et la facture est restée telle quelle. Vérifiez votre connexion, puis réessayez.",
 				"CHANGED": "Depuis son ouverture, la facture {number} a été modifiée : rien n’a été enregistré. Rouvrez-la depuis la liste des factures pour partir de sa version actuelle.",
+				"CHANGED_MEANWHILE": "Cette facture a changé depuis que vous l'avez ouverte : rien n'a été enregistré. Fermez ceci pour voir sa version actuelle.",
 				"RECORDS_TIME": "Enregistre les heures que facturent ses lignes : aucune autre facture ne pourra les facturer."
 			}
 		},

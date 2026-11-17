@@ -1,7 +1,10 @@
 /* eslint-disable camelcase */
 import moment from 'moment-timezone';
 import {
+	IApiRefusal,
 	ITimer,
+	ITimerDiscardParams,
+	ITimerStartMoveParams,
 	ITimerStatusParams,
 	ITimerStatus,
 	ITimerParams,
@@ -72,6 +75,35 @@ export function toggleTimerRequest(
 		},
 		bearer_token,
 		tenantId
+	});
+}
+
+/**
+ * Moves the start of the caller's running timer, earlier or later, while it keeps running (ever-co/ever-gauzy#11941).
+ * Answers the running log; a refusal names its rule in `code`, and an API without the route answers 404.
+ */
+export function moveTimerStartRequest(body: ITimerStartMoveParams, bearer_token: string, tenantId: string) {
+	return serverFetch<ITimer | IApiRefusal>({
+		path: '/timesheet/timer/started-at',
+		method: 'PUT',
+		bearer_token,
+		body,
+		tenantId
+	});
+}
+
+/**
+ * Discards the caller's running timer: the run, its time slots and screenshots are removed, as if it never started
+ * (ever-co/ever-gauzy#11935). `timeLogId` names the run the person saw, so a run started meanwhile elsewhere is never
+ * removed (409). Answers 204; a refusal names its rule in `code`.
+ */
+export function discardTimerRequest(params: ITimerDiscardParams, bearer_token: string) {
+	return serverFetch<IApiRefusal | undefined>({
+		path: '/timesheet/timer/discard',
+		method: 'POST',
+		bearer_token,
+		body: params,
+		tenantId: params.tenantId
 	});
 }
 

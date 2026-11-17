@@ -12,6 +12,22 @@ export function createOrganizationRequest(datas: IOrganizationCreate, bearerToke
 }
 
 /**
+ * Reads one organization of the tenant: its rules on tracked time (adding, changing and discarding it, the reason
+ * asked) are read from it. Any member of the organization may read it.
+ */
+export function getOrganizationRequest(
+	{ organizationId, tenantId }: { organizationId: string; tenantId: string },
+	bearerToken: string
+) {
+	return serverFetch<IOrganization>({
+		path: `/organization/${organizationId}`,
+		method: 'GET',
+		bearer_token: bearerToken,
+		tenantId
+	});
+}
+
+/**
  * Constructs a request to fetch user organizations based on tenant and user ID.
  *
  * @param param0 - Object containing tenantId and userId.

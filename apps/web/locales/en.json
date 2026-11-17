@@ -730,6 +730,7 @@
 					"UNCHANGED": "{count, plural, one {# entry already has these values.} other {# entries already have these values.}}",
 					"OVERLAP": "{count, plural, one {# entry overlaps other recorded time: saving it would remove that time.} other {# entries overlap other recorded time: saving them would remove that time.}}",
 					"CHECK_FAILED": "{count, plural, one {# entry could not be checked for overlapping time, so it was not saved.} other {# entries could not be checked for overlapping time, so they were not saved.}}",
+					"CHANGED_MEANWHILE": "{count, plural, one {# entry was changed elsewhere while this edit ran, so nothing was saved to it.} other {# entries were changed elsewhere while this edit ran, so nothing was saved to them.}}",
 					"FAILED": "{count, plural, one {# entry could not be saved.} other {# entries could not be saved.}}"
 				}
 			},
@@ -1371,6 +1372,10 @@
 				"STATUS": "Status",
 				"TRACKED_HOURS": "Tracked (hours)",
 				"CURRENCY": "Currency",
+				"BILLABLE_HOURS": "Billable hours",
+				"BILLABLE_CURRENCY": "Billable currency",
+				"NO_RATE": "No rate",
+				"BILLABLE_UNPRICED": "{duration} of billable time has no rate",
 				"ACTIVITY_PERCENT": "Activity (%)",
 				"NO_TASK": "No task",
 				"PAGE": "Page {page} of {total}"
@@ -7675,6 +7680,7 @@
 			"MARKED_PAID": "Invoice {number} is marked paid",
 			"MARKED_UNPAID": "Invoice {number} is back to Sent, unpaid",
 			"CHANGE_FAILED": "Invoice {number} was not changed",
+			"CHANGED_MEANWHILE": "This invoice changed since it was shown, so nothing was changed. Refresh it to see its current version, then try again.",
 			"DOWNLOAD": "Download PDF"
 		},
 		"send": {
@@ -7754,6 +7760,7 @@
 				"NOT_CHECKED": "The invoice could not be read again before saving, so nothing was saved. Try again.",
 				"NOT_REACHED": "The connection failed: the changes were not saved and the invoice is as it was. Check your connection, then try again.",
 				"CHANGED": "Since it was opened, invoice {number} was changed: nothing was saved. Open it again from the invoice list to start from its current version.",
+				"CHANGED_MEANWHILE": "This invoice changed since you opened it, so nothing was saved. Close this to see its current version.",
 				"RECORDS_TIME": "Records the hours its lines bill, so no other invoice bills them again."
 			}
 		},
