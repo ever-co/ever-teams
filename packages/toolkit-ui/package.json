@@ -4,9 +4,14 @@
 	"sideEffects": false,
 	"exports": {
 		".": {
-			"types": "./dist/index.d.ts",
-			"import": "./dist/index.es.js",
-			"require": "./dist/cjs/index.cjs",
+			"import": {
+				"types": "./dist/index.d.ts",
+				"default": "./dist/index.es.js"
+			},
+			"require": {
+				"types": "./dist/cjs/index.d.ts",
+				"default": "./dist/cjs/index.cjs"
+			},
 			"default": "./dist/index.es.js"
 		}
 	},

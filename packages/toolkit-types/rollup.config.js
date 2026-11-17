@@ -2,6 +2,7 @@ import typescript from '@rollup/plugin-typescript';
 import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
 import terser from '@rollup/plugin-terser';
+import { publishedDeclarations } from '../toolkit-ui/scripts/declarations.mjs';
 
 export default {
 	input: 'src/index.ts',
@@ -11,7 +12,8 @@ export default {
 			format: 'es',
 			sourcemap: false
 		},
-		// For require() and for the CommonJS build of atoms, which loads this package.
+		// For require() and for the CommonJS build of atoms, which loads this package. Its declarations go to dist/cjs
+		// (../toolkit-ui/scripts/declarations.mjs); the file stays in dist, where the TypeScript plugin wants every output.
 		{
 			file: 'dist/index.cjs',
 			format: 'cjs',
@@ -34,7 +36,8 @@ export default {
 				drop_debugger: true // Remove debugger statements
 			},
 			mangle: true // Shorten variable names
-		})
+		}),
+		publishedDeclarations()
 	],
 	watch: {
 		include: 'src/**',

@@ -12,6 +12,7 @@ import { buildStyles } from './scripts/build-styles.mjs';
 import { resolveDeclarationPaths } from './scripts/resolve-declaration-paths.mjs';
 import { useClientDirective } from '../../toolkit-ui/scripts/use-client-directive.mjs';
 import { outputFileName, isKitPackage } from '../../toolkit-ui/scripts/module-output.mjs';
+import { addDeclarationExtensions, copyCommonJsDeclarations } from '../../toolkit-ui/scripts/declarations.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -114,6 +115,9 @@ const createConfig = ({ dir, format, extension, declarations }) => ({
 				await buildStyles();
 				// The declarations keep the source's path aliases (@components/...): a host's TypeScript cannot follow them.
 				resolveDeclarationPaths(path.join(__dirname, 'dist'));
+				// Then: extensions for ES callers on node16/nodenext, and a copy for CommonJS callers (dist/cjs).
+				addDeclarationExtensions(path.join(__dirname, 'dist'), path.join(__dirname, 'dist', 'cjs'));
+				copyCommonJsDeclarations(path.join(__dirname, 'dist'), path.join(__dirname, 'dist', 'cjs'));
 			}
 		}
 	],

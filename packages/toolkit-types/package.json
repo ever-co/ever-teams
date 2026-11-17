@@ -4,9 +4,14 @@
 	"license": "MIT",
 	"exports": {
 		".": {
-			"types": "./dist/index.d.ts",
-			"import": "./dist/index.es.js",
-			"require": "./dist/index.cjs",
+			"import": {
+				"types": "./dist/index.d.ts",
+				"default": "./dist/index.es.js"
+			},
+			"require": {
+				"types": "./dist/cjs/index.d.ts",
+				"default": "./dist/index.cjs"
+			},
 			"default": "./dist/index.es.js"
 		},
 		"./lib/*": "./dist/lib/*"

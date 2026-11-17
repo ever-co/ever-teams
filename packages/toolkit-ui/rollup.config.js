@@ -6,6 +6,7 @@ import peerDepsExternal from 'rollup-plugin-peer-deps-external';
 import terser from '@rollup/plugin-terser';
 import { useClientDirective } from './scripts/use-client-directive.mjs';
 import { outputFileName, isKitPackage } from './scripts/module-output.mjs';
+import { publishedDeclarations } from './scripts/declarations.mjs';
 
 // One output file per source module, in ESM (dist) and CommonJS (dist/cjs): a host's bundler keeps only what it uses,
 // and Next.js reads each "use client" module as a client component. The kit's own packages stay external, so a host
@@ -47,7 +48,9 @@ const createConfig = ({ dir, format, extension, declarations }) => ({
 			mangle: true
 		}),
 		// After terser, which drops directives it does not know.
-		useClientDirective()
+		useClientDirective(),
+		// The declarations, written with the ES build, for ES and CommonJS callers (scripts/declarations.mjs)
+		...(declarations ? [publishedDeclarations()] : [])
 	],
 	external: (id) => isKitPackage(id) || /^react(-dom)?(\/|$)/.test(id),
 	watch: {
