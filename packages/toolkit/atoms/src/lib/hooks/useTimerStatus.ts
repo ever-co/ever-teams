@@ -3,10 +3,34 @@ import { useEffect, useState } from 'react';
 import { getTimerStatus } from '@ever-teams/api';
 import { IHookResponse, ITimerStatus, IUser } from '@ever-teams/toolkit-types';
 import { toast } from '@ever-teams/toolkit-ui';
+import {
+	TIMER_STATUS_REFRESH_MS,
+	errorMessageOf,
+	useTimerStatusContext
+} from '@lib/context/teams-timer-status-context';
 
-const CHECK_STATUS_DELAY = 30000;
-
+/**
+ * The timer status of the signed-in employee. Under a TeamsProvider every caller shares one read (see
+ * TimerStatusProvider). Outside one, the hook reads it on its own, as it did before the provider existed.
+ */
 const useTimerStatus = (user: IUser | null, token: string, organizationId?: string): IHookResponse<ITimerStatus> => {
+	const shared = useTimerStatusContext();
+	const registerConsumer = shared?.registerConsumer;
+	useEffect(() => registerConsumer?.(), [registerConsumer]);
+
+	const ownStatus = useOwnTimerStatus(user, token, organizationId, !shared);
+	if (shared) {
+		return { data: shared.status, loading: shared.loading };
+	}
+	return ownStatus;
+};
+
+function useOwnTimerStatus(
+	user: IUser | null,
+	token: string,
+	organizationId: string | undefined,
+	enabled: boolean
+): IHookResponse<ITimerStatus> {
 	const [timerStatus, setTimerStatus] = useState<IHookResponse<ITimerStatus>>({
 		data: null,
 		loading: false
@@ -18,16 +42,9 @@ const useTimerStatus = (user: IUser | null, token: string, organizationId?: stri
 			const userTimerStatus = await getTimerStatus(user, token, organizationId);
 
 			if ('message' in userTimerStatus || 'error' in userTimerStatus) {
-				const errorMessage =
-					'message' in userTimerStatus
-						? Array.isArray(userTimerStatus.message)
-							? userTimerStatus.message.join(', ')
-							: userTimerStatus.message
-						: String(userTimerStatus.error);
-
 				toast({
 					variant: 'destructive',
-					description: errorMessage
+					description: errorMessageOf(userTimerStatus)
 				});
 
 				return;
@@ -43,15 +60,17 @@ const useTimerStatus = (user: IUser | null, token: string, organizationId?: stri
 			setTimerStatus((prev) => ({ ...prev, loading: false }));
 		}
 	};
+
 	useEffect(() => {
-		if (user && user.employee && token && organizationId) {
+		const signedIn = Boolean(user && user.employee && token && organizationId);
+		if (enabled && signedIn) {
 			fetchTimerStatus(); // Initial fetch on mount
-			const interval = setInterval(fetchTimerStatus, CHECK_STATUS_DELAY);
+			const interval = setInterval(fetchTimerStatus, TIMER_STATUS_REFRESH_MS);
 			return () => clearInterval(interval);
 		}
-	}, [user, organizationId]);
+	}, [user, organizationId, enabled]);
 
 	return timerStatus;
-};
+}
 
 export { useTimerStatus };
