@@ -48,6 +48,10 @@ function yesNoOf(value: boolean, t: Translate) {
 }
 
 function projectCellOf(entry: ManualTimeEntry, t: Translate) {
+	// A project the API keeps from the reader is written as one, never "No project" (CORE-27)
+	if (entry.isProjectHidden) {
+		return t('common.PRIVATE_PROJECT');
+	}
 	return entry.projectName ?? t('dashboard.timesheets.NO_PROJECT');
 }
 

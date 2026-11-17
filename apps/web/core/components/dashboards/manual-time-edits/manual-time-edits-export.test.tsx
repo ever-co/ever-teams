@@ -208,3 +208,50 @@ describe('the dates of a line of the Manual time edit CSV', () => {
 		expect(columns[EDITED_AT_COLUMN].valueOf(entry)).toBe('2026-11-05 09:07');
 	});
 });
+
+describe('a line of the Manual time edit exports on a project the API keeps from the reader (CORE-27)', () => {
+	const PROJECT_COLUMN = 2;
+	const CLIENT_X = 'project-client-x-redesign';
+	const hidden = { ...entry, projectName: null, isProjectHidden: true } as ManualTimeEntry;
+
+	it('writes "Private project" in the project column, never "No project"', async () => {
+		await runExport('csv');
+
+		const columns = mockDownloadCsv.mock.calls[0][1] as CsvColumn<ManualTimeEntry>[];
+		expect(columns[PROJECT_COLUMN].valueOf(hidden)).toBe('common.PRIVATE_PROJECT');
+		expect(columns[PROJECT_COLUMN].valueOf(entry)).toBe('Website');
+	});
+
+	it('writes "Private project" for a change to or from that project, never its id', async () => {
+		await runExport('csv');
+
+		const columns = mockDownloadCsv.mock.calls[0][1] as CsvColumn<ManualTimeEntry>[];
+		const moved = {
+			...hidden,
+			lastChange: {
+				id: 'change',
+				entryId: 'log-a',
+				at: new Date(2026, 10, 5, 9, 7),
+				action: 'updated',
+				authorEmployeeId: null,
+				authorUserId: null,
+				ownerEmployeeId: null,
+				reason: null,
+				fields: [
+					{
+						field: 'projectId',
+						before: CLIENT_X,
+						after: 'p2',
+						beforeName: null,
+						afterName: 'Website',
+						isBeforeHidden: true
+					}
+				]
+			}
+		} as ManualTimeEntry;
+		expect(columns[BEFORE_COLUMN].valueOf(moved)).toBe(
+			'dashboard.timesheets.COLUMNS.PROJECT common.PRIVATE_PROJECT'
+		);
+		expect(columns[AFTER_COLUMN].valueOf(moved)).toBe('dashboard.timesheets.COLUMNS.PROJECT Website');
+	});
+});
