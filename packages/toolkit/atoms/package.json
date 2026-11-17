@@ -4,7 +4,9 @@
 	"license": "MIT",
 	"type": "module",
 	"sideEffects": [
-		"*.css"
+		"*.css",
+		"./dist/lib/i18n/init.es.js",
+		"./dist/cjs/lib/i18n/init.cjs"
 	],
 	"scripts": {
 		"build": "rm -rf dist && rollup -c",
