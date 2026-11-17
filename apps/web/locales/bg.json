@@ -1372,6 +1372,10 @@
 				"STATUS": "Статус",
 				"TRACKED_HOURS": "Отчетено (часове)",
 				"CURRENCY": "Валута",
+				"BILLABLE_HOURS": "Часове за фактуриране",
+				"BILLABLE_CURRENCY": "Валута за фактуриране",
+				"NO_RATE": "Няма ставка",
+				"BILLABLE_UNPRICED": "{duration} време за фактуриране без ставка",
 				"ACTIVITY_PERCENT": "Активност (%)",
 				"NO_TASK": "Без задача",
 				"PAGE": "Страница {page} от {total}"

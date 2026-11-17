@@ -1372,6 +1372,10 @@
 				"STATUS": "Statut",
 				"TRACKED_HOURS": "Suivi (heures)",
 				"CURRENCY": "Devise",
+				"BILLABLE_HOURS": "Heures facturables",
+				"BILLABLE_CURRENCY": "Devise facturable",
+				"NO_RATE": "Aucun taux",
+				"BILLABLE_UNPRICED": "{duration} de temps facturable sans taux",
 				"ACTIVITY_PERCENT": "Activité (%)",
 				"NO_TASK": "Sans tâche",
 				"PAGE": "Page {page} sur {total}"

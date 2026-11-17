@@ -1372,6 +1372,10 @@
 				"STATUS": "Status",
 				"TRACKED_HOURS": "Geregistreerd (uren)",
 				"CURRENCY": "Valuta",
+				"BILLABLE_HOURS": "Factureerbare uren",
+				"BILLABLE_CURRENCY": "Factuurvaluta",
+				"NO_RATE": "Geen tarief",
+				"BILLABLE_UNPRICED": "{duration} factureerbare tijd zonder tarief",
 				"ACTIVITY_PERCENT": "Activiteit (%)",
 				"NO_TASK": "Geen taak",
 				"PAGE": "Pagina {page} van {total}"
