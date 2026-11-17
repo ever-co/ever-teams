@@ -212,6 +212,7 @@ const PassCode: FC<Props> = observer(
 								borderColor: colors.border
 							}}
 							ref={authTeamInput}
+							testID="sign-in-email"
 							value={authEmail}
 							onChangeText={onChangeEmail}
 							autoCapitalize="none"
@@ -238,7 +239,7 @@ const PassCode: FC<Props> = observer(
 						)}
 						<CodeInputField editable onChange={onChangeAuthCode} defaultValue={authInviteCode} />
 						{joinError ? <Text style={styles.verifyError}>{joinError}</Text> : null}
-						<TouchableOpacity onPress={() => getAuthCode()}>
+						<TouchableOpacity testID="sign-in-resend-code" onPress={() => getAuthCode()}>
 							<Text style={styles.resendText}>
 								{translate('loginScreen.codeNotReceived')}
 								{translate('loginScreen.sendCode').substring(0, 2)}
@@ -286,6 +287,7 @@ const PassCode: FC<Props> = observer(
 							width: 65
 						}}
 						onPress={() => onPrevStep()}
+						testID="sign-in-back"
 					>
 						<Feather name="arrow-left" size={24} color={dark ? colors.primary : '#3826A6'} />
 						<Text
@@ -312,6 +314,7 @@ const PassCode: FC<Props> = observer(
 						]}
 						textStyle={styles.tapButtonText}
 						onPress={() => onNextStep()}
+						testID="sign-in-continue"
 						disabled={
 							(step === 'Email' && !isValid.step1) ||
 							(step === 'Code' && !isValid.step2) ||
