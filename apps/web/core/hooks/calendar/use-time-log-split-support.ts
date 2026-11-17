@@ -7,10 +7,10 @@ import { timeLogService } from '@/core/services/client/api/timesheets/time-log.s
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 
 /** Whether the API splits an entry in one write: being checked, yes, no, or not known (the check failed). */
-export type SplitSupport = 'checking' | ApiSplitSupport | 'unknown';
+type SplitSupport = 'checking' | ApiSplitSupport | 'unknown';
 
 /** Whether the API splits entries, and asking it again after a check that failed. */
-export interface TimeLogSplitSupport {
+interface TimeLogSplitSupport {
 	support: SplitSupport;
 	recheck: () => void;
 }
