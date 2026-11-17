@@ -505,7 +505,7 @@ export function statusOrderOf(
 			above = { order, isSystem: true };
 			continue;
 		}
-		const order = Math.max(lastOwnOrder, above?.order ?? -1) + 1;
+		const order: number = Math.max(lastOwnOrder, above?.order ?? -1) + 1;
 		// A built-in status with no order sorts last: nothing of the team can be placed below it
 		if (order >= Number.MAX_SAFE_INTEGER) {
 			return null;
