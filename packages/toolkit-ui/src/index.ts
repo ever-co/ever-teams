@@ -1,6 +1,7 @@
 export * from './lib/components/avatar/avatar';
 export * from './lib/components/avatar/teams-avatar';
 export * from './lib/components/alert-dialog';
+export * from './lib/components/portal-container';
 export * from './lib/components/badge';
 export * from './lib/components/button';
 export * from './lib/components/calendar';

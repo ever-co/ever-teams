@@ -7,44 +7,52 @@ import { cn } from '@ever-teams/toolkit-ui';
 import type { ProgressIndicatorVariances, ProgressVariances } from './progress';
 import Progress from './progress';
 
-export const containerVariants = cva('relative gap-1 py-2 px-3 flex items-center justify-center', {
-	variants: {
-		size: {
-			small: 'text-sm',
-			medium: 'text-base',
-			large: 'text-lg'
+// The timer's surface: a card drawn with a ring and a tinted shadow in the kit's tokens, so it follows the color
+// scheme on any host page. background="none" and rounded="none" give back the bare digits of earlier versions.
+// The hover tint is an image over the background color, which it never replaces: the card stays opaque.
+export const containerVariants = cva(
+	[
+		'group relative inline-flex items-center justify-center gap-3 whitespace-nowrap py-1.5 pr-1.5 pl-3',
+		'rounded-xl bg-card text-card-foreground ring-1 ring-border shadow-sm shadow-black/6.5',
+		'transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary',
+		'hover:bg-[linear-gradient(hsl(var(--foreground)/0.025),hsl(var(--foreground)/0.025))]',
+		'disabled:cursor-not-allowed disabled:opacity-60'
+	],
+	{
+		variants: {
+			size: {
+				small: 'text-sm',
+				medium: 'text-base',
+				large: 'text-lg'
+			},
+			color: {
+				primary: 'text-primary',
+				secondary: 'text-secondary',
+				destructive: 'text-destructive'
+			},
+			rounded: {
+				none: 'rounded-none',
+				small: 'rounded-xl',
+				medium: 'rounded-2xl',
+				large: 'rounded-3xl'
+			},
+			border: {
+				none: 'border-none',
+				thin: 'border border-gray-300',
+				thick: 'border-2 border-gray-500'
+			},
+			background: {
+				none: 'bg-transparent shadow-none ring-0 hover:bg-none',
+				destructive: 'bg-destructive',
+				secondary: 'bg-secondary',
+				primary: 'bg-primary'
+			}
 		},
-		color: {
-			primary: 'text-primary',
-			secondary: 'text-secondary',
-			destructive: 'text-destructive'
-		},
-		rounded: {
-			none: 'rounded-none',
-			small: 'rounded-xl',
-			medium: 'rounded-2xl',
-			large: 'rounded-3xl'
-		},
-		border: {
-			none: 'border-none',
-			thin: 'border border-gray-300',
-			thick: 'border-2 border-gray-500'
-		},
-		background: {
-			none: 'transparent',
-			destructive: 'bg-destructive',
-			secondary: 'bg-secondary',
-			primary: 'bg-primary'
+		defaultVariants: {
+			size: 'medium'
 		}
-	},
-	defaultVariants: {
-		size: 'medium',
-		color: 'primary',
-		rounded: 'none',
-		border: 'none',
-		background: 'none'
 	}
-});
+);
 
 export type ContainerVariants = VariantProps<typeof containerVariants>;
 

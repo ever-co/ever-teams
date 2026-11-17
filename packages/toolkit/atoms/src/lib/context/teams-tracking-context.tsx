@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, useRef, ReactNode } from 'react';
 import { ITeamsSession, isSuccessResponse, ITrackingApiHeaders } from '@ever-teams/toolkit-types';
 import { trackingApiClient } from '@ever-teams/api';
 import { useTeamsContext } from './teams-context';
@@ -27,6 +27,10 @@ export interface ITrackingContext {
 	setFormData: React.Dispatch<React.SetStateAction<ITrackingContext['formData']>>;
 	fetchSessions: () => Promise<void>;
 	refetchSessions: () => Promise<void>;
+
+	// Registers a component that shows sessions; returns its unregister function. Sessions are read only while at
+	// least one is mounted, so a page with a timer alone never asks for them.
+	registerConsumer?: () => () => void;
 }
 
 /**
@@ -41,6 +45,8 @@ const TrackingContext = createContext<ITrackingContext | null>(null);
  */
 export const useTrackingContext = (): ITrackingContext => {
 	const context = useContext(TrackingContext);
+	const registerConsumer = context?.registerConsumer;
+	useEffect(() => registerConsumer?.(), [registerConsumer]);
 	if (!context) {
 		throw new Error('useTrackingContext must be used within a TrackingProvider');
 	}
@@ -83,11 +89,24 @@ export const TrackingProvider: React.FC<ITrackingProviderProps> = ({ children, c
 	const [sessions, setSessions] = useState<ITeamsSession[]>([]);
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+	const [consumerCount, setConsumerCount] = useState(0);
+	const hasConsumers = consumerCount > 0;
+
+	// Only the latest read may write the state: an older one that ends later is ignored.
+	const latestRead = useRef(0);
+
+	const registerConsumer = useCallback(() => {
+		setConsumerCount((count) => count + 1);
+		return () => setConsumerCount((count) => count - 1);
+	}, []);
 
 	/**
 	 * Fetch sessions from API with current filter parameters
 	 */
 	const fetchSessions = useCallback(async () => {
+		const read = latestRead.current + 1;
+		latestRead.current = read;
+		const isLatest = () => read === latestRead.current;
 		setLoading(true);
 		setError(null);
 
@@ -118,6 +137,10 @@ export const TrackingProvider: React.FC<ITrackingProviderProps> = ({ children, c
 				token!
 			);
 
+			if (!isLatest()) {
+				return;
+			}
+
 			if (isSuccessResponse(response)) {
 				// Get the user's timezone with fallback priority
 				const userTimezone = getUserTimezone(user?.timeZone);
@@ -135,10 +158,15 @@ export const TrackingProvider: React.FC<ITrackingProviderProps> = ({ children, c
 				setSessions([]);
 			}
 		} catch (err) {
+			if (!isLatest()) {
+				return;
+			}
 			setError(err instanceof Error ? err.message : 'An unexpected error occurred');
 			setSessions([]);
 		} finally {
-			setLoading(false);
+			if (isLatest()) {
+				setLoading(false);
+			}
 		}
 	}, [formData, selectedOrganization, selectedEmployee, token, user]);
 
@@ -166,12 +194,22 @@ export const TrackingProvider: React.FC<ITrackingProviderProps> = ({ children, c
 		}
 	}, [selectedEmployee]);
 
-	// Auto-fetch sessions when context values change
+	// Another user, organization or employee: the sessions read for the previous one are dropped at once, even
+	// when no component shows them, so a component mounted later never shows them.
 	useEffect(() => {
-		if (selectedOrganization && selectedEmployee && token) {
+		latestRead.current += 1;
+		setSessions([]);
+		setError(null);
+		setLoading(false);
+	}, [selectedOrganization, selectedEmployee, token]);
+
+	// Auto-fetch sessions when context values change, only while a component shows them
+	useEffect(() => {
+		const signedIn = Boolean(selectedOrganization && selectedEmployee && token);
+		if (signedIn && hasConsumers) {
 			fetchSessions();
 		}
-	}, [selectedOrganization, selectedEmployee, token]);
+	}, [selectedOrganization, selectedEmployee, token, hasConsumers]);
 
 	const contextValue: ITrackingContext = {
 		formData,
@@ -180,7 +218,8 @@ export const TrackingProvider: React.FC<ITrackingProviderProps> = ({ children, c
 		error,
 		setFormData,
 		fetchSessions,
-		refetchSessions
+		refetchSessions,
+		registerConsumer
 	};
 
 	return <TrackingContext.Provider value={contextValue}>{children}</TrackingContext.Provider>;

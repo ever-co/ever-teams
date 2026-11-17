@@ -91,7 +91,7 @@ Our SDK is organized into focused packages, each serving specific purposes:
   </div>
 
   <div className="p-4 border border-slate-200  rounded-md bg-white ">
-    <h4 className="text-slate-900  font-medium mb-2">@ever-teams/types</h4>
+    <h4 className="text-slate-900  font-medium mb-2">@ever-teams/toolkit-types</h4>
     <p className="text-sm text-slate-600 ">
       TypeScript definitions and interfaces
     </p>
@@ -111,21 +111,24 @@ Get started with Ever Teams SDK in just a few steps:
 
 ```bash
 # Install the core packages
-npm install @ever-teams/atoms @ever-teams/toolkit-ui @ever-teams/api @ever-teams/types
+npm install @ever-teams/atoms @ever-teams/toolkit-ui @ever-teams/api @ever-teams/toolkit-types
 
 # Optional: Install tracking for analytics
 npm install @ever-teams/tracking
 ```
 
 ```jsx
-import { TeamsProvider, TeamsModernTimer, TeamsBasicTimer } from '@ever-teams/atoms';
+'use client';
+import '@ever-teams/atoms/styles.css';
+import { TeamsProvider, TeamsLoginDialog, TeamsModernTimer, TeamsBasicTimer } from '@ever-teams/atoms';
 import { Button } from '@ever-teams/toolkit-ui';
 
 function App() {
   return (
-    <TeamsProvider config={{ apiUrl: 'https://api.your-domain.com' }}>
+    <TeamsProvider config={{ apiUrl: 'https://api.your-domain.com/api' }} scopedStyles>
       <div className="p-4">
         <h1>My Time Tracking App</h1>
+        <TeamsLoginDialog />
         <TeamsModernTimer showProgress={true} />
         <TeamsBasicTimer />
         <Button>Get Started</Button>
@@ -134,6 +137,16 @@ function App() {
   );
 }
 ```
+
+The stylesheet holds the components' styles, scoped under the kit root that `scopedStyles` renders: your app needs no Tailwind. An app that compiles Tailwind CSS 4 itself can leave both out and let it see the kit instead, in the CSS file that imports Tailwind (paths relative to that file), but its theme must then define the kit's colors and variables: see the [atoms README](https://github.com/ever-co/ever-teams/tree/develop/packages/toolkit/atoms#readme).
+
+```css
+@import "tailwindcss";
+@source "../node_modules/@ever-teams/atoms/dist";
+@source "../node_modules/@ever-teams/toolkit-ui/dist";
+```
+
+The `../` paths fit `app/globals.css` in Next.js and `src/index.css` in Vite. In a Next.js project with a `src/` directory the file is `src/app/globals.css`, and the paths start with `../../`.
 
 ## Explore More
 

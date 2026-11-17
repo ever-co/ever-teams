@@ -5,7 +5,7 @@ import * as React from 'react';
 import { Slot } from '@radix-ui/react-slot';
 import { cva, type VariantProps } from 'class-variance-authority';
 
-import { cn } from '@ever-teams/toolkit-ui';
+import { cn, useThemeColor } from '@ever-teams/toolkit-ui';
 import { StartIcon, PauseIcon } from '@ever-teams/toolkit-ui';
 import { Tooltip } from '@ever-teams/toolkit-ui';
 import { useTeamsContext } from '@lib/context/teams-context';
@@ -41,8 +41,7 @@ const teamsButtonVariants = cva(
 );
 
 export interface ITeamsButtonProps
-	extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-		VariantProps<typeof teamsButtonVariants> {
+	extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof teamsButtonVariants> {
 	asChild?: boolean;
 	isRunning: boolean;
 	startTimer: () => Promise<void>;
@@ -60,10 +59,12 @@ const TeamsButton = ({
 	startTimer,
 	stopTimer,
 	timerLoading,
+	style,
 	...props
 }: ITeamsButtonProps & {
 	ref?: React.RefObject<HTMLButtonElement>;
 }) => {
+	const mainColor = useThemeColor('mainColor');
 	const { t } = useTranslation();
 	const { authenticatedUser } = useTeamsContext();
 	const Comp = asChild ? Slot : 'button';
@@ -86,7 +87,8 @@ const TeamsButton = ({
 					(timerLoading || !authenticatedUser) && 'opacity-50  scale-105 cursor-not-allowed'
 				)}
 				ref={ref}
-				sx={{ background: 'mainColor' }}
+				// A host style adds to the theme's color, and replaces it only where it sets a background itself.
+				style={{ background: mainColor, ...style }}
 				onClick={isRunning ? stopTimer : startTimer}
 				{...props}
 				disabled={timerLoading || !authenticatedUser || !authenticatedUser.employee}

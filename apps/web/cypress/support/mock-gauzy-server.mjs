@@ -232,7 +232,10 @@ function buildData(fixture, scenario, requestUrl, requestTenantId) {
 			source: scenario.timerSource ?? 'TEAMS',
 			taskId: ids.task,
 			// `scenario.timerStartedAt`: a run started long ago, the same at every read (#5022 reminders)
-			startedAt: scenario.timerStartedAt ?? new Date().toISOString()
+			startedAt: scenario.timerStartedAt ?? new Date().toISOString(),
+			// The labels the entry is filed under, sent by an API with labels on entries, an empty list too (Gauzy #12037):
+			// the app reads from them that the API has labels, and asks no time-log list at startup
+			tags: []
 		},
 		lastWorkedTask: task
 	};
