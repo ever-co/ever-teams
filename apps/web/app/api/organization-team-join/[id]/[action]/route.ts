@@ -2,8 +2,11 @@ import { authenticatedGuard } from '@/core/services/server/guards/authenticated-
 import { acceptRejectRequestToJoinRequest } from '@/core/services/server/requests';
 import { ERequestStatus } from '@/core/types/generics/enums';
 import { NextResponse } from 'next/server';
+import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
 
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string; action: string }> }) {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
 	const { id, action } = await params;
 	const res = new NextResponse();
 

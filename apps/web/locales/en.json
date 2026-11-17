@@ -730,6 +730,7 @@
 					"UNCHANGED": "{count, plural, one {# entry already has these values.} other {# entries already have these values.}}",
 					"OVERLAP": "{count, plural, one {# entry overlaps other recorded time: saving it would remove that time.} other {# entries overlap other recorded time: saving them would remove that time.}}",
 					"CHECK_FAILED": "{count, plural, one {# entry could not be checked for overlapping time, so it was not saved.} other {# entries could not be checked for overlapping time, so they were not saved.}}",
+					"CHANGED_MEANWHILE": "{count, plural, one {# entry was changed elsewhere while this edit ran, so nothing was saved to it.} other {# entries were changed elsewhere while this edit ran, so nothing was saved to them.}}",
 					"FAILED": "{count, plural, one {# entry could not be saved.} other {# entries could not be saved.}}"
 				}
 			},
@@ -7678,6 +7679,7 @@
 			"MARKED_PAID": "Invoice {number} is marked paid",
 			"MARKED_UNPAID": "Invoice {number} is back to Sent, unpaid",
 			"CHANGE_FAILED": "Invoice {number} was not changed",
+			"CHANGED_MEANWHILE": "This invoice changed since it was shown, so nothing was changed. Refresh it to see its current version, then try again.",
 			"DOWNLOAD": "Download PDF"
 		},
 		"send": {
@@ -7757,6 +7759,7 @@
 				"NOT_CHECKED": "The invoice could not be read again before saving, so nothing was saved. Try again.",
 				"NOT_REACHED": "The connection failed: the changes were not saved and the invoice is as it was. Check your connection, then try again.",
 				"CHANGED": "Since it was opened, invoice {number} was changed: nothing was saved. Open it again from the invoice list to start from its current version.",
+				"CHANGED_MEANWHILE": "This invoice changed since you opened it, so nothing was saved. Close this to see its current version.",
 				"RECORDS_TIME": "Records the hours its lines bill, so no other invoice bills them again."
 			}
 		},
@@ -7907,6 +7910,8 @@
 				"SAVE": "Save schedule",
 				"SAVE_FAILED": "The schedule could not be saved. Try again.",
 				"EXISTS": "This client already has a schedule. Close and open it again to change it.",
+				"REPLACED": "This schedule was replaced by another since you opened it. Nothing was saved: close and open it again to change it.",
+				"DELETED": "This schedule was deleted since you opened it. Nothing was saved.",
 				"START_AFTER_BILLED": "This schedule already billed periods: its new timeline must start after the last period billed, {day}."
 			},
 			"delete": {
@@ -7918,6 +7923,8 @@
 				"PAUSED": "{name}'s billing schedule is paused",
 				"RESUMED": "{name}'s billing schedule is resumed: next invoice on {day}",
 				"DELETED": "{name}'s billing schedule is deleted",
+				"ALREADY_DELETED": "{name}'s billing schedule was already deleted",
+				"REPLACED": "{name}'s billing schedule was replaced by another. Nothing was deleted.",
 				"FAILED": "The change could not be saved. Try again."
 			}
 		},

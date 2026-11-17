@@ -5,6 +5,7 @@ import { INextParams } from '@/core/types/interfaces/common/data-response';
 import { ITask } from '@/core/types/interfaces/task/task';
 import { NextResponse } from 'next/server';
 import { forwardToGauzy } from '@/core/services/server/forward-to-gauzy';
+import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
 
 export async function GET(req: Request, props: INextParams) {
 	const params = await props.params;
@@ -41,6 +42,8 @@ export async function GET(req: Request, props: INextParams) {
 }
 
 export async function PUT(req: Request, props: INextParams) {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
 	const params = await props.params;
 	const res = new NextResponse();
 	if (!params.id) {

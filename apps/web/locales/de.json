@@ -730,6 +730,7 @@
 					"UNCHANGED": "{count, plural, one {# Eintrag hat diese Werte bereits.} other {# Einträge haben diese Werte bereits.}}",
 					"OVERLAP": "{count, plural, one {# Eintrag überschneidet sich mit anderer erfasster Zeit: Beim Speichern würde diese Zeit entfernt.} other {# Einträge überschneiden sich mit anderer erfasster Zeit: Beim Speichern würde diese Zeit entfernt.}}",
 					"CHECK_FAILED": "{count, plural, one {Bei # Eintrag konnte die Überschneidung nicht geprüft werden, er wurde daher nicht gespeichert.} other {Bei # Einträgen konnte die Überschneidung nicht geprüft werden, sie wurden daher nicht gespeichert.}}",
+					"CHANGED_MEANWHILE": "{count, plural, one {# Eintrag wurde währenddessen an anderer Stelle geändert, daher wurde nichts darin gespeichert.} other {# Einträge wurden währenddessen an anderer Stelle geändert, daher wurde nichts darin gespeichert.}}",
 					"FAILED": "{count, plural, one {# Eintrag konnte nicht gespeichert werden.} other {# Einträge konnten nicht gespeichert werden.}}"
 				}
 			},
@@ -7678,6 +7679,7 @@
 			"MARKED_PAID": "Rechnung {number} ist als bezahlt markiert",
 			"MARKED_UNPAID": "Rechnung {number} steht wieder auf Gesendet, unbezahlt",
 			"CHANGE_FAILED": "Rechnung {number} wurde nicht geändert",
+			"CHANGED_MEANWHILE": "Diese Rechnung hat sich geändert, seit sie angezeigt wurde, daher wurde nichts geändert. Aktualisieren Sie sie, um ihre aktuelle Version zu sehen, und versuchen Sie es dann erneut.",
 			"DOWNLOAD": "Als PDF herunterladen"
 		},
 		"send": {
@@ -7757,6 +7759,7 @@
 				"NOT_CHECKED": "Die Rechnung konnte vor dem Speichern nicht erneut gelesen werden, deshalb wurde nichts gespeichert. Versuchen Sie es erneut.",
 				"NOT_REACHED": "Die Verbindung ist fehlgeschlagen: Die Änderungen wurden nicht gespeichert, die Rechnung ist unverändert. Prüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
 				"CHANGED": "Seit dem Öffnen wurde Rechnung {number} geändert: Es wurde nichts gespeichert. Öffnen Sie sie erneut aus der Rechnungsliste, um von ihrer aktuellen Fassung auszugehen.",
+				"CHANGED_MEANWHILE": "Diese Rechnung hat sich geändert, seit Sie sie geöffnet haben, daher wurde nichts gespeichert. Schließen Sie dies, um ihre aktuelle Version zu sehen.",
 				"RECORDS_TIME": "Hält die Stunden fest, die seine Positionen abrechnen, damit keine andere Rechnung sie erneut abrechnet."
 			}
 		},
@@ -7907,6 +7910,8 @@
 				"SAVE": "Speichern",
 				"SAVE_FAILED": "Der Plan konnte nicht gespeichert werden. Versuchen Sie es erneut.",
 				"EXISTS": "Dieser Kunde hat bereits einen Plan. Schließen und öffnen Sie ihn erneut, um ihn zu ändern.",
+				"REPLACED": "Dieser Plan wurde seit dem Öffnen durch einen anderen ersetzt. Nichts wurde gespeichert: Schließen und öffnen Sie ihn erneut, um ihn zu ändern.",
+				"DELETED": "Dieser Plan wurde seit dem Öffnen gelöscht. Nichts wurde gespeichert.",
 				"START_AFTER_BILLED": "Dieser Plan hat bereits Zeiträume abgerechnet: Der neue Plan muss nach dem zuletzt abgerechneten Zeitraum beginnen, {day}."
 			},
 			"delete": {
@@ -7918,6 +7923,8 @@
 				"PAUSED": "Die geplante Abrechnung von {name} ist pausiert",
 				"RESUMED": "Die geplante Abrechnung von {name} läuft wieder: nächste Rechnung am {day}",
 				"DELETED": "Die geplante Abrechnung von {name} ist gelöscht",
+				"ALREADY_DELETED": "Die geplante Abrechnung von {name} war bereits gelöscht",
+				"REPLACED": "Die geplante Abrechnung von {name} wurde durch eine andere ersetzt. Nichts wurde gelöscht.",
 				"FAILED": "Die Änderung konnte nicht gespeichert werden. Versuchen Sie es erneut."
 			}
 		},

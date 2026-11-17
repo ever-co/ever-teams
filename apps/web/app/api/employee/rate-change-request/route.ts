@@ -3,8 +3,11 @@ import { authenticatedGuard } from '@/core/services/server/guards/authenticated-
 import { gauzyErrorResponse } from '@/core/services/server/gauzy-error-response';
 import { requestRateChangeRequest } from '@/core/services/server/requests/rates';
 import { rateChangeRequestBodySchema } from '@/core/lib/validation/rates';
+import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
 
 export async function POST(req: Request) {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
 	const { $res, user, access_token, tenantId, organizationId } = await authenticatedGuard(req, new NextResponse());
 	if (!user) return $res('Unauthorized');
 

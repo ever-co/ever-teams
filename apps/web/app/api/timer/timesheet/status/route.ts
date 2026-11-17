@@ -2,8 +2,11 @@ import { authenticatedGuard } from '@/core/services/server/guards/authenticated-
 import { updateStatusTimesheetRequest } from '@/core/services/server/requests';
 import { ID } from '@/core/types/interfaces/common/base-interfaces';
 import { NextResponse } from 'next/server';
+import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
 
 export async function PUT(req: Request) {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
 	const res = new NextResponse();
 	const { $res, user, tenantId, organizationId, access_token } = await authenticatedGuard(req, res);
 	if (!user) return $res('Unauthorized');

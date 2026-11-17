@@ -6,9 +6,12 @@ import {
 	deleteEmployeeAppointmentRequest,
 	updateEmployeeAppointmentRequest
 } from '@/core/services/server/requests/employee-appointment';
+import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
 
 /** The proxy-mode twin of Gauzy's `PUT /employee-appointment/:id`: reschedules a meeting (#5021). */
 export async function PUT(req: Request, props: INextParams) {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
 	const params = await props.params;
 	if (!params.id) return NextResponse.json({}, { status: 400 });
 
@@ -40,6 +43,8 @@ export async function PUT(req: Request, props: INextParams) {
 
 /** The proxy-mode twin of Gauzy's `DELETE /employee-appointment/:id`: cancels a scheduled meeting (#5021). */
 export async function DELETE(req: Request, props: INextParams) {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
 	const params = await props.params;
 	if (!params.id) return NextResponse.json({}, { status: 400 });
 

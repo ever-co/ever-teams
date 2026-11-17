@@ -39,12 +39,10 @@ function fakeEvent() {
 		removeListener: (listener: Listener) => {
 			listeners.splice(listeners.indexOf(listener) >>> 0, 1);
 		},
-		emit: (...args: unknown[]) => {
+		/** Tells every listener, and gives what each one returned. */
+		emit: (...args: unknown[]): unknown[] =>
 			// A copy: a listener may remove itself while the event is told
-			for (const listener of listeners.slice()) {
-				(listener as (...values: unknown[]) => unknown)(...args);
-			}
-		}
+			listeners.slice().map((listener) => (listener as (...values: unknown[]) => unknown)(...args))
 	};
 }
 
@@ -99,6 +97,8 @@ export function installFakeExtension(initial: Record<string, unknown> = {}) {
 	const badge = {
 		text: '',
 		history: [] as string[],
+		/** Each color the badge was asked to take, in order. */
+		colors: [] as string[],
 		/** The next text call fails, as a browser API call can. */
 		failNextText: false,
 		/** Holds the next color calls until the returned function is called, as a slow browser would. */
@@ -123,14 +123,33 @@ export function installFakeExtension(initial: Record<string, unknown> = {}) {
 			badge.history.push(text);
 			return Promise.resolve();
 		},
-		setBadgeBackgroundColor: async () => {
+		setBadgeBackgroundColor: async ({ color }: { color: string }) => {
+			badge.colors.push(color);
 			await colorSet;
 		}
 	};
 	const alarms = { created: [] as string[], onAlarm: fakeEvent() };
 	chromeLike.alarms = { create: (name: string) => alarms.created.push(name), onAlarm: alarms.onAlarm };
-	const runtime = { onInstalled: fakeEvent(), onStartup: fakeEvent(), onConnect: fakeEvent() };
+	const runtime = {
+		onInstalled: fakeEvent(),
+		onStartup: fakeEvent(),
+		onConnect: fakeEvent(),
+		onMessage: fakeEvent()
+	};
 	chromeLike.runtime = runtime;
+
+	/**
+	 * A page sends a message to the background, as `runtime.sendMessage` does: the answer a listener gives, or undefined
+	 * when none answers. A message from a web page's script names its tab.
+	 */
+	const sendMessage = (message: unknown, { tab }: { tab?: unknown } = {}): Promise<unknown> =>
+		new Promise((resolve) => {
+			const sender = tab === undefined ? { id: 'extension-id' } : { id: 'extension-id', tab };
+			const answers = runtime.onMessage.emit(message, sender, resolve);
+			if (!answers.includes(true)) {
+				resolve(undefined);
+			}
+		});
 
 	/** The popup opens a port; a port already gone throws on each post, as the browser's does. */
 	const connect = ({ gone = false } = {}): FakePort => {
@@ -151,7 +170,7 @@ export function installFakeExtension(initial: Record<string, unknown> = {}) {
 		return port;
 	};
 
-	return { stored, badge, alarms, runtime, connect, storageEvents };
+	return { stored, badge, alarms, runtime, connect, sendMessage, storageEvents };
 }
 
 type FetchAnswer = { status: number; body?: unknown };

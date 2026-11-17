@@ -8,7 +8,9 @@ import {
 	invoiceScheduleRunToneOf,
 	isPausedSchedule,
 	isRealDayKey,
-	leftOutHoursOf
+	leftOutHoursOf,
+	OpenedScheduleGoneError,
+	openedScheduleFateOf
 } from './invoice-schedules';
 import type { TInvoiceSchedule } from '@/core/types/schemas/organization/invoice-schedule.schema';
 
@@ -66,6 +68,17 @@ describe('invoice schedules', () => {
 			grouping: 'TASK',
 			sendInvoice: true
 		});
+	});
+
+	it('tells whether the schedule a form opened on is still the client’s, was replaced, or was deleted', () => {
+		expect(openedScheduleFateOf('schedule-1', { id: 'schedule-1' })).toBe('current');
+		expect(openedScheduleFateOf('schedule-1', { id: 'schedule-2' })).toBe('replaced');
+		expect(openedScheduleFateOf('schedule-1', null)).toBe('deleted');
+
+		const gone = new OpenedScheduleGoneError('replaced');
+		expect(gone).toBeInstanceOf(OpenedScheduleGoneError);
+		expect(gone).toBeInstanceOf(Error);
+		expect(gone.fate).toBe('replaced');
 	});
 
 	it('reads a run: its tone, the hours it left out, and the reason a line explains', () => {

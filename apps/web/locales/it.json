@@ -730,6 +730,7 @@
 					"UNCHANGED": "{count, plural, one {# voce ha già questi valori.} other {# voci hanno già questi valori.}}",
 					"OVERLAP": "{count, plural, one {# voce si sovrappone ad altro tempo registrato: salvarla rimuoverebbe quel tempo.} other {# voci si sovrappongono ad altro tempo registrato: salvarle rimuoverebbe quel tempo.}}",
 					"CHECK_FAILED": "{count, plural, one {Non è stato possibile verificare la sovrapposizione di # voce, quindi non è stata salvata.} other {Non è stato possibile verificare la sovrapposizione di # voci, quindi non sono state salvate.}}",
+					"CHANGED_MEANWHILE": "{count, plural, one {# voce è stata modificata altrove durante questa modifica, quindi non vi è stato salvato nulla.} other {# voci sono state modificate altrove durante questa modifica, quindi non vi è stato salvato nulla.}}",
 					"FAILED": "{count, plural, one {Non è stato possibile salvare # voce.} other {Non è stato possibile salvare # voci.}}"
 				}
 			},
@@ -7678,6 +7679,7 @@
 			"MARKED_PAID": "La fattura {number} è segnata come pagata",
 			"MARKED_UNPAID": "La fattura {number} torna a Inviata, non pagata",
 			"CHANGE_FAILED": "La fattura {number} non è stata modificata",
+			"CHANGED_MEANWHILE": "Questa fattura è cambiata da quando è stata mostrata, quindi non è stato modificato nulla. Aggiornala per vederne la versione attuale, poi riprova.",
 			"DOWNLOAD": "Scarica in PDF"
 		},
 		"send": {
@@ -7757,6 +7759,7 @@
 				"NOT_CHECKED": "Non è stato possibile rileggere la fattura prima di salvare, quindi non è stato salvato nulla. Riprova.",
 				"NOT_REACHED": "La connessione non è riuscita: le modifiche non sono state salvate e la fattura è rimasta com’era. Controlla la connessione e riprova.",
 				"CHANGED": "Da quando è stata aperta, la fattura {number} è stata modificata: non è stato salvato nulla. Riaprila dall’elenco delle fatture per partire dalla sua versione attuale.",
+				"CHANGED_MEANWHILE": "Questa fattura è cambiata da quando l'hai aperta, quindi non è stato salvato nulla. Chiudi qui per vederne la versione attuale.",
 				"RECORDS_TIME": "Registra le ore fatturate dalle sue righe, così nessun’altra fattura le fattura di nuovo."
 			}
 		},
@@ -7907,6 +7910,8 @@
 				"SAVE": "Salva",
 				"SAVE_FAILED": "Impossibile salvare il calendario. Riprova.",
 				"EXISTS": "Questo cliente ha già un calendario. Chiudi e riaprilo per modificarlo.",
+				"REPLACED": "Questo calendario è stato sostituito da un altro da quando l’hai aperto. Non è stato salvato nulla: chiudi e riaprilo per modificarlo.",
+				"DELETED": "Questo calendario è stato eliminato da quando l’hai aperto. Non è stato salvato nulla.",
 				"START_AFTER_BILLED": "Questo calendario ha già fatturato dei periodi: il nuovo calendario deve iniziare dopo l’ultimo periodo fatturato, {day}."
 			},
 			"delete": {
@@ -7918,6 +7923,8 @@
 				"PAUSED": "La fatturazione programmata di {name} è sospesa",
 				"RESUMED": "La fatturazione programmata di {name} riprende: prossima fattura il {day}",
 				"DELETED": "La fatturazione programmata di {name} è eliminata",
+				"ALREADY_DELETED": "La fatturazione programmata di {name} era già stata eliminata",
+				"REPLACED": "La fatturazione programmata di {name} è stata sostituita da un’altra. Non è stato eliminato nulla.",
 				"FAILED": "Impossibile salvare la modifica. Riprova."
 			}
 		},

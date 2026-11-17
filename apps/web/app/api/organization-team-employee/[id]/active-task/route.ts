@@ -1,9 +1,12 @@
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { updateOrganizationTeamEmployeeActiveTaskRequest } from '@/core/services/server/requests';
-import { IOrganizationTeamEmployeeUpdate } from 	'@/core/types/interfaces/team/organization-team-employee';
+import { IOrganizationTeamEmployeeUpdate } from '@/core/types/interfaces/team/organization-team-employee';
 import { NextResponse } from 'next/server';
+import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
 
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
 	const id = (await params).id;
 	const res = new NextResponse();
 

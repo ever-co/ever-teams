@@ -19,6 +19,7 @@ const REASON_KEYS: Record<BulkEditReason, DottedLanguageObjectStringPaths> = {
 	unchanged: 'dashboard.timesheets.BULK_EDIT.REASON.UNCHANGED',
 	overlap: 'dashboard.timesheets.BULK_EDIT.REASON.OVERLAP',
 	checkFailed: 'dashboard.timesheets.BULK_EDIT.REASON.CHECK_FAILED',
+	changedMeanwhile: 'dashboard.timesheets.BULK_EDIT.REASON.CHANGED_MEANWHILE',
 	failed: 'dashboard.timesheets.BULK_EDIT.REASON.FAILED'
 };
 

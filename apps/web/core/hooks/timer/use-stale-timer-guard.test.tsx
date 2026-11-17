@@ -103,6 +103,27 @@ interface Page {
 
 let pages: Page[] = [];
 
+/**
+ * The browser's Web Locks, as the app's pages served over HTTPS have them: one holder at a time per name, shared by the
+ * tabs, in the order asked. Every case below runs with them. A page without them (plain HTTP) takes turns through a
+ * lease in the shared storage instead, tested on its own (use-stale-timer-guard-no-web-locks.test.tsx).
+ */
+beforeEach(() => {
+	let queue: Promise<unknown> = Promise.resolve();
+	const locks = {
+		request: (_name: string, callback: () => Promise<unknown>) => {
+			const held = queue.then(() => callback());
+			queue = held.catch(() => undefined);
+			return held;
+		}
+	};
+	Object.defineProperty(navigator, 'locks', { configurable: true, value: locks });
+});
+
+afterEach(() => {
+	delete (navigator as { locks?: unknown }).locks;
+});
+
 /** A page load: the app's modules evaluated afresh, as a reload evaluates them. */
 function loadPage(): Page {
 	jest.resetModules();

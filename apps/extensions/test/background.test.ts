@@ -150,8 +150,81 @@ describe('the background timer', () => {
 		await settle();
 
 		assert.equal(extension.badge.text, '');
+		assert.deepEqual(extension.badge.colors, [], 'the older answer set no color either');
 		assert.deepEqual(popup.received.at(-1), { type: 'statusUpdate', payload: null });
 		assert.equal(server.sentTo(SLOT_PATH).length, 0, 'no heartbeat for a session signed out');
+	});
+
+	it("sets the badge's color and text together, after one check that the status is still the newest", async () => {
+		const extension = installFakeExtension({ session: SESSION });
+		server = holdRequests();
+		const { status } = runningServer();
+		await startBackground();
+
+		const releaseColor = extension.badge.holdColor();
+		extension.runtime.onStartup.emit();
+		(await server.next(STATUS_PATH)).answer(200, status());
+		// The text is not sent after the color: nothing can come between the check and either of them
+		await until(() => extension.badge.text === '0:05', 'the run shown while the color is still being set');
+		assert.deepEqual(extension.badge.colors, ['#6366f1']);
+		releaseColor();
+		await settle();
+		assert.equal(extension.badge.text, '0:05');
+	});
+
+	it('signs out once when the API refuses the session and the renewal cannot cure it', async () => {
+		const extension = installFakeExtension({ session: SESSION });
+		server = holdRequests();
+		const { status } = runningServer();
+		await startBackground();
+		const popup = extension.connect();
+		extension.runtime.onStartup.emit();
+		(await server.next(STATUS_PATH)).answer(200, status());
+		await until(() => extension.badge.text === '0:05', 'the run shown');
+
+		extension.alarms.onAlarm.emit(REFRESH_ALARM);
+		(await server.next(STATUS_PATH)).answer(401, { message: 'Unauthorized' });
+		(await server.next('/auth/refresh-token')).answer(401, { message: 'Unauthorized' });
+		await until(() => !extension.stored.has('session'), 'the session taken out');
+		// The same sign-out reaches the background again by its storage event, then by each alarm while signed out
+		await until(() => extension.storageEvents.told > 0, 'the sign-out told');
+		extension.alarms.onAlarm.emit(REFRESH_ALARM);
+		await settle();
+
+		assert.equal(extension.badge.text, '');
+		const signedOut = popup.received.filter((message) => (message as { payload: unknown }).payload === null);
+		assert.equal(signedOut.length, 1, 'the popups hear the sign-out once');
+		assert.equal(server.sentTo(SLOT_PATH).length, 0, 'no heartbeat for a session refused');
+	});
+
+	it('signs nobody out when a read or a heartbeat ends at its deadline or offline: only a 401 does', async () => {
+		mock.timers.enable({ apis: ['setTimeout'] });
+		mock.method(console, 'warn', () => undefined);
+		const extension = installFakeExtension({ session: SESSION });
+		server = holdRequests();
+		const { status } = runningServer();
+		await startBackground();
+
+		// A read that never answers, cancelled at its deadline
+		extension.alarms.onAlarm.emit(REFRESH_ALARM);
+		await server.next(STATUS_PATH);
+		mock.timers.tick(30_000);
+		await settle();
+		// A read that cannot reach the API
+		extension.alarms.onAlarm.emit(REFRESH_ALARM);
+		(await server.next(STATUS_PATH)).fail();
+		await settle();
+		// A heartbeat that never answers, cancelled at its deadline
+		extension.alarms.onAlarm.emit(REFRESH_ALARM);
+		(await server.next(STATUS_PATH)).answer(200, status());
+		await server.next(SLOT_PATH);
+		mock.timers.tick(30_000);
+		await settle();
+
+		assert.equal(server.openTo('/api/').length, 0, 'every call ended');
+		assert.ok(extension.stored.has('session'), 'still signed in');
+		assert.equal(server.sentTo('/auth/refresh-token').length, 0, 'no renewal: nothing was refused');
+		assert.equal(extension.badge.text, '0:05');
 	});
 
 	it('keeps the badge cleared when the sign-out lands while an older answer is being shown', async () => {
@@ -163,7 +236,7 @@ describe('the background timer', () => {
 
 		extension.alarms.onAlarm.emit(REFRESH_ALARM);
 		const read = await server.next(STATUS_PATH);
-		// The answer is the latest when it lands, and the badge starts showing it: its color first
+		// The answer is the latest when it lands, and the badge starts showing it: its color is still being set
 		const releaseColor = extension.badge.holdColor();
 		read.answer(200, status());
 		await settle();
@@ -398,5 +471,151 @@ describe('the background timer', () => {
 		assert.match(String(warn.mock.calls[0].arguments[0]), /503/);
 		assert.equal(extension.badge.text, '0:05');
 		assert.ok(extension.stored.has('session'));
+	});
+});
+
+describe("the popup's stop, through the background", () => {
+	const STOP_PATH = '/api/timesheet/timer/stop';
+	const STOP_RUN = { type: 'stopRun', payload: { id: 'log-1', source: 'BROWSER_EXTENSION' } };
+	const creditedSeconds = () =>
+		server!.sentTo(SLOT_PATH).reduce((sum, call) => sum + (call.body as { duration: number }).duration, 0);
+
+	it("credits a run's last seconds once when Stop is pressed while the alarm's heartbeat is on its way", async () => {
+		const extension = installFakeExtension({ session: SESSION });
+		server = holdRequests();
+		const remote = runningServer();
+		await startBackground();
+		extension.alarms.onAlarm.emit(REFRESH_ALARM);
+		(await server.next(STATUS_PATH)).answer(200, remote.status());
+		const heartbeat = await server.next(SLOT_PATH);
+
+		// Stop is pressed now: its last credit waits for the heartbeat, rather than read the same last heartbeat
+		const answer = extension.sendMessage(STOP_RUN);
+		await settle();
+		assert.equal(server.openTo(STATUS_PATH).length, 0, 'no read for the stop while the heartbeat is on its way');
+		remote.creditSlot();
+		heartbeat.answer(200, {});
+
+		// The stop reads the run afresh: its last heartbeat just landed, so nothing is left to credit
+		(await server.next(STATUS_PATH)).answer(200, remote.status());
+		(await server.next(STOP_PATH)).answer(200, {});
+		assert.deepEqual(await answer, { stopped: true });
+		const credited = creditedSeconds();
+		assert.ok(credited >= 59 && credited <= 61, `credited ${credited} seconds for one minute`);
+		assert.equal(server.sentTo(SLOT_PATH).length, 1);
+		assert.deepEqual(server.sentTo(STOP_PATH)[0].body, {
+			tenantId: 'tenant-1',
+			organizationId: 'organization-1',
+			logType: 'TRACKED',
+			source: 'BROWSER_EXTENSION',
+			timeLogId: 'log-1'
+		});
+	});
+
+	it('lets an alarm that comes during a stop wait for it: the run stopped gets no heartbeat after its last credit', async () => {
+		const extension = installFakeExtension({ session: SESSION });
+		server = holdRequests();
+		const remote = runningServer();
+		await startBackground();
+
+		const answer = extension.sendMessage(STOP_RUN);
+		const read = await server.next(STATUS_PATH);
+		extension.alarms.onAlarm.emit(REFRESH_ALARM);
+		await settle();
+		assert.equal(server.openTo(STATUS_PATH).length, 1, "the alarm's read waits for the stop");
+
+		read.answer(200, remote.status());
+		remote.creditSlot();
+		(await server.next(SLOT_PATH)).answer(200, {});
+		(await server.next(STOP_PATH)).answer(200, {});
+		assert.deepEqual(await answer, { stopped: true });
+
+		// The alarm reads the run once it is stopped: nothing to credit
+		(await server.next(STATUS_PATH)).answer(200, { running: false, duration: 360, lastLog: null });
+		(await server.next('/status/worked')).answer(200, []);
+		await settle();
+		const credited = creditedSeconds();
+		assert.ok(credited >= 59 && credited <= 61, `credited ${credited} seconds for one minute`);
+		assert.equal(server.sentTo(SLOT_PATH).length, 1);
+	});
+
+	it("credits nothing for a run started by another app, and answers the API's refusal of the stop", async () => {
+		const extension = installFakeExtension({ session: SESSION });
+		server = holdRequests();
+		await startBackground();
+
+		const answer = extension.sendMessage({ type: 'stopRun', payload: { id: 'log-1', source: 'TEAMS' } });
+		(await server.next(STOP_PATH)).answer(409, { message: 'Another run is going on', code: 'TIMER_CHANGED' });
+
+		assert.deepEqual(await answer, {
+			stopped: false,
+			failure: { status: 409, message: 'Another run is going on', code: 'TIMER_CHANGED' }
+		});
+		assert.equal(server.sentTo(STATUS_PATH).length, 0, 'no read for a run whose time another app keeps');
+		assert.equal(server.sentTo(SLOT_PATH).length, 0);
+		assert.equal((server.sentTo(STOP_PATH)[0].body as { source: string }).source, 'TEAMS');
+	});
+
+	it('credits nothing to a run stopped meanwhile from elsewhere, and sends the stop all the same', async () => {
+		const extension = installFakeExtension({ session: SESSION });
+		server = holdRequests();
+		const remote = runningServer();
+		await startBackground();
+
+		const answer = extension.sendMessage(STOP_RUN);
+		// The run was stopped from another app a minute ago: credited now, it would get the minute since its stop
+		const stopped = { ...remote.run, isRunning: false };
+		(await server.next(STATUS_PATH)).answer(200, { running: false, duration: 300, lastLog: stopped });
+		(await server.next('/status/worked')).answer(200, [{ lastLog: stopped }]);
+		(await server.next(STOP_PATH)).answer(200, {});
+
+		assert.deepEqual(await answer, { stopped: true });
+		assert.equal(server.sentTo(SLOT_PATH).length, 0);
+	});
+
+	it('signs out when the read of the last credit is refused and the renewal cannot cure it, and still sends the stop', async () => {
+		const extension = installFakeExtension({ session: SESSION });
+		server = holdRequests();
+		await startBackground();
+
+		const answer = extension.sendMessage(STOP_RUN);
+		(await server.next(STATUS_PATH)).answer(401, { message: 'Unauthorized' });
+		(await server.next('/auth/refresh-token')).answer(401, { message: 'Unauthorized' });
+		await until(() => !extension.stored.has('session'), 'the session taken out');
+		(await server.next(STOP_PATH)).answer(401, { message: 'Unauthorized' });
+		await server.answerAll(401, { message: 'Unauthorized' });
+
+		const answered = (await answer) as { stopped: boolean; failure?: { status: number } };
+		assert.equal(answered.stopped, false);
+		assert.equal(answered.failure?.status, 401);
+		assert.equal(server.sentTo(SLOT_PATH).length, 0);
+		// The sign-out reaches the background by its storage event too: told before the next test's extension API
+		await until(() => extension.storageEvents.told > 0, 'the sign-out told');
+		await settle();
+	});
+
+	it("stops nothing for a message a web page's script sent, and leaves other messages alone", async () => {
+		const extension = installFakeExtension({ session: SESSION });
+		server = holdRequests();
+		await startBackground();
+
+		assert.equal(await extension.sendMessage(STOP_RUN, { tab: { id: 7 } }), undefined);
+		assert.equal(await extension.sendMessage({ type: 'stopRun', payload: {} }), undefined);
+		assert.equal(await extension.sendMessage({ type: 'somethingElse' }), undefined);
+		await settle();
+
+		assert.equal(server.calls.length, 0);
+	});
+
+	it('answers a stop asked for once signed out as an expired session, and sends nothing', async () => {
+		const extension = installFakeExtension({});
+		server = holdRequests();
+		await startBackground();
+
+		const answer = (await extension.sendMessage(STOP_RUN)) as { stopped: boolean; failure?: { status: number } };
+
+		assert.equal(answer.stopped, false);
+		assert.equal(answer.failure?.status, 401);
+		assert.equal(server.sentTo(STOP_PATH).length, 0);
 	});
 });

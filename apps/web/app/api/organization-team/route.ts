@@ -8,8 +8,11 @@ import {
 } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
 import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
+import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
 
 export async function POST(req: Request) {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
 	const res = new NextResponse();
 	const { $res, user, access_token, tenantId, organizationId, status } = await authenticatedGuard(req, res);
 

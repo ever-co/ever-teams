@@ -2,8 +2,11 @@ import { authenticatedGuard } from '@/core/services/server/guards/authenticated-
 import { createFavoriteRequest } from '@/core/services/server/requests';
 import { IFavoriteCreateRequest } from '@/core/types/interfaces/common/favorite';
 import { NextResponse } from 'next/server';
+import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
 
 export async function POST(req: Request) {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
 	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, new NextResponse());
 
 	// The guard's own status: 401 for a refused session, 503 when Gauzy could not answer (no logout then)

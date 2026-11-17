@@ -15,8 +15,13 @@ jest.mock('@/core/lib/auth/token-organization', () => ({
 }));
 jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
 
-import { ACTIVE_PROJECT_COOKIE_NAME, ACTIVE_TEAM_COOKIE_NAME } from '@/core/constants/config/constants';
 import {
+	ACTIVE_PROJECT_COOKIE_NAME,
+	ACTIVE_TEAM_COOKIE_NAME,
+	LAST_WORKSPACE_AND_TEAM
+} from '@/core/constants/config/constants';
+import {
+	getAccessTokenCookie,
 	getSharedOrganizationIdCookie,
 	setAccessTokenCookie,
 	setActiveProjectIdCookie,
@@ -59,6 +64,26 @@ function twoTabsInTwoOrganizations() {
 	setAccessTokenCookie(token('org-b'));
 }
 
+/** Gauzy switches the session's token, as syncTokenOrganization saves its answer in the cookies. */
+function sessionSwitchesTo(newToken: string) {
+	mockSyncTokenOrganization.mockImplementation(async () => {
+		setAccessTokenCookie(newToken);
+		return true;
+	});
+}
+
+/** The browser refuses its storage: full (the write throws) or blocked (even reaching it throws). */
+const refuseStorage = {
+	full: () =>
+		jest.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+			throw new DOMException('The quota has been exceeded.', 'QuotaExceededError');
+		}),
+	blocked: () =>
+		jest.spyOn(window, 'localStorage', 'get').mockImplementation(() => {
+			throw new DOMException('Access is denied for this document.', 'SecurityError');
+		})
+};
+
 function renderTab() {
 	const store = createStore();
 	store.set(organizationTeamsState, [TEAM_A] as never);
@@ -76,6 +101,7 @@ function renderTab() {
 
 beforeEach(() => {
 	resetTabOrganizationState();
+	window.localStorage.clear();
 	mockSyncTokenOrganization.mockReset();
 	mockSyncTokenOrganization.mockResolvedValue(true);
 	jest.spyOn(console, 'error').mockImplementation(() => undefined);
@@ -84,16 +110,49 @@ beforeEach(() => {
 afterEach(() => jest.restoreAllMocks());
 
 describe('useTabOrganization, bringing this tab organization back to every tab', () => {
-	it('moves the cookies and the session to its organization, team and chosen project', () => {
+	it('moves the cookies and the session to its organization, team and chosen project', async () => {
 		twoTabsInTwoOrganizations();
 		const { result } = renderTab();
 
-		act(() => result.current.bringOwnOrganizationBack());
+		await act(async () => {
+			result.current.bringOwnOrganizationBack();
+		});
 
 		expect(getSharedOrganizationIdCookie()).toBe('org-a');
 		expect(document.cookie).toContain(`${ACTIVE_TEAM_COOKIE_NAME}=team-a`);
 		expect(document.cookie).toContain(`${ACTIVE_PROJECT_COOKIE_NAME}=project-a2`);
 		expect(mockSyncTokenOrganization).toHaveBeenCalledWith('org-a');
+		// Its team for this browser's next start, once the session followed
+		expect(window.localStorage.getItem(LAST_WORKSPACE_AND_TEAM)).toBe('team-a');
+	});
+
+	it("leaves this browser's last team as it was when Gauzy refuses the switch", async () => {
+		twoTabsInTwoOrganizations();
+		window.localStorage.setItem(LAST_WORKSPACE_AND_TEAM, 'team-b');
+		mockSyncTokenOrganization.mockResolvedValue(false);
+		const { result } = renderTab();
+
+		await act(async () => {
+			result.current.bringOwnOrganizationBack();
+		});
+
+		expect(getSharedOrganizationIdCookie()).toBe('org-b');
+		expect(window.localStorage.getItem(LAST_WORKSPACE_AND_TEAM)).toBe('team-b');
+	});
+
+	it('ends with the cookies and the session in its organization once Gauzy switched the token', async () => {
+		twoTabsInTwoOrganizations();
+		const tokenA = token('org-a');
+		sessionSwitchesTo(tokenA);
+		const { result } = renderTab();
+
+		await act(async () => {
+			result.current.bringOwnOrganizationBack();
+		});
+
+		expect(getSharedOrganizationIdCookie()).toBe('org-a');
+		expect(getAccessTokenCookie()).toBe(tokenA);
+		await waitFor(() => expect(result.current.state).toBe('shared'));
 	});
 
 	it("puts the other tab's cookies back when Gauzy refuses the switch, and the tab says again where it works", async () => {
@@ -139,5 +198,70 @@ describe('useTabOrganization, bringing this tab organization back to every tab',
 
 		expect(store.get(teamTasksState)).toBe(TASKS);
 		expect(store.get(activeTeamTaskState)).toBe(TASKS[0]);
+	});
+});
+
+describe('useTabOrganization, when the browser refuses its storage (Greptile on #5345)', () => {
+	it.each(['full', 'blocked'] as const)(
+		'still moves the session to its organization when the storage is %s',
+		async (refusal) => {
+			twoTabsInTwoOrganizations();
+			const tokenA = token('org-a');
+			sessionSwitchesTo(tokenA);
+			const { result } = renderTab();
+			refuseStorage[refusal]();
+
+			await act(async () => {
+				result.current.bringOwnOrganizationBack();
+			});
+
+			expect(mockSyncTokenOrganization).toHaveBeenCalledWith('org-a');
+			// One organization in the cookies and in the session: never this tab's cookies with the other one's token
+			expect(getSharedOrganizationIdCookie()).toBe('org-a');
+			expect(getAccessTokenCookie()).toBe(tokenA);
+			await waitFor(() => expect(result.current.state).toBe('shared'));
+		}
+	);
+
+	it.each(['full', 'blocked'] as const)(
+		"puts the other tab's cookies back when the storage is %s and Gauzy refuses the switch",
+		async (refusal) => {
+			twoTabsInTwoOrganizations();
+			mockSyncTokenOrganization.mockResolvedValue(false);
+			const { result } = renderTab();
+			refuseStorage[refusal]();
+
+			await act(async () => {
+				result.current.bringOwnOrganizationBack();
+			});
+
+			expect(getSharedOrganizationIdCookie()).toBe('org-b');
+			expect(document.cookie).toContain(`${ACTIVE_TEAM_COOKIE_NAME}=team-b`);
+			expect(document.cookie).toContain(`${ACTIVE_PROJECT_COOKIE_NAME}=project-b`);
+			await waitFor(() => expect(result.current.state).toBe('own'));
+		}
+	);
+
+	it.each([
+		['fails', () => mockSyncTokenOrganization.mockRejectedValue(new Error('Network Error'))],
+		[
+			'throws',
+			() =>
+				mockSyncTokenOrganization.mockImplementation(() => {
+					throw new Error('No session to switch');
+				})
+		]
+	])("puts the other tab's cookies back when the session switch %s", async (_label, breakSwitch) => {
+		twoTabsInTwoOrganizations();
+		breakSwitch();
+		const { result } = renderTab();
+
+		await act(async () => {
+			result.current.bringOwnOrganizationBack();
+		});
+
+		expect(getSharedOrganizationIdCookie()).toBe('org-b');
+		expect(document.cookie).toContain(`${ACTIVE_TEAM_COOKIE_NAME}=team-b`);
+		await waitFor(() => expect(result.current.state).toBe('own'));
 	});
 });

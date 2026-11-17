@@ -9,6 +9,7 @@ import {
 	type TVoiceFillAvailability,
 	type TVoiceFillErrorCode
 } from '@/core/types/schemas/ai/voice-fill.schema';
+import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
 
 export const runtime = 'nodejs';
 
@@ -46,6 +47,8 @@ export async function GET(req: Request) {
  * where the person reviews them before creating anything.
  */
 export async function POST(req: Request) {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
 	const guard = await authenticatedGuard(req, new NextResponse());
 	if (!guard.user) return guard.deny();
 

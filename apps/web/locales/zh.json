@@ -730,6 +730,7 @@
 					"UNCHANGED": "{count, plural, other {# 条记录已经是这些值。}}",
 					"OVERLAP": "{count, plural, other {# 条记录与其他已记录的时间重叠：保存会删除那些时间。}}",
 					"CHECK_FAILED": "{count, plural, other {无法检查 # 条记录是否与其他时间重叠，因此未保存。}}",
+					"CHANGED_MEANWHILE": "{count, plural, other {# 条记录在此次编辑期间已在别处被更改，因此未保存任何内容。}}",
 					"FAILED": "{count, plural, other {# 条记录无法保存。}}"
 				}
 			},
@@ -7678,6 +7679,7 @@
 			"MARKED_PAID": "第 {number} 号发票已标记为已付清",
 			"MARKED_UNPAID": "第 {number} 号发票已回到已发送，未付",
 			"CHANGE_FAILED": "第 {number} 号发票未更改",
+			"CHANGED_MEANWHILE": "此发票在显示后已更改，因此未做任何更改。请刷新以查看其当前版本，然后重试。",
 			"DOWNLOAD": "下载 PDF"
 		},
 		"send": {
@@ -7757,6 +7759,7 @@
 				"NOT_CHECKED": "保存前无法重新读取发票，因此未保存任何内容。请重试。",
 				"NOT_REACHED": "连接失败：更改未保存，发票保持原样。请检查网络连接，然后重试。",
 				"CHANGED": "自打开以来，第 {number} 号发票已被修改：未保存任何内容。请从发票列表重新打开它，从其当前版本开始。",
+				"CHANGED_MEANWHILE": "此发票在您打开后已更改，因此未保存任何内容。关闭此窗口以查看其当前版本。",
 				"RECORDS_TIME": "记录其明细行所开票的工时，其他发票不会再次为这些工时开票。"
 			}
 		},
@@ -7907,6 +7910,8 @@
 				"SAVE": "保存",
 				"SAVE_FAILED": "计划保存失败，请重试。",
 				"EXISTS": "该客户已有计划。请关闭后重新打开以修改。",
+				"REPLACED": "自您打开后，此计划已被另一个计划替换。未保存任何内容：请关闭后重新打开以修改。",
+				"DELETED": "自您打开后，此计划已被删除。未保存任何内容。",
 				"START_AFTER_BILLED": "此计划已为若干期间开票：新的计划必须在最后一个已开票期间（{day}）之后开始。"
 			},
 			"delete": {
@@ -7918,6 +7923,8 @@
 				"PAUSED": "{name} 的定期开票已暂停",
 				"RESUMED": "{name} 的定期开票已恢复：下一张发票于 {day} 开具",
 				"DELETED": "{name} 的定期开票已删除",
+				"ALREADY_DELETED": "{name} 的定期开票此前已被删除",
+				"REPLACED": "{name} 的定期开票已被另一个替换。未删除任何内容。",
 				"FAILED": "更改保存失败，请重试。"
 			}
 		},

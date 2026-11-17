@@ -6,6 +6,8 @@
  */
 export function createStatusOrder() {
 	let latest = 0;
+	// What `latest` was when the last session ended: equal to it while nothing was sent nor reported since
+	let endedAt = 0;
 	return {
 		/** A read of the background leaves: the ticket its answer is checked with. */
 		readSent(): number {
@@ -23,10 +25,19 @@ export function createStatusOrder() {
 		},
 		/**
 		 * The session the reads were made for ended (a sign-out, another person or API signed in): every read already
-		 * out answers for it, and must not show its timer again.
+		 * out answers for it, and must not show its timer again. Idempotent: one sign-out reaches the background by
+		 * several paths (a refresh, a requested refresh, the storage listener, a refused call), and only the first
+		 * ends anything. Answers whether this call did: false when nothing was sent nor reported since the last end.
 		 */
-		sessionEnded(): void {
+		sessionEnded(): boolean {
+			if (latest === endedAt) {
+				return false;
+			}
+			// In this order: the end takes a number of its own, past every ticket given, and `endedAt` records it, so
+			// only a ticket given after it (which moves `latest` on) makes the next end count
 			latest += 1;
+			endedAt = latest;
+			return true;
 		}
 	};
 }

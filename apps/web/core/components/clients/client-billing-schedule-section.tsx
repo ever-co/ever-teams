@@ -22,6 +22,7 @@ import {
 	invoiceScheduleRunToneOf,
 	isPausedSchedule,
 	leftOutHoursOf,
+	OpenedScheduleGoneError,
 	type InvoiceScheduleRunTone
 } from '@/core/lib/utils/invoice-schedules';
 import type { TInvoiceSchedule, TInvoiceScheduleRun } from '@/core/types/schemas/organization/invoice-schedule.schema';
@@ -185,8 +186,13 @@ export function ClientBillingScheduleSection({
 	});
 	const mutations = useInvoiceScheduleMutations(workspace);
 	const [isFormOpen, setIsFormOpen] = useState(false);
-	const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+	// The schedule the deletion was asked for, as the confirmation opened on it: a read that lands meanwhile (another
+	// tab replaced it) never turns the confirmation into the deletion of a schedule its person has not seen
+	const [deleteTarget, setDeleteTarget] = useState<TInvoiceSchedule | null>(null);
 	const clientEmail = client.primaryEmail?.trim() ?? '';
+	// The client's schedule as the latest read tells it: null when it has none, undefined while that read is on the
+	// way or failed with nothing to show, which tells nothing (not a deletion)
+	const latestSchedule = schedule ?? (isLoading || isError ? undefined : null);
 
 	// An API without the billing schedules: the page shows no section rather than an error no retry can fix
 	if (isUnavailable) {
@@ -209,12 +215,24 @@ export function ClientBillingScheduleSection({
 		}
 	};
 
-	const remove = async (current: TInvoiceSchedule) => {
+	// Deletes the schedule the confirmation opened on, never one that replaced it since; one deleted meanwhile is
+	// gone, as asked, and the toast says it already was
+	const remove = async (target: TInvoiceSchedule) => {
+		// The confirmation closes on Delete, as its button closes it, whatever comes of it: the toast tells that, and
+		// asking again opens it on the schedule the section shows then
+		setDeleteTarget(null);
 		try {
-			await mutations.deleteSchedule(current.id);
-			setIsDeleteOpen(false);
+			const deletion = await mutations.deleteOpenedSchedule({ scheduleId: target.id, latest: latestSchedule });
+			if (deletion === 'alreadyDeleted') {
+				toast.info(t('invoices.schedule.toasts.ALREADY_DELETED', { name: client.name }));
+				return;
+			}
 			toast.success(t('invoices.schedule.toasts.DELETED', { name: client.name }));
-		} catch {
+		} catch (error) {
+			if (error instanceof OpenedScheduleGoneError) {
+				toast.error(t('invoices.schedule.toasts.REPLACED', { name: client.name }));
+				return;
+			}
 			toast.error(t('invoices.schedule.toasts.FAILED'));
 		}
 	};
@@ -275,7 +293,7 @@ export function ClientBillingScheduleSection({
 							variant="ghost"
 							size="sm"
 							className="text-destructive-ink"
-							onClick={() => setIsDeleteOpen(true)}
+							onClick={() => setDeleteTarget(schedule)}
 						>
 							{t('common.DELETE')}
 						</Button>
@@ -296,22 +314,33 @@ export function ClientBillingScheduleSection({
 					schedule={schedule}
 					todayKey={todayKey}
 					onCreate={(input) => mutations.createSchedule({ clientId: client.id, input })}
-					onUpdate={(change) =>
-						schedule ? mutations.updateSchedule({ scheduleId: schedule.id, change }) : Promise.resolve()
+					// The schedule the form opened on, checked against the latest read: a change is never saved to a
+					// schedule that replaced it since, and a save with no schedule left fails instead of passing. A
+					// read still on the way, or failed with nothing to show, tells nothing (undefined), not a deletion
+					onUpdate={(scheduleId, change) =>
+						mutations.updateOpenedSchedule({ scheduleId, latest: latestSchedule, change })
 					}
 					onClose={() => setIsFormOpen(false)}
 				/>
 			)}
-			{canManage && schedule && (
+			{canManage && (
 				<AlertDialogConfirmation
-					isOpen={isDeleteOpen}
-					onOpenChange={setIsDeleteOpen}
+					isOpen={deleteTarget !== null}
+					onOpenChange={(isOpen) => {
+						if (!isOpen) {
+							setDeleteTarget(null);
+						}
+					}}
 					title={t('invoices.schedule.delete.TITLE')}
 					description={t('invoices.schedule.delete.BODY', { name: client.name })}
 					confirmText={t('common.DELETE')}
 					loading={mutations.isDeleting}
-					onConfirm={() => void remove(schedule)}
-					onCancel={() => setIsDeleteOpen(false)}
+					onConfirm={() => {
+						if (deleteTarget) {
+							void remove(deleteTarget);
+						}
+					}}
+					onCancel={() => setDeleteTarget(null)}
 				/>
 			)}
 		</section>

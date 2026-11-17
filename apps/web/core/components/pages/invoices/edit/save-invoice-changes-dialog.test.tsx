@@ -223,6 +223,11 @@ describe('an edit that could not be saved', () => {
 			'nothing was saved when something was paid on it, or it was voided, since it was opened',
 			{ status: 'locked' },
 			'LOCKED_NOW'
+		],
+		[
+			'the invoice changed since it was opened when the API refused the save as changed meanwhile (#5243)',
+			{ status: 'changedMeanwhile' },
+			'CHANGED_MEANWHILE'
 		]
 	])('says %s, and stays on the invoice', async (_says, outcome, messageKey) => {
 		const message = await failingWith(outcome);
@@ -318,6 +323,33 @@ describe('an edit that could not be saved', () => {
 		expect(message.textContent).toBe('invoices.edit.confirm.CHANGED');
 		expect(mockPush).not.toHaveBeenCalled();
 	});
+
+	it.each([
+		['changed meanwhile', { status: 'changedMeanwhile' }, 1],
+		['changed before the save', { status: 'changed' }, 0],
+		['refused by the API', { status: 'notSaved' }, 0]
+	])(
+		'asks the page to open the editor again on the current invoice only when it %s',
+		async (_case, outcome, calls) => {
+			const save = jest.fn().mockResolvedValue({ outcome, sending: null });
+			const onSaveFailed = jest.fn();
+			const onChangedMeanwhile = jest.fn();
+			render(
+				<SaveInvoiceChangesDialog
+					open
+					invoice={invoiceOf({ save })}
+					onClose={jest.fn()}
+					onSaveFailed={onSaveFailed}
+					onChangedMeanwhile={onChangedMeanwhile}
+				/>
+			);
+
+			fireEvent.click(screen.getByRole('button', { name: SAVE }));
+
+			await waitFor(() => expect(onSaveFailed).toHaveBeenCalledTimes(1));
+			expect(onChangedMeanwhile).toHaveBeenCalledTimes(calls);
+		}
+	);
 
 	it('says nothing was saved when it could not be read before the save', async () => {
 		const message = await failingWith({ status: 'notChecked' });
