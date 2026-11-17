@@ -27,7 +27,7 @@ export interface EntryLabel {
 }
 
 /** The time of one label group: the label, or null for the time without one, and its entries. */
-export interface EntryLabelGroup<L extends Pick<ITimeLog, 'tags'>> {
+interface EntryLabelGroup<L extends Pick<ITimeLog, 'tags'>> {
 	key: string;
 	label: EntryLabel | null;
 	logs: L[];

@@ -8,7 +8,7 @@ import { queryKeys } from '@/core/query/keys';
 import { timeLogService } from '@/core/services/client/api/timesheets/time-log.service';
 import { shellSettledState } from '@/core/stores/common/shell';
 
-export interface EntryLabelsSupport {
+interface EntryLabelsSupport {
 	/** The API stores labels on entries. */
 	isSupported: boolean;
 	/** The answer is in: read, given up on after its retries, or not asked for want of a workspace. */
