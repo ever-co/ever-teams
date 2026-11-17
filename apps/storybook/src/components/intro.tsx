@@ -82,7 +82,7 @@ export default function EverTeamsIntro(): JSX.Element {
 						},
 						{ title: '@ever-teams/toolkit-ui', desc: 'Base UI components built on Radix UI and Tailwind CSS' },
 						{ title: '@ever-teams/api', desc: 'API client functionality for backend integration' },
-						{ title: '@ever-teams/types', desc: 'TypeScript definitions and interfaces' },
+						{ title: '@ever-teams/toolkit-types', desc: 'TypeScript definitions and interfaces' },
 						{
 							title: '@ever-teams/tracking',
 							desc: 'Analytics and tracking system with Microsoft Clarity integration'
@@ -99,21 +99,24 @@ export default function EverTeamsIntro(): JSX.Element {
 
 				<pre className="bg-slate-900 text-slate-100 rounded p-4 overflow-auto">
 					{`# Install the core packages
-npm install @ever-teams/atoms @ever-teams/toolkit-ui @ever-teams/api @ever-teams/types
+npm install @ever-teams/atoms @ever-teams/toolkit-ui @ever-teams/api @ever-teams/toolkit-types
 
 # Optional: Install tracking for analytics
 npm install @ever-teams/tracking`}
 				</pre>
 
 				<pre className="bg-slate-900 text-slate-100 rounded p-4 overflow-auto mt-4">
-					{`import { TeamsProvider, TeamsModernTimer, TeamsBasicTimer } from '@ever-teams/atoms';
+					{`'use client';
+import '@ever-teams/atoms/styles.css';
+import { TeamsProvider, TeamsLoginDialog, TeamsModernTimer, TeamsBasicTimer } from '@ever-teams/atoms';
 import { Button } from '@ever-teams/toolkit-ui';
 
 function App() {
   return (
-    <TeamsProvider config={{ apiUrl: 'https://api.your-domain.com' }}>
+    <TeamsProvider config={{ apiUrl: 'https://api.your-domain.com/api' }} scopedStyles>
       <div className="p-4">
         <h1>My Time Tracking App</h1>
+        <TeamsLoginDialog />
         <TeamsModernTimer showProgress={true} />
         <TeamsBasicTimer />
         <Button>Get Started</Button>
@@ -121,6 +124,19 @@ function App() {
     </TeamsProvider>
   );
 }`}
+				</pre>
+
+				<p className="mt-4">
+					The stylesheet holds the components' styles, scoped under the kit root that scopedStyles renders:
+					your app needs no Tailwind. An app that compiles Tailwind CSS 4 itself can leave both out and let it
+					see the kit instead, in the CSS file that imports Tailwind (paths relative to that file), but its
+					theme must then define the kit's colors and variables: see the atoms README.
+				</p>
+
+				<pre className="bg-slate-900 text-slate-100 rounded p-4 overflow-auto mt-4">
+					{`@import "tailwindcss";
+@source "../node_modules/@ever-teams/atoms/dist";
+@source "../node_modules/@ever-teams/toolkit-ui/dist";`}
 				</pre>
 
 				<h2>Explore More</h2>
