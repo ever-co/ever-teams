@@ -279,7 +279,9 @@ async function restoreAfterFailedAdd(
 export async function splitThroughApi(request: CalendarSplitRequest) {
 	const { log, splitAt, secondTask } = request;
 	const secondPart: { taskId?: string; projectId?: string | null; reason?: string } = {};
-	if (secondTask) {
+	// A break's parts stay breaks: the API refuses a task for the second one (TIME_LOG_SPLIT_BREAK_FIELDS)
+	const takesTask = secondTask !== null && log.logType !== ETimeLogType.BREAK;
+	if (takesTask) {
 		secondPart.taskId = secondTask.id;
 		secondPart.projectId = secondTask.projectId ?? null;
 	}

@@ -94,17 +94,24 @@ export function apiSplitFailureOf(error: unknown): ApiSplitFailure {
 	return 'unknown';
 }
 
+// A timeout (408) and a cancel (499) are made up by the browser client when no answer came: they say nothing of the route
+const STATUSES_WITHOUT_AN_ANSWER = new Set([408, 499]);
+
 /**
  * Whether the API offers the split, from its answer to a split it refuses before any write (at the very start of the
- * entry): any refusal of its own says it does, the 404 of a missing route says it does not. An outage says neither,
- * and is thrown as it came.
+ * entry): any refusal of its own says it does, the 404 of a missing route says it does not. An outage, a timeout or a
+ * cancelled probe says neither, and is thrown as it came.
  */
 export function apiSplitSupportOf(error: unknown): ApiSplitSupport {
 	if (apiSplitFailureOf(error) === 'not-offered') {
 		return 'not-offered';
 	}
 	const status = errorStatusOf(error);
-	const isRefusal = status !== null && status >= FIRST_CLIENT_ERROR && status < FIRST_SERVER_ERROR;
+	const isRefusal =
+		status !== null &&
+		status >= FIRST_CLIENT_ERROR &&
+		status < FIRST_SERVER_ERROR &&
+		!STATUSES_WITHOUT_AN_ANSWER.has(status);
 	if (isRefusal) {
 		return 'supported';
 	}

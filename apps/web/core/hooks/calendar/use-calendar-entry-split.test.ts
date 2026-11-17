@@ -381,6 +381,19 @@ describe('splitThroughApi, one write where the API splits (#5369)', () => {
 		expect(mockAddManualTime).not.toHaveBeenCalled();
 	});
 
+	it('sends no task for the second part of a break, which the API refuses (TIME_LOG_SPLIT_BREAK_FIELDS)', async () => {
+		const breakLog = { ...LOG, logType: ETimeLogType.BREAK } as unknown as ITimeLog;
+
+		await splitThroughApi({
+			log: breakLog,
+			splitAt: at(11),
+			secondTask: { id: 'task-2', projectId: 'project-2' },
+			tenantId: 'tenant-1'
+		});
+
+		expect(mockSplitTimeLog).toHaveBeenCalledWith({ timeLogId: 'log-1', splitAt: at(11) });
+	});
+
 	it("keeps the entry's own task when none is picked, and sends the reason given", async () => {
 		await splitThroughApi({
 			log: LOG,
