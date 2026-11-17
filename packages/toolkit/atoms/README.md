@@ -116,8 +116,9 @@ Today:
 - The sign-in dialog (`TeamsLoginDialog`) takes the user's email and password inside your page and sends them to
   `{apiUrl}/auth/login`. A "Token" tab also accepts a pasted access token.
 - The access token and the user record are kept in `localStorage['_teams-store']`, readable by every script of your
-  page. They are dropped only when the kit next reads them more than 24 hours after the last visit: until then, an
-  expired token stays readable there.
+  page. Each time the kit saves them (at every page load once signed in) it sets their expiry 24 hours later;
+  it removes them only when it next reads them after that expiry, so until then an expired token stays readable
+  there.
 - The user menu shows the token, with a copy button.
 - What leaves your page: requests to `config.apiUrl`. Versions up to 0.2.14 also send the token to the demo API when
   `config.apiUrl` is not set (fixed by [ever-co/ever-teams#5406](https://github.com/ever-co/ever-teams/issues/5406);
