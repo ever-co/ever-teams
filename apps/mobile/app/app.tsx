@@ -20,7 +20,7 @@ import { useInitialRootStore, useStores } from './models';
 import { AppNavigator, useNavigationPersistence } from './navigators';
 import { ErrorBoundary } from './screens/error-screen/error-boundary';
 import * as storage from './utils/storage';
-import { customDarkTheme, customFontsToLoad, customLightTheme } from './theme';
+import { customDarkTheme, customFontsToLoad, customLightTheme, navigationTheme } from './theme';
 import { setupReactotron } from './services/reactotron';
 import Config from './config';
 import { observer } from 'mobx-react-lite';
@@ -98,7 +98,7 @@ const App = observer((props: AppProps) => {
 					<FlashMessage position="top" />
 					<ClickOutsideProvider>
 						<AppNavigator
-							theme={theme}
+							theme={navigationTheme(isDarkMode)}
 							initialState={initialNavigationState}
 							onStateChange={onNavigationStateChange}
 						/>

@@ -105,13 +105,11 @@ export const reportCrash = (error: any, type: ErrorType = ErrorType.FATAL) => {
 	} else {
 		// In production, utilize crash reporting service of choice below:
 		if (process.env.EXPO_PUBLIC_SENTRY_DSN) {
-			// Set error type as tag for better categorization
+			// One event per error, tagged with its type for better categorization
 			Sentry.withScope((scope) => {
 				scope.setTag('errorType', type);
 				Sentry.captureException(error);
 			});
-			// Use direct captureException (no more .Native needed)
-			Sentry.captureException(error);
 		}
 		// crashlytics().recordError(error)
 		// Bugsnag.notify(error)
