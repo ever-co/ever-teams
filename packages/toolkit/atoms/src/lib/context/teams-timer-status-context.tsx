@@ -68,6 +68,7 @@ export function TimerStatusProvider({ children }: { children?: ReactNode }) {
 	const [announcement, setAnnouncement] = useState('');
 	const inFlight = useRef<Promise<void> | null>(null);
 	const failing = useRef(false);
+	const readAgain = useRef(false);
 	const lastRunning = useRef<boolean | null>(null);
 
 	const hasEmployee = Boolean(user?.employee);
@@ -89,33 +90,45 @@ export function TimerStatusProvider({ children }: { children?: ReactNode }) {
 		toast({ variant: 'destructive', description: message });
 	}, []);
 
+	// One read of the status; its answer becomes the shared status.
+	const readOnce = useCallback(async () => {
+		setLoading(true);
+		try {
+			const response = await getTimerStatus(user, token, organizationId);
+			if (isServerError(response)) {
+				reportFailure(errorMessageOf(response));
+				return;
+			}
+			failing.current = false;
+			setStatus(response);
+		} catch (error) {
+			reportFailure((error as Error).message);
+		} finally {
+			setLoading(false);
+		}
+	}, [user, token, organizationId, reportFailure]);
+
+	// A refresh asked while a read is pending runs one more read after it: the pending read may predate a start or a
+	// stop, and its answer must not be the last word. The caller waits for that fresh read.
 	const refetch = useCallback(async () => {
 		if (!ready) {
 			return;
 		}
 		if (inFlight.current) {
+			readAgain.current = true;
 			return inFlight.current;
 		}
-		const read = (async () => {
-			setLoading(true);
-			try {
-				const response = await getTimerStatus(user, token, organizationId);
-				if (isServerError(response)) {
-					reportFailure(errorMessageOf(response));
-					return;
-				}
-				failing.current = false;
-				setStatus(response);
-			} catch (error) {
-				reportFailure((error as Error).message);
-			} finally {
-				setLoading(false);
-				inFlight.current = null;
-			}
+		const reads = (async () => {
+			do {
+				readAgain.current = false;
+				await readOnce();
+			} while (readAgain.current);
 		})();
-		inFlight.current = read;
-		return read;
-	}, [ready, user, token, organizationId, reportFailure]);
+		inFlight.current = reads.finally(() => {
+			inFlight.current = null;
+		});
+		return inFlight.current;
+	}, [ready, readOnce]);
 
 	useEffect(() => {
 		if (!ready || !hasConsumers) {

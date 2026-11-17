@@ -211,3 +211,27 @@ test('a hidden page reads nothing on mount or when back online, and reads once i
 	await act(async () => document.dispatchEvent(new window.Event('visibilitychange')));
 	assert.equal(globalThis.__reads.length, 1);
 });
+
+test('a refresh asked while a read is pending gets a fresh read, so a start is never undone by an older answer', async () => {
+	await reset();
+	let latest;
+	let refetch;
+	const Refresher = () => {
+		refetch = useTimerStatusContext().refetch;
+		return null;
+	};
+	await mount([widget('a', (s) => (latest = s)), React.createElement(Refresher, { key: 'r' })]);
+	const older = globalThis.__reads[0];
+
+	let refreshed = false;
+	await act(async () => {
+		refetch().then(() => (refreshed = true));
+	});
+	await act(async () => older({ running: false, duration: 0, lastLog: null }));
+	assert.equal(refreshed, false);
+	const fresh = globalThis.__reads.at(-1);
+	assert.notEqual(fresh, older);
+	await act(async () => fresh({ running: true, duration: 5, lastLog: null }));
+	assert.equal(refreshed, true);
+	assert.equal(latest?.running, true);
+});
