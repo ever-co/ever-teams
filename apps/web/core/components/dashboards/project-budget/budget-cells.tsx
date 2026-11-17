@@ -4,6 +4,7 @@ import { type DottedLanguageObjectStringPaths, useTranslations } from 'next-intl
 import { Avatar, AvatarFallback, AvatarImage } from '@/core/components/common/avatar';
 import { LimitMeter, limitVerdictTextClassOf } from '@/core/components/dashboards/kit/meters';
 import { isPaintableColor } from '@/core/components/tasks/task-data-color';
+import { HiddenProjectMark } from '@/core/components/projects/hidden-project-mark';
 import { cn } from '@/core/lib/helpers';
 import { imgTitle } from '@/core/lib/helpers/index';
 import { parseGeneratedAvatar } from '@/core/lib/utils/generated-avatar';
@@ -113,6 +114,10 @@ function dotColorOf(project: BudgetProject, placeholderColor: string | undefined
  * their colour to the dot instead of drawing a letter tile.
  */
 export function ProjectMark({ project, className }: Readonly<{ project: BudgetProject; className?: string }>) {
+	// A project the API keeps from the reader: the lock of private projects (CORE-27)
+	if (project.isHidden) {
+		return <HiddenProjectMark className={className} />;
+	}
 	const imageUrl = project.imageUrl;
 	const placeholder = parseGeneratedAvatar(imageUrl);
 	const hasUrl = Boolean(imageUrl) && isValidUrl(imageUrl ?? '');

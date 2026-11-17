@@ -49,7 +49,9 @@ export const projectBudgetReportSchema = z
 				imageUrl: z.string().nullable().optional(),
 				membersCount: optionalNumberSchema,
 				currency: z.string().nullable().optional(),
-				color: z.string().nullable().optional()
+				color: z.string().nullable().optional(),
+				// A project the API keeps from the reader: only its id and the time spent on it (CORE-27)
+				projectHidden: z.boolean().optional()
 			})
 			.passthrough(),
 		budgetType: z.string().nullable().optional(),
