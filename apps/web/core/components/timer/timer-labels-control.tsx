@@ -59,6 +59,18 @@ export function TimerLabelsControl({ className }: Readonly<{ className?: string 
 		setPickedLabelIds([]);
 	}, [activeTeamId, setPickedLabelIds]);
 
+	// A pick made under one team never lands in the next one's draft: a label created there answers after a switch
+	const pickForNextStart = useCallback(
+		(labelIds: string[]) => {
+			const isStillThisTeam = store.get(activeTeamIdState) === activeTeamId;
+			if (!isStillThisTeam) {
+				return;
+			}
+			setPickedLabelIds(labelIds);
+		},
+		[activeTeamId, setPickedLabelIds, store]
+	);
+
 	const runningLog = runningLogOf(timerStatus);
 	const runningLogId = runningLog?.id;
 	const carriedLabels = useMemo(() => entryLabelsOf(runningLog), [runningLog]);
@@ -108,6 +120,6 @@ export function TimerLabelsControl({ className }: Readonly<{ className?: string 
 	}
 
 	return (
-		<EntryLabelsPicker variant="icon" value={pickedLabelIds} onChange={setPickedLabelIds} className={className} />
+		<EntryLabelsPicker variant="icon" value={pickedLabelIds} onChange={pickForNextStart} className={className} />
 	);
 }

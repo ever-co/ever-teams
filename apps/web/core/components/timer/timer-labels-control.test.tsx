@@ -16,13 +16,18 @@ jest.mock('@/core/services/client/api/timesheets/time-log.service', () => ({
 	timeLogService: { updateTimeLogLabels: (...args: unknown[]) => mockUpdateTimeLogLabels(...args) }
 }));
 
-// The picker has its own tests: here it says which labels it shows and picks "support"
+// The picker has its own tests: here it says which labels it shows and picks "support". It keeps the last change
+// handler it was given, as a label it creates answers through the handler of the render it was asked from.
+let mockPickerOnChange: (labelIds: string[]) => void = () => undefined;
 jest.mock('@/core/components/features/entry-labels/entry-labels-picker', () => ({
-	EntryLabelsPicker: ({ value, onChange }: { value: string[]; onChange: (labelIds: string[]) => void }) => (
-		<button type="button" onClick={() => onChange([...value, 'support'])}>
-			{`labels: ${value.join(',') || 'none'}`}
-		</button>
-	)
+	EntryLabelsPicker: ({ value, onChange }: { value: string[]; onChange: (labelIds: string[]) => void }) => {
+		mockPickerOnChange = onChange;
+		return (
+			<button type="button" onClick={() => onChange([...value, 'support'])}>
+				{`labels: ${value.join(',') || 'none'}`}
+			</button>
+		);
+	}
 }));
 
 import { TimerLabelsControl } from './timer-labels-control';
@@ -56,6 +61,21 @@ describe('the labels control of the timer (#5368)', () => {
 
 		expect(mockUpdateTimeLogLabels).not.toHaveBeenCalled();
 		expect(store.get(timerLabelsState)).toEqual(['support']);
+	});
+
+	it("keeps a label created under one team out of the next team's draft when it answers after a switch", () => {
+		const store = createStore();
+		store.set(activeTeamIdState, 'team-a');
+		store.set(timerLabelsState, ['meeting']);
+		renderControl(store);
+		// "Create design" was clicked under team A; the label is created once the active team is B
+		const answerOfCreate = mockPickerOnChange;
+
+		act(() => store.set(activeTeamIdState, 'team-b'));
+		act(() => answerOfCreate(['meeting', 'design']));
+
+		expect(store.get(timerLabelsState)).toEqual([]);
+		expect(screen.getByRole('button', { name: 'labels: none' })).toBeTruthy();
 	});
 
 	it('saves on the running entry of the active team, and remembers when that save landed', async () => {
