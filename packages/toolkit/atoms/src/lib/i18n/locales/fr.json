@@ -65,7 +65,11 @@
 	"TIME_TRACKER": {
 		"title": "Muniteur",
 		"start": "Demarrer",
-		"stop": "Arreter"
+		"stop": "Arreter",
+		"START_TIMER": "Démarrer le minuteur",
+		"STOP_TIMER": "Arrêter le minuteur",
+		"TIMER_STARTED": "Minuteur démarré",
+		"TIMER_STOPPED": "Minuteur arrêté"
 	},
 	"AUTH": {
 		"sign_in_title": "Se connecter",

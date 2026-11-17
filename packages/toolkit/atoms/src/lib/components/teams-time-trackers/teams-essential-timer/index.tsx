@@ -24,6 +24,7 @@ export function TeamsEssentialTimer({ progress, ...props }: Readonly<TeamsEssent
 	const {
 		todayTrackedTime: { hours, minutes, seconds, totalSeconds },
 		startTimer,
+		timerActionLabel,
 		stopTimer,
 		isRunning,
 		timerLoading
@@ -34,6 +35,7 @@ export function TeamsEssentialTimer({ progress, ...props }: Readonly<TeamsEssent
 	return (
 		<BaseAtom
 			onClick={isRunning ? stopTimer : startTimer}
+			aria-label={timerActionLabel}
 			{...props}
 			isRunning={isRunning}
 			{...(progress && { progress: (seconds / 100) * 60 })}

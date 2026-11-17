@@ -65,7 +65,11 @@
 	"TIME_TRACKER": {
 		"title": "Timer",
 		"start": "Start",
-		"stop": "Stop"
+		"stop": "Stop",
+		"START_TIMER": "Start timer",
+		"STOP_TIMER": "Stop timer",
+		"TIMER_STARTED": "Timer started",
+		"TIMER_STOPPED": "Timer stopped"
 	},
 	"AUTH": {
 		"sign_in_title": "Sign In",

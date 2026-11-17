@@ -5,6 +5,7 @@ import { toast } from '@ever-teams/toolkit-ui';
 import { useTeamsContext } from '@lib/context/teams-context';
 import { useTimerStatus } from './useTimerStatus';
 import { ICurrentTeamsState } from '@ever-teams/toolkit-types';
+import { useTranslation } from 'react-i18next';
 import { useTimerStatusContext } from '@lib/context/teams-timer-status-context';
 
 /**
@@ -13,9 +14,18 @@ import { useTimerStatusContext } from '@lib/context/teams-timer-status-context';
  *
  * @returns Timer state and control functions
  */
+// The name screen readers give the start and stop control of every timer widget.
+function timerActionLabelOf(isRunning: boolean, t: (key: string) => string): string {
+	if (isRunning) {
+		return t('TIME_TRACKER.STOP_TIMER');
+	}
+	return t('TIME_TRACKER.START_TIMER');
+}
+
 export const useTimer = () => {
 	// Get dependencies from context
 	const { authenticatedUser: user, token, selectedOrganization: organizationId } = useTeamsContext();
+	const { t } = useTranslation();
 	// Every widget of the page reads the same status: after a start or a stop, all of them are refreshed at once.
 	const sharedStatus = useTimerStatusContext();
 	const refreshEveryWidget = async () => {
@@ -153,7 +163,10 @@ export const useTimer = () => {
 		}
 	}, [timerStatus]);
 
+	const timerActionLabel = timerActionLabelOf(isRunning, t);
+
 	return {
+		timerActionLabel,
 		start,
 		pause,
 		startTimer,
