@@ -189,11 +189,16 @@ const TeamsLoginDialog = ({
 	redirectHandler?: () => void;
 }) => {
 	const { authenticatedUser: user } = useTeamsContext();
+	const { t } = useTranslation();
 
 	return (
 		<div>
 			{!user ? (
-				<Dialog trigger={trigger ? trigger : <ThemedButton className="min-w-28">SIGN IN</ThemedButton>}>
+				<Dialog
+					trigger={trigger ? trigger : <ThemedButton className="min-w-28">SIGN IN</ThemedButton>}
+					title={t('AUTH.sign_in_title')}
+					hideTitle
+				>
 					<TeamsLoginForm redirectHandler={redirectHandler} signupLink={signupLink} />
 				</Dialog>
 			) : (
@@ -471,8 +476,13 @@ const TeamsRegistrationForm = ({
 };
 
 const TeamsRegistrationDialog = ({ trigger, signInLink }: { trigger?: React.ReactNode; signInLink?: string }) => {
+	const { t } = useTranslation();
 	return (
-		<Dialog trigger={trigger ? trigger : <ThemedButton>REGISTER NOW</ThemedButton>}>
+		<Dialog
+			trigger={trigger ? trigger : <ThemedButton>REGISTER NOW</ThemedButton>}
+			title={t('AUTH.sign_up_title')}
+			hideTitle
+		>
 			<TeamsRegistrationForm signInLink={signInLink} />
 		</Dialog>
 	);
