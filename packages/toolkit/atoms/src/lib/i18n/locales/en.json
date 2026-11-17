@@ -62,6 +62,13 @@
 		"week_activity": "Weeky activity",
 		"activity_over_period": "Activity over the period"
 	},
+	"KIT_ERRORS": {
+		"ORIGIN": "This site isn't allowed to show Ever Teams. Ask your workspace admin to add it.",
+		"SESSION": "Your session ended. Sign in again.",
+		"SIGN_IN_AGAIN": "Sign in again",
+		"PERMISSION": "You don't have permission to track time in this workspace. Ask your admin.",
+		"UNREACHABLE": "Ever Teams is unreachable. Your timer keeps running on the server; we'll reconnect."
+	},
 	"TIME_TRACKER": {
 		"title": "Timer",
 		"start": "Start",
