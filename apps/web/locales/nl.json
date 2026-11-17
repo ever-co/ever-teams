@@ -1701,12 +1701,23 @@
 				"FAILED_FIRST_PART_KEPT": "Het eerste deel is opgeslagen, maar het tweede deel ({range}) kon niet worden toegevoegd. Voeg het toe met Tijd toevoegen.",
 				"FAILED_UNKNOWN": "Het splitsen kon niet worden bevestigd. Laad de kalender opnieuw en controleer deze registratie voordat je het opnieuw probeert.",
 				"ADD_REST": "Tweede deel toevoegen",
+				"CHECKING": "Controleren of deze registratie gesplitst kan worden…",
+				"CHECK_FAILED": "We konden niet controleren of deze registratie gesplitst kan worden. Controleer je verbinding en probeer het opnieuw.",
+				"CHECK_AGAIN": "Opnieuw proberen",
+				"SLOT_STEP": "Bijgehouden tijd wordt gesplitst op de blokken van 10 minuten: elk blok gaat in zijn geheel, met schermafbeeldingen en activiteit, naar één deel.",
+				"OFF_SLOT": "Bijgehouden tijd wordt gesplitst op een 10-minutenmarkering, zoals {before} of {after}.",
+				"OFF_SLOT_ONE": "Bijgehouden tijd wordt gesplitst op een 10-minutenmarkering, zoals {time}.",
+				"REASON_LABEL": "Reden",
+				"REASON_REQUIRED": "Je organisatie vraagt een reden wanneer tijd verandert. Voeg er een toe en splits opnieuw.",
+				"REASON_TOO_LONG": "De reden mag maximaal 255 tekens bevatten.",
+				"FAILED_RETRY": "De splitsing kon niet worden bevestigd. Probeer het opnieuw: een splitsing die al gelukt is, wordt nooit twee keer gedaan.",
 				"REFUSED": {
 					"TRACKED": "Bijgehouden tijd draagt zijn activiteit en schermafbeeldingen mee, die alleen de server over twee registraties kan verdelen. Voorlopig kan alleen handmatig toegevoegde tijd worden gesplitst.",
 					"RUNNING": "De timer loopt nog. Stop hem en splits dan de registratie.",
 					"TOO_SHORT": "Deze registratie is te kort: elk deel moet minstens een minuut duren.",
 					"APPROVED": "Deze dag hoort bij een goedgekeurde urenstaat, dus de tijd ervan kan niet veranderen.",
-					"PERMISSION": "Je rol of je organisatie staat niet toe dat je tijd wijzigt of handmatig toevoegt."
+					"PERMISSION": "Je rol of je organisatie staat niet toe dat je tijd wijzigt of handmatig toevoegt.",
+					"INVOICED": "Een factuur bevat deze registratie, dus ze kan niet gesplitst worden."
 				}
 			},
 			"SETTINGS": {

@@ -1701,12 +1701,23 @@
 				"FAILED_FIRST_PART_KEPT": "La prima parte è stata salvata, ma la seconda ({range}) non è stata aggiunta. Aggiungila con Aggiungi tempo.",
 				"FAILED_UNKNOWN": "Non è stato possibile confermare la divisione. Ricarica il calendario e controlla questa voce prima di riprovare.",
 				"ADD_REST": "Aggiungi la seconda parte",
+				"CHECKING": "Verifica in corso: questa voce si può dividere?",
+				"CHECK_FAILED": "Non è stato possibile verificare se questa voce si può dividere. Controlla la connessione e riprova.",
+				"CHECK_AGAIN": "Riprova",
+				"SLOT_STEP": "Il tempo tracciato si divide sui suoi intervalli di 10 minuti: ognuno va intero, con screenshot e attività, in una sola parte.",
+				"OFF_SLOT": "Il tempo tracciato si divide su un segno di 10 minuti, ad esempio {before} o {after}.",
+				"OFF_SLOT_ONE": "Il tempo tracciato si divide su un segno di 10 minuti, ad esempio {time}.",
+				"REASON_LABEL": "Motivo",
+				"REASON_REQUIRED": "La tua organizzazione chiede un motivo quando il tempo cambia. Aggiungine uno e dividi di nuovo.",
+				"REASON_TOO_LONG": "Il motivo può contenere al massimo 255 caratteri.",
+				"FAILED_RETRY": "Non è stato possibile confermare la divisione. Riprova: una divisione già avvenuta non viene mai ripetuta.",
 				"REFUSED": {
 					"TRACKED": "Il tempo tracciato porta con sé attività e screenshot, che solo il server può ripartire tra due voci. Per ora si può dividere solo il tempo aggiunto a mano.",
 					"RUNNING": "Il timer è ancora in corso. Fermalo, poi dividi la voce.",
 					"TOO_SHORT": "Questa voce è troppo breve: ogni parte deve durare almeno un minuto.",
 					"APPROVED": "Questo giorno appartiene a un foglio ore approvato, quindi il suo tempo non può cambiare.",
-					"PERMISSION": "Il tuo ruolo o la tua organizzazione non consente di modificare il tempo né di aggiungerlo a mano."
+					"PERMISSION": "Il tuo ruolo o la tua organizzazione non consente di modificare il tempo né di aggiungerlo a mano.",
+					"INVOICED": "Una fattura include questa voce, quindi non si può dividere."
 				}
 			},
 			"SETTINGS": {

@@ -1701,12 +1701,23 @@
 				"FAILED_FIRST_PART_KEPT": "Pierwsza część została zapisana, ale drugiej ({range}) nie udało się dodać. Dodaj ją przez Dodaj czas.",
 				"FAILED_UNKNOWN": "Nie udało się potwierdzić podziału. Odśwież kalendarz i sprawdź ten wpis, zanim spróbujesz ponownie.",
 				"ADD_REST": "Dodaj drugą część",
+				"CHECKING": "Sprawdzanie, czy ten wpis można podzielić…",
+				"CHECK_FAILED": "Nie udało się sprawdzić, czy ten wpis można podzielić. Sprawdź połączenie i spróbuj ponownie.",
+				"CHECK_AGAIN": "Spróbuj ponownie",
+				"SLOT_STEP": "Śledzony czas dzieli się na jego 10-minutowych odcinkach: każdy trafia w całości, ze zrzutami ekranu i aktywnością, do jednej części.",
+				"OFF_SLOT": "Śledzony czas dzieli się na znaczniku co 10 minut, np. {before} lub {after}.",
+				"OFF_SLOT_ONE": "Śledzony czas dzieli się na znaczniku co 10 minut, np. {time}.",
+				"REASON_LABEL": "Powód",
+				"REASON_REQUIRED": "Twoja organizacja wymaga podania powodu przy zmianie czasu. Dodaj go i podziel ponownie.",
+				"REASON_TOO_LONG": "Powód może mieć najwyżej 255 znaków.",
+				"FAILED_RETRY": "Nie udało się potwierdzić podziału. Spróbuj ponownie: podział, który już się udał, nigdy nie zostanie wykonany dwa razy.",
 				"REFUSED": {
 					"TRACKED": "Śledzony czas niesie swoją aktywność i zrzuty ekranu, które tylko serwer może rozdzielić między dwa wpisy. Na razie można dzielić tylko czas dodany ręcznie.",
 					"RUNNING": "Licznik nadal działa. Zatrzymaj go, a potem podziel wpis.",
 					"TOO_SHORT": "Ten wpis jest za krótki: każda część musi trwać co najmniej minutę.",
 					"APPROVED": "Ten dzień należy do zatwierdzonej karty czasu pracy, więc jego czasu nie można zmienić.",
-					"PERMISSION": "Twoja rola lub organizacja nie pozwala zmieniać czasu ani dodawać go ręcznie."
+					"PERMISSION": "Twoja rola lub organizacja nie pozwala zmieniać czasu ani dodawać go ręcznie.",
+					"INVOICED": "Ten wpis jest na fakturze, więc nie można go podzielić."
 				}
 			},
 			"SETTINGS": {
