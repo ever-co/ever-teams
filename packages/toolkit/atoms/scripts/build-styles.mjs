@@ -2,7 +2,9 @@
 // nothing reaches the host page:
 // - every rule applies only inside a kit root ([data-ever-teams-kit], rendered by <TeamsProvider scopedStyles>);
 // - the :root and :host tokens are declared on the kit root instead;
-// - cascade layers are flattened: a host's unlayered CSS would otherwise beat every layered kit rule.
+// - cascade layers are flattened: a host's unlayered CSS would otherwise beat every layered kit rule;
+// - keyframes and registered custom properties, which apply to the whole document whatever the selectors, get
+//   names of their own, so they neither replace a host's nor change how a host's properties inherit.
 // Usage: node scripts/build-styles.mjs (run by `yarn build` after rollup)
 import fs from 'node:fs';
 import path from 'node:path';
@@ -16,6 +18,9 @@ const postcss = require('postcss');
 const tailwindcss = require('@tailwindcss/postcss');
 
 export const KIT_ROOT = '[data-ever-teams-kit]';
+export const KIT_KEYFRAMES_PREFIX = 'ever-teams-kit-';
+export const KIT_PROPERTY_PREFIX = '--ever-teams-tw-';
+const TAILWIND_PROPERTY_PREFIX = '--tw-';
 
 // Rules inside these at-rules describe animations or registered properties, not elements: they stay as they are.
 const KEEP_AS_IS = new Set(['keyframes', 'property', 'font-face', 'counter-style']);
@@ -43,6 +48,50 @@ export function scopeSelector(selector) {
 	return `${KIT_ROOT} ${trimmed}`;
 }
 
+function escapeForPattern(text) {
+	return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+// Prefixes every @keyframes name, and the names in animation values, including those kept in custom properties
+// (Tailwind's --animate-spin: spin 1s linear infinite).
+export function renameKeyframes(root) {
+	const names = new Set();
+	root.walkAtRules(/keyframes$/i, (atRule) => {
+		const name = atRule.params.trim();
+		if (name.startsWith(KIT_KEYFRAMES_PREFIX)) {
+			return;
+		}
+		names.add(name);
+		atRule.params = KIT_KEYFRAMES_PREFIX + name;
+	});
+	if (names.size === 0) {
+		return root;
+	}
+	const alternatives = [...names].map(escapeForPattern).join('|');
+	const nameAsWord = new RegExp(`(^|[\\s,])(${alternatives})(?=$|[\\s,])`, 'g');
+	root.walkDecls((decl) => {
+		const carriesNames = /^animation(-name)?$/i.test(decl.prop) || decl.prop.startsWith('--');
+		if (carriesNames) {
+			decl.value = decl.value.replace(nameAsWord, `$1${KIT_KEYFRAMES_PREFIX}$2`);
+		}
+	});
+	return root;
+}
+
+// Renames Tailwind's --tw-* properties, declared, read and registered with @property: a registration applies to the
+// whole document, so the kit's would otherwise change how a host's own --tw-* values inherit.
+export function renameRegisteredProperties(root) {
+	const rename = (text) => text.split(TAILWIND_PROPERTY_PREFIX).join(KIT_PROPERTY_PREFIX);
+	root.walkAtRules('property', (atRule) => {
+		atRule.params = rename(atRule.params);
+	});
+	root.walkDecls((decl) => {
+		decl.prop = rename(decl.prop);
+		decl.value = rename(decl.value);
+	});
+	return root;
+}
+
 // Applies the scoping to a compiled stylesheet (a postcss Root).
 export function scopeStylesheet(root) {
 	root.walkAtRules('layer', (atRule) => {
@@ -60,6 +109,8 @@ export function scopeStylesheet(root) {
 		const scoped = rule.selectors.map(scopeSelector);
 		rule.selectors = [...new Set(scoped)];
 	});
+	renameKeyframes(root);
+	renameRegisteredProperties(root);
 	return root;
 }
 

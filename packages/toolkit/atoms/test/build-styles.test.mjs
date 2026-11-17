@@ -26,7 +26,7 @@ test('a selector already written for the kit root is kept', () => {
 	assert.equal(scopeSelector(`.dark ${KIT_ROOT}`), `.dark ${KIT_ROOT}`);
 });
 
-test('layers are flattened, keyframes and registered properties are kept as they are', () => {
+test('layers are flattened; keyframes and registered properties get the kit names', () => {
 	const css =
 		'@layer theme, utilities;@layer theme{:root,:host{--a:1}}@layer utilities{.p-4{padding:1rem}}@keyframes spin{to{transform:rotate(1turn)}}@property --tw-x{syntax:"*";inherits:false}';
 	const out = scopeStylesheet(postcss.parse(css)).toString();
@@ -34,8 +34,33 @@ test('layers are flattened, keyframes and registered properties are kept as they
 	assert.doesNotMatch(out, /@layer/);
 	assert.match(out, /\[data-ever-teams-kit\]\{--a:1\}/);
 	assert.match(out, /\[data-ever-teams-kit\] \.p-4\{padding:1rem\}/);
-	assert.match(out, /@keyframes spin\{to\{transform:rotate\(1turn\)\}\}/);
-	assert.match(out, /@property --tw-x/);
+	assert.match(out, /@keyframes ever-teams-kit-spin\{to\{transform:rotate\(1turn\)\}\}/);
+	assert.match(out, /@property --ever-teams-tw-x/);
+});
+
+test('a keyframes name is renamed where an animation or a custom property names it, and nowhere else', () => {
+	const css =
+		':root{--animate-spin:spin 1s linear infinite;--align:center}.animate-spin{animation:var(--animate-spin)}.animate-in{animation:enter .15s,spin 2s}.spinner{animation-name:spin}@keyframes spin{to{opacity:1}}@keyframes enter{from{opacity:0}}';
+	const out = scopeStylesheet(postcss.parse(css)).toString();
+
+	assert.match(out, /--animate-spin:ever-teams-kit-spin 1s linear infinite/);
+	assert.match(out, /--align:center/);
+	assert.match(out, /animation:var\(--animate-spin\)/);
+	assert.match(out, /animation:ever-teams-kit-enter \.15s,ever-teams-kit-spin 2s/);
+	assert.match(out, /animation-name:ever-teams-kit-spin/);
+	assert.match(out, /@keyframes ever-teams-kit-enter/);
+	assert.doesNotMatch(out, /@keyframes (spin|enter)\{/);
+});
+
+test('every --tw- property is renamed where it is declared, read and registered', () => {
+	const css =
+		'.x{--tw-translate-x:2px;translate:var(--tw-translate-x) var(--tw-translate-y)}@property --tw-translate-x{syntax:"*";inherits:false;initial-value:0}';
+	const out = scopeStylesheet(postcss.parse(css)).toString();
+
+	assert.doesNotMatch(out, /--tw-/);
+	assert.match(out, /--ever-teams-tw-translate-x:2px/);
+	assert.match(out, /var\(--ever-teams-tw-translate-x\) var\(--ever-teams-tw-translate-y\)/);
+	assert.match(out, /@property --ever-teams-tw-translate-x/);
 });
 
 test('every rule of the built stylesheet applies only inside a kit root, and none to html, body or bare elements', async () => {
@@ -58,4 +83,26 @@ test('every rule of the built stylesheet applies only inside a kit root, and non
 	assert.deepEqual(unscoped, []);
 	assert.equal(layers, 0);
 	assert.match(fs.readFileSync(output, 'utf8'), /\[data-ever-teams-kit\] \.outline-hidden/);
+});
+
+test('the built stylesheet names no keyframes and registers no property a host could also use', async () => {
+	const output = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'kit-styles-')), 'styles.css');
+	await buildStyles({ output });
+	const root = postcss.parse(fs.readFileSync(output, 'utf8'));
+	const keyframes = [];
+	const properties = [];
+	root.walkAtRules(/keyframes$/, (atRule) => keyframes.push(atRule.params));
+	root.walkAtRules('property', (atRule) => properties.push(atRule.params));
+
+	assert.ok(keyframes.length > 0);
+	assert.deepEqual(
+		keyframes.filter((name) => !name.startsWith('ever-teams-kit-')),
+		[]
+	);
+	assert.ok(properties.length > 0);
+	assert.deepEqual(
+		properties.filter((name) => !name.startsWith('--ever-teams-')),
+		[]
+	);
+	assert.doesNotMatch(fs.readFileSync(output, 'utf8'), /--tw-/);
 });
