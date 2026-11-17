@@ -1,4 +1,4 @@
-import { useEffect, useState, ReactNode } from 'react';
+import { useEffect, useLayoutEffect, useState, ReactNode } from 'react';
 
 import { Theme, ThemeUIProvider } from 'theme-ui';
 
@@ -18,8 +18,12 @@ import { TeamsContext } from '@lib/context/teams-context';
 import i18n from '@lib/i18n/init';
 import { apiConfigManager, IApiTeamsConfig } from '@ever-teams/api';
 import TrackingProvider from '@lib/context/teams-tracking-context';
+import { TimerStatusProvider } from '@lib/context/teams-timer-status-context';
 import { ChartData } from '@ever-teams/toolkit-types';
 import { useSelectedOrganization } from '@hooks/useSelectedOrganization';
+import { KitOptionsProvider, KitRoot } from './kit-root';
+import { KitColorScheme, setKitPreferences } from '@lib/stores/kit-preferences';
+import { withoutGlobalStyles } from '../../themes/kit-theme-config';
 
 export const defaultData: ChartData[] = [
 	{ day: 'Monday', cedric: 5, salva: 7, josh: 2, ndeko: 7 },
@@ -37,9 +41,25 @@ interface TeamsProviderProps {
 	token?: string;
 	lang?: string;
 	config?: Partial<IApiTeamsConfig>;
+	// Renders the kit root that @ever-teams/atoms/styles.css is scoped under: import that file and set this to style
+	// the components without the host's Tailwind. Off by default, so hosts that compile the classes see no change.
+	scopedStyles?: boolean;
+	// The widgets' color scheme inside the kit root (scopedStyles): 'system' (default) follows the system's.
+	colorScheme?: KitColorScheme;
+	// Lets the font toggle load the font it picks from Google Fonts. Off by default: no request to a third party.
+	loadGoogleFonts?: boolean;
+	// Called after a person signs out from the kit's user menu, instead of sending the browser to '/'.
+	onSignOut?: () => void;
 }
 
-const TeamsDataProvider = ({ children, config: apiConfig, theme, lang = 'en' }: TeamsProviderProps) => {
+type TeamsDataProviderProps = Omit<
+	TeamsProviderProps,
+	'scopedStyles' | 'colorScheme' | 'loadGoogleFonts' | 'onSignOut'
+> & {
+	scoped: boolean;
+};
+
+const TeamsDataProvider = ({ children, config: apiConfig, theme, lang = 'en', scoped }: TeamsDataProviderProps) => {
 	// React States
 	const [language, setLanguage] = useState(lang);
 
@@ -83,10 +103,16 @@ const TeamsDataProvider = ({ children, config: apiConfig, theme, lang = 'en' }: 
 		}
 	}, [apiConfig]);
 
+	// With its own root the kit draws its color scheme there. Without one it keeps next-themes, which puts the scheme
+	// on <html> as hosts that rely on it (the examples) expect.
+	let themed = <ThemeUIProvider theme={withoutGlobalStyles(appliedTheme)}>{children}</ThemeUIProvider>;
+	if (!scoped) {
+		themed = <ThemeProvider attribute="class">{themed}</ThemeProvider>;
+	}
+
 	return (
 		<TeamsContext.Provider
 			value={{
-
 				fontOptions,
 				selectedFont,
 				setSelectedFont
@@ -96,22 +122,45 @@ const TeamsDataProvider = ({ children, config: apiConfig, theme, lang = 'en' }: 
 				config={{ baseUrl: apiConfig?.apiUrl, defaultBaseUrl: apiConfigManager.getConfig().apiUrl }}
 			>
 				<I18nextProvider i18n={i18n}>
-					<ThemeProvider attribute="class">
-						<ThemeUIProvider theme={appliedTheme}>{children}</ThemeUIProvider>
-					</ThemeProvider>
+					<TimerStatusProvider>{themed}</TimerStatusProvider>
 				</I18nextProvider>
 			</TrackingProvider>
 		</TeamsContext.Provider>
 	);
 };
 
-const TeamsProvider = ({ children, ...props }: TeamsProviderProps) => {
-	return (
-		<JotaiProvider>
-			<TeamsDataProvider {...props}>{children}</TeamsDataProvider>
-			<Toaster />
-		</JotaiProvider>
+// Before paint in the browser, so the host's colorScheme shows from the first frame; a plain effect on the server.
+let useBeforePaintEffect = useLayoutEffect;
+if (typeof window === 'undefined') {
+	useBeforePaintEffect = useEffect;
+}
+
+const TeamsProvider = ({
+	children,
+	scopedStyles = false,
+	colorScheme = 'system',
+	loadGoogleFonts = false,
+	onSignOut,
+	...props
+}: TeamsProviderProps) => {
+	useBeforePaintEffect(() => {
+		setKitPreferences({ colorScheme, loadGoogleFonts });
+	}, [colorScheme, loadGoogleFonts]);
+
+	const content = (
+		<KitOptionsProvider value={{ scoped: scopedStyles, onSignOut }}>
+			<JotaiProvider>
+				<TeamsDataProvider {...props} scoped={scopedStyles}>
+					{children}
+				</TeamsDataProvider>
+				<Toaster />
+			</JotaiProvider>
+		</KitOptionsProvider>
 	);
+	if (!scopedStyles) {
+		return content;
+	}
+	return <KitRoot>{content}</KitRoot>;
 };
 
 TeamsProvider.displayName = 'TeamsProvider';

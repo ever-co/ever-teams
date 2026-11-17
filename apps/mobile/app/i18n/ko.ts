@@ -92,9 +92,8 @@ const ko: Translations = {
 	},
 	errorScreen: {
 		title: '뭔가 잘못되었습니다!',
-		friendlySubtitle:
-			'이 화면은 오류가 발생할 때 프로덕션에서 사용자에게 표시됩니다. 이 메시지를 커스터마이징 할 수 있고(해당 파일은 `app/i18n/ko.ts` 에 있습니다) 레이아웃도 마찬가지로 수정할 수 있습니다(`app/screens/error`). 만약 이 오류화면을 완전히 없에버리고 싶다면 `app/app.tsx` 파일에서 <ErrorBoundary> 컴포넌트를 확인하기 바랍니다.',
-		reset: '초기화',
+		friendlySubtitle: '앱에 문제가 발생했습니다. 계속하려면 앱을 다시 불러오세요.',
+		reset: '앱 다시 불러오기',
 		traceTitle: '%{name} 스택에서의 오류' // @demo remove-current-line
 	},
 	emptyStateComponent: {
@@ -142,7 +141,7 @@ const ko: Translations = {
 		createTeam: 'Create Team',
 		invalidConfirmCode: '잘못된 확인 코드',
 		securityCodeSent: '보안 코드가 새 이메일로 전송되었습니다',
-		codeSentTo: '6자 코드가 다음으로 전송되었습니다:'
+		codeSentTo: '코드를 보냈습니다:'
 	},
 	myWorkScreen: {
 		name: '일하다',

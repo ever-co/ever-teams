@@ -90,9 +90,8 @@ const ar: Translations = {
 	},
 	errorScreen: {
 		title: 'هناك خطأ ما',
-		friendlySubtitle:
-			"هذه هي الشاشة التي سيشاهدها المستخدمون في عملية الانتاج عند حدوث خطأ. سترغب في تخصيص هذه الرسالة ( الموجودة في 'ts.en/i18n/app') وربما التخطيط ايضاً ('app/screens/ErrorScreen'). إذا كنت تريد إزالة هذا بالكامل، تحقق من 'app/app.tsp' من اجل عنصر <ErrorBoundary>.",
-		reset: 'اعادة تعيين التطبيق',
+		friendlySubtitle: 'واجه التطبيق مشكلة. أعد تحميله للمتابعة.',
+		reset: 'إعادة تحميل التطبيق',
 		traceTitle: 'خطأ من مجموعة %{name}' // @demo remove-current-line
 	},
 	emptyStateComponent: {
@@ -140,7 +139,7 @@ const ar: Translations = {
 		createTeam: 'إنشاء فريق',
 		invalidConfirmCode: 'رمز التأكيد غير صالح',
 		securityCodeSent: 'تم إرسال رمز الأمان على البريد الإلكتروني الجديد',
-		codeSentTo: 'تم إرسال رمز مكوّن من 6 أحرف إلى:'
+		codeSentTo: 'أرسلنا رمزًا إلى:'
 	},
 	myWorkScreen: {
 		name: 'عمل',

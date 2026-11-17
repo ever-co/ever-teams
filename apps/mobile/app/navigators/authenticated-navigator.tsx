@@ -3,8 +3,14 @@ import React, { useEffect, useState } from 'react';
 import { Platform, TextStyle, View, ViewStyle } from 'react-native';
 import { BottomTabScreenProps, createBottomTabNavigator, BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { createDrawerNavigator, DrawerScreenProps } from '@react-navigation/drawer';
-import type { StackNavigationProp } from '@react-navigation/stack';
-import { CompositeScreenProps, CompositeNavigationProp, RouteProp, useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import {
+	CompositeScreenProps,
+	CompositeNavigationProp,
+	RouteProp,
+	useIsFocused,
+	useNavigation
+} from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 // COMPONENTS
@@ -84,12 +90,12 @@ export type AuthenticatedDrawerScreenProps<T extends keyof AuthenticatedDrawerPa
 
 export type SettingScreenNavigationProp<T extends keyof AuthenticatedTabParamList> = CompositeNavigationProp<
 	BottomTabNavigationProp<AuthenticatedTabParamList, T>,
-	StackNavigationProp<AppStackParamList>
+	NativeStackNavigationProp<AppStackParamList>
 >;
 
 export type DrawerNavigationProp<T extends keyof AuthenticatedDrawerParamList> = CompositeNavigationProp<
 	BottomTabNavigationProp<AuthenticatedDrawerParamList, T>,
-	StackNavigationProp<AppStackParamList>
+	NativeStackNavigationProp<AppStackParamList>
 >;
 
 // Define route props for each screen that needs route parameters
@@ -238,53 +244,38 @@ const TabNavigator = observer(function TabNavigator() {
 
 const drawer = createDrawerNavigator<AuthenticatedDrawerParamList>();
 
+/**
+ * React Navigation 7 removed `unmountOnBlur`: a drawer screen still unmounts once another one is shown, so it reads
+ * its data again when it comes back, as it did before.
+ */
+function UnmountOnBlur({ children }: Readonly<{ children: React.ReactNode }>) {
+	const isFocused = useIsFocused();
+	if (!isFocused) {
+		return null;
+	}
+	return <>{children}</>;
+}
+
 export const AuthenticatedNavigator = observer(function AuthenticatedNavigator() {
 	return (
 		<drawer.Navigator
 			drawerContent={(props) => <HamburgerMenu {...props} />}
+			screenLayout={({ children }) => <UnmountOnBlur>{children}</UnmountOnBlur>}
 			screenOptions={{
 				headerShown: false,
 				drawerPosition: 'right',
 				drawerStyle: { width: '83%' }
 			}}
 		>
-			<drawer.Screen name="AuthenticatedTab" component={TabNavigator} options={{ unmountOnBlur: true }} />
-			<drawer.Screen name="TaskScreen" component={AuthenticatedTaskScreen} options={{ unmountOnBlur: true }} />
-			<drawer.Screen
-				name="Setting"
-				component={AuthenticatedSettingScreen}
-				options={{ unmountOnBlur: true }}
-			/>
-			<drawer.Screen
-				name="TaskVersion"
-				component={TaskVersionScreen}
-				options={{ unmountOnBlur: true }}
-			/>
-			<drawer.Screen
-				name="TaskStatus"
-				component={TaskStatusScreen}
-				options={{ unmountOnBlur: true }}
-			/>
-			<drawer.Screen
-				name="TaskLabelScreen"
-				component={TaskLabelScreen}
-				options={{ unmountOnBlur: true }}
-			/>
-			<drawer.Screen
-				name="TaskSizeScreen"
-				component={TaskSizeScreen}
-				options={{ unmountOnBlur: true }}
-			/>
-			<drawer.Screen
-				name="TaskPriority"
-				component={TaskPriorityScreen}
-				options={{ unmountOnBlur: true }}
-			/>
-			<drawer.Screen
-				name="MembersSettingsScreen"
-				component={MembersSettingsScreen}
-				options={{ unmountOnBlur: true }}
-			/>
+			<drawer.Screen name="AuthenticatedTab" component={TabNavigator} />
+			<drawer.Screen name="TaskScreen" component={AuthenticatedTaskScreen} />
+			<drawer.Screen name="Setting" component={AuthenticatedSettingScreen} />
+			<drawer.Screen name="TaskVersion" component={TaskVersionScreen} />
+			<drawer.Screen name="TaskStatus" component={TaskStatusScreen} />
+			<drawer.Screen name="TaskLabelScreen" component={TaskLabelScreen} />
+			<drawer.Screen name="TaskSizeScreen" component={TaskSizeScreen} />
+			<drawer.Screen name="TaskPriority" component={TaskPriorityScreen} />
+			<drawer.Screen name="MembersSettingsScreen" component={MembersSettingsScreen} />
 		</drawer.Navigator>
 	);
 });
