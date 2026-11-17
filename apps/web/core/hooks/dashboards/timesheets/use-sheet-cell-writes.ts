@@ -94,7 +94,7 @@ function logsOfDay(logs: ReadonlyArray<ITimeLog>, dayKey: string) {
  * from the project later, and one kept in the browser from before Billable was part of the key keeps its old key), so
  * its cells are read under the key of the time typed in them, never under the key the row is stored with.
  */
-function writtenRowKeyOf(identity: SheetRowIdentity) {
+export function writtenRowKeyOf(identity: SheetRowIdentity) {
 	const labelIds = (identity.labels ?? []).map((label) => label.id);
 	return sheetRowKeyFor(identity.projectId, identity.taskId, labelIds, identity.isBillable);
 }
