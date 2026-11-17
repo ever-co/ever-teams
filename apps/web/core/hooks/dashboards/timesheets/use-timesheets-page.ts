@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo, useState } from 'react';
 import { useAtomValue } from 'jotai';
+import { useTranslations } from 'next-intl';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { useIsMemberManager } from '@/core/hooks/organizations/teams/use-team-member';
 import { useMyRolePermissionsQuery } from '@/core/hooks/roles/use-my-role-permissions-query';
@@ -225,6 +226,8 @@ export function useTimesheetsPage() {
 	}, [isClientLookupPending, logsQuery.data, showsError]);
 
 	const normalizedQuery = useMemo(() => normalizedSearchTextOf(search), [search]);
+	const t = useTranslations();
+	const hiddenProjectLabel = t('common.PRIVATE_PROJECT');
 
 	const projectClientIds = projectClients.clientIds;
 	const filteredLogs = useMemo(() => {
@@ -235,8 +238,8 @@ export function useTimesheetsPage() {
 	}, [allLogs, linkedFilters, pageFilters.projects, pageFilters.tasks, projectClientIds]);
 
 	const narrowedLogs = useMemo(
-		() => filteredLogs.filter((log) => logMatchesSearch(log, normalizedQuery)),
-		[filteredLogs, normalizedQuery]
+		() => filteredLogs.filter((log) => logMatchesSearch(log, normalizedQuery, hiddenProjectLabel)),
+		[filteredLogs, hiddenProjectLabel, normalizedQuery]
 	);
 
 	const statusSummary = useMemo(() => statusSummaryOf(narrowedLogs), [narrowedLogs]);

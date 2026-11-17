@@ -278,11 +278,14 @@ export function normalizedSearchTextOf(text: string | null | undefined): string 
 	return withoutAccents.trim();
 }
 
-export function logMatchesSearch(log: ITimeLog, normalizedQuery: string) {
+/** Whether the query is in an entry's task, member, project or task number; a hidden project by its label. */
+export function logMatchesSearch(log: ITimeLog, normalizedQuery: string, hiddenProjectLabel = '') {
 	if (!normalizedQuery) {
 		return true;
 	}
-	const fields = [log.task?.title, log.employee?.fullName, log.project?.name, log.task?.taskNumber];
+	// A project the API keeps from the reader is found by the name the page shows for it (CORE-27)
+	const projectName = isHiddenProject(log.project) ? hiddenProjectLabel : log.project?.name;
+	const fields = [log.task?.title, log.employee?.fullName, projectName, log.task?.taskNumber];
 	return fields.some((field) => normalizedSearchTextOf(field).includes(normalizedQuery));
 }
 
@@ -297,7 +300,7 @@ export function projectFilterValueOf(log: ITimeLog) {
 	return projectValueOf(log);
 }
 
-export function projectValueOf(log: ITimeLog) {
+function projectValueOf(log: ITimeLog) {
 	const projectId = log.project?.id ?? log.projectId;
 	if (projectId) {
 		return projectId;

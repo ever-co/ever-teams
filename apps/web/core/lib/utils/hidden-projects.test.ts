@@ -5,7 +5,9 @@ import { exportRowsOf, reportTotalsOf } from '@/core/lib/utils/dashboards/time-a
 import { timesheetExportRowsOf } from '@/core/lib/utils/dashboards/timesheet-export';
 import {
 	logMatchesPickedProjectsAndTasks,
+	logMatchesSearch,
 	NO_PROJECT_VALUE,
+	normalizedSearchTextOf,
 	projectFilterValueOf,
 	rowIdentityOfLog
 } from '@/core/lib/utils/dashboards/timesheets';
@@ -134,6 +136,16 @@ describe('Timesheets for a reader who is not on some private projects', () => {
 		expect(identity.isProjectHidden).toBe(true);
 		expect(identity.projectId).toBe(CLIENT_X);
 		expect(rowIdentityOfLog(website)).not.toHaveProperty('isProjectHidden');
+	});
+
+	it('finds the entries of the hidden projects by the name the page shows, "Private project"', () => {
+		const query = normalizedSearchTextOf('private');
+		const found = [clientX, audit, withoutProject, website].filter((log) =>
+			logMatchesSearch(log, query, 'Private project')
+		);
+
+		expect(found.map((log) => log.id)).toEqual(['log-1', 'log-2']);
+		expect(logMatchesSearch(website, normalizedSearchTextOf('website'), 'Private project')).toBe(true);
 	});
 
 	it('writes "Private project" in the project column of an export', () => {
