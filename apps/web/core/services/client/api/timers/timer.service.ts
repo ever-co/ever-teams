@@ -453,8 +453,12 @@ class TimerService extends APIService {
 				slot = timeSlotsBetween(writeFromMs, toMs).at(0);
 				continue;
 			}
+			// Whatever the send waits for comes first: `onSending` may check that this tab may still write (a tab of the
+			// browser takes its turn through a lease that can lapse while the page is frozen), and that check is the last
+			// word before the request goes, with nothing awaited in between
+			const fallbackApi = isDirect ? null : await getFallbackAPI();
 			onSending?.({ ...slot, windowBefore, sentAt: Date.now() });
-			if (isDirect) {
+			if (!fallbackApi) {
 				await this.post('/timesheet/time-slot', {
 					tenantId: this.tenantId,
 					organizationId: this.organizationId,
@@ -466,8 +470,7 @@ class TimerService extends APIService {
 					duration: slot.duration
 				});
 			} else {
-				const api = await getFallbackAPI();
-				answered = await api.post<ITimerStatus>(`/timer/sync?${getTodayRangeQuery()}`, {
+				answered = await fallbackApi.post<ITimerStatus>(`/timer/sync?${getTodayRangeQuery()}`, {
 					source,
 					timeLogId,
 					startedAt: slot.startedAt,

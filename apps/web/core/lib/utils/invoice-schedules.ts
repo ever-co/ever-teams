@@ -96,7 +96,7 @@ export function isRealDayKey(dayKey: string): boolean {
 }
 
 /** What became of the schedule a form opened on: still the client's, replaced by another one, or deleted. */
-export type OpenedScheduleFate = 'current' | 'replaced' | 'deleted';
+type OpenedScheduleFate = 'current' | 'replaced' | 'deleted';
 
 /**
  * What became of the schedule a form opened on, by the latest read of its client's schedule: a client has one at
