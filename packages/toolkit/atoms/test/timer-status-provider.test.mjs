@@ -82,7 +82,13 @@ before(async () => {
 after(async () => {
 	for (const root of roots.splice(0)) await act(async () => root.unmount());
 	const link = path.join(bundleDir, 'node_modules', 'react');
-	if (fs.existsSync(link)) fs.rmdirSync(link);
+	// A symbolic link on POSIX, a junction on Windows: remove the link itself, never what it points to.
+	if (!fs.existsSync(link)) return;
+	try {
+		fs.unlinkSync(link);
+	} catch {
+		fs.rmdirSync(link);
+	}
 });
 
 // A timer widget: registers with the provider, as useTimerStatus does.
