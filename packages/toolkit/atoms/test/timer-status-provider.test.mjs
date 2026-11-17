@@ -23,12 +23,18 @@ Object.defineProperty(dom.window.document, 'visibilityState', { get: () => visib
 
 const stubs = {
 	'./teams-context': `
-		// Stable references, as the kit's jotai atoms give them
-		const identity = { authenticatedUser: { tenantId: 't', employee: { id: 'e' } }, token: 'token', selectedOrganization: 'org' };
-		export const useTeamsContext = () => identity;`,
+		// A store with stable references, as the kit's jotai atoms give them; a test can switch organization.
+		import { useSyncExternalStore } from 'react';
+		const listeners = new Set();
+		const first = { authenticatedUser: { id: 'u', tenantId: 't', employee: { id: 'e' } }, token: 'token', selectedOrganization: 'org' };
+		let identity = first;
+		globalThis.__setIdentity = (next) => { identity = next ? { ...identity, ...next } : first; listeners.forEach((l) => l()); };
+		const subscribe = (l) => { listeners.add(l); return () => listeners.delete(l); };
+		export const useTeamsContext = () => useSyncExternalStore(subscribe, () => identity);`,
 	'@ever-teams/api': `
 		globalThis.__reads = [];
-		export const getTimerStatus = () => new Promise((resolve) => globalThis.__reads.push(resolve));`,
+		export const getTimerStatus = (user, token, organizationId) =>
+			new Promise((resolve) => globalThis.__reads.push(Object.assign(resolve, { organizationId })));`,
 	'@ever-teams/toolkit-ui': 'globalThis.__toasts = []; export const toast = (t) => globalThis.__toasts.push(t);',
 	'@ever-teams/toolkit-types': 'export {};',
 	'react-i18next': 'export const useTranslation = () => ({ t: (key) => key });'
@@ -115,6 +121,7 @@ async function reset() {
 	globalThis.__reads.length = 0;
 	globalThis.__toasts.length = 0;
 	visibility = 'visible';
+	await act(async () => globalThis.__setIdentity(null));
 }
 
 const answer = (index, status) =>
@@ -191,4 +198,16 @@ test('a start seen by the provider is announced once to screen readers', async (
 	await act(async () => window.dispatchEvent(new window.Event('focus')));
 	await answer(1, { running: true });
 	assert.equal(live.textContent, 'TIME_TRACKER.TIMER_STARTED');
+});
+
+test('a hidden page reads nothing on mount or when back online, and reads once it becomes visible', async () => {
+	await reset();
+	visibility = 'hidden';
+	await mount([widget('a')]);
+	await act(async () => window.dispatchEvent(new window.Event('online')));
+	assert.equal(globalThis.__reads.length, 0);
+
+	visibility = 'visible';
+	await act(async () => document.dispatchEvent(new window.Event('visibilitychange')));
+	assert.equal(globalThis.__reads.length, 1);
 });

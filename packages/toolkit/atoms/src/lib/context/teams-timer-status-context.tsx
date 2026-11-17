@@ -121,7 +121,6 @@ export function TimerStatusProvider({ children }: { children?: ReactNode }) {
 		if (!ready || !hasConsumers) {
 			return;
 		}
-		refetch();
 		const pollWhenVisible = () => {
 			if (pageIsVisible()) {
 				refetch();
@@ -130,15 +129,17 @@ export function TimerStatusProvider({ children }: { children?: ReactNode }) {
 		const refetchNow = () => {
 			refetch();
 		};
+		// Automatic reads happen only while the page is visible; a hidden page reads when it becomes visible.
+		pollWhenVisible();
 		const interval = setInterval(pollWhenVisible, TIMER_STATUS_REFRESH_MS);
 		document.addEventListener('visibilitychange', pollWhenVisible);
 		window.addEventListener('focus', refetchNow);
-		window.addEventListener('online', refetchNow);
+		window.addEventListener('online', pollWhenVisible);
 		return () => {
 			clearInterval(interval);
 			document.removeEventListener('visibilitychange', pollWhenVisible);
 			window.removeEventListener('focus', refetchNow);
-			window.removeEventListener('online', refetchNow);
+			window.removeEventListener('online', pollWhenVisible);
 		};
 	}, [ready, hasConsumers, refetch]);
 
