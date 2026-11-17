@@ -119,7 +119,7 @@ export const AppNavigator = observer(function AppNavigator(props: NavigationProp
 	useBackButtonHandler((routeName) => exitRoutes.includes(routeName));
 	const queryClient = new QueryClient();
 	return (
-		<NavigationContainer ref={navigationRef} {...props}>
+		<NavigationContainer ref={navigationRef} navigationInChildEnabled {...props}>
 			<QueryClientProvider client={queryClient}>
 				<AppStack />
 			</QueryClientProvider>
