@@ -47,9 +47,14 @@ interface TeamsProviderProps {
 	colorScheme?: KitColorScheme;
 	// Lets the font toggle load the font it picks from Google Fonts. Off by default: no request to a third party.
 	loadGoogleFonts?: boolean;
+	// Called after a person signs out from the kit's user menu, instead of sending the browser to '/'.
+	onSignOut?: () => void;
 }
 
-type TeamsDataProviderProps = Omit<TeamsProviderProps, 'scopedStyles' | 'colorScheme' | 'loadGoogleFonts'> & {
+type TeamsDataProviderProps = Omit<
+	TeamsProviderProps,
+	'scopedStyles' | 'colorScheme' | 'loadGoogleFonts' | 'onSignOut'
+> & {
 	scoped: boolean;
 };
 
@@ -132,6 +137,7 @@ const TeamsProvider = ({
 	scopedStyles = false,
 	colorScheme = 'system',
 	loadGoogleFonts = false,
+	onSignOut,
 	...props
 }: TeamsProviderProps) => {
 	useBeforePaintEffect(() => {
@@ -139,7 +145,7 @@ const TeamsProvider = ({
 	}, [colorScheme, loadGoogleFonts]);
 
 	const content = (
-		<KitOptionsProvider value={{ scoped: scopedStyles }}>
+		<KitOptionsProvider value={{ scoped: scopedStyles, onSignOut }}>
 			<JotaiProvider>
 				<TeamsDataProvider {...props} scoped={scopedStyles}>
 					{children}

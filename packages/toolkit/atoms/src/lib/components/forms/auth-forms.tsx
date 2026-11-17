@@ -28,6 +28,8 @@ import { TeamsTimerFooter } from '@components/layouts/footers/component-footer';
 import { logOut as teamsLogOut } from '@ever-teams/api';
 import { TeamsPasswordLoginForm } from './teams-password-login-form';
 import { TeamsTokenLoginForm } from './teams-token-login-form';
+import { useKitOptions } from '@components/teams-provider/kit-root';
+import { warnOnce } from '@lib/utils/warn-once';
 import { useRegistrationForm } from '@hooks/useRegistrationForm';
 
 type FormSource = 'storybook' | 'example';
@@ -218,7 +220,8 @@ export function MenuIndicator() {
 }
 
 export const UserNavMenu = ({ children }: { children?: React.ReactNode }) => {
-	const { authenticatedUser: user, token } = useTeamsContext();
+	const { authenticatedUser: user, token, setToken, setAuthenticatedUser } = useTeamsContext();
+	const { onSignOut, scoped } = useKitOptions();
 	const { t } = useTranslation();
 
 	const logOut = async () => {
@@ -231,6 +234,21 @@ export const UserNavMenu = ({ children }: { children?: React.ReactNode }) => {
 			};
 
 			window.localStorage.setItem('_teams-store', JSON.stringify(resetStore));
+			// The kit forgets the session at once: the widgets show their signed-out state without a reload.
+			setToken('');
+			setAuthenticatedUser({ data: null, loading: false });
+			if (onSignOut) {
+				onSignOut();
+				return;
+			}
+			// Without a callback, only a kit drawn inside its own root leaves the host's page where it is.
+			if (scoped) {
+				return;
+			}
+			warnOnce(
+				'sign-out-redirect',
+				"after a sign-out the kit sends the browser to '/'. Pass <TeamsProvider onSignOut> to choose what happens; with scopedStyles the kit stays on the page."
+			);
 			window.location.href = '/';
 		}
 	};
