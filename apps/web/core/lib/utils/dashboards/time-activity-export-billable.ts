@@ -13,6 +13,9 @@ const CENTS_PER_UNIT = 100;
 
 const SECONDS_PER_HOUR = 3600;
 
+// The currency the page adds a priced amount under when neither its rate nor the workspace names one
+const DEFAULT_CURRENCY = 'USD';
+
 /** Rounds as the page writes an amount: to the cent, half away from zero, on the amount's decimal value. */
 const CENTS_FORMAT = new Intl.NumberFormat('en-US', {
 	useGrouping: false,
@@ -155,12 +158,19 @@ interface PricedRow {
 	entry: PricedEntry;
 }
 
+/** The currency of a priced entry as the band counts it: one without a currency of its own is in the default one. */
+function pricedCurrencyOf({ amount, currency }: Pick<PricedEntry, 'amount' | 'currency'>) {
+	if (amount === null) {
+		return null;
+	}
+	return currency ?? DEFAULT_CURRENCY;
+}
+
 function rowsByCurrencyOf(priced: ReadonlyArray<PricedRow>) {
 	const byCurrency = new Map<string, PricedRow[]>();
 	for (const pricedRow of priced) {
-		const { amount, currency } = pricedRow.entry;
-		const isPriced = amount !== null && currency !== null;
-		if (!isPriced) {
+		const currency = pricedCurrencyOf(pricedRow.entry);
+		if (currency === null) {
 			continue;
 		}
 		const rows = byCurrency.get(currency) ?? [];
@@ -178,11 +188,63 @@ function isAggregateRow(row: TimeActivityExportRow) {
 	return row.taskKey === NO_TASK_KEY;
 }
 
+function rowsByMatchKeyOf(rows: ReadonlyArray<TimeActivityExportRow>) {
+	const byKey = new Map<string, TimeActivityExportRow[]>();
+	for (const row of rows) {
+		const key = rowMatchKeyOf(row);
+		const rowsOfKey = byKey.get(key) ?? [];
+		rowsOfKey.push(row);
+		byKey.set(key, rowsOfKey);
+	}
+	return byKey;
+}
+
+function distanceOf(row: TimeActivityExportRow, entry: PricedEntry) {
+	return Math.abs(row.seconds - entry.seconds);
+}
+
+function nearestRowOf(candidates: ReadonlyArray<TimeActivityExportRow>, entry: PricedEntry) {
+	let nearest: TimeActivityExportRow | null = null;
+	for (const row of candidates) {
+		const isNearer = nearest === null || distanceOf(row, entry) < distanceOf(nearest, entry);
+		if (isNearer) {
+			nearest = row;
+		}
+	}
+	return nearest;
+}
+
 /**
- * The entries placed on rows, in three passes so that one entry never takes another's place:
+ * An entry the two reads of the page disagree on (a running timer counts on between them, or the entry was edited)
+ * keeps its amount: it goes to the row of the same identity and rate whose time is nearest its own, among the rows
+ * still without one. Reads that agree have no entry left by then, so their files do not change.
+ */
+function placeDisagreeingEntries(
+	rows: ReadonlyArray<TimeActivityExportRow>,
+	entries: Map<string, PricedEntry[]>,
+	placed: Map<TimeActivityExportRow, PricedEntry>
+) {
+	const rowsByKey = rowsByMatchKeyOf(rows);
+	for (const [key, entriesOfKey] of entries) {
+		for (const entry of [...entriesOfKey]) {
+			const free = (rowsByKey.get(key) ?? []).filter(
+				(row) => !placed.has(row) && entry.rateKey === rowRateKeyOf(row)
+			);
+			const row = nearestRowOf(free, entry);
+			if (row) {
+				placed.set(row, entry);
+				entriesOfKey.splice(entriesOfKey.indexOf(entry), 1);
+			}
+		}
+	}
+}
+
+/**
+ * The entries placed on rows, in passes so that one entry never takes another's place:
  * - the entry of the same identity, time and rate (equal entries of one task at different rates keep their own);
  * - then the same identity and time, when the rate cannot be read back the same way on both sides;
- * - then a row Gauzy sent without its entries, which gathers the time of all of them: its billable part is shorter.
+ * - then a row Gauzy sent without its entries, which gathers the time of all of them: its billable part is shorter;
+ * - then an entry whose time the two reads disagree on, on the nearest row of its identity and rate.
  */
 function placedEntriesOf(rows: ReadonlyArray<TimeActivityExportRow>, facts: ReadonlyArray<BreakdownFact>) {
 	const entries = pricedEntriesByKeyOf(facts);
@@ -203,10 +265,11 @@ function placedEntriesOf(rows: ReadonlyArray<TimeActivityExportRow>, facts: Read
 			}
 		}
 	}
+	placeDisagreeingEntries(rows, entries, placed);
 	const leftCurrencies = new Set<string | null>();
 	for (const entriesOfKey of entries.values()) {
 		for (const entry of entriesOfKey) {
-			leftCurrencies.add(entry.currency);
+			leftCurrencies.add(pricedCurrencyOf(entry));
 		}
 	}
 	return { placed, leftCurrencies };
