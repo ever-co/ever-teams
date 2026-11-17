@@ -78,6 +78,22 @@ describe('the labels control of the timer (#5368)', () => {
 		expect(screen.getByRole('button', { name: 'labels: none' })).toBeTruthy();
 	});
 
+	it('keeps a label created before a switch away and back out of the new draft of the same team', () => {
+		const store = createStore();
+		store.set(activeTeamIdState, 'team-a');
+		store.set(timerLabelsState, ['meeting']);
+		renderControl(store);
+		// "Create design" was clicked under team A; the label is created once the person is back on team A
+		const answerOfCreate = mockPickerOnChange;
+
+		act(() => store.set(activeTeamIdState, 'team-b'));
+		act(() => store.set(activeTeamIdState, 'team-a'));
+		act(() => store.set(timerLabelsState, ['support']));
+		act(() => answerOfCreate(['meeting', 'design']));
+
+		expect(store.get(timerLabelsState)).toEqual(['support']);
+	});
+
 	it('saves on the running entry of the active team, and remembers when that save landed', async () => {
 		const store = createStore();
 		store.set(activeTeamIdState, 'team-a');

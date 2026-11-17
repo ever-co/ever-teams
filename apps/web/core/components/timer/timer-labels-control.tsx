@@ -59,16 +59,29 @@ export function TimerLabelsControl({ className }: Readonly<{ className?: string 
 		setPickedLabelIds([]);
 	}, [activeTeamId, setPickedLabelIds]);
 
-	// A pick made under one team never lands in the next one's draft: a label created there answers after a switch
+	// Every team switch starts a new draft, a return to an earlier team too (A, then B, then A again)
+	const [draftOfTeam, setDraftOfTeam] = useState({ teamId: activeTeamId, generation: 0 });
+	if (draftOfTeam.teamId !== activeTeamId) {
+		setDraftOfTeam({ teamId: activeTeamId, generation: draftOfTeam.generation + 1 });
+	}
+	const draftGeneration = draftOfTeam.generation;
+	const draftGenerationRef = useRef(draftGeneration);
+	useEffect(() => {
+		draftGenerationRef.current = draftGeneration;
+	}, [draftGeneration]);
+
+	// A pick made for one draft never lands in a later one: a label created there answers after a switch, even once the
+	// first team is active again
 	const pickForNextStart = useCallback(
 		(labelIds: string[]) => {
 			const isStillThisTeam = store.get(activeTeamIdState) === activeTeamId;
-			if (!isStillThisTeam) {
+			const isStillThisDraft = draftGenerationRef.current === draftGeneration;
+			if (!isStillThisTeam || !isStillThisDraft) {
 				return;
 			}
 			setPickedLabelIds(labelIds);
 		},
-		[activeTeamId, setPickedLabelIds, store]
+		[activeTeamId, draftGeneration, setPickedLabelIds, store]
 	);
 
 	const runningLog = runningLogOf(timerStatus);
