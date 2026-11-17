@@ -66,7 +66,7 @@ export function TimerStatusProvider({ children }: { children?: ReactNode }) {
 	const [loading, setLoading] = useState(false);
 	const [consumerCount, setConsumerCount] = useState(0);
 	const [announcement, setAnnouncement] = useState('');
-	const inFlight = useRef<Promise<void> | null>(null);
+	const inFlight = useRef<{ identity: string; promise: Promise<void> } | null>(null);
 	const failing = useRef(false);
 	const readAgain = useRef(false);
 	const lastRunning = useRef<boolean | null>(null);
@@ -75,6 +75,11 @@ export function TimerStatusProvider({ children }: { children?: ReactNode }) {
 	const signedIn = Boolean(token && organizationId);
 	const ready = hasEmployee && signedIn;
 	const hasConsumers = consumerCount > 0;
+
+	// Whose status this is: an answer read for another user, token or organization is dropped.
+	const identity = `${user?.id ?? ''}|${token}|${organizationId ?? ''}`;
+	const currentIdentity = useRef(identity);
+	currentIdentity.current = identity;
 
 	const registerConsumer = useCallback(() => {
 		setConsumerCount((count) => count + 1);
@@ -91,22 +96,30 @@ export function TimerStatusProvider({ children }: { children?: ReactNode }) {
 	}, []);
 
 	// One read of the status; its answer becomes the shared status.
-	const readOnce = useCallback(async () => {
-		setLoading(true);
-		try {
-			const response = await getTimerStatus(user, token, organizationId);
-			if (isServerError(response)) {
-				reportFailure(errorMessageOf(response));
-				return;
+	const readOnce = useCallback(
+		async (forIdentity: string) => {
+			setLoading(true);
+			try {
+				const response = await getTimerStatus(user, token, organizationId);
+				if (currentIdentity.current !== forIdentity) {
+					return;
+				}
+				if (isServerError(response)) {
+					reportFailure(errorMessageOf(response));
+					return;
+				}
+				failing.current = false;
+				setStatus(response);
+			} catch (error) {
+				reportFailure((error as Error).message);
+			} finally {
+				if (currentIdentity.current === forIdentity) {
+					setLoading(false);
+				}
 			}
-			failing.current = false;
-			setStatus(response);
-		} catch (error) {
-			reportFailure((error as Error).message);
-		} finally {
-			setLoading(false);
-		}
-	}, [user, token, organizationId, reportFailure]);
+		},
+		[user, token, organizationId, reportFailure]
+	);
 
 	// A refresh asked while a read is pending runs one more read after it: the pending read may predate a start or a
 	// stop, and its answer must not be the last word. The caller waits for that fresh read.
@@ -114,21 +127,33 @@ export function TimerStatusProvider({ children }: { children?: ReactNode }) {
 		if (!ready) {
 			return;
 		}
-		if (inFlight.current) {
+		const pending = inFlight.current;
+		const pendingForThisIdentity = pending?.identity === identity;
+		if (pending && pendingForThisIdentity) {
 			readAgain.current = true;
-			return inFlight.current;
+			return pending.promise;
 		}
 		const reads = (async () => {
 			do {
 				readAgain.current = false;
-				await readOnce();
-			} while (readAgain.current);
+				await readOnce(identity);
+			} while (readAgain.current && currentIdentity.current === identity);
 		})();
-		inFlight.current = reads.finally(() => {
-			inFlight.current = null;
+		const promise = reads.finally(() => {
+			if (inFlight.current?.identity === identity) {
+				inFlight.current = null;
+			}
 		});
-		return inFlight.current;
-	}, [ready, readOnce]);
+		inFlight.current = { identity, promise };
+		return promise;
+	}, [ready, readOnce, identity]);
+
+	// Another user, token or organization: the previous status is dropped at once, and no change is announced.
+	useEffect(() => {
+		setStatus(null);
+		failing.current = false;
+		lastRunning.current = null;
+	}, [identity]);
 
 	useEffect(() => {
 		if (!ready || !hasConsumers) {

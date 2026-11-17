@@ -235,3 +235,20 @@ test('a refresh asked while a read is pending gets a fresh read, so a start is n
 	assert.equal(refreshed, true);
 	assert.equal(latest?.running, true);
 });
+
+test('switching organization during a read reads the new one and drops the answer for the old one', async () => {
+	await reset();
+	let latest;
+	await mount([widget('a', (s) => (latest = s))]);
+	const forOldOrganization = globalThis.__reads[0];
+
+	await act(async () => globalThis.__setIdentity({ selectedOrganization: 'org-2' }));
+	assert.equal(latest, null);
+	const forNewOrganization = globalThis.__reads.find((r) => r.organizationId === 'org-2');
+	assert.ok(forNewOrganization, 'the new organization is read at once');
+
+	await act(async () => forOldOrganization({ running: true, duration: 99, lastLog: null }));
+	assert.equal(latest, null);
+	await act(async () => forNewOrganization({ running: false, duration: 3, lastLog: null }));
+	assert.equal(latest?.duration, 3);
+});
