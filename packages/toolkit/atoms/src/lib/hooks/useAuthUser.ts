@@ -1,9 +1,11 @@
-import { getUser } from '@ever-teams/api';
+import { apiConfigManager, getUser } from '@ever-teams/api';
 import { useEffect } from 'react';
 import { IHookResponse, IUser } from '@ever-teams/toolkit-types';
-import { useAtom } from 'jotai';
+import { useAtom, useSetAtom } from 'jotai';
 import { selectedEmployeeAtom, userAtom } from '../teams-jotai/atoms/teams-atoms';
-import { toast } from '@ever-teams/toolkit-ui';
+import { kindOfFailedRequest, noticeOfAnswer } from '@lib/errors/kit-error';
+import { kitNoticeAtom } from '@lib/errors/kit-notice-atom';
+import { errorMessageOf } from '@lib/context/teams-timer-status-context';
 
 // Helper function to update session
 export const updateSession = (user: IUser, token: string) => {
@@ -22,6 +24,7 @@ export const updateSession = (user: IUser, token: string) => {
 const useAuthUser = (token: string): IHookResponse<IUser> => {
 	const [user, setUser] = useAtom(userAtom);
 	const [, setSelectedEmployee] = useAtom(selectedEmployeeAtom);
+	const setNotice = useSetAtom(kitNoticeAtom);
 
 	const handleUserAuthentication = async () => {
 		try {
@@ -40,19 +43,13 @@ const useAuthUser = (token: string): IHookResponse<IUser> => {
 			const authUser = await getUser({ token, includeEmployee: true, includeOrganization: true });
 
 			if ('message' in authUser || 'error' in authUser) {
-				const errorMessage =
-					'message' in authUser
-						? Array.isArray(authUser.message)
-							? authUser.message.join(', ')
-							: authUser.message
-						: String(authUser.error);
-
 				setUser((prev) => ({ ...prev, loading: false }));
-
-				toast({
-					description: errorMessage,
-					variant: 'destructive'
-				});
+				// A stored session the API refuses (401) shows "Your session ended" in the widgets, not a toast on the page.
+				if ('statusCode' in authUser) {
+					setNotice(noticeOfAnswer(authUser, errorMessageOf(authUser)));
+					return;
+				}
+				setNotice({ kind: await kindOfFailedRequest(apiConfigManager.getConfig().apiUrl) });
 				return;
 			}
 
@@ -62,12 +59,8 @@ const useAuthUser = (token: string): IHookResponse<IUser> => {
 
 			setUser({ data: authUser, loading: false });
 			updateSession(authUser, token);
-		} catch (error) {
-			toast({
-				title: 'Ever Teams Error',
-				description: (error as Error).message || 'Unknown Error',
-				variant: 'destructive'
-			});
+		} catch {
+			setNotice({ kind: await kindOfFailedRequest(apiConfigManager.getConfig().apiUrl) });
 			setUser((prev) => ({ ...prev, loading: false }));
 		}
 	};

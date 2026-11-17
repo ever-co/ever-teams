@@ -68,6 +68,8 @@ let TimerStatusProvider;
 let useTimerStatusContext;
 let useTimer;
 let useTimerStatus;
+let kitNoticeAtom;
+let getDefaultStore;
 let bundleDir;
 
 before(async () => {
@@ -78,7 +80,10 @@ before(async () => {
 			contents: [
 				"export * from './context/teams-timer-status-context';",
 				"export { useTimer } from './hooks/useTimer';",
-				"export { useTimerStatus } from './hooks/useTimerStatus';"
+				"export { useTimerStatus } from './hooks/useTimerStatus';",
+				// The page's notice lives in jotai's default store here (no TeamsProvider): each test starts it empty.
+				"export { kitNoticeAtom } from './errors/kit-notice-atom';",
+				"export { getDefaultStore } from 'jotai';"
 			].join('\n'),
 			resolveDir: lib,
 			loader: 'ts'
@@ -117,9 +122,8 @@ before(async () => {
 	React = require('react');
 	({ act } = React);
 	({ createRoot } = require('react-dom/client'));
-	({ TimerStatusProvider, useTimerStatusContext, useTimer, useTimerStatus } = await import(
-		pathToFileURL(outfile).href
-	));
+	({ TimerStatusProvider, useTimerStatusContext, useTimer, useTimerStatus, kitNoticeAtom, getDefaultStore } =
+		await import(pathToFileURL(outfile).href));
 });
 
 after(async () => {
@@ -166,6 +170,7 @@ async function reset() {
 	globalThis.__toasts.length = 0;
 	globalThis.__apiDown = false;
 	globalThis.__probes.length = 0;
+	getDefaultStore().set(kitNoticeAtom, null);
 	visibility = 'visible';
 	await act(async () => globalThis.__setIdentity(null));
 }

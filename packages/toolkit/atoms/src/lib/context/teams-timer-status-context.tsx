@@ -16,6 +16,8 @@ import { apiConfigManager, getTimerStatus } from '@ever-teams/api';
 import { IServerError, ITimerStatus } from '@ever-teams/toolkit-types';
 import { useTeamsContext } from './teams-context';
 import { KIT_ERROR_MESSAGE_KEYS, KitNotice, kindOfFailedRequest, noticeOfAnswer } from '@lib/errors/kit-error';
+import { kitNoticeAtom } from '@lib/errors/kit-notice-atom';
+import { useAtom } from 'jotai';
 
 // The Ever Teams web app's rate: one status read a minute, and none while the page is hidden.
 export const TIMER_STATUS_REFRESH_MS = 60_000;
@@ -90,7 +92,7 @@ export function TimerStatusProvider({ children }: Readonly<{ children?: ReactNod
 	const inFlight = useRef<{ identity: string; promise: Promise<void>; again: boolean } | null>(null);
 	// Only the read started last may set the status, show a notice or end the loading state.
 	const latestRead = useRef(0);
-	const [notice, setNotice] = useState<KitNotice | null>(null);
+	const [notice, setNotice] = useAtom(kitNoticeAtom);
 	const lastRunning = useRef<boolean | null>(null);
 
 	const hasEmployee = Boolean(user?.employee);
@@ -116,15 +118,18 @@ export function TimerStatusProvider({ children }: Readonly<{ children?: ReactNod
 
 	// One notice for an outage, not one per read: the same notice again changes nothing, and the next successful read
 	// ends it.
-	const reportNotice = useCallback((next: KitNotice | null) => {
-		setNotice((current) => {
-			const same = current?.kind === next?.kind && current?.message === next?.message;
-			if (same) {
-				return current;
-			}
-			return next;
-		});
-	}, []);
+	const reportNotice = useCallback(
+		(next: KitNotice | null) => {
+			setNotice((current) => {
+				const same = current?.kind === next?.kind && current?.message === next?.message;
+				if (same) {
+					return current;
+				}
+				return next;
+			});
+		},
+		[setNotice]
+	);
 
 	// One read of the status; its answer becomes the shared status.
 	const readOnce = useCallback(
