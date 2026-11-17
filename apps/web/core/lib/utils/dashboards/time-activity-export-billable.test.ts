@@ -42,7 +42,7 @@ function dayOf(date: string, logs: Array<{ project: string; employeeLogs: object
 const CLIENT_RATES = new Map<string, ProjectClientRates>([
 	['website', { billRateValue: 90, currency: 'EUR', members: [] }],
 	['thirds', { billRateValue: 100, currency: 'EUR', members: [] }],
-	['halfcent', { billRateValue: 2.01, currency: 'EUR', members: [] }]
+	['half-cent', { billRateValue: 2.01, currency: 'EUR', members: [] }]
 ]);
 
 const priceOf: PriceOfRow = (row) =>
@@ -187,7 +187,7 @@ describe('billable entries that look alike', () => {
 			billRateCurrency: 'EUR'
 		});
 		const log = { employee: ana, sum: 3 * HOUR, activity: 50, tasks: [entryAt(60), entryAt(90), entryAt(60)] };
-		const report = [dayOf('2026-11-06', [{ project: 'norate', employeeLogs: [log] }])];
+		const report = [dayOf('2026-11-06', [{ project: 'no-rate', employeeLogs: [log] }])];
 
 		const rows = rowsOf(report);
 		const billables = exportBillablesOf(rows, factsOf(report));
@@ -208,9 +208,35 @@ describe('billable entries that look alike', () => {
 		expect(billables.get(rows[0])).toEqual({ seconds: 2 * HOUR, amount: 120, currency: 'EUR' });
 	});
 
+	it('keeps the billable amount of an entry whose time changed between the two reads, as the band does', () => {
+		const report = [dayOf('2026-11-06', [{ project: 'app', employeeLogs: [employeeLogOf(bo, BO_BILLED)] }])];
+		const reRead = [{ task: 'API', seconds: 5 * HOUR + 60 }];
+		const billableReport = [dayOf('2026-11-06', [{ project: 'app', employeeLogs: [employeeLogOf(bo, reRead)] }])];
+
+		const rows = rowsOf(report);
+		const facts = factsOf(billableReport);
+		const billables = exportBillablesOf(rows, facts);
+
+		expect(billables.get(rows[0])).toEqual({ seconds: 5 * HOUR + 60, amount: 301, currency: 'EUR' });
+		expect(exportBillableTotalsOf(rows, billables).amounts).toEqual(billableFiguresOfFacts(facts).amounts);
+	});
+
+	it('bills an amount priced without a currency in the default one, as the band adds it', () => {
+		const log = employeeLogOf({ id: 'eve', fullName: 'Eve', billRateValue: 40 }, [{ task: 'QA', seconds: HOUR }]);
+		const report = [dayOf('2026-11-06', [{ project: 'no-rate', employeeLogs: [log] }])];
+		const rows = exportRowsOf(report as ITimeLogGroupedDailyReport[], null);
+		const noCurrency: PriceOfRow = () => ({ rate: 40, currency: null, source: 'employee' });
+		const facts = pricedFactsOf(flattenDailyReport(report as ITimeLogGroupedDailyReport[]), noCurrency);
+
+		const billables = exportBillablesOf(rows, facts);
+
+		expect(billables.get(rows[0])).toEqual({ seconds: HOUR, amount: 40, currency: 'USD' });
+		expect(exportBillableTotalsOf(rows, billables).amounts).toEqual(billableFiguresOfFacts(facts).amounts);
+	});
+
 	it('rounds a half cent as the page writes the amount', () => {
 		const log = employeeLogOf(ana, [{ task: 'Review', seconds: HOUR / 2 }]);
-		const report = [dayOf('2026-11-07', [{ project: 'halfcent', employeeLogs: [log] }])];
+		const report = [dayOf('2026-11-07', [{ project: 'half-cent', employeeLogs: [log] }])];
 
 		const rows = rowsOf(report);
 		const billables = exportBillablesOf(rows, factsOf(report));
