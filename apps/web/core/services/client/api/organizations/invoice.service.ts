@@ -46,7 +46,7 @@ function latestOfEachInvoice(invoices: ReadonlyArray<TInvoice>): TInvoice[] {
 const invoiceStatusSchema = invoiceSchema.pick({ status: true, updatedAt: true });
 
 /** An invoice's status, and the `updatedAt` it was read at: what a status action is made under (#5382). */
-export interface InvoiceState {
+interface InvoiceState {
 	status: string | null;
 	/** ISO 8601; null when the API states none. */
 	updatedAt: string | null;
