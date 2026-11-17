@@ -43,15 +43,20 @@ function givenDiscard({
 
 async function renderMenu() {
 	const onChangeStart = jest.fn();
-	const menu = (
+	const menuWith = (onChange: () => void) => (
 		<PaperProvider>
-			<TimerActionsMenu onChangeStart={onChangeStart} />
+			<TimerActionsMenu onChangeStart={onChange} />
 		</PaperProvider>
 	);
-	const view = await render(menu);
-	/** The screen reads the timer again: the menu renders with what the hook now says. */
+	const view = await render(menuWith(onChangeStart));
+	/**
+	 * The screen reads the timer again: the card renders the menu with a new callback, as a parent that renders again
+	 * does, so the menu renders with what the hook now says (the same element would be skipped by React).
+	 */
 	const readAgain = async () => {
-		await view.rerender(menu);
+		const readsBefore = mockedUseTimerDiscard.mock.calls.length;
+		await view.rerender(menuWith(() => onChangeStart()));
+		expect(mockedUseTimerDiscard.mock.calls.length).toBeGreaterThan(readsBefore);
 	};
 	return { onChangeStart, readAgain };
 }
