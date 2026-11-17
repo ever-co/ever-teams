@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { cloneElement } from 'react';
-import { CirclePause, CirclePlay } from 'lucide-react';
+import { Play, Square } from 'lucide-react';
 import type { VariantProps } from 'class-variance-authority';
 import { cva } from 'class-variance-authority';
 import { cn } from '@ever-teams/toolkit-ui';
@@ -28,14 +28,61 @@ export const buttonVariants = cva('inline-flex items-center justify-center', {
 
 export type ButtonVariances = VariantProps<typeof buttonVariants>;
 
+// The play or stop control: a filled chip in the brand color (destructive while running), with the ring and tinted
+// shadow of a primary button. The whole timer is the button; the chip is its visible action.
+const chipVariants = cva(
+	[
+		'inline-flex shrink-0 items-center justify-center text-white transition-colors',
+		'shadow-md shadow-black/15 ring-1 ring-black/15 dark:ring-white/15',
+		'[&_svg]:size-1/2 [&_svg]:fill-current [&_svg]:drop-shadow-sm'
+	],
+	{
+		variants: {
+			size: {
+				small: 'size-7 rounded-lg',
+				medium: 'size-8 rounded-lg',
+				large: 'size-9 rounded-lg',
+				'extra-large': 'size-14 rounded-xl'
+			},
+			tone: {
+				primary: 'bg-primary group-hover:bg-primary/90',
+				secondary: 'bg-secondary text-secondary-foreground group-hover:bg-secondary/90',
+				destructive: 'bg-destructive group-hover:bg-destructive/90'
+			}
+		},
+		defaultVariants: {
+			size: 'small',
+			tone: 'primary'
+		}
+	}
+);
+
+type ChipTone = VariantProps<typeof chipVariants>['tone'];
+
+function chipTone(variant: ButtonVariances['variant'], isRunning?: boolean): ChipTone {
+	if (isRunning) {
+		return 'destructive';
+	}
+	if (variant === 'secondary' || variant === 'destructive') {
+		return variant;
+	}
+	return 'primary';
+}
+
 interface TimerIconProps extends ButtonVariances {
 	icon?: React.ReactNode;
 	isRunning?: boolean;
 	className?: string;
 }
 
+function RunningIcon({ isRunning }: { isRunning?: boolean }) {
+	if (isRunning) {
+		return <Square aria-hidden="true" />;
+	}
+	return <Play aria-hidden="true" />;
+}
+
 const TimerButton: React.FC<TimerIconProps> = ({ size, variant, icon, className, isRunning }): ReactElement => {
-	const Component = isRunning ? CirclePause : CirclePlay;
 	return (
 		<span className={cn('inline-flex items-center justify-center', className)}>
 			{icon ? (
@@ -43,13 +90,9 @@ const TimerButton: React.FC<TimerIconProps> = ({ size, variant, icon, className,
 					className: cn(buttonVariants({ size, variant }))
 				})
 			) : (
-				<Component
-					className={cn(
-						buttonVariants({ size, variant }),
-						'hover:scale-110 hover:cursor-pointer hover:opacity-80 hover:duration-300 hover:ease-in-out hover:bg-gray-500/50 dark:hover:bg-gray-700/50 hover:rounded-full hover:p-0.5',
-						isRunning && 'text-red-800'
-					)}
-				/>
+				<span className={chipVariants({ size, tone: chipTone(variant, isRunning) })}>
+					<RunningIcon isRunning={isRunning} />
+				</span>
 			)}
 		</span>
 	);
