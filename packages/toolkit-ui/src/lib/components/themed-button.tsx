@@ -1,4 +1,4 @@
-import { useThemeUI } from 'theme-ui';
+import { get, useThemeUI } from 'theme-ui';
 import { Button, IButtonProps } from './button';
 
 /**
@@ -8,8 +8,14 @@ import { Button, IButtonProps } from './button';
  */
 export function useThemeColor(name: string): string | undefined {
 	const { theme } = useThemeUI();
-	const colors = (theme.rawColors ?? theme.colors) as Record<string, unknown> | undefined;
-	const color = colors?.[name];
+	// Without custom properties (the kit's theme turns them off) theme.colors holds the raw values, and a rawColors
+	// there can only come from an outer provider: theme-ui writes it only when custom properties are on.
+	let colors = theme.rawColors ?? theme.colors;
+	if (theme.config?.useCustomProperties === false) {
+		colors = theme.colors;
+	}
+	// get() gives a nested color scale's __default value, as an sx color does.
+	const color = get(colors ?? {}, name);
 	if (typeof color === 'string') {
 		return color;
 	}
