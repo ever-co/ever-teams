@@ -5,7 +5,9 @@ import { act, renderHook, waitFor } from '@testing-library/react';
 import { Provider, createStore } from 'jotai';
 import type { PropsWithChildren } from 'react';
 
+import { landLabelSave } from '@/core/lib/utils/timer-status-labels';
 import { timerStatusState } from '@/core/stores/timer/timer';
+import { timerLabelsSavedState } from '@/core/stores/timer/timer-labels';
 
 const mockMoveTimerStart = jest.fn();
 const mockGetTimerStartMoveSupport = jest.fn();
@@ -100,6 +102,32 @@ describe('useMoveTimerStart', () => {
 		});
 
 		expect(mockTrackTimerCommand).toHaveBeenCalledTimes(1);
+	});
+
+	it('keeps the labels saved on the run while the move was on its way (#5368)', async () => {
+		const meeting = { id: 'meeting', name: 'meeting' };
+		const support = { id: 'support', name: 'support' };
+		let answer: (value: unknown) => void = () => undefined;
+		mockMoveTimerStart.mockReturnValue(new Promise((resolve) => (answer = resolve)));
+		const { store, wrapper } = setup();
+
+		const { result } = renderHook(() => useMoveTimerStart(), { wrapper });
+		let moving: Promise<unknown> | undefined;
+		// Sent: the move is on its way
+		await act(async () => {
+			moving = result.current.moveStart({ startedAt: new Date(2026, 10, 16, 9, 0) });
+		});
+		// "support" is saved on the run meanwhile; the answer read the run before that save
+		act(() => {
+			const saved = { logId: 'log-1', tags: [meeting, support], saveNumber: landLabelSave() };
+			store.set(timerLabelsSavedState, saved as never);
+		});
+		await act(async () => {
+			answer({ data: { running: true, duration: 2100, lastLog: { id: 'log-1', tags: [meeting] } } });
+			await moving;
+		});
+
+		expect(store.get(timerStatusState)).toMatchObject({ duration: 2100, lastLog: { tags: [meeting, support] } });
 	});
 
 	it('drops an answer that lands after the workspace changed', async () => {

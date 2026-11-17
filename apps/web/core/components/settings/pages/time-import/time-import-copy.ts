@@ -52,7 +52,8 @@ const FIELD_LABEL_KEYS: Readonly<Record<TimeImportField, DottedLanguageObjectStr
 	task: 'timeImport.mapping.fields.TASK',
 	notes: 'timeImport.mapping.fields.NOTES',
 	billable: 'timeImport.mapping.fields.BILLABLE',
-	memberEmail: 'timeImport.mapping.fields.MEMBER'
+	memberEmail: 'timeImport.mapping.fields.MEMBER',
+	labels: 'timer.labels.LABELS'
 };
 
 const DATE_ORDER_KEYS: Readonly<Record<DateOrder, DottedLanguageObjectStringPaths>> = {

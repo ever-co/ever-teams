@@ -27,6 +27,9 @@ jest.mock('@/core/hooks/roles/use-my-role-permissions-query', () => ({
 
 import { useTimeActivitySettings } from './use-time-activity-settings';
 
+// An API without labels on entries (#5368): the labels controls stay out, as before
+jest.mock('@/core/hooks/timer/use-entry-labels-support', () => ({ useEntryLabelsSupport: () => false }));
+
 const NOT_SCROLLING = { scroll: false };
 
 const EVERYONE_GROUPINGS = ['date', 'member', 'project', 'task', 'week'];

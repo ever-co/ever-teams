@@ -730,6 +730,7 @@
 					"UNCHANGED": "{count, plural, one {# entry already has these values.} other {# entries already have these values.}}",
 					"OVERLAP": "{count, plural, one {# entry overlaps other recorded time: saving it would remove that time.} other {# entries overlap other recorded time: saving them would remove that time.}}",
 					"CHECK_FAILED": "{count, plural, one {# entry could not be checked for overlapping time, so it was not saved.} other {# entries could not be checked for overlapping time, so they were not saved.}}",
+					"CHANGED_MEANWHILE": "{count, plural, one {# entry was changed elsewhere while this edit ran, so nothing was saved to it.} other {# entries were changed elsewhere while this edit ran, so nothing was saved to them.}}",
 					"FAILED": "{count, plural, one {# entry could not be saved.} other {# entries could not be saved.}}"
 				}
 			},
@@ -1371,6 +1372,10 @@
 				"STATUS": "Status",
 				"TRACKED_HOURS": "Tracked (hours)",
 				"CURRENCY": "Currency",
+				"BILLABLE_HOURS": "Billable hours",
+				"BILLABLE_CURRENCY": "Billable currency",
+				"NO_RATE": "No rate",
+				"BILLABLE_UNPRICED": "{duration} of billable time has no rate",
 				"ACTIVITY_PERCENT": "Activity (%)",
 				"NO_TASK": "No task",
 				"PAGE": "Page {page} of {total}"
@@ -3004,6 +3009,24 @@
 		}
 	},
 	"timer": {
+		"labels": {
+			"LABELS": "Labels",
+			"LABEL": "Label",
+			"PICK_LABELS": "Add labels",
+			"NO_LABELS_YET": "No labels yet",
+			"DELETED": "Deleted",
+			"SAVE_FAILED": "The labels could not be saved",
+			"TASK_LABELS": "Task labels",
+			"NO_LABEL": "No label",
+			"BY_LABEL_TITLE": "Time by label",
+			"COUNT": "{count, plural, one {# label} other {# labels}}",
+			"OVERLAP_TITLE": "Groups overlap",
+			"OVERLAP_MESSAGE": "An entry with several labels counts under each of them, so the groups add up to more than the total.",
+			"CREATE": "Create “{name}”",
+			"SEARCH": "Search labels",
+			"CREATE_FAILED": "The label could not be created",
+			"IMPORT_NOT_ATTACHED": "Not attached: {names}. The team has no label of {count, plural, one {that name} other {those names}} and none could be added."
+		},
 		"START_TIMER": "Please, select or create a new task to start tracking the time or create a plan",
 		"ALREADY_TRACKING_MESSAGE": "You're already tracking time in another tab or device.",
 		"TRACKING_DISABLED_MESSAGE": "Time tracking is turned off for you. An organization admin can turn it on.",
@@ -7685,6 +7708,7 @@
 			"MARKED_PAID": "Invoice {number} is marked paid",
 			"MARKED_UNPAID": "Invoice {number} is back to Sent, unpaid",
 			"CHANGE_FAILED": "Invoice {number} was not changed",
+			"CHANGED_MEANWHILE": "This invoice changed since it was shown, so nothing was changed. Refresh it to see its current version, then try again.",
 			"DOWNLOAD": "Download PDF"
 		},
 		"send": {

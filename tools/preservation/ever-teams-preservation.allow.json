@@ -522,5 +522,9 @@
 	{
 		"id": "removed:testNames:apps/web/core/hooks/timer/use-stale-timer-guard.test.tsx::keeps the time even when that heartbeat fails: the one the app sends each minute takes over::#1",
 		"reason": "The minute heartbeat no longer stands in for a failed Keep: it would write one minute of the time kept. Replaced by \"keeps the time at the next try when its write fails, without asking again, a stop that waits held meanwhile\"."
+	},
+	{
+		"id": "removed:testNames:apps/web/core/lib/utils/time-import-columns.test.ts::names the columns of a time export it does not read::#1",
+		"reason": "The time import now reads a Tags column as the labels of each entry (#5368), so Tags is no longer among the columns it leaves out. Renamed \"names the columns of a time export it does not read, and reads its Tags as the labels\", which checks both."
 	}
 ]

@@ -31,3 +31,31 @@ describe('the message of an invoice edit refused as changed meanwhile', () => {
 		expect(message).not.toBe(ENGLISH);
 	});
 });
+
+/**
+ * The message of an invoice status action (void, paid, unpaid, sent, void and replace) refused because the invoice
+ * changed after it was read (#5382): every locale states it in its own language.
+ */
+function actionChangedMeanwhileOf(file: string): unknown {
+	const content = readFileSync(resolve(LOCALES_DIRECTORY, file), 'utf8');
+	const messages = JSON.parse(content) as { invoices?: { actions?: Record<string, unknown> } };
+	return messages.invoices?.actions?.CHANGED_MEANWHILE;
+}
+
+const ACTION_ENGLISH = actionChangedMeanwhileOf('en.json');
+
+describe('the message of an invoice status action refused as changed meanwhile', () => {
+	it('is stated in English', () => {
+		expect(ACTION_ENGLISH).toBe(
+			'This invoice changed since it was shown, so nothing was changed. Refresh it to see its current version, then try again.'
+		);
+	});
+
+	it.each(LOCALE_FILES.filter((file) => file !== 'en.json'))('is translated in %s', (file) => {
+		const message = actionChangedMeanwhileOf(file);
+
+		expect(typeof message).toBe('string');
+		expect((message as string).trim()).not.toBe('');
+		expect(message).not.toBe(ACTION_ENGLISH);
+	});
+});

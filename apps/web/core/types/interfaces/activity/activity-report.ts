@@ -3,6 +3,7 @@ import { TTask } from '../../schemas/task/task.schema';
 import { IEmployee } from '../organization/employee';
 import { IOrganizationContact } from '../organization/organization-contact';
 import { IOrganizationProject } from '../project/organization-project';
+import type { ITaggable } from '../common/base-interfaces';
 import { TUser } from '@/core/types/schemas';
 
 /**
@@ -184,6 +185,8 @@ export interface ITimerTaskLog {
 	 */
 	billRateValue?: number | string | null;
 	billRateCurrency?: string | null;
+	/** The entry's own labels (Gauzy #12029), stated once the API has them: one row per entry, so its own labels. */
+	tags?: NonNullable<ITaggable['tags']>;
 }
 
 export interface ITimerEmployeeLog {
@@ -227,6 +230,10 @@ export interface ITimeLogReportDailyRequest {
 	includeTimeWithoutTeam?: boolean;
 	/** Counts billable time only; without it the report counts every log. */
 	billableOnly?: boolean;
+	/** Counts the entries carrying one of these labels of their own (Gauzy #12029). */
+	tagIds?: string[];
+	/** Counts the entries carrying no label: alone, or beside `tagIds`. */
+	untagged?: boolean;
 }
 
 export interface ITimeLogReportWeeklyRequest extends Pick<

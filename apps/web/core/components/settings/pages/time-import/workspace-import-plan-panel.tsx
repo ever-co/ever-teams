@@ -1,6 +1,7 @@
 'use client';
 
 import type { CSSProperties, PropsWithChildren, ReactNode } from 'react';
+import { useEntryLabelsSupport } from '@/core/hooks/timer/use-entry-labels-support';
 import { useTranslations } from 'next-intl';
 import { Badge } from '@/core/components/common/badge';
 import { Notice } from '@/core/components/common/notice';
@@ -151,7 +152,9 @@ export function WorkspaceImportPlanPanel({
 	const hasReadyEntries = readyEntryCount > 0;
 	const offersListsImport = createsSomething && !hasReadyEntries;
 	const hasNothingToDo = !createsSomething && !hasReadyEntries;
-	const showsTaggedNote = taggedEntryCount > 0 && hasLabels;
+	// Labels on entries (#5368): the entries get their labels, so the note that they would not is for an API without them
+	const supportsEntryLabels = useEntryLabelsSupport();
+	const showsTaggedNote = taggedEntryCount > 0 && hasLabels && !supportsEntryLabels;
 	const skipsLabels = !canCreateLabels && labels.create.length > 0;
 
 	return (

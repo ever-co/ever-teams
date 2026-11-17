@@ -158,6 +158,9 @@ export interface ITimeLogRequestParams {
 	includeTimeWithoutTeam?: boolean;
 	/** Counts billable time only. The daily and weekly report routes forward it. */
 	billableOnly?: boolean;
+	/** The entry's own labels (#5368): the entries carrying one of them, or none with `untagged`. */
+	tagIds?: string[];
+	untagged?: boolean;
 }
 
 // export type LogType = 'TRACKED' | 'MANUAL' | 'IDLE';
@@ -256,6 +259,11 @@ function buildTimeLogParams(params: ITimeLogRequestParams): URLSearchParams {
 
 	if (params.billableOnly) {
 		baseParams.append('billableOnly', 'true');
+	}
+
+	(params.tagIds ?? []).forEach((tagId, index) => baseParams.append(`tagIds[${index}]`, tagId));
+	if (params.untagged) {
+		baseParams.append('untagged', 'true');
 	}
 
 	return baseParams;

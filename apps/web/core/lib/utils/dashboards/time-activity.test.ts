@@ -241,6 +241,7 @@ describe('the Time & Activity exports of the client grouping', () => {
 		task: 'Home',
 		taskKey: 'task-home',
 		status: null,
+		labels: '',
 		seconds: 0,
 		earnings: null,
 		currency: null,

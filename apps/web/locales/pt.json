@@ -730,6 +730,7 @@
 					"UNCHANGED": "{count, plural, one {# entrada já tem estes valores.} other {# entradas já têm estes valores.}}",
 					"OVERLAP": "{count, plural, one {# entrada se sobrepõe a outro tempo registrado: salvá-la removeria esse tempo.} other {# entradas se sobrepõem a outro tempo registrado: salvá-las removeria esse tempo.}}",
 					"CHECK_FAILED": "{count, plural, one {Não foi possível verificar a sobreposição de # entrada, por isso ela não foi salva.} other {Não foi possível verificar a sobreposição de # entradas, por isso elas não foram salvas.}}",
+					"CHANGED_MEANWHILE": "{count, plural, one {# entrada foi alterada em outro lugar durante esta edição, por isso nada foi salvo nela.} other {# entradas foram alteradas em outro lugar durante esta edição, por isso nada foi salvo nelas.}}",
 					"FAILED": "{count, plural, one {Não foi possível salvar # entrada.} other {Não foi possível salvar # entradas.}}"
 				}
 			},
@@ -1371,6 +1372,10 @@
 				"STATUS": "Status",
 				"TRACKED_HOURS": "Registrado (horas)",
 				"CURRENCY": "Moeda",
+				"BILLABLE_HOURS": "Horas faturáveis",
+				"BILLABLE_CURRENCY": "Moeda faturável",
+				"NO_RATE": "Sem taxa",
+				"BILLABLE_UNPRICED": "{duration} de tempo faturável sem taxa",
 				"ACTIVITY_PERCENT": "Atividade (%)",
 				"NO_TASK": "Sem tarefa",
 				"PAGE": "Página {page} de {total}"
@@ -3004,6 +3009,24 @@
 		}
 	},
 	"timer": {
+		"labels": {
+			"LABELS": "Etiquetas",
+			"LABEL": "Etiqueta",
+			"PICK_LABELS": "Adicionar etiquetas",
+			"NO_LABELS_YET": "Ainda não há etiquetas",
+			"DELETED": "Excluída",
+			"SAVE_FAILED": "Não foi possível salvar as etiquetas",
+			"TASK_LABELS": "Etiquetas da tarefa",
+			"NO_LABEL": "Sem etiqueta",
+			"BY_LABEL_TITLE": "Tempo por etiqueta",
+			"COUNT": "{count, plural, one {# etiqueta} other {# etiquetas}}",
+			"OVERLAP_TITLE": "Os grupos se sobrepõem",
+			"OVERLAP_MESSAGE": "Uma entrada com várias etiquetas conta em cada uma delas, então a soma dos grupos passa do total.",
+			"CREATE": "Criar “{name}”",
+			"SEARCH": "Pesquisar etiquetas",
+			"CREATE_FAILED": "Não foi possível criar a etiqueta",
+			"IMPORT_NOT_ATTACHED": "Não anexadas: {names}. A equipe não tem etiqueta com {count, plural, one {esse nome} other {esses nomes}} e nenhuma pôde ser adicionada."
+		},
 		"START_TIMER": "Por favor, selecione ou crie uma nova tarefa para começar a rastrear o tempo ou crie um plano",
 		"ALREADY_TRACKING_MESSAGE": "Você já está rastreando o tempo em outra aba ou dispositivo.",
 		"TRACKING_DISABLED_MESSAGE": "O registro de tempo está desativado para você. Um administrador da organização pode ativá-lo.",
@@ -7685,6 +7708,7 @@
 			"MARKED_PAID": "A fatura {number} está marcada como paga",
 			"MARKED_UNPAID": "A fatura {number} voltou a Enviada, por pagar",
 			"CHANGE_FAILED": "A fatura {number} não foi alterada",
+			"CHANGED_MEANWHILE": "Esta fatura mudou desde que foi exibida, então nada foi alterado. Atualize-a para ver a versão atual e tente novamente.",
 			"DOWNLOAD": "Descarregar em PDF"
 		},
 		"send": {

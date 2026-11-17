@@ -29,6 +29,9 @@ export interface TimeActivityRequest {
 	includeTimeWithoutTeam?: boolean;
 	/** The daily and weekly reports count billable time only; the counts endpoint has no such filter. */
 	billableOnly?: boolean;
+	/** The entry's own labels (Gauzy #12029): only the daily report narrows by them. */
+	tagIds?: string[];
+	untagged?: boolean;
 }
 
 const ACTIVITY_LEVEL = { start: 0, end: 100 };
@@ -65,7 +68,9 @@ async function fetchDailyReport(request: TimeActivityRequest): Promise<ITimeLogG
 		taskIds: request.taskIds,
 		activityLevel: ACTIVITY_LEVEL,
 		includeTimeWithoutTeam: request.includeTimeWithoutTeam,
-		billableOnly: request.billableOnly
+		billableOnly: request.billableOnly,
+		tagIds: request.tagIds ?? [],
+		untagged: request.untagged === true
 	});
 	const days = response.data;
 	if (!Array.isArray(days)) {

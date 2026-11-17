@@ -1,6 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import { EntryLabelsLine } from './calendar-entry-labels';
 import { Clock } from '@/core/components/icons';
 import { formatDurationShort } from '@/core/lib/utils/dashboard-figures';
 import type { CalendarEntry } from '@/core/lib/utils/calendar-view';
@@ -68,6 +69,7 @@ export function EntryDetails({
 				<KindLabel isManual={entry.isManual} isBreak={entry.isBreak} />
 				{!entry.isBreak && <BillableLine isBillable={entry.isBillable} />}
 			</div>
+			<EntryLabelsLine log={entry.log} canEdit={canEdit && !entry.isBreak} />
 			<ReasonQuote reason={entry.reason} />
 			{canEdit && (
 				<div className="flex justify-end hairline-t border-dashed border-border pt-3">

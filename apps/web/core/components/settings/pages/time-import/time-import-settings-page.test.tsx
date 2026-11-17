@@ -162,6 +162,7 @@ function sheetRowOf(row: number, cells: Partial<TimeImportCells>): TimeImportShe
 			notes: '',
 			billable: '',
 			memberEmail: '',
+			labels: '',
 			...cells
 		},
 		extraCellCount: 0
@@ -189,6 +190,7 @@ function timeImportOf(overrides: Partial<TimeImport> = {}): TimeImport {
 		report: null,
 		hasCheckFailed: false,
 		hasPreviewChanged: false,
+		isWaitingForLabelRules: false,
 		chooseFile: jest.fn(),
 		retryCheck: jest.fn(),
 		recheckWithMembers: jest.fn(),

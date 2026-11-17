@@ -1,6 +1,7 @@
 import { GAUZY_API_SERVER_URL, TENANT_ID_COOKIE_NAME } from '@/core/constants/config/constants';
 import { NextResponse } from 'next/server';
 import { requestAccessToken, requestCookies } from './request-cookies';
+import { refuseForeignWrite } from './same-origin-request';
 import { tabSessionOf } from './tab-session';
 
 // The browser client gives up after 60 seconds (api.service.ts): past that, nobody is waiting for the answer.
@@ -72,12 +73,22 @@ interface ForwardToGauzyOptions {
  *
  * The route fixes `path`; only the query string and the body come from the request, so a caller cannot point
  * this at another Gauzy endpoint.
+ *
+ * A write (any method but GET and HEAD) must come from this app's own pages: one of another site gets a 403 before
+ * anything is read.
  */
 export async function forwardToGauzy(
 	req: Request,
 	path: string,
 	options: ForwardToGauzyOptions = {}
 ): Promise<Response> {
+	// The token comes from a cookie, which a browser also attaches to a request another site makes (a sibling
+	// subdomain always, any site when the cookies are SameSite=None). The media type check below keeps out a form, but
+	// a write with no body at all (archive, join, pin, rotate a secret...) needs neither a type nor a CORS preflight, so
+	// where a write comes from is checked first, as on the routes that do not forward (#5376, #5381).
+	const foreign = refuseForeignWrite(req);
+	if (foreign) return foreign;
+
 	const cookies = requestCookies(req);
 	const sharedAccessToken = requestAccessToken(cookies);
 	// A tab working in its own organization while the session in the cookies is in another one acts in its own (#5134)
@@ -85,9 +96,9 @@ export async function forwardToGauzy(
 	if (!access_token) return NextResponse.json({ statusCode: 401, message: 'Unauthorized' }, { status: 401 });
 	const tenantId = cookies.get(TENANT_ID_COOKIE_NAME);
 
-	// The token comes from a cookie, which a browser can attach to a request another site makes. Such a site can
-	// post text/plain, form data or an untyped body without a CORS preflight, but not JSON, so only a JSON body is
-	// forwarded. A declared type is refused before the body is read; an untyped body is only known once read.
+	// Another site can also post text/plain, form data or an untyped body without a CORS preflight, but not JSON, so
+	// only a JSON body is forwarded. A declared type is refused before the body is read; an untyped body is only known
+	// once read.
 	const mediaType = req.headers.get('content-type')?.split(';')[0].trim().toLowerCase();
 	const hasBody = req.method !== 'GET' && req.method !== 'HEAD';
 	if (hasBody && mediaType && mediaType !== 'application/json') return unsupportedMediaType();
@@ -112,20 +123,23 @@ export async function forwardToGauzy(
 		signal: AbortSignal.any([req.signal, AbortSignal.timeout(UPSTREAM_TIMEOUT_MS)])
 	}).catch((error: Error) => error);
 
-	if (!(upstream instanceof Response)) {
-		// The browser cancelled (Next aborts with a `ResponseAborted` error, not an `AbortError`): nobody reads
-		// this answer and Gauzy did not fail, so there is nothing to log.
-		if (req.signal.aborted) return new NextResponse(null, { status: 499 });
-
-		const timedOut = upstream.name === 'TimeoutError';
-		const status = timedOut ? 504 : 502;
-		const message = timedOut ? 'The Gauzy API did not answer in time' : 'The Gauzy API is unreachable';
-		console.error(`[WEB][API] ${req.method} ${options.logPath ?? path}: ${message}`, upstream);
-		return NextResponse.json({ statusCode: status, message }, { status });
-	}
+	if (!(upstream instanceof Response)) return failedUpstreamAnswer(req, options.logPath ?? path, upstream);
 
 	return new NextResponse(upstream.body, {
 		status: upstream.status,
 		headers: answerHeaders(upstream, !!options.noStore)
 	});
+}
+
+/** The answer when Gauzy gave none: `logPath` is what the outage log names. */
+function failedUpstreamAnswer(req: Request, logPath: string, error: Error): NextResponse {
+	// The browser cancelled (Next aborts with a `ResponseAborted` error, not an `AbortError`): nobody reads
+	// this answer and Gauzy did not fail, so there is nothing to log.
+	if (req.signal.aborted) return new NextResponse(null, { status: 499 });
+
+	const timedOut = error.name === 'TimeoutError';
+	const status = timedOut ? 504 : 502;
+	const message = timedOut ? 'The Gauzy API did not answer in time' : 'The Gauzy API is unreachable';
+	console.error(`[WEB][API] ${req.method} ${logPath}: ${message}`, error);
+	return NextResponse.json({ statusCode: status, message }, { status });
 }

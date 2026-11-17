@@ -1,4 +1,5 @@
 import type { ITimeLogGroupedDailyReport } from '@/core/types/interfaces/activity/activity-report';
+import { type EntryLabel, entryLabelsOf } from '@/core/lib/utils/time-log-labels';
 import { numberFormatOf, type FormatLocale } from '@/core/lib/utils/workspace-formats';
 
 /** One member's time on one project on one day, the finest grain the daily report gives. */
@@ -36,6 +37,8 @@ export interface DailyReportTask {
 	key: string;
 	title: string;
 	seconds: number;
+	/** The entry's own labels (Gauzy #12029), only when the report states them; a row is one entry. */
+	labels?: EntryLabel[];
 }
 
 const NO_PROJECT_KEY = 'no-project';
@@ -209,11 +212,20 @@ function teamPartsOf(employeeLog: EmployeeLog): EmployeeLogPart[] {
 	return [partOfTasks(teamTasks, false), withoutTeamPart];
 }
 
+// A report of an API without labels on entries states none: its rows keep the shape they always had
+function labelsFieldOf(task: TaskLog): Pick<DailyReportTask, 'labels'> {
+	if (!Array.isArray(task?.tags)) {
+		return {};
+	}
+	return { labels: entryLabelsOf(task) };
+}
+
 function reportTaskOf(task: TaskLog): DailyReportTask {
 	return {
 		key: taskKeyOf(task),
 		title: taskTitleOf(task),
-		seconds: numberOrZero(task?.duration)
+		seconds: numberOrZero(task?.duration),
+		...labelsFieldOf(task)
 	};
 }
 
