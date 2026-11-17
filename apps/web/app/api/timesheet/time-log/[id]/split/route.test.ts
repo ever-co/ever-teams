@@ -55,9 +55,9 @@ describe('POST /api/timesheet/time-log/[id]/split', () => {
 	it('keeps an id that names another endpoint in one path segment', async () => {
 		const fetchMock = gauzyAnswers(Response.json({}, { status: 404 }));
 
-		await POST(signedInRequest(URL, 'POST', BODY), idParams('../status'));
+		await POST(signedInRequest(URL, 'POST', BODY), idParams('../x'));
 
-		expect(sentToGauzy(fetchMock).url).toBe(gauzyUrl('/timesheet/time-log/..%2Fstatus/split'));
+		expect(sentToGauzy(fetchMock).url).toBe(gauzyUrl('/timesheet/time-log/..%2Fx/split'));
 	});
 
 	it('sends nothing for a browser without a session', async () => {
