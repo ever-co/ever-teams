@@ -27,6 +27,10 @@ export interface ITrackingContext {
 	setFormData: React.Dispatch<React.SetStateAction<ITrackingContext['formData']>>;
 	fetchSessions: () => Promise<void>;
 	refetchSessions: () => Promise<void>;
+
+	// Registers a component that shows sessions; returns its unregister function. Sessions are read only while at
+	// least one is mounted, so a page with a timer alone never asks for them.
+	registerConsumer?: () => () => void;
 }
 
 /**
@@ -41,6 +45,8 @@ const TrackingContext = createContext<ITrackingContext | null>(null);
  */
 export const useTrackingContext = (): ITrackingContext => {
 	const context = useContext(TrackingContext);
+	const registerConsumer = context?.registerConsumer;
+	useEffect(() => registerConsumer?.(), [registerConsumer]);
 	if (!context) {
 		throw new Error('useTrackingContext must be used within a TrackingProvider');
 	}
@@ -83,6 +89,13 @@ export const TrackingProvider: React.FC<ITrackingProviderProps> = ({ children, c
 	const [sessions, setSessions] = useState<ITeamsSession[]>([]);
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+	const [consumerCount, setConsumerCount] = useState(0);
+	const hasConsumers = consumerCount > 0;
+
+	const registerConsumer = useCallback(() => {
+		setConsumerCount((count) => count + 1);
+		return () => setConsumerCount((count) => count - 1);
+	}, []);
 
 	/**
 	 * Fetch sessions from API with current filter parameters
@@ -166,12 +179,13 @@ export const TrackingProvider: React.FC<ITrackingProviderProps> = ({ children, c
 		}
 	}, [selectedEmployee]);
 
-	// Auto-fetch sessions when context values change
+	// Auto-fetch sessions when context values change, only while a component shows them
 	useEffect(() => {
-		if (selectedOrganization && selectedEmployee && token) {
+		const signedIn = Boolean(selectedOrganization && selectedEmployee && token);
+		if (signedIn && hasConsumers) {
 			fetchSessions();
 		}
-	}, [selectedOrganization, selectedEmployee, token]);
+	}, [selectedOrganization, selectedEmployee, token, hasConsumers]);
 
 	const contextValue: ITrackingContext = {
 		formData,
@@ -180,7 +194,8 @@ export const TrackingProvider: React.FC<ITrackingProviderProps> = ({ children, c
 		error,
 		setFormData,
 		fetchSessions,
-		refetchSessions
+		refetchSessions,
+		registerConsumer
 	};
 
 	return <TrackingContext.Provider value={contextValue}>{children}</TrackingContext.Provider>;
