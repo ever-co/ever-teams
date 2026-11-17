@@ -18,7 +18,8 @@
 		}
 	},
 	"scripts": {
-		"build": " rollup -c"
+		"build": " rollup -c",
+		"test": "rollup -c && node --test test/"
 	},
 	"dependencies": {
 		"@ever-teams/toolkit-types": "*",
