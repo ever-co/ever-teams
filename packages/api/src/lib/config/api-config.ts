@@ -13,10 +13,7 @@ type SharedConfigHolder = typeof globalThis & { [SHARED_CONFIG_KEY]?: { config: 
 
 function sharedConfig(): { config: IApiTeamsConfig } {
 	const holder = globalThis as SharedConfigHolder;
-	if (!holder[SHARED_CONFIG_KEY]) {
-		holder[SHARED_CONFIG_KEY] = { config: { apiUrl: 'https://api.ever.team/api' } };
-	}
-	return holder[SHARED_CONFIG_KEY];
+	return (holder[SHARED_CONFIG_KEY] ??= { config: { apiUrl: 'https://api.ever.team/api' } });
 }
 
 class ApiConfigManager {
