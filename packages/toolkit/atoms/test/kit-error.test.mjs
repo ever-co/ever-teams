@@ -72,3 +72,48 @@ test('every kind has a message in both kit locales', () => {
 		}
 	}
 });
+
+test('only a string code names a site that is not allowed', () => {
+	assert.equal(kit.kindOfAnswer({ statusCode: 400, code: { toString: () => 'EMBED_ORIGIN' } }), null);
+});
+
+test('a probe the API never answers counts as unreachable once its time is up, and is aborted', async () => {
+	let signal;
+	const stalls = (url, init) => {
+		signal = init.signal;
+		return new Promise(() => {});
+	};
+
+	assert.equal(await kit.kindOfFailedRequest('http://api.test/api', stalls, 20), 'unreachable');
+	assert.equal(signal?.aborted, true);
+});
+
+test('an error the API package returns with no status got no answer: the probe tells why', async () => {
+	const up = async () => ({});
+	const api = 'http://api.test/api';
+
+	assert.deepEqual(await kit.noticeOfFailure({ error: 'Failed to fetch' }, 'Failed to fetch', api, up), {
+		kind: 'origin'
+	});
+	assert.deepEqual(await kit.noticeOfFailure({ statusCode: 401, message: 'Unauthorized' }, 'Unauthorized', api, up), {
+		kind: 'session'
+	});
+});
+
+test('a refused sign-in: the kit words no answer, a site not allowed, a permission and an API down; a 401 and other refusals stay the form own', async () => {
+	const up = async () => ({});
+	const api = 'http://api.test/api';
+
+	assert.equal(await kit.kindOfSignInFailure({ message: 'Failed to fetch' }, api, up), 'origin');
+	assert.equal(
+		await kit.kindOfSignInFailure({ statusCode: 403, code: 'EMBED_ORIGIN_NOT_ALLOWED' }, api, up),
+		'origin'
+	);
+	assert.equal(await kit.kindOfSignInFailure({ statusCode: 403, message: 'Forbidden' }, api, up), 'permission');
+	assert.equal(
+		await kit.kindOfSignInFailure({ statusCode: 503, message: 'Service Unavailable' }, api, up),
+		'unreachable'
+	);
+	assert.equal(await kit.kindOfSignInFailure({ statusCode: 401, message: 'Unauthorized' }, api, up), null);
+	assert.equal(await kit.kindOfSignInFailure({ statusCode: 400, message: 'email must be an email' }, api, up), null);
+});

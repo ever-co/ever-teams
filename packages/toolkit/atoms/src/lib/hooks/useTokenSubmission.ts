@@ -5,7 +5,7 @@ import { useTeamsContext } from '../context/teams-context';
 import { toast } from '@ever-teams/toolkit-ui';
 import { updateSession } from './useAuthUser';
 import { useTranslation } from 'react-i18next';
-import { KIT_ERROR_MESSAGE_KEYS, kindOfFailedRequest } from '@lib/errors/kit-error';
+import { KIT_ERROR_MESSAGE_KEYS, kindOfFailedRequest, kindOfSignInFailure } from '@lib/errors/kit-error';
 import { errorMessageOf } from '@lib/context/teams-timer-status-context';
 
 export const useTokenSubmission = (redirectHandler?: () => void) => {
@@ -30,11 +30,15 @@ export const useTokenSubmission = (redirectHandler?: () => void) => {
 	const handleSubmit = useCallback(
 		async (event: React.FormEvent<HTMLFormElement>) => {
 			event.preventDefault();
+			// An empty token is the form's own mistake, said before any request (not a request with no answer).
+			if (tokenInput.trim() === '') {
+				setError('Token can not be empty.');
+				return;
+			}
 			setIsLoading(true);
 			setError('');
 
 			try {
-				if (tokenInput.trim() === '') throw new Error('Token can not be empty.');
 				const user = await getUser({
 					token: tokenInput,
 					includeEmployee: true,
@@ -42,16 +46,16 @@ export const useTokenSubmission = (redirectHandler?: () => void) => {
 				});
 
 				if ('message' in user || 'error' in user) {
-					// No status: the request got no answer (the API package turns a network error into this shape).
-					if (!('statusCode' in user)) {
-						const kind = await kindOfFailedRequest(apiConfigManager.getConfig().apiUrl);
+					// No answer (the API package returns it with no status), the site not allowed, a missing permission
+					// or the API down: the kit's own words, inside the form and with no toast on the host page.
+					const kind = await kindOfSignInFailure(user, apiConfigManager.getConfig().apiUrl);
+					if (kind) {
 						setError(t(KIT_ERROR_MESSAGE_KEYS[kind]));
 						setUser((prev) => ({ ...prev, loading: false }));
 						return;
 					}
-					const isServerError = 'statusCode' in user;
 
-					if (isServerError && user.statusCode === 401) {
+					if ('statusCode' in user && user.statusCode === 401) {
 						setError('Invalid token');
 						setUser((prev) => ({ ...prev, loading: false }));
 						return;

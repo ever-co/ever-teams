@@ -7,7 +7,7 @@ import { useTimerStatus } from './useTimerStatus';
 import { ICurrentTeamsState } from '@ever-teams/toolkit-types';
 import { useTranslation } from 'react-i18next';
 import { errorMessageOf, useTimerStatusContext } from '@lib/context/teams-timer-status-context';
-import { kindOfFailedRequest, noticeOfAnswer } from '@lib/errors/kit-error';
+import { kindOfFailedRequest, noticeOfFailure } from '@lib/errors/kit-error';
 
 /**
  * Self-contained timer hook that manages all timer functionality.
@@ -75,53 +75,71 @@ export const useTimer = () => {
 		}
 	};
 
+	// Whose start or stop this is: a result that comes back after a switch of user, token or organization is not shown
+	// in the widgets of the new one.
+	const identity = `${user?.id ?? ''}|${token}|${organizationId ?? ''}`;
+	const currentIdentity = useRef(identity);
+	currentIdentity.current = identity;
+
 	// A refused start or stop: under a TeamsProvider every widget shows it as a notice inside the widget; outside one,
-	// as before, a toast.
-	const reportAnswer = (answer: { message?: unknown; error?: unknown; statusCode?: unknown; code?: unknown }) => {
+	// as before, a toast. The API package returns a request that got no answer as an error with no status: the probe
+	// says whether this site is not allowed or Ever Teams is unreachable.
+	const reportAnswer = async (
+		answer: { message?: unknown; error?: unknown; statusCode?: unknown; code?: unknown },
+		forIdentity: string
+	) => {
 		const message = errorMessageOf(answer);
 		if (sharedStatus) {
-			sharedStatus.reportNotice(noticeOfAnswer(answer, message));
+			const failure = await noticeOfFailure(answer, message, apiConfigManager.getConfig().apiUrl);
+			if (currentIdentity.current === forIdentity) {
+				sharedStatus.reportNotice(failure);
+			}
 			return;
 		}
 		toast({ variant: 'destructive', description: message });
 	};
 
 	// A start or stop that got no answer.
-	const reportThrown = async (error: unknown) => {
+	const reportThrown = async (error: unknown, forIdentity: string) => {
 		if (sharedStatus) {
-			sharedStatus.reportNotice({ kind: await kindOfFailedRequest(apiConfigManager.getConfig().apiUrl) });
+			const kind = await kindOfFailedRequest(apiConfigManager.getConfig().apiUrl);
+			if (currentIdentity.current === forIdentity) {
+				sharedStatus.reportNotice({ kind });
+			}
 			return;
 		}
 		toast({ title: 'Ever Teams Error', description: (error as Error).message, variant: 'destructive' });
 	};
 
 	const startTimerNow = async () => {
+		const forIdentity = identity;
 		try {
 			setTimerLoading(true);
 			const timeSlot = await startApiTimer(user, token, currentTeamsState, organizationId);
 
 			if ('message' in timeSlot || 'error' in timeSlot) {
-				reportAnswer(timeSlot);
+				await reportAnswer(timeSlot, forIdentity);
 				return;
 			}
 
 			start();
 			await refreshEveryWidget();
 		} catch (error) {
-			await reportThrown(error);
+			await reportThrown(error, forIdentity);
 		} finally {
 			setTimerLoading(false);
 		}
 	};
 
 	const stopTimerNow = async () => {
+		const forIdentity = identity;
 		clearInterval(interval.current);
 		try {
 			setTimerLoading(true);
 			const timeSlot = await stopApiTimer(user, token, organizationId);
 
 			if ('message' in timeSlot || 'error' in timeSlot) {
-				reportAnswer(timeSlot);
+				await reportAnswer(timeSlot, forIdentity);
 				return;
 			}
 
@@ -130,7 +148,7 @@ export const useTimer = () => {
 			reset();
 			await refreshEveryWidget();
 		} catch (error) {
-			await reportThrown(error);
+			await reportThrown(error, forIdentity);
 		} finally {
 			setTimerLoading(false);
 		}

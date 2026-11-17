@@ -14,13 +14,6 @@ function toneOf(kind: IKitNotice['kind']): string {
 	return 'bg-destructive/5 ring-destructive/20';
 }
 
-function textOf(notice: IKitNotice, t: (key: string) => string): string {
-	if (notice.kind === 'other') {
-		return notice.message ?? '';
-	}
-	return t(KIT_ERROR_MESSAGE_KEYS[notice.kind]);
-}
-
 // The stored session the kit reads back at the next load: emptied too, or a reload would bring the ended one back.
 function forgetStoredSession() {
 	try {
@@ -44,6 +37,12 @@ export function KitNotice({ className }: Readonly<{ className?: string }>) {
 		return null;
 	}
 
+	// The API's own text for any other refusal, else the kit's words for the kind.
+	let text = notice.message ?? '';
+	if (notice.kind !== 'other') {
+		text = t(KIT_ERROR_MESSAGE_KEYS[notice.kind]);
+	}
+
 	const signInAgain = () => {
 		forgetStoredSession();
 		clearSession();
@@ -59,7 +58,7 @@ export function KitNotice({ className }: Readonly<{ className?: string }>) {
 				className
 			)}
 		>
-			<span className="min-w-0">{textOf(notice, t)}</span>
+			<span className="min-w-0">{text}</span>
 			{notice.kind === 'session' && (
 				<button
 					type="button"

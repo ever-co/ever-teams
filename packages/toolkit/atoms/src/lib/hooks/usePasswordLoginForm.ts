@@ -7,7 +7,7 @@ import { reportError, toast } from '@ever-teams/toolkit-ui';
 import { useTranslation } from 'react-i18next';
 import { useAccessToken } from './useAccessToken';
 import { useTeamsContext } from '../context/teams-context';
-import { KIT_ERROR_MESSAGE_KEYS, kindOfFailedRequest } from '@lib/errors/kit-error';
+import { KIT_ERROR_MESSAGE_KEYS, kindOfFailedRequest, kindOfSignInFailure } from '@lib/errors/kit-error';
 import { errorMessageOf } from '@lib/context/teams-timer-status-context';
 
 interface UsePasswordLoginFormReturn {
@@ -49,16 +49,16 @@ export const usePasswordLoginForm = ({ redirectHandler }: UsePasswordLoginFormPa
 			const authResponse: IAuthLogin | IServerError = await authLogin({ email, password });
 
 			if ('message' in authResponse || 'error' in authResponse) {
-				// No status: the request got no answer (the API package turns a network error into this shape).
-				if (!('statusCode' in authResponse)) {
-					const kind = await kindOfFailedRequest(apiConfigManager.getConfig().apiUrl);
+				// No answer (the API package returns it with no status), the site not allowed, a missing permission or
+				// the API down: the kit's own words, inside the form and with no toast on the host page.
+				const kind = await kindOfSignInFailure(authResponse, apiConfigManager.getConfig().apiUrl);
+				if (kind) {
 					setError(t(KIT_ERROR_MESSAGE_KEYS[kind]));
 					setLoading(false);
 					return;
 				}
-				const isServerError = 'statusCode' in authResponse;
 
-				if (isServerError && authResponse.statusCode === 401) {
+				if ('statusCode' in authResponse && authResponse.statusCode === 401) {
 					setError(t('ERROR.invalid_password_or_email'));
 					reportError(t('ERROR.invalid_password_or_email'));
 					setLoading(false);

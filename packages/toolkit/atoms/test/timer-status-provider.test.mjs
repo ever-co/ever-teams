@@ -597,3 +597,71 @@ test('a refusal with its own message keeps that message', async () => {
 
 	assert.deepEqual(seen.shared.notice, { kind: 'other', message: 'organizationId must be a UUID' });
 });
+
+test('a read the API package returns with no status (its shape for a request with no answer) is probed, not shown as its raw text', async () => {
+	await reset();
+	const seen = {};
+	await mount([probe(seen)]);
+	await act(async () => globalThis.__reads[0]({ error: 'Failed to fetch' }));
+	await flush();
+	assert.equal(seen.shared.notice?.kind, 'origin');
+
+	globalThis.__apiDown = true;
+	await act(async () => window.dispatchEvent(new window.Event('online')));
+	await act(async () => globalThis.__reads[1]({ error: 'Failed to fetch' }));
+	await flush();
+	assert.equal(seen.shared.notice?.kind, 'unreachable');
+	assert.equal(globalThis.__toasts.length, 0);
+});
+
+test('a start the API package returns with no status shows the probed notice inside the widgets, and no toast', async () => {
+	await reset();
+	const seen = {};
+	await mount([timer('a', seen), probe(seen)]);
+	await answer(0, { running: false });
+
+	await act(async () => {
+		seen.a.startTimer();
+	});
+	await act(async () => globalThis.__actions[0]({ error: 'Failed to fetch' }));
+	await flush();
+
+	assert.equal(seen.shared.notice?.kind, 'origin');
+	assert.equal(globalThis.__toasts.length, 0);
+});
+
+test('a start refused after a switch of organization shows nothing in the widgets of the new one', async () => {
+	await reset();
+	const seen = {};
+	await mount([timer('a', seen), probe(seen)]);
+	await answer(0, { running: false });
+
+	await act(async () => {
+		seen.a.startTimer();
+	});
+	await act(async () => globalThis.__setIdentity({ selectedOrganization: 'org-2' }));
+	const forNewOrganization = globalThis.__reads.at(-1);
+	await act(async () => forNewOrganization({ running: false, duration: 0, lastLog: null }));
+	await act(async () => globalThis.__actions[0]({ statusCode: 403, message: 'Forbidden' }));
+	await flush();
+
+	assert.equal(seen.shared.notice, null);
+});
+
+test('a notice that goes away leaves the live region, so the same failure later is announced again', async () => {
+	await reset();
+	const seen = {};
+	const { container } = await mount([probe(seen)]);
+	const live = container.querySelector('[aria-live="polite"]');
+	await act(async () => globalThis.__reads[0]({ statusCode: 503, message: 'Service Unavailable' }));
+	assert.equal(live.textContent, 'KIT_ERRORS.UNREACHABLE');
+
+	await act(async () => window.dispatchEvent(new window.Event('online')));
+	await answer(1, {});
+	assert.equal(seen.shared.notice, null);
+	assert.equal(live.textContent, '');
+
+	await act(async () => window.dispatchEvent(new window.Event('online')));
+	await act(async () => globalThis.__reads[2]({ statusCode: 503, message: 'Service Unavailable' }));
+	assert.equal(live.textContent, 'KIT_ERRORS.UNREACHABLE');
+});

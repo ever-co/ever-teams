@@ -15,7 +15,7 @@ import { useTranslation } from 'react-i18next';
 import { apiConfigManager, getTimerStatus } from '@ever-teams/api';
 import { IServerError, ITimerStatus } from '@ever-teams/toolkit-types';
 import { useTeamsContext } from './teams-context';
-import { KIT_ERROR_MESSAGE_KEYS, KitNotice, kindOfFailedRequest, noticeOfAnswer } from '@lib/errors/kit-error';
+import { KIT_ERROR_MESSAGE_KEYS, KitNotice, kindOfFailedRequest, noticeOfFailure } from '@lib/errors/kit-error';
 import { kitNoticeAtom } from '@lib/errors/kit-notice-atom';
 import { useAtom } from 'jotai';
 
@@ -93,6 +93,8 @@ export function TimerStatusProvider({ children }: Readonly<{ children?: ReactNod
 	// Only the read started last may set the status, show a notice or end the loading state.
 	const latestRead = useRef(0);
 	const [notice, setNotice] = useAtom(kitNoticeAtom);
+	// The text of the notice in the live region, taken out again when the notice goes away.
+	const noticeAnnounced = useRef('');
 	const lastRunning = useRef<boolean | null>(null);
 
 	const hasEmployee = Boolean(user?.employee);
@@ -144,7 +146,16 @@ export function TimerStatusProvider({ children }: Readonly<{ children?: ReactNod
 					return;
 				}
 				if (isServerError(response)) {
-					reportNotice(noticeOfAnswer(response, errorMessageOf(response)));
+					// The API package returns a request that got no answer as an error with no status: the probe says
+					// whether this site is not allowed or Ever Teams is unreachable.
+					const failure = await noticeOfFailure(
+						response,
+						errorMessageOf(response),
+						apiConfigManager.getConfig().apiUrl
+					);
+					if (isCurrent()) {
+						reportNotice(failure);
+					}
 					return;
 				}
 				reportNotice(null);
@@ -252,13 +263,20 @@ export function TimerStatusProvider({ children }: Readonly<{ children?: ReactNod
 	// Screen readers hear each new notice too, in the same live region.
 	useEffect(() => {
 		if (!notice) {
+			// A notice that went away leaves the live region as well: the same failure later is announced again.
+			const announced = noticeAnnounced.current;
+			noticeAnnounced.current = '';
+			setAnnouncement((current) => (announced && current === announced ? '' : current));
 			return;
 		}
+		let text: string;
 		if (notice.kind === 'other') {
-			setAnnouncement(notice.message ?? '');
-			return;
+			text = notice.message ?? '';
+		} else {
+			text = t(KIT_ERROR_MESSAGE_KEYS[notice.kind]);
 		}
-		setAnnouncement(t(KIT_ERROR_MESSAGE_KEYS[notice.kind]));
+		noticeAnnounced.current = text;
+		setAnnouncement(text);
 	}, [notice, t]);
 
 	// Screen readers hear a start or a stop, wherever it came from, but not the first read.
