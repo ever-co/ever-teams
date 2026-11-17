@@ -12,6 +12,8 @@ export function useClientDirective() {
 		name: 'use-client-directive',
 		transform(code, id) {
 			if (!LEADING_DIRECTIVE.test(code)) {
+				// A module whose directive was removed since the last build of `rollup -c --watch`
+				clientModules.delete(id);
 				return null;
 			}
 			clientModules.add(id);

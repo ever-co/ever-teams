@@ -7,7 +7,7 @@ export const isKitPackage = (id) => id.startsWith('@ever-teams/');
 // node_modules folder out of a published package, and the path above it differs from one checkout to another.
 export function outputFileName(chunk, extension) {
 	// Module ids may start with \0 (a module a plugin made) and end with a query (?commonjs-es-import).
-	const [modulePath, query] = (chunk.facadeModuleId ?? '').replace(/^\0/, '').replace(/\\/g, '/').split('?');
+	const [modulePath, query] = (chunk.facadeModuleId ?? '').replace(/^\0/, '').replaceAll('\\', '/').split('?');
 	const insideNodeModules = modulePath.lastIndexOf('/node_modules/');
 	if (insideNodeModules < 0) {
 		return `${chunk.name}${extension}`;
