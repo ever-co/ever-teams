@@ -203,6 +203,22 @@ function periodLogsOf(logs: TBillableTimeLog[], from: Date, to: Date, readsWider
 	return logsStartedWithin(logs, from, to);
 }
 
+/**
+ * What a billable time read asks: the client rates each log keeps only for a role that may read them, and otherwise
+ * not at all (no `withClientRates` key), as the read asked before the rates were kept.
+ */
+function billableReadOptionsOf(
+	notInvoiced: boolean,
+	scope: Readonly<{ tenantId: string; organizationId: string }>,
+	withClientRates: boolean
+) {
+	const options = { notInvoiced, scope };
+	if (!withClientRates) {
+		return options;
+	}
+	return { ...options, withClientRates: true };
+}
+
 function offeredProjectsOf(projects: ReadonlyArray<TOrganizationProject>, projectIds: ReadonlySet<string>) {
 	const offered = projects.filter((project) => projectIds.has(project.id));
 	return projectsById(offered);
@@ -364,11 +380,11 @@ export function useInvoiceTime({
 			withClientRates
 		}),
 		queryFn: () =>
-			timeLogReportService.getBillableTimeLogs(range, relations, {
-				notInvoiced: true,
-				scope,
-				...(withClientRates && { withClientRates })
-			}),
+			timeLogReportService.getBillableTimeLogs(
+				range,
+				relations,
+				billableReadOptionsOf(true, scope, withClientRates)
+			),
 		enabled: readsTime && arePermissionsSettled,
 		staleTime: 0
 	});
@@ -409,11 +425,11 @@ export function useInvoiceTime({
 			withClientRates
 		}),
 		queryFn: () =>
-			timeLogReportService.getBillableTimeLogs(allRange, relations, {
-				notInvoiced: false,
-				scope,
-				...(withClientRates && { withClientRates })
-			}),
+			timeLogReportService.getBillableTimeLogs(
+				allRange,
+				relations,
+				billableReadOptionsOf(false, scope, withClientRates)
+			),
 		enabled: readsAllTime && arePermissionsSettled,
 		staleTime: 0
 	});
