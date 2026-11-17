@@ -4,12 +4,13 @@ import * as React from 'react';
 import * as AlertDialogPrimitive from '@radix-ui/react-alert-dialog';
 import { cn } from '../utils/utils';
 import { buttonVariants } from './button';
+import { withKitContainer } from './portal-container';
 
 const AlertDialog = AlertDialogPrimitive.Root;
 
 const AlertDialogTrigger = AlertDialogPrimitive.Trigger;
 
-const AlertDialogPortal = AlertDialogPrimitive.Portal;
+const AlertDialogPortal = withKitContainer(AlertDialogPrimitive.Portal);
 
 const AlertDialogOverlay = React.forwardRef<
 	React.ElementRef<typeof AlertDialogPrimitive.Overlay>,
