@@ -9,11 +9,13 @@ import Progress from './progress';
 
 // The timer's surface: a card drawn with a ring and a tinted shadow in the kit's tokens, so it follows the color
 // scheme on any host page. background="none" and rounded="none" give back the bare digits of earlier versions.
+// The hover tint is an image over the background color, which it never replaces: the card stays opaque.
 export const containerVariants = cva(
 	[
 		'group relative inline-flex items-center justify-center gap-3 whitespace-nowrap py-1.5 pr-1.5 pl-3',
 		'rounded-xl bg-card text-card-foreground ring-1 ring-border shadow-sm shadow-black/6.5',
-		'transition-colors outline-none hover:bg-foreground/2.5 focus-visible:ring-2 focus-visible:ring-primary',
+		'transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary',
+		'hover:bg-[linear-gradient(hsl(var(--foreground)/0.025),hsl(var(--foreground)/0.025))]',
 		'disabled:cursor-not-allowed disabled:opacity-60'
 	],
 	{
@@ -40,7 +42,7 @@ export const containerVariants = cva(
 				thick: 'border-2 border-gray-500'
 			},
 			background: {
-				none: 'bg-transparent shadow-none ring-0 hover:bg-transparent',
+				none: 'bg-transparent shadow-none ring-0 hover:bg-none',
 				destructive: 'bg-destructive',
 				secondary: 'bg-secondary',
 				primary: 'bg-primary'
