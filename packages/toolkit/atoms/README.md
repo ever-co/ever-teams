@@ -82,7 +82,20 @@ export default defineConfig({ plugins: [react(), tailwindcss()] });
 @source "../node_modules/@ever-teams/toolkit-ui/dist";
 ```
 
-4. `src/App.tsx`: the component of the quick start (the `'use client'` line does nothing in Vite and can stay).
+4. `src/App.tsx` (`src/main.tsx` imports it as the default export):
+
+```tsx
+import { TeamsProvider, TeamsLoginDialog, TeamsBasicTimer } from '@ever-teams/atoms';
+
+export default function App() {
+	return (
+		<TeamsProvider config={{ apiUrl: 'https://api.ever.team/api' }}>
+			<TeamsLoginDialog />
+			<TeamsBasicTimer />
+		</TeamsProvider>
+	);
+}
+```
 
 ## Configuration
 
