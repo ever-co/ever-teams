@@ -8,7 +8,8 @@ import { colors, spacing } from '../../theme';
 
 export interface ErrorDetailsProps {
 	error: Error;
-	errorInfo: ErrorInfo;
+	/** null until React gives it, the boundary keeps both in its state */
+	errorInfo: ErrorInfo | null;
 	onReset(): void;
 }
 
@@ -24,7 +25,7 @@ export function ErrorDetails(props: ErrorDetailsProps) {
 			{__DEV__ && (
 				<ScrollView style={$errorSection} contentContainerStyle={$errorSectionContentContainer}>
 					<Text style={$errorContent} weight="bold" text={`${props.error}`.trim()} />
-					<Text selectable style={$errorBacktrace} text={`${props.errorInfo.componentStack}`.trim()} />
+					<Text selectable style={$errorBacktrace} text={`${props.errorInfo?.componentStack ?? ''}`.trim()} />
 				</ScrollView>
 			)}
 
