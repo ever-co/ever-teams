@@ -8,6 +8,7 @@ import { ICurrentTeamsState } from '@ever-teams/toolkit-types';
 import { useTranslation } from 'react-i18next';
 import { errorMessageOf, useTimerStatusContext } from '@lib/context/teams-timer-status-context';
 import { kindOfFailedRequest, noticeOfFailure } from '@lib/errors/kit-error';
+import { useKitOptions } from '@components/teams-provider/kit-options';
 
 /**
  * Self-contained timer hook that manages all timer functionality.
@@ -21,6 +22,7 @@ export const useTimer = () => {
 	const { t } = useTranslation();
 	// Every widget of the page reads the same status: after a start or a stop, all of them are refreshed at once.
 	const sharedStatus = useTimerStatusContext();
+	const { hostSignIn } = useKitOptions();
 	const refreshEveryWidget = async () => {
 		await sharedStatus?.refetch();
 	};
@@ -143,7 +145,11 @@ export const useTimer = () => {
 				return;
 			}
 
-			timeSlot && (await addTimeSlot(token, timeSlot));
+			// A token from the host's getToken reaches the timer only: the stop already recorded the time.
+			const recordsSlot = Boolean(timeSlot) && !hostSignIn;
+			if (recordsSlot) {
+				await addTimeSlot(token, timeSlot);
+			}
 
 			reset();
 			await refreshEveryWidget();
