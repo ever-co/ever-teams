@@ -1,4 +1,4 @@
-// Runs against the built package (`yarn build` first): node --test test/
+// Runs against the built package: `yarn test` in packages/api builds it, then runs node --test test/*.test.mjs
 import { test, beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { startTimer, stopTimer, resetTimerSource, apiConfigManager } from '../dist/index.es.js';
@@ -7,14 +7,20 @@ const user = { id: 'user-1', tenantId: 'tenant-1' };
 const state = { taskId: 'task-1', clientId: null, organizationTeamId: 'team-1', projectId: 'project-1' };
 const originalFetch = globalThis.fetch;
 let sent;
+let sentTo;
 
 // An API that knows EMBED answers 201; an older one refuses it the way Gauzy's validation does.
+// knowsEmbed: true or false for every API, or a function of the host the request goes to.
 const api = ({ knowsEmbed }) => {
 	sent = [];
-	globalThis.fetch = async (_url, init) => {
+	sentTo = [];
+	globalThis.fetch = async (url, init) => {
 		const body = JSON.parse(init.body);
+		const { host } = new URL(url);
 		sent.push(body.source);
-		const refused = body.source === 'EMBED' && !knowsEmbed;
+		sentTo.push(`${host} ${body.source}`);
+		const known = typeof knowsEmbed === 'function' ? knowsEmbed(host) : knowsEmbed;
+		const refused = body.source === 'EMBED' && !known;
 		const headers = { 'Content-Type': 'application/json' };
 		if (refused) {
 			const refusal = {
@@ -55,6 +61,25 @@ test('on an older API the start is sent again as TEAMS, and later calls go as TE
 
 	assert.equal(started.source, 'TEAMS');
 	assert.deepEqual(sent, ['EMBED', 'TEAMS', 'TEAMS']);
+});
+
+test('the fallback is kept per API: a host that moves to an API that knows the source records EMBED again', async () => {
+	api({ knowsEmbed: (host) => host === 'new-api.example.com' });
+
+	apiConfigManager.setConfig({ apiUrl: 'https://old-api.example.com/api' });
+	await startTimer(user, 'token', state, 'org-1');
+	apiConfigManager.setConfig({ apiUrl: 'https://new-api.example.com/api' });
+	const started = await startTimer(user, 'token', state, 'org-1');
+	apiConfigManager.setConfig({ apiUrl: 'https://old-api.example.com/api' });
+	await stopTimer(user, 'token', 'org-1');
+
+	assert.equal(started.source, 'EMBED');
+	assert.deepEqual(sentTo, [
+		'old-api.example.com EMBED',
+		'old-api.example.com TEAMS',
+		'new-api.example.com EMBED',
+		'old-api.example.com TEAMS'
+	]);
 });
 
 test('another 400 is returned as it is, without a retry', async () => {
