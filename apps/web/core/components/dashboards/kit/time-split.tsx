@@ -128,7 +128,12 @@ export function TimeSplitBody({
 				rows={rows}
 				renderName={(item) => (
 					<>
-						<ProjectMark imageUrl={item.imageUrl} color={item.color} isNoProject={item.isNone} />
+						<ProjectMark
+							imageUrl={item.imageUrl}
+							color={item.color}
+							isNoProject={item.isNone}
+							isHidden={item.isHidden}
+						/>
 						<span className="truncate">{itemNameOf(item, mode, t)}</span>
 					</>
 				)}

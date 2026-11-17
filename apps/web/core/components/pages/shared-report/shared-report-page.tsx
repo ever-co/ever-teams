@@ -23,6 +23,7 @@ import {
 } from '@/core/components/dashboards/time-activity/time-activity-breakdown';
 import { APP_NAME } from '@/core/constants/config/constants';
 import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
+import { useHiddenProjectLabels } from '@/core/hooks/organizations/projects/use-hidden-project-labels';
 import { queryKeys } from '@/core/query/keys';
 import { savedReportService } from '@/core/services/client/api/timesheets/saved-report.service';
 import { cn } from '@/core/lib/helpers';
@@ -47,6 +48,7 @@ import {
 import { errorStatusOf } from '@/core/lib/utils/error-feedback';
 import { dateFormatOf, type FormatLocale } from '@/core/lib/utils/workspace-formats';
 import type { IPublicSavedReport } from '@/core/types/interfaces/timesheet/saved-report';
+import type { HiddenProjectLabels } from '@/core/lib/utils/project-visibility';
 
 const NOT_FOUND = 404;
 
@@ -162,13 +164,18 @@ function projectClientIdsOf(report: IPublicSavedReport): Map<string, string | nu
 	return clientIds;
 }
 
-function rowsOfSharedReport(report: IPublicSavedReport, withoutTeamLabel: string): TimeActivityRow[] {
+/** A project the API keeps from the report's reader is named "Private project(s)", never "No project" (CORE-27). */
+function rowsOfSharedReport(
+	report: IPublicSavedReport,
+	withoutTeamLabel: string,
+	hiddenProjectLabels: HiddenProjectLabels
+): TimeActivityRow[] {
 	const daily = dailyReportOfPublic(report);
 	if (report.grouping !== 'client') {
-		return flattenDailyReport(daily, withoutTeamLabel, null);
+		return flattenDailyReport(daily, withoutTeamLabel, null, hiddenProjectLabels);
 	}
 	const clientOf = clientOfProjectLogOf(projectClientIdsOf(report), new Map());
-	return clientRowsOf(daily, clientOf, withoutTeamLabel, null);
+	return clientRowsOf(daily, clientOf, withoutTeamLabel, null, hiddenProjectLabels);
 }
 
 function generatedTimeOf(report: IPublicSavedReport, locale: FormatLocale) {
@@ -218,7 +225,11 @@ const NO_ACTION = () => undefined;
 function SharedReportContent({ report, period }: Readonly<{ report: IPublicSavedReport; period: Period }>) {
 	const t = useTranslations();
 	const locale = useWorkspaceLocale();
-	const rows = useMemo(() => rowsOfSharedReport(report, t('dashboard.NO_TEAM_GROUP')), [report, t]);
+	const hiddenProjectLabels = useHiddenProjectLabels();
+	const rows = useMemo(
+		() => rowsOfSharedReport(report, t('dashboard.NO_TEAM_GROUP'), hiddenProjectLabels),
+		[hiddenProjectLabels, report, t]
+	);
 	const grouping = breakdownGroupingOf(report.grouping ?? 'date');
 	const columns = useMemo(
 		() => breakdownColumnsOf(grouping, ['activity'], report.includeAmounts),

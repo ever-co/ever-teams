@@ -6,7 +6,6 @@ import { useTranslations } from 'next-intl';
 import { AnimatedHeight } from '@/core/components/common/animated-height';
 import { ActivityFigure } from '@/core/components/dashboards/kit/meters';
 import { DASHBOARD_SURFACE, NUMBER_CELL, SKELETON_BAR } from '@/core/components/dashboards/kit/recipes';
-import { dataColorChipStyle, isPaintableColor } from '@/core/components/tasks/task-data-color';
 import { ArrowUpRight, ChevronDown } from '@/core/components/icons';
 import { cn } from '@/core/lib/helpers';
 import type { DailyReportTask } from '@/core/lib/utils/daily-report-figures';
@@ -14,12 +13,12 @@ import { formatDurationShort, formatPercent, percentOf } from '@/core/lib/utils/
 import {
 	type ChartGranularity,
 	localDateOfKey,
-	type ProjectShareItem,
 	type RosterMember,
 	type StripColumn,
 	timesheetPathOf
 } from '@/core/lib/utils/dashboards/team';
-import { MemberFace, ProjectMark } from './team-marks';
+import { MemberFace } from './team-marks';
+import { TopProjectChip } from './team-top-project-chip';
 import { type SlotFormats, slotLabelsOf } from './team-slot-labels';
 
 type Translate = ReturnType<typeof useTranslations>;
@@ -48,13 +47,6 @@ function taskTitleOf(task: DailyReportTask, t: Translate) {
 		return task.title;
 	}
 	return t('dashboard.team.table.NO_TASK');
-}
-
-function projectNameOf(project: ProjectShareItem, t: Translate) {
-	if (project.isNoProject) {
-		return t('dashboard.team.projects.NONE');
-	}
-	return project.name || t('dashboard.team.projects.NONE');
 }
 
 function highestSecondsOf(columns: ReadonlyArray<StripColumn>) {
@@ -163,48 +155,6 @@ export function MicroColumns({
 				})}
 			</ul>
 		</div>
-	);
-}
-
-function projectChipStyleOf(project: ProjectShareItem) {
-	if (project.isNoProject) {
-		return undefined;
-	}
-	if (!isPaintableColor(project.color)) {
-		return undefined;
-	}
-	return dataColorChipStyle(project.color);
-}
-
-function projectChipToneOf(project: ProjectShareItem) {
-	const hasColor = isPaintableColor(project.color);
-	const isNeutral = project.isNoProject || !hasColor;
-	if (isNeutral) {
-		return '[--chip:hsl(var(--muted-foreground))]';
-	}
-	return undefined;
-}
-
-function TopProjectChip({ project, memberSeconds }: Readonly<{ project: ProjectShareItem; memberSeconds: number }>) {
-	const t = useTranslations();
-	const name = projectNameOf(project, t);
-	const share = percentOf(project.seconds, memberSeconds);
-	return (
-		<span className="flex min-w-0">
-			<span className="sr-only">{t('dashboard.team.figures.TOP_PROJECT', { name })}</span>
-			<span
-				aria-hidden="true"
-				className={cn(
-					'chip-3d inline-flex h-6 min-w-0 max-w-full items-center gap-1.5 rounded-md px-2 text-xs font-medium',
-					projectChipToneOf(project)
-				)}
-				style={projectChipStyleOf(project)}
-			>
-				<ProjectMark imageUrl={project.imageUrl} color={project.color} isNoProject={project.isNoProject} />
-				<span className="truncate">{name}</span>
-				<span className="shrink-0 tabular-nums opacity-70">{formatPercent(share)}</span>
-			</span>
-		</span>
 	);
 }
 

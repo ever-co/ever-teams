@@ -1,4 +1,5 @@
 import type { CalendarEntry } from '@/core/lib/utils/calendar-view';
+import { PRIVATE_PROJECTS_KEY } from '@/core/lib/utils/project-visibility';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import { DIARY_HISTORY_START, diaryDayOfParam, diaryTaskCountOf, diaryTasksOf, diaryViewOfParam } from './work-diary';
 
@@ -88,6 +89,31 @@ describe('diaryTasksOf', () => {
 
 	it('has no tasks on a day without time', () => {
 		expect(diaryTasksOf([])).toEqual([]);
+	});
+
+	it('wears the lock on the time without a task when a hidden project is the first one it names', () => {
+		const tasks = diaryTasksOf([
+			entry('a', null, 600),
+			entry('b', null, 1200, { projectKey: PRIVATE_PROJECTS_KEY })
+		]);
+
+		expect(tasks).toHaveLength(1);
+		expect(tasks[0]).toMatchObject({ key: 'no-task', projectName: null, isProjectHidden: true, seconds: 1800 });
+	});
+
+	it('keeps the project the time without a task names first, the lock or a name, never both', () => {
+		const named = diaryTasksOf([
+			entry('a', null, 600, { projectKey: 'project-website', projectName: 'Website' }),
+			entry('b', null, 1200, { projectKey: PRIVATE_PROJECTS_KEY })
+		]);
+		const locked = diaryTasksOf([
+			entry('c', null, 600, { projectKey: PRIVATE_PROJECTS_KEY }),
+			entry('d', null, 1200, { projectKey: 'project-website', projectName: 'Website' })
+		]);
+
+		expect(named[0].projectName).toBe('Website');
+		expect(named[0]).not.toHaveProperty('isProjectHidden');
+		expect(locked[0]).toMatchObject({ projectName: null, isProjectHidden: true });
 	});
 });
 

@@ -52,13 +52,17 @@ const ProjectBudgetRow = memo(function ProjectBudgetRow({
 		>
 			<span role="cell" className={cn(ROW_LEAD, 'flex items-center gap-2.5')}>
 				<ProjectMark project={row.project} />
-				<Link
-					href={projectPathOf(row.project.id)}
-					prefetch={false}
-					className="min-w-0 rounded-sm outline-none after:absolute after:inset-0 focus-visible:underline"
-				>
-					<ProjectName row={row} />
-				</Link>
+				{/* A project the API keeps from the reader has no page to lead to (CORE-27) */}
+				{row.project.isHidden && <ProjectName row={row} />}
+				{!row.project.isHidden && (
+					<Link
+						href={projectPathOf(row.project.id)}
+						prefetch={false}
+						className="min-w-0 rounded-sm outline-none after:absolute after:inset-0 focus-visible:underline"
+					>
+						<ProjectName row={row} />
+					</Link>
+				)}
 			</span>
 			<BudgetFigureCells amounts={row} risk={row.risk} scope={scope} />
 		</div>

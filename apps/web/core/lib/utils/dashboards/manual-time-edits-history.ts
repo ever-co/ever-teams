@@ -1,11 +1,20 @@
 import { startOfDay } from 'date-fns';
 import { localDayKeyOf } from '@/core/lib/utils/dashboard-export';
 import { NO_PROJECT_VALUE } from '@/core/lib/utils/dashboards/timesheets';
+import { PRIVATE_PROJECTS_KEY } from '@/core/lib/utils/project-visibility';
 import { type DeletedEntry, entryChangeKindsOf, type TimeLogHistoryChange } from '@/core/lib/utils/time-log-history';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import type { EditsMember, ManualTimeEntry } from './manual-time-edits';
 
 const MILLISECONDS_PER_SECOND = 1000;
+
+/** A deleted entry's project: a project the API keeps from the reader is one of the private projects (CORE-27). */
+function deletedProjectOf(item: DeletedEntry): Pick<ManualTimeEntry, 'projectValue' | 'isProjectHidden'> {
+	if (item.isProjectHidden) {
+		return { projectValue: PRIVATE_PROJECTS_KEY, isProjectHidden: true };
+	}
+	return { projectValue: item.projectId ?? NO_PROJECT_VALUE };
+}
 
 /** The newest change that edited or deleted the entry: adding it by hand is told by its Added mark. */
 function lastChangeOf(changes: ReadonlyArray<TimeLogHistoryChange>) {
@@ -79,7 +88,7 @@ export function deletedEntriesOf({ deleted, byEntry, members, unnamedLabel }: De
 			employeeId,
 			memberName: member?.name ?? unnamedLabel,
 			memberImageUrl: member?.imageUrl ?? null,
-			projectValue: item.projectId ?? NO_PROJECT_VALUE,
+			...deletedProjectOf(item),
 			projectName: item.projectName,
 			projectColor: null,
 			taskTitle: item.taskTitle,

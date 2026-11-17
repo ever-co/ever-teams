@@ -88,7 +88,9 @@ export function getTaskByIdRequest({
 		'linkedIssues.taskFrom',
 		'parent',
 		'children',
-		'estimations'
+		'estimations',
+		// So that a project the API keeps from the reader can be named as one (CORE-27)
+		'project'
 	],
 	taskId
 }: {

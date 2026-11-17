@@ -11,6 +11,7 @@ import { STATUS_LABEL_KEYS, TimesheetStatusGlyph } from '@/core/components/dashb
 import { TaskDrawerLink } from '@/core/components/tasks/drawer/task-drawer-link';
 import { dataColorChipStyle, isPaintableColor } from '@/core/components/tasks/task-data-color';
 import { ChevronDown, ChevronUp, DollarCircle, Folder, Pencil, Plus, Trash } from '@/core/components/icons';
+import { HiddenProjectName } from '@/core/components/projects/hidden-project-mark';
 import type { PeriodHistoryStatus } from '@/core/hooks/dashboards/manual-time-edits/use-time-log-period-history';
 import { useHistoryMemberNames } from '@/core/hooks/dashboards/timesheets/use-history-member-names';
 import { useTimeLogHistory } from '@/core/hooks/dashboards/timesheets/use-time-log-history';
@@ -227,6 +228,15 @@ function chipStyleOf(color: string | null): CSSProperties | undefined {
 function FeedProjectChip({ entry }: Readonly<{ entry: ManualTimeEntry }>) {
 	const t = useTranslations();
 	const projectName = entry.projectName;
+	// A project the API keeps from the reader (CORE-27)
+	if (entry.isProjectHidden) {
+		return (
+			<HiddenProjectName
+				label={t('common.PRIVATE_PROJECT')}
+				className="ml-1.5 inline-flex h-5 align-top text-xs text-muted-foreground"
+			/>
+		);
+	}
 	if (!projectName) {
 		return (
 			<span className="ml-1.5 inline-flex h-5 items-center gap-1 align-top text-xs text-muted-foreground [&_svg]:size-3">

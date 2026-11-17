@@ -1,3 +1,4 @@
+import { PRIVATE_PROJECTS_KEY } from '@/core/lib/utils/project-visibility';
 import type { ActivityKind } from '@/core/lib/utils/activity-icons';
 import { durationPartsOf, percentOf } from '@/core/lib/utils/dashboard-figures';
 
@@ -60,6 +61,8 @@ export interface UsageProject {
 	name: string | null;
 	imageUrl: string | null;
 	color: string | null;
+	/** A project the API keeps from the reader (CORE-27): `id` is then the key every such project shares. */
+	isHidden?: true;
 }
 
 /** One app or site used by one member on one project on one day: the grain of Gauzy's activity report. */
@@ -172,6 +175,10 @@ function imageUrlOfProject(project: UnknownRecord | null) {
 
 function projectOf(projectValue: unknown, fallbackId: unknown): UsageProject {
 	const project = recordOf(projectValue);
+	// Every project the API keeps from the reader is one, named as a private project
+	if (project?.projectHidden === true) {
+		return { id: PRIVATE_PROJECTS_KEY, name: null, imageUrl: null, color: null, isHidden: true };
+	}
 	const id = textOrNullOf(project?.id) ?? textOrNullOf(fallbackId);
 	return {
 		id,

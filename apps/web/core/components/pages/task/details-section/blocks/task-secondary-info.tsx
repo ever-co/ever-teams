@@ -19,6 +19,8 @@ import { TTask } from '@/core/types/schemas/task/task.schema';
 import { cn } from '@/core/lib/helpers';
 import { dataColorChipStyle, isPaintableColor } from '@/core/components/tasks/task-data-color';
 import { TaskPropertyIcon } from '@/core/components/tasks/task-property-icon';
+import { HiddenProjectName } from '@/core/components/projects/hidden-project-mark';
+import { isHiddenProject } from '@/core/lib/utils/project-visibility';
 import {
 	TaskPropertyMenu,
 	TaskPropertyMenuAction,
@@ -170,6 +172,16 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 	const triggerLabel = projectTriggerLabel(t, selected);
 	const canRemoveProject = !controlled;
 	const hasFooter = canRemoveProject || canCreateProject;
+
+	// A project the API keeps from the reader: named as one, read only, never "No project" (CORE-27)
+	if (isHiddenProject(task?.project)) {
+		return (
+			<HiddenProjectName
+				label={t('common.PRIVATE_PROJECT')}
+				className={clsxm('w-fit max-w-full text-xs font-medium', styles?.container)}
+			/>
+		);
+	}
 
 	return (
 		<>
