@@ -1,0 +1,404 @@
+'use client';
+
+import { FormEvent, useId, useState } from 'react';
+import { useLocale, useTranslations } from 'next-intl';
+import { Input } from '@/core/components/common/input';
+import { Notice } from '@/core/components/common/notice';
+import { Button } from '@/core/components/duplicated-components/_button';
+import { Globe, Key, Plus, Spinner } from '@/core/components/icons';
+import { ConfirmDestructiveDialog } from '@/core/components/settings/kit/danger';
+import {
+	SETTINGS_SURFACE,
+	SettingsPage,
+	SettingsRow,
+	SettingsRowSkeleton,
+	SettingsSection,
+	SettingsSectionSkeleton,
+	SettingsSurface
+} from '@/core/components/settings/kit/settings-page';
+import {
+	useAddEmbedOrigin,
+	useEmbedAllowedOrigins,
+	useEmbedCredentials,
+	useEmbedsAvailability,
+	useRemoveEmbedOrigin,
+	useRevokeEmbedCredential,
+	type EmbedsAvailability
+} from '@/core/hooks/settings/use-embeds';
+import { errorStatusOf } from '@/core/lib/utils/error-feedback';
+import { formatUserApiTokenDate } from '@/core/lib/utils/user-api-tokens';
+import { cn } from '@/core/lib/helpers';
+import { isOriginLike, type EmbedAllowedOrigin, type EmbedCredential } from '@/core/types/schemas/embeds/embed.schema';
+import { CreateEmbedCredentialDialog } from './create-embed-credential-dialog';
+
+function RowsSkeleton() {
+	return (
+		<div className={SETTINGS_SURFACE} aria-busy="true">
+			<SettingsRowSkeleton control="button" leading labelWidth="w-40" />
+			<SettingsRowSkeleton control="button" leading labelWidth="w-32" />
+		</div>
+	);
+}
+
+function ListFailed({ onRetry }: Readonly<{ onRetry: () => void }>) {
+	const t = useTranslations();
+	return (
+		<Notice
+			tone="error"
+			title={t('settings.embeds.LIST_FAILED_TITLE')}
+			description={t('settings.embeds.LIST_FAILED_TEXT')}
+			actions={
+				<Button type="button" size="sm" variant="outline" onClick={onRetry}>
+					{t('settings.embeds.RETRY')}
+				</Button>
+			}
+		/>
+	);
+}
+
+function EmptyList({ text }: Readonly<{ text: string }>) {
+	return (
+		<SettingsSurface>
+			<p className="px-4 py-6 text-center text-xs text-pretty text-muted-foreground">{text}</p>
+		</SettingsSurface>
+	);
+}
+
+/** Adds a site: checked as an origin here first, then by the platform, which normalizes it. */
+function AddOriginForm() {
+	const t = useTranslations();
+	const inputId = useId();
+	const noteId = useId();
+	const add = useAddEmbedOrigin();
+	const [value, setValue] = useState('');
+	const [isInvalid, setIsInvalid] = useState(false);
+
+	const submit = (event: FormEvent<HTMLFormElement>) => {
+		event.preventDefault();
+		if (!isOriginLike(value)) {
+			setIsInvalid(true);
+			return;
+		}
+		setIsInvalid(false);
+		add.mutate(value, { onSuccess: () => setValue('') });
+	};
+
+	const refusedByPlatform = add.isError && errorStatusOf(add.error) === 400;
+	let note = t('settings.embeds.ORIGIN_HINT');
+	if (isInvalid || refusedByPlatform) {
+		note = t('settings.embeds.ORIGIN_INVALID');
+	}
+	const failed = add.isError && !refusedByPlatform;
+
+	return (
+		<form onSubmit={submit} noValidate className="flex flex-col gap-1.5">
+			<label htmlFor={inputId} className="text-xs font-medium text-foreground">
+				{t('settings.embeds.ORIGIN_LABEL')}
+			</label>
+			<div className="flex flex-col gap-2 sm:flex-row">
+				<Input
+					id={inputId}
+					value={value}
+					onChange={(event) => {
+						setValue(event.target.value);
+						setIsInvalid(false);
+					}}
+					placeholder="https://app.example.com"
+					inputMode="url"
+					autoComplete="off"
+					spellCheck={false}
+					aria-invalid={isInvalid || refusedByPlatform}
+					aria-describedby={noteId}
+					disabled={add.isPending}
+					className="sm:flex-1"
+				/>
+				<Button type="submit" size="sm" disabled={add.isPending} className="sm:self-center">
+					{add.isPending && <Spinner className="animate-spin" aria-hidden="true" />}
+					{!add.isPending && <Plus />}
+					{t('settings.embeds.ADD_ORIGIN')}
+				</Button>
+			</div>
+			<p
+				id={noteId}
+				className={cn(
+					'text-xs text-muted-foreground',
+					(isInvalid || refusedByPlatform) && 'text-destructive-ink'
+				)}
+			>
+				{note}
+			</p>
+			{failed && <Notice tone="error" title={t('settings.embeds.ADD_ORIGIN_FAILED')} />}
+		</form>
+	);
+}
+
+function OriginRow({
+	row,
+	onRemove
+}: Readonly<{ row: EmbedAllowedOrigin; onRemove: (row: EmbedAllowedOrigin) => void }>) {
+	const t = useTranslations();
+	const locale = useLocale();
+	let description: string | undefined;
+	if (row.createdAt) {
+		description = t('settings.embeds.ADDED_ON', { date: formatUserApiTokenDate(row.createdAt, locale) });
+	}
+	return (
+		<SettingsRow
+			leading={<Globe className="size-4" />}
+			label={
+				<span className="truncate font-mono text-[13px]" title={row.origin}>
+					{row.origin}
+				</span>
+			}
+			description={description}
+		>
+			<Button type="button" size="sm" variant="outline" onClick={() => onRemove(row)}>
+				{t('settings.embeds.REMOVE')}
+			</Button>
+		</SettingsRow>
+	);
+}
+
+/** The sites allowed to embed the organization's timer: an embed token works only from one of them. */
+function AllowedOriginsSection() {
+	const t = useTranslations();
+	const { origins, isLoading, isError, refetch } = useEmbedAllowedOrigins(true);
+	const remove = useRemoveEmbedOrigin();
+	const [removing, setRemoving] = useState<EmbedAllowedOrigin | null>(null);
+	const [removeFailed, setRemoveFailed] = useState(false);
+	const isReady = !isLoading && !isError;
+
+	const closeRemove = () => {
+		if (remove.isPending) {
+			return;
+		}
+		setRemoveFailed(false);
+		setRemoving(null);
+	};
+	const confirmRemove = () => {
+		if (!removing) {
+			return;
+		}
+		setRemoveFailed(false);
+		remove.mutate(removing.id, {
+			onSuccess: () => setRemoving(null),
+			onError: () => setRemoveFailed(true)
+		});
+	};
+
+	let removeTitle = '';
+	if (removing) {
+		removeTitle = t('settings.embeds.REMOVE_TITLE', { origin: removing.origin });
+	}
+	let removeError: string | null = null;
+	if (removeFailed) {
+		removeError = t('settings.embeds.REMOVE_FAILED');
+	}
+
+	return (
+		<SettingsSection
+			id="embed-origins"
+			title={t('settings.embeds.SECTION_ORIGINS')}
+			description={t('settings.embeds.SECTION_ORIGINS_TEXT')}
+		>
+			<AddOriginForm />
+			{isLoading && <RowsSkeleton />}
+			{isError && <ListFailed onRetry={() => refetch()} />}
+			{isReady && origins.length === 0 && <EmptyList text={t('settings.embeds.NO_ORIGINS')} />}
+			{isReady && origins.length > 0 && (
+				<SettingsSurface>
+					{origins.map((row) => (
+						<OriginRow key={row.id} row={row} onRemove={setRemoving} />
+					))}
+				</SettingsSurface>
+			)}
+			<ConfirmDestructiveDialog
+				open={removing !== null}
+				onClose={closeRemove}
+				title={removeTitle}
+				description={t('settings.embeds.REMOVE_DESCRIPTION')}
+				confirmLabel={t('settings.embeds.REMOVE')}
+				isPending={remove.isPending}
+				error={removeError}
+				onConfirm={confirmRemove}
+			/>
+		</SettingsSection>
+	);
+}
+
+function CredentialRow({
+	row,
+	onRevoke
+}: Readonly<{ row: EmbedCredential; onRevoke: (row: EmbedCredential) => void }>) {
+	const t = useTranslations();
+	const locale = useLocale();
+	const facts = [row.prefix];
+	if (row.createdAt) {
+		facts.push(t('settings.embeds.CREATED_ON', { date: formatUserApiTokenDate(row.createdAt, locale) }));
+	}
+	let lastUse = t('settings.embeds.NEVER_USED');
+	if (row.lastUsedAt) {
+		lastUse = t('settings.embeds.LAST_USED_ON', { date: formatUserApiTokenDate(row.lastUsedAt, locale) });
+	}
+	facts.push(lastUse);
+	return (
+		<SettingsRow
+			leading={<Key className="size-4" />}
+			label={
+				<span className="truncate" title={row.name}>
+					{row.name}
+				</span>
+			}
+			description={
+				<span className="flex flex-wrap gap-x-1.5">
+					{facts.map((fact, index) => (
+						<span key={fact}>
+							{index > 0 && <span aria-hidden="true">· </span>}
+							{fact}
+						</span>
+					))}
+				</span>
+			}
+		>
+			<Button type="button" size="sm" variant="outline" onClick={() => onRevoke(row)}>
+				{t('settings.embeds.REVOKE')}
+			</Button>
+		</SettingsRow>
+	);
+}
+
+/** The credentials the organization's hosts exchange on their servers for timer-only tokens. */
+function CredentialsSection() {
+	const t = useTranslations();
+	const { credentials, isLoading, isError, refetch } = useEmbedCredentials(true);
+	const revoke = useRevokeEmbedCredential();
+	const [isCreateOpen, setIsCreateOpen] = useState(false);
+	const [revoking, setRevoking] = useState<EmbedCredential | null>(null);
+	const [revokeFailed, setRevokeFailed] = useState(false);
+	const isReady = !isLoading && !isError;
+
+	const closeRevoke = () => {
+		if (revoke.isPending) {
+			return;
+		}
+		setRevokeFailed(false);
+		setRevoking(null);
+	};
+	const confirmRevoke = () => {
+		if (!revoking) {
+			return;
+		}
+		setRevokeFailed(false);
+		revoke.mutate(revoking.id, {
+			onSuccess: () => setRevoking(null),
+			onError: () => setRevokeFailed(true)
+		});
+	};
+
+	let revokeTitle = '';
+	if (revoking) {
+		revokeTitle = t('settings.embeds.REVOKE_TITLE', { name: revoking.name });
+	}
+	let revokeError: string | null = null;
+	if (revokeFailed) {
+		revokeError = t('settings.embeds.REVOKE_FAILED');
+	}
+
+	return (
+		<SettingsSection
+			id="embed-credentials"
+			title={t('settings.embeds.SECTION_CREDENTIALS')}
+			description={t('settings.embeds.SECTION_CREDENTIALS_TEXT')}
+			actions={
+				<Button type="button" size="sm" onClick={() => setIsCreateOpen(true)} disabled={!isReady}>
+					<Plus />
+					{t('settings.embeds.CREATE')}
+				</Button>
+			}
+		>
+			{isLoading && <RowsSkeleton />}
+			{isError && <ListFailed onRetry={() => refetch()} />}
+			{isReady && credentials.length === 0 && <EmptyList text={t('settings.embeds.NO_CREDENTIALS')} />}
+			{isReady && credentials.length > 0 && (
+				<SettingsSurface>
+					{credentials.map((row) => (
+						<CredentialRow key={row.id} row={row} onRevoke={setRevoking} />
+					))}
+				</SettingsSurface>
+			)}
+			<CreateEmbedCredentialDialog open={isCreateOpen} onClose={() => setIsCreateOpen(false)} />
+			<ConfirmDestructiveDialog
+				open={revoking !== null}
+				onClose={closeRevoke}
+				title={revokeTitle}
+				description={t('settings.embeds.REVOKE_DESCRIPTION')}
+				confirmLabel={t('settings.embeds.REVOKE')}
+				isPending={revoke.isPending}
+				error={revokeError}
+				onConfirm={confirmRevoke}
+			/>
+		</SettingsSection>
+	);
+}
+
+function EmbedsBody({ availability, onRetry }: Readonly<{ availability: EmbedsAvailability; onRetry: () => void }>) {
+	const t = useTranslations();
+	if (availability === 'loading') {
+		return (
+			<SettingsSectionSkeleton title={t('settings.embeds.SECTION_ORIGINS')} rows={2} control="button" leading />
+		);
+	}
+	if (availability === 'error') {
+		return (
+			<Notice
+				tone="error"
+				title={t('settings.embeds.AVAILABILITY_FAILED_TITLE')}
+				description={t('settings.embeds.LIST_FAILED_TEXT')}
+				actions={
+					<Button type="button" size="sm" variant="outline" onClick={onRetry}>
+						{t('settings.embeds.RETRY')}
+					</Button>
+				}
+			/>
+		);
+	}
+	if (availability === 'forbidden') {
+		return (
+			<Notice
+				tone="neutral"
+				title={t('settings.embeds.ADMINS_ONLY_TITLE')}
+				description={t('settings.embeds.ADMINS_ONLY_TEXT')}
+			/>
+		);
+	}
+	if (availability === 'disabled') {
+		return (
+			<Notice
+				tone="neutral"
+				title={t('settings.embeds.UNAVAILABLE_TITLE')}
+				description={t('settings.embeds.UNAVAILABLE_TEXT', { variable: 'GAUZY_EMBED_TOKENS_ENABLED' })}
+			/>
+		);
+	}
+	return (
+		<>
+			<AllowedOriginsSection />
+			<CredentialsSection />
+		</>
+	);
+}
+
+/**
+ * Settings → Embeds: the sites allowed to embed the organization's timer, and the credentials its hosts' backends use.
+ * The server is asked first whether embeds are on (`GET /embed-credentials/config`, for administrators); until it says
+ * yes, no other embed route is called.
+ */
+export function EmbedsSettingsPage() {
+	const t = useTranslations();
+	const { availability, retry } = useEmbedsAvailability();
+	return (
+		<SettingsPage title={t('settings.entries.embeds.TITLE')} description={t('settings.embeds.PAGE_DESCRIPTION')}>
+			<EmbedsBody availability={availability} onRetry={() => retry()} />
+		</SettingsPage>
+	);
+}
