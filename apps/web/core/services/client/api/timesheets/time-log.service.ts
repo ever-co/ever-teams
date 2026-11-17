@@ -39,7 +39,11 @@ import {
 	TGetTimeLimitReport,
 	TTimeLimitReportList
 } from '@/core/types/schemas';
-import { ITimeLogUpdatePayload } from '@/core/types/interfaces/timesheet/time-log.interface';
+import {
+	ITimeLogSplitPayload,
+	ITimeLogSplitResult,
+	ITimeLogUpdatePayload
+} from '@/core/types/interfaces/timesheet/time-log.interface';
 
 const TASK_LABELS_RELATION = 'task.tags';
 /** The labels of the entry itself (Gauzy #12029), which an API without them does not know. */
@@ -437,6 +441,40 @@ class TimeLogService extends APIService {
 		} catch (error) {
 			throw new Error('Failed to update time-log', { cause: error });
 		}
+	};
+
+	/**
+	 * Splits one stopped entry in two at a moment of its range, in one write (ever-co/ever-gauzy#12030): each time slot
+	 * goes, with its screenshots and activity, to the part that holds its time. An API without the route answers 404,
+	 * which the caller reads as "not offered" (see `time-log-split.ts`). The error is thrown as the API answered it.
+	 */
+	splitTimeLog = async (payload: ITimeLogSplitPayload): Promise<ITimeLogSplitResult> => {
+		if (!this.organizationId || !this.tenantId) {
+			throw new Error('Required parameters missing: organizationId and tenantId are required');
+		}
+		const { timeLogId, splitAt, ...secondPart } = payload;
+		const response = await this.post<ITimeLogSplitResult>(
+			`/timesheet/time-log/${encodeURIComponent(timeLogId)}/split`,
+			{ ...secondPart, splitAt: splitAt.toISOString() },
+			{ tenantId: this.tenantId }
+		);
+		return response.data;
+	};
+
+	/**
+	 * Asks the split route of an entry with an empty body, which the API's validation refuses (no `splitAt`) before the
+	 * route reads or writes anything, whatever the entry has become since the page read it: an API with the route
+	 * answers 400, one without it 404. The error is thrown as the API answered it (see `time-log-split.ts`).
+	 */
+	probeSplitTimeLog = async (timeLogId: string): Promise<void> => {
+		if (!this.organizationId || !this.tenantId) {
+			throw new Error('Required parameters missing: organizationId and tenantId are required');
+		}
+		await this.post<unknown>(
+			`/timesheet/time-log/${encodeURIComponent(timeLogId)}/split`,
+			{},
+			{ tenantId: this.tenantId }
+		);
 	};
 
 	updateTimesheetFrom = async (params: IUpdateTimesheetRequest) => {
