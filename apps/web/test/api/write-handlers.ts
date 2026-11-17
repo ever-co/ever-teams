@@ -1,10 +1,11 @@
 /**
  * Test-only (never part of the app): every write handler (POST, PUT, PATCH, DELETE) of the routes under app/api, read
- * from their source, and what each calls first that keeps another site's page out (`refuseForeignOrigin`, or a proxy
- * helper that refuses a foreign write itself).
+ * from their source with the TypeScript parser, and what each calls first that keeps another site's page out
+ * (`refuseForeignOrigin`, or a proxy helper that refuses a foreign write itself).
  */
 import fs from 'node:fs';
 import path from 'node:path';
+import ts from 'typescript';
 
 export type WriteMethod = 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
@@ -12,14 +13,17 @@ interface WriteHandler {
 	/** The route's folder under app/api, such as `timer/started-at`. */
 	route: string;
 	method: WriteMethod;
-	/** The handler's own source, or the source of the local function an `export const` names. */
+	/**
+	 * The handler's own source: its declaration, the local function an `export const` or `export { }` names, or the
+	 * export statement itself when the handler comes from another module.
+	 */
 	source: string;
 }
 
 /** The app/api folder of apps/web. */
 const API_DIR = path.join(__dirname, '..', '..', 'app', 'api');
 
-const WRITE = '(POST|PUT|PATCH|DELETE)';
+const WRITE_METHODS: ReadonlySet<string> = new Set<WriteMethod>(['POST', 'PUT', 'PATCH', 'DELETE']);
 
 function routeFiles(dir: string): string[] {
 	return fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
@@ -29,47 +33,61 @@ function routeFiles(dir: string): string[] {
 	});
 }
 
-/** The source from `start` to the next top-level declaration. */
-function declarationAt(source: string, start: number): string {
-	const rest = source.slice(start + 1);
-	const next = rest.search(/\n(?=export |async function |function |const |let |type |interface )/);
-	return next === -1 ? source.slice(start) : source.slice(start, start + 1 + next);
+function isExported(node: ts.Node): boolean {
+	return ts.canHaveModifiers(node) && !!ts.getModifiers(node)?.some((m) => m.kind === ts.SyntaxKind.ExportKeyword);
 }
 
-function handlersOf(file: string): WriteHandler[] {
-	const source = fs.readFileSync(file, 'utf8');
-	const route = path.relative(API_DIR, path.dirname(file)).split(path.sep).join('/');
+/** The top-level function or variable a name declares in this file, as source text. */
+function localDeclarationOf(file: ts.SourceFile, name: string): string | null {
+	for (const statement of file.statements) {
+		if (ts.isFunctionDeclaration(statement) && statement.name?.text === name) return statement.getText(file);
+		if (
+			ts.isVariableStatement(statement) &&
+			statement.declarationList.declarations.some((d) => ts.isIdentifier(d.name) && d.name.text === name)
+		) {
+			return statement.getText(file);
+		}
+	}
+	return null;
+}
+
+/** The write handlers a route file's source exports. */
+export function writeHandlersIn(route: string, sourceText: string): WriteHandler[] {
+	const file = ts.createSourceFile(`${route}/route.ts`, sourceText, ts.ScriptTarget.Latest, true);
 	const handlers: WriteHandler[] = [];
+	const add = (name: string, source: string) => {
+		if (WRITE_METHODS.has(name)) handlers.push({ route, method: name as WriteMethod, source });
+	};
 
-	for (const match of source.matchAll(
-		new RegExp(`export\\s+async\\s+function\\s+${WRITE}\\b|export\\s+function\\s+${WRITE}\\b`, 'g')
-	)) {
-		handlers.push({
-			route,
-			method: (match[1] ?? match[2]) as WriteMethod,
-			source: declarationAt(source, match.index)
-		});
-	}
+	for (const statement of file.statements) {
+		// export async function POST(req) { ... }
+		if (ts.isFunctionDeclaration(statement) && isExported(statement) && statement.name) {
+			add(statement.name.text, statement.getText(file));
+		}
 
-	for (const match of source.matchAll(new RegExp(`export\\s+const\\s+${WRITE}\\s*=\\s*([^;\\n]+)`, 'g'))) {
-		const value = match[2].trim();
-		const local = /^\w+$/.test(value)
-			? new RegExp(`(?:async\\s+)?function\\s+${value}\\s*\\(|const\\s+${value}\\s*=`).exec(source)
-			: null;
-		// `export const POST = forwardMappings` names a local function; `export const POST = async (req) => {` is one
-		const declaration = local ? local.index : match.index;
-		handlers.push({ route, method: match[1] as WriteMethod, source: declarationAt(source, declaration) });
-	}
+		// export const POST = forwardMappings; export const POST: Handler = async (req) => { ... };
+		// export const { GET, POST } = handlers;
+		if (ts.isVariableStatement(statement) && isExported(statement)) {
+			for (const declaration of statement.declarationList.declarations) {
+				if (ts.isIdentifier(declaration.name)) {
+					const init = declaration.initializer;
+					const named = init && ts.isIdentifier(init) ? localDeclarationOf(file, init.text) : null;
+					add(declaration.name.text, named ?? statement.getText(file));
+				} else if (ts.isObjectBindingPattern(declaration.name)) {
+					for (const element of declaration.name.elements) {
+						if (ts.isIdentifier(element.name)) add(element.name.text, statement.getText(file));
+					}
+				}
+			}
+		}
 
-	// `export { POST } from '../_signin-workspace/route'`: the statement stands for the handler, which another route owns
-	for (const match of source.matchAll(/export\s*\{([^}]*)\}[^;\n]*/g)) {
-		for (const name of match[1].split(',')) {
-			const exported = name
-				.trim()
-				.split(/\s+as\s+/)
-				.pop();
-			if (exported && new RegExp(`^${WRITE}$`).test(exported)) {
-				handlers.push({ route, method: exported as WriteMethod, source: match[0] });
+		// export { POST } from '../_signin-workspace/route'; export { handler as POST };
+		if (ts.isExportDeclaration(statement) && statement.exportClause && ts.isNamedExports(statement.exportClause)) {
+			for (const specifier of statement.exportClause.elements) {
+				const local = statement.moduleSpecifier
+					? null
+					: localDeclarationOf(file, (specifier.propertyName ?? specifier.name).text);
+				add(specifier.name.text, local ?? statement.getText(file));
 			}
 		}
 	}
@@ -79,7 +97,12 @@ function handlersOf(file: string): WriteHandler[] {
 /** Every write handler under app/api, sorted by route then method. */
 export function writeHandlers(): WriteHandler[] {
 	return routeFiles(API_DIR)
-		.flatMap(handlersOf)
+		.flatMap((fileName) =>
+			writeHandlersIn(
+				path.relative(API_DIR, path.dirname(fileName)).split(path.sep).join('/'),
+				fs.readFileSync(fileName, 'utf8')
+			)
+		)
 		.sort((a, b) => a.route.localeCompare(b.route) || a.method.localeCompare(b.method));
 }
 

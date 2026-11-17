@@ -10,7 +10,12 @@
  *
  * A new write route that does none of these fails here.
  */
-import { callsRefuseForeignOrigin, forwardsThroughProxyHelper, writeHandlers } from '@/test/api/write-handlers';
+import {
+	callsRefuseForeignOrigin,
+	forwardsThroughProxyHelper,
+	writeHandlers,
+	writeHandlersIn
+} from '@/test/api/write-handlers';
 
 /** The write handlers that take a request of any origin, and why that borrows no session of this app. */
 const NOT_ORIGIN_CHECKED: Record<string, string> = {
@@ -18,6 +23,8 @@ const NOT_ORIGIN_CHECKED: Record<string, string> = {
 	'account-deletion/me POST': 'its own same-origin and JSON-only check (account-deletion-me.ts)',
 	'account-deletion/request POST': 'no session: the e-mail comes in the body',
 	'account-deletion/verify POST': 'no session: the deletion token comes in the body',
+	'auth/[...nextauth] POST':
+		"Auth.js's own handler, which checks its CSRF token on every sign-in, sign-out and session write",
 	'auth/_signin-workspace POST': 'sign-in: no session yet',
 	'auth/ever-id/backchannel-logout POST': 'a server-to-server call of the identity provider',
 	'auth/ever-id/confirm POST': "Ever ID sign-in: its sealed hand-off cookie, not this app's session",
@@ -56,6 +63,45 @@ const key = ({ route, method }: { route: string; method: string }) => `${route} 
 describe('app/api write handlers keep another site out', () => {
 	it('reads the write handlers of app/api', () => {
 		expect(handlers.length).toBeGreaterThan(250);
+	});
+
+	it.each([
+		['export async function POST', 'timer/sync POST'],
+		['export const POST = localFunction', 'integration/jira/[id]/mappings POST'],
+		['export const PUT = localFunction (guarded)', 'invoice-schedules/[id] PUT'],
+		['export const POST = async (req) => {', 'subscribe POST'],
+		["export { POST } from '../other/route'", 'auth/signin-workspace POST'],
+		['export const { GET, POST } = handlers', 'auth/[...nextauth] POST']
+	])('reads a handler written as `%s`', (_form, handler) => {
+		expect(handlers.map(key)).toContain(handler);
+	});
+
+	it('reads every way a route module exports a handler, each with the code that runs', () => {
+		const source = [
+			"import { forwardToGauzy } from '@/core/services/server/forward-to-gauzy';",
+			"import { handlers } from '../../auth';",
+			'type Handler = (req: Request) => Promise<Response>;',
+			"export async function POST(req: Request) { return forwardToGauzy(req, '/a'); }",
+			"export const PUT: Handler = async (req) => forwardToGauzy(req, '/b');",
+			"async function remove(req: Request) { return forwardToGauzy(req, '/c'); }",
+			'export const DELETE = remove;',
+			'function patch(req: Request) { return refuseForeignOrigin(req); }',
+			'export { patch as PATCH };',
+			'export const { GET } = handlers;'
+		].join('\n');
+
+		const found = writeHandlersIn('fixture', source);
+
+		expect(found.map(key)).toEqual(['fixture POST', 'fixture PUT', 'fixture DELETE', 'fixture PATCH']);
+		expect(found.filter(forwardsThroughProxyHelper).map(key)).toEqual([
+			'fixture POST',
+			'fixture PUT',
+			'fixture DELETE'
+		]);
+		expect(found.filter(callsRefuseForeignOrigin).map(key)).toEqual(['fixture PATCH']);
+		expect(writeHandlersIn('fixture', "export { POST } from '../other/route';").map((h) => h.source)).toEqual([
+			"export { POST } from '../other/route';"
+		]);
 	});
 
 	it('check the origin, forward through a helper that does, or are listed with a reason', () => {

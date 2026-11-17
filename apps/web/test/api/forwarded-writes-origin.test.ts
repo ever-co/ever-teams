@@ -14,7 +14,13 @@
  * The handlers are read from app/api itself (test/api/write-handlers.ts), so a forwarding write added later is in this
  * table too.
  */
-import { TENANT_ID_COOKIE_NAME, TOKEN_COOKIE_NAME } from '@/core/constants/config/constants';
+import { GAUZY_API_SERVER_URL, TENANT_ID_COOKIE_NAME, TOKEN_COOKIE_NAME } from '@/core/constants/config/constants';
+import {
+	CLIENT_ARCHIVE_PERMISSIONS,
+	CLIENT_CREATE_PERMISSIONS,
+	CLIENT_EDIT_PERMISSIONS
+} from '@/core/lib/utils/clients';
+import { ORGANIZATION_DELETE_PERMISSIONS } from '@/core/lib/utils/organization-deletion';
 import { APP_ORIGIN, FOREIGN_ORIGIN_HEADERS, SAME_ORIGIN_HEADERS } from '@/test/api/request-origin';
 import { forwardsThroughProxyHelper, writeHandlers, type WriteMethod } from '@/test/api/write-handlers';
 
@@ -54,9 +60,30 @@ async function handlerOf(route: string, method: WriteMethod): Promise<Handler> {
 
 const CROSS_SITE_REFUSAL = { statusCode: 403, message: 'Cross-site request refused' };
 
+const PERMISSIONS_READ = `${GAUZY_API_SERVER_URL}/role-permissions/me`;
+
+/**
+ * Every permission the permission-checked forwarding routes ask for: invoices (with client rates and everyone's time),
+ * clients, the timer's start and an organization's deletion.
+ */
+const ROLE_PERMISSIONS = [
+	'INVOICES_VIEW',
+	'INVOICES_EDIT',
+	'CHANGE_SELECTED_EMPLOYEE',
+	'ORG_EMPLOYEES_EDIT',
+	'TIME_TRACKER',
+	'ALLOW_MODIFY_TIME',
+	...CLIENT_CREATE_PERMISSIONS,
+	...CLIENT_EDIT_PERMISSIONS,
+	...CLIENT_ARCHIVE_PERMISSIONS,
+	...ORGANIZATION_DELETE_PERMISSIONS
+].map((permission) => ({ permission, enabled: true }));
+
 const originalFetch = global.fetch;
-// Gauzy answers an empty list to every call: the permission read of a route that checks one, then the write itself
-const fetchMock = jest.fn(() => Promise.resolve(Response.json([], { status: 200 })));
+// Gauzy grants the role every permission a route asks for, and accepts the write itself
+const fetchMock: jest.Mock<Promise<Response>, [string, RequestInit?]> = jest.fn((url: string) =>
+	Promise.resolve(Response.json(url === PERMISSIONS_READ ? ROLE_PERMISSIONS : {}, { status: 200 }))
+);
 
 beforeEach(() => {
 	jest.clearAllMocks();
@@ -93,8 +120,12 @@ describe.each(FORWARDED_WRITES)('%s %s', (route, method) => {
 
 		const response = await handler(write(route, method, headers), contextOf(route));
 
-		const body: unknown = await response?.json().catch(() => null);
-		expect(body).not.toEqual(CROSS_SITE_REFUSAL);
-		expect(fetchMock).toHaveBeenCalled();
+		// The write itself reaches Gauzy, with its own method, after the permission read of a route that checks one
+		expect(response?.status).toBe(200);
+		const writes = fetchMock.mock.calls.filter(([url]) => url !== PERMISSIONS_READ);
+		expect(writes).toHaveLength(1);
+		const [url, init] = writes[0];
+		expect(url.startsWith(`${GAUZY_API_SERVER_URL}/`)).toBe(true);
+		expect(init?.method).toBe(method);
 	});
 });
