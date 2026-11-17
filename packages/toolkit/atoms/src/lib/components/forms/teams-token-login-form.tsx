@@ -25,7 +25,11 @@ const TeamsTokenLoginForm = ({ className, redirectHandler }: { className?: strin
 				name="token"
 			/>
 
-			{form.error && <span className="text-red-500 text-xs">{form.error}</span>}
+			{form.error && (
+				<span role="alert" className="text-red-500 text-xs">
+					{form.error}
+				</span>
+			)}
 
 			<Button style={{ background: mainColor }} disabled={form.error ? true : false} className="flex gap-2">
 				{form.isLoading && (

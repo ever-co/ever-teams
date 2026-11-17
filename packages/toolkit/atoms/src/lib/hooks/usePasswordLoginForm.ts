@@ -2,11 +2,13 @@
 import { IAuthLogin, IServerError } from '@ever-teams/toolkit-types';
 import { useState } from 'react';
 
-import { authLogin } from '@ever-teams/api';
-import { getErrorMessage, reportError, toast } from '@ever-teams/toolkit-ui';
+import { apiConfigManager, authLogin } from '@ever-teams/api';
+import { reportError, toast } from '@ever-teams/toolkit-ui';
 import { useTranslation } from 'react-i18next';
 import { useAccessToken } from './useAccessToken';
 import { useTeamsContext } from '../context/teams-context';
+import { KIT_ERROR_MESSAGE_KEYS, kindOfFailedRequest } from '@lib/errors/kit-error';
+import { errorMessageOf } from '@lib/context/teams-timer-status-context';
 
 interface UsePasswordLoginFormReturn {
 	formData: {
@@ -47,6 +49,13 @@ export const usePasswordLoginForm = ({ redirectHandler }: UsePasswordLoginFormPa
 			const authResponse: IAuthLogin | IServerError = await authLogin({ email, password });
 
 			if ('message' in authResponse || 'error' in authResponse) {
+				// No status: the request got no answer (the API package turns a network error into this shape).
+				if (!('statusCode' in authResponse)) {
+					const kind = await kindOfFailedRequest(apiConfigManager.getConfig().apiUrl);
+					setError(t(KIT_ERROR_MESSAGE_KEYS[kind]));
+					setLoading(false);
+					return;
+				}
 				const isServerError = 'statusCode' in authResponse;
 
 				if (isServerError && authResponse.statusCode === 401) {
@@ -55,12 +64,7 @@ export const usePasswordLoginForm = ({ redirectHandler }: UsePasswordLoginFormPa
 					setLoading(false);
 					return;
 				}
-				const errorMessage =
-					'message' in authResponse
-						? Array.isArray(authResponse.message)
-							? authResponse.message.join(', ')
-							: authResponse.message
-						: String(authResponse.error);
+				const errorMessage = errorMessageOf(authResponse);
 
 				setError(errorMessage);
 				toast({
@@ -77,9 +81,10 @@ export const usePasswordLoginForm = ({ redirectHandler }: UsePasswordLoginFormPa
 			setUser(() => ({ data: authResponse.user, loading: false }));
 
 			redirectHandler && redirectHandler();
-		} catch (error) {
-			reportError(getErrorMessage(error));
-			setError(getErrorMessage(error));
+		} catch {
+			// No answer: say whether this site is not allowed or Ever Teams is unreachable, inside the form.
+			const kind = await kindOfFailedRequest(apiConfigManager.getConfig().apiUrl);
+			setError(t(KIT_ERROR_MESSAGE_KEYS[kind]));
 		} finally {
 			setLoading(false);
 		}
