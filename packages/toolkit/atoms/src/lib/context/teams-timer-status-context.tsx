@@ -1,6 +1,7 @@
 'use client';
 
-import { createContext, useCallback, useContext, useEffect, useRef, useState, ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useRef, useState, ReactNode, CSSProperties } from 'react';
+import { useTranslation } from 'react-i18next';
 import { getTimerStatus } from '@ever-teams/api';
 import { IServerError, ITimerStatus } from '@ever-teams/toolkit-types';
 import { toast } from '@ever-teams/toolkit-ui';
@@ -21,6 +22,18 @@ export interface ITimerStatusContext {
 const TimerStatusContext = createContext<ITimerStatusContext | null>(null);
 
 export const useTimerStatusContext = (): ITimerStatusContext | null => useContext(TimerStatusContext);
+
+const visuallyHidden: CSSProperties = {
+	position: 'absolute',
+	width: 1,
+	height: 1,
+	padding: 0,
+	margin: -1,
+	overflow: 'hidden',
+	clip: 'rect(0, 0, 0, 0)',
+	whiteSpace: 'nowrap',
+	border: 0
+};
 
 // The text of an error answer: Gauzy sends `message` as a string or a list; other failures carry `error`.
 export function errorMessageOf(response: { message?: unknown; error?: unknown }): string {
@@ -47,12 +60,15 @@ const pageIsVisible = () => document.visibilityState !== 'hidden';
  * them refreshes the others at once (`refetch`).
  */
 export function TimerStatusProvider({ children }: { children?: ReactNode }) {
+	const { t } = useTranslation();
 	const { authenticatedUser: user, token, selectedOrganization: organizationId } = useTeamsContext();
 	const [status, setStatus] = useState<ITimerStatus | null>(null);
 	const [loading, setLoading] = useState(false);
 	const [consumerCount, setConsumerCount] = useState(0);
+	const [announcement, setAnnouncement] = useState('');
 	const inFlight = useRef<Promise<void> | null>(null);
 	const failing = useRef(false);
+	const lastRunning = useRef<boolean | null>(null);
 
 	const hasEmployee = Boolean(user?.employee);
 	const signedIn = Boolean(token && organizationId);
@@ -126,9 +142,30 @@ export function TimerStatusProvider({ children }: { children?: ReactNode }) {
 		};
 	}, [ready, hasConsumers, refetch]);
 
+	// Screen readers hear a start or a stop, wherever it came from, but not the first read.
+	useEffect(() => {
+		if (!status) {
+			return;
+		}
+		const running = Boolean(status.running);
+		const changed = lastRunning.current !== null && lastRunning.current !== running;
+		lastRunning.current = running;
+		if (!changed) {
+			return;
+		}
+		if (running) {
+			setAnnouncement(t('TIME_TRACKER.TIMER_STARTED'));
+			return;
+		}
+		setAnnouncement(t('TIME_TRACKER.TIMER_STOPPED'));
+	}, [status, t]);
+
 	return (
 		<TimerStatusContext.Provider value={{ status, loading, refetch, registerConsumer }}>
 			{children}
+			<span aria-live="polite" role="status" style={visuallyHidden}>
+				{announcement}
+			</span>
 		</TimerStatusContext.Provider>
 	);
 }

@@ -174,3 +174,15 @@ test('an outage shows one notice, not one per read', async () => {
 
 	assert.equal(globalThis.__toasts.length, 1);
 });
+
+test('a start seen by the provider is announced once to screen readers', async () => {
+	await reset();
+	const { container } = await mount([widget('a')]);
+	await answer(0, { running: false });
+	const live = container.querySelector('[aria-live="polite"]');
+	assert.equal(live.textContent, '');
+
+	await act(async () => window.dispatchEvent(new window.Event('focus')));
+	await answer(1, { running: true });
+	assert.equal(live.textContent, 'TIME_TRACKER.TIMER_STARTED');
+});
