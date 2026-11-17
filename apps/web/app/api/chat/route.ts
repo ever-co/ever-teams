@@ -20,6 +20,7 @@ import {
 	type LanguageLink
 } from '@/core/lib/ai/server-providers';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
+import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
 
 export const runtime = 'nodejs';
 
@@ -206,6 +207,8 @@ async function ownProviderResponse(config: ChatRequestConfig, prompt: ModelMessa
  * request too.
  */
 export async function POST(req: Request) {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
 	// The guard's own status: 401 for a refused session, 503 when Gauzy could not answer (an outage must not look
 	// like a sign-out).
 	const guard = await authenticatedGuard(req, new NextResponse());

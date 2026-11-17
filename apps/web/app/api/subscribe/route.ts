@@ -4,6 +4,7 @@ import { authenticatedGuard, sessionChecks } from '@/core/services/server/guards
 import { setUserUiPreferenceRequest } from '@/core/services/server/requests/user';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
 
 const subscribeSchema = z.object({ email_address: z.email() });
 
@@ -57,6 +58,8 @@ async function rememberSubscription(
  * confirm before anything is sent.
  */
 export const POST = async (req: NextRequest) => {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
 	const { user, status, access_token, tenantId } = await authenticatedGuard(req, new NextResponse());
 	if (!user) {
 		return NextResponse.json({ error: 'Unauthorized' }, { status: status ?? 401 });

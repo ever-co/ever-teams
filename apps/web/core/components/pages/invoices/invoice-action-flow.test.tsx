@@ -9,7 +9,9 @@ const mockChangeStatus = jest.fn();
 jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
 jest.mock('sonner', () => ({ toast: { success: jest.fn(), error: jest.fn() } }));
 jest.mock('@/core/hooks/invoices/use-invoice-mutations', () => ({
-	useChangeInvoiceStatus: () => ({ changeStatus: mockChangeStatus, changingIds: new Set() })
+	useChangeInvoiceStatus: () => ({ changeStatus: mockChangeStatus, changingIds: new Set() }),
+	// A refusal because the invoice changed since it was read is a 409 (#5382)
+	isInvoiceActionChangedMeanwhile: (error: unknown) => (error as { status?: number } | null)?.status === 409
 }));
 jest.mock('./invoice-action-dialogs', () => ({
 	SendInvoiceDialog: () => null,
@@ -45,6 +47,20 @@ describe('marking an invoice paid or unpaid from its actions', () => {
 		expect(mockChangeStatus.mock.calls[0][0]).not.toHaveProperty('change');
 		expect(toast.success).toHaveBeenCalledWith('invoices.actions.MARKED_PAID');
 		expect(result.current.isDialogOpen).toBe(false);
+	});
+
+	it('says the invoice changed since it was shown when the change is refused as changed meanwhile (#5382)', async () => {
+		mockChangeStatus.mockRejectedValue(Object.assign(new Error('INVOICE_CHANGED'), { status: 409 }));
+		const { result } = renderHook(() => useInvoiceActionFlow(WORKSPACE));
+
+		await act(async () => {
+			result.current.takeAction(target, 'markPaid');
+		});
+
+		expect(toast.error).toHaveBeenCalledWith('invoices.actions.CHANGE_FAILED', {
+			description: 'invoices.actions.CHANGED_MEANWHILE'
+		});
+		expect(toast.success).not.toHaveBeenCalled();
 	});
 
 	it('asks for the unpaid action the same way', async () => {

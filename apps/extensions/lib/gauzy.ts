@@ -196,7 +196,11 @@ export async function sendHeartbeat(session: Session, run: RunningLog, call: Cal
 }
 
 /** Stops the run the popup shows; a 409 means another run replaced it meanwhile and goes on. */
-export async function stopTimer(session: Session, run: RunningLog): Promise<void> {
+export async function stopTimer(
+	session: Session,
+	run: Pick<RunningLog, 'id' | 'source'>,
+	call: CallOptions = {}
+): Promise<void> {
 	await sessionRequest(session, '/timesheet/timer/stop', {
 		method: 'POST',
 		body: {
@@ -205,7 +209,8 @@ export async function stopTimer(session: Session, run: RunningLog): Promise<void
 			logType: 'TRACKED',
 			source: stopSourceOf(run),
 			timeLogId: run.id
-		}
+		},
+		signal: call.signal
 	});
 }
 

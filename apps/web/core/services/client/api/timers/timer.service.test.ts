@@ -319,6 +319,42 @@ describe('TimerService.catchUpTimeSlots', () => {
 		expect(answer?.data).toEqual({ running: true });
 	});
 
+	it.each([
+		['proxy', undefined],
+		['direct', 'https://api.example.test']
+	])(
+		'sends each slot right after telling of it, nothing awaited between: a lease checked then still holds (%s mode)',
+		async (_mode, origin) => {
+			publishedApiOrigin.value = origin;
+			// Whether a promise step ran since the caller was told of the slot about to go
+			let hasAwaited = false;
+			const awaitedBeforeSend: boolean[] = [];
+			const send = async () => {
+				awaitedBeforeSend.push(hasAwaited);
+				return { data: {} };
+			};
+			if (origin) {
+				jest.spyOn(timerService, 'post').mockImplementation(send as never);
+				jest.spyOn(timerService, 'get').mockResolvedValue({ data: [] } as never);
+				jest.spyOn(timerService, 'getTimerStatus').mockResolvedValue({ data: { running: true } } as never);
+			} else {
+				mockFallbackPost.mockImplementation(send);
+			}
+
+			await timerService.catchUpTimeSlots({
+				...kept,
+				onSending: () => {
+					hasAwaited = false;
+					void Promise.resolve().then(() => {
+						hasAwaited = true;
+					});
+				}
+			});
+
+			expect(awaitedBeforeSend).toEqual([false, false]);
+		}
+	);
+
 	it('tells how far it wrote when a write fails part way, so the rest is written from there', async () => {
 		mockFallbackPost.mockResolvedValueOnce({ data: {} }).mockRejectedValueOnce(new Error('Network Error'));
 		const onWritten = jest.fn();

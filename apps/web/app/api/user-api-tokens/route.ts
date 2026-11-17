@@ -7,6 +7,7 @@ import {
 	createUserApiTokenInputSchema,
 	userApiTokenListSchema
 } from '@/core/types/schemas/user/user-api-token.schema';
+import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
 
 const UNREADABLE_LIST_MESSAGE = 'Your API tokens could not be read.';
 const NOT_CREATED_MESSAGE = 'The API token could not be created.';
@@ -49,6 +50,8 @@ export async function GET(req: Request) {
  * answers its secret this once. Gauzy refuses an eleventh working token with a 400 that says so.
  */
 export async function POST(req: Request) {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
 	// Before the session is read: another site's post never gets as far as creating a token
 	if (!isJsonRequest(req)) {
 		return NextResponse.json({ statusCode: 415, message: 'Unsupported Media Type' }, { status: 415 });

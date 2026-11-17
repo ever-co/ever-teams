@@ -6,6 +6,7 @@ import {
 } from '@/core/services/server/requests/employee-notification';
 import { gauzyErrorResponse } from '@/core/services/server/gauzy-error-response';
 import { notificationSettingSwitchesSchema } from '@/core/lib/validation/employee-notification';
+import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
 
 export async function GET(req: Request) {
 	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, new NextResponse());
@@ -25,6 +26,8 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
 	const { $res, user, access_token, tenantId, organizationId } = await authenticatedGuard(req, new NextResponse());
 
 	if (!user) return $res('Unauthorized');

@@ -5,6 +5,7 @@ import {
 	createEmployeeAppointmentRequest,
 	getEmployeeAppointmentsRequest
 } from '@/core/services/server/requests/employee-appointment';
+import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
 
 /** Gauzy's refusal goes back with its status (403 without the availability permission, 400 for a bad time). */
 async function refusalOf(error: unknown) {
@@ -34,6 +35,8 @@ export async function GET(req: Request) {
 
 /** The proxy-mode twin of Gauzy's `POST /employee-appointment`: schedules a meeting (#5021). */
 export async function POST(req: Request) {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
 	const { $res, user, access_token, tenantId, status } = await authenticatedGuard(req, new NextResponse());
 
 	if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: status ?? 401 });

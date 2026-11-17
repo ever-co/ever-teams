@@ -19,14 +19,30 @@ jest.mock('@/core/services/client/api/organizations/invoice-schedule.service', (
 	}
 }));
 
+import { OpenedScheduleGoneError } from '@/core/lib/utils/invoice-schedules';
 import { queryKeys } from '@/core/query/keys';
 import { invoiceScheduleService } from '@/core/services/client/api/organizations/invoice-schedule.service';
 import { shellSettledState } from '@/core/stores/common/shell';
+import type { TInvoiceSchedule } from '@/core/types/schemas/organization/invoice-schedule.schema';
 import { useClientInvoiceSchedule, useInvoiceScheduleMutations } from './use-invoice-schedules';
 
 const mockService = jest.mocked(invoiceScheduleService);
 
 const WORKSPACE = { tenantId: 'tenant-1', organizationId: 'org-1' };
+
+function monthlySchedule(id: string): TInvoiceSchedule {
+	return {
+		id,
+		organizationContactId: 'client-1',
+		frequency: 'MONTHLY',
+		startDay: '2026-10-01',
+		grouping: 'PROJECT',
+		sendInvoice: false,
+		pausedAt: null,
+		activeSince: '2026-10-20T09:00:00Z',
+		nextPeriod: { startDay: '2026-11-01', endDay: '2026-11-30', runDay: '2026-12-01' }
+	};
+}
 
 function setup({ shellSettled = true }: { shellSettled?: boolean } = {}) {
 	// One retry, as every read of the app (query config), without its wait
@@ -90,5 +106,189 @@ describe('use-invoice-schedules', () => {
 		).rejects.toThrow('HTTP 409');
 
 		expect(invalidate).toHaveBeenCalledWith({ queryKey: queryKeys.invoiceSchedules.all });
+	});
+
+	describe('a change saved from a form that opened on a schedule', () => {
+		const opened = monthlySchedule('schedule-1');
+
+		it('saves it to that schedule while it is still the client’s', async () => {
+			mockService.updateSchedule.mockResolvedValue({ ...opened, grouping: 'TASK' });
+			const { wrapper } = setup();
+			const { result } = renderHook(() => useInvoiceScheduleMutations(WORKSPACE), { wrapper });
+
+			await expect(
+				result.current.updateOpenedSchedule({
+					scheduleId: 'schedule-1',
+					latest: opened,
+					change: { grouping: 'TASK' }
+				})
+			).resolves.toMatchObject({ id: 'schedule-1', grouping: 'TASK' });
+
+			expect(mockService.updateSchedule).toHaveBeenCalledWith('schedule-1', { grouping: 'TASK' }, WORKSPACE);
+		});
+
+		it('changes nothing when another tab replaced it, says so, and reads the schedules again', async () => {
+			const { queryClient, wrapper } = setup();
+			const invalidate = jest.spyOn(queryClient, 'invalidateQueries');
+			const { result } = renderHook(() => useInvoiceScheduleMutations(WORKSPACE), { wrapper });
+
+			const saving = result.current.updateOpenedSchedule({
+				scheduleId: 'schedule-1',
+				latest: monthlySchedule('schedule-2'),
+				change: { grouping: 'TASK' }
+			});
+
+			await expect(saving).rejects.toBeInstanceOf(OpenedScheduleGoneError);
+			await expect(saving).rejects.toMatchObject({ fate: 'replaced' });
+			expect(mockService.updateSchedule).not.toHaveBeenCalled();
+			expect(invalidate).toHaveBeenCalledWith({ queryKey: queryKeys.invoiceSchedules.all });
+		});
+
+		it('changes nothing when no schedule is left, fails instead of passing, and reads the schedules again', async () => {
+			const { queryClient, wrapper } = setup();
+			const invalidate = jest.spyOn(queryClient, 'invalidateQueries');
+			const { result } = renderHook(() => useInvoiceScheduleMutations(WORKSPACE), { wrapper });
+
+			await expect(
+				result.current.updateOpenedSchedule({ scheduleId: 'schedule-1', latest: null, change: {} })
+			).rejects.toMatchObject({ name: 'OpenedScheduleGoneError', fate: 'deleted' });
+
+			expect(mockService.updateSchedule).not.toHaveBeenCalled();
+			expect(invalidate).toHaveBeenCalledWith({ queryKey: queryKeys.invoiceSchedules.all });
+		});
+
+		it('fails as deleted when the API answers that the schedule no longer exists', async () => {
+			mockService.updateSchedule.mockRejectedValue(apiError(404));
+			const { queryClient, wrapper } = setup();
+			const invalidate = jest.spyOn(queryClient, 'invalidateQueries');
+			const { result } = renderHook(() => useInvoiceScheduleMutations(WORKSPACE), { wrapper });
+
+			await expect(
+				result.current.updateOpenedSchedule({ scheduleId: 'schedule-1', latest: opened, change: {} })
+			).rejects.toMatchObject({ name: 'OpenedScheduleGoneError', fate: 'deleted' });
+
+			expect(mockService.updateSchedule).toHaveBeenCalledWith('schedule-1', {}, WORKSPACE);
+			await waitFor(() => expect(invalidate).toHaveBeenCalledWith({ queryKey: queryKeys.invoiceSchedules.all }));
+		});
+
+		it('changes nothing while the client’s schedule is not read, and does not say it was deleted', async () => {
+			const { wrapper } = setup();
+			const { result } = renderHook(() => useInvoiceScheduleMutations(WORKSPACE), { wrapper });
+
+			const saving = result.current.updateOpenedSchedule({
+				scheduleId: 'schedule-1',
+				latest: undefined,
+				change: {}
+			});
+
+			await expect(saving).rejects.toThrow('not read yet');
+			await expect(saving).rejects.not.toBeInstanceOf(OpenedScheduleGoneError);
+			expect(mockService.updateSchedule).not.toHaveBeenCalled();
+		});
+
+		it('keeps the same function from one render to the next', () => {
+			const { wrapper } = setup();
+			const { result, rerender } = renderHook(() => useInvoiceScheduleMutations(WORKSPACE), { wrapper });
+			const first = result.current.updateOpenedSchedule;
+
+			rerender();
+
+			expect(result.current.updateOpenedSchedule).toBe(first);
+		});
+
+		it('passes any other refusal on as it came', async () => {
+			mockService.updateSchedule.mockRejectedValue(apiError(400));
+			const { wrapper } = setup();
+			const { result } = renderHook(() => useInvoiceScheduleMutations(WORKSPACE), { wrapper });
+
+			await expect(
+				result.current.updateOpenedSchedule({ scheduleId: 'schedule-1', latest: opened, change: {} })
+			).rejects.toThrow('HTTP 400');
+		});
+	});
+
+	describe('a deletion confirmed on a schedule', () => {
+		const opened = monthlySchedule('schedule-1');
+
+		function renderMutations() {
+			const { queryClient, wrapper } = setup();
+			const invalidate = jest.spyOn(queryClient, 'invalidateQueries');
+			const { result, rerender } = renderHook(() => useInvoiceScheduleMutations(WORKSPACE), { wrapper });
+			return { result, rerender, invalidate };
+		}
+
+		it('deletes that schedule while it is still the client’s', async () => {
+			mockService.deleteSchedule.mockResolvedValue(undefined);
+			const { result, invalidate } = renderMutations();
+
+			await expect(
+				result.current.deleteOpenedSchedule({ scheduleId: 'schedule-1', latest: opened })
+			).resolves.toBe('deleted');
+
+			expect(mockService.deleteSchedule).toHaveBeenCalledWith('schedule-1', WORKSPACE);
+			expect(invalidate).toHaveBeenCalledWith({ queryKey: queryKeys.invoiceSchedules.all });
+		});
+
+		it('deletes nothing when another tab replaced it, says so, and reads the schedules again', async () => {
+			const { result, invalidate } = renderMutations();
+
+			await expect(
+				result.current.deleteOpenedSchedule({ scheduleId: 'schedule-1', latest: monthlySchedule('schedule-2') })
+			).rejects.toMatchObject({ name: 'OpenedScheduleGoneError', fate: 'replaced' });
+
+			expect(mockService.deleteSchedule).not.toHaveBeenCalled();
+			expect(invalidate).toHaveBeenCalledWith({ queryKey: queryKeys.invoiceSchedules.all });
+		});
+
+		it('finds it already deleted when no schedule is left, without asking the API, and reads the schedules again', async () => {
+			const { result, invalidate } = renderMutations();
+
+			await expect(result.current.deleteOpenedSchedule({ scheduleId: 'schedule-1', latest: null })).resolves.toBe(
+				'alreadyDeleted'
+			);
+
+			expect(mockService.deleteSchedule).not.toHaveBeenCalled();
+			expect(invalidate).toHaveBeenCalledWith({ queryKey: queryKeys.invoiceSchedules.all });
+		});
+
+		it('finds it already deleted when the API answers that it no longer exists', async () => {
+			mockService.deleteSchedule.mockRejectedValue(apiError(404));
+			const { result, invalidate } = renderMutations();
+
+			await expect(
+				result.current.deleteOpenedSchedule({ scheduleId: 'schedule-1', latest: opened })
+			).resolves.toBe('alreadyDeleted');
+
+			expect(mockService.deleteSchedule).toHaveBeenCalledWith('schedule-1', WORKSPACE);
+			expect(invalidate).toHaveBeenCalledWith({ queryKey: queryKeys.invoiceSchedules.all });
+		});
+
+		it('deletes nothing while the client’s schedule is not read, and does not say it was deleted', async () => {
+			const { result } = renderMutations();
+
+			const deleting = result.current.deleteOpenedSchedule({ scheduleId: 'schedule-1', latest: undefined });
+
+			await expect(deleting).rejects.toThrow('not read yet');
+			await expect(deleting).rejects.not.toBeInstanceOf(OpenedScheduleGoneError);
+			expect(mockService.deleteSchedule).not.toHaveBeenCalled();
+		});
+
+		it('passes any other refusal on as it came', async () => {
+			mockService.deleteSchedule.mockRejectedValue(apiError(403));
+			const { result } = renderMutations();
+
+			await expect(
+				result.current.deleteOpenedSchedule({ scheduleId: 'schedule-1', latest: opened })
+			).rejects.toThrow('HTTP 403');
+		});
+
+		it('keeps the same function from one render to the next', () => {
+			const { result, rerender } = renderMutations();
+			const first = result.current.deleteOpenedSchedule;
+
+			rerender();
+
+			expect(result.current.deleteOpenedSchedule).toBe(first);
+		});
 	});
 });

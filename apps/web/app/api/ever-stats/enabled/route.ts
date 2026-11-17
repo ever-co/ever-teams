@@ -11,6 +11,7 @@ import {
 import { logProxyOutcome } from '@/core/services/server/ever-platform/log';
 import { reporterSummary } from '@/core/services/server/ever-stats/reporter-summary';
 import { gauzyPassThrough } from '@/core/services/server/requests/ever-platform';
+import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
 
 export const dynamic = 'force-dynamic';
 
@@ -24,6 +25,8 @@ const enabledBody = z.object({ enabled: z.boolean() }).strict();
  * follows it before every send. Only the boolean is forwarded.
  */
 export async function PUT(req: Request) {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
 	if (!isEverStatsEnabled()) return notFound();
 	const session = routeSession(req);
 	if (!session) return unauthorized();

@@ -358,8 +358,7 @@ function DayBody({
 
 /**
  * One member's day in apps and sites, hour by hour: every entry on a strip of the day in the colour of its app (the
- * five longest have their own), the shares under it, then the hours, each opening onto its apps and sites. From the
- * references' day timelines (good-not-bad-timeline's strip and shares, solidtime's breakdown of a window).
+ * five longest have their own), the shares under it, then the hours, each opening onto its apps and sites.
  */
 export function AppsUrlsDay({ state, canPickMember }: Readonly<{ state: AppsUrlsDayState; canPickMember: boolean }>) {
 	const t = useTranslations();

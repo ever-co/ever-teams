@@ -3,8 +3,11 @@ import { authenticatedGuard } from '@/core/services/server/guards/authenticated-
 import { gauzyErrorResponse } from '@/core/services/server/gauzy-error-response';
 import { updateProjectRateRequest } from '@/core/services/server/requests/rates';
 import { rateRouteIdSchema, rateUpdateBodySchema } from '@/core/lib/validation/rates';
+import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
 
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
 	const parsedId = rateRouteIdSchema.safeParse((await params).id);
 	if (!parsedId.success) {
 		return NextResponse.json({ message: 'A project id is required' }, { status: 400 });
