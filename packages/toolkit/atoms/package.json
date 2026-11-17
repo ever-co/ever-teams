@@ -3,16 +3,20 @@
 	"version": "0.2.14",
 	"license": "MIT",
 	"type": "module",
-	"sideEffects": false,
+	"sideEffects": [
+		"*.css"
+	],
 	"scripts": {
 		"build": "rm -rf dist && rollup -c",
-		"dev": "rollup -c --watch && node post-build.js"
+		"dev": "rollup -c --watch && node post-build.js",
+		"test": "node --test test/"
 	},
 	"exports": {
 		".": {
 			"types": "./dist/index.d.ts",
 			"import": "./dist/index.es.js"
-		}
+		},
+		"./styles.css": "./dist/styles.css"
 	},
 	"dependencies": {
 		"@ever-teams/api": "*",

@@ -8,6 +8,7 @@ import json from '@rollup/plugin-json';
 import alias from '@rollup/plugin-alias';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { buildStyles } from './scripts/build-styles.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -65,7 +66,14 @@ const createConfig = (input, outputDir, entryFileNames = '[name].es.js', preserv
 				drop_debugger: true
 			},
 			mangle: true
-		})
+		}),
+		// dist/styles.css: the components' classes, compiled and scoped under the kit root (scripts/build-styles.mjs)
+		{
+			name: 'kit-styles',
+			async writeBundle() {
+				await buildStyles();
+			}
+		}
 	],
 	watch: {
 		include: 'src/**',

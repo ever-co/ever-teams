@@ -1,0 +1,170 @@
+/*
+ * Source of dist/styles.css (scripts/build-styles.mjs): every class the kit's components use, compiled with
+ * Tailwind CSS 4, without preflight. The build scopes each rule under the kit root ([data-ever-teams-kit], rendered by
+ * <TeamsProvider scopedStyles>) and moves the :root tokens onto it, so nothing applies to the host page.
+ */
+@import 'tailwindcss/theme.css';
+@import 'tailwindcss/utilities.css';
+
+@source '../lib';
+@source '../../../../toolkit-ui/src';
+
+@plugin 'tailwindcss-animate';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* The kit's colors and radius, as tailwind.config.js declares them for hosts that compile the kit themselves. */
+@theme inline {
+	--color-neutral: #7e7991;
+	--color-chetwodeBlue: #8c7ae4;
+	--color-indianRed: #d95f5f;
+	--color-grey: #868296;
+	--color-transparentWhite: rgba(255, 255, 255, 0.3);
+	--color-regal-blue: #6a71e7;
+	--color-regal-rose: #e93cb9;
+
+	--color-border: hsl(var(--border));
+	--color-input: hsl(var(--input));
+	--color-ring: hsl(var(--ring));
+	--color-background: hsl(var(--background));
+	--color-foreground: hsl(var(--foreground));
+
+	--color-primary: #3826a6;
+	--color-primary-light: #6755c9;
+	--color-primary-xlight: #8e76fa;
+	--color-primary-mid: #483a95;
+	--color-primary-foreground: hsl(var(--primary-foreground));
+	--color-secondary: hsl(var(--secondary));
+	--color-secondary-foreground: hsl(var(--secondary-foreground));
+	--color-destructive: hsl(var(--destructive));
+	--color-destructive-foreground: hsl(var(--destructive-foreground));
+	--color-muted: hsl(var(--muted));
+	--color-muted-foreground: hsl(var(--muted-foreground));
+	--color-accent: hsl(var(--accent));
+	--color-accent-foreground: hsl(var(--accent-foreground));
+	--color-popover: hsl(var(--popover));
+	--color-popover-foreground: hsl(var(--popover-foreground));
+	--color-card: hsl(var(--card));
+	--color-card-foreground: hsl(var(--card-foreground));
+
+	--radius-lg: var(--radius);
+	--radius-md: calc(var(--radius) - 2px);
+	--radius-sm: calc(var(--radius) - 4px);
+}
+
+/* The kit's tokens (src/lib/styles/global.css), on the kit root instead of :root. */
+:root {
+	--scroll-background: #ffffff;
+	--scroll-foreground: #e0e3ea;
+	--background: 0 0% 100%;
+	--foreground: 222.2 47.4% 11.2%;
+	--muted: 210 40% 96.1%;
+	--muted-foreground: 215.4 16.3% 46.9%;
+	--popover: 0 0% 100%;
+	--popover-foreground: 222.2 47.4% 11.2%;
+	--border: 214.3 31.8% 91.4%;
+	--input: 214.3 31.8% 91.4%;
+	--card: 0 0% 100%;
+	--card-foreground: 222.2 47.4% 11.2%;
+	--primary: 222.2 47.4% 11.2%;
+	--primary-foreground: 210 40% 98%;
+	--secondary: 210 0% 80%;
+	--secondary-foreground: 222.2 47.4% 11.2%;
+	--accent: 210 40% 96.1%;
+	--accent-foreground: 222.2 47.4% 11.2%;
+	--destructive: 0 100% 50%;
+	--destructive-foreground: 210 40% 98%;
+	--ring: 215 20.2% 65.1%;
+	--radius: 0.5rem;
+	--z-modal: 1000;
+	--z-overlay: 99999;
+	--z-portal: 99999;
+	--z-dropdown: 99998;
+}
+
+/* Dark tokens: while the kit's color scheme is a class on <html> (next-themes), they apply under .dark. */
+.dark [data-ever-teams-kit],
+[data-ever-teams-kit].dark {
+	--scroll-background: #000000;
+	--scroll-foreground: #303030;
+	--background: 224 71% 4%;
+	--foreground: 213 31% 91%;
+	--muted: 223 47% 11%;
+	--muted-foreground: 215.4 16.3% 56.9%;
+	--accent: 216 34% 17%;
+	--accent-foreground: 210 40% 98%;
+	--popover: 224 71% 4%;
+	--popover-foreground: 215 20.2% 65.1%;
+	--border: 216 34% 17%;
+	--input: 216 34% 17%;
+	--card: 224 71% 4%;
+	--card-foreground: 213 31% 91%;
+	--primary: 210 40% 98%;
+	--primary-foreground: 222.2 47.4% 1.2%;
+	--secondary: 222.2 47.4% 11.2%;
+	--secondary-foreground: 210 40% 98%;
+	--destructive: 0 63% 31%;
+	--destructive-foreground: 210 40% 98%;
+	--ring: 216 34% 17%;
+	--radius: 0.5rem;
+}
+
+/*
+ * A small reset inside the kit root only, instead of Tailwind's preflight on the whole page: it keeps a host's rules on
+ * bare elements (button, div, h1...) from reaching the widget. Its selectors are more specific than a host's element
+ * rules and less specific than the kit's utilities, which therefore still win.
+ */
+[data-ever-teams-kit] *,
+[data-ever-teams-kit] ::before,
+[data-ever-teams-kit] ::after {
+	box-sizing: border-box;
+	border: 0 solid;
+	margin: 0;
+	padding: 0;
+}
+[data-ever-teams-kit] :is(button, input, select, textarea) {
+	font: inherit;
+	letter-spacing: inherit;
+	color: inherit;
+	background-color: transparent;
+	border-radius: 0;
+	text-transform: none;
+}
+[data-ever-teams-kit] button {
+	cursor: pointer;
+}
+[data-ever-teams-kit] :is(h1, h2, h3, h4, h5, h6) {
+	font-size: inherit;
+	font-weight: inherit;
+}
+[data-ever-teams-kit] :is(ol, ul, menu) {
+	list-style: none;
+}
+[data-ever-teams-kit] :is(img, svg, video, canvas) {
+	display: block;
+	vertical-align: middle;
+}
+[data-ever-teams-kit] :is(img, video) {
+	max-width: 100%;
+	height: auto;
+}
+[data-ever-teams-kit] a {
+	color: inherit;
+	text-decoration: inherit;
+}
+
+/* The scrollbar of the kit's lists (src/lib/styles/global.css). */
+.custom-scroll::-webkit-scrollbar {
+	display: block;
+	width: 4px;
+	height: 4px;
+	cursor: pointer;
+}
+.custom-scroll::-webkit-scrollbar-track {
+	background: var(--scroll-background);
+	border-radius: 1px;
+}
+.custom-scroll::-webkit-scrollbar-thumb {
+	background: var(--scroll-foreground);
+	border-radius: 1px;
+}
