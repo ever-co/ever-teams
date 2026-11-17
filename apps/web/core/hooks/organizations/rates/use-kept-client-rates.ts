@@ -16,7 +16,7 @@ const NO_LOGS: TBillableTimeLog[] = [];
 
 const NO_RELATIONS: ReadonlyArray<string> = [];
 
-export interface KeptClientRates {
+interface KeptClientRates {
 	/** The billable entries of the range, by id, each with the rates it keeps when the API answers them. */
 	keptById: ReadonlyMap<string, TBillableTimeLog>;
 	isLoading: boolean;

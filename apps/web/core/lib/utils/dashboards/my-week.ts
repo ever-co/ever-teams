@@ -244,7 +244,7 @@ export function myWeekFiguresOf(entries: ReadonlyArray<MyWeekEntry>, days: Reado
 type PriceOfProject = (projectId: string | null) => LinePrice;
 
 /** The price of one entry at the rates it kept; null to price it as its project is priced today. */
-export type KeptPriceOfEntry = (entry: MyWeekEntry) => LinePrice | null;
+type KeptPriceOfEntry = (entry: MyWeekEntry) => LinePrice | null;
 
 /** The billable time of one project at one price: today's, or a rate its entries kept. */
 interface BillableGroup {

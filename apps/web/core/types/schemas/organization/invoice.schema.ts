@@ -38,7 +38,7 @@ export const highestInvoiceNumberSchema = z.object({
 });
 
 /** The client rates a time log keeps, as `withClientRates` answers them. */
-export const keptClientRatesSchema = z.object({
+const keptClientRatesSchema = z.object({
 	projectBillRateValue: decimalSchema.catch(null),
 	projectMemberBillRateValue: decimalSchema.catch(null),
 	projectBillRateCurrency: z.string().nullable().optional().catch(null),

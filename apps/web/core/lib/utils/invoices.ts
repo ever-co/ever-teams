@@ -376,7 +376,7 @@ export function entryPriceOf(entry: KeptRatesLike, todays: LinePrice, keptPriceO
 }
 
 /** Whether a price read from kept rates differs from today's: its line says so. */
-export function differsFromToday(price: LinePrice): boolean {
+function differsFromToday(price: LinePrice): boolean {
 	const today = price.today;
 	if (!today) {
 		return false;
@@ -724,7 +724,7 @@ export function removedLineCountOf(lines: ReadonlyArray<InvoiceLine>, removedKey
 }
 
 /** What was removed from the lines of an invoice, and written on them, by line key. */
-export interface InvoiceLineEdits {
+interface InvoiceLineEdits {
 	removedKeys: ReadonlySet<string>;
 	descriptions: ReadonlyMap<string, string>;
 }
