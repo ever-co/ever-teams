@@ -2086,12 +2086,16 @@ describe('Ever Teams feature surface preservation', () => {
 		// was read at (/api/invoices/[id]/with-items PUT; #5243, ever-gauzy #12033).
 		// 407 files and 515 verbs with the change of a time entry's own labels (/api/timesheet/time-log/[id]/tags PUT;
 		// #5368, ever-gauzy #12029).
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(407);
+		// 408 files and 516 verbs with the split of one entry (/api/timesheet/time-log/[id]/split POST; #5369,
+		// ever-gauzy #12030).
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(408);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(515);
+		).toHaveLength(516);
 		expect(routes).toEqual(
 			expect.arrayContaining([
+				// Proxy mode twin of Gauzy's split of one entry, its slots going with each part (ever-gauzy #12030, #5369)
+				'apps/web/app/api/timesheet/time-log/[id]/split/route.ts::POST',
 				// Proxy mode twin of Gauzy's change of a time entry's own labels (ever-gauzy #12029, #5368)
 				'apps/web/app/api/timesheet/time-log/[id]/tags/route.ts::PUT',
 				// Proxy mode twin of Gauzy's save of an invoice's fields and lines in one request (ever-gauzy #12033, #5243)

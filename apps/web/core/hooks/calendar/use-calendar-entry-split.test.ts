@@ -15,17 +15,25 @@ const mockAddManualTime = jest.fn(async (request: { startedAt: Date; stoppedAt: 
 	return {};
 });
 
+// The API's split of one entry, in one write (ever-co/ever-gauzy#12030)
+const mockSplitTimeLog = jest.fn(async (payload: { splitAt: Date }) => {
+	calls.push(`split ${payload.splitAt.getHours()}`);
+	return { first: {}, second: {} };
+});
+
 jest.mock('@/core/services/client/api/timesheets/time-log.service', () => ({
 	timeLogService: {
 		updateTimeLog: (payload: never) => mockUpdateTimeLog(payload),
 		addManualTime: (request: never) => mockAddManualTime(request),
 		getTimeLogConflicts: (query: never) => mockGetTimeLogConflicts(query),
-		getTimeLogs: (query: never) => mockGetTimeLogs(query)
+		getTimeLogs: (query: never) => mockGetTimeLogs(query),
+		splitTimeLog: (payload: never) => mockSplitTimeLog(payload)
 	}
 }));
 
+import { ApiErrorService } from '@/core/services/client/api-error.service';
 import { ZodValidationError } from '@/core/types/schemas';
-import { CalendarSplitError, splitCalendarEntry } from './use-calendar-entry-split';
+import { CalendarSplitError, splitCalendarEntry, splitThroughApi } from './use-calendar-entry-split';
 
 function at(hour: number) {
 	return new Date(2026, 10, 9, hour);
@@ -51,6 +59,7 @@ beforeEach(() => {
 	calls.length = 0;
 	mockUpdateTimeLog.mockClear();
 	mockAddManualTime.mockClear();
+	mockSplitTimeLog.mockClear();
 	mockGetTimeLogConflicts.mockReset();
 	mockGetTimeLogConflicts.mockResolvedValue([]);
 	mockGetTimeLogs.mockReset();
@@ -346,5 +355,122 @@ describe('splitCalendarEntry', () => {
 
 		await expect(split).rejects.toEqual(expect.objectContaining({ failure: 'unknown' }));
 		expect(calls).toEqual(['update 9-11']);
+	});
+});
+
+describe('splitThroughApi, one write where the API splits (#5369)', () => {
+	const TRACKED = { ...LOG, logType: ETimeLogType.TRACKED } as unknown as ITimeLog;
+	const MISSING_ROUTE = new ApiErrorService('Cannot POST /api/timesheet/time-log/log-1/split', 404);
+
+	it('splits a tracked entry in one write, the second part on the task picked with its project', async () => {
+		await splitThroughApi({
+			log: TRACKED,
+			splitAt: at(11),
+			secondTask: { id: 'task-2', projectId: 'project-2' },
+			tenantId: 'tenant-1'
+		});
+
+		expect(mockSplitTimeLog).toHaveBeenCalledTimes(1);
+		expect(mockSplitTimeLog).toHaveBeenCalledWith({
+			timeLogId: 'log-1',
+			splitAt: at(11),
+			taskId: 'task-2',
+			projectId: 'project-2'
+		});
+		expect(mockUpdateTimeLog).not.toHaveBeenCalled();
+		expect(mockAddManualTime).not.toHaveBeenCalled();
+	});
+
+	it('keeps the project of the entry for a picked task without one, as the two writes do', async () => {
+		await splitThroughApi({
+			log: TRACKED,
+			splitAt: at(11),
+			secondTask: { id: 'task-2', projectId: null },
+			tenantId: 'tenant-1'
+		});
+
+		expect(mockSplitTimeLog).toHaveBeenCalledWith({ timeLogId: 'log-1', splitAt: at(11), taskId: 'task-2' });
+	});
+
+	it("keeps the entry's own task when none is picked, and sends the reason given", async () => {
+		await splitThroughApi({
+			log: LOG,
+			splitAt: at(11),
+			secondTask: null,
+			tenantId: 'tenant-1',
+			reason: '  Switched task  '
+		});
+
+		expect(mockSplitTimeLog).toHaveBeenCalledWith({ timeLogId: 'log-1', splitAt: at(11), reason: 'Switched task' });
+	});
+
+	it('splits an entry added by hand in a single write too', async () => {
+		await splitThroughApi({ log: LOG, splitAt: at(11), secondTask: null, tenantId: 'tenant-1' });
+
+		expect(calls).toEqual(['split 11']);
+	});
+
+	it('splits an entry added by hand with the two writes of today when the API has no split', async () => {
+		mockSplitTimeLog.mockRejectedValueOnce(MISSING_ROUTE);
+
+		await splitThroughApi({ log: LOG, splitAt: at(11), secondTask: null, tenantId: 'tenant-1' });
+
+		expect(calls).toEqual(['update 9-11', 'add 11-13']);
+	});
+
+	it('refuses tracked time as today, writing nothing, when the API has no split', async () => {
+		mockSplitTimeLog.mockRejectedValueOnce(MISSING_ROUTE);
+
+		const split = splitThroughApi({ log: TRACKED, splitAt: at(11), secondTask: null, tenantId: 'tenant-1' });
+
+		await expect(split).rejects.toEqual(expect.objectContaining({ failure: 'tracked' }));
+		expect(mockUpdateTimeLog).not.toHaveBeenCalled();
+		expect(mockAddManualTime).not.toHaveBeenCalled();
+	});
+
+	it.each([
+		['TIME_LOG_SPLIT_RUNNING', 403, 'running'],
+		['TIME_LOG_SPLIT_APPROVED', 403, 'approved'],
+		['TIME_LOG_SPLIT_INVOICED', 403, 'invoiced'],
+		['TIME_LOG_SPLIT_REASON_REQUIRED', 400, 'reason-required'],
+		['TIME_LOG_SPLIT_CHANGED', 409, 'changed']
+	])('names the reason of a refusal (%s), writing nothing more', async (code, status, failure) => {
+		mockSplitTimeLog.mockRejectedValueOnce(new ApiErrorService('Refused', status, code));
+
+		const split = splitThroughApi({ log: TRACKED, splitAt: at(11), secondTask: null, tenantId: 'tenant-1' });
+
+		await expect(split).rejects.toEqual(expect.objectContaining({ failure }));
+		expect(mockUpdateTimeLog).not.toHaveBeenCalled();
+		expect(mockAddManualTime).not.toHaveBeenCalled();
+	});
+
+	it.each([
+		['is gone', []],
+		['was moved since', [{ ...LOG, startedAt: at(10) }]],
+		['is on another task now', [{ ...LOG, taskId: 'task-9' }]]
+	])('reads the entry again first, and sends nothing when the entry %s', async (_, held) => {
+		mockGetTimeLogs.mockResolvedValue(held);
+
+		const split = splitThroughApi({ log: TRACKED, splitAt: at(11), secondTask: null, tenantId: 'tenant-1' });
+
+		await expect(split).rejects.toEqual(expect.objectContaining({ failure: 'changed' }));
+		expect(mockSplitTimeLog).not.toHaveBeenCalled();
+	});
+
+	it('sends the same split again when the entry already ends at the split time, a split whose answer was lost', async () => {
+		mockGetTimeLogs.mockResolvedValue([{ ...LOG, stoppedAt: at(11) }]);
+
+		await splitThroughApi({ log: TRACKED, splitAt: at(11), secondTask: null, tenantId: 'tenant-1' });
+
+		expect(calls).toEqual(['split 11']);
+	});
+
+	it('offers another try when the outcome is not known, which never splits twice', async () => {
+		mockSplitTimeLog.mockRejectedValueOnce(new ApiErrorService('Bad Gateway', 502));
+
+		const split = splitThroughApi({ log: TRACKED, splitAt: at(11), secondTask: null, tenantId: 'tenant-1' });
+
+		await expect(split).rejects.toBeInstanceOf(CalendarSplitError);
+		await expect(split).rejects.toEqual(expect.objectContaining({ failure: 'retry' }));
 	});
 });
