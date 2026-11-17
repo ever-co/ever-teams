@@ -360,6 +360,45 @@ describe('the time an edited invoice bills', () => {
 	afterEach(() => {
 		mockTime.recordsBilledTime = null;
 		mockTime.billedTimeByLine = new Map();
+		mockTime.isLoading = false;
+	});
+
+	it('keeps what was written on its lines, and removed from them, while the time taken again is read', () => {
+		mockTime.recordsBilledTime = true;
+		mockTime.billedTimeByLine = new Map([
+			['item-1', ['log-1', 'log-2']],
+			['item-2', ['log-3']]
+		]);
+		const { result, rerender } = renderEdit(savedOf(sentInvoice()));
+		act(() => result.current.removeLine('p1|bo'));
+
+		// Taken again, the time is read half way first: no member or client rate is read yet, so no line is priced
+		mockTime.isLoading = true;
+		act(() => result.current.takeTimeAgain());
+		// Then every read answers: today's rate changed since the save, so Ana's hours sit at two prices
+		mockTime.lines = [
+			timeLine({ key: 'p1|ana|80:USD', hours: 6, seconds: 21600, amount: 480, timeLogIds: ['log-1'] }),
+			timeLine({ key: 'p1|ana|90:USD', rate: 90, hours: 6, seconds: 21600, amount: 540, timeLogIds: ['log-2'] }),
+			timeLine({
+				key: 'p1|bo',
+				employeeId: 'bo',
+				memberName: 'Bo Chen',
+				label: 'Bo Chen',
+				rate: 40,
+				hours: 5,
+				seconds: 18000,
+				amount: 200,
+				timeLogIds: ['log-3']
+			})
+		];
+		mockTime.isLoading = false;
+		rerender();
+
+		expect(result.current.linesSource).toBe('time');
+		expect(result.current.descriptions.get('p1|ana|80:USD')).toBe('Ana Lima, design');
+		expect(result.current.descriptions.get('p1|ana|90:USD')).toBe('Ana Lima, design');
+		expect(result.current.removedCount).toBe(1);
+		expect(result.current.keptLines.map((line) => line.key)).toEqual(['p1|ana|80:USD', 'p1|ana|90:USD']);
 	});
 
 	it('counts as a change the hours its lines bill that the invoice does not record yet', () => {

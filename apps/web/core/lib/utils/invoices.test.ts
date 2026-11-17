@@ -1217,6 +1217,15 @@ describe('time priced at the rates each entry keeps', () => {
 			expect(carried).toBe(edits);
 		});
 
+		it('keeps on their keys the edits of lines none of whose time is shown, as when a read answered nothing', () => {
+			const saved = [at90, { key: 'p1|bo', timeLogIds: ['bo-1'] }];
+			const edits = { removedKeys: new Set(['p1|bo']), descriptions: new Map([['p1|ana', 'Ana Lima, design']]) };
+
+			const carried = carriedLineEdits(saved, [], edits);
+
+			expect(carried).toBe(edits);
+		});
+
 		it('gives the edits back as they were when every line keeps its key', () => {
 			const edits = { removedKeys: new Set(['p1|ana']), descriptions: new Map([['p1|ana', 'Design']]) };
 
