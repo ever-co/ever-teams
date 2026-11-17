@@ -37,7 +37,12 @@ async function settle() {
 }
 
 const signedInBeforeThisVersion = {
-	authenticationStore: { authToken: 'access-old', refreshToken: 'refresh-old', tenantId: 'tenant-1', isDarkMode: true }
+	authenticationStore: {
+		authToken: 'access-old',
+		refreshToken: 'refresh-old',
+		tenantId: 'tenant-1',
+		isDarkMode: true
+	}
 };
 
 /**
