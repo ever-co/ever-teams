@@ -8,18 +8,9 @@ import { types } from 'mobx-state-tree';
 import { AuthenticationStoreModel } from '../authentication-store';
 import type { RootStore } from '../root-store';
 import { setupRootStore } from './setup-root-store';
+import { mockSecureValues } from '../../../test/secure-store-mock';
 
-const mockSecureValues = new Map<string, string>();
-
-jest.mock('expo-secure-store', () => ({
-	setItemAsync: jest.fn(async (key: string, value: string) => {
-		mockSecureValues.set(key, value);
-	}),
-	getItemAsync: jest.fn(async (key: string) => mockSecureValues.get(key) ?? null),
-	deleteItemAsync: jest.fn(async (key: string) => {
-		mockSecureValues.delete(key);
-	})
-}));
+jest.mock('expo-secure-store', () => jest.requireActual('../../../test/secure-store-mock').secureStoreMock);
 
 const ROOT_KEY = 'root-v1';
 const ACCESS_KEY = 'ever-teams.session.access-token';
