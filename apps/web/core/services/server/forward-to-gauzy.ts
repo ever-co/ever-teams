@@ -1,6 +1,7 @@
 import { GAUZY_API_SERVER_URL, TENANT_ID_COOKIE_NAME } from '@/core/constants/config/constants';
 import { NextResponse } from 'next/server';
 import { requestAccessToken, requestCookies } from './request-cookies';
+import { refuseForeignWrite } from './same-origin-request';
 import { tabSessionOf } from './tab-session';
 
 // The browser client gives up after 60 seconds (api.service.ts): past that, nobody is waiting for the answer.
@@ -72,12 +73,22 @@ interface ForwardToGauzyOptions {
  *
  * The route fixes `path`; only the query string and the body come from the request, so a caller cannot point
  * this at another Gauzy endpoint.
+ *
+ * A write (any method but GET and HEAD) must come from this app's own pages: one of another site gets a 403 before
+ * anything is read.
  */
 export async function forwardToGauzy(
 	req: Request,
 	path: string,
 	options: ForwardToGauzyOptions = {}
 ): Promise<Response> {
+	// The token comes from a cookie, which a browser also attaches to a request another site makes (a sibling
+	// subdomain always, any site when the cookies are SameSite=None). The media type check below keeps out a form, but
+	// a write with no body at all (archive, join, pin, rotate a secret...) needs neither a type nor a CORS preflight, so
+	// where a write comes from is checked first, as on the routes that do not forward (#5376, #5381).
+	const foreign = refuseForeignWrite(req);
+	if (foreign) return foreign;
+
 	const cookies = requestCookies(req);
 	const sharedAccessToken = requestAccessToken(cookies);
 	// A tab working in its own organization while the session in the cookies is in another one acts in its own (#5134)
