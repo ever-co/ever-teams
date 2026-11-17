@@ -106,14 +106,17 @@ npm install @ever-teams/tracking`}
 				</pre>
 
 				<pre className="bg-slate-900 text-slate-100 rounded p-4 overflow-auto mt-4">
-					{`import { TeamsProvider, TeamsModernTimer, TeamsBasicTimer } from '@ever-teams/atoms';
+					{`'use client';
+import '@ever-teams/atoms/styles.css';
+import { TeamsProvider, TeamsLoginDialog, TeamsModernTimer, TeamsBasicTimer } from '@ever-teams/atoms';
 import { Button } from '@ever-teams/toolkit-ui';
 
 function App() {
   return (
-    <TeamsProvider config={{ apiUrl: 'https://api.your-domain.com/api' }}>
+    <TeamsProvider config={{ apiUrl: 'https://api.your-domain.com/api' }} scopedStyles>
       <div className="p-4">
         <h1>My Time Tracking App</h1>
+        <TeamsLoginDialog />
         <TeamsModernTimer showProgress={true} />
         <TeamsBasicTimer />
         <Button>Get Started</Button>
@@ -124,8 +127,10 @@ function App() {
 				</pre>
 
 				<p className="mt-4">
-					The components use Tailwind CSS 4 class names: in the CSS file that imports Tailwind, let it see the kit (paths
-					relative to that file; details in the atoms README).
+					The stylesheet holds the components' styles, scoped under the kit root that scopedStyles renders:
+					your app needs no Tailwind. If your app compiles Tailwind CSS 4 itself, you can leave both out and
+					let it see the kit instead, in the CSS file that imports Tailwind (paths relative to that file;
+					details in the atoms README).
 				</p>
 
 				<pre className="bg-slate-900 text-slate-100 rounded p-4 overflow-auto mt-4">
