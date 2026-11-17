@@ -86,7 +86,7 @@ const he = {
 		letsGo: "Let's go!" // @demo remove-current-line
 	},
 	errorScreen: {
-		title: 'Something went wrong!',
+		title: 'משהו השתבש!',
 		friendlySubtitle: 'האפליקציה נתקלה בבעיה. יש לטעון אותה מחדש כדי להמשיך.',
 		reset: 'טעינה מחדש של האפליקציה',
 		traceTitle: 'Error from %{name} stack' // @demo remove-current-line

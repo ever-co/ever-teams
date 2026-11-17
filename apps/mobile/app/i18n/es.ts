@@ -89,7 +89,7 @@ const es = {
 		letsGo: "Let's go!" // @demo remove-current-line
 	},
 	errorScreen: {
-		title: 'Something went wrong!',
+		title: '¡Algo salió mal!',
 		friendlySubtitle: 'La aplicación tuvo un problema. Vuelve a cargarla para continuar.',
 		reset: 'Volver a cargar la aplicación',
 		traceTitle: 'Error from %{name} stack' // @demo remove-current-line

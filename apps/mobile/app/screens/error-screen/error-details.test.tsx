@@ -1,7 +1,14 @@
 import React from 'react';
 import { act, fireEvent, render } from '@testing-library/react-native';
 import { reloadAppAsync } from 'expo';
+import ar from '../../i18n/ar';
+import bg from '../../i18n/bg';
 import en from '../../i18n/en';
+import es from '../../i18n/es';
+import fr from '../../i18n/fr';
+import he from '../../i18n/he';
+import ko from '../../i18n/ko';
+import ru from '../../i18n/ru';
 import { ErrorDetails } from './error-details';
 
 // screen.tsx has type errors of its own on develop, which ts-jest would report here; the layout is not under test.
@@ -59,6 +66,19 @@ describe('ErrorDetails', () => {
 		});
 
 		expect(onReset).toHaveBeenCalledTimes(1);
+	});
+
+	it('says what happened in each language the app has', () => {
+		const translated = { ar, bg, es, fr, he, ko, ru };
+		for (const [locale, messages] of Object.entries(translated)) {
+			const { title, friendlySubtitle, reset } = messages.errorScreen;
+			expect({ locale, title }).not.toEqual({ locale, title: en.errorScreen.title });
+			expect({ locale, friendlySubtitle }).not.toEqual({
+				locale,
+				friendlySubtitle: en.errorScreen.friendlySubtitle
+			});
+			expect({ locale, reset }).not.toEqual({ locale, reset: en.errorScreen.reset });
+		}
 	});
 
 	it('tells people what to do, not where the boilerplate keeps its files', () => {

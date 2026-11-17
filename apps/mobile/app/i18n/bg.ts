@@ -88,7 +88,7 @@ const bg = {
 		letsGo: "Let's go!" // @demo remove-current-line
 	},
 	errorScreen: {
-		title: 'Something went wrong!',
+		title: 'Нещо се обърка!',
 		friendlySubtitle: 'Приложението срещна проблем. Заредете го отново, за да продължите.',
 		reset: 'Презареди приложението',
 		traceTitle: 'Error from %{name} stack' // @demo remove-current-line

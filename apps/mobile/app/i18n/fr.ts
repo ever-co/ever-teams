@@ -91,7 +91,7 @@ const fr = {
 		letsGo: "Let's go!" // @demo remove-current-line
 	},
 	errorScreen: {
-		title: 'Something went wrong!',
+		title: 'Un problème est survenu',
 		friendlySubtitle: 'L’application a rencontré un problème. Rechargez-la pour continuer.',
 		reset: 'Recharger l’application',
 		traceTitle: 'Error from %{name} stack' // @demo remove-current-line

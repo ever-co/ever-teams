@@ -89,7 +89,7 @@ const ru = {
 		letsGo: "Let's go!" // @demo remove-current-line
 	},
 	errorScreen: {
-		title: 'Something went wrong!',
+		title: 'Что-то пошло не так!',
 		friendlySubtitle: 'В приложении произошла ошибка. Перезагрузите его, чтобы продолжить.',
 		reset: 'Перезагрузить приложение',
 		traceTitle: 'Error from %{name} stack' // @demo remove-current-line
