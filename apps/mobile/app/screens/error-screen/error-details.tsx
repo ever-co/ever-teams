@@ -1,3 +1,4 @@
+import { reloadAppAsync } from 'expo';
 import React, { ErrorInfo } from 'react';
 import { ScrollView, TextStyle, View, ViewStyle } from 'react-native';
 import { Button } from '../../components/button';
@@ -11,6 +12,15 @@ export interface ErrorDetailsProps {
 	/** null until React gives it, the boundary keeps both in its state */
 	errorInfo: ErrorInfo | null;
 	onReset(): void;
+}
+
+/** Starts the app again: clearing the error alone renders the screen that failed, which fails again. */
+async function reloadTheApp(onReset: () => void) {
+	try {
+		await reloadAppAsync('Reloaded from the error screen');
+	} catch {
+		onReset();
+	}
 }
 
 export function ErrorDetails(props: ErrorDetailsProps) {
@@ -29,7 +39,12 @@ export function ErrorDetails(props: ErrorDetailsProps) {
 				</ScrollView>
 			)}
 
-			<Button preset="reversed" style={$resetButton} onPress={props.onReset} tx="errorScreen.reset" />
+			<Button
+				preset="reversed"
+				style={$resetButton}
+				onPress={() => reloadTheApp(props.onReset)}
+				tx="errorScreen.reset"
+			/>
 		</Screen>
 	);
 }
