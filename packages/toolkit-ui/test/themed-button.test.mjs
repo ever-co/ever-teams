@@ -1,4 +1,4 @@
-// The theme's colors reach themed buttons inline: node --test test/ (from packages/toolkit-ui).
+// The theme's colors reach themed buttons inline: node --test test/*.test.mjs (from packages/toolkit-ui).
 // esbuild bundles ThemedButton with its imports; the real theme-ui renders it in jsdom.
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';

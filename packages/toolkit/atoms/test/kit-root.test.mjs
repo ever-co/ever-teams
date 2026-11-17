@@ -1,4 +1,4 @@
-// KitRoot (the root of <TeamsProvider scopedStyles>): node --test test/ (from packages/toolkit/atoms).
+// KitRoot (the root of <TeamsProvider scopedStyles>): node --test test/*.test.mjs (from packages/toolkit/atoms).
 // esbuild bundles it with toolkit-ui's portal context replaced by a stand-in; React renders it in jsdom.
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
