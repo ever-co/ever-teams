@@ -65,8 +65,7 @@
 						"enableProguardInReleaseBuilds": true,
 						"extraProguardRules": "-keep public class com.horcrux.svg.** {*;}",
 						"allowBackup": false,
-						"minSdkVersion": 24,
-						"targetSdkVersion": 35
+						"minSdkVersion": 24
 					}
 				}
 			]

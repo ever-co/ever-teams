@@ -12,7 +12,7 @@
 import './i18n';
 import './utils/ignore-warnings';
 import { useFonts } from 'expo-font';
-import React from 'react';
+import React, { useState } from 'react';
 import { Provider as PaperProvider } from 'react-native-paper';
 
 import { initialWindowMetrics, SafeAreaProvider } from 'react-native-safe-area-context';
@@ -20,12 +20,14 @@ import { useInitialRootStore, useStores } from './models';
 import { AppNavigator, useNavigationPersistence } from './navigators';
 import { ErrorBoundary } from './screens/error-screen/error-boundary';
 import * as storage from './utils/storage';
-import { customDarkTheme, customFontsToLoad, customLightTheme } from './theme';
+import { customDarkTheme, customFontsToLoad, customLightTheme, navigationTheme } from './theme';
 import { setupReactotron } from './services/reactotron';
 import Config from './config';
 import { observer } from 'mobx-react-lite';
 import { initCrashReporting } from './utils/crash-reporting';
 import FlashMessage from 'react-native-flash-message';
+import { tellSessionEnded } from './services/client/fetch';
+import { useOnceReady } from './utils/use-once-ready';
 import { ClickOutsideProvider } from 'react-native-click-outside';
 
 // Initialize Sentry before any component renders
@@ -70,7 +72,9 @@ const App = observer((props: AppProps) => {
 
 	const [areFontsLoaded] = useFonts(customFontsToLoad);
 
-	const { rehydrated } = useInitialRootStore(() => {
+	const [sessionEnded, setSessionEnded] = useState(false);
+
+	const { rehydrated } = useInitialRootStore(({ sessionEnded: ended }) => {
 		// This runs after the root store has been initialized and rehydrated.
 
 		// If your initialization scripts run very fast, it's good to show the splash screen for just a bit longer to prevent flicker.
@@ -78,7 +82,12 @@ const App = observer((props: AppProps) => {
 		// Note: (vanilla Android) The splash-screen will not appear if you launch your app via the terminal or Android Studio. Kill the app and launch it normally by tapping on the launcher icon. https://stackoverflow.com/a/69831106
 		// Note: (vanilla iOS) You might notice the splash-screen logo change size. This happens in debug/development mode. Try building the app for release.
 		setTimeout(hideSplashScreen, 500);
+		setSessionEnded(ended);
 	});
+
+	const ready = rehydrated && isNavigationStateRestored && areFontsLoaded;
+	// told on the first render that shows the message host, however long the fonts and the navigation state take
+	useOnceReady(sessionEnded, ready, tellSessionEnded);
 
 	// Before we show the app, we have to wait for our state to be ready.
 	// In the meantime, don't render anything. This will be the background
@@ -86,7 +95,7 @@ const App = observer((props: AppProps) => {
 	// In iOS: application:didFinishLaunchingWithOptions:
 	// In Android: https://stackoverflow.com/a/45838109/204044
 	// You can replace with your own loading component if you wish.
-	if (!rehydrated || !isNavigationStateRestored || !areFontsLoaded) return null;
+	if (!ready) return null;
 
 	// otherwise, we're ready to render the app
 
@@ -98,7 +107,7 @@ const App = observer((props: AppProps) => {
 					<FlashMessage position="top" />
 					<ClickOutsideProvider>
 						<AppNavigator
-							theme={theme}
+							theme={navigationTheme(isDarkMode)}
 							initialState={initialNavigationState}
 							onStateChange={onNavigationStateChange}
 						/>

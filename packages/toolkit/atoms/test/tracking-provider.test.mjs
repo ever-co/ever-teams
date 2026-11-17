@@ -36,8 +36,9 @@ const stubs = {
 			}
 		};`,
 	'@ever-teams/toolkit-types': 'export const isSuccessResponse = (r) => r && r.success === true;',
+	// Records when it loads: it stands for the module that carries the whole zone database.
 	'@lib/utils/time-zone':
-		'export const getUserTimezone = () => "UTC"; export const convertSessionDatesToTimezone = (s) => s;'
+		'globalThis.__timeZonesLoaded = true; export const getUserTimezone = () => "UTC"; export const convertSessionDatesToTimezone = (s) => s;'
 };
 
 let React;
@@ -135,12 +136,13 @@ const reset = async () => {
 	globalThis.__setIdentity({ token: 'token-a', selectedEmployee: 'all' });
 };
 
-test('a provider without a session component reads no sessions', async () => {
+test('a provider without a session component reads no sessions and loads no time-zone data', async () => {
 	await reset();
 	const root = await mount(null);
 	await act(async () => globalThis.__setIdentity({ token: 'token-b' }));
 
 	assert.equal(globalThis.__requests.length, 0);
+	assert.equal(globalThis.__timeZonesLoaded, undefined, 'the time-zone helpers are not loaded');
 	await act(async () => root.unmount());
 });
 
@@ -152,7 +154,9 @@ test('two session components share one read', async () => {
 
 	assert.equal(globalThis.__requests.length, 1);
 	await act(async () => answer(globalThis.__requests[0], [{ id: 's1' }]));
+	await flush();
 	assert.equal(seen.at(-1), 1);
+	assert.equal(globalThis.__timeZonesLoaded, true, 'the time-zone helpers load with the first sessions');
 	await act(async () => root.unmount());
 });
 

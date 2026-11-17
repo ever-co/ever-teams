@@ -77,6 +77,27 @@ export const customLightTheme = {
 };
 export type AppTheme = typeof customDarkTheme;
 
+/**
+ * React Navigation 7 types its theme strictly (its own fonts), so it gets its own theme object with the colors it read
+ * from the merged Paper theme before.
+ */
+export function navigationTheme(dark: boolean) {
+	const base = dark ? NavigationDarkTheme : NavigationDefaulTheme;
+	const merged = dark ? customDarkTheme : customLightTheme;
+	return {
+		...base,
+		colors: {
+			...base.colors,
+			primary: merged.colors.primary,
+			background: merged.colors.background,
+			card: merged.colors.card,
+			text: merged.colors.text,
+			border: merged.colors.border,
+			notification: merged.colors.notification
+		}
+	};
+}
+
 export const useAppTheme = () => useTheme<AppTheme>();
 
 export const colors = {

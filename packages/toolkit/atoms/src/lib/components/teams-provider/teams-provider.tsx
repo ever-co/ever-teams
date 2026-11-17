@@ -1,3 +1,5 @@
+'use client';
+
 import { useEffect, useLayoutEffect, useState, ReactNode } from 'react';
 
 import { Theme, ThemeUIProvider } from 'theme-ui';
