@@ -5,6 +5,7 @@ import { toast } from '@ever-teams/toolkit-ui';
 import { useTeamsContext } from '@lib/context/teams-context';
 import { useTimerStatus } from './useTimerStatus';
 import { ICurrentTeamsState } from '@ever-teams/toolkit-types';
+import { useTimerStatusContext } from '@lib/context/teams-timer-status-context';
 
 /**
  * Self-contained timer hook that manages all timer functionality.
@@ -15,6 +16,11 @@ import { ICurrentTeamsState } from '@ever-teams/toolkit-types';
 export const useTimer = () => {
 	// Get dependencies from context
 	const { authenticatedUser: user, token, selectedOrganization: organizationId } = useTeamsContext();
+	// Every widget of the page reads the same status: after a start or a stop, all of them are refreshed at once.
+	const sharedStatus = useTimerStatusContext();
+	const refreshEveryWidget = async () => {
+		await sharedStatus?.refetch();
+	};
 
 	const [currentTeamsState, setCurrentTeamsState] = useState<ICurrentTeamsState>({
 		taskId: null,
@@ -70,6 +76,7 @@ export const useTimer = () => {
 			}
 
 			start();
+			await refreshEveryWidget();
 		} catch (error) {
 			toast({
 				title: 'Ever Teams Error',
@@ -106,6 +113,7 @@ export const useTimer = () => {
 			timeSlot && (await addTimeSlot(token, timeSlot));
 
 			reset();
+			await refreshEveryWidget();
 		} catch (error) {
 			toast({
 				title: 'Ever Teams Error',
@@ -120,6 +128,11 @@ export const useTimer = () => {
 	useEffect(() => {
 		// Sync timer status with stopwatch when timer is running
 		if (timerStatus?.running) {
+			// The run's elapsed time comes from the server, so a reload or a run started elsewhere shows it right
+			const startedAt = timerStatus.lastLog?.startedAt;
+			if (startedAt) {
+				setTime(new Date(Math.max(0, Date.now() - new Date(startedAt).getTime())));
+			}
 			start();
 		} else {
 			reset();
