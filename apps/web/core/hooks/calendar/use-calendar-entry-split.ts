@@ -278,10 +278,28 @@ async function restoreAfterFailedAdd(
  */
 export async function splitThroughApi(request: CalendarSplitRequest) {
 	const { log, splitAt, secondTask } = request;
-	const secondPart: { taskId?: string; projectId?: string | null; reason?: string } = {};
+	const window = windowOfLog(log);
+	if (!window) {
+		throw new Error('An entry without a start and an end cannot be split');
+	}
+	// As the two writes do, the entry is read again first: the API splits the entry it holds now, which another tab
+	// may have moved or put on another task since the dialog read it. One already ending at the split time may be this
+	// very split, whose answer was lost: the same request sent again answers its two parts, and splits nothing twice
+	const current = await currentLogOf(log);
+	const first = splitPartsOf(window, splitAt).first;
+	const isAsRead = isStillTheSplitEntry(log, current, window);
+	const isSplitAlready = isStillTheSplitEntry(log, current, first);
+	if (!isAsRead && !isSplitAlready) {
+		throw new CalendarSplitError('changed', null);
+	}
+	const secondPart: { taskId?: string; projectId?: string; reason?: string } = {};
 	if (secondTask) {
 		secondPart.taskId = secondTask.id;
-		secondPart.projectId = secondTask.projectId ?? null;
+	}
+	// A picked task without a project leaves the entry's project to the second part, as the two writes do: the API
+	// clears the project of the part for a `null`
+	if (secondTask?.projectId) {
+		secondPart.projectId = secondTask.projectId;
 	}
 	const reason = request.reason?.trim();
 	if (reason) {

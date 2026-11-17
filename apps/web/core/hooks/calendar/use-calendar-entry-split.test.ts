@@ -381,6 +381,17 @@ describe('splitThroughApi, one write where the API splits (#5369)', () => {
 		expect(mockAddManualTime).not.toHaveBeenCalled();
 	});
 
+	it('keeps the project of the entry for a picked task without one, as the two writes do', async () => {
+		await splitThroughApi({
+			log: TRACKED,
+			splitAt: at(11),
+			secondTask: { id: 'task-2', projectId: null },
+			tenantId: 'tenant-1'
+		});
+
+		expect(mockSplitTimeLog).toHaveBeenCalledWith({ timeLogId: 'log-1', splitAt: at(11), taskId: 'task-2' });
+	});
+
 	it("keeps the entry's own task when none is picked, and sends the reason given", async () => {
 		await splitThroughApi({
 			log: LOG,
@@ -431,6 +442,27 @@ describe('splitThroughApi, one write where the API splits (#5369)', () => {
 		await expect(split).rejects.toEqual(expect.objectContaining({ failure }));
 		expect(mockUpdateTimeLog).not.toHaveBeenCalled();
 		expect(mockAddManualTime).not.toHaveBeenCalled();
+	});
+
+	it.each([
+		['is gone', []],
+		['was moved since', [{ ...LOG, startedAt: at(10) }]],
+		['is on another task now', [{ ...LOG, taskId: 'task-9' }]]
+	])('reads the entry again first, and sends nothing when the entry %s', async (_, held) => {
+		mockGetTimeLogs.mockResolvedValue(held);
+
+		const split = splitThroughApi({ log: TRACKED, splitAt: at(11), secondTask: null, tenantId: 'tenant-1' });
+
+		await expect(split).rejects.toEqual(expect.objectContaining({ failure: 'changed' }));
+		expect(mockSplitTimeLog).not.toHaveBeenCalled();
+	});
+
+	it('sends the same split again when the entry already ends at the split time, a split whose answer was lost', async () => {
+		mockGetTimeLogs.mockResolvedValue([{ ...LOG, stoppedAt: at(11) }]);
+
+		await splitThroughApi({ log: TRACKED, splitAt: at(11), secondTask: null, tenantId: 'tenant-1' });
+
+		expect(calls).toEqual(['split 11']);
 	});
 
 	it('offers another try when the outcome is not known, which never splits twice', async () => {
