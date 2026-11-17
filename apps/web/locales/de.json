@@ -7739,7 +7739,8 @@
 			"NUMBER_FREE": "Seine Nummer kann einer anderen Rechnung gegeben werden.",
 			"CONFIRM": "Rechnung löschen",
 			"DONE": "Rechnung {number} wurde gelöscht",
-			"FAILED": "Die Rechnung wurde nicht gelöscht. Versuchen Sie es erneut."
+			"FAILED": "Die Rechnung wurde nicht gelöscht. Versuchen Sie es erneut.",
+			"CHANGED_MEANWHILE": "Rechnung {number} hat sich geändert, seit sie angezeigt wurde, daher wurde sie nicht gelöscht. Aktualisieren Sie sie, um ihre aktuelle Version zu sehen, und versuchen Sie es dann erneut."
 		},
 		"edit": {
 			"TITLE": "Rechnung {number} bearbeiten",

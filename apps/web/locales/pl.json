@@ -7739,7 +7739,8 @@
 			"NUMBER_FREE": "Jej numer można nadać innej fakturze.",
 			"CONFIRM": "Usuń fakturę",
 			"DONE": "Faktura {number} została usunięta",
-			"FAILED": "Faktura nie została usunięta. Spróbuj ponownie."
+			"FAILED": "Faktura nie została usunięta. Spróbuj ponownie.",
+			"CHANGED_MEANWHILE": "Faktura {number} zmieniła się od czasu jej wyświetlenia, więc nie została usunięta. Odśwież ją, aby zobaczyć jej aktualną wersję, a następnie spróbuj ponownie."
 		},
 		"edit": {
 			"TITLE": "Edytuj fakturę {number}",

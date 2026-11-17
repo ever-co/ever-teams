@@ -949,11 +949,15 @@ interface InvoiceToDelete {
 	scope: ReadWorkspace;
 }
 
-/** Only a draft is deleted: one sent or paid since the dialog opened is refused before any request deletes it. */
+/**
+ * Only a draft is deleted: one sent or paid since the dialog opened is refused before any request deletes it, and one
+ * changed after that check is refused by Ever Gauzy (409 `INVOICE_CHANGED`, #5382), the delete being made under the
+ * `updatedAt` the check read. Either way nothing is deleted, and `isInvoiceActionChangedMeanwhile` tells it.
+ */
 async function deleteInItsWorkspace({ invoiceId, scope }: InvoiceToDelete) {
 	const workspace = workspaceToActIn(scope);
-	await assertActionOffered(invoiceId, 'delete', workspace);
-	await invoiceService.deleteInvoice(invoiceId, workspace);
+	const readVersion = await assertActionOffered(invoiceId, 'delete', workspace);
+	await invoiceService.deleteInvoice(invoiceId, workspace, readVersion);
 }
 
 export function useDeleteInvoice() {
