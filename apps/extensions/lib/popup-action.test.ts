@@ -112,8 +112,13 @@ describe("the popup's start or stop", () => {
 			warn.mock.restore();
 		}
 
-		assert.deepEqual(popup.shown.at(-1), { busy: false });
-		assert.deepEqual(popup.shown[2], { refusal: { key: 'errorGeneric' } });
+		assert.deepEqual(popup.shown, [
+			{ busy: true },
+			{ refusal: null },
+			{ refusal: { key: 'errorGeneric' } },
+			'read',
+			{ busy: false }
+		]);
 		// The read's failure is not lost: it is told on the console
 		assert.equal(warn.mock.callCount(), 1);
 		assert.equal(warn.mock.calls[0].arguments[1], readFailure);
