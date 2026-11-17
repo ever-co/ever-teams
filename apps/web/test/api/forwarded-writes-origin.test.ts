@@ -90,7 +90,7 @@ beforeEach(() => {
 	global.fetch = fetchMock as unknown as typeof fetch;
 });
 
-afterAll(() => {
+afterEach(() => {
 	global.fetch = originalFetch;
 });
 

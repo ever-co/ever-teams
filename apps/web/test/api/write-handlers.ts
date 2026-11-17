@@ -51,47 +51,53 @@ function localDeclarationOf(file: ts.SourceFile, name: string): string | null {
 	return null;
 }
 
+/** An exported name, with the source of the code it runs. */
+type Export = [name: string, source: string];
+
+/** `export const POST = forwardMappings`, `export const POST: Handler = async (req) => {}`, `export const { POST } = x`. */
+function exportsOfVariables(file: ts.SourceFile, statement: ts.VariableStatement): Export[] {
+	const text = statement.getText(file);
+	return statement.declarationList.declarations.flatMap((declaration): Export[] => {
+		if (ts.isObjectBindingPattern(declaration.name)) {
+			return declaration.name.elements.flatMap((e): Export[] =>
+				ts.isIdentifier(e.name) ? [[e.name.text, text]] : []
+			);
+		}
+		if (!ts.isIdentifier(declaration.name)) return [];
+		const init = declaration.initializer;
+		const named = init && ts.isIdentifier(init) ? localDeclarationOf(file, init.text) : null;
+		return [[declaration.name.text, named ?? text]];
+	});
+}
+
+/** `export { POST } from '../_signin-workspace/route'`, `export { handler as POST }`. */
+function exportsOfDeclaration(file: ts.SourceFile, statement: ts.ExportDeclaration): Export[] {
+	const clause = statement.exportClause;
+	if (!clause || !ts.isNamedExports(clause)) return [];
+	return clause.elements.map((specifier): Export => {
+		const local = statement.moduleSpecifier
+			? null
+			: localDeclarationOf(file, (specifier.propertyName ?? specifier.name).text);
+		return [specifier.name.text, local ?? statement.getText(file)];
+	});
+}
+
+function exportsOf(file: ts.SourceFile, statement: ts.Statement): Export[] {
+	if (ts.isFunctionDeclaration(statement)) {
+		return isExported(statement) && statement.name ? [[statement.name.text, statement.getText(file)]] : [];
+	}
+	if (ts.isVariableStatement(statement)) return isExported(statement) ? exportsOfVariables(file, statement) : [];
+	if (ts.isExportDeclaration(statement)) return exportsOfDeclaration(file, statement);
+	return [];
+}
+
 /** The write handlers a route file's source exports. */
 export function writeHandlersIn(route: string, sourceText: string): WriteHandler[] {
 	const file = ts.createSourceFile(`${route}/route.ts`, sourceText, ts.ScriptTarget.Latest, true);
-	const handlers: WriteHandler[] = [];
-	const add = (name: string, source: string) => {
-		if (WRITE_METHODS.has(name)) handlers.push({ route, method: name as WriteMethod, source });
-	};
-
-	for (const statement of file.statements) {
-		// export async function POST(req) { ... }
-		if (ts.isFunctionDeclaration(statement) && isExported(statement) && statement.name) {
-			add(statement.name.text, statement.getText(file));
-		}
-
-		// export const POST = forwardMappings; export const POST: Handler = async (req) => { ... };
-		// export const { GET, POST } = handlers;
-		if (ts.isVariableStatement(statement) && isExported(statement)) {
-			for (const declaration of statement.declarationList.declarations) {
-				if (ts.isIdentifier(declaration.name)) {
-					const init = declaration.initializer;
-					const named = init && ts.isIdentifier(init) ? localDeclarationOf(file, init.text) : null;
-					add(declaration.name.text, named ?? statement.getText(file));
-				} else if (ts.isObjectBindingPattern(declaration.name)) {
-					for (const element of declaration.name.elements) {
-						if (ts.isIdentifier(element.name)) add(element.name.text, statement.getText(file));
-					}
-				}
-			}
-		}
-
-		// export { POST } from '../_signin-workspace/route'; export { handler as POST };
-		if (ts.isExportDeclaration(statement) && statement.exportClause && ts.isNamedExports(statement.exportClause)) {
-			for (const specifier of statement.exportClause.elements) {
-				const local = statement.moduleSpecifier
-					? null
-					: localDeclarationOf(file, (specifier.propertyName ?? specifier.name).text);
-				add(specifier.name.text, local ?? statement.getText(file));
-			}
-		}
-	}
-	return handlers;
+	return file.statements
+		.flatMap((statement) => exportsOf(file, statement))
+		.filter(([name]) => WRITE_METHODS.has(name))
+		.map(([name, source]) => ({ route, method: name as WriteMethod, source }));
 }
 
 /** Every write handler under app/api, sorted by route then method. */
