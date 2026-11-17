@@ -21,7 +21,9 @@ import {
 import { useTeamsContext } from '@lib/context/teams-context';
 // import { useLoginForm } from '@hooks/useLoginForm';
 import { CheckIcon, Copy, LoaderCircle, LogOutIcon } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useAtomValue } from 'jotai';
+import { hostSessionAtom } from '@lib/session/host-session';
 import { useTranslation } from 'react-i18next';
 import { SpinOverlayLoader } from '../loaders/spin-overlay-loader';
 import { TeamsTimerFooter } from '@components/layouts/footers/component-footer';
@@ -32,6 +34,23 @@ import { useKitOptions } from '@components/teams-provider/kit-root';
 import { warnOnce } from '@lib/utils/warn-once';
 import { useRegistrationForm } from '@hooks/useRegistrationForm';
 import { useClearKitSession } from '@hooks/useClearKitSession';
+
+/**
+ * What a signed-out person sees when the host signs people in from its backend (config.getToken): the kit asks for no
+ * password or token, it points to the host product's own sign-in. Nothing while the host's first answer is pending.
+ */
+const HostSignInNote = ({ className }: { className?: string }) => {
+	const { t } = useTranslation();
+	const { status } = useAtomValue(hostSessionAtom);
+	if (status !== 'signed-out') {
+		return null;
+	}
+	return (
+		<p role="status" className={cn('text-sm text-slate-600 dark:text-slate-300', className)}>
+			{t('AUTH.host_sign_in')}
+		</p>
+	);
+};
 
 // The sign-in form can switch to the registration form and back, in place.
 type AuthFormMode = 'signin' | 'signup';
@@ -132,6 +151,23 @@ const TeamsLoginForm = ({
 	};
 
 	const { t } = useTranslation();
+	const { hostSignIn } = useKitOptions();
+
+	// The password and token tabs put an Ever Teams credential into the page: fine on the workspace's own pages, not on a
+	// third-party site, where the host should sign people in from its backend.
+	useEffect(() => {
+		if (hostSignIn) {
+			return;
+		}
+		warnOnce(
+			'password-sign-in',
+			'the password and token sign-in ask for an Ever Teams credential inside this page. On a site that is not your own, pass config.getToken to sign people in from your backend (README: "Sign in from your backend").'
+		);
+	}, [hostSignIn]);
+
+	if (hostSignIn) {
+		return <HostSignInNote className={className} />;
+	}
 
 	return mode === 'signin' ? (
 		<div ref={ref} className={className}>
@@ -199,10 +235,16 @@ const TeamsLoginDialog = ({
 	redirectHandler?: () => void;
 }) => {
 	const { authenticatedUser: user } = useTeamsContext();
+	const { hostSignIn } = useKitOptions();
 	const { t } = useTranslation();
 	// The form shown, for the dialog's title; a closed dialog opens on the sign-in form again.
 	const [mode, setMode] = useState<AuthFormMode>('signin');
 	const title = mode === 'signin' ? t('AUTH.sign_in_title') : t('AUTH.sign_up_title');
+
+	// The host signs people in: no dialog to open, only the note while the person is signed out of the host product.
+	if (hostSignIn && !user) {
+		return <HostSignInNote />;
+	}
 
 	return (
 		<div>
@@ -245,7 +287,7 @@ export function MenuIndicator() {
 
 export const UserNavMenu = ({ children }: { children?: React.ReactNode }) => {
 	const { authenticatedUser: user, token } = useTeamsContext();
-	const { onSignOut, scoped } = useKitOptions();
+	const { onSignOut, scoped, hostSignIn } = useKitOptions();
 	const clearSession = useClearKitSession();
 	const { t } = useTranslation();
 
@@ -300,21 +342,24 @@ export const UserNavMenu = ({ children }: { children?: React.ReactNode }) => {
 					</p>
 					<p className="text-xs text-gray-500 dark:text-gray-400">{user?.email}</p>
 
-					<TokenDisplay token={`${token}`} />
+					{/* The host's token stays out of sight: it signs the person out with the host product, not here. */}
+					{!hostSignIn && <TokenDisplay token={`${token}`} />}
 				</div>
 			</div>
 
 			{children}
 
-			<ul className="pt-3 space-y-2 w-full border-t dark:border-gray-700">
-				{/* Logout menu */}
-				<li>
-					<button className="flex space-x-3 items-center font-normal text-[#DE437B]" onClick={logOut}>
-						<LogOutIcon className="w-5 h-5 stroke-[#DE437B]" />{' '}
-						<span>{t('AUTH.logout').toUpperCase()}</span>
-					</button>
-				</li>
-			</ul>
+			{!hostSignIn && (
+				<ul className="pt-3 space-y-2 w-full border-t dark:border-gray-700">
+					{/* Logout menu */}
+					<li>
+						<button className="flex space-x-3 items-center font-normal text-[#DE437B]" onClick={logOut}>
+							<LogOutIcon className="w-5 h-5 stroke-[#DE437B]" />{' '}
+							<span>{t('AUTH.logout').toUpperCase()}</span>
+						</button>
+					</li>
+				</ul>
+			)}
 		</div>
 	);
 };
