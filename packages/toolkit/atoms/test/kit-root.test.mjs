@@ -68,13 +68,19 @@ before(async () => {
 });
 
 after(() => {
+	if (!bundleDir) return;
 	const link = path.join(bundleDir, 'node_modules', 'react');
 	// A symbolic link on POSIX, a junction on Windows: remove the link itself, never what it points to.
-	if (!fs.existsSync(link)) return;
-	try {
-		fs.unlinkSync(link);
-	} catch {
-		fs.rmdirSync(link);
+	if (fs.existsSync(link)) {
+		try {
+			fs.unlinkSync(link);
+		} catch {
+			fs.rmdirSync(link);
+		}
+	}
+	// Only once the link to React is gone: the folder then holds nothing but the bundle.
+	if (!fs.existsSync(link)) {
+		fs.rmSync(bundleDir, { recursive: true, force: true });
 	}
 });
 
