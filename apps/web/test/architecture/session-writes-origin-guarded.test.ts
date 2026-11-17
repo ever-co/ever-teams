@@ -102,6 +102,13 @@ describe('app/api write handlers keep another site out', () => {
 		expect(writeHandlersIn('fixture', "export { POST } from '../other/route';").map((h) => h.source)).toEqual([
 			"export { POST } from '../other/route';"
 		]);
+
+		// Two handlers in one statement: each is read from its own declaration, so PUT's check does not cover POST
+		const together = writeHandlersIn(
+			'fixture',
+			'export const POST = async () => Response.json({ ok: true }), PUT = (req: Request) => refuseForeignOrigin(req);'
+		);
+		expect(together.filter(callsRefuseForeignOrigin).map(key)).toEqual(['fixture PUT']);
 	});
 
 	it('check the origin, forward through a helper that does, or are listed with a reason', () => {

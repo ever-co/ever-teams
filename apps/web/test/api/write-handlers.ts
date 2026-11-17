@@ -37,16 +37,16 @@ function isExported(node: ts.Node): boolean {
 	return ts.canHaveModifiers(node) && !!ts.getModifiers(node)?.some((m) => m.kind === ts.SyntaxKind.ExportKeyword);
 }
 
-/** The top-level function or variable a name declares in this file, as source text. */
+/**
+ * The top-level function or variable a name declares in this file, as source text: only its own declaration, never
+ * the others of a `const a = ..., b = ...` statement.
+ */
 function localDeclarationOf(file: ts.SourceFile, name: string): string | null {
 	for (const statement of file.statements) {
 		if (ts.isFunctionDeclaration(statement) && statement.name?.text === name) return statement.getText(file);
-		if (
-			ts.isVariableStatement(statement) &&
-			statement.declarationList.declarations.some((d) => ts.isIdentifier(d.name) && d.name.text === name)
-		) {
-			return statement.getText(file);
-		}
+		if (!ts.isVariableStatement(statement)) continue;
+		const own = statement.declarationList.declarations.find((d) => ts.isIdentifier(d.name) && d.name.text === name);
+		if (own) return own.getText(file);
 	}
 	return null;
 }
@@ -64,9 +64,10 @@ function exportsOfVariables(file: ts.SourceFile, statement: ts.VariableStatement
 			);
 		}
 		if (!ts.isIdentifier(declaration.name)) return [];
+		// Only this declaration: in `export const POST = ..., PUT = ...` each handler is read from its own
 		const init = declaration.initializer;
 		const named = init && ts.isIdentifier(init) ? localDeclarationOf(file, init.text) : null;
-		return [[declaration.name.text, named ?? text]];
+		return [[declaration.name.text, named ?? declaration.getText(file)]];
 	});
 }
 
