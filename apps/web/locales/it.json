@@ -7578,6 +7578,8 @@
 			"RATE_SOURCE_EMPLOYEE": "Tariffa di fatturazione propria del membro",
 			"RATE_SOURCE_DEFAULT": "La tariffa di fatturazione predefinita dello spazio di lavoro",
 			"KEPT_RATE_HINT": "{source}, mantenuta da quando il tempo è stato lavorato. Oggi: {rate} all’ora.",
+			"KEPT_RATES_UNREAD_TITLE": "Alle tariffe di oggi",
+			"KEPT_RATES_UNREAD_MESSAGE": "In questo spazio di lavoro il tempo passato mantiene la sua tariffa, ma questo tempo non indica quale tariffa ha mantenuto, quindi ogni ora è calcolata alle tariffe di oggi. Controlla le tariffe prima di salvare.",
 			"DESCRIPTION_OF": "Descrizione della riga {name}",
 			"REMOVE_LINE": "Rimuovi la riga {name}",
 			"REMOVED_LINES": "{count, plural, one {# riga rimossa} other {# righe rimosse}}",

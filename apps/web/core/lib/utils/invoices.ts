@@ -317,6 +317,14 @@ export function keepsClientRates(entry: KeptRatesLike | null | undefined): boole
 }
 
 /**
+ * Whether any of the time states the client rates it kept. An API that answers them states them on every entry it
+ * sends, null where an entry kept none; an API that does not (or a read that did not ask) states them on none.
+ */
+export function statesKeptClientRates(logs: ReadonlyArray<KeptRatesLike>): boolean {
+	return logs.some((log) => log.clientRates !== undefined && log.clientRates !== null);
+}
+
+/**
  * What an hour of an entry is billed at the rates it keeps, by the same chain as {@link linePriceOf}: the member's
  * client rate on the project it kept, else the project's, else the billing rate it kept, else the workspace's default,
  * which no entry keeps. Each client rate is in the currency it kept.

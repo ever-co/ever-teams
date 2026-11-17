@@ -7578,6 +7578,8 @@
 			"RATE_SOURCE_EMPLOYEE": "Eigener Abrechnungssatz des Mitglieds",
 			"RATE_SOURCE_DEFAULT": "Der Standard-Abrechnungssatz des Arbeitsbereichs",
 			"KEPT_RATE_HINT": "{source}, beibehalten seit der Erfassung der Zeit. Heute: {rate} pro Stunde.",
+			"KEPT_RATES_UNREAD_TITLE": "Zu den heutigen Sätzen berechnet",
+			"KEPT_RATES_UNREAD_MESSAGE": "In diesem Arbeitsbereich behält vergangene Zeit ihren Satz, aber diese Zeit gibt nicht an, welchen Satz sie behalten hat. Jede Stunde wird daher zu den heutigen Sätzen berechnet. Prüfen Sie die Sätze vor dem Speichern.",
 			"DESCRIPTION_OF": "Beschreibung der Position {name}",
 			"REMOVE_LINE": "Position {name} entfernen",
 			"REMOVED_LINES": "{count, plural, one {# Position entfernt} other {# Positionen entfernt}}",

@@ -7578,6 +7578,8 @@
 			"RATE_SOURCE_EMPLOYEE": "Tarif de facturation du membre",
 			"RATE_SOURCE_DEFAULT": "Le taux de facturation par défaut de l'espace de travail",
 			"KEPT_RATE_HINT": "{source}, conservé depuis le moment où le temps a été travaillé. Aujourd’hui : {rate} de l’heure.",
+			"KEPT_RATES_UNREAD_TITLE": "Facturé aux taux du jour",
+			"KEPT_RATES_UNREAD_MESSAGE": "Dans cet espace de travail, le temps passé garde son taux, mais ce temps n’indique pas quel taux il a gardé : chaque heure est donc facturée aux taux du jour. Vérifiez les taux avant d’enregistrer.",
 			"DESCRIPTION_OF": "Description de la ligne {name}",
 			"REMOVE_LINE": "Retirer la ligne {name}",
 			"REMOVED_LINES": "{count, plural, one {# ligne retirée} other {# lignes retirées}}",

@@ -247,10 +247,10 @@ function readOptionsOfCalls(): BillableReadOptions[] {
 	return mockReports.getBillableTimeLogs.mock.calls.map((call) => call[2] as BillableReadOptions);
 }
 
-function renderTimeOf(options: Partial<Parameters<typeof useInvoiceTime>[0]>) {
+function renderTimeOf(options: Partial<Parameters<typeof useInvoiceTime>[0]>, workspace: Partial<TOrganization> = {}) {
 	const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 	const store = createStore();
-	store.set(currentOrganizationState, { id: 'organization-1', currency: 'USD' } as TOrganization);
+	store.set(currentOrganizationState, { id: 'organization-1', currency: 'USD', ...workspace } as TOrganization);
 	const wrapper = ({ children }: Readonly<{ children: React.ReactNode }>) => (
 		<QueryClientProvider client={queryClient}>
 			<Provider store={store}>{children}</Provider>
@@ -582,6 +582,31 @@ describe('the time of a new invoice priced at the client rates each entry kept (
 			expect.objectContaining({ withClientRates: true })
 		]);
 		expect(result.current.lines.map((line) => line.amount)).toEqual([3600]);
+	});
+
+	it('says every hour is at today’s rates where past time keeps its rate but the API states none it kept', async () => {
+		asRateAdmin();
+		// An API without the kept client rates (Gauzy before ever-co/ever-gauzy#12034) drops withClientRates
+		mockReports.getBillableTimeLogs.mockResolvedValue([{ ...adaTime, id: 'log-october', duration: 144000 }]);
+
+		const { result } = renderTimeOf({}, { timeLogsKeepTheirRates: true });
+		await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+		expect(result.current.lines.map((line) => line.amount)).toEqual([4400]);
+		expect(result.current.pricesKeptTimeToday).toBe(true);
+	});
+
+	it('says nothing of it when the time states the rates it kept, or when past time takes the new rate', async () => {
+		asRateAdmin();
+		answerAsTheApi([octoberAda]);
+		const kept = renderTimeOf({}, { timeLogsKeepTheirRates: true });
+		await waitFor(() => expect(kept.result.current.isLoading).toBe(false));
+		expect(kept.result.current.pricesKeptTimeToday).toBe(false);
+
+		mockReports.getBillableTimeLogs.mockResolvedValue([{ ...adaTime, id: 'log-october', duration: 144000 }]);
+		const repriced = renderTimeOf({}, { timeLogsKeepTheirRates: false });
+		await waitFor(() => expect(repriced.result.current.isLoading).toBe(false));
+		expect(repriced.result.current.pricesKeptTimeToday).toBe(false);
 	});
 
 	it('reads the time when the permissions could not be read, priced at today’s rates', async () => {

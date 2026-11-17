@@ -56,6 +56,24 @@ export function OverlapNotice({ invoice }: Readonly<{ invoice: InvoiceDraftState
 	);
 }
 
+/**
+ * Past time keeps its rate in the workspace, but the time read states none it kept (an API that does not answer them,
+ * or a role that may not read them): the lines bill every hour at today's rates, and say so before the invoice is saved.
+ */
+export function KeptRatesNotice({ invoice }: Readonly<{ invoice: Pick<InvoiceDraftState, 'time'> }>) {
+	const t = useTranslations();
+	if (!invoice.time.pricesKeptTimeToday) {
+		return null;
+	}
+	return (
+		<Notice
+			tone="warning"
+			title={t('invoices.new.KEPT_RATES_UNREAD_TITLE')}
+			description={t('invoices.new.KEPT_RATES_UNREAD_MESSAGE')}
+		/>
+	);
+}
+
 /** The invoice being prepared beside its details; the save is confirmed in the dialog of the screen it is on. */
 export function PreparedInvoice({
 	invoice,
@@ -88,6 +106,7 @@ export function PreparedInvoice({
 			<div className="flex min-w-0 flex-col gap-4">
 				{notice}
 				<OverlapNotice invoice={invoice} />
+				<KeptRatesNotice invoice={invoice} />
 				<InvoiceSheet invoice={invoice} />
 				<OtherCurrencies currencies={invoice.otherCurrencies} onInvoice={invoice.changeCurrency} />
 				<UnpricedTimeList items={invoice.time.unpriced} />

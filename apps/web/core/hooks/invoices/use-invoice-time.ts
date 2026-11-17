@@ -34,6 +34,7 @@ import {
 	keptLinePriceOf,
 	linePriceOf,
 	namedLinesOf,
+	statesKeptClientRates,
 	type EmployeeBillingRate,
 	type InvoiceGrouping,
 	type InvoiceLineNames,
@@ -446,6 +447,11 @@ export function useInvoiceTime({
 		() => offeredProjectsOf(organizationProjects, offeredProjectIdSet),
 		[offeredProjectIdSet, organizationProjects]
 	);
+	// Past time keeps its rate, but none of the time states the rate it kept (an API that does not answer them, or a
+	// role that may not read them): every hour is then billed at today's rates, and the invoice says so
+	const keepsPastRates = organization?.timeLogsKeepTheirRates === true;
+	const statesKeptRates = useMemo(() => statesKeptClientRates(logs), [logs]);
+	const pricesKeptTimeToday = keepsPastRates && logs.length > 0 && !statesKeptRates;
 	// The lines bill each entry rounded with the workspace's rule, as Time & activity shows it
 	const entries = useMemo(
 		() => billableEntriesOf(logs, offeredProjectIdSet, roundingRule),
@@ -581,6 +587,8 @@ export function useInvoiceTime({
 		isReadingBilledTime,
 		hasBilledTimeFailed,
 		/** Every billable hour of the period is on an invoice: the period is not without billable time. */
-		isAllInvoiced
+		isAllInvoiced,
+		/** Past time keeps its rate, but the time read states none it kept: the lines bill it at today's rates. */
+		pricesKeptTimeToday
 	};
 }
