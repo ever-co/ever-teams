@@ -1,4 +1,4 @@
-// theme-ui writes no global styles on the host page: node --test test/ (from packages/toolkit/atoms).
+// theme-ui writes no global styles on the host page: node --test test/*.test.mjs (from packages/toolkit/atoms).
 // esbuild bundles the kit's theme config and default theme; the real theme-ui renders a styled box in jsdom.
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
