@@ -1375,6 +1375,10 @@
 				"STATUS": "Status",
 				"TRACKED_HOURS": "Tracked (hours)",
 				"CURRENCY": "Currency",
+				"BILLABLE_HOURS": "Billable hours",
+				"BILLABLE_CURRENCY": "Billable currency",
+				"NO_RATE": "No rate",
+				"BILLABLE_UNPRICED": "{duration} of billable time has no rate",
 				"ACTIVITY_PERCENT": "Activity (%)",
 				"NO_TASK": "No task",
 				"PAGE": "Page {page} of {total}"

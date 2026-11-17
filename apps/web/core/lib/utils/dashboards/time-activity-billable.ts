@@ -4,6 +4,25 @@ import { type BreakdownFact, type TimeActivityRow, breakdownFactsOf } from '@/co
 
 const SECONDS_PER_HOUR = 3600;
 
+const DEFAULT_CURRENCY = 'USD';
+
+// A rate read back from an amount and its time carries a float's last digits: six decimals say it whole
+const RATE_KEY_PRECISION = 1e6;
+
+/**
+ * The rate an entry states, or its member had, as a key: entries of one task that took the same time are told apart
+ * by it. No positive rate is "none"; a rate without a currency of its own is in the default one, as Gauzy counts it.
+ */
+export function entryRateKeyOf(rate: unknown, currency: string | null | undefined): string {
+	const value = Number(rate);
+	const isRate = Number.isFinite(value) && value > 0;
+	if (!isRate) {
+		return 'none';
+	}
+	const rounded = Math.round(value * RATE_KEY_PRECISION) / RATE_KEY_PRECISION;
+	return `${rounded}|${currency || DEFAULT_CURRENCY}`;
+}
+
 /** The price of a row's time: its member on its project, through the chain an invoice line prices it with. */
 export type PriceOfRow = (row: DailyReportRow) => LinePrice;
 
@@ -50,6 +69,7 @@ export function billableFactsOf(rows: ReadonlyArray<TimeActivityRow>, priceOf: P
 	const facts: BreakdownFact[] = [];
 	for (const row of rows) {
 		const price = priceOf(row);
+		const rateKey = entryRateKeyOf(row.billRateValue, row.billRateCurrency);
 		for (const fact of breakdownFactsOf([row])) {
 			facts.push({
 				...fact,
@@ -61,7 +81,8 @@ export function billableFactsOf(rows: ReadonlyArray<TimeActivityRow>, priceOf: P
 				billable: {
 					seconds: fact.seconds,
 					amount: amountOf(fact.seconds, price.rate),
-					currency: price.currency
+					currency: price.currency,
+					rateKey
 				}
 			});
 		}

@@ -1375,6 +1375,10 @@
 				"STATUS": "סטטוס",
 				"TRACKED_HOURS": "נרשם (שעות)",
 				"CURRENCY": "מטבע",
+				"BILLABLE_HOURS": "שעות לחיוב",
+				"BILLABLE_CURRENCY": "מטבע החיוב",
+				"NO_RATE": "אין תעריף",
+				"BILLABLE_UNPRICED": "{duration} של זמן לחיוב ללא תעריף",
 				"ACTIVITY_PERCENT": "פעילות (%)",
 				"NO_TASK": "ללא משימה",
 				"PAGE": "עמוד {page} מתוך {total}"

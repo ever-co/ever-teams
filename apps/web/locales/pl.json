@@ -1375,6 +1375,10 @@
 				"STATUS": "Status",
 				"TRACKED_HOURS": "Zarejestrowano (godziny)",
 				"CURRENCY": "Waluta",
+				"BILLABLE_HOURS": "Godziny do zafakturowania",
+				"BILLABLE_CURRENCY": "Waluta faktury",
+				"NO_RATE": "Brak stawki",
+				"BILLABLE_UNPRICED": "{duration} czasu do zafakturowania bez stawki",
 				"ACTIVITY_PERCENT": "Aktywność (%)",
 				"NO_TASK": "Bez zadania",
 				"PAGE": "Strona {page} z {total}"

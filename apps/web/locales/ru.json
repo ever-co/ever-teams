@@ -1375,6 +1375,10 @@
 				"STATUS": "Статус",
 				"TRACKED_HOURS": "Учтено (часы)",
 				"CURRENCY": "Валюта",
+				"BILLABLE_HOURS": "Часы к оплате",
+				"BILLABLE_CURRENCY": "Валюта оплаты",
+				"NO_RATE": "Нет ставки",
+				"BILLABLE_UNPRICED": "{duration} времени к оплате без ставки",
 				"ACTIVITY_PERCENT": "Активность (%)",
 				"NO_TASK": "Без задачи",
 				"PAGE": "Страница {page} из {total}"

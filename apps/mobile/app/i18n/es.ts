@@ -16,7 +16,70 @@ const es = {
 	},
 	timer: {
 		stopFailedTitle: 'El temporizador no pudo detenerse',
-		stopFailedMessage: 'Sigue en marcha. Inténtalo de nuevo en un momento.'
+		stopFailedMessage: 'Sigue en marcha. Inténtalo de nuevo en un momento.',
+		startMove: {
+			title: 'Inicio del temporizador en curso',
+			startedAt: 'Iniciado a las {{time}}',
+			open: 'Iniciado a las {{time}}. Cambiar el inicio',
+			newStart: 'Nuevo inicio',
+			timePlaceholder: 'HH:MM',
+			reason: 'Motivo',
+			reasonPlaceholder: 'Por qué cambia el inicio',
+			laterOnly: 'No tienes permitido añadir tiempo a mano, así que el inicio solo puede moverse más tarde.',
+			save: 'Guardar',
+			saving: 'Guardando…',
+			close: 'Cerrar',
+			saved: 'El temporizador empieza ahora a las {{time}}.',
+			checking: 'Comprobando si el inicio puede cambiar…',
+			viewTracker: 'Este temporizador corre en la aplicación de escritorio. Cambia su inicio allí.',
+			viewNotAllowed: 'No tienes permitido cambiar el tiempo registrado en esta organización.',
+			unsupported: 'El inicio de un temporizador en curso aún no se puede cambiar en este servidor.',
+			invalidTime: 'Escribe una hora como 09:00.',
+			chooseDay: 'El temporizador empezó antes de la medianoche: elige el día del nuevo inicio.',
+			notRunning: 'El temporizador ya no está en marcha.',
+			trackerRun:
+				'Este temporizador corre en la aplicación de escritorio o el agente, que registran su tiempo ellos mismos. Cambia su inicio allí.',
+			inFuture: 'El inicio no puede ser posterior a ahora.',
+			editNotAllowed: 'No tienes permitido cambiar el tiempo registrado.',
+			manualNotAllowed:
+				'Un inicio más temprano añade tiempo a mano, lo que no tienes permitido. Elige un inicio más tarde.',
+			reasonRequired: 'Tu organización pide un motivo.',
+			reasonTooLong: 'El motivo es demasiado largo: 255 caracteres como máximo.',
+			overlap: 'Otra de tus entradas cubre ese momento. Elige un inicio después de que termine.',
+			changed: 'El inicio acaba de cambiar en otro lugar. Revísalo e inténtalo de nuevo.',
+			saveFailed: 'No se pudo guardar el inicio. Inténtalo de nuevo.',
+			offline: 'Estás sin conexión, así que el inicio no cambió. Inténtalo de nuevo cuando estés conectado.'
+		},
+		discard: {
+			menu: 'Más acciones del temporizador',
+			changeStart: 'Cambiar el inicio',
+			action: 'Descartar esta sesión',
+			title: '¿Descartar esta sesión?',
+			description: 'No se guarda nada.',
+			descriptionElsewhere:
+				'Esta sesión se inició desde {{source}} y también se detiene allí. No se guarda nada.',
+			confirm: 'Descartar',
+			discarding: 'Descartando…',
+			discarded: 'Sesión descartada',
+			discardedHint: 'El temporizador está detenido y no se guardó nada.',
+			sources: {
+				web: 'la aplicación web',
+				browserExtension: 'la extensión del navegador',
+				other: 'otra aplicación'
+			},
+			failures: {
+				notRunning: 'Ya no hay ningún temporizador en marcha, así que no se descartó nada.',
+				disabled: 'Tu organización no permite descartar una sesión.',
+				tooLate: 'Esta sesión empezó hace demasiado tiempo para descartarla. Detenla y luego edita la entrada.',
+				forbidden: 'Tu rol no permite descartar esta sesión.',
+				notSupported: 'Este servidor todavía no permite descartar una sesión.',
+				changed: 'Mientras tanto empezó otra sesión, así que no se descartó nada.',
+				trackerRun:
+					'Esta sesión la registra la aplicación de escritorio o el agente, que guardan su tiempo ellos mismos, así que no se puede descartar aquí.',
+				offline: 'Estás sin conexión, así que no se descartó nada. Inténtalo de nuevo cuando estés conectado.',
+				generic: 'No se pudo descartar la sesión. Inténtalo de nuevo.'
+			}
+		}
 	},
 	welcomeScreen: {
 		postscript:

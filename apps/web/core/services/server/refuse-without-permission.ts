@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { holdsAnyPermission } from '@/core/lib/utils/clients';
 import { forwardToGauzy } from './forward-to-gauzy';
+import { refuseForeignWrite } from './same-origin-request';
 
 interface RolePermissionRow {
 	permission?: unknown;
@@ -26,11 +27,18 @@ function enabledPermissionsOf(rows: unknown) {
  * The answer a proxy route gives instead of forwarding, or null when `isPermitted` accepts the permissions the
  * session's role holds. They are read from Gauzy with the session's own token, so the route refuses what the page
  * hides, whatever the Gauzy version behind it checks on that call.
+ *
+ * A write of another site's page is refused first (`refuseForeignWrite`), before the permissions are read with the
+ * session's cookies, as forwardToGauzy would refuse it after.
  */
 export async function refuseUnlessPermitted(
 	req: Request,
 	isPermitted: (held: readonly string[]) => boolean
 ): Promise<Response | null> {
+	const foreign = refuseForeignWrite(req);
+	if (foreign) {
+		return foreign;
+	}
 	const permissionsUrl = new URL('/api/role-permissions/me', req.url);
 	const permissionsRequest = new Request(permissionsUrl, {
 		headers: { cookie: req.headers.get('cookie') ?? '' },

@@ -1310,6 +1310,10 @@
 				"STATUS": "الحالة",
 				"TRACKED_HOURS": "المسجّل (ساعات)",
 				"CURRENCY": "العملة",
+				"BILLABLE_HOURS": "الساعات القابلة للفوترة",
+				"BILLABLE_CURRENCY": "عملة الفوترة",
+				"NO_RATE": "لا يوجد سعر",
+				"BILLABLE_UNPRICED": "{duration} من الوقت القابل للفوترة بلا سعر",
 				"ACTIVITY_PERCENT": "النشاط (%)",
 				"NO_TASK": "بلا مهمة",
 				"PAGE": "الصفحة {page} من {total}"

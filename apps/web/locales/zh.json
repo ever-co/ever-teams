@@ -1375,6 +1375,10 @@
 				"STATUS": "状态",
 				"TRACKED_HOURS": "已记录（小时）",
 				"CURRENCY": "货币",
+				"BILLABLE_HOURS": "可计费工时",
+				"BILLABLE_CURRENCY": "计费货币",
+				"NO_RATE": "无费率",
+				"BILLABLE_UNPRICED": "{duration} 的可计费时间没有费率",
 				"ACTIVITY_PERCENT": "活跃度（%）",
 				"NO_TASK": "无任务",
 				"PAGE": "第 {page} 页，共 {total} 页"

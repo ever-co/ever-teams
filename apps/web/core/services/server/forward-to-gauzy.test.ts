@@ -1,8 +1,10 @@
 /**
  * `forwardToGauzy`'s header rule: a route names the request headers it lets through (`forwardHeaders`); the session's
- * own headers are always the proxy's, never the browser's copy.
+ * own headers are always the proxy's, never the browser's copy. And its origin rule: a write must come from this app's
+ * own pages.
  */
 import { gauzyAnswers, restoreFetch, signedInRequest } from '@/test/api/forward-to-gauzy';
+import { APP_ORIGIN, FOREIGN_ORIGIN_HEADERS, SAME_ORIGIN_HEADERS } from '@/test/api/request-origin';
 import { forwardToGauzy } from './forward-to-gauzy';
 
 afterEach(restoreFetch);
@@ -95,5 +97,57 @@ describe('forwardToGauzy, a tab working in its own organization', () => {
 		await forwardToGauzy(tabRequest(jwt('org-a', 'user-2')), '/timesheet/timer/started-at');
 
 		expect(sentHeaders(fetchMock).authorization).toBe(`Bearer ${sharedToken}`);
+	});
+});
+
+describe('forwardToGauzy origin rule', () => {
+	const CROSS_SITE_REFUSAL = { statusCode: 403, message: 'Cross-site request refused' };
+
+	// What another site's page can send with the session's cookies and no CORS preflight: a POST with no body and no
+	// type (`fetch(url, { method: 'POST', mode: 'no-cors', credentials: 'include' })`), which the media type rule lets
+	// through because there is no body to refuse.
+	const bodilessPost = (headers: Record<string, string>) =>
+		signedInRequest(`${APP_ORIGIN}/api/chat/read-all`, 'POST', undefined, headers);
+
+	it.each(FOREIGN_ORIGIN_HEADERS)(
+		'refuses a write from %s before anything reaches Gauzy',
+		async (_label, headers) => {
+			const fetchMock = gauzyAnswers(Response.json({}, { status: 200 }));
+
+			for (const req of [
+				bodilessPost(headers),
+				signedInRequest(`${APP_ORIGIN}/api/x`, 'PUT', { a: 1 }, headers),
+				signedInRequest(`${APP_ORIGIN}/api/x`, 'PATCH', { a: 1 }, headers),
+				signedInRequest(`${APP_ORIGIN}/api/x`, 'DELETE', undefined, headers)
+			]) {
+				const response = await forwardToGauzy(req, '/x');
+
+				expect(response.status).toBe(403);
+				await expect(response.json()).resolves.toEqual(CROSS_SITE_REFUSAL);
+				expect(req.bodyUsed).toBe(false);
+			}
+			expect(fetchMock).not.toHaveBeenCalled();
+		}
+	);
+
+	it("forwards a write of this app's own pages, and of a client that sends no Origin (no browser)", async () => {
+		for (const headers of [SAME_ORIGIN_HEADERS, {}]) {
+			const fetchMock = gauzyAnswers(Response.json({}, { status: 200 }));
+
+			const response = await forwardToGauzy(bodilessPost(headers), '/chat/read-all');
+
+			expect(response.status).toBe(200);
+			expect(fetchMock).toHaveBeenCalledTimes(1);
+		}
+	});
+
+	it('leaves a read as it is: a GET of another site is forwarded, its answer unreadable there', async () => {
+		const fetchMock = gauzyAnswers(Response.json([], { status: 200 }));
+		const [, foreign] = FOREIGN_ORIGIN_HEADERS[0];
+
+		const response = await forwardToGauzy(signedInRequest(`${APP_ORIGIN}/api/x`, 'GET', undefined, foreign), '/x');
+
+		expect(response.status).toBe(200);
+		expect(fetchMock).toHaveBeenCalledTimes(1);
 	});
 });
