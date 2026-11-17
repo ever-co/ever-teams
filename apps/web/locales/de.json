@@ -1372,6 +1372,10 @@
 				"STATUS": "Status",
 				"TRACKED_HOURS": "Erfasst (Stunden)",
 				"CURRENCY": "Währung",
+				"BILLABLE_HOURS": "Abrechenbare Stunden",
+				"BILLABLE_CURRENCY": "Abrechnungswährung",
+				"NO_RATE": "Kein Satz",
+				"BILLABLE_UNPRICED": "{duration} abrechenbare Zeit ohne Satz",
 				"ACTIVITY_PERCENT": "Aktivität (%)",
 				"NO_TASK": "Keine Aufgabe",
 				"PAGE": "Seite {page} von {total}"
