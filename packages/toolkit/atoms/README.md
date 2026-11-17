@@ -96,6 +96,9 @@ export default function App() {
 | `lang`                  | `'en'`                      | Language of the components: `'en'` or `'fr'`. A language chosen earlier in the language switch, kept in `localStorage`, wins.                                                                                                                                |
 | `theme`                 | `defaultTheme`              | A theme object: `defaultTheme` and `theme1` to `theme14` are exported.                                                                                                                                                                                       |
 | `scopedStyles`          | `false`                     | Renders the kit root that `@ever-teams/atoms/styles.css` is scoped under, and a container in `document.body` for the kit's dialogs, popovers, menus and selects. Set it with the stylesheet; leave it off when your own Tailwind compiles the kit's classes. |
+| `colorScheme`           | `'system'`                  | The widgets' color scheme inside the kit root (`scopedStyles`): `'light'`, `'dark'` or `'system'` (follows the system's). Nothing is written on `<html>`.                                                                                                    |
+| `loadGoogleFonts`       | `false`                     | Lets the font toggle (`TeamsFontToggle`) load the font a person picks from Google Fonts. Off: no request to a third party, and the widgets keep your page's font until a person picks one.                                                                   |
+| `onSignOut`             | none                        | Called after a person signs out from the kit's user menu. Without it, the page stays where it is with `scopedStyles`; without `scopedStyles`, the kit sends the browser to `/`.                                                                              |
 
 The API must accept your site's origin: on a self-hosted Gauzy API, add it to `ALLOWED_ORIGINS` (comma-separated)
 and restart the API.
@@ -112,9 +115,8 @@ Today:
   there.
 - The user menu shows the token, with a copy button.
 - What leaves your page: requests to `config.apiUrl` (`https://api.ever.team/api` when it is not set), with the token
-  in their `Authorization` header, and the provider loads the Geist font from Google Fonts
-  ([ever-co/ever-teams#5408](https://github.com/ever-co/ever-teams/issues/5408)). Tracking sessions are read only
-  while a component that shows them (filter, insights, heatmap, replay) is on the page.
+  in their `Authorization` header. Fonts are requested from Google Fonts only with `loadGoogleFonts`. Tracking
+  sessions are read only while a component that shows them (filter, insights, heatmap, replay) is on the page.
 - Published versions up to 0.2.14 sent the signed-in user's token to the demo Gauzy API when `config.apiUrl` was not
   set ([ever-co/ever-teams#5406](https://github.com/ever-co/ever-teams/issues/5406)): on 0.2.x, upgrade, and always
   set `apiUrl`.
