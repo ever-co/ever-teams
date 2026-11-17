@@ -4,7 +4,7 @@ import React, { FC, useRef, useState } from 'react';
 import { TextInput, View, StyleSheet, NativeSyntheticEvent, TextInputKeyPressEventData, Platform } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { colors, typography, useAppTheme } from '../theme';
-import { EMAILED_CODE_LENGTH, isCompleteEmailedCode } from '../helpers/emailed-code';
+import { EMAILED_CODE_LENGTH, pastedEmailedCode } from '../helpers/emailed-code';
 
 interface IInput {
 	onChange: (code: string) => void;
@@ -67,18 +67,10 @@ export const CodeInput: FC<IInput> = (props) => {
 	};
 
 	const onPaste = async () => {
-		const pastedText = await Clipboard.getStringAsync();
+		const pastedCode = pastedEmailedCode(await Clipboard.getStringAsync(), length);
 
-		const charArray = pastedText.split('');
-
-		if (
-			isCompleteEmailedCode(pastedText) &&
-			inviteCode.every((currentField) => currentField === '') &&
-			charArray.every((currentField) => currentField.match(/^[0-9a-zA-Z]*$/))
-		) {
-			const updatedCode = charArray.map((char) => {
-				return char.toUpperCase();
-			});
+		if (pastedCode && inviteCode.every((currentField) => currentField === '')) {
+			const updatedCode = pastedCode.split('');
 			setInviteCode(updatedCode);
 			onChange(updatedCode.join(''));
 

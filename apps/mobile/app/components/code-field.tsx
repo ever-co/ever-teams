@@ -3,7 +3,7 @@
 import React, { FC, useEffect, useState } from 'react';
 import { View, StyleSheet, Text, Dimensions, PixelRatio, Platform } from 'react-native';
 import { colors, typography, useAppTheme } from '../theme';
-import { EMAILED_CODE_LENGTH } from '../helpers/emailed-code';
+import { EMAILED_CODE_LENGTH, normalizeEmailedCode } from '../helpers/emailed-code';
 import { CodeField, Cursor, useBlurOnFulfill, useClearByFocusCell } from 'react-native-confirmation-code-field';
 
 interface ICodeField {
@@ -40,7 +40,10 @@ export const CodeInputField: FC<ICodeField> = (props) => {
 			{...codeFieldProps}
 			// Use `caretHidden={false}` when users can't paste a text value, because context menu doesn't appear
 			value={value}
-			onChangeText={setValue}
+			// The library caps the hidden input at cellCount characters, which cuts a code pasted with a space before
+			// it short before onChangeText sees it: take the whole text and keep the code part of it here.
+			maxLength={undefined}
+			onChangeText={(text: string) => setValue(normalizeEmailedCode(text, length))}
 			cellCount={length}
 			autoFocus
 			textInputStyle={styles.hiddenInput}
