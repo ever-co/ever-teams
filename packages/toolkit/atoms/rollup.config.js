@@ -62,7 +62,8 @@ const createConfig = (input, outputDir, entryFileNames = '[name].es.js', preserv
 		}),
 		terser({
 			compress: {
-				drop_console: true,
+				// Warnings and errors stay: the kit warns once about behaviors it keeps for compatibility.
+				drop_console: ['log', 'info', 'debug'],
 				drop_debugger: true
 			},
 			mangle: true
