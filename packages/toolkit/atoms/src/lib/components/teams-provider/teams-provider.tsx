@@ -21,6 +21,7 @@ import TrackingProvider from '@lib/context/teams-tracking-context';
 import { TimerStatusProvider } from '@lib/context/teams-timer-status-context';
 import { ChartData } from '@ever-teams/toolkit-types';
 import { useSelectedOrganization } from '@hooks/useSelectedOrganization';
+import { KitRoot } from './kit-root';
 
 export const defaultData: ChartData[] = [
 	{ day: 'Monday', cedric: 5, salva: 7, josh: 2, ndeko: 7 },
@@ -38,6 +39,9 @@ interface TeamsProviderProps {
 	token?: string;
 	lang?: string;
 	config?: Partial<IApiTeamsConfig>;
+	// Renders the kit root that @ever-teams/atoms/styles.css is scoped under: import that file and set this to style
+	// the components without the host's Tailwind. Off by default, so hosts that compile the classes see no change.
+	scopedStyles?: boolean;
 }
 
 const TeamsDataProvider = ({ children, config: apiConfig, theme, lang = 'en' }: TeamsProviderProps) => {
@@ -108,13 +112,17 @@ const TeamsDataProvider = ({ children, config: apiConfig, theme, lang = 'en' }: 
 	);
 };
 
-const TeamsProvider = ({ children, ...props }: TeamsProviderProps) => {
-	return (
+const TeamsProvider = ({ children, scopedStyles = false, ...props }: TeamsProviderProps) => {
+	const content = (
 		<JotaiProvider>
 			<TeamsDataProvider {...props}>{children}</TeamsDataProvider>
 			<Toaster />
 		</JotaiProvider>
 	);
+	if (!scopedStyles) {
+		return content;
+	}
+	return <KitRoot>{content}</KitRoot>;
 };
 
 TeamsProvider.displayName = 'TeamsProvider';

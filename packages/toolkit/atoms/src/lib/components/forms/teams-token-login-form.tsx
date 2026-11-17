@@ -1,10 +1,11 @@
 /** @jsxImportSource theme-ui */
 import { useTokenSubmission } from '@hooks/useTokenSubmission';
-import { Button, cn, Input } from '@ever-teams/toolkit-ui';
+import { Button, cn, Input, useThemeColor } from '@ever-teams/toolkit-ui';
 import { LoaderCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 const TeamsTokenLoginForm = ({ className, redirectHandler }: { className?: string; redirectHandler?: () => void }) => {
+	const mainColor = useThemeColor('mainColor');
 	const form = useTokenSubmission(redirectHandler);
 	const { t } = useTranslation();
 
@@ -26,7 +27,7 @@ const TeamsTokenLoginForm = ({ className, redirectHandler }: { className?: strin
 
 			{form.error && <span className="text-red-500 text-xs">{form.error}</span>}
 
-			<Button sx={{ background: 'mainColor' }} disabled={form.error ? true : false} className="flex gap-2">
+			<Button style={{ background: mainColor }} disabled={form.error ? true : false} className="flex gap-2">
 				{form.isLoading && (
 					<span className=" animate-spin ">
 						<LoaderCircle />
