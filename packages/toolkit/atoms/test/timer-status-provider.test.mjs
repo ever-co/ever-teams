@@ -14,9 +14,11 @@ const require = createRequire(import.meta.url);
 const esbuild = require('esbuild');
 const { JSDOM } = require('jsdom');
 
-const dom = new JSDOM('<!doctype html><body></body>');
+const dom = new JSDOM('<!doctype html><body></body>', { url: 'http://localhost/' });
 globalThis.window = dom.window;
 globalThis.document = dom.window.document;
+// useAuthUser keeps the session it read in the page's storage.
+globalThis.localStorage = dom.window.localStorage;
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 // The kit's probe of the API after a request that got no answer: up (an opaque answer) unless a test says it is down.
 globalThis.__apiDown = false;
@@ -51,8 +53,16 @@ const stubs = {
 		export const startTimer = action('start');
 		export const stopTimer = action('stop');
 		export const addTimeSlot = async () => {};
+		globalThis.__userReads = [];
+		export const getUser = ({ token }) =>
+			new Promise((resolve) => globalThis.__userReads.push(Object.assign(resolve, { token })));
 		export const apiConfigManager = { getConfig: () => ({ apiUrl: 'http://api.test/api' }) };`,
 	'@ever-teams/toolkit-ui': 'globalThis.__toasts = []; export const toast = (t) => globalThis.__toasts.push(t);',
+	// The two atoms useAuthUser reads and writes, without the rest of the kit's atoms.
+	'teams-atoms': `
+		import { atom } from 'jotai';
+		export const userAtom = atom({ data: null, loading: false });
+		export const selectedEmployeeAtom = atom('all');`,
 	'@ever-teams/toolkit-types': 'export {};',
 	'react-i18next': 'export const useTranslation = () => ({ t: (key) => key });'
 };
@@ -70,6 +80,9 @@ let useTimer;
 let useTimerStatus;
 let kitNoticeAtom;
 let getDefaultStore;
+let useAtomValue;
+let useAuthUser;
+let userAtom;
 let bundleDir;
 
 before(async () => {
@@ -83,7 +96,9 @@ before(async () => {
 				"export { useTimerStatus } from './hooks/useTimerStatus';",
 				// The page's notice lives in jotai's default store here (no TeamsProvider): each test starts it empty.
 				"export { kitNoticeAtom } from './errors/kit-notice-atom';",
-				"export { getDefaultStore } from 'jotai';"
+				"export { useAuthUser } from './hooks/useAuthUser';",
+				"export { userAtom } from './teams-jotai/atoms/teams-atoms';",
+				"export { getDefaultStore, useAtomValue } from 'jotai';"
 			].join('\n'),
 			resolveDir: lib,
 			loader: 'ts'
@@ -100,6 +115,10 @@ before(async () => {
 				setup(build) {
 					build.onResolve({ filter: stubbed }, (args) => ({ path: args.path, namespace: 'stub' }));
 					build.onResolve({ filter: teamsContext }, () => ({ path: 'teams-context', namespace: 'stub' }));
+					build.onResolve({ filter: /teams-jotai\/atoms\/teams-atoms$/ }, () => ({
+						path: 'teams-atoms',
+						namespace: 'stub'
+					}));
 					build.onResolve({ filter: /^@lib\// }, (args) => {
 						const base = path.join(lib, args.path.slice('@lib/'.length));
 						const file = ['.tsx', '.ts'].map((ext) => `${base}${ext}`).find((p) => fs.existsSync(p));
@@ -107,7 +126,8 @@ before(async () => {
 					});
 					build.onLoad({ filter: /.*/, namespace: 'stub' }, (args) => ({
 						contents: stubs[args.path],
-						loader: 'js'
+						loader: 'js',
+						resolveDir: lib
 					}));
 				}
 			}
@@ -122,8 +142,17 @@ before(async () => {
 	React = require('react');
 	({ act } = React);
 	({ createRoot } = require('react-dom/client'));
-	({ TimerStatusProvider, useTimerStatusContext, useTimer, useTimerStatus, kitNoticeAtom, getDefaultStore } =
-		await import(pathToFileURL(outfile).href));
+	({
+		TimerStatusProvider,
+		useTimerStatusContext,
+		useTimer,
+		useTimerStatus,
+		kitNoticeAtom,
+		getDefaultStore,
+		useAtomValue,
+		useAuthUser,
+		userAtom
+	} = await import(pathToFileURL(outfile).href));
 });
 
 after(async () => {
@@ -171,6 +200,8 @@ async function reset() {
 	globalThis.__apiDown = false;
 	globalThis.__probes.length = 0;
 	getDefaultStore().set(kitNoticeAtom, null);
+	globalThis.__userReads.length = 0;
+	getDefaultStore().set(userAtom, { data: null, loading: false });
 	visibility = 'visible';
 	await act(async () => globalThis.__setIdentity(null));
 }
@@ -614,15 +645,20 @@ test('a read the API package returns with no status (its shape for a request wit
 	assert.equal(globalThis.__toasts.length, 0);
 });
 
-test('a start the API package returns with no status shows the probed notice inside the widgets, and no toast', async () => {
+// One timer widget and what the provider gives it, the first read answered and a start clicked (still pending).
+async function clickStart() {
 	await reset();
 	const seen = {};
 	await mount([timer('a', seen), probe(seen)]);
 	await answer(0, { running: false });
-
 	await act(async () => {
 		seen.a.startTimer();
 	});
+	return seen;
+}
+
+test('a start the API package returns with no status shows the probed notice inside the widgets, and no toast', async () => {
+	const seen = await clickStart();
 	await act(async () => globalThis.__actions[0]({ error: 'Failed to fetch' }));
 	await flush();
 
@@ -631,14 +667,7 @@ test('a start the API package returns with no status shows the probed notice ins
 });
 
 test('a start refused after a switch of organization shows nothing in the widgets of the new one', async () => {
-	await reset();
-	const seen = {};
-	await mount([timer('a', seen), probe(seen)]);
-	await answer(0, { running: false });
-
-	await act(async () => {
-		seen.a.startTimer();
-	});
+	const seen = await clickStart();
 	await act(async () => globalThis.__setIdentity({ selectedOrganization: 'org-2' }));
 	const forNewOrganization = globalThis.__reads.at(-1);
 	await act(async () => forNewOrganization({ running: false, duration: 0, lastLog: null }));
@@ -664,4 +693,52 @@ test('a notice that goes away leaves the live region, so the same failure later 
 	await act(async () => window.dispatchEvent(new window.Event('online')));
 	await act(async () => globalThis.__reads[2]({ statusCode: 503, message: 'Service Unavailable' }));
 	assert.equal(live.textContent, 'KIT_ERRORS.UNREACHABLE');
+});
+
+// useAuthUser as TeamsProvider runs it, with the page's notice next to it (jotai's default store here).
+async function mountAuthUser(token, seen) {
+	const AuthUser = () => {
+		seen.user = useAuthUser(token);
+		seen.notice = useAtomValue(kitNoticeAtom);
+		return null;
+	};
+	const root = createRoot(document.createElement('div'));
+	roots.push(root);
+	await act(async () => root.render(React.createElement(AuthUser)));
+}
+
+test('a user read that finds Ever Teams unreachable reads again once back online, and the good read ends the notice', async () => {
+	await reset();
+	globalThis.__apiDown = true;
+	const seen = {};
+	await mountAuthUser('token-1', seen);
+	assert.equal(globalThis.__userReads.length, 1);
+
+	await act(async () => globalThis.__userReads[0]({ message: 'Failed to fetch' }));
+	await flush();
+	assert.equal(seen.notice?.kind, 'unreachable');
+
+	globalThis.__apiDown = false;
+	await act(async () => window.dispatchEvent(new window.Event('online')));
+	assert.equal(globalThis.__userReads.length, 2, 'read again when the browser is back online');
+	await act(async () => globalThis.__userReads[1]({ id: 'u', tenantId: 't', employee: { id: 'e' } }));
+	await flush();
+	assert.equal(seen.user.data?.id, 'u');
+	assert.equal(seen.notice, null);
+
+	await act(async () => window.dispatchEvent(new window.Event('online')));
+	assert.equal(globalThis.__userReads.length, 2, 'no more reads once the user is read');
+});
+
+test('a stored session the API refuses says the session ended, and is not read again on its own', async () => {
+	await reset();
+	const seen = {};
+	await mountAuthUser('token-2', seen);
+
+	await act(async () => globalThis.__userReads[0]({ statusCode: 401, message: 'Unauthorized' }));
+	await flush();
+	assert.equal(seen.notice?.kind, 'session');
+
+	await act(async () => window.dispatchEvent(new window.Event('online')));
+	assert.equal(globalThis.__userReads.length, 1);
 });

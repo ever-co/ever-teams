@@ -78,7 +78,7 @@ const useAuthUser = (token: string): IHookResponse<IUser> => {
 
 	useEffect(() => {
 		setReadAgainWhenBack(false);
-		handleUserAuthentication();
+		void handleUserAuthentication();
 	}, [token]);
 
 	useEffect(() => {
@@ -90,7 +90,7 @@ const useAuthUser = (token: string): IHookResponse<IUser> => {
 				return;
 			}
 			setReadAgainWhenBack(false);
-			handleUserAuthentication();
+			void handleUserAuthentication();
 		};
 		window.addEventListener('online', readAgain);
 		window.addEventListener('focus', readAgain);
