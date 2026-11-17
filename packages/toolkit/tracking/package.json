@@ -3,7 +3,7 @@
 	"version": "0.0.2",
 	"license": "MIT",
 	"description": "An analytics library that uses web page interactions to generate aggregated insights based on Microsoft Clarity",
-	"main": "dist/tracker.js",
+	"main": "dist/tracker.cjs",
 	"module": "dist/tracker.module.js",
 	"unpkg": "dist/tracker.min.js",
 	"types": "dist/index.d.ts",
@@ -41,5 +41,15 @@
 	],
 	"publishConfig": {
 		"access": "public"
+	},
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/tracker.module.js",
+			"require": "./dist/tracker.cjs",
+			"default": "./dist/tracker.module.js"
+		},
+		"./dist/*": "./dist/*",
+		"./package.json": "./package.json"
 	}
 }
