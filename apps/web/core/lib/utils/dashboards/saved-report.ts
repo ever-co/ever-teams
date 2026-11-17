@@ -163,8 +163,15 @@ function showsSavedPeriod(report: ISavedReport, period: Period, weekStartsOn: We
 	return report.periodRule === savedPeriodOf(period, weekStartsOn).periodRule;
 }
 
-/** Whether the view shown is the one the report saved: when it is not, the menu offers to update the report. */
+/**
+ * Whether the view shown is the one the report saved: when it is not, the menu offers to update the report. A saved
+ * report keeps no labels of entries (#5368), so a view narrowed by them is never the saved one.
+ */
 export function showsSavedView(report: ISavedReport, view: TimeActivityView, weekStartsOn: WeekStart): boolean {
+	const hasEntryLabels = view.filters.entryLabels.length > 0;
+	if (hasEntryLabels) {
+		return false;
+	}
 	const shown = savedReportInputOf(view, weekStartsOn, report.timeZone ?? '');
 	const samePeriod = showsSavedPeriod(report, view.period, weekStartsOn);
 	const sameGrouping = (report.grouping ?? 'date') === shown.grouping;
