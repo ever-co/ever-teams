@@ -3,10 +3,7 @@
 
 import type { BasicTimerProps } from './timer';
 import BaseAtom from './timer';
-import { useTeamsContext } from '@lib/context/teams-context';
-import { useTimer } from '@hooks/useTimer';
-import { useId } from 'react';
-import { TimerDescription } from '../common/timer-description';
+import { useTimerControl } from '../common/use-timer-control';
 
 export interface TeamsBasicTimerProps extends Omit<BasicTimerProps, 'time' | 'progress'> {
 	progress?: boolean;
@@ -14,37 +11,17 @@ export interface TeamsBasicTimerProps extends Omit<BasicTimerProps, 'time' | 'pr
 
 // TODO: Must move this to Atoms and integrate with gauzy api
 export function TeamsBasicTimer({ progress, ...props }: TeamsBasicTimerProps) {
-	const { authenticatedUser } = useTeamsContext();
-
 	// Timer hook - self-contained, fetches all dependencies internally
-	const {
-		todayTrackedTime: { hours, minutes, seconds, totalSeconds },
-		startTimer,
-		timerActionLabel,
-		stopTimer,
-		isRunning,
-		timerLoading
-	} = useTimer();
-	const timeId = useId();
-
+	const control = useTimerControl();
 	return (
 		<>
 			<BaseAtom
-				onClick={isRunning ? stopTimer : startTimer}
-				aria-label={timerActionLabel}
-				aria-describedby={timeId}
+				{...control.action}
 				{...props}
-				isRunning={isRunning}
-				{...(progress && { progress: (seconds / 100) * 60 })}
-				time={{
-					hours,
-					minutes,
-					seconds,
-					totalSeconds
-				}}
-				disabled={timerLoading || !authenticatedUser}
+				{...control.state}
+				{...(progress && { progress: (control.seconds / 100) * 60 })}
 			/>
-			<TimerDescription id={timeId} hours={hours} minutes={minutes} seconds={seconds} />
+			{control.description}
 		</>
 	);
 }

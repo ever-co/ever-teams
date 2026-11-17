@@ -4,10 +4,7 @@ import Pause from '../common/pause';
 import Play from '../common/play';
 import type { TeamsExtraBaseTimerProps } from './timer';
 import BaseAtom from './timer';
-import { useTeamsContext } from '@lib/context/teams-context';
-import { useTimer } from '@hooks/useTimer';
-import { useId } from 'react';
-import { TimerDescription } from '../common/timer-description';
+import { useTimerControl } from '../common/use-timer-control';
 
 export interface TeamsExtraTimerProps extends Omit<TeamsExtraBaseTimerProps, 'time' | 'progress'> {
 	progress?: boolean;
@@ -15,40 +12,20 @@ export interface TeamsExtraTimerProps extends Omit<TeamsExtraBaseTimerProps, 'ti
 
 // TODO: Must move this to Atoms and integrate with gauzy api
 export function TeamsExtraTimer({ progress, ...props }: Readonly<TeamsExtraTimerProps>) {
-	const { authenticatedUser } = useTeamsContext();
-
 	// Timer hook - self-contained, fetches all dependencies internally
-	const {
-		todayTrackedTime: { hours, minutes, seconds, totalSeconds },
-		startTimer,
-		timerActionLabel,
-		stopTimer,
-		isRunning,
-		timerLoading
-	} = useTimer();
-	const timeId = useId();
-
-	const ActionButton = isRunning ? Pause : Play;
+	const control = useTimerControl();
+	const ActionButton = control.isRunning ? Pause : Play;
 
 	return (
 		<>
 			<BaseAtom
-				onClick={isRunning ? stopTimer : startTimer}
-				aria-label={timerActionLabel}
-				aria-describedby={timeId}
+				{...control.action}
 				{...props}
-				isRunning={isRunning}
-				{...(progress && { progress: (seconds / 100) * 60 })}
+				{...control.state}
+				{...(progress && { progress: (control.seconds / 100) * 60 })}
 				customButtonIcon={<ActionButton />}
-				time={{
-					hours,
-					minutes,
-					seconds,
-					totalSeconds
-				}}
-				disabled={timerLoading || !authenticatedUser}
 			/>
-			<TimerDescription id={timeId} hours={hours} minutes={minutes} seconds={seconds} />
+			{control.description}
 		</>
 	);
 }
