@@ -733,6 +733,7 @@
 					"UNCHANGED": "{count, plural, one {# entrada ya tiene estos valores.} other {# entradas ya tienen estos valores.}}",
 					"OVERLAP": "{count, plural, one {# entrada se solapa con otro tiempo registrado: guardarla eliminaría ese tiempo.} other {# entradas se solapan con otro tiempo registrado: guardarlas eliminaría ese tiempo.}}",
 					"CHECK_FAILED": "{count, plural, one {No se pudo comprobar si # entrada se solapa con otro tiempo, así que no se guardó.} other {No se pudo comprobar si # entradas se solapan con otro tiempo, así que no se guardaron.}}",
+					"CHANGED_MEANWHILE": "{count, plural, one {# entrada se cambió en otro lugar durante esta edición, así que no se guardó nada en ella.} other {# entradas se cambiaron en otro lugar durante esta edición, así que no se guardó nada en ellas.}}",
 					"FAILED": "{count, plural, one {No se pudo guardar # entrada.} other {No se pudieron guardar # entradas.}}"
 				}
 			},
@@ -7677,6 +7678,7 @@
 			"MARKED_PAID": "La factura {number} está marcada como pagada",
 			"MARKED_UNPAID": "La factura {number} vuelve a Enviada, sin pagar",
 			"CHANGE_FAILED": "La factura {number} no se modificó",
+			"CHANGED_MEANWHILE": "Esta factura cambió desde que se mostró, así que no se cambió nada. Actualízala para ver su versión actual y vuelve a intentarlo.",
 			"DOWNLOAD": "Descargar en PDF"
 		},
 		"send": {
@@ -7756,6 +7758,7 @@
 				"NOT_CHECKED": "No se pudo volver a leer la factura antes de guardar, así que no se guardó nada. Vuelve a intentarlo.",
 				"NOT_REACHED": "La conexión falló: los cambios no se guardaron y la factura sigue como estaba. Comprueba tu conexión y vuelve a intentarlo.",
 				"CHANGED": "Desde que se abrió, la factura {number} cambió: no se guardó nada. Ábrela de nuevo desde la lista de facturas para partir de su versión actual.",
+				"CHANGED_MEANWHILE": "Esta factura cambió desde que la abriste, así que no se guardó nada. Cierra esto para ver su versión actual.",
 				"RECORDS_TIME": "Registra las horas que facturan sus líneas, para que ninguna otra factura vuelva a facturarlas."
 			}
 		},

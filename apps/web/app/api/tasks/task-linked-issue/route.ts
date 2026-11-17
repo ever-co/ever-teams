@@ -2,8 +2,11 @@ import { authenticatedGuard } from '@/core/services/server/guards/authenticated-
 import { createTaskLinkedIssue, updateTaskLinkedIssue } from '@/core/services/server/requests';
 import { ITaskLinkedIssue } from '@/core/types/interfaces/task/task-linked-issue';
 import { NextResponse } from 'next/server';
+import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
 
 export async function POST(req: Request) {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
 	const res = new NextResponse();
 	const { $res, user, tenantId, access_token } = await authenticatedGuard(req, res);
 	if (!user) return $res('Unauthorized');
@@ -15,6 +18,8 @@ export async function POST(req: Request) {
 }
 
 export async function PUT(req: Request) {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
 	const res = new NextResponse();
 	const { $res, user, tenantId, access_token } = await authenticatedGuard(req, res);
 	if (!user) return $res('Unauthorized');

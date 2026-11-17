@@ -12,6 +12,7 @@ import {
 	type RoleChangeFacts
 } from '@/core/lib/validation/member-access';
 import type { TUser } from '@/core/types/schemas';
+import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
 
 const NOT_CHANGED_MESSAGE = 'The role could not be changed.';
 const OUT_OF_REACH_MESSAGE = 'You cannot give this role to this account.';
@@ -61,6 +62,8 @@ function isChangeWithinReach(viewer: Pick<TUser, 'id' | 'role'>, facts: RoleChan
  * it forwards. A token sent to Gauzy directly meets Gauzy's guard alone.
  */
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
 	const parsedId = userRouteIdSchema.safeParse((await params).id);
 	if (!parsedId.success) {
 		return NextResponse.json({ message: 'A user id is required' }, { status: 400 });

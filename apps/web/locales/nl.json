@@ -733,6 +733,7 @@
 					"UNCHANGED": "{count, plural, one {# invoer heeft deze waarden al.} other {# invoeren hebben deze waarden al.}}",
 					"OVERLAP": "{count, plural, one {# invoer overlapt andere geregistreerde tijd: bij opslaan zou die tijd worden verwijderd.} other {# invoeren overlappen andere geregistreerde tijd: bij opslaan zou die tijd worden verwijderd.}}",
 					"CHECK_FAILED": "{count, plural, one {Van # invoer kon de overlap niet worden gecontroleerd, dus die is niet opgeslagen.} other {Van # invoeren kon de overlap niet worden gecontroleerd, dus die zijn niet opgeslagen.}}",
+					"CHANGED_MEANWHILE": "{count, plural, one {# invoer is ondertussen ergens anders gewijzigd, dus er is niets in opgeslagen.} other {# invoeren zijn ondertussen ergens anders gewijzigd, dus er is niets in opgeslagen.}}",
 					"FAILED": "{count, plural, one {# invoer kon niet worden opgeslagen.} other {# invoeren konden niet worden opgeslagen.}}"
 				}
 			},
@@ -7677,6 +7678,7 @@
 			"MARKED_PAID": "Factuur {number} is gemarkeerd als betaald",
 			"MARKED_UNPAID": "Factuur {number} staat weer op Verzonden, onbetaald",
 			"CHANGE_FAILED": "Factuur {number} is niet gewijzigd",
+			"CHANGED_MEANWHILE": "Deze factuur is gewijzigd sinds hij werd getoond, dus er is niets gewijzigd. Vernieuw hem om de huidige versie te zien en probeer het daarna opnieuw.",
 			"DOWNLOAD": "Als pdf downloaden"
 		},
 		"send": {
@@ -7756,6 +7758,7 @@
 				"NOT_CHECKED": "De factuur kon voor het opslaan niet opnieuw worden gelezen, dus er is niets opgeslagen. Probeer het opnieuw.",
 				"NOT_REACHED": "De verbinding is mislukt: de wijzigingen zijn niet opgeslagen en de factuur is gebleven zoals hij was. Controleer je verbinding en probeer het opnieuw.",
 				"CHANGED": "Sinds hij werd geopend, is factuur {number} gewijzigd: er is niets opgeslagen. Open hem opnieuw vanuit de factuurlijst om van de huidige versie uit te gaan.",
+				"CHANGED_MEANWHILE": "Deze factuur is gewijzigd sinds je hem opende, dus er is niets opgeslagen. Sluit dit om de huidige versie te zien.",
 				"RECORDS_TIME": "Legt de uren vast die de regels factureren, zodat geen andere factuur ze opnieuw factureert."
 			}
 		},

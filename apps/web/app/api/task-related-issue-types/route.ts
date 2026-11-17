@@ -6,6 +6,7 @@ import {
 	getTaskRelatedIssueTypeListRequest
 } from '@/core/services/server/requests/task-related-issue-type';
 import { NextResponse } from 'next/server';
+import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
 
 export async function GET(req: Request) {
 	const res = new NextResponse();
@@ -21,6 +22,8 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
 	const res = new NextResponse();
 	const { $res, user, access_token } = await authenticatedGuard(req, res);
 
