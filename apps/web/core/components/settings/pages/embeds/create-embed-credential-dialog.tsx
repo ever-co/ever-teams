@@ -1,6 +1,6 @@
 'use client';
 
-import { FormEvent, useId, useState } from 'react';
+import { ChangeEvent, FormEvent, useId, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { APP_DIALOG_BODY, APP_DIALOG_FOOTER, AppDialog, AppDialogHeader } from '@/core/components/common/app-dialog';
 import { Input } from '@/core/components/common/input';
@@ -47,31 +47,33 @@ function CreateCredentialForm({ create, onCancel, onCreated }: Readonly<CreateFo
 	if (isCreating) {
 		submitLabel = t('settings.embeds.CREATING');
 	}
+	const noteClassName = cn('text-xs text-muted-foreground', isNameMissing && 'text-destructive-ink');
+	const changeName = (event: ChangeEvent<HTMLInputElement>) => {
+		setName(event.target.value);
+		setIsNameMissing(false);
+	};
 
 	return (
 		<form onSubmit={submit} noValidate className="flex min-h-0 flex-1 flex-col">
 			<AppDialogHeader title={t('settings.embeds.CREATE_TITLE')} onClose={onCancel} />
 			<div className={cn(APP_DIALOG_BODY, 'flex flex-col gap-5 pt-1 pb-5')}>
 				<div className="flex flex-col gap-1.5">
-					<label htmlFor={nameId} className="text-xs font-medium text-foreground">
+					<label className="text-xs font-medium text-foreground" htmlFor={nameId}>
 						{t('settings.embeds.NAME_LABEL')}
 					</label>
 					<Input
+						data-initial-focus=""
 						id={nameId}
-						value={name}
-						onChange={(event) => setName(event.target.value)}
-						maxLength={EMBED_CREDENTIAL_NAME_MAX_LENGTH}
 						autoComplete="off"
 						spellCheck={false}
-						aria-invalid={isNameMissing}
-						aria-describedby={nameNoteId}
+						maxLength={EMBED_CREDENTIAL_NAME_MAX_LENGTH}
 						disabled={isCreating}
-						data-initial-focus=""
+						aria-describedby={nameNoteId}
+						aria-invalid={isNameMissing}
+						value={name}
+						onChange={changeName}
 					/>
-					<p
-						id={nameNoteId}
-						className={cn('text-xs text-muted-foreground', isNameMissing && 'text-destructive-ink')}
-					>
+					<p className={noteClassName} id={nameNoteId}>
 						{nameNote}
 					</p>
 				</div>

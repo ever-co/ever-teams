@@ -341,6 +341,39 @@ function CredentialsSection() {
 	);
 }
 
+type Translate = ReturnType<typeof useTranslations>;
+
+/** What the page says instead of its lists: a failed check (with a retry), members only, or embeds off. */
+function availabilityNoticeOf(availability: EmbedsAvailability, t: Translate, onRetry: () => void) {
+	switch (availability) {
+		case 'error':
+			return {
+				tone: 'error' as const,
+				title: t('settings.embeds.AVAILABILITY_FAILED_TITLE'),
+				description: t('settings.embeds.LIST_FAILED_TEXT'),
+				actions: (
+					<Button type="button" size="sm" variant="outline" onClick={onRetry}>
+						{t('settings.embeds.RETRY')}
+					</Button>
+				)
+			};
+		case 'forbidden':
+			return {
+				tone: 'neutral' as const,
+				title: t('settings.embeds.ADMINS_ONLY_TITLE'),
+				description: t('settings.embeds.ADMINS_ONLY_TEXT')
+			};
+		case 'disabled':
+			return {
+				tone: 'neutral' as const,
+				title: t('settings.embeds.UNAVAILABLE_TITLE'),
+				description: t('settings.embeds.UNAVAILABLE_TEXT', { variable: 'GAUZY_EMBED_TOKENS_ENABLED' })
+			};
+		default:
+			return null;
+	}
+}
+
 function EmbedsBody({ availability, onRetry }: Readonly<{ availability: EmbedsAvailability; onRetry: () => void }>) {
 	const t = useTranslations();
 	if (availability === 'loading') {
@@ -348,37 +381,9 @@ function EmbedsBody({ availability, onRetry }: Readonly<{ availability: EmbedsAv
 			<SettingsSectionSkeleton title={t('settings.embeds.SECTION_ORIGINS')} rows={2} control="button" leading />
 		);
 	}
-	if (availability === 'error') {
-		return (
-			<Notice
-				tone="error"
-				title={t('settings.embeds.AVAILABILITY_FAILED_TITLE')}
-				description={t('settings.embeds.LIST_FAILED_TEXT')}
-				actions={
-					<Button type="button" size="sm" variant="outline" onClick={onRetry}>
-						{t('settings.embeds.RETRY')}
-					</Button>
-				}
-			/>
-		);
-	}
-	if (availability === 'forbidden') {
-		return (
-			<Notice
-				tone="neutral"
-				title={t('settings.embeds.ADMINS_ONLY_TITLE')}
-				description={t('settings.embeds.ADMINS_ONLY_TEXT')}
-			/>
-		);
-	}
-	if (availability === 'disabled') {
-		return (
-			<Notice
-				tone="neutral"
-				title={t('settings.embeds.UNAVAILABLE_TITLE')}
-				description={t('settings.embeds.UNAVAILABLE_TEXT', { variable: 'GAUZY_EMBED_TOKENS_ENABLED' })}
-			/>
-		);
+	const notice = availabilityNoticeOf(availability, t, onRetry);
+	if (notice) {
+		return <Notice {...notice} />;
 	}
 	return (
 		<>
