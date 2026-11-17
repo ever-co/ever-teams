@@ -242,7 +242,7 @@ const drawer = createDrawerNavigator<AuthenticatedDrawerParamList>();
  * React Navigation 7 removed `unmountOnBlur`: a drawer screen still unmounts once another one is shown, so it reads
  * its data again when it comes back, as it did before.
  */
-function UnmountOnBlur({ children }: { children: React.ReactNode }) {
+function UnmountOnBlur({ children }: Readonly<{ children: React.ReactNode }>) {
 	const isFocused = useIsFocused();
 	if (!isFocused) {
 		return null;
