@@ -12,10 +12,10 @@ import {
 	CSSProperties
 } from 'react';
 import { useTranslation } from 'react-i18next';
-import { getTimerStatus } from '@ever-teams/api';
+import { apiConfigManager, getTimerStatus } from '@ever-teams/api';
 import { IServerError, ITimerStatus } from '@ever-teams/toolkit-types';
-import { toast } from '@ever-teams/toolkit-ui';
 import { useTeamsContext } from './teams-context';
+import { KIT_ERROR_MESSAGE_KEYS, KitNotice, kindOfFailedRequest, noticeOfAnswer } from '@lib/errors/kit-error';
 
 // The Ever Teams web app's rate: one status read a minute, and none while the page is hidden.
 export const TIMER_STATUS_REFRESH_MS = 60_000;
@@ -31,6 +31,10 @@ export interface ITimerStatusContext {
 	actionPending: boolean;
 	// Runs a start or a stop unless one already runs for this provider: a second one, from any widget, is ignored.
 	runAction: (action: () => Promise<void>) => Promise<void>;
+	// What went wrong, shown inside the widgets (KitNotice) instead of a toast on the host page; null once a read
+	// succeeds.
+	notice: KitNotice | null;
+	reportNotice: (notice: KitNotice | null) => void;
 }
 
 const TimerStatusContext = createContext<ITimerStatusContext | null>(null);
@@ -86,7 +90,7 @@ export function TimerStatusProvider({ children }: Readonly<{ children?: ReactNod
 	const inFlight = useRef<{ identity: string; promise: Promise<void>; again: boolean } | null>(null);
 	// Only the read started last may set the status, show a notice or end the loading state.
 	const latestRead = useRef(0);
-	const failing = useRef(false);
+	const [notice, setNotice] = useState<KitNotice | null>(null);
 	const lastRunning = useRef<boolean | null>(null);
 
 	const hasEmployee = Boolean(user?.employee);
@@ -110,13 +114,16 @@ export function TimerStatusProvider({ children }: Readonly<{ children?: ReactNod
 		};
 	}, []);
 
-	// One notice for an outage, not one per read: the next successful read ends it.
-	const reportFailure = useCallback((message: string) => {
-		if (failing.current) {
-			return;
-		}
-		failing.current = true;
-		toast({ variant: 'destructive', description: message });
+	// One notice for an outage, not one per read: the same notice again changes nothing, and the next successful read
+	// ends it.
+	const reportNotice = useCallback((next: KitNotice | null) => {
+		setNotice((current) => {
+			const same = current?.kind === next?.kind && current?.message === next?.message;
+			if (same) {
+				return current;
+			}
+			return next;
+		});
 	}, []);
 
 	// One read of the status; its answer becomes the shared status.
@@ -132,14 +139,16 @@ export function TimerStatusProvider({ children }: Readonly<{ children?: ReactNod
 					return;
 				}
 				if (isServerError(response)) {
-					reportFailure(errorMessageOf(response));
+					reportNotice(noticeOfAnswer(response, errorMessageOf(response)));
 					return;
 				}
-				failing.current = false;
+				reportNotice(null);
 				setStatus(response);
-			} catch (error) {
+			} catch {
+				// No answer: the network or the API is down, or the browser blocked the answer for this site.
+				const kind = await kindOfFailedRequest(apiConfigManager.getConfig().apiUrl);
 				if (isCurrent()) {
-					reportFailure((error as Error).message);
+					reportNotice({ kind });
 				}
 			} finally {
 				if (isCurrent()) {
@@ -147,7 +156,7 @@ export function TimerStatusProvider({ children }: Readonly<{ children?: ReactNod
 				}
 			}
 		},
-		[user, token, organizationId, reportFailure]
+		[user, token, organizationId, reportNotice]
 	);
 
 	// A refresh asked while a read is pending runs one more read after it: the pending read may predate a start or a
@@ -204,7 +213,7 @@ export function TimerStatusProvider({ children }: Readonly<{ children?: ReactNod
 	useEffect(() => {
 		setStatus(null);
 		setLoading(false);
-		failing.current = false;
+		setNotice(null);
 		lastRunning.current = null;
 	}, [identity]);
 
@@ -217,19 +226,35 @@ export function TimerStatusProvider({ children }: Readonly<{ children?: ReactNod
 				refetch();
 			}
 		};
+		// The browser knows at once when it goes offline: the widgets say so before the next read fails.
+		const markUnreachable = () => reportNotice({ kind: 'unreachable' });
 		// Automatic reads happen only while the page is visible; a hidden page reads when it becomes visible.
 		pollWhenVisible();
 		const interval = setInterval(pollWhenVisible, TIMER_STATUS_REFRESH_MS);
 		document.addEventListener('visibilitychange', pollWhenVisible);
 		window.addEventListener('focus', pollWhenVisible);
 		window.addEventListener('online', pollWhenVisible);
+		window.addEventListener('offline', markUnreachable);
 		return () => {
 			clearInterval(interval);
 			document.removeEventListener('visibilitychange', pollWhenVisible);
 			window.removeEventListener('focus', pollWhenVisible);
 			window.removeEventListener('online', pollWhenVisible);
+			window.removeEventListener('offline', markUnreachable);
 		};
-	}, [ready, hasConsumers, refetch]);
+	}, [ready, hasConsumers, refetch, reportNotice]);
+
+	// Screen readers hear each new notice too, in the same live region.
+	useEffect(() => {
+		if (!notice) {
+			return;
+		}
+		if (notice.kind === 'other') {
+			setAnnouncement(notice.message ?? '');
+			return;
+		}
+		setAnnouncement(t(KIT_ERROR_MESSAGE_KEYS[notice.kind]));
+	}, [notice, t]);
 
 	// Screen readers hear a start or a stop, wherever it came from, but not the first read.
 	useEffect(() => {
@@ -250,8 +275,8 @@ export function TimerStatusProvider({ children }: Readonly<{ children?: ReactNod
 	}, [status, t]);
 
 	const value = useMemo(
-		() => ({ status, loading, refetch, registerConsumer, actionPending, runAction }),
-		[status, loading, refetch, registerConsumer, actionPending, runAction]
+		() => ({ status, loading, refetch, registerConsumer, actionPending, runAction, notice, reportNotice }),
+		[status, loading, refetch, registerConsumer, actionPending, runAction, notice, reportNotice]
 	);
 
 	return (

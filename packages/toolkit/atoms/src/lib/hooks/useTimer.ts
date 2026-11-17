@@ -1,4 +1,4 @@
-import { addTimeSlot, startTimer as startApiTimer, stopTimer as stopApiTimer } from '@ever-teams/api';
+import { addTimeSlot, apiConfigManager, startTimer as startApiTimer, stopTimer as stopApiTimer } from '@ever-teams/api';
 import { useEffect, useRef, useState } from 'react';
 import { useTeamsStopWatch } from './useTeamsStopWatch';
 import { toast } from '@ever-teams/toolkit-ui';
@@ -6,7 +6,8 @@ import { useTeamsContext } from '@lib/context/teams-context';
 import { useTimerStatus } from './useTimerStatus';
 import { ICurrentTeamsState } from '@ever-teams/toolkit-types';
 import { useTranslation } from 'react-i18next';
-import { useTimerStatusContext } from '@lib/context/teams-timer-status-context';
+import { errorMessageOf, useTimerStatusContext } from '@lib/context/teams-timer-status-context';
+import { kindOfFailedRequest, noticeOfAnswer } from '@lib/errors/kit-error';
 
 /**
  * Self-contained timer hook that manages all timer functionality.
@@ -74,35 +75,40 @@ export const useTimer = () => {
 		}
 	};
 
+	// A refused start or stop: under a TeamsProvider every widget shows it as a notice inside the widget; outside one,
+	// as before, a toast.
+	const reportAnswer = (answer: { message?: unknown; error?: unknown; statusCode?: unknown; code?: unknown }) => {
+		const message = errorMessageOf(answer);
+		if (sharedStatus) {
+			sharedStatus.reportNotice(noticeOfAnswer(answer, message));
+			return;
+		}
+		toast({ variant: 'destructive', description: message });
+	};
+
+	// A start or stop that got no answer.
+	const reportThrown = async (error: unknown) => {
+		if (sharedStatus) {
+			sharedStatus.reportNotice({ kind: await kindOfFailedRequest(apiConfigManager.getConfig().apiUrl) });
+			return;
+		}
+		toast({ title: 'Ever Teams Error', description: (error as Error).message, variant: 'destructive' });
+	};
+
 	const startTimerNow = async () => {
 		try {
 			setTimerLoading(true);
 			const timeSlot = await startApiTimer(user, token, currentTeamsState, organizationId);
 
 			if ('message' in timeSlot || 'error' in timeSlot) {
-				const errorMessage =
-					'message' in timeSlot
-						? Array.isArray(timeSlot.message)
-							? timeSlot.message.join(', ')
-							: timeSlot.message
-						: String(timeSlot.error);
-
-				toast({
-					variant: 'destructive',
-					description: errorMessage
-				});
-
+				reportAnswer(timeSlot);
 				return;
 			}
 
 			start();
 			await refreshEveryWidget();
 		} catch (error) {
-			toast({
-				title: 'Ever Teams Error',
-				description: (error as Error).message,
-				variant: 'destructive'
-			});
+			await reportThrown(error);
 		} finally {
 			setTimerLoading(false);
 		}
@@ -115,18 +121,7 @@ export const useTimer = () => {
 			const timeSlot = await stopApiTimer(user, token, organizationId);
 
 			if ('message' in timeSlot || 'error' in timeSlot) {
-				const errorMessage =
-					'message' in timeSlot
-						? Array.isArray(timeSlot.message)
-							? timeSlot.message.join(', ')
-							: timeSlot.message
-						: String(timeSlot.error);
-
-				toast({
-					variant: 'destructive',
-					description: errorMessage
-				});
-
+				reportAnswer(timeSlot);
 				return;
 			}
 
@@ -135,11 +130,7 @@ export const useTimer = () => {
 			reset();
 			await refreshEveryWidget();
 		} catch (error) {
-			toast({
-				title: 'Ever Teams Error',
-				description: (error as Error).message,
-				variant: 'destructive'
-			});
+			await reportThrown(error);
 		} finally {
 			setTimerLoading(false);
 		}

@@ -18,6 +18,14 @@ const dom = new JSDOM('<!doctype html><body></body>');
 globalThis.window = dom.window;
 globalThis.document = dom.window.document;
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+// The kit's probe of the API after a request that got no answer: up (an opaque answer) unless a test says it is down.
+globalThis.__apiDown = false;
+globalThis.__probes = [];
+globalThis.fetch = async (url, init) => {
+	globalThis.__probes.push({ url, mode: init?.mode });
+	if (globalThis.__apiDown) throw new TypeError('Failed to fetch');
+	return {};
+};
 let visibility = 'visible';
 Object.defineProperty(dom.window.document, 'visibilityState', { get: () => visibility });
 
@@ -42,7 +50,8 @@ const stubs = {
 			new Promise((resolve, reject) => globalThis.__actions.push(Object.assign(resolve, { kind, reject })));
 		export const startTimer = action('start');
 		export const stopTimer = action('stop');
-		export const addTimeSlot = async () => {};`,
+		export const addTimeSlot = async () => {};
+		export const apiConfigManager = { getConfig: () => ({ apiUrl: 'http://api.test/api' }) };`,
 	'@ever-teams/toolkit-ui': 'globalThis.__toasts = []; export const toast = (t) => globalThis.__toasts.push(t);',
 	'@ever-teams/toolkit-types': 'export {};',
 	'react-i18next': 'export const useTranslation = () => ({ t: (key) => key });'
@@ -86,9 +95,11 @@ before(async () => {
 				setup(build) {
 					build.onResolve({ filter: stubbed }, (args) => ({ path: args.path, namespace: 'stub' }));
 					build.onResolve({ filter: teamsContext }, () => ({ path: 'teams-context', namespace: 'stub' }));
-					build.onResolve({ filter: /^@lib\// }, (args) => ({
-						path: path.join(lib, `${args.path.slice('@lib/'.length)}.tsx`)
-					}));
+					build.onResolve({ filter: /^@lib\// }, (args) => {
+						const base = path.join(lib, args.path.slice('@lib/'.length));
+						const file = ['.tsx', '.ts'].map((ext) => `${base}${ext}`).find((p) => fs.existsSync(p));
+						return { path: file ?? `${base}.tsx` };
+					});
 					build.onLoad({ filter: /.*/, namespace: 'stub' }, (args) => ({
 						contents: stubs[args.path],
 						loader: 'js'
@@ -153,10 +164,14 @@ async function reset() {
 	globalThis.__reads.length = 0;
 	globalThis.__actions.length = 0;
 	globalThis.__toasts.length = 0;
+	globalThis.__apiDown = false;
+	globalThis.__probes.length = 0;
 	visibility = 'visible';
 	await act(async () => globalThis.__setIdentity(null));
 }
 
+// Lets the async work of a failed read (the probe of the API) settle.
+const flush = () => act(() => new Promise((resolve) => setTimeout(resolve, 0)));
 const answer = (index, status) =>
 	act(async () => globalThis.__reads[index]({ running: false, duration: 0, lastLog: null, ...status }));
 const widget = (key, onStatus) => React.createElement(Widget, { key, onStatus });
@@ -211,14 +226,18 @@ test('coming back online or to the window reads the status at once', async () =>
 	assert.equal(globalThis.__reads.length, 3);
 });
 
-test('an outage shows one notice, not one per read', async () => {
+test('an outage shows one notice inside the widgets, the same one for every read, and no toast', async () => {
 	await reset();
-	await mount([widget('a'), widget('b')]);
+	const seen = {};
+	await mount([widget('a'), probe(seen)]);
 	await act(async () => globalThis.__reads[0]({ statusCode: 503, message: 'Service Unavailable' }));
+	const first = seen.shared.notice;
 	await act(async () => window.dispatchEvent(new window.Event('online')));
 	await act(async () => globalThis.__reads[1]({ statusCode: 503, message: 'Service Unavailable' }));
 
-	assert.equal(globalThis.__toasts.length, 1);
+	assert.equal(first?.kind, 'unreachable');
+	assert.equal(seen.shared.notice, first);
+	assert.equal(globalThis.__toasts.length, 0);
 });
 
 test('a start seen by the provider is announced once to screen readers', async () => {
@@ -305,6 +324,7 @@ test('a failed read for a previous organization shows no notice', async () => {
 
 	await act(async () => globalThis.__setIdentity({ selectedOrganization: 'org-2' }));
 	await act(async () => forOldOrganization.reject(new Error('network down')));
+	await flush();
 
 	assert.equal(globalThis.__toasts.length, 0);
 });
@@ -518,4 +538,57 @@ test('outside a provider, useTimerStatus reads again with a new token at once, a
 	} finally {
 		mock.timers.reset();
 	}
+});
+
+test('a read refused with 401 says the session ended, a 403 that the permission is missing, and a good read clears it', async () => {
+	await reset();
+	const seen = {};
+	await mount([probe(seen)]);
+	await act(async () => globalThis.__reads[0]({ statusCode: 401, message: 'Unauthorized' }));
+	assert.equal(seen.shared.notice?.kind, 'session');
+
+	await act(async () => window.dispatchEvent(new window.Event('online')));
+	await act(async () => globalThis.__reads[1]({ statusCode: 403, message: 'Forbidden', code: 'EMBED_SCOPE' }));
+	assert.equal(seen.shared.notice?.kind, 'permission');
+
+	await act(async () => window.dispatchEvent(new window.Event('online')));
+	await answer(2, {});
+	assert.equal(seen.shared.notice, null);
+});
+
+test('a read with no answer says the site is not allowed when the API is up, and unreachable when it is down', async () => {
+	await reset();
+	const seen = {};
+	await mount([probe(seen)]);
+	await act(async () => globalThis.__reads[0].reject(new TypeError('Failed to fetch')));
+	await flush();
+	assert.equal(seen.shared.notice?.kind, 'origin');
+	assert.deepEqual(globalThis.__probes[0], { url: 'http://api.test/api', mode: 'no-cors' });
+
+	globalThis.__apiDown = true;
+	await act(async () => window.dispatchEvent(new window.Event('online')));
+	await act(async () => globalThis.__reads[1].reject(new TypeError('Failed to fetch')));
+	await flush();
+	assert.equal(seen.shared.notice?.kind, 'unreachable');
+});
+
+test('going offline says at once that Ever Teams is unreachable, and the screen reader hears it', async () => {
+	await reset();
+	const seen = {};
+	const { container } = await mount([probe(seen)]);
+	await answer(0, {});
+
+	await act(async () => window.dispatchEvent(new window.Event('offline')));
+
+	assert.equal(seen.shared.notice?.kind, 'unreachable');
+	assert.match(container.querySelector('[aria-live]').textContent, /KIT_ERRORS.UNREACHABLE/);
+});
+
+test('a refusal with its own message keeps that message', async () => {
+	await reset();
+	const seen = {};
+	await mount([probe(seen)]);
+	await act(async () => globalThis.__reads[0]({ statusCode: 400, message: ['organizationId must be a UUID'] }));
+
+	assert.deepEqual(seen.shared.notice, { kind: 'other', message: 'organizationId must be a UUID' });
 });
