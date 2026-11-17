@@ -47,8 +47,24 @@ export async function moveSessionToSecureStorage(session: StoredSession): Promis
 		const stored = await readStoredSession();
 		const sameAccessToken = stored.accessToken === session.accessToken;
 		const sameRefreshToken = stored.refreshToken === session.refreshToken;
-		return sameAccessToken && sameRefreshToken;
+		if (sameAccessToken && sameRefreshToken) {
+			return true;
+		}
 	} catch {
-		return false;
+		// what was written is forgotten below
+	}
+	await forgetPartialSession();
+	return false;
+}
+
+/**
+ * A move that failed halfway must leave nothing: the session stays in root-v1 for this launch, and a token left here
+ * would be read back at the next launch even after the person signed out.
+ */
+async function forgetPartialSession(): Promise<void> {
+	try {
+		await writeStoredSession({});
+	} catch {
+		// the storage refuses everything: there is nothing left in it to forget
 	}
 }

@@ -63,6 +63,19 @@ describe('secure session storage', () => {
 			expect(moved).toBe(false);
 		});
 
+		it('forgets the token it saved when the second write is refused, so a sign-out cannot be undone', async () => {
+			jest.mocked(SecureStore.setItemAsync)
+				.mockImplementationOnce(async (key: string, value: string) => {
+					mockSecureValues.set(key, value);
+				})
+				.mockRejectedValueOnce(new Error('keystore unavailable'));
+
+			const moved = await moveSessionToSecureStorage({ accessToken: 'access-1', refreshToken: 'refresh-1' });
+
+			expect(moved).toBe(false);
+			expect(mockSecureValues.size).toBe(0);
+		});
+
 		it('fails when the value read back differs from the one written', async () => {
 			jest.mocked(SecureStore.getItemAsync).mockResolvedValueOnce('another-token');
 
