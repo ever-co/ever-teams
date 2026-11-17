@@ -9,7 +9,7 @@ import { useProjectClientRates } from '@/core/hooks/organizations/rates/use-proj
 import { useBillingOrganization } from '@/core/hooks/organizations/rates/use-billing-organization';
 import { useKeptClientRates } from '@/core/hooks/organizations/rates/use-kept-client-rates';
 import { useMyRolePermissionsQuery } from '@/core/hooks/roles/use-my-role-permissions-query';
-import { keepsClientRates, keptLinePriceOf, linePriceOf } from '@/core/lib/utils/invoices';
+import { linePriceOf } from '@/core/lib/utils/invoices';
 import { defaultBillRateOf, holdsRateAdminPermission } from '@/core/lib/utils/rates';
 import { durationRoundingRuleOf } from '@/core/lib/utils/duration-rounding';
 import { NO_BILLABLE_FIGURES, type BillableFigures } from '@/core/lib/utils/dashboards/time-activity';
@@ -26,6 +26,7 @@ import {
 	dailyLimitSecondsOf,
 	DEFAULT_MY_WEEK_PERIOD,
 	isWeekPeriod,
+	keptPriceOfEntryOf,
 	MY_WEEK_PERIODS,
 	type MyWeekEntry,
 	type MyWeekPeriodKey,
@@ -188,13 +189,7 @@ export function useMyWeekPage() {
 				organizationCurrency,
 				defaultRate
 			});
-		const keptPriceOf = (entry: MyWeekEntry) => {
-			const kept = keptById.get(entry.log.id);
-			if (!kept || !keepsClientRates(kept)) {
-				return null;
-			}
-			return keptLinePriceOf({ kept, organizationCurrency, defaultRate });
-		};
+		const keptPriceOf = keptPriceOfEntryOf(keptById, organizationCurrency, defaultRate);
 		return myWeekBillableOf(entries, priceOf, roundingRule, keptPriceOf);
 	}, [employeeId, entries, keptById, organization, ownRate, ratesByProject, readsBillable]);
 	const { refetch: refetchProjectRates } = projectRates;

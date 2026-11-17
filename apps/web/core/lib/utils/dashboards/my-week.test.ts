@@ -7,6 +7,7 @@ import type { LinePrice } from '@/core/lib/utils/invoices';
 import {
 	billableProjectIdsOfEntries,
 	dailyLimitSecondsOf,
+	keptPriceOfEntryOf,
 	myWeekBillableOf,
 	myWeekDaysOf,
 	myWeekEntriesOf,
@@ -511,6 +512,23 @@ describe('myWeekBillableOf at the rates each entry kept (CORE-29)', () => {
 		// Monday's 3 h at the 60 they kept, Tuesday's 4 h at today's 80
 		expect(myWeekBillableOf(entries, todays, null, keptPriceOf)).toEqual({
 			amounts: [{ currency: 'EUR', amount: 500 }],
+			seconds: 7 * HOUR,
+			unpricedSeconds: 0
+		});
+	});
+
+	it("bills an entry whose kept rates price nothing at today's rate, as a draft invoice does, not as unpriced", () => {
+		const { entries } = weekOf(WEEK_LOGS);
+		const keptNothing = {
+			ratesStored: true,
+			billRateValue: null,
+			clientRates: { projectBillRateValue: null, projectMemberBillRateValue: null }
+		};
+		const keptPriceOf = keptPriceOfEntryOf(new Map([['monday-design', keptNothing]]), 'EUR', null);
+
+		// Monday's 3 h and Tuesday's 4 h both at today's 80
+		expect(myWeekBillableOf(entries, todays, null, keptPriceOf)).toEqual({
+			amounts: [{ currency: 'EUR', amount: 560 }],
 			seconds: 7 * HOUR,
 			unpricedSeconds: 0
 		});

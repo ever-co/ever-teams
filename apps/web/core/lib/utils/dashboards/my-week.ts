@@ -1,5 +1,5 @@
 import { isStaleTeamsTimer } from '@/core/lib/helpers/timer-policy';
-import type { LinePrice } from '@/core/lib/utils/invoices';
+import { keepsClientRates, keptLinePriceOf, type KeptRatesLike, type LinePrice } from '@/core/lib/utils/invoices';
 import type { BillableFigures } from '@/core/lib/utils/dashboards/time-activity';
 import { localDayKeyOf } from '@/core/lib/utils/dashboard-export';
 import { type LimitVerdict, limitVerdictOf, percentOf } from '@/core/lib/utils/dashboard-figures';
@@ -13,7 +13,7 @@ import {
 import type { ProjectShareItem } from '@/core/lib/utils/dashboards/team';
 import { logDurationSeconds, NO_PROJECT_VALUE, startOfLog } from '@/core/lib/utils/dashboards/timesheets';
 import { LIMIT_WEEK_START, WORK_DAYS_PER_WEEK } from '@/core/lib/utils/dashboards/weekly-limit';
-import { employeeRateValueOf } from '@/core/lib/utils/rates';
+import { type DefaultBillRate, employeeRateValueOf } from '@/core/lib/utils/rates';
 import { type DurationRoundingRule, roundedSecondsOf } from '@/core/lib/utils/duration-rounding';
 import { isBreakLog } from '@/core/lib/utils/timer/timer-break';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
@@ -324,6 +324,29 @@ export function billableProjectIdsOfEntries(entries: ReadonlyArray<MyWeekEntry>)
 	const keys = [...billableSecondsByProjectOf(entries).keys()];
 	const projectIds = keys.filter((key) => key !== NO_PROJECT_KEY);
 	return projectIds.sort((first, second) => first.localeCompare(second));
+}
+
+/**
+ * The price of each entry at the rates it kept, read from `keptById`: none, so today's prices it, for an entry that
+ * keeps no rates or whose kept rates price nothing, as `entryPriceOf` leaves it to today's on an invoice and on Time &
+ * activity. Otherwise My week would show that time without an amount where a draft invoice bills it at today's rate.
+ */
+export function keptPriceOfEntryOf(
+	keptById: ReadonlyMap<string, KeptRatesLike>,
+	organizationCurrency: string | null,
+	defaultRate: DefaultBillRate | null
+): KeptPriceOfEntry {
+	return (entry) => {
+		const kept = keptById.get(entry.log.id);
+		if (!kept || !keepsClientRates(kept)) {
+			return null;
+		}
+		const price = keptLinePriceOf({ kept, organizationCurrency, defaultRate });
+		if (price.rate === null) {
+			return null;
+		}
+		return price;
+	};
 }
 
 /**
