@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react-native/no-color-literals */
 import { observer } from 'mobx-react-lite';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { ProgressBar } from 'react-native-paper';
 import { pad } from '../helpers/number';
@@ -30,6 +30,13 @@ const HeaderTimer = observer(() => {
 	// A run the API knows: tapping its time opens the panel of its start
 	const isRunning = timerStatus?.running === true;
 	const hasEstimate = (activeTask?.estimate ?? 0) > 0;
+
+	// A run that ends closes its panel, so a run started later never opens it by itself
+	useEffect(() => {
+		if (!isRunning) {
+			setStartPanelOpen(false);
+		}
+	}, [isRunning]);
 
 	const handleTimer = () => {
 		if (!canRunTimer) return;

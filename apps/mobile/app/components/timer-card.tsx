@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable camelcase */
-import React, { FC, useState } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 import { Dimensions, TouchableOpacity, View } from 'react-native';
 import { ProgressBar, Text } from 'react-native-paper';
 import EStyleSheet from 'react-native-extended-stylesheet';
@@ -37,6 +37,13 @@ const TimerCard: FC<Props> = observer(() => {
 	const hasEstimate = (activeTask?.estimate ?? 0) > 0;
 	const openStartPanel = () => setStartPanelOpen(true);
 	const closeStartPanel = () => setStartPanelOpen(false);
+
+	// A run that ends closes its panel, so a run started later never opens it by itself
+	useEffect(() => {
+		if (!isRunning) {
+			setStartPanelOpen(false);
+		}
+	}, [isRunning]);
 
 	const getTimePercentage = () => {
 		if (activeTask) {
