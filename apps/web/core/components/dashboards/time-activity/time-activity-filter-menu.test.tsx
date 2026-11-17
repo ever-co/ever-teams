@@ -68,7 +68,7 @@ describe('the Time & activity filter menu and the labels of entries (#5368)', ()
 		supportsEntryLabels = true;
 		renderMenu();
 
-		expect(screen.queryByText('common.LABELS')).not.toBeNull();
+		expect(screen.getByText('common.LABELS')).toBeTruthy();
 	});
 
 	it('leaves Labels out where the API has none, as Timesheets does', () => {
@@ -76,6 +76,6 @@ describe('the Time & activity filter menu and the labels of entries (#5368)', ()
 		renderMenu();
 
 		expect(screen.queryByText('common.LABELS')).toBeNull();
-		expect(screen.queryByText('dashboard.timeActivity.filters.PROJECTS')).not.toBeNull();
+		expect(screen.getByText('dashboard.timeActivity.filters.PROJECTS')).toBeTruthy();
 	});
 });

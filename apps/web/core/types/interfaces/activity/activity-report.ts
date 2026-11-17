@@ -186,7 +186,7 @@ export interface ITimerTaskLog {
 	billRateValue?: number | string | null;
 	billRateCurrency?: string | null;
 	/** The entry's own labels (Gauzy #12029), stated once the API has them: one row per entry, so its own labels. */
-	tags?: ITaggable['tags'];
+	tags?: NonNullable<ITaggable['tags']>;
 }
 
 export interface ITimerEmployeeLog {

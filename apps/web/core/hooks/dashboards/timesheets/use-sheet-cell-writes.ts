@@ -123,13 +123,6 @@ function freeWindowsOfDay(
 }
 
 /**
- * The writes of the editable week sheet. A typed duration becomes manual time placed in the member's free time of
- * the day (Gauzy deletes whatever a manual entry overlaps, so nothing is ever placed over another entry), and a
- * lower one takes time back from manual entries only. Writes run one at a time, each planned on the member's logs
- * read from the API just before it, so neither another cell nor time saved elsewhere since the page was read is
- * ever written over.
- */
-/**
  * The labels time typed in a row is filed under: the row's own (#5368). A row with labels was read from an API that
  * stores them; a row without any sends nothing new.
  */
@@ -141,6 +134,13 @@ function labelsOfRow(identity: SheetRowIdentity): { tags?: string[] } {
 	return { tags: labelIds };
 }
 
+/**
+ * The writes of the editable week sheet. A typed duration becomes manual time placed in the member's free time of
+ * the day (Gauzy deletes whatever a manual entry overlaps, so nothing is ever placed over another entry), and a
+ * lower one takes time back from manual entries only. Writes run one at a time, each planned on the member's logs
+ * read from the API just before it, so neither another cell nor time saved elsewhere since the page was read is
+ * ever written over.
+ */
 export function useSheetCellWrites(scope: SheetWriteScope) {
 	const t = useTranslations();
 	const queryClient = useQueryClient();

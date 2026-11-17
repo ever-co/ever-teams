@@ -475,7 +475,7 @@ function isNarrowed(page: TimesheetsPageState) {
 	const hasLabels = page.filters.labels.length > 0;
 	// A link's entry labels the API cannot apply hide nothing, so they leave the sheet open (#5368)
 	const hasEntryLabels = supportedEntryLabelsOf(page.filters.entryLabels, page.supportsEntryLabels).length > 0;
-	const narrowings = [
+	const activeFilters = [
 		hasStatus,
 		hasSearch,
 		hasProjects,
@@ -485,7 +485,7 @@ function isNarrowed(page: TimesheetsPageState) {
 		hasLabels,
 		hasEntryLabels
 	];
-	return narrowings.some(Boolean);
+	return activeFilters.some(Boolean);
 }
 
 export function sheetEditingSourceOf(page: TimesheetsPageState): SheetEditingSource {

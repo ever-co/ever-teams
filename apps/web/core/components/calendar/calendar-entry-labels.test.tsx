@@ -183,7 +183,7 @@ describe('the labels of an entry on its Calendar card (#5368)', () => {
 		mockReadEntry.mockResolvedValueOnce(entryWith([design]));
 		await card.readEntriesAgain();
 
-		await screen.findByRole('button', { name: 'labels: design' });
+		expect(await screen.findByRole('button', { name: 'labels: design' })).toBeTruthy();
 	});
 
 	it('puts back the labels it showed when the save fails', async () => {
