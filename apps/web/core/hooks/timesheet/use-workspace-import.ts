@@ -11,6 +11,7 @@ import { useTaskLabelsQuery } from '@/core/hooks/tasks/use-task-labels-query';
 import { type TimeImportAccess } from '@/core/hooks/timesheet/use-time-import-access';
 import { useTimeImport } from '@/core/hooks/timesheet/use-time-import';
 import { generateDefaultColor } from '@/core/lib/helpers/colors';
+import { LABEL_CREATE_PERMISSIONS } from '@/core/lib/utils/time-log-labels';
 import { logErrorInDev } from '@/core/lib/helpers/error-message';
 import { CLIENT_CONTACT_TYPE, CLIENT_CREATE_PERMISSIONS, holdsAnyPermission } from '@/core/lib/utils/clients';
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
@@ -47,7 +48,6 @@ import type { TCreateProjectRequest } from '@/core/types/schemas';
 
 /** The permissions the API asks for to add a project, and to add a label; any one of each is enough. */
 const PROJECT_CREATE_PERMISSIONS = ['ALL_ORG_EDIT', 'ORG_PROJECT_ADD'] as const;
-const LABEL_CREATE_PERMISSIONS = ['ALL_ORG_EDIT', 'ORG_TAGS_ADD'] as const;
 const CLIENT_VIEW_PERMISSIONS = ['ORG_CONTACT_VIEW'] as const;
 
 const MEMBER_UNKNOWN = 'memberUnknown';

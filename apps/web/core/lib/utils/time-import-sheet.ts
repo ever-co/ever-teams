@@ -38,6 +38,9 @@ export const TIME_IMPORT_HEADERS: Readonly<Record<TimeImportColumn, string>> = {
 	memberEmail: 'member email'
 };
 
+/** The header of the entries' own labels (#5368): not in the template, written by the report when rows have labels. */
+export const TIME_IMPORT_LABELS_HEADER = 'labels';
+
 /** The columns the import's own report adds, so a corrected report can be imported as it is. */
 export const TIME_IMPORT_REPORT_HEADERS = { row: 'row', status: 'status', reason: 'reason' } as const;
 
@@ -51,7 +54,7 @@ const COLUMN_BY_HEADER: ReadonlyMap<string, TimeImportColumn> = new Map(
  * What the import reads from a row: the columns of the template, and the day an entry ends, which a file from
  * another tool may give in a column of its own.
  */
-export type TimeImportField = TimeImportColumn | 'endDate';
+export type TimeImportField = TimeImportColumn | 'endDate' | 'labels';
 
 export const TIME_IMPORT_FIELDS: ReadonlyArray<TimeImportField> = [
 	'date',
@@ -63,7 +66,8 @@ export const TIME_IMPORT_FIELDS: ReadonlyArray<TimeImportField> = [
 	'task',
 	'notes',
 	'billable',
-	'memberEmail'
+	'memberEmail',
+	'labels'
 ];
 
 export type TimeImportCells = Readonly<Record<TimeImportField, string>>;
@@ -81,7 +85,8 @@ export const NO_TIME_IMPORT_COLUMNS: TimeImportMapping = {
 	task: null,
 	notes: null,
 	billable: null,
-	memberEmail: null
+	memberEmail: null,
+	labels: null
 };
 
 /** The columns a file is read through, and the format of its dates when its own dates do not tell it. */
@@ -264,7 +269,8 @@ function cellsOf(record: ReadonlyArray<string>, mapping: TimeImportMapping): Tim
 		task: cellOf('task'),
 		notes: cellOf('notes'),
 		billable: cellOf('billable'),
-		memberEmail: cellOf('memberEmail')
+		memberEmail: cellOf('memberEmail'),
+		labels: cellOf('labels')
 	};
 }
 

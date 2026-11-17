@@ -33,6 +33,11 @@ interface TimesheetPageLogsOptions {
 	 * the request stay those of a read without breaks.
 	 */
 	withBreaks?: boolean;
+	/**
+	 * The labels of each entry itself (Gauzy #12029), read only from an API that has them. Left out, the key and the
+	 * request stay those of a read without them.
+	 */
+	withEntryLabels?: boolean;
 }
 
 function timeZoneNameOf(userTimeZone: string | null | undefined) {
@@ -46,6 +51,13 @@ function timeZoneNameOf(userTimeZone: string | null | undefined) {
 function taskLabelsPartOf(options: TimesheetPageLogsOptions): { withTaskLabels?: boolean } {
 	if (options.withTaskLabels) {
 		return { withTaskLabels: true };
+	}
+	return {};
+}
+
+function entryLabelsPartOf(options: TimesheetPageLogsOptions): { withEntryLabels?: boolean } {
+	if (options.withEntryLabels) {
+		return { withEntryLabels: true };
 	}
 	return {};
 }
@@ -99,6 +111,7 @@ export function timesheetPageLogsRequestOf(
 	const timeZone = timeZoneNameOf(scope.userTimeZone);
 	const employeeIds = [...scope.employeeIds].sort((first, second) => first.localeCompare(second));
 	const taskLabels = taskLabelsPartOf(options);
+	const entryLabels = entryLabelsPartOf(options);
 	const breaks = breaksPartOf(options);
 	const queryKey = [
 		...queryKeys.timesheet.all,
@@ -111,6 +124,7 @@ export function timesheetPageLogsRequestOf(
 			timeZone,
 			employeeIds,
 			...taskLabels,
+			...entryLabels,
 			...breaks
 		}
 	];
@@ -121,6 +135,7 @@ export function timesheetPageLogsRequestOf(
 			timeZone,
 			employeeIds,
 			...taskLabels,
+			...entryLabels,
 			...breaks
 		});
 		return logs ?? [];

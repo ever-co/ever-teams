@@ -21,6 +21,7 @@ import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 import { ETimeLogType } from '@/core/types/generics/enums/timer';
 import { ERoleName } from '@/core/types/generics/enums/role';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
+import { type EntryLabel, entryLabelsOf } from '@/core/lib/utils/time-log-labels';
 import { dateFormatOf, localeTagOf, type FormatLocale } from '@/core/lib/utils/workspace-formats';
 
 export const TIMESHEET_WEEK_START: WeekStart = 1;
@@ -924,6 +925,8 @@ export interface SheetRowIdentity {
 	taskNumber: string | null;
 	issueType: string | null;
 	isBillable: boolean;
+	/** The entry's own labels (#5368): part of the row, and put on the time typed in it. Absent on older saved rows. */
+	labels?: EntryLabel[];
 }
 
 export interface SheetRow {
@@ -947,13 +950,39 @@ export interface WeekSheet {
 export function sheetRowKeyOf(log: ITimeLog) {
 	const projectValue = projectValueOf(log);
 	const taskValue = taskValueOf(log);
-	return `${projectValue}:${taskValue}`;
+	const labelIds = entryLabelsOf(log).map((label) => label.id);
+	const isBillable = log.isBillable === true;
+	const key = withBillableKey(`${projectValue}:${taskValue}`, isBillable);
+	return withLabelsKey(key, labelIds);
 }
 
-export function sheetRowKeyFor(projectId: string | null, taskId: string | null) {
+export function sheetRowKeyFor(
+	projectId: string | null,
+	taskId: string | null,
+	labelIds: ReadonlyArray<string> = [],
+	isBillable = false
+) {
 	const projectValue = projectId ?? NO_PROJECT_VALUE;
 	const taskValue = taskId ?? NO_TASK_VALUE;
-	return `${projectValue}:${taskValue}`;
+	const key = withBillableKey(`${projectValue}:${taskValue}`, isBillable);
+	return withLabelsKey(key, labelIds);
+}
+
+/** A row's key with its Billable state (#5368): a not billable row keeps the key it always had. */
+function withBillableKey(key: string, isBillable: boolean) {
+	if (!isBillable) {
+		return key;
+	}
+	return `${key}:billable`;
+}
+
+/** A row's key with its labels, in a fixed order; a row without labels keeps the key it always had. */
+function withLabelsKey(key: string, labelIds: ReadonlyArray<string>) {
+	if (labelIds.length === 0) {
+		return key;
+	}
+	const sorted = [...labelIds].sort((first, second) => first.localeCompare(second));
+	return `${key}:labels=${sorted.join(',')}`;
 }
 
 function textOrNull(value: string | number | null | undefined): string | null {
@@ -997,7 +1026,8 @@ export function rowIdentityOfLog(log: ITimeLog): SheetRowIdentity {
 		taskNumber: rowTaskNumberOf(log),
 		issueType: textOrNull(log.task?.issueType),
 		isBillable: log.isBillable === true,
-		...hiddenProjectFlagOf(log)
+		...hiddenProjectFlagOf(log),
+		labels: entryLabelsOf(log)
 	};
 }
 

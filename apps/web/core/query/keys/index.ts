@@ -1225,6 +1225,9 @@ export const queryKeys = {
 
 	timeLogs: {
 		all: ['time-logs'] as const,
+		/** Whether the API files entries under labels of their own (Gauzy #12029), per tenant and organization. */
+		entryLabelsSupport: (tenantId: string | null | undefined, organizationId: string | null | undefined) =>
+			['time-logs', 'entry-labels-support', tenantId ?? '', organizationId ?? ''] as const,
 		dailyReport: {
 			withParams: (params: Record<string, any> | null) =>
 				[

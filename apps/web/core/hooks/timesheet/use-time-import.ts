@@ -3,6 +3,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { type QueryClient, useQueryClient } from '@tanstack/react-query';
 import { useTimesheetInvalidation } from '@/core/hooks/timesheet/use-timesheet-invalidation';
+import { useMyRolePermissionsQuery } from '@/core/hooks/roles/use-my-role-permissions-query';
+import { useCreateTaskLabel } from '@/core/hooks/tasks/use-create-task-label';
+import { useEntryLabelsSupportState } from '@/core/hooks/timer/use-entry-labels-support';
+import { generateDefaultColor } from '@/core/lib/helpers/colors';
+import { holdsAnyPermission } from '@/core/lib/utils/clients';
+import { LABEL_CREATE_PERMISSIONS } from '@/core/lib/utils/time-log-labels';
+import { taskLabelService } from '@/core/services/client/api/tasks/task-label.service';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { logErrorInDev } from '@/core/lib/helpers/error-message';
 import { requiredTrackingFieldsOf } from '@/core/lib/helpers/timer-errors';
@@ -22,6 +29,7 @@ import {
 	withColumnsChoiceKept
 } from '@/core/lib/utils/time-import-columns-storage';
 import {
+	type TimeImportReport,
 	checkedRowsOf,
 	draftRowsOf,
 	haveSameReadyRows,
@@ -38,7 +46,10 @@ import {
 	type TimeImportProject,
 	type TimeImportRow,
 	type TimeImportRun,
-	type TimeImportSaveScope
+	type TimeImportSaveScope,
+	type ImportLabelChoice,
+	chooseImportLabels,
+	importLabelNamesOfRows
 } from '@/core/lib/utils/time-import-rows';
 import {
 	timeImportFileRefusalOf,
@@ -303,6 +314,18 @@ export function useTimeImport({ contextAt, saveScope, extraProjectsOf }: TimeImp
 	const queryClient = useQueryClient();
 	const { invalidateTimesheetData } = useTimesheetInvalidation();
 	const [state, setState] = useState<TimeImportState>(IDLE);
+	// The labels of the entries (#5368): found or created once per run, before the first entry is saved
+	const labelsSupport = useEntryLabelsSupportState();
+	const supportsEntryLabels = labelsSupport.isSupported;
+	const {
+		myPermissions,
+		isLoaded: arePermissionsLoaded,
+		isLoading: arePermissionsLoading
+	} = useMyRolePermissionsQuery();
+	const canCreateLabels = holdsAnyPermission(myPermissions, LABEL_CREATE_PERMISSIONS);
+	const { createTaskLabels } = useCreateTaskLabel();
+	const labelIdsRef = useRef<ReadonlyMap<string, string>>(new Map());
+	const [labelsNotAttached, setLabelsNotAttached] = useState<string[]>([]);
 	// Counts the files and the runs started: what an older one still awaits is dropped when it answers
 	const runRef = useRef(0);
 
@@ -498,7 +521,8 @@ export function useTimeImport({ contextAt, saveScope, extraProjectsOf }: TimeImp
 				if (!isReadyRow(row)) {
 					continue;
 				}
-				const outcome = await saveRowIfStillFree(queryClient, row, saveScope, isRunGoing);
+				const scope = { ...saveScope, labelIdsByName: labelIdsRef.current };
+				const outcome = await saveRowIfStillFree(queryClient, row, scope, isRunGoing);
 				// Left while the row's day was read again: the write is never sent
 				if (!outcome) {
 					break;
@@ -515,9 +539,50 @@ export function useTimeImport({ contextAt, saveScope, extraProjectsOf }: TimeImp
 		[queryClient, saveScope]
 	);
 
+	// The rows' labels are saved by rules read from the API: an import waits until both are known (#5368)
+	const rowsHaveLabels = useMemo(
+		() => state.rows.some((row) => isReadyRow(row) && row.cells.labels.trim() !== ''),
+		[state.rows]
+	);
+	const arePermissionsKnown = arePermissionsLoaded || !arePermissionsLoading;
+	const areLabelRulesKnown = labelsSupport.isKnown && arePermissionsKnown;
+	const isWaitingForLabelRules = rowsHaveLabels && !areLabelRulesKnown;
+
+	/**
+	 * The team's labels read again (a workspace import created some a moment ago), then the names the rows use that the
+	 * team lacks, created when the role may add labels.
+	 */
+	const chooseRunLabels = useCallback(
+		async (rows: ReadonlyArray<TimeImportRow>): Promise<ImportLabelChoice> => {
+			const names = importLabelNamesOfRows(rows.filter(isReadyRow));
+			if (names.length === 0) {
+				return { labelIdsByName: new Map(), notAttached: [] };
+			}
+			let teamLabels: ReadonlyArray<{ id?: string; name?: string | null }> = [];
+			if (supportsEntryLabels) {
+				const listed = await taskLabelService.getTaskLabelsList().catch(() => null);
+				teamLabels = listed?.data?.items ?? [];
+			}
+			const choice = await chooseImportLabels(names, teamLabels, {
+				isSupported: supportsEntryLabels,
+				canCreate: canCreateLabels,
+				create: async (name) => {
+					const created = await createTaskLabels({ name, color: generateDefaultColor(name) });
+					return created?.data?.id ?? null;
+				}
+			});
+			return choice;
+		},
+		[canCreateLabels, createTaskLabels, supportsEntryLabels]
+	);
+
 	const confirm = useCallback(async () => {
 		const { sheet, rows: previewRows, stage } = state;
 		if (stage !== 'preview' || !sheet) {
+			return;
+		}
+		// Not before the rules of the rows' labels are known: they would be saved without them
+		if (isWaitingForLabelRules) {
 			return;
 		}
 		if (!previewRows.some(isReadyRow)) {
@@ -545,13 +610,16 @@ export function useTimeImport({ contextAt, saveScope, extraProjectsOf }: TimeImp
 			return;
 		}
 		setState((current) => ({ ...current, stage: 'importing', rows, outcomes: NO_OUTCOMES }));
+		const labels = await chooseRunLabels(rows);
+		labelIdsRef.current = labels.labelIdsByName;
+		setLabelsNotAttached(labels.notAttached);
 		const outcomes = await saveRows(run, rows);
 		invalidateTimesheetData();
 		void queryClient.invalidateQueries({ queryKey: queryKeys.activities.all });
 		if (runRef.current === run) {
 			setState((current) => ({ ...current, stage: 'done', outcomes }));
 		}
-	}, [check, invalidateTimesheetData, queryClient, saveRows, state]);
+	}, [check, chooseRunLabels, invalidateTimesheetData, isWaitingForLabelRules, queryClient, saveRows, state]);
 
 	const { stage, rows, outcomes } = state;
 	const summary = useMemo(() => timeImportSummaryOf(rows), [rows]);
@@ -564,12 +632,12 @@ export function useTimeImport({ contextAt, saveScope, extraProjectsOf }: TimeImp
 		}
 		return null;
 	}, [outcomes, stage]);
-	const report = useMemo(() => {
+	const report = useMemo<TimeImportReport | null>(() => {
 		if (!run) {
 			return null;
 		}
-		return timeImportReportOf(rows, run);
-	}, [rows, run]);
+		return { ...timeImportReportOf(rows, run), labelsNotAttached };
+	}, [labelsNotAttached, rows, run]);
 	const { table, columns } = state;
 	const columnsStep = useMemo<TimeImportColumnsStep | null>(() => {
 		const isColumns = stage === 'columns';
@@ -594,6 +662,8 @@ export function useTimeImport({ contextAt, saveScope, extraProjectsOf }: TimeImp
 		report,
 		hasCheckFailed: state.hasCheckFailed,
 		hasPreviewChanged: state.hasPreviewChanged,
+		/** Rows have labels, and whether the API stores them or the role may add them is not known yet (#5368). */
+		isWaitingForLabelRules,
 		/** The preview a recheck with added members must still be on, or it is dropped. */
 		previewRun: state.previewRun,
 		outsideTeamKeys: outsideTeamOf(outsideTeam, state.sheet),

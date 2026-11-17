@@ -5,6 +5,10 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import type { DurationEntryInput } from '@/core/hooks/timesheet/use-duration-entry';
 import { AddManualTimeModal } from './add-manual-time-modal';
 
+// An API without labels on entries (#5368): the labels controls stay out, as before
+jest.mock('@/core/hooks/timer/use-entry-labels-support', () => ({ useEntryLabelsSupport: () => false }));
+jest.mock('@/core/components/features/entry-labels/entry-labels-field', () => ({ EntryLabelsField: () => null }));
+
 const mockAddManualTime = jest.fn();
 const mockAtomValues: Record<string, unknown> = {};
 

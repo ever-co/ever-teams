@@ -43,6 +43,7 @@ function draftOf(cells: Partial<TimeImportCells>, order: DateOrder = 'yearFirst'
 			notes: '',
 			billable: '',
 			memberEmail: '',
+			labels: '',
 			...cells
 		},
 		extraCellCount: 0

@@ -36,6 +36,7 @@ function cellsOf(cells: Partial<TimeImportCells>): TimeImportCells {
 		notes: '',
 		billable: '',
 		memberEmail: '',
+		labels: '',
 		...cells
 	};
 }

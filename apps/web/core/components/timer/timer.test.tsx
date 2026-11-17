@@ -26,6 +26,9 @@ import type { TOrganizationTeam } from '@/core/types/schemas';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
 import { MinTimerFrame, Timer } from './timer';
 
+// An API without labels on entries (#5368): the labels controls stay out, as before
+jest.mock('@/core/hooks/timer/use-entry-labels-support', () => ({ useEntryLabelsSupport: () => false }));
+
 const mockStartTimer = jest.fn();
 const mockStopTimer = jest.fn();
 

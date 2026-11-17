@@ -34,7 +34,7 @@ const mockProjectClients = {
 	isError: false
 };
 const mockUrlFilters = {
-	filters: { clients: [] as string[], billable: [] as string[], labels: [] as string[] },
+	filters: { clients: [] as string[], billable: [] as string[], labels: [] as string[], entryLabels: [] as string[] },
 	setFilter: jest.fn(),
 	removeFilterValue: jest.fn(),
 	clearFilters: jest.fn()
@@ -58,6 +58,9 @@ jest.mock('./use-timesheet-page-logs', () => ({
 
 import { useTimesheetsPage } from './use-timesheets-page';
 
+// An API without labels on entries (#5368): the labels controls stay out, as before
+jest.mock('@/core/hooks/timer/use-entry-labels-support', () => ({ useEntryLabelsSupport: () => false }));
+
 describe("the Timesheets page's read of its logs", () => {
 	it('asks the labels of each task, which the label filter reads from the logs it shows', () => {
 		mockUseTimesheetPageLogs.mockReturnValue({
@@ -70,7 +73,8 @@ describe("the Timesheets page's read of its logs", () => {
 		renderHook(() => useTimesheetsPage());
 
 		expect(mockUseTimesheetPageLogs).toHaveBeenCalledWith(expect.anything(), expect.anything(), {
-			withTaskLabels: true
+			withTaskLabels: true,
+			withEntryLabels: false
 		});
 	});
 });

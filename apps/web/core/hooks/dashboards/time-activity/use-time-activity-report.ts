@@ -22,6 +22,7 @@ import {
 	flattenDailyReport
 } from '@/core/lib/utils/daily-report-figures';
 import { filterDailyReportByClients, isBillableOnly } from '@/core/lib/utils/dashboards/report-filters';
+import { NO_LABEL_VALUE } from '@/core/lib/utils/time-log-labels';
 import {
 	type ChartDayLabels,
 	type BillableFigures,
@@ -151,6 +152,16 @@ function employeeIdsOf(filters: TimeActivityFilters, access: ReportAccess, ownEm
 	return appliedTeamMemberIdsOf(filters.teamIds, access.managedTeams);
 }
 
+/** The entry Labels filter as the daily report takes it: the labels picked, and "No label" as `untagged`. */
+function entryLabelFiltersOf(picked: ReadonlyArray<string>): { tagIds?: string[]; untagged?: boolean } {
+	if (picked.length === 0) {
+		return {};
+	}
+	const tagIds = picked.filter((value) => value !== NO_LABEL_VALUE);
+	const untagged = picked.includes(NO_LABEL_VALUE);
+	return { tagIds, untagged };
+}
+
 function requestOf(
 	user: TUser | null | undefined,
 	period: Period,
@@ -174,7 +185,8 @@ function requestOf(
 		projectIds: filters.projectIds,
 		taskIds: filters.taskIds,
 		includeTimeWithoutTeam: true,
-		billableOnly: isBillableOnly(filters.billable)
+		billableOnly: isBillableOnly(filters.billable),
+		...entryLabelFiltersOf(filters.entryLabels)
 	};
 }
 
@@ -403,7 +415,9 @@ export function useTimeActivityReport() {
 	const readsBreaks = allowsBreaks && !billableOnly && !hasClientFilter;
 	const breaksQuery = useTimeActivityBreaksQuery(request, readsBreaks);
 	const breakSeconds = breakSecondsShownOf(readsBreaks, breaksQuery);
-	const sumsFiguresFromRows = hasTaskFilter || hasClientFilter || billableOnly || isRounding;
+	// The counts endpoint knows nothing of the entry's labels either: with them picked, the rows give the figures
+	const hasEntryLabelFilter = settings.filters.entryLabels.length > 0;
+	const sumsFiguresFromRows = hasTaskFilter || hasClientFilter || billableOnly || isRounding || hasEntryLabelFilter;
 	const isClientGrouping = settings.grouping === 'client';
 	const needsProjectClients = hasClientFilter || isClientGrouping;
 	const projectClients = useReportProjectClients({ includesArchived: false, isEnabled: needsProjectClients });
@@ -638,12 +652,13 @@ export function useTimeActivityReport() {
 	// The weekly report has no project in its rows and rounds nothing: with a client picked or a rounding rule, the
 	// week grid is built from these rows
 	const weekDailySource = useMemo<WeekDailySource | null>(() => {
-		const readsRows = hasClientFilter || isRounding;
+		// The weekly report knows no labels of entries either (#5368): picked, the grid is built from these rows too
+		const readsRows = hasClientFilter || isRounding || hasEntryLabelFilter;
 		if (!readsRows) {
 			return null;
 		}
 		return { rows, isLoading: isDailyPending, isError: isDailyError, refetch: () => void refetchDaily() };
-	}, [hasClientFilter, isDailyError, isDailyPending, isRounding, refetchDaily, rows]);
+	}, [hasClientFilter, hasEntryLabelFilter, isDailyError, isDailyPending, isRounding, refetchDaily, rows]);
 
 	return {
 		user,

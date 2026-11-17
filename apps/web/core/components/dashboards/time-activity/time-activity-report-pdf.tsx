@@ -15,6 +15,8 @@ export interface PdfRow {
 	first: string;
 	second: string;
 	task: string;
+	/** The entry's own labels (Gauzy #12029), by name. */
+	labels: string;
 	tracked: string;
 	earnings: string;
 	/** Only in a file that carries billable amounts. */
@@ -44,6 +46,7 @@ export interface TimeActivityPdfContent {
 		first: string;
 		second: string;
 		task: string;
+		labels: string;
 		tracked: string;
 		earnings: string;
 		billable: string;
@@ -106,6 +109,7 @@ const styles = StyleSheet.create({
 	firstBesideBillable: { width: '17%', paddingRight: 6 },
 	secondBesideBillable: { width: '14%', paddingRight: 6 },
 	task: { flex: 1, paddingRight: 6 },
+	labels: { width: '13%', paddingRight: 6 },
 	figure: { width: '11%', textAlign: 'right' },
 	muted: { color: MUTED },
 	footer: {
@@ -180,6 +184,7 @@ function TableHeader({ content }: Readonly<{ content: TimeActivityPdfContent }>)
 			<Text style={[styles.headerCell, names.first]}>{columns.first}</Text>
 			<Text style={[styles.headerCell, names.second]}>{columns.second}</Text>
 			<Text style={[styles.headerCell, styles.task]}>{columns.task}</Text>
+			<Text style={[styles.headerCell, styles.labels]}>{columns.labels}</Text>
 			<Text style={[styles.headerCell, styles.figure]}>{columns.tracked}</Text>
 			{content.showsEarnings && <Text style={[styles.headerCell, styles.figure]}>{columns.earnings}</Text>}
 			{content.showsBillable && <Text style={[styles.headerCell, styles.figure]}>{columns.billable}</Text>}
@@ -208,6 +213,7 @@ function GroupBlock({
 					<Text style={names.first}>{row.first}</Text>
 					<Text style={[names.second, styles.muted]}>{row.second}</Text>
 					<Text style={styles.task}>{row.task}</Text>
+					<Text style={[styles.labels, styles.muted]}>{row.labels}</Text>
 					<Text style={styles.figure}>{row.tracked}</Text>
 					{showsEarnings && <Text style={styles.figure}>{row.earnings}</Text>}
 					{showsBillable && <Text style={styles.figure}>{row.billable}</Text>}

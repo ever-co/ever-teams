@@ -48,6 +48,11 @@ const TaskBlockTimer = dynamic(() => import('@/core/components/timer/timer').the
 	loading: () => <TimerSkeleton className={TASK_BLOCK_TIMER_CLASS_NAME} />
 });
 
+const TaskBlockLabels = dynamic(
+	() => import('@/core/components/timer/timer-labels-control').then((mod) => ({ default: mod.TimerLabelsControl })),
+	{ ssr: false }
+);
+
 const TaskBlockRunMenu = dynamic(
 	() => import('@/core/components/timer/timer-run-menu').then((mod) => ({ default: mod.TimerRunMenu })),
 	{ ssr: false }
@@ -64,6 +69,9 @@ const TASK_INPUT_TOGGLE_IN_ROW_CLASS_NAME = 'mt-0 min-w-0 flex-1';
  * height of the input's toggle.
  */
 const TASK_BLOCK_RUN_MENU_CLASS_NAME = 'size-7 sm:hidden';
+
+/** The timer's Labels on a phone (#5368): its own row has no room either, so they stand here, beside Discard. */
+const TASK_BLOCK_LABELS_CLASS_NAME = 'size-7 sm:hidden';
 
 export function TaskTimerSection({ isTrackingEnabled }: Readonly<{ isTrackingEnabled: boolean }>) {
 	const [showInput, setShowInput] = useState(false);
@@ -98,6 +106,7 @@ export function TaskTimerSection({ isTrackingEnabled }: Readonly<{ isTrackingEna
 						aria-label={showInput ? 'hide the issue input' : 'show the issue input'}
 					/>
 				</button>
+				{showsTimer && <TaskBlockLabels className={TASK_BLOCK_LABELS_CLASS_NAME} />}
 				{showsTimer && <TaskBlockRunMenu className={TASK_BLOCK_RUN_MENU_CLASS_NAME} />}
 			</div>
 			{/* shrink-0: the timer keeps its natural width; the task-input column (min-w-0) is what gives way,
