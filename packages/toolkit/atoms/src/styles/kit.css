@@ -15,7 +15,11 @@
 
 @plugin 'tailwindcss-animate';
 
-@custom-variant dark (&:where(.dark, .dark *));
+/*
+ * dark: follows the color scheme of the kit root (and its portal container), which <TeamsProvider colorScheme> sets:
+ * a host's own .dark class on <html> does not reach the widgets.
+ */
+@custom-variant dark (&:where([data-ever-teams-color-scheme='dark'], [data-ever-teams-color-scheme='dark'] *));
 
 /* The kit's colors and radius, as tailwind.config.js declares them for hosts that compile the kit themselves. */
 @theme inline {
@@ -86,9 +90,8 @@
 	--z-dropdown: 99998;
 }
 
-/* Dark tokens: while the kit's color scheme is a class on <html> (next-themes), they apply under .dark. */
-.dark [data-ever-teams-kit],
-[data-ever-teams-kit].dark {
+/* Dark tokens, on a kit root or portal container whose color scheme is dark; the host's .dark class does not count. */
+[data-ever-teams-kit][data-ever-teams-color-scheme='dark'] {
 	--scroll-background: #000000;
 	--scroll-foreground: #303030;
 	--background: 224 71% 4%;

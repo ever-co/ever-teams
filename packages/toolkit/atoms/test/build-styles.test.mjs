@@ -124,6 +124,35 @@ test('the built reset comes before the utilities, so space-y-* keeps its margins
 	assert.ok(reset < spaceY, `the reset (rule ${reset}) comes before space-y-6 (rule ${spaceY})`);
 });
 
+test('dark styles follow the color scheme of the kit root, never a dark class of the host page', async () => {
+	const { JSDOM } = require('jsdom');
+	const root = postcss.parse(await buildStylesheet());
+	const selectorOf = (matches) => {
+		let found;
+		root.walkRules((rule) => {
+			if (!found && matches(rule)) found = rule.selector;
+		});
+		return found;
+	};
+	// jsdom's selector engine reads no escaped class name: the variant's class is swapped for a plain one.
+	const darkText = selectorOf((rule) => rule.selector.includes('.dark\\:text-white')).replace(
+		'.dark\\:text-white',
+		'.probe'
+	);
+	const darkTokens = selectorOf((rule) => rule.nodes.some((d) => d.prop === '--background' && d.value === '224 71% 4%'));
+	// A host page in dark mode, with one light and one dark kit root.
+	const { document } = new JSDOM(
+		`<html class="dark"><body>
+			<div id="light" data-ever-teams-kit data-ever-teams-color-scheme="light"><span id="light-text" class="probe"></span></div>
+			<div id="dark" data-ever-teams-kit data-ever-teams-color-scheme="dark"><span id="dark-text" class="probe"></span></div>
+		</body></html>`
+	).window;
+	const ids = (selector) => [...document.querySelectorAll(selector)].map((element) => element.id);
+
+	assert.deepEqual(ids(darkText), ['dark-text']);
+	assert.deepEqual(ids(darkTokens), ['dark']);
+});
+
 test('the built stylesheet names no keyframes and registers no property a host could also use', async () => {
 	const css = await buildStylesheet();
 	const root = postcss.parse(css);
