@@ -10,10 +10,19 @@ export default {
 			file: 'dist/index.es.js',
 			format: 'es',
 			sourcemap: false
+		},
+		// For require() and for the CommonJS build of atoms, which loads this package.
+		{
+			file: 'dist/index.cjs',
+			format: 'cjs',
+			exports: 'named',
+			sourcemap: false
 		}
 	],
 	// Use package names instead of regex to avoid absolute path issues
-	external: ['qs', 'tslib'],
+	// qs is a dependency; toolkit-types stays a package of its own, so a host has one copy. The TypeScript helpers
+	// (tslib) are bundled: the package does not depend on tslib.
+	external: (id) => id === 'qs' || id.startsWith('@ever-teams/'),
 	plugins: [
 		resolve({
 			extensions: ['.js', '.ts', '.jsx', '.tsx'],

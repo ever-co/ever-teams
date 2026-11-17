@@ -10,6 +10,13 @@ export default {
 			file: 'dist/index.es.js',
 			format: 'es',
 			sourcemap: false
+		},
+		// For require() and for the CommonJS build of atoms, which loads this package.
+		{
+			file: 'dist/index.cjs',
+			format: 'cjs',
+			exports: 'named',
+			sourcemap: false
 		}
 	],
 	plugins: [
