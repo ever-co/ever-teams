@@ -26,10 +26,19 @@ export async function readStoredSession(): Promise<StoredSession> {
 	return { accessToken: accessToken ?? undefined, refreshToken: refreshToken ?? undefined };
 }
 
-/** An empty token removes the stored one: signing out forgets the session. */
+/**
+ * An empty token removes the stored one: signing out forgets the session. Both keys are tried even when one is
+ * refused, so a sign-out whose access-token delete fails still deletes the refresh token; the first refusal is thrown.
+ */
 export async function writeStoredSession(session: StoredSession): Promise<void> {
-	await keepOrForget(ACCESS_TOKEN_KEY, session.accessToken);
-	await keepOrForget(REFRESH_TOKEN_KEY, session.refreshToken);
+	const results = await Promise.allSettled([
+		keepOrForget(ACCESS_TOKEN_KEY, session.accessToken),
+		keepOrForget(REFRESH_TOKEN_KEY, session.refreshToken)
+	]);
+	const refused = results.find((result): result is PromiseRejectedResult => result.status === 'rejected');
+	if (refused) {
+		throw refused.reason;
+	}
 }
 
 let pendingWrites: Promise<void> = Promise.resolve();

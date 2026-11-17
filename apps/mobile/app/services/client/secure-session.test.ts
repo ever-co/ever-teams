@@ -3,6 +3,7 @@
  */
 import * as SecureStore from 'expo-secure-store';
 import {
+	forgetStoredSession,
 	hasTokens,
 	keepStoredSessionInOrder,
 	moveSessionToSecureStorage,
@@ -49,6 +50,16 @@ describe('secure session storage', () => {
 
 		expect(mockSecureValues.size).toBe(0);
 		expect(SecureStore.deleteItemAsync).toHaveBeenCalledTimes(2);
+	});
+
+	it('still deletes the refresh token when the access token cannot be deleted', async () => {
+		await writeStoredSession({ accessToken: 'access-1', refreshToken: 'refresh-1' });
+		jest.mocked(SecureStore.deleteItemAsync).mockRejectedValueOnce(new Error('keystore unavailable'));
+
+		await forgetStoredSession();
+
+		expect(SecureStore.deleteItemAsync).toHaveBeenCalledWith('ever-teams.session.refresh-token');
+		expect(mockSecureValues.has('ever-teams.session.refresh-token')).toBe(false);
 	});
 
 	it('tells whether a session has any token', () => {

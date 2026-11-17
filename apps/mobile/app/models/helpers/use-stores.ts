@@ -73,7 +73,7 @@ export const useInitialRootStore = (callback: (rehydration: Rehydration) => void
 			setRehydrated(true);
 
 			// invoke the callback, if provided
-			if (callback) callback({ sessionEnded });
+			if (callback) void callback({ sessionEnded });
 		})();
 
 		return () => {

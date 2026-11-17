@@ -53,6 +53,9 @@ async function restoreSession(rootStore: RootStore, restoredState: unknown): Pro
 		// The Keystore key can be gone, after a device restore for one: the tokens cannot be decrypted anymore
 		const ended = someoneWasSignedIn(restoredState);
 		if (ended) {
+			// as when the session ends while the app runs: the person's teams and tasks go with it
+			rootStore.TaskStore?.resetTeamTasksData();
+			rootStore.teamStore?.clearStoredTeamData();
 			authentication.logout();
 		}
 		await forgetStoredSession();
@@ -97,25 +100,29 @@ export async function setupRootStore(rootStore: RootStore) {
 
 	// track changes & save to AsyncStorage, the session aside
 	const stopSaving = onSnapshot(rootStore, (snapshot) => {
+		// storage.save never rejects: it answers false when AsyncStorage refuses the value
 		if (session.inSecureStorage) {
-			storage.save(ROOT_STATE_STORAGE_KEY, withoutSession(snapshot));
+			void storage.save(ROOT_STATE_STORAGE_KEY, withoutSession(snapshot));
 			return;
 		}
-		storage.save(ROOT_STATE_STORAGE_KEY, snapshot);
+		void storage.save(ROOT_STATE_STORAGE_KEY, snapshot);
 	});
 	if (session.inSecureStorage) {
 		await storage.save(ROOT_STATE_STORAGE_KEY, withoutSession(getSnapshot(rootStore)));
 	}
 
-	// each new pair of tokens (sign-in, renewal, sign-out) goes to the secure storage
+	// each new pair of tokens (sign-in, renewal) goes to the secure storage; a sign-out deletes the stored pair even
+	// while the tokens wait in root-v1 for a move that failed, in case that move's own cleanup did not go through
 	const authentication = rootStore.authenticationStore;
 	const stopKeepingSession = reaction(
 		() => ({ accessToken: authentication.authToken, refreshToken: authentication.refreshToken }),
 		(tokens) => {
-			if (!session.inSecureStorage) {
+			const signedOut = !hasTokens(tokens);
+			if (!session.inSecureStorage && !signedOut) {
 				return;
 			}
-			keepStoredSessionInOrder(tokens);
+			// keepStoredSessionInOrder never rejects
+			void keepStoredSessionInOrder(tokens);
 		},
 		{ equals: comparer.structural }
 	);

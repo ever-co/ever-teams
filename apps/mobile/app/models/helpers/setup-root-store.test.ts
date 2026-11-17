@@ -54,6 +54,23 @@ const SessionRootModel = types.model('SessionRoot').props({
 });
 const createStore = () => SessionRootModel.create({}) as unknown as RootStore;
 
+/** Stands for the team and task stores, which keep the signed-in person's data. */
+const PersonDataModel = types
+	.model('PersonData')
+	.props({ cleared: false })
+	.actions((self) => ({
+		resetTeamTasksData() {
+			self.cleared = true;
+		},
+		clearStoredTeamData() {
+			self.cleared = true;
+		}
+	}));
+const PersonRootModel = SessionRootModel.named('PersonRoot').props({
+	TaskStore: types.optional(PersonDataModel, {}),
+	teamStore: types.optional(PersonDataModel, {})
+});
+
 let unsubscribe: (() => void) | undefined;
 
 beforeEach(async () => {
@@ -147,6 +164,43 @@ describe('setupRootStore and the session', () => {
 		expect(setup.sessionEnded).toBe(true);
 		expect(store.authenticationStore.isAuthenticated).toBe(false);
 		expect(store.authenticationStore.tenantId).toBe('');
+	});
+
+	it('clears the teams and tasks of the person it signs out because the secure storage cannot be read', async () => {
+		await AsyncStorage.setItem(ROOT_KEY, JSON.stringify({ authenticationStore: { tenantId: 'tenant-1' } }));
+		jest.mocked(SecureStore.getItemAsync).mockRejectedValueOnce(new Error('could not decrypt'));
+		const store = PersonRootModel.create({}) as unknown as RootStore;
+
+		const setup = await setupRootStore(store);
+		unsubscribe = setup.unsubscribe;
+
+		expect(setup.sessionEnded).toBe(true);
+		const saved = await savedSnapshot();
+		expect(saved.TaskStore.cleared).toBe(true);
+		expect(saved.teamStore.cleared).toBe(true);
+	});
+
+	it('deletes the stored tokens on sign-out while a failed move keeps them in root-v1', async () => {
+		await AsyncStorage.setItem(ROOT_KEY, JSON.stringify(signedInBeforeThisVersion));
+		// the move writes the access token, is refused the refresh token, and cannot delete what it wrote
+		jest.mocked(SecureStore.setItemAsync)
+			.mockImplementationOnce(async (key: string, value: string) => {
+				mockSecureValues.set(key, value);
+			})
+			.mockRejectedValueOnce(new Error('keystore unavailable'));
+		jest.mocked(SecureStore.deleteItemAsync)
+			.mockRejectedValueOnce(new Error('keystore unavailable'))
+			.mockRejectedValueOnce(new Error('keystore unavailable'));
+		const store = createStore();
+
+		const setup = await setupRootStore(store);
+		unsubscribe = setup.unsubscribe;
+		expect(mockSecureValues.get(ACCESS_KEY)).toBe('access-old');
+
+		store.authenticationStore.logout();
+		await settle();
+
+		expect(mockSecureValues.size).toBe(0);
 	});
 
 	it('never signs back in from tokens a sign-out left in the secure storage', async () => {
