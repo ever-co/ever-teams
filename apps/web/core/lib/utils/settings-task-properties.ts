@@ -120,11 +120,14 @@ export function hasStatusCategories(statuses: ReadonlyArray<StatusWorkflowFlags>
 	return statuses.some(hasWorkflowFlag);
 }
 
+/** Where a status Gauzy stores with no order sorts: after every numbered one. */
+const UNORDERED = Number.MAX_SAFE_INTEGER;
+
 function orderValueOf(order: number | null | undefined): number {
 	if (typeof order === 'number') {
 		return order;
 	}
-	return Number.MAX_SAFE_INTEGER;
+	return UNORDERED;
 }
 
 function byOrder(first: OrderedPropertySource, second: OrderedPropertySource): number {
@@ -507,7 +510,7 @@ export function statusOrderOf(
 		}
 		const order: number = Math.max(lastOwnOrder, above?.order ?? -1) + 1;
 		// A built-in status with no order sorts last: nothing of the team can be placed below it
-		if (order >= Number.MAX_SAFE_INTEGER) {
+		if (order >= UNORDERED) {
 			return null;
 		}
 		entries.push({ id, order });

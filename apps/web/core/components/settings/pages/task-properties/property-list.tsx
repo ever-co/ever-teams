@@ -303,18 +303,20 @@ export function PropertyList({
 		setShownDelete(pendingDelete);
 	}
 
-	const canMoveTo = useCallback(
-		(groupKey: PropertyGroupKey, item: PropertyListItem, toIndex: number) => {
+	/** The ids of every row once `item` moves to `toIndex` of its group, when the list offers that move; else `null`. */
+	const offeredOrderOf = useCallback(
+		(groupKey: PropertyGroupKey, item: PropertyListItem, toIndex: number): string[] | null => {
 			if (!onMove) {
-				return false;
+				return null;
 			}
 			if (isMoveRefused(kind, item)) {
-				return false;
+				return null;
 			}
-			if (!canMove) {
-				return true;
+			const orderedIds = orderedIdsAfterMove(groups, groupKey, item.id, toIndex);
+			if (canMove && !canMove(orderedIds)) {
+				return null;
 			}
-			return canMove(orderedIdsAfterMove(groups, groupKey, item.id, toIndex));
+			return orderedIds;
 		},
 		[canMove, groups, kind, onMove]
 	);
@@ -324,14 +326,14 @@ export function PropertyList({
 			if (!onMove) {
 				return;
 			}
-			if (!canMoveTo(groupKey, item, toIndex)) {
+			const orderedIds = offeredOrderOf(groupKey, item, toIndex);
+			if (!orderedIds) {
 				return;
 			}
-			const orderedIds = orderedIdsAfterMove(groups, groupKey, item.id, toIndex);
 			await onMove(orderedIds);
 			setAnnouncement(t('settings.taskProperties.ANNOUNCE_MOVED', { name: item.label, position: toIndex + 1 }));
 		},
-		[canMoveTo, groups, onMove, t]
+		[offeredOrderOf, onMove, t]
 	);
 
 	const moveByOffset = useCallback(
@@ -498,8 +500,8 @@ export function PropertyList({
 			}
 			const isFirst = index === 0;
 			const isLast = index === group.items.length - 1;
-			const canMoveUp = !isFirst && canMoveTo(group.key, item, index - 1);
-			const canMoveDown = !isLast && canMoveTo(group.key, item, index + 1);
+			const canMoveUp = !isFirst && offeredOrderOf(group.key, item, index - 1) !== null;
+			const canMoveDown = !isLast && offeredOrderOf(group.key, item, index + 1) !== null;
 			return (
 				<PropertyRow
 					key={item.id}
