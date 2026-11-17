@@ -448,6 +448,89 @@ export function orderEntriesOf(ids: ReadonlyArray<string>): StatusOrderEntry[] {
 	return ids.map((id, index) => ({ id, order: index }));
 }
 
+/** Where a row sorts in the list, with the kind of row it is: a built-in status keeps the order Gauzy stores. */
+interface PlacedRow {
+	order: number;
+	isSystem: boolean;
+}
+
+/** Whether a built-in status still sorts below the row above it in its group, as the moved list shows it. */
+function sortsBelow(builtInOrder: number, above: PlacedRow | null): boolean {
+	if (!above) {
+		return true;
+	}
+	if (above.isSystem) {
+		return builtInOrder >= above.order;
+	}
+	return builtInOrder > above.order;
+}
+
+/**
+ * The order to save for the statuses as `orderedIds` lists them once moved: group after group, as the page shows them.
+ *
+ * Gauzy's `PATCH /task-statuses/reorder` writes `order` on the team's own statuses only (`update ... where isSystem =
+ * false`): one built-in status in the request matches no row and the whole reorder answers 400 (#5359). So a built-in
+ * status keeps the order Gauzy stores for it, and the request numbers the team's own statuses alone: each one after the
+ * row above it in its group (the list sorts each group by `order`, see `statusItemsOf`) and after the team's statuses
+ * of the groups above, so the board reads its columns in the order the page lists them.
+ *
+ * @returns The entries of the team's own statuses, built-in ones left out; `null` when the team's own statuses alone
+ * cannot give that order, as when a status of the team would pass a built-in one: the built-in status would have to
+ * move, and Gauzy never moves one.
+ */
+export function statusOrderOf(
+	items: ReadonlyArray<PropertyListItem>,
+	orderedIds: ReadonlyArray<string>
+): StatusOrderEntry[] | null {
+	const itemById = new Map(items.map((item) => [item.id, item]));
+	const entries: StatusOrderEntry[] = [];
+	let lastOwnOrder = -1;
+	let groupId: StatusGroupId | null | undefined;
+	let above: PlacedRow | null = null;
+	for (const id of orderedIds) {
+		const item = itemById.get(id);
+		if (!item) {
+			return null;
+		}
+		const startsGroup = item.groupId !== groupId;
+		if (startsGroup) {
+			groupId = item.groupId;
+			above = null;
+		}
+		if (item.isSystem) {
+			const order = orderValueOf(item.order);
+			if (!sortsBelow(order, above)) {
+				return null;
+			}
+			above = { order, isSystem: true };
+			continue;
+		}
+		const order = Math.max(lastOwnOrder, above?.order ?? -1) + 1;
+		// A built-in status with no order sorts last: nothing of the team can be placed below it
+		if (order >= Number.MAX_SAFE_INTEGER) {
+			return null;
+		}
+		entries.push({ id, order });
+		lastOwnOrder = order;
+		above = { order, isSystem: false };
+	}
+	return entries;
+}
+
+/** Whether Gauzy can save the order `orderedIds` gives: it has statuses of the team to write, and no built-in one moves. */
+export function isStatusOrderSaved(items: ReadonlyArray<PropertyListItem>, orderedIds: ReadonlyArray<string>): boolean {
+	const entries = statusOrderOf(items, orderedIds);
+	if (!entries) {
+		return false;
+	}
+	return entries.length > 0;
+}
+
+/** A built-in status keeps its place: Gauzy's reorder writes `where isSystem = false` (#5359). */
+export function isMoveRefused(kind: TaskPropertySettingsKind, item: PropertyListItem): boolean {
+	return kind === 'status' && item.isSystem;
+}
+
 /** Kinds whose built-in rows Gauzy refuses to delete (`delete ... where isSystem = false`). */
 const KINDS_WITH_PROTECTED_ROWS: ReadonlySet<TaskPropertySettingsKind> = new Set([
 	'status',

@@ -16,6 +16,7 @@ import { TaskPropertyIcon } from '@/core/components/tasks/task-property-icon';
 import { cn } from '@/core/lib/helpers';
 import {
 	isDeletionRefused,
+	isMoveRefused,
 	PropertyListItem,
 	TaskPropertySettingsKind
 } from '@/core/lib/utils/settings-task-properties';
@@ -46,8 +47,9 @@ interface PropertyRowProps extends PropertyRowActions {
 	listId: string;
 	groupKey: string;
 	index: number;
-	isFirst: boolean;
-	isLast: boolean;
+	/** Whether a move one place up, or down, is one the list can save. */
+	canMoveUp: boolean;
+	canMoveDown: boolean;
 	/** Shown when the user may not change this row: the actions stay listed, disabled under the hint. */
 	readOnlyHint?: string;
 }
@@ -55,8 +57,8 @@ interface PropertyRowProps extends PropertyRowActions {
 function RowMenu({
 	kind,
 	item,
-	isFirst,
-	isLast,
+	canMoveUp,
+	canMoveDown,
 	onEdit,
 	onDelete,
 	onMove,
@@ -65,11 +67,13 @@ function RowMenu({
 }: Readonly<Omit<PropertyRowProps, 'listId' | 'groupKey' | 'index'>>) {
 	const t = useTranslations();
 	const canReorder = Boolean(onMove);
+	const isRowMoveRefused = canReorder && isMoveRefused(kind, item);
+	const offersMove = canReorder && !isRowMoveRefused;
 	const offersMakeDefault = Boolean(onMakeDefault) && !item.isDefault;
 	const isDeleteRefused = isDeletionRefused(kind, item);
 	const isReadOnly = Boolean(readOnlyHint);
-	const isMoveUpDisabled = isReadOnly || isFirst;
-	const isMoveDownDisabled = isReadOnly || isLast;
+	const isMoveUpDisabled = isReadOnly || !canMoveUp;
+	const isMoveDownDisabled = isReadOnly || !canMoveDown;
 
 	return (
 		<DropdownMenu>
@@ -102,7 +106,12 @@ function RowMenu({
 						{t('settings.taskProperties.MAKE_DEFAULT')}
 					</DropdownMenuItem>
 				)}
-				{canReorder && (
+				{isRowMoveRefused && (
+					<DropdownMenuLabel className="font-normal">
+						{t('settings.taskProperties.BUILT_IN_MOVE')}
+					</DropdownMenuLabel>
+				)}
+				{offersMove && (
 					<>
 						<DropdownMenuItem disabled={isMoveUpDisabled} onClick={() => onMove?.(item, -1)}>
 							<ChevronUp />
@@ -136,7 +145,7 @@ export const PropertyRow = memo(function PropertyRow(props: Readonly<PropertyRow
 	const { kind, item, listId, groupKey, index } = props;
 	const isReadOnly = Boolean(props.readOnlyHint);
 	const hasMove = Boolean(props.onMove);
-	const canReorder = hasMove && !isReadOnly;
+	const canReorder = hasMove && !isReadOnly && !isMoveRefused(kind, item);
 	const dragData = propertyRowData(listId, groupKey, item.id, index);
 	const { rowRef, handleRef, dragState } = usePropertyRowDrag(dragData, canReorder);
 	const isDragging = dragState.type === 'dragging';

@@ -18,6 +18,7 @@ import {
 	hasIconLibrary,
 	iconPathOfTemplate,
 	idsAfterMove,
+	isMoveRefused,
 	itemsOfGroup,
 	PropertyDraft,
 	PropertyListItem,
@@ -80,6 +81,8 @@ interface PropertyListProps {
 	skeletonRows: number;
 	isGrouped?: boolean;
 	onMove?: (orderedIds: string[]) => Promise<void>;
+	/** Whether `onMove` can save that order; a move it cannot save is not offered. Without it, every move is. */
+	canMove?: (orderedIds: string[]) => boolean;
 	onMakeDefault?: (item: PropertyListItem) => Promise<void>;
 	onDelete?: (item: PropertyListItem) => Promise<unknown>;
 	renderDeleteDialog?: (props: PropertyDeleteRenderProps) => ReactNode;
@@ -101,6 +104,22 @@ function displayGroupsOf(items: PropertyListItem[], isGrouped: boolean): Display
 		const isOther = group.key === 'other';
 		const isEmpty = group.items.length === 0;
 		return !(isOther && isEmpty);
+	});
+}
+
+/** The ids of every row, group after group, once `itemId` moves to `toIndex` of its group. */
+function orderedIdsAfterMove(
+	groups: DisplayGroup[],
+	groupKey: PropertyGroupKey,
+	itemId: string,
+	toIndex: number
+): string[] {
+	return groups.flatMap((group) => {
+		const ids = group.items.map((groupItem) => groupItem.id);
+		if (group.key !== groupKey) {
+			return ids;
+		}
+		return idsAfterMove(ids, itemId, toIndex);
 	});
 }
 
@@ -246,6 +265,7 @@ export function PropertyList({
 	skeletonRows,
 	isGrouped = false,
 	onMove,
+	canMove,
 	onMakeDefault,
 	onDelete,
 	renderDeleteDialog,
@@ -283,22 +303,35 @@ export function PropertyList({
 		setShownDelete(pendingDelete);
 	}
 
+	const canMoveTo = useCallback(
+		(groupKey: PropertyGroupKey, item: PropertyListItem, toIndex: number) => {
+			if (!onMove) {
+				return false;
+			}
+			if (isMoveRefused(kind, item)) {
+				return false;
+			}
+			if (!canMove) {
+				return true;
+			}
+			return canMove(orderedIdsAfterMove(groups, groupKey, item.id, toIndex));
+		},
+		[canMove, groups, kind, onMove]
+	);
+
 	const moveTo = useCallback(
 		async (groupKey: PropertyGroupKey, item: PropertyListItem, toIndex: number) => {
 			if (!onMove) {
 				return;
 			}
-			const orderedIds = groups.flatMap((group) => {
-				const ids = group.items.map((groupItem) => groupItem.id);
-				if (group.key !== groupKey) {
-					return ids;
-				}
-				return idsAfterMove(ids, item.id, toIndex);
-			});
+			if (!canMoveTo(groupKey, item, toIndex)) {
+				return;
+			}
+			const orderedIds = orderedIdsAfterMove(groups, groupKey, item.id, toIndex);
 			await onMove(orderedIds);
 			setAnnouncement(t('settings.taskProperties.ANNOUNCE_MOVED', { name: item.label, position: toIndex + 1 }));
 		},
-		[groups, onMove, t]
+		[canMoveTo, groups, onMove, t]
 	);
 
 	const moveByOffset = useCallback(
@@ -463,6 +496,10 @@ export function PropertyList({
 			if (isRowReadOnly) {
 				rowReadOnlyHint = readOnlyHint;
 			}
+			const isFirst = index === 0;
+			const isLast = index === group.items.length - 1;
+			const canMoveUp = !isFirst && canMoveTo(group.key, item, index - 1);
+			const canMoveDown = !isLast && canMoveTo(group.key, item, index + 1);
 			return (
 				<PropertyRow
 					key={item.id}
@@ -471,8 +508,8 @@ export function PropertyList({
 					listId={listId}
 					groupKey={group.key}
 					index={index}
-					isFirst={index === 0}
-					isLast={index === group.items.length - 1}
+					canMoveUp={canMoveUp}
+					canMoveDown={canMoveDown}
 					onEdit={openEdit}
 					onDelete={requestDelete}
 					onMove={rowMove}
