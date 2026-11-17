@@ -12,7 +12,7 @@ import { createNativeStackNavigator, NativeStackScreenProps } from '@react-navig
 import { observer } from 'mobx-react-lite';
 import React from 'react';
 import Config from '../config';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { AppQueryProvider } from '../services/client/query-provider';
 import { useStores } from '../models'; // @demo remove-current-line
 import {
 	LoginScreen // @demo remove-current-line
@@ -94,12 +94,11 @@ interface NavigationProps extends Partial<React.ComponentProps<typeof Navigation
 
 export const AppNavigator = observer(function AppNavigator(props: NavigationProps) {
 	useBackButtonHandler((routeName) => exitRoutes.includes(routeName));
-	const queryClient = new QueryClient();
 	return (
 		<NavigationContainer ref={navigationRef} navigationInChildEnabled {...props}>
-			<QueryClientProvider client={queryClient}>
+			<AppQueryProvider>
 				<AppStack />
-			</QueryClientProvider>
+			</AppQueryProvider>
 		</NavigationContainer>
 	);
 });
