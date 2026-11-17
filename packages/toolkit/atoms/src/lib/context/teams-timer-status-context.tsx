@@ -66,9 +66,11 @@ export function TimerStatusProvider({ children }: { children?: ReactNode }) {
 	const [loading, setLoading] = useState(false);
 	const [consumerCount, setConsumerCount] = useState(0);
 	const [announcement, setAnnouncement] = useState('');
-	const inFlight = useRef<{ identity: string; promise: Promise<void> } | null>(null);
+	// The pending reads for one identity; again: a refresh was asked while they ran.
+	const inFlight = useRef<{ identity: string; promise: Promise<void>; again: boolean } | null>(null);
+	// Only the read started last may set the status, show a notice or end the loading state.
+	const latestRead = useRef(0);
 	const failing = useRef(false);
-	const readAgain = useRef(false);
 	const lastRunning = useRef<boolean | null>(null);
 
 	const hasEmployee = Boolean(user?.employee);
@@ -98,10 +100,13 @@ export function TimerStatusProvider({ children }: { children?: ReactNode }) {
 	// One read of the status; its answer becomes the shared status.
 	const readOnce = useCallback(
 		async (forIdentity: string) => {
+			latestRead.current += 1;
+			const read = latestRead.current;
+			const isCurrent = () => read === latestRead.current && currentIdentity.current === forIdentity;
 			setLoading(true);
 			try {
 				const response = await getTimerStatus(user, token, organizationId);
-				if (currentIdentity.current !== forIdentity) {
+				if (!isCurrent()) {
 					return;
 				}
 				if (isServerError(response)) {
@@ -111,9 +116,11 @@ export function TimerStatusProvider({ children }: { children?: ReactNode }) {
 				failing.current = false;
 				setStatus(response);
 			} catch (error) {
-				reportFailure((error as Error).message);
+				if (isCurrent()) {
+					reportFailure((error as Error).message);
+				}
 			} finally {
-				if (currentIdentity.current === forIdentity) {
+				if (isCurrent()) {
 					setLoading(false);
 				}
 			}
@@ -130,27 +137,30 @@ export function TimerStatusProvider({ children }: { children?: ReactNode }) {
 		const pending = inFlight.current;
 		const pendingForThisIdentity = pending?.identity === identity;
 		if (pending && pendingForThisIdentity) {
-			readAgain.current = true;
+			pending.again = true;
 			return pending.promise;
 		}
+		const record = { identity, promise: Promise.resolve(), again: false };
+		const readsAgain = () => record.again && currentIdentity.current === identity;
 		const reads = (async () => {
 			do {
-				readAgain.current = false;
+				record.again = false;
 				await readOnce(identity);
-			} while (readAgain.current && currentIdentity.current === identity);
+			} while (readsAgain());
 		})();
-		const promise = reads.finally(() => {
-			if (inFlight.current?.identity === identity) {
+		record.promise = reads.finally(() => {
+			if (inFlight.current === record) {
 				inFlight.current = null;
 			}
 		});
-		inFlight.current = { identity, promise };
-		return promise;
+		inFlight.current = record;
+		return record.promise;
 	}, [ready, readOnce, identity]);
 
 	// Another user, token or organization: the previous status is dropped at once, and no change is announced.
 	useEffect(() => {
 		setStatus(null);
+		setLoading(false);
 		failing.current = false;
 		lastRunning.current = null;
 	}, [identity]);

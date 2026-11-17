@@ -34,7 +34,7 @@ const stubs = {
 	'@ever-teams/api': `
 		globalThis.__reads = [];
 		export const getTimerStatus = (user, token, organizationId) =>
-			new Promise((resolve) => globalThis.__reads.push(Object.assign(resolve, { organizationId })));`,
+			new Promise((resolve, reject) => globalThis.__reads.push(Object.assign(resolve, { organizationId, reject })));`,
 	'@ever-teams/toolkit-ui': 'globalThis.__toasts = []; export const toast = (t) => globalThis.__toasts.push(t);',
 	'@ever-teams/toolkit-types': 'export {};',
 	'react-i18next': 'export const useTranslation = () => ({ t: (key) => key });'
@@ -251,4 +251,64 @@ test('switching organization during a read reads the new one and drops the answe
 	assert.equal(latest, null);
 	await act(async () => forNewOrganization({ running: false, duration: 3, lastLog: null }));
 	assert.equal(latest?.duration, 3);
+});
+
+// Everything the provider gives a widget, and its refetch, for the tests below.
+function probe(seen) {
+	const Probe = () => {
+		const shared = useTimerStatusContext();
+		const register = shared?.registerConsumer;
+		React.useEffect(() => register?.(), [register]);
+		seen.shared = shared;
+		return null;
+	};
+	return React.createElement(Probe, { key: 'probe' });
+}
+
+test('a failed read for a previous organization shows no notice', async () => {
+	await reset();
+	await mount([widget('a')]);
+	const forOldOrganization = globalThis.__reads[0];
+
+	await act(async () => globalThis.__setIdentity({ selectedOrganization: 'org-2' }));
+	await act(async () => forOldOrganization.reject(new Error('network down')));
+
+	assert.equal(globalThis.__toasts.length, 0);
+});
+
+test('after switching away and back, an answer from the first visit is dropped and the pending read is kept', async () => {
+	await reset();
+	const seen = {};
+	await mount([probe(seen)]);
+	const firstVisit = globalThis.__reads[0];
+	await act(async () => globalThis.__setIdentity({ selectedOrganization: 'org-2' }));
+	await act(async () => globalThis.__setIdentity({ selectedOrganization: 'org' }));
+	const secondVisit = globalThis.__reads.at(-1);
+	assert.notEqual(secondVisit, firstVisit);
+	const readsBefore = globalThis.__reads.length;
+
+	await act(async () => firstVisit({ running: true, duration: 99, lastLog: null }));
+	assert.equal(seen.shared.status, null);
+	await act(async () => {
+		seen.shared.refetch();
+	});
+	assert.equal(
+		globalThis.__reads.length,
+		readsBefore,
+		'a refresh waits for the pending read instead of starting another'
+	);
+
+	await act(async () => secondVisit({ running: false, duration: 4, lastLog: null }));
+	assert.equal(seen.shared.status?.duration, 4);
+});
+
+test('signing out during a read ends the loading state', async () => {
+	await reset();
+	const seen = {};
+	await mount([probe(seen)]);
+	assert.equal(seen.shared.loading, true);
+
+	await act(async () => globalThis.__setIdentity({ token: '' }));
+
+	assert.equal(seen.shared.loading, false);
 });
