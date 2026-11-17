@@ -13,7 +13,8 @@
 		"lint": "eslint src/",
 		"type-check": "tsc --noEmit",
 		"build": "rm -rf dist && rollup -c",
-		"dev": "rollup -c --watch"
+		"dev": "rollup -c --watch",
+		"test": "node --test test/"
 	},
 	"peerDependencies": {
 		"@emotion/react": ">=11.13.5",
