@@ -123,7 +123,7 @@ test("with custom properties off, the kit's own color wins over a host provider'
 	assert.equal(await themeColor(kitTheme, { colors: { mainColor: 'blue' } }), 'red');
 });
 
-test("a nested color scale gives its __default value, as an sx color does", async () => {
+test('a nested color scale gives its __default value, as an sx color does', async () => {
 	assert.equal(await themeColor({ colors: { mainColor: { __default: 'red', light: 'pink' } } }), 'red');
 	assert.equal(
 		await themeColor({ config: { useCustomProperties: false }, colors: { mainColor: { __default: 'red' } } }),

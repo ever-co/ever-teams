@@ -24,7 +24,9 @@ before(async () => {
 	bundleDir = fs.mkdtempSync(path.join(here, '.timer-surface-'));
 	const outfile = path.join(bundleDir, 'container.mjs');
 	await esbuild.build({
-		entryPoints: [path.join(here, '..', 'src', 'lib', 'components', 'teams-time-trackers', 'common', 'container.tsx')],
+		entryPoints: [
+			path.join(here, '..', 'src', 'lib', 'components', 'teams-time-trackers', 'common', 'container.tsx')
+		],
 		bundle: true,
 		format: 'esm',
 		platform: 'neutral',

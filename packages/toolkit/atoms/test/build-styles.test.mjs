@@ -139,7 +139,9 @@ test('dark styles follow the color scheme of the kit root, never a dark class of
 		'.dark\\:text-white',
 		'.probe'
 	);
-	const darkTokens = selectorOf((rule) => rule.nodes.some((d) => d.prop === '--background' && d.value === '224 71% 4%'));
+	const darkTokens = selectorOf((rule) =>
+		rule.nodes.some((d) => d.prop === '--background' && d.value === '224 71% 4%')
+	);
 	// A host page in dark mode, with one light and one dark kit root.
 	const { document } = new JSDOM(
 		`<html class="dark"><body>
