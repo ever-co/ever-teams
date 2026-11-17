@@ -65,6 +65,17 @@ function savedFiltersOf(filters: TimeActivityFilters): ISavedReportFilters {
 	};
 }
 
+/**
+ * The grouping a saved report stores. The saved reports API knows no Label grouping (#5368): a view grouped by label is
+ * saved with the default grouping, by date.
+ */
+function savedGroupingOf(grouping: TimeActivityGrouping): Exclude<TimeActivityGrouping, 'label'> | null {
+	if (grouping === 'label') {
+		return null;
+	}
+	return grouping;
+}
+
 /** The body that saves the view, or that updates a saved report with it. */
 export function savedReportInputOf(
 	view: TimeActivityView,
@@ -75,7 +86,7 @@ export function savedReportInputOf(
 		...savedPeriodOf(view.period, weekStartsOn),
 		timeZone,
 		filters: savedFiltersOf(view.filters),
-		grouping: view.grouping
+		grouping: savedGroupingOf(view.grouping)
 	};
 }
 

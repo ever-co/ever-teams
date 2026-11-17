@@ -107,7 +107,8 @@ const NO_FILTERS: TimeActivityFilters = {
 	projectIds: [],
 	taskIds: [],
 	clientIds: [],
-	billable: []
+	billable: [],
+	entryLabels: []
 };
 
 const mockSetLinkParams = jest.fn();

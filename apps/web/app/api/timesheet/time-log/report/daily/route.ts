@@ -62,6 +62,13 @@ export async function GET(req: NextRequest) {
 			params.withClientRates = true;
 		}
 
+		// The entry's own labels (#5368, ever-gauzy #12029)
+		const tagIds = readArrayParam(searchParams, 'tagIds');
+		if (tagIds.length) params.tagIds = tagIds;
+		if (searchParams.get('untagged') === 'true') {
+			params.untagged = true;
+		}
+
 		const activityLevelStart = searchParams.get('activityLevel[start]');
 		const activityLevelEnd = searchParams.get('activityLevel[end]');
 

@@ -10,11 +10,12 @@ const NO_FILTERS: TimesheetFilterSelection = {
 	tasks: [],
 	clients: [],
 	billable: [],
-	labels: []
+	labels: [],
+	entryLabels: []
 };
 
 /** The values the sheet's editing reads from the Timesheets page, for the viewer's own week with every log read. */
-function pageUnder(filters: Partial<TimesheetFilterSelection>): TimesheetsPageState {
+function pageUnder(filters: Partial<TimesheetFilterSelection>, supportsEntryLabels = true): TimesheetsPageState {
 	const page = {
 		permissions: {
 			hasOrganizationRole: false,
@@ -29,7 +30,8 @@ function pageUnder(filters: Partial<TimesheetFilterSelection>): TimesheetsPageSt
 		allLogs: [],
 		statusFilter: ALL_STATUSES,
 		search: '',
-		filters: { ...NO_FILTERS, ...filters }
+		filters: { ...NO_FILTERS, ...filters },
+		supportsEntryLabels
 	};
 	return page as unknown as TimesheetsPageState;
 }
@@ -49,5 +51,12 @@ describe('the week sheet under the filters of the Timesheets page', () => {
 		expect(isSheetFilteredUnder({ clients: ['client-1'] })).toBe(true);
 		expect(isSheetFilteredUnder({ billable: [BILLABLE_ONLY_VALUE] })).toBe(true);
 		expect(isSheetFilteredUnder({ labels: ['label-1'] })).toBe(true);
+	});
+
+	it("closes under the entries' own labels, but not under labels of a link the API cannot apply (#5368)", () => {
+		const linkedLabels = { entryLabels: ['meeting'] };
+
+		expect(sheetEditingSourceOf(pageUnder(linkedLabels, true)).isFiltered).toBe(true);
+		expect(sheetEditingSourceOf(pageUnder(linkedLabels, false)).isFiltered).toBe(false);
 	});
 });

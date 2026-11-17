@@ -3,6 +3,7 @@ import { TTask } from '../../schemas/task/task.schema';
 import { IEmployee } from '../organization/employee';
 import { IOrganizationContact } from '../organization/organization-contact';
 import { IOrganizationProject } from '../project/organization-project';
+import type { ITaggable } from '../common/base-interfaces';
 import { TUser } from '@/core/types/schemas';
 
 /** The client rates a time entry keeps, as a report that asks for them (`withClientRates`) states them. */
@@ -195,6 +196,8 @@ export interface ITimerTaskLog {
 	/** On a report that asks for them (`withClientRates`): whether the entry keeps its rates, and its client rates. */
 	ratesStored?: boolean;
 	clientRates?: ITimeEntryClientRates | null;
+	/** The entry's own labels (Gauzy #12029), stated once the API has them: one row per entry, so its own labels. */
+	tags?: NonNullable<ITaggable['tags']>;
 }
 
 export interface ITimerEmployeeLog {
@@ -243,6 +246,10 @@ export interface ITimeLogReportDailyRequest {
 	 * API that does not answer them leaves them out.
 	 */
 	withClientRates?: boolean;
+	/** Counts the entries carrying one of these labels of their own (Gauzy #12029). */
+	tagIds?: string[];
+	/** Counts the entries carrying no label: alone, or beside `tagIds`. */
+	untagged?: boolean;
 }
 
 export interface ITimeLogReportWeeklyRequest extends Pick<

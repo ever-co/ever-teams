@@ -1,6 +1,8 @@
 'use client';
 
 import { useCallback, useMemo } from 'react';
+import { useEntryLabelsSupport } from '@/core/hooks/timer/use-entry-labels-support';
+import { supportedEntryLabelsOf } from '@/core/lib/utils/time-log-labels';
 import { useLocalStorageState } from '@/core/hooks/common/use-local-storage-state';
 import { useReportUrlFilters } from '@/core/hooks/dashboards/use-report-url-filters';
 import { useWorkspaceWeekStart } from '@/core/hooks/common/use-workspace-week-start';
@@ -41,7 +43,8 @@ type LinkedFilterField = Exclude<TimeActivityFilterField, StoredTimeActivityFilt
 
 const URL_FIELD_OF: Record<LinkedFilterField, ReportUrlFilterField> = {
 	clientIds: 'clients',
-	billable: 'billable'
+	billable: 'billable',
+	entryLabels: 'entryLabels'
 };
 
 function withToggledColumn(hidden: TimeActivityColumn[], column: TimeActivityColumn) {
@@ -81,10 +84,12 @@ export function useTimeActivitySettings() {
 	const clientGroupingAccess = clientGroupingAccessOf(mayReadClients, arePermissionsPending);
 	const groupingParam = linkParams.get(TIME_ACTIVITY_GROUPING_PARAM);
 	const linkedGrouping = groupingOfParam(groupingParam);
-	const grouping = effectiveGroupingOf(linkedGrouping, clientGroupingAccess);
+	// The Label grouping (Gauzy #12029) only where the API stores the labels of entries
+	const supportsEntryLabels = useEntryLabelsSupport();
+	const grouping = effectiveGroupingOf(linkedGrouping, clientGroupingAccess, supportsEntryLabels);
 	const groupings = useMemo(
-		() => offeredGroupingsOf(clientGroupingAccess, linkedGrouping),
-		[clientGroupingAccess, linkedGrouping]
+		() => offeredGroupingsOf(clientGroupingAccess, linkedGrouping, supportsEntryLabels),
+		[clientGroupingAccess, linkedGrouping, supportsEntryLabels]
 	);
 
 	const setGrouping = useCallback(
@@ -102,8 +107,13 @@ export function useTimeActivitySettings() {
 		return filtersFromStorage(storedFilters);
 	}, [holdsView, linkParams, storedFilters]);
 	const filters = useMemo<TimeActivityFilters>(
-		() => ({ ...savedFilters, clientIds: linkedFilters.clients, billable: linkedFilters.billable }),
-		[linkedFilters.billable, linkedFilters.clients, savedFilters]
+		() => ({
+			...savedFilters,
+			clientIds: linkedFilters.clients,
+			billable: linkedFilters.billable,
+			entryLabels: supportedEntryLabelsOf(linkedFilters.entryLabels, supportsEntryLabels)
+		}),
+		[linkedFilters.billable, linkedFilters.clients, linkedFilters.entryLabels, savedFilters, supportsEntryLabels]
 	);
 	const hiddenColumns = useMemo(() => hiddenColumnsFromStorage(storedColumns), [storedColumns]);
 	const activeFilterCount = activeFilterCountOf(filters);

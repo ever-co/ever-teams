@@ -14,6 +14,9 @@ import { NO_CLIENT_FILTER_VALUE } from '@/core/lib/utils/project-list';
 import { activeTeamState, tasksByTeamState } from '@/core/stores';
 import type { TOrganizationProject, TOrganizationTeam, TUser } from '@/core/types/schemas';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
+import { useEntryLabelsSupport } from '@/core/hooks/timer/use-entry-labels-support';
+import { useTaskLabelsQuery } from '@/core/hooks/tasks/use-task-labels-query';
+import { NO_LABEL_VALUE } from '@/core/lib/utils/time-log-labels';
 
 export interface TimeActivityFilterOption {
 	value: string;
@@ -137,6 +140,26 @@ function clientOptionOf(client: ReportClientChoice): TimeActivityFilterOption {
 	return { value: client.id, name: client.name };
 }
 
+/** The entry Labels filter's choices: "No label", then the team's labels by name; none without labels on entries. */
+function entryLabelOptionsOf(
+	isSupported: boolean,
+	labels: ReadonlyArray<{ id?: string; name?: string | null }>,
+	noLabelName: string
+): TimeActivityFilterOption[] {
+	if (!isSupported) {
+		return [];
+	}
+	const named: TimeActivityFilterOption[] = [];
+	for (const label of labels) {
+		if (!label.id || !label.name) {
+			continue;
+		}
+		named.push({ value: label.id, name: label.name });
+	}
+	named.sort(byName);
+	return [{ value: NO_LABEL_VALUE, name: noLabelName }, ...named];
+}
+
 function compact<T>(items: Array<T | null>): T[] {
 	const kept: T[] = [];
 	for (const item of items) {
@@ -157,6 +180,9 @@ export function useTimeActivityFilterOptions(): TimeActivityFilterOptions {
 	const teamTasks = useAtomValue(tasksByTeamState);
 	const canSeeEveryone = Boolean(isTeamManager);
 	const userId = user?.id;
+	// The entry's own labels (Gauzy #12029): the team's labels, and "No label"; none against an API without them
+	const supportsEntryLabels = useEntryLabelsSupport();
+	const { taskLabels } = useTaskLabelsQuery();
 
 	return useMemo(() => {
 		const teamOptions = userManagedTeams.map(teamOptionOf);
@@ -183,12 +209,15 @@ export function useTimeActivityFilterOptions(): TimeActivityFilterOptions {
 			projectIds: projectOptions,
 			taskIds: taskOptions,
 			clientIds: [noClientOption, ...namedClientOptions],
-			billable: [billableOnlyOption]
+			billable: [billableOnlyOption],
+			entryLabels: entryLabelOptionsOf(supportsEntryLabels, taskLabels, t('timer.labels.NO_LABEL'))
 		};
 	}, [
 		activeTeam?.members,
 		canSeeEveryone,
 		clientChoices,
+		supportsEntryLabels,
+		taskLabels,
 		organizationProjects,
 		t,
 		teamTasks,

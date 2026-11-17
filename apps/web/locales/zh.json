@@ -2998,6 +2998,24 @@
 		}
 	},
 	"timer": {
+		"labels": {
+			"LABELS": "标签",
+			"LABEL": "标签",
+			"PICK_LABELS": "添加标签",
+			"NO_LABELS_YET": "暂无标签",
+			"DELETED": "已删除",
+			"SAVE_FAILED": "无法保存标签",
+			"TASK_LABELS": "任务标签",
+			"NO_LABEL": "无标签",
+			"BY_LABEL_TITLE": "按标签统计时间",
+			"COUNT": "{count, plural, other {# 个标签}}",
+			"OVERLAP_TITLE": "分组有重叠",
+			"OVERLAP_MESSAGE": "带有多个标签的条目会计入每个标签，因此各分组之和大于总计。",
+			"CREATE": "创建“{name}”",
+			"SEARCH": "搜索标签",
+			"CREATE_FAILED": "无法创建标签",
+			"IMPORT_NOT_ATTACHED": "未附加：{names}。团队没有{count, plural, other {这些名称}}的标签，且无法添加。"
+		},
 		"START_TIMER": "请选择或创建新任务以开始计时 或製定計劃",
 		"ALREADY_TRACKING_MESSAGE": "您已经在另一个标签页或设备上跟踪时间。",
 		"TRACKING_DISABLED_MESSAGE": "您的时间跟踪已关闭。组织管理员可以将其开启。",
