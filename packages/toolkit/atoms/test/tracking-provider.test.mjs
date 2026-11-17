@@ -1,17 +1,17 @@
-// Lifecycle tests of TrackingProvider: node --test test/ (from packages/toolkit/atoms).
+// Lifecycle tests of TrackingProvider: `yarn test` in packages/toolkit/atoms (node --test test/*.test.mjs).
 // esbuild bundles the provider with its context and API client replaced by the stubs below; React renders it in jsdom.
-import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
-import path from 'node:path';
 import fs from 'node:fs';
-import os from 'node:os';
-import { fileURLToPath, pathToFileURL } from 'node:url';
 import { createRequire } from 'node:module';
+import os from 'node:os';
+import path from 'node:path';
+import { test, before, after } from 'node:test';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const require = createRequire(import.meta.url);
-const { JSDOM } = require('jsdom');
 const esbuild = require('esbuild');
+const { JSDOM } = require('jsdom');
 
 const dom = new JSDOM('<!doctype html><div id="root"></div>');
 globalThis.window = dom.window;
@@ -91,19 +91,25 @@ before(async () => {
 });
 
 after(() => {
+	if (!bundleDir) return;
 	const link = path.join(bundleDir, 'node_modules', 'react');
 	// A symbolic link on POSIX, a junction on Windows: remove the link itself, never what it points to.
-	if (!fs.existsSync(link)) return;
-	try {
-		fs.unlinkSync(link);
-	} catch {
-		fs.rmdirSync(link);
+	if (fs.existsSync(link)) {
+		try {
+			fs.unlinkSync(link);
+		} catch {
+			fs.rmdirSync(link);
+		}
+	}
+	// Only once the link to React is gone: the folder then holds nothing but the bundle.
+	if (!fs.existsSync(link)) {
+		fs.rmSync(bundleDir, { recursive: true, force: true });
 	}
 });
 
 const answer = (request, sessions) => request.resolve({ success: true, data: { sessions } });
 const refuse = (request) => request.resolve({ success: false, error: 'timed out' });
-const flush = () => act(async () => {});
+const flush = () => act(() => Promise.resolve());
 
 function Reader({ onRender }) {
 	const context = useTrackingContext();

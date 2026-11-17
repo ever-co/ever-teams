@@ -1,4 +1,4 @@
-// Runs against the built package (`yarn build` first): node --test test/
+// Runs against the built package: `yarn test` in packages/api builds it, then runs node --test test/*.test.mjs
 import { test, beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { TrackingApiClient, apiConfigManager } from '../dist/index.es.js';
