@@ -70,6 +70,10 @@ const createConfig = (input, outputDir, entryFileNames = '[name].es.js', preserv
 		// dist/styles.css: the components' classes, compiled and scoped under the kit root (scripts/build-styles.mjs)
 		{
 			name: 'kit-styles',
+			// kit.css is read by buildStyles, outside the module graph: watch it so that `rollup -c --watch` rebuilds it.
+			buildStart() {
+				this.addWatchFile(path.join(__dirname, 'src', 'styles', 'kit.css'));
+			},
 			async writeBundle() {
 				await buildStyles();
 			}
