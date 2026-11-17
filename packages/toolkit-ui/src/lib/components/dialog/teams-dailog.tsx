@@ -1,4 +1,5 @@
 import { Button } from '../button';
+import { cn } from '../../utils/utils';
 import {
 	ShadCnDialog,
 	DialogContent,
@@ -37,8 +38,10 @@ export function Dialog({
 	...props
 }: IModal) {
 	const hasHeader = Boolean(title || description);
+	// hideTitle hides the title only: a description stays visible. With no description the whole header is hidden, so
+	// that the empty header takes no room in the dialog's layout.
 	let headerClass: string | undefined;
-	if (hideTitle) {
+	if (hideTitle && !description) {
 		headerClass = 'sr-only';
 	}
 	return (
@@ -49,7 +52,7 @@ export function Dialog({
 			<DialogContent className="w-full sm:max-w-[425px]">
 				{hasHeader && (
 					<DialogHeader className={headerClass}>
-						<DialogTitle className={titleClass}>{title}</DialogTitle>
+						<DialogTitle className={cn(titleClass, hideTitle && 'sr-only')}>{title}</DialogTitle>
 						{description && <DialogDescription>{description}</DialogDescription>}
 					</DialogHeader>
 				)}
