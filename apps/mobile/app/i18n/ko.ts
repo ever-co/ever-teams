@@ -142,7 +142,7 @@ const ko: Translations = {
 		createTeam: 'Create Team',
 		invalidConfirmCode: '잘못된 확인 코드',
 		securityCodeSent: '보안 코드가 새 이메일로 전송되었습니다',
-		codeSentTo: '6자 코드가 다음으로 전송되었습니다:'
+		codeSentTo: '코드를 보냈습니다:'
 	},
 	myWorkScreen: {
 		name: '일하다',

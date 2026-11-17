@@ -142,7 +142,7 @@ const fr = {
 		createTeam: "Créer l'équipe",
 		invalidConfirmCode: 'Code de confirmation invalide',
 		securityCodeSent: 'Le code de sécurité a été envoyé sur le nouvel e-mail',
-		codeSentTo: 'Un code de 6 caractères envoyé à :'
+		codeSentTo: 'Nous avons envoyé un code à :'
 	},
 	myWorkScreen: {
 		name: 'Travail',
