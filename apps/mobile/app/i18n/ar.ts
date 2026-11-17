@@ -2,6 +2,7 @@ import { Translations } from './en';
 
 const ar: Translations = {
 	common: {
+		openMenu: 'فتح القائمة',
 		ok: 'نعم',
 		cancel: 'حذف',
 		loading: 'Loading',
@@ -18,6 +19,8 @@ const ar: Translations = {
 		endedMessage: 'سجّل الدخول مرة أخرى للمتابعة.'
 	},
 	timer: {
+		startLabel: 'تشغيل المؤقت',
+		stopLabel: 'إيقاف المؤقت',
 		stopFailedTitle: 'تعذّر إيقاف المؤقت',
 		stopFailedMessage: 'ما زال يعمل. حاول مرة أخرى بعد قليل.',
 		startMove: {
