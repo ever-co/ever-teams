@@ -19,7 +19,7 @@
 	},
 	"scripts": {
 		"build": " rollup -c",
-		"test": "rollup -c && node --test test/"
+		"test": "yarn --cwd ../toolkit-types build && rollup -c && node --test test/"
 	},
 	"dependencies": {
 		"@ever-teams/toolkit-types": "*",
