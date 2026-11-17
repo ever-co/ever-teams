@@ -21,6 +21,7 @@ import TrackingProvider from '@lib/context/teams-tracking-context';
 import { ChartData } from '@ever-teams/toolkit-types';
 import { useSelectedOrganization } from '@hooks/useSelectedOrganization';
 import { KitRoot } from './kit-root';
+import { withoutGlobalStyles } from '../../themes/kit-theme-config';
 
 export const defaultData: ChartData[] = [
 	{ day: 'Monday', cedric: 5, salva: 7, josh: 2, ndeko: 7 },
@@ -90,7 +91,6 @@ const TeamsDataProvider = ({ children, config: apiConfig, theme, lang = 'en' }: 
 	return (
 		<TeamsContext.Provider
 			value={{
-
 				fontOptions,
 				selectedFont,
 				setSelectedFont
@@ -101,7 +101,7 @@ const TeamsDataProvider = ({ children, config: apiConfig, theme, lang = 'en' }: 
 			>
 				<I18nextProvider i18n={i18n}>
 					<ThemeProvider attribute="class">
-						<ThemeUIProvider theme={appliedTheme}>{children}</ThemeUIProvider>
+						<ThemeUIProvider theme={withoutGlobalStyles(appliedTheme)}>{children}</ThemeUIProvider>
 					</ThemeProvider>
 				</I18nextProvider>
 			</TrackingProvider>
