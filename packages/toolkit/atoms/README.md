@@ -2,15 +2,16 @@
 
 `@ever-teams/atoms` puts a live Ever Teams timer, and the reports around it, inside your own React product. The
 timer is the same one your team uses in the Ever Teams web, desktop and mobile apps: start it here, see it running
-there. MIT licensed.
+there. The time is recorded as embedded time (`source: 'EMBED'`), so reports tell it apart; on an API too old to know
+that source, the kit records it as `TEAMS`. MIT licensed.
 
 Components to browse: [storybook.ever.team](https://storybook.ever.team). Example apps:
 [packages/toolkit/examples](https://github.com/ever-co/ever-teams/tree/develop/packages/toolkit/examples).
 
 ## Quick start
 
-You need a React app (tested with React 19) styled with Tailwind CSS 4, and an Ever Teams API: the cloud
-(`https://api.ever.team/api`) or your own server (its address ending with `/api`).
+You need a React app (tested with React 19) and an Ever Teams API: the cloud (`https://api.ever.team/api`) or your
+own server (its address ending with `/api`).
 
 ```bash
 npm install @ever-teams/atoms
@@ -18,11 +19,12 @@ npm install @ever-teams/atoms
 
 ```tsx
 'use client';
+import '@ever-teams/atoms/styles.css';
 import { TeamsProvider, TeamsLoginDialog, TeamsBasicTimer } from '@ever-teams/atoms';
 
 export function EverTeamsTimer() {
 	return (
-		<TeamsProvider config={{ apiUrl: 'https://api.ever.team/api' }}>
+		<TeamsProvider config={{ apiUrl: 'https://api.ever.team/api' }} scopedStyles>
 			<TeamsLoginDialog />
 			<TeamsBasicTimer />
 		</TeamsProvider>
@@ -30,8 +32,15 @@ export function EverTeamsTimer() {
 }
 ```
 
-Then let Tailwind see the kit's class names, in the CSS file that has `@import "tailwindcss";` (paths are relative
-to that file):
+`@ever-teams/atoms/styles.css` holds the components' styles, compiled and scoped under the kit root that
+`scopedStyles` renders: your app needs no Tailwind, and the stylesheet changes nothing outside the kit. It ships from
+the first release after 0.2.14; on 0.2.14, style the kit with your own Tailwind (below).
+
+### With your own Tailwind CSS 4
+
+If your app compiles Tailwind CSS 4 already, you can leave out the `styles.css` import and `scopedStyles`, and let
+your Tailwind see the kit's class names instead, in the CSS file that has `@import "tailwindcss";` (paths are
+relative to that file):
 
 ```css
 @import 'tailwindcss';
@@ -39,18 +48,17 @@ to that file):
 @source "../node_modules/@ever-teams/toolkit-ui/dist";
 ```
 
-Without those two lines the widget renders unstyled. The kit does not ship its own stylesheet yet
-([ever-co/ever-teams#5407](https://github.com/ever-co/ever-teams/issues/5407)).
+The `../` paths fit `app/globals.css` in Next.js and `src/index.css` in Vite; with a Next.js `src/` directory the file
+is `src/app/globals.css` and the paths start with `../../`. Without the stylesheet or these lines, the widget renders
+unstyled.
 
 ## Next.js (App Router)
 
-1. `npx create-next-app@latest my-app` (TypeScript, Tailwind, App Router; answer No to the `src/` directory),
-   then `cd my-app` and `npm install @ever-teams/atoms`.
-2. Create `app/ever-teams-timer.tsx` with the component of the quick start. The `'use client'` line is required:
-   the provider uses state and the browser.
-3. Add the two `@source` lines to `app/globals.css`, under `@import "tailwindcss";`, with `../` paths as above. With
-   a `src/` directory the file is `src/app/globals.css` and the paths start with `../../`.
-4. Use it in a page:
+1. `npx create-next-app@latest my-app` (TypeScript, App Router), then `cd my-app` and
+   `npm install @ever-teams/atoms`.
+2. Create `app/ever-teams-timer.tsx` (`src/app/ever-teams-timer.tsx` with a `src/` directory) with the component of
+   the quick start. The `'use client'` line is required: the provider uses state and the browser.
+3. Use it in a page:
 
 ```tsx
 // app/page.tsx
@@ -63,34 +71,16 @@ export default function Page() {
 
 ## Vite + React
 
-1. `npm create vite@latest my-app -- --template react-ts`, then `cd my-app` and
-   `npm install @ever-teams/atoms tailwindcss @tailwindcss/vite`.
-2. `vite.config.ts`:
-
-```ts
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
-import tailwindcss from '@tailwindcss/vite';
-
-export default defineConfig({ plugins: [react(), tailwindcss()] });
-```
-
-3. `src/index.css` (imported by `src/main.tsx`):
-
-```css
-@import 'tailwindcss';
-@source "../node_modules/@ever-teams/atoms/dist";
-@source "../node_modules/@ever-teams/toolkit-ui/dist";
-```
-
-4. `src/App.tsx` (`src/main.tsx` imports it as the default export):
+1. `npm create vite@latest my-app -- --template react-ts`, then `cd my-app` and `npm install @ever-teams/atoms`.
+2. Replace `src/App.tsx` (`src/main.tsx` imports it as the default export):
 
 ```tsx
+import '@ever-teams/atoms/styles.css';
 import { TeamsProvider, TeamsLoginDialog, TeamsBasicTimer } from '@ever-teams/atoms';
 
 export default function App() {
 	return (
-		<TeamsProvider config={{ apiUrl: 'https://api.ever.team/api' }}>
+		<TeamsProvider config={{ apiUrl: 'https://api.ever.team/api' }} scopedStyles>
 			<TeamsLoginDialog />
 			<TeamsBasicTimer />
 		</TeamsProvider>
@@ -100,11 +90,12 @@ export default function App() {
 
 ## Configuration
 
-| Prop of `TeamsProvider` | Default                     | What it does                                                                                                                  |
-| ----------------------- | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| `config.apiUrl`         | `https://api.ever.team/api` | The Ever Teams API every request goes to. Always set it. With your own server, give its address ending with `/api`.           |
-| `lang`                  | `'en'`                      | Language of the components: `'en'` or `'fr'`. A language chosen earlier in the language switch, kept in `localStorage`, wins. |
-| `theme`                 | the kit's default           | A theme object: `theme1` to `theme14` are exported.                                                                           |
+| Prop of `TeamsProvider` | Default                     | What it does                                                                                                                                                                                                                                                 |
+| ----------------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `config.apiUrl`         | `https://api.ever.team/api` | The Ever Teams API every request goes to, with the token in the `Authorization` header. Always set it. With your own server, give its address ending with `/api`.                                                                                            |
+| `lang`                  | `'en'`                      | Language of the components: `'en'` or `'fr'`. A language chosen earlier in the language switch, kept in `localStorage`, wins.                                                                                                                                |
+| `theme`                 | `defaultTheme`              | A theme object: `defaultTheme` and `theme1` to `theme14` are exported.                                                                                                                                                                                       |
+| `scopedStyles`          | `false`                     | Renders the kit root that `@ever-teams/atoms/styles.css` is scoped under, and a container in `document.body` for the kit's dialogs, popovers, menus and selects. Set it with the stylesheet; leave it off when your own Tailwind compiles the kit's classes. |
 
 The API must accept your site's origin: on a self-hosted Gauzy API, add it to `ALLOWED_ORIGINS` (comma-separated)
 and restart the API.
@@ -120,10 +111,13 @@ Today:
   it removes them only when it next reads them after that expiry, so until then an expired token stays readable
   there.
 - The user menu shows the token, with a copy button.
-- What leaves your page: requests to `config.apiUrl`. Versions up to 0.2.14 also send the token to the demo API when
-  `config.apiUrl` is not set (fixed by [ever-co/ever-teams#5406](https://github.com/ever-co/ever-teams/issues/5406);
-  always set `apiUrl`), and the provider loads the Geist font from Google Fonts
-  ([ever-co/ever-teams#5408](https://github.com/ever-co/ever-teams/issues/5408)).
+- What leaves your page: requests to `config.apiUrl` (`https://api.ever.team/api` when it is not set), with the token
+  in their `Authorization` header, and the provider loads the Geist font from Google Fonts
+  ([ever-co/ever-teams#5408](https://github.com/ever-co/ever-teams/issues/5408)). Tracking sessions are read only
+  while a component that shows them (filter, insights, heatmap, replay) is on the page.
+- Published versions up to 0.2.14 sent the signed-in user's token to the demo Gauzy API when `config.apiUrl` was not
+  set ([ever-co/ever-teams#5406](https://github.com/ever-co/ever-teams/issues/5406)): on 0.2.x, upgrade, and always
+  set `apiUrl`.
 
 Planned ([ever-co/ever-teams#5405](https://github.com/ever-co/ever-teams/issues/5405)): your backend hands the
 widget a short-lived token, limited to the timer and to one person, kept in memory only; the workspace lists the
@@ -131,12 +125,12 @@ sites allowed to embed it and can revoke them.
 
 ## Troubleshooting
 
-| You see                                                                     | Cause and fix                                                              |
-| --------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
-| The widget is unstyled (digits one under the other, a large coloured block) | Tailwind does not see the kit's classes: add the two `@source` lines.      |
-| A network or CORS error in the console, sign-in does nothing                | The API does not allow your origin: add it to the API's `ALLOWED_ORIGINS`. |
-| 404 on every request                                                        | `apiUrl` must end with `/api` (`https://api.example.com/api`).             |
-| "useState only works in Client Components" (Next.js)                        | Add `'use client'` at the top of the file that renders `TeamsProvider`.    |
+| You see                                                                     | Cause and fix                                                                                                              |
+| --------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| The widget is unstyled (digits one under the other, a large coloured block) | Import `@ever-teams/atoms/styles.css` and set `scopedStyles`; with your own Tailwind, add the two `@source` lines instead. |
+| A network or CORS error in the console, sign-in does nothing                | The API does not allow your origin: add it to the API's `ALLOWED_ORIGINS`.                                                 |
+| 404 on every request                                                        | `apiUrl` must end with `/api` (`https://api.example.com/api`).                                                             |
+| "useState only works in Client Components" (Next.js)                        | Add `'use client'` at the top of the file that renders `TeamsProvider`.                                                    |
 
 ## Links
 
