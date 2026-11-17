@@ -293,12 +293,14 @@ export async function splitThroughApi(request: CalendarSplitRequest) {
 		throw new CalendarSplitError('changed', null);
 	}
 	const secondPart: { taskId?: string; projectId?: string; reason?: string } = {};
-	if (secondTask) {
+	// A break's parts stay breaks: the API refuses a task or a project for the second one (TIME_LOG_SPLIT_BREAK_FIELDS)
+	const takesTask = secondTask !== null && log.logType !== ETimeLogType.BREAK;
+	if (takesTask) {
 		secondPart.taskId = secondTask.id;
 	}
 	// A picked task without a project leaves the entry's project to the second part, as the two writes do: the API
 	// clears the project of the part for a `null`
-	if (secondTask?.projectId) {
+	if (takesTask && secondTask?.projectId) {
 		secondPart.projectId = secondTask.projectId;
 	}
 	const reason = request.reason?.trim();
