@@ -312,3 +312,32 @@ test('signing out during a read ends the loading state', async () => {
 
 	assert.equal(seen.shared.loading, false);
 });
+
+test('a refresh queued during a read waits while the page is hidden, and reads once it is visible', async () => {
+	await reset();
+	const seen = {};
+	await mount([probe(seen)]);
+	const pending = globalThis.__reads[0];
+	await act(async () => {
+		seen.shared.refetch();
+	});
+
+	visibility = 'hidden';
+	await act(async () => pending({ running: false, duration: 0, lastLog: null }));
+	assert.equal(globalThis.__reads.length, 1);
+
+	visibility = 'visible';
+	await act(async () => document.dispatchEvent(new window.Event('visibilitychange')));
+	assert.equal(globalThis.__reads.length, 2);
+});
+
+test('a focus event on a hidden page reads nothing', async () => {
+	await reset();
+	await mount([widget('a')]);
+	await answer(0, {});
+
+	visibility = 'hidden';
+	await act(async () => window.dispatchEvent(new window.Event('focus')));
+
+	assert.equal(globalThis.__reads.length, 1);
+});

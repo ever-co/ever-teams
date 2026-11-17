@@ -141,7 +141,8 @@ export function TimerStatusProvider({ children }: { children?: ReactNode }) {
 			return pending.promise;
 		}
 		const record = { identity, promise: Promise.resolve(), again: false };
-		const readsAgain = () => record.again && currentIdentity.current === identity;
+		// A hidden page leaves the queued read to the next visibility change.
+		const readsAgain = () => record.again && currentIdentity.current === identity && pageIsVisible();
 		const reads = (async () => {
 			do {
 				record.again = false;
@@ -174,19 +175,16 @@ export function TimerStatusProvider({ children }: { children?: ReactNode }) {
 				refetch();
 			}
 		};
-		const refetchNow = () => {
-			refetch();
-		};
 		// Automatic reads happen only while the page is visible; a hidden page reads when it becomes visible.
 		pollWhenVisible();
 		const interval = setInterval(pollWhenVisible, TIMER_STATUS_REFRESH_MS);
 		document.addEventListener('visibilitychange', pollWhenVisible);
-		window.addEventListener('focus', refetchNow);
+		window.addEventListener('focus', pollWhenVisible);
 		window.addEventListener('online', pollWhenVisible);
 		return () => {
 			clearInterval(interval);
 			document.removeEventListener('visibilitychange', pollWhenVisible);
-			window.removeEventListener('focus', refetchNow);
+			window.removeEventListener('focus', pollWhenVisible);
 			window.removeEventListener('online', pollWhenVisible);
 		};
 	}, [ready, hasConsumers, refetch]);
