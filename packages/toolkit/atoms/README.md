@@ -44,7 +44,8 @@ Without those two lines the widget renders unstyled. The kit does not ship its o
 
 ## Next.js (App Router)
 
-1. `npx create-next-app@latest my-app` (TypeScript, Tailwind, App Router), then `npm install @ever-teams/atoms`.
+1. `npx create-next-app@latest my-app` (TypeScript, Tailwind, App Router), then `cd my-app` and
+   `npm install @ever-teams/atoms`.
 2. Create `app/ever-teams-timer.tsx` with the component of the quick start. The `'use client'` line is required:
    the provider uses state and the browser.
 3. Add the two `@source` lines to `app/globals.css`, under `@import "tailwindcss";`, with `../` paths as above.
@@ -61,7 +62,7 @@ export default function Page() {
 
 ## Vite + React
 
-1. `npm create vite@latest my-app -- --template react-ts`, then
+1. `npm create vite@latest my-app -- --template react-ts`, then `cd my-app` and
    `npm install @ever-teams/atoms tailwindcss @tailwindcss/vite`.
 2. `vite.config.ts`:
 
