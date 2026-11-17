@@ -1,3 +1,4 @@
+import type { TextStyle } from 'react-native';
 import { resolveColorScheme } from './color-scheme';
 import { themeFor } from './use-theme';
 
@@ -19,6 +20,14 @@ describe('the color scheme', () => {
 });
 
 describe('the theme', () => {
+	it('gives text presets that React Native takes as a TextStyle', () => {
+		const timer: TextStyle = themeFor('light').type.timer;
+		const stat: TextStyle = themeFor('dark').type.stat;
+
+		expect(timer.fontVariant).toEqual(['tabular-nums']);
+		expect(stat.fontVariant).toEqual(['tabular-nums']);
+	});
+
 	it("draws with the web's colors as colors React Native reads", () => {
 		expect(themeFor('light').colors.primary).toBe('hsl(239, 84%, 67%)');
 		expect(themeFor('dark').colors.background).toBe('hsl(240, 5%, 7%)');

@@ -1,3 +1,5 @@
+import type { FontVariant, TextStyle } from 'react-native';
+
 /**
  * The web app's design tokens (apps/web/styles/globals.css), as HSL triplets under the same names, in light and
  * dark. `tokens.test.ts` parses globals.css and fails when a value here drifts from the web.
@@ -120,6 +122,9 @@ export const radius = { control: 8, panel: 10, sheet: 14, dialog: 18, full: 999 
 
 export const spacing = { 0.5: 2, 1: 4, 1.5: 6, 2: 8, 3: 12, 4: 16, 5: 20, 6: 24, 8: 32, 10: 40, 12: 48 } as const;
 
+/** A mutable array: React Native types fontVariant as FontVariant[], which a readonly tuple does not satisfy. */
+const TABULAR_DIGITS: FontVariant[] = ['tabular-nums'];
+
 /** Weights capped at semibold; durations use tabular digits. */
 export const typeScale = {
 	title: { fontSize: 20, lineHeight: 26, fontWeight: '600' },
@@ -128,9 +133,9 @@ export const typeScale = {
 	label: { fontSize: 14, lineHeight: 18, fontWeight: '500' },
 	hint: { fontSize: 13, lineHeight: 17, fontWeight: '400' },
 	micro: { fontSize: 11, lineHeight: 14, fontWeight: '600' },
-	timer: { fontSize: 44, lineHeight: 52, fontWeight: '600', fontVariant: ['tabular-nums'] },
-	stat: { fontSize: 22, lineHeight: 28, fontWeight: '600', fontVariant: ['tabular-nums'] }
-} as const;
+	timer: { fontSize: 44, lineHeight: 52, fontWeight: '600', fontVariant: TABULAR_DIGITS },
+	stat: { fontSize: 22, lineHeight: 28, fontWeight: '600', fontVariant: TABULAR_DIGITS }
+} satisfies Record<string, TextStyle>;
 
 /** Motion of the design system: exits 120-150 ms, state changes 200-240 ms, one easing curve, no bounce. */
 export const motion = {
