@@ -2,8 +2,11 @@ import { VERIFY_EMAIL_CALLBACK_PATH } from '@/core/constants/config/constants';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { resentVerifyUserLinkRequest } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
+import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
 
 export async function POST(req: Request) {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
 	const res = new NextResponse();
 	const url = new URL(req.url);
 

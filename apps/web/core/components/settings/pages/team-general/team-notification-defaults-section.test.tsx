@@ -101,31 +101,173 @@ describe('TeamNotificationDefaultsSection (#5022)', () => {
 		expect(saves[1]).toHaveProperty('taskDueReminderHours');
 	});
 
-	it('keeps a change on its way when the team read after an earlier save lands', async () => {
-		const saves: unknown[] = [];
-		const saveNotificationDefaults = jest.fn((defaults: unknown) => {
-			saves.push(defaults);
-			return new Promise<void>(() => undefined);
-		});
-		const { rerender } = render(sectionOf({ notificationDefaults: null }, saveNotificationDefaults));
+	/** A Gauzy whose answers the test lands one by one: `stored` is what the last request to land wrote. */
+	const gauzy = () => {
+		const requests: Array<{ defaults: unknown; land: () => void }> = [];
+		const server = {
+			stored: undefined as unknown,
+			requests,
+			save: jest.fn(
+				(defaults: unknown) =>
+					new Promise<void>((resolve) => {
+						requests.push({
+							defaults,
+							land: () => {
+								server.stored = defaults;
+								resolve();
+							}
+						});
+					})
+			),
+			/**
+			 * Lands every request on its way, the one sent last first, until none is left: requests sent together land
+			 * out of order, and a request sent once an earlier one landed lands too.
+			 */
+			landLatestFirst: async () => {
+				let landed = 0;
+				while (landed < requests.length) {
+					const waiting = requests.slice(landed).reverse();
+					landed = requests.length;
+					for (const request of waiting) {
+						await act(async () => request.land());
+					}
+				}
+			}
+		};
+		return server;
+	};
+
+	it('never lets a request that reaches Gauzy late write older defaults over newer ones', async () => {
+		const server = gauzy();
+		render(sectionOf({ notificationDefaults: null }, server.save));
 		const picks = screen.getAllByRole('button', { name: 'pick' });
 
-		// Email, then the due date reminder; the team read after the email's save lands while the second is on its way
+		// Email, then browser notifications, before the first save answers
+		await act(async () => {
+			picks[0].click();
+		});
+		await act(async () => {
+			picks[1].click();
+		});
+		// One save at a time: the second waits for the first
+		expect(server.save).toHaveBeenCalledTimes(1);
+		await server.landLatestFirst();
+
+		expect(server.save).toHaveBeenCalledTimes(2);
+		expect(server.stored).toEqual({ email: '__test__', push: false });
+	});
+
+	it('keeps a change on its way when the team read after an earlier save lands', async () => {
+		const server = gauzy();
+		const { rerender } = render(sectionOf({ notificationDefaults: null }, server.save));
+		const picks = screen.getAllByRole('button', { name: 'pick' });
+
+		// Email, then the due date reminder; the team read after the email's save lands while the second waits
 		await act(async () => {
 			picks[0].click();
 		});
 		await act(async () => {
 			picks[4].click();
 		});
-		rerender(sectionOf({ notificationDefaults: { email: '__test__' } }, saveNotificationDefaults));
+		rerender(sectionOf({ notificationDefaults: { email: '__test__' } }, server.save));
 		await act(async () => {
 			screen.getAllByRole('button', { name: 'pick' })[3].click();
 		});
+		await server.landLatestFirst();
 
-		expect(saves).toHaveLength(3);
-		expect(saves[2]).toEqual(expect.objectContaining({ email: '__test__' }));
-		expect(saves[2]).toHaveProperty('taskDueReminderHours');
-		expect(saves[2]).toHaveProperty('timerReminderHours');
+		expect(server.stored).toEqual(expect.objectContaining({ email: '__test__' }));
+		expect(server.stored).toHaveProperty('taskDueReminderHours');
+		expect(server.stored).toHaveProperty('timerReminderHours');
+	});
+
+	it('builds the next change on a read that landed while a save was on its way, once that save answers', async () => {
+		const server = gauzy();
+		const { rerender } = render(sectionOf({ notificationDefaults: null }, server.save));
+
+		await act(async () => {
+			screen.getAllByRole('button', { name: 'pick' })[0].click();
+		});
+		// Another manager turned browser notifications off just after the email save reached Gauzy: the read holding both
+		// lands while that save is still on its way, and the save's own answer changes nothing more
+		rerender(
+			sectionOf(
+				{ notificationDefaults: { email: '__test__', push: false }, updatedAt: '2026-11-16T10:00:02.000Z' },
+				server.save
+			)
+		);
+		await server.landLatestFirst();
+		await act(async () => {
+			screen.getAllByRole('button', { name: 'pick' })[4].click();
+		});
+
+		expect(server.requests[1].defaults).toEqual(expect.objectContaining({ email: '__test__', push: false }));
+		expect(server.requests[1].defaults).toHaveProperty('taskDueReminderHours');
+	});
+
+	it('builds on a newer read that holds the same defaults as before, once the save on its way answers', async () => {
+		const server = gauzy();
+		const { rerender } = render(
+			sectionOf({ notificationDefaults: null, updatedAt: '2026-11-16T10:00:01.000Z' }, server.save)
+		);
+
+		await act(async () => {
+			screen.getAllByRole('button', { name: 'pick' })[0].click();
+		});
+		// Another manager left email to the members again just after the email save reached Gauzy: the newer read holds
+		// no defaults, as the one before it did
+		rerender(sectionOf({ notificationDefaults: null, updatedAt: '2026-11-16T10:00:03.000Z' }, server.save));
+		await server.landLatestFirst();
+		await act(async () => {
+			screen.getAllByRole('button', { name: 'pick' })[1].click();
+		});
+
+		expect(server.requests[1].defaults).toEqual({ push: false });
+	});
+
+	it('never takes a read of the team older than one already seen', async () => {
+		const save = jest.fn().mockResolvedValue(undefined);
+		const { container, rerender } = render(
+			sectionOf({ notificationDefaults: { push: false }, updatedAt: '2026-11-16T10:00:02.000Z' }, save)
+		);
+
+		// A team list fetched before the push default was saved lands after the read that holds it
+		rerender(sectionOf({ notificationDefaults: null, updatedAt: '2026-11-16T10:00:01.000Z' }, save));
+		expect(container.querySelectorAll('[data-value]')[1].getAttribute('data-value')).toBe('off');
+		await act(async () => {
+			screen.getAllByRole('button', { name: 'pick' })[0].click();
+		});
+
+		expect(save).toHaveBeenLastCalledWith({ push: false, email: '__test__' });
+	});
+
+	it('takes the time of every newer read, even one whose defaults did not change', async () => {
+		const save = jest.fn().mockResolvedValue(undefined);
+		const { container, rerender } = render(
+			sectionOf({ notificationDefaults: null, updatedAt: '2026-11-16T10:00:01.000Z' }, save)
+		);
+
+		// Another manager set browser notifications off (time 2) and then left them to the members again (time 3); the
+		// team list read at time 2 lands last
+		rerender(sectionOf({ notificationDefaults: null, updatedAt: '2026-11-16T10:00:03.000Z' }, save));
+		rerender(sectionOf({ notificationDefaults: { push: false }, updatedAt: '2026-11-16T10:00:02.000Z' }, save));
+		expect(container.querySelectorAll('[data-value]')[1].getAttribute('data-value')).toBe('members');
+		await act(async () => {
+			screen.getAllByRole('button', { name: 'pick' })[0].click();
+		});
+
+		expect(save).toHaveBeenLastCalledWith({ email: '__test__' });
+	});
+
+	it('orders the reads that say when the team changed even after one that does not say', async () => {
+		const save = jest.fn().mockResolvedValue(undefined);
+		const { container, rerender } = render(
+			sectionOf({ notificationDefaults: { push: false }, updatedAt: '2026-11-16T10:00:02.000Z' }, save)
+		);
+
+		rerender(sectionOf({ notificationDefaults: { push: false } }, save));
+		rerender(sectionOf({ notificationDefaults: null, updatedAt: '2026-11-16T10:00:01.000Z' }, save));
+
+		expect(container.querySelectorAll('[data-value]')[1].getAttribute('data-value')).toBe('off');
 	});
 
 	it('offers nothing on a Gauzy that keeps no team defaults, which reads a team without the key', () => {

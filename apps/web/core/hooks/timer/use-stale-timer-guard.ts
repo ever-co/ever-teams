@@ -36,6 +36,16 @@ import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 import { startUnderTimerGuard, trackTimerCommand } from '@/core/hooks/timer/timer-command-guard';
 import { dateFormatOf } from '@/core/lib/utils/workspace-formats';
 import { forgetOwedKeep, oweKeep, type OwedKeep, owedKeepNow, owedKeepsOf } from '@/core/lib/utils/timer/owed-keep';
+import { whenSentTimeSlotSettled } from '@/core/lib/helpers/timer';
+import { isThisTabsTurn } from '@/core/lib/utils/timer/one-tab-lease';
+
+/**
+ * Refuses a Keep's next write once another tab of the browser took over (one-tab-lease.ts): it goes on from what is
+ * recorded, and a write sent here as well would count those minutes twice.
+ */
+function assertThisTabsTurn(): void {
+	if (!isThisTabsTurn()) throw new Error('Another tab of this browser took over writing the time kept');
+}
 
 /** The employee's last log, with the present the closed-tab rule goes by. */
 async function readLastLog(employeeId: string) {
@@ -206,25 +216,47 @@ async function keepUnderGuard(employeeId: string, run: ITimeLog & { stoppedAt: D
 			writtenAtMs: toMs,
 			keptAt: Date.now()
 		};
+		// A record of the same run and heartbeat may be another tab's, being written: it is never replaced from here
+		assertThisTabsTurn();
 		// Owed until all of it is written, for every tab and the next load of the page (owed-keep.ts)
 		oweKeep(owed);
-		await writeOwedKeep(employeeId, owed, toMs);
+		await writeOwedKeep(employeeId, owed, toMs, run.startedAt);
 		isKept = true;
 	};
 	await (startUnderTimerGuard(keep) ?? trackTimerCommand(keep()));
 	return isKept;
 }
 
-/** Writes a kept run's time from where its writing stands to `untilMs`, telling every tab how far it got. */
-async function writeOwedKeep(employeeId: string, owed: OwedKeep, untilMs: number): Promise<void> {
+/**
+ * Writes a kept run's time from where its writing stands to `untilMs`, telling every tab how far it got.
+ *
+ * @param runStartedAt When the run started, from where its slots are read (timerService.catchUpTimeSlots).
+ */
+async function writeOwedKeep(
+	employeeId: string,
+	owed: OwedKeep,
+	untilMs: number,
+	runStartedAt: ITimeLog['startedAt']
+): Promise<void> {
 	const kept = await timerService.catchUpTimeSlots({
 		source: ETimeLogSource.TEAMS,
 		employeeId,
 		timeLogId: owed.timeLogId,
 		fromMs: owed.fromMs,
 		toMs: untilMs,
+		runStartedAtMs: new Date(runStartedAt ?? Number.NaN).getTime(),
+		// A slot sent before without an answer may have landed: its window tells, before it is sent again
+		unanswered: owed.unanswered,
+		// Each write, and each record of how far they got, only while no other tab took over (one-tab-lease.ts)
+		onSending: (slot) => {
+			assertThisTabsTurn();
+			owed.unanswered = slot;
+			oweKeep(owed);
+		},
 		onWritten: (writtenUntilMs) => {
+			assertThisTabsTurn();
 			owed.fromMs = writtenUntilMs;
+			owed.unanswered = undefined;
 			owed.writtenAtMs = Date.now() + owed.apiOffsetMs;
 			oweKeep(owed);
 		}
@@ -256,9 +288,12 @@ async function resumeOwedKeep(
 	employeeId: string,
 	listed: OwedKeep
 ): Promise<OwedKeepOutcome> {
+	if (!owedKeepNow(listed)) return 'none';
+	const facts = await readLastLog(employeeId);
+	// Read again once the run is read, nearest the write: another tab may have written some of it meanwhile, sent a
+	// slot of it, or written all of it
 	const owed = owedKeepNow(listed);
 	if (!owed) return 'none';
-	const facts = await readLastLog(employeeId);
 	const latest = facts.lastLog;
 	if (latest?.id !== owed.timeLogId) {
 		forgetOwedKeep(owed);
@@ -266,8 +301,9 @@ async function resumeOwedKeep(
 		runsEndedWhileUnsettled += 1;
 		return 'none';
 	}
+	const runStartedAt = latest?.startedAt;
 	if (!isRunningTeamsLog(latest)) {
-		await writeOwedKeep(employeeId, owed, owed.toMs);
+		await writeOwedKeep(employeeId, owed, owed.toMs, runStartedAt);
 		return 'settled';
 	}
 	const readHeartbeat = new Date(latest.stoppedAt ?? Number.NaN).getTime();
@@ -275,12 +311,12 @@ async function resumeOwedKeep(
 	const apiNow = facts.serverNow ?? Date.now() + owed.apiOffsetMs;
 	if (heartbeat > Math.max(owed.writtenAtMs, owed.toMs) + OWN_WRITE_LEEWAY_MS) {
 		if (apiNow - heartbeat > UNFOLLOWED_TIME_FLOOR_MS) return 'waiting';
-		await writeOwedKeep(employeeId, owed, owed.toMs);
+		await writeOwedKeep(employeeId, owed, owed.toMs, latest.startedAt);
 		return 'settled';
 	}
 	const followedUntil = Math.max(heartbeat, owed.toMs);
 	if (apiNow - followedUntil <= UNFOLLOWED_TIME_FLOOR_MS) {
-		await writeOwedKeep(employeeId, owed, apiNow);
+		await writeOwedKeep(employeeId, owed, apiNow, latest.startedAt);
 		return 'settled';
 	}
 	await stopAtLastHeartbeat({ ...latest, stoppedAt: new Date(followedUntil) }, 'UNFOLLOWED_STOPPED_HINT', latest.id);
@@ -289,7 +325,7 @@ async function resumeOwedKeep(
 		forgetOwedKeep(owed);
 		return 'settled';
 	}
-	await writeOwedKeep(employeeId, owed, owed.toMs);
+	await writeOwedKeep(employeeId, owed, owed.toMs, latest.startedAt);
 	return 'settled';
 }
 
@@ -311,6 +347,8 @@ async function resumeOwedKeepsHere(
 	const outcomes: OwedKeepOutcome[] = [];
 	// One after the other: each reads the run, which the one before may have stopped
 	for (const owed of owedKeepsOf(employeeId)) {
+		// A slot sent without an answer may still be landing: waited out here, not with the start guard held
+		if (owed.unanswered) await whenSentTimeSlotSettled(owed.unanswered);
 		const resume = async () => {
 			outcomes.push(await resumeOwedKeep(stopAtLastHeartbeat, employeeId, owed));
 		};

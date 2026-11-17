@@ -2,6 +2,7 @@ import { authenticatedGuard } from '@/core/services/server/guards/authenticated-
 import { getTimerStatusRequest, readTodayRange, stopTimerRequest } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
 import { TIMER_NOTES_MAX_LENGTH, readTimerNotes } from '@/core/lib/utils/timer/timer-notes';
+import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
 
 const NOTES_REFUSAL = `description must be a string of at most ${TIMER_NOTES_MAX_LENGTH} characters`;
 
@@ -78,6 +79,8 @@ async function passedRefusalOf(error: unknown): Promise<{ statusCode: 406 | 409 
 }
 
 export async function POST(req: Request) {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
 	const res = new NextResponse();
 	const { $res, user, tenantId, access_token, organizationId, taskId } = await authenticatedGuard(req, res);
 	if (!user) return $res('Unauthorized');

@@ -1,9 +1,10 @@
 /**
  * Proxy mode twins of Gauzy's billing schedule routes. Each one first reads the session's own role permissions: the
  * schedules are read by a role that reads invoices and client rates, and changed by one that may make invoices from
- * everyone's time, since a schedule makes such invoices on its own.
+ * everyone's time, since a schedule makes such invoices on its own. A change must also come from this app's own pages.
  */
 import { gauzyUrl, idParams, restoreFetch, signedInRequest } from '@/test/api/forward-to-gauzy';
+import { FOREIGN_ORIGIN_HEADERS, SAME_ORIGIN_HEADERS } from '@/test/api/request-origin';
 import { GET as listSchedules, POST as createSchedule } from './route';
 import { DELETE as deleteSchedule, PUT as updateSchedule } from './[id]/route';
 import { GET as listRuns } from './[id]/runs/route';
@@ -140,5 +141,40 @@ describe('GET /api/invoice-schedules/:id/runs', () => {
 		expect(callOf(fetchMock, 1).url).toBe(
 			gauzyUrl('/invoice-schedules/schedule-1/runs?organizationId=org-1&take=12')
 		);
+	});
+});
+
+describe('a schedule changed from another page than this app’s', () => {
+	const changes = [
+		['POST /api/invoice-schedules', 'POST', (req: Request) => createSchedule(req)],
+		['PUT /api/invoice-schedules/:id', 'PUT', (req: Request) => updateSchedule(req, idParams('schedule-1'))],
+		['DELETE /api/invoice-schedules/:id', 'DELETE', (req: Request) => deleteSchedule(req, idParams('schedule-1'))]
+	] as const;
+
+	describe.each(changes)('%s', (_route, method, send) => {
+		const url = `${ORIGIN}/api/invoice-schedules${method === 'POST' ? '' : '/schedule-1'}`;
+		const body = method === 'DELETE' ? undefined : { paused: true };
+
+		it.each(FOREIGN_ORIGIN_HEADERS)(
+			'is refused from %s, before Gauzy is asked anything',
+			async (_label, headers) => {
+				const fetchMock = gauzyAnswersInOrder(jsonAnswer(permissionRows(ADMIN)), jsonAnswer({}));
+
+				const response = await send(signedInRequest(url, method, body, headers));
+
+				expect(response.status).toBe(403);
+				await expect(response.json()).resolves.toMatchObject({ statusCode: 403 });
+				expect(fetchMock).not.toHaveBeenCalled();
+			}
+		);
+
+		it('reaches Gauzy from this app’s own pages', async () => {
+			const fetchMock = gauzyAnswersInOrder(jsonAnswer(permissionRows(ADMIN)), jsonAnswer({ id: 'schedule-1' }));
+
+			const response = await send(signedInRequest(url, method, body, SAME_ORIGIN_HEADERS));
+
+			expect(response.status).toBe(200);
+			expect(callOf(fetchMock, 1).method).toBe(method);
+		});
 	});
 });

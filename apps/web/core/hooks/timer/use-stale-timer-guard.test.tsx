@@ -103,6 +103,27 @@ interface Page {
 
 let pages: Page[] = [];
 
+/**
+ * The browser's Web Locks, as the app's pages served over HTTPS have them: one holder at a time per name, shared by the
+ * tabs, in the order asked. Every case below runs with them. A page without them (plain HTTP) takes turns through a
+ * lease in the shared storage instead, tested on its own (use-stale-timer-guard-no-web-locks.test.tsx).
+ */
+beforeEach(() => {
+	let queue: Promise<unknown> = Promise.resolve();
+	const locks = {
+		request: (_name: string, callback: () => Promise<unknown>) => {
+			const held = queue.then(() => callback());
+			queue = held.catch(() => undefined);
+			return held;
+		}
+	};
+	Object.defineProperty(navigator, 'locks', { configurable: true, value: locks });
+});
+
+afterEach(() => {
+	delete (navigator as { locks?: unknown }).locks;
+});
+
 /** A page load: the app's modules evaluated afresh, as a reload evaluates them. */
 function loadPage(): Page {
 	jest.resetModules();
@@ -557,7 +578,9 @@ describe('useStaleTimerGuard, with time the run went on without the app', () => 
 				source: ETimeLogSource.TEAMS,
 				employeeId: EMPLOYEE.id,
 				timeLogId: 'log-1',
-				fromMs: Date.parse(LAST_HEARTBEAT)
+				fromMs: Date.parse(LAST_HEARTBEAT),
+				// Gauzy reads the slots of a run from its start
+				runStartedAtMs: Date.parse(STARTED_AT)
 			})
 		);
 		const [{ fromMs, toMs }] = mockCatchUpTimeSlots.mock.calls[0];
@@ -649,6 +672,42 @@ describe('useStaleTimerGuard, with time the run went on without the app', () => 
 		await first.page.settle();
 		expect(mockCatchUpTimeSlots).toHaveBeenCalledTimes(2);
 		expect(first.owner.result.current).toBe(true);
+	});
+
+	it('hands the slot sent without an answer to the next load, which writes it again only if its window lacks it', async () => {
+		jest.useFakeTimers();
+		const heartbeat = Date.parse(LAST_HEARTBEAT);
+		const { page, owner } = openAppAfter(7);
+		await page.settle();
+		const sent = {
+			startedAt: LAST_HEARTBEAT,
+			untilMs: heartbeat + 7 * MINUTE,
+			duration: 420,
+			windowBefore: 120,
+			sentAt: Date.now()
+		};
+		// The slot is sent, and its answer never comes: Gauzy may hold it, or not
+		mockCatchUpTimeSlots.mockImplementationOnce(async ({ onSending }) => {
+			onSending(sent);
+			throw new Error('Network Error');
+		});
+		await page.answer('keep');
+		await page.settle();
+		owner.unmount();
+
+		const reloaded = loadPage();
+		reloaded.mountOwner();
+		await reloaded.settle();
+		// It may still be landing for as long as the app waits for a request: nothing is sent meanwhile
+		expect(mockCatchUpTimeSlots).toHaveBeenCalledTimes(1);
+		expect(reloaded.pendingStart()).toBeNull();
+
+		await reloaded.settle(60_000);
+		await reloaded.settle();
+		expect(mockCatchUpTimeSlots).toHaveBeenCalledTimes(2);
+		expect(mockCatchUpTimeSlots).toHaveBeenLastCalledWith(
+			expect.objectContaining({ fromMs: heartbeat, unanswered: sent })
+		);
 	});
 
 	it('writes the rest of a Keep after a reload, from the last slot written, without asking again', async () => {

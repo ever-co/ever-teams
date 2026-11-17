@@ -2,6 +2,8 @@
 
 import type { ReactNode } from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { toast } from 'sonner';
+import { OpenedScheduleGoneError } from '@/core/lib/utils/invoice-schedules';
 import type { TInvoiceSchedule } from '@/core/types/schemas/organization/invoice-schedule.schema';
 
 const mockWeekStart = { current: 1 };
@@ -86,6 +88,7 @@ function startDayField() {
 describe('InvoiceScheduleDialog', () => {
 	beforeEach(() => {
 		mockWeekStart.current = 1;
+		jest.clearAllMocks();
 	});
 
 	it('saves a schedule it did not change, since whoever saves a schedule takes it over', async () => {
@@ -94,7 +97,8 @@ describe('InvoiceScheduleDialog', () => {
 		fireEvent.click(screen.getByText('invoices.schedule.form.SAVE'));
 
 		await waitFor(() => expect(onClose).toHaveBeenCalled());
-		expect(onUpdate).toHaveBeenCalledWith({});
+		expect(onUpdate).toHaveBeenCalledWith('schedule-1', {});
+		expect(toast.success).toHaveBeenCalledWith('invoices.schedule.toasts.SAVED');
 	});
 
 	it('sends only the fields that changed', async () => {
@@ -104,7 +108,42 @@ describe('InvoiceScheduleDialog', () => {
 		fireEvent.click(screen.getByRole('button', { name: 'invoices.schedule.form.SEND' }));
 		fireEvent.click(screen.getByRole('button', { name: 'invoices.schedule.form.SAVE' }));
 
-		await waitFor(() => expect(onUpdate).toHaveBeenCalledWith({ grouping: 'TASK', sendInvoice: true }));
+		await waitFor(() =>
+			expect(onUpdate).toHaveBeenCalledWith('schedule-1', { grouping: 'TASK', sendInvoice: true })
+		);
+	});
+
+	it('saves the change to the schedule it opened on, even once another tab replaced it', async () => {
+		const onUpdate = jest.fn().mockResolvedValue(undefined);
+		const props = {
+			open: true,
+			client,
+			todayKey: '2026-11-15',
+			onCreate: jest.fn(),
+			onUpdate,
+			onClose: jest.fn()
+		};
+		const { rerender } = render(<InvoiceScheduleDialog {...props} schedule={monthly} />);
+
+		fireEvent.click(screen.getByRole('button', { name: 'invoices.schedule.grouping.TASK' }));
+		rerender(<InvoiceScheduleDialog {...props} schedule={{ ...monthly, id: 'schedule-2', grouping: 'TASK' }} />);
+		fireEvent.click(screen.getByRole('button', { name: 'invoices.schedule.form.SAVE' }));
+
+		await waitFor(() => expect(onUpdate).toHaveBeenCalledWith('schedule-1', { grouping: 'TASK' }));
+	});
+
+	it.each([
+		['replaced', 'invoices.schedule.form.REPLACED'],
+		['deleted', 'invoices.schedule.form.DELETED']
+	] as const)('says the schedule was %s since it opened, and does not say it saved', async (fate, message) => {
+		const { onUpdate, onClose } = renderDialog(monthly);
+		onUpdate.mockRejectedValue(new OpenedScheduleGoneError(fate));
+
+		fireEvent.click(screen.getByRole('button', { name: 'invoices.schedule.form.SAVE' }));
+
+		expect((await screen.findByRole('alert')).textContent).toBe(message);
+		expect(toast.success).not.toHaveBeenCalled();
+		expect(onClose).not.toHaveBeenCalled();
 	});
 
 	it('starts a new weekly schedule on the first day of this week, as the workspace counts weeks', async () => {

@@ -3,6 +3,7 @@ import { authenticatedGuard } from '@/core/services/server/guards/authenticated-
 import { createRoleRequest, getRolesRequest } from '@/core/services/server/requests';
 import { IRole } from '@/core/types/interfaces/role/role';
 import { NextResponse } from 'next/server';
+import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
 
 export async function GET(req: Request) {
 	const res = new NextResponse();
@@ -18,6 +19,8 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
 	const res = new NextResponse();
 	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
 

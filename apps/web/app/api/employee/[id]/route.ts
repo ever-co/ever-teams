@@ -3,8 +3,11 @@ import { authenticatedGuard } from '@/core/services/server/guards/authenticated-
 import { gauzyErrorResponse } from '@/core/services/server/gauzy-error-response';
 import { updateEmployees } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
+import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
 
 export async function PUT(req: Request, props: { params: Promise<{ id: string }> }) {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
 	const params = await props.params;
 	const res = new NextResponse();
 	const { id } = params;

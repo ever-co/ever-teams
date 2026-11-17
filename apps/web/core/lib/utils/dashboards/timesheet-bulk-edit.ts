@@ -196,9 +196,22 @@ export function keepsPlannedFields(planned: ITimeLog, current: ITimeLog): boolea
 
 export type BulkEditPayload = ITimeLogUpdatePayload & { startedAt: Date; stoppedAt: Date; employeeId: string };
 
+/** The `updatedAt` an entry was read at, as the API states it: what its update is saved under. Null without one. */
+export function readVersionOf(log: ITimeLog): string | null {
+	if (!log.updatedAt) {
+		return null;
+	}
+	const instant = new Date(log.updatedAt);
+	if (Number.isNaN(instant.getTime())) {
+		return null;
+	}
+	return instant.toISOString();
+}
+
 /**
  * The update of one entry: its own interval and member, which the API requires on every update, then the changed
- * fields. Null when the entry has no interval or no member to send back as they are.
+ * fields, under the `updatedAt` the entry was read at (#5382): the API saves it only while the entry still holds that
+ * version. Null when the entry has no interval or no member to send back as they are.
  */
 export function bulkEditPayloadOf(save: BulkEditSave): BulkEditPayload | null {
 	const { log, fields } = save;
@@ -211,10 +224,19 @@ export function bulkEditPayloadOf(save: BulkEditSave): BulkEditPayload | null {
 	if (!employeeId) {
 		return null;
 	}
-	return { timeLogId: log.id, startedAt, stoppedAt, employeeId, ...fields };
+	const payload: BulkEditPayload = { timeLogId: log.id, startedAt, stoppedAt, employeeId, ...fields };
+	const readVersion = readVersionOf(log);
+	if (readVersion) {
+		payload.expectedUpdatedAt = readVersion;
+	}
+	return payload;
 }
 
-export type BulkEditSaveFailure = 'overlap' | 'checkFailed' | 'failed';
+/**
+ * Why a save left an entry as it was. `changedMeanwhile`: the entry was saved from elsewhere after it was read for this
+ * save, and the API refused the save under that read, writing nothing (#5382).
+ */
+export type BulkEditSaveFailure = 'overlap' | 'checkFailed' | 'changedMeanwhile' | 'failed';
 
 export interface BulkEditOutcome {
 	logId: string;
@@ -239,6 +261,7 @@ const REASON_ORDER: ReadonlyArray<BulkEditReason> = [
 	'unchanged',
 	'overlap',
 	'checkFailed',
+	'changedMeanwhile',
 	'failed'
 ];
 

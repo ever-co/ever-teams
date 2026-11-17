@@ -5,6 +5,7 @@ import { createCommentRequest, getCommentsRequest } from '@/core/services/server
 import { gauzyErrorResponse } from '@/core/services/server/gauzy-error-response';
 import { baseEntityEnumSchema } from '@/core/types/schemas/common/enums.schema';
 import { ICommentCreateInput } from '@/core/types/interfaces/common/comment';
+import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
 
 // Only the keys of Gauzy's CreateCommentDTO the web sends: the author is never the body's, and the tenant and
 // organization come from the session.
@@ -36,6 +37,8 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
 	const { $res, user, access_token, tenantId, organizationId } = await authenticatedGuard(req, new NextResponse());
 
 	if (!user) return $res('Unauthorized');

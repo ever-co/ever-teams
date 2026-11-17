@@ -33,6 +33,36 @@ describe('createStatusOrder', () => {
 		assert.equal(order.isLatest(order.readSent()), true);
 	});
 
+	it('ends the reads once for a sign-out told several times', () => {
+		const order = createStatusOrder();
+		const beforeSignOut = order.readSent();
+
+		assert.equal(order.sessionEnded(), true);
+		assert.equal(order.sessionEnded(), false, 'nothing sent since: nothing more to end');
+		assert.equal(order.sessionEnded(), false);
+
+		assert.equal(order.isLatest(beforeSignOut), false);
+		assert.equal(order.isLatest(order.readSent()), true);
+	});
+
+	it('ends the reads again once a read was sent or a status reported after the last end', () => {
+		const order = createStatusOrder();
+		order.readSent();
+		order.sessionEnded();
+
+		const nextRead = order.readSent();
+		assert.equal(order.sessionEnded(), true);
+		assert.equal(order.isLatest(nextRead), false);
+
+		const report = order.reported();
+		assert.equal(order.sessionEnded(), true);
+		assert.equal(order.isLatest(report), false);
+	});
+
+	it('has nothing to end before any read was sent', () => {
+		assert.equal(createStatusOrder().sessionEnded(), false);
+	});
+
 	it('shows a read sent after the popup reported', () => {
 		const order = createStatusOrder();
 		order.reported();

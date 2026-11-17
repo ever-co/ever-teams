@@ -3,6 +3,7 @@ import { renameWorkspaceBodySchema } from '@/core/lib/validation/workspace';
 import { gauzyErrorResponse } from '@/core/services/server/gauzy-error-response';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { renameTenantRequest } from '@/core/services/server/requests/tenant';
+import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
 
 /**
  * Proxy mode twin of Gauzy's `PUT /tenant`, for the workspace's name alone. Gauzy renames the tenant of the session
@@ -10,6 +11,8 @@ import { renameTenantRequest } from '@/core/services/server/requests/tenant';
  * session's gets a 409 and nothing is renamed.
  */
 export async function PUT(req: Request) {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
 	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, new NextResponse());
 	if (!user) return $res('Unauthorized');
 

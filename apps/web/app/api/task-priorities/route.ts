@@ -2,6 +2,7 @@ import { ITaskPrioritiesCreate } from '@/core/types/interfaces/task/task-priorit
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { createPrioritiesRequest, getTaskPrioritiesListRequest } from '@/core/services/server/requests/task-priorities';
 import { NextResponse } from 'next/server';
+import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
 
 export async function GET(req: Request) {
 	const res = new NextResponse();
@@ -26,6 +27,8 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
+	const foreign = refuseForeignOrigin(req);
+	if (foreign) return foreign;
 	const res = new NextResponse();
 	const { $res, user, access_token } = await authenticatedGuard(req, res);
 
