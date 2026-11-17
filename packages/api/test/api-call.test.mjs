@@ -56,6 +56,22 @@ test("an error answer with the API's JSON keeps it, with its status", async () =
 		message: 'Not allowed',
 		code: 'EMBED_ORIGIN_NOT_ALLOWED'
 	});
+
+	answerWith(400, 'Bad Request', JSON.stringify({ error: 'Invalid token' }));
+	assert.deepEqual(await api.ApiCall({ path: '/user/me', method: 'GET' }), {
+		statusCode: 400,
+		error: 'Invalid token'
+	});
+});
+
+test('a JSON error body with neither a message nor an error gets the status text, which the request functions look for', async () => {
+	answerWith(503, 'Service Unavailable', JSON.stringify({ retryAfter: 30 }));
+	assert.deepEqual(await api.ApiCall({ path: '/user/me', method: 'GET' }), {
+		statusCode: 503,
+		message: 'Service Unavailable',
+		error: 'Service Unavailable',
+		retryAfter: 30
+	});
 });
 
 test("a gateway's HTML error page, or an empty error body, is an answer with its status, not a request with none", async () => {
