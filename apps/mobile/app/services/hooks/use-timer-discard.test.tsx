@@ -11,6 +11,8 @@ import { showMessage } from 'react-native-flash-message';
 import { AuthenticationStoreModel } from '../../models/authentication-store';
 import { TimerStore, TimerStoreModel } from '../../models/timer/timer-store';
 import { createFakeGauzy, FakeGauzy, ORGANIZATION_ID } from '../../../test/fake-gauzy-session';
+import useFetchTimerStatus from '../client/queries/timer/timer';
+import { TimerSource } from '../interfaces/ITimer';
 import { useTimerDiscard } from './use-timer-discard';
 
 let mockStores: Record<string, unknown> = {};
@@ -26,8 +28,12 @@ let gauzy: FakeGauzy;
 let timerStore: TimerStore;
 let client: QueryClient;
 
-/** Paul's phone, signed in, two minutes after he tapped Start (or started the run from `source`). */
-async function openTimer({ source = 'MOBILE' } = {}) {
+/**
+ * Paul's phone, signed in, two minutes after he tapped Start (or started the run from `source`). `withPoll` mounts the
+ * timer's own status read beside the discard, as the timer card does: it syncs a time slot on each read while the
+ * screen shows the timer running.
+ */
+async function openTimer({ source = 'MOBILE', withPoll = false } = {}) {
 	const pair = gauzy.signIn();
 	const session = AuthenticationStoreModel.create({
 		user: null,
@@ -46,7 +52,14 @@ async function openTimer({ source = 'MOBILE' } = {}) {
 	const wrapper = ({ children }: { children: React.ReactNode }) => (
 		<QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
 	);
-	const { result } = await renderHook(() => useTimerDiscard(), { wrapper });
+	const pollParams = { authToken: pair.token, tenantId: 'tenant-1', organizationId: ORGANIZATION_ID };
+	const useTimerScreen = () => {
+		const discard = useTimerDiscard();
+		// Running as the screen showed it at its last render, as the timer card reads it
+		useFetchTimerStatus(pollParams, timerStore.timerStatus?.running === true, TimerSource.MOBILE);
+		return discard;
+	};
+	const { result } = await renderHook(withPoll ? useTimerScreen : useTimerDiscard, { wrapper });
 	return result;
 }
 
@@ -232,6 +245,26 @@ describe('Discarding the running timer from the phone', () => {
 
 		expect(timerStore.timerStatus.lastLog?.id).toBe('log-b');
 		expect(timerStore.timerStatus.running).toBe(true);
+	});
+
+	it('syncs no time slot for the run once it is discarded, so nothing of it is kept', async () => {
+		const timer = await openTimer({ withPoll: true });
+		await offersDiscard(timer);
+		// The timer's read while the run ran synced its time slot
+		const syncsWhileRunning = gauzy.sentTo('POST', '/timesheet/time-slot').length;
+		expect(syncsWhileRunning).toBe(1);
+
+		await act(async () => {
+			await timer.current.discard(timer.current.runningLogId);
+		});
+		await act(async () => {
+			jest.advanceTimersByTime(10);
+		});
+
+		// A time slot synced now would land in no run, or in an older one
+		expect(gauzy.sentTo('POST', '/timesheet/time-slot')).toHaveLength(syncsWhileRunning);
+		expect(timerStore.timerStatus.running).toBe(false);
+		expect(client.getQueryData<{ running: boolean }>(['status-timer'])?.running).toBe(false);
 	});
 
 	it('names where a run started on another device, since it stops there too', async () => {

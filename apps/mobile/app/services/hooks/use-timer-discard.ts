@@ -22,8 +22,10 @@ const STALE_TIMER_FAILURES: ReadonlySet<TimerDiscardFailure> = new Set(['NOT_RUN
 /** Failures that mean the organization's settings changed: they are read again, which hides the action. */
 const STALE_SETTINGS_FAILURES: ReadonlySet<TimerDiscardFailure> = new Set(['DISABLED', 'TOO_LATE']);
 
-/** The queries that count today's time: they are read again once the run is gone. */
-const TIME_QUERY_KEYS = [['status-timer'], ['tasks'], ['teams']];
+/** The timer's own status read: it syncs a time slot on each read while the screen shows the timer running. */
+const TIMER_STATUS_QUERY_KEY = ['status-timer'];
+/** The other queries that count today's time: they are read again once the run is gone. */
+const TIME_QUERY_KEYS = [['tasks'], ['teams']];
 
 /** Tells the person why the run was not discarded. */
 function tellFailure(failure: TimerDiscardFailure) {
@@ -79,11 +81,16 @@ export function useTimerDiscard() {
 
 	const readAgainAfter = useCallback(
 		(reason: TimerDiscardFailure | 'DISCARDED') => {
-			const timeChanged = reason === 'DISCARDED' || STALE_TIMER_FAILURES.has(reason);
+			const timerChanged = reason !== 'DISCARDED' && STALE_TIMER_FAILURES.has(reason);
+			const timeChanged = reason === 'DISCARDED' || timerChanged;
 			if (timeChanged) {
 				for (const queryKey of TIME_QUERY_KEYS) {
 					void queryClient.invalidateQueries({ queryKey });
 				}
+			}
+			// After a discard, the discard itself settles the timer's status (below)
+			if (timerChanged) {
+				void queryClient.invalidateQueries({ queryKey: TIMER_STATUS_QUERY_KEY });
 			}
 			const settingsChanged = reason !== 'DISCARDED' && STALE_SETTINGS_FAILURES.has(reason);
 			if (settingsChanged) {
@@ -145,7 +152,14 @@ export function useTimerDiscard() {
 				// the discarded one, and the timer is read again instead
 				const stillShowsDiscardedRun = timerStore.timerStatus?.lastLog?.id === timeLogId;
 				if (stillShowsDiscardedRun) {
+					// The timer's read holds it too, and is not sent again now: a read sent before the discard is
+					// dropped, and one sent now, before the screen shows the timer stopped, would sync a time slot of
+					// the run that is gone. The timer's next poll reads it again
+					void queryClient.cancelQueries({ queryKey: TIMER_STATUS_QUERY_KEY });
+					queryClient.setQueryData(TIMER_STATUS_QUERY_KEY, status);
 					setTimerStatus(status);
+				} else {
+					void queryClient.invalidateQueries({ queryKey: TIMER_STATUS_QUERY_KEY });
 				}
 				readAgainAfter('DISCARDED');
 				showMessage({
@@ -162,6 +176,7 @@ export function useTimerDiscard() {
 			authToken,
 			discarding,
 			organizationId,
+			queryClient,
 			readAgainAfter,
 			setTimerStatus,
 			statusAfterDiscard,
