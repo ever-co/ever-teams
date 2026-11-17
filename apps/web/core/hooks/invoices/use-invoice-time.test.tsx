@@ -24,6 +24,9 @@ function deferred<T>(): Deferred<T> {
 
 const mockReports = { getBillableTimeLogs: jest.fn(), getOwedAmountReport: jest.fn() };
 const mockRates = { getProjectRates: jest.fn() };
+/** The signed-in role's permissions: read, and without the rates of every project, unless a case says otherwise. */
+const settledPermissions = { myPermissions: [] as string[], isLoaded: true, isLoading: false };
+let mockPermissions = settledPermissions;
 const siteProject = { id: 'project-site', name: 'Site', organizationContactId: 'client-acme', currency: 'USD' };
 const mockProjectsQuery = {
 	organizationProjects: [siteProject] as Array<Record<string, unknown>>,
@@ -42,6 +45,9 @@ jest.mock('@/core/services/client/api/organizations/rate.service', () => ({
 	get rateService() {
 		return mockRates;
 	}
+}));
+jest.mock('@/core/hooks/roles/use-my-role-permissions-query', () => ({
+	useMyRolePermissionsQuery: () => mockPermissions
 }));
 jest.mock('@/core/hooks/organizations/projects/use-organization-projects-query', () => ({
 	useOrganizationProjectsQuery: () => mockProjectsQuery
@@ -215,7 +221,11 @@ describe('the billable time of an invoice that shows the lines it was saved with
 	});
 });
 
-type BillableReadOptions = { notInvoiced: boolean; scope: { tenantId: string; organizationId: string } };
+type BillableReadOptions = {
+	notInvoiced: boolean;
+	scope: { tenantId: string; organizationId: string };
+	withClientRates?: boolean;
+};
 
 const freeAda = { ...adaTime, id: 'log-free', invoiceItemId: null };
 const ownAda = { ...adaTime, id: 'log-own', duration: 7200, invoiceItemId: 'line-1' };
@@ -471,6 +481,118 @@ describe('the time of a saved invoice', () => {
 		const { result } = renderTimeOf({ enabled: false, billedLines });
 
 		await waitFor(() => expect(result.current.hasBilledTimeFailed).toBe(true));
+	});
+});
+
+describe('the time of a new invoice priced at the client rates each entry kept (CORE-29)', () => {
+	// The project's client rate is 110 today; Ada's October was worked at 90 and kept it
+	const siteRatesToday = { ...siteRates, billRateValue: 110 };
+	const keptAt = (rate: number) => ({
+		ratesStored: true,
+		clientRates: {
+			projectBillRateValue: rate,
+			projectMemberBillRateValue: null,
+			projectBillRateCurrency: 'USD',
+			projectMemberBillRateCurrency: null
+		}
+	});
+	const octoberAda = { ...adaTime, id: 'log-october', duration: 144000, invoiceItemId: null, ...keptAt(90) };
+	const novemberAda = { ...adaTime, id: 'log-november', duration: 7200, invoiceItemId: null, ...keptAt(110) };
+
+	/** The logs as the API answers them: the rates they keep only to a read that asks for them. */
+	function answerAsTheApi(logs: ReadonlyArray<Record<string, unknown>>) {
+		mockReports.getBillableTimeLogs.mockImplementation(
+			async (_range: unknown, _relations: unknown, options: BillableReadOptions) =>
+				logs.map(({ ratesStored, clientRates, ...log }) =>
+					options.withClientRates ? { ...log, ratesStored, clientRates } : log
+				)
+		);
+	}
+
+	beforeEach(() => {
+		mockReports.getBillableTimeLogs.mockReset();
+		mockReports.getOwedAmountReport.mockResolvedValue(owedReport);
+		mockRates.getProjectRates.mockResolvedValue(siteRatesToday);
+	});
+
+	afterEach(() => {
+		mockPermissions = settledPermissions;
+	});
+
+	const asRateAdmin = () => {
+		mockPermissions = { myPermissions: ['ORG_EMPLOYEES_EDIT'], isLoaded: true, isLoading: false };
+	};
+
+	it('asks an admin’s time with the client rates it kept, and bills 40 h at the 90 kept: 3,600, not 4,400', async () => {
+		asRateAdmin();
+		answerAsTheApi([octoberAda]);
+
+		const { result } = renderTimeOf({});
+		await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+		expect(readOptionsOfCalls()[0]).toMatchObject({ notInvoiced: true, withClientRates: true });
+		expect(result.current.lines.map((line) => [line.hours, line.rate, line.amount])).toEqual([[40, 90, 3600]]);
+		// The line says today's rate differs, for its note
+		expect(result.current.lines[0].todaysPrice).toEqual({ rate: 110, currency: 'USD' });
+	});
+
+	it('makes one line per rate when a member worked at two, the one at today’s rate without a note', async () => {
+		asRateAdmin();
+		answerAsTheApi([octoberAda, novemberAda]);
+
+		const { result } = renderTimeOf({});
+		await waitFor(() => expect(result.current.lines).toHaveLength(2));
+
+		const lines = [...result.current.lines].sort((a, b) => a.rate - b.rate);
+		expect(lines.map((line) => [line.hours, line.rate, line.amount])).toEqual([
+			[40, 90, 3600],
+			[2, 110, 220]
+		]);
+		expect(lines[1].todaysPrice).toBeUndefined();
+	});
+
+	it('reads the time as before for a role that may not read every client rate, priced at today’s', async () => {
+		answerAsTheApi([octoberAda]);
+
+		const { result } = renderTimeOf({});
+		await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+		expect(readOptionsOfCalls()[0]).not.toHaveProperty('withClientRates');
+		expect(result.current.lines.map((line) => [line.rate, line.amount])).toEqual([[110, 4400]]);
+	});
+
+	it('waits for the permissions before reading the time, and says it is loading meanwhile', async () => {
+		mockPermissions = { myPermissions: [], isLoaded: false, isLoading: true };
+		answerAsTheApi([octoberAda]);
+
+		const { result, rerender } = renderTimeOf({});
+		await act(async () => {
+			await Promise.resolve();
+		});
+
+		expect(mockReports.getBillableTimeLogs).not.toHaveBeenCalled();
+		expect(result.current.isLoading).toBe(true);
+
+		asRateAdmin();
+		rerender();
+		await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+		// Read once, with the kept rates: never priced at today's rates first
+		expect(readOptionsOfCalls().filter((options) => options.notInvoiced)).toEqual([
+			expect.objectContaining({ withClientRates: true })
+		]);
+		expect(result.current.lines.map((line) => line.amount)).toEqual([3600]);
+	});
+
+	it('reads the time when the permissions could not be read, priced at today’s rates', async () => {
+		mockPermissions = { myPermissions: [], isLoaded: false, isLoading: false };
+		answerAsTheApi([octoberAda]);
+
+		const { result } = renderTimeOf({});
+		await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+		expect(readOptionsOfCalls()[0]).not.toHaveProperty('withClientRates');
+		expect(result.current.lines.map((line) => line.amount)).toEqual([4400]);
 	});
 });
 

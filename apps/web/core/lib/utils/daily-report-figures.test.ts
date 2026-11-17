@@ -189,3 +189,52 @@ describe('the rate each time entry stores (#5212)', () => {
 		expect(earningsByCurrencyOf(flattenDailyReport(report))).toEqual([]);
 	});
 });
+
+describe('the client rates each time entry keeps (CORE-29)', () => {
+	const currentRateEmployee = { ...employee, billRateValue: 50, billRateCurrency: 'EUR' };
+	const keptTask = (title: string, duration: number, projectBillRateValue: number | string | null) => ({
+		...task(title, duration),
+		billRateValue: 50,
+		billRateCurrency: 'EUR',
+		ratesStored: true,
+		clientRates: {
+			projectBillRateValue,
+			projectMemberBillRateValue: null,
+			projectBillRateCurrency: 'EUR',
+			projectMemberBillRateCurrency: 'EUR'
+		}
+	});
+
+	it('gives each kept client rate a row of its own, carrying the client rates that price it', () => {
+		const tasks = [keptTask('october', 3600, '90.00'), keptTask('november', 1800, 110)];
+		const report = reportOf(tasks as unknown as ReturnType<typeof task>[], 5400, project, currentRateEmployee);
+
+		const rows = flattenDailyReport(report);
+
+		expect(rows.map((row) => [row.keptClientRates?.projectBillRateValue, row.seconds])).toEqual([
+			['90.00', 3600],
+			[110, 1800]
+		]);
+		expect(new Set(rows.map((row) => row.key)).size).toBe(2);
+	});
+
+	it('keeps one row for entries that kept the same client rate, whatever the form the database answered it in', () => {
+		const tasks = [keptTask('home', 1800, '90.00'), keptTask('blog', 1800, 90)];
+		const report = reportOf(tasks as unknown as ReturnType<typeof task>[], 3600, project, currentRateEmployee);
+
+		const rows = flattenDailyReport(report);
+
+		expect(rows).toHaveLength(1);
+		expect(rows[0].key).toBe('2026-11-05:project-a:employee-a');
+	});
+
+	it('leaves the rows of a report that states no client rate as they were', () => {
+		const tasks = [{ ...keptTask('home', 3600, 90), ratesStored: false }];
+		const report = reportOf(tasks as unknown as ReturnType<typeof task>[], 3600, project, currentRateEmployee);
+
+		const [row] = flattenDailyReport(report);
+
+		expect(row).not.toHaveProperty('keptClientRates');
+		expect(row.key).toBe('2026-11-05:project-a:employee-a');
+	});
+});

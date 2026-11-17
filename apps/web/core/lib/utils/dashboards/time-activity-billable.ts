@@ -1,5 +1,6 @@
 import type { DailyReportRow } from '@/core/lib/utils/daily-report-figures';
-import type { LinePrice } from '@/core/lib/utils/invoices';
+import { entryPriceOf, keptLinePriceOf, type LinePrice } from '@/core/lib/utils/invoices';
+import type { DefaultBillRate } from '@/core/lib/utils/rates';
 import { type BreakdownFact, type TimeActivityRow, breakdownFactsOf } from '@/core/lib/utils/dashboards/time-activity';
 
 const SECONDS_PER_HOUR = 3600;
@@ -25,6 +26,25 @@ export function entryRateKeyOf(rate: unknown, currency: string | null | undefine
 
 /** The price of a row's time: its member on its project, through the chain an invoice line prices it with. */
 export type PriceOfRow = (row: DailyReportRow) => LinePrice;
+
+/**
+ * A row's price: at the client rates its entries keep, when the report states them (a draft invoice of the same time
+ * then bills the same amount), else at today's.
+ */
+export function keptPriceOfRow(
+	row: DailyReportRow,
+	todays: LinePrice,
+	organizationCurrency: string | null,
+	defaultRate: DefaultBillRate | null
+): LinePrice {
+	const kept = {
+		ratesStored: Boolean(row.keptClientRates),
+		clientRates: row.keptClientRates ?? null,
+		billRateValue: row.billRateValue,
+		billRateCurrency: row.billRateCurrency
+	};
+	return entryPriceOf(kept, todays, (rates) => keptLinePriceOf({ kept: rates, organizationCurrency, defaultRate }));
+}
 
 /**
  * The project whose client rates price a row: time without a team, and time of a project the API keeps from the caller

@@ -110,7 +110,12 @@ interface ProjectRateSave {
 
 export function useProjectRateMutations(projectId: string) {
 	const queryClient = useQueryClient();
-	const invalidateRates = () => queryClient.invalidateQueries({ queryKey: queryKeys.rates.all });
+	// A rate applied to past time re-prices the rates that time kept: the reports and the invoices read it again
+	const invalidateRates = async () => {
+		await queryClient.invalidateQueries({ queryKey: queryKeys.rates.all });
+		await queryClient.invalidateQueries({ queryKey: queryKeys.timesheet.reports.all });
+		await queryClient.invalidateQueries({ queryKey: queryKeys.activities.all });
+	};
 
 	const projectRate = useMutation({
 		mutationFn: ({ billRateValue, applyFrom }: ProjectRateSave) =>

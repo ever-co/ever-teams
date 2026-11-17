@@ -10,6 +10,7 @@ import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/c
 import { periodOfPreset, type Period } from '@/core/lib/utils/dashboard-period';
 import { currencyKeyOf } from '@/core/lib/utils/dashboards/payments-due';
 import {
+	carriedLineEdits,
 	buildInvoiceRequest,
 	dueDayAfter,
 	invoiceCurrenciesOf,
@@ -276,6 +277,23 @@ export function useInvoiceDraft(start: InvoiceDraftStart = NEW_INVOICE) {
 	const savedLines = useMemo(() => savedLinesOf(savedInvoice, billedTimeByLine), [billedTimeByLine, savedInvoice]);
 	const lines = linesOfSource(linesSource, savedLines, time.lines);
 	const recordsBilledTime = time.recordsBilledTime === true;
+	// A read again can split a member's time at one price into two prices, or merge two, when today's rate changed:
+	// what was removed from the lines it replaced, or written on them, follows their time
+	const previousLinesRef = useRef(lines);
+	useEffect(() => {
+		const previous = previousLinesRef.current;
+		previousLinesRef.current = lines;
+		if (previous === lines) {
+			return;
+		}
+		const carried = carriedLineEdits(previous, lines, { removedKeys, descriptions });
+		if (carried.removedKeys !== removedKeys) {
+			setRemovedKeys(carried.removedKeys);
+		}
+		if (carried.descriptions !== descriptions) {
+			setDescriptions(carried.descriptions);
+		}
+	}, [descriptions, lines, removedKeys]);
 
 	const currencies = useMemo(() => invoiceCurrenciesOf(lines), [lines]);
 	const currencyKey = invoiceCurrencyKeyOf(currencies, pickedCurrencyKey);

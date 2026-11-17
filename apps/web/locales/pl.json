@@ -7591,6 +7591,7 @@
 			"RATE_SOURCE_PROJECT": "Stawka klienta projektu",
 			"RATE_SOURCE_EMPLOYEE": "Własna stawka rozliczeniowa tej osoby",
 			"RATE_SOURCE_DEFAULT": "Domyślna stawka rozliczeniowa obszaru roboczego",
+			"KEPT_RATE_HINT": "{source}, zachowana z chwili przepracowania czasu. Dziś: {rate} za godzinę.",
 			"DESCRIPTION_OF": "Opis pozycji {name}",
 			"REMOVE_LINE": "Usuń pozycję {name}",
 			"REMOVED_LINES": "{count, plural, one {# pozycja usunięta} few {# pozycje usunięte} many {# pozycji usuniętych} other {# pozycji usuniętych}}",

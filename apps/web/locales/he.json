@@ -7591,6 +7591,7 @@
 			"RATE_SOURCE_PROJECT": "תעריף הלקוח של הפרויקט",
 			"RATE_SOURCE_EMPLOYEE": "תעריף החיוב של חבר הצוות עצמו",
 			"RATE_SOURCE_DEFAULT": "תעריף החיוב ברירת המחדל של סביבת העבודה",
+			"KEPT_RATE_HINT": "{source}, נשמר מהזמן שבו העבודה בוצעה. היום: {rate} לשעה.",
 			"DESCRIPTION_OF": "תיאור השורה {name}",
 			"REMOVE_LINE": "הסרת השורה {name}",
 			"REMOVED_LINES": "{count, plural, one {שורה אחת הוסרה} two {שתי שורות הוסרו} other {# שורות הוסרו}}",

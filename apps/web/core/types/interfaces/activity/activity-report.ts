@@ -5,6 +5,14 @@ import { IOrganizationContact } from '../organization/organization-contact';
 import { IOrganizationProject } from '../project/organization-project';
 import { TUser } from '@/core/types/schemas';
 
+/** The client rates a time entry keeps, as a report that asks for them (`withClientRates`) states them. */
+export interface ITimeEntryClientRates {
+	projectBillRateValue?: number | string | null;
+	projectMemberBillRateValue?: number | string | null;
+	projectBillRateCurrency?: string | null;
+	projectMemberBillRateCurrency?: string | null;
+}
+
 /**
  * Base interface for entities with tenant and organization
  */
@@ -184,6 +192,9 @@ export interface ITimerTaskLog {
 	 */
 	billRateValue?: number | string | null;
 	billRateCurrency?: string | null;
+	/** On a report that asks for them (`withClientRates`): whether the entry keeps its rates, and its client rates. */
+	ratesStored?: boolean;
+	clientRates?: ITimeEntryClientRates | null;
 }
 
 export interface ITimerEmployeeLog {
@@ -227,6 +238,11 @@ export interface ITimeLogReportDailyRequest {
 	includeTimeWithoutTeam?: boolean;
 	/** Counts billable time only; without it the report counts every log. */
 	billableOnly?: boolean;
+	/**
+	 * States on each row the client rates its entry keeps, for a role that may read every project's client rates. An
+	 * API that does not answer them leaves them out.
+	 */
+	withClientRates?: boolean;
 }
 
 export interface ITimeLogReportWeeklyRequest extends Pick<
