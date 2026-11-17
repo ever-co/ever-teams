@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { ITimerStatus } from '@ever-teams/toolkit-types';
 
 export type TimeValues = {
@@ -28,9 +28,23 @@ function useTeamsStopWatch(timerStatus: ITimerStatus): UseTeamsStopWatchReturn {
 	const [isRunning, setIsRunning] = useState<boolean>(false);
 	const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
+	// An unmounted widget stops ticking.
+	useEffect(
+		() => () => {
+			if (intervalRef.current) {
+				clearInterval(intervalRef.current);
+			}
+		},
+		[]
+	);
+
 	const start = () => {
 		if (!isRunning) {
 			setIsRunning(true);
+			// Two starts before the next render (an effect run twice) keep one tick, not two.
+			if (intervalRef.current) {
+				clearInterval(intervalRef.current);
+			}
 			intervalRef.current = setInterval(() => {
 				setTime((prevTime) => new Date(prevTime.getTime() + 1000));
 				setTodayTrackedTime((prevTime) => new Date(prevTime.getTime() + 1000));
