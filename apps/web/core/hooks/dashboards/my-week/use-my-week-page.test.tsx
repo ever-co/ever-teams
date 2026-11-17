@@ -17,6 +17,11 @@ let mockUser: unknown;
 jest.mock('@/core/services/client/api/timesheets/time-log.service', () => ({
 	timeLogService: { getTimeLogs: (...args: unknown[]) => mockGetTimeLogs(...args) }
 }));
+// The rates each billable entry kept, read for a role that gets an amount
+const mockGetBillableTimeLogs = jest.fn();
+jest.mock('@/core/services/client/api/timesheets/time-log-report.service', () => ({
+	timeLogReportService: { getBillableTimeLogs: (...args: unknown[]) => mockGetBillableTimeLogs(...args) }
+}));
 jest.mock('@/core/hooks/queries/user-user.query', () => ({ useUserQuery: () => ({ data: mockUser }) }));
 // A role that may not read client rates, unless a test gives it: the page then reads no rates and shows no amount
 let mockPermissions: string[] = [];
@@ -111,6 +116,9 @@ describe('useMyWeekPage', () => {
 
 	beforeEach(() => {
 		mockGetTimeLogs.mockReset();
+		mockGetBillableTimeLogs.mockReset();
+		// No entry keeps a rate unless a test says so (a retry reads the kept rates again, whatever the period holds)
+		mockGetBillableTimeLogs.mockResolvedValue([]);
 		mockUser = userWith(40);
 		mockPermissions = [];
 		mockOrganizationReadFailed = false;
@@ -265,6 +273,39 @@ describe('useMyWeekPage', () => {
 
 		act(() => result.current.billable.retry());
 		expect(mockRefetchOrganization).toHaveBeenCalledTimes(1);
+	});
+
+	it("bills at today's rate the time whose kept rates price nothing, as a draft invoice does (review on #5386)", async () => {
+		mockPermissions = ['CHANGE_SELECTED_EMPLOYEE'];
+		// Today the member bills 110 an hour; the workspace sets no default rate
+		mockUser = {
+			id: 'user-me',
+			employee: { id: ME, reWeeklyLimit: 40, billRateValue: 110, billRateCurrency: 'USD' }
+		};
+		getDefaultStore().set(currentOrganizationState, { id: 'organization-1', currency: 'USD' } as TOrganization);
+		const hourOfWork = { ...logOf('mine', ME, addHours(THIS_WEEK.from, 9), 1), isBillable: true } as ITimeLog;
+		mockGetTimeLogs.mockResolvedValue([hourOfWork]);
+		// The entry was recorded with its rates, but none was set when it was worked
+		const keptNothing = {
+			projectBillRateValue: null,
+			projectBillRateCurrency: null,
+			projectMemberBillRateValue: null,
+			projectMemberBillRateCurrency: null
+		};
+		mockGetBillableTimeLogs.mockResolvedValue([
+			{ id: 'mine', ratesStored: true, clientRates: keptNothing, billRateValue: null, billRateCurrency: null }
+		]);
+		const { result } = renderMyWeek();
+
+		await waitFor(() => expect(mockGetBillableTimeLogs).toHaveBeenCalledTimes(1));
+		await waitFor(() => expect(result.current.billable.isPending).toBe(false));
+
+		expect(result.current.billable.isError).toBe(false);
+		expect(result.current.billable.figures).toEqual({
+			amounts: [{ currency: 'USD', amount: 110 }],
+			seconds: HOUR,
+			unpricedSeconds: 0
+		});
 	});
 
 	it('reports a failed read, and reads again on retry', async () => {

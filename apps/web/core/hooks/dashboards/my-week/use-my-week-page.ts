@@ -193,7 +193,13 @@ export function useMyWeekPage() {
 			if (!kept || !keepsClientRates(kept)) {
 				return null;
 			}
-			return keptLinePriceOf({ kept, organizationCurrency, defaultRate });
+			const price = keptLinePriceOf({ kept, organizationCurrency, defaultRate });
+			// Rates kept empty (none was set when the time was worked) price nothing: today's rates price the time, as a
+			// draft invoice prices it (`entryPriceOf`)
+			if (price.rate === null) {
+				return null;
+			}
+			return price;
 		};
 		return myWeekBillableOf(entries, priceOf, roundingRule, keptPriceOf);
 	}, [employeeId, entries, keptById, organization, ownRate, ratesByProject, readsBillable]);
