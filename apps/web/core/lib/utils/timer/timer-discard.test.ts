@@ -74,6 +74,17 @@ describe('timerDiscardAvailabilityOf', () => {
 		expect(availability).toEqual({ available: false, reason: 'DISABLED' });
 	});
 
+	it('offers no discard when the organization keeps all time, which Gauzy refuses a discard for too', () => {
+		const availability = timerDiscardAvailabilityOf({
+			organization: { allowDiscardTimer: true, discardTimerWithinMinutes: null, allowDeleteTime: false },
+			running: true,
+			startedAt: START,
+			now: START
+		});
+
+		expect(availability).toEqual({ available: false, reason: 'DISABLED' });
+	});
+
 	it('closes the discard when the run is older than the organization allows', () => {
 		const organization = { allowDiscardTimer: true, discardTimerWithinMinutes: 10 };
 

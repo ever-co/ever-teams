@@ -493,6 +493,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 			setErrorMsg('');
 			setReason('');
 			setBillableChoice(null);
+			setLabelIds([]);
 		}
 	}, [addManualTimeSuccess, timeLog, closeModal]);
 

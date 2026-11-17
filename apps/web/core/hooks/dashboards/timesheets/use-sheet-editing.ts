@@ -29,7 +29,7 @@ import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import type { TOrganizationProject } from '@/core/types/schemas/organization/organization-project.schema';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
 import { useCopyPreviousWeek } from './use-copy-previous-week';
-import { useSheetCellWrites } from './use-sheet-cell-writes';
+import { useSheetCellWrites, writtenRowKeyOf } from './use-sheet-cell-writes';
 import { useSheetDraftRows } from './use-sheet-draft-rows';
 import { timesheetPageLogsRequestOf } from './use-timesheet-page-logs';
 import type { TimesheetSheetState } from './use-timesheet-sheet';
@@ -66,14 +66,16 @@ export interface SheetEditingSource {
 
 /**
  * A row added by hand stays shown until time lands on it. The API may file that time under another project than the
- * row named (the team's default one, for a task without a project), so a logged row of the same task counts too.
+ * row named (the team's default one, for a task without a project), so a logged row of the same task counts too. A
+ * row stored under an older key (before rows carried their Billable state, #5368) has landed once a row of the key its
+ * time is written under is shown: its cells read that row's time, so an empty-looking copy of it could change it.
  */
 function isDraftStillEmpty(
 	identity: SheetRowIdentity,
 	shownRowKeys: ReadonlySet<string>,
 	loggedTaskIds: ReadonlySet<string | null>
 ) {
-	if (shownRowKeys.has(identity.key)) {
+	if (shownRowKeys.has(identity.key) || shownRowKeys.has(writtenRowKeyOf(identity))) {
 		return false;
 	}
 	if (!identity.taskId) {
@@ -222,8 +224,9 @@ export function useSheetEditing(source: SheetEditingSource, sheet: TimesheetShee
 		return new Set(taskIds);
 	}, [sheet.sheet.rows]);
 	const draftRows = useMemo(() => {
-		const emptyRows = storedDraftRows.filter((identity) => isDraftStillEmpty(identity, shownRowKeys, loggedTaskIds));
-		return emptyRows.map((identity) => withProjectOf(identity, organizationProjects));
+		// The project's Billable state first: the key a row's time is written under depends on it
+		const rows = storedDraftRows.map((identity) => withProjectOf(identity, organizationProjects));
+		return rows.filter((identity) => isDraftStillEmpty(identity, shownRowKeys, loggedTaskIds));
 	}, [loggedTaskIds, organizationProjects, shownRowKeys, storedDraftRows]);
 
 	const addTaskRow = useCallback(

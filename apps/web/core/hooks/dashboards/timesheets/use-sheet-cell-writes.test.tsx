@@ -92,6 +92,26 @@ const approvedSince = logOf({
 	} as ITimeLog['timesheet']
 });
 
+/**
+ * A draft row of a billable project whose key has no `:billable`: a row added before the projects were read takes its
+ * Billable state from the project later, and a row kept in the browser from before keeps its old key.
+ */
+const billableDraft = { ...identity, isBillable: true };
+
+/** Saves each entry as the API does: the next read of the member's logs gives it back, with its Billable state. */
+function readSavingEntries() {
+	const saved: ITimeLog[] = [];
+	mockCreateTimesheetFrom.mockImplementation(async (entry: Partial<ITimeLog>) => {
+		saved.push(logOf({ ...entry, id: `saved-${saved.length}`, logType: ETimeLogType.MANUAL }));
+	});
+	return async (): Promise<ReadonlyArray<ITimeLog>> => [...saved];
+}
+
+function secondsOfCreated(callIndex: number) {
+	const [entry] = mockCreateTimesheetFrom.mock.calls[callIndex] as [{ startedAt: Date; stoppedAt: Date }];
+	return (entry.stoppedAt.getTime() - entry.startedAt.getTime()) / 1000;
+}
+
 function scopeOf(overrides: Partial<SheetWriteScope>): SheetWriteScope {
 	return {
 		memberId: 'member',
@@ -146,6 +166,56 @@ describe('useSheetCellWrites', () => {
 		expect(mockCreateTimesheetFrom).toHaveBeenCalledWith(
 			expect.objectContaining({ startedAt: at(10), stoppedAt: at(12), employeeId: 'member' })
 		);
+	});
+
+	it('adds only the difference on a second edit of a billable draft row whose key has no Billable state', async () => {
+		expect(billableDraft.key).toBe('project:task');
+		const { result } = renderWrites(scopeOf({ readSavedMemberLogs: readSavingEntries() }));
+
+		// Two hours, then three before the sheet shows the first entry: the second write reads the first one back
+		await act(async () => {
+			await result.current.commitCell(billableDraft, day, 2 * HOUR);
+		});
+		let outcome: CellCommitOutcome | undefined;
+		await act(async () => {
+			outcome = await result.current.commitCell(billableDraft, day, 3 * HOUR);
+		});
+
+		expect(outcome).toBe('saved');
+		expect(mockCreateTimesheetFrom).toHaveBeenCalledTimes(2);
+		expect(mockCreateTimesheetFrom).toHaveBeenNthCalledWith(2, expect.objectContaining({ isBillable: true }));
+		expect(secondsOfCreated(1)).toBe(HOUR);
+	});
+
+	it('reads a billable draft row as unchanged when the time typed in it is already saved', async () => {
+		const { result } = renderWrites(scopeOf({ readSavedMemberLogs: readSavingEntries() }));
+
+		await act(async () => {
+			await result.current.commitCell(billableDraft, day, 2 * HOUR);
+		});
+		let outcome: CellCommitOutcome | undefined;
+		await act(async () => {
+			outcome = await result.current.commitCell(billableDraft, day, 2 * HOUR);
+		});
+
+		expect(outcome).toBe('unchanged');
+		expect(mockCreateTimesheetFrom).toHaveBeenCalledTimes(1);
+	});
+
+	it('copies nothing into a billable draft cell filled since the copy was prepared', async () => {
+		const readSaved = readSavingEntries();
+		const { result } = renderWrites(scopeOf({ readSavedMemberLogs: readSaved }));
+		await act(async () => {
+			await result.current.commitCell(billableDraft, day, HOUR);
+		});
+
+		let run: CopyRunResult | undefined;
+		await act(async () => {
+			run = await result.current.applyCopyPlan([{ identity: billableDraft, day, seconds: 2 * HOUR }]);
+		});
+
+		expect(mockCreateTimesheetFrom).toHaveBeenCalledTimes(1);
+		expect(run).toMatchObject({ savedCount: 0, skippedCount: 1 });
 	});
 
 	it('saves nothing when the read before the write fails', async () => {

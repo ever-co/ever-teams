@@ -30,6 +30,7 @@ import {
 	logDurationSeconds,
 	type SheetDay,
 	type SheetRowIdentity,
+	sheetRowKeyFor,
 	sheetRowKeyOf,
 	workDayOfLog
 } from '@/core/lib/utils/dashboards/timesheets';
@@ -87,8 +88,20 @@ function logsOfDay(logs: ReadonlyArray<ITimeLog>, dayKey: string) {
 	});
 }
 
-function logsOfCell(logs: ReadonlyArray<ITimeLog>, rowKey: string, dayKey: string) {
+/**
+ * The key the logs written in a row carry once read back: its project, task, labels and Billable state. A row built
+ * from logs has that very key; a draft row may not (one added before the projects were read takes its Billable state
+ * from the project later, and one kept in the browser from before Billable was part of the key keeps its old key), so
+ * its cells are read under the key of the time typed in them, never under the key the row is stored with.
+ */
+export function writtenRowKeyOf(identity: SheetRowIdentity) {
+	const labelIds = (identity.labels ?? []).map((label) => label.id);
+	return sheetRowKeyFor(identity.projectId, identity.taskId, labelIds, identity.isBillable);
+}
+
+function logsOfCell(logs: ReadonlyArray<ITimeLog>, identity: SheetRowIdentity, dayKey: string) {
 	const dayLogs = logsOfDay(logs, dayKey);
+	const rowKey = writtenRowKeyOf(identity);
 	return dayLogs.filter((log) => sheetRowKeyOf(log) === rowKey);
 }
 
@@ -261,7 +274,7 @@ export function useSheetCellWrites(scope: SheetWriteScope) {
 			onWrite: () => void
 		): Promise<CellCommitOutcome> => {
 			const memberLogs = await readSavedMemberLogs();
-			const cellLogs = logsOfCell(memberLogs, identity.key, day.key);
+			const cellLogs = logsOfCell(memberLogs, identity, day.key);
 			const currentSeconds = totalOf(cellLogs);
 			const shownSeconds = wholeMinutesOf(currentSeconds);
 			const isUnchanged = shownSeconds === targetSeconds;
@@ -393,7 +406,7 @@ export function useSheetCellWrites(scope: SheetWriteScope) {
 							result.skippedCount += 1;
 							continue;
 						}
-						const cellLogs = logsOfCell(memberLogs, plan.identity.key, plan.day.key);
+						const cellLogs = logsOfCell(memberLogs, plan.identity, plan.day.key);
 						const isCellFilled = cellLogs.length > 0;
 						if (isCellFilled) {
 							result.skippedCount += 1;

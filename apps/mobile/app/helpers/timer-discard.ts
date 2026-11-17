@@ -31,6 +31,8 @@ export type TimerDiscardAvailability =
 type TDiscardSettings = {
 	allowDiscardTimer?: boolean | null;
 	discardTimerWithinMinutes?: number | null;
+	/** An organization that keeps all time (`false`) refuses a discard too: it would remove the run's time. */
+	allowDeleteTime?: boolean | null;
 };
 
 interface ITimerDiscardInput {
@@ -78,7 +80,8 @@ function closingTimeOf(limitMinutes: number | null | undefined, startedAt: numbe
 /**
  * Whether the running timer offers Discard, as the API would allow it: a timer runs and its status names the run, it is
  * not the desktop app's, the API knows the discard (its organization read carries the switch), the organization does
- * not turn it off (null counts as allowed), and the run is younger than the organization's limit. `closesAt` is when
+ * not turn it off (null counts as allowed) nor keep all time (`allowDeleteTime: false`, which Gauzy refuses a discard
+ * for too), and the run is younger than the organization's limit. `closesAt` is when
  * that limit ends the offer, for the timer to read it again then.
  */
 export function timerDiscardAvailabilityOf({
@@ -99,7 +102,8 @@ export function timerDiscardAvailabilityOf({
 	if (!settings) {
 		return { available: false, reason: 'NOT_SUPPORTED' };
 	}
-	if (settings.allowDiscardTimer === false) {
+	const keepsAllTime = settings.allowDeleteTime === false;
+	if (settings.allowDiscardTimer === false || keepsAllTime) {
 		return { available: false, reason: 'DISABLED' };
 	}
 	const closesAt = closingTimeOf(settings.discardTimerWithinMinutes, startedAt);

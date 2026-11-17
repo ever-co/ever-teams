@@ -5,9 +5,32 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import type { DurationEntryInput } from '@/core/hooks/timesheet/use-duration-entry';
 import { AddManualTimeModal } from './add-manual-time-modal';
 
-// An API without labels on entries (#5368): the labels controls stay out, as before
-jest.mock('@/core/hooks/timer/use-entry-labels-support', () => ({ useEntryLabelsSupport: () => false }));
-jest.mock('@/core/components/features/entry-labels/entry-labels-field', () => ({ EntryLabelsField: () => null }));
+// An API without labels on entries (#5368): the labels controls stay out, as before, unless a test says otherwise.
+// Shown, the field says which labels it holds and picks "design".
+let mockSupportsEntryLabels = false;
+jest.mock('@/core/hooks/timer/use-entry-labels-support', () => ({
+	useEntryLabelsSupport: () => mockSupportsEntryLabels
+}));
+jest.mock('@/core/components/features/entry-labels/entry-labels-field', () => ({
+	EntryLabelsField: ({
+		labelIds,
+		onChange,
+		isShown
+	}: {
+		labelIds: string[];
+		onChange: (labelIds: string[]) => void;
+		isShown: boolean;
+	}) => {
+		if (!isShown) {
+			return null;
+		}
+		return (
+			<button type="button" onClick={() => onChange([...labelIds, 'design'])}>
+				{`labels: ${labelIds.join(',') || 'none'}`}
+			</button>
+		);
+	}
+}));
 
 const mockAddManualTime = jest.fn();
 const mockAtomValues: Record<string, unknown> = {};
@@ -64,14 +87,18 @@ jest.mock('@/core/stores', () => ({
 	tasksByTeamState: 'tasksByTeamState'
 }));
 
+// No save has succeeded, unless a test says one did
+const mockManualTimeOutcome: { addManualTimeSuccess: boolean; timeLog?: { id: string } } = {
+	addManualTimeSuccess: false
+};
 jest.mock('@/core/hooks/activities/use-manual-time', () => ({
 	useManualTime: () => ({
 		addManualTime: mockAddManualTime,
 		addManualTimeLoading: false,
-		addManualTimeSuccess: false,
+		addManualTimeSuccess: mockManualTimeOutcome.addManualTimeSuccess,
 		addManualTimeError: false,
 		addManualTimeErrorMessage: undefined,
-		timeLog: undefined
+		timeLog: mockManualTimeOutcome.timeLog
 	})
 }));
 
@@ -816,5 +843,40 @@ describe('AddManualTimeModal billable status', () => {
 		expect(mockAddManualTime).not.toHaveBeenCalled();
 		expect(screen.getByRole('alert').textContent).toContain('dashboard.timesheets.BULK_EDIT.PROJECTS_FAILED');
 		expect(refetch).toHaveBeenCalled();
+	});
+});
+
+describe('AddManualTimeModal labels of the entry (#5368)', () => {
+	beforeEach(() => {
+		mockAddManualTime.mockReset();
+		closeModal.mockClear();
+		mockSupportsEntryLabels = true;
+		mockOrganizationProjects.organizationProjects = [];
+		mockOrganizationProjects.getOrganizationProjectsLoading = false;
+		mockOrganizationProjects.isOrganizationProjectsError = false;
+		mockAtomValues.activeTeamState = teamA;
+		mockAtomValues.activeTeamTaskState = taskA;
+		mockAtomValues.organizationTeamsState = [teamA, teamB];
+		mockAtomValues.tasksByTeamState = teamATasks();
+	});
+
+	afterEach(() => {
+		mockSupportsEntryLabels = false;
+		mockManualTimeOutcome.addManualTimeSuccess = false;
+		mockManualTimeOutcome.timeLog = undefined;
+	});
+
+	it('starts the next entry without the labels of the one just saved', () => {
+		const { rerender } = renderAddTimeDialog();
+		clickButton('labels: none');
+		expect(screen.getByRole('button', { name: 'labels: design' })).toBeTruthy();
+
+		// The save succeeded: the dialog closes, its form emptied for the next entry
+		mockManualTimeOutcome.addManualTimeSuccess = true;
+		mockManualTimeOutcome.timeLog = { id: 'saved' };
+		rerender(<AddManualTimeModal isOpen params="AddTime" closeModal={closeModal} />);
+
+		expect(closeModal).toHaveBeenCalled();
+		expect(screen.getByRole('button', { name: 'labels: none' })).toBeTruthy();
 	});
 });

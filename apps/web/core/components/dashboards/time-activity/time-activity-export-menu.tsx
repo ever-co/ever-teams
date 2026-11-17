@@ -54,6 +54,7 @@ import type { DurationRoundingRule } from '@/core/lib/utils/duration-rounding';
 import { exportToXLSX } from '@/core/lib/utils/export-utils';
 import type { ITimeLogGroupedDailyReport } from '@/core/types/interfaces/activity/activity-report';
 import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
+import { useEntryLabelsSupport } from '@/core/hooks/timer/use-entry-labels-support';
 import { dateFormatOf, type FormatLocale } from '@/core/lib/utils/workspace-formats';
 import { currentOrganizationState } from '@/core/stores/user/user-organizations';
 import type { PdfFigure, PdfGroup, PdfRow, TimeActivityPdfContent } from './time-activity-report-pdf';
@@ -96,6 +97,11 @@ interface ExportContext {
 	 * amount, or could not read them, and the file then has none either.
 	 */
 	billableFacts: ReadonlyArray<BreakdownFact> | null;
+	/**
+	 * The API stores labels on entries (#5368): the files then carry a Labels column. Elsewhere they keep the columns
+	 * they always had, in their places, for whoever reads them by position.
+	 */
+	withEntryLabels: boolean;
 	locale: FormatLocale;
 	workspaceCurrency: string | null;
 	t: Translate;
@@ -282,6 +288,13 @@ function csvClientColumnsOf(context: ExportContext): CsvColumn<NamedRow>[] {
 	return [{ header: context.t('common.CLIENT'), valueOf: (named) => named.client }];
 }
 
+function csvLabelsColumnsOf(context: ExportContext): CsvColumn<NamedRow>[] {
+	if (!context.withEntryLabels) {
+		return [];
+	}
+	return [{ header: context.t('common.LABELS'), valueOf: (named) => named.labels }];
+}
+
 function csvColumnsOf(context: ExportContext): CsvColumn<NamedRow>[] {
 	const { t } = context;
 	const columns: CsvColumn<NamedRow>[] = [
@@ -291,7 +304,7 @@ function csvColumnsOf(context: ExportContext): CsvColumn<NamedRow>[] {
 		{ header: t('dashboard.timeActivity.grouping.PROJECT'), valueOf: (named) => named.project },
 		{ header: t('dashboard.timeActivity.export.TASK'), valueOf: (named) => named.task },
 		{ header: t('dashboard.timeActivity.export.STATUS'), valueOf: (named) => named.status },
-		{ header: t('common.LABELS'), valueOf: (named) => named.labels },
+		...csvLabelsColumnsOf(context),
 		{ header: t('dashboard.timeActivity.export.TRACKED_HOURS'), valueOf: (named) => hoursOf(named.row.seconds) }
 	];
 	if (context.isManager) {
@@ -358,6 +371,13 @@ function xlsxClientColumnsOf(context: ExportContext): XlsxColumn[] {
 	return [{ header: context.t('common.CLIENT'), value: (named) => named.client, width: 24 }];
 }
 
+function xlsxLabelsColumnsOf(context: ExportContext): XlsxColumn[] {
+	if (!context.withEntryLabels) {
+		return [];
+	}
+	return [{ header: context.t('common.LABELS'), value: (named) => named.labels, width: 24 }];
+}
+
 /** The previous export's columns, with earnings kept as numbers beside their currency instead of a `$` string. */
 function xlsxColumnsOf(context: ExportContext): XlsxColumn[] {
 	const { t } = context;
@@ -368,7 +388,7 @@ function xlsxColumnsOf(context: ExportContext): XlsxColumn[] {
 		{ header: t('dashboard.timeActivity.grouping.PROJECT'), value: (named) => named.project, width: 24 },
 		{ header: t('dashboard.timeActivity.export.TASK'), value: (named) => named.task, width: 40 },
 		{ header: t('dashboard.timeActivity.export.STATUS'), value: (named) => named.status, width: 16 },
-		{ header: t('common.LABELS'), value: (named) => named.labels, width: 24 },
+		...xlsxLabelsColumnsOf(context),
 		{
 			header: t('dashboard.timeActivity.columns.TRACKED'),
 			value: (named) => named.row.seconds / SECONDS_PER_DAY,
@@ -790,6 +810,7 @@ function pdfContentOf(context: ExportContext): TimeActivityPdfContent {
 		},
 		showsEarnings: context.isManager,
 		showsBillable: data.billables !== null,
+		showsLabels: context.withEntryLabels,
 		groups: pdfGroupsOf(context, layout, data),
 		footer: `${APP_NAME} · ${title}`,
 		pageLabel: (page, total) => t('dashboard.timeActivity.export.PAGE', { page, total })
@@ -833,7 +854,7 @@ export function TimeActivityExportMenu({
 	billable = null,
 	isDisabled
 }: Readonly<
-	Omit<ExportContext, 'locale' | 'workspaceCurrency' | 't' | 'roundingRule' | 'billableFacts'> & {
+	Omit<ExportContext, 'locale' | 'workspaceCurrency' | 't' | 'roundingRule' | 'billableFacts' | 'withEntryLabels'> & {
 		roundingRule?: DurationRoundingRule | null;
 		/** What the page's billable time bills, for a reader it shows billable amounts to. */
 		billable?: TimeActivityBillable | null;
@@ -844,6 +865,7 @@ export function TimeActivityExportMenu({
 	const locale = useWorkspaceLocale();
 	const workspaceCurrency = useAtomValue(currentOrganizationState)?.currency ?? null;
 	const billableFacts = useMemo(() => billableFactsOf(billable), [billable]);
+	const withEntryLabels = useEntryLabelsSupport();
 	// A file made while the amounts are read would leave them out where the page is about to show them
 	const isBillableReading = billable !== null && billable.isOffered && billable.isPending;
 	const isMenuDisabled = isDisabled || isBillableReading;
@@ -861,6 +883,7 @@ export function TimeActivityExportMenu({
 			filterOptions,
 			roundingRule,
 			billableFacts,
+			withEntryLabels,
 			locale,
 			workspaceCurrency,
 			t
@@ -899,6 +922,7 @@ export function TimeActivityExportMenu({
 		report,
 		roundingRule,
 		t,
+		withEntryLabels,
 		workspaceCurrency
 	]);
 
