@@ -82,7 +82,7 @@ export default function EverTeamsIntro(): JSX.Element {
 						},
 						{ title: '@ever-teams/toolkit-ui', desc: 'Base UI components built on Radix UI and Tailwind CSS' },
 						{ title: '@ever-teams/api', desc: 'API client functionality for backend integration' },
-						{ title: '@ever-teams/types', desc: 'TypeScript definitions and interfaces' },
+						{ title: '@ever-teams/toolkit-types', desc: 'TypeScript definitions and interfaces' },
 						{
 							title: '@ever-teams/tracking',
 							desc: 'Analytics and tracking system with Microsoft Clarity integration'
@@ -99,7 +99,7 @@ export default function EverTeamsIntro(): JSX.Element {
 
 				<pre className="bg-slate-900 text-slate-100 rounded p-4 overflow-auto">
 					{`# Install the core packages
-npm install @ever-teams/atoms @ever-teams/toolkit-ui @ever-teams/api @ever-teams/types
+npm install @ever-teams/atoms @ever-teams/toolkit-ui @ever-teams/api @ever-teams/toolkit-types
 
 # Optional: Install tracking for analytics
 npm install @ever-teams/tracking`}
@@ -111,7 +111,7 @@ import { Button } from '@ever-teams/toolkit-ui';
 
 function App() {
   return (
-    <TeamsProvider config={{ apiUrl: 'https://api.your-domain.com' }}>
+    <TeamsProvider config={{ apiUrl: 'https://api.your-domain.com/api' }}>
       <div className="p-4">
         <h1>My Time Tracking App</h1>
         <TeamsModernTimer showProgress={true} />
