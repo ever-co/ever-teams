@@ -18,7 +18,7 @@ import {
 	moveSessionToSecureStorage,
 	readStoredSession,
 	StoredSession,
-	writeStoredSession
+	keepStoredSessionInOrder
 } from '../../services/client/secure-session';
 import { sessionInSnapshot, someoneWasSignedIn, withoutSession } from './session-snapshot';
 
@@ -105,7 +105,7 @@ export async function setupRootStore(rootStore: RootStore) {
 			if (!session.inSecureStorage) {
 				return;
 			}
-			writeStoredSession(tokens).catch(() => undefined);
+			keepStoredSessionInOrder(tokens);
 		},
 		{ equals: comparer.structural }
 	);

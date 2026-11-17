@@ -31,7 +31,7 @@ async function savedSnapshot(): Promise<Record<string, any>> {
 }
 
 async function settle() {
-	for (let i = 0; i < 5; i++) {
+	for (let i = 0; i < 30; i++) {
 		await Promise.resolve();
 	}
 }

@@ -32,6 +32,17 @@ export async function writeStoredSession(session: StoredSession): Promise<void> 
 	await keepOrForget(REFRESH_TOKEN_KEY, session.refreshToken);
 }
 
+let pendingWrites: Promise<void> = Promise.resolve();
+
+/**
+ * Saves each pair after the previous one: a sign-in or a renewal changes both tokens one after the other, and two
+ * writes running side by side could finish in the wrong order and keep a refresh token the server already rotated.
+ */
+export function keepStoredSessionInOrder(session: StoredSession): Promise<void> {
+	pendingWrites = pendingWrites.then(() => writeStoredSession(session)).catch(() => undefined);
+	return pendingWrites;
+}
+
 export function hasTokens(session: StoredSession): boolean {
 	return Boolean(session.accessToken || session.refreshToken);
 }

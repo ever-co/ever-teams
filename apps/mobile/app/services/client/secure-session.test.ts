@@ -2,7 +2,13 @@
  * The session's tokens are kept in expo-secure-store (Keychain / Android Keystore), never in AsyncStorage.
  */
 import * as SecureStore from 'expo-secure-store';
-import { hasTokens, moveSessionToSecureStorage, readStoredSession, writeStoredSession } from './secure-session';
+import {
+	hasTokens,
+	keepStoredSessionInOrder,
+	moveSessionToSecureStorage,
+	readStoredSession,
+	writeStoredSession
+} from './secure-session';
 
 const mockSecureValues = new Map<string, string>();
 
@@ -19,6 +25,10 @@ jest.mock('expo-secure-store', () => ({
 beforeEach(() => {
 	mockSecureValues.clear();
 	jest.clearAllMocks();
+	// a test that replaced the implementation and failed must not leave its waiting writes to the next ones
+	jest.mocked(SecureStore.setItemAsync).mockImplementation(async (key: string, value: string) => {
+		mockSecureValues.set(key, value);
+	});
 });
 
 describe('secure session storage', () => {
@@ -45,6 +55,36 @@ describe('secure session storage', () => {
 		expect(hasTokens({})).toBe(false);
 		expect(hasTokens({ accessToken: '' })).toBe(false);
 		expect(hasTokens({ refreshToken: 'refresh-1' })).toBe(true);
+	});
+
+	it('keeps the latest pair when an earlier save finishes last', async () => {
+		// Each native write waits until the test finishes it; the newest waiting write is finished first, which is the
+		// order that leaves a stale refresh token when two saves run side by side.
+		const waiting: Array<() => void> = [];
+		jest.mocked(SecureStore.setItemAsync).mockImplementation(
+			(key: string, value: string) =>
+				new Promise<void>((resolve) => {
+					waiting.push(() => {
+						mockSecureValues.set(key, value);
+						resolve();
+					});
+				})
+		);
+		const flush = async () => {
+			for (let i = 0; i < 10; i++) {
+				await Promise.resolve();
+			}
+		};
+
+		const first = keepStoredSessionInOrder({ accessToken: 'access-new', refreshToken: 'refresh-old' });
+		const second = keepStoredSessionInOrder({ accessToken: 'access-new', refreshToken: 'refresh-new' });
+		for (let i = 0; i < 10; i++) {
+			await flush();
+			waiting.pop()?.();
+		}
+		await Promise.race([Promise.all([first, second]), flush()]);
+
+		expect(mockSecureValues.get('ever-teams.session.refresh-token')).toBe('refresh-new');
 	});
 
 	describe('moving a session in', () => {
