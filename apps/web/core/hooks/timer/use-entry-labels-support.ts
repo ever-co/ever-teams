@@ -23,7 +23,7 @@ interface EntryLabelsSupport {
  * last entry with its labels, an empty list too (Gauzy #12037, `loadTimeLogTags`); one without them sends the entry with
  * no `tags` at all. With no last entry (nothing tracked yet, or the status not read) it says nothing.
  */
-export function entryLabelsSupportOfStatus(status: ITimerStatus | null | undefined): boolean | undefined {
+function entryLabelsSupportOfStatus(status: ITimerStatus | null | undefined): boolean | undefined {
 	const lastLog = status?.lastLog;
 	if (!lastLog) {
 		return undefined;
