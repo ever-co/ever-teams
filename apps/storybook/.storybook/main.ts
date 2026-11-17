@@ -18,6 +18,32 @@ const config: StorybookConfig = {
 	typescript: {
 		// Disable react-docgen to avoid stack overflow on large bundled files
 		reactDocgen: false
+	},
+	// The kit's modules keep their "use client" directive for React Server Components. Bundled for the browser here,
+	// the directive has no use: Vite drops it and would warn once per client module.
+	viteFinal: (viteConfig) => {
+		const onwarn = viteConfig.build?.rollupOptions?.onwarn;
+		return {
+			...viteConfig,
+			build: {
+				...viteConfig.build,
+				rollupOptions: {
+					...viteConfig.build?.rollupOptions,
+					onwarn(warning, warn) {
+						const useClientDirective =
+							warning.code === 'MODULE_LEVEL_DIRECTIVE' && warning.message.includes('use client');
+						if (useClientDirective) {
+							return;
+						}
+						if (onwarn) {
+							onwarn(warning, warn);
+							return;
+						}
+						warn(warning);
+					}
+				}
+			}
+		};
 	}
 };
 export default config;

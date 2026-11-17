@@ -108,6 +108,8 @@ const TeamsTeamCreationFormDialog = ({ className, trigger }: { className?: strin
 	const { t } = useTranslation(undefined, { keyPrefix: 'TEAM_CREATION_FORM.dialog' });
 	return (
 		<Dialog
+			title={t('create_new_team')}
+			hideTitle
 			trigger={
 				trigger ? (
 					trigger
