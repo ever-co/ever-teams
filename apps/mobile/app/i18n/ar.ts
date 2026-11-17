@@ -139,7 +139,7 @@ const ar: Translations = {
 		createTeam: 'إنشاء فريق',
 		invalidConfirmCode: 'رمز التأكيد غير صالح',
 		securityCodeSent: 'تم إرسال رمز الأمان على البريد الإلكتروني الجديد',
-		codeSentTo: 'تم إرسال رمز مكوّن من 6 أحرف إلى:'
+		codeSentTo: 'أرسلنا رمزًا إلى:'
 	},
 	myWorkScreen: {
 		name: 'عمل',

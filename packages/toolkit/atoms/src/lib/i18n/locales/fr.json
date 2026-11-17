@@ -65,7 +65,11 @@
 	"TIME_TRACKER": {
 		"title": "Muniteur",
 		"start": "Demarrer",
-		"stop": "Arreter"
+		"stop": "Arreter",
+		"START_TIMER": "Démarrer le minuteur",
+		"STOP_TIMER": "Arrêter le minuteur",
+		"TIMER_STARTED": "Minuteur démarré",
+		"TIMER_STOPPED": "Minuteur arrêté"
 	},
 	"AUTH": {
 		"sign_in_title": "Se connecter",
@@ -509,7 +513,9 @@
 			"BROWSER_EXTENSION": "Extension Navigateur",
 			"HUBSTAFF": "Hubstaff",
 			"UPWORK": "Upwork",
-			"TEAMS": "Teams"
+			"CLOC": "Cloc",
+			"TEAMS": "Teams",
+			"EMBED": "Intégré"
 		},
 		"log_types": {
 			"TRACKED": "Suivi",

@@ -137,7 +137,7 @@ const en = {
 		createTeam: 'Create Team',
 		invalidConfirmCode: 'Invalid confirm code',
 		securityCodeSent: 'Security code was sent on new email',
-		codeSentTo: 'A 6-character code sent to:'
+		codeSentTo: 'We sent a code to:'
 	},
 	myWorkScreen: {
 		name: 'Work',

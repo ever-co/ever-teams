@@ -4,12 +4,13 @@ import * as React from 'react';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { cn } from '@/lib/utils/utils';
 import { CloseIcon } from '@/lib/svgs/close';
+import { withKitContainer } from '../portal-container';
 
 const ShadCnDialog = DialogPrimitive.Root;
 
 const DialogTrigger = DialogPrimitive.Trigger;
 
-const DialogPortal = DialogPrimitive.Portal;
+const DialogPortal = withKitContainer(DialogPrimitive.Portal);
 
 const DialogClose = DialogPrimitive.Close;
 
