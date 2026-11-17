@@ -49,8 +49,13 @@ relative to that file):
 ```
 
 The `../` paths fit `app/globals.css` in Next.js and `src/index.css` in Vite; with a Next.js `src/` directory the file
-is `src/app/globals.css` and the paths start with `../../`. Without the stylesheet or these lines, the widget renders
-unstyled.
+is `src/app/globals.css` and the paths start with `../../`.
+
+These lines only let Tailwind generate the kit's classes. Their colors come from tokens your theme must then define:
+the kit's colors (`primary`, `secondary`, ...), the CSS variables they read (`--background`, `--primary-foreground`,
+...) and the `tailwindcss-animate` plugin, as the kit's own [`kit.css`](https://github.com/ever-co/ever-teams/blob/develop/packages/toolkit/atoms/src/styles/kit.css) declares them. The kit publishes no
+Tailwind preset for this, so without that setup those components lose their colors: unless you need your own
+Tailwind to compile the kit, use `styles.css`.
 
 ## Next.js (App Router)
 
@@ -99,6 +104,9 @@ export default function App() {
 | `colorScheme`           | `'system'`                  | The widgets' color scheme inside the kit root (`scopedStyles`): `'light'`, `'dark'` or `'system'` (follows the system's). Nothing is written on `<html>`.                                                                                                    |
 | `loadGoogleFonts`       | `false`                     | Lets the font toggle (`TeamsFontToggle`) load the font a person picks from Google Fonts. Off: no request to a third party, and the widgets keep your page's font until a person picks one.                                                                   |
 | `onSignOut`             | none                        | Called after a person signs out from the kit's user menu. Without it, the page stays where it is with `scopedStyles`; without `scopedStyles`, the kit sends the browser to `/`.                                                                              |
+
+`config.apiUrl` is one setting for the whole page: every `TeamsProvider` of a page writes it to the same
+`apiConfigManager`, and every request uses the address set last. Give all the providers of a page the same `apiUrl`.
 
 The API must accept your site's origin: on a self-hosted Gauzy API, add it to `ALLOWED_ORIGINS` (comma-separated)
 and restart the API.

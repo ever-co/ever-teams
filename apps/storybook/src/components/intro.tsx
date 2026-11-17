@@ -128,9 +128,9 @@ function App() {
 
 				<p className="mt-4">
 					The stylesheet holds the components' styles, scoped under the kit root that scopedStyles renders:
-					your app needs no Tailwind. If your app compiles Tailwind CSS 4 itself, you can leave both out and
-					let it see the kit instead, in the CSS file that imports Tailwind (paths relative to that file;
-					details in the atoms README).
+					your app needs no Tailwind. An app that compiles Tailwind CSS 4 itself can leave both out and let it
+					see the kit instead, in the CSS file that imports Tailwind (paths relative to that file), but its
+					theme must then define the kit's colors and variables: see the atoms README.
 				</p>
 
 				<pre className="bg-slate-900 text-slate-100 rounded p-4 overflow-auto mt-4">
