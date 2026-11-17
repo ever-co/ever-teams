@@ -513,7 +513,9 @@
 			"BROWSER_EXTENSION": "Browser Extension",
 			"HUBSTAFF": "Hubstaff",
 			"UPWORK": "Upwork",
-			"TEAMS": "Teams"
+			"CLOC": "Cloc",
+			"TEAMS": "Teams",
+			"EMBED": "Embedded"
 		},
 		"log_types": {
 			"TRACKED": "Tracked",

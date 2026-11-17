@@ -2,6 +2,48 @@ import { IServerError, ITimerStatus, ITimeSlot, IUser, LogType, TimerSource } fr
 import { ApiCall } from '../fetch';
 import qs from 'qs';
 import { ICurrentTeamsState } from '@ever-teams/toolkit-types';
+import { apiConfigManager } from '../config/api-config';
+
+// The kit records its time as EMBED. An API that predates that source answers 400 naming `source`: the kit then
+// sends TEAMS, as before, to that API for the rest of the page's life. Kept per API address, so a host that moves
+// to another API starts again with EMBED.
+const apisRefusingEmbed = new Set<string>();
+
+const currentApiUrl = () => apiConfigManager.getConfig().apiUrl;
+
+export const currentTimerSource = (): TimerSource => {
+	if (apisRefusingEmbed.has(currentApiUrl())) {
+		return TimerSource.TEAMS;
+	}
+	return TimerSource.EMBED;
+};
+
+const refusesSource = (response: unknown): boolean => {
+	const error = response as { statusCode?: number; message?: unknown } | null;
+	const isBadRequest = error?.statusCode === 400;
+	// The validation message names the field ("source must be one of ..."); "resource" is not it
+	const namesSource = /\bsource\b/.test(JSON.stringify(error?.message ?? ''));
+	return isBadRequest && namesSource;
+};
+
+// Sends a timer write with the kit's source; on a refusal of that source, once more with TEAMS.
+async function callWithTimerSource<T>(send: (source: TimerSource) => Promise<T>): Promise<T> {
+	// The API the request goes to (ApiCall reads the same configuration when it sends)
+	const apiUrl = currentApiUrl();
+	const source = currentTimerSource();
+	const response = await send(source);
+	const retryAsTeams = source === TimerSource.EMBED && refusesSource(response);
+	if (!retryAsTeams) {
+		return response;
+	}
+	apisRefusingEmbed.add(apiUrl);
+	return send(TimerSource.TEAMS);
+}
+
+// For tests, and for a host whose API learned EMBED while the page stayed open.
+export const resetTimerSource = () => {
+	apisRefusingEmbed.clear();
+};
 
 export const getTimerStatus = async (user: IUser | null, token: string, organizationId?: string) => {
 	try {
@@ -43,26 +85,28 @@ export const startTimer = async (
 		const { tenantId } = user;
 		const { taskId, clientId: organizationContactId, organizationTeamId, projectId } = currentTeamsState;
 
-		const response = await ApiCall<ITimeSlot>({
-			path: '/timesheet/timer/start',
-			method: 'POST',
-			bearer_token: token,
-			tenantId,
-			organizationId,
-			body: {
+		const response = await callWithTimerSource((source) =>
+			ApiCall<ITimeSlot>({
+				path: '/timesheet/timer/start',
+				method: 'POST',
+				bearer_token: token,
 				tenantId,
 				organizationId,
-				logType: LogType.TRACKED,
-				source: TimerSource.TEAMS,
-				isBillable: true,
-				startedAt: new Date().toISOString(),
-				organizationContactId,
-				organizationTeamId,
-				projectId,
-				taskId,
-				description: null
-			}
-		});
+				body: {
+					tenantId,
+					organizationId,
+					logType: LogType.TRACKED,
+					source,
+					isBillable: true,
+					startedAt: new Date().toISOString(),
+					organizationContactId,
+					organizationTeamId,
+					projectId,
+					taskId,
+					description: null
+				}
+			})
+		);
 
 		if ('data' in response) {
 			return response.data;
@@ -83,19 +127,21 @@ export const stopTimer = async (user: IUser | null, token: string, organizationI
 		if (!user) throw new Error('User not authenticated');
 		const { tenantId } = user;
 
-		const response = await ApiCall<ITimeSlot>({
-			path: '/timesheet/timer/stop',
-			method: 'POST',
-			bearer_token: token,
-			tenantId,
-			organizationId,
-			body: {
+		const response = await callWithTimerSource((source) =>
+			ApiCall<ITimeSlot>({
+				path: '/timesheet/timer/stop',
+				method: 'POST',
+				bearer_token: token,
 				tenantId,
 				organizationId,
-				logType: LogType.TRACKED,
-				source: TimerSource.TEAMS
-			}
-		});
+				body: {
+					tenantId,
+					organizationId,
+					logType: LogType.TRACKED,
+					source
+				}
+			})
+		);
 
 		if ('data' in response) {
 			return response.data;
