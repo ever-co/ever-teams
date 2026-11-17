@@ -742,3 +742,19 @@ test('a stored session the API refuses says the session ended, and is not read a
 	await act(async () => window.dispatchEvent(new window.Event('online')));
 	assert.equal(globalThis.__userReads.length, 1);
 });
+
+test('a new token for the same person keeps the status on screen until the next read', async () => {
+	await reset();
+	let latest;
+	await mount([widget('a', (s) => (latest = s))]);
+	await answer(0, { running: true, duration: 42, lastLog: null });
+	assert.equal(latest?.duration, 42);
+
+	await act(async () => globalThis.__setIdentity({ token: 'renewed-token' }));
+	assert.equal(latest?.duration, 42, 'no flash back to an empty timer every few minutes');
+	const renewed = globalThis.__reads.find((r) => r.token === 'renewed-token');
+	assert.ok(renewed, 'the status is read again with the new token');
+
+	await act(async () => renewed({ running: true, duration: 43, lastLog: null }));
+	assert.equal(latest?.duration, 43);
+});
