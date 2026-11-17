@@ -4,6 +4,7 @@ import React, { FC, useRef, useState } from 'react';
 import { TextInput, View, StyleSheet, NativeSyntheticEvent, TextInputKeyPressEventData, Platform } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { colors, typography, useAppTheme } from '../theme';
+import { EMAILED_CODE_LENGTH, isCompleteEmailedCode } from '../helpers/emailed-code';
 
 interface IInput {
 	onChange: (code: string) => void;
@@ -13,7 +14,7 @@ interface IInput {
 }
 
 export const CodeInput: FC<IInput> = (props) => {
-	const { onChange, editable, length = 6, defaultValue } = props;
+	const { onChange, editable, length = EMAILED_CODE_LENGTH, defaultValue } = props;
 	const { colors } = useAppTheme();
 	const inputsRef = useRef<TextInput[] | null[]>([]);
 	const [active, setActive] = useState<number>(0);
@@ -71,7 +72,7 @@ export const CodeInput: FC<IInput> = (props) => {
 		const charArray = pastedText.split('');
 
 		if (
-			pastedText.length === length &&
+			isCompleteEmailedCode(pastedText) &&
 			inviteCode.every((currentField) => currentField === '') &&
 			charArray.every((currentField) => currentField.match(/^[0-9a-zA-Z]*$/))
 		) {
@@ -81,9 +82,10 @@ export const CodeInput: FC<IInput> = (props) => {
 			setInviteCode(updatedCode);
 			onChange(updatedCode.join(''));
 
-			setActive(length - 1);
-			inputsRef.current[length - 1].focus();
-			for (let i = 0; i < length; i++) {
+			const lastCell = updatedCode.length - 1;
+			setActive(lastCell);
+			inputsRef.current[lastCell].focus();
+			for (let i = 0; i < updatedCode.length; i++) {
 				inputsRef.current[i].setNativeProps({ text: updatedCode[i] });
 			}
 		}
@@ -141,8 +143,9 @@ const styles = StyleSheet.create({
 		fontFamily: typography.primary.semiBold,
 		fontSize: 16,
 		height: 53,
-		marginHorizontal: 4,
-		textAlign: 'center',
-		width: '14.6%'
+		flex: 1,
+		marginHorizontal: 3,
+		maxWidth: 48,
+		textAlign: 'center'
 	}
 });
