@@ -1,4 +1,4 @@
-// The kit stylesheet's scoping (scripts/build-styles.mjs): node --test test/ (from packages/toolkit/atoms).
+// The kit stylesheet's scoping (scripts/build-styles.mjs): node --test test/*.test.mjs (from packages/toolkit/atoms).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -36,6 +36,17 @@ test('layers are flattened; keyframes and registered properties get the kit name
 	assert.match(out, /\[data-ever-teams-kit\] \.p-4\{padding:1rem\}/);
 	assert.match(out, /@keyframes ever-teams-kit-spin\{to\{transform:rotate\(1turn\)\}\}/);
 	assert.match(out, /@property --ever-teams-tw-x/);
+});
+
+test('flattened layers keep their order: an earlier layer first, unlayered rules last', () => {
+	const css =
+		'@layer theme, base, utilities;@layer utilities{:where(.space-y-6>:not(:last-child)){margin-block-start:1.5rem}}.custom{color:red}@layer base{*{margin:0}}@layer theme{:root{--a:1}}';
+	const out = scopeStylesheet(postcss.parse(css)).toString();
+	const position = (text) => out.indexOf(text);
+
+	assert.ok(position('--a:1') < position('{margin:0}'), out);
+	assert.ok(position('{margin:0}') < position('margin-block-start'), out);
+	assert.ok(position('margin-block-start') < position('color:red'), out);
 });
 
 test('a keyframes name is renamed where an animation or a custom property names it, and nowhere else', () => {
@@ -83,6 +94,24 @@ test('every rule of the built stylesheet applies only inside a kit root, and non
 	assert.deepEqual(unscoped, []);
 	assert.equal(layers, 0);
 	assert.match(fs.readFileSync(output, 'utf8'), /\[data-ever-teams-kit\] \.outline-hidden/);
+});
+
+test('the built reset comes before the utilities, so space-y-* keeps its margins against the reset of the same specificity', async () => {
+	const output = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'kit-styles-')), 'styles.css');
+	await buildStyles({ output });
+	const root = postcss.parse(fs.readFileSync(output, 'utf8'));
+	const rules = [];
+	root.walkRules((rule) => {
+		rules.push(rule);
+	});
+	const resetsMargins = (rule) =>
+		rule.selectors.includes(`${KIT_ROOT} *`) && rule.nodes.some((d) => d.prop === 'margin' && d.value === '0');
+	const reset = rules.findIndex(resetsMargins);
+	const spaceY = rules.findIndex((rule) => rule.selector.includes(':where(.space-y-6>'));
+
+	assert.ok(reset >= 0, 'the reset is in the stylesheet');
+	assert.ok(spaceY >= 0, 'space-y-6 is in the stylesheet');
+	assert.ok(reset < spaceY, `the reset (rule ${reset}) comes before space-y-6 (rule ${spaceY})`);
 });
 
 test('the built stylesheet names no keyframes and registers no property a host could also use', async () => {

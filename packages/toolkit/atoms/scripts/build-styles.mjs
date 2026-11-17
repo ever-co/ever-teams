@@ -2,7 +2,7 @@
 // nothing reaches the host page:
 // - every rule applies only inside a kit root ([data-ever-teams-kit], rendered by <TeamsProvider scopedStyles>);
 // - the :root and :host tokens are declared on the kit root instead;
-// - cascade layers are flattened: a host's unlayered CSS would otherwise beat every layered kit rule;
+// - cascade layers are flattened, in their order: a host's unlayered CSS would otherwise beat every layered kit rule;
 // - keyframes and registered custom properties, which apply to the whole document whatever the selectors, get
 //   names of their own, so they neither replace a host's nor change how a host's properties inherit.
 // Usage: node scripts/build-styles.mjs (run by `yarn build` after rollup)
@@ -92,16 +92,59 @@ export function renameRegisteredProperties(root) {
 	return root;
 }
 
-// Applies the scoping to a compiled stylesheet (a postcss Root).
-export function scopeStylesheet(root) {
-	root.walkAtRules('layer', (atRule) => {
-		const isStatement = !atRule.nodes;
-		if (isStatement) {
-			atRule.remove();
+// Removes the cascade layers but keeps the order they gave: the rules of each layer come after those of the layers
+// declared before it, and unlayered rules after every layer, as they beat them. A layered rule then still loses to a
+// rule of the same specificity from a later layer, e.g. the kit's reset (base) to the space-y-* utilities, whose
+// :where() selectors add no specificity of their own.
+export function flattenLayers(root) {
+	const order = [];
+	const rulesOf = new Map();
+	const declare = (name) => {
+		if (!rulesOf.has(name)) {
+			order.push(name);
+			rulesOf.set(name, []);
+		}
+	};
+	root.each((node) => {
+		const isLayer = node.type === 'atrule' && node.name === 'layer';
+		if (!isLayer) {
 			return;
 		}
-		atRule.replaceWith(atRule.nodes);
+		const names = node.params
+			.split(',')
+			.map((name) => name.trim())
+			.filter(Boolean);
+		if (node.nodes) {
+			// An anonymous layer is a layer of its own.
+			const name = names[0] ?? Symbol('anonymous layer');
+			declare(name);
+			rulesOf.get(name).push(...node.nodes);
+		} else {
+			names.forEach(declare);
+		}
+		node.remove();
 	});
+	const layered = order.flatMap((name) => rulesOf.get(name));
+	const firstUnlayered = root.nodes.find((node) => node.type !== 'comment');
+	if (firstUnlayered) {
+		firstUnlayered.before(layered);
+	} else {
+		root.append(layered);
+	}
+	// A layer nested in another at-rule (Tailwind writes none) is unwrapped where it is.
+	root.walkAtRules('layer', (atRule) => {
+		if (atRule.nodes) {
+			atRule.replaceWith(atRule.nodes);
+		} else {
+			atRule.remove();
+		}
+	});
+	return root;
+}
+
+// Applies the scoping to a compiled stylesheet (a postcss Root).
+export function scopeStylesheet(root) {
+	flattenLayers(root);
 	root.walkRules((rule) => {
 		if (insideKeptAtRule(rule)) {
 			return;
