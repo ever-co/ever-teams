@@ -4,6 +4,7 @@
 	"main": "dist/index.cjs",
 	"types": "dist/index.d.ts",
 	"type": "module",
+	"sideEffects": false,
 	"license": "MIT",
 	"files": [
 		"dist"
