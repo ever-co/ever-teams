@@ -14,7 +14,7 @@ import type { StartTarget, TimerLog } from '../data/timer';
 import { TimerSource } from '../../app/services/interfaces/ITimer';
 import { accountOf, sessionAtom } from '../state/session';
 import type { Session } from '../state/session';
-import { forgetRun, writeRunTimeBeforeStop } from './heartbeat';
+import { forgetRun, runIdOf, writeRunTimeBeforeStop } from './heartbeat';
 
 // The web reads the timer every 30 s; the query client reads it again when the app comes back to the foreground
 const STATUS_REFRESH_MS = 30_000;
@@ -188,7 +188,10 @@ async function writeLastMinute(session: Session, employeeId: string | null | und
 	}
 	const source = running?.source ?? TimerSource.MOBILE;
 	try {
-		await writeRunTimeBeforeStop((seconds) => sendTimeSlot(session, { employeeId, source, seconds }));
+		await writeRunTimeBeforeStop(
+			(seconds) => sendTimeSlot(session, { employeeId, source, seconds }),
+			runIdOf(running)
+		);
 	} catch {
 		// the run's time up to the last heartbeat is written; the stop goes on
 	}
@@ -203,8 +206,11 @@ export function useStopTimer() {
 			const signedIn = sessionOrFail(session);
 			await writeLastMinute(signedIn, employeeId, running);
 			await stopTimer(signedIn, running);
-			// stopped: the heartbeat lets go of the run, which a stop that failed leaves to it
-			forgetRun();
+			// stopped: the heartbeat lets go of that run, which a stop that failed leaves to it. Without a known run,
+			// it lets go once the status says the timer stopped
+			if (running) {
+				forgetRun(runIdOf(running));
+			}
 		},
 		onSettled: readTimeAgain,
 		networkMode: 'always'

@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { TimerSource } from '../../app/services/interfaces/ITimer';
 import { sendTimeSlot } from '../data/timer';
-import { followRun, forgetRun, HEARTBEAT_MS, writeRunTime } from './heartbeat';
+import { followRun, forgetRun, HEARTBEAT_MS, runIdOf, writeRunTime } from './heartbeat';
 import { useEmployeeId, useSignedInSession, useTimerStatus } from './use-home-timer';
 
 /**
@@ -19,7 +19,7 @@ export function useRunHeartbeat(): void {
 	const employeeId = useEmployeeId().data;
 	const running = status.data?.running === true;
 	const lastLog = status.data?.lastLog;
-	const runId = lastLog?.id ?? lastLog?.startedAt ?? '';
+	const runId = runIdOf(lastLog);
 	const source = lastLog?.source ?? TimerSource.MOBILE;
 
 	useEffect(() => {

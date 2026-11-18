@@ -63,6 +63,24 @@ describe("the running timer's time, as the heartbeats and a stop write it", () =
 		expect(written()).toEqual([60, 120, 60]);
 	});
 
+	it('before a stop of another run than the one followed, writes nothing', async () => {
+		followRun('log-2', start);
+		jest.setSystemTime(minutes(1));
+
+		await writeRunTimeBeforeStop(write, 'log-1');
+
+		expect(write).not.toHaveBeenCalled();
+	});
+
+	it('lets go of the run a stop names only, not of one followed since', async () => {
+		followRun('log-2', start);
+
+		forgetRun('log-1');
+		await writeRunTime(write, minutes(1));
+
+		expect(written()).toEqual([60]);
+	});
+
 	it('writes nothing once the run is let go of', async () => {
 		followRun('log-1', start);
 		forgetRun();
@@ -84,7 +102,7 @@ describe("the running timer's time, as the heartbeats and a stop write it", () =
 		const heartbeat = writeRunTime(write, minutes(1));
 		jest.setSystemTime(minutes(1) + 25_000);
 
-		const beforeStop = writeRunTimeBeforeStop(write);
+		const beforeStop = writeRunTimeBeforeStop(write, 'log-1');
 		answer();
 		await heartbeat;
 		await beforeStop;

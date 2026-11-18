@@ -30,6 +30,11 @@ interface Cursor {
 let cursor: Cursor | null = null;
 let writing: Promise<void> | null = null;
 
+/** How the heartbeat and a stop name a run: its log's id, or its start for an API that sends no id. */
+export function runIdOf(log: { id?: string; startedAt?: string } | undefined): string {
+	return log?.id ?? log?.startedAt ?? '';
+}
+
 /** The app sees a run going: its time is written from now on, or, for the run already followed, from where it was. */
 export function followRun(runId: string, now: number): void {
 	if (cursor?.runId !== runId) {
@@ -37,8 +42,14 @@ export function followRun(runId: string, now: number): void {
 	}
 }
 
-/** No run goes anymore: nothing more is written. */
-export function forgetRun(): void {
+/**
+ * No run goes anymore: nothing more is written. Given a run, only that run is let go of: a stop answered late leaves
+ * a run followed since alone.
+ */
+export function forgetRun(runId?: string): void {
+	if (runId !== undefined && cursor?.runId !== runId) {
+		return;
+	}
 	cursor = null;
 }
 
@@ -75,11 +86,14 @@ export function writeRunTime(write: WriteSeconds, now: number = Date.now()): Pro
 
 /**
  * Before a stop: the time since the last write, once a write on its way has finished, so the run's last minute, or a
- * run shorter than one, is not left without a time slot.
+ * run shorter than one, is not left without a time slot. Only for the run the stop is for.
  */
-export async function writeRunTimeBeforeStop(write: WriteSeconds): Promise<void> {
+export async function writeRunTimeBeforeStop(write: WriteSeconds, runId: string): Promise<void> {
 	if (writing) {
 		await writing.catch(() => undefined);
+	}
+	if (cursor?.runId !== runId) {
+		return;
 	}
 	await writeRunTime(write, Date.now());
 }
