@@ -5,7 +5,7 @@ These flows use the app the way a person does, on an Android emulator or an iOS 
 | Flow | What the person does |
 | --- | --- |
 | `sign-in.yaml` | signs in with the code sent by e-mail |
-| `back.yaml` | goes from the Tasks tab to Settings, and Android's Back brings them to the team, then to the Work tab |
+| `back.yaml` | goes from the Tasks tab to Settings, and Android's Back brings them to the team, then to the Work tab (Android only: on iOS it does nothing) |
 | `timer-start-stop.yaml` | starts the timer and stops it |
 | `timer-after-kill.yaml` | closes the app while the timer runs, opens it again, and finds the timer still running |
 | `timer-correct-start.yaml` | moves the start of the running timer one minute earlier (waits two minutes first, see below) |
@@ -40,7 +40,7 @@ maestro test apps/mobile/.maestro \
 
 ## The new app's flows
 
-The flows in `next/` use the new app (`src/`, Expo Router), which only opens in builds made with `EXPO_PUBLIC_APP_SHELL=next`, so `maestro test apps/mobile/.maestro` leaves them out. The new app has no sign-in screen yet and reads the session the current app saved: sign in with a build of the current app, install the new app's build over it, then run them.
+Every build opens through Expo Router (`src/app`), with the current screens at the web's addresses. The flows in `next/` use the new Home, which only builds made with `EXPO_PUBLIC_APP_SHELL=next` show, on the Work tab (`/timer`) instead of the current timer, so `maestro test apps/mobile/.maestro` leaves them out. They start from the session the app holds: sign in on that build (`common/sign-in.yaml` does it), or install it over a signed-in build, then run them.
 
 | Flow | What the person does |
 | --- | --- |
