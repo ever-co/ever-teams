@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 import { useAtomValue } from 'jotai';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
-import { embedsService } from '@/core/services/client/api/embeds/embeds.service';
+import { EmbedClientNotLimitedError, embedsService } from '@/core/services/client/api/embeds/embeds.service';
 import { errorStatusOf } from '@/core/lib/utils/error-feedback';
 import { userState } from '@/core/stores/user/user';
 import { activeTeamState } from '@/core/stores/teams/organization-team';
@@ -125,6 +125,8 @@ export function useEmbedsAvailability(enabled = true) {
 // organization changed meanwhile (ids are unique, so dropping one from every list touches only its own).
 const EVERY_ORIGINS_LIST = [...queryKeys.embeds.all, 'origins'] as const;
 const EVERY_CREDENTIALS_LIST = [...queryKeys.embeds.all, 'credentials'] as const;
+// Every person's embeds config read
+const EVERY_EMBEDS_CONFIG = [...queryKeys.embeds.all, 'config'] as const;
 
 const NO_ORIGINS: EmbedAllowedOrigin[] = [];
 const NO_CREDENTIALS: EmbedCredential[] = [];
@@ -193,7 +195,9 @@ export function useRemoveEmbedOrigin() {
 /**
  * Creates a credential; the list is read again so that it shows, without its secret. The answer, which holds the
  * secret, is dropped from React Query's cache as soon as nothing shows it. The list is not waited for: the caller's
- * onSuccess, which shows the secret, would otherwise wait for it too.
+ * onSuccess, which shows the secret, would otherwise wait for it too. When the API made it without the client it was
+ * asked for (and the service revoked it), the config is read again: an API that cannot limit a credential stops
+ * offering the client.
  */
 export function useCreateEmbedCredential() {
 	const queryClient = useQueryClient();
@@ -202,6 +206,11 @@ export function useCreateEmbedCredential() {
 		mutationFn: (input) => embedsService.createCredential(scope?.organizationId ?? '', input),
 		gcTime: 0,
 		meta: { handlesOwnError: true },
+		onError: (error) => {
+			if (error instanceof EmbedClientNotLimitedError) {
+				void queryClient.invalidateQueries({ queryKey: EVERY_EMBEDS_CONFIG });
+			}
+		},
 		onSettled: () => {
 			void queryClient.invalidateQueries({ queryKey: EVERY_CREDENTIALS_LIST });
 		}

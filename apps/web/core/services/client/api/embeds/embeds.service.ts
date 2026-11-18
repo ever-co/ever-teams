@@ -19,6 +19,17 @@ const CREDENTIALS = '/embed-credentials';
 const ORIGINS = '/embed-allowed-origins';
 
 /**
+ * The API made the credential without the client it was asked to limit it to (an API that drops the field, behind a
+ * config read that said it could): the credential was revoked at once and its secret is never shown.
+ */
+export class EmbedClientNotLimitedError extends Error {
+	constructor() {
+		super('The API did not limit the embed credential to the client it was asked for; the credential was revoked.');
+		this.name = 'EmbedClientNotLimitedError';
+	}
+}
+
+/**
  * Client of the platform's embeds (`/embed-credentials`, `/embed-allowed-origins`) for Settings → Embeds: the sites an
  * organization allows to embed its timer and the credentials its hosts' backends exchange for timer-only tokens. Both
  * transports (this app's proxies, or the platform directly). Every read names the organization; the writes carry it
@@ -72,11 +83,27 @@ class EmbedsService extends APIService {
 		return body;
 	}
 
-	/** Creates a credential: the answer holds its secret, which no later read gives again, and stays out of the log. */
+	/**
+	 * Creates a credential: the answer holds its secret, which no later read gives again, and stays out of the log. A
+	 * credential asked for one client that comes back without that client reaches the whole workspace: it is revoked
+	 * at once and the call fails with {@link EmbedClientNotLimitedError}, so a wider credential than asked never
+	 * reaches a host.
+	 */
 	createCredential = async (organizationId: string, input: EmbedCredentialInput): Promise<CreatedEmbedCredential> => {
 		const body = this.credentialBody(organizationId, input);
 		const response = await this.post<unknown>(CREDENTIALS, body, { secretResponse: true }, false);
-		return validateApiResponse(createdEmbedCredentialSchema, response.data, 'embeds.createCredential API response');
+		const created = validateApiResponse(
+			createdEmbedCredentialSchema,
+			response.data,
+			'embeds.createCredential API response'
+		);
+		const askedClient = body.organizationContactId;
+		if (askedClient && created.organizationContactId !== askedClient) {
+			// Best effort: the secret is dropped here, so nobody holds it even if the revocation fails
+			await this.revokeCredential(created.id).catch(() => undefined);
+			throw new EmbedClientNotLimitedError();
+		}
+		return created;
 	};
 
 	/** Revokes a credential: its tokens are refused within 30 seconds. */

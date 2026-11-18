@@ -25,7 +25,7 @@ jest.mock('@/core/services/client/axios', () => ({
 	getAPI: async () => ({ axiosInstance: mockFallback })
 }));
 
-import { embedsService } from './embeds.service';
+import { EmbedClientNotLimitedError, embedsService } from './embeds.service';
 
 const CREDENTIAL = {
 	id: 'credential-1',
@@ -99,6 +99,51 @@ describe('embedsService', () => {
 
 			expect(sent[0].data).toBe(CLIENT_BODY);
 			expect(created.organizationContactId).toBe('contact-fabrikam');
+		});
+
+		it('revokes at once a credential the API made without the client it was asked for, and gives no secret', async () => {
+			// An API that drops the field it does not know answers a credential for the whole workspace
+			const withoutClient: Record<string, unknown> = { ...CREATED };
+			delete withoutClient.organizationContactId;
+			const sent = directRequests(withoutClient);
+
+			const creating = embedsService.createCredential('organization-1', {
+				name: 'Fabrikam client portal',
+				organizationContactId: 'contact-fabrikam'
+			});
+
+			await expect(creating).rejects.toBeInstanceOf(EmbedClientNotLimitedError);
+			await expect(creating).rejects.not.toHaveProperty('message', expect.stringContaining(CREATED.secret));
+			expect(sent.map((config) => [config.method, config.url])).toEqual([
+				['post', '/embed-credentials'],
+				['delete', '/embed-credentials/credential-1']
+			]);
+		});
+
+		it('still fails, without the secret, when that revocation fails too', async () => {
+			const sent: InternalAxiosRequestConfig[] = [];
+			setBaseUrl('https://api.example.test');
+			embedsService.axiosInstance.defaults.adapter = async (config) => {
+				sent.push(config);
+				if (config.method === 'delete') {
+					throw new Error('network down');
+				}
+				return {
+					config,
+					data: { ...CREATED, organizationContactId: null },
+					headers: {},
+					status: 201,
+					statusText: ''
+				};
+			};
+
+			await expect(
+				embedsService.createCredential('organization-1', {
+					name: 'Fabrikam client portal',
+					organizationContactId: 'contact-fabrikam'
+				})
+			).rejects.toBeInstanceOf(EmbedClientNotLimitedError);
+			expect(sent).toHaveLength(2);
 		});
 
 		it('lists each credential with its client', async () => {

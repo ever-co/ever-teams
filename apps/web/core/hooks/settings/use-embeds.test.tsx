@@ -1,5 +1,6 @@
 /** @jest-environment jsdom */
 
+// cspell:ignore Fabrikam
 /**
  * The client choice of a new credential: offered only when the config, read once, says the API can limit a credential
  * to a client.
@@ -12,14 +13,18 @@ import { activeTeamIdState, organizationTeamsState } from '@/core/stores/teams/o
 import { userState } from '@/core/stores/user/user';
 
 const mockReadConfig = jest.fn();
+const mockCreateCredential = jest.fn();
 
 jest.mock('@/core/services/client/api/embeds/embeds.service', () => ({
+	EmbedClientNotLimitedError: class EmbedClientNotLimitedError extends Error {},
 	embedsService: {
-		readConfig: (...args: unknown[]) => mockReadConfig(...args)
+		readConfig: (...args: unknown[]) => mockReadConfig(...args),
+		createCredential: (...args: unknown[]) => mockCreateCredential(...args)
 	}
 }));
 
-import { canLimitToClientOf, useEmbedsAvailability } from './use-embeds';
+import { EmbedClientNotLimitedError } from '@/core/services/client/api/embeds/embeds.service';
+import { canLimitToClientOf, useCreateEmbedCredential, useEmbedsAvailability } from './use-embeds';
 
 const TEAM = { id: 'team-1', name: 'Studio', organizationId: 'organization-1', tenantId: 'tenant-1', members: [] };
 
@@ -70,5 +75,23 @@ describe('useEmbedsAvailability', () => {
 
 		await waitFor(() => expect(result.current.availability).toBe('enabled'));
 		expect(result.current.canLimitToClient).toBe(false);
+	});
+
+	it('reads the config again when the API made a credential without the client it was asked for', async () => {
+		mockReadConfig.mockResolvedValueOnce({ enabled: true, clientLimits: true });
+		mockReadConfig.mockResolvedValue({ enabled: true, clientLimits: false });
+		mockCreateCredential.mockRejectedValue(new EmbedClientNotLimitedError());
+
+		const { result } = renderHook(
+			() => ({ availability: useEmbedsAvailability(), create: useCreateEmbedCredential() }),
+			{ wrapper: wrapperOf() }
+		);
+		await waitFor(() => expect(result.current.availability.canLimitToClient).toBe(true));
+
+		result.current.create.mutate({ name: 'Fabrikam client portal', organizationContactId: 'contact-fabrikam' });
+
+		await waitFor(() => expect(result.current.availability.canLimitToClient).toBe(false));
+		expect(mockReadConfig).toHaveBeenCalledTimes(2);
+		expect(result.current.create.isError).toBe(true);
 	});
 });
