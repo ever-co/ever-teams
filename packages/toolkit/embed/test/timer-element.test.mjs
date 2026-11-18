@@ -91,8 +91,11 @@ after(() => {
 	if (bundleDir) fs.rmSync(bundleDir, { recursive: true, force: true });
 });
 
-beforeEach(() => {
-	document.body.innerHTML = '';
+beforeEach(async () => {
+	// The elements of the previous test unmount their kit in a microtask after removal: inside act, before counting.
+	await act(async () => {
+		document.body.innerHTML = '';
+	});
 	globalThis.unmounted = 0;
 });
 
@@ -153,6 +156,27 @@ test('a removed element unmounts the kit and empties its shadow root', async () 
 
 	assert.equal(globalThis.unmounted, 1);
 	assert.equal(element.shadowRoot.childNodes.length, 0);
+});
+
+test('an element moved in the page keeps its kit as it was, mounted once', async () => {
+	const element = await place();
+	const provider = providerOf(element);
+	const section = document.createElement('section');
+	document.body.appendChild(section);
+	await act(async () => section.appendChild(element));
+
+	assert.equal(globalThis.unmounted, 0);
+	assert.equal(providerOf(element), provider, 'the same rendering, not a new one');
+	assert.equal(element.shadowRoot.querySelectorAll('[data-provider]').length, 1);
+});
+
+test('an element removed and put back later gets a fresh kit', async () => {
+	const element = await place();
+	await act(async () => element.remove());
+	await act(async () => document.body.appendChild(element));
+
+	assert.equal(globalThis.unmounted, 1);
+	assert.ok(providerOf(element));
 });
 
 test('a page that loads the script twice keeps working', async () => {
