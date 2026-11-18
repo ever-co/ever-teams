@@ -176,6 +176,18 @@ export const TimeCounterHost = observer(function TimeCounterHost() {
 /** The stops under way together, and what the screen showed running before the first of them. */
 type StopsUnderWay = { count: number; stopped: boolean; failed: boolean; shownAsRunning: ILocalTimerStatus | null };
 
+/** How long a stop waits for the other writer's last write before it is sent anyway. */
+export const WRITE_BEFORE_STOP_MS = 5_000;
+
+/** Waits for the work, at most that long: what it does after does not hold the caller back, and it never rejects. */
+function atMost(ms: number, work: Promise<void>): Promise<void> {
+	let bound: ReturnType<typeof setTimeout> | undefined;
+	const timeUp = new Promise<void>((resolve) => {
+		bound = setTimeout(resolve, ms);
+	});
+	return Promise.race([work.catch(() => undefined), timeUp]).finally(() => clearTimeout(bound));
+}
+
 /** Tells the other writer of the running time, if one is registered, that the API started or stopped the timer. */
 function tellTimerChanged(log: ITimer | undefined): void {
 	const writer = runningTimeWriter();
@@ -385,10 +397,14 @@ export function useTimer() {
 		let stopped = false;
 
 		try {
-			// Where another writer writes the running time, the time since its last write goes first, as its own stop does
+			// Where another writer writes the running time, the time since its last write goes first, as its own stop does.
+			// A write that hangs never holds the stop back: after WRITE_BEFORE_STOP_MS the stop is sent anyway
 			if (otherWriter) {
-				await otherWriter.beforeStop(runToStop, (seconds) =>
-					writeTimeSlot(params, session.user?.employee?.id, authToken, seconds)
+				await atMost(
+					WRITE_BEFORE_STOP_MS,
+					otherWriter.beforeStop(runToStop, (seconds) =>
+						writeTimeSlot(params, session.user?.employee?.id, authToken, seconds)
+					)
 				);
 			}
 			const { data, response } = await stopTimerRequest(params, authToken as string);

@@ -14,7 +14,7 @@ import { showMessage } from 'react-native-flash-message';
 import { AuthenticationStore, AuthenticationStoreModel } from '../../models/authentication-store';
 import { TimerStore, TimerStoreModel } from '../../models/timer/timer-store';
 import { createFakeGauzy, FakeGauzy, HOUR_MS } from '../../../test/fake-gauzy-session';
-import { useTimer } from './use-timer';
+import { useTimer, WRITE_BEFORE_STOP_MS } from './use-timer';
 import { registerRunningTimeWriter } from './running-time-writer';
 import type { RunningTimeWriter } from './running-time-writer';
 
@@ -65,7 +65,14 @@ async function openTimerScreen() {
 		act(async () => {
 			await Promise.all([result.current.stopTimer(), result.current.stopTimer()]);
 		});
-	return { pressStop, stopTwiceAtOnce };
+	/** Stop pressed, while the clock moves on by that long. */
+	const pressStopWhileTimePasses = (ms: number) =>
+		act(async () => {
+			const stopping = result.current.stopTimer();
+			await jest.advanceTimersByTimeAsync(ms);
+			await stopping;
+		});
+	return { pressStop, stopTwiceAtOnce, pressStopWhileTimePasses };
 }
 
 beforeEach(() => {
@@ -231,6 +238,27 @@ describe('Stop pressed on the timer screen', () => {
 			expect(gauzy.timer()?.isRunning).toBe(false);
 			expect(writer.afterStop).toHaveBeenCalledWith(expect.objectContaining({ isRunning: true }));
 			expect(showMessage).not.toHaveBeenCalled();
+		} finally {
+			withdraw();
+		}
+	});
+
+	it("sends the stop anyway when the other writer's last write hangs", async () => {
+		const writer: RunningTimeWriter = {
+			afterStart: jest.fn(),
+			beforeStop: jest.fn(() => new Promise<void>(() => undefined)),
+			afterStop: jest.fn()
+		};
+		const withdraw = registerRunningTimeWriter(writer);
+		try {
+			const screen = await openTimerScreen();
+
+			await screen.pressStopWhileTimePasses(WRITE_BEFORE_STOP_MS);
+
+			expect(gauzy.sentTo('POST', '/timesheet/timer/stop')).toHaveLength(1);
+			expect(gauzy.timer()?.isRunning).toBe(false);
+			expect(timerStore.timerStatusFetchingState).toBe(false);
+			expect(writer.afterStop).toHaveBeenCalledWith(expect.objectContaining({ isRunning: true }));
 		} finally {
 			withdraw();
 		}
