@@ -30,10 +30,21 @@ function webMessages(locale: string): Tree {
 	return JSON.parse(readFileSync(resolve(WEB_LOCALES, `${locale}.json`), 'utf8'));
 }
 
+const webEnglish = webMessages('en');
+
+// A web text still in English in a language was never translated there: it is no wording to keep
+function translatedOnTheWeb(locale: AppLocale, web: Tree, webKey: string): boolean {
+	if (locale === 'en') {
+		return true;
+	}
+	return messageAt(web, webKey) !== messageAt(webEnglish, webKey);
+}
+
 function driftFrom(locale: AppLocale) {
 	const web = webMessages(locale);
 	const app = messagesByLocale[locale] as Tree;
 	return Object.entries(shared)
+		.filter(([, webKey]) => translatedOnTheWeb(locale, web, webKey))
 		.filter(([appKey, webKey]) => messageAt(app, appKey) !== messageAt(web, webKey))
 		.map(([appKey, webKey]) => ({ appKey, app: messageAt(app, appKey), web: messageAt(web, webKey) }));
 }

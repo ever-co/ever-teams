@@ -428,8 +428,8 @@
 		"darkMode": "Modalità Scura"
 	},
 	"inviteModal": {
-		"accept": "Accept",
-		"reject": "Reject",
+		"accept": "Accetta",
+		"reject": "Rifiuta",
 		"inviteHint": "Sei stato invitato a unirti a"
 	},
 	"accountVerificationModal": {
