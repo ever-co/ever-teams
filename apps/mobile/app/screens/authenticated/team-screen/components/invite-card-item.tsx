@@ -36,7 +36,7 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ invite, onPr
 	const { colors } = useAppTheme();
 
 	return (
-		<TouchableWithoutFeedback onPress={() => onPressIn()}>
+		<TouchableWithoutFeedback onPress={() => onPressIn?.()}>
 			<View
 				style={{
 					...GS.p3,
