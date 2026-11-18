@@ -87,7 +87,7 @@ test('a select given no message still says "No item found", in its list and in i
 	assert.match(render({ values: [{ value: 'p-1', label: 'Trail app' }], search: true }), /No item found/);
 });
 
-test('the search of a select says the message it is given when nothing matches', () => {
+test("a select with a search passes the message it is given to its search's empty slot", () => {
 	const markup = render({
 		values: [{ value: 'p-1', label: 'Trail app' }],
 		search: true,

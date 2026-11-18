@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Select, Tooltip } from '@ever-teams/toolkit-ui';
 import { ICurrentTeamsState, IHookResponse, IProject } from '@ever-teams/toolkit-types';
 import { EmbedProject } from '@ever-teams/api';
@@ -36,16 +36,32 @@ function emptyMessageKeyOf(hostSignIn: boolean | undefined, embedProjects: IEmbe
 
 /**
  * With the host's getToken, whether the project the timer remembers from an earlier entry is one this token may not
- * track time on: the API would refuse a start on it. An empty list (an API without the route) decides nothing.
+ * track time on: the API would refuse a start on it. Any list the API answered decides, an empty one too; an API
+ * without the route, a read still running or one that failed decide nothing.
  */
 function isRememberedProjectRefused(projectId: string | null | undefined, embedProjects: IEmbedProjects): boolean {
-	const listed = embedProjects.data ?? [];
-	const isListKnown = listed.length > 0;
-	const hasRemembered = Boolean(projectId);
-	if (!isListKnown || !hasRemembered) {
+	const listed = embedProjects.data;
+	if (!listed || embedProjects.unavailable || !projectId) {
 		return false;
 	}
 	return !listed.some((project) => project.id === projectId);
+}
+
+/**
+ * The timer's state with another project (or none). With the host's getToken the task and client pickers list
+ * nothing, so the person cannot change the task or client remembered from an earlier entry: they belong to the earlier
+ * project, and go with it (the API refuses a start with a task of another project).
+ */
+function withProject(
+	state: ICurrentTeamsState,
+	projectId: string | null,
+	hostSignIn: boolean | undefined
+): ICurrentTeamsState {
+	const isSameProject = state.projectId === projectId;
+	if (!hostSignIn || isSameProject) {
+		return { ...state, projectId };
+	}
+	return { ...state, projectId, taskId: null, clientId: null };
 }
 
 export const TeamsTimerProjectSelect = ({
@@ -73,6 +89,9 @@ export const TeamsTimerProjectSelect = ({
 	);
 	const emptyMessageKey = emptyMessageKeyOf(hostSignIn, embedProjects);
 	const rememberedProjectId = currentTeamsState?.projectId;
+	// Counts the projects let go: a new select shows its placeholder on every Radix version (before 2.3.0, a
+	// controlled select reset to '' could keep the label of the project it showed).
+	const [lettingGo, setLettingGo] = useState(0);
 
 	useEffect(() => {
 		const isRefused = isRememberedProjectRefused(rememberedProjectId, embedProjects);
@@ -80,7 +99,8 @@ export const TeamsTimerProjectSelect = ({
 		if (!mayLetGo || !isRefused) {
 			return;
 		}
-		setCurrentTeamsState((state: ICurrentTeamsState) => ({ ...state, projectId: null }));
+		setCurrentTeamsState((state: ICurrentTeamsState) => withProject(state, null, hostSignIn));
+		setLettingGo((count) => count + 1);
 	}, [hostSignIn, isTimerRunning, rememberedProjectId, embedProjects, setCurrentTeamsState]);
 
 	return (
@@ -92,6 +112,7 @@ export const TeamsTimerProjectSelect = ({
 				message={isTimerRunning ? t('WARNING.stop_timer_before_selecting', { item: t('COMMON.project') }) : ''}
 			>
 				<Select
+					key={lettingGo}
 					loading={projectsLoading}
 					name="project"
 					disabled={isTimerRunning}
@@ -109,12 +130,7 @@ export const TeamsTimerProjectSelect = ({
 							: undefined
 					}
 					onValueChange={(e) => {
-						setCurrentTeamsState((state: ICurrentTeamsState) => {
-							return {
-								...state,
-								projectId: e
-							};
-						});
+						setCurrentTeamsState((state: ICurrentTeamsState) => withProject(state, e, hostSignIn));
 					}}
 				/>
 			</Tooltip>
