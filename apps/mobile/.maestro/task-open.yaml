@@ -26,9 +26,13 @@ env:
     visible:
       id: "task-screen"
     timeout: 30000
-# The description draws in a web view once the screen shows: the app must still be open after it has
-- waitForAnimationToEnd:
-    timeout: 5000
+# The screen shows before the task's answer is in: its title fills in with the answer, and the error screen an answer
+# the screen could not read would show in its place
+- extendedWaitUntil:
+    visible:
+      id: "task-title"
+      text: ".+"
+    timeout: 30000
 - assertVisible:
     id: "task-screen"
 - takeScreenshot: task-open
