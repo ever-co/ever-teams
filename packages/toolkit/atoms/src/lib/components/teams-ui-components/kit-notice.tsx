@@ -5,6 +5,7 @@ import { cn } from '@ever-teams/toolkit-ui';
 import { useTimerStatusContext } from '@lib/context/teams-timer-status-context';
 import { KIT_ERROR_MESSAGE_KEYS, KitNotice as IKitNotice } from '@lib/errors/kit-error';
 import { useClearKitSession } from '@hooks/useClearKitSession';
+import { useHostSignIn } from '@lib/session/host-session';
 import { KIT_NOTICE_SURFACE, kitNoticeTone } from './notice-surface';
 
 // Unreachable is a state the kit recovers from by itself; the others need someone to act.
@@ -33,6 +34,7 @@ export function KitNotice({ className }: Readonly<{ className?: string }>) {
 	const { t } = useTranslation();
 	const shared = useTimerStatusContext();
 	const clearSession = useClearKitSession();
+	const askHostForToken = useHostSignIn();
 	const notice = shared?.notice;
 	if (!notice) {
 		return null;
@@ -45,6 +47,11 @@ export function KitNotice({ className }: Readonly<{ className?: string }>) {
 	}
 
 	const signInAgain = () => {
+		// The host signs the person in: ask its backend for a new token; the next read that succeeds ends the notice.
+		if (askHostForToken) {
+			void askHostForToken();
+			return;
+		}
 		forgetStoredSession();
 		clearSession();
 		shared.reportNotice(null);
