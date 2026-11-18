@@ -37,9 +37,7 @@ const AllTaskStatuses = ({ task }: { task: ITeamTask }) => {
 
 	const taskLabels = task?.tags?.map((tag) => allLabels[tag.name]);
 
-	const labels = [size && status, size && size, priority && priority, ...(taskLabels || [])].filter(
-		(t) => t !== null && t !== undefined
-	);
+	const labels = [status, size, priority, ...(taskLabels || [])].filter((t) => t !== null && t !== undefined);
 
 	useEffect(() => {
 		if (labels.length > 0) {

@@ -46,6 +46,7 @@ describe('a task without its labels', () => {
 	it('shows no entry without a name for a value the task does not have', async () => {
 		await render(<AllTaskStatuses task={taskWithoutSize} />);
 
+		expect(screen.getByText('In Progress')).toBeTruthy();
 		expect(screen.getByText('High')).toBeTruthy();
 		expect(screen.queryByText('no name')).toBeNull();
 	});
