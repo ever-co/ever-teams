@@ -188,12 +188,19 @@ export async function recordContract(options) {
 		return response.ok;
 	}
 
-	async function stopIfRunning() {
+	// Only a run the recording started is stopped: one the person started meanwhile is theirs to stop.
+	async function stopOwnRun(created) {
 		try {
 			const status = await client.timer.status();
-			if (status.running) {
-				await client.timer.stop();
+			if (!status.running) {
+				return;
 			}
+			const isOwnRun = created.includes(status.lastLog?.id);
+			if (!isOwnRun) {
+				logError("The account's timer runs on an entry the recording did not start: it is left running.");
+				return;
+			}
+			await client.timer.stop();
 		} catch (error) {
 			logError(`The timer could not be checked or stopped (${error.message}): stop it in the app if it runs.`);
 		}
@@ -213,10 +220,11 @@ export async function recordContract(options) {
 		return ids;
 	}
 
-	// Stops the timer when a failure left it running, and deletes the time entries the recording created. A step that
-	// fails is reported and the next one still runs, so the cleanup never throws over the recording's own failure.
+	// Stops the recording's run when a failure left it running, and deletes the time entries the recording created. A
+	// step that fails is reported and the next one still runs, so the cleanup never throws over the recording's own
+	// failure.
 	async function putBack(created) {
-		await stopIfRunning();
+		await stopOwnRun(created);
 		return deleteCreated(created);
 	}
 

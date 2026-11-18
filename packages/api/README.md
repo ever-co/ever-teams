@@ -294,7 +294,8 @@ other than `localhost` unless `EVER_TEAMS_CONTRACT_REMOTE=1` is set, since it ch
 the account's timer twice (once bare, once on one of its tasks) and stops it, reads the day's time entries and totals,
 then deletes the two time entries it created. It refuses an account whose timer runs, so the timer stays as it was.
 When a step fails, it still stops its timer and deletes its entries before it reports the failure, and it prints the
-id of each entry it could not delete, so you can delete it in the app.
+id of each entry it could not delete, so you can delete it in the app. A timer the account's member started in the
+meantime is left running.
 
 Before writing, it replaces ids, names, emails, addresses, dates, amounts of money and the labels each organization
 names itself (a task's status, priority, size and type) with placeholders of the same form (`<employee-1>`,

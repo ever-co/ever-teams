@@ -379,6 +379,34 @@ test("a status that cannot be read after a lost start is reported, and the start
 	assert.match(errors[0], /status could not be read after a start failed/);
 });
 
+test('a timer the person started meanwhile is left running and reported, and only the entries created are deleted', async () => {
+	const api = benchApi({ failures: ['GET /timesheet/statistics/counts'] });
+	const personLog = { id: '99999999-0000-4000-8000-000000000000', isRunning: true, employeeId: EMPLOYEE };
+	const errors = [];
+	// While the recording reads the totals, the person starts their own timer in the app.
+	const fetch = async (url, init) => {
+		const readsTotals = new URL(url).pathname.endsWith('/timesheet/statistics/counts');
+		const personHasNotStarted = !api.state.logs.includes(personLog);
+		if (readsTotals && personHasNotStarted) {
+			api.state.logs.push(personLog);
+			api.state.running = true;
+		}
+		return api.fetch(url, init);
+	};
+
+	await assert.rejects(
+		recordWith(api, workDir(), { fetch, logError: (message) => errors.push(message) }),
+		/totals\.today failed/
+	);
+
+	assert.equal(api.state.running, true);
+	const stops = api.routesSent().filter((route) => route === 'POST /timesheet/timer/stop');
+	assert.equal(stops.length, 2);
+	const recordingLogIds = api.state.logs.filter((log) => log !== personLog).map((log) => log.id);
+	assert.deepEqual(deletesOf(api)[0].query.logIds, recordingLogIds);
+	assert.ok(errors.some((message) => message.includes('left running')));
+});
+
 test('a failure after the timers stopped still deletes both entries', async () => {
 	const api = benchApi({ failures: ['GET /timesheet/statistics/counts'] });
 	const files = workDir();
