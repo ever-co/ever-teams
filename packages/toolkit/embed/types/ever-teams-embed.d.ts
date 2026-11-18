@@ -29,9 +29,26 @@ export type EverTeamsTimerProps = {
 /** The name the package defines the element under. */
 export declare const TIMER_ELEMENT_NAME: 'ever-teams-timer';
 
+/** The `detail` of `ever-teams-timer-change`: the person's timer as a read of its status shows it. */
+export interface EverTeamsTimerChange {
+	/** Whether the timer runs. A running break reads as `false`, as the API answers it. */
+	running: boolean;
+	/** When the running entry started (an ISO date); `null` while the timer is stopped. */
+	startedAt: string | null;
+	/** The running entry's project; `null` while the timer is stopped or runs on no project. */
+	projectId: string | null;
+	/** The running entry's task; `null` while the timer is stopped or runs on no task. */
+	taskId: string | null;
+	/** `true` for the first read, which tells the timer as it is; `false` for each change after it. */
+	initial: boolean;
+}
+
+/** The name of the event the element dispatches at its first read of the person's timer and at each change after it. */
+export declare const TIMER_CHANGE_EVENT: 'ever-teams-timer-change';
+
 /**
  * `<ever-teams-timer>`: the kit's sign-in and basic timer, in the element's own shadow root. It reads the attributes
- * of `EverTeamsTimerAttributes`, and dispatches no events.
+ * of `EverTeamsTimerAttributes`, and dispatches `ever-teams-timer-change` with an `EverTeamsTimerChange`.
  */
 export declare class EverTeamsTimerElement extends HTMLElement {
 	static readonly observedAttributes: string[];
@@ -43,5 +60,9 @@ export declare class EverTeamsTimerElement extends HTMLElement {
 declare global {
 	interface HTMLElementTagNameMap {
 		'ever-teams-timer': EverTeamsTimerElement;
+	}
+	// The event bubbles and crosses shadow roots: a page listens on the element, on `document` or on `window`.
+	interface GlobalEventHandlersEventMap {
+		'ever-teams-timer-change': CustomEvent<EverTeamsTimerChange>;
 	}
 }

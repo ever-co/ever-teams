@@ -28,9 +28,10 @@ A change of attribute applies at once. Removing the element stops the timer's di
 
 ## Events
 
-The element dispatches `ever-teams-timer-change` when it first reads the person's timer, then at each start or stop it
-sees, wherever it was made (this timer, the web app, the desktop app). The event bubbles and crosses shadow roots, so
-your page can listen on the element or on `document`:
+The element dispatches `ever-teams-timer-change` when it first reads the person's timer, then each time a later read
+shows it changed, wherever the change was made (this timer, the web app, the desktop app): a start, a stop, or another
+running entry (a new start, another project or another task). The event bubbles and crosses shadow roots, so your page
+can listen on the element or on `document`:
 
 ```html
 <ever-teams-timer api-url="https://api.ever.team/api"></ever-teams-timer>
@@ -50,9 +51,12 @@ your page can listen on the element or on `document`:
 
 `event.detail` holds `running`, `startedAt` (an ISO date, `null` while stopped), `projectId`, `taskId` and `initial`
 (`true` for the first read, which tells the timer as it is). The event comes from the reads the element already makes:
-on load, every minute while the page is visible, on focus and when the network comes back; it adds no request, and a
-change made elsewhere shows up to a minute later. In a Vue template, `@ever-teams-timer-change` on the element listens
-to it. `TIMER_CHANGE_EVENT`, exported by the package, holds the name.
+on load, every minute while the page is visible, when the page becomes visible again, on focus and when the network
+comes back; it adds no request. A change made elsewhere is told at the next successful read: within a minute while the
+page is visible, once it is visible again otherwise. A start and a stop that both fall between two reads leave the
+timer as the last read saw it, so neither is told. In a Vue template, `@ever-teams-timer-change` on the element
+listens to it. `TIMER_CHANGE_EVENT`, exported by the package, holds the name, and the package's declaration types
+`event.detail` (`EverTeamsTimerChange`) on the element, `document` and `window`.
 
 ## Examples
 
@@ -144,7 +148,8 @@ These two declarations stay in the app: they extend Vue's and Svelte's own types
 does not have.
 
 No framework needs a wrapper component: the element takes three attributes, which every framework binds, and
-dispatches no events, so there is nothing to bind both ways and nothing to listen to.
+dispatches one event, `ever-teams-timer-change` (see [Events](#events)), which a framework listens to as to any DOM
+event. Nothing binds both ways.
 
 ## What it changes in your page
 

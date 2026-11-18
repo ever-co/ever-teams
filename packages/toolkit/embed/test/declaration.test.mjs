@@ -70,8 +70,8 @@ function namesOf(file, pick) {
 }
 
 const APP = `
-import { EverTeamsTimerElement, TIMER_ELEMENT_NAME } from '@ever-teams/embed';
-import type { EverTeamsTimerAttributes, EverTeamsTimerProps } from '@ever-teams/embed';
+import { EverTeamsTimerElement, TIMER_CHANGE_EVENT, TIMER_ELEMENT_NAME } from '@ever-teams/embed';
+import type { EverTeamsTimerAttributes, EverTeamsTimerChange, EverTeamsTimerProps } from '@ever-teams/embed';
 
 const created: EverTeamsTimerElement = document.createElement('ever-teams-timer');
 const name: 'ever-teams-timer' = TIMER_ELEMENT_NAME;
@@ -83,7 +83,20 @@ const noProps: EverTeamsTimerProps = {};
 // @ts-expect-error a scheme the element does not know, under its camelCase name
 const unknownSchemeProp: EverTeamsTimerProps = { colorScheme: 'dim' };
 const loading: Promise<unknown> = import('@ever-teams/embed');
-export { created, name, attributes, unknownScheme, props, noProps, unknownSchemeProp, loading };
+const eventName: 'ever-teams-timer-change' = TIMER_CHANGE_EVENT;
+const heard: EverTeamsTimerChange[] = [];
+created.addEventListener('ever-teams-timer-change', (event) => {
+	const startedAt: string | null = event.detail.startedAt;
+	heard.push(event.detail);
+	return startedAt;
+});
+document.addEventListener(TIMER_CHANGE_EVENT, (event) => heard.push(event.detail));
+window.addEventListener(TIMER_CHANGE_EVENT, (event) => {
+	// @ts-expect-error the detail's running is a boolean
+	const running: string = event.detail.running;
+	return running;
+});
+export { created, name, attributes, unknownScheme, props, noProps, unknownSchemeProp, loading, eventName, heard };
 `;
 
 test('the build writes the declaration next to the element', () => {
@@ -95,7 +108,7 @@ test('the build writes the declaration next to the element', () => {
 	assert.equal(emitted[0].source, declaration);
 });
 
-test('a strict app imports the package and gets the element, its name and its attributes typed, also in camelCase', () => {
+test('a strict app imports the package and gets the element, its name, its attributes (also in camelCase) and its event typed', () => {
 	assert.deepEqual(compileApp(APP), []);
 });
 
@@ -109,6 +122,30 @@ test('without the declaration a strict app cannot import the package (TS7016)', 
 	const noDeclaration = "Could not find a declaration file for module '@ever-teams/embed'";
 	const refused = diagnostics.some((message) => message.startsWith(noDeclaration));
 	assert.ok(refused);
+});
+
+test('the declaration declares every value the package exports, and no other', () => {
+	const exported = namesOf(path.join(packageRoot, 'src', 'index.ts'), (node, names) => {
+		if (ts.isExportSpecifier(node)) {
+			names.push(node.name.text);
+		}
+	});
+	const declared = namesOf(path.join(packageRoot, 'types', DECLARATION_FILE), (node, names) => {
+		const isValue = ts.isClassDeclaration(node) || ts.isVariableStatement(node);
+		const isExported = node.modifiers?.some((modifier) => modifier.kind === ts.SyntaxKind.ExportKeyword);
+		if (!isValue || !isExported) {
+			return;
+		}
+		if (ts.isClassDeclaration(node)) {
+			names.push(node.name.text);
+			return;
+		}
+		for (const declaration of node.declarationList.declarations) {
+			names.push(declaration.name.text);
+		}
+	});
+	assert.deepEqual(exported, ['EverTeamsTimerElement', 'TIMER_CHANGE_EVENT', 'TIMER_ELEMENT_NAME']);
+	assert.deepEqual(declared, exported);
 });
 
 test('the declaration types every attribute the element observes, and no other', () => {
