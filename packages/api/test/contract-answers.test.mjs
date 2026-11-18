@@ -42,7 +42,7 @@ for (const contract of CONTRACT_ANSWERS.filter((answer) => answer.call)) {
 		const api = recordedApi(fixture);
 		const teams = createClient({ apiUrl: API_URL, token: 'access', fetch: api.fetch });
 
-		const returned = await contract.call(teams, '2026-11-18');
+		const returned = await contract.call(teams, { from: '2026-11-18', to: '2026-11-18' });
 
 		assert.deepEqual(returned, contract.returned(fixture.answer));
 		assert.deepEqual(api.sent, [me.route, fixture.route]);

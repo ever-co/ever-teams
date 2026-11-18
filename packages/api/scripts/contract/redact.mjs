@@ -142,15 +142,16 @@ export function redactRecordings(recordings) {
 		if (value === '') {
 			return value;
 		}
+		// An address before an email: a link that holds an email (https://...?email=lina@...) stays a link.
+		if (URL_TEXT.test(value)) {
+			const number = numberOf(`url ${key}`, value);
+			return replaced(value, `https://example.com/${key}-${number}`);
+		}
 		if (EMAIL.test(value)) {
 			return replaced(value, `person-${numberOf('email', value.toLowerCase())}@example.com`);
 		}
 		if (dates.has(value)) {
 			return dates.get(value);
-		}
-		if (URL_TEXT.test(value)) {
-			const number = numberOf(`url ${key}`, value);
-			return replaced(value, `https://example.com/${key}-${number}`);
 		}
 		if (KEPT_KEYS.has(key)) {
 			return value;

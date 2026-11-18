@@ -123,11 +123,18 @@ export async function recordContract(options) {
 		throw new Error('Set EVER_TEAMS_API_URL, the address of a local API ending with /api.');
 	}
 	assertLocal(apiUrl, options.allowRemote);
-	const fetchApi = options.fetch ?? globalThis.fetch;
+	const platformFetch = options.fetch ?? globalThis.fetch;
+	// assertLocal checks the address the recording is given, not where a redirect would send it: a redirect is refused,
+	// so the sign-in's password and the account's token never leave for another host.
+	const fetchApi = (url, init) => platformFetch(url, { ...init, redirect: 'error' });
 	const outDir = options.outDir ?? FIXTURES_DIR;
 	const forbiddenDir = options.forbiddenDir ?? os.tmpdir();
 	const logError = options.logError ?? console.error;
-	const today = localDay(options.now ?? new Date());
+	const now = () => options.now ?? new Date();
+	const firstDay = localDay(now());
+	// The days the recording's entries started on: from the day it began to the day it lists them, as a recording that
+	// crosses midnight starts its second timer on the next day.
+	const days = () => ({ from: firstDay, to: localDay(now()) });
 	const apiPath = new URL(apiUrl).pathname;
 	const exchanges = [];
 
@@ -169,7 +176,7 @@ export async function recordContract(options) {
 	async function record(name) {
 		let result;
 		try {
-			result = await contractAnswer(name).call(client, today);
+			result = await contractAnswer(name).call(client, days());
 		} catch (error) {
 			throw new Error(failureOf(name, error), { cause: error });
 		}
@@ -246,9 +253,10 @@ export async function recordContract(options) {
 
 	const created = [];
 
-	// A start whose answer is lost or unreadable may still have started the timer: a run the status shows now, did not
-	// show before the start, and has the client's source (EMBED) is the recording's own. A run from another source
-	// (the person started the timer in an app meanwhile) is not: it is reported, and neither stopped nor deleted.
+	// A start whose answer is lost or unreadable may still have made an entry: a last entry the status shows now, did not
+	// show before the start, and has the client's source (EMBED) is the recording's own, running or already stopped. A
+	// running entry from another source (the person started the timer in an app meanwhile) is not: it is reported, and
+	// neither stopped nor deleted.
 	async function keepLostRun(statusBefore) {
 		let status;
 		try {
@@ -260,19 +268,21 @@ export async function recordContract(options) {
 			);
 			return;
 		}
-		const runningLogId = status.lastLog?.id;
-		const isNewRun = status.running && runningLogId !== statusBefore.lastLog?.id;
-		if (!isNewRun) {
+		const lastLogId = status.lastLog?.id;
+		const isNewEntry = lastLogId !== undefined && lastLogId !== statusBefore.lastLog?.id;
+		if (!isNewEntry) {
 			return;
 		}
-		if (status.lastLog?.source === CLIENT_SOURCE) {
-			created.push(runningLogId);
+		if (status.lastLog.source === CLIENT_SOURCE) {
+			created.push(lastLogId);
 			return;
 		}
-		logError(
-			`A start failed and the timer now runs on entry ${runningLogId}, which the recording cannot tell as its own: ` +
-				'it is left running. If the recording started it, stop it in the app and delete its time entry.'
-		);
+		if (status.running) {
+			logError(
+				`A start failed and the timer now runs on entry ${lastLogId}, which the recording cannot tell as its own: ` +
+					'it is left running. If the recording started it, stop it in the app and delete its time entry.'
+			);
+		}
 	}
 
 	async function startTimer(start) {

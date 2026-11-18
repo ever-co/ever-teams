@@ -1,6 +1,7 @@
 // The answers the contract covers, one fixture each in test/contract/<name>.json: the route the client sends, how the
-// recording calls the client for it, the type the recorded answer must fit (a TypeScript type that may name
-// EverTeamsClient), and what the client method returns from that answer.
+// recording calls the client for it (with the days the recording's entries started on, { from, to }), the type the
+// recorded answer must fit (a TypeScript type that may name EverTeamsClient), and what the client method returns from
+// that answer.
 
 const declared = (resource, method) => `Awaited<ReturnType<EverTeamsClient['${resource}']['${method}']>>`;
 
@@ -66,7 +67,7 @@ export const CONTRACT_ANSWERS = [
 		name: 'timeEntries.list',
 		route: 'GET /timesheet/time-log',
 		idKind: 'log',
-		call: (client, today) => client.timeEntries.list({ from: today, to: today }),
+		call: (client, days) => client.timeEntries.list({ from: days.from, to: days.to }),
 		answerType: declared('timeEntries', 'list'),
 		returned: asIs
 	},

@@ -183,3 +183,18 @@ test('the real values replaced are listed, and no placeholder among them', () =>
 
 	assert.deepEqual(result.forbidden.sort(), [USER, 'Lina', 'lina@northwind.test'].sort());
 });
+
+test('a link that holds an email stays a link, and an email alone stays an email', () => {
+	const result = redactRecordings([
+		recording(
+			'user.me',
+			{ imageUrl: 'https://cdn.northwind.test/avatar?email=lina@northwind.test', email: 'lina@northwind.test' },
+			'user'
+		)
+	]);
+
+	assert.deepEqual(fixtureOf(result, 'user.me').answer, {
+		imageUrl: 'https://example.com/imageUrl-1',
+		email: 'person-1@example.com'
+	});
+});

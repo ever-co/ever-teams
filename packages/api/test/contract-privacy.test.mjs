@@ -7,7 +7,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { CONTRACT_ANSWERS, contractAnswer } from '../scripts/contract/answers.mjs';
-import { KEPT_KEYS } from '../scripts/contract/redact.mjs';
+import { KEPT_KEYS, redactRecordings } from '../scripts/contract/redact.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const contractDir = path.join(here, 'contract');
@@ -22,8 +22,9 @@ const PLACEHOLDERS = [
 	/^<jwt>$/,
 	/^person-\d+@example\.com$/,
 	/^https:\/\/example\.com\/\w+-\d+$/,
-	/^2000-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/,
-	/^2000-\d{2}-\d{2}$/,
+	// The redactor's dates count from 2000-01-01, a minute or a day apart: past 366 distinct days they reach 2001.
+	/^200\d-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/,
+	/^200\d-\d{2}-\d{2}$/,
 	/^$/
 ];
 
@@ -75,8 +76,39 @@ for (const fixture of fixtures) {
 		assert.doesNotMatch(fixture.text, JWT);
 		assert.doesNotMatch(fixture.text, UUID);
 		assert.match(fixture.route, /^(GET|POST) \/[\w/<>.-]+$/);
+		assert.deepEqual(unredactedRouteParts(fixture), []);
 	});
 }
+
+// The segments of a route that came from the data and are not an id placeholder (<employee-1>).
+function unredactedRouteParts(fixture) {
+	return routeDataOf(fixture).filter((segment) => !/^<[\w-]+-\d+>$/.test(segment));
+}
+
+test('a route parameter that is not an id placeholder is found, and the fixed words of a route are not', () => {
+	const projects = { name: 'projects.list', route: 'GET /organization-projects/employee/lina-okafor' };
+	const me = { name: 'user.me', route: 'GET /user/me' };
+	const tasks = { name: 'tasks.list', route: 'GET /tasks/employee/<employee-1>' };
+
+	assert.deepEqual(unredactedRouteParts(projects), ['lina-okafor']);
+	assert.deepEqual(unredactedRouteParts(me), []);
+	assert.deepEqual(unredactedRouteParts(tasks), []);
+});
+
+test('the dates of a recording that spans more than 366 days pass as placeholders, past 2000 too', () => {
+	const day = (offset) => new Date(Date.UTC(2025, 0, 1) + offset * 24 * 3600 * 1000).toISOString().slice(0, 10);
+	const entries = Array.from({ length: 367 }, (_, offset) => ({ startedWorkOn: day(offset) }));
+	const { fixtures: redacted } = redactRecordings([
+		{ name: 'members.list', route: 'GET /employee/working', status: 200, answer: entries, idKind: 'employee' }
+	]);
+
+	const texts = textsOf(redacted[0].answer).map(({ value }) => value);
+	assert.equal(texts.at(-1), '2001-01-01');
+	assert.deepEqual(
+		texts.filter((value) => !isPlaceholder(value)),
+		[]
+	);
+});
 
 // The segments of a route that came from the data: those the contract's route names with a parameter
 // (/tasks/employee/:employeeId), never its fixed words (/user/me).

@@ -611,12 +611,13 @@ EVER_TEAMS_CONTRACT_FORBIDDEN='/tmp/ever-teams-api-contract-AbC123/forbidden.jso
 
 `EVER_TEAMS_TOKEN`, a personal API token, can replace the email and the password. The script refuses an address
 other than `localhost` unless `EVER_TEAMS_CONTRACT_REMOTE=1` is set, since it changes the account's data: it starts
-the account's timer twice (once bare, once on one of its tasks) and stops it, reads the day's time entries and totals,
-then deletes the two time entries it created. It refuses an account whose timer runs, so the timer stays as it was.
-When a step fails, it still stops its timer and deletes its entries before it reports the failure, and it prints the
-id of each entry it could not delete, so you can delete it in the app. A timer the account's member started in the
-meantime is left running. After a start whose answer was lost, a new run counts as the recording's own only when it
-has the client's source (`EMBED`); any other is left running and its id printed.
+the account's timer twice (once bare, once on one of its tasks) and stops it, reads the time entries of the days it
+ran and the totals, then deletes the two time entries it created. It refuses an account whose timer runs, so the
+timer stays as it was, and follows no redirect, so the password and the token stay on the local API. When a step
+fails, it still stops its timer and deletes its entries before it reports the failure, and it prints the id of each
+entry it could not delete, so you can delete it in the app. A timer the account's member started in the meantime is
+left running. After a start whose answer was lost, a new entry, running or stopped, counts as the recording's own
+only when it has the client's source (`EMBED`); a running one from another source is left running and its id printed.
 
 Before writing, it replaces ids, names, emails, addresses, dates, amounts of money and the labels each organization
 names itself (a task's status, priority, size and type) with placeholders of the same form (`<employee-1>`,

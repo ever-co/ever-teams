@@ -1,6 +1,6 @@
 // The recording of the contract fixtures, against a stand-in API: node --test test/*.test.mjs (from packages/api,
 // after `rollup -c`). The recording must leave the account's timer as it found it and delete only what it created.
-import { after, test } from 'node:test';
+import { after, mock, test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
@@ -28,9 +28,11 @@ const ME = {
 
 // A stand-in API with a timer: `failures` makes a route answer 500 the first time it is called, and `lostStart`
 // makes start number `lostStartAt` start the timer, then lose its answer ('lost') or send one that is not JSON
-// ('unreadable').
+// ('unreadable'). `logs` keeps every entry ever made, so a test can name them; `deleted` holds the ids a deletion
+// removed, and `remaining()` the entries still in the account.
 function benchApi({ running = false, failures = [], lostStart, lostStartAt = 1 } = {}) {
-	const state = { running, logs: [] };
+	const state = { running, logs: [], deleted: new Set() };
+	state.remaining = () => state.logs.filter((log) => !state.deleted.has(log.id));
 	const failed = new Set();
 	const failsOnce = (route) => {
 		const fails = failures.includes(route) && !failed.has(route);
@@ -78,14 +80,20 @@ function benchApi({ running = false, failures = [], lostStart, lostStartAt = 1 }
 			state.running = false;
 			return json(201, { ...lastLog(), isRunning: false });
 		},
-		'GET /timesheet/time-log': () => json(200, state.logs),
+		'GET /timesheet/time-log': () => json(200, state.remaining()),
 		'GET /timesheet/statistics/counts': () => {
 			if (failsOnce('GET /timesheet/statistics/counts')) {
 				return json(500, { statusCode: 500, message: 'Internal server error' });
 			}
 			return json(200, { todayDuration: 4, todayActivities: 0, weekDuration: 4, weekActivities: 0 });
 		},
-		'DELETE /timesheet/time-log': () => json(200, { affected: 2 })
+		// Removes the entries the query names, and only those.
+		'DELETE /timesheet/time-log': (request) => {
+			const ids = request.query.logIds ?? [];
+			const removed = state.remaining().filter((log) => ids.includes(log.id));
+			removed.forEach((log) => state.deleted.add(log.id));
+			return json(200, { affected: removed.length });
+		}
 	};
 	return { ...standInApi(routes), state };
 }
@@ -177,6 +185,7 @@ test('every answer is written with placeholders, and the timer is left stopped w
 	);
 	assert.equal(deletion.query.forceDelete, 'true');
 	assert.equal(deletion.query.organizationId, ORGANIZATION);
+	assert.deepEqual(api.state.remaining(), [], 'the entries of the recording are gone from the account');
 });
 
 test("the second timer runs on one of the member's tasks, so the list holds an entry with its project", async () => {
@@ -463,4 +472,62 @@ test('a token replaces the email and the password: the recording signs in with n
 
 	assert.equal(api.routesSent().includes('POST /auth/login'), false);
 	assert.equal(api.requests[0].headers.get('Authorization'), `Bearer ${ACCESS_TOKEN}`);
+});
+
+test('no request of the recording follows a redirect: the sign-in and the token stay on the local API', async () => {
+	const api = benchApi();
+	const redirects = [];
+	const fetch = (url, init) => {
+		redirects.push(init.redirect);
+		return api.fetch(url, init);
+	};
+
+	await recordWith(api, workDir(), { fetch });
+
+	assert.ok(api.routesSent().includes('POST /auth/login'));
+	assert.ok(api.routesSent().includes('DELETE /timesheet/time-log'));
+	assert.deepEqual([...new Set(redirects)], ['error']);
+});
+
+test('a recording that crosses midnight lists the entries of both days', async () => {
+	const api = benchApi();
+	mock.timers.enable({ apis: ['Date'], now: new Date(2026, 10, 18, 23, 59, 59) });
+	try {
+		// The second timer starts after midnight.
+		const fetch = (url, init) => {
+			const startsOnTask =
+				init.method === 'POST' && url.includes('/timesheet/timer/start') && api.state.logs.length;
+			if (startsOnTask) {
+				mock.timers.tick(2000);
+			}
+			return api.fetch(url, init);
+		};
+
+		await recordWith(api, workDir(), { fetch });
+	} finally {
+		mock.timers.reset();
+	}
+
+	const [list] = api.requests.filter((request) => request.route === 'GET /timesheet/time-log');
+	assert.ok(Date.parse(list.query.startDate) <= new Date(2026, 10, 18).getTime());
+	assert.ok(Date.parse(list.query.endDate) >= new Date(2026, 10, 19, 23, 59).getTime());
+});
+
+test('a lost start whose entry is already stopped is still deleted when it has the client source', async () => {
+	const api = benchApi({ lostStart: 'lost' });
+	// The entry stops before the recording reads the status again.
+	const fetch = async (url, init) => {
+		try {
+			return await api.fetch(url, init);
+		} catch (error) {
+			api.state.running = false;
+			throw error;
+		}
+	};
+
+	await assert.rejects(recordWith(api, workDir(), { fetch }), /timer\.start failed/);
+
+	assert.equal(api.routesSent().includes('POST /timesheet/timer/stop'), false);
+	assert.deepEqual(deletesOf(api)[0].query.logIds, [api.state.logs[0].id]);
+	assert.deepEqual(api.state.remaining(), []);
 });
