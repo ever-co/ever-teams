@@ -4,14 +4,16 @@ import { useMemo } from 'react';
 import { useAtomValue } from 'jotai';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
-import { embedsService } from '@/core/services/client/api/embeds/embeds.service';
+import { EmbedClientNotLimitedError, embedsService } from '@/core/services/client/api/embeds/embeds.service';
 import { errorStatusOf } from '@/core/lib/utils/error-feedback';
 import { userState } from '@/core/stores/user/user';
 import { activeTeamState } from '@/core/stores/teams/organization-team';
 import type {
 	CreatedEmbedCredential,
 	EmbedAllowedOrigin,
-	EmbedCredential
+	EmbedConfig,
+	EmbedCredential,
+	EmbedCredentialInput
 } from '@/core/types/schemas/embeds/embed.schema';
 
 /**
@@ -58,6 +60,17 @@ export function embedsAvailabilityOf(read: ConfigRead): EmbedsAvailability {
 	return 'loading';
 }
 
+/**
+ * Whether a new credential may be limited to one client: only when the server says it can. An older API drops the
+ * client it is sent and would make a credential for the whole workspace.
+ */
+export function canLimitToClientOf(availability: EmbedsAvailability, config: EmbedConfig | undefined): boolean {
+	if (availability !== 'enabled') {
+		return false;
+	}
+	return config?.clientLimits === true;
+}
+
 /** Only a failure that may pass is worth asking again for: not a 4xx, which the next try would get again. */
 function shouldRetry(failureCount: number, error: unknown): boolean {
 	const status = errorStatusOf(error);
@@ -90,8 +103,9 @@ export function useEmbedsScope(): EmbedsScope | null {
 }
 
 /**
- * Asks the server whether it has embeds on (`GET /embed-credentials/config`, an organization admin's route), again at
- * most every five minutes. Not while `enabled` is false (the command palette is closed).
+ * Asks the server whether it has embeds on, and can limit a credential to one client (`GET /embed-credentials/config`,
+ * an organization admin's route), again at most every five minutes. Not while `enabled` is false (the command palette
+ * is closed).
  */
 export function useEmbedsAvailability(enabled = true) {
 	const scope = useEmbedsScope();
@@ -103,13 +117,16 @@ export function useEmbedsAvailability(enabled = true) {
 		retry: shouldRetry
 	});
 	const availability = embedsAvailabilityOf({ status: query.status, data: query.data, error: query.error });
-	return { availability, retry: query.refetch };
+	const canLimitToClient = canLimitToClientOf(availability, query.data);
+	return { availability, canLimitToClient, retry: query.refetch };
 }
 
 // Every organization's list: a write settles on the list of the organization it was made in, even if the active
 // organization changed meanwhile (ids are unique, so dropping one from every list touches only its own).
 const EVERY_ORIGINS_LIST = [...queryKeys.embeds.all, 'origins'] as const;
 const EVERY_CREDENTIALS_LIST = [...queryKeys.embeds.all, 'credentials'] as const;
+// Every person's embeds config read
+const EVERY_EMBEDS_CONFIG = [...queryKeys.embeds.all, 'config'] as const;
 
 const NO_ORIGINS: EmbedAllowedOrigin[] = [];
 const NO_CREDENTIALS: EmbedCredential[] = [];
@@ -178,15 +195,22 @@ export function useRemoveEmbedOrigin() {
 /**
  * Creates a credential; the list is read again so that it shows, without its secret. The answer, which holds the
  * secret, is dropped from React Query's cache as soon as nothing shows it. The list is not waited for: the caller's
- * onSuccess, which shows the secret, would otherwise wait for it too.
+ * onSuccess, which shows the secret, would otherwise wait for it too. When the API made it without the client it was
+ * asked for (and the service revoked it), the config is read again: an API that cannot limit a credential stops
+ * offering the client.
  */
 export function useCreateEmbedCredential() {
 	const queryClient = useQueryClient();
 	const scope = useEmbedsScope();
-	return useMutation<CreatedEmbedCredential, unknown, string>({
-		mutationFn: (name) => embedsService.createCredential(scope?.organizationId ?? '', name),
+	return useMutation<CreatedEmbedCredential, unknown, EmbedCredentialInput>({
+		mutationFn: (input) => embedsService.createCredential(scope?.organizationId ?? '', input),
 		gcTime: 0,
 		meta: { handlesOwnError: true },
+		onError: (error) => {
+			if (error instanceof EmbedClientNotLimitedError) {
+				void queryClient.invalidateQueries({ queryKey: EVERY_EMBEDS_CONFIG });
+			}
+		},
 		onSettled: () => {
 			void queryClient.invalidateQueries({ queryKey: EVERY_CREDENTIALS_LIST });
 		}

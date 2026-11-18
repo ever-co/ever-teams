@@ -5,7 +5,9 @@ import { validateApiResponse } from '@/core/types/schemas';
 import {
 	CreatedEmbedCredential,
 	EmbedAllowedOrigin,
+	EmbedConfig,
 	EmbedCredential,
+	EmbedCredentialInput,
 	createdEmbedCredentialSchema,
 	embedAllowedOriginListSchema,
 	embedAllowedOriginSchema,
@@ -15,6 +17,17 @@ import {
 
 const CREDENTIALS = '/embed-credentials';
 const ORIGINS = '/embed-allowed-origins';
+
+/**
+ * The API made the credential without the client it was asked to limit it to (an API that drops the field, behind a
+ * config read that said it could): the credential was revoked at once and its secret is never shown.
+ */
+export class EmbedClientNotLimitedError extends Error {
+	constructor() {
+		super('The API did not limit the embed credential to the client it was asked for; the credential was revoked.');
+		this.name = 'EmbedClientNotLimitedError';
+	}
+}
 
 /**
  * Client of the platform's embeds (`/embed-credentials`, `/embed-allowed-origins`) for Settings → Embeds: the sites an
@@ -27,8 +40,11 @@ class EmbedsService extends APIService {
 		return qs.stringify({ organizationId });
 	}
 
-	/** Whether the server has embeds on; a 404 means off, a 403 that the person is not an admin of the organization. */
-	readConfig = async (signal?: AbortSignal): Promise<{ enabled: boolean }> => {
+	/**
+	 * Whether the server has embeds on, and can limit a credential to one client; a 404 means off, a 403 that the person
+	 * is not an admin of the organization.
+	 */
+	readConfig = async (signal?: AbortSignal): Promise<EmbedConfig> => {
 		const response = await this.get<unknown>(`${CREDENTIALS}/config`, { signal });
 		return validateApiResponse(embedConfigSchema, response.data, 'embeds.config API response');
 	};
@@ -55,15 +71,39 @@ class EmbedsService extends APIService {
 		return validateApiResponse(embedCredentialListSchema, response.data, 'embeds.credentials API response');
 	};
 
-	/** Creates a credential: the answer holds its secret, which no later read gives again, and stays out of the log. */
-	createCredential = async (organizationId: string, name: string): Promise<CreatedEmbedCredential> => {
-		const response = await this.post<unknown>(
-			CREDENTIALS,
-			{ name: name.trim(), organizationId },
-			{ secretResponse: true },
-			false
+	/**
+	 * A credential for the whole workspace is asked for exactly as before clients could be named: an older API, which
+	 * does not know the field, gets nothing it would drop.
+	 */
+	private credentialBody(organizationId: string, input: EmbedCredentialInput): Record<string, string> {
+		const body: Record<string, string> = { name: input.name.trim(), organizationId };
+		if (input.organizationContactId) {
+			body.organizationContactId = input.organizationContactId;
+		}
+		return body;
+	}
+
+	/**
+	 * Creates a credential: the answer holds its secret, which no later read gives again, and stays out of the log. A
+	 * credential asked for one client that comes back without that client reaches the whole workspace: it is revoked
+	 * at once and the call fails with {@link EmbedClientNotLimitedError}, so a wider credential than asked never
+	 * reaches a host.
+	 */
+	createCredential = async (organizationId: string, input: EmbedCredentialInput): Promise<CreatedEmbedCredential> => {
+		const body = this.credentialBody(organizationId, input);
+		const response = await this.post<unknown>(CREDENTIALS, body, { secretResponse: true }, false);
+		const created = validateApiResponse(
+			createdEmbedCredentialSchema,
+			response.data,
+			'embeds.createCredential API response'
 		);
-		return validateApiResponse(createdEmbedCredentialSchema, response.data, 'embeds.createCredential API response');
+		const askedClient = body.organizationContactId;
+		if (askedClient && created.organizationContactId !== askedClient) {
+			// Best effort: the secret is dropped here, so nobody holds it even if the revocation fails
+			await this.revokeCredential(created.id).catch(() => undefined);
+			throw new EmbedClientNotLimitedError();
+		}
+		return created;
 	};
 
 	/** Revokes a credential: its tokens are refused within 30 seconds. */
