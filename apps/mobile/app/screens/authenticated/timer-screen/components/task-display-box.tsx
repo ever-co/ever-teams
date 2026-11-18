@@ -2,6 +2,7 @@ import React from 'react';
 import { View, StyleSheet, Text } from 'react-native';
 import { FontAwesome, AntDesign } from '@expo/vector-icons';
 import { typography, useAppTheme } from '../../../../theme';
+import { translate } from '../../../../i18n';
 
 type ITasDisplayBox = {
 	count: number;
@@ -21,7 +22,9 @@ const TaskDisplayBox = ({ count, openTask, selected }: ITasDisplayBox) => {
 							styles.filterText,
 							selected ? { color: colors.secondary, fontWeight: 'bold' } : { color: colors.tertiary }
 						]}
-					>{`${count} Open`}</Text>
+					>
+						{translate('tasksScreen.openCount', { count })}
+					</Text>
 				</>
 			) : (
 				<>
@@ -31,7 +34,9 @@ const TaskDisplayBox = ({ count, openTask, selected }: ITasDisplayBox) => {
 							styles.filterText,
 							selected ? { color: colors.secondary, fontWeight: 'bold' } : { color: colors.tertiary }
 						]}
-					>{`${count} Closed`}</Text>
+					>
+						{translate('tasksScreen.closedCount', { count })}
+					</Text>
 				</>
 			)}
 		</View>

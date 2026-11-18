@@ -1,5 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, { useEffect, useState } from 'react';
+import React from 'react';
+import { useTabButtonsLoading } from './use-tab-buttons-loading';
 import { Platform, TextStyle, View, ViewStyle } from 'react-native';
 import {
 	BottomTabNavigationEventMap,
@@ -133,14 +134,10 @@ const TabNavigator = observer(function TabNavigator() {
 	const {
 		teamStore: { isTrackingEnabled }
 	} = useStores();
-	const [isLoading, setIsLoading] = useState(true);
+	const isLoading = useTabButtonsLoading();
 	const { currentUser } = useOrganizationTeam();
 
 	const navigation = useNavigation<SettingScreenNavigationProp<'Profile'>>();
-
-	useEffect(() => {
-		setTimeout(() => setIsLoading(false), 3000);
-	}, []);
 
 	return (
 		<Tab.Navigator

@@ -12,6 +12,7 @@ import { SvgXml } from "react-native-svg"
 import { searchIconDark, searchIconLight } from "../../../../components/svgs/icons"
 import { useSettings } from "../../../../services/hooks/features/use-settings"
 import { limitTextCharaters } from "../../../../helpers/sub-text"
+import { translate } from "../../../../i18n"
 
 interface IMembersList {
 	teamList: IOrganizationTeamList
@@ -21,6 +22,24 @@ interface IMembersList {
 	addOrRemoveToSelectedList: (member: OT_Member) => void
 	isNameEditMode: boolean
 	setIsNameEditMode: React.Dispatch<SetStateAction<boolean>>
+}
+
+// The role names are the API's: the two the team uses read in the person's language, any other as the API names it
+function roleLabel(name: string | undefined): string {
+	if (!name || name.toUpperCase() === "MEMBER") {
+		return translate("common.member")
+	}
+	if (name.toUpperCase() === "MANAGER") {
+		return translate("common.manager")
+	}
+	return name
+}
+
+function footerLabel(selectMode: boolean): string {
+	if (selectMode) {
+		return translate("settingScreen.membersSettingsScreen.selected")
+	}
+	return translate("settingScreen.membersSettingsScreen.totalMembers")
 }
 
 const MembersList: React.FC<IMembersList> = ({
@@ -52,7 +71,7 @@ const MembersList: React.FC<IMembersList> = ({
 				]}
 			>
 				<TextInput
-					placeholder="Search members"
+					placeholder={translate("settingScreen.membersSettingsScreen.searchPlaceholder")}
 					value={filteredMembersList}
 					onChangeText={(text) => setFilteredMembersList(text)}
 					style={[styles.textInput, { color: colors.primary }]}
@@ -78,7 +97,7 @@ const MembersList: React.FC<IMembersList> = ({
 			/>
 			<View style={[styles.footerContainer, { backgroundColor: colors.background }]}>
 				<Text style={{ fontSize: 14, fontWeight: "400", color: colors.primary }}>
-					{selectMode ? "Selected:" : "Total members:"}
+					{footerLabel(selectMode)}
 				</Text>
 				<Text style={{ fontSize: 14, fontWeight: "400", color: colors.primary }}>
 					{selectMode ? selectedMembers?.length : teamList?.members.length}
@@ -190,7 +209,7 @@ const MemberCard: React.FC<IMemberCard> = ({
 			<View style={{ gap: 7, flexDirection: "column" }}>
 				<View style={styles.roleContainer}>
 					<Text style={styles.roleText}>
-						{member?.role?.name ? member?.role?.name : "Member"}
+						{roleLabel(member?.role?.name)}
 					</Text>
 				</View>
 				<Text style={styles.grayedText}>

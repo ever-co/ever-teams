@@ -19,7 +19,7 @@ export function useAuthenticationTeam() {
 	const authTeamInput = useRef<TextInput | null>(null);
 	const [isSubmitted, setIsSubmitted] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
-	const [joinError, setJoinError] = useState(null);
+	const [joinError, setJoinError] = useState<string | null>(null);
 	const [verificationError, setVerificationError] = useState(null);
 	const [screenstatus, setScreenStatus] = useState<{ screen: number; animation: boolean }>({
 		screen: 1,
@@ -71,7 +71,7 @@ export function useAuthenticationTeam() {
 			// person can try again. Reading the data first threw, and the message never reached the screen.
 			if (response && 'errors' in response) {
 				setIsSubmitted(false);
-				setJoinError(response.errors.email);
+				setJoinError(response.errors?.email ?? null);
 				return;
 			}
 
@@ -275,7 +275,7 @@ export function useAuthenticationTeam() {
 				response: response.response.status,
 				success: response.response.status === 201,
 				data: response.data,
-				error: response.response.status === 401 ? 'Authentication code or email address invalid' : null
+				error: response.response.status === 401 ? translate('loginScreen.errors.invalidCode') : null
 			};
 		}
 	};

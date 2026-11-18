@@ -228,10 +228,12 @@ const ListCardItem: React.FC<Props> = (props) => {
 					{showConfirm && (
 						<View style={[styles.confirmContainer, { backgroundColor: colors.background }]}>
 							<TouchableOpacity onPress={() => handleRemoveInvitation(invite.id)}>
-								<Text style={[styles.confirmText, { color: colors.secondary }]}>Confirm</Text>
+								<Text style={[styles.confirmText, { color: colors.secondary }]}>
+									{translate('common.confirm')}
+								</Text>
 							</TouchableOpacity>
 							<TouchableOpacity onPress={() => setShowConfirm(false)}>
-								<Text>Cancel</Text>
+								<Text>{translate('common.cancel')}</Text>
 							</TouchableOpacity>
 						</View>
 					)}

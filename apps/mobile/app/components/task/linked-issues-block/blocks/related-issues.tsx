@@ -14,6 +14,7 @@ import {
 import TaskLinkedIssue from "../components/task-linked-issue"
 import CreateLinkedIssueModal from "../components/create-linked-issue-modal"
 import { useTaskLinkedIssues } from "../../../../services/hooks/features/use-task-linked-issue"
+import { translate } from "../../../../i18n"
 
 const RelatedIssues = () => {
 	const {
@@ -78,7 +79,7 @@ const RelatedIssues = () => {
 		<Accordion
 			titleFontSize={14}
 			arrowSize={20}
-			title="Related Issues"
+			title={translate("taskDetailsScreen.relatedIssues")}
 			headerElement={
 				<View style={styles.headerElement}>
 					<TouchableWithoutFeedback onPress={() => setModalOpen(true)}>
