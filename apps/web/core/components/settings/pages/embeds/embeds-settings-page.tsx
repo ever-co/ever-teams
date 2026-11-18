@@ -264,6 +264,9 @@ function CredentialRow({ row, clientNames, onRevoke }: Readonly<CredentialRowPro
 	if (clientFact) {
 		facts.push(clientFact);
 	}
+	if (row.canAddMembers) {
+		facts.push(t('settings.embeds.ADDS_MEMBERS'));
+	}
 	if (row.createdAt) {
 		facts.push(t('settings.embeds.CREATED_ON', { date: formatUserApiTokenDate(row.createdAt, locale) }));
 	}

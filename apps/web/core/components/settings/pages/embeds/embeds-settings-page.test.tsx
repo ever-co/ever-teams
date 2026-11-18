@@ -227,6 +227,43 @@ describe('EmbedsSettingsPage', () => {
 		expect(screen.getAllByText('settings.embeds.NEVER_USED')).toHaveLength(3);
 	});
 
+	it('says which credentials add people, after their client, and keeps everything else the row shows', () => {
+		mockUseAvailability.mockReturnValue({ availability: 'enabled', canAllowAddMembers: true, retry: jest.fn() });
+		mockUseCredentials.mockReturnValue({
+			...ready,
+			credentials: [
+				{
+					id: 'c1',
+					name: 'Fabrikam contractors portal',
+					prefix: 'gze_fabrikam',
+					organizationContactId: 'contact-fabrikam',
+					canAddMembers: true,
+					createdAt: '2026-11-18T09:00:00.000Z',
+					lastUsedAt: null
+				},
+				{ id: 'c2', name: 'Northwind customer portal', prefix: 'gze_northwind', canAddMembers: false }
+			]
+		});
+		mockUseActiveClients.mockReturnValue({
+			...ready,
+			clients: [{ id: 'contact-fabrikam', name: 'Fabrikam Outdoor' }]
+		});
+		render(<EmbedsSettingsPage />);
+
+		expect(screen.getAllByText('settings.embeds.ADDS_MEMBERS')).toHaveLength(1);
+		const factsOfFabrikam = screen.getByText('gze_fabrikam').parentElement?.textContent ?? '';
+		const clientAt = factsOfFabrikam.indexOf('settings.embeds.LIMITED_TO_CLIENT Fabrikam Outdoor');
+		const addsPeopleAt = factsOfFabrikam.indexOf('settings.embeds.ADDS_MEMBERS');
+		const createdAt = factsOfFabrikam.indexOf('settings.embeds.CREATED_ON');
+		expect(clientAt).toBeGreaterThan(-1);
+		expect(addsPeopleAt).toBeGreaterThan(clientAt);
+		expect(createdAt).toBeGreaterThan(addsPeopleAt);
+		for (const prefix of ['gze_fabrikam', 'gze_northwind']) {
+			expect(screen.getByText(prefix)).toBeTruthy();
+		}
+		expect(screen.getAllByText('settings.embeds.NEVER_USED')).toHaveLength(2);
+	});
+
 	it('reads no clients while no credential is limited to one', () => {
 		mockUseAvailability.mockReturnValue({ availability: 'enabled', canLimitToClient: true, retry: jest.fn() });
 		mockUseCredentials.mockReturnValue({
