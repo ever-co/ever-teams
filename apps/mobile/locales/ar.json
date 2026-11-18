@@ -389,7 +389,7 @@
 			"statusColorPlaceholder": "الألوان",
 			"cancelButtonText": "إلغاء",
 			"createButtonText": "إنشاء",
-			"updateButtonText": "تغيير"
+			"updateButtonText": "تحديث"
 		},
 		"priorityScreen": {
 			"mainTitle": "أولويات المهام",
@@ -403,7 +403,7 @@
 			"priorityColorPlaceholder": "الألوان",
 			"cancelButtonText": "إلغاء",
 			"createButtonText": "إنشاء",
-			"updateButtonText": "تغيير"
+			"updateButtonText": "تحديث"
 		},
 		"labelScreen": {
 			"mainTitle": "تسميات المهام",
@@ -417,7 +417,7 @@
 			"labelColorPlaceholder": "الألوان",
 			"cancelButtonText": "إلغاء",
 			"createButtonText": "إنشاء",
-			"updateButtonText": "تغيير"
+			"updateButtonText": "تحديث"
 		},
 		"sizeScreen": {
 			"mainTitle": "أحجام المهام",
@@ -431,7 +431,7 @@
 			"sizeColorPlaceholder": "الألوان",
 			"cancelButtonText": "إلغاء",
 			"createButtonText": "إنشاء",
-			"updateButtonText": "تغيير"
+			"updateButtonText": "تحديث"
 		},
 		"membersSettingsScreen": {
 			"mainTitle": "الأعضاء والأدوار",

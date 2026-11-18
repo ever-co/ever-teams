@@ -389,7 +389,7 @@
 			"statusColorPlaceholder": "Couleurs",
 			"cancelButtonText": "Annuler",
 			"createButtonText": "Créer",
-			"updateButtonText": "Modification"
+			"updateButtonText": "Mettre à jour"
 		},
 		"priorityScreen": {
 			"mainTitle": "Priorités des tâches",
@@ -403,7 +403,7 @@
 			"priorityColorPlaceholder": "Couleurs",
 			"cancelButtonText": "Annuler",
 			"createButtonText": "Créer",
-			"updateButtonText": "Modification"
+			"updateButtonText": "Mettre à jour"
 		},
 		"labelScreen": {
 			"mainTitle": "Étiquettes des tâches",
@@ -417,7 +417,7 @@
 			"labelColorPlaceholder": "Couleurs",
 			"cancelButtonText": "Annuler",
 			"createButtonText": "Créer",
-			"updateButtonText": "Modification"
+			"updateButtonText": "Mettre à jour"
 		},
 		"sizeScreen": {
 			"mainTitle": "Tailles des tâches",
@@ -431,7 +431,7 @@
 			"sizeColorPlaceholder": "Couleurs",
 			"cancelButtonText": "Annuler",
 			"createButtonText": "Créer",
-			"updateButtonText": "Modification"
+			"updateButtonText": "Mettre à jour"
 		},
 		"membersSettingsScreen": {
 			"mainTitle": "Membres et rôles",

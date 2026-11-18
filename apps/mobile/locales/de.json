@@ -375,7 +375,7 @@
 			"versionNamePlaceholder": "Versionsname",
 			"cancelButtonText": "Abbrechen",
 			"createButtonText": "Erstellen",
-			"updateButtonText": "Änderung"
+			"updateButtonText": "Aktualisieren"
 		},
 		"statusScreen": {
 			"mainTitle": "Aufgabenstatus",
@@ -389,7 +389,7 @@
 			"statusColorPlaceholder": "Farben",
 			"cancelButtonText": "Abbrechen",
 			"createButtonText": "Erstellen",
-			"updateButtonText": "Änderung"
+			"updateButtonText": "Aktualisieren"
 		},
 		"priorityScreen": {
 			"mainTitle": "Aufgabenprioritäten",
@@ -403,7 +403,7 @@
 			"priorityColorPlaceholder": "Farben",
 			"cancelButtonText": "Abbrechen",
 			"createButtonText": "Erstellen",
-			"updateButtonText": "Änderung"
+			"updateButtonText": "Aktualisieren"
 		},
 		"labelScreen": {
 			"mainTitle": "Aufgabenlabels",
@@ -417,7 +417,7 @@
 			"labelColorPlaceholder": "Farben",
 			"cancelButtonText": "Abbrechen",
 			"createButtonText": "Erstellen",
-			"updateButtonText": "Änderung"
+			"updateButtonText": "Aktualisieren"
 		},
 		"sizeScreen": {
 			"mainTitle": "Aufgabengrößen",
@@ -431,7 +431,7 @@
 			"sizeColorPlaceholder": "Farben",
 			"cancelButtonText": "Abbrechen",
 			"createButtonText": "Erstellen",
-			"updateButtonText": "Änderung"
+			"updateButtonText": "Aktualisieren"
 		},
 		"membersSettingsScreen": {
 			"mainTitle": "Mitglieder und Rollen",

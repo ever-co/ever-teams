@@ -375,7 +375,7 @@
 			"versionNamePlaceholder": "Versienaam",
 			"cancelButtonText": "Annuleren",
 			"createButtonText": "Maken",
-			"updateButtonText": "Wijziging"
+			"updateButtonText": "Bijwerken"
 		},
 		"statusScreen": {
 			"mainTitle": "Taakstatussen",
@@ -389,7 +389,7 @@
 			"statusColorPlaceholder": "Kleuren",
 			"cancelButtonText": "Annuleren",
 			"createButtonText": "Maken",
-			"updateButtonText": "Wijziging"
+			"updateButtonText": "Bijwerken"
 		},
 		"priorityScreen": {
 			"mainTitle": "Taakprioriteiten",
@@ -403,7 +403,7 @@
 			"priorityColorPlaceholder": "Kleuren",
 			"cancelButtonText": "Annuleren",
 			"createButtonText": "Maken",
-			"updateButtonText": "Wijziging"
+			"updateButtonText": "Bijwerken"
 		},
 		"labelScreen": {
 			"mainTitle": "Taaklabels",
@@ -417,7 +417,7 @@
 			"labelColorPlaceholder": "Kleuren",
 			"cancelButtonText": "Annuleren",
 			"createButtonText": "Maken",
-			"updateButtonText": "Wijziging"
+			"updateButtonText": "Bijwerken"
 		},
 		"sizeScreen": {
 			"mainTitle": "Taakformaten",
@@ -431,7 +431,7 @@
 			"sizeColorPlaceholder": "Kleuren",
 			"cancelButtonText": "Annuleren",
 			"createButtonText": "Maken",
-			"updateButtonText": "Wijziging"
+			"updateButtonText": "Bijwerken"
 		},
 		"membersSettingsScreen": {
 			"mainTitle": "Leden & rollen",

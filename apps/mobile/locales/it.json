@@ -375,7 +375,7 @@
 			"versionNamePlaceholder": "Nome della Versione",
 			"cancelButtonText": "Annulla",
 			"createButtonText": "Crea",
-			"updateButtonText": "Modifica"
+			"updateButtonText": "Aggiorna"
 		},
 		"statusScreen": {
 			"mainTitle": "Stati del Compito",
@@ -389,7 +389,7 @@
 			"statusColorPlaceholder": "Colori",
 			"cancelButtonText": "Annulla",
 			"createButtonText": "Crea",
-			"updateButtonText": "Modifica"
+			"updateButtonText": "Aggiorna"
 		},
 		"priorityScreen": {
 			"mainTitle": "Priorità del Compito",
@@ -403,7 +403,7 @@
 			"priorityColorPlaceholder": "Colori",
 			"cancelButtonText": "Annulla",
 			"createButtonText": "Crea",
-			"updateButtonText": "Modifica"
+			"updateButtonText": "Aggiorna"
 		},
 		"labelScreen": {
 			"mainTitle": "Etichette del Compito",
@@ -417,7 +417,7 @@
 			"labelColorPlaceholder": "Colori",
 			"cancelButtonText": "Annulla",
 			"createButtonText": "Crea",
-			"updateButtonText": "Modifica"
+			"updateButtonText": "Aggiorna"
 		},
 		"sizeScreen": {
 			"mainTitle": "Dimensioni del Compito",
@@ -431,7 +431,7 @@
 			"sizeColorPlaceholder": "Colori",
 			"cancelButtonText": "Annulla",
 			"createButtonText": "Crea",
-			"updateButtonText": "Modifica"
+			"updateButtonText": "Aggiorna"
 		},
 		"membersSettingsScreen": {
 			"mainTitle": "Membri e Ruoli",

@@ -375,7 +375,7 @@
 			"versionNamePlaceholder": "Nombre de la versión",
 			"cancelButtonText": "Cancelar",
 			"createButtonText": "Crear",
-			"updateButtonText": "Cambio"
+			"updateButtonText": "Actualizar"
 		},
 		"statusScreen": {
 			"mainTitle": "Estados de las tareas",
@@ -389,7 +389,7 @@
 			"statusColorPlaceholder": "Colores",
 			"cancelButtonText": "Cancelar",
 			"createButtonText": "Crear",
-			"updateButtonText": "Cambio"
+			"updateButtonText": "Actualizar"
 		},
 		"priorityScreen": {
 			"mainTitle": "Prioridades de las tareas",
@@ -403,7 +403,7 @@
 			"priorityColorPlaceholder": "Colores",
 			"cancelButtonText": "Cancelar",
 			"createButtonText": "Crear",
-			"updateButtonText": "Cambio"
+			"updateButtonText": "Actualizar"
 		},
 		"labelScreen": {
 			"mainTitle": "Etiquetas de las tareas",
@@ -417,7 +417,7 @@
 			"labelColorPlaceholder": "Colores",
 			"cancelButtonText": "Cancelar",
 			"createButtonText": "Crear",
-			"updateButtonText": "Cambio"
+			"updateButtonText": "Actualizar"
 		},
 		"sizeScreen": {
 			"mainTitle": "Tamaños de las tareas",
@@ -431,7 +431,7 @@
 			"sizeColorPlaceholder": "Colores",
 			"cancelButtonText": "Cancelar",
 			"createButtonText": "Crear",
-			"updateButtonText": "Cambio"
+			"updateButtonText": "Actualizar"
 		},
 		"membersSettingsScreen": {
 			"mainTitle": "Miembros y roles",

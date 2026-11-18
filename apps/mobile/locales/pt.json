@@ -277,12 +277,12 @@
 		"filter": "Filtrar",
 		"apply": "Aplicar",
 		"reset": "Redefinir",
-		"assignedPeople": "{count, plural, one {# pessoa} other {# pessoas}}",
+		"assignedPeople": "{count, plural, =0 {# pessoas} one {# pessoa} other {# pessoas}}",
 		"workedTasks": "tarefas trabalhadas",
 		"assignedTasks": "tarefas atribuídas",
 		"unassignedTasks": "tarefas não atribuídas",
-		"openCount": "{count, plural, one {# aberta} other {# abertas}}",
-		"closedCount": "{count, plural, one {# fechada} other {# fechadas}}"
+		"openCount": "{count, plural, =0 {# abertas} one {# aberta} other {# abertas}}",
+		"closedCount": "{count, plural, =0 {# fechadas} one {# fechada} other {# fechadas}}"
 	},
 	"noTeamScreen": {
 		"createYourTeam": "Crie sua própria equipe ou junte-se a uma existente",
@@ -306,7 +306,7 @@
 			"removeAccount": "Remover Conta",
 			"removeAccountHint": "A conta será removida de todas as equipes, exceto aquelas em que você é o único gerente",
 			"deleteAccount": "Excluir Conta",
-			"deleteAccountHint": "Sua conta será excluída permanentemente com a remoção de todas as equipes",
+			"deleteAccountHint": "Sua conta será excluída permanentemente e removida de todas as equipes",
 			"detect": "Detectar",
 			"removeEverywhere": "Remover de Todos"
 		},
@@ -338,11 +338,11 @@
 				"mainTitle": "Alterar Nome da Equipe",
 				"inputPlaceholder": "Nome da Equipe"
 			},
-			"activeVersions": "{count, plural, one {Há # versão ativa} other {Há # versões ativas}}",
-			"activeStatuses": "{count, plural, one {Há # status ativo} other {Há # status ativos}}",
-			"activePriorities": "{count, plural, one {Há # prioridade ativa} other {Há # prioridades ativas}}",
-			"activeSizes": "{count, plural, one {Há # tamanho ativo} other {Há # tamanhos ativos}}",
-			"activeLabels": "{count, plural, one {Há # etiqueta ativa} other {Há # etiquetas ativas}}",
+			"activeVersions": "{count, plural, =0 {Há # versões ativas} one {Há # versão ativa} other {Há # versões ativas}}",
+			"activeStatuses": "{count, plural, =0 {Há # status ativos} one {Há # status ativo} other {Há # status ativos}}",
+			"activePriorities": "{count, plural, =0 {Há # prioridades ativas} one {Há # prioridade ativa} other {Há # prioridades ativas}}",
+			"activeSizes": "{count, plural, =0 {Há # tamanhos ativos} one {Há # tamanho ativo} other {Há # tamanhos ativos}}",
+			"activeLabels": "{count, plural, =0 {Há # etiquetas ativas} one {Há # etiqueta ativa} other {Há # etiquetas ativas}}",
 			"missingEmployee": "ID de funcionário ausente. Entre novamente.",
 			"missingEmployeeShort": "ID de funcionário ausente",
 			"invalidTeamName": "Nome de equipe inválido",
@@ -375,7 +375,7 @@
 			"versionNamePlaceholder": "Nome da Versão",
 			"cancelButtonText": "Cancelar",
 			"createButtonText": "Criar",
-			"updateButtonText": "Alteração"
+			"updateButtonText": "Atualizar"
 		},
 		"statusScreen": {
 			"mainTitle": "Status de Tarefa",
@@ -389,7 +389,7 @@
 			"statusColorPlaceholder": "Cores",
 			"cancelButtonText": "Cancelar",
 			"createButtonText": "Criar",
-			"updateButtonText": "Alteração"
+			"updateButtonText": "Atualizar"
 		},
 		"priorityScreen": {
 			"mainTitle": "Prioridades de Tarefa",
@@ -403,7 +403,7 @@
 			"priorityColorPlaceholder": "Cores",
 			"cancelButtonText": "Cancelar",
 			"createButtonText": "Criar",
-			"updateButtonText": "Alteração"
+			"updateButtonText": "Atualizar"
 		},
 		"labelScreen": {
 			"mainTitle": "Etiquetas de Tarefa",
@@ -417,7 +417,7 @@
 			"labelColorPlaceholder": "Cores",
 			"cancelButtonText": "Cancelar",
 			"createButtonText": "Criar",
-			"updateButtonText": "Alteração"
+			"updateButtonText": "Atualizar"
 		},
 		"sizeScreen": {
 			"mainTitle": "Tamanhos de Tarefa",
@@ -431,7 +431,7 @@
 			"sizeColorPlaceholder": "Cores",
 			"cancelButtonText": "Cancelar",
 			"createButtonText": "Criar",
-			"updateButtonText": "Alteração"
+			"updateButtonText": "Atualizar"
 		},
 		"membersSettingsScreen": {
 			"mainTitle": "Membros e Funções",

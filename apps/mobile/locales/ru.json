@@ -375,7 +375,7 @@
 			"versionNamePlaceholder": "Название версии",
 			"cancelButtonText": "Отмена",
 			"createButtonText": "Создать",
-			"updateButtonText": "Изменение"
+			"updateButtonText": "Обновить"
 		},
 		"statusScreen": {
 			"mainTitle": "Статусы задач",
@@ -389,7 +389,7 @@
 			"statusColorPlaceholder": "Цвета",
 			"cancelButtonText": "Отмена",
 			"createButtonText": "Создать",
-			"updateButtonText": "Изменение"
+			"updateButtonText": "Обновить"
 		},
 		"priorityScreen": {
 			"mainTitle": "Приоритеты задач",
@@ -403,7 +403,7 @@
 			"priorityColorPlaceholder": "Цвета",
 			"cancelButtonText": "Отмена",
 			"createButtonText": "Создать",
-			"updateButtonText": "Изменение"
+			"updateButtonText": "Обновить"
 		},
 		"labelScreen": {
 			"mainTitle": "Метки задач",
@@ -417,7 +417,7 @@
 			"labelColorPlaceholder": "Цвета",
 			"cancelButtonText": "Отмена",
 			"createButtonText": "Создать",
-			"updateButtonText": "Изменение"
+			"updateButtonText": "Обновить"
 		},
 		"sizeScreen": {
 			"mainTitle": "Размеры задач",
@@ -431,7 +431,7 @@
 			"sizeColorPlaceholder": "Цвета",
 			"cancelButtonText": "Отмена",
 			"createButtonText": "Создать",
-			"updateButtonText": "Изменение"
+			"updateButtonText": "Обновить"
 		},
 		"membersSettingsScreen": {
 			"mainTitle": "Участники и роли",

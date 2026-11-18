@@ -375,7 +375,7 @@
 			"versionNamePlaceholder": "Име на версията",
 			"cancelButtonText": "Отказ",
 			"createButtonText": "Създаване",
-			"updateButtonText": "Промяна"
+			"updateButtonText": "Актуализирай"
 		},
 		"statusScreen": {
 			"mainTitle": "Статуси на задачи",
@@ -389,7 +389,7 @@
 			"statusColorPlaceholder": "Цветове",
 			"cancelButtonText": "Отказ",
 			"createButtonText": "Създаване",
-			"updateButtonText": "Промяна"
+			"updateButtonText": "Актуализирай"
 		},
 		"priorityScreen": {
 			"mainTitle": "Приоритети на задачи",
@@ -403,7 +403,7 @@
 			"priorityColorPlaceholder": "Цветове",
 			"cancelButtonText": "Отказ",
 			"createButtonText": "Създаване",
-			"updateButtonText": "Промяна"
+			"updateButtonText": "Актуализирай"
 		},
 		"labelScreen": {
 			"mainTitle": "Етикети на задачи",
@@ -417,7 +417,7 @@
 			"labelColorPlaceholder": "Цветове",
 			"cancelButtonText": "Отказ",
 			"createButtonText": "Създаване",
-			"updateButtonText": "Промяна"
+			"updateButtonText": "Актуализирай"
 		},
 		"sizeScreen": {
 			"mainTitle": "Размери на задачи",
@@ -431,7 +431,7 @@
 			"sizeColorPlaceholder": "Цветове",
 			"cancelButtonText": "Отказ",
 			"createButtonText": "Създаване",
-			"updateButtonText": "Промяна"
+			"updateButtonText": "Актуализирай"
 		},
 		"membersSettingsScreen": {
 			"mainTitle": "Членове и роли",

@@ -375,7 +375,7 @@
 			"versionNamePlaceholder": "Nazwa wersji",
 			"cancelButtonText": "Anuluj",
 			"createButtonText": "Utwórz",
-			"updateButtonText": "Zmiana"
+			"updateButtonText": "Aktualizuj"
 		},
 		"statusScreen": {
 			"mainTitle": "Statusy zadania",
@@ -389,7 +389,7 @@
 			"statusColorPlaceholder": "Kolory",
 			"cancelButtonText": "Anuluj",
 			"createButtonText": "Utwórz",
-			"updateButtonText": "Zmiana"
+			"updateButtonText": "Aktualizuj"
 		},
 		"priorityScreen": {
 			"mainTitle": "Priorytety zadania",
@@ -403,7 +403,7 @@
 			"priorityColorPlaceholder": "Kolory",
 			"cancelButtonText": "Anuluj",
 			"createButtonText": "Utwórz",
-			"updateButtonText": "Zmiana"
+			"updateButtonText": "Aktualizuj"
 		},
 		"labelScreen": {
 			"mainTitle": "Etykiety zadania",
@@ -417,7 +417,7 @@
 			"labelColorPlaceholder": "Kolory",
 			"cancelButtonText": "Anuluj",
 			"createButtonText": "Utwórz",
-			"updateButtonText": "Zmiana"
+			"updateButtonText": "Aktualizuj"
 		},
 		"sizeScreen": {
 			"mainTitle": "Rozmiary zadania",
@@ -431,7 +431,7 @@
 			"sizeColorPlaceholder": "Kolory",
 			"cancelButtonText": "Anuluj",
 			"createButtonText": "Utwórz",
-			"updateButtonText": "Zmiana"
+			"updateButtonText": "Aktualizuj"
 		},
 		"membersSettingsScreen": {
 			"mainTitle": "Członkowie i role",

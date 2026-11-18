@@ -375,7 +375,7 @@
 			"versionNamePlaceholder": "版本名称",
 			"cancelButtonText": "取消",
 			"createButtonText": "创建",
-			"updateButtonText": "更改"
+			"updateButtonText": "更新"
 		},
 		"statusScreen": {
 			"mainTitle": "任务状态",
@@ -389,7 +389,7 @@
 			"statusColorPlaceholder": "颜色",
 			"cancelButtonText": "取消",
 			"createButtonText": "创建",
-			"updateButtonText": "更改"
+			"updateButtonText": "更新"
 		},
 		"priorityScreen": {
 			"mainTitle": "任务优先级",
@@ -403,7 +403,7 @@
 			"priorityColorPlaceholder": "颜色",
 			"cancelButtonText": "取消",
 			"createButtonText": "创建",
-			"updateButtonText": "更改"
+			"updateButtonText": "更新"
 		},
 		"labelScreen": {
 			"mainTitle": "任务标签",
@@ -417,7 +417,7 @@
 			"labelColorPlaceholder": "颜色",
 			"cancelButtonText": "取消",
 			"createButtonText": "创建",
-			"updateButtonText": "更改"
+			"updateButtonText": "更新"
 		},
 		"sizeScreen": {
 			"mainTitle": "任务大小",
@@ -431,7 +431,7 @@
 			"sizeColorPlaceholder": "颜色",
 			"cancelButtonText": "取消",
 			"createButtonText": "创建",
-			"updateButtonText": "更改"
+			"updateButtonText": "更新"
 		},
 		"membersSettingsScreen": {
 			"mainTitle": "成员与角色",

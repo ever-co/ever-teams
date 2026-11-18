@@ -375,7 +375,7 @@
 			"versionNamePlaceholder": "שם הגרסה",
 			"cancelButtonText": "בטל",
 			"createButtonText": "צור",
-			"updateButtonText": "שינוי"
+			"updateButtonText": "עדכן"
 		},
 		"statusScreen": {
 			"mainTitle": "סטטוסי משימה",
@@ -389,7 +389,7 @@
 			"statusColorPlaceholder": "צבעים",
 			"cancelButtonText": "בטל",
 			"createButtonText": "צור",
-			"updateButtonText": "שינוי"
+			"updateButtonText": "עדכן"
 		},
 		"priorityScreen": {
 			"mainTitle": "עדיפויות משימה",
@@ -403,7 +403,7 @@
 			"priorityColorPlaceholder": "צבעים",
 			"cancelButtonText": "בטל",
 			"createButtonText": "צור",
-			"updateButtonText": "שינוי"
+			"updateButtonText": "עדכן"
 		},
 		"labelScreen": {
 			"mainTitle": "תוויות משימה",
@@ -417,7 +417,7 @@
 			"labelColorPlaceholder": "צבעים",
 			"cancelButtonText": "בטל",
 			"createButtonText": "צור",
-			"updateButtonText": "שינוי"
+			"updateButtonText": "עדכן"
 		},
 		"sizeScreen": {
 			"mainTitle": "גדלי משימה",
@@ -431,7 +431,7 @@
 			"sizeColorPlaceholder": "צבעים",
 			"cancelButtonText": "בטל",
 			"createButtonText": "צור",
-			"updateButtonText": "שינוי"
+			"updateButtonText": "עדכן"
 		},
 		"membersSettingsScreen": {
 			"mainTitle": "חברים ותפקידים",
