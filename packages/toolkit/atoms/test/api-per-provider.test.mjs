@@ -84,6 +84,9 @@ let requests;
 const roots = [];
 // The latest sign-in forms of each provider, by its name.
 const signIns = {};
+// The latest timer and manual time form of each provider, by its name.
+const timers = {};
+const manualTimes = {};
 
 before(async () => {
 	const { bundled, remove } = await bundleKit({
@@ -92,6 +95,8 @@ before(async () => {
 			export { usePasswordLoginForm } from '${kitSources}/hooks/usePasswordLoginForm.ts';
 			export { useTokenSubmission } from '${kitSources}/hooks/useTokenSubmission.ts';
 			export { UserNavMenu } from '${kitSources}/components/forms/auth-forms.tsx';
+			export { useTimer } from '${kitSources}/hooks/useTimer.ts';
+			export { useManualTimeForm } from '${kitSources}/hooks/useManualTimeForm.ts';
 			export { apiConfigManager } from '@ever-teams/api';`,
 		standIns,
 		standInOf
@@ -131,6 +136,15 @@ function SignIn({ name }) {
 	signIns[name] = { password: kit.usePasswordLoginForm({}), token: kit.useTokenSubmission() };
 	return null;
 }
+
+// A timer widget and a manual time form: the timer reads the status while it is mounted.
+function Timer({ name }) {
+	timers[name] = kit.useTimer();
+	manualTimes[name] = kit.useManualTimeForm();
+	return null;
+}
+
+const timerOf = (name) => [React.createElement(Timer, { key: 'timer', name })];
 
 // A provider with the sign-in forms and the given widgets; a sign-out keeps the page where it is.
 function provider(name, config, widgets = []) {
@@ -222,6 +236,39 @@ test("with the host's getToken, each of two providers reads the person from its 
 
 	const reads = requestsTo('/user/me').map(({ host }) => host);
 	assert.deepEqual(reads.sort(), [hostOf(SERVER_A), hostOf(SERVER_B)]);
+});
+
+test('the timer of the second of two providers reads and writes its own API, after the first changed address', async () => {
+	const configB = { apiUrl: SERVER_B };
+	const { root } = await openPage([
+		['a', { apiUrl: SERVER_A }, timerOf('a')],
+		['b', configB, timerOf('b')]
+	]);
+	// The first provider gets another address (an element's api-url changes): the page's address is now that one.
+	await renderPage(root, [
+		['a', { apiUrl: 'https://a2.example.com/api' }, timerOf('a')],
+		['b', configB, timerOf('b')]
+	]);
+	assert.equal(kit.apiConfigManager.getConfig().apiUrl, 'https://a2.example.com/api');
+
+	await signInOn('b');
+	await act(async () => timers.b.startTimer());
+	await settle();
+	await act(async () => timers.b.stopTimer());
+	await settle();
+	const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000);
+	await act(async () => manualTimes.b.setDate(yesterday));
+	await act(async () => manualTimes.b.handleTimeChange('start', '09:00'));
+	await act(async () => manualTimes.b.handleTimeChange('end', '10:00'));
+	await act(async () => manualTimes.b.handleSubmit());
+	await settle();
+
+	assert.ok(requestsTo('/timesheet/timer/status').length > 0, 'the status is read');
+	assert.equal(requestsTo('/timesheet/timer/start').length, 1);
+	assert.equal(requestsTo('/timesheet/timer/stop').length, 1);
+	assert.equal(requestsTo('/timesheet/time-slot').length, 1);
+	assert.equal(requestsTo('/timesheet/time-log').length, 1);
+	assert.deepEqual(new Set(requests.map(({ host }) => host)), new Set([hostOf(SERVER_B)]));
 });
 
 test('a provider alone sends to its own API and still sets the address of the page, as before', async () => {

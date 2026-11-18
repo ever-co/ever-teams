@@ -12,12 +12,14 @@ import {
 	CSSProperties
 } from 'react';
 import { useTranslation } from 'react-i18next';
-import { apiConfigManager, getTimerStatus } from '@ever-teams/api';
+import { getTimerStatus } from '@ever-teams/api';
 import { IServerError, ITimerStatus } from '@ever-teams/toolkit-types';
 import { useTeamsContext } from './teams-context';
 import { KIT_ERROR_MESSAGE_KEYS, KitNotice, kindOfFailedRequest, noticeOfFailure } from '@lib/errors/kit-error';
 import { kitNoticeAtom } from '@lib/errors/kit-notice-atom';
 import { useAtom } from 'jotai';
+import { useKitOptions } from '@components/teams-provider/kit-options';
+import { apiUrlOf } from '@lib/utils/api-url';
 
 // The Ever Teams web app's rate: one status read a minute, and none while the page is hidden.
 export const TIMER_STATUS_REFRESH_MS = 60_000;
@@ -82,6 +84,7 @@ const pageIsVisible = () => document.visibilityState !== 'hidden';
 export function TimerStatusProvider({ children }: Readonly<{ children?: ReactNode }>) {
 	const { t } = useTranslation();
 	const { authenticatedUser: user, token, selectedOrganization: organizationId } = useTeamsContext();
+	const { api } = useKitOptions();
 	const [status, setStatus] = useState<ITimerStatus | null>(null);
 	const [loading, setLoading] = useState(false);
 	const [consumerCount, setConsumerCount] = useState(0);
@@ -148,18 +151,14 @@ export function TimerStatusProvider({ children }: Readonly<{ children?: ReactNod
 			const isCurrent = () => read === latestRead.current && currentIdentity.current === forIdentity;
 			setLoading(true);
 			try {
-				const response = await getTimerStatus(user, token, organizationId);
+				const response = await getTimerStatus(user, token, organizationId, api);
 				if (!isCurrent()) {
 					return;
 				}
 				if (isServerError(response)) {
 					// The API package returns a request that got no answer as an error with no status: the probe says
 					// whether this site is not allowed or Ever Teams is unreachable.
-					const failure = await noticeOfFailure(
-						response,
-						errorMessageOf(response),
-						apiConfigManager.getConfig().apiUrl
-					);
+					const failure = await noticeOfFailure(response, errorMessageOf(response), apiUrlOf(api));
 					if (isCurrent()) {
 						reportNotice(failure);
 					}
@@ -169,7 +168,7 @@ export function TimerStatusProvider({ children }: Readonly<{ children?: ReactNod
 				setStatus(response);
 			} catch {
 				// No answer: the network or the API is down, or the browser blocked the answer for this site.
-				const kind = await kindOfFailedRequest(apiConfigManager.getConfig().apiUrl);
+				const kind = await kindOfFailedRequest(apiUrlOf(api));
 				if (isCurrent()) {
 					reportNotice({ kind });
 				}
@@ -179,7 +178,7 @@ export function TimerStatusProvider({ children }: Readonly<{ children?: ReactNod
 				}
 			}
 		},
-		[user, token, organizationId, reportNotice]
+		[user, token, organizationId, reportNotice, api]
 	);
 
 	// A refresh asked while a read is pending runs one more read after it: the pending read may predate a start or a

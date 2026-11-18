@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { format, subMinutes, addMinutes, isAfter, startOfDay, isToday as isTodayFns } from 'date-fns';
 import { noTeamsState, useForgetOnAccountChange } from './useForgetOnAccountChange';
 import { useUserOrganization } from './useUserOrganization';
+import { useKitOptions } from '@components/teams-provider/kit-options';
 
 const roundToNearest5Min = (date: Date): Date => {
 	const minutes = date.getMinutes();
@@ -20,6 +21,7 @@ const roundToNearest5Min = (date: Date): Date => {
 export const useManualTimeForm = () => {
 	const { authenticatedUser: user, selectedOrganization } = useTeamsContext();
 	const { accessToken: token } = useAccessToken();
+	const { api } = useKitOptions();
 	const { t } = useTranslation(undefined, { keyPrefix: 'MANUAL_TIME_FORM' });
 
 	const [date, setDate] = useState<Date>(new Date());
@@ -141,7 +143,7 @@ export const useManualTimeForm = () => {
 		const generation = accountGeneration.current;
 		const isForPreviousAccount = () => generation !== accountGeneration.current;
 		try {
-			const result = await addManualTime({ token, body });
+			const result = await addManualTime({ token, body }, api);
 			if (isForPreviousAccount()) {
 				return;
 			}
