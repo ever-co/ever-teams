@@ -1,12 +1,16 @@
 import { createIdentity } from './identity';
+import { createTimeEntries, TimeEntriesResource } from './time-entries';
 import { createTimer, TimerResource } from './timer';
 import { createTransport } from './transport';
 import { EverTeamsClientOptions } from './types';
 
+export type { EverTeamsDate } from './dates';
+export type { TimeEntriesListParams, TimeEntriesResource } from './time-entries';
 export type { TimerResource, TimerStartOptions } from './timer';
 
 export interface EverTeamsClient {
 	readonly timer: TimerResource;
+	readonly timeEntries: TimeEntriesResource;
 }
 
 /**
@@ -17,6 +21,7 @@ export function createClient(options: EverTeamsClientOptions): EverTeamsClient {
 	const transport = createTransport(options);
 	const identity = createIdentity(transport, options);
 	return {
-		timer: createTimer(transport, identity)
+		timer: createTimer(transport, identity),
+		timeEntries: createTimeEntries(transport, identity)
 	};
 }
