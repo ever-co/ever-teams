@@ -109,8 +109,10 @@ export default function App() {
 
 The widgets draw in the Ever Teams web app's font, the system UI face (nothing is downloaded), inside the kit root only: your page keeps its own. To give the widgets your page's font, set `--ever-teams-kit-font` on any parent of the widgets, or on `:root` so that their dialogs follow: `:root { --ever-teams-kit-font: Georgia, serif; }`.
 
-`config.apiUrl` is one setting for the whole page: every `TeamsProvider` of a page writes it to the same
-`apiConfigManager`, and every request uses the address set last. Give all the providers of a page the same `apiUrl`.
+Each `TeamsProvider` sends the requests of the components under it to its own `config.apiUrl`: two providers of a
+page can reach two different servers. A provider without `apiUrl` uses the address set with
+`apiConfigManager.setConfig()` of `@ever-teams/api` (`https://api.ever.team/api` by default). Every provider still
+writes its `apiUrl` there, for your own calls to the request functions of that package.
 
 The API must accept your site's origin: on a self-hosted Gauzy API, add it to `ALLOWED_ORIGINS` (comma-separated)
 and restart the API.

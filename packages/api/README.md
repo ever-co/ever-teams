@@ -564,14 +564,20 @@ report. Its refusals are those of the exchange (401, 429, 404, 503), and:
 Every function this package exported before `createClient` is still exported and works as before. They hold the
 requests the kit makes: sign-in, user, organization, teams, tasks, projects, the timer and the time logs. They take
 the user, the token and the kit's state, return an `IServerError` value on a failure instead of throwing, and send
-every request to the one address set with `apiConfigManager.setConfig({ apiUrl })` (default
-`https://api.ever.team/api`); `TeamsProvider` of `@ever-teams/atoms` sets it from its `config.apiUrl`.
+every request to the address set with `apiConfigManager.setConfig({ apiUrl })` (default `https://api.ever.team/api`),
+unless they get one of their own: each takes `{ apiUrl }` as an optional last argument, for a page that talks to two
+APIs. `TeamsProvider` of `@ever-teams/atoms` passes its `config.apiUrl` that way, and sets the page's address from it.
 
 ```js
 import { apiConfigManager, getTimerStatus } from '@ever-teams/api';
 
 apiConfigManager.setConfig({ apiUrl: process.env.EVER_TEAMS_API_URL });
 const status = await getTimerStatus(user, accessToken, organizationId);
+
+// Another API of the same page, for this call only
+const otherStatus = await getTimerStatus(otherUser, otherToken, otherOrganizationId, {
+	apiUrl: 'https://teams.example.com/api'
+});
 ```
 
 A new script or server is simpler with `createClient`. Nothing is deprecated: any change to these functions will be
