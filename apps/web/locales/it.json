@@ -1843,6 +1843,7 @@
 			"SHARE": "Condividi",
 			"SHARE_TITLE": "Condividi un link di sola lettura",
 			"SHARE_NEEDS_SAVE": "Un link condivide un report salvato. Dai un nome a questa vista per salvarla, poi attiva il suo link.",
+			"LABELS_NOT_KEPT": "I report salvati non mantengono ancora le etichette. Per salvare questa vista, svuota il filtro Etichette e raggruppa per qualcosa di diverso da Etichetta.",
 			"SHARE_HINT": "Chi ha il link vede il nome del report, il periodo, i numeri, il grafico e la tabella, senza account. Non si può modificare nulla e mostra solo ciò che puoi vedere tu.",
 			"LINK_ADDRESS": "Indirizzo del link",
 			"COPY": "Copia",
