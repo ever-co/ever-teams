@@ -174,9 +174,12 @@ const TeamsProvider = ({
 	if (hostSignIn) {
 		signInMode = 'host';
 	}
+	// So does another apiUrl (an element's api-url changes): the token held for one server is never sent to the next,
+	// nor saved as its session.
+	const stateKey = [signInMode, apiUrl].join(' ');
 	const content = (
 		<KitOptionsProvider value={{ scoped: scopedStyles, onSignOut, hostSignIn, branding, api }}>
-			<JotaiProvider key={signInMode}>
+			<JotaiProvider key={stateKey}>
 				<TeamsDataProvider {...props} scoped={scopedStyles}>
 					{children}
 				</TeamsDataProvider>

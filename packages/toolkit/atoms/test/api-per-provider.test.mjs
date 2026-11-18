@@ -58,6 +58,7 @@ before(async () => {
 			export { useMember } from '${kitSources}/hooks/useMember.ts';
 			export { useTeamCreationForm } from '${kitSources}/hooks/useTeamCreationForm.ts';
 			export { usePasswordUpdateForm } from '${kitSources}/hooks/usePasswordUpdateForm.ts';
+			export { useTeamsContext } from '${kitSources}/context/teams-context.ts';
 			export { apiConfigManager } from '@ever-teams/api';`,
 		standIns: kitStandIns,
 		standInOf: kitStandInOf
@@ -370,4 +371,105 @@ test('a provider without an apiUrl follows the address the host set with setConf
 
 	assert.ok(requests.length > 0);
 	assert.deepEqual(new Set(requests.map(({ host }) => host)), new Set(['host.example.com']));
+});
+
+// The stand-in API with the answers a test names by host and path: a held one waits until the test lets it go. Each
+// request also records the Authorization header it carried, by host.
+function answering(named) {
+	const standard = recordingFetch(requests);
+	const waiting = [];
+	const sent = [];
+	globalThis.fetch = async (url, init) => {
+		const { host, pathname } = new URL(url);
+		const path = pathname.replace(/^\/api/, '');
+		sent.push({ host, authorization: new Headers(init?.headers).get('authorization') });
+		const answer = await standard(url, init);
+		const own = named.find((entry) => entry.host === host && entry.path === path);
+		if (!own) {
+			return answer;
+		}
+		if (own.held) {
+			await new Promise((resolve) => waiting.push(resolve));
+		}
+		if (own.body === undefined) {
+			return answer;
+		}
+		return Response.json(own.body);
+	};
+	const release = () => {
+		for (const letGo of waiting.splice(0)) {
+			letGo();
+		}
+	};
+	const tokensSentTo = (server) =>
+		sent
+			.filter(({ host, authorization }) => host === hostOf(server) && authorization)
+			.map(({ authorization }) => authorization.replace(/^Bearer /, ''));
+	return { release, tokensSentTo };
+}
+
+// What each provider holds, by its name: its token, the person it shows and the time logs a widget reads.
+const holdings = {};
+
+function Holdings({ name }) {
+	const { token, authenticatedUser } = kit.useTeamsContext();
+	const timeLogs = kit.useTimeLogs();
+	holdings[name] = { token, userId: authenticatedUser?.id ?? null, timeLogs: timeLogs.data };
+	return null;
+}
+
+const holdingsOf = (name) => [React.createElement(Holdings, { key: 'holdings', name })];
+
+// The host's getToken on a server: its backend gets a token of that server.
+const hostSignInOn = (server) => ({
+	apiUrl: server,
+	getToken: async () => ({ token: `${hostOf(server)}-token`, expiresAt: Date.now() + 60 * 60 * 1000 })
+});
+
+test('a sign-in that answers once its provider moved to another address leaves no session there', async () => {
+	const api = answering([{ host: hostOf(SERVER_A), path: '/auth/login', held: true }]);
+	const { root } = await openPage([['a', { apiUrl: SERVER_A }, holdingsOf('a')]]);
+	let signingIn;
+	await act(async () => {
+		signingIn = signIns.a.password.handleSubmit(submitted);
+	});
+
+	await renderPage(root, [['a', { apiUrl: SERVER_B }, holdingsOf('a')]]);
+	await act(async () => {
+		api.release();
+		await signingIn;
+	});
+	await settle();
+
+	assert.deepEqual(holdings.a, { token: '', userId: null, timeLogs: null });
+	assert.equal(localStorage.getItem('_teams-store'), null, 'no session is saved for the page');
+	assert.deepEqual(api.tokensSentTo(SERVER_B), [], "A's token never reaches B");
+});
+
+test('a timer start and a read that answer once their provider moved to another address show nothing there', async () => {
+	const api = answering([
+		{ host: hostOf(SERVER_A), path: '/timesheet/timer/start', held: true },
+		{ host: hostOf(SERVER_A), path: '/timesheet/time-log', held: true, body: [{ id: 'log-of-a' }] },
+		{ host: hostOf(SERVER_B), path: '/timesheet/time-log', body: [{ id: 'log-of-b' }] }
+	]);
+	const widgets = () => [...timerOf('a'), ...holdingsOf('a')];
+	const { root } = await openPage([['a', hostSignInOn(SERVER_A), widgets()]]);
+	await settle();
+	let starting;
+	await act(async () => {
+		starting = timers.a.startTimer();
+	});
+
+	await renderPage(root, [['a', hostSignInOn(SERVER_B), widgets()]]);
+	await settle();
+	await act(async () => {
+		api.release();
+		await starting;
+	});
+	await settle();
+
+	assert.equal(timers.a.isRunning, false, "A's start does not run B's timer");
+	assert.deepEqual(holdings.a.timeLogs, [{ id: 'log-of-b' }]);
+	assert.ok(api.tokensSentTo(SERVER_B).length > 0, 'B is read');
+	assert.deepEqual(new Set(api.tokensSentTo(SERVER_B)), new Set([`${hostOf(SERVER_B)}-token`]));
 });
