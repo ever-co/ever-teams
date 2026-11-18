@@ -220,20 +220,48 @@ test('the color scheme is drawn on the kit root and its portal container, never 
 	await act(async () => root.unmount());
 });
 
+// A kit root of a scoped provider given colorScheme, with a theme toggle in it.
+function schemedRoot(colorScheme) {
+	return React.createElement(kit.KitRoot, { colorScheme }, inKit(true, React.createElement(kit.ThemeToggle)));
+}
+
+const schemeOf = (rendered) => rendered.container.firstElementChild.getAttribute('data-ever-teams-color-scheme');
+
+async function clickScheme(rendered, name) {
+	const [light, dark] = rendered.container.querySelectorAll('button');
+	const button = name === 'dark' ? dark : light;
+	await act(async () => button.dispatchEvent(new window.MouseEvent('click', { bubbles: true })));
+}
+
 test('two kit roots of a page keep the schemes their providers gave them, until a person picks one', async () => {
-	const light = await render(React.createElement(kit.KitRoot, { colorScheme: 'light' }));
-	const dark = await render(React.createElement(kit.KitRoot, { colorScheme: 'dark' }));
-	const schemeOf = (rendered) => rendered.container.firstElementChild.getAttribute('data-ever-teams-color-scheme');
+	const light = await render(schemedRoot('light'));
+	const dark = await render(schemedRoot('dark'));
 
 	assert.equal(schemeOf(light), 'light');
 	assert.equal(schemeOf(dark), 'dark');
 
 	// The theme toggle's choice applies to every widget of the page
-	await act(async () => kit.setKitPreferences({ colorScheme: 'dark', chosenColorScheme: 'dark' }));
+	await clickScheme(light, 'dark');
+	assert.equal(kit.getKitPreferences().chosenColorScheme, 'dark');
 	assert.equal(schemeOf(light), 'dark');
 	assert.equal(schemeOf(dark), 'dark');
 	await act(async () => light.root.unmount());
 	await act(async () => dark.root.unmount());
+});
+
+test('a scheme the host changes after a person picked one applies at once', async () => {
+	const first = await render(schemedRoot('light'));
+	const second = await render(schemedRoot('light'));
+	await clickScheme(first, 'dark');
+	assert.equal(schemeOf(second), 'dark');
+
+	await act(async () => second.root.render(schemedRoot('system')));
+
+	assert.equal(kit.getKitPreferences().chosenColorScheme, null);
+	assert.equal(schemeOf(second), 'light', 'system, and the system is light');
+	assert.equal(schemeOf(first), 'light', 'back to the scheme its own provider gave it');
+	await act(async () => first.root.unmount());
+	await act(async () => second.root.unmount());
 });
 
 test('a font picked with versions up to 0.2.14 is kept, under the prefixed key', () => {
