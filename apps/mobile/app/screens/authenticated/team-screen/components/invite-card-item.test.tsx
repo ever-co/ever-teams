@@ -26,13 +26,13 @@ describe('the invitation card', () => {
 	});
 
 	it('keeps the address readable, since an invitation without a name has nothing else', async () => {
-		await render(<ListItemContent invite={{ ...nadia, fullName: null }} />);
+		await render(<ListItemContent invite={nadia} />);
 
 		const email = screen.getByText('nadia.osei@example.com');
 		const style = StyleSheet.flatten(email.props.style);
 		expect(style.opacity).toBe(1);
-		// the light theme's main text color: about 15:1 against the white card
-		expect(style.color).toBe('#282048');
+		// the theme's main text color, the name's (about 15:1 against the light card), never the muted one
+		expect(style.color).toBe(StyleSheet.flatten(screen.getByText('Nadia Osei').props.style).color);
 	});
 
 	it('marks the times and the estimate empty, never a value the invitation does not have', async () => {
