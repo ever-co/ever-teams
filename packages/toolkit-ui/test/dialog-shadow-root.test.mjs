@@ -69,9 +69,9 @@ after(() => {
 	if (bundleDir) fs.rmSync(bundleDir, { recursive: true, force: true });
 });
 
-// An open dialog with two buttons, rendered in `parent`, its portal container next to it; `focused` lists every
-// button that got the focus.
-async function openDialog(parent, focused) {
+// An open dialog with two buttons (after the elements of `before`), rendered in `parent`, its portal container next to
+// it; `focused` lists every button that got the focus.
+async function openDialog(parent, focused, before = []) {
 	const container = document.createElement('div');
 	const portal = document.createElement('div');
 	parent.append(container, portal);
@@ -90,6 +90,7 @@ async function openDialog(parent, focused) {
 						ui.DialogContent,
 						{ 'aria-describedby': undefined },
 						React.createElement(ui.DialogTitle, null, 'Sign In'),
+						...before,
 						button('first'),
 						button('second')
 					)
@@ -138,5 +139,27 @@ test('in a shadow root Tab loops inside the dialog instead of leaving it for the
 
 	await act(async () => tab(first, true));
 	assert.equal(shadow.activeElement, last, 'Shift+Tab on the first element goes to the last');
+	await act(async () => root.unmount());
+});
+
+test('in a shadow root the Tab loop skips the controls Tab cannot reach', async () => {
+	const host = document.createElement('div');
+	document.body.appendChild(host);
+	const shadow = host.attachShadow({ mode: 'open' });
+	const hidden = [
+		React.createElement('input', { type: 'hidden', key: 'token', name: 'token', value: 'x' }),
+		React.createElement('button', { type: 'button', key: 'hidden', hidden: true }, 'hidden')
+	];
+	const { root, portal } = await openDialog(shadow, [], hidden);
+	const buttons = [...portal.querySelector('[role="dialog"]').querySelectorAll('button:not([hidden])')];
+	const first = buttons[0];
+	const last = buttons.at(-1);
+
+	await act(async () => first.focus());
+	await act(async () =>
+		first.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', shiftKey: true, bubbles: true, composed: true }))
+	);
+	assert.equal(first.textContent, 'first');
+	assert.equal(shadow.activeElement, last, 'Shift+Tab on the first shown control goes to the last');
 	await act(async () => root.unmount());
 });

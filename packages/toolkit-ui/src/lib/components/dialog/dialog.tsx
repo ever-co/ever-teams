@@ -59,12 +59,30 @@ function focusDialogInShadowRoot(event: Event) {
 	content.focus();
 }
 
-const FOCUSABLE = 'a[href], button, input, select, textarea, [tabindex]';
+const FOCUSABLE = 'a[href], button, input:not([type="hidden"]), select, textarea, [tabindex]';
+
+// Whether Tab reaches the element: in the tab order, enabled, and shown (not under a hidden or inert ancestor, and not
+// hidden by its styles where the browser can tell).
+function isTabbable(element: HTMLElement): boolean {
+	if (element.tabIndex < 0) {
+		return false;
+	}
+	if (element.hasAttribute('disabled')) {
+		return false;
+	}
+	if (element.closest('[hidden], [inert]')) {
+		return false;
+	}
+	if (typeof element.checkVisibility === 'function') {
+		return element.checkVisibility();
+	}
+	return true;
+}
 
 // The elements Tab reaches in the dialog, in order.
 function tabbableIn(content: HTMLElement): HTMLElement[] {
 	const candidates = Array.from(content.querySelectorAll<HTMLElement>(FOCUSABLE));
-	return candidates.filter((element) => element.tabIndex >= 0 && !element.hasAttribute('disabled'));
+	return candidates.filter(isTabbable);
 }
 
 // Radix's Tab trap compares document.activeElement too: inside a shadow root, Tab from the last element, or Shift+Tab
