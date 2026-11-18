@@ -195,6 +195,9 @@ What the kit does with it:
   refuses the token (until a request succeeds again). Calls never overlap: the widgets of a provider share one.
 - The token stays in memory: nothing is written to `localStorage`, and the user menu shows no token and no sign-out.
 - The kit reads the organization from the token and lists no other: the token reaches only the timer of that person.
+- The timer's project picker lists the projects the token may track time on, read from `GET /api/embed/projects`
+  ([ever-co/ever-gauzy#12080](https://github.com/ever-co/ever-gauzy/issues/12080)); against an API without that route
+  it stays empty. The client and task pickers stay empty: the token reads no clients or tasks.
 - When `getToken` throws or rejects, or answers a token with no `expiresAt` or one less than 10 seconds away, the
   widgets show the person as signed out, and `TeamsLoginDialog` says "Sign in to this site to use your Ever Teams
   timer." instead of asking for a password. The kit asks again when the page comes back (focus, or the tab visible
