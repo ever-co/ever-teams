@@ -317,7 +317,7 @@
 		"@ever-teams/types": "*",
 		"@hapi/shot": "^6.0.1",
 		"@lerna/legacy-package-management": "^8.1.2",
-		"@next/eslint-plugin-next": "^16.4.2",
+		"@next/eslint-plugin-next": "^16.4.6",
 		"@nx/cypress": "^23.3.0",
 		"@nx/detox": "^23.3.0",
 		"@nx/eslint-plugin": "^23.3.0",
