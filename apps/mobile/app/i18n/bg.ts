@@ -1,5 +1,6 @@
 const bg = {
 	common: {
+		openMenu: 'Отвори менюто',
 		ok: 'OK!',
 		cancel: 'Cancel',
 		back: 'Back',
@@ -15,6 +16,8 @@ const bg = {
 		endedMessage: 'Влезте отново, за да продължите.'
 	},
 	timer: {
+		startLabel: 'Пусни таймера',
+		stopLabel: 'Спри таймера',
 		stopFailedTitle: 'Таймерът не можа да спре',
 		stopFailedMessage: 'Той все още работи. Опитайте отново след малко.',
 		startMove: {

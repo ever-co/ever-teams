@@ -1,0 +1,26 @@
+# Chooses a task in the Work tab when none is chosen yet: the timer only starts on a task.
+appId: ${APP_ID}
+---
+- runFlow:
+    when:
+      visible:
+        id: "timer-start"
+        enabled: false
+    commands:
+      - tapOn:
+          id: "task-picker-field"
+      # the keyboard opens with the field and covers the task list under it
+      - hideKeyboard
+      - scrollUntilVisible:
+          element:
+            id: "task-picker-option"
+          direction: DOWN
+          timeout: 20000
+      - tapOn:
+          id: "task-picker-option"
+          index: 0
+- extendedWaitUntil:
+    visible:
+      id: "timer-start"
+      enabled: true
+    timeout: 20000

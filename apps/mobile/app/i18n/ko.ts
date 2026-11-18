@@ -2,6 +2,7 @@ import { Translations } from './en';
 
 const ko: Translations = {
 	common: {
+		openMenu: '메뉴 열기',
 		ok: '확인!',
 		cancel: '취소',
 		loading: 'Loading',
@@ -17,6 +18,8 @@ const ko: Translations = {
 		endedMessage: '계속하려면 다시 로그인하세요.'
 	},
 	timer: {
+		startLabel: '타이머 시작',
+		stopLabel: '타이머 중지',
 		stopFailedTitle: '타이머를 중지할 수 없습니다',
 		stopFailedMessage: '아직 실행 중입니다. 잠시 후 다시 시도하세요.',
 		startMove: {

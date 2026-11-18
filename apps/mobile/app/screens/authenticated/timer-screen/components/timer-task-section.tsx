@@ -90,6 +90,7 @@ const TimerTaskSection = observer(
 						</Text>
 						<TextInput
 							ref={inputRef}
+							testID="task-picker-field"
 							selectionColor={colors.primary}
 							placeholderTextColor={colors.tertiary}
 							style={[
