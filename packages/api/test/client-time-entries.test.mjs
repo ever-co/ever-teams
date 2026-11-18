@@ -73,7 +73,10 @@ test('a date that is not one, or a range that ends before it starts, is refused 
 	// Date rolls these over to March 1 and May 1: a date-time names a day that exists, or is refused.
 	const rolledOver = [
 		{ from: '2026-02-29T00:00:00.000Z', to: '2026-03-02' },
-		{ from: '2026-04-31T08:00:00+02:00', to: '2026-05-02' }
+		{ from: '2026-04-31T08:00:00+02:00', to: '2026-05-02' },
+		{ from: '2026-02-29 00:00:00Z', to: '2026-03-02' },
+		{ from: '2026-02-29t00:00:00z', to: '2026-03-02' },
+		{ from: '+002026-02-29T00:00:00Z', to: '2026-03-02' }
 	];
 	for (const range of rolledOver) {
 		await assert.rejects(teams.timeEntries.list(range), { code: 'INVALID_DATE' });
@@ -90,4 +93,6 @@ test('a date-time on a leap day, or with an offset, is a date-time like any othe
 	const { query } = api.requests[1];
 	assert.equal(query.startDate, '2028-02-29T00:00:00.000Z');
 	assert.equal(query.endDate, '2028-03-01T08:00:00.000Z');
+	// The year 0 is a leap year, not 1900.
+	await assert.doesNotReject(teams.timeEntries.list({ from: '0000-02-29T00:00:00Z', to: '0000-03-01' }));
 });
