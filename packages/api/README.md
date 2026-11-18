@@ -272,7 +272,7 @@ shape for the timer and time entry routes, so the recorded answers are the refer
 - `test/contract-answers.test.mjs` serves each method its recorded answer and checks that the method sends the
   recorded route and returns that answer.
 - `test/contract-privacy.test.mjs` checks that the recordings hold no personal data: every text is a placeholder or a
-  value the API picks from a list (a log type, a status, a currency), with no email address, token or id.
+  value the API picks from a fixed list (a log type, a source, a currency), with no email address, token or id.
 
 When the API changes an answer, recording it again shows the change in the fixtures, and the type test names the
 field that no longer fits.
@@ -294,8 +294,9 @@ other than `localhost` unless `EVER_TEAMS_CONTRACT_REMOTE=1` is set, since it ch
 the account's timer twice (once bare, once on one of its tasks) and stops it, reads the day's time entries and totals,
 then deletes the two time entries it created. It refuses an account whose timer runs, so the timer stays as it was.
 
-Before writing, it replaces ids, names, emails, addresses, dates and amounts of money with placeholders of the same
-form (`<employee-1>`, `person-1@example.com`, dates from `2000-01-01`). It lists the real values it replaced in
+Before writing, it replaces ids, names, emails, addresses, dates, amounts of money and the labels each organization
+names itself (a task's status, priority, size and type) with placeholders of the same form (`<employee-1>`,
+`<status-1>`, `person-1@example.com`, dates from `2000-01-01`). It lists the real values it replaced in
 `ever-teams-api-contract-forbidden.json` in the system's temporary folder, where the privacy test also looks for them.
 
 ## License

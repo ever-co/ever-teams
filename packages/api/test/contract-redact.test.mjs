@@ -123,7 +123,6 @@ test('values picked from a list, numbers, booleans, null and empty text are kept
 	const answer = {
 		logType: 'TRACKED',
 		source: 'EMBED',
-		status: 'in-progress',
 		duration: 5400,
 		isRunning: false,
 		description: null,
@@ -135,6 +134,29 @@ test('values picked from a list, numbers, booleans, null and empty text are kept
 
 	assert.deepEqual(fixtureOf(result, 'timer.stop').answer, { ...answer, billRateValue: 0, minimumBillingRate: 0 });
 	assert.ok(KEPT_KEYS.has('logType'));
+});
+
+test("the labels an organization names itself become placeholders, even one holding a person's name", () => {
+	const label = 'Waiting for Lina Okafor';
+	const result = redactRecordings([
+		recording(
+			'tasks.list',
+			[
+				{ status: label, priority: 'Northwind urgent', size: 'Large', issueType: 'Bug' },
+				{ status: label, priority: null, size: 'Small', issueType: 'Bug' }
+			],
+			'task'
+		)
+	]);
+
+	assert.deepEqual(fixtureOf(result, 'tasks.list').answer, [
+		{ status: '<status-1>', priority: '<priority-1>', size: '<size-1>', issueType: '<issueType-1>' },
+		{ status: '<status-1>', priority: null, size: '<size-2>', issueType: '<issueType-1>' }
+	]);
+	assert.ok(result.forbidden.includes(label));
+	for (const key of ['status', 'priority', 'size', 'issueType']) {
+		assert.equal(KEPT_KEYS.has(key), false, key);
+	}
 });
 
 test('a token is never kept, and a version that only looks dotted is not taken for one', () => {

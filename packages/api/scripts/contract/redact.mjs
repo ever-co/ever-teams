@@ -9,8 +9,10 @@ const URL_TEXT = /^https?:\/\//i;
 const DATE_TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,3})?Z$/;
 const DAY = /^\d{4}-\d{2}-\d{2}$/;
 
-// Fields whose text is a value the API picks from a list (a log type, a status, a currency), never a person's data:
-// kept, so the fixtures show what the API answers and the types can name those values.
+// Fields whose text is a value the API picks from a fixed list (a log type, a source, a currency), never a person's
+// data: kept, so the fixtures show what the API answers and the types can name those values. A task's status,
+// priority, size and type are not among them: each organization names its own, and a label may hold the name of a
+// person or a client, so it gets a placeholder like any other text.
 export const KEPT_KEYS = new Set([
 	'billing',
 	'billRateCurrency',
@@ -18,15 +20,11 @@ export const KEPT_KEYS = new Set([
 	'currencyPosition',
 	'defaultBillRateCurrency',
 	'defaultValueDateType',
-	'issueType',
 	'kind',
 	'logType',
 	'preferredComponentLayout',
 	'preferredLanguage',
-	'priority',
-	'size',
 	'source',
-	'status',
 	'taskListType'
 ]);
 

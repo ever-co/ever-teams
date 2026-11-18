@@ -108,7 +108,7 @@
 				"number": 1,
 				"prefix": "<prefix-1>",
 				"description": null,
-				"status": "open",
+				"status": "<status-1>",
 				"priority": null,
 				"size": null,
 				"issueType": null,
