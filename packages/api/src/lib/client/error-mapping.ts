@@ -38,7 +38,7 @@ const SERVER_STEP =
 
 const OTHER_STEP = 'The API refused the request: error.message says why.';
 
-const isRecord = (value: unknown): value is { [key: string]: unknown } =>
+export const isRecord = (value: unknown): value is { [key: string]: unknown } =>
 	typeof value === 'object' && value !== null && !Array.isArray(value);
 
 const isText = (value: unknown): value is string => typeof value === 'string';
@@ -69,7 +69,7 @@ function textOf(response: Response, body: unknown): string {
 	return response.statusText || `HTTP ${response.status}`;
 }
 
-function codeOf(body: unknown): string | undefined {
+export function codeOf(body: unknown): string | undefined {
 	if (isRecord(body) && isText(body['code'])) {
 		return body['code'];
 	}
