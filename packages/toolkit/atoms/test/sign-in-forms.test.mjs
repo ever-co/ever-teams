@@ -40,7 +40,7 @@ const stubs = {
 		handleSubmit() {}, handleInputChange() {}, formData: { email: '', password: '' }, error: globalThis.formError, loading: false
 	});`,
 	'token-hook': `export const useTokenSubmission = () => ({
-		handleSubmit() {}, handleInputChange() {}, tokenInput: '', error: globalThis.formError, isLoading: false
+		handleSubmit() {}, handleInputChange() {}, tokenInput: '', error: globalThis.formError, isLoading: Boolean(globalThis.formLoading)
 	});`,
 	'registration-hook': `export const useRegistrationForm = () => ({
 		handleSubmit() {}, handleInputChange() {}, handleCheckboxChange() {}, loading: false,
@@ -193,6 +193,16 @@ test('the token form names its field and keeps its button text', () => {
 	);
 	assert.match(fields[0].input, /name="token"/);
 	assert.match(markup, />AUTH\.sign_in_title<\/button>/);
+});
+
+test('the token form cannot be sent again while its token is checked', () => {
+	globalThis.formLoading = true;
+	try {
+		assert.match(render(kit.TeamsTokenLoginForm), /<button[^>]*disabled=""/);
+	} finally {
+		globalThis.formLoading = false;
+	}
+	assert.doesNotMatch(render(kit.TeamsTokenLoginForm), /<button[^>]*disabled=""/);
 });
 
 test('the registration form names its four fields, says a refusal on the notice, and keeps its button text', () => {

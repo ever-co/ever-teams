@@ -45,7 +45,7 @@ const AUTH_LINK =
 const AUTH_LINK_BUTTON = cn('border-none bg-transparent p-0 font-inherit', AUTH_LINK);
 
 // The title of the sign-in and registration forms, above a separator.
-function AuthFormTitle({ children }: { children: React.ReactNode }) {
+function AuthFormTitle({ children }: Readonly<{ children: React.ReactNode }>) {
 	return (
 		<div className="mb-4 border-b border-border pb-4 text-foreground">
 			<h1 className="text-xl font-semibold">{children}</h1>
@@ -460,7 +460,7 @@ const TeamsRegistrationForm = ({
 
 			<KitFormError message={form.errors?.[0]} />
 
-			<ThemedButton disabled={form.loading || form.errors?.[0] ? true : false} className="flex h-9 gap-2 mt-5">
+			<ThemedButton disabled={Boolean(form.loading || form.errors?.[0])} className="flex h-9 gap-2 mt-5">
 				{form.loading && (
 					<span className="animate-spin">
 						<LoaderCircle />

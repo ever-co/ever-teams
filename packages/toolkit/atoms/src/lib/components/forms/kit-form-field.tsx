@@ -19,7 +19,7 @@ export type KitFormFieldProps = Omit<IInputProps, 'id' | 'className'> & {
 /**
  * A labelled input of the kit's forms. The label names the input for screen readers and focuses it when clicked.
  */
-export function KitFormField({ label, className, ...props }: KitFormFieldProps) {
+export function KitFormField({ label, className, ...props }: Readonly<KitFormFieldProps>) {
 	const id = useId();
 	return (
 		<div className={cn('flex flex-col gap-2', className)}>
@@ -34,7 +34,7 @@ export function KitFormField({ label, className, ...props }: KitFormFieldProps) 
 /**
  * What a form could not do, on the kit's error notice. Screen readers read it out when it appears.
  */
-export function KitFormError({ message }: { message?: string | null }) {
+export function KitFormError({ message }: Readonly<{ message?: string | null }>) {
 	if (!message) {
 		return null;
 	}

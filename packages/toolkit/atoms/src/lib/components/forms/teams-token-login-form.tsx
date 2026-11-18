@@ -24,7 +24,11 @@ const TeamsTokenLoginForm = ({ className, redirectHandler }: { className?: strin
 
 			<KitFormError message={form.error} />
 
-			<Button style={{ background: mainColor }} disabled={form.error ? true : false} className="flex h-9 gap-2">
+			<Button
+				style={{ background: mainColor }}
+				disabled={Boolean(form.error) || form.isLoading}
+				className="flex h-9 gap-2"
+			>
 				{form.isLoading && (
 					<span className=" animate-spin ">
 						<LoaderCircle />

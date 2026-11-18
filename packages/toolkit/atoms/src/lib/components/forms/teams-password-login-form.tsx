@@ -39,7 +39,7 @@ const TeamsPasswordLoginForm = ({
 
 			<KitFormError message={form.error} />
 
-			<ThemedButton disabled={(form.error ? true : false) || form.loading} className="flex h-9 gap-2">
+			<ThemedButton disabled={Boolean(form.error) || form.loading} className="flex h-9 gap-2">
 				{form.loading && (
 					<span className=" animate-spin ">
 						<LoaderCircle />
