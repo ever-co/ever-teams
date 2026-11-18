@@ -28,7 +28,8 @@ A change of attribute applies at once. Removing the element stops the timer's di
 
 ## Examples
 
-`examples/` holds two pages that run as they are once the files of `dist/` sit next to them, and a Svelte component:
+`examples/` holds two pages that run as they are once the files of `dist/` sit next to them, a Svelte component and an
+Angular app:
 
 - `html/`: a plain page.
 - `vue/`: a Vue app on Vue's browser build, which goes next to the page too (`dist/vue.esm-browser.prod.js` of the `vue`
@@ -38,11 +39,15 @@ A change of attribute applies at once. Removing the element stops the timer's di
 - `svelte/`: a component for a Svelte app, which compiles it with its own build, like its other components, and
   resolves `@ever-teams/embed` to the package or to the `dist/` file it serves. The component loads the package in
   `onMount` and binds `color-scheme`. Svelte needs no setting.
+- `angular/`: an Angular app with its own `package.json`, built by Angular's application builder. Its standalone root
+  component holds the element, binds `api-url` and `color-scheme`, and loads the package in the browser only. Its
+  README says how to run it.
 
 `@ever-teams/embed` is not published on npm yet (see [Release](#release)): until it is, an app resolves that name
-to the `dist/` file it serves, as the Svelte example says.
+to the `dist/` file it serves, as the Svelte example says, or installs it from this folder, as the Angular example does
+with `"@ever-teams/embed": "file:../.."`.
 
-Angular needs the custom elements schema on the component that holds the element:
+Angular needs the custom elements schema on the component that holds the element, as `examples/angular/` does:
 
 ```ts
 import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
@@ -57,10 +62,14 @@ import '@ever-teams/embed';
 export class TimerComponent {}
 ```
 
+The element reads attributes: a value that comes from the component's state goes through `[attr.color-scheme]="..."`,
+as the example binds it. `[color-scheme]="..."` or `color-scheme="{{ ... }}"` sets a property of that name, which the
+element ignores.
+
 An app that renders on the server loads the package in the browser only: the element extends `HTMLElement`, which a
 server does not have. In Svelte that is `onMount`, as the example does; in Angular, add `afterNextRender` to the
 `@angular/core` import and call `afterNextRender(() => import('@ever-teams/embed'))` in the component's constructor,
-in place of the import above.
+in place of the import above, as the Angular example does.
 
 In a site editor, a custom HTML block takes the script tag and the element as they are, once your site serves the
 files of `dist/`.
