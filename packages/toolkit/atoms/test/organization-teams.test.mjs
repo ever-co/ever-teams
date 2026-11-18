@@ -126,3 +126,49 @@ test('without getToken the teams read is the full one, as before', async () => {
 	assert.equal(reads.length, 1);
 	assert.notEqual(reads[0].embedded, true);
 });
+
+// The teams reads of a timer whose project changes once, in a provider with or without the host's getToken
+async function teamsReadsAcrossProjects({ hostSignIn }) {
+	globalThis.__teamsReads = [];
+	globalThis.__teamsContext = {
+		authenticatedUser: { id: 'user-1', tenantId: 'tenant-1', employee: { id: 'employee-1' } },
+		token: 'token',
+		selectedOrganization: 'org-1'
+	};
+	const Teams = ({ projectId }) => {
+		kit.useOrganizationTeams({ projectId });
+		return null;
+	};
+	const root = createRoot(document.createElement('div'));
+	const options = { scoped: true, hostSignIn };
+	const renderFor = (projectId) =>
+		act(async () =>
+			root.render(
+				React.createElement(
+					kit.KitOptionsProvider,
+					{ value: options },
+					React.createElement(Teams, { projectId })
+				)
+			)
+		);
+	await renderFor('project-1');
+	await renderFor('project-2');
+	await act(async () => root.unmount());
+	return globalThis.__teamsReads;
+}
+
+test("with the host's getToken another project does not read the same teams again", async () => {
+	const reads = await teamsReadsAcrossProjects({ hostSignIn: true });
+
+	assert.equal(reads.length, 1);
+	assert.equal(reads[0].projectId, null);
+});
+
+test('without getToken another project reads its teams, as before', async () => {
+	const reads = await teamsReadsAcrossProjects({ hostSignIn: false });
+
+	assert.deepEqual(
+		reads.map((read) => read.projectId),
+		['project-1', 'project-2']
+	);
+});

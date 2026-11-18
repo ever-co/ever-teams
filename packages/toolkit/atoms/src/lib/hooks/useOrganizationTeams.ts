@@ -5,6 +5,14 @@ import { toast } from '@ever-teams/toolkit-ui';
 import { useTeamsContext } from '@lib/context/teams-context';
 import { useKitOptions } from '@components/teams-provider/kit-options';
 
+// The embedded read is never filtered by project: another project must not read the same teams again
+function projectFilterOf(projectId: string | null, embedded: boolean): string | null {
+	if (embedded) {
+		return null;
+	}
+	return projectId;
+}
+
 export const useOrganizationTeams = ({
 	projectId
 }: {
@@ -18,13 +26,20 @@ export const useOrganizationTeams = ({
 	const { authenticatedUser: user, token, selectedOrganization: organizationId } = useTeamsContext();
 	// A token from the host's getToken reads only the member's teams, as the API allows it
 	const { hostSignIn: embedded } = useKitOptions();
+	const teamsProjectId = projectFilterOf(projectId, embedded);
 
 	useEffect(() => {
 		if (user && organizationId) {
 			(async () => {
 				setTeams((prev) => ({ ...prev, loading: true }));
 
-				const userTeams = await getOrganisationTeams({ user, token, organizationId, projectId, embedded });
+				const userTeams = await getOrganisationTeams({
+					user,
+					token,
+					organizationId,
+					projectId: teamsProjectId,
+					embedded
+				});
 
 				if ('message' in userTeams || 'error' in userTeams) {
 					const errorMessage =
@@ -45,7 +60,7 @@ export const useOrganizationTeams = ({
 				setTeams({ data: userTeams, loading: false });
 			})();
 		}
-	}, [user, projectId, organizationId, embedded]);
+	}, [user, teamsProjectId, organizationId, embedded]);
 
 	return teams;
 };
