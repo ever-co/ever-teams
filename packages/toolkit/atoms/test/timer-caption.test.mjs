@@ -111,11 +111,8 @@ test('the kit timers say Today by default, also to screen readers, and a host ca
 	};
 	renderToStaticMarkup(React.createElement(Probe));
 
-	assert.deepEqual(control.defaults, { caption: 'COMMON.today' });
+	assert.equal(control.caption, 'COMMON.today');
 	assert.match(renderToStaticMarkup(control.description), /COMMON\.today 01:02:03/);
-	// `defaults` goes before the host's props: a host's own caption, or null, wins.
-	const props = { ...control.action, ...control.defaults, ...{ caption: null }, ...control.state };
-	assert.equal(props.caption, null);
 });
 
 test('a caption the host gives the timer is what screen readers hear too, and null leaves only the time', () => {
@@ -144,4 +141,11 @@ test('the connected basic timer shows and describes the host caption, and drops 
 	assert.doesNotMatch(own, /COMMON\.today/);
 	assert.doesNotMatch(none, /COMMON\.today/);
 	assert.match(none, />01:02:03</);
+});
+
+test('a caption the host sets to undefined is the default one, shown and described alike', () => {
+	const unset = renderToStaticMarkup(React.createElement(kit.TeamsBasicTimer, { caption: undefined }));
+
+	assert.match(unset, /COMMON\.today<\/span>/);
+	assert.match(unset, /COMMON\.today 01:02:03/);
 });

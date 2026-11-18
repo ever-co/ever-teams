@@ -18,8 +18,8 @@ export function TeamsBasicTimer({ progress, ...props }: TeamsBasicTimerProps) {
 		<>
 			<BaseAtom
 				{...control.action}
-				{...control.defaults}
 				{...props}
+				caption={control.caption}
 				{...control.state}
 				{...(progress && { progress: (control.seconds / 100) * 60 })}
 			/>

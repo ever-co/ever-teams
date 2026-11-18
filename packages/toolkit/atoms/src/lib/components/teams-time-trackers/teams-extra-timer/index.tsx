@@ -21,8 +21,8 @@ export function TeamsExtraTimer({ progress, ...props }: Readonly<TeamsExtraTimer
 		<>
 			<BaseAtom
 				{...control.action}
-				{...control.defaults}
 				{...props}
+				caption={control.caption}
 				{...control.state}
 				{...(progress && { progress: (control.seconds / 100) * 60 })}
 				customButtonIcon={<ActionButton />}

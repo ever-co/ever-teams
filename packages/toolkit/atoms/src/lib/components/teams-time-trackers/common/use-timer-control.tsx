@@ -7,9 +7,9 @@ import { TimerDescription } from './timer-description';
 /**
  * What the basic, custom, essential and extra timers give their button. `action` goes before the host's props, so a
  * host can still name the button its own way; `state` goes after them, as the timer decides it. `description` holds the
- * time the button shows, which its aria-label (Start timer, Stop timer) replaces as its name. `defaults` goes before the
- * host's props too: the caption "Today" before the time (the time tracked today), which a host can replace or drop.
- * `hostCaption` is the caption the host gave the timer, so screen readers hear what is shown: its text, or none.
+ * time the button shows, which its aria-label (Start timer, Stop timer) replaces as its name. `caption` goes after the
+ * host's props: "Today" before the time (the time tracked today) unless `hostCaption`, the caption the host gave the
+ * timer, replaces it or drops it with null, so the timer shows what screen readers hear.
  */
 export function useTimerControl(hostCaption?: ReactNode) {
 	const { authenticatedUser } = useTeamsContext();
@@ -23,8 +23,7 @@ export function useTimerControl(hostCaption?: ReactNode) {
 	} = useTimer();
 	const timeId = useId();
 	const { t } = useTranslation();
-	const caption = t('COMMON.today');
-	let shownCaption: ReactNode = caption;
+	let shownCaption: ReactNode = t('COMMON.today');
 	if (hostCaption !== undefined) {
 		shownCaption = hostCaption;
 	}
@@ -47,7 +46,7 @@ export function useTimerControl(hostCaption?: ReactNode) {
 			time: { hours, minutes, seconds, totalSeconds },
 			disabled: timerLoading || !authenticatedUser
 		},
-		defaults: { caption },
+		caption: shownCaption,
 		description: (
 			<TimerDescription id={timeId} caption={spokenCaption} hours={hours} minutes={minutes} seconds={seconds} />
 		)

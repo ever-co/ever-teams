@@ -26,8 +26,8 @@ export function TeamsEssentialTimer({ progress, ...props }: Readonly<TeamsEssent
 		<>
 			<BaseAtom
 				{...control.action}
-				{...control.defaults}
 				{...props}
+				caption={control.caption}
 				{...control.state}
 				{...(progress && { progress: (control.seconds / 100) * 60 })}
 				customButtonIcon={<ActionButton />}
