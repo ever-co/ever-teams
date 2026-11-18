@@ -98,15 +98,21 @@ describe('the language at start', () => {
 describe('the language of the profile', () => {
 	it('is saved before the restart for its direction is offered', async () => {
 		(layOutFor as jest.Mock).mockReturnValue(true);
-		const events: string[] = [];
-		(announceLayoutRestart as jest.Mock).mockImplementation(() => events.push('announced'));
-		const save = jest.fn(async () => {
-			events.push('saved');
-		});
+		let finishSaving: () => void = () => undefined;
+		const save = jest.fn(
+			() =>
+				new Promise<void>((resolve) => {
+					finishSaving = resolve;
+				})
+		);
 
-		await applyProfileLanguage('ar', save);
+		const applying = applyProfileLanguage('ar', save);
+		await Promise.resolve();
+		expect(announceLayoutRestart).not.toHaveBeenCalled();
 
-		expect(events).toEqual(['saved', 'announced']);
+		finishSaving();
+		await applying;
+		expect(announceLayoutRestart).toHaveBeenCalledTimes(1);
 		expect(currentLocale()).toBe('ar');
 	});
 
