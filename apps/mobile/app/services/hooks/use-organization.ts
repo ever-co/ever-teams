@@ -27,7 +27,7 @@ function useCreateOrganizationTeam() {
 	const [createTeamLoading, setCreateTeamLoading] = useState(false);
 	const teamsRef = useRef(teams);
 
-	teamsRef.current  = teams;
+	teamsRef.current = teams;
 
 	const { user } = useAuthenticateUser();
 
@@ -151,7 +151,13 @@ export function useOrganizationTeam() {
 
 	const [isTeamManager, setIsTeamManager] = useState(false);
 	const [teamsFetching, setTeamsFetching] = useState(false);
-	const currentTeam = useActiveTeamDetails({ tenantId, organizationId, activeTeamId, authToken, teams: organizationTeams });
+	const currentTeam = useActiveTeamDetails({
+		tenantId,
+		organizationId,
+		activeTeamId,
+		authToken,
+		teams: organizationTeams
+	});
 
 	const members = activeTeam?.members || [];
 
@@ -162,7 +168,6 @@ export function useOrganizationTeam() {
 	const $otherMembers = members.filter((m) => {
 		return m.employee.userId !== user?.id;
 	});
-
 
 	const activeTeamManagers = members.filter((m) => m.role?.name === 'MANAGER');
 
