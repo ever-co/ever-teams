@@ -80,7 +80,11 @@ function buttonLookOf(theme: Theme, running: boolean): ButtonLook {
 	};
 }
 
-function TimerButton({ running, enabled, onPress }: { running: boolean; enabled: boolean; onPress: () => void }) {
+function TimerButton({
+	running,
+	enabled,
+	onPress
+}: Readonly<{ running: boolean; enabled: boolean; onPress: () => void }>) {
 	const theme = useShellTheme();
 	const look = buttonLookOf(theme, running);
 	return (
@@ -107,7 +111,7 @@ function TimerButton({ running, enabled, onPress }: { running: boolean; enabled:
 }
 
 /** A read that failed: what did not load, and a way to read it again. */
-function FailedRead({ message, onRetry }: { message: string; onRetry: () => void }) {
+function FailedRead({ message, onRetry }: Readonly<{ message: string; onRetry: () => void }>) {
 	const theme = useShellTheme();
 	return (
 		<View accessibilityLiveRegion="polite" style={styles.failedRead}>
@@ -138,7 +142,7 @@ interface TaskOfTheLogProps {
 	onRetry: () => void;
 }
 
-function TaskOfTheLog({ log, task, running, failed, onRetry }: TaskOfTheLogProps) {
+function TaskOfTheLog({ log, task, running, failed, onRetry }: Readonly<TaskOfTheLogProps>) {
 	const theme = useShellTheme();
 	if (!log?.taskId) {
 		return (
@@ -168,7 +172,7 @@ function TaskOfTheLog({ log, task, running, failed, onRetry }: TaskOfTheLogProps
 	);
 }
 
-function ActionFailure({ title, message }: { title: string; message: string }) {
+function ActionFailure({ title, message }: Readonly<{ title: string; message: string }>) {
 	const theme = useShellTheme();
 	return (
 		<View accessibilityLiveRegion="polite" style={styles.failure}>

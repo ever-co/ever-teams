@@ -16,7 +16,7 @@ export const sessionAtom = atom<SessionState>({ status: 'loading' });
 export const isSignedInAtom = atom((get) => get(sessionAtom).status === 'signed-in');
 
 function base64ToText(base64url: string): string {
-	const base64 = base64url.replace(/-/g, '+').replace(/_/g, '/');
+	const base64 = base64url.replaceAll('-', '+').replaceAll('_', '/');
 	const padding = '='.repeat((4 - (base64.length % 4)) % 4);
 	return atob(base64 + padding);
 }

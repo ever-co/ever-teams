@@ -17,7 +17,7 @@ interface ShellPageProps {
 }
 
 /** A page of the new app: its title, the offline notice, and its screen or, while it is being built, what comes next. */
-export function ShellPage({ title, emptyTitle, emptyMessage, children }: ShellPageProps) {
+export function ShellPage({ title, emptyTitle, emptyMessage, children }: Readonly<ShellPageProps>) {
 	const preference = useAtomValue(themePreferenceAtom);
 	const theme = useTheme(preference);
 	const insets = useSafeAreaInsets();

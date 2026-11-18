@@ -14,7 +14,7 @@ interface TimerDigitsProps {
 }
 
 /** Today's tracked time, counting each second while the timer runs. The only part of Home that renders each second. */
-export function TimerDigits({ counted, countedAt, running }: TimerDigitsProps) {
+export function TimerDigits({ counted, countedAt, running }: Readonly<TimerDigitsProps>) {
 	const theme = useShellTheme();
 	const now = useNow(running);
 	const seconds = liveSeconds(counted, countedAt, now, running);
