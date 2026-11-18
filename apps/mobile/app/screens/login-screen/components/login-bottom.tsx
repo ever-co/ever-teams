@@ -24,7 +24,7 @@ const LoginBottom = () => {
 						styles.toggle,
 						dark ? { backgroundColor: '#1D222A' } : { backgroundColor: '#E7E7EA', paddingRight: 4 }
 					]}
-					onPress={() => toggleTheme()}
+					onPress={() => toggleTheme(dark)}
 				>
 					{dark ? (
 						<View style={styles.iconsContainer}>

@@ -9,6 +9,7 @@ import type { IconVariances } from './timer-icon';
 import TimerIcon from './timer-icon';
 import type { Time } from './timer-time';
 import TimerTime from './timer-time';
+import { TimerCaption } from '../common/timer-caption';
 
 export type BasicTimerVariants = VariantProps<typeof containerVariants>;
 
@@ -24,6 +25,8 @@ export interface BasicTimerProps extends ButtonBase, BasicTimerVariants, Contain
 	buttonClassName?: string;
 	iconVariant?: IconVariances['variant'];
 	align?: string;
+	// Shown before the time; the kit's timers say "Today" (the time tracked today).
+	caption?: React.ReactNode;
 }
 
 const TeamsBasicTimer = ({
@@ -38,6 +41,7 @@ const TeamsBasicTimer = ({
 	customButtonIcon,
 	isRunning,
 	readonly,
+	caption,
 	...props
 }: BasicTimerProps & {
 	ref?: React.RefObject<HTMLButtonElement>;
@@ -52,6 +56,7 @@ const TeamsBasicTimer = ({
 					variant={color}
 				/>
 			) : null}
+			<TimerCaption>{caption}</TimerCaption>
 			<TimerTime color={color} time={time} />
 			{!readonly && (
 				<TimerButton

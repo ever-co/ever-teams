@@ -9,6 +9,7 @@ import { useStores } from '../models';
 import { useTimer } from '../services/hooks/use-timer';
 import { ITeamTask } from '../services/interfaces/ITask';
 import { useAppTheme } from '../theme';
+import { translate } from '../i18n';
 import { SvgXml } from 'react-native-svg';
 import { timerLargeDarkPlayIcon, timerLargePlayIcon, timerLargeStopIcon } from './svgs/icons';
 
@@ -45,6 +46,10 @@ const TimerButton: FC<TimerButtonProps> = observer(({ containerStyle }) => {
 						]}
 						disabled={!canRunTimer}
 						onPress={() => startTimer()}
+						testID="timer-start"
+						accessibilityRole="button"
+						accessibilityLabel={translate('timer.startLabel')}
+						accessibilityState={{ disabled: !canRunTimer }}
 					>
 						<SvgXml xml={dark ? timerLargeDarkPlayIcon : timerLargePlayIcon} />
 					</Pressable>
@@ -52,6 +57,9 @@ const TimerButton: FC<TimerButtonProps> = observer(({ containerStyle }) => {
 			) : (
 				<Pressable
 					onPress={() => stopTimer()}
+					testID="timer-stop"
+					accessibilityRole="button"
+					accessibilityLabel={translate('timer.stopLabel')}
 					style={[
 						dark ? styles.timerBtnDarkTheme : styles.timerBtnActive,
 						{ backgroundColor: '#e11d48', borderColor: dark ? '#28292F' : '#0000001A' },

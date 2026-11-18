@@ -253,7 +253,12 @@ export const TimerStartPanel: FC<ITimerStartPanelProps> = ({ access, runStart, s
 			) : null}
 
 			<View style={styles.buttons}>
-				<TouchableOpacity style={styles.cancelButton} onPress={onClose} accessibilityRole="button">
+				<TouchableOpacity
+					testID="timer-start-cancel"
+					style={styles.cancelButton}
+					onPress={onClose}
+					accessibilityRole="button"
+				>
 					<Text style={styles.cancelText}>
 						{isEditable ? translate('common.cancel') : translate('timer.startMove.close')}
 					</Text>
