@@ -11,6 +11,18 @@ const bg = {
 		discard: 'Discard',
 		logOut: 'Log Out' // @demo remove-current-line
 	},
+	shell: {
+		tabs: { home: 'Начало', tasks: 'Задачи', week: 'Седмица', team: 'Екип' },
+		states: {
+			loading: 'Зареждане',
+			offline: 'Няма връзка. Този екран показва запазеното на телефона.',
+			errorTitle: 'Този екран не можа да се зареди',
+			retry: 'Опитай пак',
+			comingTitle: 'Предстои в следващите стъпки',
+			comingMessage: 'Този екран на новото приложение още се изгражда.'
+		},
+		signIn: { title: 'Вход', message: 'Входът преминава в новото приложение в по-късна стъпка. Засега влезте с текущото приложение.' }
+	},
 	session: {
 		endedTitle: 'Сесията ви изтече',
 		endedMessage: 'Влезте отново, за да продължите.'

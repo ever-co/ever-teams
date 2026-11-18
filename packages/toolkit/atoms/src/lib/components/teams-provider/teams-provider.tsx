@@ -175,7 +175,7 @@ const TeamsProvider = ({
 	if (!scopedStyles) {
 		return content;
 	}
-	return <KitRoot>{content}</KitRoot>;
+	return <KitRoot colorScheme={colorScheme}>{content}</KitRoot>;
 };
 
 TeamsProvider.displayName = 'TeamsProvider';

@@ -24,7 +24,46 @@ The element shows the kit's sign-in button, then the person's timer once they ar
 | `color-scheme` | `system`                    | `light`, `dark`, or `system` (follows the system's).                                       |
 | `lang`         | `en`                        | The language of the timer and its sign-in: `en` or `fr`.                                   |
 
-A change of attribute applies at once. Removing the element stops the timer's display and its polling; moving it in the page keeps it as it is. All the timers of a page share one color scheme and one language for now: the last element to load or change sets them. A language a person picks in the kit's language switch is kept for their next visits and wins over `lang` when an element loads.
+A change of attribute applies at once. Removing the element stops the timer's display and its polling; moving it in the page keeps it as it is. Each element keeps its own `color-scheme`, until a person picks a scheme with the kit's theme toggle: that pick applies to every timer of the page, until an element's `color-scheme` changes. All the timers of a page share one language and one API address for now (ever-co/ever-teams#5483): the last element to load or change sets them, so give every element of a page the same `api-url`. A language a person picks in the kit's language switch is kept for their next visits and wins over `lang` when an element loads.
+
+## Examples
+
+`examples/` holds two pages that run as they are once the files of `dist/` sit next to them, and a Svelte component:
+
+- `html/`: a plain page.
+- `vue/`: a Vue app on Vue's browser build, which goes next to the page too (`dist/vue.esm-browser.prod.js` of the `vue`
+  package, as its import map says). Vue takes a tag it does not know for a component, so it is told that the
+  `ever-teams-` tags are custom elements, with `app.config.compilerOptions.isCustomElement`. In a project built with
+  single-file components, the same function goes to the Vue plugin's `template.compilerOptions.isCustomElement`.
+- `svelte/`: a component for a Svelte app, which compiles it with its own build, like its other components, and
+  resolves `@ever-teams/embed` to the package or to the `dist/` file it serves. The component loads the package in
+  `onMount` and binds `color-scheme`. Svelte needs no setting.
+
+`@ever-teams/embed` is not published on npm yet (see [Release](#release)): until it is, an app resolves that name
+to the `dist/` file it serves, as the Svelte example says.
+
+Angular needs the custom elements schema on the component that holds the element:
+
+```ts
+import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import '@ever-teams/embed';
+
+@Component({
+	selector: 'app-timer',
+	standalone: true,
+	schemas: [CUSTOM_ELEMENTS_SCHEMA],
+	template: '<ever-teams-timer api-url="https://api.ever.team/api"></ever-teams-timer>'
+})
+export class TimerComponent {}
+```
+
+An app that renders on the server loads the package in the browser only: the element extends `HTMLElement`, which a
+server does not have. In Svelte that is `onMount`, as the example does; in Angular, add `afterNextRender` to the
+`@angular/core` import and call `afterNextRender(() => import('@ever-teams/embed'))` in the component's constructor,
+in place of the import above.
+
+In a site editor, a custom HTML block takes the script tag and the element as they are, once your site serves the
+files of `dist/`.
 
 ## What it changes in your page
 
