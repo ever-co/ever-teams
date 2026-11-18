@@ -28,6 +28,14 @@ appId: ${APP_ID}
     timeout: 20000
 - assertVisible:
     id: "home-today-digits"
+# Today's time runs: the digits read now are gone a moment later (iOS reads the spoken label, which changes each minute)
+- copyTextFrom:
+    id: "home-today-digits"
+- extendedWaitUntil:
+    notVisible:
+      id: "home-today-digits"
+      text: ${maestro.copiedText}
+    timeout: 70000
 - takeScreenshot: home-running
 - tapOn:
     id: "home-timer-button"
