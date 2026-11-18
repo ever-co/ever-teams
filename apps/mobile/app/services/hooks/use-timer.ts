@@ -16,6 +16,7 @@ import useFetchTimerStatus from '../client/queries/timer/timer';
 import { useTaskStatistics } from './features/use-task-statistics';
 import moment from 'moment-timezone';
 import { runStartOf } from '../../helpers/timer-run-start';
+import { countTimeFrom } from './shared-time-counter';
 
 const LOCAL_TIMER_STORAGE_KEY = 'local-timer-ever-teams';
 
@@ -134,18 +135,11 @@ function useLocalTimeCounter(timerStatus: ITimerStatus | null, activeTeamTask: I
 	// Time Counter
 	useEffect(() => {
 		if (firstLoad || !localTimerStatus) return clearInterval(timeCounterIntervalRef.current);
-		let timerFuntion;
-
 		if (localTimerStatus.running) {
-			timerFuntion = setInterval(() => {
-				const now = Date.now();
-				setTimerCounterState(now - localTimerStatus.runnedDateTime);
-			}, 50);
-		} else {
-			clearInterval(timerFuntion);
-			setTimerCounterState(0);
+			return countTimeFrom(localTimerStatus.runnedDateTime, setTimerCounterState);
 		}
-		return () => clearInterval(timerFuntion);
+		setTimerCounterState(0);
+		return undefined;
 	}, [localTimerStatus, firstLoad]);
 
 	return {
