@@ -5,12 +5,15 @@ import { useAtom } from 'jotai';
 import { useEffect } from 'react';
 import { userOrganizationsAtom } from '../teams-jotai/atoms/teams-atoms';
 import QueryString from 'qs';
+import { useKitOptions } from '@components/teams-provider/kit-options';
 
 const useUserOrganization = (
 	user: IUser | null,
 	token: string
 ): IHookResponse<PaginationResponse<IUserOrganization> | null> => {
 	const [userOrganizations, setUserOrganizations] = useAtom(userOrganizationsAtom);
+	// A token from the host's getToken names its organization and reaches no organization list.
+	const { hostSignIn } = useKitOptions();
 
 	const getOrganisation = async (user: IUser | null, token: string) => {
 		try {
@@ -49,7 +52,7 @@ const useUserOrganization = (
 	};
 
 	useEffect(() => {
-		if (user && token) {
+		if (user && token && !hostSignIn) {
 			(async () => {
 				setUserOrganizations((prev) => ({ ...prev, loading: true }));
 
@@ -97,7 +100,7 @@ const useUserOrganization = (
 			})();
 			// }
 		}
-	}, [user, token]);
+	}, [user, token, hostSignIn]);
 
 	return userOrganizations;
 };

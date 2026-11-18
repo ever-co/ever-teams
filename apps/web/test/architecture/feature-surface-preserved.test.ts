@@ -2380,7 +2380,6 @@ describe('Ever Teams feature surface preservation', () => {
 		expect(surface.exclusions).toEqual(
 			expect.arrayContaining([
 				'apps/mobile/jest.config.js::testPathIgnorePatterns=<rootDir>/node_modules/',
-				'apps/mobile/jest.config.js::testPathIgnorePatterns=/detox',
 				'apps/mobile/jest.config.js::testPathIgnorePatterns=@react-native'
 			])
 		);

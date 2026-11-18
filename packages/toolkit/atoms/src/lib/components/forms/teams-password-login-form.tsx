@@ -1,7 +1,8 @@
 import { usePasswordLoginForm } from '@hooks/usePasswordLoginForm';
-import { cn, Input, ThemedButton } from '@ever-teams/toolkit-ui';
+import { cn, ThemedButton } from '@ever-teams/toolkit-ui';
 import { LoaderCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { KitFormError, KitFormField } from './kit-form-field';
 
 const TeamsPasswordLoginForm = ({
 	className,
@@ -13,14 +14,11 @@ const TeamsPasswordLoginForm = ({
 	const form = usePasswordLoginForm({ redirectHandler });
 	const { t } = useTranslation();
 	return (
-		<form onSubmit={form.handleSubmit} className={cn('flex flex-col gap-3 min-w-[20rem] ', className)}>
-			<label htmlFor="email" className="text-slate-500 dark:text-white">
-				{t('COMMON.email')} :
-			</label>
-			<Input
+		<form onSubmit={form.handleSubmit} className={cn('flex flex-col gap-4 min-w-[20rem] ', className)}>
+			<KitFormField
+				label={t('COMMON.email')}
 				required
 				onChange={form.handleInputChange}
-				className="border"
 				placeholder={t('AUTH.email_prompt')}
 				value={form.formData.email}
 				size={30}
@@ -28,13 +26,10 @@ const TeamsPasswordLoginForm = ({
 				name="email"
 			/>
 
-			<label htmlFor="password" className="text-slate-500 dark:text-white">
-				{t('COMMON.password')} :
-			</label>
-			<Input
+			<KitFormField
+				label={t('COMMON.password')}
 				required
 				onChange={form.handleInputChange}
-				className="border"
 				placeholder={t('AUTH.password_prompt')}
 				value={form.formData.password}
 				size={30}
@@ -42,19 +37,15 @@ const TeamsPasswordLoginForm = ({
 				type="password"
 			/>
 
-			{form.error && (
-				<span role="alert" className="text-red-500 text-xs">
-					{form.error}
-				</span>
-			)}
+			<KitFormError message={form.error} />
 
-			<ThemedButton disabled={(form.error ? true : false) || form.loading} className="flex gap-2">
+			<ThemedButton disabled={Boolean(form.error) || form.loading} className="flex h-9 gap-2">
 				{form.loading && (
 					<span className=" animate-spin ">
 						<LoaderCircle />
 					</span>
 				)}
-				{t('AUTH.sign_in_title').toUpperCase()}
+				{t('AUTH.sign_in_title')}
 			</ThemedButton>
 		</form>
 	);

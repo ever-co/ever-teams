@@ -14,6 +14,12 @@
 // than wrapping it. Same Sentry features (release injection, frames collapse, debug IDs).
 const { getSentryExpoConfig } = require('@sentry/react-native/metro');
 
+// The current screens run on React Navigation while the new app (src/app) runs on Expo Router. Once expo-router is
+// installed, Expo CLI refuses every @react-navigation import from the app and points React Navigation's own packages
+// at expo-router's copy, which would move the current navigators onto it. Each app keeps its own copy until the last
+// current screen becomes a route. Expo CLI reads this variable after loading this file.
+process.env.EXPO_ROUTER_DISABLE_RN_NAVIGATION_CHECK = '1';
+
 /** @type {import('expo/metro-config').MetroConfig} */
 const config = getSentryExpoConfig(__dirname);
 config.resolver.unstable_conditionNames = ['browser', 'require', 'react-native'];

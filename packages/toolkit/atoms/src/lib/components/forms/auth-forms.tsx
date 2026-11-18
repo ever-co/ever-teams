@@ -8,7 +8,6 @@ import {
 	Checkbox,
 	cn,
 	Dialog,
-	Input,
 	Popover,
 	PopoverContent,
 	PopoverTrigger,
@@ -21,22 +20,64 @@ import {
 import { useTeamsContext } from '@lib/context/teams-context';
 // import { useLoginForm } from '@hooks/useLoginForm';
 import { CheckIcon, Copy, LoaderCircle, LogOutIcon } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useAtomValue } from 'jotai';
+import { hostSessionAtom } from '@lib/session/host-session';
 import { useTranslation } from 'react-i18next';
 import { SpinOverlayLoader } from '../loaders/spin-overlay-loader';
 import { TeamsTimerFooter } from '@components/layouts/footers/component-footer';
 import { logOut as teamsLogOut } from '@ever-teams/api';
 import { TeamsPasswordLoginForm } from './teams-password-login-form';
 import { TeamsTokenLoginForm } from './teams-token-login-form';
+import { KitFormError, KitFormField } from './kit-form-field';
+import { KIT_NOTICE_SURFACE, kitNoticeTone } from '@components/teams-ui-components/notice-surface';
 import { useKitOptions } from '@components/teams-provider/kit-root';
 import { warnOnce } from '@lib/utils/warn-once';
 import { useRegistrationForm } from '@hooks/useRegistrationForm';
 import { useClearKitSession } from '@hooks/useClearKitSession';
 
+/**
+ * What a signed-out person sees when the host signs people in from its backend (config.getToken): the kit asks for no
+ * password or token, it points to the host product's own sign-in. Nothing while the host's first answer is pending.
+ */
+const HostSignInNote = ({ className }: { className?: string }) => {
+	const { t } = useTranslation();
+	const { status } = useAtomValue(hostSessionAtom);
+	if (status !== 'signed-out') {
+		return null;
+	}
+	return (
+		<p role="status" className={cn('max-w-xs', KIT_NOTICE_SURFACE, kitNoticeTone('neutral'), className)}>
+			{t('AUTH.host_sign_in')}
+		</p>
+	);
+};
+
+// The name a person goes by in the kit: first and last name, or "" without one. Never the email: these names go into
+// attributes (aria-label, alt) that a host page's scripts and session recordings read even when no menu is open.
+function fullNameOf(user: { firstName?: string; lastName?: string }): string {
+	return [user.firstName, user.lastName].filter(Boolean).join(' ');
+}
+
 // The sign-in form can switch to the registration form and back, in place.
 type AuthFormMode = 'signin' | 'signup';
 
 type FormSource = 'storybook' | 'example';
+
+// The links of the sign-in and registration forms: the theme's primary, lighter in dark mode to stay readable there.
+const AUTH_LINK =
+	'cursor-pointer font-medium text-primary underline-offset-4 hover:underline focus-visible:underline focus-visible:outline-none dark:text-primary-xlight';
+// The same link on a button, for the switch between the two forms.
+const AUTH_LINK_BUTTON = cn('border-none bg-transparent p-0 font-inherit', AUTH_LINK);
+
+// The title of the sign-in and registration forms, above a separator.
+function AuthFormTitle({ children }: Readonly<{ children: React.ReactNode }>) {
+	return (
+		<div className="mb-4 border-b border-border pb-4 text-foreground">
+			<h1 className="text-xl font-semibold">{children}</h1>
+		</div>
+	);
+}
 
 /**
  * A component to display the user's avatar with a popover menu.
@@ -63,15 +104,23 @@ const TeamsUserAvatar = ({
 		authenticatedUser: user,
 		loadings: { userLoading }
 	} = useTeamsContext();
+	const { t } = useTranslation();
 
 	if (!user) return null;
+
+	const name = fullNameOf(user);
+	let accountMenuLabel = t('AUTH.account_menu_unnamed');
+	if (name) {
+		accountMenuLabel = t('AUTH.account_menu', { name });
+	}
 
 	if (showMenu)
 		return (
 			<Popover>
-				<PopoverTrigger className="relative px-3 outline-hidden">
+				<PopoverTrigger className="relative px-3 outline-hidden" aria-label={accountMenuLabel}>
 					{userLoading && <SpinOverlayLoader />}
 					<Avatar
+						alt=""
 						title={
 							(user.firstName ? user.firstName[0] : '') + ' ' + (user.lastName ? user.lastName[0] : '')
 						}
@@ -91,6 +140,7 @@ const TeamsUserAvatar = ({
 
 	return (
 		<Avatar
+			alt={name}
 			title={(user.firstName ? user.firstName[0] : '') + ' ' + (user.lastName ? user.lastName[0] : '')}
 			fallback={(user.firstName ? user.firstName[0] : '') + (user.lastName ? user.lastName[0] : '')}
 			src={user.imageUrl}
@@ -132,13 +182,27 @@ const TeamsLoginForm = ({
 	};
 
 	const { t } = useTranslation();
+	const { hostSignIn } = useKitOptions();
+
+	// The password and token tabs put an Ever Teams credential into the page: fine on the workspace's own pages, not on a
+	// third-party site, where the host should sign people in from its backend.
+	useEffect(() => {
+		if (hostSignIn) {
+			return;
+		}
+		warnOnce(
+			'password-sign-in',
+			'the password and token sign-in ask for an Ever Teams credential inside this page. On a site that is not your own, pass config.getToken to sign people in from your backend (README: "Sign in from your backend").'
+		);
+	}, [hostSignIn]);
+
+	if (hostSignIn) {
+		return <HostSignInNote className={className} />;
+	}
 
 	return mode === 'signin' ? (
 		<div ref={ref} className={className}>
-			<div className="flex flex-col gap-4 justify-center items-start pb-4 mb-4 text-black border-b border-gray-200 dark:border-gray-800 dark:text-white">
-				<h1 className="text-3xl font-bold tracking-tight">{t('AUTH.sign_in_title')}</h1>
-				<p className="text-xs font-light text-gray-400"></p>
-			</div>
+			<AuthFormTitle>{t('AUTH.sign_in_title')}</AuthFormTitle>
 			<Tabs className="flex flex-col gap-3 transition-all delay-200" defaultValue="password">
 				<TabsListThemed className="grid grid-cols-2 h-10 text-white bg-opacity-20">
 					<TabsTrigger value="password">{t('COMMON.password')}</TabsTrigger>
@@ -152,18 +216,14 @@ const TeamsLoginForm = ({
 				</TabsContent>
 			</Tabs>
 
-			<p className="pt-3 text-sm text-slate-500 dark:text-white">
+			<p className="pt-3 text-sm text-muted-foreground">
 				{t('AUTH.dont_have_an_account')}{' '}
 				{signupLink ? (
-					<a className="text-blue-500 cursor-pointer" href={signupLink}>
+					<a className={AUTH_LINK} href={signupLink}>
 						{t('AUTH.sign_up_title')}
 					</a>
 				) : (
-					<button
-						type="button"
-						className="p-0 text-blue-500 bg-transparent border-none cursor-pointer font-inherit"
-						onClick={() => switchTo('signup')}
-					>
+					<button type="button" className={AUTH_LINK_BUTTON} onClick={() => switchTo('signup')}>
 						{t('AUTH.sign_up_title')}
 					</button>
 				)}
@@ -183,7 +243,7 @@ const TeamsLoginForm = ({
  * If the user is authenticated, the component displays the user's avatar.
  *
  * @prop {React.ReactNode} [trigger] - The trigger element to display the dialog.
- * If not provided, a default button with 'SIGN IN' label is displayed.
+ * If not provided, a button labelled with the kit's translation of Sign In is displayed.
  *
  * @returns {React.ReactNode} The dialog component.
  */
@@ -199,16 +259,22 @@ const TeamsLoginDialog = ({
 	redirectHandler?: () => void;
 }) => {
 	const { authenticatedUser: user } = useTeamsContext();
+	const { hostSignIn } = useKitOptions();
 	const { t } = useTranslation();
 	// The form shown, for the dialog's title; a closed dialog opens on the sign-in form again.
 	const [mode, setMode] = useState<AuthFormMode>('signin');
 	const title = mode === 'signin' ? t('AUTH.sign_in_title') : t('AUTH.sign_up_title');
 
+	// The host signs people in: no dialog to open, only the note while the person is signed out of the host product.
+	if (hostSignIn && !user) {
+		return <HostSignInNote />;
+	}
+
 	return (
 		<div>
 			{!user ? (
 				<Dialog
-					trigger={trigger || <ThemedButton className="min-w-28">SIGN IN</ThemedButton>}
+					trigger={trigger || <ThemedButton className="min-w-28">{t('AUTH.sign_in_title')}</ThemedButton>}
 					title={title}
 					hideTitle
 					onOpenChange={(open) => {
@@ -245,7 +311,7 @@ export function MenuIndicator() {
 
 export const UserNavMenu = ({ children }: { children?: React.ReactNode }) => {
 	const { authenticatedUser: user, token } = useTeamsContext();
-	const { onSignOut, scoped } = useKitOptions();
+	const { onSignOut, scoped, hostSignIn } = useKitOptions();
 	const clearSession = useClearKitSession();
 	const { t } = useTranslation();
 
@@ -286,6 +352,7 @@ export const UserNavMenu = ({ children }: { children?: React.ReactNode }) => {
 		<div className="text-sm text-gray-800 dark:text-gray-100">
 			<div className="flex flex-col gap-3 justify-center items-center pb-3 space-x-3 border-b dark:border-gray-700">
 				<Avatar
+					alt=""
 					title={
 						(user!.firstName ? user!.firstName[0] : '') + ' ' + (user!.lastName ? user!.lastName[0] : '')
 					}
@@ -300,21 +367,24 @@ export const UserNavMenu = ({ children }: { children?: React.ReactNode }) => {
 					</p>
 					<p className="text-xs text-gray-500 dark:text-gray-400">{user?.email}</p>
 
-					<TokenDisplay token={`${token}`} />
+					{/* The host's token stays out of sight: it signs the person out with the host product, not here. */}
+					{!hostSignIn && <TokenDisplay token={`${token}`} />}
 				</div>
 			</div>
 
 			{children}
 
-			<ul className="pt-3 space-y-2 w-full border-t dark:border-gray-700">
-				{/* Logout menu */}
-				<li>
-					<button className="flex space-x-3 items-center font-normal text-[#DE437B]" onClick={logOut}>
-						<LogOutIcon className="w-5 h-5 stroke-[#DE437B]" />{' '}
-						<span>{t('AUTH.logout').toUpperCase()}</span>
-					</button>
-				</li>
-			</ul>
+			{!hostSignIn && (
+				<ul className="pt-3 space-y-2 w-full border-t dark:border-gray-700">
+					{/* Logout menu */}
+					<li>
+						<button className="flex space-x-3 items-center font-normal text-[#DE437B]" onClick={logOut}>
+							<LogOutIcon className="w-5 h-5 stroke-[#DE437B]" />{' '}
+							<span>{t('AUTH.logout').toUpperCase()}</span>
+						</button>
+					</li>
+				</ul>
+			)}
 		</div>
 	);
 };
@@ -366,19 +436,13 @@ const TeamsRegistrationForm = ({
 	const { t } = useTranslation();
 
 	return mode === 'signup' ? (
-		<form onSubmit={form.handleSubmit} className={cn('flex flex-col gap-2 w-full', className)}>
-			<div className="flex flex-col gap-4 justify-center items-start pb-4 mb-4 text-black border-b border-gray-200 dark:border-gray-800 dark:text-white">
-				<h1 className="text-3xl font-bold tracking-tight">{t('AUTH.sign_up_title')}</h1>
-				<p className="text-xs font-light text-gray-400"></p>
-			</div>
+		<form onSubmit={form.handleSubmit} className={cn('flex flex-col gap-4 w-full', className)}>
+			<AuthFormTitle>{t('AUTH.sign_up_title')}</AuthFormTitle>
 
-			<label htmlFor="full-name" className="text-sm text-slate-500 dark:text-white">
-				{t('COMMON.full_name')} :
-			</label>
-			<Input
+			<KitFormField
+				label={t('COMMON.full_name')}
 				required
 				onChange={form.handleInputChange}
-				className="border"
 				placeholder={t('AUTH.full_name_prompt')}
 				value={form.formData.fullName}
 				size={30}
@@ -386,13 +450,10 @@ const TeamsRegistrationForm = ({
 				name="fullName"
 			/>
 
-			<label htmlFor="email" className="text-sm text-slate-500 dark:text-white">
-				{t('COMMON.email')} :
-			</label>
-			<Input
+			<KitFormField
+				label={t('COMMON.email')}
 				required
 				onChange={form.handleInputChange}
-				className="border"
 				placeholder={t('AUTH.email_prompt')}
 				value={form.formData.email}
 				size={30}
@@ -400,13 +461,10 @@ const TeamsRegistrationForm = ({
 				name="email"
 			/>
 
-			<label htmlFor="password" className="text-sm text-slate-500 dark:text-white">
-				{t('COMMON.password')} :
-			</label>
-			<Input
+			<KitFormField
+				label={t('COMMON.password')}
 				required
 				onChange={form.handleInputChange}
-				className="border"
 				placeholder={t('AUTH.password_prompt')}
 				value={form.formData.password}
 				size={30}
@@ -414,13 +472,10 @@ const TeamsRegistrationForm = ({
 				name="password"
 			/>
 
-			<label htmlFor="confirm-password" className="text-sm text-slate-500 dark:text-white">
-				{t('AUTH.confirm_password_prompt')} :
-			</label>
-			<Input
+			<KitFormField
+				label={t('AUTH.confirm_password_prompt')}
 				required
 				onChange={form.handleInputChange}
-				className="border"
 				placeholder={t('AUTH.confirm_password_prompt')}
 				value={form.formData.confirmPassword}
 				size={30}
@@ -465,29 +520,25 @@ const TeamsRegistrationForm = ({
 				</div>
 			</div>
 
-			{form.errors && form.errors[0] ? <span className="text-xs text-red-500">{form.errors[0]}</span> : null}
+			<KitFormError message={form.errors?.[0]} />
 
-			<ThemedButton disabled={form.loading || form.errors?.[0] ? true : false} className="flex gap-2 mt-5">
+			<ThemedButton disabled={Boolean(form.loading || form.errors?.[0])} className="flex h-9 gap-2 mt-5">
 				{form.loading && (
 					<span className="animate-spin">
 						<LoaderCircle />
 					</span>
 				)}
-				{t('AUTH.sign_up_title').toUpperCase()}
+				{t('AUTH.sign_up_title')}
 			</ThemedButton>
 
-			<p className="pt-3 text-sm text-slate-500 dark:text-white">
+			<p className="pt-3 text-sm text-muted-foreground">
 				{t('AUTH.have_an_account')}{' '}
 				{signInLink ? (
-					<a className="text-blue-500 cursor-pointer" href={signInLink}>
+					<a className={AUTH_LINK} href={signInLink}>
 						{t('AUTH.sign_in_title')}
 					</a>
 				) : (
-					<button
-						className="p-0 text-blue-500 bg-transparent border-none cursor-pointer font-inherit"
-						type="button"
-						onClick={() => switchTo('signin')}
-					>
+					<button className={AUTH_LINK_BUTTON} type="button" onClick={() => switchTo('signin')}>
 						{t('AUTH.sign_in_title')}
 					</button>
 				)}
@@ -507,7 +558,7 @@ const TeamsRegistrationDialog = ({ trigger, signInLink }: { trigger?: React.Reac
 	const title = mode === 'signup' ? t('AUTH.sign_up_title') : t('AUTH.sign_in_title');
 	return (
 		<Dialog
-			trigger={trigger || <ThemedButton>REGISTER NOW</ThemedButton>}
+			trigger={trigger || <ThemedButton>{t('AUTH.register_now')}</ThemedButton>}
 			title={title}
 			hideTitle
 			onOpenChange={(open) => {

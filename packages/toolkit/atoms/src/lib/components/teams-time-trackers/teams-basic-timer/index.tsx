@@ -13,12 +13,13 @@ export interface TeamsBasicTimerProps extends Omit<BasicTimerProps, 'time' | 'pr
 // TODO: Must move this to Atoms and integrate with gauzy api
 export function TeamsBasicTimer({ progress, ...props }: TeamsBasicTimerProps) {
 	// Timer hook - self-contained, fetches all dependencies internally
-	const control = useTimerControl();
+	const control = useTimerControl(props.caption);
 	return (
 		<>
 			<BaseAtom
 				{...control.action}
 				{...props}
+				caption={control.caption}
 				{...control.state}
 				{...(progress && { progress: (control.seconds / 100) * 60 })}
 			/>

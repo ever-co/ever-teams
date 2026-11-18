@@ -1,0 +1,15 @@
+# A person starts the timer, sees it run, and stops it.
+appId: ${APP_ID}
+env:
+  EMAIL: kofi.arden@example.com
+---
+- runFlow: common/sign-in.yaml
+- runFlow: common/timer-stopped.yaml
+- runFlow: common/task-chosen.yaml
+- tapOn:
+    id: "timer-start"
+- runFlow: common/run-confirmed.yaml
+- takeScreenshot: running
+- tapOn:
+    id: "timer-stop"
+- runFlow: common/stop-confirmed.yaml

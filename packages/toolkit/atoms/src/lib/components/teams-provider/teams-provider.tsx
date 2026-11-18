@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useLayoutEffect, useState, ReactNode } from 'react';
+import { useEffect, useLayoutEffect, ReactNode } from 'react';
 
 import { Theme, ThemeUIProvider } from 'theme-ui';
 
@@ -15,7 +15,7 @@ import { useUserPermission } from '@hooks/useUserPermission';
 import { ThemeProvider } from 'next-themes';
 import { useUserOrganization } from '@hooks/useUserOrganization';
 import { I18nextProvider } from 'react-i18next';
-import { changeTeamsLanguage } from '@components/i18n/language-switch';
+import { useProviderLanguage } from '@hooks/useProviderLanguage';
 import { TeamsContext } from '@lib/context/teams-context';
 import i18n from '@lib/i18n/init';
 import { apiConfigManager, IApiTeamsConfig } from '@ever-teams/api';
@@ -26,6 +26,9 @@ import { useSelectedOrganization } from '@hooks/useSelectedOrganization';
 import { KitOptionsProvider, KitRoot } from './kit-root';
 import { KitColorScheme, setKitPreferences } from '@lib/stores/kit-preferences';
 import { withoutGlobalStyles } from '../../themes/kit-theme-config';
+import { useHostToken } from '@hooks/useHostToken';
+import { GetKitToken } from '@lib/session/host-token';
+import { HostSignInContext } from '@lib/session/host-session';
 
 export const defaultData: ChartData[] = [
 	{ day: 'Monday', cedric: 5, salva: 7, josh: 2, ndeko: 7 },
@@ -37,12 +40,20 @@ export const defaultData: ChartData[] = [
 	{ day: 'Sunday', cedric: 4, salva: 7, josh: 6, ndeko: 7 }
 ];
 
+// The API address, and getToken: the host's way to sign the person in from its own backend.
+export type TeamsProviderConfig = Partial<IApiTeamsConfig> & {
+	// Returns a short-lived token for the person signed in to the host product, which the host's server gets by
+	// exchanging its embed credential. The kit calls it at start, shortly before the token expires and once after the
+	// API refuses it; it keeps the token in memory only and asks for no password or token in the page.
+	getToken?: GetKitToken;
+};
+
 interface TeamsProviderProps {
 	children?: ReactNode;
 	theme?: Theme<{}>;
 	token?: string;
 	lang?: string;
-	config?: Partial<IApiTeamsConfig>;
+	config?: TeamsProviderConfig;
 	// Renders the kit root that @ever-teams/atoms/styles.css is scoped under: import that file and set this to style
 	// the components without the host's Tailwind. Off by default, so hosts that compile the classes see no change.
 	scopedStyles?: boolean;
@@ -62,15 +73,16 @@ type TeamsDataProviderProps = Omit<
 };
 
 const TeamsDataProvider = ({ children, config: apiConfig, theme, lang = 'en', scoped }: TeamsDataProviderProps) => {
-	// React States
-	const [language, setLanguage] = useState(lang);
-
 	// Jotai Atoms
 	const [appliedTheme, setAppliedTheme] = useAtom(appliedThemeAtom);
 
 	// Custom hooks
+	useProviderLanguage(lang);
 
 	const { fontOptions, selectedFont, setSelectedFont } = useFontSelector();
+
+	const getToken = apiConfig?.getToken;
+	const askHostForToken = useHostToken(getToken);
 
 	const { accessToken } = useAccessToken();
 
@@ -89,25 +101,25 @@ const TeamsDataProvider = ({ children, config: apiConfig, theme, lang = 'en', sc
 	}, [theme]);
 
 	useEffect(() => {
-		const storedLanguage = localStorage.getItem('preferred-language');
-		if (storedLanguage) {
-			setLanguage(storedLanguage);
-		}
-	}, [lang]);
-
-	useEffect(() => {
-		changeTeamsLanguage(language);
-	}, [language]);
-
-	useEffect(() => {
 		if (apiConfig) {
-			apiConfigManager.setConfig(apiConfig);
+			// getToken is the provider's; the API client keeps the address and the version only.
+			const api: TeamsProviderConfig = { ...apiConfig };
+			delete api.getToken;
+			apiConfigManager.setConfig(api);
 		}
 	}, [apiConfig]);
 
 	// With its own root the kit draws its color scheme there. Without one it keeps next-themes, which puts the scheme
 	// on <html> as hosts that rely on it (the examples) expect.
-	let themed = <ThemeUIProvider theme={withoutGlobalStyles(appliedTheme)}>{children}</ThemeUIProvider>;
+	let hostSignIn: (() => Promise<void>) | null = null;
+	if (getToken) {
+		hostSignIn = askHostForToken;
+	}
+	let themed = (
+		<HostSignInContext.Provider value={hostSignIn}>
+			<ThemeUIProvider theme={withoutGlobalStyles(appliedTheme)}>{children}</ThemeUIProvider>
+		</HostSignInContext.Provider>
+	);
 	if (!scoped) {
 		themed = <ThemeProvider attribute="class">{themed}</ThemeProvider>;
 	}
@@ -149,9 +161,16 @@ const TeamsProvider = ({
 		setKitPreferences({ colorScheme, loadGoogleFonts });
 	}, [colorScheme, loadGoogleFonts]);
 
+	const hostSignIn = Boolean(props.config?.getToken);
+	// Turning getToken on or off starts the kit's state afresh: a token or an organization list read in one mode never
+	// reaches the other (a host token would otherwise be saved to localStorage by the stored-session mode).
+	let signInMode = 'page';
+	if (hostSignIn) {
+		signInMode = 'host';
+	}
 	const content = (
-		<KitOptionsProvider value={{ scoped: scopedStyles, onSignOut }}>
-			<JotaiProvider>
+		<KitOptionsProvider value={{ scoped: scopedStyles, onSignOut, hostSignIn }}>
+			<JotaiProvider key={signInMode}>
 				<TeamsDataProvider {...props} scoped={scopedStyles}>
 					{children}
 				</TeamsDataProvider>
@@ -162,7 +181,7 @@ const TeamsProvider = ({
 	if (!scopedStyles) {
 		return content;
 	}
-	return <KitRoot>{content}</KitRoot>;
+	return <KitRoot colorScheme={colorScheme}>{content}</KitRoot>;
 };
 
 TeamsProvider.displayName = 'TeamsProvider';

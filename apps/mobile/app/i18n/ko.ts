@@ -2,6 +2,7 @@ import { Translations } from './en';
 
 const ko: Translations = {
 	common: {
+		openMenu: '메뉴 열기',
 		ok: '확인!',
 		cancel: '취소',
 		loading: 'Loading',
@@ -12,11 +13,25 @@ const ko: Translations = {
 		confirm: 'Confirm',
 		discard: 'Discard'
 	},
+	shell: {
+		tabs: { home: '홈', tasks: '작업', week: '주간', team: '팀' },
+		states: {
+			loading: '불러오는 중',
+			offline: '오프라인 상태입니다. 이 화면은 휴대폰에 저장된 내용을 보여줍니다.',
+			errorTitle: '이 화면을 불러올 수 없습니다',
+			retry: '다시 시도',
+			comingTitle: '다음 단계에서 제공됩니다',
+			comingMessage: '새 앱의 이 화면은 아직 만드는 중입니다.'
+		},
+		signIn: { title: '로그인', message: '로그인은 이후 단계에서 새 앱으로 옮겨집니다. 지금은 현재 앱으로 로그인하세요.' }
+	},
 	session: {
 		endedTitle: '세션이 종료되었습니다',
 		endedMessage: '계속하려면 다시 로그인하세요.'
 	},
 	timer: {
+		startLabel: '타이머 시작',
+		stopLabel: '타이머 중지',
 		stopFailedTitle: '타이머를 중지할 수 없습니다',
 		stopFailedMessage: '아직 실행 중입니다. 잠시 후 다시 시도하세요.',
 		startMove: {

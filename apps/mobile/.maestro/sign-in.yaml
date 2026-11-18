@@ -1,0 +1,9 @@
+# A person signs in with the code the server sent by e-mail, and lands on their team.
+appId: ${APP_ID}
+env:
+  EMAIL: kofi.arden@example.com
+---
+- runFlow: common/sign-in.yaml
+- assertVisible:
+    id: "tab-work"
+- takeScreenshot: signed-in

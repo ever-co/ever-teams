@@ -1,5 +1,6 @@
 const en = {
 	common: {
+		openMenu: 'Open the menu',
 		ok: 'OK!',
 		cancel: 'Cancel',
 		loading: 'Loading',
@@ -10,11 +11,25 @@ const en = {
 		save: 'Save',
 		logOut: 'Log Out' // @demo remove-current-line
 	},
+	shell: {
+		tabs: { home: 'Home', tasks: 'Tasks', week: 'Week', team: 'Team' },
+		states: {
+			loading: 'Loading',
+			offline: 'You are offline. This screen shows what was saved on the phone.',
+			errorTitle: 'This screen could not load',
+			retry: 'Try again',
+			comingTitle: 'Coming in the next steps',
+			comingMessage: 'This screen of the new app is still being built.'
+		},
+		signIn: { title: 'Sign in', message: 'Signing in moves to the new app in a later step. Sign in with the current app for now.' }
+	},
 	session: {
 		endedTitle: 'Your session has ended',
 		endedMessage: 'Sign in again to continue.'
 	},
 	timer: {
+		startLabel: 'Start the timer',
+		stopLabel: 'Stop the timer',
 		stopFailedTitle: 'The timer could not stop',
 		stopFailedMessage: 'It is still running. Try again in a moment.',
 		startMove: {

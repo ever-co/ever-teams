@@ -106,6 +106,13 @@ export function TimerStatusProvider({ children }: Readonly<{ children?: ReactNod
 
 	// Whose status this is: an answer read for another user, token or organization is dropped.
 	const identity = `${user?.id ?? ''}|${token}|${organizationId ?? ''}`;
+	// Whose status is shown: a new token for the same person and organization (the host's getToken renews it every few
+	// minutes) keeps the status and the notice on screen until the next read; a sign-out drops them.
+	let session = 'signed-out';
+	if (token) {
+		session = 'signed-in';
+	}
+	const owner = `${user?.id ?? ''}|${organizationId ?? ''}|${session}`;
 	const currentIdentity = useRef(identity);
 	currentIdentity.current = identity;
 
@@ -225,12 +232,18 @@ export function TimerStatusProvider({ children }: Readonly<{ children?: ReactNod
 		}
 	}, []);
 
-	// Another user, token or organization: the previous status is dropped at once, and no change is announced.
+	// Another user or organization: the previous status is dropped at once, and no change is announced.
 	useEffect(() => {
 		setStatus(null);
 		setLoading(false);
 		setNotice(null);
 		lastRunning.current = null;
+	}, [owner]);
+
+	// A new token for the same person drops the answer of the read still pending, and with it the loading state that
+	// read would have ended; the next read sets it again.
+	useEffect(() => {
+		setLoading(false);
 	}, [identity]);
 
 	useEffect(() => {

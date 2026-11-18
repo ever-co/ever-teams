@@ -1,5 +1,6 @@
 const es = {
 	common: {
+		openMenu: 'Abrir el menú',
 		ok: 'OK!',
 		cancel: 'Cancel',
 		loading: 'Loading',
@@ -10,11 +11,25 @@ const es = {
 		discard: 'Discard',
 		logOut: 'Log Out' // @demo remove-current-line
 	},
+	shell: {
+		tabs: { home: 'Inicio', tasks: 'Tareas', week: 'Semana', team: 'Equipo' },
+		states: {
+			loading: 'Cargando',
+			offline: 'Estás sin conexión. Esta pantalla muestra lo guardado en el teléfono.',
+			errorTitle: 'No se pudo cargar esta pantalla',
+			retry: 'Reintentar',
+			comingTitle: 'Llega en los próximos pasos',
+			comingMessage: 'Esta pantalla de la nueva app todavía está en construcción.'
+		},
+		signIn: { title: 'Iniciar sesión', message: 'El inicio de sesión pasará a la nueva app más adelante. Por ahora, inicia sesión con la app actual.' }
+	},
 	session: {
 		endedTitle: 'Tu sesión terminó',
 		endedMessage: 'Vuelve a iniciar sesión para continuar.'
 	},
 	timer: {
+		startLabel: 'Iniciar el temporizador',
+		stopLabel: 'Detener el temporizador',
 		stopFailedTitle: 'El temporizador no pudo detenerse',
 		stopFailedMessage: 'Sigue en marcha. Inténtalo de nuevo en un momento.',
 		startMove: {

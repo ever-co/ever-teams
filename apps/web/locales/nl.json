@@ -1843,6 +1843,7 @@
 			"SHARE": "Delen",
 			"SHARE_TITLE": "Een alleen-lezen link delen",
 			"SHARE_NEEDS_SAVE": "Een link deelt een opgeslagen rapport. Geef deze weergave een naam om haar op te slaan en zet daarna haar link aan.",
+			"LABELS_NOT_KEPT": "Opgeslagen rapporten bewaren nog geen labels. Wis het filter Labels en groepeer op iets anders dan Label om deze weergave op te slaan.",
 			"SHARE_HINT": "Wie de link heeft, ziet zonder account de naam van het rapport, de periode, de cijfers, de grafiek en de tabel. Er kan niets worden gewijzigd en het toont alleen wat u mag zien.",
 			"LINK_ADDRESS": "Linkadres",
 			"COPY": "Kopiëren",

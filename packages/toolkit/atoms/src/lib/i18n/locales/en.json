@@ -42,7 +42,7 @@
 		"stop_timer_before_selecting": "Please stop timer before selecting {{item}}."
 	},
 	"ERROR": {
-		"invalid_password_or_email": "You intered an invalid email or password.",
+		"invalid_password_or_email": "You entered an invalid email or password.",
 		"is_required": "{{field}} is required",
 		"passwords_not_match": "Passwords do not match.",
 		"password_length": "Password should be at least {{number}} characters long.",
@@ -80,7 +80,10 @@
 	},
 	"AUTH": {
 		"sign_in_title": "Sign In",
+		"host_sign_in": "Sign in to this site to use your Ever Teams timer.",
 		"sign_up_title": "Register",
+		"account_menu": "{{name}}: account menu",
+		"account_menu_unnamed": "Account menu",
 		"register_now": "Register Now",
 		"email_prompt": "Enter your email",
 		"password_prompt": "Enter your password",
@@ -91,8 +94,8 @@
 		"last_name_prompt": "Enter your last name",
 		"phone_number_prompt": "Enter your phone number",
 		"logout": "Logout",
-		"dont_have_an_account": "Don't have an account ? ",
-		"have_an_account": "Have an account ? "
+		"dont_have_an_account": "Don't have an account?",
+		"have_an_account": "Have an account?"
 	},
 	"INPUT": {
 		"language_switcher": {
@@ -534,5 +537,9 @@
 			"IDLE": "Idle",
 			"RESUMED": "Resumed"
 		}
+	},
+	"FONT_PICKER": {
+		"default_font": "Default font",
+		"page_font": "Page font"
 	}
 }

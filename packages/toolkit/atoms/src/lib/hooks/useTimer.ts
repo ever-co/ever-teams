@@ -1,5 +1,6 @@
 import { addTimeSlot, apiConfigManager, startTimer as startApiTimer, stopTimer as stopApiTimer } from '@ever-teams/api';
 import { useEffect, useRef, useState } from 'react';
+import { noTeamsState, useForgetOnAccountChange } from './useForgetOnAccountChange';
 import { useTeamsStopWatch } from './useTeamsStopWatch';
 import { toast } from '@ever-teams/toolkit-ui';
 import { useTeamsContext } from '@lib/context/teams-context';
@@ -8,6 +9,7 @@ import { ICurrentTeamsState } from '@ever-teams/toolkit-types';
 import { useTranslation } from 'react-i18next';
 import { errorMessageOf, useTimerStatusContext } from '@lib/context/teams-timer-status-context';
 import { kindOfFailedRequest, noticeOfFailure } from '@lib/errors/kit-error';
+import { useKitOptions } from '@components/teams-provider/kit-options';
 
 /**
  * Self-contained timer hook that manages all timer functionality.
@@ -21,16 +23,12 @@ export const useTimer = () => {
 	const { t } = useTranslation();
 	// Every widget of the page reads the same status: after a start or a stop, all of them are refreshed at once.
 	const sharedStatus = useTimerStatusContext();
+	const { hostSignIn } = useKitOptions();
 	const refreshEveryWidget = async () => {
 		await sharedStatus?.refetch();
 	};
 
-	const [currentTeamsState, setCurrentTeamsState] = useState<ICurrentTeamsState>({
-		taskId: null,
-		projectId: null,
-		organizationTeamId: null,
-		clientId: null
-	});
+	const [currentTeamsState, setCurrentTeamsState] = useState<ICurrentTeamsState>(noTeamsState);
 
 	// Fetch timer status
 	const { data: timerStatus, loading: timerStatusLoading } = useTimerStatus(user, token, organizationId);
@@ -52,6 +50,16 @@ export const useTimer = () => {
 		time,
 		setTime
 	} = useTeamsStopWatch(timerStatus ?? safeTimerStatus);
+
+	// Another account starts clean. The sync below leaves the task, project and team, and today's total, as they were
+	// when a status states none (an account with no time recorded): after a sign-out that keeps the widget mounted, the
+	// next account's first start would send the previous account's task, project and team. Called before that sync, so
+	// it never undoes a status read for the new account.
+	const accountGeneration = useForgetOnAccountChange(() => {
+		setCurrentTeamsState(noTeamsState());
+		setTodayTrackedTime(new Date(0));
+		reset();
+	});
 
 	const [timerLoading, setTimerLoading] = useState(false);
 
@@ -81,17 +89,25 @@ export const useTimer = () => {
 	const currentIdentity = useRef(identity);
 	currentIdentity.current = identity;
 
+	// Whether a start or stop begun now is still the widget's when it fails: the same user, token and organization, and
+	// no switch to another account and back since (`accountGeneration`).
+	const failureOwnerCheck = () => {
+		const forIdentity = identity;
+		const forGeneration = accountGeneration.current;
+		return () => currentIdentity.current === forIdentity && accountGeneration.current === forGeneration;
+	};
+
 	// A refused start or stop: under a TeamsProvider every widget shows it as a notice inside the widget; outside one,
 	// as before, a toast. The API package returns a request that got no answer as an error with no status: the probe
 	// says whether this site is not allowed or Ever Teams is unreachable.
 	const reportAnswer = async (
 		answer: { message?: unknown; error?: unknown; statusCode?: unknown; code?: unknown },
-		forIdentity: string
+		isStillCurrent: () => boolean
 	) => {
 		const message = errorMessageOf(answer);
 		if (sharedStatus) {
 			const failure = await noticeOfFailure(answer, message, apiConfigManager.getConfig().apiUrl);
-			if (currentIdentity.current === forIdentity) {
+			if (isStillCurrent()) {
 				sharedStatus.reportNotice(failure);
 			}
 			return;
@@ -100,10 +116,10 @@ export const useTimer = () => {
 	};
 
 	// A start or stop that got no answer.
-	const reportThrown = async (error: unknown, forIdentity: string) => {
+	const reportThrown = async (error: unknown, isStillCurrent: () => boolean) => {
 		if (sharedStatus) {
 			const kind = await kindOfFailedRequest(apiConfigManager.getConfig().apiUrl);
-			if (currentIdentity.current === forIdentity) {
+			if (isStillCurrent()) {
 				sharedStatus.reportNotice({ kind });
 			}
 			return;
@@ -112,43 +128,59 @@ export const useTimer = () => {
 	};
 
 	const startTimerNow = async () => {
-		const forIdentity = identity;
+		const isStillCurrent = failureOwnerCheck();
+		// Whose stopwatch the start moves once it answers: the account's, whatever token it runs with by then.
+		const forGeneration = accountGeneration.current;
 		try {
 			setTimerLoading(true);
 			const timeSlot = await startApiTimer(user, token, currentTeamsState, organizationId);
 
 			if ('message' in timeSlot || 'error' in timeSlot) {
-				await reportAnswer(timeSlot, forIdentity);
+				await reportAnswer(timeSlot, isStillCurrent);
+				return;
+			}
+			// A start that comes back after a switch of user or organization is the previous account's: the widgets of
+			// the new one keep their own stopwatch. A new token for the same account still shows the start.
+			if (accountGeneration.current !== forGeneration) {
 				return;
 			}
 
 			start();
 			await refreshEveryWidget();
 		} catch (error) {
-			await reportThrown(error, forIdentity);
+			await reportThrown(error, isStillCurrent);
 		} finally {
 			setTimerLoading(false);
 		}
 	};
 
 	const stopTimerNow = async () => {
-		const forIdentity = identity;
+		const isStillCurrent = failureOwnerCheck();
+		const forGeneration = accountGeneration.current;
 		clearInterval(interval.current);
 		try {
 			setTimerLoading(true);
 			const timeSlot = await stopApiTimer(user, token, organizationId);
 
 			if ('message' in timeSlot || 'error' in timeSlot) {
-				await reportAnswer(timeSlot, forIdentity);
+				await reportAnswer(timeSlot, isStillCurrent);
 				return;
 			}
 
-			timeSlot && (await addTimeSlot(token, timeSlot));
+			// A token from the host's getToken reaches the timer only: the stop already recorded the time.
+			const recordsSlot = Boolean(timeSlot) && !hostSignIn;
+			if (recordsSlot) {
+				await addTimeSlot(token, timeSlot);
+			}
+			// The same for a stop: it never resets the stopwatch of the account signed in since.
+			if (accountGeneration.current !== forGeneration) {
+				return;
+			}
 
 			reset();
 			await refreshEveryWidget();
 		} catch (error) {
-			await reportThrown(error, forIdentity);
+			await reportThrown(error, isStillCurrent);
 		} finally {
 			setTimerLoading(false);
 		}
