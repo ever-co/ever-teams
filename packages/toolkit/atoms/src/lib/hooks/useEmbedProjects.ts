@@ -59,8 +59,10 @@ export const useEmbedProjects = (): IEmbedProjects => {
 	const listedFor = useRef<string | null>(null);
 
 	useEffect(() => {
+		// Signed out: the list is dropped, so a sign-in again (the same person too) starts from a read, not from it.
 		if (!session || !tenantId) {
 			listedFor.current = null;
+			setProjects(IDLE);
 			return;
 		}
 		if (listedFor.current === session) {

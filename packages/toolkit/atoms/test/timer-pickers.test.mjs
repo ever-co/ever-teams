@@ -43,6 +43,7 @@ const standIns = {
 		import { useEffect } from 'react';
 		export const Select = (props) => {
 			globalThis.__selects[props.name] = props;
+			(globalThis.__selectRenders[props.name] ??= []).push(props);
 			useEffect(() => {
 				globalThis.__selectMounts[props.name] = (globalThis.__selectMounts[props.name] ?? 0) + 1;
 			}, []);
@@ -101,6 +102,7 @@ async function renderTimerForm({ hostSignIn, embedProjects = [], projectId = nul
 	globalThis.__reads = [];
 	globalThis.__selects = {};
 	globalThis.__selectMounts = {};
+	globalThis.__selectRenders = {};
 	globalThis.__toasts = [];
 	const timer = {};
 	const Form = () => {
@@ -315,6 +317,30 @@ test("with the host's getToken the projects read are not listed once the host si
 
 	assert.equal(labelsOf(globalThis.__selects.project), undefined);
 	assert.equal(globalThis.__selects.project.loading, false);
+});
+
+test("with the host's getToken the same person signed in again starts from a new read, not from the list read before", async () => {
+	const timer = await renderTimerForm({
+		hostSignIn: true,
+		embedProjects: [{ id: 'project-1', name: 'Fabrikam site' }]
+	});
+	const session = globalThis.__teamsContext;
+	await timer.rerender({ authenticatedUser: null, token: '', selectedOrganization: '' });
+	await act(async () => globalThis.__selects.project.onValueChange('project-9'));
+	globalThis.__embedProjectsAnswer = new Promise(() => {});
+	const rendersBefore = globalThis.__selectRenders.project.length;
+
+	await timer.rerender({ ...session, token: 'token-2' });
+
+	const rendersAfter = globalThis.__selectRenders.project.slice(rendersBefore);
+	assert.ok(rendersAfter.length > 0);
+	assert.deepEqual(
+		rendersAfter.map(labelsOf),
+		rendersAfter.map(() => undefined),
+		'no render shows the earlier list'
+	);
+	assert.equal(globalThis.__selects.project.loading, true);
+	assert.equal(timer.state.projectId, 'project-9', 'the earlier list does not let the project go');
 });
 
 test("the project picker's words for its loading, empty and failed list exist in both kit locales", () => {
