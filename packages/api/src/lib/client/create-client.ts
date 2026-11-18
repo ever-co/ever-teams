@@ -4,6 +4,7 @@ import { createProjects, ProjectsResource } from './projects';
 import { createTasks, TasksResource } from './tasks';
 import { createTimeEntries, TimeEntriesResource } from './time-entries';
 import { createTimer, TimerResource } from './timer';
+import { createTotals, TotalsResource } from './totals';
 import { createTransport } from './transport';
 import { EverTeamsClientOptions } from './types';
 
@@ -13,6 +14,7 @@ export type { ProjectsResource } from './projects';
 export type { TasksListParams, TasksResource } from './tasks';
 export type { TimeEntriesListParams, TimeEntriesResource } from './time-entries';
 export type { TimerResource, TimerStartOptions } from './timer';
+export type { EverTeamsTotal, TotalsResource } from './totals';
 
 export interface EverTeamsClient {
 	readonly timer: TimerResource;
@@ -20,6 +22,7 @@ export interface EverTeamsClient {
 	readonly projects: ProjectsResource;
 	readonly tasks: TasksResource;
 	readonly members: MembersResource;
+	readonly totals: TotalsResource;
 }
 
 /**
@@ -34,6 +37,7 @@ export function createClient(options: EverTeamsClientOptions): EverTeamsClient {
 		timeEntries: createTimeEntries(transport, identity),
 		projects: createProjects(transport, identity),
 		tasks: createTasks(transport, identity),
-		members: createMembers(transport, identity)
+		members: createMembers(transport, identity),
+		totals: createTotals(transport, identity)
 	};
 }

@@ -73,6 +73,13 @@ export function rangeOf(from: EverTeamsDate, to: EverTeamsDate): { start: Date; 
 	return { start, end };
 }
 
+/** Today, in the time zone the code runs in. */
+export function todayRange(now: Date): { start: Date; end: Date } {
+	const start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+	const end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+	return { start, end };
+}
+
 /** This week, Monday to Sunday as the kit counts it, in the time zone the code runs in. */
 export function weekRange(now: Date): { start: Date; end: Date } {
 	const daysSinceMonday = (now.getDay() + 6) % 7;
