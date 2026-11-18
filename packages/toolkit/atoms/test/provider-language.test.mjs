@@ -1,6 +1,6 @@
 // The language of a TeamsProvider follows its lang prop: node --test test/*.test.mjs (from packages/toolkit/atoms).
-// esbuild bundles the hook with the kit's language switch replaced by a stand-in that records each language applied
-// and saves it as the real one does; React renders it in jsdom.
+// esbuild bundles the hook with the kit's i18next instance replaced by a stand-in that records each language applied;
+// React renders it in jsdom.
 import { test, before, after, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
 import path from 'node:path';
@@ -41,15 +41,9 @@ before(async () => {
 			{
 				name: 'stubs',
 				setup(build) {
-					build.onResolve({ filter: /^@components\/i18n\/language-switch$/ }, () => ({
-						path: 'language-switch',
-						namespace: 'stub'
-					}));
+					build.onResolve({ filter: /^@lib\/i18n\/init$/ }, () => ({ path: 'i18n', namespace: 'stub' }));
 					build.onLoad({ filter: /.*/, namespace: 'stub' }, () => ({
-						contents: `export const changeTeamsLanguage = (language) => {
-							globalThis.applied.push(language);
-							localStorage.setItem('preferred-language', language);
-						};`,
+						contents: `export default { changeLanguage: (language) => globalThis.applied.push(language) };`,
 						loader: 'js'
 					}));
 				}
@@ -97,11 +91,21 @@ test('a lang the host changes after mount applies at once', async () => {
 	await act(async () => root.render(React.createElement(Language, { lang: 'fr' })));
 
 	assert.equal(globalThis.applied.at(-1), 'fr');
-	assert.equal(localStorage.getItem('preferred-language'), 'fr');
 	await act(async () => root.unmount());
 });
 
-test('at mount, the language saved earlier on the site wins, as before', async () => {
+test('the lang of one page is not saved: another page of the site gets its own lang', async () => {
+	const english = await mount('en');
+	await act(async () => english.render(React.createElement(Language, { lang: 'fr' })));
+	await act(async () => english.unmount());
+	assert.equal(localStorage.getItem('preferred-language'), null, 'only the language switch saves a language');
+
+	const next = await mount('en');
+	assert.equal(globalThis.applied.at(-1), 'en');
+	await act(async () => next.unmount());
+});
+
+test('at mount, the language picked earlier in the language switch wins, as before', async () => {
 	localStorage.setItem('preferred-language', 'fr');
 	const root = await mount('en');
 
