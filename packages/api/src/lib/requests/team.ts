@@ -1,5 +1,6 @@
 import QueryString from 'qs';
 import { ApiCall } from '../fetch';
+import { IApiRequestConfig } from '../config/api-config';
 import { IOrganizationTeamList, IServerError, IUser, OT_Member, PaginationResponse, RoleName } from '@ever-teams/toolkit-types';
 
 interface TeamCreationFormValues {
@@ -19,17 +20,20 @@ interface TeamCreationFormValues {
  *
  * @throws Will throw an error if the user is not authenticated.
  */
-export const createTeam = async ({
-	currentUser,
-	token,
-	organizationId,
-	formData
-}: {
-	currentUser: IUser | null;
-	token: string;
-	organizationId: string;
-	formData: TeamCreationFormValues;
-}) => {
+export const createTeam = async (
+	{
+		currentUser,
+		token,
+		organizationId,
+		formData
+	}: {
+		currentUser: IUser | null;
+		token: string;
+		organizationId: string;
+		formData: TeamCreationFormValues;
+	},
+	api?: IApiRequestConfig
+) => {
 	try {
 		if (!currentUser) {
 			throw new Error('User is not authenticated');
@@ -37,19 +41,22 @@ export const createTeam = async ({
 
 		const { tenantId } = currentUser;
 
-		const response = await ApiCall<IOrganizationTeamList>({
-			path: `/organization-team`,
-			method: 'POST',
-			bearer_token: token,
-			tenantId,
-			organizationId,
-			body: {
-				name: formData.teamName,
-				managerIds: [currentUser.id],
+		const response = await ApiCall<IOrganizationTeamList>(
+			{
+				path: `/organization-team`,
+				method: 'POST',
+				bearer_token: token,
 				tenantId,
-				organizationId
-			}
-		});
+				organizationId,
+				body: {
+					name: formData.teamName,
+					managerIds: [currentUser.id],
+					tenantId,
+					organizationId
+				}
+			},
+			api
+		);
 
 		if ('data' in response) {
 			return response.data;
@@ -78,17 +85,20 @@ export const createTeam = async ({
  *
  * @throws Will throw an error if the `currentUser` is null, indicating the user is not authenticated.
  */
-export const getOrganizationTeam = async ({
-	teamId,
-	currentUser,
-	token,
-	organizationId
-}: {
-	teamId: string;
-	currentUser: IUser | null;
-	token: string;
-	organizationId: string;
-}) => {
+export const getOrganizationTeam = async (
+	{
+		teamId,
+		currentUser,
+		token,
+		organizationId
+	}: {
+		teamId: string;
+		currentUser: IUser | null;
+		token: string;
+		organizationId: string;
+	},
+	api?: IApiRequestConfig
+) => {
 	try {
 		if (!currentUser) {
 			throw new Error('User is not authenticated');
@@ -101,13 +111,16 @@ export const getOrganizationTeam = async ({
 			organizationId
 		});
 
-		const response = await ApiCall<IOrganizationTeamList>({
-			path: `/organization-team/${teamId}?${query}`,
-			method: 'GET',
-			bearer_token: token,
-			tenantId,
-			organizationId
-		});
+		const response = await ApiCall<IOrganizationTeamList>(
+			{
+				path: `/organization-team/${teamId}?${query}`,
+				method: 'GET',
+				bearer_token: token,
+				tenantId,
+				organizationId
+			},
+			api
+		);
 
 		if ('data' in response) {
 			return response.data;
@@ -150,17 +163,20 @@ interface IUpdateTeamValues {
  * @throws {Error} Throws an error if the user is not authenticated.
  */
 
-export const updateTeam = async ({
-	currentUser,
-	token,
-	organizationId,
-	data
-}: {
-	currentUser: IUser | null;
-	token: string;
-	organizationId: string;
-	data: IUpdateTeamValues;
-}) => {
+export const updateTeam = async (
+	{
+		currentUser,
+		token,
+		organizationId,
+		data
+	}: {
+		currentUser: IUser | null;
+		token: string;
+		organizationId: string;
+		data: IUpdateTeamValues;
+	},
+	api?: IApiRequestConfig
+) => {
 	try {
 		if (!currentUser) {
 			throw new Error('User is not authenticated');
@@ -194,14 +210,17 @@ export const updateTeam = async ({
 			}
 		});
 
-		const response = await ApiCall<IOrganizationTeamList>({
-			path: `/organization-team/${id}`,
-			method: 'PUT',
-			bearer_token: token,
-			tenantId,
-			organizationId,
-			body
-		});
+		const response = await ApiCall<IOrganizationTeamList>(
+			{
+				path: `/organization-team/${id}`,
+				method: 'PUT',
+				bearer_token: token,
+				tenantId,
+				organizationId,
+				body
+			},
+			api
+		);
 
 		if ('data' in response) {
 			return response.data;
@@ -232,14 +251,10 @@ interface FormValues {
 	roleName: RoleName;
 }
 
-export const sendTeamInvitation = async ({
-	user,
-	token,
-	organizationId,
-	roleId,
-	teamId,
-	formData: data
-}: SendInvitationProps) => {
+export const sendTeamInvitation = async (
+	{ user, token, organizationId, roleId, teamId, formData: data }: SendInvitationProps,
+	api?: IApiRequestConfig
+) => {
 	try {
 		if (!user) {
 			throw new Error('User is not authenticated');
@@ -265,13 +280,16 @@ export const sendTeamInvitation = async ({
 			startedWorkOn: new Date().toISOString()
 		};
 
-		const response = await ApiCall<PaginationResponse<OT_Member> & { ignored: number }>({
-			path: `/invite/emails`,
-			method: 'POST',
-			bearer_token: token,
-			tenantId,
-			body
-		});
+		const response = await ApiCall<PaginationResponse<OT_Member> & { ignored: number }>(
+			{
+				path: `/invite/emails`,
+				method: 'POST',
+				bearer_token: token,
+				tenantId,
+				body
+			},
+			api
+		);
 
 		if ('data' in response) {
 			return response.data;

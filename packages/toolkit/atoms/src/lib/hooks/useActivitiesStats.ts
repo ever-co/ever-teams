@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { getStartAndEndOfDay, getWeekStartAndEnd, toast } from '@ever-teams/toolkit-ui';
 import { IActivitiesStats } from '@ever-teams/toolkit-types';
 import { useTeamsContext } from '@lib/context/teams-context';
+import { useKitOptions } from '@components/teams-provider/kit-options';
 
 const useActivitiesStats = (): IHookResponse<IActivitiesStats> => {
 	const [activitiesStats, setActivitiesStats] = useState<IHookResponse<IActivitiesStats>>({
@@ -19,26 +20,35 @@ const useActivitiesStats = (): IHookResponse<IActivitiesStats> => {
 		selectedOrganization: organizationId,
 		reportDates: date
 	} = useTeamsContext();
+	const { api } = useKitOptions();
 
-	const fetchActivitiesStats = async () => {
+	// isCurrent turns false once the effect has moved past this read (other filters or another address, or the widget
+	// gone): its answer then shows nothing, not even its error, as the toasts are the page's.
+	const fetchActivitiesStats = async (isCurrent: () => boolean) => {
 		if (user && organizationId) {
 			setActivitiesStats((prev) => ({ ...prev, loading: true }));
 
 			const dayDates = getStartAndEndOfDay();
 			const { end, start } = getWeekStartAndEnd();
 
-			const userStats = await getActivitiesStats({
-				user,
-				token,
-				selectedEmployee,
-				selectedTeam,
-				organizationId,
-				dayDates,
-				dates: {
-					from: date?.from || start,
-					to: date?.to || end
-				}
-			});
+			const userStats = await getActivitiesStats(
+				{
+					user,
+					token,
+					selectedEmployee,
+					selectedTeam,
+					organizationId,
+					dayDates,
+					dates: {
+						from: date?.from || start,
+						to: date?.to || end
+					}
+				},
+				api
+			);
+			if (!isCurrent()) {
+				return;
+			}
 
 			if ('message' in userStats || 'error' in userStats) {
 				const errorMessage =
@@ -61,8 +71,14 @@ const useActivitiesStats = (): IHookResponse<IActivitiesStats> => {
 	};
 
 	useEffect(() => {
-		fetchActivitiesStats();
-	}, [user, selectedEmployee, selectedTeam, date, organizationId]);
+		let current = true;
+		void fetchActivitiesStats(() => current);
+		return () => {
+			current = false;
+			// The next read, if any, sets it again
+			setActivitiesStats((prev) => (prev.loading ? { ...prev, loading: false } : prev));
+		};
+	}, [user, selectedEmployee, selectedTeam, date, organizationId, api]);
 
 	return activitiesStats;
 };

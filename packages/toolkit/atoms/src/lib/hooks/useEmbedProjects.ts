@@ -51,7 +51,7 @@ export const useEmbedProjects = (): IEmbedProjects => {
 	const [projects, setProjects] = useState<IProjectsOfSession>(IDLE);
 
 	const { authenticatedUser: user, token, selectedOrganization: organizationId } = useTeamsContext();
-	const { hostSignIn } = useKitOptions();
+	const { hostSignIn, api } = useKitOptions();
 	const tenantId = user?.tenantId;
 	const isSignedIn = Boolean(user?.id) && Boolean(tenantId) && Boolean(organizationId);
 	const session = hostSignIn && isSignedIn ? `${user?.id}|${tenantId}|${organizationId}` : null;
@@ -70,7 +70,7 @@ export const useEmbedProjects = (): IEmbedProjects => {
 		}
 		let current = true;
 		setProjects({ ...LOADING, session });
-		void getEmbedProjects(token, tenantId).then((answer) => {
+		void getEmbedProjects(token, tenantId, api).then((answer) => {
 			if (!current) {
 				return;
 			}
@@ -83,7 +83,7 @@ export const useEmbedProjects = (): IEmbedProjects => {
 		return () => {
 			current = false;
 		};
-	}, [session, tenantId, token]);
+	}, [session, tenantId, token, api]);
 
 	// A list read for another session, or for one the host has since signed out, is not shown.
 	if (!session) {

@@ -15,7 +15,7 @@ import {
 	ITrackingSessionFullResponse
 } from '@ever-teams/toolkit-types';
 import QueryString from 'qs';
-import { apiConfigManager } from '../config/api-config';
+import { apiConfigManager, IApiRequestConfig } from '../config/api-config';
 
 export class TrackingApiClient {
 	private baseUrl: string;
@@ -37,22 +37,30 @@ export class TrackingApiClient {
 	}
 
 	/**
-	 * The API sessions are read from: the base URL a host set, else the SDK's own API (apiConfigManager), so a
-	 * token only ever goes to the API the rest of the kit talks to.
+	 * The API sessions are read from: the address the caller gives (a kit provider's own), else the base URL a host
+	 * set, else the SDK's own API (apiConfigManager), so a token only ever goes to the API the rest of the kit talks to.
 	 */
-	private resolveBaseUrl(): string {
+	private resolveBaseUrl(api?: IApiRequestConfig): string {
+		const callerUrl = api?.apiUrl;
+		if (callerUrl !== undefined) {
+			return callerUrl;
+		}
 		return this.baseUrl || apiConfigManager.getConfig().apiUrl;
 	}
 
 	/**
 	 * Create a fetch request with proper error handling and timeout
 	 */
-	private async makeRequest<T>(path: string, options: RequestInit = {}): Promise<ITrackingApiResponse<T>> {
+	private async makeRequest<T>(
+		path: string,
+		options: RequestInit = {},
+		api?: IApiRequestConfig
+	): Promise<ITrackingApiResponse<T>> {
 		const controller = new AbortController();
 		const timeoutId = setTimeout(() => controller.abort(), this.timeout);
 
 		try {
-			const url = `${this.resolveBaseUrl()}${path}`;
+			const url = `${this.resolveBaseUrl(api)}${path}`;
 			// Filter out undefined values from headers
 			const cleanHeaders = Object.fromEntries(
 				Object.entries({
@@ -158,7 +166,8 @@ export class TrackingApiClient {
 		employeeIds: string[] | null,
 		organizationId: string,
 		tenantId: string,
-		bearerToken: string
+		bearerToken: string,
+		api?: IApiRequestConfig
 	): Promise<ITrackingApiResponse<ITrackingSessionFullResponse>> {
 		const queryParams = QueryString.stringify({
 			startDate: from,
@@ -175,10 +184,14 @@ export class TrackingApiClient {
 			Accept: 'application/json'
 		};
 
-		return this.makeRequest<ITrackingSessionFullResponse>(`/timesheet/custom-tracking/sessions?${queryParams}`, {
-			method: 'GET',
-			headers: headers as HeadersInit
-		});
+		return this.makeRequest<ITrackingSessionFullResponse>(
+			`/timesheet/custom-tracking/sessions?${queryParams}`,
+			{
+				method: 'GET',
+				headers: headers as HeadersInit
+			},
+			api
+		);
 	}
 
 	/**

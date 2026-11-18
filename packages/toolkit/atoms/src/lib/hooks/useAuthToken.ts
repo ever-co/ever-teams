@@ -4,6 +4,7 @@ import { getUser } from '@ever-teams/api';
 import { IServerError, IUser } from '@ever-teams/toolkit-types';
 import { useAccessToken } from './useAccessToken';
 import { getErrorMessage, reportError } from '@ever-teams/toolkit-ui';
+import { useKitOptions } from '@components/teams-provider/kit-options';
 
 interface FormState {
 	inputText: string;
@@ -17,6 +18,7 @@ interface UseAuthTokenParams {
 }
 export const useAuthToken = ({ navigateFunc }: UseAuthTokenParams) => {
 	const { accessToken, setAccessToken } = useAccessToken();
+	const { api } = useKitOptions();
 	const [formState, setFormState] = useState<FormState>({
 		inputText: '',
 		loading: false,
@@ -29,11 +31,14 @@ export const useAuthToken = ({ navigateFunc }: UseAuthTokenParams) => {
 		async (storedToken: string) => {
 			setFormState((prevState) => ({ ...prevState, loading: true }));
 			try {
-				const user = await getUser({
-					token: storedToken,
-					includeEmployee: true,
-					includeOrganization: true
-				});
+				const user = await getUser(
+					{
+						token: storedToken,
+						includeEmployee: true,
+						includeOrganization: true
+					},
+					api
+				);
 
 				if (!user || !('error' in user)) reportError('User not found');
 				// setFormState((prevState) => ({ ...prevState, open: false, user }));
@@ -45,7 +50,7 @@ export const useAuthToken = ({ navigateFunc }: UseAuthTokenParams) => {
 				setFormState((prevState) => ({ ...prevState, loading: false }));
 			}
 		},
-		[navigateFunc]
+		[navigateFunc, api]
 	);
 
 	useEffect(() => {
@@ -81,11 +86,14 @@ export const useAuthToken = ({ navigateFunc }: UseAuthTokenParams) => {
 		setFormState((prevState) => ({ ...prevState, loading: true, error: false }));
 
 		try {
-			const user = await getUser({
-				token: formState.inputText,
-				includeEmployee: true,
-				includeOrganization: true
-			});
+			const user = await getUser(
+				{
+					token: formState.inputText,
+					includeEmployee: true,
+					includeOrganization: true
+				},
+				api
+			);
 
 			if (!user) reportError('User not found');
 

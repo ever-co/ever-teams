@@ -47,8 +47,9 @@ function standInPlugin(standIns, standInOf) {
  * - `standIns`: each stand-in's source, by name
  * - `standInOf(importPath)`: the stand-in an import is answered with, or undefined; the aliases have already turned
  *   an `@lib/...` import into a path, and backslashes into slashes
+ * - `external`: more packages the bundle imports at run time, besides React and react-dom
  */
-export async function bundleKit({ name, entry, standIns, standInOf }) {
+export async function bundleKit({ name, entry, standIns, standInOf, external = [] }) {
 	const folder = fs.mkdtempSync(path.join(here, `.${name}-`));
 	const remove = () => fs.rmSync(folder, { recursive: true, force: true });
 	try {
@@ -64,7 +65,7 @@ export async function bundleKit({ name, entry, standIns, standInOf }) {
 			mainFields: ['module', 'main'],
 			jsx: 'automatic',
 			logLevel: 'error',
-			external: ['react', 'react/jsx-runtime', 'react-dom'],
+			external: ['react', 'react/jsx-runtime', 'react-dom', ...external],
 			alias: kitAliases,
 			plugins: [standInPlugin(standIns, standInOf)]
 		});

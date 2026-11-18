@@ -1,4 +1,4 @@
-import { apiConfigManager, getUser } from '@ever-teams/api';
+import { getUser } from '@ever-teams/api';
 import { useEffect, useRef, useState } from 'react';
 import { IHookResponse, IUser } from '@ever-teams/toolkit-types';
 import { useAtom, useSetAtom } from 'jotai';
@@ -7,6 +7,7 @@ import { kindOfFailedRequest, noticeOfFailure } from '@lib/errors/kit-error';
 import { kitNoticeAtom } from '@lib/errors/kit-notice-atom';
 import { errorMessageOf } from '@lib/context/teams-timer-status-context';
 import { useKitOptions } from '@components/teams-provider/kit-options';
+import { apiUrlOf } from '@lib/utils/api-url';
 
 // Helper function to update session
 export const updateSession = (user: IUser, token: string) => {
@@ -27,7 +28,7 @@ const useAuthUser = (token: string): IHookResponse<IUser> => {
 	const [, setSelectedEmployee] = useAtom(selectedEmployeeAtom);
 	const setNotice = useSetAtom(kitNoticeAtom);
 	// With the host's getToken the token stays in memory: the session is not written to the browser's storage.
-	const { hostSignIn } = useKitOptions();
+	const { hostSignIn, api } = useKitOptions();
 	const keepSession = (data: IUser) => {
 		if (hostSignIn) {
 			return;
@@ -57,7 +58,7 @@ const useAuthUser = (token: string): IHookResponse<IUser> => {
 
 			setUser((prev) => ({ ...prev, loading: true }));
 
-			const authUser = await getUser({ token, includeEmployee: true, includeOrganization: true });
+			const authUser = await getUser({ token, includeEmployee: true, includeOrganization: true }, api);
 			if (!isCurrent()) {
 				return;
 			}
@@ -67,11 +68,7 @@ const useAuthUser = (token: string): IHookResponse<IUser> => {
 				// A stored session the API refuses (401) shows "Your session ended" in the widgets, not a toast on the
 				// page; a read that got no answer (no status) says whether this site is not allowed or Ever Teams is
 				// unreachable.
-				const notice = await noticeOfFailure(
-					authUser,
-					errorMessageOf(authUser),
-					apiConfigManager.getConfig().apiUrl
-				);
+				const notice = await noticeOfFailure(authUser, errorMessageOf(authUser), apiUrlOf(api));
 				if (!isCurrent()) {
 					return;
 				}
@@ -89,7 +86,7 @@ const useAuthUser = (token: string): IHookResponse<IUser> => {
 			// A read that succeeds ends the notice an earlier one left (Ever Teams unreachable while the page loaded).
 			setNotice(null);
 		} catch {
-			const kind = await kindOfFailedRequest(apiConfigManager.getConfig().apiUrl);
+			const kind = await kindOfFailedRequest(apiUrlOf(api));
 			if (!isCurrent()) {
 				return;
 			}
@@ -102,7 +99,16 @@ const useAuthUser = (token: string): IHookResponse<IUser> => {
 	useEffect(() => {
 		setReadAgainWhenBack(false);
 		void handleUserAuthentication();
-	}, [token]);
+	}, [token, api]);
+
+	// A read still pending once the provider is gone (it started afresh on another address) saves no session and sets
+	// nothing.
+	useEffect(
+		() => () => {
+			latestRead.current += 1;
+		},
+		[]
+	);
 
 	useEffect(() => {
 		if (!readAgainWhenBack) {
@@ -123,7 +129,7 @@ const useAuthUser = (token: string): IHookResponse<IUser> => {
 			window.removeEventListener('focus', readAgain);
 			document.removeEventListener('visibilitychange', readAgain);
 		};
-	}, [readAgainWhenBack, token]);
+	}, [readAgainWhenBack, token, api]);
 
 	return user;
 };

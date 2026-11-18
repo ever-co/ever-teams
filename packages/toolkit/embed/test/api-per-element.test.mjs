@@ -1,0 +1,154 @@
+// Each <ever-teams-timer> of a page talks to its own api-url (ever-co/ever-teams#5483): yarn test in
+// packages/toolkit/embed, which builds toolkit-types and the api package first.
+// The atoms package's bundle-kit.mjs bundles the element with TeamsProvider and the kit's hooks from the atoms sources
+// and the built @ever-teams/api; the sign-in dialog and the timer are stand-ins built on the kit's own hooks, and the UI
+// packages those of kit-stand-ins.mjs. React renders the elements in jsdom, and a stand-in fetch records every request.
+import { test, before, after, beforeEach } from 'node:test';
+import assert from 'node:assert/strict';
+import path from 'node:path';
+import { createRequire } from 'node:module';
+import { fileURLToPath } from 'node:url';
+import { bundleKit, kitSources } from '../../atoms/test/bundle-kit.mjs';
+import { kitStandInOf, kitStandIns, recordingFetch } from '../../atoms/test/kit-stand-ins.mjs';
+
+const here = path.dirname(fileURLToPath(import.meta.url));
+const require = createRequire(import.meta.url);
+const { JSDOM } = require('jsdom');
+
+const dom = new JSDOM('<!doctype html><html><head></head><body></body></html>', { url: 'http://localhost/' });
+for (const name of Object.getOwnPropertyNames(dom.window)) {
+	if (!(name in globalThis)) {
+		globalThis[name] = dom.window[name];
+	}
+}
+for (const name of ['Event', 'CustomEvent', 'EventTarget']) {
+	globalThis[name] = dom.window[name];
+}
+globalThis.window = dom.window;
+globalThis.document = dom.window.document;
+// Node has a localStorage of its own, empty without --localstorage-file: the kit keeps its session in the page's.
+globalThis.localStorage = dom.window.localStorage;
+globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+
+const element = path.join(here, '..', 'src', 'index.ts').replaceAll('\\', '/');
+const standIns = {
+	'@ever-teams/atoms': `import { createElement } from 'react';
+		import { usePasswordLoginForm } from '${kitSources}/hooks/usePasswordLoginForm.ts';
+		import { useTimer } from '${kitSources}/hooks/useTimer.ts';
+		export { TeamsProvider } from '${kitSources}/components/teams-provider/teams-provider.tsx';
+		export const TeamsLoginDialog = () => {
+			const form = usePasswordLoginForm({});
+			return createElement('button', { 'data-sign-in': '', onClick: form.handleSubmit }, 'Sign In');
+		};
+		export const TeamsBasicTimer = () => {
+			useTimer();
+			return null;
+		};`,
+	'@ever-teams/atoms/styles.css?inline': 'export default "";'
+};
+const standInOf = (importPath) => {
+	const name = Object.keys(standIns).find((key) => importPath === key);
+	if (name) {
+		return name;
+	}
+	return kitStandInOf(importPath);
+};
+
+let act;
+let pageConfig;
+let removeBundle;
+let requests;
+
+before(async () => {
+	const { bundled, remove } = await bundleKit({
+		name: 'api-per-element',
+		entry: `export * from '${element}';
+			export { apiConfigManager } from '@ever-teams/api';`,
+		standIns: { ...kitStandIns, ...standIns },
+		standInOf,
+		external: ['react-dom/client', '@emotion/react', '@emotion/cache']
+	});
+	pageConfig = bundled.apiConfigManager;
+	removeBundle = remove;
+	({ act } = require('react'));
+});
+
+// The elements unmount their kit in a microtask after removal, inside act: their timers stop polling.
+async function removeElements() {
+	await act(async () => {
+		document.body.innerHTML = '';
+	});
+}
+
+after(async () => {
+	await removeElements();
+	removeBundle?.();
+});
+
+beforeEach(async () => {
+	await removeElements();
+	localStorage.clear();
+	requests = [];
+	globalThis.fetch = recordingFetch(requests);
+});
+
+async function place(apiUrl) {
+	const timer = document.createElement('ever-teams-timer');
+	if (apiUrl) {
+		timer.setAttribute('api-url', apiUrl);
+	}
+	await act(async () => document.body.appendChild(timer));
+	return timer;
+}
+
+// Lets the reads that follow a sign-in (permissions, organizations, timer status) run and settle.
+async function settle() {
+	for (let round = 0; round < 10; round += 1) {
+		await act(async () => new Promise((resolve) => setTimeout(resolve, 0)));
+	}
+}
+
+async function signInOn(timer) {
+	requests.length = 0;
+	const signIn = timer.shadowRoot.querySelector('[data-sign-in]');
+	await act(async () => signIn.click());
+	await settle();
+}
+
+const hosts = () => new Set(requests.map(({ host }) => host));
+const requestsTo = (path) => requests.filter((request) => request.path === path);
+
+test('two elements with two api-url each send the sign-in and the timer to their own server', async () => {
+	const first = await place('https://a.example.com/api');
+	const second = await place('https://b.example.com/api');
+
+	await signInOn(first);
+	assert.equal(requestsTo('/auth/login').length, 1);
+	assert.ok(requestsTo('/timesheet/timer/status').length > 0, 'the timer reads its status');
+	assert.deepEqual(hosts(), new Set(['a.example.com']));
+
+	await signInOn(second);
+	assert.equal(requestsTo('/auth/login').length, 1);
+	assert.ok(requestsTo('/timesheet/timer/status').length > 0, 'the timer reads its status');
+	assert.deepEqual(hosts(), new Set(['b.example.com']));
+});
+
+test('an element without api-url follows the address the page holds, and never changes it', async () => {
+	pageConfig.setConfig({ apiUrl: 'https://host.example.com/api' });
+	const plain = await place();
+	assert.equal(pageConfig.getConfig().apiUrl, 'https://host.example.com/api');
+
+	await signInOn(plain);
+	assert.equal(requestsTo('/auth/login').length, 1);
+	assert.deepEqual(hosts(), new Set(['host.example.com']));
+
+	// Another element points at a self-hosted API, which becomes the page's address; it starts signed out.
+	localStorage.clear();
+	await place('https://teams.example.org/api');
+	await signInOn(plain);
+	assert.equal(requestsTo('/auth/login').length, 1);
+	assert.deepEqual(hosts(), new Set(['teams.example.org']));
+
+	await act(async () => plain.setAttribute('color-scheme', 'dark'));
+	assert.equal(pageConfig.getConfig().apiUrl, 'https://teams.example.org/api');
+});

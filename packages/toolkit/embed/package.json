@@ -17,7 +17,7 @@
 	"scripts": {
 		"build": "vite build",
 		"prepublishOnly": "vite build",
-		"test": "node --test test/*.test.mjs"
+		"test": "yarn --cwd ../../toolkit-types build && yarn --cwd ../../api build && node --test test/*.test.mjs"
 	},
 	"devDependencies": {
 		"@emotion/cache": "^11.14.0",
