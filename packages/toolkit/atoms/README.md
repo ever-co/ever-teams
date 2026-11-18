@@ -274,6 +274,10 @@ yesterday as today. While it waits, the report tiles show loaders; when it throw
 couldn't be loaded and offers "Try again", which calls it again. A week with no time says so, with the client's name.
 Today and this week are counted in the time zone the report names (`timeZone`).
 
+A new `getReport` at each render of your page does not call it again. To show another client in the same place, give
+the widget a `key` per client (`<TeamsClientTimeReport key={clientId} getReport={...} />`): it then starts afresh, and
+an answer still on its way for the previous client is dropped.
+
 The widget keeps the report in memory and writes nothing to the browser's storage. The `TeamsProvider` around it
 handles the session as it does for every kit component: on a site where people also sign in with the kit, it reads
 their saved session, and clears it once expired (see

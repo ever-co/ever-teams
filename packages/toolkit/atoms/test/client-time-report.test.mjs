@@ -431,6 +431,33 @@ test('with no time this week the widget says so and names the client', async () 
 	assert.doesNotMatch(container.textContent, /This week/);
 });
 
+test('with a key per client, another client never sees the previous client’s report', async () => {
+	const northwind = hostBackend();
+	const container = document.createElement('div');
+	document.body.appendChild(container);
+	const root = createRoot(container);
+	roots.push(root);
+	const widgetFor = (key, getReport) => React.createElement(kit.TeamsClientTimeReport, { key, getReport });
+	await act(async () => root.render(widgetFor('client-1', northwind.getReport)));
+
+	const fabrikam = hostBackend();
+	await act(async () => root.render(widgetFor('client-2', fabrikam.getReport)));
+	assert.equal(fabrikam.calls.length, 1);
+	await act(async () => northwind.calls[0].resolve(NORTHWIND));
+	await settle();
+	assert.equal(
+		container.querySelector('h2').textContent.trim(),
+		'Time spent',
+		'the previous client’s answer is dropped'
+	);
+
+	const FABRIKAM = { ...NORTHWIND, client: { id: 'client-2', name: 'Fabrikam' } };
+	await act(async () => fabrikam.calls[0].resolve(FABRIKAM));
+	await settle();
+	assert.equal(container.querySelector('h2').textContent, 'Time spent Fabrikam');
+	assert.doesNotMatch(container.textContent, /Northwind/);
+});
+
 test('when the host’s call fails the widget shows an alert, and Try again asks again and shows the report', async () => {
 	const backend = hostBackend();
 	const { container } = await mountWidget(backend.getReport);
