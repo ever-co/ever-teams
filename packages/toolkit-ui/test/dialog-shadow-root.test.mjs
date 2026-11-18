@@ -196,18 +196,14 @@ test('in a shadow root a Tab a control of the dialog handled itself is left to i
 	const host = document.createElement('div');
 	document.body.appendChild(host);
 	const shadow = host.attachShadow({ mode: 'open' });
-	const keepsShiftTab = React.createElement(
-		'textarea',
-		{
-			key: 'note',
-			onKeyDown: (event) => {
-				if (event.key === 'Tab') {
-					event.preventDefault();
-				}
+	const keepsShiftTab = React.createElement('textarea', {
+		key: 'note',
+		onKeyDown: (event) => {
+			if (event.key === 'Tab') {
+				event.preventDefault();
 			}
-		},
-		''
-	);
+		}
+	});
 	const { root, portal } = await openDialog(shadow, [], [keepsShiftTab]);
 	const note = portal.querySelector('textarea');
 
