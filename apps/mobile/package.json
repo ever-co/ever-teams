@@ -45,6 +45,7 @@
 		"patch": "yarn patch-package",
 		"test": "yarn jest",
 		"test:watch": "yarn jest --watch",
+		"test:maestro": "maestro test .maestro",
 		"adb": "yarn adb reverse tcp:9090 tcp:9090 && adb reverse tcp:3000 tcp:3000 && adb reverse tcp:9001 tcp:9001 && adb reverse tcp:8081 tcp:8081",
 		"postinstall": "node ./bin/postInstall",
 		"bundle:ios": "yarn config:mobile && yarn react-native bundle --entry-file index.js --platform ios --dev false --bundle-output ios/main.jsbundle --assets-dest ios",
