@@ -21,6 +21,7 @@ import {
 	TimeActivityBreakdown,
 	breakdownColumnsOf
 } from '@/core/components/dashboards/time-activity/time-activity-breakdown';
+import { LabelOverlapNotice } from '@/core/components/dashboards/time-activity/time-activity-label-overlap-notice';
 import { APP_NAME } from '@/core/constants/config/constants';
 import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 import { useHiddenProjectLabels } from '@/core/hooks/organizations/projects/use-hidden-project-labels';
@@ -39,10 +40,12 @@ import { dailyReportOfPublic, periodOfPublicReport } from '@/core/lib/utils/dash
 import {
 	type ChartDayLabels,
 	type TimeActivityRow,
+	breakdownFactsOf,
 	breakdownGroupingOf,
 	chartDaysOf,
 	clientOfProjectLogOf,
 	clientRowsOf,
+	labelGroupsOverlap,
 	todayKeyOf
 } from '@/core/lib/utils/dashboards/time-activity';
 import { errorStatusOf } from '@/core/lib/utils/error-feedback';
@@ -250,6 +253,12 @@ function SharedReportContent({ report, period }: Readonly<{ report: IPublicSaved
 	);
 	const memberCount = useMemo(() => new Set(rows.map((row) => row.employeeId)).size, [rows]);
 	const hasRows = rows.length > 0;
+	// A report grouped by label states each entry's labels (ever-gauzy#12073): one with two counts under each, as on
+	// the report page, which says so
+	const overlaps = useMemo(
+		() => grouping === 'label' && labelGroupsOverlap(breakdownFactsOf(rows)),
+		[grouping, rows]
+	);
 
 	return (
 		<div className={DASHBOARD_STACK}>
@@ -272,6 +281,7 @@ function SharedReportContent({ report, period }: Readonly<{ report: IPublicSaved
 					period={period}
 					isLoading={false}
 					isError={false}
+					notice={overlaps ? <LabelOverlapNotice /> : undefined}
 					hasFilters={false}
 					onRetry={NO_ACTION}
 					onClearFilters={NO_ACTION}

@@ -1844,6 +1844,8 @@
 			"SHARE_TITLE": "Compartir un enlace de solo lectura",
 			"SHARE_NEEDS_SAVE": "Un enlace comparte un informe guardado. Pon nombre a esta vista para guardarla y luego activa su enlace.",
 			"LABELS_NOT_KEPT": "Los informes guardados aún no conservan etiquetas. Para guardar esta vista, quita el filtro Etiquetas y agrupa por algo distinto de Etiqueta.",
+			"LABELS_CHECKING": "Comprobando si los informes guardados conservan etiquetas…",
+			"LABELS_CHECK_FAILED": "No se pudo comprobar si los informes guardados conservan etiquetas.",
 			"SHARE_HINT": "Quien tenga el enlace ve el nombre del informe, su periodo, las cifras, el gráfico y la tabla, sin cuenta. No se puede cambiar nada y solo muestra lo que tú puedes ver.",
 			"LINK_ADDRESS": "Dirección del enlace",
 			"COPY": "Copiar",

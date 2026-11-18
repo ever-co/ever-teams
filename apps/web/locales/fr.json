@@ -1844,6 +1844,8 @@
 			"SHARE_TITLE": "Partager un lien en lecture seule",
 			"SHARE_NEEDS_SAVE": "Un lien partage un rapport enregistré. Nommez cette vue pour l’enregistrer, puis activez son lien.",
 			"LABELS_NOT_KEPT": "Les rapports enregistrés ne gardent pas encore les étiquettes. Pour enregistrer cette vue, videz le filtre Étiquettes et regroupez par autre chose qu’Étiquette.",
+			"LABELS_CHECKING": "On vérifie si les rapports enregistrés gardent les étiquettes…",
+			"LABELS_CHECK_FAILED": "Impossible de vérifier si les rapports enregistrés gardent les étiquettes.",
 			"SHARE_HINT": "Toute personne ayant le lien voit le nom du rapport, sa période, les chiffres, le graphique et le tableau, sans compte. Rien ne peut être modifié, et il ne montre que ce que vous pouvez voir.",
 			"LINK_ADDRESS": "Adresse du lien",
 			"COPY": "Copier",

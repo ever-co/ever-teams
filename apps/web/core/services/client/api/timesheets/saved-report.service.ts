@@ -1,4 +1,5 @@
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
+import { errorStatusOf } from '@/core/lib/utils/error-feedback';
 import type { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import type {
 	IPublicSavedReport,
@@ -16,6 +17,34 @@ function reportPathOf(id: string) {
 
 /** The most reports Gauzy answers in one page of the list (its `MAX_SAVED_REPORTS_PER_PAGE`). */
 const SAVED_REPORTS_PAGE_SIZE = 200;
+
+/** An id no saved report has: the nil uuid, which no database generates for a row. */
+const NO_REPORT_ID = '00000000-0000-0000-0000-000000000000';
+
+const NOT_FOUND = 404;
+const BAD_REQUEST = 400;
+
+const GROUPING_PROPERTY = /\bgrouping\b/i;
+
+function messageTextOf(message: unknown): string {
+	if (Array.isArray(message)) {
+		return message.join(' ');
+	}
+	if (typeof message === 'string') {
+		return message;
+	}
+	return '';
+}
+
+/** Whether a refusal is an older Gauzy's of the Label grouping: a 400 that names the `grouping` property. */
+function isRefusalOfLabelGrouping(error: unknown): boolean {
+	if (errorStatusOf(error) !== BAD_REQUEST) {
+		return false;
+	}
+	const failure = error as { message?: unknown; response?: { data?: { message?: unknown } } } | null;
+	const message = `${messageTextOf(failure?.message)} ${messageTextOf(failure?.response?.data?.message)}`;
+	return GROUPING_PROPERTY.test(message);
+}
 
 /**
  * The signed-in member's saved reports (Gauzy `/api/saved-reports`; in proxy mode this app's `/api/saved-reports`
@@ -68,6 +97,28 @@ class SavedReportService extends APIService {
 			false
 		);
 		return data;
+	};
+
+	/**
+	 * Whether Gauzy keeps the labels of entries on a saved report (ever-gauzy#12073): the labels filter (`tagIds`,
+	 * `untagged`) and the Label grouping, which came together. Asked with a change of a report that does not exist
+	 * ({@link NO_REPORT_ID}) to the Label grouping: Gauzy checks the body before it looks for the report, so one that
+	 * keeps labels takes it and answers 404 (no such report), and an older one refuses the grouping with a 400 that names
+	 * it. Nothing is written either way. Any other answer is a failure, read again rather than taken as "no labels".
+	 */
+	keepsEntryLabels = async (): Promise<boolean> => {
+		try {
+			await this.put<ISavedReport>(reportPathOf(NO_REPORT_ID), { grouping: 'label' });
+			return true;
+		} catch (error) {
+			if (errorStatusOf(error) === NOT_FOUND) {
+				return true;
+			}
+			if (isRefusalOfLabelGrouping(error)) {
+				return false;
+			}
+			throw error;
+		}
 	};
 
 	/** Turns the link off: it stops working at once. */
