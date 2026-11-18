@@ -11,7 +11,7 @@ import { EverTeamsClientOptions } from './types';
 export type { EverTeamsDate } from './dates';
 export type { MembersResource } from './members';
 export type { EverTeamsProject, ProjectsResource } from './projects';
-export type { TasksListParams, TasksResource } from './tasks';
+export type { EverTeamsTask, TasksListParams, TasksResource } from './tasks';
 export type { TimeEntriesListParams, TimeEntriesResource } from './time-entries';
 export type { EverTeamsTimeLog, EverTeamsTimerStatus, TimerResource, TimerStartOptions } from './timer';
 export type { EverTeamsTotal, TotalsResource } from './totals';
