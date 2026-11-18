@@ -1,13 +1,19 @@
 import { IServerError, ITimeLog, ITimeLogCreateInput, IUser, LogType, TimerSource } from '@ever-teams/toolkit-types';
 import { ApiCall } from '../fetch';
 import QueryString from 'qs';
-import { DateRange } from 'react-day-picker';
+
+// The shape of react-day-picker's DateRange, which the kit passes: the package does not depend on react-day-picker,
+// so its declarations must not import it.
+interface ITimeLogsDateRange {
+	from: Date | undefined;
+	to?: Date | undefined;
+}
 
 interface IGetTimeLogsParams {
 	user: IUser | null;
 	token: string;
 	organizationId: string;
-	date?: DateRange;
+	date?: ITimeLogsDateRange;
 	activityLevel?: { start: number; end: number };
 	timeZone?: string;
 	source?: TimerSource[];

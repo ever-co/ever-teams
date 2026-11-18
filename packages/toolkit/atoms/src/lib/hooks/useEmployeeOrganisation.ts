@@ -3,6 +3,7 @@ import { IHookResponse, IOrganizationContact } from '@ever-teams/toolkit-types';
 import { getOrganizationClients } from '@ever-teams/api';
 import { toast } from '@ever-teams/toolkit-ui';
 import { useTeamsContext } from '@lib/context/teams-context';
+import { useKitOptions } from '@components/teams-provider/kit-options';
 
 export const useEmployeeOrganization = (): IHookResponse<IOrganizationContact[]> => {
 	const [clients, setClients] = useState<IHookResponse<IOrganizationContact[]>>({
@@ -11,8 +12,14 @@ export const useEmployeeOrganization = (): IHookResponse<IOrganizationContact[]>
 	});
 
 	const { authenticatedUser: user, token, selectedOrganization: organizationId } = useTeamsContext();
+	const { hostSignIn } = useKitOptions();
 
 	useEffect(() => {
+		// A token from the host's getToken does not reach the clients: no read, so no refusal to show
+		if (hostSignIn) {
+			setClients({ data: [], loading: false });
+			return;
+		}
 		if (user && organizationId) {
 			(async () => {
 				setClients((prev) => ({ ...prev, loading: true }));
@@ -40,7 +47,7 @@ export const useEmployeeOrganization = (): IHookResponse<IOrganizationContact[]>
 		} else {
 			setClients({ data: [], loading: false });
 		}
-	}, [user, token, organizationId]);
+	}, [user, token, organizationId, hostSignIn]);
 
 	return clients;
 };

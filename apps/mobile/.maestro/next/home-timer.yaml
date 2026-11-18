@@ -1,0 +1,51 @@
+# The new app's Home: the person starts the timer on their last task, sees today's time run, and stops it.
+# Runs on a build made with EXPO_PUBLIC_APP_SHELL=next that already holds a session (see the README).
+appId: ${APP_ID}
+---
+- launchApp:
+    clearState: false
+- extendedWaitUntil:
+    visible:
+      id: "home-timer-button"
+    timeout: 30000
+# A run an earlier flow left is stopped first; "running since" shows once the API's status says the timer runs
+- runFlow:
+    when:
+      visible:
+        id: "home-running-since"
+    commands:
+      - tapOn:
+          id: "home-timer-button"
+      - extendedWaitUntil:
+          notVisible:
+            id: "home-running-since"
+          timeout: 20000
+# Start turns on once Home knows the task to start on, which an earlier day's log can bring a moment later
+- extendedWaitUntil:
+    visible:
+      id: "home-timer-button"
+      enabled: true
+    timeout: 20000
+- tapOn:
+    id: "home-timer-button"
+- extendedWaitUntil:
+    visible:
+      id: "home-running-since"
+    timeout: 20000
+- assertVisible:
+    id: "home-today-digits"
+# Today's time runs: the digits read now are gone a moment later (iOS reads the spoken label, which changes each minute)
+- copyTextFrom:
+    id: "home-today-digits"
+- extendedWaitUntil:
+    notVisible:
+      id: "home-today-digits"
+      text: ${maestro.copiedText}
+    timeout: 70000
+- takeScreenshot: home-running
+- tapOn:
+    id: "home-timer-button"
+- extendedWaitUntil:
+    notVisible:
+      id: "home-running-since"
+    timeout: 20000
