@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useLayoutEffect, ReactNode } from 'react';
+import { useEffect, useLayoutEffect, useMemo, ReactNode } from 'react';
 
 import { Theme, ThemeUIProvider } from 'theme-ui';
 
@@ -165,6 +165,9 @@ const TeamsProvider = ({
 	}, [colorScheme, loadGoogleFonts]);
 
 	const hostSignIn = Boolean(props.config?.getToken);
+	const apiUrl = props.config?.apiUrl;
+	// One object per address: a host that passes a new config object at each render does not read everything again.
+	const api = useMemo(() => ({ apiUrl }), [apiUrl]);
 	// Turning getToken on or off starts the kit's state afresh: a token or an organization list read in one mode never
 	// reaches the other (a host token would otherwise be saved to localStorage by the stored-session mode).
 	let signInMode = 'page';
@@ -172,7 +175,7 @@ const TeamsProvider = ({
 		signInMode = 'host';
 	}
 	const content = (
-		<KitOptionsProvider value={{ scoped: scopedStyles, onSignOut, hostSignIn, branding }}>
+		<KitOptionsProvider value={{ scoped: scopedStyles, onSignOut, hostSignIn, branding, api }}>
 			<JotaiProvider key={signInMode}>
 				<TeamsDataProvider {...props} scoped={scopedStyles}>
 					{children}

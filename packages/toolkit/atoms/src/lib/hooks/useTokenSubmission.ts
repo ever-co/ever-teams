@@ -1,4 +1,4 @@
-import { apiConfigManager, getUser } from '@ever-teams/api';
+import { getUser } from '@ever-teams/api';
 import { useState, useCallback, useRef } from 'react';
 import { useAccessToken } from './useAccessToken';
 import { useTeamsContext } from '../context/teams-context';
@@ -7,6 +7,8 @@ import { updateSession } from './useAuthUser';
 import { useTranslation } from 'react-i18next';
 import { KIT_ERROR_MESSAGE_KEYS, kindOfFailedRequest, kindOfSignInFailure } from '@lib/errors/kit-error';
 import { errorMessageOf } from '@lib/context/teams-timer-status-context';
+import { useKitOptions } from '@components/teams-provider/kit-options';
+import { apiUrlOf } from '@lib/utils/api-url';
 
 export const useTokenSubmission = (redirectHandler?: () => void) => {
 	const [tokenInput, setTokenInput] = useState<string>('');
@@ -16,6 +18,7 @@ export const useTokenSubmission = (redirectHandler?: () => void) => {
 	const [isFormOpen, setIsFormOpen] = useState<boolean>(true);
 	const { setAccessToken } = useAccessToken();
 	const { setToken, setAuthenticatedUser: setUser } = useTeamsContext();
+	const { api } = useKitOptions();
 	// Counts the edits: a failure that comes back after an edit is not shown, since the edit cleared the error.
 	const edits = useRef(0);
 
@@ -48,16 +51,19 @@ export const useTokenSubmission = (redirectHandler?: () => void) => {
 			};
 
 			try {
-				const user = await getUser({
-					token: tokenInput,
-					includeEmployee: true,
-					includeOrganization: true
-				});
+				const user = await getUser(
+					{
+						token: tokenInput,
+						includeEmployee: true,
+						includeOrganization: true
+					},
+					api
+				);
 
 				if ('message' in user || 'error' in user) {
 					// No answer (the API package returns it with no status), the site not allowed, a missing permission
 					// or the API down: the kit's own words, inside the form and with no toast on the host page.
-					const kind = await kindOfSignInFailure(user, apiConfigManager.getConfig().apiUrl);
+					const kind = await kindOfSignInFailure(user, apiUrlOf(api));
 					if (kind) {
 						showError(t(KIT_ERROR_MESSAGE_KEYS[kind]));
 						setUser((prev) => ({ ...prev, loading: false }));
@@ -89,13 +95,13 @@ export const useTokenSubmission = (redirectHandler?: () => void) => {
 				redirectHandler && redirectHandler();
 			} catch {
 				// No answer: say whether this site is not allowed or Ever Teams is unreachable, inside the form.
-				const kind = await kindOfFailedRequest(apiConfigManager.getConfig().apiUrl);
+				const kind = await kindOfFailedRequest(apiUrlOf(api));
 				showError(t(KIT_ERROR_MESSAGE_KEYS[kind]));
 			} finally {
 				setIsLoading(false);
 			}
 		},
-		[tokenInput, setToken, t]
+		[tokenInput, setToken, t, api]
 	);
 
 	return {
