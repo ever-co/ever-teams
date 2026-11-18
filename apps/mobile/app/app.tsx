@@ -13,6 +13,7 @@ import './i18n';
 import './utils/ignore-warnings';
 import { useFonts } from 'expo-font';
 import React, { useState } from 'react';
+import { useColorScheme } from 'react-native';
 import { Provider as PaperProvider } from 'react-native-paper';
 
 import { initialWindowMetrics, SafeAreaProvider } from 'react-native-safe-area-context';
@@ -65,12 +66,14 @@ const App = observer((props: AppProps) => {
 		isRestored: isNavigationStateRestored
 	} = useNavigationPersistence(storage, NAVIGATION_PERSISTENCE_KEY);
 	const {
-		authenticationStore: { isDarkMode }
+		authenticationStore: { isDarkMode, followsSystemTheme }
 	} = useStores();
 
 	// Sentry initialization moved to module level (top of file)
 
 	const [areFontsLoaded] = useFonts(customFontsToLoad);
+	// read with the other hooks: the app returns early below until it is ready
+	const systemColorScheme = useColorScheme();
 
 	const [sessionEnded, setSessionEnded] = useState(false);
 
@@ -99,7 +102,9 @@ const App = observer((props: AppProps) => {
 
 	// otherwise, we're ready to render the app
 
-	const theme = isDarkMode ? customDarkTheme : customLightTheme;
+	const systemIsDark = systemColorScheme === 'dark';
+	const dark = followsSystemTheme ? systemIsDark : isDarkMode;
+	const theme = dark ? customDarkTheme : customLightTheme;
 	return (
 		<SafeAreaProvider initialMetrics={initialWindowMetrics}>
 			<PaperProvider theme={theme}>
@@ -107,7 +112,7 @@ const App = observer((props: AppProps) => {
 					<FlashMessage position="top" />
 					<ClickOutsideProvider>
 						<AppNavigator
-							theme={navigationTheme(isDarkMode)}
+							theme={navigationTheme(dark)}
 							initialState={initialNavigationState}
 							onStateChange={onNavigationStateChange}
 						/>

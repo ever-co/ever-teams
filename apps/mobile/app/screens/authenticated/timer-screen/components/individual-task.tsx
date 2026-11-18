@@ -89,6 +89,7 @@ const IndividualTask: FC<Props> = observer(
 
 		return (
 			<TouchableOpacity
+				testID="task-picker-option"
 				style={styles.container}
 				onPress={() => {
 					closeCombo()

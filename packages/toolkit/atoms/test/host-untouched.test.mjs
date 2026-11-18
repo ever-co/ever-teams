@@ -173,6 +173,21 @@ test('without a picked font the kit root keeps the host font', async () => {
 	await act(async () => root.unmount());
 });
 
+test('a kit root rendered in a shadow root opens its dialogs there, not in the page body', async () => {
+	const host = document.createElement('div');
+	document.body.appendChild(host);
+	const shadow = host.attachShadow({ mode: 'open' });
+	const container = document.createElement('div');
+	shadow.appendChild(container);
+	const root = createRoot(container);
+	await act(async () => root.render(React.createElement(kit.KitRoot)));
+
+	assert.ok(shadow.querySelector('[data-ever-teams-portal]'), 'the portal container is in the shadow root');
+	assert.equal(document.body.querySelector(':scope > [data-ever-teams-portal]'), null);
+	await act(async () => root.unmount());
+	assert.equal(shadow.querySelector('[data-ever-teams-portal]'), null, 'and leaves with the kit root');
+});
+
 test('the color scheme is drawn on the kit root and its portal container, never on <html>', async () => {
 	systemDark = true;
 	const { root, container } = await render(React.createElement(kit.KitRoot));

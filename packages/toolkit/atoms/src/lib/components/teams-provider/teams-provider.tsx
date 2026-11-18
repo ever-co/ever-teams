@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useLayoutEffect, useState, ReactNode } from 'react';
+import { useEffect, useLayoutEffect, ReactNode } from 'react';
 
 import { Theme, ThemeUIProvider } from 'theme-ui';
 
@@ -15,7 +15,7 @@ import { useUserPermission } from '@hooks/useUserPermission';
 import { ThemeProvider } from 'next-themes';
 import { useUserOrganization } from '@hooks/useUserOrganization';
 import { I18nextProvider } from 'react-i18next';
-import { changeTeamsLanguage } from '@components/i18n/language-switch';
+import { useProviderLanguage } from '@hooks/useProviderLanguage';
 import { TeamsContext } from '@lib/context/teams-context';
 import i18n from '@lib/i18n/init';
 import { apiConfigManager, IApiTeamsConfig } from '@ever-teams/api';
@@ -62,13 +62,11 @@ type TeamsDataProviderProps = Omit<
 };
 
 const TeamsDataProvider = ({ children, config: apiConfig, theme, lang = 'en', scoped }: TeamsDataProviderProps) => {
-	// React States
-	const [language, setLanguage] = useState(lang);
-
 	// Jotai Atoms
 	const [appliedTheme, setAppliedTheme] = useAtom(appliedThemeAtom);
 
 	// Custom hooks
+	useProviderLanguage(lang);
 
 	const { fontOptions, selectedFont, setSelectedFont } = useFontSelector();
 
@@ -87,17 +85,6 @@ const TeamsDataProvider = ({ children, config: apiConfig, theme, lang = 'en', sc
 	useEffect(() => {
 		theme && setAppliedTheme(theme);
 	}, [theme]);
-
-	useEffect(() => {
-		const storedLanguage = localStorage.getItem('preferred-language');
-		if (storedLanguage) {
-			setLanguage(storedLanguage);
-		}
-	}, [lang]);
-
-	useEffect(() => {
-		changeTeamsLanguage(language);
-	}, [language]);
 
 	useEffect(() => {
 		if (apiConfig) {

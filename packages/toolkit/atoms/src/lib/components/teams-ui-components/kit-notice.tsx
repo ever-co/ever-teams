@@ -5,13 +5,14 @@ import { cn } from '@ever-teams/toolkit-ui';
 import { useTimerStatusContext } from '@lib/context/teams-timer-status-context';
 import { KIT_ERROR_MESSAGE_KEYS, KitNotice as IKitNotice } from '@lib/errors/kit-error';
 import { useClearKitSession } from '@hooks/useClearKitSession';
+import { KIT_NOTICE_SURFACE, kitNoticeTone } from './notice-surface';
 
 // Unreachable is a state the kit recovers from by itself; the others need someone to act.
 function toneOf(kind: IKitNotice['kind']): string {
 	if (kind === 'unreachable') {
-		return 'bg-foreground/5 ring-foreground/10';
+		return kitNoticeTone('neutral');
 	}
-	return 'bg-destructive/5 ring-destructive/20';
+	return kitNoticeTone('error');
 }
 
 // The stored session the kit reads back at the next load: emptied too, or a reload would bring the ended one back.
@@ -52,11 +53,7 @@ export function KitNotice({ className }: Readonly<{ className?: string }>) {
 	return (
 		<div
 			data-ever-teams-notice={notice.kind}
-			className={cn(
-				'mt-2 flex max-w-xs items-start gap-2 rounded-lg px-3 py-2 text-xs leading-snug text-foreground ring-1',
-				toneOf(notice.kind),
-				className
-			)}
+			className={cn('mt-2 flex max-w-xs items-start gap-2', KIT_NOTICE_SURFACE, toneOf(notice.kind), className)}
 		>
 			<span className="min-w-0">{text}</span>
 			{notice.kind === 'session' && (

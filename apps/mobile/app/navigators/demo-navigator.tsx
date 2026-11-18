@@ -34,6 +34,8 @@ export function DemoNavigator() {
 
 	return (
 		<Tab.Navigator
+			// No id, as before: see the app stack in app-navigator.tsx
+			id={undefined}
 			screenOptions={{
 				headerShown: false,
 				tabBarHideOnKeyboard: true,
