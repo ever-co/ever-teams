@@ -58,7 +58,10 @@ function messagesOf(body: unknown): string[] {
 	return [];
 }
 
-function textOf(response: Response, body: unknown): string {
+/** What the typed error of an answer reads of it: its status, status text and headers. */
+export type AnswerHead = Pick<Response, 'status' | 'statusText' | 'headers'>;
+
+function textOf(response: AnswerHead, body: unknown): string {
 	const messages = messagesOf(body);
 	if (messages.length > 0) {
 		return messages.join('; ');
@@ -124,7 +127,7 @@ export type NextStepsByStatus = { [status: number]: string };
 
 /** The typed error of an answer that is not a success, from the answer and its body (read as JSON, else null). */
 export function errorFromResponse(
-	response: Response,
+	response: AnswerHead,
 	body: unknown,
 	nextSteps: NextStepsByStatus = {}
 ): EverTeamsError {

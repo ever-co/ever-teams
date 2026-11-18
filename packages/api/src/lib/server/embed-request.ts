@@ -177,7 +177,13 @@ function valueWithoutCredential(value: unknown, credential: string): unknown {
 	if (isRecord(value)) {
 		const copy: { [key: string]: unknown } = {};
 		for (const key of Object.keys(value)) {
-			copy[withoutCredential(key, credential)] = valueWithoutCredential(value[key], credential);
+			// Defined, not assigned: a "__proto__" key stays a key, as JSON.parse made it, and never sets the prototype.
+			Object.defineProperty(copy, withoutCredential(key, credential), {
+				value: valueWithoutCredential(value[key], credential),
+				enumerable: true,
+				writable: true,
+				configurable: true
+			});
 		}
 		return copy;
 	}
@@ -194,7 +200,13 @@ export async function postEmbed<T>(post: EmbedPost<T>): Promise<T> {
 	const text = withoutCredential(await textOf(post, response), post.credential);
 	const value = valueWithoutCredential(parseBody(text).value, post.credential);
 	if (!response.ok) {
-		throw errorFromResponse(response, value, nextStepsOf(response.status, value));
+		// The status text is the message of a refusal with no text in its body: it loses the credential too.
+		const head = {
+			status: response.status,
+			statusText: withoutCredential(response.statusText, post.credential),
+			headers: response.headers
+		};
+		throw errorFromResponse(head, value, nextStepsOf(response.status, value));
 	}
 	if (!post.isAnswer(value)) {
 		throw new EverTeamsError({

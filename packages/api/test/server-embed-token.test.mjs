@@ -265,6 +265,16 @@ test('a refusal that repeats the credential through JSON escapes loses it once p
 	assert.deepEqual(error.body.echo, { '[credential]': ['[credential]'] });
 });
 
+test('a refusal with no text in its body loses the credential its status text repeats', async () => {
+	const error = await refusalOf(
+		() => new Response('{}', { status: 502, statusText: `Upstream refused ${CREDENTIAL}` })
+	);
+
+	assert.equal(error.name, 'EverTeamsServerError');
+	assert.equal(error.status, 502);
+	assert.equal(error.message, 'Upstream refused [credential]');
+});
+
 test('missing or malformed options are refused before any request, without the credential', async () => {
 	const cases = [
 		[{ apiUrl: undefined }, /needs apiUrl\./],

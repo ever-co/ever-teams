@@ -162,6 +162,9 @@ test('a report that lacks a field the widget reads, or has one of another type, 
 		{ ...REPORT, projects: [{ ...REPORT.projects[0], seconds: Number.NaN }] },
 		{ ...REPORT, projects: [null] }
 	];
+	// A report under a "__proto__" key stays a key once read, never the prototype that would lend its fields.
+	const wrapped = await refusalOf(() => new Response(`{"__proto__":${JSON.stringify(REPORT)}}`, { status: 200 }));
+	assert.equal(wrapped.code, 'UNEXPECTED_ANSWER');
 	for (const report of incomplete) {
 		const error = await refusalOf(() => answer(200, 'OK', report));
 
