@@ -207,6 +207,22 @@ test('the color scheme is drawn on the kit root and its portal container, never 
 	await act(async () => root.unmount());
 });
 
+test('two kit roots of a page keep the schemes their providers gave them, until a person picks one', async () => {
+	const light = await render(React.createElement(kit.KitRoot, { colorScheme: 'light' }));
+	const dark = await render(React.createElement(kit.KitRoot, { colorScheme: 'dark' }));
+	const schemeOf = (rendered) => rendered.container.firstElementChild.getAttribute('data-ever-teams-color-scheme');
+
+	assert.equal(schemeOf(light), 'light');
+	assert.equal(schemeOf(dark), 'dark');
+
+	// The theme toggle's choice applies to every widget of the page
+	await act(async () => kit.setKitPreferences({ colorScheme: 'dark', chosenColorScheme: 'dark' }));
+	assert.equal(schemeOf(light), 'dark');
+	assert.equal(schemeOf(dark), 'dark');
+	await act(async () => light.root.unmount());
+	await act(async () => dark.root.unmount());
+});
+
 test('a font picked with versions up to 0.2.14 is kept, under the prefixed key', () => {
 	window.localStorage.setItem('selected-font', ROBOTO);
 	kit.resetKitPreferences();
