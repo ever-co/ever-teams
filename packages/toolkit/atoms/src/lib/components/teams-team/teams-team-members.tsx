@@ -83,7 +83,8 @@ export function TeamsTeamMembers({ className }: { className?: string }) {
 		const uniqueMembers = Array.from(
 			new Map(
 				team
-					.map((team) => team.members)
+					// A read with the host's getToken has the teams without their members
+					.map((team) => team.members ?? [])
 					.flat(1)
 					.map((member) => [member.employeeId, member])
 			).values()
@@ -132,7 +133,7 @@ export function TeamsTeamMembers({ className }: { className?: string }) {
 			return;
 		}
 
-		const updatedMembers = currentTeam.members.filter((member) => member.employeeId !== memberId);
+		const updatedMembers = (currentTeam.members ?? []).filter((member) => member.employeeId !== memberId);
 
 		const managerIds = updatedMembers
 			.filter((member) => member.role?.name == RoleName.MANAGER)
@@ -184,7 +185,7 @@ export function TeamsTeamMembers({ className }: { className?: string }) {
 		const currentTeam = team.find((t) => t?.id === selectedTeam);
 		if (!currentTeam) return false;
 
-		return currentTeam.members.some(
+		return (currentTeam.members ?? []).some(
 			(member) => member.employeeId === user.employee?.id && member.role?.name === RoleName.MANAGER
 		);
 	};
