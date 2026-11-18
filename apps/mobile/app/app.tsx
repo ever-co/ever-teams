@@ -12,13 +12,14 @@
 import './i18n';
 import './utils/ignore-warnings';
 import { useFonts } from 'expo-font';
-import React, { useState } from 'react';
+import React, { ComponentProps, useRef, useState } from 'react';
 import { useColorScheme } from 'react-native';
 import { Provider as PaperProvider } from 'react-native-paper';
 
 import { initialWindowMetrics, SafeAreaProvider } from 'react-native-safe-area-context';
 import { useInitialRootStore, useStores } from './models';
 import { AppNavigator, useNavigationPersistence } from './navigators';
+import { useAppLocale } from './i18n';
 import { ErrorBoundary } from './screens/error-screen/error-boundary';
 import * as storage from './utils/storage';
 import { customDarkTheme, customFontsToLoad, customLightTheme, navigationTheme } from './theme';
@@ -51,6 +52,8 @@ setupReactotron({
 
 export const NAVIGATION_PERSISTENCE_KEY = 'NAVIGATION_STATE';
 
+type NavigationState = ComponentProps<typeof AppNavigator>['initialState'];
+
 interface AppProps {
 	hideSplashScreen: () => Promise<void>;
 }
@@ -76,6 +79,10 @@ const App = observer((props: AppProps) => {
 	const systemColorScheme = useColorScheme();
 
 	const [sessionEnded, setSessionEnded] = useState(false);
+	// The screens read their messages when they render: a new language mounts the navigator again, on the screen the
+	// person was on
+	const locale = useAppLocale();
+	const navigationStateRef = useRef<NavigationState>(undefined);
 
 	const { rehydrated } = useInitialRootStore(({ sessionEnded: ended }) => {
 		// This runs after the root store has been initialized and rehydrated.
@@ -100,6 +107,11 @@ const App = observer((props: AppProps) => {
 	// You can replace with your own loading component if you wish.
 	if (!ready) return null;
 
+	const rememberNavigationState = (state: NavigationState) => {
+		navigationStateRef.current = state;
+		onNavigationStateChange(state);
+	};
+
 	// otherwise, we're ready to render the app
 
 	const systemIsDark = systemColorScheme === 'dark';
@@ -112,9 +124,10 @@ const App = observer((props: AppProps) => {
 					<FlashMessage position="top" />
 					<ClickOutsideProvider>
 						<AppNavigator
+							key={locale}
 							theme={navigationTheme(dark)}
-							initialState={initialNavigationState}
-							onStateChange={onNavigationStateChange}
+							initialState={navigationStateRef.current ?? initialNavigationState}
+							onStateChange={rememberNavigationState}
 						/>
 					</ClickOutsideProvider>
 				</ErrorBoundary>

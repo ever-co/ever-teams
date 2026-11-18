@@ -1,5 +1,5 @@
 import fr from '../../locales/fr.json';
-import { currentLocale, setAppLocale, translate } from './translate';
+import { currentLocale, setAppLocale, subscribeToLocale, translate } from './translate';
 
 jest.unmock('./translate');
 
@@ -26,6 +26,18 @@ describe('translate', () => {
 		expect(setAppLocale('sv-SE')).toBe('en');
 
 		expect(translate('common.cancel')).toBe('Cancel');
+	});
+
+	it('tells its listeners when the language changes, and only then', () => {
+		const listener = jest.fn();
+		const stop = subscribeToLocale(listener);
+
+		setAppLocale('de-DE');
+		setAppLocale('de-AT');
+		stop();
+		setAppLocale('it');
+
+		expect(listener).toHaveBeenCalledTimes(1);
 	});
 
 	it('reads English before any language is set', () => {

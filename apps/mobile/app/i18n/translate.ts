@@ -55,10 +55,26 @@ function translatorFor(locale: AppLocale): Translator {
 }
 
 let locale: AppLocale = DEFAULT_LOCALE;
+const localeListeners = new Set<() => void>();
+
+/** Calls the listener each time the language changes; answers the function that stops it. */
+export function subscribeToLocale(listener: () => void): () => void {
+	localeListeners.add(listener);
+	return () => {
+		localeListeners.delete(listener);
+	};
+}
 
 /** Sets the language of the messages from a language tag, and answers the locale it resolves to. */
 export function setAppLocale(tag: string | null | undefined): AppLocale {
-	locale = localeFor(tag);
+	const next = localeFor(tag);
+	if (next === locale) {
+		return locale;
+	}
+	locale = next;
+	for (const listener of localeListeners) {
+		listener();
+	}
 	return locale;
 }
 
