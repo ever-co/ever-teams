@@ -1,6 +1,11 @@
 <script>
-	// Loads <ever-teams-timer> once for the whole app.
-	import '@ever-teams/embed';
+	import { onMount } from 'svelte';
+
+	// Loads <ever-teams-timer> once, in the browser only: a server that renders this component (SvelteKit) has no
+	// HTMLElement for the element to extend.
+	onMount(() => {
+		import('@ever-teams/embed');
+	});
 
 	// The Ever Teams API address, ending in /api.
 	export let apiUrl = 'https://api.ever.team/api';

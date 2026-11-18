@@ -35,7 +35,7 @@ A change of attribute applies at once. Removing the element stops the timer's di
   package, as its import map says). Vue takes a tag it does not know for a component, so it is told that the
   `ever-teams-` tags are custom elements, with `app.config.compilerOptions.isCustomElement`. In a project built with
   single-file components, the same function goes to the Vue plugin's `template.compilerOptions.isCustomElement`.
-- `svelte/`: a Svelte component that imports the package once and binds `color-scheme`. Svelte needs no setting.
+- `svelte/`: a Svelte component that loads the package in `onMount` and binds `color-scheme`. Svelte needs no setting.
 
 Angular needs the custom elements schema on the component that holds the element:
 
@@ -51,6 +51,10 @@ import '@ever-teams/embed';
 })
 export class TimerComponent {}
 ```
+
+An app that renders on the server loads the package in the browser only: the element extends `HTMLElement`, which a
+server does not have. In Svelte that is `onMount`, as the example does; in Angular, call
+`afterNextRender(() => import('@ever-teams/embed'))` in the component's constructor in place of the import above.
 
 In a site editor, a custom HTML block takes the script tag and the element as they are, once your site serves the
 files of `dist/`.
