@@ -58,13 +58,6 @@ interface ITimerStartPanelProps {
 	onClose: () => void;
 }
 
-/**
- * The panel of the running time (ever-co/ever-teams#5373): when the run started and, where the person may change it,
- * a time field to move the start (with the day of the new start for a run that started before midnight, never guessed),
- * and the reason the organization may ask for. A start later than now, an earlier start where time may not be added
- * by hand, and a missing reason are told before anything is sent; the API's refusals, a failed save and an offline
- * phone are told after.
- */
 // iOS has a keyboard of digits and a colon; Android shows the digits, and the field places the colon
 function timeKeyboard(): KeyboardTypeOptions {
 	if (Platform.OS === 'ios') {
@@ -73,6 +66,13 @@ function timeKeyboard(): KeyboardTypeOptions {
 	return 'number-pad';
 }
 
+/**
+ * The panel of the running time (ever-co/ever-teams#5373): when the run started and, where the person may change it,
+ * a time field to move the start (with the day of the new start for a run that started before midnight, never guessed),
+ * and the reason the organization may ask for. A start later than now, an earlier start where time may not be added
+ * by hand, and a missing reason are told before anything is sent; the API's refusals, a failed save and an offline
+ * phone are told after.
+ */
 export const TimerStartPanel: FC<ITimerStartPanelProps> = ({ access, runStart, saving, onSave, onClose }) => {
 	const { colors, dark } = useAppTheme();
 	const [timeText, setTimeText] = useState(() => (runStart === null ? '' : timeTextOf(new Date(runStart))));

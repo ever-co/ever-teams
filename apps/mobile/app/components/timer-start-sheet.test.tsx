@@ -36,7 +36,7 @@ jest.mock('../services/hooks/use-timer-start-move', () => ({
 jest.mock('./timer-start-panel', () => () => null);
 
 describe('The sheet of the running time', () => {
-	it('moves itself above the keyboard on Android', async () => {
+	it('asks the library to move the sheet above the keyboard on Android (adjustPan, interactive)', async () => {
 		await render(<TimerStartSheet visible onClose={jest.fn()} />);
 
 		const sheet = mockSheetProps[mockSheetProps.length - 1];

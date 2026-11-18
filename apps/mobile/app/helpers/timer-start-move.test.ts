@@ -177,7 +177,13 @@ describe('timeTextFromTyping', () => {
 
 	it('keeps a time whose last digit is being changed as it is, never as another time', () => {
 		expect(timeTextFromTyping('12:3')).toBe('12:3');
-		expect(timeTextFromTyping('1:234')).toBe('1:234');
+		expect(timeTextFromTyping('1:4')).toBe('1:4');
+	});
+
+	it('moves the colon when a digit is typed after the minutes the field placed, as on Android', () => {
+		// 1, 12, 1:23 (the colon placed), then 4
+		expect(timeTextFromTyping('1:234')).toBe('12:34');
+		expect(timeTextFromTyping('0:905')).toBe('09:05');
 	});
 
 	it('keeps one or two digits as they are, until the minutes come', () => {
