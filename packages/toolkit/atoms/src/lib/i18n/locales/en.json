@@ -42,7 +42,7 @@
 		"stop_timer_before_selecting": "Please stop timer before selecting {{item}}."
 	},
 	"ERROR": {
-		"invalid_password_or_email": "You intered an invalid email or password.",
+		"invalid_password_or_email": "You entered an invalid email or password.",
 		"is_required": "{{field}} is required",
 		"passwords_not_match": "Passwords do not match.",
 		"password_length": "Password should be at least {{number}} characters long.",
@@ -91,8 +91,8 @@
 		"last_name_prompt": "Enter your last name",
 		"phone_number_prompt": "Enter your phone number",
 		"logout": "Logout",
-		"dont_have_an_account": "Don't have an account ? ",
-		"have_an_account": "Have an account ? "
+		"dont_have_an_account": "Don't have an account?",
+		"have_an_account": "Have an account?"
 	},
 	"INPUT": {
 		"language_switcher": {

@@ -215,3 +215,11 @@ test('the dialogs open from buttons in the kit language', () => {
 	assert.match(render(kit.TeamsLoginDialog), /<button class="min-w-28">AUTH\.sign_in_title<\/button>/);
 	assert.match(render(kit.TeamsRegistrationDialog), /<button>AUTH\.register_now<\/button>/);
 });
+
+test('the English sign-in strings read without a typo or a space before the question mark', () => {
+	const en = JSON.parse(fs.readFileSync(path.join(lib, 'i18n', 'locales', 'en.json'), 'utf8'));
+
+	assert.equal(en.AUTH.dont_have_an_account, "Don't have an account?");
+	assert.equal(en.AUTH.have_an_account, 'Have an account?');
+	assert.equal(en.ERROR.invalid_password_or_email, 'You entered an invalid email or password.');
+});
