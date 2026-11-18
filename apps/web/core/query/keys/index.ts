@@ -518,6 +518,18 @@ export const queryKeys = {
 			['user-api-tokens', 'list', tenantId ?? null, userId ?? null] as const
 	},
 
+	// Settings → Embeds: whether the server has embeds on (per person, an admin's route), and the organization's
+	// allowed sites and credentials.
+	embeds: {
+		all: ['embeds'] as const,
+		config: (tenantId: string | undefined | null, userId: string | undefined | null) =>
+			['embeds', 'config', tenantId ?? null, userId ?? null] as const,
+		origins: (tenantId: string | undefined | null, organizationId: string | undefined | null) =>
+			['embeds', 'origins', tenantId ?? null, organizationId ?? null] as const,
+		credentials: (tenantId: string | undefined | null, organizationId: string | undefined | null) =>
+			['embeds', 'credentials', tenantId ?? null, organizationId ?? null] as const
+	},
+
 	// Settings → Automations: the organization's rules, the templates and a rule's run history. The user is part of
 	// every key: what one sign-in read (or was refused) never shows for the next one.
 	taskAutomations: {
