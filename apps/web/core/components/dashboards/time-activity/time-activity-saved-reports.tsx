@@ -129,7 +129,10 @@ function ShareButton({
 	saved: SavedReports;
 	onSave: (name: string) => Promise<boolean>;
 	isSaving: boolean;
-	/** The view shown can be saved: a link shares a saved report, so one that cannot be saved is not shared either. */
+	/**
+	 * The view shown can be saved. Without an open report, Share saves the view first, so a view that cannot be saved
+	 * offers no save there either; the link of a report already open still shares that report as it was saved.
+	 */
 	canSave: boolean;
 	shareActionsOf: (report: ISavedReport) => ShareLinkActions;
 	urlOf: (report: ISavedReport) => string | null;
