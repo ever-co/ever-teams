@@ -16,7 +16,8 @@ import { useTeamTasks } from "../../../services/hooks/features/use-team-tasks"
 import { useClickOutside } from "react-native-click-outside"
 
 const DescriptionBlock = () => {
-	const _editor: RefObject<QuillEditor> = React.useRef(null)
+	// Set once the editor mounts; the toolbar types this ref without null, as React did before 19
+	const _editor = React.useRef<QuillEditor>(null) as RefObject<QuillEditor>
 
 	const [editorKey, setEditorKey] = React.useState(1)
 	const [actionButtonsVisible, setActionButtonsVisible] = React.useState<boolean>(false)
@@ -93,13 +94,13 @@ const DescriptionBlock = () => {
 			setAccordionExpanded={setAccordionExpanded}
 			title={translate("taskDetailsScreen.description")}
 			headerElement={
-				accordionExpanded && (
+				accordionExpanded ? (
 					<TouchableWithoutFeedback>
 						<TouchableOpacity onPress={copyDescription}>
 							<SvgXml xml={copyIcon} />
 						</TouchableOpacity>
 					</TouchableWithoutFeedback>
-				)
+				) : undefined
 			}
 		>
 			<View style={{ paddingBottom: 12 }} ref={editorContainerOutsidePressRef}>
