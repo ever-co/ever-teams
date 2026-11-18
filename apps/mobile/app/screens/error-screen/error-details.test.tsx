@@ -1,14 +1,8 @@
 import React from 'react';
 import { act, fireEvent, render } from '@testing-library/react-native';
 import { reloadAppAsync } from 'expo';
-import ar from '../../../locales/ar.json';
-import bg from '../../../locales/bg.json';
 import en from '../../../locales/en.json';
-import es from '../../../locales/es.json';
-import fr from '../../../locales/fr.json';
-import he from '../../../locales/he.json';
-import ko from '../../../locales/ko.json';
-import ru from '../../../locales/ru.json';
+import { DEFAULT_LOCALE, messagesByLocale } from '../../i18n/messages';
 import { ErrorDetails } from './error-details';
 
 // screen.tsx has type errors of its own on develop, which ts-jest would report here; the layout is not under test.
@@ -69,8 +63,9 @@ describe('ErrorDetails', () => {
 	});
 
 	it('says what happened in each language the app has', () => {
-		const translated = { ar, bg, es, fr, he, ko, ru };
-		for (const [locale, messages] of Object.entries(translated)) {
+		const translated = Object.entries(messagesByLocale).filter(([locale]) => locale !== DEFAULT_LOCALE);
+		expect(translated).toHaveLength(13);
+		for (const [locale, messages] of translated) {
 			const { title, friendlySubtitle, reset } = messages.errorScreen;
 			expect({ locale, title }).not.toEqual({ locale, title: en.errorScreen.title });
 			expect({ locale, friendlySubtitle }).not.toEqual({
