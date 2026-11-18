@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useEffect } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 /**
@@ -7,6 +7,15 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
  */
 export const queryClient = new QueryClient();
 
-export function AppQueryProvider({ children }: { children: ReactNode }) {
+/**
+ * Several query keys carry no account or workspace, so the client forgets every answer once nobody is signed in: the
+ * next person to sign in on this phone never sees the previous one's data.
+ */
+export function AppQueryProvider({ signedIn, children }: { signedIn: boolean; children: ReactNode }) {
+	useEffect(() => {
+		if (!signedIn) {
+			queryClient.clear();
+		}
+	}, [signedIn]);
 	return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
 }

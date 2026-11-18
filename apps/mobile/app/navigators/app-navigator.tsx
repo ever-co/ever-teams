@@ -93,10 +93,13 @@ const AppStack = observer(function AppStack() {
 interface NavigationProps extends Partial<React.ComponentProps<typeof NavigationContainer>> {}
 
 export const AppNavigator = observer(function AppNavigator(props: NavigationProps) {
+	const {
+		authenticationStore: { isAuthenticated }
+	} = useStores();
 	useBackButtonHandler((routeName) => exitRoutes.includes(routeName));
 	return (
 		<NavigationContainer ref={navigationRef} navigationInChildEnabled {...props}>
-			<AppQueryProvider>
+			<AppQueryProvider signedIn={isAuthenticated}>
 				<AppStack />
 			</AppQueryProvider>
 		</NavigationContainer>
