@@ -897,7 +897,11 @@ export const queryKeys = {
 			userId: string | null | undefined
 		) => ['saved-reports', 'list', tenantId ?? null, organizationId ?? null, userId ?? null] as const,
 		// A shared report read through its link, without a session
-		shared: (token: string | null | undefined) => ['saved-reports', 'shared', token ?? null] as const
+		shared: (token: string | null | undefined) => ['saved-reports', 'shared', token ?? null] as const,
+		// Whether Gauzy keeps the labels of entries on a saved report (ever-gauzy#12073): once per workspace, and out of
+		// `all`, so a write's refresh of the list does not ask it again
+		entryLabelsSupport: (tenantId: string | null | undefined, organizationId: string | null | undefined) =>
+			['saved-report-entry-labels-support', tenantId ?? '', organizationId ?? ''] as const
 	},
 
 	// Keys related to the Timesheet / Timer

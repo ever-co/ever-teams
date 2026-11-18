@@ -17,6 +17,15 @@ jest.mock('@/core/components/layouts/default-layout', () => ({ PageLayout: () =>
 jest.mock('@/core/services/client/api/timesheets/saved-report.service', () => ({
 	savedReportService: { readShared: (token: string) => mockReadShared(token) }
 }));
+// The notice's status orb reads the motion setting (`matchMedia`), which jsdom lacks
+jest.mock('@/core/components/common/notice', () => ({
+	Notice: ({ title, description }: { title: string; description?: string }) => (
+		<div role="status">
+			<p>{title}</p>
+			<p>{description}</p>
+		</div>
+	)
+}));
 jest.mock('@/core/components/dashboards/time-activity/time-activity-area-chart', () => ({
 	TimeActivityAreaChart: ({ days }: { days: unknown[] }) => <div data-testid="chart">{days.length} days</div>,
 	TimeActivityAreaChartSkeleton: () => <div data-testid="chart-skeleton" />
@@ -25,14 +34,19 @@ jest.mock('@/core/components/dashboards/time-activity/time-activity-breakdown', 
 	...jest.requireActual('@/core/components/dashboards/time-activity/time-activity-breakdown'),
 	TimeActivityBreakdown: ({
 		rows,
-		columns
+		columns,
+		grouping,
+		notice
 	}: {
 		rows: { employeeName: string }[];
 		columns: { earnings: boolean };
+		grouping: string;
+		notice?: ReactNode;
 	}) => {
 		mockTableRows(rows);
 		return (
-			<div data-testid="table">
+			<div data-testid="table" data-grouping={grouping}>
+				{notice}
 				{rows.map((row) => row.employeeName).join(', ')} earnings:{String(columns.earnings)}
 			</div>
 		);
@@ -250,5 +264,55 @@ describe('SharedReportPage, a project the API keeps from the report (CORE-27)', 
 			projectName: 'common.PRIVATE_PROJECT',
 			projectGroupName: 'common.PRIVATE_PROJECTS'
 		});
+	});
+});
+
+describe('SharedReportPage, a report grouped by label (ever-gauzy#12073)', () => {
+	const DESIGN = { id: 'design', name: 'Design', color: '#ff0000' };
+	const REVIEW = { id: 'review', name: 'Review', color: null };
+
+	beforeEach(() => {
+		mockReadShared.mockReset();
+		mockTableRows.mockReset();
+	});
+
+	/** The report grouped by label, Ada's entry filed under `labels`. */
+	function byLabel(labels: { id: string; name: string; color: string | null }[]) {
+		const report = sharedReport({ grouping: 'label' });
+		const [employeeLog] = report.days[0].logs[0].employeeLogs;
+		employeeLog.tasks = employeeLog.tasks.map((entry) => ({ ...entry, tags: labels }));
+		return report;
+	}
+
+	it('groups the table by the labels each entry states', async () => {
+		mockReadShared.mockResolvedValue(byLabel([DESIGN]));
+
+		renderPage();
+
+		const table = await screen.findByTestId('table');
+		expect(table.getAttribute('data-grouping')).toBe('label');
+		const rows = mockTableRows.mock.calls.at(-1)?.[0] as Array<{ tasks: Array<{ labels?: unknown }> }>;
+		expect(rows[0].tasks[0].labels).toEqual([DESIGN]);
+		expect(screen.queryByText('timer.labels.OVERLAP_TITLE')).toBeNull();
+	});
+
+	it('says, as the report page does, that an entry with two labels counts under each', async () => {
+		mockReadShared.mockResolvedValue(byLabel([DESIGN, REVIEW]));
+
+		renderPage();
+
+		await screen.findByTestId('table');
+		expect(screen.getByText('timer.labels.OVERLAP_TITLE')).toBeTruthy();
+	});
+
+	it('says nothing of labels under any other grouping', async () => {
+		const byProject = byLabel([DESIGN, REVIEW]);
+		mockReadShared.mockResolvedValue({ ...byProject, grouping: 'project' });
+
+		renderPage();
+
+		const table = await screen.findByTestId('table');
+		expect(table.getAttribute('data-grouping')).toBe('project');
+		expect(screen.queryByText('timer.labels.OVERLAP_TITLE')).toBeNull();
 	});
 });

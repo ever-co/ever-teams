@@ -14,17 +14,21 @@ import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 import { useWorkspaceWeekStart } from '@/core/hooks/common/use-workspace-week-start';
 import type { TimeActivityReport } from '@/core/hooks/dashboards/time-activity/use-time-activity-report';
 import { type SavedReports, useSavedReports } from '@/core/hooks/dashboards/time-activity/use-saved-reports';
+import { useSavedReportLabelsSupport } from '@/core/hooks/dashboards/time-activity/use-saved-report-labels-support';
 import { APPLICATION_DEFAULT_LANGUAGE } from '@/core/constants/config/constants';
 import { getDefaultTimezone } from '@/core/lib/helpers/date-and-time';
 import {
 	SAVED_REPORT_PARAM,
 	type TimeActivityView,
 	canSaveView,
+	canUpdateReport,
 	linkParamsOfSavedReport,
 	savedReportInputOf,
+	savedReportUsesEntryLabels,
 	shareExpiryOf,
 	sharedReportUrlOf,
-	showsSavedView
+	showsSavedView,
+	viewUsesEntryLabels
 } from '@/core/lib/utils/dashboards/saved-report';
 import { errorStatusOf } from '@/core/lib/utils/error-feedback';
 import type { ISavedReport } from '@/core/types/interfaces/timesheet/saved-report';
@@ -207,12 +211,17 @@ export function TimeActivitySavedReports({ report }: Readonly<{ report: TimeActi
 	const activeId = searchParams?.get(SAVED_REPORT_PARAM) ?? null;
 	const activeReport = saved.reports.find((candidate) => candidate.id === activeId) ?? null;
 	const isActiveViewSaved = isShowingSavedView(activeReport, view, weekStart);
-	// A view narrowed or grouped by labels would be saved as another view: it is neither saved nor written over a report
-	const canSave = canSaveView(view);
+	// Labels of entries are kept by a Gauzy with ever-gauzy#12073 only: Gauzy is asked once a view or a report uses them
+	const usesEntryLabels = viewUsesEntryLabels(view) || savedReportUsesEntryLabels(activeReport);
+	const keepsEntryLabels = useSavedReportLabelsSupport(usesEntryLabels);
+	// Elsewhere a view narrowed or grouped by labels would be saved as another view: it is neither saved nor written
+	// over a report
+	const canSave = canSaveView(view, keepsEntryLabels);
+	const canUpdate = activeReport ? canUpdateReport(activeReport, view, keepsEntryLabels) : canSave;
 
 	const saveView = useCallback(
 		async (name: string) => {
-			if (!canSaveView(view)) {
+			if (!canSaveView(view, keepsEntryLabels)) {
 				return false;
 			}
 			const input = savedReportInputOf(view, weekStart, getDefaultTimezone());
@@ -233,7 +242,7 @@ export function TimeActivitySavedReports({ report }: Readonly<{ report: TimeActi
 				return false;
 			}
 		},
-		[activeId, latestSetLinkParams, saved.create, t, view, weekStart]
+		[activeId, keepsEntryLabels, latestSetLinkParams, saved.create, t, view, weekStart]
 	);
 
 	const openReport = useCallback((target: ISavedReport) => openReportIn(setLinkParams, target), [setLinkParams]);
@@ -242,7 +251,7 @@ export function TimeActivitySavedReports({ report }: Readonly<{ report: TimeActi
 		async (target: ISavedReport) => {
 			// One change at a time: a second one could reach the API first and be overwritten by the earlier view. A view
 			// the report cannot keep never replaces the one it keeps
-			const isRefused = saved.update.isPending || !canSaveView(view);
+			const isRefused = saved.update.isPending || !canUpdateReport(target, view, keepsEntryLabels);
 			if (isRefused) {
 				return;
 			}
@@ -254,7 +263,7 @@ export function TimeActivitySavedReports({ report }: Readonly<{ report: TimeActi
 				toast.error(t('dashboard.savedReports.SAVE_FAILED'));
 			}
 		},
-		[saved.update, t, view, weekStart]
+		[keepsEntryLabels, saved.update, t, view, weekStart]
 	);
 
 	const renameReport = useCallback(
@@ -368,7 +377,7 @@ export function TimeActivitySavedReports({ report }: Readonly<{ report: TimeActi
 				activeReport={activeReport}
 				availability={saved.availability}
 				showsSavedView={isActiveViewSaved}
-				canUpdate={canSave}
+				canUpdate={canUpdate}
 				isUpdating={saved.update.isPending}
 				onOpen={openReport}
 				onUpdate={(target) => void updateReport(target)}

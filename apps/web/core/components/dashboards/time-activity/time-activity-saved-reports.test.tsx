@@ -24,6 +24,9 @@ interface SavedState {
 let mockSaved: SavedState = { reports: [], availability: 'ready', linkTokens: {} };
 /** Whether a change of a saved report is still waiting for its answer. */
 let mockUpdatePending = false;
+/** Whether the connected Gauzy keeps the labels of entries on a saved report (ever-gauzy#12073). */
+let mockKeepsEntryLabels = false;
+const mockLabelsSupportAsked = jest.fn();
 
 function mutation(mutateAsync: jest.Mock, isPending = false) {
 	return { mutateAsync, isPending };
@@ -53,6 +56,12 @@ jest.mock('@/core/hooks/dashboards/time-activity/use-saved-reports', () => ({
 		share: mutation(mockShare),
 		unshare: mutation(mockUnshare)
 	})
+}));
+jest.mock('@/core/hooks/dashboards/time-activity/use-saved-report-labels-support', () => ({
+	useSavedReportLabelsSupport: (isNeeded: boolean) => {
+		mockLabelsSupportAsked(isNeeded);
+		return mockKeepsEntryLabels;
+	}
 }));
 jest.mock('@/core/components/common/dropdown-menu', () => {
 	const Pass = ({ children }: { children?: ReactNode }) => <div>{children}</div>;
@@ -454,5 +463,108 @@ describe('TimeActivitySavedReports and the labels a saved report does not keep',
 		expect(linkAfterLastChange('period=today&entryLabels=design&groupBy=label')).toBe(
 			'period=lastMonth&clients=client-a&groupBy=project&report=r1'
 		);
+	});
+});
+
+describe('TimeActivitySavedReports on a Gauzy that keeps the labels of entries (ever-gauzy#12073)', () => {
+	const DESIGN_WITHOUT_LABEL: TimeActivityFilters = { ...NO_FILTERS, entryLabels: ['design', 'no-label'] };
+	const DESIGN_REPORT: ISavedReport = {
+		...CLIENT_A,
+		id: 'r2',
+		name: 'Design, by label',
+		filters: { tagIds: ['design'], untagged: true },
+		grouping: 'label'
+	};
+
+	beforeEach(() => {
+		jest.clearAllMocks();
+		mockSearchParams = new URLSearchParams();
+		mockSaved = { reports: [CLIENT_A, DESIGN_REPORT], availability: 'ready', linkTokens: {} };
+		mockUpdatePending = false;
+		mockKeepsEntryLabels = true;
+	});
+
+	afterEach(() => {
+		mockKeepsEntryLabels = false;
+	});
+
+	it('asks Gauzy only once a view or the report it was opened from uses labels', () => {
+		render(<TimeActivitySavedReports report={labelViewProps(NO_FILTERS, 'project')} />);
+		expect(mockLabelsSupportAsked).toHaveBeenLastCalledWith(false);
+
+		render(<TimeActivitySavedReports report={labelViewProps(DESIGN_WITHOUT_LABEL, 'project')} />);
+		expect(mockLabelsSupportAsked).toHaveBeenLastCalledWith(true);
+
+		mockSearchParams = new URLSearchParams('report=r2');
+		render(<TimeActivitySavedReports report={labelViewProps(NO_FILTERS, 'project')} />);
+		expect(mockLabelsSupportAsked).toHaveBeenLastCalledWith(true);
+	});
+
+	it.each(LABEL_VIEWS)('saves a view %s, with its labels and its grouping', async (_case, filters, grouping) => {
+		mockSaved = { reports: [], availability: 'ready', linkTokens: {} };
+		mockCreate.mockResolvedValue({ ...DESIGN_REPORT, id: 'r3' });
+		render(<TimeActivitySavedReports report={labelViewProps(filters, grouping)} />);
+
+		expect(screen.queryByText('dashboard.savedReports.LABELS_NOT_KEPT')).toBeNull();
+		const [nameField] = screen.getAllByLabelText('dashboard.savedReports.NAME');
+		fireEvent.change(nameField, { target: { value: 'By label' } });
+		fireEvent.submit(nameField.closest('form') as HTMLFormElement);
+
+		await waitFor(() => expect(mockCreate).toHaveBeenCalledTimes(1));
+		const sent = mockCreate.mock.calls[0][0];
+		const isNarrowed = filters.entryLabels.length > 0;
+		const tagIds = filters.entryLabels.filter((value) => value !== 'no-label');
+		const untagged = filters.entryLabels.includes('no-label');
+		expect(sent.grouping).toBe(grouping);
+		// A view grouped by label but not narrowed by labels sends the filters an older Gauzy takes
+		expect('tagIds' in sent.filters).toBe(isNarrowed);
+		expect(sent.filters).toMatchObject(isNarrowed ? { tagIds, untagged } : {});
+	});
+
+	it('writes a view narrowed by labels over the report it was opened from, with the labels', async () => {
+		mockSearchParams = new URLSearchParams('report=r1');
+		mockUpdate.mockResolvedValue(CLIENT_A);
+		render(<TimeActivitySavedReports report={labelViewProps(DESIGN_WITHOUT_LABEL, 'label')} />);
+
+		const update = screen.getByText('dashboard.savedReports.UPDATE').closest('button') as HTMLButtonElement;
+		expect(update.disabled).toBe(false);
+		expect(screen.queryByText('dashboard.savedReports.LABELS_NOT_KEPT')).toBeNull();
+		fireEvent.click(update);
+
+		await waitFor(() => expect(mockUpdate).toHaveBeenCalledTimes(1));
+		expect(mockUpdate.mock.calls[0][0]).toMatchObject({
+			id: 'r1',
+			input: { filters: { tagIds: ['design'], untagged: true }, grouping: 'label' }
+		});
+	});
+
+	it('opens a report saved with labels on its labels and its Label grouping', () => {
+		render(<TimeActivitySavedReports report={labelViewProps(NO_FILTERS, 'project')} />);
+
+		fireEvent.click(screen.getByText('Design, by label'));
+
+		expect(linkAfterLastChange('period=today&clients=client-a')).toBe(
+			'period=lastMonth&entryLabels=design%2Cno-label&groupBy=label&report=r2'
+		);
+	});
+
+	it('knows the view of a report saved with labels: Update waits for a change', () => {
+		mockSearchParams = new URLSearchParams('report=r2');
+		render(<TimeActivitySavedReports report={labelViewProps(DESIGN_WITHOUT_LABEL, 'label')} />);
+
+		const update = screen.getByText('dashboard.savedReports.UPDATE').closest('button') as HTMLButtonElement;
+		expect(update.disabled).toBe(true);
+	});
+
+	it('writes no view over a report saved with labels while Gauzy is not known to keep them', () => {
+		mockKeepsEntryLabels = false;
+		mockSearchParams = new URLSearchParams('report=r2');
+		// The page shows no labels yet: it drops those of the link until it knows whether entries have labels
+		render(<TimeActivitySavedReports report={labelViewProps(NO_FILTERS, 'date')} />);
+
+		const update = screen.getByText('dashboard.savedReports.UPDATE').closest('button') as HTMLButtonElement;
+		expect(update.disabled).toBe(true);
+		fireEvent.click(update);
+		expect(mockUpdate).not.toHaveBeenCalled();
 	});
 });

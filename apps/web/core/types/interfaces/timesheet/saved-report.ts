@@ -17,7 +17,8 @@ type SavedReportPeriodRule =
 	| 'thisMonth'
 	| 'lastMonth';
 
-type SavedReportGrouping = 'date' | 'member' | 'project' | 'client' | 'task' | 'week';
+/** `label`: by the labels of entries, kept by a Gauzy with ever-gauzy#12073 only (`useSavedReportLabelsSupport`). */
+type SavedReportGrouping = 'date' | 'member' | 'project' | 'client' | 'task' | 'week' | 'label';
 
 export interface ISavedReportFilters {
 	teamIds?: string[];
@@ -28,6 +29,13 @@ export interface ISavedReportFilters {
 	clientIds?: string[];
 	taskIds?: string[];
 	billableOnly?: boolean;
+	/**
+	 * The entry Labels filter, as the daily report takes it (ever-gauzy#12073): the labels picked, by id. Kept by a Gauzy
+	 * with that change only; an older one drops it, so it is sent only once `useSavedReportLabelsSupport` says so.
+	 */
+	tagIds?: string[];
+	/** The "No label" choice of the entry Labels filter: the time without a label too (alone, only that time). */
+	untagged?: boolean;
 }
 
 export interface ISavedReport {
@@ -114,6 +122,8 @@ export interface IPublicSavedReportTask {
 	 */
 	billRateValue?: number | null;
 	billRateCurrency?: string | null;
+	/** The entry's own labels, stated for a report grouped by label only (ever-gauzy#12073). */
+	tags?: { id: string; name: string; color: string | null }[];
 }
 
 interface IPublicSavedReportMemberLog {
