@@ -320,6 +320,21 @@ export interface ITimerStatus {
 	running: boolean;
 }
 
+/**
+ * The person's timer as a read of its status showed it, told to the host when it differs from the read before: a
+ * start, a stop, or another running entry. `initial` is true for the first read, which tells the timer as it is.
+ */
+export interface TimerChange {
+	running: boolean;
+	/** When the running entry started (ISO date); null while the timer is stopped. */
+	startedAt: string | null;
+	/** The running entry's project; null while the timer is stopped or runs on no project. */
+	projectId: string | null;
+	/** The running entry's task; null while the timer is stopped or runs on no task. */
+	taskId: string | null;
+	initial: boolean;
+}
+
 export interface ILog {
 	duration: number;
 	employee: IEmployeeWithUser;
