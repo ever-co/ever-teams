@@ -19,7 +19,10 @@ const stubs = {
 	'@ever-teams/toolkit-ui': `
 		import { createElement } from 'react';
 		export const Select = ({ values }) => createElement('ul', null, values.map((v) => createElement('li', { key: v.label, 'data-value': v.value }, v.label)));`,
-	'teams-context': 'export const useTeamsContext = () => ({ appliedTheme: null, setAppliedTheme() {} });'
+	'teams-context': 'export const useTeamsContext = () => ({ appliedTheme: null, setAppliedTheme() {} });',
+	// The picker's words, read from the English kit locale
+	'react-i18next': `const words = ${fs.readFileSync(path.join(lib, 'i18n', 'locales', 'en.json'), 'utf8')};
+		export const useTranslation = () => ({ t: (key) => key.split('.').reduce((group, part) => group?.[part], words) ?? key });`
 };
 
 let React;
@@ -57,6 +60,10 @@ before(async () => {
 					}));
 					build.onResolve({ filter: /^@lib\/context\/teams-context$/ }, () => ({
 						path: 'teams-context',
+						namespace: 'stub'
+					}));
+					build.onResolve({ filter: /^react-i18next$/ }, (args) => ({
+						path: args.path,
 						namespace: 'stub'
 					}));
 					build.onResolve({ filter: /^@lib\/themes\/themes$/ }, () => ({
