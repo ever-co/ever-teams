@@ -8,8 +8,23 @@
 	"files": [
 		"dist"
 	],
+	"module": "./dist/ever-teams-embed.js",
+	"exports": {
+		".": "./dist/ever-teams-embed.js"
+	},
 	"scripts": {
+		"build": "vite build",
 		"test": "node --test test/*.test.mjs"
 	},
-	"devDependencies": {}
+	"devDependencies": {
+		"@emotion/cache": "^11.14.0",
+		"@emotion/react": "^11.13.5",
+		"@ever-teams/atoms": "*",
+		"@vitejs/plugin-react": "^4.3.4",
+		"next-themes": "^0.4.4",
+		"react": "^19.2.3",
+		"react-dom": "^19.2.3",
+		"theme-ui": "^0.16.2",
+		"vite": "^7.0.0"
+	}
 }
