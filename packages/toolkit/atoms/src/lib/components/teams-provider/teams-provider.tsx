@@ -52,11 +52,13 @@ interface TeamsProviderProps {
 	loadGoogleFonts?: boolean;
 	// Called after a person signs out from the kit's user menu, instead of sending the browser to '/'.
 	onSignOut?: () => void;
+	// Shows "Powered by Ever Teams" under the widgets that have it. On by default; false hides it everywhere.
+	branding?: boolean;
 }
 
 type TeamsDataProviderProps = Omit<
 	TeamsProviderProps,
-	'scopedStyles' | 'colorScheme' | 'loadGoogleFonts' | 'onSignOut'
+	'scopedStyles' | 'colorScheme' | 'loadGoogleFonts' | 'onSignOut' | 'branding'
 > & {
 	scoped: boolean;
 };
@@ -143,6 +145,7 @@ const TeamsProvider = ({
 	colorScheme = 'system',
 	loadGoogleFonts = false,
 	onSignOut,
+	branding = true,
 	...props
 }: TeamsProviderProps) => {
 	useBeforePaintEffect(() => {
@@ -150,7 +153,7 @@ const TeamsProvider = ({
 	}, [colorScheme, loadGoogleFonts]);
 
 	const content = (
-		<KitOptionsProvider value={{ scoped: scopedStyles, onSignOut }}>
+		<KitOptionsProvider value={{ scoped: scopedStyles, onSignOut, branding }}>
 			<JotaiProvider>
 				<TeamsDataProvider {...props} scoped={scopedStyles}>
 					{children}

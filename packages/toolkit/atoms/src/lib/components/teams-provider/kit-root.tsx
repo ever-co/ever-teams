@@ -18,6 +18,8 @@ export interface KitOptions {
 	scoped: boolean;
 	// Called after a sign-out from the kit, instead of sending the browser to '/'.
 	onSignOut?: () => void;
+	// Whether the widgets show "Powered by Ever Teams" (TeamsProvider's branding, on unless the host turns it off).
+	branding?: boolean;
 }
 
 const KitOptionsContext = createContext<KitOptions>({ scoped: false });

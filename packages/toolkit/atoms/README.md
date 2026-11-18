@@ -104,6 +104,7 @@ export default function App() {
 | `colorScheme`           | `'system'`                  | The widgets' color scheme inside the kit root (`scopedStyles`): `'light'`, `'dark'` or `'system'` (follows the system's). Nothing is written on `<html>`.                                                                                                    |
 | `loadGoogleFonts`       | `false`                     | Lets the font toggle (`TeamsFontToggle`) load the font a person picks from Google Fonts. Off: no request to a third party, and the widgets keep your page's font until a person picks one.                                                                   |
 | `onSignOut`             | none                        | Called after a person signs out from the kit's user menu. Without it, the page stays where it is with `scopedStyles`; without `scopedStyles`, the kit sends the browser to `/`.                                                                              |
+| `branding`              | `true`                      | Shows "Powered by Ever Teams" under the forms, reports and team widgets. `false` hides it everywhere.                                                                                                                                                        |
 
 `config.apiUrl` is one setting for the whole page: every `TeamsProvider` of a page writes it to the same
 `apiConfigManager`, and every request uses the address set last. Give all the providers of a page the same `apiUrl`.
