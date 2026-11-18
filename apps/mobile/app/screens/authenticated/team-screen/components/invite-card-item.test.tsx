@@ -1,4 +1,5 @@
 import React from 'react';
+import { StyleSheet } from 'react-native';
 import { render, screen } from '@testing-library/react-native';
 import { ListItemContent } from './invite-card-item';
 
@@ -22,6 +23,13 @@ describe('the invitation card', () => {
 
 		expect(screen.getByText('Nadia Osei')).toBeTruthy();
 		expect(screen.getByText('nadia.osei@example.com')).toBeTruthy();
+	});
+
+	it('keeps the address readable, since an invitation without a name has nothing else', async () => {
+		await render(<ListItemContent invite={{ ...nadia, fullName: null }} />);
+
+		const email = screen.getByText('nadia.osei@example.com');
+		expect(StyleSheet.flatten(email.props.style).opacity).toBe(1);
 	});
 
 	it('marks the times and the estimate empty, never a value the invitation does not have', async () => {
