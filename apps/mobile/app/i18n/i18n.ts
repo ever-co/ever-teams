@@ -1,26 +1,8 @@
 import * as Localization from 'expo-localization';
-import i18n from 'i18n-js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { I18nManager } from 'react-native';
 import { setAppLocale } from './translate';
-
-// if English isn't your default language, move Translations to the appropriate language file.
-import en, { Translations } from './en';
-import ar from './ar';
-import ko from './ko';
-import fr from './fr';
-import he from './he';
-import ru from './ru';
-import es from './es';
-import bg from './bg';
-
-i18n.fallbacks = true;
-/**
- * we need always include "*-US" for some valid language codes because when you change the system language,
- * the language code is the suffixed with "-US". i.e. if a device is set to English ("en"),
- * if you change to another language and then return to English language code is now "en-US".
- */
-i18n.translations = { ar, en, 'en-US': en, ko, fr, he, ru, es, bg };
+import type { Messages } from './messages';
 
 const setLanguage = async () => {
 	const locale = await AsyncStorage.getItem('Language');
@@ -46,7 +28,7 @@ I18nManager?.forceRTL(isRTL);
 /**
  * Builds up valid keypaths for translations.
  */
-export type TxKeyPath = RecursiveKeyOf<Translations>;
+export type TxKeyPath = RecursiveKeyOf<Messages>;
 
 // via: https://stackoverflow.com/a/65333050
 type RecursiveKeyOf<TObj extends object> = {

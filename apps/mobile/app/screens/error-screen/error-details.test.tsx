@@ -1,14 +1,14 @@
 import React from 'react';
 import { act, fireEvent, render } from '@testing-library/react-native';
 import { reloadAppAsync } from 'expo';
-import ar from '../../i18n/ar';
-import bg from '../../i18n/bg';
-import en from '../../i18n/en';
-import es from '../../i18n/es';
-import fr from '../../i18n/fr';
-import he from '../../i18n/he';
-import ko from '../../i18n/ko';
-import ru from '../../i18n/ru';
+import ar from '../../../locales/ar.json';
+import bg from '../../../locales/bg.json';
+import en from '../../../locales/en.json';
+import es from '../../../locales/es.json';
+import fr from '../../../locales/fr.json';
+import he from '../../../locales/he.json';
+import ko from '../../../locales/ko.json';
+import ru from '../../../locales/ru.json';
 import { ErrorDetails } from './error-details';
 
 // screen.tsx has type errors of its own on develop, which ts-jest would report here; the layout is not under test.
