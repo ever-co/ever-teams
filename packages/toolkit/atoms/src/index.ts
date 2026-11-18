@@ -99,6 +99,8 @@ export * from './lib/components/teams-ui-components/project-displayer';
 export * from './lib/components/teams-report/list-report/projects-list';
 export * from './lib/components/teams-report/list-report/tasks-list';
 export * from './lib/components/teams-report/list-report/apps-url-list';
+export * from './lib/components/teams-report/client-report/teams-client-time-report';
+export type { GetClientTimeReport } from './lib/hooks/useClientTimeReport';
 
 export * from './lib/components/teams-ui-components/inputs/teams-time-select';
 export * from './lib/components/teams-ui-components/inputs/teams-report-dates-range-picker';

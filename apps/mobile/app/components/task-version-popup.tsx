@@ -69,7 +69,9 @@ const TaskVersionPopup: FC<Props> = observer(function TaskPriorityPopup({
 			>
 				{!createVersionMode ? (
 					<>
-						<Text style={{ ...styles.title, color: colors.primary }}>Versions</Text>
+						<Text style={{ ...styles.title, color: colors.primary }}>
+							{translate('taskDetailsScreen.versions')}
+						</Text>
 						<FlatList
 							data={taskVersionList}
 							contentContainerStyle={{ paddingHorizontal: 10 }}

@@ -1,17 +1,18 @@
 /* eslint-disable no-void */
 import { EMAIL_REGEX } from '../../../../helpers/regex';
 import { sendAuthCodeRequest } from '../../requests/auth';
+import { translate } from '../../../../i18n';
 
 export default async function sendAuthCode(email: string) {
 	if (email.trim().length === 0) {
 		return {
-			error: 'Email should not be empty'
+			error: translate('loginScreen.errors.emptyEmail')
 		};
 	}
 
 	if (!email.match(EMAIL_REGEX)) {
 		return {
-			error: 'Email must be a valid email'
+			error: translate('loginScreen.errors.invalidEmail')
 		};
 	}
 
@@ -21,7 +22,7 @@ export default async function sendAuthCode(email: string) {
 	if (!codeSendRes) {
 		return {
 			status: 400,
-			error: "We couldn't find any account associated to this email"
+			error: translate('loginScreen.errors.noAccount')
 		};
 	}
 

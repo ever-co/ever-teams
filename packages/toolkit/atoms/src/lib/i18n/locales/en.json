@@ -62,6 +62,15 @@
 		"week_activity": "Weeky activity",
 		"activity_over_period": "Activity over the period"
 	},
+	"CLIENT_REPORT": {
+		"title": "Time spent",
+		"today": "Today",
+		"this_week": "This week",
+		"by_project": "By project",
+		"empty": "No time spent for {{client}} this week.",
+		"error": "The time spent couldn't be loaded.",
+		"retry": "Try again"
+	},
 	"KIT_ERRORS": {
 		"ORIGIN": "This site isn't allowed to show Ever Teams. Ask your workspace admin to add it.",
 		"SESSION": "Your session ended. Sign in again.",

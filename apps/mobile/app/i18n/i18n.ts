@@ -1,25 +1,9 @@
 import * as Localization from 'expo-localization';
-import i18n from 'i18n-js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { I18nManager } from 'react-native';
-
-// if English isn't your default language, move Translations to the appropriate language file.
-import en, { Translations } from './en';
-import ar from './ar';
-import ko from './ko';
-import fr from './fr';
-import he from './he';
-import ru from './ru';
-import es from './es';
-import bg from './bg';
-
-i18n.fallbacks = true;
-/**
- * we need always include "*-US" for some valid language codes because when you change the system language,
- * the language code is the suffixed with "-US". i.e. if a device is set to English ("en"),
- * if you change to another language and then return to English language code is now "en-US".
- */
-i18n.translations = { ar, en, 'en-US': en, ko, fr, he, ru, es, bg };
+import { reloadAppAsync } from 'expo';
+import { isLaidOutRightToLeft } from './layout-direction';
+import { startIn } from './start-language';
+import type { Messages } from './messages';
 
 const setLanguage = async () => {
 	const locale = await AsyncStorage.getItem('Language');
@@ -28,24 +12,22 @@ const setLanguage = async () => {
 		const locales = Localization?.getLocales?.();
 		const deviceLocale = locales?.[0]?.languageTag ?? 'en';
 		AsyncStorage.setItem('Language', deviceLocale);
-		i18n.locale = deviceLocale;
+		await startIn(deviceLocale, AsyncStorage, reloadAppAsync);
 	} else {
-		i18n.locale = locale;
+		await startIn(locale, AsyncStorage, reloadAppAsync);
 	}
 };
 
-setLanguage();
+/** Settles once the app's language shows, or once the app restarts for its direction. */
+export const languageStarted: Promise<void> = setLanguage();
 
-// handle RTL languages
-const locales = Localization?.getLocales?.();
-export const isRTL = locales?.[0]?.textDirection === 'rtl';
-I18nManager?.allowRTL(isRTL);
-I18nManager?.forceRTL(isRTL);
+// The direction the app is laid out in, which follows its language (startIn), not the phone's
+export const isRTL = isLaidOutRightToLeft();
 
 /**
  * Builds up valid keypaths for translations.
  */
-export type TxKeyPath = RecursiveKeyOf<Translations>;
+export type TxKeyPath = RecursiveKeyOf<Messages>;
 
 // via: https://stackoverflow.com/a/65333050
 type RecursiveKeyOf<TObj extends object> = {

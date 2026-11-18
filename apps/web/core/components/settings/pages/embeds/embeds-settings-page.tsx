@@ -1,6 +1,6 @@
 'use client';
 
-import { FormEvent, useId, useState } from 'react';
+import { FormEvent, useId, useMemo, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { Input } from '@/core/components/common/input';
 import { Notice } from '@/core/components/common/notice';
@@ -16,6 +16,7 @@ import {
 	SettingsSectionSkeleton,
 	SettingsSurface
 } from '@/core/components/settings/kit/settings-page';
+import { useActiveClients } from '@/core/hooks/clients/use-clients-query';
 import {
 	useAddEmbedOrigin,
 	useEmbedAllowedOrigins,
@@ -230,13 +231,39 @@ function AllowedOriginsSection() {
 	);
 }
 
-function CredentialRow({
-	row,
-	onRevoke
-}: Readonly<{ row: EmbedCredential; onRevoke: (row: EmbedCredential) => void }>) {
+/**
+ * The client a credential is limited to, by its name among the active clients; one they do not hold (archived, or
+ * not read yet) is not named, and its id is never shown.
+ */
+function clientFactOf(
+	clientId: string | null | undefined,
+	clientNames: ReadonlyMap<string, string>,
+	t: Translate
+): string | null {
+	if (!clientId) {
+		return null;
+	}
+	const clientName = clientNames.get(clientId);
+	if (clientName) {
+		return t('settings.embeds.LIMITED_TO_CLIENT', { client: clientName });
+	}
+	return t('settings.embeds.LIMITED_TO_ONE_CLIENT');
+}
+
+type CredentialRowProps = {
+	row: EmbedCredential;
+	clientNames: ReadonlyMap<string, string>;
+	onRevoke: (row: EmbedCredential) => void;
+};
+
+function CredentialRow({ row, clientNames, onRevoke }: Readonly<CredentialRowProps>) {
 	const t = useTranslations();
 	const locale = useLocale();
 	const facts = [row.prefix];
+	const clientFact = clientFactOf(row.organizationContactId, clientNames, t);
+	if (clientFact) {
+		facts.push(clientFact);
+	}
 	if (row.createdAt) {
 		facts.push(t('settings.embeds.CREATED_ON', { date: formatUserApiTokenDate(row.createdAt, locale) }));
 	}
@@ -271,10 +298,17 @@ function CredentialRow({
 	);
 }
 
-/** The credentials the organization's hosts exchange on their servers for timer-only tokens. */
-function CredentialsSection() {
+/**
+ * The credentials the organization's hosts exchange on their servers for timer-only tokens; a new one may be limited
+ * to one client when the server can.
+ */
+function CredentialsSection({ canLimitToClient }: Readonly<{ canLimitToClient: boolean }>) {
 	const t = useTranslations();
 	const { credentials, isLoading, isError, refetch } = useEmbedCredentials(true);
+	// The clients are read only to name the ones credentials are limited to
+	const isAnyLimitedToClient = credentials.some((row) => Boolean(row.organizationContactId));
+	const { clients } = useActiveClients({ enabled: isAnyLimitedToClient });
+	const clientNames = useMemo(() => new Map(clients.map((client) => [client.id, client.name])), [clients]);
 	const revoke = useRevokeEmbedCredential();
 	const [isCreateOpen, setIsCreateOpen] = useState(false);
 	const [revoking, setRevoking] = useState<EmbedCredential | null>(null);
@@ -326,11 +360,15 @@ function CredentialsSection() {
 			{isReady && credentials.length > 0 && (
 				<SettingsSurface>
 					{credentials.map((row) => (
-						<CredentialRow key={row.id} row={row} onRevoke={setRevoking} />
+						<CredentialRow key={row.id} row={row} clientNames={clientNames} onRevoke={setRevoking} />
 					))}
 				</SettingsSurface>
 			)}
-			<CreateEmbedCredentialDialog open={isCreateOpen} onClose={() => setIsCreateOpen(false)} />
+			<CreateEmbedCredentialDialog
+				open={isCreateOpen}
+				canLimitToClient={canLimitToClient}
+				onClose={() => setIsCreateOpen(false)}
+			/>
 			<ConfirmDestructiveDialog
 				open={revoking !== null}
 				onClose={closeRevoke}
@@ -378,7 +416,13 @@ function availabilityNoticeOf(availability: EmbedsAvailability, t: Translate, on
 	}
 }
 
-function EmbedsBody({ availability, onRetry }: Readonly<{ availability: EmbedsAvailability; onRetry: () => void }>) {
+type EmbedsBodyProps = {
+	availability: EmbedsAvailability;
+	canLimitToClient: boolean;
+	onRetry: () => void;
+};
+
+function EmbedsBody({ availability, canLimitToClient, onRetry }: Readonly<EmbedsBodyProps>) {
 	const t = useTranslations();
 	if (availability === 'loading') {
 		return (
@@ -392,7 +436,7 @@ function EmbedsBody({ availability, onRetry }: Readonly<{ availability: EmbedsAv
 	return (
 		<>
 			<AllowedOriginsSection />
-			<CredentialsSection />
+			<CredentialsSection canLimitToClient={canLimitToClient} />
 		</>
 	);
 }
@@ -404,10 +448,10 @@ function EmbedsBody({ availability, onRetry }: Readonly<{ availability: EmbedsAv
  */
 export function EmbedsSettingsPage() {
 	const t = useTranslations();
-	const { availability, retry } = useEmbedsAvailability();
+	const { availability, canLimitToClient, retry } = useEmbedsAvailability();
 	return (
 		<SettingsPage title={t('settings.entries.embeds.TITLE')} description={t('settings.embeds.PAGE_DESCRIPTION')}>
-			<EmbedsBody availability={availability} onRetry={() => retry()} />
+			<EmbedsBody availability={availability} canLimitToClient={canLimitToClient} onRetry={() => retry()} />
 		</SettingsPage>
 	);
 }

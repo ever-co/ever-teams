@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { IUserProfile } from '../../../screens/authenticated/profile-screen/logics/use-profile-screen-logic';
 import { ITeamTask } from '../../interfaces/ITask';
+import { translate } from '../../../i18n';
 
 type ITab = 'worked' | 'assigned' | 'unassigned';
 type ITabs = {
@@ -37,20 +38,20 @@ export function useTaskFilter(profile: IUserProfile) {
 	const tabs: ITabs[] = [
 		{
 			tab: 'worked',
-			name: 'Worked',
-			description: 'worked tasks',
+			name: translate('tasksScreen.workedTab'),
+			description: translate('tasksScreen.workedTasks'),
 			count: profile.tasksGrouped.workedTasks.length
 		},
 		{
 			tab: 'assigned',
-			name: 'Assigned',
-			description: 'assigned tasks',
+			name: translate('tasksScreen.assignedTab'),
+			description: translate('tasksScreen.assignedTasks'),
 			count: profile.tasksGrouped.assignedTasks.length
 		},
 		{
 			tab: 'unassigned',
-			name: 'Unassigned',
-			description: 'unassigned tasks',
+			name: translate('tasksScreen.unassignedTab'),
+			description: translate('tasksScreen.unassignedTasks'),
 			count: profile.tasksGrouped.unassignedTasks.length
 		}
 	];

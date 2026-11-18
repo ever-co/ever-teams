@@ -89,14 +89,14 @@ const ChangeUserAvatar = ({ onDismiss, onExtend }: { onDismiss: () => unknown; o
 		const fileInfo = await getFileInfo(imageUri);
 
 		if (!fileInfo?.size) {
-			alert("Can't select this file as the size is unknown.");
+			alert(translate('settingScreen.changeAvatar.unknownSize'));
 			return;
 		}
 
 		const isLt2MB = isLessThanTheMB(fileInfo?.size, 2);
 
 		if (!isLt2MB) {
-			alert(`Image size must be smaller than 2MB!`);
+			alert(translate('settingScreen.changeAvatar.tooLarge'));
 			return;
 		}
 		// @ts-ignore

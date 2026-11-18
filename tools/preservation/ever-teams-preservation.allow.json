@@ -546,5 +546,9 @@
 	{
 		"id": "removed:testNames:packages/toolkit/atoms/test/tracking-provider.test.mjs::a provider without a session component reads no sessions::#1",
 		"reason": "Renamed with a wider expectation when the time-zone database became lazy (78670bfeb, #5409): the provider loads it only with the first tracking sessions. The same scenario is \"a provider without a session component reads no sessions and loads no time-zone data\" in the same file."
+	},
+	{
+		"id": "removed:testNames:packages/toolkit/atoms/test/host-untouched.test.mjs::without a picked font the kit root keeps the host font::#1",
+		"reason": "Replaced by the KIT-22 font change (#5456, 2fb51f509): without a picked font, the kit root and its portal container now draw in the web app's font instead of inheriting the host's. What the old test guarded, that the host page keeps its own font, is still checked by \"without a picked font the kit root and its portal container take the web app font, the host page keeps its own\" in the same file."
 	}
 ]

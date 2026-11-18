@@ -110,7 +110,9 @@ const FilterPopup: FC<Props> = function FilterPopup({ visible, onDismiss, hook }
 				<TouchableWithoutFeedback>
 					<View style={[styles.mainContainer, { backgroundColor: colors.background }]}>
 						<View style={{ width: '100%', marginBottom: 10 }}>
-							<Text style={{ ...styles.mainTitle, color: colors.primary }}>Filter</Text>
+							<Text style={{ ...styles.mainTitle, color: colors.primary }}>
+								{translate('tasksScreen.filter')}
+							</Text>
 						</View>
 
 						<View
