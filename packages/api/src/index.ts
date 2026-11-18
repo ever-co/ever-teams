@@ -19,3 +19,6 @@ export * from './lib/requests/activity';
 export * from './lib/requests/tracking-api';
 export * from './lib/requests/timesheet';
 export * from './lib/config/api-config';
+export * from './lib/client/errors';
+export * from './lib/client/types';
+export * from './lib/client/create-client';

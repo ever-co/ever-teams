@@ -1,0 +1,5 @@
+---
+'@ever-teams/api': minor
+---
+
+`createClient({ apiUrl, token | getToken, tenantId?, organizationId?, fetch?, headers? })` gives a typed client of its own, for Node 20 or later and the browser: `timer.status()`, `timer.start()`, `timer.stop()`, `timeEntries.list({ from, to })`, `projects.list()`, `tasks.list()`, `members.list()`, `totals.today()` and `totals.week()`. Two clients never share an address or a token; a client stands for one person, and with an `organizationId` other than its member's, `projects.list()`, `tasks.list()` and the totals throw `NO_EMPLOYEE` rather than send another organization's member. A personal API token is exchanged for a short-lived access token, and a 401 asks for a new token once. Failures are thrown as `EverTeamsError` and one subclass per kind (auth, forbidden with the API's code, not found, validation, conflict, rate limit with `retryAfter`, server, network), each with a `nextStep`. The package declares `sideEffects: false`, and its declarations no longer import `react-day-picker`, which it does not depend on. Every function exported before works as it did.
