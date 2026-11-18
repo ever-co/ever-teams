@@ -14,6 +14,18 @@ const ar: Translations = {
 		discard: 'Discard'
 		// @demo remove-current-line
 	},
+	shell: {
+		tabs: { home: 'الرئيسية', tasks: 'المهام', week: 'الأسبوع', team: 'الفريق' },
+		states: {
+			loading: 'جارٍ التحميل',
+			offline: 'أنت غير متصل. تعرض هذه الشاشة ما حُفظ على الهاتف.',
+			errorTitle: 'تعذّر تحميل هذه الشاشة',
+			retry: 'إعادة المحاولة',
+			comingTitle: 'قادم في الخطوات التالية',
+			comingMessage: 'هذه الشاشة من التطبيق الجديد ما زالت قيد البناء.'
+		},
+		signIn: { title: 'تسجيل الدخول', message: 'سينتقل تسجيل الدخول إلى التطبيق الجديد في خطوة لاحقة. سجّل الدخول بالتطبيق الحالي في الوقت الحالي.' }
+	},
 	session: {
 		endedTitle: 'انتهت جلستك',
 		endedMessage: 'سجّل الدخول مرة أخرى للمتابعة.'
