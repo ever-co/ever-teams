@@ -84,7 +84,7 @@ export const MembersSettingsScreen: FC<AuthenticatedDrawerScreenProps<'MembersSe
 			<StatusBar barStyle={dark ? 'light-content' : 'dark-content'} />
 			<View style={[$headerContainer, { backgroundColor: colors.background }]}>
 				<View style={[styles.container, { backgroundColor: colors.background }]}>
-					<TouchableOpacity onPress={() => navigateTo(navigation, 'Setting')}>
+					<TouchableOpacity onPress={() => navigateTo(navigation, 'Setting', { activeTab: 2 })}>
 						<AntDesign name="arrow-left" size={24} color={colors.primary} />
 					</TouchableOpacity>
 					<Text style={[styles.title, { color: colors.primary }]}>
