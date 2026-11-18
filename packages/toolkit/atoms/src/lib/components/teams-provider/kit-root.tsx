@@ -5,7 +5,9 @@ import { PortalContainerContext } from '@ever-teams/toolkit-ui';
 import {
 	getKitPreferences,
 	getServerKitPreferences,
+	KitColorScheme,
 	resolveColorScheme,
+	setKitPreferences,
 	subscribeKitPreferences
 } from '@lib/stores/kit-preferences';
 
@@ -71,12 +73,27 @@ function schemeClassName(scheme: 'light' | 'dark'): string | undefined {
  * root the kit root is rendered in. Both carry the attribute the stylesheet is scoped under, the color scheme and the
  * picked font, so none of them touches the page.
  */
-export function KitRoot({ children }: { children?: ReactNode }) {
+export function KitRoot({ children, colorScheme }: Readonly<{ children?: ReactNode; colorScheme?: KitColorScheme }>) {
 	const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(null);
 	const rootRef = useRef<HTMLDivElement>(null);
 	const preferences = useSyncExternalStore(subscribeKitPreferences, getKitPreferences, getServerKitPreferences);
 	const prefersDark = useSyncExternalStore(subscribeSystemScheme, systemPrefersDark, serverPrefersDark);
-	const scheme = resolveColorScheme(preferences.colorScheme, prefersDark);
+	// The scheme a person picked with the theme toggle wins; otherwise this root's own provider's, so that two providers
+	// of a page keep theirs.
+	const ownScheme = colorScheme ?? preferences.colorScheme;
+	const scheme = resolveColorScheme(preferences.chosenColorScheme ?? ownScheme, prefersDark);
+	const givenScheme = useRef(colorScheme);
+
+	// A scheme the host changes afterwards applies at once, like any changed attribute: it drops the person's pick.
+	useEffect(() => {
+		if (givenScheme.current === colorScheme) {
+			return;
+		}
+		givenScheme.current = colorScheme;
+		if (getKitPreferences().chosenColorScheme) {
+			setKitPreferences({ chosenColorScheme: null });
+		}
+	}, [colorScheme]);
 
 	useEffect(() => {
 		const element = document.createElement('div');

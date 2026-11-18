@@ -11,7 +11,7 @@ function useSchemeSwitch() {
 	const { setTheme } = useTheme();
 	const { scoped } = useKitOptions();
 	return (scheme: KitColorScheme) => {
-		setKitPreferences({ colorScheme: scheme });
+		setKitPreferences({ colorScheme: scheme, chosenColorScheme: scheme });
 		if (!scoped) {
 			setTheme(scheme);
 		}
