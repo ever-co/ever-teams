@@ -69,10 +69,9 @@ after(() => {
 	if (bundleDir) fs.rmSync(bundleDir, { recursive: true, force: true });
 });
 
-// An open dialog with two buttons, rendered in `parent`, its portal container next to it; `focused` lists every
-// button that got the focus. With `hiddenControls`, a hidden button comes before them and one in a display: none box
-// after them.
-async function openDialog(parent, focused, hiddenControls = false) {
+// An open dialog with two buttons (after the elements of `before`, before those of `after`), rendered in `parent`,
+// its portal container next to it; `focused` lists every button that got the focus.
+async function openDialog(parent, focused, before = [], after = []) {
 	const container = document.createElement('div');
 	const portal = document.createElement('div');
 	parent.append(container, portal);
@@ -91,16 +90,10 @@ async function openDialog(parent, focused, hiddenControls = false) {
 						ui.DialogContent,
 						{ 'aria-describedby': undefined },
 						React.createElement(ui.DialogTitle, null, 'Sign In'),
-						hiddenControls &&
-							React.createElement('button', { type: 'button', key: 'hidden', hidden: true }, 'hidden'),
+						...before,
 						button('first'),
 						button('second'),
-						hiddenControls &&
-							React.createElement(
-								'div',
-								{ key: 'gone', style: { display: 'none' } },
-								React.createElement('button', { type: 'button' }, 'gone')
-							)
+						...after
 					)
 				)
 			)
@@ -150,11 +143,38 @@ test('in a shadow root Tab loops inside the dialog instead of leaving it for the
 	await act(async () => root.unmount());
 });
 
-test('in a shadow root the Tab loop skips the controls that are not drawn', async () => {
+test('in a shadow root the Tab loop skips the controls Tab cannot reach', async () => {
 	const host = document.createElement('div');
 	document.body.appendChild(host);
 	const shadow = host.attachShadow({ mode: 'open' });
-	const { root, portal } = await openDialog(shadow, [], true);
+	const hidden = [
+		React.createElement('input', { type: 'hidden', key: 'token', name: 'token', value: 'x' }),
+		React.createElement('button', { type: 'button', key: 'hidden', hidden: true }, 'hidden')
+	];
+	const { root, portal } = await openDialog(shadow, [], hidden);
+	const buttons = [...portal.querySelector('[role="dialog"]').querySelectorAll('button:not([hidden])')];
+	const first = buttons[0];
+	const last = buttons.at(-1);
+
+	await act(async () => first.focus());
+	await act(async () =>
+		first.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', shiftKey: true, bubbles: true, composed: true }))
+	);
+	assert.equal(first.textContent, 'first');
+	assert.equal(shadow.activeElement, last, 'Shift+Tab on the first shown control goes to the last');
+	await act(async () => root.unmount());
+});
+
+test('in a shadow root the Tab loop skips a control in a display: none box', async () => {
+	const host = document.createElement('div');
+	document.body.appendChild(host);
+	const shadow = host.attachShadow({ mode: 'open' });
+	const gone = React.createElement(
+		'div',
+		{ key: 'gone', style: { display: 'none' } },
+		React.createElement('button', { type: 'button' }, 'gone')
+	);
+	const { root, portal } = await openDialog(shadow, [], [gone]);
 	const dialog = portal.querySelector('[role="dialog"]');
 	const named = (text) =>
 		[...dialog.querySelectorAll('button')].find((element) => element.textContent.includes(text));
@@ -168,6 +188,6 @@ test('in a shadow root the Tab loop skips the controls that are not drawn', asyn
 	assert.equal(shadow.activeElement, close, 'Shift+Tab on the first drawn control goes to the last one');
 
 	await act(async () => tab(close, false));
-	assert.equal(shadow.activeElement, first, 'Tab on the last control skips the hidden one');
+	assert.equal(shadow.activeElement, first, 'Tab on the last control skips the one not drawn');
 	await act(async () => root.unmount());
 });
