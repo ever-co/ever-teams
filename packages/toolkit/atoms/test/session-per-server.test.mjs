@@ -227,3 +227,37 @@ test("with the host's getToken, nothing is written to the browser's storage, and
 	assert.equal(localStorage.length, 1);
 	assert.deepEqual(refusedBy(HOST_A), [], 'the saved token is not sent');
 });
+
+const buttonOf = (name, label) =>
+	[...document.querySelectorAll(`[data-provider="${name}"] button`)].find((button) =>
+		button.textContent.includes(label)
+	);
+
+test("signing out under server B's provider leaves server A's session", async () => {
+	await openPage(bothServers());
+	await signInOn('a');
+	await signInOn('b');
+	await act(async () => buttonOf('b', 'AUTH.LOGOUT').click());
+	await settle();
+
+	await openPage(bothServers());
+	assertSignedInFromStorage('a', HOST_A);
+	assert.deepEqual(authorizedTo(HOST_B), [], 'signed out of B');
+	assert.equal(noticeOf('b'), null);
+});
+
+test('"Sign in again" under server B\'s provider leaves server A\'s session', async () => {
+	await openPage(bothServers());
+	await signInOn('a');
+	await signInOn('b');
+	servers.revoke(HOST_B);
+	await openPage(bothServers());
+	await act(async () => buttonOf('b', 'KIT_ERRORS.SIGN_IN_AGAIN').click());
+	await settle();
+	assert.equal(noticeOf('b'), null);
+
+	await openPage(bothServers());
+	assertSignedInFromStorage('a', HOST_A);
+	assert.deepEqual(authorizedTo(HOST_B), [], 'the ended session of B is not read back');
+	assert.equal(noticeOf('b'), null);
+});
