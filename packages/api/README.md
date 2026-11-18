@@ -8,7 +8,9 @@ To show a timer or a report in a React page, install [`@ever-teams/atoms`](https
 which uses this package: start with [its README](https://github.com/ever-co/ever-teams/tree/develop/packages/toolkit/atoms#readme).
 
 On your server, `@ever-teams/api/server` exchanges an embed credential for a short-lived token for a person signed in
-to your product: see [Sign people in from your server](#sign-people-in-from-your-server).
+to your product: see [Sign people in from your server](#sign-people-in-from-your-server). It also checks the
+signature of the webhooks the API sends when a timer starts or stops: see
+[Receive the API's webhooks](#receive-the-apis-webhooks).
 
 ## Install
 
@@ -110,6 +112,7 @@ table names the route behind each one; they are the routes the kit already calls
 | `timer.status()`                      | `GET /timesheet/timer/status`                     | `EverTeamsTimerStatus`     |
 | `timer.start(options?)`               | `POST /timesheet/timer/start`                     | `EverTeamsTimeLog`         |
 | `timer.stop()`                        | `POST /timesheet/timer/stop`                      | `EverTeamsTimeLog \| null` |
+| `timer.watch(listener, options?)`     | `GET /timesheet/timer/status`, at each read       | `() => void`               |
 | `timeEntries.list({ from, to, ... })` | `GET /timesheet/time-log`                         | `EverTeamsTimeEntry[]`     |
 | `projects.list()`                     | `GET /organization-projects/employee/:employeeId` | `EverTeamsProject[]`       |
 | `tasks.list({ projectId? })`          | `GET /tasks/employee/:employeeId`                 | `EverTeamsTask[]`          |
@@ -146,6 +149,62 @@ with status 406).
 
 ```js
 const log = await teams.timer.stop();
+```
+
+### timer.watch(listener, options?)
+
+Tells `listener` the timer as a first read shows it, then each start or stop a later read shows, wherever it was made
+(the web app, the desktop app, a script). It answers the function that stops it.
+
+```js
+const stopWatching = teams.timer.watch(
+	(change) => {
+		if (change.running) {
+			console.log(`Started at ${change.startedAt} on project ${change.projectId}`);
+			return;
+		}
+		console.log('Stopped');
+	},
+	{ onError: (error) => console.error(error.message, error.nextStep) }
+);
+
+// Later, when the page or the script no longer needs it:
+stopWatching();
+```
+
+The listener receives a `TimerChange`: `running`, `startedAt` (an ISO date, `null` while stopped), `projectId`,
+`taskId`, and `initial`, `true` for the first read. After the first read it runs once per start, stop or switch to
+another running entry (another start, project or task), never twice for one change.
+
+| Option    | Default | What it does                                                                                                                                      |
+| --------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `every`   | `60000` | Milliseconds between two reads, 15 000 at the least: a shorter one reads every 15 seconds.                                                        |
+| `onError` | none    | Called with the error of a read that failed (an `EverTeamsError`, or what `getToken` threw), and with what the listener threw. The watch goes on. |
+
+An answer with no status in it is a failed read too (`UNEXPECTED_ANSWER`). Without `onError`, a failed read is dropped
+and the watch reads again at its next turn; an error the listener throws is thrown again on a fresh task, as an
+uncaught error (in Node, `process.on('uncaughtException')` sees it). Neither stops the watch, and neither becomes an
+unhandled rejection.
+
+It reads `timer.status()` at once, then every `every` milliseconds, one read at a time. In a page it reads only while
+the page is visible, and once more when the page becomes visible again or the network comes back (after the read
+pending then, if there is one); in Node it reads at every turn. That is when it reads, not a deadline for the
+listener: a change made elsewhere is told when a read that succeeds shows it, and a read can fail or come late. A start
+and a stop that both fall between two reads leave the timer as the last read saw it, so neither is told. A server that
+needs each change at once receives the API's webhooks instead (see
+[Receive the API's webhooks](#receive-the-apis-webhooks)).
+
+A host that reads the status itself can use the same rule: `timerChangeOf(status, previous)` answers the change a read
+shows after the last one, or `null` when the timer is as it was.
+
+```js
+import { timerChangeOf } from '@ever-teams/api';
+
+let last = null;
+const change = timerChangeOf(await teams.timer.status(), last);
+if (change) {
+	last = change;
+}
 ```
 
 ### timeEntries.list({ from, to, employeeIds? })
@@ -236,11 +295,13 @@ try {
 | `EverTeamsNetworkError`    | No answer: wrong address, network, CORS   | `cause`: the error `fetch` threw (from the server helpers: a copy of its name, message, code and causes).                 |
 
 The client also throws an `EverTeamsError` with status 0 and one of these codes before or without a request:
-`CLIENT_OPTIONS` (no `apiUrl`, or neither `token` nor `getToken`), `NO_TOKEN`, `NO_ORGANIZATION` and `NO_EMPLOYEE`
+`CLIENT_OPTIONS` (no `apiUrl`, or neither `token` nor `getToken`; a `timer.watch` listener that is not a function, or
+an `every` that is not a number), `NO_TOKEN`, `NO_ORGANIZATION` and `NO_EMPLOYEE`
 (the token's user is not a member of an organization, or `organizationId` names another organization than its
 member's), `INVALID_DATE` (also a date-time on a day that does not exist, such as 2026-02-29T00:00:00Z), `NO_FETCH`,
-`UNEXPECTED_ANSWER` (`GET /user/me` answered no user; the next call reads it again); and `NOT_JSON` with the answer's
-status when `apiUrl` answers something else than JSON, such as the web app's pages.
+`UNEXPECTED_ANSWER` (`GET /user/me` answered no user, and the next call reads it again; or a read of `timer.watch`
+answered no status, which goes to its `onError`); and `NOT_JSON` with the answer's status when `apiUrl` answers
+something else than JSON, such as the web app's pages.
 
 An error your `getToken` throws comes back as it is. A browser reads `Retry-After` only when the API exposes it to
 the page (CORS): there, `retryAfter` may stay `undefined`. When a page loads both the ESM and the CommonJS build, `instanceof` works within one build;
@@ -559,6 +620,83 @@ report. Its refusals are those of the exchange (401, 429, 404, 503), and:
 | 403    | `EverTeamsForbiddenError` | `EMBED_CLIENT_REQUIRED` | The credential is the whole organization's: ask an administrator for one limited to the client.       |
 | 403    | `EverTeamsForbiddenError` | `EMBED_CLIENT_GONE`     | The credential's client was deleted: restore the client, or use the credential of another one.        |
 | 500    | `EverTeamsServerError`    | none                    | The API accepted the credential but could not read the report: try again, and tell its administrator. |
+
+## Receive the API's webhooks
+
+The API posts a signed webhook to your server when a time entry starts, stops, is added, changed or deleted, so your
+server learns at once that a timer started elsewhere, and can pass it on to your own pages.
+
+An administrator subscribes your endpoint once, with a token that has the webhooks permission (`WEBHOOKS_CREATE`):
+
+```http
+POST {apiUrl}/webhooks/subscriptions
+Content-Type: application/json
+
+{ "name": "Portal", "url": "https://app.example.com/ever-teams/webhook", "events": ["time_log.*"] }
+```
+
+The answer holds the subscription and its signing `secret`, shown only then (and again when the secret is rotated,
+`POST {apiUrl}/webhooks/subscriptions/:id/rotate-secret`): keep it in an environment variable of your server.
+
+`verifyWebhook` checks a delivery and answers its event. It needs the raw body as received, before any JSON parsing,
+because the signature covers those exact bytes: in Express, `express.raw({ type: 'application/json' })` on the route.
+
+```js
+import express from 'express';
+import { isTimeEntryEvent, verifyWebhook } from '@ever-teams/api/server';
+
+const app = express();
+
+app.post('/ever-teams/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+	let event;
+	try {
+		event = await verifyWebhook({
+			body: req.body,
+			signature: req.get('x-signature'),
+			secret: process.env.EVER_TEAMS_WEBHOOK_SECRET
+		});
+	} catch (error) {
+		console.error(error.code, error.message);
+		return res.sendStatus(401);
+	}
+	if (isTimeEntryEvent(event)) {
+		const { employeeId, projectId, startedAt } = event.data;
+		if (event.name === 'time_log.started') {
+			await tellPortalPages(employeeId, { running: true, projectId, startedAt });
+		}
+		if (event.name === 'time_log.stopped') {
+			await tellPortalPages(employeeId, { running: false });
+		}
+	}
+	res.sendStatus(204);
+});
+```
+
+`tellPortalPages` stands for your own way to reach the pages, such as server-sent events or a WebSocket. In a route
+handler that takes a `Request`, pass `body: await request.text()` and `signature: request.headers.get('x-signature')`.
+
+- The signature is `X-Signature: t=<unix seconds>,v1=<hex HMAC-SHA256>`, over `<t>.<raw body>` with the secret.
+  During a rotation of the secret the header carries a second `v1`, and either secret verifies; a header with more than
+  two is refused before any check. The HMAC is computed once with the Web Crypto API, so `verifyWebhook` also runs in
+  a worker or an edge route, and the package compares it in constant time itself, on every runtime and Node release.
+- A delivery signed more than `tolerance` seconds before or after your server's clock is refused (300 by default, as
+  the API's own check): a captured request cannot be sent again later.
+- The API sends each event at least once and tries again after a failed delivery: answer 2xx quickly, and handle each
+  `event.id` once (the `X-Event-Id` header holds it too).
+- `isTimeEntryEvent(event)` is true for the five time entry events, and types `event.data`: `time_log.started`,
+  `time_log.stopped`, `time_log.created` (time added already finished), `time_log.updated` and `time_log.deleted`.
+  The data holds the entry's ids and times: `timeLogId`, `employeeId`, `projectId`, `taskId`,
+  `organizationContactId`, `organizationTeamId`, `startedAt`, `stoppedAt`, `isRunning`, `isBillable`, `source` and
+  `logType`, never its description. Any other event comes with its `name` and its `data` as the API sent them.
+
+A refusal is an `EverTeamsError` with status 0, a `code` and a `nextStep`; no error holds the secret:
+
+| `code`              | When                                                                                                                |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `WEBHOOK_SIGNATURE` | No `X-Signature`, a header that is not `t=...,v1=...` or has more than two `v1`, or a signature that does not match |
+| `WEBHOOK_EXPIRED`   | A genuine signature made more than `tolerance` seconds from now: check the server's clock                           |
+| `WEBHOOK_BODY`      | A body already parsed as JSON (pass the raw body), or a signed body that is not an event                            |
+| `CLIENT_OPTIONS`    | No `secret`, or a `tolerance` or `now` that is not a number                                                         |
 
 ## The request functions
 

@@ -337,3 +337,94 @@ test('the installed package holds the builds and declarations of the server entr
 	assert.ok(files.includes('dist/server.d.ts'));
 	assert.ok(files.includes('dist/cjs/server.d.ts'));
 });
+
+// A delivery signed as the API signs it (Gauzy, webhook-signature.ts): `t=<seconds>,v1=<hex HMAC-SHA256>` over
+// `<seconds>.<raw body>`. verifyWebhook checks it with the Web Crypto API, then meets a wrong secret.
+const WEBHOOK_SCRIPT = `
+const body = JSON.stringify({
+	id: 'event-1',
+	name: 'time_log.stopped',
+	version: 1,
+	occurredAt: '2026-11-18T10:00:00.000Z',
+	data: {
+		timeLogId: 'log-1', employeeId: 'employee-1', projectId: null, taskId: null, organizationContactId: null,
+		organizationTeamId: null, startedAt: '2026-11-18T09:00:00.000Z', stoppedAt: '2026-11-18T10:00:00.000Z',
+		isRunning: false, isBillable: true, source: 'DESKTOP', logType: 'TRACKED'
+	}
+});
+const t = Math.floor(Date.now() / 1000);
+const signature = 't=' + t + ',v1=' + createHmac('sha256', 'secret-1').update(t + '.' + body, 'utf8').digest('hex');
+(async () => {
+	const event = await server.verifyWebhook({ body: Buffer.from(body), signature, secret: 'secret-1' });
+	const refusal = await server.verifyWebhook({ body, signature, secret: 'secret-2' }).catch((error) => error);
+	console.log(JSON.stringify({
+		name: event.name,
+		timeEntry: server.isTimeEntryEvent(event),
+		refusal: refusal.code,
+		mainEntryError: refusal instanceof api.EverTeamsError
+	}));
+})();
+`;
+
+const expectedWebhook = {
+	name: 'time_log.stopped',
+	timeEntry: true,
+	refusal: 'WEBHOOK_SIGNATURE',
+	mainEntryError: true
+};
+
+test('the installed server entry checks a webhook delivery in ESM and CommonJS, and a worker or edge bundle takes it', async () => {
+	const imports =
+		"import { createHmac } from 'node:crypto';\nimport * as server from '@ever-teams/api/server';\n" +
+		"import * as api from '@ever-teams/api';";
+	const requires =
+		"const { createHmac } = require('node:crypto');\nconst server = require('@ever-teams/api/server');\n" +
+		"const api = require('@ever-teams/api');";
+	const esm = run(process.execPath, ['--input-type=module', '-e', `${imports}\n${WEBHOOK_SCRIPT}`], projectDir);
+	const cjs = run(process.execPath, ['-e', `${requires}\n${WEBHOOK_SCRIPT}`], projectDir);
+	const bundle = (conditions) =>
+		esbuild.build({
+			stdin: {
+				contents: "import { verifyWebhook } from '@ever-teams/api/server';\nconsole.log(verifyWebhook);",
+				resolveDir: projectDir
+			},
+			bundle: true,
+			write: false,
+			logLevel: 'silent',
+			platform: 'browser',
+			conditions
+		});
+
+	assert.deepEqual(loaded(esm), expectedWebhook);
+	assert.deepEqual(loaded(cjs), expectedWebhook);
+	for (const result of [await bundle(['workerd', 'worker']), await bundle(['edge-light'])]) {
+		assert.match(result.outputFiles[0].text, /X-Signature/);
+	}
+});
+
+test("TypeScript narrows a webhook event to a time entry's with isTimeEntryEvent", () => {
+	const tsc = path.join(path.dirname(require.resolve('typescript/package.json')), 'bin', 'tsc');
+	fs.writeFileSync(
+		path.join(projectDir, 'webhook.ts'),
+		"import { isTimeEntryEvent, verifyWebhook } from '@ever-teams/api/server';\n" +
+			'declare const env: { [name: string]: string | undefined };\n' +
+			'declare const rawBody: Uint8Array;\n' +
+			'declare const header: string | string[] | undefined;\n' +
+			'export async function employeeWhoStarted(): Promise<string | null> {\n' +
+			'\tconst event = await verifyWebhook({ body: rawBody, signature: header, secret: env.WEBHOOK_SECRET });\n' +
+			"\tif (isTimeEntryEvent(event) && event.name === 'time_log.started') {\n" +
+			'\t\treturn event.data.employeeId;\n' +
+			'\t}\n' +
+			'\treturn null;\n' +
+			'}\n'
+	);
+	const check = (...args) =>
+		run(
+			process.execPath,
+			[tsc, '--noEmit', '--strict', '--skipLibCheck', '--lib', 'es2022,dom', ...args, 'webhook.ts'],
+			projectDir
+		);
+
+	assert.doesNotThrow(() => check('--module', 'esnext', '--moduleResolution', 'bundler'));
+	assert.doesNotThrow(() => check('--module', 'commonjs', '--moduleResolution', 'node10'));
+});
