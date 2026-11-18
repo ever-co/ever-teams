@@ -2,14 +2,15 @@ import { useAtom } from 'jotai';
 import { useEffect } from 'react';
 import { accessTokenAtom } from '../teams-jotai/atoms/teams-atoms';
 import { useKitOptions } from '@components/teams-provider/kit-options';
+import { readStoredToken } from '@lib/session/stored-session';
+import { apiUrlOf } from '@lib/utils/api-url';
 
 /**
  * useAccessToken hook returns an object with the current access token
  * and a setter function to update it.
  *
- * If NEXT_PUBLIC_TOKEN is set, it will be used as the initial token.
- * Otherwise, the hook will check local storage for a token and use that.
- * If no token is found in either, the hook will return a default value of null.
+ * Without a token in memory, the hook reads the one saved in the browser for the API address of its provider: a
+ * session saved for another server is never read. If none is found, the token stays empty.
  *
  * @returns {Object} { accessToken, setAccessToken }
  * @returns {string | null} accessToken The current access token.
@@ -18,41 +19,21 @@ import { useKitOptions } from '@components/teams-provider/kit-options';
 
 export const useAccessToken = () => {
 	const [accessToken, setAccessToken] = useAtom(accessTokenAtom);
-	const { hostSignIn } = useKitOptions();
+	const { hostSignIn, api } = useKitOptions();
 
 	useEffect(() => {
 		// The host's getToken gives the token, in memory: none is read back from the browser's storage.
 		if (hostSignIn) {
 			return;
 		}
-		if (!accessToken) {
-			// Then check localStorage
-			const store = localStorage.getItem('_teams-store');
-			if (store) {
-				try {
-					const parsedStore = JSON.parse(store);
-					if (parsedStore?.persist?.token) {
-						// Check if token has expired
-						const expiryTime = parsedStore.persist.expiry;
-
-						if (expiryTime && Date.now() > expiryTime) {
-							const resetStore = {
-								app: { user: null },
-								persist: { token: null }
-							};
-							localStorage.setItem('_teams-store', JSON.stringify(resetStore));
-							return;
-						}
-
-						setAccessToken(parsedStore.persist.token);
-						return;
-					}
-				} catch (error) {
-					console.error('Error parsing _teams-store from localStorage:', error);
-				}
-			}
+		if (accessToken) {
+			return;
 		}
-	}, [accessToken, setAccessToken, hostSignIn]);
+		const storedToken = readStoredToken(apiUrlOf(api));
+		if (storedToken) {
+			setAccessToken(storedToken);
+		}
+	}, [accessToken, setAccessToken, hostSignIn, api]);
 
 	return { accessToken, setAccessToken };
 };

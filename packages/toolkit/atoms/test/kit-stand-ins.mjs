@@ -71,3 +71,42 @@ export function recordingFetch(requests) {
 		return new Response(JSON.stringify(body), { status: 200, headers: { 'Content-Type': 'application/json' } });
 	};
 }
+
+// Servers behind one fetch that each check the tokens they get, as a real API refuses (401) a token it did not issue:
+// a sign-in on a host issues that host's own token. Each request is recorded with its host, path and method, whether it
+// carried an Authorization header, and the status answered; never the token itself.
+export function tokenCheckingServers() {
+	const requests = [];
+	const accepted = new Map();
+	const accept = (host, token) => {
+		const tokens = accepted.get(host) ?? new Set();
+		tokens.add(token);
+		accepted.set(host, tokens);
+	};
+	// The host ends every session it issued: their tokens are refused from then on.
+	const revoke = (host) => accepted.delete(host);
+	const isAccepted = (host, authorization) => {
+		const token = authorization.replace(/^Bearer /, '');
+		return accepted.get(host)?.has(token) ?? false;
+	};
+	const fetch = async (url, init) => {
+		const { host, pathname } = new URL(url);
+		const path = pathname.replace(/^\/api/, '');
+		const authorization = new Headers(init?.headers).get('authorization');
+		let status = 200;
+		let body = ANSWERS[path] ?? {};
+		if (path === '/auth/login') {
+			const token = `${host}-token`;
+			accept(host, token);
+			body = { ...body, token };
+		}
+		const refused = authorization !== null && !isAccepted(host, authorization);
+		if (refused) {
+			status = 401;
+			body = { statusCode: 401, message: 'Unauthorized' };
+		}
+		requests.push({ host, path, method: init?.method ?? 'GET', authorized: authorization !== null, status });
+		return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
+	};
+	return { requests, accept, revoke, fetch };
+}
