@@ -49,7 +49,7 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<'Sett
 		const { colors, dark } = useAppTheme();
 		const { isLoading } = useSettings();
 		const { activeTeam } = useOrganizationTeam();
-		const route = useRoute<SettingScreenRouteProp<'Setting'>>();
+		const { route } = _props;
 		// const { navigation } = _props;
 
 		// ref
