@@ -526,5 +526,17 @@
 	{
 		"id": "removed:testNames:apps/web/core/lib/utils/time-import-columns.test.ts::names the columns of a time export it does not read::#1",
 		"reason": "The time import now reads a Tags column as the labels of each entry (#5368), so Tags is no longer among the columns it leaves out. Renamed \"names the columns of a time export it does not read, and reads its Tags as the labels\", which checks both."
+	},
+	{
+		"id": "removed:testNames:apps/mobile/detox/firstTest.spec.js::Example::#1",
+		"reason": "Detox could not run: its configuration built ios/mobile.xcworkspace, which the repository does not hold (expo prebuild generates it), and this spec looked for the Ignite demo test IDs login-heading, login-button and welcome-heading, which the app does not have. The end-to-end flows are the Maestro flows in apps/mobile/.maestro (ever-co/ever-teams#5447)."
+	},
+	{
+		"id": "removed:testNames:apps/mobile/detox/firstTest.spec.js::should go to welcome screen after logging in::#1",
+		"reason": "Detox could not run: its configuration built ios/mobile.xcworkspace, which the repository does not hold (expo prebuild generates it), and this spec looked for the Ignite demo test IDs login-heading, login-button and welcome-heading, which the app does not have. The end-to-end flows are the Maestro flows in apps/mobile/.maestro (ever-co/ever-teams#5447)."
+	},
+	{
+		"id": "removed:testNames:apps/mobile/detox/firstTest.spec.js::should have the login screen first::#1",
+		"reason": "Detox could not run: its configuration built ios/mobile.xcworkspace, which the repository does not hold (expo prebuild generates it), and this spec looked for the Ignite demo test IDs login-heading, login-button and welcome-heading, which the app does not have. The end-to-end flows are the Maestro flows in apps/mobile/.maestro (ever-co/ever-teams#5447)."
 	}
 ]

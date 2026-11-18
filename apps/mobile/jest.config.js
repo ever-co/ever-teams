@@ -25,7 +25,7 @@ module.exports = {
 	transformIgnorePatterns: [
 		'<rootDir>/node_modules/(react-clone-referenced-element|@react-native-community|react-navigation|@react-navigation/.*|@unimodules/.*|native-base|react-native-code-push)'
 	],
-	testPathIgnorePatterns: ['<rootDir>/node_modules/', '/detox', '@react-native'],
+	testPathIgnorePatterns: ['<rootDir>/node_modules/', '@react-native'],
 	// 'node', not 'jsdom': jest-expo 57 + React Native 0.86 DEADLOCK under jsdom (a bare
 	// <View><Text> render never returned). RN is not a DOM environment; jest-expo provides what RN needs.
 	testEnvironment: 'node',
