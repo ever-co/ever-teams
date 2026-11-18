@@ -27,6 +27,39 @@ export const unstable_settings = { initialRouteName: 'index' };
  */
 const TEAM_AS_INITIAL_TAB = { initialRouteName: 'index' };
 
+/** What the override below reads of the tabs' state. */
+interface TabsState {
+	index: number;
+	routes: { key: string }[];
+	history: { type: string; key: string }[];
+}
+
+interface TabsRouter {
+	getStateForRouteNamesChange(state: TabsState, options: object): TabsState;
+}
+
+/**
+ * When the tabs change (Work comes or goes with tracking), the Back history is built again from the tabs left, as
+ * develop's tab router did (@react-navigation/routers 7.6.6): Back from the team then goes to the first tab, Tasks
+ * without tracking. Expo Router's copy of the router keeps what is left of the old history instead, and Back from the
+ * team then left the tabs.
+ */
+function historyFromTheTabsLeft(original: TabsRouter): Partial<TabsRouter> {
+	return {
+		getStateForRouteNamesChange(state, options) {
+			const next = original.getStateForRouteNamesChange(state, options);
+			const focused = { type: 'route', key: next.routes[next.index].key };
+			if (next.index === 0) {
+				return { ...next, history: [focused] };
+			}
+			return { ...next, history: [{ type: 'route', key: next.routes[0].key }, focused] };
+		}
+	};
+}
+
+/** Typed loosely, as the tab bar's options are: the router's types are those of Expo Router's own copy. */
+const TAB_HISTORY_AS_ON_DEVELOP: object = { UNSTABLE_router: historyFromTheTabsLeft };
+
 /**
  * The tab bar's options are typed with @react-navigation/bottom-tabs, which Expo CLI resolves to Expo Router's own copy
  * at run time: TypeScript sees two copies of the same types.
@@ -60,10 +93,10 @@ export default observer(function SignedInTabs() {
 	useAppLocale();
 
 	return (
-		<Tabs {...TEAM_AS_INITIAL_TAB} screenOptions={forRouter(screenOptions)}>
+		<Tabs {...TEAM_AS_INITIAL_TAB} {...TAB_HISTORY_AS_ON_DEVELOP} screenOptions={forRouter(screenOptions)}>
 			{/* Work is a tab only where the team tracks time. Elsewhere it is no route of the tabs, as the old tab
-			    navigator left it out: Back from the team goes to Tasks, and a switch of tracking drops it from the
-			    tabs' history too */}
+			    navigator left it out: Back from the team goes to Tasks, and a switch of tracking builds the tabs'
+			    history again (historyFromTheTabsLeft) */}
 			<Tabs.Protected guard={isTrackingEnabled}>
 				<Tabs.Screen name="timer" options={forRouter(workTabOptions(dark))} />
 			</Tabs.Protected>
