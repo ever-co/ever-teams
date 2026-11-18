@@ -26,6 +26,34 @@ The element shows the kit's sign-in button, then the person's timer once they ar
 
 A change of attribute applies at once. Removing the element stops the timer's display and its requests.
 
+## Examples
+
+`examples/` holds pages that run as they are once the files of `dist/` sit next to them:
+
+- `html/`: a plain page.
+- `vue/`: a Vue app on Vue's browser build. Vue takes a tag it does not know for a component, so it is told that the
+  `ever-teams-` tags are custom elements, with `app.config.compilerOptions.isCustomElement`. In a project built with
+  single-file components, the same function goes to the Vue plugin's `template.compilerOptions.isCustomElement`.
+- `svelte/`: a Svelte component that imports the package once and binds `color-scheme`. Svelte needs no setting.
+
+Angular needs the custom elements schema on the component that holds the element:
+
+```ts
+import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import '@ever-teams/embed';
+
+@Component({
+	selector: 'app-timer',
+	standalone: true,
+	schemas: [CUSTOM_ELEMENTS_SCHEMA],
+	template: '<ever-teams-timer api-url="https://api.ever.team/api"></ever-teams-timer>'
+})
+export class TimerComponent {}
+```
+
+In a site editor, a custom HTML block takes the script tag and the element as they are, once your site serves the
+files of `dist/`.
+
 ## What it changes in your page
 
 The timer draws in the element's own shadow root: your page's CSS does not reach it, and its styles do not reach your
