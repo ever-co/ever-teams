@@ -2,28 +2,53 @@ import { IOrganizationTeamList, IServerError, ITenant, IUser, PaginationResponse
 import QueryString from 'qs';
 import { ApiCall } from '../fetch';
 
+interface ITeamsConditions {
+	organizationId: string;
+	tenantId: string;
+	members?: { employeeId: string };
+	projects?: { id: string };
+}
+
+const TEAM_RELATIONS = [
+	'members',
+	'members.role',
+	'members.employee',
+	'members.employee.user',
+	'createdByUser',
+	'projects',
+	'projects.customFields.repository'
+];
+
+// What the teams read asks. An embed token may only name its organization and member (the API's embed guard refuses
+// relations and any other key), so its read gets the member's teams without their members or projects.
+function teamsQueryOf(conditions: ITeamsConditions, embedded: boolean): Record<string, unknown> {
+	if (embedded) {
+		const { organizationId, tenantId, members } = conditions;
+		return { where: { organizationId, tenantId, members } };
+	}
+	return { where: conditions, withLastWorkedTask: 'true', relations: TEAM_RELATIONS };
+}
+
 export const getOrganisationTeams = async ({
 	organizationId,
 	projectId,
 	user,
-	token
+	token,
+	embedded = false
 }: {
 	user: IUser | null;
 	token: string;
 	organizationId: string;
 	projectId: string | null;
+	// A read with a token from the host's getToken (config.getToken)
+	embedded?: boolean;
 }) => {
 	try {
 		if (!user) throw new Error('User is not authenticated');
 
 		const { tenantId } = user;
 
-		const conditions: {
-			organizationId: string;
-			tenantId: string;
-			members?: { employeeId: string };
-			projects?: { id: string };
-		} = {
+		const conditions: ITeamsConditions = {
 			organizationId,
 			tenantId
 		};
@@ -37,19 +62,7 @@ export const getOrganisationTeams = async ({
 			conditions.projects = { id: projectId };
 		}
 
-		const query = QueryString.stringify({
-			where: conditions,
-			withLastWorkedTask: 'true',
-			relations: [
-				'members',
-				'members.role',
-				'members.employee',
-				'members.employee.user',
-				'createdByUser',
-				'projects',
-				'projects.customFields.repository'
-			]
-		});
+		const query = QueryString.stringify(teamsQueryOf(conditions, embedded));
 
 		const response = await ApiCall<PaginationResponse<IOrganizationTeamList>>({
 			path: `/organization-team/me?${query}`,
