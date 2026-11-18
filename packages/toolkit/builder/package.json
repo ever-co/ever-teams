@@ -7,7 +7,8 @@
 		"dev": "next dev --webpack",
 		"build": "next build --webpack",
 		"start": "next start",
-		"lint": "eslint ."
+		"lint": "eslint .",
+		"test": "node --test test/*.test.mjs"
 	},
 	"dependencies": {
 		"@builder.io/dev-tools": "^1.0.17",
@@ -17,6 +18,7 @@
 		"@craftjs/core": "^0.2.7",
 		"@craftjs/layers": "^0.2.5",
 		"@ever-teams/atoms": "*",
+		"@ever-teams/embed": "*",
 		"@ever-teams/toolkit-types": "*",
 		"@ever-teams/toolkit-ui": "*",
 		"@paperbits/common": "^0.1.613",
