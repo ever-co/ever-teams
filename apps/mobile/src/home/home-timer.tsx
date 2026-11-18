@@ -283,6 +283,10 @@ export function HomeTimer() {
 	};
 
 	const refresh = async () => {
+		// Offline the reads wait for the network, and the spinner would turn until it comes back: the saved answers stay
+		if (!online) {
+			return;
+		}
 		setRefreshing(true);
 		// Only what there is to read: a refetch runs even a disabled query, so the totals without an employee, or the task
 		// of a log without one, would fail after their retries and hold the spinner for seconds
@@ -298,7 +302,7 @@ export function HomeTimer() {
 	return (
 		<ScrollView
 			contentContainerStyle={styles.content}
-			refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => void refresh()} />}
+			refreshControl={<RefreshControl refreshing={refreshing && online} onRefresh={() => void refresh()} />}
 		>
 			<View style={[styles.surface, styles.timer, surfaceOf(theme)]}>
 				<Text style={[theme.type.hint, styles.centered, { color: theme.colors['muted-foreground'] }]}>
