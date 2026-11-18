@@ -530,5 +530,9 @@
 			"IDLE": "Inactif",
 			"RESUMED": "Repris"
 		}
+	},
+	"FONT_PICKER": {
+		"system_font": "Police du système",
+		"page_font": "Police de la page"
 	}
 }

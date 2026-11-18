@@ -64,6 +64,8 @@ const useFontSelector = () => {
 
 	return {
 		selectedFont,
+		// The font a person picked, empty until then: the widgets draw in the web app's face meanwhile
+		pickedFont: preferences.font ?? '',
 		setSelectedFont,
 		fontOptions: FONT_OPTIONS
 	};

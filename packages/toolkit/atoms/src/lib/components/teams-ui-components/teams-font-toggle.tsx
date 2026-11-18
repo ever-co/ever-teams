@@ -1,5 +1,15 @@
+import { useTranslation } from 'react-i18next';
 import { cn, Select, ISelectProps } from '@ever-teams/toolkit-ui';
 import useFontSelector from '@hooks/useFontSelector';
+import { useKitOptions } from '@components/teams-provider/kit-root';
+
+// What the widgets draw in until a font is picked: the web app's face in the kit root, the page's font without one
+function unpickedFontKey(scoped: boolean): string {
+	if (scoped) {
+		return 'FONT_PICKER.system_font';
+	}
+	return 'FONT_PICKER.page_font';
+}
 
 type ITeamsFontToggleProps = Partial<Pick<ISelectProps, 'size' | 'placeholder'>> & {
 	label?: string;
@@ -8,7 +18,10 @@ type ITeamsFontToggleProps = Partial<Pick<ISelectProps, 'size' | 'placeholder'>>
 };
 
 const TeamsFontToggle = ({ className, containerClassName, label, size, placeholder }: ITeamsFontToggleProps) => {
-	const { fontOptions, selectedFont, setSelectedFont } = useFontSelector();
+	const { t } = useTranslation();
+	const { scoped } = useKitOptions();
+	// Until a font is picked the toggle names the font the widgets draw in, instead of a font they do not use
+	const { fontOptions, pickedFont, setSelectedFont } = useFontSelector();
 	const optionsForSelect = fontOptions.map(({ name, value }) => ({
 		label: name,
 		value
@@ -22,13 +35,13 @@ const TeamsFontToggle = ({ className, containerClassName, label, size, placehold
 			)}
 			<Select
 				name="font"
-				placeholder={placeholder || 'Select font'}
-				defaultValue={selectedFont}
+				placeholder={placeholder || t(unpickedFontKey(scoped))}
+				defaultValue={pickedFont}
 				values={optionsForSelect}
 				onValueChange={(e) => {
 					setSelectedFont(e);
 				}}
-				value={selectedFont}
+				value={pickedFont}
 				size={size}
 				className={className}
 			/>
