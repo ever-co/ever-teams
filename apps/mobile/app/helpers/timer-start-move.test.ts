@@ -175,6 +175,11 @@ describe('timeTextFromTyping', () => {
 		expect(timeTextFromTyping('09:05')).toBe('09:05');
 	});
 
+	it('keeps a time whose last digit is being changed as it is, never as another time', () => {
+		expect(timeTextFromTyping('12:3')).toBe('12:3');
+		expect(timeTextFromTyping('1:234')).toBe('1:234');
+	});
+
 	it('keeps one or two digits as they are, until the minutes come', () => {
 		expect(timeTextFromTyping('9')).toBe('9');
 		expect(timeTextFromTyping('09')).toBe('09');
