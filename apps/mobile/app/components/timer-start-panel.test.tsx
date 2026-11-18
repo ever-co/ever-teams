@@ -3,6 +3,7 @@
  * (ever-co/ever-teams#5266), or the start alone with a line saying why it cannot change here.
  */
 import React from 'react';
+import { Platform } from 'react-native';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import { showMessage } from 'react-native-flash-message';
 import { TimerStartMoveAccess } from '../helpers/timer-start-move';
@@ -250,5 +251,23 @@ describe('The panel of the running time', () => {
 
 		expect(screen.getByText(/timer\.startMove\.unsupported/)).toBeTruthy();
 		expect(screen.queryByTestId('timer-start-time')).toBeNull();
+	});
+});
+
+describe('The time field on Android', () => {
+	const platform = Platform.OS;
+
+	afterEach(() => {
+		Object.defineProperty(Platform, 'OS', { configurable: true, get: () => platform });
+	});
+
+	it('asks for a keyboard of digits and places the colon itself', async () => {
+		Object.defineProperty(Platform, 'OS', { configurable: true, get: () => 'android' });
+		await renderPanel();
+
+		expect(screen.getByTestId('timer-start-time').props.keyboardType).toBe('number-pad');
+		await fireEvent.changeText(screen.getByTestId('timer-start-time'), '905');
+
+		expect(screen.getByTestId('timer-start-time').props.value).toBe('9:05');
 	});
 });

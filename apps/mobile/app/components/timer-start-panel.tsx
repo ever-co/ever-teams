@@ -1,10 +1,19 @@
 import React, { FC, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+	ActivityIndicator,
+	KeyboardTypeOptions,
+	Platform,
+	StyleSheet,
+	Text,
+	TouchableOpacity,
+	View
+} from 'react-native';
 import { BottomSheetTextInput } from '@gorhom/bottom-sheet';
 import { showMessage } from 'react-native-flash-message';
 import type { TxKeyPath } from '../i18n/i18n';
 import { translate } from '../i18n';
 import {
+	timeTextFromTyping,
 	TIMER_START_REASON_MAX_LENGTH,
 	TimerStartMoveAccess,
 	TimerStartViewReason,
@@ -56,6 +65,14 @@ interface ITimerStartPanelProps {
  * by hand, and a missing reason are told before anything is sent; the API's refusals, a failed save and an offline
  * phone are told after.
  */
+// iOS has a keyboard of digits and a colon; Android shows the digits, and the field places the colon
+function timeKeyboard(): KeyboardTypeOptions {
+	if (Platform.OS === 'ios') {
+		return 'numbers-and-punctuation';
+	}
+	return 'number-pad';
+}
+
 export const TimerStartPanel: FC<ITimerStartPanelProps> = ({ access, runStart, saving, onSave, onClose }) => {
 	const { colors, dark } = useAppTheme();
 	const [timeText, setTimeText] = useState(() => (runStart === null ? '' : timeTextOf(new Date(runStart))));
@@ -145,7 +162,7 @@ export const TimerStartPanel: FC<ITimerStartPanelProps> = ({ access, runStart, s
 
 	const changeTime = (text: string) => {
 		typedTime.current = true;
-		setTimeText(text);
+		setTimeText(timeTextFromTyping(text));
 		setErrorKey(null);
 	};
 
@@ -214,7 +231,7 @@ export const TimerStartPanel: FC<ITimerStartPanelProps> = ({ access, runStart, s
 						onChangeText={changeTime}
 						placeholder={translate('timer.startMove.timePlaceholder')}
 						placeholderTextColor={PLACEHOLDER_COLOR}
-						keyboardType="numbers-and-punctuation"
+						keyboardType={timeKeyboard()}
 						maxLength={5}
 						editable={!saving}
 						autoCorrect={false}

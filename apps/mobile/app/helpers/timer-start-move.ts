@@ -187,6 +187,18 @@ function twoDigits(value: number): string {
 	return String(value).padStart(2, '0');
 }
 
+/**
+ * What the person typed, as the field writes a time: Android has no keyboard of digits and a colon, so the field keeps
+ * the digits and places the colon before the last two ("905" reads "9:05").
+ */
+export function timeTextFromTyping(typed: string): string {
+	const digits = typed.replace(/\D/g, '').slice(0, 4);
+	if (digits.length <= 2) {
+		return digits;
+	}
+	return `${digits.slice(0, -2)}:${digits.slice(-2)}`;
+}
+
 /** A time as the field writes it (`HH:mm`, local). */
 export function timeTextOf(date: Date): string {
 	return `${twoDigits(date.getHours())}:${twoDigits(date.getMinutes())}`;

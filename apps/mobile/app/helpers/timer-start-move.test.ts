@@ -9,6 +9,7 @@ import {
 	localStartMoveRefusalKeyOf,
 	startOnDay,
 	timeTextOf,
+	timeTextFromTyping,
 	timerStartMoveAccessOf,
 	timerStartMoveRefusalKeyOf,
 	timerStartMoveSupportOf
@@ -161,6 +162,27 @@ describe('timeTextOf', () => {
 	it('writes a time as the field shows it', () => {
 		expect(timeTextOf(at(9, 5))).toBe('09:05');
 		expect(timeTextOf(at(23, 40))).toBe('23:40');
+	});
+});
+
+describe('timeTextFromTyping', () => {
+	it('places the colon before the last two digits', () => {
+		expect(timeTextFromTyping('905')).toBe('9:05');
+		expect(timeTextFromTyping('0905')).toBe('09:05');
+	});
+
+	it('keeps a time typed with its colon', () => {
+		expect(timeTextFromTyping('09:05')).toBe('09:05');
+	});
+
+	it('keeps one or two digits as they are, until the minutes come', () => {
+		expect(timeTextFromTyping('9')).toBe('9');
+		expect(timeTextFromTyping('09')).toBe('09');
+	});
+
+	it('drops what is not a digit, and the digits past four', () => {
+		expect(timeTextFromTyping('9h05')).toBe('9:05');
+		expect(timeTextFromTyping('091530')).toBe('09:15');
 	});
 });
 
