@@ -5817,6 +5817,7 @@
 			"ADD_MEMBERS_LABEL": "Añadir a las personas que inician sesión con esta clave",
 			"ADD_MEMBERS_HINT": "Las personas a las que el sitio da acceso y que aún no son miembros se unen a este espacio de trabajo como empleados, sin contraseña. Podrán iniciar sesión más tarde con un código enviado a su correo.",
 			"ADD_MEMBERS_FAILED": "El servidor no pudo permitir que esta clave añada personas, así que se revocó. Desactiva esa opción y vuelve a crearla.",
+			"ADD_MEMBERS_NOT_REVOKED": "El servidor no pudo permitir que esta clave añada personas, y no se pudo revocar. Revócala en la lista y vuelve a crearla con esa opción desactivada.",
 			"CREATE_FAILED": "No se pudo crear la clave. Inténtalo de nuevo.",
 			"SECRET_TITLE": "Copia la clave ahora",
 			"SECRET_TEXT": "Esta es la única vez que se muestra la clave «{name}». Guárdala en la configuración del servidor del producto que inserta tu temporizador.",

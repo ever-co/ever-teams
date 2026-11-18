@@ -16,7 +16,13 @@ const CLIENT_KEYS = [
 ] as const;
 
 /** The strings of a credential that adds the people it signs in: the dialog's option and the list (#5511). */
-const ADD_MEMBERS_KEYS = ['ADD_MEMBERS_LABEL', 'ADD_MEMBERS_HINT', 'ADD_MEMBERS_FAILED', 'ADDS_MEMBERS'] as const;
+const ADD_MEMBERS_KEYS = [
+	'ADD_MEMBERS_LABEL',
+	'ADD_MEMBERS_HINT',
+	'ADD_MEMBERS_FAILED',
+	'ADD_MEMBERS_NOT_REVOKED',
+	'ADDS_MEMBERS'
+] as const;
 
 const OPTION_KEYS = [...CLIENT_KEYS, ...ADD_MEMBERS_KEYS];
 

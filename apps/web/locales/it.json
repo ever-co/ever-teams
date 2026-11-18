@@ -5817,6 +5817,7 @@
 			"ADD_MEMBERS_LABEL": "Aggiungi le persone che accedono con questa chiave",
 			"ADD_MEMBERS_HINT": "Le persone che il sito fa accedere e che non sono ancora membri entrano in questo spazio di lavoro come dipendenti, senza password. Potranno accedere più tardi con un codice inviato al loro indirizzo email.",
 			"ADD_MEMBERS_FAILED": "Il server non ha potuto consentire a questa chiave di aggiungere persone, quindi è stata revocata. Disattiva questa opzione e creala di nuovo.",
+			"ADD_MEMBERS_NOT_REVOKED": "Il server non ha potuto consentire a questa chiave di aggiungere persone, e non è stato possibile revocarla. Revocala dall’elenco, poi creala di nuovo con questa opzione disattivata.",
 			"CREATE_FAILED": "Impossibile creare la chiave. Riprova.",
 			"SECRET_TITLE": "Copia ora la chiave",
 			"SECRET_TEXT": "Questa è l’unica volta in cui la chiave «{name}» viene mostrata. Salvala nelle impostazioni del server del prodotto che incorpora il tuo timer.",

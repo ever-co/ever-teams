@@ -231,7 +231,58 @@ describe('embedsService', () => {
 			});
 
 			await expect(creating).rejects.toBeInstanceOf(EmbedMembersNotAddedError);
+			await expect(creating).rejects.toHaveProperty('isRevoked', true);
 			await expect(creating).rejects.not.toHaveProperty('message', expect.stringContaining(CREATED.secret));
+			expect(sent.map((config) => [config.method, config.url])).toEqual([
+				['post', '/embed-credentials'],
+				['delete', '/embed-credentials/credential-1']
+			]);
+		});
+
+		it('says the credential was not revoked, and still gives no secret, when that revocation fails', async () => {
+			const sent: InternalAxiosRequestConfig[] = [];
+			setBaseUrl('https://api.example.test');
+			embedsService.axiosInstance.defaults.adapter = async (config) => {
+				sent.push(config);
+				if (config.method === 'delete') {
+					throw new Error('network down');
+				}
+				return {
+					config,
+					data: { ...ADDING_MEMBERS, canAddMembers: false },
+					headers: {},
+					status: 201,
+					statusText: ''
+				};
+			};
+
+			const creating = embedsService.createCredential('organization-1', {
+				name: 'Fabrikam client portal',
+				organizationContactId: null,
+				canAddMembers: true
+			});
+
+			await expect(creating).rejects.toBeInstanceOf(EmbedMembersNotAddedError);
+			await expect(creating).rejects.toHaveProperty('isRevoked', false);
+			await expect(creating).rejects.not.toHaveProperty('message', expect.stringContaining(CREATED.secret));
+			expect(sent.map((config) => config.method)).toEqual(['post', 'delete']);
+		});
+
+		it('revokes once, and says the members option was dropped, when the API dropped the client too', async () => {
+			// An older API drops both fields: a credential for the whole workspace that adds nobody
+			const withNeither: Record<string, unknown> = { ...CREATED };
+			delete withNeither.organizationContactId;
+			const sent = directRequests(withNeither);
+
+			const creating = embedsService.createCredential('organization-1', {
+				name: 'Fabrikam client portal',
+				organizationContactId: 'contact-fabrikam',
+				canAddMembers: true
+			});
+
+			await expect(creating).rejects.toBeInstanceOf(EmbedMembersNotAddedError);
+			await expect(creating).rejects.toHaveProperty('isRevoked', true);
+			expect(sent[0].data).toBe(CLIENT_AND_MEMBERS_BODY);
 			expect(sent.map((config) => [config.method, config.url])).toEqual([
 				['post', '/embed-credentials'],
 				['delete', '/embed-credentials/credential-1']

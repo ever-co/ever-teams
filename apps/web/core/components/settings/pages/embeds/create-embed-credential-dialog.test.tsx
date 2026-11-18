@@ -27,7 +27,11 @@ jest.mock('@/core/hooks/settings/use-embeds', () => ({
 	})
 }));
 jest.mock('@/core/services/client/api/embeds/embeds.service', () => ({
-	EmbedMembersNotAddedError: class EmbedMembersNotAddedError extends Error {}
+	EmbedMembersNotAddedError: class EmbedMembersNotAddedError extends Error {
+		constructor(readonly isRevoked = true) {
+			super();
+		}
+	}
 }));
 jest.mock('@/core/hooks/clients/use-clients-query', () => ({
 	useActiveClients: () => mockUseActiveClients()
@@ -344,5 +348,13 @@ describe('CreateEmbedCredentialDialog, the option to add the people a credential
 		mockCreateError = new Error('offline');
 		renderDialog(false, true);
 		expect(screen.getByRole('alert').textContent).toBe('settings.embeds.CREATE_FAILED');
+	});
+
+	it('never says the credential was revoked when its revocation failed', () => {
+		mockCreateError = new EmbedMembersNotAddedError(false);
+		renderDialog(false, true);
+
+		expect(en.settings.embeds.ADD_MEMBERS_NOT_REVOKED).not.toContain('was revoked');
+		expect(screen.getByRole('alert').textContent).toBe('settings.embeds.ADD_MEMBERS_NOT_REVOKED');
 	});
 });

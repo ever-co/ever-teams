@@ -5817,6 +5817,7 @@
 			"ADD_MEMBERS_LABEL": "Adicionar as pessoas que iniciam sessão com esta chave",
 			"ADD_MEMBERS_HINT": "As pessoas que o site autentica e que ainda não são membros entram neste espaço de trabalho como funcionários, sem palavra-passe. Podem iniciar sessão mais tarde com um código enviado para o seu e-mail.",
 			"ADD_MEMBERS_FAILED": "O servidor não pôde permitir que esta chave adicione pessoas, por isso foi revogada. Desative essa opção e crie-a novamente.",
+			"ADD_MEMBERS_NOT_REVOKED": "O servidor não pôde permitir que esta chave adicione pessoas, e não foi possível revogá-la. Revogue-a na lista e crie-a novamente com essa opção desativada.",
 			"CREATE_FAILED": "Não foi possível criar a chave. Tente novamente.",
 			"SECRET_TITLE": "Copie a chave agora",
 			"SECRET_TEXT": "Esta é a única vez que a chave “{name}” é mostrada. Guarde-a nas definições do servidor do produto que incorpora o seu temporizador.",

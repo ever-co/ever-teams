@@ -5817,6 +5817,7 @@
 			"ADD_MEMBERS_LABEL": "Ajouter les personnes connectées avec cette clé",
 			"ADD_MEMBERS_HINT": "Les personnes que le site connecte et qui ne sont pas encore membres rejoignent cet espace de travail comme employés, sans mot de passe. Elles pourront s’y connecter plus tard avec un code envoyé à leur adresse e-mail.",
 			"ADD_MEMBERS_FAILED": "Le serveur n’a pas pu autoriser cette clé à ajouter des personnes, elle a donc été révoquée. Désactivez cette option et créez-la à nouveau.",
+			"ADD_MEMBERS_NOT_REVOKED": "Le serveur n’a pas pu autoriser cette clé à ajouter des personnes, et elle n’a pas pu être révoquée. Révoquez-la dans la liste, puis créez-la à nouveau avec cette option désactivée.",
 			"CREATE_FAILED": "La clé n’a pas pu être créée. Réessayez.",
 			"SECRET_TITLE": "Copiez la clé maintenant",
 			"SECRET_TEXT": "La clé « {name} » ne s’affiche que cette fois. Enregistrez-la dans la configuration serveur du produit qui intègre votre minuteur.",

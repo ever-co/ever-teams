@@ -5817,6 +5817,7 @@
 			"ADD_MEMBERS_LABEL": "Dodawaj osoby logowane tym kluczem",
 			"ADD_MEMBERS_HINT": "Osoby logowane przez witrynę, które nie są jeszcze członkami, dołączają do tego obszaru roboczego jako pracownicy, bez hasła. Później mogą się zalogować kodem wysłanym na ich adres e-mail.",
 			"ADD_MEMBERS_FAILED": "Serwer nie pozwolił temu kluczowi dodawać osób, więc klucz został unieważniony. Wyłącz tę opcję i utwórz go ponownie.",
+			"ADD_MEMBERS_NOT_REVOKED": "Serwer nie pozwolił temu kluczowi dodawać osób, a klucza nie udało się unieważnić. Unieważnij go na liście, a potem utwórz ponownie z wyłączoną opcją.",
 			"CREATE_FAILED": "Nie udało się utworzyć klucza. Spróbuj ponownie.",
 			"SECRET_TITLE": "Skopiuj klucz teraz",
 			"SECRET_TEXT": "Klucz „{name}” jest wyświetlany tylko ten jeden raz. Zapisz go w ustawieniach serwera produktu, który osadza Twój licznik.",

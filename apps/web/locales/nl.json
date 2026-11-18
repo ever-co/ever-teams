@@ -5817,6 +5817,7 @@
 			"ADD_MEMBERS_LABEL": "Mensen toevoegen die met deze sleutel inloggen",
 			"ADD_MEMBERS_HINT": "Mensen die de site laat inloggen en nog geen lid zijn, komen als medewerker in deze werkruimte, zonder wachtwoord. Ze kunnen later inloggen met een code die naar hun e-mailadres wordt gestuurd.",
 			"ADD_MEMBERS_FAILED": "De server kon deze sleutel geen mensen laten toevoegen, dus is hij ingetrokken. Zet die optie uit en maak de sleutel opnieuw.",
+			"ADD_MEMBERS_NOT_REVOKED": "De server kon deze sleutel geen mensen laten toevoegen, en hij kon niet worden ingetrokken. Trek hem in via de lijst en maak de sleutel daarna opnieuw met die optie uit.",
 			"CREATE_FAILED": "De sleutel kon niet worden gemaakt. Probeer het opnieuw.",
 			"SECRET_TITLE": "Kopieer de sleutel nu",
 			"SECRET_TEXT": "De sleutel ‘{name}’ wordt alleen nu getoond. Bewaar hem in de serverinstellingen van het product dat je timer insluit.",

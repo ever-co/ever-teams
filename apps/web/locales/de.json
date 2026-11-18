@@ -5817,6 +5817,7 @@
 			"ADD_MEMBERS_LABEL": "Mit diesem Schlüssel angemeldete Personen hinzufügen",
 			"ADD_MEMBERS_HINT": "Personen, die die Website anmeldet und die noch keine Mitglieder sind, treten diesem Arbeitsbereich als Mitarbeitende bei, ohne Passwort. Sie können sich später mit einem Code anmelden, der an ihre E-Mail-Adresse gesendet wird.",
 			"ADD_MEMBERS_FAILED": "Der Server konnte diesem Schlüssel nicht erlauben, Personen hinzuzufügen, daher wurde er widerrufen. Deaktivieren Sie diese Option und erstellen Sie ihn erneut.",
+			"ADD_MEMBERS_NOT_REVOKED": "Der Server konnte diesem Schlüssel nicht erlauben, Personen hinzuzufügen, und er konnte nicht widerrufen werden. Widerrufen Sie ihn in der Liste und erstellen Sie ihn dann mit deaktivierter Option erneut.",
 			"CREATE_FAILED": "Der Schlüssel konnte nicht erstellt werden. Versuchen Sie es erneut.",
 			"SECRET_TITLE": "Kopieren Sie den Schlüssel jetzt",
 			"SECRET_TEXT": "Der Schlüssel „{name}“ wird nur dieses eine Mal angezeigt. Speichern Sie ihn in den Servereinstellungen des Produkts, das Ihren Timer einbettet.",

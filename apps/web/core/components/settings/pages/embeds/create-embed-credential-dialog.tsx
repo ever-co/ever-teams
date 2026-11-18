@@ -167,11 +167,12 @@ function AddMembersField({ checked, onChange, disabled }: Readonly<AddMembersFie
 
 /**
  * What the dialog says when the credential was not created: a server that would not let it add members gets its own
- * words, since trying again as it was would fail the same way.
+ * words, since trying again as it was would fail the same way, and never says the credential was revoked when the
+ * revocation failed: it is then still in the list, to revoke there.
  */
 function createFailureOf(error: unknown, t: Translate): string {
 	if (error instanceof EmbedMembersNotAddedError) {
-		return t('settings.embeds.ADD_MEMBERS_FAILED');
+		return error.isRevoked ? t('settings.embeds.ADD_MEMBERS_FAILED') : t('settings.embeds.ADD_MEMBERS_NOT_REVOKED');
 	}
 	return t('settings.embeds.CREATE_FAILED');
 }
