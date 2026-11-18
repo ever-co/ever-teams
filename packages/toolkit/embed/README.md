@@ -39,6 +39,9 @@ A change of attribute applies at once. Removing the element stops the timer's di
   resolves `@ever-teams/embed` to the package or to the `dist/` file it serves. The component loads the package in
   `onMount` and binds `color-scheme`. Svelte needs no setting.
 
+`@ever-teams/embed` is not published on npm yet (see [Release](#release)): until it is, an app resolves that name
+to the `dist/` file it serves, as the Svelte example says.
+
 Angular needs the custom elements schema on the component that holds the element:
 
 ```ts
