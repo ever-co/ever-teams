@@ -123,7 +123,7 @@ export function useLastLog(todaysLog: TimerLog | undefined, todayRead: boolean):
 		enabled: readsEarlierDay
 	});
 	// a refetch runs even a disabled query: the earlier day is read again only when Home needs it
-	const retry = async () => (readsEarlierDay ? earlier.refetch() : undefined);
+	const retry = (): Promise<unknown> => (readsEarlierDay ? earlier.refetch() : Promise.resolve(undefined));
 	if (todaysLog) {
 		return { log: todaysLog, isLoading: false, isError: false, retry };
 	}
