@@ -92,3 +92,16 @@ test('without a saved language, the provider uses lang', async () => {
 	assert.deepEqual(globalThis.applied, ['fr']);
 	await language.unmount();
 });
+
+test('a lang the host changes applies even when the provider state already holds it', async () => {
+	localStorage.setItem('preferred-language', 'fr');
+	const language = await withLanguage('en');
+	// The language switch applies English without the provider's state, which still holds French
+	globalThis.applied.push('en');
+	localStorage.setItem('preferred-language', 'en');
+
+	await language.show('fr');
+
+	assert.equal(globalThis.applied.at(-1), 'fr');
+	await language.unmount();
+});

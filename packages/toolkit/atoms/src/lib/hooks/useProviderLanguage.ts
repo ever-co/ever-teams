@@ -23,6 +23,8 @@ export function useProviderLanguage(lang: string) {
 		}
 		appliedLang.current = lang;
 		setLanguage(lang);
+		// Applied here too: the language switch changes the kit's language without this state, which may already hold lang
+		i18n.changeLanguage(lang);
 	}, [lang]);
 
 	useEffect(() => {
