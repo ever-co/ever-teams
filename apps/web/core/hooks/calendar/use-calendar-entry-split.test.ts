@@ -222,6 +222,7 @@ describe('splitCalendarEntry, the labels of the second part', () => {
 		jest.useFakeTimers();
 		try {
 			let answer: (value: boolean) => void = () => undefined;
+			let isSettled = false;
 			const split = splitCalendarEntry({
 				log: LOG,
 				splitAt: at(11),
@@ -231,10 +232,15 @@ describe('splitCalendarEntry, the labels of the second part', () => {
 					new Promise<boolean>((resolve) => {
 						answer = resolve;
 					})
+			}).finally(() => {
+				isSettled = true;
 			});
 			const outcome = expect(split).rejects.toEqual(expect.objectContaining({ failure: 'restored' }));
 
-			await jest.advanceTimersByTimeAsync(15_000);
+			// Still waiting a moment before the 15 s are up, given up right at them
+			await jest.advanceTimersByTimeAsync(14_999);
+			expect(isSettled).toBe(false);
+			await jest.advanceTimersByTimeAsync(1);
 			await outcome;
 			answer(true);
 			await jest.advanceTimersByTimeAsync(1_000);
