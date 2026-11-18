@@ -10,6 +10,7 @@ import { cn } from '@ever-teams/toolkit-ui';
 import { ISeparator } from '@ever-teams/toolkit-types';
 
 import { TeamsButton } from '../../teams-ui-components/button/button';
+import { KitNotice } from '../../teams-ui-components/kit-notice';
 import { TimeDisplayer } from '../../teams-ui-components/time-displayer';
 import { TodayTimeDisplayer } from '../../teams-ui-components/today-timer-displayer';
 import { TeamsProgress } from '../../teams-ui-components/teams-progress';
@@ -157,6 +158,7 @@ function TeamsModernTimer({
 					<TeamsTimerFooter />
 				</>
 			)}
+			<KitNotice />
 		</div>
 	);
 }
