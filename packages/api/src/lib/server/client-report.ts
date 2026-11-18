@@ -6,15 +6,25 @@ import { GetClientReportOptions } from './types';
 
 const CALLER = 'getClientReport';
 
+const isText = (value: unknown): value is string => typeof value === 'string';
+const isSeconds = (value: unknown): value is number => typeof value === 'number' && Number.isFinite(value);
+
+const isProject = (value: unknown): boolean =>
+	isRecord(value) && isText(value['id']) && isText(value['name']) && isSeconds(value['seconds']);
+
+// Every field the report widget reads, with its type: the widget refuses a report that lacks one, so the helper does.
 function isClientReport(value: unknown): value is IClientTimeReport {
 	if (!isRecord(value)) {
 		return false;
 	}
-	const hasClient = isRecord(value['client']);
-	const hasToday = isRecord(value['today']);
-	const hasWeek = isRecord(value['week']);
-	const hasProjects = Array.isArray(value['projects']);
-	return hasClient && hasToday && hasWeek && hasProjects;
+	const { client, today, week, projects } = value;
+	if (!isRecord(client) || !isRecord(today) || !isRecord(week) || !Array.isArray(projects)) {
+		return false;
+	}
+	const hasClient = isText(client['id']) && isText(client['name']);
+	const hasToday = isText(today['date']) && isSeconds(today['seconds']);
+	const hasWeek = isText(week['start']) && isText(week['end']) && isSeconds(week['seconds']);
+	return hasClient && isText(value['timeZone']) && hasToday && hasWeek && projects.every(isProject);
 }
 
 /**

@@ -152,6 +152,23 @@ test('a success that is not a report is an unexpected answer', async () => {
 	assert.equal(error.message, `The answer of ${API_URL}/embed/client-report is not a client report.`);
 });
 
+test('a report that lacks a field the widget reads, or has one of another type, is an unexpected answer', async () => {
+	const incomplete = [
+		{ client: {}, today: {}, week: {}, projects: [] },
+		{ ...REPORT, timeZone: undefined },
+		{ ...REPORT, client: { id: REPORT.client.id } },
+		{ ...REPORT, today: { ...REPORT.today, seconds: '5400' } },
+		{ ...REPORT, week: { ...REPORT.week, end: null } },
+		{ ...REPORT, projects: [{ ...REPORT.projects[0], seconds: Number.NaN }] },
+		{ ...REPORT, projects: [null] }
+	];
+	for (const report of incomplete) {
+		const error = await refusalOf(() => answer(200, 'OK', report));
+
+		assert.equal(error.code, 'UNEXPECTED_ANSWER', JSON.stringify(report));
+	}
+});
+
 test('missing options are refused before any request, without the credential', async () => {
 	const cases = [
 		[{ apiUrl: '' }, /needs apiUrl\./],
