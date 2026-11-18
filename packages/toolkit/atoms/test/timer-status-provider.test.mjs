@@ -1,4 +1,5 @@
-// TimerStatusProvider and useTimer: `yarn test` in packages/toolkit/atoms (node --test test/*.test.mjs).
+// TimerStatusProvider, useTimer and useManualTimeForm: `yarn test` in packages/toolkit/atoms
+// (node --test test/*.test.mjs).
 // esbuild bundles the provider and useTimer with their context, API client, toasts and translations replaced by the
 // stubs below; React renders them in jsdom, and node:test's fake timers drive the one-minute poll.
 import assert from 'node:assert/strict';
@@ -50,8 +51,9 @@ const stubs = {
 			new Promise((resolve, reject) =>
 				globalThis.__reads.push(Object.assign(resolve, { token, organizationId, reject }))
 			);
-		const action = (kind) => () =>
-			new Promise((resolve, reject) => globalThis.__actions.push(Object.assign(resolve, { kind, reject })));
+		// A start or stop, with what it was sent: startTimer(user, token, teamsState, organizationId).
+		const action = (kind) => (...args) =>
+			new Promise((resolve, reject) => globalThis.__actions.push(Object.assign(resolve, { kind, args, reject })));
 		export const startTimer = action('start');
 		export const stopTimer = action('stop');
 		export const addTimeSlot = async () => {};
@@ -60,21 +62,34 @@ const stubs = {
 			new Promise((resolve) => globalThis.__userReads.push(Object.assign(resolve, { token })));
 		globalThis.__logins = [];
 		export const authLogin = () => new Promise((resolve) => globalThis.__logins.push(resolve));
-		export const apiConfigManager = { getConfig: () => ({ apiUrl: 'http://api.test/api' }) };`,
+		export const apiConfigManager = { getConfig: () => ({ apiUrl: 'http://api.test/api' }) };
+		globalThis.__manualTimes = [];
+		export const addManualTime = ({ body }) => {
+			globalThis.__manualTimes.push(body);
+			return Promise.resolve({ id: 'manual-log' });
+		};
+		export const ApiCall = () => new Promise(() => {});`,
 	'@ever-teams/toolkit-ui': `
 		globalThis.__toasts = [];
 		export const toast = (t) => globalThis.__toasts.push(t);
-		export const reportError = () => {};`,
+		export const reportError = () => {};
+		export const getErrorMessage = (error) => String(error);`,
 	// The atoms useAuthUser and the sign-in form use, without the rest of the kit's atoms.
 	'teams-atoms': `
 		import { atom } from 'jotai';
 		export const userAtom = atom({ data: null, loading: false });
 		export const selectedEmployeeAtom = atom('all');
-		export const accessTokenAtom = atom('');`,
-	'@ever-teams/toolkit-types': 'export {};',
-	'react-i18next': 'export const useTranslation = () => ({ t: (key) => key });'
+		export const accessTokenAtom = atom('');
+		export const userOrganizationsAtom = atom({ data: null, loading: false });`,
+	// The two enums the manual time form sends; the rest of the package is types.
+	'@ever-teams/toolkit-types': `
+		export const LogType = { MANUAL: 'MANUAL' };
+		export const TimerSource = { TEAMS: 'TEAMS' };`,
+	'react-i18next': 'export const useTranslation = () => ({ t: (key) => key });',
+	// The manual time form's read of the organizations builds its query with qs; the API call itself is stubbed.
+	qs: "export default { stringify: () => '' };"
 };
-const stubbed = /^(@ever-teams\/api|@ever-teams\/toolkit-ui|@ever-teams\/toolkit-types|react-i18next)$/;
+const stubbed = /^(@ever-teams\/api|@ever-teams\/toolkit-ui|@ever-teams\/toolkit-types|react-i18next|qs)$/;
 // The provider imports its context as ./teams-context, the sign-in form as ../context/teams-context and useTimer as
 // @lib/context/teams-context: one stub for all.
 const teamsContext = /^(\.\/teams-context|\.\.\/context\/teams-context|@lib\/context\/teams-context)$/;
@@ -92,6 +107,7 @@ let getDefaultStore;
 let useAtomValue;
 let useAuthUser;
 let usePasswordLoginForm;
+let useManualTimeForm;
 let userAtom;
 let bundleDir;
 
@@ -108,6 +124,7 @@ before(async () => {
 				"export { kitNoticeAtom } from './errors/kit-notice-atom';",
 				"export { useAuthUser } from './hooks/useAuthUser';",
 				"export { usePasswordLoginForm } from './hooks/usePasswordLoginForm';",
+				"export { useManualTimeForm } from './hooks/useManualTimeForm';",
 				"export { userAtom } from './teams-jotai/atoms/teams-atoms';",
 				"export { getDefaultStore, useAtomValue } from 'jotai';"
 			].join('\n'),
@@ -163,6 +180,7 @@ before(async () => {
 		useAtomValue,
 		useAuthUser,
 		usePasswordLoginForm,
+		useManualTimeForm,
 		userAtom
 	} = await import(pathToFileURL(outfile).href));
 });
@@ -214,6 +232,7 @@ async function reset() {
 	getDefaultStore().set(kitNoticeAtom, null);
 	globalThis.__userReads.length = 0;
 	globalThis.__logins.length = 0;
+	globalThis.__manualTimes.length = 0;
 	globalThis.__probeHeld = undefined;
 	getDefaultStore().set(userAtom, { data: null, loading: false });
 	visibility = 'visible';
@@ -789,4 +808,105 @@ test('a failed sign-in shows its message in the form, unless the person edited a
 	await flush();
 	assert.equal(seen.form.error, undefined);
 	assert.equal(seen.form.loading, false);
+});
+
+// A sign-out that keeps the page (scopedStyles or onSignOut) leaves the widgets mounted; another account signs in.
+const OTHER_ACCOUNT = {
+	authenticatedUser: { id: 'u-2', tenantId: 't', employee: { id: 'e-2' } },
+	token: 'token-2',
+	selectedOrganization: 'org'
+};
+const NOTHING_PICKED = { taskId: null, projectId: null, organizationTeamId: null, clientId: null };
+
+async function signOutAndInAsAnotherAccount() {
+	await act(async () => globalThis.__setIdentity({ authenticatedUser: null, token: '', selectedOrganization: '' }));
+	await act(async () => globalThis.__setIdentity(OTHER_ACCOUNT));
+}
+
+test('after a sign-out that keeps the page, another account with no time starts with its own task, project and team', async () => {
+	await reset();
+	const seen = {};
+	await mount([timer('a', seen)]);
+	const lastLog = {
+		taskId: 'task-1',
+		projectId: 'project-1',
+		organizationTeamId: 'team-1',
+		organizationContactId: 'c-1'
+	};
+	await answer(0, { running: false, duration: 7200, lastLog });
+	assert.deepEqual(seen.a.currentTeamsState, {
+		taskId: 'task-1',
+		projectId: 'project-1',
+		organizationTeamId: 'team-1',
+		clientId: 'c-1'
+	});
+	assert.equal(seen.a.todayTrackedTime.totalSeconds, 7200);
+
+	await signOutAndInAsAnotherAccount();
+	// The new account has recorded nothing: its status states no last entry and no time today.
+	await act(async () => globalThis.__reads.at(-1)({ running: false, duration: 0, lastLog: null }));
+	assert.deepEqual(seen.a.currentTeamsState, NOTHING_PICKED);
+	assert.equal(seen.a.todayTrackedTime.totalSeconds, 0);
+
+	await act(async () => {
+		seen.a.startTimer();
+	});
+	const [start] = globalThis.__actions;
+	assert.equal(start.kind, 'start');
+	const [user, token, teamsState, organizationId] = start.args;
+	assert.deepEqual([user?.id, token, organizationId], ['u-2', 'token-2', 'org']);
+	assert.deepEqual(teamsState, NOTHING_PICKED);
+});
+
+test('what a person picks in a timer survives the next read of their own status, which states no last entry', async () => {
+	await reset();
+	const seen = {};
+	await mount([timer('a', seen)]);
+	await answer(0, { running: false, duration: 0, lastLog: null });
+	const picked = { taskId: 'task-1', projectId: 'project-1', organizationTeamId: 'team-1', clientId: null };
+	await act(async () => seen.a.setCurrentTeamsState(picked));
+
+	await act(async () => window.dispatchEvent(new window.Event('focus')));
+	await answer(1, { running: false, duration: 0, lastLog: null });
+
+	assert.deepEqual(seen.a.currentTeamsState, picked);
+});
+
+test('after a sign-out that keeps the page, the manual time form sends nothing the previous account picked or typed', async () => {
+	await reset();
+	const seen = {};
+	const Form = () => {
+		seen.form = useManualTimeForm();
+		return null;
+	};
+	const root = createRoot(document.createElement('div'));
+	roots.push(root);
+	await act(async () => root.render(React.createElement(Form)));
+	await act(async () => {
+		seen.form.setCurrentTeamsState({
+			taskId: 'task-1',
+			projectId: 'project-1',
+			organizationTeamId: 'team-1',
+			clientId: 'c-1'
+		});
+		seen.form.setDescription('Notes of the first account');
+		seen.form.setIsBillable(false);
+	});
+
+	await signOutAndInAsAnotherAccount();
+	// Yesterday from nine to ten, so the hour never lies in the future whatever time the test runs.
+	await act(async () => {
+		seen.form.setDate(new Date(Date.now() - 24 * 60 * 60 * 1000));
+		seen.form.handleTimeChange('start', '09:00');
+		seen.form.handleTimeChange('end', '10:00');
+	});
+	await act(async () => seen.form.handleSubmit());
+
+	assert.equal(globalThis.__manualTimes.length, 1);
+	const [body] = globalThis.__manualTimes;
+	assert.deepEqual(
+		[body.taskId, body.projectId, body.organizationTeamId, body.organizationContactId],
+		[undefined, undefined, undefined, undefined]
+	);
+	assert.deepEqual([body.employeeId, body.description, body.isBillable], ['e-2', '', true]);
 });

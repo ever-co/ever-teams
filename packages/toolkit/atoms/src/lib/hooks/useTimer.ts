@@ -1,5 +1,6 @@
 import { addTimeSlot, apiConfigManager, startTimer as startApiTimer, stopTimer as stopApiTimer } from '@ever-teams/api';
 import { useEffect, useRef, useState } from 'react';
+import { NO_TEAMS_STATE, useForgetOnAccountChange } from './useForgetOnAccountChange';
 import { useTeamsStopWatch } from './useTeamsStopWatch';
 import { toast } from '@ever-teams/toolkit-ui';
 import { useTeamsContext } from '@lib/context/teams-context';
@@ -25,12 +26,7 @@ export const useTimer = () => {
 		await sharedStatus?.refetch();
 	};
 
-	const [currentTeamsState, setCurrentTeamsState] = useState<ICurrentTeamsState>({
-		taskId: null,
-		projectId: null,
-		organizationTeamId: null,
-		clientId: null
-	});
+	const [currentTeamsState, setCurrentTeamsState] = useState<ICurrentTeamsState>(NO_TEAMS_STATE);
 
 	// Fetch timer status
 	const { data: timerStatus, loading: timerStatusLoading } = useTimerStatus(user, token, organizationId);
@@ -52,6 +48,16 @@ export const useTimer = () => {
 		time,
 		setTime
 	} = useTeamsStopWatch(timerStatus ?? safeTimerStatus);
+
+	// Another account starts clean. The sync below leaves the task, project and team, and today's total, as they were
+	// when a status states none (an account with no time recorded): after a sign-out that keeps the widget mounted, the
+	// next account's first start would send the previous account's task, project and team. Called before that sync, so
+	// it never undoes a status read for the new account.
+	useForgetOnAccountChange(() => {
+		setCurrentTeamsState(NO_TEAMS_STATE);
+		setTodayTrackedTime(new Date(0));
+		reset();
+	});
 
 	const [timerLoading, setTimerLoading] = useState(false);
 

@@ -6,6 +6,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { toast, reportError, getErrorMessage } from '@ever-teams/toolkit-ui';
 import { useTranslation } from 'react-i18next';
 import { format, subMinutes, addMinutes, isAfter, startOfDay, isToday as isTodayFns } from 'date-fns';
+import { NO_TEAMS_STATE, useForgetOnAccountChange } from './useForgetOnAccountChange';
 import { useUserOrganization } from './useUserOrganization';
 
 const roundToNearest5Min = (date: Date): Date => {
@@ -34,11 +35,15 @@ export const useManualTimeForm = () => {
 	const [errors, setErrors] = useState<string[]>([]);
 	const [isBillable, setIsBillable] = useState<boolean>(true);
 
-	const [currentTeamsState, setCurrentTeamsState] = useState<ICurrentTeamsState>({
-		projectId: null,
-		taskId: null,
-		organizationTeamId: null,
-		clientId: null
+	const [currentTeamsState, setCurrentTeamsState] = useState<ICurrentTeamsState>(NO_TEAMS_STATE);
+
+	// Another account starts from an empty form: after a sign-out that keeps the form mounted, what the previous account
+	// picked or typed would otherwise go out with the next account's time.
+	useForgetOnAccountChange(() => {
+		setCurrentTeamsState(NO_TEAMS_STATE);
+		setDescription('');
+		setIsBillable(true);
+		setErrors([]);
 	});
 
 	const { data: userOrganizations } = useUserOrganization(user, token);
