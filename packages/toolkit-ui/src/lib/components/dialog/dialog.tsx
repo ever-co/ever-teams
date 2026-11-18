@@ -32,32 +32,61 @@ const DialogOverlay = ({
 );
 DialogOverlay.displayName = DialogPrimitive.Overlay.displayName;
 
+// Node.DOCUMENT_FRAGMENT_NODE: the root of an element rendered in a shadow root.
+const DOCUMENT_FRAGMENT_NODE = 11;
+
+// Radix's first focus compares document.activeElement, which stays the shadow host inside a shadow root: it then
+// focuses every element of the dialog in turn, and a tab selects itself on the way. There, the dialog takes the focus
+// itself, as Radix does when nothing in it can be focused. In a page nothing changes.
+function focusDialogInShadowRoot(event: Event) {
+	const content = event.target;
+	if (!(content instanceof HTMLElement)) {
+		return;
+	}
+	if (event.defaultPrevented) {
+		return;
+	}
+	if (content.getRootNode().nodeType !== DOCUMENT_FRAGMENT_NODE) {
+		return;
+	}
+	event.preventDefault();
+	content.focus();
+}
+
 const DialogContent = ({
 	ref,
 	className,
 	children,
+	onOpenAutoFocus,
 	...props
 }: React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> & {
 	ref?: React.RefObject<React.ElementRef<typeof DialogPrimitive.Content>>;
-}) => (
-	<DialogPortal>
-		<DialogOverlay />
-		<DialogPrimitive.Content
-			ref={ref}
-			className={cn(
-				'fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] backdrop-blur-xl gap-4 border dark:border-slate-800 bg-[hsl(var(--background))] p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg text-slate-500 dark:text-white',
-				className
-			)}
-			{...props}
-		>
-			{children}
-			<DialogPrimitive.Close className="absolute right-4 top-4 rounded-xs opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-hidden focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
-				<CloseIcon size={24} className="h-4 w-4" />
-				<span className="sr-only">Close</span>
-			</DialogPrimitive.Close>
-		</DialogPrimitive.Content>
-	</DialogPortal>
-);
+}) => {
+	const openAutoFocus = (event: Event) => {
+		onOpenAutoFocus?.(event);
+		focusDialogInShadowRoot(event);
+	};
+	return (
+		<DialogPortal>
+			<DialogOverlay />
+			<DialogPrimitive.Content
+				ref={ref}
+				className={cn(
+					'fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] backdrop-blur-xl gap-4 border dark:border-slate-800 bg-[hsl(var(--background))] p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg text-slate-500 dark:text-white',
+					className
+				)}
+				onOpenAutoFocus={openAutoFocus}
+				{...props}
+			>
+				{children}
+				<DialogPrimitive.Close className="absolute right-4 top-4 rounded-xs opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-hidden focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
+					<CloseIcon size={24} className="h-4 w-4" />
+					<span className="sr-only">Close</span>
+				</DialogPrimitive.Close>
+			</DialogPrimitive.Content>
+		</DialogPortal>
+	);
+};
 DialogContent.displayName = DialogPrimitive.Content.displayName;
 
 const DialogHeader = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
