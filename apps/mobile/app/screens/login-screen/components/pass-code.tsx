@@ -71,13 +71,10 @@ const PassCode: FC<Props> = observer(
 
 		const onNextStep = async () => {
 			if (step === 'Email') {
-				getAuthCode();
-				setTimeout(() => {
-					if (!isLoading) {
-						setStep('Code');
-						setAuthInviteCode('');
-					}
-				}, 1000);
+				// The code step opens once the API has answered: the code the person is asked for exists by then
+				await getAuthCode();
+				setStep('Code');
+				setAuthInviteCode('');
 				return;
 			}
 
