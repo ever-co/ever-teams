@@ -180,14 +180,18 @@ another running entry (another start, project or task), never twice for one chan
 | `every`   | `60000` | Milliseconds between two reads, 15 000 at the least: a shorter one reads every 15 seconds.                                                        |
 | `onError` | none    | Called with the error of a read that failed (an `EverTeamsError`, or what `getToken` threw), and with what the listener threw. The watch goes on. |
 
-Without `onError`, a failed read is dropped and the watch reads again at its next turn; an error the listener throws
-is thrown again on a fresh task, as an uncaught error (in Node, `process.on('uncaughtException')` sees it). Neither
-stops the watch, and neither becomes an unhandled rejection.
+An answer with no status in it is a failed read too (`UNEXPECTED_ANSWER`). Without `onError`, a failed read is dropped
+and the watch reads again at its next turn; an error the listener throws is thrown again on a fresh task, as an
+uncaught error (in Node, `process.on('uncaughtException')` sees it). Neither stops the watch, and neither becomes an
+unhandled rejection.
 
 It reads `timer.status()` at once, then every `every` milliseconds, one read at a time. In a page it reads only while
-the page is visible, and once more when the page becomes visible again or the network comes back; in Node it reads at
-every turn. A change made elsewhere shows up at the next read: within a minute by default. A server that needs it at
-once receives the API's webhooks instead (see [Receive the API's webhooks](#receive-the-apis-webhooks)).
+the page is visible, and once more when the page becomes visible again or the network comes back (after the read
+pending then, if there is one); in Node it reads at every turn. A change made elsewhere is told at the next successful
+read: within `every` (a minute by default) while the page is visible, once it is visible again otherwise. A start and
+a stop that both fall between two reads leave the timer as the last read saw it, so neither is told. A server that
+needs each change at once receives the API's webhooks instead (see
+[Receive the API's webhooks](#receive-the-apis-webhooks)).
 
 A host that reads the status itself can use the same rule: `timerChangeOf(status, previous)` answers the change a read
 shows after the last one, or `null` when the timer is as it was.
@@ -294,8 +298,9 @@ The client also throws an `EverTeamsError` with status 0 and one of these codes 
 an `every` that is not a number), `NO_TOKEN`, `NO_ORGANIZATION` and `NO_EMPLOYEE`
 (the token's user is not a member of an organization, or `organizationId` names another organization than its
 member's), `INVALID_DATE` (also a date-time on a day that does not exist, such as 2026-02-29T00:00:00Z), `NO_FETCH`,
-`UNEXPECTED_ANSWER` (`GET /user/me` answered no user; the next call reads it again); and `NOT_JSON` with the answer's
-status when `apiUrl` answers something else than JSON, such as the web app's pages.
+`UNEXPECTED_ANSWER` (`GET /user/me` answered no user, and the next call reads it again; or a read of `timer.watch`
+answered no status, which goes to its `onError`); and `NOT_JSON` with the answer's status when `apiUrl` answers
+something else than JSON, such as the web app's pages.
 
 An error your `getToken` throws comes back as it is. A browser reads `Retry-After` only when the API exposes it to
 the page (CORS): there, `retryAfter` may stay `undefined`. When a page loads both the ESM and the CommonJS build, `instanceof` works within one build;

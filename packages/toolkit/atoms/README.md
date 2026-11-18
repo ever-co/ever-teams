@@ -250,9 +250,11 @@ The callback receives a `TimerChange`:
   that, the callback runs once for each start, stop or switch to another running entry (another start, project or
   task) that a read shows, never twice for one change.
 - It hears the reads the kit already makes while one of its timers (`TeamsBasicTimer` or another) is on the page: on
-  load, every minute while the page is visible, when the window gets the focus back and when the network comes back.
-  It adds no request. A start or a stop made in the kit's own widgets is told after the read that follows
-  it; one made elsewhere (the web app, the desktop app, the browser extension) at the next read, up to a minute later.
+  load, every minute while the page is visible, when the page becomes visible again, when the window gets the focus
+  back and when the network comes back. It adds no request. A start or a stop made in the kit's own widgets is told
+  after the read that follows it; one made elsewhere (the web app, the desktop app, the browser extension) at the next
+  successful read: within a minute while the page is visible, once it is visible again otherwise. A start and a stop
+  that both fall between two reads leave the timer as the last read saw it, so neither is told.
 - Another person or organization starts afresh: its first read is told with `initial: true`. A read that fails tells
   nothing.
 - An error your callback throws reaches the page as an uncaught error; the kit goes on reading.
