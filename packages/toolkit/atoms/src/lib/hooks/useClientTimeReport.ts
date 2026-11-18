@@ -19,6 +19,33 @@ const FAILED: ClientTimeReportState = { status: 'error', report: null };
 // How often a drawn report checks whether its day has ended.
 const DAY_CHECK_INTERVAL_MS = 60_000;
 
+const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null;
+const isText = (value: unknown): value is string => typeof value === 'string';
+const isSeconds = (value: unknown): value is number => typeof value === 'number' && Number.isFinite(value);
+
+// Whether the host's answer has the report's shape. Anything else (an API without the client report route, whose
+// error body a backend passed on as it was, or a backend's own error) is a failed load, never a widget that breaks.
+function isClientTimeReport(value: unknown): value is IClientTimeReport {
+	if (!isRecord(value) || !isRecord(value.client) || !isRecord(value.today) || !isRecord(value.week)) {
+		return false;
+	}
+	const { client, today, week, projects } = value;
+	return (
+		isText(client.id) &&
+		isText(client.name) &&
+		isText(value.timeZone) &&
+		isText(today.date) &&
+		isSeconds(today.seconds) &&
+		isText(week.start) &&
+		isText(week.end) &&
+		isSeconds(week.seconds) &&
+		Array.isArray(projects) &&
+		projects.every(
+			(project) => isRecord(project) && isText(project.id) && isText(project.name) && isSeconds(project.seconds)
+		)
+	);
+}
+
 // The calendar day in a time zone, as YYYY-MM-DD; undefined for a zone this browser does not know.
 function dayIn(timeZone: string, now: Date): string | undefined {
 	try {
@@ -59,9 +86,9 @@ export function useClientTimeReport(getReport: GetClientTimeReport): ClientTimeR
 		const answerCounts = () => mounted.current && call === latestCall.current;
 		setState(LOADING);
 		try {
-			const report = await latestGetReport.current();
+			const report: unknown = await latestGetReport.current();
 			if (answerCounts()) {
-				setState({ status: 'ready', report });
+				setState(isClientTimeReport(report) ? { status: 'ready', report } : FAILED);
 			}
 		} catch {
 			if (answerCounts()) {

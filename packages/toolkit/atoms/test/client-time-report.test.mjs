@@ -522,3 +522,48 @@ test('both kit locales have the same CLIENT_REPORT keys, and both name the clien
 	assert.match(english.empty, /{{client}}/);
 	assert.match(french.empty, /{{client}}/);
 });
+
+test('an answer that is not a report, as from an API without the client report route, is a failed load', async () => {
+	const backend = hostBackend();
+	const { container } = await mountWidget(backend.getReport);
+	await act(async () =>
+		backend.calls[0].resolve({ statusCode: 404, message: 'Cannot POST /api/embed/client-report' })
+	);
+	await settle();
+
+	const alert = container.querySelector('[role="alert"]');
+	assert.match(alert.textContent, /^The time spent couldn't be loaded\./);
+	assert.doesNotMatch(container.textContent, /Cannot POST/, 'the answer stays out of the page');
+
+	await click(buttonNamed(alert, 'Try again'));
+	await act(async () => backend.calls[1].resolve({ ...NORTHWIND, projects: [{ id: 'p-app', name: 'Mobile app' }] }));
+	await settle();
+	assert.ok(container.querySelector('[role="alert"]'), 'a project without its seconds is not a report either');
+});
+
+test('under a second this week is still time, and the projects keep their order by the seconds given', async () => {
+	const backend = hostBackend();
+	const { container } = await mountWidget(backend.getReport);
+	await act(async () =>
+		backend.calls[0].resolve({
+			...NORTHWIND,
+			today: { date: '2026-11-18', seconds: 0.5 },
+			week: { start: '2026-11-16', end: '2026-11-22', seconds: 0.5 },
+			projects: [
+				{ id: 'p-site', name: 'Website', seconds: 0.1 },
+				{ id: 'p-app', name: 'Mobile app', seconds: 0.4 }
+			]
+		})
+	);
+	await settle();
+
+	assert.equal(container.querySelector('p'), null, 'no empty sentence');
+	assert.equal(tileTime(container, 'This week'), '00:00:00');
+	assert.deepEqual(
+		projectRows(container).map((row) => [row.name, row.bar.value]),
+		[
+			['Mobile app', '100'],
+			['Website', '25']
+		]
+	);
+});
