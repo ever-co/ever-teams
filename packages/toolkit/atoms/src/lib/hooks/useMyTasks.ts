@@ -20,8 +20,8 @@ const useMyTasks = ({ projectId }: { projectId: string | null }): IHookResponse<
 			setTasks({ data: [], loading: false });
 			return;
 		}
-		// A read the effect has moved past (another project, organization or address, or the widget gone) shows nothing,
-		// not even its error: the toasts are the page's
+		// A read the effect has moved past (another project, organization or address, or the widget gone) shows
+		// nothing, not even its error: the toasts are the page's
 		let current = true;
 		if (user && organizationId) {
 			(async () => {

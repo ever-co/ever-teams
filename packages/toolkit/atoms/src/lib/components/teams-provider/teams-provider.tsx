@@ -193,8 +193,8 @@ const TeamsProvider = ({
 	if (hostSignIn) {
 		signInMode = 'host';
 	}
-	// So does another address, its own apiUrl (an element's api-url changes) or, without one, the page's: the token held
-	// for one server is never sent to the next, nor saved as its session.
+	// So does another address, its own apiUrl (an element's api-url changes) or, without one, the page's: the token
+	// held for one server is never sent to the next, nor saved as its session.
 	const stateKey = [signInMode, server].join(' ');
 	const content = (
 		<KitOptionsProvider value={{ scoped: scopedStyles, onSignOut, hostSignIn, branding, api }}>

@@ -94,8 +94,8 @@ const useProjectsStats = (): IHookResponse<IProjectsStats> => {
 	const [projectsStats, setProjectsStats] = useState<IHookResponse<IProjectsStats>>({ data: null, loading: false });
 
 	useEffect(() => {
-		// A read the effect has moved past (other filters or another address, or the widget gone) shows nothing, not even
-		// its error: the toasts are the page's
+		// A read the effect has moved past (other filters or another address, or the widget gone) shows nothing, not
+		// even its error: the toasts are the page's
 		let current = true;
 		if (user && organizationId) {
 			(async () => {
