@@ -6,7 +6,16 @@ import { test, before, after, beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
 import { bundleKit, kitSources } from './bundle-kit.mjs';
-import { kitStandInOf, kitStandIns, recordingFetch } from './kit-stand-ins.mjs';
+import { kitStandIns, recordingFetch } from './kit-stand-ins.mjs';
+
+// The kit's stand-ins with the real sessions provider, whose time-zone helpers (they carry the zone database) stand in.
+const standIns = {
+	...kitStandIns,
+	'@lib/utils/time-zone':
+		'export const getUserTimezone = () => "UTC"; export const convertSessionDatesToTimezone = (session) => session;'
+};
+delete standIns['@lib/context/teams-tracking-context'];
+const standInOf = (importPath) => Object.keys(standIns).find((name) => importPath === name);
 
 const require = createRequire(import.meta.url);
 const { JSDOM } = require('jsdom');
@@ -59,9 +68,10 @@ before(async () => {
 			export { useTeamCreationForm } from '${kitSources}/hooks/useTeamCreationForm.ts';
 			export { usePasswordUpdateForm } from '${kitSources}/hooks/usePasswordUpdateForm.ts';
 			export { useTeamsContext } from '${kitSources}/context/teams-context.ts';
+			export { useTrackingContext } from '${kitSources}/context/teams-tracking-context.tsx';
 			export { apiConfigManager } from '@ever-teams/api';`,
-		standIns: kitStandIns,
-		standInOf: kitStandInOf
+		standIns,
+		standInOf
 	});
 	kit = bundled;
 	removeBundle = remove;
@@ -472,4 +482,25 @@ test('a timer start and a read that answer once their provider moved to another 
 	assert.deepEqual(holdings.a.timeLogs, [{ id: 'log-of-b' }]);
 	assert.ok(api.tokensSentTo(SERVER_B).length > 0, 'B is read');
 	assert.deepEqual(new Set(api.tokensSentTo(SERVER_B)), new Set([`${hostOf(SERVER_B)}-token`]));
+});
+
+// A component that shows the sessions of its provider: they are read while it is mounted.
+function Sessions() {
+	kit.useTrackingContext();
+	return null;
+}
+
+test('a provider without an apiUrl reads its sessions from the address the page holds when it reads them', async () => {
+	const sessions = [React.createElement(Sessions, { key: 'sessions' })];
+	await openPage([
+		['a', { apiUrl: SERVER_A }],
+		['d', {}, sessions]
+	]);
+	// The host moves the page to another server once the first provider has set its own address.
+	kit.apiConfigManager.setConfig({ apiUrl: 'https://host.example.com/api' });
+
+	await signInOn('d');
+
+	const reads = requestsTo('/timesheet/custom-tracking/sessions').map(({ host }) => host);
+	assert.deepEqual(reads, ['host.example.com']);
 });
