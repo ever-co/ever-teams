@@ -24,7 +24,7 @@ The element shows the kit's sign-in button, then the person's timer once they ar
 | `color-scheme` | `system`                    | `light`, `dark`, or `system` (follows the system's).                                       |
 | `lang`         | `en`                        | The language of the timer and its sign-in: `en` or `fr`.                                   |
 
-A change of attribute applies at once. Removing the element stops the timer's display and its polling; moving it in the page keeps it as it is. All the timers of a page share one color scheme and one language for now: the last element to load or change sets them. A language a person picks in the kit's language switch is kept for their next visits and wins over `lang` when an element loads.
+A change of attribute applies at once. Removing the element stops the timer's display and its polling; moving it in the page keeps it as it is. All the timers of a page share one color scheme, one language and one API address for now (ever-co/ever-teams#5483): the last element to load or change sets them, so give every element of a page the same `api-url`. A language a person picks in the kit's language switch is kept for their next visits and wins over `lang` when an element loads.
 
 ## What it changes in your page
 
