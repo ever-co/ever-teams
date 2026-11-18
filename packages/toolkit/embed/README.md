@@ -31,7 +31,8 @@ A change of attribute applies at once. Removing the element stops the timer's di
 `examples/` holds pages that run as they are once the files of `dist/` sit next to them:
 
 - `html/`: a plain page.
-- `vue/`: a Vue app on Vue's browser build. Vue takes a tag it does not know for a component, so it is told that the
+- `vue/`: a Vue app on Vue's browser build, which goes next to the page too (`dist/vue.esm-browser.prod.js` of the `vue`
+  package, as its import map says). Vue takes a tag it does not know for a component, so it is told that the
   `ever-teams-` tags are custom elements, with `app.config.compilerOptions.isCustomElement`. In a project built with
   single-file components, the same function goes to the Vue plugin's `template.compilerOptions.isCustomElement`.
 - `svelte/`: a Svelte component that imports the package once and binds `color-scheme`. Svelte needs no setting.
