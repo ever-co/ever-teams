@@ -1,5 +1,6 @@
 const ru = {
 	common: {
+		openMenu: 'Открыть меню',
 		ok: 'OK!',
 		cancel: 'Cancel',
 		loading: 'Loading',
@@ -15,6 +16,8 @@ const ru = {
 		endedMessage: 'Войдите снова, чтобы продолжить.'
 	},
 	timer: {
+		startLabel: 'Запустить таймер',
+		stopLabel: 'Остановить таймер',
 		stopFailedTitle: 'Не удалось остановить таймер',
 		stopFailedMessage: 'Он всё ещё идёт. Повторите попытку чуть позже.',
 		startMove: {

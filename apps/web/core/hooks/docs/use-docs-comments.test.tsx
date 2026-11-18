@@ -92,6 +92,30 @@ describe('useDocsComments, the ranges of threads', () => {
 		expect(mockDocs.setCommentAnchor).not.toHaveBeenCalled();
 	});
 
+	// The 404 is known from the render it arrives in: a comment posted from that render, before the hook's effect has
+	// turned the ranges off, asks for no range either (the race behind a red develop Jest run on the test above)
+	it('asks no range from the render the 404 arrives in', async () => {
+		mockDocs.commentAnchors.mockRejectedValue(refusal(404, 'DOCS_COLLAB_DISABLED'));
+		let firstSettled: ReturnType<typeof useDocsComments> | null = null;
+		renderHook(
+			() => {
+				const value = useDocsComments({ id: 'page-1' }, true);
+				if (value.anchorsSettled && firstSettled === null) firstSettled = value;
+				return value;
+			},
+			{ wrapper: wrapper() }
+		);
+		await waitFor(() => expect(firstSettled).not.toBeNull());
+		const settled = firstSettled as unknown as ReturnType<typeof useDocsComments>;
+		expect(settled.anchorsSupported).toBe(false);
+
+		await act(async () => {
+			await settled.post({ body: 'On text', blockId: 'b1', range: RANGE });
+		});
+		expect(mockComments.create).toHaveBeenCalledTimes(1);
+		expect(mockDocs.setCommentAnchor).not.toHaveBeenCalled();
+	});
+
 	it('posts the comment even when its range is refused, and keeps asking after a comment the platform did not find', async () => {
 		mockDocs.commentAnchors.mockResolvedValue({ documentId: 'page-1', revision: 1, live: false, items: [] });
 		mockDocs.setCommentAnchor.mockRejectedValueOnce(refusal(404, 'DOCS_COMMENT_NOT_FOUND')).mockRejectedValueOnce(refusal(403, 'DOCS_COMMENT_ANCHOR_FORBIDDEN'));

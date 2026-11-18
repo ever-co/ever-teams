@@ -1,5 +1,6 @@
 const en = {
 	common: {
+		openMenu: 'Open the menu',
 		ok: 'OK!',
 		cancel: 'Cancel',
 		loading: 'Loading',
@@ -15,6 +16,8 @@ const en = {
 		endedMessage: 'Sign in again to continue.'
 	},
 	timer: {
+		startLabel: 'Start the timer',
+		stopLabel: 'Stop the timer',
 		stopFailedTitle: 'The timer could not stop',
 		stopFailedMessage: 'It is still running. Try again in a moment.',
 		startMove: {

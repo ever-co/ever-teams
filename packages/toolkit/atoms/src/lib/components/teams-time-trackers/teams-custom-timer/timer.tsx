@@ -8,6 +8,7 @@ import TimerIcon from '../teams-basic-timer/timer-icon';
 import Clock from '../common/clock';
 import TimerButton from '../teams-basic-timer/timer-button';
 import TimerTime from './timer-time';
+import { TimerCaption } from '../common/timer-caption';
 
 export interface TeamsCustomBaseTimerProps extends BasicTimerProps {
 	labeled?: boolean;
@@ -25,6 +26,7 @@ const TeamsCustomBaseTimer = ({
 	customButtonIcon,
 	isRunning,
 	readonly,
+	caption,
 	labeled,
 	labelClassName = 'text-black',
 	...props
@@ -42,6 +44,7 @@ const TeamsCustomBaseTimer = ({
 					size={labeled ? 'extra-large' : 'large'}
 				/>
 			) : null}
+			<TimerCaption>{caption}</TimerCaption>
 			<TimerTime
 				background={background}
 				color={color}

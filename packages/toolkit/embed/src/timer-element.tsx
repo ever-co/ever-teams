@@ -39,17 +39,23 @@ function configOf(apiUrl: string | null) {
  * lang. Removing the element stops its timer display and its requests.
  */
 export class EverTeamsTimerElement extends HTMLElement {
-	static observedAttributes = ['api-url', 'color-scheme', 'lang'];
+	static readonly observedAttributes = ['api-url', 'color-scheme', 'lang'];
 
 	private root: Root | null = null;
 	private cache: EmotionCache | null = null;
 
 	connectedCallback() {
+		// Moved in the page (removed and inserted again in one task): the kit goes on as it was, with its shadow root.
+		if (this.root) {
+			this.render();
+			return;
+		}
+		const page = this.ownerDocument;
 		const shadow = this.shadowRoot ?? this.attachShadow({ mode: 'open' });
-		registerKitProperties(document, kitStyles.page);
-		const style = document.createElement('style');
+		registerKitProperties(page, kitStyles.page);
+		const style = page.createElement('style');
 		style.textContent = HOST_STYLES + kitStyles.shadow;
-		const mount = document.createElement('div');
+		const mount = page.createElement('div');
 		shadow.replaceChildren(style, mount);
 		// theme-ui writes its styles through emotion, into the document head by default: here, into the shadow root.
 		this.cache = createCache({ key: 'ever-teams', container: shadow });
@@ -58,9 +64,17 @@ export class EverTeamsTimerElement extends HTMLElement {
 	}
 
 	disconnectedCallback() {
-		this.root?.unmount();
-		this.root = null;
-		this.shadowRoot?.replaceChildren();
+		// In a microtask: an element that is only moving is connected again by then, and a page's own React that removes
+		// the element does it while it commits, when another root cannot be unmounted at once.
+		queueMicrotask(() => {
+			if (this.isConnected) {
+				return;
+			}
+			this.root?.unmount();
+			this.root = null;
+			this.cache = null;
+			this.shadowRoot?.replaceChildren();
+		});
 	}
 
 	attributeChangedCallback() {

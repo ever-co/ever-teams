@@ -1,7 +1,7 @@
 // A browser ignores @property rules inside a shadow root: the page has to register the custom properties the kit's
 // shadows, rings and transforms rely on. Their names all start with --ever-teams-tw-, so the registrations change
 // nothing in the page's own styles.
-const PROPERTY_RULE = /@property\s+[^{]+\{[^}]*\}/g;
+const PROPERTY_RULE = /@property\b[^{]*\{[^}]*\}/g;
 
 const PAGE_STYLE_ATTRIBUTE = 'data-ever-teams-properties';
 
