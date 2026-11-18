@@ -65,3 +65,16 @@ test('a read that gets no answer comes back as an error with its message and no 
 
 	assert.deepEqual(await getEmbedProjects('host-token', 'tenant-1'), { message: 'Failed to fetch' });
 });
+
+test('an answer that is not a list comes back as an error with no status, and an empty list as an empty list', async () => {
+	for (const body of [null, { items: [] }]) {
+		apiAnswers(200, body);
+		const answer = await getEmbedProjects('host-token', 'tenant-1');
+		assert.equal(Array.isArray(answer), false, JSON.stringify(body));
+		assert.equal(answer.statusCode, undefined);
+		assert.match(answer.message, /no list/);
+	}
+
+	apiAnswers(200, []);
+	assert.deepEqual(await getEmbedProjects('host-token', 'tenant-1'), []);
+});
