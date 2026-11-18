@@ -34,6 +34,11 @@ globalThis.fetch = async (url, init) => {
 let visibility = 'visible';
 Object.defineProperty(dom.window.document, 'visibilityState', { get: () => visibility });
 
+// The API package's own rule of a timer change, from its sources: the stand-in below re-exports it.
+const apiTimerChange = path
+	.join(here, '..', '..', '..', 'api', 'src', 'lib', 'client', 'timer-change.ts')
+	.replaceAll('\\', '/');
+
 const stubs = {
 	'teams-context': `
 		// A store with stable references, as the kit's jotai atoms give them; a test can switch organization.
@@ -69,7 +74,8 @@ const stubs = {
 		globalThis.__manualTimes = [];
 		export const addManualTime = ({ body }) =>
 			new Promise((resolve, reject) => globalThis.__manualTimes.push(Object.assign(resolve, { body, reject })));
-		export const ApiCall = () => new Promise(() => {});`,
+		export const ApiCall = () => new Promise(() => {});
+		export { timerChangeOf } from '${apiTimerChange}';`,
 	'@ever-teams/toolkit-ui': `
 		globalThis.__toasts = [];
 		export const toast = (t) => globalThis.__toasts.push(t);
@@ -218,12 +224,12 @@ function Widget({ onStatus }) {
 }
 
 const roots = [];
-async function mount(widgets) {
+async function mount(widgets, props = null) {
 	const container = document.createElement('div');
 	document.body.appendChild(container);
 	const root = createRoot(container);
 	roots.push(root);
-	await act(async () => root.render(React.createElement(TimerStatusProvider, null, ...widgets)));
+	await act(async () => root.render(React.createElement(TimerStatusProvider, props, ...widgets)));
 	return { root, container };
 }
 
@@ -1099,4 +1105,174 @@ test('a start refused after a switch to another account and back shows nothing i
 	await flush();
 
 	assert.equal(seen.shared.notice, null);
+});
+
+// onTimerChange: what the host hears of the reads the provider already makes.
+const STARTED_AT = '2026-11-18T09:00:00.000Z';
+const runningOn = (projectId) => ({
+	running: true,
+	duration: 60,
+	lastLog: { startedAt: STARTED_AT, projectId, taskId: null, isRunning: true }
+});
+
+function hostListener() {
+	const heard = [];
+	const onTimerChange = (change) => heard.push(change);
+	return { heard, onTimerChange };
+}
+
+test('the host hears the first read, then a start and a stop made elsewhere, once each', async () => {
+	await reset();
+	const { heard, onTimerChange } = hostListener();
+	await mount([widget('a')], { onTimerChange });
+	await answer(0, { running: false });
+	assert.deepEqual(heard, [{ running: false, startedAt: null, projectId: null, taskId: null, initial: true }]);
+
+	await act(async () => window.dispatchEvent(new window.Event('focus')));
+	await answer(1, { running: false });
+	await act(async () => window.dispatchEvent(new window.Event('focus')));
+	await answer(2, runningOn('project-1'));
+	await act(async () => window.dispatchEvent(new window.Event('focus')));
+	await answer(3, runningOn('project-1'));
+	await act(async () => window.dispatchEvent(new window.Event('focus')));
+	await answer(4, { running: false });
+
+	assert.equal(globalThis.__reads.length, 5, 'no read of its own: the focus reads only');
+	assert.deepEqual(heard.slice(1), [
+		{ running: true, startedAt: STARTED_AT, projectId: 'project-1', taskId: null, initial: false },
+		{ running: false, startedAt: null, projectId: null, taskId: null, initial: false }
+	]);
+});
+
+test('the host hears another running entry: the timer restarted on another project between two reads', async () => {
+	await reset();
+	const { heard, onTimerChange } = hostListener();
+	await mount([widget('a')], { onTimerChange });
+	await answer(0, runningOn('project-1'));
+	await act(async () => window.dispatchEvent(new window.Event('online')));
+	await answer(1, runningOn('project-2'));
+
+	assert.deepEqual(
+		heard.map(({ projectId, initial }) => ({ projectId, initial })),
+		[
+			{ projectId: 'project-1', initial: true },
+			{ projectId: 'project-2', initial: false }
+		]
+	);
+});
+
+test('the host hears the reads of the one-minute poll, and none while the page is hidden', async () => {
+	await reset();
+	mock.timers.enable({ apis: ['setInterval'] });
+	try {
+		const { heard, onTimerChange } = hostListener();
+		await mount([widget('a')], { onTimerChange });
+		await answer(0, { running: false });
+		await act(async () => mock.timers.tick(60_000));
+		await answer(1, runningOn('project-1'));
+		visibility = 'hidden';
+		await act(async () => mock.timers.tick(180_000));
+
+		assert.equal(globalThis.__reads.length, 2);
+		assert.deepEqual(
+			heard.map(({ running }) => running),
+			[false, true]
+		);
+	} finally {
+		mock.timers.reset();
+	}
+});
+
+test('a start made in a kit widget reaches the host from the read that follows it', async () => {
+	await reset();
+	const { heard, onTimerChange } = hostListener();
+	const seen = {};
+	await mount([timer('a', seen)], { onTimerChange });
+	await answer(0, { running: false });
+	await act(async () => {
+		seen.a.startTimer();
+	});
+	await act(async () => globalThis.__actions[0]({ id: 'log' }));
+	await act(async () => globalThis.__reads.at(-1)(runningOn('project-1')));
+
+	assert.deepEqual(
+		heard.map(({ running, initial }) => ({ running, initial })),
+		[
+			{ running: false, initial: true },
+			{ running: true, initial: false }
+		]
+	);
+});
+
+test('a failed read tells the host nothing, and the next answer is its first', async () => {
+	await reset();
+	const { heard, onTimerChange } = hostListener();
+	await mount([widget('a')], { onTimerChange });
+	await act(async () => globalThis.__reads[0]({ statusCode: 503, message: 'Service Unavailable' }));
+	await flush();
+	assert.deepEqual(heard, []);
+
+	await act(async () => window.dispatchEvent(new window.Event('online')));
+	await answer(1, runningOn('project-1'));
+
+	assert.equal(heard.length, 1);
+	assert.equal(heard[0].initial, true);
+});
+
+test('another organization: its first read is told as a first one, and the old answer is never told', async () => {
+	await reset();
+	const { heard, onTimerChange } = hostListener();
+	await mount([widget('a')], { onTimerChange });
+	const forOldOrganization = globalThis.__reads[0];
+	await act(async () => globalThis.__setIdentity({ selectedOrganization: 'org-2' }));
+	const forNewOrganization = globalThis.__reads.find((read) => read.organizationId === 'org-2');
+
+	await act(async () => forOldOrganization(runningOn('project-1')));
+	await act(async () => forNewOrganization({ running: false, duration: 0, lastLog: null }));
+
+	assert.deepEqual(
+		heard.map(({ running, initial }) => ({ running, initial })),
+		[{ running: false, initial: true }]
+	);
+});
+
+test('a host callback that throws leaves the kit reading and the widgets showing the timer', async () => {
+	await reset();
+	mock.timers.enable({ apis: ['setTimeout'] });
+	try {
+		let calls = 0;
+		const onTimerChange = () => {
+			calls += 1;
+			throw new Error('host bug');
+		};
+		let latest;
+		await mount([widget('a', (status) => (latest = status))], { onTimerChange });
+		await answer(0, { running: false });
+		await act(async () => window.dispatchEvent(new window.Event('focus')));
+		await answer(1, runningOn('project-1'));
+
+		assert.equal(calls, 2);
+		assert.equal(latest?.running, true);
+		assert.equal(globalThis.__reads.length, 2);
+	} finally {
+		mock.timers.reset();
+	}
+});
+
+test('a callback given after the first read hears the next read as its first', async () => {
+	await reset();
+	const { heard, onTimerChange } = hostListener();
+	const { root } = await mount([widget('a')]);
+	await answer(0, runningOn('project-1'));
+	await act(async () => root.render(React.createElement(TimerStatusProvider, { onTimerChange }, widget('a'))));
+	assert.deepEqual(heard, [], 'a new callback makes no read');
+
+	await act(async () => window.dispatchEvent(new window.Event('focus')));
+	await answer(1, runningOn('project-1'));
+
+	assert.equal(globalThis.__reads.length, 2);
+	assert.deepEqual(
+		heard.map(({ running, initial }) => ({ running, initial })),
+		[{ running: true, initial: true }]
+	);
 });
