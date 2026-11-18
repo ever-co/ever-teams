@@ -55,8 +55,9 @@ export class TimerComponent {}
 ```
 
 An app that renders on the server loads the package in the browser only: the element extends `HTMLElement`, which a
-server does not have. In Svelte that is `onMount`, as the example does; in Angular, call
-`afterNextRender(() => import('@ever-teams/embed'))` in the component's constructor in place of the import above.
+server does not have. In Svelte that is `onMount`, as the example does; in Angular, add `afterNextRender` to the
+`@angular/core` import and call `afterNextRender(() => import('@ever-teams/embed'))` in the component's constructor,
+in place of the import above.
 
 In a site editor, a custom HTML block takes the script tag and the element as they are, once your site serves the
 files of `dist/`.
