@@ -19,6 +19,7 @@ import { getDefaultTimezone } from '@/core/lib/helpers/date-and-time';
 import {
 	SAVED_REPORT_PARAM,
 	type TimeActivityView,
+	canSaveView,
 	linkParamsOfSavedReport,
 	savedReportInputOf,
 	shareExpiryOf,
@@ -67,7 +68,17 @@ function openReportIn(setLinkParams: TimeActivityReport['settings']['setLinkPara
 	});
 }
 
-function SaveButton({ onSave, isSaving }: Readonly<{ onSave: (name: string) => Promise<boolean>; isSaving: boolean }>) {
+/** Why the view cannot be saved: a saved report keeps no labels of entries (`canSaveView`). */
+function LabelsNotKeptNote() {
+	const t = useTranslations();
+	return <p className="text-xs text-muted-foreground">{t('dashboard.savedReports.LABELS_NOT_KEPT')}</p>;
+}
+
+function SaveButton({
+	onSave,
+	isSaving,
+	canSave
+}: Readonly<{ onSave: (name: string) => Promise<boolean>; isSaving: boolean; canSave: boolean }>) {
 	const t = useTranslations();
 	const [isOpen, setIsOpen] = useState(false);
 	const save = async (name: string) => {
@@ -87,14 +98,19 @@ function SaveButton({ onSave, isSaving }: Readonly<{ onSave: (name: string) => P
 			<PopoverContent align="end" sideOffset={6} className={POPOVER_PANEL}>
 				<div className="flex flex-col gap-1">
 					<p className="text-[13px] font-medium text-foreground">{t('dashboard.savedReports.SAVE_TITLE')}</p>
-					<p className="text-xs text-muted-foreground">{t('dashboard.savedReports.SAVE_HINT')}</p>
+					{canSave && (
+						<p className="text-xs text-muted-foreground">{t('dashboard.savedReports.SAVE_HINT')}</p>
+					)}
+					{!canSave && <LabelsNotKeptNote />}
 				</div>
-				<SavedReportNameForm
-					submitLabel={t('dashboard.savedReports.SAVE')}
-					isSubmitting={isSaving}
-					onSubmit={(name) => void save(name)}
-					onCancel={() => setIsOpen(false)}
-				/>
+				{canSave && (
+					<SavedReportNameForm
+						submitLabel={t('dashboard.savedReports.SAVE')}
+						isSubmitting={isSaving}
+						onSubmit={(name) => void save(name)}
+						onCancel={() => setIsOpen(false)}
+					/>
+				)}
 			</PopoverContent>
 		</Popover>
 	);
@@ -105,6 +121,7 @@ function ShareButton({
 	saved,
 	onSave,
 	isSaving,
+	canSave,
 	shareActionsOf,
 	urlOf
 }: Readonly<{
@@ -112,6 +129,8 @@ function ShareButton({
 	saved: SavedReports;
 	onSave: (name: string) => Promise<boolean>;
 	isSaving: boolean;
+	/** The view shown can be saved: a link shares a saved report, so one that cannot be saved is not shared either. */
+	canSave: boolean;
 	shareActionsOf: (report: ISavedReport) => ShareLinkActions;
 	urlOf: (report: ISavedReport) => string | null;
 }>) {
@@ -144,12 +163,15 @@ function ShareButton({
 							<p className="text-xs text-muted-foreground">
 								{t('dashboard.savedReports.SHARE_NEEDS_SAVE')}
 							</p>
+							{!canSave && <LabelsNotKeptNote />}
 						</div>
-						<SavedReportNameForm
-							submitLabel={t('dashboard.savedReports.SAVE')}
-							isSubmitting={isSaving || saved.availability === 'loading'}
-							onSubmit={(name) => void onSave(name)}
-						/>
+						{canSave && (
+							<SavedReportNameForm
+								submitLabel={t('dashboard.savedReports.SAVE')}
+								isSubmitting={isSaving || saved.availability === 'loading'}
+								onSubmit={(name) => void onSave(name)}
+							/>
+						)}
 					</>
 				)}
 			</PopoverContent>
@@ -182,9 +204,14 @@ export function TimeActivitySavedReports({ report }: Readonly<{ report: TimeActi
 	const activeId = searchParams?.get(SAVED_REPORT_PARAM) ?? null;
 	const activeReport = saved.reports.find((candidate) => candidate.id === activeId) ?? null;
 	const isActiveViewSaved = isShowingSavedView(activeReport, view, weekStart);
+	// A view narrowed or grouped by labels would be saved as another view: it is neither saved nor written over a report
+	const canSave = canSaveView(view);
 
 	const saveView = useCallback(
 		async (name: string) => {
+			if (!canSaveView(view)) {
+				return false;
+			}
 			const input = savedReportInputOf(view, weekStart, getDefaultTimezone());
 			const savedFrom = activeId;
 			try {
@@ -210,8 +237,10 @@ export function TimeActivitySavedReports({ report }: Readonly<{ report: TimeActi
 
 	const updateReport = useCallback(
 		async (target: ISavedReport) => {
-			// One change at a time: a second one could reach the API first and be overwritten by the earlier view
-			if (saved.update.isPending) {
+			// One change at a time: a second one could reach the API first and be overwritten by the earlier view. A view
+			// the report cannot keep never replaces the one it keeps
+			const isRefused = saved.update.isPending || !canSaveView(view);
+			if (isRefused) {
 				return;
 			}
 			const input = savedReportInputOf(view, weekStart, getDefaultTimezone());
@@ -336,6 +365,7 @@ export function TimeActivitySavedReports({ report }: Readonly<{ report: TimeActi
 				activeReport={activeReport}
 				availability={saved.availability}
 				showsSavedView={isActiveViewSaved}
+				canUpdate={canSave}
 				isUpdating={saved.update.isPending}
 				onOpen={openReport}
 				onUpdate={(target) => void updateReport(target)}
@@ -343,12 +373,13 @@ export function TimeActivitySavedReports({ report }: Readonly<{ report: TimeActi
 				onDelete={setDeleting}
 				onRetry={() => void saved.retry()}
 			/>
-			<SaveButton onSave={saveView} isSaving={saved.create.isPending} />
+			<SaveButton onSave={saveView} isSaving={saved.create.isPending} canSave={canSave} />
 			<ShareButton
 				activeReport={activeReport}
 				saved={saved}
 				onSave={saveView}
 				isSaving={saved.create.isPending}
+				canSave={canSave}
 				shareActionsOf={shareActionsOf}
 				urlOf={urlOf}
 			/>

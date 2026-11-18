@@ -66,9 +66,18 @@ function savedFiltersOf(filters: TimeActivityFilters): ISavedReportFilters {
 }
 
 /**
- * The grouping a saved report stores. The saved reports API knows no Label grouping (#5368): a view grouped by label is
- * saved with the default grouping, by date.
+ * Whether a saved report can keep the view as the page shows it. The saved reports API keeps no labels of entries
+ * (#5368): its filters have no labels (Ever Gauzy drops any it is sent) and its groupings no Label (it refuses one).
+ * Saved anyway, a view narrowed or grouped by labels would reopen, and be shared, as another view: Save and Update stay
+ * off for it, and say why.
  */
+export function canSaveView(view: TimeActivityView): boolean {
+	const hasEntryLabels = view.filters.entryLabels.length > 0;
+	const isGroupedByLabel = view.grouping === 'label';
+	return !hasEntryLabels && !isGroupedByLabel;
+}
+
+/** The grouping a saved report stores: never Label, which the saved reports API refuses (`canSaveView`). */
 function savedGroupingOf(grouping: TimeActivityGrouping): Exclude<TimeActivityGrouping, 'label'> | null {
 	if (grouping === 'label') {
 		return null;
@@ -165,11 +174,10 @@ function showsSavedPeriod(report: ISavedReport, period: Period, weekStartsOn: We
 
 /**
  * Whether the view shown is the one the report saved: when it is not, the menu offers to update the report. A saved
- * report keeps no labels of entries (#5368), so a view narrowed by them is never the saved one.
+ * report keeps no labels of entries (#5368), so a view narrowed or grouped by them is never the saved one.
  */
 export function showsSavedView(report: ISavedReport, view: TimeActivityView, weekStartsOn: WeekStart): boolean {
-	const hasEntryLabels = view.filters.entryLabels.length > 0;
-	if (hasEntryLabels) {
+	if (!canSaveView(view)) {
 		return false;
 	}
 	const shown = savedReportInputOf(view, weekStartsOn, report.timeZone ?? '');
