@@ -1,4 +1,4 @@
-import { addTimeSlot, apiConfigManager, startTimer as startApiTimer, stopTimer as stopApiTimer } from '@ever-teams/api';
+import { addTimeSlot, startTimer as startApiTimer, stopTimer as stopApiTimer } from '@ever-teams/api';
 import { useEffect, useRef, useState } from 'react';
 import { noTeamsState, useForgetOnAccountChange } from './useForgetOnAccountChange';
 import { useTeamsStopWatch } from './useTeamsStopWatch';
@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { errorMessageOf, useTimerStatusContext } from '@lib/context/teams-timer-status-context';
 import { kindOfFailedRequest, noticeOfFailure } from '@lib/errors/kit-error';
 import { useKitOptions } from '@components/teams-provider/kit-options';
+import { apiUrlOf } from '@lib/utils/api-url';
 
 /**
  * Self-contained timer hook that manages all timer functionality.
@@ -23,7 +24,7 @@ export const useTimer = () => {
 	const { t } = useTranslation();
 	// Every widget of the page reads the same status: after a start or a stop, all of them are refreshed at once.
 	const sharedStatus = useTimerStatusContext();
-	const { hostSignIn } = useKitOptions();
+	const { hostSignIn, api } = useKitOptions();
 	const refreshEveryWidget = async () => {
 		await sharedStatus?.refetch();
 	};
@@ -106,7 +107,7 @@ export const useTimer = () => {
 	) => {
 		const message = errorMessageOf(answer);
 		if (sharedStatus) {
-			const failure = await noticeOfFailure(answer, message, apiConfigManager.getConfig().apiUrl);
+			const failure = await noticeOfFailure(answer, message, apiUrlOf(api));
 			if (isStillCurrent()) {
 				sharedStatus.reportNotice(failure);
 			}
@@ -118,7 +119,7 @@ export const useTimer = () => {
 	// A start or stop that got no answer.
 	const reportThrown = async (error: unknown, isStillCurrent: () => boolean) => {
 		if (sharedStatus) {
-			const kind = await kindOfFailedRequest(apiConfigManager.getConfig().apiUrl);
+			const kind = await kindOfFailedRequest(apiUrlOf(api));
 			if (isStillCurrent()) {
 				sharedStatus.reportNotice({ kind });
 			}
@@ -133,7 +134,7 @@ export const useTimer = () => {
 		const forGeneration = accountGeneration.current;
 		try {
 			setTimerLoading(true);
-			const timeSlot = await startApiTimer(user, token, currentTeamsState, organizationId);
+			const timeSlot = await startApiTimer(user, token, currentTeamsState, organizationId, api);
 
 			if ('message' in timeSlot || 'error' in timeSlot) {
 				await reportAnswer(timeSlot, isStillCurrent);
@@ -160,7 +161,7 @@ export const useTimer = () => {
 		clearInterval(interval.current);
 		try {
 			setTimerLoading(true);
-			const timeSlot = await stopApiTimer(user, token, organizationId);
+			const timeSlot = await stopApiTimer(user, token, organizationId, api);
 
 			if ('message' in timeSlot || 'error' in timeSlot) {
 				await reportAnswer(timeSlot, isStillCurrent);
@@ -170,7 +171,7 @@ export const useTimer = () => {
 			// A token from the host's getToken reaches the timer only: the stop already recorded the time.
 			const recordsSlot = Boolean(timeSlot) && !hostSignIn;
 			if (recordsSlot) {
-				await addTimeSlot(token, timeSlot);
+				await addTimeSlot(token, timeSlot, api);
 			}
 			// The same for a stop: it never resets the stopwatch of the account signed in since.
 			if (accountGeneration.current !== forGeneration) {

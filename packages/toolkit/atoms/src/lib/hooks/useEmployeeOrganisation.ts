@@ -12,7 +12,7 @@ export const useEmployeeOrganization = (): IHookResponse<IOrganizationContact[]>
 	});
 
 	const { authenticatedUser: user, token, selectedOrganization: organizationId } = useTeamsContext();
-	const { hostSignIn } = useKitOptions();
+	const { hostSignIn, api } = useKitOptions();
 
 	useEffect(() => {
 		// A token from the host's getToken does not reach the clients: no read, so no refusal to show
@@ -20,10 +20,16 @@ export const useEmployeeOrganization = (): IHookResponse<IOrganizationContact[]>
 			setClients({ data: [], loading: false });
 			return;
 		}
+		// A read the effect has moved past (another person, organization or address, or the widget gone) shows nothing,
+		// not even its error: the toasts are the page's
+		let current = true;
 		if (user && organizationId) {
 			(async () => {
 				setClients((prev) => ({ ...prev, loading: true }));
-				const userClients = await getOrganizationClients(user, token, organizationId);
+				const userClients = await getOrganizationClients(user, token, organizationId, api);
+				if (!current) {
+					return;
+				}
 
 				if ('message' in userClients || 'error' in userClients) {
 					const errorMessage =
@@ -47,7 +53,12 @@ export const useEmployeeOrganization = (): IHookResponse<IOrganizationContact[]>
 		} else {
 			setClients({ data: [], loading: false });
 		}
-	}, [user, token, organizationId, hostSignIn]);
+		return () => {
+			current = false;
+			// The next read, if any, sets it again
+			setClients((prev) => (prev.loading ? { ...prev, loading: false } : prev));
+		};
+	}, [user, token, organizationId, hostSignIn, api]);
 
 	return clients;
 };

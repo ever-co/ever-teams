@@ -25,7 +25,7 @@ export const useOrganizationTeams = ({
 
 	const { authenticatedUser: user, token, selectedOrganization: organizationId } = useTeamsContext();
 	// A token from the host's getToken reads only the member's teams, as the API allows it
-	const { hostSignIn: embedded = false } = useKitOptions();
+	const { hostSignIn: embedded = false, api } = useKitOptions();
 	const teamsProjectId = projectFilterOf(projectId, embedded);
 
 	useEffect(() => {
@@ -35,13 +35,16 @@ export const useOrganizationTeams = ({
 			(async () => {
 				setTeams((prev) => ({ ...prev, loading: true }));
 
-				const userTeams = await getOrganisationTeams({
-					user,
-					token,
-					organizationId,
-					projectId: teamsProjectId,
-					embedded
-				});
+				const userTeams = await getOrganisationTeams(
+					{
+						user,
+						token,
+						organizationId,
+						projectId: teamsProjectId,
+						embedded
+					},
+					api
+				);
 
 				if (!current) {
 					return;
@@ -71,7 +74,7 @@ export const useOrganizationTeams = ({
 			// The next read, if any, sets it again
 			setTeams((prev) => (prev.loading ? { ...prev, loading: false } : prev));
 		};
-	}, [user, teamsProjectId, organizationId, embedded]);
+	}, [user, teamsProjectId, organizationId, embedded, api]);
 
 	return teams;
 };

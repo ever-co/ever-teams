@@ -2,13 +2,15 @@
 import { IAuthLogin, IServerError } from '@ever-teams/toolkit-types';
 import { useRef, useState } from 'react';
 
-import { apiConfigManager, authLogin } from '@ever-teams/api';
+import { authLogin } from '@ever-teams/api';
 import { reportError, toast } from '@ever-teams/toolkit-ui';
 import { useTranslation } from 'react-i18next';
 import { useAccessToken } from './useAccessToken';
 import { useTeamsContext } from '../context/teams-context';
 import { KIT_ERROR_MESSAGE_KEYS, kindOfFailedRequest, kindOfSignInFailure } from '@lib/errors/kit-error';
 import { errorMessageOf } from '@lib/context/teams-timer-status-context';
+import { useKitOptions } from '@components/teams-provider/kit-options';
+import { apiUrlOf } from '@lib/utils/api-url';
 
 interface UsePasswordLoginFormReturn {
 	formData: {
@@ -32,6 +34,7 @@ export const usePasswordLoginForm = ({ redirectHandler }: UsePasswordLoginFormPa
 	const { t } = useTranslation();
 	const { setAccessToken } = useAccessToken();
 	const { setToken, setAuthenticatedUser: setUser } = useTeamsContext();
+	const { api } = useKitOptions();
 	// Counts the edits: a failure that comes back after an edit is not shown, since the edit cleared the error.
 	const edits = useRef(0);
 
@@ -55,12 +58,12 @@ export const usePasswordLoginForm = ({ redirectHandler }: UsePasswordLoginFormPa
 
 		try {
 			const { email, password } = formData;
-			const authResponse: IAuthLogin | IServerError = await authLogin({ email, password });
+			const authResponse: IAuthLogin | IServerError = await authLogin({ email, password }, api);
 
 			if ('message' in authResponse || 'error' in authResponse) {
 				// No answer (the API package returns it with no status), the site not allowed, a missing permission or
 				// the API down: the kit's own words, inside the form and with no toast on the host page.
-				const kind = await kindOfSignInFailure(authResponse, apiConfigManager.getConfig().apiUrl);
+				const kind = await kindOfSignInFailure(authResponse, apiUrlOf(api));
 				if (kind) {
 					showError(t(KIT_ERROR_MESSAGE_KEYS[kind]));
 					setLoading(false);
@@ -92,7 +95,7 @@ export const usePasswordLoginForm = ({ redirectHandler }: UsePasswordLoginFormPa
 			redirectHandler && redirectHandler();
 		} catch {
 			// No answer: say whether this site is not allowed or Ever Teams is unreachable, inside the form.
-			const kind = await kindOfFailedRequest(apiConfigManager.getConfig().apiUrl);
+			const kind = await kindOfFailedRequest(apiUrlOf(api));
 			showError(t(KIT_ERROR_MESSAGE_KEYS[kind]));
 		} finally {
 			setLoading(false);

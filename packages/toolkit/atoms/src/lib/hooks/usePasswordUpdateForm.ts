@@ -2,9 +2,11 @@ import { authLogin, updateUser } from '@ever-teams/api';
 import { getErrorMessage, toast } from '@ever-teams/toolkit-ui';
 import { useState } from 'react';
 import { useTeamsContext } from '@lib/context/teams-context';
+import { useKitOptions } from '@components/teams-provider/kit-options';
 
 export const usePasswordUpdateForm = () => {
 	const { authenticatedUser } = useTeamsContext();
+	const { api } = useKitOptions();
 	const email = authenticatedUser?.email ?? '';
 	const [passwords, setPasswords] = useState({
 		current: '',
@@ -34,7 +36,7 @@ export const usePasswordUpdateForm = () => {
 				return;
 			}
 
-			const loggedUser = await authLogin({ email, password: passwords.current });
+			const loggedUser = await authLogin({ email, password: passwords.current }, api);
 
 			if ('message' in loggedUser || 'error' in loggedUser) {
 				const isServerError = 'statusCode' in loggedUser;
@@ -60,15 +62,18 @@ export const usePasswordUpdateForm = () => {
 
 			const { token, user } = loggedUser;
 
-			const res = await updateUser({
-				body: {
-					hash: passwords.new,
-					organizationId: user.employee.organizationId,
-					tenantId: user.tenantId
+			const res = await updateUser(
+				{
+					body: {
+						hash: passwords.new,
+						organizationId: user.employee.organizationId,
+						tenantId: user.tenantId
+					},
+					token,
+					userId: user.id
 				},
-				token,
-				userId: user.id
-			});
+				api
+			);
 
 			if ('message' in res || 'error' in res) {
 				const errorMessage =

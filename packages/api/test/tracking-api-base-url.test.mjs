@@ -23,14 +23,15 @@ afterEach(() => {
 	apiConfigManager.setConfig(originalConfig);
 });
 
-const readSessions = (client) =>
+const readSessions = (client, api) =>
 	client.getFilteredSessions(
 		'2026-11-17T08:00:00.000Z',
 		'2026-11-17T09:00:00.000Z',
 		null,
 		'org-id',
 		'tenant-id',
-		'the-token'
+		'the-token',
+		api
 	);
 
 test('a client given no base URL sends the token only to the API the SDK is configured with', async () => {
@@ -54,4 +55,18 @@ test('getConfig reports the API that requests will go to', () => {
 	apiConfigManager.setConfig({ apiUrl: 'https://api.example.com/api' });
 
 	assert.equal(new TrackingApiClient().getConfig().baseUrl, 'https://api.example.com/api');
+});
+
+test("a read given its caller's own address goes there, over the client's base URL and the SDK API", async () => {
+	apiConfigManager.setConfig({ apiUrl: 'https://api.example.com/api' });
+	const own = { apiUrl: 'https://own.example.net/api' };
+
+	await readSessions(new TrackingApiClient(), own);
+	await readSessions(new TrackingApiClient('https://tracking.example.org/api'), own);
+	await readSessions(new TrackingApiClient('https://tracking.example.org/api'), { apiUrl: undefined });
+
+	assert.deepEqual(
+		requested.map(({ url }) => new URL(url).origin),
+		['https://own.example.net', 'https://own.example.net', 'https://tracking.example.org']
+	);
 });

@@ -25,3 +25,29 @@ test('a configuration set through the ES build is read by the CommonJS build, an
 	cjs.apiConfigManager.setConfig({ apiUrl: 'https://cjs.example.com/api' });
 	assert.equal(esm.apiConfigManager.getConfig().apiUrl, 'https://cjs.example.com/api');
 });
+
+test('subscribe hears each change made through either build, and nothing once stopped', () => {
+	const heard = [];
+	const stop = esm.apiConfigManager.subscribe(() => heard.push(esm.apiConfigManager.getConfig().apiUrl));
+
+	cjs.apiConfigManager.setConfig({ apiUrl: 'https://cjs.example.com/api' });
+	esm.apiConfigManager.setConfig({ apiUrl: 'https://esm.example.com/api' });
+	stop();
+	esm.apiConfigManager.setConfig({ apiUrl: 'https://after.example.com/api' });
+
+	assert.deepEqual(heard, ['https://cjs.example.com/api', 'https://esm.example.com/api']);
+});
+
+test('a setConfig that changes nothing tells nobody', () => {
+	esm.apiConfigManager.setConfig({ apiUrl: 'https://same.example.com/api' });
+	let calls = 0;
+	const stop = cjs.apiConfigManager.subscribe(() => {
+		calls += 1;
+	});
+
+	esm.apiConfigManager.setConfig({ apiUrl: 'https://same.example.com/api' });
+	cjs.apiConfigManager.setConfig({ apiUrl: undefined });
+	stop();
+
+	assert.equal(calls, 0);
+});

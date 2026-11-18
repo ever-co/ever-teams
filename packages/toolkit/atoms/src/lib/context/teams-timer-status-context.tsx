@@ -13,12 +13,14 @@ import {
 	CSSProperties
 } from 'react';
 import { useTranslation } from 'react-i18next';
-import { apiConfigManager, getTimerStatus, timerChangeOf } from '@ever-teams/api';
+import { getTimerStatus, timerChangeOf } from '@ever-teams/api';
 import { IServerError, ITimerStatus, TimerChange } from '@ever-teams/toolkit-types';
 import { useTeamsContext } from './teams-context';
 import { KIT_ERROR_MESSAGE_KEYS, KitNotice, kindOfFailedRequest, noticeOfFailure } from '@lib/errors/kit-error';
 import { kitNoticeAtom } from '@lib/errors/kit-notice-atom';
 import { useAtom } from 'jotai';
+import { useKitOptions } from '@components/teams-provider/kit-options';
+import { apiUrlOf } from '@lib/utils/api-url';
 
 // The Ever Teams web app's rate: one status read a minute, and none while the page is hidden.
 export const TIMER_STATUS_REFRESH_MS = 60_000;
@@ -104,6 +106,7 @@ export function TimerStatusProvider({
 }: Readonly<{ children?: ReactNode; onTimerChange?: OnTimerChange }>) {
 	const { t } = useTranslation();
 	const { authenticatedUser: user, token, selectedOrganization: organizationId } = useTeamsContext();
+	const { api } = useKitOptions();
 	const [status, setStatus] = useState<ITimerStatus | null>(null);
 	const [loading, setLoading] = useState(false);
 	const [consumerCount, setConsumerCount] = useState(0);
@@ -203,18 +206,14 @@ export function TimerStatusProvider({
 			let answered: ITimerStatus | null = null;
 			setLoading(true);
 			try {
-				const response = await getTimerStatus(user, token, organizationId);
+				const response = await getTimerStatus(user, token, organizationId, api);
 				if (!isCurrent()) {
 					return;
 				}
 				if (isServerError(response)) {
 					// The API package returns a request that got no answer as an error with no status: the probe says
 					// whether this site is not allowed or Ever Teams is unreachable.
-					const failure = await noticeOfFailure(
-						response,
-						errorMessageOf(response),
-						apiConfigManager.getConfig().apiUrl
-					);
+					const failure = await noticeOfFailure(response, errorMessageOf(response), apiUrlOf(api));
 					if (isCurrent()) {
 						reportNotice(failure);
 					}
@@ -225,7 +224,7 @@ export function TimerStatusProvider({
 				answered = response;
 			} catch {
 				// No answer: the network or the API is down, or the browser blocked the answer for this site.
-				const kind = await kindOfFailedRequest(apiConfigManager.getConfig().apiUrl);
+				const kind = await kindOfFailedRequest(apiUrlOf(api));
 				if (isCurrent()) {
 					reportNotice({ kind });
 				}
@@ -238,7 +237,7 @@ export function TimerStatusProvider({
 				tellHost(answered);
 			}
 		},
-		[user, token, organizationId, reportNotice, tellHost]
+		[user, token, organizationId, reportNotice, tellHost, api]
 	);
 
 	// A refresh asked while a read is pending runs one more read after it: the pending read may predate a start or a
@@ -246,7 +245,9 @@ export function TimerStatusProvider({
 	const refetch = useCallback(async () => {
 		// A refetch kept from an earlier render (a start that ends after a switch of organization) reads nothing: its
 		// read would supersede the current identity's pending read, whose answer would then be dropped.
-		const obsolete = currentIdentity.current !== identity;
+		// Nor one of a removed provider (a start that ends once the provider started afresh on another address): its
+		// read would go to the previous server for a status nothing shows.
+		const obsolete = currentIdentity.current !== identity || !mounted.current;
 		if (!ready || obsolete) {
 			return;
 		}

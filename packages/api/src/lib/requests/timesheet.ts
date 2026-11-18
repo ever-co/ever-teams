@@ -1,5 +1,6 @@
 import { IServerError, ITimeLog, ITimeLogCreateInput, IUser, LogType, TimerSource } from '@ever-teams/toolkit-types';
 import { ApiCall } from '../fetch';
+import { IApiRequestConfig } from '../config/api-config';
 import QueryString from 'qs';
 
 // The shape of react-day-picker's DateRange, which the kit passes: the package does not depend on react-day-picker,
@@ -21,17 +22,20 @@ interface IGetTimeLogsParams {
 	employeeIds?: string[];
 }
 
-export const getTimeLogs = async ({
-	user,
-	token,
-	organizationId,
-	date,
-	activityLevel = { start: 0, end: 100 },
-	timeZone,
-	source,
-	logType,
-	employeeIds
-}: IGetTimeLogsParams): Promise<ITimeLog[] | IServerError> => {
+export const getTimeLogs = async (
+	{
+		user,
+		token,
+		organizationId,
+		date,
+		activityLevel = { start: 0, end: 100 },
+		timeZone,
+		source,
+		logType,
+		employeeIds
+	}: IGetTimeLogsParams,
+	api?: IApiRequestConfig
+): Promise<ITimeLog[] | IServerError> => {
 	try {
 		if (!user) {
 			throw new Error('User is not authenticated');
@@ -94,12 +98,15 @@ export const getTimeLogs = async ({
 
 		const query = QueryString.stringify(queryParams, { arrayFormat: 'indices' });
 
-		const response = await ApiCall<ITimeLog[]>({
-			method: 'GET',
-			path: `/timesheet/time-log?${query}`,
-			bearer_token: token,
-			tenantId
-		});
+		const response = await ApiCall<ITimeLog[]>(
+			{
+				method: 'GET',
+				path: `/timesheet/time-log?${query}`,
+				bearer_token: token,
+				tenantId
+			},
+			api
+		);
 
 		if ('data' in response) {
 			return response.data;
@@ -115,21 +122,27 @@ export const getTimeLogs = async ({
 	}
 };
 
-export const addManualTime = async ({
-	token,
-	body
-}: {
-	token: string;
-	body: ITimeLogCreateInput;
-}): Promise<ITimeLog | IServerError> => {
+export const addManualTime = async (
+	{
+		token,
+		body
+	}: {
+		token: string;
+		body: ITimeLogCreateInput;
+	},
+	api?: IApiRequestConfig
+): Promise<ITimeLog | IServerError> => {
 	try {
-		const response = await ApiCall<ITimeLog>({
-			method: 'POST',
-			path: `/timesheet/time-log`,
-			bearer_token: token,
-			tenantId: body.tenantId,
-			body
-		});
+		const response = await ApiCall<ITimeLog>(
+			{
+				method: 'POST',
+				path: `/timesheet/time-log`,
+				bearer_token: token,
+				tenantId: body.tenantId,
+				body
+			},
+			api
+		);
 
 		if ('data' in response) {
 			return response.data;
