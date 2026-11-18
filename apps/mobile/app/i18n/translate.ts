@@ -1,3 +1,5 @@
+// Hermes has no Intl.PluralRules: without it a message with a count cannot be formatted
+import 'intl-pluralrules';
 import { createTranslator } from 'use-intl/core';
 import type { TxKeyPath } from './i18n';
 import { DEFAULT_LOCALE, localeFor, messagesByLocale } from './messages';
