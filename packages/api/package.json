@@ -3,6 +3,13 @@
 	"version": "0.2.0",
 	"main": "dist/index.cjs",
 	"types": "dist/index.d.ts",
+	"typesVersions": {
+		"*": {
+			"server": [
+				"dist/cjs/server.d.ts"
+			]
+		}
+	},
 	"type": "module",
 	"sideEffects": false,
 	"license": "MIT",
@@ -23,6 +30,38 @@
 				"default": "./dist/index.cjs"
 			},
 			"default": "./dist/index.es.js"
+		},
+		"./server": {
+			"workerd": {
+				"import": {
+					"types": "./dist/server.d.ts",
+					"default": "./dist/server.es.js"
+				},
+				"require": {
+					"types": "./dist/cjs/server.d.ts",
+					"default": "./dist/server.cjs"
+				}
+			},
+			"edge-light": {
+				"import": {
+					"types": "./dist/server.d.ts",
+					"default": "./dist/server.es.js"
+				},
+				"require": {
+					"types": "./dist/cjs/server.d.ts",
+					"default": "./dist/server.cjs"
+				}
+			},
+			"browser": null,
+			"import": {
+				"types": "./dist/server.d.ts",
+				"default": "./dist/server.es.js"
+			},
+			"require": {
+				"types": "./dist/cjs/server.d.ts",
+				"default": "./dist/server.cjs"
+			},
+			"default": "./dist/server.es.js"
 		}
 	},
 	"scripts": {

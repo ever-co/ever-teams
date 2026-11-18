@@ -1,7 +1,9 @@
 // The packed package installs in an empty project and loads in ESM and CommonJS: node --test test/*.test.mjs (from
 // packages/api, after building packages/toolkit-types and this package). npm packs both packages and installs the
 // two tarballs with --offline into a new project; qs is linked from the monorepo's node_modules, so the install asks
-// nothing of the registry or of npm's cache. Each import then starts a timer through a stand-in fetch.
+// nothing of the registry or of npm's cache. Each import then starts a timer through a stand-in fetch. The server
+// entry (@ever-teams/api/server) loads the same way and exchanges a credential; under the browser condition, Node,
+// esbuild and webpack's resolver refuse it, and TypeScript finds its types under each module resolution.
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -13,6 +15,12 @@ import { fileURLToPath } from 'node:url';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const require = createRequire(import.meta.url);
+const esbuild = require('esbuild');
+// The resolver webpack itself loads (webpack is a dependency of the monorepo; enhanced-resolve is webpack's).
+const webpackDir = path.dirname(require.resolve('webpack/package.json'));
+const { CachedInputFileSystem, ResolverFactory } = require(
+	require.resolve('enhanced-resolve', { paths: [webpackDir] })
+);
 const packages = path.join(here, '..', '..');
 const apiDir = path.join(packages, 'api');
 const typesDir = path.join(packages, 'toolkit-types');
@@ -153,4 +161,170 @@ test('the installed package holds its builds and declarations, and no source', (
 	assert.ok(files.includes('dist/index.d.ts'));
 	assert.ok(files.includes('dist/cjs/index.d.ts'));
 	assert.ok(files.every((file) => !file.startsWith('src/')));
+});
+
+// Exchanges a credential through a stand-in fetch, then meets a refusal, as a host's server does.
+const SERVER_SCRIPT = `
+const answers = [
+	{ status: 200, body: { token: 'embed-token', expiresAt: '2026-11-18T18:15:00.000Z' } },
+	{ status: 403, body: { statusCode: 403, code: 'EMBED_MEMBER_NOT_ALLOWED', message: 'Not a member.' } }
+];
+const sent = [];
+const fetch = async (url, init) => {
+	sent.push({ url, body: JSON.parse(init.body) });
+	const answer = answers[sent.length - 1];
+	return new Response(JSON.stringify(answer.body), { status: answer.status });
+};
+const options = {
+	apiUrl: 'https://api.example.com/api',
+	credential: 'gze_packed',
+	email: 'lina@example.com',
+	origin: 'https://app.example.com',
+	fetch
+};
+server.exchangeEmbedToken(options).then(async (answer) => {
+	const refusal = await server.exchangeEmbedToken(options).catch((error) => error);
+	console.log(JSON.stringify({
+		answer,
+		url: sent[0].url,
+		getClientReport: typeof server.getClientReport,
+		code: refusal.code,
+		isForbiddenError: refusal instanceof api.EverTeamsForbiddenError
+	}));
+});
+`;
+
+const expectedServer = {
+	answer: { token: 'embed-token', expiresAt: '2026-11-18T18:15:00.000Z' },
+	url: 'https://api.example.com/api/embed/token',
+	getClientReport: 'function',
+	code: 'EMBED_MEMBER_NOT_ALLOWED',
+	isForbiddenError: true
+};
+
+test('the server entry is imported as ESM, exchanges a credential and throws the main entry errors', () => {
+	const imports = "import * as server from '@ever-teams/api/server';\nimport * as api from '@ever-teams/api';";
+	const output = run(process.execPath, ['--input-type=module', '-e', `${imports}\n${SERVER_SCRIPT}`], projectDir);
+
+	assert.deepEqual(loaded(output), expectedServer);
+});
+
+test('the server entry is required as CommonJS, exchanges a credential and throws the main entry errors', () => {
+	const requires = "const server = require('@ever-teams/api/server');\nconst api = require('@ever-teams/api');";
+	const output = run(process.execPath, ['-e', `${requires}\n${SERVER_SCRIPT}`], projectDir);
+
+	assert.deepEqual(loaded(output), expectedServer);
+});
+
+test('Node refuses the server entry under the browser condition, in ESM and CommonJS', () => {
+	const esm = run(
+		process.execPath,
+		[
+			'--conditions=browser',
+			'--input-type=module',
+			'-e',
+			"import('@ever-teams/api/server').then(() => console.log('loaded'), (error) => console.log(error.code));"
+		],
+		projectDir
+	);
+	const cjs = run(
+		process.execPath,
+		[
+			'--conditions=browser',
+			'-e',
+			"try { require('@ever-teams/api/server'); console.log('loaded'); } catch (error) { console.log(error.code); }"
+		],
+		projectDir
+	);
+
+	assert.equal(esm.trim(), 'ERR_PACKAGE_PATH_NOT_EXPORTED');
+	assert.equal(cjs.trim(), 'ERR_PACKAGE_PATH_NOT_EXPORTED');
+});
+
+// esbuild, as the bundler of a page, then of a server, a Cloudflare Worker (wrangler's conditions) and a Next.js edge
+// route, which also name the browser condition.
+const bundleServerEntry = (options) =>
+	esbuild.build({
+		stdin: {
+			contents: "import { exchangeEmbedToken } from '@ever-teams/api/server';\nconsole.log(exchangeEmbedToken);",
+			resolveDir: projectDir
+		},
+		bundle: true,
+		write: false,
+		logLevel: 'silent',
+		...options
+	});
+
+test('a page bundle refuses the server entry, and a server, worker or edge bundle takes it (esbuild)', async () => {
+	const page = await bundleServerEntry({ platform: 'browser' }).then(
+		() => assert.fail('the server entry went into a page bundle'),
+		(error) => error
+	);
+	const node = await bundleServerEntry({ platform: 'node', format: 'esm' });
+	const worker = await bundleServerEntry({ platform: 'browser', conditions: ['workerd', 'worker'] });
+	const edge = await bundleServerEntry({ platform: 'browser', conditions: ['edge-light'] });
+
+	assert.match(page.message, /@ever-teams\/api\/server/);
+	for (const result of [node, worker, edge]) {
+		assert.match(result.outputFiles[0].text, /embed\/token/);
+	}
+});
+
+// webpack 5 resolves with enhanced-resolve: the conditions of a page, then of a Node server.
+test("webpack's resolver refuses the server entry to a page and gives a server its builds", () => {
+	const resolved = (conditionNames) =>
+		ResolverFactory.createResolver({
+			fileSystem: new CachedInputFileSystem(fs, 4000),
+			useSyncFileSystemCalls: true,
+			conditionNames,
+			extensions: ['.js'],
+			mainFields: ['browser', 'module', 'main']
+		}).resolveSync({}, projectDir, '@ever-teams/api/server');
+
+	assert.throws(() => resolved(['browser', 'import', 'module', 'webpack', 'production']), /server/);
+	assert.match(resolved(['node', 'import', 'module', 'webpack', 'production']), /server\.es\.js$/);
+	assert.match(resolved(['node', 'require', 'module', 'webpack', 'production']), /server\.cjs$/);
+});
+
+// The host's TypeScript: ES modules and CommonJS under nodenext, a bundler, and the older node10 resolution.
+test("TypeScript finds the server entry's types under each module resolution", () => {
+	const tsc = path.join(path.dirname(require.resolve('typescript/package.json')), 'bin', 'tsc');
+	const exchange =
+		"{ apiUrl: 'https://api.example.com/api', credential: 'gze_', email: 'lina@example.com', origin: 'https://app.example.com' }";
+	const report = "{ apiUrl: 'https://api.example.com/api', credential: 'gze_' }";
+	fs.writeFileSync(
+		path.join(projectDir, 'esm.mts'),
+		"import { exchangeEmbedToken, type EverTeamsEmbedToken } from '@ever-teams/api/server';\n" +
+			`export const answer: Promise<EverTeamsEmbedToken> = exchangeEmbedToken(${exchange});\n`
+	);
+	fs.writeFileSync(
+		path.join(projectDir, 'cjs.cts'),
+		"import server = require('@ever-teams/api/server');\n" +
+			`export const answer: Promise<server.EverTeamsEmbedToken> = server.exchangeEmbedToken(${exchange});\n`
+	);
+	fs.writeFileSync(
+		path.join(projectDir, 'any-resolution.ts'),
+		"import { getClientReport, type IClientTimeReport } from '@ever-teams/api/server';\n" +
+			`export const report: Promise<IClientTimeReport> = getClientReport(${report});\n`
+	);
+	const check = (...args) =>
+		run(
+			process.execPath,
+			[tsc, '--noEmit', '--strict', '--skipLibCheck', '--lib', 'es2022,dom', ...args],
+			projectDir
+		);
+
+	check('--module', 'nodenext', '--moduleResolution', 'nodenext', 'esm.mts', 'cjs.cts');
+	check('--module', 'esnext', '--moduleResolution', 'bundler', 'any-resolution.ts');
+	check('--module', 'commonjs', '--moduleResolution', 'node10', 'any-resolution.ts');
+});
+
+test('the installed package holds the builds and declarations of the server entry', () => {
+	const installed = path.join(projectDir, 'node_modules', '@ever-teams', 'api');
+	const files = fs.readdirSync(installed, { recursive: true }).map((file) => file.split(path.sep).join('/'));
+
+	assert.ok(files.includes('dist/server.es.js'));
+	assert.ok(files.includes('dist/server.cjs'));
+	assert.ok(files.includes('dist/server.d.ts'));
+	assert.ok(files.includes('dist/cjs/server.d.ts'));
 });
