@@ -1,8 +1,50 @@
-import { ITimerStatus, ITimeSlot, LogType, TimerSource } from '@ever-teams/toolkit-types';
+import { LogType, TimerSource } from '@ever-teams/toolkit-types';
 import { EverTeamsValidationError } from './errors';
 import { Identity } from './identity';
 import { TimerListener, TimerWatchOptions, watchTimer } from './timer-watch';
 import { Transport } from './transport';
+
+/**
+ * A time log as the API answers it. The id of a project, task, client or team is null when the log has none, as for
+ * a timer started without one.
+ */
+export interface EverTeamsTimeLog {
+	id: string;
+	tenantId: string;
+	organizationId: string;
+	employeeId: string;
+	timesheetId: string | null;
+	projectId: string | null;
+	taskId: string | null;
+	organizationContactId: string | null;
+	organizationTeamId: string | null;
+	startedAt: string;
+	stoppedAt: string;
+	editedAt: string | null;
+	// Text, as the API answers it (a JSON text is never a TypeScript enum): it compares with LogType.TRACKED. BREAK,
+	// time away from work, is a log type of the API (ever-co/ever-gauzy#11920) that LogType does not list.
+	logType: `${LogType}` | 'BREAK';
+	source: `${TimerSource}`;
+	description: string | null;
+	reason: string | null;
+	isBillable: boolean;
+	isRunning: boolean;
+	isEdited: boolean;
+	/** In seconds. */
+	duration: number;
+	version: string | null;
+	createdAt: string;
+	updatedAt: string;
+	deletedAt: string | null;
+}
+
+export interface EverTeamsTimerStatus {
+	/** The seconds tracked today. */
+	duration: number;
+	running: boolean;
+	/** The member's last time log, running or not; null before the first. */
+	lastLog: EverTeamsTimeLog | null;
+}
 
 export interface TimerStartOptions {
 	projectId?: string;
@@ -13,11 +55,11 @@ export interface TimerStartOptions {
 
 export interface TimerResource {
 	/** GET /timesheet/timer/status: whether the timer runs, its last log, and today's tracked seconds. */
-	status(): Promise<ITimerStatus>;
+	status(): Promise<EverTeamsTimerStatus>;
 	/** POST /timesheet/timer/start: starts the timer, at the API's time, and answers the new time log. */
-	start(options?: TimerStartOptions): Promise<ITimeSlot>;
+	start(options?: TimerStartOptions): Promise<EverTeamsTimeLog>;
 	/** POST /timesheet/timer/stop: stops the running timer and answers its time log. */
-	stop(): Promise<ITimeSlot | null>;
+	stop(): Promise<EverTeamsTimeLog | null>;
 	/**
 	 * Tells `listener` the timer as a first read of its status shows it (`initial: true`), then each start, stop or
 	 * other running entry a later read shows, once: also those made elsewhere (the web app, the desktop app). It reads
@@ -60,9 +102,9 @@ export function createTimer(transport: Transport, identity: Identity): TimerReso
 		}
 	}
 
-	async function status(): Promise<ITimerStatus> {
+	async function status(): Promise<EverTeamsTimerStatus> {
 		const { tenantId, organizationId } = await identity.scope();
-		return transport.request<ITimerStatus>({
+		return transport.request<EverTeamsTimerStatus>({
 			method: 'GET',
 			path: '/timesheet/timer/status',
 			query: { tenantId, organizationId },
@@ -71,10 +113,10 @@ export function createTimer(transport: Transport, identity: Identity): TimerReso
 		});
 	}
 
-	async function start(options: TimerStartOptions = {}): Promise<ITimeSlot> {
+	async function start(options: TimerStartOptions = {}): Promise<EverTeamsTimeLog> {
 		const { tenantId, organizationId } = await identity.scope();
 		return withSource((source) =>
-			transport.request<ITimeSlot>({
+			transport.request<EverTeamsTimeLog>({
 				method: 'POST',
 				path: '/timesheet/timer/start',
 				tenantId,
@@ -94,10 +136,10 @@ export function createTimer(transport: Transport, identity: Identity): TimerReso
 		);
 	}
 
-	async function stop(): Promise<ITimeSlot | null> {
+	async function stop(): Promise<EverTeamsTimeLog | null> {
 		const { tenantId, organizationId } = await identity.scope();
 		return withSource((source) =>
-			transport.request<ITimeSlot | null>({
+			transport.request<EverTeamsTimeLog | null>({
 				method: 'POST',
 				path: '/timesheet/timer/stop',
 				tenantId,

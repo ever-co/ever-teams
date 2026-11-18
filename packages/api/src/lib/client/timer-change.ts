@@ -1,11 +1,20 @@
-import { ITimerStatus, TimerChange } from '@ever-teams/toolkit-types';
+import { TimerChange } from '@ever-teams/toolkit-types';
 
 export type { TimerChange } from '@ever-teams/toolkit-types';
+
+/**
+ * What timerChangeOf reads of a timer status: the client's answer (`EverTeamsTimerStatus`, from `timer.status()`) and
+ * the kit's `ITimerStatus` both fit it.
+ */
+export interface TimerStatusRead {
+	running: boolean;
+	lastLog: { startedAt?: string | null; projectId?: string | null; taskId?: string | null } | null;
+}
 
 type TimerState = Omit<TimerChange, 'initial'>;
 
 // A stopped timer, a running break included (the API answers running: false for it), has no running entry to tell of.
-function timerStateOf(status: ITimerStatus): TimerState {
+function timerStateOf(status: TimerStatusRead): TimerState {
 	const running = status.running === true;
 	const log = status.lastLog;
 	if (!running || !log) {
@@ -37,7 +46,7 @@ function isSameState(state: TimerState, previous: TimerChange): boolean {
  * 	showTimer(change.running, change.startedAt);
  * }
  */
-export function timerChangeOf(status: ITimerStatus, previous: TimerChange | null): TimerChange | null {
+export function timerChangeOf(status: TimerStatusRead, previous: TimerChange | null): TimerChange | null {
 	const state = timerStateOf(status);
 	if (previous === null) {
 		return { ...state, initial: true };
