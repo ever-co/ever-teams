@@ -20,13 +20,14 @@ import { TeamsContext } from '@lib/context/teams-context';
 import i18n from '@lib/i18n/init';
 import { apiConfigManager, IApiTeamsConfig } from '@ever-teams/api';
 import TrackingProvider from '@lib/context/teams-tracking-context';
-import { TimerStatusProvider } from '@lib/context/teams-timer-status-context';
+import { OnTimerChange, TimerStatusProvider } from '@lib/context/teams-timer-status-context';
 import { ChartData } from '@ever-teams/toolkit-types';
 import { useSelectedOrganization } from '@hooks/useSelectedOrganization';
 import { KitOptionsProvider, KitRoot } from './kit-root';
 import { KitColorScheme, setKitPreferences } from '@lib/stores/kit-preferences';
 import { withoutGlobalStyles } from '../../themes/kit-theme-config';
 import { useHostToken } from '@hooks/useHostToken';
+import { usePageApiUrl } from '@hooks/usePageApiUrl';
 import { GetKitToken } from '@lib/session/host-token';
 import { HostSignInContext } from '@lib/session/host-session';
 
@@ -65,6 +66,10 @@ interface TeamsProviderProps {
 	onSignOut?: () => void;
 	// Shows "Powered by Ever Teams" under the widgets that have it. On by default; false hides it everywhere.
 	branding?: boolean;
+	// Hears the person's timer: the first read of its status (initial: true), then each start, stop or other running
+	// entry a later read shows, once, wherever it was made. The kit reads the status while one of its timer widgets is
+	// on the page: on load, every minute while the page is visible, on focus and when the network comes back.
+	onTimerChange?: OnTimerChange;
 }
 
 type TeamsDataProviderProps = Omit<
@@ -74,7 +79,14 @@ type TeamsDataProviderProps = Omit<
 	scoped: boolean;
 };
 
-const TeamsDataProvider = ({ children, config: apiConfig, theme, lang = 'en', scoped }: TeamsDataProviderProps) => {
+const TeamsDataProvider = ({
+	children,
+	config: apiConfig,
+	theme,
+	lang = 'en',
+	scoped,
+	onTimerChange
+}: TeamsDataProviderProps) => {
 	// Jotai Atoms
 	const [appliedTheme, setAppliedTheme] = useAtom(appliedThemeAtom);
 
@@ -134,11 +146,9 @@ const TeamsDataProvider = ({ children, config: apiConfig, theme, lang = 'en', sc
 				setSelectedFont
 			}}
 		>
-			<TrackingProvider
-				config={{ baseUrl: apiConfig?.apiUrl, defaultBaseUrl: apiConfigManager.getConfig().apiUrl }}
-			>
+			<TrackingProvider config={{ baseUrl: apiConfig?.apiUrl }}>
 				<I18nextProvider i18n={i18n}>
-					<TimerStatusProvider>{themed}</TimerStatusProvider>
+					<TimerStatusProvider onTimerChange={onTimerChange}>{themed}</TimerStatusProvider>
 				</I18nextProvider>
 			</TrackingProvider>
 		</TeamsContext.Provider>
@@ -166,17 +176,26 @@ const TeamsProvider = ({
 
 	const hostSignIn = Boolean(props.config?.getToken);
 	const apiUrl = props.config?.apiUrl;
-	// One object per address: a host that passes a new config object at each render does not read everything again.
-	const api = useMemo(() => ({ apiUrl }), [apiUrl]);
+	// Without an apiUrl the provider talks to the page's address, which the host's setConfig() or another provider can
+	// change: it is read again then, so the provider's requests and state follow it (below).
+	const pageApiUrl = usePageApiUrl(apiUrl === undefined);
+	let server = apiUrl;
+	if (server === undefined) {
+		server = pageApiUrl;
+	}
+	// One object per address: a host that passes a new config object at each render does not read everything again. A
+	// request still running once the address changed (a stop that then records its time slot) goes on to the server
+	// its state came from.
+	const api = useMemo(() => ({ apiUrl: server }), [server]);
 	// Turning getToken on or off starts the kit's state afresh: a token or an organization list read in one mode never
 	// reaches the other (a host token would otherwise be saved to localStorage by the stored-session mode).
 	let signInMode = 'page';
 	if (hostSignIn) {
 		signInMode = 'host';
 	}
-	// So does another apiUrl (an element's api-url changes): the token held for one server is never sent to the next,
-	// nor saved as its session.
-	const stateKey = [signInMode, apiUrl].join(' ');
+	// So does another address, its own apiUrl (an element's api-url changes) or, without one, the page's: the token
+	// held for one server is never sent to the next, nor saved as its session.
+	const stateKey = [signInMode, server].join(' ');
 	const content = (
 		<KitOptionsProvider value={{ scoped: scopedStyles, onSignOut, hostSignIn, branding, api }}>
 			<JotaiProvider key={stateKey}>

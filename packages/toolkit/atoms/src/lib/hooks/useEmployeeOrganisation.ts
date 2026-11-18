@@ -20,10 +20,16 @@ export const useEmployeeOrganization = (): IHookResponse<IOrganizationContact[]>
 			setClients({ data: [], loading: false });
 			return;
 		}
+		// A read the effect has moved past (another person, organization or address, or the widget gone) shows nothing,
+		// not even its error: the toasts are the page's
+		let current = true;
 		if (user && organizationId) {
 			(async () => {
 				setClients((prev) => ({ ...prev, loading: true }));
 				const userClients = await getOrganizationClients(user, token, organizationId, api);
+				if (!current) {
+					return;
+				}
 
 				if ('message' in userClients || 'error' in userClients) {
 					const errorMessage =
@@ -47,6 +53,11 @@ export const useEmployeeOrganization = (): IHookResponse<IOrganizationContact[]>
 		} else {
 			setClients({ data: [], loading: false });
 		}
+		return () => {
+			current = false;
+			// The next read, if any, sets it again
+			setClients((prev) => (prev.loading ? { ...prev, loading: false } : prev));
+		};
 	}, [user, token, organizationId, hostSignIn, api]);
 
 	return clients;

@@ -22,7 +22,9 @@ const useActivitiesStats = (): IHookResponse<IActivitiesStats> => {
 	} = useTeamsContext();
 	const { api } = useKitOptions();
 
-	const fetchActivitiesStats = async () => {
+	// isCurrent turns false once the effect has moved past this read (other filters or another address, or the widget
+	// gone): its answer then shows nothing, not even its error, as the toasts are the page's.
+	const fetchActivitiesStats = async (isCurrent: () => boolean) => {
 		if (user && organizationId) {
 			setActivitiesStats((prev) => ({ ...prev, loading: true }));
 
@@ -44,6 +46,9 @@ const useActivitiesStats = (): IHookResponse<IActivitiesStats> => {
 				},
 				api
 			);
+			if (!isCurrent()) {
+				return;
+			}
 
 			if ('message' in userStats || 'error' in userStats) {
 				const errorMessage =
@@ -66,7 +71,13 @@ const useActivitiesStats = (): IHookResponse<IActivitiesStats> => {
 	};
 
 	useEffect(() => {
-		fetchActivitiesStats();
+		let current = true;
+		void fetchActivitiesStats(() => current);
+		return () => {
+			current = false;
+			// The next read, if any, sets it again
+			setActivitiesStats((prev) => (prev.loading ? { ...prev, loading: false } : prev));
+		};
 	}, [user, selectedEmployee, selectedTeam, date, organizationId, api]);
 
 	return activitiesStats;

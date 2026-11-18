@@ -34,6 +34,11 @@ globalThis.fetch = async (url, init) => {
 let visibility = 'visible';
 Object.defineProperty(dom.window.document, 'visibilityState', { get: () => visibility });
 
+// The API package's own rule of a timer change, from its sources: the stand-in below re-exports it.
+const apiTimerChange = path
+	.join(here, '..', '..', '..', 'api', 'src', 'lib', 'client', 'timer-change.ts')
+	.replaceAll('\\', '/');
+
 const stubs = {
 	'teams-context': `
 		// A store with stable references, as the kit's jotai atoms give them; a test can switch organization.
@@ -69,7 +74,8 @@ const stubs = {
 		globalThis.__manualTimes = [];
 		export const addManualTime = ({ body }) =>
 			new Promise((resolve, reject) => globalThis.__manualTimes.push(Object.assign(resolve, { body, reject })));
-		export const ApiCall = () => new Promise(() => {});`,
+		export const ApiCall = () => new Promise(() => {});
+		export { timerChangeOf } from '${apiTimerChange}';`,
 	'@ever-teams/toolkit-ui': `
 		globalThis.__toasts = [];
 		export const toast = (t) => globalThis.__toasts.push(t);
@@ -112,6 +118,7 @@ let usePasswordLoginForm;
 let useManualTimeForm;
 let userAtom;
 let KitOptionsProvider;
+let useTeamsStopWatch;
 let bundleDir;
 
 before(async () => {
@@ -130,6 +137,7 @@ before(async () => {
 				"export { useManualTimeForm } from './hooks/useManualTimeForm';",
 				"export { userAtom } from './teams-jotai/atoms/teams-atoms';",
 				"export { KitOptionsProvider } from './components/teams-provider/kit-options';",
+				"export { useTeamsStopWatch } from './hooks/useTeamsStopWatch';",
 				"export { getDefaultStore, useAtomValue } from 'jotai';"
 			].join('\n'),
 			resolveDir: lib,
@@ -186,7 +194,8 @@ before(async () => {
 		usePasswordLoginForm,
 		useManualTimeForm,
 		userAtom,
-		KitOptionsProvider
+		KitOptionsProvider,
+		useTeamsStopWatch
 	} = await import(pathToFileURL(outfile).href));
 });
 
@@ -218,12 +227,12 @@ function Widget({ onStatus }) {
 }
 
 const roots = [];
-async function mount(widgets) {
+async function mount(widgets, props = null) {
 	const container = document.createElement('div');
 	document.body.appendChild(container);
 	const root = createRoot(container);
 	roots.push(root);
-	await act(async () => root.render(React.createElement(TimerStatusProvider, null, ...widgets)));
+	await act(async () => root.render(React.createElement(TimerStatusProvider, props, ...widgets)));
 	return { root, container };
 }
 
@@ -556,8 +565,9 @@ test('one start at a time for the page: a second click, in the same widget or an
 	}
 });
 
-test('a running timer widget leaves no interval behind once unmounted', async () => {
-	await reset();
+// Runs `check` with the intervals the page starts counted: `live` holds those not cleared yet. Any left are cleared
+// after it, even when an assertion fails.
+async function withLiveIntervals(check) {
 	const live = new Set();
 	const { setInterval: realSet, clearInterval: realClear } = globalThis;
 	globalThis.setInterval = (...args) => {
@@ -570,6 +580,17 @@ test('a running timer widget leaves no interval behind once unmounted', async ()
 		return realClear(id);
 	};
 	try {
+		await check(live);
+	} finally {
+		for (const id of live) realClear(id);
+		globalThis.setInterval = realSet;
+		globalThis.clearInterval = realClear;
+	}
+}
+
+test('a running timer widget leaves no interval behind once unmounted', async () => {
+	await reset();
+	await withLiveIntervals(async (live) => {
 		const seen = {};
 		const { root } = await mount([timer('a', seen)]);
 		await answer(0, { running: true, lastLog: { startedAt: new Date().toISOString() } });
@@ -578,11 +599,50 @@ test('a running timer widget leaves no interval behind once unmounted', async ()
 		await act(async () => root.unmount());
 		roots.splice(roots.indexOf(root), 1);
 		assert.equal(live.size, 0);
-	} finally {
-		for (const id of live) realClear(id);
-		globalThis.setInterval = realSet;
-		globalThis.clearInterval = realClear;
-	}
+	});
+});
+
+test('a start that answers once its timer widget is gone leaves no interval behind', async () => {
+	await reset();
+	await withLiveIntervals(async (live) => {
+		const seen = {};
+		const { root } = await mount([timer('a', seen)]);
+		await answer(0, { running: false });
+		await act(async () => {
+			seen.a.startTimer();
+		});
+
+		await act(async () => root.unmount());
+		roots.splice(roots.indexOf(root), 1);
+		await act(async () => globalThis.__actions[0]({ id: 'log' }));
+		await flush();
+
+		assert.equal(live.size, 0);
+	});
+});
+
+test("the stopwatch starts from its caller's own layout effect at mount", async () => {
+	await reset();
+	await withLiveIntervals(async (live) => {
+		const seen = {};
+		function Clock() {
+			const watch = useTeamsStopWatch({ duration: 0, lastLog: null, running: false });
+			seen.watch = watch;
+			React.useLayoutEffect(() => {
+				watch.start();
+			}, []);
+			return null;
+		}
+		const container = document.createElement('div');
+		document.body.appendChild(container);
+		const root = createRoot(container);
+		await act(async () => root.render(React.createElement(Clock)));
+
+		assert.equal(seen.watch.isRunning, true);
+		assert.equal(live.size, 1);
+		await act(async () => root.unmount());
+		assert.equal(live.size, 0);
+	});
 });
 
 test('outside a provider, useTimerStatus reads again with a new token at once, and polls with it', async () => {
@@ -1099,4 +1159,240 @@ test('a start refused after a switch to another account and back shows nothing i
 	await flush();
 
 	assert.equal(seen.shared.notice, null);
+});
+
+// onTimerChange: what the host hears of the reads the provider already makes.
+const STARTED_AT = '2026-11-18T09:00:00.000Z';
+const runningOn = (projectId) => ({
+	running: true,
+	duration: 60,
+	lastLog: { startedAt: STARTED_AT, projectId, taskId: null, isRunning: true }
+});
+
+function hostListener() {
+	const heard = [];
+	const onTimerChange = (change) => heard.push(change);
+	return { heard, onTimerChange };
+}
+
+test('the host hears the first read, then a start and a stop made elsewhere, once each', async () => {
+	await reset();
+	const { heard, onTimerChange } = hostListener();
+	await mount([widget('a')], { onTimerChange });
+	await answer(0, { running: false });
+	assert.deepEqual(heard, [{ running: false, startedAt: null, projectId: null, taskId: null, initial: true }]);
+
+	await act(async () => window.dispatchEvent(new window.Event('focus')));
+	await answer(1, { running: false });
+	await act(async () => window.dispatchEvent(new window.Event('focus')));
+	await answer(2, runningOn('project-1'));
+	await act(async () => window.dispatchEvent(new window.Event('focus')));
+	await answer(3, runningOn('project-1'));
+	await act(async () => window.dispatchEvent(new window.Event('focus')));
+	await answer(4, { running: false });
+
+	assert.equal(globalThis.__reads.length, 5, 'no read of its own: the focus reads only');
+	assert.deepEqual(heard.slice(1), [
+		{ running: true, startedAt: STARTED_AT, projectId: 'project-1', taskId: null, initial: false },
+		{ running: false, startedAt: null, projectId: null, taskId: null, initial: false }
+	]);
+});
+
+test('the host hears another running entry: the timer restarted on another project between two reads', async () => {
+	await reset();
+	const { heard, onTimerChange } = hostListener();
+	await mount([widget('a')], { onTimerChange });
+	await answer(0, runningOn('project-1'));
+	await act(async () => window.dispatchEvent(new window.Event('online')));
+	await answer(1, runningOn('project-2'));
+
+	assert.deepEqual(
+		heard.map(({ projectId, initial }) => ({ projectId, initial })),
+		[
+			{ projectId: 'project-1', initial: true },
+			{ projectId: 'project-2', initial: false }
+		]
+	);
+});
+
+test('the host hears the reads of the one-minute poll, and none while the page is hidden', async () => {
+	await reset();
+	mock.timers.enable({ apis: ['setInterval'] });
+	try {
+		const { heard, onTimerChange } = hostListener();
+		await mount([widget('a')], { onTimerChange });
+		await answer(0, { running: false });
+		await act(async () => mock.timers.tick(60_000));
+		await answer(1, runningOn('project-1'));
+		visibility = 'hidden';
+		await act(async () => mock.timers.tick(180_000));
+
+		assert.equal(globalThis.__reads.length, 2);
+		assert.deepEqual(
+			heard.map(({ running }) => running),
+			[false, true]
+		);
+	} finally {
+		mock.timers.reset();
+	}
+});
+
+test('a start made in a kit widget reaches the host from the read that follows it', async () => {
+	await reset();
+	const { heard, onTimerChange } = hostListener();
+	const seen = {};
+	await mount([timer('a', seen)], { onTimerChange });
+	await answer(0, { running: false });
+	await act(async () => {
+		seen.a.startTimer();
+	});
+	await act(async () => globalThis.__actions[0]({ id: 'log' }));
+	await act(async () => globalThis.__reads.at(-1)(runningOn('project-1')));
+
+	assert.deepEqual(
+		heard.map(({ running, initial }) => ({ running, initial })),
+		[
+			{ running: false, initial: true },
+			{ running: true, initial: false }
+		]
+	);
+});
+
+test('a failed read tells the host nothing, and the next answer is its first', async () => {
+	await reset();
+	const { heard, onTimerChange } = hostListener();
+	await mount([widget('a')], { onTimerChange });
+	await act(async () => globalThis.__reads[0]({ statusCode: 503, message: 'Service Unavailable' }));
+	await flush();
+	assert.deepEqual(heard, []);
+
+	await act(async () => window.dispatchEvent(new window.Event('online')));
+	await answer(1, runningOn('project-1'));
+
+	assert.equal(heard.length, 1);
+	assert.equal(heard[0].initial, true);
+});
+
+test('another organization: its first read is told as a first one, and the old answer is never told', async () => {
+	await reset();
+	const { heard, onTimerChange } = hostListener();
+	await mount([widget('a')], { onTimerChange });
+	const forOldOrganization = globalThis.__reads[0];
+	await act(async () => globalThis.__setIdentity({ selectedOrganization: 'org-2' }));
+	const forNewOrganization = globalThis.__reads.find((read) => read.organizationId === 'org-2');
+
+	await act(async () => forOldOrganization(runningOn('project-1')));
+	await act(async () => forNewOrganization({ running: false, duration: 0, lastLog: null }));
+
+	assert.deepEqual(
+		heard.map(({ running, initial }) => ({ running, initial })),
+		[{ running: false, initial: true }]
+	);
+});
+
+test('a host callback that throws leaves the kit reading and the widgets showing the timer', async () => {
+	await reset();
+	mock.timers.enable({ apis: ['setTimeout'] });
+	try {
+		let calls = 0;
+		const onTimerChange = () => {
+			calls += 1;
+			throw new Error('host bug');
+		};
+		let latest;
+		await mount([widget('a', (status) => (latest = status))], { onTimerChange });
+		await answer(0, { running: false });
+		await act(async () => window.dispatchEvent(new window.Event('focus')));
+		await answer(1, runningOn('project-1'));
+
+		assert.equal(calls, 2);
+		assert.equal(latest?.running, true);
+		assert.equal(globalThis.__reads.length, 2);
+	} finally {
+		mock.timers.reset();
+	}
+});
+
+test('a callback given after the first read hears the next read as its first', async () => {
+	await reset();
+	const { heard, onTimerChange } = hostListener();
+	const { root } = await mount([widget('a')]);
+	await answer(0, runningOn('project-1'));
+	await act(async () => root.render(React.createElement(TimerStatusProvider, { onTimerChange }, widget('a'))));
+	assert.deepEqual(heard, [], 'a new callback makes no read');
+
+	await act(async () => window.dispatchEvent(new window.Event('focus')));
+	await answer(1, runningOn('project-1'));
+
+	assert.equal(globalThis.__reads.length, 2);
+	assert.deepEqual(
+		heard.map(({ running, initial }) => ({ running, initial })),
+		[{ running: true, initial: true }]
+	);
+});
+
+test('a read that settles after the provider is removed tells its host nothing', async () => {
+	await reset();
+	const { heard, onTimerChange } = hostListener();
+	const { root } = await mount([widget('a')], { onTimerChange });
+	await answer(0, { running: false });
+	await act(async () => window.dispatchEvent(new window.Event('focus')));
+
+	await act(async () => root.unmount());
+	roots.splice(roots.indexOf(root), 1);
+	await answer(1, runningOn('project-1'));
+
+	assert.equal(globalThis.__reads.length, 2);
+	assert.deepEqual(
+		heard.map(({ running, initial }) => ({ running, initial })),
+		[{ running: false, initial: true }]
+	);
+});
+
+test('a host that changes the change it receives is not told again while the timer stays as it was', async () => {
+	await reset();
+	const heard = [];
+	const onTimerChange = (change) => {
+		heard.push({ ...change });
+		// A host that shows "no task" in place of null, on the object it received.
+		change.taskId = 'shown';
+	};
+	await mount([widget('a')], { onTimerChange });
+	await answer(0, runningOn('project-1'));
+	await act(async () => window.dispatchEvent(new window.Event('focus')));
+	await answer(1, runningOn('project-1'));
+
+	assert.equal(globalThis.__reads.length, 2);
+	assert.deepEqual(
+		heard.map(({ taskId, initial }) => ({ taskId, initial })),
+		[{ taskId: null, initial: true }]
+	);
+});
+
+test('the callback of a render that did not commit is never called: a pending read calls the shown one', async () => {
+	await reset();
+	const shown = hostListener();
+	const dropped = hostListener();
+	const never = new Promise(() => {});
+	// Suspends with no boundary: React keeps the committed render on screen and drops this one.
+	function Suspends() {
+		throw never;
+	}
+	const { root } = await mount([widget('a')], { onTimerChange: shown.onTimerChange });
+	await act(async () =>
+		React.startTransition(() =>
+			root.render(
+				React.createElement(
+					TimerStatusProvider,
+					{ onTimerChange: dropped.onTimerChange },
+					widget('a'),
+					React.createElement(Suspends, { key: 'suspends' })
+				)
+			)
+		)
+	);
+	await answer(0, { running: false });
+
+	assert.equal(shown.heard.length, 1);
+	assert.deepEqual(dropped.heard, []);
 });

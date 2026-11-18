@@ -100,11 +100,17 @@ const useStatisticsCounts = (): IHookResponse<IStatisticsCounts> => {
 	};
 
 	useEffect(() => {
+		// A read the effect has moved past (other filters or another address, or the widget gone) shows nothing, not
+		// even its error: the toasts are the page's
+		let current = true;
 		if (user && organizationId) {
 			(async () => {
 				setStatisticsCounts((stats) => ({ ...stats, loading: true }));
 
 				const userStats = await getStatisticsCounts(user, token, selectedEmployee, selectedTeam, date);
+				if (!current) {
+					return;
+				}
 
 				if ('message' in userStats || 'error' in userStats) {
 					const errorMessage =
@@ -125,6 +131,11 @@ const useStatisticsCounts = (): IHookResponse<IStatisticsCounts> => {
 				setStatisticsCounts({ data: userStats, loading: false });
 			})();
 		}
+		return () => {
+			current = false;
+			// The next read, if any, sets it again
+			setStatisticsCounts((prev) => (prev.loading ? { ...prev, loading: false } : prev));
+		};
 	}, [user, selectedEmployee, selectedTeam, date, organizationId, api]);
 
 	return statisticsCounts;

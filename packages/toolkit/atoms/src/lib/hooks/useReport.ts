@@ -24,7 +24,9 @@ const useReport = () => {
 	} = useTeamsContext();
 	const { api } = useKitOptions();
 
-	const getReport = async () => {
+	// isCurrent turns false once the effect has moved past this read (other filters or another address, or the widget
+	// gone): its answer then shows nothing, not even its error, as the toasts are the page's.
+	const getReport = async (isCurrent: () => boolean) => {
 		setLoading(true);
 		try {
 			if (!date) {
@@ -65,6 +67,9 @@ const useReport = () => {
 				},
 				api
 			);
+			if (!isCurrent()) {
+				return;
+			}
 
 			if ('data' in report) {
 				setReport(report.data);
@@ -78,18 +83,29 @@ const useReport = () => {
 				});
 			}
 		} catch (error) {
+			if (!isCurrent()) {
+				return;
+			}
 			toast({
 				title: 'Ever Teams Error',
 				description: 'Report error : ' + getErrorMessage(error),
 				variant: 'destructive'
 			});
 		} finally {
-			setLoading(false);
+			if (isCurrent()) {
+				setLoading(false);
+			}
 		}
 	};
 
 	useEffect(() => {
-		if (user && organizationId) getReport();
+		let current = true;
+		if (user && organizationId) void getReport(() => current);
+		return () => {
+			current = false;
+			// The next read, if any, sets it again
+			setLoading(false);
+		};
 	}, [user, date, selectedEmployee, selectedTeam, organizationId, api]);
 
 	return { report, config, chartData, loading };

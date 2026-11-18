@@ -91,10 +91,12 @@ const useProjectsStats = (): IHookResponse<IProjectsStats> => {
 	} = useTeamsContext();
 	const { api } = useKitOptions();
 
-
 	const [projectsStats, setProjectsStats] = useState<IHookResponse<IProjectsStats>>({ data: null, loading: false });
 
 	useEffect(() => {
+		// A read the effect has moved past (other filters or another address, or the widget gone) shows nothing, not
+		// even its error: the toasts are the page's
+		let current = true;
 		if (user && organizationId) {
 			(async () => {
 				try {
@@ -109,6 +111,9 @@ const useProjectsStats = (): IHookResponse<IProjectsStats> => {
 						date,
 						api
 					);
+					if (!current) {
+						return;
+					}
 
 					if ('message' in userStats || 'error' in userStats) {
 						const errorMessage =
@@ -127,15 +132,25 @@ const useProjectsStats = (): IHookResponse<IProjectsStats> => {
 					}
 					setProjectsStats({ data: userStats, loading: false });
 				} catch (error) {
+					if (!current) {
+						return;
+					}
 					toast({
 						variant: 'destructive',
 						description: (error as Error).message
 					});
 				} finally {
-					setProjectsStats((prev) => ({ ...prev, loading: false }));
+					if (current) {
+						setProjectsStats((prev) => ({ ...prev, loading: false }));
+					}
 				}
 			})();
 		}
+		return () => {
+			current = false;
+			// The next read, if any, sets it again
+			setProjectsStats((prev) => (prev.loading ? { ...prev, loading: false } : prev));
+		};
 	}, [user, selectedEmployee, selectedTeam, date, organizationId, api]);
 
 	return projectsStats;

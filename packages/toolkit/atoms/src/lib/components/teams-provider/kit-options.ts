@@ -16,7 +16,8 @@ export interface KitOptions {
 	// Whether the widgets show "Powered by Ever Teams" (TeamsProvider's branding, on unless the host turns it off).
 	branding?: boolean;
 	// The provider's own API address (config.apiUrl), which its hooks pass to every request: two providers of a page
-	// each reach their own. Without an apiUrl, requests go to the page's address (apiConfigManager).
+	// each reach their own. Without an apiUrl, the page's address (apiConfigManager), as it is now: the provider starts
+	// afresh when it changes.
 	api?: IApiRequestConfig;
 }
 

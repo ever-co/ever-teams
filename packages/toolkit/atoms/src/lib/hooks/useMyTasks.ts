@@ -20,10 +20,16 @@ const useMyTasks = ({ projectId }: { projectId: string | null }): IHookResponse<
 			setTasks({ data: [], loading: false });
 			return;
 		}
+		// A read the effect has moved past (another project, organization or address, or the widget gone) shows
+		// nothing, not even its error: the toasts are the page's
+		let current = true;
 		if (user && organizationId) {
 			(async () => {
 				setTasks((prev) => ({ ...prev, loading: true }));
 				const userTasks = await getMyTasks(user, token, projectId, organizationId, api);
+				if (!current) {
+					return;
+				}
 
 				if ('message' in userTasks || 'error' in userTasks) {
 					const errorMessage =
@@ -44,6 +50,11 @@ const useMyTasks = ({ projectId }: { projectId: string | null }): IHookResponse<
 				setTasks({ data: userTasks, loading: false });
 			})();
 		}
+		return () => {
+			current = false;
+			// The next read, if any, sets it again
+			setTasks((prev) => (prev.loading ? { ...prev, loading: false } : prev));
+		};
 	}, [user, projectId, organizationId, hostSignIn, api]);
 
 	return tasks;

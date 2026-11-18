@@ -1,0 +1,12 @@
+{
+	"route": "GET /timesheet/statistics/counts",
+	"status": 200,
+	"answer": {
+		"employeesCount": 1,
+		"projectsCount": 1,
+		"weekActivities": 0,
+		"weekDuration": 5,
+		"todayActivities": 0,
+		"todayDuration": 5
+	}
+}

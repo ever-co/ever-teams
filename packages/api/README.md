@@ -8,7 +8,9 @@ To show a timer or a report in a React page, install [`@ever-teams/atoms`](https
 which uses this package: start with [its README](https://github.com/ever-co/ever-teams/tree/develop/packages/toolkit/atoms#readme).
 
 On your server, `@ever-teams/api/server` exchanges an embed credential for a short-lived token for a person signed in
-to your product: see [Sign people in from your server](#sign-people-in-from-your-server).
+to your product: see [Sign people in from your server](#sign-people-in-from-your-server). It also checks the
+signature of the webhooks the API sends when a timer starts or stops: see
+[Receive the API's webhooks](#receive-the-apis-webhooks).
 
 ## Install
 
@@ -16,8 +18,8 @@ to your product: see [Sign people in from your server](#sign-people-in-from-your
 npm install @ever-teams/api
 ```
 
-It brings two dependencies: `@ever-teams/toolkit-types` (the types of the answers) and `qs`. It uses the platform's
-`fetch`.
+It brings two dependencies: `@ever-teams/toolkit-types` (the types it shares with the kit) and `qs`. It uses the
+platform's `fetch`.
 
 ## Quick start: start a timer from a script
 
@@ -102,19 +104,20 @@ request once more. A second refusal is thrown. A client stands for one person: i
 
 ## The client's methods
 
-Each method answers the API's data, typed with `@ever-teams/toolkit-types`, and throws an `EverTeamsError` on a
-failure. The table names the route behind each one; they are the routes the kit already calls.
+Each method answers the API's data, with the type the table names, and throws an `EverTeamsError` on a failure. The
+table names the route behind each one; they are the routes the kit already calls.
 
-| Method                                | Route                                             | Answer              |
-| ------------------------------------- | ------------------------------------------------- | ------------------- |
-| `timer.status()`                      | `GET /timesheet/timer/status`                     | `ITimerStatus`      |
-| `timer.start(options?)`               | `POST /timesheet/timer/start`                     | `ITimeSlot`         |
-| `timer.stop()`                        | `POST /timesheet/timer/stop`                      | `ITimeSlot \| null` |
-| `timeEntries.list({ from, to, ... })` | `GET /timesheet/time-log`                         | `ITimeLog[]`        |
-| `projects.list()`                     | `GET /organization-projects/employee/:employeeId` | `IProject[]`        |
-| `tasks.list({ projectId? })`          | `GET /tasks/employee/:employeeId`                 | `ITeamTask[]`       |
-| `members.list()`                      | `GET /employee/working`                           | `IMember[]`         |
-| `totals.today()`, `totals.week()`     | `GET /timesheet/statistics/counts`                | `EverTeamsTotal`    |
+| Method                                | Route                                             | Answer                     |
+| ------------------------------------- | ------------------------------------------------- | -------------------------- |
+| `timer.status()`                      | `GET /timesheet/timer/status`                     | `EverTeamsTimerStatus`     |
+| `timer.start(options?)`               | `POST /timesheet/timer/start`                     | `EverTeamsTimeLog`         |
+| `timer.stop()`                        | `POST /timesheet/timer/stop`                      | `EverTeamsTimeLog \| null` |
+| `timer.watch(listener, options?)`     | `GET /timesheet/timer/status`, at each read       | `() => void`               |
+| `timeEntries.list({ from, to, ... })` | `GET /timesheet/time-log`                         | `EverTeamsTimeEntry[]`     |
+| `projects.list()`                     | `GET /organization-projects/employee/:employeeId` | `EverTeamsProject[]`       |
+| `tasks.list({ projectId? })`          | `GET /tasks/employee/:employeeId`                 | `EverTeamsTask[]`          |
+| `members.list()`                      | `GET /employee/working`                           | `EverTeamsMember[]`        |
+| `totals.today()`, `totals.week()`     | `GET /timesheet/statistics/counts`                | `EverTeamsTotal`           |
 
 ### timer.status()
 
@@ -137,6 +140,7 @@ const log = await teams.timer.start({ projectId, taskId, description: 'Review th
 ```
 
 The time is recorded with the source `EMBED`; an API that predates that source gets `TEAMS` instead, as the kit does.
+In the answer, `projectId`, `taskId` and `organizationTeamId` are `null` when the timer started without them.
 
 ### timer.stop()
 
@@ -145,6 +149,62 @@ with status 406).
 
 ```js
 const log = await teams.timer.stop();
+```
+
+### timer.watch(listener, options?)
+
+Tells `listener` the timer as a first read shows it, then each start or stop a later read shows, wherever it was made
+(the web app, the desktop app, a script). It answers the function that stops it.
+
+```js
+const stopWatching = teams.timer.watch(
+	(change) => {
+		if (change.running) {
+			console.log(`Started at ${change.startedAt} on project ${change.projectId}`);
+			return;
+		}
+		console.log('Stopped');
+	},
+	{ onError: (error) => console.error(error.message, error.nextStep) }
+);
+
+// Later, when the page or the script no longer needs it:
+stopWatching();
+```
+
+The listener receives a `TimerChange`: `running`, `startedAt` (an ISO date, `null` while stopped), `projectId`,
+`taskId`, and `initial`, `true` for the first read. After the first read it runs once per start, stop or switch to
+another running entry (another start, project or task), never twice for one change.
+
+| Option    | Default | What it does                                                                                                                                      |
+| --------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `every`   | `60000` | Milliseconds between two reads, 15 000 at the least: a shorter one reads every 15 seconds.                                                        |
+| `onError` | none    | Called with the error of a read that failed (an `EverTeamsError`, or what `getToken` threw), and with what the listener threw. The watch goes on. |
+
+An answer with no status in it is a failed read too (`UNEXPECTED_ANSWER`). Without `onError`, a failed read is dropped
+and the watch reads again at its next turn; an error the listener throws is thrown again on a fresh task, as an
+uncaught error (in Node, `process.on('uncaughtException')` sees it). Neither stops the watch, and neither becomes an
+unhandled rejection.
+
+It reads `timer.status()` at once, then every `every` milliseconds, one read at a time. In a page it reads only while
+the page is visible, and once more when the page becomes visible again or the network comes back (after the read
+pending then, if there is one); in Node it reads at every turn. That is when it reads, not a deadline for the
+listener: a change made elsewhere is told when a read that succeeds shows it, and a read can fail or come late. A start
+and a stop that both fall between two reads leave the timer as the last read saw it, so neither is told. A server that
+needs each change at once receives the API's webhooks instead (see
+[Receive the API's webhooks](#receive-the-apis-webhooks)).
+
+A host that reads the status itself can use the same rule: `timerChangeOf(status, previous)` answers the change a read
+shows after the last one, or `null` when the timer is as it was.
+
+```js
+import { timerChangeOf } from '@ever-teams/api';
+
+let last = null;
+const change = timerChangeOf(await teams.timer.status(), last);
+if (change) {
+	last = change;
+}
 ```
 
 ### timeEntries.list({ from, to, employeeIds? })
@@ -235,11 +295,13 @@ try {
 | `EverTeamsNetworkError`    | No answer: wrong address, network, CORS   | `cause`: the error `fetch` threw (from the server helpers: a copy of its name, message, code and causes).                 |
 
 The client also throws an `EverTeamsError` with status 0 and one of these codes before or without a request:
-`CLIENT_OPTIONS` (no `apiUrl`, or neither `token` nor `getToken`), `NO_TOKEN`, `NO_ORGANIZATION` and `NO_EMPLOYEE`
+`CLIENT_OPTIONS` (no `apiUrl`, or neither `token` nor `getToken`; a `timer.watch` listener that is not a function, or
+an `every` that is not a number), `NO_TOKEN`, `NO_ORGANIZATION` and `NO_EMPLOYEE`
 (the token's user is not a member of an organization, or `organizationId` names another organization than its
 member's), `INVALID_DATE` (also a date-time on a day that does not exist, such as 2026-02-29T00:00:00Z), `NO_FETCH`,
-`UNEXPECTED_ANSWER` (`GET /user/me` answered no user; the next call reads it again); and `NOT_JSON` with the answer's
-status when `apiUrl` answers something else than JSON, such as the web app's pages.
+`UNEXPECTED_ANSWER` (`GET /user/me` answered no user, and the next call reads it again; or a read of `timer.watch`
+answered no status, which goes to its `onError`); and `NOT_JSON` with the answer's status when `apiUrl` answers
+something else than JSON, such as the web app's pages.
 
 An error your `getToken` throws comes back as it is. A browser reads `Retry-After` only when the API exposes it to
 the page (CORS): there, `retryAfter` may stay `undefined`. When a page loads both the ESM and the CommonJS build, `instanceof` works within one build;
@@ -559,6 +621,83 @@ report. Its refusals are those of the exchange (401, 429, 404, 503), and:
 | 403    | `EverTeamsForbiddenError` | `EMBED_CLIENT_GONE`     | The credential's client was deleted: restore the client, or use the credential of another one.        |
 | 500    | `EverTeamsServerError`    | none                    | The API accepted the credential but could not read the report: try again, and tell its administrator. |
 
+## Receive the API's webhooks
+
+The API posts a signed webhook to your server when a time entry starts, stops, is added, changed or deleted, so your
+server learns at once that a timer started elsewhere, and can pass it on to your own pages.
+
+An administrator subscribes your endpoint once, with a token that has the webhooks permission (`WEBHOOKS_CREATE`):
+
+```http
+POST {apiUrl}/webhooks/subscriptions
+Content-Type: application/json
+
+{ "name": "Portal", "url": "https://app.example.com/ever-teams/webhook", "events": ["time_log.*"] }
+```
+
+The answer holds the subscription and its signing `secret`, shown only then (and again when the secret is rotated,
+`POST {apiUrl}/webhooks/subscriptions/:id/rotate-secret`): keep it in an environment variable of your server.
+
+`verifyWebhook` checks a delivery and answers its event. It needs the raw body as received, before any JSON parsing,
+because the signature covers those exact bytes: in Express, `express.raw({ type: 'application/json' })` on the route.
+
+```js
+import express from 'express';
+import { isTimeEntryEvent, verifyWebhook } from '@ever-teams/api/server';
+
+const app = express();
+
+app.post('/ever-teams/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+	let event;
+	try {
+		event = await verifyWebhook({
+			body: req.body,
+			signature: req.get('x-signature'),
+			secret: process.env.EVER_TEAMS_WEBHOOK_SECRET
+		});
+	} catch (error) {
+		console.error(error.code, error.message);
+		return res.sendStatus(401);
+	}
+	if (isTimeEntryEvent(event)) {
+		const { employeeId, projectId, startedAt } = event.data;
+		if (event.name === 'time_log.started') {
+			await tellPortalPages(employeeId, { running: true, projectId, startedAt });
+		}
+		if (event.name === 'time_log.stopped') {
+			await tellPortalPages(employeeId, { running: false });
+		}
+	}
+	res.sendStatus(204);
+});
+```
+
+`tellPortalPages` stands for your own way to reach the pages, such as server-sent events or a WebSocket. In a route
+handler that takes a `Request`, pass `body: await request.text()` and `signature: request.headers.get('x-signature')`.
+
+- The signature is `X-Signature: t=<unix seconds>,v1=<hex HMAC-SHA256>`, over `<t>.<raw body>` with the secret.
+  During a rotation of the secret the header carries a second `v1`, and either secret verifies; a header with more than
+  two is refused before any check. The HMAC is computed once with the Web Crypto API, so `verifyWebhook` also runs in
+  a worker or an edge route, and the package compares it in constant time itself, on every runtime and Node release.
+- A delivery signed more than `tolerance` seconds before or after your server's clock is refused (300 by default, as
+  the API's own check): a captured request cannot be sent again later.
+- The API sends each event at least once and tries again after a failed delivery: answer 2xx quickly, and handle each
+  `event.id` once (the `X-Event-Id` header holds it too).
+- `isTimeEntryEvent(event)` is true for the five time entry events, and types `event.data`: `time_log.started`,
+  `time_log.stopped`, `time_log.created` (time added already finished), `time_log.updated` and `time_log.deleted`.
+  The data holds the entry's ids and times: `timeLogId`, `employeeId`, `projectId`, `taskId`,
+  `organizationContactId`, `organizationTeamId`, `startedAt`, `stoppedAt`, `isRunning`, `isBillable`, `source` and
+  `logType`, never its description. Any other event comes with its `name` and its `data` as the API sent them.
+
+A refusal is an `EverTeamsError` with status 0, a `code` and a `nextStep`; no error holds the secret:
+
+| `code`              | When                                                                                                                |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `WEBHOOK_SIGNATURE` | No `X-Signature`, a header that is not `t=...,v1=...` or has more than two `v1`, or a signature that does not match |
+| `WEBHOOK_EXPIRED`   | A genuine signature made more than `tolerance` seconds from now: check the server's clock                           |
+| `WEBHOOK_BODY`      | A body already parsed as JSON (pass the raw body), or a signed body that is not an event                            |
+| `CLIENT_OPTIONS`    | No `secret`, or a `tolerance` or `now` that is not a number                                                         |
+
 ## The request functions
 
 Every function this package exported before `createClient` is still exported and works as before. They hold the
@@ -567,6 +706,9 @@ the user, the token and the kit's state, return an `IServerError` value on a fai
 every request to the address set with `apiConfigManager.setConfig({ apiUrl })` (default `https://api.ever.team/api`),
 unless they get one of their own: each takes `{ apiUrl }` as an optional last argument, for a page that talks to two
 APIs. `TeamsProvider` of `@ever-teams/atoms` passes its `config.apiUrl` that way, and sets the page's address from it.
+`apiConfigManager.subscribe(listener)` calls `listener` after each `setConfig()` that changes the configuration, and
+returns the function that stops it: a provider without an `apiUrl` of its own hears that way that the page's address
+changed.
 
 ```js
 import { apiConfigManager, getTimerStatus } from '@ever-teams/api';
@@ -582,6 +724,53 @@ const otherStatus = await getTimerStatus(otherUser, otherToken, otherOrganizatio
 
 A new script or server is simpler with `createClient`. Nothing is deprecated: any change to these functions will be
 announced in the changelog first, and made later in a release of its own.
+
+## The answers, checked against the API
+
+The types the client's methods answer are checked against answers recorded from a running API, kept in
+`test/contract/` (one file per method, and one for `GET /user/me`). The API's Swagger description gives no answer
+shape for the timer and time entry routes, so the recorded answers are the reference. Three tests read them:
+
+- `test/contract-types.test.mjs` assigns each recorded answer, every value typed as the literal it is, to the type
+  the client declares for it, and compiles that with `tsc --noEmit`. A value the type does not allow (`null` where it
+  declares a string, a text where it declares a number) or a required field the answer lacks fails the test. A field
+  the API answers and the type does not name passes.
+- `test/contract-answers.test.mjs` serves each method its recorded answer and checks that the method sends the
+  recorded route and returns that answer.
+- `test/contract-privacy.test.mjs` checks that the recordings hold no personal data: every text is a placeholder or a
+  value the API picks from a fixed list (a log type, a source, a currency), with no email address, token or id.
+
+When the API changes an answer, recording it again shows the change in the fixtures, and the type test names the
+field that no longer fits.
+
+### Record the answers again
+
+The script is in the repository, not in the published package. Run it from `packages/api`, against a local API,
+with the account of a member whose role may list members (a manager) and whose timer is stopped:
+
+```sh
+yarn --cwd ../toolkit-types build && yarn build
+EVER_TEAMS_API_URL=http://localhost:3000/api EVER_TEAMS_EMAIL=manager@example.com EVER_TEAMS_PASSWORD=... \
+  node scripts/record-contract.mjs
+# The path the script printed, quoted:
+EVER_TEAMS_CONTRACT_FORBIDDEN='/tmp/ever-teams-api-contract-AbC123/forbidden.json' yarn test
+```
+
+`EVER_TEAMS_TOKEN`, a personal API token, can replace the email and the password. The script refuses an address
+other than `localhost` unless `EVER_TEAMS_CONTRACT_REMOTE=1` is set, since it changes the account's data: it starts
+the account's timer twice (once bare, once on one of its tasks) and stops it, reads the time entries of the days it
+ran and the totals, then deletes the two time entries it created. It refuses an account whose timer runs, so the
+timer stays as it was, and follows no redirect, so the password and the token stay on the local API. When a step
+fails, it still stops its timer and deletes its entries before it reports the failure, and it prints the id of each
+entry it could not delete, so you can delete it in the app. A timer the account's member started in the meantime is
+left running. After a start whose answer was lost, a new entry, running or stopped, counts as the recording's own
+only when it has the client's source (`EMBED`); a running one from another source is left running and its id printed.
+
+Before writing, it replaces ids, names, emails, addresses, dates, amounts of money and the labels each organization
+names itself (a task's status, priority, size and type) with placeholders of the same form (`<employee-1>`,
+`<status-1>`, `person-1@example.com`, dates from `2000-01-01`). It lists the real values it replaced in a file of a
+new directory of the system's temporary folder that only your account may open, and prints its path: with
+`EVER_TEAMS_CONTRACT_FORBIDDEN` set to it, the privacy test also checks that none of them reached a fixture.
 
 ## License
 

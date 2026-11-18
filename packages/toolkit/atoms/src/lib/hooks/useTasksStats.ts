@@ -105,6 +105,9 @@ const useTasksStats = (): IHookResponse<ITasksStats> => {
 	const [tasksStats, setTasksStats] = useState<IHookResponse<ITasksStats>>({ data: null, loading: false });
 
 	useEffect(() => {
+		// A read the effect has moved past (other filters or another address, or the widget gone) shows nothing, not
+		// even its error: the toasts are the page's
+		let current = true;
 		if (user && organizationId) {
 			(async () => {
 				setTasksStats((prev) => ({ ...prev, loading: true }));
@@ -118,6 +121,9 @@ const useTasksStats = (): IHookResponse<ITasksStats> => {
 					date,
 					api
 				);
+				if (!current) {
+					return;
+				}
 
 				if ('message' in userStats || 'error' in userStats) {
 					const errorMessage =
@@ -135,6 +141,11 @@ const useTasksStats = (): IHookResponse<ITasksStats> => {
 				setTasksStats({ data: userStats, loading: false });
 			})();
 		}
+		return () => {
+			current = false;
+			// The next read, if any, sets it again
+			setTasksStats((prev) => (prev.loading ? { ...prev, loading: false } : prev));
+		};
 	}, [user, selectedEmployee, selectedTeam, date, organizationId, api]);
 
 	return tasksStats;
