@@ -23,7 +23,7 @@ export const CodeBlock = ({ language, code, className }: CodeBlockProps) => (
 	<div className={cn('rounded-lg overflow-hidden', className)}>
 		<Highlight theme={themes.vsDark} code={code} language={language}>
 			{({ className, style, tokens, getLineProps, getTokenProps }) => (
-				<pre className={'p-4 rounded-lg' + ' ' + className} style={style}>
+				<pre className={'p-4 rounded-lg overflow-x-auto' + ' ' + className} style={style}>
 					{tokens.map((line, i) => (
 						<div key={i} {...getLineProps({ line })}>
 							{line.map((token, key) => (

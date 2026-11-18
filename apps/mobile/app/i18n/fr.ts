@@ -1,5 +1,6 @@
 const fr = {
 	common: {
+		openMenu: 'Ouvrir le menu',
 		ok: 'OK!',
 		cancel: 'Annuler',
 		loading: 'Patientez',
@@ -10,11 +11,25 @@ const fr = {
 		confirm: 'Confirm',
 		discard: 'Discard'
 	},
+	shell: {
+		tabs: { home: 'Accueil', tasks: 'Tâches', week: 'Semaine', team: 'Équipe' },
+		states: {
+			loading: 'Chargement',
+			offline: 'Vous êtes hors ligne. Cet écran montre ce qui a été enregistré sur le téléphone.',
+			errorTitle: 'Cet écran n’a pas pu se charger',
+			retry: 'Réessayer',
+			comingTitle: 'Arrive dans les prochaines étapes',
+			comingMessage: 'Cet écran de la nouvelle application est encore en construction.'
+		},
+		signIn: { title: 'Connexion', message: 'La connexion passera dans la nouvelle application plus tard. Pour l’instant, connectez-vous avec l’application actuelle.' }
+	},
 	session: {
 		endedTitle: 'Votre session a expiré',
 		endedMessage: 'Reconnectez-vous pour continuer.'
 	},
 	timer: {
+		startLabel: 'Démarrer le chronomètre',
+		stopLabel: 'Arrêter le chronomètre',
 		stopFailedTitle: "Le chronomètre n'a pas pu s'arrêter",
 		stopFailedMessage: 'Il tourne toujours. Réessayez dans un instant.',
 		startMove: {

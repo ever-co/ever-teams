@@ -1,0 +1,23 @@
+# A person signs out from the menu, and the app still shows the sign-in screen when it starts again.
+appId: ${APP_ID}
+env:
+  EMAIL: kofi.arden@example.com
+---
+- runFlow: common/sign-in.yaml
+- tapOn:
+    id: "open-menu"
+- tapOn:
+    id: "menu-log-out"
+- extendedWaitUntil:
+    visible:
+      id: "sign-in-email"
+    timeout: 20000
+- stopApp
+- launchApp
+- extendedWaitUntil:
+    visible:
+      id: "sign-in-email"
+    timeout: 30000
+- assertNotVisible:
+    id: "tab-team"
+- takeScreenshot: signed-out

@@ -1,0 +1,12 @@
+# Waits until the API has answered the start. The stop button shows as soon as it is tapped; the run's menu
+# (timer-actions-trigger) shows only once the API's status says the timer runs (components/timer-card.tsx).
+appId: ${APP_ID}
+---
+- extendedWaitUntil:
+    visible:
+      id: "timer-stop"
+    timeout: 20000
+- extendedWaitUntil:
+    visible:
+      id: "timer-actions-trigger"
+    timeout: 20000

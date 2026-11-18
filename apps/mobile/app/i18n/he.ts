@@ -1,5 +1,6 @@
 const he = {
 	common: {
+		openMenu: 'פתיחת התפריט',
 		ok: 'OK!',
 		cancel: 'Cancel',
 		back: 'Back',
@@ -10,11 +11,25 @@ const he = {
 		discard: 'Discard',
 		logOut: 'Log Out' // @demo remove-current-line
 	},
+	shell: {
+		tabs: { home: 'בית', tasks: 'משימות', week: 'שבוע', team: 'צוות' },
+		states: {
+			loading: 'טוען',
+			offline: 'אין חיבור. המסך מציג את מה שנשמר בטלפון.',
+			errorTitle: 'לא ניתן היה לטעון את המסך',
+			retry: 'נסה שוב',
+			comingTitle: 'יגיע בשלבים הבאים',
+			comingMessage: 'המסך הזה של האפליקציה החדשה עדיין בבנייה.'
+		},
+		signIn: { title: 'כניסה', message: 'הכניסה תעבור לאפליקציה החדשה בשלב מאוחר יותר. בינתיים יש להיכנס עם האפליקציה הנוכחית.' }
+	},
 	session: {
 		endedTitle: 'פג תוקף ההתחברות',
 		endedMessage: 'התחברו שוב כדי להמשיך.'
 	},
 	timer: {
+		startLabel: 'הפעלת הטיימר',
+		stopLabel: 'עצירת הטיימר',
 		stopFailedTitle: 'לא ניתן היה לעצור את הטיימר',
 		stopFailedMessage: 'הוא עדיין רץ. נסו שוב בעוד רגע.',
 		startMove: {

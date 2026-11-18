@@ -1,0 +1,34 @@
+# Opens the Work tab with the timer stopped: a run left by an earlier flow is stopped first.
+appId: ${APP_ID}
+---
+- tapOn:
+    id: "tab-work"
+- extendedWaitUntil:
+    visible:
+      id: "timer-(start|stop)"
+    timeout: 30000
+# A cleared app shows the timer stopped until its first status read. A run the API still has shows its menu once that
+# read is in (the status is read every 5 s), so the read gets 10 s before the flow chooses whether to stop.
+- extendedWaitUntil:
+    visible:
+      id: "timer-actions-trigger"
+    timeout: 10000
+    optional: true
+- runFlow:
+    when:
+      visible:
+        id: "timer-actions-trigger"
+    commands:
+      # the buttons follow the status read a moment later
+      - extendedWaitUntil:
+          visible:
+            id: "timer-stop"
+          timeout: 10000
+- runFlow:
+    when:
+      visible:
+        id: "timer-stop"
+    commands:
+      - tapOn:
+          id: "timer-stop"
+- runFlow: stop-confirmed.yaml

@@ -7,6 +7,7 @@ import TimerIcon from '../teams-basic-timer/timer-icon';
 import Clock from '../common/clock';
 import TimerButton from '../teams-basic-timer/timer-button';
 import TimerTime from './timer-time';
+import { TimerCaption } from '../common/timer-caption';
 import { TimeFormat } from '@lib/constants';
 
 interface teamsBasicTimer extends BasicTimerProps {
@@ -26,6 +27,7 @@ const teamsBasicTimer = ({
 	customButtonIcon,
 	isRunning,
 	readonly,
+	caption,
 	labeled,
 	format = TimeFormat.DEFAULT,
 	separator = 'default',
@@ -44,6 +46,7 @@ const teamsBasicTimer = ({
 					variant={color}
 				/>
 			) : null}
+			<TimerCaption>{caption}</TimerCaption>
 			<TimerTime color={color} labeled={labeled} time={time} format={format} separator={separator} />
 			{!readonly && (
 				<TimerButton

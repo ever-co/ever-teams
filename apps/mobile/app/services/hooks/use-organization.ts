@@ -3,10 +3,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { showMessage } from 'react-native-flash-message';
 import { useStores } from '../../models';
 import useFetchUserOrganization from '../client/queries/organization-team/organization';
+import { useActiveTeamDetails } from '../client/queries/organization-team/active-team-details';
 import {
 	createOrganizationTeamRequest,
 	deleteOrganizationTeamRequest,
-	getOrganizationTeamRequest,
 	removeUserFromAllTeam,
 	updateOrganizationTeamRequest
 } from '../client/requests/organization-team';
@@ -15,7 +15,7 @@ import {
 	updateOrganizationTeamEmployeeActiveTaskRequest,
 	updateOrganizationTeamEmployeeRequest
 } from '../client/requests/organization-team-employee';
-import { IOrganizationTeamList, IOrganizationTeamWithMStatus, OT_Member } from '../interfaces/IOrganizationTeam';
+import { IOrganizationTeamList, OT_Member } from '../interfaces/IOrganizationTeam';
 import useAuthenticateUser from './features/use-authentificate-user';
 
 function useCreateOrganizationTeam() {
@@ -27,7 +27,7 @@ function useCreateOrganizationTeam() {
 	const [createTeamLoading, setCreateTeamLoading] = useState(false);
 	const teamsRef = useRef(teams);
 
-	teamsRef.current  = teams;
+	teamsRef.current = teams;
 
 	const { user } = useAuthenticateUser();
 
@@ -105,6 +105,23 @@ function useCreateOrganizationTeam() {
 		createTeamLoading
 	};
 }
+
+/**
+ * Who is signed in, read from the store when called: a token renewal keeps it, a sign-out or another person's sign-in
+ * changes it. Null while nobody is signed in.
+ */
+function signedInPerson(session: {
+	isAuthenticated: boolean;
+	tenantId: string;
+	employeeId: string;
+	user: { id?: string } | null;
+}): string | null {
+	if (!session.isAuthenticated) {
+		return null;
+	}
+	return `${session.tenantId}/${session.user?.id ?? ''}/${session.employeeId}`;
+}
+
 export function useOrganizationTeam() {
 	const {
 		teamStore: {
@@ -115,8 +132,9 @@ export function useOrganizationTeam() {
 			activeTeam,
 			setActiveTeamId
 		},
-		authenticationStore: { tenantId, authToken, organizationId }
+		authenticationStore
 	} = useStores();
+	const { tenantId, authToken, organizationId } = authenticationStore;
 	const { user } = useAuthenticateUser();
 	const { createOrganizationTeam, createTeamLoading } = useCreateOrganizationTeam();
 
@@ -133,7 +151,13 @@ export function useOrganizationTeam() {
 
 	const [isTeamManager, setIsTeamManager] = useState(false);
 	const [teamsFetching, setTeamsFetching] = useState(false);
-	const [currentTeam, setCurrentTeam] = useState<IOrganizationTeamWithMStatus | null>(null);
+	const currentTeam = useActiveTeamDetails({
+		tenantId,
+		organizationId,
+		activeTeamId,
+		authToken,
+		teams: organizationTeams
+	});
 
 	const members = activeTeam?.members || [];
 
@@ -144,23 +168,6 @@ export function useOrganizationTeam() {
 	const $otherMembers = members.filter((m) => {
 		return m.employee.userId !== user?.id;
 	});
-
-	useEffect(() => {
-		const getOrganizationTeam = async () => {
-			try {
-				const { data } = await getOrganizationTeamRequest(
-					{ organizationId, tenantId, teamId: activeTeamId },
-					authToken
-				);
-
-				setCurrentTeam(data);
-			} catch (error) {
-				console.log(error);
-			}
-		};
-
-		getOrganizationTeam();
-	}, [organizationTeams]);
 
 	const activeTeamManagers = members.filter((m) => m.role?.name === 'MANAGER');
 
@@ -322,6 +329,7 @@ export function useOrganizationTeam() {
 
 	const updateOrganizationTeamEmployeeActiveTask = useCallback(
 		async (user: OT_Member, activeTaskId: string, activeTeamId: string) => {
+			const startedFor = signedInPerson(authenticationStore);
 			// The generic member update only lets managers through, this route lets members set their own task.
 			const { data, response } = await updateOrganizationTeamEmployeeActiveTaskRequest({
 				id: user.id,
@@ -336,14 +344,17 @@ export function useOrganizationTeam() {
 			});
 
 			// currentUser.activeTaskId comes from the teams query: refresh it before answering, so the caller keeps its
-			// update guard up until the fresh member data is there (else the task hook's sync restores the old task)
-			if (response.ok) {
+			// update guard up until the fresh member data is there (else the task hook's sync restores the old task).
+			// Not after a sign-out while the update was on its way: the query cache was cleared then, and a refetch with
+			// the ended session's token would fill ['teams'] again with that person's teams for whoever signs in next.
+			const isSameSession = !!startedFor && signedInPerson(authenticationStore) === startedFor;
+			if (response.ok && isSameSession) {
 				await refetch().catch((e) => console.log(e));
 			}
 
 			return { data, response };
 		},
-		[refetch]
+		[refetch, authenticationStore]
 	);
 
 	/**
