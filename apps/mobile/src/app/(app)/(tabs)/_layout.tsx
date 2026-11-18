@@ -22,30 +22,10 @@ export const unstable_settings = { initialRouteName: 'index' };
 
 /**
  * The tabs come back on the team after a screen of the menu, as with the old tab navigator, and Back from the team
- * still goes to the first tab (tabsInOrder). Expo Router keeps the tabs in their declared order and leaves initialRouteName
- * out of the Tabs props, but hands every prop on to the navigator: without it, the tabs came back on Work.
+ * still goes to the first tab. Expo Router keeps the tabs in their declared order and leaves initialRouteName out of
+ * the Tabs props, but hands every prop on to the navigator: without it, the tabs came back on Work.
  */
 const TEAM_AS_INITIAL_TAB = { initialRouteName: 'index' };
-
-/** The Work tab shows only where the team tracks time; elsewhere it has no address in the tab bar. */
-function workTabHref(isTrackingEnabled: boolean): null | undefined {
-	if (isTrackingEnabled) {
-		return undefined;
-	}
-	return null;
-}
-
-/**
- * The tabs in the order they show. Back from the team goes to the first one: Work where the team tracks time, else
- * Tasks, as the old tab navigator did, which left Work out. Expo Router keeps every route of the folder, a hidden Work
- * too, and puts the tabs in the order they are declared: without tracking, Work comes last, where Back never goes.
- */
-function tabsInOrder<Tab>(isTrackingEnabled: boolean, work: Tab, tasks: Tab, team: Tab): Tab[] {
-	if (isTrackingEnabled) {
-		return [work, tasks, team];
-	}
-	return [tasks, team, work];
-}
 
 /**
  * The tab bar's options are typed with @react-navigation/bottom-tabs, which Expo CLI resolves to Expo Router's own copy
@@ -79,33 +59,27 @@ export default observer(function SignedInTabs() {
 	// the labels follow a new language
 	useAppLocale();
 
-	const work = (
-		<Tabs.Screen
-			key="timer"
-			name="timer"
-			options={{ ...forRouter(workTabOptions(dark)), href: workTabHref(isTrackingEnabled) }}
-		/>
-	);
-	const tasks = (
-		<Tabs.Screen
-			key="profile/[memberId]"
-			name="profile/[memberId]"
-			options={{ ...forRouter(tasksTabOptions(dark)), href: ownTasksHref(ownId) }}
-			listeners={{
-				tabPress: (e: TabPressEvent) => {
-					e.preventDefault();
-					if (ownId) {
-						navigateTo(navigation, 'Profile', { userId: ownId, activeTab: 'worked' });
-					}
-				}
-			}}
-		/>
-	);
-	const team = <Tabs.Screen key="index" name="index" options={forRouter(teamTabOptions(dark))} />;
-
 	return (
 		<Tabs {...TEAM_AS_INITIAL_TAB} screenOptions={forRouter(screenOptions)}>
-			{tabsInOrder(isTrackingEnabled, work, tasks, team)}
+			{/* Work is a tab only where the team tracks time. Elsewhere it is no route of the tabs, as the old tab
+			    navigator left it out: Back from the team goes to Tasks, and a switch of tracking drops it from the
+			    tabs' history too */}
+			<Tabs.Protected guard={isTrackingEnabled}>
+				<Tabs.Screen name="timer" options={forRouter(workTabOptions(dark))} />
+			</Tabs.Protected>
+			<Tabs.Screen
+				name="profile/[memberId]"
+				options={{ ...forRouter(tasksTabOptions(dark)), href: ownTasksHref(ownId) }}
+				listeners={{
+					tabPress: (e: TabPressEvent) => {
+						e.preventDefault();
+						if (ownId) {
+							navigateTo(navigation, 'Profile', { userId: ownId, activeTab: 'worked' });
+						}
+					}
+				}}
+			/>
+			<Tabs.Screen name="index" options={forRouter(teamTabOptions(dark))} />
 		</Tabs>
 	);
 });
