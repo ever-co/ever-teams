@@ -1,4 +1,4 @@
-import { ReactNode, useId } from 'react';
+import { type ReactNode, useId } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useTeamsContext } from '@lib/context/teams-context';
 import { useTimer } from '@hooks/useTimer';
