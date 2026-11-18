@@ -2,6 +2,7 @@ import { Select } from '@ever-teams/toolkit-ui';
 import { useTeamsContext } from '@lib/context/teams-context';
 import {
 	defaultTheme,
+	gradientTheme,
 	theme1,
 	theme10,
 	theme11,
@@ -28,6 +29,7 @@ const TeamsThemeToggle = ({ size, className }: { size?: 'default' | 'sm' | 'lg' 
 				placeholder="Select theme"
 				values={[
 					{ label: 'Default', value: JSON.stringify(defaultTheme) },
+					{ label: 'Purple gradient', value: JSON.stringify(gradientTheme) },
 					{ label: 'Black and white', value: JSON.stringify(theme1) },
 					{ label: 'Red and Green', value: JSON.stringify(theme2) },
 					{ label: 'Yellow and Red', value: JSON.stringify(theme3) },

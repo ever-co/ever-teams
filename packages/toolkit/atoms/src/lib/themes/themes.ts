@@ -13,6 +13,16 @@ export const defaultTheme: ICustomTheme = {
 	}
 };
 
+// The primary fading into purple.
+export const gradientTheme: ICustomTheme = {
+	colors: {
+		textColor: '#000',
+		backgroundColor: 'white',
+		mainColor: 'linear-gradient(135deg, #3826A6 0%, #A11DB1 100%)',
+		borderColor: '#A11DB1'
+	}
+};
+
 export const theme1: ICustomTheme = {
 	colors: {
 		textColor: 'black',
