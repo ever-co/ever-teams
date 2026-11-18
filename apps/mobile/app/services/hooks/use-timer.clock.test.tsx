@@ -5,10 +5,11 @@
  * phone never showed on the phone: Marie, who started at 9:25 and moved her start to 9:00, kept seeing 9:25 here.
  * The clock now follows the run's `startedAt`, which every status read carries.
  */
+import React, { ReactNode } from 'react';
 import { act, renderHook } from '@testing-library/react-native';
 import { TimerStore, TimerStoreModel } from '../../models/timer/timer-store';
 import { TimerSource } from '../interfaces/ITimer';
-import { useTimer } from './use-timer';
+import { TimeCounterHost, useTimer } from './use-timer';
 
 let mockStores: Record<string, unknown> = {};
 
@@ -51,6 +52,16 @@ async function settle() {
 	});
 }
 
+/** The signed-in part of the app counts the running time once, beside the screens that read it. */
+function SignedInPart({ children }: { children: ReactNode }) {
+	return (
+		<>
+			<TimeCounterHost />
+			{children}
+		</>
+	);
+}
+
 async function openTimerScreen(startedAt: string) {
 	timerStore = TimerStoreModel.create({
 		timerStatus: runningStatus(startedAt),
@@ -67,7 +78,7 @@ async function openTimerScreen(startedAt: string) {
 		TaskStore: { activeTask: { id: 'task-1', status: 'in-progress' }, statActiveTask: { total: 0, today: 0 } },
 		teamStore: { activeTeamId: 'team-1', activeTeam: { id: 'team-1' } }
 	};
-	const view = await renderHook(() => useTimer());
+	const view = await renderHook(() => useTimer(), { wrapper: SignedInPart });
 	await settle();
 	return view;
 }

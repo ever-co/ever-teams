@@ -1,15 +1,20 @@
 'use client';
 import { cn } from '@ever-teams/toolkit-ui';
 import { useTheme } from 'next-themes';
+import { useKitOptions } from '@components/teams-provider/kit-root';
 import { KitColorScheme, setKitPreferences } from '@lib/stores/kit-preferences';
 
-// Switches the widgets inside the kit root, and the host's next-themes when it has one (or the kit's own, without
-// scopedStyles): without any next-themes provider, its setTheme does nothing.
+// Switches the widgets' color scheme. With scopedStyles it changes the kit root alone: the kit has no next-themes of
+// its own there, so useTheme() would reach the host page's provider, and its setTheme would switch the whole page.
+// Without scopedStyles the kit's own next-themes provider draws the scheme, on <html>, as before.
 function useSchemeSwitch() {
 	const { setTheme } = useTheme();
+	const { scoped } = useKitOptions();
 	return (scheme: KitColorScheme) => {
-		setKitPreferences({ colorScheme: scheme });
-		setTheme(scheme);
+		setKitPreferences({ colorScheme: scheme, chosenColorScheme: scheme });
+		if (!scoped) {
+			setTheme(scheme);
+		}
 	};
 }
 

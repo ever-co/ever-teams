@@ -1843,6 +1843,7 @@
 			"SHARE": "Compartilhar",
 			"SHARE_TITLE": "Compartilhar um link somente leitura",
 			"SHARE_NEEDS_SAVE": "Um link compartilha um relatório salvo. Dê um nome a esta visualização para salvá-la e depois ative o link.",
+			"LABELS_NOT_KEPT": "Os relatórios salvos ainda não guardam etiquetas. Para salvar esta visualização, limpe o filtro Etiquetas e agrupe por algo diferente de Etiqueta.",
 			"SHARE_HINT": "Quem tiver o link vê o nome do relatório, o período, os números, o gráfico e a tabela, sem conta. Nada pode ser alterado e ele mostra apenas o que você pode ver.",
 			"LINK_ADDRESS": "Endereço do link",
 			"COPY": "Copiar",
