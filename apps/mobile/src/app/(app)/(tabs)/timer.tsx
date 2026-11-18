@@ -6,7 +6,6 @@ import { ShellPage } from '../../../components/shell-page';
 import { followAppState, followConnection, QUERY_CACHE_MAX_AGE_MS, queryClient } from '../../../data/query-client';
 import { queryPersister } from '../../../data/query-persister';
 import { HomeTimer } from '../../../home/home-timer';
-import { RunHeartbeat } from '../../../home/run-heartbeat';
 import { routeOf } from '../../../navigation/current-screen';
 import { NEXT_SHELL_BUILD } from '../../../navigation/next-shell';
 
@@ -25,7 +24,6 @@ function NewHome() {
 	useEffect(followThePhone, []);
 	return (
 		<PersistQueryClientProvider client={queryClient} persistOptions={persistOptions}>
-			<RunHeartbeat />
 			<ShellPage title={translate('shell.tabs.home')}>
 				<HomeTimer />
 			</ShellPage>

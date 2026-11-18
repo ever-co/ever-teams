@@ -7,6 +7,7 @@ import { useAppLocale } from '../../../app/i18n';
 import { useStores } from '../../../app/models';
 import { UnmountOnBlur } from '../../../app/navigators/authenticated-navigator';
 import { TimeCounterHost } from '../../../app/services/hooks/use-timer';
+import { NextShellHeartbeat } from '../../home/next-shell-heartbeat';
 
 export const unstable_settings = { initialRouteName: '(tabs)' };
 
@@ -26,6 +27,7 @@ export default observer(function SignedInLayout() {
 	return (
 		<>
 			<TimeCounterHost />
+			<NextShellHeartbeat />
 			<Drawer
 				drawerContent={(props) => <HamburgerMenu {...props} />}
 				screenLayout={({ children }) => <UnmountOnBlur>{children}</UnmountOnBlur>}
