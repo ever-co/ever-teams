@@ -20,7 +20,7 @@ import { TeamsContext } from '@lib/context/teams-context';
 import i18n from '@lib/i18n/init';
 import { apiConfigManager, IApiTeamsConfig } from '@ever-teams/api';
 import TrackingProvider from '@lib/context/teams-tracking-context';
-import { TimerStatusProvider } from '@lib/context/teams-timer-status-context';
+import { OnTimerChange, TimerStatusProvider } from '@lib/context/teams-timer-status-context';
 import { ChartData } from '@ever-teams/toolkit-types';
 import { useSelectedOrganization } from '@hooks/useSelectedOrganization';
 import { KitOptionsProvider, KitRoot } from './kit-root';
@@ -65,6 +65,10 @@ interface TeamsProviderProps {
 	onSignOut?: () => void;
 	// Shows "Powered by Ever Teams" under the widgets that have it. On by default; false hides it everywhere.
 	branding?: boolean;
+	// Hears the person's timer: the first read of its status (initial: true), then each start, stop or other running
+	// entry a later read shows, once, wherever it was made. The kit reads the status while one of its timer widgets is
+	// on the page: on load, every minute while the page is visible, on focus and when the network comes back.
+	onTimerChange?: OnTimerChange;
 }
 
 type TeamsDataProviderProps = Omit<
@@ -74,7 +78,14 @@ type TeamsDataProviderProps = Omit<
 	scoped: boolean;
 };
 
-const TeamsDataProvider = ({ children, config: apiConfig, theme, lang = 'en', scoped }: TeamsDataProviderProps) => {
+const TeamsDataProvider = ({
+	children,
+	config: apiConfig,
+	theme,
+	lang = 'en',
+	scoped,
+	onTimerChange
+}: TeamsDataProviderProps) => {
 	// Jotai Atoms
 	const [appliedTheme, setAppliedTheme] = useAtom(appliedThemeAtom);
 
@@ -138,7 +149,7 @@ const TeamsDataProvider = ({ children, config: apiConfig, theme, lang = 'en', sc
 				config={{ baseUrl: apiConfig?.apiUrl, defaultBaseUrl: apiConfigManager.getConfig().apiUrl }}
 			>
 				<I18nextProvider i18n={i18n}>
-					<TimerStatusProvider>{themed}</TimerStatusProvider>
+					<TimerStatusProvider onTimerChange={onTimerChange}>{themed}</TimerStatusProvider>
 				</I18nextProvider>
 			</TrackingProvider>
 		</TeamsContext.Provider>

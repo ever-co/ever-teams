@@ -30,7 +30,8 @@ server, ending in `/api`.
 - `afterNextRender(() => import('@ever-teams/embed'))` loads the element in the browser only: a server that renders the
   component (Angular's server rendering) has no `HTMLElement` for the element to extend. The element's code also stays
   out of the app's first bundle.
-- The element dispatches no events, so the component listens to none.
+- The component listens to no event. To hear the person's timer start or stop, bind `(ever-teams-timer-change)` on the
+  element: see Events in the package's README.
 
 The package's types come with it: the import compiles under `strict`, and a template reference such as `#timer` gets
 the element's type. Angular's template checker does not check the values given to attributes, on any element.
