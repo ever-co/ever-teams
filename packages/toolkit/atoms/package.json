@@ -11,7 +11,7 @@
 	"scripts": {
 		"build": "rm -rf dist && rollup -c",
 		"dev": "rollup -c --watch && node post-build.js",
-		"test": "node --test test/*.test.mjs"
+		"test": "yarn --cwd ../../toolkit-types build && yarn --cwd ../../api build && node --test test/*.test.mjs"
 	},
 	"exports": {
 		".": {

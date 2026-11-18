@@ -1,5 +1,5 @@
-// Each TeamsProvider of a page talks to its own API (ever-co/ever-teams#5483): node --test test/*.test.mjs (from
-// packages/toolkit/atoms, after the toolkit-types and api builds).
+// Each TeamsProvider of a page talks to its own API (ever-co/ever-teams#5483): yarn test in packages/toolkit/atoms,
+// which builds toolkit-types and the api package first.
 // bundle-kit.mjs bundles TeamsProvider and the kit's hooks with the built @ever-teams/api, and the UI packages and
 // translations replaced by stand-ins; React renders them in jsdom, and a stand-in fetch records every request.
 import { test, before, after, beforeEach, afterEach } from 'node:test';

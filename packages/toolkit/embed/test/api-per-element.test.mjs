@@ -1,5 +1,5 @@
-// Each <ever-teams-timer> of a page talks to its own api-url (ever-co/ever-teams#5483): node --test test/*.test.mjs
-// (from packages/toolkit/embed, after the toolkit-types and api builds).
+// Each <ever-teams-timer> of a page talks to its own api-url (ever-co/ever-teams#5483): yarn test in
+// packages/toolkit/embed, which builds toolkit-types and the api package first.
 // The atoms package's bundle-kit.mjs bundles the element with TeamsProvider and the kit's hooks from the atoms sources
 // and the built @ever-teams/api; the sign-in dialog and the timer are stand-ins built on the kit's own hooks, and the UI
 // packages those of kit-stand-ins.mjs. React renders the elements in jsdom, and a stand-in fetch records every request.
