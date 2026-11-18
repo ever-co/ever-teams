@@ -29,7 +29,10 @@ describe('the invitation card', () => {
 		await render(<ListItemContent invite={{ ...nadia, fullName: null }} />);
 
 		const email = screen.getByText('nadia.osei@example.com');
-		expect(StyleSheet.flatten(email.props.style).opacity).toBe(1);
+		const style = StyleSheet.flatten(email.props.style);
+		expect(style.opacity).toBe(1);
+		// the light theme's main text color: about 15:1 against the white card
+		expect(style.color).toBe('#282048');
 	});
 
 	it('marks the times and the estimate empty, never a value the invitation does not have', async () => {

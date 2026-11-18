@@ -71,7 +71,7 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ invite, onPr
 					</View>
 				</View>
 				<View style={[styles.wrapTaskTitle, { borderTopColor: colors.divider }]}>
-					<Text style={[styles.otherText, styles.email, { color: colors.tertiary }]}>{invite.email}</Text>
+					<Text style={[styles.otherText, styles.email, { color: colors.primary }]}>{invite.email}</Text>
 				</View>
 				<View style={[styles.times, { borderTopColor: colors.divider }]}>
 					<View
@@ -287,8 +287,8 @@ const styles = StyleSheet.create({
 		left: 15,
 		opacity: 0.2
 	},
-	// For an invitation sent without a name, the address is all that says who it is: it stays readable, as the
-	// web's muted line
+	// For an invitation sent without a name, the address is all that says who it is: it stays readable, in the main
+	// text color (the muted one falls under 4.5:1 against the card in both themes)
 	email: {
 		opacity: 1
 	},
