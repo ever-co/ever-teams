@@ -31,7 +31,7 @@ function localDay(text: string, hours: number, minutes: number, seconds: number,
 
 function instantOf(value: EverTeamsDate): Date {
 	const date = new Date(value);
-	if (isNaN(date.getTime())) {
+	if (Number.isNaN(date.getTime())) {
 		throw invalidDate(value);
 	}
 	return date;

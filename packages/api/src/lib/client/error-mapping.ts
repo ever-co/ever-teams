@@ -94,7 +94,7 @@ function rateLimitStep(retryAfter: number | undefined): string {
 function namedRetryAfter(headers: Headers): string | null {
 	let found: string | null = null;
 	headers.forEach((value, name) => {
-		const isNamedRetryAfter = name.toLowerCase().indexOf('retry-after-') === 0;
+		const isNamedRetryAfter = name.toLowerCase().startsWith('retry-after-');
 		if (found === null && isNamedRetryAfter) {
 			found = value;
 		}
@@ -110,10 +110,10 @@ function retryAfterOf(headers: Headers, now: number): number | undefined {
 	}
 	const text = value.trim();
 	if (/^\d+$/.test(text)) {
-		return parseInt(text, 10);
+		return Number.parseInt(text, 10);
 	}
 	const date = Date.parse(text);
-	if (isNaN(date)) {
+	if (Number.isNaN(date)) {
 		return undefined;
 	}
 	return Math.max(0, Math.ceil((date - now) / 1000));

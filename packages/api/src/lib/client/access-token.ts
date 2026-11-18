@@ -11,7 +11,7 @@ export interface AccessToken {
 	renew(used: Promise<string>): Promise<string> | null;
 }
 
-export const isPersonalApiToken = (token: string): boolean => token.indexOf(PERSONAL_TOKEN_PREFIX) === 0;
+export const isPersonalApiToken = (token: string): boolean => token.startsWith(PERSONAL_TOKEN_PREFIX);
 
 const noToken = () =>
 	clientError(

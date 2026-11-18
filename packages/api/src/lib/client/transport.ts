@@ -66,9 +66,18 @@ function assertOptions(options: EverTeamsClientOptions): void {
 	}
 }
 
+// The address without its trailing slashes (a loop: the regex /\/+$/ backtracks on a long run of slashes).
+function withoutTrailingSlashes(url: string): string {
+	let end = url.length;
+	while (end > 0 && url[end - 1] === '/') {
+		end -= 1;
+	}
+	return url.slice(0, end);
+}
+
 export function createTransport(options: EverTeamsClientOptions): Transport {
 	assertOptions(options);
-	const apiUrl = options.apiUrl.replace(/\/+$/, '');
+	const apiUrl = withoutTrailingSlashes(options.apiUrl);
 	const accessToken = createAccessToken(options, exchangePersonalToken);
 
 	function urlOf(call: ClientCall): string {
