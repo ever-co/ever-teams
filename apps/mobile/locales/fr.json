@@ -1,12 +1,12 @@
 {
 	"common": {
 		"openMenu": "Ouvrir le menu",
-		"ok": "OK!",
+		"ok": "OK !",
 		"cancel": "Annuler",
 		"loading": "Patientez",
-		"edit": "Edit",
-		"confirm": "Confirm",
-		"discard": "Discard",
+		"edit": "Modifier",
+		"confirm": "Confirmer",
+		"discard": "Annuler",
 		"back": "Retour",
 		"save": "Sauvegarder",
 		"logOut": "Se déconnecter"
@@ -101,26 +101,26 @@
 		}
 	},
 	"welcomeScreen": {
-		"postscript": "psst  — This probably isn't what your app looks like. (Unless your designer handed you these screens, and in that case, ship it!)",
-		"readyForLaunch": "Your app, almost ready for launch!",
-		"exciting": "(ohh, this is exciting!)",
-		"letsGo": "Let's go!"
+		"postscript": "psst : votre application ne ressemble sans doute pas à ça. (Sauf si votre designer vous a remis ces écrans, et dans ce cas, publiez-la !)",
+		"readyForLaunch": "Votre application, presque prête pour le lancement !",
+		"exciting": "(ohh, c'est palpitant !)",
+		"letsGo": "C'est parti !"
 	},
 	"errorScreen": {
 		"title": "Un problème est survenu",
 		"friendlySubtitle": "L’application a rencontré un problème. Rechargez-la pour continuer.",
 		"reset": "Recharger l’application",
-		"traceTitle": "Error from {name} stack"
+		"traceTitle": "Erreur de la pile {name}"
 	},
 	"emptyStateComponent": {
 		"generic": {
-			"heading": "So empty... so sad",
-			"content": "No data found yet. Try clicking the button to refresh or reload the app.",
-			"button": "Let's try this again"
+			"heading": "Si vide... si triste",
+			"content": "Aucune donnée pour l'instant. Touchez le bouton pour actualiser, ou rechargez l'application.",
+			"button": "Réessayer"
 		}
 	},
 	"errors": {
-		"invalidEmail": "Invalid email address."
+		"invalidEmail": "Adresse e-mail invalide."
 	},
 	"loginScreen": {
 		"name": "Connexion",
@@ -217,7 +217,7 @@
 		"totalGroupTime": "Temps Total du Groupe",
 		"timeRemaining": "Temps Restant",
 		"blocks": "Blocs",
-		"clones": "Clones",
+		"clones": "Clone",
 		"duplicates": "Doublons",
 		"isBlockedBy": "Est bloqué par",
 		"isClonedBy": "Est cloné par",
@@ -301,8 +301,8 @@
 			"publicTeam": "Équipe publique",
 			"privateTeam": "Équipe privée",
 			"changeTeamName": {
-				"mainTitle": "Change Team Name",
-				"inputPlaceholder": "Team Name"
+				"mainTitle": "Changer le nom de l'équipe",
+				"inputPlaceholder": "Nom de l'équipe"
 			}
 		},
 		"dangerZone": "Zone dangereuse",
@@ -329,60 +329,60 @@
 			"updateButtonText": "Mettre à jour"
 		},
 		"statusScreen": {
-			"mainTitle": "Task Statuses",
+			"mainTitle": "Statuts des tâches",
 			"statuses": "Statuts",
-			"listStatuses": "List of Statuses",
-			"noActiveStatuses": "There are no active statuses",
-			"createStatusButton": "Create new status",
-			"createNewStatusText": "Create New Status",
-			"statusNamePlaceholder": "Status Name",
-			"statusIconPlaceholder": "Choose Icon",
-			"statusColorPlaceholder": "Colors",
-			"cancelButtonText": "Cancel",
-			"createButtonText": "Create",
-			"updateButtonText": "Update"
+			"listStatuses": "Liste des statuts",
+			"noActiveStatuses": "Aucun statut actif",
+			"createStatusButton": "Créer un nouveau statut",
+			"createNewStatusText": "Créer un nouveau statut",
+			"statusNamePlaceholder": "Nom du statut",
+			"statusIconPlaceholder": "Choisir une icône",
+			"statusColorPlaceholder": "Couleurs",
+			"cancelButtonText": "Annuler",
+			"createButtonText": "Créer",
+			"updateButtonText": "Modification"
 		},
 		"priorityScreen": {
-			"mainTitle": "Task Priorities",
+			"mainTitle": "Priorités des tâches",
 			"priorities": "Priorités",
-			"listPriorities": "List of Priorities",
-			"noActivePriorities": "There are no active priorities",
-			"createPriorityButton": "Create new priority",
-			"createNewPriorityText": "Create New Priority",
-			"priorityNamePlaceholder": "Priority Name",
-			"priorityIconPlaceholder": "Search Icon",
-			"priorityColorPlaceholder": "Colors",
-			"cancelButtonText": "Cancel",
-			"createButtonText": "Create",
-			"updateButtonText": "Update"
+			"listPriorities": "Liste des priorités",
+			"noActivePriorities": "Aucune priorité active",
+			"createPriorityButton": "Créer une nouvelle priorité",
+			"createNewPriorityText": "Créer une nouvelle priorité",
+			"priorityNamePlaceholder": "Nom de la priorité",
+			"priorityIconPlaceholder": "Rechercher une icône",
+			"priorityColorPlaceholder": "Couleurs",
+			"cancelButtonText": "Annuler",
+			"createButtonText": "Créer",
+			"updateButtonText": "Modification"
 		},
 		"labelScreen": {
-			"mainTitle": "Task Labels",
-			"listLabels": "List of Labels",
+			"mainTitle": "Étiquettes des tâches",
+			"listLabels": "Liste des étiquettes",
 			"labels": "Étiquettes",
-			"noActiveLabels": "There are no active labels",
-			"createLabelButton": "Create new label",
-			"createNewLabelText": "Create New Labels",
-			"labelNamePlaceholder": "Labels Name",
-			"labelIconPlaceholder": "Choose Icon",
-			"labelColorPlaceholder": "Colors",
-			"cancelButtonText": "Cancel",
-			"createButtonText": "Create",
-			"updateButtonText": "Update"
+			"noActiveLabels": "Aucune étiquette active",
+			"createLabelButton": "Créer une nouvelle étiquette",
+			"createNewLabelText": "Créer une nouvelle étiquette",
+			"labelNamePlaceholder": "Nom de l'étiquette",
+			"labelIconPlaceholder": "Choisir une icône",
+			"labelColorPlaceholder": "Couleurs",
+			"cancelButtonText": "Annuler",
+			"createButtonText": "Créer",
+			"updateButtonText": "Modification"
 		},
 		"sizeScreen": {
-			"mainTitle": "Task Sizes",
+			"mainTitle": "Tailles des tâches",
 			"sizes": "Tailles",
-			"listSizes": "List of Sizes",
-			"noActiveSizes": "There are no active sizes",
-			"createSizeButton": "Create new size",
-			"createNewSizeText": "Create New Sizes",
-			"sizeNamePlaceholder": "Size Name",
-			"sizeIconPlaceholder": "Choose Icon",
-			"sizeColorPlaceholder": "Colors",
-			"cancelButtonText": "Cancel",
-			"createButtonText": "Create",
-			"updateButtonText": "Update"
+			"listSizes": "Liste des tailles",
+			"noActiveSizes": "Aucune taille active",
+			"createSizeButton": "Créer une nouvelle taille",
+			"createNewSizeText": "Créer une nouvelle taille",
+			"sizeNamePlaceholder": "Nom de la taille",
+			"sizeIconPlaceholder": "Choisir une icône",
+			"sizeColorPlaceholder": "Couleurs",
+			"cancelButtonText": "Annuler",
+			"createButtonText": "Créer",
+			"updateButtonText": "Modification"
 		},
 		"membersSettingsScreen": {
 			"mainTitle": "Membres et rôles",
@@ -391,9 +391,9 @@
 			"delete": "Supprimer"
 		},
 		"changeFullName": {
-			"firstNamePlaceholder": "First Name",
-			"lastNamePlaholder": "Last Name",
-			"mainTitle": "Change Full Name"
+			"firstNamePlaceholder": "Prénom",
+			"lastNamePlaholder": "Nom de famille",
+			"mainTitle": "Changer le nom complet"
 		},
 		"changeAvatar": {
 			"recentPictures": "Photos récentes",
@@ -402,14 +402,14 @@
 			"selectFromFiles": "Sélectionner depuis les fichiers",
 			"continueButton": "Continuer",
 			"logoDeleteConfirmation": "Êtes-vous sûr de vouloir supprimer le logo?",
-			"avatarDeleteConfirmation": "Are you sure you want to delete the avatar?"
+			"avatarDeleteConfirmation": "Êtes-vous sûr de vouloir supprimer l'avatar ?"
 		},
 		"contact": {
-			"mainTitle": "Change Your Contact",
-			"emailPlaceholder": "Email Address",
-			"phonePlaceholder": "Phone Number",
-			"emailNotValid": "Please provide a valid Email",
-			"phoneNotValid": "Please provide a valid Phone Number"
+			"mainTitle": "Changer vos coordonnées",
+			"emailPlaceholder": "Adresse e-mail",
+			"phonePlaceholder": "Numéro de téléphone",
+			"emailNotValid": "Veuillez fournir une adresse e-mail valide",
+			"phoneNotValid": "Veuillez fournir un numéro de téléphone valide"
 		},
 		"changeTimezone": {
 			"mainTitle": "Changer le fuseau horaire",
@@ -436,68 +436,68 @@
 		"verify": "Vérifier"
 	},
 	"demoNavigator": {
-		"componentsTab": "Components",
-		"debugTab": "Debug",
-		"communityTab": "Community",
+		"componentsTab": "Composants",
+		"debugTab": "Débogage",
+		"communityTab": "Communauté",
 		"podcastListTab": "Podcast"
 	},
 	"demoCommunityScreen": {
-		"title": "Connect with the community",
-		"tagLine": "Plug in to Infinite Red's community of React Native engineers and level up your app development with us!",
-		"joinUsOnSlackTitle": "Join us on Slack",
-		"joinUsOnSlack": "Wish there was a place to connect with React Native engineers around the world? Join the conversation in the Infinite Red Community Slack! Our growing community is a safe space to ask questions, learn from others, and grow your network.",
-		"joinSlackLink": "Join the Slack Community",
-		"makeIgniteEvenBetterTitle": "Make Ignite even better",
-		"makeIgniteEvenBetter": "Have an idea to make Ignite even better? We're happy to hear that! We're always looking for others who want to help us build the best React Native tooling out there. Join us over on GitHub to join us in building the future of Ignite.",
-		"contributeToIgniteLink": "Contribute to Ignite",
-		"theLatestInReactNativeTitle": "The latest in React Native",
-		"theLatestInReactNative": "We're here to keep you current on all React Native has to offer.",
+		"title": "Rejoignez la communauté",
+		"tagLine": "Rejoignez la communauté d'ingénieurs React Native d'Infinite Red et progressez avec nous dans le développement de votre application !",
+		"joinUsOnSlackTitle": "Rejoignez-nous sur Slack",
+		"joinUsOnSlack": "Vous aimeriez un endroit pour échanger avec des ingénieurs React Native du monde entier ? Rejoignez la conversation sur le Slack de la communauté Infinite Red ! Notre communauté grandit et reste un espace sûr pour poser des questions, apprendre des autres et développer votre réseau.",
+		"joinSlackLink": "Rejoindre la communauté Slack",
+		"makeIgniteEvenBetterTitle": "Améliorez encore Ignite",
+		"makeIgniteEvenBetter": "Une idée pour améliorer encore Ignite ? Nous serons ravis de l'entendre ! Nous cherchons toujours des personnes prêtes à nous aider à créer les meilleurs outils React Native. Rejoignez-nous sur GitHub pour construire avec nous l'avenir d'Ignite.",
+		"contributeToIgniteLink": "Contribuer à Ignite",
+		"theLatestInReactNativeTitle": "L'actualité de React Native",
+		"theLatestInReactNative": "Nous vous tenons au courant de tout ce que React Native a à offrir.",
 		"reactNativeRadioLink": "React Native Radio",
 		"reactNativeNewsletterLink": "React Native Newsletter",
 		"reactNativeLiveLink": "React Native Live",
 		"chainReactConferenceLink": "Chain React Conference",
-		"hireUsTitle": "Hire Infinite Red for your next project",
-		"hireUs": "Whether it's running a full project or getting teams up to speed with our hands-on training, Infinite Red can help with just about any React Native project.",
-		"hireUsLink": "Send us a message"
+		"hireUsTitle": "Confiez votre prochain projet à Infinite Red",
+		"hireUs": "Qu'il s'agisse de mener un projet de bout en bout ou de mettre vos équipes à niveau grâce à nos formations pratiques, Infinite Red peut vous aider sur presque tous les projets React Native.",
+		"hireUsLink": "Envoyez-nous un message"
 	},
 	"demoShowroomScreen": {
-		"jumpStart": "Components to jump start your project!",
+		"jumpStart": "Des composants pour lancer votre projet !",
 		"lorem2Sentences": "Nulla cupidatat deserunt amet quis aliquip nostrud do adipisicing. Adipisicing excepteur elit laborum Lorem adipisicing do duis.",
-		"demoHeaderTxExample": "Yay",
-		"demoViaTxProp": "Via `tx` Prop",
-		"demoViaSpecifiedTxProp": "Via `{prop}Tx` Prop"
+		"demoHeaderTxExample": "Youpi",
+		"demoViaTxProp": "Via la prop `tx`",
+		"demoViaSpecifiedTxProp": "Via la prop `{prop}Tx`"
 	},
 	"demoDebugScreen": {
-		"howTo": "HOW TO",
-		"title": "Debug",
-		"tagLine": "Congratulations, you've got a very advanced React Native app template here.  Take advantage of this boilerplate!",
-		"reactotron": "Send to Reactotron",
-		"reportBugs": "Report Bugs",
-		"demoList": "Demo List",
-		"demoPodcastList": "Demo Podcast List",
-		"androidReactotronHint": "If this doesn't work, ensure the Reactotron desktop app is running, run adb reverse tcp:9090 tcp:9090 from your terminal, and reload the app.",
-		"iosReactotronHint": "If this doesn't work, ensure the Reactotron desktop app is running and reload app.",
-		"macosReactotronHint": "If this doesn't work, ensure the Reactotron desktop app is running and reload app.",
-		"webReactotronHint": "If this doesn't work, ensure the Reactotron desktop app is running and reload app.",
-		"windowsReactotronHint": "If this doesn't work, ensure the Reactotron desktop app is running and reload app."
+		"howTo": "MODE D'EMPLOI",
+		"title": "Débogage",
+		"tagLine": "Félicitations, vous disposez ici d'un modèle d'application React Native très avancé. Tirez parti de cette base !",
+		"reactotron": "Envoyer à Reactotron",
+		"reportBugs": "Signaler des bugs",
+		"demoList": "Liste de démo",
+		"demoPodcastList": "Liste de podcasts de démo",
+		"androidReactotronHint": "Si cela ne fonctionne pas, vérifiez que l'application de bureau Reactotron est lancée, exécutez adb reverse tcp:9090 tcp:9090 dans votre terminal, puis rechargez l'application.",
+		"iosReactotronHint": "Si cela ne fonctionne pas, vérifiez que l'application de bureau Reactotron est lancée, puis rechargez l'application.",
+		"macosReactotronHint": "Si cela ne fonctionne pas, vérifiez que l'application de bureau Reactotron est lancée, puis rechargez l'application.",
+		"webReactotronHint": "Si cela ne fonctionne pas, vérifiez que l'application de bureau Reactotron est lancée, puis rechargez l'application.",
+		"windowsReactotronHint": "Si cela ne fonctionne pas, vérifiez que l'application de bureau Reactotron est lancée, puis rechargez l'application."
 	},
 	"demoPodcastListScreen": {
-		"title": "React Native Radio episodes",
-		"onlyFavorites": "Only Show Favorites",
-		"favoriteButton": "Favorite",
-		"unfavoriteButton": "Unfavorite",
+		"title": "Épisodes de React Native Radio",
+		"onlyFavorites": "Afficher uniquement les favoris",
+		"favoriteButton": "Favori",
+		"unfavoriteButton": "Retirer des favoris",
 		"accessibility": {
-			"cardHint": "Double tap to listen to the episode. Double tap and hold to {action} this episode.",
-			"switch": "Switch on to only show favorites",
-			"favoriteAction": "Toggle Favorite",
-			"favoriteIcon": "Episode not favorited",
-			"unfavoriteIcon": "Episode favorited",
-			"publishLabel": "Published {date}",
-			"durationLabel": "Duration: {hours} hours {minutes} minutes {seconds} seconds"
+			"cardHint": "Touchez deux fois pour écouter l'épisode. Touchez deux fois et maintenez pour {action} cet épisode.",
+			"switch": "Activez pour n'afficher que les favoris",
+			"favoriteAction": "Ajouter ou retirer des favoris",
+			"favoriteIcon": "Épisode non mis en favori",
+			"unfavoriteIcon": "Épisode mis en favori",
+			"publishLabel": "Publié le {date}",
+			"durationLabel": "Durée : {hours} heures {minutes} minutes {seconds} secondes"
 		},
 		"noFavoritesEmptyState": {
-			"heading": "This looks a bit empty",
-			"content": "No favorites have been added yet. Tap the heart on an episode to add it to your favorites!"
+			"heading": "C'est un peu vide ici",
+			"content": "Aucun favori pour l'instant. Touchez le cœur d'un épisode pour l'ajouter à vos favoris !"
 		}
 	}
 }
