@@ -111,9 +111,9 @@ function providerOf(element) {
 
 test('the element renders the kit in its own shadow root, with the kit stylesheet and no @property there', async () => {
 	const element = await place({ 'api-url': 'https://api.example.com/api' });
+	assert.ok(element.shadowRoot, 'an open shadow root');
 	const style = element.shadowRoot.querySelector('style').textContent;
 
-	assert.ok(element.shadowRoot, 'an open shadow root');
 	assert.match(style, /:host\{all:initial;display:block;font-family:inherit\}/);
 	assert.ok(style.includes(KIT_RULE));
 	assert.doesNotMatch(style, /@property/);
