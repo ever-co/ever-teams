@@ -387,3 +387,72 @@ describe('TimeActivitySavedReports', () => {
 		expect(mockUpdate).not.toHaveBeenCalled();
 	});
 });
+
+/** A view a saved report cannot keep (#5368): narrowed by the labels of entries, or grouped by label. */
+const LABEL_VIEWS: [string, TimeActivityFilters, string][] = [
+	['narrowed by a label', { ...NO_FILTERS, entryLabels: ['design'] }, 'project'],
+	['narrowed to the time without a label', { ...NO_FILTERS, entryLabels: ['no-label'] }, 'project'],
+	['grouped by label', NO_FILTERS, 'label']
+];
+
+function labelViewProps(filters: TimeActivityFilters, grouping: string) {
+	return {
+		period: periodOfPreset('lastMonth', 1),
+		user: { id: 'user-1', tenantId: 'tenant-1', employee: { organizationId: 'organization-1' } },
+		settings: { filters, grouping, setLinkParams: mockSetLinkParams }
+	} as never;
+}
+
+describe('TimeActivitySavedReports and the labels a saved report does not keep', () => {
+	beforeEach(() => {
+		jest.clearAllMocks();
+		mockSearchParams = new URLSearchParams();
+		mockSaved = { reports: [CLIENT_A], availability: 'ready', linkTokens: {} };
+		mockUpdatePending = false;
+	});
+
+	it.each(LABEL_VIEWS)('offers no save of a view %s, and says why', (_case, filters, grouping) => {
+		mockSaved = { reports: [], availability: 'ready', linkTokens: {} };
+		render(<TimeActivitySavedReports report={labelViewProps(filters, grouping)} />);
+
+		// Neither Save nor the save that Share asks for first offers a name to save the view under
+		expect(screen.queryAllByLabelText('dashboard.savedReports.NAME')).toHaveLength(0);
+		expect(screen.getAllByText('dashboard.savedReports.LABELS_NOT_KEPT')).toHaveLength(2);
+		expect(mockCreate).not.toHaveBeenCalled();
+	});
+
+	it.each(LABEL_VIEWS)(
+		'never writes a view %s over the report it was opened from, and says why',
+		(_case, filters, grouping) => {
+			mockSearchParams = new URLSearchParams('report=r1');
+			render(<TimeActivitySavedReports report={labelViewProps(filters, grouping)} />);
+
+			const update = screen.getByText('dashboard.savedReports.UPDATE').closest('button') as HTMLButtonElement;
+			expect(update.disabled).toBe(true);
+			fireEvent.click(update);
+			expect(mockUpdate).not.toHaveBeenCalled();
+			expect(screen.getAllByText('dashboard.savedReports.LABELS_NOT_KEPT').length).toBeGreaterThan(0);
+		}
+	);
+
+	it('still shares the report it was opened from, which keeps its own view', () => {
+		mockSearchParams = new URLSearchParams('report=r1');
+		render(
+			<TimeActivitySavedReports report={labelViewProps({ ...NO_FILTERS, entryLabels: ['design'] }, 'label')} />
+		);
+
+		expect(screen.getByText('dashboard.savedReports.TURN_ON')).toBeTruthy();
+	});
+
+	it('opens a saved report without any label of the view it replaces', () => {
+		render(
+			<TimeActivitySavedReports report={labelViewProps({ ...NO_FILTERS, entryLabels: ['design'] }, 'label')} />
+		);
+
+		fireEvent.click(screen.getByText('Client A, last month'));
+
+		expect(linkAfterLastChange('period=today&entryLabels=design&groupBy=label')).toBe(
+			'period=lastMonth&clients=client-a&groupBy=project&report=r1'
+		);
+	});
+});
