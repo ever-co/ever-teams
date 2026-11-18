@@ -45,12 +45,13 @@ const ConfirmationModal: FC<IConfirmation> = ({
 					<Text style={[styles.description, { color: colors.tertiary }]}>{description}</Text>
 				) : null}
 				<View style={styles.wrapButtons}>
-					<TouchableOpacity style={styles.cancelBtn} onPress={() => onDismiss()}>
+					<TouchableOpacity testID="confirmation-cancel" style={styles.cancelBtn} onPress={() => onDismiss()}>
 						<Text style={styles.cancelTxt}>
 							{translate("settingScreen.statusScreen.cancelButtonText")}
 						</Text>
 					</TouchableOpacity>
 					<TouchableOpacity
+						testID="confirmation-confirm"
 						style={{
 							...styles.confirmBtn,
 						}}

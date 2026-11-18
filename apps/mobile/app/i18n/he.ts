@@ -1,5 +1,6 @@
 const he = {
 	common: {
+		openMenu: 'פתיחת התפריט',
 		ok: 'OK!',
 		cancel: 'Cancel',
 		back: 'Back',
@@ -15,6 +16,8 @@ const he = {
 		endedMessage: 'התחברו שוב כדי להמשיך.'
 	},
 	timer: {
+		startLabel: 'הפעלת הטיימר',
+		stopLabel: 'עצירת הטיימר',
 		stopFailedTitle: 'לא ניתן היה לעצור את הטיימר',
 		stopFailedMessage: 'הוא עדיין רץ. נסו שוב בעוד רגע.',
 		startMove: {
