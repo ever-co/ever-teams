@@ -57,6 +57,8 @@ const exitRoutes = Config.exitRoutes;
 export type AppStackScreenProps<T extends keyof AppStackParamList> = NativeStackScreenProps<AppStackParamList, T>;
 
 // Documentation: https://reactnavigation.org/docs/stack-navigator/
+// Every navigator here has an `id`: React Navigation 7's types require one when `strictNullChecks` is off, as in the
+// mobile type check (`yarn tsc` runs the root TypeScript 5.9, whose `strict` is off by default)
 const Stack = createNativeStackNavigator<AppStackParamList>();
 
 const AppStack = observer(function AppStack() {
@@ -68,6 +70,7 @@ const AppStack = observer(function AppStack() {
 	// @demo remove-block-end
 	return (
 		<Stack.Navigator
+			id="AppStack"
 			screenOptions={{ headerShown: false }}
 			initialRouteName={isAuthenticated ? 'Authenticated' : 'Login'} // @demo remove-current-line
 		>

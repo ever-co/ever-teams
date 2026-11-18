@@ -1,12 +1,18 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, { useEffect, useState } from 'react';
 import { Platform, TextStyle, View, ViewStyle } from 'react-native';
-import { BottomTabScreenProps, createBottomTabNavigator, BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
+import {
+	BottomTabScreenProps,
+	createBottomTabNavigator,
+	BottomTabNavigationEventMap,
+	BottomTabNavigationProp
+} from '@react-navigation/bottom-tabs';
 import { createDrawerNavigator, DrawerScreenProps } from '@react-navigation/drawer';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import {
 	CompositeScreenProps,
 	CompositeNavigationProp,
+	EventArg,
 	RouteProp,
 	useIsFocused,
 	useNavigation
@@ -107,7 +113,11 @@ export type TaskSizeScreenRouteProp = RouteProp<AuthenticatedDrawerParamList, 'T
 export type TaskPriorityRouteProp = RouteProp<AuthenticatedDrawerParamList, 'TaskPriority'>;
 export type MembersSettingsScreenRouteProp = RouteProp<AuthenticatedDrawerParamList, 'MembersSettingsScreen'>;
 
+// Each navigator has an `id`: React Navigation 7's types require one when `strictNullChecks` is off, as in the mobile
+// type check (`yarn tsc` runs the root TypeScript 5.9, whose `strict` is off by default)
 const Tab = createBottomTabNavigator<AuthenticatedTabParamList>();
+
+type TabPressEvent = EventArg<'tabPress', true, BottomTabNavigationEventMap['tabPress']['data']>;
 
 const TabNavigator = observer(function TabNavigator() {
 	const { bottom } = useSafeAreaInsets();
@@ -126,6 +136,7 @@ const TabNavigator = observer(function TabNavigator() {
 
 	return (
 		<Tab.Navigator
+			id="AuthenticatedTab"
 			screenOptions={{
 				headerShown: false,
 				tabBarHideOnKeyboard: true,
@@ -213,7 +224,8 @@ const TabNavigator = observer(function TabNavigator() {
 					tabBarActiveTintColor: dark ? '#8C7AE4' : '#3826A6'
 				}}
 				listeners={{
-					tabPress: (e) => {
+					// Typed by hand: with `strictNullChecks` off, the inferred event has no `preventDefault`
+					tabPress: (e: TabPressEvent) => {
 						e.preventDefault();
 
 						navigation.navigate('Profile', {
@@ -259,6 +271,7 @@ function UnmountOnBlur({ children }: Readonly<{ children: React.ReactNode }>) {
 export const AuthenticatedNavigator = observer(function AuthenticatedNavigator() {
 	return (
 		<drawer.Navigator
+			id="AuthenticatedDrawer"
 			drawerContent={(props) => <HamburgerMenu {...props} />}
 			screenLayout={({ children }) => <UnmountOnBlur>{children}</UnmountOnBlur>}
 			screenOptions={{

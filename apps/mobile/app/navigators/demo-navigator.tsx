@@ -27,6 +27,8 @@ export type DemoTabScreenProps<T extends keyof DemoTabParamList> = CompositeScre
 	AppStackScreenProps<keyof AppStackParamList>
 >;
 
+// The navigator has an `id`: React Navigation 7's types require one when `strictNullChecks` is off, as in the mobile
+// type check (see app-navigator.tsx)
 const Tab = createBottomTabNavigator<DemoTabParamList>();
 
 export function DemoNavigator() {
@@ -34,6 +36,7 @@ export function DemoNavigator() {
 
 	return (
 		<Tab.Navigator
+			id="DemoTab"
 			screenOptions={{
 				headerShown: false,
 				tabBarHideOnKeyboard: true,
