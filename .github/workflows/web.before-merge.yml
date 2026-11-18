@@ -126,7 +126,8 @@ jobs:
               failed="$failed $dir"
             fi
             echo "::endgroup::"
-            counts=$(grep -E '^ℹ (tests|pass|fail|skipped) ' "$log" | sed 's/^ℹ //' | paste -sd ',' - | sed 's/,/, /g')
+            # A suite killed before its summary prints no counts: grep finds nothing, which must not end the step here
+            counts=$(grep -E '^ℹ (tests|pass|fail|skipped) ' "$log" | sed 's/^ℹ //' | paste -sd ',' - | sed 's/,/, /g' || true)
             summary="$summary$dir: ${counts:-no summary}"$'\n'
           done
           echo "Kit test suites:"
