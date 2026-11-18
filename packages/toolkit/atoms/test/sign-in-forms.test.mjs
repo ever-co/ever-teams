@@ -49,7 +49,9 @@ before(async () => {
 	const forms = path.join(lib, 'components', 'forms').replace(/\\/g, '/');
 	fs.writeFileSync(
 		entry,
-		`export { KitFormField, KitFormError } from '${forms}/kit-form-field.tsx';`
+		`export { KitFormField, KitFormError } from '${forms}/kit-form-field.tsx';
+		export { TeamsPasswordLoginForm } from '${forms}/teams-password-login-form.tsx';
+		export { TeamsTokenLoginForm } from '${forms}/teams-token-login-form.tsx';`
 	);
 	const outfile = path.join(bundleDir, 'forms.mjs');
 	await esbuild.build({
@@ -129,3 +131,30 @@ test('an error is read out on the error notice, and nothing is drawn without one
 	);
 });
 
+test('the password form names its two fields, says a refused password on the notice, and keeps its button text', () => {
+	const markup = render(kit.TeamsPasswordLoginForm, {}, REFUSED);
+	const fields = labelledInputs(markup);
+
+	assert.deepEqual(
+		fields.map((field) => field.text),
+		['COMMON.email', 'COMMON.password']
+	);
+	assert.ok(
+		fields.every((field) => field.input),
+		'every label points to its input'
+	);
+	assert.match(markup, /<p role="alert" class="[^"]*bg-destructive\/5[^"]*">You entered/);
+	assert.match(markup, />AUTH\.sign_in_title<\/button>/);
+});
+
+test('the token form names its field and keeps its button text', () => {
+	const markup = render(kit.TeamsTokenLoginForm);
+	const fields = labelledInputs(markup);
+
+	assert.deepEqual(
+		fields.map((field) => field.text),
+		['COMMON.token']
+	);
+	assert.match(fields[0].input, /name="token"/);
+	assert.match(markup, />AUTH\.sign_in_title<\/button>/);
+});
