@@ -93,7 +93,8 @@ const teams = createClient({
 ```
 
 After a 401 the client asks `getToken` for a new token once (or exchanges the personal token again) and sends the
-request once more. A second refusal is thrown.
+request once more. A second refusal is thrown. A client stands for one person: it reads `GET /user/me` once, so
+`getToken` must answer tokens of that person. For another person, create another client.
 
 ## The client's methods
 
@@ -231,8 +232,9 @@ try {
 
 The client also throws an `EverTeamsError` with status 0 and one of these codes before or without a request:
 `CLIENT_OPTIONS` (no `apiUrl`, or neither `token` nor `getToken`), `NO_TOKEN`, `NO_ORGANIZATION` and `NO_EMPLOYEE`
-(the token's user is not a member of an organization), `INVALID_DATE`, `NO_FETCH`; and `NOT_JSON` with the answer's
-status when `apiUrl` answers something else than JSON, such as the web app's pages.
+(the token's user is not a member of an organization, or `organizationId` names another organization than its
+member's), `INVALID_DATE`, `NO_FETCH`; and `NOT_JSON` with the answer's status when `apiUrl` answers something else
+than JSON, such as the web app's pages.
 
 An error your `getToken` throws comes back as it is. A browser reads `Retry-After` only when the API exposes it to
 the page (CORS): there, `retryAfter` may stay `undefined`. When a page loads both the ESM and the CommonJS build, `instanceof` works within one build;

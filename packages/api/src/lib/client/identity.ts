@@ -105,7 +105,20 @@ export function createIdentity(
 				'Use the token of a member who tracks time.'
 			);
 		}
-		return { ...scopeOf(answer), employeeId };
+		const memberScope = scopeOf(answer);
+		// The employee read belongs to one organization: with another organizationId in the options, its id would
+		// pair this organization with a member of another one.
+		const employeeOrganization = organizationIdOf(answer);
+		const isOtherOrganization =
+			Boolean(employeeOrganization) && employeeOrganization !== memberScope.organizationId;
+		if (isOtherOrganization) {
+			throw clientError(
+				'NO_EMPLOYEE',
+				`The token's user is a member (employee) of organization ${employeeOrganization}, not of ${memberScope.organizationId}.`,
+				"Leave organizationId out, or pass the organization of the token's member."
+			);
+		}
+		return { ...memberScope, employeeId };
 	}
 
 	return { scope, member };

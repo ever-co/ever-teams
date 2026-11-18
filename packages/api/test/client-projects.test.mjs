@@ -66,3 +66,18 @@ test('a user who is no member gets an error before any project request', async (
 	await assert.rejects(teams.projects.list(), { code: 'NO_EMPLOYEE' });
 	assert.deepEqual(api.routesSent(), ['GET /user/me']);
 });
+
+test("an organizationId other than the member's gets an error before any member read: its employee is another's", async () => {
+	const api = standInApi({ 'GET /user/me': ME });
+	const teams = createClient({ apiUrl: API_URL, token: 't', organizationId: 'org-2', fetch: api.fetch });
+
+	for (const read of [() => teams.projects.list(), () => teams.totals.today()]) {
+		await assert.rejects(read(), (error) => {
+			assert.equal(error.code, 'NO_EMPLOYEE');
+			assert.match(error.message, /org-1, not of org-2/);
+			assert.match(error.nextStep, /organizationId/);
+			return true;
+		});
+	}
+	assert.deepEqual(api.routesSent(), ['GET /user/me']);
+});
