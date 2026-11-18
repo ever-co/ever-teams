@@ -60,6 +60,7 @@ import {
 } from '../components/svgs/icons';
 import { useOrganizationTeam } from '../services/hooks/use-organization';
 import { TimeCounterHost } from '../services/hooks/use-timer';
+import { navigateTo } from './routes';
 
 export type AuthenticatedTabParamList = {
 	Timer: undefined;
@@ -235,7 +236,7 @@ const TabNavigator = observer(function TabNavigator() {
 					tabPress: (e: TabPressEvent) => {
 						e.preventDefault();
 
-						navigation.navigate('Profile', {
+						navigateTo(navigation, 'Profile', {
 							userId: currentUser?.id,
 							activeTab: 'worked'
 						});

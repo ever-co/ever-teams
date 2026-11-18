@@ -23,6 +23,7 @@ import { useOrganizationTeam } from '../../../services/hooks/use-organization';
 import { useTeamMemberCard } from '../../../services/hooks/features/use-team-member-card';
 import { useNavigation } from '@react-navigation/native';
 import ChangeRoleModal from './components/change-role-modal';
+import { navigateTo } from '../../../navigators/routes';
 
 export const MembersSettingsScreen: FC<AuthenticatedDrawerScreenProps<'MembersSettingsScreen'>> = (_props) => {
 	const { colors, dark } = useAppTheme();
@@ -56,9 +57,9 @@ export const MembersSettingsScreen: FC<AuthenticatedDrawerScreenProps<'MembersSe
 				}
 			}
 		} else {
-			alternateNavigation.navigate('AuthenticatedTab');
+			navigateTo(alternateNavigation, 'AuthenticatedTab');
 			setTimeout(() => {
-				navigation.navigate('Profile', {
+				navigateTo(navigation, 'Profile', {
 					userId: member?.employee?.userId,
 					activeTab: 'worked'
 				});
@@ -83,7 +84,7 @@ export const MembersSettingsScreen: FC<AuthenticatedDrawerScreenProps<'MembersSe
 			<StatusBar barStyle={dark ? 'light-content' : 'dark-content'} />
 			<View style={[$headerContainer, { backgroundColor: colors.background }]}>
 				<View style={[styles.container, { backgroundColor: colors.background }]}>
-					<TouchableOpacity onPress={() => navigation.navigate('Setting')}>
+					<TouchableOpacity onPress={() => navigateTo(navigation, 'Setting')}>
 						<AntDesign name="arrow-left" size={24} color={colors.primary} />
 					</TouchableOpacity>
 					<Text style={[styles.title, { color: colors.primary }]}>

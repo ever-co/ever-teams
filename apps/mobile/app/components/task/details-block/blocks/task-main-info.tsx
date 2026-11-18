@@ -26,6 +26,7 @@ import TaskEpic from '../../../task-epic';
 import IssuesModal from '../../../issues-modal';
 import { observer } from 'mobx-react-lite';
 import { translate } from '../../../../i18n';
+import { navigateTo } from '../../../../navigators/routes';
 
 const TaskMainInfo = observer(() => {
 	const {
@@ -268,7 +269,7 @@ const EpicParent: React.FC<{ task: ITeamTask }> = ({ task }) => {
 	const navigation = useNavigation<SettingScreenNavigationProp<'TaskScreen'>>();
 
 	const navigateToEpic = () => {
-		navigation.navigate('TaskScreen', { taskId: task?.rootEpic?.id });
+		navigateTo(navigation, 'TaskScreen', { taskId: task?.rootEpic?.id });
 	};
 
 	if (task?.issueType === 'Story') {

@@ -29,6 +29,7 @@ import { readOnlyOpacity } from '../../../helpers/read-only-opacity';
 import PriorityItem from './components/priority-item';
 import { BlurView } from 'expo-blur';
 import { useRoute, RouteProp } from '@react-navigation/native';
+import { navigateTo } from '../../../navigators/routes';
 
 // Create a type for the route params
 type TaskPriorityRouteParams = {
@@ -51,7 +52,7 @@ export const TaskPriorityScreen: FC<AuthenticatedDrawerScreenProps<'TaskPriority
 
     // Handle back navigation with correct tab
     const handleGoBack = useCallback(() => {
-      navigation.navigate('Setting', { activeTab: previousTab });
+      navigateTo(navigation, 'Setting', { activeTab: previousTab });
     }, [navigation, previousTab]);
 
     const { isLoading, priorities, deletePriority, updatePriority, createPriority } = useTaskPriority();

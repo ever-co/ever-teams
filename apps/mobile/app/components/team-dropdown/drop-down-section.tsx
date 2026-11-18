@@ -16,6 +16,7 @@ import { Avatar } from 'react-native-paper';
 import { observer } from 'mobx-react-lite';
 import { limitTextCharaters } from '../../helpers/sub-text';
 import { useNavigation } from '@react-navigation/native';
+import { navigateTo } from '../../navigators/routes';
 // import { FlatList } from 'react-native-gesture-handler';
 
 export interface Props {
@@ -146,10 +147,10 @@ const DropItem: FC<IDropItem> = observer(function DropItem({ team, changeTeam, i
 
 	const navigateToSettings = (team: IOrganizationTeamList) => {
 		if (isActiveTeam) {
-			navigation.navigate('Setting', { activeTab: 2 });
+			navigateTo(navigation, 'Setting', { activeTab: 2 });
 		} else {
 			changeTeam(team);
-			navigation.navigate('Setting', { activeTab: 2 });
+			navigateTo(navigation, 'Setting', { activeTab: 2 });
 		}
 	};
 	return (
