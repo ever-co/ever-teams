@@ -24,7 +24,7 @@ The element shows the kit's sign-in button, then the person's timer once they ar
 | `color-scheme` | `system`                    | `light`, `dark`, or `system` (follows the system's).                                       |
 | `lang`         | `en`                        | The language of the timer and its sign-in: `en` or `fr`.                                   |
 
-A change of attribute applies at once. Removing the element stops the timer's display and its requests.
+A change of attribute applies at once. Removing the element stops the timer's display and its polling. All the timers of a page share one color scheme for now: the last element to load sets it.
 
 ## Examples
 

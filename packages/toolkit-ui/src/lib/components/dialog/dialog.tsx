@@ -32,8 +32,14 @@ const DialogOverlay = ({
 );
 DialogOverlay.displayName = DialogPrimitive.Overlay.displayName;
 
-// Node.DOCUMENT_FRAGMENT_NODE: the root of an element rendered in a shadow root.
-const DOCUMENT_FRAGMENT_NODE = 11;
+// The shadow root an element is rendered in, if any.
+function shadowRootOf(element: HTMLElement): ShadowRoot | null {
+	const root = element.getRootNode();
+	if (root instanceof ShadowRoot) {
+		return root;
+	}
+	return null;
+}
 
 // Radix's first focus compares document.activeElement, which stays the shadow host inside a shadow root: it then
 // focuses every element of the dialog in turn, and a tab selects itself on the way. There, the dialog takes the focus
@@ -46,11 +52,52 @@ function focusDialogInShadowRoot(event: Event) {
 	if (event.defaultPrevented) {
 		return;
 	}
-	if (content.getRootNode().nodeType !== DOCUMENT_FRAGMENT_NODE) {
+	if (!shadowRootOf(content)) {
 		return;
 	}
 	event.preventDefault();
 	content.focus();
+}
+
+const FOCUSABLE = 'a[href], button, input, select, textarea, [tabindex]';
+
+// The elements Tab reaches in the dialog, in order.
+function tabbableIn(content: HTMLElement): HTMLElement[] {
+	const candidates = Array.from(content.querySelectorAll<HTMLElement>(FOCUSABLE));
+	return candidates.filter((element) => element.tabIndex >= 0 && !element.hasAttribute('disabled'));
+}
+
+// Radix's Tab trap compares document.activeElement too: inside a shadow root, Tab from the last element, or Shift+Tab
+// from the first, would leave the dialog for the page. There, the dialog loops its focus itself.
+function keepTabInShadowDialog(event: React.KeyboardEvent<HTMLElement>) {
+	if (event.key !== 'Tab') {
+		return;
+	}
+	const content = event.currentTarget;
+	const shadow = shadowRootOf(content);
+	if (!shadow) {
+		return;
+	}
+	const tabbable = tabbableIn(content);
+	const first = tabbable[0];
+	const last = tabbable[tabbable.length - 1];
+	if (!first) {
+		event.preventDefault();
+		return;
+	}
+	const focused = shadow.activeElement;
+	const onFirst = focused === first || focused === content;
+	const leavesForward = !event.shiftKey && focused === last;
+	const leavesBackward = event.shiftKey && onFirst;
+	if (leavesForward) {
+		event.preventDefault();
+		first.focus();
+		return;
+	}
+	if (leavesBackward) {
+		event.preventDefault();
+		last.focus();
+	}
 }
 
 const DialogContent = ({
@@ -58,6 +105,7 @@ const DialogContent = ({
 	className,
 	children,
 	onOpenAutoFocus,
+	onKeyDown,
 	...props
 }: React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> & {
 	ref?: React.RefObject<React.ElementRef<typeof DialogPrimitive.Content>>;
@@ -65,6 +113,10 @@ const DialogContent = ({
 	const openAutoFocus = (event: Event) => {
 		onOpenAutoFocus?.(event);
 		focusDialogInShadowRoot(event);
+	};
+	const keyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+		onKeyDown?.(event);
+		keepTabInShadowDialog(event);
 	};
 	return (
 		<DialogPortal>
@@ -76,6 +128,7 @@ const DialogContent = ({
 					className
 				)}
 				onOpenAutoFocus={openAutoFocus}
+				onKeyDown={keyDown}
 				{...props}
 			>
 				{children}

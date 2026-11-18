@@ -120,3 +120,23 @@ test('in a page the dialog focuses its first element, as before', async () => {
 	assert.equal(document.activeElement.textContent, 'first');
 	await act(async () => root.unmount());
 });
+
+test('in a shadow root Tab loops inside the dialog instead of leaving it for the page', async () => {
+	const host = document.createElement('div');
+	document.body.appendChild(host);
+	const shadow = host.attachShadow({ mode: 'open' });
+	const { root, portal } = await openDialog(shadow, []);
+	const buttons = [...portal.querySelector('[role="dialog"]').querySelectorAll('button')];
+	const first = buttons[0];
+	const last = buttons.at(-1);
+	const tab = (element, shiftKey) =>
+		element.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', shiftKey, bubbles: true, composed: true }));
+
+	await act(async () => last.focus());
+	await act(async () => tab(last, false));
+	assert.equal(shadow.activeElement, first, 'Tab on the last element goes back to the first');
+
+	await act(async () => tab(first, true));
+	assert.equal(shadow.activeElement, last, 'Shift+Tab on the first element goes to the last');
+	await act(async () => root.unmount());
+});
