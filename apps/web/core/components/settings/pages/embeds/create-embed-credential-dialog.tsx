@@ -56,6 +56,20 @@ function clientNoteOf(read: ClientsRead, t: Translate): string {
 	return t('settings.embeds.CLIENT_HINT');
 }
 
+type ClientOption = { id: string; name: string };
+
+/**
+ * The clients the field offers: the active ones, and the one chosen if it has left them since (archived, say). The
+ * choice then stays as it was, in sight, until the person changes it: it never turns into the whole workspace on its
+ * own. The API decides whether that client can still be used.
+ */
+function offeredClientsOf<T extends ClientOption>(clients: T[], chosen: T | null): T[] {
+	if (!chosen || clients.some((client) => client.id === chosen.id)) {
+		return clients;
+	}
+	return [...clients, chosen];
+}
+
 type ClientFieldProps = {
 	clientId: string | null;
 	onChange: (clientId: string | null) => void;
@@ -73,10 +87,17 @@ function CredentialClientField({ clientId, onChange, disabled }: Readonly<Client
 	const noteId = useId();
 	const { clients, isLoading, isError, refetch } = useActiveClients();
 	const isRead = !isLoading && !isError;
+	const [chosen, setChosen] = useState<(typeof clients)[number] | null>(null);
+	const offered = offeredClientsOf(clients, clientId === null ? null : chosen);
 	const hasNoClients = isRead && clients.length === 0;
-	const isDisabled = disabled || hasNoClients;
+	// A client already chosen can still be changed back to the whole workspace
+	const isDisabled = disabled || (hasNoClients && clientId === null);
 	const note = clientNoteOf({ isLoading, isError, hasNoClients }, t);
-	const choose = (value: string) => onChange(clientIdOf(value));
+	const choose = (value: string) => {
+		const nextClientId = clientIdOf(value);
+		setChosen(offered.find((client) => client.id === nextClientId) ?? null);
+		onChange(nextClientId);
+	};
 
 	return (
 		<div className="flex flex-col gap-1.5">
@@ -92,7 +113,7 @@ function CredentialClientField({ clientId, onChange, disabled }: Readonly<Client
 				</SelectTrigger>
 				<SelectContent className="max-h-72">
 					<SelectItem value={WHOLE_WORKSPACE}>{t('settings.embeds.CLIENT_WHOLE_WORKSPACE')}</SelectItem>
-					{clients.map((client) => (
+					{offered.map((client) => (
 						<SelectItem key={client.id} value={client.id} textValue={client.name}>
 							<span className="min-w-0 truncate">{client.name}</span>
 						</SelectItem>
@@ -100,7 +121,7 @@ function CredentialClientField({ clientId, onChange, disabled }: Readonly<Client
 				</SelectContent>
 			</Select>
 			<div className="flex items-start justify-between gap-2">
-				<p className="text-xs text-pretty text-muted-foreground" id={noteId}>
+				<p className="text-xs text-pretty text-muted-foreground" id={noteId} role="status">
 					{note}
 				</p>
 				{isError && (
@@ -126,6 +147,9 @@ function CreateCredentialForm({ create, canLimitToClient, onCancel, onCreated }:
 	const nameNoteId = useId();
 	const [name, setName] = useState('');
 	const [clientId, setClientId] = useState<string | null>(null);
+	// Kept while a client is chosen, even if the config read again says the API can no longer limit a credential: the
+	// choice stays in sight and can be changed, never widened behind the person's back
+	const isClientFieldShown = canLimitToClient || clientId !== null;
 	const [isNameMissing, setIsNameMissing] = useState(false);
 	const isCreating = create.isPending;
 
@@ -136,11 +160,8 @@ function CreateCredentialForm({ create, canLimitToClient, onCancel, onCreated }:
 			return;
 		}
 		setIsNameMissing(false);
-		let organizationContactId: string | null = null;
-		if (canLimitToClient) {
-			organizationContactId = clientId;
-		}
-		create.mutate({ name, organizationContactId }, { onSuccess: onCreated });
+		// A chosen client is always sent, never dropped: the service refuses a credential the API did not limit to it
+		create.mutate({ name, organizationContactId: clientId }, { onSuccess: onCreated });
 	};
 
 	let nameNote = t('settings.embeds.NAME_HINT');
@@ -181,7 +202,7 @@ function CreateCredentialForm({ create, canLimitToClient, onCancel, onCreated }:
 						{nameNote}
 					</p>
 				</div>
-				{canLimitToClient && (
+				{isClientFieldShown && (
 					<CredentialClientField clientId={clientId} onChange={setClientId} disabled={isCreating} />
 				)}
 				{create.isError && <Notice tone="error" title={t('settings.embeds.CREATE_FAILED')} />}

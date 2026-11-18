@@ -172,6 +172,38 @@ describe('CreateEmbedCredentialDialog', () => {
 		);
 	});
 
+	it('keeps a chosen client in sight and sends it when the config read again says clients cannot be limited', async () => {
+		const { rerender } = render(<CreateEmbedCredentialDialog open canLimitToClient onClose={jest.fn()} />);
+		await pickClient('Fabrikam Outdoor');
+
+		rerender(<CreateEmbedCredentialDialog open canLimitToClient={false} onClose={jest.fn()} />);
+
+		expect(clientField().textContent).toContain('Fabrikam Outdoor');
+		createWithName('Fabrikam client portal');
+		expect(mockMutate).toHaveBeenCalledWith(
+			{ name: 'Fabrikam client portal', organizationContactId: 'contact-fabrikam' },
+			expect.anything()
+		);
+	});
+
+	it('keeps a chosen client that leaves the active ones, in sight, until it is changed back', async () => {
+		const { rerender } = render(<CreateEmbedCredentialDialog open canLimitToClient onClose={jest.fn()} />);
+		await pickClient('Fabrikam Outdoor');
+
+		mockUseActiveClients.mockReturnValue(clientsRead({ clients: [] }));
+		rerender(<CreateEmbedCredentialDialog open canLimitToClient onClose={jest.fn()} />);
+
+		expect(clientField().hasAttribute('disabled')).toBe(false);
+		expect(clientField().textContent).toContain('Fabrikam Outdoor');
+		expect(noteOfClientField()).toBe('settings.embeds.CLIENT_EMPTY');
+		await pickClient(WHOLE_WORKSPACE);
+		createWithName('Northwind customer portal');
+		expect(mockMutate).toHaveBeenCalledWith(
+			{ name: 'Northwind customer portal', organizationContactId: null },
+			expect.anything()
+		);
+	});
+
 	it('locks the client while the credential is being created, as the name', () => {
 		mockIsPending = true;
 		renderDialog(true);
