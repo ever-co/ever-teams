@@ -15,6 +15,32 @@ export const sessionAtom = atom<SessionState>({ status: 'loading' });
 
 export const isSignedInAtom = atom((get) => get(sessionAtom).status === 'signed-in');
 
+function base64ToText(base64url: string): string {
+	const base64 = base64url.replace(/-/g, '+').replace(/_/g, '/');
+	const padding = '='.repeat((4 - (base64.length % 4)) % 4);
+	return atob(base64 + padding);
+}
+
+/**
+ * The person a session is: the user id Gauzy's access token carries. The keys of the person's own answers carry it, so
+ * the saved answers of someone who used the phone before never show. Empty when the token cannot be read.
+ */
+export function accountOf(session: Session): string {
+	const payload = session.accessToken.split('.')[1];
+	if (!payload) {
+		return '';
+	}
+	try {
+		const claims = JSON.parse(base64ToText(payload)) as { id?: unknown };
+		if (typeof claims.id === 'string') {
+			return claims.id;
+		}
+		return '';
+	} catch {
+		return '';
+	}
+}
+
 /** The state for what was read at start: a session needs an access token. */
 export function sessionStateFrom(session: Partial<Session> | null): SessionState {
 	const accessToken = session?.accessToken;

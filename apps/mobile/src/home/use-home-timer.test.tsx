@@ -5,7 +5,7 @@ import { createStore, Provider } from 'jotai';
 import { readEmployeeId, readTimerStatus, readTrackedTotals, stopTimer } from '../data/timer';
 import { sessionAtom } from '../state/session';
 import type { SessionState } from '../state/session';
-import { useStopTimer, useTimerStatus, useTrackedTotals } from './use-home-timer';
+import { homeKeys, useStopTimer, useTimerStatus, useTrackedTotals } from './use-home-timer';
 
 jest.mock('../data/timer', () => ({
 	readTimerStatus: jest.fn(),
@@ -80,5 +80,19 @@ describe('a stop from Home', () => {
 
 		expect(stopTimer).toHaveBeenCalledWith(kofi, running);
 		await waitFor(() => expect(readTimerStatus).toHaveBeenCalledTimes(2));
+	});
+});
+
+describe('the answers Home saves', () => {
+	function tokenFor(id: string): string {
+		return `header.${btoa(JSON.stringify({ id })).replace(/=+$/, '')}.signature`;
+	}
+
+	it('are kept apart for two people of the same workspace', () => {
+		const kofiKey = homeKeys.status({ ...kofi, accessToken: tokenFor('user-kofi') });
+		const priyaKey = homeKeys.status({ ...kofi, accessToken: tokenFor('user-priya') });
+
+		expect(kofiKey).not.toEqual(priyaKey);
+		expect(kofiKey).toContain('user-kofi');
 	});
 });

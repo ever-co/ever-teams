@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAtomValue } from 'jotai';
 import { readEmployeeId, readTask, readTimerStatus, readTrackedTotals, startTimer, stopTimer } from '../data/timer';
 import type { StartTarget, TimerLog } from '../data/timer';
-import { sessionAtom } from '../state/session';
+import { accountOf, sessionAtom } from '../state/session';
 import type { Session } from '../state/session';
 
 // The web reads the timer every 30 s; the query client reads it again when the app comes back to the foreground
@@ -25,18 +25,23 @@ function sessionOrFail(session: Session | undefined): Session {
 	return session;
 }
 
-function workspaceOf(session: Session | undefined): [string, string] {
-	return [session?.tenantId ?? '', session?.organizationId ?? ''];
+function personOf(session: Session | undefined): [string, string, string] {
+	if (!session) {
+		return ['', '', ''];
+	}
+	return [session.tenantId ?? '', session.organizationId ?? '', accountOf(session)];
 }
 
-/** The keys of what Home reads: each carries the workspace, so another workspace never shows this one's answers. */
+/**
+ * The keys of what Home reads: each carries the workspace and the person, so the answers saved for another workspace,
+ * or for someone who used the phone before, never show.
+ */
 export const homeKeys = {
-	status: (session?: Session) => ['home', 'timer-status', ...workspaceOf(session)] as const,
-	employee: (session?: Session) => ['home', 'employee', ...workspaceOf(session)] as const,
+	status: (session?: Session) => ['home', 'timer-status', ...personOf(session)] as const,
+	employee: (session?: Session) => ['home', 'employee', ...personOf(session)] as const,
 	totals: (session?: Session, employeeId?: string | null) =>
-		['home', 'totals', ...workspaceOf(session), employeeId ?? ''] as const,
-	task: (session?: Session, taskId?: string | null) =>
-		['home', 'task', ...workspaceOf(session), taskId ?? ''] as const
+		['home', 'totals', ...personOf(session), employeeId ?? ''] as const,
+	task: (session?: Session, taskId?: string | null) => ['home', 'task', ...personOf(session), taskId ?? ''] as const
 };
 
 export function useTimerStatus() {
