@@ -37,8 +37,8 @@ export const useManualTimeForm = () => {
 
 	const [currentTeamsState, setCurrentTeamsState] = useState<ICurrentTeamsState>(NO_TEAMS_STATE);
 
-	// Another account starts from an empty form: after a sign-out that keeps the form mounted, what the previous account
-	// picked or typed would otherwise go out with the next account's time.
+	// Another account starts from an empty form: after a sign-out that keeps the form mounted, what the previous
+	// account picked or typed would otherwise go out with the next account's time.
 	useForgetOnAccountChange(() => {
 		setCurrentTeamsState(NO_TEAMS_STATE);
 		setDescription('');
