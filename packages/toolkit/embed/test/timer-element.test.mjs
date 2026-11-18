@@ -31,8 +31,10 @@ const REGISTRATION = '@property --ever-teams-tw-shadow{syntax:"*";inherits:false
 const stubs = {
 	atoms: `
 		import { createElement, useEffect } from 'react';
-		export const TeamsProvider = ({ config, colorScheme, lang, scopedStyles, children }) => {
+		export const TeamsProvider = ({ config, colorScheme, lang, scopedStyles, onTimerChange, children }) => {
 			useEffect(() => () => { globalThis.unmounted = (globalThis.unmounted ?? 0) + 1; }, []);
+			// What the kit calls at each change of the timer, as the last render gave it.
+			globalThis.onTimerChange = onTimerChange;
 			return createElement('div', {
 				'data-provider': '',
 				'data-config': JSON.stringify(config),
@@ -198,4 +200,56 @@ test('a page that loads the script twice keeps working', async () => {
 	const element = await place();
 
 	assert.ok(providerOf(element));
+});
+
+const CHANGE = {
+	running: true,
+	startedAt: '2026-11-18T09:00:00.000Z',
+	projectId: 'project-1',
+	taskId: null,
+	initial: false
+};
+
+test('a change of the timer reaches the page as ever-teams-timer-change, with the change as its detail', async () => {
+	const element = await place({ 'api-url': 'https://api.example.com/api' });
+	const heard = [];
+	document.addEventListener('ever-teams-timer-change', (event) => heard.push(event));
+
+	await act(async () => globalThis.onTimerChange(CHANGE));
+
+	assert.equal(heard.length, 1);
+	assert.equal(heard[0].target, element);
+	assert.deepEqual(heard[0].detail, CHANGE);
+	assert.equal(heard[0].bubbles, true);
+	assert.equal(heard[0].composed, true);
+});
+
+test("an element inside another component's shadow root still tells the page", async () => {
+	const host = document.createElement('div');
+	const shadow = host.attachShadow({ mode: 'open' });
+	await act(async () => document.body.appendChild(host));
+	const element = document.createElement('ever-teams-timer');
+	await act(async () => shadow.appendChild(element));
+	const heard = [];
+	document.addEventListener('ever-teams-timer-change', (event) => heard.push(event.detail));
+
+	await act(async () => globalThis.onTimerChange({ ...CHANGE, running: false, startedAt: null, projectId: null }));
+
+	assert.equal(heard.length, 1);
+	assert.equal(heard[0].running, false);
+});
+
+test('the element gives the kit the same callback at every render, so a change of attribute starts nothing over', async () => {
+	const element = await place();
+	const first = globalThis.onTimerChange;
+	await act(async () => element.setAttribute('color-scheme', 'dark'));
+
+	assert.equal(typeof first, 'function');
+	assert.equal(globalThis.onTimerChange, first);
+});
+
+test('the package exports the event name', async () => {
+	const { TIMER_CHANGE_EVENT } = await import(entry);
+
+	assert.equal(TIMER_CHANGE_EVENT, 'ever-teams-timer-change');
 });
