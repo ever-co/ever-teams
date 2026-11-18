@@ -50,6 +50,11 @@ export interface IOrganizationProjectBase
 	closeTasksIn?: number | null;
 	defaultAssigneeId?: ID | null;
 	defaultAssignee?: IEmployee | null;
+	/**
+	 * Set by the API on a private project the caller is not on, where the workspace keeps private projects private
+	 * (CORE-27, ever-co/ever-gauzy#12031): the project is then answered as its id and this marker, with no name.
+	 */
+	projectHidden?: boolean;
 	// Will be implemented on the  API side much later :
 	relations?: IProjectRelation[] | null; // relationship
 	repository?: IOrganizationProjectRepository | null;

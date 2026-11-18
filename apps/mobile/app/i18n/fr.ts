@@ -16,7 +16,72 @@ const fr = {
 	},
 	timer: {
 		stopFailedTitle: "Le chronomètre n'a pas pu s'arrêter",
-		stopFailedMessage: 'Il tourne toujours. Réessayez dans un instant.'
+		stopFailedMessage: 'Il tourne toujours. Réessayez dans un instant.',
+		startMove: {
+			title: 'Début du chronomètre en cours',
+			startedAt: 'Commencé à {{time}}',
+			open: 'Commencé à {{time}}. Modifier le début',
+			newStart: 'Nouveau début',
+			timePlaceholder: 'HH:MM',
+			reason: 'Motif',
+			reasonPlaceholder: 'Pourquoi le début change',
+			laterOnly:
+				"L'ajout de temps à la main ne vous est pas permis : le début ne peut être déplacé que plus tard.",
+			save: 'Enregistrer',
+			saving: 'Enregistrement…',
+			close: 'Fermer',
+			saved: 'Le chronomètre commence maintenant à {{time}}.',
+			checking: 'Vérification que le début peut changer…',
+			viewTracker: "Ce chronomètre tourne dans l'application de bureau. Modifiez son début là-bas.",
+			viewNotAllowed: 'La modification du temps suivi ne vous est pas permise dans cette organisation.',
+			unsupported: "Le début d'un chronomètre en cours ne peut pas encore être modifié sur ce serveur.",
+			invalidTime: 'Saisissez une heure comme 09:00.',
+			chooseDay: 'Le minuteur a démarré avant minuit : choisissez le jour du nouveau début.',
+			notRunning: 'Le chronomètre ne tourne plus.',
+			trackerRun:
+				"Ce chronomètre tourne dans l'application de bureau ou l'agent, qui enregistrent eux-mêmes son temps. Modifiez son début là-bas.",
+			inFuture: 'Le début ne peut pas être plus tard que maintenant.',
+			editNotAllowed: 'La modification du temps suivi ne vous est pas permise.',
+			manualNotAllowed:
+				'Un début plus tôt ajoute du temps à la main, ce qui ne vous est pas permis. Choisissez un début plus tard.',
+			reasonRequired: 'Votre organisation demande un motif.',
+			reasonTooLong: 'Le motif est trop long : 255 caractères au plus.',
+			overlap: 'Une autre de vos entrées couvre ce moment. Choisissez un début après sa fin.',
+			changed: 'Le début vient de changer ailleurs. Vérifiez-le et réessayez.',
+			saveFailed: "Le début n'a pas pu être enregistré. Réessayez.",
+			offline: "Vous êtes hors ligne : le début n'a pas changé. Réessayez une fois connecté."
+		},
+		discard: {
+			menu: 'Autres actions du chronomètre',
+			changeStart: 'Modifier le début',
+			action: 'Abandonner cette session',
+			title: 'Abandonner cette session ?',
+			description: "Rien n'est enregistré.",
+			descriptionElsewhere:
+				"Cette session a été lancée depuis {{source}} et s'y arrête aussi. Rien n'est enregistré.",
+			confirm: 'Abandonner',
+			discarding: 'Abandon en cours…',
+			discarded: 'Session abandonnée',
+			discardedHint: "Le chronomètre est arrêté et rien n'a été enregistré.",
+			sources: {
+				web: "l'application web",
+				browserExtension: "l'extension du navigateur",
+				other: 'une autre application'
+			},
+			failures: {
+				notRunning: "Aucun chronomètre ne tourne plus : rien n'a été abandonné.",
+				disabled: "Votre organisation ne permet pas d'abandonner une session.",
+				tooLate:
+					"Cette session a commencé il y a trop longtemps pour être abandonnée. Arrêtez-la, puis modifiez l'entrée.",
+				forbidden: "Votre rôle ne permet pas d'abandonner cette session.",
+				notSupported: "Ce serveur ne permet pas encore d'abandonner une session.",
+				changed: "Une autre session a commencé entre-temps : rien n'a été abandonné.",
+				trackerRun:
+					"Cette session est enregistrée par l'application de bureau ou l'agent, qui tiennent eux-mêmes son temps : elle ne peut pas être abandonnée ici.",
+				offline: "Vous êtes hors ligne : rien n'a été abandonné. Réessayez une fois connecté.",
+				generic: "La session n'a pas pu être abandonnée. Réessayez."
+			}
+		}
 	},
 	welcomeScreen: {
 		postscript:
@@ -26,10 +91,9 @@ const fr = {
 		letsGo: "Let's go!" // @demo remove-current-line
 	},
 	errorScreen: {
-		title: 'Something went wrong!',
-		friendlySubtitle:
-			"This is the screen that your users will see in production when an error is thrown. You'll want to customize this message (located in `app/i18n/en.ts`) and probably the layout as well (`app/screens/ErrorScreen`). If you want to remove this entirely, check `app/app.tsx` for the <ErrorBoundary> component.",
-		reset: 'RESET APP',
+		title: 'Un problème est survenu',
+		friendlySubtitle: 'L’application a rencontré un problème. Rechargez-la pour continuer.',
+		reset: 'Recharger l’application',
 		traceTitle: 'Error from %{name} stack' // @demo remove-current-line
 	},
 	emptyStateComponent: {
@@ -77,7 +141,7 @@ const fr = {
 		createTeam: "Créer l'équipe",
 		invalidConfirmCode: 'Code de confirmation invalide',
 		securityCodeSent: 'Le code de sécurité a été envoyé sur le nouvel e-mail',
-		codeSentTo: 'Un code de 6 caractères envoyé à :'
+		codeSentTo: 'Nous avons envoyé un code à :'
 	},
 	myWorkScreen: {
 		name: 'Travail',

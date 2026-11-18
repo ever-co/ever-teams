@@ -376,7 +376,9 @@ export function useCalendarPage() {
 		isEmpty,
 		isMemberUnknown,
 		showsError,
-		refetch
+		refetch,
+		/** When the entries shown were read: an entry's card waits for a read after its label save (#5368). */
+		entriesReadAt: dataUpdatedAt
 	};
 }
 

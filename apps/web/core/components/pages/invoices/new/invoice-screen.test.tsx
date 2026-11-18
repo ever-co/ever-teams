@@ -39,7 +39,7 @@ jest.mock('./invoice-left-out', () => ({ OtherCurrencies: () => null, UnpricedTi
 jest.mock('./invoice-sheet', () => ({ InvoiceSheet: () => <p>saved lines</p> }));
 jest.mock('./new-invoice-states', () => ({ InvoiceSheetSkeleton: () => <p>loading lines</p> }));
 
-import { OverlapNotice, PreparedInvoice, RevisedInvoiceBody } from './invoice-screen';
+import { KeptRatesNotice, OverlapNotice, PreparedInvoice, RevisedInvoiceBody } from './invoice-screen';
 import type { InvoiceScreenState } from '@/core/hooks/invoices/use-new-invoice';
 
 function invoiceWith(overlapNotice: OverlapNoticeState) {
@@ -52,6 +52,34 @@ function shownNotice() {
 	const [title, description] = Array.from(notice.querySelectorAll('p')).map((line) => line.textContent);
 	return { tone: notice.dataset.tone, title, description };
 }
+
+describe('the notice about time priced at today’s rates although past time keeps its rate', () => {
+	function invoiceOf(pricesKeptTimeToday: boolean, linesSource: 'time' | 'saved' = 'time') {
+		return { linesSource, time: { pricesKeptTimeToday } } as unknown as InvoiceDraftState;
+	}
+
+	it('warns before the save that every hour is at today’s rates', () => {
+		render(<KeptRatesNotice invoice={invoiceOf(true)} />);
+
+		expect(shownNotice()).toEqual({
+			tone: 'warning',
+			title: 'invoices.new.KEPT_RATES_UNREAD_TITLE',
+			description: 'invoices.new.KEPT_RATES_UNREAD_MESSAGE'
+		});
+	});
+
+	it('says nothing when the time states the rates it kept', () => {
+		const { container } = render(<KeptRatesNotice invoice={invoiceOf(false)} />);
+
+		expect(container.innerHTML).toBe('');
+	});
+
+	it('says nothing over the lines an invoice was saved with, which keep their rates', () => {
+		const { container } = render(<KeptRatesNotice invoice={invoiceOf(true, 'saved')} />);
+
+		expect(container.innerHTML).toBe('');
+	});
+});
 
 describe('the notice about earlier invoices of the same period', () => {
 	it('is a quiet note when every one of them records its time', () => {

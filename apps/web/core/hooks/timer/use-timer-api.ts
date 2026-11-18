@@ -29,6 +29,7 @@ import { forgetSavedStop, saveStop } from '@/core/lib/utils/timer/saved-stop';
 import { rememberHeartbeat } from '@/core/lib/utils/timer/unfollowed-time';
 import { notesForStartOf } from '@/core/lib/utils/timer/timer-start-notes';
 import { startTaskOf } from '@/core/lib/utils/timer/timer-start-task';
+import { labelSavesLanded, statusKeepingSavedLabels } from '@/core/lib/utils/timer-status-labels';
 import { queryKeys } from '@/core/query/keys';
 import { ApiErrorService } from '@/core/services/client/api-error.service';
 import { timerService } from '@/core/services/client/api/timers';
@@ -41,12 +42,14 @@ import {
 	localTimerStatusState,
 	organizationOpeningState,
 	timerNotesState,
+	timerLabelsState,
 	timerStartsInFlightState,
 	timerStatusFetchingState,
 	timerStatusState,
 	workspaceOpeningState
 } from '@/core/stores';
 import { teamTimerStatusState } from '@/core/stores/timer/team-timer-status';
+import { timerLabelsSavedState } from '@/core/stores/timer/timer-labels';
 import { ETaskStatusName } from '@/core/types/generics/enums/task';
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
 import { ILocalTimerStatus, ITimerStatus } from '@/core/types/interfaces/timer/timer-status';
@@ -293,7 +296,12 @@ export function useTimerApi({
 	);
 	const scopedStatusQuery = useQuery({
 		queryKey: statusKey,
-		queryFn: ({ signal }) => timerService.getTimerStatus({ scope: scope!, signal }),
+		// The label saves landed when the read was asked: labels saved on the run after it are kept over its own (#5368)
+		queryFn: async ({ signal }) => {
+			const labelSavesSeen = labelSavesLanded();
+			const response = await timerService.getTimerStatus({ scope: scope!, signal });
+			return { ...response, labelSavesSeen };
+		},
 		enabled: statusEnabled && enabled && scopedStatusReady,
 		refetchInterval: statusEnabled ? statusRefetchInterval : false,
 		refetchIntervalInBackground: false,
@@ -308,17 +316,26 @@ export function useTimerApi({
 	} = useQueryCall(async () =>
 		queryClient.fetchQuery({
 			queryKey: queryKeys.timer.timer(activeTeamId),
-			queryFn: () => timerService.getTimerStatus()
+			queryFn: async () => {
+				const labelSavesSeen = labelSavesLanded();
+				const response = await timerService.getTimerStatus();
+				return { ...response, labelSavesSeen };
+			}
 		})
 	);
 	const loading = statusEnabled ? scopedStatusQuery.isLoading : fallbackLoading;
 
 	useEffect(() => {
-		const nextStatus = scopedStatusQuery.data?.data;
+		const read = scopedStatusQuery.data;
+		const nextStatus = statusKeepingSavedLabels(
+			read?.data,
+			store.get(timerLabelsSavedState),
+			read?.labelSavesSeen ?? 0
+		);
 		if (statusEnabled && nextStatus && isCurrentScope() && !isEqual(timerStatusRef.current, nextStatus)) {
 			setTimerStatus(nextStatus);
 		}
-	}, [isCurrentScope, scopedStatusQuery.data, setTimerStatus, statusEnabled, timerStatusRef]);
+	}, [isCurrentScope, scopedStatusQuery.data, setTimerStatus, statusEnabled, store, timerStatusRef]);
 
 	const startTimerMutation = useMutation({
 		mutationFn: async ({
@@ -326,15 +343,24 @@ export function useTimerApi({
 			projectId,
 			organizationTeamId,
 			isBillable,
-			description
+			description,
+			labelIds
 		}: {
 			taskId: string;
 			projectId?: string | null;
 			organizationTeamId?: string;
 			isBillable: boolean;
 			description?: string;
+			labelIds?: string[];
 		}) => {
-			return await timerService.startTimer({ taskId, projectId, organizationTeamId, isBillable, description });
+			return await timerService.startTimer({
+				taskId,
+				projectId,
+				organizationTeamId,
+				isBillable,
+				description,
+				labelIds
+			});
 		},
 		// runStartTimer shows the translated TIMER_START_FAILED toast; this keeps the raw global
 		// "Mutation Error" toast from showing a second one
@@ -438,12 +464,17 @@ export function useTimerApi({
 			}
 			const request = statusEnabled ? scopedStatusQuery.refetch().then((result) => result.data) : queryCall();
 			return request.then((res) => {
-				if (res?.data && (!statusEnabled || isCurrentScope()) && !isEqual(timerStatus, res.data)) {
+				const readStatus = statusKeepingSavedLabels(
+					res?.data,
+					store.get(timerLabelsSavedState),
+					res?.labelSavesSeen ?? 0
+				);
+				if (readStatus && (!statusEnabled || isCurrentScope()) && !isEqual(timerStatus, readStatus)) {
 					setTimerStatus((t: ITimerStatus | null) => {
 						if (deepCheck) {
-							return res.data.running !== t?.running ? res.data : t;
+							return readStatus.running !== t?.running ? readStatus : t;
 						}
-						return res.data;
+						return readStatus;
 					});
 				}
 				return res;
@@ -456,6 +487,7 @@ export function useTimerApi({
 			scopedStatusQuery,
 			setTimerStatus,
 			statusEnabled,
+			store,
 			timerStatus,
 			user?.tenantId
 		]
@@ -495,6 +527,8 @@ export function useTimerApi({
 		}
 		// No status update from a sync that starts while a command is pending, e.g. a slow stop from another instance
 		const commandSeq = timerCommandMark();
+		// Labels saved on the run once the heartbeat is sent are kept over the ones its answer brings (#5368)
+		const labelSavesSeen = labelSavesLanded();
 		return syncTimerMutate({
 			source: timerStatus?.lastLog?.source || ETimeLogSource.TEAMS,
 			user: $user.current,
@@ -502,7 +536,7 @@ export function useTimerApi({
 		}).then((res) => {
 			// A hidden tab, or one without auto refresh, never refetches the status: this is how its heartbeat
 			// learns that the timer was stopped elsewhere. The proxy route answers null when its status read fails.
-			const status = res?.data;
+			const status = statusKeepingSavedLabels(res?.data, store.get(timerLabelsSavedState), labelSavesSeen);
 			// The browser remembers the heartbeat it sent: the time without one is counted from it (unfollowed-time.ts)
 			rememberHeartbeat(status?.lastLog);
 			if (
@@ -515,7 +549,16 @@ export function useTimerApi({
 			}
 			return res;
 		});
-	}, [isCurrentScope, setTimerStatus, statusEnabled, syncTimerMutate, syncTimerPending, timerStatus, timerStatusRef]);
+	}, [
+		isCurrentScope,
+		setTimerStatus,
+		statusEnabled,
+		store,
+		syncTimerMutate,
+		syncTimerPending,
+		timerStatus,
+		timerStatusRef
+	]);
 
 	// ==================== START TIMER ====================
 
@@ -531,6 +574,8 @@ export function useTimerApi({
 	const keepRunOrClearStuckFlag = useCallback(
 		async (employeeId: string): Promise<boolean> => {
 			const commandSeq = timerCommandMark();
+			// Labels saved on the run while the read is on its way are kept over the ones it brings (#5368)
+			const labelSavesSeen = labelSavesLanded();
 			let runGoingOn: RunGoingOn | null;
 			try {
 				runGoingOn = await readRunGoingOn(employeeId);
@@ -550,12 +595,17 @@ export function useTimerApi({
 			toast.warning(t('timer.ALREADY_TRACKING_MESSAGE'), { id: ALREADY_TRACKING_TOAST_ID });
 			// Shown now, so this tab's Stop reaches the run: a default instance never reads its status again. Not after
 			// a command sent meanwhile, which the read may predate.
+			const runStatus = statusKeepingSavedLabels(
+				runGoingOn.status,
+				store.get(timerLabelsSavedState),
+				labelSavesSeen
+			);
 			if (
 				isTimerCommandMarkCurrent(commandSeq) &&
 				(!statusEnabled || isCurrentScope()) &&
-				!isEqual(timerStatusRef.current, runGoingOn.status)
+				!isEqual(timerStatusRef.current, runStatus)
 			) {
-				setTimerStatus(runGoingOn.status);
+				setTimerStatus(runStatus);
 			}
 			// The status queries catch up too, unless the day's status leaves the run out: read again, it would show
 			// the run stopped
@@ -564,7 +614,7 @@ export function useTimerApi({
 			}
 			return true;
 		},
-		[isCurrentScope, queryClient, setTimerStatus, statusEnabled, t, timerStatusRef]
+		[isCurrentScope, queryClient, setTimerStatus, statusEnabled, store, t, timerStatusRef]
 	);
 
 	// Check if the user is tracking time in another tab or device
@@ -725,13 +775,16 @@ export function useTimerApi({
 			const notesToUse = continuedNotes ?? notesToSendAtStart(store.get(timerNotesState));
 			// Until Gauzy answers, the status still says stopped: the team menu reads this instead (#5204)
 			store.set(timerStartsInFlightState, (count) => count + 1);
+			// The labels picked for this start: the entry's own from now on, so the next start begins without any
+			const labelIdsToUse = store.get(timerLabelsState);
 			const startRequest = startTimerMutate({
 				taskId: taskIdToUse,
 				projectId: projectIdToUse,
 				// This tab's team: the team cookie is shared by every tab and may name another tab's team (#5120)
 				organizationTeamId: teamIdAtStart,
 				isBillable: isBillableToUse,
-				description: notesToUse
+				description: notesToUse,
+				labelIds: labelIdsToUse
 			});
 			const promise = trackTimerCommand(startRequest).then(async (res) => {
 				res.data &&
@@ -739,6 +792,8 @@ export function useTimerApi({
 					!isEqual(timerStatus, res.data) &&
 					setTimerStatus(res.data);
 				onRequestLanded?.();
+				// The labels this start sent are the running entry's now; one picked while it was on its way stays picked
+				store.set(timerLabelsState, (current) => current.filter((id) => !labelIdsToUse.includes(id)));
 				// Notes typed before this start are the notes of the entry it created, and of no entry found running later.
 				// Not once the member changed team meanwhile: the draft this start sent was dropped then, and the notes
 				// typed since are for the next team's start. The team is read from the store, as the card that asked for

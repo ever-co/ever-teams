@@ -3,8 +3,9 @@
 import { useCallback, useMemo, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { currentLogOf } from '@/core/hooks/dashboards/timesheets/use-bulk-edit-run';
-import { splitPartsOf } from '@/core/lib/utils/calendar-split';
+import { splitPartsOf, splitsOnSlots } from '@/core/lib/utils/calendar-split';
 import { errorStatusOf } from '@/core/lib/utils/error-feedback';
+import { type ApiSplitFailure, apiSplitFailureOf } from '@/core/lib/utils/time-log-split';
 import { endOfLog, memberIdOfLog, startOfLog, statusOfLog } from '@/core/lib/utils/dashboards/timesheets';
 import type { TimeWindow } from '@/core/lib/utils/dashboards/timesheet-sheet-edit';
 import { queryKeys } from '@/core/query/keys';
@@ -19,9 +20,19 @@ import { isTakenOnServer, type PartOnServer, partOnServer } from './time-taken-o
 /**
  * How a split ended when it did not: refused before any change because another entry now covers the time, or
  * because the entry is no longer the one the dialog split (`changed`), put back as it was, the first part kept and
- * the rest to add by hand, or an outcome the server could not confirm.
+ * the rest to add by hand, or an outcome the server could not confirm. Through the API's split: refused with the
+ * reason it names, `tracked` when the API turns out not to split tracked time, and `retry` for an outcome not known,
+ * which a second try settles (it never splits twice).
  */
-type CalendarSplitFailure = 'overlap' | 'changed' | 'restored' | 'first-part-kept' | 'unknown';
+export type CalendarSplitFailure =
+	| 'overlap'
+	| 'changed'
+	| 'restored'
+	| 'first-part-kept'
+	| 'unknown'
+	| 'tracked'
+	| 'retry'
+	| Exclude<ApiSplitFailure, 'not-offered' | 'changed' | 'unknown'>;
 
 export class CalendarSplitError extends Error {
 	constructor(
@@ -42,6 +53,10 @@ interface CalendarSplitRequest {
 	/** The task the second part goes to, with its project when it has one; the entry's own task when null. */
 	secondTask: SplitTask | null;
 	tenantId: string;
+	/** The API splits in one write (ever-co/ever-gauzy#12030): the split goes through it. */
+	viaApi?: boolean;
+	/** Why the time changes, where the organization asks for one. */
+	reason?: string;
 }
 
 function windowOfLog(log: ITimeLog): TimeWindow | null {
@@ -255,6 +270,65 @@ async function restoreAfterFailedAdd(
 	throw new CalendarSplitError('restored', addError);
 }
 
+/**
+ * Splits an entry in one write with the API's split (ever-co/ever-gauzy#12030): the entry ends at the split time and
+ * the rest becomes a second entry, on the task picked (with its project) or the entry's own; every time slot goes, with
+ * its screenshots and activity, to the part that holds its time. An API without the route leaves time added by hand to
+ * the two writes of `splitCalendarEntry`, and tracked time refused as before.
+ */
+export async function splitThroughApi(request: CalendarSplitRequest) {
+	const { log, splitAt, secondTask } = request;
+	const window = windowOfLog(log);
+	if (!window) {
+		throw new Error('An entry without a start and an end cannot be split');
+	}
+	// As the two writes do, the entry is read again first: the API splits the entry it holds now, which another tab
+	// may have moved or put on another task since the dialog read it. One already ending at the split time may be this
+	// very split, whose answer was lost: the same request sent again answers its two parts, and splits nothing twice
+	const current = await currentLogOf(log);
+	const first = splitPartsOf(window, splitAt).first;
+	const isAsRead = isStillTheSplitEntry(log, current, window);
+	const isSplitAlready = isStillTheSplitEntry(log, current, first);
+	if (!isAsRead && !isSplitAlready) {
+		throw new CalendarSplitError('changed', null);
+	}
+	const secondPart: { taskId?: string; projectId?: string; reason?: string } = {};
+	// A break's parts stay breaks: the API refuses a task or a project for the second one (TIME_LOG_SPLIT_BREAK_FIELDS)
+	const takesTask = secondTask !== null && log.logType !== ETimeLogType.BREAK;
+	if (takesTask) {
+		secondPart.taskId = secondTask.id;
+	}
+	// A picked task without a project leaves the entry's project to the second part, as the two writes do: the API
+	// clears the project of the part for a `null`
+	if (takesTask && secondTask?.projectId) {
+		secondPart.projectId = secondTask.projectId;
+	}
+	const reason = request.reason?.trim();
+	if (reason) {
+		secondPart.reason = reason;
+	}
+	try {
+		await timeLogService.splitTimeLog({ timeLogId: log.id, splitAt, ...secondPart });
+	} catch (error) {
+		const failure = apiSplitFailureOf(error);
+		if (failure !== 'not-offered') {
+			throw new CalendarSplitError(calendarFailureOf(failure), error);
+		}
+		if (splitsOnSlots(log)) {
+			throw new CalendarSplitError('tracked', error);
+		}
+		await splitCalendarEntry(request);
+	}
+}
+
+/** The dialog's failure for a refusal of the API; an outcome not known can be tried again, it never splits twice. */
+function calendarFailureOf(failure: Exclude<ApiSplitFailure, 'not-offered'>): CalendarSplitFailure {
+	if (failure === 'unknown') {
+		return 'retry';
+	}
+	return failure;
+}
+
 export interface CalendarEntrySplit {
 	isSaving: boolean;
 	failure: CalendarSplitFailure | null;
@@ -273,7 +347,11 @@ export function useCalendarEntrySplit(): CalendarEntrySplit {
 			setIsSaving(true);
 			setFailure(null);
 			try {
-				await splitCalendarEntry(request);
+				if (request.viaApi) {
+					await splitThroughApi(request);
+				} else {
+					await splitCalendarEntry(request);
+				}
 				return true;
 			} catch (error) {
 				let next: CalendarSplitFailure = 'restored';

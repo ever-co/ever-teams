@@ -39,15 +39,23 @@ import {
 	TGetTimeLimitReport,
 	TTimeLimitReportList
 } from '@/core/types/schemas';
-import { ITimeLogUpdatePayload } from '@/core/types/interfaces/timesheet/time-log.interface';
+import {
+	ITimeLogSplitPayload,
+	ITimeLogSplitResult,
+	ITimeLogUpdatePayload
+} from '@/core/types/interfaces/timesheet/time-log.interface';
 
 const TASK_LABELS_RELATION = 'task.tags';
+/** The labels of the entry itself (Gauzy #12029), which an API without them does not know. */
+const ENTRY_LABELS_RELATION = 'tags';
 
 interface ITimeLogsRelationOptions {
 	/** Lists the breaks too (Gauzy #11940); asked only where the organization turned breaks on. */
 	includeBreaks?: boolean;
 	/** Each log's task comes with its labels, which a report that filters by label reads from the logs themselves. */
 	withTaskLabels?: boolean;
+	/** Each log comes with its own labels: asked only of an API that has them (`supportsEntryLabels`). */
+	withEntryLabels?: boolean;
 }
 
 /** The report filters a list of entries shares with the reports, sent only when given. */
@@ -57,6 +65,39 @@ interface ITimeLogsReportFilters {
 	teamIds?: string[];
 	/** With `teamIds`, the time the teams' members logged without a team too, as the daily report counts it. */
 	includeTimeWithoutTeam?: boolean;
+}
+
+type ProbeFailure = {
+	status?: number;
+	statusCode?: number;
+	message?: unknown;
+	response?: { status?: number; data?: { message?: unknown } };
+} | null;
+
+const TAGS_PROPERTY = /\btags\b/i;
+
+function messageTextOf(message: unknown): string {
+	if (Array.isArray(message)) {
+		return message.join(' ');
+	}
+	if (typeof message === 'string') {
+		return message;
+	}
+	return '';
+}
+
+/**
+ * Whether an error is the refusal of an API without labels on entries: it names the `tags` property it does not have
+ * (a Gauzy before ever-co/ever-gauzy#12029 answers 500, "Property "tags" was not found in "TimeLog""). A refusal for
+ * another reason is not taken as no labels: it is read again.
+ */
+function isRefusalOfRelation(error: unknown): boolean {
+	const failure = error as ProbeFailure;
+	const status = failure?.response?.status ?? failure?.status ?? failure?.statusCode;
+	const isRefusalStatus = status === 400 || status === 500;
+	const message = `${messageTextOf(failure?.message)} ${messageTextOf(failure?.response?.data?.message)}`;
+	const namesTheTagsProperty = TAGS_PROPERTY.test(message);
+	return isRefusalStatus && namesTheTagsProperty;
 }
 
 class TimeLogService extends APIService {
@@ -236,6 +277,7 @@ class TimeLogService extends APIService {
 		taskIds = [],
 		status = [],
 		withTaskLabels = false,
+		withEntryLabels = false,
 		includeBreaks = false,
 		logTypes = [],
 		teamIds = [],
@@ -262,9 +304,16 @@ class TimeLogService extends APIService {
 		TIMESHEET_RELATIONS.forEach((relation, index) => {
 			params.append(`relations[${index}]`, relation);
 		});
+		const extraRelations: string[] = [];
 		if (withTaskLabels) {
-			params.append(`relations[${TIMESHEET_RELATIONS.length}]`, TASK_LABELS_RELATION);
+			extraRelations.push(TASK_LABELS_RELATION);
 		}
+		if (withEntryLabels) {
+			extraRelations.push(ENTRY_LABELS_RELATION);
+		}
+		extraRelations.forEach((relation, index) => {
+			params.append(`relations[${TIMESHEET_RELATIONS.length + index}]`, relation);
+		});
 
 		const addArrayParam = (key: string, values: string[]) => {
 			values.forEach((value, index) => {
@@ -290,6 +339,43 @@ class TimeLogService extends APIService {
 			tenantId: this.tenantId
 		});
 
+		return response.data;
+	};
+
+	/**
+	 * Whether the API files entries under labels of their own (Gauzy #12029): it lists entries with their `tags`. An API
+	 * without them refuses the relation, and the label controls then stay away, so nothing is sent it would reject.
+	 */
+	supportsEntryLabels = async (): Promise<boolean> => {
+		// The last minute: the API refuses a range whose start is not before its end, which would read as no labels
+		const end = new Date();
+		const start = new Date(end.getTime() - 60 * 1000);
+		const params = new URLSearchParams({
+			organizationId: this.organizationId,
+			tenantId: this.tenantId,
+			startDate: start.toISOString(),
+			endDate: end.toISOString()
+		});
+		params.append('relations[0]', ENTRY_LABELS_RELATION);
+		try {
+			await this.get<ITimeLog[]>(`/timesheet/time-log?${params.toString()}`, { tenantId: this.tenantId });
+			return true;
+		} catch (error) {
+			// An API without labels on entries refuses the tags property; anything else is a failure to read again
+			if (isRefusalOfRelation(error)) {
+				return false;
+			}
+			throw error;
+		}
+	};
+
+	/** Files an entry, running or not, under exactly these labels; nothing else of it changes. */
+	updateTimeLogLabels = async (timeLogId: string, labelIds: string[]) => {
+		const response = await this.put<ITimeLog>(
+			`/timesheet/time-log/${encodeURIComponent(timeLogId)}/tags`,
+			{ tags: labelIds, organizationId: this.organizationId, tenantId: this.tenantId },
+			{ tenantId: this.tenantId }
+		);
 		return response.data;
 	};
 
@@ -355,6 +441,40 @@ class TimeLogService extends APIService {
 		} catch (error) {
 			throw new Error('Failed to update time-log', { cause: error });
 		}
+	};
+
+	/**
+	 * Splits one stopped entry in two at a moment of its range, in one write (ever-co/ever-gauzy#12030): each time slot
+	 * goes, with its screenshots and activity, to the part that holds its time. An API without the route answers 404,
+	 * which the caller reads as "not offered" (see `time-log-split.ts`). The error is thrown as the API answered it.
+	 */
+	splitTimeLog = async (payload: ITimeLogSplitPayload): Promise<ITimeLogSplitResult> => {
+		if (!this.organizationId || !this.tenantId) {
+			throw new Error('Required parameters missing: organizationId and tenantId are required');
+		}
+		const { timeLogId, splitAt, ...secondPart } = payload;
+		const response = await this.post<ITimeLogSplitResult>(
+			`/timesheet/time-log/${encodeURIComponent(timeLogId)}/split`,
+			{ ...secondPart, splitAt: splitAt.toISOString() },
+			{ tenantId: this.tenantId }
+		);
+		return response.data;
+	};
+
+	/**
+	 * Asks the split route of an entry with an empty body, which the API's validation refuses (no `splitAt`) before the
+	 * route reads or writes anything, whatever the entry has become since the page read it: an API with the route
+	 * answers 400, one without it 404. The error is thrown as the API answered it (see `time-log-split.ts`).
+	 */
+	probeSplitTimeLog = async (timeLogId: string): Promise<void> => {
+		if (!this.organizationId || !this.tenantId) {
+			throw new Error('Required parameters missing: organizationId and tenantId are required');
+		}
+		await this.post<unknown>(
+			`/timesheet/time-log/${encodeURIComponent(timeLogId)}/split`,
+			{},
+			{ tenantId: this.tenantId }
+		);
 	};
 
 	updateTimesheetFrom = async (params: IUpdateTimesheetRequest) => {
@@ -441,7 +561,10 @@ class TimeLogService extends APIService {
 		teamIds = [],
 		activityLevel = { start: 0, end: 100 },
 		includeTimeWithoutTeam = false,
-		billableOnly = false
+		billableOnly = false,
+		withClientRates = false,
+		tagIds = [],
+		untagged = false
 	}: ITimeLogReportDailyRequest) => {
 		if (!this.organizationId || !this.tenantId || !startDate || !endDate) {
 			throw new Error(
@@ -486,6 +609,14 @@ class TimeLogService extends APIService {
 		// Sent only when asked: without the parameter Gauzy counts every log, billable or not
 		if (billableOnly) {
 			queryParams.billableOnly = 'true';
+		}
+		if (withClientRates) {
+			queryParams.withClientRates = 'true';
+		}
+		// The entry's own labels (Gauzy #12029), sent only when picked: an API without them is sent nothing new
+		if (tagIds.length) addArrayParams(queryParams, 'tagIds', tagIds);
+		if (untagged) {
+			queryParams.untagged = 'true';
 		}
 
 		const queryString = new URLSearchParams(queryParams).toString();

@@ -52,7 +52,8 @@ describe('the rows of a Timesheets export', () => {
 			status: ETimesheetStatus.APPROVED,
 			isBillable: true,
 			seconds: 5400,
-			notes: ''
+			notes: '',
+			labels: ''
 		});
 	});
 

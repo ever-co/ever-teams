@@ -258,7 +258,14 @@ export function DeleteInvoiceDialog({ open, target, scope, onClose, onDeleted }:
 			toast.success(t('invoices.delete.DONE', { number: numberText }));
 			onClose();
 			onDeleted?.(target);
-		} catch {
+		} catch (error) {
+			if (isInvoiceActionChangedMeanwhile(error)) {
+				// Changed since it was shown: nothing was deleted, and the invoices are read again (#5382). The dialog
+				// shows the invoice as it was opened, so it closes onto the page, which shows it as it is now.
+				toast.error(t('invoices.delete.CHANGED_MEANWHILE', { number: numberText }));
+				onClose();
+				return;
+			}
 			setHasFailed(true);
 		}
 	};

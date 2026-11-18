@@ -33,6 +33,11 @@ interface BillableTimeReadOptions {
 	notInvoiced: boolean;
 	/** The organization and tenant the caller's cache key holds, whatever the cookies say when the read starts. */
 	scope: { organizationId: string; tenantId: string };
+	/**
+	 * Also asks the client rates each log keeps, for a caller who may read the client rates of every project asked. An
+	 * API that does not answer them leaves them out.
+	 */
+	withClientRates?: boolean;
 }
 
 function listOrUndefined(values: ReadonlyArray<string> | undefined) {
@@ -64,6 +69,13 @@ class TimeLogReportService extends APIService {
 		return { notInvoiced: true };
 	}
 
+	private clientRatesOptInOf(withClientRates: boolean | undefined) {
+		if (!withClientRates) {
+			return {};
+		}
+		return { withClientRates: true };
+	}
+
 	private changeFilterOf(kind: ChangedTimeLogKind) {
 		if (kind === 'added') {
 			return { logType: [ETimeLogType.MANUAL] };
@@ -93,7 +105,7 @@ class TimeLogReportService extends APIService {
 	getBillableTimeLogs = async (
 		range: TimeLogReportRange,
 		relations: ReadonlyArray<string>,
-		{ notInvoiced, scope }: BillableTimeReadOptions
+		{ notInvoiced, scope, withClientRates }: BillableTimeReadOptions
 	): Promise<TBillableTimeLog[]> => {
 		const params = {
 			...this.rangeParamsOf(range),
@@ -101,6 +113,7 @@ class TimeLogReportService extends APIService {
 			organizationId: scope.organizationId,
 			billableOnly: true,
 			...this.invoicedFilterOf(notInvoiced),
+			...this.clientRatesOptInOf(withClientRates),
 			relations: [...relations]
 		};
 		const query = qs.stringify(params);

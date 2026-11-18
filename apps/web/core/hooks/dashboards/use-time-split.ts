@@ -17,6 +17,7 @@ import {
 	type TimeSplitMode
 } from '@/core/lib/utils/dashboards/time-split';
 import type { ITimeLogGroupedDailyReport } from '@/core/types/interfaces/activity/activity-report';
+import { useHiddenProjectLabels } from '@/core/hooks/organizations/projects/use-hidden-project-labels';
 
 interface TimeSplitSource {
 	/** The rows the page shows: they give the split by project. */
@@ -69,14 +70,15 @@ export function useTimeSplit({ rows, report, keepRow = keepEveryRow }: TimeSplit
 	const { clientIds } = projectClients;
 	const { clients } = clientsQuery;
 	const withoutTeamLabel = t('dashboard.NO_TEAM_GROUP');
+	const hiddenProjectLabels = useHiddenProjectLabels();
 
 	const clientRows = useMemo(() => {
 		if (!isClientMode) {
 			return [];
 		}
 		const clientOf = clientOfProjectLogOf(clientIds, clientNamesOf(clients));
-		return clientRowsOf(report, clientOf, withoutTeamLabel).filter(keepRow);
-	}, [clientIds, clients, isClientMode, keepRow, report, withoutTeamLabel]);
+		return clientRowsOf(report, clientOf, withoutTeamLabel, null, hiddenProjectLabels).filter(keepRow);
+	}, [clientIds, clients, hiddenProjectLabels, isClientMode, keepRow, report, withoutTeamLabel]);
 
 	const items = useMemo(() => itemsOf(isClientMode, rows, clientRows), [clientRows, isClientMode, rows]);
 	const splitRows = useMemo(() => splitRowsOf(items), [items]);

@@ -1,6 +1,6 @@
 /** @jsxImportSource theme-ui */
 
-import { cn, formatTime, Progress } from '@ever-teams/toolkit-ui';
+import { cn, formatTime, Progress, useThemeColor } from '@ever-teams/toolkit-ui';
 import { cva, VariantProps } from 'class-variance-authority';
 import { IProjectsStats } from '@hooks/useProjectsStats';
 import { ITasksStats } from '@hooks/useTasksStats';
@@ -124,8 +124,9 @@ const TeamsBaseList = ({
 	stats = { data: null, loading: false }
 }: ITeamsBaseListProps) => {
 	const { t } = useTranslation();
+	const borderColor = useThemeColor('borderColor');
 	return (
-		<div className={cn(teamsBaseListVariants({ variant, size, className }))} sx={{ borderColor: 'borderColor' }}>
+		<div className={cn(teamsBaseListVariants({ variant, size, className }))} style={{ borderColor }}>
 			<div className="flex justify-between items-center border-b border-gray-200 dark:border-gray-800 rounded-t-xl px-6  pb-2  font-bold">
 				<h1 className="capitalize">{title}</h1>
 				{/* <TeamsDateRangePicker /> */}

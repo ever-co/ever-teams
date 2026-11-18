@@ -38,7 +38,10 @@ export function ProjectBudgetPage() {
 	const weekStart = useWorkspaceWeekStart();
 	const locale = useWorkspaceLocale();
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
-	const report = useProjectBudgetReport({ unnamedLabel: t('dashboard.projectBudget.UNNAMED_PROJECT') });
+	const report = useProjectBudgetReport({
+		unnamedLabel: t('dashboard.projectBudget.UNNAMED_PROJECT'),
+		hiddenLabel: t('common.PRIVATE_PROJECT')
+	});
 	const { scope, period, setPeriod, figures, groups, totals, shown } = report;
 
 	const shownScope = shown?.scope ?? scope;

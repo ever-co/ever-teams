@@ -39,7 +39,8 @@ const FORMAT: HistoryValueFormat = {
 	no: 'No',
 	none: 'None',
 	statusLabel: (status) => `status:${status}`,
-	memberName: (employeeId) => (employeeId === 'paul' ? 'Paul' : null)
+	memberName: (employeeId) => (employeeId === 'paul' ? 'Paul' : null),
+	hiddenProject: 'Private project'
 };
 
 describe('historyChangesOf', () => {
@@ -267,5 +268,51 @@ describe('isHistoryUnsupportedStatus', () => {
 		expect(isHistoryUnsupportedStatus(403)).toBe(false);
 		expect(isHistoryUnsupportedStatus(500)).toBe(false);
 		expect(isHistoryUnsupportedStatus(undefined)).toBe(false);
+	});
+});
+
+describe('the history of an entry on a project the API keeps from the caller (CORE-27)', () => {
+	// ever-co/ever-gauzy#12035 answers the project's reference as `{ id, projectHidden: true }`; the value keeps the id
+	const CLIENT_X = 'project-client-x-redesign';
+	const moved = editRow({
+		updatedFields: ['projectId'],
+		previousValues: [{ projectId: CLIENT_X }],
+		updatedValues: [{ projectId: 'p2' }],
+		previousEntities: [{ projectId: { id: CLIENT_X, projectHidden: true } }],
+		updatedEntities: [{ projectId: { id: 'p2', name: 'Website' } }]
+	});
+
+	it('names that project "Private project" on the page, never by its id', () => {
+		const [change] = historyChangesOf([moved]);
+		const [field] = change.fields;
+
+		expect(field).toMatchObject({ field: 'projectId', isBeforeHidden: true, afterName: 'Website' });
+		expect(field).not.toHaveProperty('isAfterHidden');
+		expect(historyValueTextOf(field.field, field.before, field.beforeName, FORMAT, field.isBeforeHidden)).toBe(
+			'Private project'
+		);
+	});
+
+	it('writes "Private project" in a file, never its id', () => {
+		const [change] = historyChangesOf([moved]);
+		const labelOf = (field: string) => `[${field}]`;
+
+		expect(changeSideTextOf(change, 'before', FORMAT, labelOf)).toBe('[projectId] Private project');
+		expect(changeSideTextOf(change, 'after', FORMAT, labelOf)).toBe('[projectId] Website');
+		expect(changeSideTextOf(change, 'before', FORMAT, labelOf)).not.toContain(CLIENT_X);
+	});
+
+	it('marks a deleted entry of that project, so that it is listed as a private one', () => {
+		const [deletion] = historyChangesOf([
+			editRow({
+				action: 'Deleted',
+				updatedFields: ['startedAt', 'projectId'],
+				previousValues: [{ startedAt: '2026-11-10T09:00:00.000Z' }, { projectId: CLIENT_X }],
+				updatedValues: [],
+				previousEntities: [{ projectId: { id: CLIENT_X, projectHidden: true } }]
+			})
+		]);
+
+		expect(deletedEntryOf(deletion)).toMatchObject({ projectName: null, isProjectHidden: true });
 	});
 });

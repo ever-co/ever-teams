@@ -1,7 +1,7 @@
 /** @jsxImportSource theme-ui */
 
 import { cva, VariantProps } from 'class-variance-authority';
-import { Card, cn } from '@ever-teams/toolkit-ui';
+import { Card, cn, useThemeColor } from '@ever-teams/toolkit-ui';
 import { useTranslation } from 'react-i18next';
 import { useTeamsContext } from '@lib/context/teams-context';
 import { TeamsActiveEmployeeSelector } from '@components/teams-ui-components/inputs/teams-active-employee-selector';
@@ -67,6 +67,7 @@ const TeamsBasicReport = ({
 	draggable = false,
 	size
 }: ITeamsBasicReportProps) => {
+	const borderColor = useThemeColor('borderColor');
 	const { appliedTheme } = useTeamsContext();
 
 	const { chartData: data, report, loading: reportLoading, config } = useReport();
@@ -76,7 +77,7 @@ const TeamsBasicReport = ({
 	return (
 		<Card
 			className={cn(teamsBasicReportVariants({ variant, size, className }), ' relative')}
-			sx={{ borderColor: 'borderColor' }}
+			style={{ borderColor }}
 		>
 			{draggable && <div className="handle w-full h-8 absolute top-0 left-0 cursor-grab"></div>}
 

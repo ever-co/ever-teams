@@ -1,6 +1,7 @@
 import { localDayKeyOf, type CsvColumn } from '@/core/lib/utils/dashboard-export';
 import {
 	TIME_IMPORT_HEADERS,
+	TIME_IMPORT_LABELS_HEADER,
 	TIME_IMPORT_REPORT_HEADERS,
 	timeImportTemplateColumnsOf,
 	type TimeImportCells,
@@ -33,7 +34,16 @@ const END_DATE_COLUMN: CsvColumn<TimeImportReportLine> = {
 	valueOf: (line) => line.cells.endDate
 };
 
-function cellColumnsOf(includesMemberEmail: boolean, includesEndDate: boolean): CsvColumn<TimeImportReportLine>[] {
+const LABELS_COLUMN: CsvColumn<TimeImportReportLine> = {
+	header: TIME_IMPORT_LABELS_HEADER,
+	valueOf: (line) => line.cells.labels
+};
+
+function cellColumnsOf(
+	includesMemberEmail: boolean,
+	includesEndDate: boolean,
+	includesLabels: boolean
+): CsvColumn<TimeImportReportLine>[] {
 	const cellColumns: CsvColumn<TimeImportReportLine>[] = [];
 	for (const column of timeImportTemplateColumnsOf(includesMemberEmail)) {
 		const isEndTime = column === 'endTime';
@@ -42,6 +52,9 @@ function cellColumnsOf(includesMemberEmail: boolean, includesEndDate: boolean): 
 		}
 		cellColumns.push(cellColumnOf(column));
 	}
+	if (includesLabels) {
+		cellColumns.push(LABELS_COLUMN);
+	}
 	return cellColumns;
 }
 
@@ -49,15 +62,16 @@ function cellColumnsOf(includesMemberEmail: boolean, includesEndDate: boolean): 
  * The report keeps the columns of the import under their own headers, so its rows can be corrected and the file
  * imported again: the rows already saved are then left out as already recorded. An end date the file gave stays in a
  * column of its own, exactly as written, so a row left out for its end date is left out again; the column is dropped
- * only for a file that gave none.
+ * only for a file that gave none. The entries' labels (#5368) stay too, so a corrected row is saved with them again.
  */
 export function timeImportReportCsvColumnsOf(
 	includesMemberEmail: boolean,
-	includesEndDate = true
+	includesEndDate = true,
+	includesLabels = false
 ): CsvColumn<TimeImportReportLine>[] {
 	return [
 		{ header: TIME_IMPORT_REPORT_HEADERS.row, valueOf: (line) => line.row },
-		...cellColumnsOf(includesMemberEmail, includesEndDate),
+		...cellColumnsOf(includesMemberEmail, includesEndDate, includesLabels),
 		{ header: TIME_IMPORT_REPORT_HEADERS.status, valueOf: (line) => line.status },
 		{ header: TIME_IMPORT_REPORT_HEADERS.reason, valueOf: (line) => line.reason }
 	];

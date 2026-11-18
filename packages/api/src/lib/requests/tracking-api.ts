@@ -15,6 +15,7 @@ import {
 	ITrackingSessionFullResponse
 } from '@ever-teams/toolkit-types';
 import QueryString from 'qs';
+import { apiConfigManager } from '../config/api-config';
 
 export class TrackingApiClient {
 	private baseUrl: string;
@@ -23,7 +24,8 @@ export class TrackingApiClient {
 	private explicitBaseUrl: boolean;
 
 	constructor(baseUrl?: string, defaultHeaders: ITrackingApiHeaders = {}, timeout: number = 30000) {
-		this.baseUrl = baseUrl || 'https://apidemo.gauzy.co/api'; // Default to Demo Gauzy API
+		// Empty until a host or the provider gives one: requests then go to the SDK's API (resolveBaseUrl).
+		this.baseUrl = baseUrl || '';
 		this.explicitBaseUrl = !!baseUrl;
 
 		this.defaultHeaders = {
@@ -35,6 +37,14 @@ export class TrackingApiClient {
 	}
 
 	/**
+	 * The API sessions are read from: the base URL a host set, else the SDK's own API (apiConfigManager), so a
+	 * token only ever goes to the API the rest of the kit talks to.
+	 */
+	private resolveBaseUrl(): string {
+		return this.baseUrl || apiConfigManager.getConfig().apiUrl;
+	}
+
+	/**
 	 * Create a fetch request with proper error handling and timeout
 	 */
 	private async makeRequest<T>(path: string, options: RequestInit = {}): Promise<ITrackingApiResponse<T>> {
@@ -42,7 +52,7 @@ export class TrackingApiClient {
 		const timeoutId = setTimeout(() => controller.abort(), this.timeout);
 
 		try {
-			const url = `${this.baseUrl}${path}`;
+			const url = `${this.resolveBaseUrl()}${path}`;
 			// Filter out undefined values from headers
 			const cleanHeaders = Object.fromEntries(
 				Object.entries({
@@ -315,7 +325,7 @@ export class TrackingApiClient {
 	 */
 	getConfig() {
 		return {
-			baseUrl: this.baseUrl,
+			baseUrl: this.resolveBaseUrl(),
 			headers: { ...this.defaultHeaders },
 			timeout: this.timeout
 		};

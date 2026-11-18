@@ -45,6 +45,7 @@ import { CalendarPageSkeleton } from './calendar-page-skeleton';
 import { DayPlanBlock, DaySummary } from './calendar-day-details';
 import { CalendarMonthView } from './calendar-month-view';
 import { CalendarProjectLegend } from './calendar-project-legend';
+import { CalendarEntriesRead } from './calendar-entry-labels';
 import { CalendarTimeGrid } from './calendar-time-grid';
 import { CalendarLegend, CalendarMemberSwitch, CalendarRangeStepper, CalendarViewSwitch } from './calendar-toolbar';
 import { CalendarWeekStrip } from './calendar-week-strip';
@@ -412,18 +413,20 @@ export function CalendarPage() {
 					</DashboardSection>
 				)}
 				{showsCalendar && (
-					<CalendarBody
-						page={page}
-						formatters={formatters}
-						handlers={handlers}
-						panelHandlers={panelHandlers}
-						moves={moves}
-						rangeName={shownRangeName}
-						onAddTime={openAddTimeAt}
-						onAddTimeRange={openAddTimeIn}
-						onAddTimeNow={openAddTimeNow}
-						onOpenMenu={menu.open}
-					/>
+					<CalendarEntriesRead readAt={page.entriesReadAt}>
+						<CalendarBody
+							page={page}
+							formatters={formatters}
+							handlers={handlers}
+							panelHandlers={panelHandlers}
+							moves={moves}
+							rangeName={shownRangeName}
+							onAddTime={openAddTimeAt}
+							onAddTimeRange={openAddTimeIn}
+							onAddTimeNow={openAddTimeNow}
+							onOpenMenu={menu.open}
+						/>
+					</CalendarEntriesRead>
 				)}
 			</div>
 			{isAddTimeOpen && (
@@ -450,6 +453,10 @@ export function CalendarPage() {
 				entry={split.entry}
 				isOpen={split.isOpen}
 				refusal={split.refusal}
+				isChecking={split.isChecking}
+				checkFailed={split.checkFailed}
+				onRecheck={split.recheck}
+				viaApi={split.viaApi}
 				formatters={formatters}
 				onClose={split.close}
 				onAddTime={openAddTimeIn}

@@ -197,7 +197,7 @@ export function keepsPlannedFields(planned: ITimeLog, current: ITimeLog): boolea
 export type BulkEditPayload = ITimeLogUpdatePayload & { startedAt: Date; stoppedAt: Date; employeeId: string };
 
 /** The `updatedAt` an entry was read at, as the API states it: what its update is saved under. Null without one. */
-export function readVersionOf(log: ITimeLog): string | null {
+function readVersionOf(log: ITimeLog): string | null {
 	if (!log.updatedAt) {
 		return null;
 	}

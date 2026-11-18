@@ -1,9 +1,9 @@
-/** @jsxImportSource theme-ui */
 'use client';
 
 import * as React from 'react';
 import * as TabsPrimitive from '@radix-ui/react-tabs';
 import { cn } from '../utils/utils';
+import { useThemeColor } from './themed-button';
 
 const Tabs = TabsPrimitive.Root;
 
@@ -28,20 +28,25 @@ TabsList.displayName = TabsPrimitive.List.displayName;
 const TabsListThemed = ({
 	ref,
 	className,
+	style,
 	...props
 }: React.ComponentPropsWithoutRef<typeof TabsPrimitive.List> & {
 	ref?: React.RefObject<React.ElementRef<typeof TabsPrimitive.List>>;
-}) => (
-	<TabsPrimitive.List
-		ref={ref}
-		className={cn(
-			'bg-muted text-muted-foreground inline-flex h-9 items-center justify-center rounded-lg p-1',
-			className
-		)}
-		sx={{ background: 'mainColor' }}
-		{...props}
-	/>
-);
+}) => {
+	// Inline, so that bg-muted cannot replace the theme's color under the kit root; a style passed by the host still wins.
+	const mainColor = useThemeColor('mainColor');
+	return (
+		<TabsPrimitive.List
+			ref={ref}
+			className={cn(
+				'bg-muted text-muted-foreground inline-flex h-9 items-center justify-center rounded-lg p-1',
+				className
+			)}
+			style={{ background: mainColor, ...style }}
+			{...props}
+		/>
+	);
+};
 TabsListThemed.displayName = TabsPrimitive.List.displayName;
 
 const TabsTrigger = ({

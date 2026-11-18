@@ -74,15 +74,26 @@ function SaveProgress({ done, total }: Readonly<{ done: number; total: number }>
 	);
 }
 
+function notAttachedSentenceOf(names: ReadonlyArray<string>, t: ReturnType<typeof useTranslations>) {
+	if (names.length === 0) {
+		return '';
+	}
+	return t('timer.labels.IMPORT_NOT_ATTACHED', { count: names.length, names: names.join(', ') });
+}
+
 function RunNotice({ report }: Readonly<{ report: TimeImportReport }>) {
 	const t = useTranslations();
 	const { refusal } = report;
+	const notAttached = report.labelsNotAttached ?? [];
+	// The labels the run could not put on the entries (#5368), named after what was saved
+	const labelsSentence = notAttachedSentenceOf(notAttached, t);
 	if (!refusal) {
+		const doneSentence = t('timeImport.DONE_DESCRIPTION', { duration: formatDurationShort(report.savedSeconds) });
 		return (
 			<Notice
 				tone="success"
 				title={t('timeImport.DONE_TITLE', { count: report.savedCount })}
-				description={t('timeImport.DONE_DESCRIPTION', { duration: formatDurationShort(report.savedSeconds) })}
+				description={[doneSentence, labelsSentence].filter(Boolean).join(' ')}
 			/>
 		);
 	}
@@ -92,6 +103,9 @@ function RunNotice({ report }: Readonly<{ report: TimeImportReport }>) {
 	];
 	if (report.notSentCount > 0) {
 		sentences.push(t('timeImport.STOPPED_NOT_SENT', { count: report.notSentCount }));
+	}
+	if (labelsSentence) {
+		sentences.push(labelsSentence);
 	}
 	return (
 		<Notice
@@ -247,7 +261,12 @@ export function TimeImportResult({ timeImport, copy, onDownloadReport, offer }: 
 								{t('timeImport.CHOOSE_ANOTHER')}
 							</Button>
 							{hasReadyRows && (
-								<Button type="button" onClick={() => void timeImport.confirm()}>
+								<Button
+									type="button"
+									disabled={timeImport.isWaitingForLabelRules}
+									aria-busy={timeImport.isWaitingForLabelRules}
+									onClick={() => void timeImport.confirm()}
+								>
 									{t('timeImport.IMPORT_ACTION', { count: summary.readyCount })}
 								</Button>
 							)}

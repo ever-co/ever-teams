@@ -233,7 +233,8 @@ describe('member-placeholder', () => {
 				task: '',
 				notes: '',
 				billable: '',
-				memberEmail
+				memberEmail,
+				labels: ''
 			},
 			extraCellCount: 0
 		});

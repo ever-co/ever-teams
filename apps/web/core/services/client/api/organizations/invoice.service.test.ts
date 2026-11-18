@@ -164,6 +164,18 @@ describe('e-mailing, settling and deleting an invoice in the workspace the list 
 		expect(put.mock.calls[1][1]).toEqual({ ...VOID_CHANGE, ...listScope });
 	});
 
+	it('deletes under the updatedAt it was read at, in the query string, and states nothing when none was read (#5382)', async () => {
+		const remove = jest.spyOn(invoiceService, 'delete').mockResolvedValue({} as never);
+
+		await invoiceService.deleteInvoice('invoice-1', listScope, '2026-11-16T10:20:30.456Z');
+		await invoiceService.deleteInvoice('invoice-1', listScope, null);
+
+		expect(String(remove.mock.calls[0][0]).split('?')[0]).toBe('/invoices/invoice-1');
+		expect(queryOf(remove.mock.calls[0][0])).toEqual({ expectedUpdatedAt: '2026-11-16T10:20:30.456Z' });
+		expect(remove.mock.calls[0][1]?.tenantId).toBe('tenant-1');
+		expect(remove.mock.calls[1][0]).toBe('/invoices/invoice-1');
+	});
+
 	it('reads the status an invoice holds now with the updatedAt it holds it at (#5382)', async () => {
 		const data = { status: 'SENT', updatedAt: '2026-11-16T10:20:30.456Z' };
 		jest.spyOn(invoiceService, 'get').mockResolvedValue({ data } as never);

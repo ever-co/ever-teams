@@ -110,7 +110,8 @@ function GroupLabel({ group, locale }: Readonly<{ group: UsageGroup; locale: str
 		case 'employee':
 			return <PersonCell person={group.sample.employee} />;
 		case 'project':
-			return <ProjectCell project={group.sample.project} />;
+			// The label sits in the group's toggle: the lock leaves the focus to it
+			return <ProjectCell project={group.sample.project} isFocusable={false} />;
 		case 'application':
 			return <AppTitleCell title={group.sample.title} kind={group.sample.kind} url={group.sample.url} />;
 	}

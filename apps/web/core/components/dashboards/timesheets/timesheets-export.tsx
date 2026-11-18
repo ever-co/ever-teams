@@ -49,6 +49,9 @@ const SHEET_NOTES_WIDTH = 48;
 /** Start, end, member, project, task, status, billable, duration: the widths of the printed columns, in that order. */
 const PDF_COLUMN_WIDTHS = ['6%', '6%', '16%', '16%', '32%', '10%', '7%', '7%'];
 
+/** The same columns with the entry's labels before the duration, where the API stores them (#5368). */
+const PDF_COLUMN_WIDTHS_WITH_LABELS = ['6%', '6%', '14%', '14%', '26%', '9%', '7%', '11%', '7%'];
+
 const VALUE_SEPARATOR = ', ';
 
 function statusLabelOf(row: TimesheetExportRow, t: Translate) {
@@ -75,8 +78,12 @@ function dayColumnOf(t: Translate): TextColumn {
 	return { header: t('dashboard.timesheets.COLUMNS.DATE'), text: (row) => row.dayKey, sheetWidth: 12 };
 }
 
-function entryColumnsOf(t: Translate): TextColumn[] {
-	return [
+/**
+ * The columns of an entry. The Labels column only where the API stores labels on entries (#5368): elsewhere a file
+ * keeps the columns it always had, in their places, for whoever reads them by position.
+ */
+function entryColumnsOf(t: Translate, withEntryLabels: boolean): TextColumn[] {
+	const columns: TextColumn[] = [
 		{ header: t('dashboard.timesheets.COLUMNS.START'), text: (row) => row.start, sheetWidth: 8 },
 		{ header: t('dashboard.timesheets.COLUMNS.END'), text: (row) => row.end, sheetWidth: 8 },
 		{ header: t('dashboard.timesheets.COLUMNS.MEMBER'), text: (row) => row.member, sheetWidth: 24 },
@@ -85,6 +92,17 @@ function entryColumnsOf(t: Translate): TextColumn[] {
 		{ header: t('dashboard.timesheets.COLUMNS.STATUS'), text: (row) => statusLabelOf(row, t), sheetWidth: 14 },
 		{ header: t('dashboard.timesheets.COLUMNS.BILLABLE'), text: (row) => billableLabelOf(row, t), sheetWidth: 10 }
 	];
+	if (withEntryLabels) {
+		columns.push({ header: t('common.LABELS'), text: (row) => row.labels, sheetWidth: 24 });
+	}
+	return columns;
+}
+
+function pdfColumnWidthsOf(withEntryLabels: boolean) {
+	if (withEntryLabels) {
+		return PDF_COLUMN_WIDTHS_WITH_LABELS;
+	}
+	return PDF_COLUMN_WIDTHS;
 }
 
 interface TimesheetExportFilter {
@@ -98,16 +116,19 @@ interface ExportInput {
 	appliedFilters: ReadonlyArray<TimesheetExportFilter>;
 	statusFilter: TimesheetStatusFilter;
 	search: string;
+	/** The API stores labels on entries (#5368): the files then carry a Labels column. */
+	withEntryLabels: boolean;
 	locale: FormatLocale;
 	t: Translate;
 }
 
 /**
  * The logs on screen as a CSV file, one row per log in the order they started: local day, start and end in 24-hour
- * time, member, project, task, status, billable, the duration as `h:mm` and the notes.
+ * time, member, project, task, status, billable, the labels where the API stores them, the duration as `h:mm` and the
+ * notes.
  */
-function runCsv({ logs, period, t }: ExportInput) {
-	const textColumns = [dayColumnOf(t), ...entryColumnsOf(t)];
+function runCsv({ logs, period, withEntryLabels, t }: ExportInput) {
+	const textColumns = [dayColumnOf(t), ...entryColumnsOf(t, withEntryLabels)];
 	const columns: CsvColumn<TimesheetExportRow>[] = textColumns.map((column) => ({
 		header: column.header,
 		valueOf: column.text
@@ -117,7 +138,7 @@ function runCsv({ logs, period, t }: ExportInput) {
 		valueOf: (row) => hoursMinutesOf(row.seconds)
 	});
 	columns.push({ header: t('common.NOTES'), valueOf: (row) => row.notes });
-	const rows = timesheetExportRowsOf(logs);
+	const rows = timesheetExportRowsOf(logs, t('common.PRIVATE_PROJECT'));
 	const fileName = periodFileNameOf(FILE_PREFIX, period.from, period.to, 'csv');
 	downloadCsv(rows, columns, fileName);
 }
@@ -131,9 +152,9 @@ function sheetDurationOf(seconds: number) {
 	return seconds / SECONDS_PER_DAY;
 }
 
-async function runXlsx({ logs, period, t }: ExportInput) {
-	const textColumns = [dayColumnOf(t), ...entryColumnsOf(t)];
-	const rows = timesheetExportRowsOf(logs);
+async function runXlsx({ logs, period, withEntryLabels, t }: ExportInput) {
+	const textColumns = [dayColumnOf(t), ...entryColumnsOf(t, withEntryLabels)];
+	const rows = timesheetExportRowsOf(logs, t('common.PRIVATE_PROJECT'));
 	const lines: SheetLine[] = rows.map((row) => {
 		const texts = textColumns.map((column) => column.text(row));
 		return { cells: [...texts, sheetDurationOf(row.seconds), row.notes], isTotal: false };
@@ -204,9 +225,9 @@ function pdfGroupOf(
 }
 
 function pdfContentOf(input: ExportInput): EntriesPdfContent {
-	const { logs, period, locale, t } = input;
+	const { logs, period, withEntryLabels, locale, t } = input;
 	const title = t('dashboard.timesheets.TITLE');
-	const columns = entryColumnsOf(t);
+	const columns = entryColumnsOf(t, withEntryLabels);
 	const headers = columns.map((column) => column.header);
 	const totals = timesheetExportTotalsOf(logs);
 	const totalText = formatDurationShort(totals.seconds);
@@ -218,7 +239,7 @@ function pdfContentOf(input: ExportInput): EntriesPdfContent {
 	});
 	const generatedFormat = dateFormatOf(locale, { dateStyle: 'long' });
 	const generatedDate = generatedFormat.format(new Date());
-	const days = timesheetExportDaysOf(logs);
+	const days = timesheetExportDaysOf(logs, t('common.PRIVATE_PROJECT'));
 	return {
 		title,
 		period: pdfTextOf(formatPeriod(period, locale)),
@@ -230,7 +251,7 @@ function pdfContentOf(input: ExportInput): EntriesPdfContent {
 			{ label: t('common.MEMBERS'), value: String(totals.memberCount) }
 		],
 		columns: [...headers, t('dashboard.timesheets.COLUMNS.DURATION')],
-		columnWidths: PDF_COLUMN_WIDTHS,
+		columnWidths: pdfColumnWidthsOf(withEntryLabels),
 		groups: days.map((day) => pdfGroupOf(day, columns, dayFormat)),
 		total: { label: t('common.TOTAL'), value: totalText },
 		footer: `${APP_NAME} · ${title}`,
@@ -256,12 +277,13 @@ export function useTimesheetExportOptions({
 	period,
 	appliedFilters,
 	statusFilter,
-	search
+	search,
+	withEntryLabels
 }: Readonly<Omit<ExportInput, 'locale' | 't'>>): ExportOption[] {
 	const t = useTranslations();
 	const locale = useWorkspaceLocale();
 	return useMemo(() => {
-		const input: ExportInput = { logs, period, appliedFilters, statusFilter, search, locale, t };
+		const input: ExportInput = { logs, period, appliedFilters, statusFilter, search, withEntryLabels, locale, t };
 		return [
 			{
 				key: 'csv',
@@ -282,5 +304,5 @@ export function useTimesheetExportOptions({
 				run: () => runPdf(input)
 			}
 		];
-	}, [appliedFilters, locale, logs, period, search, statusFilter, t]);
+	}, [appliedFilters, locale, logs, period, search, statusFilter, t, withEntryLabels]);
 }

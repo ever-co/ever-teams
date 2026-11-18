@@ -1,6 +1,8 @@
 import {
+	carriedLineEdits,
 	billableEntriesOf,
 	buildInvoiceRequest,
+	entryPriceOf,
 	dueDayAfter,
 	hoursOfLines,
 	invoiceCurrenciesOf,
@@ -16,6 +18,7 @@ import {
 	invoiceSaveFailureOf,
 	invoiceTimeOf,
 	invoiceWaitsOf,
+	keptLinePriceOf,
 	keptLinesOf,
 	lineAmountOf,
 	lineDescriptionOf,
@@ -31,6 +34,7 @@ import {
 	type BillableEntry,
 	type BillableLogLike,
 	type InvoiceLineNames,
+	type KeptRatesLike,
 	type LinePrice
 } from './invoices';
 import { invoiceTotalsOf } from './invoice-totals';
@@ -1021,5 +1025,254 @@ describe('a save refused because its time was billed elsewhere meanwhile', () =>
 		});
 
 		expect(invoiceSaveFailureOf(billedElsewhere)).toBe('timeBilled');
+	});
+});
+
+describe('time priced at the rates each entry keeps', () => {
+	const today: LinePrice = { rate: 110, currency: 'USD', source: 'project' };
+	const keptAt = (projectBillRateValue: number): BillableLogLike & KeptRatesLike => ({
+		ratesStored: true,
+		billRateValue: 50,
+		billRateCurrency: 'USD',
+		clientRates: {
+			projectBillRateValue,
+			projectMemberBillRateValue: null,
+			projectBillRateCurrency: 'USD',
+			projectMemberBillRateCurrency: 'USD'
+		}
+	});
+	const priceOfLog = (entry: BillableLogLike & KeptRatesLike) =>
+		entryPriceOf(entry, today, (kept) => keptLinePriceOf({ kept, organizationCurrency: 'USD' }));
+
+	it('reads the chain from the entry: its member client rate, its project client rate, its billing rate', () => {
+		const priced = (kept: KeptRatesLike, defaultRate: { value: number; currency: string | null } | null = null) =>
+			keptLinePriceOf({ kept, organizationCurrency: 'USD', defaultRate });
+
+		expect(
+			priced({
+				billRateValue: 40,
+				clientRates: {
+					projectMemberBillRateValue: '70.00',
+					projectMemberBillRateCurrency: 'EUR',
+					projectBillRateValue: 90,
+					projectBillRateCurrency: 'GBP'
+				}
+			})
+		).toEqual({ rate: 70, currency: 'EUR', source: 'member' });
+		expect(
+			priced({ billRateValue: 40, clientRates: { projectBillRateValue: 90, projectBillRateCurrency: 'GBP' } })
+		).toEqual({ rate: 90, currency: 'GBP', source: 'project' });
+		expect(priced({ billRateValue: 40, clientRates: {} })).toEqual({
+			rate: 40,
+			currency: 'USD',
+			source: 'employee'
+		});
+		// A member whose own rate was cleared kept 0: the workspace's default prices the time, as today
+		expect(priced({ billRateValue: 0, clientRates: {} }, { value: 55, currency: null })).toEqual({
+			rate: 55,
+			currency: 'USD',
+			source: 'default'
+		});
+	});
+
+	it("prices at today's rate an entry whose kept rates price nothing: none was set when it was worked", () => {
+		const keptEmpty = {
+			...log(),
+			ratesStored: true,
+			billRateValue: null,
+			clientRates: {
+				projectBillRateValue: null,
+				projectMemberBillRateValue: null,
+				projectBillRateCurrency: null,
+				projectMemberBillRateCurrency: null
+			}
+		};
+
+		expect(priceOfLog(keptEmpty)).toBe(today);
+	});
+
+	it("keeps a line's key while it holds one price, whatever today's rate, so what was written on it stays", () => {
+		const logs = [{ ...log({ id: 'a', duration: 40 * HOUR }), ...keptAt(90) }];
+		const keysWhenTodayIs = (rate: number) => {
+			const todays: LinePrice = { rate, currency: 'USD', source: 'project' };
+			const priced = (entry: BillableLogLike & KeptRatesLike) =>
+				entryPriceOf(entry, todays, (kept) => keptLinePriceOf({ kept, organizationCurrency: 'USD' }));
+			const entries = billableEntriesOf(logs, new Set(['p1']), null, priced);
+			return invoiceTimeOf({ entries, grouping: 'member', priceOf: () => todays }).lines.map(({ key }) => key);
+		};
+
+		expect(keysWhenTodayIs(110)).toEqual(['p1|ana']);
+		expect(keysWhenTodayIs(90)).toEqual(['p1|ana']);
+		expect(keysWhenTodayIs(120)).toEqual(['p1|ana']);
+	});
+
+	it('gives each price its key when a member’s time holds two, as the saved lines of that time are keyed', () => {
+		const logs = [
+			{ ...log({ id: 'a', duration: 40 * HOUR }), ...keptAt(90) },
+			{ ...log({ id: 'b', duration: 2 * HOUR }), ...keptAt(110) }
+		];
+
+		const entries = billableEntriesOf(logs, new Set(['p1']), null, priceOfLog);
+		const { lines } = invoiceTimeOf({ entries, grouping: 'member', priceOf: () => today });
+
+		expect(lines.map(({ key, rate }) => [key, rate])).toEqual([
+			['p1|ana|90:USD', 90],
+			['p1|ana|110:USD', 110]
+		]);
+	});
+
+	it("states today's rate on a project's line priced at one kept rate that differs from it", () => {
+		const logs = [
+			{ ...log({ id: 'a', duration: 40 * HOUR }), ...keptAt(90) },
+			{ ...log({ id: 'b', employeeId: 'bo', duration: 10 * HOUR }), ...keptAt(90) }
+		];
+
+		const entries = billableEntriesOf(logs, new Set(['p1']), null, priceOfLog);
+		const { lines } = invoiceTimeOf({ entries, grouping: 'project', priceOf: () => today });
+
+		expect(
+			lines.map(({ hours, rate, isAverageRate, todaysPrice }) => ({ hours, rate, isAverageRate, todaysPrice }))
+		).toEqual([{ hours: 50, rate: 90, isAverageRate: false, todaysPrice: { rate: 110, currency: 'USD' } }]);
+	});
+
+	describe('what was removed or written on lines a read again keys otherwise', () => {
+		const at90 = { key: 'p1|ana', timeLogIds: ['kept', 'today'] };
+		const split = [
+			{ key: 'p1|ana|90:USD', timeLogIds: ['kept'] },
+			{ key: 'p1|ana|110:USD', timeLogIds: ['today'] }
+		];
+
+		it('follows the time when one price splits into two: both lines stay removed and keep the description', () => {
+			const edits = { removedKeys: new Set(['p1|ana']), descriptions: new Map([['p1|ana', 'Design']]) };
+
+			const carried = carriedLineEdits([at90], split, edits);
+
+			// The key of the line split is read again by time, not kept: a later merge would otherwise hide new time
+			expect([...carried.removedKeys].sort()).toEqual(['p1|ana|110:USD', 'p1|ana|90:USD']);
+			expect(split.filter((line) => !carried.removedKeys.has(line.key))).toEqual([]);
+			expect(carried.descriptions.get('p1|ana|90:USD')).toBe('Design');
+			expect(carried.descriptions.get('p1|ana|110:USD')).toBe('Design');
+		});
+
+		it('keeps a merged line removed only when all of its time was, and its description only when all bore it', () => {
+			const merged = [{ key: 'p1|ana', timeLogIds: ['kept', 'today'] }];
+			const oneRemoved = {
+				removedKeys: new Set(['p1|ana|90:USD']),
+				descriptions: new Map([
+					['p1|ana|90:USD', 'Design'],
+					['p1|ana|110:USD', 'Build']
+				])
+			};
+			const bothRemoved = {
+				removedKeys: new Set(['p1|ana|90:USD', 'p1|ana|110:USD']),
+				descriptions: new Map([
+					['p1|ana|90:USD', 'Design'],
+					['p1|ana|110:USD', 'Design']
+				])
+			};
+
+			const offeredAgain = carriedLineEdits(split, merged, oneRemoved);
+			const stillRemoved = carriedLineEdits(split, merged, bothRemoved);
+
+			expect(offeredAgain.removedKeys.has('p1|ana')).toBe(false);
+			expect(offeredAgain.descriptions.has('p1|ana')).toBe(false);
+			expect(stillRemoved.removedKeys.has('p1|ana')).toBe(true);
+			expect(stillRemoved.descriptions.get('p1|ana')).toBe('Design');
+		});
+
+		it('offers again a line that keeps its key but gains time that was not removed', () => {
+			const threePrices = [
+				{ key: 'p1|ana|90:USD', timeLogIds: ['kept-90'] },
+				{ key: 'p1|ana|110:USD', timeLogIds: ['kept-110'] },
+				{ key: 'p1|ana|120:USD', timeLogIds: ['today'] }
+			];
+			// Today's rate becomes 110: today's time joins the line at 110, which keeps its key
+			const twoPrices = [
+				{ key: 'p1|ana|90:USD', timeLogIds: ['kept-90'] },
+				{ key: 'p1|ana|110:USD', timeLogIds: ['kept-110', 'today'] }
+			];
+			const edits = { removedKeys: new Set(['p1|ana|110:USD']), descriptions: new Map<string, string>() };
+
+			const carried = carriedLineEdits(threePrices, twoPrices, edits);
+
+			expect(carried.removedKeys.size).toBe(0);
+		});
+
+		it('keeps no edit on a key it read again by time, so a split then a merge with new time hides nothing', () => {
+			const edits = { removedKeys: new Set(['p1|ana']), descriptions: new Map([['p1|ana', 'Design']]) };
+			const afterSplit = carriedLineEdits([at90], split, edits);
+			const mergedWithNewTime = [{ key: 'p1|ana', timeLogIds: ['kept', 'today', 'new'] }];
+
+			const afterMerge = carriedLineEdits(split, mergedWithNewTime, afterSplit);
+
+			expect(afterMerge.removedKeys.size).toBe(0);
+			expect(afterMerge.descriptions.size).toBe(0);
+		});
+
+		it('keeps on its key what was written on a line not shown yet, as a saved line read before its time', () => {
+			const edits = { removedKeys: new Set<string>(), descriptions: new Map([['p1|ana', 'Saved text']]) };
+
+			const carried = carriedLineEdits([], [at90], edits);
+
+			expect(carried).toBe(edits);
+		});
+
+		it('gives the edits back as they were when every line keeps its key', () => {
+			const edits = { removedKeys: new Set(['p1|ana']), descriptions: new Map([['p1|ana', 'Design']]) };
+
+			expect(carriedLineEdits([at90], [at90], edits)).toBe(edits);
+		});
+	});
+
+	it("prices an entry that keeps no rate, or an older API's entry, at today's rate", () => {
+		expect(priceOfLog(log())).toBe(today);
+		expect(priceOfLog({ ...log(), ...keptAt(90), ratesStored: false })).toBe(today);
+		expect(priceOfLog({ ...log(), ratesStored: true })).toBe(today);
+	});
+
+	it('makes one line per rate when a member worked at two rates in the period, each saying so where it differs', () => {
+		const logs = [
+			{ ...log({ id: 'a', duration: 40 * HOUR }), ...keptAt(90) },
+			{ ...log({ id: 'b', duration: 2 * HOUR }), ...keptAt(110) }
+		];
+
+		const entries = billableEntriesOf(logs, new Set(['p1']), null, priceOfLog);
+		const { lines } = invoiceTimeOf({ entries, grouping: 'member', priceOf: () => today });
+
+		expect(
+			lines.map(({ hours, rate, amount, timeLogIds, todaysPrice }) => ({
+				hours,
+				rate,
+				amount,
+				timeLogIds,
+				todaysPrice
+			}))
+		).toEqual([
+			{ hours: 40, rate: 90, amount: 3600, timeLogIds: ['a'], todaysPrice: { rate: 110, currency: 'USD' } },
+			{ hours: 2, rate: 110, amount: 220, timeLogIds: ['b'], todaysPrice: undefined }
+		]);
+		expect(new Set(lines.map(({ key }) => key)).size).toBe(2);
+	});
+
+	it('keeps one line, with the key it had, for time priced as today whether it kept its rate or not', () => {
+		const keptAtToday = { ...log({ id: 'b' }), ...keptAt(110) };
+		const entries = billableEntriesOf([log({ id: 'a' }), keptAtToday], new Set(['p1']), null, priceOfLog);
+		const { lines } = invoiceTimeOf({ entries, grouping: 'member', priceOf: () => today });
+
+		expect(lines).toHaveLength(1);
+		expect(lines[0]).toMatchObject({ key: 'p1|ana', hours: 2, rate: 110, amount: 220 });
+		expect(lines[0].todaysPrice).toBeUndefined();
+	});
+
+	it('by project: the hours at their kept rates make the average', () => {
+		const logs = [
+			{ ...log({ id: 'a', duration: 3 * HOUR }), ...keptAt(90) },
+			{ ...log({ id: 'b', duration: 3 * HOUR }), ...keptAt(110) }
+		];
+
+		const entries = billableEntriesOf(logs, new Set(['p1']), null, priceOfLog);
+		const { lines } = invoiceTimeOf({ entries, grouping: 'project', priceOf: () => today });
+
+		expect(lines).toMatchObject([{ hours: 6, rate: 100, amount: 600, isAverageRate: true }]);
 	});
 });

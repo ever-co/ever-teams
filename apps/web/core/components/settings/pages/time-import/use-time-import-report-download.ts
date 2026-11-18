@@ -33,7 +33,8 @@ export function useTimeImportReportDownload(timeImport: TimeImport, copy: TimeIm
 	return useCallback(() => {
 		const namesMembers = timeImport.rows.some((row) => row.cells.memberEmail !== '');
 		const givesEndDates = timeImport.rows.some((row) => row.cells.endDate !== '');
-		const columns = timeImportReportCsvColumnsOf(canImportForOthers || namesMembers, givesEndDates);
+		const givesLabels = timeImport.rows.some((row) => row.cells.labels !== '');
+		const columns = timeImportReportCsvColumnsOf(canImportForOthers || namesMembers, givesEndDates, givesLabels);
 		const fileName = timeImportReportFileNameOf(new Date());
 		downloadCsv(reportLinesOf(timeImport, copy), columns, fileName);
 	}, [canImportForOthers, copy, timeImport]);

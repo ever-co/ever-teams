@@ -68,6 +68,7 @@ function TeamsModernTimer({
 		todayTrackedTime,
 		isRunning,
 		startTimer,
+		timerActionLabel,
 		stopTimer,
 		currentTeamsState,
 		setCurrentTeamsState
@@ -111,6 +112,7 @@ function TeamsModernTimer({
 					isRunning={isRunning}
 					startTimer={startTimer}
 					stopTimer={stopTimer}
+					aria-label={timerActionLabel}
 					timerLoading={timerLoading}
 				/>
 

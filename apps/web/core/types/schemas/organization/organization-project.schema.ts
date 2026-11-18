@@ -60,6 +60,8 @@ export const organizationProjectBaseSchema = z
 		billing: z.nativeEnum(EProjectBilling).optional().nullable(),
 		currency: z.nativeEnum(ECurrencies).or(z.string()).optional().nullable(),
 		public: z.boolean().nullable(),
+		// A private project the caller is not on, answered as its id and this marker (CORE-27)
+		projectHidden: z.boolean().optional(),
 		owner: z.nativeEnum(EProjectOwner).nullable().nullable(),
 		taskListType: z.nativeEnum(ETaskListType).optional().nullable(),
 		code: z.string().nullable(),

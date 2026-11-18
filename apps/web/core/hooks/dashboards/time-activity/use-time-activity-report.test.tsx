@@ -21,7 +21,8 @@ const NO_FILTERS: TimeActivityFilters = {
 	projectIds: [],
 	taskIds: [],
 	clientIds: [],
-	billable: []
+	billable: [],
+	entryLabels: []
 };
 
 const employeeLogs = [{ employee: { id: 'ada' }, sum: 600, activity: 50, tasks: [] }];
@@ -140,9 +141,13 @@ jest.mock('@/core/hooks/clients/use-clients-query', () => ({
 		};
 	}
 }));
+const mockBreaksReadEnabled = jest.fn();
 jest.mock('./use-time-activity-queries', () => ({
 	// Breaks (#5216): their figure's read, off unless a test turns breaks on
-	useTimeActivityBreaksQuery: () => mockBreaksQuery,
+	useTimeActivityBreaksQuery: (_request: unknown, isEnabled: boolean) => {
+		mockBreaksReadEnabled(isEnabled);
+		return mockBreaksQuery;
+	},
 	useTimeActivityDailyQuery: () => ({
 		data: mockDailyReport,
 		isPlaceholderData: mockShowsPreviousRead,
@@ -630,6 +635,18 @@ describe('useTimeActivityReport with breaks on (#5216)', () => {
 		const { figures } = renderHook(() => useTimeActivityReport()).result.current;
 
 		expect(figures.breakSeconds).toBeUndefined();
+	});
+
+	it('reads no breaks while labels of entries narrow the report, as the read of the breaks cannot', () => {
+		mockBreaksQuery = { data: 3600, isError: false };
+
+		for (const entryLabels of [['design'], ['no-label']]) {
+			mockFilters = { ...NO_FILTERS, entryLabels };
+			const { figures } = renderHook(() => useTimeActivityReport()).result.current;
+
+			expect(mockBreaksReadEnabled).toHaveBeenLastCalledWith(false);
+			expect(figures.breakSeconds).toBeUndefined();
+		}
 	});
 
 	it('says the figure is unavailable once the read failed, never a period without breaks', () => {

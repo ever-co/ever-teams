@@ -108,6 +108,34 @@ describe('GET /api/board/members', () => {
 		});
 	});
 
+	it('lists no colleague of a team the person left, nor of any team once their own employment ended', async () => {
+		const leftTeamOne = structuredClone(TEAMS);
+		leftTeamOne.items[0].members[0] = member(SELF, { name: 'Self Person' }, { isActive: false });
+		gauzyAnswers(Response.json(leftTeamOne));
+
+		const response = await GET(membersRequest(BOARD_ORIGIN));
+
+		expect(await response.json()).toEqual({
+			items: [{ employeeId: 'employee-bo', name: 'Bo Chen', imageUrl: null }]
+		});
+
+		const employmentEnded = structuredClone(TEAMS);
+		for (const team of employmentEnded.items) {
+			for (const [index, teamMember] of team.members.entries()) {
+				if (teamMember.employeeId === SELF) {
+					team.members[index] = member(
+						SELF,
+						{},
+						{ employee: { id: SELF, isActive: false, user: { name: 'Self Person' } } }
+					);
+				}
+			}
+		}
+		gauzyAnswers(Response.json(employmentEnded));
+
+		expect(await (await GET(membersRequest(BOARD_ORIGIN))).json()).toEqual({ items: [] });
+	});
+
 	it("reads the teams with the session's tenant and token, not the cookie's tenant", async () => {
 		const fetchMock = gauzyAnswers(Response.json(TEAMS));
 

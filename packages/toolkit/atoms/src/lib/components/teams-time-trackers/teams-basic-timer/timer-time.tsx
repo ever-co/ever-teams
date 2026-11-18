@@ -33,18 +33,24 @@ interface TimerTimeProps extends TimeVariances {
 
 // TODO: Must move this to be used dynamically
 function Separator() {
-	return <span className="inline-flex items-center justify-center">:</span>;
+	return <span className="px-0.5 text-muted-foreground">:</span>;
 }
 
 function TimerTime({ time, sx, color }: Readonly<TimerTimeProps>): ReactElement {
 	const { hours, minutes, seconds } = time;
 	return (
-		<div className={cn('inline-flex items-center justify-center', timeVariants({ color }), sx)}>
-			<div className="w-6">{getTimeDigits(hours)}</div>
+		<div
+			className={cn(
+				'inline-flex items-center justify-center font-semibold lining-nums tabular-nums leading-none',
+				timeVariants({ color }),
+				sx
+			)}
+		>
+			<span>{getTimeDigits(hours)}</span>
 			<Separator />
-			<div className="w-6">{getTimeDigits(minutes)}</div>
+			<span>{getTimeDigits(minutes)}</span>
 			<Separator />
-			<div className="w-6">{getTimeDigits(seconds)}</div>
+			<span>{getTimeDigits(seconds)}</span>
 		</div>
 	);
 }

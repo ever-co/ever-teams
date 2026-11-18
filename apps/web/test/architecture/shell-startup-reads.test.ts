@@ -64,6 +64,13 @@ describe('reads of the app shell before it is ready', () => {
 		expect(source).toMatch(/onFocus=\{reachForMenu\}/);
 	});
 
+	it('asks whether entries carry labels once the shell has settled: the timer offers Labels on every page', () => {
+		expect(sourceOf('core/components/timer/timer-entry-toggles.tsx')).toContain('<TimerLabelsControl');
+		expect(sourceOf('core/hooks/timer/use-entry-labels-support.ts')).toContain(
+			'enabled: hasWorkspace && shellSettled'
+		);
+	});
+
 	it('asks for the Goals entry once the shell has settled, which InitState decides after its ready mark', () => {
 		expect(sourceOf('core/components/layouts/app-sidebar.tsx')).toContain(
 			'useTimeGoals({ enabled: shellSettled })'

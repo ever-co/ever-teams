@@ -3,6 +3,7 @@
 import React, { FC, useEffect, useState } from 'react';
 import { View, StyleSheet, Text, Dimensions, PixelRatio, Platform } from 'react-native';
 import { colors, typography, useAppTheme } from '../theme';
+import { EMAILED_CODE_LENGTH, normalizeEmailedCode } from '../helpers/emailed-code';
 import { CodeField, Cursor, useBlurOnFulfill, useClearByFocusCell } from 'react-native-confirmation-code-field';
 
 interface ICodeField {
@@ -16,7 +17,7 @@ const { height: screeHeight } = Dimensions.get('screen');
 const screenDimension = PixelRatio.get();
 
 export const CodeInputField: FC<ICodeField> = (props) => {
-	const { onChange, editable, length = 6 } = props;
+	const { onChange, editable, length = EMAILED_CODE_LENGTH } = props;
 	const { colors } = useAppTheme();
 
 	const [value, setValue] = useState<string>('');
@@ -39,8 +40,13 @@ export const CodeInputField: FC<ICodeField> = (props) => {
 			{...codeFieldProps}
 			// Use `caretHidden={false}` when users can't paste a text value, because context menu doesn't appear
 			value={value}
-			onChangeText={setValue}
+			// The library caps the hidden input at cellCount characters, which cuts a code pasted with a space before
+			// it short before onChangeText sees it: take the whole text and keep the code part of it here.
+			maxLength={undefined}
+			onChangeText={(text: string) => setValue(normalizeEmailedCode(text, length))}
 			cellCount={length}
+			autoFocus
+			textInputStyle={styles.hiddenInput}
 			rootStyle={styles.container}
 			keyboardType="default"
 			textContentType="oneTimeCode"
@@ -72,6 +78,15 @@ export const CodeInputField: FC<ICodeField> = (props) => {
 };
 
 const styles = StyleSheet.create({
+	// The library spreads StyleSheet.absoluteFillObject, which React Native 0.86 no longer exports: its hidden input then
+	// sits at the end of the row, a few pixels wide, and a press on a cell focuses nothing. This lays it over the cells.
+	hiddenInput: {
+		position: 'absolute',
+		top: 0,
+		right: 0,
+		bottom: 0,
+		left: 0
+	},
 	container: {
 		flexDirection: 'row',
 		justifyContent: 'center',
@@ -80,8 +95,9 @@ const styles = StyleSheet.create({
 	inputContainer: {
 		backgroundColor: '#fff',
 		borderRadius: 10,
-		marginHorizontal: 4,
-		width: '14.6%'
+		flex: 1,
+		marginHorizontal: 3,
+		maxWidth: 48
 	},
 	inputStyle: {
 		backgroundColor: '#fff',

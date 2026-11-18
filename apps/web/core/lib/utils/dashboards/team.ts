@@ -1,3 +1,4 @@
+import { PRIVATE_PROJECTS_KEY } from '@/core/lib/utils/project-visibility';
 import { isAfter, isWithinInterval, startOfDay, startOfMonth, startOfWeek } from 'date-fns';
 import {
 	activityPercentOf,
@@ -418,6 +419,8 @@ export interface ProjectShareItem {
 	color: string | null;
 	isNoProject: boolean;
 	seconds: number;
+	/** The time of every project the API keeps from the reader, on one row (CORE-27). */
+	isProjectHidden?: true;
 }
 
 const LEADING_PROJECTS = 4;
@@ -426,12 +429,21 @@ function projectItemOf(project: GroupSummary): ProjectShareItem {
 	const first = firstRowOf(project.rows);
 	return {
 		key: project.key,
-		name: first?.projectName ?? null,
+		name: first?.projectGroupName ?? first?.projectName ?? null,
 		imageUrl: first?.projectImageUrl ?? null,
 		color: first?.projectColor ?? null,
 		isNoProject: isNoProjectKey(project.key),
-		seconds: project.seconds
+		seconds: project.seconds,
+		...hiddenShareFlagOf(project.key)
 	};
+}
+
+// Rows of projects the reader may see keep the shape they had before the API could keep a project from them
+function hiddenShareFlagOf(key: string): Pick<ProjectShareItem, 'isProjectHidden'> {
+	if (key !== PRIVATE_PROJECTS_KEY) {
+		return {};
+	}
+	return { isProjectHidden: true };
 }
 
 export function projectSharesOf(
@@ -1779,7 +1791,9 @@ function projectOfRow(row: DailyReportRow): ProjectShareItem | null {
 		imageUrl: row.projectImageUrl,
 		color: row.projectColor,
 		isNoProject: false,
-		seconds: row.seconds
+		seconds: row.seconds,
+		// A project the API keeps from the reader keeps its lock beside "Private project" (#5385)
+		...(row.isProjectHidden ? { isProjectHidden: true as const } : {})
 	};
 }
 

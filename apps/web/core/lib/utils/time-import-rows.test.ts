@@ -73,6 +73,7 @@ function sheetRowOf(cells: Partial<TimeImportCells>, row = 2): TimeImportSheetRo
 			notes: '',
 			billable: '',
 			memberEmail: '',
+			labels: '',
 			...cells
 		},
 		extraCellCount: 0
@@ -114,7 +115,8 @@ describe('draftRowsOf', () => {
 			taskId: FIX_LOGIN.id,
 			taskTitle: 'Fix login',
 			notes: 'Pairing',
-			isBillable: true
+			isBillable: true,
+			labelNames: []
 		});
 		expect(isReadyRow(row)).toBe(true);
 	});

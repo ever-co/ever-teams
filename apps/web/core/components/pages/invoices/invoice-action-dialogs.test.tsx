@@ -213,6 +213,30 @@ describe('voiding and deleting an invoice from the list', () => {
 		expect(screen.getByText('invoices.delete.FAILED')).toBeTruthy();
 		expect(onClose).not.toHaveBeenCalled();
 	});
+
+	it('closes, saying the invoice changed since it was shown and was not deleted, when refused as changed meanwhile (#5382)', async () => {
+		mockDeleteInvoice.mockRejectedValue(Object.assign(new Error('INVOICE_CHANGED'), { status: 409 }));
+		const onClose = jest.fn();
+		const onDeleted = jest.fn();
+		render(
+			<DeleteInvoiceDialog
+				open
+				scope={LIST_SCOPE}
+				target={targetIn('DRAFT')}
+				onClose={onClose}
+				onDeleted={onDeleted}
+			/>
+		);
+
+		await confirm('invoices.delete.CONFIRM');
+
+		// Nothing was deleted: the page behind the dialog stays, and is read again to show the invoice as it is now
+		expect(mockToast.error).toHaveBeenCalledWith('invoices.delete.CHANGED_MEANWHILE');
+		expect(onClose).toHaveBeenCalledTimes(1);
+		expect(onDeleted).not.toHaveBeenCalled();
+		expect(mockToast.success).not.toHaveBeenCalled();
+		expect(screen.queryByText('invoices.delete.FAILED')).toBeNull();
+	});
 });
 
 describe('voiding a paid invoice to replace it', () => {

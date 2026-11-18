@@ -7,6 +7,7 @@ import { formatAmount } from '@/core/lib/utils/daily-report-figures';
 import type { Period } from '@/core/lib/utils/dashboard-period';
 import { numberFormatOf, type FormatLocale } from '@/core/lib/utils/workspace-formats';
 import type { PastTimeRule } from '@/core/lib/utils/rate-apply';
+import { isHiddenProject } from '@/core/lib/utils/project-visibility';
 
 export type BudgetScope = 'whole' | 'period';
 
@@ -36,6 +37,11 @@ export interface BudgetProject {
 	membersCount: number | null;
 	/** Members as the projects list carries them; empty when the list did not load them. */
 	people: BudgetPerson[];
+	/**
+	 * A project the API keeps from the reader (CORE-27): named "Private project", without a page to lead to, and only
+	 * the time spent on it, which the API keeps.
+	 */
+	isHidden?: true;
 }
 
 export interface BudgetAmounts {
@@ -324,6 +330,23 @@ function budgetRowOf(input: BudgetRowInput): BudgetRow {
 interface RowContext {
 	organizationCurrency: string | null | undefined;
 	unnamedLabel: string;
+	hiddenLabel: string;
+}
+
+/** The row of a project the API keeps from the reader: its time, under "Private project", nothing else of it. */
+function hiddenRowOf(report: TProjectBudgetReport, context: RowContext): BudgetRow {
+	const budgetType = budgetTypeOf(report.budgetType);
+	const project: BudgetProject = {
+		id: report.project.id,
+		name: context.hiddenLabel,
+		imageUrl: null,
+		color: null,
+		membersCount: null,
+		people: [],
+		isHidden: true
+	};
+	const currency = currencyOf(budgetType, [report.project.currency, context.organizationCurrency]);
+	return budgetRowOf({ project, budgetType, currency, budget: report.budget, spent: report.spent, hasTime: true });
 }
 
 /** `currency` and `color` arrive with a Gauzy fix still in review: until then the projects list fills them in. */
@@ -333,6 +356,9 @@ function reportedRowOf(
 	context: RowContext
 ): BudgetRow {
 	const reported = report.project;
+	if (isHiddenProject(reported)) {
+		return hiddenRowOf(report, context);
+	}
 	const budgetType = budgetTypeOf(report.budgetType);
 	const name = firstTextOf([reported.name, listed?.name]) ?? context.unnamedLabel;
 	const project: BudgetProject = {
@@ -396,14 +422,17 @@ export function budgetRowsOf({
 	reports,
 	projects,
 	organizationCurrency,
-	unnamedLabel
+	unnamedLabel,
+	hiddenLabel = unnamedLabel
 }: Readonly<{
 	reports: ReadonlyArray<TProjectBudgetReport>;
 	projects: ReadonlyArray<TOrganizationProject>;
 	organizationCurrency: string | null | undefined;
 	unnamedLabel: string;
+	/** How a project the API keeps from the reader is named (CORE-27): "Private project". */
+	hiddenLabel?: string;
 }>): BudgetRow[] {
-	const context: RowContext = { organizationCurrency, unnamedLabel };
+	const context: RowContext = { organizationCurrency, unnamedLabel, hiddenLabel };
 	const listedById = listedProjectsByIdOf(projects);
 	const reportedIds = new Set<string>();
 	const rows: BudgetRow[] = [];

@@ -4,15 +4,19 @@ import React, { type ReactNode } from 'react';
 import { act, renderHook } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
-import { useEmployeeRatesMutation, useOwnRatesMutation } from './use-rates';
+import { useEmployeeRatesMutation, useOwnRatesMutation, useProjectRateMutations } from './use-rates';
 
 const mockUpdateEmployeeRates = jest.fn();
 const mockUpdateOwnProfileRates = jest.fn();
+const mockUpdateProjectRate = jest.fn();
+const mockUpdateProjectMemberRate = jest.fn();
 
 jest.mock('@/core/services/client/api/organizations/rate.service', () => ({
 	rateService: {
 		updateEmployeeRates: (...args: unknown[]) => mockUpdateEmployeeRates(...args),
-		updateOwnProfileRates: (...args: unknown[]) => mockUpdateOwnProfileRates(...args)
+		updateOwnProfileRates: (...args: unknown[]) => mockUpdateOwnProfileRates(...args),
+		updateProjectRate: (...args: unknown[]) => mockUpdateProjectRate(...args),
+		updateProjectMemberRate: (...args: unknown[]) => mockUpdateProjectMemberRate(...args)
 	}
 }));
 jest.mock('@/core/hooks/queries/user-user.query', () => ({
@@ -168,4 +172,46 @@ describe('the day a rate change applies from', () => {
 
 		expect(outcome).toEqual({ repricedTimeLogs: 7 });
 	});
+});
+
+describe('a client rate saved on a project (CORE-29)', () => {
+	function renderProjectMutations() {
+		const queryClient = new QueryClient({ defaultOptions: { mutations: { retry: false } } });
+		const invalidated = jest.spyOn(queryClient, 'invalidateQueries');
+		const wrapper = ({ children }: { children: ReactNode }) => (
+			<QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+		);
+		const { result } = renderHook(() => useProjectRateMutations('project-site'), { wrapper });
+		return { result, invalidated };
+	}
+
+	beforeEach(() => {
+		mockUpdateProjectRate.mockResolvedValue({ id: 'project-site', billRateValue: 110 });
+		mockUpdateProjectMemberRate.mockResolvedValue({ employeeId: 'employee-ana', billRateValue: 120 });
+	});
+
+	it.each([
+		[
+			'the project’s rate',
+			(save: ReturnType<typeof useProjectRateMutations>) => save.saveProjectRate({ billRateValue: 110 })
+		],
+		[
+			'a member’s rate on it',
+			(save: ReturnType<typeof useProjectRateMutations>) =>
+				save.saveMemberRate({ employeeId: 'employee-ana', billRateValue: 120 })
+		]
+	])(
+		'reads the time priced at the rates it kept again after %s is saved: past time may be re-priced',
+		async (_rate, save) => {
+			const { result, invalidated } = renderProjectMutations();
+
+			await act(async () => {
+				await save(result.current);
+			});
+
+			expect(invalidatedKeys(invalidated)).toEqual(
+				expect.arrayContaining([queryKeys.rates.all, queryKeys.timesheet.reports.all, queryKeys.activities.all])
+			);
+		}
+	);
 });
