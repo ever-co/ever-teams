@@ -24,7 +24,7 @@ import { setupReactotron } from '../../app/services/reactotron';
 import { customDarkTheme, customFontsToLoad, customLightTheme, navigationTheme } from '../../app/theme';
 import { initCrashReporting } from '../../app/utils/crash-reporting';
 import { useOnceReady } from '../../app/utils/use-once-ready';
-import { useLoadSession } from '../state/load-session';
+import { useSessionFromStore } from '../state/session-from-store';
 
 // What App.js and app/app.tsx did before a screen rendered, in the same order
 initCrashReporting();
@@ -52,20 +52,29 @@ function hideSplashScreen(): void {
  */
 const RootLayout = observer(function RootLayout() {
 	const {
-		authenticationStore: { isDarkMode, followsSystemTheme, isAuthenticated }
+		authenticationStore: {
+			isDarkMode,
+			followsSystemTheme,
+			isAuthenticated,
+			authToken,
+			refreshToken,
+			tenantId,
+			organizationId
+		}
 	} = useStores();
 	const [areFontsLoaded] = useFonts(customFontsToLoad);
 	const systemColorScheme = useColorScheme();
 	const [sessionEnded, setSessionEnded] = useState(false);
 	const languageStarted = useLanguageStarted();
-	// the new Home (EXPO_PUBLIC_APP_SHELL=next) reads the session the store restored
-	useLoadSession();
 
 	const { rehydrated } = useInitialRootStore(({ sessionEnded: ended }) => {
 		// a little longer than the store takes, so the splash screen does not flicker
 		setTimeout(hideSplashScreen, 500);
 		setSessionEnded(ended);
 	});
+
+	// the new Home (EXPO_PUBLIC_APP_SHELL=next) reads the session of the store
+	useSessionFromStore(rehydrated, { accessToken: authToken, refreshToken, tenantId, organizationId });
 
 	const ready = rehydrated && areFontsLoaded && languageStarted;
 	// told on the first render that shows the message host, however long the fonts take
