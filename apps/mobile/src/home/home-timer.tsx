@@ -7,6 +7,7 @@ import type { Theme } from '../theme';
 import { hoursAndMinutes } from './duration';
 import { TimerDigits } from './timer-digits';
 import {
+	useEmployeeId,
 	useLastLog,
 	useLogTask,
 	useStartTimer,
@@ -105,7 +106,39 @@ function TimerButton({ running, enabled, onPress }: { running: boolean; enabled:
 	);
 }
 
-function TaskOfTheLog({ log, task, running }: { log?: TimerLog; task?: TimerTask; running: boolean }) {
+/** A read that failed: what did not load, and a way to read it again. */
+function FailedRead({ message, onRetry }: { message: string; onRetry: () => void }) {
+	const theme = useShellTheme();
+	return (
+		<View accessibilityLiveRegion="polite" style={styles.failedRead}>
+			<Text style={[theme.type.hint, styles.failedMessage, { color: theme.colors['destructive-ink'] }]}>
+				{message}
+			</Text>
+			<Pressable
+				accessibilityRole="button"
+				onPress={onRetry}
+				style={({ pressed }) => [
+					styles.retry,
+					{ minHeight: theme.minimumTouchTarget, opacity: opacityOf(pressed, true) }
+				]}
+			>
+				<Text style={[theme.type.label, { color: theme.colors['primary-ink'] }]}>
+					{translate('shell.states.retry')}
+				</Text>
+			</Pressable>
+		</View>
+	);
+}
+
+interface TaskOfTheLogProps {
+	log?: TimerLog;
+	task?: TimerTask;
+	running: boolean;
+	failed: boolean;
+	onRetry: () => void;
+}
+
+function TaskOfTheLog({ log, task, running, failed, onRetry }: TaskOfTheLogProps) {
 	const theme = useShellTheme();
 	if (!log?.taskId) {
 		return (
@@ -130,6 +163,7 @@ function TaskOfTheLog({ log, task, running }: { log?: TimerLog; task?: TimerTask
 					{task.title}
 				</Text>
 			)}
+			{failed && <FailedRead message={translate('shell.home.taskFailed')} onRetry={onRetry} />}
 		</View>
 	);
 }
@@ -144,24 +178,49 @@ function ActionFailure({ title, message }: { title: string; message: string }) {
 	);
 }
 
+/** This week's total, or why it is not there: loading, a read that failed, or an account that tracks no time here. */
+function WeekValue() {
+	const theme = useShellTheme();
+	const employee = useEmployeeId();
+	const totals = useTrackedTotals();
+	if (totals.data) {
+		return (
+			<Text testID="home-week-total" style={[theme.type.stat, { color: theme.colors.foreground }]}>
+				{durationText(totals.data.weekDuration)}
+			</Text>
+		);
+	}
+	const noEmployee = employee.isSuccess && !employee.data;
+	if (noEmployee) {
+		return (
+			<Text style={[theme.type.hint, styles.weekNote, { color: theme.colors['muted-foreground'] }]}>
+				{translate('shell.home.weekUnavailable')}
+			</Text>
+		);
+	}
+	const failed = employee.isError || totals.isError;
+	if (failed) {
+		const retry = () => {
+			void employee.refetch();
+			void totals.refetch();
+		};
+		return <FailedRead message={translate('shell.home.weekFailed')} onRetry={retry} />;
+	}
+	return (
+		<Text style={[theme.type.hint, { color: theme.colors['muted-foreground'] }]}>
+			{translate('shell.states.loading')}
+		</Text>
+	);
+}
+
 function WeekTotal() {
 	const theme = useShellTheme();
-	const totals = useTrackedTotals();
 	return (
 		<View style={[styles.surface, styles.week, surfaceOf(theme)]}>
 			<Text style={[theme.type.label, { color: theme.colors['muted-foreground'] }]}>
 				{translate('shell.home.thisWeek')}
 			</Text>
-			{totals.data && (
-				<Text testID="home-week-total" style={[theme.type.stat, { color: theme.colors.foreground }]}>
-					{durationText(totals.data.weekDuration)}
-				</Text>
-			)}
-			{!totals.data && (
-				<Text style={[theme.type.hint, { color: theme.colors['muted-foreground'] }]}>
-					{translate('shell.states.loading')}
-				</Text>
-			)}
+			<WeekValue />
 		</View>
 	);
 }
@@ -171,6 +230,7 @@ export function HomeTimer() {
 	const theme = useShellTheme();
 	const online = useIsOnline();
 	const status = useTimerStatus();
+	const employee = useEmployeeId();
 	const totals = useTrackedTotals();
 	const lastLog = useLastLog(status.data?.lastLog, status.isSuccess);
 	const task = useLogTask(lastLog?.taskId);
@@ -203,7 +263,7 @@ export function HomeTimer() {
 
 	const refresh = async () => {
 		setRefreshing(true);
-		await Promise.all([status.refetch(), totals.refetch()]);
+		await Promise.all([status.refetch(), employee.refetch(), totals.refetch(), task.refetch()]);
 		setRefreshing(false);
 	};
 
@@ -229,7 +289,13 @@ export function HomeTimer() {
 					</Text>
 				)}
 				<View style={[styles.separator, { backgroundColor: theme.colors.border }]} />
-				<TaskOfTheLog log={lastLog} task={task.data} running={running} />
+				<TaskOfTheLog
+					log={lastLog}
+					task={task.data}
+					running={running}
+					failed={task.isError}
+					onRetry={() => void task.refetch()}
+				/>
 				<TimerButton running={running} enabled={enabled} onPress={onPress} />
 				{start.isError && (
 					<ActionFailure
@@ -286,6 +352,23 @@ const styles = StyleSheet.create({
 	},
 	failure: {
 		gap: 2
+	},
+	failedRead: {
+		flexShrink: 1,
+		flexDirection: 'row',
+		flexWrap: 'wrap',
+		alignItems: 'center',
+		columnGap: 8
+	},
+	failedMessage: {
+		flexShrink: 1
+	},
+	retry: {
+		justifyContent: 'center',
+		paddingHorizontal: 8
+	},
+	weekNote: {
+		flexShrink: 1
 	},
 	week: {
 		flexDirection: 'row',
