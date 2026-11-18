@@ -2,6 +2,7 @@ import * as Localization from 'expo-localization';
 import i18n from 'i18n-js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { I18nManager } from 'react-native';
+import { setAppLocale } from './translate';
 
 // if English isn't your default language, move Translations to the appropriate language file.
 import en, { Translations } from './en';
@@ -28,9 +29,9 @@ const setLanguage = async () => {
 		const locales = Localization?.getLocales?.();
 		const deviceLocale = locales?.[0]?.languageTag ?? 'en';
 		AsyncStorage.setItem('Language', deviceLocale);
-		i18n.locale = deviceLocale;
+		setAppLocale(deviceLocale);
 	} else {
-		i18n.locale = locale;
+		setAppLocale(locale);
 	}
 };
 

@@ -18,6 +18,12 @@ jest.mock('@react-native-async-storage/async-storage', () =>
 	require('@react-native-async-storage/async-storage/jest/async-storage-mock')
 );
 
+// Tests read a message as its key and values, whatever the language: translate() is the one place messages come from
+jest.mock('../app/i18n/translate', () => ({
+	...jest.requireActual('../app/i18n/translate'),
+	translate: (key: string, params?: Record<string, unknown>) => `${key} ${JSON.stringify(params)}`
+}));
+
 jest.mock('i18n-js', () => ({
 	currentLocale: () => 'en',
 	t: (key: string, params: Record<string, string>) => {
