@@ -647,6 +647,8 @@ describe('TimeActivitySavedReports on a Gauzy that keeps the labels of entries (
 		);
 		expect(screen.queryAllByLabelText('dashboard.savedReports.NAME')).toHaveLength(0);
 		expect(screen.getAllByText('dashboard.savedReports.LABELS_CHECKING').length).toBeGreaterThan(0);
+		const pendingUpdate = screen.getByText('dashboard.savedReports.UPDATE').closest('button') as HTMLButtonElement;
+		expect(pendingUpdate.disabled).toBe(true);
 
 		mockLabelsSupport = 'kept';
 		rerender(<TimeActivitySavedReports report={labelViewProps(DESIGN_WITHOUT_LABEL, 'label')} />);
