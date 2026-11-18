@@ -1,5 +1,6 @@
 import { IProject, IServerError } from '@ever-teams/toolkit-types';
 import { ApiCall } from '../fetch';
+import { IApiRequestConfig } from '../config/api-config';
 
 export type EmbedProject = Pick<IProject, 'id' | 'name'>;
 
@@ -26,14 +27,21 @@ function messageOf(error: unknown): string {
  * header, as the API's tenant routes require. A read that gets no answer, or an answer that is not a list, comes back
  * as a message with no status.
  */
-export const getEmbedProjects = async (token: string, tenantId: string): Promise<EmbedProjectsAnswer> => {
+export const getEmbedProjects = async (
+	token: string,
+	tenantId: string,
+	api?: IApiRequestConfig
+): Promise<EmbedProjectsAnswer> => {
 	try {
-		const response = await ApiCall<unknown>({
-			path: '/embed/projects',
-			method: 'GET',
-			bearer_token: token,
-			tenantId
-		});
+		const response = await ApiCall<unknown>(
+			{
+				path: '/embed/projects',
+				method: 'GET',
+				bearer_token: token,
+				tenantId
+			},
+			api
+		);
 
 		if ('data' in response) {
 			if (Array.isArray(response.data)) {

@@ -72,19 +72,22 @@ export interface IImageAssetCreateInput {
 	thumbUrl?: string;
 }
 
-export const uploadFile = async ({
-	file,
-	user,
-	token,
-	organizationId,
-	folderName
-}: {
-	file: File | null;
-	token: string;
-	user: IUser | null;
-	organizationId?: string;
-	folderName: string;
-}) => {
+export const uploadFile = async (
+	{
+		file,
+		user,
+		token,
+		organizationId,
+		folderName
+	}: {
+		file: File | null;
+		token: string;
+		user: IUser | null;
+		organizationId?: string;
+		folderName: string;
+	},
+	api?: IApiRequestConfig
+) => {
 	try {
 		if (!user) {
 			throw new Error('User is not authenticated');
@@ -100,14 +103,17 @@ export const uploadFile = async ({
 		if (user.tenantId) formData.append('tenantId', user.tenantId);
 		if (organizationId) formData.append('organizationId', organizationId);
 
-		const response = await ApiCallUpload<IImageAssetCreateInput>({
-			path: `/image-assets/upload/${folderName}`,
-			method: 'POST',
-			bearer_token: token,
-			body: formData,
-			tenantId: user.tenantId,
-			organizationId
-		});
+		const response = await ApiCallUpload<IImageAssetCreateInput>(
+			{
+				path: `/image-assets/upload/${folderName}`,
+				method: 'POST',
+				bearer_token: token,
+				body: formData,
+				tenantId: user.tenantId,
+				organizationId
+			},
+			api
+		);
 
 		if ('data' in response) {
 			return response.data;

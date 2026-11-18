@@ -1,22 +1,29 @@
 import { IServerError, ITenant } from '@ever-teams/toolkit-types';
 import { ApiCall } from '../fetch';
+import { IApiRequestConfig } from '../config/api-config';
 
-export const createTenant = async ({
-	tenantName,
-	token
-}: {
-	tenantName: string;
-	token: string;
-}): Promise<ITenant | IServerError> => {
+export const createTenant = async (
+	{
+		tenantName,
+		token
+	}: {
+		tenantName: string;
+		token: string;
+	},
+	api?: IApiRequestConfig
+): Promise<ITenant | IServerError> => {
 	try {
-		const response = await ApiCall<ITenant>({
-			path: '/tenant',
-			method: 'POST',
-			bearer_token: token,
-			body: {
-				name: tenantName
-			}
-		});
+		const response = await ApiCall<ITenant>(
+			{
+				path: '/tenant',
+				method: 'POST',
+				bearer_token: token,
+				body: {
+					name: tenantName
+				}
+			},
+			api
+		);
 
 		if ('data' in response) {
 			return response.data;

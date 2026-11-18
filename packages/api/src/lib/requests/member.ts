@@ -1,11 +1,13 @@
 import { IMember, IServerError, IUser, PaginationResponse } from '@ever-teams/toolkit-types';
 import { ApiCall } from '../fetch';
+import { IApiRequestConfig } from '../config/api-config';
 
 export const getMembers = async (
 	user: IUser | null,
 	token: string,
 	organizationId: string,
-	interval: { start: Date; end: Date }
+	interval: { start: Date; end: Date },
+	api?: IApiRequestConfig
 ) => {
 	const { start, end } = interval;
 	try {
@@ -28,13 +30,16 @@ export const getMembers = async (
 			findInput: json
 		});
 
-		const response = await ApiCall<PaginationResponse<IMember>>({
-			path: `/employee/working?data=${query}`,
-			method: 'GET',
-			bearer_token: token,
-			tenantId,
-			organizationId
-		});
+		const response = await ApiCall<PaginationResponse<IMember>>(
+			{
+				path: `/employee/working?data=${query}`,
+				method: 'GET',
+				bearer_token: token,
+				tenantId,
+				organizationId
+			},
+			api
+		);
 
 		if ('data' in response) return response.data;
 
