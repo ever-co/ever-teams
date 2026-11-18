@@ -112,8 +112,9 @@ The widgets draw in the Ever Teams web app's font, the system UI face (nothing i
 
 Each `TeamsProvider` sends the requests of the components under it to its own `config.apiUrl`: two providers of a
 page can reach two different servers. A provider without `apiUrl` uses the address set with
-`apiConfigManager.setConfig()` of `@ever-teams/api` (`https://api.ever.team/api` by default). Every provider still
-writes its `apiUrl` there, for your own calls to the request functions of that package.
+`apiConfigManager.setConfig()` of `@ever-teams/api` (`https://api.ever.team/api` by default), and starts afresh,
+signed out, when that address changes. Every provider still writes its `apiUrl` there, for your own calls to the
+request functions of that package.
 
 The API must accept your site's origin: on a self-hosted Gauzy API, add it to `ALLOWED_ORIGINS` (comma-separated)
 and restart the API.

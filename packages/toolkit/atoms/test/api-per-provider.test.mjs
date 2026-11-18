@@ -515,8 +515,9 @@ test('a provider without an apiUrl reads its sessions from the address the page 
 		['a', { apiUrl: SERVER_A }],
 		['d', {}, sessions]
 	]);
-	// The host moves the page to another server once the first provider has set its own address.
-	kit.apiConfigManager.setConfig({ apiUrl: 'https://host.example.com/api' });
+	// The host moves the page to another server once the first provider has set its own address: the provider without
+	// one renders again for it.
+	await act(async () => kit.apiConfigManager.setConfig({ apiUrl: 'https://host.example.com/api' }));
 
 	await signInOn('d');
 
@@ -595,4 +596,53 @@ test('a read of the person that answers once its provider moved to another addre
 
 	assert.equal(localStorage.getItem('_teams-store'), null, "A's answer saves no session for the page");
 	assert.deepEqual(holdings.a, { token: '', userId: null, timeLogs: null });
+});
+
+test("a provider without an apiUrl starts afresh when the page's address changes under it", async () => {
+	const api = answering([]);
+	await act(async () => kit.apiConfigManager.setConfig({ apiUrl: SERVER_A }));
+	const { root } = await openPage([['d', {}, holdingsOf('d')]]);
+	await signInOn('d');
+	assert.equal(holdings.d.token, 'token-1', 'signed in on A');
+	assert.deepEqual(new Set(requests.map(({ host }) => host)), new Set([hostOf(SERVER_A)]));
+
+	// The saved session would follow the provider to B (ever-co/ever-teams#5524): B starts signed out.
+	localStorage.clear();
+	// Another provider of the page points at B, which becomes the page's address.
+	await renderPage(root, [
+		['d', {}, holdingsOf('d')],
+		['b', { apiUrl: SERVER_B }]
+	]);
+	await settle();
+
+	assert.equal(kit.apiConfigManager.getConfig().apiUrl, SERVER_B);
+	assert.deepEqual(holdings.d, { token: '', userId: null, timeLogs: null }, 'nothing read on A stays');
+	assert.deepEqual(api.tokensSentTo(SERVER_B), [], "A's token never reaches B");
+});
+
+test("a stop that answers once the page's address changed records its time on the server that stopped", async () => {
+	const api = answering([{ host: hostOf(SERVER_A), path: '/timesheet/timer/stop', held: true }]);
+	await act(async () => kit.apiConfigManager.setConfig({ apiUrl: SERVER_A }));
+	const { root } = await openPage([['d', {}, timerOf('d')]]);
+	await signInOn('d');
+	let stopping;
+	await act(async () => {
+		stopping = timers.d.stopTimer();
+	});
+
+	localStorage.clear();
+	await renderPage(root, [
+		['d', {}, timerOf('d')],
+		['b', { apiUrl: SERVER_B }]
+	]);
+	await settle();
+	await act(async () => {
+		api.release();
+		await stopping;
+	});
+	await settle();
+
+	const slots = requestsTo('/timesheet/time-slot').map(({ host }) => host);
+	assert.deepEqual(slots, [hostOf(SERVER_A)]);
+	assert.deepEqual(api.tokensSentTo(SERVER_B), [], "A's token never reaches B");
 });
