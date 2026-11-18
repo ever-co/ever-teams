@@ -8,6 +8,7 @@ import {
 	clientLineKeyOf
 } from '@/core/lib/utils/dashboards/time-activity';
 import { entryRateKeyOf } from '@/core/lib/utils/dashboards/time-activity-billable';
+import { labelNamesOf } from '@/core/lib/utils/time-log-labels';
 
 const CENTS_PER_UNIT = 100;
 
@@ -51,14 +52,20 @@ function matchKeyOf(parts: ReadonlyArray<string>) {
 	return JSON.stringify(parts);
 }
 
-/** A row and the billable time of the same entry share the day, the member, the project as listed, client and task. */
+/**
+ * A row and the billable time of the same entry share the day, the member, the project as listed, client, task and the
+ * entry's own labels. The daily report names no entry, so these are what tell its rows apart: two entries of one task
+ * that differ only by their labels each find their own row, so the file bills the row of the entry that is billable.
+ */
 function rowMatchKeyOf(row: TimeActivityExportRow) {
 	const client = row.client ?? NO_CLIENT;
-	return matchKeyOf([row.dateKey, row.employeeId, row.projectKey, client.key, row.taskKey]);
+	return matchKeyOf([row.dateKey, row.employeeId, row.projectKey, client.key, row.taskKey, row.labels]);
 }
 
+// The labels as the row writes them: both come from the same entry's labels, sorted by name (`entryLabelsOf`)
 function factMatchKeyOf(fact: BreakdownFact) {
-	return matchKeyOf([fact.dateKey, fact.employeeId, fact.project.key, fact.client.key, fact.taskKey]);
+	const labels = labelNamesOf(fact.labels);
+	return matchKeyOf([fact.dateKey, fact.employeeId, fact.project.key, fact.client.key, fact.taskKey, labels]);
 }
 
 /** The rate a row's earnings were priced at, read back from them: the same entry's billable time states it too. */
@@ -305,8 +312,8 @@ function totalCentsOf(
 /**
  * The billable time of each export row, priced as the page prices it: the page's facts of the billable time, each
  * placed on the row of the same entry. Gauzy lists one task row per entry, so an entry is found by its day, member,
- * project, client, task, time and rate. The amounts of a currency are rounded to the cent so that the rows add up to
- * the total the page writes.
+ * project, client, task, labels, time and rate. The amounts of a currency are rounded to the cent so that the rows add
+ * up to the total the page writes.
  */
 export function exportBillablesOf(
 	rows: ReadonlyArray<TimeActivityExportRow>,

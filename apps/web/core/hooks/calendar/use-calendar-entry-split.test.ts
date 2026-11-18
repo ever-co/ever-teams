@@ -128,6 +128,132 @@ describe('splitCalendarEntry, the fields of the second part', () => {
 	});
 });
 
+// The entry as an API with labels on entries (Gauzy #12029) lists it, read with its labels
+const LABELLED = {
+	...LOG,
+	tags: [
+		{ id: 'label-1', name: 'Design', color: '#f00' },
+		{ id: 'label-2', name: 'Review', color: null },
+		{ id: 'label-1', name: 'Design', color: '#f00' }
+	]
+};
+
+describe('splitCalendarEntry, the labels of the second part', () => {
+	it('reads the entry with its labels and files the second part under them, each once', async () => {
+		mockGetTimeLogs.mockResolvedValue([LABELLED]);
+
+		await splitCalendarEntry({
+			log: LOG,
+			splitAt: at(11),
+			secondTask: null,
+			tenantId: 'tenant-1',
+			entryLabelsSupport: async () => true
+		});
+
+		expect(mockGetTimeLogs).toHaveBeenCalledWith(expect.objectContaining({ withEntryLabels: true }));
+		expect(mockAddManualTime).toHaveBeenCalledWith(expect.objectContaining({ tags: ['label-1', 'label-2'] }));
+	});
+
+	it('takes the labels the server holds now, not those of the calendar copy', async () => {
+		const relabelled = { ...LABELLED, tags: [{ id: 'label-3', name: 'Ops', color: null }] };
+		mockGetTimeLogs.mockResolvedValue([relabelled]);
+
+		await splitCalendarEntry({
+			log: LABELLED as unknown as ITimeLog,
+			splitAt: at(11),
+			secondTask: null,
+			tenantId: 'tenant-1',
+			entryLabelsSupport: async () => true
+		});
+
+		expect(mockAddManualTime).toHaveBeenCalledWith(expect.objectContaining({ tags: ['label-3'] }));
+	});
+
+	it('sends no labels for an entry without any', async () => {
+		mockGetTimeLogs.mockResolvedValue([{ ...LOG, tags: [] }]);
+
+		await splitCalendarEntry({
+			log: LOG,
+			splitAt: at(11),
+			secondTask: null,
+			tenantId: 'tenant-1',
+			entryLabelsSupport: async () => true
+		});
+
+		expect(mockAddManualTime).toHaveBeenCalledWith(expect.not.objectContaining({ tags: expect.anything() }));
+	});
+
+	it.each([
+		['says it has none', async () => false],
+		['is not asked', undefined]
+	])('asks an API that %s for no labels, and sends it none', async (_case, entryLabelsSupport) => {
+		await splitCalendarEntry({
+			log: LOG,
+			splitAt: at(11),
+			secondTask: null,
+			tenantId: 'tenant-1',
+			entryLabelsSupport
+		});
+
+		expect(mockGetTimeLogs).toHaveBeenCalledWith(
+			expect.not.objectContaining({ withEntryLabels: expect.anything() })
+		);
+		expect(mockAddManualTime).toHaveBeenCalledWith(expect.not.objectContaining({ tags: expect.anything() }));
+	});
+
+	it('writes nothing when whether the API has labels cannot be told, and offers another try', async () => {
+		const split = splitCalendarEntry({
+			log: LOG,
+			splitAt: at(11),
+			secondTask: null,
+			tenantId: 'tenant-1',
+			entryLabelsSupport: async () => {
+				throw new Error('Failed to fetch');
+			}
+		});
+
+		await expect(split).rejects.toEqual(expect.objectContaining({ failure: 'restored' }));
+		expect(mockGetTimeLogs).not.toHaveBeenCalled();
+		expect(mockUpdateTimeLog).not.toHaveBeenCalled();
+		expect(mockAddManualTime).not.toHaveBeenCalled();
+	});
+
+	it('gives up on an answer that does not come (a read paused offline), and a late one resumes nothing', async () => {
+		jest.useFakeTimers();
+		try {
+			let answer: (value: boolean) => void = () => undefined;
+			let isSettled = false;
+			const split = splitCalendarEntry({
+				log: LOG,
+				splitAt: at(11),
+				secondTask: null,
+				tenantId: 'tenant-1',
+				entryLabelsSupport: () =>
+					new Promise<boolean>((resolve) => {
+						answer = resolve;
+					})
+			}).finally(() => {
+				isSettled = true;
+			});
+			const outcome = expect(split).rejects.toEqual(expect.objectContaining({ failure: 'restored' }));
+
+			// Still waiting a moment before the 15 s are up, given up right at them
+			await jest.advanceTimersByTimeAsync(14_999);
+			expect(isSettled).toBe(false);
+			await jest.advanceTimersByTimeAsync(1);
+			await outcome;
+			answer(true);
+			await jest.advanceTimersByTimeAsync(1_000);
+
+			expect(mockGetTimeLogs).not.toHaveBeenCalled();
+			expect(mockUpdateTimeLog).not.toHaveBeenCalled();
+			expect(mockAddManualTime).not.toHaveBeenCalled();
+		} finally {
+			jest.useRealTimers();
+		}
+	});
+});
+
 describe('splitCalendarEntry, a shortening the API refuses', () => {
 	it.each([400, 403, 409, 422])('writes nothing more after a %s: the entry was never changed', async (status) => {
 		mockUpdateTimeLog.mockRejectedValueOnce(Object.assign(new Error('refused'), { statusCode: status }));
@@ -429,6 +555,22 @@ describe('splitThroughApi, one write where the API splits (#5369)', () => {
 		await splitThroughApi({ log: LOG, splitAt: at(11), secondTask: null, tenantId: 'tenant-1' });
 
 		expect(calls).toEqual(['update 9-11', 'add 11-13']);
+	});
+
+	it('files the second part of those two writes under the entry labels, on an API that has them', async () => {
+		mockSplitTimeLog.mockRejectedValueOnce(MISSING_ROUTE);
+		mockGetTimeLogs.mockResolvedValue([LABELLED]);
+
+		await splitThroughApi({
+			log: LOG,
+			splitAt: at(11),
+			secondTask: null,
+			tenantId: 'tenant-1',
+			entryLabelsSupport: async () => true
+		});
+
+		expect(calls).toEqual(['update 9-11', 'add 11-13']);
+		expect(mockAddManualTime).toHaveBeenCalledWith(expect.objectContaining({ tags: ['label-1', 'label-2'] }));
 	});
 
 	it('refuses tracked time as today, writing nothing, when the API has no split', async () => {

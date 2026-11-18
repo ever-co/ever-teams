@@ -25,10 +25,16 @@ function colorSchemeOf(value: string | null): ColorScheme {
 	return 'system';
 }
 
-// Without api-url the kit keeps its own default API address.
-function configOf(apiUrl: string | null) {
+// The API client's own default address. The client merges each new setting into the last one, and all the timers of a
+// page share it: an element that never had api-url leaves it as it is, one whose api-url was removed names the default.
+const KIT_DEFAULT_API_URL = 'https://api.ever.team/api';
+
+function configOf(apiUrl: string | null, hadApiUrl: boolean) {
 	if (apiUrl) {
 		return { apiUrl };
+	}
+	if (hadApiUrl) {
+		return { apiUrl: KIT_DEFAULT_API_URL };
 	}
 	return {};
 }
@@ -43,6 +49,7 @@ export class EverTeamsTimerElement extends HTMLElement {
 
 	private root: Root | null = null;
 	private cache: EmotionCache | null = null;
+	private hadApiUrl = false;
 
 	connectedCallback() {
 		// Moved in the page (removed and inserted again in one task): the kit goes on as it was, with its shadow root.
@@ -86,10 +93,14 @@ export class EverTeamsTimerElement extends HTMLElement {
 			return;
 		}
 		const lang = this.getAttribute('lang') ?? undefined;
+		const apiUrl = this.getAttribute('api-url');
+		if (apiUrl) {
+			this.hadApiUrl = true;
+		}
 		this.root.render(
 			<CacheProvider value={this.cache}>
 				<TeamsProvider
-					config={configOf(this.getAttribute('api-url'))}
+					config={configOf(apiUrl, this.hadApiUrl)}
 					scopedStyles
 					colorScheme={colorSchemeOf(this.getAttribute('color-scheme'))}
 					lang={lang}
