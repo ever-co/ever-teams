@@ -538,5 +538,13 @@
 	{
 		"id": "removed:testNames:apps/mobile/detox/firstTest.spec.js::should have the login screen first::#1",
 		"reason": "Detox could not run: its configuration built ios/mobile.xcworkspace, which the repository does not hold (expo prebuild generates it), and this spec looked for the Ignite demo test IDs login-heading, login-button and welcome-heading, which the app does not have. The end-to-end flows are the Maestro flows in apps/mobile/.maestro (ever-co/ever-teams#5447)."
+	},
+	{
+		"id": "removed:testNames:packages/toolkit/atoms/test/timer-status-provider.test.mjs::an outage shows one notice, not one per read::#1",
+		"reason": "Renamed with a wider expectation by the kit embed-errors work (#5439, 1eed6fee1): an outage now shows its notice inside the widgets instead of a toast. The same scenario is \"an outage shows one notice inside the widgets, the same one for every read, and no toast\" in the same file."
+	},
+	{
+		"id": "removed:testNames:packages/toolkit/atoms/test/tracking-provider.test.mjs::a provider without a session component reads no sessions::#1",
+		"reason": "Renamed with a wider expectation when the time-zone database became lazy (78670bfeb, #5409): the provider loads it only with the first tracking sessions. The same scenario is \"a provider without a session component reads no sessions and loads no time-zone data\" in the same file."
 	}
 ]
