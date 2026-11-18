@@ -1,4 +1,5 @@
-// The kit's themes and its theme picker: node --test test/*.test.mjs (from packages/toolkit/atoms).
+// The kit's default theme is the web app's flat primary, and the gradient it had stays one pick away: node --test
+// test/*.test.mjs (from packages/toolkit/atoms).
 // esbuild bundles the themes and the theme picker with toolkit-ui's Select and the kit context replaced by stand-ins;
 // React renders the picker to static markup.
 import { test, before, after } from 'node:test';
@@ -78,13 +79,19 @@ after(() => {
 	if (bundleDir) fs.rmSync(bundleDir, { recursive: true, force: true });
 });
 
-test('the gradient is exported as gradientTheme', () => {
+test('the default theme paints buttons and focused fields in the flat primary', () => {
+	assert.equal(kit.defaultTheme.colors.mainColor, '#3826A6');
+	assert.equal(kit.defaultTheme.colors.borderColor, '#3826A6');
+});
+
+test('the gradient of earlier versions stays exported as gradientTheme', () => {
 	assert.equal(kit.gradientTheme.colors.mainColor, GRADIENT);
 	assert.equal(kit.gradientTheme.colors.borderColor, '#A11DB1');
 });
 
-test('the theme picker offers the gradient by name', () => {
+test('the theme picker offers the flat default and the gradient', () => {
 	const markup = renderToStaticMarkup(React.createElement(kit.TeamsThemeToggle));
 
+	assert.match(markup, /data-value="[^"]*#3826A6&quot;[^"]*">Default</);
 	assert.match(markup, /data-value="[^"]*linear-gradient[^"]*">Purple gradient</);
 });

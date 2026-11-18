@@ -4,16 +4,17 @@ export const getColorHex = (color: string): string => {
 	return colorHexMap[color] || color;
 };
 
+// The Ever Teams web app's flat primary, on buttons, tabs and focused fields.
 export const defaultTheme: ICustomTheme = {
 	colors: {
 		textColor: '#000',
 		backgroundColor: 'white',
-		mainColor: 'linear-gradient(135deg, #3826A6 0%, #A11DB1 100%)',
-		borderColor: '#A11DB1'
+		mainColor: '#3826A6',
+		borderColor: '#3826A6'
 	}
 };
 
-// The primary fading into purple.
+// The kit's default theme up to 0.2.x: the primary fading into purple.
 export const gradientTheme: ICustomTheme = {
 	colors: {
 		textColor: '#000',
