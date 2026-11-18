@@ -36,10 +36,10 @@ let writing: { run: Cursor; done: Promise<void> } | null = null;
  * no longer moves anything (writeSince).
  */
 function writeOnItsWay(): Promise<void> | null {
-	if (writing && writing.run === cursor) {
-		return writing.done;
+	if (writing?.run !== cursor) {
+		return null;
 	}
-	return null;
+	return writing?.done ?? null;
 }
 
 /** How the heartbeat and a stop name a run: its log's id, or its start for an API that sends no id. */
