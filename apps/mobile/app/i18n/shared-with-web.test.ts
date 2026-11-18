@@ -44,8 +44,13 @@ function driftFrom(locale: AppLocale) {
 	const web = webMessages(locale);
 	const app = messagesByLocale[locale] as Tree;
 	return Object.entries(shared)
-		.filter(([, webKey]) => translatedOnTheWeb(locale, web, webKey))
-		.filter(([appKey, webKey]) => messageAt(app, appKey) !== messageAt(web, webKey))
+		.filter(([appKey, webKey]) => {
+			const appText = messageAt(app, appKey);
+			const webText = messageAt(web, webKey);
+			// a key gone from either side is drift too, never two missing texts that look alike
+			const missing = appText === undefined || webText === undefined;
+			return missing || (translatedOnTheWeb(locale, web, webKey) && appText !== webText);
+		})
 		.map(([appKey, webKey]) => ({ appKey, app: messageAt(app, appKey), web: messageAt(web, webKey) }));
 }
 

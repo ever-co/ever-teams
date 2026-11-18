@@ -40,6 +40,19 @@ describe('the messages', () => {
 		expect(different).toEqual([]);
 	});
 
+	it.each(SUPPORTED_LOCALES)('of %s are never empty', (locale) => {
+		const empty = leaves(messagesByLocale[locale] as Tree).filter(([, message]) => message.trim() === '');
+
+		expect(empty).toEqual([]);
+	});
+
+	// An apostrophe next to a brace makes ICU print the placeholder as text: Started at '{time}' shows {time}
+	it.each(SUPPORTED_LOCALES)('of %s quote no placeholder', (locale) => {
+		const quoting = leaves(messagesByLocale[locale] as Tree).filter(([, message]) => /'[{}]|[{}]'/.test(message));
+
+		expect(quoting).toEqual([]);
+	});
+
 	it.each(SUPPORTED_LOCALES)('of %s are valid ICU messages', (locale) => {
 		const errors: string[] = [];
 		const t = createTranslator({
