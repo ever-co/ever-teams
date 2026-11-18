@@ -7,7 +7,8 @@
 		"dev": "next dev --webpack",
 		"build": "next build --webpack",
 		"start": "next start",
-		"lint": "eslint ."
+		"lint": "eslint .",
+		"test": "node --test test/*.test.mjs"
 	},
 	"dependencies": {
 		"@builder.io/dev-tools": "^1.0.17",
