@@ -206,7 +206,10 @@ function WeekValue() {
 	if (failed) {
 		const retry = () => {
 			void employee.refetch();
-			void totals.refetch();
+			// Without an employee the totals have nothing to read yet: they are read once the lookup answers one
+			if (employee.data) {
+				void totals.refetch();
+			}
 		};
 		return <FailedRead message={translate('shell.home.weekFailed')} onRetry={retry} />;
 	}
@@ -267,7 +270,14 @@ export function HomeTimer() {
 
 	const refresh = async () => {
 		setRefreshing(true);
-		await Promise.all([status.refetch(), employee.refetch(), totals.refetch(), task.refetch()]);
+		// Only what there is to read: a refetch runs even a disabled query, so the totals without an employee, or the task
+		// of a log without one, would fail after their retries and hold the spinner for seconds
+		await Promise.all([
+			status.refetch(),
+			employee.refetch(),
+			employee.data ? totals.refetch() : undefined,
+			hasTask ? task.refetch() : undefined
+		]);
 		setRefreshing(false);
 	};
 

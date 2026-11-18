@@ -142,6 +142,20 @@ describe('Home', () => {
 		expect(totals.refetch).toHaveBeenCalled();
 	});
 
+	it('reads the employee again, and not yet the totals, when the employee lookup failed', async () => {
+		status({ duration: 6740, running: false, lastLog });
+		(useEmployeeId as jest.Mock).mockReturnValue({ ...employee, data: undefined, isSuccess: false, isError: true });
+		const totals = { data: undefined, isError: false, refetch: jest.fn() };
+		(useTrackedTotals as jest.Mock).mockReturnValue(totals);
+
+		await render(<HomeTimer />);
+
+		expect(screen.getByText(/shell.home.weekFailed/)).toBeTruthy();
+		await fireEvent.press(screen.getByText(/shell.states.retry/));
+		expect(employee.refetch).toHaveBeenCalled();
+		expect(totals.refetch).not.toHaveBeenCalled();
+	});
+
 	it('says when the account tracks no time here, instead of loading for ever', async () => {
 		status({ duration: 6740, running: false, lastLog });
 		(useEmployeeId as jest.Mock).mockReturnValue({ ...employee, data: null });
