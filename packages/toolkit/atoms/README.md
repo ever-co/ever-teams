@@ -113,9 +113,10 @@ The widgets draw in the Ever Teams web app's font, the system UI face (nothing i
 Each `TeamsProvider` sends the requests of the components under it to its own `config.apiUrl`: two providers of a
 page can reach two different servers. A provider without `apiUrl` uses the address set with
 `apiConfigManager.setConfig()` of `@ever-teams/api` (`https://api.ever.team/api` by default), and starts afresh
-when that address changes: the token, the person and the lists it holds in memory are dropped. The session a
-sign-in saves in the browser is still one for the whole page (ever-co/ever-teams#5524), so after the change the
-provider can read it back and send its token to the new address. Every provider still writes its `apiUrl` there, for
+when that address changes: the token, the person and the lists it holds in memory are dropped. It then reads back
+only a session saved for the new address, if there is one (see
+[Security](#security-where-tokens-live-today-and-what-is-planned)), so a token never reaches another server. Every
+provider still writes its `apiUrl` there, for
 your own calls to the request functions of that package.
 
 The API must accept your site's origin: on a self-hosted Gauzy API, add it to `ALLOWED_ORIGINS` (comma-separated)
