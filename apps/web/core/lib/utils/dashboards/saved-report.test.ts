@@ -3,6 +3,7 @@ import { periodOfPreset } from '@/core/lib/utils/dashboard-period';
 import type { TimeActivityFilters } from '@/core/lib/utils/dashboards/time-activity';
 import type { IPublicSavedReport, ISavedReport } from '@/core/types/interfaces/timesheet/saved-report';
 import {
+	canSaveView,
 	dailyReportOfPublic,
 	linkParamsOfSavedReport,
 	savedPeriodOf,
@@ -97,6 +98,26 @@ describe('linkParamsOfSavedReport', () => {
 
 		expect(params.toString()).toBe('from=2026-10-01&to=2026-10-31&report=r1');
 	});
+
+	it('opens a report stored without filters or grouping as every entry of its period, by date', () => {
+		const params = linkParamsOfSavedReport(savedReportOf({ periodRule: 'thisWeek', filters: null }));
+
+		expect(params.toString()).toBe('period=thisWeek&report=r1');
+	});
+});
+
+describe('canSaveView', () => {
+	it('is true for a view a saved report keeps whole', () => {
+		expect(canSaveView(CLIENT_A_LAST_MONTH)).toBe(true);
+	});
+
+	it.each([
+		['narrowed by a label', { filters: { ...NO_FILTERS, entryLabels: ['design'] } }],
+		['narrowed to the time without a label', { filters: { ...NO_FILTERS, entryLabels: ['no-label'] } }],
+		['grouped by label', { grouping: 'label' as const }]
+	])('is false for a view %s, which a saved report would not keep', (_case, change) => {
+		expect(canSaveView({ ...CLIENT_A_LAST_MONTH, ...change })).toBe(false);
+	});
 });
 
 describe('showsSavedView', () => {
@@ -140,6 +161,13 @@ describe('showsSavedView', () => {
 
 		expect(showsSavedView(saved, byLabel, MONDAY)).toBe(false);
 		expect(showsSavedView(saved, withoutLabel, MONDAY)).toBe(false);
+	});
+
+	it('is false for a view grouped by label, even over a report saved by date', () => {
+		const byDate = savedReportOf({ ...saved, grouping: null });
+		const byLabel = { ...CLIENT_A_LAST_MONTH, grouping: 'label' as const };
+
+		expect(showsSavedView(byDate, byLabel, MONDAY)).toBe(false);
 	});
 
 	it('compares a report saved with fixed days with the days shown, even on days a preset also covers', () => {

@@ -7,6 +7,7 @@ import {
 	entryLabelsOf,
 	entryLabelsOfLogs,
 	groupLogsByEntryLabel,
+	labelNamesOf,
 	logMatchesEntryLabels
 } from './time-log-labels';
 
@@ -68,6 +69,12 @@ describe('time entry labels', () => {
 	it('writes the labels of an entry as one export cell', () => {
 		expect(entryLabelNamesOf(supportLog)).toBe('Design, support');
 		expect(entryLabelNamesOf(unlabelledLog)).toBe('');
+	});
+
+	it('writes the same cell for the same labels in any order, each once', () => {
+		expect(labelNamesOf([support, design, support])).toBe('Design, support');
+		expect(labelNamesOf([design, support])).toBe('Design, support');
+		expect(labelNamesOf([])).toBe('');
 	});
 
 	it("keeps a link's entry labels only where the API stores labels on entries (#5368)", () => {
