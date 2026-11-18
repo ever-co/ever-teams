@@ -1844,6 +1844,8 @@
 			"SHARE_TITLE": "Share a read-only link",
 			"SHARE_NEEDS_SAVE": "A link shares a saved report. Name this view to save it, then turn its link on.",
 			"LABELS_NOT_KEPT": "Saved reports don't keep labels yet. To save this view, clear the Labels filter and group by something other than Label.",
+			"LABELS_CHECKING": "Checking whether saved reports keep labels…",
+			"LABELS_CHECK_FAILED": "Could not check whether saved reports keep labels.",
 			"SHARE_HINT": "Anyone with the link sees the report name, its period, the figures, the chart and the table, without an account. Nothing can be changed, and it shows only what you may see.",
 			"LINK_ADDRESS": "Link address",
 			"COPY": "Copy",

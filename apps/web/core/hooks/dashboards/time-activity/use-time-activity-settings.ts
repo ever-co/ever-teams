@@ -189,6 +189,11 @@ export function useTimeActivitySettings() {
 		linkedPeriod,
 		holdsView,
 		setPeriod,
+		/**
+		 * The link the view is read from, a change asked for included before the address shows it: what names the saved
+		 * report the view was opened from, so the two always change together.
+		 */
+		linkParams,
 		/** Changes values of the link in one move: how a saved report opens. */
 		setLinkParams
 	};

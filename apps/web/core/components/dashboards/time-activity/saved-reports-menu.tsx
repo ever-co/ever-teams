@@ -1,5 +1,6 @@
 'use client';
 
+import type { ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import {
 	DropdownMenu,
@@ -89,6 +90,7 @@ function ActiveReportActions({
 	report,
 	showsSavedView,
 	canUpdate,
+	cannotUpdateNote,
 	isUpdating,
 	onUpdate,
 	onRename,
@@ -97,6 +99,7 @@ function ActiveReportActions({
 	report: ISavedReport;
 	showsSavedView: boolean;
 	canUpdate: boolean;
+	cannotUpdateNote: ReactNode;
 	isUpdating: boolean;
 	onUpdate: (report: ISavedReport) => void;
 	onRename: (report: ISavedReport) => void;
@@ -113,11 +116,7 @@ function ActiveReportActions({
 				<Check />
 				<span>{t('dashboard.savedReports.UPDATE')}</span>
 			</DropdownMenuItem>
-			{!canUpdate && (
-				<p className="max-w-64 px-2 pb-1.5 text-xs text-muted-foreground">
-					{t('dashboard.savedReports.LABELS_NOT_KEPT')}
-				</p>
-			)}
+			{!canUpdate && <div className="max-w-64 px-2 pb-1.5">{cannotUpdateNote}</div>}
 			<DropdownMenuItem onClick={() => onRename(report)}>
 				<Pencil />
 				<span>{t('dashboard.savedReports.RENAME')}</span>
@@ -141,6 +140,7 @@ export function SavedReportsMenu({
 	availability,
 	showsSavedView,
 	canUpdate,
+	cannotUpdateNote,
 	isUpdating,
 	onOpen,
 	onUpdate,
@@ -152,8 +152,13 @@ export function SavedReportsMenu({
 	activeReport: ISavedReport | null;
 	availability: SavedReportsAvailability;
 	showsSavedView: boolean;
-	/** A report can keep the view shown: one narrowed or grouped by labels is never written over it (`canSaveView`). */
+	/**
+	 * A report can keep the view shown: one narrowed or grouped by labels is written over it only where Gauzy keeps
+	 * labels (`canUpdateReport`).
+	 */
 	canUpdate: boolean;
+	/** Why Update is off when the report cannot keep the view shown. */
+	cannotUpdateNote: ReactNode;
 	/** A change of a saved report is waiting for its answer: Update waits for it. */
 	isUpdating: boolean;
 	onOpen: (report: ISavedReport) => void;
@@ -196,6 +201,7 @@ export function SavedReportsMenu({
 						report={activeReport}
 						showsSavedView={showsSavedView}
 						canUpdate={canUpdate}
+						cannotUpdateNote={cannotUpdateNote}
 						isUpdating={isUpdating}
 						onUpdate={onUpdate}
 						onRename={onRename}

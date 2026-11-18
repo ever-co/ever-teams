@@ -5,13 +5,13 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { renderHook, waitFor } from '@testing-library/react';
 
 const mockKeepsEntryLabels = jest.fn();
-let mockHasEntryLabels = true;
+let mockEntryLabels = { isSupported: true, isKnown: true };
 
 jest.mock('@/core/services/client/api/timesheets/saved-report.service', () => ({
 	savedReportService: { keepsEntryLabels: () => mockKeepsEntryLabels() }
 }));
 jest.mock('@/core/hooks/timer/use-entry-labels-support', () => ({
-	useEntryLabelsSupport: () => mockHasEntryLabels
+	useEntryLabelsSupportState: () => mockEntryLabels
 }));
 jest.mock('@/core/lib/helpers/cookies', () => ({
 	...jest.requireActual('@/core/lib/helpers/cookies'),
@@ -40,41 +40,53 @@ function setup(isNeeded: boolean) {
 describe('useSavedReportLabelsSupport', () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
-		mockHasEntryLabels = true;
+		mockEntryLabels = { isSupported: true, isKnown: true };
 		mockKeepsEntryLabels.mockResolvedValue(true);
 	});
 
 	it('asks Gauzy nothing while no view or report uses labels, and keeps none', () => {
 		const { result } = setup(false);
 
-		expect(result.current).toBe(false);
+		expect(result.current.keepsEntryLabels).toBe(false);
 		expect(mockKeepsEntryLabels).not.toHaveBeenCalled();
 	});
 
-	it('asks Gauzy once a view uses labels, and keeps them where Gauzy does', async () => {
+	it('says it is checking until Gauzy answers, then keeps labels where Gauzy does, asking once', async () => {
 		const { result, rerender } = setup(false);
 
 		rerender({ needed: true });
+		expect(result.current.support).toBe('checking');
+		expect(result.current.keepsEntryLabels).toBe(false);
 
-		await waitFor(() => expect(result.current).toBe(true));
+		await waitFor(() => expect(result.current.support).toBe('kept'));
+		expect(result.current.keepsEntryLabels).toBe(true);
 		rerender({ needed: false });
 		rerender({ needed: true });
 		expect(mockKeepsEntryLabels).toHaveBeenCalledTimes(1);
 	});
 
-	it('keeps none where an older Gauzy does not', async () => {
+	it('keeps none, once answered, where an older Gauzy does not', async () => {
 		mockKeepsEntryLabels.mockResolvedValue(false);
 		const { result } = setup(true);
 
-		await waitFor(() => expect(mockKeepsEntryLabels).toHaveBeenCalledTimes(1));
-		expect(result.current).toBe(false);
+		// `not-kept` is the settled answer, never the state of a read still pending (`checking`)
+		await waitFor(() => expect(result.current.support).toBe('not-kept'));
+		expect(result.current.keepsEntryLabels).toBe(false);
 	});
 
 	it('asks nothing, and keeps none, where entries have no labels at all', () => {
-		mockHasEntryLabels = false;
+		mockEntryLabels = { isSupported: false, isKnown: true };
 		const { result } = setup(true);
 
-		expect(result.current).toBe(false);
+		expect(result.current.support).toBe('not-kept');
+		expect(mockKeepsEntryLabels).not.toHaveBeenCalled();
+	});
+
+	it('says it is checking while it is not known yet whether entries have labels', () => {
+		mockEntryLabels = { isSupported: false, isKnown: false };
+		const { result } = setup(true);
+
+		expect(result.current.support).toBe('checking');
 		expect(mockKeepsEntryLabels).not.toHaveBeenCalled();
 	});
 });

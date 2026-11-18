@@ -1,37 +1,72 @@
 'use client';
 
+import { useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAtomValue } from 'jotai';
-import { useEntryLabelsSupport } from '@/core/hooks/timer/use-entry-labels-support';
+import { useEntryLabelsSupportState } from '@/core/hooks/timer/use-entry-labels-support';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { queryKeys } from '@/core/query/keys';
 import { savedReportService } from '@/core/services/client/api/timesheets/saved-report.service';
 import { shellSettledState } from '@/core/stores/common/shell';
 
 /**
+ * What is known of saved reports and the labels of entries: `kept` (Gauzy keeps them), `not-kept` (an older Gauzy, or
+ * entries without labels), `checking` (not answered yet) or `failed` (Gauzy could not be asked, after its retries).
+ */
+export type SavedReportLabelsSupport = 'kept' | 'not-kept' | 'checking' | 'failed';
+
+interface SavedReportLabelsSupportState {
+	/** A saved report keeps the labels of entries: only once `support` is `kept`. */
+	keepsEntryLabels: boolean;
+	support: SavedReportLabelsSupport;
+	/** Asks Gauzy again, after a failure. */
+	retry: () => void;
+}
+
+function supportOf(
+	entryLabels: { isSupported: boolean; isKnown: boolean },
+	hasWorkspace: boolean,
+	answer: { data: boolean | undefined; isError: boolean }
+): SavedReportLabelsSupport {
+	if (!hasWorkspace) {
+		return 'not-kept';
+	}
+	if (!entryLabels.isSupported) {
+		return entryLabels.isKnown ? 'not-kept' : 'checking';
+	}
+	if (answer.data !== undefined) {
+		return answer.data ? 'kept' : 'not-kept';
+	}
+	return answer.isError ? 'failed' : 'checking';
+}
+
+/**
  * Whether a saved report keeps the labels of entries: the entry Labels filter and the Label grouping. Only a Gauzy with
  * ever-gauzy#12073 does (Ever Teams production may talk to an older one), and only where entries have labels at all
- * (`useEntryLabelsSupport`): until both are known, and against an older Gauzy, it is false, and a view narrowed or
- * grouped by labels is neither saved nor written over a report (`canSaveView`), as before.
+ * (`useEntryLabelsSupportState`). Until both are known, and against an older Gauzy, `keepsEntryLabels` is false, and a
+ * view narrowed or grouped by labels is neither saved nor written over a report (`canSaveView`), as before; `support`
+ * tells the page which of these it is, so it says "checking" rather than "not kept" while Gauzy has not answered.
  *
  * Gauzy is asked once per workspace, and only once a view or a saved report uses labels (`isNeeded`): any other view
- * saves the body an older Gauzy takes, and needs no answer. A failure to ask is tried again, and reads as false.
+ * saves the body an older Gauzy takes, and needs no answer. A failure to ask is tried again, then reads as `failed`.
  *
  * @param isNeeded The view shown, or the report it was opened from, uses labels of entries.
  */
-export function useSavedReportLabelsSupport(isNeeded: boolean): boolean {
+export function useSavedReportLabelsSupport(isNeeded: boolean): SavedReportLabelsSupportState {
 	const tenantId = getTenantIdCookie();
 	const organizationId = getOrganizationIdCookie();
 	const hasWorkspace = Boolean(tenantId) && Boolean(organizationId);
 	const shellSettled = useAtomValue(shellSettledState);
-	const hasEntryLabels = useEntryLabelsSupport();
-	const { data } = useQuery({
+	const entryLabels = useEntryLabelsSupportState();
+	const { data, isError, refetch } = useQuery({
 		queryKey: queryKeys.savedReports.entryLabelsSupport(tenantId, organizationId),
 		queryFn: () => savedReportService.keepsEntryLabels(),
-		enabled: isNeeded && hasEntryLabels && hasWorkspace && shellSettled,
+		enabled: isNeeded && entryLabels.isSupported && hasWorkspace && shellSettled,
 		staleTime: Infinity,
 		gcTime: Infinity,
 		retry: 3
 	});
-	return hasEntryLabels && data === true;
+	const retry = useCallback(() => void refetch(), [refetch]);
+	const support = supportOf(entryLabels, hasWorkspace, { data, isError });
+	return { keepsEntryLabels: support === 'kept', support, retry };
 }

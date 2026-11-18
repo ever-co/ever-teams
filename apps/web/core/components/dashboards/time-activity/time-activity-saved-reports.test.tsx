@@ -24,9 +24,10 @@ interface SavedState {
 let mockSaved: SavedState = { reports: [], availability: 'ready', linkTokens: {} };
 /** Whether a change of a saved report is still waiting for its answer. */
 let mockUpdatePending = false;
-/** Whether the connected Gauzy keeps the labels of entries on a saved report (ever-gauzy#12073). */
-let mockKeepsEntryLabels = false;
+/** What is known of the connected Gauzy and the labels of entries on a saved report (ever-gauzy#12073). */
+let mockLabelsSupport: 'kept' | 'not-kept' | 'checking' | 'failed' = 'not-kept';
 const mockLabelsSupportAsked = jest.fn();
+const mockLabelsSupportRetry = jest.fn();
 
 function mutation(mutateAsync: jest.Mock, isPending = false) {
 	return { mutateAsync, isPending };
@@ -60,7 +61,11 @@ jest.mock('@/core/hooks/dashboards/time-activity/use-saved-reports', () => ({
 jest.mock('@/core/hooks/dashboards/time-activity/use-saved-report-labels-support', () => ({
 	useSavedReportLabelsSupport: (isNeeded: boolean) => {
 		mockLabelsSupportAsked(isNeeded);
-		return mockKeepsEntryLabels;
+		return {
+			keepsEntryLabels: mockLabelsSupport === 'kept',
+			support: mockLabelsSupport,
+			retry: mockLabelsSupportRetry
+		};
 	}
 }));
 jest.mock('@/core/components/common/dropdown-menu', () => {
@@ -129,7 +134,7 @@ function reportProps(
 	return {
 		period: periodOfPreset('lastMonth', 1),
 		user: { id: 'user-1', tenantId: 'tenant-1', employee: { organizationId: 'organization-1' } },
-		settings: { filters, grouping: 'project', setLinkParams }
+		settings: { filters, grouping: 'project', linkParams: mockSearchParams, setLinkParams }
 	} as never;
 }
 
@@ -408,7 +413,7 @@ function labelViewProps(filters: TimeActivityFilters, grouping: string) {
 	return {
 		period: periodOfPreset('lastMonth', 1),
 		user: { id: 'user-1', tenantId: 'tenant-1', employee: { organizationId: 'organization-1' } },
-		settings: { filters, grouping, setLinkParams: mockSetLinkParams }
+		settings: { filters, grouping, linkParams: mockSearchParams, setLinkParams: mockSetLinkParams }
 	} as never;
 }
 
@@ -481,11 +486,11 @@ describe('TimeActivitySavedReports on a Gauzy that keeps the labels of entries (
 		mockSearchParams = new URLSearchParams();
 		mockSaved = { reports: [CLIENT_A, DESIGN_REPORT], availability: 'ready', linkTokens: {} };
 		mockUpdatePending = false;
-		mockKeepsEntryLabels = true;
+		mockLabelsSupport = 'kept';
 	});
 
 	afterEach(() => {
-		mockKeepsEntryLabels = false;
+		mockLabelsSupport = 'not-kept';
 	});
 
 	it('asks Gauzy only once a view or the report it was opened from uses labels', () => {
@@ -499,6 +504,16 @@ describe('TimeActivitySavedReports on a Gauzy that keeps the labels of entries (
 		render(<TimeActivitySavedReports report={labelViewProps(NO_FILTERS, 'project')} />);
 		expect(mockLabelsSupportAsked).toHaveBeenLastCalledWith(true);
 	});
+
+	it.each(['loading', 'unsupported', 'error'] as const)(
+		'asks Gauzy nothing while its saved reports are %s: a 404 then says nothing of labels',
+		(availability) => {
+			mockSaved = { reports: [], availability, linkTokens: {} };
+			render(<TimeActivitySavedReports report={labelViewProps(DESIGN_WITHOUT_LABEL, 'label')} />);
+
+			expect(mockLabelsSupportAsked).toHaveBeenLastCalledWith(false);
+		}
+	);
 
 	it.each(LABEL_VIEWS)('saves a view %s, with its labels and its grouping', async (_case, filters, grouping) => {
 		mockSaved = { reports: [], availability: 'ready', linkTokens: {} };
@@ -556,8 +571,49 @@ describe('TimeActivitySavedReports on a Gauzy that keeps the labels of entries (
 		expect(update.disabled).toBe(true);
 	});
 
+	it.each([
+		['checking', 'dashboard.savedReports.LABELS_CHECKING'],
+		['not-kept', 'dashboard.savedReports.LABELS_NOT_KEPT']
+	] as const)('saves no label view while Gauzy is %s, and says so', (support, note) => {
+		mockLabelsSupport = support;
+		mockSaved = { reports: [], availability: 'ready', linkTokens: {} };
+		render(<TimeActivitySavedReports report={labelViewProps(DESIGN_WITHOUT_LABEL, 'label')} />);
+
+		expect(screen.queryAllByLabelText('dashboard.savedReports.NAME')).toHaveLength(0);
+		expect(screen.getAllByText(note)).toHaveLength(2);
+	});
+
+	it('says Gauzy could not be asked, and asks again on Try again', () => {
+		mockLabelsSupport = 'failed';
+		mockSaved = { reports: [], availability: 'ready', linkTokens: {} };
+		render(<TimeActivitySavedReports report={labelViewProps(DESIGN_WITHOUT_LABEL, 'label')} />);
+
+		expect(screen.queryAllByLabelText('dashboard.savedReports.NAME')).toHaveLength(0);
+		expect(screen.queryByText('dashboard.savedReports.LABELS_NOT_KEPT')).toBeNull();
+		expect(screen.getAllByText('dashboard.savedReports.LABELS_CHECK_FAILED')).toHaveLength(2);
+		fireEvent.click(screen.getAllByText('dashboard.savedReports.TRY_AGAIN')[0]);
+		expect(mockLabelsSupportRetry).toHaveBeenCalledTimes(1);
+	});
+
+	it('names the report the view was opened from as the link the view is read from, a change pending included', () => {
+		// The address still names r1 while the view, read from the link the page asked for, already shows r2
+		const asked = new URLSearchParams('period=lastMonth&entryLabels=design%2Cno-label&groupBy=label&report=r2');
+		const props = labelViewProps(DESIGN_WITHOUT_LABEL, 'label') as unknown as {
+			settings: { linkParams: URLSearchParams };
+		};
+		mockSearchParams = new URLSearchParams('report=r1');
+		props.settings.linkParams = asked;
+		render(<TimeActivitySavedReports report={props as never} />);
+
+		// r2 keeps this very view: nothing to update, and r1 is never written with r2's view
+		const update = screen.getByText('dashboard.savedReports.UPDATE').closest('button') as HTMLButtonElement;
+		expect(update.disabled).toBe(true);
+		fireEvent.click(update);
+		expect(mockUpdate).not.toHaveBeenCalled();
+	});
+
 	it('writes no view over a report saved with labels while Gauzy is not known to keep them', () => {
-		mockKeepsEntryLabels = false;
+		mockLabelsSupport = 'checking';
 		mockSearchParams = new URLSearchParams('report=r2');
 		// The page shows no labels yet: it drops those of the link until it knows whether entries have labels
 		render(<TimeActivitySavedReports report={labelViewProps(NO_FILTERS, 'date')} />);

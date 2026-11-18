@@ -1,7 +1,6 @@
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { type ReactNode, useCallback, useMemo, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { AlertDialogConfirmation } from '@/core/components/common/alert-dialog-confirmation';
@@ -14,7 +13,10 @@ import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 import { useWorkspaceWeekStart } from '@/core/hooks/common/use-workspace-week-start';
 import type { TimeActivityReport } from '@/core/hooks/dashboards/time-activity/use-time-activity-report';
 import { type SavedReports, useSavedReports } from '@/core/hooks/dashboards/time-activity/use-saved-reports';
-import { useSavedReportLabelsSupport } from '@/core/hooks/dashboards/time-activity/use-saved-report-labels-support';
+import {
+	type SavedReportLabelsSupport,
+	useSavedReportLabelsSupport
+} from '@/core/hooks/dashboards/time-activity/use-saved-report-labels-support';
 import { APPLICATION_DEFAULT_LANGUAGE } from '@/core/constants/config/constants';
 import { getDefaultTimezone } from '@/core/lib/helpers/date-and-time';
 import {
@@ -72,17 +74,40 @@ function openReportIn(setLinkParams: TimeActivityReport['settings']['setLinkPara
 	});
 }
 
-/** Why the view cannot be saved: a saved report keeps no labels of entries (`canSaveView`). */
-function LabelsNotKeptNote() {
+/**
+ * Why a view narrowed or grouped by labels is not saved (`canSaveView`): Gauzy is still being asked whether saved
+ * reports keep labels, could not be asked (with a retry), or keeps none.
+ */
+function LabelsNote({ support, onRetry }: Readonly<{ support: SavedReportLabelsSupport; onRetry: () => void }>) {
 	const t = useTranslations();
+	if (support === 'checking') {
+		return <p className="text-xs text-muted-foreground">{t('dashboard.savedReports.LABELS_CHECKING')}</p>;
+	}
+	if (support === 'failed') {
+		return (
+			<div className="flex flex-col items-start gap-1">
+				<p className="text-xs text-muted-foreground">{t('dashboard.savedReports.LABELS_CHECK_FAILED')}</p>
+				<Button type="button" variant="outline" size="sm" onClick={onRetry}>
+					{t('dashboard.savedReports.TRY_AGAIN')}
+				</Button>
+			</div>
+		);
+	}
 	return <p className="text-xs text-muted-foreground">{t('dashboard.savedReports.LABELS_NOT_KEPT')}</p>;
 }
 
 function SaveButton({
 	onSave,
 	isSaving,
-	canSave
-}: Readonly<{ onSave: (name: string) => Promise<boolean>; isSaving: boolean; canSave: boolean }>) {
+	canSave,
+	labelsNote
+}: Readonly<{
+	onSave: (name: string) => Promise<boolean>;
+	isSaving: boolean;
+	canSave: boolean;
+	/** Why the view cannot be saved, when it cannot. */
+	labelsNote: ReactNode;
+}>) {
 	const t = useTranslations();
 	const [isOpen, setIsOpen] = useState(false);
 	const save = async (name: string) => {
@@ -105,7 +130,7 @@ function SaveButton({
 					{canSave && (
 						<p className="text-xs text-muted-foreground">{t('dashboard.savedReports.SAVE_HINT')}</p>
 					)}
-					{!canSave && <LabelsNotKeptNote />}
+					{!canSave && labelsNote}
 				</div>
 				{canSave && (
 					<SavedReportNameForm
@@ -126,6 +151,7 @@ function ShareButton({
 	onSave,
 	isSaving,
 	canSave,
+	labelsNote,
 	shareActionsOf,
 	urlOf
 }: Readonly<{
@@ -138,6 +164,8 @@ function ShareButton({
 	 * offers no save there either; the link of a report already open still shares that report as it was saved.
 	 */
 	canSave: boolean;
+	/** Why the view cannot be saved, when it cannot. */
+	labelsNote: ReactNode;
 	shareActionsOf: (report: ISavedReport) => ShareLinkActions;
 	urlOf: (report: ISavedReport) => string | null;
 }>) {
@@ -170,7 +198,7 @@ function ShareButton({
 							<p className="text-xs text-muted-foreground">
 								{t('dashboard.savedReports.SHARE_NEEDS_SAVE')}
 							</p>
-							{!canSave && <LabelsNotKeptNote />}
+							{!canSave && labelsNote}
 						</div>
 						{canSave && (
 							<SavedReportNameForm
@@ -195,7 +223,6 @@ export function TimeActivitySavedReports({ report }: Readonly<{ report: TimeActi
 	const t = useTranslations();
 	const appLocale = useLocale();
 	const weekStart = useWorkspaceWeekStart();
-	const searchParams = useSearchParams();
 	const view = useView(report);
 	const { setLinkParams } = report.settings;
 	// A write that ends after the link moved (a filter picked meanwhile) changes the link as it is then
@@ -208,12 +235,16 @@ export function TimeActivitySavedReports({ report }: Readonly<{ report: TimeActi
 	const [renaming, setRenaming] = useState<ISavedReport | null>(null);
 	const [deleting, setDeleting] = useState<ISavedReport | null>(null);
 
-	const activeId = searchParams?.get(SAVED_REPORT_PARAM) ?? null;
+	// Read from the link the view is read from: opening another report changes both at once, never the view alone
+	const activeId = report.settings.linkParams.get(SAVED_REPORT_PARAM) ?? null;
 	const activeReport = saved.reports.find((candidate) => candidate.id === activeId) ?? null;
 	const isActiveViewSaved = isShowingSavedView(activeReport, view, weekStart);
-	// Labels of entries are kept by a Gauzy with ever-gauzy#12073 only: Gauzy is asked once a view or a report uses them
+	// Labels of entries are kept by a Gauzy with ever-gauzy#12073 only: Gauzy is asked once a view or a report uses them,
+	// and once its saved reports answered (an API without them answers its 404 to every saved report route)
 	const usesEntryLabels = viewUsesEntryLabels(view) || savedReportUsesEntryLabels(activeReport);
-	const keepsEntryLabels = useSavedReportLabelsSupport(usesEntryLabels);
+	const labelsSupport = useSavedReportLabelsSupport(usesEntryLabels && saved.availability === 'ready');
+	const { keepsEntryLabels } = labelsSupport;
+	const labelsNote = <LabelsNote support={labelsSupport.support} onRetry={labelsSupport.retry} />;
 	// Elsewhere a view narrowed or grouped by labels would be saved as another view: it is neither saved nor written
 	// over a report
 	const canSave = canSaveView(view, keepsEntryLabels);
@@ -378,6 +409,7 @@ export function TimeActivitySavedReports({ report }: Readonly<{ report: TimeActi
 				availability={saved.availability}
 				showsSavedView={isActiveViewSaved}
 				canUpdate={canUpdate}
+				cannotUpdateNote={labelsNote}
 				isUpdating={saved.update.isPending}
 				onOpen={openReport}
 				onUpdate={(target) => void updateReport(target)}
@@ -385,13 +417,14 @@ export function TimeActivitySavedReports({ report }: Readonly<{ report: TimeActi
 				onDelete={setDeleting}
 				onRetry={() => void saved.retry()}
 			/>
-			<SaveButton onSave={saveView} isSaving={saved.create.isPending} canSave={canSave} />
+			<SaveButton onSave={saveView} isSaving={saved.create.isPending} canSave={canSave} labelsNote={labelsNote} />
 			<ShareButton
 				activeReport={activeReport}
 				saved={saved}
 				onSave={saveView}
 				isSaving={saved.create.isPending}
 				canSave={canSave}
+				labelsNote={labelsNote}
 				shareActionsOf={shareActionsOf}
 				urlOf={urlOf}
 			/>
