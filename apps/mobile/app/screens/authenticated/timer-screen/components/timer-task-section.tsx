@@ -65,7 +65,7 @@ const TimerTaskSection = observer(
 
 		useEffect(() => {
 			if (!editMode) {
-				inputRef.current.blur();
+				inputRef.current?.blur();
 			}
 		}, [editMode]);
 
