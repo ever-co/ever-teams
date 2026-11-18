@@ -10,9 +10,9 @@ import {
 } from '@react-navigation/native';
 import { createNativeStackNavigator, NativeStackScreenProps } from '@react-navigation/native-stack';
 import { observer } from 'mobx-react-lite';
-import React, { useEffect } from 'react';
+import React from 'react';
 import Config from '../config';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { AppQueryProvider } from '../services/client/query-provider';
 import { useStores } from '../models'; // @demo remove-current-line
 import {
 	LoginScreen // @demo remove-current-line
@@ -24,8 +24,6 @@ import {
 } from './authenticated-navigator';
 import { DemoTabParamList } from './demo-navigator'; // @demo remove-current-line
 import { navigationRef, useBackButtonHandler } from './navigation-utilities';
-import { Appearance } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 /**
  * This type allows TypeScript to know what routes are defined in this navigator
@@ -99,33 +97,14 @@ interface NavigationProps extends Partial<React.ComponentProps<typeof Navigation
 
 export const AppNavigator = observer(function AppNavigator(props: NavigationProps) {
 	const {
-		authenticationStore: { isDarkMode, toggleTheme }
+		authenticationStore: { isAuthenticated }
 	} = useStores();
-
-	useEffect(() => {
-		const checkAppInstallAndSetTheme = async () => {
-			const firstTimeAppOpen = await AsyncStorage.getItem('initialThemeSetupDone');
-
-			if (!firstTimeAppOpen) {
-				const colorsScheme = Appearance.getColorScheme();
-				if (colorsScheme === 'dark' && !isDarkMode) {
-					toggleTheme();
-				} else if (colorsScheme === 'light' && isDarkMode) {
-					toggleTheme();
-				}
-				await AsyncStorage.setItem('initialThemeSetupDone', JSON.stringify(true));
-			}
-		};
-		checkAppInstallAndSetTheme();
-	}, []);
-
 	useBackButtonHandler((routeName) => exitRoutes.includes(routeName));
-	const queryClient = new QueryClient();
 	return (
 		<NavigationContainer ref={navigationRef} navigationInChildEnabled {...props}>
-			<QueryClientProvider client={queryClient}>
+			<AppQueryProvider signedIn={isAuthenticated}>
 				<AppStack />
-			</QueryClientProvider>
+			</AppQueryProvider>
 		</NavigationContainer>
 	);
 });

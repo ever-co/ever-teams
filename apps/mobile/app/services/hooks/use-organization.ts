@@ -105,6 +105,23 @@ function useCreateOrganizationTeam() {
 		createTeamLoading
 	};
 }
+
+/**
+ * Who is signed in, read from the store when called: a token renewal keeps it, a sign-out or another person's sign-in
+ * changes it. Null while nobody is signed in.
+ */
+function signedInPerson(session: {
+	isAuthenticated: boolean;
+	tenantId: string;
+	employeeId: string;
+	user: { id?: string } | null;
+}): string | null {
+	if (!session.isAuthenticated) {
+		return null;
+	}
+	return `${session.tenantId}/${session.user?.id ?? ''}/${session.employeeId}`;
+}
+
 export function useOrganizationTeam() {
 	const {
 		teamStore: {
@@ -115,8 +132,9 @@ export function useOrganizationTeam() {
 			activeTeam,
 			setActiveTeamId
 		},
-		authenticationStore: { tenantId, authToken, organizationId }
+		authenticationStore
 	} = useStores();
+	const { tenantId, authToken, organizationId } = authenticationStore;
 	const { user } = useAuthenticateUser();
 	const { createOrganizationTeam, createTeamLoading } = useCreateOrganizationTeam();
 
@@ -322,6 +340,7 @@ export function useOrganizationTeam() {
 
 	const updateOrganizationTeamEmployeeActiveTask = useCallback(
 		async (user: OT_Member, activeTaskId: string, activeTeamId: string) => {
+			const startedFor = signedInPerson(authenticationStore);
 			// The generic member update only lets managers through, this route lets members set their own task.
 			const { data, response } = await updateOrganizationTeamEmployeeActiveTaskRequest({
 				id: user.id,
@@ -336,14 +355,17 @@ export function useOrganizationTeam() {
 			});
 
 			// currentUser.activeTaskId comes from the teams query: refresh it before answering, so the caller keeps its
-			// update guard up until the fresh member data is there (else the task hook's sync restores the old task)
-			if (response.ok) {
+			// update guard up until the fresh member data is there (else the task hook's sync restores the old task).
+			// Not after a sign-out while the update was on its way: the query cache was cleared then, and a refetch with
+			// the ended session's token would fill ['teams'] again with that person's teams for whoever signs in next.
+			const isSameSession = !!startedFor && signedInPerson(authenticationStore) === startedFor;
+			if (response.ok && isSameSession) {
 				await refetch().catch((e) => console.log(e));
 			}
 
 			return { data, response };
 		},
-		[refetch]
+		[refetch, authenticationStore]
 	);
 
 	/**
