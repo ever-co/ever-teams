@@ -72,7 +72,7 @@ const useActivitiesStats = (): IHookResponse<IActivitiesStats> => {
 
 	useEffect(() => {
 		let current = true;
-		fetchActivitiesStats(() => current);
+		void fetchActivitiesStats(() => current);
 		return () => {
 			current = false;
 			// The next read, if any, sets it again

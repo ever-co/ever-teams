@@ -50,7 +50,7 @@ const useMember = (): IHookResponse<PaginationResponse<IMember> | null> => {
 
 	useEffect(() => {
 		let current = true;
-		fetchMembers(() => current);
+		void fetchMembers(() => current);
 		return () => {
 			current = false;
 			// The next read, if any, sets it again

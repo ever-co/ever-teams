@@ -56,7 +56,8 @@ class ApiConfigManager {
 			return;
 		}
 		// A copy: a listener that unsubscribes while it runs does not skip the next one.
-		for (const listener of [...this.listeners()]) {
+		const listeners = new Set(this.listeners());
+		for (const listener of listeners) {
 			listener();
 		}
 	}
@@ -77,7 +78,10 @@ class ApiConfigManager {
 	}
 
 	private listeners(): Set<() => void> {
-		return (this.shared.listeners ??= new Set());
+		if (!this.shared.listeners) {
+			this.shared.listeners = new Set();
+		}
+		return this.shared.listeners;
 	}
 }
 

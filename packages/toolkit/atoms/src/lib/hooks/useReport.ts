@@ -100,7 +100,7 @@ const useReport = () => {
 
 	useEffect(() => {
 		let current = true;
-		if (user && organizationId) getReport(() => current);
+		if (user && organizationId) void getReport(() => current);
 		return () => {
 			current = false;
 			// The next read, if any, sets it again

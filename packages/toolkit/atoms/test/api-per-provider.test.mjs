@@ -19,7 +19,6 @@ delete standIns['@lib/context/teams-tracking-context'];
 const toasts = [];
 globalThis.kitToasts = toasts;
 const silentToast = 'export const toast = () => {};';
-assert.ok(kitStandIns['@ever-teams/toolkit-ui'].includes(silentToast));
 standIns['@ever-teams/toolkit-ui'] = kitStandIns['@ever-teams/toolkit-ui'].replace(
 	silentToast,
 	'export const toast = (shown) => { globalThis.kitToasts.push(shown); };'
@@ -54,6 +53,7 @@ const manualTimes = {};
 const accountForms = {};
 
 before(async () => {
+	assert.ok(kitStandIns['@ever-teams/toolkit-ui'].includes(silentToast), 'the toasts are recorded');
 	const { bundled, remove } = await bundleKit({
 		name: 'api-per-provider',
 		entry: `export { TeamsProvider } from '${kitSources}/components/teams-provider/teams-provider.tsx';
