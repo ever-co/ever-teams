@@ -218,19 +218,40 @@ export async function recordContract(options) {
 	await record('members.list');
 
 	const created = [];
+
+	// A start whose answer is lost or unreadable may still have started the timer: a run the status shows now, and did
+	// not show before the start, is the recording's own.
+	async function keepLostRun(statusBefore) {
+		const status = await client.timer.status();
+		const runningLogId = status.lastLog?.id;
+		const isNewRun = status.running && runningLogId !== statusBefore.lastLog?.id;
+		if (isNewRun) {
+			created.push(runningLogId);
+		}
+	}
+
+	async function startTimer(start) {
+		const statusBefore = await client.timer.status();
+		try {
+			const log = await start();
+			created.push(log.id);
+		} catch (error) {
+			await keepLostRun(statusBefore);
+			throw error;
+		}
+	}
+
 	let leftBehind = [];
 	try {
 		// As the README's quick start does: no project, task or team.
-		const bare = await record('timer.start');
-		created.push(bare.id);
+		await startTimer(() => record('timer.start'));
 		await record('timer.status');
 		await runAMoment();
 		await record('timer.stop');
 		// Then on one of the member's tasks, so the list holds an entry with its project and task too.
 		const task = tasks.find((candidate) => candidate.projectId);
 		if (task) {
-			const onTask = await client.timer.start({ projectId: task.projectId, taskId: task.id });
-			created.push(onTask.id);
+			await startTimer(() => client.timer.start({ projectId: task.projectId, taskId: task.id }));
 			await runAMoment();
 			await client.timer.stop();
 		}

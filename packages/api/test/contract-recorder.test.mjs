@@ -26,8 +26,10 @@ const ME = {
 	employee: { id: EMPLOYEE, organizationId: ORGANIZATION }
 };
 
-// A stand-in API with a timer: `failures` makes a route answer 500 the first time it is called.
-function benchApi({ running = false, failures = [] } = {}) {
+// A stand-in API with a timer: `failures` makes a route answer 500 the first time it is called, and `lostStart`
+// makes start number `lostStartAt` start the timer, then lose its answer ('lost') or send one that is not JSON
+// ('unreadable').
+function benchApi({ running = false, failures = [], lostStart, lostStartAt = 1 } = {}) {
 	const state = { running, logs: [] };
 	const failed = new Set();
 	const failsOnce = (route) => {
@@ -44,6 +46,9 @@ function benchApi({ running = false, failures = [] } = {}) {
 		[`GET /tasks/employee/${EMPLOYEE}`]: [{ id: TASK, title: 'Fix the sign-in page', projectId: PROJECT }],
 		'GET /employee/working': { items: [{ id: EMPLOYEE, fullName: 'Lina Okafor', user: ME }], total: 1 },
 		'POST /timesheet/timer/start': (request) => {
+			if (failsOnce('POST /timesheet/timer/start')) {
+				return json(500, { statusCode: 500, message: 'Internal server error' });
+			}
 			state.running = true;
 			const id = `7777777${state.logs.length}-8888-4999-8aaa-bbbbbbbbbbbb`;
 			const log = {
@@ -55,6 +60,13 @@ function benchApi({ running = false, failures = [] } = {}) {
 				organizationTeamId: null
 			};
 			state.logs.push(log);
+			const losesAnswer = state.logs.length === lostStartAt;
+			if (losesAnswer && lostStart === 'lost') {
+				throw new TypeError('fetch failed');
+			}
+			if (losesAnswer && lostStart === 'unreadable') {
+				return new Response('<html>Bad gateway</html>', { status: 201 });
+			}
 			return json(201, log);
 		},
 		'POST /timesheet/timer/stop': () => {
@@ -242,6 +254,43 @@ test('a failure while the timer runs stops it and deletes the entries created, a
 	assert.equal(api.state.running, false);
 	assert.deepEqual(deletesOf(api)[0].query.logIds, [api.state.logs[0].id]);
 	assert.deepEqual(filesIn(files.outDir), []);
+});
+
+for (const lostStart of ['lost', 'unreadable']) {
+	test(`a start whose answer is ${lostStart} still has its run stopped and deleted`, async () => {
+		const api = benchApi({ lostStart });
+		const files = workDir();
+
+		await assert.rejects(recordWith(api, files), /timer\.start failed/);
+
+		assert.equal(api.state.running, false);
+		assert.ok(api.routesSent().includes('POST /timesheet/timer/stop'));
+		assert.deepEqual(deletesOf(api)[0].query.logIds, [api.state.logs[0].id]);
+		assert.deepEqual(filesIn(files.outDir), []);
+	});
+}
+
+test('a lost answer of the start on a task still has both runs deleted', async () => {
+	const api = benchApi({ lostStart: 'lost', lostStartAt: 2 });
+
+	await assert.rejects(recordWith(api, workDir()), /No answer from .*: fetch failed/);
+
+	assert.equal(api.state.logs.length, 2);
+	assert.equal(api.state.running, false);
+	assert.deepEqual(
+		deletesOf(api)[0].query.logIds,
+		api.state.logs.map((log) => log.id)
+	);
+});
+
+test('a start the API refused, with no run started, leaves the timer and the entries alone', async () => {
+	const api = benchApi({ failures: ['POST /timesheet/timer/start'] });
+
+	await assert.rejects(recordWith(api, workDir()), /timer\.start failed/);
+
+	assert.deepEqual(api.state.logs, []);
+	assert.equal(api.routesSent().includes('POST /timesheet/timer/stop'), false);
+	assert.deepEqual(deletesOf(api), []);
 });
 
 test('a failure after the timers stopped still deletes both entries', async () => {
