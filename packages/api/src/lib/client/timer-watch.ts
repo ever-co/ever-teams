@@ -1,5 +1,5 @@
 import { ITimerStatus, TimerChange } from '@ever-teams/toolkit-types';
-import { clientError } from './error-mapping';
+import { clientError, isRecord } from './error-mapping';
 import { timerChangeOf } from './timer-change';
 
 export interface TimerWatchOptions {
@@ -60,6 +60,18 @@ function throwLater(error: unknown): void {
 	}, 0);
 }
 
+// An answer with no status in it (null, an empty body) is a failed read, as an answer of GET /user/me with no user is.
+function statusOf(answer: unknown): ITimerStatus {
+	if (!isRecord(answer)) {
+		throw clientError(
+			'UNEXPECTED_ANSWER',
+			'GET /timesheet/timer/status answered no status.',
+			"Check that apiUrl is the Ever Teams API's address (it ends with /api). The watch reads again at its next turn."
+		);
+	}
+	return answer as unknown as ITimerStatus;
+}
+
 function callOnError(onError: (error: unknown) => void, error: unknown): void {
 	try {
 		onError(error);
@@ -87,6 +99,8 @@ export function watchTimer(
 	const every = everyOf(options.every);
 	let told: TimerChange | null = null;
 	let reading = false;
+	// The page became visible or the network came back while a read was pending: one more read follows it.
+	let readAgain = false;
 	let stopped = false;
 
 	function reportReadError(error: unknown): void {
@@ -111,25 +125,28 @@ export function watchTimer(
 	}
 
 	async function readOnce(): Promise<void> {
-		let status: ITimerStatus;
+		let change: TimerChange | null;
 		try {
-			status = await read();
+			const answer: unknown = await read();
+			if (stopped) {
+				return;
+			}
+			change = timerChangeOf(statusOf(answer), told);
 		} catch (error) {
 			if (!stopped) {
 				reportReadError(error);
 			}
 			return;
 		}
-		if (stopped) {
-			return;
-		}
-		const change = timerChangeOf(status, told);
 		if (change === null) {
 			return;
 		}
-		told = change;
+		// A copy: a listener that changes the object it receives does not change what the next read is compared to.
+		told = { ...change };
 		tellListener(change);
 	}
+
+	const readsAgain = () => readAgain && !stopped && pageIsVisible();
 
 	async function readIfVisible(): Promise<void> {
 		const busy = stopped || reading;
@@ -138,7 +155,10 @@ export function watchTimer(
 		}
 		reading = true;
 		try {
-			await readOnce();
+			do {
+				readAgain = false;
+				await readOnce();
+			} while (readsAgain());
 		} finally {
 			reading = false;
 		}
@@ -147,20 +167,29 @@ export function watchTimer(
 	const readNow = () => {
 		void readIfVisible();
 	};
+	// The read pending at such an event may have started before the change the event comes with: one more read follows
+	// it. A turn of the interval during a read is dropped, as the next turn comes anyway.
+	const readOnEvent = () => {
+		if (reading) {
+			readAgain = true;
+			return;
+		}
+		readNow();
+	};
 	const events = networkEvents();
 	const interval = setInterval(readNow, every);
 	if (typeof document !== 'undefined') {
-		document.addEventListener('visibilitychange', readNow);
+		document.addEventListener('visibilitychange', readOnEvent);
 	}
-	events?.addEventListener('online', readNow);
+	events?.addEventListener('online', readOnEvent);
 	readNow();
 
 	return () => {
 		stopped = true;
 		clearInterval(interval);
 		if (typeof document !== 'undefined') {
-			document.removeEventListener('visibilitychange', readNow);
+			document.removeEventListener('visibilitychange', readOnEvent);
 		}
-		events?.removeEventListener('online', readNow);
+		events?.removeEventListener('online', readOnEvent);
 	};
 }

@@ -454,3 +454,97 @@ test('an onError that throws is thrown again on a fresh task, and the watch goes
 		})
 	);
 });
+
+test('an answer with no status goes to onError as UNEXPECTED_ANSWER, never as an unhandled rejection', async () => {
+	await withoutUnhandledRejections(async () => {
+		mock.timers.enable({ apis: ['setInterval'] });
+		const timer = timerElsewhere(null);
+		const errors = [];
+		const { changes, listener } = recorder();
+		watch(timer, listener, { onError: (error) => errors.push(error) });
+		await settle();
+		timer.status = RUNNING;
+		mock.timers.tick(60_000);
+		await settle();
+
+		assert.equal(errors.length, 1);
+		assert.ok(errors[0] instanceof EverTeamsError);
+		assert.equal(errors[0].code, 'UNEXPECTED_ANSWER');
+		assert.ok(errors[0].nextStep);
+		assert.deepEqual(
+			changes.map(({ running, initial }) => ({ running, initial })),
+			[{ running: true, initial: true }]
+		);
+	});
+});
+
+test('a listener that changes the change it receives is not told again while the timer stays as it was', async () => {
+	mock.timers.enable({ apis: ['setInterval'] });
+	const timer = timerElsewhere(RUNNING);
+	const heard = [];
+	const listener = (change) => {
+		heard.push({ ...change });
+		// A host that shows "no project" in place of null, on the object it received.
+		change.projectId = 'shown';
+		change.startedAt = 'shown';
+	};
+	watch(timer, listener);
+	await settle();
+	mock.timers.tick(60_000);
+	await settle();
+
+	assert.equal(timer.reads(), 2);
+	assert.deepEqual(
+		heard.map(({ projectId, initial }) => ({ projectId, initial })),
+		[{ projectId: 'project-1', initial: true }]
+	);
+});
+
+test('the network coming back or the page becoming visible during a read brings one more read after it', async () => {
+	mock.timers.enable({ apis: ['setInterval'] });
+	const tab = page('visible');
+	// Each read answers the status as it was when the API got the request.
+	const timer = { status: STOPPED, held: null };
+	const api = standInApi({
+		'GET /timesheet/timer/status': () => {
+			const answer = json(200, timer.status);
+			if (timer.held) {
+				return timer.held.then(() => answer);
+			}
+			return answer;
+		}
+	});
+	const teams = createClient({
+		apiUrl: API_URL,
+		token: 't',
+		tenantId: 'tenant-1',
+		organizationId: 'org-1',
+		fetch: api.fetch
+	});
+	let release;
+	timer.held = new Promise((resolve) => (release = resolve));
+	const { changes, listener } = recorder();
+	stops.push(teams.timer.watch(listener));
+	await settle();
+
+	// The person starts the timer elsewhere while the first read, sent before, is still pending.
+	timer.status = RUNNING;
+	tab.online();
+	tab.hide();
+	tab.show();
+	await settle();
+	assert.equal(api.requests.length, 1, 'one read at a time');
+
+	timer.held = null;
+	release();
+	await settle();
+
+	assert.equal(api.requests.length, 2, 'one more read, not one per event');
+	assert.deepEqual(
+		changes.map(({ running, initial }) => ({ running, initial })),
+		[
+			{ running: false, initial: true },
+			{ running: true, initial: false }
+		]
+	);
+});
