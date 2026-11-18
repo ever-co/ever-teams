@@ -29,9 +29,24 @@ function localDay(text: string, hours: number, minutes: number, seconds: number,
 	return date;
 }
 
+// The calendar day a date-time text starts with (2026-02-29T...), when it starts with one.
+const DATE_TIME_DAY = /^(\d{4})-(\d{2})-(\d{2})T/;
+
+// Whether a date-time text names a day that exists: Date rolls 2026-02-29T00:00:00Z over to March 1.
+function isExistingDay(text: string): boolean {
+	const match = DATE_TIME_DAY.exec(text);
+	if (!match) {
+		return true;
+	}
+	const [year, month, day] = [Number(match[1]), Number(match[2]) - 1, Number(match[3])];
+	const date = new Date(Date.UTC(year, month, day));
+	return date.getUTCMonth() === month && date.getUTCDate() === day;
+}
+
 function instantOf(value: EverTeamsDate): Date {
 	const date = new Date(value);
-	if (Number.isNaN(date.getTime())) {
+	const isNamedDay = typeof value !== 'string' || isExistingDay(value);
+	if (Number.isNaN(date.getTime()) || !isNamedDay) {
 		throw invalidDate(value);
 	}
 	return date;

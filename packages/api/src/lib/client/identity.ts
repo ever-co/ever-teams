@@ -1,4 +1,4 @@
-import { clientError } from './error-mapping';
+import { clientError, isRecord } from './error-mapping';
 import { Transport } from './transport';
 import { EverTeamsClientOptions } from './types';
 
@@ -40,6 +40,18 @@ function organizationIdOf(answer: MeAnswer): string | undefined {
 	return employee.organization?.id ?? undefined;
 }
 
+// An answer of GET /user/me with no user in it (null, an empty body) is a failed read: it is not kept.
+function meOf(answer: unknown): MeAnswer {
+	if (!isRecord(answer)) {
+		throw clientError(
+			'UNEXPECTED_ANSWER',
+			'GET /user/me answered no user.',
+			"Check that apiUrl is the Ever Teams API's address (it ends with /api), then try again."
+		);
+	}
+	return answer as MeAnswer;
+}
+
 export function createIdentity(
 	transport: Transport,
 	options: Pick<EverTeamsClientOptions, 'tenantId' | 'organizationId'>
@@ -56,11 +68,13 @@ export function createIdentity(
 		if (me) {
 			return me;
 		}
-		const pending = transport.request<MeAnswer>({
-			method: 'GET',
-			path: '/user/me',
-			query: { includeEmployee: true, includeOrganization: true }
-		});
+		const pending = transport
+			.request<unknown>({
+				method: 'GET',
+				path: '/user/me',
+				query: { includeEmployee: true, includeOrganization: true }
+			})
+			.then(meOf);
 		me = pending;
 		// A failed read is not kept: the next call reads again.
 		pending.then(undefined, () => forget(pending));

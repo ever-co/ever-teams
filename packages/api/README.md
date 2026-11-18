@@ -237,8 +237,9 @@ try {
 The client also throws an `EverTeamsError` with status 0 and one of these codes before or without a request:
 `CLIENT_OPTIONS` (no `apiUrl`, or neither `token` nor `getToken`), `NO_TOKEN`, `NO_ORGANIZATION` and `NO_EMPLOYEE`
 (the token's user is not a member of an organization, or `organizationId` names another organization than its
-member's), `INVALID_DATE`, `NO_FETCH`; and `NOT_JSON` with the answer's status when `apiUrl` answers something else
-than JSON, such as the web app's pages.
+member's), `INVALID_DATE` (also a date-time on a day that does not exist, such as 2026-02-29T00:00:00Z), `NO_FETCH`,
+`UNEXPECTED_ANSWER` (`GET /user/me` answered no user; the next call reads it again); and `NOT_JSON` with the answer's
+status when `apiUrl` answers something else than JSON, such as the web app's pages.
 
 An error your `getToken` throws comes back as it is. A browser reads `Retry-After` only when the API exposes it to
 the page (CORS): there, `retryAfter` may stay `undefined`. When a page loads both the ESM and the CommonJS build, `instanceof` works within one build;
