@@ -6,12 +6,18 @@ export const TimerStoreModel = types
 	.props({
 		timerStatus: types.frozen<ITimerStatus>(),
 		timerStatusFetchingState: types.optional(types.boolean, false),
-		timeCounterState: types.optional(types.number, 0),
-		timerSecondsState: types.optional(types.number, 0),
 		timeCounterInterval: types.optional(types.number, 0),
 		canRunTimer: types.optional(types.boolean, false),
 		localTimerStatus: types.optional(types.frozen(), { running: false })
 	})
+	/**
+	 * The time gone by since the run started, counted every 50 ms by each component that shows the timer. Kept out of
+	 * the saved state: the whole state is saved after every change, so counting there kept the phone busy saving.
+	 */
+	.volatile(() => ({
+		timeCounterState: 0,
+		timerSecondsState: 0
+	}))
 	.actions((store) => ({
 		setTimerStatus(value: ITimerStatus) {
 			store.timerStatus = value;
