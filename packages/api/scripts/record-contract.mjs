@@ -6,7 +6,9 @@
 //   EVER_TEAMS_API_URL=http://localhost:3000/api EVER_TEAMS_EMAIL=... EVER_TEAMS_PASSWORD=... \
 //     node scripts/record-contract.mjs
 //
-// EVER_TEAMS_TOKEN (a personal API token, or an access token) can replace the email and the password.
+// EVER_TEAMS_TOKEN (a personal API token, or an access token) can replace the email and the password. The real values
+// the placeholders replaced go to a new private directory under the system's temporary folder, whose file the script
+// prints: run the tests with EVER_TEAMS_CONTRACT_FORBIDDEN set to it to check that none of them reached a fixture.
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -19,8 +21,7 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 
 export const FIXTURES_DIR = path.join(here, '..', 'test', 'contract');
 
-// The real values the placeholders replaced, for the fixtures' privacy test; outside the repository.
-export const FORBIDDEN_FILE = path.join(os.tmpdir(), 'ever-teams-api-contract-forbidden.json');
+const FORBIDDEN_DIR_PREFIX = 'ever-teams-api-contract-';
 
 const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]']);
 
@@ -85,6 +86,20 @@ function failureOf(name, error) {
 	return `${failure} ${error.nextStep}`;
 }
 
+/** Writes `text` to `file` only if nothing is there: a file or a link already at that path is never followed. */
+export function writeNewPrivateFile(file, text) {
+	fs.writeFileSync(file, text, { flag: 'wx', mode: 0o600 });
+}
+
+// The real values the placeholders replaced, for the fixtures' privacy test: outside the repository, in a directory
+// made for this recording that only the account running it may open.
+function writeForbidden(forbidden, parentDir) {
+	const dir = fs.mkdtempSync(path.join(parentDir, FORBIDDEN_DIR_PREFIX));
+	const file = path.join(dir, 'forbidden.json');
+	writeNewPrivateFile(file, JSON.stringify(forbidden));
+	return file;
+}
+
 function withoutTrailingSlashes(url) {
 	let end = url.length;
 	while (end > 0 && url[end - 1] === '/') {
@@ -96,7 +111,8 @@ function withoutTrailingSlashes(url) {
 /**
  * Calls every client method against `apiUrl` and writes each answer the client received to `outDir`, redacted.
  * Leaves the account's timer as it found it and deletes only the time entries it created. Answers the fixtures
- * written, and `leftBehind`, the ids of the time entries it could not delete.
+ * written, `leftBehind`, the ids of the time entries it could not delete, and `forbiddenFile`, the list of the real
+ * values replaced, in a new directory under `forbiddenDir` (the system's temporary folder by default).
  */
 export async function recordContract(options) {
 	const apiUrl = withoutTrailingSlashes(options.apiUrl ?? '');
@@ -106,7 +122,7 @@ export async function recordContract(options) {
 	assertLocal(apiUrl, options.allowRemote);
 	const fetchApi = options.fetch ?? globalThis.fetch;
 	const outDir = options.outDir ?? FIXTURES_DIR;
-	const forbiddenFile = options.forbiddenFile ?? FORBIDDEN_FILE;
+	const forbiddenDir = options.forbiddenDir ?? os.tmpdir();
 	const log = options.log ?? console.log;
 	const today = localDay(options.now ?? new Date());
 	const apiPath = new URL(apiUrl).pathname;
@@ -239,8 +255,8 @@ export async function recordContract(options) {
 	for (const { name, ...fixture } of fixtures) {
 		fs.writeFileSync(path.join(outDir, `${name}.json`), `${JSON.stringify(fixture, null, '\t')}\n`);
 	}
-	fs.writeFileSync(forbiddenFile, JSON.stringify(forbidden), { mode: 0o600 });
-	return { fixtures: fixtures.map((fixture) => fixture.name), leftBehind };
+	const forbiddenFile = writeForbidden(forbidden, forbiddenDir);
+	return { fixtures: fixtures.map((fixture) => fixture.name), leftBehind, forbiddenFile };
 }
 
 async function main() {
@@ -252,6 +268,10 @@ async function main() {
 		allowRemote: process.env.EVER_TEAMS_CONTRACT_REMOTE === '1'
 	});
 	console.log(`Recorded ${result.fixtures.join(', ')} into ${path.relative(process.cwd(), FIXTURES_DIR)}.`);
+	console.log(
+		`The real values replaced are listed in ${result.forbiddenFile}: run the tests with ` +
+			'EVER_TEAMS_CONTRACT_FORBIDDEN set to it to check that none reached a fixture.'
+	);
 	if (result.leftBehind.length > 0) {
 		process.exitCode = 1;
 	}

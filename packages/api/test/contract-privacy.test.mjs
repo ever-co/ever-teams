@@ -1,12 +1,11 @@
 // The recorded answers hold no real data: node --test test/*.test.mjs (from packages/api, after `rollup -c`). Every
 // text is a placeholder, a value the API picks from a list, or empty. After a recording on this machine, the real
-// values it replaced (listed outside the repository) are also looked for.
+// values it replaced are also looked for: set EVER_TEAMS_CONTRACT_FORBIDDEN to the file the recorder printed.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { FORBIDDEN_FILE } from '../scripts/record-contract.mjs';
 import { CONTRACT_ANSWERS } from '../scripts/contract/answers.mjs';
 import { KEPT_KEYS } from '../scripts/contract/redact.mjs';
 
@@ -79,9 +78,9 @@ for (const fixture of fixtures) {
 	});
 }
 
-const forbiddenFile = process.env.EVER_TEAMS_CONTRACT_FORBIDDEN ?? FORBIDDEN_FILE;
-// Listed only on the machine that recorded: elsewhere the test is skipped.
-const recordedHere = fs.existsSync(forbiddenFile);
+// Listed only after a recording on this machine, in the file the recorder printed: elsewhere the test is skipped.
+const forbiddenFile = process.env.EVER_TEAMS_CONTRACT_FORBIDDEN;
+const recordedHere = Boolean(forbiddenFile);
 
 test('none of the real values the last recording replaced is in a fixture', { skip: !recordedHere }, () => {
 	// Shorter values (a two-letter code) would be found inside unrelated text.

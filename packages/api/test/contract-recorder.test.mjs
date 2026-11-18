@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { recordContract } from '../scripts/record-contract.mjs';
+import { recordContract, writeNewPrivateFile } from '../scripts/record-contract.mjs';
 import { CONTRACT_ANSWERS } from '../scripts/contract/answers.mjs';
 import { json, standInApi } from './support/stand-in-api.mjs';
 
@@ -85,7 +85,7 @@ after(() => {
 function workDir() {
 	const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'contract-recorder-'));
 	workDirs.push(dir);
-	return { outDir: path.join(dir, 'contract'), forbiddenFile: path.join(dir, 'forbidden.json') };
+	return { outDir: path.join(dir, 'contract'), forbiddenDir: dir };
 }
 
 const recordWith = (api, files, options = {}) =>
@@ -160,7 +160,7 @@ test('no fixture holds the sign-in, a token or a real value, and the real values
 	const api = benchApi();
 	const files = workDir();
 
-	await recordWith(api, files);
+	const result = await recordWith(api, files);
 
 	const written = filesIn(files.outDir).map((file) => fs.readFileSync(path.join(files.outDir, file), 'utf8'));
 	for (const text of written) {
@@ -168,11 +168,57 @@ test('no fixture holds the sign-in, a token or a real value, and the real values
 			assert.equal(text.includes(real), false, real);
 		}
 	}
-	const forbidden = JSON.parse(fs.readFileSync(files.forbiddenFile, 'utf8'));
+	const forbidden = JSON.parse(fs.readFileSync(result.forbiddenFile, 'utf8'));
 	assert.ok(forbidden.includes(EMPLOYEE));
 	assert.ok(forbidden.includes('Lina'));
 	assert.equal(forbidden.includes(ACCESS_TOKEN), false);
 	assert.ok(api.routesSent().includes('POST /auth/login'));
+});
+
+test('the real values go to a new private directory at each recording, never to a fixed path', async () => {
+	const files = workDir();
+
+	const first = await recordWith(benchApi(), files);
+	const second = await recordWith(benchApi(), files);
+
+	const firstDir = path.dirname(first.forbiddenFile);
+	const secondDir = path.dirname(second.forbiddenFile);
+	assert.notEqual(firstDir, secondDir);
+	for (const dir of [firstDir, secondDir]) {
+		assert.equal(path.dirname(dir), files.forbiddenDir);
+		assert.match(path.basename(dir), /^ever-teams-api-contract-/);
+	}
+	assert.ok(JSON.parse(fs.readFileSync(first.forbiddenFile, 'utf8')).includes(EMPLOYEE));
+});
+
+// Windows keeps no Unix permissions on a file.
+const keepsPermissions = process.platform !== 'win32';
+
+test('the list of real values is only for the account that recorded', { skip: !keepsPermissions }, async () => {
+	const result = await recordWith(benchApi(), workDir());
+
+	const permissionsOf = (file) => fs.statSync(file).mode & 0o777;
+	assert.equal(permissionsOf(path.dirname(result.forbiddenFile)), 0o700);
+	assert.equal(permissionsOf(result.forbiddenFile), 0o600);
+});
+
+test('the list is never written over a file or through a link already at its path', () => {
+	const { forbiddenDir } = workDir();
+	const taken = path.join(forbiddenDir, 'taken.json');
+	fs.writeFileSync(taken, 'kept');
+
+	assert.throws(() => writeNewPrivateFile(taken, '["Lina"]'), { code: 'EEXIST' });
+	assert.equal(fs.readFileSync(taken, 'utf8'), 'kept');
+
+	const link = path.join(forbiddenDir, 'link.json');
+	try {
+		fs.symlinkSync(taken, link);
+	} catch {
+		// This account may not create links here (Windows without the privilege): the file case above still ran.
+		return;
+	}
+	assert.throws(() => writeNewPrivateFile(link, '["Lina"]'), { code: 'EEXIST' });
+	assert.equal(fs.readFileSync(taken, 'utf8'), 'kept');
 });
 
 test('an account whose timer runs is refused before anything changes, and nothing is written', async () => {

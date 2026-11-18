@@ -286,7 +286,7 @@ with the account of a member whose role may list members (a manager) and whose t
 yarn --cwd ../toolkit-types build && yarn build
 EVER_TEAMS_API_URL=http://localhost:3000/api EVER_TEAMS_EMAIL=manager@example.com EVER_TEAMS_PASSWORD=... \
   node scripts/record-contract.mjs
-yarn test
+EVER_TEAMS_CONTRACT_FORBIDDEN=<the file the script printed> yarn test
 ```
 
 `EVER_TEAMS_TOKEN`, a personal API token, can replace the email and the password. The script refuses an address
@@ -296,8 +296,9 @@ then deletes the two time entries it created. It refuses an account whose timer 
 
 Before writing, it replaces ids, names, emails, addresses, dates, amounts of money and the labels each organization
 names itself (a task's status, priority, size and type) with placeholders of the same form (`<employee-1>`,
-`<status-1>`, `person-1@example.com`, dates from `2000-01-01`). It lists the real values it replaced in
-`ever-teams-api-contract-forbidden.json` in the system's temporary folder, where the privacy test also looks for them.
+`<status-1>`, `person-1@example.com`, dates from `2000-01-01`). It lists the real values it replaced in a file of a
+new directory of the system's temporary folder that only your account may open, and prints its path: with
+`EVER_TEAMS_CONTRACT_FORBIDDEN` set to it, the privacy test also checks that none of them reached a fixture.
 
 ## License
 
