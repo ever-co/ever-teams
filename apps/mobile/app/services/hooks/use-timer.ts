@@ -17,8 +17,23 @@ import { useTaskStatistics } from './features/use-task-statistics';
 import moment from 'moment-timezone';
 import { runStartOf } from '../../helpers/timer-run-start';
 import { countTimeFrom } from './shared-time-counter';
+import { observer } from 'mobx-react-lite';
 
 const LOCAL_TIMER_STORAGE_KEY = 'local-timer-ever-teams';
+
+/** Saves the timer's local status on the phone, then in the store; the order matters. */
+function useUpdateLocalTimerStatus() {
+	const {
+		TimerStore: { setLocalTimerStatus }
+	} = useStores();
+	return useCallback(
+		(status: ILocalTimerStatus) => {
+			AsyncStorage.setItem(LOCAL_TIMER_STORAGE_KEY, JSON.stringify(status));
+			setLocalTimerStatus(status);
+		},
+		[setLocalTimerStatus]
+	);
+}
 
 /**
  * Don't modify this function unless you know what you're doing
@@ -45,14 +60,7 @@ function useLocalTimeCounter(timerStatus: ITimerStatus | null, activeTeamTask: I
 	const timerSecondsRef = useRef(0);
 	const seconds = Math.floor(timeCounterState / 1000);
 
-	const updateLocalStorage = useCallback((status: ILocalTimerStatus) => {
-		AsyncStorage.setItem(LOCAL_TIMER_STORAGE_KEY, JSON.stringify(status));
-	}, []);
-
-	const updateLocalTimerStatus = useCallback((status: ILocalTimerStatus) => {
-		updateLocalStorage(status); // the order is important (first update localstorage, then update the store state)
-		setLocalTimerStatus(status);
-	}, []);
+	const updateLocalTimerStatus = useUpdateLocalTimerStatus();
 
 	const getLocalCounterStatus = useCallback(async () => {
 		let data: ILocalTimerStatus | null = null;
@@ -149,6 +157,21 @@ function useLocalTimeCounter(timerStatus: ITimerStatus | null, activeTeamTask: I
 	};
 }
 
+/**
+ * Counts the running time for the whole app. Each component calling useTimer used to run this count itself and read
+ * the time as it went by, so all of them rendered again 20 times a second while the timer ran: about twenty on the
+ * Team tab. It runs once now, in the signed-in part of the app, and only the components that show the time read it.
+ */
+export const TimeCounterHost = observer(function TimeCounterHost() {
+	const {
+		TaskStore: { activeTask },
+		TimerStore: { timerStatus }
+	} = useStores();
+	const { firstLoad } = useFirstLoad();
+	useLocalTimeCounter(timerStatus, activeTask, firstLoad);
+	return null;
+});
+
 /** The stops under way together, and what the screen showed running before the first of them. */
 type StopsUnderWay = { count: number; stopped: boolean; failed: boolean; shownAsRunning: ILocalTimerStatus | null };
 
@@ -176,11 +199,7 @@ export function useTimer() {
 	const canRunTimer = !!activeTask?.id && activeTask.status !== 'Closed';
 
 	// // Local time status
-	const { timeCounterState, updateLocalTimerStatus, timerSecondsState } = useLocalTimeCounter(
-		timerStatus,
-		activeTask,
-		firstLoad
-	);
+	const updateLocalTimerStatus = useUpdateLocalTimerStatus();
 
 	const { isSuccess, data: timerStatusData } = useFetchTimerStatus(
 		{
@@ -394,7 +413,10 @@ export function useTimer() {
 	}, [timerStatusData]);
 
 	return {
-		fomatedTimeCounter: convertMsToTime(timeCounterState),
+		// read only by the components that show the time, so the others do not render again on each tick
+		get fomatedTimeCounter() {
+			return convertMsToTime(timerStore.timeCounterState);
+		},
 		timerStatusFetchingState,
 		timerStatus,
 		firstLoadTimerData,
@@ -403,7 +425,9 @@ export function useTimer() {
 		canRunTimer,
 		firstLoad,
 		toggleTimer,
-		timerSecondsState,
+		get timerSecondsState() {
+			return timerStore.timerSecondsState;
+		},
 		activeTeamTask: activeTask
 	};
 }

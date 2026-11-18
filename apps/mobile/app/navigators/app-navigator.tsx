@@ -17,11 +17,7 @@ import { useStores } from '../models'; // @demo remove-current-line
 import {
 	LoginScreen // @demo remove-current-line
 } from '../screens';
-import {
-	AuthenticatedDrawerParamList,
-	AuthenticatedNavigator,
-	AuthenticatedTabParamList
-} from './authenticated-navigator';
+import { AuthenticatedDrawerParamList, SignedInArea, AuthenticatedTabParamList } from './authenticated-navigator';
 import { DemoTabParamList } from './demo-navigator'; // @demo remove-current-line
 import { navigationRef, useBackButtonHandler } from './navigation-utilities';
 import { Appearance } from 'react-native';
@@ -79,7 +75,7 @@ const AppStack = observer(function AppStack() {
 					{/* @demo remove-block-start */}
 					{/* <Stack.Screen name="Demo" component={DemoNavigator} /> */}
 					{/* @app custom-block */}
-					<Stack.Screen name="Authenticated" component={AuthenticatedNavigator} />
+					<Stack.Screen name="Authenticated" component={SignedInArea} />
 				</>
 			) : (
 				<>
