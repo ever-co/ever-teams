@@ -38,6 +38,24 @@
 		"signIn": {
 			"title": "Iniciar sesión",
 			"message": "El inicio de sesión pasará a la nueva app más adelante. Por ahora, inicia sesión con la app actual."
+		},
+		"home": {
+			"today": "Hoy",
+			"thisWeek": "Esta semana",
+			"currentTask": "Tarea actual",
+			"lastTask": "Última tarea",
+			"noTaskTitle": "Todavía no hay tiempo registrado",
+			"noTaskMessage": "Tu última tarea aparece aquí en cuanto registres tiempo en ella.",
+			"start": "Iniciar",
+			"stop": "Detener",
+			"runningSince": "En marcha desde las {time}",
+			"duration": "{hours} h {minutes} min",
+			"startFailedTitle": "El temporizador no pudo iniciarse",
+			"startFailedMessage": "Revisa tu conexión e inténtalo de nuevo.",
+			"needsNetwork": "Iniciar y detener el temporizador requieren conexión.",
+			"weekFailed": "No se pudo cargar el total de la semana",
+			"weekUnavailable": "Esta cuenta no registra tiempo aquí",
+			"taskFailed": "No se pudo cargar la tarea"
 		}
 	},
 	"session": {

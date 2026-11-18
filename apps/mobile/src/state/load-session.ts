@@ -4,7 +4,7 @@ import { load } from '../../app/utils/storage';
 import { restoreSessionState } from './restore-session';
 import { sessionAtom } from './session';
 
-const ROOT_STATE_STORAGE_KEY = 'root-v1';
+export const ROOT_STATE_STORAGE_KEY = 'root-v1';
 
 /** Reads the session the current app saved, once, into the session state. */
 export function useLoadSession(): void {

@@ -7,6 +7,9 @@ interface. It also holds the request functions the Ever Teams kit makes (see [Th
 To show a timer or a report in a React page, install [`@ever-teams/atoms`](https://www.npmjs.com/package/@ever-teams/atoms),
 which uses this package: start with [its README](https://github.com/ever-co/ever-teams/tree/develop/packages/toolkit/atoms#readme).
 
+On your server, `@ever-teams/api/server` exchanges an embed credential for a short-lived token for a person signed in
+to your product: see [Sign people in from your server](#sign-people-in-from-your-server).
+
 ## Install
 
 ```sh
@@ -24,7 +27,8 @@ and a token:
 - a **personal API token**: in the web app, open Settings > API tokens and create one. The server must offer them
   (`GAUZY_USER_API_TOKENS_ENABLED`); the page says so when it does not. The client exchanges it for a short-lived
   access token, and again when that one expires.
-- or a token your server got from the **embed exchange**. It reaches the timer only.
+- or a token your server got from the **embed exchange** (see [Sign people in from your server](#sign-people-in-from-your-server)).
+  It reaches the timer only.
 
 In an empty folder:
 
@@ -229,17 +233,332 @@ try {
 | `EverTeamsConflictError`   | 409: the request conflicts with the state | `messages`, as a validation error (it extends that class).                                                                |
 | `EverTeamsRateLimitError`  | 429: too many requests                    | `retryAfter`: the seconds to wait, from the `Retry-After` header.                                                         |
 | `EverTeamsServerError`     | 5xx: the API or a gateway failed          | The next step: try again in a moment.                                                                                     |
-| `EverTeamsNetworkError`    | No answer: wrong address, network, CORS   | `cause`: the error `fetch` threw.                                                                                         |
+| `EverTeamsNetworkError`    | No answer: wrong address, network, CORS   | `cause`: the error `fetch` threw (from the server helpers: a copy of its name, message, code and causes).                 |
 
 The client also throws an `EverTeamsError` with status 0 and one of these codes before or without a request:
 `CLIENT_OPTIONS` (no `apiUrl`, or neither `token` nor `getToken`), `NO_TOKEN`, `NO_ORGANIZATION` and `NO_EMPLOYEE`
 (the token's user is not a member of an organization, or `organizationId` names another organization than its
-member's), `INVALID_DATE`, `NO_FETCH`; and `NOT_JSON` with the answer's status when `apiUrl` answers something else
-than JSON, such as the web app's pages.
+member's), `INVALID_DATE` (also a date-time on a day that does not exist, such as 2026-02-29T00:00:00Z), `NO_FETCH`,
+`UNEXPECTED_ANSWER` (`GET /user/me` answered no user; the next call reads it again); and `NOT_JSON` with the answer's
+status when `apiUrl` answers something else than JSON, such as the web app's pages.
 
 An error your `getToken` throws comes back as it is. A browser reads `Retry-After` only when the API exposes it to
 the page (CORS): there, `retryAfter` may stay `undefined`. When a page loads both the ESM and the CommonJS build, `instanceof` works within one build;
 `error.name` (`'EverTeamsAuthError'`, ...) works across both.
+
+## Sign people in from your server
+
+A page of your product shows a person's Ever Teams timer with a short-lived **embed token**, which your server gets
+for them. Your server holds an **embed credential** (`gze_...`): an administrator of the organization creates it in
+Settings > Embeds of the web app, and adds your site to the allowed sites on the same page. The credential stays on
+your server, in an environment variable; only the token reaches the page.
+
+`@ever-teams/api/server` exchanges the credential for a token in one call:
+
+```js
+import { exchangeEmbedToken } from '@ever-teams/api/server';
+
+const { token, expiresAt } = await exchangeEmbedToken({
+	apiUrl: process.env.EVER_TEAMS_API_URL,
+	credential: process.env.EVER_TEAMS_EMBED_CREDENTIAL,
+	email: user.email, // the person signed in to your product
+	origin: 'https://app.example.com'
+});
+```
+
+| Option                  | Required    | What it is                                                                                                                                                                                    |
+| ----------------------- | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `apiUrl`                | yes         | The API's address, ending with `/api`.                                                                                                                                                        |
+| `credential`            | yes         | The embed credential, from an environment variable.                                                                                                                                           |
+| `email` or `employeeId` | one of them | The person: the email of their Ever Teams account, or their employee id in the credential's organization.                                                                                     |
+| `origin`                | yes         | The site of the page the timer runs in (`https://app.example.com`, no path), one of the organization's allowed sites. The token works only from it.                                           |
+| `firstName`, `lastName` | no          | Sent only when given: the name of the account the API creates for `email` when the credential may add members ([ever-co/ever-gauzy#12084](https://github.com/ever-co/ever-gauzy/pull/12084)). |
+| `fetch`                 | no          | The `fetch` to send the request with; the platform's by default.                                                                                                                              |
+
+The token reaches only that person's timer, from that site, until `expiresAt` (an ISO date): 15 minutes unless the
+API's administrator set `GAUZY_EMBED_TOKEN_TTL_SECONDS`, one hour at most. Answer it to the page with
+`Cache-Control: no-store`. In the page, give it to `createClient` through `getToken`, or to the kit's
+`config.getToken` ([`@ever-teams/atoms`](https://github.com/ever-co/ever-teams/tree/develop/packages/toolkit/atoms#sign-in-from-your-backend)),
+which asks your server again before the token expires.
+
+The entry runs on a server only: Node 20 or later, or another runtime with `fetch` and no `document`. A bundle for a
+page refuses it (the `browser` condition of the package's `exports`), and in a page it throws an `EverTeamsError`
+with the code `SERVER_ONLY`.
+
+### In a Next.js route handler
+
+```ts
+// app/api/ever-teams-token/route.ts
+import { NextResponse } from 'next/server';
+import { exchangeEmbedToken } from '@ever-teams/api/server';
+import { currentUser } from '@/lib/session'; // your own sign-in
+
+const noStore = { 'Cache-Control': 'no-store' };
+
+export async function POST() {
+	const user = await currentUser();
+	if (!user) {
+		return NextResponse.json({ error: 'Not signed in' }, { status: 401, headers: noStore });
+	}
+	try {
+		const answer = await exchangeEmbedToken({
+			apiUrl: process.env.EVER_TEAMS_API_URL,
+			credential: process.env.EVER_TEAMS_EMBED_CREDENTIAL,
+			email: user.email,
+			origin: process.env.APP_ORIGIN // https://app.example.com
+		});
+		return NextResponse.json(answer, { headers: noStore });
+	} catch (error) {
+		console.error(error); // its message and nextStep say why; no error holds the credential
+		return NextResponse.json({ error: 'No Ever Teams token' }, { status: 502, headers: noStore });
+	}
+}
+```
+
+### In Express
+
+```js
+import express from 'express';
+import { exchangeEmbedToken } from '@ever-teams/api/server';
+
+const app = express();
+
+// req.user: the person your own session middleware signed in.
+app.post('/api/ever-teams-token', async (req, res) => {
+	res.set('Cache-Control', 'no-store');
+	if (!req.user) {
+		return res.status(401).json({ error: 'Not signed in' });
+	}
+	try {
+		const answer = await exchangeEmbedToken({
+			apiUrl: process.env.EVER_TEAMS_API_URL,
+			credential: process.env.EVER_TEAMS_EMBED_CREDENTIAL,
+			email: req.user.email,
+			origin: process.env.APP_ORIGIN
+		});
+		res.json(answer);
+	} catch (error) {
+		console.error(error);
+		res.status(502).json({ error: 'No Ever Teams token' });
+	}
+});
+```
+
+### With plain fetch
+
+A server whose handlers take a `Request` and answer a `Response` (the Fetch API), such as Bun, Deno, a Cloudflare
+Worker or Hono:
+
+```js
+import { exchangeEmbedToken } from '@ever-teams/api/server';
+import { signedInUser } from './session.js'; // your own sign-in
+
+const noStore = { 'Cache-Control': 'no-store' };
+
+export async function everTeamsToken(request, env) {
+	const user = await signedInUser(request);
+	if (!user) {
+		return Response.json({ error: 'Not signed in' }, { status: 401, headers: noStore });
+	}
+	try {
+		const answer = await exchangeEmbedToken({
+			apiUrl: env.EVER_TEAMS_API_URL,
+			credential: env.EVER_TEAMS_EMBED_CREDENTIAL,
+			email: user.email,
+			origin: env.APP_ORIGIN
+		});
+		return Response.json(answer, { headers: noStore });
+	} catch (error) {
+		console.error(error);
+		return Response.json({ error: 'No Ever Teams token' }, { status: 502, headers: noStore });
+	}
+}
+```
+
+### When the exchange is refused
+
+Each refusal is an `EverTeamsError` subclass with the API's `code` and a `nextStep`. Import the classes from
+`@ever-teams/api`: the server entry throws those same classes.
+
+| Status | Class                     | `code`                     | What to do                                                                                                                                                                   |
+| ------ | ------------------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 401    | `EverTeamsAuthError`      | none                       | The credential is unknown, malformed or revoked: check it, or ask an administrator for a new one.                                                                            |
+| 403    | `EverTeamsForbiddenError` | `EMBED_MEMBER_NOT_ALLOWED` | The person is not an active member the credential may act for (no account, time tracking off, archived): check the email or employeeId, or ask an administrator to add them. |
+| 403    | `EverTeamsForbiddenError` | `EMBED_ORIGIN_NOT_ALLOWED` | The origin is missing or not one of the organization's allowed sites: send the page's origin, and ask an administrator to add it.                                            |
+| 429    | `EverTeamsRateLimitError` | `EMBED_EXCHANGE_LIMITED`   | Too many refused credentials came from your server's address within a minute: fix the credential, then wait a minute.                                                        |
+| 429    | `EverTeamsRateLimitError` | none                       | Too many exchanges: wait `error.retryAfter` seconds (the `Retry-After` header).                                                                                              |
+| 404    | `EverTeamsNotFoundError`  | none                       | Embeds are off on this API (its administrator sets `GAUZY_EMBED_TOKENS_ENABLED=true`), or `apiUrl` is not its address.                                                       |
+| 503    | `EverTeamsServerError`    | none                       | The API cannot reach its database: try again shortly.                                                                                                                        |
+
+Before any request, a missing or malformed option throws an `EverTeamsError` with the code `CLIENT_OPTIONS` (status
+0), and a call in a page `SERVER_ONLY`. A success that is not a token throws `UNEXPECTED_ANSWER` (`apiUrl` is likely
+the web app's address), and no answer an `EverTeamsNetworkError`. The helpers log nothing, and no error holds the
+credential: a copy of it in an answer becomes `[credential]`.
+
+### The same exchange over plain HTTP
+
+For a backend in another language, the exchange is one request:
+
+```http
+POST https://api.example.com/api/embed/token
+Content-Type: application/json
+
+{"credential":"gze_...","email":"lina@example.com","origin":"https://app.example.com"}
+```
+
+Send `employeeId` in place of `email` to name the person by their employee id. The success:
+
+```http
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+Cache-Control: no-store
+
+{"token":"eyJhbGciOi...","expiresAt":"2026-11-18T18:15:00.000Z"}
+```
+
+A refusal has the status and `code` of the table above, with a `message`:
+
+```json
+{
+	"statusCode": 403,
+	"code": "EMBED_ORIGIN_NOT_ALLOWED",
+	"message": "This site is not allowed to embed the organization's timer."
+}
+```
+
+Answer the token to your page with `Cache-Control: no-store`, whatever the language. Each snippet below uses the
+standard library's HTTP client and reads the credential from the environment.
+
+**PHP**
+
+```php
+$response = file_get_contents(getenv('EVER_TEAMS_API_URL') . '/embed/token', false, stream_context_create(['http' => [
+    'method' => 'POST',
+    'header' => "Content-Type: application/json\r\n",
+    'content' => json_encode([
+        'credential' => getenv('EVER_TEAMS_EMBED_CREDENTIAL'),
+        'email' => $user->email,
+        'origin' => 'https://app.example.com',
+    ]),
+    'ignore_errors' => true, // read the body of a refusal too
+]]));
+$status = (int) explode(' ', $http_response_header[0])[1];
+$answer = json_decode($response, true); // 200: token, expiresAt; else statusCode, message, code
+```
+
+**Python**
+
+```python
+import json, os, urllib.error, urllib.request
+
+request = urllib.request.Request(
+    os.environ["EVER_TEAMS_API_URL"] + "/embed/token",
+    data=json.dumps({
+        "credential": os.environ["EVER_TEAMS_EMBED_CREDENTIAL"],
+        "email": user.email,
+        "origin": "https://app.example.com",
+    }).encode(),
+    headers={"Content-Type": "application/json"},
+)
+try:
+    with urllib.request.urlopen(request, timeout=10) as response:
+        answer = json.load(response)  # {"token": ..., "expiresAt": ...}
+except urllib.error.HTTPError as refusal:
+    answer = json.load(refusal)  # refusal.code is the status; answer.get("code") names a 403 or a 429
+```
+
+**Ruby**
+
+```ruby
+require 'json'
+require 'net/http'
+
+response = Net::HTTP.post(
+  URI("#{ENV.fetch('EVER_TEAMS_API_URL')}/embed/token"),
+  { credential: ENV.fetch('EVER_TEAMS_EMBED_CREDENTIAL'), email: user.email, origin: 'https://app.example.com' }.to_json,
+  'Content-Type' => 'application/json'
+)
+answer = JSON.parse(response.body) # response.code == '200': answer['token']; else answer['code']
+```
+
+**Go**
+
+```go
+body, _ := json.Marshal(map[string]string{
+	"credential": os.Getenv("EVER_TEAMS_EMBED_CREDENTIAL"),
+	"email":      user.Email,
+	"origin":     "https://app.example.com",
+})
+response, err := http.Post(os.Getenv("EVER_TEAMS_API_URL")+"/embed/token", "application/json", bytes.NewReader(body))
+if err != nil {
+	return err // no answer
+}
+defer response.Body.Close()
+var answer struct{ Token, ExpiresAt, Code string }
+json.NewDecoder(response.Body).Decode(&answer) // StatusCode 200: answer.Token; else answer.Code
+```
+
+**Java** (15 or later)
+
+```java
+var body = """
+    {"credential":"%s","email":"%s","origin":"https://app.example.com"}
+    """.formatted(System.getenv("EVER_TEAMS_EMBED_CREDENTIAL"), user.email()); // or your JSON library
+var request = HttpRequest.newBuilder(URI.create(System.getenv("EVER_TEAMS_API_URL") + "/embed/token"))
+    .header("Content-Type", "application/json")
+    .POST(HttpRequest.BodyPublishers.ofString(body))
+    .build();
+var response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+// response.statusCode() 200: token and expiresAt in response.body(); else its code
+```
+
+**.NET** (6 or later)
+
+```csharp
+using System.Net.Http.Json;
+using System.Text.Json;
+
+// http: the HttpClient your app reuses
+var response = await http.PostAsJsonAsync(
+    Environment.GetEnvironmentVariable("EVER_TEAMS_API_URL") + "/embed/token",
+    new
+    {
+        credential = Environment.GetEnvironmentVariable("EVER_TEAMS_EMBED_CREDENTIAL"),
+        email = user.Email,
+        origin = "https://app.example.com"
+    });
+var answer = await response.Content.ReadFromJsonAsync<JsonElement>();
+// response.IsSuccessStatusCode: answer.GetProperty("token"); else answer.GetProperty("code")
+```
+
+### A client's spent time
+
+A credential limited to one client (the administrator picks the client when creating it) reads the time your team
+spent for that client, for a client portal:
+
+```js
+import { getClientReport } from '@ever-teams/api/server';
+
+const report = await getClientReport({
+	apiUrl: process.env.EVER_TEAMS_API_URL,
+	credential: process.env.EVER_TEAMS_CLIENT_CREDENTIAL
+});
+// { client: { id, name }, timeZone, today: { date, seconds }, week: { start, end, seconds },
+//   projects: [{ id, name, seconds }] }
+```
+
+Today and this week are counted in the organization's time zone (`timeZone`); `projects` holds this week's, the most
+first. The answer is the `IClientTimeReport` of `@ever-teams/toolkit-types`, which the kit's `TeamsClientTimeReport`
+draws: answer it to the page with `Cache-Control: no-store`.
+
+Over plain HTTP it is `POST {apiUrl}/embed/client-report` with `{"credential":"gze_..."}`, answered 200 with the
+report. Its refusals are those of the exchange (401, 429, 404, 503), and:
+
+| Status | Class                     | `code`                  | What to do                                                                                            |
+| ------ | ------------------------- | ----------------------- | ----------------------------------------------------------------------------------------------------- |
+| 403    | `EverTeamsForbiddenError` | `EMBED_CLIENT_REQUIRED` | The credential is the whole organization's: ask an administrator for one limited to the client.       |
+| 403    | `EverTeamsForbiddenError` | `EMBED_CLIENT_GONE`     | The credential's client was deleted: restore the client, or use the credential of another one.        |
+| 500    | `EverTeamsServerError`    | none                    | The API accepted the credential but could not read the report: try again, and tell its administrator. |
 
 ## The request functions
 

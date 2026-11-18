@@ -81,3 +81,20 @@ test("an organizationId other than the member's gets an error before any member 
 	}
 	assert.deepEqual(api.routesSent(), ['GET /user/me']);
 });
+
+test('a /user/me answer with no user is an error, and is read again on the next call', async () => {
+	const meAnswers = [null, ME];
+	const api = standInApi({
+		'GET /user/me': () => json(200, meAnswers.shift()),
+		'GET /organization-projects/employee/employee-1': []
+	});
+	const teams = createClient({ apiUrl: API_URL, token: 't', fetch: api.fetch });
+
+	await assert.rejects(teams.projects.list(), { name: 'EverTeamsError', code: 'UNEXPECTED_ANSWER' });
+	assert.deepEqual(await teams.projects.list(), []);
+	assert.deepEqual(api.routesSent(), [
+		'GET /user/me',
+		'GET /user/me',
+		'GET /organization-projects/employee/employee-1'
+	]);
+});

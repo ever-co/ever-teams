@@ -1,5 +1,5 @@
 import { createStore } from 'jotai';
-import { isSignedInAtom, sessionAtom, sessionStateFrom } from './session';
+import { accountOf, isSignedInAtom, sessionAtom, sessionStateFrom } from './session';
 
 describe('the session state', () => {
 	it('is signed in with an access token, and keeps the workspace', () => {
@@ -28,5 +28,24 @@ describe('the session state', () => {
 		store.set(sessionAtom, sessionStateFrom({ accessToken: 'access-1' }));
 
 		expect(store.get(isSignedInAtom)).toBe(true);
+	});
+});
+
+/** An access token as Gauzy signs it: only its claims matter here. */
+function tokenWith(claims: Record<string, unknown>): string {
+	const payload = btoa(JSON.stringify(claims)).replace(/=+$/, '').replace(/\+/g, '-').replace(/\//g, '_');
+	return `header.${payload}.signature`;
+}
+
+describe('the person of a session', () => {
+	it('is the user id the access token carries', () => {
+		expect(accountOf({ accessToken: tokenWith({ id: 'user-kofi', employeeId: 'employee-kofi' }) })).toBe(
+			'user-kofi'
+		);
+	});
+
+	it('is unknown for a token that cannot be read', () => {
+		expect(accountOf({ accessToken: 'not-a-token' })).toBe('');
+		expect(accountOf({ accessToken: 'header.%%%.signature' })).toBe('');
 	});
 });

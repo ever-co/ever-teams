@@ -38,6 +38,24 @@
 		"signIn": {
 			"title": "Inloggen",
 			"message": "Inloggen verhuist in een latere stap naar de nieuwe app. Log voorlopig in met de huidige app."
+		},
+		"home": {
+			"today": "Vandaag",
+			"thisWeek": "Deze week",
+			"currentTask": "Huidige taak",
+			"lastTask": "Laatste taak",
+			"noTaskTitle": "Nog geen tijd geregistreerd",
+			"noTaskMessage": "Uw laatste taak verschijnt hier zodra u er tijd op hebt geregistreerd.",
+			"start": "Starten",
+			"stop": "Stoppen",
+			"runningSince": "Loopt sinds {time}",
+			"duration": "{hours} u {minutes} min",
+			"startFailedTitle": "De timer kon niet starten",
+			"startFailedMessage": "Controleer uw verbinding en probeer het opnieuw.",
+			"needsNetwork": "Voor starten en stoppen van de timer is een verbinding nodig.",
+			"weekFailed": "Het weektotaal kon niet worden geladen",
+			"weekUnavailable": "Dit account registreert hier geen tijd",
+			"taskFailed": "De taak kon niet worden geladen"
 		}
 	},
 	"session": {

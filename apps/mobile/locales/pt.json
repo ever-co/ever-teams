@@ -38,6 +38,24 @@
 		"signIn": {
 			"title": "Entrar",
 			"message": "O login passa para o novo aplicativo em uma próxima etapa. Por enquanto, entre pelo aplicativo atual."
+		},
+		"home": {
+			"today": "Hoje",
+			"thisWeek": "Esta semana",
+			"currentTask": "Tarefa atual",
+			"lastTask": "Última tarefa",
+			"noTaskTitle": "Nenhum tempo registrado ainda",
+			"noTaskMessage": "Sua última tarefa aparece aqui assim que você registrar tempo nela.",
+			"start": "Iniciar",
+			"stop": "Parar",
+			"runningSince": "Em andamento desde {time}",
+			"duration": "{hours} h {minutes} min",
+			"startFailedTitle": "O temporizador não pôde iniciar",
+			"startFailedMessage": "Verifique sua conexão e tente novamente.",
+			"needsNetwork": "Iniciar e parar o temporizador precisam de conexão.",
+			"weekFailed": "Não foi possível carregar o total da semana",
+			"weekUnavailable": "Esta conta não registra tempo aqui",
+			"taskFailed": "Não foi possível carregar a tarefa"
 		}
 	},
 	"session": {
