@@ -70,8 +70,9 @@ after(() => {
 });
 
 // An open dialog with two buttons, rendered in `parent`, its portal container next to it; `focused` lists every
-// button that got the focus.
-async function openDialog(parent, focused) {
+// button that got the focus. With `hiddenControls`, a hidden button comes before them and one in a display: none box
+// after them.
+async function openDialog(parent, focused, hiddenControls = false) {
 	const container = document.createElement('div');
 	const portal = document.createElement('div');
 	parent.append(container, portal);
@@ -90,8 +91,16 @@ async function openDialog(parent, focused) {
 						ui.DialogContent,
 						{ 'aria-describedby': undefined },
 						React.createElement(ui.DialogTitle, null, 'Sign In'),
+						hiddenControls &&
+							React.createElement('button', { type: 'button', key: 'hidden', hidden: true }, 'hidden'),
 						button('first'),
-						button('second')
+						button('second'),
+						hiddenControls &&
+							React.createElement(
+								'div',
+								{ key: 'gone', style: { display: 'none' } },
+								React.createElement('button', { type: 'button' }, 'gone')
+							)
 					)
 				)
 			)
@@ -138,5 +147,27 @@ test('in a shadow root Tab loops inside the dialog instead of leaving it for the
 
 	await act(async () => tab(first, true));
 	assert.equal(shadow.activeElement, last, 'Shift+Tab on the first element goes to the last');
+	await act(async () => root.unmount());
+});
+
+test('in a shadow root the Tab loop skips the controls that are not drawn', async () => {
+	const host = document.createElement('div');
+	document.body.appendChild(host);
+	const shadow = host.attachShadow({ mode: 'open' });
+	const { root, portal } = await openDialog(shadow, [], true);
+	const dialog = portal.querySelector('[role="dialog"]');
+	const named = (text) =>
+		[...dialog.querySelectorAll('button')].find((element) => element.textContent.includes(text));
+	const first = named('first');
+	const close = named('Close');
+	const tab = (element, shiftKey) =>
+		element.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', shiftKey, bubbles: true, composed: true }));
+
+	await act(async () => first.focus());
+	await act(async () => tab(first, true));
+	assert.equal(shadow.activeElement, close, 'Shift+Tab on the first drawn control goes to the last one');
+
+	await act(async () => tab(close, false));
+	assert.equal(shadow.activeElement, first, 'Tab on the last control skips the hidden one');
 	await act(async () => root.unmount());
 });

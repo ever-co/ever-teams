@@ -61,10 +61,31 @@ function focusDialogInShadowRoot(event: Event) {
 
 const FOCUSABLE = 'a[href], button, input, select, textarea, [tabindex]';
 
-// The elements Tab reaches in the dialog, in order.
+// Drawn on screen: no hidden attribute and no display: none on the element or up to the dialog, no visibility: hidden.
+function isRendered(element: HTMLElement, content: HTMLElement): boolean {
+	const view = element.ownerDocument.defaultView;
+	if (!view || view.getComputedStyle(element).visibility === 'hidden') {
+		return false;
+	}
+	for (let node: HTMLElement | null = element; node; node = node === content ? null : node.parentElement) {
+		if (node.hidden || view.getComputedStyle(node).display === 'none') {
+			return false;
+		}
+	}
+	return true;
+}
+
+// The elements Tab reaches in the dialog, in order: a hidden control is skipped, as the browser skips it.
 function tabbableIn(content: HTMLElement): HTMLElement[] {
 	const candidates = Array.from(content.querySelectorAll<HTMLElement>(FOCUSABLE));
-	return candidates.filter((element) => element.tabIndex >= 0 && !element.hasAttribute('disabled'));
+	return candidates.filter(
+		(element) =>
+			element.tabIndex >= 0 &&
+			!element.hasAttribute('disabled') &&
+			!(element.tagName === 'INPUT' && (element as HTMLInputElement).type === 'hidden') &&
+			!element.closest('[inert]') &&
+			isRendered(element, content)
+	);
 }
 
 // Radix's Tab trap compares document.activeElement too: inside a shadow root, Tab from the last element, or Shift+Tab
