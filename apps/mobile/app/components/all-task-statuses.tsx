@@ -28,7 +28,7 @@ const AllTaskStatuses = ({ task }: { task: ITeamTask }) => {
 	const priority =
 		allPriorities && Object.values(allPriorities).find((item) => item?.name?.toLowerCase() === priorityValue);
 
-	const taskLabels = task?.tags.map((tag) => allLabels[tag.name]);
+	const taskLabels = task?.tags?.map((tag) => allLabels[tag.name]);
 
 	const labels = [size && status, size && size, priority && priority, ...(taskLabels || [])].filter(
 		(t) => t !== null && t !== undefined
