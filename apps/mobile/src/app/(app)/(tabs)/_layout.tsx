@@ -55,17 +55,25 @@ function forRouter(options: object): RouterTabOptions {
 	return options as RouterTabOptions;
 }
 
-function ownTasksHref(memberId: string | undefined): Href {
-	return { pathname: '/profile/[memberId]', params: { memberId: memberId ?? '' } };
+/** The person's own tasks, on their profile; without an id it has no address, and the tab does not show. */
+function ownTasksHref(memberId: string | undefined): Href | null {
+	if (!memberId) {
+		return null;
+	}
+	return { pathname: '/profile/[memberId]', params: { memberId } };
 }
 
 /** The three tabs of the current app, in its order: Work, Tasks (the person's own profile) and the team. */
 export default observer(function SignedInTabs() {
 	const { dark } = useAppTheme();
 	const {
-		teamStore: { isTrackingEnabled }
+		teamStore: { isTrackingEnabled },
+		authenticationStore: { user }
 	} = useStores();
 	const { currentUser } = useOrganizationTeam();
+	// Without a membership in the active team, the person signed in: on develop the tab then named no one, and the
+	// profile screen showed that person
+	const ownId = currentUser?.id ?? user?.id;
 	const screenOptions = useTabBarScreenOptions();
 	const navigation = useNavigation();
 	// the labels follow a new language
@@ -82,11 +90,13 @@ export default observer(function SignedInTabs() {
 		<Tabs.Screen
 			key="profile/[memberId]"
 			name="profile/[memberId]"
-			options={{ ...forRouter(tasksTabOptions(dark)), href: ownTasksHref(currentUser?.id) }}
+			options={{ ...forRouter(tasksTabOptions(dark)), href: ownTasksHref(ownId) }}
 			listeners={{
 				tabPress: (e: TabPressEvent) => {
 					e.preventDefault();
-					navigateTo(navigation, 'Profile', { userId: currentUser?.id, activeTab: 'worked' });
+					if (ownId) {
+						navigateTo(navigation, 'Profile', { userId: ownId, activeTab: 'worked' });
+					}
 				}
 			}}
 		/>
