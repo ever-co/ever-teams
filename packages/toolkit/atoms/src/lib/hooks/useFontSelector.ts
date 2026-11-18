@@ -11,7 +11,8 @@ import { warnOnce } from '@lib/utils/warn-once';
 
 /**
  * The font a person picked with the font toggle, shared by every caller of the page. It applies to the kit root
- * (<TeamsProvider scopedStyles>); until a font is picked the widgets use the host's font. Without scopedStyles there
+ * (<TeamsProvider scopedStyles>); until a font is picked the widgets draw in the kit's default font (the web app's
+ * system UI face, or the host's --ever-teams-kit-font). Without scopedStyles there
  * is no kit root, so a picked font still goes on document.body as before, with a warning.
  * Google Fonts are requested only when the host allows it (<TeamsProvider loadGoogleFonts>).
  */
@@ -64,6 +65,8 @@ const useFontSelector = () => {
 
 	return {
 		selectedFont,
+		// The font a person picked, empty until then: the widgets draw in the web app's face meanwhile
+		pickedFont: preferences.font ?? '',
 		setSelectedFont,
 		fontOptions: FONT_OPTIONS
 	};

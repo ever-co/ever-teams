@@ -536,5 +536,9 @@
 			"IDLE": "Idle",
 			"RESUMED": "Resumed"
 		}
+	},
+	"FONT_PICKER": {
+		"default_font": "Default font",
+		"page_font": "Page font"
 	}
 }

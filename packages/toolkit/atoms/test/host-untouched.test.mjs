@@ -179,10 +179,16 @@ test('a picked font applies to the kit root and its portal container, the host f
 	await act(async () => root.unmount());
 });
 
-test('without a picked font the kit root keeps the host font', async () => {
+// Until 0.2.x the widgets took the host's font; they now draw in the web app's face, which a host can replace.
+test('without a picked font the kit root and its portal container take the web app font, the host page keeps its own', async () => {
+	const hostFont = '"Comic Sans MS", cursive';
+	document.body.style.fontFamily = hostFont;
 	const { root, container } = await render(React.createElement(kit.KitRoot));
+	const portal = document.querySelector('[data-ever-teams-portal]');
 
-	assert.equal(container.firstElementChild.style.fontFamily, '');
+	assert.match(container.firstElementChild.getAttribute('style'), /var\(--ever-teams-kit-font, -apple-system/);
+	assert.match(portal.getAttribute('style') ?? '', /var\(--ever-teams-kit-font, -apple-system/);
+	assert.equal(document.body.style.fontFamily, hostFont);
 	await act(async () => root.unmount());
 });
 
