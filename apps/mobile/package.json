@@ -73,7 +73,7 @@
 		"@expo-google-fonts/space-grotesk": "^0.2.2",
 		"@expo/metro-runtime": "~57.0.18",
 		"@expo/vector-icons": "^15.0.2",
-		"@gorhom/bottom-sheet": "^5.1.2",
+		"@gorhom/bottom-sheet": "^5.2.14",
 		"@react-native-async-storage/async-storage": "2.2.0",
 		"@react-navigation/bottom-tabs": "^7.21.0",
 		"@react-navigation/drawer": "^7.14.4",

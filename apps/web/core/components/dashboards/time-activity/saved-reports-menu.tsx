@@ -88,6 +88,7 @@ function MenuState({
 function ActiveReportActions({
 	report,
 	showsSavedView,
+	canUpdate,
 	isUpdating,
 	onUpdate,
 	onRename,
@@ -95,6 +96,7 @@ function ActiveReportActions({
 }: Readonly<{
 	report: ISavedReport;
 	showsSavedView: boolean;
+	canUpdate: boolean;
 	isUpdating: boolean;
 	onUpdate: (report: ISavedReport) => void;
 	onRename: (report: ISavedReport) => void;
@@ -107,10 +109,15 @@ function ActiveReportActions({
 			<DropdownMenuLabel className="truncate text-xs font-normal text-muted-foreground" title={report.name}>
 				{report.name}
 			</DropdownMenuLabel>
-			<DropdownMenuItem disabled={showsSavedView || isUpdating} onClick={() => onUpdate(report)}>
+			<DropdownMenuItem disabled={showsSavedView || isUpdating || !canUpdate} onClick={() => onUpdate(report)}>
 				<Check />
 				<span>{t('dashboard.savedReports.UPDATE')}</span>
 			</DropdownMenuItem>
+			{!canUpdate && (
+				<p className="max-w-64 px-2 pb-1.5 text-xs text-muted-foreground">
+					{t('dashboard.savedReports.LABELS_NOT_KEPT')}
+				</p>
+			)}
 			<DropdownMenuItem onClick={() => onRename(report)}>
 				<Pencil />
 				<span>{t('dashboard.savedReports.RENAME')}</span>
@@ -133,6 +140,7 @@ export function SavedReportsMenu({
 	activeReport,
 	availability,
 	showsSavedView,
+	canUpdate,
 	isUpdating,
 	onOpen,
 	onUpdate,
@@ -144,6 +152,8 @@ export function SavedReportsMenu({
 	activeReport: ISavedReport | null;
 	availability: SavedReportsAvailability;
 	showsSavedView: boolean;
+	/** A report can keep the view shown: one narrowed or grouped by labels is never written over it (`canSaveView`). */
+	canUpdate: boolean;
 	/** A change of a saved report is waiting for its answer: Update waits for it. */
 	isUpdating: boolean;
 	onOpen: (report: ISavedReport) => void;
@@ -185,6 +195,7 @@ export function SavedReportsMenu({
 					<ActiveReportActions
 						report={activeReport}
 						showsSavedView={showsSavedView}
+						canUpdate={canUpdate}
 						isUpdating={isUpdating}
 						onUpdate={onUpdate}
 						onRename={onRename}

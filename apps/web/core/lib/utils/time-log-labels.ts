@@ -116,9 +116,24 @@ export function entryLabelGroupsOverlap(logs: ReadonlyArray<LabelledEntry>): boo
 	return logs.some((log) => entryLabelsOf(log).length > 1);
 }
 
-/** The labels of an entry as one cell of an export: their names, by name, separated by commas. */
-export function entryLabelNamesOf(log: LabelledEntry | null | undefined): string {
-	return entryLabelsOf(log)
+/**
+ * Labels as one cell of an export: each once, by name, separated by commas. The same labels give the same text in any
+ * order, so the export can match an entry's row by it (`time-activity-export-billable.ts`).
+ */
+export function labelNamesOf(labels: ReadonlyArray<EntryLabel>): string {
+	const byId = new Map<string, EntryLabel>();
+	for (const label of labels) {
+		if (!byId.has(label.id)) {
+			byId.set(label.id, label);
+		}
+	}
+	return [...byId.values()]
+		.sort(byName)
 		.map((label) => label.name)
 		.join(', ');
+}
+
+/** The labels of an entry as one cell of an export: their names, by name, separated by commas. */
+export function entryLabelNamesOf(log: LabelledEntry | null | undefined): string {
+	return labelNamesOf(entryLabelsOf(log));
 }
