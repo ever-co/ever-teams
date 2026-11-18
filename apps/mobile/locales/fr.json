@@ -270,10 +270,10 @@
 			"timeZone": "Fuseau horaire",
 			"workSchedule": "Horaire de travail",
 			"workScheduleHint": "Définissez votre horaire de travail maintenant",
-			"removeAccount": "Supprimer le compte",
-			"removeAccountHint": "Le compte sera supprimé de toutes les équipes, sauf si vous êtes le seul responsable",
+			"removeAccount": "Retirer le compte des équipes",
+			"removeAccountHint": "Le compte sera retiré de toutes les équipes, sauf celles dont vous êtes le seul responsable",
 			"deleteAccount": "Supprimer le compte",
-			"deleteAccountHint": "Votre compte sera définitivement supprimé avec la suppression de toutes les équipes",
+			"deleteAccountHint": "Votre compte sera définitivement supprimé et retiré de toutes les équipes.",
 			"detect": "Détecter"
 		},
 		"teamSection": {
