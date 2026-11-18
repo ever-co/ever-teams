@@ -1,0 +1,34 @@
+# A person chooses a task in the Work tab, opens it from their own card, the first of the Team tab, and reads it.
+appId: ${APP_ID}
+env:
+  EMAIL: kofi.arden@example.com
+---
+- runFlow: common/sign-in.yaml
+- runFlow: common/timer-stopped.yaml
+- runFlow: common/task-chosen.yaml
+# After a sign-in, the person's own card shows their task only once the app starts again (#5521)
+- launchApp:
+    clearState: false
+- extendedWaitUntil:
+    visible:
+      id: "tab-team"
+    timeout: 30000
+- tapOn:
+    id: "tab-team"
+- extendedWaitUntil:
+    visible:
+      id: "member-task"
+    timeout: 30000
+- tapOn:
+    id: "member-task"
+    index: 0
+- extendedWaitUntil:
+    visible:
+      id: "task-screen"
+    timeout: 30000
+# The description draws in a web view once the screen shows: the app must still be open after it has
+- waitForAnimationToEnd:
+    timeout: 5000
+- assertVisible:
+    id: "task-screen"
+- takeScreenshot: task-open

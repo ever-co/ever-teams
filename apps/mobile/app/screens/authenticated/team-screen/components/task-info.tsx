@@ -71,7 +71,7 @@ const TaskInfo = ({
 					<IssuesModal task={task} readonly={true} />
 				</View>
 				{task ? (
-					<Text numberOfLines={1} style={[styles.otherText, { color: colors.primary }]}>
+					<Text testID="member-task" numberOfLines={1} style={[styles.otherText, { color: colors.primary }]}>
 						<Text style={styles.taskNumberStyle}>#{task?.taskNumber}</Text>{' '}
 						{limitTextCharaters({
 							text: task.title,
