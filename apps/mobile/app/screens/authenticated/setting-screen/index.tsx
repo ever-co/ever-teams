@@ -51,25 +51,27 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<'Sett
 		const { activeTeam } = useOrganizationTeam();
 		const { route } = _props;
 		// const { navigation } = _props;
+		const routeActiveTab = route.params?.activeTab;
 
 		// ref
 		const bottomSheetRef = useRef<BottomSheet>(null);
 
 		// STATES
-		const [activeTab, setActiveTab] = useState(route.params?.activeTab || 1); // Initialize from route params
+		const [activeTab, setActiveTab] = useState(routeActiveTab || 1); // Initialize from route params
 		const [showPopup, setShowPopup] = useState<IPopup>(null);
 		const [bottomSheetVisible, setBottomSheetVisible] = useState(false);
 		const [keyboardVisible, setKeyboardVisible] = useState(false);
 		const [keyboardHeight, setKeyboardHeight] = useState(0);
 		const [desiredSnapIndex, setDesiredSnapIndex] = useState(1); // New state for tracking desired snap index
 
-		// Update active tab when route params change
+		// Update active tab when the tab the route asks for changes. Under Expo Router the route's params are a new object
+		// at each render of the route: watching them put the route's tab back over the one the person picked
 		useFocusEffect(
 			useCallback(() => {
-				if (route.params?.activeTab) {
-					setActiveTab(route.params.activeTab);
+				if (routeActiveTab) {
+					setActiveTab(routeActiveTab);
 				}
-			}, [route.params])
+			}, [routeActiveTab])
 		);
 
 		// Include multiple snap points for different sheet heights
