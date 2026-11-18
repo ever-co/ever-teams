@@ -1,3 +1,4 @@
+import { withoutTrailingSlashes } from '../client/address';
 import { parseBody } from '../client/answer-body';
 import { clientError, codeOf, errorFromResponse, networkError, NextStepsByStatus } from '../client/error-mapping';
 import { EverTeamsError } from '../client/errors';
@@ -79,7 +80,7 @@ export function apiUrlOf(caller: string, apiUrl: unknown): string {
 	if (!isFilled(apiUrl)) {
 		throw optionsError(`${caller} needs apiUrl.`, API_URL_STEP);
 	}
-	const address = apiUrl.trim().replace(/\/+$/, '');
+	const address = withoutTrailingSlashes(apiUrl.trim());
 	if (!isWebAddress(address)) {
 		throw optionsError(`${caller} needs apiUrl as an http or https address.`, API_URL_STEP);
 	}

@@ -323,9 +323,9 @@ test("TypeScript finds the server entry's types under each module resolution", (
 			projectDir
 		);
 
-	check('--module', 'nodenext', '--moduleResolution', 'nodenext', 'esm.mts', 'cjs.cts');
-	check('--module', 'esnext', '--moduleResolution', 'bundler', 'any-resolution.ts');
-	check('--module', 'commonjs', '--moduleResolution', 'node10', 'any-resolution.ts');
+	assert.doesNotThrow(() => check('--module', 'nodenext', '--moduleResolution', 'nodenext', 'esm.mts', 'cjs.cts'));
+	assert.doesNotThrow(() => check('--module', 'esnext', '--moduleResolution', 'bundler', 'any-resolution.ts'));
+	assert.doesNotThrow(() => check('--module', 'commonjs', '--moduleResolution', 'node10', 'any-resolution.ts'));
 });
 
 test('the installed package holds the builds and declarations of the server entry', () => {

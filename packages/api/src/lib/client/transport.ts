@@ -1,5 +1,6 @@
 import qs from 'qs';
 import { createAccessToken, tokenOf } from './access-token';
+import { withoutTrailingSlashes } from './address';
 import { parseBody } from './answer-body';
 import { clientError, errorFromResponse, networkError, NextStepsByStatus } from './error-mapping';
 import { EverTeamsError } from './errors';
@@ -48,15 +49,6 @@ function assertOptions(options: EverTeamsClientOptions): void {
 			'Pass token (a personal API token from Settings > API tokens in the web app, or an embed token), or getToken.'
 		);
 	}
-}
-
-// The address without its trailing slashes (a loop: the regex /\/+$/ backtracks on a long run of slashes).
-function withoutTrailingSlashes(url: string): string {
-	let end = url.length;
-	while (end > 0 && url[end - 1] === '/') {
-		end -= 1;
-	}
-	return url.slice(0, end);
 }
 
 export function createTransport(options: EverTeamsClientOptions): Transport {
