@@ -2,11 +2,11 @@ import { addManualTime } from '@ever-teams/api';
 import { ICurrentTeamsState, LogType, TimerSource } from '@ever-teams/toolkit-types';
 import { useTeamsContext } from '@lib/context/teams-context';
 import { useAccessToken } from './useAccessToken';
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { toast, reportError, getErrorMessage } from '@ever-teams/toolkit-ui';
 import { useTranslation } from 'react-i18next';
 import { format, subMinutes, addMinutes, isAfter, startOfDay, isToday as isTodayFns } from 'date-fns';
-import { NO_TEAMS_STATE, useForgetOnAccountChange } from './useForgetOnAccountChange';
+import { noTeamsState, useForgetOnAccountChange } from './useForgetOnAccountChange';
 import { useUserOrganization } from './useUserOrganization';
 
 const roundToNearest5Min = (date: Date): Date => {
@@ -35,21 +35,17 @@ export const useManualTimeForm = () => {
 	const [errors, setErrors] = useState<string[]>([]);
 	const [isBillable, setIsBillable] = useState<boolean>(true);
 
-	const [currentTeamsState, setCurrentTeamsState] = useState<ICurrentTeamsState>(NO_TEAMS_STATE);
-
-	// Which account the form works for: a submission that comes back after the account changed belongs to the previous
-	// one, and leaves the new account's form as it is.
-	const accountGeneration = useRef(0);
+	const [currentTeamsState, setCurrentTeamsState] = useState<ICurrentTeamsState>(noTeamsState);
 
 	// Another account starts from a new form: after a sign-out that keeps the form mounted, what the previous account
 	// picked, typed or set (its day and hours too) would otherwise go out with the next account's time.
-	useForgetOnAccountChange(() => {
-		accountGeneration.current += 1;
+	// A submission that comes back after the account changed belongs to the previous one: the form stays as it is.
+	const accountGeneration = useForgetOnAccountChange(() => {
 		const now = roundToNearest5Min(new Date());
 		setDate(new Date());
 		setStartTime(format(subMinutes(now, 10), 'HH:mm'));
 		setEndTime(format(now, 'HH:mm'));
-		setCurrentTeamsState(NO_TEAMS_STATE);
+		setCurrentTeamsState(noTeamsState());
 		setDescription('');
 		setIsBillable(true);
 		setErrors([]);

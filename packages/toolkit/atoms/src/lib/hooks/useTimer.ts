@@ -1,6 +1,6 @@
 import { addTimeSlot, apiConfigManager, startTimer as startApiTimer, stopTimer as stopApiTimer } from '@ever-teams/api';
 import { useEffect, useRef, useState } from 'react';
-import { NO_TEAMS_STATE, useForgetOnAccountChange } from './useForgetOnAccountChange';
+import { noTeamsState, useForgetOnAccountChange } from './useForgetOnAccountChange';
 import { useTeamsStopWatch } from './useTeamsStopWatch';
 import { toast } from '@ever-teams/toolkit-ui';
 import { useTeamsContext } from '@lib/context/teams-context';
@@ -26,7 +26,7 @@ export const useTimer = () => {
 		await sharedStatus?.refetch();
 	};
 
-	const [currentTeamsState, setCurrentTeamsState] = useState<ICurrentTeamsState>(NO_TEAMS_STATE);
+	const [currentTeamsState, setCurrentTeamsState] = useState<ICurrentTeamsState>(noTeamsState);
 
 	// Fetch timer status
 	const { data: timerStatus, loading: timerStatusLoading } = useTimerStatus(user, token, organizationId);
@@ -53,14 +53,11 @@ export const useTimer = () => {
 	// when a status states none (an account with no time recorded): after a sign-out that keeps the widget mounted, the
 	// next account's first start would send the previous account's task, project and team. Called before that sync, so
 	// it never undoes a status read for the new account.
-	const account = useForgetOnAccountChange(() => {
-		setCurrentTeamsState(NO_TEAMS_STATE);
+	const accountGeneration = useForgetOnAccountChange(() => {
+		setCurrentTeamsState(noTeamsState());
 		setTodayTrackedTime(new Date(0));
 		reset();
 	});
-	// Whose stopwatch a start or stop moves once it answers: the account's, whatever token it runs with by then.
-	const currentAccount = useRef(account);
-	currentAccount.current = account;
 
 	const [timerLoading, setTimerLoading] = useState(false);
 
@@ -122,7 +119,8 @@ export const useTimer = () => {
 
 	const startTimerNow = async () => {
 		const forIdentity = identity;
-		const forAccount = account;
+		// Whose stopwatch the start moves once it answers: the account's, whatever token it runs with by then.
+		const forGeneration = accountGeneration.current;
 		try {
 			setTimerLoading(true);
 			const timeSlot = await startApiTimer(user, token, currentTeamsState, organizationId);
@@ -133,7 +131,7 @@ export const useTimer = () => {
 			}
 			// A start that comes back after a switch of user or organization is the previous account's: the widgets of
 			// the new one keep their own stopwatch. A new token for the same account still shows the start.
-			if (currentAccount.current !== forAccount) {
+			if (accountGeneration.current !== forGeneration) {
 				return;
 			}
 
@@ -148,7 +146,7 @@ export const useTimer = () => {
 
 	const stopTimerNow = async () => {
 		const forIdentity = identity;
-		const forAccount = account;
+		const forGeneration = accountGeneration.current;
 		clearInterval(interval.current);
 		try {
 			setTimerLoading(true);
@@ -161,7 +159,7 @@ export const useTimer = () => {
 
 			timeSlot && (await addTimeSlot(token, timeSlot));
 			// The same for a stop: it never resets the stopwatch of the account signed in since.
-			if (currentAccount.current !== forAccount) {
+			if (accountGeneration.current !== forGeneration) {
 				return;
 			}
 

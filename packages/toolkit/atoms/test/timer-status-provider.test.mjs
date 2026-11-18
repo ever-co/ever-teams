@@ -1012,3 +1012,23 @@ test('a start that comes back after a new token for the same account still shows
 
 	assert.equal(seen.a.isRunning, true);
 });
+
+test('a stop that comes back after a switch to another account and back leaves the timer read since as it is', async () => {
+	await reset();
+	const seen = {};
+	await mount([timer('a', seen)]);
+	const running = { running: true, lastLog: { startedAt: new Date().toISOString() } };
+	await answer(0, running);
+	await act(async () => {
+		seen.a.stopTimer();
+	});
+	const [stop] = globalThis.__actions;
+
+	await act(async () => globalThis.__setIdentity(OTHER_ACCOUNT));
+	await act(async () => globalThis.__setIdentity(null));
+	await act(async () => globalThis.__reads.at(-1)(running));
+	assert.equal(seen.a.isRunning, true);
+	await act(async () => stop({ id: 'slot' }));
+
+	assert.equal(seen.a.isRunning, true);
+});
