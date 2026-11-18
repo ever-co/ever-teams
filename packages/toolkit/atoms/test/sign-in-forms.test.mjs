@@ -210,3 +210,8 @@ test('the registration form names its four fields, says a refusal on the notice,
 	assert.match(markup, /<p role="alert" class="[^"]*bg-destructive\/5[^"]*">Passwords do not match\./);
 	assert.match(markup, />AUTH\.sign_up_title<\/button>/);
 });
+
+test('the dialogs open from buttons in the kit language', () => {
+	assert.match(render(kit.TeamsLoginDialog), /<button class="min-w-28">AUTH\.sign_in_title<\/button>/);
+	assert.match(render(kit.TeamsRegistrationDialog), /<button>AUTH\.register_now<\/button>/);
+});

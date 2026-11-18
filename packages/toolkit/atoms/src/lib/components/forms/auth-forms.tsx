@@ -38,6 +38,21 @@ type AuthFormMode = 'signin' | 'signup';
 
 type FormSource = 'storybook' | 'example';
 
+// The links of the sign-in and registration forms: the theme's primary, lighter in dark mode to stay readable there.
+const AUTH_LINK =
+	'cursor-pointer font-medium text-primary underline-offset-4 hover:underline focus-visible:underline focus-visible:outline-none dark:text-primary-xlight';
+// The same link on a button, for the switch between the two forms.
+const AUTH_LINK_BUTTON = cn('border-none bg-transparent p-0 font-inherit', AUTH_LINK);
+
+// The title of the sign-in and registration forms, above a separator.
+function AuthFormTitle({ children }: { children: React.ReactNode }) {
+	return (
+		<div className="mb-4 border-b border-border pb-4 text-foreground">
+			<h1 className="text-xl font-semibold">{children}</h1>
+		</div>
+	);
+}
+
 /**
  * A component to display the user's avatar with a popover menu.
  *
@@ -135,10 +150,7 @@ const TeamsLoginForm = ({
 
 	return mode === 'signin' ? (
 		<div ref={ref} className={className}>
-			<div className="flex flex-col gap-4 justify-center items-start pb-4 mb-4 text-black border-b border-gray-200 dark:border-gray-800 dark:text-white">
-				<h1 className="text-3xl font-bold tracking-tight">{t('AUTH.sign_in_title')}</h1>
-				<p className="text-xs font-light text-gray-400"></p>
-			</div>
+			<AuthFormTitle>{t('AUTH.sign_in_title')}</AuthFormTitle>
 			<Tabs className="flex flex-col gap-3 transition-all delay-200" defaultValue="password">
 				<TabsListThemed className="grid grid-cols-2 h-10 text-white bg-opacity-20">
 					<TabsTrigger value="password">{t('COMMON.password')}</TabsTrigger>
@@ -152,18 +164,14 @@ const TeamsLoginForm = ({
 				</TabsContent>
 			</Tabs>
 
-			<p className="pt-3 text-sm text-slate-500 dark:text-white">
+			<p className="pt-3 text-sm text-muted-foreground">
 				{t('AUTH.dont_have_an_account')}{' '}
 				{signupLink ? (
-					<a className="text-blue-500 cursor-pointer" href={signupLink}>
+					<a className={AUTH_LINK} href={signupLink}>
 						{t('AUTH.sign_up_title')}
 					</a>
 				) : (
-					<button
-						type="button"
-						className="p-0 text-blue-500 bg-transparent border-none cursor-pointer font-inherit"
-						onClick={() => switchTo('signup')}
-					>
+					<button type="button" className={AUTH_LINK_BUTTON} onClick={() => switchTo('signup')}>
 						{t('AUTH.sign_up_title')}
 					</button>
 				)}
@@ -183,7 +191,7 @@ const TeamsLoginForm = ({
  * If the user is authenticated, the component displays the user's avatar.
  *
  * @prop {React.ReactNode} [trigger] - The trigger element to display the dialog.
- * If not provided, a default button with 'SIGN IN' label is displayed.
+ * If not provided, a button labelled with the kit's translation of Sign In is displayed.
  *
  * @returns {React.ReactNode} The dialog component.
  */
@@ -208,7 +216,7 @@ const TeamsLoginDialog = ({
 		<div>
 			{!user ? (
 				<Dialog
-					trigger={trigger || <ThemedButton className="min-w-28">SIGN IN</ThemedButton>}
+					trigger={trigger || <ThemedButton className="min-w-28">{t('AUTH.sign_in_title')}</ThemedButton>}
 					title={title}
 					hideTitle
 					onOpenChange={(open) => {
@@ -367,10 +375,7 @@ const TeamsRegistrationForm = ({
 
 	return mode === 'signup' ? (
 		<form onSubmit={form.handleSubmit} className={cn('flex flex-col gap-4 w-full', className)}>
-			<div className="flex flex-col gap-4 justify-center items-start pb-4 mb-4 text-black border-b border-gray-200 dark:border-gray-800 dark:text-white">
-				<h1 className="text-3xl font-bold tracking-tight">{t('AUTH.sign_up_title')}</h1>
-				<p className="text-xs font-light text-gray-400"></p>
-			</div>
+			<AuthFormTitle>{t('AUTH.sign_up_title')}</AuthFormTitle>
 
 			<KitFormField
 				label={t('COMMON.full_name')}
@@ -464,18 +469,14 @@ const TeamsRegistrationForm = ({
 				{t('AUTH.sign_up_title')}
 			</ThemedButton>
 
-			<p className="pt-3 text-sm text-slate-500 dark:text-white">
+			<p className="pt-3 text-sm text-muted-foreground">
 				{t('AUTH.have_an_account')}{' '}
 				{signInLink ? (
-					<a className="text-blue-500 cursor-pointer" href={signInLink}>
+					<a className={AUTH_LINK} href={signInLink}>
 						{t('AUTH.sign_in_title')}
 					</a>
 				) : (
-					<button
-						className="p-0 text-blue-500 bg-transparent border-none cursor-pointer font-inherit"
-						type="button"
-						onClick={() => switchTo('signin')}
-					>
+					<button className={AUTH_LINK_BUTTON} type="button" onClick={() => switchTo('signin')}>
 						{t('AUTH.sign_in_title')}
 					</button>
 				)}
@@ -495,7 +496,7 @@ const TeamsRegistrationDialog = ({ trigger, signInLink }: { trigger?: React.Reac
 	const title = mode === 'signup' ? t('AUTH.sign_up_title') : t('AUTH.sign_in_title');
 	return (
 		<Dialog
-			trigger={trigger || <ThemedButton>REGISTER NOW</ThemedButton>}
+			trigger={trigger || <ThemedButton>{t('AUTH.register_now')}</ThemedButton>}
 			title={title}
 			hideTitle
 			onOpenChange={(open) => {
