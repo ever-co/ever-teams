@@ -538,6 +538,24 @@
 			"RESUMED": "Resumed"
 		}
 	},
+	"THEME_PICKER": {
+		"placeholder": "Select theme",
+		"default": "Default",
+		"purple_gradient": "Purple gradient",
+		"theme1": "Black and white",
+		"theme2": "Red and Green",
+		"theme3": "Yellow and Red",
+		"theme5": "Blue and green (Black)",
+		"theme6": "Pink and White",
+		"theme7": "Teal and orange",
+		"theme8": "Red and Blue",
+		"theme9": "Green and yellow",
+		"theme10": "Pink and blue",
+		"theme11": "Orange and red",
+		"theme12": "Chocolate and white",
+		"theme13": "Blue and Pink",
+		"theme14": "Yellow and pink"
+	},
 	"FONT_PICKER": {
 		"default_font": "Default font",
 		"page_font": "Page font"

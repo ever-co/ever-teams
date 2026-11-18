@@ -1,9 +1,14 @@
 import { cn } from '@ever-teams/toolkit-ui';
 import type { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useKitOptions } from '@components/teams-provider/kit-root';
 
-function TeamsTimerFooter({ className }: { className?: string }): ReactElement {
+function TeamsTimerFooter({ className }: { className?: string }): ReactElement | null {
 	const { t } = useTranslation();
+	const { branding } = useKitOptions();
+	if (branding === false) {
+		return null;
+	}
 	return (
 		<div
 			className={cn(
