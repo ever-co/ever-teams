@@ -32,3 +32,5 @@ export interface EverTeamsEmbedToken {
 	/** When it expires, as an ISO date. */
 	expiresAt: string;
 }
+
+export type GetClientReportOptions = EmbedServerOptions;

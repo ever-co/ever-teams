@@ -47,6 +47,11 @@ const CODE_STEPS: { [code: string]: string } = {
 	EMBED_ORIGIN_NOT_ALLOWED:
 		'The organization does not allow this site: send the origin of the page the timer runs in ' +
 		'(https://app.example.com), and ask an administrator to add it in Settings > Embeds of the web app.',
+	EMBED_CLIENT_REQUIRED:
+		'This credential is not limited to a client: ask an administrator for a credential of the client whose time ' +
+		'the report shows (Settings > Embeds of the web app).',
+	EMBED_CLIENT_GONE:
+		"The credential's client was deleted: restore the client in the web app, or use a credential of another one.",
 	EMBED_EXCHANGE_LIMITED:
 		'Too many refused credentials came from this address: check the credential you send, then try again in a ' +
 		'minute.'

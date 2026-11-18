@@ -1,4 +1,4 @@
-// The answers of POST /api/embed/token, as Gauzy writes them on develop
+// The answers of POST /api/embed/token and POST /api/embed/client-report, as Gauzy writes them on develop
 // (packages/core/src/lib/embed/embed-credential.service.ts, refusalOf; embed.guards.ts, EmbedEnabledGuard; Nest's
 // exceptions; @nestjs/throttler). Each is a function, so every test reads a fresh Response.
 export const API_URL = 'https://api.example.com/api';
@@ -21,7 +21,20 @@ export const TOKEN = {
 	expiresAt: '2026-11-18T18:15:00.000Z'
 };
 
+export const REPORT = {
+	client: { id: 'b7a4c8a2-3f0e-4c41-9a37-2d6f1c9e8b10', name: 'Fabrikam Outdoor' },
+	timeZone: 'Europe/Paris',
+	today: { date: '2026-11-18', seconds: 5400 },
+	week: { start: '2026-11-16', end: '2026-11-22', seconds: 19800 },
+	projects: [
+		{ id: '5d1e2f3a-4b5c-4d6e-8f70-81a2b3c4d5e6', name: 'Trail maps', seconds: 14400 },
+		{ id: '9a8b7c6d-5e4f-4a3b-9c2d-1e0f2a3b4c5d', name: 'Store front', seconds: 5400 }
+	]
+};
+
 export const tokenIssued = () => answer(200, 'OK', TOKEN, NO_STORE);
+
+export const reportRead = () => answer(200, 'OK', REPORT, NO_STORE);
 
 // A malformed, unknown or revoked credential: new UnauthorizedException().
 export const credentialRefused = () =>
@@ -51,6 +64,30 @@ export const originNotAllowed = () =>
 		NO_STORE
 	);
 
+export const clientRequired = () =>
+	answer(
+		403,
+		'Forbidden',
+		{
+			statusCode: 403,
+			code: 'EMBED_CLIENT_REQUIRED',
+			message: 'This credential is not limited to a client. Create one for the client whose time it reports.'
+		},
+		NO_STORE
+	);
+
+export const clientGone = () =>
+	answer(
+		403,
+		'Forbidden',
+		{
+			statusCode: 403,
+			code: 'EMBED_CLIENT_GONE',
+			message: "This credential's client was deleted. Restore the client, or create a credential for another one."
+		},
+		NO_STORE
+	);
+
 // The cap on refused credentials per address: an HttpException, with no Retry-After.
 export const addressLimited = () =>
 	answer(
@@ -75,6 +112,10 @@ export const throttled = () =>
 
 // GAUZY_EMBED_TOKENS_ENABLED off: new NotFoundException().
 export const embedsOff = () => answer(404, 'Not Found', { message: 'Not Found', statusCode: 404 });
+
+// A client report that failed once its credential was accepted: new InternalServerErrorException().
+export const reportUnread = () =>
+	answer(500, 'Internal Server Error', { message: 'Internal Server Error', statusCode: 500 }, NO_STORE);
 
 // The database out of reach: new ServiceUnavailableException(DATABASE_UNAVAILABLE_MESSAGE).
 export const databaseOut = () =>
