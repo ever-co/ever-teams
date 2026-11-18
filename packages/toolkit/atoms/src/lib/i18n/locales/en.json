@@ -80,6 +80,7 @@
 	},
 	"AUTH": {
 		"sign_in_title": "Sign In",
+		"host_sign_in": "Sign in to this site to use your Ever Teams timer.",
 		"sign_up_title": "Register",
 		"account_menu": "{{name}}: account menu",
 		"account_menu_unnamed": "Account menu",

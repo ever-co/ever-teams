@@ -56,7 +56,10 @@ const stubs = {
 			new Promise((resolve, reject) => globalThis.__actions.push(Object.assign(resolve, { kind, args, reject })));
 		export const startTimer = action('start');
 		export const stopTimer = action('stop');
-		export const addTimeSlot = async () => {};
+		globalThis.__slots = 0;
+		export const addTimeSlot = async () => {
+			globalThis.__slots += 1;
+		};
 		globalThis.__userReads = [];
 		export const getUser = ({ token }) =>
 			new Promise((resolve) => globalThis.__userReads.push(Object.assign(resolve, { token })));
@@ -108,6 +111,7 @@ let useAuthUser;
 let usePasswordLoginForm;
 let useManualTimeForm;
 let userAtom;
+let KitOptionsProvider;
 let bundleDir;
 
 before(async () => {
@@ -125,6 +129,7 @@ before(async () => {
 				"export { usePasswordLoginForm } from './hooks/usePasswordLoginForm';",
 				"export { useManualTimeForm } from './hooks/useManualTimeForm';",
 				"export { userAtom } from './teams-jotai/atoms/teams-atoms';",
+				"export { KitOptionsProvider } from './components/teams-provider/kit-options';",
 				"export { getDefaultStore, useAtomValue } from 'jotai';"
 			].join('\n'),
 			resolveDir: lib,
@@ -180,7 +185,8 @@ before(async () => {
 		useAuthUser,
 		usePasswordLoginForm,
 		useManualTimeForm,
-		userAtom
+		userAtom,
+		KitOptionsProvider
 	} = await import(pathToFileURL(outfile).href));
 });
 
@@ -773,6 +779,56 @@ test('a stored session the API refuses says the session ended, and is not read a
 
 	await act(async () => window.dispatchEvent(new window.Event('online')));
 	assert.equal(globalThis.__userReads.length, 1);
+});
+
+test('a new token for the same person keeps the status on screen until the next read', async () => {
+	await reset();
+	let latest;
+	await mount([widget('a', (s) => (latest = s))]);
+	await answer(0, { running: true, duration: 42, lastLog: null });
+	assert.equal(latest?.duration, 42);
+
+	await act(async () => globalThis.__setIdentity({ token: 'renewed-token' }));
+	assert.equal(latest?.duration, 42, 'no flash back to an empty timer every few minutes');
+	const renewed = globalThis.__reads.find((r) => r.token === 'renewed-token');
+	assert.ok(renewed, 'the status is read again with the new token');
+
+	await act(async () => renewed({ running: true, duration: 43, lastLog: null }));
+	assert.equal(latest?.duration, 43);
+});
+
+test('with the host signing people in, a stop sends no time slot: the stop already recorded the time', async () => {
+	await reset();
+	globalThis.__slots = 0;
+	const seen = {};
+	const container = document.createElement('div');
+	const root = createRoot(container);
+	roots.push(root);
+	const host = (hostSignIn) =>
+		React.createElement(
+			KitOptionsProvider,
+			{ value: { scoped: true, hostSignIn } },
+			React.createElement(TimerStatusProvider, null, timer('a', seen))
+		);
+	await act(async () => root.render(host(true)));
+	await answer(0, { running: true, lastLog: { startedAt: new Date().toISOString() } });
+
+	await act(async () => {
+		seen.a.stopTimer();
+	});
+	await act(async () => globalThis.__actions[0]({ id: 'log' }));
+	await flush();
+	assert.equal(globalThis.__slots, 0);
+	// The stop refreshes the status; that read's answer ends the action.
+	await answer(1, { running: true, lastLog: { startedAt: new Date().toISOString() } });
+
+	await act(async () => root.render(host(false)));
+	await act(async () => {
+		seen.a.stopTimer();
+	});
+	await act(async () => globalThis.__actions[1]({ id: 'log' }));
+	await flush();
+	assert.equal(globalThis.__slots, 1, 'without it, as before');
 });
 
 test('a failed sign-in shows its message in the form, unless the person edited a field while it was checked', async () => {

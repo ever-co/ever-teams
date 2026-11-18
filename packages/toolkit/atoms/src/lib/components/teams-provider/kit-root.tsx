@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, ReactNode, useContext, useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { ReactNode, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { PortalContainerContext } from '@ever-teams/toolkit-ui';
 import {
 	getKitPreferences,
@@ -15,18 +15,8 @@ import {
 export const KIT_ROOT_ATTRIBUTE = 'data-ever-teams-kit';
 export const KIT_COLOR_SCHEME_ATTRIBUTE = 'data-ever-teams-color-scheme';
 
-export interface KitOptions {
-	// Whether the kit renders its own root (<TeamsProvider scopedStyles>) instead of relying on the host's page.
-	scoped: boolean;
-	// Called after a sign-out from the kit, instead of sending the browser to '/'.
-	onSignOut?: () => void;
-}
-
-const KitOptionsContext = createContext<KitOptions>({ scoped: false });
-
-export const useKitOptions = (): KitOptions => useContext(KitOptionsContext);
-
-export const KitOptionsProvider = KitOptionsContext.Provider;
+export { useKitOptions, KitOptionsProvider } from './kit-options';
+export type { KitOptions } from './kit-options';
 
 const DARK_QUERY = '(prefers-color-scheme: dark)';
 
