@@ -417,7 +417,11 @@
 		},
 		"changeLanguage": {
 			"mainTitle": "更改语言",
-			"selectLanguageTitle": "选择语言"
+			"selectLanguageTitle": "选择语言",
+			"restartTitle": "重新启动应用",
+			"restartMessage": "此语言的阅读方向相反。应用将重新启动，以按此方向排列界面。",
+			"restartNow": "重新启动",
+			"restartLater": "稍后"
 		}
 	},
 	"hamburgerMenu": {

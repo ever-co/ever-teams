@@ -417,7 +417,11 @@
 		},
 		"changeLanguage": {
 			"mainTitle": "Change Language",
-			"selectLanguageTitle": "Select Languanges"
+			"selectLanguageTitle": "Select Languanges",
+			"restartTitle": "إعادة تشغيل التطبيق",
+			"restartMessage": "تُقرأ هذه اللغة في الاتجاه الآخر. سيُعاد تشغيل التطبيق لعرض شاشاته بهذا الاتجاه.",
+			"restartNow": "إعادة التشغيل",
+			"restartLater": "لاحقًا"
 		}
 	},
 	"hamburgerMenu": {

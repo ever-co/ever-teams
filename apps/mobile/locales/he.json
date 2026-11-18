@@ -417,7 +417,11 @@
 		},
 		"changeLanguage": {
 			"mainTitle": "שינוי השפה",
-			"selectLanguageTitle": "בחירת שפה"
+			"selectLanguageTitle": "בחירת שפה",
+			"restartTitle": "הפעלה מחדש של האפליקציה",
+			"restartMessage": "השפה הזו נקראת בכיוון ההפוך. האפליקציה תופעל מחדש כדי להציג את המסכים בכיוון הזה.",
+			"restartNow": "הפעלה מחדש",
+			"restartLater": "מאוחר יותר"
 		}
 	},
 	"hamburgerMenu": {

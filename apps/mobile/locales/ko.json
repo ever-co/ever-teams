@@ -417,7 +417,11 @@
 		},
 		"changeLanguage": {
 			"mainTitle": "Change Language",
-			"selectLanguageTitle": "Select Languanges"
+			"selectLanguageTitle": "Select Languanges",
+			"restartTitle": "앱 다시 시작",
+			"restartMessage": "이 언어는 반대 방향으로 읽습니다. 화면을 그 방향으로 배치하기 위해 앱이 다시 시작됩니다.",
+			"restartNow": "다시 시작",
+			"restartLater": "나중에"
 		}
 	},
 	"hamburgerMenu": {

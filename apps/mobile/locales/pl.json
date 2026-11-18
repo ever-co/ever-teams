@@ -417,7 +417,11 @@
 		},
 		"changeLanguage": {
 			"mainTitle": "Zmień język",
-			"selectLanguageTitle": "Wybierz język"
+			"selectLanguageTitle": "Wybierz język",
+			"restartTitle": "Uruchom aplikację ponownie",
+			"restartMessage": "Ten język czyta się w przeciwnym kierunku. Aplikacja uruchomi się ponownie, aby ułożyć ekrany w tym kierunku.",
+			"restartNow": "Uruchom ponownie",
+			"restartLater": "Później"
 		}
 	},
 	"hamburgerMenu": {

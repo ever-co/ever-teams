@@ -417,7 +417,11 @@
 		},
 		"changeLanguage": {
 			"mainTitle": "Изменить язык",
-			"selectLanguageTitle": "Выберите язык"
+			"selectLanguageTitle": "Выберите язык",
+			"restartTitle": "Перезапустить приложение",
+			"restartMessage": "Этот язык читается в обратном направлении. Приложение перезапустится, чтобы расположить экраны соответственно.",
+			"restartNow": "Перезапустить",
+			"restartLater": "Позже"
 		}
 	},
 	"hamburgerMenu": {

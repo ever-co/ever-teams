@@ -417,7 +417,11 @@
 		},
 		"changeLanguage": {
 			"mainTitle": "Taal wijzigen",
-			"selectLanguageTitle": "Taal kiezen"
+			"selectLanguageTitle": "Taal kiezen",
+			"restartTitle": "App opnieuw starten",
+			"restartMessage": "Deze taal lees je in de andere richting. De app start opnieuw om de schermen zo te tonen.",
+			"restartNow": "Opnieuw starten",
+			"restartLater": "Later"
 		}
 	},
 	"hamburgerMenu": {

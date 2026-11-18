@@ -417,7 +417,11 @@
 		},
 		"changeLanguage": {
 			"mainTitle": "Sprache ändern",
-			"selectLanguageTitle": "Sprache auswählen"
+			"selectLanguageTitle": "Sprache auswählen",
+			"restartTitle": "App neu starten",
+			"restartMessage": "Diese Sprache wird in die andere Richtung gelesen. Die App startet neu, um ihre Bildschirme entsprechend anzuordnen.",
+			"restartNow": "Neu starten",
+			"restartLater": "Später"
 		}
 	},
 	"hamburgerMenu": {
