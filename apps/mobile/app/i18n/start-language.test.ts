@@ -71,6 +71,21 @@ describe('the language at start', () => {
 		expect(currentLocale()).toBe('fr');
 	});
 
+	it('shows without waiting for the marker of an earlier restart to be cleared', async () => {
+		(layOutFor as jest.Mock).mockReturnValue(false);
+		const storage = storageOf({ LayoutRestartedFor: 'ar' });
+		storage.removeItem.mockReturnValue(new Promise<void>(() => undefined));
+
+		await startIn(
+			'fr',
+			storage,
+			jest.fn(async () => undefined)
+		);
+
+		expect(currentLocale()).toBe('fr');
+		expect(storage.removeItem).toHaveBeenCalledWith('LayoutRestartedFor');
+	});
+
 	it('shows in the old direction, without a restart, when the marker cannot be read', async () => {
 		(layOutFor as jest.Mock).mockReturnValue(true);
 		const storage = storageOf();
@@ -137,5 +152,23 @@ describe('the language of the profile', () => {
 		expect(currentLocale()).toBe('he');
 		expect(layOutFor).not.toHaveBeenCalled();
 		expect(announceLayoutRestart).not.toHaveBeenCalled();
+	});
+
+	it('sets its direction, and offers the restart once, when a later save of it works', async () => {
+		(layOutFor as jest.Mock).mockReturnValue(true);
+		const failing = jest.fn(async () => {
+			throw new Error('storage full');
+		});
+		const saving = jest.fn(async () => undefined);
+
+		await applyProfileLanguage('ar', failing);
+		expect(announceLayoutRestart).not.toHaveBeenCalled();
+
+		await applyProfileLanguage('ar', saving);
+		await applyProfileLanguage('ar', saving);
+
+		expect(layOutFor).toHaveBeenCalledWith('ar');
+		expect(announceLayoutRestart).toHaveBeenCalledTimes(1);
+		expect(currentLocale()).toBe('ar');
 	});
 });
