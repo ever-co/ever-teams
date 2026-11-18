@@ -24,15 +24,9 @@ function byTimeSpent(projects: IClientTimeReport['projects']): ClientProject[] {
 	return sorted;
 }
 
-// The host's backend may count fractions of a second: the report draws whole seconds, as the timer does.
-function withWholeSeconds(report: IClientTimeReport): IClientTimeReport {
-	return {
-		...report,
-		today: { ...report.today, seconds: Math.floor(report.today.seconds) },
-		week: { ...report.week, seconds: Math.floor(report.week.seconds) },
-		projects: report.projects.map((project) => ({ ...project, seconds: Math.floor(project.seconds) }))
-	};
-}
+// The host's backend may count fractions of a second: the report draws whole seconds, as the timer does. Only what is
+// drawn is rounded: the projects' order, their bars and whether the week has time use the seconds as given.
+const wholeSeconds = (seconds: number): number => Math.floor(seconds);
 
 // A project's bar is relative to the project with the most time.
 function shareOf(seconds: number, largest: number): number {
@@ -83,7 +77,7 @@ function ReportTiles({ today = 0, week = 0, loading = false }: Readonly<IReportT
 }
 
 function ProjectRow({ project, largest }: Readonly<{ project: ClientProject; largest: number }>) {
-	const duration = formatTime(project.seconds);
+	const duration = formatTime(wholeSeconds(project.seconds));
 	const share = shareOf(project.seconds, largest);
 	return (
 		<li className="flex min-w-0 flex-col gap-1">
@@ -153,14 +147,14 @@ function ClientReportBody({ state }: Readonly<{ state: ClientTimeReport }>) {
 	if (state.status === 'error') {
 		return <ReportError onRetry={state.retry} />;
 	}
-	const report = withWholeSeconds(state.report);
+	const { report } = state;
 	const hasTimeThisWeek = report.week.seconds > 0;
 	if (!hasTimeThisWeek) {
 		return <p className="text-sm text-gray-400">{t('CLIENT_REPORT.empty', { client: report.client.name })}</p>;
 	}
 	return (
 		<>
-			<ReportTiles today={report.today.seconds} week={report.week.seconds} />
+			<ReportTiles today={wholeSeconds(report.today.seconds)} week={wholeSeconds(report.week.seconds)} />
 			<ProjectBreakdown projects={report.projects} />
 		</>
 	);
