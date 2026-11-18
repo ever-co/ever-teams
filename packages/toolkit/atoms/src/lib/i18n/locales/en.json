@@ -114,7 +114,10 @@
 			"select_team": "Select team"
 		},
 		"project_select": {
-			"select_project": "Select project"
+			"select_project": "Select project",
+			"loading_projects": "Loading projects...",
+			"no_projects": "No project to track time on",
+			"projects_failed": "The projects could not be loaded. Reload the page to try again."
 		},
 		"task_select": {
 			"select_task": "Select task"

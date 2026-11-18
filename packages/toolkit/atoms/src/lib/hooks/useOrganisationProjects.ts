@@ -3,6 +3,7 @@ import { IProject, IHookResponse } from '@ever-teams/toolkit-types';
 import { getOrganisationProjects } from '@ever-teams/api';
 import { toast } from '@ever-teams/toolkit-ui';
 import { useTeamsContext } from '@lib/context/teams-context';
+import { useKitOptions } from '@components/teams-provider/kit-options';
 
 export const useOrganizationProjects = ({ clientId }: { clientId: string | null }): IHookResponse<IProject[]> => {
 	const [projects, setProjects] = useState<IHookResponse<IProject[]>>({
@@ -11,8 +12,14 @@ export const useOrganizationProjects = ({ clientId }: { clientId: string | null 
 	});
 
 	const { authenticatedUser: user, token, selectedOrganization: organizationId } = useTeamsContext();
+	const { hostSignIn } = useKitOptions();
 
 	useEffect(() => {
+		// A token from the host's getToken does not reach the member's projects: no read, so no refusal to show
+		if (hostSignIn) {
+			setProjects({ data: [], loading: false });
+			return;
+		}
 		if (user && organizationId) {
 			(async () => {
 				setProjects((prev) => ({ ...prev, loading: true }));
@@ -38,7 +45,7 @@ export const useOrganizationProjects = ({ clientId }: { clientId: string | null 
 				setProjects({ data: userProjects, loading: false });
 			})();
 		}
-	}, [user, clientId, organizationId]);
+	}, [user, clientId, organizationId, hostSignIn]);
 
 	return projects;
 };
