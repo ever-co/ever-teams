@@ -268,10 +268,17 @@ export function ClientTimeReport() {
 }
 ```
 
-The widget calls `getReport` once when it appears. While it waits, the report tiles show loaders; when it throws or
-rejects, the widget says the time couldn't be loaded and offers "Try again", which calls it again. A week with no
-time says so, with the client's name. Today and this week are counted in the time zone the report names
-(`timeZone`). The report stays in memory: nothing is written to the browser's storage.
+The widget calls `getReport` once when it appears (twice in development under React's Strict Mode, which mounts
+components twice), and again when the day ends in the report's time zone, so a portal left open overnight never shows
+yesterday as today. While it waits, the report tiles show loaders; when it throws or rejects, the widget says the time
+couldn't be loaded and offers "Try again", which calls it again. A week with no time says so, with the client's name.
+Today and this week are counted in the time zone the report names (`timeZone`).
+
+The widget keeps the report in memory and writes nothing to the browser's storage. The `TeamsProvider` around it
+handles the session as it does for every kit component: on a site where people also sign in with the kit, it reads
+their saved session, and clears it once expired (see
+[Security](#security-where-tokens-live-today-and-what-is-planned)). On a portal where nobody signs in with the kit,
+there is no session to read.
 
 ## Security: where tokens live today, and what is planned
 
