@@ -25,6 +25,9 @@ const FORBIDDEN_DIR_PREFIX = 'ever-teams-api-contract-';
 
 const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]']);
 
+// The source the client's timer.start sends, which the API keeps on the entry; the apps send their own.
+const CLIENT_SOURCE = 'EMBED';
+
 function assertLocal(apiUrl, allowRemote) {
 	const host = new URL(apiUrl).hostname;
 	if (LOCAL_HOSTS.has(host) || allowRemote) {
@@ -243,8 +246,9 @@ export async function recordContract(options) {
 
 	const created = [];
 
-	// A start whose answer is lost or unreadable may still have started the timer: a run the status shows now, and did
-	// not show before the start, is the recording's own.
+	// A start whose answer is lost or unreadable may still have started the timer: a run the status shows now, did not
+	// show before the start, and has the client's source (EMBED) is the recording's own. A run from another source
+	// (the person started the timer in an app meanwhile) is not: it is reported, and neither stopped nor deleted.
 	async function keepLostRun(statusBefore) {
 		let status;
 		try {
@@ -258,9 +262,17 @@ export async function recordContract(options) {
 		}
 		const runningLogId = status.lastLog?.id;
 		const isNewRun = status.running && runningLogId !== statusBefore.lastLog?.id;
-		if (isNewRun) {
-			created.push(runningLogId);
+		if (!isNewRun) {
+			return;
 		}
+		if (status.lastLog?.source === CLIENT_SOURCE) {
+			created.push(runningLogId);
+			return;
+		}
+		logError(
+			`A start failed and the timer now runs on entry ${runningLogId}, which the recording cannot tell as its own: ` +
+				'it is left running. If the recording started it, stop it in the app and delete its time entry.'
+		);
 	}
 
 	async function startTimer(start) {

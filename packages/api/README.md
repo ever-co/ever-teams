@@ -605,7 +605,8 @@ with the account of a member whose role may list members (a manager) and whose t
 yarn --cwd ../toolkit-types build && yarn build
 EVER_TEAMS_API_URL=http://localhost:3000/api EVER_TEAMS_EMAIL=manager@example.com EVER_TEAMS_PASSWORD=... \
   node scripts/record-contract.mjs
-EVER_TEAMS_CONTRACT_FORBIDDEN=<the file the script printed> yarn test
+# The path the script printed, quoted:
+EVER_TEAMS_CONTRACT_FORBIDDEN='/tmp/ever-teams-api-contract-AbC123/forbidden.json' yarn test
 ```
 
 `EVER_TEAMS_TOKEN`, a personal API token, can replace the email and the password. The script refuses an address
@@ -614,7 +615,8 @@ the account's timer twice (once bare, once on one of its tasks) and stops it, re
 then deletes the two time entries it created. It refuses an account whose timer runs, so the timer stays as it was.
 When a step fails, it still stops its timer and deletes its entries before it reports the failure, and it prints the
 id of each entry it could not delete, so you can delete it in the app. A timer the account's member started in the
-meantime is left running.
+meantime is left running. After a start whose answer was lost, a new run counts as the recording's own only when it
+has the client's source (`EMBED`); any other is left running and its id printed.
 
 Before writing, it replaces ids, names, emails, addresses, dates, amounts of money and the labels each organization
 names itself (a task's status, priority, size and type) with placeholders of the same form (`<employee-1>`,

@@ -57,7 +57,9 @@ function benchApi({ running = false, failures = [], lostStart, lostStartAt = 1 }
 				employeeId: EMPLOYEE,
 				projectId: request.body.projectId ?? null,
 				taskId: request.body.taskId ?? null,
-				organizationTeamId: null
+				organizationTeamId: null,
+				// The API keeps the source the start sent.
+				source: request.body.source
 			};
 			state.logs.push(log);
 			const losesAnswer = state.logs.length === lostStartAt;
@@ -161,7 +163,8 @@ test('every answer is written with placeholders, and the timer is left stopped w
 			employeeId: '<employee-1>',
 			projectId: null,
 			taskId: null,
-			organizationTeamId: null
+			organizationTeamId: null,
+			source: 'EMBED'
 		}
 	});
 	const tasks = JSON.parse(fs.readFileSync(path.join(files.outDir, 'tasks.list.json'), 'utf8'));
@@ -289,6 +292,31 @@ for (const lostStart of ['lost', 'unreadable']) {
 		assert.deepEqual(filesIn(files.outDir), []);
 	});
 }
+
+test("a run the person started in an app after a lost start is not the recording's: neither stopped nor deleted", async () => {
+	const api = benchApi({ lostStart: 'lost' });
+	const personLog = { id: '99999999-0000-4000-8000-000000000000', isRunning: true, employeeId: EMPLOYEE };
+	const errors = [];
+	// Before the recording reads the status again, the person starts the timer in the web app.
+	const fetch = async (url, init) => {
+		try {
+			return await api.fetch(url, init);
+		} catch (error) {
+			api.state.logs.push({ ...personLog, source: 'BROWSER' });
+			throw error;
+		}
+	};
+
+	await assert.rejects(
+		recordWith(api, workDir(), { fetch, logError: (message) => errors.push(message) }),
+		/timer\.start failed/
+	);
+
+	assert.equal(api.state.running, true);
+	assert.equal(api.routesSent().includes('POST /timesheet/timer/stop'), false);
+	assert.deepEqual(deletesOf(api), []);
+	assert.ok(errors.some((message) => message.includes(personLog.id) && message.includes('left running')));
+});
 
 test('a lost answer of the start on a task still has both runs deleted', async () => {
 	const api = benchApi({ lostStart: 'lost', lostStartAt: 2 });

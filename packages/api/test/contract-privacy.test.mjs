@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { CONTRACT_ANSWERS } from '../scripts/contract/answers.mjs';
+import { CONTRACT_ANSWERS, contractAnswer } from '../scripts/contract/answers.mjs';
 import { KEPT_KEYS } from '../scripts/contract/redact.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -78,17 +78,47 @@ for (const fixture of fixtures) {
 	});
 }
 
+// The segments of a route that came from the data: those the contract's route names with a parameter
+// (/tasks/employee/:employeeId), never its fixed words (/user/me).
+function routeDataOf(fixture) {
+	const template = contractAnswer(fixture.name).route.split('/');
+	return fixture.route.split('/').filter((segment, index) => template[index]?.startsWith(':'));
+}
+
+// The real values of `forbidden` still found in the fixtures. A placeholder holds no real value, nor does a fixed word
+// of a route: a person whose first name is "user" is found neither in "<user-1>" nor in "GET /user/me". Shorter
+// values (a two-letter code) would be found inside unrelated text.
+function leakedOf(forbidden, fixtureList) {
+	const texts = fixtureList.flatMap((fixture) => {
+		const answerTexts = textsOf(fixture.answer).map(({ value }) => value);
+		return [...routeDataOf(fixture), ...answerTexts].filter((text) => !isPlaceholder(text));
+	});
+	const findable = forbidden.filter((value) => value.length >= 4);
+	return findable.filter((value) => texts.some((text) => text.includes(value)));
+}
+
+test('the leak check finds a real value left in a text or a route, never one inside a placeholder or a fixed word', () => {
+	const fixtureList = [
+		{
+			name: 'tasks.list',
+			route: 'GET /tasks/employee/<employee-1>',
+			answer: [{ id: '<task-1>', createdByUserId: '<user-2>', title: '<title-1>' }]
+		},
+		{ name: 'projects.list', route: 'GET /organization-projects/employee/lina-okafor', answer: [] },
+		{ name: 'user.me', route: 'GET /user/me', answer: { lastName: 'Okafor', note: 'ask Lina first' } }
+	];
+	const forbidden = ['user', 'employee', 'task', 'Okafor', 'Lina', 'lina-okafor', 'Sam Lee'];
+
+	assert.deepEqual(leakedOf(forbidden, fixtureList), ['Okafor', 'Lina', 'lina-okafor']);
+});
+
 // Listed only after a recording on this machine, in the file the recorder printed: elsewhere the test is skipped.
 const forbiddenFile = process.env.EVER_TEAMS_CONTRACT_FORBIDDEN;
 const recordedHere = Boolean(forbiddenFile);
 
 test('none of the real values the last recording replaced is in a fixture', { skip: !recordedHere }, () => {
-	// Shorter values (a two-letter code) would be found inside unrelated text.
-	const forbidden = JSON.parse(fs.readFileSync(forbiddenFile, 'utf8')).filter((value) => value.length >= 4);
-	const texts = fixtures.flatMap((fixture) => [fixture.route, ...textsOf(fixture.answer).map(({ value }) => value)]);
-
-	const leaked = forbidden.filter((value) => texts.some((text) => text.includes(value)));
+	const forbidden = JSON.parse(fs.readFileSync(forbiddenFile, 'utf8'));
 
 	assert.ok(forbidden.length > 0);
-	assert.deepEqual(leaked, []);
+	assert.deepEqual(leakedOf(forbidden, fixtures), []);
 });
