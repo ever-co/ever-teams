@@ -49,10 +49,14 @@ export const createdEmbedCredentialSchema = embedCredentialSchema.extend({
 	secret: z.string().min(1)
 });
 
-/** What a new credential is made from: its name, and the client it is limited to (`null`: the whole workspace). */
+/**
+ * What a new credential is made from: its name, the client it is limited to (`null`: the whole workspace), and
+ * whether it adds the people it signs in as members (off when absent).
+ */
 export interface EmbedCredentialInput {
 	name: string;
 	organizationContactId: string | null;
+	canAddMembers?: boolean;
 }
 
 /**

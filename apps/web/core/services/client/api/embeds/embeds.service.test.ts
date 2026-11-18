@@ -1,8 +1,9 @@
 // cspell:ignore Fabrikam
 /**
  * `embedsService` as the requests leave the client, in direct mode (the Gauzy API) and in proxy mode (this app's /api
- * routes, which hand the body on as it is): a credential for the whole workspace is asked for exactly as before
- * credentials could be limited to a client, and one for a client names it.
+ * routes, which hand the body on as it is): a credential for the whole workspace that adds no members is asked for
+ * exactly as before credentials could be limited to a client, one for a client names it, and one that adds members
+ * says so.
  */
 import { InternalAxiosRequestConfig } from 'axios';
 
@@ -20,12 +21,12 @@ jest.mock('@/core/services/logs/logger-adapter.service', () => ({
 	HttpLoggerAdapter: jest.fn().mockImplementation(() => ({ logError: jest.fn() }))
 }));
 // Proxy mode: the requests go through the fallback client this app's /api routes answer.
-const mockFallback = { get: jest.fn(), post: jest.fn() };
+const mockFallback = { get: jest.fn(), post: jest.fn(), delete: jest.fn() };
 jest.mock('@/core/services/client/axios', () => ({
 	getAPI: async () => ({ axiosInstance: mockFallback })
 }));
 
-import { EmbedClientNotLimitedError, embedsService } from './embeds.service';
+import { EmbedClientNotLimitedError, EmbedMembersNotAddedError, embedsService } from './embeds.service';
 
 const CREDENTIAL = {
 	id: 'credential-1',
@@ -41,6 +42,10 @@ const CREATED = { ...CREDENTIAL, secret: 'gze_abcdefgh.secret' };
 const WHOLE_WORKSPACE_BODY = '{"name":"Fabrikam client portal","organizationId":"organization-1"}';
 const CLIENT_BODY =
 	'{"name":"Fabrikam client portal","organizationId":"organization-1","organizationContactId":"contact-fabrikam"}';
+const MEMBERS_BODY = '{"name":"Fabrikam client portal","organizationId":"organization-1","canAddMembers":true}';
+const CLIENT_AND_MEMBERS_BODY =
+	'{"name":"Fabrikam client portal","organizationId":"organization-1","organizationContactId":"contact-fabrikam","canAddMembers":true}';
+const ADDING_MEMBERS = { ...CREATED, organizationContactId: null, canAddMembers: true };
 
 /** The client's base URL, which decides the mode (none: proxy mode). */
 function setBaseUrl(baseURL: string | undefined): void {
@@ -164,6 +169,74 @@ describe('embedsService', () => {
 				null
 			]);
 		});
+
+		it('reads whether the API lets a credential add members', async () => {
+			directRequests({ enabled: true, clientLimits: true, addMembers: true });
+
+			await expect(embedsService.readConfig()).resolves.toEqual({
+				enabled: true,
+				clientLimits: true,
+				addMembers: true
+			});
+		});
+
+		it('asks for a credential that adds no members exactly as before', async () => {
+			const sent = directRequests({ ...CREATED, organizationContactId: null });
+
+			await embedsService.createCredential('organization-1', {
+				name: 'Fabrikam client portal',
+				organizationContactId: null,
+				canAddMembers: false
+			});
+
+			expect(sent[0].data).toBe(WHOLE_WORKSPACE_BODY);
+		});
+
+		it('asks for a credential that adds members, and reads it back', async () => {
+			const sent = directRequests(ADDING_MEMBERS);
+
+			const created = await embedsService.createCredential('organization-1', {
+				name: 'Fabrikam client portal',
+				organizationContactId: null,
+				canAddMembers: true
+			});
+
+			expect(sent).toHaveLength(1);
+			expect(sent[0].data).toBe(MEMBERS_BODY);
+			expect(created.canAddMembers).toBe(true);
+		});
+
+		it('names the client beside the members option when both are asked for', async () => {
+			const sent = directRequests({ ...CREATED, canAddMembers: true });
+
+			await embedsService.createCredential('organization-1', {
+				name: 'Fabrikam client portal',
+				organizationContactId: 'contact-fabrikam',
+				canAddMembers: true
+			});
+
+			expect(sent[0].data).toBe(CLIENT_AND_MEMBERS_BODY);
+		});
+
+		it('revokes at once a credential the API made without letting it add members, and gives no secret', async () => {
+			// An API that drops the field it does not know answers a credential that adds nobody
+			const withoutMembers: Record<string, unknown> = { ...ADDING_MEMBERS };
+			delete withoutMembers.canAddMembers;
+			const sent = directRequests(withoutMembers);
+
+			const creating = embedsService.createCredential('organization-1', {
+				name: 'Fabrikam client portal',
+				organizationContactId: null,
+				canAddMembers: true
+			});
+
+			await expect(creating).rejects.toBeInstanceOf(EmbedMembersNotAddedError);
+			await expect(creating).rejects.not.toHaveProperty('message', expect.stringContaining(CREATED.secret));
+			expect(sent.map((config) => [config.method, config.url])).toEqual([
+				['post', '/embed-credentials'],
+				['delete', '/embed-credentials/credential-1']
+			]);
+		});
 	});
 
 	describe('proxy mode', () => {
@@ -197,6 +270,36 @@ describe('embedsService', () => {
 				CLIENT_BODY
 			]);
 			expect(mockFallback.post.mock.calls.map(([, , config]) => config.secretResponse)).toEqual([true, true]);
+		});
+
+		it('sends the members option to this app’s /api route, and revokes there a credential made without it', async () => {
+			mockFallback.get.mockResolvedValue({
+				data: { enabled: true, clientLimits: true, addMembers: true },
+				status: 200
+			});
+			mockFallback.post.mockResolvedValueOnce({ data: ADDING_MEMBERS, status: 201 });
+			mockFallback.post.mockResolvedValueOnce({ data: { ...ADDING_MEMBERS, canAddMembers: false }, status: 201 });
+			mockFallback.delete.mockResolvedValue({ data: undefined, status: 200 });
+			const input = { name: 'Fabrikam client portal', organizationContactId: null, canAddMembers: true };
+
+			await expect(embedsService.readConfig()).resolves.toEqual({
+				enabled: true,
+				clientLimits: true,
+				addMembers: true
+			});
+			await expect(embedsService.createCredential('organization-1', input)).resolves.toHaveProperty(
+				'canAddMembers',
+				true
+			);
+			await expect(embedsService.createCredential('organization-1', input)).rejects.toBeInstanceOf(
+				EmbedMembersNotAddedError
+			);
+
+			expect(mockFallback.post.mock.calls.map(([, body]) => JSON.stringify(body))).toEqual([
+				MEMBERS_BODY,
+				MEMBERS_BODY
+			]);
+			expect(mockFallback.delete.mock.calls.map(([url]) => url)).toEqual(['/embed-credentials/credential-1']);
 		});
 	});
 });

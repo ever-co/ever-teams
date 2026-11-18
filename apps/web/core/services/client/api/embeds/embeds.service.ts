@@ -30,6 +30,25 @@ export class EmbedClientNotLimitedError extends Error {
 }
 
 /**
+ * The API made the credential without letting it add members, while it was asked to (an API that drops the field,
+ * behind a config read that said it could): the credential was revoked at once and its secret is never shown.
+ */
+export class EmbedMembersNotAddedError extends Error {
+	constructor() {
+		super('The API did not let the embed credential add members as it was asked; the credential was revoked.');
+		this.name = 'EmbedMembersNotAddedError';
+	}
+}
+
+/** The body of `POST /embed-credentials`: each option only when it is asked for. */
+type CredentialBody = {
+	name: string;
+	organizationId: string;
+	organizationContactId?: string;
+	canAddMembers?: true;
+};
+
+/**
  * Client of the platform's embeds (`/embed-credentials`, `/embed-allowed-origins`) for Settings → Embeds: the sites an
  * organization allows to embed its timer and the credentials its hosts' backends exchange for timer-only tokens. Both
  * transports (this app's proxies, or the platform directly). Every read names the organization; the writes carry it
@@ -72,13 +91,16 @@ class EmbedsService extends APIService {
 	};
 
 	/**
-	 * A credential for the whole workspace is asked for exactly as before clients could be named: an older API, which
-	 * does not know the field, gets nothing it would drop.
+	 * A credential for the whole workspace, which adds no members, is asked for exactly as before clients could be
+	 * named: an older API, which does not know those fields, gets nothing it would drop.
 	 */
-	private credentialBody(organizationId: string, input: EmbedCredentialInput): Record<string, string> {
-		const body: Record<string, string> = { name: input.name.trim(), organizationId };
+	private credentialBody(organizationId: string, input: EmbedCredentialInput): CredentialBody {
+		const body: CredentialBody = { name: input.name.trim(), organizationId };
 		if (input.organizationContactId) {
 			body.organizationContactId = input.organizationContactId;
+		}
+		if (input.canAddMembers) {
+			body.canAddMembers = true;
 		}
 		return body;
 	}
@@ -87,7 +109,8 @@ class EmbedsService extends APIService {
 	 * Creates a credential: the answer holds its secret, which no later read gives again, and stays out of the log. A
 	 * credential asked for one client that comes back without that client reaches the whole workspace: it is revoked
 	 * at once and the call fails with {@link EmbedClientNotLimitedError}, so a wider credential than asked never
-	 * reaches a host.
+	 * reaches a host. One asked to add members that comes back without it is revoked the same way and the call fails
+	 * with {@link EmbedMembersNotAddedError}: its host would count on members it cannot add.
 	 */
 	createCredential = async (organizationId: string, input: EmbedCredentialInput): Promise<CreatedEmbedCredential> => {
 		const body = this.credentialBody(organizationId, input);
@@ -102,6 +125,11 @@ class EmbedsService extends APIService {
 			// Best effort: the secret is dropped here, so nobody holds it even if the revocation fails
 			await this.revokeCredential(created.id).catch(() => undefined);
 			throw new EmbedClientNotLimitedError();
+		}
+		const isAddingMembersDropped = body.canAddMembers === true && created.canAddMembers !== true;
+		if (isAddingMembersDropped) {
+			await this.revokeCredential(created.id).catch(() => undefined);
+			throw new EmbedMembersNotAddedError();
 		}
 		return created;
 	};
