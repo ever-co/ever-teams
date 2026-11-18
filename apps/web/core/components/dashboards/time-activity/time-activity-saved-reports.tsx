@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { AlertDialogConfirmation } from '@/core/components/common/alert-dialog-confirmation';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/core/components/common/dialog';
+import { DropdownMenuItem } from '@/core/components/common/dropdown-menu';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { Bookmark, Share } from '@/core/components/icons';
@@ -80,7 +81,16 @@ function openReportIn(setLinkParams: TimeActivityReport['settings']['setLinkPara
  * reports keep labels, could not be asked (with a retry), or keeps none. Where they are kept, labels block nothing and
  * there is nothing to say.
  */
-function LabelsNote({ support, onRetry }: Readonly<{ support: SavedReportLabelsSupport; onRetry: () => void }>) {
+function LabelsNote({
+	support,
+	onRetry,
+	isInMenu = false
+}: Readonly<{
+	support: SavedReportLabelsSupport;
+	onRetry: () => void;
+	/** In the Saved reports menu, Try again is one of its items, so the keyboard reaches it as it reaches the others. */
+	isInMenu?: boolean;
+}>) {
 	const t = useTranslations();
 	if (support === 'kept') {
 		return null;
@@ -89,12 +99,17 @@ function LabelsNote({ support, onRetry }: Readonly<{ support: SavedReportLabelsS
 		return <p className="text-xs text-muted-foreground">{t('dashboard.savedReports.LABELS_CHECKING')}</p>;
 	}
 	if (support === 'failed') {
+		const retry = isInMenu ? (
+			<DropdownMenuItem onClick={onRetry}>{t('dashboard.savedReports.TRY_AGAIN')}</DropdownMenuItem>
+		) : (
+			<Button type="button" variant="outline" size="sm" onClick={onRetry}>
+				{t('dashboard.savedReports.TRY_AGAIN')}
+			</Button>
+		);
 		return (
 			<div className="flex flex-col items-start gap-1">
 				<p className="text-xs text-muted-foreground">{t('dashboard.savedReports.LABELS_CHECK_FAILED')}</p>
-				<Button type="button" variant="outline" size="sm" onClick={onRetry}>
-					{t('dashboard.savedReports.TRY_AGAIN')}
-				</Button>
+				{retry}
 			</div>
 		);
 	}
@@ -254,6 +269,7 @@ export function TimeActivitySavedReports({ report }: Readonly<{ report: TimeActi
 	const labelsSupport = useSavedReportLabelsSupport(usesEntryLabels && isAnswered);
 	const { keepsEntryLabels } = labelsSupport;
 	const labelsNote = <LabelsNote support={labelsSupport.support} onRetry={labelsSupport.retry} />;
+	const menuLabelsNote = <LabelsNote support={labelsSupport.support} onRetry={labelsSupport.retry} isInMenu />;
 	// A link that asks for labels shows them only once entries are known to have labels: until then, or when that could
 	// not be read, the view shown is a stand-in without them, never saved nor written over a report
 	const isLabelsAnswerPending = labelsSupport.support === 'checking' || labelsSupport.support === 'failed';
@@ -424,7 +440,7 @@ export function TimeActivitySavedReports({ report }: Readonly<{ report: TimeActi
 				availability={saved.availability}
 				showsSavedView={isActiveViewSaved}
 				canUpdate={canUpdate}
-				cannotUpdateNote={labelsNote}
+				cannotUpdateNote={menuLabelsNote}
 				isUpdating={saved.update.isPending}
 				onOpen={openReport}
 				onUpdate={(target) => void updateReport(target)}

@@ -85,7 +85,7 @@ jest.mock('@/core/components/common/dropdown-menu', () => {
 			onClick?: () => void;
 			disabled?: boolean;
 		}) => (
-			<button type="button" disabled={disabled} onClick={onClick}>
+			<button type="button" data-menu-item="true" disabled={disabled} onClick={onClick}>
 				{children}
 			</button>
 		)
@@ -625,6 +625,18 @@ describe('TimeActivitySavedReports on a Gauzy that keeps the labels of entries (
 
 		expect(screen.queryAllByLabelText('dashboard.savedReports.NAME')).toHaveLength(0);
 		expect(screen.getAllByText(note)).toHaveLength(2);
+	});
+
+	it('offers Try again as an item of the Saved reports menu when Update waits for a check that failed', () => {
+		mockLabelsSupport = 'failed';
+		mockSearchParams = new URLSearchParams('report=r2');
+		render(<TimeActivitySavedReports report={labelViewProps(NO_FILTERS, 'date')} />);
+
+		const retries = screen.getAllByText('dashboard.savedReports.TRY_AGAIN');
+		const menuRetry = retries.find((retry) => retry.closest('button')?.getAttribute('data-menu-item') === 'true');
+		expect(menuRetry).toBeTruthy();
+		fireEvent.click(menuRetry as HTMLElement);
+		expect(mockLabelsSupportRetry).toHaveBeenCalledTimes(1);
 	});
 
 	it('says Gauzy could not be asked, and asks again on Try again', () => {
