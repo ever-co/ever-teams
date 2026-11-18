@@ -127,6 +127,10 @@ interface SignatureParts {
 	macs: string[];
 }
 
+// The API signs with the subscription's secret, and with the previous one too while a rotation lasts: two v1 values
+// at most. A header with more is refused before any HMAC is computed, so one request cannot ask for hundreds of them.
+const MAX_SIGNATURES = 2;
+
 // Read as the API reads its own header (Gauzy, webhook-signature.ts, verifyWebhookSignature): the first t=, and every
 // v1=, one per secret while a rotation lasts.
 function partsOf(header: string): SignatureParts {
@@ -140,6 +144,13 @@ function partsOf(header: string): SignatureParts {
 			'WEBHOOK_SIGNATURE',
 			'The X-Signature header is not t=<unix seconds>,v1=<hex HMAC-SHA256>.',
 			SIGNATURE_HEADER_STEP
+		);
+	}
+	if (macs.length > MAX_SIGNATURES) {
+		throw clientError(
+			'WEBHOOK_SIGNATURE',
+			`The X-Signature header has more than ${MAX_SIGNATURES} v1 values, more than the API sends.`,
+			MISMATCH_STEP
 		);
 	}
 	return { timestamp: Number(timestamp), macs };

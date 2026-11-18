@@ -60,9 +60,12 @@ function throwLater(error: unknown): void {
 	}, 0);
 }
 
-// An answer with no status in it (null, an empty body) is a failed read, as an answer of GET /user/me with no user is.
+// An answer with no status in it (null, an empty body, an object without a boolean running) is a failed read, as an
+// answer of GET /user/me with no user is: it is not taken for a stopped timer, and the last change told stays the
+// baseline.
 function statusOf(answer: unknown): ITimerStatus {
-	if (!isRecord(answer)) {
+	const hasStatus = isRecord(answer) && typeof answer['running'] === 'boolean';
+	if (!hasStatus) {
 		throw clientError(
 			'UNEXPECTED_ANSWER',
 			'GET /timesheet/timer/status answered no status.',

@@ -675,8 +675,9 @@ app.post('/ever-teams/webhook', express.raw({ type: 'application/json' }), async
 handler that takes a `Request`, pass `body: await request.text()` and `signature: request.headers.get('x-signature')`.
 
 - The signature is `X-Signature: t=<unix seconds>,v1=<hex HMAC-SHA256>`, over `<t>.<raw body>` with the secret.
-  During a rotation of the secret the header carries a second `v1`, and either secret verifies. The comparison runs in
-  constant time, with the Web Crypto API, so `verifyWebhook` also runs in a worker or an edge route.
+  During a rotation of the secret the header carries a second `v1`, and either secret verifies; a header with more than
+  two is refused before any check. The comparison runs in constant time, with the Web Crypto API, so `verifyWebhook`
+  also runs in a worker or an edge route.
 - A delivery signed more than `tolerance` seconds before or after your server's clock is refused (300 by default, as
   the API's own check): a captured request cannot be sent again later.
 - The API sends each event at least once and tries again after a failed delivery: answer 2xx quickly, and handle each
@@ -689,12 +690,12 @@ handler that takes a `Request`, pass `body: await request.text()` and `signature
 
 A refusal is an `EverTeamsError` with status 0, a `code` and a `nextStep`; no error holds the secret:
 
-| `code`              | When                                                                                      |
-| ------------------- | ----------------------------------------------------------------------------------------- |
-| `WEBHOOK_SIGNATURE` | No `X-Signature`, a header that is not `t=...,v1=...`, or a signature that does not match |
-| `WEBHOOK_EXPIRED`   | A genuine signature made more than `tolerance` seconds from now: check the server's clock |
-| `WEBHOOK_BODY`      | A body already parsed as JSON (pass the raw body), or a signed body that is not an event  |
-| `CLIENT_OPTIONS`    | No `secret`, or a `tolerance` or `now` that is not a number                               |
+| `code`              | When                                                                                                                |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `WEBHOOK_SIGNATURE` | No `X-Signature`, a header that is not `t=...,v1=...` or has more than two `v1`, or a signature that does not match |
+| `WEBHOOK_EXPIRED`   | A genuine signature made more than `tolerance` seconds from now: check the server's clock                           |
+| `WEBHOOK_BODY`      | A body already parsed as JSON (pass the raw body), or a signed body that is not an event                            |
+| `CLIENT_OPTIONS`    | No `secret`, or a `tolerance` or `now` that is not a number                                                         |
 
 ## The request functions
 

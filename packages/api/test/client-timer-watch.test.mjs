@@ -548,3 +548,29 @@ test('the network coming back or the page becoming visible during a read brings 
 		]
 	);
 });
+
+test('an answer without a boolean running after a running read is a failed read: no stop, then no restart', async () => {
+	mock.timers.enable({ apis: ['setInterval'] });
+	const timer = timerElsewhere(RUNNING);
+	const errors = [];
+	const { changes, listener } = recorder();
+	watch(timer, listener, { onError: (error) => errors.push(error) });
+	await settle();
+
+	timer.status = {};
+	mock.timers.tick(60_000);
+	await settle();
+	timer.status = RUNNING;
+	mock.timers.tick(60_000);
+	await settle();
+
+	assert.equal(timer.reads(), 3);
+	assert.deepEqual(
+		errors.map((error) => error.code),
+		['UNEXPECTED_ANSWER']
+	);
+	assert.deepEqual(
+		changes.map(({ running, initial }) => ({ running, initial })),
+		[{ running: true, initial: true }]
+	);
+});

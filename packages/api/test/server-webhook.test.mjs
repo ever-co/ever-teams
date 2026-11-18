@@ -89,6 +89,17 @@ test('during a rotation the header carries two v1 values, and either secret veri
 	assert.equal((await verify({ signature, secret: PREVIOUS_SECRET })).name, 'time_log.started');
 });
 
+test('a header with more v1 values than the API sends is WEBHOOK_SIGNATURE, before any HMAC is computed', async (t) => {
+	const genuine = signatureOf(STARTED).split('v1=')[1];
+	const signature = `t=${SIGNED_AT},v1=${'a'.repeat(64)},v1=${'b'.repeat(64)},v1=${genuine}`;
+	const hmacs = t.mock.method(globalThis.crypto.subtle, 'verify');
+
+	const error = await refusalOf({ signature });
+
+	assert.equal(error.code, 'WEBHOOK_SIGNATURE');
+	assert.equal(hmacs.mock.callCount(), 0);
+});
+
 test('the header is read as the API reads it: spaces around its parts, and upper-case hex', async () => {
 	const signature = signatureOf(STARTED);
 	const spaced = signature.replace(',', ' , ');
