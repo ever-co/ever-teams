@@ -128,6 +128,26 @@ export async function readEmployeeId(session: Session): Promise<string | null> {
 	return answerOf(answer).employee?.id ?? null;
 }
 
+/** The task a log names, as the screens show it: its number (HAR-3) and its title. */
+export interface TimerTask {
+	taskNumber?: string | null;
+	title: string;
+}
+
+/** Reads the task a log names. */
+export async function readTask(session: Session, taskId: string): Promise<TimerTask> {
+	const { tenantId, organizationId } = workspaceOf(session);
+	const query = new URLSearchParams({ tenantId, organizationId });
+	const answer = await serverFetch<TimerTask>({
+		path: `/tasks/${encodeURIComponent(taskId)}?${query.toString()}`,
+		method: 'GET',
+		bearer_token: session.accessToken,
+		tenantId
+	});
+	const task = answerOf(answer);
+	return { taskNumber: task.taskNumber ?? null, title: task.title };
+}
+
 /** What a start needs besides the session: the task and team of the log it continues. */
 export interface StartTarget {
 	taskId: string;

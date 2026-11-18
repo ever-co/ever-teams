@@ -4,6 +4,7 @@ import {
 	ApiError,
 	dayBounds,
 	readEmployeeId,
+	readTask,
 	readTimerStatus,
 	readTrackedTotals,
 	startTimer,
@@ -106,6 +107,18 @@ describe('the employee', () => {
 		answers(200, { id: 'user', employee: null });
 
 		await expect(readEmployeeId(session)).resolves.toBeNull();
+	});
+});
+
+describe('the task of the last log', () => {
+	it('is read with its number and title', async () => {
+		answers(200, { id: 'task-har-3', taskNumber: 'HAR-3', title: 'Repaint maintenance hatch', members: [] });
+
+		await expect(readTask(session, 'task-har-3')).resolves.toEqual({
+			taskNumber: 'HAR-3',
+			title: 'Repaint maintenance hatch'
+		});
+		expect(requestSent().path.startsWith('/tasks/task-har-3?')).toBe(true);
 	});
 });
 
