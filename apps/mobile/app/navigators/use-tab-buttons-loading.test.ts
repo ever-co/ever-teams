@@ -1,8 +1,18 @@
+import React from 'react';
 import { act, renderHook } from '@testing-library/react-native';
-import { useTabButtonsLoading } from './use-tab-buttons-loading';
+import type * as TabButtons from './use-tab-buttons-loading';
+
+/** A new start of the app, with its own wait: the module of the hook loads again, with the same React. */
+function startTheApp(): typeof TabButtons.useTabButtonsLoading {
+	jest.resetModules();
+	jest.doMock('react', () => React);
+	const tabButtons: typeof TabButtons = jest.requireActual('./use-tab-buttons-loading');
+	return tabButtons.useTabButtonsLoading;
+}
 
 describe('the tab buttons', () => {
 	it('wait for the first screens once, and not when the navigator mounts again for a new language', async () => {
+		const useTabButtonsLoading = startTheApp();
 		const first = await renderHook(() => useTabButtonsLoading());
 		expect(first.result.current).toBe(true);
 
@@ -14,5 +24,25 @@ describe('the tab buttons', () => {
 
 		const again = await renderHook(() => useTabButtonsLoading());
 		expect(again.result.current).toBe(false);
+	});
+
+	it('keep the first deadline when the navigator leaves before it and comes back', async () => {
+		const useTabButtonsLoading = startTheApp();
+		const first = await renderHook(() => useTabButtonsLoading());
+		await act(async () => {
+			jest.advanceTimersByTime(1000);
+		});
+		await first.unmount();
+
+		const early = await renderHook(() => useTabButtonsLoading());
+		expect(early.result.current).toBe(true);
+		await act(async () => {
+			jest.advanceTimersByTime(2000);
+		});
+		expect(early.result.current).toBe(false);
+		await early.unmount();
+
+		const late = await renderHook(() => useTabButtonsLoading());
+		expect(late.result.current).toBe(false);
 	});
 });
