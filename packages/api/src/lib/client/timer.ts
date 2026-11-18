@@ -1,6 +1,7 @@
 import { ITimerStatus, ITimeSlot, LogType, TimerSource } from '@ever-teams/toolkit-types';
 import { EverTeamsValidationError } from './errors';
 import { Identity } from './identity';
+import { TimerListener, TimerWatchOptions, watchTimer } from './timer-watch';
 import { Transport } from './transport';
 
 export interface TimerStartOptions {
@@ -17,6 +18,18 @@ export interface TimerResource {
 	start(options?: TimerStartOptions): Promise<ITimeSlot>;
 	/** POST /timesheet/timer/stop: stops the running timer and answers its time log. */
 	stop(): Promise<ITimeSlot | null>;
+	/**
+	 * Tells `listener` the timer as a first read of its status shows it (`initial: true`), then each start, stop or
+	 * other running entry a later read shows, once: also those made elsewhere (the web app, the desktop app). It reads
+	 * every `every` ms and once more when the page becomes visible or the network comes back; in a page, only while it
+	 * is visible. Answers the function that stops it.
+	 *
+	 * @example
+	 * const stop = teams.timer.watch((change) => {
+	 * 	console.log(change.running, change.startedAt, change.projectId);
+	 * });
+	 */
+	watch(listener: TimerListener, options?: TimerWatchOptions): () => void;
 }
 
 // An API that predates the EMBED source answers 400 with a message naming `source` ("resource" is not it).
@@ -94,5 +107,9 @@ export function createTimer(transport: Transport, identity: Identity): TimerReso
 		);
 	}
 
-	return { status, start, stop };
+	function watch(listener: TimerListener, options?: TimerWatchOptions): () => void {
+		return watchTimer(status, listener, options);
+	}
+
+	return { status, start, stop, watch };
 }

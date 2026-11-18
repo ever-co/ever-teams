@@ -106,6 +106,7 @@ export default function App() {
 | `loadGoogleFonts`       | `false`                     | Lets the font toggle (`TeamsFontToggle`) load the font a person picks from Google Fonts. Off: no request to a third party, and the widgets keep the default font until a person picks one.                                                                   |
 | `onSignOut`             | none                        | Called after a person signs out from the kit's user menu. Without it, the page stays where it is with `scopedStyles`; without `scopedStyles`, the kit sends the browser to `/`.                                                                              |
 | `branding`              | `true`                      | Shows "Powered by Ever Teams" under the forms, reports and team widgets. `false` hides it everywhere.                                                                                                                                                        |
+| `onTimerChange`         | none                        | Called with the person's timer at the first read of its status, then at each start or stop a later read shows, wherever it was made: see [Know when the timer starts or stops](#know-when-the-timer-starts-or-stops).                                        |
 
 The widgets draw in the Ever Teams web app's font, the system UI face (nothing is downloaded), inside the kit root only: your page keeps its own. To give the widgets your page's font, set `--ever-teams-kit-font` on any parent of the widgets, or on `:root` so that their dialogs follow: `:root { --ever-teams-kit-font: Georgia, serif; }`.
 
@@ -215,6 +216,55 @@ What the kit does with it:
 - When a person signs in to or out of your product without a page load, mount a new `TeamsProvider` (the `key` in the
   example) or unmount it. Unmounting is what clears the token and the profile the kit holds in memory: the token's
   expiry only limits how long the API accepts it.
+
+## Know when the timer starts or stops
+
+`onTimerChange` tells your page what the person's timer does, so that it can show its own state next to the widgets:
+"Lina is working on Fabrikam" while it runs, nothing once it stops.
+
+```tsx
+import { TeamsBasicTimer, TeamsProvider, type TimerChange } from '@ever-teams/atoms';
+import { useState } from 'react';
+
+export function TimerWithStatus() {
+	const [timer, setTimer] = useState<TimerChange | null>(null);
+
+	return (
+		<TeamsProvider config={{ apiUrl: 'https://api.ever.team/api' }} onTimerChange={setTimer}>
+			<TeamsBasicTimer />
+			{timer?.running && <p>Working since {timer.startedAt}</p>}
+		</TeamsProvider>
+	);
+}
+```
+
+The callback receives a `TimerChange`:
+
+| Field       | What it holds                                                                                |
+| ----------- | -------------------------------------------------------------------------------------------- |
+| `running`   | Whether the timer runs. A running break reads as `false`, as the API answers it.             |
+| `startedAt` | When the running entry started (an ISO date), `null` while the timer is stopped.             |
+| `projectId` | The running entry's project, `null` while stopped or on no project.                          |
+| `taskId`    | The running entry's task, `null` while stopped or on no task.                                |
+| `initial`   | `true` for the first read, which tells the timer as it is; `false` for each change after it. |
+
+- The first read is always told, running or not, with `initial: true`: your page can draw its state from it. After
+  that, the callback runs once for each start, stop or switch to another running entry (another start, project or
+  task) that a read shows, never twice for one change.
+- It hears the reads the kit already makes while one of its timers (`TeamsBasicTimer` or another) is on the page: on
+  load, every minute while the page is visible, when the page becomes visible again, when the window gets the focus
+  back and when the network comes back. It adds no request. A start or a stop made in the kit's own widgets is told
+  after the read that follows it; one made elsewhere (the web app, the desktop app, the browser extension) when a read
+  that succeeds shows it. Those times are when the kit reads, not a deadline for the callback: a read can fail or come
+  late. A start and a stop that both fall between two reads leave the timer as the last read saw it, so neither is
+  told.
+- Another person or organization starts afresh: its first read is told with `initial: true`. A read that fails tells
+  nothing.
+- An error your callback throws reaches the page as an uncaught error; the kit goes on reading.
+
+A browser cannot hear a change sooner without a push channel the API does not open to other sites. When your page
+needs it at once, have your server receive the API's webhooks (`verifyWebhook` of `@ever-teams/api/server`) and pass
+them on to your page.
 
 ## A client's spent time
 

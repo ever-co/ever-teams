@@ -14,6 +14,7 @@ export type { ProjectsResource } from './projects';
 export type { TasksListParams, TasksResource } from './tasks';
 export type { TimeEntriesListParams, TimeEntriesResource } from './time-entries';
 export type { TimerResource, TimerStartOptions } from './timer';
+export type { TimerListener, TimerWatchOptions } from './timer-watch';
 export type { EverTeamsTotal, TotalsResource } from './totals';
 
 export interface EverTeamsClient {
