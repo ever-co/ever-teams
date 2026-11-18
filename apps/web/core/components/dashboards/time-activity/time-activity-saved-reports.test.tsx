@@ -639,6 +639,24 @@ describe('TimeActivitySavedReports on a Gauzy that keeps the labels of entries (
 		expect(mockLabelsSupportRetry).toHaveBeenCalledTimes(1);
 	});
 
+	it('offers Save and Update as soon as Gauzy answers that it keeps labels', () => {
+		mockLabelsSupport = 'checking';
+		mockSearchParams = new URLSearchParams('report=r1');
+		const { rerender } = render(
+			<TimeActivitySavedReports report={labelViewProps(DESIGN_WITHOUT_LABEL, 'label')} />
+		);
+		expect(screen.queryAllByLabelText('dashboard.savedReports.NAME')).toHaveLength(0);
+		expect(screen.getAllByText('dashboard.savedReports.LABELS_CHECKING').length).toBeGreaterThan(0);
+
+		mockLabelsSupport = 'kept';
+		rerender(<TimeActivitySavedReports report={labelViewProps(DESIGN_WITHOUT_LABEL, 'label')} />);
+
+		expect(screen.queryByText('dashboard.savedReports.LABELS_CHECKING')).toBeNull();
+		expect(screen.getAllByLabelText('dashboard.savedReports.NAME').length).toBeGreaterThan(0);
+		const update = screen.getByText('dashboard.savedReports.UPDATE').closest('button') as HTMLButtonElement;
+		expect(update.disabled).toBe(false);
+	});
+
 	it('says Gauzy could not be asked, and asks again on Try again', () => {
 		mockLabelsSupport = 'failed';
 		mockSaved = { reports: [], availability: 'ready', linkTokens: {} };
