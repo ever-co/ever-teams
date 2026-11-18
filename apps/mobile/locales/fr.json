@@ -251,6 +251,10 @@
 		"apply": "Appliquer",
 		"reset": "Réinitialiser"
 	},
+	"noTeamScreen": {
+		"createYourTeam": "Créez votre équipe ou rejoignez-en une",
+		"hintMessage": "Lorem ipsum dolor sit amet consectetur. Blandit lobortis dui risus neque."
+	},
 	"settingScreen": {
 		"name": "Réglages",
 		"personalSection": {
@@ -326,6 +330,7 @@
 		},
 		"statusScreen": {
 			"mainTitle": "Task Statuses",
+			"statuses": "Statuts",
 			"listStatuses": "List of Statuses",
 			"noActiveStatuses": "There are no active statuses",
 			"createStatusButton": "Create new status",
@@ -339,6 +344,7 @@
 		},
 		"priorityScreen": {
 			"mainTitle": "Task Priorities",
+			"priorities": "Priorités",
 			"listPriorities": "List of Priorities",
 			"noActivePriorities": "There are no active priorities",
 			"createPriorityButton": "Create new priority",
@@ -353,6 +359,7 @@
 		"labelScreen": {
 			"mainTitle": "Task Labels",
 			"listLabels": "List of Labels",
+			"labels": "Étiquettes",
 			"noActiveLabels": "There are no active labels",
 			"createLabelButton": "Create new label",
 			"createNewLabelText": "Create New Labels",
@@ -365,6 +372,7 @@
 		},
 		"sizeScreen": {
 			"mainTitle": "Task Sizes",
+			"sizes": "Tailles",
 			"listSizes": "List of Sizes",
 			"noActiveSizes": "There are no active sizes",
 			"createSizeButton": "Create new size",
@@ -410,10 +418,6 @@
 		"changeLanguage": {
 			"mainTitle": "Changer la langue",
 			"selectLanguageTitle": "Choisir la langue"
-		},
-		"noTeamScreen": {
-			"createYourTeam": "Create your own team or join existed",
-			"hintMessage": "Lorem ipsum dolor sit amet consectetur. Blandit lobortis dui risus neque."
 		}
 	},
 	"hamburgerMenu": {

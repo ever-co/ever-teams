@@ -178,7 +178,8 @@
 		"inviteModalHint": "Send a invitation to a team member by email",
 		"inviteEmailFieldPlaceholder": "Input email address",
 		"inviteNameFieldPlaceholder": "Input team member name",
-		"sendButton": "Create"
+		"sendButton": "Create",
+		"createNewTeamButton": "Создать новую команду"
 	},
 	"taskDetailsScreen": {
 		"characterLimitErrorTitle": "We couldn't update Task Title.",
@@ -329,6 +330,7 @@
 		},
 		"statusScreen": {
 			"mainTitle": "Task Statuses",
+			"statuses": "Статусы",
 			"listStatuses": "List of Statuses",
 			"noActiveStatuses": "There are no active statuses",
 			"createStatusButton": "Create new status",
@@ -357,6 +359,7 @@
 		"labelScreen": {
 			"mainTitle": "Task Labels",
 			"listLabels": "List of Labels",
+			"labels": "Метки",
 			"noActiveLabels": "There are no active labels",
 			"createLabelButton": "Create new label",
 			"createNewLabelText": "Create New Labels",
@@ -369,6 +372,7 @@
 		},
 		"sizeScreen": {
 			"mainTitle": "Task Sizes",
+			"sizes": "Размеры",
 			"listSizes": "List of Sizes",
 			"noActiveSizes": "There are no active sizes",
 			"createSizeButton": "Create new size",
@@ -406,7 +410,18 @@
 			"phonePlaceholder": "Phone Number",
 			"emailNotValid": "Please provide a valid Email",
 			"phoneNotValid": "Please provide a valid Phone Number"
+		},
+		"changeTimezone": {
+			"mainTitle": "Изменить часовой пояс",
+			"selectTimezoneTitle": "Выберите часовой пояс"
+		},
+		"changeLanguage": {
+			"mainTitle": "Изменить язык",
+			"selectLanguageTitle": "Выберите язык"
 		}
+	},
+	"hamburgerMenu": {
+		"darkMode": "Тёмная тема"
 	},
 	"inviteModal": {
 		"accept": "Accept",
