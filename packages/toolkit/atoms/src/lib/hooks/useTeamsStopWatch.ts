@@ -1,5 +1,8 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useLayoutEffect, useState, useRef } from 'react';
 import { ITimerStatus } from '@ever-teams/toolkit-types';
+
+// While the widget commits, before its caller's own layout effects; a plain effect on the server.
+const useCommitEffect = typeof window === 'undefined' ? useEffect : useLayoutEffect;
 
 export type TimeValues = {
 	days: number;
@@ -28,11 +31,12 @@ function useTeamsStopWatch(timerStatus: ITimerStatus): UseTeamsStopWatchReturn {
 	const [isRunning, setIsRunning] = useState<boolean>(false);
 	const intervalRef = useRef<NodeJS.Timeout | null>(null);
 	// A start that answers once the widget is gone (the host removed it, or its provider started afresh) starts no
-	// clock that nothing would ever stop.
+	// clock that nothing would ever stop. Set while the widget commits, so a caller that starts the clock from its own
+	// layout effect at mount still starts it.
 	const mounted = useRef(false);
 
 	// An unmounted widget stops ticking.
-	useEffect(() => {
+	useCommitEffect(() => {
 		mounted.current = true;
 		return () => {
 			mounted.current = false;

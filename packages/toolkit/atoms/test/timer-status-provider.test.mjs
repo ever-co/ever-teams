@@ -118,6 +118,7 @@ let usePasswordLoginForm;
 let useManualTimeForm;
 let userAtom;
 let KitOptionsProvider;
+let useTeamsStopWatch;
 let bundleDir;
 
 before(async () => {
@@ -136,6 +137,7 @@ before(async () => {
 				"export { useManualTimeForm } from './hooks/useManualTimeForm';",
 				"export { userAtom } from './teams-jotai/atoms/teams-atoms';",
 				"export { KitOptionsProvider } from './components/teams-provider/kit-options';",
+				"export { useTeamsStopWatch } from './hooks/useTeamsStopWatch';",
 				"export { getDefaultStore, useAtomValue } from 'jotai';"
 			].join('\n'),
 			resolveDir: lib,
@@ -192,7 +194,8 @@ before(async () => {
 		usePasswordLoginForm,
 		useManualTimeForm,
 		userAtom,
-		KitOptionsProvider
+		KitOptionsProvider,
+		useTeamsStopWatch
 	} = await import(pathToFileURL(outfile).href));
 });
 
@@ -614,6 +617,30 @@ test('a start that answers once its timer widget is gone leaves no interval behi
 		await act(async () => globalThis.__actions[0]({ id: 'log' }));
 		await flush();
 
+		assert.equal(live.size, 0);
+	});
+});
+
+test("the stopwatch starts from its caller's own layout effect at mount", async () => {
+	await reset();
+	await withLiveIntervals(async (live) => {
+		const seen = {};
+		function Clock() {
+			const watch = useTeamsStopWatch({ duration: 0, lastLog: null, running: false });
+			seen.watch = watch;
+			React.useLayoutEffect(() => {
+				watch.start();
+			}, []);
+			return null;
+		}
+		const container = document.createElement('div');
+		document.body.appendChild(container);
+		const root = createRoot(container);
+		await act(async () => root.render(React.createElement(Clock)));
+
+		assert.equal(seen.watch.isRunning, true);
+		assert.equal(live.size, 1);
+		await act(async () => root.unmount());
 		assert.equal(live.size, 0);
 	});
 });
