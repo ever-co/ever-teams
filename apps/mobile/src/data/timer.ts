@@ -165,6 +165,33 @@ export async function readTask(session: Session, taskId: string): Promise<TimerT
 	return { taskNumber: task.taskNumber ?? null, title: task.title };
 }
 
+/** A heartbeat of the running timer: the seconds it went on since the previous one. */
+export interface TimeSlot {
+	employeeId: string;
+	source: TimerSource;
+	seconds: number;
+}
+
+/** Tells the API the running timer went on, as the web's sync does: Gauzy writes it as a time slot of the run. */
+export async function sendTimeSlot(session: Session, slot: TimeSlot): Promise<void> {
+	const { tenantId, organizationId } = workspaceOf(session);
+	const answer = await serverFetch<unknown>({
+		path: '/timesheet/time-slot',
+		method: 'POST',
+		body: {
+			tenantId,
+			organizationId,
+			logType: 'TRACKED',
+			source: slot.source,
+			employeeId: slot.employeeId,
+			duration: slot.seconds
+		},
+		bearer_token: session.accessToken,
+		tenantId
+	});
+	answerOf(answer);
+}
+
 /** What a start needs besides the session: the task and team of the log it continues. */
 export interface StartTarget {
 	taskId: string;

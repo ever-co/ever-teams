@@ -8,6 +8,7 @@ import {
 	readTask,
 	readTimerStatus,
 	readTrackedTotals,
+	sendTimeSlot,
 	startTimer,
 	stopTimer,
 	weekBounds
@@ -191,5 +192,27 @@ describe('start and stop', () => {
 		answers(403, { message: 'Forbidden' });
 
 		await expect(stopTimer(session, undefined)).rejects.toEqual(new ApiError(403));
+	});
+});
+
+describe('a heartbeat', () => {
+	it('writes a tracked time slot of the running log, for the employee, as the web does', async () => {
+		answers(201, {});
+
+		await sendTimeSlot(session, { employeeId: 'employee-kofi', source: TimerSource.MOBILE, seconds: 60 });
+
+		expect(requestSent()).toMatchObject({
+			path: '/timesheet/time-slot',
+			method: 'POST',
+			body: { employeeId: 'employee-kofi', source: TimerSource.MOBILE, duration: 60, logType: 'TRACKED' }
+		});
+	});
+
+	it('fails when the API refuses it, so the next one covers its time', async () => {
+		answers(500, {});
+
+		await expect(
+			sendTimeSlot(session, { employeeId: 'employee-kofi', source: TimerSource.MOBILE, seconds: 60 })
+		).rejects.toEqual(new ApiError(500));
 	});
 });

@@ -18,7 +18,7 @@ const STATUS_REFRESH_MS = 30_000;
 // A task's number and title hardly change while Home is open
 const TASK_STALE_MS = 5 * 60 * 1000;
 
-function useSignedInSession(): Session | undefined {
+export function useSignedInSession(): Session | undefined {
 	const state = useAtomValue(sessionAtom);
 	if (state.status !== 'signed-in') {
 		return undefined;
