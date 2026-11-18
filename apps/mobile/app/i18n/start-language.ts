@@ -1,7 +1,7 @@
 import { announceLayoutRestart, layOutFor } from './layout-direction';
 import { localeFor } from './messages';
 import type { AppLocale } from './messages';
-import { setAppLocale } from './translate';
+import { currentLocale, setAppLocale } from './translate';
 
 /** Where the app keeps the language and the restart marker: AsyncStorage, in the app. */
 export interface LanguageStorage {
@@ -65,6 +65,11 @@ export async function applyProfileLanguage(code: string, save: (code: string) =>
 		await save(code);
 	} catch {
 		saved = false;
+	}
+	// Every screen that reads the settings applies the profile's language: the first one changes it, and offers the
+	// restart once
+	if (currentLocale() === localeFor(code)) {
+		return;
 	}
 	const locale = setAppLocale(code);
 	if (!saved) {

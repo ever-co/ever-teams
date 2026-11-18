@@ -110,6 +110,17 @@ describe('the language of the profile', () => {
 		expect(currentLocale()).toBe('ar');
 	});
 
+	it('offers the restart once, however many screens apply it', async () => {
+		(layOutFor as jest.Mock).mockReturnValue(true);
+		const save = jest.fn(async () => undefined);
+
+		await Promise.all([applyProfileLanguage('ar', save), applyProfileLanguage('ar', save)]);
+		await applyProfileLanguage('ar', save);
+
+		expect(announceLayoutRestart).toHaveBeenCalledTimes(1);
+		expect(currentLocale()).toBe('ar');
+	});
+
 	it('shows unsaved for this session, without a restart that would start in the old language', async () => {
 		const save = jest.fn(async () => {
 			throw new Error('storage full');
