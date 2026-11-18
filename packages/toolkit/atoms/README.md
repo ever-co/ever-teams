@@ -204,6 +204,75 @@ What the kit does with it:
   example) or unmount it. Unmounting is what clears the token and the profile the kit holds in memory: the token's
   expiry only limits how long the API accepts it.
 
+## A client's spent time
+
+`TeamsClientTimeReport` shows one of your clients the time your team spent on its projects: today, this week, and
+this week by project. It fits a client portal, where the client has no Ever Teams account: your server asks the Ever
+Teams API for the report with an embed credential, and the widget only draws what your server returns. No token
+reaches the client's browser, and the widget sends no request to Ever Teams: `getReport` is its only call.
+
+What you need: an Ever Teams API with the client report route (`POST /api/embed/client-report`, coming with
+[ever-co/ever-gauzy#12076](https://github.com/ever-co/ever-gauzy/issues/12076)), and an embed credential limited to
+that client. The credential is what limits the report to that client: keep it on your server, never in the page, and
+give each client's portal its own.
+
+On your server, a route that answers the report to the people allowed to see the portal (Next.js route handler).
+`EVER_TEAMS_API_URL` is the API's full address ending with `/api`, and `EVER_TEAMS_CLIENT_CREDENTIAL` the client's
+embed credential, both server-side only (never a `NEXT_PUBLIC_` variable):
+
+```ts
+// app/api/client-report/route.ts
+import { NextResponse } from 'next/server';
+import { currentUser } from '@/lib/session'; // your own sign-in
+
+export async function GET() {
+	const user = await currentUser();
+	if (!user) {
+		return NextResponse.json({ error: 'Not signed in' }, { status: 401 });
+	}
+	const answer = await fetch(`${process.env.EVER_TEAMS_API_URL}/embed/client-report`, {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify({ credential: process.env.EVER_TEAMS_CLIENT_CREDENTIAL }),
+		cache: 'no-store'
+	});
+	if (!answer.ok) {
+		return NextResponse.json({ error: 'No time report' }, { status: answer.status });
+	}
+	const report = await answer.json();
+	return NextResponse.json(report, { headers: { 'Cache-Control': 'no-store' } });
+}
+```
+
+In the page:
+
+```tsx
+'use client';
+import '@ever-teams/atoms/styles.css';
+import { TeamsProvider, TeamsClientTimeReport, type GetClientTimeReport } from '@ever-teams/atoms';
+
+const getReport: GetClientTimeReport = async () => {
+	const answer = await fetch('/api/client-report');
+	if (!answer.ok) {
+		throw new Error('No time report');
+	}
+	return answer.json(); // IClientTimeReport, from @ever-teams/toolkit-types
+};
+
+export function ClientTimeReport() {
+	return (
+		<TeamsProvider scopedStyles>
+			<TeamsClientTimeReport getReport={getReport} />
+		</TeamsProvider>
+	);
+}
+```
+
+The widget calls `getReport` once when it appears. While it waits, the report tiles show loaders; when it throws or
+rejects, the widget says the time couldn't be loaded and offers "Try again", which calls it again. A week with no
+time says so, with the client's name. Today and this week are counted in the time zone the report names
+(`timeZone`). The report stays in memory: nothing is written to the browser's storage.
+
 ## Security: where tokens live today, and what is planned
 
 Without `config.getToken`:
