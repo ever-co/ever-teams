@@ -33,6 +33,12 @@ import { warnOnce } from '@lib/utils/warn-once';
 import { useRegistrationForm } from '@hooks/useRegistrationForm';
 import { useClearKitSession } from '@hooks/useClearKitSession';
 
+// The name a person goes by in the kit: first and last name, or "" without one. Never the email: these names go into
+// attributes (aria-label, alt) that a host page's scripts and session recordings read even when no menu is open.
+function fullNameOf(user: { firstName?: string; lastName?: string }): string {
+	return [user.firstName, user.lastName].filter(Boolean).join(' ');
+}
+
 // The sign-in form can switch to the registration form and back, in place.
 type AuthFormMode = 'signin' | 'signup';
 
@@ -63,15 +69,23 @@ const TeamsUserAvatar = ({
 		authenticatedUser: user,
 		loadings: { userLoading }
 	} = useTeamsContext();
+	const { t } = useTranslation();
 
 	if (!user) return null;
+
+	const name = fullNameOf(user);
+	let accountMenuLabel = t('AUTH.account_menu_unnamed');
+	if (name) {
+		accountMenuLabel = t('AUTH.account_menu', { name });
+	}
 
 	if (showMenu)
 		return (
 			<Popover>
-				<PopoverTrigger className="relative px-3 outline-hidden">
+				<PopoverTrigger className="relative px-3 outline-hidden" aria-label={accountMenuLabel}>
 					{userLoading && <SpinOverlayLoader />}
 					<Avatar
+						alt=""
 						title={
 							(user.firstName ? user.firstName[0] : '') + ' ' + (user.lastName ? user.lastName[0] : '')
 						}
@@ -91,6 +105,7 @@ const TeamsUserAvatar = ({
 
 	return (
 		<Avatar
+			alt={name}
 			title={(user.firstName ? user.firstName[0] : '') + ' ' + (user.lastName ? user.lastName[0] : '')}
 			fallback={(user.firstName ? user.firstName[0] : '') + (user.lastName ? user.lastName[0] : '')}
 			src={user.imageUrl}
@@ -286,6 +301,7 @@ export const UserNavMenu = ({ children }: { children?: React.ReactNode }) => {
 		<div className="text-sm text-gray-800 dark:text-gray-100">
 			<div className="flex flex-col gap-3 justify-center items-center pb-3 space-x-3 border-b dark:border-gray-700">
 				<Avatar
+					alt=""
 					title={
 						(user!.firstName ? user!.firstName[0] : '') + ' ' + (user!.lastName ? user!.lastName[0] : '')
 					}
