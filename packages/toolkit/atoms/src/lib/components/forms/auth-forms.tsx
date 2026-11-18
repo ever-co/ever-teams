@@ -30,6 +30,7 @@ import { logOut as teamsLogOut } from '@ever-teams/api';
 import { TeamsPasswordLoginForm } from './teams-password-login-form';
 import { TeamsTokenLoginForm } from './teams-token-login-form';
 import { KitFormError, KitFormField } from './kit-form-field';
+import { KIT_NOTICE_SURFACE, kitNoticeTone } from '@components/teams-ui-components/notice-surface';
 import { useKitOptions } from '@components/teams-provider/kit-root';
 import { warnOnce } from '@lib/utils/warn-once';
 import { useRegistrationForm } from '@hooks/useRegistrationForm';
@@ -46,13 +47,7 @@ const HostSignInNote = ({ className }: { className?: string }) => {
 		return null;
 	}
 	return (
-		<p
-			role="status"
-			className={cn(
-				'max-w-xs rounded-lg bg-foreground/5 px-3 py-2 text-xs leading-snug text-foreground ring-1 ring-foreground/10',
-				className
-			)}
-		>
+		<p role="status" className={cn('max-w-xs', KIT_NOTICE_SURFACE, kitNoticeTone('neutral'), className)}>
 			{t('AUTH.host_sign_in')}
 		</p>
 	);
