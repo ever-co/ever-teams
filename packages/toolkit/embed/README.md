@@ -28,14 +28,16 @@ A change of attribute applies at once. Removing the element stops the timer's di
 
 ## Examples
 
-`examples/` holds pages that run as they are once the files of `dist/` sit next to them:
+`examples/` holds two pages that run as they are once the files of `dist/` sit next to them, and a Svelte component:
 
 - `html/`: a plain page.
 - `vue/`: a Vue app on Vue's browser build, which goes next to the page too (`dist/vue.esm-browser.prod.js` of the `vue`
   package, as its import map says). Vue takes a tag it does not know for a component, so it is told that the
   `ever-teams-` tags are custom elements, with `app.config.compilerOptions.isCustomElement`. In a project built with
   single-file components, the same function goes to the Vue plugin's `template.compilerOptions.isCustomElement`.
-- `svelte/`: a Svelte component that loads the package in `onMount` and binds `color-scheme`. Svelte needs no setting.
+- `svelte/`: a component for a Svelte app, which compiles it with its own build, like its other components, and
+  resolves `@ever-teams/embed` to the package or to the `dist/` file it serves. The component loads the package in
+  `onMount` and binds `color-scheme`. Svelte needs no setting.
 
 Angular needs the custom elements schema on the component that holds the element:
 
