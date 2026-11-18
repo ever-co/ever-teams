@@ -39,67 +39,49 @@ export type ColorScheme = 'light' | 'dark';
 /** `h s% l%`, the web's notation, so a value can be compared with globals.css as text. */
 export type HslTriplet = string;
 
+/** Each token's light and dark values side by side, in the order of globals.css. */
+const webColorPairs: Record<ColorToken, [light: HslTriplet, dark: HslTriplet]> = {
+	background: ['240 11% 98%', '240 5% 7%'],
+	foreground: ['240 6% 10%', '240 5% 90%'],
+	muted: ['240 5% 95%', '240 4% 13%'],
+	'muted-foreground': ['240 4% 42%', '240 5% 62%'],
+	popover: ['0 0% 100%', '240 5% 11%'],
+	'popover-foreground': ['240 6% 10%', '240 5% 90%'],
+	card: ['0 0% 100%', '240 5% 10%'],
+	'card-foreground': ['240 6% 10%', '240 5% 90%'],
+	border: ['240 3% 89%', '240 4% 16%'],
+	input: ['240 3% 89%', '240 4% 18%'],
+	primary: ['239 84% 67%', '239 84% 67%'],
+	'primary-foreground': ['0 0% 100%', '0 0% 100%'],
+	secondary: ['240 5% 95%', '240 4% 13%'],
+	'secondary-foreground': ['240 6% 10%', '240 5% 90%'],
+	accent: ['240 5% 95%', '240 4% 13%'],
+	'accent-foreground': ['240 6% 10%', '0 0% 100%'],
+	destructive: ['0 84% 60%', '0 72% 51%'],
+	'destructive-foreground': ['0 0% 100%', '0 0% 100%'],
+	ring: ['239 84% 67%', '0 0% 40%'],
+	'sidebar-background': ['240 3% 94%', '240 6% 4%'],
+	'primary-ink': ['243 75% 59%', '234 89% 74%'],
+	'destructive-ink': ['0 74% 42%', '0 91% 71%'],
+	success: ['161 100% 37%', '161 100% 37%'],
+	'success-foreground': ['163 100% 24%', '158 76% 64%'],
+	warning: ['38 100% 49%', '38 100% 49%'],
+	'warning-foreground': ['26 100% 36%', '47 100% 61%'],
+	info: ['200 98% 39%', '198 93% 60%'],
+	'info-foreground': ['201 96% 32%', '199 95% 74%']
+};
+
+const LIGHT_VALUE = 0;
+const DARK_VALUE = 1;
+
+function valuesAt(position: typeof LIGHT_VALUE | typeof DARK_VALUE): Record<ColorToken, HslTriplet> {
+	const entries = Object.entries(webColorPairs).map(([token, pair]) => [token, pair[position]]);
+	return Object.fromEntries(entries) as Record<ColorToken, HslTriplet>;
+}
+
 export const webColorTokens: Record<ColorScheme, Record<ColorToken, HslTriplet>> = {
-	light: {
-		background: '240 11% 98%',
-		foreground: '240 6% 10%',
-		muted: '240 5% 95%',
-		'muted-foreground': '240 4% 42%',
-		popover: '0 0% 100%',
-		'popover-foreground': '240 6% 10%',
-		card: '0 0% 100%',
-		'card-foreground': '240 6% 10%',
-		border: '240 3% 89%',
-		input: '240 3% 89%',
-		primary: '239 84% 67%',
-		'primary-foreground': '0 0% 100%',
-		secondary: '240 5% 95%',
-		'secondary-foreground': '240 6% 10%',
-		accent: '240 5% 95%',
-		'accent-foreground': '240 6% 10%',
-		destructive: '0 84% 60%',
-		'destructive-foreground': '0 0% 100%',
-		ring: '239 84% 67%',
-		'sidebar-background': '240 3% 94%',
-		'primary-ink': '243 75% 59%',
-		'destructive-ink': '0 74% 42%',
-		success: '161 100% 37%',
-		'success-foreground': '163 100% 24%',
-		warning: '38 100% 49%',
-		'warning-foreground': '26 100% 36%',
-		info: '200 98% 39%',
-		'info-foreground': '201 96% 32%'
-	},
-	dark: {
-		background: '240 5% 7%',
-		foreground: '240 5% 90%',
-		muted: '240 4% 13%',
-		'muted-foreground': '240 5% 62%',
-		popover: '240 5% 11%',
-		'popover-foreground': '240 5% 90%',
-		card: '240 5% 10%',
-		'card-foreground': '240 5% 90%',
-		border: '240 4% 16%',
-		input: '240 4% 18%',
-		primary: '239 84% 67%',
-		'primary-foreground': '0 0% 100%',
-		secondary: '240 4% 13%',
-		'secondary-foreground': '240 5% 90%',
-		accent: '240 4% 13%',
-		'accent-foreground': '0 0% 100%',
-		destructive: '0 72% 51%',
-		'destructive-foreground': '0 0% 100%',
-		ring: '0 0% 40%',
-		'sidebar-background': '240 6% 4%',
-		'primary-ink': '234 89% 74%',
-		'destructive-ink': '0 91% 71%',
-		success: '161 100% 37%',
-		'success-foreground': '158 76% 64%',
-		warning: '38 100% 49%',
-		'warning-foreground': '47 100% 61%',
-		info: '198 93% 60%',
-		'info-foreground': '199 95% 74%'
-	}
+	light: valuesAt(LIGHT_VALUE),
+	dark: valuesAt(DARK_VALUE)
 };
 
 /** `hsl(h, s%, l%)` and `hsla(…)` strings, which React Native accepts as colors. */
