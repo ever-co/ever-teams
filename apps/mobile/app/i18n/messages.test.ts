@@ -13,8 +13,11 @@ function leaves(tree: Tree, path = ''): Array<[string, string]> {
 	});
 }
 
+// A brace after a plural form (one {...}, =0 {...}) opens the text of that form, never a placeholder
 function placeholdersOf(message: string): string[] {
-	const names = [...message.matchAll(/\{(\w+)/g)].map((match) => match[1]);
+	const names = [...message.matchAll(/(?<!(?:zero|one|two|few|many|other|=\d+)\s*)\{(\w+)/g)].map(
+		(match) => match[1]
+	);
 	return [...new Set(names)].sort();
 }
 
