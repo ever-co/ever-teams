@@ -1,47 +1,40 @@
 import React from 'react';
 import { Redirect } from 'expo-router';
-import { NativeTabs } from 'expo-router/unstable-native-tabs';
-import { useAtomValue } from 'jotai';
-import { translate } from '../../../app/i18n';
-import { LoadingState } from '../../components/screen-state';
-import { RunHeartbeat } from '../../home/run-heartbeat';
-import { tabBarColorsFor } from '../../navigation/tab-bar-colors';
-import { themePreferenceAtom } from '../../state/preferences';
-import { sessionAtom } from '../../state/session';
-import { useTheme } from '../../theme';
+import { Drawer } from 'expo-router/drawer';
+import { observer } from 'mobx-react-lite';
+import HamburgerMenu from '../../../app/components/hamburger-menu';
+import { useAppLocale } from '../../../app/i18n';
+import { useStores } from '../../../app/models';
+import { UnmountOnBlur } from '../../../app/navigators/authenticated-navigator';
+import { TimeCounterHost } from '../../../app/services/hooks/use-timer';
 
-/** The signed-in part: its four tabs, after the session was read; without one, the sign-in. */
-export default function SignedInLayout() {
-	const session = useAtomValue(sessionAtom);
-	const preference = useAtomValue(themePreferenceAtom);
-	const theme = useTheme(preference);
-	if (session.status === 'loading') {
-		return <LoadingState />;
-	}
-	if (session.status === 'signed-out') {
+export const unstable_settings = { initialRouteName: '(tabs)' };
+
+/**
+ * The signed-in part, as the current app draws it: the menu in a drawer from the right, the tabs, and the screens it
+ * opens, with the one counter of the running time beside them. Without a session, the sign-in.
+ */
+export default observer(function SignedInLayout() {
+	const {
+		authenticationStore: { isAuthenticated }
+	} = useStores();
+	// the menu's texts follow a new language
+	useAppLocale();
+	if (!isAuthenticated) {
 		return <Redirect href="/auth/passcode" />;
 	}
 	return (
 		<>
-			<RunHeartbeat />
-			<NativeTabs labelVisibilityMode="labeled" {...tabBarColorsFor(theme)}>
-				<NativeTabs.Trigger name="(home)">
-					<NativeTabs.Trigger.Icon sf="house" md="home" />
-					<NativeTabs.Trigger.Label>{translate('shell.tabs.home')}</NativeTabs.Trigger.Label>
-				</NativeTabs.Trigger>
-				<NativeTabs.Trigger name="(tasks)">
-					<NativeTabs.Trigger.Icon sf="checklist" md="checklist" />
-					<NativeTabs.Trigger.Label>{translate('shell.tabs.tasks')}</NativeTabs.Trigger.Label>
-				</NativeTabs.Trigger>
-				<NativeTabs.Trigger name="(week)">
-					<NativeTabs.Trigger.Icon sf="calendar" md="calendar_month" />
-					<NativeTabs.Trigger.Label>{translate('shell.tabs.week')}</NativeTabs.Trigger.Label>
-				</NativeTabs.Trigger>
-				<NativeTabs.Trigger name="(team)">
-					<NativeTabs.Trigger.Icon sf="person.3" md="groups" />
-					<NativeTabs.Trigger.Label>{translate('shell.tabs.team')}</NativeTabs.Trigger.Label>
-				</NativeTabs.Trigger>
-			</NativeTabs>
+			<TimeCounterHost />
+			<Drawer
+				drawerContent={(props) => <HamburgerMenu {...props} />}
+				screenLayout={({ children }) => <UnmountOnBlur>{children}</UnmountOnBlur>}
+				screenOptions={{
+					headerShown: false,
+					drawerPosition: 'right',
+					drawerStyle: { width: '83%' }
+				}}
+			/>
 		</>
 	);
-}
+});
