@@ -12,6 +12,7 @@ import { SvgXml } from "react-native-svg"
 import { searchIconDark, searchIconLight } from "../../../../components/svgs/icons"
 import { useSettings } from "../../../../services/hooks/features/use-settings"
 import { limitTextCharaters } from "../../../../helpers/sub-text"
+import { translate } from "../../../../i18n"
 
 interface IMembersList {
 	teamList: IOrganizationTeamList
@@ -52,7 +53,7 @@ const MembersList: React.FC<IMembersList> = ({
 				]}
 			>
 				<TextInput
-					placeholder="Search members"
+					placeholder={translate("settingScreen.membersSettingsScreen.searchPlaceholder")}
 					value={filteredMembersList}
 					onChangeText={(text) => setFilteredMembersList(text)}
 					style={[styles.textInput, { color: colors.primary }]}
