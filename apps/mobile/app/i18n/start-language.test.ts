@@ -56,6 +56,43 @@ describe('the language at start', () => {
 		expect(reload).not.toHaveBeenCalled();
 		expect(currentLocale()).toBe('ar');
 	});
+
+	it('shows when the marker of an earlier restart cannot be cleared', async () => {
+		(layOutFor as jest.Mock).mockReturnValue(false);
+		const storage = storageOf({ LayoutRestartedFor: 'ar' });
+		storage.removeItem.mockRejectedValue(new Error('storage unavailable'));
+
+		await startIn(
+			'fr',
+			storage,
+			jest.fn(async () => undefined)
+		);
+
+		expect(currentLocale()).toBe('fr');
+	});
+
+	it('shows in the old direction, without a restart, when the marker cannot be read', async () => {
+		(layOutFor as jest.Mock).mockReturnValue(true);
+		const storage = storageOf();
+		storage.getItem.mockRejectedValue(new Error('storage unavailable'));
+		const reload = jest.fn(async () => undefined);
+
+		await startIn('ar', storage, reload);
+
+		expect(reload).not.toHaveBeenCalled();
+		expect(currentLocale()).toBe('ar');
+	});
+
+	it('shows in the old direction when the restart fails', async () => {
+		(layOutFor as jest.Mock).mockReturnValue(true);
+		const reload = jest.fn(async () => {
+			throw new Error('reload refused');
+		});
+
+		await startIn('ar', storageOf(), reload);
+
+		expect(currentLocale()).toBe('ar');
+	});
 });
 
 describe('the language of the profile', () => {

@@ -1,5 +1,6 @@
 import { announceLayoutRestart, layOutFor } from './layout-direction';
 import { localeFor } from './messages';
+import type { AppLocale } from './messages';
 import { setAppLocale } from './translate';
 
 /** Where the app keeps the language and the restart marker: AsyncStorage, in the app. */
@@ -18,17 +19,40 @@ const RESTARTED_FOR_KEY = 'LayoutRestartedFor';
 export async function startIn(tag: string, storage: LanguageStorage, reload: () => Promise<void>): Promise<void> {
 	const locale = localeFor(tag);
 	if (!layOutFor(locale)) {
-		await storage.removeItem(RESTARTED_FOR_KEY);
 		setAppLocale(tag);
+		await storage.removeItem(RESTARTED_FOR_KEY).catch(ignoreFailure);
 		return;
 	}
-	const restartedFor = await storage.getItem(RESTARTED_FOR_KEY);
-	if (restartedFor === locale) {
+	const restarting = await restartOnceFor(locale, storage, reload);
+	if (!restarting) {
 		setAppLocale(tag);
-		return;
 	}
-	await storage.setItem(RESTARTED_FOR_KEY, locale);
-	await reload();
+}
+
+function ignoreFailure(): void {
+	return undefined;
+}
+
+/**
+ * Restarts the app once for the direction of this language. Answers false when it did already, or when the restart
+ * cannot happen: without the marker the app could restart at every start, so the language shows in the old direction.
+ */
+async function restartOnceFor(
+	locale: AppLocale,
+	storage: LanguageStorage,
+	reload: () => Promise<void>
+): Promise<boolean> {
+	try {
+		const restartedFor = await storage.getItem(RESTARTED_FOR_KEY);
+		if (restartedFor === locale) {
+			return false;
+		}
+		await storage.setItem(RESTARTED_FOR_KEY, locale);
+		await reload();
+		return true;
+	} catch {
+		return false;
+	}
 }
 
 /**
