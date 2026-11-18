@@ -116,9 +116,12 @@ export function entryLabelGroupsOverlap(logs: ReadonlyArray<LabelledEntry>): boo
 	return logs.some((log) => entryLabelsOf(log).length > 1);
 }
 
+/** Labels as one cell of an export: their names, in the order given, separated by commas. */
+export function labelNamesOf(labels: ReadonlyArray<EntryLabel>): string {
+	return labels.map((label) => label.name).join(', ');
+}
+
 /** The labels of an entry as one cell of an export: their names, by name, separated by commas. */
 export function entryLabelNamesOf(log: LabelledEntry | null | undefined): string {
-	return entryLabelsOf(log)
-		.map((label) => label.name)
-		.join(', ');
+	return labelNamesOf(entryLabelsOf(log));
 }
