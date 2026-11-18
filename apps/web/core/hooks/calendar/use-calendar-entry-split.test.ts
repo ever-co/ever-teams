@@ -128,6 +128,71 @@ describe('splitCalendarEntry, the fields of the second part', () => {
 	});
 });
 
+// The entry as an API with labels on entries (Gauzy #12029) lists it, read with its labels
+const LABELLED = {
+	...LOG,
+	tags: [
+		{ id: 'label-1', name: 'Design', color: '#f00' },
+		{ id: 'label-2', name: 'Review', color: null },
+		{ id: 'label-1', name: 'Design', color: '#f00' }
+	]
+};
+
+describe('splitCalendarEntry, the labels of the second part', () => {
+	it('reads the entry with its labels and files the second part under them, each once', async () => {
+		mockGetTimeLogs.mockResolvedValue([LABELLED]);
+
+		await splitCalendarEntry({
+			log: LOG,
+			splitAt: at(11),
+			secondTask: null,
+			tenantId: 'tenant-1',
+			withEntryLabels: true
+		});
+
+		expect(mockGetTimeLogs).toHaveBeenCalledWith(expect.objectContaining({ withEntryLabels: true }));
+		expect(mockAddManualTime).toHaveBeenCalledWith(expect.objectContaining({ tags: ['label-1', 'label-2'] }));
+	});
+
+	it('takes the labels the server holds now, not those of the calendar copy', async () => {
+		const relabelled = { ...LABELLED, tags: [{ id: 'label-3', name: 'Ops', color: null }] };
+		mockGetTimeLogs.mockResolvedValue([relabelled]);
+
+		await splitCalendarEntry({
+			log: LABELLED as unknown as ITimeLog,
+			splitAt: at(11),
+			secondTask: null,
+			tenantId: 'tenant-1',
+			withEntryLabels: true
+		});
+
+		expect(mockAddManualTime).toHaveBeenCalledWith(expect.objectContaining({ tags: ['label-3'] }));
+	});
+
+	it('sends no labels for an entry without any', async () => {
+		mockGetTimeLogs.mockResolvedValue([{ ...LOG, tags: [] }]);
+
+		await splitCalendarEntry({
+			log: LOG,
+			splitAt: at(11),
+			secondTask: null,
+			tenantId: 'tenant-1',
+			withEntryLabels: true
+		});
+
+		expect(mockAddManualTime).toHaveBeenCalledWith(expect.not.objectContaining({ tags: expect.anything() }));
+	});
+
+	it('asks an API without labels on entries for none, and sends it none', async () => {
+		await splitCalendarEntry({ log: LOG, splitAt: at(11), secondTask: null, tenantId: 'tenant-1' });
+
+		expect(mockGetTimeLogs).toHaveBeenCalledWith(
+			expect.not.objectContaining({ withEntryLabels: expect.anything() })
+		);
+		expect(mockAddManualTime).toHaveBeenCalledWith(expect.not.objectContaining({ tags: expect.anything() }));
+	});
+});
+
 describe('splitCalendarEntry, a shortening the API refuses', () => {
 	it.each([400, 403, 409, 422])('writes nothing more after a %s: the entry was never changed', async (status) => {
 		mockUpdateTimeLog.mockRejectedValueOnce(Object.assign(new Error('refused'), { statusCode: status }));
@@ -429,6 +494,22 @@ describe('splitThroughApi, one write where the API splits (#5369)', () => {
 		await splitThroughApi({ log: LOG, splitAt: at(11), secondTask: null, tenantId: 'tenant-1' });
 
 		expect(calls).toEqual(['update 9-11', 'add 11-13']);
+	});
+
+	it('files the second part of those two writes under the entry labels, on an API that has them', async () => {
+		mockSplitTimeLog.mockRejectedValueOnce(MISSING_ROUTE);
+		mockGetTimeLogs.mockResolvedValue([LABELLED]);
+
+		await splitThroughApi({
+			log: LOG,
+			splitAt: at(11),
+			secondTask: null,
+			tenantId: 'tenant-1',
+			withEntryLabels: true
+		});
+
+		expect(calls).toEqual(['update 9-11', 'add 11-13']);
+		expect(mockAddManualTime).toHaveBeenCalledWith(expect.objectContaining({ tags: ['label-1', 'label-2'] }));
 	});
 
 	it('refuses tracked time as today, writing nothing, when the API has no split', async () => {

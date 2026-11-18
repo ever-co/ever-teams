@@ -6,6 +6,9 @@ import { currentLogOf } from '@/core/hooks/dashboards/timesheets/use-bulk-edit-r
 import { splitPartsOf, splitsOnSlots } from '@/core/lib/utils/calendar-split';
 import { errorStatusOf } from '@/core/lib/utils/error-feedback';
 import { type ApiSplitFailure, apiSplitFailureOf } from '@/core/lib/utils/time-log-split';
+import { entryLabelsOf } from '@/core/lib/utils/time-log-labels';
+import { entryLabelsFieldOf } from '@/core/lib/utils/time-log-labels-request';
+import { useEntryLabelsSupport } from '@/core/hooks/timer/use-entry-labels-support';
 import { endOfLog, memberIdOfLog, startOfLog, statusOfLog } from '@/core/lib/utils/dashboards/timesheets';
 import type { TimeWindow } from '@/core/lib/utils/dashboards/timesheet-sheet-edit';
 import { queryKeys } from '@/core/query/keys';
@@ -57,6 +60,11 @@ interface CalendarSplitRequest {
 	viaApi?: boolean;
 	/** Why the time changes, where the organization asks for one. */
 	reason?: string;
+	/**
+	 * The API keeps labels on entries (Gauzy #12029): the two writes file the second part under the entry's labels too,
+	 * as the API's split does, so a report filtered by label counts both parts.
+	 */
+	withEntryLabels?: boolean;
 }
 
 function windowOfLog(log: ITimeLog): TimeWindow | null {
@@ -98,14 +106,24 @@ function textOrUndefined(value: string | null | undefined) {
 }
 
 /**
+ * The labels field of the second part: the labels the entry carries on the server now. Sent only when it carries some,
+ * so an API without labels on entries, or an entry without them, is sent nothing new.
+ */
+function secondPartLabelsOf(current: ITimeLog, withEntryLabels: boolean) {
+	const labelIds = entryLabelsOf(current).map((label) => label.id);
+	return entryLabelsFieldOf(labelIds, withEntryLabels && labelIds.length > 0);
+}
+
+/**
  * Splits an entry added by hand in two, with the routes the Timesheets page already uses: the entry is shortened to
  * the split time, then the rest is added as a new entry with the same fields (another task, with its project, when
- * one is picked). The order matters: the API deletes whatever new manual time overlaps, so the new part is added
- * only once the entry no longer covers it. A write whose answer is lost may still have been saved: the server is
- * read before anything is undone, and the error says when the outcome is not known.
+ * one is picked), its labels included where the API keeps them. The order matters: the API deletes whatever new manual
+ * time overlaps, so the new part is added only once the entry no longer covers it. A write whose answer is lost may
+ * still have been saved: the server is read before anything is undone, and the error says when the outcome is not
+ * known.
  */
 export async function splitCalendarEntry(request: CalendarSplitRequest) {
-	const { log, splitAt, secondTask, tenantId } = request;
+	const { log, splitAt, secondTask, tenantId, withEntryLabels = false } = request;
 	const window = windowOfLog(log);
 	if (!window) {
 		throw new Error('An entry without a start and an end cannot be split');
@@ -118,8 +136,8 @@ export async function splitCalendarEntry(request: CalendarSplitRequest) {
 		throw new CalendarSplitError('restored', new Error('An entry without its member cannot be split'));
 	}
 	// The entry is read again first: nothing is written from a copy the server no longer holds, and the second part
-	// takes the fields the server holds now (notes or billable state changed in another tab included)
-	const current = await currentLogOf(log);
+	// takes the fields the server holds now (notes, billable state or labels changed in another tab included)
+	const current = await currentLogOf(log, { withEntryLabels });
 	if (!isStillTheSplitEntry(log, current, window)) {
 		throw new CalendarSplitError('changed', null);
 	}
@@ -154,6 +172,7 @@ export async function splitCalendarEntry(request: CalendarSplitRequest) {
 			description: textOrUndefined(current.description),
 			reason: textOrUndefined(current.reason),
 			isBillable: current.isBillable,
+			...secondPartLabelsOf(current, withEntryLabels),
 			startedAt: parts.second.start,
 			stoppedAt: parts.second.end,
 			logType: ETimeLogType.MANUAL,
@@ -336,9 +355,13 @@ export interface CalendarEntrySplit {
 	reset: () => void;
 }
 
-/** The split of the Calendar's dialog: one at a time, with the failure it shows, and the views read again after. */
+/**
+ * The split of the Calendar's dialog: one at a time, with the failure it shows, and the views read again after. Where
+ * the API keeps labels on entries, the two writes carry them to the second part.
+ */
 export function useCalendarEntrySplit(): CalendarEntrySplit {
 	const queryClient = useQueryClient();
+	const withEntryLabels = useEntryLabelsSupport();
 	const [isSaving, setIsSaving] = useState(false);
 	const [failure, setFailure] = useState<CalendarSplitFailure | null>(null);
 
@@ -346,11 +369,12 @@ export function useCalendarEntrySplit(): CalendarEntrySplit {
 		async (request: CalendarSplitRequest) => {
 			setIsSaving(true);
 			setFailure(null);
+			const labelled = { ...request, withEntryLabels };
 			try {
-				if (request.viaApi) {
-					await splitThroughApi(request);
+				if (labelled.viaApi) {
+					await splitThroughApi(labelled);
 				} else {
-					await splitCalendarEntry(request);
+					await splitCalendarEntry(labelled);
 				}
 				return true;
 			} catch (error) {
@@ -368,7 +392,7 @@ export function useCalendarEntrySplit(): CalendarEntrySplit {
 				void queryClient.invalidateQueries({ queryKey: queryKeys.timesheet.all });
 			}
 		},
-		[queryClient]
+		[queryClient, withEntryLabels]
 	);
 
 	const reset = useCallback(() => {
