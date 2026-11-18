@@ -106,7 +106,7 @@ table names the route behind each one; they are the routes the kit already calls
 | `timer.status()`                      | `GET /timesheet/timer/status`                     | `EverTeamsTimerStatus`     |
 | `timer.start(options?)`               | `POST /timesheet/timer/start`                     | `EverTeamsTimeLog`         |
 | `timer.stop()`                        | `POST /timesheet/timer/stop`                      | `EverTeamsTimeLog \| null` |
-| `timeEntries.list({ from, to, ... })` | `GET /timesheet/time-log`                         | `ITimeLog[]`               |
+| `timeEntries.list({ from, to, ... })` | `GET /timesheet/time-log`                         | `EverTeamsTimeEntry[]`     |
 | `projects.list()`                     | `GET /organization-projects/employee/:employeeId` | `EverTeamsProject[]`       |
 | `tasks.list({ projectId? })`          | `GET /tasks/employee/:employeeId`                 | `EverTeamsTask[]`          |
 | `members.list()`                      | `GET /employee/working`                           | `EverTeamsMember[]`        |

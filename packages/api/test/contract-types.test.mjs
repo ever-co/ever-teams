@@ -17,11 +17,6 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const require = createRequire(import.meta.url);
 const declarations = path.join(here, '..', 'dist', 'index.js').split(path.sep).join('/');
 
-// The answers that do not fit the client's types yet, with what the recording found.
-const KNOWN_DISAGREEMENTS = new Map([
-	['timeEntries.list', 'project, task, organizationContact... are null; the employee and its user hold a few fields']
-]);
-
 const fixtureOf = (name) => JSON.parse(fs.readFileSync(path.join(here, 'contract', `${name}.json`), 'utf8'));
 
 // The type of a JSON value, each value as its literal: "TRACKED" stays "TRACKED", a list is a tuple of its items.
@@ -126,8 +121,7 @@ after(() => {
 });
 
 for (const contract of CONTRACT_ANSWERS) {
-	const todo = KNOWN_DISAGREEMENTS.get(contract.name);
-	test(`${contract.name}: the recorded answer fits ${contract.answerType}`, { todo }, () => {
+	test(`${contract.name}: the recorded answer fits ${contract.answerType}`, () => {
 		assert.deepEqual(diagnostics.get(`${contract.name}.check.ts`) ?? [], []);
 	});
 }
