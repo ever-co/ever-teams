@@ -48,5 +48,5 @@ The flows find the controls by test ID, never by their English text, so they als
 - sign-in: `sign-in-email`, `sign-in-continue`, `sign-in-back`, `sign-in-resend-code`, `emailed-code-input`;
 - tabs and menu: `tab-work`, `tab-tasks`, `tab-team`, `open-menu`, `menu-work`, `menu-team`, `menu-tasks`, `menu-settings`, `menu-log-out`;
 - task: `task-picker-field`, `task-picker-option`;
-- timer: `timer-start`, `timer-stop`, `timer-card-time`, `timer-actions-trigger`, `timer-change-start`, `timer-discard`, `timer-start-time`, `timer-start-reason`, `timer-start-save`, `timer-start-error`;
+- timer: `timer-start`, `timer-stop`, `timer-card-time`, `timer-actions-trigger`, `timer-change-start`, `timer-discard`, `timer-start-time`, `timer-start-reason`, `timer-start-save`, `timer-start-cancel`, `timer-start-error`;
 - confirmation dialogs: `confirmation-confirm`, `confirmation-cancel`.

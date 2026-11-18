@@ -54,6 +54,22 @@ env:
 - assertNotVisible:
     id: "timer-start-error"
 - takeScreenshot: start-moved
+# the API kept the new start: opened again, the panel shows it (a status read can bring it a moment later)
+- tapOn:
+    id: "timer-actions-trigger"
+- tapOn:
+    id: "timer-change-start"
+- extendedWaitUntil:
+    visible:
+      id: "timer-start-time"
+      text: ${output.earlier}
+    timeout: 20000
+- tapOn:
+    id: "timer-start-cancel"
+- extendedWaitUntil:
+    notVisible:
+      id: "timer-start-time"
+    timeout: 10000
 - tapOn:
     id: "timer-stop"
 - runFlow: common/stop-confirmed.yaml
