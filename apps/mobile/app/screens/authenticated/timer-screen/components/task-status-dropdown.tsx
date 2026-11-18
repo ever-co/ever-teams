@@ -10,6 +10,7 @@ import { observer } from 'mobx-react-lite';
 // STYLES
 import { typography, useAppTheme } from '../../../../theme';
 import TaskStatusList from './task-status-list';
+import { translate } from '../../../../i18n';
 
 export interface Props {
 	task: ITeamTask;
@@ -36,7 +37,7 @@ const TaskStatusDropdown: FC<Props> = observer(({ task }) => {
 							}
 						]}
 					>
-						{task ? task.status : 'Status'}
+						{task ? task.status : translate('myWorkScreen.statusText')}
 					</Text>
 				</View>
 
