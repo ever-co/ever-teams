@@ -20,6 +20,12 @@ appId: ${APP_ID}
           notVisible:
             id: "home-running-since"
           timeout: 20000
+# Start turns on once Home knows the task to start on, which an earlier day's log can bring a moment later
+- extendedWaitUntil:
+    visible:
+      id: "home-timer-button"
+      enabled: true
+    timeout: 20000
 - tapOn:
     id: "home-timer-button"
 - extendedWaitUntil:
