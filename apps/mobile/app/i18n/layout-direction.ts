@@ -33,9 +33,14 @@ function requestedRightToLeft(): boolean | undefined {
  */
 export function isLaidOutRightToLeft(): boolean {
 	if (runningRightToLeft === undefined) {
-		runningRightToLeft = requestedRightToLeft() ?? I18nManager.isRTL;
+		runningRightToLeft = requestedRightToLeft() ?? processIsRightToLeft();
 	}
 	return runningRightToLeft;
+}
+
+// react-native-web gives no isRTL: a page starts left to right
+function processIsRightToLeft(): boolean {
+	return I18nManager.isRTL === true;
 }
 
 function directionName(rightToLeft: boolean): 'rtl' | 'ltr' {

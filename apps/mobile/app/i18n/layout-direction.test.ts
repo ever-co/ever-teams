@@ -18,8 +18,11 @@ let layout: Layout;
 let forceRTL: jest.SpyInstance;
 let allowRTL: jest.SpyInstance;
 
-/** A new start of the app: the process reports its own direction, and the module reads the running one again. */
-function startWith(processRightToLeft: boolean, requestedBefore?: 'rtl' | 'ltr') {
+/**
+ * A new start of the app: the process reports its own direction, none on the web, and the module reads the running one
+ * again.
+ */
+function startWith(processRightToLeft: boolean | undefined, requestedBefore?: 'rtl' | 'ltr') {
 	jest.resetModules();
 	mockStore.clear();
 	if (requestedBefore) {
@@ -44,6 +47,12 @@ describe('the layout direction', () => {
 		expect(layout.isRightToLeft('he')).toBe(true);
 		expect(layout.isRightToLeft('en')).toBe(false);
 		expect(layout.isRightToLeft('zh')).toBe(false);
+	});
+
+	it('starts English on the web without a restart, where the page gives no direction', () => {
+		startWith(undefined);
+
+		expect(layout.layOutFor('en')).toBe(false);
 	});
 
 	it('turns right to left for Arabic on a left to right layout, and asks for a restart', () => {
