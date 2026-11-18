@@ -24,6 +24,17 @@ interface IMembersList {
 	setIsNameEditMode: React.Dispatch<SetStateAction<boolean>>
 }
 
+// The role names are the API's: the two the team uses read in the person's language, any other as the API names it
+function roleLabel(name: string | undefined): string {
+	if (!name || name.toUpperCase() === "MEMBER") {
+		return translate("common.member")
+	}
+	if (name.toUpperCase() === "MANAGER") {
+		return translate("common.manager")
+	}
+	return name
+}
+
 function footerLabel(selectMode: boolean): string {
 	if (selectMode) {
 		return translate("settingScreen.membersSettingsScreen.selected")
@@ -198,7 +209,7 @@ const MemberCard: React.FC<IMemberCard> = ({
 			<View style={{ gap: 7, flexDirection: "column" }}>
 				<View style={styles.roleContainer}>
 					<Text style={styles.roleText}>
-						{member?.role?.name ? member?.role?.name : translate("common.member")}
+						{roleLabel(member?.role?.name)}
 					</Text>
 				</View>
 				<Text style={styles.grayedText}>

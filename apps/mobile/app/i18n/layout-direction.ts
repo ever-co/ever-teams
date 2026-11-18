@@ -1,4 +1,4 @@
-import { Alert, I18nManager } from 'react-native';
+import { Alert, I18nManager, Platform } from 'react-native';
 import { reloadAppAsync } from 'expo';
 import { MMKV } from 'react-native-mmkv';
 import { translate } from './translate';
@@ -56,16 +56,32 @@ function directionName(rightToLeft: boolean): 'rtl' | 'ltr' {
  * the screens already have cancels a restart asked for before and never taken.
  */
 export function layOutFor(locale: AppLocale): boolean {
-	const running = isLaidOutRightToLeft();
 	const rightToLeft = isRightToLeft(locale);
+	if (Platform.OS === 'web') {
+		layOutPageFor(rightToLeft);
+		return false;
+	}
+	const running = isLaidOutRightToLeft();
 	I18nManager.allowRTL(rightToLeft);
 	I18nManager.forceRTL(rightToLeft);
 	layoutStorage.set(REQUESTED_DIRECTION_KEY, directionName(rightToLeft));
 	return running !== rightToLeft;
 }
 
+// react-native-web has no forceRTL: the page takes its direction at once from its dir, with no restart to remember
+function layOutPageFor(rightToLeft: boolean): void {
+	if (typeof document !== 'undefined') {
+		document.documentElement.dir = directionName(rightToLeft);
+	}
+}
+
+// A restart that fails leaves the screens as they are, in the old direction
 function restartNow(): void {
-	void reloadAppAsync();
+	reloadAppAsync().catch(ignoreRestartFailure);
+}
+
+function ignoreRestartFailure(): void {
+	return undefined;
 }
 
 /** Tells the person the app restarts to lay out its screens in the new language's direction, and lets them wait. */
