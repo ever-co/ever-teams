@@ -15,6 +15,11 @@ const CLIENT_KEYS = [
 	'LIMITED_TO_ONE_CLIENT'
 ] as const;
 
+/** The 13 languages of the app, by file: a renamed or missing one fails, not only a count that changed. */
+const APP_LOCALE_FILES = ['ar', 'bg', 'de', 'en', 'es', 'fr', 'he', 'it', 'nl', 'pl', 'pt', 'ru', 'zh'].map(
+	(language) => `${language}.json`
+);
+
 /** "Client" is also the French word. */
 const SAME_IN_SOME_LANGUAGES = new Set<string>(['CLIENT_LABEL']);
 
@@ -32,7 +37,7 @@ const english = embedsMessagesOf('en.json');
 
 describe('translations of the client an embed credential is limited to', () => {
 	it('covers the 13 languages of the app', () => {
-		expect(localeFiles).toHaveLength(13);
+		expect([...localeFiles].sort()).toEqual(APP_LOCALE_FILES);
 	});
 
 	it.each(localeFiles)('says everything the field and the list show in %s, with the client named', (file) => {
