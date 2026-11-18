@@ -80,6 +80,7 @@
 	},
 	"AUTH": {
 		"sign_in_title": "Se connecter",
+		"account_menu": "{{name}} : menu du compte",
 		"sign_up_title": "S'inscrire",
 		"register_now": "S'inscrire maintenant",
 		"email_prompt": "Entrez votre email",

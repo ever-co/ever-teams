@@ -33,6 +33,15 @@ import { warnOnce } from '@lib/utils/warn-once';
 import { useRegistrationForm } from '@hooks/useRegistrationForm';
 import { useClearKitSession } from '@hooks/useClearKitSession';
 
+// The name a person goes by in the kit: first and last name, else the email.
+function fullNameOf(user: { firstName?: string; lastName?: string; email?: string }): string {
+	const name = [user.firstName, user.lastName].filter(Boolean).join(' ');
+	if (name) {
+		return name;
+	}
+	return user.email ?? '';
+}
+
 // The sign-in form can switch to the registration form and back, in place.
 type AuthFormMode = 'signin' | 'signup';
 
@@ -63,15 +72,20 @@ const TeamsUserAvatar = ({
 		authenticatedUser: user,
 		loadings: { userLoading }
 	} = useTeamsContext();
+	const { t } = useTranslation();
 
 	if (!user) return null;
 
 	if (showMenu)
 		return (
 			<Popover>
-				<PopoverTrigger className="relative px-3 outline-hidden">
+				<PopoverTrigger
+					className="relative px-3 outline-hidden"
+					aria-label={t('AUTH.account_menu', { name: fullNameOf(user) })}
+				>
 					{userLoading && <SpinOverlayLoader />}
 					<Avatar
+						alt=""
 						title={
 							(user.firstName ? user.firstName[0] : '') + ' ' + (user.lastName ? user.lastName[0] : '')
 						}
@@ -91,6 +105,7 @@ const TeamsUserAvatar = ({
 
 	return (
 		<Avatar
+			alt={fullNameOf(user)}
 			title={(user.firstName ? user.firstName[0] : '') + ' ' + (user.lastName ? user.lastName[0] : '')}
 			fallback={(user.firstName ? user.firstName[0] : '') + (user.lastName ? user.lastName[0] : '')}
 			src={user.imageUrl}
@@ -286,6 +301,7 @@ export const UserNavMenu = ({ children }: { children?: React.ReactNode }) => {
 		<div className="text-sm text-gray-800 dark:text-gray-100">
 			<div className="flex flex-col gap-3 justify-center items-center pb-3 space-x-3 border-b dark:border-gray-700">
 				<Avatar
+					alt=""
 					title={
 						(user!.firstName ? user!.firstName[0] : '') + ' ' + (user!.lastName ? user!.lastName[0] : '')
 					}
