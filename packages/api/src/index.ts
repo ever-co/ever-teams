@@ -4,6 +4,7 @@ export * from './lib/requests/tenant';
 export * from './lib/requests/member';
 export * from './lib/requests/organization-client';
 export * from './lib/requests/organization-project';
+export * from './lib/requests/embed-project';
 export * from './lib/requests/organization';
 export * from './lib/requests/permission';
 export * from './lib/requests/task';
