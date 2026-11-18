@@ -484,14 +484,18 @@ test('a timer start and a read that answer once their provider moved to another 
 	assert.deepEqual(new Set(api.tokensSentTo(SERVER_B)), new Set([`${hostOf(SERVER_B)}-token`]));
 });
 
-// A component that shows the sessions of its provider: they are read while it is mounted.
-function Sessions() {
-	kit.useTrackingContext();
+// The sessions each provider shows, by its name: they are read while a component shows them.
+const shownSessions = {};
+
+function Sessions({ name }) {
+	shownSessions[name] = kit.useTrackingContext().sessions;
 	return null;
 }
 
+const sessionsOf = (name) => [React.createElement(Sessions, { key: 'sessions', name })];
+
 test('a provider without an apiUrl reads its sessions from the address the page holds when it reads them', async () => {
-	const sessions = [React.createElement(Sessions, { key: 'sessions' })];
+	const sessions = sessionsOf('d');
 	await openPage([
 		['a', { apiUrl: SERVER_A }],
 		['d', {}, sessions]
@@ -503,4 +507,23 @@ test('a provider without an apiUrl reads its sessions from the address the page 
 
 	const reads = requestsTo('/timesheet/custom-tracking/sessions').map(({ host }) => host);
 	assert.deepEqual(reads, ['host.example.com']);
+});
+
+test('sessions read on the previous address of a provider never show once it has another', async () => {
+	const answerWith = (id) => ({ success: true, data: { sessions: [{ id }] } });
+	const sessionsPath = '/timesheet/custom-tracking/sessions';
+	const api = answering([
+		{ host: hostOf(SERVER_A), path: sessionsPath, held: true, body: answerWith('session-of-a') },
+		{ host: hostOf(SERVER_B), path: sessionsPath, body: answerWith('session-of-b') }
+	]);
+	const { root } = await openPage([['a', hostSignInOn(SERVER_A), sessionsOf('a')]]);
+	await settle();
+
+	await renderPage(root, [['a', hostSignInOn(SERVER_B), sessionsOf('a')]]);
+	await settle();
+	await act(async () => api.release());
+	await settle();
+
+	assert.deepEqual(shownSessions.a, [{ id: 'session-of-b' }]);
+	assert.deepEqual(new Set(api.tokensSentTo(SERVER_B)), new Set([`${hostOf(SERVER_B)}-token`]));
 });
