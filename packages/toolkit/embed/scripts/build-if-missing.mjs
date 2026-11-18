@@ -4,17 +4,19 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
+import { createRequire } from 'node:module';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const BUILT_ELEMENT = path.join(here, '..', 'dist', 'ever-teams-embed.js');
 const REPOSITORY_ROOT = path.join(here, '..', '..', '..', '..');
 
+// turbo runs on this Node from its own file, with no shell and no command looked up in PATH.
 function buildElementWithTurbo() {
-	const result = spawnSync('yarn', ['turbo', 'build', '--filter=@ever-teams/embed'], {
+	const turbo = createRequire(path.join(REPOSITORY_ROOT, 'package.json')).resolve('turbo/bin/turbo');
+	const result = spawnSync(process.execPath, [turbo, 'build', '--filter=@ever-teams/embed'], {
 		cwd: REPOSITORY_ROOT,
-		stdio: 'inherit',
-		shell: true
+		stdio: 'inherit'
 	});
 	return result.status ?? 1;
 }
