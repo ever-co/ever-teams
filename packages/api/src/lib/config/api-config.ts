@@ -4,6 +4,12 @@ export interface IApiTeamsConfig {
 	environment?: 'development' | 'production' | 'test';
 }
 
+// The API one caller's requests go to, for a page that talks to more than one: the request functions take it as their
+// last argument. Without it, or without its apiUrl, a request goes to the address set with setConfig().
+export interface IApiRequestConfig {
+	apiUrl?: string;
+}
+
 // The package ships an ES and a CommonJS build. A page that loads both (a host imports this package while a
 // dependency requires it) runs two copies of this module: they share one configuration, kept on globalThis, so a
 // setConfig() through either reaches the requests of both.
