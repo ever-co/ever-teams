@@ -1,6 +1,9 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react-native';
+import { runAsBuild } from '../../test/app-shell';
+import { NextShellStack } from './next-shell';
 
+jest.mock('./next-shell-build', () => jest.requireActual('../../test/app-shell').nextShellBuildStandIn);
 jest.mock('expo-router', () => {
 	const { createElement } = jest.requireActual('react');
 	const { Text } = jest.requireActual('react-native');
@@ -10,24 +13,9 @@ jest.mock('expo-router', () => {
 	};
 });
 
-/** The module as a build with this EXPO_PUBLIC_APP_SHELL loads it. */
-function nextShellOfBuild(appShell: string | undefined): typeof import('./next-shell') {
-	let loaded: typeof import('./next-shell') | undefined;
-	const previous = process.env.EXPO_PUBLIC_APP_SHELL;
-	process.env.EXPO_PUBLIC_APP_SHELL = appShell;
-	jest.isolateModules(() => {
-		loaded = jest.requireActual('./next-shell');
-	});
-	process.env.EXPO_PUBLIC_APP_SHELL = previous;
-	if (!loaded) {
-		throw new Error('next-shell did not load');
-	}
-	return loaded;
-}
-
 describe("the new app's pages without a screen yet", () => {
 	it('show in builds of the new app', async () => {
-		const { NextShellStack } = nextShellOfBuild('next');
+		runAsBuild('next');
 
 		await render(<NextShellStack />);
 
@@ -35,7 +23,7 @@ describe("the new app's pages without a screen yet", () => {
 	});
 
 	it('open the team in the app people install, instead of an empty page', async () => {
-		const { NextShellStack } = nextShellOfBuild(undefined);
+		runAsBuild(undefined);
 
 		await render(<NextShellStack />);
 
