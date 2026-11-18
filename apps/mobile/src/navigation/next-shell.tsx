@@ -1,8 +1,9 @@
 import React from 'react';
 import { Redirect, Stack } from 'expo-router';
 
-/** Builds made with EXPO_PUBLIC_APP_SHELL=next show the new app's screens; the app people install shows the current ones. */
-export const NEXT_SHELL_BUILD = process.env.EXPO_PUBLIC_APP_SHELL === 'next';
+import { NEXT_SHELL_BUILD } from './next-shell-build';
+
+export { NEXT_SHELL_BUILD };
 
 /**
  * A group of the new app's pages that have no screen yet (`/team/tasks`, `/my-week`, `/all-teams`): they show in its own
