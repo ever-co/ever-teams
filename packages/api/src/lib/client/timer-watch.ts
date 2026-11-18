@@ -1,6 +1,6 @@
-import { ITimerStatus, TimerChange } from '@ever-teams/toolkit-types';
+import { TimerChange } from '@ever-teams/toolkit-types';
 import { clientError, isRecord } from './error-mapping';
-import { timerChangeOf } from './timer-change';
+import { TimerStatusRead, timerChangeOf } from './timer-change';
 
 export interface TimerWatchOptions {
 	/** Milliseconds between two reads: 60 000 by default, the kit's rate, and 15 000 at least. */
@@ -63,7 +63,7 @@ function throwLater(error: unknown): void {
 // An answer with no status in it (null, an empty body, an object without a boolean running) is a failed read, as an
 // answer of GET /user/me with no user is: it is not taken for a stopped timer, and the last change told stays the
 // baseline.
-function statusOf(answer: unknown): ITimerStatus {
+function statusOf(answer: unknown): TimerStatusRead {
 	const hasStatus = isRecord(answer) && typeof answer['running'] === 'boolean';
 	if (!hasStatus) {
 		throw clientError(
@@ -72,7 +72,7 @@ function statusOf(answer: unknown): ITimerStatus {
 			"Check that apiUrl is the Ever Teams API's address (it ends with /api). The watch reads again at its next turn."
 		);
 	}
-	return answer as unknown as ITimerStatus;
+	return answer as unknown as TimerStatusRead;
 }
 
 function callOnError(onError: (error: unknown) => void, error: unknown): void {
@@ -88,7 +88,8 @@ function callOnError(onError: (error: unknown) => void, error: unknown): void {
  * the page is visible, one read at a time; tells `listener` the first read and each change. Answers the stop.
  */
 export function watchTimer(
-	read: () => Promise<ITimerStatus>,
+	// Any answer: statusOf checks it before it is read.
+	read: () => Promise<unknown>,
 	listener: TimerListener,
 	options: TimerWatchOptions = {}
 ): () => void {
