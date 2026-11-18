@@ -8,7 +8,7 @@ import { KitColorScheme, setKitPreferences } from '@lib/stores/kit-preferences';
 function useSchemeSwitch() {
 	const { setTheme } = useTheme();
 	return (scheme: KitColorScheme) => {
-		setKitPreferences({ colorScheme: scheme });
+		setKitPreferences({ colorScheme: scheme, chosenColorScheme: scheme });
 		setTheme(scheme);
 	};
 }
