@@ -3,7 +3,7 @@ import { convertMsToTime, secondsToTime } from '../../helpers/date';
 import { startTimerRequest, stopTimerRequest, syncTimeSlotRequest, toggleTimerRequest } from '../client/requests/timer';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSyncRef } from './use-sync-ref';
-import { ILocalTimerStatus, ITimerParams, ITimerStatus, TimerSource } from '../interfaces/ITimer';
+import { ILocalTimerStatus, ITimer, ITimerParams, ITimerStatus, TimerSource } from '../interfaces/ITimer';
 import { useFirstLoad } from './use-first-load';
 import isEqual from 'lodash/isEqual';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -176,6 +176,20 @@ export const TimeCounterHost = observer(function TimeCounterHost() {
 /** The stops under way together, and what the screen showed running before the first of them. */
 type StopsUnderWay = { count: number; stopped: boolean; failed: boolean; shownAsRunning: ILocalTimerStatus | null };
 
+/** Tells the other writer of the running time, if one is registered, that the API started or stopped the timer. */
+function tellTimerChanged(log: ITimer | undefined): void {
+	const writer = runningTimeWriter();
+	if (!writer) {
+		return;
+	}
+	if (log?.isRunning) {
+		writer.afterStart(log);
+		return;
+	}
+	// a toggle that stopped the timer answers with the run it stopped
+	writer.afterStop(log);
+}
+
 /** Writes seconds of the running timer as a time slot: rejects when the API did not write them. */
 async function writeTimeSlot(
 	params: ITimerParams,
@@ -257,7 +271,7 @@ export function useTimer() {
 			running: response?.data.isRunning
 		};
 		setTimerStatus(status);
-		runningTimeWriter()?.afterChange();
+		tellTimerChanged(response?.data);
 	}, []);
 
 	useEffect(() => {
@@ -297,7 +311,7 @@ export function useTimer() {
 		};
 		setTimerStatus(status);
 		setTimerStatusFetching(false);
-		runningTimeWriter()?.afterChange();
+		tellTimerChanged(data);
 
 		/**
 		 *  Updating the task status to "In Progress" when the timer is started.
@@ -367,11 +381,13 @@ export function useTimer() {
 
 		setStopTimerLoading(true);
 		const otherWriter = runningTimeWriter();
+		const runToStop = timerStatusRef.current?.lastLog;
+		let stopped = false;
 
 		try {
 			// Where another writer writes the running time, the time since its last write goes first, as its own stop does
 			if (otherWriter) {
-				await otherWriter.beforeStop(timerStatusRef.current?.lastLog, (seconds) =>
+				await otherWriter.beforeStop(runToStop, (seconds) =>
 					writeTimeSlot(params, session.user?.employee?.id, authToken, seconds)
 				);
 			}
@@ -381,6 +397,7 @@ export function useTimer() {
 			// stopped, and its status says the same until the next read
 			if (response.status === 406) {
 				stops.stopped = true;
+				stopped = true;
 				setTimerStatus({ ...timerStore.timerStatus, running: false });
 				return;
 			}
@@ -392,6 +409,7 @@ export function useTimer() {
 			}
 
 			stops.stopped = true;
+			stopped = true;
 			const status: ITimerStatus = {
 				duration: data.duration,
 				running: data.isRunning,
@@ -406,7 +424,8 @@ export function useTimer() {
 			if (stops.count === 0) {
 				settleStops(stops);
 			}
-			otherWriter?.afterChange();
+			// a stop that failed leaves the run to the other writer, which goes on writing it
+			otherWriter?.afterStop(stopped ? runToStop : undefined);
 		}
 	}, [taskId.current]);
 

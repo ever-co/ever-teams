@@ -2,7 +2,7 @@ import { registerRunningTimeWriter, runningTimeWriter } from './running-time-wri
 import type { RunningTimeWriter } from './running-time-writer';
 
 function aWriter(): RunningTimeWriter {
-	return { beforeStop: jest.fn(() => Promise.resolve()), afterChange: jest.fn() };
+	return { afterStart: jest.fn(), beforeStop: jest.fn(() => Promise.resolve()), afterStop: jest.fn() };
 }
 
 describe('the other writer of the running time', () => {

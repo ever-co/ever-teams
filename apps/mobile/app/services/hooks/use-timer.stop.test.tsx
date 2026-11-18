@@ -203,11 +203,12 @@ describe('Stop pressed on the timer screen', () => {
 	it("lets another writer of the running time write the run's last seconds first, in builds of the new app", async () => {
 		const told: string[] = [];
 		const writer: RunningTimeWriter = {
+			afterStart: jest.fn(),
 			beforeStop: jest.fn(async (_run, write) => {
 				told.push('before the stop');
 				await write(42).catch(() => told.push('the write was refused'));
 			}),
-			afterChange: jest.fn(() => told.push('after the stop'))
+			afterStop: jest.fn(() => told.push('after the stop'))
 		};
 		const withdraw = registerRunningTimeWriter(writer);
 		try {
@@ -228,7 +229,28 @@ describe('Stop pressed on the timer screen', () => {
 			// the fake API has no time slots: a refused write does not hold the stop back
 			expect(told).toEqual(['before the stop', 'the write was refused', 'after the stop']);
 			expect(gauzy.timer()?.isRunning).toBe(false);
+			expect(writer.afterStop).toHaveBeenCalledWith(expect.objectContaining({ isRunning: true }));
 			expect(showMessage).not.toHaveBeenCalled();
+		} finally {
+			withdraw();
+		}
+	});
+
+	it('leaves the run to the other writer of the running time when the API refuses the stop', async () => {
+		const writer: RunningTimeWriter = {
+			afterStart: jest.fn(),
+			beforeStop: jest.fn(() => Promise.resolve()),
+			afterStop: jest.fn()
+		};
+		const withdraw = registerRunningTimeWriter(writer);
+		try {
+			const screen = await openTimerScreen();
+			gauzy.breakStop();
+
+			await screen.pressStop();
+
+			expect(gauzy.timer()?.isRunning).toBe(true);
+			expect(writer.afterStop).toHaveBeenCalledWith(undefined);
 		} finally {
 			withdraw();
 		}

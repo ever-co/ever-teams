@@ -4,16 +4,28 @@ import { registerRunningTimeWriter } from '../../app/services/hooks/running-time
 import type { RunningTimeWriter } from '../../app/services/hooks/running-time-writer';
 import { queryClient } from '../data/query-client';
 import { NEXT_SHELL_BUILD } from '../navigation/next-shell-build';
-import { runIdOf, writeRunTimeBeforeStop } from './heartbeat';
+import { followRun, forgetRun, runIdOf, writeRunTimeBeforeStop } from './heartbeat';
 import { RunHeartbeat } from './run-heartbeat';
 
+function readTheTimerAgain(): void {
+	void queryClient.invalidateQueries({ queryKey: ['home', 'timer-status'] });
+}
+
 /**
- * What the current screens' start and stop tell the new heartbeat. A start or a stop makes it read the timer at once,
- * instead of at its next read: it follows a run they started from then on, and lets go of one they stopped. Before
- * their stop, the time since its last write of that run is written, as the new Home's stop does, so a run's last
- * minute, or a run shorter than one, is written too, and once.
+ * What the current screens' start and stop tell the new heartbeat. It follows a run they started from the start's
+ * answer, not from its next read of the timer, which it makes at once. Before their stop, the time since its last write
+ * of that run is written, as the new Home's stop does, so a run's last minute, or a run shorter than one, is written
+ * too, and once. After their stop it lets go of the run the API stopped, so no heartbeat writes it again before the
+ * next read of the timer, which it makes at once.
  */
 export const heartbeatOfTheCurrentScreens: RunningTimeWriter = {
+	afterStart(run) {
+		const runId = runIdOf(run);
+		if (runId) {
+			followRun(runId, Date.now());
+		}
+		readTheTimerAgain();
+	},
 	async beforeStop(run, write) {
 		try {
 			await writeRunTimeBeforeStop(write, runIdOf(run));
@@ -21,8 +33,12 @@ export const heartbeatOfTheCurrentScreens: RunningTimeWriter = {
 			// the run's time up to the last heartbeat is written; the stop goes on
 		}
 	},
-	afterChange() {
-		void queryClient.invalidateQueries({ queryKey: ['home', 'timer-status'] });
+	afterStop(stoppedRun) {
+		const runId = runIdOf(stoppedRun);
+		if (runId) {
+			forgetRun(runId);
+		}
+		readTheTimerAgain();
 	}
 };
 
