@@ -21,7 +21,11 @@ export function TimerDigits({ counted, countedAt, running }: TimerDigitsProps) {
 	const { hours, minutes } = hoursAndMinutes(seconds);
 	const spoken = `${translate('shell.home.today')}, ${translate('shell.home.duration', { hours, minutes })}`;
 	return (
-		<Text accessibilityLabel={spoken} style={[theme.type.timer, styles.digits, { color: theme.colors.foreground }]}>
+		<Text
+			testID="home-today-digits"
+			accessibilityLabel={spoken}
+			style={[theme.type.timer, styles.digits, { color: theme.colors.foreground }]}
+		>
 			{clockOf(seconds)}
 		</Text>
 	);

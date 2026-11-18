@@ -35,6 +35,20 @@ maestro test apps/mobile/.maestro \
 
 `runScript` steps run on the computer that runs Maestro, so `HELPER` is an address seen from that computer, not from the emulator. One flow: `maestro test apps/mobile/.maestro/team.yaml -e ...`.
 
+## The new app's flows
+
+The flows in `next/` use the new app (`src/`, Expo Router), which only opens in builds made with `EXPO_PUBLIC_APP_SHELL=next`, so `maestro test apps/mobile/.maestro` leaves them out. The new app has no sign-in screen yet and reads the session the current app saved: sign in with a build of the current app, install the new app's build over it, then run them.
+
+| Flow | What the person does |
+| --- | --- |
+| `next/home-timer.yaml` | starts the timer from Home on their last task, sees today's time run, and stops it |
+
+`home-timer.yaml` needs a person who has tracked time on a task before, since Home starts the timer on the last task.
+
+```bash
+maestro test apps/mobile/.maestro/next -e APP_ID=<the app's Android package or iOS bundle identifier>
+```
+
 ## Checking a run on another device
 
 - `--format junit --output report.xml` writes one result per flow, and `--debug-output <folder>` keeps each step's screenshot and the logs.

@@ -77,6 +77,7 @@ function TimerButton({ running, enabled, onPress }: { running: boolean; enabled:
 	const look = buttonLookOf(theme, running);
 	return (
 		<Pressable
+			testID="home-timer-button"
 			accessibilityRole="button"
 			accessibilityLabel={look.spoken}
 			accessibilityState={{ disabled: !enabled }}
@@ -145,7 +146,7 @@ function WeekTotal() {
 				{translate('shell.home.thisWeek')}
 			</Text>
 			{totals.data && (
-				<Text style={[theme.type.stat, { color: theme.colors.foreground }]}>
+				<Text testID="home-week-total" style={[theme.type.stat, { color: theme.colors.foreground }]}>
 					{durationText(totals.data.weekDuration)}
 				</Text>
 			)}
@@ -213,7 +214,10 @@ export function HomeTimer() {
 				</Text>
 				<TimerDigits counted={status.data.duration} countedAt={status.dataUpdatedAt} running={running} />
 				{running && lastLog && (
-					<Text style={[theme.type.hint, styles.centered, { color: theme.colors['muted-foreground'] }]}>
+					<Text
+						testID="home-running-since"
+						style={[theme.type.hint, styles.centered, { color: theme.colors['muted-foreground'] }]}
+					>
 						{translate('shell.home.runningSince', { time: timeOfDay(lastLog.startedAt) })}
 					</Text>
 				)}
