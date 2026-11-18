@@ -191,3 +191,31 @@ test('in a shadow root the Tab loop skips a control in a display: none box', asy
 	assert.equal(shadow.activeElement, first, 'Tab on the last control skips the one not drawn');
 	await act(async () => root.unmount());
 });
+
+test('in a shadow root a Tab a control of the dialog handled itself is left to it', async () => {
+	const host = document.createElement('div');
+	document.body.appendChild(host);
+	const shadow = host.attachShadow({ mode: 'open' });
+	const keepsShiftTab = React.createElement(
+		'textarea',
+		{
+			key: 'note',
+			onKeyDown: (event) => {
+				if (event.key === 'Tab') {
+					event.preventDefault();
+				}
+			}
+		},
+		''
+	);
+	const { root, portal } = await openDialog(shadow, [], [keepsShiftTab]);
+	const note = portal.querySelector('textarea');
+
+	await act(async () => note.focus());
+	await act(async () =>
+		note.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', shiftKey: true, bubbles: true, composed: true }))
+	);
+
+	assert.equal(shadow.activeElement, note);
+	await act(async () => root.unmount());
+});

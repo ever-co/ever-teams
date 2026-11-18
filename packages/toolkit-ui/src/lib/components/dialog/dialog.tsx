@@ -106,6 +106,10 @@ function keepTabInShadowDialog(event: React.KeyboardEvent<HTMLElement>) {
 	if (event.key !== 'Tab') {
 		return;
 	}
+	// A control of the dialog that handled the key itself keeps it
+	if (event.defaultPrevented) {
+		return;
+	}
 	const content = event.currentTarget;
 	const shadow = shadowRootOf(content);
 	if (!shadow) {
