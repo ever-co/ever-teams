@@ -51,7 +51,7 @@ const TimerStartSheet: FC<ITimerStartSheetProps> = observer(({ visible, onClose 
 					handleIndicatorStyle={{ backgroundColor: colors.border }}
 					keyboardBehavior="interactive"
 					keyboardBlurBehavior="restore"
-					android_keyboardInputMode="adjustResize"
+					android_keyboardInputMode="adjustPan"
 				>
 					<BottomSheetView>
 						<TimerStartPanel
