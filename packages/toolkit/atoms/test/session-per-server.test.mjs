@@ -261,3 +261,15 @@ test('"Sign in again" under server B\'s provider leaves server A\'s session', as
 	assert.deepEqual(authorizedTo(HOST_B), [], 'the ended session of B is not read back');
 	assert.equal(noticeOf('b'), null);
 });
+
+test('a provider whose address changes holds no session of its previous server', async () => {
+	const root = await openPage([['a', { apiUrl: SERVER_A }]]);
+	await signInOn('a');
+
+	servers.requests.length = 0;
+	await renderPage(root, [['a', { apiUrl: SERVER_B }]]);
+	assert.deepEqual(authorizedTo(HOST_B), [], "A's token never reaches B");
+	assert.equal(noticeOf('a'), null);
+	assert.equal(stored().persist.apiUrl, SERVER_A);
+	assert.equal(stored().servers, undefined, 'nothing is saved for B');
+});
