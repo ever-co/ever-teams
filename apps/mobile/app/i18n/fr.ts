@@ -1,5 +1,6 @@
 const fr = {
 	common: {
+		openMenu: 'Ouvrir le menu',
 		ok: 'OK!',
 		cancel: 'Annuler',
 		loading: 'Patientez',
@@ -15,6 +16,8 @@ const fr = {
 		endedMessage: 'Reconnectez-vous pour continuer.'
 	},
 	timer: {
+		startLabel: 'Démarrer le chronomètre',
+		stopLabel: 'Arrêter le chronomètre',
 		stopFailedTitle: "Le chronomètre n'a pas pu s'arrêter",
 		stopFailedMessage: 'Il tourne toujours. Réessayez dans un instant.',
 		startMove: {

@@ -56,6 +56,8 @@ const PassCode: FC<Props> = observer(
 		} = useStores();
 
 		const authTeamInput = useRef<TextInput | null>(null);
+		// A request for the code under way: Continue pressed again meanwhile sends no second one
+		const isSendingCode = useRef(false);
 		const [step, setStep] = useState<'Email' | 'Code' | 'Tenant'>('Email');
 		const [isValid, setIsValid] = useState<{ step1: boolean; step2: boolean; step3: boolean }>({
 			step1: false,
@@ -71,13 +73,18 @@ const PassCode: FC<Props> = observer(
 
 		const onNextStep = async () => {
 			if (step === 'Email') {
-				getAuthCode();
-				setTimeout(() => {
-					if (!isLoading) {
-						setStep('Code');
-						setAuthInviteCode('');
-					}
-				}, 1000);
+				if (isSendingCode.current) {
+					return;
+				}
+				isSendingCode.current = true;
+				// The code step opens once the API has answered: the code the person is asked for exists by then
+				try {
+					await getAuthCode();
+				} finally {
+					isSendingCode.current = false;
+				}
+				setStep('Code');
+				setAuthInviteCode('');
 				return;
 			}
 
@@ -212,6 +219,7 @@ const PassCode: FC<Props> = observer(
 								borderColor: colors.border
 							}}
 							ref={authTeamInput}
+							testID="sign-in-email"
 							value={authEmail}
 							onChangeText={onChangeEmail}
 							autoCapitalize="none"
@@ -238,7 +246,7 @@ const PassCode: FC<Props> = observer(
 						)}
 						<CodeInputField editable onChange={onChangeAuthCode} defaultValue={authInviteCode} />
 						{joinError ? <Text style={styles.verifyError}>{joinError}</Text> : null}
-						<TouchableOpacity onPress={() => getAuthCode()}>
+						<TouchableOpacity testID="sign-in-resend-code" onPress={() => getAuthCode()}>
 							<Text style={styles.resendText}>
 								{translate('loginScreen.codeNotReceived')}
 								{translate('loginScreen.sendCode').substring(0, 2)}
@@ -286,6 +294,7 @@ const PassCode: FC<Props> = observer(
 							width: 65
 						}}
 						onPress={() => onPrevStep()}
+						testID="sign-in-back"
 					>
 						<Feather name="arrow-left" size={24} color={dark ? colors.primary : '#3826A6'} />
 						<Text
@@ -312,6 +321,7 @@ const PassCode: FC<Props> = observer(
 						]}
 						textStyle={styles.tapButtonText}
 						onPress={() => onNextStep()}
+						testID="sign-in-continue"
 						disabled={
 							(step === 'Email' && !isValid.step1) ||
 							(step === 'Code' && !isValid.step2) ||

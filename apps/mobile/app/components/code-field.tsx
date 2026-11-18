@@ -45,6 +45,7 @@ export const CodeInputField: FC<ICodeField> = (props) => {
 			maxLength={undefined}
 			onChangeText={(text: string) => setValue(normalizeEmailedCode(text, length))}
 			cellCount={length}
+			testID="emailed-code-input"
 			autoFocus
 			textInputStyle={styles.hiddenInput}
 			rootStyle={styles.container}

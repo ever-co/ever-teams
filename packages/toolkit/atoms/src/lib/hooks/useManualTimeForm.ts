@@ -6,6 +6,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { toast, reportError, getErrorMessage } from '@ever-teams/toolkit-ui';
 import { useTranslation } from 'react-i18next';
 import { format, subMinutes, addMinutes, isAfter, startOfDay, isToday as isTodayFns } from 'date-fns';
+import { noTeamsState, useForgetOnAccountChange } from './useForgetOnAccountChange';
 import { useUserOrganization } from './useUserOrganization';
 
 const roundToNearest5Min = (date: Date): Date => {
@@ -34,11 +35,21 @@ export const useManualTimeForm = () => {
 	const [errors, setErrors] = useState<string[]>([]);
 	const [isBillable, setIsBillable] = useState<boolean>(true);
 
-	const [currentTeamsState, setCurrentTeamsState] = useState<ICurrentTeamsState>({
-		projectId: null,
-		taskId: null,
-		organizationTeamId: null,
-		clientId: null
+	const [currentTeamsState, setCurrentTeamsState] = useState<ICurrentTeamsState>(noTeamsState);
+
+	// Another account starts from a new form: after a sign-out that keeps the form mounted, what the previous account
+	// picked, typed or set (its day and hours too) would otherwise go out with the next account's time.
+	// A submission that comes back after the account changed belongs to the previous one: the form stays as it is.
+	const accountGeneration = useForgetOnAccountChange(() => {
+		const now = roundToNearest5Min(new Date());
+		setDate(new Date());
+		setStartTime(format(subMinutes(now, 10), 'HH:mm'));
+		setEndTime(format(now, 'HH:mm'));
+		setCurrentTeamsState(noTeamsState());
+		setDescription('');
+		setIsBillable(true);
+		setErrors([]);
+		setLoading(false);
 	});
 
 	const { data: userOrganizations } = useUserOrganization(user, token);
@@ -127,8 +138,13 @@ export const useManualTimeForm = () => {
 			source: TimerSource.TEAMS
 		};
 
+		const generation = accountGeneration.current;
+		const isForPreviousAccount = () => generation !== accountGeneration.current;
 		try {
 			const result = await addManualTime({ token, body });
+			if (isForPreviousAccount()) {
+				return;
+			}
 
 			if ('message' in result || 'error' in result) {
 				const msg =
@@ -151,11 +167,17 @@ export const useManualTimeForm = () => {
 			// Reset form
 			setDescription('');
 		} catch (error) {
+			// reportError shows a toast: the previous account's failure is not shown to the next one either
+			if (isForPreviousAccount()) {
+				return;
+			}
 			const errorMessage = getErrorMessage(error);
 			setErrors([errorMessage]);
 			reportError(errorMessage);
 		} finally {
-			setLoading(false);
+			if (!isForPreviousAccount()) {
+				setLoading(false);
+			}
 		}
 	};
 

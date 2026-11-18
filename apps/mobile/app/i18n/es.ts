@@ -1,5 +1,6 @@
 const es = {
 	common: {
+		openMenu: 'Abrir el menú',
 		ok: 'OK!',
 		cancel: 'Cancel',
 		loading: 'Loading',
@@ -15,6 +16,8 @@ const es = {
 		endedMessage: 'Vuelve a iniciar sesión para continuar.'
 	},
 	timer: {
+		startLabel: 'Iniciar el temporizador',
+		stopLabel: 'Detener el temporizador',
 		stopFailedTitle: 'El temporizador no pudo detenerse',
 		stopFailedMessage: 'Sigue en marcha. Inténtalo de nuevo en un momento.',
 		startMove: {

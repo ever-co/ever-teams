@@ -1,0 +1,30 @@
+# Starts the app from a cleared state and signs in with the code sent to EMAIL. Ends on the signed-in tabs.
+appId: ${APP_ID}
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible:
+      id: "sign-in-email"
+    timeout: 30000
+- tapOn:
+    id: "sign-in-email"
+- inputText: ${EMAIL}
+- hideKeyboard
+- tapOn:
+    id: "sign-in-continue"
+- extendedWaitUntil:
+    visible:
+      id: "emailed-code-input"
+    timeout: 30000
+- runScript:
+    file: code.js
+- tapOn:
+    id: "emailed-code-input"
+- inputText: ${output.code}
+- tapOn:
+    id: "sign-in-continue"
+- extendedWaitUntil:
+    visible:
+      id: "tab-team"
+    timeout: 45000
