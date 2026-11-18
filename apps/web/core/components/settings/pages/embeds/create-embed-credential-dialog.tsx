@@ -3,6 +3,7 @@
 import { ChangeEvent, FormEvent, useId, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { APP_DIALOG_BODY, APP_DIALOG_FOOTER, AppDialog, AppDialogHeader } from '@/core/components/common/app-dialog';
+import { Checkbox } from '@/core/components/common/checkbox';
 import { Input } from '@/core/components/common/input';
 import { Notice } from '@/core/components/common/notice';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/core/components/common/select';
@@ -12,9 +13,11 @@ import { ApiTokenSecret } from '@/core/components/settings/pages/api-tokens/api-
 import { useActiveClients } from '@/core/hooks/clients/use-clients-query';
 import { useCreateEmbedCredential } from '@/core/hooks/settings/use-embeds';
 import { cn } from '@/core/lib/helpers';
+import { EmbedMembersNotAddedError } from '@/core/services/client/api/embeds/embeds.service';
 import {
 	EMBED_CREDENTIAL_NAME_MAX_LENGTH,
-	type CreatedEmbedCredential
+	type CreatedEmbedCredential,
+	type EmbedCredentialInput
 } from '@/core/types/schemas/embeds/embed.schema';
 
 type Translate = ReturnType<typeof useTranslations>;
@@ -134,14 +137,60 @@ function CredentialClientField({ clientId, onChange, disabled }: Readonly<Client
 	);
 }
 
+type AddMembersFieldProps = {
+	checked: boolean;
+	onChange: (checked: boolean) => void;
+	disabled: boolean;
+};
+
+/** Whether the credential adds the people its site signs in who are not members yet, as employees. */
+function AddMembersField({ checked, onChange, disabled }: Readonly<AddMembersFieldProps>) {
+	const t = useTranslations();
+	const hintId = useId();
+	return (
+		<div className="flex flex-col gap-1.5">
+			<label className="flex items-start gap-2 text-xs font-medium text-foreground">
+				<Checkbox
+					checked={checked}
+					onCheckedChange={(next) => onChange(next === true)}
+					disabled={disabled}
+					aria-describedby={hintId}
+				/>
+				{t('settings.embeds.ADD_MEMBERS_LABEL')}
+			</label>
+			<p className="pl-6 text-xs text-pretty text-muted-foreground" id={hintId}>
+				{t('settings.embeds.ADD_MEMBERS_HINT')}
+			</p>
+		</div>
+	);
+}
+
+/**
+ * What the dialog says when the credential was not created: a server that would not let it add members gets its own
+ * words, since trying again as it was would fail the same way.
+ */
+function createFailureOf(error: unknown, t: Translate): string {
+	if (error instanceof EmbedMembersNotAddedError) {
+		return t('settings.embeds.ADD_MEMBERS_FAILED');
+	}
+	return t('settings.embeds.CREATE_FAILED');
+}
+
 type CreateFormProps = {
 	create: ReturnType<typeof useCreateEmbedCredential>;
 	canLimitToClient: boolean;
+	canAllowAddMembers: boolean;
 	onCancel: () => void;
 	onCreated: (created: CreatedEmbedCredential) => void;
 };
 
-function CreateCredentialForm({ create, canLimitToClient, onCancel, onCreated }: Readonly<CreateFormProps>) {
+function CreateCredentialForm({
+	create,
+	canLimitToClient,
+	canAllowAddMembers,
+	onCancel,
+	onCreated
+}: Readonly<CreateFormProps>) {
 	const t = useTranslations();
 	const nameId = useId();
 	const nameNoteId = useId();
@@ -150,6 +199,9 @@ function CreateCredentialForm({ create, canLimitToClient, onCancel, onCreated }:
 	// Kept while a client is chosen, even if the config read again says the API can no longer limit a credential: the
 	// choice stays in sight and can be changed, never widened behind the person's back
 	const isClientFieldShown = canLimitToClient || clientId !== null;
+	const [canAddMembers, setCanAddMembers] = useState(false);
+	// Kept while ticked, for the same reason: the option is never dropped behind the person's back
+	const isAddMembersFieldShown = canAllowAddMembers || canAddMembers;
 	const [isNameMissing, setIsNameMissing] = useState(false);
 	const isCreating = create.isPending;
 
@@ -161,7 +213,11 @@ function CreateCredentialForm({ create, canLimitToClient, onCancel, onCreated }:
 		}
 		setIsNameMissing(false);
 		// A chosen client is always sent, never dropped: the service refuses a credential the API did not limit to it
-		create.mutate({ name, organizationContactId: clientId }, { onSuccess: onCreated });
+		const input: EmbedCredentialInput = { name, organizationContactId: clientId };
+		if (canAddMembers) {
+			input.canAddMembers = true;
+		}
+		create.mutate(input, { onSuccess: onCreated });
 	};
 
 	let nameNote = t('settings.embeds.NAME_HINT');
@@ -205,7 +261,10 @@ function CreateCredentialForm({ create, canLimitToClient, onCancel, onCreated }:
 				{isClientFieldShown && (
 					<CredentialClientField clientId={clientId} onChange={setClientId} disabled={isCreating} />
 				)}
-				{create.isError && <Notice tone="error" title={t('settings.embeds.CREATE_FAILED')} />}
+				{isAddMembersFieldShown && (
+					<AddMembersField checked={canAddMembers} onChange={setCanAddMembers} disabled={isCreating} />
+				)}
+				{create.isError && <Notice tone="error" title={createFailureOf(create.error, t)} />}
 			</div>
 			<div className={cn(APP_DIALOG_FOOTER, 'justify-end')}>
 				<Button type="button" variant="outline" onClick={onCancel} disabled={isCreating}>
@@ -246,15 +305,23 @@ type CreateDialogProps = {
 	open: boolean;
 	/** The server can limit a credential to one client: an older one would drop the client and reach every client. */
 	canLimitToClient: boolean;
+	/** The server can let a credential add the people it signs in: an older one would drop the option. */
+	canAllowAddMembers: boolean;
 	onClose: () => void;
 };
 
 /**
- * Creates a credential from a name, and a client when the server can limit it to one, then shows its secret this
- * once. While the secret is on screen only Done closes the dialog, and while the credential is being made nothing
- * does: the secret the server answers would be lost.
+ * Creates a credential from a name, a client when the server can limit it to one, and whether it adds the people it
+ * signs in when the server can let it, then shows its secret this once. While the secret is on screen only Done
+ * closes the dialog, and while the credential is being made nothing does: the secret the server answers would be
+ * lost.
  */
-export function CreateEmbedCredentialDialog({ open, canLimitToClient, onClose }: Readonly<CreateDialogProps>) {
+export function CreateEmbedCredentialDialog({
+	open,
+	canLimitToClient,
+	canAllowAddMembers,
+	onClose
+}: Readonly<CreateDialogProps>) {
 	const create = useCreateEmbedCredential();
 	const [created, setCreated] = useState<CreatedEmbedCredential | null>(null);
 	const isSecretShown = created !== null;
@@ -282,6 +349,7 @@ export function CreateEmbedCredentialDialog({ open, canLimitToClient, onClose }:
 				<CreateCredentialForm
 					create={create}
 					canLimitToClient={canLimitToClient}
+					canAllowAddMembers={canAllowAddMembers}
 					onCancel={close}
 					onCreated={setCreated}
 				/>

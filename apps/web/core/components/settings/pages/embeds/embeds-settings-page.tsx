@@ -298,11 +298,16 @@ function CredentialRow({ row, clientNames, onRevoke }: Readonly<CredentialRowPro
 	);
 }
 
+type CredentialsSectionProps = {
+	canLimitToClient: boolean;
+	canAllowAddMembers: boolean;
+};
+
 /**
  * The credentials the organization's hosts exchange on their servers for timer-only tokens; a new one may be limited
- * to one client when the server can.
+ * to one client, and may add the people it signs in, when the server can.
  */
-function CredentialsSection({ canLimitToClient }: Readonly<{ canLimitToClient: boolean }>) {
+function CredentialsSection({ canLimitToClient, canAllowAddMembers }: Readonly<CredentialsSectionProps>) {
 	const t = useTranslations();
 	const { credentials, isLoading, isError, refetch } = useEmbedCredentials(true);
 	// The clients are read only to name the ones credentials are limited to
@@ -367,6 +372,7 @@ function CredentialsSection({ canLimitToClient }: Readonly<{ canLimitToClient: b
 			<CreateEmbedCredentialDialog
 				open={isCreateOpen}
 				canLimitToClient={canLimitToClient}
+				canAllowAddMembers={canAllowAddMembers}
 				onClose={() => setIsCreateOpen(false)}
 			/>
 			<ConfirmDestructiveDialog
@@ -419,10 +425,11 @@ function availabilityNoticeOf(availability: EmbedsAvailability, t: Translate, on
 type EmbedsBodyProps = {
 	availability: EmbedsAvailability;
 	canLimitToClient: boolean;
+	canAllowAddMembers: boolean;
 	onRetry: () => void;
 };
 
-function EmbedsBody({ availability, canLimitToClient, onRetry }: Readonly<EmbedsBodyProps>) {
+function EmbedsBody({ availability, canLimitToClient, canAllowAddMembers, onRetry }: Readonly<EmbedsBodyProps>) {
 	const t = useTranslations();
 	if (availability === 'loading') {
 		return (
@@ -436,7 +443,7 @@ function EmbedsBody({ availability, canLimitToClient, onRetry }: Readonly<Embeds
 	return (
 		<>
 			<AllowedOriginsSection />
-			<CredentialsSection canLimitToClient={canLimitToClient} />
+			<CredentialsSection canLimitToClient={canLimitToClient} canAllowAddMembers={canAllowAddMembers} />
 		</>
 	);
 }
@@ -448,10 +455,15 @@ function EmbedsBody({ availability, canLimitToClient, onRetry }: Readonly<Embeds
  */
 export function EmbedsSettingsPage() {
 	const t = useTranslations();
-	const { availability, canLimitToClient, retry } = useEmbedsAvailability();
+	const { availability, canLimitToClient, canAllowAddMembers, retry } = useEmbedsAvailability();
 	return (
 		<SettingsPage title={t('settings.entries.embeds.TITLE')} description={t('settings.embeds.PAGE_DESCRIPTION')}>
-			<EmbedsBody availability={availability} canLimitToClient={canLimitToClient} onRetry={() => retry()} />
+			<EmbedsBody
+				availability={availability}
+				canLimitToClient={canLimitToClient}
+				canAllowAddMembers={canAllowAddMembers}
+				onRetry={() => retry()}
+			/>
 		</SettingsPage>
 	);
 }

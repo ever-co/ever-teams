@@ -34,8 +34,10 @@ jest.mock('@/core/hooks/settings/use-embeds', () => ({
 jest.mock('@/core/hooks/clients/use-clients-query', () => ({
 	useActiveClients: (options: { enabled: boolean }) => mockUseActiveClients(options)
 }));
+type DialogMockProps = { open: boolean; canLimitToClient: boolean; canAllowAddMembers: boolean };
+
 jest.mock('./create-embed-credential-dialog', () => ({
-	CreateEmbedCredentialDialog: ({ open, canLimitToClient }: { open: boolean; canLimitToClient: boolean }) => {
+	CreateEmbedCredentialDialog: ({ open, canLimitToClient, canAllowAddMembers }: DialogMockProps) => {
 		if (!open) {
 			return null;
 		}
@@ -43,6 +45,7 @@ jest.mock('./create-embed-credential-dialog', () => ({
 			<>
 				<p>create dialog</p>
 				{canLimitToClient && <p>client choice offered</p>}
+				{canAllowAddMembers && <p>members option offered</p>}
 			</>
 		);
 	}
@@ -167,6 +170,16 @@ describe('EmbedsSettingsPage', () => {
 		expect(screen.getByText('settings.embeds.NO_CREDENTIALS')).toBeTruthy();
 		fireEvent.click(screen.getByText('settings.embeds.CREATE'));
 		expect(screen.getByText('create dialog')).toBeTruthy();
+		expect(screen.queryByText('client choice offered')).toBeNull();
+		expect(screen.queryByText('members option offered')).toBeNull();
+	});
+
+	it('lets the credential dialog offer the members option when the config says a credential can add members', () => {
+		mockUseAvailability.mockReturnValue({ availability: 'enabled', canAllowAddMembers: true, retry: jest.fn() });
+		render(<EmbedsSettingsPage />);
+
+		fireEvent.click(screen.getByText('settings.embeds.CREATE'));
+		expect(screen.getByText('members option offered')).toBeTruthy();
 		expect(screen.queryByText('client choice offered')).toBeNull();
 	});
 
