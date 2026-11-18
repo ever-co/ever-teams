@@ -5,6 +5,7 @@ These flows use the app the way a person does, on an Android emulator or an iOS 
 | Flow | What the person does |
 | --- | --- |
 | `sign-in.yaml` | signs in with the code sent by e-mail |
+| `back.yaml` | goes from the Tasks tab to Settings, and Android's Back brings them to the team, then to the Work tab |
 | `timer-start-stop.yaml` | starts the timer and stops it |
 | `timer-after-kill.yaml` | closes the app while the timer runs, opens it again, and finds the timer still running |
 | `timer-correct-start.yaml` | moves the start of the running timer one minute earlier (waits two minutes first, see below) |

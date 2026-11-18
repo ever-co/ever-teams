@@ -1,0 +1,30 @@
+# Android's Back from Settings comes back to the team, then to the Work tab, as it always has.
+appId: ${APP_ID}
+env:
+  EMAIL: kofi.arden@example.com
+---
+- runFlow: common/sign-in.yaml
+- tapOn:
+    id: "tab-tasks"
+- tapOn:
+    id: "open-menu"
+- tapOn:
+    id: "menu-settings"
+# Settings opens outside the tabs
+- extendedWaitUntil:
+    notVisible:
+      id: "tab-team"
+    timeout: 20000
+- back
+- extendedWaitUntil:
+    visible:
+      id: "tab-team"
+      selected: true
+    timeout: 20000
+- back
+- extendedWaitUntil:
+    visible:
+      id: "tab-work"
+      selected: true
+    timeout: 20000
+- takeScreenshot: back
