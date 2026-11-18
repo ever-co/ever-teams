@@ -138,13 +138,17 @@ interface TaskOfTheLogProps {
 	log?: TimerLog;
 	task?: TimerTask;
 	running: boolean;
+	/** The task, or the earlier day's log that names it, is still being read. */
+	loading: boolean;
+	/** The task, or the earlier day's log that names it, could not be read. */
 	failed: boolean;
 	onRetry: () => void;
 }
 
-function TaskOfTheLog({ log, task, running, failed, onRetry }: Readonly<TaskOfTheLogProps>) {
+function TaskOfTheLog({ log, task, running, loading, failed, onRetry }: Readonly<TaskOfTheLogProps>) {
 	const theme = useShellTheme();
-	if (!log?.taskId) {
+	// A read that is under way or failed is never shown as "no time tracked yet"
+	if (!log?.taskId && !loading && !failed) {
 		return (
 			<View style={styles.task}>
 				<Text style={[theme.type.label, { color: theme.colors.foreground }]}>
@@ -165,6 +169,11 @@ function TaskOfTheLog({ log, task, running, failed, onRetry }: Readonly<TaskOfTh
 						<Text style={{ color: theme.colors['muted-foreground'] }}>{`${task.taskNumber} `}</Text>
 					)}
 					{task.title}
+				</Text>
+			)}
+			{loading && (
+				<Text style={[theme.type.hint, { color: theme.colors['muted-foreground'] }]}>
+					{translate('shell.states.loading')}
 				</Text>
 			)}
 			{failed && <FailedRead message={translate('shell.home.taskFailed')} onRetry={onRetry} />}
@@ -239,7 +248,8 @@ export function HomeTimer() {
 	const status = useTimerStatus();
 	const employee = useEmployeeId();
 	const totals = useTrackedTotals();
-	const lastLog = useLastLog(status.data?.lastLog, status.isSuccess);
+	const lastLogRead = useLastLog(status.data?.lastLog, status.isSuccess);
+	const lastLog = lastLogRead.log;
 	const task = useLogTask(lastLog?.taskId);
 	const start = useStartTimer();
 	const stop = useStopTimer();
@@ -257,6 +267,10 @@ export function HomeTimer() {
 	const actionable = running || hasTask;
 	const free = online && !start.isPending && !stop.isPending;
 	const enabled = free && actionable;
+	// The task area waits for, or says it could not read, the task the log names, or the earlier day's log itself
+	const taskLoading = hasTask ? !task.data && !task.isError : lastLogRead.isLoading;
+	const taskFailed = hasTask ? !task.data && task.isError : lastLogRead.isError;
+	const readTaskAgain = () => (hasTask ? task.refetch() : lastLogRead.retry());
 
 	const onPress = () => {
 		if (running) {
@@ -276,7 +290,7 @@ export function HomeTimer() {
 			status.refetch(),
 			employee.refetch(),
 			employee.data ? totals.refetch() : undefined,
-			hasTask ? task.refetch() : undefined
+			readTaskAgain()
 		]);
 		setRefreshing(false);
 	};
@@ -307,8 +321,9 @@ export function HomeTimer() {
 					log={lastLog}
 					task={task.data}
 					running={running}
-					failed={task.isError}
-					onRetry={() => void task.refetch()}
+					loading={taskLoading}
+					failed={taskFailed}
+					onRetry={() => void readTaskAgain()}
 				/>
 				<TimerButton running={running} enabled={enabled} onPress={onPress} />
 				{start.isError && (

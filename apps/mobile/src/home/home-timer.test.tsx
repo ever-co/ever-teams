@@ -27,6 +27,10 @@ const start = { mutate: jest.fn(), isPending: false, isError: false };
 const stop = { mutate: jest.fn(), isPending: false, isError: false };
 const employee = { data: 'employee-kofi', isSuccess: true, isError: false, refetch: jest.fn() };
 
+function lastLogRead(log: unknown, extra: Record<string, unknown> = {}) {
+	return { log, isLoading: false, isError: false, retry: jest.fn(), ...extra };
+}
+
 function status(data: unknown, extra: Record<string, unknown> = {}) {
 	(useTimerStatus as jest.Mock).mockReturnValue({
 		data,
@@ -51,7 +55,7 @@ beforeEach(() => {
 	});
 	(useStartTimer as jest.Mock).mockReturnValue(start);
 	(useStopTimer as jest.Mock).mockReturnValue(stop);
-	(useLastLog as jest.Mock).mockImplementation((todaysLog: unknown) => todaysLog);
+	(useLastLog as jest.Mock).mockImplementation((todaysLog: unknown) => lastLogRead(todaysLog));
 	(useEmployeeId as jest.Mock).mockReturnValue(employee);
 });
 
@@ -90,7 +94,7 @@ describe('Home', () => {
 
 	it('starts again on the last task of an earlier day, before the day\x27s first entry', async () => {
 		status({ duration: 0, running: false });
-		(useLastLog as jest.Mock).mockReturnValue(lastLog);
+		(useLastLog as jest.Mock).mockReturnValue(lastLogRead(lastLog));
 
 		await render(<HomeTimer />);
 
@@ -177,6 +181,30 @@ describe('Home', () => {
 		expect(screen.getByText(/shell.home.taskFailed/)).toBeTruthy();
 		await fireEvent.press(screen.getByText(/shell.states.retry/));
 		expect(task.refetch).toHaveBeenCalled();
+	});
+
+	it('shows the task loading while it is read', async () => {
+		status({ duration: 6740, running: false, lastLog });
+		(useLogTask as jest.Mock).mockReturnValue({ data: undefined, isError: false, refetch: jest.fn() });
+
+		await render(<HomeTimer />);
+
+		expect(screen.getByText(/shell.home.lastTask/)).toBeTruthy();
+		expect(screen.getByText(/shell.states.loading/)).toBeTruthy();
+	});
+
+	it("says when an earlier day's log did not load, and reads it again, instead of saying no time was tracked", async () => {
+		status({ duration: 0, running: false });
+		const read = lastLogRead(undefined, { isError: true });
+		(useLastLog as jest.Mock).mockReturnValue(read);
+
+		await render(<HomeTimer />);
+
+		expect(screen.getByText(/shell.home.taskFailed/)).toBeTruthy();
+		expect(screen.queryByText(/shell.home.noTaskTitle/)).toBeNull();
+		expect(screen.getByTestId('home-timer-button').props.accessibilityState).toMatchObject({ disabled: true });
+		await fireEvent.press(screen.getByText(/shell.states.retry/));
+		expect(read.retry).toHaveBeenCalled();
 	});
 
 	it('offers to try again when the first status fails', async () => {

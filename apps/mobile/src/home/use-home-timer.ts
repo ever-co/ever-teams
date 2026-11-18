@@ -94,23 +94,43 @@ export function useTrackedTotals() {
 	});
 }
 
+/** The log Home starts again from, and where the read of an earlier day's log stands. */
+export interface LastLogRead {
+	log?: TimerLog;
+	/** The earlier day's log is still being read. */
+	isLoading: boolean;
+	/** The earlier day's log could not be read: Home cannot tell whether there is a task to start again. */
+	isError: boolean;
+	/** Reads the earlier day's log again, when it is the one Home needs. */
+	retry: () => Promise<unknown>;
+}
+
 /**
  * The log Home starts again from: today's, or else the last one of an earlier day, read only when today has none.
  */
-export function useLastLog(todaysLog: TimerLog | undefined, todayRead: boolean) {
+export function useLastLog(todaysLog: TimerLog | undefined, todayRead: boolean): LastLogRead {
 	const session = useSignedInSession();
 	const employeeId = useEmployeeId().data;
 	const canRead = session !== undefined && Boolean(employeeId);
 	const todayHasNone = todayRead && !todaysLog;
+	const readsEarlierDay = canRead && todayHasNone;
 	const earlier = useQuery({
 		queryKey: homeKeys.lastLog(session, employeeId),
 		queryFn: () => readLastLogOfAnyDay(sessionOrFail(session), employeeIdOrFail(employeeId)),
-		enabled: canRead && todayHasNone
+		enabled: readsEarlierDay
 	});
+	// a refetch runs even a disabled query: the earlier day is read again only when Home needs it
+	const retry = async () => (readsEarlierDay ? earlier.refetch() : undefined);
 	if (todaysLog) {
-		return todaysLog;
+		return { log: todaysLog, isLoading: false, isError: false, retry };
 	}
-	return earlier.data ?? undefined;
+	const hasNoAnswer = earlier.data === undefined;
+	return {
+		log: earlier.data ?? undefined,
+		isLoading: readsEarlierDay && hasNoAnswer && !earlier.isError,
+		isError: readsEarlierDay && hasNoAnswer && earlier.isError,
+		retry
+	};
 }
 
 function taskIdOrFail(taskId: string | null | undefined): string {
