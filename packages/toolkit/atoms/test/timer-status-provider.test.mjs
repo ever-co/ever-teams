@@ -1032,3 +1032,15 @@ test('a stop that comes back after a switch to another account and back leaves t
 
 	assert.equal(seen.a.isRunning, true);
 });
+
+test('a start refused after a switch to another account and back shows nothing in the widgets', async () => {
+	const seen = await clickStart();
+	await act(async () => globalThis.__setIdentity(OTHER_ACCOUNT));
+	await act(async () => globalThis.__setIdentity(null));
+	await act(async () => globalThis.__reads.at(-1)({ running: false, duration: 0, lastLog: null }));
+
+	await act(async () => globalThis.__actions[0]({ statusCode: 403, message: 'Forbidden' }));
+	await flush();
+
+	assert.equal(seen.shared.notice, null);
+});

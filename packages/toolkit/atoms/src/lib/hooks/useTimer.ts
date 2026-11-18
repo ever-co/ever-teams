@@ -87,17 +87,25 @@ export const useTimer = () => {
 	const currentIdentity = useRef(identity);
 	currentIdentity.current = identity;
 
+	// Whether a start or stop begun now is still the widget's when it fails: the same user, token and organization, and
+	// no switch to another account and back since (`accountGeneration`).
+	const failureOwnerCheck = () => {
+		const forIdentity = identity;
+		const forGeneration = accountGeneration.current;
+		return () => currentIdentity.current === forIdentity && accountGeneration.current === forGeneration;
+	};
+
 	// A refused start or stop: under a TeamsProvider every widget shows it as a notice inside the widget; outside one,
 	// as before, a toast. The API package returns a request that got no answer as an error with no status: the probe
 	// says whether this site is not allowed or Ever Teams is unreachable.
 	const reportAnswer = async (
 		answer: { message?: unknown; error?: unknown; statusCode?: unknown; code?: unknown },
-		forIdentity: string
+		isStillCurrent: () => boolean
 	) => {
 		const message = errorMessageOf(answer);
 		if (sharedStatus) {
 			const failure = await noticeOfFailure(answer, message, apiConfigManager.getConfig().apiUrl);
-			if (currentIdentity.current === forIdentity) {
+			if (isStillCurrent()) {
 				sharedStatus.reportNotice(failure);
 			}
 			return;
@@ -106,10 +114,10 @@ export const useTimer = () => {
 	};
 
 	// A start or stop that got no answer.
-	const reportThrown = async (error: unknown, forIdentity: string) => {
+	const reportThrown = async (error: unknown, isStillCurrent: () => boolean) => {
 		if (sharedStatus) {
 			const kind = await kindOfFailedRequest(apiConfigManager.getConfig().apiUrl);
-			if (currentIdentity.current === forIdentity) {
+			if (isStillCurrent()) {
 				sharedStatus.reportNotice({ kind });
 			}
 			return;
@@ -118,7 +126,7 @@ export const useTimer = () => {
 	};
 
 	const startTimerNow = async () => {
-		const forIdentity = identity;
+		const isStillCurrent = failureOwnerCheck();
 		// Whose stopwatch the start moves once it answers: the account's, whatever token it runs with by then.
 		const forGeneration = accountGeneration.current;
 		try {
@@ -126,7 +134,7 @@ export const useTimer = () => {
 			const timeSlot = await startApiTimer(user, token, currentTeamsState, organizationId);
 
 			if ('message' in timeSlot || 'error' in timeSlot) {
-				await reportAnswer(timeSlot, forIdentity);
+				await reportAnswer(timeSlot, isStillCurrent);
 				return;
 			}
 			// A start that comes back after a switch of user or organization is the previous account's: the widgets of
@@ -138,14 +146,14 @@ export const useTimer = () => {
 			start();
 			await refreshEveryWidget();
 		} catch (error) {
-			await reportThrown(error, forIdentity);
+			await reportThrown(error, isStillCurrent);
 		} finally {
 			setTimerLoading(false);
 		}
 	};
 
 	const stopTimerNow = async () => {
-		const forIdentity = identity;
+		const isStillCurrent = failureOwnerCheck();
 		const forGeneration = accountGeneration.current;
 		clearInterval(interval.current);
 		try {
@@ -153,7 +161,7 @@ export const useTimer = () => {
 			const timeSlot = await stopApiTimer(user, token, organizationId);
 
 			if ('message' in timeSlot || 'error' in timeSlot) {
-				await reportAnswer(timeSlot, forIdentity);
+				await reportAnswer(timeSlot, isStillCurrent);
 				return;
 			}
 
@@ -166,7 +174,7 @@ export const useTimer = () => {
 			reset();
 			await refreshEveryWidget();
 		} catch (error) {
-			await reportThrown(error, forIdentity);
+			await reportThrown(error, isStillCurrent);
 		} finally {
 			setTimerLoading(false);
 		}
