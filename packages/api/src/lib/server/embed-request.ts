@@ -97,16 +97,27 @@ export function credentialOf(caller: string, credential: unknown): string {
 
 const withoutCredential = (text: string, credential: string): string => text.split(credential).join(REDACTED);
 
-/** What fetch threw, with a fresh error in its place when its message holds the credential. */
-function causeWithoutCredential(error: unknown, credential: string): unknown {
-	let text = String(error);
-	if (error instanceof Error) {
-		text = error.message;
+// How many causes of a thrown error are copied: enough for fetch failed > connect ECONNREFUSED.
+const MAX_CAUSES = 3;
+
+/**
+ * What fetch threw, copied from its name, message and code, and the same of its causes, without the credential. The
+ * original is never kept: a custom fetch may hold the request, whose body holds the credential, in any other field.
+ */
+function causeWithoutCredential(error: unknown, credential: string, depth = 0): Error {
+	if (!(error instanceof Error)) {
+		return new Error(withoutCredential(String(error), credential));
 	}
-	if (text.indexOf(credential) === -1) {
-		return error;
+	const copy: Error & { code?: string; cause?: unknown } = new Error(withoutCredential(error.message, credential));
+	copy.name = withoutCredential(error.name, credential);
+	const { code, cause } = error as { code?: unknown; cause?: unknown };
+	if (typeof code === 'string') {
+		copy.code = withoutCredential(code, credential);
 	}
-	return new Error(withoutCredential(text, credential));
+	if (cause !== undefined && depth < MAX_CAUSES) {
+		copy.cause = causeWithoutCredential(cause, credential, depth + 1);
+	}
+	return copy;
 }
 
 function nextStepsOf(status: number, body: unknown): NextStepsByStatus {

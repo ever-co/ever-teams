@@ -238,6 +238,21 @@ test('an answer or a failure that repeats the credential loses it', async () => 
 	assert.match(thrown.message, /\[credential\]/);
 });
 
+test('a fetch failure keeps its name, message, code and causes, never the request it holds', async () => {
+	const error = await refusalOf((request) => {
+		const body = JSON.stringify(request.body);
+		const refused = Object.assign(new Error(`connect ECONNREFUSED for ${body}`), { code: 'ECONNREFUSED' });
+		throw Object.assign(new TypeError('fetch failed', { cause: refused }), { request });
+	});
+
+	assert.equal(error.name, 'EverTeamsNetworkError');
+	assert.equal(error.message, `No answer from ${API_URL}: fetch failed`);
+	assert.equal(error.cause.name, 'TypeError');
+	assert.equal(error.cause.request, undefined, 'the request a custom fetch kept is not copied');
+	assert.equal(error.cause.cause.code, 'ECONNREFUSED');
+	assert.match(error.cause.cause.message, /^connect ECONNREFUSED for .*\[credential\]/);
+});
+
 test('missing or malformed options are refused before any request, without the credential', async () => {
 	const cases = [
 		[{ apiUrl: undefined }, /needs apiUrl\./],

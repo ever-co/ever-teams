@@ -232,7 +232,7 @@ try {
 | `EverTeamsConflictError`   | 409: the request conflicts with the state | `messages`, as a validation error (it extends that class).                                                                |
 | `EverTeamsRateLimitError`  | 429: too many requests                    | `retryAfter`: the seconds to wait, from the `Retry-After` header.                                                         |
 | `EverTeamsServerError`     | 5xx: the API or a gateway failed          | The next step: try again in a moment.                                                                                     |
-| `EverTeamsNetworkError`    | No answer: wrong address, network, CORS   | `cause`: the error `fetch` threw.                                                                                         |
+| `EverTeamsNetworkError`    | No answer: wrong address, network, CORS   | `cause`: the error `fetch` threw (from the server helpers: a copy of its name, message, code and causes).                 |
 
 The client also throws an `EverTeamsError` with status 0 and one of these codes before or without a request:
 `CLIENT_OPTIONS` (no `apiUrl`, or neither `token` nor `getToken`), `NO_TOKEN`, `NO_ORGANIZATION` and `NO_EMPLOYEE`
