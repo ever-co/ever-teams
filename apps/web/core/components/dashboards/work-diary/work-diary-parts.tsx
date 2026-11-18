@@ -1,5 +1,6 @@
 'use client';
 
+import { HiddenProjectName } from '@/core/components/projects/hidden-project-mark';
 import { type ReactNode, useMemo } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useReachText } from '@/core/components/calendar/calendar-month-view';
@@ -82,6 +83,9 @@ function DiaryTaskName({ task }: Readonly<{ task: DiaryTask }>) {
 					</span>
 				)}
 			</span>
+			{task.isProjectHidden && (
+				<HiddenProjectName label={t('common.PRIVATE_PROJECT')} className="text-xs text-muted-foreground" />
+			)}
 			{task.projectName && <span className="truncate text-xs text-muted-foreground">{task.projectName}</span>}
 			{hasNotes && (
 				<span title={notes} className="truncate text-xs text-muted-foreground">

@@ -10,11 +10,12 @@ import { getOrganizationIdCookie } from '@/core/lib/helpers/cookies';
 import {
 	hasStatusCategories,
 	isDraftChanged,
-	orderEntriesOf,
+	isStatusOrderSaved,
 	PropertyDraft,
 	PropertyListItem,
 	statusEditBodyOf,
 	statusItemsOf,
+	statusOrderOf,
 	statusValueOf,
 	TaskPropertySettingsModel
 } from '@/core/lib/utils/settings-task-properties';
@@ -38,6 +39,8 @@ function undefinedIfNull<T>(value: T | null): T | undefined {
 export interface StatusSettingsModel extends Omit<TaskPropertySettingsModel, 'remove'> {
 	isGrouped: boolean;
 	move: (orderedIds: string[]) => Promise<void>;
+	/** Whether Gauzy can save that order: built-in statuses keep theirs (#5359). */
+	canMove: (orderedIds: string[]) => boolean;
 }
 
 export function useStatusSettings(): StatusSettingsModel {
@@ -80,10 +83,16 @@ export function useStatusSettings(): StatusSettingsModel {
 		[editTaskStatus]
 	);
 
+	const canMove = useCallback((orderedIds: string[]) => isStatusOrderSaved(items, orderedIds), [items]);
+
 	const move = useCallback(
 		async (orderedIds: string[]) => {
+			// The team's own statuses only: Gauzy refuses the whole reorder over one built-in status (#5359)
+			const reorder = statusOrderOf(items, orderedIds);
+			if (!reorder?.length) {
+				return;
+			}
 			const previous = taskStatuses;
-			const reorder = orderEntriesOf(orderedIds);
 			const orderById = new Map(reorder.map((entry) => [entry.id, entry.order]));
 			setTaskStatuses((current) => current.map((status) => withOrder(status, orderById)));
 			try {
@@ -93,8 +102,8 @@ export function useStatusSettings(): StatusSettingsModel {
 				setTaskStatuses(previous);
 			}
 		},
-		[reOrderTaskStatus, setTaskStatuses, taskStatuses]
+		[items, reOrderTaskStatus, setTaskStatuses, taskStatuses]
 	);
 
-	return { items, isGrouped, isLoading: loading, isError, retry: refetch, create, update, move };
+	return { items, isGrouped, isLoading: loading, isError, retry: refetch, create, update, move, canMove };
 }

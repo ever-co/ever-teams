@@ -65,7 +65,11 @@
 	"TIME_TRACKER": {
 		"title": "Timer",
 		"start": "Start",
-		"stop": "Stop"
+		"stop": "Stop",
+		"START_TIMER": "Start timer",
+		"STOP_TIMER": "Stop timer",
+		"TIMER_STARTED": "Timer started",
+		"TIMER_STOPPED": "Timer stopped"
 	},
 	"AUTH": {
 		"sign_in_title": "Sign In",
@@ -513,7 +517,9 @@
 			"BROWSER_EXTENSION": "Browser Extension",
 			"HUBSTAFF": "Hubstaff",
 			"UPWORK": "Upwork",
-			"TEAMS": "Teams"
+			"CLOC": "Cloc",
+			"TEAMS": "Teams",
+			"EMBED": "Embedded"
 		},
 		"log_types": {
 			"TRACKED": "Tracked",

@@ -22,6 +22,7 @@ import {
 	flattenDailyReport
 } from '@/core/lib/utils/daily-report-figures';
 import { filterDailyReportByClients, isBillableOnly } from '@/core/lib/utils/dashboards/report-filters';
+import { NO_LABEL_VALUE } from '@/core/lib/utils/time-log-labels';
 import {
 	type ChartDayLabels,
 	type BillableFigures,
@@ -53,6 +54,7 @@ import { roundedDailyReportOf } from '@/core/lib/utils/dashboards/time-activity-
 import {
 	billableFactsOf,
 	billableProjectIdsOf,
+	keptPriceOfRow,
 	pricedProjectIdOf
 } from '@/core/lib/utils/dashboards/time-activity-billable';
 import { linePriceOf } from '@/core/lib/utils/invoices';
@@ -65,6 +67,8 @@ import {
 	useTimeActivityDailyQuery
 } from './use-time-activity-queries';
 import { useBreaksAllowed } from '@/core/hooks/timer/use-breaks-allowed';
+import { useHiddenProjectLabels } from '@/core/hooks/organizations/projects/use-hidden-project-labels';
+import type { HiddenProjectLabels } from '@/core/lib/utils/project-visibility';
 import { useTimeActivitySettings } from './use-time-activity-settings';
 import type { WeekDailySource } from './use-time-activity-week';
 
@@ -149,6 +153,16 @@ function employeeIdsOf(filters: TimeActivityFilters, access: ReportAccess, ownEm
 	return appliedTeamMemberIdsOf(filters.teamIds, access.managedTeams);
 }
 
+/** The entry Labels filter as the daily report takes it: the labels picked, and "No label" as `untagged`. */
+function entryLabelFiltersOf(picked: ReadonlyArray<string>): { tagIds?: string[]; untagged?: boolean } {
+	if (picked.length === 0) {
+		return {};
+	}
+	const tagIds = picked.filter((value) => value !== NO_LABEL_VALUE);
+	const untagged = picked.includes(NO_LABEL_VALUE);
+	return { tagIds, untagged };
+}
+
 function requestOf(
 	user: TUser | null | undefined,
 	period: Period,
@@ -172,7 +186,8 @@ function requestOf(
 		projectIds: filters.projectIds,
 		taskIds: filters.taskIds,
 		includeTimeWithoutTeam: true,
-		billableOnly: isBillableOnly(filters.billable)
+		billableOnly: isBillableOnly(filters.billable),
+		...entryLabelFiltersOf(filters.entryLabels)
 	};
 }
 
@@ -187,15 +202,19 @@ function rowsOfReport(
 	report: ReadonlyArray<ITimeLogGroupedDailyReport>,
 	withoutTeamLabel: string,
 	workspaceCurrency: string | null,
-	clientOf: ClientOfProjectLog | null
+	clientOf: ClientOfProjectLog | null,
+	hiddenProjectLabels: HiddenProjectLabels
 ): TimeActivityRow[] {
 	if (!clientOf) {
-		return flattenDailyReport(report, withoutTeamLabel, workspaceCurrency);
+		return flattenDailyReport(report, withoutTeamLabel, workspaceCurrency, hiddenProjectLabels);
 	}
-	return clientRowsOf(report, clientOf, withoutTeamLabel, workspaceCurrency);
+	return clientRowsOf(report, clientOf, withoutTeamLabel, workspaceCurrency, hiddenProjectLabels);
 }
 
-/** The same read, of billable time only: none for a role that may not read client rates, which price it. */
+/**
+ * The same read, of billable time only, with the client rates each entry keeps: none for a role that may not read
+ * client rates, which price it.
+ */
 function billableRequestOf(request: TimeActivityRequest | null, readsBillable: boolean): TimeActivityRequest | null {
 	if (!request) {
 		return null;
@@ -203,7 +222,7 @@ function billableRequestOf(request: TimeActivityRequest | null, readsBillable: b
 	if (!readsBillable) {
 		return null;
 	}
-	return { ...request, billableOnly: true };
+	return { ...request, billableOnly: true, withClientRates: true };
 }
 
 /** What the billable time of the period bills, the facts each breakdown row adds up, and how far they are read. */
@@ -395,12 +414,15 @@ export function useTimeActivityReport() {
 	const hasTaskFilter = settings.filters.taskIds.length > 0;
 	const hasClientFilter = pickedClients.length > 0;
 	const billableOnly = isBillableOnly(settings.filters.billable);
-	// A break has no client and is never billable: with either filter on, there are no breaks to show
+	const hasEntryLabelFilter = settings.filters.entryLabels.length > 0;
+	// A break has no client and is never billable: with either filter on, there are no breaks to show. The read of the
+	// breaks sends no labels of entries (#5368): with them picked, it would count breaks the labels leave out
 	const allowsBreaks = useBreaksAllowed();
-	const readsBreaks = allowsBreaks && !billableOnly && !hasClientFilter;
+	const readsBreaks = allowsBreaks && !billableOnly && !hasClientFilter && !hasEntryLabelFilter;
 	const breaksQuery = useTimeActivityBreaksQuery(request, readsBreaks);
 	const breakSeconds = breakSecondsShownOf(readsBreaks, breaksQuery);
-	const sumsFiguresFromRows = hasTaskFilter || hasClientFilter || billableOnly || isRounding;
+	// The counts endpoint knows nothing of the entry's labels either: with them picked, the rows give the figures
+	const sumsFiguresFromRows = hasTaskFilter || hasClientFilter || billableOnly || isRounding || hasEntryLabelFilter;
 	const isClientGrouping = settings.grouping === 'client';
 	const needsProjectClients = hasClientFilter || isClientGrouping;
 	const projectClients = useReportProjectClients({ includesArchived: false, isEnabled: needsProjectClients });
@@ -446,13 +468,28 @@ export function useTimeActivityReport() {
 	}, [canTellRowClients, clientNames, isClientGrouping, projectClientIds]);
 
 	const withoutTeamLabel = t('dashboard.NO_TEAM_GROUP');
+	const hiddenProjectLabels = useHiddenProjectLabels();
 	const workspaceCurrency = organization?.currency ?? null;
 	// The rows, the totals and the exports all come from this report: with a rule, each entry in it is rounded
 	const roundedReport = useMemo(() => roundedDailyReportOf(report, roundingRule), [report, roundingRule]);
 	const rows = useMemo(() => {
-		const allRows = rowsOfReport(roundedReport, withoutTeamLabel, workspaceCurrency, clientOfProjectLog);
+		const allRows = rowsOfReport(
+			roundedReport,
+			withoutTeamLabel,
+			workspaceCurrency,
+			clientOfProjectLog,
+			hiddenProjectLabels
+		);
 		return visibleRowsOf(allRows, isManager, ownEmployeeId);
-	}, [clientOfProjectLog, isManager, ownEmployeeId, roundedReport, withoutTeamLabel, workspaceCurrency]);
+	}, [
+		clientOfProjectLog,
+		hiddenProjectLabels,
+		isManager,
+		ownEmployeeId,
+		roundedReport,
+		withoutTeamLabel,
+		workspaceCurrency
+	]);
 
 	const totals = useMemo(() => reportTotalsOf(rows), [rows]);
 
@@ -470,11 +507,18 @@ export function useTimeActivityReport() {
 		}
 		const filtered = filterDailyReportByClients(loadedBillableReport, pickedClients, projectClientIds);
 		const rounded = roundedDailyReportOf(filtered, roundingRule);
-		const allRows = rowsOfReport(rounded, withoutTeamLabel, workspaceCurrency, clientOfProjectLog);
+		const allRows = rowsOfReport(
+			rounded,
+			withoutTeamLabel,
+			workspaceCurrency,
+			clientOfProjectLog,
+			hiddenProjectLabels
+		);
 		return visibleRowsOf(allRows, isManager, ownEmployeeId);
 	}, [
 		canFilterByClients,
 		clientOfProjectLog,
+		hiddenProjectLabels,
 		isManager,
 		loadedBillableReport,
 		ownEmployeeId,
@@ -491,8 +535,8 @@ export function useTimeActivityReport() {
 	const defaultRate = useMemo(() => defaultBillRateOf(organization), [organization]);
 	// Each row is priced as an invoice line: client rate of the member on the project, of the project, own rate, default
 	const billableFacts = useMemo(() => {
-		const priceOf = (row: DailyReportRow) =>
-			linePriceOf({
+		const priceOf = (row: DailyReportRow) => {
+			const todays = linePriceOf({
 				employeeId: row.employeeId,
 				projectRates: ratesByProject.get(pricedProjectIdOf(row) ?? ''),
 				projectCurrency: null,
@@ -500,6 +544,9 @@ export function useTimeActivityReport() {
 				organizationCurrency: workspaceCurrency,
 				defaultRate
 			});
+			// At the client rates its entries kept, as a draft invoice of the same time bills it
+			return keptPriceOfRow(row, todays, workspaceCurrency, defaultRate);
+		};
 		return billableFactsOf(billableRows, priceOf);
 	}, [billableRows, defaultRate, ratesByProject, workspaceCurrency]);
 	const billableFigures = useMemo(() => billableFiguresOfFacts(billableFacts), [billableFacts]);
@@ -613,12 +660,13 @@ export function useTimeActivityReport() {
 	// The weekly report has no project in its rows and rounds nothing: with a client picked or a rounding rule, the
 	// week grid is built from these rows
 	const weekDailySource = useMemo<WeekDailySource | null>(() => {
-		const readsRows = hasClientFilter || isRounding;
+		// The weekly report knows no labels of entries either (#5368): picked, the grid is built from these rows too
+		const readsRows = hasClientFilter || isRounding || hasEntryLabelFilter;
 		if (!readsRows) {
 			return null;
 		}
 		return { rows, isLoading: isDailyPending, isError: isDailyError, refetch: () => void refetchDaily() };
-	}, [hasClientFilter, isDailyError, isDailyPending, isRounding, refetchDaily, rows]);
+	}, [hasClientFilter, hasEntryLabelFilter, isDailyError, isDailyPending, isRounding, refetchDaily, rows]);
 
 	return {
 		user,

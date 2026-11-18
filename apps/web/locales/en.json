@@ -94,6 +94,9 @@
 		"ACTIVITIES": "activities",
 		"MEMBERS": "Members",
 		"NO_PROJECT": "No project",
+		"PRIVATE_PROJECT": "Private project",
+		"PRIVATE_PROJECTS": "Private projects",
+		"PRIVATE_PROJECT_HINT": "You are not on this private project",
 		"DURATION": "Duration",
 		"PROGRESS": "Progress",
 		"EMPLOYEE": "Employee",
@@ -1372,6 +1375,10 @@
 				"STATUS": "Status",
 				"TRACKED_HOURS": "Tracked (hours)",
 				"CURRENCY": "Currency",
+				"BILLABLE_HOURS": "Billable hours",
+				"BILLABLE_CURRENCY": "Billable currency",
+				"NO_RATE": "No rate",
+				"BILLABLE_UNPRICED": "{duration} of billable time has no rate",
 				"ACTIVITY_PERCENT": "Activity (%)",
 				"NO_TASK": "No task",
 				"PAGE": "Page {page} of {total}"
@@ -1701,12 +1708,23 @@
 				"FAILED_FIRST_PART_KEPT": "The first part was saved, but the second part ({range}) could not be added. Add it with Add time.",
 				"FAILED_UNKNOWN": "The split could not be confirmed. Reload the calendar and check this entry before you try again.",
 				"ADD_REST": "Add the second part",
+				"CHECKING": "Checking whether this entry can be split…",
+				"CHECK_FAILED": "We couldn't check whether this entry can be split. Check your connection, then try again.",
+				"CHECK_AGAIN": "Try again",
+				"SLOT_STEP": "Tracked time splits on its 10-minute slots, so each one goes whole, with its screenshots and activity, to one part.",
+				"OFF_SLOT": "Tracked time splits on a 10-minute mark, such as {before} or {after}.",
+				"OFF_SLOT_ONE": "Tracked time splits on a 10-minute mark, such as {time}.",
+				"REASON_LABEL": "Reason",
+				"REASON_REQUIRED": "Your organization asks for a reason when time changes. Add one, then split again.",
+				"REASON_TOO_LONG": "The reason can hold at most 255 characters.",
+				"FAILED_RETRY": "The split could not be confirmed. Try again: a split that already went through is never made twice.",
 				"REFUSED": {
 					"TRACKED": "Tracked time carries its activity and screenshots, which only the server can share between two entries. Only time added by hand can be split for now.",
 					"RUNNING": "The timer is still running. Stop it, then split the entry.",
 					"TOO_SHORT": "This entry is too short: each part must last at least a minute.",
 					"APPROVED": "This day belongs to an approved timesheet, so its time can't be changed.",
-					"PERMISSION": "Your role or your organization doesn't allow changing time or adding time by hand."
+					"PERMISSION": "Your role or your organization doesn't allow changing time or adding time by hand.",
+					"INVOICED": "An invoice bills this entry, so it can't be split."
 				}
 			},
 			"SETTINGS": {
@@ -2994,6 +3012,24 @@
 		}
 	},
 	"timer": {
+		"labels": {
+			"LABELS": "Labels",
+			"LABEL": "Label",
+			"PICK_LABELS": "Add labels",
+			"NO_LABELS_YET": "No labels yet",
+			"DELETED": "Deleted",
+			"SAVE_FAILED": "The labels could not be saved",
+			"TASK_LABELS": "Task labels",
+			"NO_LABEL": "No label",
+			"BY_LABEL_TITLE": "Time by label",
+			"COUNT": "{count, plural, one {# label} other {# labels}}",
+			"OVERLAP_TITLE": "Groups overlap",
+			"OVERLAP_MESSAGE": "An entry with several labels counts under each of them, so the groups add up to more than the total.",
+			"CREATE": "Create “{name}”",
+			"SEARCH": "Search labels",
+			"CREATE_FAILED": "The label could not be created",
+			"IMPORT_NOT_ATTACHED": "Not attached: {names}. The team has no label of {count, plural, one {that name} other {those names}} and none could be added."
+		},
 		"START_TIMER": "Please, select or create a new task to start tracking the time or create a plan",
 		"ALREADY_TRACKING_MESSAGE": "You're already tracking time in another tab or device.",
 		"TRACKING_DISABLED_MESSAGE": "Time tracking is turned off for you. An organization admin can turn it on.",
@@ -5187,6 +5223,7 @@
 			"MOVE_UP": "Move up",
 			"MOVE_DOWN": "Move down",
 			"BUILT_IN_DELETE": "Built in: it cannot be deleted",
+			"BUILT_IN_MOVE": "Built in: it cannot be moved",
 			"DRAG": "Drag to reorder",
 			"groups": {
 				"todo": "To do",
@@ -7573,6 +7610,9 @@
 			"RATE_SOURCE_PROJECT": "The project's client rate",
 			"RATE_SOURCE_EMPLOYEE": "The member's own billing rate",
 			"RATE_SOURCE_DEFAULT": "The workspace's default billing rate",
+			"KEPT_RATE_HINT": "{source}, kept from when the time was worked. Today: {rate} an hour.",
+			"KEPT_RATES_UNREAD_TITLE": "Priced at today's rates",
+			"KEPT_RATES_UNREAD_MESSAGE": "Past time keeps its rate in this workspace, but this time does not say which rate it kept, so every hour is priced at today's rates. Check the rates before you save.",
 			"DESCRIPTION_OF": "Description of the line {name}",
 			"REMOVE_LINE": "Remove the line {name}",
 			"REMOVED_LINES": "{count, plural, one {# line removed} other {# lines removed}}",
@@ -7703,7 +7743,8 @@
 			"NUMBER_FREE": "Its number can be given to another invoice.",
 			"CONFIRM": "Delete invoice",
 			"DONE": "Invoice {number} was deleted",
-			"FAILED": "The invoice was not deleted. Try again."
+			"FAILED": "The invoice was not deleted. Try again.",
+			"CHANGED_MEANWHILE": "Invoice {number} changed since it was shown, so it was not deleted. Refresh it to see its current version, then try again."
 		},
 		"edit": {
 			"TITLE": "Edit invoice {number}",

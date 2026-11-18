@@ -80,10 +80,24 @@ function optionsOf(overrides: Partial<Parameters<typeof useTimesheetExportOption
 			appliedFilters: [],
 			statusFilter: ALL_STATUSES,
 			search: '',
+			withEntryLabels: false,
 			...overrides
 		})
 	);
 	return result.current;
+}
+
+/** Monday's log filed under two labels of its own (#5368), on an API that stores them. */
+const mondayLabelled = {
+	...monday,
+	tags: [
+		{ id: 'design', name: 'design' },
+		{ id: 'review', name: 'review' }
+	]
+};
+
+function labelledOptions() {
+	return optionsOf({ logs: [tuesdayLate, mondayLabelled, tuesdayEarly], withEntryLabels: true });
 }
 
 async function runOption(options: ExportOption[], key: string) {
@@ -118,6 +132,18 @@ describe('the files of the Timesheets page', () => {
 			'2026-11-02,09:05,10:35,Ada Lovelace,Website,Header,dashboard.timesheets.STATUS.APPROVED,pages.timesheet.BILLABLE.YES,1:30,',
 			'2026-11-03,08:30,09:15,Ada Lovelace,,,,pages.timesheet.BILLABLE.NO,0:45,',
 			'2026-11-03,14:00,14:30,Grace Hopper,,,,pages.timesheet.BILLABLE.NO,0:30,'
+		]);
+	});
+
+	it('writes the labels of each log before its duration where the API stores labels on entries', async () => {
+		await runOption(labelledOptions(), 'csv');
+
+		const [rows, columns] = mockDownloadCsv.mock.calls[0] as [unknown[], CsvColumn<unknown>[]];
+		expect(csvOf(rows, columns).split('\r\n')).toEqual([
+			'dashboard.timesheets.COLUMNS.DATE,dashboard.timesheets.COLUMNS.START,dashboard.timesheets.COLUMNS.END,dashboard.timesheets.COLUMNS.MEMBER,dashboard.timesheets.COLUMNS.PROJECT,dashboard.timesheets.COLUMNS.TASK,dashboard.timesheets.COLUMNS.STATUS,dashboard.timesheets.COLUMNS.BILLABLE,common.LABELS,dashboard.timesheets.COLUMNS.DURATION,common.NOTES',
+			'2026-11-02,09:05,10:35,Ada Lovelace,Website,Header,dashboard.timesheets.STATUS.APPROVED,pages.timesheet.BILLABLE.YES,"design, review",1:30,',
+			'2026-11-03,08:30,09:15,Ada Lovelace,,,,pages.timesheet.BILLABLE.NO,,0:45,',
+			'2026-11-03,14:00,14:30,Grace Hopper,,,,pages.timesheet.BILLABLE.NO,,0:30,'
 		]);
 	});
 
@@ -179,6 +205,20 @@ describe('the files of the Timesheets page', () => {
 		expect(lines.map(sheetOptions.isBoldRow)).toEqual([false, false, false, true]);
 	});
 
+	it('writes the labels column to XLSX too where the API stores labels on entries', async () => {
+		await runOption(labelledOptions(), 'xlsx');
+
+		const [lines, columns] = mockExportToXLSX.mock.calls[0] as [SheetLine[], SheetColumn[]];
+		const headers = columns.map((column) => column.header);
+		const labelsIndex = headers.indexOf('common.LABELS');
+
+		expect(columns).toHaveLength(11);
+		expect(labelsIndex).toBe(8);
+		expect(headers[labelsIndex + 1]).toBe('dashboard.timesheets.COLUMNS.DURATION');
+		expect(lines.map((line) => columns[labelsIndex].value(line))).toEqual(['design, review', '', '', '']);
+		expect(columns[labelsIndex + 1].value(lines[0])).toBe(5400 / SECONDS_PER_DAY);
+	});
+
 	it('prints the same logs to PDF, grouped by day as the list, with the day totals and the total', async () => {
 		const content = await printedContentOf(optionsOf());
 
@@ -194,6 +234,8 @@ describe('the files of the Timesheets page', () => {
 			{ label: 'common.MEMBERS', value: '2' }
 		]);
 		expect(content.columns).toHaveLength(content.columnWidths.length);
+		expect(content.columnWidths).toEqual(['6%', '6%', '16%', '16%', '32%', '10%', '7%', '7%']);
+		expect(content.columns).not.toContain('common.LABELS');
 		expect(content.groups[1].rows[0].cells).toEqual([
 			'09:05',
 			'10:35',
@@ -205,6 +247,14 @@ describe('the files of the Timesheets page', () => {
 			'1h 30m'
 		]);
 		expect(mockDownloadPdf.mock.calls[0][1]).toBe('timesheets-2026-11-02-2026-11-08.pdf');
+	});
+
+	it('prints the labels of each log before its duration where the API stores labels on entries', async () => {
+		const content = await printedContentOf(labelledOptions());
+
+		expect(content.columns).toHaveLength(content.columnWidths.length);
+		expect(content.columns.slice(-2)).toEqual(['common.LABELS', 'dashboard.timesheets.COLUMNS.DURATION']);
+		expect(content.groups[1].rows[0].cells.slice(-2)).toEqual(['design, review', '1h 30m']);
 	});
 
 	it('prints what narrowed the logs: the filters gathered per property, the status and the search', async () => {

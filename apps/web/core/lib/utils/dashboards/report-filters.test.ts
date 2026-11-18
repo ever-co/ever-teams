@@ -40,7 +40,8 @@ describe('the report filters of a link', () => {
 		expect(filters).toEqual({
 			clients: ['acme', NO_CLIENT_FILTER_VALUE],
 			billable: [BILLABLE_ONLY_VALUE],
-			labels: ['bug', 'urgent']
+			labels: ['bug', 'urgent'],
+			entryLabels: []
 		});
 	});
 
@@ -168,8 +169,8 @@ describe('the time logs a report filter keeps', () => {
 		const bug = { id: 'bug', name: 'Bug' };
 		const billableBug = logOf({ projectId: 'website', isBillable: true, task: { id: 't1', tags: [bug] } });
 		const unbilledBug = logOf({ projectId: 'website', isBillable: false, task: { id: 't1', tags: [bug] } });
-		const filters = { clients: ['acme'], billable: [BILLABLE_ONLY_VALUE], labels: ['bug'] };
-		const noFilters = { clients: [], billable: [], labels: [] };
+		const filters = { clients: ['acme'], billable: [BILLABLE_ONLY_VALUE], labels: ['bug'], entryLabels: [] };
+		const noFilters = { clients: [], billable: [], labels: [], entryLabels: [] };
 
 		expect(logMatchesReportFilters(billableBug, filters, clientIds)).toBe(true);
 		expect(logMatchesReportFilters(unbilledBug, filters, clientIds)).toBe(false);

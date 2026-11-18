@@ -1,3 +1,4 @@
+import { isHiddenProject, PRIVATE_PROJECTS_KEY } from '@/core/lib/utils/project-visibility';
 import {
 	addDays,
 	addMilliseconds,
@@ -130,6 +131,17 @@ export interface CalendarEntry {
 	projectName: string | null;
 	projectColor: string | null;
 	reason: string | null;
+}
+
+/**
+ * The key a log's project is drawn and counted by: its id, or the one key every project the API keeps from the reader
+ * shares (CORE-27), so that their time is one total, under one colour.
+ */
+function calendarProjectKeyOf(project: { id?: string | null; projectHidden?: boolean } | null | undefined) {
+	if (isHiddenProject(project)) {
+		return PRIVATE_PROJECTS_KEY;
+	}
+	return project?.id || null;
 }
 
 /** The time one project took over the counted days. `key` is null for the time without a project. */
@@ -336,7 +348,7 @@ function entryOf(log: ITimeLog, start: Date, now: Date): CalendarEntry {
 		isRunning,
 		isBillable: log.isBillable === true,
 		taskTitle: trimmedOrNull(log.task?.title),
-		projectKey: project?.id || null,
+		projectKey: calendarProjectKeyOf(project),
 		projectName: trimmedOrNull(project?.name),
 		projectColor: trimmedOrNull(project?.color),
 		reason: manualReasonOf(log)

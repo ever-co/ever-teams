@@ -16,7 +16,70 @@ const ru = {
 	},
 	timer: {
 		stopFailedTitle: 'Не удалось остановить таймер',
-		stopFailedMessage: 'Он всё ещё идёт. Повторите попытку чуть позже.'
+		stopFailedMessage: 'Он всё ещё идёт. Повторите попытку чуть позже.',
+		startMove: {
+			title: 'Начало идущего таймера',
+			startedAt: 'Начато в {{time}}',
+			open: 'Начато в {{time}}. Изменить начало',
+			newStart: 'Новое начало',
+			timePlaceholder: 'ЧЧ:ММ',
+			reason: 'Причина',
+			reasonPlaceholder: 'Почему меняется начало',
+			laterOnly: 'Вам нельзя добавлять время вручную, поэтому начало можно сдвинуть только позже.',
+			save: 'Сохранить',
+			saving: 'Сохранение…',
+			close: 'Закрыть',
+			saved: 'Теперь таймер начинается в {{time}}.',
+			checking: 'Проверяем, можно ли изменить начало…',
+			viewTracker: 'Этот таймер идёт в настольном приложении. Измените начало там.',
+			viewNotAllowed: 'В этой организации вам нельзя изменять учтённое время.',
+			unsupported: 'На этом сервере пока нельзя изменить начало идущего таймера.',
+			invalidTime: 'Введите время, например 09:00.',
+			chooseDay: 'Таймер запущен до полуночи: выберите день нового начала.',
+			notRunning: 'Таймер больше не идёт.',
+			trackerRun:
+				'Этот таймер идёт в настольном приложении или агенте, которые сами записывают его время. Измените начало там.',
+			inFuture: 'Начало не может быть позже текущего момента.',
+			editNotAllowed: 'Вам нельзя изменять учтённое время.',
+			manualNotAllowed:
+				'Более раннее начало добавляет время вручную, а вам это нельзя. Выберите более позднее начало.',
+			reasonRequired: 'Ваша организация требует указать причину.',
+			reasonTooLong: 'Причина слишком длинная: не более 255 символов.',
+			overlap: 'Другая ваша запись охватывает это время. Выберите начало после её окончания.',
+			changed: 'Начало только что изменили в другом месте. Проверьте его и попробуйте снова.',
+			saveFailed: 'Не удалось сохранить начало. Попробуйте снова.',
+			offline: 'Нет подключения, поэтому начало не изменилось. Попробуйте снова, когда появится сеть.'
+		},
+		discard: {
+			menu: 'Другие действия таймера',
+			changeStart: 'Изменить начало',
+			action: 'Отменить этот запуск',
+			title: 'Отменить этот запуск?',
+			description: 'Ничего не сохраняется.',
+			descriptionElsewhere: 'Этот запуск начат из {{source}} и там тоже остановится. Ничего не сохраняется.',
+			confirm: 'Отменить запуск',
+			discarding: 'Отмена…',
+			discarded: 'Запуск отменён',
+			discardedHint: 'Таймер остановлен, ничего не сохранено.',
+			sources: {
+				web: 'веб-приложения',
+				browserExtension: 'расширения браузера',
+				other: 'другого приложения'
+			},
+			failures: {
+				notRunning: 'Таймер больше не запущен, поэтому ничего не отменено.',
+				disabled: 'Ваша организация не разрешает отменять запуск.',
+				tooLate:
+					'Этот запуск начался слишком давно, чтобы его отменить. Остановите его, затем измените запись.',
+				forbidden: 'Ваша роль не позволяет отменить этот запуск.',
+				notSupported: 'Этот сервер пока не поддерживает отмену запуска.',
+				changed: 'Тем временем начался другой запуск, поэтому ничего не отменено.',
+				trackerRun:
+					'Этот запуск записывает настольное приложение или агент, которые сами ведут его время, поэтому его нельзя отменить здесь.',
+				offline: 'Нет подключения, поэтому ничего не отменено. Попробуйте снова, когда появится сеть.',
+				generic: 'Не удалось отменить запуск. Попробуйте снова.'
+			}
+		}
 	},
 	welcomeScreen: {
 		postscript:
@@ -26,10 +89,9 @@ const ru = {
 		letsGo: "Let's go!" // @demo remove-current-line
 	},
 	errorScreen: {
-		title: 'Something went wrong!',
-		friendlySubtitle:
-			"This is the screen that your users will see in production when an error is thrown. You'll want to customize this message (located in `app/i18n/en.ts`) and probably the layout as well (`app/screens/ErrorScreen`). If you want to remove this entirely, check `app/app.tsx` for the <ErrorBoundary> component.",
-		reset: 'RESET APP',
+		title: 'Что-то пошло не так!',
+		friendlySubtitle: 'В приложении произошла ошибка. Перезагрузите его, чтобы продолжить.',
+		reset: 'Перезагрузить приложение',
 		traceTitle: 'Error from %{name} stack' // @demo remove-current-line
 	},
 	emptyStateComponent: {
@@ -77,7 +139,7 @@ const ru = {
 		createTeam: 'Create Team',
 		invalidConfirmCode: 'Invalid confirm code',
 		securityCodeSent: 'Security code was sent on new email',
-		codeSentTo: 'A 6-character code sent to:'
+		codeSentTo: 'Мы отправили код на:'
 	},
 	myWorkScreen: {
 		name: 'Work',

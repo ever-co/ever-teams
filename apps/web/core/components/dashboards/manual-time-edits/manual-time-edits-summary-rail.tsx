@@ -6,6 +6,7 @@ import { ShareMeter } from '@/core/components/dashboards/kit/meters';
 import { DASHBOARD_SURFACE, SECTION_TITLE, SKELETON_BAR } from '@/core/components/dashboards/kit/recipes';
 import { dataColorDotStyle, isPaintableColor } from '@/core/components/tasks/task-data-color';
 import { Folder, Pencil, Plus } from '@/core/components/icons';
+import { HiddenProjectMark } from '@/core/components/projects/hidden-project-mark';
 import type { TrackedShare } from '@/core/hooks/dashboards/manual-time-edits/use-manual-time-edits-report';
 import { cn } from '@/core/lib/helpers';
 import { formatDurationShort } from '@/core/lib/utils/dashboard-figures';
@@ -169,6 +170,9 @@ function ProjectLead({ row }: Readonly<{ row: ManualRankRow }>) {
 	if (!item) {
 		return <OtherMark />;
 	}
+	if (item.isProjectHidden) {
+		return <HiddenProjectMark />;
+	}
 	if (!item.name) {
 		return <Folder aria-hidden="true" className="ml-0.5 size-4 text-muted-foreground" />;
 	}
@@ -213,12 +217,16 @@ function projectNameOf(row: ManualRankRow, t: Translate) {
 	if (!item) {
 		return t('dashboard.manualTimeEdits.RANK_OTHER_PROJECTS', { count: row.otherCount });
 	}
+	// The projects the API keeps from the reader rank as one, never as "No project" (CORE-27)
+	if (item.isProjectHidden) {
+		return t('common.PRIVATE_PROJECTS');
+	}
 	return item.name ?? t('dashboard.timesheets.NO_PROJECT');
 }
 
 function isMutedRow(row: ManualRankRow) {
 	const isOther = row.item === null;
-	const hasNoName = !row.item?.name;
+	const hasNoName = !row.item?.name && !row.item?.isProjectHidden;
 	return isOther || hasNoName;
 }
 

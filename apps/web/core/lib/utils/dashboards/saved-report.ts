@@ -65,6 +65,17 @@ function savedFiltersOf(filters: TimeActivityFilters): ISavedReportFilters {
 	};
 }
 
+/**
+ * The grouping a saved report stores. The saved reports API knows no Label grouping (#5368): a view grouped by label is
+ * saved with the default grouping, by date.
+ */
+function savedGroupingOf(grouping: TimeActivityGrouping): Exclude<TimeActivityGrouping, 'label'> | null {
+	if (grouping === 'label') {
+		return null;
+	}
+	return grouping;
+}
+
 /** The body that saves the view, or that updates a saved report with it. */
 export function savedReportInputOf(
 	view: TimeActivityView,
@@ -75,7 +86,7 @@ export function savedReportInputOf(
 		...savedPeriodOf(view.period, weekStartsOn),
 		timeZone,
 		filters: savedFiltersOf(view.filters),
-		grouping: view.grouping
+		grouping: savedGroupingOf(view.grouping)
 	};
 }
 
@@ -152,8 +163,15 @@ function showsSavedPeriod(report: ISavedReport, period: Period, weekStartsOn: We
 	return report.periodRule === savedPeriodOf(period, weekStartsOn).periodRule;
 }
 
-/** Whether the view shown is the one the report saved: when it is not, the menu offers to update the report. */
+/**
+ * Whether the view shown is the one the report saved: when it is not, the menu offers to update the report. A saved
+ * report keeps no labels of entries (#5368), so a view narrowed by them is never the saved one.
+ */
 export function showsSavedView(report: ISavedReport, view: TimeActivityView, weekStartsOn: WeekStart): boolean {
+	const hasEntryLabels = view.filters.entryLabels.length > 0;
+	if (hasEntryLabels) {
+		return false;
+	}
 	const shown = savedReportInputOf(view, weekStartsOn, report.timeZone ?? '');
 	const samePeriod = showsSavedPeriod(report, view.period, weekStartsOn);
 	const sameGrouping = (report.grouping ?? 'date') === shown.grouping;

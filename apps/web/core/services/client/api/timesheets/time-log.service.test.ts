@@ -4,6 +4,7 @@
  * day differ from the local one, and restored once the file is done.
  */
 import { runInThisContext } from 'node:vm';
+import { ApiErrorService } from '@/core/services/client/api-error.service';
 import { ETimeLogType } from '@/core/types/generics/enums/timer';
 import { timeLogService } from './time-log.service';
 
@@ -317,5 +318,48 @@ describe('TimeLogService time logs with the breaks (#5216)', () => {
 		await timeLogService.getTimeLogs(period);
 
 		expect(sentQueryOf(get).has('includeBreaks')).toBe(false);
+	});
+});
+
+describe('TimeLogService entry labels probe (#5368)', () => {
+	afterEach(() => jest.restoreAllMocks());
+
+	it('asks the tags of the entries of the last minute, a range the API accepts: its start before its end', async () => {
+		const get = jest.spyOn(timeLogService, 'get');
+		get.mockResolvedValue({ data: [] } as never);
+
+		await expect(timeLogService.supportsEntryLabels()).resolves.toBe(true);
+
+		const [url] = get.mock.calls[0];
+		const sent = new URL(url, 'https://client.test').searchParams;
+		const start = Date.parse(sent.get('startDate') ?? '');
+		const end = Date.parse(sent.get('endDate') ?? '');
+		expect(start).toBeLessThan(end);
+		expect(sent.get('relations[0]')).toBe('tags');
+	});
+
+	it('reads the refusal of an API without labels on entries as no labels: it names the tags property', async () => {
+		// What a Gauzy without ever-co/ever-gauzy#12029 answers, as the client throws it: a 500 naming the property
+		const refusal = new ApiErrorService(
+			'Property "tags" was not found in "TimeLog". Make sure your query is correct.',
+			500
+		);
+		jest.spyOn(timeLogService, 'get').mockRejectedValue(refusal);
+
+		await expect(timeLogService.supportsEntryLabels()).resolves.toBe(false);
+	});
+
+	it('throws a refusal for another reason, so it is read again rather than kept as no labels', async () => {
+		// As the client throws it: the status in `statusCode`, the API's message as its own
+		const otherRefusal = new ApiErrorService('Start date must be before to the end date', 400);
+		jest.spyOn(timeLogService, 'get').mockRejectedValue(otherRefusal);
+
+		await expect(timeLogService.supportsEntryLabels()).rejects.toBe(otherRefusal);
+	});
+
+	it('throws another failure, so the answer is read again rather than kept as no labels', async () => {
+		jest.spyOn(timeLogService, 'get').mockRejectedValue(new Error('Network Error'));
+
+		await expect(timeLogService.supportsEntryLabels()).rejects.toThrow('Network Error');
 	});
 });

@@ -1,5 +1,6 @@
+import { isHiddenProject, PRIVATE_PROJECTS_KEY } from '@/core/lib/utils/project-visibility';
 import { isStaleTeamsTimer } from '@/core/lib/helpers/timer-policy';
-import type { LinePrice } from '@/core/lib/utils/invoices';
+import { keepsClientRates, keptLinePriceOf, type KeptRatesLike, type LinePrice } from '@/core/lib/utils/invoices';
 import type { BillableFigures } from '@/core/lib/utils/dashboards/time-activity';
 import { localDayKeyOf } from '@/core/lib/utils/dashboard-export';
 import { type LimitVerdict, limitVerdictOf, percentOf } from '@/core/lib/utils/dashboard-figures';
@@ -13,7 +14,7 @@ import {
 import type { ProjectShareItem } from '@/core/lib/utils/dashboards/team';
 import { logDurationSeconds, NO_PROJECT_VALUE, startOfLog } from '@/core/lib/utils/dashboards/timesheets';
 import { LIMIT_WEEK_START, WORK_DAYS_PER_WEEK } from '@/core/lib/utils/dashboards/weekly-limit';
-import { employeeRateValueOf } from '@/core/lib/utils/rates';
+import { type DefaultBillRate, employeeRateValueOf } from '@/core/lib/utils/rates';
 import { type DurationRoundingRule, roundedSecondsOf } from '@/core/lib/utils/duration-rounding';
 import { isBreakLog } from '@/core/lib/utils/timer/timer-break';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
@@ -47,6 +48,8 @@ export interface MyWeekEntryProject {
 	name: string;
 	color: string | null;
 	imageUrl: string | null;
+	/** A project the API keeps from the reader (CORE-27): `id` is the key all of them share, and `name` is empty. */
+	isProjectHidden?: true;
 }
 
 export interface MyWeekEntry {
@@ -76,6 +79,9 @@ function trimmedOrNull(value: string | null | undefined) {
 
 function projectOfLog(log: ITimeLog): MyWeekEntryProject | null {
 	const project = log.project;
+	if (isHiddenProject(project)) {
+		return { id: PRIVATE_PROJECTS_KEY, name: '', color: null, imageUrl: null, isProjectHidden: true };
+	}
 	const name = trimmedOrNull(project?.name);
 	if (!project || !name) {
 		return null;
@@ -243,6 +249,47 @@ export function myWeekFiguresOf(entries: ReadonlyArray<MyWeekEntry>, days: Reado
 /** The price of an hour of the person's own time on a project, or on no project, through an invoice line's chain. */
 type PriceOfProject = (projectId: string | null) => LinePrice;
 
+/** The price of one entry at the rates it kept; null to price it as its project is priced today. */
+type KeptPriceOfEntry = (entry: MyWeekEntry) => LinePrice | null;
+
+/** The billable time of one project at one price: today's, or a rate its entries kept. */
+interface BillableGroup {
+	projectId: string | null;
+	seconds: number;
+	kept: LinePrice | null;
+}
+
+/**
+ * The person's billable seconds per project, and per kept price within a project: each entry rounded by the
+ * workspace's rule, as {@link billableSecondsByProjectOf} counts them.
+ */
+function billableGroupsOf(
+	entries: ReadonlyArray<MyWeekEntry>,
+	roundingRule: DurationRoundingRule | null,
+	keptPriceOf: KeptPriceOfEntry | undefined
+): BillableGroup[] {
+	const groups = new Map<string, BillableGroup>();
+	for (const entry of entries) {
+		if (!isBilledEntry(entry)) {
+			continue;
+		}
+		const projectKey = entry.log.projectId ?? entry.log.project?.id ?? NO_PROJECT_KEY;
+		let projectId: string | null = projectKey;
+		if (projectKey === NO_PROJECT_KEY) {
+			projectId = null;
+		}
+		const kept = keptPriceOf?.(entry) ?? null;
+		let key = projectKey;
+		if (kept) {
+			key = [projectKey, 'kept', kept.rate ?? 'none', kept.currency ?? ''].join('|');
+		}
+		const group = groups.get(key) ?? { projectId, seconds: 0, kept };
+		group.seconds += roundedSecondsOf(entry.seconds, roundingRule);
+		groups.set(key, group);
+	}
+	return [...groups.values()];
+}
+
 const NO_PROJECT_KEY = '';
 
 const DEFAULT_AMOUNT_CURRENCY = 'USD';
@@ -274,10 +321,38 @@ function billableSecondsByProjectOf(
 }
 
 /** The projects whose client rates price the person's billable time, each once and in a stable order. */
+/** Whether the period holds time that is billed, with a project or without. */
+export function hasBilledTime(entries: ReadonlyArray<MyWeekEntry>): boolean {
+	return entries.some(isBilledEntry);
+}
+
 export function billableProjectIdsOfEntries(entries: ReadonlyArray<MyWeekEntry>): string[] {
 	const keys = [...billableSecondsByProjectOf(entries).keys()];
 	const projectIds = keys.filter((key) => key !== NO_PROJECT_KEY);
 	return projectIds.sort((first, second) => first.localeCompare(second));
+}
+
+/**
+ * The price of each entry at the rates it kept, read from `keptById`: none, so today's prices it, for an entry that
+ * keeps no rates or whose kept rates price nothing, as `entryPriceOf` leaves it to today's on an invoice and on Time &
+ * activity. Otherwise My week would show that time without an amount where a draft invoice bills it at today's rate.
+ */
+export function keptPriceOfEntryOf(
+	keptById: ReadonlyMap<string, KeptRatesLike>,
+	organizationCurrency: string | null,
+	defaultRate: DefaultBillRate | null
+): KeptPriceOfEntry {
+	return (entry) => {
+		const kept = keptById.get(entry.log.id);
+		if (!kept || !keepsClientRates(kept)) {
+			return null;
+		}
+		const price = keptLinePriceOf({ kept, organizationCurrency, defaultRate });
+		if (price.rate === null) {
+			return null;
+		}
+		return price;
+	};
 }
 
 /**
@@ -288,18 +363,17 @@ export function billableProjectIdsOfEntries(entries: ReadonlyArray<MyWeekEntry>)
 export function myWeekBillableOf(
 	entries: ReadonlyArray<MyWeekEntry>,
 	priceOf: PriceOfProject,
-	roundingRule: DurationRoundingRule | null = null
+	roundingRule: DurationRoundingRule | null = null,
+	keptPriceOf?: KeptPriceOfEntry
 ): BillableFigures {
 	const totals = new Map<string, number>();
 	let seconds = 0;
 	let unpricedSeconds = 0;
-	for (const [key, projectSeconds] of billableSecondsByProjectOf(entries, roundingRule)) {
+	for (const group of billableGroupsOf(entries, roundingRule, keptPriceOf)) {
+		const projectSeconds = group.seconds;
 		seconds += projectSeconds;
-		let projectId: string | null = key;
-		if (key === NO_PROJECT_KEY) {
-			projectId = null;
-		}
-		const { rate, currency } = priceOf(projectId);
+		// An entry that kept its rates is billed at them, as a draft invoice of the same time bills it
+		const { rate, currency } = group.kept ?? priceOf(group.projectId);
 		if (rate === null) {
 			unpricedSeconds += projectSeconds;
 			continue;
@@ -371,8 +445,17 @@ function projectItemOf(project: MyWeekEntryProject | null): ProjectShareItem {
 		imageUrl: project.imageUrl,
 		color: project.color,
 		isNoProject: false,
-		seconds: 0
+		seconds: 0,
+		...hiddenShareFlagOf(project)
 	};
+}
+
+// Rows of projects the reader may see keep the shape they had before the API could keep a project from them
+function hiddenShareFlagOf(project: MyWeekEntryProject): Pick<ProjectShareItem, 'isProjectHidden'> {
+	if (!project.isProjectHidden) {
+		return {};
+	}
+	return { isProjectHidden: true };
 }
 
 function byLongestThenName(first: ProjectShareItem, second: ProjectShareItem) {

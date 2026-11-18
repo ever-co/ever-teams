@@ -8,6 +8,7 @@ import { isLiveDayRange, liveQueryOptionsOf } from '@/core/lib/utils/dashboard-l
 import type { Period } from '@/core/lib/utils/dashboard-period';
 import { type CalendarView, requestDaysOf } from '@/core/lib/utils/calendar-view';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
+import { useEntryLabelsSupport } from '@/core/hooks/timer/use-entry-labels-support';
 
 const STALE_TIME = 1000 * 60 * 3;
 const GC_TIME = 1000 * 60 * 15;
@@ -22,6 +23,8 @@ export interface CalendarLogsRequest {
 	timeZone: string;
 	/** The breaks among the entries (#5216), asked only where the organization turned breaks on. */
 	includeBreaks: boolean;
+	/** The labels of each entry itself (Gauzy #12029), asked only of an API that has them. */
+	withEntryLabels: boolean;
 	/** Tenant, organisation and member: the previous days stay on screen only while these do not change. */
 	scopeKey: string;
 }
@@ -65,7 +68,8 @@ async function fetchCalendarLogs(request: CalendarLogsRequest): Promise<Calendar
 		endDate: request.endDate,
 		timeZone: request.timeZone,
 		employeeIds: [request.employeeId],
-		...(request.includeBreaks ? { includeBreaks: true } : {})
+		...(request.includeBreaks ? { includeBreaks: true } : {}),
+		withEntryLabels: request.withEntryLabels
 	});
 	return { request, logs: logs ?? [] };
 }
@@ -76,6 +80,7 @@ async function fetchCalendarLogs(request: CalendarLogsRequest): Promise<Calendar
  * load, for the same member only.
  */
 export function useCalendarLogs(scope: CalendarLogsScope) {
+	const supportsEntryLabels = useEntryLabelsSupport();
 	const { startDate, endDate } = requestDaysOf(scope.range);
 	const employeeId = scope.employeeId ?? '';
 	const scopeKey = scopeKeyOf(scope);
@@ -88,6 +93,7 @@ export function useCalendarLogs(scope: CalendarLogsScope) {
 		endDate,
 		timeZone: scope.timeZone,
 		includeBreaks: scope.includeBreaks === true,
+		withEntryLabels: supportsEntryLabels,
 		scopeKey
 	};
 	const hasTenant = Boolean(scope.tenantId);
@@ -100,7 +106,11 @@ export function useCalendarLogs(scope: CalendarLogsScope) {
 	const logsKey = queryKeys.timesheet.logs(scope.tenantId, scope.organizationId, startDate, endDate, [employeeId]);
 
 	return useQuery({
-		queryKey: [...logsKey, 'calendar', { timeZone: scope.timeZone, includeBreaks: request.includeBreaks }],
+		queryKey: [
+			...logsKey,
+			'calendar',
+			{ timeZone: scope.timeZone, includeBreaks: request.includeBreaks, withEntryLabels: supportsEntryLabels }
+		],
 		queryFn: () => fetchCalendarLogs(request),
 		enabled: isReady && scope.isEnabled,
 		placeholderData: (previous) => previousOfSameScope(previous, scopeKey),

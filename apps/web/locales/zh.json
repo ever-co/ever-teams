@@ -209,6 +209,9 @@
 		"REMOVE_FAVORITE_TASK": "从收藏夹中移除任务",
 		"ADD_FAVORITE_TASK": "添加任务到收藏夹",
 		"NO_PROJECT": "无项目",
+		"PRIVATE_PROJECT": "私有项目",
+		"PRIVATE_PROJECTS": "私有项目",
+		"PRIVATE_PROJECT_HINT": "你不在这个私有项目中",
 		"NO_FAVORITE_TASK": "尚无收藏任务",
 		"LINK_TASK": "选择相关议题",
 		"LINK": "链接",
@@ -1372,6 +1375,10 @@
 				"STATUS": "状态",
 				"TRACKED_HOURS": "已记录（小时）",
 				"CURRENCY": "货币",
+				"BILLABLE_HOURS": "可计费工时",
+				"BILLABLE_CURRENCY": "计费货币",
+				"NO_RATE": "无费率",
+				"BILLABLE_UNPRICED": "{duration} 的可计费时间没有费率",
 				"ACTIVITY_PERCENT": "活跃度（%）",
 				"NO_TASK": "无任务",
 				"PAGE": "第 {page} 页，共 {total} 页"
@@ -1701,12 +1708,23 @@
 				"FAILED_FIRST_PART_KEPT": "第一部分已保存，但第二部分（{range}）无法添加。请通过“添加时间”添加。",
 				"FAILED_UNKNOWN": "无法确认拆分结果。请重新加载日历并检查此条目后再试。",
 				"ADD_REST": "添加第二部分",
+				"CHECKING": "正在检查此条目能否拆分…",
+				"CHECK_FAILED": "无法检查此条目能否拆分。请检查网络连接，然后重试。",
+				"CHECK_AGAIN": "重试",
+				"SLOT_STEP": "追踪时间按其 10 分钟时段拆分：每个时段连同截图和活动整体归入一个部分。",
+				"OFF_SLOT": "追踪时间在 10 分钟刻度上拆分，例如 {before} 或 {after}。",
+				"OFF_SLOT_ONE": "追踪时间在 10 分钟刻度上拆分，例如 {time}。",
+				"REASON_LABEL": "原因",
+				"REASON_REQUIRED": "你的组织要求在时间变更时填写原因。请添加原因后再次拆分。",
+				"REASON_TOO_LONG": "原因最多 255 个字符。",
+				"FAILED_RETRY": "无法确认拆分结果。请重试：已完成的拆分绝不会重复执行。",
 				"REFUSED": {
 					"TRACKED": "跟踪的时间带有其活动和截图，只有服务器能在两个条目之间分配。目前只能拆分手动添加的时间。",
 					"RUNNING": "计时器仍在运行。请先停止，再拆分条目。",
 					"TOO_SHORT": "此条目太短：每部分至少要持续一分钟。",
 					"APPROVED": "这一天属于已批准的工时表，因此其时间无法更改。",
-					"PERMISSION": "你的角色或组织不允许更改时间或手动添加时间。"
+					"PERMISSION": "你的角色或组织不允许更改时间或手动添加时间。",
+					"INVOICED": "此条目已计入发票，因此无法拆分。"
 				}
 			},
 			"SETTINGS": {
@@ -2994,6 +3012,24 @@
 		}
 	},
 	"timer": {
+		"labels": {
+			"LABELS": "标签",
+			"LABEL": "标签",
+			"PICK_LABELS": "添加标签",
+			"NO_LABELS_YET": "暂无标签",
+			"DELETED": "已删除",
+			"SAVE_FAILED": "无法保存标签",
+			"TASK_LABELS": "任务标签",
+			"NO_LABEL": "无标签",
+			"BY_LABEL_TITLE": "按标签统计时间",
+			"COUNT": "{count, plural, other {# 个标签}}",
+			"OVERLAP_TITLE": "分组有重叠",
+			"OVERLAP_MESSAGE": "带有多个标签的条目会计入每个标签，因此各分组之和大于总计。",
+			"CREATE": "创建“{name}”",
+			"SEARCH": "搜索标签",
+			"CREATE_FAILED": "无法创建标签",
+			"IMPORT_NOT_ATTACHED": "未附加：{names}。团队没有{count, plural, other {这些名称}}的标签，且无法添加。"
+		},
 		"START_TIMER": "请选择或创建新任务以开始计时 或製定計劃",
 		"ALREADY_TRACKING_MESSAGE": "您已经在另一个标签页或设备上跟踪时间。",
 		"TRACKING_DISABLED_MESSAGE": "您的时间跟踪已关闭。组织管理员可以将其开启。",
@@ -5187,6 +5223,7 @@
 			"MOVE_UP": "上移",
 			"MOVE_DOWN": "下移",
 			"BUILT_IN_DELETE": "内置项：无法删除",
+			"BUILT_IN_MOVE": "内置项：无法移动",
 			"DRAG": "拖动以调整顺序",
 			"groups": {
 				"todo": "待办",
@@ -7573,6 +7610,9 @@
 			"RATE_SOURCE_PROJECT": "项目的客户费率",
 			"RATE_SOURCE_EMPLOYEE": "该成员自己的计费费率",
 			"RATE_SOURCE_DEFAULT": "工作区的默认计费费率",
+			"KEPT_RATE_HINT": "{source}，保留自工作时的费率。今天：每小时 {rate}。",
+			"KEPT_RATES_UNREAD_TITLE": "按今天的费率计价",
+			"KEPT_RATES_UNREAD_MESSAGE": "此工作区中过去的时间保留其费率，但这些时间没有说明保留了哪个费率，因此每小时都按今天的费率计价。保存前请检查费率。",
 			"DESCRIPTION_OF": "明细行“{name}”的说明",
 			"REMOVE_LINE": "移除明细行“{name}”",
 			"REMOVED_LINES": "{count, plural, other {已移除 # 行}}",
@@ -7703,7 +7743,8 @@
 			"NUMBER_FREE": "其编号可以给另一张发票使用。",
 			"CONFIRM": "删除发票",
 			"DONE": "第 {number} 号发票已删除",
-			"FAILED": "发票未删除。请重试。"
+			"FAILED": "发票未删除。请重试。",
+			"CHANGED_MEANWHILE": "第 {number} 号发票在显示后已更改，因此未删除。请刷新以查看其当前版本，然后重试。"
 		},
 		"edit": {
 			"TITLE": "编辑第 {number} 号发票",

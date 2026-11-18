@@ -197,6 +197,20 @@ describe('an invoice read back to be edited', () => {
 		});
 	});
 
+	it('keys two saved lines of one member at two rates by their rate, as the lines its time makes again', () => {
+		const atTwoRates = [
+			item({ id: 'a', price: 90, quantity: 40, totalValue: 3600 }),
+			item({ id: 'b', price: 110, quantity: 2, totalValue: 220 })
+		];
+
+		const saved = readSaved({ invoiceItems: atTwoRates });
+
+		expect(saved.lines.map((line) => [line.key, line.rate])).toEqual([
+			['p1|ana|110:USD', 110],
+			['p1|ana|90:USD', 90]
+		]);
+	});
+
 	it('gives two lines of the same project and member two places', () => {
 		const twice = [item({ id: 'a', description: 'First' }), item({ id: 'b', description: 'Second' })];
 

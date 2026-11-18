@@ -22,7 +22,13 @@ export const taskAssociationsSchema = z.object({
 	taskPriority: taskPrioritySchema.optional(),
 	taskType: taskIssueTypeSchema.optional(),
 	estimations: z.array(z.lazy(() => taskEstimationsSchema)).optional(),
-	selectedTeam: z.lazy(() => organizationTeamSchema).optional()
+	selectedTeam: z.lazy(() => organizationTeamSchema).optional(),
+	// The task detail's project: one the API keeps from the reader is answered as its id and `projectHidden` (CORE-27)
+	project: z
+		.object({ id: z.string(), name: z.string().nullable().optional(), projectHidden: z.boolean().optional() })
+		.passthrough()
+		.nullable()
+		.optional()
 });
 
 export const taskSelfReferencesSchema = z.object({

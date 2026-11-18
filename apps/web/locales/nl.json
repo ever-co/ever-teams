@@ -209,6 +209,9 @@
 		"REMOVE_FAVORITE_TASK": "Taak uit favorieten verwijderen",
 		"ADD_FAVORITE_TASK": "Taak toevoegen aan favorieten",
 		"NO_PROJECT": "Geen project",
+		"PRIVATE_PROJECT": "Privéproject",
+		"PRIVATE_PROJECTS": "Privéprojecten",
+		"PRIVATE_PROJECT_HINT": "U bent geen lid van dit privéproject",
 		"NO_FAVORITE_TASK": "Nog geen favoriete taak",
 		"LINK_TASK": "Gerelateerde kwestie selecteren",
 		"LINK": "Link",
@@ -1372,6 +1375,10 @@
 				"STATUS": "Status",
 				"TRACKED_HOURS": "Geregistreerd (uren)",
 				"CURRENCY": "Valuta",
+				"BILLABLE_HOURS": "Factureerbare uren",
+				"BILLABLE_CURRENCY": "Factuurvaluta",
+				"NO_RATE": "Geen tarief",
+				"BILLABLE_UNPRICED": "{duration} factureerbare tijd zonder tarief",
 				"ACTIVITY_PERCENT": "Activiteit (%)",
 				"NO_TASK": "Geen taak",
 				"PAGE": "Pagina {page} van {total}"
@@ -1701,12 +1708,23 @@
 				"FAILED_FIRST_PART_KEPT": "Het eerste deel is opgeslagen, maar het tweede deel ({range}) kon niet worden toegevoegd. Voeg het toe met Tijd toevoegen.",
 				"FAILED_UNKNOWN": "Het splitsen kon niet worden bevestigd. Laad de kalender opnieuw en controleer deze registratie voordat je het opnieuw probeert.",
 				"ADD_REST": "Tweede deel toevoegen",
+				"CHECKING": "Controleren of deze registratie gesplitst kan worden…",
+				"CHECK_FAILED": "We konden niet controleren of deze registratie gesplitst kan worden. Controleer je verbinding en probeer het opnieuw.",
+				"CHECK_AGAIN": "Opnieuw proberen",
+				"SLOT_STEP": "Bijgehouden tijd wordt gesplitst op de blokken van 10 minuten: elk blok gaat in zijn geheel, met schermafbeeldingen en activiteit, naar één deel.",
+				"OFF_SLOT": "Bijgehouden tijd wordt gesplitst op een 10-minutenmarkering, zoals {before} of {after}.",
+				"OFF_SLOT_ONE": "Bijgehouden tijd wordt gesplitst op een 10-minutenmarkering, zoals {time}.",
+				"REASON_LABEL": "Reden",
+				"REASON_REQUIRED": "Je organisatie vraagt een reden wanneer tijd verandert. Voeg er een toe en splits opnieuw.",
+				"REASON_TOO_LONG": "De reden mag maximaal 255 tekens bevatten.",
+				"FAILED_RETRY": "De splitsing kon niet worden bevestigd. Probeer het opnieuw: een splitsing die al gelukt is, wordt nooit twee keer gedaan.",
 				"REFUSED": {
 					"TRACKED": "Bijgehouden tijd draagt zijn activiteit en schermafbeeldingen mee, die alleen de server over twee registraties kan verdelen. Voorlopig kan alleen handmatig toegevoegde tijd worden gesplitst.",
 					"RUNNING": "De timer loopt nog. Stop hem en splits dan de registratie.",
 					"TOO_SHORT": "Deze registratie is te kort: elk deel moet minstens een minuut duren.",
 					"APPROVED": "Deze dag hoort bij een goedgekeurde urenstaat, dus de tijd ervan kan niet veranderen.",
-					"PERMISSION": "Je rol of je organisatie staat niet toe dat je tijd wijzigt of handmatig toevoegt."
+					"PERMISSION": "Je rol of je organisatie staat niet toe dat je tijd wijzigt of handmatig toevoegt.",
+					"INVOICED": "Een factuur bevat deze registratie, dus ze kan niet gesplitst worden."
 				}
 			},
 			"SETTINGS": {
@@ -2994,6 +3012,24 @@
 		}
 	},
 	"timer": {
+		"labels": {
+			"LABELS": "Labels",
+			"LABEL": "Label",
+			"PICK_LABELS": "Labels toevoegen",
+			"NO_LABELS_YET": "Nog geen labels",
+			"DELETED": "Verwijderd",
+			"SAVE_FAILED": "De labels konden niet worden opgeslagen",
+			"TASK_LABELS": "Taaklabels",
+			"NO_LABEL": "Geen label",
+			"BY_LABEL_TITLE": "Tijd per label",
+			"COUNT": "{count, plural, one {# label} other {# labels}}",
+			"OVERLAP_TITLE": "Groepen overlappen",
+			"OVERLAP_MESSAGE": "Een invoer met meerdere labels telt onder elk ervan mee, dus de groepen tellen op tot meer dan het totaal.",
+			"CREATE": "“{name}” maken",
+			"SEARCH": "Labels zoeken",
+			"CREATE_FAILED": "Het label kon niet worden gemaakt",
+			"IMPORT_NOT_ATTACHED": "Niet gekoppeld: {names}. Het team heeft geen label met {count, plural, one {die naam} other {die namen}} en er kon er geen worden toegevoegd."
+		},
 		"START_TIMER": "Selecteer of maak een nieuwe taak aan om de tijd bij te houden of maak een plan",
 		"ALREADY_TRACKING_MESSAGE": "Je houdt al tijd bij in een ander tabblad of apparaat.",
 		"TRACKING_DISABLED_MESSAGE": "Tijdregistratie staat voor jou uit. Een beheerder van de organisatie kan het inschakelen.",
@@ -5187,6 +5223,7 @@
 			"MOVE_UP": "Omhoog",
 			"MOVE_DOWN": "Omlaag",
 			"BUILT_IN_DELETE": "Ingebouwd: kan niet worden verwijderd",
+			"BUILT_IN_MOVE": "Ingebouwd: kan niet worden verplaatst",
 			"DRAG": "Sleep om te herschikken",
 			"groups": {
 				"todo": "Te doen",
@@ -7573,6 +7610,9 @@
 			"RATE_SOURCE_PROJECT": "Klanttarief van het project",
 			"RATE_SOURCE_EMPLOYEE": "Eigen factuurtarief van het lid",
 			"RATE_SOURCE_DEFAULT": "Het standaard factuurtarief van de werkruimte",
+			"KEPT_RATE_HINT": "{source}, behouden van toen de tijd werd gewerkt. Vandaag: {rate} per uur.",
+			"KEPT_RATES_UNREAD_TITLE": "Tegen de tarieven van vandaag",
+			"KEPT_RATES_UNREAD_MESSAGE": "In deze werkruimte behoudt eerdere tijd zijn tarief, maar deze tijd vermeldt niet welk tarief hij behield, dus elk uur staat tegen de tarieven van vandaag. Controleer de tarieven voordat u opslaat.",
 			"DESCRIPTION_OF": "Omschrijving van de regel {name}",
 			"REMOVE_LINE": "Regel {name} verwijderen",
 			"REMOVED_LINES": "{count, plural, one {# regel verwijderd} other {# regels verwijderd}}",
@@ -7703,7 +7743,8 @@
 			"NUMBER_FREE": "Het nummer kan aan een andere factuur worden gegeven.",
 			"CONFIRM": "Factuur verwijderen",
 			"DONE": "Factuur {number} is verwijderd",
-			"FAILED": "De factuur is niet verwijderd. Probeer het opnieuw."
+			"FAILED": "De factuur is niet verwijderd. Probeer het opnieuw.",
+			"CHANGED_MEANWHILE": "Factuur {number} is gewijzigd sinds hij werd getoond, dus hij is niet verwijderd. Vernieuw hem om de huidige versie te zien en probeer het daarna opnieuw."
 		},
 		"edit": {
 			"TITLE": "Factuur {number} bewerken",

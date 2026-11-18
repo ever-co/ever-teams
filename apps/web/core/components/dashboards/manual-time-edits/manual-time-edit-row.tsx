@@ -15,6 +15,7 @@ import { MemberCell } from '@/core/components/dashboards/kit/member-cell';
 import { TimesheetStatusChip } from '@/core/components/dashboards/timesheets/timesheet-status';
 import { TaskDrawerLink } from '@/core/components/tasks/drawer/task-drawer-link';
 import { DollarCircle, MoreHorizontal, Pencil, PlusCircle, Trash } from '@/core/components/icons';
+import { HiddenProjectName } from '@/core/components/projects/hidden-project-mark';
 import { cn } from '@/core/lib/helpers';
 import { formatDurationShort } from '@/core/lib/utils/dashboard-figures';
 import {
@@ -129,6 +130,10 @@ export function ChangeChips({
 function ProjectChip({ entry, className }: Readonly<{ entry: ManualTimeEntry; className?: string }>) {
 	const t = useTranslations();
 	const projectName = entry.projectName;
+	// A project the API keeps from the reader (CORE-27)
+	if (entry.isProjectHidden) {
+		return <HiddenProjectName label={t('common.PRIVATE_PROJECT')} className={cn('text-xs', className)} />;
+	}
 	if (!projectName) {
 		return (
 			<span className={cn('truncate text-xs text-muted-foreground', className)}>

@@ -243,7 +243,8 @@ function TopProjectCell({ row, isPeriodLoading }: Readonly<{ row: MemberTableRow
 	if (project.isNoProject) {
 		return <span className={cn(MUTED_CELL, 'truncate')}>{t('dashboard.team.projects.NONE')}</span>;
 	}
-	return <ProjectChip project={project} />;
+	// The cell sits in the row's button: the lock of a hidden project leaves the focus to it
+	return <ProjectChip project={project} isFocusable={false} />;
 }
 
 const MemberTableRowButton = memo(function MemberTableRowButton({

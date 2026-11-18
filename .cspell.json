@@ -5,6 +5,7 @@
 	"$schema": "https://raw.githubusercontent.com/streetsidesoftware/cspell/main/cspell.schema.json",
 	"words": [
 		"Greptile",
+		"billables",
 		"VAPID",
 		"treeitem",
 		"blockid",
@@ -1028,7 +1029,8 @@
 		"RRGGBB",
 		"otpauth",
 		"qrcode",
-		"totp"
+		"totp",
+		"unlayered"
 	],
 	"useGitignore": true,
 	"ignorePaths": [

@@ -29,6 +29,9 @@ export interface HistoryFieldChange {
 	after: HistoryValue;
 	beforeName: string | null;
 	afterName: string | null;
+	/** Only where the API keeps that side's project from the caller (CORE-27): it names it "Private project". */
+	isBeforeHidden?: true;
+	isAfterHidden?: true;
 }
 
 /** One change of an entry: who made it, when, why, and each field before and after. */
@@ -139,6 +142,31 @@ function namesOf(list: ReadonlyArray<Record<string, unknown>>): Map<string, stri
 	return names;
 }
 
+/** The fields whose record the API keeps from the caller: `{ field: { id, projectHidden: true } }` (CORE-27). */
+function hiddenFieldsOf(list: ReadonlyArray<Record<string, unknown>>): Set<string> {
+	const hidden = new Set<string>();
+	for (const item of list) {
+		for (const [field, entity] of Object.entries(item)) {
+			if (objectOf(entity).projectHidden === true) {
+				hidden.add(field);
+			}
+		}
+	}
+	return hidden;
+}
+
+/** A side's hidden flag, only where it is hidden: the changes of the projects the caller sees keep their shape. */
+function hiddenSidesOf(field: string, beforeHidden: Set<string>, afterHidden: Set<string>) {
+	const sides: Pick<HistoryFieldChange, 'isBeforeHidden' | 'isAfterHidden'> = {};
+	if (beforeHidden.has(field)) {
+		sides.isBeforeHidden = true;
+	}
+	if (afterHidden.has(field)) {
+		sides.isAfterHidden = true;
+	}
+	return sides;
+}
+
 function textOrNull(value: unknown): string | null {
 	if (typeof value !== 'string') {
 		return null;
@@ -156,6 +184,8 @@ function fieldChangesOf(row: ITimeLogHistoryRow): HistoryFieldChange[] {
 	const after = valuesOf(listOf(row.updatedValues));
 	const beforeNames = namesOf(listOf(row.previousEntities));
 	const afterNames = namesOf(listOf(row.updatedEntities));
+	const beforeHidden = hiddenFieldsOf(listOf(row.previousEntities));
+	const afterHidden = hiddenFieldsOf(listOf(row.updatedEntities));
 	const fields: HistoryFieldChange[] = [];
 	for (const field of HISTORY_FIELDS) {
 		if (!changed.has(field)) {
@@ -166,7 +196,8 @@ function fieldChangesOf(row: ITimeLogHistoryRow): HistoryFieldChange[] {
 			before: before.get(field) ?? null,
 			after: after.get(field) ?? null,
 			beforeName: beforeNames.get(field) ?? null,
-			afterName: afterNames.get(field) ?? null
+			afterName: afterNames.get(field) ?? null,
+			...hiddenSidesOf(field, beforeHidden, afterHidden)
 		});
 	}
 	return fields;
@@ -269,6 +300,8 @@ export interface HistoryValueFormat {
 	none: string;
 	statusLabel: (status: string) => string;
 	memberName: (employeeId: string) => string | null;
+	/** A project the API keeps from the caller (CORE-27): "Private project", never its id. */
+	hiddenProject: string;
 }
 
 function timeTextOf(value: HistoryValue, format: HistoryValueFormat) {
@@ -279,15 +312,19 @@ function timeTextOf(value: HistoryValue, format: HistoryValueFormat) {
 	return format.time(date);
 }
 
-/** One value of a change as the page shows it. */
+/** One value of a change as the page shows it; `isHidden` when its project is one the API keeps from the caller. */
 export function historyValueTextOf(
 	field: TimeLogHistoryField,
 	value: HistoryValue,
 	name: string | null,
-	format: HistoryValueFormat
+	format: HistoryValueFormat,
+	isHidden = false
 ): string {
 	if (value === null || value === '') {
 		return format.none;
+	}
+	if (isHidden) {
+		return format.hiddenProject;
 	}
 	if (field === 'startedAt' || field === 'stoppedAt') {
 		return timeTextOf(value, format);
@@ -324,11 +361,13 @@ export function changeSideTextOf(
 		const isBefore = side === 'before';
 		let value = field.after;
 		let name = field.afterName;
+		let isHidden = field.isAfterHidden === true;
 		if (isBefore) {
 			value = field.before;
 			name = field.beforeName;
+			isHidden = field.isBeforeHidden === true;
 		}
-		const text = historyValueTextOf(field.field, value, name, format);
+		const text = historyValueTextOf(field.field, value, name, format, isHidden);
 		return `${labelOf(field.field)} ${text}`;
 	});
 	return parts.join('; ');
@@ -343,6 +382,8 @@ export interface DeletedEntry {
 	employeeId: string | null;
 	projectId: string | null;
 	projectName: string | null;
+	/** Its project is one the API keeps from the caller (CORE-27): named "Private project". */
+	isProjectHidden?: true;
 	taskId: string | null;
 	taskTitle: string | null;
 	isBillable: boolean;
@@ -370,6 +411,14 @@ function textValueOf(change: TimeLogHistoryChange, field: TimeLogHistoryField): 
 	return textOrNull(fieldOf(change, field)?.before);
 }
 
+// A deleted entry of a project the caller sees keeps the shape it had before the API could keep a project from them
+function hiddenProjectOfDeleted(change: TimeLogHistoryChange): Pick<DeletedEntry, 'isProjectHidden'> {
+	if (fieldOf(change, 'projectId')?.isBeforeHidden !== true) {
+		return {};
+	}
+	return { isProjectHidden: true };
+}
+
 /** The entry a deletion removed, with its values before deletion; `null` for any other change. */
 export function deletedEntryOf(change: TimeLogHistoryChange): DeletedEntry | null {
 	if (change.action !== 'deleted') {
@@ -383,6 +432,7 @@ export function deletedEntryOf(change: TimeLogHistoryChange): DeletedEntry | nul
 		employeeId: textValueOf(change, 'employeeId') ?? change.ownerEmployeeId,
 		projectId: textValueOf(change, 'projectId'),
 		projectName: fieldOf(change, 'projectId')?.beforeName ?? null,
+		...hiddenProjectOfDeleted(change),
 		taskId: textValueOf(change, 'taskId'),
 		taskTitle: fieldOf(change, 'taskId')?.beforeName ?? null,
 		isBillable: fieldOf(change, 'isBillable')?.before === true,

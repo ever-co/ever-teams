@@ -1,9 +1,20 @@
 'use client';
 import { cn } from '@ever-teams/toolkit-ui';
 import { useTheme } from 'next-themes';
+import { KitColorScheme, setKitPreferences } from '@lib/stores/kit-preferences';
+
+// Switches the widgets inside the kit root, and the host's next-themes when it has one (or the kit's own, without
+// scopedStyles): without any next-themes provider, its setTheme does nothing.
+function useSchemeSwitch() {
+	const { setTheme } = useTheme();
+	return (scheme: KitColorScheme) => {
+		setKitPreferences({ colorScheme: scheme });
+		setTheme(scheme);
+	};
+}
 
 function ToggleThemeContainer({ className }: { className?: string }) {
-	const { setTheme } = useTheme();
+	const setTheme = useSchemeSwitch();
 
 	return (
 		<div className={cn('border-none', className)}>
@@ -85,7 +96,7 @@ function ToggleThemeContainer({ className }: { className?: string }) {
 }
 
 export const ThemeToggle = () => {
-	const { setTheme } = useTheme();
+	const setTheme = useSchemeSwitch();
 
 	return (
 		<div className=" flex justify-center items-center gap-3 rounded-full bg-[#E7E7EA] dark:bg-[#25272D]   p-2">

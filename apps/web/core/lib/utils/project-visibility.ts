@@ -39,3 +39,26 @@ export function visibilityFieldOf(visibility: ProjectVisibility | null): { publi
 	}
 	return { public: visibility === 'everyone' };
 }
+
+/**
+ * The key every project the API keeps from the caller is grouped under (CORE-27, ever-co/ever-gauzy#12031): a report
+ * shows all of that time on one "Private projects" row, beside "No project".
+ */
+export const PRIVATE_PROJECTS_KEY = 'private-projects';
+
+/** A project as a record names it: the API answers one the caller may not see as its id and `projectHidden`. */
+type NamedProject = { projectHidden?: boolean | null };
+
+/**
+ * Whether the API keeps a record's project from the caller: a private project they are not on, in a workspace that
+ * keeps private projects private. An API without the marker never answers it, and every project reads as before.
+ */
+export function isHiddenProject(project: NamedProject | null | undefined): boolean {
+	return project?.projectHidden === true;
+}
+
+/** How a hidden project is named: one record's project, and the group of all of them in a report or a filter. */
+export interface HiddenProjectLabels {
+	one: string;
+	many: string;
+}

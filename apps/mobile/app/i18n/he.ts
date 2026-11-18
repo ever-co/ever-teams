@@ -16,7 +16,67 @@ const he = {
 	},
 	timer: {
 		stopFailedTitle: 'לא ניתן היה לעצור את הטיימר',
-		stopFailedMessage: 'הוא עדיין רץ. נסו שוב בעוד רגע.'
+		stopFailedMessage: 'הוא עדיין רץ. נסו שוב בעוד רגע.',
+		startMove: {
+			title: 'תחילת הטיימר הפועל',
+			startedAt: 'התחיל ב-{{time}}',
+			open: 'התחיל ב-{{time}}. שינוי ההתחלה',
+			newStart: 'התחלה חדשה',
+			timePlaceholder: 'HH:MM',
+			reason: 'סיבה',
+			reasonPlaceholder: 'למה ההתחלה משתנה',
+			laterOnly: 'אינך רשאי להוסיף זמן ידנית, לכן אפשר רק להזיז את ההתחלה מאוחר יותר.',
+			save: 'שמירה',
+			saving: 'שומר…',
+			close: 'סגירה',
+			saved: 'הטיימר מתחיל עכשיו ב-{{time}}.',
+			checking: 'בודק אם אפשר לשנות את ההתחלה…',
+			viewTracker: 'הטיימר הזה פועל באפליקציית שולחן העבודה. שנה את ההתחלה שם.',
+			viewNotAllowed: 'אינך רשאי לשנות זמן שנרשם בארגון הזה.',
+			unsupported: 'עדיין אי אפשר לשנות בשרת הזה את ההתחלה של טיימר פועל.',
+			invalidTime: 'הקלד שעה כמו 09:00.',
+			chooseDay: 'הטיימר התחיל לפני חצות: בחר את היום של ההתחלה החדשה.',
+			notRunning: 'הטיימר כבר לא פועל.',
+			trackerRun: 'הטיימר הזה פועל באפליקציית שולחן העבודה או בסוכן, שרושמים את הזמן בעצמם. שנה את ההתחלה שם.',
+			inFuture: 'ההתחלה לא יכולה להיות מאוחרת מעכשיו.',
+			editNotAllowed: 'אינך רשאי לשנות זמן שנרשם.',
+			manualNotAllowed: 'התחלה מוקדמת יותר מוסיפה זמן ידנית, ואינך רשאי לכך. בחר התחלה מאוחרת יותר.',
+			reasonRequired: 'הארגון שלך מבקש סיבה.',
+			reasonTooLong: 'הסיבה ארוכה מדי: 255 תווים לכל היותר.',
+			overlap: 'רישום אחר שלך מכסה את הזמן הזה. בחר התחלה אחרי שהוא מסתיים.',
+			changed: 'ההתחלה השתנתה הרגע במקום אחר. בדוק אותה ונסה שוב.',
+			saveFailed: 'לא ניתן היה לשמור את ההתחלה. נסה שוב.',
+			offline: 'אין חיבור, ולכן ההתחלה לא השתנתה. נסה שוב כשתהיה מחובר.'
+		},
+		discard: {
+			menu: 'פעולות נוספות לטיימר',
+			changeStart: 'שינוי ההתחלה',
+			action: 'ביטול הריצה הזו',
+			title: 'לבטל את הריצה הזו?',
+			description: 'שום דבר לא נשמר.',
+			descriptionElsewhere: 'הריצה הזו הופעלה מ{{source}} ותיעצר גם שם. שום דבר לא נשמר.',
+			confirm: 'ביטול הריצה',
+			discarding: 'מבטל…',
+			discarded: 'הריצה בוטלה',
+			discardedHint: 'הטיימר עצר ושום דבר לא נשמר.',
+			sources: {
+				web: 'אפליקציית הרשת',
+				browserExtension: 'תוסף הדפדפן',
+				other: 'אפליקציה אחרת'
+			},
+			failures: {
+				notRunning: 'אף טיימר כבר לא פועל, ולכן שום דבר לא בוטל.',
+				disabled: 'הארגון שלך לא מאפשר לבטל ריצה.',
+				tooLate: 'הריצה הזו התחילה לפני זמן רב מדי כדי לבטל אותה. עצרו אותה ואז ערכו את הרשומה.',
+				forbidden: 'התפקיד שלך לא מאפשר לבטל את הריצה הזו.',
+				notSupported: 'השרת הזה עדיין לא מאפשר לבטל ריצה.',
+				changed: 'בינתיים התחילה ריצה אחרת, ולכן שום דבר לא בוטל.',
+				trackerRun:
+					'הריצה הזו נרשמת באפליקציית שולחן העבודה או בסוכן, ששומרים את הזמן שלה בעצמם, ולכן לא ניתן לבטל אותה כאן.',
+				offline: 'אין חיבור, ולכן שום דבר לא בוטל. נסו שוב כשתהיו מחוברים.',
+				generic: 'לא ניתן היה לבטל את הריצה. נסו שוב.'
+			}
+		}
 	},
 	welcomeScreen: {
 		postscript:
@@ -26,10 +86,9 @@ const he = {
 		letsGo: "Let's go!" // @demo remove-current-line
 	},
 	errorScreen: {
-		title: 'Something went wrong!',
-		friendlySubtitle:
-			"This is the screen that your users will see in production when an error is thrown. You'll want to customize this message (located in `app/i18n/en.ts`) and probably the layout as well (`app/screens/ErrorScreen`). If you want to remove this entirely, check `app/app.tsx` for the <ErrorBoundary> component.",
-		reset: 'RESET APP',
+		title: 'משהו השתבש!',
+		friendlySubtitle: 'האפליקציה נתקלה בבעיה. יש לטעון אותה מחדש כדי להמשיך.',
+		reset: 'טעינה מחדש של האפליקציה',
 		traceTitle: 'Error from %{name} stack' // @demo remove-current-line
 	},
 	emptyStateComponent: {
@@ -77,7 +136,7 @@ const he = {
 		createTeam: 'Create Team',
 		invalidConfirmCode: 'Invalid confirm code',
 		securityCodeSent: 'Security code was sent on new email',
-		codeSentTo: 'A 6-character code sent to:'
+		codeSentTo: 'שלחנו קוד אל:'
 	},
 	myWorkScreen: {
 		name: 'Work',

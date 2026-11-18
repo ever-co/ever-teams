@@ -75,6 +75,12 @@ const LineRow = memo(function LineRow({ line, description, onDescribe, onRemove 
 	const rateText = t('invoices.new.RATE_PER_HOUR', { rate: formatOwed(line.rate, line.currency, locale) });
 	const removeLabel = t('invoices.new.REMOVE_LINE', { name: line.label });
 	let rateHint = t(RATE_SOURCE_KEYS[line.rateSource]);
+	const todaysRate = line.todaysPrice?.rate;
+	const differsFromToday = typeof todaysRate === 'number';
+	if (differsFromToday) {
+		const today = formatOwed(todaysRate, line.todaysPrice?.currency ?? null, locale);
+		rateHint = t('invoices.new.KEPT_RATE_HINT', { source: rateHint, rate: today });
+	}
 	if (line.isAverageRate) {
 		rateHint = t('invoices.new.byProject.AVERAGE_RATE_HINT');
 	}

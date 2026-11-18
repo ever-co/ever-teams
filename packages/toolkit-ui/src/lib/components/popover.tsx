@@ -3,6 +3,9 @@
 import * as React from 'react';
 import * as PopoverPrimitive from '@radix-ui/react-popover';
 import { cn } from '../utils/utils';
+import { withKitContainer } from './portal-container';
+
+const PopoverContentPortal = withKitContainer(PopoverPrimitive.Portal);
 
 const Popover = PopoverPrimitive.Root;
 const PopoverClose = PopoverPrimitive.Close;
@@ -18,7 +21,7 @@ const PopoverContent = ({
 }: React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Content> & {
 	ref?: React.RefObject<React.ElementRef<typeof PopoverPrimitive.Content>>;
 }) => (
-	<PopoverPrimitive.Portal>
+	<PopoverContentPortal>
 		<PopoverPrimitive.Content
 			ref={ref}
 			align={align}
@@ -29,7 +32,7 @@ const PopoverContent = ({
 			)}
 			{...props}
 		/>
-	</PopoverPrimitive.Portal>
+	</PopoverContentPortal>
 );
 PopoverContent.displayName = 'Popover';
 

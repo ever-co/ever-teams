@@ -108,6 +108,7 @@ function sheetRowOf(row: number, cells: Partial<TimeImportCells>): TimeImportShe
 			notes: '',
 			billable: '',
 			memberEmail: '',
+			labels: '',
 			...cells
 		},
 		extraCellCount: 0
@@ -134,6 +135,7 @@ function timeImportOf(rows: TimeImportRow[], overrides: Partial<TimeImport> = {}
 		report: null,
 		hasCheckFailed: false,
 		hasPreviewChanged: false,
+		isWaitingForLabelRules: false,
 		chooseFile: jest.fn(),
 		retryCheck: jest.fn(),
 		recheckWithMembers: jest.fn(),
@@ -204,6 +206,17 @@ describe('TimeImportResult', () => {
 		fireEvent.click(screen.getByRole('button', { name: 'timeImport.IMPORT_ACTION {"count":1}' }));
 
 		expect(timeImport.confirm).toHaveBeenCalledTimes(1);
+	});
+
+	it('waits to import until it knows whether the labels of the rows can be filed (#5368)', () => {
+		const timeImport = timeImportOf(MIXED_ROWS, { isWaitingForLabelRules: true });
+		render(<Harness timeImport={timeImport} />);
+
+		const importButton = screen.getByRole('button', { name: 'timeImport.IMPORT_ACTION {"count":1}' });
+		expect(importButton.hasAttribute('disabled')).toBe(true);
+		fireEvent.click(importButton);
+
+		expect(timeImport.confirm).not.toHaveBeenCalled();
 	});
 
 	it('goes back to the file choice on request', () => {

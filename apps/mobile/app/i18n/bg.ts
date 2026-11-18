@@ -16,7 +16,69 @@ const bg = {
 	},
 	timer: {
 		stopFailedTitle: 'Таймерът не можа да спре',
-		stopFailedMessage: 'Той все още работи. Опитайте отново след малко.'
+		stopFailedMessage: 'Той все още работи. Опитайте отново след малко.',
+		startMove: {
+			title: 'Начало на работещия таймер',
+			startedAt: 'Започнато в {{time}}',
+			open: 'Започнато в {{time}}. Промяна на началото',
+			newStart: 'Ново начало',
+			timePlaceholder: 'ЧЧ:ММ',
+			reason: 'Причина',
+			reasonPlaceholder: 'Защо се променя началото',
+			laterOnly: 'Не ви е позволено да добавяте време ръчно, затова началото може само да се премести по-късно.',
+			save: 'Запазване',
+			saving: 'Запазване…',
+			close: 'Затваряне',
+			saved: 'Таймерът вече започва в {{time}}.',
+			checking: 'Проверява се дали началото може да се промени…',
+			viewTracker: 'Този таймер работи в настолното приложение. Променете началото му там.',
+			viewNotAllowed: 'Не ви е позволено да променяте отчетеното време в тази организация.',
+			unsupported: 'Началото на работещ таймер все още не може да се променя на този сървър.',
+			invalidTime: 'Въведете час, например 09:00.',
+			chooseDay: 'Таймерът е стартиран преди полунощ: изберете деня на новото начало.',
+			notRunning: 'Таймерът вече не работи.',
+			trackerRun:
+				'Този таймер работи в настолното приложение или агента, които сами записват времето му. Променете началото му там.',
+			inFuture: 'Началото не може да е по-късно от сега.',
+			editNotAllowed: 'Не ви е позволено да променяте отчетеното време.',
+			manualNotAllowed: 'По-ранно начало добавя време ръчно, което не ви е позволено. Изберете по-късно начало.',
+			reasonRequired: 'Вашата организация изисква причина.',
+			reasonTooLong: 'Причината е твърде дълга: най-много 255 знака.',
+			overlap: 'Друг ваш запис покрива това време. Изберете начало след края му.',
+			changed: 'Началото току-що се промени другаде. Проверете го и опитайте отново.',
+			saveFailed: 'Началото не можа да се запази. Опитайте отново.',
+			offline: 'Нямате връзка, затова началото не се промени. Опитайте отново, когато сте свързани.'
+		},
+		discard: {
+			menu: 'Още действия с таймера',
+			changeStart: 'Промяна на началото',
+			action: 'Отхвърляне на това пускане',
+			title: 'Да се отхвърли ли това пускане?',
+			description: 'Нищо не се запазва.',
+			descriptionElsewhere: 'Това пускане е стартирано от {{source}} и спира и там. Нищо не се запазва.',
+			confirm: 'Отхвърляне',
+			discarding: 'Отхвърляне…',
+			discarded: 'Пускането е отхвърлено',
+			discardedHint: 'Таймерът е спрян и нищо не е запазено.',
+			sources: {
+				web: 'уеб приложението',
+				browserExtension: 'разширението за браузъра',
+				other: 'друго приложение'
+			},
+			failures: {
+				notRunning: 'Вече не работи таймер, затова нищо не е отхвърлено.',
+				disabled: 'Вашата организация не позволява отхвърляне на пускане.',
+				tooLate:
+					'Това пускане е започнало твърде отдавна, за да бъде отхвърлено. Спрете го, след това редактирайте записа.',
+				forbidden: 'Вашата роля не позволява отхвърляне на това пускане.',
+				notSupported: 'Този сървър все още не позволява отхвърляне на пускане.',
+				changed: 'Междувременно започна друго пускане, затова нищо не е отхвърлено.',
+				trackerRun:
+					'Това пускане се записва от настолното приложение или агента, които сами пазят времето му, затова не може да бъде отхвърлено тук.',
+				offline: 'Нямате връзка, затова нищо не е отхвърлено. Опитайте отново, когато сте свързани.',
+				generic: 'Пускането не можа да бъде отхвърлено. Опитайте отново.'
+			}
+		}
 	},
 	welcomeScreen: {
 		postscript:
@@ -26,10 +88,9 @@ const bg = {
 		letsGo: "Let's go!" // @demo remove-current-line
 	},
 	errorScreen: {
-		title: 'Something went wrong!',
-		friendlySubtitle:
-			"This is the screen that your users will see in production when an error is thrown. You'll want to customize this message (located in `app/i18n/en.ts`) and probably the layout as well (`app/screens/ErrorScreen`). If you want to remove this entirely, check `app/app.tsx` for the <ErrorBoundary> component.",
-		reset: 'RESET APP',
+		title: 'Нещо се обърка!',
+		friendlySubtitle: 'Приложението срещна проблем. Заредете го отново, за да продължите.',
+		reset: 'Презареди приложението',
 		traceTitle: 'Error from %{name} stack' // @demo remove-current-line
 	},
 	emptyStateComponent: {
@@ -77,7 +138,7 @@ const bg = {
 		createTeam: 'Create Team',
 		invalidConfirmCode: 'Invalid confirm code',
 		securityCodeSent: 'Security code was sent on new email',
-		codeSentTo: 'A 6-character code sent to:'
+		codeSentTo: 'Изпратихме код на:'
 	},
 	myWorkScreen: {
 		name: 'Work',

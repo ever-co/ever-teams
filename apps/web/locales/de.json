@@ -208,6 +208,9 @@
 		"REMOVE_FAVORITE_TASK": "Aufgabe aus Favoriten entfernen",
 		"ADD_FAVORITE_TASK": "Aufgabe zu Favoriten hinzufügen",
 		"NO_PROJECT": "Kein Projekt",
+		"PRIVATE_PROJECT": "Privates Projekt",
+		"PRIVATE_PROJECTS": "Private Projekte",
+		"PRIVATE_PROJECT_HINT": "Sie sind nicht Mitglied dieses privaten Projekts",
 		"NO_FAVORITE_TASK": "Noch keine Favoritenaufgabe",
 		"LINK_TASK": "Verknüpftes Ticket auswählen",
 		"LINK": "Verknüpfen",
@@ -1372,6 +1375,10 @@
 				"STATUS": "Status",
 				"TRACKED_HOURS": "Erfasst (Stunden)",
 				"CURRENCY": "Währung",
+				"BILLABLE_HOURS": "Abrechenbare Stunden",
+				"BILLABLE_CURRENCY": "Abrechnungswährung",
+				"NO_RATE": "Kein Satz",
+				"BILLABLE_UNPRICED": "{duration} abrechenbare Zeit ohne Satz",
 				"ACTIVITY_PERCENT": "Aktivität (%)",
 				"NO_TASK": "Keine Aufgabe",
 				"PAGE": "Seite {page} von {total}"
@@ -1701,12 +1708,23 @@
 				"FAILED_FIRST_PART_KEPT": "Der erste Teil wurde gespeichert, aber der zweite Teil ({range}) konnte nicht hinzugefügt werden. Füge ihn mit „Zeit hinzufügen“ hinzu.",
 				"FAILED_UNKNOWN": "Die Teilung konnte nicht bestätigt werden. Lade den Kalender neu und prüfe diesen Eintrag, bevor du es erneut versuchst.",
 				"ADD_REST": "Zweiten Teil hinzufügen",
+				"CHECKING": "Es wird geprüft, ob dieser Eintrag geteilt werden kann…",
+				"CHECK_FAILED": "Es konnte nicht geprüft werden, ob dieser Eintrag geteilt werden kann. Prüfe deine Verbindung und versuche es erneut.",
+				"CHECK_AGAIN": "Erneut versuchen",
+				"SLOT_STEP": "Erfasste Zeit wird an ihren 10-Minuten-Abschnitten geteilt: Jeder geht ganz, mit seinen Screenshots und seiner Aktivität, in einen Teil.",
+				"OFF_SLOT": "Erfasste Zeit wird an einer 10-Minuten-Marke geteilt, etwa {before} oder {after}.",
+				"OFF_SLOT_ONE": "Erfasste Zeit wird an einer 10-Minuten-Marke geteilt, etwa {time}.",
+				"REASON_LABEL": "Grund",
+				"REASON_REQUIRED": "Deine Organisation verlangt einen Grund, wenn sich Zeit ändert. Gib einen an und teile erneut.",
+				"REASON_TOO_LONG": "Der Grund darf höchstens 255 Zeichen lang sein.",
+				"FAILED_RETRY": "Die Teilung konnte nicht bestätigt werden. Versuche es erneut: Eine bereits erfolgte Teilung wird nie doppelt ausgeführt.",
 				"REFUSED": {
 					"TRACKED": "Erfasste Zeit trägt ihre Aktivität und Screenshots, die nur der Server auf zwei Einträge aufteilen kann. Vorerst lässt sich nur manuell hinzugefügte Zeit teilen.",
 					"RUNNING": "Der Timer läuft noch. Stoppe ihn und teile dann den Eintrag.",
 					"TOO_SHORT": "Dieser Eintrag ist zu kurz: Jeder Teil muss mindestens eine Minute dauern.",
 					"APPROVED": "Dieser Tag gehört zu einem genehmigten Stundenzettel, daher kann seine Zeit nicht geändert werden.",
-					"PERMISSION": "Deine Rolle oder deine Organisation erlaubt weder das Ändern von Zeit noch das manuelle Hinzufügen."
+					"PERMISSION": "Deine Rolle oder deine Organisation erlaubt weder das Ändern von Zeit noch das manuelle Hinzufügen.",
+					"INVOICED": "Eine Rechnung enthält diesen Eintrag, daher kann er nicht geteilt werden."
 				}
 			},
 			"SETTINGS": {
@@ -2994,6 +3012,24 @@
 		}
 	},
 	"timer": {
+		"labels": {
+			"LABELS": "Labels",
+			"LABEL": "Label",
+			"PICK_LABELS": "Labels hinzufügen",
+			"NO_LABELS_YET": "Noch keine Labels",
+			"DELETED": "Gelöscht",
+			"SAVE_FAILED": "Die Labels konnten nicht gespeichert werden",
+			"TASK_LABELS": "Aufgaben-Labels",
+			"NO_LABEL": "Kein Label",
+			"BY_LABEL_TITLE": "Zeit nach Label",
+			"COUNT": "{count, plural, one {# Label} other {# Labels}}",
+			"OVERLAP_TITLE": "Gruppen überschneiden sich",
+			"OVERLAP_MESSAGE": "Ein Eintrag mit mehreren Labels zählt unter jedem davon, daher ergeben die Gruppen zusammen mehr als die Summe.",
+			"CREATE": "„{name}“ erstellen",
+			"SEARCH": "Labels suchen",
+			"CREATE_FAILED": "Das Label konnte nicht erstellt werden",
+			"IMPORT_NOT_ATTACHED": "Nicht zugeordnet: {names}. Das Team hat kein Label mit {count, plural, one {diesem Namen} other {diesen Namen}}, und es konnte keines hinzugefügt werden."
+		},
 		"START_TIMER": "Bitte wählen oder erstellen Sie eine neue Aufgabe, um die Zeit zu tracken oder einen Plan erstellen",
 		"ALREADY_TRACKING_MESSAGE": "Sie verfolgen bereits die Zeit in einem anderen Tab oder Gerät.",
 		"TRACKING_DISABLED_MESSAGE": "Die Zeiterfassung ist für Sie deaktiviert. Ein Administrator der Organisation kann sie aktivieren.",
@@ -5187,6 +5223,7 @@
 			"MOVE_UP": "Nach oben",
 			"MOVE_DOWN": "Nach unten",
 			"BUILT_IN_DELETE": "Integriert: kann nicht gelöscht werden",
+			"BUILT_IN_MOVE": "Integriert: kann nicht verschoben werden",
 			"DRAG": "Zum Sortieren ziehen",
 			"groups": {
 				"todo": "Zu erledigen",
@@ -7573,6 +7610,9 @@
 			"RATE_SOURCE_PROJECT": "Kundensatz des Projekts",
 			"RATE_SOURCE_EMPLOYEE": "Eigener Abrechnungssatz des Mitglieds",
 			"RATE_SOURCE_DEFAULT": "Der Standard-Abrechnungssatz des Arbeitsbereichs",
+			"KEPT_RATE_HINT": "{source}, beibehalten seit der Erfassung der Zeit. Heute: {rate} pro Stunde.",
+			"KEPT_RATES_UNREAD_TITLE": "Zu den heutigen Sätzen berechnet",
+			"KEPT_RATES_UNREAD_MESSAGE": "In diesem Arbeitsbereich behält vergangene Zeit ihren Satz, aber diese Zeit gibt nicht an, welchen Satz sie behalten hat. Jede Stunde wird daher zu den heutigen Sätzen berechnet. Prüfen Sie die Sätze vor dem Speichern.",
 			"DESCRIPTION_OF": "Beschreibung der Position {name}",
 			"REMOVE_LINE": "Position {name} entfernen",
 			"REMOVED_LINES": "{count, plural, one {# Position entfernt} other {# Positionen entfernt}}",
@@ -7703,7 +7743,8 @@
 			"NUMBER_FREE": "Seine Nummer kann einer anderen Rechnung gegeben werden.",
 			"CONFIRM": "Rechnung löschen",
 			"DONE": "Rechnung {number} wurde gelöscht",
-			"FAILED": "Die Rechnung wurde nicht gelöscht. Versuchen Sie es erneut."
+			"FAILED": "Die Rechnung wurde nicht gelöscht. Versuchen Sie es erneut.",
+			"CHANGED_MEANWHILE": "Rechnung {number} hat sich geändert, seit sie angezeigt wurde, daher wurde sie nicht gelöscht. Aktualisieren Sie sie, um ihre aktuelle Version zu sehen, und versuchen Sie es dann erneut."
 		},
 		"edit": {
 			"TITLE": "Rechnung {number} bearbeiten",

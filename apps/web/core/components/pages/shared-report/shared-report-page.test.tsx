@@ -5,6 +5,7 @@ import { act, render, screen, waitFor } from '@testing-library/react';
 import type { IPublicSavedReport } from '@/core/types/interfaces/timesheet/saved-report';
 
 const mockReadShared = jest.fn();
+const mockTableRows = jest.fn();
 
 jest.mock('next-intl', () => ({
 	useTranslations: () => (key: string, values?: Record<string, string>) =>
@@ -28,11 +29,14 @@ jest.mock('@/core/components/dashboards/time-activity/time-activity-breakdown', 
 	}: {
 		rows: { employeeName: string }[];
 		columns: { earnings: boolean };
-	}) => (
-		<div data-testid="table">
-			{rows.map((row) => row.employeeName).join(', ')} earnings:{String(columns.earnings)}
-		</div>
-	)
+	}) => {
+		mockTableRows(rows);
+		return (
+			<div data-testid="table">
+				{rows.map((row) => row.employeeName).join(', ')} earnings:{String(columns.earnings)}
+			</div>
+		);
+	}
 }));
 
 import { SharedReportPage } from './shared-report-page';
@@ -219,5 +223,32 @@ describe('SharedReportPage', () => {
 
 		expect(await screen.findByText('sharedReport.EMPTY')).toBeTruthy();
 		await waitFor(() => expect(screen.queryByTestId('table')).toBeNull());
+	});
+});
+
+describe('SharedReportPage, a project the API keeps from the report (CORE-27)', () => {
+	beforeEach(() => {
+		mockReadShared.mockReset();
+		mockTableRows.mockReset();
+	});
+
+	it('names its time "Private project(s)" in the table, never "No project"', async () => {
+		const report = sharedReport();
+		const [day] = report.days;
+		const hiddenLog = { ...day.logs[0], project: { id: 'p-hidden', projectHidden: true } };
+		mockReadShared.mockResolvedValue({
+			...report,
+			days: [{ ...day, logs: [hiddenLog] }]
+		} as unknown as IPublicSavedReport);
+
+		renderPage();
+
+		await screen.findByTestId('table');
+		const rows = mockTableRows.mock.calls.at(-1)?.[0] as Array<Record<string, unknown>>;
+		expect(rows[0]).toMatchObject({
+			isProjectHidden: true,
+			projectName: 'common.PRIVATE_PROJECT',
+			projectGroupName: 'common.PRIVATE_PROJECTS'
+		});
 	});
 });

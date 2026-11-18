@@ -208,6 +208,9 @@
 		"REMOVE_FAVORITE_TASK": "Remover tarefa dos favoritos",
 		"ADD_FAVORITE_TASK": "Adicionar tarefa aos favoritos",
 		"NO_PROJECT": "Nenhum projeto",
+		"PRIVATE_PROJECT": "Projeto privado",
+		"PRIVATE_PROJECTS": "Projetos privados",
+		"PRIVATE_PROJECT_HINT": "Você não faz parte deste projeto privado",
 		"NO_FAVORITE_TASK": "Ainda não há tarefas favoritas",
 		"LINK_TASK": "Selecionar Problema Relacionado",
 		"LINK": "Link",
@@ -1372,6 +1375,10 @@
 				"STATUS": "Status",
 				"TRACKED_HOURS": "Registrado (horas)",
 				"CURRENCY": "Moeda",
+				"BILLABLE_HOURS": "Horas faturáveis",
+				"BILLABLE_CURRENCY": "Moeda faturável",
+				"NO_RATE": "Sem taxa",
+				"BILLABLE_UNPRICED": "{duration} de tempo faturável sem taxa",
 				"ACTIVITY_PERCENT": "Atividade (%)",
 				"NO_TASK": "Sem tarefa",
 				"PAGE": "Página {page} de {total}"
@@ -1701,12 +1708,23 @@
 				"FAILED_FIRST_PART_KEPT": "A primeira parte foi salva, mas a segunda ({range}) não pôde ser adicionada. Adicione-a com Adicionar tempo.",
 				"FAILED_UNKNOWN": "Não foi possível confirmar a divisão. Recarregue o calendário e confira este registro antes de tentar novamente.",
 				"ADD_REST": "Adicionar a segunda parte",
+				"CHECKING": "Verificando se esta entrada pode ser dividida…",
+				"CHECK_FAILED": "Não foi possível verificar se esta entrada pode ser dividida. Verifique sua conexão e tente de novo.",
+				"CHECK_AGAIN": "Tentar de novo",
+				"SLOT_STEP": "O tempo rastreado é dividido nos seus intervalos de 10 minutos: cada um vai inteiro, com capturas e atividade, para uma só parte.",
+				"OFF_SLOT": "O tempo rastreado é dividido numa marca de 10 minutos, como {before} ou {after}.",
+				"OFF_SLOT_ONE": "O tempo rastreado é dividido numa marca de 10 minutos, como {time}.",
+				"REASON_LABEL": "Motivo",
+				"REASON_REQUIRED": "Sua organização pede um motivo quando o tempo muda. Adicione um e divida novamente.",
+				"REASON_TOO_LONG": "O motivo pode ter no máximo 255 caracteres.",
+				"FAILED_RETRY": "Não foi possível confirmar a divisão. Tente de novo: uma divisão já feita nunca é repetida.",
 				"REFUSED": {
 					"TRACKED": "O tempo rastreado carrega sua atividade e capturas de tela, que só o servidor pode repartir entre dois registros. Por enquanto, só o tempo adicionado à mão pode ser dividido.",
 					"RUNNING": "O temporizador ainda está em execução. Pare-o e depois divida o registro.",
 					"TOO_SHORT": "Este registro é curto demais: cada parte deve durar pelo menos um minuto.",
 					"APPROVED": "Este dia pertence a uma folha de horas aprovada, então seu tempo não pode ser alterado.",
-					"PERMISSION": "Sua função ou sua organização não permite alterar o tempo nem adicioná-lo à mão."
+					"PERMISSION": "Sua função ou sua organização não permite alterar o tempo nem adicioná-lo à mão.",
+					"INVOICED": "Uma fatura inclui esta entrada, por isso ela não pode ser dividida."
 				}
 			},
 			"SETTINGS": {
@@ -2994,6 +3012,24 @@
 		}
 	},
 	"timer": {
+		"labels": {
+			"LABELS": "Etiquetas",
+			"LABEL": "Etiqueta",
+			"PICK_LABELS": "Adicionar etiquetas",
+			"NO_LABELS_YET": "Ainda não há etiquetas",
+			"DELETED": "Excluída",
+			"SAVE_FAILED": "Não foi possível salvar as etiquetas",
+			"TASK_LABELS": "Etiquetas da tarefa",
+			"NO_LABEL": "Sem etiqueta",
+			"BY_LABEL_TITLE": "Tempo por etiqueta",
+			"COUNT": "{count, plural, one {# etiqueta} other {# etiquetas}}",
+			"OVERLAP_TITLE": "Os grupos se sobrepõem",
+			"OVERLAP_MESSAGE": "Uma entrada com várias etiquetas conta em cada uma delas, então a soma dos grupos passa do total.",
+			"CREATE": "Criar “{name}”",
+			"SEARCH": "Pesquisar etiquetas",
+			"CREATE_FAILED": "Não foi possível criar a etiqueta",
+			"IMPORT_NOT_ATTACHED": "Não anexadas: {names}. A equipe não tem etiqueta com {count, plural, one {esse nome} other {esses nomes}} e nenhuma pôde ser adicionada."
+		},
 		"START_TIMER": "Por favor, selecione ou crie uma nova tarefa para começar a rastrear o tempo ou crie um plano",
 		"ALREADY_TRACKING_MESSAGE": "Você já está rastreando o tempo em outra aba ou dispositivo.",
 		"TRACKING_DISABLED_MESSAGE": "O registro de tempo está desativado para você. Um administrador da organização pode ativá-lo.",
@@ -5187,6 +5223,7 @@
 			"MOVE_UP": "Mover para cima",
 			"MOVE_DOWN": "Mover para baixo",
 			"BUILT_IN_DELETE": "Nativo: não pode ser excluído",
+			"BUILT_IN_MOVE": "Nativo: não pode ser movido",
 			"DRAG": "Arraste para reordenar",
 			"groups": {
 				"todo": "A fazer",
@@ -7573,6 +7610,9 @@
 			"RATE_SOURCE_PROJECT": "Tarifa de cliente do projeto",
 			"RATE_SOURCE_EMPLOYEE": "Tarifa de faturação própria do membro",
 			"RATE_SOURCE_DEFAULT": "A taxa de faturação padrão do espaço de trabalho",
+			"KEPT_RATE_HINT": "{source}, mantida desde que o tempo foi trabalhado. Hoje: {rate} por hora.",
+			"KEPT_RATES_UNREAD_TITLE": "Com as tarifas de hoje",
+			"KEPT_RATES_UNREAD_MESSAGE": "Neste espaço de trabalho o tempo passado mantém a sua tarifa, mas este tempo não indica qual tarifa manteve, por isso cada hora é cobrada com as tarifas de hoje. Verifique as tarifas antes de salvar.",
 			"DESCRIPTION_OF": "Descrição da linha {name}",
 			"REMOVE_LINE": "Remover a linha {name}",
 			"REMOVED_LINES": "{count, plural, one {# linha removida} other {# linhas removidas}}",
@@ -7703,7 +7743,8 @@
 			"NUMBER_FREE": "O número pode ser dado a outra fatura.",
 			"CONFIRM": "Eliminar a fatura",
 			"DONE": "A fatura {number} foi eliminada",
-			"FAILED": "A fatura não foi eliminada. Tente novamente."
+			"FAILED": "A fatura não foi eliminada. Tente novamente.",
+			"CHANGED_MEANWHILE": "A fatura {number} mudou desde que foi exibida, então não foi eliminada. Atualize-a para ver a versão atual e tente novamente."
 		},
 		"edit": {
 			"TITLE": "Editar a fatura {number}",

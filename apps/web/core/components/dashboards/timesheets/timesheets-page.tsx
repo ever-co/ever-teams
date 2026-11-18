@@ -60,6 +60,7 @@ import { TimesheetsSelectionBar } from './timesheets-states';
 import { TimesheetsStatusCards } from './timesheets-status-cards';
 import { TimesheetsToolbar } from './timesheets-toolbar';
 import { TimesheetsViewMenu } from './timesheets-view-menu';
+import { useEntryLabelsSupport } from '@/core/hooks/timer/use-entry-labels-support';
 
 const NO_MEMBERS: TOrganizationTeamEmployee[] = [];
 
@@ -167,13 +168,15 @@ export function TimesheetsPage({ params }: Readonly<{ params: Promise<{ memberId
 	const { permissions, formatters, clearSelection, setLogsSelected } = page;
 
 	const members = page.activeTeam?.members ?? NO_MEMBERS;
+	const supportsEntryLabels = useEntryLabelsSupport();
 	const categories = useTimesheetFilterCategories({
 		isManage: permissions.isManage,
 		members,
 		logs: page.allLogs,
 		clients: page.clientChoices,
 		canFilterByClient: page.canFilterByClient,
-		hasPickedClient: page.filters.clients.length > 0
+		hasPickedClient: page.filters.clients.length > 0,
+		supportsEntryLabels
 	});
 	const filterControls = useTimesheetFilterControls({
 		filters: page.filters,
@@ -333,7 +336,8 @@ export function TimesheetsPage({ params }: Readonly<{ params: Promise<{ memberId
 		period: page.period,
 		appliedFilters: filterControls.applied,
 		statusFilter: page.statusFilter,
-		search: page.search
+		search: page.search,
+		withEntryLabels: supportsEntryLabels
 	});
 	const hasShownLogs = shownLogs.length > 0;
 

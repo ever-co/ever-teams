@@ -22,7 +22,8 @@ const NO_FILTERS: TimeActivityFilters = {
 	projectIds: [],
 	taskIds: [],
 	clientIds: [],
-	billable: []
+	billable: [],
+	entryLabels: []
 };
 
 const CLIENT_A_LAST_MONTH: TimeActivityView = {
@@ -125,6 +126,20 @@ describe('showsSavedView', () => {
 		expect(showsSavedView(saved, otherMembers, MONDAY)).toBe(false);
 		expect(showsSavedView(saved, allTime, MONDAY)).toBe(false);
 		expect(showsSavedView(saved, byMember, MONDAY)).toBe(false);
+	});
+
+	it('is false once the labels of entries narrow the view, which a saved report does not keep', () => {
+		const byLabel = {
+			...CLIENT_A_LAST_MONTH,
+			filters: { ...CLIENT_A_LAST_MONTH.filters, entryLabels: ['design'] }
+		};
+		const withoutLabel = {
+			...CLIENT_A_LAST_MONTH,
+			filters: { ...CLIENT_A_LAST_MONTH.filters, entryLabels: ['no-label'] }
+		};
+
+		expect(showsSavedView(saved, byLabel, MONDAY)).toBe(false);
+		expect(showsSavedView(saved, withoutLabel, MONDAY)).toBe(false);
 	});
 
 	it('compares a report saved with fixed days with the days shown, even on days a preset also covers', () => {

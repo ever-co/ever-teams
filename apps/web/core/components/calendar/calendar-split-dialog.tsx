@@ -7,12 +7,14 @@ import { toast } from 'sonner';
 import { AppDialog, APP_DIALOG_FOOTER } from '@/core/components/common/app-dialog';
 import { DialogDescription, DialogTitle } from '@/core/components/common/dialog';
 import { DialogFieldLabel } from '@/core/components/common/dialog-field-label';
+import { Input } from '@/core/components/common/input';
 import { TimeField } from '@/core/components/common/time-field';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { ChevronsUpDown, CircleAlert, Info, Plus, Scissors, Spinner, X } from '@/core/components/icons';
 import { TaskPickerMenu } from '@/core/components/tasks/detail/task-picker-menu';
 import {
 	type CalendarEntrySplit,
+	type CalendarSplitFailure,
 	type SplitTask,
 	useCalendarEntrySplit
 } from '@/core/hooks/calendar/use-calendar-entry-split';
@@ -21,8 +23,12 @@ import { cn } from '@/core/lib/helpers';
 import {
 	clockTextOf,
 	defaultSplitTimeOf,
+	isSlotMark,
+	nearestSlotMarksOf,
+	SLOT_MINUTES,
 	type SplitRefusal,
 	splitPartsOf,
+	splitsOnSlots,
 	splitTimeFromClock
 } from '@/core/lib/utils/calendar-split';
 import type { CalendarEntry } from '@/core/lib/utils/calendar-view';
@@ -35,6 +41,9 @@ import { entryRangeTextOf, ProjectDot, useEntryTitle } from './calendar-entry-pa
 
 const MILLISECONDS_PER_SECOND = 1000;
 
+/** The longest reason an entry keeps (Gauzy stores it in a 255-character column). */
+const REASON_MAX_LENGTH = 255;
+
 const REFUSAL_KEYS: Record<Exclude<SplitRefusal, 'none'>, DottedLanguageObjectStringPaths> = {
 	tracked: 'dashboard.calendar.SPLIT.REFUSED.TRACKED',
 	running: 'dashboard.calendar.SPLIT.REFUSED.RUNNING',
@@ -42,6 +51,44 @@ const REFUSAL_KEYS: Record<Exclude<SplitRefusal, 'none'>, DottedLanguageObjectSt
 	approved: 'dashboard.calendar.SPLIT.REFUSED.APPROVED',
 	permission: 'dashboard.calendar.SPLIT.REFUSED.PERMISSION'
 };
+
+/**
+ * What the dialog says after a split that did not go through: the outcomes of the two writes, then the reasons the API
+ * refused it for (off a 10-minute mark, the time field names the marks; the notice recalls the rule).
+ */
+const FAILURE_NOTICE_KEYS: Partial<Record<CalendarSplitFailure, DottedLanguageObjectStringPaths>> = {
+	overlap: 'dashboard.calendar.DRAG.OVERLAP',
+	changed: 'dashboard.calendar.SPLIT.FAILED_CHANGED',
+	unknown: 'dashboard.calendar.SPLIT.FAILED_UNKNOWN',
+	restored: 'dashboard.calendar.SPLIT.FAILED_RESTORED',
+	'off-slot': 'dashboard.calendar.SPLIT.SLOT_STEP',
+	tracked: 'dashboard.calendar.SPLIT.REFUSED.TRACKED',
+	running: 'dashboard.calendar.SPLIT.REFUSED.RUNNING',
+	approved: 'dashboard.calendar.SPLIT.REFUSED.APPROVED',
+	invoiced: 'dashboard.calendar.SPLIT.REFUSED.INVOICED',
+	permission: 'dashboard.calendar.SPLIT.REFUSED.PERMISSION',
+	'too-short': 'dashboard.calendar.SPLIT.TIME_OUTSIDE',
+	'reason-required': 'dashboard.calendar.SPLIT.REASON_REQUIRED',
+	'reason-too-long': 'dashboard.calendar.SPLIT.REASON_TOO_LONG',
+	retry: 'dashboard.calendar.SPLIT.FAILED_RETRY'
+};
+
+/** The failures after which another try cannot go better, or could write over what was saved: only Close is left. */
+const FINAL_FAILURES = new Set<CalendarSplitFailure>([
+	'first-part-kept',
+	'unknown',
+	'tracked',
+	'running',
+	'approved',
+	'invoiced',
+	'permission'
+]);
+
+/** The failures that ask for a reason, which the form then shows a field for. */
+const REASON_FAILURES = new Set<CalendarSplitFailure>(['reason-required', 'reason-too-long']);
+
+/** The failures whose outcome is not known yet: the next try sends the same split, so the fields stay as sent. */
+const UNSETTLED_FAILURES = new Set<CalendarSplitFailure>(['retry']);
 
 const NOTICE = 'mt-4 flex items-start gap-2 rounded-xl px-3.5 py-3 text-[13px] leading-5';
 
@@ -98,45 +145,133 @@ function FailureNotice({
 	);
 }
 
+/** The task the second part takes, as the split sends it: none keeps the entry's own. */
+function splitTaskOf(task: TTask | null): SplitTask | null {
+	if (!task) {
+		return null;
+	}
+	return { id: task.id, projectId: task.projectId ?? null };
+}
+
+/**
+ * What is wrong with the split time, if anything: outside the entry, or off a 10-minute mark of tracked time, with the
+ * nearest marks written as the entry's times are, on the workspace's clock.
+ */
+function useSplitTimeError(
+	window: TimeWindow,
+	splitAt: Date | null,
+	isOffSlot: boolean,
+	formatters: TimesheetFormatters
+): string | null {
+	const t = useTranslations();
+	if (!splitAt) {
+		return t('dashboard.calendar.SPLIT.TIME_OUTSIDE');
+	}
+	if (!isOffSlot) {
+		return null;
+	}
+	const { before, after } = nearestSlotMarksOf(window, splitAt);
+	const marks = [before, after].filter((mark): mark is Date => mark !== null).map(formatters.time);
+	if (marks.length === 2) {
+		return t('dashboard.calendar.SPLIT.OFF_SLOT', { before: marks[0], after: marks[1] });
+	}
+	if (marks.length === 1) {
+		return t('dashboard.calendar.SPLIT.OFF_SLOT_ONE', { time: marks[0] });
+	}
+	return t('dashboard.calendar.SPLIT.TIME_OUTSIDE');
+}
+
+/** Why the last split did not go through, with the way out of a first part saved without its second. */
+function SplitFailureNotice({
+	failure,
+	parts,
+	formatters,
+	onAddRest
+}: Readonly<{
+	failure: CalendarSplitFailure | null;
+	parts: ReturnType<typeof splitPartsOf> | null;
+	formatters: TimesheetFormatters;
+	onAddRest: () => void;
+}>) {
+	const t = useTranslations();
+	if (failure === null) {
+		return null;
+	}
+	if (failure === 'first-part-kept') {
+		if (!parts) {
+			return null;
+		}
+		const range = windowTextOf(parts.second, formatters);
+		return (
+			<FailureNotice
+				text={t('dashboard.calendar.SPLIT.FAILED_FIRST_PART_KEPT', { range })}
+				actionLabel={t('dashboard.calendar.SPLIT.ADD_REST')}
+				onAction={onAddRest}
+			/>
+		);
+	}
+	const key = FAILURE_NOTICE_KEYS[failure];
+	if (!key) {
+		return null;
+	}
+	return <FailureNotice text={t(key)} />;
+}
+
 function SplitForm({
 	entry,
 	formatters,
 	split,
+	viaApi,
 	onClose,
 	onAddTime
 }: Readonly<{
 	entry: CalendarEntry;
 	formatters: TimesheetFormatters;
 	split: CalendarEntrySplit;
+	/** The API splits in one write, its slots included: tracked time splits on its slot marks. */
+	viaApi: boolean;
 	onClose: () => void;
 	onAddTime: (range: TimeWindow) => void;
 }>) {
 	const t = useTranslations();
 	const timeId = useId();
 	const errorId = useId();
+	const hintId = useId();
+	const reasonId = useId();
 	const tasks = useAtomValue(tasksByTeamState);
 	const { data: user } = useUserQuery();
 	const window: TimeWindow = { start: entry.start, end: entry.end };
-	const [clockText, setClockText] = useState(() => clockTextOf(defaultSplitTimeOf(window)));
+	const onSlots = viaApi && splitsOnSlots(entry.log);
+	const [clockText, setClockText] = useState(() => clockTextOf(defaultSplitTimeOf(window, onSlots)));
 	const [secondTask, setSecondTask] = useState<TTask | null>(null);
+	const [reason, setReason] = useState('');
 	const entryTitle = useEntryTitle(entry);
 	const splitAt = splitTimeFromClock(window, clockText);
 	const isTimeInside = splitAt !== null;
-	const parts = splitAt ? splitPartsOf(window, splitAt) : null;
+	const isOffSlot = onSlots && splitAt !== null && !isSlotMark(splitAt);
+	const isTimeValid = isTimeInside && !isOffSlot;
+	let parts: ReturnType<typeof splitPartsOf> | null = null;
+	if (splitAt && isTimeValid) {
+		parts = splitPartsOf(window, splitAt);
+	}
 	const secondTitle = secondTask?.title ?? entryTitle;
 	const shownTaskId = secondTask?.id ?? entry.log.taskId;
 	const tenantId = user?.tenantId ?? '';
-	const canSave = isTimeInside && !split.isSaving && Boolean(tenantId);
+	const failure = split.failure;
+	const isReasonAsked = failure !== null && REASON_FAILURES.has(failure);
+	const [showsReason, setShowsReason] = useState(false);
+	const hasReasonField = showsReason || isReasonAsked;
+	const canSave = isTimeValid && !split.isSaving && Boolean(tenantId);
 
 	const save = async () => {
 		if (!splitAt) {
 			return;
 		}
-		let picked: SplitTask | null = null;
-		if (secondTask) {
-			picked = { id: secondTask.id, projectId: secondTask.projectId ?? null };
+		if (isReasonAsked) {
+			setShowsReason(true);
 		}
-		const isSaved = await split.save({ log: entry.log, splitAt, secondTask: picked, tenantId });
+		const picked = splitTaskOf(secondTask);
+		const isSaved = await split.save({ log: entry.log, splitAt, secondTask: picked, tenantId, viaApi, reason });
 		if (isSaved) {
 			toast.success(t('dashboard.calendar.SPLIT.SAVED'));
 			onClose();
@@ -151,31 +286,31 @@ function SplitForm({
 		onAddTime(parts.second);
 	};
 
-	let failure: ReactNode = null;
-	if (split.failure === 'overlap') {
-		failure = <FailureNotice text={t('dashboard.calendar.DRAG.OVERLAP')} />;
+	const timeError = useSplitTimeError(window, splitAt, isOffSlot, formatters);
+	// After a partial or unconfirmed split of the two writes, trying again could write over what was saved, and after a
+	// refusal no second try goes better: the dialog only closes
+	const isFinal = failure !== null && FINAL_FAILURES.has(failure);
+	// After an unknown outcome the next try must send the same split, which the API never makes twice: the fields keep
+	// what was sent (another time would split what the first try may already have cut)
+	const isUnsettled = failure !== null && UNSETTLED_FAILURES.has(failure);
+	const isLocked = split.isSaving || isFinal || isUnsettled;
+
+	const showsSlotHint = onSlots && !timeError;
+	let describedBy: string | undefined;
+	if (timeError) {
+		describedBy = errorId;
 	}
-	if (split.failure === 'changed') {
-		failure = <FailureNotice text={t('dashboard.calendar.SPLIT.FAILED_CHANGED')} />;
+	if (showsSlotHint) {
+		describedBy = hintId;
 	}
-	if (split.failure === 'unknown') {
-		failure = <FailureNotice text={t('dashboard.calendar.SPLIT.FAILED_UNKNOWN')} />;
+	let timeStep: number | undefined;
+	if (onSlots) {
+		timeStep = SLOT_MINUTES;
 	}
-	if (split.failure === 'restored') {
-		failure = <FailureNotice text={t('dashboard.calendar.SPLIT.FAILED_RESTORED')} />;
+	let closeLabel = t('common.CANCEL');
+	if (isFinal) {
+		closeLabel = t('common.CLOSE');
 	}
-	if (split.failure === 'first-part-kept' && parts) {
-		const range = windowTextOf(parts.second, formatters);
-		failure = (
-			<FailureNotice
-				text={t('dashboard.calendar.SPLIT.FAILED_FIRST_PART_KEPT', { range })}
-				actionLabel={t('dashboard.calendar.SPLIT.ADD_REST')}
-				onAction={addRest}
-			/>
-		);
-	}
-	// After a partial or unconfirmed split, trying again could write over what was saved: the dialog only closes
-	const isRestLeft = split.failure === 'first-part-kept' || split.failure === 'unknown';
 
 	return (
 		<>
@@ -186,21 +321,27 @@ function SplitForm({
 						id={timeId}
 						value={clockText}
 						onChange={setClockText}
+						step={timeStep}
 						onKeyDown={(event) => {
 							if (event.key === 'Enter' && canSave) {
 								event.preventDefault();
 								void save();
 							}
 						}}
-						disabled={split.isSaving || isRestLeft}
-						aria-invalid={!isTimeInside}
-						aria-describedby={isTimeInside ? undefined : errorId}
+						disabled={isLocked}
+						aria-invalid={!isTimeValid}
+						aria-describedby={describedBy}
 						data-initial-focus=""
 						className="w-36"
 					/>
-					{!isTimeInside && (
+					{timeError && (
 						<p id={errorId} className="mt-1.5 text-xs text-destructive-ink">
-							{t('dashboard.calendar.SPLIT.TIME_OUTSIDE')}
+							{timeError}
+						</p>
+					)}
+					{showsSlotHint && (
+						<p id={hintId} className="mt-1.5 text-xs text-pretty text-muted-foreground">
+							{t('dashboard.calendar.SPLIT.SLOT_STEP')}
 						</p>
 					)}
 				</div>
@@ -224,28 +365,47 @@ function SplitForm({
 							window={parts.second}
 							formatters={formatters}
 						>
-							<TaskPickerMenu
-								tasks={tasks}
-								onPick={setSecondTask}
-								isSelected={(task) => task.id === shownTaskId}
-								searchPlaceholder={t('dashboard.calendar.SPLIT.TASK_SEARCH')}
-								triggerLabel={t('dashboard.calendar.SPLIT.TASK_LABEL', { task: secondTitle })}
-								triggerClassName={TASK_TRIGGER}
-								disabled={split.isSaving || isRestLeft}
-							>
-								<span className="truncate">{secondTitle}</span>
-								<ChevronsUpDown aria-hidden="true" />
-							</TaskPickerMenu>
+							{entry.isBreak ? (
+								// A break stays a break on both sides: the API refuses a task for its second part
+								<span className="truncate text-[13px] text-muted-foreground">{secondTitle}</span>
+							) : (
+								<TaskPickerMenu
+									tasks={tasks}
+									onPick={setSecondTask}
+									isSelected={(task) => task.id === shownTaskId}
+									searchPlaceholder={t('dashboard.calendar.SPLIT.TASK_SEARCH')}
+									triggerLabel={t('dashboard.calendar.SPLIT.TASK_LABEL', { task: secondTitle })}
+									triggerClassName={TASK_TRIGGER}
+									disabled={isLocked}
+								>
+									<span className="truncate">{secondTitle}</span>
+									<ChevronsUpDown aria-hidden="true" />
+								</TaskPickerMenu>
+							)}
 						</PartRow>
 					</ul>
 				)}
-				{failure}
+				{hasReasonField && (
+					<div className="mt-4 flex flex-col">
+						<DialogFieldLabel htmlFor={reasonId}>
+							{t('dashboard.calendar.SPLIT.REASON_LABEL')}
+						</DialogFieldLabel>
+						<Input
+							id={reasonId}
+							value={reason}
+							maxLength={REASON_MAX_LENGTH}
+							onChange={(event) => setReason(event.target.value)}
+							disabled={isLocked}
+						/>
+					</div>
+				)}
+				<SplitFailureNotice failure={failure} parts={parts} formatters={formatters} onAddRest={addRest} />
 			</div>
 			<div className={APP_DIALOG_FOOTER}>
 				<Button type="button" variant="ghost" onClick={onClose} disabled={split.isSaving} className="ml-auto">
-					{isRestLeft ? t('common.CLOSE') : t('common.CANCEL')}
+					{closeLabel}
 				</Button>
-				{!isRestLeft && (
+				{!isFinal && (
 					<Button type="button" variant="default" onClick={() => void save()} disabled={!canSave}>
 						{split.isSaving && <Spinner aria-hidden="true" className="size-4 animate-spin" />}
 						{split.isSaving ? t('dashboard.calendar.SPLIT.SAVING') : t('dashboard.calendar.SPLIT.ACTION')}
@@ -275,14 +435,62 @@ function RefusedBody({ refusal, onClose }: Readonly<{ refusal: Exclude<SplitRefu
 	);
 }
 
+function CheckingBody({ onClose }: Readonly<{ onClose: () => void }>) {
+	const t = useTranslations();
+	return (
+		<>
+			<div className="px-5 pb-5">
+				<output className={cn(NOTICE, 'items-center bg-foreground/[0.03] text-muted-foreground')}>
+					<Spinner aria-hidden="true" className="size-4 shrink-0 animate-spin" />
+					<span>{t('dashboard.calendar.SPLIT.CHECKING')}</span>
+				</output>
+			</div>
+			<div className={APP_DIALOG_FOOTER}>
+				<Button type="button" variant="ghost" onClick={onClose} data-initial-focus="" className="ml-auto">
+					{t('common.CANCEL')}
+				</Button>
+			</div>
+		</>
+	);
+}
+
 /**
- * Split, from the Calendar's menu: the split time (the middle of the entry by default), the two parts it makes and
- * the task of the second one. An entry the web cannot split opens on the reason instead of the form.
+ * The API could not be asked whether it splits (an outage, a lost answer): neither yes nor no, so the dialog neither
+ * refuses tracked time nor falls back on the two writes of time added by hand, and offers to ask again.
+ */
+function CheckFailedBody({ onRecheck, onClose }: Readonly<{ onRecheck: () => void; onClose: () => void }>) {
+	const t = useTranslations();
+	return (
+		<>
+			<div className="px-5 pb-5">
+				<FailureNotice text={t('dashboard.calendar.SPLIT.CHECK_FAILED')} />
+			</div>
+			<div className={APP_DIALOG_FOOTER}>
+				<Button type="button" variant="ghost" onClick={onClose} className="ml-auto">
+					{t('common.CANCEL')}
+				</Button>
+				<Button type="button" variant="default" onClick={onRecheck} data-initial-focus="">
+					{t('dashboard.calendar.SPLIT.CHECK_AGAIN')}
+				</Button>
+			</div>
+		</>
+	);
+}
+
+/**
+ * Split, from the Calendar's menu: the split time (the middle of the entry by default, on a slot mark for tracked
+ * time), the two parts it makes and the task of the second one. Where the API splits in one write (ever-co/ever-gauzy
+ * #12030), tracked time splits too, each slot going with its screenshots and activity to one part. An entry the web
+ * cannot split opens on the reason instead of the form, once the API has said whether it splits.
  */
 export function CalendarSplitDialog({
 	entry,
 	isOpen,
 	refusal,
+	isChecking = false,
+	checkFailed = false,
+	onRecheck,
+	viaApi = false,
 	formatters,
 	onClose,
 	onAddTime
@@ -290,13 +498,23 @@ export function CalendarSplitDialog({
 	entry: CalendarEntry | null;
 	isOpen: boolean;
 	refusal: SplitRefusal;
+	/** The API is being asked whether it splits in one write. */
+	isChecking?: boolean;
+	/** The API could not be asked whether it splits in one write. */
+	checkFailed?: boolean;
+	/** Asks the API again, after a check that failed. */
+	onRecheck?: () => void;
+	/** The API splits in one write, its slots included. */
+	viaApi?: boolean;
 	formatters: TimesheetFormatters;
 	onClose: () => void;
 	onAddTime: (range: TimeWindow) => void;
 }>) {
 	const t = useTranslations();
 	const title = entry ? <EntrySummary entry={entry} formatters={formatters} /> : null;
-	const isRefused = refusal !== 'none';
+	const isAnswerMissing = isChecking || checkFailed;
+	const isRefused = refusal !== 'none' && !isAnswerMissing;
+	const showsCheckFailed = checkFailed && !isChecking;
 	// The writes of a split go on after a close: nothing closes the dialog until they end, so their outcome is seen
 	const split = useCalendarEntrySplit();
 	const { isSaving, reset } = split;
@@ -333,13 +551,16 @@ export function CalendarSplitDialog({
 					{title}
 				</DialogDescription>
 			</div>
-			{entry && isRefused && <RefusedBody refusal={refusal} onClose={close} />}
-			{entry && !isRefused && (
+			{entry && isChecking && <CheckingBody onClose={close} />}
+			{entry && showsCheckFailed && onRecheck && <CheckFailedBody onRecheck={onRecheck} onClose={close} />}
+			{entry && !isAnswerMissing && isRefused && <RefusedBody refusal={refusal} onClose={close} />}
+			{entry && !isAnswerMissing && !isRefused && (
 				<SplitForm
 					key={entry.log.id}
 					entry={entry}
 					formatters={formatters}
 					split={split}
+					viaApi={viaApi}
 					onClose={close}
 					onAddTime={onAddTime}
 				/>

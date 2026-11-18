@@ -18,7 +18,70 @@ const ko: Translations = {
 	},
 	timer: {
 		stopFailedTitle: '타이머를 중지할 수 없습니다',
-		stopFailedMessage: '아직 실행 중입니다. 잠시 후 다시 시도하세요.'
+		stopFailedMessage: '아직 실행 중입니다. 잠시 후 다시 시도하세요.',
+		startMove: {
+			title: '실행 중인 타이머의 시작',
+			startedAt: '{{time}}에 시작함',
+			open: '{{time}}에 시작함. 시작 변경',
+			newStart: '새 시작',
+			timePlaceholder: 'HH:MM',
+			reason: '사유',
+			reasonPlaceholder: '시작을 바꾸는 이유',
+			laterOnly: '시간을 직접 추가할 수 없으므로 시작은 더 늦게만 옮길 수 있습니다.',
+			save: '저장',
+			saving: '저장 중…',
+			close: '닫기',
+			saved: '이제 타이머가 {{time}}에 시작합니다.',
+			checking: '시작을 바꿀 수 있는지 확인하는 중…',
+			viewTracker: '이 타이머는 데스크톱 앱에서 실행 중입니다. 시작은 그곳에서 바꾸세요.',
+			viewNotAllowed: '이 조직에서는 기록된 시간을 바꿀 수 없습니다.',
+			unsupported: '이 서버에서는 아직 실행 중인 타이머의 시작을 바꿀 수 없습니다.',
+			invalidTime: '09:00처럼 시간을 입력하세요.',
+			chooseDay: '타이머가 자정 전에 시작되었습니다. 새 시작 날짜를 선택하세요.',
+			notRunning: '타이머가 더 이상 실행되지 않습니다.',
+			trackerRun:
+				'이 타이머는 시간을 직접 기록하는 데스크톱 앱이나 에이전트에서 실행 중입니다. 시작은 그곳에서 바꾸세요.',
+			inFuture: '시작은 지금보다 늦을 수 없습니다.',
+			editNotAllowed: '기록된 시간을 바꿀 수 없습니다.',
+			manualNotAllowed:
+				'더 이른 시작은 시간을 직접 추가하는 것이며, 이는 허용되지 않습니다. 더 늦은 시작을 고르세요.',
+			reasonRequired: '조직에서 사유를 요구합니다.',
+			reasonTooLong: '사유가 너무 깁니다. 최대 255자입니다.',
+			overlap: '다른 기록이 그 시간을 차지하고 있습니다. 그 기록이 끝난 뒤의 시작을 고르세요.',
+			changed: '방금 다른 곳에서 시작이 바뀌었습니다. 확인한 뒤 다시 시도하세요.',
+			saveFailed: '시작을 저장할 수 없습니다. 다시 시도하세요.',
+			offline: '오프라인 상태라 시작이 바뀌지 않았습니다. 연결된 뒤 다시 시도하세요.'
+		},
+		discard: {
+			menu: '타이머 작업 더 보기',
+			changeStart: '시작 변경',
+			action: '이 실행 버리기',
+			title: '이 실행을 버릴까요?',
+			description: '아무것도 저장되지 않습니다.',
+			descriptionElsewhere:
+				'이 실행은 {{source}}에서 시작되었으며 그곳에서도 멈춥니다. 아무것도 저장되지 않습니다.',
+			confirm: '버리기',
+			discarding: '버리는 중…',
+			discarded: '실행을 버렸습니다',
+			discardedHint: '타이머가 멈췄고 아무것도 저장되지 않았습니다.',
+			sources: {
+				web: '웹 앱',
+				browserExtension: '브라우저 확장 프로그램',
+				other: '다른 앱'
+			},
+			failures: {
+				notRunning: '실행 중인 타이머가 없어 아무것도 버리지 않았습니다.',
+				disabled: '조직에서 실행을 버리는 것을 허용하지 않습니다.',
+				tooLate: '이 실행은 너무 오래전에 시작되어 버릴 수 없습니다. 멈춘 뒤 기록을 수정하세요.',
+				forbidden: '역할상 이 실행을 버릴 수 없습니다.',
+				notSupported: '이 서버는 아직 실행 버리기를 지원하지 않습니다.',
+				changed: '그사이 다른 실행이 시작되어 아무것도 버리지 않았습니다.',
+				trackerRun:
+					'이 실행은 시간을 직접 기록하는 데스크톱 앱이나 에이전트가 기록하므로 여기서 버릴 수 없습니다.',
+				offline: '오프라인 상태라 아무것도 버리지 않았습니다. 연결된 뒤 다시 시도하세요.',
+				generic: '실행을 버릴 수 없습니다. 다시 시도하세요.'
+			}
+		}
 	},
 	welcomeScreen: {
 		postscript:
@@ -29,9 +92,8 @@ const ko: Translations = {
 	},
 	errorScreen: {
 		title: '뭔가 잘못되었습니다!',
-		friendlySubtitle:
-			'이 화면은 오류가 발생할 때 프로덕션에서 사용자에게 표시됩니다. 이 메시지를 커스터마이징 할 수 있고(해당 파일은 `app/i18n/ko.ts` 에 있습니다) 레이아웃도 마찬가지로 수정할 수 있습니다(`app/screens/error`). 만약 이 오류화면을 완전히 없에버리고 싶다면 `app/app.tsx` 파일에서 <ErrorBoundary> 컴포넌트를 확인하기 바랍니다.',
-		reset: '초기화',
+		friendlySubtitle: '앱에 문제가 발생했습니다. 계속하려면 앱을 다시 불러오세요.',
+		reset: '앱 다시 불러오기',
 		traceTitle: '%{name} 스택에서의 오류' // @demo remove-current-line
 	},
 	emptyStateComponent: {
@@ -79,7 +141,7 @@ const ko: Translations = {
 		createTeam: 'Create Team',
 		invalidConfirmCode: '잘못된 확인 코드',
 		securityCodeSent: '보안 코드가 새 이메일로 전송되었습니다',
-		codeSentTo: '6자 코드가 다음으로 전송되었습니다:'
+		codeSentTo: '코드를 보냈습니다:'
 	},
 	myWorkScreen: {
 		name: '일하다',

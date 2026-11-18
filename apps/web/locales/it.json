@@ -208,6 +208,9 @@
 		"REMOVE_FAVORITE_TASK": "Rimuovi attività dai preferiti",
 		"ADD_FAVORITE_TASK": "Aggiungi attività ai preferiti",
 		"NO_PROJECT": "Nessun progetto",
+		"PRIVATE_PROJECT": "Progetto privato",
+		"PRIVATE_PROJECTS": "Progetti privati",
+		"PRIVATE_PROJECT_HINT": "Non fai parte di questo progetto privato",
 		"NO_FAVORITE_TASK": "Nessuna attività preferita ancora",
 		"LINK_TASK": "Seleziona Problema Correlato",
 		"LINK": "Collega",
@@ -1372,6 +1375,10 @@
 				"STATUS": "Stato",
 				"TRACKED_HOURS": "Registrato (ore)",
 				"CURRENCY": "Valuta",
+				"BILLABLE_HOURS": "Ore fatturabili",
+				"BILLABLE_CURRENCY": "Valuta fatturabile",
+				"NO_RATE": "Nessuna tariffa",
+				"BILLABLE_UNPRICED": "{duration} di tempo fatturabile senza tariffa",
 				"ACTIVITY_PERCENT": "Attività (%)",
 				"NO_TASK": "Nessuna attività",
 				"PAGE": "Pagina {page} di {total}"
@@ -1701,12 +1708,23 @@
 				"FAILED_FIRST_PART_KEPT": "La prima parte è stata salvata, ma la seconda ({range}) non è stata aggiunta. Aggiungila con Aggiungi tempo.",
 				"FAILED_UNKNOWN": "Non è stato possibile confermare la divisione. Ricarica il calendario e controlla questa voce prima di riprovare.",
 				"ADD_REST": "Aggiungi la seconda parte",
+				"CHECKING": "Verifica in corso: questa voce si può dividere?",
+				"CHECK_FAILED": "Non è stato possibile verificare se questa voce si può dividere. Controlla la connessione e riprova.",
+				"CHECK_AGAIN": "Riprova",
+				"SLOT_STEP": "Il tempo tracciato si divide sui suoi intervalli di 10 minuti: ognuno va intero, con screenshot e attività, in una sola parte.",
+				"OFF_SLOT": "Il tempo tracciato si divide su un segno di 10 minuti, ad esempio {before} o {after}.",
+				"OFF_SLOT_ONE": "Il tempo tracciato si divide su un segno di 10 minuti, ad esempio {time}.",
+				"REASON_LABEL": "Motivo",
+				"REASON_REQUIRED": "La tua organizzazione chiede un motivo quando il tempo cambia. Aggiungine uno e dividi di nuovo.",
+				"REASON_TOO_LONG": "Il motivo può contenere al massimo 255 caratteri.",
+				"FAILED_RETRY": "Non è stato possibile confermare la divisione. Riprova: una divisione già avvenuta non viene mai ripetuta.",
 				"REFUSED": {
 					"TRACKED": "Il tempo tracciato porta con sé attività e screenshot, che solo il server può ripartire tra due voci. Per ora si può dividere solo il tempo aggiunto a mano.",
 					"RUNNING": "Il timer è ancora in corso. Fermalo, poi dividi la voce.",
 					"TOO_SHORT": "Questa voce è troppo breve: ogni parte deve durare almeno un minuto.",
 					"APPROVED": "Questo giorno appartiene a un foglio ore approvato, quindi il suo tempo non può cambiare.",
-					"PERMISSION": "Il tuo ruolo o la tua organizzazione non consente di modificare il tempo né di aggiungerlo a mano."
+					"PERMISSION": "Il tuo ruolo o la tua organizzazione non consente di modificare il tempo né di aggiungerlo a mano.",
+					"INVOICED": "Una fattura include questa voce, quindi non si può dividere."
 				}
 			},
 			"SETTINGS": {
@@ -2994,6 +3012,24 @@
 		}
 	},
 	"timer": {
+		"labels": {
+			"LABELS": "Etichette",
+			"LABEL": "Etichetta",
+			"PICK_LABELS": "Aggiungi etichette",
+			"NO_LABELS_YET": "Ancora nessuna etichetta",
+			"DELETED": "Eliminata",
+			"SAVE_FAILED": "Impossibile salvare le etichette",
+			"TASK_LABELS": "Etichette dell’attività",
+			"NO_LABEL": "Nessuna etichetta",
+			"BY_LABEL_TITLE": "Tempo per etichetta",
+			"COUNT": "{count, plural, one {# etichetta} other {# etichette}}",
+			"OVERLAP_TITLE": "I gruppi si sovrappongono",
+			"OVERLAP_MESSAGE": "Una voce con più etichette conta sotto ciascuna di esse, quindi i gruppi sommati superano il totale.",
+			"CREATE": "Crea «{name}»",
+			"SEARCH": "Cerca etichette",
+			"CREATE_FAILED": "Impossibile creare l’etichetta",
+			"IMPORT_NOT_ATTACHED": "Non associate: {names}. Il team non ha etichette con {count, plural, one {quel nome} other {quei nomi}} e non è stato possibile aggiungerne."
+		},
 		"START_TIMER": "Per favore, seleziona o crea un nuovo compito per iniziare a tracciare il tempo o creare un piano",
 		"ALREADY_TRACKING_MESSAGE": "Stai già tracciando il tempo in un'altra scheda o dispositivo.",
 		"TRACKING_DISABLED_MESSAGE": "Il monitoraggio del tempo è disattivato per te. Un amministratore dell'organizzazione può attivarlo.",
@@ -5187,6 +5223,7 @@
 			"MOVE_UP": "Sposta su",
 			"MOVE_DOWN": "Sposta giù",
 			"BUILT_IN_DELETE": "Integrato: non si può eliminare",
+			"BUILT_IN_MOVE": "Integrato: non si può spostare",
 			"DRAG": "Trascina per riordinare",
 			"groups": {
 				"todo": "Da fare",
@@ -7573,6 +7610,9 @@
 			"RATE_SOURCE_PROJECT": "Tariffa cliente del progetto",
 			"RATE_SOURCE_EMPLOYEE": "Tariffa di fatturazione propria del membro",
 			"RATE_SOURCE_DEFAULT": "La tariffa di fatturazione predefinita dello spazio di lavoro",
+			"KEPT_RATE_HINT": "{source}, mantenuta da quando il tempo è stato lavorato. Oggi: {rate} all’ora.",
+			"KEPT_RATES_UNREAD_TITLE": "Alle tariffe di oggi",
+			"KEPT_RATES_UNREAD_MESSAGE": "In questo spazio di lavoro il tempo passato mantiene la sua tariffa, ma questo tempo non indica quale tariffa ha mantenuto, quindi ogni ora è calcolata alle tariffe di oggi. Controlla le tariffe prima di salvare.",
 			"DESCRIPTION_OF": "Descrizione della riga {name}",
 			"REMOVE_LINE": "Rimuovi la riga {name}",
 			"REMOVED_LINES": "{count, plural, one {# riga rimossa} other {# righe rimosse}}",
@@ -7703,7 +7743,8 @@
 			"NUMBER_FREE": "Il suo numero potrà essere dato a un’altra fattura.",
 			"CONFIRM": "Elimina la fattura",
 			"DONE": "La fattura {number} è stata eliminata",
-			"FAILED": "La fattura non è stata eliminata. Riprova."
+			"FAILED": "La fattura non è stata eliminata. Riprova.",
+			"CHANGED_MEANWHILE": "La fattura {number} è cambiata da quando è stata mostrata, quindi non è stata eliminata. Aggiornala per vederne la versione attuale, poi riprova."
 		},
 		"edit": {
 			"TITLE": "Modifica la fattura {number}",

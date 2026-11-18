@@ -1,3 +1,4 @@
+import { isHiddenProject, PRIVATE_PROJECTS_KEY } from '@/core/lib/utils/project-visibility';
 import {
 	addDays,
 	addMonths,
@@ -20,6 +21,7 @@ import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 import { ETimeLogType } from '@/core/types/generics/enums/timer';
 import { ERoleName } from '@/core/types/generics/enums/role';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
+import { type EntryLabel, entryLabelsOf } from '@/core/lib/utils/time-log-labels';
 import { dateFormatOf, localeTagOf, type FormatLocale } from '@/core/lib/utils/workspace-formats';
 
 export const TIMESHEET_WEEK_START: WeekStart = 1;
@@ -277,15 +279,29 @@ export function normalizedSearchTextOf(text: string | null | undefined): string 
 	return withoutAccents.trim();
 }
 
-export function logMatchesSearch(log: ITimeLog, normalizedQuery: string) {
+/** Whether the query is in an entry's task, member, project or task number; a hidden project by its label. */
+export function logMatchesSearch(log: ITimeLog, normalizedQuery: string, hiddenProjectLabel = '') {
 	if (!normalizedQuery) {
 		return true;
 	}
-	const fields = [log.task?.title, log.employee?.fullName, log.project?.name, log.task?.taskNumber];
+	// A project the API keeps from the reader is found by the name the page shows for it (CORE-27)
+	const projectName = isHiddenProject(log.project) ? hiddenProjectLabel : log.project?.name;
+	const fields = [log.task?.title, log.employee?.fullName, projectName, log.task?.taskNumber];
 	return fields.some((field) => normalizedSearchTextOf(field).includes(normalizedQuery));
 }
 
-export function projectValueOf(log: ITimeLog) {
+/**
+ * The project choice an entry falls under in the filter: its project, "No project", or the one choice every project
+ * the API keeps from the reader shares (CORE-27).
+ */
+export function projectFilterValueOf(log: ITimeLog) {
+	if (isHiddenProject(log.project)) {
+		return PRIVATE_PROJECTS_KEY;
+	}
+	return projectValueOf(log);
+}
+
+function projectValueOf(log: ITimeLog) {
 	const projectId = log.project?.id ?? log.projectId;
 	if (projectId) {
 		return projectId;
@@ -313,7 +329,7 @@ export function logMatchesPickedProjectsAndTasks(
 	projects: ReadonlyArray<string>,
 	tasks: ReadonlyArray<string>
 ) {
-	const matchesProject = matchesPicked(projectValueOf(log), projects);
+	const matchesProject = matchesPicked(projectFilterValueOf(log), projects);
 	const matchesTask = matchesPicked(taskValueOf(log), tasks);
 	return matchesProject && matchesTask;
 }
@@ -903,10 +919,14 @@ export interface SheetRowIdentity {
 	projectName: string | null;
 	projectColor: string | null;
 	projectImageUrl: string | null;
+	/** A project the API keeps from the reader (CORE-27): named as a private project, without a name of its own. */
+	isProjectHidden?: true;
 	taskTitle: string | null;
 	taskNumber: string | null;
 	issueType: string | null;
 	isBillable: boolean;
+	/** The entry's own labels (#5368): part of the row, and put on the time typed in it. Absent on older saved rows. */
+	labels?: EntryLabel[];
 }
 
 export interface SheetRow {
@@ -930,13 +950,39 @@ export interface WeekSheet {
 export function sheetRowKeyOf(log: ITimeLog) {
 	const projectValue = projectValueOf(log);
 	const taskValue = taskValueOf(log);
-	return `${projectValue}:${taskValue}`;
+	const labelIds = entryLabelsOf(log).map((label) => label.id);
+	const isBillable = log.isBillable === true;
+	const key = withBillableKey(`${projectValue}:${taskValue}`, isBillable);
+	return withLabelsKey(key, labelIds);
 }
 
-export function sheetRowKeyFor(projectId: string | null, taskId: string | null) {
+export function sheetRowKeyFor(
+	projectId: string | null,
+	taskId: string | null,
+	labelIds: ReadonlyArray<string> = [],
+	isBillable = false
+) {
 	const projectValue = projectId ?? NO_PROJECT_VALUE;
 	const taskValue = taskId ?? NO_TASK_VALUE;
-	return `${projectValue}:${taskValue}`;
+	const key = withBillableKey(`${projectValue}:${taskValue}`, isBillable);
+	return withLabelsKey(key, labelIds);
+}
+
+/** A row's key with its Billable state (#5368): a not billable row keeps the key it always had. */
+function withBillableKey(key: string, isBillable: boolean) {
+	if (!isBillable) {
+		return key;
+	}
+	return `${key}:billable`;
+}
+
+/** A row's key with its labels, in a fixed order; a row without labels keeps the key it always had. */
+function withLabelsKey(key: string, labelIds: ReadonlyArray<string>) {
+	if (labelIds.length === 0) {
+		return key;
+	}
+	const sorted = [...labelIds].sort((first, second) => first.localeCompare(second));
+	return `${key}:labels=${sorted.join(',')}`;
 }
 
 function textOrNull(value: string | number | null | undefined): string | null {
@@ -979,8 +1025,18 @@ export function rowIdentityOfLog(log: ITimeLog): SheetRowIdentity {
 		taskTitle: textOrNull(log.task?.title),
 		taskNumber: rowTaskNumberOf(log),
 		issueType: textOrNull(log.task?.issueType),
-		isBillable: log.isBillable === true
+		isBillable: log.isBillable === true,
+		...hiddenProjectFlagOf(log),
+		labels: entryLabelsOf(log)
 	};
+}
+
+// Rows of a project the reader may see keep the shape they had before the API could keep a project from them
+function hiddenProjectFlagOf(log: ITimeLog): Pick<SheetRowIdentity, 'isProjectHidden'> {
+	if (!isHiddenProject(log.project)) {
+		return {};
+	}
+	return { isProjectHidden: true };
 }
 
 function latestLogOf(logs: ReadonlyArray<ITimeLog>): ITimeLog | undefined {

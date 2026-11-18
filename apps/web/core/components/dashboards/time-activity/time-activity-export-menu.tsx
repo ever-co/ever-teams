@@ -6,7 +6,10 @@ import { type DottedLanguageObjectStringPaths, useTranslations } from 'next-intl
 import { type ExportOption, ExportMenu } from '@/core/components/dashboards/kit/export-menu';
 import { FilePdf, FileSheet, FileText } from '@/core/components/icons';
 import { APP_NAME } from '@/core/constants/config/constants';
-import type { TimeActivityFigures } from '@/core/hooks/dashboards/time-activity/use-time-activity-report';
+import type {
+	TimeActivityBillable,
+	TimeActivityFigures
+} from '@/core/hooks/dashboards/time-activity/use-time-activity-report';
 import type { TimeActivityFilterOptions } from '@/core/hooks/dashboards/time-activity/use-time-activity-filter-options';
 import { formatDurationShort } from '@/core/lib/utils/dashboard-figures';
 import { type CsvColumn, downloadCsv, downloadPdf, periodFileNameOf } from '@/core/lib/utils/dashboard-export';
@@ -19,6 +22,7 @@ import {
 	formatAmounts
 } from '@/core/lib/utils/daily-report-figures';
 import {
+	type BreakdownFact,
 	type ClientExportLine,
 	type ClientLabels,
 	type ClientOfProjectLog,
@@ -37,11 +41,20 @@ import {
 	exportRowsOf,
 	recordedActivityOf
 } from '@/core/lib/utils/dashboards/time-activity';
+import {
+	type ExportBillableTotals,
+	type ExportBillables,
+	type ExportRowBillable,
+	clientLineBillablesOf,
+	exportBillableTotalsOf,
+	exportBillablesOf
+} from '@/core/lib/utils/dashboards/time-activity-export-billable';
 import { ROUNDING_NOTE_KEYS } from '@/core/lib/utils/dashboards/time-activity-rounding';
 import type { DurationRoundingRule } from '@/core/lib/utils/duration-rounding';
 import { exportToXLSX } from '@/core/lib/utils/export-utils';
 import type { ITimeLogGroupedDailyReport } from '@/core/types/interfaces/activity/activity-report';
 import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
+import { useEntryLabelsSupport } from '@/core/hooks/timer/use-entry-labels-support';
 import { dateFormatOf, type FormatLocale } from '@/core/lib/utils/workspace-formats';
 import { currentOrganizationState } from '@/core/stores/user/user-organizations';
 import type { PdfFigure, PdfGroup, PdfRow, TimeActivityPdfContent } from './time-activity-report-pdf';
@@ -60,7 +73,8 @@ const FILTER_LABEL_KEYS: Record<TimeActivityFilterField, DottedLanguageObjectStr
 	projectIds: 'dashboard.timeActivity.filters.PROJECTS',
 	taskIds: 'dashboard.timeActivity.filters.TASKS',
 	clientIds: 'clients.TITLE',
-	billable: 'dashboard.timesheets.BILLABLE'
+	billable: 'dashboard.timesheets.BILLABLE',
+	entryLabels: 'common.LABELS'
 };
 
 type Translate = ReturnType<typeof useTranslations>;
@@ -78,9 +92,25 @@ interface ExportContext {
 	filterOptions: TimeActivityFilterOptions;
 	/** The workspace rounds each entry: the rows already are, and the PDF says so. */
 	roundingRule: DurationRoundingRule | null;
+	/**
+	 * The page's facts of the billable time, priced as on screen; null when the page shows this reader no billable
+	 * amount, or could not read them, and the file then has none either.
+	 */
+	billableFacts: ReadonlyArray<BreakdownFact> | null;
+	/**
+	 * The API stores labels on entries (#5368): the files then carry a Labels column. Elsewhere they keep the columns
+	 * they always had, in their places, for whoever reads them by position.
+	 */
+	withEntryLabels: boolean;
 	locale: FormatLocale;
 	workspaceCurrency: string | null;
 	t: Translate;
+}
+
+/** The rows of a file, and what the billable time of each bills when the file carries billable amounts. */
+interface ExportData {
+	rows: TimeActivityExportRow[];
+	billables: ExportBillables | null;
 }
 
 interface NamedRow {
@@ -90,6 +120,9 @@ interface NamedRow {
 	client: string;
 	task: string;
 	status: string;
+	labels: string;
+	/** Null for a row without billable time. */
+	billable: ExportRowBillable | null;
 }
 
 interface ExportLabels extends ClientLabels {
@@ -128,7 +161,8 @@ function exportRowsOfContext(context: ExportContext) {
 		onlyEmployeeId,
 		withoutTeamLabel,
 		context.workspaceCurrency,
-		context.clientOf
+		context.clientOf,
+		context.t('common.PRIVATE_PROJECT')
 	);
 	if (!isClientExport(context)) {
 		return rows;
@@ -136,25 +170,46 @@ function exportRowsOfContext(context: ExportContext) {
 	return exportRowsInGroupOrderOf(rows, context.grouping);
 }
 
+function showsBillable(context: ExportContext) {
+	return context.billableFacts !== null;
+}
+
+/** The rows are read once per file, so the billable time placed on a row is found again by that row. */
+function exportDataOf(context: ExportContext): ExportData {
+	const rows = exportRowsOfContext(context);
+	if (context.billableFacts === null) {
+		return { rows, billables: null };
+	}
+	return { rows, billables: exportBillablesOf(rows, context.billableFacts) };
+}
+
+function billableOfRow(row: TimeActivityExportRow, billables: ExportBillables | null) {
+	if (!billables) {
+		return null;
+	}
+	return billables.get(row) ?? null;
+}
+
 function clientOfRow(row: TimeActivityExportRow) {
 	return row.client ?? NO_CLIENT;
 }
 
-function namedRowOf(row: TimeActivityExportRow, labels: ExportLabels): NamedRow {
+function namedRowOf(row: TimeActivityExportRow, labels: ExportLabels, billables: ExportBillables | null): NamedRow {
 	return {
 		row,
 		member: row.member || labels.unnamed,
 		project: row.project ?? labels.noProject,
 		client: clientLabelOf(clientOfRow(row), labels),
 		task: row.task ?? labels.noTask,
-		status: row.status ?? ''
+		status: row.status ?? '',
+		labels: row.labels,
+		billable: billableOfRow(row, billables)
 	};
 }
 
-function namedRowsOf(context: ExportContext): NamedRow[] {
+function namedRowsOf(context: ExportContext, data: ExportData): NamedRow[] {
 	const labels = exportLabelsOf(context.t);
-	const rows = exportRowsOfContext(context);
-	return rows.map((row) => namedRowOf(row, labels));
+	return data.rows.map((row) => namedRowOf(row, labels, data.billables));
 }
 
 function roundedTo2(value: number) {
@@ -181,11 +236,63 @@ function spreadsheetAmountOf(earnings: number | null) {
 	return roundedTo2(earnings);
 }
 
+function billableSecondsOf(named: NamedRow) {
+	if (!named.billable) {
+		return 0;
+	}
+	return named.billable.seconds;
+}
+
+function billableAmountOf(named: NamedRow) {
+	if (!named.billable) {
+		return null;
+	}
+	return named.billable.amount;
+}
+
+/** Billable time no rate prices says so where its currency would be; a row without billable time has none. */
+function billableCurrencyOf(named: NamedRow, noRateLabel: string) {
+	const { billable } = named;
+	if (!billable) {
+		return null;
+	}
+	if (billable.amount === null) {
+		return noRateLabel;
+	}
+	return billable.currency;
+}
+
+function csvBillableColumnsOf(context: ExportContext): CsvColumn<NamedRow>[] {
+	if (!showsBillable(context)) {
+		return [];
+	}
+	const { t } = context;
+	const noRateLabel = t('dashboard.timeActivity.export.NO_RATE');
+	return [
+		{
+			header: t('dashboard.timeActivity.export.BILLABLE_HOURS'),
+			valueOf: (named) => hoursOf(billableSecondsOf(named))
+		},
+		{ header: t('dashboard.timeActivity.columns.BILLABLE'), valueOf: billableAmountOf },
+		{
+			header: t('dashboard.timeActivity.export.BILLABLE_CURRENCY'),
+			valueOf: (named) => billableCurrencyOf(named, noRateLabel)
+		}
+	];
+}
+
 function csvClientColumnsOf(context: ExportContext): CsvColumn<NamedRow>[] {
 	if (!isClientExport(context)) {
 		return [];
 	}
 	return [{ header: context.t('common.CLIENT'), valueOf: (named) => named.client }];
+}
+
+function csvLabelsColumnsOf(context: ExportContext): CsvColumn<NamedRow>[] {
+	if (!context.withEntryLabels) {
+		return [];
+	}
+	return [{ header: context.t('common.LABELS'), valueOf: (named) => named.labels }];
 }
 
 function csvColumnsOf(context: ExportContext): CsvColumn<NamedRow>[] {
@@ -197,6 +304,7 @@ function csvColumnsOf(context: ExportContext): CsvColumn<NamedRow>[] {
 		{ header: t('dashboard.timeActivity.grouping.PROJECT'), valueOf: (named) => named.project },
 		{ header: t('dashboard.timeActivity.export.TASK'), valueOf: (named) => named.task },
 		{ header: t('dashboard.timeActivity.export.STATUS'), valueOf: (named) => named.status },
+		...csvLabelsColumnsOf(context),
 		{ header: t('dashboard.timeActivity.export.TRACKED_HOURS'), valueOf: (named) => hoursOf(named.row.seconds) }
 	];
 	if (context.isManager) {
@@ -208,7 +316,7 @@ function csvColumnsOf(context: ExportContext): CsvColumn<NamedRow>[] {
 			{ header: t('dashboard.timeActivity.export.CURRENCY'), valueOf: (named) => named.row.currency }
 		);
 	}
-	columns.push({
+	columns.push(...csvBillableColumnsOf(context), {
 		header: t('dashboard.timeActivity.export.ACTIVITY_PERCENT'),
 		valueOf: (named) => Math.round(named.row.activity)
 	});
@@ -216,7 +324,7 @@ function csvColumnsOf(context: ExportContext): CsvColumn<NamedRow>[] {
 }
 
 function runCsv(context: ExportContext) {
-	const rows = namedRowsOf(context);
+	const rows = namedRowsOf(context, exportDataOf(context));
 	const fileName = periodFileNameOf(FILE_PREFIX, context.period.from, context.period.to, 'csv');
 	downloadCsv(rows, csvColumnsOf(context), fileName);
 }
@@ -228,11 +336,46 @@ interface XlsxColumn {
 	format?: string;
 }
 
+/** Beside Earnings: the billable time as a duration, its amount as a number and the currency of that amount. */
+function xlsxBillableColumnsOf(context: ExportContext): XlsxColumn[] {
+	if (!showsBillable(context)) {
+		return [];
+	}
+	const { t } = context;
+	const noRateLabel = t('dashboard.timeActivity.export.NO_RATE');
+	return [
+		{
+			header: t('dashboard.timeActivity.export.BILLABLE_HOURS'),
+			value: (named) => billableSecondsOf(named) / SECONDS_PER_DAY,
+			format: '[h]:mm',
+			width: 14
+		},
+		{
+			header: t('dashboard.timeActivity.columns.BILLABLE'),
+			value: (named) => spreadsheetAmountOf(billableAmountOf(named)),
+			format: '#,##0.00',
+			width: 16
+		},
+		{
+			header: t('dashboard.timeActivity.export.BILLABLE_CURRENCY'),
+			value: (named) => billableCurrencyOf(named, noRateLabel) ?? '',
+			width: 14
+		}
+	];
+}
+
 function xlsxClientColumnsOf(context: ExportContext): XlsxColumn[] {
 	if (!isClientExport(context)) {
 		return [];
 	}
 	return [{ header: context.t('common.CLIENT'), value: (named) => named.client, width: 24 }];
+}
+
+function xlsxLabelsColumnsOf(context: ExportContext): XlsxColumn[] {
+	if (!context.withEntryLabels) {
+		return [];
+	}
+	return [{ header: context.t('common.LABELS'), value: (named) => named.labels, width: 24 }];
 }
 
 /** The previous export's columns, with earnings kept as numbers beside their currency instead of a `$` string. */
@@ -245,6 +388,7 @@ function xlsxColumnsOf(context: ExportContext): XlsxColumn[] {
 		{ header: t('dashboard.timeActivity.grouping.PROJECT'), value: (named) => named.project, width: 24 },
 		{ header: t('dashboard.timeActivity.export.TASK'), value: (named) => named.task, width: 40 },
 		{ header: t('dashboard.timeActivity.export.STATUS'), value: (named) => named.status, width: 16 },
+		...xlsxLabelsColumnsOf(context),
 		{
 			header: t('dashboard.timeActivity.columns.TRACKED'),
 			value: (named) => named.row.seconds / SECONDS_PER_DAY,
@@ -267,7 +411,7 @@ function xlsxColumnsOf(context: ExportContext): XlsxColumn[] {
 			}
 		);
 	}
-	columns.push({
+	columns.push(...xlsxBillableColumnsOf(context), {
 		header: t('dashboard.timeActivity.columns.ACTIVITY'),
 		value: (named) => named.row.activity / 100,
 		format: '0%',
@@ -277,7 +421,7 @@ function xlsxColumnsOf(context: ExportContext): XlsxColumn[] {
 }
 
 async function runXlsx(context: ExportContext) {
-	const rows = namedRowsOf(context);
+	const rows = namedRowsOf(context, exportDataOf(context));
 	const fileName = periodFileNameOf(FILE_PREFIX, context.period.from, context.period.to, 'xlsx');
 	await exportToXLSX(rows, xlsxColumnsOf(context), fileName);
 }
@@ -351,20 +495,94 @@ function activitySummaryOf(figures: TimeActivityFigures) {
 	return `${rounded}%`;
 }
 
-function summaryOf(context: ExportContext): PdfFigure[] {
+/** What the file's billable time bills: one line per currency, and the part no rate prices under them. */
+function billableSummaryOf(context: ExportContext, data: ExportData): PdfFigure | null {
+	if (!data.billables) {
+		return null;
+	}
+	const { t, locale } = context;
+	const totals = exportBillableTotalsOf(data.rows, data.billables);
+	const [first, ...others] = totals.amounts.map((amount) => formatAmount(amount, locale));
+	const figure: PdfFigure = {
+		label: t('dashboard.timeActivity.columns.BILLABLE'),
+		value: first ?? MISSING_VALUE,
+		lines: others
+	};
+	const hasUnpricedTime = totals.unpricedSeconds > 0;
+	if (hasUnpricedTime) {
+		const duration = formatDurationShort(totals.unpricedSeconds);
+		figure.note = t('dashboard.timeActivity.export.BILLABLE_UNPRICED', { duration });
+	}
+	return figure;
+}
+
+/**
+ * Beside the billable amount the summary's figures are narrower: the earnings are then written one currency per line,
+ * as the billable amounts are, rather than broken wherever their line runs out.
+ */
+function earningsSummaryOf(context: ExportContext, data: ExportData): PdfFigure {
 	const { t, figures, locale } = context;
+	const label = t('dashboard.timeActivity.figures.EARNINGS');
+	const amounts = figures.totals.earnings;
+	const hasSeveralCurrencies = amounts.length > 1;
+	const writesLines = data.billables !== null && hasSeveralCurrencies;
+	if (!writesLines) {
+		return { label, value: amountsTextOf(amounts, locale) };
+	}
+	const [first, ...others] = amounts.map((amount) => formatAmount(amount, locale));
+	return { label, value: first ?? MISSING_VALUE, lines: others };
+}
+
+function summaryOf(context: ExportContext, data: ExportData): PdfFigure[] {
+	const { t, figures } = context;
 	const summary: PdfFigure[] = [
 		{ label: t('dashboard.timeActivity.figures.TRACKED'), value: trackedSummaryOf(figures) },
 		{ label: t('dashboard.timeActivity.figures.ACTIVITY'), value: activitySummaryOf(figures) }
 	];
 	if (context.isManager) {
-		summary.push({
-			label: t('dashboard.timeActivity.figures.EARNINGS'),
-			value: amountsTextOf(figures.totals.earnings, locale)
-		});
+		summary.push(earningsSummaryOf(context, data));
+	}
+	const billable = billableSummaryOf(context, data);
+	if (billable) {
+		summary.push(billable);
 	}
 	summary.push({ label: t('dashboard.timeActivity.figures.MEMBERS'), value: String(figures.totals.memberCount) });
 	return summary;
+}
+
+/** A row's billable amount as on screen; billable time no rate prices says so, as a printed page cannot hover. */
+function rowBillableTextOf(billable: ExportRowBillable | null, context: ExportContext) {
+	if (!billable) {
+		return MISSING_VALUE;
+	}
+	const { amount, currency } = billable;
+	const isPriced = amount !== null && currency !== null;
+	if (!isPriced) {
+		return context.t('dashboard.timeActivity.export.NO_RATE');
+	}
+	return formatAmount({ amount, currency }, context.locale);
+}
+
+/** What several rows bill together, one currency per line. */
+function totalsBillableTextOf(totals: ExportBillableTotals, context: ExportContext) {
+	const hasAmounts = totals.amounts.length > 0;
+	if (hasAmounts) {
+		const lines = totals.amounts.map((amount) => formatAmount(amount, context.locale));
+		return lines.join('\n');
+	}
+	const hasBillableTime = totals.seconds > 0;
+	if (hasBillableTime) {
+		return context.t('dashboard.timeActivity.export.NO_RATE');
+	}
+	return MISSING_VALUE;
+}
+
+/** The billable cell of a row or a group, only in a file that carries billable amounts. */
+function billableCellOf(text: () => string, data: ExportData): Pick<PdfRow, 'billable'> {
+	if (!data.billables) {
+		return {};
+	}
+	return { billable: text() };
 }
 
 interface PdfLayout {
@@ -415,6 +633,15 @@ function pdfLayoutOf(context: ExportContext): PdfLayout {
 			second: (named) => named.member
 		};
 	}
+	if (context.grouping === 'label') {
+		return {
+			firstHeader: projectHeader,
+			secondHeader: memberHeader,
+			groupTitle: (_group, named) => named.labels || t('timer.labels.NO_LABEL'),
+			first: (named) => named.project,
+			second: (named) => named.member
+		};
+	}
 	if (isClientExport(context)) {
 		return {
 			firstHeader: projectHeader,
@@ -433,14 +660,24 @@ function pdfLayoutOf(context: ExportContext): PdfLayout {
 	};
 }
 
-function clientPdfRowOf(groupKey: string, line: ClientExportLine, labels: ExportLabels, locale: FormatLocale): PdfRow {
+const NO_LINE_BILLABLE: ExportBillableTotals = { amounts: [], seconds: 0, unpricedSeconds: 0 };
+
+function clientPdfRowOf(
+	groupKey: string,
+	line: ClientExportLine,
+	labels: ExportLabels,
+	context: ExportContext,
+	billable: Pick<PdfRow, 'billable'>
+): PdfRow {
 	return {
 		key: `${groupKey}:${line.key}`,
 		first: line.project ?? labels.noProject,
 		second: line.member || labels.unnamed,
 		task: line.task ?? labels.noTask,
+		labels: line.labels,
 		tracked: formatDurationShort(line.seconds),
-		earnings: rowAmountTextOf(line, locale),
+		earnings: rowAmountTextOf(line, context.locale),
+		...billable,
 		activity: percentTextOf(line)
 	};
 }
@@ -450,30 +687,50 @@ function clientOfGroup(group: ExportGroup) {
 	return firstRow?.client ?? NO_CLIENT;
 }
 
-function clientPdfGroupsOf(context: ExportContext): PdfGroup[] {
+function lineBillablesOf(rows: ReadonlyArray<TimeActivityExportRow>, data: ExportData) {
+	if (!data.billables) {
+		return new Map<string, ExportBillableTotals>();
+	}
+	return clientLineBillablesOf(rows, data.billables);
+}
+
+function groupBillableTotalsOf(rows: ReadonlyArray<TimeActivityExportRow>, data: ExportData) {
+	if (!data.billables) {
+		return NO_LINE_BILLABLE;
+	}
+	return exportBillableTotalsOf(rows, data.billables);
+}
+
+function clientPdfGroupsOf(context: ExportContext, data: ExportData): PdfGroup[] {
 	const { locale } = context;
 	const labels = exportLabelsOf(context.t);
-	const rows = exportRowsOfContext(context);
-	const groups = exportGroupsOf(rows, context.grouping);
+	const groups = exportGroupsOf(data.rows, context.grouping);
 	return groups.map((group) => {
 		const lines = clientExportLinesOf(group.rows);
+		const lineBillables = lineBillablesOf(group.rows, data);
+		const groupBillable = groupBillableTotalsOf(group.rows, data);
 		return {
 			key: group.key,
 			title: clientLabelOf(clientOfGroup(group), labels),
 			tracked: formatDurationShort(group.seconds),
 			earnings: amountsTextOf(group.earnings, locale),
+			...billableCellOf(() => totalsBillableTextOf(groupBillable, context), data),
 			activity: percentTextOf(group),
-			rows: lines.map((line) => clientPdfRowOf(group.key, line, labels, locale))
+			rows: lines.map((line) => {
+				const lineBillable = lineBillables.get(line.key) ?? NO_LINE_BILLABLE;
+				const billable = billableCellOf(() => totalsBillableTextOf(lineBillable, context), data);
+				return clientPdfRowOf(group.key, line, labels, context, billable);
+			})
 		};
 	});
 }
 
-function pdfGroupsOf(context: ExportContext, layout: PdfLayout): PdfGroup[] {
+function pdfGroupsOf(context: ExportContext, layout: PdfLayout, data: ExportData): PdfGroup[] {
 	if (isClientExport(context)) {
-		return clientPdfGroupsOf(context);
+		return clientPdfGroupsOf(context, data);
 	}
 	const { locale } = context;
-	const namedRows = namedRowsOf(context);
+	const namedRows = namedRowsOf(context, data);
 	const namedByRow = new Map(namedRows.map((named) => [named.row, named]));
 	const groups = exportGroupsOf(
 		namedRows.map((named) => named.row),
@@ -491,15 +748,19 @@ function pdfGroupsOf(context: ExportContext, layout: PdfLayout): PdfGroup[] {
 			first: layout.first(named),
 			second: layout.second(named),
 			task: named.task,
+			labels: named.labels,
 			tracked: formatDurationShort(named.row.seconds),
 			earnings: rowAmountTextOf(named.row, locale),
+			...billableCellOf(() => rowBillableTextOf(named.billable, context), data),
 			activity: `${Math.round(named.row.activity)}%`
 		}));
+		const groupBillable = groupBillableTotalsOf(group.rows, data);
 		pdfGroups.push({
 			key: group.key,
 			title: layout.groupTitle(group, firstNamed),
 			tracked: formatDurationShort(group.seconds),
 			earnings: amountsTextOf(group.earnings, locale),
+			...billableCellOf(() => totalsBillableTextOf(groupBillable, context), data),
 			activity: percentTextOf(group),
 			rows
 		});
@@ -521,6 +782,7 @@ function compactNamed(rows: ReadonlyArray<TimeActivityExportRow>, namedByRow: Ma
 function pdfContentOf(context: ExportContext): TimeActivityPdfContent {
 	const { t, locale } = context;
 	const layout = pdfLayoutOf(context);
+	const data = exportDataOf(context);
 	const title = t('dashboard.timeActivity.export.DOCUMENT_TITLE');
 	const generatedDate = dateFormatOf(locale, { dateStyle: 'long' }).format(new Date());
 	let generatedOn: string = t('dashboard.timeActivity.export.GENERATED_ON', { date: generatedDate });
@@ -535,17 +797,21 @@ function pdfContentOf(context: ExportContext): TimeActivityPdfContent {
 		generatedOn,
 		filtersTitle: t('dashboard.timeActivity.export.FILTERS'),
 		filters: filterLinesOf(context),
-		summary: summaryOf(context),
+		summary: summaryOf(context, data),
 		columns: {
 			first: layout.firstHeader,
 			second: layout.secondHeader,
 			task: t('dashboard.timeActivity.export.TASK'),
+			labels: t('common.LABELS'),
 			tracked: t('dashboard.timeActivity.columns.TRACKED'),
 			earnings: t('dashboard.timeActivity.columns.EARNINGS'),
+			billable: t('dashboard.timeActivity.columns.BILLABLE'),
 			activity: t('dashboard.timeActivity.columns.ACTIVITY')
 		},
 		showsEarnings: context.isManager,
-		groups: pdfGroupsOf(context, layout),
+		showsBillable: data.billables !== null,
+		showsLabels: context.withEntryLabels,
+		groups: pdfGroupsOf(context, layout, data),
 		footer: `${APP_NAME} · ${title}`,
 		pageLabel: (page, total) => t('dashboard.timeActivity.export.PAGE', { page, total })
 	};
@@ -560,6 +826,19 @@ async function runPdf(context: ExportContext) {
 	}, fileName);
 }
 
+/** A file carries the billable amounts the page shows this reader: none when it shows none or could not read them. */
+function billableFactsOf(billable: TimeActivityBillable | null): ReadonlyArray<BreakdownFact> | null {
+	if (!billable) {
+		return null;
+	}
+	const isRead = !billable.isPending && !billable.isError;
+	const isShown = billable.isOffered && isRead;
+	if (!isShown) {
+		return null;
+	}
+	return billable.facts;
+}
+
 /** Rows are built on the click; the PDF renderer, its document and the sheet writer are imported then. */
 export function TimeActivityExportMenu({
 	report,
@@ -572,16 +851,24 @@ export function TimeActivityExportMenu({
 	filters,
 	filterOptions,
 	roundingRule = null,
+	billable = null,
 	isDisabled
 }: Readonly<
-	Omit<ExportContext, 'locale' | 'workspaceCurrency' | 't' | 'roundingRule'> & {
+	Omit<ExportContext, 'locale' | 'workspaceCurrency' | 't' | 'roundingRule' | 'billableFacts' | 'withEntryLabels'> & {
 		roundingRule?: DurationRoundingRule | null;
+		/** What the page's billable time bills, for a reader it shows billable amounts to. */
+		billable?: TimeActivityBillable | null;
 		isDisabled: boolean;
 	}
 >) {
 	const t = useTranslations();
 	const locale = useWorkspaceLocale();
 	const workspaceCurrency = useAtomValue(currentOrganizationState)?.currency ?? null;
+	const billableFacts = useMemo(() => billableFactsOf(billable), [billable]);
+	const withEntryLabels = useEntryLabelsSupport();
+	// A file made while the amounts are read would leave them out where the page is about to show them
+	const isBillableReading = billable !== null && billable.isOffered && billable.isPending;
+	const isMenuDisabled = isDisabled || isBillableReading;
 
 	const options = useMemo<ExportOption[]>(() => {
 		const context: ExportContext = {
@@ -595,6 +882,8 @@ export function TimeActivityExportMenu({
 			filters,
 			filterOptions,
 			roundingRule,
+			billableFacts,
+			withEntryLabels,
 			locale,
 			workspaceCurrency,
 			t
@@ -620,6 +909,7 @@ export function TimeActivityExportMenu({
 			}
 		];
 	}, [
+		billableFacts,
 		clientOf,
 		figures,
 		filterOptions,
@@ -632,8 +922,9 @@ export function TimeActivityExportMenu({
 		report,
 		roundingRule,
 		t,
+		withEntryLabels,
 		workspaceCurrency
 	]);
 
-	return <ExportMenu options={options} isDisabled={isDisabled} />;
+	return <ExportMenu options={options} isDisabled={isMenuDisabled} />;
 }

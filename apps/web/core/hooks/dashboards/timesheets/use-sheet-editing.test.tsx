@@ -1,25 +1,40 @@
 /** @jest-environment jsdom */
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { renderHook } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
 import { createStore, Provider } from 'jotai';
 import type { PropsWithChildren } from 'react';
 import type { Period } from '@/core/lib/utils/dashboard-period';
 import { rowIdentityOfTask } from '@/core/lib/utils/dashboards/timesheet-sheet-edit';
-import { emptySheetMemberOf } from '@/core/lib/utils/dashboards/timesheets';
+import { localDayKeyOf } from '@/core/lib/utils/dashboard-export';
+import {
+	emptySheetMemberOf,
+	rowIdentityOfLog,
+	sheetRowKeyFor,
+	type SheetDay
+} from '@/core/lib/utils/dashboards/timesheets';
+import { ETimeLogType } from '@/core/types/generics/enums/timer';
+import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import type { TOrganization } from '@/core/types/schemas/organization/organization.schema';
 import type { TOrganizationProject } from '@/core/types/schemas/organization/organization-project.schema';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
 
 const mockPermissions = jest.fn();
 const mockProjects = jest.fn();
+const mockGetTimeLogs = jest.fn();
+const mockCreateTimesheetFrom = jest.fn();
 
 jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
 jest.mock('sonner', () => {
 	const toast = Object.assign(jest.fn(), { error: jest.fn(), success: jest.fn() });
 	return { toast };
 });
-jest.mock('@/core/services/client/api/timesheets/time-log.service', () => ({ timeLogService: {} }));
+jest.mock('@/core/services/client/api/timesheets/time-log.service', () => ({
+	timeLogService: {
+		getTimeLogs: (...args: unknown[]) => mockGetTimeLogs(...args),
+		createTimesheetFrom: (...args: unknown[]) => mockCreateTimesheetFrom(...args)
+	}
+}));
 jest.mock('@/core/hooks/organizations/projects/use-organization-projects-query', () => ({
 	useOrganizationProjectsQuery: () => ({ organizationProjects: mockProjects() })
 }));
@@ -145,7 +160,7 @@ describe('useSheetEditing', () => {
 		expect(withoutPermissions).toBe('loading');
 	});
 
-	it("names a row added before the projects were read, and bills it, as its project says once they are", () => {
+	it('names a row added before the projects were read, and bills it, as its project says once they are', () => {
 		const task = { id: 'task', projectId: 'project', title: 'Landing page' } as TTask;
 		const addedEarly = rowIdentityOfTask(task, undefined, 'team');
 		const drafts = { 'viewer:2024-01-08:2024-01-14': [addedEarly] };
@@ -159,5 +174,67 @@ describe('useSheetEditing', () => {
 		expect(editing.draftRows).toEqual([
 			expect.objectContaining({ key: addedEarly.key, projectName: 'Website', isBillable: true })
 		]);
+	});
+	it('hides a billable draft stored under its older key once its time is saved, so no empty copy can change it', () => {
+		const saved = {
+			id: 'saved',
+			employeeId: 'viewer',
+			projectId: 'project',
+			taskId: null,
+			isBillable: true,
+			logType: ETimeLogType.MANUAL,
+			startedAt: new Date(2024, 0, 8, 9),
+			stoppedAt: new Date(2024, 0, 8, 11),
+			duration: 7200
+		} as unknown as ITimeLog;
+		// Stored before rows carried their Billable state: the key has no Billable part, the row is billable
+		const olderDraft = { ...rowIdentityOfLog(saved), key: sheetRowKeyFor('project', null) };
+		const drafts = { 'viewer:2024-01-08:2024-01-14': [olderDraft] };
+		window.localStorage.setItem('timesheets-sheet-draft-rows', JSON.stringify(drafts));
+
+		const editing = renderEditing({
+			source: sourceOf({ periodLogs: [saved] }),
+			member: VIEWER,
+			organization: organizationOf({})
+		});
+
+		expect(olderDraft.key).not.toBe(rowIdentityOfLog(saved).key);
+		expect(editing.draftRows).toEqual([]);
+	});
+
+	it('reads the saved time with its labels before a write, so a labelled row finds its own entries (#5368)', async () => {
+		const meeting = { id: 'label-meeting', name: 'meeting' };
+		const saved = {
+			id: 'typed',
+			employeeId: 'viewer',
+			projectId: 'project',
+			taskId: 'task',
+			logType: ETimeLogType.MANUAL,
+			startedAt: new Date(2024, 0, 8, 9),
+			stoppedAt: new Date(2024, 0, 8, 10),
+			duration: 3600,
+			tags: [meeting]
+		} as unknown as ITimeLog;
+		// The API states an entry's labels only when the read asks for them
+		mockGetTimeLogs.mockImplementation(async ({ withEntryLabels }: { withEntryLabels?: boolean }) => [
+			withEntryLabels ? saved : { ...saved, tags: undefined }
+		]);
+		const editing = renderEditing({
+			source: sourceOf({ periodLogs: [saved], withEntryLabels: true }),
+			member: VIEWER,
+			organization: organizationOf({})
+		});
+		const monday = new Date(2024, 0, 8);
+		const day: SheetDay = { key: localDayKeyOf(monday), date: monday, isToday: false, isWeekend: false };
+
+		let outcome: unknown;
+		await act(async () => {
+			outcome = await editing.writes.commitCell(rowIdentityOfLog(saved), day, 3600);
+		});
+
+		// The hour the row shows is the hour saved under its label: nothing is added on top of it
+		expect(outcome).toBe('unchanged');
+		expect(mockCreateTimesheetFrom).not.toHaveBeenCalled();
+		expect(mockGetTimeLogs).toHaveBeenCalledWith(expect.objectContaining({ withEntryLabels: true }));
 	});
 });

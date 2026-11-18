@@ -11,6 +11,7 @@ import {
 	DropdownMenuTrigger
 } from '@/core/components/common/dropdown-menu';
 import { EntityTile } from '@/core/components/common/entity-tile';
+import { HiddenProjectName } from '@/core/components/projects/hidden-project-mark';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/core/components/common/tooltip';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { MemberCell } from '@/core/components/dashboards/kit/member-cell';
@@ -27,11 +28,14 @@ import {
 	timeRangeTextOf
 } from '@/core/lib/utils/dashboards/timesheets';
 import { isBreakLog } from '@/core/lib/utils/timer/timer-break';
+import { isHiddenProject } from '@/core/lib/utils/project-visibility';
 import { ETimeLogType } from '@/core/types/generics/enums/timer';
 import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import { type TimeEntryReuseHandlers, TimeEntryReuseMenuItems } from './time-entry-reuse';
 import { EntryNotesLine, LogChangeChips, ManualReasonLine } from './timesheet-log-changes';
+import { EntryLabelChips } from '@/core/components/features/entry-labels/entry-label-chips';
+import { entryLabelsOf } from '@/core/lib/utils/time-log-labels';
 import { BillableSubmenu, StatusSubmenu } from './timesheet-menu-parts';
 import { TimesheetStatusChip } from './timesheet-status';
 import { DEFERRED_ROW, logGridOf, NARROW_ONLY, NESTED_ROW, NESTED_TASK_INDENT, WIDE_ONLY } from './timesheets-grid';
@@ -89,6 +93,9 @@ export function TaskTitle({ log }: Readonly<{ log: ITimeLog }>) {
 export function ProjectName({ log }: Readonly<{ log: ITimeLog }>) {
 	const t = useTranslations();
 	const project = log.project;
+	if (isHiddenProject(project)) {
+		return <HiddenProjectName label={t('common.PRIVATE_PROJECT')} className="text-[13px]" />;
+	}
 	if (!project?.name) {
 		return (
 			<span className="truncate text-[13px] text-muted-foreground">{t('dashboard.timesheets.NO_PROJECT')}</span>
@@ -290,6 +297,7 @@ export const TimesheetLogRow = memo(function TimesheetLogRow({
 					<LogChangeChips log={log} formatters={formatters} opensHistory className={WIDE_ONLY} />
 				</span>
 				<EntryNotesLine log={log} />
+				<EntryLabelChips labels={entryLabelsOf(log)} className="mt-0.5" />
 				<ManualReasonLine log={log} />
 				{rejectionReason && (
 					<span className="truncate text-xs text-destructive-ink">

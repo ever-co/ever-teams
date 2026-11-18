@@ -208,6 +208,9 @@
 		"REMOVE_FAVORITE_TASK": "Usuń zadanie z ulubionych",
 		"ADD_FAVORITE_TASK": "Dodaj zadanie do ulubionych",
 		"NO_PROJECT": "Brak projektu",
+		"PRIVATE_PROJECT": "Projekt prywatny",
+		"PRIVATE_PROJECTS": "Projekty prywatne",
+		"PRIVATE_PROJECT_HINT": "Nie należysz do tego projektu prywatnego",
 		"NO_FAVORITE_TASK": "Brak ulubionych zadań",
 		"LINK_TASK": "Wybierz powiązany problem",
 		"LINK": "Link",
@@ -1372,6 +1375,10 @@
 				"STATUS": "Status",
 				"TRACKED_HOURS": "Zarejestrowano (godziny)",
 				"CURRENCY": "Waluta",
+				"BILLABLE_HOURS": "Godziny do zafakturowania",
+				"BILLABLE_CURRENCY": "Waluta faktury",
+				"NO_RATE": "Brak stawki",
+				"BILLABLE_UNPRICED": "{duration} czasu do zafakturowania bez stawki",
 				"ACTIVITY_PERCENT": "Aktywność (%)",
 				"NO_TASK": "Bez zadania",
 				"PAGE": "Strona {page} z {total}"
@@ -1701,12 +1708,23 @@
 				"FAILED_FIRST_PART_KEPT": "Pierwsza część została zapisana, ale drugiej ({range}) nie udało się dodać. Dodaj ją przez Dodaj czas.",
 				"FAILED_UNKNOWN": "Nie udało się potwierdzić podziału. Odśwież kalendarz i sprawdź ten wpis, zanim spróbujesz ponownie.",
 				"ADD_REST": "Dodaj drugą część",
+				"CHECKING": "Sprawdzanie, czy ten wpis można podzielić…",
+				"CHECK_FAILED": "Nie udało się sprawdzić, czy ten wpis można podzielić. Sprawdź połączenie i spróbuj ponownie.",
+				"CHECK_AGAIN": "Spróbuj ponownie",
+				"SLOT_STEP": "Śledzony czas dzieli się na jego 10-minutowych odcinkach: każdy trafia w całości, ze zrzutami ekranu i aktywnością, do jednej części.",
+				"OFF_SLOT": "Śledzony czas dzieli się na znaczniku co 10 minut, np. {before} lub {after}.",
+				"OFF_SLOT_ONE": "Śledzony czas dzieli się na znaczniku co 10 minut, np. {time}.",
+				"REASON_LABEL": "Powód",
+				"REASON_REQUIRED": "Twoja organizacja wymaga podania powodu przy zmianie czasu. Dodaj go i podziel ponownie.",
+				"REASON_TOO_LONG": "Powód może mieć najwyżej 255 znaków.",
+				"FAILED_RETRY": "Nie udało się potwierdzić podziału. Spróbuj ponownie: podział, który już się udał, nigdy nie zostanie wykonany dwa razy.",
 				"REFUSED": {
 					"TRACKED": "Śledzony czas niesie swoją aktywność i zrzuty ekranu, które tylko serwer może rozdzielić między dwa wpisy. Na razie można dzielić tylko czas dodany ręcznie.",
 					"RUNNING": "Licznik nadal działa. Zatrzymaj go, a potem podziel wpis.",
 					"TOO_SHORT": "Ten wpis jest za krótki: każda część musi trwać co najmniej minutę.",
 					"APPROVED": "Ten dzień należy do zatwierdzonej karty czasu pracy, więc jego czasu nie można zmienić.",
-					"PERMISSION": "Twoja rola lub organizacja nie pozwala zmieniać czasu ani dodawać go ręcznie."
+					"PERMISSION": "Twoja rola lub organizacja nie pozwala zmieniać czasu ani dodawać go ręcznie.",
+					"INVOICED": "Ten wpis jest na fakturze, więc nie można go podzielić."
 				}
 			},
 			"SETTINGS": {
@@ -2994,6 +3012,24 @@
 		}
 	},
 	"timer": {
+		"labels": {
+			"LABELS": "Etykiety",
+			"LABEL": "Etykieta",
+			"PICK_LABELS": "Dodaj etykiety",
+			"NO_LABELS_YET": "Brak etykiet",
+			"DELETED": "Usunięta",
+			"SAVE_FAILED": "Nie udało się zapisać etykiet",
+			"TASK_LABELS": "Etykiety zadania",
+			"NO_LABEL": "Bez etykiety",
+			"BY_LABEL_TITLE": "Czas według etykiety",
+			"COUNT": "{count, plural, one {# etykieta} few {# etykiety} many {# etykiet} other {# etykiety}}",
+			"OVERLAP_TITLE": "Grupy się nakładają",
+			"OVERLAP_MESSAGE": "Wpis z kilkoma etykietami liczy się pod każdą z nich, więc suma grup przekracza łączny czas.",
+			"CREATE": "Utwórz „{name}”",
+			"SEARCH": "Szukaj etykiet",
+			"CREATE_FAILED": "Nie udało się utworzyć etykiety",
+			"IMPORT_NOT_ATTACHED": "Nie przypisano: {names}. Zespół nie ma etykiety o {count, plural, one {tej nazwie} few {tych nazwach} many {tych nazwach} other {tych nazwach}} i nie udało się żadnej dodać."
+		},
 		"START_TIMER": "Proszę wybrać lub utworzyć nowe zadanie, aby rozpocząć śledzenie czasu lub utwórz plan",
 		"ALREADY_TRACKING_MESSAGE": "Już śledzisz czas w innej karcie lub urządzeniu.",
 		"TRACKING_DISABLED_MESSAGE": "Śledzenie czasu jest dla Ciebie wyłączone. Administrator organizacji może je włączyć.",
@@ -5187,6 +5223,7 @@
 			"MOVE_UP": "Przesuń w górę",
 			"MOVE_DOWN": "Przesuń w dół",
 			"BUILT_IN_DELETE": "Wbudowany: nie można go usunąć",
+			"BUILT_IN_MOVE": "Wbudowany: nie można go przenieść",
 			"DRAG": "Przeciągnij, aby zmienić kolejność",
 			"groups": {
 				"todo": "Do zrobienia",
@@ -7573,6 +7610,9 @@
 			"RATE_SOURCE_PROJECT": "Stawka klienta projektu",
 			"RATE_SOURCE_EMPLOYEE": "Własna stawka rozliczeniowa tej osoby",
 			"RATE_SOURCE_DEFAULT": "Domyślna stawka rozliczeniowa obszaru roboczego",
+			"KEPT_RATE_HINT": "{source}, zachowana z chwili przepracowania czasu. Dziś: {rate} za godzinę.",
+			"KEPT_RATES_UNREAD_TITLE": "Według dzisiejszych stawek",
+			"KEPT_RATES_UNREAD_MESSAGE": "W tym obszarze roboczym miniony czas zachowuje swoją stawkę, ale ten czas nie podaje, jaką stawkę zachował, więc każda godzina jest liczona według dzisiejszych stawek. Sprawdź stawki przed zapisaniem.",
 			"DESCRIPTION_OF": "Opis pozycji {name}",
 			"REMOVE_LINE": "Usuń pozycję {name}",
 			"REMOVED_LINES": "{count, plural, one {# pozycja usunięta} few {# pozycje usunięte} many {# pozycji usuniętych} other {# pozycji usuniętych}}",
@@ -7703,7 +7743,8 @@
 			"NUMBER_FREE": "Jej numer można nadać innej fakturze.",
 			"CONFIRM": "Usuń fakturę",
 			"DONE": "Faktura {number} została usunięta",
-			"FAILED": "Faktura nie została usunięta. Spróbuj ponownie."
+			"FAILED": "Faktura nie została usunięta. Spróbuj ponownie.",
+			"CHANGED_MEANWHILE": "Faktura {number} zmieniła się od czasu jej wyświetlenia, więc nie została usunięta. Odśwież ją, aby zobaczyć jej aktualną wersję, a następnie spróbuj ponownie."
 		},
 		"edit": {
 			"TITLE": "Edytuj fakturę {number}",

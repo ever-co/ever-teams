@@ -4,6 +4,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Avatar, AvatarFallback, AvatarImage } from '@/core/components/common/avatar';
 import { EntityTile } from '@/core/components/common/entity-tile';
+import { HiddenProjectMark } from '@/core/components/projects/hidden-project-mark';
 import { Building, DollarCircle, Folder, Tag, Task, Users, X } from '@/core/components/icons';
 import {
 	PropertyFilterMenu,
@@ -17,8 +18,15 @@ import {
 } from '@/core/hooks/dashboards/timesheets/use-timesheets-page';
 import { imgTitle } from '@/core/lib/helpers/index';
 import { BILLABLE_ONLY_VALUE, labelsOfLogs, type ReportClientChoice } from '@/core/lib/utils/dashboards/report-filters';
-import { NO_PROJECT_VALUE, NO_TASK_VALUE, projectValueOf, taskValueOf } from '@/core/lib/utils/dashboards/timesheets';
+import {
+	NO_PROJECT_VALUE,
+	NO_TASK_VALUE,
+	projectFilterValueOf,
+	taskValueOf
+} from '@/core/lib/utils/dashboards/timesheets';
+import { PRIVATE_PROJECTS_KEY } from '@/core/lib/utils/project-visibility';
 import { NO_CLIENT_FILTER_VALUE } from '@/core/lib/utils/project-list';
+import { NO_LABEL_VALUE, entryLabelsOfLogs } from '@/core/lib/utils/time-log-labels';
 import type { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 
@@ -54,13 +62,24 @@ function memberOptionsOf(members: ReadonlyArray<TOrganizationTeamEmployee>): Pro
 	return options;
 }
 
-function projectOptionsOf(logs: ReadonlyArray<ITimeLog>, noProjectLabel: string): PropertyFilterOption[] {
+interface ProjectChoiceLabels {
+	noProject: string;
+	privateProjects: string;
+}
+
+function projectOptionsOf(logs: ReadonlyArray<ITimeLog>, labels: ProjectChoiceLabels): PropertyFilterOption[] {
 	const byProject = new Map<string, PropertyFilterOption>();
 	let hasLogWithoutProject = false;
+	let hasLogOfHiddenProject = false;
 	for (const log of logs) {
-		const value = projectValueOf(log);
+		const value = projectFilterValueOf(log);
 		if (value === NO_PROJECT_VALUE) {
 			hasLogWithoutProject = true;
+			continue;
+		}
+		// Every project the API keeps from the reader is one choice, beside "No project" (CORE-27)
+		if (value === PRIVATE_PROJECTS_KEY) {
+			hasLogOfHiddenProject = true;
 			continue;
 		}
 		if (byProject.has(value)) {
@@ -75,8 +94,12 @@ function projectOptionsOf(logs: ReadonlyArray<ITimeLog>, noProjectLabel: string)
 	}
 	const options = [...byProject.values()];
 	options.sort(byName);
+	if (hasLogOfHiddenProject) {
+		const icon = <HiddenProjectMark isFocusable={false} />;
+		options.push({ value: PRIVATE_PROJECTS_KEY, name: labels.privateProjects, icon });
+	}
 	if (hasLogWithoutProject) {
-		options.push({ value: NO_PROJECT_VALUE, name: noProjectLabel, icon: <Folder /> });
+		options.push({ value: NO_PROJECT_VALUE, name: labels.noProject, icon: <Folder /> });
 	}
 	return options;
 }
@@ -116,6 +139,19 @@ function clientOptionsOf(clients: ReadonlyArray<ReportClientChoice>, noClientLab
 	return options;
 }
 
+/** The entry's own labels worked in the period (Gauzy #12029), and "No label" for the time without any. */
+function entryLabelOptionsOf(logs: ReadonlyArray<ITimeLog>, noLabelName: string): PropertyFilterOption[] {
+	const options: PropertyFilterOption[] = [{ value: NO_LABEL_VALUE, name: noLabelName, icon: <Tag /> }];
+	for (const label of entryLabelsOfLogs(logs)) {
+		options.push({
+			value: label.id,
+			name: label.name,
+			icon: <TaskPropertyIcon kind="label" name={label.name} color={label.color} />
+		});
+	}
+	return options;
+}
+
 function labelOptionsOf(logs: ReadonlyArray<ITimeLog>): PropertyFilterOption[] {
 	const labels = labelsOfLogs(logs);
 	return labels.map((label) => ({
@@ -138,7 +174,8 @@ export function useTimesheetFilterCategories({
 	logs,
 	clients,
 	canFilterByClient,
-	hasPickedClient
+	hasPickedClient,
+	supportsEntryLabels = false
 }: Readonly<{
 	isManage: boolean;
 	members: ReadonlyArray<TOrganizationTeamEmployee>;
@@ -146,6 +183,8 @@ export function useTimesheetFilterCategories({
 	clients: ReadonlyArray<ReportClientChoice>;
 	canFilterByClient: boolean;
 	hasPickedClient: boolean;
+	/** Entries carry labels of their own: the Labels filter reads them, beside the Task labels one. */
+	supportsEntryLabels?: boolean;
 }>) {
 	const t = useTranslations();
 	const showsClients = canFilterByClient || hasPickedClient;
@@ -166,7 +205,10 @@ export function useTimesheetFilterCategories({
 				keepsCase: true,
 				icon: <Folder />,
 				label: t('dashboard.timesheets.PROJECTS'),
-				options: projectOptionsOf(logs, t('dashboard.timesheets.NO_PROJECT'))
+				options: projectOptionsOf(logs, {
+					noProject: t('dashboard.timesheets.NO_PROJECT'),
+					privateProjects: t('common.PRIVATE_PROJECTS')
+				})
 			},
 			{
 				field: 'tasks',
@@ -203,12 +245,21 @@ export function useTimesheetFilterCategories({
 				field: 'labels',
 				keepsCase: true,
 				icon: <Tag />,
-				label: t('common.LABELS'),
+				label: t('timer.labels.TASK_LABELS'),
 				options: labelOptionsOf(logs)
 			}
 		);
+		if (supportsEntryLabels) {
+			categories.push({
+				field: 'entryLabels',
+				keepsCase: true,
+				icon: <Tag />,
+				label: t('common.LABELS'),
+				options: entryLabelOptionsOf(logs, t('timer.labels.NO_LABEL'))
+			});
+		}
 		return categories;
-	}, [clients, isManage, logs, members, showsClients, t]);
+	}, [clients, isManage, logs, members, showsClients, supportsEntryLabels, t]);
 }
 
 interface AppliedFilter {

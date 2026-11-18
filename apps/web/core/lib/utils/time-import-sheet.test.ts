@@ -79,7 +79,8 @@ describe('timeImportSheetOf', () => {
 					task: 'Fix login',
 					notes: 'Pairing, then review',
 					billable: 'yes',
-					memberEmail: ''
+					memberEmail: '',
+					labels: ''
 				},
 				extraCellCount: 0
 			}
