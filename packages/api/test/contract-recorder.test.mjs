@@ -107,7 +107,7 @@ const recordWith = (api, files, options = {}) =>
 		password: 'a-password',
 		fetch: api.fetch,
 		runMs: 0,
-		log: () => undefined,
+		logError: () => undefined,
 		...files,
 		...options
 	});
@@ -120,6 +120,26 @@ const filesIn = (dir) => {
 };
 
 const deletesOf = (api) => api.requests.filter((request) => request.route === 'DELETE /timesheet/time-log');
+
+// The stand-in's fetch, where `route` fails from its call number `from` on: with a 500, or with no answer at all.
+function fetchFailing(api, route, from, { lost = false } = {}) {
+	let calls = 0;
+	return async (url, init) => {
+		const pathname = new URL(url).pathname.replace(/^\/api/, '');
+		const isRoute = `${init.method} ${pathname}` === route;
+		if (isRoute) {
+			calls += 1;
+		}
+		const fails = isRoute && calls >= from;
+		if (!fails) {
+			return api.fetch(url, init);
+		}
+		if (lost) {
+			throw new TypeError('fetch failed');
+		}
+		return json(500, { statusCode: 500, message: 'Internal server error' });
+	};
+}
 
 test('every answer is written with placeholders, and the timer is left stopped with no entry of the recording', async () => {
 	const api = benchApi();
@@ -291,6 +311,72 @@ test('a start the API refused, with no run started, leaves the timer and the ent
 	assert.deepEqual(api.state.logs, []);
 	assert.equal(api.routesSent().includes('POST /timesheet/timer/stop'), false);
 	assert.deepEqual(deletesOf(api), []);
+});
+
+test("a stop that fails again in the cleanup is reported, the entry is still deleted, and the recording's failure is thrown", async () => {
+	const api = benchApi();
+	const errors = [];
+	const fetch = fetchFailing(api, 'POST /timesheet/timer/stop', 1);
+
+	await assert.rejects(
+		recordWith(api, workDir(), { fetch, logError: (message) => errors.push(message) }),
+		/timer\.stop failed/
+	);
+
+	assert.deepEqual(deletesOf(api)[0].query.logIds, [api.state.logs[0].id]);
+	assert.equal(errors.length, 1);
+	assert.match(errors[0], /could not be checked or stopped/);
+});
+
+test("a deletion with no answer reports every entry left by its id, and the recording's failure is thrown", async () => {
+	const api = benchApi({ failures: ['GET /timesheet/statistics/counts'] });
+	const errors = [];
+	const fetch = fetchFailing(api, 'DELETE /timesheet/time-log', 1, { lost: true });
+
+	await assert.rejects(
+		recordWith(api, workDir(), { fetch, logError: (message) => errors.push(message) }),
+		/totals\.today failed/
+	);
+
+	assert.equal(api.state.logs.length, 2);
+	for (const { id } of api.state.logs) {
+		assert.ok(
+			errors.some((message) => message.includes(id)),
+			id
+		);
+	}
+});
+
+test('a deletion the API refuses leaves the entries listed in leftBehind and reported by their id', async () => {
+	const api = benchApi();
+	const errors = [];
+	const fetch = fetchFailing(api, 'DELETE /timesheet/time-log', 1);
+
+	const result = await recordWith(api, workDir(), { fetch, logError: (message) => errors.push(message) });
+
+	const ids = api.state.logs.map((log) => log.id);
+	assert.deepEqual(result.leftBehind, ids);
+	for (const id of ids) {
+		assert.ok(
+			errors.some((message) => message.includes(id)),
+			id
+		);
+	}
+});
+
+test("a status that cannot be read after a lost start is reported, and the start's failure is thrown", async () => {
+	const api = benchApi({ lostStart: 'lost' });
+	const errors = [];
+	// The first two reads (before anything, then before the start) answer; the one after the lost start does not.
+	const fetch = fetchFailing(api, 'GET /timesheet/timer/status', 3);
+
+	await assert.rejects(
+		recordWith(api, workDir(), { fetch, logError: (message) => errors.push(message) }),
+		/timer\.start failed/
+	);
+
+	assert.equal(errors.length, 1);
+	assert.match(errors[0], /status could not be read after a start failed/);
 });
 
 test('a failure after the timers stopped still deletes both entries', async () => {

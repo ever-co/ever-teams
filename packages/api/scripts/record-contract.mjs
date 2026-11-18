@@ -123,7 +123,7 @@ export async function recordContract(options) {
 	const fetchApi = options.fetch ?? globalThis.fetch;
 	const outDir = options.outDir ?? FIXTURES_DIR;
 	const forbiddenDir = options.forbiddenDir ?? os.tmpdir();
-	const log = options.log ?? console.log;
+	const logError = options.logError ?? console.error;
 	const today = localDay(options.now ?? new Date());
 	const apiPath = new URL(apiUrl).pathname;
 	const exchanges = [];
@@ -188,20 +188,36 @@ export async function recordContract(options) {
 		return response.ok;
 	}
 
-	// Stops the timer when a failure left it running, and deletes the time entries the recording created.
-	async function putBack(created) {
-		const status = await client.timer.status();
-		if (status.running) {
-			await client.timer.stop();
+	async function stopIfRunning() {
+		try {
+			const status = await client.timer.status();
+			if (status.running) {
+				await client.timer.stop();
+			}
+		} catch (error) {
+			logError(`The timer could not be checked or stopped (${error.message}): stop it in the app if it runs.`);
 		}
-		const deleted = await deleteTimeLogs(created);
+	}
+
+	async function deleteCreated(ids) {
+		let deleted = false;
+		try {
+			deleted = await deleteTimeLogs(ids);
+		} catch (error) {
+			logError(`The time entries could not be deleted (${error.message}).`);
+		}
 		if (deleted) {
 			return [];
 		}
-		log(
-			`The time entries ${created.join(', ')} the recording created could not be deleted: delete them in the app.`
-		);
-		return created;
+		ids.forEach((id) => logError(`The time entry ${id} the recording created is left: delete it in the app.`));
+		return ids;
+	}
+
+	// Stops the timer when a failure left it running, and deletes the time entries the recording created. A step that
+	// fails is reported and the next one still runs, so the cleanup never throws over the recording's own failure.
+	async function putBack(created) {
+		await stopIfRunning();
+		return deleteCreated(created);
 	}
 
 	// A time entry is listed, and counted in the totals, once its timer has run a moment and stopped.
@@ -222,7 +238,16 @@ export async function recordContract(options) {
 	// A start whose answer is lost or unreadable may still have started the timer: a run the status shows now, and did
 	// not show before the start, is the recording's own.
 	async function keepLostRun(statusBefore) {
-		const status = await client.timer.status();
+		let status;
+		try {
+			status = await client.timer.status();
+		} catch (error) {
+			logError(
+				`The timer's status could not be read after a start failed (${error.message}): if the timer runs, ` +
+					'stop it in the app and delete its time entry.'
+			);
+			return;
+		}
 		const runningLogId = status.lastLog?.id;
 		const isNewRun = status.running && runningLogId !== statusBefore.lastLog?.id;
 		if (isNewRun) {
