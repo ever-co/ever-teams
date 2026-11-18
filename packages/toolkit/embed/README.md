@@ -26,6 +26,34 @@ The element shows the kit's sign-in button, then the person's timer once they ar
 
 A change of attribute applies at once. Removing the element stops the timer's display and its polling; moving it in the page keeps it as it is. Each element keeps its own `color-scheme`, until a person picks a scheme with the kit's theme toggle: that pick applies to every timer of the page, until an element's `color-scheme` changes. All the timers of a page share one language and one API address for now (ever-co/ever-teams#5483): the last element to load or change sets them, so give every element of a page the same `api-url`. A language a person picks in the kit's language switch is kept for their next visits and wins over `lang` when an element loads.
 
+## Events
+
+The element dispatches `ever-teams-timer-change` when it first reads the person's timer, then at each start or stop it
+sees, wherever it was made (this timer, the web app, the desktop app). The event bubbles and crosses shadow roots, so
+your page can listen on the element or on `document`:
+
+```html
+<ever-teams-timer api-url="https://api.ever.team/api"></ever-teams-timer>
+<p id="timer-status"></p>
+
+<script>
+	document.addEventListener('ever-teams-timer-change', (event) => {
+		const status = document.getElementById('timer-status');
+		if (event.detail.running) {
+			status.textContent = `Working since ${event.detail.startedAt}`;
+			return;
+		}
+		status.textContent = 'Not tracking time';
+	});
+</script>
+```
+
+`event.detail` holds `running`, `startedAt` (an ISO date, `null` while stopped), `projectId`, `taskId` and `initial`
+(`true` for the first read, which tells the timer as it is). The event comes from the reads the element already makes:
+on load, every minute while the page is visible, on focus and when the network comes back; it adds no request, and a
+change made elsewhere shows up to a minute later. In a Vue template, `@ever-teams-timer-change` on the element listens
+to it. `TIMER_CHANGE_EVENT`, exported by the package, holds the name.
+
 ## Examples
 
 `examples/` holds two pages that run as they are once the files of `dist/` sit next to them, and a Svelte component:
@@ -104,7 +132,7 @@ every public package that has a changeset (`changeset publish`), so to release i
     '@ever-teams/embed': minor
     ---
 
-    New package: `<ever-teams-timer api-url="...">`, the Ever Teams timer as an HTML element for pages without React. One `<script type="module">` loads React, the kit and its stylesheet; the element renders the kit's sign-in and basic timer in its own shadow root, reads `api-url`, `color-scheme` and `lang`, and stops when removed.
+    New package: `<ever-teams-timer api-url="...">`, the Ever Teams timer as an HTML element for pages without React. One `<script type="module">` loads React, the kit and its stylesheet; the element renders the kit's sign-in and basic timer in its own shadow root, reads `api-url`, `color-scheme` and `lang`, dispatches `ever-teams-timer-change` at each start or stop of the person's timer, and stops when removed.
     ```
 
 3. add `packages/toolkit/embed` to `.github/workflows/release.sdk.prod.yml`: its build (after atoms), the
