@@ -2,7 +2,12 @@ import { endOfDay } from 'date-fns';
 import { localDayKeyOf } from '@/core/lib/utils/dashboard-export';
 import { SHARED_REPORT_PATH, sharedReportFragmentOf } from '@/core/lib/utils/shared-report-path';
 import { DEFAULT_PERIOD_PRESETS, type Period, type WeekStart, presetOfPeriod } from '@/core/lib/utils/dashboard-period';
-import { BILLABLE_ONLY_VALUE, isBillableOnly, writeReportUrlFilter } from '@/core/lib/utils/dashboards/report-filters';
+import {
+	BILLABLE_ONLY_VALUE,
+	isBillableOnly,
+	readReportUrlFilters,
+	writeReportUrlFilter
+} from '@/core/lib/utils/dashboards/report-filters';
 import {
 	TIME_ACTIVITY_GROUPING_PARAM,
 	type TimeActivityFilters,
@@ -75,6 +80,16 @@ function savedFiltersOf(filters: TimeActivityFilters): ISavedReportFilters {
 export function viewUsesEntryLabels(view: TimeActivityView): boolean {
 	const hasEntryLabels = view.filters.entryLabels.length > 0;
 	const isGroupedByLabel = view.grouping === 'label';
+	return hasEntryLabels || isGroupedByLabel;
+}
+
+/**
+ * Whether the page link asks for labels of entries: a labels filter, or the Label grouping. The view shows them only
+ * once the page knows that entries have labels; until then it shows the view without them (`effectiveGroupingOf`).
+ */
+export function linkUsesEntryLabels(params: Pick<URLSearchParams, 'get'>): boolean {
+	const hasEntryLabels = readReportUrlFilters(params).entryLabels.length > 0;
+	const isGroupedByLabel = params.get(TIME_ACTIVITY_GROUPING_PARAM) === 'label';
 	return hasEntryLabels || isGroupedByLabel;
 }
 

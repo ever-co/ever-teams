@@ -25,6 +25,7 @@ import {
 	canSaveView,
 	canUpdateReport,
 	linkParamsOfSavedReport,
+	linkUsesEntryLabels,
 	savedReportInputOf,
 	savedReportUsesEntryLabels,
 	shareExpiryOf,
@@ -239,20 +240,30 @@ export function TimeActivitySavedReports({ report }: Readonly<{ report: TimeActi
 	const activeId = report.settings.linkParams.get(SAVED_REPORT_PARAM) ?? null;
 	const activeReport = saved.reports.find((candidate) => candidate.id === activeId) ?? null;
 	const isActiveViewSaved = isShowingSavedView(activeReport, view, weekStart);
-	// Labels of entries are kept by a Gauzy with ever-gauzy#12073 only: Gauzy is asked once a view or a report uses them,
-	// and once its saved reports answered (an API without them answers its 404 to every saved report route)
-	const usesEntryLabels = viewUsesEntryLabels(view) || savedReportUsesEntryLabels(activeReport);
-	const labelsSupport = useSavedReportLabelsSupport(usesEntryLabels && saved.availability === 'ready');
+	// Shown once the API answered: an API without saved reports (its list answers 404) never shows them
+	const isAnswered = saved.availability === 'ready' || saved.availability === 'error';
+	// Labels of entries are kept by a Gauzy with ever-gauzy#12073 only: Gauzy is asked once the view, its link or the
+	// report it was opened from uses them, and once its saved reports answered (an API without them answers its 404 to
+	// every saved report route)
+	const linkUsesLabels = linkUsesEntryLabels(report.settings.linkParams);
+	const usesEntryLabels = viewUsesEntryLabels(view) || linkUsesLabels || savedReportUsesEntryLabels(activeReport);
+	const labelsSupport = useSavedReportLabelsSupport(usesEntryLabels && isAnswered);
 	const { keepsEntryLabels } = labelsSupport;
 	const labelsNote = <LabelsNote support={labelsSupport.support} onRetry={labelsSupport.retry} />;
+	// A link that asks for labels shows them only once entries are known to have labels: until then, or when that could
+	// not be read, the view shown is a stand-in without them, never saved nor written over a report
+	const isLabelsAnswerPending = labelsSupport.support === 'checking' || labelsSupport.support === 'failed';
+	const awaitsLinkedLabels = linkUsesLabels && !viewUsesEntryLabels(view) && isLabelsAnswerPending;
 	// Elsewhere a view narrowed or grouped by labels would be saved as another view: it is neither saved nor written
 	// over a report
-	const canSave = canSaveView(view, keepsEntryLabels);
-	const canUpdate = activeReport ? canUpdateReport(activeReport, view, keepsEntryLabels) : canSave;
+	const canSave = canSaveView(view, keepsEntryLabels) && !awaitsLinkedLabels;
+	const canUpdate = activeReport
+		? canUpdateReport(activeReport, view, keepsEntryLabels) && !awaitsLinkedLabels
+		: canSave;
 
 	const saveView = useCallback(
 		async (name: string) => {
-			if (!canSaveView(view, keepsEntryLabels)) {
+			if (!canSaveView(view, keepsEntryLabels) || awaitsLinkedLabels) {
 				return false;
 			}
 			const input = savedReportInputOf(view, weekStart, getDefaultTimezone());
@@ -273,7 +284,7 @@ export function TimeActivitySavedReports({ report }: Readonly<{ report: TimeActi
 				return false;
 			}
 		},
-		[activeId, keepsEntryLabels, latestSetLinkParams, saved.create, t, view, weekStart]
+		[activeId, awaitsLinkedLabels, keepsEntryLabels, latestSetLinkParams, saved.create, t, view, weekStart]
 	);
 
 	const openReport = useCallback((target: ISavedReport) => openReportIn(setLinkParams, target), [setLinkParams]);
@@ -282,7 +293,8 @@ export function TimeActivitySavedReports({ report }: Readonly<{ report: TimeActi
 		async (target: ISavedReport) => {
 			// One change at a time: a second one could reach the API first and be overwritten by the earlier view. A view
 			// the report cannot keep never replaces the one it keeps
-			const isRefused = saved.update.isPending || !canUpdateReport(target, view, keepsEntryLabels);
+			const isRefused =
+				saved.update.isPending || awaitsLinkedLabels || !canUpdateReport(target, view, keepsEntryLabels);
 			if (isRefused) {
 				return;
 			}
@@ -294,7 +306,7 @@ export function TimeActivitySavedReports({ report }: Readonly<{ report: TimeActi
 				toast.error(t('dashboard.savedReports.SAVE_FAILED'));
 			}
 		},
-		[keepsEntryLabels, saved.update, t, view, weekStart]
+		[awaitsLinkedLabels, keepsEntryLabels, saved.update, t, view, weekStart]
 	);
 
 	const renameReport = useCallback(
@@ -396,7 +408,6 @@ export function TimeActivitySavedReports({ report }: Readonly<{ report: TimeActi
 	);
 
 	// Shown once the API answered: an API without saved reports never shows them, not even for a moment
-	const isAnswered = saved.availability === 'ready' || saved.availability === 'error';
 	if (!isAnswered) {
 		return null;
 	}

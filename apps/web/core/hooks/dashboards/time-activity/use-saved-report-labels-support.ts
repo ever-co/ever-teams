@@ -11,7 +11,8 @@ import { shellSettledState } from '@/core/stores/common/shell';
 
 /**
  * What is known of saved reports and the labels of entries: `kept` (Gauzy keeps them), `not-kept` (an older Gauzy, or
- * entries without labels), `checking` (not answered yet) or `failed` (Gauzy could not be asked, after its retries).
+ * entries without labels), `checking` (not answered yet) or `failed` (Gauzy could not be asked after its retries, or
+ * whether entries have labels could not be read).
  */
 export type SavedReportLabelsSupport = 'kept' | 'not-kept' | 'checking' | 'failed';
 
@@ -24,14 +25,18 @@ interface SavedReportLabelsSupportState {
 }
 
 function supportOf(
-	entryLabels: { isSupported: boolean; isKnown: boolean },
+	entryLabels: { isSupported: boolean; isKnown: boolean; hasFailed: boolean },
 	hasWorkspace: boolean,
 	answer: { data: boolean | undefined; isError: boolean }
 ): SavedReportLabelsSupport {
 	if (!hasWorkspace) {
 		return 'not-kept';
 	}
+	// A check of entry labels given up on is no answer: `failed`, with its own retry, never `not-kept`
 	if (!entryLabels.isSupported) {
+		if (entryLabels.hasFailed) {
+			return 'failed';
+		}
 		return entryLabels.isKnown ? 'not-kept' : 'checking';
 	}
 	if (answer.data !== undefined) {
@@ -66,7 +71,15 @@ export function useSavedReportLabelsSupport(isNeeded: boolean): SavedReportLabel
 		gcTime: Infinity,
 		retry: 3
 	});
-	const retry = useCallback(() => void refetch(), [refetch]);
+	const { hasFailed: hasEntryLabelsCheckFailed, retry: retryEntryLabelsCheck } = entryLabels;
+	// The check of entry labels first: only once entries are known to have labels is Gauzy asked about saved reports
+	const retry = useCallback(() => {
+		if (hasEntryLabelsCheckFailed) {
+			retryEntryLabelsCheck();
+			return;
+		}
+		void refetch();
+	}, [hasEntryLabelsCheckFailed, refetch, retryEntryLabelsCheck]);
 	const support = supportOf(entryLabels, hasWorkspace, { data, isError });
 	return { keepsEntryLabels: support === 'kept', support, retry };
 }

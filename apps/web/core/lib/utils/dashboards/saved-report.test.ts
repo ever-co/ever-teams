@@ -7,6 +7,7 @@ import {
 	canUpdateReport,
 	dailyReportOfPublic,
 	linkParamsOfSavedReport,
+	linkUsesEntryLabels,
 	savedPeriodOf,
 	savedReportInputOf,
 	shareExpiryDayOf,
@@ -391,6 +392,13 @@ describe('saved reports and the labels of entries (ever-gauzy#12073)', () => {
 		expect(showsSavedView(saved, withLabelsTimeOnly, MONDAY)).toBe(false);
 		expect(showsSavedView(saved, withoutLabels, MONDAY)).toBe(false);
 		expect(showsSavedView(saved, { ...DESIGN_BY_LABEL, grouping: 'project' }, MONDAY)).toBe(false);
+	});
+
+	it('tells a link that asks for labels, which the view shows only once entries are known to have them', () => {
+		expect(linkUsesEntryLabels(new URLSearchParams('period=lastMonth&entryLabels=design'))).toBe(true);
+		expect(linkUsesEntryLabels(new URLSearchParams('period=lastMonth&entryLabels=no-label'))).toBe(true);
+		expect(linkUsesEntryLabels(new URLSearchParams('period=lastMonth&groupBy=label'))).toBe(true);
+		expect(linkUsesEntryLabels(new URLSearchParams('period=lastMonth&labels=bug&groupBy=project'))).toBe(false);
 	});
 
 	it('writes no view over a report saved with labels until Gauzy is known to keep them', () => {

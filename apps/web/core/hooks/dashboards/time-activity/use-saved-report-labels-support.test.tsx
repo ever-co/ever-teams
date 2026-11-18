@@ -5,13 +5,14 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { renderHook, waitFor } from '@testing-library/react';
 
 const mockKeepsEntryLabels = jest.fn();
-let mockEntryLabels = { isSupported: true, isKnown: true };
+const mockRetryEntryLabels = jest.fn();
+let mockEntryLabels = { isSupported: true, isKnown: true, hasFailed: false };
 
 jest.mock('@/core/services/client/api/timesheets/saved-report.service', () => ({
 	savedReportService: { keepsEntryLabels: () => mockKeepsEntryLabels() }
 }));
 jest.mock('@/core/hooks/timer/use-entry-labels-support', () => ({
-	useEntryLabelsSupportState: () => mockEntryLabels
+	useEntryLabelsSupportState: () => ({ ...mockEntryLabels, retry: mockRetryEntryLabels })
 }));
 jest.mock('@/core/lib/helpers/cookies', () => ({
 	...jest.requireActual('@/core/lib/helpers/cookies'),
@@ -40,7 +41,7 @@ function setup(isNeeded: boolean) {
 describe('useSavedReportLabelsSupport', () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
-		mockEntryLabels = { isSupported: true, isKnown: true };
+		mockEntryLabels = { isSupported: true, isKnown: true, hasFailed: false };
 		mockKeepsEntryLabels.mockResolvedValue(true);
 	});
 
@@ -75,7 +76,7 @@ describe('useSavedReportLabelsSupport', () => {
 	});
 
 	it('asks nothing, and keeps none, where entries have no labels at all', () => {
-		mockEntryLabels = { isSupported: false, isKnown: true };
+		mockEntryLabels = { isSupported: false, isKnown: true, hasFailed: false };
 		const { result } = setup(true);
 
 		expect(result.current.support).toBe('not-kept');
@@ -83,10 +84,20 @@ describe('useSavedReportLabelsSupport', () => {
 	});
 
 	it('says it is checking while it is not known yet whether entries have labels', () => {
-		mockEntryLabels = { isSupported: false, isKnown: false };
+		mockEntryLabels = { isSupported: false, isKnown: false, hasFailed: false };
 		const { result } = setup(true);
 
 		expect(result.current.support).toBe('checking');
+		expect(mockKeepsEntryLabels).not.toHaveBeenCalled();
+	});
+
+	it('says it failed, never "not kept", when whether entries have labels could not be read, and asks that again first', () => {
+		mockEntryLabels = { isSupported: false, isKnown: true, hasFailed: true };
+		const { result } = setup(true);
+
+		expect(result.current.support).toBe('failed');
+		result.current.retry();
+		expect(mockRetryEntryLabels).toHaveBeenCalledTimes(1);
 		expect(mockKeepsEntryLabels).not.toHaveBeenCalled();
 	});
 });

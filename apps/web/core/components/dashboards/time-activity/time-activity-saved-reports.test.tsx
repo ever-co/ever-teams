@@ -505,7 +505,7 @@ describe('TimeActivitySavedReports on a Gauzy that keeps the labels of entries (
 		expect(mockLabelsSupportAsked).toHaveBeenLastCalledWith(true);
 	});
 
-	it.each(['loading', 'unsupported', 'error'] as const)(
+	it.each(['loading', 'unsupported'] as const)(
 		'asks Gauzy nothing while its saved reports are %s: a 404 then says nothing of labels',
 		(availability) => {
 			mockSaved = { reports: [], availability, linkTokens: {} };
@@ -514,6 +514,47 @@ describe('TimeActivitySavedReports on a Gauzy that keeps the labels of entries (
 			expect(mockLabelsSupportAsked).toHaveBeenLastCalledWith(false);
 		}
 	);
+
+	it('asks Gauzy once its saved reports answered, even with a list that could not be read', () => {
+		mockSaved = { reports: [], availability: 'error', linkTokens: {} };
+		render(<TimeActivitySavedReports report={labelViewProps(DESIGN_WITHOUT_LABEL, 'label')} />);
+
+		expect(mockLabelsSupportAsked).toHaveBeenLastCalledWith(true);
+	});
+
+	/** A link that asks for labels, while the page still shows the view without them (`effectiveGroupingOf`). */
+	function standInOfLabelLink() {
+		const props = labelViewProps(NO_FILTERS, 'date') as unknown as { settings: { linkParams: URLSearchParams } };
+		props.settings.linkParams = new URLSearchParams(
+			`period=lastMonth&entryLabels=design&groupBy=label${mockSearchParams.has('report') ? '&report=r1' : ''}`
+		);
+		return props as never;
+	}
+
+	it.each(['checking', 'failed'] as const)(
+		'writes nothing while a link asks for labels the view does not show yet (%s)',
+		(support) => {
+			mockLabelsSupport = support;
+			mockSearchParams = new URLSearchParams('report=r1');
+			render(<TimeActivitySavedReports report={standInOfLabelLink()} />);
+
+			expect(mockLabelsSupportAsked).toHaveBeenLastCalledWith(true);
+			expect(screen.queryAllByLabelText('dashboard.savedReports.NAME')).toHaveLength(0);
+			const update = screen.getByText('dashboard.savedReports.UPDATE').closest('button') as HTMLButtonElement;
+			expect(update.disabled).toBe(true);
+			fireEvent.click(update);
+			expect(mockUpdate).not.toHaveBeenCalled();
+		}
+	);
+
+	it('saves the view shown once entries are known to have no labels, as before', () => {
+		mockLabelsSupport = 'not-kept';
+		mockSaved = { reports: [], availability: 'ready', linkTokens: {} };
+		render(<TimeActivitySavedReports report={standInOfLabelLink()} />);
+
+		expect(screen.getAllByLabelText('dashboard.savedReports.NAME').length).toBeGreaterThan(0);
+		expect(screen.queryByText('dashboard.savedReports.LABELS_NOT_KEPT')).toBeNull();
+	});
 
 	it.each(LABEL_VIEWS)('saves a view %s, with its labels and its grouping', async (_case, filters, grouping) => {
 		mockSaved = { reports: [], availability: 'ready', linkTokens: {} };

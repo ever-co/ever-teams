@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { type QueryClient, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAtomValue } from 'jotai';
 
@@ -16,6 +16,10 @@ interface EntryLabelsSupport {
 	isSupported: boolean;
 	/** The answer is in: read, given up on after its retries, or not asked for want of a workspace. */
 	isKnown: boolean;
+	/** The check was given up on after its retries: `isSupported` reads false, but nothing was answered. */
+	hasFailed: boolean;
+	/** Asks the API again, after a failure. */
+	retry: () => void;
 }
 
 /**
@@ -65,7 +69,7 @@ export function useEntryLabelsSupportState(): EntryLabelsSupport {
 		queryClient.setQueryData(queryKey, answerOfStatus);
 	}, [answerOfStatus, hasWorkspace, queryClient, queryKey]);
 
-	const { data, isError } = useQuery({
+	const { data, isError, refetch } = useQuery({
 		queryKey,
 		queryFn: () => timeLogService.supportsEntryLabels(),
 		enabled: hasWorkspace && shellSettled && answerOfStatus === undefined,
@@ -77,7 +81,9 @@ export function useEntryLabelsSupportState(): EntryLabelsSupport {
 	// Outside a workspace the status says nothing for it: no answer, known at once, every label control away
 	const answer = data ?? (hasWorkspace ? answerOfStatus : undefined);
 	const isKnown = answer !== undefined || isError || !hasWorkspace;
-	return { isSupported: answer === true, isKnown };
+	const hasFailed = answer === undefined && isError;
+	const retry = useCallback(() => void refetch(), [refetch]);
+	return { isSupported: answer === true, isKnown, hasFailed, retry };
 }
 
 /** Whether entries can carry labels of their own: see `useEntryLabelsSupportState`. */
