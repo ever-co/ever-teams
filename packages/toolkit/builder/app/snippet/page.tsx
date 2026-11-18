@@ -3,6 +3,7 @@
 import { createElement, useEffect, useState } from 'react';
 import { Check, Copy } from 'lucide-react';
 import { MainLayout } from '../../components/layouts';
+import { useBuilderApiUrl } from '../providers';
 import { CodeBlock } from '../../components/ui/CodeBlock';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,7 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
 	DEFAULT_API_URL,
-	timerAttributes,
+	previewAttributes,
 	timerSnippet,
 	type TimerColorScheme,
 	type TimerLanguage
@@ -67,6 +68,7 @@ export default function SnippetPage() {
 	const [colorScheme, setColorScheme] = useState<TimerColorScheme>('system');
 	const [lang, setLang] = useState<TimerLanguage>('en');
 	const [copyState, setCopyState] = useState<CopyState>('idle');
+	const builderApiUrl = useBuilderApiUrl();
 	useTimerElement();
 
 	const options = { apiUrl, colorScheme, lang };
@@ -144,12 +146,13 @@ export default function SnippetPage() {
 					<CardHeader>
 						<CardTitle>Preview</CardTitle>
 						<CardDescription>
-							The timer as your visitors see it. Signing in here uses a real Ever Teams account.
+							The timer as your visitors see it, signed in to this builder&apos;s Ever Teams server. The
+							snippet uses the address you set.
 						</CardDescription>
 					</CardHeader>
 					<CardContent>
 						<div className="min-h-28 rounded-lg border border-dashed border-slate-300 p-4 dark:border-slate-700">
-							{createElement('ever-teams-timer', timerAttributes(options))}
+							{createElement('ever-teams-timer', previewAttributes(options, builderApiUrl))}
 						</div>
 					</CardContent>
 				</Card>

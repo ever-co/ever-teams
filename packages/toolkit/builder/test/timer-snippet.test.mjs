@@ -52,3 +52,13 @@ test('an empty API address gives the default one, and a typed one cannot break o
 	assert.match(typed, /api-url="https:\/\/x&quot;&gt;&lt;script&gt;"/);
 	assert.equal(typed.match(/<script/g).length, 1);
 });
+
+test('the preview runs against the builder API whatever address the person typed', () => {
+	const options = { apiUrl: 'https://attacker.example.com/api', colorScheme: 'dark', lang: 'en' };
+
+	assert.deepEqual(snippets.previewAttributes(options, 'https://api.builder.example.com/api'), {
+		'api-url': 'https://api.builder.example.com/api',
+		'color-scheme': 'dark'
+	});
+	assert.equal(snippets.previewAttributes(options, undefined)['api-url'], 'https://api.ever.team/api');
+});

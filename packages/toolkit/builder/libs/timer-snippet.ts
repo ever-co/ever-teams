@@ -31,6 +31,15 @@ export function timerAttributes(options: TimerSnippetOptions): Record<string, st
 	return attributes;
 }
 
+// The attributes of the builder's preview: the settings of the snippet, against the builder's own API. The preview
+// runs in the builder's page, which holds the person's builder session: it never sends that to an address they typed.
+export function previewAttributes(
+	options: TimerSnippetOptions,
+	builderApiUrl: string | undefined
+): Record<string, string> {
+	return timerAttributes({ ...options, apiUrl: builderApiUrl ?? DEFAULT_API_URL });
+}
+
 // The two lines a person pastes where the timer goes.
 export function timerSnippet(options: TimerSnippetOptions): string {
 	const written = Object.entries(timerAttributes(options)).map(
