@@ -35,7 +35,7 @@ export const stopWatching: () => void = teams.timer.watch((change: TimerChange) 
 `;
 
 let checkDir;
-let output;
+let run;
 
 before(() => {
 	assert.ok(fs.existsSync(path.join(here, '..', 'dist', 'index.d.ts')), 'build the package first: rollup -c');
@@ -57,8 +57,7 @@ before(() => {
 	};
 	fs.writeFileSync(path.join(checkDir, 'tsconfig.json'), JSON.stringify(tsconfig));
 	const tsc = path.join(path.dirname(require.resolve('typescript/package.json')), 'bin', 'tsc');
-	const run = spawnSync(process.execPath, [tsc, '-p', checkDir, '--pretty', 'false'], { encoding: 'utf8' });
-	output = run.stdout.trim();
+	run = spawnSync(process.execPath, [tsc, '-p', checkDir, '--pretty', 'false'], { encoding: 'utf8' });
 });
 
 after(() => {
@@ -66,5 +65,8 @@ after(() => {
 });
 
 test("timerChangeOf takes what timer.status() answers and the kit's ITimerStatus, and watch hands a TimerChange", () => {
-	assert.equal(output, '');
+	// tsc ran to its end (a compiler killed before it writes would leave no output either), and found nothing.
+	assert.equal(run.error, undefined);
+	assert.equal(run.status, 0, `${run.stdout}${run.stderr}`);
+	assert.equal(run.stdout.trim(), '');
 });

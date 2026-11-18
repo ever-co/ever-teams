@@ -60,11 +60,23 @@ function throwLater(error: unknown): void {
 	}, 0);
 }
 
-// An answer with no status in it (null, an empty body, an object without a boolean running) is a failed read, as an
-// answer of GET /user/me with no user is: it is not taken for a stopped timer, and the last change told stays the
-// baseline.
+const LOG_TEXT_FIELDS = ['startedAt', 'projectId', 'taskId'];
+
+const isTextOrNothing = (value: unknown) => value === undefined || value === null || typeof value === 'string';
+
+// A last log that is none, or one whose start, project and task are text or nothing: the listener gets no other.
+function isReadableLog(log: unknown): boolean {
+	if (log === undefined || log === null) {
+		return true;
+	}
+	return isRecord(log) && LOG_TEXT_FIELDS.every((field) => isTextOrNothing(log[field]));
+}
+
+// An answer with no status in it (null, an empty body, an object without a boolean running, a last log whose start,
+// project or task is not text) is a failed read, as an answer of GET /user/me with no user is: it is not taken for a
+// stopped timer, and the last change told stays the baseline.
 function statusOf(answer: unknown): TimerStatusRead {
-	const hasStatus = isRecord(answer) && typeof answer['running'] === 'boolean';
+	const hasStatus = isRecord(answer) && typeof answer['running'] === 'boolean' && isReadableLog(answer['lastLog']);
 	if (!hasStatus) {
 		throw clientError(
 			'UNEXPECTED_ANSWER',
