@@ -15,6 +15,8 @@ import { AuthenticationStore, AuthenticationStoreModel } from '../../models/auth
 import { TimerStore, TimerStoreModel } from '../../models/timer/timer-store';
 import { createFakeGauzy, FakeGauzy, HOUR_MS } from '../../../test/fake-gauzy-session';
 import { useTimer } from './use-timer';
+import { registerRunningTimeWriter } from './running-time-writer';
+import type { RunningTimeWriter } from './running-time-writer';
 
 let mockStores: Record<string, unknown> = {};
 
@@ -196,5 +198,48 @@ describe('Stop pressed on the timer screen', () => {
 		expect(timerStore.localTimerStatus.running).toBe(true);
 		expect(timerStore.localTimerStatus.runnedDateTime).toBeGreaterThan(0);
 		expect(showMessage).toHaveBeenCalledTimes(1);
+	});
+
+	it("lets another writer of the running time write the run's last seconds first, in builds of the new app", async () => {
+		const told: string[] = [];
+		const writer: RunningTimeWriter = {
+			beforeStop: jest.fn(async (_run, write) => {
+				told.push('before the stop');
+				await write(42).catch(() => told.push('the write was refused'));
+			}),
+			afterChange: jest.fn(() => told.push('after the stop'))
+		};
+		const withdraw = registerRunningTimeWriter(writer);
+		try {
+			const screen = await openTimerScreen();
+			session.setUser({ employee: { id: 'employee-1' } });
+
+			await screen.pressStop();
+
+			expect(writer.beforeStop).toHaveBeenCalledWith(
+				expect.objectContaining({ isRunning: true }),
+				expect.any(Function)
+			);
+			const paths = gauzy.sentTo('POST').map((request) => request.path);
+			expect(paths.indexOf('/timesheet/time-slot')).toBeGreaterThanOrEqual(0);
+			expect(paths.indexOf('/timesheet/time-slot')).toBeLessThan(paths.indexOf('/timesheet/timer/stop'));
+			const slot = gauzy.fetch.mock.calls.find(([input]) => String(input).includes('/timesheet/time-slot'));
+			expect(JSON.parse(String(slot?.[1]?.body))).toMatchObject({ employeeId: 'employee-1', duration: 42 });
+			// the fake API has no time slots: a refused write does not hold the stop back
+			expect(told).toEqual(['before the stop', 'the write was refused', 'after the stop']);
+			expect(gauzy.timer()?.isRunning).toBe(false);
+			expect(showMessage).not.toHaveBeenCalled();
+		} finally {
+			withdraw();
+		}
+	});
+
+	it('writes no time slot of its own at the stop in the app people install, where no other writer is registered', async () => {
+		const screen = await openTimerScreen();
+
+		await screen.pressStop();
+
+		expect(gauzy.sentTo('POST', '/timesheet/time-slot')).toHaveLength(0);
+		expect(gauzy.timer()?.isRunning).toBe(false);
 	});
 });
