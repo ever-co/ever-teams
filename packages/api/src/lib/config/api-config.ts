@@ -78,9 +78,7 @@ class ApiConfigManager {
 	}
 
 	private listeners(): Set<() => void> {
-		if (!this.shared.listeners) {
-			this.shared.listeners = new Set();
-		}
+		this.shared.listeners ??= new Set();
 		return this.shared.listeners;
 	}
 }
