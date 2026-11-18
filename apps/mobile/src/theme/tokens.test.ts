@@ -2,8 +2,8 @@
  * The phone app draws with the web's palette: every token must keep the web's value in both themes, and every text
  * token must stay readable on the background it is drawn on.
  */
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { readFileSync } from 'fs';
+import { join } from 'path';
 import { ColorScheme, ColorToken, webColorTokens } from './tokens';
 
 const WEB_GLOBALS = join(__dirname, '../../../web/styles/globals.css');
