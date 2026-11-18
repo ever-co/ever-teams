@@ -534,7 +534,7 @@
 		}
 	},
 	"FONT_PICKER": {
-		"system_font": "Police du système",
+		"default_font": "Police par défaut",
 		"page_font": "Police de la page"
 	}
 }

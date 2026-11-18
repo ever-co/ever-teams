@@ -538,7 +538,7 @@
 		}
 	},
 	"FONT_PICKER": {
-		"system_font": "System font",
+		"default_font": "Default font",
 		"page_font": "Page font"
 	}
 }

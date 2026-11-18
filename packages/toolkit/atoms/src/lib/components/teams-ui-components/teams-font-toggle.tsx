@@ -3,10 +3,11 @@ import { cn, Select, ISelectProps } from '@ever-teams/toolkit-ui';
 import useFontSelector from '@hooks/useFontSelector';
 import { useKitOptions } from '@components/teams-provider/kit-root';
 
-// What the widgets draw in until a font is picked: the web app's face in the kit root, the page's font without one
+// What the widgets draw in until a font is picked: in the kit root its default font (the web app's face, or the host's
+// --ever-teams-kit-font, hence a neutral name), the page's font without one
 function unpickedFontKey(scoped: boolean): string {
 	if (scoped) {
-		return 'FONT_PICKER.system_font';
+		return 'FONT_PICKER.default_font';
 	}
 	return 'FONT_PICKER.page_font';
 }

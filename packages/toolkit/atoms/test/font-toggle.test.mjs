@@ -104,8 +104,9 @@ async function toggle({ scoped }) {
 	return markup.match(/<output[^>]*>[^<]*<\/output>/)?.[0];
 }
 
-test('without a picked font the toggle names the system font the kit root draws in, not a font it does not use', async () => {
-	assert.equal(await toggle({ scoped: true }), '<output data-value="">System font</output>');
+// The kit root's default font is the system face unless the host sets --ever-teams-kit-font: the name fits both
+test('without a picked font the toggle names the kit root default font, not a font it does not use', async () => {
+	assert.equal(await toggle({ scoped: true }), '<output data-value="">Default font</output>');
 });
 
 test('without a kit root the toggle names the page font, which the widgets take there', async () => {
@@ -122,6 +123,6 @@ test('a picked font is the one the toggle shows', async () => {
 test('the toggle speaks the kit language, and both locales have its words', async () => {
 	globalThis.kitLocale = locale('fr');
 
-	assert.equal(await toggle({ scoped: true }), '<output data-value="">Police du système</output>');
+	assert.equal(await toggle({ scoped: true }), '<output data-value="">Police par défaut</output>');
 	assert.deepEqual(Object.keys(locale('fr').FONT_PICKER), Object.keys(locale('en').FONT_PICKER));
 });
