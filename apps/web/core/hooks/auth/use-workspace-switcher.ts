@@ -143,6 +143,7 @@ export function useWorkspaceSwitcher() {
 			// 3. Prevents stale queries with old organizationId/teamId
 			// 4. Avoids "Maximum update depth exceeded" errors from state updates
 			if (typeof window !== 'undefined') {
+				// eslint-disable-next-line @next/next/no-location-assign-relative-destination -- the full reload is wanted
 				window.location.href = '/';
 			}
 		},

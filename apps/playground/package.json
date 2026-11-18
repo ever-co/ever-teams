@@ -18,7 +18,7 @@
 	"dependencies": {
 		"react": "19.2.3",
 		"react-dom": "19.2.3",
-		"next": "^16.4.2"
+		"next": "^16.4.6"
 	},
 	"devDependencies": {
 		"typescript": "^5",
@@ -28,7 +28,7 @@
 		"@tailwindcss/postcss": "^4",
 		"tailwindcss": "^4",
 		"eslint": "^9",
-		"eslint-config-next": "^16.0.3",
+		"eslint-config-next": "^16.4.6",
 		"@eslint/eslintrc": "^3",
 		"@ever-teams/eslint-config": "*",
 		"@ever-teams/ui": "*"

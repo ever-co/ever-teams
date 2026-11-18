@@ -3,10 +3,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { showMessage } from 'react-native-flash-message';
 import { useStores } from '../../models';
 import useFetchUserOrganization from '../client/queries/organization-team/organization';
+import { useActiveTeamDetails } from '../client/queries/organization-team/active-team-details';
 import {
 	createOrganizationTeamRequest,
 	deleteOrganizationTeamRequest,
-	getOrganizationTeamRequest,
 	removeUserFromAllTeam,
 	updateOrganizationTeamRequest
 } from '../client/requests/organization-team';
@@ -15,7 +15,7 @@ import {
 	updateOrganizationTeamEmployeeActiveTaskRequest,
 	updateOrganizationTeamEmployeeRequest
 } from '../client/requests/organization-team-employee';
-import { IOrganizationTeamList, IOrganizationTeamWithMStatus, OT_Member } from '../interfaces/IOrganizationTeam';
+import { IOrganizationTeamList, OT_Member } from '../interfaces/IOrganizationTeam';
 import useAuthenticateUser from './features/use-authentificate-user';
 
 function useCreateOrganizationTeam() {
@@ -27,7 +27,7 @@ function useCreateOrganizationTeam() {
 	const [createTeamLoading, setCreateTeamLoading] = useState(false);
 	const teamsRef = useRef(teams);
 
-	teamsRef.current  = teams;
+	teamsRef.current = teams;
 
 	const { user } = useAuthenticateUser();
 
@@ -151,7 +151,13 @@ export function useOrganizationTeam() {
 
 	const [isTeamManager, setIsTeamManager] = useState(false);
 	const [teamsFetching, setTeamsFetching] = useState(false);
-	const [currentTeam, setCurrentTeam] = useState<IOrganizationTeamWithMStatus | null>(null);
+	const currentTeam = useActiveTeamDetails({
+		tenantId,
+		organizationId,
+		activeTeamId,
+		authToken,
+		teams: organizationTeams
+	});
 
 	const members = activeTeam?.members || [];
 
@@ -162,23 +168,6 @@ export function useOrganizationTeam() {
 	const $otherMembers = members.filter((m) => {
 		return m.employee.userId !== user?.id;
 	});
-
-	useEffect(() => {
-		const getOrganizationTeam = async () => {
-			try {
-				const { data } = await getOrganizationTeamRequest(
-					{ organizationId, tenantId, teamId: activeTeamId },
-					authToken
-				);
-
-				setCurrentTeam(data);
-			} catch (error) {
-				console.log(error);
-			}
-		};
-
-		getOrganizationTeam();
-	}, [organizationTeams]);
 
 	const activeTeamManagers = members.filter((m) => m.role?.name === 'MANAGER');
 

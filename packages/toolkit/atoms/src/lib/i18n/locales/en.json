@@ -554,5 +554,9 @@
 		"theme12": "Chocolate and white",
 		"theme13": "Blue and Pink",
 		"theme14": "Yellow and pink"
+	},
+	"FONT_PICKER": {
+		"default_font": "Default font",
+		"page_font": "Page font"
 	}
 }

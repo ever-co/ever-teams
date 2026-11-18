@@ -550,5 +550,9 @@
 		"theme12": "Chocolat et blanc",
 		"theme13": "Bleu et rose",
 		"theme14": "Jaune et rose"
+	},
+	"FONT_PICKER": {
+		"default_font": "Police par défaut",
+		"page_font": "Police de la page"
 	}
 }
