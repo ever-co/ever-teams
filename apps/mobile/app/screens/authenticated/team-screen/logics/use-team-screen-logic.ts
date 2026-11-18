@@ -3,6 +3,7 @@ import { EMAIL_REGEX } from '../../../../helpers/regex';
 import { useUser } from '../../../../services/hooks/features/use-user';
 import { useOrganizationTeam } from '../../../../services/hooks/use-organization';
 import { useTeamInvitations } from '../../../../services/hooks/use-team-invitation';
+import { translate } from '../../../../i18n';
 
 const useTeamScreenLogic = () => {
 	const [showMoreMenu, setShowMoreMenu] = React.useState(false);
@@ -36,7 +37,7 @@ const useTeamScreenLogic = () => {
 
 		if (!email.match(EMAIL_REGEX)) {
 			setMemberEmail(email);
-			setErrors({ ...errors, emailError: 'Email is not valid' });
+			setErrors({ ...errors, emailError: translate('teamScreen.inviteErrors.invalidEmail') });
 		} else {
 			// Check if this email is already used in the current team
 			const existedMember = members.find((m) => m.employee.user.email === email);
@@ -44,9 +45,9 @@ const useTeamScreenLogic = () => {
 			const existedInvite = teamInvitations?.find((inv) => inv.email === email);
 
 			if (existedMember) {
-				setErrors({ ...errors, emailError: 'Email already existed in this team' });
+				setErrors({ ...errors, emailError: translate('teamScreen.inviteErrors.emailInTeam') });
 			} else if (existedInvite) {
-				setErrors({ ...errors, emailError: 'Invite already sent to this email' });
+				setErrors({ ...errors, emailError: translate('teamScreen.inviteErrors.inviteAlreadySent') });
 			} else {
 				setErrors({ ...errors, emailError: null });
 			}
@@ -57,7 +58,7 @@ const useTeamScreenLogic = () => {
 
 	const handleNameInput = (name: string) => {
 		if (name.trim().length < 3) {
-			setErrors({ ...errors, nameError: 'Name is not valid' });
+			setErrors({ ...errors, nameError: translate('teamScreen.inviteErrors.invalidName') });
 		} else {
 			setErrors({ ...errors, nameError: null });
 			setMemberName(name);

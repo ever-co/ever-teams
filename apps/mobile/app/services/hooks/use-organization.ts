@@ -17,6 +17,7 @@ import {
 } from '../client/requests/organization-team-employee';
 import { IOrganizationTeamList, OT_Member } from '../interfaces/IOrganizationTeam';
 import useAuthenticateUser from './features/use-authentificate-user';
+import { translate } from '../../i18n';
 
 function useCreateOrganizationTeam() {
 	const {
@@ -39,12 +40,12 @@ function useCreateOrganizationTeam() {
 			// Check if we have a valid employee ID
 			if (!effectiveEmployeeId) {
 				showMessage({
-					message: 'Error',
-					description: 'Missing employee ID. Please try logging in again.',
+					message: translate('common.error'),
+					description: translate('settingScreen.teamSection.missingEmployee'),
 					type: 'danger'
 				});
 				return {
-					error: 'Missing employee ID'
+					error: translate('settingScreen.teamSection.missingEmployeeShort')
 				};
 			}
 
@@ -54,7 +55,7 @@ function useCreateOrganizationTeam() {
 
 			if (exists || $name.length < 3) {
 				return {
-					error: 'Invalid team name'
+					error: translate('settingScreen.teamSection.invalidTeamName')
 				};
 			}
 
@@ -73,7 +74,7 @@ function useCreateOrganizationTeam() {
 				);
 				if (!response.data || !response.data.id) {
 					return {
-						error: 'Team creation failed'
+						error: translate('settingScreen.teamSection.teamCreationFailed')
 					};
 				}
 				const data = response.data;
@@ -191,8 +192,8 @@ export function useOrganizationTeam() {
 
 			if (member.role?.name === 'MANAGER') {
 				showMessage({
-					message: 'Info',
-					description: 'User is already manager',
+					message: translate('common.info'),
+					description: translate('settingScreen.teamSection.alreadyManager'),
 					type: 'warning'
 				});
 				return;
@@ -214,8 +215,8 @@ export function useOrganizationTeam() {
 
 			if (response.ok || response.status === 202) {
 				showMessage({
-					message: 'Info',
-					description: 'The current user is now manager ! ',
+					message: translate('common.info'),
+					description: translate('settingScreen.teamSection.nowManager'),
 					type: 'success'
 				});
 			}
@@ -231,8 +232,8 @@ export function useOrganizationTeam() {
 			// Verify if member is manager And Check if he is the only manager in the active team
 			if (member.role && managerIds.length < 2) {
 				showMessage({
-					message: 'Quit the team',
-					description: "You're the only manager you can't quit the team",
+					message: translate('settingScreen.teamSection.quitTeam'),
+					description: translate('settingScreen.teamSection.onlyManagerCannotQuit'),
 					type: 'warning'
 				});
 				return;
@@ -251,8 +252,8 @@ export function useOrganizationTeam() {
 					// console.log(JSON.stringify(res));
 					if (!response.ok || response.status === 401 || response.status === 402 || response.status === 403) {
 						showMessage({
-							message: 'QUIT THE TEAM',
-							description: 'Sorry, something went wrong !',
+							message: translate('settingScreen.teamSection.quitTeam'),
+							description: translate('settingScreen.teamSection.quitTeamFailed'),
 							type: 'warning'
 						});
 					} else {
@@ -275,8 +276,8 @@ export function useOrganizationTeam() {
 
 			if (member.role && managerIds.length < 2) {
 				showMessage({
-					message: 'REMOVE FROM ALL TEAMS',
-					description: 'You are not able to removed account where you are only the manager!',
+					message: translate('settingScreen.teamSection.removeFromAllTeams'),
+					description: translate('settingScreen.teamSection.onlyManagerCannotRemove'),
 					type: 'warning'
 				});
 				return;
@@ -293,8 +294,8 @@ export function useOrganizationTeam() {
 						refreshTeams();
 					} else {
 						showMessage({
-							message: 'REMOVE FROM ALL TEAMS',
-							description: 'You are not able to removed account where you are only the manager!',
+							message: translate('settingScreen.teamSection.removeFromAllTeams'),
+							description: translate('settingScreen.teamSection.onlyManagerCannotRemove'),
 							type: 'warning'
 						});
 					}
