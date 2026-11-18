@@ -1,5 +1,15 @@
 import { serverFetch } from '../../app/services/client/fetch';
-import { ApiError, dayBounds, readEmployeeId, readTimerStatus, readTrackedTotals, weekBounds } from './timer';
+import { TimerSource } from '../../app/services/interfaces/ITimer';
+import {
+	ApiError,
+	dayBounds,
+	readEmployeeId,
+	readTimerStatus,
+	readTrackedTotals,
+	startTimer,
+	stopTimer,
+	weekBounds
+} from './timer';
 
 jest.mock('../../app/services/client/fetch', () => ({ serverFetch: jest.fn() }));
 
@@ -96,5 +106,58 @@ describe('the employee', () => {
 		answers(200, { id: 'user', employee: null });
 
 		await expect(readEmployeeId(session)).resolves.toBeNull();
+	});
+});
+
+describe('start and stop', () => {
+	it('start a tracked log from the phone, on the task and team it continues', async () => {
+		answers(200, {});
+
+		await startTimer(session, { taskId: 'task-har-3', organizationTeamId: 'team-field' });
+
+		expect(requestSent()).toMatchObject({
+			path: '/timesheet/timer/start',
+			method: 'POST',
+			body: {
+				taskId: 'task-har-3',
+				organizationTeamId: 'team-field',
+				logType: 'TRACKED',
+				source: TimerSource.MOBILE,
+				tenantId: 'tenant',
+				organizationId: 'organization'
+			}
+		});
+	});
+
+	it('start without a team when the log it continues had none', async () => {
+		answers(200, {});
+
+		await startTimer(session, { taskId: 'task-har-3', organizationTeamId: null });
+
+		expect(requestSent().body).not.toHaveProperty('organizationTeamId');
+	});
+
+	it('stop with the source of the running log, so a timer started on the web stops too', async () => {
+		answers(200, {});
+
+		await stopTimer(session, {
+			startedAt: '2026-11-18T08:00:00.000Z',
+			source: TimerSource.BROWSER,
+			taskId: 'task'
+		});
+
+		expect(requestSent()).toMatchObject({ path: '/timesheet/timer/stop', body: { source: TimerSource.BROWSER } });
+	});
+
+	it('take a stop that finds nothing running as done: another device stopped it', async () => {
+		answers(406, { message: 'No running log found' });
+
+		await expect(stopTimer(session, undefined)).resolves.toBeUndefined();
+	});
+
+	it('fail a stop the API refuses: the timer goes on there', async () => {
+		answers(403, { message: 'Forbidden' });
+
+		await expect(stopTimer(session, undefined)).rejects.toEqual(new ApiError(403));
 	});
 });

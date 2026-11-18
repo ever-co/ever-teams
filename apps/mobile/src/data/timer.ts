@@ -1,5 +1,5 @@
 import { serverFetch } from '../../app/services/client/fetch';
-import type { TimerSource } from '../../app/services/interfaces/ITimer';
+import { TimerSource } from '../../app/services/interfaces/ITimer';
 import type { Session } from '../state/session';
 
 /** The time log the status names: the one running, or the last one of the day. */
@@ -126,4 +126,67 @@ export async function readEmployeeId(session: Session): Promise<string | null> {
 		tenantId: session.tenantId
 	});
 	return answerOf(answer).employee?.id ?? null;
+}
+
+/** What a start needs besides the session: the task and team of the log it continues. */
+export interface StartTarget {
+	taskId: string;
+	organizationTeamId?: string | null;
+}
+
+function teamOf(target: StartTarget): { organizationTeamId?: string } {
+	if (!target.organizationTeamId) {
+		return {};
+	}
+	return { organizationTeamId: target.organizationTeamId };
+}
+
+/** Starts the timer on a task, as the current app does: a tracked log from the phone. */
+export async function startTimer(session: Session, target: StartTarget): Promise<void> {
+	const { tenantId, organizationId } = workspaceOf(session);
+	const answer = await serverFetch<unknown>({
+		path: '/timesheet/timer/start',
+		method: 'POST',
+		body: {
+			tenantId,
+			organizationId,
+			taskId: target.taskId,
+			logType: 'TRACKED',
+			source: TimerSource.MOBILE,
+			tags: [],
+			...teamOf(target)
+		},
+		bearer_token: session.accessToken,
+		tenantId
+	});
+	answerOf(answer);
+}
+
+// The API answers 406 when nothing runs anymore: the timer was stopped from another device, which is what was asked
+const NOTHING_RUNNING = 406;
+
+/**
+ * Stops the timer. The stop names the source of the running log, as the current app does, so a timer started from
+ * another app stops too.
+ */
+export async function stopTimer(session: Session, running: TimerLog | undefined): Promise<void> {
+	const { tenantId, organizationId } = workspaceOf(session);
+	const answer = await serverFetch<unknown>({
+		path: '/timesheet/timer/stop',
+		method: 'POST',
+		body: {
+			tenantId,
+			organizationId,
+			taskId: running?.taskId ?? undefined,
+			logType: 'TRACKED',
+			source: running?.source ?? TimerSource.MOBILE,
+			tags: []
+		},
+		bearer_token: session.accessToken,
+		tenantId
+	});
+	if (answer.response.status === NOTHING_RUNNING) {
+		return;
+	}
+	answerOf(answer);
 }
