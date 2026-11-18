@@ -1,5 +1,6 @@
 /** @jest-environment jsdom */
 
+// cspell:ignore Fabrikam Northwind
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { embedsAvailabilityOf } from '@/core/hooks/settings/use-embeds';
@@ -10,6 +11,7 @@ const mockUseAvailability = jest.fn();
 const mockUseOrigins = jest.fn();
 const mockUseCredentials = jest.fn();
 const mockAddOrigin = jest.fn();
+const mockUseActiveClients = jest.fn();
 
 jest.mock('next-intl', () => ({
 	useLocale: () => 'en',
@@ -28,6 +30,9 @@ jest.mock('@/core/hooks/settings/use-embeds', () => ({
 	useAddEmbedOrigin: () => ({ mutate: mockAddOrigin, isPending: false, isError: false, error: null }),
 	useRemoveEmbedOrigin: () => ({ mutate: jest.fn(), isPending: false }),
 	useRevokeEmbedCredential: () => ({ mutate: jest.fn(), isPending: false })
+}));
+jest.mock('@/core/hooks/clients/use-clients-query', () => ({
+	useActiveClients: (options: { enabled: boolean }) => mockUseActiveClients(options)
 }));
 jest.mock('./create-embed-credential-dialog', () => ({
 	CreateEmbedCredentialDialog: ({ open, canLimitToClient }: { open: boolean; canLimitToClient: boolean }) => {
@@ -61,6 +66,7 @@ beforeEach(() => {
 	jest.clearAllMocks();
 	mockUseOrigins.mockReturnValue({ ...ready, origins: [] });
 	mockUseCredentials.mockReturnValue({ ...ready, credentials: [] });
+	mockUseActiveClients.mockReturnValue({ ...ready, clients: [] });
 });
 
 describe('embedsAvailabilityOf', () => {
@@ -170,5 +176,53 @@ describe('EmbedsSettingsPage', () => {
 
 		fireEvent.click(screen.getByText('settings.embeds.CREATE'));
 		expect(screen.getByText('client choice offered')).toBeTruthy();
+	});
+
+	it('names the client a credential is limited to, and only says one client for a client it cannot name', () => {
+		mockUseAvailability.mockReturnValue({ availability: 'enabled', canLimitToClient: true, retry: jest.fn() });
+		mockUseCredentials.mockReturnValue({
+			...ready,
+			credentials: [
+				{
+					id: 'c1',
+					name: 'Fabrikam client portal',
+					prefix: 'gze_fabrikam',
+					organizationContactId: 'contact-fabrikam'
+				},
+				{
+					id: 'c2',
+					name: 'Old client portal',
+					prefix: 'gze_archived',
+					organizationContactId: 'contact-archived'
+				},
+				{ id: 'c3', name: 'Northwind customer portal', prefix: 'gze_northwind', organizationContactId: null }
+			]
+		});
+		mockUseActiveClients.mockReturnValue({
+			...ready,
+			clients: [{ id: 'contact-fabrikam', name: 'Fabrikam Outdoor' }]
+		});
+		render(<EmbedsSettingsPage />);
+
+		expect(mockUseActiveClients).toHaveBeenCalledWith({ enabled: true });
+		expect(screen.getByText('settings.embeds.LIMITED_TO_CLIENT Fabrikam Outdoor')).toBeTruthy();
+		expect(screen.getAllByText('settings.embeds.LIMITED_TO_ONE_CLIENT')).toHaveLength(1);
+		expect(document.body.textContent).not.toContain('contact-archived');
+		for (const prefix of ['gze_fabrikam', 'gze_archived', 'gze_northwind']) {
+			expect(screen.getByText(prefix)).toBeTruthy();
+		}
+		expect(screen.getAllByText('settings.embeds.NEVER_USED')).toHaveLength(3);
+	});
+
+	it('reads no clients while no credential is limited to one', () => {
+		mockUseAvailability.mockReturnValue({ availability: 'enabled', canLimitToClient: true, retry: jest.fn() });
+		mockUseCredentials.mockReturnValue({
+			...ready,
+			credentials: [{ id: 'c3', name: 'Northwind customer portal', prefix: 'gze_northwind' }]
+		});
+		render(<EmbedsSettingsPage />);
+
+		expect(mockUseActiveClients).toHaveBeenCalledWith({ enabled: false });
+		expect(screen.queryByText('settings.embeds.LIMITED_TO_ONE_CLIENT')).toBeNull();
 	});
 });

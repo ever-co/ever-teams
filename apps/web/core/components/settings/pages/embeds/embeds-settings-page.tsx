@@ -1,6 +1,6 @@
 'use client';
 
-import { FormEvent, useId, useState } from 'react';
+import { FormEvent, useId, useMemo, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { Input } from '@/core/components/common/input';
 import { Notice } from '@/core/components/common/notice';
@@ -16,6 +16,7 @@ import {
 	SettingsSectionSkeleton,
 	SettingsSurface
 } from '@/core/components/settings/kit/settings-page';
+import { useActiveClients } from '@/core/hooks/clients/use-clients-query';
 import {
 	useAddEmbedOrigin,
 	useEmbedAllowedOrigins,
@@ -230,13 +231,39 @@ function AllowedOriginsSection() {
 	);
 }
 
-function CredentialRow({
-	row,
-	onRevoke
-}: Readonly<{ row: EmbedCredential; onRevoke: (row: EmbedCredential) => void }>) {
+/**
+ * The client a credential is limited to, by its name among the active clients; one they do not hold (archived, or
+ * not read yet) is not named, and its id is never shown.
+ */
+function clientFactOf(
+	clientId: string | null | undefined,
+	clientNames: ReadonlyMap<string, string>,
+	t: Translate
+): string | null {
+	if (!clientId) {
+		return null;
+	}
+	const clientName = clientNames.get(clientId);
+	if (clientName) {
+		return t('settings.embeds.LIMITED_TO_CLIENT', { client: clientName });
+	}
+	return t('settings.embeds.LIMITED_TO_ONE_CLIENT');
+}
+
+type CredentialRowProps = {
+	row: EmbedCredential;
+	clientNames: ReadonlyMap<string, string>;
+	onRevoke: (row: EmbedCredential) => void;
+};
+
+function CredentialRow({ row, clientNames, onRevoke }: Readonly<CredentialRowProps>) {
 	const t = useTranslations();
 	const locale = useLocale();
 	const facts = [row.prefix];
+	const clientFact = clientFactOf(row.organizationContactId, clientNames, t);
+	if (clientFact) {
+		facts.push(clientFact);
+	}
 	if (row.createdAt) {
 		facts.push(t('settings.embeds.CREATED_ON', { date: formatUserApiTokenDate(row.createdAt, locale) }));
 	}
@@ -278,6 +305,10 @@ function CredentialRow({
 function CredentialsSection({ canLimitToClient }: Readonly<{ canLimitToClient: boolean }>) {
 	const t = useTranslations();
 	const { credentials, isLoading, isError, refetch } = useEmbedCredentials(true);
+	// The clients are read only to name the ones credentials are limited to
+	const isAnyLimitedToClient = credentials.some((row) => Boolean(row.organizationContactId));
+	const { clients } = useActiveClients({ enabled: isAnyLimitedToClient });
+	const clientNames = useMemo(() => new Map(clients.map((client) => [client.id, client.name])), [clients]);
 	const revoke = useRevokeEmbedCredential();
 	const [isCreateOpen, setIsCreateOpen] = useState(false);
 	const [revoking, setRevoking] = useState<EmbedCredential | null>(null);
@@ -329,7 +360,7 @@ function CredentialsSection({ canLimitToClient }: Readonly<{ canLimitToClient: b
 			{isReady && credentials.length > 0 && (
 				<SettingsSurface>
 					{credentials.map((row) => (
-						<CredentialRow key={row.id} row={row} onRevoke={setRevoking} />
+						<CredentialRow key={row.id} row={row} clientNames={clientNames} onRevoke={setRevoking} />
 					))}
 				</SettingsSurface>
 			)}
