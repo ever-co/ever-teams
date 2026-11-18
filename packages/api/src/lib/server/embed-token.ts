@@ -1,5 +1,6 @@
 import { isRecord } from '../client/error-mapping';
 import { apiUrlOf, credentialOf, isFilled, isWebAddress, optionsError, postEmbed } from './embed-request';
+import { assertServerOnly } from './server-only';
 import { EverTeamsEmbedToken, ExchangeEmbedTokenOptions } from './types';
 
 const CALLER = 'exchangeEmbedToken';
@@ -91,6 +92,7 @@ function isEmbedToken(value: unknown): value is EverTeamsEmbedToken {
  * `EMBED_ORIGIN_NOT_ALLOWED`, `EverTeamsRateLimitError`, ...), each with its `nextStep`. No error holds the credential.
  */
 export async function exchangeEmbedToken(options: ExchangeEmbedTokenOptions): Promise<EverTeamsEmbedToken> {
+	assertServerOnly();
 	const apiUrl = apiUrlOf(CALLER, options.apiUrl);
 	const credential = credentialOf(CALLER, options.credential);
 	const person = personOf(options);

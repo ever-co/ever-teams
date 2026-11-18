@@ -1,6 +1,7 @@
 import { IClientTimeReport } from '@ever-teams/toolkit-types';
 import { isRecord } from '../client/error-mapping';
 import { apiUrlOf, credentialOf, postEmbed } from './embed-request';
+import { assertServerOnly } from './server-only';
 import { GetClientReportOptions } from './types';
 
 const CALLER = 'getClientReport';
@@ -30,6 +31,7 @@ function isClientReport(value: unknown): value is IClientTimeReport {
  * `EverTeamsRateLimitError`, `EverTeamsServerError`, ...), each with its `nextStep`. No error holds the credential.
  */
 export async function getClientReport(options: GetClientReportOptions): Promise<IClientTimeReport> {
+	assertServerOnly();
 	const apiUrl = apiUrlOf(CALLER, options.apiUrl);
 	const credential = credentialOf(CALLER, options.credential);
 	return postEmbed({
