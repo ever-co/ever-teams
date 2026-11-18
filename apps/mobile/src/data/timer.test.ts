@@ -4,6 +4,7 @@ import {
 	ApiError,
 	dayBounds,
 	readEmployeeId,
+	readLastLogOfAnyDay,
 	readTask,
 	readTimerStatus,
 	readTrackedTotals,
@@ -107,6 +108,24 @@ describe('the employee', () => {
 		answers(200, { id: 'user', employee: null });
 
 		await expect(readEmployeeId(session)).resolves.toBeNull();
+	});
+});
+
+describe('the last log of any day', () => {
+	it('is the employee\x27s, read across days', async () => {
+		const yesterday = { startedAt: '2026-11-17T15:00:00.000Z', taskId: 'task-har-1' };
+		answers(200, [{ duration: 0, running: false, lastLog: yesterday }]);
+
+		await expect(readLastLogOfAnyDay(session, 'employee-kofi')).resolves.toEqual(yesterday);
+		const { path } = requestSent();
+		expect(path.startsWith('/timesheet/timer/status/worked?')).toBe(true);
+		expect(queryOf(path).get('employeeId')).toBe('employee-kofi');
+	});
+
+	it('is none for someone who never tracked time', async () => {
+		answers(200, []);
+
+		await expect(readLastLogOfAnyDay(session, 'employee-kofi')).resolves.toBeNull();
 	});
 });
 

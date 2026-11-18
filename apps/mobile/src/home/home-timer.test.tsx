@@ -2,12 +2,20 @@ import React from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react-native';
 import { onlineManager } from '@tanstack/react-query';
 import { HomeTimer } from './home-timer';
-import { useLogTask, useStartTimer, useStopTimer, useTimerStatus, useTrackedTotals } from './use-home-timer';
+import {
+	useLastLog,
+	useLogTask,
+	useStartTimer,
+	useStopTimer,
+	useTimerStatus,
+	useTrackedTotals
+} from './use-home-timer';
 
 jest.mock('./use-home-timer', () => ({
 	useTimerStatus: jest.fn(),
 	useTrackedTotals: jest.fn(),
 	useLogTask: jest.fn(),
+	useLastLog: jest.fn(),
 	useStartTimer: jest.fn(),
 	useStopTimer: jest.fn()
 }));
@@ -36,6 +44,7 @@ beforeEach(() => {
 	(useLogTask as jest.Mock).mockReturnValue({ data: { taskNumber: 'HAR-3', title: 'Repaint maintenance hatch' } });
 	(useStartTimer as jest.Mock).mockReturnValue(start);
 	(useStopTimer as jest.Mock).mockReturnValue(stop);
+	(useLastLog as jest.Mock).mockImplementation((todaysLog: unknown) => todaysLog);
 });
 
 describe('Home', () => {
@@ -69,6 +78,17 @@ describe('Home', () => {
 		expect(screen.getByText(/shell\.home\.runningSince/)).toBeTruthy();
 		await fireEvent.press(screen.getByRole('button'));
 		expect(stop.mutate).toHaveBeenCalledWith(lastLog);
+	});
+
+	it('starts again on the last task of an earlier day, before the day\x27s first entry', async () => {
+		status({ duration: 0, running: false });
+		(useLastLog as jest.Mock).mockReturnValue(lastLog);
+
+		await render(<HomeTimer />);
+
+		expect(screen.getByText(/shell.home.lastTask/)).toBeTruthy();
+		await fireEvent.press(screen.getByRole('button'));
+		expect(start.mutate).toHaveBeenCalledWith({ taskId: 'task-har-3', organizationTeamId: 'team-field' });
 	});
 
 	it('cannot start without a task to continue, and says so', async () => {

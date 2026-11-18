@@ -4,6 +4,7 @@ import type { Session } from '../state/session';
 
 /** The time log the status names: the one running, or the last one of the day. */
 export interface TimerLog {
+	id?: string;
 	startedAt: string;
 	stoppedAt?: string | null;
 	source?: TimerSource;
@@ -114,6 +115,22 @@ export async function readTrackedTotals(session: Session, employeeId: string, no
 		tenantId
 	});
 	return answerOf(answer);
+}
+
+/**
+ * The employee's last log of any day. Today's status only sees logs started today, so before the day's first entry it
+ * names no task to start again; the web reads this one for that.
+ */
+export async function readLastLogOfAnyDay(session: Session, employeeId: string): Promise<TimerLog | null> {
+	const { tenantId, organizationId } = workspaceOf(session);
+	const query = new URLSearchParams({ tenantId, organizationId, employeeId });
+	const answer = await serverFetch<TimerStatus[]>({
+		path: `/timesheet/timer/status/worked?${query.toString()}`,
+		method: 'GET',
+		bearer_token: session.accessToken,
+		tenantId
+	});
+	return answerOf(answer)[0]?.lastLog ?? null;
 }
 
 /** The id of the employee the signed-in person is in this organization. */

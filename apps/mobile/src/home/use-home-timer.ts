@@ -1,6 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAtomValue } from 'jotai';
-import { readEmployeeId, readTask, readTimerStatus, readTrackedTotals, startTimer, stopTimer } from '../data/timer';
+import {
+	readEmployeeId,
+	readLastLogOfAnyDay,
+	readTask,
+	readTimerStatus,
+	readTrackedTotals,
+	startTimer,
+	stopTimer
+} from '../data/timer';
 import type { StartTarget, TimerLog } from '../data/timer';
 import { accountOf, sessionAtom } from '../state/session';
 import type { Session } from '../state/session';
@@ -41,7 +49,9 @@ export const homeKeys = {
 	employee: (session?: Session) => ['home', 'employee', ...personOf(session)] as const,
 	totals: (session?: Session, employeeId?: string | null) =>
 		['home', 'totals', ...personOf(session), employeeId ?? ''] as const,
-	task: (session?: Session, taskId?: string | null) => ['home', 'task', ...personOf(session), taskId ?? ''] as const
+	task: (session?: Session, taskId?: string | null) => ['home', 'task', ...personOf(session), taskId ?? ''] as const,
+	lastLog: (session?: Session, employeeId?: string | null) =>
+		['home', 'last-log', ...personOf(session), employeeId ?? ''] as const
 };
 
 export function useTimerStatus() {
@@ -54,7 +64,7 @@ export function useTimerStatus() {
 	});
 }
 
-function useEmployeeId() {
+export function useEmployeeId() {
 	const session = useSignedInSession();
 	return useQuery({
 		queryKey: homeKeys.employee(session),
@@ -82,6 +92,25 @@ export function useTrackedTotals() {
 		enabled: session !== undefined && Boolean(employeeId),
 		refetchInterval: STATUS_REFRESH_MS
 	});
+}
+
+/**
+ * The log Home starts again from: today's, or else the last one of an earlier day, read only when today has none.
+ */
+export function useLastLog(todaysLog: TimerLog | undefined, todayRead: boolean) {
+	const session = useSignedInSession();
+	const employeeId = useEmployeeId().data;
+	const canRead = session !== undefined && Boolean(employeeId);
+	const todayHasNone = todayRead && !todaysLog;
+	const earlier = useQuery({
+		queryKey: homeKeys.lastLog(session, employeeId),
+		queryFn: () => readLastLogOfAnyDay(sessionOrFail(session), employeeIdOrFail(employeeId)),
+		enabled: canRead && todayHasNone
+	});
+	if (todaysLog) {
+		return todaysLog;
+	}
+	return earlier.data ?? undefined;
 }
 
 function taskIdOrFail(taskId: string | null | undefined): string {

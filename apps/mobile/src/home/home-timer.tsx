@@ -6,7 +6,14 @@ import type { TimerLog, TimerTask } from '../data/timer';
 import type { Theme } from '../theme';
 import { hoursAndMinutes } from './duration';
 import { TimerDigits } from './timer-digits';
-import { useLogTask, useStartTimer, useStopTimer, useTimerStatus, useTrackedTotals } from './use-home-timer';
+import {
+	useLastLog,
+	useLogTask,
+	useStartTimer,
+	useStopTimer,
+	useTimerStatus,
+	useTrackedTotals
+} from './use-home-timer';
 
 const PRESSED_OPACITY = 0.85;
 const DISABLED_OPACITY = 0.5;
@@ -165,7 +172,7 @@ export function HomeTimer() {
 	const online = useIsOnline();
 	const status = useTimerStatus();
 	const totals = useTrackedTotals();
-	const lastLog = status.data?.lastLog;
+	const lastLog = useLastLog(status.data?.lastLog, status.isSuccess);
 	const task = useLogTask(lastLog?.taskId);
 	const start = useStartTimer();
 	const stop = useStopTimer();
