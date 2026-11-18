@@ -53,11 +53,14 @@ export const useTimer = () => {
 	// when a status states none (an account with no time recorded): after a sign-out that keeps the widget mounted, the
 	// next account's first start would send the previous account's task, project and team. Called before that sync, so
 	// it never undoes a status read for the new account.
-	useForgetOnAccountChange(() => {
+	const account = useForgetOnAccountChange(() => {
 		setCurrentTeamsState(NO_TEAMS_STATE);
 		setTodayTrackedTime(new Date(0));
 		reset();
 	});
+	// Whose stopwatch a start or stop moves once it answers: the account's, whatever token it runs with by then.
+	const currentAccount = useRef(account);
+	currentAccount.current = account;
 
 	const [timerLoading, setTimerLoading] = useState(false);
 
@@ -119,6 +122,7 @@ export const useTimer = () => {
 
 	const startTimerNow = async () => {
 		const forIdentity = identity;
+		const forAccount = account;
 		try {
 			setTimerLoading(true);
 			const timeSlot = await startApiTimer(user, token, currentTeamsState, organizationId);
@@ -127,9 +131,9 @@ export const useTimer = () => {
 				await reportAnswer(timeSlot, forIdentity);
 				return;
 			}
-			// A start that comes back after a switch of user, token or organization is the previous one's: the widgets
-			// of the new one keep their own stopwatch.
-			if (currentIdentity.current !== forIdentity) {
+			// A start that comes back after a switch of user or organization is the previous account's: the widgets of
+			// the new one keep their own stopwatch. A new token for the same account still shows the start.
+			if (currentAccount.current !== forAccount) {
 				return;
 			}
 
@@ -144,6 +148,7 @@ export const useTimer = () => {
 
 	const stopTimerNow = async () => {
 		const forIdentity = identity;
+		const forAccount = account;
 		clearInterval(interval.current);
 		try {
 			setTimerLoading(true);
@@ -156,7 +161,7 @@ export const useTimer = () => {
 
 			timeSlot && (await addTimeSlot(token, timeSlot));
 			// The same for a stop: it never resets the stopwatch of the account signed in since.
-			if (currentIdentity.current !== forIdentity) {
+			if (currentAccount.current !== forAccount) {
 				return;
 			}
 

@@ -171,11 +171,13 @@ export const useManualTimeForm = () => {
 			// Reset form
 			setDescription('');
 		} catch (error) {
-			const errorMessage = getErrorMessage(error);
-			reportError(errorMessage);
-			if (!isForPreviousAccount()) {
-				setErrors([errorMessage]);
+			// reportError shows a toast: the previous account's failure is not shown to the next one either
+			if (isForPreviousAccount()) {
+				return;
 			}
+			const errorMessage = getErrorMessage(error);
+			setErrors([errorMessage]);
+			reportError(errorMessage);
 		} finally {
 			if (!isForPreviousAccount()) {
 				setLoading(false);

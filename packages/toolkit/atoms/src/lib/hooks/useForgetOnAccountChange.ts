@@ -17,9 +17,9 @@ export const NO_TEAMS_STATE: ICurrentTeamsState = {
  * account's requests. A new token for the same user and organization keeps it. It also runs when a widget mounted
  * signed out sees its first account (a session restored after mount), on state that is still empty. Call it before an
  * effect that fills the same state from the new account's answers: effects run in order, so the forgetting never
- * undoes them.
+ * undoes them. Returns the account it watches (user and organization), for work that must stay with one account.
  */
-export function useForgetOnAccountChange(forget: () => void) {
+export function useForgetOnAccountChange(forget: () => void): string {
 	const { authenticatedUser: user, selectedOrganization: organizationId } = useTeamsContext();
 	const account = `${user?.id ?? ''}|${organizationId ?? ''}`;
 	const latestForget = useRef(forget);
@@ -33,4 +33,6 @@ export function useForgetOnAccountChange(forget: () => void) {
 		previousAccount.current = account;
 		latestForget.current();
 	}, [account]);
+
+	return account;
 }

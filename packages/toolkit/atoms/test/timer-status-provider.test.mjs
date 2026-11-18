@@ -65,12 +65,13 @@ const stubs = {
 		export const apiConfigManager = { getConfig: () => ({ apiUrl: 'http://api.test/api' }) };
 		globalThis.__manualTimes = [];
 		export const addManualTime = ({ body }) =>
-			new Promise((resolve) => globalThis.__manualTimes.push(Object.assign(resolve, { body })));
+			new Promise((resolve, reject) => globalThis.__manualTimes.push(Object.assign(resolve, { body, reject })));
 		export const ApiCall = () => new Promise(() => {});`,
 	'@ever-teams/toolkit-ui': `
 		globalThis.__toasts = [];
 		export const toast = (t) => globalThis.__toasts.push(t);
-		export const reportError = () => {};
+		// The kit's reportError shows a toast too.
+		export const reportError = (description) => globalThis.__toasts.push({ variant: 'destructive', description });
 		export const getErrorMessage = (error) => String(error);`,
 	// The atoms useAuthUser and the sign-in form use, without the rest of the kit's atoms.
 	'teams-atoms': `
@@ -961,6 +962,23 @@ test("a manual time sent before a sign-out leaves the next account's form as it 
 	assert.equal(globalThis.__toasts.length, 0);
 });
 
+test("a manual time that fails after a sign-out shows no error in the next account's form", async () => {
+	await reset();
+	const seen = {};
+	await mountManualTimeForm(seen);
+	await pickYesterdayMorning(seen);
+	await act(async () => {
+		seen.form.handleSubmit();
+	});
+
+	await signOutAndInAsAnotherAccount();
+	await act(async () => globalThis.__manualTimes[0].reject(new Error('Failed to fetch')));
+
+	assert.deepEqual(seen.form.errors, []);
+	assert.equal(seen.form.loading, false);
+	assert.equal(globalThis.__toasts.length, 0);
+});
+
 test("a start or a stop that comes back after a switch of account leaves the next account's timer as it is", async () => {
 	// A start sent for the first account, answered once the second one is signed in with no timer running.
 	const seen = await clickStart();
@@ -981,6 +999,16 @@ test("a start or a stop that comes back after a switch of account leaves the nex
 	);
 	assert.equal(seen.a.isRunning, true);
 	await act(async () => stop({ id: 'slot' }));
+
+	assert.equal(seen.a.isRunning, true);
+});
+
+test('a start that comes back after a new token for the same account still shows in the widget', async () => {
+	const seen = await clickStart();
+	await act(async () => globalThis.__setIdentity({ token: 'token-refreshed' }));
+	await act(async () => globalThis.__reads.at(-1)({ running: false, duration: 0, lastLog: null }));
+
+	await act(async () => globalThis.__actions[0]({ id: 'log' }));
 
 	assert.equal(seen.a.isRunning, true);
 });
