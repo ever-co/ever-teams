@@ -14,10 +14,22 @@ const require = createRequire(import.meta.url);
 const esbuild = require('esbuild');
 const { JSDOM } = require('jsdom');
 
-const dom = new JSDOM('<!doctype html><body></body>');
+const dom = new JSDOM('<!doctype html><body></body>', { url: 'http://localhost/' });
 globalThis.window = dom.window;
 globalThis.document = dom.window.document;
+// useAuthUser keeps the session it read in the page's storage.
+globalThis.localStorage = dom.window.localStorage;
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+// The kit's probe of the API after a request that got no answer: up (an opaque answer) unless a test says it is down.
+globalThis.__apiDown = false;
+globalThis.__probes = [];
+globalThis.fetch = async (url, init) => {
+	globalThis.__probes.push({ url, mode: init?.mode });
+	// A test can hold the probe's answer back.
+	await globalThis.__probeHeld;
+	if (globalThis.__apiDown) throw new TypeError('Failed to fetch');
+	return {};
+};
 let visibility = 'visible';
 Object.defineProperty(dom.window.document, 'visibilityState', { get: () => visibility });
 
@@ -42,14 +54,30 @@ const stubs = {
 			new Promise((resolve, reject) => globalThis.__actions.push(Object.assign(resolve, { kind, reject })));
 		export const startTimer = action('start');
 		export const stopTimer = action('stop');
-		export const addTimeSlot = async () => {};`,
-	'@ever-teams/toolkit-ui': 'globalThis.__toasts = []; export const toast = (t) => globalThis.__toasts.push(t);',
+		export const addTimeSlot = async () => {};
+		globalThis.__userReads = [];
+		export const getUser = ({ token }) =>
+			new Promise((resolve) => globalThis.__userReads.push(Object.assign(resolve, { token })));
+		globalThis.__logins = [];
+		export const authLogin = () => new Promise((resolve) => globalThis.__logins.push(resolve));
+		export const apiConfigManager = { getConfig: () => ({ apiUrl: 'http://api.test/api' }) };`,
+	'@ever-teams/toolkit-ui': `
+		globalThis.__toasts = [];
+		export const toast = (t) => globalThis.__toasts.push(t);
+		export const reportError = () => {};`,
+	// The atoms useAuthUser and the sign-in form use, without the rest of the kit's atoms.
+	'teams-atoms': `
+		import { atom } from 'jotai';
+		export const userAtom = atom({ data: null, loading: false });
+		export const selectedEmployeeAtom = atom('all');
+		export const accessTokenAtom = atom('');`,
 	'@ever-teams/toolkit-types': 'export {};',
 	'react-i18next': 'export const useTranslation = () => ({ t: (key) => key });'
 };
 const stubbed = /^(@ever-teams\/api|@ever-teams\/toolkit-ui|@ever-teams\/toolkit-types|react-i18next)$/;
-// The provider imports its context as ./teams-context and useTimer as @lib/context/teams-context: one stub for both.
-const teamsContext = /^(\.\/teams-context|@lib\/context\/teams-context)$/;
+// The provider imports its context as ./teams-context, the sign-in form as ../context/teams-context and useTimer as
+// @lib/context/teams-context: one stub for all.
+const teamsContext = /^(\.\/teams-context|\.\.\/context\/teams-context|@lib\/context\/teams-context)$/;
 const lib = path.join(here, '..', 'src', 'lib');
 
 let React;
@@ -59,6 +87,12 @@ let TimerStatusProvider;
 let useTimerStatusContext;
 let useTimer;
 let useTimerStatus;
+let kitNoticeAtom;
+let getDefaultStore;
+let useAtomValue;
+let useAuthUser;
+let usePasswordLoginForm;
+let userAtom;
 let bundleDir;
 
 before(async () => {
@@ -69,7 +103,13 @@ before(async () => {
 			contents: [
 				"export * from './context/teams-timer-status-context';",
 				"export { useTimer } from './hooks/useTimer';",
-				"export { useTimerStatus } from './hooks/useTimerStatus';"
+				"export { useTimerStatus } from './hooks/useTimerStatus';",
+				// The page's notice lives in jotai's default store here (no TeamsProvider): each test starts it empty.
+				"export { kitNoticeAtom } from './errors/kit-notice-atom';",
+				"export { useAuthUser } from './hooks/useAuthUser';",
+				"export { usePasswordLoginForm } from './hooks/usePasswordLoginForm';",
+				"export { userAtom } from './teams-jotai/atoms/teams-atoms';",
+				"export { getDefaultStore, useAtomValue } from 'jotai';"
 			].join('\n'),
 			resolveDir: lib,
 			loader: 'ts'
@@ -86,12 +126,19 @@ before(async () => {
 				setup(build) {
 					build.onResolve({ filter: stubbed }, (args) => ({ path: args.path, namespace: 'stub' }));
 					build.onResolve({ filter: teamsContext }, () => ({ path: 'teams-context', namespace: 'stub' }));
-					build.onResolve({ filter: /^@lib\// }, (args) => ({
-						path: path.join(lib, `${args.path.slice('@lib/'.length)}.tsx`)
+					build.onResolve({ filter: /teams-jotai\/atoms\/teams-atoms$/ }, () => ({
+						path: 'teams-atoms',
+						namespace: 'stub'
 					}));
+					build.onResolve({ filter: /^@lib\// }, (args) => {
+						const base = path.join(lib, args.path.slice('@lib/'.length));
+						const file = ['.tsx', '.ts'].map((ext) => `${base}${ext}`).find((p) => fs.existsSync(p));
+						return { path: file ?? `${base}.tsx` };
+					});
 					build.onLoad({ filter: /.*/, namespace: 'stub' }, (args) => ({
 						contents: stubs[args.path],
-						loader: 'js'
+						loader: 'js',
+						resolveDir: lib
 					}));
 				}
 			}
@@ -106,9 +153,18 @@ before(async () => {
 	React = require('react');
 	({ act } = React);
 	({ createRoot } = require('react-dom/client'));
-	({ TimerStatusProvider, useTimerStatusContext, useTimer, useTimerStatus } = await import(
-		pathToFileURL(outfile).href
-	));
+	({
+		TimerStatusProvider,
+		useTimerStatusContext,
+		useTimer,
+		useTimerStatus,
+		kitNoticeAtom,
+		getDefaultStore,
+		useAtomValue,
+		useAuthUser,
+		usePasswordLoginForm,
+		userAtom
+	} = await import(pathToFileURL(outfile).href));
 });
 
 after(async () => {
@@ -153,10 +209,19 @@ async function reset() {
 	globalThis.__reads.length = 0;
 	globalThis.__actions.length = 0;
 	globalThis.__toasts.length = 0;
+	globalThis.__apiDown = false;
+	globalThis.__probes.length = 0;
+	getDefaultStore().set(kitNoticeAtom, null);
+	globalThis.__userReads.length = 0;
+	globalThis.__logins.length = 0;
+	globalThis.__probeHeld = undefined;
+	getDefaultStore().set(userAtom, { data: null, loading: false });
 	visibility = 'visible';
 	await act(async () => globalThis.__setIdentity(null));
 }
 
+// Lets the async work of a failed read (the probe of the API) settle.
+const flush = () => act(() => new Promise((resolve) => setTimeout(resolve, 0)));
 const answer = (index, status) =>
 	act(async () => globalThis.__reads[index]({ running: false, duration: 0, lastLog: null, ...status }));
 const widget = (key, onStatus) => React.createElement(Widget, { key, onStatus });
@@ -211,14 +276,18 @@ test('coming back online or to the window reads the status at once', async () =>
 	assert.equal(globalThis.__reads.length, 3);
 });
 
-test('an outage shows one notice, not one per read', async () => {
+test('an outage shows one notice inside the widgets, the same one for every read, and no toast', async () => {
 	await reset();
-	await mount([widget('a'), widget('b')]);
+	const seen = {};
+	await mount([widget('a'), probe(seen)]);
 	await act(async () => globalThis.__reads[0]({ statusCode: 503, message: 'Service Unavailable' }));
+	const first = seen.shared.notice;
 	await act(async () => window.dispatchEvent(new window.Event('online')));
 	await act(async () => globalThis.__reads[1]({ statusCode: 503, message: 'Service Unavailable' }));
 
-	assert.equal(globalThis.__toasts.length, 1);
+	assert.equal(first?.kind, 'unreachable');
+	assert.equal(seen.shared.notice, first);
+	assert.equal(globalThis.__toasts.length, 0);
 });
 
 test('a start seen by the provider is announced once to screen readers', async () => {
@@ -305,6 +374,7 @@ test('a failed read for a previous organization shows no notice', async () => {
 
 	await act(async () => globalThis.__setIdentity({ selectedOrganization: 'org-2' }));
 	await act(async () => forOldOrganization.reject(new Error('network down')));
+	await flush();
 
 	assert.equal(globalThis.__toasts.length, 0);
 });
@@ -518,4 +588,205 @@ test('outside a provider, useTimerStatus reads again with a new token at once, a
 	} finally {
 		mock.timers.reset();
 	}
+});
+
+test('a read refused with 401 says the session ended, a 403 that the permission is missing, and a good read clears it', async () => {
+	await reset();
+	const seen = {};
+	await mount([probe(seen)]);
+	await act(async () => globalThis.__reads[0]({ statusCode: 401, message: 'Unauthorized' }));
+	assert.equal(seen.shared.notice?.kind, 'session');
+
+	await act(async () => window.dispatchEvent(new window.Event('online')));
+	await act(async () => globalThis.__reads[1]({ statusCode: 403, message: 'Forbidden', code: 'EMBED_SCOPE' }));
+	assert.equal(seen.shared.notice?.kind, 'permission');
+
+	await act(async () => window.dispatchEvent(new window.Event('online')));
+	await answer(2, {});
+	assert.equal(seen.shared.notice, null);
+});
+
+test('a read with no answer says the site is not allowed when the API is up, and unreachable when it is down', async () => {
+	await reset();
+	const seen = {};
+	await mount([probe(seen)]);
+	await act(async () => globalThis.__reads[0].reject(new TypeError('Failed to fetch')));
+	await flush();
+	assert.equal(seen.shared.notice?.kind, 'origin');
+	assert.deepEqual(globalThis.__probes[0], { url: 'http://api.test/api', mode: 'no-cors' });
+
+	globalThis.__apiDown = true;
+	await act(async () => window.dispatchEvent(new window.Event('online')));
+	await act(async () => globalThis.__reads[1].reject(new TypeError('Failed to fetch')));
+	await flush();
+	assert.equal(seen.shared.notice?.kind, 'unreachable');
+});
+
+test('going offline says at once that Ever Teams is unreachable, and the screen reader hears it', async () => {
+	await reset();
+	const seen = {};
+	const { container } = await mount([probe(seen)]);
+	await answer(0, {});
+
+	await act(async () => window.dispatchEvent(new window.Event('offline')));
+
+	assert.equal(seen.shared.notice?.kind, 'unreachable');
+	assert.match(container.querySelector('[aria-live]').textContent, /KIT_ERRORS.UNREACHABLE/);
+});
+
+test('a refusal with its own message keeps that message', async () => {
+	await reset();
+	const seen = {};
+	await mount([probe(seen)]);
+	await act(async () => globalThis.__reads[0]({ statusCode: 400, message: ['organizationId must be a UUID'] }));
+
+	assert.deepEqual(seen.shared.notice, { kind: 'other', message: 'organizationId must be a UUID' });
+});
+
+test('a read the API package returns with no status (its shape for a request with no answer) is probed, not shown as its raw text', async () => {
+	await reset();
+	const seen = {};
+	await mount([probe(seen)]);
+	await act(async () => globalThis.__reads[0]({ error: 'Failed to fetch' }));
+	await flush();
+	assert.equal(seen.shared.notice?.kind, 'origin');
+
+	globalThis.__apiDown = true;
+	await act(async () => window.dispatchEvent(new window.Event('online')));
+	await act(async () => globalThis.__reads[1]({ error: 'Failed to fetch' }));
+	await flush();
+	assert.equal(seen.shared.notice?.kind, 'unreachable');
+	assert.equal(globalThis.__toasts.length, 0);
+});
+
+// One timer widget and what the provider gives it, the first read answered and a start clicked (still pending).
+async function clickStart() {
+	await reset();
+	const seen = {};
+	await mount([timer('a', seen), probe(seen)]);
+	await answer(0, { running: false });
+	await act(async () => {
+		seen.a.startTimer();
+	});
+	return seen;
+}
+
+test('a start the API package returns with no status shows the probed notice inside the widgets, and no toast', async () => {
+	const seen = await clickStart();
+	await act(async () => globalThis.__actions[0]({ error: 'Failed to fetch' }));
+	await flush();
+
+	assert.equal(seen.shared.notice?.kind, 'origin');
+	assert.equal(globalThis.__toasts.length, 0);
+});
+
+test('a start refused after a switch of organization shows nothing in the widgets of the new one', async () => {
+	const seen = await clickStart();
+	await act(async () => globalThis.__setIdentity({ selectedOrganization: 'org-2' }));
+	const forNewOrganization = globalThis.__reads.at(-1);
+	await act(async () => forNewOrganization({ running: false, duration: 0, lastLog: null }));
+	await act(async () => globalThis.__actions[0]({ statusCode: 403, message: 'Forbidden' }));
+	await flush();
+
+	assert.equal(seen.shared.notice, null);
+});
+
+test('a notice that goes away leaves the live region, so the same failure later is announced again', async () => {
+	await reset();
+	const seen = {};
+	const { container } = await mount([probe(seen)]);
+	const live = container.querySelector('[aria-live="polite"]');
+	await act(async () => globalThis.__reads[0]({ statusCode: 503, message: 'Service Unavailable' }));
+	assert.equal(live.textContent, 'KIT_ERRORS.UNREACHABLE');
+
+	await act(async () => window.dispatchEvent(new window.Event('online')));
+	await answer(1, {});
+	assert.equal(seen.shared.notice, null);
+	assert.equal(live.textContent, '');
+
+	await act(async () => window.dispatchEvent(new window.Event('online')));
+	await act(async () => globalThis.__reads[2]({ statusCode: 503, message: 'Service Unavailable' }));
+	assert.equal(live.textContent, 'KIT_ERRORS.UNREACHABLE');
+});
+
+// useAuthUser as TeamsProvider runs it, with the page's notice next to it (jotai's default store here).
+async function mountAuthUser(token, seen) {
+	const AuthUser = () => {
+		seen.user = useAuthUser(token);
+		seen.notice = useAtomValue(kitNoticeAtom);
+		return null;
+	};
+	const root = createRoot(document.createElement('div'));
+	roots.push(root);
+	await act(async () => root.render(React.createElement(AuthUser)));
+}
+
+test('a user read that finds Ever Teams unreachable reads again once back online, and the good read ends the notice', async () => {
+	await reset();
+	globalThis.__apiDown = true;
+	const seen = {};
+	await mountAuthUser('token-1', seen);
+	assert.equal(globalThis.__userReads.length, 1);
+
+	await act(async () => globalThis.__userReads[0]({ message: 'Failed to fetch' }));
+	await flush();
+	assert.equal(seen.notice?.kind, 'unreachable');
+
+	globalThis.__apiDown = false;
+	await act(async () => window.dispatchEvent(new window.Event('online')));
+	assert.equal(globalThis.__userReads.length, 2, 'read again when the browser is back online');
+	await act(async () => globalThis.__userReads[1]({ id: 'u', tenantId: 't', employee: { id: 'e' } }));
+	await flush();
+	assert.equal(seen.user.data?.id, 'u');
+	assert.equal(seen.notice, null);
+
+	await act(async () => window.dispatchEvent(new window.Event('online')));
+	assert.equal(globalThis.__userReads.length, 2, 'no more reads once the user is read');
+});
+
+test('a stored session the API refuses says the session ended, and is not read again on its own', async () => {
+	await reset();
+	const seen = {};
+	await mountAuthUser('token-2', seen);
+
+	await act(async () => globalThis.__userReads[0]({ statusCode: 401, message: 'Unauthorized' }));
+	await flush();
+	assert.equal(seen.notice?.kind, 'session');
+
+	await act(async () => window.dispatchEvent(new window.Event('online')));
+	assert.equal(globalThis.__userReads.length, 1);
+});
+
+test('a failed sign-in shows its message in the form, unless the person edited a field while it was checked', async () => {
+	await reset();
+	const seen = {};
+	const SignIn = () => {
+		seen.form = usePasswordLoginForm({});
+		return null;
+	};
+	const root = createRoot(document.createElement('div'));
+	roots.push(root);
+	await act(async () => root.render(React.createElement(SignIn)));
+	const submit = () => seen.form.handleSubmit({ preventDefault() {} });
+	const edit = (value) => seen.form.handleInputChange({ target: { name: 'email', value } });
+
+	await act(async () => {
+		submit();
+	});
+	await act(async () => globalThis.__logins[0]({ message: 'Failed to fetch' }));
+	await flush();
+	assert.equal(seen.form.error, 'KIT_ERRORS.ORIGIN');
+
+	await act(async () => edit('a@b.c'));
+	let release;
+	globalThis.__probeHeld = new Promise((resolve) => (release = resolve));
+	await act(async () => {
+		submit();
+	});
+	await act(async () => globalThis.__logins[1]({ message: 'Failed to fetch' }));
+	await act(async () => edit('a@b.co'));
+	release();
+	await flush();
+	assert.equal(seen.form.error, undefined);
+	assert.equal(seen.form.loading, false);
 });

@@ -42,7 +42,11 @@ const TeamsPasswordLoginForm = ({
 				type="password"
 			/>
 
-			{form.error && <span className="text-red-500 text-xs">{form.error}</span>}
+			{form.error && (
+				<span role="alert" className="text-red-500 text-xs">
+					{form.error}
+				</span>
+			)}
 
 			<ThemedButton disabled={(form.error ? true : false) || form.loading} className="flex gap-2">
 				{form.loading && (

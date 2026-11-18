@@ -6,7 +6,7 @@
 		"email": "Email",
 		"token": "Token",
 		"now": "Maintenant",
-		"today": "Aujourdhui",
+		"today": "Aujourd'hui",
 		"loading": "Chargement",
 		"client": "Client",
 		"project": "Projet",
@@ -61,6 +61,13 @@
 		"today_activity": "Activité d'aujourd'hui",
 		"week_activity": "Activité de la semaine",
 		"activity_over_period": "Activité sur la periode"
+	},
+	"KIT_ERRORS": {
+		"ORIGIN": "Ce site n'est pas autorisé à afficher Ever Teams. Demandez à l'administrateur de votre espace de l'ajouter.",
+		"SESSION": "Votre session a pris fin. Reconnectez-vous.",
+		"SIGN_IN_AGAIN": "Se reconnecter",
+		"PERMISSION": "Vous n'avez pas l'autorisation de suivre votre temps dans cet espace. Demandez à votre administrateur.",
+		"UNREACHABLE": "Ever Teams est injoignable. Vérifiez votre connexion et réessayez."
 	},
 	"TIME_TRACKER": {
 		"title": "Muniteur",
