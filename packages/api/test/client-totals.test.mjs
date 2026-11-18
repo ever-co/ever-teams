@@ -31,7 +31,8 @@ test("today's total is the member's tracked seconds and activity today", async (
 	assert.equal(query.organizationId, 'org-1');
 	assert.equal(query.timeZone, Intl.DateTimeFormat().resolvedOptions().timeZone);
 	assert.equal(todayStart.getTime(), new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime());
-	assert.equal(todayEnd.getTime() - todayStart.getTime(), 24 * 3600 * 1000 - 1);
+	// The last instant before the next local midnight: a day with a daylight-saving change lasts 23 or 25 hours.
+	assert.equal(todayEnd.getTime(), new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1).getTime() - 1);
 	assert.equal(headers.get('tenant-id'), 'tenant-1');
 });
 
