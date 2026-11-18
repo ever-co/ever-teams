@@ -187,9 +187,9 @@ unhandled rejection.
 
 It reads `timer.status()` at once, then every `every` milliseconds, one read at a time. In a page it reads only while
 the page is visible, and once more when the page becomes visible again or the network comes back (after the read
-pending then, if there is one); in Node it reads at every turn. A change made elsewhere is told at the next successful
-read: within `every` (a minute by default) while the page is visible, once it is visible again otherwise. A start and
-a stop that both fall between two reads leave the timer as the last read saw it, so neither is told. A server that
+pending then, if there is one); in Node it reads at every turn. That is when it reads, not a deadline for the
+listener: a change made elsewhere is told when a read that succeeds shows it, and a read can fail or come late. A start
+and a stop that both fall between two reads leave the timer as the last read saw it, so neither is told. A server that
 needs each change at once receives the API's webhooks instead (see
 [Receive the API's webhooks](#receive-the-apis-webhooks)).
 

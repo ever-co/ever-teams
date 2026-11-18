@@ -52,9 +52,9 @@ can listen on the element or on `document`:
 `event.detail` holds `running`, `startedAt` (an ISO date, `null` while stopped), `projectId`, `taskId` and `initial`
 (`true` for the first read, which tells the timer as it is). The event comes from the reads the element already makes:
 on load, every minute while the page is visible, when the page becomes visible again, on focus and when the network
-comes back; it adds no request. A change made elsewhere is told at the next successful read: within a minute while the
-page is visible, once it is visible again otherwise. A start and a stop that both fall between two reads leave the
-timer as the last read saw it, so neither is told. In a Vue template, `@ever-teams-timer-change` on the element
+comes back; it adds no request. Those times are when the element reads, not a deadline for the event: a change made
+elsewhere is told when a read that succeeds shows it, and a read can fail or come late. A start and a stop that both
+fall between two reads leave the timer as the last read saw it, so neither is told. In a Vue template, `@ever-teams-timer-change` on the element
 listens to it. `TIMER_CHANGE_EVENT`, exported by the package, holds the name, and the package's declaration types
 `event.detail` (`EverTeamsTimerChange`) on the element, `document` and `window`.
 
