@@ -170,13 +170,13 @@ export async function recordContract(options) {
 		} catch (error) {
 			throw new Error(failureOf(name, error), { cause: error });
 		}
-		keep(name, exchanges[exchanges.length - 1]);
+		keep(name, exchanges.at(-1));
 		return result;
 	}
 
 	async function deleteTimeLogs(ids) {
 		// The client's own headers: its current token, tenant and organization.
-		const headers = new Headers(exchanges[exchanges.length - 1].init.headers);
+		const headers = new Headers(exchanges.at(-1).init.headers);
 		const query = new URLSearchParams({
 			forceDelete: 'true',
 			tenantId: headers.get('tenant-id'),
@@ -333,8 +333,10 @@ async function main() {
 
 const isRunDirectly = process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href;
 if (isRunDirectly) {
-	main().catch((error) => {
+	try {
+		await main();
+	} catch (error) {
 		console.error(error.message);
 		process.exitCode = 1;
-	});
+	}
 }

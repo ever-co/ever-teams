@@ -4,7 +4,8 @@
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const JWT = /^eyJ[\w-]{8,}\.[\w-]{8,}\.[\w-]+$/;
-const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+// A domain label excludes the dot that ends it, so a text that is no address fails in one pass.
+const EMAIL = /^[^\s@]+@[^\s@.]+(\.[^\s@.]+)+$/;
 const URL_TEXT = /^https?:\/\//i;
 const DATE_TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,3})?Z$/;
 const DAY = /^\d{4}-\d{2}-\d{2}$/;
@@ -45,7 +46,7 @@ function isRecord(value) {
 // `createdByUserId` names a user, `organizationTeam` a team: the last word of a key names the kind of record.
 function lastWordOf(key) {
 	const words = key.split(/(?=[A-Z])/);
-	return words[words.length - 1].toLowerCase();
+	return words.at(-1).toLowerCase();
 }
 
 function kindOfId(key, parentKey, rootKind) {
@@ -148,12 +149,14 @@ export function redactRecordings(recordings) {
 			return dates.get(value);
 		}
 		if (URL_TEXT.test(value)) {
-			return replaced(value, `https://example.com/${key}-${numberOf(`url ${key}`, value)}`);
+			const number = numberOf(`url ${key}`, value);
+			return replaced(value, `https://example.com/${key}-${number}`);
 		}
 		if (KEPT_KEYS.has(key)) {
 			return value;
 		}
-		return replaced(value, `<${key}-${numberOf(`text ${key}`, value)}>`);
+		const number = numberOf(`text ${key}`, value);
+		return replaced(value, `<${key}-${number}>`);
 	}
 
 	function redact(value, key, parentKey, rootKind) {
