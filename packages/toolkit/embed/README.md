@@ -65,6 +65,50 @@ in place of the import above.
 In a site editor, a custom HTML block takes the script tag and the element as they are, once your site serves the
 files of `dist/`.
 
+## TypeScript
+
+The package comes with its types (`dist/ever-teams-embed.d.ts`): an app with `strict` imports `@ever-teams/embed`
+without a declaration of its own, `document.createElement('ever-teams-timer')` returns an `EverTeamsTimerElement`, and
+`EverTeamsTimerAttributes` types the attributes. How a template checks them depends on the framework.
+
+Angular needs nothing more. Its template checker does not check the values given to an attribute, on any element, so
+no declaration can type them there; a template reference such as `#timer` gets the element's type.
+
+Vue's template checker (`vue-tsc`) takes `<ever-teams-timer>` for a component: with `strictTemplates` it refuses a
+component it does not know, and without, it accepts any value. This declaration, in a `.d.ts` file of the app, types
+the attributes under the camelCase names Vue gives them (`colorScheme` for `color-scheme`):
+
+```ts
+import type { HTMLAttributes } from 'vue';
+import type { EverTeamsTimerElement, EverTeamsTimerProps } from '@ever-teams/embed';
+
+declare module 'vue' {
+	interface GlobalComponents {
+		'ever-teams-timer': new () => EverTeamsTimerElement & { $props: HTMLAttributes & EverTeamsTimerProps };
+	}
+}
+```
+
+Svelte's checker (`svelte-check`) accepts any value on an element it does not know. This declaration, in
+`src/app.d.ts` for example, types the attributes, with Svelte 4 and 5:
+
+```ts
+import type { HTMLAttributes } from 'svelte/elements';
+import type { EverTeamsTimerAttributes, EverTeamsTimerElement } from '@ever-teams/embed';
+
+declare module 'svelte/elements' {
+	interface SvelteHTMLElements {
+		'ever-teams-timer': HTMLAttributes<EverTeamsTimerElement> & EverTeamsTimerAttributes;
+	}
+}
+```
+
+These two declarations stay in the app: they extend Vue's and Svelte's own types, which an app without Vue or Svelte
+does not have.
+
+No framework needs a wrapper component: the element takes three attributes, which every framework binds, and
+dispatches no events, so there is nothing to bind both ways and nothing to listen to.
+
 ## What it changes in your page
 
 The timer draws in the element's own shadow root: your page's CSS does not reach it, and its styles do not reach your
