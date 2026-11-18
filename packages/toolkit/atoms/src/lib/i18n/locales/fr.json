@@ -534,6 +534,24 @@
 			"RESUMED": "Repris"
 		}
 	},
+	"THEME_PICKER": {
+		"placeholder": "Choisir un thème",
+		"default": "Par défaut",
+		"purple_gradient": "Dégradé violet",
+		"theme1": "Noir et blanc",
+		"theme2": "Rouge et vert",
+		"theme3": "Jaune et rouge",
+		"theme5": "Bleu et vert (noir)",
+		"theme6": "Rose et blanc",
+		"theme7": "Bleu sarcelle et orange",
+		"theme8": "Rouge et bleu",
+		"theme9": "Vert et jaune",
+		"theme10": "Rose et bleu",
+		"theme11": "Orange et rouge",
+		"theme12": "Chocolat et blanc",
+		"theme13": "Bleu et rose",
+		"theme14": "Jaune et rose"
+	},
 	"FONT_PICKER": {
 		"default_font": "Police par défaut",
 		"page_font": "Police de la page"
