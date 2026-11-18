@@ -1,11 +1,14 @@
 import createCache, { type EmotionCache } from '@emotion/cache';
 import { CacheProvider } from '@emotion/react';
 import { createRoot, type Root } from 'react-dom/client';
-import { TeamsBasicTimer, TeamsLoginDialog, TeamsProvider } from '@ever-teams/atoms';
+import { TeamsBasicTimer, TeamsLoginDialog, TeamsProvider, type TimerChange } from '@ever-teams/atoms';
 import kitStylesheet from '@ever-teams/atoms/styles.css?inline';
 import { registerKitProperties, splitKitStyles } from './kit-styles';
 
 export const TIMER_ELEMENT_NAME = 'ever-teams-timer';
+
+// The event the element dispatches at each change of the person's timer, with the TimerChange as its detail.
+export const TIMER_CHANGE_EVENT = 'ever-teams-timer-change';
 
 // :host stops what the page's rules pass down by inheritance (letter spacing, line height, colors...), except the
 // font, which the widgets take from the page as the React kit does.
@@ -42,7 +45,8 @@ function configOf(apiUrl: string | null, hadApiUrl: boolean) {
 /**
  * <ever-teams-timer api-url="https://api.ever.team/api">: the kit's sign-in and basic timer, rendered by React in the
  * element's own shadow root with the kit's stylesheet. Attributes: api-url, color-scheme (light, dark, system) and
- * lang. Removing the element stops its timer display and its requests.
+ * lang. Removing the element stops its timer display and its requests. It dispatches ever-teams-timer-change (bubbles,
+ * composed) at the first read of the timer and at each start, stop or other running entry a later read shows.
  */
 export class EverTeamsTimerElement extends HTMLElement {
 	static readonly observedAttributes = ['api-url', 'color-scheme', 'lang'];
@@ -50,6 +54,16 @@ export class EverTeamsTimerElement extends HTMLElement {
 	private root: Root | null = null;
 	private cache: EmotionCache | null = null;
 	private hadApiUrl = false;
+
+	// One function for every render: the provider keeps it.
+	private readonly dispatchTimerChange = (change: TimerChange) => {
+		const event = new CustomEvent<TimerChange>(TIMER_CHANGE_EVENT, {
+			detail: change,
+			bubbles: true,
+			composed: true
+		});
+		this.dispatchEvent(event);
+	};
 
 	connectedCallback() {
 		// Moved in the page (removed and inserted again in one task): the kit goes on as it was, with its shadow root.
@@ -104,6 +118,7 @@ export class EverTeamsTimerElement extends HTMLElement {
 					scopedStyles
 					colorScheme={colorSchemeOf(this.getAttribute('color-scheme'))}
 					lang={lang}
+					onTimerChange={this.dispatchTimerChange}
 				>
 					<TeamsLoginDialog />
 					<TeamsBasicTimer />

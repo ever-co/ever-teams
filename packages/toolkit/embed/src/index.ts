@@ -6,3 +6,4 @@ if (!customElements.get(TIMER_ELEMENT_NAME)) {
 }
 
 export { EverTeamsTimerElement, TIMER_ELEMENT_NAME };
+export { TIMER_CHANGE_EVENT } from './timer-element';

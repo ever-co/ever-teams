@@ -34,6 +34,7 @@ const stubs = {
 			return { data: { items: [{ organizationId: 'org-listed', isDefault: true }], total: 1 } };
 		};
 		export const getTimerStatus = async () => ({});
+		export const timerChangeOf = () => null;
 		export const apiConfigManager = { getConfig: () => ({ apiUrl: 'http://api.test/api' }) };`,
 	'@ever-teams/toolkit-ui': `
 		export const getWeekStartAndEnd = () => ({ start: new Date(0), end: new Date(0) });

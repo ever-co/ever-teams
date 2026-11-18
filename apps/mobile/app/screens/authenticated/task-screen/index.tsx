@@ -30,7 +30,7 @@ export const AuthenticatedTaskScreen: FC<AuthenticatedDrawerScreenProps<'TaskScr
 	return (
 		<Screen contentContainerStyle={[$container, { backgroundColor: colors.background2 }]} safeAreaEdges={['top']}>
 			<StatusBar barStyle={dark ? 'light-content' : 'dark-content'} />
-			<View style={{ flex: 1 }}>
+			<View testID="task-screen" style={{ flex: 1 }}>
 				<View style={[$headerContainer, { backgroundColor: colors.background }]}>
 					<View style={[styles.container, { backgroundColor: colors.background }]}>
 						<TouchableOpacity onPress={() => navigateTo(navigation, 'AuthenticatedTab')}>

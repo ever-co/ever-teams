@@ -60,7 +60,7 @@ export function getTaskByIdRequest({
 		"teams",
 		"members",
 		"members.user",
-		"creator",
+		"createdByUser",
 		"linkedIssues",
 		"linkedIssues.taskTo",
 		"linkedIssues.taskFrom",
