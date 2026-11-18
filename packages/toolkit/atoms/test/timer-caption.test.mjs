@@ -48,7 +48,10 @@ before(async () => {
 			contents: [
 				`export { default as BasicTimer } from '${timers}/teams-basic-timer/timer';`,
 				`export { useTimerControl } from '${timers}/common/use-timer-control';`,
-				`export { TeamsBasicTimer } from '${timers}/teams-basic-timer/index';`
+				`export { TeamsBasicTimer } from '${timers}/teams-basic-timer/index';`,
+				`export { TeamsCustomTimer } from '${timers}/teams-custom-timer/index';`,
+				`export { TeamsEssentialTimer } from '${timers}/teams-essential-timer/index';`,
+				`export { TeamsExtraTimer } from '${timers}/teams-extra-timer/index';`
 			].join('\n'),
 			resolveDir: bundleDir,
 			loader: 'ts'
@@ -148,4 +151,21 @@ test('a caption the host sets to undefined is the default one, shown and describ
 
 	assert.match(unset, /COMMON\.today<\/span>/);
 	assert.match(unset, /COMMON\.today 01:02:03/);
+});
+
+test('the custom, essential and extra timers show and describe the caption as the basic one does', () => {
+	for (const name of ['TeamsCustomTimer', 'TeamsEssentialTimer', 'TeamsExtraTimer']) {
+		const render = (props) => renderToStaticMarkup(React.createElement(kit[name], props));
+		const byDefault = render({});
+		const own = render({ caption: "Aujourd'hui" });
+		const none = render({ caption: null });
+
+		assert.match(byDefault, /COMMON\.today<\/span>/, name);
+		assert.match(byDefault, /COMMON\.today 01:02:03/, name);
+		assert.match(own, /Aujourd&#x27;hui<\/span>/, name);
+		assert.match(own, /Aujourd&#x27;hui 01:02:03/, name);
+		assert.doesNotMatch(own, /COMMON\.today/, name);
+		assert.doesNotMatch(none, /COMMON\.today/, name);
+		assert.match(none, />01:02:03</, name);
+	}
 });
