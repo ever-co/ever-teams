@@ -4,6 +4,7 @@ import { View, StyleSheet, TouchableOpacity, Text, TouchableWithoutFeedback } fr
 import React, { RefObject } from "react"
 import Accordion from "../../accordion"
 import QuillEditor, { QuillToolbar } from "react-native-cn-quill"
+import { editorWebViewProps } from "./editor-web-view"
 import { useStores } from "../../../models"
 import { useAppTheme } from "../../../theme"
 import { translate } from "../../../i18n"
@@ -107,7 +108,7 @@ const DescriptionBlock = () => {
 					style={styles.editor}
 					onHtmlChange={(event) => handleHtmlChange(event.html)}
 					onTextChange={() => setActionButtonsVisible(true)}
-					webview={{ allowsLinkPreview: true }}
+					webview={editorWebViewProps}
 					ref={_editor}
 					initialHtml={task?.description ? task?.description : ""}
 					quill={{
