@@ -144,11 +144,21 @@ test('the attributes become the provider settings, and a change of attribute app
 	assert.equal(providerOf(element).dataset.scheme, 'system', 'an unknown scheme follows the system');
 });
 
-test('without api-url the provider gets the client default address, also once a set api-url is removed', async () => {
+test('without api-url the kit keeps its own default API address', async () => {
 	const element = await place();
-	assert.deepEqual(JSON.parse(providerOf(element).dataset.config), { apiUrl: 'https://api.ever.team/api' });
 
-	await act(async () => element.setAttribute('api-url', 'https://api.example.com/api'));
+	assert.deepEqual(JSON.parse(providerOf(element).dataset.config), {});
+});
+
+test('an element that never had api-url leaves the API address alone when another attribute changes', async () => {
+	const element = await place();
+	await act(async () => element.setAttribute('color-scheme', 'dark'));
+
+	assert.deepEqual(JSON.parse(providerOf(element).dataset.config), {});
+});
+
+test('a removed api-url gives the provider the client default address', async () => {
+	const element = await place({ 'api-url': 'https://api.example.com/api' });
 	await act(async () => element.removeAttribute('api-url'));
 
 	assert.deepEqual(JSON.parse(providerOf(element).dataset.config), { apiUrl: 'https://api.ever.team/api' });
