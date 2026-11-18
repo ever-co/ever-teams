@@ -62,6 +62,15 @@
 		"week_activity": "Weeky activity",
 		"activity_over_period": "Activity over the period"
 	},
+	"CLIENT_REPORT": {
+		"title": "Time spent",
+		"today": "Today",
+		"this_week": "This week",
+		"by_project": "By project",
+		"empty": "No time spent for {{client}} this week.",
+		"error": "The time spent couldn't be loaded.",
+		"retry": "Try again"
+	},
 	"KIT_ERRORS": {
 		"ORIGIN": "This site isn't allowed to show Ever Teams. Ask your workspace admin to add it.",
 		"SESSION": "Your session ended. Sign in again.",
@@ -80,6 +89,7 @@
 	},
 	"AUTH": {
 		"sign_in_title": "Sign In",
+		"host_sign_in": "Sign in to this site to use your Ever Teams timer.",
 		"sign_up_title": "Register",
 		"account_menu": "{{name}}: account menu",
 		"account_menu_unnamed": "Account menu",
@@ -536,5 +546,27 @@
 			"IDLE": "Idle",
 			"RESUMED": "Resumed"
 		}
+	},
+	"THEME_PICKER": {
+		"placeholder": "Select theme",
+		"default": "Default",
+		"purple_gradient": "Purple gradient",
+		"theme1": "Black and white",
+		"theme2": "Red and Green",
+		"theme3": "Yellow and Red",
+		"theme5": "Blue and green (Black)",
+		"theme6": "Pink and White",
+		"theme7": "Teal and orange",
+		"theme8": "Red and Blue",
+		"theme9": "Green and yellow",
+		"theme10": "Pink and blue",
+		"theme11": "Orange and red",
+		"theme12": "Chocolate and white",
+		"theme13": "Blue and Pink",
+		"theme14": "Yellow and pink"
+	},
+	"FONT_PICKER": {
+		"default_font": "Default font",
+		"page_font": "Page font"
 	}
 }

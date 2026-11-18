@@ -98,12 +98,16 @@ export default function App() {
 | Prop of `TeamsProvider` | Default                     | What it does                                                                                                                                                                                                                                                 |
 | ----------------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `config.apiUrl`         | `https://api.ever.team/api` | The Ever Teams API every request goes to, with the token in the `Authorization` header. Always set it. With your own server, give its address ending with `/api`.                                                                                            |
+| `config.getToken`       | none                        | Signs people in from your backend: see [Sign in from your backend](#sign-in-from-your-backend). Without it, the sign-in dialog asks for an Ever Teams password or token inside your page.                                                                    |
 | `lang`                  | `'en'`                      | Language of the components: `'en'` or `'fr'`. A language chosen earlier in the language switch, kept in `localStorage`, wins.                                                                                                                                |
-| `theme`                 | `defaultTheme`              | A theme object: `defaultTheme` and `theme1` to `theme14` are exported.                                                                                                                                                                                       |
+| `theme`                 | `defaultTheme`              | A theme object: `defaultTheme` (flat), `gradientTheme` and `theme1` to `theme14` are exported.                                                                                                                                                               |
 | `scopedStyles`          | `false`                     | Renders the kit root that `@ever-teams/atoms/styles.css` is scoped under, and a container for the kit's dialogs and menus in `document.body` or its shadow root. Set it with the stylesheet; leave it off when your own Tailwind compiles the kit's classes. |
 | `colorScheme`           | `'system'`                  | The widgets' color scheme inside the kit root (`scopedStyles`): `'light'`, `'dark'` or `'system'` (follows the system's). Nothing is written on `<html>`.                                                                                                    |
-| `loadGoogleFonts`       | `false`                     | Lets the font toggle (`TeamsFontToggle`) load the font a person picks from Google Fonts. Off: no request to a third party, and the widgets keep your page's font until a person picks one.                                                                   |
+| `loadGoogleFonts`       | `false`                     | Lets the font toggle (`TeamsFontToggle`) load the font a person picks from Google Fonts. Off: no request to a third party, and the widgets keep the default font until a person picks one.                                                                   |
 | `onSignOut`             | none                        | Called after a person signs out from the kit's user menu. Without it, the page stays where it is with `scopedStyles`; without `scopedStyles`, the kit sends the browser to `/`.                                                                              |
+| `branding`              | `true`                      | Shows "Powered by Ever Teams" under the forms, reports and team widgets. `false` hides it everywhere.                                                                                                                                                        |
+
+The widgets draw in the Ever Teams web app's font, the system UI face (nothing is downloaded), inside the kit root only: your page keeps its own. To give the widgets your page's font, set `--ever-teams-kit-font` on any parent of the widgets, or on `:root` so that their dialogs follow: `:root { --ever-teams-kit-font: Georgia, serif; }`.
 
 `config.apiUrl` is one setting for the whole page: every `TeamsProvider` of a page writes it to the same
 `apiConfigManager`, and every request uses the address set last. Give all the providers of a page the same `apiUrl`.
@@ -111,9 +115,179 @@ export default function App() {
 The API must accept your site's origin: on a self-hosted Gauzy API, add it to `ALLOWED_ORIGINS` (comma-separated)
 and restart the API.
 
+## Sign in from your backend
+
+On a site that is not the Ever Teams workspace itself, do not let the kit ask for an Ever Teams password: your
+backend already knows who is signed in. It exchanges an embed credential of the workspace for a short-lived token for
+that person, and `config.getToken` hands it to the kit.
+
+What you need: an Ever Teams API with embed credentials turned on (`GAUZY_EMBED_TOKENS_ENABLED=true`,
+[ever-co/ever-gauzy#12069](https://github.com/ever-co/ever-gauzy/pull/12069)) and an embed credential created by an
+admin of the organization (`POST /api/embed-credentials`). Keep the credential on your server, never in the page.
+An API that also checks allowed origins ([ever-co/ever-gauzy#12066](https://github.com/ever-co/ever-gauzy/issues/12066))
+needs your site in the organization's list (`POST /api/embed-allowed-origins`): the backend sends the page's origin
+with each exchange, and the token then works only from that site.
+
+On your server, a route that answers the token for the person signed in to your product (Next.js route handler).
+Its settings stay on the server, never in a `NEXT_PUBLIC_` variable: `EVER_TEAMS_API_URL` is the API's full address
+ending with `/api` (`https://your-api.example.com/api`), and `EVER_TEAMS_EMBED_CREDENTIAL` is the embed credential.
+
+```ts
+// app/api/ever-teams-token/route.ts
+import { NextResponse } from 'next/server';
+import { currentUser } from '@/lib/session'; // your own sign-in
+
+export async function POST() {
+	const user = await currentUser();
+	if (!user) {
+		return NextResponse.json({ error: 'Not signed in' }, { status: 401 });
+	}
+	const answer = await fetch(`${process.env.EVER_TEAMS_API_URL}/embed/token`, {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify({
+			credential: process.env.EVER_TEAMS_EMBED_CREDENTIAL,
+			email: user.email,
+			// The site the widget runs on, as the organization allows it (https://app.example.com).
+			origin: process.env.APP_ORIGIN
+		}),
+		cache: 'no-store'
+	});
+	if (!answer.ok) {
+		return NextResponse.json({ error: 'No Ever Teams token' }, { status: answer.status });
+	}
+	const { token, expiresAt } = await answer.json();
+	return NextResponse.json({ token, expiresAt }, { headers: { 'Cache-Control': 'no-store' } });
+}
+```
+
+In the page:
+
+```tsx
+'use client';
+import { TeamsProvider, TeamsBasicTimer } from '@ever-teams/atoms';
+
+async function getToken() {
+	const answer = await fetch('/api/ever-teams-token', { method: 'POST' });
+	if (!answer.ok) {
+		throw new Error('Not signed in');
+	}
+	return answer.json(); // { token, expiresAt }
+}
+
+// userId: the person signed in to your product (null when nobody is).
+export function Timer({ userId }: { userId: string | null }) {
+	if (!userId) {
+		return null;
+	}
+	// The key gives each person their own provider: a sign-in or a sign-out without a page load starts afresh.
+	return (
+		<TeamsProvider key={userId} scopedStyles config={{ apiUrl: 'https://your-api.example.com/api', getToken }}>
+			<TeamsBasicTimer />
+		</TeamsProvider>
+	);
+}
+```
+
+What the kit does with it:
+
+- It calls `getToken` once at start, again about a minute before the token expires, and once more if the API
+  refuses the token (until a request succeeds again). Calls never overlap: the widgets of a provider share one.
+- The token stays in memory: nothing is written to `localStorage`, and the user menu shows no token and no sign-out.
+- The kit reads the organization from the token and lists no other: the token reaches only the timer of that person.
+- When `getToken` throws or rejects, or answers a token with no `expiresAt` or one less than 10 seconds away, the
+  widgets show the person as signed out, and `TeamsLoginDialog` says "Sign in to this site to use your Ever Teams
+  timer." instead of asking for a password. The kit asks again when the page comes back (focus, or the tab visible
+  again), never sooner than 5 seconds after the failure.
+- A token for another person or organization than the previous one starts a new session: the user is read again.
+- When a person signs in to or out of your product without a page load, mount a new `TeamsProvider` (the `key` in the
+  example) or unmount it. Unmounting is what clears the token and the profile the kit holds in memory: the token's
+  expiry only limits how long the API accepts it.
+
+## A client's spent time
+
+`TeamsClientTimeReport` shows one of your clients the time your team spent on its projects: today, this week, and
+this week by project. It fits a client portal, where the client has no Ever Teams account: your server asks the Ever
+Teams API for the report with an embed credential, and the widget only draws what your server returns. No token
+reaches the client's browser, and the widget sends no request to Ever Teams: `getReport` is its only call.
+
+What you need: an Ever Teams API with the client report route (`POST /api/embed/client-report`, coming with
+[ever-co/ever-gauzy#12076](https://github.com/ever-co/ever-gauzy/issues/12076)), and an embed credential limited to
+that client. The credential is what limits the report to that client: keep it on your server, never in the page, and
+give each client's portal its own.
+
+On your server, a route that answers the report to the people allowed to see the portal (Next.js route handler).
+`EVER_TEAMS_API_URL` is the API's full address ending with `/api`, and `EVER_TEAMS_CLIENT_CREDENTIAL` the client's
+embed credential, both server-side only (never a `NEXT_PUBLIC_` variable):
+
+```ts
+// app/api/client-report/route.ts
+import { NextResponse } from 'next/server';
+import { currentUser } from '@/lib/session'; // your own sign-in
+
+export async function GET() {
+	const user = await currentUser();
+	if (!user) {
+		return NextResponse.json({ error: 'Not signed in' }, { status: 401 });
+	}
+	const answer = await fetch(`${process.env.EVER_TEAMS_API_URL}/embed/client-report`, {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify({ credential: process.env.EVER_TEAMS_CLIENT_CREDENTIAL }),
+		cache: 'no-store'
+	});
+	if (!answer.ok) {
+		return NextResponse.json({ error: 'No time report' }, { status: answer.status });
+	}
+	const report = await answer.json();
+	return NextResponse.json(report, { headers: { 'Cache-Control': 'no-store' } });
+}
+```
+
+In the page:
+
+```tsx
+'use client';
+import '@ever-teams/atoms/styles.css';
+import { TeamsProvider, TeamsClientTimeReport, type GetClientTimeReport } from '@ever-teams/atoms';
+
+const getReport: GetClientTimeReport = async () => {
+	const answer = await fetch('/api/client-report');
+	if (!answer.ok) {
+		throw new Error('No time report');
+	}
+	return answer.json(); // IClientTimeReport, from @ever-teams/toolkit-types
+};
+
+export function ClientTimeReport() {
+	return (
+		<TeamsProvider scopedStyles>
+			<TeamsClientTimeReport getReport={getReport} />
+		</TeamsProvider>
+	);
+}
+```
+
+The widget calls `getReport` once when it appears (twice in development under React's Strict Mode, which mounts
+components twice), and again when the day ends in the report's time zone, so a portal left open overnight never shows
+yesterday as today. While it waits, the report tiles show loaders; when it throws, rejects or returns something that
+is not an `IClientTimeReport` (an API without the client report route answers an error), the widget says the time
+couldn't be loaded and offers "Try again", which calls it again. A week with no time says so, with the client's name.
+Today and this week are counted in the time zone the report names (`timeZone`).
+
+A new `getReport` at each render of your page does not call it again. To show another client in the same place, give
+the widget a `key` per client (`<TeamsClientTimeReport key={clientId} getReport={...} />`): it then starts afresh, and
+an answer still on its way for the previous client is dropped.
+
+The widget keeps the report in memory and writes nothing to the browser's storage. The `TeamsProvider` around it
+handles the session as it does for every kit component: on a site where people also sign in with the kit, it reads
+their saved session, and clears it once expired (see
+[Security](#security-where-tokens-live-today-and-what-is-planned)). The saved session belongs to the site's origin, not
+to a page: on an origin where nobody has signed in with the kit, there is no session to read.
+
 ## Security: where tokens live today, and what is planned
 
-Today:
+Without `config.getToken`:
 
 - The sign-in dialog (`TeamsLoginDialog`) takes the user's email and password inside your page and sends them to
   `{apiUrl}/auth/login`. A "Token" tab also accepts a pasted access token.
@@ -129,9 +303,13 @@ Today:
   set ([ever-co/ever-teams#5406](https://github.com/ever-co/ever-teams/issues/5406)): on 0.2.x, upgrade, and always
   set `apiUrl`.
 
-Planned ([ever-co/ever-teams#5405](https://github.com/ever-co/ever-teams/issues/5405)): your backend hands the
-widget a short-lived token, limited to the timer and to one person, kept in memory only; the workspace lists the
-sites allowed to embed it and can revoke them.
+With `config.getToken` (above), the sign-in dialog, the stored token and the token in the user menu are gone: the
+token comes from your backend, is limited to the timer and to one person, lives a few minutes and stays in memory; a
+revoked embed credential ends its tokens. Requests still go to `config.apiUrl` with that token in their
+`Authorization` header.
+
+Planned ([ever-co/ever-teams#5405](https://github.com/ever-co/ever-teams/issues/5405)): the workspace lists the sites
+allowed to embed it.
 
 ## Troubleshooting
 

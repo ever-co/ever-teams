@@ -3,13 +3,28 @@ import { useEffect, useState } from 'react';
 const TAB_BUTTONS_WAIT_MS = 3000;
 
 let tabButtonsDeadline: number | undefined;
+let tabButtonsWaited = false;
 
-// The wait starts with the first tabs of this app start, and a navigator that mounts again only waits what is left
+// The wait starts with the first tabs of this app start, and a navigator that mounts again only waits what is left.
+// Once over it stays over, and it never grows past its length when the phone's clock moves back.
 function waitLeftMs(): number {
-	if (tabButtonsDeadline === undefined) {
-		tabButtonsDeadline = Date.now() + TAB_BUTTONS_WAIT_MS;
+	if (tabButtonsWaited) {
+		return 0;
 	}
-	return Math.max(0, tabButtonsDeadline - Date.now());
+	const now = Date.now();
+	if (tabButtonsDeadline === undefined) {
+		tabButtonsDeadline = now + TAB_BUTTONS_WAIT_MS;
+	}
+	const left = Math.min(TAB_BUTTONS_WAIT_MS, Math.max(0, tabButtonsDeadline - now));
+	if (left === 0) {
+		tabButtonsWaited = true;
+	}
+	return left;
+}
+
+function endWait(setLoading: (loading: boolean) => void): void {
+	tabButtonsWaited = true;
+	setLoading(false);
 }
 
 /**
@@ -22,7 +37,7 @@ export function useTabButtonsLoading(): boolean {
 		if (!loading) {
 			return undefined;
 		}
-		const timer = setTimeout(() => setLoading(false), waitLeftMs());
+		const timer = setTimeout(() => endWait(setLoading), waitLeftMs());
 		return () => clearTimeout(timer);
 	}, [loading]);
 	return loading;

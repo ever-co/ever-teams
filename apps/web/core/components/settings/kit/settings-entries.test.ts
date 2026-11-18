@@ -15,8 +15,9 @@ describe('the workspace entry of Settings (#5087)', () => {
 		const forMembers = entriesOfGroup('workspace', false).map((entry) => entry.href);
 		const forManagers = entriesOfGroup('workspace', true).map((entry) => entry.href);
 
-		expect(forMembers).toEqual(['/settings/workspace']);
-		expect(forManagers).toEqual(['/settings/workspace']);
+		// Embeds is listed too, and hidden by useHiddenSettingsEntries unless the person administers the organization.
+		expect(forMembers).toEqual(['/settings/workspace', '/settings/workspace/embeds']);
+		expect(forManagers).toEqual(['/settings/workspace', '/settings/workspace/embeds']);
 	});
 
 	it('is the current entry of its page, which shows the settings rail', () => {

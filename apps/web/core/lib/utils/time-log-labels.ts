@@ -19,6 +19,31 @@ export function supportedEntryLabelsOf(picked: ReadonlyArray<string>, isSupporte
 /** The value of the "No label" choice of the entry Labels filter, and the key of its group. */
 export const NO_LABEL_VALUE = 'no-label';
 
+/** The entry Labels filter as Gauzy takes it (the daily report, a saved report): label ids, and "No label" apart. */
+interface EntryLabelFilters {
+	tagIds?: string[];
+	untagged?: boolean;
+}
+
+/** The entry Labels filter as Gauzy takes it: nothing for a filter that picks nothing. */
+export function entryLabelFiltersOf(picked: ReadonlyArray<string>): EntryLabelFilters {
+	if (picked.length === 0) {
+		return {};
+	}
+	const tagIds = picked.filter((value) => value !== NO_LABEL_VALUE);
+	const untagged = picked.includes(NO_LABEL_VALUE);
+	return { tagIds, untagged };
+}
+
+/** The entry Labels filter of what Gauzy keeps (`entryLabelFiltersOf` read back): each label once, "No label" last. */
+export function entryLabelsOfFilters(filters: EntryLabelFilters | null | undefined): string[] {
+	const picked = new Set((filters?.tagIds ?? []).filter((id) => Boolean(id) && id !== NO_LABEL_VALUE));
+	if (filters?.untagged === true) {
+		picked.add(NO_LABEL_VALUE);
+	}
+	return [...picked];
+}
+
 /** A label as an entry carries it: what its chip shows. */
 export interface EntryLabel {
 	id: string;

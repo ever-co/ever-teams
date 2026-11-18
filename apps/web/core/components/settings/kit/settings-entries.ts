@@ -5,6 +5,7 @@ import {
 	Clock,
 	FileImport,
 	FlagPriority,
+	Globe,
 	Integration,
 	Key,
 	Layers,
@@ -32,6 +33,7 @@ export type SettingsEntryId =
 	| 'apiTokens'
 	| 'security'
 	| 'workspaceGeneral'
+	| 'embeds'
 	| 'teamGeneral'
 	| 'members'
 	| 'integrations'
@@ -69,6 +71,8 @@ export const SETTINGS_ENTRIES: ReadonlyArray<SettingsEntry> = [
 	// Offered only while the server has personal API tokens on: `useHiddenSettingsEntries` hides it otherwise.
 	{ id: 'apiTokens', group: 'account', href: '/settings/personal/api-tokens', icon: Key },
 	{ id: 'workspaceGeneral', group: 'workspace', href: '/settings/workspace', icon: Building },
+	// Offered only to the organization's admins while the server has embeds on: `useHiddenSettingsEntries` hides it otherwise.
+	{ id: 'embeds', group: 'workspace', href: '/settings/workspace/embeds', icon: Globe },
 	{ id: 'teamGeneral', group: 'team', href: '/settings/team', icon: Settings },
 	{ id: 'members', group: 'team', href: '/settings/team/members', icon: Users, managerOnly: true },
 	{ id: 'integrations', group: 'team', href: '/settings/team/integrations', icon: Integration, managerOnly: true },

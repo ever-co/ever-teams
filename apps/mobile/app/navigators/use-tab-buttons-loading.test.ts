@@ -33,16 +33,35 @@ describe('the tab buttons', () => {
 			jest.advanceTimersByTime(1000);
 		});
 		await first.unmount();
+		// The wait goes on while the navigator is away
+		jest.advanceTimersByTime(1500);
 
 		const early = await renderHook(() => useTabButtonsLoading());
 		expect(early.result.current).toBe(true);
 		await act(async () => {
-			jest.advanceTimersByTime(2000);
+			jest.advanceTimersByTime(499);
+		});
+		expect(early.result.current).toBe(true);
+		await act(async () => {
+			jest.advanceTimersByTime(1);
 		});
 		expect(early.result.current).toBe(false);
 		await early.unmount();
 
 		const late = await renderHook(() => useTabButtonsLoading());
 		expect(late.result.current).toBe(false);
+	});
+
+	it('stay shown when the phone clock moves back after the wait', async () => {
+		const useTabButtonsLoading = startTheApp();
+		const first = await renderHook(() => useTabButtonsLoading());
+		await act(async () => {
+			jest.advanceTimersByTime(3000);
+		});
+		await first.unmount();
+
+		jest.setSystemTime(Date.now() - 60_000);
+		const again = await renderHook(() => useTabButtonsLoading());
+		expect(again.result.current).toBe(false);
 	});
 });

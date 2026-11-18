@@ -20,7 +20,8 @@ export async function startIn(tag: string, storage: LanguageStorage, reload: () 
 	const locale = localeFor(tag);
 	if (!layOutFor(locale)) {
 		setAppLocale(tag);
-		await storage.removeItem(RESTARTED_FOR_KEY).catch(ignoreFailure);
+		// Best effort, and the first screen never waits for it
+		void storage.removeItem(RESTARTED_FOR_KEY).catch(ignoreFailure);
 		return;
 	}
 	const restarting = await restartOnceFor(locale, storage, reload);
@@ -55,6 +56,9 @@ async function restartOnceFor(
 	}
 }
 
+// The profile's language when it shows for this session only, its save having failed
+let shownUnsaved: AppLocale | undefined;
+
 /**
  * Applies the language of the person's profile. It is saved first, so a restart for its direction starts in it; not
  * saved, it shows for this session only, and its direction waits for the next start.
@@ -67,14 +71,17 @@ export async function applyProfileLanguage(code: string, save: (code: string) =>
 		saved = false;
 	}
 	// Every screen that reads the settings applies the profile's language: the first one changes it, and offers the
-	// restart once
-	if (currentLocale() === localeFor(code)) {
+	// restart once. A language shown unsaved is applied again, so the first save that works sets its direction.
+	const locale = localeFor(code);
+	if (currentLocale() === locale && shownUnsaved !== locale) {
 		return;
 	}
-	const locale = setAppLocale(code);
+	setAppLocale(code);
 	if (!saved) {
+		shownUnsaved = locale;
 		return;
 	}
+	shownUnsaved = undefined;
 	if (layOutFor(locale)) {
 		announceLayoutRestart();
 	}

@@ -1,7 +1,9 @@
+import { useTranslation } from 'react-i18next';
 import { Select } from '@ever-teams/toolkit-ui';
 import { useTeamsContext } from '@lib/context/teams-context';
 import {
 	defaultTheme,
+	gradientTheme,
 	theme1,
 	theme10,
 	theme11,
@@ -17,7 +19,28 @@ import {
 	theme9
 } from '@lib/themes/themes';
 
+// The themes of the picker, in its order, each with the key of its name in the kit's translations
+const PICKER_THEMES: Array<[string, typeof defaultTheme]> = [
+	['default', defaultTheme],
+	['purple_gradient', gradientTheme],
+	['theme1', theme1],
+	['theme2', theme2],
+	['theme3', theme3],
+	// ['theme4', theme4],
+	['theme5', theme5],
+	['theme6', theme6],
+	['theme7', theme7],
+	['theme8', theme8],
+	['theme9', theme9],
+	['theme10', theme10],
+	['theme11', theme11],
+	['theme12', theme12],
+	['theme13', theme13],
+	['theme14', theme14]
+];
+
 const TeamsThemeToggle = ({ size, className }: { size?: 'default' | 'sm' | 'lg' | null; className?: string }) => {
+	const { t } = useTranslation();
 	const { appliedTheme, setAppliedTheme } = useTeamsContext();
 	return (
 		<div className={' flex  gap-2 min-w-60 ' + className}>
@@ -25,24 +48,11 @@ const TeamsThemeToggle = ({ size, className }: { size?: 'default' | 'sm' | 'lg' 
 			<Select
 				size={size}
 				className={className}
-				placeholder="Select theme"
-				values={[
-					{ label: 'Default', value: JSON.stringify(defaultTheme) },
-					{ label: 'Black and white', value: JSON.stringify(theme1) },
-					{ label: 'Red and Green', value: JSON.stringify(theme2) },
-					{ label: 'Yellow and Red', value: JSON.stringify(theme3) },
-					// { label: 'Default', value: theme4 },
-					{ label: 'Blue and green (Black)', value: JSON.stringify(theme5) },
-					{ label: 'Pink and White', value: JSON.stringify(theme6) },
-					{ label: 'Green and Yellow', value: JSON.stringify(theme7) },
-					{ label: 'Red and Blue', value: JSON.stringify(theme8) },
-					{ label: 'Green and yellow', value: JSON.stringify(theme9) },
-					{ label: 'Pink and blue', value: JSON.stringify(theme10) },
-					{ label: 'Orange and red', value: JSON.stringify(theme11) },
-					{ label: 'Chocolate and white', value: JSON.stringify(theme12) },
-					{ label: 'Blue and Pink', value: JSON.stringify(theme13) },
-					{ label: 'Yellow and pink', value: JSON.stringify(theme14) }
-				]}
+				placeholder={t('THEME_PICKER.placeholder')}
+				values={PICKER_THEMES.map(([key, theme]) => ({
+					label: t(`THEME_PICKER.${key}`),
+					value: JSON.stringify(theme)
+				}))}
 				onValueChange={(e) => {
 					setAppliedTheme(JSON.parse(e));
 				}}
