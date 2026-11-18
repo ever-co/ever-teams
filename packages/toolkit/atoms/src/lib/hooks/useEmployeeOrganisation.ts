@@ -12,7 +12,7 @@ export const useEmployeeOrganization = (): IHookResponse<IOrganizationContact[]>
 	});
 
 	const { authenticatedUser: user, token, selectedOrganization: organizationId } = useTeamsContext();
-	const { hostSignIn } = useKitOptions();
+	const { hostSignIn, api } = useKitOptions();
 
 	useEffect(() => {
 		// A token from the host's getToken does not reach the clients: no read, so no refusal to show
@@ -23,7 +23,7 @@ export const useEmployeeOrganization = (): IHookResponse<IOrganizationContact[]>
 		if (user && organizationId) {
 			(async () => {
 				setClients((prev) => ({ ...prev, loading: true }));
-				const userClients = await getOrganizationClients(user, token, organizationId);
+				const userClients = await getOrganizationClients(user, token, organizationId, api);
 
 				if ('message' in userClients || 'error' in userClients) {
 					const errorMessage =
@@ -47,7 +47,7 @@ export const useEmployeeOrganization = (): IHookResponse<IOrganizationContact[]>
 		} else {
 			setClients({ data: [], loading: false });
 		}
-	}, [user, token, organizationId, hostSignIn]);
+	}, [user, token, organizationId, hostSignIn, api]);
 
 	return clients;
 };

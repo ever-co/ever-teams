@@ -97,6 +97,11 @@ before(async () => {
 			export { UserNavMenu } from '${kitSources}/components/forms/auth-forms.tsx';
 			export { useTimer } from '${kitSources}/hooks/useTimer.ts';
 			export { useManualTimeForm } from '${kitSources}/hooks/useManualTimeForm.ts';
+			export { useMyTasks } from '${kitSources}/hooks/useMyTasks.ts';
+			export { useOrganizationProjects } from '${kitSources}/hooks/useOrganisationProjects.ts';
+			export { useEmployeeOrganization } from '${kitSources}/hooks/useEmployeeOrganisation.ts';
+			export { useOrganizationTeams } from '${kitSources}/hooks/useOrganizationTeams.ts';
+			export { useEmbedProjects } from '${kitSources}/hooks/useEmbedProjects.ts';
 			export { apiConfigManager } from '@ever-teams/api';`,
 		standIns,
 		standInOf
@@ -145,6 +150,18 @@ function Timer({ name }) {
 }
 
 const timerOf = (name) => [React.createElement(Timer, { key: 'timer', name })];
+
+// The timer's pickers: tasks, projects, clients and teams, and the projects of a token from the host's getToken.
+function Pickers() {
+	kit.useMyTasks({ projectId: null });
+	kit.useOrganizationProjects({ clientId: null });
+	kit.useEmployeeOrganization();
+	kit.useOrganizationTeams({ projectId: null });
+	kit.useEmbedProjects();
+	return null;
+}
+
+const pickers = () => [React.createElement(Pickers, { key: 'pickers' })];
 
 // A provider with the sign-in forms and the given widgets; a sign-out keeps the page where it is.
 function provider(name, config, widgets = []) {
@@ -269,6 +286,40 @@ test('the timer of the second of two providers reads and writes its own API, aft
 	assert.equal(requestsTo('/timesheet/time-slot').length, 1);
 	assert.equal(requestsTo('/timesheet/time-log').length, 1);
 	assert.deepEqual(new Set(requests.map(({ host }) => host)), new Set([hostOf(SERVER_B)]));
+});
+
+test("the timer's pickers of the second of two providers read its own API, after the first changed address", async () => {
+	const configB = { apiUrl: SERVER_B };
+	const { root } = await openPage([
+		['a', { apiUrl: SERVER_A }, pickers()],
+		['b', configB, pickers()]
+	]);
+	await renderPage(root, [
+		['a', { apiUrl: 'https://a2.example.com/api' }, pickers()],
+		['b', configB, pickers()]
+	]);
+
+	await signInOn('b');
+
+	const read = (start) => requests.filter(({ path }) => path.startsWith(start)).length;
+	assert.equal(read('/tasks/employee/'), 1);
+	assert.equal(read('/organization-projects/employee/'), 1);
+	assert.equal(read('/organization-contact/employee/'), 1);
+	assert.equal(read('/organization-team/me'), 1);
+	assert.deepEqual(new Set(requests.map(({ host }) => host)), new Set([hostOf(SERVER_B)]));
+});
+
+test("with the host's getToken, the projects and teams of each of two providers come from its own API", async () => {
+	const getToken = async () => ({ token: 'host-token', expiresAt: Date.now() + 60 * 60 * 1000 });
+	await openPage([
+		['a', { apiUrl: SERVER_A, getToken }, pickers()],
+		['b', { apiUrl: SERVER_B, getToken }, pickers()]
+	]);
+	await settle();
+
+	const hostsOf = (path) => requestsTo(path).map(({ host }) => host);
+	assert.deepEqual(hostsOf('/embed/projects').sort(), [hostOf(SERVER_A), hostOf(SERVER_B)]);
+	assert.deepEqual(hostsOf('/organization-team/me').sort(), [hostOf(SERVER_A), hostOf(SERVER_B)]);
 });
 
 test('a provider alone sends to its own API and still sets the address of the page, as before', async () => {

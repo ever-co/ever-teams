@@ -12,7 +12,7 @@ const useMyTasks = ({ projectId }: { projectId: string | null }): IHookResponse<
 	});
 
 	const { authenticatedUser: user, token, selectedOrganization: organizationId } = useTeamsContext();
-	const { hostSignIn } = useKitOptions();
+	const { hostSignIn, api } = useKitOptions();
 
 	useEffect(() => {
 		// A token from the host's getToken does not reach the tasks: no read, so no refusal to show
@@ -23,7 +23,7 @@ const useMyTasks = ({ projectId }: { projectId: string | null }): IHookResponse<
 		if (user && organizationId) {
 			(async () => {
 				setTasks((prev) => ({ ...prev, loading: true }));
-				const userTasks = await getMyTasks(user, token, projectId, organizationId);
+				const userTasks = await getMyTasks(user, token, projectId, organizationId, api);
 
 				if ('message' in userTasks || 'error' in userTasks) {
 					const errorMessage =
@@ -44,7 +44,7 @@ const useMyTasks = ({ projectId }: { projectId: string | null }): IHookResponse<
 				setTasks({ data: userTasks, loading: false });
 			})();
 		}
-	}, [user, projectId, organizationId, hostSignIn]);
+	}, [user, projectId, organizationId, hostSignIn, api]);
 
 	return tasks;
 };
