@@ -161,6 +161,11 @@ export async function POST() {
 }
 ```
 
+`exchangeEmbedToken` of `@ever-teams/api/server` (the kit installs `@ever-teams/api`) makes this request in one call
+and throws typed errors with a next step: see
+[Sign people in from your server](https://github.com/ever-co/ever-teams/tree/develop/packages/api#sign-people-in-from-your-server),
+with Express, plain `fetch` and plain HTTP for other languages.
+
 In the page:
 
 ```tsx
