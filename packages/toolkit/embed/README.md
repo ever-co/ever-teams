@@ -56,7 +56,8 @@ to it. `TIMER_CHANGE_EVENT`, exported by the package, holds the name.
 
 ## Examples
 
-`examples/` holds two pages that run as they are once the files of `dist/` sit next to them, and a Svelte component:
+`examples/` holds two pages that run as they are once the files of `dist/` sit next to them, a Svelte component and an
+Angular app:
 
 - `html/`: a plain page.
 - `vue/`: a Vue app on Vue's browser build, which goes next to the page too (`dist/vue.esm-browser.prod.js` of the `vue`
@@ -66,11 +67,15 @@ to it. `TIMER_CHANGE_EVENT`, exported by the package, holds the name.
 - `svelte/`: a component for a Svelte app, which compiles it with its own build, like its other components, and
   resolves `@ever-teams/embed` to the package or to the `dist/` file it serves. The component loads the package in
   `onMount` and binds `color-scheme`. Svelte needs no setting.
+- `angular/`: an Angular app with its own `package.json`, built by Angular's application builder. Its standalone root
+  component holds the element, binds `api-url` and `color-scheme`, and loads the package in the browser only. Its
+  README says how to run it.
 
 `@ever-teams/embed` is not published on npm yet (see [Release](#release)): until it is, an app resolves that name
-to the `dist/` file it serves, as the Svelte example says.
+to the `dist/` file it serves, as the Svelte example says, or installs it from this folder, as the Angular example does
+with `"@ever-teams/embed": "file:../.."`.
 
-Angular needs the custom elements schema on the component that holds the element:
+Angular needs the custom elements schema on the component that holds the element, as `examples/angular/` does:
 
 ```ts
 import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
@@ -85,13 +90,61 @@ import '@ever-teams/embed';
 export class TimerComponent {}
 ```
 
+The element reads attributes: a value that comes from the component's state goes through `[attr.color-scheme]="..."`,
+as the example binds it. `[color-scheme]="..."` or `color-scheme="{{ ... }}"` sets a property of that name, which the
+element ignores.
+
 An app that renders on the server loads the package in the browser only: the element extends `HTMLElement`, which a
 server does not have. In Svelte that is `onMount`, as the example does; in Angular, add `afterNextRender` to the
 `@angular/core` import and call `afterNextRender(() => import('@ever-teams/embed'))` in the component's constructor,
-in place of the import above.
+in place of the import above, as the Angular example does.
 
 In a site editor, a custom HTML block takes the script tag and the element as they are, once your site serves the
 files of `dist/`.
+
+## TypeScript
+
+The package comes with its types (`dist/ever-teams-embed.d.ts`): an app with `strict` imports `@ever-teams/embed`
+without a declaration of its own, `document.createElement('ever-teams-timer')` returns an `EverTeamsTimerElement`, and
+`EverTeamsTimerAttributes` types the attributes. How a template checks them depends on the framework.
+
+Angular needs nothing more. Its template checker does not check the values given to an attribute, on any element, so
+no declaration can type them there; a template reference such as `#timer` gets the element's type.
+
+Vue's template checker (`vue-tsc`) takes `<ever-teams-timer>` for a component: with `strictTemplates` it refuses a
+component it does not know, and without, it accepts any value. This declaration, in a `.d.ts` file of the app, types
+the attributes under the camelCase names Vue gives them (`colorScheme` for `color-scheme`):
+
+```ts
+import type { HTMLAttributes } from 'vue';
+import type { EverTeamsTimerElement, EverTeamsTimerProps } from '@ever-teams/embed';
+
+declare module 'vue' {
+	interface GlobalComponents {
+		'ever-teams-timer': new () => EverTeamsTimerElement & { $props: HTMLAttributes & EverTeamsTimerProps };
+	}
+}
+```
+
+Svelte's checker (`svelte-check`) accepts any value on an element it does not know. This declaration, in
+`src/app.d.ts` for example, types the attributes, with Svelte 4 and 5:
+
+```ts
+import type { HTMLAttributes } from 'svelte/elements';
+import type { EverTeamsTimerAttributes, EverTeamsTimerElement } from '@ever-teams/embed';
+
+declare module 'svelte/elements' {
+	interface SvelteHTMLElements {
+		'ever-teams-timer': HTMLAttributes<EverTeamsTimerElement> & EverTeamsTimerAttributes;
+	}
+}
+```
+
+These two declarations stay in the app: they extend Vue's and Svelte's own types, which an app without Vue or Svelte
+does not have.
+
+No framework needs a wrapper component: the element takes three attributes, which every framework binds, and
+dispatches no events, so there is nothing to bind both ways and nothing to listen to.
 
 ## What it changes in your page
 
@@ -132,7 +185,7 @@ every public package that has a changeset (`changeset publish`), so to release i
     '@ever-teams/embed': minor
     ---
 
-    New package: `<ever-teams-timer api-url="...">`, the Ever Teams timer as an HTML element for pages without React. One `<script type="module">` loads React, the kit and its stylesheet; the element renders the kit's sign-in and basic timer in its own shadow root, reads `api-url`, `color-scheme` and `lang`, dispatches `ever-teams-timer-change` at each start or stop of the person's timer, and stops when removed.
+    New package: `<ever-teams-timer api-url="...">`, the Ever Teams timer as an HTML element for pages without React. One `<script type="module">` loads React, the kit and its stylesheet; the element renders the kit's sign-in and basic timer in its own shadow root, reads `api-url`, `color-scheme` and `lang`, dispatches `ever-teams-timer-change` with the person's timer at its first read and at each change a later read shows, and stops when removed. It ships its TypeScript declaration (`dist/ever-teams-embed.d.ts`): a `strict` app, such as a new Angular app, imports the package without a declaration of its own, `document.createElement('ever-teams-timer')` gets the element's type, and `EverTeamsTimerAttributes` (`EverTeamsTimerProps` in camelCase) types its attributes in Vue and Svelte templates.
     ```
 
 3. add `packages/toolkit/embed` to `.github/workflows/release.sdk.prod.yml`: its build (after atoms), the
