@@ -302,10 +302,19 @@ test("TypeScript finds the server entry's types under each module resolution", (
 		"import server = require('@ever-teams/api/server');\n" +
 			`export const answer: Promise<server.EverTeamsEmbedToken> = server.exchangeEmbedToken(${exchange});\n`
 	);
+	// With the options as process.env and a user record give them, too.
 	fs.writeFileSync(
 		path.join(projectDir, 'any-resolution.ts'),
-		"import { getClientReport, type IClientTimeReport } from '@ever-teams/api/server';\n" +
-			`export const report: Promise<IClientTimeReport> = getClientReport(${report});\n`
+		"import { exchangeEmbedToken, getClientReport, type IClientTimeReport } from '@ever-teams/api/server';\n" +
+			`export const report: Promise<IClientTimeReport> = getClientReport(${report});\n` +
+			'declare const env: { [name: string]: string | undefined };\n' +
+			'declare const user: { email: string | null };\n' +
+			'export const token = exchangeEmbedToken({\n' +
+			'\tapiUrl: env.EVER_TEAMS_API_URL,\n' +
+			'\tcredential: env.EVER_TEAMS_EMBED_CREDENTIAL,\n' +
+			'\temail: user.email,\n' +
+			'\torigin: env.APP_ORIGIN\n' +
+			'});\n'
 	);
 	const check = (...args) =>
 		run(
