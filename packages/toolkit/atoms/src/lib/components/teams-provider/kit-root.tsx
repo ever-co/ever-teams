@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, ReactNode, useContext, useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { ReactNode, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { PortalContainerContext } from '@ever-teams/toolkit-ui';
 import {
 	getKitPreferences,
@@ -15,18 +15,8 @@ import {
 export const KIT_ROOT_ATTRIBUTE = 'data-ever-teams-kit';
 export const KIT_COLOR_SCHEME_ATTRIBUTE = 'data-ever-teams-color-scheme';
 
-export interface KitOptions {
-	// Whether the kit renders its own root (<TeamsProvider scopedStyles>) instead of relying on the host's page.
-	scoped: boolean;
-	// Called after a sign-out from the kit, instead of sending the browser to '/'.
-	onSignOut?: () => void;
-}
-
-const KitOptionsContext = createContext<KitOptions>({ scoped: false });
-
-export const useKitOptions = (): KitOptions => useContext(KitOptionsContext);
-
-export const KitOptionsProvider = KitOptionsContext.Provider;
+export { useKitOptions, KitOptionsProvider } from './kit-options';
+export type { KitOptions } from './kit-options';
 
 const DARK_QUERY = '(prefers-color-scheme: dark)';
 
@@ -36,14 +26,21 @@ function subscribeSystemScheme(listener: () => void): () => void {
 	return () => query?.removeEventListener('change', listener);
 }
 
+/**
+ * The face of the widgets when nobody picked one: the Ever Teams web app's, the system UI font (nothing downloaded).
+ * A host that wants its own sets --ever-teams-kit-font, on any parent of the widgets (on :root for their dialogs too).
+ */
+export const KIT_DEFAULT_FONT =
+	"var(--ever-teams-kit-font, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji')";
+
 const systemPrefersDark = () => Boolean(window.matchMedia?.(DARK_QUERY).matches);
 const serverPrefersDark = () => false;
 
-// Gives the kit root and its portal container the color scheme and the picked font, and nothing else of the page.
+// Gives the kit root and its portal container the color scheme and the font, and nothing else of the page.
 function applyToKitElement(element: HTMLElement, scheme: 'light' | 'dark', font: string | null) {
 	element.setAttribute(KIT_COLOR_SCHEME_ATTRIBUTE, scheme);
 	element.classList.toggle('dark', scheme === 'dark');
-	element.style.fontFamily = font ?? '';
+	element.style.fontFamily = font ?? KIT_DEFAULT_FONT;
 }
 
 // Node.DOCUMENT_FRAGMENT_NODE: the root of an element rendered in a shadow root.
@@ -117,7 +114,7 @@ export function KitRoot({ children, colorScheme }: Readonly<{ children?: ReactNo
 			ref={rootRef}
 			{...{ [KIT_ROOT_ATTRIBUTE]: '', [KIT_COLOR_SCHEME_ATTRIBUTE]: scheme }}
 			className={schemeClassName(scheme)}
-			style={{ display: 'contents', fontFamily: preferences.font ?? undefined }}
+			style={{ display: 'contents', fontFamily: preferences.font ?? KIT_DEFAULT_FONT }}
 		>
 			<PortalContainerContext.Provider value={portalContainer}>{children}</PortalContainerContext.Provider>
 		</div>

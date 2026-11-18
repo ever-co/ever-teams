@@ -82,7 +82,7 @@ test('theme-ui writes nothing on html, body or every element, and the widgets st
 
 	assert.doesNotMatch(styles, /(^|[\s,}])(html|body|\*)\s*[{,]/);
 	assert.doesNotMatch(styles, /var\(--theme-ui/);
-	assert.match(styles, /linear-gradient\(135deg, ?#3826A6/i);
+	assert.ok(styles.includes(`background: ${kit.defaultTheme.colors.mainColor};`), 'the theme color, as a raw value');
 	assert.equal(window.localStorage.getItem('theme-ui-color-mode'), null);
 	await act(async () => root.unmount());
 });
