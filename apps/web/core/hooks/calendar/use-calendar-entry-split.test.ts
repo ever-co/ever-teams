@@ -217,6 +217,35 @@ describe('splitCalendarEntry, the labels of the second part', () => {
 		expect(mockUpdateTimeLog).not.toHaveBeenCalled();
 		expect(mockAddManualTime).not.toHaveBeenCalled();
 	});
+
+	it('gives up on an answer that does not come (a read paused offline), and a late one resumes nothing', async () => {
+		jest.useFakeTimers();
+		try {
+			let answer: (value: boolean) => void = () => undefined;
+			const split = splitCalendarEntry({
+				log: LOG,
+				splitAt: at(11),
+				secondTask: null,
+				tenantId: 'tenant-1',
+				entryLabelsSupport: () =>
+					new Promise<boolean>((resolve) => {
+						answer = resolve;
+					})
+			});
+			const outcome = expect(split).rejects.toEqual(expect.objectContaining({ failure: 'restored' }));
+
+			await jest.advanceTimersByTimeAsync(15_000);
+			await outcome;
+			answer(true);
+			await jest.advanceTimersByTimeAsync(1_000);
+
+			expect(mockGetTimeLogs).not.toHaveBeenCalled();
+			expect(mockUpdateTimeLog).not.toHaveBeenCalled();
+			expect(mockAddManualTime).not.toHaveBeenCalled();
+		} finally {
+			jest.useRealTimers();
+		}
+	});
 });
 
 describe('splitCalendarEntry, a shortening the API refuses', () => {

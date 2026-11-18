@@ -115,19 +115,32 @@ function secondPartLabelsOf(current: ITimeLog, withEntryLabels: boolean) {
 	return entryLabelsFieldOf(labelIds, withEntryLabels && labelIds.length > 0);
 }
 
+/** How long the two writes wait for the labels answer: a read paused offline would otherwise hold the dialog open. */
+const ENTRY_LABELS_SUPPORT_WAIT_MS = 15_000;
+
 /**
  * Whether the second part takes the entry's labels, settled before any write: a support check still pending is waited
- * for, and one that fails leaves the entry as it was (the dialog offers another try) instead of splitting it without
- * its labels.
+ * for, up to `ENTRY_LABELS_SUPPORT_WAIT_MS`. One that fails, or does not answer in time, leaves the entry as it was
+ * (the dialog offers another try) instead of splitting it without its labels; an answer that comes later resumes
+ * nothing.
  */
 async function entryLabelsSupportOf(request: CalendarSplitRequest): Promise<boolean> {
 	if (!request.entryLabelsSupport) {
 		return false;
 	}
+	let timer: ReturnType<typeof setTimeout> | undefined;
+	const tooLate = new Promise<never>((_resolve, reject) => {
+		timer = setTimeout(
+			() => reject(new Error('The labels answer did not come in time')),
+			ENTRY_LABELS_SUPPORT_WAIT_MS
+		);
+	});
 	try {
-		return await request.entryLabelsSupport();
+		return await Promise.race([request.entryLabelsSupport(), tooLate]);
 	} catch (error) {
 		throw new CalendarSplitError('restored', error);
+	} finally {
+		clearTimeout(timer);
 	}
 }
 

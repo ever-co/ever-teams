@@ -80,12 +80,37 @@ describe("the Calendar dialog's two-write split and the labels of entries (#5368
 		expect(mockAddManualTime).toHaveBeenCalledWith(expect.objectContaining({ tags: ['label-1'] }));
 	});
 
-	it('asks Gauzy at split time when the answer is not in yet, and keeps the labels', async () => {
-		mockSupportsEntryLabels.mockResolvedValue(true);
+	it('asks Gauzy at split time when the answer is not in yet, waits for it before any read or write, and keeps the labels', async () => {
+		let answer: (value: boolean) => void = () => undefined;
+		mockSupportsEntryLabels.mockReturnValue(
+			new Promise<boolean>((resolve) => {
+				answer = resolve;
+			})
+		);
 		const hook = renderSplit();
+		let saving: Promise<boolean> = Promise.resolve(false);
 
-		expect(await splitAtThree(hook)).toBe(true);
+		await act(async () => {
+			saving = hook.result.current.save({
+				log: LABELLED_ENTRY,
+				splitAt: new Date(2026, 10, 9, 15),
+				secondTask: null,
+				tenantId: 'tenant-1'
+			});
+		});
+
+		expect(hook.result.current.isSaving).toBe(true);
 		expect(mockSupportsEntryLabels).toHaveBeenCalledTimes(1);
+		expect(mockGetTimeLogs).not.toHaveBeenCalled();
+		expect(mockUpdateTimeLog).not.toHaveBeenCalled();
+		expect(mockAddManualTime).not.toHaveBeenCalled();
+
+		await act(async () => {
+			answer(true);
+			await saving;
+		});
+
+		expect(await saving).toBe(true);
 		expect(mockAddManualTime).toHaveBeenCalledWith(expect.objectContaining({ tags: ['label-1'] }));
 	});
 
