@@ -3,6 +3,7 @@ import { PaginationResponse, IOrganizationTeamList, IHookResponse } from '@ever-
 import { getOrganisationTeams } from '@ever-teams/api';
 import { toast } from '@ever-teams/toolkit-ui';
 import { useTeamsContext } from '@lib/context/teams-context';
+import { useKitOptions } from '@components/teams-provider/kit-options';
 
 export const useOrganizationTeams = ({
 	projectId
@@ -15,13 +16,15 @@ export const useOrganizationTeams = ({
 	});
 
 	const { authenticatedUser: user, token, selectedOrganization: organizationId } = useTeamsContext();
+	// A token from the host's getToken reads only the member's teams, as the API allows it
+	const { hostSignIn: embedded } = useKitOptions();
 
 	useEffect(() => {
 		if (user && organizationId) {
 			(async () => {
 				setTeams((prev) => ({ ...prev, loading: true }));
 
-				const userTeams = await getOrganisationTeams({user, token, organizationId, projectId});
+				const userTeams = await getOrganisationTeams({ user, token, organizationId, projectId, embedded });
 
 				if ('message' in userTeams || 'error' in userTeams) {
 					const errorMessage =
@@ -42,7 +45,7 @@ export const useOrganizationTeams = ({
 				setTeams({ data: userTeams, loading: false });
 			})();
 		}
-	}, [user, projectId, organizationId]);
+	}, [user, projectId, organizationId, embedded]);
 
 	return teams;
 };
