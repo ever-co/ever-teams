@@ -1,5 +1,6 @@
 import qs from 'qs';
 import { createAccessToken, tokenOf } from './access-token';
+import { parseBody } from './answer-body';
 import { clientError, errorFromResponse, networkError, NextStepsByStatus } from './error-mapping';
 import { EverTeamsError } from './errors';
 import { EverTeamsClientOptions } from './types';
@@ -30,23 +31,6 @@ const PERSONAL_TOKEN_STEPS: NextStepsByStatus = {
 		'This API does not offer personal API tokens: ask its administrator to turn them on ' +
 		'(GAUZY_USER_API_TOKENS_ENABLED).'
 };
-
-interface ReadBody {
-	isJson: boolean;
-	value: unknown;
-}
-
-// An empty body is the API's answer of null (a stop with nothing to stop).
-function parseBody(text: string): ReadBody {
-	if (!text) {
-		return { isJson: true, value: null };
-	}
-	try {
-		return { isJson: true, value: JSON.parse(text) };
-	} catch {
-		return { isJson: false, value: null };
-	}
-}
 
 function assertOptions(options: EverTeamsClientOptions): void {
 	const hasApiUrl = typeof options.apiUrl === 'string' && options.apiUrl.length > 0;
