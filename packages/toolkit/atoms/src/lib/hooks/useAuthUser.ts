@@ -101,6 +101,15 @@ const useAuthUser = (token: string): IHookResponse<IUser> => {
 		void handleUserAuthentication();
 	}, [token, api]);
 
+	// A read still pending once the provider is gone (it started afresh on another address) saves no session and sets
+	// nothing.
+	useEffect(
+		() => () => {
+			latestRead.current += 1;
+		},
+		[]
+	);
+
 	useEffect(() => {
 		if (!readAgainWhenBack) {
 			return;

@@ -2,7 +2,7 @@ import { getTimeLogs } from '@ever-teams/api';
 import { IServerError, ITimeLog, LogType, TimerSource } from '@ever-teams/toolkit-types';
 import { useTeamsContext } from '@lib/context/teams-context';
 import { useKitOptions } from '@components/teams-provider/kit-options';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { DateRange } from 'react-day-picker';
 
 interface IUseTimeLogsParams {
@@ -31,10 +31,27 @@ export const useTimeLogs = ({
 	const [data, setData] = useState<ITimeLog[] | null>(null);
 	const [error, setError] = useState<IServerError | null>(null);
 
-	const { authenticatedUser: user, token, selectedOrganization: organizationId, selectedEmployee } = useTeamsContext();
+	const {
+		authenticatedUser: user,
+		token,
+		selectedOrganization: organizationId,
+		selectedEmployee
+	} = useTeamsContext();
 	const { api } = useKitOptions();
+	// Only the read started last may set the logs, the error or the loading state: one for earlier filters or another
+	// address, or a widget gone since, changes nothing.
+	const latestRead = useRef(0);
+	useEffect(
+		() => () => {
+			latestRead.current += 1;
+		},
+		[]
+	);
 
 	const fetchTimeLogs = useCallback(async () => {
+		latestRead.current += 1;
+		const read = latestRead.current;
+		const isCurrent = () => read === latestRead.current;
 		setLoading(true);
 		setError(null);
 
@@ -53,6 +70,9 @@ export const useTimeLogs = ({
 				},
 				api
 			);
+			if (!isCurrent()) {
+				return;
+			}
 
 			if ('error' in response || 'message' in response) {
 				setError(response as IServerError);
@@ -62,10 +82,15 @@ export const useTimeLogs = ({
 				setError(null);
 			}
 		} catch (err) {
+			if (!isCurrent()) {
+				return;
+			}
 			setError({ error: (err as Error).message, message: 'Failed to fetch time logs' } as IServerError);
 			setData(null);
 		} finally {
-			setLoading(false);
+			if (isCurrent()) {
+				setLoading(false);
+			}
 		}
 	}, [user, token, organizationId, date, activityLevel, timeZone, source, logType, selectedEmployee, api]);
 

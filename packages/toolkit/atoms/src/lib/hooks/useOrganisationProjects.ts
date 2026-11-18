@@ -20,10 +20,16 @@ export const useOrganizationProjects = ({ clientId }: { clientId: string | null 
 			setProjects({ data: [], loading: false });
 			return;
 		}
+		// A read the effect has moved past (another client, organization or address, or the widget gone) shows nothing,
+		// not even its error: the toasts are the page's
+		let current = true;
 		if (user && organizationId) {
 			(async () => {
 				setProjects((prev) => ({ ...prev, loading: true }));
 				const userProjects = await getOrganisationProjects(user, token, clientId, organizationId, api);
+				if (!current) {
+					return;
+				}
 
 				if ('message' in userProjects || 'error' in userProjects) {
 					const errorMessage =
@@ -45,6 +51,11 @@ export const useOrganizationProjects = ({ clientId }: { clientId: string | null 
 				setProjects({ data: userProjects, loading: false });
 			})();
 		}
+		return () => {
+			current = false;
+			// The next read, if any, sets it again
+			setProjects((prev) => (prev.loading ? { ...prev, loading: false } : prev));
+		};
 	}, [user, clientId, organizationId, hostSignIn, api]);
 
 	return projects;

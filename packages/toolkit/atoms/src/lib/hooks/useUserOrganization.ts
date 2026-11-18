@@ -55,11 +55,17 @@ const useUserOrganization = (
 	};
 
 	useEffect(() => {
+		// A read the effect has moved past (another person, token or address, or the provider gone) shows nothing, not
+		// even its error: the toasts are the page's
+		let current = true;
 		if (user && token && !hostSignIn) {
 			(async () => {
 				setUserOrganizations((prev) => ({ ...prev, loading: true }));
 
 				const userOrganization = await getOrganisation(user, token);
+				if (!current) {
+					return;
+				}
 
 				if ('message' in userOrganization || 'error' in userOrganization) {
 					const errorMessage =
@@ -103,6 +109,11 @@ const useUserOrganization = (
 			})();
 			// }
 		}
+		return () => {
+			current = false;
+			// The next read, if any, sets it again
+			setUserOrganizations((prev) => (prev.loading ? { ...prev, loading: false } : prev));
+		};
 	}, [user, token, hostSignIn, api]);
 
 	return userOrganizations;

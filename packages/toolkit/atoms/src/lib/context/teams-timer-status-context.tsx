@@ -245,7 +245,9 @@ export function TimerStatusProvider({
 	const refetch = useCallback(async () => {
 		// A refetch kept from an earlier render (a start that ends after a switch of organization) reads nothing: its
 		// read would supersede the current identity's pending read, whose answer would then be dropped.
-		const obsolete = currentIdentity.current !== identity;
+		// Nor one of a removed provider (a start that ends once the provider started afresh on another address): its
+		// read would go to the previous server for a status nothing shows.
+		const obsolete = currentIdentity.current !== identity || !mounted.current;
 		if (!ready || obsolete) {
 			return;
 		}

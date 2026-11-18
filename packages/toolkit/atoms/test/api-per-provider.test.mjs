@@ -15,6 +15,15 @@ const standIns = {
 		'export const getUserTimezone = () => "UTC"; export const convertSessionDatesToTimezone = (session) => session;'
 };
 delete standIns['@lib/context/teams-tracking-context'];
+// Every toast the kit shows, in order: an answer of a provider's previous address shows none.
+const toasts = [];
+globalThis.kitToasts = toasts;
+const silentToast = 'export const toast = () => {};';
+assert.ok(kitStandIns['@ever-teams/toolkit-ui'].includes(silentToast));
+standIns['@ever-teams/toolkit-ui'] = kitStandIns['@ever-teams/toolkit-ui'].replace(
+	silentToast,
+	'export const toast = (shown) => { globalThis.kitToasts.push(shown); };'
+);
 const standInOf = (importPath) => Object.keys(standIns).find((name) => importPath === name);
 
 const require = createRequire(import.meta.url);
@@ -86,6 +95,7 @@ after(() => {
 
 beforeEach(() => {
 	localStorage.clear();
+	toasts.length = 0;
 	requests = [];
 	globalThis.fetch = recordingFetch(requests);
 });
@@ -472,6 +482,7 @@ test('a timer start and a read that answer once their provider moved to another 
 
 	await renderPage(root, [['a', hostSignInOn(SERVER_B), widgets()]]);
 	await settle();
+	const sentBeforeRelease = requests.length;
 	await act(async () => {
 		api.release();
 		await starting;
@@ -479,6 +490,10 @@ test('a timer start and a read that answer once their provider moved to another 
 	await settle();
 
 	assert.equal(timers.a.isRunning, false, "A's start does not run B's timer");
+	const readsOfA = requests
+		.slice(sentBeforeRelease)
+		.filter(({ host, path }) => host === hostOf(SERVER_A) && path === '/timesheet/timer/status');
+	assert.deepEqual(readsOfA, [], "A's start reads no status from A for the provider that left it");
 	assert.deepEqual(holdings.a.timeLogs, [{ id: 'log-of-b' }]);
 	assert.ok(api.tokensSentTo(SERVER_B).length > 0, 'B is read');
 	assert.deepEqual(new Set(api.tokensSentTo(SERVER_B)), new Set([`${hostOf(SERVER_B)}-token`]));
@@ -526,4 +541,58 @@ test('sessions read on the previous address of a provider never show once it has
 
 	assert.deepEqual(shownSessions.a, [{ id: 'session-of-b' }]);
 	assert.deepEqual(new Set(api.tokensSentTo(SERVER_B)), new Set([`${hostOf(SERVER_B)}-token`]));
+});
+
+test('reads that fail once their provider moved to another address show no error there', async () => {
+	// After the sign-in on A, every read of the pickers and the reports waits, then A refuses it.
+	const answeredAtOnce = ['/auth/login', '/user/me', '/role-permissions/me', '/user-organization'];
+	const standard = recordingFetch(requests);
+	const waiting = [];
+	globalThis.fetch = async (url, init) => {
+		const answer = await standard(url, init);
+		const { host, pathname } = new URL(url);
+		const path = pathname.replace(/^\/api/, '');
+		if (host !== hostOf(SERVER_A) || answeredAtOnce.includes(path)) {
+			return answer;
+		}
+		await new Promise((resolve) => waiting.push(resolve));
+		return Response.json({ message: `refused by ${host}` }, { status: 403 });
+	};
+	const widgets = () => [...pickers(), ...reports()];
+	const { root } = await openPage([['a', { apiUrl: SERVER_A }, widgets()]]);
+	await signInOn('a');
+	assert.ok(waiting.length > 0, 'the reads wait for A');
+
+	// The session saved on the page would follow the provider to B (ever-co/ever-teams#5524): B starts signed out.
+	localStorage.clear();
+	await renderPage(root, [['a', { apiUrl: SERVER_B }, widgets()]]);
+	await act(async () => {
+		for (const letGo of waiting.splice(0)) {
+			letGo();
+		}
+	});
+	await settle();
+
+	const refusalsOfA = toasts.filter(({ description }) => String(description).includes(hostOf(SERVER_A)));
+	assert.deepEqual(refusalsOfA, [], "A's refusals show no toast once the provider is on B");
+});
+
+test('a read of the person that answers once its provider moved to another address saves no session', async () => {
+	const userOfA = { id: 'user-of-a', tenantId: 'tenant-1', employee: { id: 'employee-1', organizationId: 'org-1' } };
+	const api = answering([{ host: hostOf(SERVER_A), path: '/user/me', held: true, body: userOfA }]);
+	// The session a sign-in on A saved: the provider reads the person with its token, and A answers late.
+	const saved = { app: { user: null }, persist: { token: 'token-1', expiry: Date.now() + 60 * 60 * 1000 } };
+	localStorage.setItem('_teams-store', JSON.stringify(saved));
+	const { root } = await openPage([['a', { apiUrl: SERVER_A }, holdingsOf('a')]]);
+	await settle();
+	assert.deepEqual(requestsTo('/user/me'), [{ host: hostOf(SERVER_A), path: '/user/me', method: 'GET' }]);
+
+	// The saved session would follow the provider to B (ever-co/ever-teams#5524): B starts signed out.
+	localStorage.clear();
+	await renderPage(root, [['a', { apiUrl: SERVER_B }, holdingsOf('a')]]);
+	await act(async () => api.release());
+	await settle();
+
+	assert.equal(localStorage.getItem('_teams-store'), null, "A's answer saves no session for the page");
+	assert.deepEqual(holdings.a, { token: '', userId: null, timeLogs: null });
 });
