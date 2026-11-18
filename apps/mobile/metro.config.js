@@ -13,15 +13,16 @@
 // unstable_beforeAssetSerializationPlugins hook, so it composes with the Expo serializer rather
 // than wrapping it. Same Sentry features (release injection, frames collapse, debug IDs).
 const { getSentryExpoConfig } = require('@sentry/react-native/metro');
+const { withReactNavigationFromExpoRouter } = require('./metro/react-navigation-copies');
 
-// The current screens run on React Navigation while the new app (src/app) runs on Expo Router. Once expo-router is
-// installed, Expo CLI refuses every @react-navigation import from the app and points React Navigation's own packages
-// at expo-router's copy, which would move the current navigators onto it. Each app keeps its own copy until the last
-// current screen becomes a route. Expo CLI reads this variable after loading this file.
+// The current screens import @react-navigation/* themselves, which Expo CLI refuses from the app unless this variable
+// is set. Those imports resolve to Expo Router's own copy (metro/react-navigation-copies.js), so the screens and the
+// routes share one navigation. Expo CLI reads this variable after loading this file.
 process.env.EXPO_ROUTER_DISABLE_RN_NAVIGATION_CHECK = '1';
 
 /** @type {import('expo/metro-config').MetroConfig} */
 const config = getSentryExpoConfig(__dirname);
 config.resolver.unstable_conditionNames = ['browser', 'require', 'react-native'];
+config.resolver.resolveRequest = withReactNavigationFromExpoRouter(config.resolver.resolveRequest);
 
 module.exports = config;
