@@ -2,12 +2,7 @@
 // node --test test/*.test.mjs (from packages/api). esbuild bundles the module with the error classes it throws.
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
-import fs from 'node:fs';
-import os from 'node:os';
-import path from 'node:path';
 import { inspect } from 'node:util';
-import { fileURLToPath, pathToFileURL } from 'node:url';
-import { createRequire } from 'node:module';
 import {
 	API_URL,
 	CREDENTIAL,
@@ -24,34 +19,17 @@ import {
 	reportUnread,
 	throttled
 } from './support/embed-answers.mjs';
-
-const here = path.dirname(fileURLToPath(import.meta.url));
-const require = createRequire(import.meta.url);
-const esbuild = require('esbuild');
+import { bundleServerHelper } from './support/bundle-server.mjs';
 
 let server;
-let bundleDir;
+let removeBundle;
 
 before(async () => {
-	bundleDir = fs.mkdtempSync(path.join(os.tmpdir(), 'server-client-report-'));
-	const outfile = path.join(bundleDir, 'client-report.mjs');
-	await esbuild.build({
-		stdin: {
-			contents: "export * from './lib/server/client-report'; export * from './lib/client/errors';",
-			resolveDir: path.join(here, '..', 'src'),
-			loader: 'ts'
-		},
-		bundle: true,
-		format: 'esm',
-		platform: 'node',
-		outfile,
-		logLevel: 'error'
-	});
-	server = await import(pathToFileURL(outfile).href);
+	({ server, remove: removeBundle } = await bundleServerHelper('client-report'));
 });
 
 after(() => {
-	fs.rmSync(bundleDir, { recursive: true, force: true });
+	removeBundle?.();
 });
 
 const optionsFor = (fetch, more = {}) => ({ apiUrl: API_URL, credential: CREDENTIAL, fetch, ...more });
