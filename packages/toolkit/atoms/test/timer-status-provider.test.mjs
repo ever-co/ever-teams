@@ -1276,3 +1276,69 @@ test('a callback given after the first read hears the next read as its first', a
 		[{ running: true, initial: true }]
 	);
 });
+
+test('a read that settles after the provider is removed tells its host nothing', async () => {
+	await reset();
+	const { heard, onTimerChange } = hostListener();
+	const { root } = await mount([widget('a')], { onTimerChange });
+	await answer(0, { running: false });
+	await act(async () => window.dispatchEvent(new window.Event('focus')));
+
+	await act(async () => root.unmount());
+	roots.splice(roots.indexOf(root), 1);
+	await answer(1, runningOn('project-1'));
+
+	assert.equal(globalThis.__reads.length, 2);
+	assert.deepEqual(
+		heard.map(({ running, initial }) => ({ running, initial })),
+		[{ running: false, initial: true }]
+	);
+});
+
+test('a host that changes the change it receives is not told again while the timer stays as it was', async () => {
+	await reset();
+	const heard = [];
+	const onTimerChange = (change) => {
+		heard.push({ ...change });
+		// A host that shows "no task" in place of null, on the object it received.
+		change.taskId = 'shown';
+	};
+	await mount([widget('a')], { onTimerChange });
+	await answer(0, runningOn('project-1'));
+	await act(async () => window.dispatchEvent(new window.Event('focus')));
+	await answer(1, runningOn('project-1'));
+
+	assert.equal(globalThis.__reads.length, 2);
+	assert.deepEqual(
+		heard.map(({ taskId, initial }) => ({ taskId, initial })),
+		[{ taskId: null, initial: true }]
+	);
+});
+
+test('the callback of a render that did not commit is never called: a pending read calls the shown one', async () => {
+	await reset();
+	const shown = hostListener();
+	const dropped = hostListener();
+	const never = new Promise(() => {});
+	// Suspends with no boundary: React keeps the committed render on screen and drops this one.
+	function Suspends() {
+		throw never;
+	}
+	const { root } = await mount([widget('a')], { onTimerChange: shown.onTimerChange });
+	await act(async () =>
+		React.startTransition(() =>
+			root.render(
+				React.createElement(
+					TimerStatusProvider,
+					{ onTimerChange: dropped.onTimerChange },
+					widget('a'),
+					React.createElement(Suspends, { key: 'suspends' })
+				)
+			)
+		)
+	);
+	await answer(0, { running: false });
+
+	assert.equal(shown.heard.length, 1);
+	assert.deepEqual(dropped.heard, []);
+});
