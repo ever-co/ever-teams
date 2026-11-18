@@ -5,7 +5,11 @@ if (!shown) {
 	throw new Error('The start field does not show a time (HH:MM): ' + SHOWN_START);
 }
 var minutesOfDay = Number(shown[1]) * 60 + Number(shown[2]);
-var earlier = (minutesOfDay + 24 * 60 - 1) % (24 * 60);
+if (minutesOfDay === 0) {
+	// The minute before is on the day before, which the panel reads on the run's day, as a start in the future
+	throw new Error('The run started at midnight: run this flow again after 00:01.');
+}
+var earlier = minutesOfDay - 1;
 function twoDigits(value) {
 	return (value < 10 ? '0' : '') + value;
 }
