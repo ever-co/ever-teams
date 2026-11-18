@@ -676,8 +676,8 @@ handler that takes a `Request`, pass `body: await request.text()` and `signature
 
 - The signature is `X-Signature: t=<unix seconds>,v1=<hex HMAC-SHA256>`, over `<t>.<raw body>` with the secret.
   During a rotation of the secret the header carries a second `v1`, and either secret verifies; a header with more than
-  two is refused before any check. The comparison runs in constant time, with the Web Crypto API, so `verifyWebhook`
-  also runs in a worker or an edge route.
+  two is refused before any check. The HMAC is computed once with the Web Crypto API, so `verifyWebhook` also runs in
+  a worker or an edge route, and the package compares it in constant time itself, on every runtime and Node release.
 - A delivery signed more than `tolerance` seconds before or after your server's clock is refused (300 by default, as
   the API's own check): a captured request cannot be sent again later.
 - The API sends each event at least once and tries again after a failed delivery: answer 2xx quickly, and handle each

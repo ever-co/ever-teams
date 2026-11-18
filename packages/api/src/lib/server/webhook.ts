@@ -181,9 +181,24 @@ function subtleOf(): SubtleCrypto {
 	return subtle;
 }
 
+// Whether two byte strings of the same length are equal, in a time that does not depend on where they differ: every
+// byte is compared, and the differences are only added up.
+function sameBytes(left: Uint8Array, right: Uint8Array): boolean {
+	if (left.length !== right.length) {
+		return false;
+	}
+	let difference = 0;
+	for (let index = 0; index < left.length; index += 1) {
+		difference |= left[index] ^ right[index];
+	}
+	return difference === 0;
+}
+
 /**
- * Whether one of the header's v1 values is the HMAC-SHA256 of the signed bytes under the secret. The platform compares
- * them in constant time (crypto.subtle.verify), and a value that is not 64 hex digits is a mismatch.
+ * Whether one of the header's v1 values is the HMAC-SHA256 of the signed bytes under the secret. The HMAC is computed
+ * once (crypto.subtle.sign) and compared here in constant time, on every runtime: crypto.subtle.verify does not
+ * compare in constant time on Node releases before the March 2026 security releases (CVE-2026-21713). A value that is
+ * not 64 hex digits is a mismatch.
  */
 async function matches(
 	secret: string,
@@ -193,13 +208,17 @@ async function matches(
 ): Promise<boolean> {
 	const subtle = subtleOf();
 	const key = await subtle.importKey('raw', encoder.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, [
-		'verify'
+		'sign'
 	]);
-	const verifications = macs
-		.filter((mac) => HMAC_HEX.test(mac))
-		.map((mac) => subtle.verify('HMAC', key, bytesOfHex(mac), signed));
-	const verified = await Promise.all(verifications);
-	return verified.some(Boolean);
+	const expected = new Uint8Array(await subtle.sign('HMAC', key, signed));
+	let matched = false;
+	for (const mac of macs) {
+		const comparable = HMAC_HEX.test(mac);
+		// Every value is compared, also after a match.
+		const same = comparable && sameBytes(bytesOfHex(mac), expected);
+		matched = matched || same;
+	}
+	return matched;
 }
 
 function isEnvelope(value: unknown): value is EverTeamsWebhookEvent {
