@@ -11,7 +11,7 @@ const require = createRequire(import.meta.url);
 const esbuild = require('esbuild');
 
 // The kit's sources, with forward slashes so that an entry can name them in an import.
-export const kitSources = path.join(here, '..', 'src', 'lib').replace(/\\/g, '/');
+export const kitSources = path.join(here, '..', 'src', 'lib').replaceAll('\\', '/');
 
 const kitAliases = {
 	'@components': `${kitSources}/components`,
@@ -25,7 +25,7 @@ function standInPlugin(standIns, standInOf) {
 		name: 'stand-ins',
 		setup(build) {
 			build.onResolve({ filter: /.*/ }, ({ path: requested }) => {
-				const name = standInOf(requested.replace(/\\/g, '/'));
+				const name = standInOf(requested.replaceAll('\\', '/'));
 				if (name === undefined) {
 					return undefined;
 				}
