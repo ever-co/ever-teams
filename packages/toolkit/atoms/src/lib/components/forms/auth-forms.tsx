@@ -8,7 +8,6 @@ import {
 	Checkbox,
 	cn,
 	Dialog,
-	Input,
 	Popover,
 	PopoverContent,
 	PopoverTrigger,
@@ -28,6 +27,7 @@ import { TeamsTimerFooter } from '@components/layouts/footers/component-footer';
 import { logOut as teamsLogOut } from '@ever-teams/api';
 import { TeamsPasswordLoginForm } from './teams-password-login-form';
 import { TeamsTokenLoginForm } from './teams-token-login-form';
+import { KitFormError, KitFormField } from './kit-form-field';
 import { useKitOptions } from '@components/teams-provider/kit-root';
 import { warnOnce } from '@lib/utils/warn-once';
 import { useRegistrationForm } from '@hooks/useRegistrationForm';
@@ -366,19 +366,16 @@ const TeamsRegistrationForm = ({
 	const { t } = useTranslation();
 
 	return mode === 'signup' ? (
-		<form onSubmit={form.handleSubmit} className={cn('flex flex-col gap-2 w-full', className)}>
+		<form onSubmit={form.handleSubmit} className={cn('flex flex-col gap-4 w-full', className)}>
 			<div className="flex flex-col gap-4 justify-center items-start pb-4 mb-4 text-black border-b border-gray-200 dark:border-gray-800 dark:text-white">
 				<h1 className="text-3xl font-bold tracking-tight">{t('AUTH.sign_up_title')}</h1>
 				<p className="text-xs font-light text-gray-400"></p>
 			</div>
 
-			<label htmlFor="full-name" className="text-sm text-slate-500 dark:text-white">
-				{t('COMMON.full_name')} :
-			</label>
-			<Input
+			<KitFormField
+				label={t('COMMON.full_name')}
 				required
 				onChange={form.handleInputChange}
-				className="border"
 				placeholder={t('AUTH.full_name_prompt')}
 				value={form.formData.fullName}
 				size={30}
@@ -386,13 +383,10 @@ const TeamsRegistrationForm = ({
 				name="fullName"
 			/>
 
-			<label htmlFor="email" className="text-sm text-slate-500 dark:text-white">
-				{t('COMMON.email')} :
-			</label>
-			<Input
+			<KitFormField
+				label={t('COMMON.email')}
 				required
 				onChange={form.handleInputChange}
-				className="border"
 				placeholder={t('AUTH.email_prompt')}
 				value={form.formData.email}
 				size={30}
@@ -400,13 +394,10 @@ const TeamsRegistrationForm = ({
 				name="email"
 			/>
 
-			<label htmlFor="password" className="text-sm text-slate-500 dark:text-white">
-				{t('COMMON.password')} :
-			</label>
-			<Input
+			<KitFormField
+				label={t('COMMON.password')}
 				required
 				onChange={form.handleInputChange}
-				className="border"
 				placeholder={t('AUTH.password_prompt')}
 				value={form.formData.password}
 				size={30}
@@ -414,13 +405,10 @@ const TeamsRegistrationForm = ({
 				name="password"
 			/>
 
-			<label htmlFor="confirm-password" className="text-sm text-slate-500 dark:text-white">
-				{t('AUTH.confirm_password_prompt')} :
-			</label>
-			<Input
+			<KitFormField
+				label={t('AUTH.confirm_password_prompt')}
 				required
 				onChange={form.handleInputChange}
-				className="border"
 				placeholder={t('AUTH.confirm_password_prompt')}
 				value={form.formData.confirmPassword}
 				size={30}
@@ -465,15 +453,15 @@ const TeamsRegistrationForm = ({
 				</div>
 			</div>
 
-			{form.errors && form.errors[0] ? <span className="text-xs text-red-500">{form.errors[0]}</span> : null}
+			<KitFormError message={form.errors?.[0]} />
 
-			<ThemedButton disabled={form.loading || form.errors?.[0] ? true : false} className="flex gap-2 mt-5">
+			<ThemedButton disabled={form.loading || form.errors?.[0] ? true : false} className="flex h-9 gap-2 mt-5">
 				{form.loading && (
 					<span className="animate-spin">
 						<LoaderCircle />
 					</span>
 				)}
-				{t('AUTH.sign_up_title').toUpperCase()}
+				{t('AUTH.sign_up_title')}
 			</ThemedButton>
 
 			<p className="pt-3 text-sm text-slate-500 dark:text-white">

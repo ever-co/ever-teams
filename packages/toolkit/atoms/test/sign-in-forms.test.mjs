@@ -22,7 +22,19 @@ const stubs = {
 		export const Input = (props) => createElement('input', props);
 		export const ThemedButton = ({ children, ...props }) => createElement('button', props, children);
 		export const Button = ThemedButton;
-		export const useThemeColor = () => 'purple';`,
+		export const useThemeColor = () => 'purple';
+		const passThrough = ({ children }) => children ?? null;
+		export const Dialog = ({ trigger, children }) => createElement('div', null, trigger, children);
+		export const Avatar = () => null;
+		export const Card = passThrough;
+		export const Checkbox = () => null;
+		export const Popover = passThrough;
+		export const PopoverContent = () => null;
+		export const PopoverTrigger = passThrough;
+		export const Tabs = passThrough;
+		export const TabsContent = passThrough;
+		export const TabsListThemed = passThrough;
+		export const TabsTrigger = passThrough;`,
 	'react-i18next': 'export const useTranslation = () => ({ t: (key) => key });',
 	'password-hook': `export const usePasswordLoginForm = () => ({
 		handleSubmit() {}, handleInputChange() {}, formData: { email: '', password: '' }, error: globalThis.formError, loading: false
@@ -30,12 +42,33 @@ const stubs = {
 	'token-hook': `export const useTokenSubmission = () => ({
 		handleSubmit() {}, handleInputChange() {}, tokenInput: '', error: globalThis.formError, isLoading: false
 	});`,
-	'lucide-react': 'export const LoaderCircle = () => null;'
+	'registration-hook': `export const useRegistrationForm = () => ({
+		handleSubmit() {}, handleInputChange() {}, handleCheckboxChange() {}, loading: false,
+		errors: globalThis.formError ? [globalThis.formError] : [],
+		formData: { fullName: '', email: '', password: '', confirmPassword: '', acceptTerms: false }
+	});`,
+	'teams-context': 'export const useTeamsContext = () => ({ authenticatedUser: null, loadings: {} });',
+	kit: `export const useKitOptions = () => ({ scoped: true });
+		export const SpinOverlayLoader = () => null;
+		export const TeamsTimerFooter = () => null;
+		export const warnOnce = () => {};
+		export const useClearKitSession = () => () => {};
+		export const logOut = async () => {};`,
+	'lucide-react': `export const LoaderCircle = () => null;
+		export const CheckIcon = () => null;
+		export const Copy = () => null;
+		export const LogOutIcon = () => null;`
 };
 const routes = [
 	[/^(@ever-teams\/toolkit-ui|react-i18next|lucide-react)$/, (p) => p],
 	[/^@hooks\/usePasswordLoginForm$/, () => 'password-hook'],
-	[/^@hooks\/useTokenSubmission$/, () => 'token-hook']
+	[/^@hooks\/useTokenSubmission$/, () => 'token-hook'],
+	[/^@hooks\/useRegistrationForm$/, () => 'registration-hook'],
+	[/^@lib\/context\/teams-context$/, () => 'teams-context'],
+	[
+		/^(@ever-teams\/api|@components\/teams-provider\/kit-root|\.\.\/loaders\/spin-overlay-loader|@components\/layouts\/footers\/component-footer|@lib\/utils\/warn-once|@hooks\/useClearKitSession)$/,
+		() => 'kit'
+	]
 ];
 
 let React;
@@ -51,7 +84,8 @@ before(async () => {
 		entry,
 		`export { KitFormField, KitFormError } from '${forms}/kit-form-field.tsx';
 		export { TeamsPasswordLoginForm } from '${forms}/teams-password-login-form.tsx';
-		export { TeamsTokenLoginForm } from '${forms}/teams-token-login-form.tsx';`
+		export { TeamsTokenLoginForm } from '${forms}/teams-token-login-form.tsx';
+		export { TeamsLoginDialog, TeamsRegistrationDialog, TeamsRegistrationForm } from '${forms}/auth-forms.tsx';`
 	);
 	const outfile = path.join(bundleDir, 'forms.mjs');
 	await esbuild.build({
@@ -64,11 +98,13 @@ before(async () => {
 		outfile,
 		logLevel: 'error',
 		external: ['react', 'react/jsx-runtime', 'theme-ui', 'theme-ui/jsx-runtime'],
-		alias: { '@components': path.join(lib, 'components') },
 		plugins: [
 			{
 				name: 'stubs',
 				setup(build) {
+					build.onResolve({ filter: /^@components\/teams-ui-components\/notice-surface$/ }, () => ({
+						path: path.join(lib, 'components', 'teams-ui-components', 'notice-surface.ts')
+					}));
 					for (const [filter, name] of routes) {
 						build.onResolve({ filter }, (args) => ({ path: name(args.path), namespace: 'stub' }));
 					}
@@ -157,4 +193,20 @@ test('the token form names its field and keeps its button text', () => {
 	);
 	assert.match(fields[0].input, /name="token"/);
 	assert.match(markup, />AUTH\.sign_in_title<\/button>/);
+});
+
+test('the registration form names its four fields, says a refusal on the notice, and keeps its button text', () => {
+	const markup = render(kit.TeamsRegistrationForm, {}, 'Passwords do not match.');
+	const fields = labelledInputs(markup);
+
+	assert.deepEqual(
+		fields.map((field) => field.text),
+		['COMMON.full_name', 'COMMON.email', 'COMMON.password', 'AUTH.confirm_password_prompt']
+	);
+	assert.ok(
+		fields.every((field) => field.input),
+		'every label points to its input'
+	);
+	assert.match(markup, /<p role="alert" class="[^"]*bg-destructive\/5[^"]*">Passwords do not match\./);
+	assert.match(markup, />AUTH\.sign_up_title<\/button>/);
 });
