@@ -1,52 +1,104 @@
 import '../../app/i18n';
-import React, { useEffect } from 'react';
-import { StyleSheet } from 'react-native';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import '../../app/utils/ignore-warnings';
+import React, { useState } from 'react';
+import { StyleSheet, useColorScheme } from 'react-native';
 import { Stack, ThemeProvider } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
-import { getDefaultStore, useAtomValue } from 'jotai';
-import { holdSession } from '../../app/services/client/session';
-import { followAppState, followConnection, QUERY_CACHE_MAX_AGE_MS, queryClient } from '../data/query-client';
-import { queryPersister } from '../data/query-persister';
-import { navigationThemeFor } from '../navigation/navigation-theme';
-import { statusBarStyleFor } from '../navigation/status-bar-style';
+import * as SplashScreen from 'expo-splash-screen';
+import * as Sentry from '@sentry/react-native';
+import EStyleSheet from 'react-native-extended-stylesheet';
+import { useFonts } from 'expo-font';
+import { observer } from 'mobx-react-lite';
+import { Provider as PaperProvider } from 'react-native-paper';
+import { initialWindowMetrics, SafeAreaProvider } from 'react-native-safe-area-context';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import FlashMessage from 'react-native-flash-message';
+import { ClickOutsideProvider } from 'react-native-click-outside';
+import Config from '../../app/config';
+import { useLanguageStarted } from '../../app/i18n';
+import { useInitialRootStore, useStores } from '../../app/models';
+import { markRouterMounted } from '../../app/navigators/routes';
+import { ErrorBoundary } from '../../app/screens/error-screen/error-boundary';
+import { tellSessionEnded } from '../../app/services/client/fetch';
+import { AppQueryProvider } from '../../app/services/client/query-provider';
+import { setupReactotron } from '../../app/services/reactotron';
+import { customDarkTheme, customFontsToLoad, customLightTheme, navigationTheme } from '../../app/theme';
+import { initCrashReporting } from '../../app/utils/crash-reporting';
+import { useOnceReady } from '../../app/utils/use-once-ready';
 import { useLoadSession } from '../state/load-session';
-import { sessionHolderOf } from '../state/session-holder';
-import { themePreferenceAtom } from '../state/preferences';
-import { useTheme } from '../theme';
 
-followConnection();
+// What App.js and app/app.tsx did before a screen rendered, in the same order
+initCrashReporting();
+setupReactotron({
+	clearOnLoad: true,
+	host: 'localhost',
+	useAsyncStorage: true,
+	logInitialState: true,
+	logSnapshots: false
+});
+EStyleSheet.build({
+	// always call EStyleSheet.build() even if you don't use global variables!
+	$textColor: '#0275d8'
+});
+void SplashScreen.preventAutoHideAsync();
+markRouterMounted();
 
-const persistOptions = { persister: queryPersister, maxAge: QUERY_CACHE_MAX_AGE_MS };
-
-function forgetLoadedData(): void {
-	queryClient.clear();
+function hideSplashScreen(): void {
+	void SplashScreen.hideAsync();
 }
 
-// The HTTP client renews the session through it, as the current app's authentication store lets it
-function holdTheSession(): () => void {
-	return holdSession(sessionHolderOf(getDefaultStore(), forgetLoadedData));
-}
-
-export default function RootLayout() {
+/**
+ * The root of the app: the current app's state, theme and providers around Expo Router's stack. Until the store, the
+ * fonts and the language are ready it draws nothing, over the native splash screen, as before.
+ */
+const RootLayout = observer(function RootLayout() {
+	const {
+		authenticationStore: { isDarkMode, followsSystemTheme, isAuthenticated }
+	} = useStores();
+	const [areFontsLoaded] = useFonts(customFontsToLoad);
+	const systemColorScheme = useColorScheme();
+	const [sessionEnded, setSessionEnded] = useState(false);
+	const languageStarted = useLanguageStarted();
+	// the new Home (EXPO_PUBLIC_APP_SHELL=next) reads the session the store restored
 	useLoadSession();
-	useEffect(() => followAppState(), []);
-	useEffect(holdTheSession, []);
-	const preference = useAtomValue(themePreferenceAtom);
-	const theme = useTheme(preference);
 
+	const { rehydrated } = useInitialRootStore(({ sessionEnded: ended }) => {
+		// a little longer than the store takes, so the splash screen does not flicker
+		setTimeout(hideSplashScreen, 500);
+		setSessionEnded(ended);
+	});
+
+	const ready = rehydrated && areFontsLoaded && languageStarted;
+	// told on the first render that shows the message host, however long the fonts take
+	useOnceReady(sessionEnded, ready, tellSessionEnded);
+
+	if (!ready) {
+		return null;
+	}
+
+	const systemIsDark = systemColorScheme === 'dark';
+	const dark = followsSystemTheme ? systemIsDark : isDarkMode;
+	const theme = dark ? customDarkTheme : customLightTheme;
 	return (
 		<GestureHandlerRootView style={styles.root}>
-			<PersistQueryClientProvider client={queryClient} persistOptions={persistOptions}>
-				<ThemeProvider value={navigationThemeFor(theme)}>
-					<StatusBar style={statusBarStyleFor(theme.scheme)} />
-					<Stack screenOptions={{ headerShown: false }} />
-				</ThemeProvider>
-			</PersistQueryClientProvider>
+			<SafeAreaProvider initialMetrics={initialWindowMetrics}>
+				<PaperProvider theme={theme}>
+					<ErrorBoundary catchErrors={Config.catchErrors}>
+						<FlashMessage position="top" />
+						<ClickOutsideProvider>
+							<AppQueryProvider signedIn={isAuthenticated}>
+								<ThemeProvider value={navigationTheme(dark)}>
+									<Stack screenOptions={{ headerShown: false }} />
+								</ThemeProvider>
+							</AppQueryProvider>
+						</ClickOutsideProvider>
+					</ErrorBoundary>
+				</PaperProvider>
+			</SafeAreaProvider>
 		</GestureHandlerRootView>
 	);
-}
+});
+
+export default Sentry.wrap(RootLayout);
 
 const styles = StyleSheet.create({
 	root: {
