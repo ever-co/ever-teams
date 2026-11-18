@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
-import { changeTeamsLanguage } from '@components/i18n/language-switch';
+import i18n from '@lib/i18n/init';
 
 /**
- * The language of a TeamsProvider: at mount, the language saved earlier on this site, else `lang`; a `lang` the host
- * changes afterwards applies at once.
+ * The language of a TeamsProvider: at mount, the language a person picked earlier on this site in the language switch,
+ * else `lang`; a `lang` the host changes afterwards applies at once. Only the switch saves a language: the provider
+ * never saves `lang`, so the `lang` of another page of the site still applies there.
  */
 export function useProviderLanguage(lang: string) {
 	const [language, setLanguage] = useState(lang);
@@ -25,6 +26,6 @@ export function useProviderLanguage(lang: string) {
 	}, [lang]);
 
 	useEffect(() => {
-		changeTeamsLanguage(language);
+		i18n.changeLanguage(language);
 	}, [language]);
 }

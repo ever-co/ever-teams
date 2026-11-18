@@ -1,6 +1,7 @@
 {
 	"name": "@ever-teams/embed",
 	"version": "0.0.0",
+	"private": true,
 	"description": "The Ever Teams timer as an HTML element: one script tag, no React and no build step in the host page.",
 	"license": "MIT",
 	"type": "module",
@@ -14,6 +15,7 @@
 	},
 	"scripts": {
 		"build": "vite build",
+		"prepublishOnly": "vite build",
 		"test": "node --test test/*.test.mjs"
 	},
 	"devDependencies": {

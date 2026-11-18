@@ -14,7 +14,7 @@ export interface TeamsExtraTimerProps extends Omit<TeamsExtraBaseTimerProps, 'ti
 // TODO: Must move this to Atoms and integrate with gauzy api
 export function TeamsExtraTimer({ progress, ...props }: Readonly<TeamsExtraTimerProps>) {
 	// Timer hook - self-contained, fetches all dependencies internally
-	const control = useTimerControl();
+	const control = useTimerControl(props.caption);
 	const ActionButton = control.isRunning ? Pause : Play;
 
 	return (
@@ -22,6 +22,7 @@ export function TeamsExtraTimer({ progress, ...props }: Readonly<TeamsExtraTimer
 			<BaseAtom
 				{...control.action}
 				{...props}
+				caption={control.caption}
 				{...control.state}
 				{...(progress && { progress: (control.seconds / 100) * 60 })}
 				customButtonIcon={<ActionButton />}

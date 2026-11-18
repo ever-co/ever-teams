@@ -17,7 +17,7 @@ interface IPersonalProps {
 }
 
 const PersonalSettings: FC<IPersonalProps> = ({ onOpenBottomSheet }) => {
-	const { colors } = useAppTheme();
+	const { colors, dark } = useAppTheme();
 	const {
 		authenticationStore: { toggleTheme }
 	} = useStores();
@@ -47,7 +47,7 @@ const PersonalSettings: FC<IPersonalProps> = ({ onOpenBottomSheet }) => {
 					onPress={() => openSheet('Contact')}
 				/>
 				<SingleInfo
-					onPress={() => toggleTheme()}
+					onPress={() => toggleTheme(dark)}
 					title={translate('settingScreen.personalSection.themes')}
 					value={translate('settingScreen.personalSection.lightModeToDark')}
 				/>

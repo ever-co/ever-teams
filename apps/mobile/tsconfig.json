@@ -21,6 +21,6 @@
 		}
 	},
 	"exclude": ["node_modules"],
-	"include": ["index.js", "App.js", "app", "assets", "test", "*.js", "*.ts", "app.config.ts"],
+	"include": ["index.js", "App.js", "app", "src", "assets", "test", "*.js", "*.ts", "app.config.ts"],
 	"extends": "expo/tsconfig.base"
 }

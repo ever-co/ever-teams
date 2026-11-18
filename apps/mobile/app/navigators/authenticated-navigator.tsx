@@ -1,12 +1,18 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, { useEffect, useState } from 'react';
 import { Platform, TextStyle, View, ViewStyle } from 'react-native';
-import { BottomTabScreenProps, createBottomTabNavigator, BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
+import {
+	BottomTabNavigationEventMap,
+	BottomTabScreenProps,
+	createBottomTabNavigator,
+	BottomTabNavigationProp
+} from '@react-navigation/bottom-tabs';
 import { createDrawerNavigator, DrawerScreenProps } from '@react-navigation/drawer';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import {
 	CompositeScreenProps,
 	CompositeNavigationProp,
+	EventArg,
 	RouteProp,
 	useIsFocused,
 	useNavigation
@@ -109,6 +115,17 @@ export type MembersSettingsScreenRouteProp = RouteProp<AuthenticatedDrawerParamL
 
 const Tab = createBottomTabNavigator<AuthenticatedTabParamList>();
 
+/**
+ * The tab bar sends `tabPress` as an event a listener can prevent (`canPreventDefault` in the bottom tabs' event map),
+ * but without strictNullChecks the React Navigation 7 typings drop `preventDefault` from every event, so the listener
+ * names the event the tab bar sends.
+ */
+type TabPressEvent = EventArg<
+	'tabPress',
+	BottomTabNavigationEventMap['tabPress']['canPreventDefault'],
+	BottomTabNavigationEventMap['tabPress']['data']
+>;
+
 const TabNavigator = observer(function TabNavigator() {
 	const { bottom } = useSafeAreaInsets();
 	const { colors, dark } = useAppTheme();
@@ -126,6 +143,8 @@ const TabNavigator = observer(function TabNavigator() {
 
 	return (
 		<Tab.Navigator
+			// No id, as before: see the app stack in app-navigator.tsx
+			id={undefined}
 			screenOptions={{
 				headerShown: false,
 				tabBarHideOnKeyboard: true,
@@ -187,6 +206,7 @@ const TabNavigator = observer(function TabNavigator() {
 					component={AuthenticatedTimerScreen}
 					options={{
 						tabBarLabel: translate('myWorkScreen.name'),
+						tabBarButtonTestID: 'tab-work',
 						tabBarIcon: ({ focused }) =>
 							!focused ? (
 								<SvgXml xml={dark ? userNotFocusedDark : userNotFocusedLight} />
@@ -204,6 +224,7 @@ const TabNavigator = observer(function TabNavigator() {
 				component={AuthenticatedProfileScreen}
 				options={{
 					tabBarLabel: translate('tasksScreen.name'),
+					tabBarButtonTestID: 'tab-tasks',
 					tabBarIcon: ({ focused }) =>
 						focused ? (
 							<SvgXml xml={dark ? briefCaseFocusedDark : briefCaseFocusedLight} />
@@ -213,7 +234,7 @@ const TabNavigator = observer(function TabNavigator() {
 					tabBarActiveTintColor: dark ? '#8C7AE4' : '#3826A6'
 				}}
 				listeners={{
-					tabPress: (e) => {
+					tabPress: (e: TabPressEvent) => {
 						e.preventDefault();
 
 						navigation.navigate('Profile', {
@@ -229,6 +250,7 @@ const TabNavigator = observer(function TabNavigator() {
 				component={AuthenticatedTeamScreen}
 				options={{
 					tabBarLabel: translate('teamScreen.name'),
+					tabBarButtonTestID: 'tab-team',
 					tabBarIcon: ({ focused }) =>
 						!focused ? (
 							<SvgXml xml={dark ? peopleNotFocusedDark : peopleNotFocusedLight} />
@@ -259,6 +281,8 @@ function UnmountOnBlur({ children }: Readonly<{ children: React.ReactNode }>) {
 export const AuthenticatedNavigator = observer(function AuthenticatedNavigator() {
 	return (
 		<drawer.Navigator
+			// No id, as before: see the app stack in app-navigator.tsx
+			id={undefined}
 			drawerContent={(props) => <HamburgerMenu {...props} />}
 			screenLayout={({ children }) => <UnmountOnBlur>{children}</UnmountOnBlur>}
 			screenOptions={{

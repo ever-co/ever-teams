@@ -6,6 +6,7 @@
 		"slug": "$EXPO_PROJECT_SLUG",
 		"version": "0.1.0",
 		"orientation": "portrait",
+		"userInterfaceStyle": "automatic",
 		"icon": "./assets/images/ever-teams-logo.png",
 		"owner": "$EXPO_PROJECT_OWNER",
 		"updates": {

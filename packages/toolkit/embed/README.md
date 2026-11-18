@@ -24,7 +24,7 @@ The element shows the kit's sign-in button, then the person's timer once they ar
 | `color-scheme` | `system`                    | `light`, `dark`, or `system` (follows the system's).                                       |
 | `lang`         | `en`                        | The language of the timer and its sign-in: `en` or `fr`.                                   |
 
-A change of attribute applies at once. Removing the element stops the timer's display and its polling. All the timers of a page share one color scheme for now: the last element to load sets it.
+A change of attribute applies at once. Removing the element stops the timer's display and its polling; moving it in the page keeps it as it is. All the timers of a page share one color scheme and one language for now: the last element to load or change sets them. A language a person picks in the kit's language switch is kept for their next visits and wins over `lang` when an element loads.
 
 ## Examples
 
@@ -79,3 +79,25 @@ element. Sign-in from your backend, without a password in the page, comes with t
 yarn build   # from packages/toolkit/embed, after the @ever-teams/atoms build
 yarn test
 ```
+
+## Release
+
+Not on npm yet: the package is `private` until its name and its first release are approved. The SDK release publishes
+every public package that has a changeset (`changeset publish`), so to release it:
+
+1. remove `"private": true` from `package.json`;
+2. add `.changeset/kit-11-timer-element.md`:
+
+    ```md
+    ---
+    '@ever-teams/embed': minor
+    ---
+
+    New package: `<ever-teams-timer api-url="...">`, the Ever Teams timer as an HTML element for pages without React. One `<script type="module">` loads React, the kit and its stylesheet; the element renders the kit's sign-in and basic timer in its own shadow root, reads `api-url`, `color-scheme` and `lang`, and stops when removed.
+    ```
+
+3. add `packages/toolkit/embed` to `.github/workflows/release.sdk.prod.yml`: its build (after atoms), the
+   `SDK_PACKAGES` of the change detection, and the `dirs` of "Start SDK versions from npm's latest" (without that, a
+   release cut before the bump PR reaches main computes a version npm already has, and publish skips it);
+4. its first publish may need a token: npm trusted publishing is set up in the settings of a package that already
+   exists.
