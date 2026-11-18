@@ -56,6 +56,8 @@ const PassCode: FC<Props> = observer(
 		} = useStores();
 
 		const authTeamInput = useRef<TextInput | null>(null);
+		// A request for the code under way: Continue pressed again meanwhile sends no second one
+		const isSendingCode = useRef(false);
 		const [step, setStep] = useState<'Email' | 'Code' | 'Tenant'>('Email');
 		const [isValid, setIsValid] = useState<{ step1: boolean; step2: boolean; step3: boolean }>({
 			step1: false,
@@ -71,8 +73,16 @@ const PassCode: FC<Props> = observer(
 
 		const onNextStep = async () => {
 			if (step === 'Email') {
+				if (isSendingCode.current) {
+					return;
+				}
+				isSendingCode.current = true;
 				// The code step opens once the API has answered: the code the person is asked for exists by then
-				await getAuthCode();
+				try {
+					await getAuthCode();
+				} finally {
+					isSendingCode.current = false;
+				}
 				setStep('Code');
 				setAuthInviteCode('');
 				return;
