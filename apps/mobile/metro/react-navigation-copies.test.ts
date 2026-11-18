@@ -1,4 +1,5 @@
-const { expoRouterCopyOf, withReactNavigationFromExpoRouter } = require('./react-navigation-copies');
+import { expoRouterCopyOf, withReactNavigationFromExpoRouter } from './react-navigation-copies';
+import type { ResolutionContext } from './react-navigation-copies';
 
 describe('the React Navigation the app bundles', () => {
 	it("is Expo Router's copy, for the current screens' imports and the libraries'", () => {
@@ -17,7 +18,7 @@ describe('the React Navigation the app bundles', () => {
 
 	it('resolves through the resolver it wraps, or else through Metro', () => {
 		const metro = jest.fn(() => ({ type: 'sourceFile' }));
-		const context = { resolveRequest: metro };
+		const context: ResolutionContext = { resolveRequest: metro };
 
 		withReactNavigationFromExpoRouter(undefined)(context, '@react-navigation/native', 'android');
 		withReactNavigationFromExpoRouter(undefined)(context, 'react-native', 'android');
