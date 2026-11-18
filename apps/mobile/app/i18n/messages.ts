@@ -1,21 +1,43 @@
 import ar from '../../locales/ar.json';
 import bg from '../../locales/bg.json';
+import de from '../../locales/de.json';
 import en from '../../locales/en.json';
 import es from '../../locales/es.json';
 import fr from '../../locales/fr.json';
 import he from '../../locales/he.json';
+import it from '../../locales/it.json';
 import ko from '../../locales/ko.json';
+import nl from '../../locales/nl.json';
+import pl from '../../locales/pl.json';
+import pt from '../../locales/pt.json';
 import ru from '../../locales/ru.json';
+import zh from '../../locales/zh.json';
 
 export type Messages = typeof en;
 
-export const SUPPORTED_LOCALES = ['ar', 'bg', 'en', 'es', 'fr', 'he', 'ko', 'ru'] as const;
+/** The web's 13 languages, and Korean, which the app had before them. */
+export const SUPPORTED_LOCALES = [
+	'ar',
+	'bg',
+	'de',
+	'en',
+	'es',
+	'fr',
+	'he',
+	'it',
+	'ko',
+	'nl',
+	'pl',
+	'pt',
+	'ru',
+	'zh'
+] as const;
 
 export type AppLocale = (typeof SUPPORTED_LOCALES)[number];
 
 export const DEFAULT_LOCALE: AppLocale = 'en';
 
-export const messagesByLocale: Record<AppLocale, Messages> = { ar, bg, en, es, fr, he, ko, ru };
+export const messagesByLocale: Record<AppLocale, Messages> = { ar, bg, de, en, es, fr, he, it, ko, nl, pl, pt, ru, zh };
 
 function isAppLocale(value: string): value is AppLocale {
 	return (SUPPORTED_LOCALES as readonly string[]).includes(value);

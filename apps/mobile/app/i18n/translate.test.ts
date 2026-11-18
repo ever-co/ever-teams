@@ -23,7 +23,7 @@ describe('translate', () => {
 	});
 
 	it('reads English for a language the app does not have', () => {
-		expect(setAppLocale('pt-BR')).toBe('en');
+		expect(setAppLocale('sv-SE')).toBe('en');
 
 		expect(translate('common.cancel')).toBe('Cancel');
 	});
