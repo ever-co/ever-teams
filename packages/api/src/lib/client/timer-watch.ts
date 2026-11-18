@@ -1,6 +1,6 @@
-import { ITimerStatus, TimerChange } from '@ever-teams/toolkit-types';
+import { TimerChange } from '@ever-teams/toolkit-types';
 import { clientError, isRecord } from './error-mapping';
-import { timerChangeOf } from './timer-change';
+import { TimerStatusRead, timerChangeOf } from './timer-change';
 
 export interface TimerWatchOptions {
 	/** Milliseconds between two reads: 60 000 by default, the kit's rate, and 15 000 at least. */
@@ -60,11 +60,23 @@ function throwLater(error: unknown): void {
 	}, 0);
 }
 
-// An answer with no status in it (null, an empty body, an object without a boolean running) is a failed read, as an
-// answer of GET /user/me with no user is: it is not taken for a stopped timer, and the last change told stays the
-// baseline.
-function statusOf(answer: unknown): ITimerStatus {
-	const hasStatus = isRecord(answer) && typeof answer['running'] === 'boolean';
+const LOG_TEXT_FIELDS = ['startedAt', 'projectId', 'taskId'];
+
+const isTextOrNothing = (value: unknown) => value === undefined || value === null || typeof value === 'string';
+
+// A last log that is none, or one whose start, project and task are text or nothing: the listener gets no other.
+function isReadableLog(log: unknown): boolean {
+	if (log === undefined || log === null) {
+		return true;
+	}
+	return isRecord(log) && LOG_TEXT_FIELDS.every((field) => isTextOrNothing(log[field]));
+}
+
+// An answer with no status in it (null, an empty body, an object without a boolean running, a last log whose start,
+// project or task is not text) is a failed read, as an answer of GET /user/me with no user is: it is not taken for a
+// stopped timer, and the last change told stays the baseline.
+function statusOf(answer: unknown): TimerStatusRead {
+	const hasStatus = isRecord(answer) && typeof answer['running'] === 'boolean' && isReadableLog(answer['lastLog']);
 	if (!hasStatus) {
 		throw clientError(
 			'UNEXPECTED_ANSWER',
@@ -72,7 +84,7 @@ function statusOf(answer: unknown): ITimerStatus {
 			"Check that apiUrl is the Ever Teams API's address (it ends with /api). The watch reads again at its next turn."
 		);
 	}
-	return answer as unknown as ITimerStatus;
+	return answer as unknown as TimerStatusRead;
 }
 
 function callOnError(onError: (error: unknown) => void, error: unknown): void {
@@ -88,7 +100,8 @@ function callOnError(onError: (error: unknown) => void, error: unknown): void {
  * the page is visible, one read at a time; tells `listener` the first read and each change. Answers the stop.
  */
 export function watchTimer(
-	read: () => Promise<ITimerStatus>,
+	// Any answer: statusOf checks it before it is read.
+	read: () => Promise<unknown>,
 	listener: TimerListener,
 	options: TimerWatchOptions = {}
 ): () => void {

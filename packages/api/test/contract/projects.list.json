@@ -1,0 +1,39 @@
+{
+	"route": "GET /organization-projects/employee/<employee-1>",
+	"status": 200,
+	"answer": [
+		{
+			"id": "<project-1>",
+			"name": "<name-3>",
+			"billing": null,
+			"currency": null,
+			"public": false,
+			"owner": null,
+			"taskListType": "GRID",
+			"imageUrl": "https://example.com/imageUrl-3",
+			"image": null
+		},
+		{
+			"id": "<project-2>",
+			"name": "<name-4>",
+			"billing": null,
+			"currency": null,
+			"public": true,
+			"owner": null,
+			"taskListType": "GRID",
+			"imageUrl": "https://example.com/imageUrl-4",
+			"image": null
+		},
+		{
+			"id": "<project-3>",
+			"name": "<name-5>",
+			"billing": null,
+			"currency": null,
+			"public": true,
+			"owner": null,
+			"taskListType": "GRID",
+			"imageUrl": "https://example.com/imageUrl-5",
+			"image": null
+		}
+	]
+}

@@ -574,3 +574,31 @@ test('an answer without a boolean running after a running read is a failed read:
 		[{ running: true, initial: true }]
 	);
 });
+
+test('a last log whose start, project or task is not text is a failed read: the listener never gets such values', async () => {
+	mock.timers.enable({ apis: ['setInterval'] });
+	const timer = timerElsewhere(RUNNING);
+	const errors = [];
+	const { changes, listener } = recorder();
+	watch(timer, listener, { onError: (error) => errors.push(error) });
+	await settle();
+
+	timer.status = { running: true, duration: 60, lastLog: { startedAt: 42, projectId: [], taskId: false } };
+	mock.timers.tick(60_000);
+	await settle();
+	timer.status = { running: true, duration: 60, lastLog: { startedAt: STARTED_AT, projectId: null } };
+	mock.timers.tick(60_000);
+	await settle();
+
+	assert.deepEqual(
+		errors.map((error) => error.code),
+		['UNEXPECTED_ANSWER']
+	);
+	assert.deepEqual(
+		changes.map(({ projectId, taskId, initial }) => ({ projectId, taskId, initial })),
+		[
+			{ projectId: 'project-1', taskId: null, initial: true },
+			{ projectId: null, taskId: null, initial: false }
+		]
+	);
+});

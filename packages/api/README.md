@@ -18,8 +18,8 @@ signature of the webhooks the API sends when a timer starts or stops: see
 npm install @ever-teams/api
 ```
 
-It brings two dependencies: `@ever-teams/toolkit-types` (the types of the answers) and `qs`. It uses the platform's
-`fetch`.
+It brings two dependencies: `@ever-teams/toolkit-types` (the types it shares with the kit) and `qs`. It uses the
+platform's `fetch`.
 
 ## Quick start: start a timer from a script
 
@@ -104,20 +104,20 @@ request once more. A second refusal is thrown. A client stands for one person: i
 
 ## The client's methods
 
-Each method answers the API's data, typed with `@ever-teams/toolkit-types`, and throws an `EverTeamsError` on a
-failure. The table names the route behind each one; they are the routes the kit already calls.
+Each method answers the API's data, with the type the table names, and throws an `EverTeamsError` on a failure. The
+table names the route behind each one; they are the routes the kit already calls.
 
-| Method                                | Route                                             | Answer              |
-| ------------------------------------- | ------------------------------------------------- | ------------------- |
-| `timer.status()`                      | `GET /timesheet/timer/status`                     | `ITimerStatus`      |
-| `timer.start(options?)`               | `POST /timesheet/timer/start`                     | `ITimeSlot`         |
-| `timer.stop()`                        | `POST /timesheet/timer/stop`                      | `ITimeSlot \| null` |
-| `timer.watch(listener, options?)`     | `GET /timesheet/timer/status`, at each read       | `() => void`        |
-| `timeEntries.list({ from, to, ... })` | `GET /timesheet/time-log`                         | `ITimeLog[]`        |
-| `projects.list()`                     | `GET /organization-projects/employee/:employeeId` | `IProject[]`        |
-| `tasks.list({ projectId? })`          | `GET /tasks/employee/:employeeId`                 | `ITeamTask[]`       |
-| `members.list()`                      | `GET /employee/working`                           | `IMember[]`         |
-| `totals.today()`, `totals.week()`     | `GET /timesheet/statistics/counts`                | `EverTeamsTotal`    |
+| Method                                | Route                                             | Answer                     |
+| ------------------------------------- | ------------------------------------------------- | -------------------------- |
+| `timer.status()`                      | `GET /timesheet/timer/status`                     | `EverTeamsTimerStatus`     |
+| `timer.start(options?)`               | `POST /timesheet/timer/start`                     | `EverTeamsTimeLog`         |
+| `timer.stop()`                        | `POST /timesheet/timer/stop`                      | `EverTeamsTimeLog \| null` |
+| `timer.watch(listener, options?)`     | `GET /timesheet/timer/status`, at each read       | `() => void`               |
+| `timeEntries.list({ from, to, ... })` | `GET /timesheet/time-log`                         | `EverTeamsTimeEntry[]`     |
+| `projects.list()`                     | `GET /organization-projects/employee/:employeeId` | `EverTeamsProject[]`       |
+| `tasks.list({ projectId? })`          | `GET /tasks/employee/:employeeId`                 | `EverTeamsTask[]`          |
+| `members.list()`                      | `GET /employee/working`                           | `EverTeamsMember[]`        |
+| `totals.today()`, `totals.week()`     | `GET /timesheet/statistics/counts`                | `EverTeamsTotal`           |
 
 ### timer.status()
 
@@ -140,6 +140,7 @@ const log = await teams.timer.start({ projectId, taskId, description: 'Review th
 ```
 
 The time is recorded with the source `EMBED`; an API that predates that source gets `TEAMS` instead, as the kit does.
+In the answer, `projectId`, `taskId` and `organizationTeamId` are `null` when the timer started without them.
 
 ### timer.stop()
 
@@ -720,6 +721,53 @@ const otherStatus = await getTimerStatus(otherUser, otherToken, otherOrganizatio
 
 A new script or server is simpler with `createClient`. Nothing is deprecated: any change to these functions will be
 announced in the changelog first, and made later in a release of its own.
+
+## The answers, checked against the API
+
+The types the client's methods answer are checked against answers recorded from a running API, kept in
+`test/contract/` (one file per method, and one for `GET /user/me`). The API's Swagger description gives no answer
+shape for the timer and time entry routes, so the recorded answers are the reference. Three tests read them:
+
+- `test/contract-types.test.mjs` assigns each recorded answer, every value typed as the literal it is, to the type
+  the client declares for it, and compiles that with `tsc --noEmit`. A value the type does not allow (`null` where it
+  declares a string, a text where it declares a number) or a required field the answer lacks fails the test. A field
+  the API answers and the type does not name passes.
+- `test/contract-answers.test.mjs` serves each method its recorded answer and checks that the method sends the
+  recorded route and returns that answer.
+- `test/contract-privacy.test.mjs` checks that the recordings hold no personal data: every text is a placeholder or a
+  value the API picks from a fixed list (a log type, a source, a currency), with no email address, token or id.
+
+When the API changes an answer, recording it again shows the change in the fixtures, and the type test names the
+field that no longer fits.
+
+### Record the answers again
+
+The script is in the repository, not in the published package. Run it from `packages/api`, against a local API,
+with the account of a member whose role may list members (a manager) and whose timer is stopped:
+
+```sh
+yarn --cwd ../toolkit-types build && yarn build
+EVER_TEAMS_API_URL=http://localhost:3000/api EVER_TEAMS_EMAIL=manager@example.com EVER_TEAMS_PASSWORD=... \
+  node scripts/record-contract.mjs
+# The path the script printed, quoted:
+EVER_TEAMS_CONTRACT_FORBIDDEN='/tmp/ever-teams-api-contract-AbC123/forbidden.json' yarn test
+```
+
+`EVER_TEAMS_TOKEN`, a personal API token, can replace the email and the password. The script refuses an address
+other than `localhost` unless `EVER_TEAMS_CONTRACT_REMOTE=1` is set, since it changes the account's data: it starts
+the account's timer twice (once bare, once on one of its tasks) and stops it, reads the time entries of the days it
+ran and the totals, then deletes the two time entries it created. It refuses an account whose timer runs, so the
+timer stays as it was, and follows no redirect, so the password and the token stay on the local API. When a step
+fails, it still stops its timer and deletes its entries before it reports the failure, and it prints the id of each
+entry it could not delete, so you can delete it in the app. A timer the account's member started in the meantime is
+left running. After a start whose answer was lost, a new entry, running or stopped, counts as the recording's own
+only when it has the client's source (`EMBED`); a running one from another source is left running and its id printed.
+
+Before writing, it replaces ids, names, emails, addresses, dates, amounts of money and the labels each organization
+names itself (a task's status, priority, size and type) with placeholders of the same form (`<employee-1>`,
+`<status-1>`, `person-1@example.com`, dates from `2000-01-01`). It lists the real values it replaced in a file of a
+new directory of the system's temporary folder that only your account may open, and prints its path: with
+`EVER_TEAMS_CONTRACT_FORBIDDEN` set to it, the privacy test also checks that none of them reached a fixture.
 
 ## License
 
