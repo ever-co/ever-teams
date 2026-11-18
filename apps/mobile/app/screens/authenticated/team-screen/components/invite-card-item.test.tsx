@@ -25,6 +25,14 @@ describe('the invitation card', () => {
 		expect(screen.getByText('nadia.osei@example.com')).toBeTruthy();
 	});
 
+	it('shows the address of an invitation sent without a name, at full opacity', async () => {
+		await render(<ListItemContent invite={{ ...nadia, fullName: null }} />);
+
+		const email = screen.getByText('nadia.osei@example.com');
+		expect(StyleSheet.flatten(email.props.style).opacity).toBe(1);
+		expect(screen.queryByText('Nadia Osei')).toBeNull();
+	});
+
 	it('keeps the address readable, since an invitation without a name has nothing else', async () => {
 		await render(<ListItemContent invite={nadia} />);
 
