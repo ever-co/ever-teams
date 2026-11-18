@@ -90,6 +90,8 @@ const signIns = {};
 // The latest timer and manual time form of each provider, by its name.
 const timers = {};
 const manualTimes = {};
+// The latest team creation and password update forms of each provider, by its name.
+const accountForms = {};
 
 before(async () => {
 	const { bundled, remove } = await bundleKit({
@@ -112,6 +114,8 @@ before(async () => {
 			export { useActivitiesStats } from '${kitSources}/hooks/useActivitiesStats.ts';
 			export { useTimeLogs } from '${kitSources}/hooks/useTimeLogs.ts';
 			export { useMember } from '${kitSources}/hooks/useMember.ts';
+			export { useTeamCreationForm } from '${kitSources}/hooks/useTeamCreationForm.ts';
+			export { usePasswordUpdateForm } from '${kitSources}/hooks/usePasswordUpdateForm.ts';
 			export { apiConfigManager } from '@ever-teams/api';`,
 		standIns,
 		standInOf
@@ -187,6 +191,14 @@ function Reports() {
 }
 
 const reports = () => [React.createElement(Reports, { key: 'reports' })];
+
+function AccountForms({ name }) {
+	accountForms[name] = { team: kit.useTeamCreationForm(), password: kit.usePasswordUpdateForm() };
+	return null;
+}
+
+const accountFormsOf = (name) => [React.createElement(AccountForms, { key: 'account', name })];
+const typed = (name, value) => ({ target: { name, value } });
 
 // A provider with the sign-in forms and the given widgets; a sign-out keeps the page where it is.
 function provider(name, config, widgets = []) {
@@ -371,6 +383,36 @@ test('the reports of the second of two providers read its own API, after the fir
 	];
 	assert.deepEqual(paths.filter(read), paths);
 	assert.ok(requestsTo('/timesheet/time-log').length > 0, 'the time logs are read');
+	assert.deepEqual(new Set(requests.map(({ host }) => host)), new Set([hostOf(SERVER_B)]));
+});
+
+test('a team created and a password changed under the second of two providers go to its own API', async () => {
+	const configB = { apiUrl: SERVER_B };
+	const { root } = await openPage([
+		['a', { apiUrl: SERVER_A }, accountFormsOf('a')],
+		['b', configB, accountFormsOf('b')]
+	]);
+	await renderPage(root, [
+		['a', { apiUrl: 'https://a2.example.com/api' }, accountFormsOf('a')],
+		['b', configB, accountFormsOf('b')]
+	]);
+	await signInOn('b');
+
+	await act(async () => accountForms.b.team.handleChange(typed('teamName', 'Design')));
+	await act(async () => accountForms.b.team.handleSubmit(submitted));
+	for (const [field, value] of [
+		['current', 'secret-1'],
+		['new', 'secret-2'],
+		['confirm', 'secret-2']
+	]) {
+		await act(async () => accountForms.b.password.handleChange(typed(field, value)));
+	}
+	await act(async () => accountForms.b.password.handleSubmit(submitted));
+	await settle();
+
+	const sent = requests.filter(({ method }) => method !== 'GET').map(({ method, path }) => `${method} ${path}`);
+	assert.deepEqual(sent, ['POST /auth/login', 'POST /organization-team', 'POST /auth/login', 'PUT /user/user-1']);
+	assert.ok(requestsTo('/organization-team/me').length > 0, 'the teams are read again');
 	assert.deepEqual(new Set(requests.map(({ host }) => host)), new Set([hostOf(SERVER_B)]));
 });
 

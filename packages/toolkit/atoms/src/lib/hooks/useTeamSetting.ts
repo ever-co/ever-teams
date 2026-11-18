@@ -3,6 +3,7 @@ import { IOrganizationTeamList, PaginationResponse } from '@ever-teams/toolkit-t
 import { toast } from '@ever-teams/toolkit-ui';
 import { useOrganizationTeams } from '@hooks/useOrganizationTeams';
 import { useTeamsContext } from '@lib/context/teams-context';
+import { useKitOptions } from '@components/teams-provider/kit-options';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -26,6 +27,7 @@ export const useTeamSetting = () => {
 	const [formValues, setFormValues] = useState<FormValues>(defaultFormValues);
 
 	const { token, selectedTeam, selectedOrganization: organizationId, authenticatedUser: user } = useTeamsContext();
+	const { api } = useKitOptions();
 
 	const { data: fetchedOrganizationTeams } = useOrganizationTeams({ projectId: null });
 
@@ -89,7 +91,7 @@ export const useTeamSetting = () => {
 			let imageId = '';
 
 			if (file) {
-				const uploadedFile = await uploadFile({ file, token, user, folderName: 'team_avatars' });
+				const uploadedFile = await uploadFile({ file, token, user, folderName: 'team_avatars' }, api);
 
 				if ('message' in uploadedFile || 'error' in uploadedFile) {
 					const errorMessage =
@@ -111,19 +113,22 @@ export const useTeamSetting = () => {
 				imageId = uploadedFile.id;
 			}
 
-			const updatedTeam = await updateTeam({
-				currentUser: user,
-				organizationId,
-				token,
-				data: {
-					name: formValues.name,
-					teamId: selectedTeam,
-					color: formValues.color,
-					public: formValues.isPublic,
-					teamSize: formValues.size,
-					imageId
-				}
-			});
+			const updatedTeam = await updateTeam(
+				{
+					currentUser: user,
+					organizationId,
+					token,
+					data: {
+						name: formValues.name,
+						teamId: selectedTeam,
+						color: formValues.color,
+						public: formValues.isPublic,
+						teamSize: formValues.size,
+						imageId
+					}
+				},
+				api
+			);
 
 			if ('message' in updatedTeam || 'error' in updatedTeam) {
 				const errorMessage =
@@ -142,7 +147,7 @@ export const useTeamSetting = () => {
 				return;
 			}
 			// Fetch updated teams
-			const userTeams = await getOrganisationTeams({ user, token, organizationId, projectId: null });
+			const userTeams = await getOrganisationTeams({ user, token, organizationId, projectId: null }, api);
 
 			if (userTeams && !('error' in userTeams || 'message' in userTeams)) {
 				setOrganizationTeams(userTeams);
