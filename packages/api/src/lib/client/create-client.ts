@@ -13,7 +13,7 @@ export type { MembersResource } from './members';
 export type { ProjectsResource } from './projects';
 export type { TasksListParams, TasksResource } from './tasks';
 export type { TimeEntriesListParams, TimeEntriesResource } from './time-entries';
-export type { TimerResource, TimerStartOptions } from './timer';
+export type { EverTeamsTimeLog, EverTeamsTimerStatus, TimerResource, TimerStartOptions } from './timer';
 export type { EverTeamsTotal, TotalsResource } from './totals';
 
 export interface EverTeamsClient {

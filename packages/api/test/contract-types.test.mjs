@@ -22,9 +22,6 @@ const KNOWN_DISAGREEMENTS = new Map([
 	['projects.list', 'billing, currency and owner are null'],
 	['tasks.list', 'description, priority, size, issueType, dueDate... are null; members, creator, tags... are absent'],
 	['members.list', 'endWork is absent; the user holds a few fields, and its timeFormat is a number'],
-	['timer.start', 'projectId, taskId and organizationTeamId are null; logType and source are text, not enums'],
-	['timer.status', "the last log's projectId, taskId and organizationTeamId are null; logType and source are text"],
-	['timer.stop', 'projectId, taskId and organizationTeamId are null; logType and source are text, not enums'],
 	['timeEntries.list', 'project, task, organizationContact... are null; the employee and its user hold a few fields']
 ]);
 

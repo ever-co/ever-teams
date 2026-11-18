@@ -98,19 +98,19 @@ request once more. A second refusal is thrown. A client stands for one person: i
 
 ## The client's methods
 
-Each method answers the API's data, typed with `@ever-teams/toolkit-types`, and throws an `EverTeamsError` on a
-failure. The table names the route behind each one; they are the routes the kit already calls.
+Each method answers the API's data, with the type the table names, and throws an `EverTeamsError` on a failure. The
+table names the route behind each one; they are the routes the kit already calls.
 
-| Method                                | Route                                             | Answer              |
-| ------------------------------------- | ------------------------------------------------- | ------------------- |
-| `timer.status()`                      | `GET /timesheet/timer/status`                     | `ITimerStatus`      |
-| `timer.start(options?)`               | `POST /timesheet/timer/start`                     | `ITimeSlot`         |
-| `timer.stop()`                        | `POST /timesheet/timer/stop`                      | `ITimeSlot \| null` |
-| `timeEntries.list({ from, to, ... })` | `GET /timesheet/time-log`                         | `ITimeLog[]`        |
-| `projects.list()`                     | `GET /organization-projects/employee/:employeeId` | `IProject[]`        |
-| `tasks.list({ projectId? })`          | `GET /tasks/employee/:employeeId`                 | `ITeamTask[]`       |
-| `members.list()`                      | `GET /employee/working`                           | `IMember[]`         |
-| `totals.today()`, `totals.week()`     | `GET /timesheet/statistics/counts`                | `EverTeamsTotal`    |
+| Method                                | Route                                             | Answer                     |
+| ------------------------------------- | ------------------------------------------------- | -------------------------- |
+| `timer.status()`                      | `GET /timesheet/timer/status`                     | `EverTeamsTimerStatus`     |
+| `timer.start(options?)`               | `POST /timesheet/timer/start`                     | `EverTeamsTimeLog`         |
+| `timer.stop()`                        | `POST /timesheet/timer/stop`                      | `EverTeamsTimeLog \| null` |
+| `timeEntries.list({ from, to, ... })` | `GET /timesheet/time-log`                         | `ITimeLog[]`               |
+| `projects.list()`                     | `GET /organization-projects/employee/:employeeId` | `IProject[]`               |
+| `tasks.list({ projectId? })`          | `GET /tasks/employee/:employeeId`                 | `ITeamTask[]`              |
+| `members.list()`                      | `GET /employee/working`                           | `IMember[]`                |
+| `totals.today()`, `totals.week()`     | `GET /timesheet/statistics/counts`                | `EverTeamsTotal`           |
 
 ### timer.status()
 
@@ -133,6 +133,7 @@ const log = await teams.timer.start({ projectId, taskId, description: 'Review th
 ```
 
 The time is recorded with the source `EMBED`; an API that predates that source gets `TEAMS` instead, as the kit does.
+In the answer, `projectId`, `taskId` and `organizationTeamId` are `null` when the timer started without them.
 
 ### timer.stop()
 
