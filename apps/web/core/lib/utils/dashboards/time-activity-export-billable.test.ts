@@ -269,6 +269,21 @@ describe('billable entries that look alike', () => {
 		}
 	);
 
+	it('finds the row of an entry with several labels whatever order Gauzy states its tags in', () => {
+		const tagOf = (name: string) => ({ id: name.toLowerCase(), name, color: null });
+		const unbilled = labelledEntryOf(HOUR, 'Design');
+		const billed = { ...labelledEntryOf(HOUR, null), tags: [tagOf('Review'), tagOf('Design'), tagOf('Review')] };
+
+		const rows = rowsOf(boReportOf([unbilled, billed]));
+		const billables = exportBillablesOf(rows, factsOf(boReportOf([billed])));
+
+		const cells = rows.map((row) => [row.labels, billables.get(row)?.amount ?? null]);
+		expect(cells).toEqual([
+			['Design', null],
+			['Design, Review', 60]
+		]);
+	});
+
 	it('keeps an entry whose time changed between the two reads on the row of its own label', () => {
 		const unbilled = labelledEntryOf(HOUR, 'Design');
 		const billed = labelledEntryOf(HOUR + HOUR / 2, 'Review');

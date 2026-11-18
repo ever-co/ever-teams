@@ -14,8 +14,10 @@ export const NO_TEAMS_STATE: ICurrentTeamsState = {
  * Calls `forget` once the kit works for another account: another user, or another organization. A sign-out that keeps
  * the page (scopedStyles or onSignOut) leaves the widgets mounted, so what they hold for one account (the task, project
  * and team to start with, today's total, a form's text) would otherwise stay on screen and go out with the next
- * account's requests. A new token for the same user and organization keeps it. Call it before an effect that fills
- * the same state from the new account's answers: effects run in order, so the forgetting never undoes them.
+ * account's requests. A new token for the same user and organization keeps it. It also runs when a widget mounted
+ * signed out sees its first account (a session restored after mount), on state that is still empty. Call it before an
+ * effect that fills the same state from the new account's answers: effects run in order, so the forgetting never
+ * undoes them.
  */
 export function useForgetOnAccountChange(forget: () => void) {
 	const { authenticatedUser: user, selectedOrganization: organizationId } = useTeamsContext();

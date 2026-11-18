@@ -64,10 +64,8 @@ const stubs = {
 		export const authLogin = () => new Promise((resolve) => globalThis.__logins.push(resolve));
 		export const apiConfigManager = { getConfig: () => ({ apiUrl: 'http://api.test/api' }) };
 		globalThis.__manualTimes = [];
-		export const addManualTime = ({ body }) => {
-			globalThis.__manualTimes.push(body);
-			return Promise.resolve({ id: 'manual-log' });
-		};
+		export const addManualTime = ({ body }) =>
+			new Promise((resolve) => globalThis.__manualTimes.push(Object.assign(resolve, { body })));
 		export const ApiCall = () => new Promise(() => {});`,
 	'@ever-teams/toolkit-ui': `
 		globalThis.__toasts = [];
@@ -872,9 +870,8 @@ test('what a person picks in a timer survives the next read of their own status,
 	assert.deepEqual(seen.a.currentTeamsState, picked);
 });
 
-test('after a sign-out that keeps the page, the manual time form sends nothing the previous account picked or typed', async () => {
-	await reset();
-	const seen = {};
+// The manual time form, as the kit's form uses it.
+async function mountManualTimeForm(seen) {
 	const Form = () => {
 		seen.form = useManualTimeForm();
 		return null;
@@ -882,6 +879,31 @@ test('after a sign-out that keeps the page, the manual time form sends nothing t
 	const root = createRoot(document.createElement('div'));
 	roots.push(root);
 	await act(async () => root.render(React.createElement(Form)));
+}
+
+// Yesterday from nine to ten, so the hours never lie in the future whatever time the test runs.
+async function pickYesterdayMorning(seen) {
+	await act(async () => {
+		seen.form.setDate(new Date(Date.now() - 24 * 60 * 60 * 1000));
+		seen.form.handleTimeChange('start', '09:00');
+		seen.form.handleTimeChange('end', '10:00');
+	});
+}
+
+// The hours a new form starts with: the ten minutes up to now, rounded down to five minutes.
+function defaultHoursAt(time) {
+	const now = new Date(time);
+	now.setMinutes(Math.floor(now.getMinutes() / 5) * 5, 0, 0);
+	const start = new Date(now.getTime() - 10 * 60 * 1000);
+	const hhmm = (date) => `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+	return [hhmm(start), hhmm(now)];
+}
+
+test('after a sign-out that keeps the page, the manual time form sends nothing the previous account picked or typed', async () => {
+	await reset();
+	const seen = {};
+	await mountManualTimeForm(seen);
+	await pickYesterdayMorning(seen);
 	await act(async () => {
 		seen.form.setCurrentTeamsState({
 			taskId: 'task-1',
@@ -893,20 +915,72 @@ test('after a sign-out that keeps the page, the manual time form sends nothing t
 		seen.form.setIsBillable(false);
 	});
 
+	const before = Date.now();
 	await signOutAndInAsAnotherAccount();
-	// Yesterday from nine to ten, so the hour never lies in the future whatever time the test runs.
+	const after = Date.now();
+	// A new form: today, and the hours it starts with (read on either side of the switch, in case a minute turned).
+	assert.equal(seen.form.isToday, true);
+	const hours = [seen.form.startTime, seen.form.endTime];
+	assert.ok(
+		[defaultHoursAt(before), defaultHoursAt(after)].some((expected) => expected.join() === hours.join()),
+		hours.join()
+	);
+
+	await pickYesterdayMorning(seen);
 	await act(async () => {
-		seen.form.setDate(new Date(Date.now() - 24 * 60 * 60 * 1000));
-		seen.form.handleTimeChange('start', '09:00');
-		seen.form.handleTimeChange('end', '10:00');
+		seen.form.handleSubmit();
 	});
-	await act(async () => seen.form.handleSubmit());
 
 	assert.equal(globalThis.__manualTimes.length, 1);
-	const [body] = globalThis.__manualTimes;
+	const { body } = globalThis.__manualTimes[0];
 	assert.deepEqual(
 		[body.taskId, body.projectId, body.organizationTeamId, body.organizationContactId],
 		[undefined, undefined, undefined, undefined]
 	);
 	assert.deepEqual([body.employeeId, body.description, body.isBillable], ['e-2', '', true]);
+	await act(async () => globalThis.__manualTimes[0]({ id: 'manual-log' }));
+});
+
+test("a manual time sent before a sign-out leaves the next account's form as it is when it comes back", async () => {
+	await reset();
+	const seen = {};
+	await mountManualTimeForm(seen);
+	await pickYesterdayMorning(seen);
+	await act(async () => seen.form.setDescription('Notes of the first account'));
+	await act(async () => {
+		seen.form.handleSubmit();
+	});
+	assert.equal(seen.form.loading, true);
+
+	await signOutAndInAsAnotherAccount();
+	await act(async () => seen.form.setDescription('Notes of the second account'));
+	await act(async () => globalThis.__manualTimes[0]({ id: 'manual-log' }));
+
+	assert.equal(seen.form.description, 'Notes of the second account');
+	assert.equal(seen.form.loading, false);
+	assert.equal(globalThis.__toasts.length, 0);
+});
+
+test("a start or a stop that comes back after a switch of account leaves the next account's timer as it is", async () => {
+	// A start sent for the first account, answered once the second one is signed in with no timer running.
+	const seen = await clickStart();
+	await signOutAndInAsAnotherAccount();
+	await act(async () => globalThis.__reads.at(-1)({ running: false, duration: 0, lastLog: null }));
+	await act(async () => globalThis.__actions[0]({ id: 'log' }));
+	assert.equal(seen.a.isRunning, false);
+
+	// A stop sent for the second account, answered once the first one is back with its timer running.
+	await act(async () => {
+		seen.a.stopTimer();
+	});
+	const stop = globalThis.__actions.at(-1);
+	assert.equal(stop.kind, 'stop');
+	await act(async () => globalThis.__setIdentity(null));
+	await act(async () =>
+		globalThis.__reads.at(-1)({ running: true, lastLog: { startedAt: new Date().toISOString() } })
+	);
+	assert.equal(seen.a.isRunning, true);
+	await act(async () => stop({ id: 'slot' }));
+
+	assert.equal(seen.a.isRunning, true);
 });

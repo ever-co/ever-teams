@@ -127,6 +127,11 @@ export const useTimer = () => {
 				await reportAnswer(timeSlot, forIdentity);
 				return;
 			}
+			// A start that comes back after a switch of user, token or organization is the previous one's: the widgets
+			// of the new one keep their own stopwatch.
+			if (currentIdentity.current !== forIdentity) {
+				return;
+			}
 
 			start();
 			await refreshEveryWidget();
@@ -150,6 +155,10 @@ export const useTimer = () => {
 			}
 
 			timeSlot && (await addTimeSlot(token, timeSlot));
+			// The same for a stop: it never resets the stopwatch of the account signed in since.
+			if (currentIdentity.current !== forIdentity) {
+				return;
+			}
 
 			reset();
 			await refreshEveryWidget();

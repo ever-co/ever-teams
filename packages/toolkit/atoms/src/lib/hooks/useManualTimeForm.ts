@@ -2,7 +2,7 @@ import { addManualTime } from '@ever-teams/api';
 import { ICurrentTeamsState, LogType, TimerSource } from '@ever-teams/toolkit-types';
 import { useTeamsContext } from '@lib/context/teams-context';
 import { useAccessToken } from './useAccessToken';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { toast, reportError, getErrorMessage } from '@ever-teams/toolkit-ui';
 import { useTranslation } from 'react-i18next';
 import { format, subMinutes, addMinutes, isAfter, startOfDay, isToday as isTodayFns } from 'date-fns';
@@ -37,13 +37,23 @@ export const useManualTimeForm = () => {
 
 	const [currentTeamsState, setCurrentTeamsState] = useState<ICurrentTeamsState>(NO_TEAMS_STATE);
 
-	// Another account starts from an empty form: after a sign-out that keeps the form mounted, what the previous
-	// account picked or typed would otherwise go out with the next account's time.
+	// Which account the form works for: a submission that comes back after the account changed belongs to the previous
+	// one, and leaves the new account's form as it is.
+	const accountGeneration = useRef(0);
+
+	// Another account starts from a new form: after a sign-out that keeps the form mounted, what the previous account
+	// picked, typed or set (its day and hours too) would otherwise go out with the next account's time.
 	useForgetOnAccountChange(() => {
+		accountGeneration.current += 1;
+		const now = roundToNearest5Min(new Date());
+		setDate(new Date());
+		setStartTime(format(subMinutes(now, 10), 'HH:mm'));
+		setEndTime(format(now, 'HH:mm'));
 		setCurrentTeamsState(NO_TEAMS_STATE);
 		setDescription('');
 		setIsBillable(true);
 		setErrors([]);
+		setLoading(false);
 	});
 
 	const { data: userOrganizations } = useUserOrganization(user, token);
@@ -132,8 +142,13 @@ export const useManualTimeForm = () => {
 			source: TimerSource.TEAMS
 		};
 
+		const generation = accountGeneration.current;
+		const isForPreviousAccount = () => generation !== accountGeneration.current;
 		try {
 			const result = await addManualTime({ token, body });
+			if (isForPreviousAccount()) {
+				return;
+			}
 
 			if ('message' in result || 'error' in result) {
 				const msg =
@@ -157,10 +172,14 @@ export const useManualTimeForm = () => {
 			setDescription('');
 		} catch (error) {
 			const errorMessage = getErrorMessage(error);
-			setErrors([errorMessage]);
 			reportError(errorMessage);
+			if (!isForPreviousAccount()) {
+				setErrors([errorMessage]);
+			}
 		} finally {
-			setLoading(false);
+			if (!isForPreviousAccount()) {
+				setLoading(false);
+			}
 		}
 	};
 
