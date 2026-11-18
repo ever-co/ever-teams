@@ -52,7 +52,10 @@
 			"duration": "{hours} godz. {minutes} min",
 			"startFailedTitle": "Nie udało się uruchomić timera",
 			"startFailedMessage": "Sprawdź połączenie i spróbuj ponownie.",
-			"needsNetwork": "Uruchamianie i zatrzymywanie timera wymaga połączenia."
+			"needsNetwork": "Uruchamianie i zatrzymywanie timera wymaga połączenia.",
+			"weekFailed": "Nie udało się wczytać sumy tygodnia",
+			"weekUnavailable": "To konto nie rejestruje tu czasu",
+			"taskFailed": "Nie udało się wczytać zadania"
 		}
 	},
 	"session": {

@@ -52,7 +52,10 @@
 			"duration": "{hours} س {minutes} د",
 			"startFailedTitle": "تعذّر تشغيل المؤقت",
 			"startFailedMessage": "تحقّق من اتصالك ثم أعد المحاولة.",
-			"needsNetwork": "يتطلّب تشغيل المؤقت وإيقافه اتصالًا بالشبكة."
+			"needsNetwork": "يتطلّب تشغيل المؤقت وإيقافه اتصالًا بالشبكة.",
+			"weekFailed": "تعذّر تحميل مجموع الأسبوع",
+			"weekUnavailable": "هذا الحساب لا يسجّل وقتًا هنا",
+			"taskFailed": "تعذّر تحميل المهمة"
 		}
 	},
 	"session": {

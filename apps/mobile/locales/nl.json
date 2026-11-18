@@ -52,7 +52,10 @@
 			"duration": "{hours} u {minutes} min",
 			"startFailedTitle": "De timer kon niet starten",
 			"startFailedMessage": "Controleer uw verbinding en probeer het opnieuw.",
-			"needsNetwork": "Voor starten en stoppen van de timer is een verbinding nodig."
+			"needsNetwork": "Voor starten en stoppen van de timer is een verbinding nodig.",
+			"weekFailed": "Het weektotaal kon niet worden geladen",
+			"weekUnavailable": "Dit account registreert hier geen tijd",
+			"taskFailed": "De taak kon niet worden geladen"
 		}
 	},
 	"session": {

@@ -52,7 +52,10 @@
 			"duration": "{hours} h {minutes} min",
 			"startFailedTitle": "Le chronomètre n'a pas pu démarrer",
 			"startFailedMessage": "Vérifiez votre connexion et réessayez.",
-			"needsNetwork": "Démarrer et arrêter le chronomètre demandent une connexion."
+			"needsNetwork": "Démarrer et arrêter le chronomètre demandent une connexion.",
+			"weekFailed": "Le total de la semaine n'a pas pu se charger",
+			"weekUnavailable": "Ce compte ne suit pas de temps ici",
+			"taskFailed": "La tâche n'a pas pu se charger"
 		}
 	},
 	"session": {

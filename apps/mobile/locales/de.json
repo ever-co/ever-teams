@@ -52,7 +52,10 @@
 			"duration": "{hours} Std. {minutes} Min.",
 			"startFailedTitle": "Der Timer konnte nicht starten",
 			"startFailedMessage": "Prüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
-			"needsNetwork": "Zum Starten und Stoppen des Timers ist eine Verbindung nötig."
+			"needsNetwork": "Zum Starten und Stoppen des Timers ist eine Verbindung nötig.",
+			"weekFailed": "Die Wochensumme konnte nicht geladen werden",
+			"weekUnavailable": "Dieses Konto erfasst hier keine Zeit",
+			"taskFailed": "Die Aufgabe konnte nicht geladen werden"
 		}
 	},
 	"session": {

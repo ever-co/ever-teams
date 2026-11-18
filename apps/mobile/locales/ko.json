@@ -52,7 +52,10 @@
 			"duration": "{hours}시간 {minutes}분",
 			"startFailedTitle": "타이머를 시작할 수 없습니다",
 			"startFailedMessage": "연결을 확인하고 다시 시도하세요.",
-			"needsNetwork": "타이머를 시작하고 중지하려면 연결이 필요합니다."
+			"needsNetwork": "타이머를 시작하고 중지하려면 연결이 필요합니다.",
+			"weekFailed": "이번 주 합계를 불러오지 못했습니다",
+			"weekUnavailable": "이 계정은 여기에서 시간을 기록하지 않습니다",
+			"taskFailed": "작업을 불러오지 못했습니다"
 		}
 	},
 	"session": {

@@ -52,7 +52,10 @@
 			"duration": "{hours} h {minutes} min",
 			"startFailedTitle": "Il timer non è riuscito ad avviarsi",
 			"startFailedMessage": "Controlla la connessione e riprova.",
-			"needsNetwork": "Per avviare e fermare il timer serve una connessione."
+			"needsNetwork": "Per avviare e fermare il timer serve una connessione.",
+			"weekFailed": "Impossibile caricare il totale della settimana",
+			"weekUnavailable": "Questo account non registra tempo qui",
+			"taskFailed": "Impossibile caricare l'attività"
 		}
 	},
 	"session": {

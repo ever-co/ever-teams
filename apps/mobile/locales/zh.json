@@ -52,7 +52,10 @@
 			"duration": "{hours} 小时 {minutes} 分钟",
 			"startFailedTitle": "计时器无法启动",
 			"startFailedMessage": "请检查网络连接后重试。",
-			"needsNetwork": "启动和停止计时器需要网络连接。"
+			"needsNetwork": "启动和停止计时器需要网络连接。",
+			"weekFailed": "无法加载本周总计",
+			"weekUnavailable": "此账户在此不记录时间",
+			"taskFailed": "无法加载任务"
 		}
 	},
 	"session": {

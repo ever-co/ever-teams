@@ -52,7 +52,10 @@
 			"duration": "{hours} h {minutes} min",
 			"startFailedTitle": "The timer could not start",
 			"startFailedMessage": "Check your connection and try again.",
-			"needsNetwork": "Starting and stopping the timer need a connection."
+			"needsNetwork": "Starting and stopping the timer need a connection.",
+			"weekFailed": "This week's total could not load",
+			"weekUnavailable": "This account tracks no time here",
+			"taskFailed": "The task could not load"
 		}
 	},
 	"session": {

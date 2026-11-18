@@ -52,7 +52,10 @@
 			"duration": "{hours} ש׳ {minutes} ד׳",
 			"startFailedTitle": "לא ניתן היה להפעיל את הטיימר",
 			"startFailedMessage": "בדקו את החיבור ונסו שוב.",
-			"needsNetwork": "כדי להפעיל ולעצור את הטיימר צריך חיבור."
+			"needsNetwork": "כדי להפעיל ולעצור את הטיימר צריך חיבור.",
+			"weekFailed": "לא ניתן היה לטעון את סך השבוע",
+			"weekUnavailable": "החשבון הזה לא מודד כאן זמן",
+			"taskFailed": "לא ניתן היה לטעון את המשימה"
 		}
 	},
 	"session": {

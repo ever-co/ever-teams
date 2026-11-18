@@ -52,7 +52,10 @@
 			"duration": "{hours} h {minutes} min",
 			"startFailedTitle": "El temporizador no pudo iniciarse",
 			"startFailedMessage": "Revisa tu conexión e inténtalo de nuevo.",
-			"needsNetwork": "Iniciar y detener el temporizador requieren conexión."
+			"needsNetwork": "Iniciar y detener el temporizador requieren conexión.",
+			"weekFailed": "No se pudo cargar el total de la semana",
+			"weekUnavailable": "Esta cuenta no registra tiempo aquí",
+			"taskFailed": "No se pudo cargar la tarea"
 		}
 	},
 	"session": {
