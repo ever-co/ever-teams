@@ -1,0 +1,503 @@
+{
+	"common": {
+		"openMenu": "Menu openen",
+		"ok": "OK!",
+		"cancel": "Annuleren",
+		"loading": "Laden",
+		"edit": "Bewerken",
+		"confirm": "Bevestigen",
+		"discard": "Negeren",
+		"back": "Terug",
+		"save": "Opslaan",
+		"logOut": "Uitloggen"
+	},
+	"shell": {
+		"tabs": {
+			"home": "Startpagina",
+			"tasks": "Taken",
+			"week": "Week",
+			"team": "Team"
+		},
+		"states": {
+			"loading": "Laden",
+			"offline": "Je bent offline. Dit scherm toont wat er op de telefoon is opgeslagen.",
+			"errorTitle": "Dit scherm kon niet worden geladen",
+			"retry": "Opnieuw proberen",
+			"comingTitle": "Komt in de volgende stappen",
+			"comingMessage": "Dit scherm van de nieuwe app wordt nog gebouwd."
+		},
+		"signIn": {
+			"title": "Inloggen",
+			"message": "Inloggen verhuist in een latere stap naar de nieuwe app. Log voorlopig in met de huidige app."
+		}
+	},
+	"session": {
+		"endedTitle": "Je sessie is verlopen",
+		"endedMessage": "Log opnieuw in om verder te gaan."
+	},
+	"timer": {
+		"startLabel": "Timer starten",
+		"stopLabel": "Timer stoppen",
+		"stopFailedTitle": "De timer kon niet stoppen",
+		"stopFailedMessage": "Hij loopt nog. Probeer het zo opnieuw.",
+		"startMove": {
+			"title": "Begin van de lopende timer",
+			"startedAt": "Gestart om {time}",
+			"open": "Gestart om {time}. Begin wijzigen",
+			"newStart": "Nieuw begin",
+			"timePlaceholder": "UU:MM",
+			"reason": "Reden",
+			"reasonPlaceholder": "Waarom het begin verandert",
+			"laterOnly": "Je mag geen tijd met de hand toevoegen, dus het begin kan alleen later worden.",
+			"save": "Opslaan",
+			"saving": "Opslaan…",
+			"close": "Sluiten",
+			"saved": "De timer begint nu om {time}.",
+			"checking": "Controleren of het begin kan veranderen…",
+			"viewTracker": "Deze timer loopt in de desktop-app. Wijzig het begin daar.",
+			"viewNotAllowed": "Je mag geregistreerde tijd in deze organisatie niet wijzigen.",
+			"unsupported": "Het begin van een lopende timer kan op deze server nog niet worden gewijzigd.",
+			"invalidTime": "Typ een tijd zoals 09:00.",
+			"chooseDay": "De timer is vóór middernacht gestart: kies de dag van het nieuwe begin.",
+			"notRunning": "De timer loopt niet meer.",
+			"trackerRun": "Deze timer loopt in de desktop-app of de agent, die zelf de tijd registreren. Wijzig het begin daar.",
+			"inFuture": "Het begin kan niet later zijn dan nu.",
+			"editNotAllowed": "Je mag geregistreerde tijd niet wijzigen.",
+			"manualNotAllowed": "Een eerder begin voegt tijd met de hand toe, wat je niet mag. Kies een later begin.",
+			"reasonRequired": "Je organisatie vraagt om een reden.",
+			"reasonTooLong": "De reden is te lang: hoogstens 255 tekens.",
+			"overlap": "Een andere registratie van jou dekt die tijd. Kies een begin na het einde ervan.",
+			"changed": "Het begin is net elders gewijzigd. Controleer het en probeer het opnieuw.",
+			"saveFailed": "Het begin kon niet worden opgeslagen. Probeer het opnieuw.",
+			"offline": "Je bent offline, dus het begin is niet gewijzigd. Probeer het opnieuw zodra je weer online bent."
+		},
+		"discard": {
+			"menu": "Meer timeracties",
+			"changeStart": "Begin wijzigen",
+			"action": "Deze sessie verwerpen",
+			"title": "Deze sessie verwerpen?",
+			"description": "Er wordt niets opgeslagen.",
+			"descriptionElsewhere": "Deze sessie is gestart vanuit {source} en stopt daar ook. Er wordt niets opgeslagen.",
+			"confirm": "Verwerpen",
+			"discarding": "Bezig met verwerpen…",
+			"discarded": "Sessie verworpen",
+			"discardedHint": "De timer is gestopt en er is niets opgeslagen.",
+			"sources": {
+				"web": "de web-app",
+				"browserExtension": "de browserextensie",
+				"other": "een andere app"
+			},
+			"failures": {
+				"notRunning": "Er loopt geen timer meer, dus er is niets verworpen.",
+				"disabled": "Je organisatie staat het verwerpen van een sessie niet toe.",
+				"tooLate": "Deze sessie is te lang geleden gestart om te verwerpen. Stop hem en bewerk daarna de invoer.",
+				"forbidden": "Je rol staat het verwerpen van deze sessie niet toe.",
+				"notSupported": "Deze server biedt het verwerpen van een sessie nog niet aan.",
+				"changed": "Intussen is een andere sessie gestart, dus er is niets verworpen.",
+				"trackerRun": "Deze sessie wordt vastgelegd door de desktop-app of de agent, die de tijd zelf bijhouden, dus ze kan hier niet worden verworpen.",
+				"offline": "Je bent offline, dus er is niets verworpen. Probeer het opnieuw zodra je weer online bent.",
+				"generic": "De sessie kon niet worden verworpen. Probeer het opnieuw."
+			}
+		}
+	},
+	"welcomeScreen": {
+		"postscript": "psst: zo ziet je app er waarschijnlijk niet uit. (Tenzij je ontwerper je deze schermen gaf. In dat geval: uitbrengen maar!)",
+		"readyForLaunch": "Je app, bijna klaar voor de lancering!",
+		"exciting": "(oh, wat spannend!)",
+		"letsGo": "Aan de slag!"
+	},
+	"errorScreen": {
+		"title": "Er is iets misgegaan!",
+		"friendlySubtitle": "De app is op een probleem gestuit. Laad hem opnieuw om verder te gaan.",
+		"reset": "App opnieuw laden",
+		"traceTitle": "Fout uit de stack van {name}"
+	},
+	"emptyStateComponent": {
+		"generic": {
+			"heading": "Zo leeg... zo triest",
+			"content": "Nog geen gegevens gevonden. Tik op de knop om te vernieuwen, of laad de app opnieuw.",
+			"button": "Nog een keer proberen"
+		}
+	},
+	"errors": {
+		"invalidEmail": "Ongeldig e-mailadres."
+	},
+	"loginScreen": {
+		"name": "Inloggen",
+		"verifyEmailTitle": "Controleer je e-mail",
+		"verifyEmailMessage": "Je account is aangemaakt. Open de link in de e-mail die we naar {email} hebben gestuurd om het te activeren en log daarna in met je e-mail.",
+		"workspaceSetupFailed": "Het instellen van je werkruimte kon niet worden afgerond. Probeer het opnieuw.",
+		"enterDetails": "Nieuw team maken",
+		"enterDetails2": "Inloggen",
+		"enterDetails3": "Werkruimte",
+		"hintDetails": "Vul de gegevens van je team in om een nieuw team te maken.",
+		"hintDetails2": "Voer je e-mailadres en de uitnodigingscode in om lid te worden van een bestaand team.",
+		"hintDetails3": "Dit e-mailadres is gekoppeld aan de volgende werkruimtes",
+		"joinTeam": "Word lid van team",
+		"joinExistTeam": "Inloggen",
+		"joinTeamHint": "Voer de uitnodigingscode in die we naar je e-mail hebben gestuurd",
+		"step1Title": "Teamnaam kiezen",
+		"step2Title": "Meer gegevens invullen",
+		"step3Title": "Uitnodigingscode",
+		"confirmDetails": "Kijk in je e-mail voor de bevestigingscode",
+		"confirmDetails2": "Voer de uitnodigingscode in die we naar je e-mail hebben gestuurd",
+		"sendCode": "Code opnieuw verzenden",
+		"codeNotReceived": "Geen code ontvangen?",
+		"inviteStepLabel": "Voer e-mail in",
+		"emailFieldLabel": "Je e-mailadres",
+		"teamNameFieldLabel": "Teamnaam",
+		"inviteCodeFieldLabel": "Beveiligingscode",
+		"selectWorkspaceFieldLabel": "Selecteer werkruimte",
+		"emailFieldPlaceholder": "Voer uw e-mailadres in",
+		"teamNameFieldPlaceholder": "Voer uw teamnaam in",
+		"userNameFieldPlaceholder": "Voer uw naam in",
+		"tapContinue": "Doorgaan",
+		"tapJoin": "Word lid",
+		"createTeam": "Team maken",
+		"invalidConfirmCode": "Ongeldige bevestigingscode",
+		"securityCodeSent": "De beveiligingscode is naar het nieuwe e-mailadres gestuurd",
+		"codeSentTo": "We hebben een code gestuurd naar:"
+	},
+	"myWorkScreen": {
+		"name": "Werk",
+		"estimateLabel": "Schatten",
+		"statusText": "Status",
+		"taskFieldPlaceholder": "Waar werk je aan?",
+		"sizeText": "Formaten",
+		"prioritiesText": "Prioriteiten",
+		"tabCreateTask": "Nieuwe taak maken",
+		"labelText": "Label"
+	},
+	"teamScreen": {
+		"name": "Teams",
+		"cardTotalTimeLabel": "Totale tijd",
+		"cardTodayWorkLabel": "Werk vandaag",
+		"cardTotalWorkLabel": "Totaal werk",
+		"inviteButton": "Uitnodigen",
+		"inviteModalTitle": "Nodig een lid uit voor je team",
+		"inviteModalHint": "Stuur een teamlid een uitnodiging per e-mail",
+		"inviteEmailFieldPlaceholder": "Voer het e-mailadres in",
+		"inviteNameFieldPlaceholder": "Voer de naam van het teamlid in",
+		"sendButton": "Maken",
+		"createNewTeamButton": "Nieuw team maken"
+	},
+	"taskDetailsScreen": {
+		"characterLimitErrorTitle": "We konden de taaktitel niet bijwerken.",
+		"characterLimitErrorDescription": "De taaktitel kan niet langer zijn dan 255 tekens.",
+		"copyTitle": "Titel gekopieerd.",
+		"changeParent": "Hoofd wijzigen",
+		"addParent": "Hoofd toevoegen",
+		"taskScreen": "Taakscherm",
+		"details": "Details",
+		"taskPublic": "Deze taak is Publiek",
+		"makePrivate": "Maak privé",
+		"taskPrivate": "Deze taak is Prive",
+		"makePublic": "Maak openbaar",
+		"typeIssue": "Soort probleem",
+		"creator": "Maker",
+		"assignees": "Toegewezenen",
+		"startDate": "Startdatum",
+		"dueDate": "Uiterste datum",
+		"daysRemaining": "Resterende dagen",
+		"version": "Versie",
+		"epic": "Epic",
+		"status": "Status",
+		"labels": "Labels",
+		"size": "Grootte",
+		"priority": "Prioriteit",
+		"manageAssignees": "Toegewezenen beheren",
+		"setDueDate": "Uiterste datum instellen",
+		"setStartDate": "Startdatum instellen",
+		"items": "Items",
+		"estimate": "Schatten",
+		"estimations": "Schattingen",
+		"time": "Tijd",
+		"progress": "Voortgang",
+		"timeToday": "Tijd vandaag",
+		"totalGroupTime": "Totale groepstijd",
+		"timeRemaining": "Resterende tijd",
+		"blocks": "Blokkeert",
+		"clones": "Klonen",
+		"duplicates": "Dupliceert",
+		"isBlockedBy": "Wordt geblokkeerd door",
+		"isClonedBy": "Is gekloond door",
+		"isDuplicatedBy": "Is gedupliceerd door",
+		"relatesTo": "Heeft betrekking op",
+		"linkedIssues": "Gelinkte problemen",
+		"description": "Beschrijving",
+		"descriptionBlockPlaceholder": "Schrijf een volledige beschrijving van je project...",
+		"copyDescription": "Beschrijving gekopieerd.",
+		"showMore": "Meer weergeven"
+	},
+	"tasksScreen": {
+		"name": "Taken",
+		"now": "Nu",
+		"last24hours": "Laatste 24 uur",
+		"totalTimeLabel": "Totale tijd",
+		"workedTab": "Gewerkt",
+		"assignedTab": "Toegewezen",
+		"unassignedTab": "Niet toegewezen",
+		"createTaskButton": "Taak maken",
+		"assignTaskButton": "Taak toewijzen",
+		"createButton": "Maken",
+		"assignButton": "Toewijzen",
+		"resendInvitation": "Uitnodiging opnieuw verzenden",
+		"editTaskLabel": "Taak bewerken",
+		"unassignTaskLabel": "Taak intrekken",
+		"unMakeManager": "Maak geen manager",
+		"makeManager": "Maak een manager",
+		"remove": "Verwijderen",
+		"filter": "Filter",
+		"apply": "Toepassen",
+		"reset": "Resetten"
+	},
+	"noTeamScreen": {
+		"createYourTeam": "Maak je eigen team of sluit je aan bij een bestaand team",
+		"hintMessage": "Lorem ipsum dolor sit amet consectetur. Blandit lobortis dui risus neque."
+	},
+	"settingScreen": {
+		"name": "Instellingen",
+		"personalSection": {
+			"name": "Persoonlijk",
+			"fullName": "Volledige naam",
+			"yourContact": "Je contactgegevens",
+			"yourContactHint": "Je contactinformatie",
+			"themes": "Thema's",
+			"darkModeToLight": "Van donkere naar lichte modus",
+			"lightModeToDark": "Van lichte naar donkere modus",
+			"language": "Taal",
+			"changeAvatar": "Avatar wijzigen",
+			"timeZone": "Tijdzone",
+			"workSchedule": "Werkschema",
+			"workScheduleHint": "Stel nu je werkschema in",
+			"removeAccount": "Account verwijderen",
+			"removeAccountHint": "Je account wordt uit alle teams verwijderd, behalve waar je de enige manager bent",
+			"deleteAccount": "Account definitief verwijderen",
+			"deleteAccountHint": "Je account wordt permanent verwijderd en uit alle teams verwijderd",
+			"detect": "Detecteren"
+		},
+		"teamSection": {
+			"name": "Team",
+			"teamName": "Teamnaam",
+			"timeTracking": "Tijd bijhouden",
+			"timeTrackingHint": "Tijd bijhouden inschakelen",
+			"taskStatuses": "Taakstatussen",
+			"taskPriorities": "Taakprioriteiten",
+			"taskSizes": "Taakformaten",
+			"taskLabel": "Taaklabel",
+			"taskSettingsReadOnly": "Alleen teammanagers en beheerders kunnen de taakinstellingen wijzigen. Alleen beheerders kunnen de standaardwaarden wijzigen die alle teams delen.",
+			"changeLogo": "Logo wijzigen",
+			"teamRole": "Manager, lid en rol",
+			"workSchedule": "Werkschema",
+			"workScheduleHint": "Stel nu je werkschema in",
+			"transferOwnership": "Eigendom overdragen",
+			"transferOwnershipHint": "Volledige eigendom van het team overdragen aan een andere gebruiker",
+			"removeTeam": "Team verwijderen",
+			"removeTeamHint": "Het team wordt volledig uit het systeem verwijderd en de teamleden verliezen hun toegang",
+			"quitTeam": "Team verlaten",
+			"quitTeamHint": "U staat op het punt het team te verlaten",
+			"areYouSure": "Weet je het zeker?",
+			"teamType": "Teamtype",
+			"publicTeam": "Openbaar team",
+			"privateTeam": "Privéteam",
+			"changeTeamName": {
+				"mainTitle": "Teamnaam wijzigen",
+				"inputPlaceholder": "Teamnaam"
+			}
+		},
+		"dangerZone": "Gevaarlijke zone",
+		"modalChangeLanguageTitle": "Taal wijzigen",
+		"languages": {
+			"english": "Engels (Verenigde Staten)",
+			"french": "Frans (Frankrijk)",
+			"arabic": "Arabisch",
+			"russian": "Russisch",
+			"bulgarian": "Bulgaars",
+			"spanish": "Spaans",
+			"korean": "Koreaans",
+			"hebrew": "Hebreeuws"
+		},
+		"versionScreen": {
+			"mainTitle": "Taakversies",
+			"listOfVersions": "Lijst met versies",
+			"noActiveVersions": "Er zijn geen actieve versies",
+			"createNewVersionButton": "Nieuwe versie maken",
+			"createNewVersionText": "Nieuwe versie maken",
+			"versionNamePlaceholder": "Versienaam",
+			"cancelButtonText": "Annuleren",
+			"createButtonText": "Maken",
+			"updateButtonText": "Wijziging"
+		},
+		"statusScreen": {
+			"mainTitle": "Taakstatussen",
+			"statuses": "Statussen",
+			"listStatuses": "Lijst met statussen",
+			"noActiveStatuses": "Er zijn geen actieve statussen",
+			"createStatusButton": "Nieuwe status maken",
+			"createNewStatusText": "Nieuwe status maken",
+			"statusNamePlaceholder": "Statusnaam",
+			"statusIconPlaceholder": "Kies een pictogram",
+			"statusColorPlaceholder": "Kleuren",
+			"cancelButtonText": "Annuleren",
+			"createButtonText": "Maken",
+			"updateButtonText": "Wijziging"
+		},
+		"priorityScreen": {
+			"mainTitle": "Taakprioriteiten",
+			"priorities": "Prioriteiten",
+			"listPriorities": "Lijst met prioriteiten",
+			"noActivePriorities": "Er zijn geen actieve prioriteiten",
+			"createPriorityButton": "Nieuwe prioriteit maken",
+			"createNewPriorityText": "Nieuwe prioriteit maken",
+			"priorityNamePlaceholder": "Prioriteitsnaam",
+			"priorityIconPlaceholder": "Pictogram zoeken",
+			"priorityColorPlaceholder": "Kleuren",
+			"cancelButtonText": "Annuleren",
+			"createButtonText": "Maken",
+			"updateButtonText": "Wijziging"
+		},
+		"labelScreen": {
+			"mainTitle": "Taaklabels",
+			"listLabels": "Lijst met labels",
+			"labels": "Labels",
+			"noActiveLabels": "Er zijn geen actieve labels",
+			"createLabelButton": "Nieuw label maken",
+			"createNewLabelText": "Nieuwe labels maken",
+			"labelNamePlaceholder": "Labelnaam",
+			"labelIconPlaceholder": "Kies een pictogram",
+			"labelColorPlaceholder": "Kleuren",
+			"cancelButtonText": "Annuleren",
+			"createButtonText": "Maken",
+			"updateButtonText": "Wijziging"
+		},
+		"sizeScreen": {
+			"mainTitle": "Taakformaten",
+			"sizes": "Formaten",
+			"listSizes": "Lijst met formaten",
+			"noActiveSizes": "Er zijn geen actieve formaten",
+			"createSizeButton": "Nieuw formaat maken",
+			"createNewSizeText": "Nieuwe formaten maken",
+			"sizeNamePlaceholder": "Formaatnaam",
+			"sizeIconPlaceholder": "Kies een pictogram",
+			"sizeColorPlaceholder": "Kleuren",
+			"cancelButtonText": "Annuleren",
+			"createButtonText": "Maken",
+			"updateButtonText": "Wijziging"
+		},
+		"membersSettingsScreen": {
+			"mainTitle": "Leden & rollen",
+			"deleteUserConfirmation": "Weet je zeker dat je de geselecteerde gebruiker wilt verwijderen?",
+			"changeRole": "Rol wijzigen",
+			"delete": "Verwijderen"
+		},
+		"changeFullName": {
+			"firstNamePlaceholder": "Voornaam",
+			"lastNamePlaholder": "Achternaam",
+			"mainTitle": "Volledige naam wijzigen"
+		},
+		"changeAvatar": {
+			"recentPictures": "Recente foto's",
+			"recentFiles": "Recente bestanden",
+			"selectFromGalery": "Kiezen uit galerij",
+			"selectFromFiles": "Kiezen uit bestanden",
+			"continueButton": "Doorgaan",
+			"logoDeleteConfirmation": "Weet je zeker dat je het logo wilt verwijderen?",
+			"avatarDeleteConfirmation": "Weet je zeker dat je de avatar wilt verwijderen?"
+		},
+		"contact": {
+			"mainTitle": "Je contactgegevens wijzigen",
+			"emailPlaceholder": "E-mailadres",
+			"phonePlaceholder": "Telefoonnummer",
+			"emailNotValid": "Voer een geldig e-mailadres in",
+			"phoneNotValid": "Voer een geldig telefoonnummer in"
+		},
+		"changeTimezone": {
+			"mainTitle": "Tijdzone wijzigen",
+			"selectTimezoneTitle": "Tijdzone kiezen"
+		},
+		"changeLanguage": {
+			"mainTitle": "Taal wijzigen",
+			"selectLanguageTitle": "Taal kiezen",
+			"restartTitle": "App opnieuw starten",
+			"restartMessage": "Deze taal lees je in de andere richting. De app start opnieuw om de schermen zo te tonen.",
+			"restartNow": "Opnieuw starten",
+			"restartLater": "Later"
+		}
+	},
+	"hamburgerMenu": {
+		"darkMode": "Donkere modus"
+	},
+	"inviteModal": {
+		"accept": "Accepteren",
+		"reject": "Afwijzen",
+		"inviteHint": "Je bent uitgenodigd om lid te worden van"
+	},
+	"accountVerificationModal": {
+		"verify": "verifiëren"
+	},
+	"demoNavigator": {
+		"componentsTab": "Componenten",
+		"debugTab": "Debug",
+		"communityTab": "Community",
+		"podcastListTab": "Podcast"
+	},
+	"demoCommunityScreen": {
+		"title": "Maak contact met de community",
+		"tagLine": "Sluit je aan bij de community van React Native-engineers van Infinite Red en til je app-ontwikkeling samen met ons naar een hoger niveau!",
+		"joinUsOnSlackTitle": "Doe mee op Slack",
+		"joinUsOnSlack": "Zou je willen dat er een plek was om in contact te komen met React Native-engineers over de hele wereld? Praat mee in de Infinite Red Community Slack! Onze groeiende community is een veilige plek om vragen te stellen, van anderen te leren en je netwerk uit te breiden.",
+		"joinSlackLink": "Word lid van de Slack-community",
+		"makeIgniteEvenBetterTitle": "Maak Ignite nog beter",
+		"makeIgniteEvenBetter": "Heb je een idee om Ignite nog beter te maken? Dat horen we graag! We zoeken altijd mensen die ons willen helpen de beste React Native-tools te bouwen. Doe mee op GitHub en bouw met ons aan de toekomst van Ignite.",
+		"contributeToIgniteLink": "Bijdragen aan Ignite",
+		"theLatestInReactNativeTitle": "Het laatste nieuws over React Native",
+		"theLatestInReactNative": "We houden je op de hoogte van alles wat React Native te bieden heeft.",
+		"reactNativeRadioLink": "React Native Radio",
+		"reactNativeNewsletterLink": "React Native Newsletter",
+		"reactNativeLiveLink": "React Native Live",
+		"chainReactConferenceLink": "Chain React Conference",
+		"hireUsTitle": "Huur Infinite Red in voor je volgende project",
+		"hireUs": "Of het nu gaat om een volledig project of om teams bij te scholen met onze praktijktrainingen, Infinite Red kan helpen bij bijna elk React Native-project.",
+		"hireUsLink": "Stuur ons een bericht"
+	},
+	"demoShowroomScreen": {
+		"jumpStart": "Componenten om je project een vliegende start te geven!",
+		"lorem2Sentences": "Nulla cupidatat deserunt amet quis aliquip nostrud do adipisicing. Adipisicing excepteur elit laborum Lorem adipisicing do duis.",
+		"demoHeaderTxExample": "Joepie",
+		"demoViaTxProp": "Via de `tx`-prop",
+		"demoViaSpecifiedTxProp": "Via de `{prop}Tx`-prop"
+	},
+	"demoDebugScreen": {
+		"howTo": "HANDLEIDING",
+		"title": "Debug",
+		"tagLine": "Gefeliciteerd, je hebt hier een zeer geavanceerd React Native-appsjabloon. Haal alles uit deze boilerplate!",
+		"reactotron": "Naar Reactotron sturen",
+		"reportBugs": "Bugs melden",
+		"demoList": "Demolijst",
+		"demoPodcastList": "Demo-podcastlijst",
+		"androidReactotronHint": "Werkt dit niet? Controleer dan of de desktop-app van Reactotron draait, voer adb reverse tcp:9090 tcp:9090 uit in je terminal en laad de app opnieuw.",
+		"iosReactotronHint": "Werkt dit niet? Controleer dan of de desktop-app van Reactotron draait en laad de app opnieuw.",
+		"macosReactotronHint": "Werkt dit niet? Controleer dan of de desktop-app van Reactotron draait en laad de app opnieuw.",
+		"webReactotronHint": "Werkt dit niet? Controleer dan of de desktop-app van Reactotron draait en laad de app opnieuw.",
+		"windowsReactotronHint": "Werkt dit niet? Controleer dan of de desktop-app van Reactotron draait en laad de app opnieuw."
+	},
+	"demoPodcastListScreen": {
+		"title": "Afleveringen van React Native Radio",
+		"onlyFavorites": "Alleen favorieten tonen",
+		"favoriteButton": "Favoriet",
+		"unfavoriteButton": "Uit favorieten",
+		"accessibility": {
+			"cardHint": "Dubbeltik om de aflevering te beluisteren. Dubbeltik en houd vast voor deze actie op de aflevering: {action}.",
+			"switch": "Zet aan om alleen favorieten te tonen",
+			"favoriteAction": "Favoriet aan of uit",
+			"favoriteIcon": "Aflevering is geen favoriet",
+			"unfavoriteIcon": "Aflevering is favoriet",
+			"publishLabel": "Gepubliceerd op {date}",
+			"durationLabel": "Duur: {hours} uur {minutes} minuten {seconds} seconden"
+		},
+		"noFavoritesEmptyState": {
+			"heading": "Dit ziet er wat leeg uit",
+			"content": "Er zijn nog geen favorieten toegevoegd. Tik op het hartje bij een aflevering om die aan je favorieten toe te voegen!"
+		}
+	}
+}

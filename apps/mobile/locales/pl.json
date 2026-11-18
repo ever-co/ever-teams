@@ -1,0 +1,503 @@
+{
+	"common": {
+		"openMenu": "Otwórz menu",
+		"ok": "OK!",
+		"cancel": "Anuluj",
+		"loading": "Ładowanie",
+		"edit": "Edytuj",
+		"confirm": "Potwierdź",
+		"discard": "Odrzuć",
+		"back": "Powrót",
+		"save": "Zapisz",
+		"logOut": "Wyloguj"
+	},
+	"shell": {
+		"tabs": {
+			"home": "Strona główna",
+			"tasks": "Zadania",
+			"week": "Tydzień",
+			"team": "Zespół"
+		},
+		"states": {
+			"loading": "Ładowanie",
+			"offline": "Jesteś offline. Ten ekran pokazuje to, co zostało zapisane w telefonie.",
+			"errorTitle": "Nie udało się wczytać tego ekranu",
+			"retry": "Spróbuj ponownie",
+			"comingTitle": "Pojawi się w kolejnych krokach",
+			"comingMessage": "Ten ekran nowej aplikacji jest jeszcze w budowie."
+		},
+		"signIn": {
+			"title": "Zaloguj się",
+			"message": "Logowanie przejdzie do nowej aplikacji w jednym z kolejnych kroków. Na razie zaloguj się w obecnej aplikacji."
+		}
+	},
+	"session": {
+		"endedTitle": "Twoja sesja wygasła",
+		"endedMessage": "Zaloguj się ponownie, aby kontynuować."
+	},
+	"timer": {
+		"startLabel": "Uruchom timer",
+		"stopLabel": "Zatrzymaj timer",
+		"stopFailedTitle": "Nie udało się zatrzymać timera",
+		"stopFailedMessage": "Timer nadal działa. Spróbuj ponownie za chwilę.",
+		"startMove": {
+			"title": "Początek działającego timera",
+			"startedAt": "Rozpoczęto o {time}",
+			"open": "Rozpoczęto o {time}. Zmień początek",
+			"newStart": "Nowy początek",
+			"timePlaceholder": "GG:MM",
+			"reason": "Powód",
+			"reasonPlaceholder": "Dlaczego początek się zmienia",
+			"laterOnly": "Nie możesz dodawać czasu ręcznie, więc początek można tylko przesunąć później.",
+			"save": "Zapisz",
+			"saving": "Zapisywanie…",
+			"close": "Zamknij",
+			"saved": "Timer zaczyna się teraz o {time}.",
+			"checking": "Sprawdzanie, czy początek można zmienić…",
+			"viewTracker": "Ten timer działa w aplikacji desktopowej. Zmień jego początek tam.",
+			"viewNotAllowed": "Nie możesz zmieniać zarejestrowanego czasu w tej organizacji.",
+			"unsupported": "Na tym serwerze nie można jeszcze zmienić początku działającego timera.",
+			"invalidTime": "Wpisz godzinę, na przykład 09:00.",
+			"chooseDay": "Sesja zaczęła się przed północą: wybierz dzień nowego początku.",
+			"notRunning": "Timer już nie działa.",
+			"trackerRun": "Ten timer działa w aplikacji desktopowej lub agencie, które same rejestrują jego czas. Zmień jego początek tam.",
+			"inFuture": "Początek nie może być późniejszy niż teraz.",
+			"editNotAllowed": "Nie możesz zmieniać zarejestrowanego czasu.",
+			"manualNotAllowed": "Wcześniejszy początek dodaje czas ręcznie, czego nie możesz robić. Wybierz późniejszy początek.",
+			"reasonRequired": "Twoja organizacja wymaga podania powodu.",
+			"reasonTooLong": "Powód jest za długi: najwyżej 255 znaków.",
+			"overlap": "Inny twój wpis obejmuje ten czas. Wybierz początek po jego zakończeniu.",
+			"changed": "Początek właśnie zmienił się gdzie indziej. Sprawdź go i spróbuj ponownie.",
+			"saveFailed": "Nie udało się zapisać początku. Spróbuj ponownie.",
+			"offline": "Jesteś offline, więc początek się nie zmienił. Spróbuj ponownie po połączeniu z siecią."
+		},
+		"discard": {
+			"menu": "Więcej działań timera",
+			"changeStart": "Zmień początek",
+			"action": "Odrzuć tę sesję",
+			"title": "Odrzucić tę sesję?",
+			"description": "Nic nie zostanie zapisane.",
+			"descriptionElsewhere": "Ta sesja została uruchomiona z {source} i tam też się zatrzyma. Nic nie zostanie zapisane.",
+			"confirm": "Odrzuć",
+			"discarding": "Odrzucanie…",
+			"discarded": "Sesja odrzucona",
+			"discardedHint": "Timer jest zatrzymany i nic nie zostało zapisane.",
+			"sources": {
+				"web": "aplikacji webowej",
+				"browserExtension": "rozszerzenia przeglądarki",
+				"other": "innej aplikacji"
+			},
+			"failures": {
+				"notRunning": "Żaden timer już nie działa, więc nic nie zostało odrzucone.",
+				"disabled": "Twoja organizacja nie pozwala odrzucać sesji.",
+				"tooLate": "Ta sesja zaczęła się zbyt dawno, aby ją odrzucić. Zatrzymaj ją, a potem edytuj wpis.",
+				"forbidden": "Twoja rola nie pozwala odrzucić tej sesji.",
+				"notSupported": "Ten serwer nie oferuje jeszcze odrzucania sesji.",
+				"changed": "W międzyczasie zaczęła się inna sesja, więc nic nie zostało odrzucone.",
+				"trackerRun": "Tę sesję rejestruje aplikacja desktopowa lub agent, które same prowadzą jej czas, więc nie można jej tutaj odrzucić.",
+				"offline": "Jesteś offline, więc nic nie zostało odrzucone. Spróbuj ponownie po połączeniu z siecią.",
+				"generic": "Nie udało się odrzucić sesji. Spróbuj ponownie."
+			}
+		}
+	},
+	"welcomeScreen": {
+		"postscript": "psst: Twoja aplikacja raczej tak nie wygląda. (Chyba że projektant dał ci właśnie te ekrany. Wtedy śmiało ją wydawaj!)",
+		"readyForLaunch": "Twoja aplikacja jest prawie gotowa do startu!",
+		"exciting": "(och, to ekscytujące!)",
+		"letsGo": "Zaczynamy!"
+	},
+	"errorScreen": {
+		"title": "Coś poszło nie tak!",
+		"friendlySubtitle": "W aplikacji wystąpił problem. Przeładuj ją, aby kontynuować.",
+		"reset": "Przeładuj aplikację",
+		"traceTitle": "Błąd ze stosu: {name}"
+	},
+	"emptyStateComponent": {
+		"generic": {
+			"heading": "Tak pusto... tak smutno",
+			"content": "Nie znaleziono jeszcze żadnych danych. Spróbuj nacisnąć przycisk, aby odświeżyć lub przeładować aplikację.",
+			"button": "Spróbujmy jeszcze raz"
+		}
+	},
+	"errors": {
+		"invalidEmail": "Nieprawidłowy adres e-mail."
+	},
+	"loginScreen": {
+		"name": "Zaloguj się",
+		"verifyEmailTitle": "Sprawdź swój e-mail",
+		"verifyEmailMessage": "Twoje konto zostało utworzone. Otwórz link w e-mailu wysłanym na {email}, aby je aktywować, a następnie zaloguj się e-mailem.",
+		"workspaceSetupFailed": "Nie udało się dokończyć konfiguracji przestrzeni roboczej. Spróbuj ponownie.",
+		"enterDetails": "Utwórz nowy zespół",
+		"enterDetails2": "Zaloguj się",
+		"enterDetails3": "Przestrzeń Robocza",
+		"hintDetails": "Wprowadź dane zespołu, aby utworzyć nowy zespół.",
+		"hintDetails2": "Proszę podać adres e-mail oraz kod zaproszenia, aby dołączyć do istniejącego zespołu.",
+		"hintDetails3": "Adres e-mail powiązany z poniższymi przestrzeniami roboczymi",
+		"joinTeam": "Dołącz do zespołu",
+		"joinExistTeam": "Zaloguj się",
+		"joinTeamHint": "Wprowadź kod zaproszenia, który wysłaliśmy na Twój adres e-mail",
+		"step1Title": "Wybierz nazwę zespołu",
+		"step2Title": "Podaj więcej szczegółów",
+		"step3Title": "Kod zaproszenia",
+		"confirmDetails": "Sprawdź swój e-mail, aby znaleźć kod potwierdzający",
+		"confirmDetails2": "Wprowadź kod zaproszenia, który wysłaliśmy na Twój adres e-mail",
+		"sendCode": "Wyślij ponownie kod",
+		"codeNotReceived": "Nie otrzymałeś kodu?",
+		"inviteStepLabel": "Wprowadź e-mail",
+		"emailFieldLabel": "Twój adres e-mail",
+		"teamNameFieldLabel": "Nazwa zespołu",
+		"inviteCodeFieldLabel": "Kod bezpieczeństwa",
+		"selectWorkspaceFieldLabel": "Wybierz przestrzeń roboczą",
+		"emailFieldPlaceholder": "Wprowadź swój adres e-mail",
+		"teamNameFieldPlaceholder": "Proszę wprowadzić nazwę zespołu",
+		"userNameFieldPlaceholder": "Wprowadź swoje imię",
+		"tapContinue": "Kontynuuj",
+		"tapJoin": "Dołącz",
+		"createTeam": "Utwórz zespół",
+		"invalidConfirmCode": "Nieprawidłowy kod potwierdzający",
+		"securityCodeSent": "Kod bezpieczeństwa został wysłany na nowy adres e-mail",
+		"codeSentTo": "Wysłaliśmy kod na adres:"
+	},
+	"myWorkScreen": {
+		"name": "Praca",
+		"estimateLabel": "Szacowany",
+		"statusText": "Status",
+		"taskFieldPlaceholder": "Nad czym pracujesz?",
+		"sizeText": "Rozmiary",
+		"prioritiesText": "Priorytety",
+		"tabCreateTask": "Utwórz nowe zadanie",
+		"labelText": "Etykieta"
+	},
+	"teamScreen": {
+		"name": "Zespoły",
+		"cardTotalTimeLabel": "Łączny czas",
+		"cardTodayWorkLabel": "Praca dzisiaj",
+		"cardTotalWorkLabel": "Łączna praca",
+		"inviteButton": "Zaproś",
+		"inviteModalTitle": "Zaproś członka do swojego zespołu",
+		"inviteModalHint": "Wyślij członkowi zespołu zaproszenie e-mailem",
+		"inviteEmailFieldPlaceholder": "Wprowadź adres e-mail",
+		"inviteNameFieldPlaceholder": "Wprowadź imię członka zespołu",
+		"sendButton": "Utwórz",
+		"createNewTeamButton": "Utwórz nowy zespół"
+	},
+	"taskDetailsScreen": {
+		"characterLimitErrorTitle": "Nie udało się zaktualizować Tytułu Zadania.",
+		"characterLimitErrorDescription": "Tytuł zadania nie może przekraczać 255 znaków.",
+		"copyTitle": "Skopiowano tytuł.",
+		"changeParent": "Zmień zadanie nadrzędne",
+		"addParent": "Dodaj zadanie nadrzędne",
+		"taskScreen": "Ekran zadania",
+		"details": "Szczegóły",
+		"taskPublic": "To zadanie jest publiczne",
+		"makePrivate": "Ustaw jako prywatne",
+		"taskPrivate": "To zadanie jest prywatne",
+		"makePublic": "Upublicznij",
+		"typeIssue": "Typ problemu",
+		"creator": "Twórca",
+		"assignees": "Przydzielone osoby",
+		"startDate": "Data rozpoczęcia",
+		"dueDate": "Termin",
+		"daysRemaining": "Pozostałe dni",
+		"version": "Wersja",
+		"epic": "Epickie",
+		"status": "Status",
+		"labels": "Etykiety",
+		"size": "Rozmiar",
+		"priority": "Priorytet",
+		"manageAssignees": "Zarządzaj przydzielonymi osobami",
+		"setDueDate": "Ustaw termin",
+		"setStartDate": "Ustaw datę rozpoczęcia",
+		"items": "Elementy",
+		"estimate": "Szacowany",
+		"estimations": "Szacunki",
+		"time": "Czas",
+		"progress": "Postęp",
+		"timeToday": "Czas dzisiaj",
+		"totalGroupTime": "Całkowity czas grupy",
+		"timeRemaining": "Pozostały czas",
+		"blocks": "Blokady",
+		"clones": "Klony",
+		"duplicates": "Duplikaty",
+		"isBlockedBy": "Zablokowane przez",
+		"isClonedBy": "Sklonowane przez",
+		"isDuplicatedBy": "Powielone przez",
+		"relatesTo": "Związane z",
+		"linkedIssues": "Powiązane problemy",
+		"description": "Opis",
+		"descriptionBlockPlaceholder": "Napisz pełny opis swojego projektu...",
+		"copyDescription": "Skopiowano opis.",
+		"showMore": "Pokaż więcej"
+	},
+	"tasksScreen": {
+		"name": "Zadania",
+		"now": "Teraz",
+		"last24hours": "Ostatnie 24 godziny",
+		"totalTimeLabel": "Łączny czas",
+		"workedTab": "Przepracowane",
+		"assignedTab": "Przypisane",
+		"unassignedTab": "Nieprzypisane",
+		"createTaskButton": "Utwórz zadanie",
+		"assignTaskButton": "Przypisz zadanie",
+		"createButton": "Utwórz",
+		"assignButton": "Przypisz",
+		"resendInvitation": "Wyślij ponownie zaproszenie",
+		"editTaskLabel": "Edytuj zadanie",
+		"unassignTaskLabel": "Odepnij zadanie",
+		"unMakeManager": "Usuń uprawnienia menedżerskie",
+		"makeManager": "Ustaw jako menedżera",
+		"remove": "Usuń",
+		"filter": "Filtruj",
+		"apply": "Zastosuj",
+		"reset": "Wyczyść"
+	},
+	"noTeamScreen": {
+		"createYourTeam": "Utwórz własny zespół lub dołącz do istniejącego",
+		"hintMessage": "Lorem ipsum dolor sit amet consectetur. Blandit lobortis dui risus neque."
+	},
+	"settingScreen": {
+		"name": "Ustawienia",
+		"personalSection": {
+			"name": "Osobiste",
+			"fullName": "Imię i nazwisko",
+			"yourContact": "Twój kontakt",
+			"yourContactHint": "Twoje dane kontaktowe",
+			"themes": "Motywy",
+			"darkModeToLight": "Z trybu ciemnego na tryb jasny",
+			"lightModeToDark": "Z trybu jasnego na tryb ciemny",
+			"language": "Język",
+			"changeAvatar": "Zmień awatar",
+			"timeZone": "Strefa czasowa",
+			"workSchedule": "Harmonogram pracy",
+			"workScheduleHint": "Ustaw teraz swój harmonogram pracy",
+			"removeAccount": "Usuń konto",
+			"removeAccountHint": "Konto zostanie usunięte ze wszystkich zespołów, z wyjątkiem tych, w których jesteś jedynym menedżerem",
+			"deleteAccount": "Usuń konto na stałe",
+			"deleteAccountHint": "Twoje konto zostanie trwale usunięte, również ze wszystkich zespołów",
+			"detect": "Wykryj"
+		},
+		"teamSection": {
+			"name": "Zespół",
+			"teamName": "Nazwa zespołu",
+			"timeTracking": "Śledzenie czasu",
+			"timeTrackingHint": "Włącz śledzenie czasu",
+			"taskStatuses": "Statusy zadania",
+			"taskPriorities": "Priorytety zadania",
+			"taskSizes": "Rozmiary zadania",
+			"taskLabel": "Etykiety zadania",
+			"taskSettingsReadOnly": "Tylko menadżerowie zespołu i administratorzy mogą zmieniać ustawienia zadań. Tylko administratorzy mogą zmieniać wartości domyślne wspólne dla wszystkich zespołów.",
+			"changeLogo": "Zmień logo",
+			"teamRole": "Zarządzaj członkami i rolami",
+			"workSchedule": "Harmonogram pracy",
+			"workScheduleHint": "Ustaw teraz swój harmonogram pracy",
+			"transferOwnership": "Przenieś własność",
+			"transferOwnershipHint": "Przenieś pełną własność zespołu do innego użytkownika",
+			"removeTeam": "Usuń zespół",
+			"removeTeamHint": "Zespół zostanie całkowicie usunięty z systemu, a członkowie zespołu stracą dostęp",
+			"quitTeam": "Opuść zespół",
+			"quitTeamHint": "Zamierzasz opuścić zespół",
+			"areYouSure": "Czy na pewno?",
+			"teamType": "Typ zespołu",
+			"publicTeam": "Zespół publiczny",
+			"privateTeam": "Zespół prywatny",
+			"changeTeamName": {
+				"mainTitle": "Zmień nazwę zespołu",
+				"inputPlaceholder": "Nazwa zespołu"
+			}
+		},
+		"dangerZone": "Strefa zagrożenia",
+		"modalChangeLanguageTitle": "Zmień język",
+		"languages": {
+			"english": "Angielski (Stany Zjednoczone)",
+			"french": "Francuski (Francja)",
+			"arabic": "Arabski",
+			"russian": "Rosyjski",
+			"bulgarian": "Bułgarski",
+			"spanish": "Hiszpański",
+			"korean": "Koreański",
+			"hebrew": "Hebrajski"
+		},
+		"versionScreen": {
+			"mainTitle": "Wersje zadania",
+			"listOfVersions": "Lista wersji",
+			"noActiveVersions": "Brak aktywnych wersji",
+			"createNewVersionButton": "Utwórz nową Wersję",
+			"createNewVersionText": "Utwórz nową wersję",
+			"versionNamePlaceholder": "Nazwa wersji",
+			"cancelButtonText": "Anuluj",
+			"createButtonText": "Utwórz",
+			"updateButtonText": "Zmiana"
+		},
+		"statusScreen": {
+			"mainTitle": "Statusy zadania",
+			"statuses": "Stany",
+			"listStatuses": "Lista statusów",
+			"noActiveStatuses": "Brak aktywnych statusów",
+			"createStatusButton": "Utwórz nowy Status",
+			"createNewStatusText": "Utwórz nowy status",
+			"statusNamePlaceholder": "Nazwa statusu",
+			"statusIconPlaceholder": "Wybierz ikonę",
+			"statusColorPlaceholder": "Kolory",
+			"cancelButtonText": "Anuluj",
+			"createButtonText": "Utwórz",
+			"updateButtonText": "Zmiana"
+		},
+		"priorityScreen": {
+			"mainTitle": "Priorytety zadania",
+			"priorities": "Priorytety",
+			"listPriorities": "Lista priorytetów",
+			"noActivePriorities": "Brak aktywnych priorytetów",
+			"createPriorityButton": "Utwórz nowy Priorytet",
+			"createNewPriorityText": "Utwórz nowy priorytet",
+			"priorityNamePlaceholder": "Nazwa priorytetu",
+			"priorityIconPlaceholder": "Szukaj ikony",
+			"priorityColorPlaceholder": "Kolory",
+			"cancelButtonText": "Anuluj",
+			"createButtonText": "Utwórz",
+			"updateButtonText": "Zmiana"
+		},
+		"labelScreen": {
+			"mainTitle": "Etykiety zadania",
+			"listLabels": "Lista etykiet",
+			"labels": "Etykiety",
+			"noActiveLabels": "Brak aktywnych etykiet",
+			"createLabelButton": "Utwórz nową Etykietę",
+			"createNewLabelText": "Utwórz nową etykietę",
+			"labelNamePlaceholder": "Nazwa etykiety",
+			"labelIconPlaceholder": "Wybierz ikonę",
+			"labelColorPlaceholder": "Kolory",
+			"cancelButtonText": "Anuluj",
+			"createButtonText": "Utwórz",
+			"updateButtonText": "Zmiana"
+		},
+		"sizeScreen": {
+			"mainTitle": "Rozmiary zadania",
+			"sizes": "Rozmiary",
+			"listSizes": "Lista rozmiarów",
+			"noActiveSizes": "Brak aktywnych rozmiarów",
+			"createSizeButton": "Utwórz nowy Rozmiar",
+			"createNewSizeText": "Utwórz nowy rozmiar",
+			"sizeNamePlaceholder": "Nazwa rozmiaru",
+			"sizeIconPlaceholder": "Wybierz ikonę",
+			"sizeColorPlaceholder": "Kolory",
+			"cancelButtonText": "Anuluj",
+			"createButtonText": "Utwórz",
+			"updateButtonText": "Zmiana"
+		},
+		"membersSettingsScreen": {
+			"mainTitle": "Członkowie i role",
+			"deleteUserConfirmation": "Czy na pewno chcesz usunąć wybranego użytkownika?",
+			"changeRole": "Zmień rolę",
+			"delete": "Usuń"
+		},
+		"changeFullName": {
+			"firstNamePlaceholder": "Imię",
+			"lastNamePlaholder": "Nazwisko",
+			"mainTitle": "Zmień imię i nazwisko"
+		},
+		"changeAvatar": {
+			"recentPictures": "Ostatnie zdjęcia",
+			"recentFiles": "Ostatnie pliki",
+			"selectFromGalery": "Wybierz z galerii",
+			"selectFromFiles": "Wybierz z plików",
+			"continueButton": "Kontynuuj",
+			"logoDeleteConfirmation": "Czy na pewno chcesz usunąć logo?",
+			"avatarDeleteConfirmation": "Czy na pewno chcesz usunąć awatar?"
+		},
+		"contact": {
+			"mainTitle": "Zmień dane kontaktowe",
+			"emailPlaceholder": "Adres e-mail",
+			"phonePlaceholder": "Numer telefonu",
+			"emailNotValid": "Proszę podać poprawny adres e-mail",
+			"phoneNotValid": "Proszę podać poprawny numer telefonu"
+		},
+		"changeTimezone": {
+			"mainTitle": "Zmień strefę czasową",
+			"selectTimezoneTitle": "Wybierz strefę czasową"
+		},
+		"changeLanguage": {
+			"mainTitle": "Zmień język",
+			"selectLanguageTitle": "Wybierz język",
+			"restartTitle": "Uruchom aplikację ponownie",
+			"restartMessage": "Ten język czyta się w przeciwnym kierunku. Aplikacja uruchomi się ponownie, aby ułożyć ekrany w tym kierunku.",
+			"restartNow": "Uruchom ponownie",
+			"restartLater": "Później"
+		}
+	},
+	"hamburgerMenu": {
+		"darkMode": "Tryb ciemny"
+	},
+	"inviteModal": {
+		"accept": "Akceptuj",
+		"reject": "Odrzuć",
+		"inviteHint": "Zostałeś zaproszony do dołączenia do"
+	},
+	"accountVerificationModal": {
+		"verify": "weryfikuj"
+	},
+	"demoNavigator": {
+		"componentsTab": "Komponenty",
+		"debugTab": "Debugowanie",
+		"communityTab": "Społeczność",
+		"podcastListTab": "Podcast"
+	},
+	"demoCommunityScreen": {
+		"title": "Połącz się ze społecznością",
+		"tagLine": "Dołącz do społeczności inżynierów React Native skupionej wokół Infinite Red i rozwijaj z nami swoje aplikacje!",
+		"joinUsOnSlackTitle": "Dołącz do nas na Slacku",
+		"joinUsOnSlack": "Szukasz miejsca, w którym poznasz inżynierów React Native z całego świata? Dołącz do rozmowy na Slacku społeczności Infinite Red! Nasza rosnąca społeczność to bezpieczne miejsce, w którym możesz zadawać pytania, uczyć się od innych i poszerzać sieć kontaktów.",
+		"joinSlackLink": "Dołącz do społeczności na Slacku",
+		"makeIgniteEvenBetterTitle": "Ulepsz Ignite",
+		"makeIgniteEvenBetter": "Masz pomysł, jak jeszcze ulepszyć Ignite? Chętnie go poznamy! Zawsze szukamy osób, które chcą pomóc nam tworzyć najlepsze narzędzia dla React Native. Dołącz do nas na GitHubie i współtwórz przyszłość Ignite.",
+		"contributeToIgniteLink": "Współtwórz Ignite",
+		"theLatestInReactNativeTitle": "Nowości w React Native",
+		"theLatestInReactNative": "Informujemy na bieżąco o wszystkim, co oferuje React Native.",
+		"reactNativeRadioLink": "React Native Radio",
+		"reactNativeNewsletterLink": "React Native Newsletter",
+		"reactNativeLiveLink": "React Native Live",
+		"chainReactConferenceLink": "Chain React Conference",
+		"hireUsTitle": "Zatrudnij Infinite Red do swojego następnego projektu",
+		"hireUs": "Niezależnie od tego, czy chodzi o poprowadzenie całego projektu, czy o praktyczne szkolenie zespołów, Infinite Red pomoże przy niemal każdym projekcie React Native.",
+		"hireUsLink": "Wyślij nam wiadomość"
+	},
+	"demoShowroomScreen": {
+		"jumpStart": "Komponenty na szybki start projektu!",
+		"lorem2Sentences": "Nulla cupidatat deserunt amet quis aliquip nostrud do adipisicing. Adipisicing excepteur elit laborum Lorem adipisicing do duis.",
+		"demoHeaderTxExample": "Hura",
+		"demoViaTxProp": "Przez właściwość `tx`",
+		"demoViaSpecifiedTxProp": "Przez właściwość `{prop}Tx`"
+	},
+	"demoDebugScreen": {
+		"howTo": "JAK TO ZROBIĆ",
+		"title": "Debugowanie",
+		"tagLine": "Gratulacje, masz tu bardzo zaawansowany szablon aplikacji React Native. Wykorzystaj go!",
+		"reactotron": "Wyślij do aplikacji Reactotron",
+		"reportBugs": "Zgłoś błędy",
+		"demoList": "Lista demonstracyjna",
+		"demoPodcastList": "Demonstracyjna lista podcastów",
+		"androidReactotronHint": "Jeśli to nie działa, upewnij się, że aplikacja desktopowa Reactotron jest uruchomiona, wykonaj w terminalu polecenie adb reverse tcp:9090 tcp:9090 i przeładuj aplikację.",
+		"iosReactotronHint": "Jeśli to nie działa, upewnij się, że aplikacja desktopowa Reactotron jest uruchomiona, i przeładuj aplikację.",
+		"macosReactotronHint": "Jeśli to nie działa, upewnij się, że aplikacja desktopowa Reactotron jest uruchomiona, i przeładuj aplikację.",
+		"webReactotronHint": "Jeśli to nie działa, upewnij się, że aplikacja desktopowa Reactotron jest uruchomiona, i przeładuj aplikację.",
+		"windowsReactotronHint": "Jeśli to nie działa, upewnij się, że aplikacja desktopowa Reactotron jest uruchomiona, i przeładuj aplikację."
+	},
+	"demoPodcastListScreen": {
+		"title": "Odcinki React Native Radio",
+		"onlyFavorites": "Pokaż tylko ulubione",
+		"favoriteButton": "Ulubione",
+		"unfavoriteButton": "Usuń z ulubionych",
+		"accessibility": {
+			"cardHint": "Dotknij dwukrotnie, aby posłuchać odcinka. Dotknij dwukrotnie i przytrzymaj, aby wykonać na tym odcinku akcję: {action}.",
+			"switch": "Włącz, aby pokazywać tylko ulubione",
+			"favoriteAction": "Przełącz ulubione",
+			"favoriteIcon": "Odcinka nie ma w ulubionych",
+			"unfavoriteIcon": "Odcinek jest w ulubionych",
+			"publishLabel": "Opublikowano: {date}",
+			"durationLabel": "Czas trwania: {hours} godz. {minutes} min {seconds} s"
+		},
+		"noFavoritesEmptyState": {
+			"heading": "Trochę tu pusto",
+			"content": "Nie dodano jeszcze żadnych ulubionych. Dotknij serca przy odcinku, aby dodać go do ulubionych!"
+		}
+	}
+}

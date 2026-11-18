@@ -1,4 +1,4 @@
-import en from '../app/i18n/en';
+import en from '../locales/en.json';
 import { exec } from 'child_process';
 
 // Use this array for keys that for whatever reason aren't greppable so they
