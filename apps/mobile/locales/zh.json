@@ -38,6 +38,24 @@
 		"signIn": {
 			"title": "登录",
 			"message": "登录功能将在后续步骤中迁移到新应用。目前请使用当前应用登录。"
+		},
+		"home": {
+			"today": "今天",
+			"thisWeek": "本周",
+			"currentTask": "当前任务",
+			"lastTask": "上一个任务",
+			"noTaskTitle": "尚未记录时间",
+			"noTaskMessage": "在任务上记录时间后，您的上一个任务会显示在这里。",
+			"start": "开始",
+			"stop": "停止",
+			"runningSince": "自 {time} 起运行",
+			"duration": "{hours} 小时 {minutes} 分钟",
+			"startFailedTitle": "计时器无法启动",
+			"startFailedMessage": "请检查网络连接后重试。",
+			"needsNetwork": "启动和停止计时器需要网络连接。",
+			"weekFailed": "无法加载本周总计",
+			"weekUnavailable": "此账户在此不记录时间",
+			"taskFailed": "无法加载任务"
 		}
 	},
 	"session": {

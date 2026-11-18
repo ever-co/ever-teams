@@ -34,8 +34,10 @@ jest.mock('@/core/hooks/settings/use-embeds', () => ({
 jest.mock('@/core/hooks/clients/use-clients-query', () => ({
 	useActiveClients: (options: { enabled: boolean }) => mockUseActiveClients(options)
 }));
+type DialogMockProps = { open: boolean; canLimitToClient: boolean; canAllowAddMembers: boolean };
+
 jest.mock('./create-embed-credential-dialog', () => ({
-	CreateEmbedCredentialDialog: ({ open, canLimitToClient }: { open: boolean; canLimitToClient: boolean }) => {
+	CreateEmbedCredentialDialog: ({ open, canLimitToClient, canAllowAddMembers }: DialogMockProps) => {
 		if (!open) {
 			return null;
 		}
@@ -43,6 +45,7 @@ jest.mock('./create-embed-credential-dialog', () => ({
 			<>
 				<p>create dialog</p>
 				{canLimitToClient && <p>client choice offered</p>}
+				{canAllowAddMembers && <p>members option offered</p>}
 			</>
 		);
 	}
@@ -168,6 +171,16 @@ describe('EmbedsSettingsPage', () => {
 		fireEvent.click(screen.getByText('settings.embeds.CREATE'));
 		expect(screen.getByText('create dialog')).toBeTruthy();
 		expect(screen.queryByText('client choice offered')).toBeNull();
+		expect(screen.queryByText('members option offered')).toBeNull();
+	});
+
+	it('lets the credential dialog offer the members option when the config says a credential can add members', () => {
+		mockUseAvailability.mockReturnValue({ availability: 'enabled', canAllowAddMembers: true, retry: jest.fn() });
+		render(<EmbedsSettingsPage />);
+
+		fireEvent.click(screen.getByText('settings.embeds.CREATE'));
+		expect(screen.getByText('members option offered')).toBeTruthy();
+		expect(screen.queryByText('client choice offered')).toBeNull();
 	});
 
 	it('lets the credential dialog offer a client when the config says the API can limit a credential to one', () => {
@@ -212,6 +225,43 @@ describe('EmbedsSettingsPage', () => {
 			expect(screen.getByText(prefix)).toBeTruthy();
 		}
 		expect(screen.getAllByText('settings.embeds.NEVER_USED')).toHaveLength(3);
+	});
+
+	it('says which credentials add people, after their client, and keeps everything else the row shows', () => {
+		mockUseAvailability.mockReturnValue({ availability: 'enabled', canAllowAddMembers: true, retry: jest.fn() });
+		mockUseCredentials.mockReturnValue({
+			...ready,
+			credentials: [
+				{
+					id: 'c1',
+					name: 'Fabrikam contractors portal',
+					prefix: 'gze_fabrikam',
+					organizationContactId: 'contact-fabrikam',
+					canAddMembers: true,
+					createdAt: '2026-11-18T09:00:00.000Z',
+					lastUsedAt: null
+				},
+				{ id: 'c2', name: 'Northwind customer portal', prefix: 'gze_northwind', canAddMembers: false }
+			]
+		});
+		mockUseActiveClients.mockReturnValue({
+			...ready,
+			clients: [{ id: 'contact-fabrikam', name: 'Fabrikam Outdoor' }]
+		});
+		render(<EmbedsSettingsPage />);
+
+		expect(screen.getAllByText('settings.embeds.ADDS_MEMBERS')).toHaveLength(1);
+		const factsOfFabrikam = screen.getByText('gze_fabrikam').parentElement?.textContent ?? '';
+		const clientAt = factsOfFabrikam.indexOf('settings.embeds.LIMITED_TO_CLIENT Fabrikam Outdoor');
+		const addsPeopleAt = factsOfFabrikam.indexOf('settings.embeds.ADDS_MEMBERS');
+		const createdAt = factsOfFabrikam.indexOf('settings.embeds.CREATED_ON');
+		expect(clientAt).toBeGreaterThan(-1);
+		expect(addsPeopleAt).toBeGreaterThan(clientAt);
+		expect(createdAt).toBeGreaterThan(addsPeopleAt);
+		for (const prefix of ['gze_fabrikam', 'gze_northwind']) {
+			expect(screen.getByText(prefix)).toBeTruthy();
+		}
+		expect(screen.getAllByText('settings.embeds.NEVER_USED')).toHaveLength(2);
 	});
 
 	it('reads no clients while no credential is limited to one', () => {

@@ -38,15 +38,27 @@ const filesUnder = (dir, suffix) =>
 		.filter((file) => file.endsWith(suffix))
 		.map((file) => path.join(dir, file));
 
-const undeclaredImportsOf = (file) => {
+const packagesImportedBy = (file) => {
 	const source = fs.readFileSync(file, 'utf8');
-	const names = [...source.matchAll(SPECIFIER)].map((match) => packageOf(match[1]));
-	return names.filter((name) => !isBuiltin(name) && !declared.has(name));
+	return [...source.matchAll(SPECIFIER)].map((match) => packageOf(match[1]));
 };
+
+const undeclaredImportsOf = (file) =>
+	packagesImportedBy(file).filter((name) => !isBuiltin(name) && !declared.has(name));
 
 test('the ESM and CommonJS builds import only declared packages', () => {
 	for (const file of [path.join(dist, 'index.es.js'), path.join(dist, 'index.cjs')]) {
 		assert.deepEqual(undeclaredImportsOf(file), [], path.relative(packageDir, file));
+	}
+});
+
+// The server entry (@ever-teams/api/server) imports the main entry by the package's own name, for its error classes.
+test('the server builds import only declared packages and the main entry', () => {
+	for (const file of [path.join(dist, 'server.es.js'), path.join(dist, 'server.cjs')]) {
+		const undeclared = undeclaredImportsOf(file).filter((name) => name !== manifest.name);
+
+		assert.deepEqual(undeclared, [], path.relative(packageDir, file));
+		assert.ok(packagesImportedBy(file).includes(manifest.name), path.relative(packageDir, file));
 	}
 });
 

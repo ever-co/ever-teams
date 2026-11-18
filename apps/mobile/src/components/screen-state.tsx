@@ -15,7 +15,7 @@ function opacityWhen(pressed: boolean): number {
 	return 1;
 }
 
-function useShellTheme() {
+export function useShellTheme() {
 	const preference = useAtomValue(themePreferenceAtom);
 	return useTheme(preference);
 }
@@ -81,10 +81,15 @@ function isOnline() {
 	return onlineManager.isOnline();
 }
 
+/** Whether the phone has a connection, as the query client follows it. */
+export function useIsOnline(): boolean {
+	return useSyncExternalStore(subscribeToConnection, isOnline);
+}
+
 /** Says the phone is offline and what the screen shows meanwhile; nothing while it is online. */
 export function OfflineNotice() {
 	const theme = useShellTheme();
-	const online = useSyncExternalStore(subscribeToConnection, isOnline);
+	const online = useIsOnline();
 	if (online) {
 		return null;
 	}

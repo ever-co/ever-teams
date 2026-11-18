@@ -38,6 +38,24 @@
 		"signIn": {
 			"title": "Zaloguj się",
 			"message": "Logowanie przejdzie do nowej aplikacji w jednym z kolejnych kroków. Na razie zaloguj się w obecnej aplikacji."
+		},
+		"home": {
+			"today": "Dzisiaj",
+			"thisWeek": "W tym tygodniu",
+			"currentTask": "Bieżące zadanie",
+			"lastTask": "Ostatnie zadanie",
+			"noTaskTitle": "Nie zarejestrowano jeszcze czasu",
+			"noTaskMessage": "Twoje ostatnie zadanie pojawi się tutaj, gdy zarejestrujesz na nim czas.",
+			"start": "Uruchom",
+			"stop": "Zatrzymaj",
+			"runningSince": "Działa od {time}",
+			"duration": "{hours} godz. {minutes} min",
+			"startFailedTitle": "Nie udało się uruchomić timera",
+			"startFailedMessage": "Sprawdź połączenie i spróbuj ponownie.",
+			"needsNetwork": "Uruchamianie i zatrzymywanie timera wymaga połączenia.",
+			"weekFailed": "Nie udało się wczytać sumy tygodnia",
+			"weekUnavailable": "To konto nie rejestruje tu czasu",
+			"taskFailed": "Nie udało się wczytać zadania"
 		}
 	},
 	"session": {
