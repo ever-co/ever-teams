@@ -13,8 +13,8 @@ which uses this package: start with [its README](https://github.com/ever-co/ever
 npm install @ever-teams/api
 ```
 
-It brings two dependencies: `@ever-teams/toolkit-types` (the types of the answers) and `qs`. It uses the platform's
-`fetch`.
+It brings two dependencies: `@ever-teams/toolkit-types` (the types it shares with the kit) and `qs`. It uses the
+platform's `fetch`.
 
 ## Quick start: start a timer from a script
 
@@ -258,6 +258,45 @@ const status = await getTimerStatus(user, accessToken, organizationId);
 
 A new script or server is simpler with `createClient`. Nothing is deprecated: any change to these functions will be
 announced in the changelog first, and made later in a release of its own.
+
+## The answers, checked against the API
+
+The types the client's methods answer are checked against answers recorded from a running API, kept in
+`test/contract/` (one file per method, and one for `GET /user/me`). The API's Swagger description gives no answer
+shape for the timer and time entry routes, so the recorded answers are the reference. Three tests read them:
+
+- `test/contract-types.test.mjs` assigns each recorded answer, every value typed as the literal it is, to the type
+  the client declares for it, and compiles that with `tsc --noEmit`. A value the type does not allow (`null` where it
+  declares a string, a text where it declares a number) or a required field the answer lacks fails the test. A field
+  the API answers and the type does not name passes.
+- `test/contract-answers.test.mjs` serves each method its recorded answer and checks that the method sends the
+  recorded route and returns that answer.
+- `test/contract-privacy.test.mjs` checks that the recordings hold no personal data: every text is a placeholder or a
+  value the API picks from a list (a log type, a status, a currency), with no email address, token or id.
+
+When the API changes an answer, recording it again shows the change in the fixtures, and the type test names the
+field that no longer fits.
+
+### Record the answers again
+
+The script is in the repository, not in the published package. Run it from `packages/api`, against a local API,
+with the account of a member whose role may list members (a manager) and whose timer is stopped:
+
+```sh
+yarn --cwd ../toolkit-types build && yarn build
+EVER_TEAMS_API_URL=http://localhost:3000/api EVER_TEAMS_EMAIL=manager@example.com EVER_TEAMS_PASSWORD=... \
+  node scripts/record-contract.mjs
+yarn test
+```
+
+`EVER_TEAMS_TOKEN`, a personal API token, can replace the email and the password. The script refuses an address
+other than `localhost` unless `EVER_TEAMS_CONTRACT_REMOTE=1` is set, since it changes the account's data: it starts
+the account's timer twice (once bare, once on one of its tasks) and stops it, reads the day's time entries and totals,
+then deletes the two time entries it created. It refuses an account whose timer runs, so the timer stays as it was.
+
+Before writing, it replaces ids, names, emails, addresses, dates and amounts of money with placeholders of the same
+form (`<employee-1>`, `person-1@example.com`, dates from `2000-01-01`). It lists the real values it replaced in
+`ever-teams-api-contract-forbidden.json` in the system's temporary folder, where the privacy test also looks for them.
 
 ## License
 
