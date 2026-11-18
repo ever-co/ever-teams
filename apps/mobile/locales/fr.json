@@ -38,6 +38,24 @@
 		"signIn": {
 			"title": "Connexion",
 			"message": "La connexion passera dans la nouvelle application plus tard. Pour l’instant, connectez-vous avec l’application actuelle."
+		},
+		"home": {
+			"today": "Aujourd'hui",
+			"thisWeek": "Cette semaine",
+			"currentTask": "Tâche en cours",
+			"lastTask": "Dernière tâche",
+			"noTaskTitle": "Aucun temps suivi pour le moment",
+			"noTaskMessage": "Votre dernière tâche apparaît ici dès que vous avez suivi du temps dessus.",
+			"start": "Démarrer",
+			"stop": "Arrêter",
+			"runningSince": "En cours depuis {time}",
+			"duration": "{hours} h {minutes} min",
+			"startFailedTitle": "Le chronomètre n'a pas pu démarrer",
+			"startFailedMessage": "Vérifiez votre connexion et réessayez.",
+			"needsNetwork": "Démarrer et arrêter le chronomètre demandent une connexion.",
+			"weekFailed": "Le total de la semaine n'a pas pu se charger",
+			"weekUnavailable": "Ce compte ne suit pas de temps ici",
+			"taskFailed": "La tâche n'a pas pu se charger"
 		}
 	},
 	"session": {

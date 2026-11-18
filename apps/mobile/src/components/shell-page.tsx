@@ -1,4 +1,5 @@
 import React from 'react';
+import type { ReactNode } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAtomValue } from 'jotai';
@@ -11,10 +12,12 @@ interface ShellPageProps {
 	title: string;
 	emptyTitle?: string;
 	emptyMessage?: string;
+	/** The screen, once it is built; until then the page says what comes next. */
+	children?: ReactNode;
 }
 
-/** A page of the new app while its screen is being built: its title, the offline notice, and what comes next. */
-export function ShellPage({ title, emptyTitle, emptyMessage }: ShellPageProps) {
+/** A page of the new app: its title, the offline notice, and its screen or, while it is being built, what comes next. */
+export function ShellPage({ title, emptyTitle, emptyMessage, children }: Readonly<ShellPageProps>) {
 	const preference = useAtomValue(themePreferenceAtom);
 	const theme = useTheme(preference);
 	const insets = useSafeAreaInsets();
@@ -27,10 +30,12 @@ export function ShellPage({ title, emptyTitle, emptyMessage }: ShellPageProps) {
 				{title}
 			</Text>
 			<OfflineNotice />
-			<EmptyState
-				title={emptyTitle ?? translate('shell.states.comingTitle')}
-				message={emptyMessage ?? translate('shell.states.comingMessage')}
-			/>
+			{children ?? (
+				<EmptyState
+					title={emptyTitle ?? translate('shell.states.comingTitle')}
+					message={emptyMessage ?? translate('shell.states.comingMessage')}
+				/>
+			)}
 		</View>
 	);
 }
