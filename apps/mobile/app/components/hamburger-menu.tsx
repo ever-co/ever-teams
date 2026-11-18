@@ -139,7 +139,7 @@ const HamburgerMenu = observer((props: any) => {
 								</Text>
 							</View>
 							<TouchableOpacity
-								onPress={toggleTheme}
+								onPress={() => toggleTheme(dark)}
 								style={[
 									styles.toggle,
 									dark ? { backgroundColor: '#1D222A' } : { backgroundColor: '#E7E7EA' }

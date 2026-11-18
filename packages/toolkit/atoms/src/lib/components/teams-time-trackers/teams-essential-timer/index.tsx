@@ -19,7 +19,7 @@ export interface TeamsEssentialTimerProps extends Omit<TeamsBasicTimer, 'time' |
 // TODO: Must move this to Atoms and integrate with gauzy api
 export function TeamsEssentialTimer({ progress, ...props }: Readonly<TeamsEssentialTimerProps>) {
 	// Timer hook - self-contained, fetches all dependencies internally
-	const control = useTimerControl();
+	const control = useTimerControl(props.caption);
 	const ActionButton = control.isRunning ? Pause : Play;
 
 	return (
@@ -27,6 +27,7 @@ export function TeamsEssentialTimer({ progress, ...props }: Readonly<TeamsEssent
 			<BaseAtom
 				{...control.action}
 				{...props}
+				caption={control.caption}
 				{...control.state}
 				{...(progress && { progress: (control.seconds / 100) * 60 })}
 				customButtonIcon={<ActionButton />}
