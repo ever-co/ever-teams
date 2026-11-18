@@ -73,6 +73,15 @@ export function rangeOf(from: EverTeamsDate, to: EverTeamsDate): { start: Date; 
 	return { start, end };
 }
 
+/** This week, Monday to Sunday as the kit counts it, in the time zone the code runs in. */
+export function weekRange(now: Date): { start: Date; end: Date } {
+	const daysSinceMonday = (now.getDay() + 6) % 7;
+	const monday = now.getDate() - daysSinceMonday;
+	const start = new Date(now.getFullYear(), now.getMonth(), monday);
+	const end = new Date(now.getFullYear(), now.getMonth(), monday + 6, 23, 59, 59, 999);
+	return { start, end };
+}
+
 /** The IANA time zone the code runs in, when the platform tells it. */
 export function localTimeZone(): string | undefined {
 	return Intl.DateTimeFormat().resolvedOptions().timeZone || undefined;

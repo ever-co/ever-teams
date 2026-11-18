@@ -1,4 +1,5 @@
 import { createIdentity } from './identity';
+import { createMembers, MembersResource } from './members';
 import { createProjects, ProjectsResource } from './projects';
 import { createTasks, TasksResource } from './tasks';
 import { createTimeEntries, TimeEntriesResource } from './time-entries';
@@ -7,6 +8,7 @@ import { createTransport } from './transport';
 import { EverTeamsClientOptions } from './types';
 
 export type { EverTeamsDate } from './dates';
+export type { MembersResource } from './members';
 export type { ProjectsResource } from './projects';
 export type { TasksListParams, TasksResource } from './tasks';
 export type { TimeEntriesListParams, TimeEntriesResource } from './time-entries';
@@ -17,6 +19,7 @@ export interface EverTeamsClient {
 	readonly timeEntries: TimeEntriesResource;
 	readonly projects: ProjectsResource;
 	readonly tasks: TasksResource;
+	readonly members: MembersResource;
 }
 
 /**
@@ -30,6 +33,7 @@ export function createClient(options: EverTeamsClientOptions): EverTeamsClient {
 		timer: createTimer(transport, identity),
 		timeEntries: createTimeEntries(transport, identity),
 		projects: createProjects(transport, identity),
-		tasks: createTasks(transport, identity)
+		tasks: createTasks(transport, identity),
+		members: createMembers(transport, identity)
 	};
 }
