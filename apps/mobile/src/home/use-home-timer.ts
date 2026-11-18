@@ -6,12 +6,15 @@ import {
 	readTask,
 	readTimerStatus,
 	readTrackedTotals,
+	sendTimeSlot,
 	startTimer,
 	stopTimer
 } from '../data/timer';
 import type { StartTarget, TimerLog } from '../data/timer';
+import { TimerSource } from '../../app/services/interfaces/ITimer';
 import { accountOf, sessionAtom } from '../state/session';
 import type { Session } from '../state/session';
+import { forgetRun, writeRunTimeBeforeStop } from './heartbeat';
 
 // The web reads the timer every 30 s; the query client reads it again when the app comes back to the foreground
 const STATUS_REFRESH_MS = 30_000;
@@ -175,11 +178,34 @@ export function useStartTimer() {
 	});
 }
 
+/**
+ * Writes the time since the last heartbeat before the stop: the run's last minute, or a run shorter than one, would
+ * otherwise have no time slot from the phone. A write that fails does not hold the stop back.
+ */
+async function writeLastMinute(session: Session, employeeId: string | null | undefined, running?: TimerLog) {
+	if (!employeeId) {
+		return;
+	}
+	const source = running?.source ?? TimerSource.MOBILE;
+	try {
+		await writeRunTimeBeforeStop((seconds) => sendTimeSlot(session, { employeeId, source, seconds }));
+	} catch {
+		// the run's time up to the last heartbeat is written; the stop goes on
+	}
+}
+
 export function useStopTimer() {
 	const session = useSignedInSession();
+	const employeeId = useEmployeeId().data;
 	const readTimeAgain = useReadTimeAgain();
 	return useMutation({
-		mutationFn: (running: TimerLog | undefined) => stopTimer(sessionOrFail(session), running),
+		mutationFn: async (running: TimerLog | undefined) => {
+			const signedIn = sessionOrFail(session);
+			await writeLastMinute(signedIn, employeeId, running);
+			await stopTimer(signedIn, running);
+			// stopped: the heartbeat lets go of the run, which a stop that failed leaves to it
+			forgetRun();
+		},
 		onSettled: readTimeAgain,
 		networkMode: 'always'
 	});
