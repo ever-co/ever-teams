@@ -82,12 +82,12 @@ yarn build:web
 
 #### Testing
 
-**Framework**: Jest, Detox (E2E)
+**Framework**: Jest, Maestro (E2E)
 **Run Command**:
 
 ```bash
 yarn test
-yarn test:detox
+yarn test:maestro
 ```
 
 ### Desktop Application (Electron)
@@ -228,7 +228,7 @@ The repository includes multiple Docker Compose setups for different environment
 **Frameworks**:
 
 - **Unit/Integration**: Jest (across all projects)
-- **E2E**: Cypress (web), Detox (mobile)
+- **E2E**: Cypress (web), Maestro (mobile)
 - **Linting**: ESLint, Stylelint, Prettier, Commitlint
 
 **Run Commands**:

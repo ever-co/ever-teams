@@ -10,6 +10,9 @@ export interface KitPreferences {
 	font: string | null;
 	loadGoogleFonts: boolean;
 	colorScheme: KitColorScheme;
+	// The scheme a person picked with the theme toggle, for every widget of the page; null until then, and each kit root
+	// shows the scheme its own provider was given.
+	chosenColorScheme: KitColorScheme | null;
 }
 
 export const FONT_STORAGE_KEY = 'ever-teams:selected-font';
@@ -18,11 +21,16 @@ export const FONT_STORAGE_KEY = 'ever-teams:selected-font';
 export const LEGACY_FONT_STORAGE_KEY = 'selected-font';
 const LEGACY_DEFAULT_FONT = FONT_OPTIONS[0].value;
 
+// What a page starts with: no font picked, no Google Fonts, the system scheme, no scheme picked.
+function defaultPreferences(): KitPreferences {
+	return { font: null, loadGoogleFonts: false, colorScheme: 'system', chosenColorScheme: null };
+}
+
 const listeners = new Set<() => void>();
-let preferences: KitPreferences = { font: null, loadGoogleFonts: false, colorScheme: 'system' };
+let preferences: KitPreferences = defaultPreferences();
 let fontRead = false;
 // The server snapshot, kept until the scheme changes: React requires the same object from consecutive calls.
-let serverPreferences: KitPreferences = { font: null, loadGoogleFonts: false, colorScheme: 'system' };
+let serverPreferences: KitPreferences = defaultPreferences();
 
 function storage(): Storage | null {
 	if (typeof window === 'undefined') {
@@ -96,7 +104,7 @@ export function setKitPreferences(next: Partial<KitPreferences>): void {
 
 // For tests: back to the defaults, stored font read again.
 export function resetKitPreferences(): void {
-	preferences = { font: null, loadGoogleFonts: false, colorScheme: 'system' };
+	preferences = defaultPreferences();
 	fontRead = false;
 	listeners.forEach((listener) => listener());
 }

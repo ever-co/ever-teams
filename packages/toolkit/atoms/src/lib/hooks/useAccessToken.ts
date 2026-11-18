@@ -1,6 +1,7 @@
 import { useAtom } from 'jotai';
 import { useEffect } from 'react';
 import { accessTokenAtom } from '../teams-jotai/atoms/teams-atoms';
+import { useKitOptions } from '@components/teams-provider/kit-options';
 
 /**
  * useAccessToken hook returns an object with the current access token
@@ -17,8 +18,13 @@ import { accessTokenAtom } from '../teams-jotai/atoms/teams-atoms';
 
 export const useAccessToken = () => {
 	const [accessToken, setAccessToken] = useAtom(accessTokenAtom);
+	const { hostSignIn } = useKitOptions();
 
 	useEffect(() => {
+		// The host's getToken gives the token, in memory: none is read back from the browser's storage.
+		if (hostSignIn) {
+			return;
+		}
 		if (!accessToken) {
 			// Then check localStorage
 			const store = localStorage.getItem('_teams-store');
@@ -46,7 +52,7 @@ export const useAccessToken = () => {
 				}
 			}
 		}
-	}, [accessToken, setAccessToken]);
+	}, [accessToken, setAccessToken, hostSignIn]);
 
 	return { accessToken, setAccessToken };
 };

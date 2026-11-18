@@ -1,5 +1,6 @@
 const ru = {
 	common: {
+		openMenu: 'Открыть меню',
 		ok: 'OK!',
 		cancel: 'Cancel',
 		loading: 'Loading',
@@ -10,11 +11,25 @@ const ru = {
 		discard: 'Discard',
 		logOut: 'Log Out' // @demo remove-current-line
 	},
+	shell: {
+		tabs: { home: 'Главная', tasks: 'Задачи', week: 'Неделя', team: 'Команда' },
+		states: {
+			loading: 'Загрузка',
+			offline: 'Нет подключения. Этот экран показывает то, что сохранено на телефоне.',
+			errorTitle: 'Не удалось загрузить этот экран',
+			retry: 'Повторить',
+			comingTitle: 'Появится на следующих шагах',
+			comingMessage: 'Этот экран нового приложения ещё в разработке.'
+		},
+		signIn: { title: 'Вход', message: 'Вход перейдёт в новое приложение позже. Пока входите через текущее приложение.' }
+	},
 	session: {
 		endedTitle: 'Сеанс истёк',
 		endedMessage: 'Войдите снова, чтобы продолжить.'
 	},
 	timer: {
+		startLabel: 'Запустить таймер',
+		stopLabel: 'Остановить таймер',
 		stopFailedTitle: 'Не удалось остановить таймер',
 		stopFailedMessage: 'Он всё ещё идёт. Повторите попытку чуть позже.',
 		startMove: {

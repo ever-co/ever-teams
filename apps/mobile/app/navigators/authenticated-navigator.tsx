@@ -58,6 +58,7 @@ import {
 	userNotFocusedLight
 } from '../components/svgs/icons';
 import { useOrganizationTeam } from '../services/hooks/use-organization';
+import { TimeCounterHost } from '../services/hooks/use-timer';
 
 export type AuthenticatedTabParamList = {
 	Timer: undefined;
@@ -206,6 +207,7 @@ const TabNavigator = observer(function TabNavigator() {
 					component={AuthenticatedTimerScreen}
 					options={{
 						tabBarLabel: translate('myWorkScreen.name'),
+						tabBarButtonTestID: 'tab-work',
 						tabBarIcon: ({ focused }) =>
 							!focused ? (
 								<SvgXml xml={dark ? userNotFocusedDark : userNotFocusedLight} />
@@ -223,6 +225,7 @@ const TabNavigator = observer(function TabNavigator() {
 				component={AuthenticatedProfileScreen}
 				options={{
 					tabBarLabel: translate('tasksScreen.name'),
+					tabBarButtonTestID: 'tab-tasks',
 					tabBarIcon: ({ focused }) =>
 						focused ? (
 							<SvgXml xml={dark ? briefCaseFocusedDark : briefCaseFocusedLight} />
@@ -248,6 +251,7 @@ const TabNavigator = observer(function TabNavigator() {
 				component={AuthenticatedTeamScreen}
 				options={{
 					tabBarLabel: translate('teamScreen.name'),
+					tabBarButtonTestID: 'tab-team',
 					tabBarIcon: ({ focused }) =>
 						!focused ? (
 							<SvgXml xml={dark ? peopleNotFocusedDark : peopleNotFocusedLight} />
@@ -300,6 +304,16 @@ export const AuthenticatedNavigator = observer(function AuthenticatedNavigator()
 		</drawer.Navigator>
 	);
 });
+
+/** The signed-in part of the app, with the one counter of the running time beside its screens. */
+export function SignedInArea() {
+	return (
+		<>
+			<TimeCounterHost />
+			<AuthenticatedNavigator />
+		</>
+	);
+}
 
 const $tabBarItem: ViewStyle = {
 	paddingTop: Platform.OS === 'ios' ? spacing.medium : spacing.extraSmall
