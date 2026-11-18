@@ -25,12 +25,15 @@ function colorSchemeOf(value: string | null): ColorScheme {
 	return 'system';
 }
 
-// Without api-url the kit keeps its own default API address.
+// The API client's own default address. The client merges each new setting into the last one, so a removed api-url
+// names it rather than leaving the address that attribute had set.
+const KIT_DEFAULT_API_URL = 'https://api.ever.team/api';
+
 function configOf(apiUrl: string | null) {
 	if (apiUrl) {
 		return { apiUrl };
 	}
-	return {};
+	return { apiUrl: KIT_DEFAULT_API_URL };
 }
 
 /**
