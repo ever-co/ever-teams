@@ -1,8 +1,27 @@
 import * as Localization from 'expo-localization';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { I18nManager } from 'react-native';
+import { reloadAppAsync } from 'expo';
+import { isLaidOutRightToLeft, layOutFor } from './layout-direction';
 import { setAppLocale } from './translate';
 import type { Messages } from './messages';
+
+const RESTARTED_FOR_KEY = 'LayoutRestartedFor';
+
+// A new layout direction shows after a restart: at start it happens at once, before the person sees a screen, and
+// once only, so a direction that does not take never restarts the app in a loop
+async function startIn(tag: string) {
+	const locale = setAppLocale(tag);
+	if (!layOutFor(locale)) {
+		await AsyncStorage.removeItem(RESTARTED_FOR_KEY);
+		return;
+	}
+	const restartedFor = await AsyncStorage.getItem(RESTARTED_FOR_KEY);
+	if (restartedFor === locale) {
+		return;
+	}
+	await AsyncStorage.setItem(RESTARTED_FOR_KEY, locale);
+	await reloadAppAsync();
+}
 
 const setLanguage = async () => {
 	const locale = await AsyncStorage.getItem('Language');
@@ -11,19 +30,16 @@ const setLanguage = async () => {
 		const locales = Localization?.getLocales?.();
 		const deviceLocale = locales?.[0]?.languageTag ?? 'en';
 		AsyncStorage.setItem('Language', deviceLocale);
-		setAppLocale(deviceLocale);
+		await startIn(deviceLocale);
 	} else {
-		setAppLocale(locale);
+		await startIn(locale);
 	}
 };
 
 setLanguage();
 
-// handle RTL languages
-const locales = Localization?.getLocales?.();
-export const isRTL = locales?.[0]?.textDirection === 'rtl';
-I18nManager?.allowRTL(isRTL);
-I18nManager?.forceRTL(isRTL);
+// The direction the app is laid out in, which follows its language (startIn), not the phone's
+export const isRTL = isLaidOutRightToLeft();
 
 /**
  * Builds up valid keypaths for translations.
