@@ -1,13 +1,27 @@
 import { createStore } from 'jotai';
-import { keepStoredSessionInOrder } from '../../app/services/client/secure-session';
-import { sessionHolderOf } from './session-holder';
+import { keepStoredSessionInOrder, readStoredSession } from '../../app/services/client/secure-session';
+import { load, save } from '../../app/utils/storage';
+import { forgetEndedSession, keepRenewedPair, sessionHolderOf } from './session-holder';
 import { sessionAtom } from './session';
 
 jest.mock('../../app/services/client/secure-session', () => ({
-	keepStoredSessionInOrder: jest.fn(async () => undefined)
+	...jest.requireActual('../../app/services/client/secure-session'),
+	keepStoredSessionInOrder: jest.fn(async () => undefined),
+	readStoredSession: jest.fn(async () => ({}))
 }));
+jest.mock('../../app/utils/storage', () => ({ load: jest.fn(async () => null), save: jest.fn(async () => true) }));
 
 const kofi = { accessToken: 'access-1', refreshToken: 'refresh-1', tenantId: 'tenant', organizationId: 'organization' };
+// What a version before the secure storage saved: the tokens in the authentication store's state
+const earlierSnapshot = {
+	authenticationStore: {
+		authToken: 'access-1',
+		refreshToken: 'refresh-1',
+		tenantId: 'tenant',
+		organizationId: 'organization'
+	}
+};
+const snapshotWithoutTokens = { authenticationStore: { tenantId: 'tenant', organizationId: 'organization' } };
 
 function signedInStore() {
 	const store = createStore();
@@ -62,5 +76,42 @@ describe('the session the HTTP client renews in the new app', () => {
 		expect(store.get(sessionAtom)).toEqual({ status: 'signed-out' });
 		expect(keepStoredSessionInOrder).toHaveBeenCalledWith({});
 		expect(forgetData).toHaveBeenCalledTimes(1);
+	});
+});
+
+describe('the tokens an earlier version saved', () => {
+	it('leave the saved state once secure storage holds the renewed pair, so the next start reads that pair', async () => {
+		(load as jest.Mock).mockResolvedValue(earlierSnapshot);
+		(readStoredSession as jest.Mock).mockResolvedValue({ accessToken: 'access-2', refreshToken: 'refresh-2' });
+
+		await keepRenewedPair({ accessToken: 'access-2', refreshToken: 'refresh-2' });
+
+		expect(save).toHaveBeenCalledWith('root-v1', snapshotWithoutTokens);
+	});
+
+	it('stay while secure storage does not hold the renewed pair, so the session is not lost', async () => {
+		(load as jest.Mock).mockResolvedValue(earlierSnapshot);
+		(readStoredSession as jest.Mock).mockRejectedValue(new Error('keystore unavailable'));
+
+		await keepRenewedPair({ accessToken: 'access-2', refreshToken: 'refresh-2' });
+
+		expect(save).not.toHaveBeenCalled();
+	});
+
+	it('leave the saved state when the session ends, so it stays ended', async () => {
+		(load as jest.Mock).mockResolvedValue(earlierSnapshot);
+
+		await forgetEndedSession();
+
+		expect(keepStoredSessionInOrder).toHaveBeenCalledWith({});
+		expect(save).toHaveBeenCalledWith('root-v1', snapshotWithoutTokens);
+	});
+
+	it('leave nothing to write when the saved state carries none', async () => {
+		(load as jest.Mock).mockResolvedValue(snapshotWithoutTokens);
+
+		await forgetEndedSession();
+
+		expect(save).not.toHaveBeenCalled();
 	});
 });
