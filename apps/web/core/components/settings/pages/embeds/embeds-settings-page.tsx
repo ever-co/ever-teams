@@ -102,6 +102,10 @@ function AddOriginForm() {
 					onChange={(event) => {
 						setValue(event.target.value);
 						setIsInvalid(false);
+						// The platform's refusal was of the previous value: the edited one has not been judged yet.
+						if (add.isError) {
+							add.reset();
+						}
 					}}
 					placeholder="https://app.example.com"
 					inputMode="url"

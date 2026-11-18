@@ -31,7 +31,18 @@ interface ConfigRead {
 }
 
 export function embedsAvailabilityOf(read: ConfigRead): EmbedsAvailability {
-	// An answer the server gave stands: a later failed read keeps React Query's last data beside its error
+	// A refusal is the server's answer even after an earlier yes (the person is no longer an administrator, or embeds
+	// were turned off): React Query keeps that yes beside the error, and it must not keep the page open.
+	if (read.status === 'error') {
+		const status = errorStatusOf(read.error);
+		if (status === 404) {
+			return 'disabled';
+		}
+		if (status === 403) {
+			return 'forbidden';
+		}
+	}
+	// Any other failed read (offline a moment, a 5xx) keeps the answer the server gave
 	if (read.data) {
 		if (read.data.enabled) {
 			return 'enabled';
@@ -42,13 +53,6 @@ export function embedsAvailabilityOf(read: ConfigRead): EmbedsAvailability {
 		return 'disabled';
 	}
 	if (read.status === 'error') {
-		const status = errorStatusOf(read.error);
-		if (status === 404) {
-			return 'disabled';
-		}
-		if (status === 403) {
-			return 'forbidden';
-		}
 		return 'error';
 	}
 	return 'loading';
@@ -102,6 +106,11 @@ export function useEmbedsAvailability(enabled = true) {
 	return { availability, retry: query.refetch };
 }
 
+// Every organization's list: a write settles on the list of the organization it was made in, even if the active
+// organization changed meanwhile (ids are unique, so dropping one from every list touches only its own).
+const EVERY_ORIGINS_LIST = [...queryKeys.embeds.all, 'origins'] as const;
+const EVERY_CREDENTIALS_LIST = [...queryKeys.embeds.all, 'credentials'] as const;
+
 const NO_ORIGINS: EmbedAllowedOrigin[] = [];
 const NO_CREDENTIALS: EmbedCredential[] = [];
 
@@ -147,33 +156,29 @@ export function useAddEmbedOrigin() {
 		mutationFn: (origin) => embedsService.addOrigin(scope?.organizationId ?? '', origin),
 		// The form says why an origin was refused: the global fallback toast would say it twice
 		meta: { handlesOwnError: true },
-		onSettled: () =>
-			queryClient.invalidateQueries({
-				queryKey: queryKeys.embeds.origins(scope?.tenantId, scope?.organizationId)
-			})
+		onSettled: () => queryClient.invalidateQueries({ queryKey: EVERY_ORIGINS_LIST })
 	});
 }
 
 /** Removes a site; it leaves the list at once and the list is read again. */
 export function useRemoveEmbedOrigin() {
 	const queryClient = useQueryClient();
-	const scope = useEmbedsScope();
-	const listKey = queryKeys.embeds.origins(scope?.tenantId, scope?.organizationId);
 	return useMutation<void, unknown, string>({
 		mutationFn: (id) => embedsService.removeOrigin(id),
 		meta: { handlesOwnError: true },
 		onSuccess: (_result, id) => {
-			queryClient.setQueryData<EmbedAllowedOrigin[]>(listKey, (origins) =>
+			queryClient.setQueriesData<EmbedAllowedOrigin[]>({ queryKey: EVERY_ORIGINS_LIST }, (origins) =>
 				origins?.filter((row) => row.id !== id)
 			);
 		},
-		onSettled: () => queryClient.invalidateQueries({ queryKey: listKey })
+		onSettled: () => queryClient.invalidateQueries({ queryKey: EVERY_ORIGINS_LIST })
 	});
 }
 
 /**
  * Creates a credential; the list is read again so that it shows, without its secret. The answer, which holds the
- * secret, is dropped from React Query's cache as soon as nothing shows it.
+ * secret, is dropped from React Query's cache as soon as nothing shows it. The list is not waited for: the caller's
+ * onSuccess, which shows the secret, would otherwise wait for it too.
  */
 export function useCreateEmbedCredential() {
 	const queryClient = useQueryClient();
@@ -182,24 +187,23 @@ export function useCreateEmbedCredential() {
 		mutationFn: (name) => embedsService.createCredential(scope?.organizationId ?? '', name),
 		gcTime: 0,
 		meta: { handlesOwnError: true },
-		onSettled: () =>
-			queryClient.invalidateQueries({
-				queryKey: queryKeys.embeds.credentials(scope?.tenantId, scope?.organizationId)
-			})
+		onSettled: () => {
+			void queryClient.invalidateQueries({ queryKey: EVERY_CREDENTIALS_LIST });
+		}
 	});
 }
 
 /** Revokes a credential; it leaves the list at once and the list is read again. */
 export function useRevokeEmbedCredential() {
 	const queryClient = useQueryClient();
-	const scope = useEmbedsScope();
-	const listKey = queryKeys.embeds.credentials(scope?.tenantId, scope?.organizationId);
 	return useMutation<void, unknown, string>({
 		mutationFn: (id) => embedsService.revokeCredential(id),
 		meta: { handlesOwnError: true },
 		onSuccess: (_result, id) => {
-			queryClient.setQueryData<EmbedCredential[]>(listKey, (rows) => rows?.filter((row) => row.id !== id));
+			queryClient.setQueriesData<EmbedCredential[]>({ queryKey: EVERY_CREDENTIALS_LIST }, (rows) =>
+				rows?.filter((row) => row.id !== id)
+			);
 		},
-		onSettled: () => queryClient.invalidateQueries({ queryKey: listKey })
+		onSettled: () => queryClient.invalidateQueries({ queryKey: EVERY_CREDENTIALS_LIST })
 	});
 }

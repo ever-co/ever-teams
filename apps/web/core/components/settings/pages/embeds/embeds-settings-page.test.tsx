@@ -3,6 +3,7 @@
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { embedsAvailabilityOf } from '@/core/hooks/settings/use-embeds';
+import { isOriginLike } from '@/core/types/schemas/embeds/embed.schema';
 import { EmbedsSettingsPage } from './embeds-settings-page';
 
 const mockUseAvailability = jest.fn();
@@ -61,6 +62,35 @@ describe('embedsAvailabilityOf', () => {
 		expect(embedsAvailabilityOf({ status: 'error', data: undefined, error: { status: 502 } })).toBe('error');
 		expect(embedsAvailabilityOf({ status: 'pending', data: undefined, error: null })).toBe('loading');
 	});
+
+	it('lets a later refusal win over an earlier yes, and keeps that yes through an outage', () => {
+		const yes = { enabled: true };
+		expect(embedsAvailabilityOf({ status: 'error', data: yes, error: { status: 403 } })).toBe('forbidden');
+		expect(embedsAvailabilityOf({ status: 'error', data: yes, error: { status: 404 } })).toBe('disabled');
+		expect(embedsAvailabilityOf({ status: 'error', data: yes, error: { status: 502 } })).toBe('enabled');
+	});
+});
+
+describe('isOriginLike', () => {
+	it('takes a bare origin, and refuses a path, a query or a missing // even when URL parsing would drop them', () => {
+		expect(isOriginLike('https://app.example.com')).toBe(true);
+		expect(isOriginLike(' https://app.example.com:8443/ ')).toBe(true);
+		expect(isOriginLike('http://localhost:3000')).toBe(true);
+		for (const value of [
+			'https://app.example.com/portal/..',
+			'https://app.example.com/.',
+			'https://app.example.com?x=1',
+			'https://app.example.com#top',
+			'https:app.example.com',
+			'https://app.example.com\\timer',
+			'https://*.example.com',
+			'https://user:pass@app.example.com',
+			'ftp://app.example.com',
+			''
+		]) {
+			expect(isOriginLike(value)).toBe(false);
+		}
+	});
 });
 
 describe('EmbedsSettingsPage', () => {
@@ -88,12 +118,12 @@ describe('EmbedsSettingsPage', () => {
 		});
 		mockUseCredentials.mockReturnValue({
 			...ready,
-			credentials: [{ id: 'c1', name: 'Northwind product', prefix: 'gze_abcdefgh', lastUsedAt: null }]
+			credentials: [{ id: 'c1', name: 'Timer site product', prefix: 'gze_abcdefgh', lastUsedAt: null }]
 		});
 		render(<EmbedsSettingsPage />);
 
 		expect(screen.getByText('https://app.northwind.example')).toBeTruthy();
-		expect(screen.getByText('Northwind product')).toBeTruthy();
+		expect(screen.getByText('Timer site product')).toBeTruthy();
 		expect(screen.getByText('gze_abcdefgh')).toBeTruthy();
 		expect(screen.getByText('settings.embeds.NEVER_USED')).toBeTruthy();
 	});

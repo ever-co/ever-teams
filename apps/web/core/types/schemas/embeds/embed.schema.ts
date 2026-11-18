@@ -44,6 +44,10 @@ export function isOriginLike(value: string): boolean {
 	if (!trimmed || trimmed.includes('*')) {
 		return false;
 	}
+	// Read as typed, before URL parsing drops a path such as `/portal/..` or reads `https:host` as `https://host`.
+	if (!/^https?:\/\/[^/?#\\]+\/?$/i.test(trimmed)) {
+		return false;
+	}
 	try {
 		const url = new URL(trimmed);
 		const web = url.protocol === 'https:' || url.protocol === 'http:';
