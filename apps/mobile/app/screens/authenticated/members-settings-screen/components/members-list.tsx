@@ -24,6 +24,13 @@ interface IMembersList {
 	setIsNameEditMode: React.Dispatch<SetStateAction<boolean>>
 }
 
+function footerLabel(selectMode: boolean): string {
+	if (selectMode) {
+		return translate("settingScreen.membersSettingsScreen.selected")
+	}
+	return translate("settingScreen.membersSettingsScreen.totalMembers")
+}
+
 const MembersList: React.FC<IMembersList> = ({
 	teamList,
 	selectedMembers,
@@ -79,7 +86,7 @@ const MembersList: React.FC<IMembersList> = ({
 			/>
 			<View style={[styles.footerContainer, { backgroundColor: colors.background }]}>
 				<Text style={{ fontSize: 14, fontWeight: "400", color: colors.primary }}>
-					{selectMode ? "Selected:" : "Total members:"}
+					{footerLabel(selectMode)}
 				</Text>
 				<Text style={{ fontSize: 14, fontWeight: "400", color: colors.primary }}>
 					{selectMode ? selectedMembers?.length : teamList?.members.length}
@@ -191,7 +198,7 @@ const MemberCard: React.FC<IMemberCard> = ({
 			<View style={{ gap: 7, flexDirection: "column" }}>
 				<View style={styles.roleContainer}>
 					<Text style={styles.roleText}>
-						{member?.role?.name ? member?.role?.name : "Member"}
+						{member?.role?.name ? member?.role?.name : translate("common.member")}
 					</Text>
 				</View>
 				<Text style={styles.grayedText}>
