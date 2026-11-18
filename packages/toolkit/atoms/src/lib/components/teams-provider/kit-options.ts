@@ -12,6 +12,8 @@ export interface KitOptions {
 	// The host signs the person in from its backend (config.getToken): the kit asks for no password or token, reads
 	// no organization list and stores no token.
 	hostSignIn?: boolean;
+	// Whether the widgets show "Powered by Ever Teams" (TeamsProvider's branding, on unless the host turns it off).
+	branding?: boolean;
 }
 
 const KitOptionsContext = createContext<KitOptions>({ scoped: false });
