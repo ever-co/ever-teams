@@ -14,6 +14,9 @@ export type GetKitToken = () => Promise<KitHostToken>;
 export const REFRESH_LEAD_MS = 60_000;
 // Never sooner than this after the last answer, whatever expiry the host returned.
 export const MIN_REFRESH_DELAY_MS = 5_000;
+// A token must have at least this left when it arrives: the next one is then asked for before it expires, and never
+// sooner than MIN_REFRESH_DELAY_MS. A shorter life (or an unreadable expiry) is refused rather than asked for in a loop.
+export const MIN_TOKEN_LIFE_MS = 2 * MIN_REFRESH_DELAY_MS;
 
 // The expiry as milliseconds since the epoch; 0 for a value that is not a date.
 export function expiryOf(expiresAt: KitHostToken['expiresAt']): number {
@@ -34,21 +37,41 @@ export function refreshDelayMs(expiresAt: number, now: number): number {
 	return Math.max(MIN_REFRESH_DELAY_MS, remaining - lead);
 }
 
-// The organization a token was issued for, read from its claims. The kit only reads it to pick the organization; the
-// API checks the signature of every request.
-export function organizationOfToken(token: string): string | null {
+// The claims of a token (its middle part), or null when it is not a JWT. The kit only reads them to pick the
+// organization and to notice another person; the API checks the signature of every request.
+function claimsOf(token: string): Record<string, unknown> | null {
 	const payload = token.split('.')[1];
 	if (!payload) {
 		return null;
 	}
 	try {
 		const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
-		const claims = JSON.parse(atob(base64)) as { organizationId?: unknown };
-		if (typeof claims.organizationId === 'string') {
-			return claims.organizationId;
+		const claims: unknown = JSON.parse(atob(base64));
+		if (claims && typeof claims === 'object') {
+			return claims as Record<string, unknown>;
 		}
 		return null;
 	} catch {
 		return null;
 	}
+}
+
+// The organization a token was issued for, read from its claims.
+export function organizationOfToken(token: string): string | null {
+	const organizationId = claimsOf(token)?.organizationId;
+	if (typeof organizationId === 'string') {
+		return organizationId;
+	}
+	return null;
+}
+
+// Whose token this is: its person and organization; the token itself when its claims cannot be read, so that a token
+// the kit cannot read is never taken for the same person's.
+export function ownerOfToken(token: string): string {
+	const claims = claimsOf(token);
+	const person = claims?.id ?? claims?.sub;
+	if (typeof person !== 'string') {
+		return token;
+	}
+	return `${person}|${organizationOfToken(token) ?? ''}`;
 }

@@ -14,7 +14,8 @@ export const useSelectedOrganization = (
 	const { hostSignIn } = useKitOptions();
 	const hostSession = useAtomValue(hostSessionAtom);
 
-	// The host's token names the organization (else the member's own): the kit reads no organization list then.
+	// The host's token names the organization (else the member's own): the kit reads no organization list then, and
+	// another organization chosen later goes back to the token's.
 	useEffect(() => {
 		if (!hostSignIn || !user) {
 			return;
@@ -23,7 +24,7 @@ export const useSelectedOrganization = (
 		if (fromHost && fromHost !== organizationId) {
 			setSelectedOrganization(fromHost);
 		}
-	}, [hostSignIn, user, hostSession.organizationId]);
+	}, [hostSignIn, user, hostSession.organizationId, organizationId]);
 
 	useEffect(() => {
 		if (hostSignIn) {

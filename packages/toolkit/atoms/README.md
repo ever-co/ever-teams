@@ -125,7 +125,9 @@ An API that also checks allowed origins ([ever-co/ever-gauzy#12066](https://gith
 needs your site in the organization's list (`POST /api/embed-allowed-origins`): the backend sends the page's origin
 with each exchange, and the token then works only from that site.
 
-On your server, a route that answers the token for the person signed in to your product (Next.js route handler):
+On your server, a route that answers the token for the person signed in to your product (Next.js route handler).
+Its settings stay on the server, never in a `NEXT_PUBLIC_` variable: `EVER_TEAMS_API_URL` is the API's full address
+ending with `/api` (`https://your-api.example.com/api`), and `EVER_TEAMS_EMBED_CREDENTIAL` is the embed credential.
 
 ```ts
 // app/api/ever-teams-token/route.ts
@@ -170,9 +172,14 @@ async function getToken() {
 	return answer.json(); // { token, expiresAt }
 }
 
-export function Timer() {
+// userId: the person signed in to your product (null when nobody is).
+export function Timer({ userId }: { userId: string | null }) {
+	if (!userId) {
+		return null;
+	}
+	// The key gives each person their own provider: a sign-in or a sign-out without a page load starts afresh.
 	return (
-		<TeamsProvider scopedStyles config={{ apiUrl: 'https://your-api.example.com/api', getToken }}>
+		<TeamsProvider key={userId} scopedStyles config={{ apiUrl: 'https://your-api.example.com/api', getToken }}>
 			<TeamsBasicTimer />
 		</TeamsProvider>
 	);
@@ -185,10 +192,14 @@ What the kit does with it:
   refuses the token (until a request succeeds again). Calls never overlap: the widgets of a provider share one.
 - The token stays in memory: nothing is written to `localStorage`, and the user menu shows no token and no sign-out.
 - The kit reads the organization from the token and lists no other: the token reaches only the timer of that person.
-- When `getToken` throws or rejects, the widgets show the person as signed out, and `TeamsLoginDialog` says
-  "Sign in to this site to use your Ever Teams timer." instead of asking for a password.
-- When a person signs out of your product, unmount the `TeamsProvider` (or reload the page): until then the kit keeps
-  the token it holds, at most until it expires.
+- When `getToken` throws or rejects, or answers a token with no `expiresAt` or one less than 10 seconds away, the
+  widgets show the person as signed out, and `TeamsLoginDialog` says "Sign in to this site to use your Ever Teams
+  timer." instead of asking for a password. The kit asks again when the page comes back (focus, or the tab visible
+  again), never sooner than 5 seconds after the failure.
+- A token for another person or organization than the previous one starts a new session: the user is read again.
+- When a person signs in to or out of your product without a page load, mount a new `TeamsProvider` (the `key` in the
+  example) or unmount it. Unmounting is what clears the token and the profile the kit holds in memory: the token's
+  expiry only limits how long the API accepts it.
 
 ## Security: where tokens live today, and what is planned
 
@@ -208,8 +219,10 @@ Without `config.getToken`:
   set ([ever-co/ever-teams#5406](https://github.com/ever-co/ever-teams/issues/5406)): on 0.2.x, upgrade, and always
   set `apiUrl`.
 
-With `config.getToken` (above), none of that applies: the token comes from your backend, is limited to the timer
-and to one person, lives a few minutes and stays in memory; a revoked embed credential ends its tokens.
+With `config.getToken` (above), the sign-in dialog, the stored token and the token in the user menu are gone: the
+token comes from your backend, is limited to the timer and to one person, lives a few minutes and stays in memory; a
+revoked embed credential ends its tokens. Requests still go to `config.apiUrl` with that token in their
+`Authorization` header.
 
 Planned ([ever-co/ever-teams#5405](https://github.com/ever-co/ever-teams/issues/5405)): the workspace lists the sites
 allowed to embed it.

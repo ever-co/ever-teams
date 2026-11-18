@@ -162,9 +162,15 @@ const TeamsProvider = ({
 	}, [colorScheme, loadGoogleFonts]);
 
 	const hostSignIn = Boolean(props.config?.getToken);
+	// Turning getToken on or off starts the kit's state afresh: a token or an organization list read in one mode never
+	// reaches the other (a host token would otherwise be saved to localStorage by the stored-session mode).
+	let signInMode = 'page';
+	if (hostSignIn) {
+		signInMode = 'host';
+	}
 	const content = (
 		<KitOptionsProvider value={{ scoped: scopedStyles, onSignOut, hostSignIn }}>
-			<JotaiProvider>
+			<JotaiProvider key={signInMode}>
 				<TeamsDataProvider {...props} scoped={scopedStyles}>
 					{children}
 				</TeamsDataProvider>

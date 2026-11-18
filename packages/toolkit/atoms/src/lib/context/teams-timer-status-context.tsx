@@ -240,6 +240,12 @@ export function TimerStatusProvider({ children }: Readonly<{ children?: ReactNod
 		lastRunning.current = null;
 	}, [owner]);
 
+	// A new token for the same person drops the answer of the read still pending, and with it the loading state that
+	// read would have ended; the next read sets it again.
+	useEffect(() => {
+		setLoading(false);
+	}, [identity]);
+
 	useEffect(() => {
 		if (!ready || !hasConsumers) {
 			return;

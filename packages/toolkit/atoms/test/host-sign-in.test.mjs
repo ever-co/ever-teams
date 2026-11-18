@@ -206,6 +206,11 @@ test('the helpers: a minute before expiry, half of a shorter life, and the organ
 	assert.equal(kit.expiryOf('not a date'), 0);
 	assert.equal(kit.organizationOfToken(tokenFor('org-a')), 'org-a');
 	assert.equal(kit.organizationOfToken('not-a-token'), null);
+	// A token that lives at least MIN_TOKEN_LIFE_MS is renewed before it expires.
+	assert.ok(kit.refreshDelayMs(now + kit.MIN_TOKEN_LIFE_MS, now) < kit.MIN_TOKEN_LIFE_MS);
+	assert.equal(kit.ownerOfToken(tokenFor('org-a', 1)), kit.ownerOfToken(tokenFor('org-a', 2)));
+	assert.notEqual(kit.ownerOfToken(tokenFor('org-a')), kit.ownerOfToken(tokenFor('org-b')));
+	assert.equal(kit.ownerOfToken('not-a-token'), 'not-a-token', 'unreadable: never taken for the same person');
 });
 
 test('getToken is called once at start, even under strict mode, and the token stays in memory', async () => {
@@ -297,6 +302,92 @@ test('a getToken that fails shows the person as signed out, once, with no reques
 	} finally {
 		warn.mock.restore();
 	}
+});
+
+test('a token with a past or unreadable expiry is refused, and not asked for again in a loop', async () => {
+	mock.timers.enable({ apis: ['setTimeout', 'Date'], now: Date.now() });
+	const warn = mock.method(console, 'warn', () => {});
+	try {
+		for (const expiresAt of [Date.now() - 1_000, 'not a date', Date.now() + 3_000]) {
+			const backend = { calls: 0 };
+			backend.getToken = async () => {
+				backend.calls += 1;
+				return { token: tokenFor('org-of-token'), expiresAt };
+			};
+			const { seen, store } = await mount(backend.getToken);
+			assert.equal(seen.token, '');
+			assert.equal(store.get(kit.hostSessionAtom).status, 'signed-out');
+
+			await act(async () => mock.timers.tick(60_000));
+			await settle();
+			assert.equal(backend.calls, 1, `expiresAt ${expiresAt}: no call until the page comes back`);
+		}
+	} finally {
+		warn.mock.restore();
+		mock.timers.reset();
+	}
+});
+
+test('a failed getToken is asked again when the page comes back, a few seconds after the failure', async () => {
+	mock.timers.enable({ apis: ['setTimeout', 'Date'], now: Date.now() });
+	const warn = mock.method(console, 'warn', () => {});
+	try {
+		let signedIn = false;
+		const backend = { calls: 0 };
+		backend.getToken = async () => {
+			backend.calls += 1;
+			if (!signedIn) {
+				throw new Error('not signed in to the host');
+			}
+			return { token: tokenFor('org-of-token'), expiresAt: Date.now() + 15 * 60_000 };
+		};
+		const { seen, store } = await mount(backend.getToken);
+		assert.equal(store.get(kit.hostSessionAtom).status, 'signed-out');
+
+		signedIn = true;
+		await act(async () => window.dispatchEvent(new window.Event('focus')));
+		await settle();
+		assert.equal(backend.calls, 1, 'right after the failure: no call');
+
+		await act(async () => mock.timers.tick(kit.MIN_REFRESH_DELAY_MS));
+		await act(async () => window.dispatchEvent(new window.Event('focus')));
+		await settle();
+		assert.equal(backend.calls, 2);
+		assert.equal(seen.token, tokenFor('org-of-token'));
+		assert.equal(store.get(kit.hostSessionAtom).status, 'signed-in');
+	} finally {
+		warn.mock.restore();
+		mock.timers.reset();
+	}
+});
+
+test('a token for another person starts a new session: the user is read again', async () => {
+	const person = (id) =>
+		`header.${Buffer.from(JSON.stringify({ id, organizationId: 'org-of-token' })).toString('base64url')}.signature`;
+	let next = person('a');
+	const backend = { calls: 0 };
+	backend.getToken = async () => {
+		backend.calls += 1;
+		return { token: next, expiresAt: Date.now() + 15 * 60_000 };
+	};
+	const { seen } = await mount(backend.getToken);
+	assert.deepEqual(paths(), ['/user/me']);
+
+	await act(async () => seen.refresh());
+	await settle();
+	assert.deepEqual(paths(), ['/user/me'], 'the same person: not read again');
+
+	next = person('b');
+	await act(async () => seen.refresh());
+	await settle();
+	assert.equal(seen.token, person('b'));
+	assert.deepEqual(
+		globalThis.__requests.map((r) => [r.path, r.token]),
+		[
+			['/user/me', person('a')],
+			['/user/me', person('b')]
+		]
+	);
 });
 
 test('without getToken, the stored token and the organization list work as before', async () => {
