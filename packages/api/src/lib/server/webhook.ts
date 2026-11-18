@@ -97,12 +97,14 @@ function secretOf(secret: unknown): string {
 	return secret.trim();
 }
 
-function bodyBytesOf(body: unknown, encoder: TextEncoder): Uint8Array {
+// The body's bytes, a copy of its own taken before the first await: bytes the caller changes while the signature is
+// checked change neither the bytes checked nor the event answered.
+function bodyBytesOf(body: unknown, encoder: TextEncoder): Uint8Array<ArrayBuffer> {
 	if (typeof body === 'string') {
 		return encoder.encode(body);
 	}
 	if (body instanceof Uint8Array) {
-		return body;
+		return new Uint8Array(body);
 	}
 	throw clientError('WEBHOOK_BODY', 'verifyWebhook needs the raw body, a string or its bytes.', RAW_BODY_STEP);
 }
@@ -129,7 +131,7 @@ interface SignatureParts {
 // v1=, one per secret while a rotation lasts.
 function partsOf(header: string): SignatureParts {
 	const parts = header.split(',').map((part) => part.trim());
-	const timestampPart = parts.filter((part) => part.startsWith('t='))[0];
+	const timestampPart = parts.find((part) => part.startsWith('t='));
 	const macs = parts.filter((part) => part.startsWith('v1=')).map((part) => part.slice(3));
 	const readable = timestampPart !== undefined && macs.length > 0;
 	const timestamp = timestampPart?.slice(2) ?? '';
@@ -152,7 +154,7 @@ function bytesOfHex(hex: string) {
 }
 
 // What the API signs: `<t>.<raw body>`, the body's bytes as they were sent.
-function signedBytesOf(timestamp: number, body: Uint8Array, encoder: TextEncoder) {
+function signedBytesOf(timestamp: number, body: Uint8Array<ArrayBuffer>, encoder: TextEncoder) {
 	const prefix = encoder.encode(`${timestamp}.`);
 	const signed = new Uint8Array(prefix.length + body.length);
 	signed.set(prefix, 0);
@@ -182,22 +184,11 @@ async function matches(
 	const key = await subtle.importKey('raw', encoder.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, [
 		'verify'
 	]);
-	let matched = false;
-	for (const mac of macs) {
-		if (!HMAC_HEX.test(mac)) {
-			continue;
-		}
-		const verified = await subtle.verify('HMAC', key, bytesOfHex(mac), signed);
-		matched = matched || verified;
-	}
-	return matched;
-}
-
-function textOf(body: string | Uint8Array): string {
-	if (typeof body === 'string') {
-		return body;
-	}
-	return new TextDecoder().decode(body);
+	const verifications = macs
+		.filter((mac) => HMAC_HEX.test(mac))
+		.map((mac) => subtle.verify('HMAC', key, bytesOfHex(mac), signed));
+	const verified = await Promise.all(verifications);
+	return verified.some(Boolean);
 }
 
 function isEnvelope(value: unknown): value is EverTeamsWebhookEvent {
@@ -209,10 +200,10 @@ function isEnvelope(value: unknown): value is EverTeamsWebhookEvent {
 	return named && dated && 'data' in value;
 }
 
-function eventOf(body: string | Uint8Array): EverTeamsWebhookEvent {
+function eventOf(body: Uint8Array<ArrayBuffer>): EverTeamsWebhookEvent {
 	let value: unknown;
 	try {
-		value = JSON.parse(textOf(body));
+		value = JSON.parse(new TextDecoder().decode(body));
 	} catch {
 		throw clientError('WEBHOOK_BODY', 'The webhook body is not JSON.', EVENT_STEP);
 	}
@@ -255,5 +246,5 @@ export async function verifyWebhook(options: VerifyWebhookOptions): Promise<Ever
 		const message = `The webhook was signed more than ${tolerance} seconds away from now.`;
 		throw clientError('WEBHOOK_EXPIRED', message, EXPIRED_STEP);
 	}
-	return eventOf(options.body);
+	return eventOf(body);
 }

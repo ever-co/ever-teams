@@ -129,10 +129,25 @@ test('a signature within the tolerance on either side is accepted, one second pa
 	}
 });
 
-test('without a now, the clock is used: a delivery signed long ago is WEBHOOK_EXPIRED', async () => {
-	const error = await refusalOf({ now: undefined });
+test('without a now, the clock is used: a delivery signed now passes, one signed an hour ago is WEBHOOK_EXPIRED', async () => {
+	const clock = Math.floor(Date.now() / 1000);
 
+	const fresh = await verify({ now: undefined, signature: signatureOf(STARTED, { timestamp: clock }) });
+	const error = await refusalOf({ now: undefined, signature: signatureOf(STARTED, { timestamp: clock - 3600 }) });
+
+	assert.equal(fresh.name, 'time_log.started');
 	assert.equal(error.code, 'WEBHOOK_EXPIRED');
+});
+
+test('bytes the caller changes while the signature is checked change neither the check nor the event', async () => {
+	const bytes = Buffer.from(STARTED, 'utf8');
+	const checking = verify({ body: bytes });
+	// The same length: the name of another event, written over the bytes once verifyWebhook took them.
+	bytes.write(STARTED.replace('time_log.started', 'time_log.stopped'), 'utf8');
+
+	const event = await checking;
+
+	assert.equal(event.name, 'time_log.started');
 });
 
 test('a forged header with an old timestamp is a wrong signature, never an expired one', async () => {

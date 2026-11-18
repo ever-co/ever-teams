@@ -54,5 +54,6 @@ export function signatureOf(body, { timestamp = SIGNED_AT, secret = SECRET, prev
 	if (previousSecret) {
 		values.push(hmacHex(previousSecret, signed));
 	}
-	return `t=${timestamp},${values.map((value) => `v1=${value}`).join(',')}`;
+	const macs = values.map((value) => `v1=${value}`).join(',');
+	return `t=${timestamp},${macs}`;
 }
