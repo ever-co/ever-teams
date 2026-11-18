@@ -19,7 +19,7 @@ import { Provider as PaperProvider } from 'react-native-paper';
 import { initialWindowMetrics, SafeAreaProvider } from 'react-native-safe-area-context';
 import { useInitialRootStore, useStores } from './models';
 import { AppNavigator, useNavigationPersistence } from './navigators';
-import { useAppLocale } from './i18n';
+import { useAppLocale, useLanguageStarted } from './i18n';
 import { ErrorBoundary } from './screens/error-screen/error-boundary';
 import * as storage from './utils/storage';
 import { customDarkTheme, customFontsToLoad, customLightTheme, navigationTheme } from './theme';
@@ -82,6 +82,7 @@ const App = observer((props: AppProps) => {
 	// The screens read their messages when they render: a new language mounts the navigator again, on the screen the
 	// person was on
 	const locale = useAppLocale();
+	const languageStarted = useLanguageStarted();
 	const navigationStateRef = useRef<NavigationState>(undefined);
 
 	const { rehydrated } = useInitialRootStore(({ sessionEnded: ended }) => {
@@ -95,7 +96,7 @@ const App = observer((props: AppProps) => {
 		setSessionEnded(ended);
 	});
 
-	const ready = rehydrated && isNavigationStateRestored && areFontsLoaded;
+	const ready = rehydrated && isNavigationStateRestored && areFontsLoaded && languageStarted;
 	// told on the first render that shows the message host, however long the fonts and the navigation state take
 	useOnceReady(sessionEnded, ready, tellSessionEnded);
 

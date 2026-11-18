@@ -18,7 +18,8 @@ const setLanguage = async () => {
 	}
 };
 
-setLanguage();
+/** Settles once the app's language shows, or once the app restarts for its direction. */
+export const languageStarted: Promise<void> = setLanguage();
 
 // The direction the app is laid out in, which follows its language (startIn), not the phone's
 export const isRTL = isLaidOutRightToLeft();
