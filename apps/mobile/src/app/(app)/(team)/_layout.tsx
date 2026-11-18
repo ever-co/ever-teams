@@ -1,6 +1,3 @@
-import React from 'react';
-import { Stack } from 'expo-router';
+import { NextShellStack } from '../../../navigation/next-shell';
 
-export default function TabStackLayout() {
-	return <Stack screenOptions={{ headerShown: false }} />;
-}
+export default NextShellStack;
