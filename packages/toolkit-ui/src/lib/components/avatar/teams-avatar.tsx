@@ -6,9 +6,12 @@ const Avatar = ({
 	fallbackClassName,
 	title,
 	fallback,
-	src
+	src,
+	alt
 }: {
 	title: string;
+	// What the picture shows, for screen readers: the title by default, "" when the name is already said nearby.
+	alt?: string;
 	className?: string;
 	fallbackClassName?: string;
 	imageClassName?: string;
@@ -18,7 +21,7 @@ const Avatar = ({
 	return (
 		<Tooltip message={title}>
 			<ShadCnAvatar className={className}>
-				<AvatarImage className={imageClassName} src={src} />
+				<AvatarImage className={imageClassName} src={src} alt={alt ?? title} />
 				<AvatarFallback className={fallbackClassName}>{fallback}</AvatarFallback>
 			</ShadCnAvatar>
 		</Tooltip>
