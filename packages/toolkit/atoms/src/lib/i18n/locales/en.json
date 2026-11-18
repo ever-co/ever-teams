@@ -82,6 +82,7 @@
 		"sign_in_title": "Sign In",
 		"sign_up_title": "Register",
 		"account_menu": "{{name}}: account menu",
+		"account_menu_unnamed": "Account menu",
 		"register_now": "Register Now",
 		"email_prompt": "Enter your email",
 		"password_prompt": "Enter your password",

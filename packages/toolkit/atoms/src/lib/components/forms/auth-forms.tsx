@@ -33,13 +33,10 @@ import { warnOnce } from '@lib/utils/warn-once';
 import { useRegistrationForm } from '@hooks/useRegistrationForm';
 import { useClearKitSession } from '@hooks/useClearKitSession';
 
-// The name a person goes by in the kit: first and last name, else the email.
-function fullNameOf(user: { firstName?: string; lastName?: string; email?: string }): string {
-	const name = [user.firstName, user.lastName].filter(Boolean).join(' ');
-	if (name) {
-		return name;
-	}
-	return user.email ?? '';
+// The name a person goes by in the kit: first and last name, or "" without one. Never the email: these names go into
+// attributes (aria-label, alt) that a host page's scripts and session recordings read even when no menu is open.
+function fullNameOf(user: { firstName?: string; lastName?: string }): string {
+	return [user.firstName, user.lastName].filter(Boolean).join(' ');
 }
 
 // The sign-in form can switch to the registration form and back, in place.
@@ -76,13 +73,16 @@ const TeamsUserAvatar = ({
 
 	if (!user) return null;
 
+	const name = fullNameOf(user);
+	let accountMenuLabel = t('AUTH.account_menu_unnamed');
+	if (name) {
+		accountMenuLabel = t('AUTH.account_menu', { name });
+	}
+
 	if (showMenu)
 		return (
 			<Popover>
-				<PopoverTrigger
-					className="relative px-3 outline-hidden"
-					aria-label={t('AUTH.account_menu', { name: fullNameOf(user) })}
-				>
+				<PopoverTrigger className="relative px-3 outline-hidden" aria-label={accountMenuLabel}>
 					{userLoading && <SpinOverlayLoader />}
 					<Avatar
 						alt=""
@@ -105,7 +105,7 @@ const TeamsUserAvatar = ({
 
 	return (
 		<Avatar
-			alt={fullNameOf(user)}
+			alt={name}
 			title={(user.firstName ? user.firstName[0] : '') + ' ' + (user.lastName ? user.lastName[0] : '')}
 			fallback={(user.firstName ? user.firstName[0] : '') + (user.lastName ? user.lastName[0] : '')}
 			src={user.imageUrl}

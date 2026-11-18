@@ -33,7 +33,7 @@ const stubs = {
 	'@ever-teams/api': 'export const logOut = async () => {};',
 	'react-i18next': `export const useTranslation = () => ({ t: (key, values) => (values ? key + ' ' + JSON.stringify(values) : key) });`,
 	'teams-context': `export const useTeamsContext = () => ({
-		authenticatedUser: { firstName: 'Lina', lastName: 'Moreau', email: 'lina@example.com', imageUrl: 'https://img.example.com/l.png' },
+		authenticatedUser: globalThis.kitTestUser,
 		loadings: { userLoading: false }
 	});`,
 	forms: 'export const TeamsPasswordLoginForm = () => null; export const TeamsTokenLoginForm = () => null;',
@@ -53,6 +53,14 @@ const routes = [
 		() => 'kit'
 	]
 ];
+
+const lina = {
+	firstName: 'Lina',
+	lastName: 'Moreau',
+	email: 'lina@example.com',
+	imageUrl: 'https://img.example.com/l.png'
+};
+globalThis.kitTestUser = lina;
 
 let React;
 let renderToStaticMarkup;
@@ -109,10 +117,25 @@ test('an avatar shown outside a button is described by the person name', () => {
 	assert.match(markup, /<img alt="Lina Moreau"/);
 });
 
-test('every kit locale names the account menu', () => {
+test('a person with no name has an account button named without the email, and a decorative lone avatar', () => {
+	globalThis.kitTestUser = { email: 'lina@example.com', imageUrl: 'https://img.example.com/l.png' };
+	try {
+		const button = renderToStaticMarkup(React.createElement(kit.TeamsUserAvatar));
+		const alone = renderToStaticMarkup(React.createElement(kit.TeamsUserAvatar, { showMenu: false }));
+
+		assert.match(button, /<button[^>]*aria-label="AUTH\.account_menu_unnamed"/);
+		assert.match(alone, /<img alt=""/);
+		assert.doesNotMatch(button + alone, /lina@example\.com/);
+	} finally {
+		globalThis.kitTestUser = lina;
+	}
+});
+
+test('every kit locale names the account menu, with and without a name', () => {
 	for (const lang of ['en', 'fr']) {
 		const file = path.join(here, '..', 'src', 'lib', 'i18n', 'locales', `${lang}.json`);
 		const auth = JSON.parse(fs.readFileSync(file, 'utf8')).AUTH;
 		assert.match(auth.account_menu, /\{\{name\}\}/, lang);
+		assert.ok(auth.account_menu_unnamed, lang);
 	}
 });
