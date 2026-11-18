@@ -26,7 +26,7 @@ function writeFile(file, text) {
 }
 
 // The diagnostics of a strict app whose node_modules/@ever-teams/embed holds the package as npm installs it.
-function compileApp(appSource, { withDeclaration = true } = {}) {
+function compileApp(appSource, { withDeclaration = true, moduleResolution = ts.ModuleResolutionKind.Bundler } = {}) {
 	const project = fs.mkdtempSync(path.join(os.tmpdir(), 'embed-declaration-'));
 	try {
 		const installed = path.join(project, 'node_modules', '@ever-teams', 'embed');
@@ -45,7 +45,7 @@ function compileApp(appSource, { withDeclaration = true } = {}) {
 			noEmit: true,
 			target: ts.ScriptTarget.ES2022,
 			module: ts.ModuleKind.ESNext,
-			moduleResolution: ts.ModuleResolutionKind.Bundler,
+			moduleResolution,
 			lib: ['lib.es2022.d.ts', 'lib.dom.d.ts'],
 			types: []
 		});
@@ -97,6 +97,11 @@ test('the build writes the declaration next to the element', () => {
 
 test('a strict app imports the package and gets the element, its name and its attributes typed, also in camelCase', () => {
 	assert.deepEqual(compileApp(APP), []);
+});
+
+// TypeScript's older resolution (`node10`, still the default of some app templates) reads `types`, not `exports`.
+test('a strict app on the node10 resolution finds the declaration too', () => {
+	assert.deepEqual(compileApp(APP, { moduleResolution: ts.ModuleResolutionKind.Node10 }), []);
 });
 
 test('without the declaration a strict app cannot import the package (TS7016)', () => {
