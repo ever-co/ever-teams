@@ -95,7 +95,15 @@ export const useTimeLogs = ({
 	}, [user, token, organizationId, date, activityLevel, timeZone, source, logType, selectedEmployee, api]);
 
 	useEffect(() => {
-		user && organizationId && token && fetchTimeLogs();
+		if (user && organizationId && token) {
+			fetchTimeLogs();
+			return;
+		}
+		// Signed out, or no organization yet: a read still pending is dropped, and the logs of the session go with it.
+		latestRead.current += 1;
+		setData(null);
+		setError(null);
+		setLoading(false);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [fetchTimeLogs]);
 

@@ -646,3 +646,20 @@ test("a stop that answers once the page's address changed records its time on th
 	assert.deepEqual(slots, [hostOf(SERVER_A)]);
 	assert.deepEqual(api.tokensSentTo(SERVER_B), [], "A's token never reaches B");
 });
+
+test('time logs that answer once the person signed out show nothing', async () => {
+	const api = answering([{ host: hostOf(SERVER_A), path: '/timesheet/time-log', held: true, body: [{ id: 'log' }] }]);
+	const menu = React.createElement(kit.UserNavMenu, { key: 'menu' });
+	const { container } = await openPage([['a', { apiUrl: SERVER_A }, [menu, ...holdingsOf('a')]]]);
+	await signInOn('a');
+	assert.ok(requestsTo('/timesheet/time-log').length > 0, 'the time logs are read');
+
+	const buttons = [...container.querySelectorAll('button')];
+	const signOut = buttons.find((button) => button.textContent.includes('AUTH.LOGOUT'));
+	await act(async () => signOut.click());
+	await settle();
+	await act(async () => api.release());
+	await settle();
+
+	assert.deepEqual(holdings.a, { token: '', userId: null, timeLogs: null });
+});
