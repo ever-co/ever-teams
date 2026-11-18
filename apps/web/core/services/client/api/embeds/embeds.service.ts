@@ -30,6 +30,34 @@ export class EmbedClientNotLimitedError extends Error {
 }
 
 /**
+ * The API made the credential without letting it add members, while it was asked to (an API that drops the field,
+ * behind a config read that said it could): its secret is never shown, and it was revoked at once. `isRevoked` is
+ * false when that revocation failed: the credential is still active, though nobody holds its secret, and the list
+ * shows it to revoke.
+ */
+export class EmbedMembersNotAddedError extends Error {
+	readonly isRevoked: boolean;
+
+	constructor(isRevoked = true) {
+		super(
+			isRevoked
+				? 'The API did not let the embed credential add members as it was asked; the credential was revoked.'
+				: 'The API did not let the embed credential add members as it was asked; the credential could not be revoked.'
+		);
+		this.name = 'EmbedMembersNotAddedError';
+		this.isRevoked = isRevoked;
+	}
+}
+
+/** The body of `POST /embed-credentials`: each option only when it is asked for. */
+type CredentialBody = {
+	name: string;
+	organizationId: string;
+	organizationContactId?: string;
+	canAddMembers?: true;
+};
+
+/**
  * Client of the platform's embeds (`/embed-credentials`, `/embed-allowed-origins`) for Settings → Embeds: the sites an
  * organization allows to embed its timer and the credentials its hosts' backends exchange for timer-only tokens. Both
  * transports (this app's proxies, or the platform directly). Every read names the organization; the writes carry it
@@ -72,13 +100,16 @@ class EmbedsService extends APIService {
 	};
 
 	/**
-	 * A credential for the whole workspace is asked for exactly as before clients could be named: an older API, which
-	 * does not know the field, gets nothing it would drop.
+	 * A credential for the whole workspace, which adds no members, is asked for exactly as before clients could be
+	 * named: an older API, which does not know those fields, gets nothing it would drop.
 	 */
-	private credentialBody(organizationId: string, input: EmbedCredentialInput): Record<string, string> {
-		const body: Record<string, string> = { name: input.name.trim(), organizationId };
+	private credentialBody(organizationId: string, input: EmbedCredentialInput): CredentialBody {
+		const body: CredentialBody = { name: input.name.trim(), organizationId };
 		if (input.organizationContactId) {
 			body.organizationContactId = input.organizationContactId;
+		}
+		if (input.canAddMembers) {
+			body.canAddMembers = true;
 		}
 		return body;
 	}
@@ -87,7 +118,9 @@ class EmbedsService extends APIService {
 	 * Creates a credential: the answer holds its secret, which no later read gives again, and stays out of the log. A
 	 * credential asked for one client that comes back without that client reaches the whole workspace: it is revoked
 	 * at once and the call fails with {@link EmbedClientNotLimitedError}, so a wider credential than asked never
-	 * reaches a host.
+	 * reaches a host. One asked to add members that comes back without it is revoked the same way and the call fails
+	 * with {@link EmbedMembersNotAddedError}, which says whether the revocation went through: its host would count on
+	 * members it cannot add. When both are dropped, the members error is the one thrown, since it has its own words.
 	 */
 	createCredential = async (organizationId: string, input: EmbedCredentialInput): Promise<CreatedEmbedCredential> => {
 		const body = this.credentialBody(organizationId, input);
@@ -98,18 +131,33 @@ class EmbedsService extends APIService {
 			'embeds.createCredential API response'
 		);
 		const askedClient = body.organizationContactId;
-		if (askedClient && created.organizationContactId !== askedClient) {
-			// Best effort: the secret is dropped here, so nobody holds it even if the revocation fails
-			await this.revokeCredential(created.id).catch(() => undefined);
-			throw new EmbedClientNotLimitedError();
+		const isClientDropped = askedClient !== undefined && created.organizationContactId !== askedClient;
+		const isAddingMembersDropped = body.canAddMembers === true && created.canAddMembers !== true;
+		if (!isClientDropped && !isAddingMembersDropped) {
+			return created;
 		}
-		return created;
+		// Best effort: the secret is dropped here, so nobody holds it even if the revocation fails
+		const isRevoked = await this.tryRevokeCredential(created.id);
+		if (isAddingMembersDropped) {
+			throw new EmbedMembersNotAddedError(isRevoked);
+		}
+		throw new EmbedClientNotLimitedError();
 	};
 
 	/** Revokes a credential: its tokens are refused within 30 seconds. */
 	revokeCredential = async (id: string): Promise<void> => {
 		await this.delete(`${CREDENTIALS}/${encodeURIComponent(id)}`);
 	};
+
+	/** Revokes a credential the API made other than asked: false when the revocation failed, instead of throwing. */
+	private async tryRevokeCredential(id: string): Promise<boolean> {
+		try {
+			await this.revokeCredential(id);
+			return true;
+		} catch {
+			return false;
+		}
+	}
 }
 
 export const embedsService = new EmbedsService(GAUZY_API_BASE_SERVER_URL.value);
