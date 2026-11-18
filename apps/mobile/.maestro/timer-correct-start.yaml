@@ -6,14 +6,18 @@ env:
 - runFlow: common/sign-in.yaml
 - runFlow: common/timer-stopped.yaml
 - runFlow: common/task-chosen.yaml
+# Clearing the app keeps the time the API saved: a run an earlier flow stopped can have ended moments ago, and the API
+# refuses a start that falls inside it. The new start is at most two minutes before this run's start (one minute
+# before the minute it shows), so this run starts once two minutes have passed since any earlier stop. Maestro has no
+# pause: this waits for the start button to go, which it does not, for 125 s.
+- extendedWaitUntil:
+    notVisible:
+      id: "timer-start"
+    timeout: 125000
+    optional: true
 - tapOn:
     id: "timer-start"
-- extendedWaitUntil:
-    visible:
-      id: "timer-stop"
-    timeout: 20000
-- runScript:
-    file: common/one-minute-earlier.js
+- runFlow: common/run-confirmed.yaml
 - tapOn:
     id: "timer-actions-trigger"
 - tapOn:
@@ -22,6 +26,13 @@ env:
     visible:
       id: "timer-start-time"
     timeout: 20000
+# the field shows the run's start, in the phone's own time
+- copyTextFrom:
+    id: "timer-start-time"
+- runScript:
+    file: common/one-minute-earlier.js
+    env:
+      SHOWN_START: ${maestro.copiedText}
 - tapOn:
     id: "timer-start-time"
 - eraseText: 5
@@ -45,7 +56,4 @@ env:
 - takeScreenshot: start-moved
 - tapOn:
     id: "timer-stop"
-- extendedWaitUntil:
-    visible:
-      id: "timer-start"
-    timeout: 20000
+- runFlow: common/stop-confirmed.yaml

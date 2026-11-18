@@ -1,24 +1,28 @@
 # End-to-end flows
 
-These flows use the app the way a person does, on an Android emulator or an iOS simulator, against a Gauzy API with test data. They are written for [Maestro](https://maestro.dev), the tool of Expo's end-to-end guide (https://docs.expo.dev/build-reference/e2e-tests/).
+These flows use the app the way a person does, on an Android emulator or an iOS simulator, against a Gauzy API with test data. They are written for [Maestro](https://maestro.dev), the tool of [Expo's end-to-end guide](https://docs.expo.dev/build-reference/e2e-tests/).
 
 | Flow | What the person does |
 | --- | --- |
 | `sign-in.yaml` | signs in with the code sent by e-mail |
 | `timer-start-stop.yaml` | starts the timer and stops it |
 | `timer-after-kill.yaml` | closes the app while the timer runs, opens it again, and finds the timer still running |
-| `timer-correct-start.yaml` | moves the start of the running timer one minute earlier |
+| `timer-correct-start.yaml` | moves the start of the running timer one minute earlier (waits two minutes first, see below) |
 | `timer-discard.yaml` | discards a run started by mistake |
 | `team.yaml` | opens the Team tab and sees the team and its members |
 | `sign-out.yaml` | signs out, and still sees the sign-in screen when the app starts again |
 
-Each flow starts from a cleared app and signs in first (`common/sign-in.yaml`), so the flows can run in any order.
+Each flow starts from a cleared app and signs in first (`common/sign-in.yaml`), so the flows can run in any order. Clearing the app does not clear the time the API saved, so `timer-correct-start.yaml` starts its run two minutes after any earlier stop: the start it moves back then cannot fall inside a run an earlier flow saved, which the API refuses.
+
+The timer flows wait for the API's answer, not only for the button that changes when it is tapped: a run counts as started once the run's menu (`timer-actions-trigger`) shows, which follows the API's status, and as stopped once that menu is gone.
 
 ## What a run needs
 
 - Maestro 2 (`curl -fsSL "https://get.maestro.mobile.dev" | bash`) and Java 17.
 - A release or development build of the app, installed on a booted emulator or simulator, and pointed at the Gauzy API of the run (`GAUZY_API_URL` in `apps/mobile/.env` before `yarn config:mobile`; from the Android emulator, the computer is `10.0.2.2`).
-- A Gauzy API on develop with test data: a person who belongs to one workspace and one team, whose organization allows tracking time and adding time by hand. The defaults in the flows are `kofi.arden@example.com`, the team `Field Crew North` and the member `Priya Holt`; pass others with `-e`.
+- A Gauzy API on develop with test data: a person who belongs to one workspace and one team, whose organization allows tracking time. The defaults in the flows are `kofi.arden@example.com`, the team `Field Crew North` and the member `Priya Holt`; pass others with `-e`.
+  - `timer-correct-start.yaml` moves a start back: the organization has `allowModifyTime` and `allowManualTime` on, and the person's role holds `TIME_TRACKER`, `ALLOW_MODIFY_TIME` and `ALLOW_MANUAL_TIME`. Without them the start panel only shows the start, and the flow fails waiting for `timer-start-time`.
+  - `timer-discard.yaml` discards a run: the organization leaves `allowDiscardTimer` and `allowDeleteTime` on (neither `false`). Without them the run's menu has no discard, and the flow fails at `timer-discard`.
 - The code helper. Signing in needs the code Gauzy just sent by e-mail, which a test cannot read from a mailbox. On a local setup, a small HTTP service answers `GET <HELPER>/code?email=<address>` with that person's latest code, read from the local database (`SELECT code FROM "user" WHERE email = $1 AND code IS NOT NULL ORDER BY "updatedAt" DESC LIMIT 1`). It only exists on that test setup; the app never calls it.
 
 ## Run

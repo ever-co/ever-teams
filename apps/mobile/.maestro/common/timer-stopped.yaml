@@ -14,7 +14,4 @@ appId: ${APP_ID}
     commands:
       - tapOn:
           id: "timer-stop"
-- extendedWaitUntil:
-    visible:
-      id: "timer-start"
-    timeout: 30000
+- runFlow: stop-confirmed.yaml

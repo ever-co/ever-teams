@@ -8,14 +8,8 @@ env:
 - runFlow: common/task-chosen.yaml
 - tapOn:
     id: "timer-start"
-- extendedWaitUntil:
-    visible:
-      id: "timer-stop"
-    timeout: 20000
+- runFlow: common/run-confirmed.yaml
 - takeScreenshot: running
 - tapOn:
     id: "timer-stop"
-- extendedWaitUntil:
-    visible:
-      id: "timer-start"
-    timeout: 20000
+- runFlow: common/stop-confirmed.yaml
