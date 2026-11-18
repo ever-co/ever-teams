@@ -65,7 +65,7 @@ const TimerTaskSection = observer(
 
 		useEffect(() => {
 			if (!editMode) {
-				inputRef.current.blur();
+				inputRef.current?.blur();
 			}
 		}, [editMode]);
 
@@ -90,6 +90,7 @@ const TimerTaskSection = observer(
 						</Text>
 						<TextInput
 							ref={inputRef}
+							testID="task-picker-field"
 							selectionColor={colors.primary}
 							placeholderTextColor={colors.tertiary}
 							style={[
@@ -199,7 +200,7 @@ const TimerTaskSection = observer(
 								task={activeTask}
 								containerStyle={{
 									...styles.sizeContainer,
-									width: activeTask?.tags.length ? '100%' : 160,
+									width: activeTask?.tags?.length ? '100%' : 160,
 									borderColor: colors.border,
 									marginVertical: 20
 								}}

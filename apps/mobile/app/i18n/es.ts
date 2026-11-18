@@ -1,5 +1,6 @@
 const es = {
 	common: {
+		openMenu: 'Abrir el menú',
 		ok: 'OK!',
 		cancel: 'Cancel',
 		loading: 'Loading',
@@ -10,11 +11,25 @@ const es = {
 		discard: 'Discard',
 		logOut: 'Log Out' // @demo remove-current-line
 	},
+	shell: {
+		tabs: { home: 'Inicio', tasks: 'Tareas', week: 'Semana', team: 'Equipo' },
+		states: {
+			loading: 'Cargando',
+			offline: 'Estás sin conexión. Esta pantalla muestra lo guardado en el teléfono.',
+			errorTitle: 'No se pudo cargar esta pantalla',
+			retry: 'Reintentar',
+			comingTitle: 'Llega en los próximos pasos',
+			comingMessage: 'Esta pantalla de la nueva app todavía está en construcción.'
+		},
+		signIn: { title: 'Iniciar sesión', message: 'El inicio de sesión pasará a la nueva app más adelante. Por ahora, inicia sesión con la app actual.' }
+	},
 	session: {
 		endedTitle: 'Tu sesión terminó',
 		endedMessage: 'Vuelve a iniciar sesión para continuar.'
 	},
 	timer: {
+		startLabel: 'Iniciar el temporizador',
+		stopLabel: 'Detener el temporizador',
 		stopFailedTitle: 'El temporizador no pudo detenerse',
 		stopFailedMessage: 'Sigue en marcha. Inténtalo de nuevo en un momento.',
 		startMove: {
@@ -89,10 +104,9 @@ const es = {
 		letsGo: "Let's go!" // @demo remove-current-line
 	},
 	errorScreen: {
-		title: 'Something went wrong!',
-		friendlySubtitle:
-			"This is the screen that your users will see in production when an error is thrown. You'll want to customize this message (located in `app/i18n/en.ts`) and probably the layout as well (`app/screens/ErrorScreen`). If you want to remove this entirely, check `app/app.tsx` for the <ErrorBoundary> component.",
-		reset: 'RESET APP',
+		title: '¡Algo salió mal!',
+		friendlySubtitle: 'La aplicación tuvo un problema. Vuelve a cargarla para continuar.',
+		reset: 'Volver a cargar la aplicación',
 		traceTitle: 'Error from %{name} stack' // @demo remove-current-line
 	},
 	emptyStateComponent: {
@@ -140,7 +154,7 @@ const es = {
 		createTeam: 'Create Team',
 		invalidConfirmCode: 'Invalid confirm code',
 		securityCodeSent: 'Security code was sent on new email',
-		codeSentTo: 'A 6-character code sent to:'
+		codeSentTo: 'Enviamos un código a:'
 	},
 	myWorkScreen: {
 		name: 'Work',

@@ -1,5 +1,6 @@
 const fr = {
 	common: {
+		openMenu: 'Ouvrir le menu',
 		ok: 'OK!',
 		cancel: 'Annuler',
 		loading: 'Patientez',
@@ -10,11 +11,25 @@ const fr = {
 		confirm: 'Confirm',
 		discard: 'Discard'
 	},
+	shell: {
+		tabs: { home: 'Accueil', tasks: 'Tâches', week: 'Semaine', team: 'Équipe' },
+		states: {
+			loading: 'Chargement',
+			offline: 'Vous êtes hors ligne. Cet écran montre ce qui a été enregistré sur le téléphone.',
+			errorTitle: 'Cet écran n’a pas pu se charger',
+			retry: 'Réessayer',
+			comingTitle: 'Arrive dans les prochaines étapes',
+			comingMessage: 'Cet écran de la nouvelle application est encore en construction.'
+		},
+		signIn: { title: 'Connexion', message: 'La connexion passera dans la nouvelle application plus tard. Pour l’instant, connectez-vous avec l’application actuelle.' }
+	},
 	session: {
 		endedTitle: 'Votre session a expiré',
 		endedMessage: 'Reconnectez-vous pour continuer.'
 	},
 	timer: {
+		startLabel: 'Démarrer le chronomètre',
+		stopLabel: 'Arrêter le chronomètre',
 		stopFailedTitle: "Le chronomètre n'a pas pu s'arrêter",
 		stopFailedMessage: 'Il tourne toujours. Réessayez dans un instant.',
 		startMove: {
@@ -91,10 +106,9 @@ const fr = {
 		letsGo: "Let's go!" // @demo remove-current-line
 	},
 	errorScreen: {
-		title: 'Something went wrong!',
-		friendlySubtitle:
-			"This is the screen that your users will see in production when an error is thrown. You'll want to customize this message (located in `app/i18n/en.ts`) and probably the layout as well (`app/screens/ErrorScreen`). If you want to remove this entirely, check `app/app.tsx` for the <ErrorBoundary> component.",
-		reset: 'RESET APP',
+		title: 'Un problème est survenu',
+		friendlySubtitle: 'L’application a rencontré un problème. Rechargez-la pour continuer.',
+		reset: 'Recharger l’application',
 		traceTitle: 'Error from %{name} stack' // @demo remove-current-line
 	},
 	emptyStateComponent: {
@@ -142,7 +156,7 @@ const fr = {
 		createTeam: "Créer l'équipe",
 		invalidConfirmCode: 'Code de confirmation invalide',
 		securityCodeSent: 'Le code de sécurité a été envoyé sur le nouvel e-mail',
-		codeSentTo: 'Un code de 6 caractères envoyé à :'
+		codeSentTo: 'Nous avons envoyé un code à :'
 	},
 	myWorkScreen: {
 		name: 'Travail',

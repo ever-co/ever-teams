@@ -17,6 +17,7 @@ import { Button } from '../../../../components';
 import { translate } from '../../../../i18n';
 import { useUser } from '../../../../services/hooks/features/use-user';
 import useAuthenticateUser from '../../../../services/hooks/features/use-authentificate-user';
+import { isCompleteEmailedCode } from '../../../../helpers/emailed-code';
 
 export interface Props {
 	visible: boolean;
@@ -68,7 +69,7 @@ const ConfirmEmailPopup: FC<Props> = function ConfirmEmailPopup({ visible, onDis
 	const { updateUserFromAPI } = useAuthenticateUser();
 
 	const onVerifyEmail = useCallback(() => {
-		if (confirmCode && confirmCode.length === 6) {
+		if (isCompleteEmailedCode(confirmCode)) {
 			setLoading(true);
 			verifyChangeEmail(confirmCode).then(async (e) => {
 				const { response } = e;

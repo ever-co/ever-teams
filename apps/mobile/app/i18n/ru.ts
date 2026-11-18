@@ -1,5 +1,6 @@
 const ru = {
 	common: {
+		openMenu: 'Открыть меню',
 		ok: 'OK!',
 		cancel: 'Cancel',
 		loading: 'Loading',
@@ -10,11 +11,25 @@ const ru = {
 		discard: 'Discard',
 		logOut: 'Log Out' // @demo remove-current-line
 	},
+	shell: {
+		tabs: { home: 'Главная', tasks: 'Задачи', week: 'Неделя', team: 'Команда' },
+		states: {
+			loading: 'Загрузка',
+			offline: 'Нет подключения. Этот экран показывает то, что сохранено на телефоне.',
+			errorTitle: 'Не удалось загрузить этот экран',
+			retry: 'Повторить',
+			comingTitle: 'Появится на следующих шагах',
+			comingMessage: 'Этот экран нового приложения ещё в разработке.'
+		},
+		signIn: { title: 'Вход', message: 'Вход перейдёт в новое приложение позже. Пока входите через текущее приложение.' }
+	},
 	session: {
 		endedTitle: 'Сеанс истёк',
 		endedMessage: 'Войдите снова, чтобы продолжить.'
 	},
 	timer: {
+		startLabel: 'Запустить таймер',
+		stopLabel: 'Остановить таймер',
 		stopFailedTitle: 'Не удалось остановить таймер',
 		stopFailedMessage: 'Он всё ещё идёт. Повторите попытку чуть позже.',
 		startMove: {
@@ -89,10 +104,9 @@ const ru = {
 		letsGo: "Let's go!" // @demo remove-current-line
 	},
 	errorScreen: {
-		title: 'Something went wrong!',
-		friendlySubtitle:
-			"This is the screen that your users will see in production when an error is thrown. You'll want to customize this message (located in `app/i18n/en.ts`) and probably the layout as well (`app/screens/ErrorScreen`). If you want to remove this entirely, check `app/app.tsx` for the <ErrorBoundary> component.",
-		reset: 'RESET APP',
+		title: 'Что-то пошло не так!',
+		friendlySubtitle: 'В приложении произошла ошибка. Перезагрузите его, чтобы продолжить.',
+		reset: 'Перезагрузить приложение',
 		traceTitle: 'Error from %{name} stack' // @demo remove-current-line
 	},
 	emptyStateComponent: {
@@ -140,7 +154,7 @@ const ru = {
 		createTeam: 'Create Team',
 		invalidConfirmCode: 'Invalid confirm code',
 		securityCodeSent: 'Security code was sent on new email',
-		codeSentTo: 'A 6-character code sent to:'
+		codeSentTo: 'Мы отправили код на:'
 	},
 	myWorkScreen: {
 		name: 'Work',

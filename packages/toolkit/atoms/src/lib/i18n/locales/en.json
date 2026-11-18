@@ -42,7 +42,7 @@
 		"stop_timer_before_selecting": "Please stop timer before selecting {{item}}."
 	},
 	"ERROR": {
-		"invalid_password_or_email": "You intered an invalid email or password.",
+		"invalid_password_or_email": "You entered an invalid email or password.",
 		"is_required": "{{field}} is required",
 		"passwords_not_match": "Passwords do not match.",
 		"password_length": "Password should be at least {{number}} characters long.",
@@ -62,6 +62,13 @@
 		"week_activity": "Weeky activity",
 		"activity_over_period": "Activity over the period"
 	},
+	"KIT_ERRORS": {
+		"ORIGIN": "This site isn't allowed to show Ever Teams. Ask your workspace admin to add it.",
+		"SESSION": "Your session ended. Sign in again.",
+		"SIGN_IN_AGAIN": "Sign in again",
+		"PERMISSION": "You don't have permission to track time in this workspace. Ask your admin.",
+		"UNREACHABLE": "Ever Teams is unreachable. Check your connection and try again."
+	},
 	"TIME_TRACKER": {
 		"title": "Timer",
 		"start": "Start",
@@ -74,6 +81,8 @@
 	"AUTH": {
 		"sign_in_title": "Sign In",
 		"sign_up_title": "Register",
+		"account_menu": "{{name}}: account menu",
+		"account_menu_unnamed": "Account menu",
 		"register_now": "Register Now",
 		"email_prompt": "Enter your email",
 		"password_prompt": "Enter your password",
@@ -84,8 +93,8 @@
 		"last_name_prompt": "Enter your last name",
 		"phone_number_prompt": "Enter your phone number",
 		"logout": "Logout",
-		"dont_have_an_account": "Don't have an account ? ",
-		"have_an_account": "Have an account ? "
+		"dont_have_an_account": "Don't have an account?",
+		"have_an_account": "Have an account?"
 	},
 	"INPUT": {
 		"language_switcher": {

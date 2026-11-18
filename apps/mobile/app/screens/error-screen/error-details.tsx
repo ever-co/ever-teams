@@ -1,12 +1,26 @@
+import { reloadAppAsync } from 'expo';
 import React, { ErrorInfo } from 'react';
 import { ScrollView, TextStyle, View, ViewStyle } from 'react-native';
-import { Button, Icon, Screen, Text } from '../../components';
+import { Button } from '../../components/button';
+import { Icon } from '../../components/icon';
+import { Screen } from '../../components/screen';
+import { Text } from '../../components/text';
 import { colors, spacing } from '../../theme';
 
 export interface ErrorDetailsProps {
 	error: Error;
-	errorInfo: ErrorInfo;
+	/** null until React gives it, the boundary keeps both in its state */
+	errorInfo: ErrorInfo | null;
 	onReset(): void;
+}
+
+/** Starts the app again: clearing the error alone renders the screen that failed, which fails again. */
+async function reloadTheApp(onReset: () => void) {
+	try {
+		await reloadAppAsync('Reloaded from the error screen');
+	} catch {
+		onReset();
+	}
 }
 
 export function ErrorDetails(props: ErrorDetailsProps) {
@@ -18,12 +32,19 @@ export function ErrorDetails(props: ErrorDetailsProps) {
 				<Text tx="errorScreen.friendlySubtitle" />
 			</View>
 
-			<ScrollView style={$errorSection} contentContainerStyle={$errorSectionContentContainer}>
-				<Text style={$errorContent} weight="bold" text={`${props.error}`.trim()} />
-				<Text selectable style={$errorBacktrace} text={`${props.errorInfo.componentStack}`.trim()} />
-			</ScrollView>
+			{__DEV__ && (
+				<ScrollView style={$errorSection} contentContainerStyle={$errorSectionContentContainer}>
+					<Text style={$errorContent} weight="bold" text={`${props.error}`.trim()} />
+					<Text selectable style={$errorBacktrace} text={`${props.errorInfo?.componentStack ?? ''}`.trim()} />
+				</ScrollView>
+			)}
 
-			<Button preset="reversed" style={$resetButton} onPress={props.onReset} tx="errorScreen.reset" />
+			<Button
+				preset="reversed"
+				style={$resetButton}
+				onPress={() => reloadTheApp(props.onReset)}
+				tx="errorScreen.reset"
+			/>
 		</Screen>
 	);
 }

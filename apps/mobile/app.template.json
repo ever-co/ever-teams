@@ -6,6 +6,8 @@
 		"slug": "$EXPO_PROJECT_SLUG",
 		"version": "0.1.0",
 		"orientation": "portrait",
+		"userInterfaceStyle": "automatic",
+		"scheme": "$EXPO_PROJECT_SLUG",
 		"icon": "./assets/images/ever-teams-logo.png",
 		"owner": "$EXPO_PROJECT_OWNER",
 		"updates": {
@@ -16,6 +18,7 @@
 			"**/*"
 		],
 		"plugins": [
+			"expo-router",
 			[
 				"expo-splash-screen",
 				{
@@ -65,8 +68,7 @@
 						"enableProguardInReleaseBuilds": true,
 						"extraProguardRules": "-keep public class com.horcrux.svg.** {*;}",
 						"allowBackup": false,
-						"minSdkVersion": 24,
-						"targetSdkVersion": 35
+						"minSdkVersion": 24
 					}
 				}
 			]

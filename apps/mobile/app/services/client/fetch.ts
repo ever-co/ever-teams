@@ -64,6 +64,16 @@ function send<T>({ path, method, body, init, bearer_token, tenantId }: ServerReq
 	});
 }
 
+/** Tells the person their session ended and they have to sign in again. */
+export function tellSessionEnded() {
+	showMessage({
+		message: translate('session.endedTitle'),
+		description: translate('session.endedMessage'),
+		type: 'warning',
+		duration: 6000
+	});
+}
+
 /** What a renewal of the session needs from this client (session.ts). */
 const renewalMeans: RenewalMeans = {
 	askForNewPair: (refresh_token) =>
@@ -72,14 +82,7 @@ const renewalMeans: RenewalMeans = {
 			method: 'POST',
 			body: { refresh_token }
 		}).then(({ data, response }) => ({ status: response.status, pair: data ?? undefined })),
-	tellSessionEnded: () => {
-		showMessage({
-			message: translate('session.endedTitle'),
-			description: translate('session.endedMessage'),
-			type: 'warning',
-			duration: 6000
-		});
-	}
+	tellSessionEnded
 };
 
 /**

@@ -93,6 +93,8 @@ export const TeamsMemberInvitationFormDialog = ({
 	const { t } = useTranslation(undefined, { keyPrefix: 'MEMBER_INVITATION_FORM.dialog' });
 	return (
 		<Dialog
+			title={t('invite_member')}
+			hideTitle
 			trigger={
 				trigger ? (
 					trigger

@@ -43,6 +43,7 @@ export function navigateAfterSignIn({ replace = false }: { replace?: boolean } =
 		window.location.replace('/');
 		return;
 	}
+	// eslint-disable-next-line @next/next/no-location-assign-relative-destination -- a full page load, see above
 	window.location.assign('/');
 }
 

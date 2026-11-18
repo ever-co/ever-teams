@@ -1843,6 +1843,7 @@
 			"SHARE": "Teilen",
 			"SHARE_TITLE": "Einen schreibgeschützten Link teilen",
 			"SHARE_NEEDS_SAVE": "Ein Link teilt einen gespeicherten Bericht. Benennen Sie diese Ansicht, um sie zu speichern, und schalten Sie dann ihren Link ein.",
+			"LABELS_NOT_KEPT": "Gespeicherte Berichte behalten noch keine Labels. Um diese Ansicht zu speichern, leeren Sie den Filter „Labels“ und gruppieren Sie nach etwas anderem als „Label“.",
 			"SHARE_HINT": "Wer den Link hat, sieht ohne Konto den Namen des Berichts, seinen Zeitraum, die Zahlen, das Diagramm und die Tabelle. Nichts kann geändert werden, und er zeigt nur, was Sie sehen dürfen.",
 			"LINK_ADDRESS": "Linkadresse",
 			"COPY": "Kopieren",

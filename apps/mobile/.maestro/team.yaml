@@ -1,0 +1,15 @@
+# A person opens the Team tab and sees their team and its members.
+appId: ${APP_ID}
+env:
+  EMAIL: kofi.arden@example.com
+  TEAM: Field Crew North
+  MEMBER: Priya Holt
+---
+- runFlow: common/sign-in.yaml
+- tapOn:
+    id: "tab-team"
+- extendedWaitUntil:
+    visible: "${TEAM}.*"
+    timeout: 30000
+- assertVisible: "${MEMBER}"
+- takeScreenshot: team

@@ -1,5 +1,6 @@
 const he = {
 	common: {
+		openMenu: 'פתיחת התפריט',
 		ok: 'OK!',
 		cancel: 'Cancel',
 		back: 'Back',
@@ -10,11 +11,25 @@ const he = {
 		discard: 'Discard',
 		logOut: 'Log Out' // @demo remove-current-line
 	},
+	shell: {
+		tabs: { home: 'בית', tasks: 'משימות', week: 'שבוע', team: 'צוות' },
+		states: {
+			loading: 'טוען',
+			offline: 'אין חיבור. המסך מציג את מה שנשמר בטלפון.',
+			errorTitle: 'לא ניתן היה לטעון את המסך',
+			retry: 'נסה שוב',
+			comingTitle: 'יגיע בשלבים הבאים',
+			comingMessage: 'המסך הזה של האפליקציה החדשה עדיין בבנייה.'
+		},
+		signIn: { title: 'כניסה', message: 'הכניסה תעבור לאפליקציה החדשה בשלב מאוחר יותר. בינתיים יש להיכנס עם האפליקציה הנוכחית.' }
+	},
 	session: {
 		endedTitle: 'פג תוקף ההתחברות',
 		endedMessage: 'התחברו שוב כדי להמשיך.'
 	},
 	timer: {
+		startLabel: 'הפעלת הטיימר',
+		stopLabel: 'עצירת הטיימר',
 		stopFailedTitle: 'לא ניתן היה לעצור את הטיימר',
 		stopFailedMessage: 'הוא עדיין רץ. נסו שוב בעוד רגע.',
 		startMove: {
@@ -86,10 +101,9 @@ const he = {
 		letsGo: "Let's go!" // @demo remove-current-line
 	},
 	errorScreen: {
-		title: 'Something went wrong!',
-		friendlySubtitle:
-			"This is the screen that your users will see in production when an error is thrown. You'll want to customize this message (located in `app/i18n/en.ts`) and probably the layout as well (`app/screens/ErrorScreen`). If you want to remove this entirely, check `app/app.tsx` for the <ErrorBoundary> component.",
-		reset: 'RESET APP',
+		title: 'משהו השתבש!',
+		friendlySubtitle: 'האפליקציה נתקלה בבעיה. יש לטעון אותה מחדש כדי להמשיך.',
+		reset: 'טעינה מחדש של האפליקציה',
 		traceTitle: 'Error from %{name} stack' // @demo remove-current-line
 	},
 	emptyStateComponent: {
@@ -137,7 +151,7 @@ const he = {
 		createTeam: 'Create Team',
 		invalidConfirmCode: 'Invalid confirm code',
 		securityCodeSent: 'Security code was sent on new email',
-		codeSentTo: 'A 6-character code sent to:'
+		codeSentTo: 'שלחנו קוד אל:'
 	},
 	myWorkScreen: {
 		name: 'Work',

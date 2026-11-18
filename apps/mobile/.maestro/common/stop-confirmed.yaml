@@ -1,0 +1,11 @@
+# Waits until the API has answered the stop. The start button shows as soon as it is tapped; the run's menu goes only
+# once the API's status says the timer stopped. A stop the API refuses keeps the menu and shows the stop button again,
+# which fails here.
+appId: ${APP_ID}
+---
+- extendedWaitUntil:
+    notVisible:
+      id: "timer-actions-trigger"
+    timeout: 20000
+- assertVisible:
+    id: "timer-start"

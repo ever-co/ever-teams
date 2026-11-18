@@ -20,6 +20,7 @@ import { colors, typography, useAppTheme } from '../../../../theme';
 // import { useTeamInvitations } from "../../../../services/hooks/useTeamInvitation"
 import { translate } from '../../../../i18n';
 import { CodeInput } from '../../../../components/code-input';
+import { isCompleteEmailedCode } from '../../../../helpers/emailed-code';
 
 // import useTeamScreenLogic from "../logics/useTeamScreenLogic"
 
@@ -89,7 +90,7 @@ const VerifyAccountModal: FC<Props> = function InviteUserModal({
 	const { colors, dark } = useAppTheme();
 	const [verificationCode, setVerificationCode] = useState<string | null>(null);
 
-	const notVerified = verificationCode?.length < 6 || verificationCode === null;
+	const notVerified = !isCompleteEmailedCode(verificationCode);
 
 	const onChangeVerificationCode = (code: string) => {
 		setVerificationCode(code);

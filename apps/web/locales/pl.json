@@ -1843,6 +1843,7 @@
 			"SHARE": "Udostępnij",
 			"SHARE_TITLE": "Udostępnij link tylko do odczytu",
 			"SHARE_NEEDS_SAVE": "Link udostępnia zapisany raport. Nazwij ten widok, aby go zapisać, a potem włącz jego link.",
+			"LABELS_NOT_KEPT": "Zapisane raporty nie przechowują jeszcze etykiet. Aby zapisać ten widok, wyczyść filtr Etykiety i grupuj według czegoś innego niż Etykieta.",
 			"SHARE_HINT": "Każdy, kto ma link, widzi bez konta nazwę raportu, okres, liczby, wykres i tabelę. Niczego nie można zmienić, a pokazuje tylko to, co możesz zobaczyć.",
 			"LINK_ADDRESS": "Adres linku",
 			"COPY": "Kopiuj",

@@ -8,25 +8,18 @@ import {
 	NavigationContainer,
 	NavigatorScreenParams // @demo remove-current-line
 } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { StackScreenProps } from '@react-navigation/stack';
+import { createNativeStackNavigator, NativeStackScreenProps } from '@react-navigation/native-stack';
 import { observer } from 'mobx-react-lite';
-import React, { useEffect } from 'react';
+import React from 'react';
 import Config from '../config';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { AppQueryProvider } from '../services/client/query-provider';
 import { useStores } from '../models'; // @demo remove-current-line
 import {
 	LoginScreen // @demo remove-current-line
 } from '../screens';
-import {
-	AuthenticatedDrawerParamList,
-	AuthenticatedNavigator,
-	AuthenticatedTabParamList
-} from './authenticated-navigator';
+import { AuthenticatedDrawerParamList, SignedInArea, AuthenticatedTabParamList } from './authenticated-navigator';
 import { DemoTabParamList } from './demo-navigator'; // @demo remove-current-line
 import { navigationRef, useBackButtonHandler } from './navigation-utilities';
-import { Appearance } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 /**
  * This type allows TypeScript to know what routes are defined in this navigator
@@ -55,7 +48,7 @@ export type AppStackParamList = {
  */
 const exitRoutes = Config.exitRoutes;
 
-export type AppStackScreenProps<T extends keyof AppStackParamList> = StackScreenProps<AppStackParamList, T>;
+export type AppStackScreenProps<T extends keyof AppStackParamList> = NativeStackScreenProps<AppStackParamList, T>;
 
 // Documentation: https://reactnavigation.org/docs/stack-navigator/
 const Stack = createNativeStackNavigator<AppStackParamList>();
@@ -69,6 +62,9 @@ const AppStack = observer(function AppStack() {
 	// @demo remove-block-end
 	return (
 		<Stack.Navigator
+			// React Navigation 7 types `id` as optional only under strictNullChecks, which this app does not turn on, so
+			// every navigator says it has none: undefined, the same as before
+			id={undefined}
 			screenOptions={{ headerShown: false }}
 			initialRouteName={isAuthenticated ? 'Authenticated' : 'Login'} // @demo remove-current-line
 		>
@@ -80,7 +76,7 @@ const AppStack = observer(function AppStack() {
 					{/* @demo remove-block-start */}
 					{/* <Stack.Screen name="Demo" component={DemoNavigator} /> */}
 					{/* @app custom-block */}
-					<Stack.Screen name="Authenticated" component={AuthenticatedNavigator} />
+					<Stack.Screen name="Authenticated" component={SignedInArea} />
 				</>
 			) : (
 				<>
@@ -97,33 +93,14 @@ interface NavigationProps extends Partial<React.ComponentProps<typeof Navigation
 
 export const AppNavigator = observer(function AppNavigator(props: NavigationProps) {
 	const {
-		authenticationStore: { isDarkMode, toggleTheme }
+		authenticationStore: { isAuthenticated }
 	} = useStores();
-
-	useEffect(() => {
-		const checkAppInstallAndSetTheme = async () => {
-			const firstTimeAppOpen = await AsyncStorage.getItem('initialThemeSetupDone');
-
-			if (!firstTimeAppOpen) {
-				const colorsScheme = Appearance.getColorScheme();
-				if (colorsScheme === 'dark' && !isDarkMode) {
-					toggleTheme();
-				} else if (colorsScheme === 'light' && isDarkMode) {
-					toggleTheme();
-				}
-				await AsyncStorage.setItem('initialThemeSetupDone', JSON.stringify(true));
-			}
-		};
-		checkAppInstallAndSetTheme();
-	}, []);
-
 	useBackButtonHandler((routeName) => exitRoutes.includes(routeName));
-	const queryClient = new QueryClient();
 	return (
-		<NavigationContainer ref={navigationRef} {...props}>
-			<QueryClientProvider client={queryClient}>
+		<NavigationContainer ref={navigationRef} navigationInChildEnabled {...props}>
+			<AppQueryProvider signedIn={isAuthenticated}>
 				<AppStack />
-			</QueryClientProvider>
+			</AppQueryProvider>
 		</NavigationContainer>
 	);
 });

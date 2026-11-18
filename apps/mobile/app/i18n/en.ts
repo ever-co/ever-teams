@@ -1,5 +1,6 @@
 const en = {
 	common: {
+		openMenu: 'Open the menu',
 		ok: 'OK!',
 		cancel: 'Cancel',
 		loading: 'Loading',
@@ -10,11 +11,25 @@ const en = {
 		save: 'Save',
 		logOut: 'Log Out' // @demo remove-current-line
 	},
+	shell: {
+		tabs: { home: 'Home', tasks: 'Tasks', week: 'Week', team: 'Team' },
+		states: {
+			loading: 'Loading',
+			offline: 'You are offline. This screen shows what was saved on the phone.',
+			errorTitle: 'This screen could not load',
+			retry: 'Try again',
+			comingTitle: 'Coming in the next steps',
+			comingMessage: 'This screen of the new app is still being built.'
+		},
+		signIn: { title: 'Sign in', message: 'Signing in moves to the new app in a later step. Sign in with the current app for now.' }
+	},
 	session: {
 		endedTitle: 'Your session has ended',
 		endedMessage: 'Sign in again to continue.'
 	},
 	timer: {
+		startLabel: 'Start the timer',
+		stopLabel: 'Stop the timer',
 		stopFailedTitle: 'The timer could not stop',
 		stopFailedMessage: 'It is still running. Try again in a moment.',
 		startMove: {
@@ -88,9 +103,8 @@ const en = {
 	},
 	errorScreen: {
 		title: 'Something went wrong!',
-		friendlySubtitle:
-			"This is the screen that your users will see in production when an error is thrown. You'll want to customize this message (located in `app/i18n/en.ts`) and probably the layout as well (`app/screens/ErrorScreen`). If you want to remove this entirely, check `app/app.tsx` for the <ErrorBoundary> component.",
-		reset: 'RESET APP',
+		friendlySubtitle: 'The app ran into a problem. Reload it to continue.',
+		reset: 'Reload the app',
 		traceTitle: 'Error from %{name} stack' // @demo remove-current-line
 	},
 	emptyStateComponent: {
@@ -138,7 +152,7 @@ const en = {
 		createTeam: 'Create Team',
 		invalidConfirmCode: 'Invalid confirm code',
 		securityCodeSent: 'Security code was sent on new email',
-		codeSentTo: 'A 6-character code sent to:'
+		codeSentTo: 'We sent a code to:'
 	},
 	myWorkScreen: {
 		name: 'Work',

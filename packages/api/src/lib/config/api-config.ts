@@ -4,9 +4,21 @@ export interface IApiTeamsConfig {
 	environment?: 'development' | 'production' | 'test';
 }
 
+// The package ships an ES and a CommonJS build. A page that loads both (a host imports this package while a
+// dependency requires it) runs two copies of this module: they share one configuration, kept on globalThis, so a
+// setConfig() through either reaches the requests of both.
+const SHARED_CONFIG_KEY: unique symbol = Symbol.for('@ever-teams/api/config');
+
+type SharedConfigHolder = typeof globalThis & { [SHARED_CONFIG_KEY]?: { config: IApiTeamsConfig } };
+
+function sharedConfig(): { config: IApiTeamsConfig } {
+	const holder = globalThis as SharedConfigHolder;
+	return (holder[SHARED_CONFIG_KEY] ??= { config: { apiUrl: 'https://api.ever.team/api' } });
+}
+
 class ApiConfigManager {
 	private static instance: ApiConfigManager;
-	private config: IApiTeamsConfig = { apiUrl: 'https://api.ever.team/api' };
+	private readonly shared = sharedConfig();
 
 	private constructor() {}
 
@@ -25,14 +37,14 @@ class ApiConfigManager {
 			Object.entries(config).filter(([, value]) => value !== undefined)
 		) as Partial<IApiTeamsConfig>;
 
-		this.config = {
-			...this.config,
+		this.shared.config = {
+			...this.shared.config,
 			...defined
 		};
 	}
 
 	getConfig(): IApiTeamsConfig {
-		return this.config;
+		return this.shared.config;
 	}
 }
 
