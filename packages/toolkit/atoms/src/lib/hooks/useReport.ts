@@ -5,6 +5,7 @@ import { ChartConfig, ChartData, IWeeklyReports } from '@ever-teams/toolkit-type
 import qs from 'qs';
 import { generateChartConfig, getErrorMessage, reportError, toast, transformData } from '@ever-teams/toolkit-ui';
 import { useTeamsContext } from '@lib/context/teams-context';
+import { useKitOptions } from '@components/teams-provider/kit-options';
 
 const useReport = () => {
 	const [report, setReport] = useState<IWeeklyReports | null>(null);
@@ -21,6 +22,7 @@ const useReport = () => {
 		selectedOrganization: organizationId,
 		reportDates: date
 	} = useTeamsContext();
+	const { api } = useKitOptions();
 
 	const getReport = async () => {
 		setLoading(true);
@@ -55,11 +57,14 @@ const useReport = () => {
 				{ skipNulls: true }
 			);
 
-			const report = await ApiCall<IWeeklyReports>({
-				path: `/timesheet/time-log/report/weekly?${queryWeeklyReport}`,
-				method: 'GET',
-				bearer_token: token
-			});
+			const report = await ApiCall<IWeeklyReports>(
+				{
+					path: `/timesheet/time-log/report/weekly?${queryWeeklyReport}`,
+					method: 'GET',
+					bearer_token: token
+				},
+				api
+			);
 
 			if ('data' in report) {
 				setReport(report.data);
@@ -85,7 +90,7 @@ const useReport = () => {
 
 	useEffect(() => {
 		if (user && organizationId) getReport();
-	}, [user, date, selectedEmployee, selectedTeam, organizationId]);
+	}, [user, date, selectedEmployee, selectedTeam, organizationId, api]);
 
 	return { report, config, chartData, loading };
 };

@@ -5,6 +5,7 @@ import { getWeekStartAndEnd, getStartAndEndOfDay, toast } from '@ever-teams/tool
 import QueryString from 'qs';
 import { DateRange } from 'react-day-picker';
 import { useTeamsContext } from '@lib/context/teams-context';
+import { useKitOptions } from '@components/teams-provider/kit-options';
 
 export interface IStatisticsCounts {
 	employeesCount: number;
@@ -24,6 +25,7 @@ const useStatisticsCounts = (): IHookResponse<IStatisticsCounts> => {
 		selectedOrganization: organizationId,
 		reportDates: date
 	} = useTeamsContext();
+	const { api } = useKitOptions();
 	const [statisticsCounts, setStatisticsCounts] = useState<IHookResponse<IStatisticsCounts>>({
 		data: {
 			employeesCount: 0,
@@ -77,12 +79,15 @@ const useStatisticsCounts = (): IHookResponse<IStatisticsCounts> => {
 
 			if (selectedTeam != 'all') objetQuery.teamIds = [selectedTeam];
 
-			const response = await ApiCall<IStatisticsCounts>({
-				path: `/timesheet/statistics/counts?${QueryString.stringify(objetQuery, { skipNulls: true })}`,
-				method: 'GET',
-				bearer_token: token,
-				tenantId
-			});
+			const response = await ApiCall<IStatisticsCounts>(
+				{
+					path: `/timesheet/statistics/counts?${QueryString.stringify(objetQuery, { skipNulls: true })}`,
+					method: 'GET',
+					bearer_token: token,
+					tenantId
+				},
+				api
+			);
 
 			if ('data' in response) return response.data;
 
@@ -120,7 +125,7 @@ const useStatisticsCounts = (): IHookResponse<IStatisticsCounts> => {
 				setStatisticsCounts({ data: userStats, loading: false });
 			})();
 		}
-	}, [user, selectedEmployee, selectedTeam, date, organizationId]);
+	}, [user, selectedEmployee, selectedTeam, date, organizationId, api]);
 
 	return statisticsCounts;
 };

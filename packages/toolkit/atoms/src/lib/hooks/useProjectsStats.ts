@@ -1,10 +1,12 @@
 import { IHookResponse, IServerError, IUser } from '@ever-teams/toolkit-types';
 import { useEffect, useState } from 'react';
 import { ApiCall } from '@ever-teams/api';
+import type { IApiRequestConfig } from '@ever-teams/api';
 import { getWeekStartAndEnd, getStartAndEndOfDay, toast } from '@ever-teams/toolkit-ui';
 import QueryString from 'qs';
 import { DateRange } from 'react-day-picker';
 import { useTeamsContext } from '@lib/context/teams-context';
+import { useKitOptions } from '@components/teams-provider/kit-options';
 
 interface IProjectStat {
 	name: string;
@@ -21,7 +23,8 @@ const getProjectsStats = async (
 	selectedEmployee: string,
 	selectedTeam: string,
 	organizationId: string,
-	dates?: DateRange
+	dates?: DateRange,
+	api?: IApiRequestConfig
 ): Promise<IProjectsStats | IServerError> => {
 	try {
 		if (!user) {
@@ -55,12 +58,15 @@ const getProjectsStats = async (
 
 		const query = QueryString.stringify(queryObject);
 
-		const response = await ApiCall<IProjectsStats>({
-			path: `/timesheet/statistics/projects?${query}`,
-			method: 'GET',
-			bearer_token: token,
-			tenantId
-		});
+		const response = await ApiCall<IProjectsStats>(
+			{
+				path: `/timesheet/statistics/projects?${query}`,
+				method: 'GET',
+				bearer_token: token,
+				tenantId
+			},
+			api
+		);
 
 		if ('data' in response) {
 			return response.data;
@@ -83,6 +89,7 @@ const useProjectsStats = (): IHookResponse<IProjectsStats> => {
 		selectedOrganization: organizationId,
 		reportDates: date
 	} = useTeamsContext();
+	const { api } = useKitOptions();
 
 
 	const [projectsStats, setProjectsStats] = useState<IHookResponse<IProjectsStats>>({ data: null, loading: false });
@@ -99,7 +106,8 @@ const useProjectsStats = (): IHookResponse<IProjectsStats> => {
 						selectedEmployee,
 						selectedTeam,
 						organizationId,
-						date
+						date,
+						api
 					);
 
 					if ('message' in userStats || 'error' in userStats) {
@@ -128,7 +136,7 @@ const useProjectsStats = (): IHookResponse<IProjectsStats> => {
 				}
 			})();
 		}
-	}, [user, selectedEmployee, selectedTeam, date, organizationId]);
+	}, [user, selectedEmployee, selectedTeam, date, organizationId, api]);
 
 	return projectsStats;
 };

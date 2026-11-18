@@ -1,9 +1,11 @@
 import { IHookResponse, IServerError, IUser } from '@ever-teams/toolkit-types';
 import { useEffect, useState } from 'react';
 import { ApiCall } from '@ever-teams/api';
+import type { IApiRequestConfig } from '@ever-teams/api';
 import { getWeekStartAndEnd, getStartAndEndOfDay, toast } from '@ever-teams/toolkit-ui';
 import { DateRange } from 'react-day-picker';
 import { useTeamsContext } from '@lib/context/teams-context';
+import { useKitOptions } from '@components/teams-provider/kit-options';
 
 interface ITasksStat {
 	duration: number;
@@ -22,7 +24,8 @@ const getTasksStats = async (
 	selectedEmployee: string,
 	selectedTeam: string,
 	organizationId: string,
-	dates?: DateRange
+	dates?: DateRange,
+	api?: IApiRequestConfig
 ): Promise<ITasksStats | IServerError> => {
 	try {
 		if (!user) {
@@ -65,13 +68,16 @@ const getTasksStats = async (
 			query.teamIds = [selectedTeam];
 		}
 
-		const response = await ApiCall<ITasksStats>({
-			path: `/timesheet/statistics/tasks`,
-			method: 'POST',
-			bearer_token: token,
-			tenantId,
-			body: query
-		});
+		const response = await ApiCall<ITasksStats>(
+			{
+				path: `/timesheet/statistics/tasks`,
+				method: 'POST',
+				bearer_token: token,
+				tenantId,
+				body: query
+			},
+			api
+		);
 
 		if ('data' in response) {
 			return response.data;
@@ -94,6 +100,7 @@ const useTasksStats = (): IHookResponse<ITasksStats> => {
 		selectedOrganization: organizationId,
 		reportDates: date
 	} = useTeamsContext();
+	const { api } = useKitOptions();
 
 	const [tasksStats, setTasksStats] = useState<IHookResponse<ITasksStats>>({ data: null, loading: false });
 
@@ -108,7 +115,8 @@ const useTasksStats = (): IHookResponse<ITasksStats> => {
 					selectedEmployee,
 					selectedTeam,
 					organizationId,
-					date
+					date,
+					api
 				);
 
 				if ('message' in userStats || 'error' in userStats) {
@@ -127,7 +135,7 @@ const useTasksStats = (): IHookResponse<ITasksStats> => {
 				setTasksStats({ data: userStats, loading: false });
 			})();
 		}
-	}, [user, selectedEmployee, selectedTeam, date, organizationId]);
+	}, [user, selectedEmployee, selectedTeam, date, organizationId, api]);
 
 	return tasksStats;
 };

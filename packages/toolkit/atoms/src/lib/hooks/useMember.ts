@@ -3,6 +3,7 @@ import { getWeekStartAndEnd, toast } from '@ever-teams/toolkit-ui';
 import { useEffect, useState } from 'react';
 import { getMembers } from '@ever-teams/api';
 import { useTeamsContext } from '@lib/context/teams-context';
+import { useKitOptions } from '@components/teams-provider/kit-options';
 
 const useMember = (): IHookResponse<PaginationResponse<IMember> | null> => {
 	const [members, setMembers] = useState<IHookResponse<PaginationResponse<IMember> | null>>({
@@ -11,12 +12,13 @@ const useMember = (): IHookResponse<PaginationResponse<IMember> | null> => {
 	});
 
 	const { userPermissions, authenticatedUser: user, token, selectedOrganization: organizationId } = useTeamsContext();
+	const { api } = useKitOptions();
 
 	const fetchMembers = async () => {
 		if (user && organizationId && token) {
 			setMembers((prev) => ({ ...prev, loading: true }));
 
-			const userMembers = await getMembers(user, token, organizationId, getWeekStartAndEnd());
+			const userMembers = await getMembers(user, token, organizationId, getWeekStartAndEnd(), api);
 
 			if ('message' in userMembers || 'error' in userMembers) {
 				const errorMessage =
@@ -43,7 +45,7 @@ const useMember = (): IHookResponse<PaginationResponse<IMember> | null> => {
 
 	useEffect(() => {
 		fetchMembers();
-	}, [user, userPermissions, organizationId, token]);
+	}, [user, userPermissions, organizationId, token, api]);
 
 	return members;
 };

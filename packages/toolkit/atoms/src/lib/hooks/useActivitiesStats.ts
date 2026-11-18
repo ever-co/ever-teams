@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { getStartAndEndOfDay, getWeekStartAndEnd, toast } from '@ever-teams/toolkit-ui';
 import { IActivitiesStats } from '@ever-teams/toolkit-types';
 import { useTeamsContext } from '@lib/context/teams-context';
+import { useKitOptions } from '@components/teams-provider/kit-options';
 
 const useActivitiesStats = (): IHookResponse<IActivitiesStats> => {
 	const [activitiesStats, setActivitiesStats] = useState<IHookResponse<IActivitiesStats>>({
@@ -19,6 +20,7 @@ const useActivitiesStats = (): IHookResponse<IActivitiesStats> => {
 		selectedOrganization: organizationId,
 		reportDates: date
 	} = useTeamsContext();
+	const { api } = useKitOptions();
 
 	const fetchActivitiesStats = async () => {
 		if (user && organizationId) {
@@ -27,18 +29,21 @@ const useActivitiesStats = (): IHookResponse<IActivitiesStats> => {
 			const dayDates = getStartAndEndOfDay();
 			const { end, start } = getWeekStartAndEnd();
 
-			const userStats = await getActivitiesStats({
-				user,
-				token,
-				selectedEmployee,
-				selectedTeam,
-				organizationId,
-				dayDates,
-				dates: {
-					from: date?.from || start,
-					to: date?.to || end
-				}
-			});
+			const userStats = await getActivitiesStats(
+				{
+					user,
+					token,
+					selectedEmployee,
+					selectedTeam,
+					organizationId,
+					dayDates,
+					dates: {
+						from: date?.from || start,
+						to: date?.to || end
+					}
+				},
+				api
+			);
 
 			if ('message' in userStats || 'error' in userStats) {
 				const errorMessage =
@@ -62,7 +67,7 @@ const useActivitiesStats = (): IHookResponse<IActivitiesStats> => {
 
 	useEffect(() => {
 		fetchActivitiesStats();
-	}, [user, selectedEmployee, selectedTeam, date, organizationId]);
+	}, [user, selectedEmployee, selectedTeam, date, organizationId, api]);
 
 	return activitiesStats;
 };

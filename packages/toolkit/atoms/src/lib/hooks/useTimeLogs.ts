@@ -1,6 +1,7 @@
 import { getTimeLogs } from '@ever-teams/api';
 import { IServerError, ITimeLog, LogType, TimerSource } from '@ever-teams/toolkit-types';
 import { useTeamsContext } from '@lib/context/teams-context';
+import { useKitOptions } from '@components/teams-provider/kit-options';
 import { useCallback, useEffect, useState } from 'react';
 import { DateRange } from 'react-day-picker';
 
@@ -31,23 +32,27 @@ export const useTimeLogs = ({
 	const [error, setError] = useState<IServerError | null>(null);
 
 	const { authenticatedUser: user, token, selectedOrganization: organizationId, selectedEmployee } = useTeamsContext();
+	const { api } = useKitOptions();
 
 	const fetchTimeLogs = useCallback(async () => {
 		setLoading(true);
 		setError(null);
 
 		try {
-			const response = await getTimeLogs({
-				user,
-				token,
-				organizationId,
-				date,
-				activityLevel,
-				timeZone,
-				source,
-				logType,
-				employeeIds: selectedEmployee !== 'all' ? [selectedEmployee] : undefined
-			});
+			const response = await getTimeLogs(
+				{
+					user,
+					token,
+					organizationId,
+					date,
+					activityLevel,
+					timeZone,
+					source,
+					logType,
+					employeeIds: selectedEmployee !== 'all' ? [selectedEmployee] : undefined
+				},
+				api
+			);
 
 			if ('error' in response || 'message' in response) {
 				setError(response as IServerError);
@@ -62,7 +67,7 @@ export const useTimeLogs = ({
 		} finally {
 			setLoading(false);
 		}
-	}, [user, token, organizationId, date, activityLevel, timeZone, source, logType, selectedEmployee]);
+	}, [user, token, organizationId, date, activityLevel, timeZone, source, logType, selectedEmployee, api]);
 
 	useEffect(() => {
 		user && organizationId && token && fetchTimeLogs();

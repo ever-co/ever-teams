@@ -41,7 +41,10 @@ const standIns = {
 		export const toast = () => {};
 		export const reportError = () => {};
 		export const getErrorMessage = (error) => String(error);
-		export const getWeekStartAndEnd = () => ({ start: new Date(0), end: new Date(0) });`,
+		export const getWeekStartAndEnd = () => ({ start: new Date(0), end: new Date(0) });
+		export const getStartAndEndOfDay = () => ({ dayStart: '', dayEnd: '' });
+		export const generateChartConfig = () => ({});
+		export const transformData = () => [];`,
 	'theme-ui': `const passThrough = ({ children }) => children;
 		export const ThemeUIProvider = passThrough;`,
 	// The sign-out menu is written for theme-ui's JSX, which adds the sx prop to React's.
@@ -102,6 +105,13 @@ before(async () => {
 			export { useEmployeeOrganization } from '${kitSources}/hooks/useEmployeeOrganisation.ts';
 			export { useOrganizationTeams } from '${kitSources}/hooks/useOrganizationTeams.ts';
 			export { useEmbedProjects } from '${kitSources}/hooks/useEmbedProjects.ts';
+			export { useReport } from '${kitSources}/hooks/useReport.ts';
+			export { useStatisticsCounts } from '${kitSources}/hooks/useStatisticsCounts.ts';
+			export { useTasksStats } from '${kitSources}/hooks/useTasksStats.ts';
+			export { useProjectsStats } from '${kitSources}/hooks/useProjectsStats.ts';
+			export { useActivitiesStats } from '${kitSources}/hooks/useActivitiesStats.ts';
+			export { useTimeLogs } from '${kitSources}/hooks/useTimeLogs.ts';
+			export { useMember } from '${kitSources}/hooks/useMember.ts';
 			export { apiConfigManager } from '@ever-teams/api';`,
 		standIns,
 		standInOf
@@ -162,6 +172,21 @@ function Pickers() {
 }
 
 const pickers = () => [React.createElement(Pickers, { key: 'pickers' })];
+
+// The reports: the weekly report, the counts, the tasks, projects and activities statistics, the time logs and the
+// members.
+function Reports() {
+	kit.useReport();
+	kit.useStatisticsCounts();
+	kit.useTasksStats();
+	kit.useProjectsStats();
+	kit.useActivitiesStats();
+	kit.useTimeLogs();
+	kit.useMember();
+	return null;
+}
+
+const reports = () => [React.createElement(Reports, { key: 'reports' })];
 
 // A provider with the sign-in forms and the given widgets; a sign-out keeps the page where it is.
 function provider(name, config, widgets = []) {
@@ -320,6 +345,33 @@ test("with the host's getToken, the projects and teams of each of two providers 
 	const hostsOf = (path) => requestsTo(path).map(({ host }) => host);
 	assert.deepEqual(hostsOf('/embed/projects').sort(), [hostOf(SERVER_A), hostOf(SERVER_B)]);
 	assert.deepEqual(hostsOf('/organization-team/me').sort(), [hostOf(SERVER_A), hostOf(SERVER_B)]);
+});
+
+test('the reports of the second of two providers read its own API, after the first changed address', async () => {
+	const configB = { apiUrl: SERVER_B };
+	const { root } = await openPage([
+		['a', { apiUrl: SERVER_A }, reports()],
+		['b', configB, reports()]
+	]);
+	await renderPage(root, [
+		['a', { apiUrl: 'https://a2.example.com/api' }, reports()],
+		['b', configB, reports()]
+	]);
+
+	await signInOn('b');
+
+	const read = (start) => requests.filter(({ path }) => path.startsWith(start)).length > 0;
+	const paths = [
+		'/timesheet/time-log/report/weekly',
+		'/timesheet/statistics/counts',
+		'/timesheet/statistics/tasks',
+		'/timesheet/statistics/projects',
+		'/timesheet/statistics/activities',
+		'/employee/working'
+	];
+	assert.deepEqual(paths.filter(read), paths);
+	assert.ok(requestsTo('/timesheet/time-log').length > 0, 'the time logs are read');
+	assert.deepEqual(new Set(requests.map(({ host }) => host)), new Set([hostOf(SERVER_B)]));
 });
 
 test('a provider alone sends to its own API and still sets the address of the page, as before', async () => {
