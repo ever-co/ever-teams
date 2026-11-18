@@ -30,7 +30,17 @@ jest.mock('@/core/hooks/settings/use-embeds', () => ({
 	useRevokeEmbedCredential: () => ({ mutate: jest.fn(), isPending: false })
 }));
 jest.mock('./create-embed-credential-dialog', () => ({
-	CreateEmbedCredentialDialog: ({ open }: { open: boolean }) => (open ? <p>create dialog</p> : null)
+	CreateEmbedCredentialDialog: ({ open, canLimitToClient }: { open: boolean; canLimitToClient: boolean }) => {
+		if (!open) {
+			return null;
+		}
+		return (
+			<>
+				<p>create dialog</p>
+				{canLimitToClient && <p>client choice offered</p>}
+			</>
+		);
+	}
 }));
 jest.mock('@/core/components/settings/kit/danger', () => ({
 	ConfirmDestructiveDialog: ({ open, title }: { open: boolean; title: string }) => (open ? <p>{title}</p> : null)
@@ -151,5 +161,14 @@ describe('EmbedsSettingsPage', () => {
 		expect(screen.getByText('settings.embeds.NO_CREDENTIALS')).toBeTruthy();
 		fireEvent.click(screen.getByText('settings.embeds.CREATE'));
 		expect(screen.getByText('create dialog')).toBeTruthy();
+		expect(screen.queryByText('client choice offered')).toBeNull();
+	});
+
+	it('lets the credential dialog offer a client when the config says the API can limit a credential to one', () => {
+		mockUseAvailability.mockReturnValue({ availability: 'enabled', canLimitToClient: true, retry: jest.fn() });
+		render(<EmbedsSettingsPage />);
+
+		fireEvent.click(screen.getByText('settings.embeds.CREATE'));
+		expect(screen.getByText('client choice offered')).toBeTruthy();
 	});
 });
