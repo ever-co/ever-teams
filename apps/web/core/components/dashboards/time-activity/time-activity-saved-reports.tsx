@@ -77,10 +77,14 @@ function openReportIn(setLinkParams: TimeActivityReport['settings']['setLinkPara
 
 /**
  * Why a view narrowed or grouped by labels is not saved (`canSaveView`): Gauzy is still being asked whether saved
- * reports keep labels, could not be asked (with a retry), or keeps none.
+ * reports keep labels, could not be asked (with a retry), or keeps none. Where they are kept, labels block nothing and
+ * there is nothing to say.
  */
 function LabelsNote({ support, onRetry }: Readonly<{ support: SavedReportLabelsSupport; onRetry: () => void }>) {
 	const t = useTranslations();
+	if (support === 'kept') {
+		return null;
+	}
 	if (support === 'checking') {
 		return <p className="text-xs text-muted-foreground">{t('dashboard.savedReports.LABELS_CHECKING')}</p>;
 	}

@@ -604,12 +604,15 @@ describe('TimeActivitySavedReports on a Gauzy that keeps the labels of entries (
 		);
 	});
 
-	it('knows the view of a report saved with labels: Update waits for a change', () => {
+	it('knows the view of a report saved with labels: Update waits for a change, with no note on labels', () => {
 		mockSearchParams = new URLSearchParams('report=r2');
 		render(<TimeActivitySavedReports report={labelViewProps(DESIGN_WITHOUT_LABEL, 'label')} />);
 
 		const update = screen.getByText('dashboard.savedReports.UPDATE').closest('button') as HTMLButtonElement;
 		expect(update.disabled).toBe(true);
+		for (const note of ['LABELS_NOT_KEPT', 'LABELS_CHECKING', 'LABELS_CHECK_FAILED']) {
+			expect(screen.queryByText(`dashboard.savedReports.${note}`)).toBeNull();
+		}
 	});
 
 	it.each([
