@@ -17,9 +17,9 @@ globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 const standIns = {
 	'@ever-teams/api': `export const getOrganisationTeams = async (options) => {
 			globalThis.__teamsReads.push(options);
-			return { items: [], total: 0 };
+			return globalThis.__teamsAnswer ? globalThis.__teamsAnswer(options) : { items: [], total: 0 };
 		};`,
-	'@ever-teams/toolkit-ui': 'export const toast = () => undefined;',
+	'@ever-teams/toolkit-ui': 'export const toast = (message) => globalThis.__toasts?.push(message);',
 	'@lib/context/teams-context': `export const useTeamsContext = () => globalThis.__teamsContext;`
 };
 // The stand-in an import names: the alias has already turned an `@lib/...` import into a path ending the same way.
@@ -105,4 +105,48 @@ test('without getToken another project reads its teams, as before', async () => 
 		reads.map((read) => read.projectId),
 		['project-1', 'project-2']
 	);
+});
+
+test('a read the timer has moved past does not replace the current one when it answers last', async () => {
+	globalThis.__teamsReads = [];
+	globalThis.__toasts = [];
+	globalThis.__teamsContext = {
+		authenticatedUser: { id: 'user-1', tenantId: 'tenant-1', employee: { id: 'employee-1' } },
+		token: 'token',
+		selectedOrganization: 'org-1'
+	};
+	const answers = new Map();
+	globalThis.__teamsAnswer = (options) =>
+		new Promise((resolve) => {
+			answers.set(options.projectId, resolve);
+		});
+	let shown;
+	const Teams = ({ projectId }) => {
+		shown = kit.useOrganizationTeams({ projectId });
+		return null;
+	};
+	const root = createRoot(document.createElement('div'));
+	const options = { scoped: true, hostSignIn: false };
+	const render = (projectId) =>
+		act(async () =>
+			root.render(
+				React.createElement(
+					kit.KitOptionsProvider,
+					{ value: options },
+					React.createElement(Teams, { projectId })
+				)
+			)
+		);
+	try {
+		await render('project-1');
+		await render('project-2');
+		await act(async () => answers.get('project-2')({ items: [{ id: 'team-2' }], total: 1 }));
+		await act(async () => answers.get('project-1')({ error: 'the earlier read failed' }));
+
+		assert.deepEqual(shown, { data: { items: [{ id: 'team-2' }], total: 1 }, loading: false });
+		assert.deepEqual(globalThis.__toasts, []);
+	} finally {
+		globalThis.__teamsAnswer = undefined;
+		await act(async () => root.unmount());
+	}
 });
