@@ -5,7 +5,9 @@ import { validateApiResponse } from '@/core/types/schemas';
 import {
 	CreatedEmbedCredential,
 	EmbedAllowedOrigin,
+	EmbedConfig,
 	EmbedCredential,
+	EmbedCredentialInput,
 	createdEmbedCredentialSchema,
 	embedAllowedOriginListSchema,
 	embedAllowedOriginSchema,
@@ -27,8 +29,11 @@ class EmbedsService extends APIService {
 		return qs.stringify({ organizationId });
 	}
 
-	/** Whether the server has embeds on; a 404 means off, a 403 that the person is not an admin of the organization. */
-	readConfig = async (signal?: AbortSignal): Promise<{ enabled: boolean }> => {
+	/**
+	 * Whether the server has embeds on, and can limit a credential to one client; a 404 means off, a 403 that the person
+	 * is not an admin of the organization.
+	 */
+	readConfig = async (signal?: AbortSignal): Promise<EmbedConfig> => {
 		const response = await this.get<unknown>(`${CREDENTIALS}/config`, { signal });
 		return validateApiResponse(embedConfigSchema, response.data, 'embeds.config API response');
 	};
@@ -55,14 +60,22 @@ class EmbedsService extends APIService {
 		return validateApiResponse(embedCredentialListSchema, response.data, 'embeds.credentials API response');
 	};
 
+	/**
+	 * A credential for the whole workspace is asked for exactly as before clients could be named: an older API, which
+	 * does not know the field, gets nothing it would drop.
+	 */
+	private credentialBody(organizationId: string, input: EmbedCredentialInput): Record<string, string> {
+		const body: Record<string, string> = { name: input.name.trim(), organizationId };
+		if (input.organizationContactId) {
+			body.organizationContactId = input.organizationContactId;
+		}
+		return body;
+	}
+
 	/** Creates a credential: the answer holds its secret, which no later read gives again, and stays out of the log. */
-	createCredential = async (organizationId: string, name: string): Promise<CreatedEmbedCredential> => {
-		const response = await this.post<unknown>(
-			CREDENTIALS,
-			{ name: name.trim(), organizationId },
-			{ secretResponse: true },
-			false
-		);
+	createCredential = async (organizationId: string, input: EmbedCredentialInput): Promise<CreatedEmbedCredential> => {
+		const body = this.credentialBody(organizationId, input);
+		const response = await this.post<unknown>(CREDENTIALS, body, { secretResponse: true }, false);
 		return validateApiResponse(createdEmbedCredentialSchema, response.data, 'embeds.createCredential API response');
 	};
 

@@ -40,6 +40,12 @@ export const createdEmbedCredentialSchema = embedCredentialSchema.extend({
 	secret: z.string().min(1)
 });
 
+/** What a new credential is made from: its name, and the client it is limited to (`null`: the whole workspace). */
+export interface EmbedCredentialInput {
+	name: string;
+	organizationContactId: string | null;
+}
+
 /**
  * An origin as the browser sends it: http or https, a host and an optional port, nothing after. The API normalizes it
  * again and is the judge; this only spares a round trip for an obvious typo.

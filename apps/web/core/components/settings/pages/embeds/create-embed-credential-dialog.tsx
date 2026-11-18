@@ -36,7 +36,7 @@ function CreateCredentialForm({ create, onCancel, onCreated }: Readonly<CreateFo
 			return;
 		}
 		setIsNameMissing(false);
-		create.mutate(name, { onSuccess: onCreated });
+		create.mutate({ name, organizationContactId: null }, { onSuccess: onCreated });
 	};
 
 	let nameNote = t('settings.embeds.NAME_HINT');
