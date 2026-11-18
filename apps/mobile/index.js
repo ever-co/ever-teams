@@ -1,8 +1,12 @@
 import { registerRootComponent } from 'expo';
 
-import App from './App';
-
-// registerRootComponent calls AppRegistry.registerComponent('main', () => App);
-// It also ensures that whether you load the app in Expo Go or in a native build,
-// the environment is set up appropriately
-registerRootComponent(App);
+// The new app (Expo Router, src/app) opens only in builds made with EXPO_PUBLIC_APP_SHELL=next: the app people
+// install keeps the current screens until the switch is decided. The value is set at build time, so the build of the
+// current app leaves the new one out.
+if (process.env.EXPO_PUBLIC_APP_SHELL === 'next') {
+	require('expo-router/entry');
+} else {
+	const App = require('./App').default;
+	// registerRootComponent calls AppRegistry.registerComponent('main', () => App) in Expo Go and native builds alike
+	registerRootComponent(App);
+}
