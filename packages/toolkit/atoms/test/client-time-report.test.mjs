@@ -265,6 +265,44 @@ test('after unmount an answer changes nothing and retry asks nothing', async (t)
 	assert.equal(errors.mock.callCount(), 0, 'React warned about the late answer');
 });
 
+test('when the day ends in the report’s time zone the hook asks again, once', async (t) => {
+	// 23:58 in Paris, an hour ahead of UTC in November.
+	t.mock.timers.enable({ apis: ['setInterval', 'Date'], now: new Date('2026-11-18T22:58:00Z') });
+	const backend = hostBackend();
+	const { seen } = await mountHook(backend.getReport);
+	await act(async () => backend.calls[0].resolve(NORTHWIND));
+	await settle();
+
+	await act(async () => t.mock.timers.tick(60_000));
+	assert.equal(backend.calls.length, 1, 'still the 18th in Paris');
+
+	await act(async () => t.mock.timers.tick(60_000));
+	assert.equal(backend.calls.length, 2, 'midnight in Paris');
+	assert.equal(seen.current.status, 'loading');
+
+	// A backend whose clock is behind still answers the 18th: no call a minute, the next one is at the next midnight.
+	await act(async () => backend.calls[1].resolve(NORTHWIND));
+	await settle();
+	await act(async () => t.mock.timers.tick(10 * 60_000));
+	assert.equal(backend.calls.length, 2);
+	assert.equal(seen.current.report, NORTHWIND);
+	await unmountAll();
+});
+
+test('a time zone the browser does not know keeps the report as drawn', async (t) => {
+	t.mock.timers.enable({ apis: ['setInterval', 'Date'], now: new Date('2026-11-18T22:58:00Z') });
+	const backend = hostBackend();
+	const { seen } = await mountHook(backend.getReport);
+	const elsewhere = { ...NORTHWIND, timeZone: 'Nowhere/Unknown' };
+	await act(async () => backend.calls[0].resolve(elsewhere));
+	await settle();
+
+	await act(async () => t.mock.timers.tick(24 * 60 * 60_000));
+	assert.equal(backend.calls.length, 1);
+	assert.equal(seen.current.report, elsewhere);
+	await unmountAll();
+});
+
 const QUIET_WEEK = {
 	...NORTHWIND,
 	today: { date: '2026-11-18', seconds: 0 },
