@@ -9,7 +9,16 @@
 		"discard": "Scarta",
 		"back": "Indietro",
 		"save": "Salva",
-		"logOut": "Esci"
+		"logOut": "Esci",
+		"yes": "Sì",
+		"no": "No",
+		"error": "Errore",
+		"info": "Info",
+		"dismiss": "Nascondi",
+		"somethingWrong": "Qualcosa è andato storto",
+		"updateSuccess": "Aggiornamento riuscito",
+		"member": "Membro",
+		"manager": "Manager"
 	},
 	"shell": {
 		"tabs": {
@@ -156,7 +165,15 @@
 		"createTeam": "Crea Team",
 		"invalidConfirmCode": "Codice di conferma non valido",
 		"securityCodeSent": "Il codice di sicurezza è stato inviato alla nuova email",
-		"codeSentTo": "Abbiamo inviato un codice a:"
+		"codeSentTo": "Abbiamo inviato un codice a:",
+		"errors": {
+			"invalidCode": "Codice di autenticazione o indirizzo email non valido",
+			"notSetUp": "Il tuo account non è ancora completamente configurato",
+			"workspaceNotLoaded": "Impossibile caricare il tuo spazio di lavoro. Riprova.",
+			"emptyEmail": "L'email non deve essere vuota",
+			"invalidEmail": "L'email deve essere valida",
+			"noAccount": "Non abbiamo trovato alcun account associato a questa email"
+		}
 	},
 	"myWorkScreen": {
 		"name": "Lavoro",
@@ -179,7 +196,14 @@
 		"inviteEmailFieldPlaceholder": "Inserisci l'indirizzo email",
 		"inviteNameFieldPlaceholder": "Inserisci il nome del membro del team",
 		"sendButton": "Crea",
-		"createNewTeamButton": "Crea Nuovo Team"
+		"createNewTeamButton": "Crea Nuovo Team",
+		"newTeamNameTitle": "Inserisci il nuovo nome del team",
+		"inviteErrors": {
+			"invalidEmail": "L'email non è valida",
+			"emailInTeam": "Questa email è già nel team",
+			"inviteAlreadySent": "Un invito è già stato inviato a questa email",
+			"invalidName": "Il nome non è valido"
+		}
 	},
 	"taskDetailsScreen": {
 		"characterLimitErrorTitle": "Non è stato possibile aggiornare il Titolo del Compito.",
@@ -227,7 +251,10 @@
 		"description": "Descrizione",
 		"descriptionBlockPlaceholder": "Scrivi una descrizione completa del tuo progetto...",
 		"copyDescription": "Descrizione copiata.",
-		"showMore": "Mostra di Più"
+		"showMore": "Mostra di Più",
+		"childIssues": "Problemi Figli",
+		"relatedIssues": "Problemi Correlati",
+		"versions": "Versioni"
 	},
 	"tasksScreen": {
 		"name": "Compiti",
@@ -249,7 +276,13 @@
 		"remove": "Rimuovi",
 		"filter": "Filtro",
 		"apply": "Applica",
-		"reset": "Reimposta"
+		"reset": "Reimposta",
+		"assignedPeople": "{count, plural, one {# persona} other {# persone}}",
+		"workedTasks": "compiti lavorati",
+		"assignedTasks": "compiti assegnati",
+		"unassignedTasks": "compiti non assegnati",
+		"openCount": "{count, plural, one {# aperto} other {# aperti}}",
+		"closedCount": "{count, plural, one {# chiuso} other {# chiusi}}"
 	},
 	"noTeamScreen": {
 		"createYourTeam": "Crea il tuo team o unisciti a uno esistente",
@@ -274,7 +307,8 @@
 			"removeAccountHint": "L'account verrà rimosso da tutti i team, tranne quelli in cui sei l'unico manager",
 			"deleteAccount": "Elimina Account",
 			"deleteAccountHint": "Il tuo account verrà eliminato definitivamente e sarai rimosso da tutti i team",
-			"detect": "Rileva"
+			"detect": "Rileva",
+			"removeEverywhere": "Rimuovi Ovunque"
 		},
 		"teamSection": {
 			"name": "Team",
@@ -303,7 +337,22 @@
 			"changeTeamName": {
 				"mainTitle": "Cambia Nome del Team",
 				"inputPlaceholder": "Nome del Team"
-			}
+			},
+			"activeVersions": "{count, plural, one {C'è # versione attiva} other {Ci sono # versioni attive}}",
+			"activeStatuses": "{count, plural, one {C'è # stato attivo} other {Ci sono # stati attivi}}",
+			"activePriorities": "{count, plural, one {C'è # priorità attiva} other {Ci sono # priorità attive}}",
+			"activeSizes": "{count, plural, one {C'è # dimensione attiva} other {Ci sono # dimensioni attive}}",
+			"activeLabels": "{count, plural, one {C'è # etichetta attiva} other {Ci sono # etichette attive}}",
+			"missingEmployee": "ID dipendente mancante. Accedi di nuovo.",
+			"missingEmployeeShort": "ID dipendente mancante",
+			"invalidTeamName": "Nome del team non valido",
+			"teamCreationFailed": "Creazione del team non riuscita",
+			"alreadyManager": "L'utente è già manager",
+			"nowManager": "L'utente corrente ora è manager!",
+			"onlyManagerCannotQuit": "Sei l'unico manager, non puoi lasciare il team",
+			"quitTeamFailed": "Spiacenti, qualcosa è andato storto!",
+			"removeFromAllTeams": "Rimuovi da tutti i team",
+			"onlyManagerCannotRemove": "Non puoi rimuovere il tuo account dai team in cui sei l'unico manager."
 		},
 		"dangerZone": "Zona Pericolosa",
 		"modalChangeLanguageTitle": "Cambia Lingua",
@@ -326,7 +375,7 @@
 			"versionNamePlaceholder": "Nome della Versione",
 			"cancelButtonText": "Annulla",
 			"createButtonText": "Crea",
-			"updateButtonText": "Modifica"
+			"updateButtonText": "Aggiorna"
 		},
 		"statusScreen": {
 			"mainTitle": "Stati del Compito",
@@ -340,7 +389,7 @@
 			"statusColorPlaceholder": "Colori",
 			"cancelButtonText": "Annulla",
 			"createButtonText": "Crea",
-			"updateButtonText": "Modifica"
+			"updateButtonText": "Aggiorna"
 		},
 		"priorityScreen": {
 			"mainTitle": "Priorità del Compito",
@@ -354,7 +403,7 @@
 			"priorityColorPlaceholder": "Colori",
 			"cancelButtonText": "Annulla",
 			"createButtonText": "Crea",
-			"updateButtonText": "Modifica"
+			"updateButtonText": "Aggiorna"
 		},
 		"labelScreen": {
 			"mainTitle": "Etichette del Compito",
@@ -368,7 +417,7 @@
 			"labelColorPlaceholder": "Colori",
 			"cancelButtonText": "Annulla",
 			"createButtonText": "Crea",
-			"updateButtonText": "Modifica"
+			"updateButtonText": "Aggiorna"
 		},
 		"sizeScreen": {
 			"mainTitle": "Dimensioni del Compito",
@@ -382,18 +431,23 @@
 			"sizeColorPlaceholder": "Colori",
 			"cancelButtonText": "Annulla",
 			"createButtonText": "Crea",
-			"updateButtonText": "Modifica"
+			"updateButtonText": "Aggiorna"
 		},
 		"membersSettingsScreen": {
 			"mainTitle": "Membri e Ruoli",
 			"deleteUserConfirmation": "Sei sicuro di voler rimuovere l'utente selezionato?",
 			"changeRole": "Cambia Ruolo",
-			"delete": "Elimina"
+			"delete": "Elimina",
+			"searchPlaceholder": "Cerca membri",
+			"selected": "Selezionati:",
+			"totalMembers": "Membri totali:"
 		},
 		"changeFullName": {
 			"firstNamePlaceholder": "Nome",
 			"lastNamePlaholder": "Cognome",
-			"mainTitle": "Cambia Nome Completo"
+			"mainTitle": "Cambia Nome Completo",
+			"firstNameError": "Inserisci un nome valido",
+			"lastNameError": "Inserisci un cognome valido"
 		},
 		"changeAvatar": {
 			"recentPictures": "Immagini Recenti",
@@ -402,18 +456,22 @@
 			"selectFromFiles": "Seleziona dai File",
 			"continueButton": "Continua",
 			"logoDeleteConfirmation": "Sei sicuro di voler eliminare il logo?",
-			"avatarDeleteConfirmation": "Sei sicuro di voler eliminare l'avatar?"
+			"avatarDeleteConfirmation": "Sei sicuro di voler eliminare l'avatar?",
+			"unknownSize": "Impossibile selezionare questo file perché la sua dimensione è sconosciuta.",
+			"tooLarge": "L'immagine deve essere inferiore a 2 MB!"
 		},
 		"contact": {
 			"mainTitle": "Cambia i tuoi Contatti",
 			"emailPlaceholder": "Indirizzo Email",
 			"phonePlaceholder": "Numero di Telefono",
 			"emailNotValid": "Fornisci un indirizzo email valido",
-			"phoneNotValid": "Fornisci un numero di telefono valido"
+			"phoneNotValid": "Fornisci un numero di telefono valido",
+			"changeEmailTitle": "Passare a una nuova email?"
 		},
 		"changeTimezone": {
 			"mainTitle": "Cambia Fuso Orario",
-			"selectTimezoneTitle": "Seleziona Fuso Orario"
+			"selectTimezoneTitle": "Seleziona Fuso Orario",
+			"searchPlaceholder": "Cerca fuso orario"
 		},
 		"changeLanguage": {
 			"mainTitle": "Cambia Lingua",

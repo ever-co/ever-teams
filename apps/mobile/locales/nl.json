@@ -9,7 +9,16 @@
 		"discard": "Negeren",
 		"back": "Terug",
 		"save": "Opslaan",
-		"logOut": "Uitloggen"
+		"logOut": "Uitloggen",
+		"yes": "Ja",
+		"no": "Nee",
+		"error": "Fout",
+		"info": "Info",
+		"dismiss": "Verbergen",
+		"somethingWrong": "Er is iets misgegaan",
+		"updateSuccess": "Bijwerken gelukt",
+		"member": "Lid",
+		"manager": "Manager"
 	},
 	"shell": {
 		"tabs": {
@@ -156,7 +165,15 @@
 		"createTeam": "Team maken",
 		"invalidConfirmCode": "Ongeldige bevestigingscode",
 		"securityCodeSent": "De beveiligingscode is naar het nieuwe e-mailadres gestuurd",
-		"codeSentTo": "We hebben een code gestuurd naar:"
+		"codeSentTo": "We hebben een code gestuurd naar:",
+		"errors": {
+			"invalidCode": "Verificatiecode of e-mailadres ongeldig",
+			"notSetUp": "Uw account is nog niet volledig ingesteld",
+			"workspaceNotLoaded": "Uw werkruimte kon niet worden geladen. Probeer het opnieuw.",
+			"emptyEmail": "E-mailadres mag niet leeg zijn",
+			"invalidEmail": "E-mailadres moet geldig zijn",
+			"noAccount": "We konden geen account vinden dat bij dit e-mailadres hoort"
+		}
 	},
 	"myWorkScreen": {
 		"name": "Werk",
@@ -179,7 +196,14 @@
 		"inviteEmailFieldPlaceholder": "Voer het e-mailadres in",
 		"inviteNameFieldPlaceholder": "Voer de naam van het teamlid in",
 		"sendButton": "Maken",
-		"createNewTeamButton": "Nieuw team maken"
+		"createNewTeamButton": "Nieuw team maken",
+		"newTeamNameTitle": "Voer een nieuwe teamnaam in",
+		"inviteErrors": {
+			"invalidEmail": "E-mailadres is ongeldig",
+			"emailInTeam": "Dit e-mailadres zit al in dit team",
+			"inviteAlreadySent": "Er is al een uitnodiging naar dit e-mailadres gestuurd",
+			"invalidName": "Naam is ongeldig"
+		}
 	},
 	"taskDetailsScreen": {
 		"characterLimitErrorTitle": "We konden de taaktitel niet bijwerken.",
@@ -227,7 +251,10 @@
 		"description": "Beschrijving",
 		"descriptionBlockPlaceholder": "Schrijf een volledige beschrijving van je project...",
 		"copyDescription": "Beschrijving gekopieerd.",
-		"showMore": "Meer weergeven"
+		"showMore": "Meer weergeven",
+		"childIssues": "Onderliggende problemen",
+		"relatedIssues": "Gerelateerde problemen",
+		"versions": "Versies"
 	},
 	"tasksScreen": {
 		"name": "Taken",
@@ -249,7 +276,13 @@
 		"remove": "Verwijderen",
 		"filter": "Filter",
 		"apply": "Toepassen",
-		"reset": "Resetten"
+		"reset": "Resetten",
+		"assignedPeople": "{count, plural, one {# persoon} other {# personen}}",
+		"workedTasks": "bewerkte taken",
+		"assignedTasks": "toegewezen taken",
+		"unassignedTasks": "niet-toegewezen taken",
+		"openCount": "{count, plural, other {# open}}",
+		"closedCount": "{count, plural, other {# gesloten}}"
 	},
 	"noTeamScreen": {
 		"createYourTeam": "Maak je eigen team of sluit je aan bij een bestaand team",
@@ -274,7 +307,8 @@
 			"removeAccountHint": "Je account wordt uit alle teams verwijderd, behalve waar je de enige manager bent",
 			"deleteAccount": "Account definitief verwijderen",
 			"deleteAccountHint": "Je account wordt permanent verwijderd en uit alle teams verwijderd",
-			"detect": "Detecteren"
+			"detect": "Detecteren",
+			"removeEverywhere": "Overal verwijderen"
 		},
 		"teamSection": {
 			"name": "Team",
@@ -303,7 +337,22 @@
 			"changeTeamName": {
 				"mainTitle": "Teamnaam wijzigen",
 				"inputPlaceholder": "Teamnaam"
-			}
+			},
+			"activeVersions": "{count, plural, one {Er is # actieve versie} other {Er zijn # actieve versies}}",
+			"activeStatuses": "{count, plural, one {Er is # actieve status} other {Er zijn # actieve statussen}}",
+			"activePriorities": "{count, plural, one {Er is # actieve prioriteit} other {Er zijn # actieve prioriteiten}}",
+			"activeSizes": "{count, plural, one {Er is # actief formaat} other {Er zijn # actieve formaten}}",
+			"activeLabels": "{count, plural, one {Er is # actief label} other {Er zijn # actieve labels}}",
+			"missingEmployee": "Medewerker-ID ontbreekt. Log opnieuw in.",
+			"missingEmployeeShort": "Medewerker-ID ontbreekt",
+			"invalidTeamName": "Ongeldige teamnaam",
+			"teamCreationFailed": "Team aanmaken mislukt",
+			"alreadyManager": "Gebruiker is al manager",
+			"nowManager": "De huidige gebruiker is nu manager!",
+			"onlyManagerCannotQuit": "U bent de enige manager, u kunt het team niet verlaten",
+			"quitTeamFailed": "Sorry, er is iets misgegaan!",
+			"removeFromAllTeams": "Uit alle teams verwijderen",
+			"onlyManagerCannotRemove": "U kunt uw account niet verwijderen uit de teams waarin u de enige manager bent."
 		},
 		"dangerZone": "Gevaarlijke zone",
 		"modalChangeLanguageTitle": "Taal wijzigen",
@@ -326,7 +375,7 @@
 			"versionNamePlaceholder": "Versienaam",
 			"cancelButtonText": "Annuleren",
 			"createButtonText": "Maken",
-			"updateButtonText": "Wijziging"
+			"updateButtonText": "Bijwerken"
 		},
 		"statusScreen": {
 			"mainTitle": "Taakstatussen",
@@ -340,7 +389,7 @@
 			"statusColorPlaceholder": "Kleuren",
 			"cancelButtonText": "Annuleren",
 			"createButtonText": "Maken",
-			"updateButtonText": "Wijziging"
+			"updateButtonText": "Bijwerken"
 		},
 		"priorityScreen": {
 			"mainTitle": "Taakprioriteiten",
@@ -354,7 +403,7 @@
 			"priorityColorPlaceholder": "Kleuren",
 			"cancelButtonText": "Annuleren",
 			"createButtonText": "Maken",
-			"updateButtonText": "Wijziging"
+			"updateButtonText": "Bijwerken"
 		},
 		"labelScreen": {
 			"mainTitle": "Taaklabels",
@@ -368,7 +417,7 @@
 			"labelColorPlaceholder": "Kleuren",
 			"cancelButtonText": "Annuleren",
 			"createButtonText": "Maken",
-			"updateButtonText": "Wijziging"
+			"updateButtonText": "Bijwerken"
 		},
 		"sizeScreen": {
 			"mainTitle": "Taakformaten",
@@ -382,18 +431,23 @@
 			"sizeColorPlaceholder": "Kleuren",
 			"cancelButtonText": "Annuleren",
 			"createButtonText": "Maken",
-			"updateButtonText": "Wijziging"
+			"updateButtonText": "Bijwerken"
 		},
 		"membersSettingsScreen": {
 			"mainTitle": "Leden & rollen",
 			"deleteUserConfirmation": "Weet je zeker dat je de geselecteerde gebruiker wilt verwijderen?",
 			"changeRole": "Rol wijzigen",
-			"delete": "Verwijderen"
+			"delete": "Verwijderen",
+			"searchPlaceholder": "Leden zoeken",
+			"selected": "Geselecteerd:",
+			"totalMembers": "Totaal aantal leden:"
 		},
 		"changeFullName": {
 			"firstNamePlaceholder": "Voornaam",
 			"lastNamePlaholder": "Achternaam",
-			"mainTitle": "Volledige naam wijzigen"
+			"mainTitle": "Volledige naam wijzigen",
+			"firstNameError": "Voer een geldige voornaam in",
+			"lastNameError": "Voer een geldige achternaam in"
 		},
 		"changeAvatar": {
 			"recentPictures": "Recente foto's",
@@ -402,18 +456,22 @@
 			"selectFromFiles": "Kiezen uit bestanden",
 			"continueButton": "Doorgaan",
 			"logoDeleteConfirmation": "Weet je zeker dat je het logo wilt verwijderen?",
-			"avatarDeleteConfirmation": "Weet je zeker dat je de avatar wilt verwijderen?"
+			"avatarDeleteConfirmation": "Weet je zeker dat je de avatar wilt verwijderen?",
+			"unknownSize": "Dit bestand kan niet worden gekozen omdat de grootte onbekend is.",
+			"tooLarge": "De afbeelding moet kleiner zijn dan 2 MB!"
 		},
 		"contact": {
 			"mainTitle": "Je contactgegevens wijzigen",
 			"emailPlaceholder": "E-mailadres",
 			"phonePlaceholder": "Telefoonnummer",
 			"emailNotValid": "Voer een geldig e-mailadres in",
-			"phoneNotValid": "Voer een geldig telefoonnummer in"
+			"phoneNotValid": "Voer een geldig telefoonnummer in",
+			"changeEmailTitle": "Overstappen naar een nieuw e-mailadres?"
 		},
 		"changeTimezone": {
 			"mainTitle": "Tijdzone wijzigen",
-			"selectTimezoneTitle": "Tijdzone kiezen"
+			"selectTimezoneTitle": "Tijdzone kiezen",
+			"searchPlaceholder": "Tijdzone zoeken"
 		},
 		"changeLanguage": {
 			"mainTitle": "Taal wijzigen",

@@ -9,6 +9,7 @@ import { useTeamTasks } from '../../../../services/hooks/features/use-team-tasks
 import { ITeamTask } from '../../../../services/interfaces/ITask';
 import TaskLinkedIssue from '../components/task-linked-issue';
 import CreateLinkedIssueModal from '../components/create-linked-issue-modal';
+import { translate } from '../../../../i18n';
 
 const ChildIssues = () => {
 	const {
@@ -66,7 +67,7 @@ const ChildIssues = () => {
 		<Accordion
 			titleFontSize={14}
 			arrowSize={20}
-			title="Child Issues"
+			title={translate('taskDetailsScreen.childIssues')}
 			headerElement={
 				<View style={styles.headerElement}>
 					<TouchableWithoutFeedback onPress={() => setModalOpen(true)}>

@@ -150,7 +150,9 @@ const UpdateContactForm = ({
 			>
 				<ConfirmEmailPopup newEmail={userEmail} visible={showConfirmPopup} onDismiss={() => onDismissPopup()} />
 				<View style={{ flex: 3 }}>
-					<Text style={{ ...styles.formTitle, color: colors.primary }}>{'Change to new email?'}</Text>
+					<Text style={{ ...styles.formTitle, color: colors.primary }}>
+						{translate('settingScreen.contact.changeEmailTitle')}
+					</Text>
 					<TextInput
 						style={{
 							...styles.styleInput,

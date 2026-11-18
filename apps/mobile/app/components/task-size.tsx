@@ -44,7 +44,7 @@ const TaskSize: FC<TaskSizeProps> = observer(({ task, containerStyle, setSize, s
 			const { response } = await updateTask(taskEdit, task.id);
 			if (response.status !== 202) {
 				showMessage({
-					message: 'Something went wrong',
+					message: translate('common.somethingWrong'),
 					type: 'danger'
 				});
 			}

@@ -9,7 +9,16 @@
 		"discard": "בטל",
 		"back": "חזור",
 		"save": "שמור",
-		"logOut": "התנתקות"
+		"logOut": "התנתקות",
+		"yes": "כן",
+		"no": "לא",
+		"error": "שגיאה",
+		"info": "מידע",
+		"dismiss": "הסתרה",
+		"somethingWrong": "משהו השתבש",
+		"updateSuccess": "העדכון הצליח",
+		"member": "חבר צוות",
+		"manager": "מנהל"
 	},
 	"shell": {
 		"tabs": {
@@ -156,7 +165,15 @@
 		"createTeam": "יצירת צוות",
 		"invalidConfirmCode": "קוד האישור לא תקין",
 		"securityCodeSent": "קוד האבטחה נשלח לכתובת הדוא\"ל החדשה",
-		"codeSentTo": "שלחנו קוד אל:"
+		"codeSentTo": "שלחנו קוד אל:",
+		"errors": {
+			"invalidCode": "קוד האימות או כתובת האימייל אינם תקינים",
+			"notSetUp": "החשבון עדיין לא הוגדר במלואו",
+			"workspaceNotLoaded": "לא ניתן לטעון את סביבת העבודה. נסו שוב.",
+			"emptyEmail": "כתובת האימייל לא יכולה להיות ריקה",
+			"invalidEmail": "כתובת האימייל חייבת להיות תקינה",
+			"noAccount": "לא מצאנו חשבון שמשויך לכתובת האימייל הזו"
+		}
 	},
 	"myWorkScreen": {
 		"name": "עבודה",
@@ -179,7 +196,14 @@
 		"inviteEmailFieldPlaceholder": "כתובת דוא\"ל",
 		"inviteNameFieldPlaceholder": "שם חבר הצוות",
 		"sendButton": "צור",
-		"createNewTeamButton": "יצירת צוות חדש"
+		"createNewTeamButton": "יצירת צוות חדש",
+		"newTeamNameTitle": "הזינו שם חדש לצוות",
+		"inviteErrors": {
+			"invalidEmail": "כתובת האימייל אינה תקינה",
+			"emailInTeam": "כתובת האימייל כבר נמצאת בצוות",
+			"inviteAlreadySent": "כבר נשלחה הזמנה לכתובת האימייל הזו",
+			"invalidName": "השם אינו תקין"
+		}
 	},
 	"taskDetailsScreen": {
 		"characterLimitErrorTitle": "לא יכולנו לעדכן את כותרת המשימה.",
@@ -227,7 +251,10 @@
 		"description": "תיאור",
 		"descriptionBlockPlaceholder": "כתוב תיאור מלא של הפרויקט שלך...",
 		"copyDescription": "התיאור הועתק.",
-		"showMore": "הצגת עוד"
+		"showMore": "הצגת עוד",
+		"childIssues": "בעיות משנה",
+		"relatedIssues": "בעיות קשורות",
+		"versions": "גרסאות"
 	},
 	"tasksScreen": {
 		"name": "משימות",
@@ -249,7 +276,13 @@
 		"remove": "הסר",
 		"filter": "סינון",
 		"apply": "החל",
-		"reset": "איפוס"
+		"reset": "איפוס",
+		"assignedPeople": "{count, plural, one {אדם אחד} two {שני אנשים} other {# אנשים}}",
+		"workedTasks": "משימות שעבדו עליהן",
+		"assignedTasks": "משימות שהוקצו",
+		"unassignedTasks": "משימות שלא הוקצו",
+		"openCount": "{count, plural, one {פתוחה אחת} two {שתיים פתוחות} other {# פתוחות}}",
+		"closedCount": "{count, plural, one {סגורה אחת} two {שתיים סגורות} other {# סגורות}}"
 	},
 	"noTeamScreen": {
 		"createYourTeam": "צור צוות משלך או הצטרף לצוות קיים",
@@ -274,7 +307,8 @@
 			"removeAccountHint": "החשבון יוסר מכל הצוותים, מלבד צוותים שבהם אתה המנהל היחיד",
 			"deleteAccount": "מחיקת החשבון",
 			"deleteAccountHint": "החשבון שלך יימחק לצמיתות ויוסר מכל הצוותים",
-			"detect": "זהה"
+			"detect": "זהה",
+			"removeEverywhere": "הסרה מכל מקום"
 		},
 		"teamSection": {
 			"name": "צוות",
@@ -303,7 +337,22 @@
 			"changeTeamName": {
 				"mainTitle": "שינוי שם הצוות",
 				"inputPlaceholder": "שם הצוות"
-			}
+			},
+			"activeVersions": "{count, plural, one {יש גרסה פעילה אחת} two {יש שתי גרסאות פעילות} other {יש # גרסאות פעילות}}",
+			"activeStatuses": "{count, plural, one {יש סטטוס פעיל אחד} two {יש שני סטטוסים פעילים} other {יש # סטטוסים פעילים}}",
+			"activePriorities": "{count, plural, one {יש עדיפות פעילה אחת} two {יש שתי עדיפויות פעילות} other {יש # עדיפויות פעילות}}",
+			"activeSizes": "{count, plural, one {יש גודל פעיל אחד} two {יש שני גדלים פעילים} other {יש # גדלים פעילים}}",
+			"activeLabels": "{count, plural, one {יש תווית פעילה אחת} two {יש שתי תוויות פעילות} other {יש # תוויות פעילות}}",
+			"missingEmployee": "מזהה העובד חסר. יש להתחבר מחדש.",
+			"missingEmployeeShort": "מזהה העובד חסר",
+			"invalidTeamName": "שם הצוות אינו תקין",
+			"teamCreationFailed": "יצירת הצוות נכשלה",
+			"alreadyManager": "המשתמש כבר מנהל",
+			"nowManager": "המשתמש הנוכחי הוא עכשיו מנהל!",
+			"onlyManagerCannotQuit": "אי אפשר לעזוב את הצוות כשאין בו מנהל נוסף",
+			"quitTeamFailed": "מצטערים, משהו השתבש!",
+			"removeFromAllTeams": "הסרה מכל הצוותים",
+			"onlyManagerCannotRemove": "אי אפשר להסיר את החשבון מצוותים שאין בהם מנהל נוסף."
 		},
 		"dangerZone": "אזור מסוכן",
 		"modalChangeLanguageTitle": "שינוי השפה",
@@ -326,7 +375,7 @@
 			"versionNamePlaceholder": "שם הגרסה",
 			"cancelButtonText": "בטל",
 			"createButtonText": "צור",
-			"updateButtonText": "שינוי"
+			"updateButtonText": "עדכן"
 		},
 		"statusScreen": {
 			"mainTitle": "סטטוסי משימה",
@@ -340,7 +389,7 @@
 			"statusColorPlaceholder": "צבעים",
 			"cancelButtonText": "בטל",
 			"createButtonText": "צור",
-			"updateButtonText": "שינוי"
+			"updateButtonText": "עדכן"
 		},
 		"priorityScreen": {
 			"mainTitle": "עדיפויות משימה",
@@ -354,7 +403,7 @@
 			"priorityColorPlaceholder": "צבעים",
 			"cancelButtonText": "בטל",
 			"createButtonText": "צור",
-			"updateButtonText": "שינוי"
+			"updateButtonText": "עדכן"
 		},
 		"labelScreen": {
 			"mainTitle": "תוויות משימה",
@@ -368,7 +417,7 @@
 			"labelColorPlaceholder": "צבעים",
 			"cancelButtonText": "בטל",
 			"createButtonText": "צור",
-			"updateButtonText": "שינוי"
+			"updateButtonText": "עדכן"
 		},
 		"sizeScreen": {
 			"mainTitle": "גדלי משימה",
@@ -382,18 +431,23 @@
 			"sizeColorPlaceholder": "צבעים",
 			"cancelButtonText": "בטל",
 			"createButtonText": "צור",
-			"updateButtonText": "שינוי"
+			"updateButtonText": "עדכן"
 		},
 		"membersSettingsScreen": {
 			"mainTitle": "חברים ותפקידים",
 			"deleteUserConfirmation": "האם אתה בטוח שברצונך להסיר את המשתמש שנבחר?",
 			"changeRole": "שינוי תפקיד",
-			"delete": "מחק"
+			"delete": "מחק",
+			"searchPlaceholder": "חיפוש חברי צוות",
+			"selected": "נבחרו:",
+			"totalMembers": "סך כל חברי הצוות:"
 		},
 		"changeFullName": {
 			"firstNamePlaceholder": "שם פרטי",
 			"lastNamePlaholder": "שם משפחה",
-			"mainTitle": "שינוי השם המלא"
+			"mainTitle": "שינוי השם המלא",
+			"firstNameError": "יש להזין שם פרטי תקין",
+			"lastNameError": "יש להזין שם משפחה תקין"
 		},
 		"changeAvatar": {
 			"recentPictures": "תמונות אחרונות",
@@ -402,18 +456,22 @@
 			"selectFromFiles": "בחירה מהקבצים",
 			"continueButton": "המשך",
 			"logoDeleteConfirmation": "האם אתה בטוח שברצונך למחוק את הלוגו?",
-			"avatarDeleteConfirmation": "האם אתה בטוח שברצונך למחוק את האווטר?"
+			"avatarDeleteConfirmation": "האם אתה בטוח שברצונך למחוק את האווטר?",
+			"unknownSize": "לא ניתן לבחור בקובץ הזה כי הגודל שלו לא ידוע.",
+			"tooLarge": "גודל התמונה חייב להיות קטן מ-2MB!"
 		},
 		"contact": {
 			"mainTitle": "שינוי פרטי הקשר שלך",
 			"emailPlaceholder": "כתובת דוא\"ל",
 			"phonePlaceholder": "מספר טלפון",
 			"emailNotValid": "אנא ספק כתובת אימייל חוקית",
-			"phoneNotValid": "אנא ספק מספר טלפון חוקי"
+			"phoneNotValid": "אנא ספק מספר טלפון חוקי",
+			"changeEmailTitle": "לעבור לכתובת אימייל חדשה?"
 		},
 		"changeTimezone": {
 			"mainTitle": "שינוי אזור הזמן",
-			"selectTimezoneTitle": "בחירת אזור זמן"
+			"selectTimezoneTitle": "בחירת אזור זמן",
+			"searchPlaceholder": "חיפוש אזור זמן"
 		},
 		"changeLanguage": {
 			"mainTitle": "שינוי השפה",

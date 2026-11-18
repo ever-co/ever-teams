@@ -9,7 +9,16 @@
 		"discard": "Отбросить",
 		"back": "Назад",
 		"save": "Сохранить",
-		"logOut": "Выйти"
+		"logOut": "Выйти",
+		"yes": "Да",
+		"no": "Нет",
+		"error": "Ошибка",
+		"info": "Информация",
+		"dismiss": "Скрыть",
+		"somethingWrong": "Что-то пошло не так",
+		"updateSuccess": "Обновлено",
+		"member": "Участник",
+		"manager": "Менеджер"
 	},
 	"shell": {
 		"tabs": {
@@ -156,7 +165,15 @@
 		"createTeam": "Создать команду",
 		"invalidConfirmCode": "Неверный код подтверждения",
 		"securityCodeSent": "Код безопасности отправлен на новый адрес электронной почты",
-		"codeSentTo": "Мы отправили код на:"
+		"codeSentTo": "Мы отправили код на:",
+		"errors": {
+			"invalidCode": "Неверный код подтверждения или адрес электронной почты",
+			"notSetUp": "Ваша учётная запись ещё не полностью настроена",
+			"workspaceNotLoaded": "Не удалось загрузить рабочее пространство. Попробуйте ещё раз.",
+			"emptyEmail": "Адрес электронной почты не должен быть пустым",
+			"invalidEmail": "Укажите действительный адрес электронной почты",
+			"noAccount": "Мы не нашли учётную запись с этим адресом электронной почты"
+		}
 	},
 	"myWorkScreen": {
 		"name": "Работа",
@@ -179,7 +196,14 @@
 		"inviteEmailFieldPlaceholder": "Введите адрес электронной почты",
 		"inviteNameFieldPlaceholder": "Введите имя участника команды",
 		"sendButton": "Создать",
-		"createNewTeamButton": "Создать новую команду"
+		"createNewTeamButton": "Создать новую команду",
+		"newTeamNameTitle": "Введите новое название команды",
+		"inviteErrors": {
+			"invalidEmail": "Неверный адрес электронной почты",
+			"emailInTeam": "Этот адрес уже есть в команде",
+			"inviteAlreadySent": "Приглашение на этот адрес уже отправлено",
+			"invalidName": "Неверное имя"
+		}
 	},
 	"taskDetailsScreen": {
 		"characterLimitErrorTitle": "Мы не смогли обновить заголовок задачи.",
@@ -227,7 +251,10 @@
 		"description": "Описание",
 		"descriptionBlockPlaceholder": "Напишите полное описание вашего проекта...",
 		"copyDescription": "Описание скопировано.",
-		"showMore": "Показать больше"
+		"showMore": "Показать больше",
+		"childIssues": "Дочерние задачи",
+		"relatedIssues": "Связанные задачи",
+		"versions": "Версии"
 	},
 	"tasksScreen": {
 		"name": "Задачи",
@@ -249,7 +276,13 @@
 		"remove": "Удалить",
 		"filter": "Фильтр",
 		"apply": "Применить",
-		"reset": "Сброс"
+		"reset": "Сброс",
+		"assignedPeople": "{count, plural, one {# человек} few {# человека} many {# человек} other {# человека}}",
+		"workedTasks": "задачи, над которыми работали",
+		"assignedTasks": "назначенные задачи",
+		"unassignedTasks": "неназначенные задачи",
+		"openCount": "{count, plural, one {# открытая} few {# открытые} many {# открытых} other {# открытой}}",
+		"closedCount": "{count, plural, one {# закрытая} few {# закрытые} many {# закрытых} other {# закрытой}}"
 	},
 	"noTeamScreen": {
 		"createYourTeam": "Создайте свою команду или присоединитесь к существующей",
@@ -274,7 +307,8 @@
 			"removeAccountHint": "Учётная запись будет убрана из всех команд, кроме тех, где вы единственный менеджер",
 			"deleteAccount": "Удалить учётную запись",
 			"deleteAccountHint": "Ваша учётная запись будет удалена навсегда и убрана из всех команд",
-			"detect": "Определить"
+			"detect": "Определить",
+			"removeEverywhere": "Убрать отовсюду"
 		},
 		"teamSection": {
 			"name": "Команда",
@@ -303,7 +337,22 @@
 			"changeTeamName": {
 				"mainTitle": "Изменить название команды",
 				"inputPlaceholder": "Название команды"
-			}
+			},
+			"activeVersions": "{count, plural, one {# активная версия} few {# активные версии} many {# активных версий} other {# активной версии}}",
+			"activeStatuses": "{count, plural, one {# активный статус} few {# активных статуса} many {# активных статусов} other {# активного статуса}}",
+			"activePriorities": "{count, plural, one {# активный приоритет} few {# активных приоритета} many {# активных приоритетов} other {# активного приоритета}}",
+			"activeSizes": "{count, plural, one {# активный размер} few {# активных размера} many {# активных размеров} other {# активного размера}}",
+			"activeLabels": "{count, plural, one {# активная метка} few {# активные метки} many {# активных меток} other {# активной метки}}",
+			"missingEmployee": "Не найден идентификатор сотрудника. Войдите снова.",
+			"missingEmployeeShort": "Не найден идентификатор сотрудника",
+			"invalidTeamName": "Неверное название команды",
+			"teamCreationFailed": "Не удалось создать команду",
+			"alreadyManager": "Пользователь уже менеджер",
+			"nowManager": "Текущий пользователь теперь менеджер!",
+			"onlyManagerCannotQuit": "Вы единственный менеджер и не можете покинуть команду",
+			"quitTeamFailed": "Извините, что-то пошло не так!",
+			"removeFromAllTeams": "Убрать из всех команд",
+			"onlyManagerCannotRemove": "Нельзя убрать учётную запись из команд, где вы единственный менеджер."
 		},
 		"dangerZone": "Опасная зона",
 		"modalChangeLanguageTitle": "Изменить язык",
@@ -326,7 +375,7 @@
 			"versionNamePlaceholder": "Название версии",
 			"cancelButtonText": "Отмена",
 			"createButtonText": "Создать",
-			"updateButtonText": "Изменение"
+			"updateButtonText": "Обновить"
 		},
 		"statusScreen": {
 			"mainTitle": "Статусы задач",
@@ -340,7 +389,7 @@
 			"statusColorPlaceholder": "Цвета",
 			"cancelButtonText": "Отмена",
 			"createButtonText": "Создать",
-			"updateButtonText": "Изменение"
+			"updateButtonText": "Обновить"
 		},
 		"priorityScreen": {
 			"mainTitle": "Приоритеты задач",
@@ -354,7 +403,7 @@
 			"priorityColorPlaceholder": "Цвета",
 			"cancelButtonText": "Отмена",
 			"createButtonText": "Создать",
-			"updateButtonText": "Изменение"
+			"updateButtonText": "Обновить"
 		},
 		"labelScreen": {
 			"mainTitle": "Метки задач",
@@ -368,7 +417,7 @@
 			"labelColorPlaceholder": "Цвета",
 			"cancelButtonText": "Отмена",
 			"createButtonText": "Создать",
-			"updateButtonText": "Изменение"
+			"updateButtonText": "Обновить"
 		},
 		"sizeScreen": {
 			"mainTitle": "Размеры задач",
@@ -382,18 +431,23 @@
 			"sizeColorPlaceholder": "Цвета",
 			"cancelButtonText": "Отмена",
 			"createButtonText": "Создать",
-			"updateButtonText": "Изменение"
+			"updateButtonText": "Обновить"
 		},
 		"membersSettingsScreen": {
 			"mainTitle": "Участники и роли",
 			"deleteUserConfirmation": "Вы уверены, что хотите удалить выбранного пользователя?",
 			"changeRole": "Изменить роль",
-			"delete": "Удалить"
+			"delete": "Удалить",
+			"searchPlaceholder": "Поиск участников",
+			"selected": "Выбрано:",
+			"totalMembers": "Всего участников:"
 		},
 		"changeFullName": {
 			"firstNamePlaceholder": "Имя",
 			"lastNamePlaholder": "Фамилия",
-			"mainTitle": "Изменить полное имя"
+			"mainTitle": "Изменить полное имя",
+			"firstNameError": "Укажите правильное имя",
+			"lastNameError": "Укажите правильную фамилию"
 		},
 		"changeAvatar": {
 			"recentPictures": "Недавние изображения",
@@ -402,18 +456,22 @@
 			"selectFromFiles": "Выбрать из файлов",
 			"continueButton": "Продолжить",
 			"logoDeleteConfirmation": "Вы уверены, что хотите удалить логотип?",
-			"avatarDeleteConfirmation": "Вы уверены, что хотите удалить аватар?"
+			"avatarDeleteConfirmation": "Вы уверены, что хотите удалить аватар?",
+			"unknownSize": "Нельзя выбрать этот файл: его размер неизвестен.",
+			"tooLarge": "Размер изображения должен быть меньше 2 МБ!"
 		},
 		"contact": {
 			"mainTitle": "Изменить контакты",
 			"emailPlaceholder": "Адрес электронной почты",
 			"phonePlaceholder": "Номер телефона",
 			"emailNotValid": "Пожалуйста, укажите действительный адрес электронной почты",
-			"phoneNotValid": "Пожалуйста, укажите действительный номер телефона"
+			"phoneNotValid": "Пожалуйста, укажите действительный номер телефона",
+			"changeEmailTitle": "Сменить адрес электронной почты?"
 		},
 		"changeTimezone": {
 			"mainTitle": "Изменить часовой пояс",
-			"selectTimezoneTitle": "Выберите часовой пояс"
+			"selectTimezoneTitle": "Выберите часовой пояс",
+			"searchPlaceholder": "Поиск часового пояса"
 		},
 		"changeLanguage": {
 			"mainTitle": "Изменить язык",

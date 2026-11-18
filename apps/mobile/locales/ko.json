@@ -9,7 +9,16 @@
 		"discard": "버리기",
 		"back": "뒤로",
 		"save": "저장",
-		"logOut": "로그아웃"
+		"logOut": "로그아웃",
+		"yes": "예",
+		"no": "아니요",
+		"error": "오류",
+		"info": "정보",
+		"dismiss": "닫기",
+		"somethingWrong": "문제가 발생했습니다",
+		"updateSuccess": "업데이트되었습니다",
+		"member": "멤버",
+		"manager": "매니저"
 	},
 	"shell": {
 		"tabs": {
@@ -156,7 +165,15 @@
 		"createTeam": "팀 만들기",
 		"invalidConfirmCode": "잘못된 확인 코드",
 		"securityCodeSent": "보안 코드가 새 이메일로 전송되었습니다",
-		"codeSentTo": "코드를 보냈습니다:"
+		"codeSentTo": "코드를 보냈습니다:",
+		"errors": {
+			"invalidCode": "인증 코드 또는 이메일 주소가 올바르지 않습니다",
+			"notSetUp": "계정 설정이 아직 완료되지 않았습니다",
+			"workspaceNotLoaded": "워크스페이스를 불러오지 못했습니다. 다시 시도하세요.",
+			"emptyEmail": "이메일을 입력하세요",
+			"invalidEmail": "올바른 이메일을 입력하세요",
+			"noAccount": "이 이메일과 연결된 계정을 찾을 수 없습니다"
+		}
 	},
 	"myWorkScreen": {
 		"name": "일하다",
@@ -179,7 +196,14 @@
 		"inviteEmailFieldPlaceholder": "이메일 주소 입력",
 		"inviteNameFieldPlaceholder": "팀원 이름 입력",
 		"sendButton": "보내다",
-		"createNewTeamButton": "새 팀 만들기"
+		"createNewTeamButton": "새 팀 만들기",
+		"newTeamNameTitle": "새 팀 이름을 입력하세요",
+		"inviteErrors": {
+			"invalidEmail": "이메일이 올바르지 않습니다",
+			"emailInTeam": "이 이메일은 이미 팀에 있습니다",
+			"inviteAlreadySent": "이 이메일로 이미 초대를 보냈습니다",
+			"invalidName": "이름이 올바르지 않습니다"
+		}
 	},
 	"taskDetailsScreen": {
 		"characterLimitErrorTitle": "작업 제목을 업데이트할 수 없습니다.",
@@ -227,7 +251,10 @@
 		"description": "설명",
 		"descriptionBlockPlaceholder": "프로젝트에 대한 완전한 설명을 작성하세요...",
 		"copyDescription": "설명이 복사되었습니다.",
-		"showMore": "더 보기"
+		"showMore": "더 보기",
+		"childIssues": "하위 이슈",
+		"relatedIssues": "관련 이슈",
+		"versions": "버전"
 	},
 	"tasksScreen": {
 		"name": "작업",
@@ -249,7 +276,13 @@
 		"remove": "제거",
 		"filter": "필터",
 		"apply": "적용하다",
-		"reset": "초기화"
+		"reset": "초기화",
+		"assignedPeople": "{count, plural, other {#명}}",
+		"workedTasks": "진행한 작업",
+		"assignedTasks": "할당된 작업",
+		"unassignedTasks": "할당되지 않은 작업",
+		"openCount": "{count, plural, other {열림 #개}}",
+		"closedCount": "{count, plural, other {닫힘 #개}}"
 	},
 	"noTeamScreen": {
 		"createYourTeam": "나만의 팀을 만들거나 기존 팀에 합류하세요",
@@ -274,7 +307,8 @@
 			"removeAccountHint": "내가 유일한 매니저인 팀을 제외한 모든 팀에서 계정이 제거됩니다",
 			"deleteAccount": "계정 삭제",
 			"deleteAccountHint": "계정이 영구적으로 삭제되고 모든 팀에서 제거됩니다",
-			"detect": "감지"
+			"detect": "감지",
+			"removeEverywhere": "모든 곳에서 제거"
 		},
 		"teamSection": {
 			"name": "팀",
@@ -303,7 +337,22 @@
 			"changeTeamName": {
 				"mainTitle": "팀 이름 변경",
 				"inputPlaceholder": "팀 이름"
-			}
+			},
+			"activeVersions": "{count, plural, other {활성 버전이 #개 있습니다}}",
+			"activeStatuses": "{count, plural, other {활성 상태가 #개 있습니다}}",
+			"activePriorities": "{count, plural, other {활성 우선순위가 #개 있습니다}}",
+			"activeSizes": "{count, plural, other {활성 크기가 #개 있습니다}}",
+			"activeLabels": "{count, plural, other {활성 라벨이 #개 있습니다}}",
+			"missingEmployee": "직원 ID가 없습니다. 다시 로그인하세요.",
+			"missingEmployeeShort": "직원 ID가 없습니다",
+			"invalidTeamName": "팀 이름이 올바르지 않습니다",
+			"teamCreationFailed": "팀을 만들지 못했습니다",
+			"alreadyManager": "이미 매니저인 사용자입니다",
+			"nowManager": "현재 사용자가 이제 매니저입니다!",
+			"onlyManagerCannotQuit": "유일한 매니저이므로 팀을 나갈 수 없습니다",
+			"quitTeamFailed": "죄송합니다. 문제가 발생했습니다!",
+			"removeFromAllTeams": "모든 팀에서 제거",
+			"onlyManagerCannotRemove": "유일한 매니저인 팀에서는 계정을 제거할 수 없습니다."
 		},
 		"dangerZone": "위험 구역",
 		"modalChangeLanguageTitle": "언어 변경",
@@ -388,12 +437,17 @@
 			"mainTitle": "팀원 및 역할",
 			"deleteUserConfirmation": "선택한 사용자를 삭제하시겠습니까?",
 			"changeRole": "역할 변경",
-			"delete": "삭제"
+			"delete": "삭제",
+			"searchPlaceholder": "멤버 검색",
+			"selected": "선택됨:",
+			"totalMembers": "전체 멤버:"
 		},
 		"changeFullName": {
 			"firstNamePlaceholder": "이름",
 			"lastNamePlaholder": "성",
-			"mainTitle": "성명 변경"
+			"mainTitle": "성명 변경",
+			"firstNameError": "올바른 이름을 입력하세요",
+			"lastNameError": "올바른 성을 입력하세요"
 		},
 		"changeAvatar": {
 			"recentPictures": "최근 사진",
@@ -402,18 +456,22 @@
 			"selectFromFiles": "파일에서 선택",
 			"continueButton": "계속",
 			"logoDeleteConfirmation": "로고를 삭제하시겠습니까?",
-			"avatarDeleteConfirmation": "아바타를 삭제하시겠습니까?"
+			"avatarDeleteConfirmation": "아바타를 삭제하시겠습니까?",
+			"unknownSize": "파일 크기를 알 수 없어 이 파일을 선택할 수 없습니다.",
+			"tooLarge": "이미지 크기는 2MB보다 작아야 합니다!"
 		},
 		"contact": {
 			"mainTitle": "연락처 변경",
 			"emailPlaceholder": "이메일 주소",
 			"phonePlaceholder": "전화번호",
 			"emailNotValid": "올바른 이메일을 입력하세요",
-			"phoneNotValid": "올바른 전화번호를 입력하세요"
+			"phoneNotValid": "올바른 전화번호를 입력하세요",
+			"changeEmailTitle": "새 이메일로 변경할까요?"
 		},
 		"changeTimezone": {
 			"mainTitle": "시간대 변경",
-			"selectTimezoneTitle": "시간대 선택"
+			"selectTimezoneTitle": "시간대 선택",
+			"searchPlaceholder": "시간대 검색"
 		},
 		"changeLanguage": {
 			"mainTitle": "언어 변경",

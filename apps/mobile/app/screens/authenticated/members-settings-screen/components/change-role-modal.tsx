@@ -17,6 +17,7 @@ import { Feather, AntDesign } from "@expo/vector-icons"
 import { useAppTheme } from "../../../../theme"
 import { OT_Member } from "../../../../services/interfaces/IOrganizationTeam"
 import { useTeamMemberCard } from "../../../../services/hooks/features/use-team-member-card"
+import { translate } from "../../../../i18n"
 
 interface IChangeRoleModal {
 	onDismiss: () => void
@@ -28,6 +29,14 @@ const roles = [
 	{ name: "Member", color: "#D4EFDF" },
 	{ name: "MANAGER", color: "#008080" },
 ]
+
+// The role names are the API's; the person reads them in their language
+function roleLabel(name: string): string {
+	if (name === "MANAGER") {
+		return translate("common.manager")
+	}
+	return translate("common.member")
+}
 
 const ChangeRoleModal: React.FC<IChangeRoleModal> = ({ onDismiss, visible, member }) => {
 	const { colors } = useAppTheme()
@@ -61,7 +70,7 @@ const ChangeRoleModal: React.FC<IChangeRoleModal> = ({ onDismiss, visible, membe
 								},
 							]}
 						>
-							<Text>{role.name}</Text>
+							<Text>{roleLabel(role.name)}</Text>
 							{member?.role?.name.toLowerCase() === role.name.toLowerCase() ||
 							(!member?.role?.name && role.name === "Member") ? (
 								<AntDesign name="check-circle" size={24} color="#27AE60" />

@@ -45,14 +45,16 @@ const UserRemoveAccount = ({
 				</View>
 			</TouchableWithoutFeedback>
 			<View style={{ ...styles.mainContainer, backgroundColor: dark ? '#1E2025' : colors.background }}>
-				<Text style={{ ...styles.title, color: colors.primary }}>Are you sure ?</Text>
+				<Text style={{ ...styles.title, color: colors.primary }}>
+					{translate('settingScreen.teamSection.areYouSure')}
+				</Text>
 				<Text style={styles.warningMessage}>
 					{actionType === 'Delete'
 						? translate('settingScreen.personalSection.deleteAccountHint')
 						: translate('settingScreen.personalSection.removeAccountHint')}
 				</Text>
 				<TouchableOpacity style={styles.button} onPress={() => onSubmit()}>
-					<Text style={styles.buttonText}>Remove Everywhere</Text>
+					<Text style={styles.buttonText}>{translate('settingScreen.personalSection.removeEverywhere')}</Text>
 				</TouchableOpacity>
 			</View>
 		</View>

@@ -27,6 +27,7 @@ import { useStores } from '../../../../models';
 import IssuesModal from '../../../../components/issues-modal';
 import { SettingScreenNavigationProp } from '../../../../navigators/authenticated-navigator';
 import { useNavigation } from '@react-navigation/native';
+import { translate } from '../../../../i18n';
 
 export type ListItemProps = {
 	active?: boolean;
@@ -92,7 +93,7 @@ export const ListItemContent: React.FC<ListItemProps> = observer((props) => {
 						memberTask={props.task}
 						isAuthUser={props.profile.isAuthUser}
 						isActiveTask={props.activeAuthTask}
-						title={'Total time'}
+						title={translate('teamScreen.cardTotalTimeLabel')}
 						containerStyle={{ flexDirection: 'row', alignItems: 'center' }}
 						totalTimeText={{ color: colors.primary }}
 					/>
@@ -172,15 +173,17 @@ export const ListItemContent: React.FC<ListItemProps> = observer((props) => {
 						{props.isAssigned ? (
 							<WorkedOnTaskHours
 								memberTask={props.task}
-								title={'Today Work'}
+								title={translate('teamScreen.cardTodayWorkLabel')}
 								containerStyle={{ alignItems: 'center' }}
 								totalTimeText={{ color: colors.primary }}
 							/>
 						) : (
 							<View style={{ left: 12, justifyContent: 'center', alignItems: 'center' }}>
-								<Text style={[styles.timeHeading, { color: colors.tertiary }]}>Assigned</Text>
+								<Text style={[styles.timeHeading, { color: colors.tertiary }]}>
+									{translate('tasksScreen.assignedTab')}
+								</Text>
 								<Text style={[styles.timeNumber, { color: colors.primary }]}>
-									{props.task.members.length} people
+									{translate('tasksScreen.assignedPeople', { count: props.task.members.length })}
 								</Text>
 							</View>
 						)}
@@ -237,7 +240,7 @@ const SidePopUp: FC<IMenuProps> = ({ props, setShowMenu, setEditTitle, setEnable
 						setShowMenu();
 					}}
 				>
-					Edit Task
+					{translate('tasksScreen.editTaskLabel')}
 				</ListItem>
 				<ListItem
 					textStyle={[styles.dropdownTxt, { color: colors.primary }]}
@@ -246,7 +249,7 @@ const SidePopUp: FC<IMenuProps> = ({ props, setShowMenu, setEditTitle, setEnable
 						setShowMenu();
 					}}
 				>
-					Estimate
+					{translate('myWorkScreen.estimateLabel')}
 				</ListItem>
 
 				{!isAssigned && (
@@ -257,7 +260,7 @@ const SidePopUp: FC<IMenuProps> = ({ props, setShowMenu, setEditTitle, setEnable
 							setShowMenu();
 						}}
 					>
-						Assign Task
+						{translate('tasksScreen.assignTaskButton')}
 					</ListItem>
 				)}
 
@@ -270,7 +273,7 @@ const SidePopUp: FC<IMenuProps> = ({ props, setShowMenu, setEditTitle, setEnable
 							setShowMenu();
 						}}
 					>
-						Unassign Task
+						{translate('tasksScreen.unassignTaskLabel')}
 					</ListItem>
 				)}
 			</View>

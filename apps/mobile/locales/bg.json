@@ -9,7 +9,16 @@
 		"discard": "Изхвърляне",
 		"back": "Назад",
 		"save": "Запазване",
-		"logOut": "Изход"
+		"logOut": "Изход",
+		"yes": "Да",
+		"no": "Не",
+		"error": "Грешка",
+		"info": "Информация",
+		"dismiss": "Скриване",
+		"somethingWrong": "Нещо се обърка",
+		"updateSuccess": "Успешно обновено",
+		"member": "Член",
+		"manager": "Мениджър"
 	},
 	"shell": {
 		"tabs": {
@@ -156,7 +165,15 @@
 		"createTeam": "Създаване на екип",
 		"invalidConfirmCode": "Невалиден код за потвърждение",
 		"securityCodeSent": "Кодът за сигурност е изпратен на новия имейл",
-		"codeSentTo": "Изпратихме код на:"
+		"codeSentTo": "Изпратихме код на:",
+		"errors": {
+			"invalidCode": "Невалиден код за удостоверяване или имейл адрес",
+			"notSetUp": "Акаунтът ви все още не е напълно настроен",
+			"workspaceNotLoaded": "Работното ви пространство не можа да се зареди. Опитайте отново.",
+			"emptyEmail": "Имейлът не трябва да е празен",
+			"invalidEmail": "Имейлът трябва да е валиден",
+			"noAccount": "Не намерихме акаунт, свързан с този имейл"
+		}
 	},
 	"myWorkScreen": {
 		"name": "Работа",
@@ -179,7 +196,14 @@
 		"inviteEmailFieldPlaceholder": "Въведете имейл адрес",
 		"inviteNameFieldPlaceholder": "Въведете името на члена на екипа",
 		"sendButton": "Създаване",
-		"createNewTeamButton": "Създай нов екип"
+		"createNewTeamButton": "Създай нов екип",
+		"newTeamNameTitle": "Въведете ново име на екипа",
+		"inviteErrors": {
+			"invalidEmail": "Имейлът не е валиден",
+			"emailInTeam": "Този имейл вече е в екипа",
+			"inviteAlreadySent": "Вече е изпратена покана до този имейл",
+			"invalidName": "Името не е валидно"
+		}
 	},
 	"taskDetailsScreen": {
 		"characterLimitErrorTitle": "Не можахме да обновим заглавието на задачата.",
@@ -227,7 +251,10 @@
 		"description": "Описание",
 		"descriptionBlockPlaceholder": "Напишете пълно описание на проекта си...",
 		"copyDescription": "Описанието е копирано.",
-		"showMore": "Покажи още"
+		"showMore": "Покажи още",
+		"childIssues": "Подчинени проблеми",
+		"relatedIssues": "Сродни проблеми",
+		"versions": "Версии"
 	},
 	"tasksScreen": {
 		"name": "Задачи",
@@ -249,7 +276,13 @@
 		"remove": "Премахване",
 		"filter": "Филтър",
 		"apply": "Приложи",
-		"reset": "Нулиране"
+		"reset": "Нулиране",
+		"assignedPeople": "{count, plural, one {# човек} other {# души}}",
+		"workedTasks": "задачи, по които е работено",
+		"assignedTasks": "възложени задачи",
+		"unassignedTasks": "невъзложени задачи",
+		"openCount": "{count, plural, one {# отворена} other {# отворени}}",
+		"closedCount": "{count, plural, one {# затворена} other {# затворени}}"
 	},
 	"noTeamScreen": {
 		"createYourTeam": "Създайте свой екип или се присъединете към съществуващ",
@@ -274,7 +307,8 @@
 			"removeAccountHint": "Акаунтът ще бъде премахнат от всички екипи, освен там, където сте единственият мениджър",
 			"deleteAccount": "Изтриване на акаунта",
 			"deleteAccountHint": "Акаунтът ви ще бъде изтрит завинаги и премахнат от всички екипи",
-			"detect": "Открий"
+			"detect": "Открий",
+			"removeEverywhere": "Премахване навсякъде"
 		},
 		"teamSection": {
 			"name": "Екип",
@@ -303,7 +337,22 @@
 			"changeTeamName": {
 				"mainTitle": "Промяна на името на екипа",
 				"inputPlaceholder": "Име на екипа"
-			}
+			},
+			"activeVersions": "{count, plural, one {Има # активна версия} other {Има # активни версии}}",
+			"activeStatuses": "{count, plural, one {Има # активен статус} other {Има # активни статуса}}",
+			"activePriorities": "{count, plural, one {Има # активен приоритет} other {Има # активни приоритета}}",
+			"activeSizes": "{count, plural, one {Има # активен размер} other {Има # активни размера}}",
+			"activeLabels": "{count, plural, one {Има # активен етикет} other {Има # активни етикета}}",
+			"missingEmployee": "Липсва идентификатор на служител. Влезте отново.",
+			"missingEmployeeShort": "Липсва идентификатор на служител",
+			"invalidTeamName": "Невалидно име на екип",
+			"teamCreationFailed": "Създаването на екипа не бе успешно",
+			"alreadyManager": "Потребителят вече е мениджър",
+			"nowManager": "Текущият потребител вече е мениджър!",
+			"onlyManagerCannotQuit": "Вие сте единственият мениджър и не можете да напуснете екипа",
+			"quitTeamFailed": "Съжаляваме, нещо се обърка!",
+			"removeFromAllTeams": "Премахване от всички екипи",
+			"onlyManagerCannotRemove": "Не можете да премахнете акаунта си от екипите, в които сте единственият мениджър."
 		},
 		"dangerZone": "Опасна зона",
 		"modalChangeLanguageTitle": "Промяна на езика",
@@ -326,7 +375,7 @@
 			"versionNamePlaceholder": "Име на версията",
 			"cancelButtonText": "Отказ",
 			"createButtonText": "Създаване",
-			"updateButtonText": "Промяна"
+			"updateButtonText": "Актуализирай"
 		},
 		"statusScreen": {
 			"mainTitle": "Статуси на задачи",
@@ -340,7 +389,7 @@
 			"statusColorPlaceholder": "Цветове",
 			"cancelButtonText": "Отказ",
 			"createButtonText": "Създаване",
-			"updateButtonText": "Промяна"
+			"updateButtonText": "Актуализирай"
 		},
 		"priorityScreen": {
 			"mainTitle": "Приоритети на задачи",
@@ -354,7 +403,7 @@
 			"priorityColorPlaceholder": "Цветове",
 			"cancelButtonText": "Отказ",
 			"createButtonText": "Създаване",
-			"updateButtonText": "Промяна"
+			"updateButtonText": "Актуализирай"
 		},
 		"labelScreen": {
 			"mainTitle": "Етикети на задачи",
@@ -368,7 +417,7 @@
 			"labelColorPlaceholder": "Цветове",
 			"cancelButtonText": "Отказ",
 			"createButtonText": "Създаване",
-			"updateButtonText": "Промяна"
+			"updateButtonText": "Актуализирай"
 		},
 		"sizeScreen": {
 			"mainTitle": "Размери на задачи",
@@ -382,18 +431,23 @@
 			"sizeColorPlaceholder": "Цветове",
 			"cancelButtonText": "Отказ",
 			"createButtonText": "Създаване",
-			"updateButtonText": "Промяна"
+			"updateButtonText": "Актуализирай"
 		},
 		"membersSettingsScreen": {
 			"mainTitle": "Членове и роли",
 			"deleteUserConfirmation": "Сигурни ли сте, че искате да премахнете избрания потребител?",
 			"changeRole": "Промяна на ролята",
-			"delete": "Изтриване"
+			"delete": "Изтриване",
+			"searchPlaceholder": "Търсене на членове",
+			"selected": "Избрани:",
+			"totalMembers": "Общо членове:"
 		},
 		"changeFullName": {
 			"firstNamePlaceholder": "Име",
 			"lastNamePlaholder": "Фамилия",
-			"mainTitle": "Промяна на пълното име"
+			"mainTitle": "Промяна на пълното име",
+			"firstNameError": "Въведете валидно име",
+			"lastNameError": "Въведете валидна фамилия"
 		},
 		"changeAvatar": {
 			"recentPictures": "Скорошни снимки",
@@ -402,18 +456,22 @@
 			"selectFromFiles": "Избор от файловете",
 			"continueButton": "Продължи",
 			"logoDeleteConfirmation": "Сигурни ли сте, че искате да изтриете логото?",
-			"avatarDeleteConfirmation": "Сигурни ли сте, че искате да изтриете аватара?"
+			"avatarDeleteConfirmation": "Сигурни ли сте, че искате да изтриете аватара?",
+			"unknownSize": "Този файл не може да бъде избран, защото размерът му е неизвестен.",
+			"tooLarge": "Изображението трябва да е по-малко от 2 MB!"
 		},
 		"contact": {
 			"mainTitle": "Промяна на данните за контакт",
 			"emailPlaceholder": "Имейл адрес",
 			"phonePlaceholder": "Телефонен номер",
 			"emailNotValid": "Моля, въведете валиден имейл",
-			"phoneNotValid": "Моля, въведете валиден телефонен номер"
+			"phoneNotValid": "Моля, въведете валиден телефонен номер",
+			"changeEmailTitle": "Смяна с нов имейл?"
 		},
 		"changeTimezone": {
 			"mainTitle": "Промяна на часовата зона",
-			"selectTimezoneTitle": "Изберете часова зона"
+			"selectTimezoneTitle": "Изберете часова зона",
+			"searchPlaceholder": "Търсене на часова зона"
 		},
 		"changeLanguage": {
 			"mainTitle": "Промяна на езика",

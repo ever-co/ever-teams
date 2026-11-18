@@ -86,7 +86,9 @@ const CreateTeamModal: FC<Props> = function CreateTeamModal({ visible, onDismiss
 		<ModalPopUp visible={visible}>
 			<View style={[styles.mainContainer, { backgroundColor: colors.background }]}>
 				<View style={{ ...GS.w100 }}>
-					<Text style={[styles.mainTitle, { color: colors.primary }]}>{'Enter new team name'}</Text>
+					<Text style={[styles.mainTitle, { color: colors.primary }]}>
+						{translate('teamScreen.newTeamNameTitle')}
+					</Text>
 					<View>
 						<TextInput
 							placeholderTextColor={colors.tertiary}
@@ -94,7 +96,7 @@ const CreateTeamModal: FC<Props> = function CreateTeamModal({ visible, onDismiss
 							autoCorrect={false}
 							value={teamText}
 							style={[styles.textInput, { borderColor: colors.border, color: colors.primary }]}
-							placeholder={'Please enter your team name'}
+							placeholder={translate('loginScreen.teamNameFieldPlaceholder')}
 							onChangeText={(text) => setTeamText(text)}
 						/>
 						<Text style={[styles.hint, { color: 'red' }]}>{''}</Text>

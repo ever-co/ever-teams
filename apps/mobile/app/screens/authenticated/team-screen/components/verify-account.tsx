@@ -111,9 +111,11 @@ const VerifyAccountModal: FC<Props> = function InviteUserModal({
 						defaultValue={verificationCode}
 					/>
 					<View style={{ marginTop: 10, marginLeft: 4 }}>
-						<Text style={styles.hint}>Didn't receive code?</Text>
+						<Text style={styles.hint}>{translate('loginScreen.codeNotReceived')}</Text>
 						<TouchableOpacity onPress={resendAccountVerificationCode}>
-							<Text style={[styles.hint, { color: dark ? '#8C7AE4' : '#3826A6' }]}>Resend code</Text>
+							<Text style={[styles.hint, { color: dark ? '#8C7AE4' : '#3826A6' }]}>
+								{translate('loginScreen.sendCode')}
+							</Text>
 						</TouchableOpacity>
 					</View>
 				</View>

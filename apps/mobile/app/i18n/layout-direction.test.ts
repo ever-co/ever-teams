@@ -98,3 +98,34 @@ describe('the layout direction', () => {
 		expect(layout.layOutFor('he')).toBe(true);
 	});
 });
+
+describe('the layout direction on the web', () => {
+	const page = { documentElement: { dir: '' } };
+
+	beforeEach(() => {
+		startWith(undefined);
+		const { Platform }: ReactNative = jest.requireActual('react-native');
+		Object.defineProperty(Platform, 'OS', { configurable: true, get: () => 'web' });
+		page.documentElement.dir = '';
+		Object.defineProperty(globalThis, 'document', { configurable: true, value: page });
+	});
+
+	afterEach(() => {
+		Reflect.deleteProperty(globalThis, 'document');
+	});
+
+	it('turns the page right to left for Arabic at once, with no restart and nothing kept for the next start', () => {
+		expect(layout.layOutFor('ar')).toBe(false);
+
+		expect(page.documentElement.dir).toBe('rtl');
+		expect(forceRTL).not.toHaveBeenCalled();
+		expect(mockStore.has('requested-direction')).toBe(false);
+	});
+
+	it('turns it back left to right for English', () => {
+		layout.layOutFor('ar');
+
+		expect(layout.layOutFor('en')).toBe(false);
+		expect(page.documentElement.dir).toBe('ltr');
+	});
+});

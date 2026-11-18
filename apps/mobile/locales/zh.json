@@ -9,7 +9,16 @@
 		"discard": "放弃",
 		"back": "返回",
 		"save": "保存",
-		"logOut": "登出"
+		"logOut": "登出",
+		"yes": "是",
+		"no": "否",
+		"error": "错误",
+		"info": "信息",
+		"dismiss": "隐藏",
+		"somethingWrong": "出了点问题",
+		"updateSuccess": "更新成功",
+		"member": "成员",
+		"manager": "经理"
 	},
 	"shell": {
 		"tabs": {
@@ -156,7 +165,15 @@
 		"createTeam": "创建团队",
 		"invalidConfirmCode": "验证码无效",
 		"securityCodeSent": "安全码已发送到新邮箱",
-		"codeSentTo": "我们已将验证码发送至："
+		"codeSentTo": "我们已将验证码发送至：",
+		"errors": {
+			"invalidCode": "验证码或电子邮箱无效",
+			"notSetUp": "你的账户尚未完全设置",
+			"workspaceNotLoaded": "无法加载你的工作区，请重试。",
+			"emptyEmail": "电子邮箱不能为空",
+			"invalidEmail": "电子邮箱必须有效",
+			"noAccount": "未找到与该电子邮箱关联的账户"
+		}
 	},
 	"myWorkScreen": {
 		"name": "工作",
@@ -179,7 +196,14 @@
 		"inviteEmailFieldPlaceholder": "输入电子邮箱地址",
 		"inviteNameFieldPlaceholder": "输入团队成员姓名",
 		"sendButton": "创建",
-		"createNewTeamButton": "创建新团队"
+		"createNewTeamButton": "创建新团队",
+		"newTeamNameTitle": "输入新的团队名称",
+		"inviteErrors": {
+			"invalidEmail": "电子邮箱无效",
+			"emailInTeam": "该电子邮箱已在此团队中",
+			"inviteAlreadySent": "已向该电子邮箱发送过邀请",
+			"invalidName": "名称无效"
+		}
 	},
 	"taskDetailsScreen": {
 		"characterLimitErrorTitle": "无法更新任务标题。",
@@ -227,7 +251,10 @@
 		"description": "描述",
 		"descriptionBlockPlaceholder": "请完整描述您的项目…",
 		"copyDescription": "描述已复制。",
-		"showMore": "显示更多"
+		"showMore": "显示更多",
+		"childIssues": "子议题",
+		"relatedIssues": "相关议题",
+		"versions": "版本"
 	},
 	"tasksScreen": {
 		"name": "任务",
@@ -249,7 +276,13 @@
 		"remove": "移除",
 		"filter": "筛选",
 		"apply": "应用",
-		"reset": "重置"
+		"reset": "重置",
+		"assignedPeople": "{count, plural, other {# 人}}",
+		"workedTasks": "处理过的任务",
+		"assignedTasks": "已分配的任务",
+		"unassignedTasks": "未分配的任务",
+		"openCount": "{count, plural, other {开放 #}}",
+		"closedCount": "{count, plural, other {已关闭 #}}"
 	},
 	"noTeamScreen": {
 		"createYourTeam": "创建您自己的团队或加入已有团队",
@@ -274,7 +307,8 @@
 			"removeAccountHint": "账户将从所有团队中移除，您是唯一管理员的团队除外",
 			"deleteAccount": "删除账户",
 			"deleteAccountHint": "您的账户将被永久删除，并从所有团队中移除",
-			"detect": "检测"
+			"detect": "检测",
+			"removeEverywhere": "全部移除"
 		},
 		"teamSection": {
 			"name": "团队",
@@ -303,7 +337,22 @@
 			"changeTeamName": {
 				"mainTitle": "更改团队名称",
 				"inputPlaceholder": "团队名称"
-			}
+			},
+			"activeVersions": "{count, plural, other {有 # 个活跃版本}}",
+			"activeStatuses": "{count, plural, other {有 # 个活跃状态}}",
+			"activePriorities": "{count, plural, other {有 # 个活跃优先级}}",
+			"activeSizes": "{count, plural, other {有 # 个活跃大小}}",
+			"activeLabels": "{count, plural, other {有 # 个活跃标签}}",
+			"missingEmployee": "缺少员工 ID，请重新登录。",
+			"missingEmployeeShort": "缺少员工 ID",
+			"invalidTeamName": "团队名称无效",
+			"teamCreationFailed": "团队创建失败",
+			"alreadyManager": "该用户已是经理",
+			"nowManager": "当前用户现在是经理！",
+			"onlyManagerCannotQuit": "你是唯一的经理，无法退出团队",
+			"quitTeamFailed": "抱歉，出了点问题！",
+			"removeFromAllTeams": "从所有团队中移除",
+			"onlyManagerCannotRemove": "在你是唯一经理的团队中，无法移除你的账户。"
 		},
 		"dangerZone": "危险区域",
 		"modalChangeLanguageTitle": "更改语言",
@@ -326,7 +375,7 @@
 			"versionNamePlaceholder": "版本名称",
 			"cancelButtonText": "取消",
 			"createButtonText": "创建",
-			"updateButtonText": "更改"
+			"updateButtonText": "更新"
 		},
 		"statusScreen": {
 			"mainTitle": "任务状态",
@@ -340,7 +389,7 @@
 			"statusColorPlaceholder": "颜色",
 			"cancelButtonText": "取消",
 			"createButtonText": "创建",
-			"updateButtonText": "更改"
+			"updateButtonText": "更新"
 		},
 		"priorityScreen": {
 			"mainTitle": "任务优先级",
@@ -354,7 +403,7 @@
 			"priorityColorPlaceholder": "颜色",
 			"cancelButtonText": "取消",
 			"createButtonText": "创建",
-			"updateButtonText": "更改"
+			"updateButtonText": "更新"
 		},
 		"labelScreen": {
 			"mainTitle": "任务标签",
@@ -368,7 +417,7 @@
 			"labelColorPlaceholder": "颜色",
 			"cancelButtonText": "取消",
 			"createButtonText": "创建",
-			"updateButtonText": "更改"
+			"updateButtonText": "更新"
 		},
 		"sizeScreen": {
 			"mainTitle": "任务大小",
@@ -382,18 +431,23 @@
 			"sizeColorPlaceholder": "颜色",
 			"cancelButtonText": "取消",
 			"createButtonText": "创建",
-			"updateButtonText": "更改"
+			"updateButtonText": "更新"
 		},
 		"membersSettingsScreen": {
 			"mainTitle": "成员与角色",
 			"deleteUserConfirmation": "您确定要移除所选用户吗？",
 			"changeRole": "更改角色",
-			"delete": "删除"
+			"delete": "删除",
+			"searchPlaceholder": "搜索成员",
+			"selected": "已选择：",
+			"totalMembers": "成员总数："
 		},
 		"changeFullName": {
 			"firstNamePlaceholder": "名",
 			"lastNamePlaholder": "姓",
-			"mainTitle": "更改全名"
+			"mainTitle": "更改全名",
+			"firstNameError": "请输入有效的名字",
+			"lastNameError": "请输入有效的姓氏"
 		},
 		"changeAvatar": {
 			"recentPictures": "最近的图片",
@@ -402,18 +456,22 @@
 			"selectFromFiles": "从文件中选择",
 			"continueButton": "继续",
 			"logoDeleteConfirmation": "您确定要删除团队头像吗？",
-			"avatarDeleteConfirmation": "您确定要删除头像吗？"
+			"avatarDeleteConfirmation": "您确定要删除头像吗？",
+			"unknownSize": "无法选择此文件，因为其大小未知。",
+			"tooLarge": "图片大小必须小于 2MB！"
 		},
 		"contact": {
 			"mainTitle": "更改您的联系方式",
 			"emailPlaceholder": "电子邮箱地址",
 			"phonePlaceholder": "电话号码",
 			"emailNotValid": "请输入有效的电子邮箱",
-			"phoneNotValid": "请输入有效的手机号码"
+			"phoneNotValid": "请输入有效的手机号码",
+			"changeEmailTitle": "更换为新的电子邮箱？"
 		},
 		"changeTimezone": {
 			"mainTitle": "更改时区",
-			"selectTimezoneTitle": "选择时区"
+			"selectTimezoneTitle": "选择时区",
+			"searchPlaceholder": "搜索时区"
 		},
 		"changeLanguage": {
 			"mainTitle": "更改语言",

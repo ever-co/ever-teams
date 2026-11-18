@@ -22,6 +22,26 @@ describe('translate', () => {
 		);
 	});
 
+	it('counts in the forms of the language where the engine has no plural rules, as on Hermes', () => {
+		const pluralRules = Intl.PluralRules;
+		Reflect.deleteProperty(Intl, 'PluralRules');
+		try {
+			jest.isolateModules(() => {
+				const fresh: typeof import('./translate') = jest.requireActual('./translate');
+				fresh.setAppLocale('ru');
+
+				expect(fresh.translate('settingScreen.teamSection.activeStatuses', { count: 2 })).toBe(
+					'2 активных статуса'
+				);
+				expect(fresh.translate('settingScreen.teamSection.activeStatuses', { count: 5 })).toBe(
+					'5 активных статусов'
+				);
+			});
+		} finally {
+			Reflect.set(Intl, 'PluralRules', pluralRules);
+		}
+	});
+
 	it('reads English for a language the app does not have', () => {
 		expect(setAppLocale('sv-SE')).toBe('en');
 

@@ -1,4 +1,7 @@
-import { createTranslator } from 'use-intl/core';
+// Hermes has no Intl.PluralRules: without it a message with a count cannot be formatted
+import 'intl-pluralrules';
+import { createTranslator, IntlErrorCode } from 'use-intl/core';
+import type { IntlError } from 'use-intl/core';
 import type { TxKeyPath } from './i18n';
 import { DEFAULT_LOCALE, localeFor, messagesByLocale } from './messages';
 import type { AppLocale } from './messages';
@@ -18,15 +21,21 @@ function keyPathOf({ key, namespace }: MissingMessage): string {
 	return key;
 }
 
-// A message a locale misses is shown in English (below), as i18n-js did; the locale test keeps them complete
-function ignoreMissingMessage(): void {
-	return undefined;
+// A message a locale misses is shown in English (below), as i18n-js did; the locale test keeps them complete. Any other
+// error (a value missing for a placeholder, a message that does not parse) is told in development, never swallowed.
+function reportFormattingError(error: IntlError): void {
+	if (error.code === IntlErrorCode.MISSING_MESSAGE || error.code === IntlErrorCode.ENVIRONMENT_FALLBACK) {
+		return;
+	}
+	if (typeof __DEV__ !== 'undefined' && __DEV__) {
+		console.warn(`[i18n] ${error.message}`);
+	}
 }
 
 const english = createTranslator({
 	locale: DEFAULT_LOCALE,
 	messages: messagesByLocale[DEFAULT_LOCALE],
-	onError: ignoreMissingMessage,
+	onError: reportFormattingError,
 	getMessageFallback: keyPathOf
 });
 
@@ -43,7 +52,7 @@ function translatorFor(locale: AppLocale): Translator {
 	const translator = createTranslator({
 		locale,
 		messages: messagesByLocale[locale],
-		onError: ignoreMissingMessage,
+		onError: reportFormattingError,
 		getMessageFallback: keyPathOf
 	});
 	translators.set(locale, translator);

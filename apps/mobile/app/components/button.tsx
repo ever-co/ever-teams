@@ -20,8 +20,8 @@ export interface ButtonProps extends PressableProps {
 	 */
 	text?: TextProps['text'];
 	/**
-	 * Optional options to pass to i18n. Useful for interpolation
-	 * as well as explicitly setting locale or translation fallbacks.
+	 * The values of the message's placeholders (`{ time: '09:30' }`), as for `Text`. The message is in the app's
+	 * language, or in English when that language misses it.
 	 */
 	txOptions?: TextProps['txOptions'];
 	/**
