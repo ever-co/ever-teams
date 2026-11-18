@@ -68,6 +68,9 @@ const AppStack = observer(function AppStack() {
 	// @demo remove-block-end
 	return (
 		<Stack.Navigator
+			// React Navigation 7 types `id` as optional only under strictNullChecks, which this app does not turn on, so
+			// every navigator says it has none: undefined, the same as before
+			id={undefined}
 			screenOptions={{ headerShown: false }}
 			initialRouteName={isAuthenticated ? 'Authenticated' : 'Login'} // @demo remove-current-line
 		>
