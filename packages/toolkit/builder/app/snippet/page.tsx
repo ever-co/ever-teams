@@ -46,7 +46,7 @@ function useTimerElement() {
 	}, []);
 }
 
-function CopyLabel({ state }: { state: CopyState }) {
+function CopyLabel({ state }: Readonly<{ state: CopyState }>) {
 	if (state === 'copied') {
 		return (
 			<>
@@ -171,13 +171,14 @@ export default function SnippetPage() {
 				<CardContent className="flex flex-col gap-4">
 					<CodeBlock language="markup" code={snippet} />
 					{copyState === 'refused' && (
-						<p role="status" className="text-sm text-red-600 dark:text-red-400">
+						<output className="block text-sm text-red-600 dark:text-red-400">
 							The browser refused to copy: select the snippet and copy it yourself.
-						</p>
+						</output>
 					)}
 					<ol className="list-decimal space-y-1 pl-5 text-sm text-slate-600 dark:text-slate-300">
 						<li>
 							Serve the files of the dist/ folder of @ever-teams/embed from your site, under /ever-teams/.
+							The package is not published on npm yet: build it from the Ever Teams repository.
 						</li>
 						<li>Paste the snippet where the timer goes.</li>
 						<li>Ask your Ever Teams administrator to allow your site&apos;s address.</li>
