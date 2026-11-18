@@ -49,7 +49,8 @@ function contrast(foreground: string, background: string): number {
 }
 
 describe('design tokens', () => {
-	const css = readFileSync(WEB_GLOBALS, 'utf8');
+	// a Windows checkout can have CRLF line ends, and the blocks are found by their line breaks
+	const css = readFileSync(WEB_GLOBALS, 'utf8').replace(/\r\n/g, '\n');
 	const web: Record<ColorScheme, Record<string, string>> = {
 		light: tokensOfBlock(css, ':root'),
 		dark: tokensOfBlock(css, '.dark')
