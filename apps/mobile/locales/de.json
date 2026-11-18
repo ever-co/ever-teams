@@ -38,6 +38,21 @@
 		"signIn": {
 			"title": "Anmelden",
 			"message": "Die Anmeldung zieht in einem späteren Schritt in die neue App um. Melden Sie sich vorerst mit der aktuellen App an."
+		},
+		"home": {
+			"today": "Heute",
+			"thisWeek": "Diese Woche",
+			"currentTask": "Aktuelle Aufgabe",
+			"lastTask": "Letzte Aufgabe",
+			"noTaskTitle": "Noch keine Zeit erfasst",
+			"noTaskMessage": "Ihre letzte Aufgabe erscheint hier, sobald Sie Zeit darauf erfasst haben.",
+			"start": "Starten",
+			"stop": "Stoppen",
+			"runningSince": "Läuft seit {time}",
+			"duration": "{hours} Std. {minutes} Min.",
+			"startFailedTitle": "Der Timer konnte nicht starten",
+			"startFailedMessage": "Prüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
+			"needsNetwork": "Zum Starten und Stoppen des Timers ist eine Verbindung nötig."
 		}
 	},
 	"session": {

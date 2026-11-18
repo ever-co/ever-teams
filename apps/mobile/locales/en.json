@@ -38,6 +38,21 @@
 		"signIn": {
 			"title": "Sign in",
 			"message": "Signing in moves to the new app in a later step. Sign in with the current app for now."
+		},
+		"home": {
+			"today": "Today",
+			"thisWeek": "This week",
+			"currentTask": "Current task",
+			"lastTask": "Last task",
+			"noTaskTitle": "No time tracked yet",
+			"noTaskMessage": "Your last task shows here once you have tracked time on one.",
+			"start": "Start",
+			"stop": "Stop",
+			"runningSince": "Running since {time}",
+			"duration": "{hours} h {minutes} min",
+			"startFailedTitle": "The timer could not start",
+			"startFailedMessage": "Check your connection and try again.",
+			"needsNetwork": "Starting and stopping the timer need a connection."
 		}
 	},
 	"session": {

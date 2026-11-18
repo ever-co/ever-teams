@@ -38,6 +38,21 @@
 		"signIn": {
 			"title": "Accedi",
 			"message": "L'accesso passerà alla nuova app in un passaggio successivo. Per ora accedi con l'app attuale."
+		},
+		"home": {
+			"today": "Oggi",
+			"thisWeek": "Questa settimana",
+			"currentTask": "Attività in corso",
+			"lastTask": "Ultima attività",
+			"noTaskTitle": "Ancora nessun tempo registrato",
+			"noTaskMessage": "La tua ultima attività compare qui appena registri del tempo su di essa.",
+			"start": "Avvia",
+			"stop": "Ferma",
+			"runningSince": "In corso dalle {time}",
+			"duration": "{hours} h {minutes} min",
+			"startFailedTitle": "Il timer non è riuscito ad avviarsi",
+			"startFailedMessage": "Controlla la connessione e riprova.",
+			"needsNetwork": "Per avviare e fermare il timer serve una connessione."
 		}
 	},
 	"session": {

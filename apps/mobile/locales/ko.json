@@ -38,6 +38,21 @@
 		"signIn": {
 			"title": "로그인",
 			"message": "로그인은 이후 단계에서 새 앱으로 옮겨집니다. 지금은 현재 앱으로 로그인하세요."
+		},
+		"home": {
+			"today": "오늘",
+			"thisWeek": "이번 주",
+			"currentTask": "현재 작업",
+			"lastTask": "마지막 작업",
+			"noTaskTitle": "아직 기록된 시간이 없습니다",
+			"noTaskMessage": "작업에 시간을 기록하면 마지막 작업이 여기에 표시됩니다.",
+			"start": "시작",
+			"stop": "중지",
+			"runningSince": "{time}부터 실행 중",
+			"duration": "{hours}시간 {minutes}분",
+			"startFailedTitle": "타이머를 시작할 수 없습니다",
+			"startFailedMessage": "연결을 확인하고 다시 시도하세요.",
+			"needsNetwork": "타이머를 시작하고 중지하려면 연결이 필요합니다."
 		}
 	},
 	"session": {
