@@ -111,7 +111,10 @@
 			"select_team": "Selectionner l'équipe"
 		},
 		"project_select": {
-			"select_project": "Selectionner le projet"
+			"select_project": "Selectionner le projet",
+			"loading_projects": "Chargement des projets...",
+			"no_projects": "Aucun projet sur lequel suivre votre temps",
+			"projects_failed": "Les projets n'ont pas pu être chargés. Rechargez la page pour réessayer."
 		},
 		"task_select": {
 			"select_task": "Selectionner la tache"
