@@ -1,12 +1,3 @@
-import { registerRootComponent } from 'expo';
-
-// The new app (Expo Router, src/app) opens only in builds made with EXPO_PUBLIC_APP_SHELL=next: the app people
-// install keeps the current screens until the switch is decided. The value is set at build time, so the build of the
-// current app leaves the new one out.
-if (process.env.EXPO_PUBLIC_APP_SHELL === 'next') {
-	require('expo-router/entry');
-} else {
-	const App = require('./App').default;
-	// registerRootComponent calls AppRegistry.registerComponent('main', () => App) in Expo Go and native builds alike
-	registerRootComponent(App);
-}
+// The app opens through Expo Router (src/app): each screen at the web's address. A build made with
+// EXPO_PUBLIC_APP_SHELL=next shows the new Home at /timer instead of the Work tab (src/app/(app)/(tabs)/timer.tsx).
+import 'expo-router/entry';
