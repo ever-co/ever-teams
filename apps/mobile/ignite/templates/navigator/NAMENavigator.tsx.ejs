@@ -18,7 +18,11 @@ export type <%= props.pascalCaseName %>NavigatorParamList = {
 const Stack = createNativeStackNavigator<<%= props.pascalCaseName %>NavigatorParamList>()
 export const <%= props.pascalCaseName %>Navigator = () => {
   return (
-    <Stack.Navigator screenOptions={{ contentStyle: { backgroundColor: "transparent" }, headerShown: false, }}>
+    <Stack.Navigator
+      // No id: the app compiles without strictNullChecks, where React Navigation 7 types the optional id as required
+      id={undefined}
+      screenOptions={{ contentStyle: { backgroundColor: "transparent" }, headerShown: false, }}
+    >
       <Stack.Screen name="Demo" component={WelcomeScreen} />
     </Stack.Navigator>
   )
