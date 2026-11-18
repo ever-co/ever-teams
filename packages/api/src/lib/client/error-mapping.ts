@@ -38,7 +38,7 @@ const SERVER_STEP =
 
 const OTHER_STEP = 'The API refused the request: error.message says why.';
 
-const isRecord = (value: unknown): value is { [key: string]: unknown } =>
+export const isRecord = (value: unknown): value is { [key: string]: unknown } =>
 	typeof value === 'object' && value !== null && !Array.isArray(value);
 
 const isText = (value: unknown): value is string => typeof value === 'string';
@@ -58,7 +58,10 @@ function messagesOf(body: unknown): string[] {
 	return [];
 }
 
-function textOf(response: Response, body: unknown): string {
+/** What the typed error of an answer reads of it: its status, status text and headers. */
+export type AnswerHead = Pick<Response, 'status' | 'statusText' | 'headers'>;
+
+function textOf(response: AnswerHead, body: unknown): string {
 	const messages = messagesOf(body);
 	if (messages.length > 0) {
 		return messages.join('; ');
@@ -69,7 +72,7 @@ function textOf(response: Response, body: unknown): string {
 	return response.statusText || `HTTP ${response.status}`;
 }
 
-function codeOf(body: unknown): string | undefined {
+export function codeOf(body: unknown): string | undefined {
 	if (isRecord(body) && isText(body['code'])) {
 		return body['code'];
 	}
@@ -124,7 +127,7 @@ export type NextStepsByStatus = { [status: number]: string };
 
 /** The typed error of an answer that is not a success, from the answer and its body (read as JSON, else null). */
 export function errorFromResponse(
-	response: Response,
+	response: AnswerHead,
 	body: unknown,
 	nextSteps: NextStepsByStatus = {}
 ): EverTeamsError {
