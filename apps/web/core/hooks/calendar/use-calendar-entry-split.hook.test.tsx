@@ -3,102 +3,107 @@
 import { act, renderHook } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { queryKeys } from '@/core/query/keys';
 import { ETimeLogType } from '@/core/types/generics/enums/timer';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 
-let mockSupportsEntryLabels = true;
-const mockGetTimeLogs = jest.fn<Promise<unknown[]>, [unknown]>(async () => []);
+const mockSupportsEntryLabels = jest.fn<Promise<boolean>, []>();
+const mockGetTimeLogs = jest.fn<Promise<unknown[]>, [unknown]>();
 const mockAddManualTime = jest.fn<Promise<unknown>, [unknown]>(async () => ({}));
 const mockUpdateTimeLog = jest.fn<Promise<unknown>, [unknown]>(async () => ({}));
-const mockSplitTimeLog = jest.fn<Promise<unknown>, [unknown]>(async () => ({ first: {}, second: {} }));
 
-jest.mock('@/core/hooks/timer/use-entry-labels-support', () => ({
-	useEntryLabelsSupport: () => mockSupportsEntryLabels
+jest.mock('@/core/lib/helpers/cookies', () => ({
+	getTenantIdCookie: () => 'tenant-1',
+	getOrganizationIdCookie: () => 'organization-1'
 }));
 jest.mock('@/core/services/client/api/timesheets/time-log.service', () => ({
 	timeLogService: {
+		supportsEntryLabels: () => mockSupportsEntryLabels(),
 		updateTimeLog: (payload: never) => mockUpdateTimeLog(payload),
 		addManualTime: (request: never) => mockAddManualTime(request),
 		getTimeLogConflicts: async () => [],
-		getTimeLogs: (query: never) => mockGetTimeLogs(query),
-		splitTimeLog: (payload: never) => mockSplitTimeLog(payload)
+		getTimeLogs: (query: never) => mockGetTimeLogs(query)
 	}
 }));
 
-import { ApiErrorService } from '@/core/services/client/api-error.service';
 import { useCalendarEntrySplit } from './use-calendar-entry-split';
 
-function at(hour: number) {
-	return new Date(2026, 10, 9, hour);
-}
+const SUPPORT_KEY = queryKeys.timeLogs.entryLabelsSupport('tenant-1', 'organization-1');
 
-const LOG = {
-	id: 'log-1',
-	employeeId: 'employee-1',
+// An entry added by hand, filed under one label, as the server holds it
+const LABELLED_ENTRY = {
+	id: 'log-7',
+	employeeId: 'employee-7',
 	logType: ETimeLogType.MANUAL,
-	isRunning: false,
-	startedAt: at(9),
-	stoppedAt: at(13),
-	projectId: 'project-1',
-	taskId: 'task-1',
+	startedAt: new Date(2026, 10, 9, 14),
+	stoppedAt: new Date(2026, 10, 9, 16),
 	tags: [{ id: 'label-1', name: 'Design', color: null }]
 } as unknown as ITimeLog;
 
-function renderSplit() {
+function renderSplit(knownSupport?: boolean) {
 	const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+	if (knownSupport !== undefined) {
+		queryClient.setQueryData(SUPPORT_KEY, knownSupport);
+	}
 	const wrapper = ({ children }: { children: ReactNode }) => (
 		<QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
 	);
 	return renderHook(() => useCalendarEntrySplit(), { wrapper });
 }
 
-describe("the Calendar dialog's split and the labels of entries (#5368)", () => {
+async function splitAtThree(hook: ReturnType<typeof renderSplit>) {
+	let isSaved = false;
+	await act(async () => {
+		isSaved = await hook.result.current.save({
+			log: LABELLED_ENTRY,
+			splitAt: new Date(2026, 10, 9, 15),
+			secondTask: null,
+			tenantId: 'tenant-1'
+		});
+	});
+	return isSaved;
+}
+
+describe("the Calendar dialog's two-write split and the labels of entries (#5368)", () => {
 	beforeEach(() => {
-		mockSupportsEntryLabels = true;
-		mockGetTimeLogs.mockReset().mockResolvedValue([LOG]);
+		mockSupportsEntryLabels.mockReset();
+		mockGetTimeLogs.mockReset().mockResolvedValue([LABELLED_ENTRY]);
 		mockAddManualTime.mockClear();
 		mockUpdateTimeLog.mockClear();
-		mockSplitTimeLog.mockReset().mockResolvedValue({ first: {}, second: {} });
 	});
 
-	it('files the second part under the entry labels when the API has no split route but has labels', async () => {
-		mockSplitTimeLog.mockRejectedValueOnce(
-			new ApiErrorService('Cannot POST /api/timesheet/time-log/log-1/split', 404)
-		);
-		const { result } = renderSplit();
+	it("files the second part under the entry labels on the session's answer, asking Gauzy nothing more", async () => {
+		const hook = renderSplit(true);
 
-		await act(async () => {
-			await result.current.save({
-				log: LOG,
-				splitAt: at(11),
-				secondTask: null,
-				tenantId: 'tenant-1',
-				viaApi: true
-			});
-		});
-
+		expect(await splitAtThree(hook)).toBe(true);
+		expect(mockSupportsEntryLabels).not.toHaveBeenCalled();
 		expect(mockAddManualTime).toHaveBeenCalledWith(expect.objectContaining({ tags: ['label-1'] }));
 	});
 
-	it('files the second part of the two writes under the entry labels too', async () => {
-		const { result } = renderSplit();
+	it('asks Gauzy at split time when the answer is not in yet, and keeps the labels', async () => {
+		mockSupportsEntryLabels.mockResolvedValue(true);
+		const hook = renderSplit();
 
-		await act(async () => {
-			await result.current.save({ log: LOG, splitAt: at(11), secondTask: null, tenantId: 'tenant-1' });
-		});
-
+		expect(await splitAtThree(hook)).toBe(true);
+		expect(mockSupportsEntryLabels).toHaveBeenCalledTimes(1);
 		expect(mockAddManualTime).toHaveBeenCalledWith(expect.objectContaining({ tags: ['label-1'] }));
 	});
 
-	it('neither asks for nor sends labels where the API has none', async () => {
-		mockSupportsEntryLabels = false;
-		mockGetTimeLogs.mockResolvedValue([{ ...LOG, tags: undefined }]);
-		const { result } = renderSplit();
+	it('splits nothing when Gauzy cannot say whether it has labels, and offers another try', async () => {
+		mockSupportsEntryLabels.mockRejectedValue(new Error('Failed to fetch'));
+		const hook = renderSplit();
 
-		await act(async () => {
-			await result.current.save({ log: LOG, splitAt: at(11), secondTask: null, tenantId: 'tenant-1' });
-		});
+		expect(await splitAtThree(hook)).toBe(false);
+		expect(hook.result.current.failure).toBe('restored');
+		expect(mockUpdateTimeLog).not.toHaveBeenCalled();
+		expect(mockAddManualTime).not.toHaveBeenCalled();
+	});
 
+	it('neither asks for nor sends labels where Gauzy has none', async () => {
+		mockGetTimeLogs.mockResolvedValue([{ ...LABELLED_ENTRY, tags: undefined }]);
+		const hook = renderSplit(false);
+
+		expect(await splitAtThree(hook)).toBe(true);
 		expect(mockGetTimeLogs).toHaveBeenCalledWith(
 			expect.not.objectContaining({ withEntryLabels: expect.anything() })
 		);

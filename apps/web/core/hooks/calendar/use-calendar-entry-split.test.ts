@@ -147,7 +147,7 @@ describe('splitCalendarEntry, the labels of the second part', () => {
 			splitAt: at(11),
 			secondTask: null,
 			tenantId: 'tenant-1',
-			withEntryLabels: true
+			entryLabelsSupport: async () => true
 		});
 
 		expect(mockGetTimeLogs).toHaveBeenCalledWith(expect.objectContaining({ withEntryLabels: true }));
@@ -163,7 +163,7 @@ describe('splitCalendarEntry, the labels of the second part', () => {
 			splitAt: at(11),
 			secondTask: null,
 			tenantId: 'tenant-1',
-			withEntryLabels: true
+			entryLabelsSupport: async () => true
 		});
 
 		expect(mockAddManualTime).toHaveBeenCalledWith(expect.objectContaining({ tags: ['label-3'] }));
@@ -177,19 +177,45 @@ describe('splitCalendarEntry, the labels of the second part', () => {
 			splitAt: at(11),
 			secondTask: null,
 			tenantId: 'tenant-1',
-			withEntryLabels: true
+			entryLabelsSupport: async () => true
 		});
 
 		expect(mockAddManualTime).toHaveBeenCalledWith(expect.not.objectContaining({ tags: expect.anything() }));
 	});
 
-	it('asks an API without labels on entries for none, and sends it none', async () => {
-		await splitCalendarEntry({ log: LOG, splitAt: at(11), secondTask: null, tenantId: 'tenant-1' });
+	it.each([
+		['says it has none', async () => false],
+		['is not asked', undefined]
+	])('asks an API that %s for no labels, and sends it none', async (_case, entryLabelsSupport) => {
+		await splitCalendarEntry({
+			log: LOG,
+			splitAt: at(11),
+			secondTask: null,
+			tenantId: 'tenant-1',
+			entryLabelsSupport
+		});
 
 		expect(mockGetTimeLogs).toHaveBeenCalledWith(
 			expect.not.objectContaining({ withEntryLabels: expect.anything() })
 		);
 		expect(mockAddManualTime).toHaveBeenCalledWith(expect.not.objectContaining({ tags: expect.anything() }));
+	});
+
+	it('writes nothing when whether the API has labels cannot be told, and offers another try', async () => {
+		const split = splitCalendarEntry({
+			log: LOG,
+			splitAt: at(11),
+			secondTask: null,
+			tenantId: 'tenant-1',
+			entryLabelsSupport: async () => {
+				throw new Error('Failed to fetch');
+			}
+		});
+
+		await expect(split).rejects.toEqual(expect.objectContaining({ failure: 'restored' }));
+		expect(mockGetTimeLogs).not.toHaveBeenCalled();
+		expect(mockUpdateTimeLog).not.toHaveBeenCalled();
+		expect(mockAddManualTime).not.toHaveBeenCalled();
 	});
 });
 
@@ -505,7 +531,7 @@ describe('splitThroughApi, one write where the API splits (#5369)', () => {
 			splitAt: at(11),
 			secondTask: null,
 			tenantId: 'tenant-1',
-			withEntryLabels: true
+			entryLabelsSupport: async () => true
 		});
 
 		expect(calls).toEqual(['update 9-11', 'add 11-13']);
