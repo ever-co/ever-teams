@@ -40,6 +40,22 @@ describe('translate', () => {
 		expect(listener).toHaveBeenCalledTimes(1);
 	});
 
+	it('shows a message the language misses in English, with its values', () => {
+		jest.isolateModules(() => {
+			jest.doMock('./messages', () => {
+				const actual = jest.requireActual('./messages');
+				const frenchMissingOne = JSON.parse(JSON.stringify(actual.messagesByLocale.fr));
+				delete frenchMissingOne.timer.startMove.startedAt;
+				return { ...actual, messagesByLocale: { ...actual.messagesByLocale, fr: frenchMissingOne } };
+			});
+			const isolated: typeof import('./translate') = jest.requireActual('./translate');
+
+			isolated.setAppLocale('fr');
+
+			expect(isolated.translate('timer.startMove.startedAt', { time: '09:30' })).toBe('Started at 09:30');
+		});
+	});
+
 	it('reads English before any language is set', () => {
 		expect(setAppLocale(undefined)).toBe('en');
 	});

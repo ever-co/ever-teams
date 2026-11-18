@@ -33,10 +33,6 @@ const english = createTranslator({
 type Translator = typeof english;
 type TranslatorKey = Parameters<Translator>[0];
 
-function inEnglish(missing: MissingMessage): string {
-	return english(keyPathOf(missing) as TranslatorKey);
-}
-
 const translators = new Map<AppLocale, Translator>([[DEFAULT_LOCALE, english]]);
 
 function translatorFor(locale: AppLocale): Translator {
@@ -48,7 +44,7 @@ function translatorFor(locale: AppLocale): Translator {
 		locale,
 		messages: messagesByLocale[locale],
 		onError: ignoreMissingMessage,
-		getMessageFallback: inEnglish
+		getMessageFallback: keyPathOf
 	});
 	translators.set(locale, translator);
 	return translator;
@@ -88,5 +84,10 @@ export function currentLocale(): AppLocale {
  * @example translate('timer.startMove.startedAt', { time: '09:30' }) // "Started at 09:30"
  */
 export function translate(key: TxKeyPath, values?: TranslateValues): string {
-	return translatorFor(locale)(key as TranslatorKey, values);
+	const messageKey = key as TranslatorKey;
+	const translator = translatorFor(locale);
+	if (translator.has(messageKey)) {
+		return translator(messageKey, values);
+	}
+	return english(messageKey, values);
 }
