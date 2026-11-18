@@ -51,3 +51,21 @@ element. Sign-in from your backend, without a password in the page, comes with t
 yarn build   # from packages/toolkit/embed, after the @ever-teams/atoms build
 yarn test
 ```
+
+## Release
+
+Not on npm yet: the package is `private` until its name and its first release are approved. The SDK release publishes
+every public package that has a changeset (`changeset publish`), so to release it:
+
+1. remove `"private": true` from `package.json`;
+2. add `.changeset/kit-11-timer-element.md`:
+
+    ```md
+    ---
+    '@ever-teams/embed': minor
+    ---
+
+    New package: `<ever-teams-timer api-url="...">`, the Ever Teams timer as an HTML element for pages without React. One `<script type="module">` loads React, the kit and its stylesheet; the element renders the kit's sign-in and basic timer in its own shadow root, reads `api-url`, `color-scheme` and `lang`, and stops when removed.
+    ```
+
+3. its first publish may need a token: npm trusted publishing is set up in the settings of a package that already exists.
