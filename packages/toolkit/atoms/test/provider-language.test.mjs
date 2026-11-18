@@ -105,3 +105,12 @@ test('a lang the host changes applies even when the provider state already holds
 	assert.equal(globalThis.applied.at(-1), 'fr');
 	await language.unmount();
 });
+
+test('a lang the host changes is applied once', async () => {
+	const language = await withLanguage('en');
+
+	await language.show('fr');
+
+	assert.deepEqual(globalThis.applied, ['en', 'fr']);
+	await language.unmount();
+});
