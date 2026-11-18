@@ -93,6 +93,8 @@ export const TrackingProvider: React.FC<ITrackingProviderProps> = ({ children, c
 
 	// Only the latest read may write the state: an older one that ends later is ignored.
 	const latestRead = useRef(0);
+	// The provider's own address: the page's one tracking client keeps the base URL the last provider set.
+	const baseUrl = config?.baseUrl;
 
 	const registerConsumer = useCallback(() => {
 		setConsumerCount((count) => count + 1);
@@ -133,7 +135,8 @@ export const TrackingProvider: React.FC<ITrackingProviderProps> = ({ children, c
 				formData.employeeIds,
 				selectedOrganization,
 				user?.tenantId,
-				token!
+				token!,
+				{ apiUrl: baseUrl }
 			);
 
 			if (!isLatest()) {
@@ -174,7 +177,7 @@ export const TrackingProvider: React.FC<ITrackingProviderProps> = ({ children, c
 				setLoading(false);
 			}
 		}
-	}, [formData, selectedOrganization, selectedEmployee, token, user]);
+	}, [formData, selectedOrganization, selectedEmployee, token, user, baseUrl]);
 
 	/**
 	 * Refetch sessions - alias for fetchSessions for clarity
