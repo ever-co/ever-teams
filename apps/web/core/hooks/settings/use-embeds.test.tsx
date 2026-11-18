@@ -48,11 +48,13 @@ beforeEach(() => {
 
 describe('canLimitToClientOf', () => {
 	it('offers a client only when embeds are on and the API says it can limit a credential to one', () => {
-		expect(canLimitToClientOf('enabled', { enabled: true, clientLimits: true })).toBe(true);
-		expect(canLimitToClientOf('enabled', { enabled: true, clientLimits: false })).toBe(false);
+		expect(canLimitToClientOf('enabled', { enabled: true, clientLimits: true, addMembers: false })).toBe(true);
+		expect(canLimitToClientOf('enabled', { enabled: true, clientLimits: false, addMembers: false })).toBe(false);
 		expect(canLimitToClientOf('enabled', undefined)).toBe(false);
 		for (const availability of ['loading', 'disabled', 'forbidden', 'error'] as const) {
-			expect(canLimitToClientOf(availability, { enabled: true, clientLimits: true })).toBe(false);
+			expect(canLimitToClientOf(availability, { enabled: true, clientLimits: true, addMembers: false })).toBe(
+				false
+			);
 		}
 	});
 });

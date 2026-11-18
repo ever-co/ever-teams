@@ -4,12 +4,14 @@ import { z } from 'zod';
 export const EMBED_CREDENTIAL_NAME_MAX_LENGTH = 100;
 
 /**
- * `GET /embed-credentials/config`: whether this server has embeds on (an organization admin may ask), and whether it
- * can limit a credential to one client. An older API does not answer `clientLimits` and drops the client it is sent.
+ * `GET /embed-credentials/config`: whether this server has embeds on (an organization admin may ask), whether it can
+ * limit a credential to one client, and whether a credential can add the people it signs in as members. An older API
+ * answers neither `clientLimits` nor `addMembers`, and drops the client or the permission it is sent.
  */
 export const embedConfigSchema = z.object({
 	enabled: z.boolean(),
-	clientLimits: z.boolean().default(false)
+	clientLimits: z.boolean().default(false),
+	addMembers: z.boolean().default(false)
 });
 
 /** A site allowed to embed the organization's timer, with who added it and when. */
@@ -22,12 +24,19 @@ export const embedAllowedOriginSchema = z.object({
 
 export const embedAllowedOriginListSchema = z.array(embedAllowedOriginSchema);
 
-/** A credential as the list shows it: never its secret. `organizationContactId` is the client it is limited to. */
+/**
+ * A credential as the list shows it: never its secret. `organizationContactId` is the client it is limited to;
+ * `canAddMembers` says whether it adds the people it signs in as members (false from an API that does not say).
+ */
 export const embedCredentialSchema = z.object({
 	id: z.string().min(1),
 	name: z.string(),
 	prefix: z.string(),
 	organizationContactId: z.string().nullish(),
+	canAddMembers: z
+		.boolean()
+		.nullish()
+		.transform((value) => value === true),
 	createdByUserId: z.string().nullish(),
 	createdAt: z.string().nullish(),
 	lastUsedAt: z.string().nullish()

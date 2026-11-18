@@ -68,10 +68,18 @@ describe('embedsService', () => {
 	describe('direct mode', () => {
 		it('reads whether the API can limit a credential to a client, and an older API as unable to', async () => {
 			directRequests({ enabled: true, clientLimits: true });
-			await expect(embedsService.readConfig()).resolves.toEqual({ enabled: true, clientLimits: true });
+			await expect(embedsService.readConfig()).resolves.toEqual({
+				enabled: true,
+				clientLimits: true,
+				addMembers: false
+			});
 
 			const sent = directRequests({ enabled: true });
-			await expect(embedsService.readConfig()).resolves.toEqual({ enabled: true, clientLimits: false });
+			await expect(embedsService.readConfig()).resolves.toEqual({
+				enabled: true,
+				clientLimits: false,
+				addMembers: false
+			});
 			expect(sent[0].url).toBe('/embed-credentials/config');
 		});
 
@@ -165,7 +173,11 @@ describe('embedsService', () => {
 			mockFallback.get.mockResolvedValue({ data: { enabled: true, clientLimits: true }, status: 200 });
 			mockFallback.post.mockResolvedValue({ data: CREATED, status: 201 });
 
-			await expect(embedsService.readConfig()).resolves.toEqual({ enabled: true, clientLimits: true });
+			await expect(embedsService.readConfig()).resolves.toEqual({
+				enabled: true,
+				clientLimits: true,
+				addMembers: false
+			});
 			await embedsService.createCredential('organization-1', {
 				name: 'Fabrikam client portal',
 				organizationContactId: null
