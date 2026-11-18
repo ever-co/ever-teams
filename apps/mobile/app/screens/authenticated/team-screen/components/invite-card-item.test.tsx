@@ -35,9 +35,21 @@ describe('the invitation card', () => {
 	it('marks the times and the estimate empty, never a value the invitation does not have', async () => {
 		await render(<ListItemContent invite={nadia} />);
 
-		expect(screen.queryByText(/h:\d+ m/)).toBeNull();
-		expect(screen.queryByText(/Working on/)).toBeNull();
-		expect(screen.queryByText('0 H')).toBeNull();
-		expect(screen.getAllByText('–')).toHaveLength(4);
+		// every text of the card: any time or task it made up would be one more
+		const shown = screen.queryAllByText(/./).map((text) => String(text.props.children));
+		expect(shown.sort()).toEqual(
+			[
+				'N',
+				'Nadia Osei',
+				'nadia.osei@example.com',
+				'teamScreen.cardTotalTimeLabel undefined',
+				'teamScreen.cardTodayWorkLabel undefined',
+				'teamScreen.cardTotalWorkLabel undefined',
+				'–',
+				'–',
+				'–',
+				'–'
+			].sort()
+		);
 	});
 });
