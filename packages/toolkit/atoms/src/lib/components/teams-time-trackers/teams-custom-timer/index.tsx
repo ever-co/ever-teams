@@ -15,7 +15,7 @@ export interface TeamsCustomTimerProps extends Omit<TeamsCustomBaseTimerProps, '
 // TODO: Must move this to Atoms and integrate with gauzy api
 export function TeamsCustomTimer({ progress, ...props }: Readonly<TeamsCustomTimerProps>) {
 	// Timer hook - self-contained, fetches all dependencies internally
-	const control = useTimerControl();
+	const control = useTimerControl(props.caption);
 	const ActionButton = control.isRunning ? Pause : Play;
 
 	return (

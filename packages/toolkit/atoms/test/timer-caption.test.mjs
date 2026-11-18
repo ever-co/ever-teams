@@ -26,9 +26,12 @@ const stubs = {
 			timerLoading: false
 		});`,
 	'@lib/context/teams-context': `export const useTeamsContext = () => ({ authenticatedUser: { id: 'u' } });`,
-	'react-i18next': `export const useTranslation = () => ({ t: (key) => key });`
+	'react-i18next': `export const useTranslation = () => ({ t: (key) => key });`,
+	'kit-notice': `export const KitNotice = () => null;`
 };
 const stubbed = /^(@ever-teams\/toolkit-ui|@hooks\/useTimer|@lib\/context\/teams-context|react-i18next)$/;
+// The notice of a timer reads the page's shared timer status: out of this test.
+const notice = /\/kit-notice$/;
 
 let React;
 let renderToStaticMarkup;
@@ -44,7 +47,8 @@ before(async () => {
 		stdin: {
 			contents: [
 				`export { default as BasicTimer } from '${timers}/teams-basic-timer/timer';`,
-				`export { useTimerControl } from '${timers}/common/use-timer-control';`
+				`export { useTimerControl } from '${timers}/common/use-timer-control';`,
+				`export { TeamsBasicTimer } from '${timers}/teams-basic-timer/index';`
 			].join('\n'),
 			resolveDir: bundleDir,
 			loader: 'ts'
@@ -56,12 +60,21 @@ before(async () => {
 		jsx: 'automatic',
 		outfile,
 		logLevel: 'error',
-		external: ['react', 'react/jsx-runtime', 'react-dom', 'lucide-react', 'class-variance-authority'],
+		external: [
+			'react',
+			'react/jsx-runtime',
+			'react-dom',
+			'lucide-react',
+			'class-variance-authority',
+			'theme-ui',
+			'theme-ui/jsx-runtime'
+		],
 		plugins: [
 			{
 				name: 'stubs',
 				setup(build) {
 					build.onResolve({ filter: stubbed }, (args) => ({ path: args.path, namespace: 'stub' }));
+					build.onResolve({ filter: notice }, () => ({ path: 'kit-notice', namespace: 'stub' }));
 					build.onLoad({ filter: /.*/, namespace: 'stub' }, (args) => ({
 						contents: stubs[args.path],
 						loader: 'js'
@@ -103,4 +116,32 @@ test('the kit timers say Today by default, also to screen readers, and a host ca
 	// `defaults` goes before the host's props: a host's own caption, or null, wins.
 	const props = { ...control.action, ...control.defaults, ...{ caption: null }, ...control.state };
 	assert.equal(props.caption, null);
+});
+
+test('a caption the host gives the timer is what screen readers hear too, and null leaves only the time', () => {
+	const descriptionOf = (hostCaption) => {
+		let control;
+		const Probe = () => {
+			control = kit.useTimerControl(hostCaption);
+			return null;
+		};
+		renderToStaticMarkup(React.createElement(Probe));
+		return renderToStaticMarkup(control.description);
+	};
+
+	assert.match(descriptionOf("Aujourd'hui"), />Aujourd&#x27;hui 01:02:03</);
+	assert.match(descriptionOf(null), />01:02:03</);
+	assert.match(descriptionOf(React.createElement('svg')), />01:02:03</);
+	assert.match(descriptionOf(undefined), />COMMON\.today 01:02:03</);
+});
+
+test('the connected basic timer shows and describes the host caption, and drops both with null', () => {
+	const own = renderToStaticMarkup(React.createElement(kit.TeamsBasicTimer, { caption: "Aujourd'hui" }));
+	const none = renderToStaticMarkup(React.createElement(kit.TeamsBasicTimer, { caption: null }));
+
+	assert.match(own, /Aujourd&#x27;hui<\/span>/);
+	assert.match(own, /Aujourd&#x27;hui 01:02:03/);
+	assert.doesNotMatch(own, /COMMON\.today/);
+	assert.doesNotMatch(none, /COMMON\.today/);
+	assert.match(none, />01:02:03</);
 });
