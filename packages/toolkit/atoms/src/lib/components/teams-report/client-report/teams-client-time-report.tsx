@@ -24,6 +24,16 @@ function byTimeSpent(projects: IClientTimeReport['projects']): ClientProject[] {
 	return sorted;
 }
 
+// The host's backend may count fractions of a second: the report draws whole seconds, as the timer does.
+function withWholeSeconds(report: IClientTimeReport): IClientTimeReport {
+	return {
+		...report,
+		today: { ...report.today, seconds: Math.floor(report.today.seconds) },
+		week: { ...report.week, seconds: Math.floor(report.week.seconds) },
+		projects: report.projects.map((project) => ({ ...project, seconds: Math.floor(project.seconds) }))
+	};
+}
+
 // A project's bar is relative to the project with the most time.
 function shareOf(seconds: number, largest: number): number {
 	if (largest <= 0) {
@@ -143,7 +153,7 @@ function ClientReportBody({ state }: Readonly<{ state: ClientTimeReport }>) {
 	if (state.status === 'error') {
 		return <ReportError onRetry={state.retry} />;
 	}
-	const { report } = state;
+	const report = withWholeSeconds(state.report);
 	const hasTimeThisWeek = report.week.seconds > 0;
 	if (!hasTimeThisWeek) {
 		return <p className="text-sm text-gray-400">{t('CLIENT_REPORT.empty', { client: report.client.name })}</p>;

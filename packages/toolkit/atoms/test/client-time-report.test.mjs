@@ -348,6 +348,26 @@ test('the report names the client, shows today and this week, and the projects b
 	assert.equal(container.querySelector('[role="alert"]'), null);
 });
 
+test('a host that counts fractions of a second gets whole seconds drawn', async () => {
+	const backend = hostBackend();
+	const { container } = await mountWidget(backend.getReport);
+	await act(async () =>
+		backend.calls[0].resolve({
+			...NORTHWIND,
+			today: { date: '2026-11-18', seconds: 61.5 },
+			week: { start: '2026-11-16', end: '2026-11-22', seconds: 3600.9 },
+			projects: [{ id: 'p-app', name: 'Mobile app', seconds: 3599.99 }]
+		})
+	);
+	await settle();
+
+	assert.equal(tileTime(container, 'Today'), '00:01:01');
+	assert.equal(tileTime(container, 'This week'), '01:00:00');
+	const [row] = projectRows(container);
+	assert.equal(row.duration, '00:59:59');
+	assert.equal(row.bar.text, '00:59:59');
+});
+
 test('while the host answers, the widget shows the kit’s loaders and asks once', async () => {
 	const backend = hostBackend();
 	const { container } = await mountWidget(backend.getReport);
