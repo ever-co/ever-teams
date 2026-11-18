@@ -311,13 +311,13 @@ export function MenuIndicator() {
 
 export const UserNavMenu = ({ children }: { children?: React.ReactNode }) => {
 	const { authenticatedUser: user, token } = useTeamsContext();
-	const { onSignOut, scoped, hostSignIn } = useKitOptions();
+	const { onSignOut, scoped, hostSignIn, api } = useKitOptions();
 	const clearSession = useClearKitSession();
 	const { t } = useTranslation();
 
 	const logOut = async () => {
 		if (typeof window !== 'undefined') {
-			await teamsLogOut(token);
+			await teamsLogOut(token, api);
 
 			const resetStore = {
 				app: { user: null },

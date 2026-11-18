@@ -13,7 +13,7 @@ const useUserOrganization = (
 ): IHookResponse<PaginationResponse<IUserOrganization> | null> => {
 	const [userOrganizations, setUserOrganizations] = useAtom(userOrganizationsAtom);
 	// A token from the host's getToken names its organization and reaches no organization list.
-	const { hostSignIn } = useKitOptions();
+	const { hostSignIn, api } = useKitOptions();
 
 	const getOrganisation = async (user: IUser | null, token: string) => {
 		try {
@@ -30,12 +30,15 @@ const useUserOrganization = (
 				includeEmployee: true
 			});
 
-			const response = await ApiCall<PaginationResponse<IUserOrganization>>({
-				path: `/user-organization?${query}`,
-				method: 'GET',
-				bearer_token: token,
-				tenantId
-			});
+			const response = await ApiCall<PaginationResponse<IUserOrganization>>(
+				{
+					path: `/user-organization?${query}`,
+					method: 'GET',
+					bearer_token: token,
+					tenantId
+				},
+				api
+			);
 
 			if ('data' in response) {
 				return response.data;
@@ -100,7 +103,7 @@ const useUserOrganization = (
 			})();
 			// }
 		}
-	}, [user, token, hostSignIn]);
+	}, [user, token, hostSignIn, api]);
 
 	return userOrganizations;
 };

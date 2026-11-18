@@ -17,9 +17,25 @@ globalThis.localStorage = dom.window.localStorage;
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 
 const passThrough = 'export default ({ children }) => children;';
+const children = '({ children }) => children ?? null';
 const standIns = {
-	'@ever-teams/toolkit-ui': `import { createContext } from 'react';
+	'@ever-teams/toolkit-ui': `import { createContext, createElement } from 'react';
 		export const PortalContainerContext = createContext(null);
+		export const Avatar = () => null;
+		export const Button = ${children};
+		export const Card = ${children};
+		export const Checkbox = () => null;
+		export const Dialog = ${children};
+		export const Input = () => null;
+		export const Popover = ${children};
+		export const PopoverContent = () => null;
+		export const PopoverTrigger = ${children};
+		export const Tabs = ${children};
+		export const TabsContent = ${children};
+		export const TabsListThemed = ${children};
+		export const TabsTrigger = ${children};
+		export const ThemedButton = ${children};
+		export const useThemeColor = () => 'purple';
 		export const cn = (...names) => names.filter(Boolean).join(' ');
 		export const Toaster = () => null;
 		export const toast = () => {};
@@ -28,6 +44,12 @@ const standIns = {
 		export const getWeekStartAndEnd = () => ({ start: new Date(0), end: new Date(0) });`,
 	'theme-ui': `const passThrough = ({ children }) => children;
 		export const ThemeUIProvider = passThrough;`,
+	// The sign-out menu is written for theme-ui's JSX, which adds the sx prop to React's.
+	'theme-ui/jsx-runtime': "export { jsx, jsxs, Fragment } from 'react/jsx-runtime';",
+	'lucide-react': `export const CheckIcon = () => null;
+		export const Copy = () => null;
+		export const LoaderCircle = () => null;
+		export const LogOutIcon = () => null;`,
 	'next-themes': `const passThrough = ({ children }) => children;
 		export const ThemeProvider = passThrough;
 		export const useTheme = () => ({ setTheme() {} });`,
@@ -38,7 +60,7 @@ const standIns = {
 	'@hooks/useFontSelector': 'export default () => ({ fontOptions: [], selectedFont: "", setSelectedFont() {} });',
 	'@lib/context/teams-tracking-context': passThrough
 };
-// The stand-in an import names, as TeamsProvider writes it.
+// The stand-in an import names, as the kit's modules write it.
 const standInOf = (importPath) => Object.keys(standIns).find((name) => importPath === name);
 
 const USER = { id: 'user-1', tenantId: 'tenant-1', employee: { id: 'employee-1', organizationId: 'org-1' } };
@@ -69,6 +91,7 @@ before(async () => {
 		entry: `export { TeamsProvider } from '${kitSources}/components/teams-provider/teams-provider.tsx';
 			export { usePasswordLoginForm } from '${kitSources}/hooks/usePasswordLoginForm.ts';
 			export { useTokenSubmission } from '${kitSources}/hooks/useTokenSubmission.ts';
+			export { UserNavMenu } from '${kitSources}/components/forms/auth-forms.tsx';
 			export { apiConfigManager } from '@ever-teams/api';`,
 		standIns,
 		standInOf
@@ -100,6 +123,7 @@ afterEach(async () => {
 	for (const root of roots.splice(0)) {
 		await act(async () => root.unmount());
 	}
+	document.body.replaceChildren();
 });
 
 // What the kit's password and token forms do, for the provider they sit in.
@@ -108,21 +132,25 @@ function SignIn({ name }) {
 	return null;
 }
 
-function provider(name, config) {
-	return React.createElement(kit.TeamsProvider, { key: name, config }, React.createElement(SignIn, { name }));
+// A provider with the sign-in forms and the given widgets; a sign-out keeps the page where it is.
+function provider(name, config, widgets = []) {
+	const props = { key: name, config, onSignOut() {} };
+	return React.createElement(kit.TeamsProvider, props, React.createElement(SignIn, { name }), ...widgets);
 }
 
-// The page: one provider per [name, config], in that order.
+// The page: one provider per [name, config, widgets], in that order.
 async function renderPage(root, providers) {
-	const page = providers.map(([name, config]) => provider(name, config));
+	const page = providers.map(([name, config, widgets]) => provider(name, config, widgets));
 	await act(async () => root.render(React.createElement(React.Fragment, null, page)));
 }
 
 async function openPage(providers) {
-	const root = createRoot(document.createElement('div'));
+	const container = document.createElement('div');
+	document.body.appendChild(container);
+	const root = createRoot(container);
 	roots.push(root);
 	await renderPage(root, providers);
-	return root;
+	return { root, container };
 }
 
 // Lets the reads that follow a sign-in (permissions, organizations, timer status) run and settle.
@@ -162,6 +190,38 @@ test('a sign-in on the first of two providers goes to its own API only, with a p
 
 	await signInWithTokenOn('a');
 	assert.deepEqual(requestsTo('/user/me'), [{ host: hostOf(SERVER_A), path: '/user/me', method: 'GET' }]);
+});
+
+test('the reads after a sign-in on the first of two providers, and its sign-out, go to its own API only', async () => {
+	const menu = React.createElement(kit.UserNavMenu, { key: 'menu' });
+	const { container } = await openPage([
+		['a', { apiUrl: SERVER_A }, [menu]],
+		['b', { apiUrl: SERVER_B }]
+	]);
+
+	await signInOn('a');
+	assert.equal(requestsTo('/role-permissions/me').length, 1);
+	assert.equal(requestsTo('/user-organization').length, 1);
+
+	const buttons = [...container.querySelectorAll('button')];
+	const signOut = buttons.find((button) => button.textContent.includes('AUTH.LOGOUT'));
+	await act(async () => signOut.click());
+	await settle();
+
+	assert.equal(requestsTo('/auth/logout').length, 1);
+	assert.deepEqual(new Set(requests.map(({ host }) => host)), new Set([hostOf(SERVER_A)]));
+});
+
+test("with the host's getToken, each of two providers reads the person from its own API", async () => {
+	const getToken = async () => ({ token: 'host-token', expiresAt: Date.now() + 60 * 60 * 1000 });
+	await openPage([
+		['a', { apiUrl: SERVER_A, getToken }],
+		['b', { apiUrl: SERVER_B, getToken }]
+	]);
+	await settle();
+
+	const reads = requestsTo('/user/me').map(({ host }) => host);
+	assert.deepEqual(reads.sort(), [hostOf(SERVER_A), hostOf(SERVER_B)]);
 });
 
 test('a provider alone sends to its own API and still sets the address of the page, as before', async () => {
