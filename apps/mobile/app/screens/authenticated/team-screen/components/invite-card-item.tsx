@@ -20,6 +20,9 @@ import { imgTitleProfileAvatar } from '../../../../helpers/img-title-profile-ava
 import { SvgXml } from 'react-native-svg';
 import { invitedStatusIcon } from '../../../../components/svgs/icons';
 
+// Someone invited has no time, task or estimate yet: the card marks them empty, as the web's invited card does
+const NO_VALUE = '–';
+
 export type ListItemProps = {
 	invite: any;
 	onPressIn?: () => unknown;
@@ -36,7 +39,7 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ invite, onPr
 	const { colors } = useAppTheme();
 
 	return (
-		<TouchableWithoutFeedback onPress={() => onPressIn()}>
+		<TouchableWithoutFeedback onPress={() => onPressIn?.()}>
 			<View
 				style={{
 					...GS.p3,
@@ -62,16 +65,13 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ invite, onPr
 						<View style={{ ...GS.alignCenter, height: '80%', justifyContent: 'space-between' }}>
 							<Text style={styles.totalTimeTitle}>{translate('teamScreen.cardTotalTimeLabel')}</Text>
 							<Text style={[styles.totalTimeText, { color: colors.primary, fontSize: 14 }]}>
-								20 h:30 m
+								{NO_VALUE}
 							</Text>
 						</View>
 					</View>
 				</View>
 				<View style={[styles.wrapTaskTitle, { borderTopColor: colors.divider }]}>
-					<Text style={[styles.otherText, { color: colors.primary }]}>
-						{/* {memberTask ? memberTask.title : ""} */}
-						Working on UI Design & making prototype for user testing tomorrow
-					</Text>
+					<Text style={[styles.otherText, styles.email, { color: colors.primary }]}>{invite.email}</Text>
 				</View>
 				<View style={[styles.times, { borderTopColor: colors.divider }]}>
 					<View
@@ -86,14 +86,14 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ invite, onPr
 						<View style={{ ...GS.alignCenter, height: '80%', justifyContent: 'space-between' }}>
 							<Text style={styles.totalTimeTitle}>{translate('teamScreen.cardTodayWorkLabel')}</Text>
 							<Text style={[styles.totalTimeText, { color: colors.primary, fontSize: 14 }]}>
-								20 h:30 m
+								{NO_VALUE}
 							</Text>
 						</View>
 						<View style={{ ...GS.alignCenter }}>
 							<View style={{ ...GS.alignCenter, height: '80%', justifyContent: 'space-between' }}>
 								<Text style={styles.totalTimeTitle}>{translate('teamScreen.cardTotalWorkLabel')}</Text>
 								<Text style={[styles.totalTimeText, { color: colors.primary, fontSize: 14 }]}>
-									20 h:30 m
+									{NO_VALUE}
 								</Text>
 							</View>
 						</View>
@@ -105,7 +105,7 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ invite, onPr
 								tintColor="#27AE60"
 								backgroundColor="#F0F0F0"
 							>
-								{() => <Text style={{ ...styles.progessText, color: colors.primary }}>0 H</Text>}
+								{() => <Text style={{ ...styles.progessText, color: colors.primary }}>{NO_VALUE}</Text>}
 							</AnimatedCircularProgress>
 						</View>
 					</View>
@@ -288,6 +288,11 @@ const styles = StyleSheet.create({
 		fontSize: 12,
 		left: 15,
 		opacity: 0.2
+	},
+	// For an invitation sent without a name, the address is all that says who it is: it stays readable, in the main
+	// text color (the muted one falls under 4.5:1 against the card in both themes)
+	email: {
+		opacity: 1
 	},
 	otherText: {
 		color: '#282048',

@@ -60,7 +60,9 @@ const MANAGED = {
 const NOT_MANAGED = { ...MANAGED, state: { role: EChatMemberRole.Member } as never };
 
 function setup() {
-	const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+	// No wait before the hook's own retry: the default second between tries made the 502 case outlast its wait on a
+	// busy CI runner.
+	const client = new QueryClient({ defaultOptions: { queries: { retry: false, retryDelay: 0 } } });
 	const wrapper = ({ children }: { children: React.ReactNode }) => (
 		<QueryClientProvider client={client}>{children}</QueryClientProvider>
 	);
@@ -124,6 +126,8 @@ describe('useChatWebhooks', () => {
 
 		await waitFor(() => expect(result.current.availability).toBe('failed'), { timeout: 5000 });
 		expect(result.current.canOpen).toBe(true);
+		// Asked once more before it counts as failed.
+		expect(mockList).toHaveBeenCalledTimes(2);
 	});
 });
 
