@@ -706,6 +706,9 @@ the user, the token and the kit's state, return an `IServerError` value on a fai
 every request to the address set with `apiConfigManager.setConfig({ apiUrl })` (default `https://api.ever.team/api`),
 unless they get one of their own: each takes `{ apiUrl }` as an optional last argument, for a page that talks to two
 APIs. `TeamsProvider` of `@ever-teams/atoms` passes its `config.apiUrl` that way, and sets the page's address from it.
+`apiConfigManager.subscribe(listener)` calls `listener` after each `setConfig()` that changes the configuration, and
+returns the function that stops it: a provider without an `apiUrl` of its own hears that way that the page's address
+changed.
 
 ```js
 import { apiConfigManager, getTimerStatus } from '@ever-teams/api';
