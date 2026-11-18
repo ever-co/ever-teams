@@ -275,7 +275,7 @@ export function useAuthenticationTeam() {
 				response: response.response.status,
 				success: response.response.status === 201,
 				data: response.data,
-				error: response.response.status === 401 ? 'Authentication code or email address invalid' : null
+				error: response.response.status === 401 ? translate('loginScreen.errors.invalidCode') : null
 			};
 		}
 	};
