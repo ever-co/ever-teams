@@ -556,8 +556,9 @@ test('one start at a time for the page: a second click, in the same widget or an
 	}
 });
 
-test('a running timer widget leaves no interval behind once unmounted', async () => {
-	await reset();
+// Runs `check` with the intervals the page starts counted: `live` holds those not cleared yet. Any left are cleared
+// after it, even when an assertion fails.
+async function withLiveIntervals(check) {
 	const live = new Set();
 	const { setInterval: realSet, clearInterval: realClear } = globalThis;
 	globalThis.setInterval = (...args) => {
@@ -570,6 +571,17 @@ test('a running timer widget leaves no interval behind once unmounted', async ()
 		return realClear(id);
 	};
 	try {
+		await check(live);
+	} finally {
+		for (const id of live) realClear(id);
+		globalThis.setInterval = realSet;
+		globalThis.clearInterval = realClear;
+	}
+}
+
+test('a running timer widget leaves no interval behind once unmounted', async () => {
+	await reset();
+	await withLiveIntervals(async (live) => {
 		const seen = {};
 		const { root } = await mount([timer('a', seen)]);
 		await answer(0, { running: true, lastLog: { startedAt: new Date().toISOString() } });
@@ -578,11 +590,7 @@ test('a running timer widget leaves no interval behind once unmounted', async ()
 		await act(async () => root.unmount());
 		roots.splice(roots.indexOf(root), 1);
 		assert.equal(live.size, 0);
-	} finally {
-		for (const id of live) realClear(id);
-		globalThis.setInterval = realSet;
-		globalThis.clearInterval = realClear;
-	}
+	});
 });
 
 test('outside a provider, useTimerStatus reads again with a new token at once, and polls with it', async () => {
