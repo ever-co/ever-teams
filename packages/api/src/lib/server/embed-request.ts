@@ -1,6 +1,13 @@
 import { withoutTrailingSlashes } from '../client/address';
 import { parseBody } from '../client/answer-body';
-import { clientError, codeOf, errorFromResponse, networkError, NextStepsByStatus } from '../client/error-mapping';
+import {
+	clientError,
+	codeOf,
+	errorFromResponse,
+	isRecord,
+	networkError,
+	NextStepsByStatus
+} from '../client/error-mapping';
 import { EverTeamsError } from '../client/errors';
 
 /** One request of a server helper to an embed route, whose body holds the credential. */
@@ -158,15 +165,34 @@ async function textOf<T>(post: EmbedPost<T>, response: Response): Promise<string
 	}
 }
 
+// The parsed answer with the credential out of every text in it, keys too: a JSON escape (\u0067 for g) would have
+// kept a copy of it out of reach of the raw text's redaction.
+function valueWithoutCredential(value: unknown, credential: string): unknown {
+	if (typeof value === 'string') {
+		return withoutCredential(value, credential);
+	}
+	if (Array.isArray(value)) {
+		return value.map((item) => valueWithoutCredential(item, credential));
+	}
+	if (isRecord(value)) {
+		const copy: { [key: string]: unknown } = {};
+		for (const key of Object.keys(value)) {
+			copy[withoutCredential(key, credential)] = valueWithoutCredential(value[key], credential);
+		}
+		return copy;
+	}
+	return value;
+}
+
 /**
- * Sends the request and answers what the helper answers, or throws a typed error. The answer's text loses any copy of
- * the credential before it is read, so no error carries it.
+ * Sends the request and answers what the helper answers, or throws a typed error. The answer loses any copy of the
+ * credential before it is read, as text and once parsed, so no error carries it.
  */
 export async function postEmbed<T>(post: EmbedPost<T>): Promise<T> {
 	const url = post.apiUrl + post.path;
 	const response = await send(post, url);
 	const text = withoutCredential(await textOf(post, response), post.credential);
-	const value = parseBody(text).value;
+	const value = valueWithoutCredential(parseBody(text).value, post.credential);
 	if (!response.ok) {
 		throw errorFromResponse(response, value, nextStepsOf(response.status, value));
 	}

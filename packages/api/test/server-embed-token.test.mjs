@@ -253,6 +253,18 @@ test('a fetch failure keeps its name, message, code and causes, never the reques
 	assert.match(error.cause.cause.message, /^connect ECONNREFUSED for .*\[credential\]/);
 });
 
+test('a refusal that repeats the credential through JSON escapes loses it once parsed, in values and keys', async () => {
+	// Every character as \uXXXX: the raw text never holds the credential, its parsed values do.
+	const escaped = [...CREDENTIAL].map((character) => `\\u${character.charCodeAt(0).toString(16).padStart(4, '0')}`);
+	const credentialInJson = escaped.join('');
+	const body = `{"message":"Upstream refused ${credentialInJson}","echo":{"${credentialInJson}":["${credentialInJson}"]}}`;
+	const error = await refusalOf(() => new Response(body, { status: 502, statusText: 'Bad Gateway' }));
+
+	assert.equal(error.name, 'EverTeamsServerError');
+	assert.equal(error.message, 'Upstream refused [credential]');
+	assert.deepEqual(error.body.echo, { '[credential]': ['[credential]'] });
+});
+
 test('missing or malformed options are refused before any request, without the credential', async () => {
 	const cases = [
 		[{ apiUrl: undefined }, /needs apiUrl\./],
