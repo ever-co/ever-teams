@@ -27,18 +27,25 @@ function useTeamsStopWatch(timerStatus: ITimerStatus): UseTeamsStopWatchReturn {
 	const [todayTrackedTime, setTodayTrackedTime] = useState<Date>(new Date(0));
 	const [isRunning, setIsRunning] = useState<boolean>(false);
 	const intervalRef = useRef<NodeJS.Timeout | null>(null);
+	// A start that answers once the widget is gone (the host removed it, or its provider started afresh) starts no
+	// clock that nothing would ever stop.
+	const mounted = useRef(false);
 
 	// An unmounted widget stops ticking.
-	useEffect(
-		() => () => {
+	useEffect(() => {
+		mounted.current = true;
+		return () => {
+			mounted.current = false;
 			if (intervalRef.current) {
 				clearInterval(intervalRef.current);
 			}
-		},
-		[]
-	);
+		};
+	}, []);
 
 	const start = () => {
+		if (!mounted.current) {
+			return;
+		}
 		if (!isRunning) {
 			setIsRunning(true);
 			// Two starts before the next render (an effect run twice) keep one tick, not two.

@@ -593,6 +593,25 @@ test('a running timer widget leaves no interval behind once unmounted', async ()
 	});
 });
 
+test('a start that answers once its timer widget is gone leaves no interval behind', async () => {
+	await reset();
+	await withLiveIntervals(async (live) => {
+		const seen = {};
+		const { root } = await mount([timer('a', seen)]);
+		await answer(0, { running: false });
+		await act(async () => {
+			seen.a.startTimer();
+		});
+
+		await act(async () => root.unmount());
+		roots.splice(roots.indexOf(root), 1);
+		await act(async () => globalThis.__actions[0]({ id: 'log' }));
+		await flush();
+
+		assert.equal(live.size, 0);
+	});
+});
+
 test('outside a provider, useTimerStatus reads again with a new token at once, and polls with it', async () => {
 	await reset();
 	mock.timers.enable({ apis: ['setInterval'] });
