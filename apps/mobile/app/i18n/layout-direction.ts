@@ -9,15 +9,13 @@ const REQUESTED_DIRECTION_KEY = 'requested-direction';
 
 const layoutStorage = new MMKV({ id: 'ever-teams.layout' });
 
+let runningRightToLeft: boolean | undefined;
+
 export function isRightToLeft(locale: AppLocale): boolean {
 	return RIGHT_TO_LEFT_LOCALES.includes(locale);
 }
 
-/**
- * Whether the app is laid out right to left. I18nManager.isRTL keeps the direction the process started with, even
- * after a reload that already shows the new one: the direction last asked for wins over it.
- */
-export function isLaidOutRightToLeft(): boolean {
+function requestedRightToLeft(): boolean | undefined {
 	const requested = layoutStorage.getString(REQUESTED_DIRECTION_KEY);
 	if (requested === 'rtl') {
 		return true;
@@ -25,22 +23,19 @@ export function isLaidOutRightToLeft(): boolean {
 	if (requested === 'ltr') {
 		return false;
 	}
-	return I18nManager.isRTL;
+	return undefined;
 }
 
 /**
- * Lays the app out in the direction of its language, whatever the phone's: Arabic on an English phone reads right to
- * left. React Native applies a new direction only after a restart: answers whether one is needed.
+ * Whether the screens are laid out right to left now, read once per start: the direction asked for before this start,
+ * which a restart applied, or else the process's own. I18nManager.isRTL keeps the direction the process started with,
+ * even after a reload that already shows another one.
  */
-export function layOutFor(locale: AppLocale): boolean {
-	const rightToLeft = isRightToLeft(locale);
-	I18nManager.allowRTL(rightToLeft);
-	if (isLaidOutRightToLeft() === rightToLeft) {
-		return false;
+export function isLaidOutRightToLeft(): boolean {
+	if (runningRightToLeft === undefined) {
+		runningRightToLeft = requestedRightToLeft() ?? I18nManager.isRTL;
 	}
-	I18nManager.forceRTL(rightToLeft);
-	layoutStorage.set(REQUESTED_DIRECTION_KEY, directionName(rightToLeft));
-	return true;
+	return runningRightToLeft;
 }
 
 function directionName(rightToLeft: boolean): 'rtl' | 'ltr' {
@@ -48,6 +43,20 @@ function directionName(rightToLeft: boolean): 'rtl' | 'ltr' {
 		return 'rtl';
 	}
 	return 'ltr';
+}
+
+/**
+ * Asks for the direction of the app's language, whatever the phone's: Arabic on an English phone reads right to left.
+ * React Native applies it after a restart: answers whether the screens shown now need one. A language whose direction
+ * the screens already have cancels a restart asked for before and never taken.
+ */
+export function layOutFor(locale: AppLocale): boolean {
+	const running = isLaidOutRightToLeft();
+	const rightToLeft = isRightToLeft(locale);
+	I18nManager.allowRTL(rightToLeft);
+	I18nManager.forceRTL(rightToLeft);
+	layoutStorage.set(REQUESTED_DIRECTION_KEY, directionName(rightToLeft));
+	return running !== rightToLeft;
 }
 
 function restartNow(): void {
