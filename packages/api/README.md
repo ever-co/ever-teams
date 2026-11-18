@@ -109,7 +109,7 @@ table names the route behind each one; they are the routes the kit already calls
 | `timeEntries.list({ from, to, ... })` | `GET /timesheet/time-log`                         | `ITimeLog[]`               |
 | `projects.list()`                     | `GET /organization-projects/employee/:employeeId` | `EverTeamsProject[]`       |
 | `tasks.list({ projectId? })`          | `GET /tasks/employee/:employeeId`                 | `EverTeamsTask[]`          |
-| `members.list()`                      | `GET /employee/working`                           | `IMember[]`                |
+| `members.list()`                      | `GET /employee/working`                           | `EverTeamsMember[]`        |
 | `totals.today()`, `totals.week()`     | `GET /timesheet/statistics/counts`                | `EverTeamsTotal`           |
 
 ### timer.status()

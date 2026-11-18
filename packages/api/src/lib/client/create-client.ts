@@ -9,7 +9,7 @@ import { createTransport } from './transport';
 import { EverTeamsClientOptions } from './types';
 
 export type { EverTeamsDate } from './dates';
-export type { MembersResource } from './members';
+export type { EverTeamsMember, EverTeamsMemberUser, MembersResource } from './members';
 export type { EverTeamsProject, ProjectsResource } from './projects';
 export type { EverTeamsTask, TasksListParams, TasksResource } from './tasks';
 export type { TimeEntriesListParams, TimeEntriesResource } from './time-entries';

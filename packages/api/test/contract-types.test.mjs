@@ -19,7 +19,6 @@ const declarations = path.join(here, '..', 'dist', 'index.js').split(path.sep).j
 
 // The answers that do not fit the client's types yet, with what the recording found.
 const KNOWN_DISAGREEMENTS = new Map([
-	['members.list', 'endWork is absent; the user holds a few fields, and its timeFormat is a number'],
 	['timeEntries.list', 'project, task, organizationContact... are null; the employee and its user hold a few fields']
 ]);
 
