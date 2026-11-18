@@ -1,4 +1,5 @@
-import '../../app/i18n';
+// first: the language starts before any screen is loaded
+import { useLanguageStarted } from '../../app/i18n';
 import '../../app/utils/ignore-warnings';
 import React, { useState } from 'react';
 import { StyleSheet, useColorScheme } from 'react-native';
@@ -14,7 +15,6 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import FlashMessage from 'react-native-flash-message';
 import { ClickOutsideProvider } from 'react-native-click-outside';
 import Config from '../../app/config';
-import { useLanguageStarted } from '../../app/i18n';
 import { useInitialRootStore, useStores } from '../../app/models';
 import { markRouterMounted } from '../../app/navigators/routes';
 import { ErrorBoundary } from '../../app/screens/error-screen/error-boundary';
