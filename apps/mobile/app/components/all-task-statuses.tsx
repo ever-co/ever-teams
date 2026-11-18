@@ -8,6 +8,14 @@ import LabelItem from './label-item';
 import { useTaskLabelValue, useTaskPriorityValue, useTaskSizeValue, useTaskStatusValue } from './status-type';
 import { ITeamTask } from '../services/interfaces/ITask';
 
+function nameMatches(item: { name?: string } | undefined, value: string | undefined): boolean {
+	const name = item?.name;
+	if (!name) {
+		return false;
+	}
+	return name.toLowerCase() === value;
+}
+
 const AllTaskStatuses = ({ task }: { task: ITeamTask }) => {
 	const flatListRef = useRef<FlatList>(null);
 	const [labelIndex, setLabelIndex] = useState(0);
@@ -19,14 +27,13 @@ const AllTaskStatuses = ({ task }: { task: ITeamTask }) => {
 	const allLabels = useTaskLabelValue();
 
 	const statusValue = task?.status?.split('-').join(' ').toLowerCase();
-	const status = allStatuses && Object.values(allStatuses).find((item) => item?.name?.toLowerCase() === statusValue);
+	const status = allStatuses && Object.values(allStatuses).find((item) => nameMatches(item, statusValue));
 
 	const sizeValue = task?.size?.split('-').join(' ').toLowerCase();
-	const size = allSizes && Object.values(allSizes).find((item) => item?.name?.toLowerCase() === sizeValue);
+	const size = allSizes && Object.values(allSizes).find((item) => nameMatches(item, sizeValue));
 
 	const priorityValue = task?.priority?.split('-').join(' ').toLowerCase();
-	const priority =
-		allPriorities && Object.values(allPriorities).find((item) => item?.name?.toLowerCase() === priorityValue);
+	const priority = allPriorities && Object.values(allPriorities).find((item) => nameMatches(item, priorityValue));
 
 	const taskLabels = task?.tags?.map((tag) => allLabels[tag.name]);
 
