@@ -15,7 +15,8 @@ const esbuild = require('esbuild');
 const lib = path.join(here, '..', 'src', 'lib');
 const locale = (lang) => JSON.parse(fs.readFileSync(path.join(lib, 'i18n', 'locales', `${lang}.json`), 'utf8'));
 
-// The labels before the picker went through the translations: English keeps every one of them, in this order.
+// The labels before the picker went through the translations, in this order. English keeps them, except theme7's
+// "Green and Yellow", a second name of theme9 for a teal to orange theme: it is "Teal and orange", as in French.
 const ENGLISH_LABELS = [
 	'Default',
 	'Purple gradient',
@@ -24,7 +25,7 @@ const ENGLISH_LABELS = [
 	'Yellow and Red',
 	'Blue and green (Black)',
 	'Pink and White',
-	'Green and Yellow',
+	'Teal and orange',
 	'Red and Blue',
 	'Green and yellow',
 	'Pink and blue',
@@ -118,6 +119,11 @@ test('in English the picker shows the same placeholder and labels as before, in 
 
 	assert.equal(placeholder, 'Select theme');
 	assert.deepEqual(labels, ENGLISH_LABELS);
+	assert.equal(
+		new Set(labels.map((label) => label.toLowerCase())).size,
+		labels.length,
+		'two themes never share a name'
+	);
 });
 
 test('in French the picker names its themes in French, the new gradient included', () => {
