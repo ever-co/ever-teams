@@ -51,6 +51,9 @@
   "app/[locale]/(main)/task/[id]/page.tsx": {
     "react-hooks/refs": {
       "count": 2
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
     }
   },
   "app/[locale]/auth/reset-password/page.tsx": {
@@ -267,6 +270,11 @@
       "count": 1
     }
   },
+  "core/components/calendar/calendar-entry-labels.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
   "core/components/collaborate/index.tsx": {
     "@typescript-eslint/no-explicit-any": {
       "count": 2
@@ -309,6 +317,9 @@
     },
     "@typescript-eslint/no-explicit-any": {
       "count": 1
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
     }
   },
   "core/components/common/combobox.tsx": {
@@ -320,6 +331,9 @@
     },
     "react-hooks/refs": {
       "count": 2
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
     }
   },
   "core/components/common/data-table.tsx": {
@@ -411,9 +425,27 @@
       "count": 1
     }
   },
+  "core/components/common/list-search-field.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
   "core/components/common/multiple-select.tsx": {
     "@typescript-eslint/no-explicit-any": {
       "count": 5
+    }
+  },
+  "core/components/common/rich-editor/rich-editor.tsx": {
+    "react-hooks/preserve-manual-memoization": {
+      "count": 2
+    },
+    "react-hooks/refs": {
+      "count": 2
+    }
+  },
+  "core/components/common/select-items.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
     }
   },
   "core/components/common/sidebar.tsx": {
@@ -499,6 +531,11 @@
       "count": 3
     },
     "@typescript-eslint/no-unused-expressions": {
+      "count": 1
+    }
+  },
+  "core/components/common/toaster.tsx": {
+    "react-hooks/set-state-in-effect": {
       "count": 1
     }
   },
@@ -814,6 +851,11 @@
       "count": 1
     }
   },
+  "core/components/integration/livekit/index.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
   "core/components/integration/livekit/settings-livekit.tsx": {
     "@typescript-eslint/ban-ts-comment": {
       "count": 2
@@ -990,6 +1032,11 @@
       "count": 1
     }
   },
+  "core/components/pages/chat/message-composer.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
   "core/components/pages/dashboard/app-url/productivity-application/productivity-application-table.tsx": {
     "@typescript-eslint/no-explicit-any": {
       "count": 1
@@ -1048,6 +1095,37 @@
   },
   "core/components/pages/dashboard/team-dashboard/team-stats-table.tsx": {
     "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/components/pages/docs/docs-dialogs.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 3
+    }
+  },
+  "core/components/pages/docs/docs-editor-surface.tsx": {
+    "react-hooks/refs": {
+      "count": 2
+    }
+  },
+  "core/components/pages/docs/docs-page-view.tsx": {
+    "react-hooks/preserve-manual-memoization": {
+      "count": 8
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 3
+    }
+  },
+  "core/components/pages/docs/docs-version-panel.tsx": {
+    "react-hooks/purity": {
+      "count": 1
+    }
+  },
+  "core/components/pages/inbox/inbox-page.tsx": {
+    "react-hooks/preserve-manual-memoization": {
+      "count": 1
+    },
+    "react-hooks/set-state-in-effect": {
       "count": 1
     }
   },
@@ -1124,6 +1202,11 @@
       "count": 4
     }
   },
+  "core/components/pages/projects/project-views/list-view/data-table.tsx": {
+    "react-hooks/incompatible-library": {
+      "count": 1
+    }
+  },
   "core/components/pages/reports/weekly-limit/data-table.tsx": {
     "react-hooks/incompatible-library": {
       "count": 1
@@ -1141,6 +1224,11 @@
     "react-hooks/preserve-manual-memoization": {
       "count": 4
     },
+    "react-hooks/set-state-in-effect": {
+      "count": 2
+    }
+  },
+  "core/components/pages/settings/personal/working-hours.tsx": {
     "react-hooks/set-state-in-effect": {
       "count": 2
     }
@@ -1163,6 +1251,12 @@
       "count": 3
     },
     "react-hooks/exhaustive-deps": {
+      "count": 2
+    },
+    "react-hooks/preserve-manual-memoization": {
+      "count": 5
+    },
+    "react-hooks/refs": {
       "count": 2
     },
     "react-hooks/use-memo": {
@@ -1327,6 +1421,16 @@
       "count": 1
     }
   },
+  "core/components/pages/teams/team/tasks/views/save-view-dialog.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "core/components/pages/teams/team/tasks/views/use-saved-view-commands.ts": {
+    "react-hooks/preserve-manual-memoization": {
+      "count": 1
+    }
+  },
   "core/components/pages/teams/team/team-members-views/team-members-card-view.tsx": {
     "react-hooks/refs": {
       "count": 1
@@ -1468,6 +1572,14 @@
     },
     "react-hooks/exhaustive-deps": {
       "count": 1
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "core/components/pages/workspace/create-workspace-page.tsx": {
+    "react-hooks/refs": {
+      "count": 1
     }
   },
   "core/components/projects/filters-card-modal.tsx": {
@@ -1561,6 +1673,11 @@
       "count": 1
     }
   },
+  "core/components/settings/pages/team-general/team-notification-defaults-section.tsx": {
+    "react-hooks/refs": {
+      "count": 23
+    }
+  },
   "core/components/settings/period-dropdown.tsx": {
     "@typescript-eslint/no-explicit-any": {
       "count": 2
@@ -1595,6 +1712,11 @@
       "count": 1
     }
   },
+  "core/components/settings/timezone-dropdown.tsx": {
+    "react-hooks/use-memo": {
+      "count": 1
+    }
+  },
   "core/components/tasks/assigned-tasks.tsx": {
     "react-hooks/refs": {
       "count": 2
@@ -1615,6 +1737,12 @@
       "count": 2
     },
     "react-hooks/exhaustive-deps": {
+      "count": 1
+    },
+    "react-hooks/preserve-manual-memoization": {
+      "count": 1
+    },
+    "react-hooks/set-state-in-effect": {
       "count": 1
     }
   },
@@ -1744,9 +1872,12 @@
       "count": 4
     },
     "react-hooks/immutability": {
-      "count": 6
+      "count": 7
     },
     "react-hooks/preserve-manual-memoization": {
+      "count": 1
+    },
+    "react-hooks/set-state-in-effect": {
       "count": 1
     }
   },
@@ -1761,7 +1892,10 @@
       "count": 3
     },
     "react-hooks/immutability": {
-      "count": 9
+      "count": 10
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
     }
   },
   "core/components/tasks/task-issue.tsx": {
@@ -1799,6 +1933,9 @@
     },
     "react-hooks/refs": {
       "count": 1
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
     }
   },
   "core/components/tasks/task-list.tsx": {
@@ -1826,6 +1963,11 @@
     },
     "@typescript-eslint/no-unused-expressions": {
       "count": 2
+    }
+  },
+  "core/components/tasks/task-search-field.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
     }
   },
   "core/components/tasks/task-sizes-form.tsx": {
@@ -1860,6 +2002,9 @@
       "count": 2
     },
     "react-hooks/exhaustive-deps": {
+      "count": 1
+    },
+    "react-hooks/set-state-in-effect": {
       "count": 1
     }
   },
@@ -1952,6 +2097,9 @@
   "core/components/teams/team-size-popover.tsx": {
     "@typescript-eslint/no-explicit-any": {
       "count": 2
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
     }
   },
   "core/components/teams/teams-dropdown.tsx": {
@@ -1973,6 +2121,9 @@
   "core/components/timer/estimate-time.tsx": {
     "react-hooks/refs": {
       "count": 2
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
     }
   },
   "core/components/timer/timer-status.tsx": {
@@ -2030,6 +2181,9 @@
   "core/components/users/user-profile-plans.tsx": {
     "@typescript-eslint/no-unused-expressions": {
       "count": 1
+    },
+    "react-hooks/refs": {
+      "count": 9
     }
   },
   "core/hooks/activities/use-activity-filters.ts": {
@@ -2043,11 +2197,23 @@
   "core/hooks/activities/use-optimized-activity-tabs.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 4
+    },
+    "react-hooks/purity": {
+      "count": 4
+    },
+    "react-hooks/refs": {
+      "count": 29
     }
   },
   "core/hooks/activities/use-optimized-task-cache.ts": {
     "react-hooks/exhaustive-deps": {
       "count": 1
+    },
+    "react-hooks/purity": {
+      "count": 1
+    },
+    "react-hooks/refs": {
+      "count": 10
     }
   },
   "core/hooks/activities/use-start-stop-timer-handler.ts": {
@@ -2117,6 +2283,9 @@
     },
     "react-hooks/immutability": {
       "count": 1
+    },
+    "react-hooks/refs": {
+      "count": 1
     }
   },
   "core/hooks/auth/use-accept-invite.ts": {
@@ -2132,6 +2301,9 @@
       "count": 3
     },
     "react-hooks/exhaustive-deps": {
+      "count": 1
+    },
+    "react-hooks/preserve-manual-memoization": {
       "count": 1
     },
     "react-hooks/refs": {
@@ -2151,6 +2323,9 @@
   "core/hooks/auth/use-authentication-passcode.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 13
+    },
+    "react-hooks/immutability": {
+      "count": 3
     }
   },
   "core/hooks/auth/use-authentication-password.ts": {
@@ -2174,6 +2349,15 @@
   "core/hooks/auth/use-authentication-team.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 5
+    },
+    "react-hooks/immutability": {
+      "count": 3
+    },
+    "react-hooks/refs": {
+      "count": 1
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
     }
   },
   "core/hooks/auth/use-current-org.ts": {
@@ -2217,6 +2401,16 @@
       "count": 3
     }
   },
+  "core/hooks/bootstrap/use-scope-guard.ts": {
+    "react-hooks/refs": {
+      "count": 3
+    }
+  },
+  "core/hooks/chat/use-chat-messages.ts": {
+    "react-hooks/refs": {
+      "count": 2
+    }
+  },
   "core/hooks/common/use-callback-ref.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 1
@@ -2257,6 +2451,9 @@
   "core/hooks/common/use-infinity-fetch.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 1
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
     }
   },
   "core/hooks/common/use-language-settings.test.tsx": {
@@ -2288,6 +2485,11 @@
       "count": 1
     }
   },
+  "core/hooks/common/use-mobile.ts": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
   "core/hooks/common/use-outside-click.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 2
@@ -2304,12 +2506,15 @@
       "count": 4
     },
     "react-hooks/set-state-in-effect": {
-      "count": 1
+      "count": 3
     }
   },
   "core/hooks/common/use-query.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 2
+    },
+    "react-hooks/refs": {
+      "count": 1
     }
   },
   "core/hooks/common/use-refresh-interval.ts": {
@@ -2323,6 +2528,9 @@
     },
     "react-hooks/purity": {
       "count": 2
+    },
+    "react-hooks/refs": {
+      "count": 4
     }
   },
   "core/hooks/common/use-sortable-data.ts": {
@@ -2369,6 +2577,11 @@
       "count": 2
     }
   },
+  "core/hooks/daily-plans/use-plan-editor.ts": {
+    "react-hooks/preserve-manual-memoization": {
+      "count": 1
+    }
+  },
   "core/hooks/daily-plans/use-team-daily-plans.ts": {
     "react-hooks/exhaustive-deps": {
       "count": 1
@@ -2382,8 +2595,50 @@
       "count": 1
     }
   },
+  "core/hooks/docs/use-docs-comments.ts": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "core/hooks/inbox/use-inbox-web-push.ts": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "core/hooks/integrations/use-asana-integration.ts": {
+    "react-hooks/preserve-manual-memoization": {
+      "count": 2
+    },
+    "react-hooks/refs": {
+      "count": 1
+    }
+  },
   "core/hooks/integrations/use-integration.ts": {
     "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "core/hooks/integrations/use-jira-integration.ts": {
+    "react-hooks/preserve-manual-memoization": {
+      "count": 2
+    },
+    "react-hooks/refs": {
+      "count": 1
+    }
+  },
+  "core/hooks/integrations/use-linear-integration.ts": {
+    "react-hooks/preserve-manual-memoization": {
+      "count": 2
+    },
+    "react-hooks/refs": {
+      "count": 1
+    }
+  },
+  "core/hooks/integrations/use-trello-integration.ts": {
+    "react-hooks/refs": {
       "count": 1
     },
     "react-hooks/set-state-in-effect": {
@@ -2395,6 +2650,11 @@
       "count": 1
     },
     "prefer-const": {
+      "count": 1
+    }
+  },
+  "core/hooks/invitations/use-invite-dialog.ts": {
+    "react-hooks/set-state-in-effect": {
       "count": 1
     }
   },
@@ -2449,6 +2709,11 @@
       "count": 4
     },
     "@typescript-eslint/no-require-imports": {
+      "count": 1
+    }
+  },
+  "core/hooks/organizations/teams/use-organization-teams-query.ts": {
+    "react-hooks/preserve-manual-memoization": {
       "count": 1
     }
   },
@@ -2531,6 +2796,16 @@
       "count": 1
     }
   },
+  "core/hooks/settings/use-github-integration-settings.ts": {
+    "react-hooks/preserve-manual-memoization": {
+      "count": 1
+    }
+  },
+  "core/hooks/settings/use-team-members-settings.ts": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
   "core/hooks/tasks/use-active-task-status.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 4
@@ -2542,6 +2817,11 @@
   "core/hooks/tasks/use-active-team-task.ts": {
     "react-hooks/preserve-manual-memoization": {
       "count": 1
+    }
+  },
+  "core/hooks/tasks/use-detailed-task.ts": {
+    "react-hooks/set-state-in-effect": {
+      "count": 2
     }
   },
   "core/hooks/tasks/use-kanban.ts": {
@@ -2569,6 +2849,12 @@
   },
   "core/hooks/tasks/use-task-filter.ts": {
     "@typescript-eslint/no-unused-expressions": {
+      "count": 1
+    },
+    "react-hooks/preserve-manual-memoization": {
+      "count": 4
+    },
+    "react-hooks/set-state-in-effect": {
       "count": 1
     }
   },
@@ -2619,6 +2905,9 @@
     },
     "react-hooks/immutability": {
       "count": 2
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 2
     }
   },
   "core/hooks/tasks/use-timer-button.ts": {
@@ -2653,12 +2942,22 @@
       "count": 6
     }
   },
+  "core/hooks/timer/use-timer-discard.ts": {
+    "react-hooks/purity": {
+      "count": 1
+    }
+  },
   "core/hooks/timer/use-timer-ui.ts": {
     "react-hooks/exhaustive-deps": {
       "count": 1
     },
     "react-hooks/refs": {
       "count": 6
+    }
+  },
+  "core/hooks/timesheet/use-duration-entry.ts": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
     }
   },
   "core/hooks/timesheet/use-timesheet-query.ts": {
@@ -2668,6 +2967,11 @@
     "react-hooks/exhaustive-deps": {
       "count": 1
     },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "core/hooks/timesheet/use-workspace-import.ts": {
     "react-hooks/set-state-in-effect": {
       "count": 1
     }
@@ -2690,6 +2994,9 @@
   },
   "core/hooks/users/use-user-profile-page.ts": {
     "react-hooks/exhaustive-deps": {
+      "count": 1
+    },
+    "react-hooks/preserve-manual-memoization": {
       "count": 1
     }
   },

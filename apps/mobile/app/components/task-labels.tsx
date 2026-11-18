@@ -201,7 +201,7 @@ const TaskLabels: FC<TaskLabelProps> = observer(
 											marginLeft: 5
 										}}
 									>
-										{translate('taskDetailsScreen.items')} ({task?.tags.length})
+										{translate('taskDetailsScreen.items')} ({task?.tags?.length ?? 0})
 									</Text>
 								</View>
 

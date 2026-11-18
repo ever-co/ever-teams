@@ -150,6 +150,20 @@ test('without api-url the kit keeps its own default API address', async () => {
 	assert.deepEqual(JSON.parse(providerOf(element).dataset.config), {});
 });
 
+test('an element that never had api-url leaves the API address alone when another attribute changes', async () => {
+	const element = await place();
+	await act(async () => element.setAttribute('color-scheme', 'dark'));
+
+	assert.deepEqual(JSON.parse(providerOf(element).dataset.config), {});
+});
+
+test('a removed api-url gives the provider the client default address', async () => {
+	const element = await place({ 'api-url': 'https://api.example.com/api' });
+	await act(async () => element.removeAttribute('api-url'));
+
+	assert.deepEqual(JSON.parse(providerOf(element).dataset.config), { apiUrl: 'https://api.ever.team/api' });
+});
+
 test('a removed element unmounts the kit and empties its shadow root', async () => {
 	const element = await place({ 'api-url': 'https://api.example.com/api' });
 	await act(async () => element.remove());
