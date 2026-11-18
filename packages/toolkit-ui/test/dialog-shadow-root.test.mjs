@@ -208,10 +208,16 @@ test('in a shadow root a Tab a control of the dialog handled itself is left to i
 	const note = portal.querySelector('textarea');
 
 	await act(async () => note.focus());
-	await act(async () =>
-		note.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', shiftKey: true, bubbles: true, composed: true }))
-	);
+	const keydown = new KeyboardEvent('keydown', {
+		key: 'Tab',
+		shiftKey: true,
+		bubbles: true,
+		composed: true,
+		cancelable: true
+	});
+	await act(async () => note.dispatchEvent(keydown));
 
+	assert.equal(keydown.defaultPrevented, true, 'the textarea cancels the Tab itself');
 	assert.equal(shadow.activeElement, note);
 	await act(async () => root.unmount());
 });
