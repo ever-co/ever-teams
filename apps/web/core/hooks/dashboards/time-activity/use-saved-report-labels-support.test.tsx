@@ -91,13 +91,20 @@ describe('useSavedReportLabelsSupport', () => {
 		expect(mockKeepsEntryLabels).not.toHaveBeenCalled();
 	});
 
-	it('says it failed, never "not kept", when whether entries have labels could not be read, and asks that again first', () => {
+	it('says it failed, never "not kept", when whether entries have labels could not be read, and asks that again first', async () => {
 		mockEntryLabels = { isSupported: false, isKnown: true, hasFailed: true };
-		const { result } = setup(true);
+		const { result, rerender } = setup(true);
 
 		expect(result.current.support).toBe('failed');
 		result.current.retry();
 		expect(mockRetryEntryLabels).toHaveBeenCalledTimes(1);
 		expect(mockKeepsEntryLabels).not.toHaveBeenCalled();
+
+		// The check of entry labels answers on its retry: Gauzy is then asked about saved reports, and keeps them
+		mockEntryLabels = { isSupported: true, isKnown: true, hasFailed: false };
+		rerender({ needed: true });
+
+		await waitFor(() => expect(result.current.support).toBe('kept'));
+		expect(mockKeepsEntryLabels).toHaveBeenCalledTimes(1);
 	});
 });
