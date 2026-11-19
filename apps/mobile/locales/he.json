@@ -55,7 +55,14 @@
 			"needsNetwork": "כדי להפעיל ולעצור את הטיימר צריך חיבור.",
 			"weekFailed": "לא ניתן היה לטעון את סך השבוע",
 			"weekUnavailable": "החשבון הזה לא מודד כאן זמן",
-			"taskFailed": "לא ניתן היה לטעון את המשימה"
+			"taskFailed": "לא ניתן היה לטעון את המשימה",
+			"todayTasks": "המשימות של היום",
+			"todayTasksEmpty": "עדיין לא נמדדה אף משימה היום",
+			"todayTasksFailed": "לא ניתן היה לטעון את המשימות של היום",
+			"runningTask": "פועל",
+			"startOnTask": "הפעלת הטיימר על {title}",
+			"switchToTask": "עצירת המשימה הנוכחית והפעלת {title}",
+			"switchFailedTitle": "הטיימר לא הצליח להחליף משימה"
 		}
 	},
 	"session": {

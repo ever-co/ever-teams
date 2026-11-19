@@ -55,7 +55,14 @@
 			"needsNetwork": "Voor starten en stoppen van de timer is een verbinding nodig.",
 			"weekFailed": "Het weektotaal kon niet worden geladen",
 			"weekUnavailable": "Dit account registreert hier geen tijd",
-			"taskFailed": "De taak kon niet worden geladen"
+			"taskFailed": "De taak kon niet worden geladen",
+			"todayTasks": "Taken van vandaag",
+			"todayTasksEmpty": "Vandaag nog geen taak geregistreerd",
+			"todayTasksFailed": "De taken van vandaag konden niet worden geladen",
+			"runningTask": "Loopt",
+			"startOnTask": "Timer starten op {title}",
+			"switchToTask": "Huidige taak stoppen en {title} starten",
+			"switchFailedTitle": "De timer kon niet van taak wisselen"
 		}
 	},
 	"session": {

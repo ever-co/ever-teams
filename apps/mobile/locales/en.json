@@ -55,7 +55,14 @@
 			"needsNetwork": "Starting and stopping the timer need a connection.",
 			"weekFailed": "This week's total could not load",
 			"weekUnavailable": "This account tracks no time here",
-			"taskFailed": "The task could not load"
+			"taskFailed": "The task could not load",
+			"todayTasks": "Today's tasks",
+			"todayTasksEmpty": "No task tracked today yet",
+			"todayTasksFailed": "Today's tasks could not load",
+			"runningTask": "Running",
+			"startOnTask": "Start the timer on {title}",
+			"switchToTask": "Stop the current task and start {title}",
+			"switchFailedTitle": "The timer could not change task"
 		}
 	},
 	"session": {

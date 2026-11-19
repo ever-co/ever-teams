@@ -55,7 +55,14 @@
 			"needsNetwork": "Uruchamianie i zatrzymywanie timera wymaga połączenia.",
 			"weekFailed": "Nie udało się wczytać sumy tygodnia",
 			"weekUnavailable": "To konto nie rejestruje tu czasu",
-			"taskFailed": "Nie udało się wczytać zadania"
+			"taskFailed": "Nie udało się wczytać zadania",
+			"todayTasks": "Dzisiejsze zadania",
+			"todayTasksEmpty": "Dzisiaj nie zarejestrowano jeszcze żadnego zadania",
+			"todayTasksFailed": "Nie udało się wczytać dzisiejszych zadań",
+			"runningTask": "Trwa",
+			"startOnTask": "Uruchom timer dla {title}",
+			"switchToTask": "Zatrzymaj bieżące zadanie i uruchom {title}",
+			"switchFailedTitle": "Nie udało się zmienić zadania timera"
 		}
 	},
 	"session": {

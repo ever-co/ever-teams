@@ -55,7 +55,14 @@
 			"needsNetwork": "Zum Starten und Stoppen des Timers ist eine Verbindung nötig.",
 			"weekFailed": "Die Wochensumme konnte nicht geladen werden",
 			"weekUnavailable": "Dieses Konto erfasst hier keine Zeit",
-			"taskFailed": "Die Aufgabe konnte nicht geladen werden"
+			"taskFailed": "Die Aufgabe konnte nicht geladen werden",
+			"todayTasks": "Heutige Aufgaben",
+			"todayTasksEmpty": "Heute noch keine Aufgabe erfasst",
+			"todayTasksFailed": "Die heutigen Aufgaben konnten nicht geladen werden",
+			"runningTask": "Läuft",
+			"startOnTask": "Timer für {title} starten",
+			"switchToTask": "Aktuelle Aufgabe stoppen und {title} starten",
+			"switchFailedTitle": "Der Timer konnte die Aufgabe nicht wechseln"
 		}
 	},
 	"session": {
