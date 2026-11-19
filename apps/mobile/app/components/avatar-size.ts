@@ -19,3 +19,20 @@ export function avatarBoxOf(size: number | undefined): ViewStyle {
 	}
 	return { height: size, width: size };
 }
+
+const BADGE_SHARE = 0.4;
+const BADGE_MIN = 16;
+const BADGE_MAX = 25;
+const THICK_RING_FROM = 22;
+
+/** The presence badge on an avatar: 40% of it between 16 and 25, so it never covers the initial of a small one. */
+export function avatarBadgeOf(size: number | undefined): { size: number; borderWidth: number } {
+	if (size === undefined) {
+		return { size: BADGE_MAX, borderWidth: 3 };
+	}
+	const badge = Math.min(BADGE_MAX, Math.max(BADGE_MIN, Math.round(size * BADGE_SHARE)));
+	if (badge >= THICK_RING_FROM) {
+		return { size: badge, borderWidth: 3 };
+	}
+	return { size: badge, borderWidth: 2 };
+}
