@@ -3,14 +3,14 @@
 import { View, TextInput, StyleSheet, TouchableOpacity, Text, Dimensions } from 'react-native';
 import React, { SetStateAction, useCallback, useEffect, useState } from 'react';
 import { useStores } from '../../../models';
-import { typography, useAppTheme } from '../../../theme';
+import { typography, useAppTheme, useWebTheme } from '../../../theme';
 import { SvgXml } from 'react-native-svg';
 import * as Clipboard from 'expo-clipboard';
 import { closeIconLight, copyIcon, editIcon, tickIconLight } from '../../svgs/icons';
 import { useTeamTasks } from '../../../services/hooks/features/use-team-tasks';
 import { showMessage } from 'react-native-flash-message';
 import { translate } from '../../../i18n';
-import IssuesModal from '../../issues-modal';
+import { TaskEyebrow } from './task-eyebrow';
 import { ITeamTask } from '../../../services/interfaces/ITask';
 import { limitTextCharaters } from '../../../helpers/sub-text';
 import CreateParentTaskModal from './create-parent-task-modal';
@@ -21,10 +21,12 @@ import { navigateTo } from '../../../navigators/routes';
 
 const TaskTitleBlock = observer(() => {
 	const {
-		TaskStore: { detailedTask: task }
+		TaskStore: { detailedTask: task },
+		teamStore: { activeTeam }
 	} = useStores();
 
 	const { dark, colors } = useAppTheme();
+	const theme = useWebTheme();
 
 	const [title, setTitle] = useState<string>('');
 	const [edit, setEdit] = useState<boolean>(false);
@@ -60,7 +62,8 @@ const TaskTitleBlock = observer(() => {
 	};
 
 	return (
-		<View style={{ gap: 18, marginVertical: 20 }}>
+		<View style={{ gap: 12, marginVertical: 16 }}>
+			<TaskEyebrow task={task} teamName={activeTeam?.name} />
 			<View style={{ flexDirection: 'row', gap: 5 }}>
 				<TextInput
 					testID="task-title"
@@ -86,15 +89,6 @@ const TaskTitleBlock = observer(() => {
 				/>
 			</View>
 			<View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-				<View style={styles.taskNumber}>
-					<Text style={{ fontSize: 12 }}>#{task?.number}</Text>
-				</View>
-				<IssuesModal task={task} nameIncluded={true} smallFont={true} />
-
-				{task?.issueType !== 'Epic' && (
-					<View style={{ borderRightWidth: 1, height: 24, borderRightColor: '#DBDBDB' }} />
-				)}
-
 				{(!task?.issueType || task?.issueType === 'Task' || task?.issueType === 'Bug') &&
 					task?.rootEpic &&
 					task?.parentId !== task?.rootEpic.id && (
@@ -289,15 +283,6 @@ const styles = StyleSheet.create({
 		borderRadius: 5,
 		borderWidth: 1,
 		padding: 3
-	},
-	taskNumber: {
-		alignItems: 'center',
-		backgroundColor: '#D6D6D6',
-		borderRadius: 3,
-		height: 24,
-		justifyContent: 'center',
-		paddingHorizontal: 8,
-		paddingVertical: 2
 	},
 	textInput: {
 		borderRadius: 5,
