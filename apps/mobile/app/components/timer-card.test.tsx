@@ -5,10 +5,12 @@
  */
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react-native';
+import { StyleSheet } from 'react-native';
 import { Provider as PaperProvider } from 'react-native-paper';
 import { useTimer } from '../services/hooks/use-timer';
 import TimerCard from './timer-card';
 import HeaderTimer from './header-timer';
+import { themeFor } from '../../src/theme/use-theme';
 
 // The library's own stand-in, marked as an ES module so its `default` is the sheet
 jest.mock('@gorhom/bottom-sheet', () => ({
@@ -85,6 +87,21 @@ describe('The timer card', () => {
 		await fireEvent.press(screen.getByTestId('timer-card-time'));
 
 		expect(await screen.findByTestId('timer-start-panel')).toBeTruthy();
+	});
+
+	it("draws the clock in the web's tabular semibold digits, the hundredths muted", async () => {
+		givenTimer(true);
+		await renderWithPaper(<TimerCard />);
+
+		const light = themeFor('light');
+		const clock = StyleSheet.flatten(screen.getByText(/00:05:00/).props.style);
+		const fraction = StyleSheet.flatten(screen.getByText(':00').props.style);
+
+		expect(clock.fontVariant).toEqual(['tabular-nums']);
+		expect(clock.fontWeight).toBe('600');
+		expect(clock.fontSize).toBe(30);
+		expect(clock.color).toBe(light.colors.foreground);
+		expect(fraction.color).toBe(light.colors['muted-foreground']);
 	});
 
 	it('offers neither the panel nor the menu when no timer runs', async () => {
