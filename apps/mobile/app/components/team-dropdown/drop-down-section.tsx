@@ -1,4 +1,3 @@
-/* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
 import React, { FC } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
@@ -6,9 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { IOrganizationTeamList } from '../../services/interfaces/IOrganizationTeam';
 import { SettingScreenNavigationProp } from '../../navigators/authenticated-navigator';
 
-// STYLES
-import { GLOBAL_STYLE as GS } from '../../../assets/ts/styles';
-import { typography, useAppTheme } from '../../theme';
+import { useWebTheme } from '../../theme';
 import { imgTitle } from '../../helpers/img-title';
 import { useStores } from '../../models';
 import { translate } from '../../i18n';
@@ -18,6 +15,21 @@ import { limitTextCharaters } from '../../helpers/sub-text';
 import { useNavigation } from '@react-navigation/native';
 import { navigateTo } from '../../navigators/routes';
 // import { FlatList } from 'react-native-gesture-handler';
+
+/** How many characters of a team's name fit in the list: fewer when the switcher shares its row with Invite. */
+function rowNameLengthOf(resized: boolean) {
+	const android = Platform.OS === 'android';
+	if (resized && android) {
+		return 10;
+	}
+	if (resized) {
+		return 12;
+	}
+	if (android) {
+		return 17;
+	}
+	return 20;
+}
 
 export interface Props {
 	teams: IOrganizationTeamList[];
@@ -42,18 +54,11 @@ const DropDownSection: FC<Props> = observer(function DropDownSection({
 
 	const others = teams.filter((t) => t.id !== activeTeamId);
 
-	const { colors, dark } = useAppTheme();
+	const { colors } = useWebTheme();
 	return (
 		<View
-			style={[
-				styles.mainContainer,
-				{
-					backgroundColor: colors.background,
-					shadowColor: 'rgba(0, 0, 0, 0.12)',
-					borderWidth: dark ? 1 : 0,
-					borderColor: colors.border
-				}
-			]}
+			testID="team-switcher-list"
+			style={[styles.mainContainer, { backgroundColor: colors.popover, borderColor: colors.border }]}
 		>
 			{/* <View style={styles.indDropDown}>
 				<View style={{ flexDirection: "row", alignItems: "center" }}>
@@ -110,24 +115,15 @@ const DropDownSection: FC<Props> = observer(function DropDownSection({
 				)}
 			/> */}
 			<TouchableOpacity
-				style={{ width: '90%', opacity: isAccountVerified ? 1 : 0.5 }}
+				testID="team-switcher-create"
+				style={[styles.createButton, { borderColor: colors.input }, !isAccountVerified && { opacity: 0.5 }]}
 				onPress={() => onCreateTeam()}
 				disabled={!isAccountVerified}
 			>
-				<View
-					style={[styles.buttonStyle, { backgroundColor: colors.background, borderColor: colors.secondary }]}
-				>
-					<Ionicons name="add" size={24} color={colors.secondary} />
-					<Text
-						style={{
-							color: colors.secondary,
-							fontSize: 14,
-							fontFamily: typography.primary.semiBold
-						}}
-					>
-						{translate('teamScreen.createNewTeamButton')}
-					</Text>
-				</View>
+				<Ionicons name="add" size={18} color={colors['primary-ink']} />
+				<Text style={[styles.createText, { color: colors['primary-ink'] }]}>
+					{translate('teamScreen.createNewTeamButton')}
+				</Text>
 			</TouchableOpacity>
 		</View>
 	);
@@ -141,7 +137,8 @@ export interface IDropItem {
 }
 
 const DropItem: FC<IDropItem> = observer(function DropItem({ team, changeTeam, isActiveTeam, resized }) {
-	const { colors } = useAppTheme();
+	const { colors } = useWebTheme();
+	const teamImageUri = team?.image?.thumbUrl || team?.logo || team?.image?.fullUrl;
 
 	const navigation = useNavigation<SettingScreenNavigationProp<'Setting'>>();
 
@@ -154,94 +151,84 @@ const DropItem: FC<IDropItem> = observer(function DropItem({ team, changeTeam, i
 		}
 	};
 	return (
-		<View style={styles.indDropDown}>
-			<TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center' }} onPress={() => changeTeam(team)}>
-				{team?.image?.thumbUrl || team?.logo || team?.image?.fullUrl ? (
-					<Avatar.Image
-						style={styles.teamImage}
-						size={30}
-						source={{ uri: team?.image?.thumbUrl || team?.logo || team.image?.fullUrl }}
-					/>
+		<View style={[styles.indDropDown, isActiveTeam && { backgroundColor: colors.accent }]}>
+			<TouchableOpacity testID="team-switcher-team" style={styles.teamRow} onPress={() => changeTeam(team)}>
+				{teamImageUri ? (
+					<Avatar.Image size={24} source={{ uri: teamImageUri }} />
 				) : (
 					<Avatar.Text
-						style={styles.teamImage}
-						size={30}
+						style={{ backgroundColor: colors.muted }}
+						size={24}
+						color={colors.foreground}
 						label={imgTitle(team.name)}
 						labelStyle={styles.prefix}
 					/>
 				)}
-				<Text
-					style={{
-						color: colors.primary,
-						paddingLeft: '5%',
-						fontSize: 14,
-						fontFamily: isActiveTeam ? typography.primary.semiBold : typography.primary.normal
-					}}
-				>
-					{limitTextCharaters({
-						text: team?.name,
-						numChars: resized ? (Platform.OS === 'android' ? 10 : 12) : Platform.OS === 'android' ? 17 : 20
-					})}{' '}
-					({team?.members.length})
+				<Text style={[styles.teamName, { color: colors.foreground }, isActiveTeam && styles.activeTeamName]}>
+					{limitTextCharaters({ text: team?.name, numChars: rowNameLengthOf(resized) })}{' '}
+					<Text style={{ color: colors['muted-foreground'] }}>({team?.members.length})</Text>
 				</Text>
 			</TouchableOpacity>
 			<TouchableOpacity onPress={() => navigateToSettings(team)}>
-				<Ionicons name="settings-outline" size={20} color={colors.primary} />
+				<Ionicons name="settings-outline" size={18} color={colors['muted-foreground']} />
 			</TouchableOpacity>
 		</View>
 	);
 });
 
 const styles = StyleSheet.create({
-	buttonStyle: {
+	activeTeamName: {
+		fontWeight: '500'
+	},
+	createButton: {
 		alignItems: 'center',
-		backgroundColor: '#fff',
-		borderColor: '#3826A6',
-		borderRadius: 10,
-		borderWidth: 1.5,
+		alignSelf: 'stretch',
+		borderRadius: 999,
+		borderWidth: 1,
 		flexDirection: 'row',
-		height: 44,
+		gap: 6,
+		height: 36,
 		justifyContent: 'center',
-		marginBottom: 10,
-		marginTop: 10,
-		paddingBottom: 5,
-		paddingTop: 5,
-		width: '100%'
+		margin: 4
+	},
+	createText: {
+		fontSize: 14,
+		fontWeight: '500'
 	},
 	indDropDown: {
 		alignItems: 'center',
+		alignSelf: 'stretch',
+		borderRadius: 6,
 		flexDirection: 'row',
+		height: 40,
 		justifyContent: 'space-between',
-		marginVertical: 10,
-		width: '90%'
+		paddingHorizontal: 8
 	},
+	// The web's floating panel: radius 10, a hairline and the shadow of a layer over the page
 	mainContainer: {
-		alignItems: 'center',
 		borderRadius: 10,
-		elevation: 100,
-		justifyContent: 'center',
+		borderWidth: StyleSheet.hairlineWidth,
+		boxShadow: '0 4px 8px -2px rgba(0, 0, 0, 0.06), 0 12px 32px -4px rgba(0, 0, 0, 0.1)',
 		left: 0,
 		minWidth: 240,
-		paddingTop: 10,
+		padding: 4,
 		position: 'absolute',
-		top: 58,
+		top: 48,
 		width: '100%',
-		zIndex: 10,
-		...GS.shadow,
-		shadowOffset: { width: 0, height: 10 }
+		zIndex: 10
 	},
 	prefix: {
-		fontFamily: typography.fonts.PlusJakartaSans.semiBold,
-		fontSize: 14,
+		fontSize: 11,
 		fontWeight: '600'
 	},
-	teamImage: {
-		backgroundColor: '#C1E0EA',
-		shadowColor: '#000',
-		shadowOffset: {
-			width: 0,
-			height: 1.5
-		}
+	teamName: {
+		fontSize: 14,
+		marginLeft: 10
+	},
+	teamRow: {
+		alignItems: 'center',
+		flexDirection: 'row',
+		flexShrink: 1
 	}
 });
 
