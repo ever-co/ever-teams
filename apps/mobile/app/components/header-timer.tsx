@@ -1,5 +1,3 @@
-/* eslint-disable react-native/no-inline-styles */
-/* eslint-disable react-native/no-color-literals */
 import { observer } from 'mobx-react-lite';
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
@@ -7,14 +5,30 @@ import { ProgressBar } from 'react-native-paper';
 import { pad } from '../helpers/number';
 import { useStores } from '../models';
 import { useTimer } from '../services/hooks/use-timer';
-import { typography, useAppTheme } from '../theme';
-import { SvgXml } from 'react-native-svg';
-import { timerSmallDarkPlayIcon, timerSmallPlayIcon, timerSmallStopIcon } from './svgs/icons';
+import { useWebTheme } from '../theme';
 import { translate } from '../i18n';
 import TimerStartSheet from './timer-start-sheet';
+import type { ThemeColors } from '../../src/theme/use-theme';
+import { RunButton } from '../../src/components/run-button';
 
+function runLabelOf(running: boolean) {
+	if (running) {
+		return translate('timer.stopLabel');
+	}
+	return translate('timer.startLabel');
+}
+
+function progressColorOf(hasEstimate: boolean, colors: ThemeColors) {
+	if (hasEstimate) {
+		return colors.success;
+	}
+	return colors.muted;
+}
+
+/** The running timer in the header: the web's compact pill, its time first and its round start or stop at the end. */
 const HeaderTimer = observer(() => {
-	const { colors, dark } = useAppTheme();
+	const theme = useWebTheme();
+	const { colors } = theme;
 	const {
 		TimerStore: { timeCounterState, localTimerStatus },
 		TaskStore: { activeTask }
@@ -64,20 +78,13 @@ const HeaderTimer = observer(() => {
 	};
 
 	return (
-		<View style={[styles.container, { backgroundColor: colors.background }]}>
-			<TouchableOpacity
-				style={[styles.buttonStyle, { opacity: canRunTimer ? 1 : 0.7 }]}
-				onPress={() => handleTimer()}
-			>
-				{localTimerStatus.running ? (
-					<SvgXml xml={timerSmallStopIcon} />
-				) : dark ? (
-					<SvgXml xml={timerSmallDarkPlayIcon} />
-				) : (
-					<SvgXml xml={timerSmallPlayIcon} />
-				)}
-			</TouchableOpacity>
-			<View style={styles.progressContainer}>
+		<View style={styles.touchArea}>
+			<View
+				testID="header-timer"
+				pointerEvents="none"
+				style={[styles.pill, { backgroundColor: colors.card, borderColor: colors.border }]}
+			/>
+			<View style={styles.timeColumn}>
 				<TouchableOpacity
 					testID="header-timer-time"
 					onPress={() => setStartPanelOpen(true)}
@@ -85,55 +92,66 @@ const HeaderTimer = observer(() => {
 					accessibilityRole={isRunning ? 'button' : 'text'}
 					accessibilityHint={isRunning ? translate('timer.discard.changeStart') : undefined}
 				>
-					<Text style={[styles.timerText, { color: colors.primary }]}>
+					<Text numberOfLines={1} style={[styles.timerText, { color: colors.foreground }]}>
 						{pad(hours)}:{pad(minutes)}:{pad(seconds)}
-						<Text style={styles.smallTxt}>:{pad(ms_p)}</Text>
+						<Text style={[styles.smallTxt, { color: colors['muted-foreground'] }]}>:{pad(ms_p)}</Text>
 					</Text>
 				</TouchableOpacity>
 				<ProgressBar
-					style={{ backgroundColor: '#E9EBF8', height: 4, borderRadius: 3 }}
+					style={[styles.progress, { backgroundColor: colors.muted }]}
 					progress={getTimePercentage()}
-					color={hasEstimate ? '#27AE60' : '#F0F0F0'}
+					color={progressColorOf(hasEstimate, colors)}
 				/>
 			</View>
+			<RunButton
+				theme={theme}
+				running={localTimerStatus.running}
+				size={24}
+				disabled={!canRunTimer}
+				onPress={handleTimer}
+				testID="header-timer-run"
+				accessibilityLabel={runLabelOf(localTimerStatus.running)}
+			/>
 			<TimerStartSheet visible={startPanelOpen && isRunning} onClose={() => setStartPanelOpen(false)} />
 		</View>
 	);
 });
 
 const styles = StyleSheet.create({
-	btnImage: {},
-	buttonStyle: {
-		// paddingHorizontal: 13,
-		paddingVertical: 10
+	// The visible pill, drawn behind the time and the button so the button's touch area reaches 48 around it
+	pill: {
+		borderRadius: 16,
+		borderWidth: StyleSheet.hairlineWidth,
+		boxShadow: '0 1px 1px rgba(0, 0, 0, 0.04)',
+		height: 32,
+		left: 0,
+		position: 'absolute',
+		right: 8,
+		top: 8
 	},
-	container: {
-		alignItems: 'center',
-		backgroundColor: '#fff',
-		borderColor: 'rgba(0, 0, 0, 0.1)',
-		borderRadius: 9,
-		borderWidth: 1,
-		elevation: 10,
-		flexDirection: 'row',
-		gap: 9,
-		height: 38,
-		justifyContent: 'center',
-		shadowColor: 'rgba(0, 0, 0, 0.1)',
-		shadowOffset: { width: 5, height: 5 },
-		shadowOpacity: 0.3,
-		shadowRadius: 1,
-		width: 126
-	},
-	progressContainer: {
-		height: 21,
-		width: '65%'
+	progress: {
+		borderRadius: 1,
+		height: 2
 	},
 	smallTxt: {
-		fontSize: 8
+		fontSize: 9
+	},
+	timeColumn: {
+		flex: 1,
+		gap: 2
+	},
+	touchArea: {
+		alignItems: 'center',
+		flexDirection: 'row',
+		gap: 8,
+		height: 48,
+		paddingLeft: 12,
+		paddingRight: 12
 	},
 	timerText: {
-		fontFamily: typography.secondary.medium,
-		fontSize: 12
+		fontSize: 13,
+		fontVariant: ['tabular-nums'],
+		fontWeight: '500'
 	}
 });
 
