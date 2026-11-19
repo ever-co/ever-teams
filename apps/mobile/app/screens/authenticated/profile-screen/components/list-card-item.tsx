@@ -4,13 +4,13 @@ import React, { FC, useMemo, useState } from 'react';
 import { View, TouchableNativeFeedback, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { Ionicons, Entypo } from '@expo/vector-icons';
 import { Card, Text } from 'react-native-paper';
-import { LinearGradient } from 'expo-linear-gradient';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
 
 // COMPONENTS
 import { ListItem } from '../../../../components';
 import { GLOBAL_STYLE as GS } from '../../../../../assets/ts/styles';
-import { spacing, typography, useAppTheme } from '../../../../theme';
+import { spacing, typography, useAppTheme, useWebTheme } from '../../../../theme';
+import { cardEdgeOf } from '../../../../components/card-edge';
 import { ITeamTask } from '../../../../services/interfaces/ITask';
 import WorkedOnTask from '../../../../components/worked-on-task';
 import TaskStatus from '../../../../components/task-status';
@@ -283,34 +283,22 @@ const SidePopUp: FC<IMenuProps> = ({ props, setShowMenu, setEditTitle, setEnable
 };
 
 const ListCardItem: React.FC<Props> = (props) => {
-	const { colors, dark } = useAppTheme();
+	const { colors } = useAppTheme();
+	const theme = useWebTheme();
 	// STATS
 
 	const { activeAuthTask } = props;
+	// the task the timer runs on, in the worked tab: marked by the primary hairline, as the person's own card on Team
+	const isCurrentTask = Boolean(activeAuthTask && props.isNowTab);
 
 	return (
 		<Card
-			style={[
-				styles.cardContainer,
-				!dark && activeAuthTask && props.isNowTab && { borderColor: '#8C7AE4', borderWidth: 3 }
-			]}
+			testID="profile-task-card"
+			style={[styles.cardContainer, { borderColor: cardEdgeOf(isCurrentTask, theme) }]}
 		>
-			{dark ? (
-				<LinearGradient
-					colors={['#B993E6', '#6EB0EC', '#5855D8']}
-					start={{ x: 0.1, y: 0.5 }}
-					end={{ x: 1, y: 0.5 }}
-					style={{ padding: activeAuthTask && props.isNowTab ? 3 : 0, borderRadius: 14 }}
-				>
-					<View style={{ backgroundColor: colors.background, borderRadius: 14 }}>
-						<ListItemContent {...props} />
-					</View>
-				</LinearGradient>
-			) : (
-				<View style={{ backgroundColor: colors.background, borderRadius: 14 }}>
-					<ListItemContent {...props} />
-				</View>
-			)}
+			<View style={{ backgroundColor: colors.background, borderRadius: 14 }}>
+				<ListItemContent {...props} />
+			</View>
 		</Card>
 	);
 };
@@ -318,13 +306,11 @@ const ListCardItem: React.FC<Props> = (props) => {
 export default ListCardItem;
 
 const styles = StyleSheet.create({
+	// The web's card: radius 14, a hairline and the light shadow
 	cardContainer: {
 		borderRadius: 14,
-		elevation: 5,
-		shadowColor: '#000',
-		shadowOffset: { width: 0, height: 12 },
-		shadowOpacity: 0.05,
-		shadowRadius: 5
+		borderWidth: StyleSheet.hairlineWidth,
+		boxShadow: '0 1px 2px rgba(0, 0, 0, 0.065)'
 	},
 	dropdownTxt: {
 		color: '#282048',
