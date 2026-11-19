@@ -1,4 +1,4 @@
-import React, { FC, useCallback } from 'react';
+import React, { FC, useCallback, useEffect } from 'react';
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import BottomSheet, {
@@ -45,6 +45,15 @@ const ActionSheet: FC<IActionSheetProps> = ({ visible, onClose, actions, title }
 	const look = sheetLookOf(theme);
 	const insets = useSafeAreaInsets();
 	const hasTitle = Boolean(title);
+	const hasActions = actions.length > 0;
+
+	// A sheet whose actions went away while open closes, so it never opens again by itself when they come back
+	useEffect(() => {
+		const lostItsActions = visible && !hasActions;
+		if (lostItsActions) {
+			onClose();
+		}
+	}, [visible, hasActions, onClose]);
 
 	const renderBackdrop = useCallback(
 		(props: BottomSheetBackdropProps) => (
@@ -60,7 +69,6 @@ const ActionSheet: FC<IActionSheetProps> = ({ visible, onClose, actions, title }
 		[look.overlayOpacity]
 	);
 
-	const hasActions = actions.length > 0;
 	const isShown = visible && hasActions;
 	if (!isShown) {
 		return null;

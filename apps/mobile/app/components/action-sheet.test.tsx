@@ -90,4 +90,16 @@ describe('the action sheet of a card', () => {
 		expect(content.type).toBe('RCTScrollView');
 		expect(StyleSheet.flatten(content.props.contentContainerStyle).paddingBottom).toBe(32);
 	});
+
+	it('closes when its actions go away while it is open, so it never opens again by itself', async () => {
+		const close = jest.fn();
+		const { rerender } = await render(
+			<ActionSheet visible onClose={close} actions={actionsWith(jest.fn(), jest.fn())} />
+		);
+		expect(close).not.toHaveBeenCalled();
+
+		await rerender(<ActionSheet visible onClose={close} actions={[]} />);
+
+		expect(close).toHaveBeenCalledTimes(1);
+	});
 });
