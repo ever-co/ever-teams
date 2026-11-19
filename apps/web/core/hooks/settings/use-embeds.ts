@@ -86,6 +86,17 @@ export function canAllowAddMembersOf(availability: EmbedsAvailability, config: E
 	return config?.addMembers === true;
 }
 
+/**
+ * Whether the allowed sites offer the switch that lets people sign in from them: only when the server says it can. An
+ * older API has no such setting.
+ */
+export function canAllowPersonSignInOf(availability: EmbedsAvailability, config: EmbedConfig | undefined): boolean {
+	if (availability !== 'enabled') {
+		return false;
+	}
+	return config?.personSignIn === true;
+}
+
 /** Only a failure that may pass is worth asking again for: not a 4xx, which the next try would get again. */
 function shouldRetry(failureCount: number, error: unknown): boolean {
 	const status = errorStatusOf(error);
@@ -134,7 +145,8 @@ export function useEmbedsAvailability(enabled = true) {
 	const availability = embedsAvailabilityOf({ status: query.status, data: query.data, error: query.error });
 	const canLimitToClient = canLimitToClientOf(availability, query.data);
 	const canAllowAddMembers = canAllowAddMembersOf(availability, query.data);
-	return { availability, canLimitToClient, canAllowAddMembers, retry: query.refetch };
+	const canAllowPersonSignIn = canAllowPersonSignInOf(availability, query.data);
+	return { availability, canLimitToClient, canAllowAddMembers, canAllowPersonSignIn, retry: query.refetch };
 }
 
 // Every organization's list: a write settles on the list of the organization it was made in, even if the active
@@ -203,6 +215,49 @@ export function useRemoveEmbedOrigin() {
 			queryClient.setQueriesData<EmbedAllowedOrigin[]>({ queryKey: EVERY_ORIGINS_LIST }, (origins) =>
 				origins?.filter((row) => row.id !== id)
 			);
+		},
+		onSettled: () => queryClient.invalidateQueries({ queryKey: EVERY_ORIGINS_LIST })
+	});
+}
+
+/** The setting a switch on an allowed site asks for. */
+export interface PersonSignInChange {
+	id: string;
+	allowPersonSignIn: boolean;
+}
+
+type OriginsLists = [readonly unknown[], EmbedAllowedOrigin[] | undefined][];
+
+const withPersonSignIn = (origins: EmbedAllowedOrigin[] | undefined, change: PersonSignInChange) =>
+	origins?.map((row) => {
+		if (row.id !== change.id) {
+			return row;
+		}
+		return { ...row, allowPersonSignIn: change.allowPersonSignIn };
+	});
+
+/**
+ * Turns on or off whether people can sign in from an allowed site. The switch moves at once and goes back if the API
+ * refuses; the list is read again either way.
+ */
+export function useSetPersonSignIn() {
+	const queryClient = useQueryClient();
+	return useMutation<EmbedAllowedOrigin, unknown, PersonSignInChange, { previous: OriginsLists }>({
+		mutationFn: ({ id, allowPersonSignIn }) => embedsService.setPersonSignIn(id, allowPersonSignIn),
+		// The row says why its switch went back: the global fallback toast would say it twice
+		meta: { handlesOwnError: true },
+		onMutate: async (change) => {
+			await queryClient.cancelQueries({ queryKey: EVERY_ORIGINS_LIST });
+			const previous = queryClient.getQueriesData<EmbedAllowedOrigin[]>({ queryKey: EVERY_ORIGINS_LIST });
+			queryClient.setQueriesData<EmbedAllowedOrigin[]>({ queryKey: EVERY_ORIGINS_LIST }, (origins) =>
+				withPersonSignIn(origins, change)
+			);
+			return { previous };
+		},
+		onError: (_error, _change, context) => {
+			for (const [key, origins] of context?.previous ?? []) {
+				queryClient.setQueryData(key, origins);
+			}
 		},
 		onSettled: () => queryClient.invalidateQueries({ queryKey: EVERY_ORIGINS_LIST })
 	});

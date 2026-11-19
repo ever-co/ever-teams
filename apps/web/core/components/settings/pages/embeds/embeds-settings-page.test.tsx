@@ -12,6 +12,8 @@ const mockUseOrigins = jest.fn();
 const mockUseCredentials = jest.fn();
 const mockAddOrigin = jest.fn();
 const mockUseActiveClients = jest.fn();
+const mockSetPersonSignIn = jest.fn();
+let mockIsSettingPersonSignIn = false;
 
 jest.mock('next-intl', () => ({
 	useLocale: () => 'en',
@@ -29,7 +31,8 @@ jest.mock('@/core/hooks/settings/use-embeds', () => ({
 	useEmbedCredentials: () => mockUseCredentials(),
 	useAddEmbedOrigin: () => ({ mutate: mockAddOrigin, isPending: false, isError: false, error: null }),
 	useRemoveEmbedOrigin: () => ({ mutate: jest.fn(), isPending: false }),
-	useRevokeEmbedCredential: () => ({ mutate: jest.fn(), isPending: false })
+	useRevokeEmbedCredential: () => ({ mutate: jest.fn(), isPending: false }),
+	useSetPersonSignIn: () => ({ mutate: mockSetPersonSignIn, isPending: mockIsSettingPersonSignIn })
 }));
 jest.mock('@/core/hooks/clients/use-clients-query', () => ({
 	useActiveClients: (options: { enabled: boolean }) => mockUseActiveClients(options)
@@ -145,6 +148,61 @@ describe('EmbedsSettingsPage', () => {
 		expect(screen.getByText('Timer site product')).toBeTruthy();
 		expect(screen.getByText('gze_abcdefgh')).toBeTruthy();
 		expect(screen.getByText('settings.embeds.NEVER_USED')).toBeTruthy();
+	});
+
+	describe('the switch of sign-in from a site', () => {
+		const SITES = [
+			{ id: 'o1', origin: 'https://app.northwind.example', createdAt: '2026-11-17T10:00:00.000Z' },
+			{ id: 'o2', origin: 'https://team.example.com', allowPersonSignIn: true }
+		];
+		const switches = () => screen.queryAllByRole('switch');
+		const signInOffered = (canAllowPersonSignIn: boolean) =>
+			mockUseAvailability.mockReturnValue({ availability: 'enabled', canAllowPersonSignIn, retry: jest.fn() });
+
+		beforeEach(() => {
+			mockIsSettingPersonSignIn = false;
+			mockUseOrigins.mockReturnValue({ ...ready, origins: SITES });
+		});
+
+		it('is not offered by a server that cannot let people sign in from a site', () => {
+			signInOffered(false);
+			render(<EmbedsSettingsPage />);
+
+			expect(switches()).toEqual([]);
+			expect(screen.getAllByRole('button', { name: 'settings.embeds.REMOVE' })).toHaveLength(2);
+		});
+
+		it('shows on each site, off unless the site has it on, with its label and the date kept', () => {
+			signInOffered(true);
+			render(<EmbedsSettingsPage />);
+
+			expect(switches().map((element) => element.getAttribute('aria-checked'))).toEqual(['false', 'true']);
+			expect(screen.getAllByLabelText('settings.embeds.PERSON_SIGN_IN')).toHaveLength(2);
+			expect(screen.getByText(/settings\.embeds\.ADDED_ON/)).toBeTruthy();
+			expect(screen.getAllByRole('button', { name: 'settings.embeds.REMOVE' })).toHaveLength(2);
+		});
+
+		it('asks for the other setting of the site switched, and says so when the API refused', () => {
+			signInOffered(true);
+			mockSetPersonSignIn.mockImplementation((_change, { onError }) => onError(new Error('refused')));
+			render(<EmbedsSettingsPage />);
+
+			fireEvent.click(switches()[0]);
+
+			expect(mockSetPersonSignIn).toHaveBeenCalledWith({ id: 'o1', allowPersonSignIn: true }, expect.any(Object));
+			expect(screen.getByText('settings.embeds.PERSON_SIGN_IN_FAILED')).toBeTruthy();
+		});
+
+		it('locks the switches while a change is on its way', () => {
+			mockIsSettingPersonSignIn = true;
+			signInOffered(true);
+			render(<EmbedsSettingsPage />);
+
+			fireEvent.click(switches()[0]);
+
+			expect(switches()[0].getAttribute('aria-busy')).toBe('true');
+			expect(mockSetPersonSignIn).not.toHaveBeenCalled();
+		});
 	});
 
 	it('refuses a site with a path before asking the platform, and sends a bare origin', () => {
