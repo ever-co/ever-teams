@@ -45,7 +45,9 @@ describe('a chip on a card', () => {
 	});
 
 	it('keeps a long label inside its card, shortened on one line', async () => {
-		await render(<LabelItem label="Repaint the north pier maintenance hatch" background="#ffcc00" icon={undefined} />);
+		await render(
+			<LabelItem label="Repaint the north pier maintenance hatch" background="#ffcc00" icon={undefined} />
+		);
 
 		expect(StyleSheet.flatten(screen.getByTestId('task-chip').props.style).maxWidth).toBe('100%');
 		const name = screen.getByText('Repaint the north pier maintenance hatch');
