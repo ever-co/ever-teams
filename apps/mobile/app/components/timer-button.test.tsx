@@ -3,6 +3,7 @@ import { fireEvent, render, screen } from '@testing-library/react-native';
 import { StyleSheet } from 'react-native';
 import TimerButton from './timer-button';
 import { themeFor } from '../../src/theme/use-theme';
+import { translate } from '../i18n';
 
 const mockTimer = { canRunTimer: true, startTimer: jest.fn(), stopTimer: jest.fn() };
 const mockStores = { TimerStore: { localTimerStatus: { running: false } } };
@@ -24,6 +25,11 @@ function styleOf(testID: string) {
 	return StyleSheet.flatten(screen.getByTestId(testID).props.style);
 }
 
+// Found by role and spoken name, so a missing or swapped label fails the test
+function buttonNamed(label: 'timer.startLabel' | 'timer.stopLabel') {
+	return screen.getByRole('button', { name: translate(label) });
+}
+
 describe("Work's start and stop", () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
@@ -38,7 +44,7 @@ describe("Work's start and stop", () => {
 		expect(styleOf('timer-start').backgroundColor).toBe(light.colors.primary);
 		expect(styleOf('timer-start').boxShadow).toBeTruthy();
 
-		await fireEvent.press(screen.getByTestId('timer-start'));
+		await fireEvent.press(buttonNamed('timer.startLabel'));
 
 		expect(mockTimer.startTimer).toHaveBeenCalledTimes(1);
 	});
@@ -49,7 +55,7 @@ describe("Work's start and stop", () => {
 
 		expect(styleOf('timer-stop').backgroundColor).toBe(light.colors.destructive);
 
-		await fireEvent.press(screen.getByTestId('timer-stop'));
+		await fireEvent.press(buttonNamed('timer.stopLabel'));
 
 		expect(mockTimer.stopTimer).toHaveBeenCalledTimes(1);
 	});
@@ -58,9 +64,9 @@ describe("Work's start and stop", () => {
 		mockTimer.canRunTimer = false;
 		await render(<TimerButton />);
 
-		await fireEvent.press(screen.getByTestId('timer-start'));
+		await fireEvent.press(buttonNamed('timer.startLabel'));
 
 		expect(mockTimer.startTimer).not.toHaveBeenCalled();
-		expect(screen.getByTestId('timer-start').props.accessibilityState).toEqual({ disabled: true });
+		expect(buttonNamed('timer.startLabel').props.accessibilityState).toEqual({ disabled: true });
 	});
 });
