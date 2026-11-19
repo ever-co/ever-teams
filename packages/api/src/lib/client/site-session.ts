@@ -133,7 +133,8 @@ async function post(caller: string, options: EmbedSiteSessionOptions, path: stri
 	}
 	const body = parseBody(await textOf(apiUrl, response)).value;
 	if (!response.ok) {
-		throw errorFromResponse(response, body, nextStepsOf(response.status, body));
+		// No embed token reaches these routes: EMBED_ORIGIN here is the renewal token's own site, not the embed guard's.
+		throw errorFromResponse(response, body, nextStepsOf(response.status, body), { embedGuard: false });
 	}
 	return { status: response.status, body };
 }
