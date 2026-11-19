@@ -14,6 +14,8 @@ export interface ClientCall {
 	body?: object;
 	tenantId?: string;
 	organizationId?: string;
+	/** The next steps this call gives in place of the general ones, by HTTP status. */
+	nextSteps?: NextStepsByStatus;
 }
 
 export interface Transport {
@@ -149,15 +151,15 @@ export function createTransport(options: EverTeamsClientOptions): Transport {
 		const used = accessToken.current();
 		const response = await send(call, await used);
 		if (response.status !== 401) {
-			return read<T>(response);
+			return read<T>(response, call.nextSteps);
 		}
 		const renewed = accessToken.renew(used);
 		if (!renewed) {
-			return read<T>(response);
+			return read<T>(response, call.nextSteps);
 		}
 		await discard(response);
 		const retried = await send(call, await renewed);
-		return read<T>(retried);
+		return read<T>(retried, call.nextSteps);
 	}
 
 	return { apiUrl, request };
