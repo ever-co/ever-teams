@@ -314,6 +314,7 @@
 		"hintMessage": "Lorem ipsum dolor sit amet consectetur. Blandit lobortis dui risus neque."
 	},
 	"settingScreen": {
+		"description": "Your account, your team and how its tasks are organised.",
 		"name": "Settings",
 		"personalSection": {
 			"name": "Personal",

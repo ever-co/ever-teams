@@ -4,6 +4,7 @@ import { TouchableOpacity, Text, View, TextStyle, ViewStyle, FontVariant } from 
 import { typography, useWebTheme } from '../../../../theme';
 import { hsl, webColorTokens } from '../../../../../src/theme/tokens';
 import type { Theme } from '../../../../../src/theme/use-theme';
+import { underlineTabLookOf } from '../../../../../src/theme/underline-tab';
 
 interface Props {
 	setSelectedTab: () => unknown;
@@ -25,31 +26,18 @@ export function countChipColorsOf(isSelected: boolean, theme: Theme) {
 	return { backgroundColor: theme.colors.muted, color: theme.colors['muted-foreground'] };
 }
 
-function tabTitleColorOf(isSelected: boolean, theme: Theme) {
-	if (isSelected) {
-		return theme.colors.foreground;
-	}
-	return theme.colors['muted-foreground'];
-}
-
-function tabStyleOf(isSelected: boolean, theme: Theme): ViewStyle {
-	if (isSelected) {
-		return { ...$selectedTab, borderBottomColor: theme.colors['primary-ink'] };
-	}
-	return $unselectedTab;
-}
-
 const TaskTab: FC<Props> = observer(({ setSelectedTab, isSelected, tabTitle, countTasks }) => {
 	const theme = useWebTheme();
 	const count = countChipColorsOf(isSelected, theme);
+	const tabLook = underlineTabLookOf(isSelected, theme);
 	return (
 		<TouchableOpacity
 			testID="task-tab"
-			style={[$container, tabStyleOf(isSelected, theme)]}
+			style={[$container, $tab, tabLook.tab]}
 			activeOpacity={0.7}
 			onPress={() => setSelectedTab()}
 		>
-			<Text style={[$tabText, { color: tabTitleColorOf(isSelected, theme) }]}>{tabTitle}</Text>
+			<Text style={[$tabText, { color: tabLook.titleColor }]}>{tabTitle}</Text>
 			<View testID="task-tab-count" style={[$wrapperCountTasks, { backgroundColor: count.backgroundColor }]}>
 				<Text style={[$countTasks, { color: count.color }]}>{countTasks}</Text>
 			</View>
@@ -76,7 +64,7 @@ const $container: ViewStyle = {
 	paddingBottom: 10
 };
 
-const $unselectedTab: ViewStyle = {
+const $tab: ViewStyle = {
 	padding: 10,
 	flexDirection: 'row'
 };
@@ -89,12 +77,6 @@ const $wrapperCountTasks: ViewStyle = {
 	height: 18,
 	justifyContent: 'center',
 	alignItems: 'center'
-};
-
-const $selectedTab: ViewStyle = {
-	borderBottomWidth: 2,
-	padding: 10,
-	flexDirection: 'row'
 };
 
 const $tabText: TextStyle = {

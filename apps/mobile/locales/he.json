@@ -314,6 +314,7 @@
 		"hintMessage": "Lorem ipsum dolor sit amet consectetur. Blandit lobortis dui risus neque."
 	},
 	"settingScreen": {
+		"description": "החשבון שלך, הצוות שלך ואופן ארגון המשימות שלו.",
 		"name": "הגדרות",
 		"personalSection": {
 			"name": "אישי",

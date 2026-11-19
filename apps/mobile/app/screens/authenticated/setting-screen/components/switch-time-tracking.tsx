@@ -1,18 +1,13 @@
-/* eslint-disable react-native/no-color-literals */
-/* eslint-disable react-native/no-inline-styles */
 import React, { FC, useCallback, useEffect, useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
 import { observer } from 'mobx-react-lite';
 import { useOrganizationTeam } from '../../../../services/hooks/use-organization';
 import { useStores } from '../../../../models';
 import { translate } from '../../../../i18n';
 import { limitTextCharaters } from '../../../../helpers/sub-text';
-import { Toggle } from '../../../../components/toggle';
-import { typography, useAppTheme } from '../../../../theme';
+import { SettingsRow, SettingsSwitch } from './settings-kit';
 
 interface Props {}
 const SwitchTimeTracking: FC<Props> = observer(() => {
-	const { colors } = useAppTheme();
 	const { currentUser, toggleTimeTracking } = useOrganizationTeam();
 	const {
 		teamStore: { setIsTrackingEnabled }
@@ -31,60 +26,21 @@ const SwitchTimeTracking: FC<Props> = observer(() => {
 		setIsEnabled(currentUser?.isTrackingEnabled);
 	}, [currentUser]);
 	return (
-		<View style={styles.container}>
-			<View style={styles.wrapperInfo}>
-				<Text style={[styles.infoTitle, { color: colors.primary }]}>
-					{translate('settingScreen.teamSection.timeTracking')}
-				</Text>
-				<Text style={[styles.infoText, { color: colors.tertiary }]}>
-					{limitTextCharaters({
-						text: translate('settingScreen.teamSection.timeTrackingHint'),
-						numChars: 77
-					})}
-				</Text>
-			</View>
-			<Toggle
-				inputInnerStyle={{ backgroundColor: '#DBD3FA' }}
-				inputDetailStyle={{ backgroundColor: '#3826A6' }}
-				onPress={() => toggleSwitch()}
-				variant="switch"
-				value={isEnabled}
-			/>
-		</View>
+		<SettingsRow
+			label={translate('settingScreen.teamSection.timeTracking')}
+			description={limitTextCharaters({
+				text: translate('settingScreen.teamSection.timeTrackingHint'),
+				numChars: 77
+			})}
+			trailing={
+				<SettingsSwitch
+					value={isEnabled}
+					onPress={() => toggleSwitch()}
+					accessibilityLabel={translate('settingScreen.teamSection.timeTracking')}
+				/>
+			}
+		/>
 	);
 });
 
 export default SwitchTimeTracking;
-
-const styles = StyleSheet.create({
-	container: {
-		alignItems: 'center',
-		flexDirection: 'row',
-		justifyContent: 'space-between',
-		marginTop: 32,
-		width: '100%'
-	},
-	detectWrapper: {
-		borderRadius: 8,
-		paddingHorizontal: 13,
-		paddingVertical: 8
-	},
-	infoText: {
-		color: '#938FA4',
-		fontFamily: typography.primary.medium,
-		fontSize: 14,
-		marginTop: 10
-	},
-	infoTitle: {
-		fontFamily: typography.primary.semiBold,
-		fontSize: 16
-	},
-	toggle: {
-		height: 40,
-		right: -10,
-		top: -10
-	},
-	wrapperInfo: {
-		maxWidth: '90%'
-	}
-});

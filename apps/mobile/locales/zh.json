@@ -314,6 +314,7 @@
 		"hintMessage": "Lorem ipsum dolor sit amet consectetur. Blandit lobortis dui risus neque."
 	},
 	"settingScreen": {
+		"description": "你的账户、你的团队，以及团队任务的组织方式。",
 		"name": "设置",
 		"personalSection": {
 			"name": "个人",

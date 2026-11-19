@@ -1,21 +1,28 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
 import React, { FC, useCallback, useMemo, useState } from 'react';
-import { Ionicons } from '@expo/vector-icons';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { imgTitle } from '../../../../helpers/img-title';
 import { useStores } from '../../../../models';
-import { typography, useAppTheme } from '../../../../theme';
+import { typography } from '../../../../theme';
 import { Avatar } from 'react-native-paper';
 import { observer } from 'mobx-react-lite';
 import { useOrganizationTeam } from '../../../../services/hooks/use-organization';
 
 import ConfirmationModal from '../../../../components/confirmation-modal';
 import { translate } from '../../../../i18n';
+import { SettingsImageRow } from '../components/settings-kit';
 
 interface Props {
 	buttonLabel: string;
 	onChange: () => unknown;
+}
+
+function logoOf(imageUrl: string | null | undefined, teamName: string) {
+	if (imageUrl) {
+		return <Avatar.Image size={70} source={{ uri: imageUrl }} />;
+	}
+	return <Avatar.Text size={70} label={imgTitle(teamName)} labelStyle={styles.prefix} />;
 }
 
 const TeamLogo: FC<Props> = observer(({ buttonLabel, onChange }) => {
@@ -23,7 +30,6 @@ const TeamLogo: FC<Props> = observer(({ buttonLabel, onChange }) => {
 		teamStore: { activeTeam, activeTeamId }
 	} = useStores();
 	const { onUpdateOrganizationTeam } = useOrganizationTeam();
-	const { colors, dark } = useAppTheme();
 	const [openConfirmationModal, setOpenConfirmationModal] = useState<boolean>(false);
 
 	const onDeleteLogo = useCallback(async () => {
@@ -47,34 +53,14 @@ const TeamLogo: FC<Props> = observer(({ buttonLabel, onChange }) => {
 
 	return (
 		<>
-			<View style={[styles.container, { backgroundColor: colors.background, opacity: 0.9 }]}>
-				{imageUrl ? (
-					<Avatar.Image
-						size={70}
-						source={{
-							uri: imageUrl
-						}}
-					/>
-				) : (
-					<Avatar.Text size={70} label={imgTitle(activeTeam?.name)} labelStyle={styles.prefix} />
-				)}
-				<TouchableOpacity
-					style={[styles.changeAvatarBtn, { borderColor: colors.secondary }]}
-					onPress={() => onChange()}
-				>
-					<Text style={[styles.changeAvatarTxt, { color: colors.secondary }]}>{buttonLabel}</Text>
-				</TouchableOpacity>
-				<TouchableOpacity
-					disabled={isDisabled}
-					style={[
-						styles.deleteContainer,
-						{ backgroundColor: dark ? '#3D4756' : '#E6E6E9', opacity: isDisabled ? 0.5 : 1 }
-					]}
-					onPress={() => setOpenConfirmationModal(true)}
-				>
-					<Ionicons name="trash-outline" size={24} color={colors.primary} />
-				</TouchableOpacity>
-			</View>
+			<SettingsImageRow
+				image={logoOf(imageUrl, activeTeam?.name)}
+				changeLabel={buttonLabel}
+				onChange={onChange}
+				deleteLabel={translate('settingScreen.membersSettingsScreen.delete')}
+				deleteDisabled={isDisabled}
+				onDelete={() => setOpenConfirmationModal(true)}
+			/>
 			{/* Confirmation Modal */}
 			<ConfirmationModal
 				visible={openConfirmationModal}
@@ -89,34 +75,6 @@ const TeamLogo: FC<Props> = observer(({ buttonLabel, onChange }) => {
 export default TeamLogo;
 
 const styles = StyleSheet.create({
-	changeAvatarBtn: {
-		alignItems: 'center',
-		borderColor: '#3826A6',
-		borderRadius: 7,
-		borderWidth: 2,
-		height: 42,
-		justifyContent: 'center',
-		width: 168
-	},
-	changeAvatarTxt: {
-		fontFamily: typography.primary.semiBold,
-		fontSize: 14
-	},
-	container: {
-		alignItems: 'center',
-		backgroundColor: '#fff',
-		flexDirection: 'row',
-		justifyContent: 'space-between',
-		paddingTop: 10,
-		width: '100%'
-	},
-	deleteContainer: {
-		alignItems: 'center',
-		borderRadius: 7,
-		justifyContent: 'center',
-		paddingHorizontal: 16,
-		paddingVertical: 11
-	},
 	pictureContainer: {
 		borderRadius: 40,
 		height: 70,
