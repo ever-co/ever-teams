@@ -49,16 +49,16 @@ function hideSplashScreen(): void {
 	void SplashScreen.hideAsync();
 }
 
-/**
- * The root of the app: the current app's state, theme and providers around Expo Router's stack. Until the store, the
- * fonts and the language are ready it draws nothing, over the native splash screen, as before.
- */
 /** The navigators' theme on the web's tokens: page, cards, lines and the brand color of their own controls. */
 function navigatorsThemeOf(dark: boolean) {
 	const scheme = colorSchemeOf(dark);
 	return navigationThemeFor(themeFor(scheme));
 }
 
+/**
+ * The root of the app: the current app's state, theme and providers around Expo Router's stack. Until the store, the
+ * fonts and the language are ready it draws nothing, over the native splash screen, as before.
+ */
 const RootLayout = observer(function RootLayout() {
 	const {
 		authenticationStore: {
