@@ -1,4 +1,4 @@
-import React, { Children, Fragment, isValidElement, type PropsWithChildren, type ReactNode } from 'react';
+import React, { Children, Fragment, isValidElement, useState, type PropsWithChildren, type ReactNode } from 'react';
 import {
 	Pressable,
 	StyleSheet,
@@ -101,29 +101,48 @@ export function SettingsRow({
 	testID
 }: SettingsRowProps) {
 	const theme = useWebTheme();
+	const [pressed, setPressed] = useState(false);
 	const isInert = disabled || !onPress;
+	const hasAction = Boolean(onPress);
+	// The row's button holds its label and value only: a screen reader reaches the trailing control on its own, and a
+	// row without an action is no button at all
 	return (
-		<Pressable
-			testID={testID}
-			accessibilityRole={rowRoleOf(onPress)}
-			accessibilityState={{ disabled }}
-			disabled={isInert}
-			onPress={onPress}
-			style={({ pressed }) => rowStyleOf(pressed, theme)}
-		>
-			<View style={styles.text}>
-				<Text style={[styles.label, { color: theme.colors.foreground }]}>{label}</Text>
-				{description ? (
-					<Text style={[styles.description, { color: theme.colors['muted-foreground'] }]}>{description}</Text>
-				) : null}
-			</View>
+		<View testID={testID} style={rowStyleOf(pressed, theme)}>
+			<Pressable
+				testID="settings-row-action"
+				accessible={hasAction}
+				accessibilityRole={rowRoleOf(onPress)}
+				accessibilityState={{ disabled }}
+				disabled={isInert}
+				onPress={onPress}
+				onPressIn={() => setPressed(true)}
+				onPressOut={() => setPressed(false)}
+				style={styles.rowAction}
+			>
+				<View style={styles.text}>
+					<Text style={[styles.label, { color: theme.colors.foreground }]}>{label}</Text>
+					{description ? (
+						<Text style={[styles.description, { color: theme.colors['muted-foreground'] }]}>
+							{description}
+						</Text>
+					) : null}
+				</View>
+			</Pressable>
 			{trailing}
 			{chevron && (
-				<View testID="settings-row-chevron" style={chevronStyleOf(disabled)}>
+				<Pressable
+					testID="settings-row-chevron"
+					accessible={false}
+					disabled={isInert}
+					onPress={onPress}
+					onPressIn={() => setPressed(true)}
+					onPressOut={() => setPressed(false)}
+					style={[styles.chevron, chevronStyleOf(disabled)]}
+				>
 					<AntDesign name="right" size={CHEVRON_SIZE} color={theme.colors['muted-foreground']} />
-				</View>
+				</Pressable>
 			)}
-		</Pressable>
+		</View>
 	);
 }
 
@@ -211,6 +230,10 @@ const styles = StyleSheet.create({
 		marginLeft: 'auto',
 		width: 40
 	},
+	chevron: {
+		alignSelf: 'stretch',
+		justifyContent: 'center'
+	},
 	description: {
 		fontFamily: typography.primary.normal,
 		fontSize: 13,
@@ -234,7 +257,12 @@ const styles = StyleSheet.create({
 		flexDirection: 'row',
 		gap: 12,
 		minHeight: 56,
-		paddingHorizontal: 16,
+		paddingHorizontal: 16
+	},
+	rowAction: {
+		alignSelf: 'stretch',
+		flex: 1,
+		justifyContent: 'center',
 		paddingVertical: 12
 	},
 	section: {

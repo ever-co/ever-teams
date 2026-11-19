@@ -1,6 +1,6 @@
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react-native';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
 import { SettingsImageRow, SettingsRow, SettingsSection, SettingsSurface } from './settings-kit';
 import { themeFor } from '../../../../../src/theme/use-theme';
 
@@ -105,5 +105,26 @@ describe('the avatar or logo row', () => {
 		expect(
 			StyleSheet.flatten(screen.getByTestId('settings-image-delete').props.style).backgroundColor
 		).toBeUndefined();
+	});
+});
+
+describe('a settings row for screen readers', () => {
+	it('keeps its trailing control outside its button, so Detect is reached on its own', async () => {
+		await render(
+			<SettingsRow label="Time Zone" onPress={jest.fn()} chevron trailing={<Text testID="detect">Detect</Text>} />
+		);
+
+		const rowAction = screen.getByTestId('settings-row-action');
+		let node = screen.getByTestId('detect').parent;
+		while (node) {
+			expect(node).not.toBe(rowAction);
+			node = node.parent;
+		}
+	});
+
+	it('is no button without an action, so its switch is reached on its own', async () => {
+		await render(<SettingsRow label="Team Type" description="Private" trailing={null} />);
+
+		expect(screen.getByTestId('settings-row-action').props.accessible).toBe(false);
 	});
 });
