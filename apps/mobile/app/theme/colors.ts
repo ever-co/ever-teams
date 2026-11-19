@@ -1,6 +1,8 @@
 // TODO: write documentation for colors and palette in own markdown file and add links from here
 import { MD2LightTheme as PaperDefaultTheme, MD3DarkTheme as PaperDarkTheme, useTheme } from 'react-native-paper';
 import { DarkTheme as NavigationDarkTheme, DefaultTheme as NavigationDefaulTheme } from '@react-navigation/native';
+import { themeFor } from '../../src/theme/use-theme';
+import type { ColorScheme } from '../../src/theme/tokens';
 
 const palette = {
 	neutral100: '#FFFFFF',
@@ -42,20 +44,31 @@ const palette = {
 	primary: '#282048'
 };
 
+/**
+ * The keys the current screens read, on the web's tokens: text, accents, quiet text, cards, the page, lines and quiet
+ * fills. The screens keep their keys and draw in the web's colors; their own literals move screen by screen.
+ */
+export function appColorsOf(scheme: ColorScheme) {
+	const token = themeFor(scheme).colors;
+	return {
+		primary: token.foreground,
+		secondary: token['primary-ink'],
+		tertiary: token['muted-foreground'],
+		background: token.card,
+		background2: token.background,
+		divider: token.border,
+		border: token.border,
+		secondary2: token.muted
+	};
+}
+
 export const customDarkTheme = {
 	...NavigationDarkTheme,
 	...PaperDarkTheme,
 	colors: {
 		...NavigationDarkTheme.colors,
 		...PaperDarkTheme.colors,
-		primary: '#FFFFFF',
-		secondary: '#8C7AE4',
-		tertiary: '#7B8089',
-		background: '#191A20',
-		background2: 'rgb(16,17,20)',
-		divider: 'rgba(255, 255, 255, 0.16)',
-		border: 'rgba(255, 255, 255, 0.13)',
-		secondary2: '#1E2025'
+		...appColorsOf('dark')
 	}
 };
 
@@ -65,14 +78,7 @@ export const customLightTheme = {
 	colors: {
 		...NavigationDefaulTheme.colors,
 		...PaperDefaultTheme.colors,
-		primary: '#282048',
-		secondary: '#3826A6',
-		tertiary: '#7E7991',
-		background: '#FFFFFF',
-		background2: '#f7f7f8',
-		divider: 'rgba(0, 0, 0, 0.06)',
-		border: 'rgba(0, 0, 0, 0.13)',
-		secondary2: '#EDF1F3'
+		...appColorsOf('light')
 	}
 };
 export type AppTheme = typeof customDarkTheme;
