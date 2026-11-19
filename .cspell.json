@@ -1060,7 +1060,9 @@
 		"être",
 		"chargé",
 		"Réessayer",
-		"Aujourd'hui"
+		"Aujourd'hui",
+		"endgroup",
+		"openbao"
 	],
 	"ignoreRegExpList": ["/%(?:2F|3A)[A-Za-z]*/g", "/gze_[A-Za-z0-9_-]+/g"],
 	"useGitignore": true,
