@@ -26,6 +26,8 @@ export interface TimeEntriesListParams {
 	to: EverTeamsDate;
 	/** The members whose entries to list; without it, those of every member the token may see. */
 	employeeIds?: string[];
+	/** Only the entries of the token's own member, whatever employeeIds names. */
+	mine?: boolean;
 }
 
 export interface TimeEntryCreateParams {
@@ -80,9 +82,18 @@ function createdRangeOf(params: TimeEntryCreateParams): { start: Date; end: Date
 }
 
 export function createTimeEntries(transport: Transport, identity: Identity): TimeEntriesResource {
+	async function employeeIdsOf(params: TimeEntriesListParams): Promise<string[] | undefined> {
+		if (!params.mine) {
+			return params.employeeIds;
+		}
+		const { employeeId } = await identity.member();
+		return [employeeId];
+	}
+
 	async function list(params: TimeEntriesListParams): Promise<EverTeamsTimeEntry[]> {
 		const range = rangeOf(params.from, params.to);
 		const { tenantId, organizationId } = await identity.scope();
+		const employeeIds = await employeeIdsOf(params);
 		// Instants with their zone: the API reads startDate and endDate as UTC.
 		const query = {
 			activityLevel: { start: 0, end: 100 },
@@ -92,7 +103,7 @@ export function createTimeEntries(transport: Transport, identity: Identity): Tim
 			endDate: range.end.toISOString(),
 			timeZone: localTimeZone(),
 			relations: RELATIONS,
-			employeeIds: params.employeeIds
+			employeeIds
 		};
 		return transport.request<EverTeamsTimeEntry[]>({
 			method: 'GET',

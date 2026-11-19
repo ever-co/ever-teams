@@ -64,6 +64,34 @@ test('Dates and date-times are sent as the instants they are, with the members a
 	assert.deepEqual(query.employeeIds, ['employee-1', 'employee-2']);
 });
 
+test("mine lists only the entries of the token's own member, whatever employeeIds names", async () => {
+	const api = standInApi({ 'GET /user/me': ME, 'GET /timesheet/time-log': [ENTRY] });
+	const teams = createClient({ apiUrl: API_URL, token: 't', fetch: api.fetch });
+
+	await teams.timeEntries.list({ from: '2026-11-18', to: '2026-11-18', mine: true });
+	await teams.timeEntries.list({ from: '2026-11-18', to: '2026-11-18', mine: true, employeeIds: ['employee-2'] });
+
+	assert.deepEqual(api.routesSent(), ['GET /user/me', 'GET /timesheet/time-log', 'GET /timesheet/time-log']);
+	assert.deepEqual(api.requests[1].query.employeeIds, ['employee-1']);
+	assert.deepEqual(api.requests[2].query.employeeIds, ['employee-1']);
+});
+
+test('mine with a token whose user is not a member is refused before the list is read', async () => {
+	const api = standInApi({ 'GET /user/me': { ...ME, employee: null }, 'GET /timesheet/time-log': [ENTRY] });
+	const teams = createClient({
+		apiUrl: API_URL,
+		token: 't',
+		tenantId: 'tenant-1',
+		organizationId: 'org-1',
+		fetch: api.fetch
+	});
+
+	await assert.rejects(teams.timeEntries.list({ from: '2026-11-18', to: '2026-11-18', mine: true }), {
+		code: 'NO_EMPLOYEE'
+	});
+	assert.deepEqual(api.routesSent(), ['GET /user/me']);
+});
+
 test('a date that is not one, or a range that ends before it starts, is refused before any request', async () => {
 	const api = standInApi({ 'GET /user/me': ME, 'GET /timesheet/time-log': [] });
 	const teams = createClient({ apiUrl: API_URL, token: 't', fetch: api.fetch });

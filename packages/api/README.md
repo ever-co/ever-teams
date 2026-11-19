@@ -208,14 +208,15 @@ if (change) {
 }
 ```
 
-### timeEntries.list({ from, to, employeeIds? })
+### timeEntries.list({ from, to, employeeIds?, mine? })
 
 The time entries started from `from` to `to`, each with its project, task, client and member. A day (`YYYY-MM-DD`)
 means that whole day in the time zone the code runs in; a `Date` or an ISO date-time is the instant it names. Without
-`employeeIds`, the API answers the entries of every member the token may see.
+`employeeIds`, the API answers the entries of every member the token may see: a manager's token sees the team's.
+With `mine: true`, it answers only the entries of the token's own member, whatever `employeeIds` names.
 
 ```js
-const today = await teams.timeEntries.list({ from: '2026-11-18', to: '2026-11-18' });
+const today = await teams.timeEntries.list({ from: '2026-11-18', to: '2026-11-18', mine: true });
 const seconds = today.reduce((sum, entry) => sum + entry.duration, 0);
 ```
 
