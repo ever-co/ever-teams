@@ -117,10 +117,10 @@ describe("the running timer's time, as the heartbeats and a stop write it", () =
 		followRun('log-2', minutes(2));
 
 		await writeRunTime(write, minutes(3));
+		jest.setSystemTime(minutes(4));
 		await writeRunTimeBeforeStop(write, 'log-2');
 
-		expect(written()[0]).toBe(60);
-		expect(written()).toHaveLength(2);
+		expect(written()).toEqual([60, 60]);
 	});
 
 	it('lets the late answer of a run let go of move nothing of the run followed since', async () => {
