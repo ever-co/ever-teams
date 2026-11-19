@@ -15,10 +15,19 @@ export function tintIconXml(xml: string): string {
 
 const iconFiles = new Map<string, Promise<string>>();
 
+async function readIconFile(uri: string): Promise<string> {
+	const response = await fetch(uri);
+	// fetch resolves on an error status too: an error page must not be kept as the icon
+	if (!response.ok) {
+		throw new Error(`icon ${uri} answered ${response.status}`);
+	}
+	return response.text();
+}
+
 function iconFileOf(uri: string): Promise<string> {
 	let file = iconFiles.get(uri);
 	if (!file) {
-		file = fetch(uri).then((response) => response.text());
+		file = readIconFile(uri);
 		iconFiles.set(uri, file);
 	}
 	return file;

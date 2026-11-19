@@ -28,13 +28,35 @@ describe("a chip's icon", () => {
 	it('draws the fetched icon in the color it is given', async () => {
 		global.fetch = jest
 			.fn()
-			.mockResolvedValue({ text: () => Promise.resolve(IN_PROGRESS) }) as unknown as typeof fetch;
+			.mockResolvedValue({
+				ok: true,
+				status: 200,
+				text: () => Promise.resolve(IN_PROGRESS)
+			}) as unknown as typeof fetch;
 
 		await render(<TintedIcon uri="https://example.com/in-progress.svg" color="rgb(80, 72, 229)" size={14} />);
 
 		const icon = await screen.findByTestId('tinted-icon');
 		expect(icon.props.color).toBe('rgb(80, 72, 229)');
 		expect(icon.props.xml).toContain('stroke="currentColor"');
+	});
+
+	it('does not keep an error page as the icon, and asks again on the next draw', async () => {
+		const errorPage = { ok: false, status: 500, text: () => Promise.resolve('<html>Server error</html>') };
+		const iconFile = { ok: true, status: 200, text: () => Promise.resolve(IN_PROGRESS) };
+		global.fetch = jest
+			.fn()
+			.mockResolvedValueOnce(errorPage)
+			.mockResolvedValueOnce(iconFile) as unknown as typeof fetch;
+
+		const first = await render(<TintedIcon uri="https://example.com/flaky.svg" color="red" size={14} />);
+		expect(screen.getByTestId('tinted-icon-pending')).toBeTruthy();
+		await first.unmount();
+
+		await render(<TintedIcon uri="https://example.com/flaky.svg" color="red" size={14} />);
+
+		expect((await screen.findByTestId('tinted-icon')).props.xml).toContain('currentColor');
+		expect(global.fetch).toHaveBeenCalledTimes(2);
 	});
 
 	it('keeps its room empty when the file cannot be read', async () => {
