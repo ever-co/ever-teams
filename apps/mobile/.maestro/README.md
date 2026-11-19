@@ -45,8 +45,9 @@ Every build opens through Expo Router (`src/app`), with the current screens at t
 | Flow | What the person does |
 | --- | --- |
 | `next/home-timer.yaml` | starts the timer from Home on their last task, sees today's time run, and stops it |
+| `next/switch-task.yaml` | starts the timer on one of today's tasks, switches to the other from the list, and stops it |
 
-`home-timer.yaml` needs a person who has tracked time on a task before, since Home starts the timer on the last task.
+`home-timer.yaml` needs a person who has tracked time on a task before, since Home starts the timer on the last task. `switch-task.yaml` needs a person who tracked time on two tasks today.
 
 ```bash
 maestro test apps/mobile/.maestro/next -e APP_ID=<the app's Android package or iOS bundle identifier>

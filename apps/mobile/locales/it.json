@@ -55,7 +55,14 @@
 			"needsNetwork": "Per avviare e fermare il timer serve una connessione.",
 			"weekFailed": "Impossibile caricare il totale della settimana",
 			"weekUnavailable": "Questo account non registra tempo qui",
-			"taskFailed": "Impossibile caricare l'attività"
+			"taskFailed": "Impossibile caricare l'attività",
+			"todayTasks": "Attività di oggi",
+			"todayTasksEmpty": "Ancora nessuna attività registrata oggi",
+			"todayTasksFailed": "Impossibile caricare le attività di oggi",
+			"runningTask": "In corso",
+			"startOnTask": "Avvia il timer su {title}",
+			"switchToTask": "Ferma l'attività in corso e avvia {title}",
+			"switchFailedTitle": "Il timer non è riuscito a cambiare attività"
 		}
 	},
 	"session": {

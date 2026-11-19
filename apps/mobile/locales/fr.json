@@ -55,7 +55,14 @@
 			"needsNetwork": "Démarrer et arrêter le chronomètre demandent une connexion.",
 			"weekFailed": "Le total de la semaine n'a pas pu se charger",
 			"weekUnavailable": "Ce compte ne suit pas de temps ici",
-			"taskFailed": "La tâche n'a pas pu se charger"
+			"taskFailed": "La tâche n'a pas pu se charger",
+			"todayTasks": "Tâches du jour",
+			"todayTasksEmpty": "Aucune tâche suivie aujourd'hui pour le moment",
+			"todayTasksFailed": "Les tâches du jour n'ont pas pu se charger",
+			"runningTask": "En cours",
+			"startOnTask": "Démarrer le chronomètre sur {title}",
+			"switchToTask": "Arrêter la tâche en cours et démarrer {title}",
+			"switchFailedTitle": "Le chronomètre n'a pas pu changer de tâche"
 		}
 	},
 	"session": {
