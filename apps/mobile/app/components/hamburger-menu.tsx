@@ -4,7 +4,7 @@ import React, { useEffect } from 'react';
 import { View, StyleSheet, Image, TouchableOpacity, Dimensions, TouchableWithoutFeedback } from 'react-native';
 import { Text } from 'react-native-paper';
 import { DrawerContentScrollView, useDrawerStatus } from '@react-navigation/drawer';
-import { typography, useAppTheme } from '../theme';
+import { typography, useAppTheme, useWebTheme } from '../theme';
 import { useStores } from '../models';
 import DropDown from './team-dropdown/drop-down';
 import CreateTeamModal from './create-team-modal';
@@ -34,6 +34,7 @@ import { navigateTo } from '../navigators/routes';
 
 const HamburgerMenu = observer((props: any) => {
 	const { colors, dark } = useAppTheme();
+	const theme = useWebTheme();
 	const {
 		TaskStore: { resetTeamTasksData },
 		authenticationStore: { user, logout, toggleTheme },
@@ -72,24 +73,21 @@ const HamburgerMenu = observer((props: any) => {
 					onDismiss={() => setShowCreateTeamModal(false)}
 				/>
 				<DrawerContentScrollView style={{ width: '100%' }} {...props}>
-					<View style={styles.profileSection}>
-						<View style={{ marginBottom: 40 }}>
-							<ProfileImage size={76} user={user} />
+					<View style={[styles.profileSection, { borderBottomColor: theme.colors.border }]}>
+						<View testID="menu-person" style={styles.person}>
+							<ProfileImage size={40} user={user} />
+							<View style={styles.personText}>
+								<Text numberOfLines={1} style={[styles.userName, { color: theme.colors.foreground }]}>
+									{user?.name}
+								</Text>
+								<Text
+									numberOfLines={1}
+									style={[styles.userEmail, { color: theme.colors['muted-foreground'] }]}
+								>
+									{user?.email}
+								</Text>
+							</View>
 						</View>
-						<Text style={[styles.userProfileName, { color: colors.primary, marginTop: 30 }]}>
-							{user?.name}
-						</Text>
-						<Text
-							style={{
-								color: colors.tertiary,
-								fontSize: 14,
-								marginBottom: 20,
-								fontFamily: typography.secondary.medium,
-								marginTop: 4
-							}}
-						>
-							{user?.email}
-						</Text>
 						{activeTeam ? (
 							<DropDown
 								isOpen={isTeamModalOpen}
@@ -241,7 +239,7 @@ const styles = StyleSheet.create({
 	},
 	container: {
 		flex: 1,
-		paddingHorizontal: 50
+		paddingHorizontal: 16
 	},
 	headerIconsContainer: {
 		flexDirection: 'row',
@@ -284,13 +282,20 @@ const styles = StyleSheet.create({
 		justifyContent: 'center',
 		width: 84
 	},
-	profileSection: {
+	person: {
 		alignItems: 'center',
-		borderBottomColor: 'rgba(0, 0, 0, 0.16)',
-		borderBottomWidth: 1,
-		justifyContent: 'center',
-		marginHorizontal: '1%',
-		paddingBottom: 10,
+		flexDirection: 'row',
+		gap: 12
+	},
+	personText: {
+		flex: 1,
+		gap: 2
+	},
+	profileSection: {
+		borderBottomWidth: StyleSheet.hairlineWidth,
+		gap: 16,
+		paddingBottom: 16,
+		paddingTop: 8,
 		zIndex: 10
 	},
 
@@ -309,10 +314,15 @@ const styles = StyleSheet.create({
 		height: 40,
 		width: 86
 	},
-	userProfileName: {
-		fontFamily: typography.primary.semiBold,
-		fontSize: 20,
-		marginTop: 15
+	userEmail: {
+		fontFamily: typography.primary.normal,
+		fontSize: 13,
+		lineHeight: 17
+	},
+	userName: {
+		fontFamily: typography.primary.medium,
+		fontSize: 14,
+		lineHeight: 18
 	}
 });
 
