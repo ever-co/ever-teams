@@ -1,16 +1,21 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
 import React, { FC, useCallback, useEffect, useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
 import { observer } from 'mobx-react-lite';
 import { useOrganizationTeam } from '../../../../services/hooks/use-organization';
 import { translate } from '../../../../i18n';
 import { Toggle } from '../../../../components/toggle';
-import { typography, useAppTheme } from '../../../../theme';
+import { SettingsRow } from './settings-kit';
+
+function teamTypeOf(isTeamPublic: boolean): string {
+	if (isTeamPublic) {
+		return translate('settingScreen.teamSection.publicTeam');
+	}
+	return translate('settingScreen.teamSection.privateTeam');
+}
 
 interface Props {}
 const SwitchTeamPublicity: FC<Props> = observer(() => {
-	const { colors } = useAppTheme();
 	const { onUpdateOrganizationTeam, currentTeam, activeTeam } = useOrganizationTeam();
 
 	const [isTeamPublic, setIsTeamPublic] = useState<boolean>(activeTeam?.public);
@@ -26,59 +31,20 @@ const SwitchTeamPublicity: FC<Props> = observer(() => {
 		setIsTeamPublic(activeTeam?.public);
 	}, [currentTeam]);
 	return (
-		<View style={styles.container}>
-			<View style={styles.wrapperInfo}>
-				<Text style={[styles.infoTitle, { color: colors.primary }]}>
-					{translate('settingScreen.teamSection.teamType')}
-				</Text>
-				<Text style={[styles.infoText, { color: colors.tertiary }]}>
-					{isTeamPublic
-						? translate('settingScreen.teamSection.publicTeam')
-						: translate('settingScreen.teamSection.privateTeam')}
-				</Text>
-			</View>
-			<Toggle
-				inputInnerStyle={{ backgroundColor: '#DBD3FA' }}
-				inputDetailStyle={{ backgroundColor: '#3826A6' }}
-				onPress={() => toggleSwitch()}
-				variant="switch"
-				value={isTeamPublic}
-			/>
-		</View>
+		<SettingsRow
+			label={translate('settingScreen.teamSection.teamType')}
+			description={teamTypeOf(isTeamPublic)}
+			trailing={
+				<Toggle
+					inputInnerStyle={{ backgroundColor: '#DBD3FA' }}
+					inputDetailStyle={{ backgroundColor: '#3826A6' }}
+					onPress={() => toggleSwitch()}
+					variant="switch"
+					value={isTeamPublic}
+				/>
+			}
+		/>
 	);
 });
 
 export default SwitchTeamPublicity;
-
-const styles = StyleSheet.create({
-	container: {
-		alignItems: 'center',
-		flexDirection: 'row',
-		justifyContent: 'space-between',
-		marginTop: 32,
-		width: '100%'
-	},
-	detectWrapper: {
-		borderRadius: 8,
-		paddingHorizontal: 13,
-		paddingVertical: 8
-	},
-	infoText: {
-		color: '#938FA4',
-		fontFamily: typography.primary.medium,
-		fontSize: 14,
-		marginTop: 10
-	},
-	infoTitle: {
-		fontFamily: typography.primary.semiBold,
-		fontSize: 16
-	},
-	toggle: {
-		height: 40,
-		right: -10,
-		top: -10
-	},
-	wrapperInfo: {
-		maxWidth: '90%'
-	}
-});
