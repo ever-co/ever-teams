@@ -21,7 +21,7 @@ jest.mock('@/core/services/logs/logger-adapter.service', () => ({
 	HttpLoggerAdapter: jest.fn().mockImplementation(() => ({ logError: jest.fn() }))
 }));
 // Proxy mode: the requests go through the fallback client this app's /api routes answer.
-const mockFallback = { get: jest.fn(), post: jest.fn(), delete: jest.fn() };
+const mockFallback = { get: jest.fn(), post: jest.fn(), patch: jest.fn(), delete: jest.fn() };
 jest.mock('@/core/services/client/axios', () => ({
 	getAPI: async () => ({ axiosInstance: mockFallback })
 }));
@@ -56,6 +56,7 @@ const SITE_TOKENS = {
 };
 // The organization and the exact origin, nothing else: the route takes no tenant or other field in its body
 const AUTHORIZE_BODY = '{"organizationId":"organization-1","origin":"https://team.example.com"}';
+const SITE = { id: 'origin-1', origin: 'https://team.example.com', allowPersonSignIn: true };
 
 /** The client's base URL, which decides the mode (none: proxy mode). */
 function setBaseUrl(baseURL: string | undefined): void {
@@ -188,6 +189,31 @@ describe('embedsService', () => {
 
 			await expect(authorizing).rejects.toThrow();
 			await expect(authorizing).rejects.not.toHaveProperty('message', expect.stringContaining(SITE_TOKENS.token));
+		});
+
+		it('reads whether people can sign in from a site, and an older API as saying nothing', async () => {
+			directRequests({ enabled: true, clientLimits: true, addMembers: true, personSignIn: true });
+			await expect(embedsService.readConfig()).resolves.toHaveProperty('personSignIn', true);
+
+			directRequests({ enabled: true });
+			await expect(embedsService.readConfig()).resolves.not.toHaveProperty('personSignIn');
+		});
+
+		it('turns sign-in from a site on and off with its setting alone in the body', async () => {
+			const sent = directRequests(SITE);
+
+			const updated = await embedsService.setPersonSignIn('origin/1', true);
+
+			expect(updated.allowPersonSignIn).toBe(true);
+			expect(sent[0].method).toBe('patch');
+			expect(sent[0].url).toBe('/embed-allowed-origins/origin%2F1');
+			expect(sent[0].data).toBe('{"allowPersonSignIn":true}');
+
+			directRequests({ ...SITE, allowPersonSignIn: false });
+			await expect(embedsService.setPersonSignIn('origin-1', false)).resolves.toHaveProperty(
+				'allowPersonSignIn',
+				false
+			);
 		});
 
 		it('lists each credential with its client', async () => {
@@ -365,6 +391,16 @@ describe('embedsService', () => {
 			expect(url).toBe('/embed/authorize');
 			expect(JSON.stringify(body)).toBe(AUTHORIZE_BODY);
 			expect(config.secretResponse).toBe(true);
+		});
+
+		it('switches sign-in from a site through this app’s /api route', async () => {
+			mockFallback.patch.mockResolvedValue({ data: SITE, status: 200 });
+
+			await embedsService.setPersonSignIn('origin-1', true);
+
+			const [[url, body]] = mockFallback.patch.mock.calls;
+			expect(url).toBe('/embed-allowed-origins/origin-1');
+			expect(JSON.stringify(body)).toBe('{"allowPersonSignIn":true}');
 		});
 
 		it('sends the members option to this app’s /api route, and revokes there a credential made without it', async () => {

@@ -91,6 +91,16 @@ class EmbedsService extends APIService {
 		return validateApiResponse(embedAllowedOriginSchema, response.data, 'embeds.addOrigin API response');
 	};
 
+	/**
+	 * Turns on or off whether the organization's people can sign in from an allowed site themselves; off, the site's
+	 * renewals stop at once. Asked only of a server whose config says `personSignIn`.
+	 */
+	setPersonSignIn = async (id: string, allowPersonSignIn: boolean): Promise<EmbedAllowedOrigin> => {
+		const path = `${ORIGINS}/${encodeURIComponent(id)}`;
+		const response = await this.patch<unknown>(path, { allowPersonSignIn }, undefined, false);
+		return validateApiResponse(embedAllowedOriginSchema, response.data, 'embeds.setPersonSignIn API response');
+	};
+
 	removeOrigin = async (id: string): Promise<void> => {
 		await this.delete(`${ORIGINS}/${encodeURIComponent(id)}`);
 	};
