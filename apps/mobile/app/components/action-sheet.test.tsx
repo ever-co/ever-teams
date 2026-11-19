@@ -4,21 +4,13 @@ import { StyleSheet } from 'react-native';
 import ActionSheet, { ActionSheetAction } from './action-sheet';
 import { themeFor } from '../../src/theme/use-theme';
 import { sheetLookOf } from '../../src/theme/sheet-look';
+import { sheetPropsSeen } from '../../test/bottom-sheet-stand-in';
 
 // The library's stand-in, whose sheet keeps the props it was given
-const mockSheetProps: Array<Record<string, unknown>> = [];
-jest.mock('@gorhom/bottom-sheet', () => ({
-	__esModule: true,
-	...jest.requireActual<object>('@gorhom/bottom-sheet/mock'),
-	default: ({ children, ...props }: { children: React.ReactNode }) => {
-		mockSheetProps.push(props);
-		return children;
-	}
-}));
-jest.mock('react-native-gesture-handler', () => {
-	const { View } = jest.requireActual('react-native');
-	return { GestureHandlerRootView: View };
-});
+jest.mock('@gorhom/bottom-sheet', () => jest.requireActual('../../test/bottom-sheet-stand-in').bottomSheetStandIn());
+jest.mock('react-native-gesture-handler', () =>
+	jest.requireActual('../../test/bottom-sheet-stand-in').gestureHandlerStandIn()
+);
 jest.mock('react-native-safe-area-context', () => ({
 	useSafeAreaInsets: () => ({ top: 0, right: 0, bottom: 24, left: 0 })
 }));
@@ -65,7 +57,7 @@ describe('the action sheet of a card', () => {
 	it('opens on the shared sheet look, closes on a pan down and on a tap outside', async () => {
 		await render(<ActionSheet visible onClose={jest.fn()} actions={actionsWith(jest.fn(), jest.fn())} />);
 
-		const sheet = mockSheetProps[mockSheetProps.length - 1];
+		const sheet = sheetPropsSeen[sheetPropsSeen.length - 1];
 		const look = sheetLookOf(themeFor('dark'));
 		expect(sheet.backgroundStyle).toEqual(look.background);
 		expect(sheet.enablePanDownToClose).toBe(true);
