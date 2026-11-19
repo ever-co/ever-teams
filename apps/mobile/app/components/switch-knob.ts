@@ -25,9 +25,9 @@ export function switchKnobColorOf({ on, disabled, status, onFill, knobFill, knob
 			isError && colors.error,
 			disabled && colors.palette.neutral600,
 			colors.palette.neutral100
-		].filter(Boolean)[0] as ColorValue;
+		].find(Boolean) as ColorValue;
 	}
-	return [onFill, disabled && colors.palette.neutral600, isError && colors.error, colors.palette.neutral200].filter(
+	return [onFill, disabled && colors.palette.neutral600, isError && colors.error, colors.palette.neutral200].find(
 		Boolean
-	)[0] as ColorValue;
+	) as ColorValue;
 }

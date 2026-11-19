@@ -89,9 +89,10 @@ const Tab = observer(
 		const theme = useWebTheme();
 		const { activeTeam } = useOrganizationTeam();
 		const look = underlineTabLookOf(isActiveTab, theme);
+		// Team opens nothing outside a team: a screen reader says so instead of a tap that does nothing
+		const isTeamWithoutTeam = item.id === TEAM_TAB && !activeTeam;
 
 		const selectTab = () => {
-			const isTeamWithoutTeam = item.id === TEAM_TAB && !activeTeam;
 			if (isTeamWithoutTeam) {
 				return;
 			}
@@ -102,7 +103,7 @@ const Tab = observer(
 			<TouchableOpacity
 				testID={`settings-tab-${item.id}`}
 				accessibilityRole="tab"
-				accessibilityState={{ selected: isActiveTab }}
+				accessibilityState={{ selected: isActiveTab, disabled: isTeamWithoutTeam }}
 				style={[styles.tab, look.tab]}
 				onPress={selectTab}
 			>

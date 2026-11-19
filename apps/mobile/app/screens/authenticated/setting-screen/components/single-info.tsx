@@ -35,11 +35,12 @@ const SingleInfo: FC<Props> = ({ title, value, onPress, onDetectTimezone, disabl
 };
 export default SingleInfo;
 
-function DetectTimezone({ onDetect }: { onDetect?: () => unknown }) {
+function DetectTimezone({ onDetect }: Readonly<{ onDetect?: () => unknown }>) {
 	const theme = useWebTheme();
 	return (
 		<TouchableOpacity
 			testID="detect-timezone"
+			accessibilityRole="button"
 			style={[styles.detect, { backgroundColor: theme.colors.muted }]}
 			onPress={() => onDetect?.()}
 		>
@@ -50,7 +51,7 @@ function DetectTimezone({ onDetect }: { onDetect?: () => unknown }) {
 	);
 }
 
-function ThemeSwitch({ label, onPress }: { label: string; onPress?: () => unknown }) {
+function ThemeSwitch({ label, onPress }: Readonly<{ label: string; onPress?: () => unknown }>) {
 	const { dark } = useAppTheme();
 	return <SettingsSwitch value={dark} onPress={onPress} accessibilityLabel={label} />;
 }

@@ -109,8 +109,8 @@ describe('a settings row for screen readers', () => {
 			<SettingsRow label="Time Zone" onPress={jest.fn()} chevron trailing={<Text testID="detect">Detect</Text>} />
 		);
 
-		const rowAction = screen.getByTestId('settings-row-action');
-		let node = screen.getByTestId('detect').parent;
+		const rowAction = screen.getByRole('button', { name: 'Time Zone' });
+		let node = screen.getByText('Detect').parent;
 		while (node) {
 			expect(node).not.toBe(rowAction);
 			node = node.parent;
@@ -129,9 +129,9 @@ describe('the Change button of the avatar or logo row', () => {
 		await render(
 			<SettingsImageRow
 				image={null}
-				changeLabel="Cambiar el logotipo"
+				changeLabel="Change the logo of the team"
 				onChange={jest.fn()}
-				deleteLabel="Eliminar"
+				deleteLabel="Delete"
 				deleteDisabled={false}
 				onDelete={jest.fn()}
 			/>

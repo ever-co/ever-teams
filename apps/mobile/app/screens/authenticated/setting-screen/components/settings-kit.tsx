@@ -24,7 +24,7 @@ const CHEVRON_SIZE = 16;
 const DISABLED_OPACITY = 0.5;
 
 /** Rows on one surface, a hairline between two of them. */
-export function SettingsSurface({ children }: PropsWithChildren) {
+export function SettingsSurface({ children }: Readonly<PropsWithChildren>) {
 	const theme = useWebTheme();
 	const rows = Children.toArray(children).filter(isValidElement);
 	return (
@@ -42,7 +42,7 @@ export function SettingsSurface({ children }: PropsWithChildren) {
 type SettingsSectionProps = PropsWithChildren<{ title: string; tone?: SettingsTone }>;
 
 /** A titled group of rows: the danger zone's title in destructive-ink. */
-export function SettingsSection({ title, tone = 'default', children }: SettingsSectionProps) {
+export function SettingsSection({ title, tone = 'default', children }: Readonly<SettingsSectionProps>) {
 	const theme = useWebTheme();
 	return (
 		<View style={styles.section}>
@@ -99,7 +99,7 @@ export function SettingsRow({
 	chevron = false,
 	trailing,
 	testID
-}: SettingsRowProps) {
+}: Readonly<SettingsRowProps>) {
 	const theme = useWebTheme();
 	const [pressed, setPressed] = useState(false);
 	const isInert = disabled || !onPress;
@@ -148,9 +148,8 @@ export function SettingsRow({
 
 type SettingsSwitchProps = { value?: boolean; onPress?: () => unknown; accessibilityLabel: string };
 
-/** The web's switch at the end of a settings row. */
-/** The setting's name goes with the switch, which a screen reader reaches on its own. */
-export function SettingsSwitch({ value, onPress, accessibilityLabel }: SettingsSwitchProps) {
+/** The web's switch at the end of a settings row, named after its setting: a screen reader reaches it on its own. */
+export function SettingsSwitch({ value, onPress, accessibilityLabel }: Readonly<SettingsSwitchProps>) {
 	const look = webSwitchLookOf(useWebTheme());
 	return (
 		<Toggle
@@ -183,7 +182,7 @@ export function SettingsImageRow({
 	deleteLabel,
 	deleteDisabled,
 	onDelete
-}: SettingsImageRowProps) {
+}: Readonly<SettingsImageRowProps>) {
 	const theme = useWebTheme();
 	return (
 		<View style={styles.imageRow}>
