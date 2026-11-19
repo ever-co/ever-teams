@@ -181,7 +181,11 @@ test('a range with no time of day, or that does not end after it starts, is refu
 		{ startedAt: '2026-11-18', stoppedAt: '2026-11-18T10:00:00Z' },
 		{ startedAt: '2026-11-18T10:00:00Z', stoppedAt: '2026-11-18T10:00:00Z' },
 		{ startedAt: '2026-11-18T10:00:00Z', stoppedAt: '2026-11-18T09:00:00Z' },
-		{ startedAt: 'this morning', stoppedAt: '2026-11-18T09:00:00Z' }
+		{ startedAt: 'this morning', stoppedAt: '2026-11-18T09:00:00Z' },
+		// Texts Date reads, each as a midnight: none names a time of day.
+		{ startedAt: 'November 18, 2026', stoppedAt: '2026-11-18T10:00:00Z' },
+		{ startedAt: '2026/11/18', stoppedAt: '2026-11-18T10:00:00Z' },
+		{ startedAt: '2026-11-18T09:00:00Z', stoppedAt: '2026-12' }
 	];
 	for (const range of refused) {
 		await assert.rejects(teams.timeEntries.create(range), (error) => {
@@ -191,6 +195,17 @@ test('a range with no time of day, or that does not end after it starts, is refu
 		});
 	}
 	assert.equal(api.requests.length, 0);
+});
+
+test('a date-time with a space or a lowercase t before its time is one', async () => {
+	const api = standInApi({ 'GET /user/me': ME, 'POST /timesheet/time-log': () => json(201, MANUAL_LOG) });
+	const teams = createClient({ apiUrl: API_URL, token: 't', fetch: api.fetch });
+
+	await teams.timeEntries.create({ startedAt: '2026-11-18 09:00:00+01:00', stoppedAt: '2026-11-18t09:30Z' });
+
+	const { body } = api.requests[1];
+	assert.equal(body.startedAt, '2026-11-18T08:00:00.000Z');
+	assert.equal(body.stoppedAt, '2026-11-18T09:30:00.000Z');
 });
 
 test('an organization that does not allow manual time answers a forbidden error that says so', async () => {
