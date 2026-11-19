@@ -35,6 +35,8 @@ import { useKitOptions } from '@components/teams-provider/kit-root';
 import { warnOnce } from '@lib/utils/warn-once';
 import { useRegistrationForm } from '@hooks/useRegistrationForm';
 import { useClearKitSession } from '@hooks/useClearKitSession';
+import { forgetStoredSession } from '@lib/session/stored-session';
+import { apiUrlOf } from '@lib/utils/api-url';
 
 /**
  * What a signed-out person sees when the host signs people in from its backend (config.getToken): the kit asks for no
@@ -319,12 +321,8 @@ export const UserNavMenu = ({ children }: { children?: React.ReactNode }) => {
 		if (typeof window !== 'undefined') {
 			await teamsLogOut(token, api);
 
-			const resetStore = {
-				app: { user: null },
-				persist: { token: null }
-			};
-
-			window.localStorage.setItem('_teams-store', JSON.stringify(resetStore));
+			// Only this server's session: the providers of other servers stay signed in.
+			forgetStoredSession(apiUrlOf(api));
 			// The kit forgets the account at once: the widgets show their signed-out state without a reload.
 			clearSession();
 			if (onSignOut) {

@@ -91,7 +91,7 @@ export const useTokenSubmission = (redirectHandler?: () => void) => {
 				setAccessToken(tokenInput);
 				setIsFormOpen(false);
 				setUser({ data: user, loading: false });
-				updateSession(user, tokenInput);
+				updateSession(user, tokenInput, apiUrlOf(api));
 				redirectHandler && redirectHandler();
 			} catch {
 				// No answer: say whether this site is not allowed or Ever Teams is unreachable, inside the form.

@@ -30,7 +30,8 @@ const stubs = {
 		export const TabsListThemed = ${passThrough};
 		export const TabsTrigger = ${passThrough};
 		export const ThemedButton = ${passThrough};`,
-	'@ever-teams/api': 'export const logOut = async () => {};',
+	'@ever-teams/api': `export const logOut = async () => {};
+		export const apiConfigManager = { getConfig: () => ({ apiUrl: 'https://api.example.com/api' }) };`,
 	'react-i18next': `export const useTranslation = () => ({ t: (key, values) => (values ? key + ' ' + JSON.stringify(values) : key) });`,
 	'teams-context': `export const useTeamsContext = () => ({
 		authenticatedUser: globalThis.kitTestUser,
