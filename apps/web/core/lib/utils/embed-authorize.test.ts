@@ -105,12 +105,12 @@ describe('the messages to the site', () => {
 
 	it('finds no site for a page shown in a frame, whatever opened the window around it', () => {
 		const site = { closed: false } as Window;
-		const page = { opener: site } as unknown as Window & { top: unknown };
+		const page: { opener: Window; top: unknown } = { opener: site, top: null };
 
 		page.top = page;
-		expect(siteWindowOf(page)).toBe(site);
+		expect(siteWindowOf(page as unknown as Window)).toBe(site);
 		page.top = {};
-		expect(siteWindowOf(page)).toBeNull();
+		expect(siteWindowOf(page as unknown as Window)).toBeNull();
 	});
 });
 
