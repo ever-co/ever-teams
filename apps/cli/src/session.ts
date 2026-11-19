@@ -35,20 +35,32 @@ function addressOf(text: string, givenBy: string): string {
 	return withoutTrailingSlashes(text);
 }
 
-/** The API to talk to: --api-url, else EVER_TEAMS_API_URL, else the stored login's, else the hosted service's. */
-export function apiUrlOf(context: CommandContext, stored: StoredLogin | null): string {
-	const given = textOption(context.values, 'api-url');
-	if (given) {
-		return addressOf(given, '--api-url');
+/** The address this run was given: --api-url, else EVER_TEAMS_API_URL; undefined when it was given neither. */
+function givenApiUrl(context: CommandContext): string | undefined {
+	const flag = textOption(context.values, 'api-url');
+	if (flag) {
+		return addressOf(flag, '--api-url');
 	}
 	const fromEnvironment = context.io.env.EVER_TEAMS_API_URL;
 	if (fromEnvironment) {
 		return addressOf(fromEnvironment, 'EVER_TEAMS_API_URL');
 	}
+	return undefined;
+}
+
+function apiUrlFrom(given: string | undefined, stored: StoredLogin | null): string {
+	if (given !== undefined) {
+		return given;
+	}
 	if (stored) {
 		return stored.apiUrl;
 	}
 	return DEFAULT_API_URL;
+}
+
+/** The API to talk to: --api-url, else EVER_TEAMS_API_URL, else the stored login's, else the hosted service's. */
+export function apiUrlOf(context: CommandContext, stored: StoredLogin | null): string {
+	return apiUrlFrom(givenApiUrl(context), stored);
 }
 
 /** Whether a token sent to `apiUrl` travels unencrypted over a network. */
@@ -98,9 +110,14 @@ export function clientFor(
  * the API it was stored for.
  */
 export function openSession(context: CommandContext): EverTeamsClient {
-	const stored = readLogin(context.io);
-	const apiUrl = apiUrlOf(context, stored);
+	const given = givenApiUrl(context);
 	const fromEnvironment = context.io.env.EVER_TEAMS_TOKEN?.trim();
+	// The settings file is read only when a value comes from it: a damaged one stops no run that does not need it.
+	if (fromEnvironment && given !== undefined) {
+		return clientFor(context, given, fromEnvironment, 'environment');
+	}
+	const stored = readLogin(context.io);
+	const apiUrl = apiUrlFrom(given, stored);
 	if (fromEnvironment) {
 		return clientFor(context, apiUrl, fromEnvironment, 'environment');
 	}

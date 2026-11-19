@@ -2,7 +2,10 @@
 // node --test test/*.test.mjs (from apps/cli, after tsc).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { runCli } from './support/cli.mjs';
+import fs from 'node:fs';
+import path from 'node:path';
+import { configFileOf } from '../dist/config.js';
+import { newHome, placeOf, runCli } from './support/cli.mjs';
 import {
 	ACCESS_TOKEN,
 	API_URL,
@@ -204,4 +207,52 @@ test('no answer from the API names the address to check', async () => {
 
 	assert.equal(result.code, 1);
 	assert.equal(result.stderr, `No answer from ${API_URL}: check your network and the address.\n`);
+});
+
+// A settings file that is not a login, as a damaged or half-written one is.
+function homeWithDamagedSettings() {
+	const home = newHome();
+	const file = configFileOf(placeOf(home));
+	fs.mkdirSync(path.dirname(file), { recursive: true });
+	fs.writeFileSync(file, 'not a login');
+	return home;
+}
+
+test('a damaged settings file stops no command whose token and address both come from elsewhere', async () => {
+	const api = statusApi(RUNNING);
+	const fromEnvironment = { EVER_TEAMS_TOKEN: PERSONAL_TOKEN, EVER_TEAMS_API_URL: API_URL };
+
+	const byEnvironment = await runCli(['status'], {
+		home: homeWithDamagedSettings(),
+		env: fromEnvironment,
+		fetch: api.fetch
+	});
+	const byFlag = await runCli(['status', '--api-url', API_URL], {
+		home: homeWithDamagedSettings(),
+		env: { EVER_TEAMS_TOKEN: PERSONAL_TOKEN },
+		fetch: api.fetch
+	});
+
+	assert.equal(byEnvironment.code, 0);
+	assert.equal(byFlag.code, 0);
+});
+
+test('a damaged settings file still stops a command that takes a value from it', async () => {
+	const api = statusApi(RUNNING);
+
+	const addressFromSettings = await runCli(['status', '--json'], {
+		home: homeWithDamagedSettings(),
+		env: { EVER_TEAMS_TOKEN: PERSONAL_TOKEN },
+		fetch: api.fetch
+	});
+	const tokenFromSettings = await runCli(['status', '--api-url', API_URL], {
+		home: homeWithDamagedSettings(),
+		fetch: api.fetch
+	});
+
+	assert.equal(addressFromSettings.code, 1);
+	assert.equal(JSON.parse(addressFromSettings.stderr).error.code, 'SETTINGS_DAMAGED');
+	assert.equal(tokenFromSettings.code, 1);
+	assert.match(tokenFromSettings.stderr, /cannot be read: run ever-teams login again\.\n$/);
+	assert.equal(api.requests.length, 0);
 });
