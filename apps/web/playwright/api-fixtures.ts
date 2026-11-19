@@ -2,6 +2,7 @@ import { test as base, expect, type APIResponse } from '@playwright/test';
 
 import {
 	authCookieHeader,
+	authCookieNames,
 	loadFixture,
 	mockRequests,
 	mockReset,
@@ -32,7 +33,17 @@ export type ApiCall = (
 	}
 ) => Promise<APIResponse>;
 
-export const test = base.extend<{ api: ApiCall; mock: MockControl; ids: Record<string, string>; names: Record<string, string> }>({
+/** The session cookies as a `Cookie:` header, with named ones left out: for a case that wants a session
+ * that is missing exactly one thing (the tenant cookie, the token...) without building the header by hand. */
+export type CookieComposer = (scope?: 'A' | 'B', without?: readonly string[]) => string;
+
+export const test = base.extend<{
+	api: ApiCall;
+	cookies: CookieComposer;
+	mock: MockControl;
+	ids: Record<string, string>;
+	names: Record<string, string>;
+}>({
 	mock: async ({}, use) => {
 		await mockReset();
 		await use({
@@ -44,6 +55,16 @@ export const test = base.extend<{ api: ApiCall; mock: MockControl; ids: Record<s
 			calls: async (fragment) => (await mockRequests()).filter((request) => request.path.includes(fragment)),
 			failures: async () => (await mockRequests()).filter((request) => request.status >= 400)
 		});
+	},
+
+	cookies: async ({}, use) => {
+		const fixture: BootstrapFixture = await loadFixture();
+		await use((scope = 'A', without = []) =>
+			authCookieNames(fixture, scope)
+				.filter(([name]) => !without.includes(name))
+				.map(([name, value]) => `${name}=${value}`)
+				.join('; ')
+		);
 	},
 
 	ids: async ({}, use) => {

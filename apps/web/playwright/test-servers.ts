@@ -9,7 +9,16 @@
  * localhost:3030 (mock-gauzy-server.mjs), so APP_ORIGIN is not free to change.
  */
 
-export const APP_ORIGIN = (process.env.E2E_APP_ORIGIN || 'http://127.0.0.1:3030').replace(/\/$/, '');
+/**
+ * `http://localhost:3030`, not `http://127.0.0.1:3030`, and this is the one setting a run cannot change
+ * to anything else it likes: in `next dev` the page served to the `127.0.0.1` origin answers 200 with the
+ * full document, but its client-only boundaries never resolve (their HMR socket is refused
+ * `ERR_INVALID_HTTP_RESPONSE`), so the browser ends on a page with no content and no error anywhere.
+ * Every browser case then fails on an empty body, which looks like an app bug and is not one. Over
+ * `localhost` the same document renders. The mock accepts both Origins
+ * (`cypress/support/mock-gauzy-server.mjs`, TRUSTED_BROWSER_ORIGINS), so nothing else has to move.
+ */
+export const APP_ORIGIN = (process.env.E2E_APP_ORIGIN || 'http://localhost:3030').replace(/\/$/, '');
 export const MOCK_ORIGIN = 'http://127.0.0.1:3988';
 export const PLATFORM_ORIGIN = 'http://127.0.0.1:3989';
 export const CONTROL_ORIGIN = 'http://127.0.0.1:3990';
@@ -27,7 +36,17 @@ type WebServer = {
 	timeout: number;
 	reuseExistingServer: boolean;
 	env?: Record<string, string>;
+	cwd: string;
 };
+
+/**
+ * Playwright starts every `webServer` command in the folder holding the config file (its plugin does
+ * `resolve(configDir, cwd)`), not in the repository root, so a repo-root-relative command resolves to
+ * `apps/web/playwright/apps/web/playwright/backend.mjs` there and the backend dies at startup. Every
+ * command below is written from the repository root, so every entry names this cwd — relative to the
+ * config folder, which is how Playwright reads it.
+ */
+const REPO_ROOT = '../../..';
 
 const sharedEnv = (apiOrigin: string): Record<string, string> => ({
 	PORT: new URL(APP_ORIGIN).port,
@@ -85,14 +104,16 @@ export function mockServers(): WebServer[] {
 			command: 'node apps/web/playwright/backend.mjs',
 			port: Number(new URL(CONTROL_ORIGIN).port),
 			timeout: 120_000,
-			reuseExistingServer: !process.env.CI
+			reuseExistingServer: !process.env.CI,
+			cwd: REPO_ROOT
 		},
 		{
 			command: 'yarn turbo dev --filter=@ever-teams/web',
 			port: Number(new URL(APP_ORIGIN).port),
 			timeout: 900_000,
 			reuseExistingServer: !process.env.CI,
-			env: sharedEnv(MOCK_ORIGIN)
+			env: sharedEnv(MOCK_ORIGIN),
+			cwd: REPO_ROOT
 		}
 	];
 }

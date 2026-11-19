@@ -9,8 +9,10 @@ import { APP_ORIGIN, mockServers } from './test-servers';
  *
  *   yarn playwright test --config apps/web/playwright/playwright.api.config.ts
  *
- * These tests do not touch the browser, so they can run several workers without competing for the
- * single mock's scenario state — they only read the mock's request log.
+ * These tests do not touch a browser, so they are cheap — but they still share one mock instance, and
+ * several specs read its request log ("nothing reached the API" is only proved if the log is empty).
+ * A second worker writing to the same log would break that proof, so this suite is serial too until
+ * backend.mjs hands each worker its own mock.
  */
 export default defineConfig({
 	testDir: './suites',
@@ -19,7 +21,7 @@ export default defineConfig({
 	expect: { timeout: 15_000 },
 	fullyParallel: true,
 	forbidOnly: Boolean(process.env.CI),
-	workers: Number(process.env.E2E_WORKERS ?? 4),
+	workers: Number(process.env.E2E_WORKERS ?? 1),
 	reporter: [['list'], ['json', { outputFile: 'artifacts/playwright-api.json' }]],
 	use: { baseURL: APP_ORIGIN, extraHTTPHeaders: { accept: 'application/json' } },
 	webServer: mockServers(),

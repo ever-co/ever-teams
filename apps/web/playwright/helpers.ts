@@ -10,8 +10,12 @@ import type { BrowserContext, Cookie, Page } from '@playwright/test';
  * because apps/web is a CommonJS package.
  */
 
-/** The app origin the mock Gauzy accepts (mock-gauzy-server.mjs allowlist); anything else is 403. */
-export const APP_ORIGIN = (process.env.E2E_APP_ORIGIN || 'http://127.0.0.1:3030').replace(/\/$/, '');
+/**
+ * The app origin the mock Gauzy accepts (mock-gauzy-server.mjs allowlist); anything else is 403.
+ * It must be `localhost`, not `127.0.0.1` — see the note on APP_ORIGIN in test-servers.ts: a page the dev
+ * server serves to `127.0.0.1` never finishes rendering in the browser, and every browser case fails empty.
+ */
+export const APP_ORIGIN = (process.env.E2E_APP_ORIGIN || 'http://localhost:3030').replace(/\/$/, '');
 const CONTROL_ORIGIN = (process.env.E2E_CONTROL_URL || 'http://127.0.0.1:3990').replace(/\/$/, '');
 
 /**

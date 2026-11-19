@@ -1,4 +1,5 @@
 import { expect, test } from '../../api-fixtures';
+import { APP_ORIGIN } from '../../helpers';
 import { foreignOriginRoutes } from './foreign-origin.generated';
 
 /**
@@ -21,7 +22,9 @@ import { foreignOriginRoutes } from './foreign-origin.generated';
  */
 
 const FOREIGN_ORIGIN = 'https://some-other-site.example';
-const OWN_ORIGIN = 'http://127.0.0.1:3030';
+/** The guard compares the Origin host with the host the request arrived at, so this has to be the origin
+ * the suite actually calls (APP_ORIGIN), not a host someone typed here. */
+const OWN_ORIGIN = APP_ORIGIN;
 
 /** Dynamic segments are filled with fixture ids where they match, and with an inert name otherwise:
  * the guard must refuse before any of them is looked up. */
@@ -33,7 +36,9 @@ test.describe('a cross-site write is refused', () => {
 	for (const route of foreignOriginRoutes) {
 		test(`${route.verb} ${route.path}`, async ({ api, mock, ids }) => {
 			const path = concretePath(route.path, ids);
-			const why = `${route.verb} ${route.path} (${route.file})`;
+			// `proxy-helper` names the guard by the helper that runs it (forwardToGauzy), which is how most
+			// proxy routes are protected; `route` means the route file calls the guard itself.
+			const why = `${route.verb} ${route.path} (${route.guard} guard in ${route.file})`;
 
 			const anonymous = await api(path, {
 				method: route.verb,

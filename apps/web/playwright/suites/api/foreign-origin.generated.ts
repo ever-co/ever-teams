@@ -5,652 +5,1106 @@ export type ForeignOriginRoute = { path: string; verb: 'POST' | 'PUT' | 'PATCH' 
 export const foreignOriginRoutes: ForeignOriginRoute[] = [
 	{
 		"path": "/api/ai/transcribe",
-		"verb": "POST",
 		"file": "apps\\web\\app\\api\\ai\\transcribe\\route.ts"
 	},
 	{
 		"path": "/api/ai/voice-fill",
-		"verb": "POST",
 		"file": "apps\\web\\app\\api\\ai\\voice-fill\\route.ts"
 	},
 	{
 		"path": "/api/auth/create-workspace",
-		"verb": "POST",
 		"file": "apps\\web\\app\\api\\auth\\create-workspace\\route.ts"
 	},
 	{
+		"path": "/api/auth/sessions/[id]",
+		"file": "apps\\web\\app\\api\\auth\\sessions\\[id]\\route.ts"
+	},
+	{
+		"path": "/api/auth/sessions/sign-out-others",
+		"file": "apps\\web\\app\\api\\auth\\sessions\\sign-out-others\\route.ts"
+	},
+	{
+		"path": "/api/auth/switch-organization",
+		"file": "apps\\web\\app\\api\\auth\\switch-organization\\route.ts"
+	},
+	{
+		"path": "/api/auth/switch-workspace",
+		"file": "apps\\web\\app\\api\\auth\\switch-workspace\\route.ts"
+	},
+	{
 		"path": "/api/auth/two-factor/confirm",
-		"verb": "POST",
 		"file": "apps\\web\\app\\api\\auth\\two-factor\\confirm\\route.ts"
 	},
 	{
 		"path": "/api/auth/two-factor/disable",
-		"verb": "POST",
 		"file": "apps\\web\\app\\api\\auth\\two-factor\\disable\\route.ts"
 	},
 	{
 		"path": "/api/auth/two-factor/enroll",
-		"verb": "POST",
 		"file": "apps\\web\\app\\api\\auth\\two-factor\\enroll\\route.ts"
 	},
 	{
 		"path": "/api/auth/two-factor/recovery-codes",
-		"verb": "POST",
 		"file": "apps\\web\\app\\api\\auth\\two-factor\\recovery-codes\\route.ts"
 	},
 	{
 		"path": "/api/auth/two-factor/users/[userId]",
-		"verb": "DELETE",
 		"file": "apps\\web\\app\\api\\auth\\two-factor\\users\\[userId]\\route.ts"
 	},
 	{
 		"path": "/api/auth/verify/code",
-		"verb": "POST",
 		"file": "apps\\web\\app\\api\\auth\\verify\\code\\route.ts"
 	},
 	{
 		"path": "/api/auth/verify/resend-link",
-		"verb": "POST",
 		"file": "apps\\web\\app\\api\\auth\\verify\\resend-link\\route.ts"
 	},
 	{
 		"path": "/api/chat",
-		"verb": "POST",
 		"file": "apps\\web\\app\\api\\chat\\route.ts"
 	},
 	{
+		"path": "/api/chat/attachments/[documentId]",
+		"file": "apps\\web\\app\\api\\chat\\attachments\\[documentId]\\route.ts"
+	},
+	{
+		"path": "/api/chat/categories",
+		"file": "apps\\web\\app\\api\\chat\\categories\\route.ts"
+	},
+	{
+		"path": "/api/chat/categories/[id]",
+		"file": "apps\\web\\app\\api\\chat\\categories\\[id]\\route.ts"
+	},
+	{
+		"path": "/api/chat/categories/[id]",
+		"file": "apps\\web\\app\\api\\chat\\categories\\[id]\\route.ts"
+	},
+	{
+		"path": "/api/chat/categories/reorder",
+		"file": "apps\\web\\app\\api\\chat\\categories\\reorder\\route.ts"
+	},
+	{
+		"path": "/api/chat/conversations",
+		"file": "apps\\web\\app\\api\\chat\\conversations\\route.ts"
+	},
+	{
+		"path": "/api/chat/conversations/[id]",
+		"file": "apps\\web\\app\\api\\chat\\conversations\\[id]\\route.ts"
+	},
+	{
+		"path": "/api/chat/conversations/[id]/archive",
+		"file": "apps\\web\\app\\api\\chat\\conversations\\[id]\\archive\\route.ts"
+	},
+	{
+		"path": "/api/chat/conversations/[id]/join",
+		"file": "apps\\web\\app\\api\\chat\\conversations\\[id]\\join\\route.ts"
+	},
+	{
+		"path": "/api/chat/conversations/[id]/leave",
+		"file": "apps\\web\\app\\api\\chat\\conversations\\[id]\\leave\\route.ts"
+	},
+	{
+		"path": "/api/chat/conversations/[id]/members",
+		"file": "apps\\web\\app\\api\\chat\\conversations\\[id]\\members\\route.ts"
+	},
+	{
+		"path": "/api/chat/conversations/[id]/members/[employeeId]",
+		"file": "apps\\web\\app\\api\\chat\\conversations\\[id]\\members\\[employeeId]\\route.ts"
+	},
+	{
+		"path": "/api/chat/conversations/[id]/messages",
+		"file": "apps\\web\\app\\api\\chat\\conversations\\[id]\\messages\\route.ts"
+	},
+	{
+		"path": "/api/chat/conversations/[id]/read",
+		"file": "apps\\web\\app\\api\\chat\\conversations\\[id]\\read\\route.ts"
+	},
+	{
+		"path": "/api/chat/conversations/[id]/state",
+		"file": "apps\\web\\app\\api\\chat\\conversations\\[id]\\state\\route.ts"
+	},
+	{
+		"path": "/api/chat/conversations/[id]/typing",
+		"file": "apps\\web\\app\\api\\chat\\conversations\\[id]\\typing\\route.ts"
+	},
+	{
+		"path": "/api/chat/conversations/[id]/unarchive",
+		"file": "apps\\web\\app\\api\\chat\\conversations\\[id]\\unarchive\\route.ts"
+	},
+	{
+		"path": "/api/chat/conversations/[id]/webhooks",
+		"file": "apps\\web\\app\\api\\chat\\conversations\\[id]\\webhooks\\route.ts"
+	},
+	{
+		"path": "/api/chat/direct",
+		"file": "apps\\web\\app\\api\\chat\\direct\\route.ts"
+	},
+	{
+		"path": "/api/chat/messages/[id]",
+		"file": "apps\\web\\app\\api\\chat\\messages\\[id]\\route.ts"
+	},
+	{
+		"path": "/api/chat/messages/[id]",
+		"file": "apps\\web\\app\\api\\chat\\messages\\[id]\\route.ts"
+	},
+	{
+		"path": "/api/chat/messages/[id]/create-task",
+		"file": "apps\\web\\app\\api\\chat\\messages\\[id]\\create-task\\route.ts"
+	},
+	{
+		"path": "/api/chat/messages/[id]/follow",
+		"file": "apps\\web\\app\\api\\chat\\messages\\[id]\\follow\\route.ts"
+	},
+	{
+		"path": "/api/chat/messages/[id]/interactions",
+		"file": "apps\\web\\app\\api\\chat\\messages\\[id]\\interactions\\route.ts"
+	},
+	{
+		"path": "/api/chat/messages/[id]/pin",
+		"file": "apps\\web\\app\\api\\chat\\messages\\[id]\\pin\\route.ts"
+	},
+	{
+		"path": "/api/chat/messages/[id]/reactions/[emoji]",
+		"file": "apps\\web\\app\\api\\chat\\messages\\[id]\\reactions\\[emoji]\\route.ts"
+	},
+	{
+		"path": "/api/chat/messages/[id]/reactions/[emoji]",
+		"file": "apps\\web\\app\\api\\chat\\messages\\[id]\\reactions\\[emoji]\\route.ts"
+	},
+	{
+		"path": "/api/chat/messages/[id]/tasks/[taskId]",
+		"file": "apps\\web\\app\\api\\chat\\messages\\[id]\\tasks\\[taskId]\\route.ts"
+	},
+	{
+		"path": "/api/chat/messages/[id]/unfollow",
+		"file": "apps\\web\\app\\api\\chat\\messages\\[id]\\unfollow\\route.ts"
+	},
+	{
+		"path": "/api/chat/messages/[id]/unpin",
+		"file": "apps\\web\\app\\api\\chat\\messages\\[id]\\unpin\\route.ts"
+	},
+	{
+		"path": "/api/chat/messages/[id]/unread",
+		"file": "apps\\web\\app\\api\\chat\\messages\\[id]\\unread\\route.ts"
+	},
+	{
+		"path": "/api/chat/read-all",
+		"file": "apps\\web\\app\\api\\chat\\read-all\\route.ts"
+	},
+	{
+		"path": "/api/chat/read-restore",
+		"file": "apps\\web\\app\\api\\chat\\read-restore\\route.ts"
+	},
+	{
+		"path": "/api/chat/webhooks/[id]",
+		"file": "apps\\web\\app\\api\\chat\\webhooks\\[id]\\route.ts"
+	},
+	{
+		"path": "/api/chat/webhooks/[id]",
+		"file": "apps\\web\\app\\api\\chat\\webhooks\\[id]\\route.ts"
+	},
+	{
+		"path": "/api/chat/webhooks/[id]/secret",
+		"file": "apps\\web\\app\\api\\chat\\webhooks\\[id]\\secret\\route.ts"
+	},
+	{
 		"path": "/api/comment",
-		"verb": "POST",
 		"file": "apps\\web\\app\\api\\comment\\route.ts"
 	},
 	{
 		"path": "/api/comment/[id]",
-		"verb": "DELETE",
 		"file": "apps\\web\\app\\api\\comment\\[id]\\route.ts"
 	},
 	{
 		"path": "/api/comment/[id]",
-		"verb": "PUT",
 		"file": "apps\\web\\app\\api\\comment\\[id]\\route.ts"
 	},
 	{
+		"path": "/api/comment/[id]/recover",
+		"file": "apps\\web\\app\\api\\comment\\[id]\\recover\\route.ts"
+	},
+	{
+		"path": "/api/comment/[id]/soft",
+		"file": "apps\\web\\app\\api\\comment\\[id]\\soft\\route.ts"
+	},
+	{
 		"path": "/api/daily-plan",
-		"verb": "POST",
 		"file": "apps\\web\\app\\api\\daily-plan\\route.ts"
 	},
 	{
 		"path": "/api/daily-plan/[id]",
-		"verb": "DELETE",
 		"file": "apps\\web\\app\\api\\daily-plan\\[id]\\route.ts"
 	},
 	{
 		"path": "/api/daily-plan/[id]",
-		"verb": "PUT",
 		"file": "apps\\web\\app\\api\\daily-plan\\[id]\\route.ts"
 	},
 	{
 		"path": "/api/daily-plan/[id]/remove",
-		"verb": "PUT",
 		"file": "apps\\web\\app\\api\\daily-plan\\[id]\\remove\\route.ts"
 	},
 	{
 		"path": "/api/daily-plan/plan/[planId]",
-		"verb": "POST",
 		"file": "apps\\web\\app\\api\\daily-plan\\plan\\[planId]\\route.ts"
 	},
 	{
 		"path": "/api/daily-plan/plan/[planId]",
-		"verb": "PUT",
 		"file": "apps\\web\\app\\api\\daily-plan\\plan\\[planId]\\route.ts"
 	},
 	{
 		"path": "/api/editor-assist",
-		"verb": "POST",
 		"file": "apps\\web\\app\\api\\editor-assist\\route.ts"
 	},
 	{
 		"path": "/api/email-reset/request-change-email",
-		"verb": "POST",
 		"file": "apps\\web\\app\\api\\email-reset\\request-change-email\\route.ts"
 	},
 	{
 		"path": "/api/email-reset/verify-change-email",
-		"verb": "POST",
 		"file": "apps\\web\\app\\api\\email-reset\\verify-change-email\\route.ts"
 	},
 	{
+		"path": "/api/embed-allowed-origins",
+		"file": "apps\\web\\app\\api\\embed-allowed-origins\\route.ts"
+	},
+	{
+		"path": "/api/embed-allowed-origins/[id]",
+		"file": "apps\\web\\app\\api\\embed-allowed-origins\\[id]\\route.ts"
+	},
+	{
+		"path": "/api/embed-credentials",
+		"file": "apps\\web\\app\\api\\embed-credentials\\route.ts"
+	},
+	{
+		"path": "/api/embed-credentials/[id]",
+		"file": "apps\\web\\app\\api\\embed-credentials\\[id]\\route.ts"
+	},
+	{
 		"path": "/api/employee-appointment",
-		"verb": "POST",
 		"file": "apps\\web\\app\\api\\employee-appointment\\route.ts"
 	},
 	{
 		"path": "/api/employee-appointment/[id]",
-		"verb": "DELETE",
 		"file": "apps\\web\\app\\api\\employee-appointment\\[id]\\route.ts"
 	},
 	{
 		"path": "/api/employee-appointment/[id]",
-		"verb": "PUT",
 		"file": "apps\\web\\app\\api\\employee-appointment\\[id]\\route.ts"
 	},
 	{
 		"path": "/api/employee-notification-setting",
-		"verb": "POST",
 		"file": "apps\\web\\app\\api\\employee-notification-setting\\route.ts"
 	},
 	{
 		"path": "/api/employee-notification-setting/[id]",
-		"verb": "PUT",
 		"file": "apps\\web\\app\\api\\employee-notification-setting\\[id]\\route.ts"
 	},
 	{
 		"path": "/api/employee-notification/[id]",
-		"verb": "PUT",
 		"file": "apps\\web\\app\\api\\employee-notification\\[id]\\route.ts"
 	},
 	{
 		"path": "/api/employee-notification/mark-all-read",
-		"verb": "PUT",
 		"file": "apps\\web\\app\\api\\employee-notification\\mark-all-read\\route.ts"
 	},
 	{
 		"path": "/api/employee-placeholder",
-		"verb": "POST",
 		"file": "apps\\web\\app\\api\\employee-placeholder\\route.ts"
 	},
 	{
 		"path": "/api/employee-placeholder/[id]/claim",
-		"verb": "POST",
 		"file": "apps\\web\\app\\api\\employee-placeholder\\[id]\\claim\\route.ts"
 	},
 	{
 		"path": "/api/employee-placeholder/[id]/merge",
-		"verb": "POST",
 		"file": "apps\\web\\app\\api\\employee-placeholder\\[id]\\merge\\route.ts"
 	},
 	{
 		"path": "/api/employee-placeholder/bulk",
-		"verb": "POST",
 		"file": "apps\\web\\app\\api\\employee-placeholder\\bulk\\route.ts"
 	},
 	{
 		"path": "/api/employee/[id]",
-		"verb": "PUT",
 		"file": "apps\\web\\app\\api\\employee\\[id]\\route.ts"
 	},
 	{
 		"path": "/api/employee/[id]/profile",
-		"verb": "PUT",
 		"file": "apps\\web\\app\\api\\employee\\[id]\\profile\\route.ts"
 	},
 	{
 		"path": "/api/employee/me/presence",
-		"verb": "PUT",
 		"file": "apps\\web\\app\\api\\employee\\me\\presence\\route.ts"
 	},
 	{
 		"path": "/api/employee/rate-change-request",
-		"verb": "POST",
 		"file": "apps\\web\\app\\api\\employee\\rate-change-request\\route.ts"
 	},
 	{
 		"path": "/api/ever-connect/[...path]",
-		"verb": "DELETE",
 		"file": "apps\\web\\app\\api\\ever-connect\\[...path]\\route.ts"
 	},
 	{
 		"path": "/api/ever-connect/[...path]",
-		"verb": "POST",
 		"file": "apps\\web\\app\\api\\ever-connect\\[...path]\\route.ts"
 	},
 	{
 		"path": "/api/ever-connect/[...path]",
-		"verb": "PUT",
 		"file": "apps\\web\\app\\api\\ever-connect\\[...path]\\route.ts"
 	},
 	{
 		"path": "/api/ever-stats/enabled",
-		"verb": "PUT",
 		"file": "apps\\web\\app\\api\\ever-stats\\enabled\\route.ts"
 	},
 	{
 		"path": "/api/favorite",
-		"verb": "POST",
 		"file": "apps\\web\\app\\api\\favorite\\route.ts"
 	},
 	{
 		"path": "/api/favorite/[id]",
-		"verb": "DELETE",
 		"file": "apps\\web\\app\\api\\favorite\\[id]\\route.ts"
 	},
 	{
 		"path": "/api/image-assets/upload/[folder]",
-		"verb": "POST",
 		"file": "apps\\web\\app\\api\\image-assets\\upload\\[folder]\\route.ts"
 	},
 	{
+		"path": "/api/inbox/items/[id]/reply",
+		"file": "apps\\web\\app\\api\\inbox\\items\\[id]\\reply\\route.ts"
+	},
+	{
+		"path": "/api/inbox/items/[id]/state",
+		"file": "apps\\web\\app\\api\\inbox\\items\\[id]\\state\\route.ts"
+	},
+	{
+		"path": "/api/inbox/items/mark-all-read",
+		"file": "apps\\web\\app\\api\\inbox\\items\\mark-all-read\\route.ts"
+	},
+	{
+		"path": "/api/inbox/push-subscriptions",
+		"file": "apps\\web\\app\\api\\inbox\\push-subscriptions\\route.ts"
+	},
+	{
+		"path": "/api/inbox/push-subscriptions/[id]",
+		"file": "apps\\web\\app\\api\\inbox\\push-subscriptions\\[id]\\route.ts"
+	},
+	{
 		"path": "/api/integration-tenant/[id]",
-		"verb": "DELETE",
 		"file": "apps\\web\\app\\api\\integration-tenant\\[id]\\route.ts"
 	},
 	{
+		"path": "/api/integration/asana/[id]",
+		"file": "apps\\web\\app\\api\\integration\\asana\\[id]\\route.ts"
+	},
+	{
+		"path": "/api/integration/asana/[id]/conflicts/[conflictId]/resolve",
+		"file": "apps\\web\\app\\api\\integration\\asana\\[id]\\conflicts\\[conflictId]\\resolve\\route.ts"
+	},
+	{
+		"path": "/api/integration/asana/[id]/mappings",
+		"file": "apps\\web\\app\\api\\integration\\asana\\[id]\\mappings\\route.ts"
+	},
+	{
+		"path": "/api/integration/asana/[id]/mappings/[mappingId]",
+		"file": "apps\\web\\app\\api\\integration\\asana\\[id]\\mappings\\[mappingId]\\route.ts"
+	},
+	{
+		"path": "/api/integration/asana/[id]/mappings/[mappingId]",
+		"file": "apps\\web\\app\\api\\integration\\asana\\[id]\\mappings\\[mappingId]\\route.ts"
+	},
+	{
+		"path": "/api/integration/asana/[id]/mappings/[mappingId]/import",
+		"file": "apps\\web\\app\\api\\integration\\asana\\[id]\\mappings\\[mappingId]\\import\\route.ts"
+	},
+	{
+		"path": "/api/integration/asana/[id]/mappings/[mappingId]/webhook",
+		"file": "apps\\web\\app\\api\\integration\\asana\\[id]\\mappings\\[mappingId]\\webhook\\route.ts"
+	},
+	{
+		"path": "/api/integration/asana/install/state",
+		"file": "apps\\web\\app\\api\\integration\\asana\\install\\state\\route.ts"
+	},
+	{
 		"path": "/api/integration/github/install",
-		"verb": "POST",
 		"file": "apps\\web\\app\\api\\integration\\github\\install\\route.ts"
 	},
 	{
 		"path": "/api/integration/github/oauth",
-		"verb": "POST",
 		"file": "apps\\web\\app\\api\\integration\\github\\oauth\\route.ts"
 	},
 	{
 		"path": "/api/integration/github/repository/sync",
-		"verb": "POST",
 		"file": "apps\\web\\app\\api\\integration\\github\\repository\\sync\\route.ts"
 	},
 	{
+		"path": "/api/integration/jira/[id]/conflicts/[conflictId]/resolve",
+		"file": "apps\\web\\app\\api\\integration\\jira\\[id]\\conflicts\\[conflictId]\\resolve\\route.ts"
+	},
+	{
+		"path": "/api/integration/jira/[id]/mappings/[mappingId]/import",
+		"file": "apps\\web\\app\\api\\integration\\jira\\[id]\\mappings\\[mappingId]\\import\\route.ts"
+	},
+	{
+		"path": "/api/integration/jira/[id]/site",
+		"file": "apps\\web\\app\\api\\integration\\jira\\[id]\\site\\route.ts"
+	},
+	{
+		"path": "/api/integration/jira/[id]/webhook",
+		"file": "apps\\web\\app\\api\\integration\\jira\\[id]\\webhook\\route.ts"
+	},
+	{
+		"path": "/api/integration/jira/install/state",
+		"file": "apps\\web\\app\\api\\integration\\jira\\install\\state\\route.ts"
+	},
+	{
+		"path": "/api/integration/linear/[id]",
+		"file": "apps\\web\\app\\api\\integration\\linear\\[id]\\route.ts"
+	},
+	{
+		"path": "/api/integration/linear/[id]/conflicts/[conflictId]/resolve",
+		"file": "apps\\web\\app\\api\\integration\\linear\\[id]\\conflicts\\[conflictId]\\resolve\\route.ts"
+	},
+	{
+		"path": "/api/integration/linear/[id]/mappings",
+		"file": "apps\\web\\app\\api\\integration\\linear\\[id]\\mappings\\route.ts"
+	},
+	{
+		"path": "/api/integration/linear/[id]/mappings/[mappingId]",
+		"file": "apps\\web\\app\\api\\integration\\linear\\[id]\\mappings\\[mappingId]\\route.ts"
+	},
+	{
+		"path": "/api/integration/linear/[id]/mappings/[mappingId]",
+		"file": "apps\\web\\app\\api\\integration\\linear\\[id]\\mappings\\[mappingId]\\route.ts"
+	},
+	{
+		"path": "/api/integration/linear/[id]/mappings/[mappingId]/import",
+		"file": "apps\\web\\app\\api\\integration\\linear\\[id]\\mappings\\[mappingId]\\import\\route.ts"
+	},
+	{
+		"path": "/api/integration/linear/install/state",
+		"file": "apps\\web\\app\\api\\integration\\linear\\install\\state\\route.ts"
+	},
+	{
+		"path": "/api/integration/trello/[id]",
+		"file": "apps\\web\\app\\api\\integration\\trello\\[id]\\route.ts"
+	},
+	{
+		"path": "/api/integration/trello/[id]/conflicts/[conflictId]/resolve",
+		"file": "apps\\web\\app\\api\\integration\\trello\\[id]\\conflicts\\[conflictId]\\resolve\\route.ts"
+	},
+	{
+		"path": "/api/integration/trello/[id]/mappings",
+		"file": "apps\\web\\app\\api\\integration\\trello\\[id]\\mappings\\route.ts"
+	},
+	{
+		"path": "/api/integration/trello/[id]/mappings/[mappingId]",
+		"file": "apps\\web\\app\\api\\integration\\trello\\[id]\\mappings\\[mappingId]\\route.ts"
+	},
+	{
+		"path": "/api/integration/trello/[id]/mappings/[mappingId]",
+		"file": "apps\\web\\app\\api\\integration\\trello\\[id]\\mappings\\[mappingId]\\route.ts"
+	},
+	{
+		"path": "/api/integration/trello/[id]/mappings/[mappingId]/import",
+		"file": "apps\\web\\app\\api\\integration\\trello\\[id]\\mappings\\[mappingId]\\import\\route.ts"
+	},
+	{
+		"path": "/api/integration/trello/[id]/mappings/[mappingId]/webhook",
+		"file": "apps\\web\\app\\api\\integration\\trello\\[id]\\mappings\\[mappingId]\\webhook\\route.ts"
+	},
+	{
+		"path": "/api/integration/trello/connect",
+		"file": "apps\\web\\app\\api\\integration\\trello\\connect\\route.ts"
+	},
+	{
+		"path": "/api/integration/trello/install/state",
+		"file": "apps\\web\\app\\api\\integration\\trello\\install\\state\\route.ts"
+	},
+	{
 		"path": "/api/invite/[id]",
-		"verb": "DELETE",
 		"file": "apps\\web\\app\\api\\invite\\[id]\\route.ts"
 	},
 	{
 		"path": "/api/invite/[id]",
-		"verb": "PUT",
 		"file": "apps\\web\\app\\api\\invite\\[id]\\route.ts"
 	},
 	{
 		"path": "/api/invite/emails",
-		"verb": "POST",
 		"file": "apps\\web\\app\\api\\invite\\emails\\route.ts"
 	},
 	{
 		"path": "/api/invite/resend",
-		"verb": "POST",
 		"file": "apps\\web\\app\\api\\invite\\resend\\route.ts"
 	},
 	{
+		"path": "/api/invoice-item/bulk/[invoiceId]",
+		"file": "apps\\web\\app\\api\\invoice-item\\bulk\\[invoiceId]\\route.ts"
+	},
+	{
 		"path": "/api/invoice-payments/connection/rotate-secret",
-		"verb": "POST",
 		"file": "apps\\web\\app\\api\\invoice-payments\\connection\\rotate-secret\\route.ts"
 	},
 	{
 		"path": "/api/invoice-schedules",
-		"verb": "POST",
 		"file": "apps\\web\\app\\api\\invoice-schedules\\route.ts"
 	},
 	{
+		"path": "/api/invoices",
+		"file": "apps\\web\\app\\api\\invoices\\route.ts"
+	},
+	{
+		"path": "/api/invoices/[id]",
+		"file": "apps\\web\\app\\api\\invoices\\[id]\\route.ts"
+	},
+	{
+		"path": "/api/invoices/[id]",
+		"file": "apps\\web\\app\\api\\invoices\\[id]\\route.ts"
+	},
+	{
+		"path": "/api/invoices/[id]/action",
+		"file": "apps\\web\\app\\api\\invoices\\[id]\\action\\route.ts"
+	},
+	{
+		"path": "/api/invoices/[id]/with-items",
+		"file": "apps\\web\\app\\api\\invoices\\[id]\\with-items\\route.ts"
+	},
+	{
+		"path": "/api/invoices/email/[email]",
+		"file": "apps\\web\\app\\api\\invoices\\email\\[email]\\route.ts"
+	},
+	{
 		"path": "/api/issue-types",
-		"verb": "POST",
 		"file": "apps\\web\\app\\api\\issue-types\\route.ts"
 	},
 	{
 		"path": "/api/issue-types/[id]",
-		"verb": "DELETE",
 		"file": "apps\\web\\app\\api\\issue-types\\[id]\\route.ts"
 	},
 	{
 		"path": "/api/issue-types/[id]",
-		"verb": "PUT",
 		"file": "apps\\web\\app\\api\\issue-types\\[id]\\route.ts"
 	},
 	{
+		"path": "/api/organization-contact",
+		"file": "apps\\web\\app\\api\\organization-contact\\route.ts"
+	},
+	{
+		"path": "/api/organization-contact/[id]",
+		"file": "apps\\web\\app\\api\\organization-contact\\[id]\\route.ts"
+	},
+	{
+		"path": "/api/organization-contact/[id]/recover",
+		"file": "apps\\web\\app\\api\\organization-contact\\[id]\\recover\\route.ts"
+	},
+	{
+		"path": "/api/organization-contact/[id]/soft",
+		"file": "apps\\web\\app\\api\\organization-contact\\[id]\\soft\\route.ts"
+	},
+	{
 		"path": "/api/organization-projects",
-		"verb": "POST",
 		"file": "apps\\web\\app\\api\\organization-projects\\route.ts"
 	},
 	{
 		"path": "/api/organization-projects/[id]",
-		"verb": "PUT",
+		"file": "apps\\web\\app\\api\\organization-projects\\[id]\\route.ts"
+	},
+	{
+		"path": "/api/organization-projects/[id]",
 		"file": "apps\\web\\app\\api\\organization-projects\\[id]\\route.ts"
 	},
 	{
 		"path": "/api/organization-projects/[id]/members/[employeeId]/rate",
-		"verb": "PUT",
 		"file": "apps\\web\\app\\api\\organization-projects\\[id]\\members\\[employeeId]\\rate\\route.ts"
 	},
 	{
 		"path": "/api/organization-projects/[id]/rate",
-		"verb": "PUT",
 		"file": "apps\\web\\app\\api\\organization-projects\\[id]\\rate\\route.ts"
 	},
 	{
 		"path": "/api/organization-projects/setting/[id]",
-		"verb": "PUT",
 		"file": "apps\\web\\app\\api\\organization-projects\\setting\\[id]\\route.ts"
 	},
 	{
 		"path": "/api/organization-team",
-		"verb": "POST",
 		"file": "apps\\web\\app\\api\\organization-team\\route.ts"
 	},
 	{
 		"path": "/api/organization-team-employee/[id]",
-		"verb": "DELETE",
 		"file": "apps\\web\\app\\api\\organization-team-employee\\[id]\\route.ts"
 	},
 	{
 		"path": "/api/organization-team-employee/[id]",
-		"verb": "PUT",
 		"file": "apps\\web\\app\\api\\organization-team-employee\\[id]\\route.ts"
 	},
 	{
 		"path": "/api/organization-team-employee/[id]/active-task",
-		"verb": "PUT",
 		"file": "apps\\web\\app\\api\\organization-team-employee\\[id]\\active-task\\route.ts"
 	},
 	{
 		"path": "/api/organization-team-join/[id]/[action]",
-		"verb": "PUT",
 		"file": "apps\\web\\app\\api\\organization-team-join\\[id]\\[action]\\route.ts"
 	},
 	{
 		"path": "/api/organization-team/[id]",
-		"verb": "DELETE",
 		"file": "apps\\web\\app\\api\\organization-team\\[id]\\route.ts"
 	},
 	{
 		"path": "/api/organization-team/[id]",
-		"verb": "PUT",
 		"file": "apps\\web\\app\\api\\organization-team\\[id]\\route.ts"
 	},
 	{
 		"path": "/api/organization-team/employee/[id]",
-		"verb": "DELETE",
 		"file": "apps\\web\\app\\api\\organization-team\\employee\\[id]\\route.ts"
 	},
 	{
 		"path": "/api/organization-team/employee/[id]",
-		"verb": "PUT",
 		"file": "apps\\web\\app\\api\\organization-team\\employee\\[id]\\route.ts"
 	},
 	{
 		"path": "/api/organization-team/teams/[id]",
-		"verb": "DELETE",
 		"file": "apps\\web\\app\\api\\organization-team\\teams\\[id]\\route.ts"
 	},
 	{
+		"path": "/api/organization/[id]",
+		"file": "apps\\web\\app\\api\\organization\\[id]\\route.ts"
+	},
+	{
 		"path": "/api/organization/[id]/soft",
-		"verb": "DELETE",
 		"file": "apps\\web\\app\\api\\organization\\[id]\\soft\\route.ts"
 	},
 	{
+		"path": "/api/plugins/docs/documents",
+		"file": "apps\\web\\app\\api\\plugins\\docs\\documents\\route.ts"
+	},
+	{
+		"path": "/api/plugins/docs/documents/[id]",
+		"file": "apps\\web\\app\\api\\plugins\\docs\\documents\\[id]\\route.ts"
+	},
+	{
+		"path": "/api/plugins/docs/documents/[id]",
+		"file": "apps\\web\\app\\api\\plugins\\docs\\documents\\[id]\\route.ts"
+	},
+	{
+		"path": "/api/plugins/docs/documents/[id]/archive",
+		"file": "apps\\web\\app\\api\\plugins\\docs\\documents\\[id]\\archive\\route.ts"
+	},
+	{
+		"path": "/api/plugins/docs/documents/[id]/comments/[commentId]/anchor",
+		"file": "apps\\web\\app\\api\\plugins\\docs\\documents\\[id]\\comments\\[commentId]\\anchor\\route.ts"
+	},
+	{
+		"path": "/api/plugins/docs/documents/[id]/comments/[commentId]/anchor",
+		"file": "apps\\web\\app\\api\\plugins\\docs\\documents\\[id]\\comments\\[commentId]\\anchor\\route.ts"
+	},
+	{
+		"path": "/api/plugins/docs/documents/[id]/content",
+		"file": "apps\\web\\app\\api\\plugins\\docs\\documents\\[id]\\content\\route.ts"
+	},
+	{
+		"path": "/api/plugins/docs/documents/[id]/duplicate",
+		"file": "apps\\web\\app\\api\\plugins\\docs\\documents\\[id]\\duplicate\\route.ts"
+	},
+	{
+		"path": "/api/plugins/docs/documents/[id]/follow",
+		"file": "apps\\web\\app\\api\\plugins\\docs\\documents\\[id]\\follow\\route.ts"
+	},
+	{
+		"path": "/api/plugins/docs/documents/[id]/live/awareness",
+		"file": "apps\\web\\app\\api\\plugins\\docs\\documents\\[id]\\live\\awareness\\route.ts"
+	},
+	{
+		"path": "/api/plugins/docs/documents/[id]/live/updates",
+		"file": "apps\\web\\app\\api\\plugins\\docs\\documents\\[id]\\live\\updates\\route.ts"
+	},
+	{
+		"path": "/api/plugins/docs/documents/[id]/move",
+		"file": "apps\\web\\app\\api\\plugins\\docs\\documents\\[id]\\move\\route.ts"
+	},
+	{
+		"path": "/api/plugins/docs/documents/[id]/mute",
+		"file": "apps\\web\\app\\api\\plugins\\docs\\documents\\[id]\\mute\\route.ts"
+	},
+	{
+		"path": "/api/plugins/docs/documents/[id]/recover",
+		"file": "apps\\web\\app\\api\\plugins\\docs\\documents\\[id]\\recover\\route.ts"
+	},
+	{
+		"path": "/api/plugins/docs/documents/[id]/space",
+		"file": "apps\\web\\app\\api\\plugins\\docs\\documents\\[id]\\space\\route.ts"
+	},
+	{
+		"path": "/api/plugins/docs/documents/[id]/unarchive",
+		"file": "apps\\web\\app\\api\\plugins\\docs\\documents\\[id]\\unarchive\\route.ts"
+	},
+	{
+		"path": "/api/plugins/docs/documents/[id]/unfollow",
+		"file": "apps\\web\\app\\api\\plugins\\docs\\documents\\[id]\\unfollow\\route.ts"
+	},
+	{
+		"path": "/api/plugins/docs/documents/[id]/unmute",
+		"file": "apps\\web\\app\\api\\plugins\\docs\\documents\\[id]\\unmute\\route.ts"
+	},
+	{
+		"path": "/api/plugins/docs/documents/[id]/versions/[versionId]/restore",
+		"file": "apps\\web\\app\\api\\plugins\\docs\\documents\\[id]\\versions\\[versionId]\\restore\\route.ts"
+	},
+	{
+		"path": "/api/plugins/docs/documents/reorder",
+		"file": "apps\\web\\app\\api\\plugins\\docs\\documents\\reorder\\route.ts"
+	},
+	{
 		"path": "/api/plugins/docs/documents/upload",
-		"verb": "POST",
 		"file": "apps\\web\\app\\api\\plugins\\docs\\documents\\upload\\route.ts"
 	},
 	{
 		"path": "/api/plugins/docs/imports",
-		"verb": "POST",
 		"file": "apps\\web\\app\\api\\plugins\\docs\\imports\\route.ts"
 	},
 	{
 		"path": "/api/plugins/docs/links",
-		"verb": "POST",
 		"file": "apps\\web\\app\\api\\plugins\\docs\\links\\route.ts"
 	},
 	{
 		"path": "/api/plugins/docs/links/[id]",
-		"verb": "DELETE",
 		"file": "apps\\web\\app\\api\\plugins\\docs\\links\\[id]\\route.ts"
 	},
 	{
+		"path": "/api/reaction",
+		"file": "apps\\web\\app\\api\\reaction\\route.ts"
+	},
+	{
+		"path": "/api/realtime/presence",
+		"file": "apps\\web\\app\\api\\realtime\\presence\\route.ts"
+	},
+	{
+		"path": "/api/realtime/typing",
+		"file": "apps\\web\\app\\api\\realtime\\typing\\route.ts"
+	},
+	{
 		"path": "/api/role-permissions/[id]",
-		"verb": "PUT",
 		"file": "apps\\web\\app\\api\\role-permissions\\[id]\\route.ts"
 	},
 	{
 		"path": "/api/roles",
-		"verb": "POST",
 		"file": "apps\\web\\app\\api\\roles\\route.ts"
 	},
 	{
 		"path": "/api/roles/[id]",
-		"verb": "DELETE",
 		"file": "apps\\web\\app\\api\\roles\\[id]\\route.ts"
 	},
 	{
 		"path": "/api/roles/[id]",
-		"verb": "PUT",
 		"file": "apps\\web\\app\\api\\roles\\[id]\\route.ts"
 	},
 	{
 		"path": "/api/roles/options",
-		"verb": "POST",
 		"file": "apps\\web\\app\\api\\roles\\options\\route.ts"
 	},
 	{
 		"path": "/api/saved-reports",
-		"verb": "POST",
 		"file": "apps\\web\\app\\api\\saved-reports\\route.ts"
 	},
 	{
 		"path": "/api/saved-reports/[id]",
-		"verb": "DELETE",
 		"file": "apps\\web\\app\\api\\saved-reports\\[id]\\route.ts"
 	},
 	{
 		"path": "/api/saved-reports/[id]",
-		"verb": "PUT",
 		"file": "apps\\web\\app\\api\\saved-reports\\[id]\\route.ts"
 	},
 	{
 		"path": "/api/saved-reports/[id]/share",
-		"verb": "DELETE",
 		"file": "apps\\web\\app\\api\\saved-reports\\[id]\\share\\route.ts"
 	},
 	{
 		"path": "/api/saved-reports/[id]/share",
-		"verb": "POST",
 		"file": "apps\\web\\app\\api\\saved-reports\\[id]\\share\\route.ts"
 	},
 	{
 		"path": "/api/tags",
-		"verb": "POST",
 		"file": "apps\\web\\app\\api\\tags\\route.ts"
 	},
 	{
 		"path": "/api/tags/[id]",
-		"verb": "DELETE",
 		"file": "apps\\web\\app\\api\\tags\\[id]\\route.ts"
 	},
 	{
 		"path": "/api/tags/[id]",
-		"verb": "PUT",
 		"file": "apps\\web\\app\\api\\tags\\[id]\\route.ts"
 	},
 	{
 		"path": "/api/tags/bulk",
-		"verb": "POST",
 		"file": "apps\\web\\app\\api\\tags\\bulk\\route.ts"
 	},
 	{
+		"path": "/api/task-automations",
+		"file": "apps\\web\\app\\api\\task-automations\\route.ts"
+	},
+	{
+		"path": "/api/task-automations/[id]",
+		"file": "apps\\web\\app\\api\\task-automations\\[id]\\route.ts"
+	},
+	{
+		"path": "/api/task-automations/[id]",
+		"file": "apps\\web\\app\\api\\task-automations\\[id]\\route.ts"
+	},
+	{
+		"path": "/api/task-automations/[id]/test",
+		"file": "apps\\web\\app\\api\\task-automations\\[id]\\test\\route.ts"
+	},
+	{
+		"path": "/api/task-automations/order",
+		"file": "apps\\web\\app\\api\\task-automations\\order\\route.ts"
+	},
+	{
+		"path": "/api/task-estimation",
+		"file": "apps\\web\\app\\api\\task-estimation\\route.ts"
+	},
+	{
+		"path": "/api/task-estimation/[id]",
+		"file": "apps\\web\\app\\api\\task-estimation\\[id]\\route.ts"
+	},
+	{
+		"path": "/api/task-estimation/[id]",
+		"file": "apps\\web\\app\\api\\task-estimation\\[id]\\route.ts"
+	},
+	{
 		"path": "/api/task-priorities",
-		"verb": "POST",
 		"file": "apps\\web\\app\\api\\task-priorities\\route.ts"
 	},
 	{
 		"path": "/api/task-priorities/[id]",
-		"verb": "DELETE",
 		"file": "apps\\web\\app\\api\\task-priorities\\[id]\\route.ts"
 	},
 	{
 		"path": "/api/task-priorities/[id]",
-		"verb": "PUT",
 		"file": "apps\\web\\app\\api\\task-priorities\\[id]\\route.ts"
 	},
 	{
 		"path": "/api/task-related-issue-types",
-		"verb": "POST",
 		"file": "apps\\web\\app\\api\\task-related-issue-types\\route.ts"
 	},
 	{
 		"path": "/api/task-related-issue-types/[id]",
-		"verb": "DELETE",
 		"file": "apps\\web\\app\\api\\task-related-issue-types\\[id]\\route.ts"
 	},
 	{
 		"path": "/api/task-related-issue-types/[id]",
-		"verb": "PUT",
 		"file": "apps\\web\\app\\api\\task-related-issue-types\\[id]\\route.ts"
 	},
 	{
 		"path": "/api/task-sizes",
-		"verb": "POST",
 		"file": "apps\\web\\app\\api\\task-sizes\\route.ts"
 	},
 	{
 		"path": "/api/task-sizes/[id]",
-		"verb": "DELETE",
 		"file": "apps\\web\\app\\api\\task-sizes\\[id]\\route.ts"
 	},
 	{
 		"path": "/api/task-sizes/[id]",
-		"verb": "PUT",
 		"file": "apps\\web\\app\\api\\task-sizes\\[id]\\route.ts"
 	},
 	{
 		"path": "/api/task-statuses",
-		"verb": "POST",
 		"file": "apps\\web\\app\\api\\task-statuses\\route.ts"
 	},
 	{
 		"path": "/api/task-statuses/[id]",
-		"verb": "DELETE",
 		"file": "apps\\web\\app\\api\\task-statuses\\[id]\\route.ts"
 	},
 	{
 		"path": "/api/task-statuses/[id]",
-		"verb": "PUT",
 		"file": "apps\\web\\app\\api\\task-statuses\\[id]\\route.ts"
 	},
 	{
+		"path": "/api/task-statuses/reorder",
+		"file": "apps\\web\\app\\api\\task-statuses\\reorder\\route.ts"
+	},
+	{
 		"path": "/api/task-versions",
-		"verb": "POST",
 		"file": "apps\\web\\app\\api\\task-versions\\route.ts"
 	},
 	{
 		"path": "/api/task-versions/[id]",
-		"verb": "DELETE",
 		"file": "apps\\web\\app\\api\\task-versions\\[id]\\route.ts"
 	},
 	{
 		"path": "/api/task-versions/[id]",
-		"verb": "PUT",
 		"file": "apps\\web\\app\\api\\task-versions\\[id]\\route.ts"
 	},
 	{
+		"path": "/api/task-views",
+		"file": "apps\\web\\app\\api\\task-views\\route.ts"
+	},
+	{
+		"path": "/api/task-views/[id]",
+		"file": "apps\\web\\app\\api\\task-views\\[id]\\route.ts"
+	},
+	{
+		"path": "/api/task-views/[id]",
+		"file": "apps\\web\\app\\api\\task-views\\[id]\\route.ts"
+	},
+	{
+		"path": "/api/task-views/[id]/order",
+		"file": "apps\\web\\app\\api\\task-views\\[id]\\order\\route.ts"
+	},
+	{
 		"path": "/api/tasks/[id]",
-		"verb": "PUT",
 		"file": "apps\\web\\app\\api\\tasks\\[id]\\route.ts"
 	},
 	{
+		"path": "/api/tasks/[id]",
+		"file": "apps\\web\\app\\api\\tasks\\[id]\\route.ts"
+	},
+	{
+		"path": "/api/tasks/[id]/recover",
+		"file": "apps\\web\\app\\api\\tasks\\[id]\\recover\\route.ts"
+	},
+	{
+		"path": "/api/tasks/[id]/soft",
+		"file": "apps\\web\\app\\api\\tasks\\[id]\\soft\\route.ts"
+	},
+	{
+		"path": "/api/tasks/[id]/trashed",
+		"file": "apps\\web\\app\\api\\tasks\\[id]\\trashed\\route.ts"
+	},
+	{
+		"path": "/api/tasks/bulk-update",
+		"file": "apps\\web\\app\\api\\tasks\\bulk-update\\route.ts"
+	},
+	{
 		"path": "/api/tasks/employee/[employeeId]",
-		"verb": "DELETE",
 		"file": "apps\\web\\app\\api\\tasks\\employee\\[employeeId]\\route.ts"
 	},
 	{
 		"path": "/api/tasks/task-linked-issue",
-		"verb": "POST",
 		"file": "apps\\web\\app\\api\\tasks\\task-linked-issue\\route.ts"
 	},
 	{
 		"path": "/api/tasks/task-linked-issue",
-		"verb": "PUT",
 		"file": "apps\\web\\app\\api\\tasks\\task-linked-issue\\route.ts"
 	},
 	{
 		"path": "/api/tasks/task-linked-issue/[id]",
-		"verb": "DELETE",
 		"file": "apps\\web\\app\\api\\tasks\\task-linked-issue\\[id]\\route.ts"
 	},
 	{
 		"path": "/api/tasks/team",
-		"verb": "POST",
 		"file": "apps\\web\\app\\api\\tasks\\team\\route.ts"
 	},
 	{
 		"path": "/api/tenant",
-		"verb": "PUT",
 		"file": "apps\\web\\app\\api\\tenant\\route.ts"
 	},
 	{
+		"path": "/api/time-goals",
+		"file": "apps\\web\\app\\api\\time-goals\\route.ts"
+	},
+	{
+		"path": "/api/time-goals/[id]",
+		"file": "apps\\web\\app\\api\\time-goals\\[id]\\route.ts"
+	},
+	{
+		"path": "/api/time-goals/[id]/archive",
+		"file": "apps\\web\\app\\api\\time-goals\\[id]\\archive\\route.ts"
+	},
+	{
+		"path": "/api/time-goals/[id]/restore",
+		"file": "apps\\web\\app\\api\\time-goals\\[id]\\restore\\route.ts"
+	},
+	{
 		"path": "/api/timer/discard",
-		"verb": "POST",
 		"file": "apps\\web\\app\\api\\timer\\discard\\route.ts"
 	},
 	{
 		"path": "/api/timer/slot",
-		"verb": "DELETE",
 		"file": "apps\\web\\app\\api\\timer\\slot\\route.ts"
 	},
 	{
 		"path": "/api/timer/start",
-		"verb": "POST",
 		"file": "apps\\web\\app\\api\\timer\\start\\route.ts"
 	},
 	{
+		"path": "/api/timer/started-at",
+		"file": "apps\\web\\app\\api\\timer\\started-at\\route.ts"
+	},
+	{
 		"path": "/api/timer/stop",
-		"verb": "POST",
 		"file": "apps\\web\\app\\api\\timer\\stop\\route.ts"
 	},
 	{
 		"path": "/api/timer/sync",
-		"verb": "POST",
 		"file": "apps\\web\\app\\api\\timer\\sync\\route.ts"
 	},
 	{
 		"path": "/api/timer/timesheet/bulk-delete",
-		"verb": "DELETE",
 		"file": "apps\\web\\app\\api\\timer\\timesheet\\bulk-delete\\route.ts"
 	},
 	{
 		"path": "/api/timer/timesheet/status",
-		"verb": "PUT",
 		"file": "apps\\web\\app\\api\\timer\\timesheet\\status\\route.ts"
 	},
 	{
 		"path": "/api/timer/timesheet/time-log",
-		"verb": "POST",
 		"file": "apps\\web\\app\\api\\timer\\timesheet\\time-log\\route.ts"
 	},
 	{
 		"path": "/api/timer/timesheet/time-log/[id]",
-		"verb": "PUT",
 		"file": "apps\\web\\app\\api\\timer\\timesheet\\time-log\\[id]\\route.ts"
 	},
 	{
 		"path": "/api/timer/toggle",
-		"verb": "POST",
 		"file": "apps\\web\\app\\api\\timer\\toggle\\route.ts"
 	},
 	{
+		"path": "/api/timesheet/status",
+		"file": "apps\\web\\app\\api\\timesheet\\status\\route.ts"
+	},
+	{
+		"path": "/api/timesheet/time-log",
+		"file": "apps\\web\\app\\api\\timesheet\\time-log\\route.ts"
+	},
+	{
+		"path": "/api/timesheet/time-log",
+		"file": "apps\\web\\app\\api\\timesheet\\time-log\\route.ts"
+	},
+	{
+		"path": "/api/timesheet/time-log/[id]",
+		"file": "apps\\web\\app\\api\\timesheet\\time-log\\[id]\\route.ts"
+	},
+	{
+		"path": "/api/timesheet/time-log/[id]/split",
+		"file": "apps\\web\\app\\api\\timesheet\\time-log\\[id]\\split\\route.ts"
+	},
+	{
+		"path": "/api/timesheet/time-log/[id]/tags",
+		"file": "apps\\web\\app\\api\\timesheet\\time-log\\[id]\\tags\\route.ts"
+	},
+	{
 		"path": "/api/user-api-tokens",
-		"verb": "POST",
 		"file": "apps\\web\\app\\api\\user-api-tokens\\route.ts"
 	},
 	{
 		"path": "/api/user-api-tokens/[id]",
-		"verb": "DELETE",
 		"file": "apps\\web\\app\\api\\user-api-tokens\\[id]\\route.ts"
 	},
 	{
 		"path": "/api/user/[id]",
-		"verb": "DELETE",
 		"file": "apps\\web\\app\\api\\user\\[id]\\route.ts"
 	},
 	{
 		"path": "/api/user/[id]",
-		"verb": "PUT",
 		"file": "apps\\web\\app\\api\\user\\[id]\\route.ts"
 	},
 	{
 		"path": "/api/user/[id]/role",
-		"verb": "PUT",
 		"file": "apps\\web\\app\\api\\user\\[id]\\role\\route.ts"
 	},
 	{
 		"path": "/api/user/reset",
-		"verb": "DELETE",
 		"file": "apps\\web\\app\\api\\user\\reset\\route.ts"
+	},
+	{
+		"path": "/api/user/ui-preferences",
+		"file": "apps\\web\\app\\api\\user\\ui-preferences\\route.ts"
 	}
 ];
