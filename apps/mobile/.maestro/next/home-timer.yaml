@@ -4,6 +4,13 @@ appId: ${APP_ID}
 ---
 - launchApp:
     clearState: false
+# The app opens on the team; the new Home is the Work tab, at /timer
+- extendedWaitUntil:
+    visible:
+      id: "tab-work"
+    timeout: 30000
+- tapOn:
+    id: "tab-work"
 - extendedWaitUntil:
     visible:
       id: "home-timer-button"

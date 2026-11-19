@@ -1,9 +1,9 @@
 /* eslint-disable camelcase */
 import { convertMsToTime, secondsToTime } from '../../helpers/date';
-import { startTimerRequest, stopTimerRequest, toggleTimerRequest } from '../client/requests/timer';
+import { startTimerRequest, stopTimerRequest, syncTimeSlotRequest, toggleTimerRequest } from '../client/requests/timer';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSyncRef } from './use-sync-ref';
-import { ILocalTimerStatus, ITimerParams, ITimerStatus, TimerSource } from '../interfaces/ITimer';
+import { ILocalTimerStatus, ITimer, ITimerParams, ITimerStatus, TimerSource } from '../interfaces/ITimer';
 import { useFirstLoad } from './use-first-load';
 import isEqual from 'lodash/isEqual';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -18,6 +18,7 @@ import moment from 'moment-timezone';
 import { runStartOf } from '../../helpers/timer-run-start';
 import { countTimeFrom } from './shared-time-counter';
 import { observer } from 'mobx-react-lite';
+import { runningTimeWriter } from './running-time-writer';
 
 const LOCAL_TIMER_STORAGE_KEY = 'local-timer-ever-teams';
 
@@ -175,6 +176,58 @@ export const TimeCounterHost = observer(function TimeCounterHost() {
 /** The stops under way together, and what the screen showed running before the first of them. */
 type StopsUnderWay = { count: number; stopped: boolean; failed: boolean; shownAsRunning: ILocalTimerStatus | null };
 
+/** How long a stop waits for the other writer's last write before it is sent anyway. */
+export const WRITE_BEFORE_STOP_MS = 5_000;
+
+/** Waits for the work, at most that long: what it does after does not hold the caller back, and it never rejects. */
+function atMost(ms: number, work: Promise<void>): Promise<void> {
+	let bound: ReturnType<typeof setTimeout> | undefined;
+	const timeUp = new Promise<void>((resolve) => {
+		bound = setTimeout(resolve, ms);
+	});
+	return Promise.race([work.catch(() => undefined), timeUp]).finally(() => clearTimeout(bound));
+}
+
+/** Tells the other writer of the running time, if one is registered, that the API started or stopped the timer. */
+function tellTimerChanged(log: ITimer | undefined): void {
+	const writer = runningTimeWriter();
+	if (!writer) {
+		return;
+	}
+	if (log?.isRunning) {
+		writer.afterStart(log);
+		return;
+	}
+	// a toggle that stopped the timer answers with the run it stopped
+	writer.afterStop(log);
+}
+
+/** Writes seconds of the running timer as a time slot: rejects when the API did not write them. */
+async function writeTimeSlot(
+	params: ITimerParams,
+	employeeId: string | undefined,
+	authToken: string | undefined,
+	seconds: number
+): Promise<void> {
+	if (!employeeId || !authToken) {
+		throw new Error('No employee to write the running time for');
+	}
+	const { response } = await syncTimeSlotRequest(
+		{
+			tenantId: params.tenantId,
+			organizationId: params.organizationId,
+			employeeId,
+			source: params.source,
+			duration: seconds,
+			logType: 'TRACKED'
+		},
+		authToken
+	);
+	if (!response.ok) {
+		throw new Error(`The API did not write the running time: ${response.status}`);
+	}
+}
+
 export function useTimer() {
 	const {
 		authenticationStore: { tenantId, authToken, organizationId, user },
@@ -230,6 +283,7 @@ export function useTimer() {
 			running: response?.data.isRunning
 		};
 		setTimerStatus(status);
+		tellTimerChanged(response?.data);
 	}, []);
 
 	useEffect(() => {
@@ -269,6 +323,7 @@ export function useTimer() {
 		};
 		setTimerStatus(status);
 		setTimerStatusFetching(false);
+		tellTimerChanged(data);
 
 		/**
 		 *  Updating the task status to "In Progress" when the timer is started.
@@ -337,14 +392,28 @@ export function useTimer() {
 		};
 
 		setStopTimerLoading(true);
+		const otherWriter = runningTimeWriter();
+		const runToStop = timerStatusRef.current?.lastLog;
+		let stopped = false;
 
 		try {
+			// Where another writer writes the running time, the time since its last write goes first, as its own stop does.
+			// A write that hangs never holds the stop back: after WRITE_BEFORE_STOP_MS the stop is sent anyway
+			if (otherWriter) {
+				await atMost(
+					WRITE_BEFORE_STOP_MS,
+					otherWriter.beforeStop(runToStop, (seconds) =>
+						writeTimeSlot(params, session.user?.employee?.id, authToken, seconds)
+					)
+				);
+			}
 			const { data, response } = await stopTimerRequest(params, authToken as string);
 
 			// Nothing was running anymore: the timer was stopped from another device. The screen is right to show it
 			// stopped, and its status says the same until the next read
 			if (response.status === 406) {
 				stops.stopped = true;
+				stopped = true;
 				setTimerStatus({ ...timerStore.timerStatus, running: false });
 				return;
 			}
@@ -356,6 +425,7 @@ export function useTimer() {
 			}
 
 			stops.stopped = true;
+			stopped = true;
 			const status: ITimerStatus = {
 				duration: data.duration,
 				running: data.isRunning,
@@ -370,6 +440,8 @@ export function useTimer() {
 			if (stops.count === 0) {
 				settleStops(stops);
 			}
+			// a stop that failed leaves the run to the other writer, which goes on writing it
+			otherWriter?.afterStop(stopped ? runToStop : undefined);
 		}
 	}, [taskId.current]);
 

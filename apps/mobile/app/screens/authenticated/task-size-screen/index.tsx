@@ -29,6 +29,7 @@ import { useTaskSettingsAccess } from '../../../services/hooks/features/use-task
 import { readOnlyOpacity } from '../../../helpers/read-only-opacity';
 import { BlurView } from 'expo-blur';
 import { useRoute, RouteProp } from '@react-navigation/native';
+import { navigateTo } from '../../../navigators/routes';
 // import { ITaskSizeItem } from '../../../services/interfaces/ITaskSize';
 
 // Create a type for the route params
@@ -53,7 +54,7 @@ export const TaskSizeScreen: FC<AuthenticatedDrawerScreenProps<'TaskSizeScreen'>
 
   // Handle back navigation with correct tab
   const handleGoBack = useCallback(() => {
-    navigation.navigate('Setting', { activeTab: previousTab });
+    navigateTo(navigation, 'Setting', { activeTab: previousTab });
   }, [navigation, previousTab]);
 
   const { isLoading, sizes, deleteSize, updateSize, createSize } = useTaskSizes();
