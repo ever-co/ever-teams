@@ -65,21 +65,26 @@ const TaskTitleBlock = observer(() => {
 		<View style={{ gap: 12, marginVertical: 16 }}>
 			<TaskEyebrow task={task} teamName={activeTeam?.name} />
 			<View style={{ flexDirection: 'row', gap: 5 }}>
-				<TextInput
-					testID="task-title"
-					multiline
-					editable={edit}
-					style={[
-						styles.textInput,
-						{
-							color: colors.primary,
-							borderColor: edit ? (dark ? '#464242' : '#e5e7eb') : 'transparent',
-							fontFamily: typography.fonts.PlusJakartaSans.semiBold
-						}
-					]}
-					onChangeText={(text) => setTitle(text)}
-					value={title}
-				/>
+				{edit ? (
+					<TextInput
+						testID="task-title"
+						multiline
+						autoFocus
+						style={[styles.textInput, { color: theme.colors.foreground, borderColor: theme.colors.input }]}
+						onChangeText={(text) => setTitle(text)}
+						value={title}
+					/>
+				) : (
+					<Text
+						testID="task-title"
+						accessibilityRole="button"
+						accessibilityHint={translate('common.edit')}
+						onPress={() => setEdit(true)}
+						style={[styles.title, { color: theme.colors.foreground }]}
+					>
+						{title}
+					</Text>
+				)}
 				<TitleIcons
 					dark={dark}
 					edit={edit}
@@ -285,12 +290,21 @@ const styles = StyleSheet.create({
 		padding: 3
 	},
 	textInput: {
-		borderRadius: 5,
+		borderRadius: 8,
 		borderWidth: 1,
 		flex: 1,
-		fontSize: 20,
-		fontWeight: '600',
+		fontFamily: typography.primary.semiBold,
+		fontSize: 24,
+		lineHeight: 30,
 		maxHeight: 150,
+		paddingHorizontal: 8,
+		paddingVertical: 4,
 		textAlignVertical: 'top'
+	},
+	title: {
+		flex: 1,
+		fontFamily: typography.primary.semiBold,
+		fontSize: 24,
+		lineHeight: 30
 	}
 });
