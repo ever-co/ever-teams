@@ -101,9 +101,10 @@ export function useTrackedTotals() {
 }
 
 /**
- * The tasks the person tracked time on today in the team of today's last log, the latest first, read again with the
- * status. A start from Home continues that log and names its team, so a tap never starts a task in a team it was not
- * tracked in today. Before the day's first log there is nothing to read.
+ * The tasks the person tracked time on today, the latest first, read again with the status. When today's last log
+ * names a team, only the time tracked in that team counts, and a start from Home names that team, so a tap never starts
+ * a task in a team it was not tracked in today. When it names none, every team counts and a start names no team, as
+ * Home's Start does for that log. Before the day's first log there is nothing to read.
  */
 export function useTodayTasks(organizationTeamId: string | null | undefined, loggedToday: boolean) {
 	const session = useSignedInSession();
