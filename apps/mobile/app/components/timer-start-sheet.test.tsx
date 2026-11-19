@@ -6,6 +6,8 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
 import TimerStartSheet from './timer-start-sheet';
+import { sheetLookOf } from '../../src/theme/sheet-look';
+import { themeFor } from '../../src/theme/use-theme';
 
 // The library's stand-in, whose sheet keeps the props it was given
 const mockSheetProps: Array<Record<string, unknown>> = [];
@@ -23,7 +25,7 @@ jest.mock('react-native-gesture-handler', () => {
 });
 jest.mock('../theme', () => ({
 	...jest.requireActual('../theme'),
-	useAppTheme: () => ({ colors: { background: '#FFFFFF', border: '#DDD' }, dark: false })
+	useWebTheme: () => jest.requireActual('../../src/theme/use-theme').themeFor('light')
 }));
 jest.mock('../services/hooks/use-timer-start-move', () => ({
 	useTimerStartMove: () => ({
@@ -43,5 +45,13 @@ describe('The sheet of the running time', () => {
 
 		expect(sheet.android_keyboardInputMode).toBe('adjustPan');
 		expect(sheet.keyboardBehavior).toBe('interactive');
+	});
+
+	it('opens on the shared sheet look, like every other sheet', async () => {
+		await render(<TimerStartSheet visible onClose={jest.fn()} />);
+
+		const sheet = mockSheetProps[mockSheetProps.length - 1];
+
+		expect(sheet.backgroundStyle).toEqual(sheetLookOf(themeFor('light')).background);
 	});
 });
