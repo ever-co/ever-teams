@@ -1,0 +1,60 @@
+# The new app's Home: the person starts the timer on one of today's tasks, switches to the other, and stops it.
+# Runs on a build made with EXPO_PUBLIC_APP_SHELL=next, signed in (see the README). Home is the Work tab, at /timer.
+appId: ${APP_ID}
+---
+- launchApp:
+    clearState: false
+- extendedWaitUntil:
+    visible:
+      id: "tab-work"
+    timeout: 30000
+- tapOn:
+    id: "tab-work"
+- extendedWaitUntil:
+    visible:
+      id: "home-timer-button"
+    timeout: 30000
+# A run an earlier flow left is stopped first; "running since" shows once the API's status says the timer runs
+- runFlow:
+    when:
+      visible:
+        id: "home-running-since"
+    commands:
+      - tapOn:
+          id: "home-timer-button"
+      - extendedWaitUntil:
+          notVisible:
+            id: "home-running-since"
+          timeout: 20000
+- extendedWaitUntil:
+    visible:
+      id: "home-today-task"
+      index: 1
+    timeout: 30000
+- tapOn:
+    id: "home-today-task"
+    index: 1
+- extendedWaitUntil:
+    visible:
+      id: "home-today-task-running"
+    timeout: 20000
+- takeScreenshot: started-on-a-task-of-today
+# The task the timer runs on does nothing on a tap: the one that can be tapped is the other task
+- tapOn:
+    id: "home-today-task"
+    enabled: true
+- extendedWaitUntil:
+    visible:
+      id: "home-running-since"
+    timeout: 20000
+- extendedWaitUntil:
+    visible:
+      id: "home-today-task-running"
+    timeout: 20000
+- takeScreenshot: switched-to-the-other-task
+- tapOn:
+    id: "home-timer-button"
+- extendedWaitUntil:
+    notVisible:
+      id: "home-running-since"
+    timeout: 20000
