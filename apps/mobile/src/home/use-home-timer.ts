@@ -56,8 +56,8 @@ export const homeKeys = {
 	task: (session?: Session, taskId?: string | null) => ['home', 'task', ...personOf(session), taskId ?? ''] as const,
 	lastLog: (session?: Session, employeeId?: string | null) =>
 		['home', 'last-log', ...personOf(session), employeeId ?? ''] as const,
-	todayTasks: (session?: Session, employeeId?: string | null, organizationTeamId?: string | null) =>
-		['home', 'today-tasks', ...personOf(session), employeeId ?? '', organizationTeamId ?? ''] as const
+	todayTasks: (session?: Session, employeeId?: string | null, organizationTeamId?: string | null, day?: string) =>
+		['home', 'today-tasks', ...personOf(session), employeeId ?? '', organizationTeamId ?? '', day ?? ''] as const
 };
 
 export function useTimerStatus() {
@@ -109,10 +109,12 @@ export function useTodayTasks(organizationTeamId: string | null | undefined, log
 	const session = useSignedInSession();
 	const employee = useEmployeeId();
 	const employeeId = employee.data;
+	// The person's day is part of the key, and the read asks for that same day: a new day never shows the tasks of the
+	// day before, even when its first read fails
+	const now = new Date();
 	return useQuery({
-		queryKey: homeKeys.todayTasks(session, employeeId, organizationTeamId),
-		queryFn: () =>
-			readTodayTasks(sessionOrFail(session), employeeIdOrFail(employeeId), new Date(), organizationTeamId),
+		queryKey: homeKeys.todayTasks(session, employeeId, organizationTeamId, now.toDateString()),
+		queryFn: () => readTodayTasks(sessionOrFail(session), employeeIdOrFail(employeeId), now, organizationTeamId),
 		enabled: session !== undefined && Boolean(employeeId) && loggedToday,
 		refetchInterval: STATUS_REFRESH_MS
 	});

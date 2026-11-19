@@ -184,6 +184,15 @@ describe("today's tasks on Home", () => {
 			])
 		);
 		expect(readTodayTasks).toHaveBeenCalledWith(kofi, 'employee-kofi', expect.any(Date), 'team-field');
+		const asked: Date = (readTodayTasks as jest.Mock).mock.calls[0][2];
+		expect(asked.toDateString()).toBe(new Date().toDateString());
+	});
+
+	it("are saved apart for each of the person's days, so a new day never shows the one before", () => {
+		const wednesday = homeKeys.todayTasks(kofi, 'employee-kofi', 'team-field', 'Wed Nov 18 2026');
+		const thursday = homeKeys.todayTasks(kofi, 'employee-kofi', 'team-field', 'Thu Nov 19 2026');
+
+		expect(wednesday).not.toEqual(thursday);
 	});
 
 	it("wait for the day's first log", async () => {
