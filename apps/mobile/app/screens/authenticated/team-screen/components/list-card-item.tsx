@@ -29,7 +29,7 @@ import { WorkedOnTask } from './worked-on-task';
 import UnassignedTasksList from './unassigned-task-list';
 import { translate } from '../../../../i18n';
 import { SettingScreenNavigationProp } from '../../../../navigators/authenticated-navigator';
-import { cardEdgeOf } from './card-edge';
+import { cardEdgeOf } from '../../../../components/card-edge';
 import { useClickOutside } from 'react-native-click-outside';
 import { TimeProgressBar } from './time-progress-bar';
 import { navigateTo } from '../../../../navigators/routes';

@@ -1,5 +1,5 @@
 import { cardEdgeOf } from './card-edge';
-import { themeFor } from '../../../../../src/theme/use-theme';
+import { themeFor } from '../../src/theme/use-theme';
 
 describe("a member card's hairline", () => {
 	it("marks the person's own card in the primary color", () => {
