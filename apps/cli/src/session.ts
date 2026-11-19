@@ -1,9 +1,9 @@
 import { createClient, EverTeamsClient } from '@ever-teams/api';
 import { textOption } from './args.js';
 import { CommandContext, Trail } from './command.js';
-import { StoredLogin } from './config.js';
+import { readLogin, StoredLogin } from './config.js';
 import { CliIo } from './io.js';
-import { UsageError } from './refusals.js';
+import { Refusal, UsageError } from './refusals.js';
 
 /** The hosted service's API, for a person who gives no other address. */
 export const DEFAULT_API_URL = 'https://api.ever.team/api';
@@ -91,4 +91,29 @@ export function clientFor(
 	context.trail.apiUrl = apiUrl;
 	context.trail.tokenFrom = tokenFrom;
 	return createClient({ apiUrl, token, fetch: watchedFetch(context.io, context.trail) });
+}
+
+/**
+ * The client of a signed-in command: EVER_TEAMS_TOKEN when it is set, else the stored token, which is sent only to
+ * the API it was stored for.
+ */
+export function openSession(context: CommandContext): EverTeamsClient {
+	const stored = readLogin(context.io);
+	const apiUrl = apiUrlOf(context, stored);
+	const fromEnvironment = context.io.env.EVER_TEAMS_TOKEN?.trim();
+	if (fromEnvironment) {
+		return clientFor(context, apiUrl, fromEnvironment, 'environment');
+	}
+	if (!stored) {
+		throw new Refusal('NOT_SIGNED_IN', 'You are not signed in: run ever-teams login, or set EVER_TEAMS_TOKEN.');
+	}
+	context.output.hide(stored.token);
+	if (stored.apiUrl !== apiUrl) {
+		throw new Refusal(
+			'OTHER_API',
+			`You signed in to ${stored.apiUrl}, not ${apiUrl}: run ever-teams login --api-url ${apiUrl}, or set ` +
+				'EVER_TEAMS_TOKEN.'
+		);
+	}
+	return clientFor(context, apiUrl, stored.token, 'login');
 }

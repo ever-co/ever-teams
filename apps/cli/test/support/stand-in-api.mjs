@@ -3,6 +3,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { writeLogin } from '../../dist/config.js';
+import { newHome, placeOf } from './cli.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const CONTRACT_DIR = path.join(here, '..', '..', '..', '..', 'packages', 'api', 'test', 'contract');
@@ -12,6 +14,13 @@ export const API_URL = 'http://127.0.0.1:3000/api';
 // Made up for the tests, in the form of a personal API token and of the access token the exchange answers.
 export const PERSONAL_TOKEN = 'gzp_c2f4d6e8a0b1c3d5e7f9a1b3c5d7e9f1';
 export const ACCESS_TOKEN = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0LW1lbWJlciJ9.dGVzdC1zaWduYXR1cmU';
+
+/** A home whose login holds PERSONAL_TOKEN for `apiUrl`. */
+export function signedInHome(apiUrl = API_URL) {
+	const home = newHome();
+	writeLogin(placeOf(home), { apiUrl, token: PERSONAL_TOKEN });
+	return home;
+}
 
 /** The answer recorded for `name` (user.me, timer.status, ...), a copy a test may change. */
 export function recorded(name) {
