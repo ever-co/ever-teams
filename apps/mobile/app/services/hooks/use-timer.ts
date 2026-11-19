@@ -188,6 +188,12 @@ function atMost(ms: number, work: Promise<void>): Promise<void> {
 	return Promise.race([work.catch(() => undefined), timeUp]).finally(() => clearTimeout(bound));
 }
 
+/**
+ * The status read that a start or a stop made on this phone since outdates: the store holds what runs after it, and
+ * that read no longer says so until the next one. One for the app, as the read is: every timer hook shares it.
+ */
+let readOutdatedByOwnChange: ITimerStatus | undefined;
+
 /** Tells the other writer of the running time, if one is registered, that the API started or stopped the timer. */
 function tellTimerChanged(log: ITimer | undefined): void {
 	const writer = runningTimeWriter();
@@ -264,6 +270,13 @@ export function useTimer() {
 		timerStatus?.running,
 		timerStatusRef.current?.lastLog?.source ?? TimerSource.MOBILE
 	);
+	// What the API said runs, once it was read this session: until then the status is the one the last session saved
+	const readStatusRef = useSyncRef(isSuccess ? timerStatusData : undefined);
+	/** The status a start or a stop made here answered: newer than the last read until the next one. */
+	const setStatusOfOwnChange = (status: ITimerStatus) => {
+		readOutdatedByOwnChange = readStatusRef.current;
+		setTimerStatus(status);
+	};
 
 	const toggleTimer = useCallback(async (taskId: string) => {
 		const response = await toggleTimerRequest(
@@ -282,7 +295,7 @@ export function useTimer() {
 			duration: response?.data.duration,
 			running: response?.data.isRunning
 		};
-		setTimerStatus(status);
+		setStatusOfOwnChange(status);
 		tellTimerChanged(response?.data);
 	}, []);
 
@@ -321,7 +334,7 @@ export function useTimer() {
 			running: data?.isRunning,
 			lastLog: data
 		};
-		setTimerStatus(status);
+		setStatusOfOwnChange(status);
 		setTimerStatusFetching(false);
 		tellTimerChanged(data);
 
@@ -414,7 +427,7 @@ export function useTimer() {
 			if (response.status === 406) {
 				stops.stopped = true;
 				stopped = true;
-				setTimerStatus({ ...timerStore.timerStatus, running: false });
+				setStatusOfOwnChange({ ...timerStore.timerStatus, running: false });
 				return;
 			}
 			// The API did not stop the timer, which goes on there. The body of a refusal is not a timer: read as one,
@@ -431,7 +444,7 @@ export function useTimer() {
 				running: data.isRunning,
 				lastLog: data
 			};
-			setTimerStatus(status);
+			setStatusOfOwnChange(status);
 		} catch {
 			// The stop never reached the API (no network): the timer goes on there, as for a refusal
 			stops.failed = true;
@@ -460,14 +473,26 @@ export function useTimer() {
 		}
 	}, [firstLoad, activeTeamId, activeTeam]);
 
-	// If active task changes then stop the timer
+	// If active task changes then stop the timer. Not when the app only takes up the task the timer runs on: at launch
+	// the team's task sync names it after the person's card or the last session's state named another, and a timer
+	// started on another device runs on the task the team names. Nor before the API said what runs: the saved status
+	// can name a run that ended on another device since
 	useEffect(() => {
 		const taskId = activeTask?.id;
+		const readStatus = readStatusRef.current;
+		const runsOnTask = (status?: ITimerStatus | null) =>
+			!!taskId && !!status?.running && status.lastLog?.taskId === taskId;
+		// The status in the store and the one read can differ for a render: a read reaches the store in an effect that
+		// runs after this one. A start or a stop made here reaches the store first, and outdates the read until the next
+		const currentRead = readStatus === readOutdatedByOwnChange ? undefined : readStatus;
+		const takesUpRunningTask = runsOnTask(timerStatusRef.current) || runsOnTask(currentRead);
 		if (
 			lastActiveTaskId.current !== null &&
 			taskId !== lastActiveTaskId.current &&
 			!firstLoad &&
-			timerStatusRef.current?.running
+			readStatus &&
+			timerStatusRef.current?.running &&
+			!takesUpRunningTask
 		) {
 			stopTimer();
 		}
