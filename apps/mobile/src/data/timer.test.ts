@@ -7,6 +7,7 @@ import {
 	readLastLogOfAnyDay,
 	readTask,
 	readTimerStatus,
+	readTodayTasks,
 	readTrackedTotals,
 	sendTimeSlot,
 	startTimer,
@@ -94,6 +95,56 @@ describe('the totals', () => {
 		expect(requestSent().path.startsWith('/timesheet/statistics/counts?')).toBe(true);
 		expect(query.get('employeeIds[0]')).toBe('employee-kofi');
 		expect(query.get('startDate')).toBe(new Date(2026, 10, 16, 0, 0, 0, 0).toISOString());
+	});
+});
+
+describe("today's tasks", () => {
+	it("are the person's own, on their own day, the latest first", async () => {
+		answers(201, [
+			{
+				id: 'task-har-1',
+				title: 'Inspect north pier bolts',
+				duration: 1800,
+				updatedAt: '2026-11-18T08:40:00.000Z'
+			},
+			{
+				id: 'task-har-3',
+				title: 'Repaint maintenance hatch',
+				duration: 2393,
+				updatedAt: '2026-11-18T09:02:00.000Z'
+			}
+		]);
+
+		await expect(readTodayTasks(session, 'employee-kofi', wednesday)).resolves.toEqual([
+			{ id: 'task-har-3', title: 'Repaint maintenance hatch', seconds: 2393 },
+			{ id: 'task-har-1', title: 'Inspect north pier bolts', seconds: 1800 }
+		]);
+
+		const { path, method, body, tenantId } = requestSent();
+		expect(path).toBe('/timesheet/statistics/tasks');
+		expect(method).toBe('POST');
+		expect(tenantId).toBe('tenant');
+		expect(body).toEqual({
+			tenantId: 'tenant',
+			organizationId: 'organization',
+			employeeIds: ['employee-kofi'],
+			startDate: new Date(2026, 10, 18, 0, 0, 0, 0).toISOString(),
+			endDate: new Date(2026, 10, 18, 23, 59, 59, 999).toISOString()
+		});
+	});
+
+	it('keep a task the answer gives without its time or title', async () => {
+		answers(201, [{ id: 'task-har-2' }]);
+
+		await expect(readTodayTasks(session, 'employee-kofi', wednesday)).resolves.toEqual([
+			{ id: 'task-har-2', title: '', seconds: 0 }
+		]);
+	});
+
+	it('fail with the status of a refusal', async () => {
+		answers(403, { message: 'Forbidden' });
+
+		await expect(readTodayTasks(session, 'employee-kofi', wednesday)).rejects.toEqual(new ApiError(403));
 	});
 });
 

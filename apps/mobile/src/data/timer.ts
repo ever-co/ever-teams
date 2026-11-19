@@ -117,6 +117,59 @@ export async function readTrackedTotals(session: Session, employeeId: string, no
 	return answerOf(answer);
 }
 
+/** A task the person tracked time on today, with the seconds tracked on it today. */
+export interface TodayTask {
+	id: string;
+	title: string;
+	seconds: number;
+}
+
+interface TaskStatistics {
+	id: string;
+	title?: string;
+	duration?: number;
+	updatedAt?: string;
+}
+
+function timeOf(moment: string | undefined): number {
+	const time = Date.parse(moment ?? '');
+	if (Number.isNaN(time)) {
+		return 0;
+	}
+	return time;
+}
+
+function latestFirst(a: TaskStatistics, b: TaskStatistics): number {
+	return timeOf(b.updatedAt) - timeOf(a.updatedAt);
+}
+
+function todayTaskOf(statistics: TaskStatistics): TodayTask {
+	return { id: statistics.id, title: statistics.title ?? '', seconds: statistics.duration ?? 0 };
+}
+
+/**
+ * The tasks the person tracked time on today, the latest first: the statistics the team card reads, on the person's
+ * own day. Gauzy reads this POST route's filters from its body only.
+ */
+export async function readTodayTasks(session: Session, employeeId: string, now: Date): Promise<TodayTask[]> {
+	const { tenantId, organizationId } = workspaceOf(session);
+	const day = dayBounds(now);
+	const answer = await serverFetch<TaskStatistics[]>({
+		path: '/timesheet/statistics/tasks',
+		method: 'POST',
+		body: {
+			tenantId,
+			organizationId,
+			employeeIds: [employeeId],
+			startDate: day.start.toISOString(),
+			endDate: day.end.toISOString()
+		},
+		bearer_token: session.accessToken,
+		tenantId
+	});
+	return [...answerOf(answer)].sort(latestFirst).map(todayTaskOf);
+}
+
 /**
  * The employee's last log of any day. Today's status only sees logs started today, so before the day's first entry it
  * names no task to start again; the web reads this one for that.
