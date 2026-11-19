@@ -9,7 +9,8 @@ import { translate } from '../../../../i18n';
 import { I_TeamMemberCardHook } from '../../../../services/hooks/features/use-team-member-card';
 import { typography } from '../../../../theme/typography';
 import { useLiveTimerStatus } from '../../../../services/hooks/use-timer';
-import { useTheme } from 'react-native-paper';
+import { useWebTheme } from '../../../../theme';
+import { statLabelStyleOf, statValueStyleOf } from './card-stat-text';
 
 interface IProps {
 	isAuthUser: boolean;
@@ -21,15 +22,15 @@ export const TodayWorkedTime: FC<IProps> = observer(({ isAuthUser }) => {
 		time: { m, h }
 	} = useLiveTimerStatus();
 
-	const { dark, colors } = useTheme();
+	const theme = useWebTheme();
 
 	if (isAuthUser) {
 		return (
 			<View style={styles.container}>
-				<Text style={[styles.totalTimeTitle, { color: dark ? '#7B8089' : '#7E7991' }]}>
+				<Text style={[styles.totalTimeTitle, statLabelStyleOf(theme)]}>
 					{translate('teamScreen.cardTotalTimeLabel')}
 				</Text>
-				<Text style={[styles.totalTimeText, { color: colors.primary }]}>
+				<Text style={[styles.totalTimeText, statValueStyleOf(theme)]}>
 					{pad(h)} h:{pad(m)} m
 				</Text>
 			</View>
@@ -38,10 +39,10 @@ export const TodayWorkedTime: FC<IProps> = observer(({ isAuthUser }) => {
 
 	return (
 		<View style={styles.container}>
-			<Text style={[styles.totalTimeTitle, { color: dark ? '#7B8089' : '#7E7991' }]}>
+			<Text style={[styles.totalTimeTitle, statLabelStyleOf(theme)]}>
 				{translate('teamScreen.cardTotalTimeLabel')}
 			</Text>
-			<Text style={[styles.totalTimeText, { color: colors.primary }]}>
+			<Text style={[styles.totalTimeText, statValueStyleOf(theme)]}>
 				{pad(0)} h:{pad(0)} m
 			</Text>
 		</View>
