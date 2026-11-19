@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
 import React, { useEffect } from 'react';
-import { View, StyleSheet, Image, TouchableOpacity, Dimensions, TouchableWithoutFeedback } from 'react-native';
+import { View, StyleSheet, Dimensions, TouchableWithoutFeedback } from 'react-native';
 import { Text } from 'react-native-paper';
 import { DrawerContentScrollView, useDrawerStatus } from '@react-navigation/drawer';
 import { typography, useAppTheme, useWebTheme } from '../theme';
@@ -127,26 +127,14 @@ const HamburgerMenu = observer((props: any) => {
 					</View>
 				</DrawerContentScrollView>
 
-				<View style={styles.bottomSection}>
-					<TouchableOpacity
-						style={{ flexDirection: 'row', justifyContent: 'space-between' }}
-						onPress={() => onLogout()}
+				<View style={[styles.bottomSection, { borderTopColor: theme.colors.border }]}>
+					<MenuRow
 						testID="menu-log-out"
-					>
-						<View style={{ flexDirection: 'row', alignItems: 'center' }}>
-							<Image source={require('../../assets/icons/new/logout.png')} />
-							<Text
-								style={{
-									marginLeft: 10,
-									color: '#DE437B',
-									fontFamily: typography.primary.semiBold,
-									fontSize: 16
-								}}
-							>
-								{translate('common.logOut')}
-							</Text>
-						</View>
-					</TouchableOpacity>
+						icon="log-out"
+						label={translate('common.logOut')}
+						tone="danger"
+						onPress={() => onLogout()}
+					/>
 				</View>
 				{isOpen && (
 					<BlurView
@@ -170,10 +158,9 @@ const HamburgerMenu = observer((props: any) => {
 const { width } = Dimensions.get('window');
 const styles = StyleSheet.create({
 	bottomSection: {
-		borderTopColor: 'rgba(0, 0, 0, 0.16)',
-		borderTopWidth: 1,
-		marginBottom: 37,
-		paddingTop: 37
+		borderTopWidth: StyleSheet.hairlineWidth,
+		marginBottom: 24,
+		paddingTop: 8
 	},
 	close: {
 		alignItems: 'center',
