@@ -8,6 +8,7 @@ import { typography, useAppTheme } from '../../../../theme';
 import { limitTextCharaters } from '../../../../helpers/sub-text';
 import { useNavigation } from '@react-navigation/native';
 import { DrawerNavigationProp, SettingScreenNavigationProp } from '../../../../navigators/authenticated-navigator';
+import { navigateTo } from '../../../../navigators/routes';
 
 interface IProfileInfo {
 	names: string;
@@ -25,9 +26,9 @@ const ProfileInfoWithTime: React.FC<IProfileInfo> = ({ profilePicSrc, names, use
 	const navigation = useNavigation<SettingScreenNavigationProp<'Profile'>>();
 
 	const navigateToProfile = () => {
-		alternateNavigation.navigate('AuthenticatedTab');
+		navigateTo(alternateNavigation, 'AuthenticatedTab');
 		setTimeout(() => {
-			navigation.navigate('Profile', { userId, activeTab: 'worked' });
+			navigateTo(navigation, 'Profile', { userId, activeTab: 'worked' });
 		}, 50);
 	};
 	return (

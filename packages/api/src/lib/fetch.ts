@@ -1,9 +1,12 @@
 import { IApiCall, IServerError } from '@ever-teams/toolkit-types';
-import { apiConfigManager } from './config/api-config';
+import { IApiRequestConfig } from './config/api-config';
+import { apiUrlOf } from './config/request-api-url';
 
-export function ApiCall<T>({ path, method, body, init, bearer_token, tenantId, organizationId }: IApiCall) {
-	const config = apiConfigManager.getConfig();
-	const url = config.apiUrl;
+export function ApiCall<T>(
+	{ path, method, body, init, bearer_token, tenantId, organizationId }: IApiCall,
+	api?: IApiRequestConfig
+) {
+	const url = apiUrlOf(api);
 
 	const headers: HeadersInit = {
 		'Content-Type': 'application/json',

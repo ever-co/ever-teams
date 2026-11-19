@@ -5,6 +5,7 @@ import { ChartConfig, ChartData, IWeeklyReports } from '@ever-teams/toolkit-type
 import qs from 'qs';
 import { generateChartConfig, getErrorMessage, reportError, toast, transformData } from '@ever-teams/toolkit-ui';
 import { useTeamsContext } from '@lib/context/teams-context';
+import { useKitOptions } from '@components/teams-provider/kit-options';
 
 const useReport = () => {
 	const [report, setReport] = useState<IWeeklyReports | null>(null);
@@ -21,8 +22,11 @@ const useReport = () => {
 		selectedOrganization: organizationId,
 		reportDates: date
 	} = useTeamsContext();
+	const { api } = useKitOptions();
 
-	const getReport = async () => {
+	// isCurrent turns false once the effect has moved past this read (other filters or another address, or the widget
+	// gone): its answer then shows nothing, not even its error, as the toasts are the page's.
+	const getReport = async (isCurrent: () => boolean) => {
 		setLoading(true);
 		try {
 			if (!date) {
@@ -55,11 +59,17 @@ const useReport = () => {
 				{ skipNulls: true }
 			);
 
-			const report = await ApiCall<IWeeklyReports>({
-				path: `/timesheet/time-log/report/weekly?${queryWeeklyReport}`,
-				method: 'GET',
-				bearer_token: token
-			});
+			const report = await ApiCall<IWeeklyReports>(
+				{
+					path: `/timesheet/time-log/report/weekly?${queryWeeklyReport}`,
+					method: 'GET',
+					bearer_token: token
+				},
+				api
+			);
+			if (!isCurrent()) {
+				return;
+			}
 
 			if ('data' in report) {
 				setReport(report.data);
@@ -73,19 +83,30 @@ const useReport = () => {
 				});
 			}
 		} catch (error) {
+			if (!isCurrent()) {
+				return;
+			}
 			toast({
 				title: 'Ever Teams Error',
 				description: 'Report error : ' + getErrorMessage(error),
 				variant: 'destructive'
 			});
 		} finally {
-			setLoading(false);
+			if (isCurrent()) {
+				setLoading(false);
+			}
 		}
 	};
 
 	useEffect(() => {
-		if (user && organizationId) getReport();
-	}, [user, date, selectedEmployee, selectedTeam, organizationId]);
+		let current = true;
+		if (user && organizationId) void getReport(() => current);
+		return () => {
+			current = false;
+			// The next read, if any, sets it again
+			setLoading(false);
+		};
+	}, [user, date, selectedEmployee, selectedTeam, organizationId, api]);
 
 	return { report, config, chartData, loading };
 };

@@ -53,7 +53,8 @@ const stubs = {
 		export const TeamsTimerFooter = () => null;
 		export const warnOnce = () => {};
 		export const useClearKitSession = () => () => {};
-		export const logOut = async () => {};`,
+		export const logOut = async () => {};
+		export const apiConfigManager = { getConfig: () => ({ apiUrl: 'https://api.example.com/api' }) };`,
 	'lucide-react': `export const LoaderCircle = () => null;
 		export const CheckIcon = () => null;
 		export const Copy = () => null;

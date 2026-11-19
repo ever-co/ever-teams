@@ -28,7 +28,19 @@ interface Cursor {
 
 // One for the app, as on the web's timer service: the minute's heartbeat and a stop write the same run's time
 let cursor: Cursor | null = null;
-let writing: Promise<void> | null = null;
+/** The write on its way, and the run it writes. */
+let writing: { run: Cursor; done: Promise<void> } | null = null;
+
+/**
+ * The write on its way for the run followed now. One for a run let go of holds nothing back: its answer, however late,
+ * no longer moves anything (writeSince).
+ */
+function writeOnItsWay(): Promise<void> | null {
+	if (writing?.run !== cursor) {
+		return null;
+	}
+	return writing?.done ?? null;
+}
 
 /** How the heartbeat and a stop name a run: its log's id, or its start for an API that sends no id. */
 export function runIdOf(log: { id?: string; startedAt?: string } | undefined): string {
@@ -53,11 +65,7 @@ export function forgetRun(runId?: string): void {
 	cursor = null;
 }
 
-async function writeSince(write: WriteSeconds, now: number): Promise<void> {
-	const run = cursor;
-	if (!run) {
-		return;
-	}
+async function writeSince(write: WriteSeconds, run: Cursor, now: number): Promise<void> {
 	const seconds = slotSeconds(run.writtenUntil, now);
 	if (seconds <= 0) {
 		return;
@@ -74,14 +82,21 @@ async function writeSince(write: WriteSeconds, now: number): Promise<void> {
  * left out, and the next covers its time too, so a slow write can neither lose nor repeat a minute.
  */
 export function writeRunTime(write: WriteSeconds, now: number = Date.now()): Promise<void> {
-	if (writing) {
-		return writing;
+	const onItsWay = writeOnItsWay();
+	if (onItsWay) {
+		return onItsWay;
 	}
-	const current = writeSince(write, now).finally(() => {
-		writing = null;
+	const run = cursor;
+	if (!run) {
+		return Promise.resolve();
+	}
+	const done = writeSince(write, run, now).finally(() => {
+		if (writing?.done === done) {
+			writing = null;
+		}
 	});
-	writing = current;
-	return current;
+	writing = { run, done };
+	return done;
 }
 
 /**
@@ -89,8 +104,9 @@ export function writeRunTime(write: WriteSeconds, now: number = Date.now()): Pro
  * run shorter than one, is not left without a time slot. Only for the run the stop is for.
  */
 export async function writeRunTimeBeforeStop(write: WriteSeconds, runId: string): Promise<void> {
-	if (writing) {
-		await writing.catch(() => undefined);
+	const onItsWay = writeOnItsWay();
+	if (onItsWay) {
+		await onItsWay.catch(() => undefined);
 	}
 	if (cursor?.runId !== runId) {
 		return;

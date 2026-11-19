@@ -5,9 +5,11 @@ import { useTranslation } from 'react-i18next';
 import { useAccessToken } from './useAccessToken';
 import { getErrorMessage, reportError, toast } from '@ever-teams/toolkit-ui';
 import { useTeamsContext } from '@lib/context/teams-context';
+import { useKitOptions } from '@components/teams-provider/kit-options';
 
 const useProfileForm = () => {
 	const { authenticatedUser: user, setAuthenticatedUser, selectedOrganization } = useTeamsContext();
+	const { api } = useKitOptions();
 	const [formData, setFormData] = useState<{
 		firstName: string;
 		lastName: string;
@@ -99,11 +101,14 @@ const useProfileForm = () => {
 		if (password) body.hash = password;
 
 		try {
-			const registrationResponse = await updateUser({
-				token,
-				body,
-				userId: user?.id
-			});
+			const registrationResponse = await updateUser(
+				{
+					token,
+					body,
+					userId: user?.id
+				},
+				api
+			);
 
 			if (!registrationResponse) {
 				reportError('Could not update user');
@@ -173,6 +178,7 @@ const useProfileForm = () => {
 
 const useProfilePictureForm = () => {
 	const { authenticatedUser: user, setAuthenticatedUser, selectedOrganization } = useTeamsContext();
+	const { api } = useKitOptions();
 	const [loading, setLoading] = useState(false);
 	const [errors, setErrors] = useState<string[]>([]);
 	const { accessToken } = useAccessToken();
@@ -219,12 +225,15 @@ const useProfilePictureForm = () => {
 		try {
 			const folderName = 'profile_pictures_avatars';
 
-			const uploadedFile = await uploadFile({
-				file,
-				token: accessToken,
-				user,
-				folderName
-			});
+			const uploadedFile = await uploadFile(
+				{
+					file,
+					token: accessToken,
+					user,
+					folderName
+				},
+				api
+			);
 
 			if ('message' in uploadedFile || 'error' in uploadedFile) {
 				const errorMessage =
@@ -241,16 +250,19 @@ const useProfilePictureForm = () => {
 				return;
 			}
 
-			const updatedUser = await updateUser({
-				body: {
-					imageId: uploadedFile.id,
-					imageUrl: uploadedFile.fullUrl,
-					organizationId: selectedOrganization,
-					tenantId: user.tenantId
+			const updatedUser = await updateUser(
+				{
+					body: {
+						imageId: uploadedFile.id,
+						imageUrl: uploadedFile.fullUrl,
+						organizationId: selectedOrganization,
+						tenantId: user.tenantId
+					},
+					token: accessToken,
+					userId: user.id
 				},
-				token: accessToken,
-				userId: user.id
-			});
+				api
+			);
 
 			if ('message' in updatedUser || 'error' in updatedUser) {
 				const errorMessage =

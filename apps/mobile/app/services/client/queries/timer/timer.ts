@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { getTimerStatusRequest, syncTimeSlotRequest } from '../../requests/timer';
 import { ITimerTimeslotParams, TimerSource } from '../../../interfaces/ITimer';
+import { NEXT_SHELL_BUILD } from '../../../../../src/navigation/next-shell-build';
 
 type IGetTimerStatusParams = ITimerTimeslotParams & { authToken: string };
 
@@ -11,7 +12,9 @@ const fetchTimerStatus = async (
 ) => {
 	const { tenantId, organizationId, logType, authToken, employeeId } = params;
 
-	if (isTimerRunning) {
+	// In builds of the new app, its heartbeat writes the running time (src/home/next-shell-heartbeat.tsx): once
+	const writesTheRunningTime = isTimerRunning && !NEXT_SHELL_BUILD;
+	if (writesTheRunningTime) {
 		await syncTimeSlotRequest(
 			{
 				tenantId,

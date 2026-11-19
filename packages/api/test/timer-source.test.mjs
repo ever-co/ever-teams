@@ -1,7 +1,15 @@
 // Runs against the built package: `yarn test` in packages/api builds it, then runs node --test test/*.test.mjs
 import { test, beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
-import { startTimer, stopTimer, resetTimerSource, apiConfigManager } from '../dist/index.es.js';
+import {
+	addTimeSlot,
+	apiConfigManager,
+	currentTimerSource,
+	getTimerStatus,
+	resetTimerSource,
+	startTimer,
+	stopTimer
+} from '../dist/index.es.js';
 
 const user = { id: 'user-1', tenantId: 'tenant-1' };
 const state = { taskId: 'task-1', clientId: null, organizationTeamId: 'team-1', projectId: 'project-1' };
@@ -110,4 +118,50 @@ test('a 400 that only contains the letters of source in another word is not a re
 
 	assert.equal(answer.statusCode, 400);
 	assert.deepEqual(sent, ['EMBED']);
+});
+
+// Two providers of one page, each with its own API, after the page set another address (ever-co/ever-teams#5483).
+const OLD_API = { apiUrl: 'https://old-api.example.com/api' };
+const NEW_API = { apiUrl: 'https://new-api.example.com/api' };
+
+test('the status, start, stop and time slot of a caller with its own address go to that address only', async () => {
+	const requested = [];
+	globalThis.fetch = async (url) => {
+		requested.push(new URL(url).host);
+		return new Response(JSON.stringify({ id: 'log-1', running: false }), {
+			status: 200,
+			headers: { 'Content-Type': 'application/json' }
+		});
+	};
+
+	await getTimerStatus(user, 'token', 'org-1', NEW_API);
+	await startTimer(user, 'token', state, 'org-1', NEW_API);
+	await stopTimer(user, 'token', 'org-1', NEW_API);
+	await addTimeSlot('token', { id: 'slot-1' }, NEW_API);
+
+	assert.deepEqual(requested, [
+		'new-api.example.com',
+		'new-api.example.com',
+		'new-api.example.com',
+		'new-api.example.com'
+	]);
+});
+
+test("the fallback to TEAMS is kept for the caller's own API, never for the page's or another caller's", async () => {
+	api({ knowsEmbed: (host) => host !== 'old-api.example.com' });
+
+	await startTimer(user, 'token', state, 'org-1', OLD_API);
+	await stopTimer(user, 'token', 'org-1', OLD_API);
+	const started = await startTimer(user, 'token', state, 'org-1', NEW_API);
+
+	assert.equal(started.source, 'EMBED');
+	assert.deepEqual(sentTo, [
+		'old-api.example.com EMBED',
+		'old-api.example.com TEAMS',
+		'old-api.example.com TEAMS',
+		'new-api.example.com EMBED'
+	]);
+	assert.equal(currentTimerSource(OLD_API), 'TEAMS');
+	assert.equal(currentTimerSource(NEW_API), 'EMBED');
+	assert.equal(currentTimerSource(), 'EMBED', 'the address set with setConfig keeps its own source');
 });
