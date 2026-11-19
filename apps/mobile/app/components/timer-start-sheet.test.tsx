@@ -6,24 +6,18 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
 import TimerStartSheet from './timer-start-sheet';
+import { sheetLookOf } from '../../src/theme/sheet-look';
+import { themeFor } from '../../src/theme/use-theme';
+import { sheetPropsSeen } from '../../test/bottom-sheet-stand-in';
 
 // The library's stand-in, whose sheet keeps the props it was given
-const mockSheetProps: Array<Record<string, unknown>> = [];
-jest.mock('@gorhom/bottom-sheet', () => ({
-	__esModule: true,
-	...jest.requireActual<object>('@gorhom/bottom-sheet/mock'),
-	default: ({ children, ...props }: { children: React.ReactNode }) => {
-		mockSheetProps.push(props);
-		return children;
-	}
-}));
-jest.mock('react-native-gesture-handler', () => {
-	const { View } = jest.requireActual('react-native');
-	return { GestureHandlerRootView: View };
-});
+jest.mock('@gorhom/bottom-sheet', () => jest.requireActual('../../test/bottom-sheet-stand-in').bottomSheetStandIn());
+jest.mock('react-native-gesture-handler', () =>
+	jest.requireActual('../../test/bottom-sheet-stand-in').gestureHandlerStandIn()
+);
 jest.mock('../theme', () => ({
 	...jest.requireActual('../theme'),
-	useAppTheme: () => ({ colors: { background: '#FFFFFF', border: '#DDD' }, dark: false })
+	useWebTheme: () => jest.requireActual('../../src/theme/use-theme').themeFor('light')
 }));
 jest.mock('../services/hooks/use-timer-start-move', () => ({
 	useTimerStartMove: () => ({
@@ -39,9 +33,17 @@ describe('The sheet of the running time', () => {
 	it('asks the library to move the sheet above the keyboard on Android (adjustPan, interactive)', async () => {
 		await render(<TimerStartSheet visible onClose={jest.fn()} />);
 
-		const sheet = mockSheetProps[mockSheetProps.length - 1];
+		const sheet = sheetPropsSeen[sheetPropsSeen.length - 1];
 
 		expect(sheet.android_keyboardInputMode).toBe('adjustPan');
 		expect(sheet.keyboardBehavior).toBe('interactive');
+	});
+
+	it('opens on the shared sheet look, like every other sheet', async () => {
+		await render(<TimerStartSheet visible onClose={jest.fn()} />);
+
+		const sheet = sheetPropsSeen[sheetPropsSeen.length - 1];
+
+		expect(sheet.backgroundStyle).toEqual(sheetLookOf(themeFor('light')).background);
 	});
 });

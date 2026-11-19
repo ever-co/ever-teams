@@ -17,13 +17,13 @@ import { AntDesign, Ionicons } from '@expo/vector-icons';
 import { Screen } from '../../../components';
 import { AuthenticatedDrawerScreenProps } from '../../../navigators/authenticated-navigator';
 import { translate } from '../../../i18n';
-import { typography, useAppTheme } from '../../../theme';
+import { typography, useAppTheme, useWebTheme } from '../../../theme';
+import { sheetLookOf, sheetOverlayOpacity } from '../../../../src/theme/sheet-look';
 import BottomSheet, { BottomSheetBackdrop, BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { useTaskVersion } from '../../../services/hooks/features/use-task-version';
 import { useTaskSettingsAccess } from '../../../services/hooks/features/use-task-settings-access';
 import { readOnlyOpacity } from '../../../helpers/read-only-opacity';
 import { ITaskVersionItemList } from '../../../services/interfaces/ITaskVersion';
-import { BlurView } from 'expo-blur';
 import VersionItem from './components/version-item';
 import TaskVersionForm from './components/task-version-form';
 import { useRoute, RouteProp } from '@react-navigation/native';
@@ -41,6 +41,7 @@ export const TaskVersionScreen: FC<AuthenticatedDrawerScreenProps<'TaskVersion'>
   _props
 ) {
   const { colors, dark } = useAppTheme();
+  const sheetLook = sheetLookOf(useWebTheme());
   const { navigation } = _props;
 
   // Use the properly typed route
@@ -156,7 +157,7 @@ export const TaskVersionScreen: FC<AuthenticatedDrawerScreenProps<'TaskVersion'>
         appearsOnIndex={0}
         enableTouchThrough={false}
         pressBehavior="close"
-        opacity={0.7}
+        opacity={sheetOverlayOpacity}
       />
     ),
     []
@@ -281,22 +282,8 @@ export const TaskVersionScreen: FC<AuthenticatedDrawerScreenProps<'TaskVersion'>
           keyboardBehavior="extend"
           keyboardBlurBehavior="none"
           android_keyboardInputMode="adjustResize"
-          backgroundStyle={{
-            backgroundColor: colors.background,
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: -3 },
-            shadowOpacity: 0.27,
-            shadowRadius: 4.65,
-            elevation: 10,
-            borderTopLeftRadius: 24,
-            borderTopRightRadius: 24
-          }}
-          handleIndicatorStyle={{
-            backgroundColor: dark ? '#FFFFFF' : '#000000',
-            width: 50,
-            height: 5,
-            marginTop: 10
-          }}
+          backgroundStyle={sheetLook.background}
+          handleIndicatorStyle={sheetLook.handle}
         >
           {/* Keep using BottomSheetScrollView to ensure the form is visible */}
           <BottomSheetScrollView
@@ -319,20 +306,6 @@ export const TaskVersionScreen: FC<AuthenticatedDrawerScreenProps<'TaskVersion'>
           </BottomSheetScrollView>
         </BottomSheet>
       </View>
-
-      {/* BlurView shown when the bottom sheet is open */}
-      {bottomSheetVisible && (
-        <BlurView
-          intensity={15}
-          tint="dark"
-          style={{
-            position: 'absolute',
-            width: '100%',
-            height: '100%',
-            zIndex: 999  // Just below the sheet container
-          }}
-        />
-      )}
     </Screen>
   );
 });
