@@ -104,8 +104,10 @@ export default observer(function SignedInTabs() {
 				name="profile/[memberId]"
 				options={{ ...forRouter(tasksTabOptions(dark)), href: ownTasksHref(ownId) }}
 				listeners={{
-					tabPress: (e: TabPressEvent) => {
-						e.preventDefault();
+					// Expo Router's own React Navigation typings drop `preventDefault` from the listener's event without
+					// strictNullChecks (as TabPressEvent explains); the tab bar still sends the event a listener can prevent
+					tabPress: (event) => {
+						(event as TabPressEvent).preventDefault();
 						if (ownId) {
 							navigateTo(navigation, 'Profile', { userId: ownId, activeTab: 'worked' });
 						}
