@@ -39,6 +39,19 @@ test('--help lists every command with the exit codes and the environment variabl
 	}
 });
 
+test('--help with --json answers the same text in JSON', async () => {
+	const cases = [['--help'], ['-h'], ['help'], ['help', 'log'], ['log', '--help']];
+	for (const argv of cases) {
+		const plain = await runCli(argv);
+		const asJson = await runCli([...argv, '--json']);
+
+		assert.match(plain.stdout, /^Usage: ever-teams /);
+		assert.equal(asJson.code, 0, argv.join(' '));
+		assert.equal(asJson.stderr, '');
+		assert.deepEqual(JSON.parse(asJson.stdout), { help: plain.stdout });
+	}
+});
+
 test('a missing or unknown command, or an option before it, is a usage error (2)', async () => {
 	const cases = [
 		{ argv: [], says: /Name a command/ },

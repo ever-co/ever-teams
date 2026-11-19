@@ -178,7 +178,8 @@ output:
 ```
 
 `status` is the HTTP status when the failure is an answer of the API. `export` without `--output` writes the CSV or the
-JSON it was asked for, whatever `--json` says.
+JSON it was asked for, whatever `--json` says. `--help` with `--json` answers `{ "help": "..." }`, the text it prints
+without `--json`.
 
 | Exit code | Meaning                                                                               |
 | --------- | ------------------------------------------------------------------------------------- |

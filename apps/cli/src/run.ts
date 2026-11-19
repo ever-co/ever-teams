@@ -24,13 +24,22 @@ function commandNamed(name: string | undefined): Command {
 	return command;
 }
 
+// The same text, as it is for a person, or in JSON with --json.
+function writeHelp(text: string, output: Output): void {
+	if (output.json) {
+		output.result({ help: text }, []);
+		return;
+	}
+	output.data(text);
+}
+
 // "ever-teams help" and "ever-teams help <command>".
 function showHelp(topic: string | undefined, output: Output): void {
 	if (topic === undefined) {
-		output.data(generalHelp(COMMANDS));
+		writeHelp(generalHelp(COMMANDS), output);
 		return;
 	}
-	output.data(commandHelp(commandNamed(topic)));
+	writeHelp(commandHelp(commandNamed(topic)), output);
 }
 
 async function dispatch(io: CliIo, output: Output, trail: Trail): Promise<void> {
@@ -40,7 +49,9 @@ async function dispatch(io: CliIo, output: Output, trail: Trail): Promise<void> 
 		return;
 	}
 	if (first === 'help') {
-		showHelp(rest[0], output);
+		// "help --json" asks for the general help, in JSON.
+		const topic = rest.find((argument) => !argument.startsWith('-'));
+		showHelp(topic, output);
 		return;
 	}
 	if (first === '--version') {
@@ -51,7 +62,7 @@ async function dispatch(io: CliIo, output: Output, trail: Trail): Promise<void> 
 	trail.command = command.name;
 	const values = parseOptions(command.name, rest, command.options);
 	if (flagOption(values, 'help')) {
-		output.data(commandHelp(command));
+		writeHelp(commandHelp(command), output);
 		return;
 	}
 	await command.run({ io, values, output, trail });
