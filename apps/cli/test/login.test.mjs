@@ -123,6 +123,66 @@ test('Ctrl+C at the prompt cancels the login and stores nothing', async () => {
 	assert.equal(api.requests.length, 0);
 });
 
+const PROMPT_EVENTS = ['data', 'end', 'close', 'error'];
+
+const listenersOf = (input) => PROMPT_EVENTS.map((event) => input.listenerCount(event));
+
+test('the prompt leaves no listener behind after Enter or Ctrl+C', async () => {
+	for (const keys of [`${PERSONAL_TOKEN}\r`, 'gzp_abc\u0003']) {
+		const input = terminalTyping(keys);
+		const before = listenersOf(input);
+
+		await runCli(['login', '--api-url', API_URL], { stdin: input, fetch: loginApi().fetch });
+
+		assert.deepEqual(listenersOf(input), before);
+		assert.deepEqual(input.modes, [true, false]);
+	}
+});
+
+test('an input that ends before Enter cancels the login and gives the terminal back', { timeout: 5000 }, async () => {
+	const api = loginApi();
+	const input = terminalTyping('gzp_abc');
+	const before = listenersOf(input);
+	input.end();
+
+	const result = await runCli(['login', '--api-url', API_URL], { stdin: input, fetch: api.fetch });
+
+	assert.equal(result.code, 1);
+	assert.equal(
+		result.stderr,
+		'Personal API token (hidden while you type or paste it): \n' +
+			'Sign-in cancelled: the input ended before Enter, and nothing was stored.\n'
+	);
+	assert.deepEqual(input.modes, [true, false]);
+	assert.deepEqual(listenersOf(input), before);
+	assert.equal(readLogin(placeOf(result.home)), null);
+	assert.equal(api.requests.length, 0);
+});
+
+test('an input that fails before Enter cancels the login and gives the terminal back', { timeout: 5000 }, async () => {
+	const api = loginApi();
+	const input = terminalTyping('gzp_abc');
+	const setRawMode = input.setRawMode;
+	// The terminal goes away once the prompt listens to it.
+	input.setRawMode = (mode) => {
+		setRawMode(mode);
+		if (mode) {
+			setImmediate(() => input.destroy(new Error('the terminal went away')));
+		}
+		return input;
+	};
+
+	const result = await runCli(['login', '--api-url', API_URL], { stdin: input, fetch: api.fetch });
+
+	assert.equal(result.code, 1);
+	assert.match(
+		result.stderr,
+		/Sign-in cancelled: the input failed \(the terminal went away\), and nothing was stored\.\n$/
+	);
+	assert.deepEqual(input.modes, [true, false]);
+	assert.equal(api.requests.length, 0);
+});
+
 test('without a terminal, login asks for --token-stdin (usage error, 2)', async () => {
 	const result = await runCli(['login'], { stdin: '' });
 

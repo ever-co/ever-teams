@@ -33,17 +33,41 @@ function nextTyped(typed: string, char: string): string {
 	return typed + char;
 }
 
-/** A line typed in the terminal, never shown: the terminal does not echo it while it is typed. Ctrl+C cancels. */
+/**
+ * A line typed in the terminal, never shown: the terminal does not echo it while it is typed. Ctrl+C cancels, and an
+ * input that ends, closes or fails before Enter is a cancelled sign-in too. Each way out gives the terminal back.
+ */
 export function readHidden(input: PromptInput, write: (text: string) => void, question: string): Promise<string> {
 	write(question);
 	return new Promise((resolve, reject) => {
 		let typed = '';
+		let finished = false;
 
 		function finish(): void {
+			if (finished) {
+				return;
+			}
+			finished = true;
 			input.off('data', onData);
+			input.off('end', onEnd);
+			input.off('close', onEnd);
+			input.off('error', onError);
 			input.setRawMode?.(false);
 			input.pause();
 			write('\n');
+		}
+
+		function cancel(message: string): void {
+			finish();
+			reject(new Refusal('CANCELLED', message));
+		}
+
+		function onEnd(): void {
+			cancel('Sign-in cancelled: the input ended before Enter, and nothing was stored.');
+		}
+
+		function onError(error: Error): void {
+			cancel(`Sign-in cancelled: the input failed (${error.message}), and nothing was stored.`);
 		}
 
 		function onData(chunk: string): void {
@@ -54,8 +78,7 @@ export function readHidden(input: PromptInput, write: (text: string) => void, qu
 					return;
 				}
 				if (char === INTERRUPT) {
-					finish();
-					reject(new Refusal('CANCELLED', 'Sign-in cancelled: nothing was stored.'));
+					cancel('Sign-in cancelled: nothing was stored.');
 					return;
 				}
 				typed = nextTyped(typed, char);
@@ -65,6 +88,9 @@ export function readHidden(input: PromptInput, write: (text: string) => void, qu
 		input.setRawMode?.(true);
 		input.setEncoding('utf8');
 		input.on('data', onData);
+		input.on('end', onEnd);
+		input.on('close', onEnd);
+		input.on('error', onError);
 		input.resume();
 	});
 }
