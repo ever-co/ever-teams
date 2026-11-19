@@ -1,7 +1,7 @@
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react-native';
 import { StyleSheet } from 'react-native';
-import { SettingsRow, SettingsSection, SettingsSurface } from './settings-kit';
+import { SettingsImageRow, SettingsRow, SettingsSection, SettingsSurface } from './settings-kit';
 import { themeFor } from '../../../../../src/theme/use-theme';
 
 jest.mock('../../../../components/toggle', () => {
@@ -65,5 +65,45 @@ describe('the settings rows', () => {
 
 		expect(open).not.toHaveBeenCalled();
 		expect(StyleSheet.flatten(screen.getByTestId('settings-row-chevron').props.style).opacity).toBe(0.5);
+	});
+});
+
+describe('the avatar or logo row', () => {
+	it('opens the picker from Change, and deletes nothing while there is no image', async () => {
+		const change = jest.fn();
+		const remove = jest.fn();
+		await render(
+			<SettingsImageRow
+				image={null}
+				changeLabel="Change Avatar"
+				onChange={change}
+				deleteLabel="Delete"
+				deleteDisabled
+				onDelete={remove}
+			/>
+		);
+
+		await fireEvent.press(screen.getByText('Change Avatar'));
+		await fireEvent.press(screen.getByLabelText('Delete'));
+
+		expect(change).toHaveBeenCalledTimes(1);
+		expect(remove).not.toHaveBeenCalled();
+	});
+
+	it('draws the delete in destructive-ink, never on a grey tile', async () => {
+		await render(
+			<SettingsImageRow
+				image={null}
+				changeLabel="Change Logo"
+				onChange={jest.fn()}
+				deleteLabel="Delete"
+				deleteDisabled={false}
+				onDelete={jest.fn()}
+			/>
+		);
+
+		expect(
+			StyleSheet.flatten(screen.getByTestId('settings-image-delete').props.style).backgroundColor
+		).toBeUndefined();
 	});
 });

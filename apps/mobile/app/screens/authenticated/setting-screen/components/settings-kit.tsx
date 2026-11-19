@@ -1,6 +1,14 @@
 import React, { Children, Fragment, isValidElement, type PropsWithChildren, type ReactNode } from 'react';
-import { Pressable, StyleSheet, Text, View, type AccessibilityRole, type ViewStyle } from 'react-native';
-import { AntDesign } from '@expo/vector-icons';
+import {
+	Pressable,
+	StyleSheet,
+	Text,
+	TouchableOpacity,
+	View,
+	type AccessibilityRole,
+	type ViewStyle
+} from 'react-native';
+import { AntDesign, Ionicons } from '@expo/vector-icons';
 import { typography, useWebTheme } from '../../../../theme';
 import type { Theme } from '../../../../../src/theme/use-theme';
 import { Toggle } from '../../../../components/toggle';
@@ -137,7 +145,72 @@ export function SettingsSwitch({ value, onPress }: SettingsSwitchProps) {
 	);
 }
 
+type SettingsImageRowProps = {
+	image: ReactNode;
+	changeLabel: string;
+	onChange: () => unknown;
+	deleteLabel: string;
+	deleteDisabled: boolean;
+	onDelete: () => unknown;
+};
+
+/** An avatar or a logo with the web's outline Change pill and a quiet delete in destructive-ink. */
+export function SettingsImageRow({
+	image,
+	changeLabel,
+	onChange,
+	deleteLabel,
+	deleteDisabled,
+	onDelete
+}: SettingsImageRowProps) {
+	const theme = useWebTheme();
+	return (
+		<View style={styles.imageRow}>
+			{image}
+			<TouchableOpacity
+				testID="settings-image-change"
+				accessibilityRole="button"
+				style={[styles.changePill, { borderColor: theme.colors.border }]}
+				onPress={() => onChange()}
+			>
+				<Text style={[styles.changeText, { color: theme.colors.foreground }]}>{changeLabel}</Text>
+			</TouchableOpacity>
+			<TouchableOpacity
+				testID="settings-image-delete"
+				accessibilityRole="button"
+				accessibilityLabel={deleteLabel}
+				accessibilityState={{ disabled: deleteDisabled }}
+				disabled={deleteDisabled}
+				style={[styles.deleteButton, chevronStyleOf(deleteDisabled)]}
+				onPress={() => onDelete()}
+			>
+				<Ionicons name="trash-outline" size={20} color={theme.colors['destructive-ink']} />
+			</TouchableOpacity>
+		</View>
+	);
+}
+
 const styles = StyleSheet.create({
+	changePill: {
+		alignItems: 'center',
+		borderRadius: 999,
+		borderWidth: 1,
+		justifyContent: 'center',
+		minHeight: 36,
+		paddingHorizontal: 16
+	},
+	changeText: {
+		fontFamily: typography.primary.medium,
+		fontSize: 14
+	},
+	deleteButton: {
+		alignItems: 'center',
+		borderRadius: 8,
+		height: 40,
+		justifyContent: 'center',
+		marginLeft: 'auto',
+		width: 40
+	},
 	description: {
 		fontFamily: typography.primary.normal,
 		fontSize: 13,
@@ -145,6 +218,11 @@ const styles = StyleSheet.create({
 	},
 	disabled: {
 		opacity: DISABLED_OPACITY
+	},
+	imageRow: {
+		alignItems: 'center',
+		flexDirection: 'row',
+		gap: 16
 	},
 	label: {
 		fontFamily: typography.primary.medium,

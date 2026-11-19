@@ -1,20 +1,27 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
 import React, { FC, useCallback, useMemo, useState } from 'react';
-import { Ionicons } from '@expo/vector-icons';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { useStores } from '../../../../models';
-import { typography, useAppTheme } from '../../../../theme';
+import { typography } from '../../../../theme';
 import { Avatar } from 'react-native-paper';
 import { observer } from 'mobx-react-lite';
 import { useSettings } from '../../../../services/hooks/features/use-settings';
 import ConfirmationModal from '../../../../components/confirmation-modal';
 import { translate } from '../../../../i18n';
+import { SettingsImageRow } from '../components/settings-kit';
 import { imgTitleProfileAvatar } from '../../../../helpers/img-title-profile-avatar';
 
 interface Props {
 	buttonLabel: string;
 	onChange: () => unknown;
+}
+
+function avatarOf(imageUrl: string | undefined, name: string | undefined) {
+	if (imageUrl) {
+		return <Avatar.Image size={70} source={{ uri: imageUrl }} />;
+	}
+	return <Avatar.Text size={70} label={imgTitleProfileAvatar(name)} labelStyle={styles.prefix} />;
 }
 
 const UserAvatar: FC<Props> = observer(({ buttonLabel, onChange }) => {
@@ -25,7 +32,6 @@ const UserAvatar: FC<Props> = observer(({ buttonLabel, onChange }) => {
 	const [openConfirmationModal, setOpenConfirmationModal] = useState<boolean>(false);
 
 	const { updateUserInfo } = useSettings();
-	const { colors, dark } = useAppTheme();
 
 	const onDeleteAvatar = useCallback(async () => {
 		await updateUserInfo({
@@ -44,69 +50,28 @@ const UserAvatar: FC<Props> = observer(({ buttonLabel, onChange }) => {
 	const isDisabled = !(user?.image && user?.imageId && user?.image);
 
 	return (
-		<View style={[styles.container, { backgroundColor: colors.background, opacity: 0.9 }]}>
-			{imageUrl ? (
-				<Avatar.Image size={70} source={{ uri: imageUrl }} />
-			) : (
-				<Avatar.Text size={70} label={imgTitleProfileAvatar(user?.name)} labelStyle={styles.prefix} />
-			)}
-			<TouchableOpacity
-				style={[styles.changeAvatarBtn, { borderColor: colors.secondary }]}
-				onPress={() => onChange()}
-			>
-				<Text style={[styles.changeAvatarTxt, { color: colors.secondary }]}>{buttonLabel}</Text>
-			</TouchableOpacity>
-			<TouchableOpacity
-				disabled={isDisabled}
-				style={[
-					styles.deleteContainer,
-					{ backgroundColor: dark ? '#3D4756' : '#E6E6E9', opacity: isDisabled ? 0.5 : 1 }
-				]}
-				onPress={() => setOpenConfirmationModal(true)}
-			>
-				<Ionicons name="trash-outline" size={24} color={colors.primary} />
-			</TouchableOpacity>
+		<>
+			<SettingsImageRow
+				image={avatarOf(imageUrl, user?.name)}
+				changeLabel={buttonLabel}
+				onChange={onChange}
+				deleteLabel={translate('settingScreen.membersSettingsScreen.delete')}
+				deleteDisabled={isDisabled}
+				onDelete={() => setOpenConfirmationModal(true)}
+			/>
 			<ConfirmationModal
 				visible={openConfirmationModal}
 				onDismiss={() => setOpenConfirmationModal(false)}
 				onConfirm={onDeleteAvatar}
 				confirmationText={translate('settingScreen.changeAvatar.avatarDeleteConfirmation')}
 			/>
-		</View>
+		</>
 	);
 });
 
 export default UserAvatar;
 
 const styles = StyleSheet.create({
-	changeAvatarBtn: {
-		alignItems: 'center',
-		borderColor: '#3826A6',
-		borderRadius: 7,
-		borderWidth: 2,
-		height: 42,
-		justifyContent: 'center',
-		width: 168
-	},
-	changeAvatarTxt: {
-		fontFamily: typography.primary.semiBold,
-		fontSize: 14
-	},
-	container: {
-		alignItems: 'center',
-		backgroundColor: '#fff',
-		flexDirection: 'row',
-		justifyContent: 'space-between',
-		paddingTop: 10,
-		width: '100%'
-	},
-	deleteContainer: {
-		alignItems: 'center',
-		borderRadius: 7,
-		justifyContent: 'center',
-		paddingHorizontal: 16,
-		paddingVertical: 11
-	},
 	pictureContainer: {
 		borderRadius: 40,
 		height: 70,
