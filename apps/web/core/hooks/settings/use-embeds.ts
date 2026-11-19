@@ -226,38 +226,41 @@ export interface PersonSignInChange {
 	allowPersonSignIn: boolean;
 }
 
-type OriginsLists = [readonly unknown[], EmbedAllowedOrigin[] | undefined][];
+type PersonSignInSetting = EmbedAllowedOrigin['allowPersonSignIn'];
 
-const withPersonSignIn = (origins: EmbedAllowedOrigin[] | undefined, change: PersonSignInChange) =>
+const withPersonSignIn = (origins: EmbedAllowedOrigin[] | undefined, id: string, setting: PersonSignInSetting) =>
 	origins?.map((row) => {
-		if (row.id !== change.id) {
+		if (row.id !== id) {
 			return row;
 		}
-		return { ...row, allowPersonSignIn: change.allowPersonSignIn };
+		return { ...row, allowPersonSignIn: setting };
 	});
 
 /**
  * Turns on or off whether people can sign in from an allowed site. The switch moves at once and goes back if the API
- * refuses; the list is read again either way.
+ * refuses, that switch only: another site's switch changed meanwhile keeps its own setting. The list is read again
+ * either way.
  */
 export function useSetPersonSignIn() {
 	const queryClient = useQueryClient();
-	return useMutation<EmbedAllowedOrigin, unknown, PersonSignInChange, { previous: OriginsLists }>({
+	return useMutation<EmbedAllowedOrigin, unknown, PersonSignInChange, { before: PersonSignInSetting }>({
 		mutationFn: ({ id, allowPersonSignIn }) => embedsService.setPersonSignIn(id, allowPersonSignIn),
 		// The row says why its switch went back: the global fallback toast would say it twice
 		meta: { handlesOwnError: true },
 		onMutate: async (change) => {
 			await queryClient.cancelQueries({ queryKey: EVERY_ORIGINS_LIST });
-			const previous = queryClient.getQueriesData<EmbedAllowedOrigin[]>({ queryKey: EVERY_ORIGINS_LIST });
+			const lists = queryClient.getQueriesData<EmbedAllowedOrigin[]>({ queryKey: EVERY_ORIGINS_LIST });
+			const rows = lists.flatMap(([, origins]) => origins ?? []);
+			const before = rows.find((row) => row.id === change.id)?.allowPersonSignIn;
 			queryClient.setQueriesData<EmbedAllowedOrigin[]>({ queryKey: EVERY_ORIGINS_LIST }, (origins) =>
-				withPersonSignIn(origins, change)
+				withPersonSignIn(origins, change.id, change.allowPersonSignIn)
 			);
-			return { previous };
+			return { before };
 		},
-		onError: (_error, _change, context) => {
-			for (const [key, origins] of context?.previous ?? []) {
-				queryClient.setQueryData(key, origins);
-			}
+		onError: (_error, change, context) => {
+			queryClient.setQueriesData<EmbedAllowedOrigin[]>({ queryKey: EVERY_ORIGINS_LIST }, (origins) =>
+				withPersonSignIn(origins, change.id, context?.before)
+			);
 		},
 		onSettled: () => queryClient.invalidateQueries({ queryKey: EVERY_ORIGINS_LIST })
 	});
