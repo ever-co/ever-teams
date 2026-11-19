@@ -9,6 +9,7 @@ import { useTeamTasks } from '../services/hooks/features/use-team-tasks';
 import { showMessage } from 'react-native-flash-message';
 import { typography, useWebTheme } from '../theme';
 import { taskChipLookOf } from '../../src/components/task-chip';
+import { ChipIcon } from '../../src/components/chip-icon';
 import TaskSizePopup from './task-size-popup';
 import { translate } from '../i18n';
 import { limitTextCharaters } from '../helpers/sub-text';
@@ -68,7 +69,7 @@ const TaskSize: FC<TaskSizeProps> = observer(({ task, containerStyle, setSize, s
 				<View style={[{ ...styles.container, ...containerStyle }, look.container]}>
 					{(task?.size || size) && currentSize ? (
 						<View style={styles.wrapStatus}>
-							{currentSize.icon}
+							<ChipIcon item={currentSize} color={look.ink} />
 							<Text style={{ ...styles.text, color: look.ink, marginLeft: 10 }}>
 								{limitTextCharaters({ text: currentSize.name, numChars: 15 })}
 							</Text>

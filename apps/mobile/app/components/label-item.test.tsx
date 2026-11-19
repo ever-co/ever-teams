@@ -5,6 +5,14 @@ import LabelItem from './label-item';
 import { dataColorChipOf } from '../../src/theme/data-color';
 import { themeFor } from '../../src/theme/use-theme';
 
+jest.mock('../../src/components/tinted-icon', () => {
+	const { createElement } = jest.requireActual('react');
+	const { View } = jest.requireActual('react-native');
+	return {
+		TintedIcon: ({ uri, color }: { uri: string; color: string }) =>
+			createElement(View, { testID: 'chip-icon', uri, color })
+	};
+});
 jest.mock('../theme', () => ({
 	useWebTheme: () => jest.requireActual('../../src/theme/use-theme').themeFor('light')
 }));
@@ -19,6 +27,21 @@ describe('a chip on a card', () => {
 		expect(container.borderColor).toBe(chip?.border);
 		expect(container.borderRadius).toBe(8);
 		expect(StyleSheet.flatten(screen.getByText('Backlog').props.style).color).toBe(chip?.ink);
+	});
+
+	it("draws the value's icon file in the chip's ink, so it shows on a dark chip too", async () => {
+		await render(
+			<LabelItem
+				label="In Progress"
+				background="#ece8fc"
+				icon={undefined}
+				iconUrl="https://example.com/in-progress.svg"
+			/>
+		);
+
+		const icon = screen.getByTestId('chip-icon');
+		expect(icon.props.uri).toBe('https://example.com/in-progress.svg');
+		expect(icon.props.color).toBe(dataColorChipOf('#ece8fc', 'light')?.ink);
 	});
 
 	it('keeps a readable neutral chip when the API color is missing', async () => {

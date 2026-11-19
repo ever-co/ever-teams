@@ -8,6 +8,7 @@ import { ITeamTask } from '../services/interfaces/ITask';
 import { useTeamTasks } from '../services/hooks/features/use-team-tasks';
 import { typography, useWebTheme } from '../theme';
 import { taskChipLookOf } from '../../src/components/task-chip';
+import { ChipIcon } from '../../src/components/chip-icon';
 import TaskPriorityPopup from './task-priority-popup';
 import { translate } from '../i18n';
 import { useTaskPriorityValue } from './status-type';
@@ -64,7 +65,7 @@ const TaskPriority: FC<TaskPriorityProps> = observer(
 					<View style={[{ ...styles.container, ...containerStyle }, look.container]}>
 						{(task?.priority || priority) && currentPriority ? (
 							<View style={styles.wrapStatus}>
-								{currentPriority.icon}
+								<ChipIcon item={currentPriority} color={look.ink} />
 								<Text style={{ ...styles.text, color: look.ink, marginLeft: 10 }}>
 									{limitTextCharaters({
 										text: currentPriority.name,

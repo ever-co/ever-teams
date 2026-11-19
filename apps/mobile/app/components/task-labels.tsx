@@ -8,11 +8,11 @@ import { ITeamTask } from '../services/interfaces/ITask';
 import { useTeamTasks } from '../services/hooks/features/use-team-tasks';
 import { useAppTheme, typography, useWebTheme } from '../theme';
 import { taskChipLookOf } from '../../src/components/task-chip';
+import { ChipIcon } from '../../src/components/chip-icon';
 import TaskLabelPopup from './task-label-popup';
 import { ITaskLabelItem } from '../services/interfaces/ITaskLabel';
 import { translate } from '../i18n';
 import { limitTextCharaters } from '../helpers/sub-text';
-import { SvgUri } from 'react-native-svg';
 import { isEqual } from 'lodash';
 
 interface TaskLabelProps {
@@ -288,7 +288,7 @@ const Label: FC<ILabel> = ({ item, freshOpenModal, taskScreenButton, noBorders }
 					noBorders && { borderWidth: 0 }
 				]}
 			>
-				<SvgUri width={14} height={14} uri={item?.fullIconUrl} />
+				<ChipIcon item={{ iconUrl: item?.fullIconUrl }} color={look.ink} />
 				<Text
 					style={{
 						color: look.ink,

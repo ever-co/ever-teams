@@ -40,6 +40,7 @@ const AllTaskStatuses = ({ task }: { task: ITeamTask }) => {
 					label={item?.name}
 					background={item?.bgColor}
 					icon={item?.icon}
+					iconUrl={item?.iconUrl}
 				/>
 			))}
 		</View>

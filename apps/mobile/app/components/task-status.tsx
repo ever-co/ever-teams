@@ -9,6 +9,7 @@ import { useTeamTasks } from '../services/hooks/features/use-team-tasks';
 import TaskStatusPopup from './task-status-popup';
 import { typography, useAppTheme, useWebTheme } from '../theme';
 import { taskChipLookOf } from '../../src/components/task-chip';
+import { ChipIcon } from '../../src/components/chip-icon';
 import { translate } from '../i18n';
 import { useTaskStatusValue } from './status-type';
 import { limitTextCharaters } from '../helpers/sub-text';
@@ -73,7 +74,7 @@ const TaskStatus: FC<TaskStatusProps> = observer(
 					>
 						{statusItem ? (
 							<View style={[styles.wrapStatus, { width: iconsOnly ? '50%' : '70%' }]}>
-								{!labelOnly && statusItem.icon}
+								{!labelOnly && <ChipIcon item={statusItem} color={look.ink} />}
 								{iconsOnly ? null : (
 									<Text
 										numberOfLines={1}
