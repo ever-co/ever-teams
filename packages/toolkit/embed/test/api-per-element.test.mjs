@@ -9,7 +9,7 @@ import path from 'node:path';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 import { bundleKit, kitSources } from '../../atoms/test/bundle-kit.mjs';
-import { kitStandInOf, kitStandIns, recordingFetch } from '../../atoms/test/kit-stand-ins.mjs';
+import { kitStandInOf, kitStandIns, recordingFetch, tokenCheckingServers } from '../../atoms/test/kit-stand-ins.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const require = createRequire(import.meta.url);
@@ -151,4 +151,34 @@ test('an element without api-url follows the address the page holds, and never c
 
 	await act(async () => plain.setAttribute('color-scheme', 'dark'));
 	assert.equal(pageConfig.getConfig().apiUrl, 'https://teams.example.org/api');
+});
+
+test('two elements on two api-url keep their own saved sessions when the page loads again', async () => {
+	// Servers that refuse (401) a token they did not issue, as a real API does.
+	const servers = tokenCheckingServers();
+	globalThis.fetch = servers.fetch;
+	const signedIn = (host) => servers.requests.filter((request) => request.host === host && request.authorized);
+	const refused = () => servers.requests.filter(({ status }) => status === 401);
+	// The page again: new elements with nothing in memory, the browser's storage as it was. The element placed last
+	// sets the page's address: A.
+	const loadPage = async () => {
+		await removeElements();
+		servers.requests.length = 0;
+		const elements = [await place('https://b.example.com/api'), await place('https://a.example.com/api')];
+		await settle();
+		return elements;
+	};
+
+	const [, first] = await loadPage();
+	await signInOn(first);
+	const [second] = await loadPage();
+	assert.ok(signedIn('a.example.com').length > 0, 'A reads the person with its saved session');
+	assert.deepEqual(signedIn('b.example.com'), [], "A's session never reaches B");
+	assert.deepEqual(refused(), []);
+
+	await signInOn(second);
+	await loadPage();
+	assert.ok(signedIn('a.example.com').length > 0, 'A is still signed in');
+	assert.ok(signedIn('b.example.com').length > 0, 'B reads the person with its own saved session');
+	assert.deepEqual(refused(), []);
 });

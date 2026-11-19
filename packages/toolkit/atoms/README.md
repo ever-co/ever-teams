@@ -113,10 +113,10 @@ The widgets draw in the Ever Teams web app's font, the system UI face (nothing i
 Each `TeamsProvider` sends the requests of the components under it to its own `config.apiUrl`: two providers of a
 page can reach two different servers. A provider without `apiUrl` uses the address set with
 `apiConfigManager.setConfig()` of `@ever-teams/api` (`https://api.ever.team/api` by default), and starts afresh
-when that address changes: the token, the person and the lists it holds in memory are dropped. The session a
-sign-in saves in the browser is still one for the whole page (ever-co/ever-teams#5524), so after the change the
-provider can read it back and send its token to the new address. Every provider still writes its `apiUrl` there, for
-your own calls to the request functions of that package.
+when that address changes: the token, the person and the lists it holds in memory are dropped. It then reads back
+only a session saved for the new address, if there is one, so a token never reaches another server, apart from a
+session saved by an earlier version (see [Security](#security-where-tokens-live-today-and-what-is-planned)). Every
+provider still writes its `apiUrl` there, for your own calls to the request functions of that package.
 
 The API must accept your site's origin: on a self-hosted Gauzy API, add it to `ALLOWED_ORIGINS` (comma-separated)
 and restart the API.
@@ -346,9 +346,10 @@ an answer still on its way for the previous client is dropped.
 
 The widget keeps the report in memory and writes nothing to the browser's storage. The `TeamsProvider` around it
 handles the session as it does for every kit component: on a site where people also sign in with the kit, it reads
-their saved session, and clears it once expired (see
-[Security](#security-where-tokens-live-today-and-what-is-planned)). The saved session belongs to the site's origin, not
-to a page: on an origin where nobody has signed in with the kit, there is no session to read.
+the session saved for its API address, and clears it once expired (see
+[Security](#security-where-tokens-live-today-and-what-is-planned)). The saved session belongs to the site's origin and
+to the API that issued it, not to a page: on an origin where nobody has signed in to that API with the kit, there is no
+session to read.
 
 ## Security: where tokens live today, and what is planned
 
@@ -357,9 +358,17 @@ Without `config.getToken`:
 - The sign-in dialog (`TeamsLoginDialog`) takes the user's email and password inside your page and sends them to
   `{apiUrl}/auth/login`. A "Token" tab also accepts a pasted access token.
 - The access token and the user record are kept in `localStorage['_teams-store']`, readable by every script of your
-  page. Each time the kit saves them (at every page load once signed in) it sets their expiry 24 hours later;
-  it removes them only when it next reads them after that expiry, so until then an expired token stays readable
-  there.
+  page, with the API address that issued the token (`persist.apiUrl`). A provider reads back only the session saved
+  for the address it sends to, so a token never reaches another server (but see the next point for a session saved
+  by an earlier version); the sessions of other servers sit in the same key, under `servers`, and a site with one
+  server keeps the shape it had. Signing out, or "Sign in again" after a session ended, removes that address's session
+  only. Each time the kit saves a session (at every page load once
+  signed in) it sets its expiry 24 hours later; it removes it only when it next reads it after that expiry, so until
+  then an expired token stays readable there.
+- A session saved by an earlier version names no address: the first provider that reads it keeps it as its own. On a
+  site with several servers, that can be another server's provider: that server gets the token once and refuses it,
+  its widgets say the session ended, and the person signs in again on both. While the browser refuses to record the
+  address (storage full), such a session is not read at all.
 - The user menu shows the token, with a copy button.
 - What leaves your page: requests to `config.apiUrl` (`https://api.ever.team/api` when it is not set), with the token
   in their `Authorization` header. Fonts are requested from Google Fonts only with `loadGoogleFonts`. Tracking

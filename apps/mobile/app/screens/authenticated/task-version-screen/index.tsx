@@ -27,6 +27,7 @@ import { BlurView } from 'expo-blur';
 import VersionItem from './components/version-item';
 import TaskVersionForm from './components/task-version-form';
 import { useRoute, RouteProp } from '@react-navigation/native';
+import { navigateTo } from '../../../navigators/routes';
 
 // Create a type for the route params
 type TaskVersionRouteParams = {
@@ -72,7 +73,7 @@ export const TaskVersionScreen: FC<AuthenticatedDrawerScreenProps<'TaskVersion'>
 
   // Handle back navigation with the correct tab
   const handleGoBack = useCallback(() => {
-    navigation.navigate('Setting', { activeTab: previousTab });
+    navigateTo(navigation, 'Setting', { activeTab: previousTab });
   }, [navigation, previousTab]);
 
   const openForEdit = useCallback((item: ITaskVersionItemList) => {

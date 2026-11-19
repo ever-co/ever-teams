@@ -33,6 +33,7 @@ import { SettingScreenNavigationProp } from '../../../../navigators/authenticate
 import { getTimerStatusValue } from '../../../../helpers/get-timer-status';
 import { useClickOutside } from 'react-native-click-outside';
 import { TimeProgressBar } from './time-progress-bar';
+import { navigateTo } from '../../../../navigators/routes';
 
 export type ListItemProps = {
 	member: OT_Member;
@@ -158,8 +159,8 @@ const ListCardItem: React.FC<Props> = observer((props) => {
 
 		if (props.canNavigate) {
 			isTaskScreen
-				? memberInfo.memberTask && navigation.navigate('TaskScreen', { taskId: memberInfo.memberTask?.id })
-				: navigation.navigate('Profile', {
+				? memberInfo.memberTask && navigateTo(navigation, 'TaskScreen', { taskId: memberInfo.memberTask?.id })
+				: navigateTo(navigation, 'Profile', {
 						userId: memberInfo.memberUser.id,
 						activeTab: 'worked'
 				  });

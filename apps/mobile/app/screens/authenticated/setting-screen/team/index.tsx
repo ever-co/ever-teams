@@ -21,6 +21,7 @@ import { useTaskVersion } from '../../../../services/hooks/features/use-task-ver
 import SwitchTeamPublicity from '../components/switch-team-publicity';
 // import { NavigationProp } from '@react-navigation/native';
 import { AuthenticatedDrawerParamList } from '../../../../navigators/authenticated-navigator';
+import { navigateTo } from '../../../../navigators/routes';
 
 interface ITeamSettingProps {
 	props: any;
@@ -60,7 +61,7 @@ const TeamSettings: FC<ITeamSettingProps> = observer(({ props, onOpenBottomSheet
 
 	// Function to navigate to screens with previousTab param
 	const navigateWithTab = (screenName: keyof AuthenticatedDrawerParamList) => {
-		navigation.navigate(screenName, { previousTab: 2 });
+		navigateTo(navigation, screenName, { previousTab: 2 });
 	};
 
 	return (

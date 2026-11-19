@@ -6,6 +6,9 @@ import { useTimerStatusContext } from '@lib/context/teams-timer-status-context';
 import { KIT_ERROR_MESSAGE_KEYS, KitNotice as IKitNotice } from '@lib/errors/kit-error';
 import { useClearKitSession } from '@hooks/useClearKitSession';
 import { useHostSignIn } from '@lib/session/host-session';
+import { forgetStoredSession } from '@lib/session/stored-session';
+import { useKitOptions } from '@components/teams-provider/kit-options';
+import { apiUrlOf } from '@lib/utils/api-url';
 import { KIT_NOTICE_ACTION, KIT_NOTICE_SURFACE, kitNoticeTone } from './notice-surface';
 
 // Unreachable is a state the kit recovers from by itself; the others need someone to act.
@@ -14,15 +17,6 @@ function toneOf(kind: IKitNotice['kind']): string {
 		return kitNoticeTone('neutral');
 	}
 	return kitNoticeTone('error');
-}
-
-// The stored session the kit reads back at the next load: emptied too, or a reload would bring the ended one back.
-function forgetStoredSession() {
-	try {
-		window.localStorage.setItem('_teams-store', JSON.stringify({ app: { user: null }, persist: { token: null } }));
-	} catch {
-		// Storage unavailable (private mode, quota): the in-memory session is cleared all the same.
-	}
 }
 
 /**
@@ -35,6 +29,7 @@ export function KitNotice({ className }: Readonly<{ className?: string }>) {
 	const shared = useTimerStatusContext();
 	const clearSession = useClearKitSession();
 	const askHostForToken = useHostSignIn();
+	const { api } = useKitOptions();
 	const notice = shared?.notice;
 	if (!notice) {
 		return null;
@@ -52,7 +47,9 @@ export function KitNotice({ className }: Readonly<{ className?: string }>) {
 			void askHostForToken();
 			return;
 		}
-		forgetStoredSession();
+		// The session the kit would read back at the next load, or a reload would bring the ended one back: this
+		// server's only, the providers of other servers stay signed in.
+		forgetStoredSession(apiUrlOf(api));
 		clearSession();
 		shared.reportNotice(null);
 	};

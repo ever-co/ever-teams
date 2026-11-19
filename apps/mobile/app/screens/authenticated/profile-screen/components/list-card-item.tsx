@@ -28,6 +28,7 @@ import IssuesModal from '../../../../components/issues-modal';
 import { SettingScreenNavigationProp } from '../../../../navigators/authenticated-navigator';
 import { useNavigation } from '@react-navigation/native';
 import { translate } from '../../../../i18n';
+import { navigateTo } from '../../../../navigators/routes';
 
 export type ListItemProps = {
 	active?: boolean;
@@ -69,7 +70,7 @@ export const ListItemContent: React.FC<ListItemProps> = observer((props) => {
 	const navigation = useNavigation<SettingScreenNavigationProp<'TaskScreen'>>();
 
 	const navigateToTask = (taskId: string) => {
-		!editTitle && navigation.navigate('TaskScreen', { taskId });
+		!editTitle && navigateTo(navigation, 'TaskScreen', { taskId });
 	};
 
 	return (

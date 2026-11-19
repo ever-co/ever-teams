@@ -17,6 +17,7 @@ import CreateParentTaskModal from './create-parent-task-modal';
 import { observer } from 'mobx-react-lite';
 import { useNavigation } from '@react-navigation/native';
 import { SettingScreenNavigationProp } from '../../../navigators/authenticated-navigator';
+import { navigateTo } from '../../../navigators/routes';
 
 const TaskTitleBlock = observer(() => {
 	const {
@@ -172,7 +173,7 @@ const ParentTaskBadge: React.FC<{ task: ITeamTask }> = observer(({ task }) => {
 	const { width } = Dimensions.get('window');
 
 	const navigateToParent = (): void => {
-		navigation.navigate('TaskScreen', { taskId: task?.parentId || task?.parent.id });
+		navigateTo(navigation, 'TaskScreen', { taskId: task?.parentId || task?.parent.id });
 	};
 	return task?.parentId && task?.parent ? (
 		<TouchableOpacity
