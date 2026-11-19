@@ -50,11 +50,14 @@ function readStore(): StoredSessions | null {
 	}
 }
 
-function writeStore(store: StoredSessions): void {
+// Whether the browser kept it.
+function writeStore(store: StoredSessions): boolean {
 	try {
 		window.localStorage.setItem(STORED_SESSION_KEY, JSON.stringify(store));
+		return true;
 	} catch {
 		// Storage unavailable (private mode, quota): the session goes on in memory all the same.
+		return false;
 	}
 }
 
@@ -95,15 +98,17 @@ function withServers(store: StoredSessions, servers: Record<string, StoredSessio
 }
 
 // Stamps a top-level session that names no address with this one, the address of the first provider to read it.
-function adoptTopLevel(store: StoredSessions, address: string): void {
+// Whether the session now names an address: false when the browser refused the write, and then the session is not
+// read, or every provider, whatever its server, would read it again.
+function adoptTopLevel(store: StoredSessions, address: string): boolean {
 	const persist = store.persist;
 	if (!persist?.token) {
-		return;
+		return true;
 	}
 	if (persist.apiUrl !== undefined) {
-		return;
+		return true;
 	}
-	writeStore({ ...store, persist: { ...persist, apiUrl: address } });
+	return writeStore({ ...store, persist: { ...persist, apiUrl: address } });
 }
 
 function hasExpired(expiry: number | undefined): boolean {
@@ -149,7 +154,8 @@ export function saveStoredSession(address: string, user: IUser, token: string): 
 
 /**
  * The token saved for this API address, or null. A session past its expiry is removed instead. One saved before the kit
- * kept the address is stamped with this one: from then on it is never read for another server.
+ * kept the address is stamped with this one: from then on it is never read for another server. While the browser
+ * refuses to record that address (storage full), it is not read at all.
  */
 export function readStoredToken(address: string): string | null {
 	const store = readStore();
@@ -164,6 +170,8 @@ export function readStoredToken(address: string): string | null {
 		forgetStoredSession(address);
 		return null;
 	}
-	adoptTopLevel(store, address);
+	if (!adoptTopLevel(store, address)) {
+		return null;
+	}
 	return persist.token;
 }

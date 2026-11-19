@@ -156,14 +156,14 @@ test('a sign-in on server A is never sent to server B, by a provider next to it 
 
 	servers.requests.length = 0;
 	await renderPage(root, bothServers());
-	assert.deepEqual(authorizedTo(HOST_B), [], 'no token reaches B');
+	assert.deepEqual(sentTo(HOST_B), [], 'no request reaches B');
 	assert.equal(noticeOf('b'), null, 'no "Your session ended" for a server nobody signed in to');
 
 	await openPage([
 		['b', { apiUrl: SERVER_B }],
 		['a', { apiUrl: SERVER_A }]
 	]);
-	assert.deepEqual(authorizedTo(HOST_B), [], 'no token reaches B');
+	assert.deepEqual(sentTo(HOST_B), [], 'no request reaches B');
 	assert.equal(noticeOf('b'), null);
 	assertSignedInFromStorage('a', HOST_A);
 });
@@ -268,8 +268,61 @@ test('a provider whose address changes holds no session of its previous server',
 
 	servers.requests.length = 0;
 	await renderPage(root, [['a', { apiUrl: SERVER_B }]]);
-	assert.deepEqual(authorizedTo(HOST_B), [], "A's token never reaches B");
+	assert.deepEqual(sentTo(HOST_B), [], 'no request reaches B');
 	assert.equal(noticeOf('a'), null);
 	assert.equal(stored().persist.apiUrl, SERVER_A);
 	assert.equal(stored().servers, undefined, 'nothing is saved for B');
+});
+
+test("a provider without an apiUrl reads back the session of the page's address each time it changes", async () => {
+	// The provider rendered last sets the page's address: the one without an apiUrl follows it.
+	const root = await openPage([
+		['d', {}],
+		['x', { apiUrl: SERVER_A }]
+	]);
+	await signInOn('d');
+	assert.equal(stored().persist.apiUrl, SERVER_A, "saved for the page's address");
+
+	servers.requests.length = 0;
+	await renderPage(root, [
+		['d', {}],
+		['x', { apiUrl: SERVER_B }]
+	]);
+	assert.deepEqual(sentTo(HOST_B), [], 'no request reaches B');
+	assert.equal(noticeOf('d'), null);
+	assert.equal(buttonOf('d', 'AUTH.LOGOUT'), undefined, 'signed out on B');
+
+	servers.requests.length = 0;
+	await renderPage(root, [
+		['d', {}],
+		['x', { apiUrl: SERVER_A }]
+	]);
+	// Both providers talk to A now: each reads the person with A's saved session.
+	assert.ok(
+		authorizedTo(HOST_A).some(({ path }) => path === '/user/me'),
+		"A's session is read back"
+	);
+	assert.deepEqual(refusedBy(HOST_A), []);
+	assert.equal(noticeOf('d'), null);
+	assert.ok(buttonOf('d', 'AUTH.LOGOUT'), 'signed in again on A, without a sign-in');
+});
+
+test('a session saved before the address was kept is not read while storage cannot record its address', async () => {
+	localStorage.setItem(STORE_KEY, savedBeforeAddresses('saved-before'));
+	servers.accept(HOST_A, 'saved-before');
+	// Storage that can be read but takes no write, as when it is full.
+	const storage = Object.getPrototypeOf(localStorage);
+	const setItem = storage.setItem;
+	storage.setItem = () => {
+		throw new dom.window.DOMException('The quota has been exceeded.', 'QuotaExceededError');
+	};
+	try {
+		await openPage(bothServers());
+	} finally {
+		storage.setItem = setItem;
+	}
+
+	assert.deepEqual(authorizedTo(HOST_A), [], 'not read for A while it names no address');
+	assert.deepEqual(authorizedTo(HOST_B), [], 'nor for B');
+	assert.equal(stored().persist.apiUrl, undefined);
 });
