@@ -53,6 +53,15 @@ describe("Work's panel", () => {
 		expect(styleOf('work-panel').borderRadius).toBe(14);
 	});
 
+	it('puts the estimate under its label, so it stays in its column beside the size', async () => {
+		mockTimer.running = false;
+		await render(<TimerTaskSection taskInput={taskInput} outsideClick={jest.fn()} />);
+
+		expect(styleOf('work-estimate').flexDirection).toBe('column');
+		expect(styleOf('work-estimate-value').alignSelf).toBe('flex-start');
+		expect(screen.getByText(/estimateLabel/)).toBeTruthy();
+	});
+
 	it('shows the running timer with a primary tint, the task title kept readable', async () => {
 		mockTimer.running = true;
 		await render(<TimerTaskSection taskInput={taskInput} outsideClick={jest.fn()} />);

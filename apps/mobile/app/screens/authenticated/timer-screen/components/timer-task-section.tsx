@@ -194,24 +194,30 @@ const TimerTaskSection = observer(
 									alignItems: 'center'
 								}}
 							>
+								{/* The label sits above the estimate, so both fit the column beside the size on a small phone */}
 								<View
+									testID="work-estimate"
 									style={{
-										flexDirection: 'row',
-										alignItems: 'center',
+										flexDirection: 'column',
+										alignItems: 'flex-start',
+										gap: 2,
 										width: width / 2.7
 									}}
 								>
 									<Text
 										style={{
-											textAlign: 'center',
 											fontSize: 12,
 											color: colors.tertiary
 										}}
 									>
-										{translate('myWorkScreen.estimateLabel')} :{' '}
+										{translate('myWorkScreen.estimateLabel')}
 									</Text>
 
-									<EstimateTime timerScreen={true} currentTask={activeTask} />
+									{/* The estimate pushes itself right with an automatic margin, wanted on the team cards; here it
+									sits under its label */}
+									<View testID="work-estimate-value" style={{ alignSelf: 'flex-start' }}>
+										<EstimateTime timerScreen={true} currentTask={activeTask} />
+									</View>
 								</View>
 								<TaskSize
 									task={activeTask}
