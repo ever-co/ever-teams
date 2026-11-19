@@ -1,24 +1,24 @@
-/* eslint-disable react-native/no-color-literals */
-/* eslint-disable react-native/no-inline-styles */
 import React, { FC, ReactNode } from 'react';
 import { View, StyleSheet, Text } from 'react-native';
-import { typography } from '../theme';
-// import { limitTextCharaters } from '../helpers/sub-text';
+import { useWebTheme } from '../theme';
+import { taskChipLookOf } from '../../src/components/task-chip';
 
 interface Props {
 	label: string;
 	background: string;
 	icon: ReactNode | undefined;
 }
+
+/** A status, priority, size or label shown on a card or a list: the web's chip of its color. */
 const LabelItem: FC<Props> = ({ label, background, icon }) => {
+	const theme = useWebTheme();
+	const look = taskChipLookOf(background, theme);
 	return (
-		<View style={[styles.container, { backgroundColor: background }]}>
-			<View style={{ flexDirection: 'row' }}>
-				{icon}
-				<Text style={[styles.labelTitle, { color: '#282048' }]} numberOfLines={1}>
-					{label}
-				</Text>
-			</View>
+		<View testID="task-chip" style={[styles.container, look.container]}>
+			{icon}
+			<Text style={[styles.labelTitle, { color: look.ink }]} numberOfLines={1}>
+				{label}
+			</Text>
 		</View>
 	);
 };
@@ -26,18 +26,16 @@ const LabelItem: FC<Props> = ({ label, background, icon }) => {
 const styles = StyleSheet.create({
 	container: {
 		alignItems: 'center',
-		backgroundColor: '#D4EFDF',
-		borderRadius: 10,
+		borderRadius: 8,
 		flexDirection: 'row',
-		minWidth: 70,
-		paddingHorizontal: 10,
-		paddingVertical: 6
+		gap: 5,
+		minHeight: 24,
+		paddingHorizontal: 8,
+		paddingVertical: 3
 	},
 	labelTitle: {
-		fontFamily: typography.secondary.semiBold,
-		fontSize: 10,
-		fontWeight: '600',
-		marginLeft: 5,
+		fontSize: 12,
+		fontWeight: '500',
 		textTransform: 'capitalize'
 	}
 });
