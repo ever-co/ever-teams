@@ -105,6 +105,16 @@ const TimerTaskSection = observer(
 
 		const showsRestingTitle = !editMode && Boolean(activeTask?.title);
 
+		// The title shown at rest takes the tap that opens the picker: the input under it is hidden, and iOS gives a
+		// fully transparent view no touches. While the timer runs the field stays closed, as before.
+		const openTaskPicker = () => {
+			if (localTimerStatus.running) {
+				return;
+			}
+			setEditMode(true);
+			inputRef.current?.focus();
+		};
+
 		return (
 			<TouchableWithoutFeedback onPress={() => outsideClick()}>
 				<View testID="work-panel" style={[$timerSection, panelColorsOf(theme, localTimerStatus.running)]}>
@@ -156,15 +166,20 @@ const TimerTaskSection = observer(
 								onChangeText={(newText) => setQuery(newText)}
 							/>
 							{showsRestingTitle && (
-								<View pointerEvents="none" style={styles.restingTitle}>
+								<Pressable
+									testID="task-picker-title"
+									accessibilityRole="button"
+									accessibilityLabel={activeTask?.title}
+									style={styles.restingTitle}
+									onPress={openTaskPicker}
+								>
 									<Text
-										testID="task-picker-title"
 										numberOfLines={1}
 										style={[styles.restingTitleText, { color: theme.colors.foreground }]}
 									>
 										{activeTask?.title}
 									</Text>
-								</View>
+								</Pressable>
 							)}
 						</View>
 						{hasCreateForm && editMode && !createLoading ? (

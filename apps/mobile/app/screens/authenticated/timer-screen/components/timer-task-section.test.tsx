@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react-native';
+import { fireEvent, render, screen } from '@testing-library/react-native';
 import { StyleSheet } from 'react-native';
 import TimerTaskSection from './timer-task-section';
 import { ITeamTask } from '../../../../services/interfaces/ITask';
@@ -53,6 +53,25 @@ describe("Work's panel", () => {
 		expect(styleOf('work-panel').borderRadius).toBe(14);
 	});
 
+	it('opens the task picker from the title shown at rest', async () => {
+		mockTimer.running = false;
+		await render(<TimerTaskSection taskInput={taskInput} outsideClick={jest.fn()} />);
+
+		await fireEvent.press(screen.getByTestId('task-picker-title'));
+
+		expect(taskInput.setEditMode).toHaveBeenCalledWith(true);
+	});
+
+	it('keeps the task picker closed from the title while the timer runs, as the field is', async () => {
+		mockTimer.running = true;
+		jest.mocked(taskInput.setEditMode).mockClear();
+		await render(<TimerTaskSection taskInput={taskInput} outsideClick={jest.fn()} />);
+
+		await fireEvent.press(screen.getByTestId('task-picker-title'));
+
+		expect(taskInput.setEditMode).not.toHaveBeenCalled();
+	});
+
 	it('puts the estimate under its label, so it stays in its column beside the size', async () => {
 		mockTimer.running = false;
 		await render(<TimerTaskSection taskInput={taskInput} outsideClick={jest.fn()} />);
@@ -72,8 +91,7 @@ describe("Work's panel", () => {
 		expect(styleOf('task-picker-field').width).toBeUndefined();
 		expect(screen.getByTestId('task-picker-field').props.editable).toBe(false);
 		expect(screen.getByTestId('task-picker-field').props.selection).toEqual({ start: 0, end: 0 });
-		expect(screen.getByTestId('task-picker-title').props.numberOfLines).toBe(1);
-		expect(screen.getByTestId('task-picker-title').props.children).toBe('Repaint maintenance hatch');
+		expect(screen.getByText('Repaint maintenance hatch').props.numberOfLines).toBe(1);
 		expect(styleOf('task-picker-field').opacity).toBe(0);
 	});
 });
