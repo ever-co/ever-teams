@@ -26,7 +26,7 @@ import {
 } from '../helpers/timer-start-move';
 import type { ITimerStartMoveFailure } from '../services/hooks/use-timer-start-move';
 import { typography, useWebTheme } from '../theme';
-import { buttonLookOf, choiceLookOf } from '../../src/theme/form-look';
+import { buttonLookOf, choiceLookOf, inputLookOf } from '../../src/theme/form-look';
 
 /** The line that says why the panel shows the start alone. */
 const VIEW_KEYS: Readonly<Record<TimerStartViewReason, TxKeyPath>> = {
@@ -36,8 +36,6 @@ const VIEW_KEYS: Readonly<Record<TimerStartViewReason, TxKeyPath>> = {
 	unsupported: 'timer.startMove.unsupported'
 };
 
-const FIELD_BORDER_COLOR = '#DCE4E8';
-const PLACEHOLDER_COLOR = '#7B8089';
 /** A day of the run as its choice shows it, in the phone's language: `Sun 15 Nov`. */
 const DAY_FORMAT: Intl.DateTimeFormatOptions = { weekday: 'short', day: 'numeric', month: 'short' };
 /** The Save button while the save is under way. */
@@ -72,6 +70,7 @@ export const TimerStartPanel: FC<ITimerStartPanelProps> = ({ access, runStart, s
 	const theme = useWebTheme();
 	const cancelLook = buttonLookOf('secondary', theme);
 	const saveLook = buttonLookOf('primary', theme);
+	const inputLook = inputLookOf(theme);
 	const [timeText, setTimeText] = useState(() => (runStart === null ? '' : timeTextOf(new Date(runStart))));
 	const [reason, setReason] = useState('');
 	const [errorKey, setErrorKey] = useState<TxKeyPath | null>(null);
@@ -222,11 +221,11 @@ export const TimerStartPanel: FC<ITimerStartPanelProps> = ({ access, runStart, s
 					) : null}
 					<BottomSheetTextInput
 						testID="timer-start-time"
-						style={[styles.input, { color: theme.colors.foreground, borderColor: FIELD_BORDER_COLOR }]}
+						style={[styles.input, inputLook.field]}
 						value={timeText}
 						onChangeText={changeTime}
 						placeholder={translate('timer.startMove.timePlaceholder')}
-						placeholderTextColor={PLACEHOLDER_COLOR}
+						placeholderTextColor={inputLook.placeholderColor}
 						keyboardType={timeKeyboard()}
 						maxLength={5}
 						editable={!saving}
@@ -245,14 +244,11 @@ export const TimerStartPanel: FC<ITimerStartPanelProps> = ({ access, runStart, s
 							</Text>
 							<BottomSheetTextInput
 								testID="timer-start-reason"
-								style={[
-									styles.input,
-									{ color: theme.colors.foreground, borderColor: FIELD_BORDER_COLOR }
-								]}
+								style={[styles.input, inputLook.field]}
 								value={reason}
 								onChangeText={changeReason}
 								placeholder={translate('timer.startMove.reasonPlaceholder')}
-								placeholderTextColor={PLACEHOLDER_COLOR}
+								placeholderTextColor={inputLook.placeholderColor}
 								maxLength={TIMER_START_REASON_MAX_LENGTH}
 								editable={!saving}
 								accessibilityLabel={translate('timer.startMove.reason')}
@@ -350,8 +346,6 @@ const styles = StyleSheet.create({
 		marginTop: 12
 	},
 	input: {
-		borderRadius: 12,
-		borderWidth: 1,
 		fontFamily: typography.primary.medium,
 		fontSize: 16,
 		height: 52,
