@@ -20,6 +20,7 @@ import TaskTitleDisplay from './task-title-display';
 import AllTaskStatuses from '../../../../components/all-task-statuses';
 import WorkedOnTaskHours from '../../../../components/worked-day-hours';
 import EstimateTime from '../../timer-screen/components/estimate-time';
+import { cardProgressOf } from '../logics/card-progress';
 import { secondsToTime } from '../../../../helpers/date';
 import { useTaskStatistics } from '../../../../services/hooks/features/use-task-statistics';
 import { useStores } from '../../../../models';
@@ -60,13 +61,17 @@ export const ListItemContent: React.FC<ListItemProps> = observer((props) => {
 	const { getTaskStat, activeTaskTotalStat } = useTaskStatistics();
 	const { taskTotalStat } = getTaskStat(props.task);
 
-	const progress = useMemo(() => {
-		if (!props.isAuthUser) {
-			return (taskTotalStat?.duration * 100) / props.task?.estimate;
-		}
-
-		return (activeTaskTotalStat?.duration * 100) / props.task?.estimate || 0;
-	}, [timerStatus, props.activeAuthTask, activeTaskTotalStat]);
+	const progress = useMemo(
+		() =>
+			cardProgressOf({
+				isAuthUser: props.isAuthUser,
+				isActiveTask: props.activeAuthTask,
+				taskSeconds: taskTotalStat?.duration,
+				activeTaskSeconds: activeTaskTotalStat?.duration,
+				estimate: props.task?.estimate
+			}),
+		[timerStatus, props.isAuthUser, props.activeAuthTask, taskTotalStat, activeTaskTotalStat, props.task?.estimate]
+	);
 
 	const navigation = useNavigation<SettingScreenNavigationProp<'TaskScreen'>>();
 

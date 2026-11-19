@@ -16,6 +16,7 @@ import {
 import type { TabPressEvent } from '../../../../app/navigators/tab-bar';
 import { useOrganizationTeam } from '../../../../app/services/hooks/use-organization';
 import { useAppTheme } from '../../../../app/theme';
+import { ownTasksUserIdOf } from '../../../navigation/own-tasks';
 
 // The app opens on the team, as before, which is `/` as on the web
 export const unstable_settings = { initialRouteName: 'index' };
@@ -84,9 +85,7 @@ export default observer(function SignedInTabs() {
 		authenticationStore: { user }
 	} = useStores();
 	const { currentUser } = useOrganizationTeam();
-	// Without a membership in the active team, the person signed in: on develop the tab then named no one, and the
-	// profile screen showed that person
-	const ownId = currentUser?.id ?? user?.id;
+	const ownId = ownTasksUserIdOf(currentUser, user);
 	const screenOptions = useTabBarScreenOptions();
 	const navigation = useNavigation();
 	// the labels follow a new language
