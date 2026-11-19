@@ -163,6 +163,26 @@ describe('useSetPersonSignIn', () => {
 		expect(settingOf('origin-2')).toBe(true);
 		await waitFor(() => expect(invalidate).toHaveBeenCalledTimes(1));
 	});
+
+	it('reads the list again when two changes settle in the same turn', async () => {
+		const OTHER = { id: 'origin-2', origin: 'https://shop.example.com', allowPersonSignIn: false };
+		const answers: Record<string, (value: unknown) => void> = {};
+		mockSetPersonSignIn.mockImplementation((id: string) => new Promise((resolve) => (answers[id] = resolve)));
+		const client = siteListClient();
+		client.setQueryData(SITES_KEY, [SITE, OTHER]);
+		const invalidate = jest.spyOn(client, 'invalidateQueries');
+		const first = renderHook(() => useSetPersonSignIn(), { wrapper: wrapperOf(client) });
+		const second = renderHook(() => useSetPersonSignIn(), { wrapper: wrapperOf(client) });
+
+		first.result.current.mutate({ id: 'origin-1', allowPersonSignIn: true });
+		second.result.current.mutate({ id: 'origin-2', allowPersonSignIn: true });
+		await waitFor(() => expect(Object.keys(answers)).toHaveLength(2));
+		answers['origin-1']({ ...SITE, allowPersonSignIn: true });
+		answers['origin-2']({ ...OTHER, allowPersonSignIn: true });
+
+		await waitFor(() => expect(first.result.current.isSuccess && second.result.current.isSuccess).toBe(true));
+		await waitFor(() => expect(invalidate).toHaveBeenCalledTimes(1));
+	});
 });
 
 describe('useEmbedsAvailability', () => {

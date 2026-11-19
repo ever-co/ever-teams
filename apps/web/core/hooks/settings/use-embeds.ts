@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 import { useAtomValue } from 'jotai';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient, type QueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import {
 	EmbedClientNotLimitedError,
@@ -236,8 +236,10 @@ const withPersonSignIn = (origins: EmbedAllowedOrigin[] | undefined, id: string,
 		return { ...row, allowPersonSignIn: setting };
 	});
 
-// The switches of every allowed site share this key: the list is read again once the last of them settles.
-const PERSON_SIGN_IN_CHANGE = [...EVERY_ORIGINS_LIST, 'person-sign-in'] as const;
+// The switch changes still waiting for the API, by query client: the last one to settle reads the lists again. Counted
+// here, not with isMutating, which still counts a change while its onSettled runs: two changes that settle in the same
+// turn would each see the other, and neither would read the lists.
+const runningSwitchChanges = new WeakMap<QueryClient, number>();
 
 /**
  * Turns on or off whether people can sign in from an allowed site. The switch moves at once and goes back if the API
@@ -248,11 +250,11 @@ const PERSON_SIGN_IN_CHANGE = [...EVERY_ORIGINS_LIST, 'person-sign-in'] as const
 export function useSetPersonSignIn() {
 	const queryClient = useQueryClient();
 	return useMutation<EmbedAllowedOrigin, unknown, PersonSignInChange, { before: PersonSignInSetting }>({
-		mutationKey: PERSON_SIGN_IN_CHANGE,
 		mutationFn: ({ id, allowPersonSignIn }) => embedsService.setPersonSignIn(id, allowPersonSignIn),
 		// The row says why its switch went back: the global fallback toast would say it twice
 		meta: { handlesOwnError: true },
 		onMutate: async (change) => {
+			runningSwitchChanges.set(queryClient, (runningSwitchChanges.get(queryClient) ?? 0) + 1);
 			await queryClient.cancelQueries({ queryKey: EVERY_ORIGINS_LIST });
 			const lists = queryClient.getQueriesData<EmbedAllowedOrigin[]>({ queryKey: EVERY_ORIGINS_LIST });
 			const rows = lists.flatMap(([, origins]) => origins ?? []);
@@ -268,9 +270,9 @@ export function useSetPersonSignIn() {
 			);
 		},
 		onSettled: () => {
-			// This change still counts among those running while it settles.
-			const isLast = queryClient.isMutating({ mutationKey: PERSON_SIGN_IN_CHANGE }) <= 1;
-			if (!isLast) {
+			const stillRunning = Math.max((runningSwitchChanges.get(queryClient) ?? 1) - 1, 0);
+			runningSwitchChanges.set(queryClient, stillRunning);
+			if (stillRunning > 0) {
 				return;
 			}
 			return queryClient.invalidateQueries({ queryKey: EVERY_ORIGINS_LIST });
