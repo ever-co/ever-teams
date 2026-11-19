@@ -17,6 +17,7 @@ import {
 	suspendedStatusIconLarge
 } from './svgs/icons';
 import { SvgXml } from 'react-native-svg';
+import { avatarBoxOf, avatarInitialSizeOf } from './avatar-size';
 
 interface Props {
 	user: IUser;
@@ -56,7 +57,7 @@ const ProfileImage: FC<Props> = ({ user, size }) => {
 	}
 
 	return (
-		<View style={styles.container}>
+		<View style={[styles.container, avatarBoxOf(size)]}>
 			<View>
 				{imageUrl ? (
 					<Avatar.Image
@@ -95,7 +96,7 @@ const ProfileImage: FC<Props> = ({ user, size }) => {
 											? '#F5BEBE'
 											: '#DCD6D6'
 						}}
-						labelStyle={styles.prefix}
+						labelStyle={[styles.prefix, { fontSize: avatarInitialSizeOf(size) }]}
 					/>
 				)}
 				<View
@@ -130,8 +131,7 @@ export default ProfileImage;
 
 const styles = StyleSheet.create({
 	container: {
-		alignItems: 'center',
-		height: '10%'
+		alignItems: 'center'
 	},
 	prefix: {
 		fontFamily: typography.fonts.PlusJakartaSans.light,
