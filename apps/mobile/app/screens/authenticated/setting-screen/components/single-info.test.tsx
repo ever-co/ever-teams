@@ -2,27 +2,9 @@ import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react-native';
 import SingleInfo from './single-info';
 
-jest.mock('../../../../components/toggle', () => {
-	const { Pressable } = jest.requireActual('react-native');
-	return {
-		Toggle: ({
-			value,
-			onPress,
-			accessibilityLabel
-		}: {
-			value: boolean;
-			onPress?: () => void;
-			accessibilityLabel?: string;
-		}) => (
-			<Pressable
-				testID="settings-switch"
-				accessibilityLabel={accessibilityLabel}
-				accessibilityState={{ checked: value }}
-				onPress={onPress}
-			/>
-		)
-	};
-});
+jest.mock('../../../../components/toggle', () =>
+	jest.requireActual('../../../../../test/toggle-stand-in').toggleStandIn()
+);
 
 jest.mock('../../../../theme', () => ({
 	...jest.requireActual('../../../../theme/typography'),

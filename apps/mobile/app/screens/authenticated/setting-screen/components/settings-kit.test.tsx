@@ -4,27 +4,9 @@ import { StyleSheet, Text } from 'react-native';
 import { SettingsImageRow, SettingsRow, SettingsSection, SettingsSurface } from './settings-kit';
 import { themeFor } from '../../../../../src/theme/use-theme';
 
-jest.mock('../../../../components/toggle', () => {
-	const { Pressable } = jest.requireActual('react-native');
-	return {
-		Toggle: ({
-			value,
-			onPress,
-			accessibilityLabel
-		}: {
-			value: boolean;
-			onPress?: () => void;
-			accessibilityLabel?: string;
-		}) => (
-			<Pressable
-				testID="settings-switch"
-				accessibilityLabel={accessibilityLabel}
-				accessibilityState={{ checked: value }}
-				onPress={onPress}
-			/>
-		)
-	};
-});
+jest.mock('../../../../components/toggle', () =>
+	jest.requireActual('../../../../../test/toggle-stand-in').toggleStandIn()
+);
 
 jest.mock('../../../../theme', () => ({
 	...jest.requireActual('../../../../theme/typography'),
