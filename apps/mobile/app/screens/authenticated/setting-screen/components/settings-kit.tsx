@@ -3,6 +3,8 @@ import { Pressable, StyleSheet, Text, View, type AccessibilityRole, type ViewSty
 import { AntDesign } from '@expo/vector-icons';
 import { typography, useWebTheme } from '../../../../theme';
 import type { Theme } from '../../../../../src/theme/use-theme';
+import { Toggle } from '../../../../components/toggle';
+import { webSwitchLookOf } from '../../../../../src/theme/switch-look';
 import {
 	settingsDividerOf,
 	settingsSectionTitleColorOf,
@@ -114,6 +116,24 @@ export function SettingsRow({
 				</View>
 			)}
 		</Pressable>
+	);
+}
+
+type SettingsSwitchProps = { value?: boolean; onPress?: () => unknown };
+
+/** The web's switch at the end of a settings row. */
+export function SettingsSwitch({ value, onPress }: SettingsSwitchProps) {
+	const look = webSwitchLookOf(useWebTheme());
+	return (
+		<Toggle
+			variant="switch"
+			value={value}
+			onPress={() => onPress?.()}
+			inputOuterStyle={look.track}
+			inputInnerStyle={look.onFill}
+			inputDetailStyle={look.knob}
+			knobColor={look.knobColor}
+		/>
 	);
 }
 

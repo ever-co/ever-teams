@@ -2,6 +2,15 @@ import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react-native';
 import SingleInfo from './single-info';
 
+jest.mock('../../../../components/toggle', () => {
+	const { Pressable } = jest.requireActual('react-native');
+	return {
+		Toggle: ({ value, onPress }: { value: boolean; onPress?: () => void }) => (
+			<Pressable testID="settings-switch" accessibilityState={{ checked: value }} onPress={onPress} />
+		)
+	};
+});
+
 jest.mock('../../../../theme', () => ({
 	...jest.requireActual('../../../../theme/typography'),
 	useAppTheme: () => ({ dark: false }),
@@ -53,5 +62,22 @@ describe('a settings row of Personal or Team', () => {
 
 		expect(toggleTheme).toHaveBeenCalledTimes(1);
 		expect(screen.queryByTestId('settings-row-chevron')).toBeNull();
+	});
+
+	it('changes the theme from its switch too, off in light mode', async () => {
+		const toggleTheme = jest.fn();
+		await render(
+			<SingleInfo
+				title="settingScreen.personalSection.themes"
+				value="settingScreen.personalSection.lightModeToDark"
+				onPress={toggleTheme}
+			/>
+		);
+
+		expect(screen.getByTestId('settings-switch').props.accessibilityState.checked).toBe(false);
+
+		await fireEvent.press(screen.getByTestId('settings-switch'));
+
+		expect(toggleTheme).toHaveBeenCalledTimes(1);
 	});
 });

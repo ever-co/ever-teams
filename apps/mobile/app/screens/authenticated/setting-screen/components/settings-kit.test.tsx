@@ -4,6 +4,15 @@ import { StyleSheet } from 'react-native';
 import { SettingsRow, SettingsSection, SettingsSurface } from './settings-kit';
 import { themeFor } from '../../../../../src/theme/use-theme';
 
+jest.mock('../../../../components/toggle', () => {
+	const { Pressable } = jest.requireActual('react-native');
+	return {
+		Toggle: ({ value, onPress }: { value: boolean; onPress?: () => void }) => (
+			<Pressable testID="settings-switch" accessibilityState={{ checked: value }} onPress={onPress} />
+		)
+	};
+});
+
 jest.mock('../../../../theme', () => ({
 	...jest.requireActual('../../../../theme/typography'),
 	useWebTheme: () => jest.requireActual('../../../../../src/theme/use-theme').themeFor('dark')

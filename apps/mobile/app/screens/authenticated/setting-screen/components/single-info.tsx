@@ -1,12 +1,9 @@
-/* eslint-disable react-native/no-color-literals */
 import React, { FC } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { typography, useAppTheme, useWebTheme } from '../../../../theme';
 import { translate } from '../../../../i18n';
 import { limitTextCharaters } from '../../../../helpers/sub-text';
-import { SvgXml } from 'react-native-svg';
-import { moonDarkLarge, moonLightLarge, sunDarkLarge, sunLightLarge } from '../../../../components/svgs/icons';
-import { SettingsRow } from './settings-kit';
+import { SettingsRow, SettingsSwitch } from './settings-kit';
 
 interface Props {
 	title: string;
@@ -30,7 +27,7 @@ const SingleInfo: FC<Props> = ({ title, value, onPress, onDetectTimezone, disabl
 			trailing={
 				<>
 					{isTimeZone && <DetectTimezone onDetect={onDetectTimezone} />}
-					{isThemes && <ThemeToggle />}
+					{isThemes && <ThemeSwitch onPress={onPress} />}
 				</>
 			}
 		/>
@@ -53,30 +50,9 @@ function DetectTimezone({ onDetect }: { onDetect?: () => unknown }) {
 	);
 }
 
-function ThemeToggle() {
+function ThemeSwitch({ onPress }: { onPress?: () => unknown }) {
 	const { dark } = useAppTheme();
-	if (dark) {
-		return (
-			<View style={[styles.toggle, { backgroundColor: '#1D222A' }]}>
-				<View style={styles.iconsContainer}>
-					<SvgXml xml={sunDarkLarge} />
-					<SvgXml xml={moonDarkLarge} />
-				</View>
-			</View>
-		);
-	}
-	return (
-		<View style={[styles.toggle, { backgroundColor: '#E7E7EA' }]}>
-			<View style={styles.iconsContainer}>
-				<View style={[styles.iconWrapper, { backgroundColor: 'white' }]}>
-					<SvgXml xml={sunLightLarge} />
-				</View>
-				<View style={[styles.iconWrapper, { backgroundColor: 'transparent' }]}>
-					<SvgXml xml={moonLightLarge} />
-				</View>
-			</View>
-		</View>
-	);
+	return <SettingsSwitch value={dark} onPress={onPress} />;
 }
 
 const styles = StyleSheet.create({
@@ -89,22 +65,5 @@ const styles = StyleSheet.create({
 	detectText: {
 		fontFamily: typography.primary.medium,
 		fontSize: 13
-	},
-	iconWrapper: { borderRadius: 60, padding: 7 },
-	iconsContainer: {
-		alignItems: 'center',
-		backgroundColor: 'transparent',
-		display: 'flex',
-		flexDirection: 'row',
-		height: '100%',
-		justifyContent: 'space-between',
-		paddingLeft: 4,
-		paddingRight: 4,
-		width: '100%'
-	},
-	toggle: {
-		borderRadius: 60,
-		height: 40,
-		width: 86
 	}
 });
