@@ -221,9 +221,11 @@ export function HomeTimer() {
 	const totals = useTrackedTotals();
 	const lastLogRead = useLastLog(status.data?.lastLog, status.isSuccess);
 	const lastLog = lastLogRead.log;
-	// Today's tasks are those of the team a start from Home names: the last log's, once that log is read
-	const todayTeamKnown = status.data !== undefined && !lastLogRead.isLoading;
-	const todayTasks = useTodayTasks(lastLog?.organizationTeamId, todayTeamKnown);
+	// Today's tasks are read in the team of today's last log, the log every start from Home then continues. Without a
+	// log today nothing was tracked today, and nothing is read
+	const todaysLog = status.data?.lastLog;
+	const loggedToday = Boolean(todaysLog);
+	const todayTasks = useTodayTasks(todaysLog?.organizationTeamId, loggedToday);
 	const task = useLogTask(lastLog?.taskId);
 	const start = useStartTimer();
 	const stop = useStopTimer();
@@ -242,6 +244,8 @@ export function HomeTimer() {
 	const actionable = running || hasTask;
 	// One timer write at a time, from the button or from today's tasks: a switch holds both until its start answered
 	const free = online && !start.isPending && !stop.isPending && !startOnTask.isPending;
+	// A switch stops the run it knows first: a run without its log is never started over
+	const switchable = free && (!running || Boolean(lastLog));
 	const enabled = free && actionable;
 	// The task area waits for, or says it could not read, the task the log names, or the earlier day's log itself
 	const taskLoading = hasTask ? !task.data && !task.isError : lastLogRead.isLoading;
@@ -270,12 +274,12 @@ export function HomeTimer() {
 		});
 	};
 
-	// The employee's own reads, once the lookup answered one; today's tasks once their team is known
+	// The employee's own reads, once the lookup answered one; today's tasks once today has a log
 	const readsOfTheEmployee = () => {
 		if (!employee.data) {
 			return [];
 		}
-		if (!todayTeamKnown) {
+		if (!loggedToday) {
 			return [totals.refetch()];
 		}
 		return [totals.refetch(), todayTasks.refetch()];
@@ -344,8 +348,9 @@ export function HomeTimer() {
 			</View>
 			<TodayTasks
 				tasks={todayTasks}
+				loggedToday={loggedToday}
 				running={runningLogOf(running, lastLog)}
-				enabled={free}
+				enabled={switchable}
 				failed={startOnTask.isError}
 				onStart={startOnTodayTask}
 			/>

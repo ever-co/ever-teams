@@ -101,10 +101,11 @@ export function useTrackedTotals() {
 }
 
 /**
- * The tasks the person tracked time on today in the team a start from Home names, the latest first, read again with
- * the status. They wait until that team is known, so a tap never starts a task in a team it was not tracked in.
+ * The tasks the person tracked time on today in the team of today's last log, the latest first, read again with the
+ * status. A start from Home continues that log and names its team, so a tap never starts a task in a team it was not
+ * tracked in today. Before the day's first log there is nothing to read.
  */
-export function useTodayTasks(organizationTeamId: string | null | undefined, teamKnown: boolean) {
+export function useTodayTasks(organizationTeamId: string | null | undefined, loggedToday: boolean) {
 	const session = useSignedInSession();
 	const employee = useEmployeeId();
 	const employeeId = employee.data;
@@ -112,7 +113,7 @@ export function useTodayTasks(organizationTeamId: string | null | undefined, tea
 		queryKey: homeKeys.todayTasks(session, employeeId, organizationTeamId),
 		queryFn: () =>
 			readTodayTasks(sessionOrFail(session), employeeIdOrFail(employeeId), new Date(), organizationTeamId),
-		enabled: session !== undefined && Boolean(employeeId) && teamKnown,
+		enabled: session !== undefined && Boolean(employeeId) && loggedToday,
 		refetchInterval: STATUS_REFRESH_MS
 	});
 }

@@ -233,22 +233,31 @@ describe("Home's tasks of today", () => {
 		return calls[calls.length - 1][0];
 	}
 
-	it('are read for the team of the last log, the one a start names', async () => {
+	it("are read in the team of today's last log, the one a start names", async () => {
 		status({ duration: 6740, running: true, lastLog });
 
 		await render(<HomeTimer />);
 
 		expect(useTodayTasks).toHaveBeenLastCalledWith('team-field', true);
-		expect(handedToTodayTasks().tasks).toBe(todayTasks);
+		expect(handedToTodayTasks()).toMatchObject({ tasks: todayTasks, loggedToday: true });
 	});
 
-	it("wait for an earlier day's log, which names the team, while it is read", async () => {
+	it("are not read before the day's first log, even when an earlier day's log names a team", async () => {
 		status({ duration: 0, running: false });
-		(useLastLog as jest.Mock).mockReturnValue(lastLogRead(undefined, { isLoading: true }));
+		(useLastLog as jest.Mock).mockReturnValue(lastLogRead(lastLog));
 
 		await render(<HomeTimer />);
 
 		expect(useTodayTasks).toHaveBeenLastCalledWith(undefined, false);
+		expect(handedToTodayTasks().loggedToday).toBe(false);
+	});
+
+	it('wait while the timer runs without a log to stop first', async () => {
+		status({ duration: 60, running: true });
+
+		await render(<HomeTimer />);
+
+		expect(handedToTodayTasks().enabled).toBe(false);
 	});
 
 	it('switch from the run going on, in the team of the last log, and clear the failure of an earlier Start', async () => {

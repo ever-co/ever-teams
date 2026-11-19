@@ -107,6 +107,8 @@ interface TodayTasksRead {
 
 interface TodayTasksProps {
 	tasks: TodayTasksRead;
+	/** Today has a time log: without one nothing was tracked today, and the tasks are not read. */
+	loggedToday: boolean;
 	/** The run going on, when the timer runs. */
 	running?: TimerLog;
 	/** Starting and stopping need the network and no other timer action under way, Home's Start and Stop included. */
@@ -121,12 +123,12 @@ interface TodayTasksProps {
  * Today's tasks under Home's timer: the tasks the person tracked time on today, with their time, the latest first. A tap
  * starts the timer on one, or switches to it from the task that runs.
  */
-export function TodayTasks({ tasks, running, enabled, failed, onStart }: Readonly<TodayTasksProps>) {
+export function TodayTasks({ tasks, loggedToday, running, enabled, failed, onStart }: Readonly<TodayTasksProps>) {
 	const theme = useShellTheme();
 	const employee = useEmployeeId();
 
 	const body = () => {
-		if (tasks.data?.length === 0) {
+		if (!loggedToday || tasks.data?.length === 0) {
 			return <SectionNote text={translate('shell.home.todayTasksEmpty')} />;
 		}
 		if (tasks.data) {

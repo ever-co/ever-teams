@@ -25,7 +25,9 @@ beforeEach(() => {
 
 describe("today's tasks on Home", () => {
 	it('list the tasks tracked today with their time, and a tap starts the timer on one', async () => {
-		await render(<TodayTasks tasks={read({ data: [HAR_3, HAR_1] })} enabled failed={false} onStart={onStart} />);
+		await render(
+			<TodayTasks loggedToday tasks={read({ data: [HAR_3, HAR_1] })} enabled failed={false} onStart={onStart} />
+		);
 
 		expect(screen.getByText('Repaint maintenance hatch')).toBeTruthy();
 		expect(screen.getByText('shell.home.duration {"hours":0,"minutes":39}')).toBeTruthy();
@@ -36,6 +38,7 @@ describe("today's tasks on Home", () => {
 	it('mark the task the timer runs on, which a tap leaves running', async () => {
 		await render(
 			<TodayTasks
+				loggedToday
 				tasks={read({ data: [HAR_3, HAR_1] })}
 				running={runningOnHar3}
 				enabled
@@ -52,6 +55,7 @@ describe("today's tasks on Home", () => {
 	it('switch from the task that runs to the one tapped, and say so to a screen reader', async () => {
 		await render(
 			<TodayTasks
+				loggedToday
 				tasks={read({ data: [HAR_3, HAR_1] })}
 				running={runningOnHar3}
 				enabled
@@ -66,20 +70,29 @@ describe("today's tasks on Home", () => {
 	});
 
 	it('wait without the network or while another timer action is under way', async () => {
-		await render(<TodayTasks tasks={read({ data: [HAR_1] })} enabled={false} failed={false} onStart={onStart} />);
+		await render(
+			<TodayTasks loggedToday tasks={read({ data: [HAR_1] })} enabled={false} failed={false} onStart={onStart} />
+		);
 
 		await fireEvent.press(screen.getByText('Inspect north pier bolts'));
 		expect(onStart).not.toHaveBeenCalled();
 	});
 
 	it('say when nothing was tracked today', async () => {
-		await render(<TodayTasks tasks={read({ data: [] })} enabled failed={false} onStart={onStart} />);
+		await render(<TodayTasks loggedToday tasks={read({ data: [] })} enabled failed={false} onStart={onStart} />);
 
 		expect(screen.getByText(/^shell.home.todayTasksEmpty/)).toBeTruthy();
 	});
 
+	it("say nothing was tracked today before the day's first log, without waiting for a read", async () => {
+		await render(<TodayTasks loggedToday={false} tasks={read({})} enabled failed={false} onStart={onStart} />);
+
+		expect(screen.getByText(/^shell.home.todayTasksEmpty/)).toBeTruthy();
+		expect(screen.queryByText(/^shell.states.loading/)).toBeNull();
+	});
+
 	it('say they are loading, never that nothing was tracked', async () => {
-		await render(<TodayTasks tasks={read({})} enabled failed={false} onStart={onStart} />);
+		await render(<TodayTasks loggedToday tasks={read({})} enabled failed={false} onStart={onStart} />);
 
 		expect(screen.getByText(/^shell.states.loading/)).toBeTruthy();
 		expect(screen.queryByText(/^shell.home.todayTasksEmpty/)).toBeNull();
@@ -88,7 +101,7 @@ describe("today's tasks on Home", () => {
 	it('say when they could not load, and read them again on Try again', async () => {
 		const tasks = read({ isError: true });
 
-		await render(<TodayTasks tasks={tasks} enabled failed={false} onStart={onStart} />);
+		await render(<TodayTasks loggedToday tasks={tasks} enabled failed={false} onStart={onStart} />);
 
 		expect(screen.getByText(/^shell.home.todayTasksFailed/)).toBeTruthy();
 		await fireEvent.press(screen.getByText(/^shell.states.retry/));
@@ -98,7 +111,7 @@ describe("today's tasks on Home", () => {
 	it('say when the account tracks no time here, instead of loading for ever', async () => {
 		(useEmployeeId as jest.Mock).mockReturnValue({ ...employee, data: null });
 
-		await render(<TodayTasks tasks={read({})} enabled failed={false} onStart={onStart} />);
+		await render(<TodayTasks loggedToday tasks={read({})} enabled failed={false} onStart={onStart} />);
 
 		expect(screen.getByText(/^shell.home.weekUnavailable/)).toBeTruthy();
 		expect(screen.queryByText(/^shell.states.loading/)).toBeNull();
@@ -108,7 +121,7 @@ describe("today's tasks on Home", () => {
 		(useEmployeeId as jest.Mock).mockReturnValue({ ...employee, data: undefined, isSuccess: false, isError: true });
 		const tasks = read({});
 
-		await render(<TodayTasks tasks={tasks} enabled failed={false} onStart={onStart} />);
+		await render(<TodayTasks loggedToday tasks={tasks} enabled failed={false} onStart={onStart} />);
 
 		expect(screen.getByText(/^shell.home.todayTasksFailed/)).toBeTruthy();
 		await fireEvent.press(screen.getByText(/^shell.states.retry/));
@@ -117,7 +130,7 @@ describe("today's tasks on Home", () => {
 	});
 
 	it('say when a switch failed', async () => {
-		await render(<TodayTasks tasks={read({ data: [HAR_3] })} enabled failed onStart={onStart} />);
+		await render(<TodayTasks loggedToday tasks={read({ data: [HAR_3] })} enabled failed onStart={onStart} />);
 
 		expect(screen.getByText(/^shell.home.switchFailedTitle/)).toBeTruthy();
 	});

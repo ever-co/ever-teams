@@ -173,7 +173,7 @@ describe('a stop from Home, while the heartbeat follows the run', () => {
 });
 
 describe("today's tasks on Home", () => {
-	it('are those of the employee the person is, in the team a start names', async () => {
+	it("are those of the employee the person is, in the team of today's last log", async () => {
 		const { result } = await renderHook(() => useTodayTasks('team-field', true), {
 			wrapper: wrapperFor({ status: 'signed-in', session: kofi })
 		});
@@ -186,7 +186,7 @@ describe("today's tasks on Home", () => {
 		expect(readTodayTasks).toHaveBeenCalledWith(kofi, 'employee-kofi', expect.any(Date), 'team-field');
 	});
 
-	it('wait until that team is known', async () => {
+	it("wait for the day's first log", async () => {
 		const { result } = await renderHook(
 			() => ({ employee: useEmployeeId(), tasks: useTodayTasks(undefined, false) }),
 			{ wrapper: wrapperFor({ status: 'signed-in', session: kofi }) }
