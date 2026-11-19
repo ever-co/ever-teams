@@ -79,7 +79,7 @@ describe("the person's own team card", () => {
 		expect(result.current.memberTask?.id).toBe('task-har-3');
 	});
 
-	it('leaves the active task to the team when the team names one, so a running timer is not stopped', async () => {
+	it('picks the task the team names, as the team sync does, so a running timer is not stopped', async () => {
 		const store = TaskStore.create({ teamTasks: [] });
 		mockStores.TaskStore = store;
 		const { rerender } = await renderHook(() => useTeamMemberCard(KOFI_ON_HAR_3));
@@ -87,8 +87,25 @@ describe("the person's own team card", () => {
 		await act(() => store.setTeamTasks([INSPECT_BOLTS, HAR_3]));
 		await rerender({});
 
-		expect(store.activeTaskId).toBe('');
-		expect(store.activeTask).toBeNull();
+		expect(store.activeTaskId).toBe('task-har-3');
+		expect(store.activeTask?.id).toBe('task-har-3');
+	});
+
+	it('keeps the last task worked on when the team names one its task list does not hold', async () => {
+		const store = TaskStore.create({ teamTasks: [] });
+		mockStores.TaskStore = store;
+		const kofiOnAnotherTeamsTask = {
+			...KOFI,
+			activeTaskId: 'task-other-team',
+			lastWorkedTask: { id: 'task-other-team', title: 'Check the crane log', members: [] }
+		} as unknown as Parameters<typeof useTeamMemberCard>[0];
+		const { rerender } = await renderHook(() => useTeamMemberCard(kofiOnAnotherTeamsTask));
+
+		await act(() => store.setTeamTasks([HAR_3]));
+		await rerender({});
+
+		expect(store.activeTaskId).toBe('task-other-team');
+		expect(store.activeTask?.id).toBe('task-other-team');
 	});
 
 	it('still picks a task of theirs when the team names none', async () => {

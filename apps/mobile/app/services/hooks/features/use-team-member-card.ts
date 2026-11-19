@@ -11,6 +11,14 @@ import { Nullable } from "../../interfaces/hooks"
 import { useOrganizationTeam } from "../use-organization"
 import { teamTasksContentOf } from "./team-tasks-content"
 
+/** The task the team names as the member's active one, when the team's task list holds it. */
+function teamNamedTaskOf(member: IOrganizationTeamList["members"][number], tasks: readonly ITeamTask[]) {
+	if (!member.activeTaskId) {
+		return undefined
+	}
+	return tasks.find((task) => task.id === member.activeTaskId)
+}
+
 /**
  * It returns a bunch of data about a team member, including whether or not the user is the team
  * manager, whether or not the user is the authenticated user, and the last task the user worked on
@@ -82,16 +90,19 @@ export function useTeamMemberCard(member: IOrganizationTeamList["members"][numbe
 			find = cTask?.members.some((m) => m.id === member.employee.id)
 		}
 
-		// When the team names the person's active task, the team's task sync sets it: a guess here would be replaced a
-		// moment later, and the timer stops a running timer whenever the active task changes
+		// The team's task sync sets the task the team names whenever its list holds it: picking another one here would be
+		// replaced a moment later, and the timer stops a running timer whenever the active task changes
 		const hasNoActiveTask = !activeTaskId
-		const teamNamesActiveTask = Boolean(member.activeTaskId)
-		const mayChooseActiveTask = isAuthUser && hasNoActiveTask && !teamNamesActiveTask
+		const choosesActiveTask = isAuthUser && hasNoActiveTask
+		const teamNamedTask = teamNamedTaskOf(member, tasksContent)
 
-		if (mayChooseActiveTask && member.lastWorkedTask) {
+		if (choosesActiveTask && teamNamedTask) {
+			setActiveUserTask(teamNamedTask)
+			setActiveTask(teamNamedTask)
+		} else if (choosesActiveTask && member.lastWorkedTask) {
 			setActiveUserTask(member.lastWorkedTask)
 			setActiveTask(member.lastWorkedTask)
-		} else if (mayChooseActiveTask && find && cTask) {
+		} else if (choosesActiveTask && find && cTask) {
 			setActiveUserTask(cTask)
 			setActiveTask(cTask)
 		}
