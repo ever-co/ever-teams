@@ -1,15 +1,14 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
-import React, { FC, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { View, TouchableNativeFeedback, TouchableOpacity, StyleSheet, Image } from 'react-native';
-import { Ionicons, Entypo } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import { Card, Text } from 'react-native-paper';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
 
 // COMPONENTS
-import { ListItem } from '../../../../components';
 import { GLOBAL_STYLE as GS } from '../../../../../assets/ts/styles';
-import { spacing, typography, useAppTheme, useWebTheme } from '../../../../theme';
+import { typography, useAppTheme, useWebTheme } from '../../../../theme';
 import { cardEdgeOf } from '../../../../components/card-edge';
 import { ITeamTask } from '../../../../services/interfaces/ITask';
 import WorkedOnTask from '../../../../components/worked-on-task';
@@ -29,6 +28,8 @@ import { SettingScreenNavigationProp } from '../../../../navigators/authenticate
 import { useNavigation } from '@react-navigation/native';
 import { translate } from '../../../../i18n';
 import { navigateTo } from '../../../../navigators/routes';
+import ActionSheet from '../../../../components/action-sheet';
+import { TaskCardHandlers, taskCardActionsOf } from './task-card-actions';
 
 export type ListItemProps = {
 	active?: boolean;
@@ -69,6 +70,13 @@ export const ListItemContent: React.FC<ListItemProps> = observer((props) => {
 
 	const navigation = useNavigation<SettingScreenNavigationProp<'TaskScreen'>>();
 
+	const menuHandlers: TaskCardHandlers = {
+		editTitle: () => setEditTitle(true),
+		editEstimate: () => setEnableEstimate(true),
+		assign: () => props.profile?.assignTask(props.task),
+		unassign: () => props.profile?.unassignTask(props.task)
+	};
+
 	const navigateToTask = (taskId: string) => {
 		!editTitle && navigateTo(navigation, 'TaskScreen', { taskId });
 	};
@@ -99,14 +107,12 @@ export const ListItemContent: React.FC<ListItemProps> = observer((props) => {
 						totalTimeText={{ color: colors.primary }}
 					/>
 					<TouchableOpacity
-						onPress={() => props.setOpenMenuIndex(props.openMenuIndex === props.index ? null : props.index)}
+						testID="task-card-menu"
+						hitSlop={12}
+						onPress={() => props.setOpenMenuIndex(props.index)}
 						style={{ height: 20 }}
 					>
-						{props.index !== props.openMenuIndex ? (
-							<Ionicons name="ellipsis-vertical-outline" size={20} color={colors.primary} />
-						) : (
-							<Entypo name="cross" size={20} color={colors.primary} />
-						)}
+						<Ionicons name="ellipsis-vertical-outline" size={20} color={colors.primary} />
 					</TouchableOpacity>
 				</View>
 
@@ -191,96 +197,16 @@ export const ListItemContent: React.FC<ListItemProps> = observer((props) => {
 					</View>
 					<TaskStatus containerStyle={styles.statusContainer} task={props.task} />
 				</View>
-				{props.index === props.openMenuIndex && (
-					<SidePopUp
-						setEditTitle={setEditTitle}
-						setShowMenu={() => props.setOpenMenuIndex(null)}
-						setEnableEstimate={setEnableEstimate}
-						props={props}
-					/>
-				)}
+				<ActionSheet
+					visible={props.index === props.openMenuIndex}
+					onClose={() => props.setOpenMenuIndex(null)}
+					title={props.task?.title}
+					actions={taskCardActionsOf(Boolean(props.isAssigned), menuHandlers, translate)}
+				/>
 			</View>
 		</TouchableNativeFeedback>
 	);
 });
-
-interface IMenuProps {
-	setShowMenu: () => unknown;
-	setEditTitle: (value: boolean) => unknown;
-	setEnableEstimate: (value: boolean) => unknown;
-	props: ListItemProps;
-}
-const SidePopUp: FC<IMenuProps> = ({ props, setShowMenu, setEditTitle, setEnableEstimate }) => {
-	const { colors } = useAppTheme();
-	const { isAssigned, task, profile } = props;
-	return (
-		<View
-			style={{
-				...GS.positionAbsolute,
-				...GS.p2,
-				...GS.mt1,
-				...GS.pt1,
-				...GS.shadow,
-				...GS.r0,
-				...GS.rounded,
-				...GS.border,
-				borderColor: colors.border,
-				...GS.zIndexFront,
-				width: 120,
-				shadowColor: colors.border,
-				marginRight: 27,
-				backgroundColor: colors.background,
-				minWidth: spacing.huge * 2
-			}}
-		>
-			<View style={{}}>
-				<ListItem
-					textStyle={[styles.dropdownTxt, { color: colors.primary }]}
-					onPress={() => {
-						setEditTitle(true);
-						setShowMenu();
-					}}
-				>
-					{translate('tasksScreen.editTaskLabel')}
-				</ListItem>
-				<ListItem
-					textStyle={[styles.dropdownTxt, { color: colors.primary }]}
-					onPress={() => {
-						setEnableEstimate(true);
-						setShowMenu();
-					}}
-				>
-					{translate('myWorkScreen.estimateLabel')}
-				</ListItem>
-
-				{!isAssigned && (
-					<ListItem
-						textStyle={[styles.dropdownTxt, { color: colors.primary }]}
-						onPress={() => {
-							profile.assignTask(task);
-							setShowMenu();
-						}}
-					>
-						{translate('tasksScreen.assignTaskButton')}
-					</ListItem>
-				)}
-
-				{isAssigned && (
-					<ListItem
-						textStyle={[styles.dropdownTxt, { color: colors.primary }]}
-						TextProps={{ numberOfLines: 1 }}
-						onPress={() => {
-							profile.unassignTask(task);
-							setShowMenu();
-						}}
-					>
-						{translate('tasksScreen.unassignTaskLabel')}
-					</ListItem>
-				)}
-			</View>
-		</View>
-	);
-};
 
 const ListCardItem: React.FC<Props> = (props) => {
 	const { colors } = useAppTheme();
@@ -311,11 +237,6 @@ const styles = StyleSheet.create({
 		borderRadius: 14,
 		borderWidth: StyleSheet.hairlineWidth,
 		boxShadow: '0 1px 2px rgba(0, 0, 0, 0.065)'
-	},
-	dropdownTxt: {
-		color: '#282048',
-		fontFamily: typography.primary.semiBold,
-		fontSize: 14
 	},
 	firstContainer: {
 		alignItems: 'center',
