@@ -34,11 +34,24 @@ const HATCH = 'task-repaint-hatch';
 
 let gauzy: FakeGauzy;
 
+/** A status in which Kofi's timer runs on `taskId`. */
+function runningOn(taskId: string) {
+	return { duration: 0, running: true, lastLog: { ...gauzy.timer(), taskId } as never };
+}
+
 /**
  * Kofi's app, whose timer runs on "Repaint maintenance hatch" while `activeTaskId` is the active task. `statusRead`:
- * the API already said what runs, this session.
+ * the API already said what runs, this session. `savedTaskId`: the task the status saved by the last session names.
  */
-async function openApp({ activeTaskId, statusRead }: { activeTaskId: string; statusRead: boolean }) {
+async function openApp({
+	activeTaskId,
+	statusRead,
+	savedTaskId = HATCH
+}: {
+	activeTaskId: string;
+	statusRead: boolean;
+	savedTaskId?: string;
+}) {
 	const pair = gauzy.signIn();
 	const session = AuthenticationStoreModel.create({
 		user: null,
@@ -47,12 +60,12 @@ async function openApp({ activeTaskId, statusRead }: { activeTaskId: string; sta
 	});
 	session.setAuthToken(pair.token);
 	session.setRefreshToken(pair.refresh_token);
-	const status = { duration: 0, running: true, lastLog: { ...gauzy.runTimer(), taskId: HATCH } as never };
+	gauzy.runTimer();
 	const timerStore = TimerStoreModel.create({
-		timerStatus: status,
-		localTimerStatus: { lastTaskId: HATCH, runnedDateTime: START, running: true }
+		timerStatus: runningOn(savedTaskId),
+		localTimerStatus: { lastTaskId: savedTaskId, runnedDateTime: START, running: true }
 	});
-	mockStatusRead = statusRead ? { isSuccess: true, data: status } : { isSuccess: false, data: undefined };
+	mockStatusRead = statusRead ? { isSuccess: true, data: runningOn(HATCH) } : { isSuccess: false, data: undefined };
 	const taskStoreWith = (taskId: string) => ({
 		activeTask: { id: taskId, status: 'in-progress' },
 		statActiveTask: { total: 0, today: 0 }
@@ -64,8 +77,14 @@ async function openApp({ activeTaskId, statusRead }: { activeTaskId: string; sta
 		teamStore: { activeTeamId: 'team-1', activeTeam: { id: 'team-1' } }
 	};
 	const { rerender } = await renderHook(() => useTimer());
-	/** The active task becomes `taskId`, then any stop it asks for reaches the API. */
-	const makeActive = async (taskId: string) => {
+	/**
+	 * The active task becomes `taskId`, then any stop it asks for reaches the API. `withFirstRead`: in the same render,
+	 * the status query reads for the first time that the timer runs on "Repaint maintenance hatch".
+	 */
+	const makeActive = async (taskId: string, { withFirstRead = false }: { withFirstRead?: boolean } = {}) => {
+		if (withFirstRead) {
+			mockStatusRead = { isSuccess: true, data: runningOn(HATCH) };
+		}
 		mockStores = { ...mockStores, TaskStore: taskStoreWith(taskId) };
 		await rerender({});
 		await act(async () => {
@@ -99,10 +118,19 @@ describe('The active task changes while the timer runs', () => {
 		expect(gauzy.timer()?.isRunning).toBe(true);
 	});
 
-	it("goes on when the active task changes before the API said what runs: the saved status is the last session's", async () => {
+	it('goes on when the active task changes before the API said what runs this session', async () => {
 		const app = await openApp({ activeTaskId: 'task-inspect-bolts', statusRead: false });
 
 		await app.makeActive('task-check-crane-log');
+
+		expect(stopsSent()).toHaveLength(0);
+		expect(gauzy.timer()?.isRunning).toBe(true);
+	});
+
+	it('goes on when the first read names the task that becomes active, not the one saved', async () => {
+		const app = await openApp({ activeTaskId: 'task-yesterday', statusRead: false, savedTaskId: 'task-yesterday' });
+
+		await app.makeActive(HATCH, { withFirstRead: true });
 
 		expect(stopsSent()).toHaveLength(0);
 		expect(gauzy.timer()?.isRunning).toBe(true);

@@ -264,8 +264,8 @@ export function useTimer() {
 		timerStatus?.running,
 		timerStatusRef.current?.lastLog?.source ?? TimerSource.MOBILE
 	);
-	// The API said what runs, this session: until then the status is the one saved by the last session
-	const statusReadRef = useSyncRef(isSuccess);
+	// What the API said runs, once it was read this session: until then the status is the one the last session saved
+	const readStatusRef = useSyncRef(isSuccess ? timerStatusData : undefined);
 
 	const toggleTimer = useCallback(async (taskId: string) => {
 		const response = await toggleTimerRequest(
@@ -468,14 +468,18 @@ export function useTimer() {
 	// can name a run that ended on another device since
 	useEffect(() => {
 		const taskId = activeTask?.id;
-		const status = timerStatusRef.current;
-		const takesUpRunningTask = !!taskId && taskId === status?.lastLog?.taskId;
+		const readStatus = readStatusRef.current;
+		const runsOnTask = (status?: ITimerStatus | null) =>
+			!!taskId && !!status?.running && status.lastLog?.taskId === taskId;
+		// The status in the store and the one read can differ for a render: a read reaches the store in an effect that
+		// runs after this one, and a start made on the phone reaches the store before the next read
+		const takesUpRunningTask = runsOnTask(timerStatusRef.current) || runsOnTask(readStatus);
 		if (
 			lastActiveTaskId.current !== null &&
 			taskId !== lastActiveTaskId.current &&
 			!firstLoad &&
-			statusReadRef.current &&
-			status?.running &&
+			readStatus &&
+			timerStatusRef.current?.running &&
 			!takesUpRunningTask
 		) {
 			stopTimer();
