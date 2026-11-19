@@ -50,6 +50,16 @@ describe("a member's presence badge", () => {
 		);
 	});
 
+	it("writes the member's name in 14/500 in the foreground color", async () => {
+		mockScheme.value = 'light';
+		await render(<UserHeaderCard user={kofi} member={member} />);
+
+		const name = StyleSheet.flatten(screen.getByText('Kofi Arden').props.style);
+		expect(name.fontSize).toBe(14);
+		expect(name.fontWeight).toBe('500');
+		expect(name.color).toBe(themeFor('light').colors.foreground);
+	});
+
 	it('rings the badge with the card color, so no white ring shows in dark mode', async () => {
 		mockPresence.value = 'online';
 		mockScheme.value = 'dark';

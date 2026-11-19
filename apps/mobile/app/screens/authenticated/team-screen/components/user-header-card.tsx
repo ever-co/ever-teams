@@ -5,7 +5,7 @@ import { StyleSheet, View, Text } from 'react-native';
 import React, { FC } from 'react';
 import { IUser } from '../../../../services/interfaces/IUserData';
 import { Avatar } from 'react-native-paper';
-import { typography, useAppTheme, useWebTheme } from '../../../../theme';
+import { typography, useWebTheme } from '../../../../theme';
 import { presenceColorOf } from '../../../../../src/theme/presence';
 import type { Theme } from '../../../../../src/theme/use-theme';
 import { OT_Member } from '../../../../services/interfaces/IOrganizationTeam';
@@ -69,7 +69,6 @@ const TimerStatus: FC<ITimerStatus> = ({ status, theme }) => {
 };
 
 const UserHeaderCard = ({ member, user }: { member: OT_Member; user: IUser }) => {
-	const { colors } = useAppTheme();
 	const theme = useWebTheme();
 	const { currentTeam } = useOrganizationTeam();
 
@@ -96,7 +95,7 @@ const UserHeaderCard = ({ member, user }: { member: OT_Member; user: IUser }) =>
 				/>
 			)}
 			<TimerStatus status={getTimerStatusValue(timerStatus, currentMember, currentTeam?.public)} theme={theme} />
-			<Text style={[styles.name, { color: colors.primary }]} numberOfLines={1} ellipsizeMode="tail">
+			<Text style={[styles.name, { color: theme.colors.foreground }]} numberOfLines={1} ellipsizeMode="tail">
 				{user?.name}
 			</Text>
 		</View>
@@ -106,10 +105,11 @@ const UserHeaderCard = ({ member, user }: { member: OT_Member; user: IUser }) =>
 export default UserHeaderCard;
 
 const styles = StyleSheet.create({
+	// The web's member name: 14/500
 	name: {
-		color: '#1B005D',
-		fontFamily: typography.fonts.PlusJakartaSans.semiBold,
-		fontSize: 12,
+		fontFamily: typography.fonts.PlusJakartaSans.medium,
+		fontSize: 14,
+		fontWeight: '500',
 		left: 15,
 		maxWidth: '70%'
 	},
