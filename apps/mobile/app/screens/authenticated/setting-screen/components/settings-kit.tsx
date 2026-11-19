@@ -146,15 +146,17 @@ export function SettingsRow({
 	);
 }
 
-type SettingsSwitchProps = { value?: boolean; onPress?: () => unknown };
+type SettingsSwitchProps = { value?: boolean; onPress?: () => unknown; accessibilityLabel: string };
 
 /** The web's switch at the end of a settings row. */
-export function SettingsSwitch({ value, onPress }: SettingsSwitchProps) {
+/** The setting's name goes with the switch, which a screen reader reaches on its own. */
+export function SettingsSwitch({ value, onPress, accessibilityLabel }: SettingsSwitchProps) {
 	const look = webSwitchLookOf(useWebTheme());
 	return (
 		<Toggle
 			variant="switch"
 			value={value}
+			accessibilityLabel={accessibilityLabel}
 			onPress={() => onPress?.()}
 			inputOuterStyle={look.track}
 			inputInnerStyle={look.onFill}

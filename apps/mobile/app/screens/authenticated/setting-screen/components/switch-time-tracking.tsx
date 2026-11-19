@@ -32,7 +32,13 @@ const SwitchTimeTracking: FC<Props> = observer(() => {
 				text: translate('settingScreen.teamSection.timeTrackingHint'),
 				numChars: 77
 			})}
-			trailing={<SettingsSwitch value={isEnabled} onPress={() => toggleSwitch()} />}
+			trailing={
+				<SettingsSwitch
+					value={isEnabled}
+					onPress={() => toggleSwitch()}
+					accessibilityLabel={translate('settingScreen.teamSection.timeTracking')}
+				/>
+			}
 		/>
 	);
 });

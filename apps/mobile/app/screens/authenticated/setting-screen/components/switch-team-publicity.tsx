@@ -31,7 +31,13 @@ const SwitchTeamPublicity: FC<Props> = observer(() => {
 		<SettingsRow
 			label={translate('settingScreen.teamSection.teamType')}
 			description={teamTypeOf(isTeamPublic)}
-			trailing={<SettingsSwitch value={isTeamPublic} onPress={() => toggleSwitch()} />}
+			trailing={
+				<SettingsSwitch
+					value={isTeamPublic}
+					onPress={() => toggleSwitch()}
+					accessibilityLabel={translate('settingScreen.teamSection.teamType')}
+				/>
+			}
 		/>
 	);
 });

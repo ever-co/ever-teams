@@ -27,7 +27,7 @@ const SingleInfo: FC<Props> = ({ title, value, onPress, onDetectTimezone, disabl
 			trailing={
 				<>
 					{isTimeZone && <DetectTimezone onDetect={onDetectTimezone} />}
-					{isThemes && <ThemeSwitch onPress={onPress} />}
+					{isThemes && <ThemeSwitch label={title} onPress={onPress} />}
 				</>
 			}
 		/>
@@ -50,9 +50,9 @@ function DetectTimezone({ onDetect }: { onDetect?: () => unknown }) {
 	);
 }
 
-function ThemeSwitch({ onPress }: { onPress?: () => unknown }) {
+function ThemeSwitch({ label, onPress }: { label: string; onPress?: () => unknown }) {
 	const { dark } = useAppTheme();
-	return <SettingsSwitch value={dark} onPress={onPress} />;
+	return <SettingsSwitch value={dark} onPress={onPress} accessibilityLabel={label} />;
 }
 
 const styles = StyleSheet.create({

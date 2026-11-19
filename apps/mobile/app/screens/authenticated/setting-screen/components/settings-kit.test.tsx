@@ -7,8 +7,21 @@ import { themeFor } from '../../../../../src/theme/use-theme';
 jest.mock('../../../../components/toggle', () => {
 	const { Pressable } = jest.requireActual('react-native');
 	return {
-		Toggle: ({ value, onPress }: { value: boolean; onPress?: () => void }) => (
-			<Pressable testID="settings-switch" accessibilityState={{ checked: value }} onPress={onPress} />
+		Toggle: ({
+			value,
+			onPress,
+			accessibilityLabel
+		}: {
+			value: boolean;
+			onPress?: () => void;
+			accessibilityLabel?: string;
+		}) => (
+			<Pressable
+				testID="settings-switch"
+				accessibilityLabel={accessibilityLabel}
+				accessibilityState={{ checked: value }}
+				onPress={onPress}
+			/>
 		)
 	};
 });
