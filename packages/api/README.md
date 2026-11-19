@@ -658,10 +658,14 @@ does all of this for you. These two functions of the main entry are what it call
 import { renewEmbedSiteSession, revokeEmbedSiteSession } from '@ever-teams/api';
 
 // About a minute before the timer token expires: a new timer token, and a new renewal token in place of the old one.
-const { token, expiresAt, renewalToken, renewalExpiresAt } = await renewEmbedSiteSession({
+const renewed = await renewEmbedSiteSession({
 	apiUrl: 'https://api.ever.team/api',
 	renewalToken: saved.renewalToken
 });
+// The old renewal token is spent: keep the new one at once, for the next renewal. Keep the timer token in memory.
+saved.renewalToken = renewed.renewalToken;
+saved.renewalExpiresAt = renewed.renewalExpiresAt;
+const { token, expiresAt } = renewed;
 
 // Sign-out: the renewal token, and every one renewed from the same sign-in, stop working.
 await revokeEmbedSiteSession({ apiUrl: 'https://api.ever.team/api', renewalToken: saved.renewalToken });
