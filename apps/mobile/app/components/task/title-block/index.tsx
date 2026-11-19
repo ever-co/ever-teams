@@ -1,12 +1,11 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react-native/no-color-literals */
 import { View, TextInput, StyleSheet, TouchableOpacity, Text, Dimensions } from 'react-native';
-import React, { SetStateAction, useCallback, useEffect, useState } from 'react';
+import React, { ComponentProps, SetStateAction, useCallback, useEffect, useState } from 'react';
 import { useStores } from '../../../models';
 import { typography, useAppTheme, useWebTheme } from '../../../theme';
-import { SvgXml } from 'react-native-svg';
+import { Feather } from '@expo/vector-icons';
 import * as Clipboard from 'expo-clipboard';
-import { closeIconLight, copyIcon, editIcon, tickIconLight } from '../../svgs/icons';
 import { useTeamTasks } from '../../../services/hooks/features/use-team-tasks';
 import { showMessage } from 'react-native-flash-message';
 import { translate } from '../../../i18n';
@@ -25,7 +24,7 @@ const TaskTitleBlock = observer(() => {
 		teamStore: { activeTeam }
 	} = useStores();
 
-	const { dark, colors } = useAppTheme();
+	const { colors } = useAppTheme();
 	const theme = useWebTheme();
 
 	const [title, setTitle] = useState<string>('');
@@ -85,13 +84,7 @@ const TaskTitleBlock = observer(() => {
 						{title}
 					</Text>
 				)}
-				<TitleIcons
-					dark={dark}
-					edit={edit}
-					setEdit={setEdit}
-					copyTitle={copyTitle}
-					saveTitle={() => saveTitle(title)}
-				/>
+				<TitleIcons edit={edit} setEdit={setEdit} copyTitle={copyTitle} saveTitle={() => saveTitle(title)} />
 			</View>
 			<View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
 				{(!task?.issueType || task?.issueType === 'Task' || task?.issueType === 'Bug') &&
@@ -117,52 +110,49 @@ const TaskTitleBlock = observer(() => {
 export default TaskTitleBlock;
 
 interface ITitleIcons {
-	dark: boolean;
 	edit: boolean;
 	setEdit: React.Dispatch<SetStateAction<boolean>>;
 	copyTitle: () => void;
 	saveTitle: () => void;
 }
 
-const TitleIcons: React.FC<ITitleIcons> = ({ dark, edit, setEdit, copyTitle, saveTitle }) => {
+const TitleIcons: React.FC<ITitleIcons> = ({ edit, setEdit, copyTitle, saveTitle }) => {
+	const theme = useWebTheme();
+	const muted = theme.colors['muted-foreground'];
+	if (edit) {
+		return (
+			<View style={styles.titleIcons}>
+				<IconButton
+					testID="task-title-save"
+					icon="check"
+					color={theme.colors['primary-ink']}
+					onPress={saveTitle}
+				/>
+				<IconButton testID="task-title-cancel" icon="x" color={muted} onPress={() => setEdit(false)} />
+			</View>
+		);
+	}
 	return (
-		<>
-			{edit ? (
-				<View style={{ gap: 5 }}>
-					<TouchableOpacity
-						onPress={saveTitle}
-						style={[
-							styles.saveCancelButtons,
-							{
-								borderColor: dark ? '#464242' : '#e5e7eb'
-							}
-						]}
-					>
-						<SvgXml xml={tickIconLight} />
-					</TouchableOpacity>
-					<TouchableOpacity
-						onPress={() => setEdit(false)}
-						style={[
-							styles.saveCancelButtons,
-							{
-								borderColor: dark ? '#464242' : '#e5e7eb'
-							}
-						]}
-					>
-						<SvgXml xml={closeIconLight} />
-					</TouchableOpacity>
-				</View>
-			) : (
-				<View style={{ alignItems: 'center', justifyContent: 'center' }}>
-					<TouchableOpacity onPress={() => setEdit(true)} style={styles.editButton}>
-						<SvgXml xml={editIcon} />
-					</TouchableOpacity>
-					<TouchableOpacity onPress={copyTitle} style={styles.copyButton}>
-						<SvgXml xml={copyIcon} />
-					</TouchableOpacity>
-				</View>
-			)}
-		</>
+		<View style={styles.titleIcons}>
+			<IconButton testID="task-title-edit" icon="edit-2" color={muted} onPress={() => setEdit(true)} />
+			<IconButton testID="task-title-copy" icon="copy" color={muted} onPress={copyTitle} />
+		</View>
+	);
+};
+
+type IconButtonProps = {
+	testID: string;
+	icon: ComponentProps<typeof Feather>['name'];
+	color: string;
+	onPress: () => void;
+};
+
+/** A quiet icon button: the icon alone, in a 36 square that a tap tints. */
+const IconButton: React.FC<IconButtonProps> = ({ testID, icon, color, onPress }) => {
+	return (
+		<TouchableOpacity testID={testID} accessibilityRole="button" onPress={onPress} style={styles.iconButton}>
+			<Feather name={icon} size={18} color={color} />
+		</TouchableOpacity>
 	);
 };
 
@@ -269,25 +259,12 @@ const ParentTaskInput: React.FC<{ task: ITeamTask }> = observer(({ task }) => {
 });
 
 const styles = StyleSheet.create({
-	copyButton: {
+	iconButton: {
 		alignItems: 'center',
-		height: 30,
+		borderRadius: 8,
+		height: 36,
 		justifyContent: 'center',
-		width: 30
-	},
-	editButton: {
-		alignItems: 'center',
-		backgroundColor: '#EDEDED',
-		borderRadius: 100,
-		height: 30,
-		justifyContent: 'center',
-		padding: 5,
-		width: 30
-	},
-	saveCancelButtons: {
-		borderRadius: 5,
-		borderWidth: 1,
-		padding: 3
+		width: 36
 	},
 	textInput: {
 		borderRadius: 8,
@@ -300,6 +277,9 @@ const styles = StyleSheet.create({
 		paddingHorizontal: 8,
 		paddingVertical: 4,
 		textAlignVertical: 'top'
+	},
+	titleIcons: {
+		gap: 2
 	},
 	title: {
 		flex: 1,
