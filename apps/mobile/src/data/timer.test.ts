@@ -133,6 +133,14 @@ describe("today's tasks", () => {
 		});
 	});
 
+	it('are those of the team a start names, when Home knows one', async () => {
+		answers(201, []);
+
+		await readTodayTasks(session, 'employee-kofi', wednesday, 'team-field');
+
+		expect(requestSent().body).toMatchObject({ employeeIds: ['employee-kofi'], teamIds: ['team-field'] });
+	});
+
 	it('keep a task the answer gives without its time or title', async () => {
 		answers(201, [{ id: 'task-har-2' }]);
 

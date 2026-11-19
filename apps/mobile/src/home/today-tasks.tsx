@@ -8,7 +8,7 @@ import type { Theme } from '../theme';
 import { hoursAndMinutes } from './duration';
 import { FailedRead } from './failed-read';
 import { opacityOf, surfaceOf, surfaceStyles } from './surface';
-import { useStartOnTask, useTodayTasks } from './use-home-timer';
+import { useEmployeeId } from './use-home-timer';
 
 /** What a tap on a task says, spoken: a start, or a switch from the task that runs. */
 function spokenActionOf(task: TodayTask, switching: boolean): string {
@@ -58,7 +58,8 @@ function TodayTaskRow({ task, runsHere, switching, enabled, onPress }: Readonly<
 		<Pressable
 			testID="home-today-task"
 			accessibilityRole="button"
-			accessibilityLabel={spokenActionOf(task, switching)}
+			// The row the timer runs on is read as it shows: its title, Running and its time
+			accessibilityLabel={runsHere ? undefined : spokenActionOf(task, switching)}
 			accessibilityState={{ disabled: !tappable, selected: runsHere }}
 			disabled={!tappable}
 			onPress={onPress}
@@ -68,7 +69,11 @@ function TodayTaskRow({ task, runsHere, switching, enabled, onPress }: Readonly<
 			]}
 		>
 			<StartMark runsHere={runsHere} />
-			<Text numberOfLines={2} style={[theme.type.body, styles.title, { color: theme.colors.foreground }]}>
+			<Text
+				testID="home-today-task-title"
+				numberOfLines={2}
+				style={[theme.type.body, styles.title, { color: theme.colors.foreground }]}
+			>
 				{task.title}
 			</Text>
 			<View style={styles.trailing}>
@@ -93,50 +98,66 @@ function SectionNote({ text }: Readonly<{ text: string }>) {
 	return <Text style={[theme.type.hint, { color: theme.colors['muted-foreground'] }]}>{text}</Text>;
 }
 
+/** Today's tasks as Home reads them. */
+interface TodayTasksRead {
+	data?: TodayTask[];
+	isError: boolean;
+	refetch: () => Promise<unknown>;
+}
+
 interface TodayTasksProps {
+	tasks: TodayTasksRead;
 	/** The run going on, when the timer runs. */
 	running?: TimerLog;
-	/** The team a start from Home names, as Start does. */
-	organizationTeamId?: string | null;
-	/** Starting and stopping need the network and no other action under way. */
+	/** Starting and stopping need the network and no other timer action under way, Home's Start and Stop included. */
 	enabled: boolean;
+	/** The last start or switch from this list failed. */
+	failed: boolean;
+	/** Starts the timer on a task, or switches to it from the run going on: Home owns it with its Start and Stop. */
+	onStart: (taskId: string) => void;
 }
 
 /**
  * Today's tasks under Home's timer: the tasks the person tracked time on today, with their time, the latest first. A tap
  * starts the timer on one, or switches to it from the task that runs.
  */
-export function TodayTasks({ running, organizationTeamId, enabled }: Readonly<TodayTasksProps>) {
+export function TodayTasks({ tasks, running, enabled, failed, onStart }: Readonly<TodayTasksProps>) {
 	const theme = useShellTheme();
-	const tasks = useTodayTasks();
-	const startOnTask = useStartOnTask();
-	const free = enabled && !startOnTask.isPending;
+	const employee = useEmployeeId();
 
 	const body = () => {
-		if (tasks.data && tasks.data.length === 0) {
+		if (tasks.data?.length === 0) {
 			return <SectionNote text={translate('shell.home.todayTasksEmpty')} />;
 		}
 		if (tasks.data) {
 			return tasks.data.map((task) => {
-				const runsHere = Boolean(running) && running?.taskId === task.id;
+				const runsHere = running?.taskId === task.id;
 				const switching = Boolean(running) && !runsHere;
-				const startHere = () => startOnTask.mutate({ taskId: task.id, organizationTeamId, running });
 				return (
 					<TodayTaskRow
 						key={task.id}
 						task={task}
 						runsHere={runsHere}
 						switching={switching}
-						enabled={free}
-						onPress={startHere}
+						enabled={enabled}
+						onPress={() => onStart(task.id)}
 					/>
 				);
 			});
 		}
-		if (tasks.isError) {
-			return (
-				<FailedRead message={translate('shell.home.todayTasksFailed')} onRetry={() => void tasks.refetch()} />
-			);
+		// Without an employee the tasks are never read: an account that tracks no time here says so, as the week does
+		if (employee.isSuccess && !employee.data) {
+			return <SectionNote text={translate('shell.home.weekUnavailable')} />;
+		}
+		if (employee.isError || tasks.isError) {
+			const retry = () => {
+				void employee.refetch();
+				// Without an employee the tasks have nothing to read yet: they are read once the lookup answers one
+				if (employee.data) {
+					void tasks.refetch();
+				}
+			};
+			return <FailedRead message={translate('shell.home.todayTasksFailed')} onRetry={retry} />;
 		}
 		return <SectionNote text={translate('shell.states.loading')} />;
 	};
@@ -147,7 +168,7 @@ export function TodayTasks({ running, organizationTeamId, enabled }: Readonly<To
 				{translate('shell.home.todayTasks')}
 			</Text>
 			{body()}
-			{startOnTask.isError && (
+			{failed && (
 				<View accessibilityLiveRegion="polite" style={styles.failed}>
 					<Text style={[theme.type.label, { color: theme.colors['destructive-ink'] }]}>
 						{translate('shell.home.switchFailedTitle')}

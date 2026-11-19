@@ -12,6 +12,7 @@ import {
 	useEmployeeId,
 	useLastLog,
 	useLogTask,
+	useStartOnTask,
 	useStartTimer,
 	useStopTimer,
 	useTimerStatus,
@@ -200,7 +201,6 @@ function WeekTotal() {
 	);
 }
 
-/** Home: today's tracked time, the task the timer runs on or ran last, Start or Stop, and this week's total. */
 /** The log the timer runs on, when it runs. */
 function runningLogOf(running: boolean, log: TimerLog | undefined): TimerLog | undefined {
 	if (running) {
@@ -209,18 +209,25 @@ function runningLogOf(running: boolean, log: TimerLog | undefined): TimerLog | u
 	return undefined;
 }
 
+/**
+ * Home: today's tracked time, the task the timer runs on or ran last, Start or Stop, today's tasks and this week's
+ * total.
+ */
 export function HomeTimer() {
 	const theme = useShellTheme();
 	const online = useIsOnline();
 	const status = useTimerStatus();
 	const employee = useEmployeeId();
 	const totals = useTrackedTotals();
-	const todayTasks = useTodayTasks();
 	const lastLogRead = useLastLog(status.data?.lastLog, status.isSuccess);
 	const lastLog = lastLogRead.log;
+	// Today's tasks are those of the team a start from Home names: the last log's, once that log is read
+	const todayTeamKnown = status.data !== undefined && !lastLogRead.isLoading;
+	const todayTasks = useTodayTasks(lastLog?.organizationTeamId, todayTeamKnown);
 	const task = useLogTask(lastLog?.taskId);
 	const start = useStartTimer();
 	const stop = useStopTimer();
+	const startOnTask = useStartOnTask();
 	const [refreshing, setRefreshing] = useState(false);
 
 	if (!status.data) {
@@ -233,7 +240,8 @@ export function HomeTimer() {
 	const running = status.data.running;
 	const hasTask = Boolean(lastLog?.taskId);
 	const actionable = running || hasTask;
-	const free = online && !start.isPending && !stop.isPending;
+	// One timer write at a time, from the button or from today's tasks: a switch holds both until its start answered
+	const free = online && !start.isPending && !stop.isPending && !startOnTask.isPending;
 	const enabled = free && actionable;
 	// The task area waits for, or says it could not read, the task the log names, or the earlier day's log itself
 	const taskLoading = hasTask ? !task.data && !task.isError : lastLogRead.isLoading;
@@ -241,6 +249,8 @@ export function HomeTimer() {
 	const readTaskAgain = () => (hasTask ? task.refetch() : lastLogRead.retry());
 
 	const onPress = () => {
+		// Only the last action's failure shows
+		startOnTask.reset();
 		if (running) {
 			stop.mutate(lastLog);
 			return;
@@ -250,10 +260,23 @@ export function HomeTimer() {
 		}
 	};
 
-	// The employee's own reads, once the lookup answered one
+	const startOnTodayTask = (taskId: string) => {
+		start.reset();
+		stop.reset();
+		startOnTask.mutate({
+			taskId,
+			organizationTeamId: lastLog?.organizationTeamId,
+			running: runningLogOf(running, lastLog)
+		});
+	};
+
+	// The employee's own reads, once the lookup answered one; today's tasks once their team is known
 	const readsOfTheEmployee = () => {
 		if (!employee.data) {
 			return [];
+		}
+		if (!todayTeamKnown) {
+			return [totals.refetch()];
 		}
 		return [totals.refetch(), todayTasks.refetch()];
 	};
@@ -320,9 +343,11 @@ export function HomeTimer() {
 				)}
 			</View>
 			<TodayTasks
+				tasks={todayTasks}
 				running={runningLogOf(running, lastLog)}
-				organizationTeamId={lastLog?.organizationTeamId}
 				enabled={free}
+				failed={startOnTask.isError}
+				onStart={startOnTodayTask}
 			/>
 			<WeekTotal />
 		</ScrollView>

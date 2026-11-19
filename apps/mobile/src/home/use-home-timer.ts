@@ -56,8 +56,8 @@ export const homeKeys = {
 	task: (session?: Session, taskId?: string | null) => ['home', 'task', ...personOf(session), taskId ?? ''] as const,
 	lastLog: (session?: Session, employeeId?: string | null) =>
 		['home', 'last-log', ...personOf(session), employeeId ?? ''] as const,
-	todayTasks: (session?: Session, employeeId?: string | null) =>
-		['home', 'today-tasks', ...personOf(session), employeeId ?? ''] as const
+	todayTasks: (session?: Session, employeeId?: string | null, organizationTeamId?: string | null) =>
+		['home', 'today-tasks', ...personOf(session), employeeId ?? '', organizationTeamId ?? ''] as const
 };
 
 export function useTimerStatus() {
@@ -100,15 +100,19 @@ export function useTrackedTotals() {
 	});
 }
 
-/** The tasks the person tracked time on today, the latest first, read again with the status. */
-export function useTodayTasks() {
+/**
+ * The tasks the person tracked time on today in the team a start from Home names, the latest first, read again with
+ * the status. They wait until that team is known, so a tap never starts a task in a team it was not tracked in.
+ */
+export function useTodayTasks(organizationTeamId: string | null | undefined, teamKnown: boolean) {
 	const session = useSignedInSession();
 	const employee = useEmployeeId();
 	const employeeId = employee.data;
 	return useQuery({
-		queryKey: homeKeys.todayTasks(session, employeeId),
-		queryFn: () => readTodayTasks(sessionOrFail(session), employeeIdOrFail(employeeId), new Date()),
-		enabled: session !== undefined && Boolean(employeeId),
+		queryKey: homeKeys.todayTasks(session, employeeId, organizationTeamId),
+		queryFn: () =>
+			readTodayTasks(sessionOrFail(session), employeeIdOrFail(employeeId), new Date(), organizationTeamId),
+		enabled: session !== undefined && Boolean(employeeId) && teamKnown,
 		refetchInterval: STATUS_REFRESH_MS
 	});
 }
@@ -241,7 +245,8 @@ export interface TaskSwitch extends StartTarget {
 
 /**
  * Starts the timer on one of today's tasks. A run on another task stops first, with its last minute written as Stop
- * writes it; a stop that fails leaves that run going and starts nothing.
+ * writes it; a stop that fails leaves that run going and starts nothing. Home owns this one with its Start and Stop,
+ * and holds them all while any of them is under way, the whole switch included.
  */
 export function useStartOnTask() {
 	const start = useStartTimer();

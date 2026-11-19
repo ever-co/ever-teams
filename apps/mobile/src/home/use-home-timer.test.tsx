@@ -173,8 +173,8 @@ describe('a stop from Home, while the heartbeat follows the run', () => {
 });
 
 describe("today's tasks on Home", () => {
-	it('are those of the employee the person is', async () => {
-		const { result } = await renderHook(() => useTodayTasks(), {
+	it('are those of the employee the person is, in the team a start names', async () => {
+		const { result } = await renderHook(() => useTodayTasks('team-field', true), {
 			wrapper: wrapperFor({ status: 'signed-in', session: kofi })
 		});
 
@@ -183,7 +183,18 @@ describe("today's tasks on Home", () => {
 				{ id: 'task-har-3', title: 'Repaint maintenance hatch', seconds: 2393 }
 			])
 		);
-		expect(readTodayTasks).toHaveBeenCalledWith(kofi, 'employee-kofi', expect.any(Date));
+		expect(readTodayTasks).toHaveBeenCalledWith(kofi, 'employee-kofi', expect.any(Date), 'team-field');
+	});
+
+	it('wait until that team is known', async () => {
+		const { result } = await renderHook(
+			() => ({ employee: useEmployeeId(), tasks: useTodayTasks(undefined, false) }),
+			{ wrapper: wrapperFor({ status: 'signed-in', session: kofi }) }
+		);
+
+		await waitFor(() => expect(result.current.employee.data).toBe('employee-kofi'));
+		expect(result.current.tasks.fetchStatus).toBe('idle');
+		expect(readTodayTasks).not.toHaveBeenCalled();
 	});
 });
 

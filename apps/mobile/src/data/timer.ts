@@ -149,9 +149,15 @@ function todayTaskOf(statistics: TaskStatistics): TodayTask {
 
 /**
  * The tasks the person tracked time on today, the latest first: the statistics the team card reads, on the person's
- * own day. Gauzy reads this POST route's filters from its body only.
+ * own day. Gauzy reads this POST route's filters from its body only. With a team, only the time tracked in that team
+ * counts, as the web's team card reads it: a start from Home names that team for every task of the list.
  */
-export async function readTodayTasks(session: Session, employeeId: string, now: Date): Promise<TodayTask[]> {
+export async function readTodayTasks(
+	session: Session,
+	employeeId: string,
+	now: Date,
+	organizationTeamId?: string | null
+): Promise<TodayTask[]> {
 	const { tenantId, organizationId } = workspaceOf(session);
 	const day = dayBounds(now);
 	const answer = await serverFetch<TaskStatistics[]>({
@@ -162,7 +168,9 @@ export async function readTodayTasks(session: Session, employeeId: string, now: 
 			organizationId,
 			employeeIds: [employeeId],
 			startDate: day.start.toISOString(),
-			endDate: day.end.toISOString()
+			endDate: day.end.toISOString(),
+			// This route's DTO keeps teamIds and drops organizationTeamId
+			...(organizationTeamId ? { teamIds: [organizationTeamId] } : {})
 		},
 		bearer_token: session.accessToken,
 		tenantId

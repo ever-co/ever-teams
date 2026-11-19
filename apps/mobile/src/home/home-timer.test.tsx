@@ -7,6 +7,7 @@ import {
 	useEmployeeId,
 	useLastLog,
 	useLogTask,
+	useStartOnTask,
 	useStartTimer,
 	useStopTimer,
 	useTimerStatus,
@@ -23,13 +24,16 @@ jest.mock('./use-home-timer', () => ({
 	useLogTask: jest.fn(),
 	useLastLog: jest.fn(),
 	useEmployeeId: jest.fn(),
+	useStartOnTask: jest.fn(),
 	useStartTimer: jest.fn(),
 	useStopTimer: jest.fn()
 }));
 
 const lastLog = { startedAt: '2026-11-18T07:05:00.000Z', taskId: 'task-har-3', organizationTeamId: 'team-field' };
-const start = { mutate: jest.fn(), isPending: false, isError: false };
-const stop = { mutate: jest.fn(), isPending: false, isError: false };
+const start = { mutate: jest.fn(), reset: jest.fn(), isPending: false, isError: false };
+const stop = { mutate: jest.fn(), reset: jest.fn(), isPending: false, isError: false };
+const startOnTask = { mutate: jest.fn(), reset: jest.fn(), isPending: false, isError: false };
+const todayTasks = { data: undefined, isError: false, refetch: jest.fn() };
 const employee = { data: 'employee-kofi', isSuccess: true, isError: false, refetch: jest.fn() };
 
 function lastLogRead(log: unknown, extra: Record<string, unknown> = {}) {
@@ -60,9 +64,10 @@ beforeEach(() => {
 	});
 	(useStartTimer as jest.Mock).mockReturnValue(start);
 	(useStopTimer as jest.Mock).mockReturnValue(stop);
+	(useStartOnTask as jest.Mock).mockReturnValue(startOnTask);
 	(useLastLog as jest.Mock).mockImplementation((todaysLog: unknown) => lastLogRead(todaysLog));
 	(useEmployeeId as jest.Mock).mockReturnValue(employee);
-	(useTodayTasks as jest.Mock).mockReturnValue({ refetch: jest.fn() });
+	(useTodayTasks as jest.Mock).mockReturnValue(todayTasks);
 });
 
 describe('Home', () => {
@@ -228,20 +233,83 @@ describe("Home's tasks of today", () => {
 		return calls[calls.length - 1][0];
 	}
 
-	it('get the run going on and the team of the last log, so a tap can switch from it', async () => {
+	it('are read for the team of the last log, the one a start names', async () => {
 		status({ duration: 6740, running: true, lastLog });
 
 		await render(<HomeTimer />);
 
-		expect(handedToTodayTasks()).toEqual({ running: lastLog, organizationTeamId: 'team-field', enabled: true });
+		expect(useTodayTasks).toHaveBeenLastCalledWith('team-field', true);
+		expect(handedToTodayTasks().tasks).toBe(todayTasks);
 	});
 
-	it('get no run while the timer is stopped', async () => {
+	it("wait for an earlier day's log, which names the team, while it is read", async () => {
+		status({ duration: 0, running: false });
+		(useLastLog as jest.Mock).mockReturnValue(lastLogRead(undefined, { isLoading: true }));
+
+		await render(<HomeTimer />);
+
+		expect(useTodayTasks).toHaveBeenLastCalledWith(undefined, false);
+	});
+
+	it('switch from the run going on, in the team of the last log, and clear the failure of an earlier Start', async () => {
+		status({ duration: 6740, running: true, lastLog });
+
+		await render(<HomeTimer />);
+
+		expect(handedToTodayTasks()).toMatchObject({ running: lastLog, enabled: true, failed: false });
+		handedToTodayTasks().onStart('task-har-1');
+		expect(startOnTask.mutate).toHaveBeenCalledWith({
+			taskId: 'task-har-1',
+			organizationTeamId: 'team-field',
+			running: lastLog
+		});
+		expect(start.reset).toHaveBeenCalled();
+		expect(stop.reset).toHaveBeenCalled();
+	});
+
+	it('start with no run to stop while the timer is stopped', async () => {
 		status({ duration: 6740, running: false, lastLog });
 
 		await render(<HomeTimer />);
 
-		expect(handedToTodayTasks()).toEqual({ running: undefined, organizationTeamId: 'team-field', enabled: true });
+		expect(handedToTodayTasks().running).toBeUndefined();
+		handedToTodayTasks().onStart('task-har-1');
+		expect(startOnTask.mutate).toHaveBeenCalledWith({
+			taskId: 'task-har-1',
+			organizationTeamId: 'team-field',
+			running: undefined
+		});
+	});
+
+	it('hold Start, Stop and the list while a switch is under way', async () => {
+		status({ duration: 6740, running: true, lastLog });
+		(useStartOnTask as jest.Mock).mockReturnValue({ ...startOnTask, isPending: true });
+
+		await render(<HomeTimer />);
+
+		expect(screen.getByTestId('home-timer-button').props.accessibilityState).toMatchObject({ disabled: true });
+		expect(handedToTodayTasks().enabled).toBe(false);
+	});
+
+	it('hold the list while a Stop from the button is under way', async () => {
+		status({ duration: 6740, running: true, lastLog });
+		(useStopTimer as jest.Mock).mockReturnValue({ ...stop, isPending: true });
+
+		await render(<HomeTimer />);
+
+		expect(handedToTodayTasks().enabled).toBe(false);
+	});
+
+	it('say when a switch failed, and clear it on the next press of the button', async () => {
+		status({ duration: 6740, running: true, lastLog });
+		(useStartOnTask as jest.Mock).mockReturnValue({ ...startOnTask, isError: true });
+
+		await render(<HomeTimer />);
+
+		expect(handedToTodayTasks().failed).toBe(true);
+		await fireEvent.press(screen.getByTestId('home-timer-button'));
+		expect(startOnTask.reset).toHaveBeenCalled();
+		expect(stop.mutate).toHaveBeenCalledWith(lastLog);
 	});
 
 	it('wait without the network, as Start does', async () => {
