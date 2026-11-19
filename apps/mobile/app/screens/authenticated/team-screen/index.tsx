@@ -163,7 +163,7 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<'Team'>> = 
 								</View>
 
 								{/* Users activity list */}
-								<View style={[$cardContainer, { backgroundColor: dark ? 'rgb(0,0,0)' : '#F7F7F8' }]}>
+								<View style={[$cardContainer, { backgroundColor: colors.background2 }]}>
 									<FlatList
 										onScrollEndDrag={() => setIsScrolling(false)}
 										onScrollBeginDrag={() => setIsScrolling(true)}
