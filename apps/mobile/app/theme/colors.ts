@@ -50,6 +50,18 @@ const palette = {
  * The keys the current screens read, on the web's tokens: text, accents, quiet text, cards, the page, lines and quiet
  * fills. The screens keep their keys and draw in the web's colors; their own literals move screen by screen.
  */
+/**
+ * The fill white text sits on: primary-ink in light mode (6.2:1 against white, primary only reaches 4.4:1), and the
+ * web's primary in dark mode, where primary-ink turns pale.
+ */
+function accentFillOf(scheme: ColorScheme) {
+	const token = themeFor(scheme).colors;
+	if (scheme === 'dark') {
+		return token.primary;
+	}
+	return token['primary-ink'];
+}
+
 export function appColorsOf(scheme: ColorScheme) {
 	const token = themeFor(scheme).colors;
 	return {
@@ -61,9 +73,8 @@ export function appColorsOf(scheme: ColorScheme) {
 		divider: token.border,
 		border: token.border,
 		secondary2: token.muted,
-		// A filled button or a selected fill: the web's primary, which white text reads on in both themes, while
-		// secondary stays the accent of text and icons
-		accentFill: token.primary
+		// A filled button or a selected fill under white text, while secondary stays the accent of text and icons
+		accentFill: accentFillOf(scheme)
 	};
 }
 

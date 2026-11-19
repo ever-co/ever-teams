@@ -44,7 +44,7 @@ describe("the current screens' theme", () => {
 			divider: web.border,
 			border: web.border,
 			secondary2: web.muted,
-			accentFill: web.primary
+			accentFill: web['primary-ink']
 		});
 	});
 
@@ -58,6 +58,10 @@ describe("the current screens' theme", () => {
 
 		expect(result.current.scheme).toBe(scheme);
 		expect(result.current.colors).toEqual(themeFor(scheme).colors);
+	});
+
+	it("fills under white text with the web's primary in dark mode, where primary-ink turns pale", () => {
+		expect(appColorsOf('dark').accentFill).toBe(themeFor('dark').colors.primary);
 	});
 
 	it('follows the dark tokens in dark mode', () => {
