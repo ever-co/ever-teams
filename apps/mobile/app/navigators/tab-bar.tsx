@@ -1,28 +1,17 @@
 /* eslint-disable react-native/no-inline-styles */
 import React from 'react';
-import { Platform, TextStyle, View, ViewStyle } from 'react-native';
+import { Platform, StyleSheet, TextStyle, View, ViewStyle } from 'react-native';
+import { Feather } from '@expo/vector-icons';
 import type { BottomTabNavigationEventMap, BottomTabNavigationOptions } from '@react-navigation/bottom-tabs';
 import type { EventArg } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Skeleton } from 'react-native-skeletons';
-import { SvgXml } from 'react-native-svg';
 import { translate } from '../i18n';
 import { useStores } from '../models';
-import { spacing, typography, useAppTheme } from '../theme';
-import {
-	briefCaseFocusedDark,
-	briefCaseFocusedLight,
-	briefCaseNotFocusedDark,
-	briefCaseNotFocusedLight,
-	peopleFocusedDark,
-	peopleFocusedLight,
-	peopleNotFocusedDark,
-	peopleNotFocusedLight,
-	userFocusedDark,
-	userFocusedLight,
-	userNotFocusedDark,
-	userNotFocusedLight
-} from '../components/svgs/icons';
+import { spacing, useAppTheme } from '../theme';
+import { tabBarColorsFor } from '../../src/navigation/tab-bar-colors';
+import { themeFor } from '../../src/theme/use-theme';
+import { colorSchemeOf } from '../../src/theme/color-scheme';
 import { useTabButtonsLoading } from './use-tab-buttons-loading';
 
 /**
@@ -62,6 +51,31 @@ function TabButtonsPlaceholder({ withTimer }: Readonly<{ withTimer: boolean }>) 
 	);
 }
 
+/** The tab bar's colors in the web's tokens, for the theme shown. */
+export function barColorsOf(dark: boolean) {
+	const scheme = colorSchemeOf(dark);
+	return tabBarColorsFor(themeFor(scheme));
+}
+
+type FeatherName = React.ComponentProps<typeof Feather>['name'];
+
+interface TabIconProps {
+	name: FeatherName;
+	focused: boolean;
+	color: string;
+	dark: boolean;
+}
+
+/** A tab's icon, tinted by the navigator; the selected tab's icon sits on the primary tint, as on the web. */
+function TabIcon({ name, focused, color, dark }: Readonly<TabIconProps>) {
+	const indicator = barColorsOf(dark).indicatorColor;
+	return (
+		<View testID={`tab-icon-${name}`} style={[$iconPill, focused && { backgroundColor: indicator }]}>
+			<Feather name={name} size={20} color={color} />
+		</View>
+	);
+}
+
 /** The signed-in tab bar's look; while the first screens load, placeholders stand for its buttons. */
 export function useTabBarScreenOptions(): BottomTabNavigationOptions {
 	const { bottom } = useSafeAreaInsets();
@@ -70,33 +84,32 @@ export function useTabBarScreenOptions(): BottomTabNavigationOptions {
 		teamStore: { isTrackingEnabled }
 	} = useStores();
 	const isLoading = useTabButtonsLoading();
+	const bar = barColorsOf(dark);
 	return {
 		headerShown: false,
 		tabBarHideOnKeyboard: true,
-		tabBarStyle: [{ backgroundColor: dark ? '#1E2025' : colors.background }, { height: bottom + 60 }],
-		tabBarActiveTintColor: colors.primary,
-		tabBarInactiveTintColor: colors.tertiary,
+		tabBarStyle: [
+			{
+				backgroundColor: bar.backgroundColor,
+				borderTopColor: colors.border,
+				borderTopWidth: StyleSheet.hairlineWidth
+			},
+			{ height: bottom + 60 }
+		],
+		tabBarActiveTintColor: bar.tintColor,
+		tabBarInactiveTintColor: bar.iconColor.default,
 		tabBarLabelStyle: $tabBarLabel,
 		tabBarItemStyle: $tabBarItem,
 		...(isLoading ? { tabBarButton: () => <TabButtonsPlaceholder withTimer={isTrackingEnabled} /> } : null)
 	};
 }
 
-const ACTIVE_TINT_DARK = '#8C7AE4';
-const ACTIVE_TINT_LIGHT = '#3826A6';
-
 /** The Work tab: the timer. */
 export function workTabOptions(dark: boolean): BottomTabNavigationOptions {
 	return {
 		tabBarLabel: translate('myWorkScreen.name'),
 		tabBarButtonTestID: 'tab-work',
-		tabBarIcon: ({ focused }) =>
-			!focused ? (
-				<SvgXml xml={dark ? userNotFocusedDark : userNotFocusedLight} />
-			) : (
-				<SvgXml xml={dark ? userFocusedDark : userFocusedLight} />
-			),
-		tabBarActiveTintColor: dark ? ACTIVE_TINT_DARK : ACTIVE_TINT_LIGHT
+		tabBarIcon: ({ focused, color }) => <TabIcon name="user" focused={focused} color={color} dark={dark} />
 	};
 }
 
@@ -105,13 +118,7 @@ export function tasksTabOptions(dark: boolean): BottomTabNavigationOptions {
 	return {
 		tabBarLabel: translate('tasksScreen.name'),
 		tabBarButtonTestID: 'tab-tasks',
-		tabBarIcon: ({ focused }) =>
-			focused ? (
-				<SvgXml xml={dark ? briefCaseFocusedDark : briefCaseFocusedLight} />
-			) : (
-				<SvgXml xml={dark ? briefCaseNotFocusedDark : briefCaseNotFocusedLight} />
-			),
-		tabBarActiveTintColor: dark ? ACTIVE_TINT_DARK : ACTIVE_TINT_LIGHT
+		tabBarIcon: ({ focused, color }) => <TabIcon name="briefcase" focused={focused} color={color} dark={dark} />
 	};
 }
 
@@ -120,13 +127,7 @@ export function teamTabOptions(dark: boolean): BottomTabNavigationOptions {
 	return {
 		tabBarLabel: translate('teamScreen.name'),
 		tabBarButtonTestID: 'tab-team',
-		tabBarIcon: ({ focused }) =>
-			!focused ? (
-				<SvgXml xml={dark ? peopleNotFocusedDark : peopleNotFocusedLight} />
-			) : (
-				<SvgXml xml={dark ? peopleFocusedDark : peopleFocusedLight} />
-			),
-		tabBarActiveTintColor: dark ? ACTIVE_TINT_DARK : ACTIVE_TINT_LIGHT
+		tabBarIcon: ({ focused, color }) => <TabIcon name="users" focused={focused} color={color} dark={dark} />
 	};
 }
 
@@ -136,8 +137,15 @@ const $tabBarItem: ViewStyle = {
 
 const $tabBarLabel: TextStyle = {
 	fontSize: 12,
-	fontFamily: typography.fonts.PlusJakartaSans.semiBold,
 	lineHeight: 16,
 	fontWeight: '500',
 	flex: 1
+};
+
+const $iconPill: ViewStyle = {
+	alignItems: 'center',
+	justifyContent: 'center',
+	width: 52,
+	height: 28,
+	borderRadius: 14
 };
