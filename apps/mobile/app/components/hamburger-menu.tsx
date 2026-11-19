@@ -12,27 +12,19 @@ import ProfileImage from './profile-image';
 import { translate } from '../i18n';
 import { observer } from 'mobx-react-lite';
 import { useOrganizationTeam } from '../services/hooks/use-organization';
-import { SvgXml } from 'react-native-svg';
-import {
-	moonDarkLarge,
-	moonDarkMedium,
-	moonLightLarge,
-	moonLightMedium,
-	sunDarkLarge,
-	sunLightLarge
-} from './svgs/icons';
 import { BlurView } from 'expo-blur';
 import { navigateTo } from '../navigators/routes';
 import { usePathname } from 'expo-router';
 import { MenuRow } from './menu-row';
 import { menuEntryOf } from './menu-current';
+import { ThemeChoice } from './theme-choice';
 
 const HamburgerMenu = observer((props: any) => {
 	const { colors, dark } = useAppTheme();
 	const theme = useWebTheme();
 	const {
 		TaskStore: { resetTeamTasksData },
-		authenticationStore: { user, logout, toggleTheme },
+		authenticationStore: { user, logout },
 		teamStore: { clearStoredTeamData }
 	} = useStores();
 	const { createOrganizationTeam, activeTeam } = useOrganizationTeam();
@@ -126,37 +118,12 @@ const HamburgerMenu = observer((props: any) => {
 							isCurrent={currentEntry === 'settings'}
 							onPress={() => navigateTo(navigation, 'Setting')}
 						/>
-						<TouchableOpacity style={styles.screenItem}>
-							<View style={{ flexDirection: 'row' }}>
-								<SvgXml xml={dark ? moonDarkMedium : moonLightMedium} />
-								<Text style={[styles.screenLabel, { color: colors.primary }]}>
-									{translate('hamburgerMenu.darkMode')}
-								</Text>
-							</View>
-							<TouchableOpacity
-								onPress={() => toggleTheme(dark)}
-								style={[
-									styles.toggle,
-									dark ? { backgroundColor: '#1D222A' } : { backgroundColor: '#E7E7EA' }
-								]}
-							>
-								{dark ? (
-									<View style={styles.iconsContainer}>
-										<SvgXml xml={sunDarkLarge} />
-										<SvgXml xml={moonDarkLarge} />
-									</View>
-								) : (
-									<View style={styles.iconsContainer}>
-										<View style={[styles.iconWrapper, { backgroundColor: 'white' }]}>
-											<SvgXml xml={sunLightLarge} />
-										</View>
-										<View style={[styles.iconWrapper, { backgroundColor: 'transparent' }]}>
-											<SvgXml xml={moonLightLarge} />
-										</View>
-									</View>
-								)}
-							</TouchableOpacity>
-						</TouchableOpacity>
+						<View testID="menu-theme" style={styles.themeSection}>
+							<Text style={[styles.themeLabel, { color: theme.colors['muted-foreground'] }]}>
+								{translate('hamburgerMenu.theme')}
+							</Text>
+							<ThemeChoice />
+						</View>
 					</View>
 				</DrawerContentScrollView>
 
@@ -229,18 +196,6 @@ const styles = StyleSheet.create({
 		justifyContent: 'space-between'
 	},
 	icon: { width: 30 },
-	iconWrapper: { borderRadius: 60, padding: 7 },
-	iconsContainer: {
-		alignItems: 'center',
-		backgroundColor: 'transparent',
-		display: 'flex',
-		flexDirection: 'row',
-		height: '100%',
-		justifyContent: 'space-between',
-		paddingLeft: 4,
-		paddingRight: 4,
-		width: '100%'
-	},
 	navigationSection: {
 		gap: 2,
 		marginTop: 12,
@@ -277,20 +232,14 @@ const styles = StyleSheet.create({
 		zIndex: 10
 	},
 
-	screenItem: {
-		alignItems: 'center',
-		flexDirection: 'row',
-		justifyContent: 'space-between'
+	themeLabel: {
+		fontFamily: typography.primary.medium,
+		fontSize: 13,
+		paddingHorizontal: 12
 	},
-	screenLabel: {
-		fontFamily: typography.secondary.medium,
-		fontSize: 16,
-		left: 15
-	},
-	toggle: {
-		borderRadius: 60,
-		height: 40,
-		width: 86
+	themeSection: {
+		gap: 8,
+		marginTop: 16
 	},
 	userEmail: {
 		fontFamily: typography.primary.normal,
