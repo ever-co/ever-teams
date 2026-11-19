@@ -19,7 +19,8 @@ import { Screen } from '../../../components';
 import { AuthenticatedDrawerScreenProps } from '../../../navigators/authenticated-navigator';
 import { translate } from '../../../i18n';
 import BottomSheet, { BottomSheetBackdrop, BottomSheetScrollView } from '@gorhom/bottom-sheet';
-import { typography, useAppTheme } from '../../../theme';
+import { typography, useAppTheme, useWebTheme } from '../../../theme';
+import { sheetLookOf, sheetOverlayOpacity } from '../../../../src/theme/sheet-look';
 import { ActivityIndicator } from 'react-native-paper';
 import { ITaskPriorityItem } from '../../../services/interfaces/ITaskPriority';
 import TaskPriorityForm from './components/task-priority-form';
@@ -27,7 +28,6 @@ import { useTaskPriority } from '../../../services/hooks/features/use-task-prior
 import { useTaskSettingsAccess } from '../../../services/hooks/features/use-task-settings-access';
 import { readOnlyOpacity } from '../../../helpers/read-only-opacity';
 import PriorityItem from './components/priority-item';
-import { BlurView } from 'expo-blur';
 import { useRoute, RouteProp } from '@react-navigation/native';
 import { navigateTo } from '../../../navigators/routes';
 
@@ -42,6 +42,7 @@ type TaskPriorityRouteProp = RouteProp<{ TaskPriority: TaskPriorityRouteParams }
 export const TaskPriorityScreen: FC<AuthenticatedDrawerScreenProps<'TaskPriority'>> =
   observer(function AuthenticatedDrawerScreen(_props) {
     const { colors, dark } = useAppTheme();
+    const sheetLook = sheetLookOf(useWebTheme());
     const { navigation } = _props;
 
     // Use the properly typed route
@@ -155,7 +156,7 @@ export const TaskPriorityScreen: FC<AuthenticatedDrawerScreenProps<'TaskPriority
           appearsOnIndex={0}
           enableTouchThrough={false}
           pressBehavior="close"
-          opacity={0.7}
+          opacity={sheetOverlayOpacity}
         />
       ),
       []
@@ -286,22 +287,8 @@ export const TaskPriorityScreen: FC<AuthenticatedDrawerScreenProps<'TaskPriority
             keyboardBehavior="interactive"
             keyboardBlurBehavior="restore"
             android_keyboardInputMode="adjustResize"
-            backgroundStyle={{
-              backgroundColor: colors.background,
-              shadowColor: '#000',
-              shadowOffset: { width: 0, height: -3 },
-              shadowOpacity: 0.27,
-              shadowRadius: 4.65,
-              elevation: 10,
-              borderTopLeftRadius: 24,
-              borderTopRightRadius: 24
-            }}
-            handleIndicatorStyle={{
-              backgroundColor: dark ? '#FFFFFF' : '#000000',
-              width: 50,
-              height: 5,
-              marginTop: 10
-            }}
+            backgroundStyle={sheetLook.background}
+            handleIndicatorStyle={sheetLook.handle}
           >
             <BottomSheetScrollView
               style={{ backgroundColor: colors.background }}
@@ -323,20 +310,6 @@ export const TaskPriorityScreen: FC<AuthenticatedDrawerScreenProps<'TaskPriority
             </BottomSheetScrollView>
           </BottomSheet>
         </View>
-
-        {/* BlurView shown when the bottom sheet is open */}
-        {bottomSheetVisible && (
-          <BlurView
-            intensity={15}
-            tint="dark"
-            style={{
-              position: 'absolute',
-              width: '100%',
-              height: '100%',
-              zIndex: 999  // Just below the sheet container
-            }}
-          />
-        )}
       </Screen>
     );
   });

@@ -18,13 +18,13 @@ import { Screen } from '../../../components';
 import { AuthenticatedDrawerScreenProps } from '../../../navigators/authenticated-navigator';
 import { translate } from '../../../i18n';
 import BottomSheet, { BottomSheetBackdrop, BottomSheetScrollView } from '@gorhom/bottom-sheet';
-import { typography, useAppTheme } from '../../../theme';
+import { typography, useAppTheme, useWebTheme } from '../../../theme';
+import { sheetLookOf, sheetOverlayOpacity } from '../../../../src/theme/sheet-look';
 import { ActivityIndicator } from 'react-native-paper';
 import LabelItem from './components/label-item';
 import TaskLabelForm from './components/task-label-form';
 import { ITaskLabelItem } from '../../../services/interfaces/ITaskLabel';
 import { useTaskLabels } from '../../../services/hooks/features/use-task-labels';
-import { BlurView } from 'expo-blur';
 import { useRoute, RouteProp } from '@react-navigation/native';
 import { navigateTo } from '../../../navigators/routes';
 
@@ -39,6 +39,7 @@ type TaskLabelRouteProp = RouteProp<{ TaskLabelScreen: TaskLabelRouteParams }, '
 export const TaskLabelScreen: FC<AuthenticatedDrawerScreenProps<'TaskLabelScreen'>> =
 	function AuthenticatedDrawerScreen(_props) {
 		const { colors, dark } = useAppTheme();
+		const sheetLook = sheetLookOf(useWebTheme());
 		const { navigation } = _props;
 
 		// Use the properly typed route
@@ -152,7 +153,7 @@ export const TaskLabelScreen: FC<AuthenticatedDrawerScreenProps<'TaskLabelScreen
 					appearsOnIndex={0}
 					enableTouchThrough={false}
 					pressBehavior="close"
-					opacity={0.7}
+					opacity={sheetOverlayOpacity}
 				/>
 			),
 			[]
@@ -309,22 +310,8 @@ export const TaskLabelScreen: FC<AuthenticatedDrawerScreenProps<'TaskLabelScreen
 						keyboardBehavior="interactive"
 						keyboardBlurBehavior="restore"
 						android_keyboardInputMode="adjustResize"
-						backgroundStyle={{
-							backgroundColor: colors.background,
-							shadowColor: '#000',
-							shadowOffset: { width: 0, height: -3 },
-							shadowOpacity: 0.27,
-							shadowRadius: 4.65,
-							elevation: 10,
-							borderTopLeftRadius: 24,
-							borderTopRightRadius: 24
-						}}
-						handleIndicatorStyle={{
-							backgroundColor: dark ? '#FFFFFF' : '#000000',
-							width: 50,
-							height: 5,
-							marginTop: 10
-						}}
+						backgroundStyle={sheetLook.background}
+						handleIndicatorStyle={sheetLook.handle}
 					>
 						<BottomSheetScrollView
 							style={{ backgroundColor: colors.background }}
@@ -348,20 +335,6 @@ export const TaskLabelScreen: FC<AuthenticatedDrawerScreenProps<'TaskLabelScreen
 						</BottomSheetScrollView>
 					</BottomSheet>
 				</View>
-
-				{/* BlurView shown when the bottom sheet is open */}
-				{bottomSheetVisible && (
-					<BlurView
-						intensity={15}
-						tint="dark"
-						style={{
-							position: 'absolute',
-							width: '100%',
-							height: '100%',
-							zIndex: 999
-						}}
-					/>
-				)}
 			</Screen>
 		);
 	};
