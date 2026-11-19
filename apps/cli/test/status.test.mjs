@@ -256,3 +256,43 @@ test('a damaged settings file still stops a command that takes a value from it',
 	assert.match(tokenFromSettings.stderr, /cannot be read: run ever-teams login again\.\n$/);
 	assert.equal(api.requests.length, 0);
 });
+
+test('an empty --api-url is a usage error, never another address', async () => {
+	const api = statusApi(RUNNING);
+	const said =
+		'--api-url is not an address: give the address of the API, such as https://api.example.com/api. Run ' +
+		'ever-teams status --help to see how to use it.\n';
+
+	const separate = await runCli(['status', '--api-url', ''], { home: signedInHome(), fetch: api.fetch });
+	const inline = await runCli(['status', '--api-url='], {
+		home: signedInHome(),
+		env: { EVER_TEAMS_TOKEN: PERSONAL_TOKEN },
+		fetch: api.fetch
+	});
+	const atLogin = await runCli(['login', '--token-stdin', '--api-url', ''], {
+		stdin: PERSONAL_TOKEN,
+		fetch: api.fetch
+	});
+
+	assert.equal(separate.code, 2);
+	assert.equal(separate.stderr, said);
+	assert.equal(inline.code, 2);
+	assert.equal(inline.stderr, said);
+	assert.equal(atLogin.code, 2);
+	assert.match(atLogin.stderr, /^--api-url is not an address/);
+	assert.equal(api.requests.length, 0);
+});
+
+test('an empty EVER_TEAMS_API_URL counts as unset: the stored address is used', async () => {
+	const api = statusApi(RUNNING);
+
+	const result = await runCli(['status'], {
+		home: signedInHome(),
+		env: { EVER_TEAMS_API_URL: '' },
+		fetch: api.fetch,
+		now: NOW
+	});
+
+	assert.equal(result.code, 0);
+	assert.ok(api.requests.every((request) => request.url.startsWith(API_URL)));
+});

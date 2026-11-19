@@ -37,10 +37,12 @@ function addressOf(text: string, givenBy: string): string {
 
 /** The address this run was given: --api-url, else EVER_TEAMS_API_URL; undefined when it was given neither. */
 function givenApiUrl(context: CommandContext): string | undefined {
+	// A flag given empty is refused as no address, never read as no flag: the run would go to another API.
 	const flag = textOption(context.values, 'api-url');
-	if (flag) {
+	if (flag !== undefined) {
 		return addressOf(flag, '--api-url');
 	}
+	// An empty variable counts as unset, as a shell clears one with VAR=.
 	const fromEnvironment = context.io.env.EVER_TEAMS_API_URL;
 	if (fromEnvironment) {
 		return addressOf(fromEnvironment, 'EVER_TEAMS_API_URL');
