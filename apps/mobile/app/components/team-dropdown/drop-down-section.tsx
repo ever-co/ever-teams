@@ -176,7 +176,10 @@ const DropItem: FC<IDropItem> = observer(function DropItem({ team, changeTeam, i
 						labelStyle={styles.prefix}
 					/>
 				)}
-				<Text style={[styles.teamName, { color: colors.foreground }, isActiveTeam && styles.activeTeamName]}>
+				<Text
+					numberOfLines={1}
+					style={[styles.teamName, { color: colors.foreground }, isActiveTeam && styles.activeTeamName]}
+				>
 					{limitTextCharaters({ text: team?.name, numChars: rowNameLengthOf(resized) })}{' '}
 					<Text style={{ color: colors['muted-foreground'] }}>({team?.members.length})</Text>
 				</Text>
@@ -248,7 +251,9 @@ const styles = StyleSheet.create({
 		marginRight: -8,
 		width: 44
 	},
+	// A long name shrinks to one line inside its row instead of running under the settings button
 	teamName: {
+		flexShrink: 1,
 		fontSize: 14,
 		marginLeft: 10
 	},
