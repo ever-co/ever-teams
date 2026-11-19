@@ -68,7 +68,7 @@ const FillTeamNameForm: FC<Props> = observer(({ isLoading, errors, setScreenStat
 					style={{
 						...$tapButton,
 						opacity: authTeamName.length < 3 ? 0.5 : 1,
-						backgroundColor: colors.secondary,
+						backgroundColor: colors.accentFill,
 						borderWidth: 0
 					}}
 					textStyle={styles.tapButtonText}

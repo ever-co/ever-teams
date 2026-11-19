@@ -16,7 +16,8 @@ const APP_KEYS = [
 	'background2',
 	'divider',
 	'border',
-	'secondary2'
+	'secondary2',
+	'accentFill'
 ] as const;
 
 describe("the current screens' theme", () => {
@@ -42,7 +43,8 @@ describe("the current screens' theme", () => {
 			background2: web.background,
 			divider: web.border,
 			border: web.border,
-			secondary2: web.muted
+			secondary2: web.muted,
+			accentFill: web.primary
 		});
 	});
 

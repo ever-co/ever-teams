@@ -60,7 +60,10 @@ export function appColorsOf(scheme: ColorScheme) {
 		background2: token.background,
 		divider: token.border,
 		border: token.border,
-		secondary2: token.muted
+		secondary2: token.muted,
+		// A filled button or a selected fill: the web's primary, which white text reads on in both themes, while
+		// secondary stays the accent of text and icons
+		accentFill: token.primary
 	};
 }
 

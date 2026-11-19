@@ -55,7 +55,7 @@ const TaskTitleBlock = observer(() => {
 		showMessage({
 			message: translate('taskDetailsScreen.copyTitle'),
 			type: 'info',
-			backgroundColor: colors.secondary
+			backgroundColor: colors.accentFill
 		});
 	};
 

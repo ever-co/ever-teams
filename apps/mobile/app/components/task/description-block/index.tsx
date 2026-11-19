@@ -81,7 +81,7 @@ const DescriptionBlock = () => {
 		showMessage({
 			message: translate("taskDetailsScreen.copyDescription"),
 			type: "info",
-			backgroundColor: colors.secondary,
+			backgroundColor: colors.accentFill,
 		})
 	}
 
@@ -201,7 +201,7 @@ const DescriptionBlock = () => {
 								onPress={onPressSave}
 								style={{
 									...styles.actionButton,
-									backgroundColor: colors.secondary,
+									backgroundColor: colors.accentFill,
 								}}
 							>
 								<Text style={{ color: "white", fontSize: 12 }}>
