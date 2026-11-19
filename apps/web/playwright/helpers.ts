@@ -14,6 +14,20 @@ import type { BrowserContext, Cookie, Page } from '@playwright/test';
 export const APP_ORIGIN = (process.env.E2E_APP_ORIGIN || 'http://127.0.0.1:3030').replace(/\/$/, '');
 const CONTROL_ORIGIN = (process.env.E2E_CONTROL_URL || 'http://127.0.0.1:3990').replace(/\/$/, '');
 
+/**
+ * Console noise a hermetic run causes on purpose, or that the app cannot control: a refused or
+ * intercepted request logs itself, Next says its own piece, and a missing favicon is not a bug.
+ * Anything else the console reports as an error is a finding, which is the point of the shield.
+ */
+export const CONSOLE_NOISE = [
+	/Failed to load resource/i,
+	/net::ERR_/,
+	/Download the React DevTools/,
+	/favicon/i,
+	/\[Vercel\]/,
+	/DevTools setting/i
+];
+
 export type StubRequest = {
 	method: string;
 	path: string;
@@ -243,8 +257,18 @@ export async function waitForShellReady(page: Page, timeout = 45_000): Promise<v
 	});
 }
 
-/** Clears browser storage in place, navigates, and waits for the shell — the Playwright `hardVisit`. */
-export async function hardVisit(page: Page, path: string): Promise<void> {
+/**
+ * Clears browser storage in place, navigates, and waits for the shell — the Playwright `hardVisit`.
+ *
+ * `requireShell: false` is for a route that has no authenticated shell to wait for (a sign-in page, a
+ * page the app answers 404 for): there is no mark there, and waiting 45 s for one only hides what the
+ * route actually did.
+ */
+export async function hardVisit(
+	page: Page,
+	path: string,
+	options: { requireShell?: boolean } = {}
+): Promise<void> {
 	await page.goto(APP_ORIGIN, { waitUntil: 'domcontentloaded' }).catch(() => undefined);
 	await page.evaluate(() => {
 		window.localStorage.clear();
@@ -252,7 +276,7 @@ export async function hardVisit(page: Page, path: string): Promise<void> {
 		window.performance.clearMarks();
 	});
 	await page.goto(`${APP_ORIGIN}${path}`, { waitUntil: 'domcontentloaded' });
-	await waitForShellReady(page);
+	if (options.requireShell !== false) await waitForShellReady(page);
 }
 
 /**
@@ -264,13 +288,13 @@ export async function signInAndVisit(
 	page: Page,
 	fixture: BootstrapFixture,
 	path: string,
-	options: { scope?: 'A' | 'B'; stubSession?: boolean; scenario?: MockScenario } = {}
+	options: { scope?: 'A' | 'B'; stubSession?: boolean; scenario?: MockScenario; requireShell?: boolean } = {}
 ): Promise<Page> {
 	// The scenario has to be set before the page loads, or the answer it changes has already been given.
 	if (options.scenario) await mockScenario(options.scenario);
 	await signInWithFixture(page.context(), fixture, options.scope ?? 'A');
 	if (options.stubSession !== false) await stubNextAuthSession(page);
-	await hardVisit(page, path);
+	await hardVisit(page, path, { requireShell: options.requireShell });
 	return page;
 }
 

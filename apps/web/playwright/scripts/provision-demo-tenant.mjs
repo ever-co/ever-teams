@@ -62,17 +62,38 @@ async function call(method, path, { body, token, note } = {}) {
 
 const unwrap = (payload) => payload?.data ?? payload;
 
+/**
+ * The password sign-in, as the web app itself attempts it: `/auth/login` (register.service.ts
+ * `loginUser`, right after a sign-up) and then `/auth/signin.email.password` (what the sign-in page
+ * posts to). Both answers are tried so a refusal names both, rather than the one that happened first.
+ */
+async function signIn(email, password) {
+	const attempts = [
+		['/auth/login', { email, password }],
+		['/auth/signin.email.password', { email, password, includeTeams: true }]
+	];
+	const failures = [];
+
+	for (const [path, body] of attempts) {
+		try {
+			const payload = unwrap(await call('POST', path, { body, note: `sign in ${path}` }));
+			if (payload?.token ?? payload?.access_token) return payload;
+			failures.push(`${path} answered ${Object.keys(payload ?? {}).join(', ') || 'nothing'}`);
+		} catch (error) {
+			failures.push(String(error.message).replace(/eyJ[A-Za-z0-9_.-]+/g, '<token>'));
+		}
+	}
+
+	throw new Error(`no password sign-in route accepted the new account: ${failures.join(' | ')}`);
+}
+
 async function main() {
 	if (!fresh && existsSync(CREDENTIALS_FILE)) {
 		const saved = JSON.parse(readFileSync(CREDENTIALS_FILE, 'utf8'));
 		try {
-			const login = await call('POST', '/auth/login', {
-				body: { email: saved.email, password: saved.password },
-				note: 'reuse existing test account'
-			});
+			await signIn(saved.email, saved.password);
 			console.log(`reusing test tenant ${saved.tenantId} as ${saved.email}`);
 			console.log(JSON.stringify({ ...saved, password: undefined, token: undefined }, null, 2));
-			void login;
 			return;
 		} catch (error) {
 			console.log(`existing account no longer usable (${error.message}); provisioning a new one`);
@@ -84,26 +105,32 @@ async function main() {
 	const email = `${label}-${stamp}-${runId}@ever-teams.test`;
 	const password = `E2e!${randomBytes(9).toString('base64url')}`;
 
-	const user = unwrap(
-		await call('POST', '/auth/register', {
-			body: {
-				password,
-				confirmPassword: password,
-				user: {
-					firstName: 'Playwright',
-					lastName: `E2E ${runId}`,
-					email,
-					timeZone: 'Etc/UTC'
-				},
-				appEmailConfirmationUrl: 'https://demo.ever.team/verify-email'
+	// Field names only: a register answer can carry a token, and a token is never printed.
+	const registered = await call('POST', '/auth/register', {
+		body: {
+			password,
+			confirmPassword: password,
+			user: {
+				firstName: 'Playwright',
+				lastName: `E2E ${runId}`,
+				email,
+				timeZone: 'Etc/UTC'
 			},
-			note: 'register'
-		})
+			appEmailConfirmationUrl: 'https://demo.ever.team/verify-email'
+		},
+		note: 'register'
+	});
+	console.log(`register answered with: ${Object.keys(registered ?? {}).join(', ')}`);
+	// Never a value that could be a token: only the outcome and its message, with any JWT scrubbed.
+	const notice = Array.isArray(registered?.message) ? registered.message.join('; ') : registered?.message;
+	console.log(
+		`register outcome: success=${registered?.success ?? 'not stated'} message=${String(notice ?? '')
+			.replace(/eyJ[A-Za-z0-9_.-]+/g, '<token>')
+			.slice(0, 160)}`
 	);
 
-	const login = unwrap(
-		await call('POST', '/auth/login', { body: { email, password }, note: 'login' })
-	);
+	const user = unwrap(registered);
+	const login = await signIn(email, password);
 	const accessToken = login.token ?? login.access_token;
 	const refreshToken = login.refresh_token?.token ?? login.refresh_token;
 	if (!accessToken) throw new Error('login returned no access token');

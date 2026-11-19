@@ -89,12 +89,13 @@ test.describe('the authenticated gate', () => {
 	});
 
 	test('a signed-in person is not kept on a sign-in page', async ({ app }) => {
-		const view = await app('/auth/passcode');
+		// No shell wait: the point is where the person ends up, and the sign-in page has no shell of its own.
+		const view = await app('/auth/passcode', { requireShell: false });
 		await expect(view).not.toHaveURL(/\/auth\/passcode/, { timeout: 20_000 });
 	});
 
 	test('an unknown route answers 404 and does not crash', async ({ app, shield }) => {
-		const view = await app('/team/tasks/does-not-exist-anywhere');
+		const view = await app('/team/tasks/does-not-exist-anywhere', { requireShell: false });
 		const documents = shield.documents();
 		const last = documents[documents.length - 1];
 

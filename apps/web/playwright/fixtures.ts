@@ -2,6 +2,7 @@ import { test as base, expect, type Page } from '@playwright/test';
 
 import {
 	APP_ORIGIN,
+	CONSOLE_NOISE,
 	hardVisit,
 	loadFixture,
 	mockRequests,
@@ -36,16 +37,6 @@ import {
 const LOCAL_HOSTS = new Set(['127.0.0.1', 'localhost', '::1']);
 const isLocal = (url: string) => LOCAL_HOSTS.has(new URL(url).hostname);
 
-/** Console noise a hermetic run causes on purpose, or that the app cannot control. */
-const CONSOLE_NOISE = [
-	/Failed to load resource/i,
-	/net::ERR_/,
-	/Download the React DevTools/,
-	/favicon/i,
-	/\[Vercel\]/,
-	/DevTools setting/i
-];
-
 export type Shield = {
 	/** Requests the browser attempted against a non-local host. */
 	externalCalls: () => string[];
@@ -75,7 +66,7 @@ export type MockControl = {
 
 export type AppFactory = (
 	path: string,
-	options?: { scope?: 'A' | 'B'; stubSession?: boolean; scenario?: MockScenario }
+	options?: { scope?: 'A' | 'B'; stubSession?: boolean; scenario?: MockScenario; requireShell?: boolean }
 ) => Promise<Page>;
 
 export type AnonFactory = (
@@ -160,7 +151,7 @@ export const test = base.extend<{
 			if (options.scenario) await mockScenario(options.scenario);
 			await signInWithFixture(context, fixture, options.scope ?? 'A');
 			if (options.stubSession !== false) await stubNextAuthSession(page);
-			await hardVisit(page, path);
+			await hardVisit(page, path, { requireShell: options.requireShell });
 			return page;
 		};
 		await use(app);
@@ -170,7 +161,10 @@ export const test = base.extend<{
 		const anon: AnonFactory = async (path, options = {}) => {
 			if (options.scenario) await mockScenario(options.scenario);
 			await context.clearCookies();
-			if (options.stubSession !== false) await stubNextAuthSession(page);
+			// Signed out means signed out: with a fabricated session the app treats a sign-in page as a
+			// page a signed-in person has already passed, and sends them to the app shell — which renders
+			// nothing, because no session cookies were given. A spec that wants the stub says so.
+			if (options.stubSession === true) await stubNextAuthSession(page);
 			await page.goto(`${APP_ORIGIN}${path}`, { waitUntil: 'domcontentloaded' });
 			return page;
 		};
