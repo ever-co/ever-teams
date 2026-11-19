@@ -60,6 +60,11 @@ async function dispatch(io: CliIo, output: Output, trail: Trail): Promise<void> 
 /** Runs the command line `io.argv` and answers its exit code: 0 done, 1 refused or failed, 2 usage error. */
 export async function run(io: CliIo): Promise<number> {
 	const output = createOutput(io, io.argv.includes('--json'));
+	// Hidden before any argument is read: a usage error repeats the argument it refuses.
+	const environmentToken = io.env.EVER_TEAMS_TOKEN?.trim();
+	if (environmentToken) {
+		output.hide(environmentToken);
+	}
 	const trail: Trail = { command: '' };
 	try {
 		await dispatch(io, output, trail);

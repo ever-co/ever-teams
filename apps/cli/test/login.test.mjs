@@ -251,3 +251,24 @@ test('logout removes the stored token, and says so when there was none', async (
 	assert.equal(second.code, 0);
 	assert.deepEqual(JSON.parse(second.stdout), { signedOut: false });
 });
+
+test('a token typed as an argument, as with ever-teams login "$EVER_TEAMS_TOKEN", is never printed', async () => {
+	const env = { EVER_TEAMS_TOKEN: `${PERSONAL_TOKEN}\n` };
+
+	const plain = await runCli(['login', PERSONAL_TOKEN], { env });
+	const asJson = await runCli(['login', PERSONAL_TOKEN, '--json'], { env });
+
+	assert.equal(plain.code, 2);
+	assert.equal(
+		plain.stderr,
+		'login takes options only, and [hidden] is not one. Run ever-teams login --help to see how to use it.\n'
+	);
+	assert.equal(asJson.code, 2);
+	assert.equal(
+		JSON.parse(asJson.stderr).error.message,
+		'login takes options only, and [hidden] is not one. Run ever-teams login --help to see how to use it.'
+	);
+	for (const result of [plain, asJson]) {
+		assert.doesNotMatch(`${result.stdout}${result.stderr}`, new RegExp(PERSONAL_TOKEN));
+	}
+});
