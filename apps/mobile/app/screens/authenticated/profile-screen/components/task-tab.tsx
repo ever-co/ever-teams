@@ -1,9 +1,9 @@
-/* eslint-disable react-native/no-inline-styles */
-/* eslint-disable react-native/no-color-literals */
 import { observer } from 'mobx-react-lite';
 import React, { FC } from 'react';
-import { TouchableOpacity, Text, View, TextStyle, ViewStyle } from 'react-native';
-import { typography, useAppTheme } from '../../../../theme';
+import { TouchableOpacity, Text, View, TextStyle, ViewStyle, FontVariant } from 'react-native';
+import { typography, useWebTheme } from '../../../../theme';
+import { hsl, webColorTokens } from '../../../../../src/theme/tokens';
+import type { Theme } from '../../../../../src/theme/use-theme';
 
 interface Props {
 	setSelectedTab: () => unknown;
@@ -11,46 +11,61 @@ interface Props {
 	tabTitle: string;
 	countTasks: number;
 }
-const TaskTab: FC<Props> = observer(({ setSelectedTab, isSelected, tabTitle, countTasks }) => {
-	const { colors, dark } = useAppTheme();
 
+const SELECTED_COUNT_ALPHA = 0.12;
+
+/** A tab's count as the web's quiet chip: the selected tab's on a primary tint, the others on the muted fill. */
+export function countChipColorsOf(isSelected: boolean, theme: Theme) {
+	if (isSelected) {
+		return {
+			backgroundColor: hsl(webColorTokens[theme.scheme].primary, SELECTED_COUNT_ALPHA),
+			color: theme.colors['primary-ink']
+		};
+	}
+	return { backgroundColor: theme.colors.muted, color: theme.colors['muted-foreground'] };
+}
+
+function tabTitleColorOf(isSelected: boolean, theme: Theme) {
+	if (isSelected) {
+		return theme.colors.foreground;
+	}
+	return theme.colors['muted-foreground'];
+}
+
+function tabStyleOf(isSelected: boolean, theme: Theme): ViewStyle {
+	if (isSelected) {
+		return { ...$selectedTab, borderBottomColor: theme.colors['primary-ink'] };
+	}
+	return $unselectedTab;
+}
+
+const TaskTab: FC<Props> = observer(({ setSelectedTab, isSelected, tabTitle, countTasks }) => {
+	const theme = useWebTheme();
+	const count = countChipColorsOf(isSelected, theme);
 	return (
 		<TouchableOpacity
-			style={[
-				$container,
-				isSelected
-					? { ...$selectedTab, borderBottomColor: dark ? colors.primary : colors.secondary }
-					: $unselectedTab
-			]}
+			testID="task-tab"
+			style={[$container, tabStyleOf(isSelected, theme)]}
 			activeOpacity={0.7}
 			onPress={() => setSelectedTab()}
 		>
-			<Text style={[$tabText, { color: isSelected ? colors.primary : colors.tertiary }]}>{tabTitle}</Text>
-			{!dark ? (
-				<View
-					style={[
-						$wrapperCountTasks,
-						{ backgroundColor: isSelected ? colors.accentFill : colors.background2 }
-					]}
-				>
-					<Text style={[$countTasks, { color: isSelected ? colors.background : colors.tertiary }]}>
-						{countTasks}
-					</Text>
-				</View>
-			) : (
-				<View style={[$wrapperCountTasks, { backgroundColor: isSelected ? '#47484D' : '#24282F' }]}>
-					<Text style={[$countTasks, { color: isSelected ? colors.primary : '#7E7991' }]}>{countTasks}</Text>
-				</View>
-			)}
+			<Text style={[$tabText, { color: tabTitleColorOf(isSelected, theme) }]}>{tabTitle}</Text>
+			<View testID="task-tab-count" style={[$wrapperCountTasks, { backgroundColor: count.backgroundColor }]}>
+				<Text style={[$countTasks, { color: count.color }]}>{countTasks}</Text>
+			</View>
 		</TouchableOpacity>
 	);
 });
 
 export default TaskTab;
 
+const TABULAR_DIGITS: FontVariant[] = ['tabular-nums'];
+
 const $countTasks: TextStyle = {
-	fontSize: 10,
-	fontFamily: typography.secondary.medium
+	fontSize: 11,
+	fontWeight: '500',
+	fontFamily: typography.secondary.medium,
+	fontVariant: TABULAR_DIGITS
 };
 
 const $container: ViewStyle = {
@@ -60,15 +75,17 @@ const $container: ViewStyle = {
 	justifyContent: 'center',
 	paddingBottom: 10
 };
+
 const $unselectedTab: ViewStyle = {
 	padding: 10,
 	flexDirection: 'row'
 };
+
 const $wrapperCountTasks: ViewStyle = {
-	width: 18,
+	minWidth: 18,
 	left: 3,
-	borderRadius: 4,
-	paddingHorizontal: 2,
+	borderRadius: 5,
+	paddingHorizontal: 4,
 	height: 18,
 	justifyContent: 'center',
 	alignItems: 'center'
