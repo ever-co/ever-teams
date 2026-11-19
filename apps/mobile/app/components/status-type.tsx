@@ -11,6 +11,8 @@ import { useTaskVersion } from "../services/hooks/features/use-task-version"
 export type TStatusItem = {
 	bgColor?: string
 	icon?: React.ReactNode | undefined
+	/** The icon file of the value, which a chip draws in its own ink */
+	iconUrl?: string
 	name?: string
 	value?: string
 	bordered?: boolean
@@ -30,6 +32,7 @@ export function useMapToTaskStatusValues<T extends ITaskStatusItem>(
 				name: item.name?.split("-").join(" "),
 				value: item.value || item.name,
 				bgColor: item.color,
+				iconUrl: item.fullIconUrl,
 				bordered,
 				icon: (
 					<View>
