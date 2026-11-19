@@ -52,7 +52,11 @@ const HamburgerMenu = observer((props: any) => {
 					visible={showCreateTeamModal}
 					onDismiss={() => setShowCreateTeamModal(false)}
 				/>
-				<DrawerContentScrollView style={{ width: '100%' }} {...props}>
+				<DrawerContentScrollView
+					style={{ width: '100%' }}
+					{...props}
+					contentContainerStyle={styles.scrollContent}
+				>
 					<View style={[styles.profileSection, { borderBottomColor: theme.colors.border }]}>
 						<View testID="menu-person" style={styles.person}>
 							<ProfileImage size={40} user={user} />
@@ -197,6 +201,11 @@ const styles = StyleSheet.create({
 		zIndex: 10
 	},
 
+	// the drawer's scroll view adds 12 on each side: the menu keeps its own 16 for every row
+	scrollContent: {
+		paddingEnd: 0,
+		paddingStart: 0
+	},
 	themeLabel: {
 		fontFamily: typography.primary.medium,
 		fontSize: 13,
