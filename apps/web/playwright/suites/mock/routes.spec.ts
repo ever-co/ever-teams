@@ -1,4 +1,5 @@
 import { expect, test, type BootstrapFixture } from '../../fixtures';
+import { devOverlayErrors } from '../../helpers';
 
 /**
  * Every authenticated route in the app, loaded as a signed-in person against the mock API.
@@ -96,7 +97,7 @@ for (const route of ROUTES) {
 		expect(shield.consoleErrors(), `app console errors on ${route.label}`).toEqual([]);
 
 		// A Next.js error overlay means the route threw during render.
-		await expect(page.locator('nextjs-portal'), `dev overlay on ${route.label}`).toHaveCount(0);
+		expect(await devOverlayErrors(page), `the Next dev overlay shows an error on ${route.label}`).toEqual([]);
 
 		// The app keeps the person on the route: no bounce to sign-in, no /unauthorized, no 404 page.
 		expect(page.url(), `landed on ${route.label}`).not.toMatch(/\/auth\/(passcode|password|signup|error)/);

@@ -39,8 +39,15 @@ const sharedEnv = (apiOrigin: string): Record<string, string> => ({
 	EVER_STATS_API_URL: PLATFORM_ORIGIN,
 	NEXT_PUBLIC_EVER_STATS_API_URL: PLATFORM_ORIGIN,
 	NEXT_PUBLIC_EVER_STATS_ENABLED: 'true',
+	// The reporter's own cadence, honoured only for a local statistics address (which this is): a
+	// statistics test otherwise waits a production interval for one report. Cypress sets the same 5.
+	EVER_STATS_SEND_INTERVAL_S: '5',
 	AUTH_SECRET: 'playwright-deterministic-secret',
 	NEXT_PUBLIC_DEMO: 'true',
+	// Settings › Team › Integrations shows its Ever Platform connection parts only with this on (off by
+	// default, core/lib/ever-platform/env.ts). The Cypress suite runs with it on for the same reason, and
+	// the calls it unlocks go through the mock: /api/ever-connect/* is proxied to GAUZY_API_SERVER_URL.
+	NEXT_PUBLIC_EVER_CONNECT_ENABLED: 'true',
 	// apps/web/.env scopes cookies to ever.team; such a cookie is never sent to 127.0.0.1.
 	NEXT_PUBLIC_COOKIE_DOMAINS: '',
 	// No third-party telemetry from a test run, and none of the keys .env carries.

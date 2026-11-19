@@ -146,6 +146,47 @@ export async function signInWithFixture(
 	await context.addCookies(authCookieNames(fixture, scope).map(([name, value]) => cookie(name, value)));
 }
 
+/**
+ * The mock's request log, re-read until it satisfies a predicate. A page mounts its data after the
+ * shell is ready, so a fixed wait is not enough: the Cypress profile-activity spec lost a read that
+ * way on a busy runner. Pass a window wider than the slowest expected call, not a guess.
+ */
+export async function mockRequestsWhen(
+	isReady: (requests: StubRequest[]) => boolean,
+	{ tries = 40, intervalMs = 250 }: { tries?: number; intervalMs?: number } = {}
+): Promise<StubRequest[]> {
+	let last: StubRequest[] = [];
+	for (let attempt = 0; attempt < tries; attempt += 1) {
+		last = await mockRequests();
+		if (isReady(last)) return last;
+		await new Promise((done) => setTimeout(done, intervalMs));
+	}
+	throw new Error(
+		`the test backend was never asked for what the test expected (after ${tries} reads): ${last
+			.map((request) => `${request.method} ${request.path}`)
+			.join(', ')}`
+	);
+}
+
+/**
+ * Waits for the mock's state to satisfy a predicate, re-reading it on an interval. The mock mutates
+ * its own state as the app calls it (timer start/stop, the statistics toggle, a notification write), so
+ * "the app did it" is only visible a moment after the browser action — the same reason Cypress specs
+ * poll `cy.mockState()`.
+ */
+export async function mockStateWhen<T extends Record<string, unknown>>(
+	isReady: (state: T) => boolean,
+	{ tries = 40, intervalMs = 500 }: { tries?: number; intervalMs?: number } = {}
+): Promise<T> {
+	let last: T | undefined;
+	for (let attempt = 0; attempt < tries; attempt += 1) {
+		last = (await mockState()) as T;
+		if (isReady(last)) return last;
+		await new Promise((done) => setTimeout(done, intervalMs));
+	}
+	throw new Error(`the test backend never reached the expected state after ${tries} reads: ${JSON.stringify(last)}`);
+}
+
 /** The NextAuth session support/e2e.ts stubs globally; the app origin serves this route, the mock does not. */
 export async function stubNextAuthSession(page: Page): Promise<void> {
 	await page.route('**/api/auth/session**', (route) =>
@@ -159,6 +200,40 @@ export async function stubNextAuthSession(page: Page): Promise<void> {
 			})
 		})
 	);
+}
+
+/**
+ * Next's dev overlay mounts a `nextjs-portal` element on every page it serves, error or not, so the
+ * portal proves nothing — asserting it is absent fails every page in a dev run. The error UI (the
+ * runtime-error dialog with its call stack, the build-error container, the build-error toast) only
+ * appears inside that portal, in its own shadow tree, when something actually broke.
+ *
+ * This returns the text of that markup — walking every shadow tree, because the overlay nests them —
+ * so a failing assertion quotes what the developer would have seen on screen.
+ */
+const DEV_ERROR_MARKUP = [
+	'[data-nextjs-dialog]',
+	'[data-nextjs-dialog-body]',
+	'[data-nextjs-codeframe]',
+	'nextjs-container-errors-body',
+	'nextjs-toast'
+].join(',');
+
+export async function devOverlayErrors(page: Page): Promise<string[]> {
+	return page.evaluate((selector) => {
+		const found: string[] = [];
+		const walk = (root: Document | ShadowRoot) => {
+			for (const element of Array.from(root.querySelectorAll('*'))) {
+				if (element.matches(selector)) {
+					const text = (element.textContent ?? '').replace(/\s+/g, ' ').trim();
+					if (text) found.push(text.slice(0, 400));
+				}
+				if (element.shadowRoot) walk(element.shadowRoot);
+			}
+		};
+		walk(document);
+		return found;
+	}, DEV_ERROR_MARKUP);
 }
 
 /** Resolves once the app has marked its shell ready (the mark startup-performance waits on). */
@@ -178,6 +253,25 @@ export async function hardVisit(page: Page, path: string): Promise<void> {
 	});
 	await page.goto(`${APP_ORIGIN}${path}`, { waitUntil: 'domcontentloaded' });
 	await waitForShellReady(page);
+}
+
+/**
+ * Signs in and hard-loads a route, on a page the caller already put routes on. The fixtures' `app()`
+ * navigates for you; a spec that must intercept an API call before the page loads needs this order
+ * instead: routes first, cookies second, navigation last.
+ */
+export async function signInAndVisit(
+	page: Page,
+	fixture: BootstrapFixture,
+	path: string,
+	options: { scope?: 'A' | 'B'; stubSession?: boolean; scenario?: MockScenario } = {}
+): Promise<Page> {
+	// The scenario has to be set before the page loads, or the answer it changes has already been given.
+	if (options.scenario) await mockScenario(options.scenario);
+	await signInWithFixture(page.context(), fixture, options.scope ?? 'A');
+	if (options.stubSession !== false) await stubNextAuthSession(page);
+	await hardVisit(page, path);
+	return page;
 }
 
 /** Mirrors `rotateSyntheticAccessToken`: a new token cookie plus the window event the app listens for. */

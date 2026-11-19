@@ -179,4 +179,5 @@ export const test = base.extend<{
 });
 
 export { expect, waitForShellReady, loadFixture };
-export type { BootstrapFixture, MockScenario, StubRequest };
+// Re-exported so a spec imports the browser types it needs from the same module it gets `test` from.
+export type { BootstrapFixture, MockScenario, StubRequest, Page };

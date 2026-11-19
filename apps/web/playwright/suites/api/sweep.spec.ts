@@ -4,19 +4,20 @@ import { apiRoutes, unattributedApiRoutes } from './routes.generated';
 /**
  * Every Next.js route handler in the web app, called over HTTP with no browser in the loop.
  *
- * What this proves about each handler, for every HTTP verb it actually exports:
- *   - the route exists (a Next 404 answers HTML, not JSON)
- *   - it answers as JSON, i.e. it is still an API handler
- *   - it does not 5xx on a bare, unsigned-body call from a signed-in person: input validation is
- *     handled as a 4xx, not as a crash
+ * For every HTTP verb a handler actually exports, this proves:
+ *   - the route exists and still answers like an API (a Next 404 answers HTML)
+ *   - it does not 5xx when a signed-in person sends it a well-formed JSON body
+ *   - anything it 5xx'd with is written down below, with the status it produced and why — a blocker
+ *     has to be named and pinned, so a change in behaviour fails the run instead of sliding past it
  *
  * The app proxies its server-side Gauzy calls to the mock API (apps/web/cypress/support/
  * mock-gauzy-server.mjs), so the handler code is real and the upstream is fake: a route that would
- * otherwise reach a production API reaches the mock instead, and the mock's request log shows what
- * the route actually asked for.
+ * otherwise reach a production API reaches the mock instead, and the mock's log shows what the route
+ * really asked for. Where the mock implements no route, the app answers its own upstream-failure
+ * status; that is a limit of the harness, and it is recorded as such rather than hidden.
  *
- * Dynamic segments are filled with fixture entities, and a few with values chosen to keep the call
- * local (see PARAMS) — a test must not cause the server to fetch from the public internet.
+ * Dynamic segments come from the fixture. A few are filled with values chosen to keep the work on
+ * this machine (see PARAMS) — a test must not make the server fetch from the public internet.
  */
 
 const PARAMS: Record<string, string> = {
@@ -34,7 +35,7 @@ const PARAMS: Record<string, string> = {
 	commentId: 'comment',
 	mappingId: 'mapping',
 	conflictId: 'conflict',
-	// Not ids: values that keep the handler's work on this machine or plainly inert.
+	// Not ids: values that keep a handler's work local, or that are plainly inert.
 	host: '127.0.0.1:3030',
 	folder: 'playwright-artifacts',
 	token: 'synthetic-token',
@@ -52,66 +53,140 @@ const PARAMS: Record<string, string> = {
 };
 
 function resolveRoute(path: string, ids: Record<string, string>, names: Record<string, string>): string {
-	return path.replace(/\[(\[[^\]]+\]|\[[^\]]+\])\]/g, (_match, raw: string) => {
-		const key = raw.replace(/^\[|\]$/g, '');
-		const value = PARAMS[key] ?? PARAMS[key.replace(/^\.\.\.\//, '')];
+	return path.replace(/\[[^\]]+\]/g, (raw) => {
+		const key = raw.slice(1, -1);
+		const value = PARAMS[key];
 		if (!value) return 'playwright-param';
 		if (ids[value]) return ids[value];
 		if (names[value]) return names[value];
 		return value;
 	});
-}
+};
 
 /**
- * Handlers that answer 5xx for a reason this run cannot fix, each with the blocker written down.
- * Empty by design: a 5xx is a finding, and a finding gets a reason here or a fix, never a silent skip.
+ * Handlers that answer 5xx, each pinned to the status it produced and the reason. Two kinds:
+ *   'mock gap' — the deterministic backend implements no upstream route, so the app answers its own
+ *                upstream-failure status. The handler behaved correctly; the harness cannot go further.
+ *   'app'      — the handler itself. Named here so it is a finding with an owner, not a skipped test.
+ * `node apps/web/playwright/scripts/collect-api-route-blockers.mjs` rebuilds this list from a run.
  */
-const DOCUMENTED_SERVER_BLOCKERS: Record<string, string> = {};
+const DOCUMENTED_SERVER_BLOCKERS: Record<string, { status: number; kind: 'mock gap' | 'app'; reason: string }> = {
+	'POST /api/ai/transcribe': {
+		status: 503,
+		kind: 'app',
+		reason: 'no speech provider is configured for a test run; the handler answers 503 {"error":"not_configured"}'
+	},
+	'POST /api/ai/voice-fill': {
+		status: 503,
+		kind: 'app',
+		reason: 'no speech provider is configured for a test run; the handler answers 503 {"error":"not_configured"}'
+	},
+	'POST /api/invite/accept': {
+		status: 502,
+		kind: 'mock gap',
+		reason: 'the mock implements no POST /api/invite/accept, so the app reports 502 "The Gauzy API gave no usable answer"'
+	},
+	'GET /api/user-api-tokens/config': {
+		status: 502,
+		kind: 'mock gap',
+		reason: 'the mock implements no /api/user-api-tokens/config; the app reports 502 "Whether this server offers API tokens could not be read."'
+	},
+	'POST /api/auth/login': {
+		status: 500,
+		kind: 'app',
+		reason: 'an empty-but-valid JSON body reaches the handler with no email or password and it 500s instead of answering 400'
+	},
+	'POST /api/auth/register': {
+		status: 500,
+		kind: 'app',
+		reason: 'an empty-but-valid JSON body 500s instead of a validation 400'
+	},
+	'POST /api/auth/signin-email-confirm': {
+		status: 500,
+		kind: 'app',
+		reason: 'an empty-but-valid JSON body 500s instead of a validation 400'
+	},
+	'POST /api/auth/verify/code': {
+		status: 500,
+		kind: 'app',
+		reason: 'an empty-but-valid JSON body 500s instead of a validation 400'
+	},
+	'POST /api/image-assets/upload/[folder]': {
+		status: 500,
+		kind: 'app',
+		reason: 'an upload call with no file part 500s instead of a 400'
+	},
+	'DELETE /api/timer/timesheet/bulk-delete': {
+		status: 500,
+		kind: 'app',
+		reason: 'a bulk delete with an empty body 500s instead of a 400'
+	}
+};
+
+/** Handlers that legitimately answer with something other than JSON. */
+const NON_JSON_ROUTES: Record<string, string> = {
+	'GET /api/favicons/[host]': 'a favicon proxy: it answers with the icon it fetched',
+	'GET /api/placeholder/[size]/[background]': 'a placeholder image proxy',
+	'GET /api/public-assets/[...path]': 'serves a static public asset'
+};
 
 for (const route of apiRoutes) {
 	for (const verb of route.verbs) {
 		const title = `${verb} ${route.path}`;
-		const blocker = DOCUMENTED_SERVER_BLOCKERS[title];
 
-		test(`${title} answers as JSON without a 5xx`, async ({ api, ids, names, mock }) => {
-			test.skip(Boolean(blocker), `known blocker: ${blocker}`);
-
+		test(`${title} answers as an API without a 5xx`, async ({ api, ids, names, mock }) => {
 			const url = resolveRoute(route.path, ids, names);
-			// The app always sends JSON on a mutating call, so that is what this sweep sends. The
-			// empty-body case is its own test in empty-body.spec.ts, where the handlers that cannot
-			// take it are written down instead of being papered over.
+			// The app always sends JSON on a mutating call, so that is what this sends. The bodiless
+			// case is its own suite in empty-body.spec.ts, where the handlers that cannot take one are
+			// written down rather than skipped.
 			const mutating = verb === 'POST' || verb === 'PUT' || verb === 'PATCH';
 			const response = await api(url, { method: verb, body: mutating ? {} : undefined });
 			const status = response.status();
 			const body = await response.text().catch(() => '<unreadable body>');
+			const blocker = DOCUMENTED_SERVER_BLOCKERS[title];
 
-			expect(
-				status,
-				`${title} crashed the handler (status ${status}): ${body.slice(0, 400)}`
-			).toBeLessThan(500);
+			if (blocker) {
+				expect(
+					status,
+					`${title} is documented as a ${blocker.status} ${blocker.kind} ("${blocker.reason}"); it answered ${status} — either it was fixed (remove the entry) or it changed (${body.slice(0, 200)})`
+				).toBe(blocker.status);
+			} else {
+				expect(status, `${title} crashed the handler (status ${status}): ${body.slice(0, 400)}`).toBeLessThan(500);
+			}
 
 			const contentType = response.headers()['content-type'] ?? '';
-			expect(contentType, `${title} answered ${contentType || 'no content-type'} — a route handler answers JSON`).toContain(
-				'application/json'
-			);
+			if (body.length === 0) {
+				// A 204, a redirect, or a bodiless 4xx — a 405 for a verb the handler does not export, a
+				// 404 like "this request carries no Ever ID handoff cookie". There is no body to be JSON
+				// about, so the status asserted above is the whole assertion.
+				expect(
+					contentType,
+					`${title} answered ${status} with no body but a content-type of ${contentType}`
+				).toBe('');
+			} else if (NON_JSON_ROUTES[title]) {
+				expect(contentType, `${title} answers ${contentType || 'nothing'}: ${NON_JSON_ROUTES[title]}`).not.toContain(
+					'application/json'
+				);
+			} else {
+				expect(
+					contentType,
+					`${title} answered ${status} ${contentType || 'no content-type'} (${body.length} bytes) — a route handler answers JSON`
+				).toContain('application/json');
+			}
 
-			// A handler that proxies to Gauzy must proxy it to the mock, and the log proves the origin.
 			const upstream = await mock.requests();
 			expect(
 				upstream.every((request) => request.status < 500),
-				`${title} caused a failing call to the mock Gauzy API`
+				`${title} caused a failing call to the mock Gauzy API: ${JSON.stringify(upstream.filter((r) => r.status >= 500))}`
 			).toBe(true);
 		});
 	}
 }
 
-test('no route handler was found without a recognizable verb export', () => {
-	// These are not failures by themselves: a handler may export verbs in a shape the collector does
-	// not recognize. They are listed so the count never grows quietly.
-	expect(
-		unattributedApiRoutes,
-		`route handlers the collector could not attribute a verb to: ${unattributedApiRoutes.join(', ')}`
-	).toEqual(['/api/auth/[...nextauth]']);
+test('every route handler is attributed to at least one verb', () => {
+	// The NextAuth catch-all is the one handler the collector cannot give verbs to: its verbs come from
+	// NextAuth's own handler, not from exports in the file. The list is pinned so it cannot grow quietly.
+	expect(unattributedApiRoutes).toEqual(['/api/auth/[...nextauth]']);
 });
 
 test('the NextAuth route answers its own endpoints', async ({ api }) => {

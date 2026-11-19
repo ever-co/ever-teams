@@ -33,7 +33,11 @@ export default defineConfig({
 		video: 'off',
 		// Full Chromium (the `chromium` Playwright build) rather than the separate chrome-headless-shell
 		// download: one browser build to install, the same engine headless.
-		channel: 'chromium'
+		//
+		// Blocker on this PC: `npx playwright install chromium` downloads the whole archive and extracts
+		// only three files (chrome.exe never lands), so the bundled build cannot be used here yet.
+		// E2E_BROWSER_CHANNEL=chrome runs the same engine against the system Chrome until that is fixed.
+		channel: (process.env.E2E_BROWSER_CHANNEL ?? 'chromium') as 'chromium' | 'chrome'
 	},
 	webServer: mockServers(),
 	projects: [{ name: 'mock', class: devices['Desktop Chrome'], testMatch: '**/mock/**/*.spec.ts' }]
