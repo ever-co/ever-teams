@@ -42,14 +42,38 @@ function configOf(apiUrl: string | null, hadApiUrl: boolean) {
 	return {};
 }
 
+interface SiteSignInConfig {
+	signIn?: 'ever-teams';
+	organizationId?: string;
+	appUrl?: string;
+}
+
+// sign-in="ever-teams": the "Sign in with Ever Teams" popup, for the organization and on the web app the attributes
+// name. Any other value, or none, keeps the kit's own sign-in: the provider gets nothing new.
+function signInConfigOf(element: HTMLElement): SiteSignInConfig {
+	if (element.getAttribute('sign-in') !== 'ever-teams') {
+		return {};
+	}
+	const config: SiteSignInConfig = {
+		signIn: 'ever-teams',
+		organizationId: element.getAttribute('organization') ?? ''
+	};
+	const appUrl = element.getAttribute('app-url');
+	if (appUrl) {
+		config.appUrl = appUrl;
+	}
+	return config;
+}
+
 /**
  * <ever-teams-timer api-url="https://api.ever.team/api">: the kit's sign-in and basic timer, rendered by React in the
- * element's own shadow root with the kit's stylesheet. Attributes: api-url, color-scheme (light, dark, system) and
- * lang. Removing the element stops its timer display and its requests. It dispatches ever-teams-timer-change (bubbles,
- * composed) at the first read of the timer and at each start, stop or other running entry a later read shows.
+ * element's own shadow root with the kit's stylesheet. Attributes: api-url, color-scheme (light, dark, system), lang,
+ * and sign-in="ever-teams" with organization and app-url for the sign-in with Ever Teams. Removing the element stops
+ * its timer display and its requests. It dispatches ever-teams-timer-change (bubbles, composed) at the first read of
+ * the timer and at each start, stop or other running entry a later read shows.
  */
 export class EverTeamsTimerElement extends HTMLElement {
-	static readonly observedAttributes = ['api-url', 'color-scheme', 'lang'];
+	static readonly observedAttributes = ['api-url', 'color-scheme', 'lang', 'sign-in', 'organization', 'app-url'];
 
 	private root: Root | null = null;
 	private cache: EmotionCache | null = null;
@@ -114,7 +138,7 @@ export class EverTeamsTimerElement extends HTMLElement {
 		this.root.render(
 			<CacheProvider value={this.cache}>
 				<TeamsProvider
-					config={configOf(apiUrl, this.hadApiUrl)}
+					config={{ ...configOf(apiUrl, this.hadApiUrl), ...signInConfigOf(this) }}
 					scopedStyles
 					colorScheme={colorSchemeOf(this.getAttribute('color-scheme'))}
 					lang={lang}
