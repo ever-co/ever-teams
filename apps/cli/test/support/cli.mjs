@@ -41,9 +41,17 @@ export const placeOf = (home) => ({
 	homedir: home
 });
 
+// The time a run reads: the one a test gives, or what its clock function answers at each read.
+function timeOf(now) {
+	if (typeof now === 'function') {
+		return now();
+	}
+	return now ?? new Date();
+}
+
 /**
  * Runs `argv` and answers its exit code and what it wrote. `env` is added to the settings folder's variables;
- * `stdin` is a text, a stream, or nothing.
+ * `stdin` is a text, a stream, or nothing; `now` a Date or a function that answers one.
  */
 export async function runCli(argv, { home = newHome(), env = {}, fetch = noNetwork, stdin, now } = {}) {
 	let stdout = '';
@@ -62,7 +70,7 @@ export async function runCli(argv, { home = newHome(), env = {}, fetch = noNetwo
 			stderr += text;
 		},
 		fetch,
-		now: () => now ?? new Date()
+		now: () => timeOf(now)
 	};
 	const code = await run(io);
 	return { code, stdout, stderr, home };

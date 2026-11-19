@@ -15,6 +15,8 @@ function runningLogOf(timer: EverTeamsTimerStatus) {
 async function status(context: CommandContext): Promise<void> {
 	const client = openSession(context);
 	const timer = await client.timer.status();
+	// The running entry lasts until the status was read: the reads of its names come after.
+	const observedAt = context.io.now();
 	const today = `Today: ${durationText(timer.duration)} tracked.`;
 	const log = runningLogOf(timer);
 	if (!log) {
@@ -24,7 +26,7 @@ async function status(context: CommandContext): Promise<void> {
 		return;
 	}
 	const names = await namesOf(client, log);
-	const entry = recordOfLog(log, names, context.io.now());
+	const entry = recordOfLog(log, names, observedAt);
 	const since = clockOf(new Date(entry.startedAt));
 	const running = `The timer is running since ${since} (${durationText(entry.durationSeconds)})${workOf(entry)}.`;
 	context.output.result({ running: true, todaySeconds: timer.duration, entry }, [running, today]);

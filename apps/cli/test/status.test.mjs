@@ -296,3 +296,18 @@ test('an empty EVER_TEAMS_API_URL counts as unset: the stored address is used', 
 	assert.equal(result.code, 0);
 	assert.ok(api.requests.every((request) => request.url.startsWith(API_URL)));
 });
+
+test('a running timer lasts until its status was read, not until its names were', async () => {
+	let clock = new Date('2000-01-01T01:28:30Z');
+	// The names take ten minutes to read.
+	const slowProjects = () => {
+		clock = new Date('2000-01-01T01:38:30Z');
+		return json(200, recorded('projects.list'));
+	};
+	const api = statusApi(onTask(), { 'GET /organization-projects/employee/<employee-1>': slowProjects });
+
+	const result = await runCli(['status', '--json'], { home: signedInHome(), fetch: api.fetch, now: () => clock });
+
+	assert.equal(result.code, 0);
+	assert.equal(JSON.parse(result.stdout).entry.durationSeconds, 3930);
+});
