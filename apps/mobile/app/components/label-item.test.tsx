@@ -44,6 +44,15 @@ describe('a chip on a card', () => {
 		expect(icon.props.color).toBe(dataColorChipOf('#ece8fc', 'light')?.ink);
 	});
 
+	it('keeps a long label inside its card, shortened on one line', async () => {
+		await render(<LabelItem label="Repaint the north pier maintenance hatch" background="#ffcc00" icon={undefined} />);
+
+		expect(StyleSheet.flatten(screen.getByTestId('task-chip').props.style).maxWidth).toBe('100%');
+		const name = screen.getByText('Repaint the north pier maintenance hatch');
+		expect(StyleSheet.flatten(name.props.style).flexShrink).toBe(1);
+		expect(name.props.numberOfLines).toBe(1);
+	});
+
 	it('keeps a readable neutral chip when the API color is missing', async () => {
 		await render(<LabelItem label="Urgent" background="" icon={undefined} />);
 

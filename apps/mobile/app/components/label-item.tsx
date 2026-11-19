@@ -26,9 +26,11 @@ const LabelItem: FC<Props> = ({ label, background, icon, iconUrl }) => {
 };
 
 const styles = StyleSheet.create({
+	// a long label stays inside its card: the chip never passes the row's width and its name shrinks to one line
 	container: {
 		alignItems: 'center',
 		borderRadius: 8,
+		maxWidth: '100%',
 		flexDirection: 'row',
 		gap: 5,
 		minHeight: 24,
@@ -36,6 +38,7 @@ const styles = StyleSheet.create({
 		paddingVertical: 3
 	},
 	labelTitle: {
+		flexShrink: 1,
 		fontSize: 12,
 		fontWeight: '500',
 		textTransform: 'capitalize'
