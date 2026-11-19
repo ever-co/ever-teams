@@ -12,7 +12,6 @@ import ProfileImage from './profile-image';
 import { translate } from '../i18n';
 import { observer } from 'mobx-react-lite';
 import { useOrganizationTeam } from '../services/hooks/use-organization';
-import { BlurView } from 'expo-blur';
 import { navigateTo } from '../navigators/routes';
 import { usePathname } from 'expo-router';
 import { MenuRow } from './menu-row';
@@ -30,7 +29,6 @@ const HamburgerMenu = observer((props: any) => {
 	const { createOrganizationTeam, activeTeam } = useOrganizationTeam();
 	const [showCreateTeamModal, setShowCreateTeamModal] = React.useState(false);
 	const [isTeamModalOpen, setIsTeamModalOpen] = React.useState<boolean>(false);
-	const [containerWidth, setContainerWidth] = React.useState(0);
 
 	const { navigation } = props;
 	const isOpen = useDrawerStatus() === 'open';
@@ -47,13 +45,7 @@ const HamburgerMenu = observer((props: any) => {
 	}, [isOpen]);
 
 	return (
-		<TouchableWithoutFeedback
-			onLayout={(event) => {
-				const { width } = event.nativeEvent.layout;
-				setContainerWidth(width);
-			}}
-			onPress={() => setIsTeamModalOpen(false)}
-		>
+		<TouchableWithoutFeedback onPress={() => setIsTeamModalOpen(false)}>
 			<View style={[styles.container, { backgroundColor: dark ? colors.background2 : colors.background }]}>
 				<CreateTeamModal
 					onCreateTeam={createOrganizationTeam}
@@ -136,20 +128,6 @@ const HamburgerMenu = observer((props: any) => {
 						onPress={() => onLogout()}
 					/>
 				</View>
-				{isOpen && (
-					<BlurView
-						intensity={15}
-						onTouchStart={() => navigation.closeDrawer()}
-						tint="dark"
-						style={{
-							position: 'absolute',
-							width: '100%',
-							height: '100%',
-							right: containerWidth,
-							zIndex: 1000
-						}}
-					/>
-				)}
 			</View>
 		</TouchableWithoutFeedback>
 	);

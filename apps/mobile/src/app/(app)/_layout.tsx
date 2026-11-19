@@ -11,6 +11,9 @@ import { NextShellHeartbeat } from '../../home/next-shell-heartbeat';
 
 export const unstable_settings = { initialRouteName: '(tabs)' };
 
+/** The overlay under the open menu: 40% black, without blur. */
+const MENU_OVERLAY = 'rgba(0, 0, 0, 0.4)';
+
 /**
  * The signed-in part, as the current app draws it: the menu in a drawer from the right, the tabs, and the screens it
  * opens, with the one counter of the running time beside them. Without a session, the sign-in.
@@ -34,7 +37,8 @@ export default observer(function SignedInLayout() {
 				screenOptions={{
 					headerShown: false,
 					drawerPosition: 'right',
-					drawerStyle: { width: '83%' }
+					drawerStyle: { width: '83%' },
+					overlayColor: MENU_OVERLAY
 				}}
 			/>
 		</>
