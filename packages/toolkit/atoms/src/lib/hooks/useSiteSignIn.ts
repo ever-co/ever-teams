@@ -32,12 +32,14 @@ export const siteSignInWarning: TokenFailureWarning = (error) => {
 };
 
 /**
- * The session of a sign-in with Ever Teams for the provider's API address, or null without config.signIn 'ever-teams'.
- * Another address gets a session of its own.
+ * The session of a sign-in with Ever Teams for the provider's API address and organization, or null without
+ * config.signIn 'ever-teams'. Another address or organization gets a session of its own, which never renews a sign-in
+ * the person allowed for another one.
  */
 export function useSiteSession(signIn: KitSiteSignIn | null, apiUrl: string): KitSiteSession | null {
 	const enabled = signIn !== null;
 	const appUrl = signIn?.appUrl;
+	const organizationId = signIn?.organizationId ?? '';
 	useEffect(() => {
 		if (appUrl === undefined || appOriginOf(appUrl) !== null) {
 			return;
@@ -51,8 +53,8 @@ export function useSiteSession(signIn: KitSiteSignIn | null, apiUrl: string): Ki
 		if (!enabled) {
 			return null;
 		}
-		return createSiteSession(apiUrl);
-	}, [enabled, apiUrl]);
+		return createSiteSession(apiUrl, organizationId);
+	}, [enabled, apiUrl, organizationId]);
 }
 
 /**
@@ -79,7 +81,7 @@ export function useSiteSignInControls(
 
 	const takeTokens = useCallback(
 		async (session: KitSiteSession, tokens: EmbedSiteTokens) => {
-			session.accept(tokens);
+			await session.accept(tokens);
 			await askForToken();
 			// A refresh already running when the popup answered (a renewal at start) did not take the handed token.
 			if (session.holdsHandedToken()) {

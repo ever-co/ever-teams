@@ -263,8 +263,13 @@ const TeamsProvider = ({
 		signInMode = 'site';
 	}
 	// So does another address, its own apiUrl (an element's api-url changes) or, without one, the page's: the token
-	// held for one server is never sent to the next, nor saved as its session.
-	const stateKey = [signInMode, server].join(' ');
+	// held for one server is never sent to the next, nor saved as its session. With Ever Teams, so does another
+	// organization: the token of the sign-in allowed for one never runs the timer set up for the next.
+	let scope = '';
+	if (siteSignIn) {
+		scope = props.config?.organizationId ?? '';
+	}
+	const stateKey = JSON.stringify([signInMode, server, scope]);
 	const content = (
 		<KitOptionsProvider value={{ scoped: scopedStyles, onSignOut, hostSignIn, siteSignIn, branding, api }}>
 			<JotaiProvider key={stateKey}>

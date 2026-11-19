@@ -1,7 +1,8 @@
 import type { EmbedSiteTokens } from '@ever-teams/api';
 
 // Sign-in with Ever Teams: the person allows the site in a popup on the Ever Teams web app (/embed/authorize), which
-// posts the tokens to this page and closes. The kit takes a message only from the web app's origin and from that popup.
+// posts the tokens to this page and closes. The kit takes a message only from the web app's origin, from that popup,
+// and with the one-time state it put in the popup's address: an answer to any other opening of the page is dropped.
 
 // What the web app's page posts to its opener.
 export const AUTHORIZED_MESSAGE = 'ever-teams:embed-authorized';
@@ -35,7 +36,7 @@ export interface SitePopup {
 	stop: () => void;
 }
 
-const nothingToStop = () => undefined;
+const nothingToStop = (): void => undefined;
 
 // A loop: the regex /\/+$/ backtracks on a long run of slashes.
 function withoutTrailingSlashes(url: string): string {
@@ -46,10 +47,20 @@ function withoutTrailingSlashes(url: string): string {
 	return url.slice(0, end);
 }
 
-/** The web app's page the popup opens, for this site and organization. */
-export function authorizeUrlOf(signIn: KitSiteSignIn, siteOrigin: string): string {
-	const query = new URLSearchParams({ origin: siteOrigin, organization: signIn.organizationId });
+/** The web app's page the popup opens, for this site and organization, with the state its answer must carry. */
+export function authorizeUrlOf(signIn: KitSiteSignIn, siteOrigin: string, state: string): string {
+	const query = new URLSearchParams({ origin: siteOrigin, organization: signIn.organizationId, state });
 	return `${withoutTrailingSlashes(signIn.appUrl)}/embed/authorize?${query.toString()}`;
+}
+
+/** A state for one opening of the popup: 128 random bits as hex, or null in a browser without Web Crypto. */
+export function newPopupState(): string | null {
+	const crypto = globalThis.crypto;
+	if (typeof crypto?.getRandomValues !== 'function') {
+		return null;
+	}
+	const bytes = crypto.getRandomValues(new Uint8Array(16));
+	return Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('');
 }
 
 /** The origin the web app's messages come from, or null for an appUrl that is not an http or https address. */
@@ -78,12 +89,15 @@ function tokensOf(data: Record<string, unknown>): EmbedSiteTokens | null {
 	return { token, expiresAt, renewalToken, renewalExpiresAt };
 }
 
-/** What a message of the web app says, or null for any other message. */
-export function resultOfMessage(data: unknown): SitePopupResult | null {
+/** What a message of the web app says, or null for any other message and for one without this opening's state. */
+export function resultOfMessage(data: unknown, state: string): SitePopupResult | null {
 	if (typeof data !== 'object' || data === null) {
 		return null;
 	}
 	const message = data as Record<string, unknown>;
+	if (!isFilled(state) || message.state !== state) {
+		return null;
+	}
 	if (message.type === DENIED_MESSAGE) {
 		return { kind: 'denied' };
 	}
@@ -103,10 +117,11 @@ export function resultOfMessage(data: unknown): SitePopupResult | null {
  */
 export function openSitePopup(signIn: KitSiteSignIn, host: Window = window): SitePopup {
 	const appOrigin = appOriginOf(signIn.appUrl);
-	if (!appOrigin) {
+	const state = newPopupState();
+	if (!appOrigin || !state) {
 		return { window: null, result: Promise.resolve({ kind: 'blocked' }), stop: nothingToStop };
 	}
-	const popup = host.open(authorizeUrlOf(signIn, host.location.origin), POPUP_NAME, POPUP_FEATURES);
+	const popup = host.open(authorizeUrlOf(signIn, host.location.origin, state), POPUP_NAME, POPUP_FEATURES);
 	if (!popup) {
 		return { window: null, result: Promise.resolve({ kind: 'blocked' }), stop: nothingToStop };
 	}
@@ -125,7 +140,7 @@ export function openSitePopup(signIn: KitSiteSignIn, host: Window = window): Sit
 			if (event.source !== popup) {
 				return;
 			}
-			const ended = resultOfMessage(event.data);
+			const ended = resultOfMessage(event.data, state);
 			if (ended) {
 				finish(ended);
 			}

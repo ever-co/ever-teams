@@ -1,6 +1,8 @@
-// The renewals of one API address run one at a time across the site's tabs: a renewal token works once, and the API
-// ends the whole sign-in when one is presented twice. Web Locks hold the lock where the browser has them; elsewhere a
-// lock written in localStorage does.
+// The renewals of one API address and organization run one at a time across the site's tabs: a renewal token works
+// once, and the API ends the whole sign-in when one is presented twice. Web Locks hold the lock where the browser has
+// them; elsewhere a lock written in localStorage does. That fallback is best effort: localStorage cannot compare and
+// set, and a tab the browser freezes past the lock's time may still renew. The API's reuse check then ends the sign-in,
+// and the person signs in again: it never lets a token through.
 
 const LOCK_PREFIX = 'ever-teams:renewal:';
 
@@ -90,6 +92,10 @@ function releaseStorageLock(name: string, owner: string): void {
 
 function extendStorageLock(name: string, owner: string): void {
 	try {
+		// A tab the browser paused past the lock's time finds it taken by another: that tab keeps it.
+		if (readLock(name)?.owner !== owner) {
+			return;
+		}
 		writeLock(name, owner);
 	} catch {
 		// Refused once: the lock still holds until its time is over.
@@ -113,8 +119,9 @@ async function withStorageLock<T>(name: string, run: () => Promise<T>): Promise<
 	try {
 		await acquireStorageLock(name, owner);
 	} catch {
-		// The browser refused the write: renew without the lock rather than not at all.
-		return run();
+		// The browser refused the write: another tab may hold the same saved renewal token, so none is presented
+		// without the lock. A token kept in this tab's memory alone is renewed without it (site-session.ts).
+		throw new Error('the browser refused to write the renewal lock to its storage');
 	}
 	const heartbeat = setInterval(() => extendStorageLock(name, owner), STORAGE_LOCK_HEARTBEAT_MS);
 	try {
@@ -125,9 +132,12 @@ async function withStorageLock<T>(name: string, run: () => Promise<T>): Promise<
 	}
 }
 
-/** Runs `run` once no other tab of the site renews for this API address, and holds the others until it ends. */
-export function withRenewalLock<T>(address: string, run: () => Promise<T>): Promise<T> {
-	const name = LOCK_PREFIX + address;
+/**
+ * Runs `run` once no other tab of the site renews for this scope (an API address and organization), and holds the
+ * others until it ends.
+ */
+export function withRenewalLock<T>(scope: string, run: () => Promise<T>): Promise<T> {
+	const name = LOCK_PREFIX + scope;
 	const locks = webLocks();
 	if (locks) {
 		return locks.request(name, run);

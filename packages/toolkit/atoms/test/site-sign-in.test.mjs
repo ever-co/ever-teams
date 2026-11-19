@@ -2,7 +2,7 @@
 // packages/toolkit/atoms, after the toolkit-types and api builds). bundle-kit.mjs bundles TeamsProvider and the kit's
 // hooks with the built @ever-teams/api, the UI packages and translations replaced by stand-ins (the themed button is a
 // plain button); React renders them in jsdom. A stand-in fetch answers the API's routes, and a stand-in window.open
-// gives the popup, whose messages the test dispatches with the origin and source it picks.
+// gives the popup, whose messages the test dispatches with the origin, source and state it picks.
 import { test, before, after, beforeEach, afterEach, mock } from 'node:test';
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
@@ -22,7 +22,6 @@ const API = 'https://api.example.com/api';
 const APP = 'https://app.example.com';
 const ORGANIZATION = 'org-1';
 const SITE = { apiUrl: API, signIn: 'ever-teams', appUrl: APP, organizationId: ORGANIZATION };
-const STORE_KEY = '_teams-store';
 const SIGN_IN_LABEL = 'AUTH.sign_in_with_ever_teams';
 const LIFETIME_MS = 15 * 60_000;
 
@@ -190,10 +189,17 @@ async function post(data, { origin = APP, source = popup.window } = {}) {
 	await settle();
 }
 
-const authorized = (n) => ({ type: 'ever-teams:embed-authorized', ...tokensFor(n) });
+// The state the kit put in the address of the popup it opened last, which the web app's page repeats.
+const openedState = () => new URL(popup.opened.at(-1).url).searchParams.get('state');
+const authorized = (n) => ({ type: 'ever-teams:embed-authorized', state: openedState(), ...tokensFor(n) });
+const denied = () => ({ type: 'ever-teams:embed-denied', state: openedState() });
 const sent = (path) => api.requests.filter((request) => request.path === path);
 const userReadWith = (token) => sent('/user/me').some(({ authorization }) => authorization === `Bearer ${token}`);
-const stored = () => localStorage.getItem(STORE_KEY) ?? '';
+const stored = () =>
+	Object.keys(localStorage)
+		.map((key) => localStorage.getItem(key))
+		.join('\n');
+const savedRenewal = (organizationId = ORGANIZATION) => kit.readStoredRenewal(API, organizationId);
 
 async function signInThroughPopup(n = 1) {
 	await openPage();
@@ -212,7 +218,12 @@ test('a signed-out person gets the button, which opens the web app on this site 
 
 	assert.equal(popup.opened.length, 1);
 	const [{ url, name }] = popup.opened;
-	assert.equal(url, `${APP}/embed/authorize?origin=http%3A%2F%2Flocalhost&organization=${ORGANIZATION}`);
+	const state = openedState();
+	assert.match(state, /^[0-9a-f]{32}$/);
+	assert.equal(
+		url,
+		`${APP}/embed/authorize?origin=http%3A%2F%2Flocalhost&organization=${ORGANIZATION}&state=${state}`
+	);
 	assert.equal(name, 'ever-teams-sign-in');
 	assert.match(document.body.textContent, /AUTH\.site_sign_in_waiting/);
 });
@@ -223,20 +234,26 @@ test("the popup's tokens sign the person in: the timer token in memory, the rene
 	assert.ok(userReadWith(tokenFor(1)), 'the person is read with the timer token');
 	assert.equal(signInButton(), undefined, 'the button is gone');
 	assert.equal(stored().includes(tokenFor(1)), false, 'the timer token is never stored');
-	assert.equal(kit.readStoredRenewal(API).renewalToken, renewalTokenFor(1));
-	assert.equal(kit.readStoredRenewal('https://other.example.com/api'), null, 'saved for its API address only');
+	assert.equal(savedRenewal().renewalToken, renewalTokenFor(1));
+	assert.equal(
+		kit.readStoredRenewal('https://other.example.com/api', ORGANIZATION),
+		null,
+		'saved for its API address only'
+	);
+	assert.equal(savedRenewal('org-2'), null, 'and for its organization only');
 });
 
-test('a message from another origin, or from another window of the web app, is ignored', async () => {
+test('a message from another origin, from another window of the web app, or without the state is ignored', async () => {
 	await openPage();
 	await click(signInButton());
 
 	await post(authorized(1), { origin: 'https://evil.example.com' });
 	await post(authorized(1), { source: {} });
 	await post(authorized(1), { origin: 'http://localhost', source: window });
+	await post({ ...authorized(1), state: 'f'.repeat(32) });
 
 	assert.equal(userReadWith(tokenFor(1)), false);
-	assert.equal(kit.readStoredRenewal(API), null);
+	assert.equal(savedRenewal(), null);
 	assert.ok(signInButton(), 'still signed out');
 
 	await post(authorized(1));
@@ -250,14 +267,16 @@ test('a second click opens the page again in the same popup, in front; Cancel th
 
 	assert.equal(popup.opened.length, 2);
 	assert.equal(new Set(popup.opened.map(({ name }) => name)).size, 1, 'the same window');
-	assert.equal(new Set(popup.opened.map(({ url }) => url)).size, 1, 'the same page');
+	const pageOf = (url) => url.replace(/&state=[0-9a-f]+$/, '');
+	assert.equal(new Set(popup.opened.map(({ url }) => pageOf(url))).size, 1, 'the same page');
+	assert.equal(new Set(popup.opened.map(({ url }) => url)).size, 2, 'each opening with a state of its own');
 	assert.equal(popup.window.focused, 2);
 
-	await post({ type: 'ever-teams:embed-denied' });
+	await post(denied());
 
 	assert.ok(signInButton());
 	assert.doesNotMatch(document.body.textContent, /AUTH\.site_sign_in_waiting/);
-	assert.equal(kit.readStoredRenewal(API), null);
+	assert.equal(savedRenewal(), null);
 });
 
 test('a popup closed without an answer ends the wait', async () => {
@@ -297,7 +316,7 @@ test('a reload stays signed in: the saved renewal token renews at start, and the
 	assert.deepEqual(renewal.body, { renewalToken: renewalTokenFor(1) });
 	assert.equal(renewal.authorization, null, 'no Authorization header');
 	assert.ok(userReadWith(tokenFor(2)));
-	assert.equal(kit.readStoredRenewal(API).renewalToken, renewalTokenFor(2));
+	assert.equal(savedRenewal().renewalToken, renewalTokenFor(2));
 	assert.equal(signInButton(), undefined);
 });
 
@@ -317,7 +336,7 @@ test('the next pair is asked for about a minute before the timer token expires',
 		assert.equal(renewals.length, 1);
 		assert.deepEqual(renewals[0].body, { renewalToken: renewalTokenFor(1) });
 		assert.equal(sent('/user/me').length, 1, 'the same person: not read again');
-		assert.equal(kit.readStoredRenewal(API).renewalToken, renewalTokenFor(2));
+		assert.equal(savedRenewal().renewalToken, renewalTokenFor(2));
 
 		await act(async () => mock.timers.tick(LIFETIME_MS - 59_000));
 		await settle();
@@ -338,7 +357,7 @@ test('an ended sign-in (EMBED_GRANT_ENDED) is forgotten, and the button shows ag
 	await openPage();
 
 	assert.equal(sent('/embed/renew').length, 1);
-	assert.equal(kit.readStoredRenewal(API), null, 'forgotten');
+	assert.equal(savedRenewal(), null, 'forgotten');
 	assert.ok(signInButton());
 });
 
@@ -356,7 +375,7 @@ test('a refusal the API lifts later (sign-in off) keeps the renewal token for th
 
 	await openPage();
 
-	assert.equal(kit.readStoredRenewal(API).renewalToken, renewalTokenFor(1));
+	assert.equal(savedRenewal().renewalToken, renewalTokenFor(1));
 	assert.ok(signInButton());
 });
 
@@ -370,17 +389,32 @@ test('sign-out revokes the sign-in at the API, then forgets it, and the button s
 	const [revocation] = sent('/embed/revoke');
 	assert.deepEqual(revocation.body, { renewalToken: renewalTokenFor(1) });
 	assert.equal(revocation.authorization, null, 'no Authorization header');
-	assert.equal(kit.readStoredRenewal(API), null);
+	assert.equal(savedRenewal(), null);
 	assert.equal(stored().includes('renewal'), false);
 	assert.ok(signInButton());
 });
 
 test('a provider without signIn keeps the password sign-in and reads no renewal', async () => {
-	kit.saveStoredRenewal(API, { renewalToken: renewalTokenFor(1), expiresAt: Date.now() + 60_000 });
+	kit.saveStoredRenewal(API, ORGANIZATION, { renewalToken: renewalTokenFor(1), expiresAt: Date.now() + 60_000 });
 
 	await openPage({ apiUrl: API });
 
 	assert.equal(signInButton(), undefined);
 	assert.deepEqual(sent('/embed/renew'), []);
 	assert.equal(popup.opened.length, 0);
+});
+
+test("a timer set up for another organization does not renew this organization's sign-in", async () => {
+	await signInThroughPopup(1);
+	for (const root of roots.splice(0)) {
+		await act(async () => root.unmount());
+	}
+
+	await openPage({ ...SITE, organizationId: 'org-2' });
+
+	assert.deepEqual(sent('/embed/renew'), [], 'no renewal with the sign-in allowed for org-1');
+	assert.ok(signInButton(), 'the person signs in for org-2');
+	assert.equal(savedRenewal().renewalToken, renewalTokenFor(1), "org-1's sign-in stays for org-1's timers");
+	await click(signInButton());
+	assert.match(popup.opened.at(-1).url, /organization=org-2/);
 });

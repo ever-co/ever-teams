@@ -1,6 +1,7 @@
 // The popup of a sign-in with Ever Teams (src/lib/session/site-popup.ts, ever-co/ever-teams#5528): node --test
 // test/*.test.mjs (from packages/toolkit/atoms). esbuild bundles the module; jsdom's window stands for the site's page,
-// with a stand-in window.open, and the test dispatches the popup's messages with the origin and source it picks.
+// with a stand-in window.open, and the test dispatches the popup's messages with the origin, source and state it
+// picks.
 import { test, before, after, beforeEach, afterEach, mock } from 'node:test';
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
@@ -63,6 +64,12 @@ afterEach(() => {
 	mock.timers.reset();
 });
 
+// The state the kit put in the address of the popup it opened last.
+const openedState = () => new URL(popup.opened.at(-1).url).searchParams.get('state');
+
+// What the web app's page posts: its message with the state of the popup opened last.
+const fromPage = (data) => ({ ...data, state: openedState() });
+
 // A message to the page, from `origin` and `source` (the popup by default), as the browser dispatches it.
 function post(data, { origin = APP, source = popup.window } = {}) {
 	const event = new window.Event('message');
@@ -85,36 +92,46 @@ async function settledResult(opened) {
 	return value;
 }
 
-test("the popup opens the web app's page for this site and organization", () => {
+test("the popup opens the web app's page for this site and organization, with a state of its own", () => {
 	const opened = kit.openSitePopup({ ...SIGN_IN, appUrl: `${APP}/` });
 
 	assert.equal(opened.window, popup.window);
 	const [{ url, name, features }] = popup.opened;
-	assert.equal(url, `${APP}/embed/authorize?origin=https%3A%2F%2Fsite.example.com&organization=org-1`);
+	const state = openedState();
+	assert.match(state, /^[0-9a-f]{32}$/, '128 random bits');
+	assert.equal(url, `${APP}/embed/authorize?origin=https%3A%2F%2Fsite.example.com&organization=org-1&state=${state}`);
 	assert.equal(name, 'ever-teams-sign-in');
 	assert.match(features, /popup/);
 	assert.doesNotMatch(features, /noopener/, 'the page posts to its opener');
 	opened.stop();
+
+	kit.openSitePopup(SIGN_IN).stop();
+	assert.notEqual(openedState(), state, 'each opening gets a new state');
 });
 
-test('the tokens are taken only from the web app, and only from the popup', async () => {
+test('the tokens are taken only from the web app, only from the popup, and only with its state', async () => {
 	const opened = kit.openSitePopup(SIGN_IN);
-	const authorized = { type: 'ever-teams:embed-authorized', ...TOKENS };
+	const authorized = fromPage({ type: 'ever-teams:embed-authorized', ...TOKENS });
 
 	post(authorized, { origin: 'https://evil.example.com' });
 	post(authorized, { source: {} });
 	post(authorized, { origin: 'https://site.example.com', source: window });
-	post({ type: 'ever-teams:embed-authorized', token: 'timer-1' });
+	post(fromPage({ type: 'ever-teams:embed-authorized', token: 'timer-1' }));
+	post({ ...authorized, state: undefined });
+	post({ ...authorized, state: '0'.repeat(32) });
 	assert.equal(await settledResult(opened), null, 'none of these');
 
 	post(authorized);
 	assert.deepEqual(await opened.result, { kind: 'authorized', tokens: TOKENS });
 });
 
-test("the person's Cancel ends the popup as denied", async () => {
+test("the person's Cancel ends the popup as denied, with its state only", async () => {
 	const opened = kit.openSitePopup(SIGN_IN);
 
 	post({ type: 'ever-teams:embed-denied' });
+	post({ type: 'ever-teams:embed-denied', state: '0'.repeat(32) });
+	assert.equal(await settledResult(opened), null, 'not without the state');
+	post(fromPage({ type: 'ever-teams:embed-denied' }));
 
 	assert.deepEqual(await opened.result, { kind: 'denied' });
 });
@@ -144,17 +161,22 @@ test('stop ends the wait of a provider that leaves the page, and later messages 
 	const opened = kit.openSitePopup(SIGN_IN);
 
 	opened.stop();
-	post({ type: 'ever-teams:embed-authorized', ...TOKENS });
+	post(fromPage({ type: 'ever-teams:embed-authorized', ...TOKENS }));
 
 	assert.deepEqual(await opened.result, { kind: 'closed' });
 });
 
-test('resultOfMessage reads only the messages of the web app, with all four tokens', () => {
+test('resultOfMessage reads only the messages of the web app with the state, with all four tokens', () => {
+	const state = 'a'.repeat(32);
 	const { token, expiresAt, renewalToken } = TOKENS;
-	assert.equal(kit.resultOfMessage({ type: 'ever-teams:embed-authorized', token, expiresAt, renewalToken }), null);
-	assert.equal(kit.resultOfMessage({ type: 'ever-teams:embed-authorized', ...TOKENS, token: 42 }), null);
-	assert.equal(kit.resultOfMessage({ type: 'other', ...TOKENS }), null);
-	assert.equal(kit.resultOfMessage('ever-teams:embed-denied'), null);
-	assert.equal(kit.resultOfMessage(null), null);
-	assert.deepEqual(kit.resultOfMessage({ type: 'ever-teams:embed-denied' }), { kind: 'denied' });
+	const authorized = { type: 'ever-teams:embed-authorized', state };
+	assert.equal(kit.resultOfMessage({ ...authorized, token, expiresAt, renewalToken }, state), null);
+	assert.equal(kit.resultOfMessage({ ...authorized, ...TOKENS, token: 42 }, state), null);
+	assert.equal(kit.resultOfMessage({ type: 'other', state, ...TOKENS }, state), null);
+	assert.equal(kit.resultOfMessage('ever-teams:embed-denied', state), null);
+	assert.equal(kit.resultOfMessage(null, state), null);
+	assert.equal(kit.resultOfMessage({ ...authorized, ...TOKENS }, 'b'.repeat(32)), null);
+	assert.equal(kit.resultOfMessage({ ...authorized, ...TOKENS, state: '' }, ''), null);
+	assert.deepEqual(kit.resultOfMessage({ ...authorized, ...TOKENS }, state), { kind: 'authorized', tokens: TOKENS });
+	assert.deepEqual(kit.resultOfMessage({ type: 'ever-teams:embed-denied', state }, state), { kind: 'denied' });
 });

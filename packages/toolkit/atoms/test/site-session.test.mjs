@@ -1,8 +1,8 @@
 // The session of a sign-in with Ever Teams (src/lib/session/site-session.ts, ever-co/ever-teams#5528): node --test
 // test/*.test.mjs (from packages/toolkit/atoms, after the toolkit-types and api builds). bundle-kit.mjs bundles it with
 // the built @ever-teams/api; a stand-in fetch answers /embed/renew and /embed/revoke, and two sessions of one address
-// stand for two tabs of the site, which share jsdom's localStorage and Node's Web Locks.
-import { test, before, after, beforeEach } from 'node:test';
+// and organization stand for two tabs of the site, which share jsdom's localStorage and Node's Web Locks.
+import { test, before, after, beforeEach, mock } from 'node:test';
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
 import { bundleKit, kitSources } from './bundle-kit.mjs';
@@ -15,6 +15,7 @@ globalThis.window = dom.window;
 globalThis.localStorage = dom.window.localStorage;
 
 const API = 'https://api.example.com/api';
+const ORGANIZATION = 'org-1';
 const LOCK_PREFIX = 'ever-teams:renewal:';
 
 let kit;
@@ -25,7 +26,11 @@ before(async () => {
 	const { bundled, remove } = await bundleKit({
 		name: 'site-session',
 		entry: `export { createSiteSession, KitSiteSignedOut } from '${kitSources}/session/site-session.ts';
-			export { readStoredRenewal, saveStoredRenewal } from '${kitSources}/session/stored-session.ts';`,
+			export {
+				readStoredRenewal,
+				saveStoredRenewal,
+				siteSignInScopeOf
+			} from '${kitSources}/session/stored-session.ts';`,
 		standIns: {},
 		standInOf: () => undefined
 	});
@@ -42,6 +47,13 @@ const renewalTokenFor = (n) => `gzr_renewal-${n}`;
 const json = (status, body) =>
 	new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
 
+const tokensFor = (n) => ({
+	token: `timer-${n}`,
+	expiresAt: new Date(Date.now() + 15 * 60_000).toISOString(),
+	renewalToken: renewalTokenFor(n),
+	renewalExpiresAt: new Date(Date.now() + 30 * 24 * 60 * 60_000).toISOString()
+});
+
 // The API: each renewal answers the next pair, unless `refuse` answers instead; `hold` keeps a renewal waiting.
 function standInApi() {
 	const stand = { requests: [], pairs: 1, refuse: null, hold: null };
@@ -57,12 +69,7 @@ function standInApi() {
 			return stand.refuse();
 		}
 		stand.pairs += 1;
-		return json(200, {
-			token: `timer-${stand.pairs}`,
-			expiresAt: new Date(Date.now() + 15 * 60_000).toISOString(),
-			renewalToken: renewalTokenFor(stand.pairs),
-			renewalExpiresAt: new Date(Date.now() + 30 * 24 * 60 * 60_000).toISOString()
-		});
+		return json(200, tokensFor(stand.pairs));
 	};
 	return stand;
 }
@@ -73,16 +80,22 @@ beforeEach(() => {
 	globalThis.fetch = api.fetch;
 });
 
-const saveRenewal = (n) =>
-	kit.saveStoredRenewal(API, { renewalToken: renewalTokenFor(n), expiresAt: Date.now() + 60_000 });
+const saveRenewal = (n, organizationId = ORGANIZATION) =>
+	kit.saveStoredRenewal(API, organizationId, { renewalToken: renewalTokenFor(n), expiresAt: Date.now() + 60_000 });
+const savedRenewal = (organizationId = ORGANIZATION) => kit.readStoredRenewal(API, organizationId);
+const newTab = (organizationId = ORGANIZATION) => kit.createSiteSession(API, organizationId);
 const sent = (path) => api.requests.filter((request) => request.path === path);
 const presented = () => sent('/embed/renew').map(({ body }) => body.renewalToken);
 const hasLock = () => Object.keys(localStorage).some((key) => key.startsWith(LOCK_PREFIX));
+const storedValues = () => Object.keys(localStorage).map((key) => localStorage.getItem(key));
+
+// Lets the answers and the code after them run.
+const settle = () => new Promise((resolve) => setTimeout(resolve, 20));
 
 // Two tabs ask for a token at once, the first renewal held until `release`.
 async function twoTabsRenew() {
 	saveRenewal(1);
-	const tabs = [kit.createSiteSession(API), kit.createSiteSession(API)];
+	const tabs = [newTab(), newTab()];
 	let release;
 	api.hold = () => new Promise((resolve) => (release = resolve));
 	const answers = Promise.all(tabs.map((tab) => tab.getToken()));
@@ -95,29 +108,30 @@ async function twoTabsRenew() {
 }
 
 test('nothing saved: the person is signed out, and no request is sent', async () => {
-	const session = kit.createSiteSession(API);
+	const session = newTab();
 
 	await assert.rejects(session.getToken(), (error) => error instanceof kit.KitSiteSignedOut);
 	assert.deepEqual(api.requests, []);
 });
 
 test('the tokens the popup handed over: the timer token once, then renewals with the saved renewal token', async () => {
-	const session = kit.createSiteSession(API);
-	session.accept({
-		token: 'timer-1',
-		expiresAt: new Date(Date.now() + 15 * 60_000).toISOString(),
-		renewalToken: renewalTokenFor(1),
-		renewalExpiresAt: new Date(Date.now() + 30 * 24 * 60 * 60_000).toISOString()
-	});
+	const session = newTab();
+	await session.accept(tokensFor(1));
 
 	assert.equal((await session.getToken()).token, 'timer-1');
 	assert.deepEqual(api.requests, [], 'no renewal for the handed token');
-	assert.equal(localStorage.getItem('_teams-store').includes('timer-1'), false, 'the timer token is never stored');
+	assert.ok(storedValues().length > 0, 'the renewal token is saved');
+	assert.equal(
+		storedValues().some((value) => value.includes('timer-1')),
+		false,
+		'the timer token is never stored'
+	);
+	assert.equal(localStorage.getItem('_teams-store'), null, "the password sessions' record is not touched");
 
 	assert.equal((await session.getToken()).token, 'timer-2');
 	assert.deepEqual(presented(), [renewalTokenFor(1)]);
 	assert.equal(sent('/embed/renew')[0].authorization, null, 'no Authorization header');
-	assert.equal(kit.readStoredRenewal(API).renewalToken, renewalTokenFor(2), 'the new one replaces it');
+	assert.equal(savedRenewal().renewalToken, renewalTokenFor(2), 'the new one replaces it');
 });
 
 test('two tabs renew one after the other with Web Locks: each renewal token is presented once', async () => {
@@ -151,9 +165,10 @@ test('a lock left by a closed tab lapses', async () => {
 	Object.defineProperty(navigator, 'locks', { value: undefined, configurable: true });
 	try {
 		saveRenewal(1);
-		localStorage.setItem(`${LOCK_PREFIX}${API}`, JSON.stringify({ owner: 'closed-tab', until: Date.now() - 1 }));
+		const lockName = `${LOCK_PREFIX}${kit.siteSignInScopeOf(API, ORGANIZATION)}`;
+		localStorage.setItem(lockName, JSON.stringify({ owner: 'closed-tab', until: Date.now() - 1 }));
 
-		assert.equal((await kit.createSiteSession(API).getToken()).token, 'timer-2');
+		assert.equal((await newTab().getToken()).token, 'timer-2');
 	} finally {
 		delete navigator.locks;
 	}
@@ -162,37 +177,139 @@ test('a lock left by a closed tab lapses', async () => {
 test('an ended sign-in (EMBED_GRANT_ENDED) is forgotten; a refusal the API lifts later keeps the token', async () => {
 	saveRenewal(1);
 	api.refuse = () => json(403, { statusCode: 403, code: 'EMBED_SITE_SIGN_IN_OFF', message: 'Off.' });
-	await assert.rejects(kit.createSiteSession(API).getToken(), { code: 'EMBED_SITE_SIGN_IN_OFF' });
-	assert.equal(kit.readStoredRenewal(API).renewalToken, renewalTokenFor(1), 'kept');
+	await assert.rejects(newTab().getToken(), { code: 'EMBED_SITE_SIGN_IN_OFF' });
+	assert.equal(savedRenewal().renewalToken, renewalTokenFor(1), 'kept');
 
 	api.refuse = () => json(401, { statusCode: 401, code: 'EMBED_GRANT_ENDED', message: 'Ended.' });
-	await assert.rejects(kit.createSiteSession(API).getToken(), { code: 'EMBED_GRANT_ENDED' });
-	assert.equal(kit.readStoredRenewal(API), null, 'forgotten');
+	await assert.rejects(newTab().getToken(), { code: 'EMBED_GRANT_ENDED' });
+	assert.equal(savedRenewal(), null, 'forgotten');
 });
 
 test('sign-out revokes the sign-in, then forgets it, also when the API cannot be reached', async () => {
 	saveRenewal(1);
-	await kit.createSiteSession(API).signOut();
+	await newTab().signOut();
 
 	const [revocation] = sent('/embed/revoke');
 	assert.deepEqual(revocation.body, { renewalToken: renewalTokenFor(1) });
 	assert.equal(revocation.authorization, null, 'no Authorization header');
-	assert.equal(kit.readStoredRenewal(API), null);
+	assert.equal(savedRenewal(), null);
 
 	saveRenewal(2);
 	globalThis.fetch = async () => {
 		throw new TypeError('Failed to fetch');
 	};
-	await kit.createSiteSession(API).signOut();
-	assert.equal(kit.readStoredRenewal(API), null, 'forgotten all the same');
+	await newTab().signOut();
+	assert.equal(savedRenewal(), null, 'forgotten all the same');
 });
 
-test('a renewal token is saved for its API address only', async () => {
+test('a renewal token is saved for its API address and organization only', async () => {
 	saveRenewal(1);
 
-	assert.equal(kit.readStoredRenewal('https://other.example.com/api'), null);
-	await assert.rejects(kit.createSiteSession('https://other.example.com/api').getToken(), (error) => {
-		return error instanceof kit.KitSiteSignedOut;
-	});
-	assert.deepEqual(api.requests, []);
+	assert.equal(kit.readStoredRenewal('https://other.example.com/api', ORGANIZATION), null);
+	assert.equal(savedRenewal('org-2'), null);
+	for (const tab of [kit.createSiteSession('https://other.example.com/api', ORGANIZATION), newTab('org-2')]) {
+		await assert.rejects(tab.getToken(), (error) => error instanceof kit.KitSiteSignedOut);
+	}
+	assert.deepEqual(api.requests, [], "another organization's timer never renews this sign-in");
+});
+
+test('a renewal on its way when the person signs out keeps nothing of its answer', async () => {
+	saveRenewal(1);
+	const session = newTab();
+	let release;
+	api.hold = () => new Promise((resolve) => (release = resolve));
+	const renewal = session.getToken();
+	await settle();
+
+	await session.signOut();
+	api.hold = null;
+	release();
+
+	await assert.rejects(renewal, (error) => error instanceof kit.KitSiteSignedOut);
+	assert.equal(savedRenewal(), null, 'the answer is not saved');
+	await assert.rejects(session.getToken(), (error) => error instanceof kit.KitSiteSignedOut);
+});
+
+test("the popup's answer wins over a renewal of the previous sign-in on its way", async () => {
+	saveRenewal(1);
+	const session = newTab();
+	let release;
+	api.hold = () => new Promise((resolve) => (release = resolve));
+	const renewal = session.getToken();
+	await settle();
+
+	const accepted = session.accept(tokensFor(7));
+	api.hold = null;
+	release();
+	await accepted;
+
+	assert.equal((await renewal).token, 'timer-7', "the renewal's caller gets the popup's timer token");
+	assert.equal(savedRenewal().renewalToken, renewalTokenFor(7), "the popup's renewal token is the one saved");
+	assert.equal(session.holdsHandedToken(), false);
+});
+
+test('a renewal token the browser refused to save is the one presented next, and the spent one is dropped', async () => {
+	saveRenewal(1);
+	const session = newTab();
+	const storage = Object.getPrototypeOf(localStorage);
+	const setItem = storage.setItem;
+	storage.setItem = function (key, value) {
+		if (!key.startsWith(LOCK_PREFIX)) {
+			throw new DOMException('Quota exceeded', 'QuotaExceededError');
+		}
+		return setItem.call(this, key, value);
+	};
+	try {
+		assert.equal((await session.getToken()).token, 'timer-2');
+		assert.equal(savedRenewal(), null, 'the spent token is not left for another tab');
+
+		assert.equal((await session.getToken()).token, 'timer-3');
+		assert.deepEqual(presented(), [renewalTokenFor(1), renewalTokenFor(2)], 'each token once');
+	} finally {
+		storage.setItem = setItem;
+	}
+});
+
+test('without Web Locks, a lock the browser refuses to write stops the renewal of a shared token', async () => {
+	saveRenewal(1);
+	Object.defineProperty(navigator, 'locks', { value: undefined, configurable: true });
+	const storage = Object.getPrototypeOf(localStorage);
+	const setItem = storage.setItem;
+	storage.setItem = () => {
+		throw new DOMException('Quota exceeded', 'QuotaExceededError');
+	};
+	try {
+		await assert.rejects(newTab().getToken(), /renewal lock/);
+		assert.deepEqual(api.requests, [], 'the saved token is not presented without the lock');
+	} finally {
+		storage.setItem = setItem;
+		delete navigator.locks;
+	}
+});
+
+test('without Web Locks, a tab whose lock lapsed leaves the lock to the tab that took it over', async () => {
+	saveRenewal(1);
+	Object.defineProperty(navigator, 'locks', { value: undefined, configurable: true });
+	mock.timers.enable({ apis: ['setInterval'] });
+	try {
+		const lockName = `${LOCK_PREFIX}${kit.siteSignInScopeOf(API, ORGANIZATION)}`;
+		let release;
+		api.hold = () => new Promise((resolve) => (release = resolve));
+		const renewal = newTab().getToken();
+		while (!release) {
+			await settle();
+		}
+		const other = { owner: 'other-tab', until: Date.now() + 60_000 };
+		localStorage.setItem(lockName, JSON.stringify(other));
+
+		mock.timers.tick(5_000);
+		assert.deepEqual(JSON.parse(localStorage.getItem(lockName)), other, 'the heartbeat leaves it to the other tab');
+		api.hold = null;
+		release();
+		await renewal;
+		assert.deepEqual(JSON.parse(localStorage.getItem(lockName)), other, 'and so does the release');
+	} finally {
+		mock.timers.reset();
+		delete navigator.locks;
+	}
 });

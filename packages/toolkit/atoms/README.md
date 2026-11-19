@@ -263,24 +263,27 @@ export function Timer() {
 
 What the kit does with it:
 
-- The button opens `${appUrl}/embed/authorize?origin=<your page's origin>&organization=<organizationId>` from the
-  click, so the browser lets the popup open. A second click opens that page again in the same window, in front. A
-  popup the browser blocked says to allow pop-ups for the site.
-- It takes the popup's answer only from the web app's origin and from that popup window: a message from another
-  page or another window is ignored.
-- The timer token stays in memory. The renewal token is saved in `localStorage['_teams-store']`, under
-  `siteSignIns`, for the API address that issued it: a reload stays signed in, and the token of one server is never
-  sent to another.
+- The button opens `${appUrl}/embed/authorize` from the click, so the browser lets the popup open, with your page's
+  origin, `organizationId` and a one-time state in its query. A second click opens that page again in the same
+  window, in front, with a new state. A popup the browser blocked says to allow pop-ups for the site.
+- It takes the popup's answer only from the web app's origin, from that popup window, and with the state of that
+  opening: a message from another page or another window, or an answer to another opening, is ignored.
+- The timer token stays in memory. The renewal token is saved in `localStorage`, under a key of its own
+  (`ever-teams:site-sign-in:` and the API address and organization), for the API address that issued it and the
+  organization it was allowed for: a reload stays signed in, the token of one server is never sent to another, and a
+  timer set up for another organization asks the person to sign in for that one.
 - About a minute before the timer token expires, the kit renews it with the renewal token (`POST /embed/renew`,
   without an `Authorization` header), and saves the new renewal token in place of the old one. Each renewal token
   works once, and the API ends the whole sign-in when one is presented twice, so the tabs of your site renew one at a
-  time: under Web Locks where the browser has them, else under a lock written in `localStorage`.
+  time: under Web Locks where the browser has them, else under a lock written in `localStorage`. That fallback is best
+  effort (a tab the browser freezes during a renewal can lose its lock): the API's reuse check then ends the sign-in,
+  and the person signs in again.
 - When the API says the sign-in ended (`EMBED_GRANT_ENDED`: revoked by the person or an administrator, expired
   after 30 days without a renewal, or a renewal token used twice), the kit forgets it and shows the button again. When
   it refuses for a reason it lifts later (the site removed from the allowed sites, its switch turned off, the person's
   time tracking off), the kit keeps the renewal token, shows the button, and tries again when the page comes back.
-- The user menu offers to sign out: the kit revokes the sign-in (`POST /embed/revoke`), then forgets it, also when
-  the API cannot be reached.
+- The user menu offers to sign out: the kit forgets the sign-in, then revokes it (`POST /embed/revoke`), also when
+  the API cannot be reached. A renewal on its way at that moment keeps nothing of its answer.
 - As with `getToken`, the token reaches only that person's timer, from your site, and the kit lists no other
   organization.
 
@@ -449,8 +452,8 @@ revoked embed credential ends its tokens. Requests still go to `config.apiUrl` w
 `Authorization` header.
 
 With `config.signIn: 'ever-teams'` (above), the dialog asks for no password or token either: the timer token stays
-in memory, and the renewal token, which gets the next timer token from your site only, sits in
-`localStorage['_teams-store']` for its API address, readable by the scripts of your page. Anyone who reads it can
+in memory, and the renewal token, which gets the next timer token from your site only, sits in `localStorage` for
+its API address and organization, readable by the scripts of your page. Anyone who reads it can
 renew from your site's origin until the person signs out or revokes the site. Sign-out revokes it.
 
 Planned ([ever-co/ever-teams#5405](https://github.com/ever-co/ever-teams/issues/5405)): the workspace lists the sites
