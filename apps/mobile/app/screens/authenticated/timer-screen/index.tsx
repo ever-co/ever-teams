@@ -76,7 +76,13 @@ export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<'Timer'>> 
 
 							{activeTeam ? (
 								<React.Fragment>
-									<View style={{ padding: 20, zIndex: 999, backgroundColor: headerSurfaceOf(dark, colors) }}>
+									<View
+										style={{
+											padding: 20,
+											zIndex: 999,
+											backgroundColor: headerSurfaceOf(dark, colors)
+										}}
+									>
 										<DropDown
 											isOpen={isTeamModalOpen}
 											setIsOpen={setIsTeamModalOpen}
