@@ -264,6 +264,8 @@ export function useTimer() {
 		timerStatus?.running,
 		timerStatusRef.current?.lastLog?.source ?? TimerSource.MOBILE
 	);
+	// The API said what runs, this session: until then the status is the one saved by the last session
+	const statusReadRef = useSyncRef(isSuccess);
 
 	const toggleTimer = useCallback(async (taskId: string) => {
 		const response = await toggleTimerRequest(
@@ -460,14 +462,21 @@ export function useTimer() {
 		}
 	}, [firstLoad, activeTeamId, activeTeam]);
 
-	// If active task changes then stop the timer
+	// If active task changes then stop the timer. Not when the app only takes up the task the timer runs on: at launch
+	// the team's task sync names it after the person's card or the last session's state named another, and a timer
+	// started on another device runs on the task the team names. Nor before the API said what runs: the saved status
+	// can name a run that ended on another device since
 	useEffect(() => {
 		const taskId = activeTask?.id;
+		const status = timerStatusRef.current;
+		const takesUpRunningTask = !!taskId && taskId === status?.lastLog?.taskId;
 		if (
 			lastActiveTaskId.current !== null &&
 			taskId !== lastActiveTaskId.current &&
 			!firstLoad &&
-			timerStatusRef.current?.running
+			statusReadRef.current &&
+			status?.running &&
+			!takesUpRunningTask
 		) {
 			stopTimer();
 		}
