@@ -118,7 +118,9 @@ export function tasksTabOptions(dark: boolean): BottomTabNavigationOptions {
 	return {
 		tabBarLabel: translate('tasksScreen.name'),
 		tabBarButtonTestID: 'tab-tasks',
-		tabBarIcon: ({ focused, color }) => <TabIcon name="briefcase" focused={focused} color={color} dark={dark} />
+		tabBarIcon: ({ focused, color }) => <TabIcon name="briefcase" focused={focused} color={color} dark={dark} />,
+		// Expo Router gives a tab with an address (this one) the item style of its own options instead of the bar's
+		tabBarItemStyle: $tabBarItem
 	};
 }
 

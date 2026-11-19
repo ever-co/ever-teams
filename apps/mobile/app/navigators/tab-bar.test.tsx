@@ -1,7 +1,7 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react-native';
+import { render, renderHook, screen } from '@testing-library/react-native';
 import { StyleSheet } from 'react-native';
-import { barColorsOf, tasksTabOptions, teamTabOptions, workTabOptions } from './tab-bar';
+import { barColorsOf, tasksTabOptions, teamTabOptions, useTabBarScreenOptions, workTabOptions } from './tab-bar';
 import { themeFor } from '../../src/theme/use-theme';
 
 jest.mock('@expo/vector-icons', () => {
@@ -12,6 +12,8 @@ jest.mock('@expo/vector-icons', () => {
 	};
 });
 jest.mock('../models', () => ({ useStores: () => ({ teamStore: { isTrackingEnabled: true } }) }));
+jest.mock('react-native-safe-area-context', () => ({ useSafeAreaInsets: () => ({ bottom: 0 }) }));
+jest.mock('./use-tab-buttons-loading', () => ({ useTabButtonsLoading: () => false }));
 
 type IconOf = (props: { focused: boolean; color: string; size: number }) => React.ReactElement;
 
@@ -38,6 +40,13 @@ describe('the tab bar', () => {
 		await drawIcon(optionsOf(false), false);
 
 		expect(screen.getByText(`${name} hsl(243, 75%, 59%)`)).toBeTruthy();
+	});
+
+	it('gives the Tasks tab, which has an address, the same item style as the other tabs', async () => {
+		const { result } = await renderHook(() => useTabBarScreenOptions());
+
+		expect(result.current.tabBarItemStyle).toBeDefined();
+		expect(tasksTabOptions(false).tabBarItemStyle).toEqual(result.current.tabBarItemStyle);
 	});
 
 	it("puts the selected tab's icon on the primary tint, and only that one", async () => {
