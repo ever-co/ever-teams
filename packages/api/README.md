@@ -1,7 +1,7 @@
 # @ever-teams/api
 
 The typed client of an Ever Teams API (Gauzy), for Node 20 or later and the browser: start and stop the timer, list
-time entries, projects, tasks and members, and read the tracked totals of the day and the week. It has no user
+and add time entries, projects, tasks and members, and read the tracked totals of the day and the week. It has no user
 interface. It also holds the request functions the Ever Teams kit makes (see [The request functions](#the-request-functions)).
 
 To show a timer or a report in a React page, install [`@ever-teams/atoms`](https://www.npmjs.com/package/@ever-teams/atoms),
@@ -116,6 +116,7 @@ table names the route behind each one; they are the routes the kit already calls
 | `timer.stop()`                        | `POST /timesheet/timer/stop`                      | `EverTeamsTimeLog \| null` |
 | `timer.watch(listener, options?)`     | `GET /timesheet/timer/status`, at each read       | `() => void`               |
 | `timeEntries.list({ from, to, ... })` | `GET /timesheet/time-log`                         | `EverTeamsTimeEntry[]`     |
+| `timeEntries.create({ ... })`         | `POST /timesheet/time-log`                        | `EverTeamsTimeLog`         |
 | `projects.list()`                     | `GET /organization-projects/employee/:employeeId` | `EverTeamsProject[]`       |
 | `tasks.list({ projectId? })`          | `GET /tasks/employee/:employeeId`                 | `EverTeamsTask[]`          |
 | `members.list()`                      | `GET /employee/working`                           | `EverTeamsMember[]`        |
@@ -209,16 +210,38 @@ if (change) {
 }
 ```
 
-### timeEntries.list({ from, to, employeeIds? })
+### timeEntries.list({ from, to, employeeIds?, mine? })
 
 The time entries started from `from` to `to`, each with its project, task, client and member. A day (`YYYY-MM-DD`)
 means that whole day in the time zone the code runs in; a `Date` or an ISO date-time is the instant it names. Without
-`employeeIds`, the API answers the entries of every member the token may see.
+`employeeIds`, the API answers the entries of every member the token may see: a manager's token sees the team's.
+With `mine: true`, it answers only the entries of the token's own member, whatever `employeeIds` names.
 
 ```js
-const today = await teams.timeEntries.list({ from: '2026-11-18', to: '2026-11-18' });
+const today = await teams.timeEntries.list({ from: '2026-11-18', to: '2026-11-18', mine: true });
 const seconds = today.reduce((sum, entry) => sum + entry.duration, 0);
 ```
+
+### timeEntries.create({ startedAt, stoppedAt, ... })
+
+Adds a past entry of the token's member, from `startedAt` to `stoppedAt` (each a `Date` or an ISO date-time with its
+time of day), and answers its time log. The other fields are optional: `projectId`, `taskId`, `organizationTeamId`,
+`description`, `reason` (why the time is added by hand, kept with the entry) and `isBillable`.
+
+```js
+const log = await teams.timeEntries.create({
+	startedAt: '2026-11-18T09:00:00+01:00',
+	stoppedAt: '2026-11-18T10:30:00+01:00',
+	projectId,
+	description: 'Call with the client'
+});
+```
+
+The API records it as time added by hand (`logType` `MANUAL`). It refuses it with an `EverTeamsForbiddenError` when
+the organization does not allow manual time or the member's role may not add it, and with an
+`EverTeamsConflictError` when the range overlaps a timer still running (`code` `RUNNING_TIMER_OVERLAP`) or a break
+(`BREAK_OVERLAP`); each says what to do next. A range with no time of day, or that does not end after it starts, is
+refused before any request (`INVALID_DATE`). An entry it overlaps loses the time the new one covers, as in the web app.
 
 ### projects.list()
 
@@ -786,6 +809,9 @@ shape for the timer and time entry routes, so the recorded answers are the refer
 
 When the API changes an answer, recording it again shows the change in the fixtures, and the type test names the
 field that no longer fits.
+
+`timeEntries.create()` is not recorded yet: the recording would need an organization that allows manual time. Its
+test serves it the recorded answer of `timer.start()`, the same time log, as an entry added by hand.
 
 ### Record the answers again
 
