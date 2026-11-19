@@ -8,7 +8,9 @@ To show a timer or a report in a React page, install [`@ever-teams/atoms`](https
 which uses this package: start with [its README](https://github.com/ever-co/ever-teams/tree/develop/packages/toolkit/atoms#readme).
 
 On your server, `@ever-teams/api/server` exchanges an embed credential for a short-lived token for a person signed in
-to your product: see [Sign people in from your server](#sign-people-in-from-your-server). It also checks the
+to your product: see [Sign people in from your server](#sign-people-in-from-your-server). A site without a server
+lets the person sign in with Ever Teams in a popup instead, and renews that sign-in from the page: see
+[Renew a sign-in from a site](#renew-a-sign-in-from-a-site). It also checks the
 signature of the webhooks the API sends when a timer starts or stops: see
 [Receive the API's webhooks](#receive-the-apis-webhooks).
 
@@ -620,6 +622,48 @@ report. Its refusals are those of the exchange (401, 429, 404, 503), and:
 | 403    | `EverTeamsForbiddenError` | `EMBED_CLIENT_REQUIRED` | The credential is the whole organization's: ask an administrator for one limited to the client.       |
 | 403    | `EverTeamsForbiddenError` | `EMBED_CLIENT_GONE`     | The credential's client was deleted: restore the client, or use the credential of another one.        |
 | 500    | `EverTeamsServerError`    | none                    | The API accepted the credential but could not read the report: try again, and tell its administrator. |
+
+## Renew a sign-in from a site
+
+A site without a server of its own lets a person sign in with Ever Teams: the web app's page `/embed/authorize`,
+opened in a popup, asks the person to allow the site, then posts a timer token and a renewal token to the page that
+opened it ([ever-co/ever-gauzy#12094](https://github.com/ever-co/ever-gauzy/issues/12094)). The kit
+(`config.signIn: 'ever-teams'` of [`@ever-teams/atoms`](https://github.com/ever-co/ever-teams/tree/develop/packages/toolkit/atoms#sign-in-with-ever-teams))
+does all of this for you. These two functions of the main entry are what it calls, for a page that does it itself:
+
+```js
+import { renewEmbedSiteSession, revokeEmbedSiteSession } from '@ever-teams/api';
+
+// About a minute before the timer token expires: a new timer token, and a new renewal token in place of the old one.
+const { token, expiresAt, renewalToken, renewalExpiresAt } = await renewEmbedSiteSession({
+	apiUrl: 'https://api.ever.team/api',
+	renewalToken: saved.renewalToken
+});
+
+// Sign-out: the renewal token, and every one renewed from the same sign-in, stop working.
+await revokeEmbedSiteSession({ apiUrl: 'https://api.ever.team/api', renewalToken: saved.renewalToken });
+```
+
+Both send the renewal token in the body and no `Authorization` header: the API refuses a timer token on these routes.
+The renewal runs only from a page of the site the person allowed, since the API checks the browser's `Origin`. A
+renewal token works once, and the API ends the whole sign-in when one is presented twice: renew one tab at a time
+(the kit uses Web Locks, else a lock in `localStorage`) and always with the token the last renewal answered. Keep the
+timer token in memory. The revocation answers the same for any token, so it never says whether a token was valid.
+
+| Status | Class                     | `code`                     | What to do                                                                                                   |
+| ------ | ------------------------- | -------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| 401    | `EverTeamsAuthError`      | `EMBED_GRANT_ENDED`        | The sign-in ended (revoked, expired, or its renewal token already used): forget the token, sign in again.    |
+| 403    | `EverTeamsForbiddenError` | `EMBED_ORIGIN`             | Not from the site the person allowed: renew from a page of that site.                                        |
+| 403    | `EverTeamsForbiddenError` | `EMBED_ORIGIN_NOT_ALLOWED` | The organization no longer allows the site. Keep the renewal token: it works again once the site is allowed. |
+| 403    | `EverTeamsForbiddenError` | `EMBED_SITE_SIGN_IN_OFF`   | Sign-in from the site was turned off. Keep the renewal token: it works again once it is on.                  |
+| 403    | `EverTeamsForbiddenError` | `EMBED_MEMBER_NOT_ALLOWED` | The person may no longer track time. Keep the renewal token: it works again once that is lifted.             |
+| 404    | `EverTeamsNotFoundError`  | none                       | The API has no sign-in from sites, or embeds are off (`GAUZY_EMBED_TOKENS_ENABLED`).                         |
+| 429    | `EverTeamsRateLimitError` | none                       | Too many renewals from this address: wait `error.retryAfter` seconds.                                        |
+| 503    | `EverTeamsServerError`    | none                       | The API cannot reach its database: try again shortly.                                                        |
+
+Each error has its `nextStep`, and `EmbedSiteSessionErrorCode` types the codes. Before any request, a missing
+`apiUrl` or `renewalToken` throws an `EverTeamsError` with the code `CLIENT_OPTIONS`, which never quotes a value; a
+success without the four tokens throws `UNEXPECTED_ANSWER`, and no answer an `EverTeamsNetworkError`.
 
 ## Receive the API's webhooks
 

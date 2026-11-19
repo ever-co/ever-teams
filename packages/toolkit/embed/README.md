@@ -23,6 +23,9 @@ The element shows the kit's sign-in button, then the person's timer once they ar
 | `api-url`      | `https://api.ever.team/api` | The Ever Teams API the timer talks to. With your own server, its address ending in `/api`. |
 | `color-scheme` | `system`                    | `light`, `dark`, or `system` (follows the system's).                                       |
 | `lang`         | `en`                        | The language of the timer and its sign-in: `en` or `fr`.                                   |
+| `sign-in`      | none                        | `ever-teams`: the "Sign in with Ever Teams" button, see [Sign-in](#sign-in).               |
+| `organization` | none                        | With `sign-in="ever-teams"`: the organization the site signs people in to.                 |
+| `app-url`      | `https://app.ever.team`     | With `sign-in="ever-teams"`: the Ever Teams web app the popup opens.                       |
 
 A change of attribute applies at once. Removing the element stops the timer's display and its polling; moving it in the page keeps it as it is. Each element keeps its own `color-scheme`, until a person picks a scheme with the kit's theme toggle: that pick applies to every timer of the page, until an element's `color-scheme` changes. Each element with an `api-url` talks to that address: two timers of one page can reach two different servers. An element without `api-url` follows the page's address, the one another element or your own code set, and never changes it; when nothing set one, it is `https://api.ever.team/api`. When that address changes, such an element starts afresh: the token and the person it holds in memory are dropped. It then reads back only a session a sign-in saved for the new address, if there is one: each address keeps its own session across reloads, and a token is never sent to another server. The one exception is a session saved by an earlier version of the kit, which names no address: the first element to read it takes it as its own and sends its token once; when that is another server's element, the server refuses it and the person signs in again. An element whose `api-url` is removed does not go back to following the page: it talks to `https://api.ever.team/api` and sets that as the page's address. All the timers of a page share one language: the last element to load or change sets it. A language a person picks in the kit's language switch is kept for their next visits and wins over `lang` when an element loads.
 
@@ -147,7 +150,7 @@ declare module 'svelte/elements' {
 These two declarations stay in the app: they extend Vue's and Svelte's own types, which an app without Vue or Svelte
 does not have.
 
-No framework needs a wrapper component: the element takes three attributes, which every framework binds, and
+No framework needs a wrapper component: the element takes six attributes, which every framework binds, and
 dispatches one event, `ever-teams-timer-change` (see [Events](#events)), which a framework listens to as to any DOM
 event. Nothing binds both ways.
 
@@ -162,9 +165,32 @@ page. It takes your page's font, like the React kit. Two things are added to the
 
 ## Sign-in
 
-The element uses the kit's own sign-in: a person types their Ever Teams email and password, or a token, in the
-element. Sign-in from your backend, without a password in the page, comes with the host sign-in model of
-`@ever-teams/atoms`.
+Without `sign-in`, the element uses the kit's own sign-in: a person types their Ever Teams email and password, or a
+token, in the element. Sign-in from your backend, without a password in the page, comes with the host sign-in model
+of `@ever-teams/atoms`.
+
+On a page without a server, `sign-in="ever-teams"` shows a "Sign in with Ever Teams" button instead. It opens the
+Ever Teams web app in a popup, where the person signs in if they are not already and allows your site to start and
+stop their timer; the popup hands the element a timer token and a renewal token, then closes. No password or token is
+typed in your page:
+
+```html
+<ever-teams-timer
+	api-url="https://api.ever.team/api"
+	sign-in="ever-teams"
+	organization="your-organization-id"
+	app-url="https://app.ever.team"
+></ever-teams-timer>
+```
+
+An administrator of the organization turns it on: your site in the allowed sites of Settings > Embeds of the web app,
+with its switch "People can sign in from this site" on, on an API with sign-in from sites
+([ever-co/ever-gauzy#12094](https://github.com/ever-co/ever-gauzy/issues/12094)). The timer token stays in memory;
+the renewal token is kept in the browser for the API address that issued it, so a reload stays signed in, and the
+element renews the timer token about a minute before it expires, one tab at a time. The user menu signs out, which
+ends the sign-in at the API. When the person or an administrator revokes the site, the element shows the button again
+at its next renewal. [Sign in with Ever Teams](https://github.com/ever-co/ever-teams/tree/develop/packages/toolkit/atoms#sign-in-with-ever-teams)
+in the README of `@ever-teams/atoms` says what happens in each case.
 
 ## Size
 
