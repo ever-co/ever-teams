@@ -5,6 +5,7 @@ import {
 	readLastLogOfAnyDay,
 	readTask,
 	readTimerStatus,
+	readTodayTasks,
 	readTrackedTotals,
 	sendTimeSlot,
 	startTimer,
@@ -54,7 +55,9 @@ export const homeKeys = {
 		['home', 'totals', ...personOf(session), employeeId ?? ''] as const,
 	task: (session?: Session, taskId?: string | null) => ['home', 'task', ...personOf(session), taskId ?? ''] as const,
 	lastLog: (session?: Session, employeeId?: string | null) =>
-		['home', 'last-log', ...personOf(session), employeeId ?? ''] as const
+		['home', 'last-log', ...personOf(session), employeeId ?? ''] as const,
+	todayTasks: (session?: Session, employeeId?: string | null) =>
+		['home', 'today-tasks', ...personOf(session), employeeId ?? ''] as const
 };
 
 export function useTimerStatus() {
@@ -92,6 +95,19 @@ export function useTrackedTotals() {
 	return useQuery({
 		queryKey: homeKeys.totals(session, employeeId),
 		queryFn: () => readTrackedTotals(sessionOrFail(session), employeeIdOrFail(employeeId), new Date()),
+		enabled: session !== undefined && Boolean(employeeId),
+		refetchInterval: STATUS_REFRESH_MS
+	});
+}
+
+/** The tasks the person tracked time on today, the latest first, read again with the status. */
+export function useTodayTasks() {
+	const session = useSignedInSession();
+	const employee = useEmployeeId();
+	const employeeId = employee.data;
+	return useQuery({
+		queryKey: homeKeys.todayTasks(session, employeeId),
+		queryFn: () => readTodayTasks(sessionOrFail(session), employeeIdOrFail(employeeId), new Date()),
 		enabled: session !== undefined && Boolean(employeeId),
 		refetchInterval: STATUS_REFRESH_MS
 	});
@@ -159,7 +175,8 @@ function useReadTimeAgain(): () => Promise<void> {
 	return async () => {
 		await Promise.all([
 			queryClient.invalidateQueries({ queryKey: ['home', 'timer-status'] }),
-			queryClient.invalidateQueries({ queryKey: ['home', 'totals'] })
+			queryClient.invalidateQueries({ queryKey: ['home', 'totals'] }),
+			queryClient.invalidateQueries({ queryKey: ['home', 'today-tasks'] })
 		]);
 	};
 }
@@ -213,6 +230,29 @@ export function useStopTimer() {
 			}
 		},
 		onSettled: readTimeAgain,
+		networkMode: 'always'
+	});
+}
+
+/** A tap on one of today's tasks: the task to start, and the run going on another task, if one is. */
+export interface TaskSwitch extends StartTarget {
+	running?: TimerLog;
+}
+
+/**
+ * Starts the timer on one of today's tasks. A run on another task stops first, with its last minute written as Stop
+ * writes it; a stop that fails leaves that run going and starts nothing.
+ */
+export function useStartOnTask() {
+	const start = useStartTimer();
+	const stop = useStopTimer();
+	return useMutation({
+		mutationFn: async ({ running, ...target }: TaskSwitch) => {
+			if (running) {
+				await stop.mutateAsync(running);
+			}
+			await start.mutateAsync(target);
+		},
 		networkMode: 'always'
 	});
 }
