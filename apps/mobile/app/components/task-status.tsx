@@ -7,7 +7,8 @@ import { ITeamTask } from '../services/interfaces/ITask';
 import { observer } from 'mobx-react-lite';
 import { useTeamTasks } from '../services/hooks/features/use-team-tasks';
 import TaskStatusPopup from './task-status-popup';
-import { typography, useAppTheme } from '../theme';
+import { typography, useAppTheme, useWebTheme } from '../theme';
+import { taskChipLookOf } from '../../src/components/task-chip';
 import { translate } from '../i18n';
 import { useTaskStatusValue } from './status-type';
 import { limitTextCharaters } from '../helpers/sub-text';
@@ -25,7 +26,8 @@ interface TaskStatusProps {
 
 const TaskStatus: FC<TaskStatusProps> = observer(
 	({ task, containerStyle, status, setStatus, iconsOnly, labelOnly, canCreateStatus }) => {
-		const { colors, dark } = useAppTheme();
+		const { colors } = useAppTheme();
+		const theme = useWebTheme();
 		const { updateTask } = useTeamTasks();
 		const [openModal, setOpenModal] = useState(false);
 
@@ -37,6 +39,7 @@ const TaskStatus: FC<TaskStatusProps> = observer(
 		)?.toLowerCase();
 		const statusItem =
 			allStatuses && Object.values(allStatuses).find((item) => item?.name.toLowerCase() === statusValue);
+		const look = taskChipLookOf(statusItem?.bgColor, theme);
 
 		const onChangeStatus = async (text: string) => {
 			if (task) {
@@ -63,14 +66,9 @@ const TaskStatus: FC<TaskStatusProps> = observer(
 				<TouchableOpacity onPress={() => setOpenModal(true)}>
 					<View
 						style={[
-							{
-								...styles.container,
-								borderWidth: iconsOnly ? 0 : 1,
-								...containerStyle,
-								backgroundColor: !dark ? '#F2F2F2' : colors.background,
-								borderColor: colors.border
-							},
-							statusItem ? { backgroundColor: statusItem?.bgColor } : null
+							{ ...styles.container, ...containerStyle },
+							look.container,
+							iconsOnly && styles.iconsOnly
 						]}
 					>
 						{statusItem ? (
@@ -81,6 +79,7 @@ const TaskStatus: FC<TaskStatusProps> = observer(
 										numberOfLines={1}
 										style={{
 											...styles.text,
+											color: look.ink,
 											marginLeft: labelOnly ? 0 : 11,
 											fontSize: labelOnly ? 8 : 10
 										}}
@@ -93,7 +92,7 @@ const TaskStatus: FC<TaskStatusProps> = observer(
 								)}
 							</View>
 						) : (
-							<Text style={{ ...styles.text, color: colors.primary }}>
+							<Text style={{ ...styles.text, color: look.ink }}>
 								{iconsOnly ? (
 									<Feather name="circle" size={14} color={colors.divider} />
 								) : (
@@ -101,11 +100,7 @@ const TaskStatus: FC<TaskStatusProps> = observer(
 								)}
 							</Text>
 						)}
-						<AntDesign
-							name="down"
-							size={labelOnly ? 8 : 14}
-							color={task?.status || status ? '#000000' : colors.primary}
-						/>
+						<AntDesign name="down" size={labelOnly ? 8 : 14} color={look.ink} />
 					</View>
 				</TouchableOpacity>
 			</>
@@ -116,11 +111,14 @@ const TaskStatus: FC<TaskStatusProps> = observer(
 const styles = StyleSheet.create({
 	container: {
 		alignItems: 'center',
-		borderRadius: 10,
+		borderRadius: 8,
 		flexDirection: 'row',
 		justifyContent: 'space-between',
 		minHeight: 30,
 		paddingHorizontal: 8
+	},
+	iconsOnly: {
+		borderWidth: 0
 	},
 	text: {
 		fontFamily: typography.fonts.PlusJakartaSans.semiBold,
