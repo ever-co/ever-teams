@@ -37,14 +37,14 @@ export interface Names {
 	task: TaskName | null;
 }
 
-// A running entry counts up to now: the API moves its stop only at each heartbeat of its timer.
+// A stopped entry lasts what the API counts. A running one counts up to now: the API moves its stop only at each
+// heartbeat of its timer.
 function secondsOf(log: EverTeamsTimeLog, now: Date): number {
-	const startedAt = Date.parse(log.startedAt);
-	let endedAt = Date.parse(log.stoppedAt);
-	if (log.isRunning) {
-		endedAt = now.getTime();
+	if (!log.isRunning) {
+		return log.duration;
 	}
-	const seconds = Math.round((endedAt - startedAt) / 1000);
+	const startedAt = Date.parse(log.startedAt);
+	const seconds = Math.round((now.getTime() - startedAt) / 1000);
 	return Math.max(0, seconds);
 }
 
