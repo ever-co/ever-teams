@@ -76,7 +76,7 @@ async function openApp({
 		TaskStore: taskStoreWith(activeTaskId),
 		teamStore: { activeTeamId: 'team-1', activeTeam: { id: 'team-1' } }
 	};
-	const { rerender } = await renderHook(() => useTimer());
+	const { result, rerender } = await renderHook(() => useTimer());
 	/**
 	 * The active task becomes `taskId`, then any stop it asks for reaches the API. `withFirstRead`: in the same render,
 	 * the status query reads for the first time that the timer runs on "Repaint maintenance hatch".
@@ -91,7 +91,17 @@ async function openApp({
 			await jest.advanceTimersByTimeAsync(100);
 		});
 	};
-	return { makeActive };
+	/** Stop pressed on the phone. */
+	const pressStop = () =>
+		act(async () => {
+			await result.current.stopTimer();
+		});
+	/** Start pressed on the phone, on the active task. */
+	const pressStart = () =>
+		act(async () => {
+			await result.current.startTimer();
+		});
+	return { makeActive, pressStop, pressStart };
 }
 
 const stopsSent = () => gauzy.sentTo('POST', '/timesheet/timer/stop');
@@ -134,6 +144,19 @@ describe('The active task changes while the timer runs', () => {
 
 		expect(stopsSent()).toHaveLength(0);
 		expect(gauzy.timer()?.isRunning).toBe(true);
+	});
+
+	it('stops on a switch back to the task of the last read, after a stop and a start made here since', async () => {
+		const app = await openApp({ activeTaskId: HATCH, statusRead: true });
+		await app.pressStop();
+		await app.makeActive('task-inspect-bolts');
+		await app.pressStart();
+
+		// The last read still says the timer runs on the hatch: the start made here outdates it
+		await app.makeActive(HATCH);
+
+		expect(stopsSent()).toHaveLength(2);
+		expect(gauzy.timer()?.isRunning).toBe(false);
 	});
 
 	it('stops when the active task becomes another one than the task the timer runs on', async () => {

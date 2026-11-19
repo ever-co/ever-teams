@@ -32,6 +32,7 @@ type FakeTimer = {
 	source: string;
 	startedAt: string;
 	isEdited: boolean;
+	taskId?: string | null;
 };
 type FakeEntry = { startedAt: string; stoppedAt: string; duration: number };
 
@@ -110,6 +111,15 @@ export function createFakeGauzy({
 		return answer(200, timer);
 	};
 
+	/** `POST /timesheet/timer/start`: a new run, on the task sent. */
+	const startRun = (body: Record<string, unknown>) => {
+		const taskId = typeof body.taskId === 'string' ? body.taskId : null;
+		const source = typeof body.source === 'string' ? body.source : 'MOBILE';
+		const startedAt = new Date().toISOString();
+		timer = { id: `log-${startedAt}`, isRunning: true, duration: 0, source, startedAt, isEdited: false, taskId };
+		return answer(200, timer);
+	};
+
 	/** `PUT /timesheet/timer/started-at`: the new start of the running timer, earlier or later. */
 	const moveStart = (body: Record<string, unknown>) => {
 		if (withoutStartMove)
@@ -161,6 +171,7 @@ export function createFakeGauzy({
 				lastLog: timer
 			});
 		}
+		if (method === 'POST' && path === '/timesheet/timer/start') return startRun(body);
 		if (method === 'POST' && path === '/timesheet/timer/stop') return stop();
 		if (method === 'PUT' && path === '/timesheet/timer/started-at') return moveStart(body);
 		if (method === 'POST' && path === '/timesheet/timer/discard') return discard(body);
