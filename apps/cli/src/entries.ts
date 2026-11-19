@@ -110,11 +110,17 @@ function projectLabelOf(record: EntryRecord): string | null {
 	return null;
 }
 
+/** The project and the task of the entry, as a person reads them: "Website, WEB-12 Fix the sign-in page". */
+export function labelOf(record: EntryRecord): string {
+	const labels = [projectLabelOf(record), taskLabelOf(record)].filter((label) => label !== null);
+	return labels.join(', ');
+}
+
 /** What the entry was on, for a sentence: " on Website, WEB-12 Fix the sign-in page", or nothing. */
 export function workOf(record: EntryRecord): string {
-	const labels = [projectLabelOf(record), taskLabelOf(record)].filter((label) => label !== null);
-	if (labels.length === 0) {
+	const label = labelOf(record);
+	if (!label) {
 		return '';
 	}
-	return ` on ${labels.join(', ')}`;
+	return ` on ${label}`;
 }

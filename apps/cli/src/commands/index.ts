@@ -5,12 +5,14 @@ import { projectsCommand } from './projects.js';
 import { startCommand } from './start.js';
 import { statusCommand } from './status.js';
 import { stopCommand } from './stop.js';
+import { todayCommand } from './today.js';
 
 /** The commands, in the order the help lists them. */
 export const COMMANDS: Command[] = [
 	statusCommand,
 	startCommand,
 	stopCommand,
+	todayCommand,
 	projectsCommand,
 	loginCommand,
 	logoutCommand
