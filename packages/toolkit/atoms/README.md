@@ -99,6 +99,9 @@ export default function App() {
 | ----------------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `config.apiUrl`         | `https://api.ever.team/api` | The Ever Teams API every request goes to, with the token in the `Authorization` header. Always set it. With your own server, give its address ending with `/api`.                                                                                            |
 | `config.getToken`       | none                        | Signs people in from your backend: see [Sign in from your backend](#sign-in-from-your-backend). Without it, the sign-in dialog asks for an Ever Teams password or token inside your page.                                                                    |
+| `config.signIn`         | none                        | `'ever-teams'`: a "Sign in with Ever Teams" button opens the web app in a popup, for a site without a server: see [Sign in with Ever Teams](#sign-in-with-ever-teams). Ignored when `getToken` is given.                                                     |
+| `config.appUrl`         | `https://app.ever.team`     | The Ever Teams web app the popup opens, with `signIn: 'ever-teams'`.                                                                                                                                                                                         |
+| `config.organizationId` | none                        | The organization the site signs people in to, with `signIn: 'ever-teams'`.                                                                                                                                                                                   |
 | `lang`                  | `'en'`                      | Language of the components: `'en'` or `'fr'`. A language chosen earlier in the language switch, kept in `localStorage`, wins.                                                                                                                                |
 | `theme`                 | `defaultTheme`              | A theme object: `defaultTheme` (flat), `gradientTheme` and `theme1` to `theme14` are exported.                                                                                                                                                               |
 | `scopedStyles`          | `false`                     | Renders the kit root that `@ever-teams/atoms/styles.css` is scoped under, and a container for the kit's dialogs and menus in `document.body` or its shadow root. Set it with the stylesheet; leave it off when your own Tailwind compiles the kit's classes. |
@@ -219,6 +222,74 @@ What the kit does with it:
 - When a person signs in to or out of your product without a page load, mount a new `TeamsProvider` (the `key` in the
   example) or unmount it. Unmounting is what clears the token and the profile the kit holds in memory: the token's
   expiry only limits how long the API accepts it.
+
+## Sign in with Ever Teams
+
+A site without a server of its own (a page made with a site builder, a static site) has no backend to exchange an
+embed credential. With `config.signIn: 'ever-teams'`, the kit shows a "Sign in with Ever Teams" button instead of
+the password dialog. It opens the Ever Teams web app in a popup, where the person signs in if they are not already and
+allows the site to start and stop their timer. The popup hands the site a timer token and a renewal token, then
+closes. The person never types their password in your page, and two-factor sign-in works as on the web app.
+
+What the administrator turns on:
+
+- the API has embeds on (`GAUZY_EMBED_TOKENS_ENABLED=true`) in a version with sign-in from sites
+  ([ever-co/ever-gauzy#12094](https://github.com/ever-co/ever-gauzy/issues/12094));
+- your site is one of the organization's allowed sites, and its switch "People can sign in from this site" is on, in
+  Settings > Embeds of the web app. It is off for every site until then.
+
+```tsx
+'use client';
+import '@ever-teams/atoms/styles.css';
+import { TeamsProvider, TeamsBasicTimer, TeamsLoginDialog } from '@ever-teams/atoms';
+
+export function Timer() {
+	return (
+		<TeamsProvider
+			scopedStyles
+			config={{
+				apiUrl: 'https://api.ever.team/api',
+				signIn: 'ever-teams',
+				appUrl: 'https://app.ever.team',
+				organizationId: 'your-organization-id'
+			}}
+		>
+			<TeamsLoginDialog />
+			<TeamsBasicTimer />
+		</TeamsProvider>
+	);
+}
+```
+
+What the kit does with it:
+
+- The button opens `${appUrl}/embed/authorize` from the click, so the browser lets the popup open, with your page's
+  origin, `organizationId` and a one-time state in its query. A second click opens that page again in the same
+  window, in front, with a new state. A popup the browser blocked says to allow pop-ups for the site.
+- It takes the popup's answer only from the web app's origin, from that popup window, and with the state of that
+  opening: a message from another page or another window, or an answer to another opening, is ignored.
+- The timer token stays in memory. The renewal token is saved in `localStorage`, under a key of its own
+  (`ever-teams:site-sign-in:` and the API address and organization), for the API address that issued it and the
+  organization it was allowed for: a reload stays signed in, the token of one server is never sent to another, and a
+  timer set up for another organization asks the person to sign in for that one.
+- About a minute before the timer token expires, the kit renews it with the renewal token (`POST /embed/renew`,
+  without an `Authorization` header), and saves the new renewal token in place of the old one. Each renewal token
+  works once, and the API ends the whole sign-in when one is presented twice, so the tabs of your site renew one at a
+  time: under Web Locks where the browser has them, else under a lock written in `localStorage`. That fallback is best
+  effort (a tab the browser freezes during a renewal can lose its lock): the API's reuse check then ends the sign-in,
+  and the person signs in again.
+- When the API says the sign-in ended (`EMBED_GRANT_ENDED`: revoked by the person or an administrator, expired
+  after 30 days without a renewal, or a renewal token used twice), the kit forgets it and shows the button again. When
+  it refuses for a reason it lifts later (the site removed from the allowed sites, its switch turned off, the person's
+  time tracking off), the kit keeps the renewal token, shows the button, and tries again when the page comes back.
+- The user menu offers to sign out: the kit forgets the sign-in, then asks the API to revoke it
+  (`POST /embed/revoke`). When the API cannot be reached, the sign-in is forgotten in the browser all the same, but
+  stays valid at the API until it expires: the person can revoke the site from the web app. A renewal on its way at
+  that moment keeps nothing of its answer.
+- As with `getToken`, the token reaches only that person's timer, from your site, and the kit lists no other
+  organization.
+
+A provider without `signIn` keeps the kit's own sign-in, and nothing above changes for it.
 
 ## Know when the timer starts or stops
 
@@ -381,6 +452,12 @@ With `config.getToken` (above), the sign-in dialog, the stored token and the tok
 token comes from your backend, is limited to the timer and to one person, lives a few minutes and stays in memory; a
 revoked embed credential ends its tokens. Requests still go to `config.apiUrl` with that token in their
 `Authorization` header.
+
+With `config.signIn: 'ever-teams'` (above), the dialog asks for no password or token either: the timer token stays
+in memory, and the renewal token, which gets the next timer token from your site only, sits in `localStorage` for
+its API address and organization, readable by the scripts of your page. Anyone who reads it can renew from your
+site's origin until the person signs out or revokes the site. Sign-out asks the API to revoke it; when the API cannot
+be reached, the person revokes the site from the web app.
 
 Planned ([ever-co/ever-teams#5405](https://github.com/ever-co/ever-teams/issues/5405)): the workspace lists the sites
 allowed to embed it.

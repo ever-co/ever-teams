@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 import { useAtomValue } from 'jotai';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient, type QueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import {
 	EmbedClientNotLimitedError,
@@ -86,6 +86,17 @@ export function canAllowAddMembersOf(availability: EmbedsAvailability, config: E
 	return config?.addMembers === true;
 }
 
+/**
+ * Whether the allowed sites offer the switch that lets people sign in from them: only when the server says it can. An
+ * older API has no such setting.
+ */
+export function canAllowPersonSignInOf(availability: EmbedsAvailability, config: EmbedConfig | undefined): boolean {
+	if (availability !== 'enabled') {
+		return false;
+	}
+	return config?.personSignIn === true;
+}
+
 /** Only a failure that may pass is worth asking again for: not a 4xx, which the next try would get again. */
 function shouldRetry(failureCount: number, error: unknown): boolean {
 	const status = errorStatusOf(error);
@@ -134,7 +145,8 @@ export function useEmbedsAvailability(enabled = true) {
 	const availability = embedsAvailabilityOf({ status: query.status, data: query.data, error: query.error });
 	const canLimitToClient = canLimitToClientOf(availability, query.data);
 	const canAllowAddMembers = canAllowAddMembersOf(availability, query.data);
-	return { availability, canLimitToClient, canAllowAddMembers, retry: query.refetch };
+	const canAllowPersonSignIn = canAllowPersonSignInOf(availability, query.data);
+	return { availability, canLimitToClient, canAllowAddMembers, canAllowPersonSignIn, retry: query.refetch };
 }
 
 // Every organization's list: a write settles on the list of the organization it was made in, even if the active
@@ -205,6 +217,66 @@ export function useRemoveEmbedOrigin() {
 			);
 		},
 		onSettled: () => queryClient.invalidateQueries({ queryKey: EVERY_ORIGINS_LIST })
+	});
+}
+
+/** The setting a switch on an allowed site asks for. */
+export interface PersonSignInChange {
+	id: string;
+	allowPersonSignIn: boolean;
+}
+
+type PersonSignInSetting = EmbedAllowedOrigin['allowPersonSignIn'];
+
+const withPersonSignIn = (origins: EmbedAllowedOrigin[] | undefined, id: string, setting: PersonSignInSetting) =>
+	origins?.map((row) => {
+		if (row.id !== id) {
+			return row;
+		}
+		return { ...row, allowPersonSignIn: setting };
+	});
+
+// The switch changes still waiting for the API, by query client: the last one to settle reads the lists again. Counted
+// here, not with isMutating, which still counts a change while its onSettled runs: two changes that settle in the same
+// turn would each see the other, and neither would read the lists.
+const runningSwitchChanges = new WeakMap<QueryClient, number>();
+
+/**
+ * Turns on or off whether people can sign in from an allowed site. The switch moves at once and goes back if the API
+ * refuses, that switch only: another site's switch changed meanwhile keeps its own setting. The list is read again
+ * once no switch waits for the API any more: a read while another change is on its way would show that site's
+ * previous setting until its answer.
+ */
+export function useSetPersonSignIn() {
+	const queryClient = useQueryClient();
+	return useMutation<EmbedAllowedOrigin, unknown, PersonSignInChange, { before: PersonSignInSetting }>({
+		mutationFn: ({ id, allowPersonSignIn }) => embedsService.setPersonSignIn(id, allowPersonSignIn),
+		// The row says why its switch went back: the global fallback toast would say it twice
+		meta: { handlesOwnError: true },
+		onMutate: async (change) => {
+			runningSwitchChanges.set(queryClient, (runningSwitchChanges.get(queryClient) ?? 0) + 1);
+			await queryClient.cancelQueries({ queryKey: EVERY_ORIGINS_LIST });
+			const lists = queryClient.getQueriesData<EmbedAllowedOrigin[]>({ queryKey: EVERY_ORIGINS_LIST });
+			const rows = lists.flatMap(([, origins]) => origins ?? []);
+			const before = rows.find((row) => row.id === change.id)?.allowPersonSignIn;
+			queryClient.setQueriesData<EmbedAllowedOrigin[]>({ queryKey: EVERY_ORIGINS_LIST }, (origins) =>
+				withPersonSignIn(origins, change.id, change.allowPersonSignIn)
+			);
+			return { before };
+		},
+		onError: (_error, change, context) => {
+			queryClient.setQueriesData<EmbedAllowedOrigin[]>({ queryKey: EVERY_ORIGINS_LIST }, (origins) =>
+				withPersonSignIn(origins, change.id, context?.before)
+			);
+		},
+		onSettled: () => {
+			const stillRunning = Math.max((runningSwitchChanges.get(queryClient) ?? 1) - 1, 0);
+			runningSwitchChanges.set(queryClient, stillRunning);
+			if (stillRunning > 0) {
+				return;
+			}
+			return queryClient.invalidateQueries({ queryKey: EVERY_ORIGINS_LIST });
+		}
 	});
 }
 

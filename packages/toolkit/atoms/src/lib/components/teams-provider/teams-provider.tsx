@@ -26,10 +26,16 @@ import { useSelectedOrganization } from '@hooks/useSelectedOrganization';
 import { KitOptionsProvider, KitRoot } from './kit-root';
 import { KitColorScheme, setKitPreferences } from '@lib/stores/kit-preferences';
 import { withoutGlobalStyles } from '../../themes/kit-theme-config';
-import { useHostToken } from '@hooks/useHostToken';
+import { TokenFailureWarning, useHostToken } from '@hooks/useHostToken';
 import { usePageApiUrl } from '@hooks/usePageApiUrl';
 import { GetKitToken } from '@lib/session/host-token';
 import { HostSignInContext } from '@lib/session/host-session';
+import { KitSiteSignIn } from '@lib/session/site-popup';
+import { SiteSignInContext } from '@lib/session/site-sign-in-context';
+import { siteSignInWarning, useSiteSession, useSiteSignInControls } from '@hooks/useSiteSignIn';
+import { useKitOptions } from './kit-options';
+import { apiUrlOf } from '@lib/utils/api-url';
+import { warnOnce } from '@lib/utils/warn-once';
 
 export const defaultData: ChartData[] = [
 	{ day: 'Monday', cedric: 5, salva: 7, josh: 2, ndeko: 7 },
@@ -41,13 +47,61 @@ export const defaultData: ChartData[] = [
 	{ day: 'Sunday', cedric: 4, salva: 7, josh: 6, ndeko: 7 }
 ];
 
-// The API address, and getToken: the host's way to sign the person in from its own backend.
+// The API address, and the way people sign in: getToken from the host's own backend, or signIn 'ever-teams'.
 export type TeamsProviderConfig = Partial<IApiTeamsConfig> & {
 	// Returns a short-lived token for the person signed in to the host product, which the host's server gets by
 	// exchanging its embed credential. The kit calls it at start, shortly before the token expires and once after the
 	// API refuses it; it keeps the token in memory only and asks for no password or token in the page.
 	getToken?: GetKitToken;
+	// 'ever-teams': a "Sign in with Ever Teams" button opens the web app in a popup, where the person allows this site
+	// (an administrator turns that on for the site in Settings > Embeds). The kit keeps the timer token in memory and
+	// the renewal token in the browser, for this API address. Ignored when getToken is given.
+	signIn?: 'ever-teams';
+	// The Ever Teams web app the popup opens, for signIn 'ever-teams'. Default: https://app.ever.team.
+	appUrl?: string;
+	// The organization the site signs people in to, for signIn 'ever-teams'.
+	organizationId?: string;
 };
+
+const DEFAULT_APP_URL = 'https://app.ever.team';
+
+// The sign-in with Ever Teams of a config, or null when it uses another way to sign in.
+function siteSignInOf(config: TeamsProviderConfig | undefined): KitSiteSignIn | null {
+	const wantsSiteSignIn = config?.signIn === 'ever-teams';
+	if (!wantsSiteSignIn || config.getToken) {
+		return null;
+	}
+	return { appUrl: config.appUrl || DEFAULT_APP_URL, organizationId: config.organizationId ?? '' };
+}
+
+// The config the API client keeps: its address and version, without the provider's own sign-in options.
+function apiClientConfigOf(config: TeamsProviderConfig): Partial<IApiTeamsConfig> {
+	const api: TeamsProviderConfig = { ...config };
+	delete api.getToken;
+	delete api.signIn;
+	delete api.appUrl;
+	delete api.organizationId;
+	return api;
+}
+
+/** The sign-in with Ever Teams of the provider's config, the same object while its values stay the same. */
+function useSiteSignInConfig(config: TeamsProviderConfig | undefined): KitSiteSignIn | null {
+	const signIn = siteSignInOf(config);
+	const appUrl = signIn?.appUrl;
+	const organizationId = signIn?.organizationId;
+	const isOn = signIn !== null;
+	useEffect(() => {
+		if (isOn && !organizationId) {
+			warnOnce('site-sign-in-organization', "config.signIn 'ever-teams' needs config.organizationId.");
+		}
+	}, [isOn, organizationId]);
+	return useMemo(() => {
+		if (!isOn) {
+			return null;
+		}
+		return { appUrl: appUrl ?? DEFAULT_APP_URL, organizationId: organizationId ?? '' };
+	}, [isOn, appUrl, organizationId]);
+}
 
 interface TeamsProviderProps {
 	children?: ReactNode;
@@ -95,8 +149,18 @@ const TeamsDataProvider = ({
 
 	const { fontOptions, selectedFont, setSelectedFont } = useFontSelector();
 
-	const getToken = apiConfig?.getToken;
-	const askHostForToken = useHostToken(getToken);
+	const { api } = useKitOptions();
+	const siteSignIn = useSiteSignInConfig(apiConfig);
+	const site = useSiteSession(siteSignIn, apiUrlOf(api));
+	// The host's getToken, or the sign-in with Ever Teams: the same token life (in memory, renewed before expiry).
+	let getToken = apiConfig?.getToken;
+	let warningOf: TokenFailureWarning | undefined;
+	if (site) {
+		getToken = site.getToken;
+		warningOf = siteSignInWarning;
+	}
+	const askHostForToken = useHostToken(getToken, warningOf);
+	const siteControls = useSiteSignInControls(site, siteSignIn, askHostForToken);
 
 	const { accessToken } = useAccessToken();
 
@@ -116,10 +180,8 @@ const TeamsDataProvider = ({
 
 	useEffect(() => {
 		if (apiConfig) {
-			// getToken is the provider's; the API client keeps the address and the version only.
-			const api: TeamsProviderConfig = { ...apiConfig };
-			delete api.getToken;
-			apiConfigManager.setConfig(api);
+			// The sign-in options are the provider's; the API client keeps the address and the version only.
+			apiConfigManager.setConfig(apiClientConfigOf(apiConfig));
 		}
 	}, [apiConfig]);
 
@@ -131,7 +193,9 @@ const TeamsDataProvider = ({
 	}
 	let themed = (
 		<HostSignInContext.Provider value={hostSignIn}>
-			<ThemeUIProvider theme={withoutGlobalStyles(appliedTheme)}>{children}</ThemeUIProvider>
+			<SiteSignInContext.Provider value={siteControls}>
+				<ThemeUIProvider theme={withoutGlobalStyles(appliedTheme)}>{children}</ThemeUIProvider>
+			</SiteSignInContext.Provider>
 		</HostSignInContext.Provider>
 	);
 	if (!scoped) {
@@ -174,7 +238,9 @@ const TeamsProvider = ({
 		setKitPreferences({ colorScheme, loadGoogleFonts });
 	}, [colorScheme, loadGoogleFonts]);
 
-	const hostSignIn = Boolean(props.config?.getToken);
+	const siteSignIn = siteSignInOf(props.config) !== null;
+	// Signed in by the host's getToken or with Ever Teams: a token in memory for one member's timer, no password.
+	const hostSignIn = Boolean(props.config?.getToken) || siteSignIn;
 	const apiUrl = props.config?.apiUrl;
 	// Without an apiUrl the provider talks to the page's address, which the host's setConfig() or another provider can
 	// change: it is read again then, so the provider's requests and state follow it (below).
@@ -193,11 +259,19 @@ const TeamsProvider = ({
 	if (hostSignIn) {
 		signInMode = 'host';
 	}
+	if (siteSignIn) {
+		signInMode = 'site';
+	}
 	// So does another address, its own apiUrl (an element's api-url changes) or, without one, the page's: the token
-	// held for one server is never sent to the next, nor saved as its session.
-	const stateKey = [signInMode, server].join(' ');
+	// held for one server is never sent to the next, nor saved as its session. With Ever Teams, so does another
+	// organization: the token of the sign-in allowed for one never runs the timer set up for the next.
+	let scope = '';
+	if (siteSignIn) {
+		scope = props.config?.organizationId ?? '';
+	}
+	const stateKey = JSON.stringify([signInMode, server, scope]);
 	const content = (
-		<KitOptionsProvider value={{ scoped: scopedStyles, onSignOut, hostSignIn, branding, api }}>
+		<KitOptionsProvider value={{ scoped: scopedStyles, onSignOut, hostSignIn, siteSignIn, branding, api }}>
 			<JotaiProvider key={stateKey}>
 				<TeamsDataProvider {...props} scoped={scopedStyles}>
 					{children}

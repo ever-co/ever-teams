@@ -146,6 +146,40 @@ test('the attributes become the provider settings, and a change of attribute app
 	assert.equal(providerOf(element).dataset.scheme, 'system', 'an unknown scheme follows the system');
 });
 
+test('sign-in="ever-teams" gives the provider the sign-in with Ever Teams, its organization and web app', async () => {
+	const element = await place({
+		'api-url': 'https://api.example.com/api',
+		'sign-in': 'ever-teams',
+		organization: 'org-1',
+		'app-url': 'https://teams.example.com'
+	});
+
+	assert.deepEqual(JSON.parse(providerOf(element).dataset.config), {
+		apiUrl: 'https://api.example.com/api',
+		signIn: 'ever-teams',
+		organizationId: 'org-1',
+		appUrl: 'https://teams.example.com'
+	});
+
+	await act(async () => element.removeAttribute('app-url'));
+	assert.deepEqual(JSON.parse(providerOf(element).dataset.config), {
+		apiUrl: 'https://api.example.com/api',
+		signIn: 'ever-teams',
+		organizationId: 'org-1'
+	});
+
+	await act(async () => element.removeAttribute('sign-in'));
+	assert.deepEqual(JSON.parse(providerOf(element).dataset.config), { apiUrl: 'https://api.example.com/api' });
+});
+
+test('another sign-in value, or organization and app-url without sign-in, keep the kit sign-in as it was', async () => {
+	const other = await place({ 'sign-in': 'password', organization: 'org-1' });
+	assert.deepEqual(JSON.parse(providerOf(other).dataset.config), {});
+
+	const alone = await place({ organization: 'org-1', 'app-url': 'https://teams.example.com' });
+	assert.deepEqual(JSON.parse(providerOf(alone).dataset.config), {});
+});
+
 test('without api-url the kit keeps its own default API address', async () => {
 	const element = await place();
 

@@ -14,13 +14,15 @@ import { userState } from '@/core/stores/user/user';
 
 const mockReadConfig = jest.fn();
 const mockCreateCredential = jest.fn();
+const mockSetPersonSignIn = jest.fn();
 
 jest.mock('@/core/services/client/api/embeds/embeds.service', () => ({
 	EmbedClientNotLimitedError: class EmbedClientNotLimitedError extends Error {},
 	EmbedMembersNotAddedError: class EmbedMembersNotAddedError extends Error {},
 	embedsService: {
 		readConfig: (...args: unknown[]) => mockReadConfig(...args),
-		createCredential: (...args: unknown[]) => mockCreateCredential(...args)
+		createCredential: (...args: unknown[]) => mockCreateCredential(...args),
+		setPersonSignIn: (...args: unknown[]) => mockSetPersonSignIn(...args)
 	}
 }));
 
@@ -30,15 +32,17 @@ import {
 } from '@/core/services/client/api/embeds/embeds.service';
 import {
 	canAllowAddMembersOf,
+	canAllowPersonSignInOf,
 	canLimitToClientOf,
 	useCreateEmbedCredential,
-	useEmbedsAvailability
+	useEmbedsAvailability,
+	useSetPersonSignIn
 } from './use-embeds';
+import { queryKeys } from '@/core/query/keys';
 
 const TEAM = { id: 'team-1', name: 'Studio', organizationId: 'organization-1', tenantId: 'tenant-1', members: [] };
 
-function wrapperOf() {
-	const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+function wrapperOf(client = new QueryClient({ defaultOptions: { queries: { retry: false } } })) {
 	const store = createStore();
 	store.set(userState, { id: 'user-1', tenantId: 'tenant-1' } as never);
 	store.set(organizationTeamsState, [TEAM] as never);
@@ -77,6 +81,107 @@ describe('canAllowAddMembersOf', () => {
 		for (const availability of ['loading', 'disabled', 'forbidden', 'error'] as const) {
 			expect(canAllowAddMembersOf(availability, addsMembers)).toBe(false);
 		}
+	});
+});
+
+describe('canAllowPersonSignInOf', () => {
+	it('offers the switch only when embeds are on and the API says people can sign in from a site', () => {
+		const signsIn = { enabled: true, clientLimits: true, addMembers: true, personSignIn: true };
+		expect(canAllowPersonSignInOf('enabled', signsIn)).toBe(true);
+		expect(canAllowPersonSignInOf('enabled', { ...signsIn, personSignIn: undefined })).toBe(false);
+		expect(canAllowPersonSignInOf('enabled', undefined)).toBe(false);
+		for (const availability of ['loading', 'disabled', 'forbidden', 'error'] as const) {
+			expect(canAllowPersonSignInOf(availability, signsIn)).toBe(false);
+		}
+	});
+});
+
+describe('useSetPersonSignIn', () => {
+	const SITES_KEY = queryKeys.embeds.origins('tenant-1', 'organization-1');
+	const SITE = { id: 'origin-1', origin: 'https://team.example.com', allowPersonSignIn: false };
+
+	function siteListClient() {
+		const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+		client.setQueryData(SITES_KEY, [SITE]);
+		return client;
+	}
+
+	const switchOf = (client: QueryClient) => client.getQueryData<(typeof SITE)[]>(SITES_KEY)?.[0]?.allowPersonSignIn;
+
+	it('moves the switch at once, and asks the API for that setting alone', async () => {
+		let answer: (value: unknown) => void = () => undefined;
+		mockSetPersonSignIn.mockImplementation(() => new Promise((resolve) => (answer = resolve)));
+		const client = siteListClient();
+		const { result } = renderHook(() => useSetPersonSignIn(), { wrapper: wrapperOf(client) });
+
+		result.current.mutate({ id: 'origin-1', allowPersonSignIn: true });
+
+		await waitFor(() => expect(switchOf(client)).toBe(true));
+		expect(mockSetPersonSignIn).toHaveBeenCalledWith('origin-1', true);
+		answer({ ...SITE, allowPersonSignIn: true });
+		await waitFor(() => expect(result.current.isSuccess).toBe(true));
+	});
+
+	it('puts the switch back when the API refuses', async () => {
+		mockSetPersonSignIn.mockRejectedValue({ statusCode: 403 });
+		const client = siteListClient();
+		const { result } = renderHook(() => useSetPersonSignIn(), { wrapper: wrapperOf(client) });
+
+		result.current.mutate({ id: 'origin-1', allowPersonSignIn: true });
+
+		await waitFor(() => expect(result.current.isError).toBe(true));
+		expect(switchOf(client)).toBe(false);
+	});
+
+	it('puts back only the refused switch, and reads the list once the last change settles', async () => {
+		const OTHER = { id: 'origin-2', origin: 'https://shop.example.com', allowPersonSignIn: false };
+		const answers: Record<string, { resolve: (value: unknown) => void; reject: (error: unknown) => void }> = {};
+		mockSetPersonSignIn.mockImplementation(
+			(id: string) => new Promise((resolve, reject) => (answers[id] = { resolve, reject }))
+		);
+		const client = siteListClient();
+		client.setQueryData(SITES_KEY, [SITE, OTHER]);
+		const settingOf = (id: string) =>
+			client.getQueryData<(typeof SITE)[]>(SITES_KEY)?.find((row) => row.id === id)?.allowPersonSignIn;
+		const invalidate = jest.spyOn(client, 'invalidateQueries');
+		const first = renderHook(() => useSetPersonSignIn(), { wrapper: wrapperOf(client) });
+		const second = renderHook(() => useSetPersonSignIn(), { wrapper: wrapperOf(client) });
+
+		first.result.current.mutate({ id: 'origin-1', allowPersonSignIn: true });
+		await waitFor(() => expect(settingOf('origin-1')).toBe(true));
+		second.result.current.mutate({ id: 'origin-2', allowPersonSignIn: true });
+		await waitFor(() => expect(settingOf('origin-2')).toBe(true));
+
+		answers['origin-2'].resolve({ ...OTHER, allowPersonSignIn: true });
+		await waitFor(() => expect(second.result.current.isSuccess).toBe(true));
+		expect(invalidate).not.toHaveBeenCalled();
+		expect(settingOf('origin-1')).toBe(true);
+		answers['origin-1'].reject({ statusCode: 403 });
+		await waitFor(() => expect(first.result.current.isError).toBe(true));
+
+		expect(settingOf('origin-1')).toBe(false);
+		expect(settingOf('origin-2')).toBe(true);
+		await waitFor(() => expect(invalidate).toHaveBeenCalledTimes(1));
+	});
+
+	it('reads the list again when two changes settle in the same turn', async () => {
+		const OTHER = { id: 'origin-2', origin: 'https://shop.example.com', allowPersonSignIn: false };
+		const answers: Record<string, (value: unknown) => void> = {};
+		mockSetPersonSignIn.mockImplementation((id: string) => new Promise((resolve) => (answers[id] = resolve)));
+		const client = siteListClient();
+		client.setQueryData(SITES_KEY, [SITE, OTHER]);
+		const invalidate = jest.spyOn(client, 'invalidateQueries');
+		const first = renderHook(() => useSetPersonSignIn(), { wrapper: wrapperOf(client) });
+		const second = renderHook(() => useSetPersonSignIn(), { wrapper: wrapperOf(client) });
+
+		first.result.current.mutate({ id: 'origin-1', allowPersonSignIn: true });
+		second.result.current.mutate({ id: 'origin-2', allowPersonSignIn: true });
+		await waitFor(() => expect(Object.keys(answers)).toHaveLength(2));
+		answers['origin-1']({ ...SITE, allowPersonSignIn: true });
+		answers['origin-2']({ ...OTHER, allowPersonSignIn: true });
+
+		await waitFor(() => expect(first.result.current.isSuccess && second.result.current.isSuccess).toBe(true));
+		await waitFor(() => expect(invalidate).toHaveBeenCalledTimes(1));
 	});
 });
 

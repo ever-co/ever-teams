@@ -21,7 +21,7 @@ jest.mock('@/core/services/logs/logger-adapter.service', () => ({
 	HttpLoggerAdapter: jest.fn().mockImplementation(() => ({ logError: jest.fn() }))
 }));
 // Proxy mode: the requests go through the fallback client this app's /api routes answer.
-const mockFallback = { get: jest.fn(), post: jest.fn(), delete: jest.fn() };
+const mockFallback = { get: jest.fn(), post: jest.fn(), patch: jest.fn(), delete: jest.fn() };
 jest.mock('@/core/services/client/axios', () => ({
 	getAPI: async () => ({ axiosInstance: mockFallback })
 }));
@@ -46,6 +46,17 @@ const MEMBERS_BODY = '{"name":"Fabrikam client portal","organizationId":"organiz
 const CLIENT_AND_MEMBERS_BODY =
 	'{"name":"Fabrikam client portal","organizationId":"organization-1","organizationContactId":"contact-fabrikam","canAddMembers":true}';
 const ADDING_MEMBERS = { ...CREATED, organizationContactId: null, canAddMembers: true };
+
+// What POST /embed/authorize answers (ever-gauzy #12094): a timer token and its renewal token, made up for the tests
+const SITE_TOKENS = {
+	token: 'header.claims.signature',
+	expiresAt: '2026-11-19T10:15:00.000Z',
+	renewalToken: 'gzr_renewal-token',
+	renewalExpiresAt: '2026-12-19T10:00:00.000Z'
+};
+// The organization and the exact origin, nothing else: the route takes no tenant or other field in its body
+const AUTHORIZE_BODY = '{"organizationId":"organization-1","origin":"https://team.example.com"}';
+const SITE = { id: 'origin-1', origin: 'https://team.example.com', allowPersonSignIn: true };
 
 /** The client's base URL, which decides the mode (none: proxy mode). */
 function setBaseUrl(baseURL: string | undefined): void {
@@ -157,6 +168,52 @@ describe('embedsService', () => {
 				})
 			).rejects.toBeInstanceOf(EmbedClientNotLimitedError);
 			expect(sent).toHaveLength(2);
+		});
+
+		it('asks the API to allow a site with the person’s session, and keeps the tokens out of the log', async () => {
+			const sent = directRequests(SITE_TOKENS);
+
+			const tokens = await embedsService.authorizeSite('organization-1', 'https://team.example.com');
+
+			expect(tokens).toEqual(SITE_TOKENS);
+			expect(sent[0].method).toBe('post');
+			expect(sent[0].url).toBe('/embed/authorize');
+			expect(sent[0].data).toBe(AUTHORIZE_BODY);
+			expect((sent[0] as InternalAxiosRequestConfig & { secretResponse?: boolean }).secretResponse).toBe(true);
+		});
+
+		it('refuses an answer without both tokens, without quoting it', async () => {
+			directRequests({ token: SITE_TOKENS.token, expiresAt: SITE_TOKENS.expiresAt });
+
+			const authorizing = embedsService.authorizeSite('organization-1', 'https://team.example.com');
+
+			await expect(authorizing).rejects.toThrow();
+			await expect(authorizing).rejects.not.toHaveProperty('message', expect.stringContaining(SITE_TOKENS.token));
+		});
+
+		it('reads whether people can sign in from a site, and an older API as saying nothing', async () => {
+			directRequests({ enabled: true, clientLimits: true, addMembers: true, personSignIn: true });
+			await expect(embedsService.readConfig()).resolves.toHaveProperty('personSignIn', true);
+
+			directRequests({ enabled: true });
+			await expect(embedsService.readConfig()).resolves.not.toHaveProperty('personSignIn');
+		});
+
+		it('turns sign-in from a site on and off with its setting alone in the body', async () => {
+			const sent = directRequests(SITE);
+
+			const updated = await embedsService.setPersonSignIn('origin/1', true);
+
+			expect(updated.allowPersonSignIn).toBe(true);
+			expect(sent[0].method).toBe('patch');
+			expect(sent[0].url).toBe('/embed-allowed-origins/origin%2F1');
+			expect(sent[0].data).toBe('{"allowPersonSignIn":true}');
+
+			directRequests({ ...SITE, allowPersonSignIn: false });
+			await expect(embedsService.setPersonSignIn('origin-1', false)).resolves.toHaveProperty(
+				'allowPersonSignIn',
+				false
+			);
 		});
 
 		it('lists each credential with its client', async () => {
@@ -321,6 +378,29 @@ describe('embedsService', () => {
 				CLIENT_BODY
 			]);
 			expect(mockFallback.post.mock.calls.map(([, , config]) => config.secretResponse)).toEqual([true, true]);
+		});
+
+		it('asks this app’s /api route to allow a site, with the same body, the answer kept out of the log', async () => {
+			mockFallback.post.mockResolvedValue({ data: SITE_TOKENS, status: 200 });
+
+			await expect(embedsService.authorizeSite('organization-1', 'https://team.example.com')).resolves.toEqual(
+				SITE_TOKENS
+			);
+
+			const [[url, body, config]] = mockFallback.post.mock.calls;
+			expect(url).toBe('/embed/authorize');
+			expect(JSON.stringify(body)).toBe(AUTHORIZE_BODY);
+			expect(config.secretResponse).toBe(true);
+		});
+
+		it('switches sign-in from a site through this app’s /api route', async () => {
+			mockFallback.patch.mockResolvedValue({ data: SITE, status: 200 });
+
+			await embedsService.setPersonSignIn('origin-1', true);
+
+			const [[url, body]] = mockFallback.patch.mock.calls;
+			expect(url).toBe('/embed-allowed-origins/origin-1');
+			expect(JSON.stringify(body)).toBe('{"allowPersonSignIn":true}');
 		});
 
 		it('sends the members option to this app’s /api route, and revokes there a credential made without it', async () => {

@@ -13,6 +13,9 @@ export interface KitOptions {
 	// The host signs the person in from its backend (config.getToken): the kit asks for no password or token, reads
 	// no organization list and stores no token.
 	hostSignIn?: boolean;
+	// The person signs in with Ever Teams in a popup (config.signIn 'ever-teams'). hostSignIn is on with it: the token
+	// lives in memory and reaches one member's timer.
+	siteSignIn?: boolean;
 	// Whether the widgets show "Powered by Ever Teams" (TeamsProvider's branding, on unless the host turns it off).
 	branding?: boolean;
 	// The provider's own API address (config.apiUrl), which its hooks pass to every request: two providers of a page

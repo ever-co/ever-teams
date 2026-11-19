@@ -19,8 +19,8 @@ const HOME_PAGE = '/';
  *
  * Signed out, the link lands on a sign-in page (the browser keeps the fragment through proxy.ts's redirect), and the
  * page it means is behind the sign-in: opening it from there would answer "unauthorized". The page is kept for the
- * tab and opened when the sign-in ends on the home page. The sign-in itself is not told: its workspace list clears
- * the page it is given (`setPathAfterSignIn`) for its own "Create a new workspace".
+ * tab and opened when the sign-in ends on the home page. The sign-in itself is not told (`setPathAfterSignIn`): a
+ * sign-in that ends elsewhere, such as the workspace list's "Create a new workspace", keeps its own end.
  */
 export function useNotificationEmailLink() {
 	const pathname = usePathname();
