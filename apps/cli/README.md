@@ -2,7 +2,7 @@
 
 The Ever Teams command line: start and stop your timer, see your day, add time you worked without the timer, and
 export your time entries as CSV or JSON, from a terminal or a script. It works with your own time, signs in once with
-a personal API token, and runs on Node 20 or later. It talks to the API only through the typed client
+a personal API token, and runs on Node 26 or later. It talks to the API only through the typed client
 [`@ever-teams/api`](https://github.com/ever-co/ever-teams/tree/develop/packages/api#readme).
 
 ## Quick start
