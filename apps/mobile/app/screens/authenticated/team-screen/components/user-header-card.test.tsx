@@ -3,6 +3,7 @@ import { render, screen } from '@testing-library/react-native';
 import { StyleSheet } from 'react-native';
 import UserHeaderCard, { presenceIconXml } from './user-header-card';
 import { presenceColorOf } from '../../../../../src/theme/presence';
+import { onlineAndTrackingTimeAlternate } from '../../../../components/svgs/icons';
 import { themeFor } from '../../../../../src/theme/use-theme';
 import type { IUser } from '../../../../services/interfaces/IUserData';
 import type { OT_Member } from '../../../../services/interfaces/IOrganizationTeam';
@@ -20,7 +21,13 @@ jest.mock('../../../../theme', () => ({
 	useAppTheme: () => ({ colors: { primary: '#000' }, dark: false }),
 	useWebTheme: () => jest.requireActual('../../../../../src/theme/use-theme').themeFor(mockScheme.value)
 }));
-jest.mock('react-native-svg', () => ({ SvgXml: () => null }));
+const mockSvgXml = jest.fn();
+jest.mock('react-native-svg', () => ({
+	SvgXml: (props: unknown) => {
+		mockSvgXml(props);
+		return null;
+	}
+}));
 
 const kofi = { id: 'user-kofi', name: 'Kofi Arden' } as unknown as IUser;
 const member = { id: 'member-kofi' } as unknown as OT_Member;
@@ -58,6 +65,17 @@ describe("a member's presence badge", () => {
 		expect(name.fontSize).toBe(14);
 		expect(name.fontWeight).toBe('500');
 		expect(name.color).toBe(themeFor('light').colors.foreground);
+	});
+
+	it('draws the working icon for a member whose timer runs, as for an online one', async () => {
+		mockPresence.value = 'running';
+		mockScheme.value = 'light';
+		await render(<UserHeaderCard user={kofi} member={member} />);
+
+		expect(fillStyle().backgroundColor).toBe(themeFor('light').colors.success);
+		expect(mockSvgXml).toHaveBeenLastCalledWith(
+			expect.objectContaining({ xml: presenceIconXml(onlineAndTrackingTimeAlternate) })
+		);
 	});
 
 	it('rings the badge with the card color, so no white ring shows in dark mode', async () => {

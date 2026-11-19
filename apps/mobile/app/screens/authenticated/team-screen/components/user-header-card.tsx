@@ -39,6 +39,8 @@ const TimerStatus: FC<ITimerStatus> = ({ status, theme }) => {
 	let iconSvgXml = '';
 
 	switch (status) {
+		// a running timer is working too: it takes the working icon on the success fill
+		case 'running':
 		case 'online':
 			iconSvgXml = onlineAndTrackingTimeAlternate;
 			break;
