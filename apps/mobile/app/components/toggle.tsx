@@ -16,6 +16,7 @@ import Animated, { FadeIn, useAnimatedStyle, withTiming } from 'react-native-rea
 import { colors, spacing } from '../theme';
 import { iconRegistry } from './icon';
 import { Text, TextProps } from './text';
+import { switchKnobColorOf } from './switch-knob';
 
 type Variants = 'checkbox' | 'switch' | 'radio';
 
@@ -362,23 +363,13 @@ function Switch(props: ToggleInputProps) {
 		colors.palette.secondary500
 	].filter(Boolean)[0];
 
-	const knobBackgroundColor = (function () {
-		if (on) {
-			return [
-				$detailStyleOverride?.backgroundColor,
-				status === 'error' && colors.error,
-				disabled && colors.palette.neutral600,
-				colors.palette.neutral100
-			].filter(Boolean)[0];
-		} else {
-			return [
-				$innerStyleOverride?.backgroundColor,
-				disabled && colors.palette.neutral600,
-				status === 'error' && colors.error,
-				colors.palette.neutral200
-			].filter(Boolean)[0];
-		}
-	})();
+	const knobBackgroundColor = switchKnobColorOf({
+		on,
+		disabled,
+		status,
+		onFill: $innerStyleOverride?.backgroundColor,
+		knobFill: $detailStyleOverride?.backgroundColor
+	});
 
 	const $animatedSwitchKnob = useAnimatedStyle(() => {
 		if (renderedKnobWidth === null) return {};
