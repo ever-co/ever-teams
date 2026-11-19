@@ -33,6 +33,19 @@ function iconFileOf(uri: string): Promise<string> {
 	return file;
 }
 
+interface LoadedIcon {
+	uri: string;
+	xml: string;
+}
+
+/** The tinted file of this address, or none while it loads, fails or still belongs to a previous address. */
+function iconXmlFor(loaded: LoadedIcon | null, uri: string): string | null {
+	if (loaded?.uri === uri) {
+		return loaded.xml;
+	}
+	return null;
+}
+
 interface TintedIconProps {
 	uri: string;
 	color: string;
@@ -41,7 +54,8 @@ interface TintedIconProps {
 
 /** An icon from the API drawn in the given color; its room stays empty while the file loads or if it fails. */
 export function TintedIcon({ uri, color, size }: Readonly<TintedIconProps>) {
-	const [xml, setXml] = useState<string | null>(null);
+	// the file is kept with its address: after the address changes, the old icon is never shown for the new one
+	const [loaded, setLoaded] = useState<LoadedIcon | null>(null);
 
 	useEffect(() => {
 		let current = true;
@@ -49,7 +63,7 @@ export function TintedIcon({ uri, color, size }: Readonly<TintedIconProps>) {
 			try {
 				const file = await iconFileOf(uri);
 				if (current) {
-					setXml(tintIconXml(file));
+					setLoaded({ uri, xml: tintIconXml(file) });
 				}
 			} catch {
 				// a failed read is dropped, so the next screen that shows the icon asks for it again
@@ -62,8 +76,9 @@ export function TintedIcon({ uri, color, size }: Readonly<TintedIconProps>) {
 		};
 	}, [uri]);
 
-	if (!xml) {
+	const iconOfThisUri = iconXmlFor(loaded, uri);
+	if (!iconOfThisUri) {
 		return <View testID="tinted-icon-pending" style={{ width: size, height: size }} />;
 	}
-	return <SvgXml testID="tinted-icon" xml={xml} width={size} height={size} color={color} />;
+	return <SvgXml testID="tinted-icon" xml={iconOfThisUri} width={size} height={size} color={color} />;
 }
