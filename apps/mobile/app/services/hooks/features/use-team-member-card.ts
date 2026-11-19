@@ -9,6 +9,7 @@ import { useIsMemberManager } from "./use-is-member-manager"
 import { ITeamTask } from "../../interfaces/ITask"
 import { Nullable } from "../../interfaces/hooks"
 import { useOrganizationTeam } from "../use-organization"
+import { teamTasksContentOf } from "./team-tasks-content"
 
 /**
  * It returns a bunch of data about a team member, including whether or not the user is the team
@@ -47,6 +48,7 @@ export function useTeamMemberCard(member: IOrganizationTeamList["members"][numbe
 	const { isTeamManager, isTeamCreator } = useIsMemberManager(memberUser)
 
 	const memberTaskRef = useRef<Nullable<ITeamTask>>(null)
+	const tasksContent = teamTasksContentOf(tasks)
 
 	const setActiveUserTask = useCallback(
 		(task: ITeamTask | null) => {
@@ -70,13 +72,13 @@ export function useTeamMemberCard(member: IOrganizationTeamList["members"][numbe
 		}
 
 		if (activeTaskId && isAuthUser) {
-			cTask = tasks.find((t) => activeTaskId === t.id || publicTeam)
+			cTask = tasksContent.find((t) => activeTaskId === t.id || publicTeam)
 			find = cTask
 		} else if (member.lastWorkedTask) {
-			cTask = tasks.find((t) => t.id === member.lastWorkedTask?.id)
+			cTask = tasksContent.find((t) => t.id === member.lastWorkedTask?.id)
 			find = cTask?.members.some((m) => m.id === member.employee.id)
 		} else {
-			cTask = tasks.find((t) => t.members.some((m) => m.userId === member.employee.userId))
+			cTask = tasksContent.find((t) => t.members.some((m) => m.userId === member.employee.userId))
 			find = cTask?.members.some((m) => m.id === member.employee.id)
 		}
 
@@ -103,7 +105,7 @@ export function useTeamMemberCard(member: IOrganizationTeamList["members"][numbe
 			  : 0;
 		  }
 		return responseTask
-	}, [activeTeamTask, activeTaskId, isAuthUser, authUser, member, tasks, publicTeam])
+	}, [activeTeamTask, activeTaskId, isAuthUser, authUser, member, tasksContent, tasksStatisticsState, publicTeam])
 
 	/**
 	 * Give the manager role to the member
@@ -124,9 +126,6 @@ export function useTeamMemberCard(member: IOrganizationTeamList["members"][numbe
 					.filter((r) => r.role && r.role.name === "MANAGER")
 					.map((r) => r.employee.id)
 					.concat(employeeId),
-				name: team.name,
-				tenantId: team.tenantId,
-				organizationId: team.organizationId,
 				...activeTeam,
 			},
 		})
@@ -152,9 +151,6 @@ export function useTeamMemberCard(member: IOrganizationTeamList["members"][numbe
 					.filter((r) => r.employee.id !== employeeId)
 					.map((r) => r.employee.id)
 					.filter((value, index, array) => array.indexOf(value) === index), // To make the array Unique list of ids
-				name: team.name,
-				tenantId: team.tenantId,
-				organizationId: team.organizationId,
 				...activeTeam,
 			},
 		})
@@ -221,10 +217,10 @@ export function useTeamMemberCard(member: IOrganizationTeamList["members"][numbe
 	const memberUnassignTasks = useMemo(() => {
 		if (!memberUser) return []
 
-		return tasks.filter((task) => {
+		return tasksContent.filter((task) => {
 			return !task.members.some((m) => m.userId === memberUser.id)
 		})
-	}, [tasks, memberUser, assignTask])
+	}, [tasksContent, memberUser, assignTask])
 
 	const unassignTask = useCallback(
 		(task: ITeamTask) => {
