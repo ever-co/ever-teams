@@ -119,9 +119,10 @@ export function openSitePopup(signIn: KitSiteSignIn, host: Window = window): Sit
 			resolve(ended);
 		};
 		const onMessage = (event: MessageEvent) => {
-			const fromApp = event.origin === appOrigin;
-			const fromPopup = event.source === popup;
-			if (!fromApp || !fromPopup) {
+			if (event.origin !== appOrigin) {
+				return;
+			}
+			if (event.source !== popup) {
 				return;
 			}
 			const ended = resultOfMessage(event.data);
