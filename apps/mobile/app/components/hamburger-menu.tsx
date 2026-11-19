@@ -14,23 +14,18 @@ import { observer } from 'mobx-react-lite';
 import { useOrganizationTeam } from '../services/hooks/use-organization';
 import { SvgXml } from 'react-native-svg';
 import {
-	briefCaseNotFocusedDark2,
-	briefCaseNotFocusedLight,
 	moonDarkLarge,
 	moonDarkMedium,
 	moonLightLarge,
 	moonLightMedium,
-	peopleCaseNotFocusedDark2,
-	peopleNotFocusedLight,
-	settingsIconDark,
-	settingsIconLight,
 	sunDarkLarge,
-	sunLightLarge,
-	userNotFocusedDark2,
-	userNotFocusedLight
+	sunLightLarge
 } from './svgs/icons';
 import { BlurView } from 'expo-blur';
 import { navigateTo } from '../navigators/routes';
+import { usePathname } from 'expo-router';
+import { MenuRow } from './menu-row';
+import { menuEntryOf } from './menu-current';
 
 const HamburgerMenu = observer((props: any) => {
 	const { colors, dark } = useAppTheme();
@@ -47,6 +42,7 @@ const HamburgerMenu = observer((props: any) => {
 
 	const { navigation } = props;
 	const isOpen = useDrawerStatus() === 'open';
+	const currentEntry = menuEntryOf(usePathname());
 
 	const onLogout = () => {
 		resetTeamTasksData();
@@ -101,48 +97,35 @@ const HamburgerMenu = observer((props: any) => {
 					</View>
 					<View style={styles.navigationSection}>
 						{activeTeam ? (
-							<TouchableOpacity
+							<MenuRow
 								testID="menu-work"
-								style={styles.item}
+								icon="user"
+								label={translate('myWorkScreen.name')}
+								isCurrent={currentEntry === 'work'}
 								onPress={() => navigateTo(navigation, 'Timer')}
-							>
-								<SvgXml xml={dark ? userNotFocusedDark2 : userNotFocusedLight} />
-								<Text style={[styles.screenLabel, { color: colors.primary }]}>
-									{translate('myWorkScreen.name')}
-								</Text>
-							</TouchableOpacity>
+							/>
 						) : null}
-
-						<TouchableOpacity
+						<MenuRow
 							testID="menu-team"
-							style={styles.item}
+							icon="users"
+							label={translate('teamScreen.name')}
+							isCurrent={currentEntry === 'team'}
 							onPress={() => navigateTo(navigation, 'Team')}
-						>
-							<SvgXml xml={dark ? peopleCaseNotFocusedDark2 : peopleNotFocusedLight} />
-							<Text style={[styles.screenLabel, { color: colors.primary }]}>
-								{translate('teamScreen.name')}
-							</Text>
-						</TouchableOpacity>
-						<TouchableOpacity
+						/>
+						<MenuRow
 							testID="menu-tasks"
-							style={styles.item}
+							icon="briefcase"
+							label={translate('tasksScreen.name')}
+							isCurrent={currentEntry === 'tasks'}
 							onPress={() => navigateTo(navigation, 'Profile', { userId: user?.id, tabIndex: 0 })}
-						>
-							<SvgXml xml={dark ? briefCaseNotFocusedDark2 : briefCaseNotFocusedLight} />
-							<Text style={[styles.screenLabel, { color: colors.primary }]}>
-								{translate('tasksScreen.name')}
-							</Text>
-						</TouchableOpacity>
-						<TouchableOpacity
+						/>
+						<MenuRow
 							testID="menu-settings"
-							style={styles.item}
+							icon="settings"
+							label={translate('settingScreen.name')}
+							isCurrent={currentEntry === 'settings'}
 							onPress={() => navigateTo(navigation, 'Setting')}
-						>
-							<SvgXml xml={dark ? settingsIconDark : settingsIconLight} />
-							<Text style={[styles.screenLabel, { color: colors.primary }]}>
-								{translate('settingScreen.name')}
-							</Text>
-						</TouchableOpacity>
+						/>
 						<TouchableOpacity style={styles.screenItem}>
 							<View style={{ flexDirection: 'row' }}>
 								<SvgXml xml={dark ? moonDarkMedium : moonLightMedium} />
@@ -258,14 +241,9 @@ const styles = StyleSheet.create({
 		paddingRight: 4,
 		width: '100%'
 	},
-	item: {
-		alignItems: 'center',
-		flexDirection: 'row',
-		marginBottom: 30
-	},
 	navigationSection: {
-		marginTop: 20,
-		padding: 0,
+		gap: 2,
+		marginTop: 12,
 		zIndex: 1
 	},
 	profileImage: {
