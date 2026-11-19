@@ -42,7 +42,7 @@
 		"stop_timer_before_selecting": "Please stop timer before selecting {{item}}."
 	},
 	"ERROR": {
-		"invalid_password_or_email": "You intered an invalid email or password.",
+		"invalid_password_or_email": "You entered an invalid email or password.",
 		"is_required": "{{field}} is required",
 		"passwords_not_match": "Passwords do not match.",
 		"password_length": "Password should be at least {{number}} characters long.",
@@ -62,6 +62,22 @@
 		"week_activity": "Weeky activity",
 		"activity_over_period": "Activity over the period"
 	},
+	"CLIENT_REPORT": {
+		"title": "Time spent",
+		"today": "Today",
+		"this_week": "This week",
+		"by_project": "By project",
+		"empty": "No time spent for {{client}} this week.",
+		"error": "The time spent couldn't be loaded.",
+		"retry": "Try again"
+	},
+	"KIT_ERRORS": {
+		"ORIGIN": "This site isn't allowed to show Ever Teams. Ask your workspace admin to add it.",
+		"SESSION": "Your session ended. Sign in again.",
+		"SIGN_IN_AGAIN": "Sign in again",
+		"PERMISSION": "You don't have permission to track time in this workspace. Ask your admin.",
+		"UNREACHABLE": "Ever Teams is unreachable. Check your connection and try again."
+	},
 	"TIME_TRACKER": {
 		"title": "Timer",
 		"start": "Start",
@@ -73,7 +89,13 @@
 	},
 	"AUTH": {
 		"sign_in_title": "Sign In",
+		"host_sign_in": "Sign in to this site to use your Ever Teams timer.",
+		"sign_in_with_ever_teams": "Sign in with Ever Teams",
+		"site_sign_in_waiting": "Finish signing in in the Ever Teams window.",
+		"site_sign_in_blocked": "Your browser blocked the Ever Teams window. Allow pop-ups for this site, then try again.",
 		"sign_up_title": "Register",
+		"account_menu": "{{name}}: account menu",
+		"account_menu_unnamed": "Account menu",
 		"register_now": "Register Now",
 		"email_prompt": "Enter your email",
 		"password_prompt": "Enter your password",
@@ -84,8 +106,8 @@
 		"last_name_prompt": "Enter your last name",
 		"phone_number_prompt": "Enter your phone number",
 		"logout": "Logout",
-		"dont_have_an_account": "Don't have an account ? ",
-		"have_an_account": "Have an account ? "
+		"dont_have_an_account": "Don't have an account?",
+		"have_an_account": "Have an account?"
 	},
 	"INPUT": {
 		"language_switcher": {
@@ -95,7 +117,10 @@
 			"select_team": "Select team"
 		},
 		"project_select": {
-			"select_project": "Select project"
+			"select_project": "Select project",
+			"loading_projects": "Loading projects...",
+			"no_projects": "No project to track time on",
+			"projects_failed": "The projects could not be loaded. Reload the page to try again."
 		},
 		"task_select": {
 			"select_task": "Select task"
@@ -527,5 +552,27 @@
 			"IDLE": "Idle",
 			"RESUMED": "Resumed"
 		}
+	},
+	"THEME_PICKER": {
+		"placeholder": "Select theme",
+		"default": "Default",
+		"purple_gradient": "Purple gradient",
+		"theme1": "Black and white",
+		"theme2": "Red and Green",
+		"theme3": "Yellow and Red",
+		"theme5": "Blue and green (Black)",
+		"theme6": "Pink and White",
+		"theme7": "Teal and orange",
+		"theme8": "Red and Blue",
+		"theme9": "Green and yellow",
+		"theme10": "Pink and blue",
+		"theme11": "Orange and red",
+		"theme12": "Chocolate and white",
+		"theme13": "Blue and Pink",
+		"theme14": "Yellow and pink"
+	},
+	"FONT_PICKER": {
+		"default_font": "Default font",
+		"page_font": "Page font"
 	}
 }

@@ -4,6 +4,7 @@ import { View, StyleSheet, TouchableOpacity, Text, TouchableWithoutFeedback } fr
 import React, { RefObject } from "react"
 import Accordion from "../../accordion"
 import QuillEditor, { QuillToolbar } from "react-native-cn-quill"
+import { editorWebViewProps } from "./editor-web-view"
 import { useStores } from "../../../models"
 import { useAppTheme } from "../../../theme"
 import { translate } from "../../../i18n"
@@ -15,7 +16,8 @@ import { useTeamTasks } from "../../../services/hooks/features/use-team-tasks"
 import { useClickOutside } from "react-native-click-outside"
 
 const DescriptionBlock = () => {
-	const _editor: RefObject<QuillEditor> = React.useRef(null)
+	// Set once the editor mounts; the toolbar types this ref without null, as React did before 19
+	const _editor = React.useRef<QuillEditor>(null) as RefObject<QuillEditor>
 
 	const [editorKey, setEditorKey] = React.useState(1)
 	const [actionButtonsVisible, setActionButtonsVisible] = React.useState<boolean>(false)
@@ -79,7 +81,7 @@ const DescriptionBlock = () => {
 		showMessage({
 			message: translate("taskDetailsScreen.copyDescription"),
 			type: "info",
-			backgroundColor: colors.secondary,
+			backgroundColor: colors.accentFill,
 		})
 	}
 
@@ -92,13 +94,13 @@ const DescriptionBlock = () => {
 			setAccordionExpanded={setAccordionExpanded}
 			title={translate("taskDetailsScreen.description")}
 			headerElement={
-				accordionExpanded && (
+				accordionExpanded ? (
 					<TouchableWithoutFeedback>
 						<TouchableOpacity onPress={copyDescription}>
 							<SvgXml xml={copyIcon} />
 						</TouchableOpacity>
 					</TouchableWithoutFeedback>
-				)
+				) : undefined
 			}
 		>
 			<View style={{ paddingBottom: 12 }} ref={editorContainerOutsidePressRef}>
@@ -107,7 +109,7 @@ const DescriptionBlock = () => {
 					style={styles.editor}
 					onHtmlChange={(event) => handleHtmlChange(event.html)}
 					onTextChange={() => setActionButtonsVisible(true)}
-					webview={{ allowsLinkPreview: true }}
+					webview={editorWebViewProps}
 					ref={_editor}
 					initialHtml={task?.description ? task?.description : ""}
 					quill={{
@@ -199,7 +201,7 @@ const DescriptionBlock = () => {
 								onPress={onPressSave}
 								style={{
 									...styles.actionButton,
-									backgroundColor: colors.secondary,
+									backgroundColor: colors.accentFill,
 								}}
 							>
 								<Text style={{ color: "white", fontSize: 12 }}>

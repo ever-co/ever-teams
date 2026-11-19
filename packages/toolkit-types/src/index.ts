@@ -3,6 +3,7 @@ export * from './lib/atoms/interfaces';
 export * from './lib/others/IActivity';
 export * from './lib/others/IAuth';
 export * from './lib/others/IClient';
+export * from './lib/others/IClientTimeReport';
 export * from './lib/others/IContact';
 export * from './lib/others/IDataResponse';
 export * from './lib/others/IFetchData';

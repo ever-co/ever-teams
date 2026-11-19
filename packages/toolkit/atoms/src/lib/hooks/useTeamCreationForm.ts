@@ -3,6 +3,7 @@ import { toast } from '@ever-teams/toolkit-ui';
 import { createTeam, getOrganisationTeams } from '@ever-teams/api';
 import { useAccessToken } from './useAccessToken';
 import { useTeamsContext } from '@lib/context/teams-context';
+import { useKitOptions } from '@components/teams-provider/kit-options';
 
 interface TeamCreationFormValues {
 	teamName: string;
@@ -11,6 +12,7 @@ interface TeamCreationFormValues {
 
 export const useTeamCreationForm = () => {
 	const { authenticatedUser: user, selectedOrganization: organizationId } = useTeamsContext();
+	const { api } = useKitOptions();
 	const [formValues, setFormValues] = useState<TeamCreationFormValues>({
 		teamName: '',
 		description: ''
@@ -45,12 +47,15 @@ export const useTeamCreationForm = () => {
 
 		try {
 			setIsSubmitting(true);
-			const createdTeam = await createTeam({
-				currentUser: user,
-				token,
-				organizationId,
-				formData: formValues
-			});
+			const createdTeam = await createTeam(
+				{
+					currentUser: user,
+					token,
+					organizationId,
+					formData: formValues
+				},
+				api
+			);
 
 			if ('message' in createdTeam || 'error' in createdTeam) {
 				const errorMessage =
@@ -71,7 +76,7 @@ export const useTeamCreationForm = () => {
 
 			// Fetch updated teams
 
-			const userTeams = await getOrganisationTeams({ user, token, organizationId, projectId: null });
+			const userTeams = await getOrganisationTeams({ user, token, organizationId, projectId: null }, api);
 
 			if ('message' in userTeams || 'error' in userTeams) {
 				const errorMessage =

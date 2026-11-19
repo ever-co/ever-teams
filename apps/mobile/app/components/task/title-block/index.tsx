@@ -17,6 +17,7 @@ import CreateParentTaskModal from './create-parent-task-modal';
 import { observer } from 'mobx-react-lite';
 import { useNavigation } from '@react-navigation/native';
 import { SettingScreenNavigationProp } from '../../../navigators/authenticated-navigator';
+import { navigateTo } from '../../../navigators/routes';
 
 const TaskTitleBlock = observer(() => {
 	const {
@@ -54,7 +55,7 @@ const TaskTitleBlock = observer(() => {
 		showMessage({
 			message: translate('taskDetailsScreen.copyTitle'),
 			type: 'info',
-			backgroundColor: colors.secondary
+			backgroundColor: colors.accentFill
 		});
 	};
 
@@ -62,6 +63,7 @@ const TaskTitleBlock = observer(() => {
 		<View style={{ gap: 18, marginVertical: 20 }}>
 			<View style={{ flexDirection: 'row', gap: 5 }}>
 				<TextInput
+					testID="task-title"
 					multiline
 					editable={edit}
 					style={[
@@ -171,7 +173,7 @@ const ParentTaskBadge: React.FC<{ task: ITeamTask }> = observer(({ task }) => {
 	const { width } = Dimensions.get('window');
 
 	const navigateToParent = (): void => {
-		navigation.navigate('TaskScreen', { taskId: task?.parentId || task?.parent.id });
+		navigateTo(navigation, 'TaskScreen', { taskId: task?.parentId || task?.parent.id });
 	};
 	return task?.parentId && task?.parent ? (
 		<TouchableOpacity

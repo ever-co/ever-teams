@@ -29,6 +29,7 @@ import { ITaskStatusItem } from '../../../services/interfaces/ITaskStatus';
 import TaskStatusForm from './components/task-status-form';
 import { BlurView } from 'expo-blur';
 import { useRoute, RouteProp } from '@react-navigation/native';
+import { navigateTo } from '../../../navigators/routes';
 
 // Create a type for the route params
 type TaskStatusRouteParams = {
@@ -66,7 +67,7 @@ export const TaskStatusScreen: FC<AuthenticatedDrawerScreenProps<'TaskStatus'>> 
 
   // Handle back navigation with correct tab
   const handleGoBack = useCallback(() => {
-    navigation.navigate('Setting', { activeTab: previousTab });
+    navigateTo(navigation, 'Setting', { activeTab: previousTab });
   }, [navigation, previousTab]);
 
   // ref

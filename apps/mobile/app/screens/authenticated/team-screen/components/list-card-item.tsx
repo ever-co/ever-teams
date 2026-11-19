@@ -10,10 +10,10 @@ import { Card, ListItem } from '../../../../components';
 
 // STYLES
 import { GLOBAL_STYLE as GS } from '../../../../../assets/ts/styles';
-import { spacing, typography, useAppTheme } from '../../../../theme';
+import { spacing, typography, useAppTheme, useWebTheme } from '../../../../theme';
 import EstimateTime from '../../timer-screen/components/estimate-time';
 import AllTaskStatuses from '../../../../components/all-task-statuses';
-import { IOrganizationTeamWithMStatus, OT_Member } from '../../../../services/interfaces/IOrganizationTeam';
+import { OT_Member } from '../../../../services/interfaces/IOrganizationTeam';
 import {
 	I_TeamMemberCardHook,
 	I_TMCardTaskEditHook,
@@ -28,11 +28,11 @@ import { useNavigation } from '@react-navigation/native';
 import { WorkedOnTask } from './worked-on-task';
 import UnassignedTasksList from './unassigned-task-list';
 import { translate } from '../../../../i18n';
-import { useTimer } from '../../../../services/hooks/use-timer';
 import { SettingScreenNavigationProp } from '../../../../navigators/authenticated-navigator';
-import { getTimerStatusValue } from '../../../../helpers/get-timer-status';
+import { cardEdgeOf } from '../../../../components/card-edge';
 import { useClickOutside } from 'react-native-click-outside';
 import { TimeProgressBar } from './time-progress-bar';
+import { navigateTo } from '../../../../navigators/routes';
 
 export type ListItemProps = {
 	member: OT_Member;
@@ -48,13 +48,12 @@ export interface Props extends ListItemProps {
 	index: number;
 	openMenuIndex: number | null;
 	setOpenMenuIndex: React.Dispatch<React.SetStateAction<number | null>>;
-	currentTeam: IOrganizationTeamWithMStatus | null;
 	canNavigate: boolean;
 }
 
 export const ListItemContent: React.FC<IcontentProps> = observer(({ memberInfo, taskEdition, onPressIn }) => {
 	// HOOKS
-	const { colors, dark } = useAppTheme();
+	const { colors } = useAppTheme();
 	const clickOutsideTaskEstimationInputRef = useClickOutside<View>(() => taskEdition.setEstimateEditMode(false));
 	return (
 		<TouchableWithoutFeedback>
@@ -63,7 +62,7 @@ export const ListItemContent: React.FC<IcontentProps> = observer(({ memberInfo, 
 					{
 						...GS.p3,
 						...GS.positionRelative,
-						backgroundColor: dark ? '#1E2025' : colors.background
+						backgroundColor: colors.background
 					},
 					{ borderRadius: 14 }
 				]}
@@ -137,7 +136,7 @@ const ListCardItem: React.FC<Props> = observer((props) => {
 	//  STATS
 	const memberInfo = useTeamMemberCard(props.member);
 	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask);
-	const { timerStatus } = useTimer();
+	const theme = useWebTheme();
 	const [showUnassignedList, setShowUnassignedList] = useState<boolean>(false);
 
 	const navigation = useNavigation<SettingScreenNavigationProp<'Profile'>>();
@@ -151,20 +150,24 @@ const ListCardItem: React.FC<Props> = observer((props) => {
 		setShowUnassignedList(false);
 	}, []);
 
-	const onPressIn = useCallback((isTaskScreen?: boolean) => {
-		taskEdition.setEditMode(false);
-		taskEdition.setEstimateEditMode(false);
-		props.setOpenMenuIndex(null);
+	const onPressIn = useCallback(
+		(isTaskScreen?: boolean) => {
+			taskEdition.setEditMode(false);
+			taskEdition.setEstimateEditMode(false);
+			props.setOpenMenuIndex(null);
 
-		if (props.canNavigate) {
-			isTaskScreen
-				? memberInfo.memberTask && navigation.navigate('TaskScreen', { taskId: memberInfo.memberTask?.id })
-				: navigation.navigate('Profile', {
-						userId: memberInfo.memberUser.id,
-						activeTab: 'worked'
-				  });
-		}
-	}, [props, taskEdition, memberInfo, navigation]);
+			if (props.canNavigate) {
+				isTaskScreen
+					? memberInfo.memberTask &&
+						navigateTo(navigation, 'TaskScreen', { taskId: memberInfo.memberTask?.id })
+					: navigateTo(navigation, 'Profile', {
+							userId: memberInfo.memberUser.id,
+							activeTab: 'worked'
+						});
+			}
+		},
+		[props, taskEdition, memberInfo, navigation]
+	);
 
 	// Handle task actions with memoized functions to prevent re-renders
 	const handleEditTask = useCallback(() => {
@@ -202,24 +205,14 @@ const ListCardItem: React.FC<Props> = observer((props) => {
 		memberInfo.removeMemberFromTeam();
 	}, [props, memberInfo]);
 
-	const currentMember = props.currentTeam?.members?.find((currentMember) => currentMember.id === props.member.id);
-
-	const timerStatusValue = getTimerStatusValue(timerStatus, currentMember, props.currentTeam?.public);
-
 	return (
 		<Card
+			testID="team-member-card"
 			style={{
 				...$listCard,
 				...GS.mt5,
-				paddingTop: 4,
-				backgroundColor:
-					timerStatusValue === 'idle'
-						? '#F1A2A2'
-						: timerStatusValue === 'pause'
-						? '#EBC386'
-						: timerStatusValue === 'online'
-						? '#88D1A5'
-						: '#DCD6D6'
+				backgroundColor: colors.background,
+				borderColor: cardEdgeOf(memberInfo.isAuthUser, theme)
 			}}
 			HeadingComponent={
 				<View
@@ -345,11 +338,7 @@ const ListCardItem: React.FC<Props> = observer((props) => {
 			ContentComponent={
 				<>
 					{!showUnassignedList ? (
-						<ListItemContent
-							taskEdition={taskEdition}
-							memberInfo={memberInfo}
-							onPressIn={onPressIn}
-						/>
+						<ListItemContent taskEdition={taskEdition} memberInfo={memberInfo} onPressIn={onPressIn} />
 					) : (
 						<UnassignedTasksList memberInfo={memberInfo} setShowUnassignedList={setShowUnassignedList} />
 					)}
@@ -361,14 +350,14 @@ const ListCardItem: React.FC<Props> = observer((props) => {
 
 export default ListCardItem;
 
+// The web's member card: radius 14, a hairline and the light shadow; presence shows on the avatar's badge
 const $listCard: ViewStyle = {
 	...GS.flex1,
 	...GS.p0,
-	borderWidth: 0,
+	borderWidth: StyleSheet.hairlineWidth,
 	...GS.shadowSm,
-	...GS.roundedMd,
-	minHeight: null,
-	shadowOffset: { width: 0, height: 0 }
+	borderRadius: 14,
+	minHeight: null
 };
 
 const styles = StyleSheet.create({
@@ -408,11 +397,13 @@ const styles = StyleSheet.create({
 		paddingVertical: 16,
 		width: '98%'
 	},
+	// in the row's flow at its right end, so a long name is cut short before the time instead of running under it
 	wrapTotalTime: {
 		alignItems: 'center',
+		flexShrink: 0,
 		justifyContent: 'center',
+		marginLeft: 'auto',
 		marginRight: 30,
-		position: 'absolute',
-		right: 0
+		paddingLeft: 8
 	}
 });

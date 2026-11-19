@@ -2,8 +2,10 @@
 import React, { FC } from 'react';
 import { View, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 import { Feather } from '@expo/vector-icons';
+import { headerSurfaceOf } from './header-surface';
 import HeaderTimer from './header-timer';
 import { useAppTheme } from '../theme';
+import { translate } from '../i18n';
 import { useOrganizationTeam } from '../services/hooks/use-organization';
 import { SvgXml } from 'react-native-svg';
 import {
@@ -22,8 +24,8 @@ const HomeHeader: FC<Props> = ({ props, showTimer }) => {
 	const { colors, dark } = useAppTheme();
 	const { activeTeam } = useOrganizationTeam();
 	return (
-		<View style={[styles.mainContainer, { backgroundColor: dark ? colors.background2 : colors.background }]}>
-			<View style={[styles.secondContainer, { backgroundColor: dark ? colors.background2 : colors.background }]}>
+		<View style={[styles.mainContainer, { backgroundColor: headerSurfaceOf(dark, colors) }]}>
+			<View style={[styles.secondContainer, { backgroundColor: headerSurfaceOf(dark, colors) }]}>
 				{dark ? (
 					<SvgXml xml={Platform.OS === 'android' ? everTeamsLogoDarkThemeAndroid : everTeamsLogoDarkTheme} />
 				) : (
@@ -32,11 +34,17 @@ const HomeHeader: FC<Props> = ({ props, showTimer }) => {
 					/>
 				)}
 				{showTimer && activeTeam && (
-					<View style={{ width: 126 }}>
+					<View style={{ width: 134 }}>
 						<HeaderTimer />
 					</View>
 				)}
-				<TouchableOpacity activeOpacity={0.7} onPress={() => props.navigation.openDrawer()}>
+				<TouchableOpacity
+					activeOpacity={0.7}
+					onPress={() => props.navigation.openDrawer()}
+					testID="open-menu"
+					accessibilityRole="button"
+					accessibilityLabel={translate('common.openMenu')}
+				>
 					<Feather name="menu" size={24} color={colors.primary} />
 				</TouchableOpacity>
 			</View>

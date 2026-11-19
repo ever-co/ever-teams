@@ -187,6 +187,25 @@ function twoDigits(value: number): string {
 	return String(value).padStart(2, '0');
 }
 
+/**
+ * What the person typed, as the field writes a time: Android has no keyboard of digits and a colon, so the field keeps
+ * the digits and places the colon before the last two ("905" reads "9:05"). A time that has its colon and at most two
+ * digits after it stays as typed: read again, 12:3 while its last digit is being changed would turn into 1:23. A third
+ * digit after the colon is the next digit typed after a colon the field placed (1:23, then 4), so the colon moves:
+ * 1:234 reads 12:34, or a time of two-digit hours could never be typed on Android.
+ */
+export function timeTextFromTyping(typed: string): string {
+	const colon = typed.indexOf(':');
+	if (colon >= 0 && typed.length - colon - 1 <= 2) {
+		return typed;
+	}
+	const digits = typed.replace(/\D/g, '').slice(0, 4);
+	if (digits.length <= 2) {
+		return digits;
+	}
+	return `${digits.slice(0, -2)}:${digits.slice(-2)}`;
+}
+
 /** A time as the field writes it (`HH:mm`, local). */
 export function timeTextOf(date: Date): string {
 	return `${twoDigits(date.getHours())}:${twoDigits(date.getMinutes())}`;

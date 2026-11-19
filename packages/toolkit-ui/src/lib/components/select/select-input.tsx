@@ -29,6 +29,7 @@ export interface ISelectProps extends VariantProps<typeof selectVariants>, Selec
 	icon?: React.ReactNode;
 	search?: boolean;
 	onClear?: () => void;
+	emptyMessage?: string;
 }
 
 const Select = ({
@@ -42,6 +43,7 @@ const Select = ({
 	loading,
 	search = false,
 	onClear,
+	emptyMessage = 'No item found',
 	...props
 }: ISelectProps) => {
 	const [, setOpen] = React.useState(false);
@@ -58,7 +60,7 @@ const Select = ({
 							<CommandInput placeholder="Search..." />
 							<CommandList>
 								<CommandEmpty>
-									<p className="text-sm opacity-40">No item found</p>
+									<p className="text-sm opacity-40">{emptyMessage}</p>
 								</CommandEmpty>
 								<CommandGroup>
 									{values.map((item) => (
@@ -96,7 +98,7 @@ const Select = ({
 				</SelectContent>
 			) : (
 				<SelectContent>
-					<p className="p-2 text-sm opacity-40 m-0">No item found</p>
+					<p className="p-2 text-sm opacity-40 m-0">{emptyMessage}</p>
 				</SelectContent>
 			)}
 		</InputSelect>

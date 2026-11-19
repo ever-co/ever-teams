@@ -7,6 +7,7 @@ import TaskRow from '../components/task-row';
 import { SvgXml } from 'react-native-svg';
 import { calendarIcon, categoryIcon, clipboardIcon, peopleIconSmall, profileIcon } from '../../../svgs/icons';
 import ProfileInfo from '../components/profile-info';
+import { creatorIdOf, creatorOf } from './task-creator';
 import ManageAssignees from '../components/manage-assignees';
 import { useOrganizationTeam } from '../../../../services/hooks/use-organization';
 import CalendarModal from '../components/calendar-modal';
@@ -26,6 +27,7 @@ import TaskEpic from '../../../task-epic';
 import IssuesModal from '../../../issues-modal';
 import { observer } from 'mobx-react-lite';
 import { translate } from '../../../../i18n';
+import { navigateTo } from '../../../../navigators/routes';
 
 const TaskMainInfo = observer(() => {
 	const {
@@ -36,6 +38,7 @@ const TaskMainInfo = observer(() => {
 	const { updateTask } = useTeamTasks();
 
 	const { colors } = useAppTheme();
+	const creator = creatorOf(task);
 
 	return (
 		<View style={{ paddingHorizontal: 12, gap: 12, paddingBottom: 12 }}>
@@ -60,9 +63,9 @@ const TaskMainInfo = observer(() => {
 				}
 			>
 				<ProfileInfo
-					userId={task?.creatorId || task?.creator?.id}
-					profilePicSrc={task?.creator?.imageUrl}
-					names={`${task?.creator?.firstName || ''} ${task?.creator?.lastName || ''}`}
+					userId={creatorIdOf(task)}
+					profilePicSrc={creator?.imageUrl ?? ''}
+					names={`${creator?.firstName || ''} ${creator?.lastName || ''}`}
 				/>
 			</TaskRow>
 			{/* Assignees */}
@@ -212,7 +215,7 @@ const TaskMainInfo = observer(() => {
 					containerStyle={{
 						width: '70%',
 						borderRadius: 3,
-						marginVertical: task?.tags.length ? 20 : 0
+						marginVertical: task?.tags?.length ? 20 : 0
 					}}
 				/>
 			</TaskRow>
@@ -268,7 +271,7 @@ const EpicParent: React.FC<{ task: ITeamTask }> = ({ task }) => {
 	const navigation = useNavigation<SettingScreenNavigationProp<'TaskScreen'>>();
 
 	const navigateToEpic = () => {
-		navigation.navigate('TaskScreen', { taskId: task?.rootEpic?.id });
+		navigateTo(navigation, 'TaskScreen', { taskId: task?.rootEpic?.id });
 	};
 
 	if (task?.issueType === 'Story') {

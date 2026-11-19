@@ -31,13 +31,14 @@ const stubs = {
 		globalThis.__requests = [];
 		export const trackingApiClient = {
 			updateConfig() {},
-			getFilteredSessions(from, to, ids, org, tenant, token) {
-				return new Promise((resolve) => globalThis.__requests.push({ token, resolve }));
+			getFilteredSessions(from, to, ids, org, tenant, token, api) {
+				return new Promise((resolve) => globalThis.__requests.push({ token, api, resolve }));
 			}
 		};`,
 	'@ever-teams/toolkit-types': 'export const isSuccessResponse = (r) => r && r.success === true;',
+	// Records when it loads: it stands for the module that carries the whole zone database.
 	'@lib/utils/time-zone':
-		'export const getUserTimezone = () => "UTC"; export const convertSessionDatesToTimezone = (s) => s;'
+		'globalThis.__timeZonesLoaded = true; export const getUserTimezone = () => "UTC"; export const convertSessionDatesToTimezone = (s) => s;'
 };
 
 let React;
@@ -120,12 +121,12 @@ function Reader({ onRender }) {
 const roots = [];
 
 // Each test renders in a container of its own, unmounted after it even when an assertion fails.
-async function mount(children) {
+async function mount(children, config) {
 	const container = document.createElement('div');
 	document.body.appendChild(container);
 	const root = createRoot(container);
 	roots.push(root);
-	await act(async () => root.render(React.createElement(TrackingProvider, null, children)));
+	await act(async () => root.render(React.createElement(TrackingProvider, { config }, children)));
 	return root;
 }
 
@@ -135,12 +136,23 @@ const reset = async () => {
 	globalThis.__setIdentity({ token: 'token-a', selectedEmployee: 'all' });
 };
 
-test('a provider without a session component reads no sessions', async () => {
+test("the sessions read goes to the provider's own address, whatever base URL the page's client holds", async () => {
+	await reset();
+	const reader = React.createElement(Reader, { onRender() {} });
+	const root = await mount(reader, { baseUrl: 'https://a.example.com/api' });
+
+	assert.equal(globalThis.__requests.length, 1);
+	assert.deepEqual(globalThis.__requests[0].api, { apiUrl: 'https://a.example.com/api' });
+	await act(async () => root.unmount());
+});
+
+test('a provider without a session component reads no sessions and loads no time-zone data', async () => {
 	await reset();
 	const root = await mount(null);
 	await act(async () => globalThis.__setIdentity({ token: 'token-b' }));
 
 	assert.equal(globalThis.__requests.length, 0);
+	assert.equal(globalThis.__timeZonesLoaded, undefined, 'the time-zone helpers are not loaded');
 	await act(async () => root.unmount());
 });
 
@@ -152,7 +164,9 @@ test('two session components share one read', async () => {
 
 	assert.equal(globalThis.__requests.length, 1);
 	await act(async () => answer(globalThis.__requests[0], [{ id: 's1' }]));
+	await flush();
 	assert.equal(seen.at(-1), 1);
+	assert.equal(globalThis.__timeZonesLoaded, true, 'the time-zone helpers load with the first sessions');
 	await act(async () => root.unmount());
 });
 

@@ -6,7 +6,7 @@
 		"email": "Email",
 		"token": "Token",
 		"now": "Maintenant",
-		"today": "Aujourdhui",
+		"today": "Aujourd'hui",
 		"loading": "Chargement",
 		"client": "Client",
 		"project": "Projet",
@@ -62,6 +62,22 @@
 		"week_activity": "Activité de la semaine",
 		"activity_over_period": "Activité sur la periode"
 	},
+	"CLIENT_REPORT": {
+		"title": "Temps passé",
+		"today": "Aujourd'hui",
+		"this_week": "Cette semaine",
+		"by_project": "Par projet",
+		"empty": "Aucun temps passé pour {{client}} cette semaine.",
+		"error": "Le temps passé n'a pas pu être chargé.",
+		"retry": "Réessayer"
+	},
+	"KIT_ERRORS": {
+		"ORIGIN": "Ce site n'est pas autorisé à afficher Ever Teams. Demandez à l'administrateur de votre espace de l'ajouter.",
+		"SESSION": "Votre session a pris fin. Reconnectez-vous.",
+		"SIGN_IN_AGAIN": "Se reconnecter",
+		"PERMISSION": "Vous n'avez pas l'autorisation de suivre votre temps dans cet espace. Demandez à votre administrateur.",
+		"UNREACHABLE": "Ever Teams est injoignable. Vérifiez votre connexion et réessayez."
+	},
 	"TIME_TRACKER": {
 		"title": "Muniteur",
 		"start": "Demarrer",
@@ -73,6 +89,12 @@
 	},
 	"AUTH": {
 		"sign_in_title": "Se connecter",
+		"host_sign_in": "Connectez-vous à ce site pour utiliser votre minuteur Ever Teams.",
+		"sign_in_with_ever_teams": "Se connecter avec Ever Teams",
+		"site_sign_in_waiting": "Terminez la connexion dans la fenêtre Ever Teams.",
+		"site_sign_in_blocked": "Votre navigateur a bloqué la fenêtre Ever Teams. Autorisez les fenêtres pop-up pour ce site, puis réessayez.",
+		"account_menu": "{{name}} : menu du compte",
+		"account_menu_unnamed": "Menu du compte",
 		"sign_up_title": "S'inscrire",
 		"register_now": "S'inscrire maintenant",
 		"email_prompt": "Entrez votre email",
@@ -92,7 +114,10 @@
 			"select_team": "Selectionner l'équipe"
 		},
 		"project_select": {
-			"select_project": "Selectionner le projet"
+			"select_project": "Selectionner le projet",
+			"loading_projects": "Chargement des projets...",
+			"no_projects": "Aucun projet sur lequel suivre votre temps",
+			"projects_failed": "Les projets n'ont pas pu être chargés. Rechargez la page pour réessayer."
 		},
 		"task_select": {
 			"select_task": "Selectionner la tache"
@@ -523,5 +548,27 @@
 			"IDLE": "Inactif",
 			"RESUMED": "Repris"
 		}
+	},
+	"THEME_PICKER": {
+		"placeholder": "Choisir un thème",
+		"default": "Par défaut",
+		"purple_gradient": "Dégradé violet",
+		"theme1": "Noir et blanc",
+		"theme2": "Rouge et vert",
+		"theme3": "Jaune et rouge",
+		"theme5": "Bleu et vert (noir)",
+		"theme6": "Rose et blanc",
+		"theme7": "Bleu sarcelle et orange",
+		"theme8": "Rouge et bleu",
+		"theme9": "Vert et jaune",
+		"theme10": "Rose et bleu",
+		"theme11": "Orange et rouge",
+		"theme12": "Chocolat et blanc",
+		"theme13": "Bleu et rose",
+		"theme14": "Jaune et rose"
+	},
+	"FONT_PICKER": {
+		"default_font": "Police par défaut",
+		"page_font": "Police de la page"
 	}
 }

@@ -24,6 +24,7 @@ import { limitTextCharaters } from '../../../../helpers/sub-text';
 import { ITaskFilter } from '../../../../services/hooks/features/use-task-filters';
 import { StatusType } from './filter-popup';
 import { BlurView } from 'expo-blur';
+import { translate } from '../../../../i18n';
 
 interface TaskStatusFilterProps {
 	showTaskStatus: boolean;
@@ -49,7 +50,9 @@ const TaskStatusFilter: FC<TaskStatusFilterProps> = observer(
 				<TouchableOpacity onPress={() => setShowTaskStatus(!showTaskStatus)}>
 					<View style={{ ...styles.container, borderColor: colors.divider }}>
 						<View style={{ flexDirection: 'row', alignItems: 'center' }}>
-							<Text style={{ marginRight: 10, color: colors.primary }}>Status</Text>
+							<Text style={{ marginRight: 10, color: colors.primary }}>
+								{translate('myWorkScreen.statusText')}
+							</Text>
 							{selectedStatuses.length === 0 ? null : (
 								<FontAwesome name="circle" size={24} color={colors.secondary} />
 							)}
@@ -93,7 +96,9 @@ const TaskStatusFilterDropDown: FC<DropDownProps> = observer(
 						]}
 					>
 						<View style={styles.secondContainer}>
-							<Text style={[styles.dropdownTitle, { color: colors.primary }]}>Statuses</Text>
+							<Text style={[styles.dropdownTitle, { color: colors.primary }]}>
+								{translate('settingScreen.statusScreen.statuses')}
+							</Text>
 							<View style={{ paddingHorizontal: 16, height: height / 2.55 }}>
 								<FlatList
 									bounces={false}

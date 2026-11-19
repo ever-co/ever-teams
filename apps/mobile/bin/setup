@@ -53,19 +53,11 @@ command -v react-native >/dev/null 2>&1 || {
   yarn global add react-native-cli
 }
 
-# IF NEEDED: Ensure appleSimUtils is installed
-# command -v applesimutils >/dev/null 2>&1 || {
-#   echo "This app requires appleSimUtils to run end to end tests, but it was not found on your system."
-#   echo "Installing applesimutils with brew..."
-#   brew tap wix/brew
-#   brew install applesimutils
-# }
-
-# IF NEEDED: Ensure detox-cli is installed
-# command -v detox >/dev/null 2>&1 || {
-#   echo "This app requires detox-cli to run end to end tests, but it was not found on your system."
-#   echo "Installing detox globally with npm..."
-#   npm install -g detox-cli
+# IF NEEDED: Ensure the Maestro CLI is installed, for the end-to-end flows in .maestro (see .maestro/README.md)
+# command -v maestro >/dev/null 2>&1 || {
+#   echo "This app requires the Maestro CLI to run end to end tests, but it was not found on your system."
+#   echo "Installing Maestro..."
+#   curl -fsSL "https://get.maestro.mobile.dev" | bash
 # }
 
 # IF NEEDED: Ensure phraseapp is installed

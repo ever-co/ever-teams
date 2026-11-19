@@ -1,9 +1,12 @@
 import { IApiCall, IServerError, IUser } from '@ever-teams/toolkit-types';
-import { apiConfigManager } from '../config/api-config';
+import { IApiRequestConfig } from '../config/api-config';
+import { apiUrlOf } from '../config/request-api-url';
 
-export function ApiCallUpload<T>({ path, method, body, init, bearer_token, tenantId, organizationId }: IApiCall) {
-	const config = apiConfigManager.getConfig();
-	const url = config.apiUrl;
+export function ApiCallUpload<T>(
+	{ path, method, body, init, bearer_token, tenantId, organizationId }: IApiCall,
+	api?: IApiRequestConfig
+) {
+	const url = apiUrlOf(api);
 	const headers: HeadersInit = {};
 
 	if (bearer_token) {
@@ -69,19 +72,22 @@ export interface IImageAssetCreateInput {
 	thumbUrl?: string;
 }
 
-export const uploadFile = async ({
-	file,
-	user,
-	token,
-	organizationId,
-	folderName
-}: {
-	file: File | null;
-	token: string;
-	user: IUser | null;
-	organizationId?: string;
-	folderName: string;
-}) => {
+export const uploadFile = async (
+	{
+		file,
+		user,
+		token,
+		organizationId,
+		folderName
+	}: {
+		file: File | null;
+		token: string;
+		user: IUser | null;
+		organizationId?: string;
+		folderName: string;
+	},
+	api?: IApiRequestConfig
+) => {
 	try {
 		if (!user) {
 			throw new Error('User is not authenticated');
@@ -97,14 +103,17 @@ export const uploadFile = async ({
 		if (user.tenantId) formData.append('tenantId', user.tenantId);
 		if (organizationId) formData.append('organizationId', organizationId);
 
-		const response = await ApiCallUpload<IImageAssetCreateInput>({
-			path: `/image-assets/upload/${folderName}`,
-			method: 'POST',
-			bearer_token: token,
-			body: formData,
-			tenantId: user.tenantId,
-			organizationId
-		});
+		const response = await ApiCallUpload<IImageAssetCreateInput>(
+			{
+				path: `/image-assets/upload/${folderName}`,
+				method: 'POST',
+				bearer_token: token,
+				body: formData,
+				tenantId: user.tenantId,
+				organizationId
+			},
+			api
+		);
 
 		if ('data' in response) {
 			return response.data;

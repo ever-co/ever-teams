@@ -3,6 +3,7 @@
 
 import type { BasicTimerProps } from './timer';
 import BaseAtom from './timer';
+import { KitNotice } from '../../teams-ui-components/kit-notice';
 import { useTimerControl } from '../common/use-timer-control';
 
 export interface TeamsBasicTimerProps extends Omit<BasicTimerProps, 'time' | 'progress'> {
@@ -12,16 +13,18 @@ export interface TeamsBasicTimerProps extends Omit<BasicTimerProps, 'time' | 'pr
 // TODO: Must move this to Atoms and integrate with gauzy api
 export function TeamsBasicTimer({ progress, ...props }: TeamsBasicTimerProps) {
 	// Timer hook - self-contained, fetches all dependencies internally
-	const control = useTimerControl();
+	const control = useTimerControl(props.caption);
 	return (
 		<>
 			<BaseAtom
 				{...control.action}
 				{...props}
+				caption={control.caption}
 				{...control.state}
 				{...(progress && { progress: (control.seconds / 100) * 60 })}
 			/>
 			{control.description}
+			<KitNotice />
 		</>
 	);
 }

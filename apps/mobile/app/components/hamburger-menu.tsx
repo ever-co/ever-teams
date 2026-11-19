@@ -30,6 +30,7 @@ import {
 	userNotFocusedLight
 } from './svgs/icons';
 import { BlurView } from 'expo-blur';
+import { navigateTo } from '../navigators/routes';
 
 const HamburgerMenu = observer((props: any) => {
 	const { colors, dark } = useAppTheme();
@@ -102,7 +103,11 @@ const HamburgerMenu = observer((props: any) => {
 					</View>
 					<View style={styles.navigationSection}>
 						{activeTeam ? (
-							<TouchableOpacity style={styles.item} onPress={() => navigation.navigate('Timer')}>
+							<TouchableOpacity
+								testID="menu-work"
+								style={styles.item}
+								onPress={() => navigateTo(navigation, 'Timer')}
+							>
 								<SvgXml xml={dark ? userNotFocusedDark2 : userNotFocusedLight} />
 								<Text style={[styles.screenLabel, { color: colors.primary }]}>
 									{translate('myWorkScreen.name')}
@@ -110,22 +115,31 @@ const HamburgerMenu = observer((props: any) => {
 							</TouchableOpacity>
 						) : null}
 
-						<TouchableOpacity style={styles.item} onPress={() => navigation.navigate('Team')}>
+						<TouchableOpacity
+							testID="menu-team"
+							style={styles.item}
+							onPress={() => navigateTo(navigation, 'Team')}
+						>
 							<SvgXml xml={dark ? peopleCaseNotFocusedDark2 : peopleNotFocusedLight} />
 							<Text style={[styles.screenLabel, { color: colors.primary }]}>
 								{translate('teamScreen.name')}
 							</Text>
 						</TouchableOpacity>
 						<TouchableOpacity
+							testID="menu-tasks"
 							style={styles.item}
-							onPress={() => navigation.navigate('Profile', { userId: user?.id, tabIndex: 0 })}
+							onPress={() => navigateTo(navigation, 'Profile', { userId: user?.id, tabIndex: 0 })}
 						>
 							<SvgXml xml={dark ? briefCaseNotFocusedDark2 : briefCaseNotFocusedLight} />
 							<Text style={[styles.screenLabel, { color: colors.primary }]}>
 								{translate('tasksScreen.name')}
 							</Text>
 						</TouchableOpacity>
-						<TouchableOpacity style={styles.item} onPress={() => navigation.navigate('Setting')}>
+						<TouchableOpacity
+							testID="menu-settings"
+							style={styles.item}
+							onPress={() => navigateTo(navigation, 'Setting')}
+						>
 							<SvgXml xml={dark ? settingsIconDark : settingsIconLight} />
 							<Text style={[styles.screenLabel, { color: colors.primary }]}>
 								{translate('settingScreen.name')}
@@ -139,7 +153,7 @@ const HamburgerMenu = observer((props: any) => {
 								</Text>
 							</View>
 							<TouchableOpacity
-								onPress={toggleTheme}
+								onPress={() => toggleTheme(dark)}
 								style={[
 									styles.toggle,
 									dark ? { backgroundColor: '#1D222A' } : { backgroundColor: '#E7E7EA' }
@@ -169,6 +183,7 @@ const HamburgerMenu = observer((props: any) => {
 					<TouchableOpacity
 						style={{ flexDirection: 'row', justifyContent: 'space-between' }}
 						onPress={() => onLogout()}
+						testID="menu-log-out"
 					>
 						<View style={{ flexDirection: 'row', alignItems: 'center' }}>
 							<Image source={require('../../assets/icons/new/logout.png')} />

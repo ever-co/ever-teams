@@ -26,6 +26,7 @@ import { ITaskLabelItem } from '../../../services/interfaces/ITaskLabel';
 import { useTaskLabels } from '../../../services/hooks/features/use-task-labels';
 import { BlurView } from 'expo-blur';
 import { useRoute, RouteProp } from '@react-navigation/native';
+import { navigateTo } from '../../../navigators/routes';
 
 // Create a type for the route params
 type TaskLabelRouteParams = {
@@ -48,7 +49,7 @@ export const TaskLabelScreen: FC<AuthenticatedDrawerScreenProps<'TaskLabelScreen
 
     // Handle back navigation with correct tab
     const handleGoBack = useCallback(() => {
-      navigation.navigate('Setting', { activeTab: previousTab });
+      navigateTo(navigation, 'Setting', { activeTab: previousTab });
     }, [navigation, previousTab]);
 
 		const { isLoading, labels, deleteLabel, updateLabel, createLabel } = useTaskLabels();

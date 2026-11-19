@@ -106,7 +106,7 @@ const FillUserInfoForm: FC<Props> = observer(({ isLoading, errors, setScreenStat
 							width: width / 2.1,
 							opacity: isLoading ? 0.5 : 1,
 							borderWidth: 0,
-							backgroundColor: colors.secondary
+							backgroundColor: colors.accentFill
 						}
 					]}
 					textStyle={styles.tapButtonText}

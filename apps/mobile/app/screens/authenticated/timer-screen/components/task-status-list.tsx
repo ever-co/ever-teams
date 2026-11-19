@@ -14,6 +14,7 @@ import { BadgedTaskStatus } from '../../../../components/status-icon';
 import { useTeamTasks } from '../../../../services/hooks/features/use-team-tasks';
 import { showMessage } from 'react-native-flash-message';
 import { useTaskStatus } from '../../../../services/hooks/features/use-task-status';
+import { translate } from '../../../../i18n';
 
 export interface Props {
 	onDismiss: () => unknown;
@@ -45,7 +46,7 @@ const TaskStatusList: FC<Props> = observer(({ onDismiss }) => {
 		if (response.status === 202 || response.status === 200 || response.status === 201) {
 			setActiveTask(task);
 			showMessage({
-				message: 'Update success',
+				message: translate('common.updateSuccess'),
 				type: 'success'
 			});
 		}

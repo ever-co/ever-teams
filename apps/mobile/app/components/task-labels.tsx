@@ -6,12 +6,13 @@ import { AntDesign, Entypo } from '@expo/vector-icons';
 import { observer } from 'mobx-react-lite';
 import { ITeamTask } from '../services/interfaces/ITask';
 import { useTeamTasks } from '../services/hooks/features/use-team-tasks';
-import { useAppTheme, typography } from '../theme';
+import { useAppTheme, typography, useWebTheme } from '../theme';
+import { taskChipLookOf } from '../../src/components/task-chip';
+import { ChipIcon } from '../../src/components/chip-icon';
 import TaskLabelPopup from './task-label-popup';
 import { ITaskLabelItem } from '../services/interfaces/ITaskLabel';
 import { translate } from '../i18n';
 import { limitTextCharaters } from '../helpers/sub-text';
-import { SvgUri } from 'react-native-svg';
 import { isEqual } from 'lodash';
 
 interface TaskLabelProps {
@@ -42,6 +43,8 @@ interface IndividualTaskLabel {
 const TaskLabels: FC<TaskLabelProps> = observer(
 	({ task, setLabels, newTaskLabels, taskScreenButton, noBorders, containerStyle }) => {
 		const { colors, dark } = useAppTheme();
+		const theme = useWebTheme();
+		const placeholder = taskChipLookOf(undefined, theme);
 		const { updateTask } = useTeamTasks();
 		const [openModal, setOpenModal] = useState(false);
 		const flatListRef = useRef<FlatList>(null);
@@ -186,26 +189,25 @@ const TaskLabels: FC<TaskLabelProps> = observer(
 								style={{
 									...styles.container,
 									...containerStyle,
-									borderColor: colors.border,
-									borderWidth: 1,
+									...placeholder.container,
 									marginTop: 0,
 									marginBottom: 15
 								}}
 							>
 								<View style={styles.wrapStatus}>
-									<Entypo name="circle" size={12} color={colors.primary} />
+									<Entypo name="circle" size={12} color={placeholder.ink} />
 									<Text
 										style={{
 											...styles.text,
-											color: colors.primary,
+											color: placeholder.ink,
 											marginLeft: 5
 										}}
 									>
-										{translate('taskDetailsScreen.items')} ({task?.tags.length})
+										{translate('taskDetailsScreen.items')} ({task?.tags?.length ?? 0})
 									</Text>
 								</View>
 
-								<AntDesign name="down" size={14} color={colors.primary} />
+								<AntDesign name="down" size={14} color={placeholder.ink} />
 							</View>
 						</TouchableOpacity>
 						<FlatList
@@ -235,19 +237,18 @@ const TaskLabels: FC<TaskLabelProps> = observer(
 							style={{
 								...styles.container,
 								...containerStyle,
-								borderColor: colors.border,
-								borderWidth: 1
+								...placeholder.container
 							}}
 						>
 							<View style={styles.wrapStatus}>
-								<Entypo name="circle" size={12} color={colors.primary} />
-								<Text style={{ ...styles.text, color: colors.primary, marginLeft: 5 }}></Text>
-								<Text style={{ ...styles.text, color: colors.primary }}>
+								<Entypo name="circle" size={12} color={placeholder.ink} />
+								<Text style={{ ...styles.text, color: placeholder.ink, marginLeft: 5 }}></Text>
+								<Text style={{ ...styles.text, color: placeholder.ink }}>
 									{translate('settingScreen.labelScreen.labels')}
 								</Text>
 							</View>
 
-							<AntDesign name="down" size={14} color={colors.primary} />
+							<AntDesign name="down" size={14} color={placeholder.ink} />
 						</View>
 					</TouchableOpacity>
 				)}
@@ -264,31 +265,33 @@ interface ILabel {
 }
 
 const Label: FC<ILabel> = ({ item, freshOpenModal, taskScreenButton, noBorders }) => {
-	const { colors } = useAppTheme();
+	const theme = useWebTheme();
+	const look = taskChipLookOf(item?.color, theme);
 
 	const { width } = Dimensions.get('screen');
 
 	return (
 		<TouchableOpacity style={{}} onPress={freshOpenModal}>
 			<View
-				style={{
-					flexDirection: 'row',
-					alignItems: 'center',
-					backgroundColor: item?.color,
-					marginVertical: taskScreenButton ? 3 : 20,
-					height: 32,
-					minWidth: taskScreenButton ? undefined : 100,
-					maxWidth: taskScreenButton ? '70%' : 120,
-					borderRadius: 10,
-					borderColor: colors.border,
-					borderWidth: noBorders ? 0 : 1,
-					paddingHorizontal: 8
-				}}
+				style={[
+					{
+						flexDirection: 'row',
+						alignItems: 'center',
+						marginVertical: taskScreenButton ? 3 : 20,
+						height: 32,
+						minWidth: taskScreenButton ? undefined : 100,
+						maxWidth: taskScreenButton ? '70%' : 120,
+						borderRadius: 8,
+						paddingHorizontal: 8
+					},
+					look.container,
+					noBorders && { borderWidth: 0 }
+				]}
 			>
-				<SvgUri width={14} height={14} uri={item?.fullIconUrl} />
+				<ChipIcon item={{ iconUrl: item?.fullIconUrl }} color={look.ink} />
 				<Text
 					style={{
-						color: '#292D32',
+						color: look.ink,
 						fontSize: 10,
 						fontFamily: typography.fonts.PlusJakartaSans.semiBold,
 						marginLeft: 10

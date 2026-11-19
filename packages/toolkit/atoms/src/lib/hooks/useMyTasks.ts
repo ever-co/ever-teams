@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { IHookResponse, ITeamTask } from '@ever-teams/toolkit-types';
 import { toast } from '@ever-teams/toolkit-ui';
 import { useTeamsContext } from '@lib/context/teams-context';
+import { useKitOptions } from '@components/teams-provider/kit-options';
 
 const useMyTasks = ({ projectId }: { projectId: string | null }): IHookResponse<ITeamTask[] | null> => {
 	const [tasks, setTasks] = useState<IHookResponse<ITeamTask[] | null>>({
@@ -11,12 +12,24 @@ const useMyTasks = ({ projectId }: { projectId: string | null }): IHookResponse<
 	});
 
 	const { authenticatedUser: user, token, selectedOrganization: organizationId } = useTeamsContext();
+	const { hostSignIn, api } = useKitOptions();
 
 	useEffect(() => {
+		// A token from the host's getToken does not reach the tasks: no read, so no refusal to show
+		if (hostSignIn) {
+			setTasks({ data: [], loading: false });
+			return;
+		}
+		// A read the effect has moved past (another project, organization or address, or the widget gone) shows
+		// nothing, not even its error: the toasts are the page's
+		let current = true;
 		if (user && organizationId) {
 			(async () => {
 				setTasks((prev) => ({ ...prev, loading: true }));
-				const userTasks = await getMyTasks(user, token, projectId, organizationId);
+				const userTasks = await getMyTasks(user, token, projectId, organizationId, api);
+				if (!current) {
+					return;
+				}
 
 				if ('message' in userTasks || 'error' in userTasks) {
 					const errorMessage =
@@ -37,7 +50,12 @@ const useMyTasks = ({ projectId }: { projectId: string | null }): IHookResponse<
 				setTasks({ data: userTasks, loading: false });
 			})();
 		}
-	}, [user, projectId, organizationId]);
+		return () => {
+			current = false;
+			// The next read, if any, sets it again
+			setTasks((prev) => (prev.loading ? { ...prev, loading: false } : prev));
+		};
+	}, [user, projectId, organizationId, hostSignIn, api]);
 
 	return tasks;
 };

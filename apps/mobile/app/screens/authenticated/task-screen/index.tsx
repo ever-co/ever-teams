@@ -13,6 +13,7 @@ import EstimateBlock from '../../../components/task/estimate-block';
 import TimeBlock from '../../../components/task/time-block';
 import LinkedIssuesBlock from '../../../components/task/linked-issues-block';
 import DescriptionBlock from '../../../components/task/description-block';
+import { navigateTo } from '../../../navigators/routes';
 
 export const AuthenticatedTaskScreen: FC<AuthenticatedDrawerScreenProps<'TaskScreen'>> = (_props) => {
 	const { colors, dark } = useAppTheme();
@@ -29,10 +30,10 @@ export const AuthenticatedTaskScreen: FC<AuthenticatedDrawerScreenProps<'TaskScr
 	return (
 		<Screen contentContainerStyle={[$container, { backgroundColor: colors.background2 }]} safeAreaEdges={['top']}>
 			<StatusBar barStyle={dark ? 'light-content' : 'dark-content'} />
-			<View style={{ flex: 1 }}>
+			<View testID="task-screen" style={{ flex: 1 }}>
 				<View style={[$headerContainer, { backgroundColor: colors.background }]}>
 					<View style={[styles.container, { backgroundColor: colors.background }]}>
-						<TouchableOpacity onPress={() => navigation.navigate('AuthenticatedTab')}>
+						<TouchableOpacity onPress={() => navigateTo(navigation, 'AuthenticatedTab')}>
 							<AntDesign name="arrow-left" size={24} color={colors.primary} />
 						</TouchableOpacity>
 						<Text style={[styles.title, { color: colors.primary }]}>

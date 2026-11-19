@@ -17,7 +17,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 // COMPONENTS
 import { Screen } from '../../../components';
 import { GLOBAL_STYLE as GS } from '../../../../assets/ts/styles';
-import { AuthenticatedDrawerScreenProps, SettingScreenRouteProp } from '../../../navigators/authenticated-navigator';
+import { AuthenticatedDrawerScreenProps } from '../../../navigators/authenticated-navigator';
 import SectionTab from './components/section-tab';
 import SettingHeader from './components/setting-header';
 import { useSettings } from '../../../services/hooks/features/use-settings';
@@ -26,7 +26,7 @@ import PersonalSettings from './personal';
 import TeamSettings from './team';
 import { useAppTheme } from '../../../theme';
 import { useOrganizationTeam } from '../../../services/hooks/use-organization';
-import { useRoute, useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect } from '@react-navigation/native';
 
 export type IPopup =
 	| 'Names'
@@ -49,27 +49,29 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<'Sett
 		const { colors, dark } = useAppTheme();
 		const { isLoading } = useSettings();
 		const { activeTeam } = useOrganizationTeam();
-		const route = useRoute<SettingScreenRouteProp<'Setting'>>();
+		const { route } = _props;
 		// const { navigation } = _props;
+		const routeActiveTab = route.params?.activeTab;
 
 		// ref
 		const bottomSheetRef = useRef<BottomSheet>(null);
 
 		// STATES
-		const [activeTab, setActiveTab] = useState(route.params?.activeTab || 1); // Initialize from route params
+		const [activeTab, setActiveTab] = useState(routeActiveTab || 1); // Initialize from route params
 		const [showPopup, setShowPopup] = useState<IPopup>(null);
 		const [bottomSheetVisible, setBottomSheetVisible] = useState(false);
 		const [keyboardVisible, setKeyboardVisible] = useState(false);
 		const [keyboardHeight, setKeyboardHeight] = useState(0);
 		const [desiredSnapIndex, setDesiredSnapIndex] = useState(1); // New state for tracking desired snap index
 
-		// Update active tab when route params change
+		// Update active tab when the tab the route asks for changes. Under Expo Router the route's params are a new object
+		// at each render of the route: watching them put the route's tab back over the one the person picked
 		useFocusEffect(
 			useCallback(() => {
-				if (route.params?.activeTab) {
-					setActiveTab(route.params.activeTab);
+				if (routeActiveTab) {
+					setActiveTab(routeActiveTab);
 				}
-			}, [route.params])
+			}, [routeActiveTab])
 		);
 
 		// Include multiple snap points for different sheet heights

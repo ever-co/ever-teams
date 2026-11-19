@@ -94,7 +94,7 @@ const TaskLabelForm = ({
 				<Text style={styles.errorText}>{error}</Text>
 				{onErrorDismiss && (
 					<TouchableOpacity onPress={onErrorDismiss}>
-						<Text style={styles.dismissText}>Dismiss</Text>
+						<Text style={styles.dismissText}>{translate("common.dismiss")}</Text>
 					</TouchableOpacity>
 				)}
 			</View>

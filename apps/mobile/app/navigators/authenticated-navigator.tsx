@@ -1,6 +1,5 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, { useEffect, useState } from 'react';
-import { Platform, TextStyle, View, ViewStyle } from 'react-native';
+import React from 'react';
 import { BottomTabScreenProps, createBottomTabNavigator, BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { createDrawerNavigator, DrawerScreenProps } from '@react-navigation/drawer';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -11,7 +10,6 @@ import {
 	useIsFocused,
 	useNavigation
 } from '@react-navigation/native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 // COMPONENTS
 import { AppStackParamList, AppStackScreenProps } from './app-navigator';
@@ -30,28 +28,15 @@ import {
 } from '../screens';
 
 // HELPERS
-import { translate } from '../i18n';
-import { spacing, typography, useAppTheme } from '../theme';
+import { useAppTheme } from '../theme';
 import HamburgerMenu from '../components/hamburger-menu';
-import { Skeleton } from 'react-native-skeletons';
 import { useStores } from '../models';
 import { observer } from 'mobx-react-lite';
-import { SvgXml } from 'react-native-svg';
-import {
-	briefCaseFocusedDark,
-	briefCaseFocusedLight,
-	briefCaseNotFocusedDark,
-	briefCaseNotFocusedLight,
-	peopleFocusedDark,
-	peopleFocusedLight,
-	peopleNotFocusedDark,
-	peopleNotFocusedLight,
-	userFocusedDark,
-	userFocusedLight,
-	userNotFocusedDark,
-	userNotFocusedLight
-} from '../components/svgs/icons';
 import { useOrganizationTeam } from '../services/hooks/use-organization';
+import { TimeCounterHost } from '../services/hooks/use-timer';
+import { navigateTo } from './routes';
+import { tasksTabOptions, teamTabOptions, useTabBarScreenOptions, workTabOptions } from './tab-bar';
+import type { TabPressEvent } from './tab-bar';
 
 export type AuthenticatedTabParamList = {
 	Timer: undefined;
@@ -110,113 +95,35 @@ export type MembersSettingsScreenRouteProp = RouteProp<AuthenticatedDrawerParamL
 const Tab = createBottomTabNavigator<AuthenticatedTabParamList>();
 
 const TabNavigator = observer(function TabNavigator() {
-	const { bottom } = useSafeAreaInsets();
-	const { colors, dark } = useAppTheme();
+	const { dark } = useAppTheme();
 	const {
 		teamStore: { isTrackingEnabled }
 	} = useStores();
-	const [isLoading, setIsLoading] = useState(true);
 	const { currentUser } = useOrganizationTeam();
+	const screenOptions = useTabBarScreenOptions();
 
 	const navigation = useNavigation<SettingScreenNavigationProp<'Profile'>>();
 
-	useEffect(() => {
-		setTimeout(() => setIsLoading(false), 3000);
-	}, []);
-
 	return (
 		<Tab.Navigator
-			screenOptions={{
-				headerShown: false,
-				tabBarHideOnKeyboard: true,
-				tabBarStyle: [{ backgroundColor: dark ? '#1E2025' : colors.background }, { height: bottom + 60 }],
-				tabBarActiveTintColor: colors.primary,
-				tabBarInactiveTintColor: colors.tertiary,
-				tabBarLabelStyle: $tabBarLabel,
-				tabBarItemStyle: $tabBarItem,
-				...(isLoading
-					? {
-							tabBarButton: () => (
-								<View
-									style={{
-										width: '100%',
-										flexDirection: 'row',
-										justifyContent: isTrackingEnabled ? 'space-between' : 'space-around',
-										paddingVertical: 25
-									}}
-								>
-									<View style={{ width: '30%', alignItems: 'center' }}>
-										<Skeleton
-											height={24}
-											width={24}
-											borderRadius={12}
-											style={{ marginBottom: 13 }}
-										/>
-										<Skeleton height={8} width={63} borderRadius={30} />
-									</View>
-									<View style={{ width: '30%', alignItems: 'center' }}>
-										<Skeleton
-											height={24}
-											width={24}
-											borderRadius={12}
-											style={{ marginBottom: 13 }}
-										/>
-										<Skeleton height={8} width={63} borderRadius={30} />
-									</View>
-									{isTrackingEnabled ? (
-										<View style={{ width: '30%', alignItems: 'center' }}>
-											<Skeleton
-												height={24}
-												width={24}
-												borderRadius={12}
-												style={{ marginBottom: 13 }}
-											/>
-											<Skeleton height={8} width={63} borderRadius={30} />
-										</View>
-									) : null}
-								</View>
-							)
-					  }
-					: null)
-			}}
+			// No id, as before: see the app stack in app-navigator.tsx
+			id={undefined}
+			screenOptions={screenOptions}
 			initialRouteName="Team"
 		>
 			{isTrackingEnabled ? (
-				<Tab.Screen
-					name="Timer"
-					component={AuthenticatedTimerScreen}
-					options={{
-						tabBarLabel: translate('myWorkScreen.name'),
-						tabBarIcon: ({ focused }) =>
-							!focused ? (
-								<SvgXml xml={dark ? userNotFocusedDark : userNotFocusedLight} />
-							) : (
-								<SvgXml xml={dark ? userFocusedDark : userFocusedLight} />
-							),
-
-						tabBarActiveTintColor: dark ? '#8C7AE4' : '#3826A6'
-					}}
-				/>
+				<Tab.Screen name="Timer" component={AuthenticatedTimerScreen} options={workTabOptions(dark)} />
 			) : null}
 
 			<Tab.Screen
 				name="Profile"
 				component={AuthenticatedProfileScreen}
-				options={{
-					tabBarLabel: translate('tasksScreen.name'),
-					tabBarIcon: ({ focused }) =>
-						focused ? (
-							<SvgXml xml={dark ? briefCaseFocusedDark : briefCaseFocusedLight} />
-						) : (
-							<SvgXml xml={dark ? briefCaseNotFocusedDark : briefCaseNotFocusedLight} />
-						),
-					tabBarActiveTintColor: dark ? '#8C7AE4' : '#3826A6'
-				}}
+				options={tasksTabOptions(dark)}
 				listeners={{
-					tabPress: (e) => {
+					tabPress: (e: TabPressEvent) => {
 						e.preventDefault();
 
-						navigation.navigate('Profile', {
+						navigateTo(navigation, 'Profile', {
 							userId: currentUser?.id,
 							activeTab: 'worked'
 						});
@@ -224,20 +131,7 @@ const TabNavigator = observer(function TabNavigator() {
 				}}
 			/>
 
-			<Tab.Screen
-				name="Team"
-				component={AuthenticatedTeamScreen}
-				options={{
-					tabBarLabel: translate('teamScreen.name'),
-					tabBarIcon: ({ focused }) =>
-						!focused ? (
-							<SvgXml xml={dark ? peopleNotFocusedDark : peopleNotFocusedLight} />
-						) : (
-							<SvgXml xml={dark ? peopleFocusedDark : peopleFocusedLight} />
-						),
-					tabBarActiveTintColor: dark ? '#8C7AE4' : '#3826A6'
-				}}
-			/>
+			<Tab.Screen name="Team" component={AuthenticatedTeamScreen} options={teamTabOptions(dark)} />
 		</Tab.Navigator>
 	);
 });
@@ -248,7 +142,7 @@ const drawer = createDrawerNavigator<AuthenticatedDrawerParamList>();
  * React Navigation 7 removed `unmountOnBlur`: a drawer screen still unmounts once another one is shown, so it reads
  * its data again when it comes back, as it did before.
  */
-function UnmountOnBlur({ children }: Readonly<{ children: React.ReactNode }>) {
+export function UnmountOnBlur({ children }: Readonly<{ children: React.ReactNode }>) {
 	const isFocused = useIsFocused();
 	if (!isFocused) {
 		return null;
@@ -259,6 +153,8 @@ function UnmountOnBlur({ children }: Readonly<{ children: React.ReactNode }>) {
 export const AuthenticatedNavigator = observer(function AuthenticatedNavigator() {
 	return (
 		<drawer.Navigator
+			// No id, as before: see the app stack in app-navigator.tsx
+			id={undefined}
 			drawerContent={(props) => <HamburgerMenu {...props} />}
 			screenLayout={({ children }) => <UnmountOnBlur>{children}</UnmountOnBlur>}
 			screenOptions={{
@@ -280,14 +176,12 @@ export const AuthenticatedNavigator = observer(function AuthenticatedNavigator()
 	);
 });
 
-const $tabBarItem: ViewStyle = {
-	paddingTop: Platform.OS === 'ios' ? spacing.medium : spacing.extraSmall
-};
-
-const $tabBarLabel: TextStyle = {
-	fontSize: 12,
-	fontFamily: typography.fonts.PlusJakartaSans.semiBold,
-	lineHeight: 16,
-	fontWeight: '500',
-	flex: 1
-};
+/** The signed-in part of the app, with the one counter of the running time beside its screens. */
+export function SignedInArea() {
+	return (
+		<>
+			<TimeCounterHost />
+			<AuthenticatedNavigator />
+		</>
+	);
+}

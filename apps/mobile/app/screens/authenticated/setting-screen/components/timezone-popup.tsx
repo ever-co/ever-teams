@@ -129,7 +129,7 @@ const TimezonePopup: FC<Props> = function FilterPopup({
 						}}
 					>
 						<TextInput
-							placeholder="Search Time Zone"
+							placeholder={translate("settingScreen.changeTimezone.searchPlaceholder")}
 							placeholderTextColor={dark ? "#5a5b5e" : "#00000021"}
 							style={[
 								styles.textInput,

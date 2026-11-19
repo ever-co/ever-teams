@@ -10,7 +10,8 @@ import { translate } from '../../../../i18n';
 import { useTaskStatistics } from '../../../../services/hooks/features/use-task-statistics';
 import { I_TeamMemberCardHook } from '../../../../services/hooks/features/use-team-member-card';
 import { typography } from '../../../../theme/typography';
-import { useTheme } from 'react-native-paper';
+import { useWebTheme } from '../../../../theme';
+import { statLabelStyleOf, statValueStyleOf } from './card-stat-text';
 
 interface IProps {
 	memberInfo: I_TeamMemberCardHook;
@@ -21,7 +22,7 @@ export const WorkedOnTask: FC<IProps> = observer(({ memberInfo, period }) => {
 	// Get current timer seconds
 	const { isAuthUser, memberTask } = memberInfo;
 
-	const { dark, colors } = useTheme();
+	const theme = useWebTheme();
 
 	// activeTaskDailyStat and activeTaskTotalStat removed from useTaskStatistics call
 	const { getTaskStat } = useTaskStatistics();
@@ -38,19 +39,19 @@ export const WorkedOnTask: FC<IProps> = observer(({ memberInfo, period }) => {
 			<>
 				{period === 'Daily' ? (
 					<View style={styles.container}>
-						<Text style={[styles.totalTimeTitle, { color: dark ? '#7B8089' : '#7E7991' }]}>
+						<Text style={[styles.totalTimeTitle, statLabelStyleOf(theme)]}>
 							{translate('teamScreen.cardTodayWorkLabel')}
 						</Text>
-						<Text style={[styles.totalTimeText, { color: colors.primary }]}>
+						<Text style={[styles.totalTimeText, statValueStyleOf(theme)]}>
 							{pad(dh)} h:{pad(dm)} m
 						</Text>
 					</View>
 				) : (
 					<View style={styles.container}>
-						<Text style={[styles.totalTimeTitle, { color: dark ? '#7B8089' : '#7E7991' }]}>
+						<Text style={[styles.totalTimeTitle, statLabelStyleOf(theme)]}>
 							{translate('teamScreen.cardTotalWorkLabel')}
 						</Text>
-						<Text style={[styles.totalTimeText, { color: colors.primary }]}>
+						<Text style={[styles.totalTimeText, statValueStyleOf(theme)]}>
 							{pad(th)} h:{pad(tm)} m
 						</Text>
 					</View>
@@ -65,19 +66,19 @@ export const WorkedOnTask: FC<IProps> = observer(({ memberInfo, period }) => {
 		<>
 			{period === 'Daily' ? (
 				<View style={styles.container}>
-					<Text style={[styles.totalTimeTitle, { color: dark ? '#7B8089' : '#7E7991' }]}>
+					<Text style={[styles.totalTimeTitle, statLabelStyleOf(theme)]}>
 						{translate('teamScreen.cardTodayWorkLabel')}
 					</Text>
-					<Text style={[styles.totalTimeText, { color: colors.primary }]}>
+					<Text style={[styles.totalTimeText, statValueStyleOf(theme)]}>
 						{pad(dh)} h:{pad(dm)} m
 					</Text>
 				</View>
 			) : (
 				<View style={styles.container}>
-					<Text style={[styles.totalTimeTitle, { color: dark ? '#7B8089' : '#7E7991' }]}>
+					<Text style={[styles.totalTimeTitle, statLabelStyleOf(theme)]}>
 						{translate('teamScreen.cardTotalWorkLabel')}
 					</Text>
-					<Text style={[styles.totalTimeText, { color: colors.primary }]}>
+					<Text style={[styles.totalTimeText, statValueStyleOf(theme)]}>
 						{pad(th)} h:{pad(tm)} m
 					</Text>
 				</View>

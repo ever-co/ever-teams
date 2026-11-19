@@ -4,6 +4,7 @@ import { ScrollView, Text, TextStyle, View, ViewStyle } from 'react-native';
 import { typography } from '../../../../theme/typography';
 import SingleInfo from '../components/single-info';
 import { translate } from '../../../../i18n';
+import type { TxKeyPath } from '../../../../i18n';
 import { useStores } from '../../../../models';
 import { useOrganizationTeam } from '../../../../services/hooks/use-organization';
 import SwitchTimeTracking from '../components/switch-time-tracking';
@@ -20,10 +21,26 @@ import { useTaskVersion } from '../../../../services/hooks/features/use-task-ver
 import SwitchTeamPublicity from '../components/switch-team-publicity';
 // import { NavigationProp } from '@react-navigation/native';
 import { AuthenticatedDrawerParamList } from '../../../../navigators/authenticated-navigator';
+import { navigateTo } from '../../../../navigators/routes';
 
 interface ITeamSettingProps {
 	props: any;
 	onOpenBottomSheet: (sheet: IPopup, snapPoint?: number) => unknown;
+}
+
+// A count the API has not returned yet shows as loading, never as a number
+function activeCount(key: TxKeyPath, total: number | undefined): string {
+	if (total === undefined) {
+		return translate('common.loading');
+	}
+	return translate(key, { count: total });
+}
+
+function yesOrNo(value: boolean): string {
+	if (value) {
+		return translate('common.yes');
+	}
+	return translate('common.no');
 }
 
 const TeamSettings: FC<ITeamSettingProps> = observer(({ props, onOpenBottomSheet }) => {
@@ -44,7 +61,7 @@ const TeamSettings: FC<ITeamSettingProps> = observer(({ props, onOpenBottomSheet
 
 	// Function to navigate to screens with previousTab param
 	const navigateWithTab = (screenName: keyof AuthenticatedDrawerParamList) => {
-		navigation.navigate(screenName, { previousTab: 2 });
+		navigateTo(navigation, screenName, { previousTab: 2 });
 	};
 
 	return (
@@ -63,37 +80,33 @@ const TeamSettings: FC<ITeamSettingProps> = observer(({ props, onOpenBottomSheet
 				{isTeamManager ? <SwitchTeamPublicity /> : null}
 				{isTeamManager ? <SwitchTimeTracking /> : null}
 				<SingleInfo
-					title={'Task Versions'}
-					value={`There ${versions?.total === 1 ? 'is' : 'are'} ${versions?.total} active ${
-						versions?.total === 1 ? 'version' : 'versions'
-					}`}
+					title={translate('settingScreen.versionScreen.mainTitle')}
+					value={activeCount('settingScreen.teamSection.activeVersions', versions?.total)}
 					onPress={() => navigateWithTab('TaskVersion')}
 				/>
 				<SingleInfo
 					title={translate('settingScreen.teamSection.taskStatuses')}
-					value={`There are ${statuses?.total} active statuses`}
+					value={activeCount('settingScreen.teamSection.activeStatuses', statuses?.total)}
 					onPress={() => navigateWithTab('TaskStatus')}
 				/>
 				<SingleInfo
 					title={translate('settingScreen.teamSection.taskPriorities')}
-					value={`There are ${priorities?.total} active priorities`}
+					value={activeCount('settingScreen.teamSection.activePriorities', priorities?.total)}
 					onPress={() => navigateWithTab('TaskPriority')}
 				/>
 				<SingleInfo
 					title={translate('settingScreen.teamSection.taskSizes')}
-					value={`There are ${sizes?.total} active sizes`}
+					value={activeCount('settingScreen.teamSection.activeSizes', sizes?.total)}
 					onPress={() => navigateWithTab('TaskSizeScreen')}
 				/>
 				<SingleInfo
 					title={translate('settingScreen.teamSection.taskLabel')}
-					value={`There ${labels?.total === 1 ? 'is' : 'are'} ${labels?.total} active ${
-						labels?.total === 1 ? 'label' : 'labels'
-					}`}
+					value={activeCount('settingScreen.teamSection.activeLabels', labels?.total)}
 					onPress={() => navigateWithTab('TaskLabelScreen')}
 				/>
 				<SingleInfo
 					title={translate('settingScreen.teamSection.teamRole')}
-					value={isTeamManager ? 'Yes' : 'No'}
+					value={yesOrNo(isTeamManager)}
 					onPress={() => navigateWithTab('MembersSettingsScreen')}
 				/>
 				<SingleInfo

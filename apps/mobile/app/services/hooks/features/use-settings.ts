@@ -4,7 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import useFetchAllLanguages from '../../client/queries/language';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import I18n from 'i18n-js';
+import { applyProfileLanguage } from '../../../i18n';
 import { updateUserInfoRequest } from '../../client/requests/user';
 import { ILanguageItemList, IUser } from '../../interfaces/IUserData';
 import moment from 'moment-timezone';
@@ -71,8 +71,7 @@ export function useSettings() {
 	// Change Language by user preferred language
 	useEffect(() => {
 		if (preferredLanguage) {
-			AsyncStorage.setItem('Language', preferredLanguage.code);
-			I18n.locale = preferredLanguage.code;
+			void applyProfileLanguage(preferredLanguage.code, (code) => AsyncStorage.setItem('Language', code));
 		}
 	}, [preferredLanguage]);
 

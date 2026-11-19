@@ -1,0 +1,75 @@
+# A person who started the timer late moves its start one minute earlier.
+appId: ${APP_ID}
+env:
+  EMAIL: kofi.arden@example.com
+---
+- runFlow: common/sign-in.yaml
+- runFlow: common/timer-stopped.yaml
+- runFlow: common/task-chosen.yaml
+# Clearing the app keeps the time the API saved: a run an earlier flow stopped can have ended moments ago, and the API
+# refuses a start that falls inside it. The new start is at most two minutes before this run's start (one minute
+# before the minute it shows), so this run starts once two minutes have passed since any earlier stop. Maestro has no
+# pause: this waits for the start button to go, which it does not, for 125 s.
+- extendedWaitUntil:
+    notVisible:
+      id: "timer-start"
+    timeout: 125000
+    optional: true
+- tapOn:
+    id: "timer-start"
+- runFlow: common/run-confirmed.yaml
+- tapOn:
+    id: "timer-actions-trigger"
+- tapOn:
+    id: "timer-change-start"
+- extendedWaitUntil:
+    visible:
+      id: "timer-start-time"
+    timeout: 20000
+# the field shows the run's start, in the phone's own time
+- copyTextFrom:
+    id: "timer-start-time"
+- runScript:
+    file: common/one-minute-earlier.js
+    env:
+      SHOWN_START: ${maestro.copiedText}
+- tapOn:
+    id: "timer-start-time"
+- eraseText: 5
+- inputText: ${output.earlier}
+- runFlow:
+    when:
+      visible:
+        id: "timer-start-reason"
+    commands:
+      - tapOn:
+          id: "timer-start-reason"
+      - inputText: "Started on the way in"
+- tapOn:
+    id: "timer-start-save"
+- extendedWaitUntil:
+    notVisible:
+      id: "timer-start-time"
+    timeout: 20000
+- assertNotVisible:
+    id: "timer-start-error"
+- takeScreenshot: start-moved
+# the API kept the new start: opened again, the panel shows it (a status read can bring it a moment later)
+- tapOn:
+    id: "timer-actions-trigger"
+- tapOn:
+    id: "timer-change-start"
+- extendedWaitUntil:
+    visible:
+      id: "timer-start-time"
+      text: ${output.earlier}
+    timeout: 20000
+- tapOn:
+    id: "timer-start-cancel"
+- extendedWaitUntil:
+    notVisible:
+      id: "timer-start-time"
+    timeout: 10000
+- tapOn:
+    id: "timer-stop"
+- runFlow: common/stop-confirmed.yaml
