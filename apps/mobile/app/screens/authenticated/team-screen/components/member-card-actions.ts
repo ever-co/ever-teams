@@ -65,8 +65,10 @@ export function memberCardActionsOf(
 	const canUnassign = canEditWork && viewer.hasActiveTask;
 
 	if (canEditTask) {
-		actions.push({ key: 'edit-task', label: label('tasksScreen.editTaskLabel'), onPress: handlers.editTask });
-		actions.push({ key: 'estimate', label: label('myWorkScreen.estimateLabel'), onPress: handlers.editEstimate });
+		actions.push(
+			{ key: 'edit-task', label: label('tasksScreen.editTaskLabel'), onPress: handlers.editTask },
+			{ key: 'estimate', label: label('myWorkScreen.estimateLabel'), onPress: handlers.editEstimate }
+		);
 	}
 	if (canAssign) {
 		actions.push({ key: 'assign', label: label('tasksScreen.assignTaskButton'), onPress: handlers.assignTask });
