@@ -1,5 +1,13 @@
 import React, { ComponentType, Fragment, ReactElement } from 'react';
-import { StyleProp, TextStyle, TouchableOpacity, TouchableOpacityProps, View, ViewStyle } from 'react-native';
+import {
+	StyleProp,
+	TextStyle,
+	TouchableOpacity,
+	TouchableOpacityProps,
+	View,
+	ViewStyle,
+	StyleSheet
+} from 'react-native';
 import { colors, spacing } from '../theme';
 import { Text, TextProps } from './text';
 
@@ -232,15 +240,12 @@ export function Card(props: CardProps) {
 	);
 }
 
+// The web's card: radius 14, a hairline and a light black shadow
 const $containerBase: ViewStyle = {
-	borderRadius: spacing.medium,
+	borderRadius: 14,
 	padding: spacing.extraSmall,
-	borderWidth: 1,
-	shadowColor: colors.palette.neutral800,
-	shadowOffset: { width: 0, height: 12 },
-	shadowOpacity: 0.08,
-	shadowRadius: 12.81,
-	elevation: 16,
+	borderWidth: StyleSheet.hairlineWidth,
+	boxShadow: '0 1px 2px rgba(0, 0, 0, 0.065)',
 	minHeight: 96,
 	flexDirection: 'row'
 };

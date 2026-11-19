@@ -609,30 +609,15 @@ export const GLOBAL_STYLE = StyleSheet.create({
 		marginVertical: 10,
 		padding: 0
 	},
+	// The web's shadows (styles/globals.css): a lone card, a card in a list, a floating layer
 	shadow: {
-		elevation: 5,
-		shadowColor: CONSTANT_COLOR.info,
-		shadowOffset: { width: 1, height: 1.5 },
-		shadowOpacity: 0.5,
-		shadowRadius: 5
+		boxShadow: '0 1px 2px rgba(0, 0, 0, 0.065)'
 	},
 	shadowLg: {
-		elevation: 8.5,
-		shadowColor: isIOS ? '#000' : CONSTANT_COLOR.info,
-		shadowOffset: {
-			width: isIOS ? 0 : 2,
-			height: 2
-		},
-		shadowOpacity: isIOS ? 0.25 : 0.7,
-
-		shadowRadius: isIOS ? 3.84 : 5
+		boxShadow: '0 4px 8px -2px rgba(0, 0, 0, 0.06), 0 12px 32px -4px rgba(0, 0, 0, 0.1)'
 	},
 	shadowSm: {
-		elevation: 2,
-		shadowColor: CONSTANT_COLOR.info,
-		shadowOffset: { width: 0, height: 1 },
-		shadowOpacity: 0.2,
-		shadowRadius: 5
+		boxShadow: '0 1px 2px rgba(0, 0, 0, 0.04)'
 	},
 	stat: {
 		alignItems: 'center',
