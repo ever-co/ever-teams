@@ -126,9 +126,6 @@ export function useTeamMemberCard(member: IOrganizationTeamList["members"][numbe
 					.filter((r) => r.role && r.role.name === "MANAGER")
 					.map((r) => r.employee.id)
 					.concat(employeeId),
-				name: team.name,
-				tenantId: team.tenantId,
-				organizationId: team.organizationId,
 				...activeTeam,
 			},
 		})
@@ -154,9 +151,6 @@ export function useTeamMemberCard(member: IOrganizationTeamList["members"][numbe
 					.filter((r) => r.employee.id !== employeeId)
 					.map((r) => r.employee.id)
 					.filter((value, index, array) => array.indexOf(value) === index), // To make the array Unique list of ids
-				name: team.name,
-				tenantId: team.tenantId,
-				organizationId: team.organizationId,
 				...activeTeam,
 			},
 		})
