@@ -315,7 +315,7 @@ const PassCode: FC<Props> = observer(
 									(step === 'Tenant' && !isValid.step3)
 										? 0.5
 										: 1,
-								backgroundColor: colors.secondary,
+								backgroundColor: colors.accentFill,
 								borderWidth: 0
 							}
 						]}
