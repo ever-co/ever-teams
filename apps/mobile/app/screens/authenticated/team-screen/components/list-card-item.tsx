@@ -28,9 +28,7 @@ import { useNavigation } from '@react-navigation/native';
 import { WorkedOnTask } from './worked-on-task';
 import UnassignedTasksList from './unassigned-task-list';
 import { translate } from '../../../../i18n';
-import { useTimer } from '../../../../services/hooks/use-timer';
 import { SettingScreenNavigationProp } from '../../../../navigators/authenticated-navigator';
-import { getTimerStatusValue } from '../../../../helpers/get-timer-status';
 import { useClickOutside } from 'react-native-click-outside';
 import { TimeProgressBar } from './time-progress-bar';
 import { navigateTo } from '../../../../navigators/routes';
@@ -64,7 +62,7 @@ export const ListItemContent: React.FC<IcontentProps> = observer(({ memberInfo, 
 					{
 						...GS.p3,
 						...GS.positionRelative,
-						backgroundColor: dark ? '#1E2025' : colors.background
+						backgroundColor: colors.background
 					},
 					{ borderRadius: 14 }
 				]}
@@ -138,7 +136,6 @@ const ListCardItem: React.FC<Props> = observer((props) => {
 	//  STATS
 	const memberInfo = useTeamMemberCard(props.member);
 	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask);
-	const { timerStatus } = useTimer();
 	const [showUnassignedList, setShowUnassignedList] = useState<boolean>(false);
 
 	const navigation = useNavigation<SettingScreenNavigationProp<'Profile'>>();
@@ -152,20 +149,24 @@ const ListCardItem: React.FC<Props> = observer((props) => {
 		setShowUnassignedList(false);
 	}, []);
 
-	const onPressIn = useCallback((isTaskScreen?: boolean) => {
-		taskEdition.setEditMode(false);
-		taskEdition.setEstimateEditMode(false);
-		props.setOpenMenuIndex(null);
+	const onPressIn = useCallback(
+		(isTaskScreen?: boolean) => {
+			taskEdition.setEditMode(false);
+			taskEdition.setEstimateEditMode(false);
+			props.setOpenMenuIndex(null);
 
-		if (props.canNavigate) {
-			isTaskScreen
-				? memberInfo.memberTask && navigateTo(navigation, 'TaskScreen', { taskId: memberInfo.memberTask?.id })
-				: navigateTo(navigation, 'Profile', {
-						userId: memberInfo.memberUser.id,
-						activeTab: 'worked'
-				  });
-		}
-	}, [props, taskEdition, memberInfo, navigation]);
+			if (props.canNavigate) {
+				isTaskScreen
+					? memberInfo.memberTask &&
+						navigateTo(navigation, 'TaskScreen', { taskId: memberInfo.memberTask?.id })
+					: navigateTo(navigation, 'Profile', {
+							userId: memberInfo.memberUser.id,
+							activeTab: 'worked'
+						});
+			}
+		},
+		[props, taskEdition, memberInfo, navigation]
+	);
 
 	// Handle task actions with memoized functions to prevent re-renders
 	const handleEditTask = useCallback(() => {
@@ -203,24 +204,14 @@ const ListCardItem: React.FC<Props> = observer((props) => {
 		memberInfo.removeMemberFromTeam();
 	}, [props, memberInfo]);
 
-	const currentMember = props.currentTeam?.members?.find((currentMember) => currentMember.id === props.member.id);
-
-	const timerStatusValue = getTimerStatusValue(timerStatus, currentMember, props.currentTeam?.public);
-
 	return (
 		<Card
+			testID="team-member-card"
 			style={{
 				...$listCard,
 				...GS.mt5,
-				paddingTop: 4,
-				backgroundColor:
-					timerStatusValue === 'idle'
-						? '#F1A2A2'
-						: timerStatusValue === 'pause'
-						? '#EBC386'
-						: timerStatusValue === 'online'
-						? '#88D1A5'
-						: '#DCD6D6'
+				backgroundColor: colors.background,
+				borderColor: colors.border
 			}}
 			HeadingComponent={
 				<View
@@ -346,11 +337,7 @@ const ListCardItem: React.FC<Props> = observer((props) => {
 			ContentComponent={
 				<>
 					{!showUnassignedList ? (
-						<ListItemContent
-							taskEdition={taskEdition}
-							memberInfo={memberInfo}
-							onPressIn={onPressIn}
-						/>
+						<ListItemContent taskEdition={taskEdition} memberInfo={memberInfo} onPressIn={onPressIn} />
 					) : (
 						<UnassignedTasksList memberInfo={memberInfo} setShowUnassignedList={setShowUnassignedList} />
 					)}
@@ -362,14 +349,14 @@ const ListCardItem: React.FC<Props> = observer((props) => {
 
 export default ListCardItem;
 
+// The web's member card: radius 14, a hairline and the light shadow; presence shows on the avatar's badge
 const $listCard: ViewStyle = {
 	...GS.flex1,
 	...GS.p0,
-	borderWidth: 0,
+	borderWidth: StyleSheet.hairlineWidth,
 	...GS.shadowSm,
-	...GS.roundedMd,
-	minHeight: null,
-	shadowOffset: { width: 0, height: 0 }
+	borderRadius: 14,
+	minHeight: null
 };
 
 const styles = StyleSheet.create({
