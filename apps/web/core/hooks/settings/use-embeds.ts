@@ -236,14 +236,19 @@ const withPersonSignIn = (origins: EmbedAllowedOrigin[] | undefined, id: string,
 		return { ...row, allowPersonSignIn: setting };
 	});
 
+// The switches of every allowed site share this key: the list is read again once the last of them settles.
+const PERSON_SIGN_IN_CHANGE = [...EVERY_ORIGINS_LIST, 'person-sign-in'] as const;
+
 /**
  * Turns on or off whether people can sign in from an allowed site. The switch moves at once and goes back if the API
  * refuses, that switch only: another site's switch changed meanwhile keeps its own setting. The list is read again
- * either way.
+ * once no switch waits for the API any more: a read while another change is on its way would show that site's
+ * previous setting until its answer.
  */
 export function useSetPersonSignIn() {
 	const queryClient = useQueryClient();
 	return useMutation<EmbedAllowedOrigin, unknown, PersonSignInChange, { before: PersonSignInSetting }>({
+		mutationKey: PERSON_SIGN_IN_CHANGE,
 		mutationFn: ({ id, allowPersonSignIn }) => embedsService.setPersonSignIn(id, allowPersonSignIn),
 		// The row says why its switch went back: the global fallback toast would say it twice
 		meta: { handlesOwnError: true },
@@ -262,7 +267,14 @@ export function useSetPersonSignIn() {
 				withPersonSignIn(origins, change.id, context?.before)
 			);
 		},
-		onSettled: () => queryClient.invalidateQueries({ queryKey: EVERY_ORIGINS_LIST })
+		onSettled: () => {
+			// This change still counts among those running while it settles.
+			const isLast = queryClient.isMutating({ mutationKey: PERSON_SIGN_IN_CHANGE }) <= 1;
+			if (!isLast) {
+				return;
+			}
+			return queryClient.invalidateQueries({ queryKey: EVERY_ORIGINS_LIST });
+		}
 	});
 }
 

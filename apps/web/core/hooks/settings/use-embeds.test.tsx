@@ -133,7 +133,7 @@ describe('useSetPersonSignIn', () => {
 		expect(switchOf(client)).toBe(false);
 	});
 
-	it("puts back only the refused switch: another site's switch changed meanwhile keeps its setting", async () => {
+	it('puts back only the refused switch, and reads the list once the last change settles', async () => {
 		const OTHER = { id: 'origin-2', origin: 'https://shop.example.com', allowPersonSignIn: false };
 		const answers: Record<string, { resolve: (value: unknown) => void; reject: (error: unknown) => void }> = {};
 		mockSetPersonSignIn.mockImplementation(
@@ -143,6 +143,7 @@ describe('useSetPersonSignIn', () => {
 		client.setQueryData(SITES_KEY, [SITE, OTHER]);
 		const settingOf = (id: string) =>
 			client.getQueryData<(typeof SITE)[]>(SITES_KEY)?.find((row) => row.id === id)?.allowPersonSignIn;
+		const invalidate = jest.spyOn(client, 'invalidateQueries');
 		const first = renderHook(() => useSetPersonSignIn(), { wrapper: wrapperOf(client) });
 		const second = renderHook(() => useSetPersonSignIn(), { wrapper: wrapperOf(client) });
 
@@ -153,11 +154,14 @@ describe('useSetPersonSignIn', () => {
 
 		answers['origin-2'].resolve({ ...OTHER, allowPersonSignIn: true });
 		await waitFor(() => expect(second.result.current.isSuccess).toBe(true));
+		expect(invalidate).not.toHaveBeenCalled();
+		expect(settingOf('origin-1')).toBe(true);
 		answers['origin-1'].reject({ statusCode: 403 });
 		await waitFor(() => expect(first.result.current.isError).toBe(true));
 
 		expect(settingOf('origin-1')).toBe(false);
 		expect(settingOf('origin-2')).toBe(true);
+		await waitFor(() => expect(invalidate).toHaveBeenCalledTimes(1));
 	});
 });
 
