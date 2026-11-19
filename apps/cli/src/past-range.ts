@@ -1,4 +1,5 @@
 import { OptionValues, textOption } from './args.js';
+import { dayOf } from './format.js';
 import { UsageError } from './refusals.js';
 
 const DAY = /^(\d{4})-(\d{2})-(\d{2})$/;
@@ -31,13 +32,31 @@ export function localDayOf(text: string, option: string): Date {
 	return date;
 }
 
+// A time the clocks skip (the hour lost to daylight saving) is moved by Date to the next one that exists: the date it
+// gives then shows another day, hour or minute than the ones asked.
+function showsClock(date: Date, day: string, hours: number, minutes: number): boolean {
+	const sameDay = dayOf(date) === day;
+	const sameHour = date.getHours() === hours;
+	const sameMinute = date.getMinutes() === minutes;
+	return sameDay && sameHour && sameMinute;
+}
+
 function atClock(day: Date, text: string, option: string): Date {
 	const match = CLOCK.exec(text);
 	if (!match) {
 		throw new UsageError(`${option} takes a time as HH:MM, such as 09:30.`);
 	}
+	const hours = Number(match[1]);
+	const minutes = Number(match[2]);
 	const date = new Date(day);
-	date.setHours(Number(match[1]), Number(match[2]), 0, 0);
+	date.setHours(hours, minutes, 0, 0);
+	const dayText = dayOf(day);
+	if (!showsClock(date, dayText, hours, minutes)) {
+		throw new UsageError(
+			`${option} ${text} does not exist on ${dayText} in this computer's time zone (the clocks skip it): pick ` +
+				'another time.'
+		);
+	}
 	return date;
 }
 

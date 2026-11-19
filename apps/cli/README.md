@@ -127,8 +127,8 @@ ever-teams log --duration 45m --note "Code review"
 ```
 
 Adds time you worked without the timer: `--from` and `--to` on `--date` (today by default), or `--duration` (`1h30m`,
-`2h`, `45m`) that starts at `--from`, ends at `--to`, or ends now. Times are in the time zone of this computer.
-`--project`, `--task` and `--note` work as for `start`. Your organization must allow manual time; an entry over a
+`2h`, `45m`) that starts at `--from`, ends at `--to`, or ends now. Times are in the time zone of this computer; a
+time its clocks skip for daylight saving (02:30 on the day they move forward) is refused. `--project`, `--task` and `--note` work as for `start`. Your organization must allow manual time; an entry over a
 running timer or a break is refused, and an entry it overlaps loses the time the new one covers, as in the web app.
 
 ### export
