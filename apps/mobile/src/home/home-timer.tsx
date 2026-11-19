@@ -15,8 +15,10 @@ import {
 	useStartTimer,
 	useStopTimer,
 	useTimerStatus,
+	useTodayTasks,
 	useTrackedTotals
 } from './use-home-timer';
+import { TodayTasks } from './today-tasks';
 
 function dayLine(now: Date): string {
 	return new Intl.DateTimeFormat(currentLocale(), { weekday: 'long', day: 'numeric', month: 'long' }).format(now);
@@ -199,12 +201,21 @@ function WeekTotal() {
 }
 
 /** Home: today's tracked time, the task the timer runs on or ran last, Start or Stop, and this week's total. */
+/** The log the timer runs on, when it runs. */
+function runningLogOf(running: boolean, log: TimerLog | undefined): TimerLog | undefined {
+	if (running) {
+		return log;
+	}
+	return undefined;
+}
+
 export function HomeTimer() {
 	const theme = useShellTheme();
 	const online = useIsOnline();
 	const status = useTimerStatus();
 	const employee = useEmployeeId();
 	const totals = useTrackedTotals();
+	const todayTasks = useTodayTasks();
 	const lastLogRead = useLastLog(status.data?.lastLog, status.isSuccess);
 	const lastLog = lastLogRead.log;
 	const task = useLogTask(lastLog?.taskId);
@@ -239,6 +250,14 @@ export function HomeTimer() {
 		}
 	};
 
+	// The employee's own reads, once the lookup answered one
+	const readsOfTheEmployee = () => {
+		if (!employee.data) {
+			return [];
+		}
+		return [totals.refetch(), todayTasks.refetch()];
+	};
+
 	const refresh = async () => {
 		// Offline the reads wait for the network, and the spinner would turn until it comes back: the saved answers stay
 		if (!online) {
@@ -247,12 +266,7 @@ export function HomeTimer() {
 		setRefreshing(true);
 		// Only what there is to read: a refetch runs even a disabled query, so the totals without an employee, or the task
 		// of a log without one, would fail after their retries and hold the spinner for seconds
-		await Promise.all([
-			status.refetch(),
-			employee.refetch(),
-			employee.data ? totals.refetch() : undefined,
-			readTaskAgain()
-		]);
+		await Promise.all([status.refetch(), employee.refetch(), ...readsOfTheEmployee(), readTaskAgain()]);
 		setRefreshing(false);
 	};
 
@@ -305,6 +319,11 @@ export function HomeTimer() {
 					</Text>
 				)}
 			</View>
+			<TodayTasks
+				running={runningLogOf(running, lastLog)}
+				organizationTeamId={lastLog?.organizationTeamId}
+				enabled={free}
+			/>
 			<WeekTotal />
 		</ScrollView>
 	);

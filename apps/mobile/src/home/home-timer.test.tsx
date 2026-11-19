@@ -2,6 +2,7 @@ import React from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react-native';
 import { onlineManager } from '@tanstack/react-query';
 import { HomeTimer } from './home-timer';
+import { TodayTasks } from './today-tasks';
 import {
 	useEmployeeId,
 	useLastLog,
@@ -9,12 +10,16 @@ import {
 	useStartTimer,
 	useStopTimer,
 	useTimerStatus,
+	useTodayTasks,
 	useTrackedTotals
 } from './use-home-timer';
 
+// Today's tasks have their own test: here, what Home hands them
+jest.mock('./today-tasks', () => ({ TodayTasks: jest.fn(() => null) }));
 jest.mock('./use-home-timer', () => ({
 	useTimerStatus: jest.fn(),
 	useTrackedTotals: jest.fn(),
+	useTodayTasks: jest.fn(),
 	useLogTask: jest.fn(),
 	useLastLog: jest.fn(),
 	useEmployeeId: jest.fn(),
@@ -57,6 +62,7 @@ beforeEach(() => {
 	(useStopTimer as jest.Mock).mockReturnValue(stop);
 	(useLastLog as jest.Mock).mockImplementation((todaysLog: unknown) => lastLogRead(todaysLog));
 	(useEmployeeId as jest.Mock).mockReturnValue(employee);
+	(useTodayTasks as jest.Mock).mockReturnValue({ refetch: jest.fn() });
 });
 
 describe('Home', () => {
@@ -213,5 +219,37 @@ describe('Home', () => {
 		await render(<HomeTimer />);
 
 		expect(screen.getByText(/shell\.states\.errorTitle/)).toBeTruthy();
+	});
+});
+
+describe("Home's tasks of today", () => {
+	function handedToTodayTasks() {
+		const calls = (TodayTasks as unknown as jest.Mock).mock.calls;
+		return calls[calls.length - 1][0];
+	}
+
+	it('get the run going on and the team of the last log, so a tap can switch from it', async () => {
+		status({ duration: 6740, running: true, lastLog });
+
+		await render(<HomeTimer />);
+
+		expect(handedToTodayTasks()).toEqual({ running: lastLog, organizationTeamId: 'team-field', enabled: true });
+	});
+
+	it('get no run while the timer is stopped', async () => {
+		status({ duration: 6740, running: false, lastLog });
+
+		await render(<HomeTimer />);
+
+		expect(handedToTodayTasks()).toEqual({ running: undefined, organizationTeamId: 'team-field', enabled: true });
+	});
+
+	it('wait without the network, as Start does', async () => {
+		onlineManager.setOnline(false);
+		status({ duration: 6740, running: false, lastLog });
+
+		await render(<HomeTimer />);
+
+		expect(handedToTodayTasks().enabled).toBe(false);
 	});
 });
