@@ -3,14 +3,15 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, { useState, useCallback } from 'react';
 import { View, ViewStyle, TouchableOpacity, StyleSheet, TouchableWithoutFeedback } from 'react-native';
-import { Ionicons, Entypo } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 
 // COMPONENTS
-import { Card, ListItem } from '../../../../components';
+import { Card } from '../../../../components';
+import ActionSheet from '../../../../components/action-sheet';
 
 // STYLES
 import { GLOBAL_STYLE as GS } from '../../../../../assets/ts/styles';
-import { spacing, typography, useAppTheme, useWebTheme } from '../../../../theme';
+import { useAppTheme, useWebTheme } from '../../../../theme';
 import EstimateTime from '../../timer-screen/components/estimate-time';
 import AllTaskStatuses from '../../../../components/all-task-statuses';
 import { OT_Member } from '../../../../services/interfaces/IOrganizationTeam';
@@ -33,6 +34,7 @@ import { cardEdgeOf } from '../../../../components/card-edge';
 import { useClickOutside } from 'react-native-click-outside';
 import { TimeProgressBar } from './time-progress-bar';
 import { navigateTo } from '../../../../navigators/routes';
+import { MemberCardViewer, memberCardActionsOf, showsMemberMenu } from './member-card-actions';
 
 export type ListItemProps = {
 	member: OT_Member;
@@ -132,7 +134,7 @@ export const ListItemContent: React.FC<IcontentProps> = observer(({ memberInfo, 
 });
 
 const ListCardItem: React.FC<Props> = observer((props) => {
-	const { colors, dark } = useAppTheme();
+	const { colors } = useAppTheme();
 	//  STATS
 	const memberInfo = useTeamMemberCard(props.member);
 	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask);
@@ -142,9 +144,15 @@ const ListCardItem: React.FC<Props> = observer((props) => {
 	const navigation = useNavigation<SettingScreenNavigationProp<'Profile'>>();
 
 	// Memoize handlers to prevent inline function creation on each render
+	const isMenuOpen = props.openMenuIndex === props.index;
+
 	const handleMenuPress = useCallback(() => {
-		props.setOpenMenuIndex(props.openMenuIndex === props.index ? null : props.index);
-	}, [props.openMenuIndex, props.index, props.setOpenMenuIndex]);
+		props.setOpenMenuIndex(props.index);
+	}, [props.index, props.setOpenMenuIndex]);
+
+	const closeMenu = useCallback(() => {
+		props.setOpenMenuIndex(null);
+	}, [props.setOpenMenuIndex]);
 
 	const handleBackPress = useCallback(() => {
 		setShowUnassignedList(false);
@@ -205,6 +213,28 @@ const ListCardItem: React.FC<Props> = observer((props) => {
 		memberInfo.removeMemberFromTeam();
 	}, [props, memberInfo]);
 
+	const viewer: MemberCardViewer = {
+		isAuthTeamManager: memberInfo.isAuthTeamManager,
+		isAuthUser: memberInfo.isAuthUser,
+		isTeamCreator: memberInfo.isTeamCreator,
+		isTeamManager: memberInfo.isTeamManager,
+		isTeamOwner: memberInfo.isTeamOwner,
+		hasTask: Boolean(taskEdition.task),
+		hasTasksToAssign: memberInfo.memberUnassignTasks?.length > 0,
+		hasActiveTask: Boolean(memberInfo.memberTask)
+	};
+	const menuHandlers = {
+		editTask: handleEditTask,
+		editEstimate: handleEditEstimate,
+		assignTask: handleShowUnassignedList,
+		unassignTask: handleUnassignTask,
+		makeManager: handleMakeMemberManager,
+		unMakeManager: handleUnMakeMemberManager,
+		remove: handleRemoveMember
+	};
+	const menuActions = memberCardActionsOf(viewer, menuHandlers, translate);
+	const showMenuTrigger = !showUnassignedList && showsMemberMenu(viewer, menuActions);
+
 	return (
 		<Card
 			testID="team-member-card"
@@ -215,124 +245,23 @@ const ListCardItem: React.FC<Props> = observer((props) => {
 				borderColor: cardEdgeOf(memberInfo.isAuthUser, theme)
 			}}
 			HeadingComponent={
-				<View
-					style={{
-						...GS.positionAbsolute,
-						...GS.t0,
-						...GS.r0,
-						...GS.pt5,
-						...GS.pr3,
-						...GS.zIndexFront
-					}}
-				>
-					<View
-						style={{
-							...GS.positionRelative,
-							...GS.zIndexFront
-						}}
-					>
-						<View
-							style={{
-								...GS.positionAbsolute,
-								paddingHorizontal: 20,
-								...GS.noBorder,
-								...GS.r0,
-								...GS.zIndexFront,
-								...GS.shadowLg,
-								shadowColor: 'rgba(0, 0, 0, 0.52)',
-								borderRadius: 14,
-								borderWidth: dark ? 1 : 0,
-								borderColor: colors.border,
-								width: 172,
-								marginTop: -5,
-								marginRight: 17,
-								backgroundColor: colors.background,
-								minWidth: spacing.huge * 2,
-								...(props.index !== props.openMenuIndex ? { display: 'none' } : {})
-							}}
-						>
-							<View style={{ marginVertical: 8 }}>
-								{(memberInfo.isAuthTeamManager || memberInfo.isAuthUser) && taskEdition.task && (
-									<ListItem
-										textStyle={[styles.dropdownTxt, { color: colors.primary }]}
-										onPress={handleEditTask}
-									>
-										{translate('tasksScreen.editTaskLabel')}
-									</ListItem>
-								)}
-								{(memberInfo.isAuthTeamManager || memberInfo.isAuthUser) && taskEdition.task && (
-									<ListItem
-										textStyle={[styles.dropdownTxt, { color: colors.primary }]}
-										onPress={handleEditEstimate}
-									>
-										{translate('myWorkScreen.estimateLabel')}
-									</ListItem>
-								)}
-
-								{(memberInfo.isAuthTeamManager || memberInfo.isAuthUser) &&
-									memberInfo.memberUnassignTasks?.length > 0 && (
-										<ListItem
-											textStyle={[styles.dropdownTxt, { color: colors.primary }]}
-											onPress={handleShowUnassignedList}
-										>
-											{translate('tasksScreen.assignTaskButton')}
-										</ListItem>
-									)}
-								{(memberInfo.isAuthTeamManager || memberInfo.isAuthUser) && !!memberInfo.memberTask && (
-									<ListItem
-										textStyle={[styles.dropdownTxt, { color: colors.primary }]}
-										onPress={handleUnassignTask}
-									>
-										{translate('tasksScreen.unassignTaskLabel')}
-									</ListItem>
-								)}
-
-								{memberInfo.isAuthTeamManager &&
-									!memberInfo.isAuthUser &&
-									!memberInfo.isTeamCreator && (
-										<>
-											{memberInfo.isTeamManager ? (
-												<ListItem
-													textStyle={[styles.dropdownTxt, { color: colors.primary }]}
-													onPress={handleUnMakeMemberManager}
-												>
-													{translate('tasksScreen.unMakeManager')}
-												</ListItem>
-											) : (
-												<ListItem
-													textStyle={[styles.dropdownTxt, { color: colors.primary }]}
-													onPress={handleMakeMemberManager}
-												>
-													{translate('tasksScreen.makeManager')}
-												</ListItem>
-											)}
-										</>
-									)}
-								{!memberInfo.isTeamOwner && (
-									<ListItem
-										textStyle={[styles.dropdownTxt, { color: '#DE5536' }]}
-										style={{}}
-										onPress={handleRemoveMember}
-									>
-										{translate('tasksScreen.remove')}
-									</ListItem>
-								)}
-							</View>
-						</View>
-						{showUnassignedList ? (
-							<TouchableOpacity onPress={handleBackPress}>
-								<Ionicons name="chevron-back" size={24} color={colors.primary} />
-							</TouchableOpacity>
-						) : memberInfo.isAuthTeamManager || memberInfo.isAuthUser ? (
-							<TouchableOpacity onPress={handleMenuPress}>
-								{props.openMenuIndex !== props.index ? (
-									<Ionicons name="ellipsis-vertical-outline" size={24} color={colors.primary} />
-								) : (
-									<Entypo name="cross" size={24} color={colors.primary} />
-								)}
-							</TouchableOpacity>
-						) : null}
-					</View>
+				<View style={styles.menuCorner}>
+					{showUnassignedList && (
+						<TouchableOpacity onPress={handleBackPress}>
+							<Ionicons name="chevron-back" size={24} color={colors.primary} />
+						</TouchableOpacity>
+					)}
+					{showMenuTrigger && (
+						<TouchableOpacity testID="member-card-menu" hitSlop={12} onPress={handleMenuPress}>
+							<Ionicons name="ellipsis-vertical-outline" size={24} color={colors.primary} />
+						</TouchableOpacity>
+					)}
+					<ActionSheet
+						visible={isMenuOpen}
+						onClose={closeMenu}
+						title={memberInfo.memberUser?.name}
+						actions={menuActions}
+					/>
 				</View>
 			}
 			ContentComponent={
@@ -361,13 +290,6 @@ const $listCard: ViewStyle = {
 };
 
 const styles = StyleSheet.create({
-	dropdownTxt: {
-		color: '#282048',
-		fontFamily: typography.primary.semiBold,
-		fontSize: 14,
-		height: 36,
-		width: '100%'
-	},
 	estimate: {
 		alignItems: 'center',
 		borderRadius: 5,
@@ -376,6 +298,14 @@ const styles = StyleSheet.create({
 		marginLeft: 'auto',
 		marginRight: 10,
 		paddingVertical: 2
+	},
+	menuCorner: {
+		paddingRight: 15,
+		paddingTop: 25,
+		position: 'absolute',
+		right: 0,
+		top: 0,
+		zIndex: 9999
 	},
 	firstContainer: {
 		alignItems: 'center',

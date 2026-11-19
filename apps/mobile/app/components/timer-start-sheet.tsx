@@ -3,7 +3,8 @@ import { Modal, StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import BottomSheet, { BottomSheetBackdrop, BottomSheetBackdropProps, BottomSheetView } from '@gorhom/bottom-sheet';
 import { observer } from 'mobx-react-lite';
-import { useAppTheme } from '../theme';
+import { useWebTheme } from '../theme';
+import { sheetLookOf, sheetOverlayOpacity } from '../../src/theme/sheet-look';
 import { useTimerStartMove } from '../services/hooks/use-timer-start-move';
 import TimerStartPanel from './timer-start-panel';
 
@@ -17,7 +18,7 @@ interface ITimerStartSheetProps {
  * card or in the header timer opens it over the screen.
  */
 const TimerStartSheet: FC<ITimerStartSheetProps> = observer(({ visible, onClose }) => {
-	const { colors } = useAppTheme();
+	const sheetLook = sheetLookOf(useWebTheme());
 	const { access, runStart, saving, moveStart } = useTimerStartMove({ enabled: visible });
 
 	const renderBackdrop = useCallback(
@@ -28,7 +29,7 @@ const TimerStartSheet: FC<ITimerStartSheetProps> = observer(({ visible, onClose 
 				appearsOnIndex={0}
 				enableTouchThrough={false}
 				pressBehavior="close"
-				opacity={0.7}
+				opacity={sheetOverlayOpacity}
 			/>
 		),
 		[]
@@ -47,8 +48,8 @@ const TimerStartSheet: FC<ITimerStartSheetProps> = observer(({ visible, onClose 
 					enablePanDownToClose
 					onClose={onClose}
 					backdropComponent={renderBackdrop}
-					backgroundStyle={{ backgroundColor: colors.background }}
-					handleIndicatorStyle={{ backgroundColor: colors.border }}
+					backgroundStyle={sheetLook.background}
+					handleIndicatorStyle={sheetLook.handle}
 					keyboardBehavior="interactive"
 					keyboardBlurBehavior="restore"
 					android_keyboardInputMode="adjustPan"
