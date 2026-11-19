@@ -12,7 +12,11 @@ it cannot, the assertion names the request the browser made, and says so in its 
 | Live suite | `yarn playwright test --config apps/web/playwright/playwright.live.config.ts` | the app against the demo API (`apidev.ever.team`) |
 
 The mock suite and the live suite both want port 3030, so run them one at a time (or point one at
-`E2E_APP_ORIGIN=http://127.0.0.1:3031`).
+`E2E_APP_ORIGIN=http://localhost:3031` — `localhost`, for the reason in the blockers below).
+
+Let the config start its own servers. A dev server or `backend.mjs` hand-started in another terminal is
+silently reused (`reuseExistingServer`), with whatever env that one happened to have — which is how a run
+can look healthy while it is testing the wrong server.
 
 ## The pieces
 
@@ -58,6 +62,18 @@ The mock suite and the live suite both want port 3030, so run them one at a time
 
 ## Known blockers, with the evidence
 
+- **The app origin has to be `http://localhost:3030`, not `http://127.0.0.1:3030`.** Served to the
+  `127.0.0.1` origin the dev server answers 200 with the whole document — and the browser then ends on a
+  page with no visible content, no console error, no page error and an empty dev overlay, because the page's
+  client-only boundaries (every route is client-only behind `ClientOnly` in `app/[locale]/layout-component.tsx`)
+  never resolve: their `/_next/hmr` socket is refused `ERR_INVALID_HTTP_RESPONSE`. Proved by polling the same
+  URL both ways: over `127.0.0.1`, 120 s and no React mount (`reactFiber` never appears on any element, no
+  `/api/` request is ever made); over `localhost`, 23 visible elements and the sign-in copy. Every browser
+  case in the suite failed on an empty body until this was changed, and none of it was an app bug.
+- **Playwright starts a `webServer` command in the config folder**, not the repository root (its plugin does
+  `resolve(configDir, cwd)`), so every command here is repo-root relative and every entry names
+  `cwd: '../../..'`. Without that, `node apps/web/playwright/backend.mjs` resolves to a doubled path and the
+  test backend dies at startup — a run only looks healthy if a hand-started backend is already listening.
 - **The bundled Chromium cannot be installed on this PC.** `npx playwright install chromium` downloads
   the whole 179 MB archive and extracts three files (`147.0.7727.15.manifest`, `ABOUT`,
   `D3DCompiler_47.dll`, 4.7 MB, no `chrome.exe`) — four attempts, including outside the sandbox. Until

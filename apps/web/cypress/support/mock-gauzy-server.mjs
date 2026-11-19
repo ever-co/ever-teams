@@ -1,4 +1,5 @@
 import { createServer } from 'node:http';
+import { createHash } from 'node:crypto';
 import { Buffer } from 'node:buffer';
 import { performance } from 'node:perf_hooks';
 import { setTimeout } from 'node:timers';
@@ -499,7 +500,9 @@ function workspaceCreationResponse(method, pathname, data, state, body, requestT
 	return undefined;
 }
 
-function routeResponse(method, pathname, requestUrl, data, fixture, state, body, requestTenantId) {
+// `requestContentType` is what the request arrived with, which the Ever ID logout forward has to keep: the
+// identity provider posts the logout token form-encoded, and the app forwards it the same way.
+function routeResponse(method, pathname, requestUrl, data, fixture, state, body, requestTenantId, requestContentType = '') {
 	const { ids } = fixture;
 	const creation = workspaceCreationResponse(method, pathname, data, state, body, requestTenantId);
 	if (creation !== undefined) return creation;
@@ -521,6 +524,31 @@ function routeResponse(method, pathname, requestUrl, data, fixture, state, body,
 			token: syntheticToken(ids.user, organizationId, `switched-${organizationId}`),
 			refresh_token: 'synthetic-refresh-token'
 		};
+	}
+
+	/**
+	 * The Ever ID back-channel logout (`app/api/auth/ever-id/backchannel-logout`): the app verified a logout
+	 * token the identity provider signed, and posts it here form-encoded, because that is how the provider sent
+	 * it. What this answers decides what the app answers the provider, so `scenario.everIdLogout` picks it:
+	 * `accepted`, `refused` (the API ends the sessions for a token it does not accept), `rate_limited` or
+	 * `down` (both mean "try again", which is the app's 503). A `delays` entry on this path that passes the
+	 * app's own 4 s forwarding timeout stands for an API that never answers.
+	 *
+	 * Recorded as the sha256 of what arrived, never the token: a test proves which token travelled without a
+	 * signed credential landing in a report.
+	 */
+	if (pathname === '/api/auth/zitadel/backchannel-logout' && method === 'POST') {
+		const answer = state.scenario.everIdLogout ?? 'accepted';
+		const logoutToken = typeof body?.logout_token === 'string' ? body.logout_token : '';
+		state.everIdLogouts.push({
+			answer,
+			tokenSha256: logoutToken ? createHash('sha256').update(logoutToken).digest('hex') : null,
+			contentType: String(requestContentType ?? '')
+		});
+		if (answer === 'down') return { [HTTP_STATUS]: 500, statusCode: 500, message: 'Internal server error' };
+		if (answer === 'rate_limited') return { [HTTP_STATUS]: 429, statusCode: 429, message: 'Too Many Requests' };
+		if (answer === 'refused') return { [HTTP_STATUS]: 403, statusCode: 403, message: 'Forbidden' };
+		return { success: true };
 	}
 
 	if (pathname === '/api/organization-team' && method === 'GET') return pagination([data.team]);
@@ -823,8 +851,14 @@ async function readJsonBody(request) {
 	const chunks = [];
 	for await (const chunk of request) chunks.push(chunk);
 	if (!chunks.length) return undefined;
+	const text = Buffer.concat(chunks).toString('utf8');
+	// A form-encoded body is a body too: the Ever ID back-channel logout forwards the logout token that way,
+	// exactly as an OpenID Connect identity provider posts it.
+	if (/application\/x-www-form-urlencoded/i.test(String(request.headers['content-type'] ?? ''))) {
+		return Object.fromEntries(new URLSearchParams(text));
+	}
 	try {
-		return JSON.parse(Buffer.concat(chunks).toString('utf8'));
+		return JSON.parse(text);
 	} catch {
 		return undefined;
 	}
@@ -847,9 +881,11 @@ export async function createMockGauzyServer({ fixture, port = 3988 } = {}) {
 			statsEnabledUi: true,
 			statsOperator: true,
 			connectHealth: true,
-			connectConnected: true
+			connectConnected: true,
+			everIdLogout: 'accepted'
 		},
 		everPlatform: { stateReads: 0, toggles: [] },
+		everIdLogouts: [],
 		notificationSetting: null,
 		appointments: [],
 		workspaceCreation: {
@@ -922,7 +958,8 @@ export async function createMockGauzyServer({ fixture, port = 3988 } = {}) {
 					fixture,
 					state,
 					body,
-					request.headers['tenant-id']
+					request.headers['tenant-id'],
+					request.headers['content-type']
 				);
 		const status = everPlatform ? everPlatform.status : (payload?.[HTTP_STATUS] ?? 200);
 		const endMs = performance.now() - state.startedAt;
@@ -971,6 +1008,7 @@ export async function createMockGauzyServer({ fixture, port = 3988 } = {}) {
 			scenario: jsonClone(state.scenario),
 			mutationProof: jsonClone(state.mutationProof),
 			everPlatform: jsonClone(state.everPlatform),
+			everIdLogouts: jsonClone(state.everIdLogouts),
 			notificationSetting: jsonClone(state.notificationSetting),
 			workspaceCreation: jsonClone(state.workspaceCreation),
 			// What was asked since the reset: method, path and the status answered
@@ -991,9 +1029,11 @@ export async function createMockGauzyServer({ fixture, port = 3988 } = {}) {
 				statsEnabledUi: true,
 				statsOperator: true,
 				connectHealth: true,
-				connectConnected: true
+				connectConnected: true,
+				everIdLogout: 'accepted'
 			};
 			state.everPlatform = { stateReads: 0, toggles: [] };
+			state.everIdLogouts = [];
 			state.notificationSetting = null;
 			state.appointments = [];
 			state.workspaceCreation = {

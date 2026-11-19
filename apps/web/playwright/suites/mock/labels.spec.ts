@@ -188,7 +188,10 @@ test.describe('the label catalog', () => {
 		await hardVisit(page, LABELS_PAGE);
 
 		await expect(page.locator('[data-row-menu]')).toHaveCount(1, { timeout: 20_000 });
-		await page.getByRole('button', { name: 'Add label' }).click();
+		// Two controls here carry the accessible name "Add label": the inline add row of the list and a button of
+		// the page frame. The row is the one that opens the name input, so the test names it by the attribute
+		// `property-list.tsx` gives it (`data-add-row=<group>`) instead of hoping the name is unique.
+		await page.locator('[data-add-row="all"]').click();
 
 		const nameInput = page.locator('input[placeholder="Label name"]');
 		await nameInput.fill('  follow up');

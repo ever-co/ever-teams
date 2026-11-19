@@ -23,6 +23,17 @@ export const MOCK_ORIGIN = 'http://127.0.0.1:3988';
 export const PLATFORM_ORIGIN = 'http://127.0.0.1:3989';
 export const CONTROL_ORIGIN = 'http://127.0.0.1:3990';
 
+/**
+ * The fake Ever ID issuer backend.mjs serves (apps/web/playwright/ever-id-idp.mjs). A plain-http issuer on the
+ * loopback is the one issuer the app's own checker accepts without a certificate (`LOOPBACK_HOSTS` in
+ * core/lib/auth/ever-id/config.ts), which is what makes the Ever ID routes testable at all. The client id and
+ * secret below are placeholders for that fake issuer: the back-channel logout verifies a token the issuer
+ * *signed*, so this secret authenticates to nothing real.
+ */
+export const EVER_ID_ISSUER_URL = 'http://127.0.0.1:3991/oidc';
+export const EVER_ID_CLIENT_ID = process.env.E2E_EVER_ID_CLIENT_ID || 'playwright-teams-client';
+export const EVER_ID_CLIENT_SECRET = 'playwright-fake-issuer-client-secret';
+
 /** A run against the demo API instead of the mock. Never a production API. */
 export const DEMO_API_ORIGIN = (process.env.E2E_DEMO_API_URL || 'https://apidev.ever.team').replace(/\/$/, '');
 const PRODUCTION_APIS = ['https://api.ever.team', 'https://api.gauzy.co'];
@@ -62,7 +73,11 @@ const sharedEnv = (apiOrigin: string): Record<string, string> => ({
 	// statistics test otherwise waits a production interval for one report. Cypress sets the same 5.
 	EVER_STATS_SEND_INTERVAL_S: '5',
 	AUTH_SECRET: 'playwright-deterministic-secret',
-	NEXT_PUBLIC_DEMO: 'true',
+	// Blank, like `apps/web/.env` and the Cypress run: demo mode is a hosted-demo switch, and turning it on
+	// here silently hides things the suite is testing — `useEverPlatformSection` refuses the whole Ever Platform
+	// settings section on a demo deployment (`isTeamManager && !IS_DEMO_MODE`), and `DEFAULT_APP_PATH` becomes
+	// `/auth/password` instead of the passwordless page the app opens by default.
+	NEXT_PUBLIC_DEMO: '',
 	// Settings › Team › Integrations shows its Ever Platform connection parts only with this on (off by
 	// default, core/lib/ever-platform/env.ts). The Cypress suite runs with it on for the same reason, and
 	// the calls it unlocks go through the mock: /api/ever-connect/* is proxied to GAUZY_API_SERVER_URL.
@@ -113,6 +128,128 @@ export function mockServers(): WebServer[] {
 			timeout: 900_000,
 			reuseExistingServer: !process.env.CI,
 			env: sharedEnv(MOCK_ORIGIN),
+			cwd: REPO_ROOT
+		}
+	];
+}
+
+/**
+ * The ports of a lane that runs *beside* the canonical suites instead of waiting for them: its own app process,
+ * its own mock backend, its own fake issuer. Two runs can then work in the same checkout at the same time
+ * without sharing port 3030 or — the part that actually breaks tests — one mock request log.
+ *
+ * The canonical suites own 3030 and 3988–3991. A lane must stay off those, and must not reuse another lane's.
+ */
+export type LanePorts = { app: number; mock: number; platform: number; control: number; idp: number };
+
+/**
+ * The lanes handed out so far, so two agents do not pick the same ports and kill each other's servers.
+ * `npm run pw:*` and the three configs at the top of this file own 3030 and 3988–3991.
+ */
+export const LANE_PORTS: Record<string, LanePorts> = {
+	'lane-a': { app: 3031, mock: 3992, platform: 3993, control: 3994, idp: 3995 },
+	'lane-b': { app: 3032, mock: 3996, platform: 3997, control: 3998, idp: 3999 },
+	'lane-c': { app: 3033, mock: 4002, platform: 4003, control: 4004, idp: 4005 }
+};
+
+/** The issuer's URL on a given port: the path is part of the issuer identifier the app compares. */
+function everIdIssuerUrl(port: number): string {
+	return `http://127.0.0.1:${port}/oidc`;
+}
+
+/**
+ * Points this process at a lane's servers. Call it at the very top of a lane's config file, before importing
+ * anything else from this folder: `helpers.ts` and this file read these variables when they are imported, and
+ * the worker processes Playwright forks inherit them from the process that read them first.
+ */
+export function useLanePorts(ports: LanePorts): { appOrigin: string; controlOrigin: string } {
+	const appOrigin = `http://localhost:${ports.app}`;
+	const controlOrigin = `http://127.0.0.1:${ports.control}`;
+	process.env.E2E_APP_ORIGIN = appOrigin;
+	process.env.E2E_CONTROL_URL = controlOrigin;
+	return { appOrigin, controlOrigin };
+}
+
+/** The app environment of a lane: the shared one, with that lane's mock and statistics sink. */
+function laneEnv(ports: LanePorts, options: { everId?: boolean } = {}): Record<string, string> {
+	return {
+		...sharedEnv(`http://127.0.0.1:${ports.mock}`),
+		PORT: `${ports.app}`,
+		EVER_STATS_API_URL: `http://127.0.0.1:${ports.platform}`,
+		NEXT_PUBLIC_EVER_STATS_API_URL: `http://127.0.0.1:${ports.platform}`,
+		...(options.everId
+			? {
+				EVER_ID_ISSUER_URL: everIdIssuerUrl(ports.idp),
+				EVER_ID_CLIENT_ID,
+				EVER_ID_CLIENT_SECRET,
+				NEXT_PUBLIC_EVER_ID_APP_NAME: 'Ever ID'
+			}
+			: {})
+	};
+}
+
+/** The backend (with its fake issuer) and the app, on a lane's own ports. */
+export function laneServers(ports: LanePorts, options: { everId?: boolean } = {}): WebServer[] {
+	return [
+		{
+			command: 'node apps/web/playwright/backend.mjs',
+			port: ports.control,
+			timeout: 120_000,
+			// Never reused: a leftover backend answers from another run's state, and "the API was asked nothing"
+			// then means nothing at all.
+			reuseExistingServer: false,
+			env: {
+				E2E_MOCK_API_PORT: `${ports.mock}`,
+				E2E_MOCK_PLATFORM_PORT: `${ports.platform}`,
+				E2E_CONTROL_PORT: `${ports.control}`,
+				E2E_EVER_ID_ISSUER_PORT: `${ports.idp}`,
+				E2E_EVER_ID_CLIENT_ID: EVER_ID_CLIENT_ID
+			},
+			cwd: REPO_ROOT
+		},
+		{
+			command: 'yarn turbo dev --filter=@ever-teams/web',
+			port: ports.app,
+			timeout: 900_000,
+			reuseExistingServer: false,
+			env: laneEnv(ports, options),
+			cwd: REPO_ROOT
+		}
+	];
+}
+
+/**
+ * The Ever ID suite's servers: the same mock backend (which also serves the fake issuer on 127.0.0.1:3991) and
+ * the app started with the Ever ID sign-in configured — the only way its
+ * `app/api/auth/ever-id/*` routes mount at all (without these four settings every one of them answers 404,
+ * which is what the ordinary api suite asserts).
+ *
+ * `reuseExistingServer: false` on purpose. A dev server left over from another suite was started *without*
+ * EVER_ID_* in its environment, and Playwright reusing it would silently run this suite against an app whose
+ * Ever ID routes are all 404 — failures that read as an app bug. This suite takes its ports for itself.
+ */
+export function everIdServers(): WebServer[] {
+	return [
+		{
+			command: 'node apps/web/playwright/backend.mjs',
+			port: Number(new URL(CONTROL_ORIGIN).port),
+			timeout: 120_000,
+			reuseExistingServer: false,
+			env: { E2E_EVER_ID_CLIENT_ID: EVER_ID_CLIENT_ID },
+			cwd: REPO_ROOT
+		},
+		{
+			command: 'yarn turbo dev --filter=@ever-teams/web',
+			port: Number(new URL(APP_ORIGIN).port),
+			timeout: 900_000,
+			reuseExistingServer: false,
+			env: {
+				...sharedEnv(MOCK_ORIGIN),
+				EVER_ID_ISSUER_URL,
+				EVER_ID_CLIENT_ID,
+				EVER_ID_CLIENT_SECRET,
+				NEXT_PUBLIC_EVER_ID_APP_NAME: 'Ever ID'
+			},
 			cwd: REPO_ROOT
 		}
 	];

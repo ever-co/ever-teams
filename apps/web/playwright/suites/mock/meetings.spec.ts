@@ -61,7 +61,9 @@ test.describe('meetings', () => {
 		const body = written.scheduled[0];
 		expect(body.agenda, 'the title typed becomes the appointment agenda').toBe('Sprint review');
 		expect(body, 'a meeting scheduled without invitees must not carry an emails field').not.toHaveProperty('emails');
-		expect(body, 'the appointment carries a start time').toHaveProperty('startTime');
+		// The API's own names for the two ends of the appointment — not a `startTime` the client invented.
+		expect(body, 'the appointment carries its start as the API names it').toHaveProperty('startDateTime');
+		expect(body, 'the appointment carries its end as the API names it').toHaveProperty('endDateTime');
 
 		const writes = await mock.calls('/api/employee-appointment');
 		expect(writes.every((write) => write.status < 400), `the API refused the schedule: ${JSON.stringify(writes)}`).toBe(
@@ -93,6 +95,11 @@ test.describe('meetings', () => {
 		await stubMeetJwt(page);
 		await scheduleMeeting(page, 'To be cancelled');
 		await expect(page.getByTestId('scheduled-meeting')).toHaveCount(1, { timeout: 20_000 });
+
+		// The schedule confirmation is a dialog. Its viewport overlay covers the whole page and swallows every
+		// click on the agenda below it, so the meeting cannot be opened from the list until it is closed.
+		await page.getByRole('button', { name: /^Done$/ }).click();
+		await expect(page.getByTestId('meeting-scheduled')).toHaveCount(0, { timeout: 20_000 });
 
 		await page.getByTestId('scheduled-meeting').click();
 		await page.getByRole('button', { name: /^Delete$/ }).click();

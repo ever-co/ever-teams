@@ -30,6 +30,8 @@ export type ApiCall = (
 		scope?: 'A' | 'B';
 		anonymous?: boolean;
 		headers?: Record<string, string>;
+		/** 0 keeps a redirect as the answer under test, instead of following it to the page it points at. */
+		maxRedirects?: number;
 	}
 ) => Promise<APIResponse>;
 
@@ -90,6 +92,9 @@ export const test = base.extend<{
 						: { cookie: authCookieHeader(fixture, options.scope ?? 'A') }),
 					...(options.headers ?? {})
 				},
+				// Only when a case asks for it: in suites/api/page-gate.spec.ts the redirect itself is the answer
+				// under test, and by default Playwright follows it to the page it points at.
+				...(options.maxRedirects === undefined ? {} : { maxRedirects: options.maxRedirects }),
 				timeout: 60_000
 			});
 		await use(call);

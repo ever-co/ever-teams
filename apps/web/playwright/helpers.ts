@@ -91,6 +91,14 @@ export const mockRequests = () => control<StubRequest[]>('/requests');
 export const mockState = () => control<Record<string, unknown>>('/state');
 export const statsReports = () => control<Array<{ instanceId: string; period: string; product: string }>>('/stats');
 
+/** What the mock received of a back-channel logout: the answer it gave, the sha256 of the token, the content type. */
+export type EverIdLogoutRecord = { answer: string; tokenSha256: string | null; contentType: string };
+
+export const everIdLogouts = async (): Promise<EverIdLogoutRecord[]> => {
+	const state = (await mockState()) as { everIdLogouts?: EverIdLogoutRecord[] };
+	return state.everIdLogouts ?? [];
+};
+
 let fixtureCache: BootstrapFixture | undefined;
 
 /** The bootstrap fixture the mock itself is answering from. */
@@ -150,10 +158,13 @@ export async function signInWithFixture(
 	fixture: BootstrapFixture,
 	scope: 'A' | 'B' = 'A'
 ): Promise<void> {
+	// `domain` + `path`, not `url` + `path`: Playwright refuses a cookie that names both (`Cookie should
+	// have either url or path`), and the path matters here — the app's session cookies are root-path ones.
+	const host = new URL(APP_ORIGIN).hostname;
 	const cookie = (name: string, value: string): Cookie => ({
 		name,
 		value,
-		url: APP_ORIGIN,
+		domain: host,
 		path: '/',
 		httpOnly: false,
 		secure: false,
@@ -204,6 +215,37 @@ export async function mockStateWhen<T extends Record<string, unknown>>(
 	}
 	throw new Error(`the test backend never reached the expected state after ${tries} reads: ${JSON.stringify(last)}`);
 }
+
+/**
+ * A logout token from the fake Ever ID issuer (apps/web/playwright/ever-id-idp.mjs): the compact JWS, its
+ * claims, and the sha256 of the token — the handle a test uses to prove *which* token travelled through the
+ * app, because the mock records that hash and never the token itself.
+ */
+export type LogoutToken = { token: string; claims: Record<string, unknown>; alg: string; kid: string; sha256: string };
+
+/**
+ * Asks the fake issuer to sign a logout token. `claims` adds or replaces claims and a claim set to `null` is
+ * left out, which is how a case drops the `jti`, the `events` claim or both `sid` and `sub`; `alg` is `RS256`
+ * (genuine), `HS256` (the algorithm-confusion forgery, signed with the issuer's published *public* key) or
+ * `none`; `kid` picks the published key or the one the issuer never publishes.
+ */
+export const idpLogoutToken = (
+	options: {
+		claims?: Record<string, unknown>;
+		alg?: 'RS256' | 'HS256' | 'none';
+		/** The key that signs; `headerKid` is the key the token names. Different ones make a bad signature. */
+		kid?: string;
+		headerKid?: string;
+		aud?: string;
+		iss?: string;
+	} = {}
+) => control<LogoutToken>('/idp/logout-token', { method: 'POST', body: JSON.stringify(options) });
+
+/** What the fake issuer was asked for since the reset: discovery and key-set reads, in order. */
+export const idpState = () =>
+	control<{ issuer: string; contacts: Array<{ method: string; path: string }>; minted: Array<Record<string, unknown>> }>(
+		'/idp/state'
+	);
 
 /** The NextAuth session support/e2e.ts stubs globally; the app origin serves this route, the mock does not. */
 export async function stubNextAuthSession(page: Page): Promise<void> {
@@ -305,11 +347,13 @@ export async function signInAndVisit(
 /** Mirrors `rotateSyntheticAccessToken`: a new token cookie plus the window event the app listens for. */
 export async function rotateAccessToken(context: BrowserContext, fixture: BootstrapFixture, scope: 'A' | 'B' = 'A') {
 	const suffix = scope === 'B' ? 'B' : 'A';
+	// `domain` + `path`, the same shape `signInWithFixture` uses: Playwright refuses a cookie that names both
+	// `url` and `path` (`assert(!(c.url && c.path))` in playwright-core's network.js).
 	await context.addCookies([
 		{
 			name: 'auth-token',
 			value: syntheticAccessToken(fixture.ids.user, fixture.ids[`organization${suffix}`], 'rotated'),
-			url: APP_ORIGIN,
+			domain: new URL(APP_ORIGIN).hostname,
 			path: '/',
 			httpOnly: false,
 			secure: false,
