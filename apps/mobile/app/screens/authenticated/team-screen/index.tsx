@@ -122,7 +122,7 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<'Team'>> = 
 								<View
 									style={{
 										...$wrapTeam,
-										backgroundColor: dark ? '#191A20' : 'rgba(255,255,255,0.6)'
+										backgroundColor: colors.background
 									}}
 								>
 									<View style={{ width: isTeamManager ? width / 1.9 : '100%' }}>
