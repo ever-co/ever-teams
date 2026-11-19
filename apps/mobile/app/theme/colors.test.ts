@@ -1,5 +1,12 @@
 import { themeFor } from '../../src/theme/use-theme';
-import { appColorsOf, customDarkTheme, customLightTheme } from './colors';
+import { renderHook } from '@testing-library/react-native';
+import { appColorsOf, customDarkTheme, customLightTheme, useWebTheme } from './colors';
+
+const mockPaperTheme = { dark: false };
+jest.mock('react-native-paper', () => ({
+	...jest.requireActual('react-native-paper'),
+	useTheme: () => mockPaperTheme
+}));
 
 const APP_KEYS = [
 	'primary',
@@ -37,6 +44,18 @@ describe("the current screens' theme", () => {
 			border: web.border,
 			secondary2: web.muted
 		});
+	});
+
+	it.each([
+		[true, 'dark'],
+		[false, 'light']
+	] as const)("gives the web's tokens of the theme the app shows (dark: %s)", async (dark, scheme) => {
+		mockPaperTheme.dark = dark;
+
+		const { result } = await renderHook(() => useWebTheme());
+
+		expect(result.current.scheme).toBe(scheme);
+		expect(result.current.colors).toEqual(themeFor(scheme).colors);
 	});
 
 	it('follows the dark tokens in dark mode', () => {

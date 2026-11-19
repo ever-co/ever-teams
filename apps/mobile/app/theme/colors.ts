@@ -2,6 +2,8 @@
 import { MD2LightTheme as PaperDefaultTheme, MD3DarkTheme as PaperDarkTheme, useTheme } from 'react-native-paper';
 import { DarkTheme as NavigationDarkTheme, DefaultTheme as NavigationDefaulTheme } from '@react-navigation/native';
 import { themeFor } from '../../src/theme/use-theme';
+import type { Theme } from '../../src/theme/use-theme';
+import { colorSchemeOf } from '../../src/theme/color-scheme';
 import type { ColorScheme } from '../../src/theme/tokens';
 
 const palette = {
@@ -105,6 +107,12 @@ export function navigationTheme(dark: boolean) {
 }
 
 export const useAppTheme = () => useTheme<AppTheme>();
+
+/** The web's tokens for the theme the app shows, the person's own dark setting included. */
+export function useWebTheme(): Theme {
+	const { dark } = useAppTheme();
+	return themeFor(colorSchemeOf(dark));
+}
 
 export const colors = {
 	/**
