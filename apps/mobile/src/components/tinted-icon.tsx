@@ -70,7 +70,8 @@ export function TintedIcon({ uri, color, size }: Readonly<TintedIconProps>) {
 				iconFiles.delete(uri);
 			}
 		};
-		load();
+		// the loader catches its own failures, so nothing awaits it here
+		void load();
 		return () => {
 			current = false;
 		};
