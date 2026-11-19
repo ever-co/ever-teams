@@ -141,3 +141,20 @@ describe('a settings row for screen readers', () => {
 		expect(screen.getByTestId('settings-row-action').props.accessible).toBe(false);
 	});
 });
+
+describe('the Change button of the avatar or logo row', () => {
+	it('shrinks before it pushes the delete off the row', async () => {
+		await render(
+			<SettingsImageRow
+				image={null}
+				changeLabel="Cambiar el logotipo"
+				onChange={jest.fn()}
+				deleteLabel="Eliminar"
+				deleteDisabled={false}
+				onDelete={jest.fn()}
+			/>
+		);
+
+		expect(StyleSheet.flatten(screen.getByTestId('settings-image-change').props.style).flexShrink).toBe(1);
+	});
+});

@@ -212,17 +212,21 @@ export function SettingsImageRow({
 }
 
 const styles = StyleSheet.create({
+	// it shrinks and wraps before it pushes the delete off the row, with large text or a long label
 	changePill: {
 		alignItems: 'center',
 		borderRadius: 999,
 		borderWidth: 1,
+		flexShrink: 1,
 		justifyContent: 'center',
 		minHeight: 36,
-		paddingHorizontal: 16
+		paddingHorizontal: 16,
+		paddingVertical: 6
 	},
 	changeText: {
 		fontFamily: typography.primary.medium,
-		fontSize: 14
+		fontSize: 14,
+		textAlign: 'center'
 	},
 	deleteButton: {
 		alignItems: 'center',
