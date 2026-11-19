@@ -55,6 +55,19 @@ function instantOf(value: EverTeamsDate): Date {
 	return date;
 }
 
+/** The instant a Date or an ISO date-time names. A day alone (YYYY-MM-DD) names no time of day: it is refused. */
+export function instantAt(value: EverTeamsDate): Date {
+	const isDayAlone = typeof value === 'string' && DAY.test(value);
+	if (isDayAlone) {
+		throw clientError(
+			'INVALID_DATE',
+			`${value} has no time of day.`,
+			'Pass a Date or an ISO date-time, such as 2026-11-18T09:00:00+01:00.'
+		);
+	}
+	return instantOf(value);
+}
+
 /** The start of a range: the first instant of a YYYY-MM-DD, else the instant given. */
 export function startOf(value: EverTeamsDate): Date {
 	if (typeof value === 'string') {

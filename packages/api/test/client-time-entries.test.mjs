@@ -2,8 +2,13 @@
 // `rollup -c`).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { createClient } from '../dist/index.es.js';
-import { API_URL, ME, standInApi } from './support/stand-in-api.mjs';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { createClient, EverTeamsConflictError, EverTeamsForbiddenError } from '../dist/index.es.js';
+import { API_URL, ME, json, standInApi } from './support/stand-in-api.mjs';
+
+const here = path.dirname(fileURLToPath(import.meta.url));
 
 // One entry as GET /timesheet/time-log answers it with the kit's relations, cut to a few fields of each.
 const ENTRY = {
@@ -95,4 +100,114 @@ test('a date-time on a leap day, or with an offset, is a date-time like any othe
 	assert.equal(query.endDate, '2028-03-01T08:00:00.000Z');
 	// The year 0 is a leap year, not 1900.
 	await assert.doesNotReject(teams.timeEntries.list({ from: '0000-02-29T00:00:00Z', to: '0000-03-01' }));
+});
+
+// POST /timesheet/time-log answers the time log it created, the entity POST /timesheet/timer/start answers: the
+// recorded answer of a start, as the API stores an entry added by hand.
+const recordedStart = JSON.parse(fs.readFileSync(path.join(here, 'contract', 'timer.start.json'), 'utf8')).answer;
+const MANUAL_LOG = {
+	...recordedStart,
+	logType: 'MANUAL',
+	source: 'BROWSER',
+	isRunning: false,
+	stoppedAt: '2000-01-01T01:53:00.000Z',
+	duration: 5400
+};
+
+test("a past entry is added for the token's member, with only the fields the API declares", async () => {
+	const api = standInApi({ 'GET /user/me': ME, 'POST /timesheet/time-log': () => json(201, MANUAL_LOG) });
+	const teams = createClient({ apiUrl: API_URL, token: 't', fetch: api.fetch });
+
+	const log = await teams.timeEntries.create({
+		startedAt: '2026-11-18T09:00:00+01:00',
+		stoppedAt: new Date('2026-11-18T09:30:00.000Z'),
+		projectId: 'project-1',
+		taskId: 'task-1',
+		description: 'Review the pull request'
+	});
+
+	const { body, headers } = api.requests[1];
+	assert.deepEqual(log, MANUAL_LOG);
+	assert.deepEqual(api.routesSent(), ['GET /user/me', 'POST /timesheet/time-log']);
+	assert.deepEqual(body, {
+		tenantId: 'tenant-1',
+		organizationId: 'org-1',
+		employeeId: 'employee-1',
+		startedAt: '2026-11-18T08:00:00.000Z',
+		stoppedAt: '2026-11-18T09:30:00.000Z',
+		logType: 'MANUAL',
+		source: 'BROWSER',
+		projectId: 'project-1',
+		taskId: 'task-1',
+		description: 'Review the pull request'
+	});
+	assert.equal(headers.get('tenant-id'), 'tenant-1');
+	assert.equal(headers.get('organization-id'), 'org-1');
+});
+
+test('a range with no time of day, or that does not end after it starts, is refused before any request', async () => {
+	const api = standInApi({ 'GET /user/me': ME, 'POST /timesheet/time-log': () => json(201, MANUAL_LOG) });
+	const teams = createClient({ apiUrl: API_URL, token: 't', fetch: api.fetch });
+
+	const refused = [
+		{ startedAt: '2026-11-18', stoppedAt: '2026-11-18T10:00:00Z' },
+		{ startedAt: '2026-11-18T10:00:00Z', stoppedAt: '2026-11-18T10:00:00Z' },
+		{ startedAt: '2026-11-18T10:00:00Z', stoppedAt: '2026-11-18T09:00:00Z' },
+		{ startedAt: 'this morning', stoppedAt: '2026-11-18T09:00:00Z' }
+	];
+	for (const range of refused) {
+		await assert.rejects(teams.timeEntries.create(range), (error) => {
+			assert.equal(error.code, 'INVALID_DATE');
+			assert.equal(error.status, 0);
+			return true;
+		});
+	}
+	assert.equal(api.requests.length, 0);
+});
+
+test('an organization that does not allow manual time answers a forbidden error that says so', async () => {
+	const refusing = () => json(403, { statusCode: 403, message: 'Forbidden resource', error: 'Forbidden' });
+	const api = standInApi({ 'GET /user/me': ME, 'POST /timesheet/time-log': refusing });
+	const teams = createClient({ apiUrl: API_URL, token: 't', fetch: api.fetch });
+
+	const range = { startedAt: '2026-11-18T09:00:00Z', stoppedAt: '2026-11-18T10:00:00Z' };
+	await assert.rejects(teams.timeEntries.create(range), (error) => {
+		assert.ok(error instanceof EverTeamsForbiddenError);
+		assert.equal(error.status, 403);
+		assert.match(error.nextStep, /allow manual time/);
+		return true;
+	});
+});
+
+test("an embed token's refusal keeps the next step of its code", async () => {
+	const embedScope = () =>
+		json(403, { statusCode: 403, message: 'Embed tokens reach the timer only', code: 'EMBED_SCOPE' });
+	const api = standInApi({ 'GET /user/me': ME, 'POST /timesheet/time-log': embedScope });
+	const teams = createClient({ apiUrl: API_URL, token: 't', fetch: api.fetch });
+
+	const range = { startedAt: '2026-11-18T09:00:00Z', stoppedAt: '2026-11-18T10:00:00Z' };
+	await assert.rejects(teams.timeEntries.create(range), (error) => {
+		assert.equal(error.code, 'EMBED_SCOPE');
+		assert.match(error.nextStep, /personal API token/);
+		return true;
+	});
+});
+
+test('a range over a running timer is a conflict that carries the API code', async () => {
+	const overlap = () =>
+		json(409, {
+			message: 'A timer is running over this time range. Stop it first, or choose a range outside it.',
+			code: 'RUNNING_TIMER_OVERLAP',
+			runningTimeLog: { id: 'log-9', startedAt: '2026-11-18T08:30:00.000Z', source: 'TEAMS' }
+		});
+	const api = standInApi({ 'GET /user/me': ME, 'POST /timesheet/time-log': overlap });
+	const teams = createClient({ apiUrl: API_URL, token: 't', fetch: api.fetch });
+
+	const range = { startedAt: '2026-11-18T09:00:00Z', stoppedAt: '2026-11-18T10:00:00Z' };
+	await assert.rejects(teams.timeEntries.create(range), (error) => {
+		assert.ok(error instanceof EverTeamsConflictError);
+		assert.equal(error.code, 'RUNNING_TIMER_OVERLAP');
+		assert.match(error.nextStep, /stop the timer/);
+		return true;
+	});
 });
