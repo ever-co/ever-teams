@@ -8,15 +8,18 @@ import {
 	EmbedConfig,
 	EmbedCredential,
 	EmbedCredentialInput,
+	EmbedSiteTokens,
 	createdEmbedCredentialSchema,
 	embedAllowedOriginListSchema,
 	embedAllowedOriginSchema,
 	embedConfigSchema,
-	embedCredentialListSchema
+	embedCredentialListSchema,
+	embedSiteTokensSchema
 } from '@/core/types/schemas/embeds/embed.schema';
 
 const CREDENTIALS = '/embed-credentials';
 const ORIGINS = '/embed-allowed-origins';
+const SITE_AUTHORIZE = '/embed/authorize';
 
 /**
  * The API made the credential without the client it was asked to limit it to (an API that drops the field, behind a
@@ -142,6 +145,18 @@ class EmbedsService extends APIService {
 			throw new EmbedMembersNotAddedError(isRevoked);
 		}
 		throw new EmbedClientNotLimitedError();
+	};
+
+	/**
+	 * Allows a site to start and stop the signed-in person's timer, with the person's own session: the answer holds the
+	 * site's timer token and renewal token, which stay out of the log. A refusal is a 403 whose code names it
+	 * (EMBED_ORIGIN_NOT_ALLOWED, EMBED_SITE_SIGN_IN_OFF, EMBED_MEMBER_NOT_ALLOWED); a server without the route answers
+	 * 404.
+	 */
+	authorizeSite = async (organizationId: string, origin: string): Promise<EmbedSiteTokens> => {
+		const body = { organizationId, origin };
+		const response = await this.post<unknown>(SITE_AUTHORIZE, body, { secretResponse: true }, false);
+		return validateApiResponse(embedSiteTokensSchema, response.data, 'embeds.authorizeSite API response');
 	};
 
 	/** Revokes a credential: its tokens are refused within 30 seconds. */

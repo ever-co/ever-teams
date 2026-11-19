@@ -50,6 +50,18 @@ export const createdEmbedCredentialSchema = embedCredentialSchema.extend({
 });
 
 /**
+ * `POST /embed/authorize`: what a site gets when the signed-in person allows it, a timer token and the renewal token
+ * that gets the next pair. Shown in this answer only, and handed to the site's page alone: never logged, stored or
+ * put in an address.
+ */
+export const embedSiteTokensSchema = z.object({
+	token: z.string().min(1),
+	expiresAt: z.string().min(1),
+	renewalToken: z.string().min(1),
+	renewalExpiresAt: z.string().min(1)
+});
+
+/**
  * What a new credential is made from: its name, the client it is limited to (`null`: the whole workspace), and
  * whether it adds the people it signs in as members (off when absent).
  */
@@ -86,3 +98,4 @@ export type EmbedConfig = z.infer<typeof embedConfigSchema>;
 export type EmbedAllowedOrigin = z.infer<typeof embedAllowedOriginSchema>;
 export type EmbedCredential = z.infer<typeof embedCredentialSchema>;
 export type CreatedEmbedCredential = z.infer<typeof createdEmbedCredentialSchema>;
+export type EmbedSiteTokens = z.infer<typeof embedSiteTokensSchema>;
