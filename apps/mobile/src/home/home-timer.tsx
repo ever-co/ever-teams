@@ -5,6 +5,8 @@ import { ErrorState, LoadingState, useIsOnline, useShellTheme } from '../compone
 import type { TimerLog, TimerTask } from '../data/timer';
 import type { Theme } from '../theme';
 import { hoursAndMinutes } from './duration';
+import { FailedRead } from './failed-read';
+import { opacityOf, surfaceOf, surfaceStyles } from './surface';
 import { TimerDigits } from './timer-digits';
 import {
 	useEmployeeId,
@@ -15,19 +17,6 @@ import {
 	useTimerStatus,
 	useTrackedTotals
 } from './use-home-timer';
-
-const PRESSED_OPACITY = 0.85;
-const DISABLED_OPACITY = 0.5;
-
-function opacityOf(pressed: boolean, enabled: boolean): number {
-	if (!enabled) {
-		return DISABLED_OPACITY;
-	}
-	if (pressed) {
-		return PRESSED_OPACITY;
-	}
-	return 1;
-}
 
 function dayLine(now: Date): string {
 	return new Intl.DateTimeFormat(currentLocale(), { weekday: 'long', day: 'numeric', month: 'long' }).format(now);
@@ -46,14 +35,6 @@ function taskLabelOf(running: boolean): string {
 
 function durationText(seconds: number): string {
 	return translate('shell.home.duration', hoursAndMinutes(seconds));
-}
-
-function surfaceOf(theme: Theme) {
-	return {
-		backgroundColor: theme.colors.card,
-		borderColor: theme.colors.border,
-		borderRadius: theme.radius.sheet
-	};
 }
 
 interface ButtonLook {
@@ -107,30 +88,6 @@ function TimerButton({
 		>
 			<Text style={[theme.type.label, { color: look.text }]}>{look.label}</Text>
 		</Pressable>
-	);
-}
-
-/** A read that failed: what did not load, and a way to read it again. */
-function FailedRead({ message, onRetry }: Readonly<{ message: string; onRetry: () => void }>) {
-	const theme = useShellTheme();
-	return (
-		<View accessibilityLiveRegion="polite" style={styles.failedRead}>
-			<Text style={[theme.type.hint, styles.failedMessage, { color: theme.colors['destructive-ink'] }]}>
-				{message}
-			</Text>
-			<Pressable
-				accessibilityRole="button"
-				onPress={onRetry}
-				style={({ pressed }) => [
-					styles.retry,
-					{ minHeight: theme.minimumTouchTarget, opacity: opacityOf(pressed, true) }
-				]}
-			>
-				<Text style={[theme.type.label, { color: theme.colors['primary-ink'] }]}>
-					{translate('shell.states.retry')}
-				</Text>
-			</Pressable>
-		</View>
 	);
 }
 
@@ -232,7 +189,7 @@ function WeekValue() {
 function WeekTotal() {
 	const theme = useShellTheme();
 	return (
-		<View style={[styles.surface, styles.week, surfaceOf(theme)]}>
+		<View style={[surfaceStyles.card, styles.week, surfaceOf(theme)]}>
 			<Text style={[theme.type.label, { color: theme.colors['muted-foreground'] }]}>
 				{translate('shell.home.thisWeek')}
 			</Text>
@@ -304,7 +261,7 @@ export function HomeTimer() {
 			contentContainerStyle={styles.content}
 			refreshControl={<RefreshControl refreshing={refreshing && online} onRefresh={() => void refresh()} />}
 		>
-			<View style={[styles.surface, styles.timer, surfaceOf(theme)]}>
+			<View style={[surfaceStyles.card, styles.timer, surfaceOf(theme)]}>
 				<Text style={[theme.type.hint, styles.centered, { color: theme.colors['muted-foreground'] }]}>
 					{dayLine(new Date())}
 				</Text>
@@ -358,11 +315,6 @@ const styles = StyleSheet.create({
 		padding: 16,
 		gap: 12
 	},
-	surface: {
-		borderWidth: StyleSheet.hairlineWidth,
-		padding: 16,
-		boxShadow: '0 1px 2px rgba(0, 0, 0, 0.065)'
-	},
 	timer: {
 		gap: 8
 	},
@@ -385,20 +337,6 @@ const styles = StyleSheet.create({
 	},
 	failure: {
 		gap: 2
-	},
-	failedRead: {
-		flexShrink: 1,
-		flexDirection: 'row',
-		flexWrap: 'wrap',
-		alignItems: 'center',
-		columnGap: 8
-	},
-	failedMessage: {
-		flexShrink: 1
-	},
-	retry: {
-		justifyContent: 'center',
-		paddingHorizontal: 8
 	},
 	weekNote: {
 		flexShrink: 1
