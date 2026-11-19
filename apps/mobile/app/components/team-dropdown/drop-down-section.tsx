@@ -16,6 +16,8 @@ import { useNavigation } from '@react-navigation/native';
 import { navigateTo } from '../../navigators/routes';
 // import { FlatList } from 'react-native-gesture-handler';
 
+const CREATE_BUTTON_SLOP = { top: 4, bottom: 4 };
+
 /** How many characters of a team's name fit in the list: fewer when the switcher shares its row with Invite. */
 function rowNameLengthOf(resized: boolean) {
 	const android = Platform.OS === 'android';
@@ -116,6 +118,10 @@ const DropDownSection: FC<Props> = observer(function DropDownSection({
 			/> */}
 			<TouchableOpacity
 				testID="team-switcher-create"
+				accessibilityRole="button"
+				accessibilityState={{ disabled: !isAccountVerified }}
+				// The 36-tall pill reaches the smallest touch target through its margin
+				hitSlop={CREATE_BUTTON_SLOP}
 				style={[styles.createButton, { borderColor: colors.input }, !isAccountVerified && { opacity: 0.5 }]}
 				onPress={() => onCreateTeam()}
 				disabled={!isAccountVerified}
@@ -152,7 +158,13 @@ const DropItem: FC<IDropItem> = observer(function DropItem({ team, changeTeam, i
 	};
 	return (
 		<View style={[styles.indDropDown, isActiveTeam && { backgroundColor: colors.accent }]}>
-			<TouchableOpacity testID="team-switcher-team" style={styles.teamRow} onPress={() => changeTeam(team)}>
+			<TouchableOpacity
+				testID="team-switcher-team"
+				accessibilityRole="button"
+				accessibilityState={{ selected: isActiveTeam }}
+				style={styles.teamRow}
+				onPress={() => changeTeam(team)}
+			>
 				{teamImageUri ? (
 					<Avatar.Image size={24} source={{ uri: teamImageUri }} />
 				) : (
@@ -169,7 +181,14 @@ const DropItem: FC<IDropItem> = observer(function DropItem({ team, changeTeam, i
 					<Text style={{ color: colors['muted-foreground'] }}>({team?.members.length})</Text>
 				</Text>
 			</TouchableOpacity>
-			<TouchableOpacity onPress={() => navigateToSettings(team)}>
+			<TouchableOpacity
+				testID="team-switcher-settings"
+				accessibilityRole="button"
+				accessibilityLabel={translate('settingScreen.name')}
+				accessibilityHint={team?.name}
+				style={styles.settingsButton}
+				onPress={() => navigateToSettings(team)}
+			>
 				<Ionicons name="settings-outline" size={18} color={colors['muted-foreground']} />
 			</TouchableOpacity>
 		</View>
@@ -200,7 +219,7 @@ const styles = StyleSheet.create({
 		alignSelf: 'stretch',
 		borderRadius: 6,
 		flexDirection: 'row',
-		height: 40,
+		height: 44,
 		justifyContent: 'space-between',
 		paddingHorizontal: 8
 	},
@@ -221,14 +240,24 @@ const styles = StyleSheet.create({
 		fontSize: 11,
 		fontWeight: '600'
 	},
+	// A square of the smallest touch target at the row's end, over its padding
+	settingsButton: {
+		alignItems: 'center',
+		alignSelf: 'stretch',
+		justifyContent: 'center',
+		marginRight: -8,
+		width: 44
+	},
 	teamName: {
 		fontSize: 14,
 		marginLeft: 10
 	},
+	// The whole row up to the settings button chooses the team, at the row's full height
 	teamRow: {
 		alignItems: 'center',
-		flexDirection: 'row',
-		flexShrink: 1
+		alignSelf: 'stretch',
+		flex: 1,
+		flexDirection: 'row'
 	}
 });
 
