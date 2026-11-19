@@ -1,4 +1,7 @@
-import { renderHook } from '@testing-library/react-native';
+import React, { act } from 'react';
+import { render, renderHook } from '@testing-library/react-native';
+import { observable, runInAction } from 'mobx';
+import { observer } from 'mobx-react-lite';
 import { useActiveUserTask } from './use-active-user-task';
 import type { ITeamTask } from '../../../../services/interfaces/ITask';
 
@@ -35,5 +38,23 @@ describe("the task under Now on a person's Tasks tab", () => {
 		await rerender({ isAuthUser: false, activeTask: repaint, lastWorkedTask: repaint });
 
 		expect(result.current).toBe(repaint);
+	});
+
+	it("follows the store's timer task in an observed screen, with no redraw asked for", async () => {
+		const store = observable({ activeTask: undefined as ITeamTask | undefined }, { activeTask: observable.ref });
+		const seen: Array<ITeamTask | null | undefined> = [];
+		const Screen = observer(function Screen() {
+			seen.push(useActiveUserTask(true, store.activeTask, undefined));
+			return null;
+		});
+		await render(React.createElement(Screen));
+
+		await act(async () => {
+			runInAction(() => {
+				store.activeTask = repaint;
+			});
+		});
+
+		expect(seen[seen.length - 1]).toBe(repaint);
 	});
 });
