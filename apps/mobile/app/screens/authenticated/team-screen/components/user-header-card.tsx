@@ -5,7 +5,9 @@ import { StyleSheet, View, Text } from 'react-native';
 import React, { FC } from 'react';
 import { IUser } from '../../../../services/interfaces/IUserData';
 import { Avatar } from 'react-native-paper';
-import { typography, useAppTheme } from '../../../../theme';
+import { typography, useWebTheme } from '../../../../theme';
+import { presenceColorOf, presenceInkOf } from '../../../../../src/theme/presence';
+import type { Theme } from '../../../../../src/theme/use-theme';
 import { OT_Member } from '../../../../services/interfaces/IOrganizationTeam';
 import { useTimer } from '../../../../services/hooks/use-timer';
 import { imgTitleProfileAvatar } from '../../../../helpers/img-title-profile-avatar';
@@ -22,11 +24,23 @@ import {
 
 interface ITimerStatus {
 	status: 'running' | 'online' | 'idle' | 'suspended' | 'pause';
+	theme: Theme;
 }
-const TimerStatus: FC<ITimerStatus> = ({ status }) => {
+/** The presence icons carry the dark shade of their old pastel; on the badge they take the ink of their fill. */
+export function presenceIconXml(xml: string): string {
+	return xml.replace(/fill="#[0-9A-Fa-f]{3,8}"/g, 'fill="currentColor"');
+}
+
+/**
+ * The presence badge on the avatar: the web's presence color on an opaque base of the card's color, so a translucent
+ * presence (idle, suspended) never lets the avatar show through, and ringed with the card's color.
+ */
+const TimerStatus: FC<ITimerStatus> = ({ status, theme }) => {
 	let iconSvgXml = '';
 
 	switch (status) {
+		// a running timer is working too: it takes the working icon on the success fill
+		case 'running':
 		case 'online':
 			iconSvgXml = onlineAndTrackingTimeAlternate;
 			break;
@@ -43,31 +57,21 @@ const TimerStatus: FC<ITimerStatus> = ({ status }) => {
 
 	return (
 		<View
-			style={[
-				styles.statusIcon,
-				{
-					padding: 3,
-					borderRadius: 100,
-					borderWidth: 2,
-					borderColor: 'white',
-					backgroundColor:
-						status === 'online'
-							? '#6EE7B7'
-							: status === 'pause'
-							? '#EFCF9E'
-							: status === 'idle'
-							? '#F5BEBE'
-							: '#DCD6D6'
-				}
-			]}
+			testID="presence-badge"
+			style={[styles.statusIcon, { borderColor: theme.colors.card, backgroundColor: theme.colors.card }]}
 		>
-			<SvgXml xml={iconSvgXml} />
+			<View
+				testID="presence-fill"
+				style={[styles.presenceFill, { backgroundColor: presenceColorOf(status, theme) }]}
+			>
+				<SvgXml xml={presenceIconXml(iconSvgXml)} color={presenceInkOf(status, theme)} />
+			</View>
 		</View>
 	);
 };
 
 const UserHeaderCard = ({ member, user }: { member: OT_Member; user: IUser }) => {
-	const { colors } = useAppTheme();
+	const theme = useWebTheme();
 	const { currentTeam } = useOrganizationTeam();
 
 	const currentMember = currentTeam?.members.find((currentMember) => currentMember.id === member.id);
@@ -92,8 +96,8 @@ const UserHeaderCard = ({ member, user }: { member: OT_Member; user: IUser }) =>
 					labelStyle={styles.prefix}
 				/>
 			)}
-			<TimerStatus status={getTimerStatusValue(timerStatus, currentMember, currentTeam?.public)} />
-			<Text style={[styles.name, { color: colors.primary }]} numberOfLines={1} ellipsizeMode="tail">
+			<TimerStatus status={getTimerStatusValue(timerStatus, currentMember, currentTeam?.public)} theme={theme} />
+			<Text style={[styles.name, { color: theme.colors.foreground }]} numberOfLines={1} ellipsizeMode="tail">
 				{user?.name}
 			</Text>
 		</View>
@@ -103,12 +107,13 @@ const UserHeaderCard = ({ member, user }: { member: OT_Member; user: IUser }) =>
 export default UserHeaderCard;
 
 const styles = StyleSheet.create({
+	// The web's member name: 14/500; it shrinks and is cut short before the time beside it on the card's row
 	name: {
-		color: '#1B005D',
-		fontFamily: typography.fonts.PlusJakartaSans.semiBold,
-		fontSize: 12,
-		left: 15,
-		maxWidth: '70%'
+		flexShrink: 1,
+		fontFamily: typography.fonts.PlusJakartaSans.medium,
+		fontSize: 14,
+		fontWeight: '500',
+		marginLeft: 15
 	},
 	prefix: {
 		color: '#FFFFFF',
@@ -116,7 +121,13 @@ const styles = StyleSheet.create({
 		fontSize: 26,
 		fontWeight: '200'
 	},
+	presenceFill: {
+		borderRadius: 100,
+		padding: 3
+	},
 	statusIcon: {
+		borderRadius: 100,
+		borderWidth: 2,
 		marginLeft: -13,
 		top: 10
 	},
@@ -125,6 +136,7 @@ const styles = StyleSheet.create({
 	},
 	wrapProfileImg: {
 		alignItems: 'center',
-		flexDirection: 'row'
+		flexDirection: 'row',
+		flexShrink: 1
 	}
 });
