@@ -30,7 +30,7 @@
 		"theme-ui": ">=0.16.2"
 	},
 	"dependencies": {
-		"@ever-teams/toolkit-types": "^0.1.10"
+		"@ever-teams/toolkit-types": "^0.2.0"
 	},
 	"devDependencies": {
 		"@ever-teams/eslint-config": "*",
