@@ -55,7 +55,14 @@
 			"needsNetwork": "启动和停止计时器需要网络连接。",
 			"weekFailed": "无法加载本周总计",
 			"weekUnavailable": "此账户在此不记录时间",
-			"taskFailed": "无法加载任务"
+			"taskFailed": "无法加载任务",
+			"todayTasks": "今天的任务",
+			"todayTasksEmpty": "今天尚未记录任何任务",
+			"todayTasksFailed": "无法加载今天的任务",
+			"runningTask": "进行中",
+			"startOnTask": "在 {title} 上开始计时",
+			"switchToTask": "停止当前任务并开始 {title}",
+			"switchFailedTitle": "计时器无法切换任务"
 		}
 	},
 	"session": {

@@ -55,7 +55,14 @@
 			"needsNetwork": "يتطلّب تشغيل المؤقت وإيقافه اتصالًا بالشبكة.",
 			"weekFailed": "تعذّر تحميل مجموع الأسبوع",
 			"weekUnavailable": "هذا الحساب لا يسجّل وقتًا هنا",
-			"taskFailed": "تعذّر تحميل المهمة"
+			"taskFailed": "تعذّر تحميل المهمة",
+			"todayTasks": "مهام اليوم",
+			"todayTasksEmpty": "لم تُسجَّل أي مهمة اليوم بعد",
+			"todayTasksFailed": "تعذّر تحميل مهام اليوم",
+			"runningTask": "قيد التشغيل",
+			"startOnTask": "تشغيل المؤقت على {title}",
+			"switchToTask": "إيقاف المهمة الحالية وتشغيل {title}",
+			"switchFailedTitle": "تعذّر على المؤقت تغيير المهمة"
 		}
 	},
 	"session": {

@@ -3,15 +3,32 @@ import { act, renderHook, waitFor } from '@testing-library/react-native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createStore, Provider } from 'jotai';
 import { TimerSource } from '../../app/services/interfaces/ITimer';
-import { readEmployeeId, readTimerStatus, readTrackedTotals, sendTimeSlot, stopTimer } from '../data/timer';
+import {
+	readEmployeeId,
+	readTimerStatus,
+	readTodayTasks,
+	readTrackedTotals,
+	sendTimeSlot,
+	startTimer,
+	stopTimer
+} from '../data/timer';
 import { sessionAtom } from '../state/session';
 import type { SessionState } from '../state/session';
 import { followRun, forgetRun } from './heartbeat';
-import { homeKeys, useEmployeeId, useStopTimer, useTimerStatus, useTrackedTotals } from './use-home-timer';
+import {
+	homeKeys,
+	useEmployeeId,
+	useStartOnTask,
+	useStopTimer,
+	useTimerStatus,
+	useTodayTasks,
+	useTrackedTotals
+} from './use-home-timer';
 
 jest.mock('../data/timer', () => ({
 	readTimerStatus: jest.fn(),
 	readTrackedTotals: jest.fn(),
+	readTodayTasks: jest.fn(),
 	readEmployeeId: jest.fn(),
 	readTask: jest.fn(),
 	readLastLogOfAnyDay: jest.fn(),
@@ -44,6 +61,10 @@ beforeEach(() => {
 	(readEmployeeId as jest.Mock).mockResolvedValue('employee-kofi');
 	(readTrackedTotals as jest.Mock).mockResolvedValue({ weekDuration: 25763, todayDuration: 6758 });
 	(stopTimer as jest.Mock).mockResolvedValue(undefined);
+	(startTimer as jest.Mock).mockResolvedValue(undefined);
+	(readTodayTasks as jest.Mock).mockResolvedValue([
+		{ id: 'task-har-3', title: 'Repaint maintenance hatch', seconds: 2393 }
+	]);
 });
 
 describe('Home reads', () => {
@@ -148,5 +169,92 @@ describe('a stop from Home, while the heartbeat follows the run', () => {
 
 		expect(sendTimeSlot).toHaveBeenCalled();
 		expect(stopTimer).toHaveBeenCalled();
+	});
+});
+
+describe("today's tasks on Home", () => {
+	it("are those of the employee the person is, in the team of today's last log", async () => {
+		const { result } = await renderHook(() => useTodayTasks('team-field', true), {
+			wrapper: wrapperFor({ status: 'signed-in', session: kofi })
+		});
+
+		await waitFor(() =>
+			expect(result.current.data).toEqual([
+				{ id: 'task-har-3', title: 'Repaint maintenance hatch', seconds: 2393 }
+			])
+		);
+		expect(readTodayTasks).toHaveBeenCalledWith(kofi, 'employee-kofi', expect.any(Date), 'team-field');
+		const asked: Date = (readTodayTasks as jest.Mock).mock.calls[0][2];
+		expect(asked.toDateString()).toBe(new Date().toDateString());
+	});
+
+	it("are saved apart for each of the person's days, so a new day never shows the one before", () => {
+		const wednesday = homeKeys.todayTasks(kofi, 'employee-kofi', 'team-field', 'Wed Nov 18 2026');
+		const thursday = homeKeys.todayTasks(kofi, 'employee-kofi', 'team-field', 'Thu Nov 19 2026');
+
+		expect(wednesday).not.toEqual(thursday);
+	});
+
+	it("wait for the day's first log", async () => {
+		const { result } = await renderHook(
+			() => ({ employee: useEmployeeId(), tasks: useTodayTasks(undefined, false) }),
+			{ wrapper: wrapperFor({ status: 'signed-in', session: kofi }) }
+		);
+
+		await waitFor(() => expect(result.current.employee.data).toBe('employee-kofi'));
+		expect(result.current.tasks.fetchStatus).toBe('idle');
+		expect(readTodayTasks).not.toHaveBeenCalled();
+	});
+});
+
+describe("a tap on one of today's tasks", () => {
+	const running = {
+		id: 'log-har-1',
+		startedAt: '2026-11-18T08:00:00.000Z',
+		taskId: 'task-har-1',
+		source: TimerSource.MOBILE
+	};
+
+	it('starts the timer on it when nothing runs', async () => {
+		const { result } = await renderHook(() => useStartOnTask(), {
+			wrapper: wrapperFor({ status: 'signed-in', session: kofi })
+		});
+
+		await act(() => result.current.mutateAsync({ taskId: 'task-har-3', organizationTeamId: 'team-field' }));
+
+		expect(stopTimer).not.toHaveBeenCalled();
+		expect(startTimer).toHaveBeenCalledWith(kofi, { taskId: 'task-har-3', organizationTeamId: 'team-field' });
+	});
+
+	it('stops the run of another task first, then starts the task tapped', async () => {
+		const sent: string[] = [];
+		(stopTimer as jest.Mock).mockImplementation(async () => {
+			sent.push('stop');
+		});
+		(startTimer as jest.Mock).mockImplementation(async () => {
+			sent.push('start');
+		});
+		const { result } = await renderHook(() => useStartOnTask(), {
+			wrapper: wrapperFor({ status: 'signed-in', session: kofi })
+		});
+
+		await act(() => result.current.mutateAsync({ taskId: 'task-har-3', running }));
+
+		expect(stopTimer).toHaveBeenCalledWith(kofi, running);
+		expect(startTimer).toHaveBeenCalledWith(kofi, { taskId: 'task-har-3' });
+		expect(sent).toEqual(['stop', 'start']);
+	});
+
+	it('starts nothing when the stop of the other run fails, so that run goes on', async () => {
+		(stopTimer as jest.Mock).mockRejectedValue(new Error('offline'));
+		const { result } = await renderHook(() => useStartOnTask(), {
+			wrapper: wrapperFor({ status: 'signed-in', session: kofi })
+		});
+
+		await act(async () => {
+			await expect(result.current.mutateAsync({ taskId: 'task-har-3', running })).rejects.toThrow('offline');
+		});
+
+		expect(startTimer).not.toHaveBeenCalled();
 	});
 });

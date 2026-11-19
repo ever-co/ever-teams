@@ -55,7 +55,14 @@
 			"needsNetwork": "Iniciar y detener el temporizador requieren conexión.",
 			"weekFailed": "No se pudo cargar el total de la semana",
 			"weekUnavailable": "Esta cuenta no registra tiempo aquí",
-			"taskFailed": "No se pudo cargar la tarea"
+			"taskFailed": "No se pudo cargar la tarea",
+			"todayTasks": "Tareas de hoy",
+			"todayTasksEmpty": "Todavía no hay tareas registradas hoy",
+			"todayTasksFailed": "No se pudieron cargar las tareas de hoy",
+			"runningTask": "En curso",
+			"startOnTask": "Iniciar el temporizador en {title}",
+			"switchToTask": "Detener la tarea actual e iniciar {title}",
+			"switchFailedTitle": "El temporizador no pudo cambiar de tarea"
 		}
 	},
 	"session": {

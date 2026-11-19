@@ -5,29 +5,21 @@ import { ErrorState, LoadingState, useIsOnline, useShellTheme } from '../compone
 import type { TimerLog, TimerTask } from '../data/timer';
 import type { Theme } from '../theme';
 import { hoursAndMinutes } from './duration';
+import { FailedRead } from './failed-read';
+import { opacityOf, surfaceOf, surfaceStyles } from './surface';
 import { TimerDigits } from './timer-digits';
 import {
 	useEmployeeId,
 	useLastLog,
 	useLogTask,
+	useStartOnTask,
 	useStartTimer,
 	useStopTimer,
 	useTimerStatus,
+	useTodayTasks,
 	useTrackedTotals
 } from './use-home-timer';
-
-const PRESSED_OPACITY = 0.85;
-const DISABLED_OPACITY = 0.5;
-
-function opacityOf(pressed: boolean, enabled: boolean): number {
-	if (!enabled) {
-		return DISABLED_OPACITY;
-	}
-	if (pressed) {
-		return PRESSED_OPACITY;
-	}
-	return 1;
-}
+import { TodayTasks } from './today-tasks';
 
 function dayLine(now: Date): string {
 	return new Intl.DateTimeFormat(currentLocale(), { weekday: 'long', day: 'numeric', month: 'long' }).format(now);
@@ -46,14 +38,6 @@ function taskLabelOf(running: boolean): string {
 
 function durationText(seconds: number): string {
 	return translate('shell.home.duration', hoursAndMinutes(seconds));
-}
-
-function surfaceOf(theme: Theme) {
-	return {
-		backgroundColor: theme.colors.card,
-		borderColor: theme.colors.border,
-		borderRadius: theme.radius.sheet
-	};
 }
 
 interface ButtonLook {
@@ -107,30 +91,6 @@ function TimerButton({
 		>
 			<Text style={[theme.type.label, { color: look.text }]}>{look.label}</Text>
 		</Pressable>
-	);
-}
-
-/** A read that failed: what did not load, and a way to read it again. */
-function FailedRead({ message, onRetry }: Readonly<{ message: string; onRetry: () => void }>) {
-	const theme = useShellTheme();
-	return (
-		<View accessibilityLiveRegion="polite" style={styles.failedRead}>
-			<Text style={[theme.type.hint, styles.failedMessage, { color: theme.colors['destructive-ink'] }]}>
-				{message}
-			</Text>
-			<Pressable
-				accessibilityRole="button"
-				onPress={onRetry}
-				style={({ pressed }) => [
-					styles.retry,
-					{ minHeight: theme.minimumTouchTarget, opacity: opacityOf(pressed, true) }
-				]}
-			>
-				<Text style={[theme.type.label, { color: theme.colors['primary-ink'] }]}>
-					{translate('shell.states.retry')}
-				</Text>
-			</Pressable>
-		</View>
 	);
 }
 
@@ -232,7 +192,7 @@ function WeekValue() {
 function WeekTotal() {
 	const theme = useShellTheme();
 	return (
-		<View style={[styles.surface, styles.week, surfaceOf(theme)]}>
+		<View style={[surfaceStyles.card, styles.week, surfaceOf(theme)]}>
 			<Text style={[theme.type.label, { color: theme.colors['muted-foreground'] }]}>
 				{translate('shell.home.thisWeek')}
 			</Text>
@@ -241,7 +201,18 @@ function WeekTotal() {
 	);
 }
 
-/** Home: today's tracked time, the task the timer runs on or ran last, Start or Stop, and this week's total. */
+/** The log the timer runs on, when it runs. */
+function runningLogOf(running: boolean, log: TimerLog | undefined): TimerLog | undefined {
+	if (running) {
+		return log;
+	}
+	return undefined;
+}
+
+/**
+ * Home: today's tracked time, the task the timer runs on or ran last, Start or Stop, today's tasks and this week's
+ * total.
+ */
 export function HomeTimer() {
 	const theme = useShellTheme();
 	const online = useIsOnline();
@@ -250,9 +221,15 @@ export function HomeTimer() {
 	const totals = useTrackedTotals();
 	const lastLogRead = useLastLog(status.data?.lastLog, status.isSuccess);
 	const lastLog = lastLogRead.log;
+	// Today's tasks are read in the team of today's last log, the log every start from Home then continues. Without a
+	// log today nothing was tracked today, and nothing is read
+	const todaysLog = status.data?.lastLog;
+	const loggedToday = Boolean(todaysLog);
+	const todayTasks = useTodayTasks(todaysLog?.organizationTeamId, loggedToday);
 	const task = useLogTask(lastLog?.taskId);
 	const start = useStartTimer();
 	const stop = useStopTimer();
+	const startOnTask = useStartOnTask();
 	const [refreshing, setRefreshing] = useState(false);
 
 	if (!status.data) {
@@ -265,7 +242,10 @@ export function HomeTimer() {
 	const running = status.data.running;
 	const hasTask = Boolean(lastLog?.taskId);
 	const actionable = running || hasTask;
-	const free = online && !start.isPending && !stop.isPending;
+	// One timer write at a time, from the button or from today's tasks: a switch holds both until its start answered
+	const free = online && !start.isPending && !stop.isPending && !startOnTask.isPending;
+	// A switch stops the run it knows first: a run without its log is never started over
+	const switchable = free && (!running || Boolean(lastLog));
 	const enabled = free && actionable;
 	// The task area waits for, or says it could not read, the task the log names, or the earlier day's log itself
 	const taskLoading = hasTask ? !task.data && !task.isError : lastLogRead.isLoading;
@@ -273,6 +253,8 @@ export function HomeTimer() {
 	const readTaskAgain = () => (hasTask ? task.refetch() : lastLogRead.retry());
 
 	const onPress = () => {
+		// Only the last action's failure shows
+		startOnTask.reset();
 		if (running) {
 			stop.mutate(lastLog);
 			return;
@@ -280,6 +262,27 @@ export function HomeTimer() {
 		if (lastLog?.taskId) {
 			start.mutate({ taskId: lastLog.taskId, organizationTeamId: lastLog.organizationTeamId });
 		}
+	};
+
+	const startOnTodayTask = (taskId: string) => {
+		start.reset();
+		stop.reset();
+		startOnTask.mutate({
+			taskId,
+			organizationTeamId: lastLog?.organizationTeamId,
+			running: runningLogOf(running, lastLog)
+		});
+	};
+
+	// The employee's own reads, once the lookup answered one; today's tasks once today has a log
+	const readsOfTheEmployee = () => {
+		if (!employee.data) {
+			return [];
+		}
+		if (!loggedToday) {
+			return [totals.refetch()];
+		}
+		return [totals.refetch(), todayTasks.refetch()];
 	};
 
 	const refresh = async () => {
@@ -290,12 +293,7 @@ export function HomeTimer() {
 		setRefreshing(true);
 		// Only what there is to read: a refetch runs even a disabled query, so the totals without an employee, or the task
 		// of a log without one, would fail after their retries and hold the spinner for seconds
-		await Promise.all([
-			status.refetch(),
-			employee.refetch(),
-			employee.data ? totals.refetch() : undefined,
-			readTaskAgain()
-		]);
+		await Promise.all([status.refetch(), employee.refetch(), ...readsOfTheEmployee(), readTaskAgain()]);
 		setRefreshing(false);
 	};
 
@@ -304,7 +302,7 @@ export function HomeTimer() {
 			contentContainerStyle={styles.content}
 			refreshControl={<RefreshControl refreshing={refreshing && online} onRefresh={() => void refresh()} />}
 		>
-			<View style={[styles.surface, styles.timer, surfaceOf(theme)]}>
+			<View style={[surfaceStyles.card, styles.timer, surfaceOf(theme)]}>
 				<Text style={[theme.type.hint, styles.centered, { color: theme.colors['muted-foreground'] }]}>
 					{dayLine(new Date())}
 				</Text>
@@ -348,6 +346,14 @@ export function HomeTimer() {
 					</Text>
 				)}
 			</View>
+			<TodayTasks
+				tasks={todayTasks}
+				loggedToday={loggedToday}
+				running={runningLogOf(running, lastLog)}
+				enabled={switchable}
+				failed={startOnTask.isError}
+				onStart={startOnTodayTask}
+			/>
 			<WeekTotal />
 		</ScrollView>
 	);
@@ -357,11 +363,6 @@ const styles = StyleSheet.create({
 	content: {
 		padding: 16,
 		gap: 12
-	},
-	surface: {
-		borderWidth: StyleSheet.hairlineWidth,
-		padding: 16,
-		boxShadow: '0 1px 2px rgba(0, 0, 0, 0.065)'
 	},
 	timer: {
 		gap: 8
@@ -385,20 +386,6 @@ const styles = StyleSheet.create({
 	},
 	failure: {
 		gap: 2
-	},
-	failedRead: {
-		flexShrink: 1,
-		flexDirection: 'row',
-		flexWrap: 'wrap',
-		alignItems: 'center',
-		columnGap: 8
-	},
-	failedMessage: {
-		flexShrink: 1
-	},
-	retry: {
-		justifyContent: 'center',
-		paddingHorizontal: 8
 	},
 	weekNote: {
 		flexShrink: 1

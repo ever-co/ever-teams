@@ -1,0 +1,87 @@
+# The new app's Home: the person starts the timer on one of today's tasks, switches to the other, and stops it.
+# Runs on a build made with EXPO_PUBLIC_APP_SHELL=next, signed in (see the README). Home is the Work tab, at /timer.
+appId: ${APP_ID}
+---
+- launchApp:
+    clearState: false
+- extendedWaitUntil:
+    visible:
+      id: "tab-work"
+    timeout: 30000
+- tapOn:
+    id: "tab-work"
+- extendedWaitUntil:
+    visible:
+      id: "home-timer-button"
+    timeout: 30000
+# A run an earlier flow left is stopped first; "running since" shows once the API's status says the timer runs
+- runFlow:
+    when:
+      visible:
+        id: "home-running-since"
+    commands:
+      - tapOn:
+          id: "home-timer-button"
+      - extendedWaitUntil:
+          notVisible:
+            id: "home-running-since"
+          timeout: 20000
+- extendedWaitUntil:
+    visible:
+      id: "home-today-task"
+      index: 1
+    timeout: 30000
+- tapOn:
+    id: "home-today-task"
+    index: 1
+- extendedWaitUntil:
+    visible:
+      id: "home-today-task-running"
+    timeout: 20000
+- takeScreenshot: started-on-a-task-of-today
+# Each task by its title, since the list can change its order: the one the timer runs on, and one that can be tapped,
+# which is another task
+- copyTextFrom:
+    id: "home-today-task-title"
+    childOf:
+      id: "home-today-task"
+      containsDescendants:
+        - id: "home-today-task-running"
+- evalScript: ${output.firstTask = maestro.copiedText}
+- copyTextFrom:
+    id: "home-today-task-title"
+    childOf:
+      id: "home-today-task"
+      enabled: true
+- evalScript: ${output.secondTask = maestro.copiedText}
+- tapOn:
+    id: "home-today-task"
+    enabled: true
+    containsDescendants:
+      - text: ${output.secondTask}
+# Switched: the timer runs on the task tapped, and no longer on the first one
+- extendedWaitUntil:
+    visible:
+      id: "home-today-task-running"
+      childOf:
+        id: "home-today-task"
+        containsDescendants:
+          - text: ${output.secondTask}
+    timeout: 20000
+- extendedWaitUntil:
+    notVisible:
+      id: "home-today-task-running"
+      childOf:
+        id: "home-today-task"
+        containsDescendants:
+          - text: ${output.firstTask}
+    timeout: 20000
+- assertVisible:
+    id: "home-running-since"
+- takeScreenshot: switched-to-the-other-task
+- tapOn:
+    id: "home-timer-button"
+- extendedWaitUntil:
+    notVisible:
+      id: "home-running-since"
+    timeout: 20000

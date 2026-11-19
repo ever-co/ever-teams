@@ -6,13 +6,6 @@ env:
 - runFlow: common/sign-in.yaml
 - runFlow: common/timer-stopped.yaml
 - runFlow: common/task-chosen.yaml
-# After a sign-in, the person's own card shows their task only once the app starts again (#5521)
-- launchApp:
-    clearState: false
-- extendedWaitUntil:
-    visible:
-      id: "tab-team"
-    timeout: 30000
 - tapOn:
     id: "tab-team"
 - extendedWaitUntil:
