@@ -16,6 +16,7 @@ import {
 
 // TYPES
 import { AuthenticatedTabScreenProps } from '../../../navigators/authenticated-navigator';
+import { headerSurfaceOf } from '../../../components/header-surface';
 
 // COMPONENTS
 import { Screen } from '../../../components';
@@ -122,7 +123,7 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<'Team'>> = 
 								<View
 									style={{
 										...$wrapTeam,
-										backgroundColor: colors.background
+										backgroundColor: headerSurfaceOf(dark, colors)
 									}}
 								>
 									<View style={{ width: isTeamManager ? width / 1.9 : '100%' }}>
