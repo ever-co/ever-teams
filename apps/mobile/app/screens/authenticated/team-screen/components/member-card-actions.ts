@@ -91,3 +91,9 @@ export function memberCardActionsOf(
 	}
 	return actions;
 }
+
+/** The card's menu shows to whoever may open it, and only with an action in it. */
+export function showsMemberMenu(viewer: MemberCardViewer, actions: ActionSheetAction[]): boolean {
+	const hasActions = actions.length > 0;
+	return canEditMemberWork(viewer) && hasActions;
+}

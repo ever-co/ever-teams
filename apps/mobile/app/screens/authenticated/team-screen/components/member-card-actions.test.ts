@@ -1,4 +1,10 @@
-import { MemberCardHandlers, MemberCardViewer, canEditMemberWork, memberCardActionsOf } from './member-card-actions';
+import {
+	MemberCardHandlers,
+	MemberCardViewer,
+	canEditMemberWork,
+	memberCardActionsOf,
+	showsMemberMenu
+} from './member-card-actions';
 
 const handlers: MemberCardHandlers = {
 	editTask: jest.fn(),
@@ -75,5 +81,25 @@ describe("the actions of a member card's sheet", () => {
 		expect(ownerKeys).not.toContain('remove');
 		expect(remove?.destructive).toBe(true);
 		expect(remove?.onPress).toBe(handlers.remove);
+	});
+
+	it("shows no menu on the owner's own card with no task and none to assign, where it opened empty", () => {
+		const viewer = viewerWith({
+			isAuthUser: true,
+			isTeamOwner: true,
+			hasTask: false,
+			hasTasksToAssign: false,
+			hasActiveTask: false
+		});
+		const actions = memberCardActionsOf(viewer, handlers, label);
+
+		expect(actions).toEqual([]);
+		expect(showsMemberMenu(viewer, actions)).toBe(false);
+	});
+
+	it('shows the menu to a manager with actions in it', () => {
+		const viewer = viewerWith({ isAuthTeamManager: true });
+
+		expect(showsMemberMenu(viewer, memberCardActionsOf(viewer, handlers, label))).toBe(true);
 	});
 });

@@ -34,7 +34,7 @@ import { cardEdgeOf } from '../../../../components/card-edge';
 import { useClickOutside } from 'react-native-click-outside';
 import { TimeProgressBar } from './time-progress-bar';
 import { navigateTo } from '../../../../navigators/routes';
-import { MemberCardViewer, canEditMemberWork, memberCardActionsOf } from './member-card-actions';
+import { MemberCardViewer, memberCardActionsOf, showsMemberMenu } from './member-card-actions';
 
 export type ListItemProps = {
 	member: OT_Member;
@@ -232,7 +232,8 @@ const ListCardItem: React.FC<Props> = observer((props) => {
 		unMakeManager: handleUnMakeMemberManager,
 		remove: handleRemoveMember
 	};
-	const showMenuTrigger = !showUnassignedList && canEditMemberWork(viewer);
+	const menuActions = memberCardActionsOf(viewer, menuHandlers, translate);
+	const showMenuTrigger = !showUnassignedList && showsMemberMenu(viewer, menuActions);
 
 	return (
 		<Card
@@ -259,7 +260,7 @@ const ListCardItem: React.FC<Props> = observer((props) => {
 						visible={isMenuOpen}
 						onClose={closeMenu}
 						title={memberInfo.memberUser?.name}
-						actions={memberCardActionsOf(viewer, menuHandlers, translate)}
+						actions={menuActions}
 					/>
 				</View>
 			}
