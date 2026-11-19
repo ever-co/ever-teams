@@ -58,7 +58,13 @@ describe("Work's panel", () => {
 		await render(<TimerTaskSection taskInput={taskInput} outsideClick={jest.fn()} />);
 
 		expect(styleOf('work-panel').backgroundColor).toBe(hsl(webColorTokens.light.primary, 0.06));
-		expect(styleOf('task-picker-field').opacity).toBeUndefined();
+		expect(StyleSheet.flatten(screen.getByTestId('task-picker-title').props.style).opacity).toBeUndefined();
+		expect(styleOf('task-picker-slot').flex).toBe(1);
+		expect(styleOf('task-picker-field').width).toBeUndefined();
 		expect(screen.getByTestId('task-picker-field').props.editable).toBe(false);
+		expect(screen.getByTestId('task-picker-field').props.selection).toEqual({ start: 0, end: 0 });
+		expect(screen.getByTestId('task-picker-title').props.numberOfLines).toBe(1);
+		expect(screen.getByTestId('task-picker-title').props.children).toBe('Repaint maintenance hatch');
+		expect(styleOf('task-picker-field').opacity).toBe(0);
 	});
 });

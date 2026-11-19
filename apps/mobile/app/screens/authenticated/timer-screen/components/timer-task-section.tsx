@@ -33,6 +33,25 @@ import IssuesModal from '../../../../components/issues-modal';
 import { useStores } from '../../../../models';
 import { limitTextCharaters } from '../../../../helpers/sub-text';
 
+/** At rest the field shows the start of the task's title: Android scrolls a title longer than the field to its end. */
+function restingSelectionOf(editMode: boolean) {
+	if (editMode) {
+		return undefined;
+	}
+	return { start: 0, end: 0 };
+}
+
+/**
+ * At rest the title shows over the field, cut with an ellipsis at its width, and the input under it is hidden: it still
+ * takes the tap that starts editing. A transparent text color would not hide it, the new architecture reads it as none.
+ */
+function restingInputStyleOf(showsRestingTitle: boolean) {
+	if (showsRestingTitle) {
+		return { opacity: 0 };
+	}
+	return null;
+}
+
 const RUNNING_FILL_ALPHA = 0.06;
 const RUNNING_EDGE_ALPHA = 0.3;
 
@@ -84,6 +103,8 @@ const TimerTaskSection = observer(
 			}
 		}, [editMode]);
 
+		const showsRestingTitle = !editMode && Boolean(activeTask?.title);
+
 		return (
 			<TouchableWithoutFeedback onPress={() => outsideClick()}>
 				<View testID="work-panel" style={[$timerSection, panelColorsOf(theme, localTimerStatus.running)]}>
@@ -93,45 +114,59 @@ const TimerTaskSection = observer(
 							{
 								flexDirection: 'row',
 								alignItems: 'center',
-								borderColor: colors.border,
-								backgroundColor: colors.background
+								borderColor: theme.colors.input,
+								backgroundColor: theme.colors.card
 							}
 						]}
 					>
 						<IssuesModal task={activeTask} />
 
-						<Text style={styles.taskNumberStyle}>
+						<Text style={[styles.taskNumberStyle, { color: theme.colors['muted-foreground'] }]}>
 							{!editMode && activeTask ? `#${activeTask.taskNumber} ` : ''}
 						</Text>
-						<TextInput
-							ref={inputRef}
-							testID="task-picker-field"
-							selectionColor={colors.primary}
-							placeholderTextColor={colors.tertiary}
-							style={[
-								styles.textInput,
-								{
-									backgroundColor: colors.background,
-									color: colors.primary,
-									width: '80%'
+						<View testID="task-picker-slot" style={styles.titleSlot}>
+							<TextInput
+								ref={inputRef}
+								selection={restingSelectionOf(editMode)}
+								testID="task-picker-field"
+								selectionColor={colors.primary}
+								placeholderTextColor={colors.tertiary}
+								style={[
+									styles.textInput,
+									{
+										backgroundColor: theme.colors.card,
+										color: theme.colors.foreground
+									},
+									restingInputStyleOf(showsRestingTitle)
+								]}
+								placeholder={translate('myWorkScreen.taskFieldPlaceholder')}
+								defaultValue={
+									activeTask
+										? Platform.OS === 'android'
+											? limitTextCharaters({ text: activeTask.title, numChars: 25 })
+											: activeTask.title
+										: ''
 								}
-							]}
-							placeholder={translate('myWorkScreen.taskFieldPlaceholder')}
-							defaultValue={
-								activeTask
-									? Platform.OS === 'android'
-										? limitTextCharaters({ text: activeTask.title, numChars: 25 })
-										: activeTask.title
-									: ''
-							}
-							autoFocus={false}
-							autoCapitalize="none"
-							autoCorrect={false}
-							editable={!localTimerStatus.running}
-							onFocus={() => setEditMode(true)}
-							// onBlur={() => setEditMode(false)}
-							onChangeText={(newText) => setQuery(newText)}
-						/>
+								autoFocus={false}
+								autoCapitalize="none"
+								autoCorrect={false}
+								editable={!localTimerStatus.running}
+								onFocus={() => setEditMode(true)}
+								// onBlur={() => setEditMode(false)}
+								onChangeText={(newText) => setQuery(newText)}
+							/>
+							{showsRestingTitle && (
+								<View pointerEvents="none" style={styles.restingTitle}>
+									<Text
+										testID="task-picker-title"
+										numberOfLines={1}
+										style={[styles.restingTitleText, { color: theme.colors.foreground }]}
+									>
+										{activeTask?.title}
+									</Text>
+								</View>
+							)}
+						</View>
 						{hasCreateForm && editMode && !createLoading ? (
 							<Pressable
 								onPress={() => {
@@ -288,21 +323,34 @@ const styles = StyleSheet.create({
 		width: width / 2.7
 	},
 	taskNumberStyle: {
-		color: '#7B8089',
 		fontFamily: typography.primary.semiBold,
-		fontSize: 12,
+		fontSize: 13,
 		marginLeft: 5
 	},
-	textInput: {
-		backgroundColor: '#fff',
-		borderRadius: 10,
-		color: 'rgba(40, 32, 72, 0.4)',
+	restingTitle: {
+		bottom: 0,
+		justifyContent: 'center',
+		left: 6,
+		position: 'absolute',
+		right: 6,
+		top: 0
+	},
+	restingTitleText: {
 		fontFamily: typography.fonts.PlusJakartaSans.semiBold,
-		fontSize: 12,
-		height: 43,
+		fontSize: 14
+	},
+	textInput: {
+		borderRadius: 8,
+		fontFamily: typography.fonts.PlusJakartaSans.semiBold,
+		fontSize: 14,
+		height: 42,
 		paddingHorizontal: 6,
-		paddingVertical: 0,
-		width: '80%'
+		paddingVertical: 0
+	},
+	// the rest of the row beside the task's number, so a long title stays inside the field
+	titleSlot: {
+		flex: 1,
+		justifyContent: 'center'
 	},
 	textInputOne: {
 		height: 30
@@ -320,12 +368,11 @@ const styles = StyleSheet.create({
 		justifyContent: 'center',
 		width: 20
 	},
+	// The web's control: 44 tall, radius 8, a hairline in the input color
 	wrapInput: {
-		backgroundColor: '#fff',
-		borderColor: 'rgba(0, 0, 0, 0.1)',
-		borderRadius: 10,
-		borderWidth: 1,
-		height: 45,
+		borderRadius: 8,
+		borderWidth: StyleSheet.hairlineWidth,
+		height: 44,
 		paddingHorizontal: 16,
 		paddingVertical: 2,
 		width: '100%'
