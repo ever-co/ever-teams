@@ -75,6 +75,23 @@ describe('the team switcher', () => {
 		expect(handlers.setIsOpen).toHaveBeenCalledWith(false);
 	});
 
+	it('gives each team a full-height row, a named settings button and its selected state', async () => {
+		const { drawing } = drawSwitcher(true);
+		await drawing;
+
+		const rows = screen.getAllByTestId('team-switcher-team');
+		expect(rows.map((row) => row.props.accessibilityState?.selected)).toEqual([true, false]);
+		for (const row of rows) {
+			expect(StyleSheet.flatten(row.props.style).alignSelf).toBe('stretch');
+		}
+		const settings = screen.getAllByTestId('team-switcher-settings');
+		expect(settings).toHaveLength(2);
+		for (const button of settings) {
+			expect(button.props.accessibilityLabel).toMatch(/settingScreen\.name/);
+			expect(StyleSheet.flatten(button.props.style).width).toBeGreaterThanOrEqual(44);
+		}
+	});
+
 	it('still offers to create a team, once the account is verified', async () => {
 		const { drawing, handlers } = drawSwitcher(true);
 		await drawing;

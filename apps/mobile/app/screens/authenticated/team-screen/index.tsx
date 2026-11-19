@@ -138,6 +138,7 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<'Team'>> = 
 									{isTeamManager && currentUser?.employee?.user?.isEmailVerified ? (
 										<TouchableOpacity
 											testID="team-invite"
+											accessibilityRole="button"
 											style={[$inviteButton, { borderColor: colors.border }]}
 											onPress={() => setShowInviteModal(true)}
 										>
@@ -147,6 +148,7 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<'Team'>> = 
 										</TouchableOpacity>
 									) : isTeamManager && !currentUser?.employee?.user?.isEmailVerified ? (
 										<TouchableOpacity
+											accessibilityRole="button"
 											style={[$inviteButton, { borderColor: colors.border }]}
 											onPress={() => {
 												setShowVerifyAccountModal(true);
