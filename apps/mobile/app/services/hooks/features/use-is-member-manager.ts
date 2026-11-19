@@ -4,7 +4,8 @@ import { useStores } from '../../../models';
 import { IUser } from '../../api';
 import { OT_Member } from '../../interfaces/IOrganizationTeam';
 
-export function useIsMemberManager(user: IUser | undefined | null) {
+/** Only the user's id is read: the team members and the session describe a user with different types. */
+export function useIsMemberManager(user: Pick<IUser, 'id'> | undefined | null) {
 	const [isTeamManager, setTeamManager] = useState(false);
 	const [isTeamCreator, setTeamCreator] = useState(false);
 	const [activeManager, setActiveManager] = useState<OT_Member>();
