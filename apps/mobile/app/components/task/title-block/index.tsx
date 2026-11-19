@@ -229,27 +229,35 @@ const ParentTaskBadge: React.FC<{ task: ITeamTask }> = observer(({ task }) => {
 	);
 });
 
+/** The parent action's label: Change parent once the task has one. */
+function parentActionLabelOf(task: ITeamTask): string {
+	if (task?.parentId) {
+		return translate('taskDetailsScreen.changeParent');
+	}
+	return translate('taskDetailsScreen.addParent');
+}
+
+/** The parent action's icon: a plus to add one, a swap to change it. */
+function parentActionIconOf(task: ITeamTask): ComponentProps<typeof Feather>['name'] {
+	if (task?.parentId) {
+		return 'repeat';
+	}
+	return 'plus';
+}
+
 const ParentTaskInput: React.FC<{ task: ITeamTask }> = observer(({ task }) => {
 	const [modalVisible, setModalVisible] = useState<boolean>(false);
+	const theme = useWebTheme();
+	const ink = theme.colors['primary-ink'];
 	return task && task?.issueType !== 'Epic' ? (
 		<TouchableOpacity
-			style={{
-				borderRadius: 3,
-				alignItems: 'center',
-				justifyContent: 'center',
-				height: 24,
-				paddingHorizontal: 8,
-				paddingVertical: 2,
-				borderWidth: 1,
-				borderColor: '#f07258'
-			}}
+			testID="task-parent-action"
+			accessibilityRole="button"
+			style={styles.parentAction}
 			onPress={() => setModalVisible(true)}
 		>
-			<Text style={{ fontSize: 10, color: '#f07258', fontWeight: '600' }}>
-				{task?.parentId
-					? translate('taskDetailsScreen.changeParent')
-					: '+ ' + translate('taskDetailsScreen.addParent')}
-			</Text>
+			<Feather name={parentActionIconOf(task)} size={14} color={ink} />
+			<Text style={[styles.parentActionText, { color: ink }]}>{parentActionLabelOf(task)}</Text>
 
 			<CreateParentTaskModal visible={modalVisible} onDismiss={() => setModalVisible(false)} task={task} />
 		</TouchableOpacity>
@@ -265,6 +273,18 @@ const styles = StyleSheet.create({
 		height: 36,
 		justifyContent: 'center',
 		width: 36
+	},
+	parentAction: {
+		alignItems: 'center',
+		borderRadius: 8,
+		flexDirection: 'row',
+		gap: 4,
+		minHeight: 32,
+		paddingHorizontal: 8
+	},
+	parentActionText: {
+		fontFamily: typography.primary.medium,
+		fontSize: 13
 	},
 	textInput: {
 		borderRadius: 8,
