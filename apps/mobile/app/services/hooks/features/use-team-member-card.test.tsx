@@ -53,9 +53,18 @@ const HAR_3: Task = {
 	members: [{ id: 'employee-kofi', userId: 'user-kofi' }]
 };
 
+const INSPECT_BOLTS: Task = {
+	id: 'task-har-1',
+	title: 'Inspect north pier bolts',
+	members: [{ id: 'employee-kofi', userId: 'user-kofi' }]
+};
+
 const KOFI = {
 	employee: { id: 'employee-kofi', userId: 'user-kofi', user: { id: 'user-kofi' } }
 } as unknown as Parameters<typeof useTeamMemberCard>[0];
+
+// The team's record of Kofi names his active task, as the teams query returns it
+const KOFI_ON_HAR_3 = { ...KOFI, activeTaskId: 'task-har-3' } as unknown as Parameters<typeof useTeamMemberCard>[0];
 
 describe("the person's own team card", () => {
 	it("shows their task once the team's tasks arrive after the card first drew", async () => {
@@ -68,6 +77,30 @@ describe("the person's own team card", () => {
 		await rerender({});
 
 		expect(result.current.memberTask?.id).toBe('task-har-3');
+	});
+
+	it('leaves the active task to the team when the team names one, so a running timer is not stopped', async () => {
+		const store = TaskStore.create({ teamTasks: [] });
+		mockStores.TaskStore = store;
+		const { rerender } = await renderHook(() => useTeamMemberCard(KOFI_ON_HAR_3));
+
+		await act(() => store.setTeamTasks([INSPECT_BOLTS, HAR_3]));
+		await rerender({});
+
+		expect(store.activeTaskId).toBe('');
+		expect(store.activeTask).toBeNull();
+	});
+
+	it('still picks a task of theirs when the team names none', async () => {
+		const store = TaskStore.create({ teamTasks: [] });
+		mockStores.TaskStore = store;
+		const { rerender } = await renderHook(() => useTeamMemberCard(KOFI));
+
+		await act(() => store.setTeamTasks([HAR_3]));
+		await rerender({});
+
+		expect(store.activeTaskId).toBe('task-har-3');
+		expect(store.activeTask?.id).toBe('task-har-3');
 	});
 
 	it('counts the time worked on it once the statistics arrive after the tasks', async () => {

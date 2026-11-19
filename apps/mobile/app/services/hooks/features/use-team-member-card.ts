@@ -82,10 +82,16 @@ export function useTeamMemberCard(member: IOrganizationTeamList["members"][numbe
 			find = cTask?.members.some((m) => m.id === member.employee.id)
 		}
 
-		if (isAuthUser && member.lastWorkedTask && !activeTaskId) {
+		// When the team names the person's active task, the team's task sync sets it: a guess here would be replaced a
+		// moment later, and the timer stops a running timer whenever the active task changes
+		const hasNoActiveTask = !activeTaskId
+		const teamNamesActiveTask = Boolean(member.activeTaskId)
+		const mayChooseActiveTask = isAuthUser && hasNoActiveTask && !teamNamesActiveTask
+
+		if (mayChooseActiveTask && member.lastWorkedTask) {
 			setActiveUserTask(member.lastWorkedTask)
 			setActiveTask(member.lastWorkedTask)
-		} else if (isAuthUser && find && cTask && !activeTaskId) {
+		} else if (mayChooseActiveTask && find && cTask) {
 			setActiveUserTask(cTask)
 			setActiveTask(cTask)
 		}
