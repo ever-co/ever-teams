@@ -78,7 +78,12 @@ const HeaderTimer = observer(() => {
 	};
 
 	return (
-		<View testID="header-timer" style={[styles.pill, { backgroundColor: colors.card, borderColor: colors.border }]}>
+		<View style={styles.touchArea}>
+			<View
+				testID="header-timer"
+				pointerEvents="none"
+				style={[styles.pill, { backgroundColor: colors.card, borderColor: colors.border }]}
+			/>
 			<View style={styles.timeColumn}>
 				<TouchableOpacity
 					testID="header-timer-time"
@@ -113,16 +118,16 @@ const HeaderTimer = observer(() => {
 });
 
 const styles = StyleSheet.create({
+	// The visible pill, drawn behind the time and the button so the button's touch area reaches 48 around it
 	pill: {
-		alignItems: 'center',
 		borderRadius: 16,
 		borderWidth: StyleSheet.hairlineWidth,
 		boxShadow: '0 1px 1px rgba(0, 0, 0, 0.04)',
-		flexDirection: 'row',
-		gap: 8,
 		height: 32,
-		paddingLeft: 12,
-		paddingRight: 4
+		left: 0,
+		position: 'absolute',
+		right: 8,
+		top: 8
 	},
 	progress: {
 		borderRadius: 1,
@@ -134,6 +139,14 @@ const styles = StyleSheet.create({
 	timeColumn: {
 		flex: 1,
 		gap: 2
+	},
+	touchArea: {
+		alignItems: 'center',
+		flexDirection: 'row',
+		gap: 8,
+		height: 48,
+		paddingLeft: 12,
+		paddingRight: 12
 	},
 	timerText: {
 		fontSize: 13,

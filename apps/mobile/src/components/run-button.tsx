@@ -74,6 +74,8 @@ export function RunButton({
 }: Readonly<RunButtonProps>) {
 	const shape = { width: size, height: size, borderRadius: size / 2, backgroundColor: fillOf(theme, running) };
 	const shadow = shadowOf(theme, running, glow);
+	// Around a circle smaller than the smallest touch target, the touch area reaches that target
+	const touchSlop = Math.max(0, (theme.minimumTouchTarget - size) / 2);
 	return (
 		<Pressable
 			testID={testID}
@@ -81,6 +83,7 @@ export function RunButton({
 			accessibilityLabel={accessibilityLabel}
 			accessibilityState={{ disabled }}
 			disabled={disabled}
+			hitSlop={touchSlop}
 			onPress={onPress}
 			style={({ pressed }) => [styles.button, shape, shadow, { opacity: opacityOf(pressed, disabled) }]}
 		>

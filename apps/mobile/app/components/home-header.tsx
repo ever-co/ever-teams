@@ -33,7 +33,7 @@ const HomeHeader: FC<Props> = ({ props, showTimer }) => {
 					/>
 				)}
 				{showTimer && activeTeam && (
-					<View style={{ width: 126 }}>
+					<View style={{ width: 134 }}>
 						<HeaderTimer />
 					</View>
 				)}

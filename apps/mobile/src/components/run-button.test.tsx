@@ -74,6 +74,14 @@ describe('the round run button', () => {
 		expect(styleOf('quiet').boxShadow).toBeUndefined();
 	});
 
+	it('reaches the smallest touch target around the 24 circle of the header', async () => {
+		await render(<RunButton theme={light} running size={24} onPress={jest.fn()} testID="run" accessibilityLabel="Stop" />);
+		expect(screen.getByTestId('run').props.hitSlop).toBe(12);
+
+		await render(<RunButton theme={light} running size={48} onPress={jest.fn()} testID="card" accessibilityLabel="Stop" />);
+		expect(screen.getByTestId('card').props.hitSlop).toBe(0);
+	});
+
 	it('does nothing while disabled, and says so', async () => {
 		const onPress = jest.fn();
 		await render(
