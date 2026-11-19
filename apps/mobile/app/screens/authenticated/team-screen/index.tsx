@@ -136,7 +136,8 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<'Team'>> = 
 									</View>
 									{isTeamManager && currentUser?.employee?.user?.isEmailVerified ? (
 										<TouchableOpacity
-											style={[$inviteButton, { borderColor: colors.secondary }]}
+											testID="team-invite"
+											style={[$inviteButton, { borderColor: colors.border }]}
 											onPress={() => setShowInviteModal(true)}
 										>
 											<Text style={[$inviteButtonText, { color: colors.secondary }]}>
@@ -145,7 +146,7 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<'Team'>> = 
 										</TouchableOpacity>
 									) : isTeamManager && !currentUser?.employee?.user?.isEmailVerified ? (
 										<TouchableOpacity
-											style={[$inviteButton, { borderColor: colors.secondary }]}
+											style={[$inviteButton, { borderColor: colors.border }]}
 											onPress={() => {
 												setShowVerifyAccountModal(true);
 												resendAccountVerificationCode(currentUser.employee.user.email);
@@ -303,13 +304,13 @@ const $blurContainer: ViewStyle = {
 	zIndex: 1001
 };
 
+// The web's outline pill, as tall as the team switcher beside it
 const $inviteButton: ViewStyle = {
 	width: width / 3,
-	height: 52,
-	paddingHorizontal: 12,
-	paddingVertical: 10,
-	borderRadius: 10,
-	borderWidth: 2,
+	height: 44,
+	paddingHorizontal: 16,
+	borderRadius: 999,
+	borderWidth: 1,
 	justifyContent: 'center',
 	alignItems: 'center'
 };
