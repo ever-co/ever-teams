@@ -1,7 +1,13 @@
 /** @jest-environment jsdom */
 import { fireEvent, render, screen } from '@testing-library/react';
 import type { ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces/auth/auth';
+import { setPathAfterSignIn } from '@/core/lib/auth/navigate-after-sign-in';
 import { WorkspacePicker } from './workspace-picker';
+
+// The page a site's sign-in sets before sending the person to sign in (#5528)
+const CONSENT_PAGE = '/embed/authorize?origin=https%3A%2F%2Fteam.example.com&organization=organization-1';
+
+const storedPath = () => JSON.parse(window.sessionStorage.getItem('ever-teams:path-after-sign-in') ?? '{}').path;
 
 jest.mock('next-intl', () => ({
 	useTranslations: () => (key: string) => key
@@ -99,6 +105,26 @@ describe('WorkspacePicker', () => {
 		fireEvent.click(continueButton);
 
 		expect(window.sessionStorage.getItem('ever-teams:path-after-sign-in')).toBeNull();
+	});
+
+	it('keeps the page another page set before the sign-in when Continue is chosen (#5528)', () => {
+		window.sessionStorage.clear();
+		setPathAfterSignIn(CONSENT_PAGE);
+		const { continueButton } = renderPicker([workspaceNamed('Acme', 2)], 0);
+
+		fireEvent.click(continueButton);
+
+		expect(storedPath()).toBe(CONSENT_PAGE);
+	});
+
+	it('keeps that page when the person leaves the list ("Not you?") too', () => {
+		window.sessionStorage.clear();
+		setPathAfterSignIn(CONSENT_PAGE);
+		renderPicker([workspaceNamed('Acme', 2)], 0, jest.fn());
+
+		fireEvent.click(screen.getByRole('button', { name: 'auth.workspace.NOT_YOU' }));
+
+		expect(storedPath()).toBe(CONSENT_PAGE);
 	});
 
 	it('drops the creation page when the person leaves the list ("Not you?")', () => {

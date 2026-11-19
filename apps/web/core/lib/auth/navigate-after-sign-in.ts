@@ -72,6 +72,25 @@ export function setPathAfterSignIn(path: string | null): void {
 	}
 }
 
+/**
+ * Clears the page set for this sign-in only when it is `path`: the workspace list drops its own "Create a new
+ * workspace" and keeps a page another page set before the sign-in (the site sign-in's consent page, #5528).
+ */
+export function clearPathAfterSignInIf(path: string): void {
+	try {
+		const stored = window.sessionStorage.getItem(PATH_AFTER_SIGN_IN_KEY);
+		if (!stored) {
+			return;
+		}
+		const entry = JSON.parse(stored) as { path?: unknown };
+		if (entry.path === path) {
+			window.sessionStorage.removeItem(PATH_AFTER_SIGN_IN_KEY);
+		}
+	} catch {
+		// No storage, or an entry that cannot be read: the end of the sign-in drops it (takePathAfterSignIn)
+	}
+}
+
 /** The page set for this sign-in, read once; null (the home page) unless it is a page of this app, set lately. */
 function takePathAfterSignIn(): string | null {
 	try {
