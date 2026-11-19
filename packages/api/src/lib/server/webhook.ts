@@ -1,5 +1,5 @@
 import { clientError, isRecord } from '../client/error-mapping';
-import { isFilled } from './embed-request';
+import { isFilled } from '../client/option-checks';
 import { assertServerOnly } from './server-only';
 import { EverTeamsWebhookEvent } from './webhook-events';
 
