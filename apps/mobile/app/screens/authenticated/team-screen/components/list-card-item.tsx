@@ -10,7 +10,7 @@ import { Card, ListItem } from '../../../../components';
 
 // STYLES
 import { GLOBAL_STYLE as GS } from '../../../../../assets/ts/styles';
-import { spacing, typography, useAppTheme } from '../../../../theme';
+import { spacing, typography, useAppTheme, useWebTheme } from '../../../../theme';
 import EstimateTime from '../../timer-screen/components/estimate-time';
 import AllTaskStatuses from '../../../../components/all-task-statuses';
 import { IOrganizationTeamWithMStatus, OT_Member } from '../../../../services/interfaces/IOrganizationTeam';
@@ -29,6 +29,7 @@ import { WorkedOnTask } from './worked-on-task';
 import UnassignedTasksList from './unassigned-task-list';
 import { translate } from '../../../../i18n';
 import { SettingScreenNavigationProp } from '../../../../navigators/authenticated-navigator';
+import { cardEdgeOf } from './card-edge';
 import { useClickOutside } from 'react-native-click-outside';
 import { TimeProgressBar } from './time-progress-bar';
 import { navigateTo } from '../../../../navigators/routes';
@@ -136,6 +137,7 @@ const ListCardItem: React.FC<Props> = observer((props) => {
 	//  STATS
 	const memberInfo = useTeamMemberCard(props.member);
 	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask);
+	const theme = useWebTheme();
 	const [showUnassignedList, setShowUnassignedList] = useState<boolean>(false);
 
 	const navigation = useNavigation<SettingScreenNavigationProp<'Profile'>>();
@@ -211,7 +213,7 @@ const ListCardItem: React.FC<Props> = observer((props) => {
 				...$listCard,
 				...GS.mt5,
 				backgroundColor: colors.background,
-				borderColor: colors.border
+				borderColor: cardEdgeOf(memberInfo.isAuthUser, theme)
 			}}
 			HeadingComponent={
 				<View
