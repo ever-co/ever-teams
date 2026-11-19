@@ -18,4 +18,13 @@ describe("a switch's knob", () => {
 		expect(switchKnobColorOf({ on: false, disabled: true })).toBe(colors.palette.neutral600);
 		expect(switchKnobColorOf({ on: true, disabled: false })).toBe(colors.palette.neutral100);
 	});
+
+	it('keeps the knob color it is given while off, where it took the on fill', () => {
+		expect(
+			switchKnobColorOf({ on: false, disabled: false, onFill: 'hsl(239, 84%, 67%)', knobColor: '#FFFFFF' })
+		).toBe('#FFFFFF');
+		expect(
+			switchKnobColorOf({ on: true, disabled: false, onFill: 'hsl(239, 84%, 67%)', knobColor: '#FFFFFF' })
+		).toBe('#FFFFFF');
+	});
 });

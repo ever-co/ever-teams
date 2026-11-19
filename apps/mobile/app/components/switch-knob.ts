@@ -9,10 +9,15 @@ export type SwitchKnobState = {
 	onFill?: ColorValue;
 	/** The knob's own fill (inputDetailStyle) while on. */
 	knobFill?: ColorValue;
+	/** One knob color, on and off, as the web's switch. */
+	knobColor?: string;
 };
 
 /** The knob's color: its own fill while on, the track's on fill while off, then the disabled and error colors. */
-export function switchKnobColorOf({ on, disabled, status, onFill, knobFill }: SwitchKnobState): ColorValue {
+export function switchKnobColorOf({ on, disabled, status, onFill, knobFill, knobColor }: SwitchKnobState): ColorValue {
+	if (knobColor) {
+		return knobColor;
+	}
 	const isError = status === 'error';
 	if (on) {
 		return [

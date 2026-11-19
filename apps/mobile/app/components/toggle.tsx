@@ -69,6 +69,10 @@ export interface ToggleProps extends Omit<TouchableOpacityProps, 'style'> {
 	 */
 	inputDetailStyle?: ViewStyle & ImageStyle;
 	/**
+	 * For switch: one knob color, on and off. Without it, the knob takes the "on" fill of inputInnerStyle while off.
+	 */
+	knobColor?: string;
+	/**
 	 * The position of the label relative to the action component.
 	 * Default: right
 	 */
@@ -124,6 +128,7 @@ interface ToggleInputProps {
 	outerStyle: ViewStyle;
 	innerStyle: ViewStyle;
 	detailStyle: ViewStyle & ImageStyle;
+	knobColor?: string;
 	switchAccessibilityMode?: ToggleProps['switchAccessibilityMode'];
 }
 
@@ -188,6 +193,7 @@ export function Toggle(props: ToggleProps) {
 					outerStyle={props.inputOuterStyle}
 					innerStyle={props.inputInnerStyle}
 					detailStyle={props.inputDetailStyle}
+					knobColor={props.knobColor}
 					switchAccessibilityMode={props.switchAccessibilityMode}
 				/>
 
@@ -336,6 +342,7 @@ function Switch(props: ToggleInputProps) {
 		on,
 		status,
 		disabled,
+		knobColor,
 		outerStyle: $outerStyleOverride,
 		innerStyle: $innerStyleOverride,
 		detailStyle: $detailStyleOverride
@@ -368,7 +375,8 @@ function Switch(props: ToggleInputProps) {
 		disabled,
 		status,
 		onFill: $innerStyleOverride?.backgroundColor,
-		knobFill: $detailStyleOverride?.backgroundColor
+		knobFill: $detailStyleOverride?.backgroundColor,
+		knobColor
 	});
 
 	const $animatedSwitchKnob = useAnimatedStyle(() => {
