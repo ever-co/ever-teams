@@ -8,7 +8,7 @@ import { createOutput, Output } from './output.js';
 import { EXIT_DONE, UsageError } from './refusals.js';
 import { VERSION } from './version.js';
 
-const HELP_FLAGS = ['--help', '-h'];
+const HELP_FLAGS = new Set(['--help', '-h']);
 
 function commandNamed(name: string | undefined): Command {
 	if (name === undefined) {
@@ -44,7 +44,7 @@ function showHelp(topic: string | undefined, output: Output): void {
 
 async function dispatch(io: CliIo, output: Output, trail: Trail): Promise<void> {
 	const [first, ...rest] = io.argv;
-	if (first !== undefined && HELP_FLAGS.includes(first)) {
+	if (first !== undefined && HELP_FLAGS.has(first)) {
 		showHelp(undefined, output);
 		return;
 	}

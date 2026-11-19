@@ -15,10 +15,10 @@ export const API_URL = 'http://127.0.0.1:3000/api';
 export const PERSONAL_TOKEN = 'gzp_c2f4d6e8a0b1c3d5e7f9a1b3c5d7e9f1';
 export const ACCESS_TOKEN = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0LW1lbWJlciJ9.dGVzdC1zaWduYXR1cmU';
 
-/** A home whose login holds PERSONAL_TOKEN for `apiUrl`. */
-export function signedInHome(apiUrl = API_URL) {
+/** A home whose login holds `token` (PERSONAL_TOKEN by default) for `apiUrl`. */
+export function signedInHome(apiUrl = API_URL, token = PERSONAL_TOKEN) {
 	const home = newHome();
-	writeLogin(placeOf(home), { apiUrl, token: PERSONAL_TOKEN });
+	writeLogin(placeOf(home), { apiUrl, token });
 	return home;
 }
 

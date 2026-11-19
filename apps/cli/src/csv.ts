@@ -33,7 +33,7 @@ function textCell(text: string): string {
 	if (!NEEDS_QUOTES.test(cell)) {
 		return cell;
 	}
-	const escaped = cell.replace(/"/g, '""');
+	const escaped = cell.replaceAll('"', '""');
 	return `"${escaped}"`;
 }
 

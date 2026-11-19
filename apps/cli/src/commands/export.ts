@@ -8,7 +8,7 @@ import { localDayOf } from '../past-range.js';
 import { Refusal, UsageError } from '../refusals.js';
 import { openSession } from '../session.js';
 
-const FORMATS = ['csv', 'json'];
+const FORMATS = new Set(['csv', 'json']);
 
 function required(values: OptionValues, name: string, example: string): string {
 	const value = textOption(values, name);
@@ -27,7 +27,7 @@ function checkPeriod(from: string, to: string): void {
 }
 
 function checkFormat(format: string): void {
-	if (!FORMATS.includes(format)) {
+	if (!FORMATS.has(format)) {
 		throw new UsageError(`--format takes csv or json, not ${format}.`);
 	}
 }

@@ -135,18 +135,33 @@ test('without a login or EVER_TEAMS_TOKEN, nothing is sent and the next step is 
 
 test('EVER_TEAMS_TOKEN and EVER_TEAMS_API_URL win over the stored login', async () => {
 	const api = statusApi(RUNNING);
+	const sameApi = statusApi(RUNNING);
 	const otherApi = 'http://127.0.0.1:4000/api';
+	// Another token than the one the stand-in accepts: a run passes only with the token of the environment.
+	const storedToken = 'gzp_stored_login_0123456789abcdef';
+	const exchanged = (stand) =>
+		stand.requests.filter((request) => request.route === 'POST /auth/api-token/exchange').map((r) => r.body.token);
 
 	const result = await runCli(['status'], {
-		home: signedInHome('https://teams.example.com/api'),
+		home: signedInHome('https://teams.example.com/api', storedToken),
 		env: { EVER_TEAMS_TOKEN: PERSONAL_TOKEN, EVER_TEAMS_API_URL: otherApi },
 		fetch: api.fetch,
+		now: NOW
+	});
+	const sameAddress = await runCli(['status'], {
+		home: signedInHome(API_URL, storedToken),
+		env: { EVER_TEAMS_TOKEN: PERSONAL_TOKEN },
+		fetch: sameApi.fetch,
 		now: NOW
 	});
 
 	assert.equal(result.code, 0);
 	assert.ok(api.requests.every((request) => request.url.startsWith(otherApi)));
+	assert.deepEqual(exchanged(api), [PERSONAL_TOKEN]);
 	assertNoToken(result, api);
+	assert.equal(sameAddress.code, 0);
+	assert.deepEqual(exchanged(sameApi), [PERSONAL_TOKEN]);
+	assertNoToken(sameAddress, sameApi);
 });
 
 test('a refused EVER_TEAMS_TOKEN says to replace it there', async () => {
