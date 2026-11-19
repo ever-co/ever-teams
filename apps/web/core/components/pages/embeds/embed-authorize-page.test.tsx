@@ -47,8 +47,8 @@ jest.mock('@/core/lib/auth/navigate-after-sign-in', () => ({
 	setPathAfterSignIn: (path: string | null) => mockSetPathAfterSignIn(path)
 }));
 jest.mock('@/core/components/layouts/focus/signed-in-account', () => ({
-	SignedInAccount: ({ onNotYou }: { onNotYou?: () => void }) => (
-		<button type="button" onClick={onNotYou}>
+	SignedInAccount: ({ onNotYou, disabled }: { onNotYou?: () => void; disabled?: boolean }) => (
+		<button type="button" disabled={disabled} onClick={onNotYou}>
 			not you
 		</button>
 	)
@@ -60,7 +60,8 @@ jest.mock('@/core/components/common/notice', () => ({
 const opener = { closed: false, postMessage: jest.fn() };
 const close = jest.fn();
 
-const QUERY = `origin=${encodeURIComponent(SITE)}&organization=organization-1`;
+const STATE = '0123456789abcdef0123456789abcdef';
+const QUERY = `origin=${encodeURIComponent(SITE)}&organization=organization-1&state=${STATE}`;
 
 function openFromSite(search = QUERY) {
 	window.history.replaceState(null, '', `/embed/authorize?${search}`);
@@ -115,7 +116,10 @@ describe('EmbedAuthorizePage', () => {
 			expect.any(Object)
 		);
 		expect(opener.postMessage).toHaveBeenCalledTimes(1);
-		expect(opener.postMessage).toHaveBeenCalledWith({ type: 'ever-teams:embed-authorized', ...TOKENS }, SITE);
+		expect(opener.postMessage).toHaveBeenCalledWith(
+			{ type: 'ever-teams:embed-authorized', state: STATE, ...TOKENS },
+			SITE
+		);
 		expect(mockReset).toHaveBeenCalled();
 		expect(close).toHaveBeenCalled();
 		expect(window.location.href.includes(TOKENS.token)).toBe(false);
@@ -127,7 +131,7 @@ describe('EmbedAuthorizePage', () => {
 
 		fireEvent.click(cancelButton());
 
-		expect(opener.postMessage).toHaveBeenCalledWith({ type: 'ever-teams:embed-denied' }, SITE);
+		expect(opener.postMessage).toHaveBeenCalledWith({ type: 'ever-teams:embed-denied', state: STATE }, SITE);
 		expect(close).toHaveBeenCalled();
 		expect(screen.getByText('pages.embedAuthorize.CANCELLED_TITLE')).toBeTruthy();
 	});
@@ -149,19 +153,58 @@ describe('EmbedAuthorizePage', () => {
 		expect(close).not.toHaveBeenCalled();
 	});
 
-	it('locks both buttons while the API answers', () => {
+	it('locks both buttons and Not you while the API answers', () => {
 		mockIsAllowing = true;
 		render(<EmbedAuthorizePage />);
 
 		expect((allowButton() as HTMLButtonElement).disabled).toBe(true);
 		expect((cancelButton() as HTMLButtonElement).disabled).toBe(true);
+		expect((screen.getByRole('button', { name: 'not you' }) as HTMLButtonElement).disabled).toBe(true);
+	});
+
+	it('hands nothing to the site once Not you started, even if the API answers after', () => {
+		let answer: (tokens: typeof TOKENS) => void = () => undefined;
+		mockAuthorize.mockImplementation((_request, { onSuccess }) => (answer = onSuccess));
+		render(<EmbedAuthorizePage />);
+
+		act(() => {
+			fireEvent.click(allowButton());
+		});
+		fireEvent.click(screen.getByRole('button', { name: 'not you' }));
+		act(() => answer(TOKENS));
+
+		expect(opener.postMessage).not.toHaveBeenCalled();
+		expect(close).not.toHaveBeenCalled();
+		expect(mockReset).toHaveBeenCalled();
+	});
+
+	it('shown in a frame, offers no Allow', () => {
+		const top = Object.getOwnPropertyDescriptor(window, 'top');
+		Object.defineProperty(window, 'top', { value: {}, configurable: true });
+		try {
+			render(<EmbedAuthorizePage />);
+
+			expect(screen.getByText('pages.embedAuthorize.NO_OPENER_TITLE')).toBeTruthy();
+			expect(screen.queryByRole('button')).toBeNull();
+		} finally {
+			if (top) {
+				Object.defineProperty(window, 'top', top);
+			}
+		}
 	});
 
 	it.each([
-		['no origin', 'organization=organization-1'],
-		['a path after the origin', `origin=${encodeURIComponent(`${SITE}/page`)}&organization=organization-1`],
-		['another scheme', `origin=${encodeURIComponent('javascript:alert(1)')}&organization=organization-1`],
-		['no organization', `origin=${encodeURIComponent(SITE)}`]
+		['no origin', `organization=organization-1&state=${STATE}`],
+		[
+			'a path after the origin',
+			`origin=${encodeURIComponent(`${SITE}/page`)}&organization=organization-1&state=${STATE}`
+		],
+		[
+			'another scheme',
+			`origin=${encodeURIComponent('javascript:alert(1)')}&organization=organization-1&state=${STATE}`
+		],
+		['no organization', `origin=${encodeURIComponent(SITE)}&state=${STATE}`],
+		['no state', `origin=${encodeURIComponent(SITE)}&organization=organization-1`]
 	])('says the link is not valid with %s, and posts nothing', (_case, search) => {
 		openFromSite(search);
 		render(<EmbedAuthorizePage />);

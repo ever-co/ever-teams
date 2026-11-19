@@ -2,7 +2,7 @@
 
 import { useMutation } from '@tanstack/react-query';
 import { embedsService } from '@/core/services/client/api/embeds/embeds.service';
-import type { EmbedAuthorizeRequest } from '@/core/lib/utils/embed-authorize';
+import type { EmbedSiteToAllow } from '@/core/lib/utils/embed-authorize';
 import type { EmbedSiteTokens } from '@/core/types/schemas/embeds/embed.schema';
 
 /**
@@ -10,7 +10,7 @@ import type { EmbedSiteTokens } from '@/core/types/schemas/embeds/embed.schema';
  * tokens: React Query drops it as soon as nothing shows it, and the page hands it to the site and resets the mutation.
  */
 export function useAuthorizeEmbedSite() {
-	return useMutation<EmbedSiteTokens, unknown, EmbedAuthorizeRequest>({
+	return useMutation<EmbedSiteTokens, unknown, EmbedSiteToAllow>({
 		mutationFn: ({ organizationId, origin }) => embedsService.authorizeSite(organizationId, origin),
 		gcTime: 0,
 		// The page says why the API refused: the global fallback toast would say it twice

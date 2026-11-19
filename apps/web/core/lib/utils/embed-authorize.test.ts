@@ -21,6 +21,9 @@ const TOKENS = {
 	renewalExpiresAt: '2026-12-19T10:00:00.000Z'
 };
 
+const STATE = '0123456789abcdef0123456789abcdef';
+const REQUEST = { origin: 'https://team.example.com', organizationId: 'organization-1', state: STATE };
+
 const queryOf = (search: string) => new URLSearchParams(search);
 
 describe('isPlainOrigin', () => {
@@ -50,38 +53,46 @@ describe('isPlainOrigin', () => {
 });
 
 describe('embedAuthorizeRequestOf', () => {
-	it('reads the site and the organization', () => {
-		const query = queryOf('origin=https%3A%2F%2Fteam.example.com&organization=organization-1');
+	it("reads the site, the organization and the kit's state", () => {
+		const query = queryOf(`origin=https%3A%2F%2Fteam.example.com&organization=organization-1&state=${STATE}`);
 
-		expect(embedAuthorizeRequestOf(query)).toEqual({
-			origin: 'https://team.example.com',
-			organizationId: 'organization-1'
-		});
+		expect(embedAuthorizeRequestOf(query)).toEqual(REQUEST);
 	});
 
-	it('refuses a query without a plain origin or without an organization', () => {
-		expect(embedAuthorizeRequestOf(queryOf('organization=organization-1'))).toBeNull();
+	it('refuses a query without a plain origin, without an organization or without a state', () => {
+		const withState = (search: string) => queryOf(`${search}&state=${STATE}`);
+		expect(embedAuthorizeRequestOf(withState('organization=organization-1'))).toBeNull();
 		expect(
-			embedAuthorizeRequestOf(queryOf('origin=https%3A%2F%2Fteam.example.com%2Fpath&organization=o'))
+			embedAuthorizeRequestOf(withState('origin=https%3A%2F%2Fteam.example.com%2Fpath&organization=o'))
 		).toBeNull();
-		expect(embedAuthorizeRequestOf(queryOf('origin=https%3A%2F%2Fteam.example.com'))).toBeNull();
-		expect(embedAuthorizeRequestOf(queryOf('origin=https%3A%2F%2Fteam.example.com&organization=%20'))).toBeNull();
+		expect(embedAuthorizeRequestOf(withState('origin=https%3A%2F%2Fteam.example.com'))).toBeNull();
+		expect(embedAuthorizeRequestOf(withState('origin=https%3A%2F%2Fteam.example.com&organization=%20'))).toBeNull();
+	});
+
+	it.each(['', 'short', `${STATE}%20`, `${STATE}%26x%3D1`, 'a'.repeat(129)])('refuses the state %p', (state) => {
+		const query = queryOf(`origin=https%3A%2F%2Fteam.example.com&organization=organization-1&state=${state}`);
+
+		expect(embedAuthorizeRequestOf(query)).toBeNull();
 	});
 });
 
 describe('the messages to the site', () => {
-	it('hands the tokens to the exact origin of the site, and nowhere else', () => {
+	it("hands the tokens to the exact origin of the site, and nowhere else, with the kit's state", () => {
 		const site = { postMessage: jest.fn(), closed: false } as unknown as Window;
 
-		handTokensToSite(site, 'https://team.example.com', TOKENS);
-		tellSiteDenied(site, 'https://team.example.com');
+		handTokensToSite(site, REQUEST, TOKENS);
+		tellSiteDenied(site, REQUEST);
 
 		expect(site.postMessage).toHaveBeenNthCalledWith(
 			1,
-			{ type: EMBED_AUTHORIZED_MESSAGE, ...TOKENS },
+			{ type: EMBED_AUTHORIZED_MESSAGE, state: STATE, ...TOKENS },
 			'https://team.example.com'
 		);
-		expect(site.postMessage).toHaveBeenNthCalledWith(2, { type: EMBED_DENIED_MESSAGE }, 'https://team.example.com');
+		expect(site.postMessage).toHaveBeenNthCalledWith(
+			2,
+			{ type: EMBED_DENIED_MESSAGE, state: STATE },
+			'https://team.example.com'
+		);
 	});
 
 	it('finds no site for a page opened in its own tab, or whose opener was closed', () => {
@@ -90,6 +101,16 @@ describe('the messages to the site', () => {
 		expect(siteWindowOf({ opener: site } as unknown as Window)).toBe(site);
 		expect(siteWindowOf({ opener: null } as unknown as Window)).toBeNull();
 		expect(siteWindowOf({ opener: { closed: true } } as unknown as Window)).toBeNull();
+	});
+
+	it('finds no site for a page shown in a frame, whatever opened the window around it', () => {
+		const site = { closed: false } as Window;
+		const page = { opener: site } as unknown as Window & { top: unknown };
+
+		page.top = page;
+		expect(siteWindowOf(page)).toBe(site);
+		page.top = {};
+		expect(siteWindowOf(page)).toBeNull();
 	});
 });
 

@@ -27,9 +27,13 @@ function SignedInAccountSkeleton() {
 
 /**
  * The account a focused page acts for, with the way out when it is not the right one. `onNotYou` runs before the
- * sign-out, for a page that wants the next sign-in to come back to it.
+ * sign-out, for a page that wants the next sign-in to come back to it; `disabled` holds the way out while the page acts
+ * for the account.
  */
-export function SignedInAccount({ onNotYou }: Readonly<{ onNotYou?: () => void }>) {
+export function SignedInAccount({
+	onNotYou,
+	disabled = false
+}: Readonly<{ onNotYou?: () => void; disabled?: boolean }>) {
 	const t = useTranslations();
 	const { user, userLoading, logOut } = useAuthenticateUser();
 	const signOut = () => {
@@ -54,7 +58,7 @@ export function SignedInAccount({ onNotYou }: Readonly<{ onNotYou?: () => void }
 				<span className="text-xs text-muted-foreground">{t('pages.joinTeam.SIGNED_IN_AS')}</span>
 				<span className="truncate text-[13px] font-medium text-foreground">{name}</span>
 			</div>
-			<Button type="button" variant="outline" size="sm" onClick={signOut}>
+			<Button type="button" variant="outline" size="sm" disabled={disabled} onClick={signOut}>
 				{t('pages.joinTeam.NOT_YOU')}
 			</Button>
 		</FocusPanel>

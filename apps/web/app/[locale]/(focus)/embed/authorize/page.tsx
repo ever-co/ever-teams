@@ -6,8 +6,9 @@ import { EmbedAuthorizePage } from '@/core/components/pages/embeds/embed-authori
 export const metadata: Metadata = { robots: { index: false, follow: false } };
 
 /**
- * `/embed/authorize?origin=<site>&organization=<id>`: the popup in which a person allows a site to start and stop
- * their timer (the kit's "Sign in with Ever Teams", ever-co/ever-gauzy#12094).
+ * `/embed/authorize?origin=<site>&organization=<id>&state=<kit's state>`: the popup in which a person allows a site to
+ * start and stop their timer (the kit's "Sign in with Ever Teams", ever-co/ever-gauzy#12094). next.config.js keeps it
+ * out of frames.
  */
 export default function EmbedAuthorizeRoute() {
 	return (

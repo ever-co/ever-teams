@@ -4,16 +4,26 @@ import { isOriginLike, type EmbedSiteTokens } from '@/core/types/schemas/embeds/
 
 /**
  * The messages `/embed/authorize` posts to the site's page that opened it (the kit's "Sign in with Ever Teams" popup).
- * The kit reads them only from this app's origin and from the popup it opened.
+ * The kit reads them only from this app's origin, from the popup it opened, and with the state it put in its address.
  */
 export const EMBED_AUTHORIZED_MESSAGE = 'ever-teams:embed-authorized';
 export const EMBED_DENIED_MESSAGE = 'ever-teams:embed-denied';
 
-/** The site that asks, by its exact origin, and the organization it signs people in to. */
+/**
+ * The site that asks, by its exact origin, the organization it signs people in to, and the one-time state the kit's
+ * popup carries, which each message to the site repeats.
+ */
 export interface EmbedAuthorizeRequest {
 	origin: string;
 	organizationId: string;
+	state: string;
 }
+
+/** What the API is asked for: the site and the organization, never the state, which stays between page and site. */
+export type EmbedSiteToAllow = Pick<EmbedAuthorizeRequest, 'origin' | 'organizationId'>;
+
+// The kit's state: 128 random bits as hex. Any URL-safe token of 16 to 128 characters is taken.
+const STATE_PATTERN = /^[\w-]{16,128}$/;
 
 /** Why the API refused to let the site sign the person in, as the page says it. */
 export type EmbedSiteRefusal = 'site-not-allowed' | 'sign-in-off' | 'member-not-allowed' | 'unavailable' | 'failed';
@@ -35,20 +45,32 @@ export function isPlainOrigin(value: string): boolean {
 	return new URL(value).origin === value;
 }
 
-/** The site and the organization the page's query names (`origin`, `organization`), or null when either is wrong. */
+/**
+ * The site, the organization and the state the page's query names (`origin`, `organization`, `state`), or null when
+ * any of them is wrong.
+ */
 export function embedAuthorizeRequestOf(query: Pick<URLSearchParams, 'get'>): EmbedAuthorizeRequest | null {
 	const origin = query.get('origin') ?? '';
 	const organizationId = query.get('organization')?.trim() ?? '';
+	const state = query.get('state') ?? '';
 	const hasOrigin = isPlainOrigin(origin);
 	const hasOrganization = organizationId.length > 0;
-	if (!hasOrigin || !hasOrganization) {
+	const hasState = STATE_PATTERN.test(state);
+	if (!hasOrigin || !hasOrganization || !hasState) {
 		return null;
 	}
-	return { origin, organizationId };
+	return { origin, organizationId, state };
 }
 
-/** The site's page that opened this window, or null: a page opened in its own tab has nobody to hand tokens to. */
+/**
+ * The site's page that opened this window, or null: a page opened in its own tab has nobody to hand tokens to, and a
+ * page shown in a frame offers no Allow that another site's page could click through.
+ */
 export function siteWindowOf(page: Window): Window | null {
+	const isFramed = Boolean(page.top) && page.top !== page;
+	if (isFramed) {
+		return null;
+	}
 	const opener = page.opener as Window | null;
 	if (!opener || opener.closed) {
 		return null;
@@ -60,19 +82,19 @@ export function siteWindowOf(page: Window): Window | null {
  * Hands the site its tokens, to its exact origin only: if the window that opened this one shows another site by now,
  * the browser drops the message.
  */
-export function handTokensToSite(site: Window, origin: string, tokens: EmbedSiteTokens): void {
-	site.postMessage({ type: EMBED_AUTHORIZED_MESSAGE, ...tokens }, origin);
+export function handTokensToSite(site: Window, request: EmbedAuthorizeRequest, tokens: EmbedSiteTokens): void {
+	site.postMessage({ type: EMBED_AUTHORIZED_MESSAGE, state: request.state, ...tokens }, request.origin);
 }
 
 /** Tells the site that the person said no, to its exact origin only. */
-export function tellSiteDenied(site: Window, origin: string): void {
-	site.postMessage({ type: EMBED_DENIED_MESSAGE }, origin);
+export function tellSiteDenied(site: Window, request: EmbedAuthorizeRequest): void {
+	site.postMessage({ type: EMBED_DENIED_MESSAGE, state: request.state }, request.origin);
 }
 
 /** The refusal of `POST /embed/authorize`, by the code of its 403, or a 404 from a server without the route. */
 export function embedSiteRefusalOf(error: unknown): EmbedSiteRefusal {
 	const code = gauzyErrorCodeOf(error);
-	const isKnownCode = code !== null && Object.prototype.hasOwnProperty.call(REFUSALS_BY_CODE, code);
+	const isKnownCode = code !== null && Object.hasOwn(REFUSALS_BY_CODE, code);
 	if (isKnownCode) {
 		return REFUSALS_BY_CODE[code];
 	}

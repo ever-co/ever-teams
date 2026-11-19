@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState, useSyncExternalStore, type ReactNode } from 'react';
+import { useMemo, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Notice } from '@/core/components/common/notice';
@@ -136,7 +136,13 @@ function Consent({
 	const organizations = useTeamMenuOrganizations();
 	const authorize = useAuthorizeEmbedSite();
 	const [refusal, setRefusal] = useState<EmbedSiteRefusal | null>(null);
+	// Set by "Not you?": an answer that arrives while the sign-out runs belongs to the account the person rejected.
+	const leaving = useRef(false);
 	const comeBackAfterSignIn = () => setPathAfterSignIn(currentPageOf(window));
+	const notYou = () => {
+		leaving.current = true;
+		comeBackAfterSignIn();
+	};
 
 	if (organizations.isPending) {
 		return <LoadingCard />;
@@ -152,7 +158,7 @@ function Consent({
 	}
 
 	const cancel = () => {
-		tellSiteDenied(site, request.origin);
+		tellSiteDenied(site, request);
 		onOutcome('cancelled');
 		closeWindow();
 	};
@@ -177,9 +183,14 @@ function Consent({
 
 	const allow = () => {
 		setRefusal(null);
-		authorize.mutate(request, {
+		const siteToAllow = { origin: request.origin, organizationId: request.organizationId };
+		authorize.mutate(siteToAllow, {
 			onSuccess: (tokens) => {
-				handTokensToSite(site, request.origin, tokens);
+				if (leaving.current) {
+					authorize.reset();
+					return;
+				}
+				handTokensToSite(site, request, tokens);
 				// The tokens leave the page with the message: nothing here keeps them.
 				authorize.reset();
 				onOutcome('allowed');
@@ -208,7 +219,7 @@ function Consent({
 				</>
 			}
 		>
-			<SignedInAccount onNotYou={comeBackAfterSignIn} />
+			<SignedInAccount onNotYou={notYou} disabled={isAllowing} />
 			<SiteFacts origin={request.origin} organizationName={organizationName} />
 			<p className="flex items-start gap-2 text-sm text-pretty text-muted-foreground">
 				<ShieldCheck aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
@@ -220,7 +231,8 @@ function Consent({
 }
 
 /**
- * `/embed/authorize?origin=<site>&organization=<id>`, the popup of the kit's "Sign in with Ever Teams": the signed-in
+ * `/embed/authorize?origin=<site>&organization=<id>&state=<kit's state>`, the popup of the kit's "Sign in with Ever
+ * Teams": the signed-in
  * person allows a site to start and stop their timer. The tokens go to the site's page alone, by message, never in an
  * address, a log or this app's storage.
  */
