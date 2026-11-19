@@ -152,6 +152,17 @@ export const LANE_PORTS: Record<string, LanePorts> = {
 	'lane-c': { app: 3033, mock: 4002, platform: 4003, control: 4004, idp: 4005 }
 };
 
+/**
+ * The build directory of a lane, in apps/web (where `next dev` runs).
+ *
+ * Next 16 permits only one dev server per project directory — the lock is `<distDir>/dev/logs/next-development.log`,
+ * and a second `next dev` in the same folder exits with "Another next dev server is already running" — so lanes work
+ * only because each gets its own distDir (apps/web/next.config.js honours `PLAYWRIGHT_LANE_DIST_DIR`). A lane pays
+ * for that with a cold compile cache; that is the price of running beside the canonical suite instead of queueing
+ * behind it.
+ */
+const laneDistDir = (ports: LanePorts): string => `.next-lane-${ports.app}`;
+
 /** The issuer's URL on a given port: the path is part of the issuer identifier the app compares. */
 function everIdIssuerUrl(port: number): string {
 	return `http://127.0.0.1:${port}/oidc`;
@@ -175,6 +186,7 @@ function laneEnv(ports: LanePorts, options: { everId?: boolean } = {}): Record<s
 	return {
 		...sharedEnv(`http://127.0.0.1:${ports.mock}`),
 		PORT: `${ports.app}`,
+		PLAYWRIGHT_LANE_DIST_DIR: laneDistDir(ports),
 		EVER_STATS_API_URL: `http://127.0.0.1:${ports.platform}`,
 		NEXT_PUBLIC_EVER_STATS_API_URL: `http://127.0.0.1:${ports.platform}`,
 		...(options.everId
@@ -208,12 +220,21 @@ export function laneServers(ports: LanePorts, options: { everId?: boolean } = {}
 			cwd: REPO_ROOT
 		},
 		{
-			command: 'yarn turbo dev --filter=@ever-teams/web',
+			/**
+			 * Not `yarn turbo dev --filter=@ever-teams/web`: that script is `yarn node env.js && yarn next dev -p 3030`
+			 * (apps/web/package.json), so the port is hardcoded in it and a lane asking for 3031 would start a *third*
+			 * server on 3030 and take the canonical suite's port. `env.js` is dotenv plus console lines only — Next
+			 * reads `.env.local`/`.env` itself and never overrides a variable the process already has — so the lane
+			 * calls the project's own `next dev` with the port it was given. The preamble lines are what is lost.
+			 */
+			command: `node_modules/.bin/next dev -p ${ports.app}`,
 			port: ports.app,
 			timeout: 900_000,
 			reuseExistingServer: false,
 			env: laneEnv(ports, options),
-			cwd: REPO_ROOT
+			// `next dev` reads next.config.js from its working directory, so this is the app's folder — `../..`
+			// counted from the folder holding the config, which is how Playwright reads a cwd.
+			cwd: '../..'
 		}
 	];
 }

@@ -26,6 +26,10 @@
 		"lint:staged": "eslint --fix --max-warnings=0 --no-warn-ignored --pass-on-unpruned-suppressions",
 		"test": "jest --ci",
 		"test:watch": "jest --watch",
+		"pw": "playwright test --config playwright/playwright.config.ts",
+		"pw:api": "playwright test --config playwright/playwright.api.config.ts",
+		"pw:ever-id": "playwright test --config playwright/playwright.ever-id.config.ts",
+		"pw:live": "playwright test --config playwright/playwright.live.config.ts",
 		"format": "prettier --ignore-path .gitignore \"./**/*.+(ts|js|tsx)\" --write",
 		"knip": "knip"
 	},
