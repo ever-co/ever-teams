@@ -232,9 +232,8 @@ function Consent({
 
 /**
  * `/embed/authorize?origin=<site>&organization=<id>&state=<kit's state>`, the popup of the kit's "Sign in with Ever
- * Teams": the signed-in
- * person allows a site to start and stop their timer. The tokens go to the site's page alone, by message, never in an
- * address, a log or this app's storage.
+ * Teams": the signed-in person allows a site to start and stop their timer. The tokens go to the site's page alone, by
+ * message with the kit's state, never in an address, a log or this app's storage.
  */
 export function EmbedAuthorizePage() {
 	const t = useTranslations();

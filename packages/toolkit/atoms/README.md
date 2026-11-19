@@ -282,8 +282,10 @@ What the kit does with it:
   after 30 days without a renewal, or a renewal token used twice), the kit forgets it and shows the button again. When
   it refuses for a reason it lifts later (the site removed from the allowed sites, its switch turned off, the person's
   time tracking off), the kit keeps the renewal token, shows the button, and tries again when the page comes back.
-- The user menu offers to sign out: the kit forgets the sign-in, then revokes it (`POST /embed/revoke`), also when
-  the API cannot be reached. A renewal on its way at that moment keeps nothing of its answer.
+- The user menu offers to sign out: the kit forgets the sign-in, then asks the API to revoke it
+  (`POST /embed/revoke`). When the API cannot be reached, the sign-in is forgotten in the browser all the same, but
+  stays valid at the API until it expires: the person can revoke the site from the web app. A renewal on its way at
+  that moment keeps nothing of its answer.
 - As with `getToken`, the token reaches only that person's timer, from your site, and the kit lists no other
   organization.
 
@@ -453,8 +455,9 @@ revoked embed credential ends its tokens. Requests still go to `config.apiUrl` w
 
 With `config.signIn: 'ever-teams'` (above), the dialog asks for no password or token either: the timer token stays
 in memory, and the renewal token, which gets the next timer token from your site only, sits in `localStorage` for
-its API address and organization, readable by the scripts of your page. Anyone who reads it can
-renew from your site's origin until the person signs out or revokes the site. Sign-out revokes it.
+its API address and organization, readable by the scripts of your page. Anyone who reads it can renew from your
+site's origin until the person signs out or revokes the site. Sign-out asks the API to revoke it; when the API cannot
+be reached, the person revokes the site from the web app.
 
 Planned ([ever-co/ever-teams#5405](https://github.com/ever-co/ever-teams/issues/5405)): the workspace lists the sites
 allowed to embed it.

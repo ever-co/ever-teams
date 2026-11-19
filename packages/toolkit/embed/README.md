@@ -186,11 +186,13 @@ typed in your page:
 An administrator of the organization turns it on: your site in the allowed sites of Settings > Embeds of the web app,
 with its switch "People can sign in from this site" on, on an API with sign-in from sites
 ([ever-co/ever-gauzy#12094](https://github.com/ever-co/ever-gauzy/issues/12094)). The timer token stays in memory;
-the renewal token is kept in the browser for the API address and organization it was issued for, so a reload stays
-signed in, and the
-element renews the timer token about a minute before it expires, one tab at a time. The user menu signs out, which
-ends the sign-in at the API. When the person or an administrator revokes the site, the element shows the button again
-at its next renewal. [Sign in with Ever Teams](https://github.com/ever-co/ever-teams/tree/develop/packages/toolkit/atoms#sign-in-with-ever-teams)
+the renewal token is kept in the browser's storage for the API address and organization it was issued for, so a
+reload stays signed in where the browser lets the page store it (not in a window that blocks storage). The element
+renews the timer token about a minute before it expires, one tab at a time under Web Locks; a browser without them
+gets a best-effort lock in `localStorage`, where a race can end the sign-in and ask the person to sign in again. The
+user menu signs out: the element forgets the sign-in and asks the API to end it, and when the API cannot be reached,
+the person revokes the site from the web app. When the person or an administrator revokes the site, the element shows
+the button again at its next renewal. [Sign in with Ever Teams](https://github.com/ever-co/ever-teams/tree/develop/packages/toolkit/atoms#sign-in-with-ever-teams)
 in the README of `@ever-teams/atoms` says what happens in each case.
 
 ## Size
