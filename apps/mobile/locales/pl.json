@@ -508,7 +508,11 @@
 		}
 	},
 	"hamburgerMenu": {
-		"darkMode": "Tryb ciemny"
+		"darkMode": "Tryb ciemny",
+		"theme": "Motyw",
+		"themeSystem": "Systemowy",
+		"themeLight": "Jasny",
+		"themeDark": "Ciemny"
 	},
 	"inviteModal": {
 		"accept": "Akceptuj",

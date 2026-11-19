@@ -508,7 +508,11 @@
 		}
 	},
 	"hamburgerMenu": {
-		"darkMode": "Тъмен режим"
+		"darkMode": "Тъмен режим",
+		"theme": "Тема",
+		"themeSystem": "Системна",
+		"themeLight": "Светла",
+		"themeDark": "Тъмна"
 	},
 	"inviteModal": {
 		"accept": "Приемам",

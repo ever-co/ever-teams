@@ -508,7 +508,11 @@
 		}
 	},
 	"hamburgerMenu": {
-		"darkMode": "夜间模式"
+		"darkMode": "夜间模式",
+		"theme": "主题",
+		"themeSystem": "跟随系统",
+		"themeLight": "浅色",
+		"themeDark": "深色"
 	},
 	"inviteModal": {
 		"accept": "接受",
