@@ -147,5 +147,6 @@
 	"inviteModal.accept": "common.ACCEPT",
 	"inviteModal.reject": "common.REJECT",
 	"accountVerificationModal.verify": "common.VERIFY",
-	"demoPodcastListScreen.favoriteButton": "favorites.FAVORITE"
+	"demoPodcastListScreen.favoriteButton": "favorites.FAVORITE",
+	"settingScreen.description": "settings.index.DESCRIPTION"
 }

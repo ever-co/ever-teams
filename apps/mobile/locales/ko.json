@@ -314,6 +314,7 @@
 		"hintMessage": "Lorem ipsum dolor sit amet consectetur. Blandit lobortis dui risus neque."
 	},
 	"settingScreen": {
+		"description": "내 계정, 내 팀, 그리고 팀의 작업이 정리되는 방식.",
 		"name": "설정",
 		"personalSection": {
 			"name": "개인",

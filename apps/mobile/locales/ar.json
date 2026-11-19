@@ -314,6 +314,7 @@
 		"hintMessage": "Lorem ipsum dolor sit amet consectetur. Blandit lobortis dui risus neque."
 	},
 	"settingScreen": {
+		"description": "حسابك وفريقك وطريقة تنظيم مهامه.",
 		"name": "الإعدادات",
 		"personalSection": {
 			"name": "شخصي",
