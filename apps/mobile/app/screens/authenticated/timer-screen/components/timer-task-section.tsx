@@ -20,7 +20,9 @@ import { Feather } from '@expo/vector-icons';
 import { observer } from 'mobx-react-lite';
 import TaskPriorities from '../../../../components/task-priority';
 // import TaskLabel from "../../../../components/TaskLabel"
-import { typography, useAppTheme } from '../../../../theme';
+import { typography, useAppTheme, useWebTheme } from '../../../../theme';
+import { hsl, webColorTokens } from '../../../../../src/theme/tokens';
+import type { Theme } from '../../../../../src/theme/use-theme';
 import { translate } from '../../../../i18n';
 import TaskStatus from '../../../../components/task-status';
 import TimerCard from '../../../../components/timer-card';
@@ -31,9 +33,22 @@ import IssuesModal from '../../../../components/issues-modal';
 import { useStores } from '../../../../models';
 import { limitTextCharaters } from '../../../../helpers/sub-text';
 
+const RUNNING_FILL_ALPHA = 0.06;
+const RUNNING_EDGE_ALPHA = 0.3;
+
+/** The panel on the card surface, tinted with the primary color while the timer runs: the running state shows here. */
+function panelColorsOf(theme: Theme, running: boolean) {
+	if (running) {
+		const primary = webColorTokens[theme.scheme].primary;
+		return { backgroundColor: hsl(primary, RUNNING_FILL_ALPHA), borderColor: hsl(primary, RUNNING_EDGE_ALPHA) };
+	}
+	return { backgroundColor: theme.colors.card, borderColor: theme.colors.border };
+}
+
 const TimerTaskSection = observer(
 	({ taskInput, outsideClick }: { taskInput: RTuseTaskInput; outsideClick: () => unknown }) => {
 		const { colors } = useAppTheme();
+		const theme = useWebTheme();
 		const {
 			setEditMode,
 			setQuery,
@@ -71,7 +86,7 @@ const TimerTaskSection = observer(
 
 		return (
 			<TouchableWithoutFeedback onPress={() => outsideClick()}>
-				<View style={{ ...$timerSection, backgroundColor: colors.background }}>
+				<View testID="work-panel" style={[$timerSection, panelColorsOf(theme, localTimerStatus.running)]}>
 					<View
 						style={[
 							styles.wrapInput,
@@ -98,8 +113,7 @@ const TimerTaskSection = observer(
 								{
 									backgroundColor: colors.background,
 									color: colors.primary,
-									width: '80%',
-									opacity: localTimerStatus.running ? 0.5 : 1
+									width: '80%'
 								}
 							]}
 							placeholder={translate('myWorkScreen.taskFieldPlaceholder')}
@@ -217,21 +231,14 @@ export default TimerTaskSection;
 
 const width = Dimensions.get('window').width;
 
+// The web's card: radius 14, a hairline and its light black shadow
 const $timerSection: ViewStyle = {
 	marginTop: 20,
 	padding: 20,
 	marginHorizontal: 20,
-	borderRadius: 16,
-	...GS.noBorder,
-	borderWidth: 1,
-	shadowColor: '#000',
-	shadowOffset: {
-		width: 0,
-		height: 14
-	},
-	shadowOpacity: 0.1,
-	shadowRadius: 44,
-	elevation: 8
+	borderRadius: 14,
+	borderWidth: StyleSheet.hairlineWidth,
+	boxShadow: '0 1px 2px rgba(0, 0, 0, 0.065)'
 };
 
 const styles = StyleSheet.create({
