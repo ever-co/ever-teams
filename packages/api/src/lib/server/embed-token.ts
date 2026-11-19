@@ -1,5 +1,6 @@
 import { isRecord } from '../client/error-mapping';
-import { apiUrlOf, credentialOf, isFilled, isWebAddress, optionsError, postEmbed } from './embed-request';
+import { isFilled, isWebAddress, optionsError } from '../client/option-checks';
+import { apiUrlOf, credentialOf, postEmbed } from './embed-request';
 import { assertServerOnly } from './server-only';
 import { EverTeamsEmbedToken, ExchangeEmbedTokenOptions } from './types';
 

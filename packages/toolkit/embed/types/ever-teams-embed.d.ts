@@ -12,7 +12,20 @@ export interface EverTeamsTimerAttributes {
 	'color-scheme'?: EverTeamsColorScheme;
 	/** The language of the timer and its sign-in: `en` (the default) or `fr`. */
 	lang?: string;
+	/**
+	 * `ever-teams`: a "Sign in with Ever Teams" button opens the Ever Teams web app in a popup, where the person allows
+	 * this site; no password or token is typed in the page. An administrator turns it on for the site in Settings >
+	 * Embeds. Without it, the kit's own sign-in.
+	 */
+	'sign-in'?: EverTeamsSignIn;
+	/** The organization the site signs people in to, with `sign-in="ever-teams"`. */
+	organization?: string;
+	/** The Ever Teams web app the popup opens, with `sign-in="ever-teams"`. Default: `https://app.ever.team`. */
+	'app-url'?: string;
 }
+
+/** The values of `sign-in`: `ever-teams`, the sign-in with Ever Teams in a popup. */
+export type EverTeamsSignIn = 'ever-teams';
 
 type CamelCase<Name extends string> = Name extends `${infer Head}-${infer Tail}`
 	? `${Head}${Capitalize<CamelCase<Tail>>}`

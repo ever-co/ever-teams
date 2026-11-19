@@ -1,6 +1,11 @@
 /** @jest-environment jsdom */
 
-import { navigateAfterSignIn, PATH_AFTER_SIGN_IN_TTL_MS, setPathAfterSignIn } from './navigate-after-sign-in';
+import {
+	clearPathAfterSignInIf,
+	navigateAfterSignIn,
+	PATH_AFTER_SIGN_IN_TTL_MS,
+	setPathAfterSignIn
+} from './navigate-after-sign-in';
 import { rememberBoardReturn } from './board-return';
 
 const originalLocation = window.location;
@@ -141,6 +146,26 @@ describe('the page a sign-in opens (#5025)', () => {
 		expect(signInWith('/workspace/new')).toHaveBeenCalledWith('/workspace/new');
 		// Both were taken: the next sign-in of the tab opens the home page
 		expect(signIn()).toHaveBeenCalledWith('/');
+	});
+
+	it('clears the page set for the sign-in only when it is the one named', () => {
+		setPathAfterSignIn('/workspace/new');
+		clearPathAfterSignInIf('/workspace/new');
+		expect(signIn()).toHaveBeenCalledWith('/');
+
+		setPathAfterSignIn('/settings/personal');
+		clearPathAfterSignInIf('/workspace/new');
+		expect(signIn()).toHaveBeenCalledWith('/settings/personal');
+	});
+
+	it("comes back to a site's consent page, with its query, after the workspace list's Continue (#5528)", () => {
+		const consentPage = '/embed/authorize?origin=https%3A%2F%2Fteam.example.com&organization=organization-1';
+		setPathAfterSignIn(consentPage);
+
+		// What the workspace list's Continue does
+		clearPathAfterSignInIf('/workspace/new');
+
+		expect(signIn({ replace: true })).toHaveBeenCalledWith(consentPage);
 	});
 
 	it('opens the home page for anything that is not a page of this app', () => {
