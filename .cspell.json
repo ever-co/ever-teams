@@ -1062,7 +1062,7 @@
 		"Réessayer",
 		"Aujourd'hui"
 	],
-	"ignoreRegExpList": ["/%[0-9A-Fa-f]{2}[A-Za-z]*/g", "/gze_[A-Za-z0-9_-]+/g"],
+	"ignoreRegExpList": ["/%(?:2F|3A)[A-Za-z]*/g", "/gze_[A-Za-z0-9_-]+/g"],
 	"useGitignore": true,
 	"ignorePaths": [
 		"**/locales/**",
