@@ -40,7 +40,7 @@ import AcceptInviteModal from './components/accept-invite-modal';
 import { useAcceptInviteModal } from '../../../services/hooks/features/use-accept-invite-modal';
 import NoTeam from '../../../components/no-team';
 import VerifyAccountModal from './components/verify-account';
-import { IOrganizationTeamWithMStatus, OT_Member } from '../../../services/interfaces/IOrganizationTeam';
+import { OT_Member } from '../../../services/interfaces/IOrganizationTeam';
 import { IInvitation } from '../../../services/interfaces/IInvite';
 import { useVerifyEmail } from '../../../services/hooks/features/use-verify-email';
 
@@ -56,8 +56,7 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<'Team'>> = 
 		TimerStore: { localTimerStatus }
 	} = useStores();
 
-	const { $otherMembers, createOrganizationTeam, isTeamManager, currentUser, activeTeam, currentTeam } =
-		useOrganizationTeam();
+	const { $otherMembers, createOrganizationTeam, isTeamManager, currentUser, activeTeam } = useOrganizationTeam();
 	const {
 		setShowCreateTeamModal,
 		setShowInviteModal,
@@ -178,7 +177,6 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<'Team'>> = 
 														member={item as OT_Member}
 														openMenuIndex={openMenuIndex}
 														setOpenMenuIndex={setOpenMenuIndex}
-														currentTeam={currentTeam}
 														canNavigate={!isScrolling}
 													/>
 												);
@@ -188,7 +186,6 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<'Team'>> = 
 														members={item as OT_Member[]}
 														openMenuIndex={openMenuIndex}
 														setOpenMenuIndex={setOpenMenuIndex}
-														currentTeam={currentTeam}
 														canNavigate={!isScrolling}
 													/>
 												);
@@ -221,9 +218,8 @@ const CurrentUserCard: FC<{
 	member: OT_Member;
 	openMenuIndex: number | null;
 	setOpenMenuIndex: React.Dispatch<SetStateAction<number | null>>;
-	currentTeam: IOrganizationTeamWithMStatus | null;
 	canNavigate: boolean;
-}> = ({ member, openMenuIndex, setOpenMenuIndex, currentTeam, canNavigate }) => {
+}> = ({ member, openMenuIndex, setOpenMenuIndex, canNavigate }) => {
 	return (
 		<View style={{ marginHorizontal: 9 }}>
 			<ListCardItem
@@ -231,7 +227,6 @@ const CurrentUserCard: FC<{
 				index={0}
 				openMenuIndex={openMenuIndex}
 				setOpenMenuIndex={setOpenMenuIndex}
-				currentTeam={currentTeam}
 				canNavigate={canNavigate}
 			/>
 		</View>
@@ -242,9 +237,8 @@ const OtherMembersList: FC<{
 	members: OT_Member[];
 	openMenuIndex: number | null;
 	setOpenMenuIndex: React.Dispatch<SetStateAction<number | null>>;
-	currentTeam: IOrganizationTeamWithMStatus | null;
 	canNavigate: boolean;
-}> = ({ members, openMenuIndex, setOpenMenuIndex, currentTeam, canNavigate }) => {
+}> = ({ members, openMenuIndex, setOpenMenuIndex, canNavigate }) => {
 	return (
 		<View style={{ marginHorizontal: 9 }}>
 			<FlatList
@@ -257,7 +251,6 @@ const OtherMembersList: FC<{
 						index={index + 1}
 						openMenuIndex={openMenuIndex}
 						setOpenMenuIndex={setOpenMenuIndex}
-						currentTeam={currentTeam}
 						canNavigate={canNavigate}
 					/>
 				)}

@@ -13,7 +13,7 @@ import { GLOBAL_STYLE as GS } from '../../../../../assets/ts/styles';
 import { spacing, typography, useAppTheme, useWebTheme } from '../../../../theme';
 import EstimateTime from '../../timer-screen/components/estimate-time';
 import AllTaskStatuses from '../../../../components/all-task-statuses';
-import { IOrganizationTeamWithMStatus, OT_Member } from '../../../../services/interfaces/IOrganizationTeam';
+import { OT_Member } from '../../../../services/interfaces/IOrganizationTeam';
 import {
 	I_TeamMemberCardHook,
 	I_TMCardTaskEditHook,
@@ -48,7 +48,6 @@ export interface Props extends ListItemProps {
 	index: number;
 	openMenuIndex: number | null;
 	setOpenMenuIndex: React.Dispatch<React.SetStateAction<number | null>>;
-	currentTeam: IOrganizationTeamWithMStatus | null;
 	canNavigate: boolean;
 }
 
