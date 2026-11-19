@@ -202,11 +202,11 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<'Sett
 					>
 						<StatusBar barStyle={dark ? 'light-content' : 'dark-content'} />
 						<View style={{ flex: 1 }}>
-							<View style={[$headerContainer, { flex: 0.75, backgroundColor: colors.background }]}>
+							<View style={[$headerContainer, { backgroundColor: colors.background }]}>
 								<SettingHeader {..._props} />
 								<SectionTab activeTabId={activeTab} toggleTab={setActiveTab} />
 							</View>
-							<View style={{ flex: 4, paddingHorizontal: 20 }}>
+							<View style={{ flex: 1, paddingHorizontal: 20 }}>
 								{isLoading ? (
 									<View
 										style={{
@@ -303,8 +303,9 @@ const $container: ViewStyle = {
 };
 
 const $headerContainer: ViewStyle = {
-	padding: 20,
-	paddingBottom: 32
+	gap: 16,
+	paddingHorizontal: 20,
+	paddingTop: 8
 };
 
 const styles = StyleSheet.create({
