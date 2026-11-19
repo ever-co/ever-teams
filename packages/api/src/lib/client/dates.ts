@@ -55,6 +55,25 @@ function instantOf(value: EverTeamsDate): Date {
 	return date;
 }
 
+// A date-time text with its time of day: the day, then a T or a space, then hours and minutes.
+const WITH_TIME_OF_DAY = /^([+-]\d{6}|\d{4})-\d{2}-\d{2}[Tt ]\d{2}:\d{2}/;
+
+/**
+ * The instant a Date or an ISO date-time names. A text without hours and minutes (a day alone, 2026-11-18T09) names
+ * no time of day: it is refused.
+ */
+export function instantAt(value: EverTeamsDate): Date {
+	const hasNoTimeOfDay = typeof value === 'string' && !WITH_TIME_OF_DAY.test(value);
+	if (hasNoTimeOfDay) {
+		throw clientError(
+			'INVALID_DATE',
+			`${value} has no time of day.`,
+			'Pass a Date or an ISO date-time, such as 2026-11-18T09:00:00+01:00.'
+		);
+	}
+	return instantOf(value);
+}
+
 /** The start of a range: the first instant of a YYYY-MM-DD, else the instant given. */
 export function startOf(value: EverTeamsDate): Date {
 	if (typeof value === 'string') {
