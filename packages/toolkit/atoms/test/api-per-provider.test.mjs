@@ -564,8 +564,7 @@ test('reads that fail once their provider moved to another address show no error
 	await signInOn('a');
 	assert.ok(waiting.length > 0, 'the reads wait for A');
 
-	// The session saved on the page would follow the provider to B (ever-co/ever-teams#5524): B starts signed out.
-	localStorage.clear();
+	// The session saved for A stays A's: on B the provider starts signed out.
 	await renderPage(root, [['a', { apiUrl: SERVER_B }, widgets()]]);
 	await act(async () => {
 		for (const letGo of waiting.splice(0)) {
@@ -588,14 +587,17 @@ test('a read of the person that answers once its provider moved to another addre
 	await settle();
 	assert.deepEqual(requestsTo('/user/me'), [{ host: hostOf(SERVER_A), path: '/user/me', method: 'GET' }]);
 
-	// The saved session would follow the provider to B (ever-co/ever-teams#5524): B starts signed out.
-	localStorage.clear();
+	// The provider that read the session keeps it for A: on B it starts signed out.
 	await renderPage(root, [['a', { apiUrl: SERVER_B }, holdingsOf('a')]]);
 	await act(async () => api.release());
 	await settle();
 
-	assert.equal(localStorage.getItem('_teams-store'), null, "A's answer saves no session for the page");
+	const kept = JSON.parse(localStorage.getItem('_teams-store'));
+	assert.equal(kept.persist.apiUrl, SERVER_A, 'the session stays with A');
+	assert.equal(kept.app.user, null, "A's late answer saves no person");
+	assert.equal(kept.servers, undefined, 'nothing is saved for B');
 	assert.deepEqual(holdings.a, { token: '', userId: null, timeLogs: null });
+	assert.deepEqual(api.tokensSentTo(SERVER_B), [], "A's token never reaches B");
 });
 
 test("a provider without an apiUrl starts afresh when the page's address changes under it", async () => {
@@ -606,9 +608,7 @@ test("a provider without an apiUrl starts afresh when the page's address changes
 	assert.equal(holdings.d.token, 'token-1', 'signed in on A');
 	assert.deepEqual(new Set(requests.map(({ host }) => host)), new Set([hostOf(SERVER_A)]));
 
-	// The saved session would follow the provider to B (ever-co/ever-teams#5524): B starts signed out.
-	localStorage.clear();
-	// Another provider of the page points at B, which becomes the page's address.
+	// Another provider of the page points at B, which becomes the page's address. The session saved for A stays A's.
 	await renderPage(root, [
 		['d', {}, holdingsOf('d')],
 		['b', { apiUrl: SERVER_B }]
@@ -618,6 +618,15 @@ test("a provider without an apiUrl starts afresh when the page's address changes
 	assert.equal(kit.apiConfigManager.getConfig().apiUrl, SERVER_B);
 	assert.deepEqual(holdings.d, { token: '', userId: null, timeLogs: null }, 'nothing read on A stays');
 	assert.deepEqual(api.tokensSentTo(SERVER_B), [], "A's token never reaches B");
+
+	// Back on A, the provider reads A's saved session again: signed in without a sign-in.
+	await renderPage(root, [
+		['d', {}, holdingsOf('d')],
+		['b', { apiUrl: SERVER_A }]
+	]);
+	await settle();
+	assert.equal(holdings.d.token, 'token-1');
+	assert.deepEqual(api.tokensSentTo(SERVER_B), []);
 });
 
 test("a stop that answers once the page's address changed records its time on the server that stopped", async () => {
@@ -630,7 +639,6 @@ test("a stop that answers once the page's address changed records its time on th
 		stopping = timers.d.stopTimer();
 	});
 
-	localStorage.clear();
 	await renderPage(root, [
 		['d', {}, timerOf('d')],
 		['b', { apiUrl: SERVER_B }]
