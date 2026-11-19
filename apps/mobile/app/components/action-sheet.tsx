@@ -56,7 +56,9 @@ const ActionSheet: FC<IActionSheetProps> = ({ visible, onClose, actions, title }
 		[look.overlayOpacity]
 	);
 
-	if (!visible) {
+	const hasActions = actions.length > 0;
+	const isShown = visible && hasActions;
+	if (!isShown) {
 		return null;
 	}
 

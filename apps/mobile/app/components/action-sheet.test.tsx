@@ -82,4 +82,11 @@ describe('the action sheet of a card', () => {
 
 		expect(screen.queryByTestId('action-sheet')).toBeNull();
 	});
+
+	it('opens nothing without actions, where the name and the handle alone covered the screen', async () => {
+		await render(<ActionSheet visible onClose={jest.fn()} actions={[]} title="Kofi Arden" />);
+
+		expect(screen.queryByTestId('action-sheet')).toBeNull();
+		expect(screen.queryByText('Kofi Arden')).toBeNull();
+	});
 });
