@@ -2,7 +2,7 @@
 /* eslint-disable react-native/no-color-literals */
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { typography, useAppTheme } from '../../../../theme';
+import { typography, useAppTheme, useWebTheme } from '../../../../theme';
 
 // COMPONENTS
 import { Text } from '../../../../components';
@@ -15,24 +15,21 @@ import { limitTextCharaters } from '../../../../helpers/sub-text';
 import { imgTitle } from '../../../../helpers/img-title';
 
 const ProfileHeader = observer((member: IUser) => {
-	const { colors, dark } = useAppTheme();
+	const { colors } = useAppTheme();
 	return (
-		<View style={[styles.container, { backgroundColor: !dark ? 'rgba(255, 255, 255, 0.5)' : colors.background }]}>
-			<View style={{ flexDirection: 'row' }}>
-				<ProfileImage user={member} size={70} />
-				<View style={styles.containerInfo}>
-					<Text style={[styles.name, { color: colors.primary }]}>{member?.name}</Text>
-					<Text style={[styles.email, { color: colors.tertiary }]}>{member?.email}</Text>
+		<View testID="profile-header" style={[styles.container, { backgroundColor: colors.background }]}>
+			<View style={styles.identity}>
+				<ProfileImage user={member} size={48} />
+				{/* the team sits under the e-mail: beside it, a long e-mail ran into it on a small phone */}
+				<View testID="profile-identity" style={styles.containerInfo}>
+					<Text numberOfLines={1} style={[styles.name, { color: colors.primary }]}>
+						{member?.name}
+					</Text>
+					<Text numberOfLines={1} style={[styles.email, { color: colors.tertiary }]}>
+						{member?.email}
+					</Text>
+					<UserTeam />
 				</View>
-			</View>
-			<View
-				style={{
-					flexDirection: 'column',
-					justifyContent: 'flex-end',
-					paddingBottom: 10
-				}}
-			>
-				<UserTeam />
 			</View>
 		</View>
 	);
@@ -42,9 +39,10 @@ const UserTeam = observer(() => {
 	const {
 		teamStore: { activeTeam }
 	} = useStores();
+	const { colors } = useWebTheme();
 
 	return (
-		<View style={styles.activeTeamContainer}>
+		<View testID="profile-team" style={[styles.activeTeamContainer, { backgroundColor: colors.muted }]}>
 			{activeTeam?.image?.thumbUrl || activeTeam?.logo || activeTeam?.image?.fullUrl ? (
 				<Avatar.Image
 					style={styles.teamImage}
@@ -62,7 +60,7 @@ const UserTeam = observer(() => {
 				/>
 			)}
 
-			<Text style={styles.activeTeamTxt}>{`${limitTextCharaters({
+			<Text style={[styles.activeTeamTxt, { color: colors['muted-foreground'] }]}>{`${limitTextCharaters({
 				text: activeTeam?.name,
 				numChars: 16
 			})} `}</Text>
@@ -73,7 +71,6 @@ const UserTeam = observer(() => {
 const styles = StyleSheet.create({
 	activeTeamContainer: {
 		alignItems: 'center',
-		backgroundColor: '#F5F5F5',
 		borderRadius: 60,
 		flexDirection: 'row',
 		gap: 3,
@@ -82,13 +79,12 @@ const styles = StyleSheet.create({
 	},
 	activeTeamTxt: {
 		fontFamily: typography.fonts.PlusJakartaSans.semiBold,
-		fontSize: 8,
+		fontSize: 11,
 		fontWeight: '600'
 
 		// left: 12,
 	},
 	container: {
-		backgroundColor: '#fff',
 		flexDirection: 'row',
 		justifyContent: 'space-between',
 		paddingBottom: 24,
@@ -96,18 +92,25 @@ const styles = StyleSheet.create({
 		paddingTop: 14
 	},
 	containerInfo: {
+		alignItems: 'flex-start',
+		flexShrink: 1,
+		gap: 2,
 		justifyContent: 'center',
 		marginLeft: 10
 	},
+	// The web's identity band: the name 20/600, the e-mail 13 muted
+	identity: {
+		flex: 1,
+		flexDirection: 'row'
+	},
 	email: {
-		color: '#7E7991',
 		fontFamily: typography.secondary.medium,
-		fontSize: 12
+		fontSize: 13
 	},
 	name: {
-		color: '#282048',
 		fontFamily: typography.primary.semiBold,
-		fontSize: 18
+		fontSize: 20,
+		fontWeight: '600'
 	},
 	prefix: {
 		fontFamily: typography.fonts.PlusJakartaSans.semiBold,
