@@ -30,7 +30,7 @@ const TaskTab: FC<Props> = observer(({ setSelectedTab, isSelected, tabTitle, cou
 				<View
 					style={[
 						$wrapperCountTasks,
-						{ backgroundColor: isSelected ? colors.secondary : colors.background2 }
+						{ backgroundColor: isSelected ? colors.accentFill : colors.background2 }
 					]}
 				>
 					<Text style={[$countTasks, { color: isSelected ? colors.background : colors.tertiary }]}>

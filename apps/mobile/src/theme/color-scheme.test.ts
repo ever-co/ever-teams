@@ -1,5 +1,5 @@
 import type { TextStyle } from 'react-native';
-import { resolveColorScheme } from './color-scheme';
+import { colorSchemeOf, resolveColorScheme } from './color-scheme';
 import { themeFor } from './use-theme';
 
 describe('the color scheme', () => {
@@ -11,6 +11,11 @@ describe('the color scheme', () => {
 	it('falls back to light when the phone says nothing', () => {
 		expect(resolveColorScheme('system', null)).toBe('light');
 		expect(resolveColorScheme('system', undefined)).toBe('light');
+	});
+
+	it('names the scheme of a screen that only knows whether it is dark', () => {
+		expect(colorSchemeOf(true)).toBe('dark');
+		expect(colorSchemeOf(false)).toBe('light');
 	});
 
 	it("keeps the person's own choice whatever the phone says", () => {
