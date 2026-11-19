@@ -1,7 +1,11 @@
 import React, { FC, useCallback } from 'react';
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import BottomSheet, { BottomSheetBackdrop, BottomSheetBackdropProps, BottomSheetView } from '@gorhom/bottom-sheet';
+import BottomSheet, {
+	BottomSheetBackdrop,
+	BottomSheetBackdropProps,
+	BottomSheetScrollView
+} from '@gorhom/bottom-sheet';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { typography, useWebTheme } from '../theme';
 import { sheetLookOf } from '../../src/theme/sheet-look';
@@ -79,9 +83,9 @@ const ActionSheet: FC<IActionSheetProps> = ({ visible, onClose, actions, title }
 					backgroundStyle={look.background}
 					handleIndicatorStyle={look.handle}
 				>
-					<BottomSheetView
+					<BottomSheetScrollView
 						testID="action-sheet"
-						style={[styles.content, { paddingBottom: insets.bottom + 8 }]}
+						contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 8 }]}
 					>
 						{hasTitle && (
 							<Text numberOfLines={1} style={[styles.title, { color: theme.colors['muted-foreground'] }]}>
@@ -106,7 +110,7 @@ const ActionSheet: FC<IActionSheetProps> = ({ visible, onClose, actions, title }
 								</Pressable>
 							))}
 						</View>
-					</BottomSheetView>
+					</BottomSheetScrollView>
 				</BottomSheet>
 			</GestureHandlerRootView>
 		</Modal>

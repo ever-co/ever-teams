@@ -89,4 +89,13 @@ describe('the action sheet of a card', () => {
 		expect(screen.queryByTestId('action-sheet')).toBeNull();
 		expect(screen.queryByText('Kofi Arden')).toBeNull();
 	});
+
+	it('scrolls its actions, so six of them in large text stay within reach', async () => {
+		await render(<ActionSheet visible onClose={jest.fn()} actions={actionsWith(jest.fn(), jest.fn())} />);
+
+		const content = screen.getByTestId('action-sheet');
+
+		expect(content.type).toBe('RCTScrollView');
+		expect(StyleSheet.flatten(content.props.contentContainerStyle).paddingBottom).toBe(32);
+	});
 });
