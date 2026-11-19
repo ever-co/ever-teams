@@ -39,6 +39,30 @@ describe("the ring of a task card on a person's Tasks tab", () => {
 		expect(progress).toBe(50);
 	});
 
+	it("falls back to the task's own time while the live total is read again after a switch of task", () => {
+		const progress = cardProgressOf({
+			isAuthUser: true,
+			isActiveTask: true,
+			taskSeconds: 3600,
+			activeTaskSeconds: undefined,
+			estimate: TWO_HOURS
+		});
+
+		expect(progress).toBe(50);
+	});
+
+	it('stays empty on a task without an estimate', () => {
+		const progress = cardProgressOf({
+			isAuthUser: false,
+			isActiveTask: false,
+			taskSeconds: 3600,
+			activeTaskSeconds: undefined,
+			estimate: 0
+		});
+
+		expect(progress).toBe(0);
+	});
+
 	it('stays empty while the time is not known yet', () => {
 		expect(
 			cardProgressOf({

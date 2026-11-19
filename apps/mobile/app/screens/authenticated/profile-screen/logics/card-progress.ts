@@ -21,10 +21,13 @@ export function cardProgressOf({
 	const isOwnRunningTask = isAuthUser && isActiveTask;
 	let seconds = taskSeconds;
 	if (isOwnRunningTask) {
-		seconds = activeTaskSeconds;
+		// The live total is cleared when the timer moves to another task and read again later: the task's own total
+		// stands in meanwhile, where the ring fell to 0
+		seconds = activeTaskSeconds ?? taskSeconds;
 	}
 	const percent = ((seconds ?? Number.NaN) * 100) / (estimate ?? Number.NaN);
-	if (Number.isNaN(percent)) {
+	// No time or no estimate (null or 0): an empty ring, never NaN or Infinity
+	if (!Number.isFinite(percent)) {
 		return 0;
 	}
 	return percent;
