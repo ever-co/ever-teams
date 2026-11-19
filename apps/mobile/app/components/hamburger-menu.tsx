@@ -72,7 +72,7 @@ const HamburgerMenu = observer((props: any) => {
 							<DropDown
 								isOpen={isTeamModalOpen}
 								setIsOpen={setIsTeamModalOpen}
-								resized={true}
+								resized={false}
 								onCreateTeam={() => setShowCreateTeamModal(true)}
 								isAccountVerified={user?.isEmailVerified}
 								isDrawer={true}
