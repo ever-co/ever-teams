@@ -105,7 +105,7 @@ export function useTeamMemberCard(member: IOrganizationTeamList["members"][numbe
 			  : 0;
 		  }
 		return responseTask
-	}, [activeTeamTask, activeTaskId, isAuthUser, authUser, member, tasksContent, publicTeam])
+	}, [activeTeamTask, activeTaskId, isAuthUser, authUser, member, tasksContent, tasksStatisticsState, publicTeam])
 
 	/**
 	 * Give the manager role to the member
