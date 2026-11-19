@@ -10,11 +10,12 @@ import { Card, ListItem } from '../../../../components';
 
 // STYLES
 import { GLOBAL_STYLE as GS } from '../../../../../assets/ts/styles';
-import { spacing, typography, useAppTheme } from '../../../../theme';
+import { spacing, typography, useAppTheme, useWebTheme } from '../../../../theme';
 import { observer } from 'mobx-react-lite';
 import { useOrganizationTeam } from '../../../../services/hooks/use-organization';
 import { translate } from '../../../../i18n';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
+import { estimateRingColorsOf } from '../../../../../src/theme/estimate-ring';
 import { useTeamInvitations } from '../../../../services/hooks/use-team-invitation';
 import { imgTitleProfileAvatar } from '../../../../helpers/img-title-profile-avatar';
 import { SvgXml } from 'react-native-svg';
@@ -37,6 +38,7 @@ export interface Props extends ListItemProps {
 export const ListItemContent: React.FC<ListItemProps> = observer(({ invite, onPressIn }) => {
 	// HOOKS
 	const { colors } = useAppTheme();
+	const ringColors = estimateRingColorsOf(useWebTheme());
 
 	return (
 		<TouchableWithoutFeedback onPress={() => onPressIn?.()}>
@@ -102,8 +104,8 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ invite, onPr
 								size={48}
 								width={5}
 								fill={0}
-								tintColor="#27AE60"
-								backgroundColor="#F0F0F0"
+								tintColor={ringColors.tint}
+								backgroundColor={ringColors.track}
 							>
 								{() => <Text style={{ ...styles.progessText, color: colors.primary }}>{NO_VALUE}</Text>}
 							</AnimatedCircularProgress>
