@@ -170,6 +170,8 @@ const TimerTaskSection = observer(
 									testID="task-picker-title"
 									accessibilityRole="button"
 									accessibilityLabel={activeTask?.title}
+									accessibilityState={{ disabled: localTimerStatus.running }}
+									disabled={localTimerStatus.running}
 									style={styles.restingTitle}
 									onPress={openTaskPicker}
 								>

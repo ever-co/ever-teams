@@ -70,6 +70,9 @@ describe("Work's panel", () => {
 		await fireEvent.press(screen.getByTestId('task-picker-title'));
 
 		expect(taskInput.setEditMode).not.toHaveBeenCalled();
+		expect(screen.getByTestId('task-picker-title').props.accessibilityState).toEqual(
+			expect.objectContaining({ disabled: true })
+		);
 	});
 
 	it('puts the estimate under its label, so it stays in its column beside the size', async () => {
