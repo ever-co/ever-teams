@@ -109,4 +109,32 @@ describe("the running timer's time, as the heartbeats and a stop write it", () =
 
 		expect(written()).toEqual([60, 25]);
 	});
+
+	it('does not hold a run back with the write of a run let go of, which never answers', async () => {
+		followRun('log-1', start);
+		void writeRunTime(() => new Promise<void>(() => undefined), minutes(1));
+		forgetRun('log-1');
+		followRun('log-2', minutes(2));
+
+		await writeRunTime(write, minutes(3));
+		jest.setSystemTime(minutes(4));
+		await writeRunTimeBeforeStop(write, 'log-2');
+
+		expect(written()).toEqual([60, 60]);
+	});
+
+	it('lets the late answer of a run let go of move nothing of the run followed since', async () => {
+		let answerLate: () => void = () => undefined;
+		followRun('log-1', start);
+		const late = writeRunTime(() => new Promise<void>((resolve) => (answerLate = resolve)), minutes(1));
+		forgetRun('log-1');
+		followRun('log-2', minutes(2));
+		await writeRunTime(write, minutes(3));
+
+		answerLate();
+		await late;
+		await writeRunTime(write, minutes(4));
+
+		expect(written()).toEqual([60, 60]);
+	});
 });
