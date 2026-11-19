@@ -1,4 +1,5 @@
 import { Command } from '../command.js';
+import { exportCommand } from './export.js';
 import { logCommand } from './log.js';
 import { loginCommand } from './login.js';
 import { logoutCommand } from './logout.js';
@@ -15,6 +16,7 @@ export const COMMANDS: Command[] = [
 	stopCommand,
 	todayCommand,
 	logCommand,
+	exportCommand,
 	projectsCommand,
 	loginCommand,
 	logoutCommand
