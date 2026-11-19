@@ -14,6 +14,18 @@ interface StoredSession {
 	persist?: { token: string | null; expiry?: number; apiUrl?: string };
 }
 
+// A sign-in with Ever Teams (config.signIn 'ever-teams') keeps only its renewal token, under a key of its own for the
+// API address that issued it and the organization it was allowed for: its timer token stays in memory. No other write
+// touches that key, so a password session saved by another tab, or the sign-in of another address or organization,
+// never puts back a renewal token that was already used.
+export interface StoredRenewal {
+	renewalToken: string;
+	// When the renewal token stops working, in milliseconds since the epoch.
+	expiresAt: number;
+}
+
+const SITE_SIGN_IN_PREFIX = 'ever-teams:site-sign-in:';
+
 interface StoredSessions extends StoredSession {
 	servers?: Record<string, StoredSession>;
 }
@@ -174,4 +186,78 @@ export function readStoredToken(address: string): string | null {
 		return null;
 	}
 	return persist.token;
+}
+
+function isRenewal(value: unknown): value is StoredRenewal {
+	if (typeof value !== 'object' || value === null) {
+		return false;
+	}
+	const renewal = value as Partial<StoredRenewal>;
+	const hasToken = typeof renewal.renewalToken === 'string' && renewal.renewalToken.length > 0;
+	return hasToken && typeof renewal.expiresAt === 'number';
+}
+
+/**
+ * What a sign-in with Ever Teams is kept and renewed under: the API address that issued it and the organization the
+ * person allowed the site for. A timer set up for another organization never renews it.
+ */
+export function siteSignInScopeOf(address: string, organizationId: string): string {
+	return JSON.stringify([address, organizationId]);
+}
+
+const siteSignInKeyOf = (address: string, organizationId: string) =>
+	SITE_SIGN_IN_PREFIX + siteSignInScopeOf(address, organizationId);
+
+/**
+ * Removes the renewal token of a sign-in with Ever Teams saved for this API address and organization, and only it.
+ */
+export function forgetStoredRenewal(address: string, organizationId: string): void {
+	try {
+		window.localStorage.removeItem(siteSignInKeyOf(address, organizationId));
+	} catch {
+		// Storage unavailable: nothing was saved there.
+	}
+}
+
+/**
+ * Saves the renewal token of a sign-in with Ever Teams for this API address and organization. Whether the browser kept
+ * it: false in a browser that refuses storage (private mode, blocked, full).
+ */
+export function saveStoredRenewal(address: string, organizationId: string, renewal: StoredRenewal): boolean {
+	try {
+		window.localStorage.setItem(siteSignInKeyOf(address, organizationId), JSON.stringify(renewal));
+		return true;
+	} catch {
+		return false;
+	}
+}
+
+/**
+ * The renewal token of a sign-in with Ever Teams saved for this API address and organization, or null. One past its
+ * expiry is removed instead.
+ */
+export function readStoredRenewal(address: string, organizationId: string): StoredRenewal | null {
+	let saved: string | null = null;
+	try {
+		saved = window.localStorage.getItem(siteSignInKeyOf(address, organizationId));
+	} catch {
+		return null;
+	}
+	if (!saved) {
+		return null;
+	}
+	let renewal: unknown;
+	try {
+		renewal = JSON.parse(saved);
+	} catch {
+		return null;
+	}
+	if (!isRenewal(renewal)) {
+		return null;
+	}
+	if (hasExpired(renewal.expiresAt)) {
+		forgetStoredRenewal(address, organizationId);
+		return null;
+	}
+	return renewal;
 }

@@ -37,6 +37,8 @@ import { useRegistrationForm } from '@hooks/useRegistrationForm';
 import { useClearKitSession } from '@hooks/useClearKitSession';
 import { forgetStoredSession } from '@lib/session/stored-session';
 import { apiUrlOf } from '@lib/utils/api-url';
+import { useSiteSignIn } from '@lib/session/site-sign-in-context';
+import { SiteSignInButton } from './site-sign-in-button';
 
 /**
  * What a signed-out person sees when the host signs people in from its backend (config.getToken): the kit asks for no
@@ -53,6 +55,18 @@ const HostSignInNote = ({ className }: { className?: string }) => {
 			{t('AUTH.host_sign_in')}
 		</p>
 	);
+};
+
+/**
+ * What a signed-out person sees when the kit asks for no password or token: the "Sign in with Ever Teams" button
+ * (config.signIn 'ever-teams'), else the note that points to the host product's own sign-in.
+ */
+const SignedOutPrompt = ({ className }: { className?: string }) => {
+	const { siteSignIn } = useKitOptions();
+	if (siteSignIn) {
+		return <SiteSignInButton className={className} />;
+	}
+	return <HostSignInNote className={className} />;
 };
 
 // The name a person goes by in the kit: first and last name, or "" without one. Never the email: these names go into
@@ -194,12 +208,12 @@ const TeamsLoginForm = ({
 		}
 		warnOnce(
 			'password-sign-in',
-			'the password and token sign-in ask for an Ever Teams credential inside this page. On a site that is not your own, pass config.getToken to sign people in from your backend (README: "Sign in from your backend").'
+			'the password and token sign-in ask for an Ever Teams credential inside this page. On a site that is not your own, pass config.getToken to sign people in from your backend (README: "Sign in from your backend"), or config.signIn \'ever-teams\' on a site without a server (README: "Sign in with Ever Teams").'
 		);
 	}, [hostSignIn]);
 
 	if (hostSignIn) {
-		return <HostSignInNote className={className} />;
+		return <SignedOutPrompt className={className} />;
 	}
 
 	return mode === 'signin' ? (
@@ -269,7 +283,7 @@ const TeamsLoginDialog = ({
 
 	// The host signs people in: no dialog to open, only the note while the person is signed out of the host product.
 	if (hostSignIn && !user) {
-		return <HostSignInNote />;
+		return <SignedOutPrompt />;
 	}
 
 	return (
@@ -314,10 +328,19 @@ export function MenuIndicator() {
 export const UserNavMenu = ({ children }: { children?: React.ReactNode }) => {
 	const { authenticatedUser: user, token } = useTeamsContext();
 	const { onSignOut, scoped, hostSignIn, api } = useKitOptions();
+	const siteSignIn = useSiteSignIn();
 	const clearSession = useClearKitSession();
 	const { t } = useTranslation();
+	// Signed in with Ever Teams, the person signs out here; signed in by the host, with the host product.
+	const offersSignOut = !hostSignIn || siteSignIn !== null;
 
 	const logOut = async () => {
+		// The sign-in with Ever Teams ends at the API, then here: the widgets show the button again, on the same page.
+		if (siteSignIn) {
+			await siteSignIn.signOut();
+			onSignOut?.();
+			return;
+		}
 		if (typeof window !== 'undefined') {
 			await teamsLogOut(token, api);
 
@@ -372,7 +395,7 @@ export const UserNavMenu = ({ children }: { children?: React.ReactNode }) => {
 
 			{children}
 
-			{!hostSignIn && (
+			{offersSignOut && (
 				<ul className="pt-3 space-y-2 w-full border-t dark:border-gray-700">
 					{/* Logout menu */}
 					<li>

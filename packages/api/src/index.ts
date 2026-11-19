@@ -23,3 +23,4 @@ export * from './lib/client/errors';
 export * from './lib/client/types';
 export * from './lib/client/create-client';
 export * from './lib/client/timer-change';
+export * from './lib/client/site-session';

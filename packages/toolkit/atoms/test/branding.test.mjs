@@ -25,7 +25,9 @@ const stubs = {
 		export const getWeekStartAndEnd = () => ({ start: new Date(0), end: new Date(0) });`,
 	'theme-ui': 'export const ThemeUIProvider = ({ children }) => children;',
 	'next-themes': 'export const ThemeProvider = ({ children }) => children;',
-	'@ever-teams/api': 'export const apiConfigManager = { setConfig() {}, getConfig: () => ({}) };',
+	'@ever-teams/api': `export const apiConfigManager = { setConfig() {}, getConfig: () => ({}) };
+		export const renewEmbedSiteSession = async () => {};
+		export const revokeEmbedSiteSession = async () => {};`,
 	'@ever-teams/toolkit-types': '',
 	'@hooks/useAccessToken': 'export const useAccessToken = () => ({ accessToken: null });',
 	'@hooks/useAuthUser': 'export const useAuthUser = () => ({ data: undefined });',

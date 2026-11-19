@@ -18,6 +18,7 @@ const AUTH_LAYOUT = join(AUTH_DIR, 'layout.tsx');
 const DELETE_ACCOUNT_LAYOUT = join(APP_DIR, '[locale]', 'delete-account', 'layout.tsx');
 const SHARED_REPORT_LAYOUT = join(APP_DIR, '[locale]', 'shared-report', 'layout.tsx');
 const SHARED_INVOICE_LAYOUT = join(APP_DIR, '[locale]', 'shared-invoice', 'layout.tsx');
+const EMBED_AUTHORIZE_PAGE = join(APP_DIR, '[locale]', '(focus)', 'embed', 'authorize', 'page.tsx');
 const CORE_DIR = resolve(__dirname, '../../core');
 
 function listSourceFiles(dir: string): string[] {
@@ -76,11 +77,14 @@ describe('auth pages are noindex, follow', () => {
 	// The account deletion pages (#4876) are public, carry a token in the URL fragment and are not content, so their
 	// layout declares its own robots { index: false, follow: false } on purpose. So do the shared report pages (#5200)
 	// and an invoice's public page (ever-co/ever-gauzy#11856), read without an account through a link that carries its
-	// token: those are the three other allowed places.
+	// token. The popup where a person allows a site to use their timer (/embed/authorize, #5528) is a step of a site's
+	// sign-in, not content, and says robots { index: false, follow: false } too: those are the four other allowed
+	// places.
 	it('does not spread robots or googleBot metadata to any route outside /[locale]/auth', () => {
 		const files = listSourceFiles(APP_DIR);
 		// Control: the pattern finds the declarations that are supposed to exist.
 		expect(files.filter((file) => /\b(robots|googleBot)\s*:/.test(readFileSync(file, 'utf8')))).toEqual([
+			EMBED_AUTHORIZE_PAGE,
 			AUTH_LAYOUT,
 			DELETE_ACCOUNT_LAYOUT,
 			SHARED_INVOICE_LAYOUT,
