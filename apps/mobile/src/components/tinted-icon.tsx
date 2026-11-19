@@ -45,15 +45,18 @@ export function TintedIcon({ uri, color, size }: Readonly<TintedIconProps>) {
 
 	useEffect(() => {
 		let current = true;
-		iconFileOf(uri)
-			.then((file) => {
+		const load = async () => {
+			try {
+				const file = await iconFileOf(uri);
 				if (current) {
 					setXml(tintIconXml(file));
 				}
-			})
-			.catch(() => {
+			} catch {
+				// a failed read is dropped, so the next screen that shows the icon asks for it again
 				iconFiles.delete(uri);
-			});
+			}
+		};
+		load();
 		return () => {
 			current = false;
 		};
