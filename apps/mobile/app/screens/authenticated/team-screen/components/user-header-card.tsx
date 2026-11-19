@@ -107,13 +107,13 @@ const UserHeaderCard = ({ member, user }: { member: OT_Member; user: IUser }) =>
 export default UserHeaderCard;
 
 const styles = StyleSheet.create({
-	// The web's member name: 14/500
+	// The web's member name: 14/500; it shrinks and is cut short before the time beside it on the card's row
 	name: {
+		flexShrink: 1,
 		fontFamily: typography.fonts.PlusJakartaSans.medium,
 		fontSize: 14,
 		fontWeight: '500',
-		left: 15,
-		maxWidth: '70%'
+		marginLeft: 15
 	},
 	prefix: {
 		color: '#FFFFFF',
@@ -136,6 +136,7 @@ const styles = StyleSheet.create({
 	},
 	wrapProfileImg: {
 		alignItems: 'center',
-		flexDirection: 'row'
+		flexDirection: 'row',
+		flexShrink: 1
 	}
 });
