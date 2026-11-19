@@ -25,7 +25,7 @@ import {
 	timerStartMoveRefusalKeyOf
 } from '../helpers/timer-start-move';
 import type { ITimerStartMoveFailure } from '../services/hooks/use-timer-start-move';
-import { typography, useAppTheme, useWebTheme } from '../theme';
+import { typography, useWebTheme } from '../theme';
 import { buttonLookOf, choiceLookOf } from '../../src/theme/form-look';
 
 /** The line that says why the panel shows the start alone. */
@@ -36,7 +36,6 @@ const VIEW_KEYS: Readonly<Record<TimerStartViewReason, TxKeyPath>> = {
 	unsupported: 'timer.startMove.unsupported'
 };
 
-const ERROR_COLOR = '#DA5E5E';
 const FIELD_BORDER_COLOR = '#DCE4E8';
 const PLACEHOLDER_COLOR = '#7B8089';
 /** A day of the run as its choice shows it, in the phone's language: `Sun 15 Nov`. */
@@ -70,7 +69,6 @@ function timeKeyboard(): KeyboardTypeOptions {
  * phone are told after.
  */
 export const TimerStartPanel: FC<ITimerStartPanelProps> = ({ access, runStart, saving, onSave, onClose }) => {
-	const { colors } = useAppTheme();
 	const theme = useWebTheme();
 	const cancelLook = buttonLookOf('secondary', theme);
 	const saveLook = buttonLookOf('primary', theme);
@@ -175,24 +173,28 @@ export const TimerStartPanel: FC<ITimerStartPanelProps> = ({ access, runStart, s
 	};
 
 	return (
-		<View style={[styles.container, { backgroundColor: colors.background }]} testID="timer-start-panel">
-			<Text style={[styles.title, { color: colors.primary }]}>{translate('timer.startMove.title')}</Text>
+		<View style={styles.container} testID="timer-start-panel">
+			<Text style={[styles.title, { color: theme.colors.foreground }]}>{translate('timer.startMove.title')}</Text>
 			{isRunning ? (
-				<Text style={[styles.startedAt, { color: colors.primary }]}>{startedAtText}</Text>
+				<Text style={[styles.startedAt, { color: theme.colors.foreground }]}>{startedAtText}</Text>
 			) : (
-				<Text style={[styles.note, { color: colors.tertiary }]}>{translate('timer.startMove.notRunning')}</Text>
+				<Text style={[styles.note, { color: theme.colors['muted-foreground'] }]}>
+					{translate('timer.startMove.notRunning')}
+				</Text>
 			)}
 
 			{isRunning && access.kind === 'view' ? (
 				<View style={styles.viewLine}>
 					{access.why === 'checking' ? <ActivityIndicator size="small" color={theme.colors.primary} /> : null}
-					<Text style={[styles.note, { color: colors.tertiary }]}>{translate(VIEW_KEYS[access.why])}</Text>
+					<Text style={[styles.note, { color: theme.colors['muted-foreground'] }]}>
+						{translate(VIEW_KEYS[access.why])}
+					</Text>
 				</View>
 			) : null}
 
 			{isEditable ? (
 				<View>
-					<Text style={[styles.label, { color: colors.primary }]}>
+					<Text style={[styles.label, { color: theme.colors.foreground }]}>
 						{translate('timer.startMove.newStart')}
 					</Text>
 					{asksForDay ? (
@@ -220,7 +222,7 @@ export const TimerStartPanel: FC<ITimerStartPanelProps> = ({ access, runStart, s
 					) : null}
 					<BottomSheetTextInput
 						testID="timer-start-time"
-						style={[styles.input, { color: colors.primary, borderColor: FIELD_BORDER_COLOR }]}
+						style={[styles.input, { color: theme.colors.foreground, borderColor: FIELD_BORDER_COLOR }]}
 						value={timeText}
 						onChangeText={changeTime}
 						placeholder={translate('timer.startMove.timePlaceholder')}
@@ -232,18 +234,21 @@ export const TimerStartPanel: FC<ITimerStartPanelProps> = ({ access, runStart, s
 						accessibilityLabel={translate('timer.startMove.newStart')}
 					/>
 					{access.earlierAllowed ? null : (
-						<Text style={[styles.note, { color: colors.tertiary }]}>
+						<Text style={[styles.note, { color: theme.colors['muted-foreground'] }]}>
 							{translate('timer.startMove.laterOnly')}
 						</Text>
 					)}
 					{access.reasonRequired ? (
 						<>
-							<Text style={[styles.label, { color: colors.primary }]}>
+							<Text style={[styles.label, { color: theme.colors.foreground }]}>
 								{translate('timer.startMove.reason')}
 							</Text>
 							<BottomSheetTextInput
 								testID="timer-start-reason"
-								style={[styles.input, { color: colors.primary, borderColor: FIELD_BORDER_COLOR }]}
+								style={[
+									styles.input,
+									{ color: theme.colors.foreground, borderColor: FIELD_BORDER_COLOR }
+								]}
 								value={reason}
 								onChangeText={changeReason}
 								placeholder={translate('timer.startMove.reasonPlaceholder')}
@@ -258,7 +263,11 @@ export const TimerStartPanel: FC<ITimerStartPanelProps> = ({ access, runStart, s
 			) : null}
 
 			{errorKey ? (
-				<Text style={styles.error} accessibilityLiveRegion="polite" testID="timer-start-error">
+				<Text
+					style={[styles.error, { color: theme.colors['destructive-ink'] }]}
+					accessibilityLiveRegion="polite"
+					testID="timer-start-error"
+				>
 					{translate(errorKey)}
 				</Text>
 			) : null}
@@ -336,7 +345,6 @@ const styles = StyleSheet.create({
 		marginTop: 8
 	},
 	error: {
-		color: ERROR_COLOR,
 		fontFamily: typography.primary.medium,
 		fontSize: 13,
 		marginTop: 12
