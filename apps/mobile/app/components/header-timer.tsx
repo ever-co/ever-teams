@@ -87,7 +87,7 @@ const HeaderTimer = observer(() => {
 					accessibilityRole={isRunning ? 'button' : 'text'}
 					accessibilityHint={isRunning ? translate('timer.discard.changeStart') : undefined}
 				>
-					<Text style={[styles.timerText, { color: colors.foreground }]}>
+					<Text numberOfLines={1} style={[styles.timerText, { color: colors.foreground }]}>
 						{pad(hours)}:{pad(minutes)}:{pad(seconds)}
 						<Text style={[styles.smallTxt, { color: colors['muted-foreground'] }]}>:{pad(ms_p)}</Text>
 					</Text>
@@ -132,8 +132,8 @@ const styles = StyleSheet.create({
 		fontSize: 9
 	},
 	timeColumn: {
-		gap: 2,
-		width: 84
+		flex: 1,
+		gap: 2
 	},
 	timerText: {
 		fontSize: 13,
