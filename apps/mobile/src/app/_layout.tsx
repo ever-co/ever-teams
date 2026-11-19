@@ -21,7 +21,10 @@ import { ErrorBoundary } from '../../app/screens/error-screen/error-boundary';
 import { tellSessionEnded } from '../../app/services/client/fetch';
 import { AppQueryProvider } from '../../app/services/client/query-provider';
 import { setupReactotron } from '../../app/services/reactotron';
-import { customDarkTheme, customFontsToLoad, customLightTheme, navigationTheme } from '../../app/theme';
+import { customDarkTheme, customFontsToLoad, customLightTheme } from '../../app/theme';
+import { navigationThemeFor } from '../navigation/navigation-theme';
+import { themeFor } from '../theme/use-theme';
+import { colorSchemeOf } from '../theme/color-scheme';
 import { initCrashReporting } from '../../app/utils/crash-reporting';
 import { useOnceReady } from '../../app/utils/use-once-ready';
 import { useSessionFromStore } from '../state/session-from-store';
@@ -44,6 +47,12 @@ markRouterMounted();
 
 function hideSplashScreen(): void {
 	void SplashScreen.hideAsync();
+}
+
+/** The navigators' theme on the web's tokens: page, cards, lines and the brand color of their own controls. */
+function navigatorsThemeOf(dark: boolean) {
+	const scheme = colorSchemeOf(dark);
+	return navigationThemeFor(themeFor(scheme));
 }
 
 /**
@@ -95,7 +104,7 @@ const RootLayout = observer(function RootLayout() {
 						<FlashMessage position="top" />
 						<ClickOutsideProvider>
 							<AppQueryProvider signedIn={isAuthenticated}>
-								<ThemeProvider value={navigationTheme(dark)}>
+								<ThemeProvider value={navigatorsThemeOf(dark)}>
 									<Stack screenOptions={{ headerShown: false }} />
 								</ThemeProvider>
 							</AppQueryProvider>
