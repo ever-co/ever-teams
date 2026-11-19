@@ -26,7 +26,7 @@ export const TodayWorkedTime: FC<IProps> = observer(({ isAuthUser }) => {
 
 	if (isAuthUser) {
 		return (
-			<View style={styles.container}>
+			<View testID="today-work-time" style={styles.container}>
 				<Text style={[styles.totalTimeTitle, statLabelStyleOf(theme)]}>
 					{translate('teamScreen.cardTotalTimeLabel')}
 				</Text>
@@ -38,7 +38,7 @@ export const TodayWorkedTime: FC<IProps> = observer(({ isAuthUser }) => {
 	}
 
 	return (
-		<View style={styles.container}>
+		<View testID="today-work-time" style={styles.container}>
 			<Text style={[styles.totalTimeTitle, statLabelStyleOf(theme)]}>
 				{translate('teamScreen.cardTotalTimeLabel')}
 			</Text>
@@ -50,10 +50,9 @@ export const TodayWorkedTime: FC<IProps> = observer(({ isAuthUser }) => {
 });
 
 const styles = StyleSheet.create({
+	// its own height: in the card's first row, which has none, a share of the row's height stretched the whole card
 	container: {
-		alignItems: 'center',
-		height: '80%',
-		justifyContent: 'space-between'
+		alignItems: 'center'
 	},
 	totalTimeText: {
 		fontFamily: typography.primary.semiBold,
