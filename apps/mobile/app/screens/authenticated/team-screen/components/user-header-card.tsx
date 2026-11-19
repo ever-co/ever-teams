@@ -6,7 +6,7 @@ import React, { FC } from 'react';
 import { IUser } from '../../../../services/interfaces/IUserData';
 import { Avatar } from 'react-native-paper';
 import { typography, useWebTheme } from '../../../../theme';
-import { presenceColorOf } from '../../../../../src/theme/presence';
+import { presenceColorOf, presenceInkOf } from '../../../../../src/theme/presence';
 import type { Theme } from '../../../../../src/theme/use-theme';
 import { OT_Member } from '../../../../services/interfaces/IOrganizationTeam';
 import { useTimer } from '../../../../services/hooks/use-timer';
@@ -26,7 +26,7 @@ interface ITimerStatus {
 	status: 'running' | 'online' | 'idle' | 'suspended' | 'pause';
 	theme: Theme;
 }
-/** The presence icons carry the dark shade of their old pastel; on the badge they are drawn in one light ink. */
+/** The presence icons carry the dark shade of their old pastel; on the badge they take the ink of their fill. */
 export function presenceIconXml(xml: string): string {
 	return xml.replace(/fill="#[0-9A-Fa-f]{3,8}"/g, 'fill="currentColor"');
 }
@@ -62,7 +62,7 @@ const TimerStatus: FC<ITimerStatus> = ({ status, theme }) => {
 				testID="presence-fill"
 				style={[styles.presenceFill, { backgroundColor: presenceColorOf(status, theme) }]}
 			>
-				<SvgXml xml={presenceIconXml(iconSvgXml)} color={theme.colors['primary-foreground']} />
+				<SvgXml xml={presenceIconXml(iconSvgXml)} color={presenceInkOf(status, theme)} />
 			</View>
 		</View>
 	);
