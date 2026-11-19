@@ -53,7 +53,7 @@ export interface Props extends ListItemProps {
 
 export const ListItemContent: React.FC<IcontentProps> = observer(({ memberInfo, taskEdition, onPressIn }) => {
 	// HOOKS
-	const { colors, dark } = useAppTheme();
+	const { colors } = useAppTheme();
 	const clickOutsideTaskEstimationInputRef = useClickOutside<View>(() => taskEdition.setEstimateEditMode(false));
 	return (
 		<TouchableWithoutFeedback>
