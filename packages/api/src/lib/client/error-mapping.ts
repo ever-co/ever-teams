@@ -79,11 +79,12 @@ export function codeOf(body: unknown): string | undefined {
 	return undefined;
 }
 
-function forbiddenStep(code: string | undefined): string {
+// The embed guard refuses a token before the route runs: its code says more than the route's own next step.
+function forbiddenStep(code: string | undefined, ownStep: string | undefined): string {
 	if (code !== undefined && Object.prototype.hasOwnProperty.call(FORBIDDEN_STEPS, code)) {
 		return FORBIDDEN_STEPS[code];
 	}
-	return FORBIDDEN_STEP;
+	return ownStep || FORBIDDEN_STEP;
 }
 
 function rateLimitStep(retryAfter: number | undefined): string {
@@ -140,7 +141,7 @@ export function errorFromResponse(
 		return new EverTeamsAuthError({ ...fields, nextStep: ownStep || AUTH_STEP });
 	}
 	if (status === 403) {
-		return new EverTeamsForbiddenError({ ...fields, nextStep: ownStep || forbiddenStep(code) });
+		return new EverTeamsForbiddenError({ ...fields, nextStep: forbiddenStep(code, ownStep) });
 	}
 	if (status === 404) {
 		return new EverTeamsNotFoundError({ ...fields, nextStep: ownStep || NOT_FOUND_STEP });

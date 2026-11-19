@@ -386,6 +386,7 @@ export const GLOBAL_STYLE = StyleSheet.create({
 		borderWidth: 0
 	},
 	noShadow: {
+		boxShadow: [],
 		elevation: 0,
 		shadowColor: 'transparent',
 		shadowOffset: { width: 0, height: 0 },
