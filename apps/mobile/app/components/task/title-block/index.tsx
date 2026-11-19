@@ -62,6 +62,7 @@ const TaskTitleBlock = observer(() => {
 		<View style={{ gap: 18, marginVertical: 20 }}>
 			<View style={{ flexDirection: 'row', gap: 5 }}>
 				<TextInput
+					testID="task-title"
 					multiline
 					editable={edit}
 					style={[
