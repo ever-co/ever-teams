@@ -1,8 +1,8 @@
 /* eslint-disable react-native/no-inline-styles */
-import { ScrollView, Text, TextStyle, View, ViewStyle } from 'react-native';
+import { ScrollView, View, ViewStyle } from 'react-native';
 import React, { FC } from 'react';
-import { typography } from '../../../../theme/typography';
 import SingleInfo from '../components/single-info';
+import { SettingsSection, SettingsSurface } from '../components/settings-kit';
 import { translate } from '../../../../i18n';
 import { useSettings } from '../../../../services/hooks/features/use-settings';
 import { useStores } from '../../../../models';
@@ -30,45 +30,51 @@ const PersonalSettings: FC<IPersonalProps> = ({ onOpenBottomSheet }) => {
 	};
 
 	return (
-		<View style={[$contentContainer, { backgroundColor: colors.background, opacity: 0.9 }]}>
-			<ScrollView bounces={false} style={{ width: '100%', height: '100%' }} showsVerticalScrollIndicator={false}>
+		<View style={[$contentContainer, { backgroundColor: colors.background }]}>
+			<ScrollView
+				bounces={false}
+				style={{ width: '100%', height: '100%' }}
+				contentContainerStyle={$content}
+				showsVerticalScrollIndicator={false}
+			>
 				<UserAvatar
 					buttonLabel={translate('settingScreen.personalSection.changeAvatar')}
 					onChange={() => openSheet('Avatar')}
 				/>
-				<SingleInfo
-					title={translate('settingScreen.personalSection.fullName')}
-					value={user?.name}
-					onPress={() => openSheet('Names')}
-				/>
-				<SingleInfo
-					title={translate('settingScreen.personalSection.yourContact')}
-					value={translate('settingScreen.personalSection.yourContactHint')}
-					onPress={() => openSheet('Contact')}
-				/>
-				<SingleInfo
-					onPress={() => toggleTheme(dark)}
-					title={translate('settingScreen.personalSection.themes')}
-					value={translate('settingScreen.personalSection.lightModeToDark')}
-				/>
-				<SingleInfo
-					onPress={() => openSheet('Language')}
-					title={translate('settingScreen.personalSection.language')}
-					value={preferredLanguage?.name}
-				/>
-				<SingleInfo
-					title={translate('settingScreen.personalSection.timeZone')}
-					value={user?.timeZone}
-					onDetectTimezone={() => onDetectTimezone()}
-					onPress={() => openSheet('TimeZone')}
-				/>
-				<SingleInfo
-					title={translate('settingScreen.personalSection.workSchedule')}
-					value={translate('settingScreen.personalSection.workScheduleHint')}
-				/>
+				<SettingsSurface>
+					<SingleInfo
+						title={translate('settingScreen.personalSection.fullName')}
+						value={user?.name}
+						onPress={() => openSheet('Names')}
+					/>
+					<SingleInfo
+						title={translate('settingScreen.personalSection.yourContact')}
+						value={translate('settingScreen.personalSection.yourContactHint')}
+						onPress={() => openSheet('Contact')}
+					/>
+					<SingleInfo
+						onPress={() => toggleTheme(dark)}
+						title={translate('settingScreen.personalSection.themes')}
+						value={translate('settingScreen.personalSection.lightModeToDark')}
+					/>
+					<SingleInfo
+						onPress={() => openSheet('Language')}
+						title={translate('settingScreen.personalSection.language')}
+						value={preferredLanguage?.name}
+					/>
+					<SingleInfo
+						title={translate('settingScreen.personalSection.timeZone')}
+						value={user?.timeZone}
+						onDetectTimezone={() => onDetectTimezone()}
+						onPress={() => openSheet('TimeZone')}
+					/>
+					<SingleInfo
+						title={translate('settingScreen.personalSection.workSchedule')}
+						value={translate('settingScreen.personalSection.workScheduleHint')}
+					/>
+				</SettingsSurface>
 
-				<View style={$dangerZoneContainer}>
-					<Text style={$dangerZoneTitle}>{translate('settingScreen.dangerZone')}</Text>
+				<SettingsSection title={translate('settingScreen.dangerZone')} tone="danger">
 					<SingleInfo
 						title={translate('settingScreen.personalSection.removeAccount')}
 						value={translate('settingScreen.personalSection.removeAccountHint')}
@@ -79,7 +85,7 @@ const PersonalSettings: FC<IPersonalProps> = ({ onOpenBottomSheet }) => {
 						value={translate('settingScreen.personalSection.deleteAccountHint')}
 						onPress={() => openSheet('Delete Account')}
 					/>
-				</View>
+				</SettingsSection>
 			</ScrollView>
 			<FlashMessage position={'bottom'} />
 		</View>
@@ -94,15 +100,8 @@ const $contentContainer: ViewStyle = {
 	zIndex: 10
 };
 
-const $dangerZoneContainer: ViewStyle = {
-	borderTopColor: 'rgba(0, 0, 0, 0.09)',
-	borderTopWidth: 1,
-	paddingTop: 32,
-	marginTop: 32,
-	marginBottom: 40
-};
-const $dangerZoneTitle: TextStyle = {
-	color: '#DA5E5E',
-	fontSize: 20,
-	fontFamily: typography.primary.semiBold
+const $content: ViewStyle = {
+	gap: 24,
+	paddingBottom: 40,
+	paddingTop: 16
 };
