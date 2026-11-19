@@ -23,3 +23,16 @@ export function presenceColorOf(presence: Presence, theme: Theme): string {
 	}
 	return hsl(tokens['muted-foreground'], SUSPENDED_ALPHA);
 }
+
+/**
+ * The ink of the icon on a presence badge, at 3:1 at least on its fill: the dark text on the solid fills (working, on
+ * pause) in both themes, where white reads at 2.1 to 2.5; the theme's text on the translucent ones, which take the
+ * card's shade.
+ */
+export function presenceInkOf(presence: Presence, theme: Theme): string {
+	const isTranslucent = presence === 'idle' || presence === 'suspended';
+	if (isTranslucent) {
+		return theme.colors.foreground;
+	}
+	return hsl(webColorTokens.light.foreground);
+}

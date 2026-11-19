@@ -397,11 +397,13 @@ const styles = StyleSheet.create({
 		paddingVertical: 16,
 		width: '98%'
 	},
+	// in the row's flow at its right end, so a long name is cut short before the time instead of running under it
 	wrapTotalTime: {
 		alignItems: 'center',
+		flexShrink: 0,
 		justifyContent: 'center',
+		marginLeft: 'auto',
 		marginRight: 30,
-		position: 'absolute',
-		right: 0
+		paddingLeft: 8
 	}
 });
