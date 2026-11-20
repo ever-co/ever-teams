@@ -125,7 +125,8 @@ export const useTimer = () => {
 		await refreshEveryWidget();
 	};
 
-	// The API answers 406 to a stop when no entry of the person runs: it was stopped in another tab or app (#5626).
+	// The API answers 406 to a stop when no entry of the person runs, or when the one running started after the stop was
+	// sent: either way the run this stop was for ended in another tab or app (#5626).
 	const reportAlreadyStopped = (isStillCurrent: () => boolean) => {
 		const message = t('TIME_TRACKER.already_stopped');
 		if (sharedStatus) {
