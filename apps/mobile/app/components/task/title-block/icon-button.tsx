@@ -1,10 +1,10 @@
-import React, { type ComponentProps } from 'react';
+import React from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
-import { Feather } from '@expo/vector-icons';
+import type { IconComponent } from '../../../../src/components/icons';
 
 type IconButtonProps = {
 	testID: string;
-	icon: ComponentProps<typeof Feather>['name'];
+	icon: IconComponent;
 	/** The action's name for screen readers: the icon alone says nothing. */
 	label: string;
 	color: string;
@@ -12,7 +12,7 @@ type IconButtonProps = {
 };
 
 /** A quiet icon button: the icon alone, in a 36 square that a tap tints. */
-const IconButton: React.FC<IconButtonProps> = ({ testID, icon, label, color, onPress }) => {
+const IconButton: React.FC<IconButtonProps> = ({ testID, icon: Icon, label, color, onPress }) => {
 	return (
 		<TouchableOpacity
 			testID={testID}
@@ -21,7 +21,7 @@ const IconButton: React.FC<IconButtonProps> = ({ testID, icon, label, color, onP
 			onPress={onPress}
 			style={styles.iconButton}
 		>
-			<Feather name={icon} size={18} color={color} />
+			<Icon size={18} color={color} />
 		</TouchableOpacity>
 	);
 };

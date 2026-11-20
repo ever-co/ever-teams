@@ -1,10 +1,11 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react-native/no-color-literals */
 import { View, TextInput, StyleSheet, TouchableOpacity, Text, Dimensions } from 'react-native';
-import React, { ComponentProps, SetStateAction, useCallback, useEffect, useState } from 'react';
+import React, { SetStateAction, useCallback, useEffect, useState } from 'react';
 import { useStores } from '../../../models';
 import { typography, useAppTheme, useWebTheme } from '../../../theme';
-import { Feather } from '@expo/vector-icons';
+import { Check, Copy, ParentTask, Pencil, Plus, X } from '../../../../src/components/icons';
+import type { IconComponent } from '../../../../src/components/icons';
 import IconButton from './icon-button';
 import * as Clipboard from 'expo-clipboard';
 import { useTeamTasks } from '../../../services/hooks/features/use-team-tasks';
@@ -126,14 +127,14 @@ const TitleIcons: React.FC<ITitleIcons> = ({ edit, setEdit, copyTitle, saveTitle
 				<IconButton
 					testID="task-title-save"
 					label={translate('common.save')}
-					icon="check"
+					icon={Check}
 					color={theme.colors['primary-ink']}
 					onPress={saveTitle}
 				/>
 				<IconButton
 					testID="task-title-cancel"
 					label={translate('common.cancel')}
-					icon="x"
+					icon={X}
 					color={muted}
 					onPress={() => setEdit(false)}
 				/>
@@ -145,14 +146,14 @@ const TitleIcons: React.FC<ITitleIcons> = ({ edit, setEdit, copyTitle, saveTitle
 			<IconButton
 				testID="task-title-edit"
 				label={translate('common.edit')}
-				icon="edit-2"
+				icon={Pencil}
 				color={muted}
 				onPress={() => setEdit(true)}
 			/>
 			<IconButton
 				testID="task-title-copy"
 				label={translate('taskDetailsScreen.copyTitleButton')}
-				icon="copy"
+				icon={Copy}
 				color={muted}
 				onPress={copyTitle}
 			/>
@@ -241,18 +242,19 @@ function parentActionLabelOf(task: ITeamTask): string {
 	return translate('taskDetailsScreen.addParent');
 }
 
-/** The parent action's icon: a plus to add one, a swap to change it. */
-function parentActionIconOf(task: ITeamTask): ComponentProps<typeof Feather>['name'] {
+/** The parent action's icon: a plus to add one, the web's parent glyph to change it. */
+function parentActionIconOf(task: ITeamTask): IconComponent {
 	if (task?.parentId) {
-		return 'repeat';
+		return ParentTask;
 	}
-	return 'plus';
+	return Plus;
 }
 
 const ParentTaskInput: React.FC<{ task: ITeamTask }> = observer(({ task }) => {
 	const [modalVisible, setModalVisible] = useState<boolean>(false);
 	const theme = useWebTheme();
 	const ink = theme.colors['primary-ink'];
+	const ParentActionIcon = parentActionIconOf(task);
 	return task && task?.issueType !== 'Epic' ? (
 		<TouchableOpacity
 			testID="task-parent-action"
@@ -260,7 +262,7 @@ const ParentTaskInput: React.FC<{ task: ITeamTask }> = observer(({ task }) => {
 			style={styles.parentAction}
 			onPress={() => setModalVisible(true)}
 		>
-			<Feather name={parentActionIconOf(task)} size={14} color={ink} />
+			<ParentActionIcon size={14} color={ink} />
 			<Text style={[styles.parentActionText, { color: ink }]}>{parentActionLabelOf(task)}</Text>
 
 			<CreateParentTaskModal visible={modalVisible} onDismiss={() => setModalVisible(false)} task={task} />

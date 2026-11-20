@@ -14,7 +14,7 @@ import TaskRow from '../details-block/components/task-row';
 import { PropertyLabel } from '../details-block/components/property-label';
 import { ProgressBar } from 'react-native-paper';
 import { ITeamTask } from '../../../services/interfaces/ITask';
-import { Feather } from '@expo/vector-icons';
+import { Chart, ChevronDown, ChevronUp, Clock, Sun, Timer, Users } from '../../../../src/components/icons';
 import { useAppTheme } from '../../../theme';
 import ProfileInfoWithTime from '../estimate-block/components/profile-info-with-time';
 import { translate } from '../../../i18n';
@@ -144,16 +144,14 @@ const TimeBlock = () => {
 				{/* Progress Bar */}
 				<TaskRow
 					alignItems={true}
-					labelComponent={
-						<PropertyLabel icon="bar-chart-2" label={translate('taskDetailsScreen.progress')} />
-					}
+					labelComponent={<PropertyLabel icon={Chart} label={translate('taskDetailsScreen.progress')} />}
 				>
 					<Progress task={task} percent={getTimePercentage} />
 				</TaskRow>
 				{/* Total Time */}
 				<TaskRow
 					alignItems={true}
-					labelComponent={<PropertyLabel icon="clock" label={translate('tasksScreen.totalTimeLabel')} />}
+					labelComponent={<PropertyLabel icon={Clock} label={translate('tasksScreen.totalTimeLabel')} />}
 				>
 					<Text style={[styles.timeValues, { color: colors.primary }]}>
 						{userTotalTime.hours}h : {userTotalTime.minutes}m
@@ -162,7 +160,7 @@ const TimeBlock = () => {
 				{/* Total Time Today */}
 				<TaskRow
 					alignItems={true}
-					labelComponent={<PropertyLabel icon="sun" label={translate('taskDetailsScreen.timeToday')} />}
+					labelComponent={<PropertyLabel icon={Sun} label={translate('taskDetailsScreen.timeToday')} />}
 				>
 					<Text style={[styles.timeValues, { color: colors.primary }]}>
 						{userTotalTimeToday.hours}h : {userTotalTimeToday.minutes}m
@@ -172,7 +170,7 @@ const TimeBlock = () => {
 				{/* TODO */}
 				<TaskRow
 					labelComponent={
-						<PropertyLabel icon="users" label={translate('taskDetailsScreen.totalGroupTime')} />
+						<PropertyLabel icon={Users} label={translate('taskDetailsScreen.totalGroupTime')} />
 					}
 				>
 					<TotalGroupTime
@@ -184,7 +182,7 @@ const TimeBlock = () => {
 				{/* Time Remaining */}
 				<TaskRow
 					alignItems={true}
-					labelComponent={<PropertyLabel icon="watch" label={translate('taskDetailsScreen.timeRemaining')} />}
+					labelComponent={<PropertyLabel icon={Timer} label={translate('taskDetailsScreen.timeRemaining')} />}
 				>
 					<Text style={[styles.timeValues, { color: colors.primary }]}>
 						{timeRemaining.hours}h : {timeRemaining.minutes}m
@@ -244,7 +242,8 @@ const TotalGroupTime: React.FC<ITotalGroupTime> = ({ totalTime, activeTeam, task
 		<View style={[styles.accordContainer, { backgroundColor: colors.background }]}>
 			<TouchableOpacity style={styles.accordHeader} onPress={toggleItem}>
 				<Text style={[styles.accordTitle, { color: colors.primary }]}>{totalTime}</Text>
-				<Feather name={expanded ? 'chevron-up' : 'chevron-down'} size={20} color={colors.primary} />
+				{expanded && <ChevronUp size={20} color={colors.primary} />}
+				{!expanded && <ChevronDown size={20} color={colors.primary} />}
 			</TouchableOpacity>
 			{expanded && <View style={{ marginBottom: 5 }} />}
 			<View style={{ gap: 7 }}>

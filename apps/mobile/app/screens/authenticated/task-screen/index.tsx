@@ -4,7 +4,7 @@ import React, { FC, useEffect } from 'react';
 import { AuthenticatedDrawerScreenProps } from '../../../navigators/authenticated-navigator';
 import { Screen } from '../../../components';
 import { useAppTheme, useWebTheme } from '../../../theme';
-import { AntDesign } from '@expo/vector-icons';
+import { ArrowLeft } from '../../../../src/components/icons';
 import { useTeamTasks } from '../../../services/hooks/features/use-team-tasks';
 import TaskTitleBlock from '../../../components/task/title-block';
 import DetailsBlock from '../../../components/task/details-block';
@@ -43,7 +43,7 @@ export const AuthenticatedTaskScreen: FC<AuthenticatedDrawerScreenProps<'TaskScr
 						hitSlop={12}
 						onPress={() => navigateTo(navigation, 'AuthenticatedTab')}
 					>
-						<AntDesign name="arrow-left" size={24} color={theme.colors.foreground} />
+						<ArrowLeft size={24} color={theme.colors.foreground} />
 					</TouchableOpacity>
 				</View>
 				<View style={styles.screenContentWrapper}>

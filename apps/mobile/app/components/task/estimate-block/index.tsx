@@ -1,5 +1,6 @@
 /* eslint-disable react-native/no-inline-styles  */
 /* eslint-disable react-native/no-color-literals  */
+import { Target } from '../../../../src/components/icons';
 import { View, Text } from 'react-native';
 import React from 'react';
 import { observer } from 'mobx-react-lite';
@@ -24,7 +25,7 @@ const EstimateBlock = observer(() => {
 		<Accordion title={translate('taskDetailsScreen.estimate')}>
 			<View style={{ paddingBottom: 12, paddingHorizontal: 16 }}>
 				<TaskRow
-					labelComponent={<PropertyLabel icon="target" label={translate('taskDetailsScreen.estimations')} />}
+					labelComponent={<PropertyLabel icon={Target} label={translate('taskDetailsScreen.estimations')} />}
 				>
 					{estimateText && (
 						<Text
