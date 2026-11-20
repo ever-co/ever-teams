@@ -127,7 +127,7 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		flexDirection: 'row',
 		gap: 6,
-		height: FIELD_HEIGHT,
+		minHeight: FIELD_HEIGHT,
 		maxWidth: LABEL_MAX_WIDTH
 	},
 	chipName: {
@@ -138,7 +138,7 @@ const styles = StyleSheet.create({
 		borderRadius: 6,
 		flexDirection: 'row',
 		gap: 6,
-		height: FIELD_HEIGHT,
+		minHeight: FIELD_HEIGHT,
 		marginLeft: -6,
 		paddingHorizontal: 6
 	},
