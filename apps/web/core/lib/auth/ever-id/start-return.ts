@@ -12,9 +12,9 @@ import { EVER_ID_START_RETURN_COOKIE, readEverIdStartReturnCookie } from './star
  * sign-in of the browser does not go there too.
  */
 export function keepEverIdStartReturnForSignIn(): void {
-	if (typeof document === 'undefined') return;
+	if (typeof document === 'undefined' || !document.cookie.includes(`${EVER_ID_START_RETURN_COOKIE}=`)) return;
 	const returnPath = readEverIdStartReturnCookie(document.cookie);
-	if (!document.cookie.includes(`${EVER_ID_START_RETURN_COOKIE}=`)) return;
+	// Dropped with the attributes it was written with (Secure on https, as the route sets it there)
 	const secure = window.location.protocol === 'https:' ? '; Secure' : '';
 	document.cookie = `${EVER_ID_START_RETURN_COOKIE}=; Path=/; Max-Age=0; SameSite=Lax${secure}`;
 	if (returnPath) setPathAfterSignIn(returnPath);
