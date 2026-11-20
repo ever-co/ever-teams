@@ -20,7 +20,7 @@ type StatusValues = ReturnType<typeof useTaskStatusValue>;
 
 /** A status as the icon map knows it, under its name with spaces for hyphens. */
 function knownStatusOf(status: ITaskStatusItem, statusValues: StatusValues) {
-	return statusValues?.[(status.name ?? '').split('-').join(' ')];
+	return statusValues?.[(status.name ?? '').replaceAll('-', ' ')];
 }
 
 /** The value a status sends when picked: the one its icon map names, or its own. */
