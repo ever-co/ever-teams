@@ -38,6 +38,7 @@ const MAX_CHROMA = 0.16;
 
 const HEX_COLOR = /^#([\da-f]{3}|[\da-f]{6}|[\da-f]{8})$/i;
 const RGB_COLOR = /^rgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*(,\s*[\d.]+\s*)?\)$/i;
+const HSL_COLOR = /^hsla?\(\s*([\d.]+)(?:deg)?\s*,\s*([\d.]+)%\s*,\s*([\d.]+)%\s*(,\s*[\d.]+\s*)?\)$/i;
 
 function fromHex(hex: string): Rgb {
 	let digits = hex.slice(1);
@@ -54,6 +55,46 @@ function fromHex(hex: string): Rgb {
 	};
 }
 
+/** The red, green and blue of a hue's sixth of the color wheel, before the lightness is added. */
+function sectorChannels(sector: number, chroma: number, second: number): [number, number, number] {
+	if (sector < 1) {
+		return [chroma, second, 0];
+	}
+	if (sector < 2) {
+		return [second, chroma, 0];
+	}
+	if (sector < 3) {
+		return [0, chroma, second];
+	}
+	if (sector < 4) {
+		return [0, second, chroma];
+	}
+	if (sector < 5) {
+		return [second, 0, chroma];
+	}
+	return [chroma, 0, second];
+}
+
+/** `hsl(h, s%, l%)`, as the theme writes its colors, in red, green and blue; null for a percentage past 100. */
+function fromHsl(color: string): Rgb | null {
+	const hsl = HSL_COLOR.exec(color);
+	if (!hsl) {
+		return null;
+	}
+	const saturation = Number(hsl[2]) / 100;
+	const lightness = Number(hsl[3]) / 100;
+	const outOfRange = saturation > 1 || lightness > 1;
+	if (outOfRange) {
+		return null;
+	}
+	const chroma = (1 - Math.abs(2 * lightness - 1)) * saturation;
+	const sector = (Number(hsl[1]) % 360) / 60;
+	const second = chroma * (1 - Math.abs((sector % 2) - 1));
+	const [r, g, b] = sectorChannels(sector, chroma, second);
+	const added = lightness - chroma / 2;
+	return { r: Math.round((r + added) * 255), g: Math.round((g + added) * 255), b: Math.round((b + added) * 255) };
+}
+
 function parseColor(color: string): Rgb | null {
 	const trimmed = color.trim();
 	if (HEX_COLOR.test(trimmed)) {
@@ -61,7 +102,7 @@ function parseColor(color: string): Rgb | null {
 	}
 	const rgb = RGB_COLOR.exec(trimmed);
 	if (!rgb) {
-		return null;
+		return fromHsl(trimmed);
 	}
 	const channels = { r: Number(rgb[1]), g: Number(rgb[2]), b: Number(rgb[3]) };
 	const outOfRange = [channels.r, channels.g, channels.b].some((channel) => channel > 255);
