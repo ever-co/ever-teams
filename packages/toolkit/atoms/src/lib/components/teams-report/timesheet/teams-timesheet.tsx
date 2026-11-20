@@ -230,8 +230,8 @@ export const TeamsTimesheet = ({
 
 			{/* Filters */}
 			<div className="w-full flex justify-between items-end flex-wrap gap-4">
-				<div className="flex flex-wrap gap-3">
-					<TeamsActiveEmployeeSelector label="Select employee" />
+				<div className="flex flex-wrap gap-3 min-w-0">
+					<TeamsActiveEmployeeSelector label="Select employee" containerClassName="min-w-0 max-w-full" />
 					<DatePicker
 						date={selectedDate}
 						setDate={handleDateChange}

@@ -90,8 +90,8 @@ const TeamsBasicReport = ({
 			<div className=" flex flex-col gap-2 ">
 				<div className=" flex w-full justify-between items-center">
 					<h1 className="text-lg font-medium">{t('REPORT.title')}</h1>
-					<div className=" flex justify-end items-center gap-2 ">
-						<TeamsActiveEmployeeSelector label="Select employee" />
+					<div className="flex justify-end items-center gap-2 min-w-0">
+						<TeamsActiveEmployeeSelector label="Select employee" containerClassName="min-w-0" />
 						<TeamsReportDatesRangePicker />
 					</div>
 				</div>

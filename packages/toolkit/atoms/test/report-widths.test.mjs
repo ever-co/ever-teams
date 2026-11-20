@@ -41,8 +41,10 @@ const standIns = {
 		export const RefreshCwIcon = ${nothing};`,
 	'react-i18next': kitStandIns['react-i18next'],
 	'theme-ui/jsx-runtime': kitStandIns['theme-ui/jsx-runtime'],
-	drawn: `export const TeamsTimerFooter = ${nothing};
-		export const TeamsActiveEmployeeSelector = ${nothing};
+	drawn: `import { createElement } from 'react';
+		export const TeamsTimerFooter = ${nothing};
+		export const TeamsActiveEmployeeSelector = ({ containerClassName }) =>
+			createElement('div', { 'data-stand-in': 'employee-selector', className: containerClassName });
 		export const TeamsReportDatesRangePicker = ${nothing};
 		export const TeamsReportDisplayer = ${nothing};
 		export const BarChart = ${nothing};
@@ -89,7 +91,7 @@ before(async () => {
 	const bundle = await bundleKit({
 		name: 'report-widths',
 		entry: `export { teamsBaseListVariants, TeamsBaseList } from '${kitSources}/components/teams-report/list-report/base.tsx';
-			export { teamsBasicReportVariants } from '${kitSources}/components/teams-report/basic-report/teams-basic-report.tsx';
+			export { teamsBasicReportVariants, TeamsBasicReport } from '${kitSources}/components/teams-report/basic-report/teams-basic-report.tsx';
 			export { TeamsTimesheet } from '${kitSources}/components/teams-report/timesheet/teams-timesheet.tsx';`,
 		standIns,
 		standInOf
@@ -150,7 +152,9 @@ test('a list row lets its name wrap and keeps its figures whole on a narrow page
 	const nameClasses = /<span class="([^"]*)">Website Redesign<\/span>/.exec(markup)?.[1].split(' ') ?? [];
 	assert.ok(nameClasses.includes('min-w-0') && nameClasses.includes('flex-1'), 'the name takes what is left');
 	assert.match(markup, /class="[^"]*min-w-fit[^"]*"/, 'the figures keep their width');
-	for (const className of ['min-w-0', 'flex-1', 'min-w-fit']) {
+	const rowClasses = /<div class="([^"]*)"><span class="[^"]*">Website Redesign/.exec(markup)?.[1].split(' ') ?? [];
+	assert.ok(rowClasses.includes('gap-4'), 'a long name stops short of the figures');
+	for (const className of ['min-w-0', 'flex-1', 'min-w-fit', 'gap-4']) {
 		assert.ok(propertiesOf(className).length > 0, `${className} is in the stylesheet`);
 	}
 });
@@ -174,6 +178,27 @@ test("the timesheet's filters wrap onto more lines on a narrow page", () => {
 	const { renderToStaticMarkup } = require('react-dom/server');
 	const markup = renderToStaticMarkup(createElement(kit.TeamsTimesheet));
 
-	assert.match(markup, /class="flex flex-wrap gap-3"/);
+	assert.match(markup, /class="flex flex-wrap gap-3 min-w-0"/);
 	assert.ok(propertiesOf('flex-wrap').includes('flex-wrap'), 'flex-wrap is in the stylesheet');
+});
+
+// The select keeps the chosen name on one line and cuts it short, which it can do only once its picker may shrink.
+test("a long employee name shortens in the timesheet's filters instead of widening them", () => {
+	const { createElement } = require('react');
+	const { renderToStaticMarkup } = require('react-dom/server');
+	const markup = renderToStaticMarkup(createElement(kit.TeamsTimesheet));
+
+	assert.match(markup, /<div data-stand-in="employee-selector" class="min-w-0 max-w-full"><\/div>/);
+	assert.ok(propertiesOf('max-w-full').includes('max-width'), 'max-w-full is in the stylesheet');
+});
+
+test("a long employee name shortens in the report's header instead of widening it", () => {
+	const { createElement } = require('react');
+	const { renderToStaticMarkup } = require('react-dom/server');
+	const markup = renderToStaticMarkup(createElement(kit.TeamsBasicReport));
+
+	const header = /<div class="([^"]*)"><div data-stand-in="employee-selector" class="([^"]*)">/.exec(markup);
+	assert.ok(header, 'the employee picker sits in the header');
+	assert.ok(header[1].split(' ').includes('min-w-0'), 'the header group can shrink');
+	assert.deepEqual(header[2].split(' '), ['min-w-0'], 'the picker can shrink');
 });
