@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, { FC } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Plus, Settings } from '../../../src/components/icons';
 import { IOrganizationTeamList } from '../../services/interfaces/IOrganizationTeam';
 import { SettingScreenNavigationProp } from '../../navigators/authenticated-navigator';
 
@@ -82,7 +82,7 @@ const DropDownSection: FC<Props> = observer(function DropDownSection({
 					</Text>
 				</View>
 				<TouchableOpacity>
-					<Ionicons name="settings-outline" size={24} color={colors.primary} />
+					<Settings size={24} color={colors.primary} />
 				</TouchableOpacity>
 			</View> */}
 
@@ -126,7 +126,7 @@ const DropDownSection: FC<Props> = observer(function DropDownSection({
 				onPress={() => onCreateTeam()}
 				disabled={!isAccountVerified}
 			>
-				<Ionicons name="add" size={18} color={colors['primary-ink']} />
+				<Plus size={18} color={colors['primary-ink']} />
 				<Text style={[styles.createText, { color: colors['primary-ink'] }]}>
 					{translate('teamScreen.createNewTeamButton')}
 				</Text>
@@ -192,7 +192,7 @@ const DropItem: FC<IDropItem> = observer(function DropItem({ team, changeTeam, i
 				style={styles.settingsButton}
 				onPress={() => navigateToSettings(team)}
 			>
-				<Ionicons name="settings-outline" size={18} color={colors['muted-foreground']} />
+				<Settings size={18} color={colors['muted-foreground']} />
 			</TouchableOpacity>
 		</View>
 	);

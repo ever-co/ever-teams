@@ -18,7 +18,7 @@ import { translate } from '../../../../i18n';
 import IssuesModal from '../../../issues-modal';
 import { useStores } from '../../../../models';
 import { useTaskInput } from '../../../../services/hooks/features/use-task-input';
-import { Feather } from '@expo/vector-icons';
+import { Check } from '../../../../../src/components/icons';
 import { ITeamTask } from '../../../../services/interfaces/ITask';
 import { BlurView } from 'expo-blur';
 import { useAppTheme, typography } from '../../../../theme';
@@ -124,7 +124,7 @@ const CreateLinkedIssueModal: React.FC<ICreateLinkedIssueModal> = ({
 								// setEditMode(false)
 							}}
 						>
-							<Feather name="check" size={24} color="green" />
+							<Check size={24} color="green" />
 						</Pressable>
 					) : null}
 

@@ -10,7 +10,7 @@ import { cloneDeep } from "lodash"
 import { SvgXml } from "react-native-svg"
 import { categoryIcon } from "./svgs/icons"
 import TaskEpicPopup from "./task-epic-popup"
-import { Entypo } from "@expo/vector-icons"
+import { Circle } from "../../src/components/icons"
 import { translate } from "../i18n"
 
 interface ITaskEpic {
@@ -116,7 +116,7 @@ const TaskEpic: React.FC<ITaskEpic> = ({ containerStyle, task }) => {
 						</>
 					) : (
 						<>
-							<Entypo name="circle" size={12} color={colors.primary} />
+							<Circle size={12} color={colors.primary} />
 							<Text
 								style={{
 									...styles.text,
