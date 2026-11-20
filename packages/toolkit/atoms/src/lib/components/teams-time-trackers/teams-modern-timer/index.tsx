@@ -2,7 +2,7 @@
 'use client';
 
 import React from 'react';
-import { ExpandIcon } from '@ever-teams/toolkit-ui';
+import { CollapseIcon, ExpandIcon } from '@ever-teams/toolkit-ui';
 
 import { cva, VariantProps } from 'class-variance-authority';
 import { cn } from '@ever-teams/toolkit-ui';
@@ -78,6 +78,12 @@ function TeamsModernTimer({
 	const { t } = useTranslation();
 
 	const [expandedState, setExpandedState] = React.useState<boolean>(false);
+	let toggleLabel = t('TIME_TRACKER.show_details');
+	let toggleIcon = <ExpandIcon size={10} />;
+	if (expandedState) {
+		toggleLabel = t('TIME_TRACKER.hide_details');
+		toggleIcon = <CollapseIcon size={10} />;
+	}
 
 	return (
 		<div
@@ -102,8 +108,14 @@ function TeamsModernTimer({
 					className={`absolute  flex gap-3 justify-end items-center top-3 right-5 ${size == 'sm' && 'top-1 '} `}
 				>
 					{expandable && (
-						<button className="text-black dark:text-white" onClick={() => setExpandedState(!expandedState)}>
-							{expandedState ? '-' : <ExpandIcon size={10} />}
+						<button
+							type="button"
+							className="text-black dark:text-white"
+							aria-expanded={expandedState}
+							aria-label={toggleLabel}
+							onClick={() => setExpandedState(!expandedState)}
+						>
+							{toggleIcon}
 						</button>
 					)}
 				</div>

@@ -61,11 +61,16 @@ test('a request with no answer: not allowed when the API answers a no-cors probe
 	assert.equal(await kit.kindOfFailedRequest('', up), 'unreachable');
 });
 
-test('every kind has a message in both kit locales', () => {
+test('every kind has a message in both kit locales, in the widgets and in the sign-in forms', () => {
 	const locales = ['en', 'fr'].map((lang) =>
 		JSON.parse(fs.readFileSync(path.join(here, '..', 'src', 'lib', 'i18n', 'locales', `${lang}.json`), 'utf8'))
 	);
-	for (const key of [...Object.values(kit.KIT_ERROR_MESSAGE_KEYS), 'KIT_ERRORS.SIGN_IN_AGAIN']) {
+	const keys = [
+		...Object.values(kit.KIT_ERROR_MESSAGE_KEYS),
+		...Object.values(kit.SIGN_IN_ERROR_MESSAGE_KEYS),
+		'KIT_ERRORS.SIGN_IN_AGAIN'
+	];
+	for (const key of new Set(keys)) {
 		const [group, name] = key.split('.');
 		for (const locale of locales) {
 			assert.ok(locale[group]?.[name], key);

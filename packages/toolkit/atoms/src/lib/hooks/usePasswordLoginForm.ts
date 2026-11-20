@@ -7,7 +7,7 @@ import { reportError, toast } from '@ever-teams/toolkit-ui';
 import { useTranslation } from 'react-i18next';
 import { useAccessToken } from './useAccessToken';
 import { useTeamsContext } from '../context/teams-context';
-import { KIT_ERROR_MESSAGE_KEYS, kindOfFailedRequest, kindOfSignInFailure } from '@lib/errors/kit-error';
+import { kindOfFailedRequest, kindOfSignInFailure, SIGN_IN_ERROR_MESSAGE_KEYS } from '@lib/errors/kit-error';
 import { errorMessageOf } from '@lib/context/teams-timer-status-context';
 import { useKitOptions } from '@components/teams-provider/kit-options';
 import { apiUrlOf } from '@lib/utils/api-url';
@@ -65,7 +65,7 @@ export const usePasswordLoginForm = ({ redirectHandler }: UsePasswordLoginFormPa
 				// the API down: the kit's own words, inside the form and with no toast on the host page.
 				const kind = await kindOfSignInFailure(authResponse, apiUrlOf(api));
 				if (kind) {
-					showError(t(KIT_ERROR_MESSAGE_KEYS[kind]));
+					showError(t(SIGN_IN_ERROR_MESSAGE_KEYS[kind]));
 					setLoading(false);
 					return;
 				}
@@ -96,7 +96,7 @@ export const usePasswordLoginForm = ({ redirectHandler }: UsePasswordLoginFormPa
 		} catch {
 			// No answer: say whether this site is not allowed or Ever Teams is unreachable, inside the form.
 			const kind = await kindOfFailedRequest(apiUrlOf(api));
-			showError(t(KIT_ERROR_MESSAGE_KEYS[kind]));
+			showError(t(SIGN_IN_ERROR_MESSAGE_KEYS[kind]));
 		} finally {
 			setLoading(false);
 		}

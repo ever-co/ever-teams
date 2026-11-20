@@ -20,6 +20,13 @@ export const KIT_ERROR_MESSAGE_KEYS = {
 	unreachable: 'KIT_ERRORS.UNREACHABLE'
 } as const satisfies Record<KitErrorKind, string>;
 
+// The words of the password and token forms. Their sign-in goes through the API's own list of origins, which the
+// sites a workspace allows in its settings do not change: a refused site is not one its admin can add (#5614).
+export const SIGN_IN_ERROR_MESSAGE_KEYS = {
+	...KIT_ERROR_MESSAGE_KEYS,
+	origin: 'KIT_ERRORS.SIGN_IN_ORIGIN'
+} as const satisfies Record<KitErrorKind, string>;
+
 // An error answer of the API: Nest sends `statusCode`; the embed routes add a `code`.
 export function kindOfAnswer(answer: { statusCode?: unknown; code?: unknown }): KitErrorKind | null {
 	if (typeof answer.code === 'string' && ORIGIN_CODES.has(answer.code)) {
