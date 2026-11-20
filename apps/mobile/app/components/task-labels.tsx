@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
-import React, { FC, useEffect, useRef, useState } from 'react';
+import React, { FC, useRef, useState } from 'react';
 import { TouchableOpacity, View, Text, StyleSheet, ViewStyle, FlatList, Dimensions } from 'react-native';
 import { AntDesign, Entypo } from '@expo/vector-icons';
 import { observer } from 'mobx-react-lite';
@@ -9,11 +9,11 @@ import { useTeamTasks } from '../services/hooks/features/use-team-tasks';
 import { useAppTheme, typography, useWebTheme } from '../theme';
 import { taskChipLookOf } from '../../src/components/task-chip';
 import { ChipIcon } from '../../src/components/chip-icon';
-import TaskLabelPopup from './task-label-popup';
+import TaskLabelPopup, { toggledLabels } from './task-label-popup';
+import { useMenuAnchor } from '../../src/components/menu-anchor';
 import { ITaskLabelItem } from '../services/interfaces/ITaskLabel';
 import { translate } from '../i18n';
 import { limitTextCharaters } from '../helpers/sub-text';
-import { isEqual } from 'lodash';
 
 interface TaskLabelProps {
 	task?: ITeamTask;
@@ -49,49 +49,26 @@ const TaskLabels: FC<TaskLabelProps> = observer(
 		const [openModal, setOpenModal] = useState(false);
 		const flatListRef = useRef<FlatList>(null);
 		const [labelIndex, setLabelIndex] = useState<number>(0);
-		const [tempLabels, setTempLabels] = useState<ITaskLabelItem[]>(task?.tags || newTaskLabels || []);
-		const [arrayChanged, setArrayChanged] = useState<boolean>(false);
+		const [selectedLabels, setSelectedLabels] = useState<ITaskLabelItem[]>(task?.tags || newTaskLabels || []);
+		const { anchorRef, anchor, openFromAnchor } = useMenuAnchor();
 
+		// The menu starts from the labels the task holds; each tap then saves at once, as on the web
 		const freshOpenModal = () => {
-			setOpenModal(true);
-			setTempLabels(task?.tags || newTaskLabels || []);
-			arraysHaveSameValues(tempLabels, task?.tags || newTaskLabels || []);
+			openFromAnchor(() => {
+				setSelectedLabels(task?.tags || newTaskLabels || []);
+				setOpenModal(true);
+			});
 		};
 
-		const saveLabels = async () => {
+		const toggleLabel = async (label: ITaskLabelItem) => {
+			const nextLabels = toggledLabels(selectedLabels, label);
+			setSelectedLabels(nextLabels);
 			if (task) {
-				const taskEdit = {
-					...task,
-					tags: tempLabels
-				};
-				await updateTask(taskEdit, task.id);
-			} else {
-				setLabels(tempLabels);
+				await updateTask({ ...task, tags: nextLabels }, task.id);
+				return;
 			}
-			setOpenModal(false);
+			setLabels?.(nextLabels);
 		};
-
-		const addOrRemoveLabelsInTempArray = (tag: ITaskLabelItem): void => {
-			const exist = tempLabels.find((label) => label.id === tag.id);
-			if (exist) {
-				setTempLabels(tempLabels.filter((label) => label.id !== tag.id));
-			} else {
-				setTempLabels([...tempLabels, tag]);
-			}
-		};
-
-		const arraysHaveSameValues = (array1: ITaskLabelItem[] | [], array2: ITaskLabelItem[] | []): void => {
-			const sortedArray1 = array1.slice().sort((a, b) => a.id.localeCompare(b.id));
-			const sortedArray2 = array2.slice().sort((a, b) => a.id.localeCompare(b.id));
-
-			const areArraysEqual = isEqual(sortedArray1, sortedArray2);
-
-			setArrayChanged(!areArraysEqual);
-		};
-
-		useEffect(() => {
-			arraysHaveSameValues(tempLabels, task?.tags || newTaskLabels || []);
-		}, [tempLabels]);
 
 		const scrollToIndexWithDelay = (index: number) => {
 			flatListRef.current?.scrollToIndex({
@@ -123,18 +100,17 @@ const TaskLabels: FC<TaskLabelProps> = observer(
 		return (
 			<>
 				<TaskLabelPopup
-					labelNames={tempLabels}
+					selectedLabels={selectedLabels}
 					visible={openModal}
-					saveLabels={saveLabels}
-					arrayChanged={arrayChanged}
-					addOrRemoveLabels={addOrRemoveLabelsInTempArray}
+					onToggleLabel={toggleLabel}
 					onDismiss={() => setOpenModal(false)}
 					canCreateLabel={true}
+					anchor={anchor}
 				/>
 				{(task?.tags !== undefined || newTaskLabels !== undefined) &&
 				(task?.tags?.length > 0 || newTaskLabels?.length > 0) &&
 				!taskScreenButton ? (
-					<View>
+					<View ref={anchorRef} collapsable={false}>
 						<FlatList
 							ref={flatListRef}
 							data={task?.tags || newTaskLabels}
@@ -186,6 +162,8 @@ const TaskLabels: FC<TaskLabelProps> = observer(
 					<View>
 						<TouchableOpacity onPress={freshOpenModal}>
 							<View
+								ref={anchorRef}
+								collapsable={false}
 								style={{
 									...styles.container,
 									...containerStyle,
@@ -234,6 +212,8 @@ const TaskLabels: FC<TaskLabelProps> = observer(
 				) : (
 					<TouchableOpacity onPress={freshOpenModal}>
 						<View
+							ref={anchorRef}
+							collapsable={false}
 							style={{
 								...styles.container,
 								...containerStyle,

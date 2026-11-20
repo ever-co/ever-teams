@@ -1,276 +1,134 @@
-/* eslint-disable react-native/no-inline-styles */
-/* eslint-disable react-native/no-color-literals */
 import React, { FC, useState } from 'react';
-import {
-	View,
-	ViewStyle,
-	Modal,
-	Animated,
-	StyleSheet,
-	Text,
-	FlatList,
-	TouchableOpacity,
-	TouchableWithoutFeedback
-} from 'react-native';
-import { Feather, AntDesign, Ionicons } from '@expo/vector-icons';
-import { spacing, useAppTheme, typography } from '../theme';
-import { ITaskLabelItem } from '../services/interfaces/ITaskLabel';
+import { observer } from 'mobx-react-lite';
 import { useTaskLabels } from '../services/hooks/features/use-task-labels';
-import { BadgedTaskLabel } from './label-icon';
+import { ITaskLabelItem } from '../services/interfaces/ITaskLabel';
 import { translate } from '../i18n';
+import { useWebTheme } from '../theme';
 import TaskLabelForm from '../screens/authenticated/task-label-screen/components/task-label-form';
-import { BlurView } from 'expo-blur';
+import { PickerCreateFooter, PickerOption, PropertyPicker } from './property-picker';
+import { PropertyMenuAction } from './property-menu';
+import { Plus } from '../../src/components/icons';
+import type { MenuRect } from '../../src/components/menu-placement';
+import { MENU_ICON_SIZE } from '../../src/theme/menu-look';
 
 export interface Props {
 	visible: boolean;
 	onDismiss: () => unknown;
-	labelNames: ITaskLabelItem[];
-	saveLabels: () => void;
-	arrayChanged: boolean;
-	addOrRemoveLabels: (label: ITaskLabelItem) => void;
+	/** The labels the task holds now. */
+	selectedLabels: ITaskLabelItem[];
+	/** Adds a label the task does not hold, or takes away one it holds: the menu stays open for the next one. */
+	onToggleLabel: (label: ITaskLabelItem) => unknown;
 	canCreateLabel?: boolean;
+	/** The chip the labels open from, so they show in the web's menu under it. */
+	anchor?: MenuRect | null;
 }
 
-const ModalPopUp = ({ visible, children, onDismiss }) => {
-	const [showModal, setShowModal] = React.useState(visible);
-	const scaleValue = React.useRef(new Animated.Value(0)).current;
+/** The labels with this one added, or taken away when the task already holds it. */
+export function toggledLabels(labels: ITaskLabelItem[], label: ITaskLabelItem): ITaskLabelItem[] {
+	const isHeld = labels.some((held) => held.id === label.id);
+	if (isHeld) {
+		return labels.filter((held) => held.id !== label.id);
+	}
+	return [...labels, label];
+}
 
-	React.useEffect(() => {
-		toggleModal();
-	}, [visible]);
-	const toggleModal = () => {
-		if (visible) {
-			setShowModal(true);
-			Animated.spring(scaleValue, {
-				toValue: 1,
-				useNativeDriver: true
-			}).start();
-		} else {
-			setTimeout(() => setShowModal(false), 200);
-			Animated.timing(scaleValue, {
-				toValue: 0,
-				duration: 300,
-				useNativeDriver: true
-			}).start();
-		}
+/** The form opened here only creates a label: it never updates one. */
+function keepLabelUnchanged() {
+	return undefined;
+}
+
+/** A label as a row: its dot in its color and its name as it was saved, checked when the task holds it. */
+function labelOptionOf(label: ITaskLabelItem, selectedLabels: ITaskLabelItem[]): PickerOption {
+	return {
+		key: label.id,
+		name: label.name ?? '',
+		color: label.color,
+		iconUrl: label.fullIconUrl,
+		kind: 'label',
+		isSelected: selectedLabels.some((held) => held.id === label.id)
 	};
-	return (
-		<Modal animationType="fade" transparent visible={showModal}>
-			<BlurView
-				intensity={15}
-				tint="dark"
-				style={{
-					position: 'absolute',
-					width: '100%',
-					height: '100%'
-				}}
-			/>
-			<TouchableWithoutFeedback onPress={onDismiss}>
-				<View style={$modalBackGround}>
-					<Animated.View style={{ transform: [{ scale: scaleValue }] }}>{children}</Animated.View>
-				</View>
-			</TouchableWithoutFeedback>
-		</Modal>
-	);
-};
+}
 
-const TaskLabelPopup: FC<Props> = function TaskLabelPopup({
+interface ILabelCreateFooter {
+	anchored: boolean;
+	onPress: () => void;
+}
+
+/** Creating a label from the picker: the menu's action row, or the dialog's button. The API decides who may. */
+function LabelCreateFooter({ anchored, onPress }: Readonly<ILabelCreateFooter>) {
+	const theme = useWebTheme();
+	if (anchored) {
+		return (
+			<PropertyMenuAction
+				icon={<Plus size={MENU_ICON_SIZE} color={theme.colors['muted-foreground']} />}
+				label={translate('taskMenus.actions.createLabel')}
+				onPress={onPress}
+			/>
+		);
+	}
+	return (
+		<PickerCreateFooter
+			label={translate('settingScreen.labelScreen.createNewLabelText')}
+			canCreate
+			readOnlyHint=""
+			onPress={onPress}
+		/>
+	);
+}
+
+/**
+ * A task's labels to pick, as the web's labels menu: each tap adds or takes away a label at once and the menu stays
+ * open, the labels the task holds checked, a label's name kept as it was saved. Creating a label opens its form in
+ * the dialog.
+ */
+const TaskLabelPopup: FC<Props> = observer(function TaskLabelPopup({
 	visible,
 	onDismiss,
-	saveLabels,
-	arrayChanged,
-	addOrRemoveLabels,
-	labelNames,
-	canCreateLabel = false
+	selectedLabels,
+	onToggleLabel,
+	canCreateLabel = false,
+	anchor
 }) {
-	const { allTaskLabels } = useTaskLabels();
-	const { updateLabel, createLabel } = useTaskLabels();
-	const { colors, dark } = useAppTheme();
+	const { allTaskLabels, createLabel } = useTaskLabels();
+	const [isCreating, setIsCreating] = useState<boolean>(false);
 
-	const [createTaskMode, setCreateTaskMode] = useState<boolean>(false);
+	// A picker closed while its create form shows opens on its labels next time
+	const dismiss = () => {
+		setIsCreating(false);
+		onDismiss();
+	};
 
-	const onLabelSelected = (label: ITaskLabelItem) => {
-		addOrRemoveLabels(label);
+	const onSelect = (option: PickerOption) => {
+		const label = allTaskLabels.find((candidate) => candidate.id === option.key);
+		if (label) {
+			onToggleLabel(label);
+		}
 	};
 
 	return (
-		<ModalPopUp visible={visible} onDismiss={onDismiss}>
-			<View
-				style={{
-					...styles.container,
-					backgroundColor: colors.background,
-					height: canCreateLabel ? 460 : 396,
-					overflow: canCreateLabel ? 'hidden' : 'scroll'
-				}}
-			>
-				{!createTaskMode ? (
-					<>
-						<Text style={{ ...styles.title, color: colors.primary }}>
-							{translate('settingScreen.labelScreen.labels')}
-						</Text>
-						<FlatList
-							data={allTaskLabels}
-							contentContainerStyle={{ paddingHorizontal: 10 }}
-							renderItem={({ item }) => (
-								<Item currentLabelNames={labelNames} onLabelSelected={onLabelSelected} label={item} />
-							)}
-							legacyImplementation={true}
-							showsVerticalScrollIndicator={true}
-							keyExtractor={(_, index) => index.toString()}
-						/>
-						{canCreateLabel && !arrayChanged ? (
-							<TouchableOpacity
-								style={{
-									...styles.createButton,
-									borderColor: dark ? '#6755C9' : '#3826A6'
-								}}
-								onPress={() => setCreateTaskMode(true)}
-							>
-								<Ionicons name="add" size={24} color={dark ? '#6755C9' : '#3826A6'} />
-								<Text
-									style={{
-										...styles.btnText,
-										color: dark ? '#6755C9' : '#3826A6'
-									}}
-								>
-									{translate('settingScreen.labelScreen.createNewLabelText')}
-								</Text>
-							</TouchableOpacity>
-						) : (
-							<View style={styles.wrapButtons}>
-								<TouchableOpacity
-									onPress={onDismiss}
-									style={[styles.button, { backgroundColor: '#E6E6E9' }]}
-								>
-									<Text style={[styles.buttonText, { color: '#1A1C1E' }]}>
-										{translate('common.cancel')}
-									</Text>
-								</TouchableOpacity>
-								<TouchableOpacity
-									onPress={saveLabels}
-									style={[styles.button, { backgroundColor: '#3826A6' }]}
-								>
-									<Text style={styles.buttonText}>{translate('common.save')}</Text>
-								</TouchableOpacity>
-							</View>
-						)}
-					</>
-				) : (
-					<TaskLabelForm
-						onDismiss={() => {
-							setCreateTaskMode(false);
-						}}
-						onUpdateLabel={updateLabel}
-						onCreateLabel={createLabel}
-						isEdit={false}
-					/>
-				)}
-			</View>
-		</ModalPopUp>
+		<PropertyPicker
+			visible={visible}
+			onDismiss={dismiss}
+			title={translate('settingScreen.labelScreen.labels')}
+			options={allTaskLabels.map((label) => labelOptionOf(label, selectedLabels))}
+			onSelect={onSelect}
+			anchor={anchor}
+			searchPlaceholder={translate('taskMenus.search.label')}
+			keepsCase
+			footer={
+				canCreateLabel && <LabelCreateFooter anchored={Boolean(anchor)} onPress={() => setIsCreating(true)} />
+			}
+		>
+			{isCreating && (
+				<TaskLabelForm
+					isEdit={false}
+					onDismiss={() => setIsCreating(false)}
+					onCreateLabel={createLabel}
+					onUpdateLabel={keepLabelUnchanged}
+				/>
+			)}
+		</PropertyPicker>
 	);
-};
+});
 
 export default TaskLabelPopup;
-
-interface ItemProps {
-	currentLabelNames: ITaskLabelItem[];
-	label: ITaskLabelItem;
-	onLabelSelected: (size: ITaskLabelItem) => unknown;
-}
-const Item: FC<ItemProps> = ({ currentLabelNames, label, onLabelSelected }) => {
-	const { colors } = useAppTheme();
-	const selected = currentLabelNames?.find((l) => l.name === label.name);
-	return (
-		<TouchableOpacity onPress={() => onLabelSelected(label)}>
-			<View style={{ ...styles.wrapperItem, borderColor: colors.border }}>
-				<View style={{ ...styles.colorFrame, backgroundColor: label.color }}>
-					<BadgedTaskLabel iconSize={16} TextSize={14} label={label} />
-				</View>
-				<View>
-					{!selected ? (
-						<Feather name="circle" size={24} color={colors.divider} />
-					) : (
-						<AntDesign name="check-circle" size={24} color="#27AE60" />
-					)}
-				</View>
-			</View>
-		</TouchableOpacity>
-	);
-};
-
-const $modalBackGround: ViewStyle = {
-	flex: 1,
-	justifyContent: 'center'
-};
-
-const styles = StyleSheet.create({
-	btnText: {
-		color: '#3826A6',
-		fontFamily: typography.primary.semiBold,
-		fontSize: 16,
-		fontStyle: 'normal'
-	},
-	button: {
-		alignItems: 'center',
-		borderRadius: 11,
-		height: 55,
-		justifyContent: 'center',
-		padding: 10,
-		width: 140
-	},
-	buttonText: {
-		color: '#FFF',
-		fontFamily: typography.primary.semiBold,
-		fontSize: 18
-	},
-	colorFrame: {
-		borderRadius: 10,
-		height: 44,
-		justifyContent: 'center',
-		paddingLeft: 16,
-		width: 180
-	},
-	container: {
-		alignSelf: 'center',
-		backgroundColor: '#fff',
-		borderRadius: 20,
-		paddingHorizontal: 6,
-		paddingVertical: 16,
-		width: '90%'
-	},
-	createButton: {
-		alignItems: 'center',
-		alignSelf: 'center',
-		borderColor: '#3826A6',
-		borderRadius: 12,
-		borderWidth: 2,
-		flexDirection: 'row',
-		justifyContent: 'center',
-		marginTop: 10,
-		padding: 12,
-		width: '80%'
-	},
-	title: {
-		fontSize: spacing.medium - 2,
-		marginBottom: 16,
-		marginHorizontal: 10
-	},
-	wrapButtons: {
-		flexDirection: 'row',
-		gap: 20,
-		justifyContent: 'center',
-		marginTop: 10
-	},
-	wrapperItem: {
-		alignItems: 'center',
-		borderColor: 'rgba(0,0,0,0.13)',
-		borderRadius: 10,
-		borderWidth: 1,
-		flexDirection: 'row',
-		justifyContent: 'space-between',
-		marginBottom: 10,
-		padding: 6,
-		paddingRight: 18,
-		width: '100%'
-	}
-});
