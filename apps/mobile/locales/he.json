@@ -510,7 +510,11 @@
 		}
 	},
 	"hamburgerMenu": {
-		"darkMode": "מצב כהה"
+		"darkMode": "מצב כהה",
+		"theme": "ערכת נושא",
+		"themeSystem": "מערכת",
+		"themeLight": "בהיר",
+		"themeDark": "כהה"
 	},
 	"inviteModal": {
 		"accept": "קבל",

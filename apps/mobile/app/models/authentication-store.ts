@@ -1,6 +1,7 @@
 import { getRoot, Instance, SnapshotIn, SnapshotOut, types } from 'mobx-state-tree';
 import { holdSession } from '../services/client/session';
 import { ILanguageItemList, IUser } from '../services/interfaces/IUserData';
+import type { ThemePreference } from '../../src/theme/color-scheme';
 
 /** The stores beside this one in the app's root store, whose data is the signed-in person's. */
 type StoresOfThePerson = {
@@ -31,6 +32,16 @@ const AuthenticationStoreBase = types
 		followsSystemTheme: types.optional(types.boolean, true)
 	})
 	.views((store) => ({
+		/** The person's theme choice: the phone's, light or dark. */
+		get themePreference(): ThemePreference {
+			if (store.followsSystemTheme) {
+				return 'system';
+			}
+			if (store.isDarkMode) {
+				return 'dark';
+			}
+			return 'light';
+		},
 		get isAuthenticated() {
 			return !!store.authToken;
 		},
@@ -98,6 +109,14 @@ const AuthenticationStoreBase = types
 			const currentlyDark = shownDark ?? store.isDarkMode;
 			store.isDarkMode = !currentlyDark;
 			store.followsSystemTheme = false;
+		},
+		/** The person picks the phone's theme, light or dark; the dark choice is kept while they follow the phone. */
+		setThemePreference(preference: ThemePreference) {
+			store.followsSystemTheme = preference === 'system';
+			if (preference === 'system') {
+				return;
+			}
+			store.isDarkMode = preference === 'dark';
 		},
 		logout() {
 			store.authToken = '';

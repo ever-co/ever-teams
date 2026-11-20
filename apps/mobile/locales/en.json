@@ -510,7 +510,11 @@
 		}
 	},
 	"hamburgerMenu": {
-		"darkMode": "Dark Mode"
+		"darkMode": "Dark Mode",
+		"theme": "Theme",
+		"themeSystem": "System",
+		"themeLight": "Light",
+		"themeDark": "Dark"
 	},
 	"inviteModal": {
 		"accept": "Accept",

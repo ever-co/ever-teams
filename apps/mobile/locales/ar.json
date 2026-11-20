@@ -510,7 +510,11 @@
 		}
 	},
 	"hamburgerMenu": {
-		"darkMode": "الوضع الداكن"
+		"darkMode": "الوضع الداكن",
+		"theme": "المظهر",
+		"themeSystem": "النظام",
+		"themeLight": "فاتح",
+		"themeDark": "داكن"
 	},
 	"inviteModal": {
 		"accept": "يقبل",

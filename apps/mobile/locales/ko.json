@@ -510,7 +510,11 @@
 		}
 	},
 	"hamburgerMenu": {
-		"darkMode": "다크 모드"
+		"darkMode": "다크 모드",
+		"theme": "테마",
+		"themeSystem": "시스템",
+		"themeLight": "라이트",
+		"themeDark": "다크"
 	},
 	"inviteModal": {
 		"accept": "수용하다",
