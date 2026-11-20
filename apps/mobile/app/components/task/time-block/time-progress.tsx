@@ -8,15 +8,20 @@ interface IProgress {
 	percent: () => number;
 }
 
+/** The bar fills in green once the task has an estimate; a task without one counts as none. */
+function barColorOf(task: ITeamTask | undefined): string {
+	const hasEstimate = (task?.estimate ?? 0) > 0;
+	if (hasEstimate) {
+		return '#27AE60';
+	}
+	return '#F0F0F0';
+}
+
 export const Progress: React.FC<IProgress> = ({ task, percent }) => {
 	return (
 		<View style={styles.progressBarContainer}>
 			<View style={{ width: '79%' }}>
-				<ProgressBar
-					style={styles.progressBar}
-					progress={percent()}
-					color={task && task.estimate > 0 ? '#27AE60' : '#F0F0F0'}
-				/>
+				<ProgressBar style={styles.progressBar} progress={percent()} color={barColorOf(task)} />
 			</View>
 			<Text style={{ fontSize: 12, color: '#28204880' }}>{Math.floor(percent() * 100)}%</Text>
 		</View>
