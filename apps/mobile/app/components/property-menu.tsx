@@ -17,6 +17,9 @@ import {
 import { translate } from '../i18n';
 import { typography, useWebTheme } from '../theme';
 
+/** One row and the list's padding: the least of the values the menu keeps in sight. */
+const MENU_LIST_MIN_HEIGHT = MENU_ROW_HEIGHT + 2 * MENU_LIST_PADDING;
+
 export interface MenuOption {
 	key: string;
 	label: string;
@@ -222,11 +225,18 @@ export function PropertyMenu<T extends MenuOption>({
 	}
 
 	return (
-		<View ref={areaRef} collapsable={false} style={styles.area} onLayout={measureArea}>
+		// VoiceOver's escape goes up from the row or the search line it is on: the area holds both, the backdrop neither
+		<View
+			testID="menu-area"
+			ref={areaRef}
+			collapsable={false}
+			style={styles.area}
+			onLayout={measureArea}
+			onAccessibilityEscape={() => onDismiss()}
+		>
 			<Pressable
 				testID="menu-backdrop"
 				accessible={false}
-				onAccessibilityEscape={() => onDismiss()}
 				style={StyleSheet.absoluteFill}
 				onPress={() => onDismiss()}
 			/>
@@ -247,6 +257,7 @@ export function PropertyMenu<T extends MenuOption>({
 					/>
 				</View>
 				<ScrollView
+					testID="menu-list"
 					style={styles.list}
 					contentContainerStyle={styles.listContent}
 					keyboardShouldPersistTaps="handled"
@@ -306,9 +317,12 @@ const styles = StyleSheet.create({
 		paddingBottom: 4,
 		paddingHorizontal: 8
 	},
+	// with the keyboard up and a long read-only hint under it, the menu still shows a row of values to scroll; the
+	// hint is what the menu's edge cuts
 	list: {
 		flexShrink: 1,
-		maxHeight: MENU_LIST_MAX_HEIGHT
+		maxHeight: MENU_LIST_MAX_HEIGHT,
+		minHeight: MENU_LIST_MIN_HEIGHT
 	},
 	listContent: {
 		padding: MENU_LIST_PADDING

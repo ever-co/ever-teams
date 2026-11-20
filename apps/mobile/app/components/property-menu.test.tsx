@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react-native';
+import { fireEvent, render, screen, within } from '@testing-library/react-native';
 import { Text } from 'react-native';
 import { MenuOption, placementInArea, PropertyMenu, PropertyMenuAction } from './property-menu';
 
@@ -76,6 +76,23 @@ describe("a property's menu", () => {
 
 		expect(onSelect).toHaveBeenCalledWith(expect.objectContaining({ key: 'Blocked' }));
 		expect(onDismiss).toHaveBeenCalledTimes(1);
+	});
+
+	it("closes on VoiceOver's escape from a row or the search line, both inside the area that takes it", async () => {
+		const { onDismiss } = await renderMenu(statuses('Open'));
+		const area = screen.getByTestId('menu-area');
+
+		expect(within(area).getByLabelText('Blocked')).toBeTruthy();
+		expect(within(area).getByPlaceholderText('Change status…')).toBeTruthy();
+		await fireEvent(area, 'accessibilityEscape');
+
+		expect(onDismiss).toHaveBeenCalledTimes(1);
+	});
+
+	it('keeps a row of values in sight however little room the keyboard leaves it', async () => {
+		await renderMenu(statuses('Open'));
+
+		expect(screen.getByTestId('menu-list')).toHaveStyle({ minHeight: 40 });
 	});
 
 	it('stays hidden until it knows where to open', async () => {
