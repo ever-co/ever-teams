@@ -3,7 +3,7 @@
 // (CORS is open to an allowed site on the timer's routes only), so the client refuses those calls itself.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { createClient, EverTeamsForbiddenError } from '../dist/index.es.js';
+import { createClient, EverTeamsForbiddenError, isEmbedToken } from '../dist/index.es.js';
 import { API_URL, json, ME, standInApi } from './support/stand-in-api.mjs';
 
 const tokenWith = (claims) => `header.${Buffer.from(JSON.stringify(claims)).toString('base64url')}.signature`;
@@ -101,4 +101,12 @@ test('a renewed token is checked before the retry: a call refused (401) is not s
 		(error) => error instanceof EverTeamsForbiddenError && error.code === 'EMBED_SCOPE'
 	);
 	assert.equal(api.routesSent().filter((route) => route === 'GET /timesheet/statistics/counts').length, 1);
+});
+
+test('the package tells an embed token from another one, as the client does (#5602)', () => {
+	assert.equal(isEmbedToken(EMBED_TOKEN), true);
+	assert.equal(isEmbedToken(tokenWith({ id: 'user-1', embedGrantId: 'grant-1' })), true, "a site's sign-in");
+	assert.equal(isEmbedToken(tokenWith({ id: 'user-1', tenantId: 'tenant-1' })), false, 'a personal token');
+	assert.equal(isEmbedToken('not-a-jwt'), false);
+	assert.equal(isEmbedToken(null), false);
 });
