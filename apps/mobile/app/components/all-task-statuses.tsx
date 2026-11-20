@@ -19,7 +19,7 @@ function nameMatches(item: { name?: string } | undefined, value: string | undefi
 	return name.toLowerCase() === value;
 }
 
-interface KindedChip {
+interface ChipOfKind {
 	kind: TaskPropertyKind;
 	item: TStatusItem | undefined;
 }
@@ -41,11 +41,11 @@ const AllTaskStatuses = ({ task }: { task: ITeamTask }) => {
 	const priority = allPriorities && Object.values(allPriorities).find((item) => nameMatches(item, priorityValue));
 
 	const taskLabels = task?.tags?.map((tag) => allLabels[tag.name]) ?? [];
-	const chips: KindedChip[] = [
+	const chips: ChipOfKind[] = [
 		{ kind: 'status', item: status },
 		{ kind: 'size', item: size },
 		{ kind: 'priority', item: priority },
-		...taskLabels.map((item): KindedChip => ({ kind: 'label', item }))
+		...taskLabels.map((item): ChipOfKind => ({ kind: 'label', item }))
 	];
 	const shownChips = chips.filter((chip) => chip.item !== null && chip.item !== undefined);
 
