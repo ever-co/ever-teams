@@ -67,11 +67,11 @@ const TaskLabels: FC<TaskLabelProps> = observer(
 		const { selectedLabels, toggle, startFrom } = useLabelSelection(task?.tags || newTaskLabels || [], saveLabels);
 
 		// The menu starts from the labels the task holds; each tap then saves, one write at a time, as on the web
-		const freshOpenModal = () => {
+		const freshOpenModal = (tapped?: View | null) => {
 			openFromAnchor(() => {
 				startFrom(task?.tags || newTaskLabels || []);
 				setOpenModal(true);
-			});
+			}, tapped);
 		};
 
 		const scrollToIndexWithDelay = (index: number) => {
@@ -164,7 +164,7 @@ const TaskLabels: FC<TaskLabelProps> = observer(
 				  (task?.tags?.length > 0 || newTaskLabels?.length > 0) &&
 				  taskScreenButton ? (
 					<View>
-						<TouchableOpacity onPress={freshOpenModal}>
+						<TouchableOpacity onPress={() => freshOpenModal()}>
 							<View
 								ref={anchorRef}
 								collapsable={false}
@@ -214,7 +214,7 @@ const TaskLabels: FC<TaskLabelProps> = observer(
 						/>
 					</View>
 				) : (
-					<TouchableOpacity onPress={freshOpenModal}>
+					<TouchableOpacity onPress={() => freshOpenModal()}>
 						<View
 							ref={anchorRef}
 							collapsable={false}
@@ -243,7 +243,8 @@ const TaskLabels: FC<TaskLabelProps> = observer(
 
 interface ILabel {
 	item: IndividualTaskLabel | null;
-	freshOpenModal: () => void;
+	/** Opens the menu under the label tapped. */
+	freshOpenModal: (tapped?: View | null) => void;
 	taskScreenButton?: boolean;
 	noBorders?: boolean;
 }
@@ -251,12 +252,15 @@ interface ILabel {
 const Label: FC<ILabel> = ({ item, freshOpenModal, taskScreenButton, noBorders }) => {
 	const theme = useWebTheme();
 	const look = taskChipLookOf(item?.color, theme);
+	const chipRef = useRef<View>(null);
 
 	const { width } = Dimensions.get('screen');
 
 	return (
-		<TouchableOpacity style={{}} onPress={freshOpenModal}>
+		<TouchableOpacity style={{}} onPress={() => freshOpenModal(chipRef.current)}>
 			<View
+				ref={chipRef}
+				collapsable={false}
 				style={[
 					{
 						flexDirection: 'row',

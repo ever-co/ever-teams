@@ -12,13 +12,14 @@ function anchorOf(measured: MenuRect): MenuRect | null {
 
 /**
  * The chip a menu opens under: its ref goes on the chip, and opening first measures where the chip is on the screen,
- * so the menu opens right under it. A chip not on screen yet opens the menu without a place, as a dialog.
+ * so the menu opens right under it. A trigger among several (a label in a row of labels) names the chip tapped. A
+ * chip not on screen yet opens the menu without a place, as a dialog.
  */
 export function useMenuAnchor() {
 	const anchorRef = useRef<View>(null);
 	const [anchor, setAnchor] = useState<MenuRect | null>(null);
-	const openFromAnchor = useCallback((open: () => void) => {
-		const trigger = anchorRef.current;
+	const openFromAnchor = useCallback((open: () => void, tapped?: View | null) => {
+		const trigger = tapped ?? anchorRef.current;
 		// a place measured for an earlier opening is not the chip's place now
 		if (!trigger) {
 			setAnchor(null);
