@@ -612,6 +612,7 @@
 			"size": "Größe",
 			"labels": "Labels",
 			"clear": "Filter löschen"
-		}
+		},
+		"rowActions": "Aktionen für {name}"
 	}
 }

@@ -170,5 +170,6 @@
 	"taskMenus.filter.priority": "pages.taskDetails.PRIORITY",
 	"taskMenus.filter.size": "pages.taskDetails.SIZE",
 	"taskMenus.filter.labels": "common.LABELS",
-	"taskMenus.filter.clear": "common.CLEAR_FILTERS"
+	"taskMenus.filter.clear": "common.CLEAR_FILTERS",
+	"taskMenus.rowActions": "settings.taskProperties.ROW_ACTIONS"
 }

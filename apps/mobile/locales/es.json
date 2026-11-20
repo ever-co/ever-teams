@@ -612,6 +612,7 @@
 			"size": "Tamaño",
 			"labels": "Etiquetas",
 			"clear": "Limpiar filtros"
-		}
+		},
+		"rowActions": "Acciones para {name}"
 	}
 }

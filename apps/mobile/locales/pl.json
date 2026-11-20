@@ -612,6 +612,7 @@
 			"size": "Rozmiar",
 			"labels": "Etykiety",
 			"clear": "Wyczyść filtry"
-		}
+		},
+		"rowActions": "Akcje dla: {name}"
 	}
 }

@@ -612,6 +612,7 @@
 			"size": "大小",
 			"labels": "标签",
 			"clear": "清除筛选器"
-		}
+		},
+		"rowActions": "{name} 的操作"
 	}
 }

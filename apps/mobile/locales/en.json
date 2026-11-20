@@ -612,6 +612,7 @@
 			"size": "Size",
 			"labels": "Labels",
 			"clear": "Clear filters"
-		}
+		},
+		"rowActions": "Actions for {name}"
 	}
 }

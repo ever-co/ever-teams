@@ -612,6 +612,7 @@
 			"size": "Dimensione",
 			"labels": "Etichette",
 			"clear": "Pulisci filtri"
-		}
+		},
+		"rowActions": "Azioni per {name}"
 	}
 }

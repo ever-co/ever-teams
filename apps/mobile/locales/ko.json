@@ -612,6 +612,7 @@
 			"size": "크기",
 			"labels": "라벨",
 			"clear": "필터 지우기"
-		}
+		},
+		"rowActions": "{name} 작업"
 	}
 }

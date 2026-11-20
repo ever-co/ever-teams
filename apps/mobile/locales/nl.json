@@ -612,6 +612,7 @@
 			"size": "Grootte",
 			"labels": "Labels",
 			"clear": "Filters wissen"
-		}
+		},
+		"rowActions": "Acties voor {name}"
 	}
 }
