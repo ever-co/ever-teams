@@ -158,5 +158,7 @@
 	"taskMenus.actions.createPriority": "taskMenus.actions.createPriority",
 	"taskMenus.actions.createSize": "taskMenus.actions.createSize",
 	"taskMenus.search.label": "taskMenus.search.label",
-	"taskMenus.actions.createLabel": "taskMenus.actions.createLabel"
+	"taskMenus.actions.createLabel": "taskMenus.actions.createLabel",
+	"taskMenus.search.version": "taskMenus.search.version",
+	"taskMenus.actions.createVersion": "taskMenus.actions.createVersion"
 }

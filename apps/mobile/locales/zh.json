@@ -589,7 +589,8 @@
 			"status": "更改状态…",
 			"priority": "设置优先级…",
 			"size": "设置大小…",
-			"label": "添加标签…"
+			"label": "添加标签…",
+			"version": "更改版本…"
 		},
 		"noResults": "无结果",
 		"noOptions": "暂无可选项",
@@ -597,7 +598,8 @@
 			"createStatus": "创建状态",
 			"createPriority": "创建优先级",
 			"createSize": "创建大小",
-			"createLabel": "创建标签"
+			"createLabel": "创建标签",
+			"createVersion": "创建版本"
 		}
 	}
 }

@@ -589,7 +589,8 @@
 			"status": "Status wijzigen…",
 			"priority": "Prioriteit instellen…",
 			"size": "Grootte instellen…",
-			"label": "Labels toevoegen…"
+			"label": "Labels toevoegen…",
+			"version": "Versie wijzigen…"
 		},
 		"noResults": "Geen resultaten",
 		"noOptions": "Nog niets om uit te kiezen",
@@ -597,7 +598,8 @@
 			"createStatus": "Status aanmaken",
 			"createPriority": "Prioriteit aanmaken",
 			"createSize": "Grootte aanmaken",
-			"createLabel": "Label aanmaken"
+			"createLabel": "Label aanmaken",
+			"createVersion": "Versie aanmaken"
 		}
 	}
 }
