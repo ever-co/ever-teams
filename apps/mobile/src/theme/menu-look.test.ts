@@ -1,4 +1,4 @@
-import { menuRowBackgroundOf, raisedSurfaceOf } from './menu-look';
+import { countChipLookOf, menuRowBackgroundOf, raisedSurfaceOf } from './menu-look';
 import { themeFor } from './use-theme';
 
 describe("the web's menu surface", () => {
@@ -20,5 +20,14 @@ describe("the web's menu surface", () => {
 
 		expect(menuRowBackgroundOf(true, dark)).toBe(dark.foreground(5));
 		expect(menuRowBackgroundOf(false, dark)).toBe('transparent');
+	});
+
+	it('draws a count in primary-ink over 10% of the primary color, as the web filter menu does', () => {
+		const light = themeFor('light');
+
+		const look = countChipLookOf(light);
+
+		expect(look.container.backgroundColor).toBe('hsla(239, 84%, 67%, 0.1)');
+		expect(look.text.color).toBe(light.colors['primary-ink']);
 	});
 });

@@ -1,4 +1,5 @@
-import { StyleSheet, type ViewStyle } from 'react-native';
+import { StyleSheet, type TextStyle, type ViewStyle } from 'react-native';
+import { hsl, webColorTokens } from './tokens';
 import type { Theme } from './use-theme';
 
 /**
@@ -41,4 +42,12 @@ export function menuRowBackgroundOf(pressed: boolean, theme: Theme): string {
 		return theme.foreground(5);
 	}
 	return 'transparent';
+}
+
+/** The web's count on a filter row or button: its number in primary-ink over 10% of the primary color. */
+export function countChipLookOf(theme: Theme): { container: ViewStyle; text: TextStyle } {
+	return {
+		container: { backgroundColor: hsl(webColorTokens[theme.scheme].primary, 0.1) },
+		text: { color: theme.colors['primary-ink'] }
+	};
 }
