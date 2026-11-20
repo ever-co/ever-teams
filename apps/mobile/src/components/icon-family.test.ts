@@ -7,6 +7,7 @@ const MOBILE = resolve(__dirname, '../..');
 const ON_HUGEICONS: string[] = [
 	'app/components/home-header.tsx',
 	'app/components/no-team.tsx',
+	'app/components/timer-actions-menu.tsx',
 	'app/screens/authenticated/members-settings-screen/components/change-role-modal.tsx',
 	'app/screens/authenticated/members-settings-screen/index.tsx',
 	'app/screens/authenticated/setting-screen/components/change-team-logo.tsx',
