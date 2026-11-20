@@ -235,6 +235,9 @@ test('a fetch failure keeps its name, message, code and causes, never the reques
 // The guide's "Set a time limit" promises this error to a site whose fetch stops waiting (#5639).
 test('a time limit given through fetch cuts an API that never answers, as a network error', async () => {
 	const silent = createServer();
+	// Its own deadline: a helper that stopped passing the fetch on would get the connection dropped after 5 seconds,
+	// and fail here, instead of waiting forever.
+	silent.setTimeout(5_000);
 	await new Promise((resolve) => silent.listen(0, '127.0.0.1', resolve));
 	const apiUrl = `http://127.0.0.1:${silent.address().port}/api`;
 	const fetchWithinALimit = (url, init) => fetch(url, { ...init, signal: AbortSignal.timeout(200) });
