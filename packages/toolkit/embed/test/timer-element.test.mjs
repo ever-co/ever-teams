@@ -319,6 +319,28 @@ test('signOut() on an element already removed ends the sign-in saved for its api
 	assert.deepEqual(globalThis.endedSignIns, [{ apiUrl: 'https://api.example.com/api', organizationId: 'org-1' }]);
 });
 
+test('signOut() right after a change of organization ends the sign-in of the new one, not the previous one through the kit', async () => {
+	const element = await place(SITE_SIGN_IN);
+
+	element.setAttribute('organization', 'org-2');
+	await element.signOut();
+
+	assert.equal(globalThis.kitSignOuts, 0);
+	assert.deepEqual(globalThis.endedSignIns, [{ apiUrl: 'https://api.example.com/api', organizationId: 'org-2' }]);
+	await act(async () => {});
+});
+
+test('signOut() right after sign-in="ever-teams" is removed ends nothing', async () => {
+	const element = await place(SITE_SIGN_IN);
+
+	element.removeAttribute('sign-in');
+	await element.signOut();
+
+	assert.equal(globalThis.kitSignOuts, 0);
+	assert.deepEqual(globalThis.endedSignIns, []);
+	await act(async () => {});
+});
+
 test('signOut() without sign-in="ever-teams" ends nothing, in the page or removed', async () => {
 	const element = await place({ 'api-url': 'https://api.example.com/api' });
 

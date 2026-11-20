@@ -74,15 +74,25 @@ function signInConfigOf(element: HTMLElement): SiteSignInConfig {
 	return config;
 }
 
-type KeepSiteSignIn = (controls: SiteSignInControls | null) => void;
+// The sign-in controls of a render, with the API address and organization that render named.
+interface KeptSiteSignIn {
+	controls: SiteSignInControls;
+	scope: string;
+}
+
+type KeepSiteSignIn = (kept: KeptSiteSignIn | null) => void;
 
 // Hands the provider's sign-in with Ever Teams to the element, for its signOut().
-function SiteSignInBridge({ keep }: { keep: KeepSiteSignIn }) {
+function SiteSignInBridge({ keep, scope }: { keep: KeepSiteSignIn; scope: string }) {
 	const controls = useSiteSignIn();
 	useEffect(() => {
-		keep(controls);
+		if (controls) {
+			keep({ controls, scope });
+		} else {
+			keep(null);
+		}
 		return () => keep(null);
-	}, [controls, keep]);
+	}, [controls, keep, scope]);
 	return null;
 }
 
@@ -100,10 +110,10 @@ export class EverTeamsTimerElement extends HTMLElement {
 	private root: Root | null = null;
 	private cache: EmotionCache | null = null;
 	private hadApiUrl = false;
-	private siteSignIn: SiteSignInControls | null = null;
+	private siteSignIn: KeptSiteSignIn | null = null;
 
-	private readonly keepSiteSignIn: KeepSiteSignIn = (controls) => {
-		this.siteSignIn = controls;
+	private readonly keepSiteSignIn: KeepSiteSignIn = (kept) => {
+		this.siteSignIn = kept;
 	};
 
 	// One function for every render: the provider keeps it.
@@ -160,17 +170,25 @@ export class EverTeamsTimerElement extends HTMLElement {
 	 * saved for its api-url and organization.
 	 */
 	async signOut(): Promise<void> {
-		if (this.siteSignIn) {
-			await this.siteSignIn.signOut();
+		if (this.getAttribute('sign-in') !== 'ever-teams') {
 			return;
 		}
-		if (this.getAttribute('sign-in') !== 'ever-teams') {
+		// Controls kept from a render for other attributes (changed in this task, not rendered yet) end another sign-in.
+		const kept = this.siteSignIn;
+		if (kept && kept.scope === this.siteScope()) {
+			await kept.controls.signOut();
 			return;
 		}
 		await endSiteSignIn({
 			...configOf(this.getAttribute('api-url'), this.hadApiUrl),
 			organizationId: this.getAttribute('organization') ?? ''
 		});
+	}
+
+	// The API address and organization the attributes name now.
+	private siteScope(): string {
+		const config: { apiUrl?: string } = configOf(this.getAttribute('api-url'), this.hadApiUrl);
+		return JSON.stringify([config.apiUrl ?? '', this.getAttribute('organization') ?? '']);
 	}
 
 	private render() {
@@ -191,7 +209,7 @@ export class EverTeamsTimerElement extends HTMLElement {
 					lang={lang}
 					onTimerChange={this.dispatchTimerChange}
 				>
-					<SiteSignInBridge keep={this.keepSiteSignIn} />
+					<SiteSignInBridge keep={this.keepSiteSignIn} scope={this.siteScope()} />
 					<TeamsLoginDialog />
 					<TeamsBasicTimer />
 				</TeamsProvider>
