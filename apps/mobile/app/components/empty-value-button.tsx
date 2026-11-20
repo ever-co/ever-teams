@@ -12,10 +12,18 @@ interface IEmptyValueButton {
 	/** Where the menu it opens is placed. */
 	anchorRef?: RefObject<View | null>;
 	testID?: string;
+	/** What a screen reader says, when the label alone does not name the field. */
+	accessibilityLabel?: string;
 }
 
 /** A task page field without a value, as the web reads it: a plus and the action in muted text, 28 high at least. */
-export function EmptyValueButton({ label, onPress, anchorRef, testID }: Readonly<IEmptyValueButton>) {
+export function EmptyValueButton({
+	label,
+	onPress,
+	anchorRef,
+	testID,
+	accessibilityLabel = label
+}: Readonly<IEmptyValueButton>) {
 	const theme = useWebTheme();
 	const muted = theme.colors['muted-foreground'];
 	return (
@@ -23,7 +31,7 @@ export function EmptyValueButton({ label, onPress, anchorRef, testID }: Readonly
 			ref={anchorRef}
 			testID={testID}
 			accessibilityRole="button"
-			accessibilityLabel={label}
+			accessibilityLabel={accessibilityLabel}
 			onPress={() => onPress()}
 			style={styles.button}
 		>
