@@ -68,7 +68,8 @@ const ProfileInfoWithTime: React.FC<IProfileInfo> = ({ profilePicSrc, names, use
 					})}
 				</Text>
 			</TouchableOpacity>
-			{time && (
+			{/* a ternary, not `time &&`: an empty time would reach the View as a bare string, which React Native refuses */}
+			{time ? (
 				<Text
 					style={{
 						fontSize: 12,
@@ -78,7 +79,7 @@ const ProfileInfoWithTime: React.FC<IProfileInfo> = ({ profilePicSrc, names, use
 				>
 					{time}
 				</Text>
-			)}
+			) : null}
 		</View>
 	);
 };

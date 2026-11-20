@@ -28,4 +28,10 @@ describe("a member's line with time on the task page", () => {
 
 		expect(screen.getByText('2h : 15m')).toBeTruthy();
 	});
+
+	it('renders the member alone for an empty time, never a bare string outside a Text', async () => {
+		await render(<ProfileInfoWithTime names="Kofi Arden" profilePicSrc="" userId="user-1" time="" />);
+
+		expect(screen.getByText('Kofi Arden')).toBeTruthy();
+	});
 });
