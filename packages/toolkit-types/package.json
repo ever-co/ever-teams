@@ -18,7 +18,7 @@
 	},
 	"type": "module",
 	"scripts": {
-		"prepare": "tsc",
+		"prepare": "tsc && node scripts/published-declarations.mjs",
 		"build": "rollup -c"
 	},
 	"packageManager": "yarn@1.22.19",
