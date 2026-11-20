@@ -2,6 +2,7 @@
 /* eslint-disable react-native/no-color-literals  */
 import { View, Text } from "react-native"
 import React from "react"
+import { observer } from "mobx-react-lite"
 import Accordion from "../../accordion"
 import TaskRow from "../details-block/components/task-row"
 import { PropertyLabel } from "../details-block/components/property-label"
@@ -11,7 +12,8 @@ import { useAppTheme } from "../../../theme"
 import { translate } from "../../../i18n"
 import { estimateTextOf } from "./estimate-text"
 
-const EstimateBlock = () => {
+// an observer: the page loads its task after mounting, and the estimate follows it
+const EstimateBlock = observer(() => {
 	const {
 		TaskStore: { detailedTask: task },
 	} = useStores()
@@ -50,6 +52,6 @@ const EstimateBlock = () => {
 			</View>
 		</Accordion>
 	)
-}
+})
 
 export default EstimateBlock
