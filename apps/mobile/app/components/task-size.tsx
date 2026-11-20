@@ -10,6 +10,7 @@ import { showMessage } from 'react-native-flash-message';
 import { typography, useWebTheme } from '../theme';
 import { taskChipLookOf } from '../../src/components/task-chip';
 import { ChipIcon } from '../../src/components/chip-icon';
+import { useMenuAnchor } from '../../src/components/menu-anchor';
 import TaskSizePopup from './task-size-popup';
 import { translate } from '../i18n';
 import { limitTextCharaters } from '../helpers/sub-text';
@@ -28,6 +29,7 @@ const TaskSize: FC<TaskSizeProps> = observer(({ task, containerStyle, setSize, s
 	const theme = useWebTheme();
 	const { updateTask } = useTeamTasks();
 	const [openModal, setOpenModal] = useState(false);
+	const { anchorRef, anchor, openFromAnchor } = useMenuAnchor();
 
 	const allTaskSizes = useTaskSizeValue();
 
@@ -63,10 +65,15 @@ const TaskSize: FC<TaskSizeProps> = observer(({ task, containerStyle, setSize, s
 				visible={openModal}
 				setSelectedSize={(e) => onChangeSize(e.value)}
 				onDismiss={() => setOpenModal(false)}
+				anchor={anchor}
 				canCreateSize={canCreateSize}
 			/>
-			<TouchableOpacity onPress={() => setOpenModal(true)}>
-				<View style={[{ ...styles.container, ...containerStyle }, look.container]}>
+			<TouchableOpacity onPress={() => openFromAnchor(() => setOpenModal(true))}>
+				<View
+					ref={anchorRef}
+					collapsable={false}
+					style={[{ ...styles.container, ...containerStyle }, look.container]}
+				>
 					{(task?.size || size) && currentSize ? (
 						<View style={styles.wrapStatus}>
 							<ChipIcon item={currentSize} color={look.ink} kind="size" />

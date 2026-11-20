@@ -10,6 +10,7 @@ import TaskStatusPopup from './task-status-popup';
 import { typography, useAppTheme, useWebTheme } from '../theme';
 import { taskChipLookOf } from '../../src/components/task-chip';
 import { ChipIcon } from '../../src/components/chip-icon';
+import { useMenuAnchor } from '../../src/components/menu-anchor';
 import { translate } from '../i18n';
 import { useTaskStatusValue } from './status-type';
 import { limitTextCharaters } from '../helpers/sub-text';
@@ -31,6 +32,7 @@ const TaskStatus: FC<TaskStatusProps> = observer(
 		const theme = useWebTheme();
 		const { updateTask } = useTeamTasks();
 		const [openModal, setOpenModal] = useState(false);
+		const { anchorRef, anchor, openFromAnchor } = useMenuAnchor();
 
 		const allStatuses = useTaskStatusValue();
 
@@ -62,10 +64,13 @@ const TaskStatus: FC<TaskStatusProps> = observer(
 					visible={openModal}
 					setSelectedStatus={(e) => onChangeStatus(e)}
 					onDismiss={() => setOpenModal(false)}
+					anchor={anchor}
 					canCreateStatus={canCreateStatus}
 				/>
-				<TouchableOpacity onPress={() => setOpenModal(true)}>
+				<TouchableOpacity onPress={() => openFromAnchor(() => setOpenModal(true))}>
 					<View
+						ref={anchorRef}
+						collapsable={false}
 						style={[
 							{ ...styles.container, ...containerStyle },
 							look.container,
