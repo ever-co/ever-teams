@@ -56,6 +56,14 @@ function assertOptions(options: EverTeamsClientOptions): void {
 	}
 }
 
+// A call an embed token cannot make is refused before it is sent, with the first token or a renewed one.
+function assertReachable(call: ClientCall, token: string | null): void {
+	const refusedToEmbedToken = !call.reachableByEmbedToken && isEmbedToken(token);
+	if (refusedToEmbedToken) {
+		throw embedScopeError(call.nextSteps);
+	}
+}
+
 export function createTransport(options: EverTeamsClientOptions): Transport {
 	assertOptions(options);
 	const apiUrl = withoutTrailingSlashes(options.apiUrl);
@@ -149,14 +157,6 @@ export function createTransport(options: EverTeamsClientOptions): Transport {
 
 	// The refused answer's body is read and dropped, so its connection is free for the retry.
 	const discard = (response: Response) => response.text().then(undefined, () => undefined);
-
-	// A call an embed token cannot make is refused before it is sent, with the first token or a renewed one.
-	function assertReachable(call: ClientCall, token: string | null): void {
-		const refusedToEmbedToken = !call.reachableByEmbedToken && isEmbedToken(token);
-		if (refusedToEmbedToken) {
-			throw embedScopeError(call.nextSteps);
-		}
-	}
 
 	async function request<T>(call: ClientCall): Promise<T> {
 		const used = accessToken.current();

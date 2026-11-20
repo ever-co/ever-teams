@@ -11,13 +11,26 @@ const EMBED_TOKEN = tokenWith({ id: 'user-1', embedCredentialId: 'credential-1',
 const STATUS = { running: false, duration: 0, lastLog: null };
 
 test('an embed token reaches the timer and the user as before', async () => {
-	const api = standInApi({ 'GET /user/me': ME, 'GET /timesheet/timer/status': STATUS });
+	const log = { id: 'log-1', isRunning: true };
+	const api = standInApi({
+		'GET /user/me': ME,
+		'GET /timesheet/timer/status': STATUS,
+		'POST /timesheet/timer/start': log,
+		'POST /timesheet/timer/stop': { ...log, isRunning: false }
+	});
 	const teams = createClient({ apiUrl: API_URL, token: EMBED_TOKEN, fetch: api.fetch });
 
 	const status = await teams.timer.status();
+	await teams.timer.start();
+	await teams.timer.stop();
 
 	assert.equal(status.running, false);
-	assert.deepEqual(api.routesSent(), ['GET /user/me', 'GET /timesheet/timer/status']);
+	assert.deepEqual(api.routesSent(), [
+		'GET /user/me',
+		'GET /timesheet/timer/status',
+		'POST /timesheet/timer/start',
+		'POST /timesheet/timer/stop'
+	]);
 });
 
 test('an embed token gets EMBED_SCOPE for the calls it cannot make, with no request sent', async () => {
@@ -26,7 +39,9 @@ test('an embed token gets EMBED_SCOPE for the calls it cannot make, with no requ
 	const calls = {
 		'timeEntries.list': () => teams.timeEntries.list({ from: '2026-11-16', to: '2026-11-20', mine: true }),
 		'totals.today': () => teams.totals.today(),
-		'members.list': () => teams.members.list()
+		'members.list': () => teams.members.list(),
+		'projects.list': () => teams.projects.list(),
+		'tasks.list': () => teams.tasks.list()
 	};
 
 	for (const [name, call] of Object.entries(calls)) {
