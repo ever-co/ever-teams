@@ -2,7 +2,8 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, { FC, useState } from 'react';
 import { TouchableOpacity, View, Text, StyleSheet, ViewStyle } from 'react-native';
-import { AntDesign, Entypo } from '@expo/vector-icons';
+import { ChevronDown } from '../../src/components/icons';
+import { TaskPropertyPlaceholderIcon } from '../../src/components/task-property-icon';
 import { observer } from 'mobx-react-lite';
 import { ITeamTask } from '../services/interfaces/ITask';
 import { useTeamTasks } from '../services/hooks/features/use-team-tasks';
@@ -87,13 +88,13 @@ const TaskVersion: FC<TaskVersionProps> = observer(
 							</View>
 						) : (
 							<View style={styles.wrapStatus}>
-								<Entypo name="circle" size={12} color={colors.primary} />
+								<TaskPropertyPlaceholderIcon kind="version" size={12} color={colors.primary} />
 								<Text style={{ ...styles.text, color: colors.primary, marginLeft: 5 }}>
 									{translate('taskDetailsScreen.version')}
 								</Text>
 							</View>
 						)}
-						<AntDesign name="down" size={14} color={colors.primary} />
+						<ChevronDown size={14} color={colors.primary} />
 					</View>
 				</TouchableOpacity>
 			</>
