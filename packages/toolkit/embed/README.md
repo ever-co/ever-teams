@@ -180,7 +180,8 @@ write with `exchangeEmbedToken`. No password or token is typed in the page:
 The element asks that route with a `POST` and the page's cookies, signs the person in with the `{ token, expiresAt }`
 it answers, and asks again shortly before the token expires. An answer that is not 2xx (your route's 401 for a person
 signed out of your product) shows the person as signed out, with a note that points to your own sign-in. `token-url`
-wins over `sign-in`.
+wins over `sign-in`. Another `token-url` starts a new session: when the person signed in to your page changes without a
+page load, give it a new value (your route with that person's id in its query, for example) or replace the element.
 
 On a page without a server, `sign-in="ever-teams"` shows a "Sign in with Ever Teams" button instead. It opens the
 Ever Teams web app in a popup, where the person signs in if they are not already and allows your site to start and
