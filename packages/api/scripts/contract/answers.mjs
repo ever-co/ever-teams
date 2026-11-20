@@ -7,6 +7,19 @@ const declared = (resource, method) => `Awaited<ReturnType<EverTeamsClient['${re
 
 const asIs = (answer) => answer;
 
+// A client as the client names it: the API answers the whole record (billing e-mail, budget...).
+const clientOf = (record) => (record ? { id: record.id, name: record.name, imageUrl: record.imageUrl ?? null } : null);
+
+// A time entry as the client returns it (#5593): its own client, else its project's, and the project without the
+// client record the API answers in it.
+const timeEntryOf = (answer) => {
+	if (!answer.project) {
+		return { ...answer, project: null, organizationContact: clientOf(answer.organizationContact) };
+	}
+	const { organizationContact: projectClient, ...project } = answer.project;
+	return { ...answer, project, organizationContact: clientOf(answer.organizationContact) ?? clientOf(projectClient) };
+};
+
 export const CONTRACT_ANSWERS = [
 	{
 		// Read once by every client that is not given its tenant and organization; no method answers it.
@@ -69,7 +82,7 @@ export const CONTRACT_ANSWERS = [
 		idKind: 'log',
 		call: (client, days) => client.timeEntries.list({ from: days.from, to: days.to }),
 		answerType: declared('timeEntries', 'list'),
-		returned: asIs
+		returned: (answer) => answer.map(timeEntryOf)
 	},
 	{
 		name: 'totals.today',
