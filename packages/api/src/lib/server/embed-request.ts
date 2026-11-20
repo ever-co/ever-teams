@@ -59,7 +59,8 @@ const CODE_STEPS: { [code: string]: string } = {
 		'This credential is not limited to a client: ask an administrator for a credential of the client whose time ' +
 		'the report shows (Settings > Embeds of the web app).',
 	EMBED_CLIENT_GONE:
-		"The credential's client was deleted: restore the client in the web app, or use a credential of another one.",
+		"The credential's client is archived or deleted: restore the client from the web app's client list, or use a " +
+		'credential of another client.',
 	EMBED_EXCHANGE_LIMITED:
 		'Too many refused credentials came from this address: check the credential you send, then try again in a ' +
 		'minute.'
