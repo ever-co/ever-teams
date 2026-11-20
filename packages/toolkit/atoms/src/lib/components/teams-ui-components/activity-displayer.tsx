@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { useTeamsContext } from '@lib/context/teams-context';
 import { useStatisticsCounts } from '@hooks/useStatisticsCounts';
 import { TeamsDisplayerLoader } from '@components/loaders/displayer-loader';
+import { useTimerOnlyToken } from '@hooks/useTimerOnlyToken';
+import { TimerOnlyReportNote } from './timer-only-report-note';
 
 interface IActivityDisplayerProps {
 	activity?: number;
@@ -49,6 +51,10 @@ const TeamsDailyActivityDisplayer = ({ showProgress, className }: { showProgress
 	const { t } = useTranslation();
 
 	const { data: statisticsCounts, loading: statisticsCountsLoading } = useStatisticsCounts();
+	const timerOnly = useTimerOnlyToken();
+	if (timerOnly) {
+		return <TimerOnlyReportNote label={t('REPORT.today_activity')} className={className} />;
+	}
 	return (
 		<TeamsActivityDisplayer
 			activity={statisticsCounts?.todayActivities}
@@ -66,17 +72,22 @@ const TeamsWeeklyActivityDisplayer = ({ showProgress, className }: { showProgres
 	const { reportDates } = useTeamsContext();
 
 	const { data: statisticsCounts, loading: statisticsCountsLoading } = useStatisticsCounts();
+	const timerOnly = useTimerOnlyToken();
+	const isThisWeek = areDatesEqual(reportDates?.from, dates.start) && areDatesEqual(reportDates?.to, dates.end);
+	let label = t('REPORT.activity_over_period');
+	if (isThisWeek) {
+		label = t('REPORT.week_activity');
+	}
+	if (timerOnly) {
+		return <TimerOnlyReportNote label={label} className={className} />;
+	}
 
 	return (
 		<TeamsActivityDisplayer
 			activity={statisticsCounts?.weekActivities}
 			loading={statisticsCountsLoading}
 			showProgress={showProgress}
-			label={
-				areDatesEqual(reportDates?.from, dates.start) && areDatesEqual(reportDates?.to, dates.end)
-					? t('REPORT.week_activity')
-					: t('REPORT.activity_over_period')
-			}
+			label={label}
 			className={className}
 		/>
 	);

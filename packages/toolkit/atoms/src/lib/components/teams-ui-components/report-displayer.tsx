@@ -4,6 +4,8 @@ import { useTeamsContext } from '@lib/context/teams-context';
 import { useTranslation } from 'react-i18next';
 import { useStatisticsCounts } from '@hooks/useStatisticsCounts';
 import { TeamsDisplayerLoader } from '@components/loaders/displayer-loader';
+import { useTimerOnlyToken } from '@hooks/useTimerOnlyToken';
+import { TimerOnlyReportNote } from './timer-only-report-note';
 
 export interface IReportDisplayer {
 	workedTime?: number | undefined;
@@ -76,6 +78,10 @@ const TeamsDailyWorkedTimeDisplayer = ({
 	const { t } = useTranslation();
 
 	const { data: statisticsCounts, loading: statisticsCountsLoading } = useStatisticsCounts();
+	const timerOnly = useTimerOnlyToken();
+	if (timerOnly) {
+		return <TimerOnlyReportNote label={t('REPORT.worked_today')} className={className} />;
+	}
 	return (
 		<TeamsReportDisplayer
 			workedTime={statisticsCounts?.todayDuration}
@@ -106,14 +112,19 @@ const TeamsWeeklyWorkedTimeDisplayer = ({
 	const { reportDates } = useTeamsContext();
 
 	const { data: statisticsCounts, loading: statisticsCountsLoading } = useStatisticsCounts();
+	const timerOnly = useTimerOnlyToken();
+	const isThisWeek = areDatesEqual(reportDates?.from, dates.start) && areDatesEqual(reportDates?.to, dates.end);
+	let label = t('REPORT.worked_over_period');
+	if (isThisWeek) {
+		label = t('REPORT.worked_this_week');
+	}
+	if (timerOnly) {
+		return <TimerOnlyReportNote label={label} className={className} />;
+	}
 	return (
 		<TeamsReportDisplayer
 			workedTime={statisticsCounts?.weekDuration}
-			label={
-				areDatesEqual(reportDates?.from, dates.start) && areDatesEqual(reportDates?.to, dates.end)
-					? t('REPORT.worked_this_week')
-					: t('REPORT.worked_over_period')
-			}
+			label={label}
 			showProgress={showProgress}
 			maxWorkHours={40}
 			className={className}
