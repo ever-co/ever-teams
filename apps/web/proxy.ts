@@ -12,7 +12,7 @@ import { currentAuthenticatedUserRequest, refreshTokenRequest } from '@/core/ser
 import { unwrapRejection } from '@/core/services/server/fetch';
 import { requestAccessToken, requestCookies } from '@/core/services/server/request-cookies';
 import { isTokenExpired, decodeJWT, getTokenRemainingTime, formatRemainingTime } from '@/core/lib/auth/jwt-utils';
-import { frameAncestorsPolicy } from '@/core/lib/helpers/frame-ancestors';
+import { setFramingPolicy } from '@/core/lib/helpers/frame-ancestors';
 import {
 	getRuntimeImageHosts,
 	isImageOptimizerRequest,
@@ -141,8 +141,7 @@ export async function proxy(request: NextRequest) {
 
 	const pathname = withoutLocalePrefix(request.nextUrl.pathname);
 	const response = await answerPageRequest(request);
-	const policy = frameAncestorsPolicy(pathname, process.env.FRAME_ANCESTORS);
-	response.headers.set('Content-Security-Policy', policy);
+	setFramingPolicy(response, pathname);
 	return response;
 }
 

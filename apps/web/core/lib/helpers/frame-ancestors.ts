@@ -28,3 +28,9 @@ export function frameAncestorsPolicy(pathname: string, setting: string | undefin
 	const sources = ["'self'", ...frameAncestorSources(setting)];
 	return `frame-ancestors ${sources.join(' ')}`;
 }
+
+/** Writes on an answer who may frame the page it carries, with the sites FRAME_ANCESTORS lists at this request. */
+export function setFramingPolicy(response: Response, pathname: string): void {
+	const policy = frameAncestorsPolicy(pathname, process.env.FRAME_ANCESTORS);
+	response.headers.set('Content-Security-Policy', policy);
+}
