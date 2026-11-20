@@ -8,6 +8,15 @@ import { themeFor } from '../../../../../src/theme/use-theme';
 jest.mock('../../../../../src/components/icons', () =>
 	jest.requireActual('../../../../../test/icons-stand-in').iconsStandIn()
 );
+// The placeholder as a plain view carrying its kind, color and size, so a test reads what the label chose to draw
+jest.mock('../../../../../src/components/task-property-icon', () => {
+	const { createElement } = jest.requireActual('react');
+	const { View } = jest.requireActual('react-native');
+	return {
+		TaskPropertyPlaceholderIcon: ({ kind, color, size }: { kind: string; color: string; size: number }) =>
+			createElement(View, { testID: `property-placeholder-${kind}`, color, size })
+	};
+});
 jest.mock('../../../../theme', () => ({
 	useWebTheme: () => jest.requireActual('../../../../../src/theme/use-theme').themeFor('dark')
 }));
@@ -47,6 +56,9 @@ describe("a property's label on the task page", () => {
 	it("draws a property's placeholder glyph, as the web's property rows do", async () => {
 		await render(<PropertyLabel label="Status" placeholder="status" />);
 
-		expect(screen.getByTestId('property-placeholder-status', { includeHiddenElements: true })).toBeTruthy();
+		expect(screen.getByTestId('property-placeholder-status', { includeHiddenElements: true }).props).toMatchObject({
+			color: dark.colors['muted-foreground'],
+			size: 16
+		});
 	});
 });
