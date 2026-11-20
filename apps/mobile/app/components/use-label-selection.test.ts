@@ -61,6 +61,26 @@ describe("a task's labels saved from the menu", () => {
 		expect(result.current.selectedLabels.map((label) => label.id)).toEqual(['paint']);
 		expect(calls).toHaveLength(1);
 	});
+
+	it('keeps each write on the task it was made for, and drops what waited when the task changes', async () => {
+		const { calls, save } = heldSaves();
+		const { result, rerender } = await renderHook(
+			({ saved, taskKey }: { saved: ITaskLabelItem[]; taskKey: string }) =>
+				useLabelSelection(saved, save, taskKey),
+			{ initialProps: { saved: [PAINT], taskKey: 'task-a' } }
+		);
+
+		await act(async () => result.current.toggle(OUTDOOR));
+		await act(async () => result.current.toggle(NIGHT));
+		await rerender({ saved: [], taskKey: 'task-b' });
+
+		expect(result.current.selectedLabels).toEqual([]);
+
+		await act(async () => calls[0].finish(false));
+
+		expect(calls).toHaveLength(1);
+		expect(result.current.selectedLabels).toEqual([]);
+	});
 });
 
 describe('a label tapped in the menu', () => {

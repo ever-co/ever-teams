@@ -64,7 +64,11 @@ const TaskLabels: FC<TaskLabelProps> = observer(
 				return false;
 			}
 		};
-		const { selectedLabels, toggle, startFrom } = useLabelSelection(task?.tags || newTaskLabels || [], saveLabels);
+		const { selectedLabels, toggle, startFrom } = useLabelSelection(
+			task?.tags || newTaskLabels || [],
+			saveLabels,
+			task?.id
+		);
 
 		// The menu starts from the labels the task holds; each tap then saves, one write at a time, as on the web
 		const freshOpenModal = (tapped?: View | null) => {
