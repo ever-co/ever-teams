@@ -72,7 +72,8 @@ export function createIdentity(
 			.request<unknown>({
 				method: 'GET',
 				path: '/user/me',
-				query: { includeEmployee: true, includeOrganization: true }
+				query: { includeEmployee: true, includeOrganization: true },
+				reachableByEmbedToken: true
 			})
 			.then(meOf);
 		me = pending;

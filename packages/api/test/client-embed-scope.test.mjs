@@ -1,0 +1,59 @@
+// A client with an embed token (ever-co/ever-teams#5589), against the built package: node --test test/*.test.mjs (from
+// packages/api, after `rollup -c`). In a browser the API's refusal of a route an embed token cannot reach is never read
+// (CORS is open to an allowed site on the timer's routes only), so the client refuses those calls itself.
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { createClient, EverTeamsForbiddenError } from '../dist/index.es.js';
+import { API_URL, ME, standInApi } from './support/stand-in-api.mjs';
+
+const tokenWith = (claims) => `header.${Buffer.from(JSON.stringify(claims)).toString('base64url')}.signature`;
+const EMBED_TOKEN = tokenWith({ id: 'user-1', embedCredentialId: 'credential-1', embedEmployeeId: 'employee-1' });
+const STATUS = { running: false, duration: 0, lastLog: null };
+
+test('an embed token reaches the timer and the user as before', async () => {
+	const api = standInApi({ 'GET /user/me': ME, 'GET /timesheet/timer/status': STATUS });
+	const teams = createClient({ apiUrl: API_URL, token: EMBED_TOKEN, fetch: api.fetch });
+
+	const status = await teams.timer.status();
+
+	assert.equal(status.running, false);
+	assert.deepEqual(api.routesSent(), ['GET /user/me', 'GET /timesheet/timer/status']);
+});
+
+test('an embed token gets EMBED_SCOPE for the calls it cannot make, with no request sent', async () => {
+	const api = standInApi({ 'GET /user/me': ME });
+	const teams = createClient({ apiUrl: API_URL, token: EMBED_TOKEN, fetch: api.fetch });
+	const calls = {
+		'timeEntries.list': () => teams.timeEntries.list({ from: '2026-11-16', to: '2026-11-20', mine: true }),
+		'totals.today': () => teams.totals.today(),
+		'members.list': () => teams.members.list()
+	};
+
+	for (const [name, call] of Object.entries(calls)) {
+		await assert.rejects(call(), (error) => {
+			assert.ok(error instanceof EverTeamsForbiddenError, name);
+			assert.equal(error.code, 'EMBED_SCOPE', name);
+			assert.equal(error.status, 403, name);
+			assert.match(error.nextStep, /personal API token/, name);
+			return true;
+		});
+	}
+	const sent = api.routesSent();
+	assert.deepEqual(
+		sent.filter((request) => request !== 'GET /user/me'),
+		[],
+		'nothing but the user is read'
+	);
+});
+
+test('a personal token, or a token that is not a JWT, is sent as before', async () => {
+	const counts = { todayDuration: 60, todayActivities: 0, weekDuration: 0, weekActivities: 0 };
+	for (const token of [tokenWith({ id: 'user-1' }), 'opaque-token']) {
+		const api = standInApi({ 'GET /user/me': ME, 'GET /timesheet/statistics/counts': counts });
+		const teams = createClient({ apiUrl: API_URL, token, fetch: api.fetch });
+
+		const today = await teams.totals.today();
+
+		assert.equal(today.duration, 60);
+	}
+});

@@ -2,6 +2,7 @@ import qs from 'qs';
 import { createAccessToken, tokenOf } from './access-token';
 import { withoutTrailingSlashes } from './address';
 import { parseBody } from './answer-body';
+import { embedScopeError, isEmbedToken } from './embed-scope';
 import { clientError, errorFromResponse, networkError, NextStepsByStatus } from './error-mapping';
 import { EverTeamsError } from './errors';
 import { EverTeamsClientOptions } from './types';
@@ -16,6 +17,8 @@ export interface ClientCall {
 	organizationId?: string;
 	/** The next steps this call gives in place of the general ones, by HTTP status. */
 	nextSteps?: NextStepsByStatus;
+	/** Whether an embed token reaches this route; with an embed token, any other call is refused without a request. */
+	reachableByEmbedToken?: boolean;
 }
 
 export interface Transport {
@@ -149,7 +152,12 @@ export function createTransport(options: EverTeamsClientOptions): Transport {
 
 	async function request<T>(call: ClientCall): Promise<T> {
 		const used = accessToken.current();
-		const response = await send(call, await used);
+		const token = await used;
+		const refusedToEmbedToken = !call.reachableByEmbedToken && isEmbedToken(token);
+		if (refusedToEmbedToken) {
+			throw embedScopeError(call.nextSteps);
+		}
+		const response = await send(call, token);
 		if (response.status !== 401) {
 			return read<T>(response, call.nextSteps);
 		}

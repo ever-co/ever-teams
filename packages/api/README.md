@@ -289,8 +289,9 @@ console.log(`${Math.round(duration / 3600)} h this week`);
 ### With an embed token
 
 An embed token reaches the timer and the user only: `timer.status()`, `timer.start()` and `timer.stop()` work, and
-the other methods throw an `EverTeamsForbiddenError` with the code `EMBED_SCOPE`. Today's tracked seconds are in
-`(await teams.timer.status()).duration`.
+the other methods throw an `EverTeamsForbiddenError` with the code `EMBED_SCOPE`. The client knows an embed token by
+its claims and throws that error without a request, so a browser gets it too (the API answers an allowed site's CORS on
+the timer's routes only). Today's tracked seconds are in `(await teams.timer.status()).duration`.
 
 ## Errors
 

@@ -113,6 +113,7 @@ export function createTimer(transport: Transport, identity: Identity): TimerReso
 		return transport.request<EverTeamsTimerStatus>({
 			method: 'GET',
 			path: '/timesheet/timer/status',
+			reachableByEmbedToken: true,
 			query: { tenantId, organizationId },
 			tenantId,
 			organizationId
@@ -125,6 +126,7 @@ export function createTimer(transport: Transport, identity: Identity): TimerReso
 			transport.request<EverTeamsTimeLog>({
 				method: 'POST',
 				path: '/timesheet/timer/start',
+				reachableByEmbedToken: true,
 				tenantId,
 				organizationId,
 				body: {
@@ -148,6 +150,7 @@ export function createTimer(transport: Transport, identity: Identity): TimerReso
 			transport.request<EverTeamsTimeLog | null>({
 				method: 'POST',
 				path: '/timesheet/timer/stop',
+				reachableByEmbedToken: true,
 				tenantId,
 				organizationId,
 				body: { tenantId, organizationId, logType: LogType.TRACKED, source }
