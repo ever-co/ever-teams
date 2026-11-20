@@ -294,6 +294,9 @@ the other methods throw an `EverTeamsForbiddenError` with the code `EMBED_SCOPE`
 its claims and throws that error without a request, so a browser gets it too (the API answers an allowed site's CORS on
 the timer's routes only). Today's tracked seconds are in `(await teams.timer.status()).duration`.
 
+`isEmbedToken(token)` makes the same check from the token's claims (unverified), for a page that wants to know before
+it calls: `true` for an embed token, `false` for any other token, a string that is not a JWT, or `null`.
+
 ## Errors
 
 Every failure is an `EverTeamsError`: its `message`, the HTTP `status` (0 when there was no answer), the API's `code`
