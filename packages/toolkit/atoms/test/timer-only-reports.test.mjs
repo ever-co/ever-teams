@@ -26,6 +26,7 @@ const WIDGETS = {
 	TeamsDailyActivityDisplayer: '/timesheet/statistics/counts',
 	TeamsWeeklyActivityDisplayer: '/timesheet/statistics/counts',
 	TeamsWorkedProjectDisplayer: '/timesheet/statistics/counts',
+	TeamsBasicReport: '/timesheet/time-log/report/weekly',
 	TeamsProjectsList: '/timesheet/statistics/projects',
 	TeamsTasksList: '/timesheet/statistics/tasks',
 	TeamsAppsUrlList: '/timesheet/statistics/activities',

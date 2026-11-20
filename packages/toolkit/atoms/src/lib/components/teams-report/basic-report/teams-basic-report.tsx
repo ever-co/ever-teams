@@ -17,6 +17,8 @@ import { TeamsTimerFooter } from '@components/layouts/footers/component-footer';
 import { BarChartHorizontal } from '@components/teams-ui-components/teams-ui-charts/bar-chart/bar-chart-horizontal';
 import { useReport } from '@hooks/useReport';
 import { ChartLoader } from '@components/loaders/chart-loader';
+import { useTimerOnlyToken } from '@hooks/useTimerOnlyToken';
+import { TimerOnlyReportNote } from '@components/teams-ui-components/timer-only-report-note';
 
 export type ChartType = 'bar' | 'bar-horizontal' | 'area' | 'pie' | 'line' | 'radar' | 'radial' | 'tooltip';
 interface ITeamsBasicReportProps extends VariantProps<typeof teamsBasicReportVariants> {
@@ -73,6 +75,10 @@ const TeamsBasicReport = ({
 	const { chartData: data, report, loading: reportLoading, config } = useReport();
 
 	const { t } = useTranslation();
+	const timerOnly = useTimerOnlyToken();
+	if (timerOnly) {
+		return <TimerOnlyReportNote label={t('REPORT.title')} className={className} />;
+	}
 
 	return (
 		<Card
