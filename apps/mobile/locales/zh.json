@@ -234,6 +234,7 @@
 		"characterLimitErrorTitle": "无法更新任务标题。",
 		"characterLimitErrorDescription": "任务标题不能超过255个字符。",
 		"copyTitle": "标题已复制。",
+		"copyTitleButton": "复制标题",
 		"changeParent": "更改父项",
 		"addParent": "添加父项",
 		"taskScreen": "任务界面",

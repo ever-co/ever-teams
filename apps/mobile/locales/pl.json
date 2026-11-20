@@ -234,6 +234,7 @@
 		"characterLimitErrorTitle": "Nie udało się zaktualizować Tytułu Zadania.",
 		"characterLimitErrorDescription": "Tytuł zadania nie może przekraczać 255 znaków.",
 		"copyTitle": "Skopiowano tytuł.",
+		"copyTitleButton": "Kopiuj tytuł",
 		"changeParent": "Zmień zadanie nadrzędne",
 		"addParent": "Dodaj zadanie nadrzędne",
 		"taskScreen": "Ekran zadania",

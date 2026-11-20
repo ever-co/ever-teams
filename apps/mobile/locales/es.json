@@ -234,6 +234,7 @@
 		"characterLimitErrorTitle": "No pudimos actualizar el título de la tarea.",
 		"characterLimitErrorDescription": "El título de la tarea no puede superar los 255 caracteres.",
 		"copyTitle": "Título copiado.",
+		"copyTitleButton": "Copiar título",
 		"changeParent": "Cambiar la tarea padre",
 		"addParent": "Añadir tarea padre",
 		"taskScreen": "Pantalla de la tarea",

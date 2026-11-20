@@ -234,6 +234,7 @@
 		"characterLimitErrorTitle": "Non è stato possibile aggiornare il Titolo del Compito.",
 		"characterLimitErrorDescription": "Il titolo del compito non può superare i 255 caratteri.",
 		"copyTitle": "Titolo copiato.",
+		"copyTitleButton": "Copia titolo",
 		"changeParent": "Cambia Genitore",
 		"addParent": "Aggiungi Genitore",
 		"taskScreen": "Schermata del Compito",
