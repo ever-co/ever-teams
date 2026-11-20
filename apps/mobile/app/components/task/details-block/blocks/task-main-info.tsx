@@ -116,8 +116,7 @@ const TaskMainInfo = observer(() => {
 					task={task}
 					canCreateVersion={true}
 					containerStyle={{
-						width: '70%',
-						borderRadius: 3
+						width: '70%'
 					}}
 				/>
 			</TaskRow>
@@ -131,8 +130,7 @@ const TaskMainInfo = observer(() => {
 					<TaskEpic
 						task={task}
 						containerStyle={{
-							width: '70%',
-							borderRadius: 3
+							width: '70%'
 						}}
 					/>
 				</TaskRow>
@@ -148,9 +146,7 @@ const TaskMainInfo = observer(() => {
 					task={task}
 					canCreateStatus={true}
 					containerStyle={{
-						width: '70%',
-						borderRadius: 3,
-						borderWidth: !task?.status ? 1 : 0
+						width: '70%'
 					}}
 				/>
 			</TaskRow>
@@ -163,7 +159,6 @@ const TaskMainInfo = observer(() => {
 					noBorders={true}
 					containerStyle={{
 						width: '70%',
-						borderRadius: 3,
 						marginVertical: task?.tags?.length ? 20 : 0
 					}}
 				/>
@@ -178,9 +173,7 @@ const TaskMainInfo = observer(() => {
 					task={task}
 					canCreateSize={true}
 					containerStyle={{
-						width: '70%',
-						borderRadius: 3,
-						borderWidth: !task?.size ? 1 : 0
+						width: '70%'
 					}}
 				/>
 			</TaskRow>
@@ -194,9 +187,7 @@ const TaskMainInfo = observer(() => {
 					task={task}
 					canCreatePriority={true}
 					containerStyle={{
-						width: '70%',
-						borderRadius: 3,
-						borderWidth: !task?.priority ? 1 : 0
+						width: '70%'
 					}}
 				/>
 			</TaskRow>
