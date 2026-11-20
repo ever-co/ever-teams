@@ -583,5 +583,19 @@
 			"heading": "조금 텅 비어 있네요.",
 			"content": "즐겨찾기가 없습니다. 에피소드에 있는 하트를 눌러서 즐겨찾기에 추가하세요."
 		}
+	},
+	"taskMenus": {
+		"search": {
+			"status": "상태 변경…",
+			"priority": "우선순위 설정…",
+			"size": "크기 설정…"
+		},
+		"noResults": "결과 없음",
+		"noOptions": "아직 선택할 항목이 없습니다",
+		"actions": {
+			"createStatus": "상태 만들기",
+			"createPriority": "우선순위 만들기",
+			"createSize": "크기 만들기"
+		}
 	}
 }

@@ -583,5 +583,19 @@
 			"heading": "This looks a bit empty",
 			"content": "No favorites have been added yet. Tap the heart on an episode to add it to your favorites!"
 		}
+	},
+	"taskMenus": {
+		"search": {
+			"status": "Change status…",
+			"priority": "Set priority to…",
+			"size": "Set size to…"
+		},
+		"noResults": "No results",
+		"noOptions": "Nothing to pick yet",
+		"actions": {
+			"createStatus": "Create status",
+			"createPriority": "Create priority",
+			"createSize": "Create size"
+		}
 	}
 }

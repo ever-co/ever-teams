@@ -583,5 +583,19 @@
 			"heading": "C'est un peu vide ici",
 			"content": "Aucun favori pour l'instant. Touchez le cœur d'un épisode pour l'ajouter à vos favoris !"
 		}
+	},
+	"taskMenus": {
+		"search": {
+			"status": "Changer le statut…",
+			"priority": "Définir la priorité…",
+			"size": "Définir la taille…"
+		},
+		"noResults": "Aucun résultat",
+		"noOptions": "Rien à choisir pour le moment",
+		"actions": {
+			"createStatus": "Créer un statut",
+			"createPriority": "Créer une priorité",
+			"createSize": "Créer une taille"
+		}
 	}
 }

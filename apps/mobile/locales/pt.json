@@ -583,5 +583,19 @@
 			"heading": "Isto parece um pouco vazio",
 			"content": "Nenhum favorito foi adicionado ainda. Toque no coração de um episódio para adicioná-lo aos seus favoritos!"
 		}
+	},
+	"taskMenus": {
+		"search": {
+			"status": "Alterar status…",
+			"priority": "Definir prioridade…",
+			"size": "Definir tamanho…"
+		},
+		"noResults": "Nenhum resultado",
+		"noOptions": "Ainda não há nada para escolher",
+		"actions": {
+			"createStatus": "Criar status",
+			"createPriority": "Criar prioridade",
+			"createSize": "Criar tamanho"
+		}
 	}
 }
