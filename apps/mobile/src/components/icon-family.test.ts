@@ -16,7 +16,8 @@ const ON_HUGEICONS: string[] = [
 	'app/screens/authenticated/setting-screen/components/language-modal.tsx',
 	'app/screens/authenticated/setting-screen/components/setting-header.tsx',
 	'app/screens/authenticated/setting-screen/components/timezone-popup.tsx',
-	'app/screens/authenticated/setting-screen/components/user-timezone.tsx'
+	'app/screens/authenticated/setting-screen/components/user-timezone.tsx',
+	'src/home/today-tasks.tsx'
 ];
 
 describe("the screens on the web's icon family", () => {

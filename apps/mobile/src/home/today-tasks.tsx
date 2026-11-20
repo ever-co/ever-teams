@@ -1,6 +1,6 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { Feather } from '@expo/vector-icons';
+import { Play } from '../components/icons';
 import { translate } from '../../app/i18n';
 import { useShellTheme } from '../components/screen-state';
 import type { TimerLog, TodayTask } from '../data/timer';
@@ -46,7 +46,7 @@ function StartMark({ runsHere }: Readonly<{ runsHere: boolean }>) {
 			importantForAccessibility="no-hide-descendants"
 			style={[styles.mark, { backgroundColor: background }]}
 		>
-			<Feather name="play" size={14} color={ink} />
+			<Play size={14} color={ink} />
 		</View>
 	);
 }
