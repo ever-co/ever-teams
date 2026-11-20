@@ -620,6 +620,8 @@
 			"label": "Labels",
 			"version": "Version"
 		},
+		"addLabel": "Label hinzufügen",
+		"editLabels": "Labels bearbeiten",
 		"rowActions": "Aktionen für {name}"
 	}
 }

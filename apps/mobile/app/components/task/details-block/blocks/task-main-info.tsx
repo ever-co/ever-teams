@@ -142,15 +142,7 @@ const TaskMainInfo = observer(() => {
 
 			{/* Labels */}
 			<TaskRow labelComponent={<PropertyLabel property="label" label={translate('taskDetailsScreen.labels')} />}>
-				<TaskLabels
-					task={task}
-					taskScreenButton={true}
-					noBorders={true}
-					containerStyle={{
-						width: '70%',
-						marginVertical: task?.tags?.length ? 20 : 0
-					}}
-				/>
+				<TaskLabels task={task} forDetails />
 			</TaskRow>
 
 			{/* Size */}

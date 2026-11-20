@@ -620,6 +620,8 @@
 			"label": "Метки",
 			"version": "Версия"
 		},
+		"addLabel": "Добавить метку",
+		"editLabels": "Изменить метки",
 		"rowActions": "Действия для {name}"
 	}
 }

@@ -620,6 +620,8 @@
 			"label": "תוויות",
 			"version": "גרסה"
 		},
+		"addLabel": "הוספת תווית",
+		"editLabels": "עריכת תוויות",
 		"rowActions": "פעולות עבור {name}"
 	}
 }

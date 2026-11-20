@@ -620,6 +620,8 @@
 			"label": "التصنيفات",
 			"version": "الإصدار"
 		},
+		"addLabel": "إضافة تصنيف",
+		"editLabels": "تعديل التصنيفات",
 		"rowActions": "إجراءات {name}"
 	}
 }
