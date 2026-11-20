@@ -1,8 +1,6 @@
 import React, { ComponentProps, ReactElement } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react-native';
 // Each glyph from its own entry: Metro keeps what a module imports, so the whole set would ship with the app
-import Briefcase01Icon from '@hugeicons/core-free-icons/Briefcase01Icon';
-import MoreVerticalIcon from '@hugeicons/core-free-icons/MoreVerticalIcon';
 import PlusSignIcon from '@hugeicons/core-free-icons/PlusSignIcon';
 import AlertCircleIcon from '@hugeicons/core-free-icons/AlertCircleIcon';
 import ArrowDown01Icon from '@hugeicons/core-free-icons/ArrowDown01Icon';
@@ -11,6 +9,7 @@ import ArrowLeft02Icon from '@hugeicons/core-free-icons/ArrowLeft02Icon';
 import ArrowRight01Icon from '@hugeicons/core-free-icons/ArrowRight01Icon';
 import ArrowUp01Icon from '@hugeicons/core-free-icons/ArrowUp01Icon';
 import BellIcon from '@hugeicons/core-free-icons/BellIcon';
+import Briefcase01Icon from '@hugeicons/core-free-icons/Briefcase01Icon';
 import Calendar03Icon from '@hugeicons/core-free-icons/Calendar03Icon';
 import Cancel01Icon from '@hugeicons/core-free-icons/Cancel01Icon';
 import ChartHistogramIcon from '@hugeicons/core-free-icons/ChartHistogramIcon';
@@ -35,6 +34,7 @@ import Mail01Icon from '@hugeicons/core-free-icons/Mail01Icon';
 import Menu02Icon from '@hugeicons/core-free-icons/Menu02Icon';
 import Moon02Icon from '@hugeicons/core-free-icons/Moon02Icon';
 import MoreHorizontalIcon from '@hugeicons/core-free-icons/MoreHorizontalIcon';
+import MoreVerticalIcon from '@hugeicons/core-free-icons/MoreVerticalIcon';
 import PencilEdit02Icon from '@hugeicons/core-free-icons/PencilEdit02Icon';
 import PlayIcon from '@hugeicons/core-free-icons/PlayIcon';
 import RefreshIcon from '@hugeicons/core-free-icons/RefreshIcon';
