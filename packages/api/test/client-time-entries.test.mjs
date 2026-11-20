@@ -42,10 +42,63 @@ test("a day lists that whole local day's entries, with the kit's relations", asy
 	assert.equal(query.tenantId, 'tenant-1');
 	assert.equal(query.organizationId, 'org-1');
 	assert.deepEqual(query.activityLevel, { start: '0', end: '100' });
-	assert.deepEqual(query.relations, ['project', 'task', 'organizationContact', 'employee.user']);
+	assert.deepEqual(query.relations, [
+		'project',
+		'project.organizationContact',
+		'task',
+		'organizationContact',
+		'employee.user'
+	]);
 	assert.equal(query.timeZone, Intl.DateTimeFormat().resolvedOptions().timeZone);
 	assert.equal(query.employeeIds, undefined);
 	assert.equal(headers.get('tenant-id'), 'tenant-1');
+});
+
+// What the API answers for project.organizationContact: the client's whole record, which the SDK does not pass on.
+const LARKSPUR = {
+	id: 'client-1',
+	name: 'Larkspur Studio',
+	imageUrl: 'https://img.example.com/larkspur.png',
+	primaryEmail: 'billing@larkspur.example.com',
+	budget: 12000
+};
+
+test("an entry names its project's client, as the web app does, with only its id, name and image (#5593)", async () => {
+	const onClientProject = {
+		...ENTRY,
+		id: 'log-2',
+		project: { id: 'project-2', name: 'Brand refresh', organizationContact: LARKSPUR }
+	};
+	const withOwnClient = {
+		...ENTRY,
+		id: 'log-3',
+		organizationContact: { id: 'client-9', name: 'Own client', imageUrl: null },
+		project: onClientProject.project
+	};
+	const withoutProject = { ...ENTRY, id: 'log-4', projectId: null, project: null };
+	const api = standInApi({
+		'GET /user/me': ME,
+		'GET /timesheet/time-log': [onClientProject, withOwnClient, withoutProject]
+	});
+	const teams = createClient({ apiUrl: API_URL, token: 't', fetch: api.fetch });
+
+	const [projectClient, ownClient, noProject] = await teams.timeEntries.list({
+		from: '2026-11-18',
+		to: '2026-11-18'
+	});
+
+	assert.deepEqual(projectClient.organizationContact, {
+		id: 'client-1',
+		name: 'Larkspur Studio',
+		imageUrl: 'https://img.example.com/larkspur.png'
+	});
+	assert.deepEqual(
+		projectClient.project,
+		{ id: 'project-2', name: 'Brand refresh' },
+		'the project carries no client record'
+	);
+	assert.deepEqual(ownClient.organizationContact, { id: 'client-9', name: 'Own client', imageUrl: null });
+	assert.equal(noProject.organizationContact, null);
 });
 
 test('Dates and date-times are sent as the instants they are, with the members asked', async () => {
