@@ -28,6 +28,7 @@ jest.mock('next-intl', () => ({
 jest.mock('@/core/hooks/settings/use-embeds', () => ({
 	embedsAvailabilityOf: jest.requireActual('@/core/hooks/settings/use-embeds').embedsAvailabilityOf,
 	useEmbedsAvailability: () => mockUseAvailability(),
+	useEmbedsScope: () => ({ tenantId: 'tenant-northwind', organizationId: 'org-northwind', userId: 'user-1' }),
 	useEmbedAllowedOrigins: () => mockUseOrigins(),
 	useEmbedCredentials: () => mockUseCredentials(),
 	useAddEmbedOrigin: () => ({ mutate: mockAddOrigin, isPending: false, isError: false, error: null }),
@@ -36,10 +37,6 @@ jest.mock('@/core/hooks/settings/use-embeds', () => ({
 	useSetPersonSignIn: () => ({ mutate: mockSetPersonSignIn, isPending: mockIsSettingPersonSignIn })
 }));
 jest.mock('sonner', () => ({ toast: { error: jest.fn() } }));
-jest.mock('@/core/lib/helpers/cookies', () => ({
-	...jest.requireActual('@/core/lib/helpers/cookies'),
-	getOrganizationIdCookie: () => 'org-northwind'
-}));
 jest.mock('@/core/constants/config/constants', () => ({
 	...jest.requireActual('@/core/constants/config/constants'),
 	GAUZY_API_BASE_SERVER_URL: { value: 'https://api.northwind.example' }

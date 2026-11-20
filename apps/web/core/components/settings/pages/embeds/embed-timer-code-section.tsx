@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { Check, Copy } from '@/core/components/icons';
 import { SettingsSection, SettingsSurface } from '@/core/components/settings/kit/settings-page';
-import { getOrganizationIdCookie } from '@/core/lib/helpers/cookies';
+import { useEmbedsScope } from '@/core/hooks/settings/use-embeds';
 import { embedApiUrlOf, embedTimerCodeOf } from '@/core/lib/utils/embed-timer-code';
 import { publicApiOriginOrPlaceholder } from '@/core/lib/utils/public-api-origin';
 
@@ -33,6 +33,8 @@ export function EmbedTimerCodeSection() {
 	const t = useTranslations();
 	// The web app's own address is known in the browser only; the server render leaves it empty.
 	const appUrl = useSyncExternalStore(subscribeToNothing, webAppOrigin, noOriginOnTheServer);
+	// The organization whose sites this page lists and lets people sign in from: the one the site signs them in to.
+	const organizationId = useEmbedsScope()?.organizationId ?? '';
 	const [isCopied, setIsCopied] = useState(false);
 
 	useEffect(() => {
@@ -45,7 +47,7 @@ export function EmbedTimerCodeSection() {
 
 	const code = embedTimerCodeOf({
 		apiUrl: embedApiUrlOf(publicApiOriginOrPlaceholder()),
-		organizationId: getOrganizationIdCookie() ?? '',
+		organizationId,
 		appUrl
 	});
 
@@ -89,9 +91,7 @@ export function EmbedTimerCodeSection() {
 					>
 						{copyIcon}
 					</Button>
-					<span role="status" className="sr-only">
-						{status}
-					</span>
+					<output className="sr-only">{status}</output>
 				</div>
 			</SettingsSurface>
 		</SettingsSection>
