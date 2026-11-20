@@ -116,6 +116,15 @@ export const useTimer = () => {
 		toast({ variant: 'destructive', description: message });
 	};
 
+	// A start or stop the API refused: the timer may have started or stopped in another tab or app since the last read,
+	// so every widget reads the status again before the refusal shows, which keeps it on screen (#5587).
+	const readAgainAfterRefusal = async (answer: { statusCode?: unknown }) => {
+		if (typeof answer.statusCode !== 'number') {
+			return;
+		}
+		await refreshEveryWidget();
+	};
+
 	// A start or stop that got no answer.
 	const reportThrown = async (error: unknown, isStillCurrent: () => boolean) => {
 		if (sharedStatus) {
@@ -137,6 +146,7 @@ export const useTimer = () => {
 			const timeSlot = await startApiTimer(user, token, currentTeamsState, organizationId, api);
 
 			if ('message' in timeSlot || 'error' in timeSlot) {
+				await readAgainAfterRefusal(timeSlot);
 				await reportAnswer(timeSlot, isStillCurrent);
 				return;
 			}
@@ -164,6 +174,7 @@ export const useTimer = () => {
 			const timeSlot = await stopApiTimer(user, token, organizationId, api);
 
 			if ('message' in timeSlot || 'error' in timeSlot) {
+				await readAgainAfterRefusal(timeSlot);
 				await reportAnswer(timeSlot, isStillCurrent);
 				return;
 			}
