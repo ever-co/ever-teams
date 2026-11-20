@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
 import React, { FC, useRef, useState } from 'react';
-import { TouchableOpacity, View, Text, StyleSheet, ViewStyle, FlatList, Dimensions } from 'react-native';
+import { TouchableOpacity, View, Text, StyleSheet, ViewStyle, FlatList } from 'react-native';
 import { ChevronDown, ChevronLeft, ChevronRight } from '../../src/components/icons';
 import { TaskPropertyPlaceholderIcon } from '../../src/components/task-property-icon';
 import { observer } from 'mobx-react-lite';
@@ -24,8 +24,6 @@ interface TaskLabelProps {
 	labels?: string;
 	setLabels?: (label: ITaskLabelItem[]) => unknown;
 	newTaskLabels?: ITaskLabelItem[] | undefined;
-	taskScreenButton?: boolean;
-	noBorders?: boolean;
 	/** On the task page: the web's chips and dashed add button, as wide as they take. */
 	forDetails?: boolean;
 }
@@ -45,237 +43,177 @@ interface IndividualTaskLabel {
 	updatedAt: string;
 }
 
-const TaskLabels: FC<TaskLabelProps> = observer(
-	({ task, setLabels, newTaskLabels, taskScreenButton, noBorders, containerStyle, forDetails }) => {
-		const { colors, dark } = useAppTheme();
-		const theme = useWebTheme();
-		const placeholder = taskChipLookOf(undefined, theme);
-		const { updateTask } = useTeamTasks();
-		const [openModal, setOpenModal] = useState(false);
-		const flatListRef = useRef<FlatList>(null);
-		const [labelIndex, setLabelIndex] = useState<number>(0);
-		const { anchorRef, anchor, openFromAnchor } = useMenuAnchor();
+const TaskLabels: FC<TaskLabelProps> = observer(({ task, setLabels, newTaskLabels, containerStyle, forDetails }) => {
+	const { colors, dark } = useAppTheme();
+	const theme = useWebTheme();
+	const placeholder = taskChipLookOf(undefined, theme);
+	const { updateTask } = useTeamTasks();
+	const [openModal, setOpenModal] = useState(false);
+	const flatListRef = useRef<FlatList>(null);
+	const [labelIndex, setLabelIndex] = useState<number>(0);
+	const { anchorRef, anchor, openFromAnchor } = useMenuAnchor();
 
-		const saveLabels = async (labels: ITaskLabelItem[]) => {
-			if (!task) {
-				setLabels?.(labels);
-				return true;
-			}
-			try {
-				const { response } = await updateTask({ ...task, tags: labels }, task.id);
-				return response.ok;
-			} catch {
-				return false;
-			}
-		};
-		const { selectedLabels, toggle, startFrom } = useLabelSelection(
-			task?.tags || newTaskLabels || [],
-			saveLabels,
-			task?.id
-		);
-
-		// The menu starts from the labels the task holds; each tap then saves, one write at a time, as on the web
-		const freshOpenModal = (tapped?: View | null) => {
-			openFromAnchor(() => {
-				startFrom(task?.tags || newTaskLabels || []);
-				setOpenModal(true);
-			}, tapped);
-		};
-
-		const scrollToIndexWithDelay = (index: number) => {
-			flatListRef.current?.scrollToIndex({
-				animated: true,
-				index: index < 0 ? 0 : index,
-				viewPosition: 0
-			});
-		};
-
-		const onNextPressed = () => {
-			if (labelIndex !== task?.tags?.length - 2) {
-				scrollToIndexWithDelay(labelIndex + 1);
-			}
-		};
-
-		const onPrevPressed = () => {
-			if (labelIndex > 0) {
-				const newIndex = labelIndex - 2;
-				scrollToIndexWithDelay(newIndex);
-			}
-		};
-
-		const handleScrollEnd = (event: any) => {
-			const offsetX = event.nativeEvent.contentOffset.x;
-			const currentIndex = Math.round(offsetX / 100); // Assuming 100 is the item width
-			setLabelIndex(currentIndex);
-		};
-
-		const popup = (
-			<TaskLabelPopup
-				selectedLabels={selectedLabels}
-				visible={openModal}
-				onToggleLabel={toggle}
-				onDismiss={() => setOpenModal(false)}
-				canCreateLabel={true}
-				anchor={anchor}
-			/>
-		);
-
-		if (forDetails) {
-			return (
-				<>
-					{popup}
-					<TaskLabelsField anchorRef={anchorRef} onOpen={freshOpenModal} labels={task?.tags ?? []} />
-				</>
-			);
+	const saveLabels = async (labels: ITaskLabelItem[]) => {
+		if (!task) {
+			setLabels?.(labels);
+			return true;
 		}
+		try {
+			const { response } = await updateTask({ ...task, tags: labels }, task.id);
+			return response.ok;
+		} catch {
+			return false;
+		}
+	};
+	const { selectedLabels, toggle, startFrom } = useLabelSelection(
+		task?.tags || newTaskLabels || [],
+		saveLabels,
+		task?.id
+	);
 
+	// The menu starts from the labels the task holds; each tap then saves, one write at a time, as on the web
+	const freshOpenModal = (tapped?: View | null) => {
+		openFromAnchor(() => {
+			startFrom(task?.tags || newTaskLabels || []);
+			setOpenModal(true);
+		}, tapped);
+	};
+
+	const scrollToIndexWithDelay = (index: number) => {
+		flatListRef.current?.scrollToIndex({
+			animated: true,
+			index: index < 0 ? 0 : index,
+			viewPosition: 0
+		});
+	};
+
+	const onNextPressed = () => {
+		if (labelIndex !== task?.tags?.length - 2) {
+			scrollToIndexWithDelay(labelIndex + 1);
+		}
+	};
+
+	const onPrevPressed = () => {
+		if (labelIndex > 0) {
+			const newIndex = labelIndex - 2;
+			scrollToIndexWithDelay(newIndex);
+		}
+	};
+
+	const handleScrollEnd = (event: any) => {
+		const offsetX = event.nativeEvent.contentOffset.x;
+		const currentIndex = Math.round(offsetX / 100); // Assuming 100 is the item width
+		setLabelIndex(currentIndex);
+	};
+
+	const popup = (
+		<TaskLabelPopup
+			selectedLabels={selectedLabels}
+			visible={openModal}
+			onToggleLabel={toggle}
+			onDismiss={() => setOpenModal(false)}
+			canCreateLabel={true}
+			anchor={anchor}
+		/>
+	);
+
+	if (forDetails) {
 		return (
 			<>
 				{popup}
-				{(task?.tags !== undefined || newTaskLabels !== undefined) &&
-				(task?.tags?.length > 0 || newTaskLabels?.length > 0) &&
-				!taskScreenButton ? (
-					<View ref={anchorRef} collapsable={false}>
-						<FlatList
-							ref={flatListRef}
-							data={task?.tags || newTaskLabels}
-							renderItem={({ item }) => <Label item={item} freshOpenModal={freshOpenModal} />}
-							horizontal={true}
-							keyExtractor={(_, index) => index.toString()}
-							showsHorizontalScrollIndicator={false}
-							ItemSeparatorComponent={() => (
-								<View style={{ width: 10, backgroundColor: 'transparent' }}></View>
-							)}
-							onMomentumScrollEnd={handleScrollEnd}
-						/>
-						{labelIndex >= (task?.tags?.length - 3 || newTaskLabels?.length - 3) ||
-						task?.tags?.length < 3 ||
-						newTaskLabels?.length < 3 ? null : (
-							<TouchableOpacity
-								activeOpacity={0.7}
-								style={[
-									styles.scrollButtons,
-									{
-										backgroundColor: dark ? '#1e2430' : colors.background,
-										right: 0
-									}
-								]}
-								onPress={() => onNextPressed()}
-							>
-								<ChevronRight size={18} color={colors.primary} />
-							</TouchableOpacity>
-						)}
-						{labelIndex >= 1 ? (
-							<TouchableOpacity
-								activeOpacity={0.7}
-								style={[
-									styles.scrollButtons,
-									{
-										left: 0,
-										backgroundColor: dark ? '#1e2430' : colors.background
-									}
-								]}
-								onPress={() => onPrevPressed()}
-							>
-								<ChevronLeft size={18} color={colors.primary} />
-							</TouchableOpacity>
-						) : null}
-					</View>
-				) : (task?.tags !== undefined || newTaskLabels !== undefined) &&
-				  (task?.tags?.length > 0 || newTaskLabels?.length > 0) &&
-				  taskScreenButton ? (
-					<View>
-						<TouchableOpacity onPress={() => freshOpenModal()}>
-							<View
-								ref={anchorRef}
-								collapsable={false}
-								style={{
-									...styles.container,
-									...containerStyle,
-									...placeholder.container,
-									marginTop: 0,
-									marginBottom: 15
-								}}
-							>
-								<View style={styles.wrapStatus}>
-									<TaskPropertyPlaceholderIcon kind="label" size={12} color={placeholder.ink} />
-									<Text
-										style={{
-											...styles.text,
-											color: placeholder.ink,
-											marginLeft: 5
-										}}
-									>
-										{translate('taskDetailsScreen.items')} ({task?.tags?.length ?? 0})
-									</Text>
-								</View>
-
-								<ChevronDown size={14} color={placeholder.ink} />
-							</View>
-						</TouchableOpacity>
-						<FlatList
-							ref={flatListRef}
-							data={task?.tags || newTaskLabels}
-							renderItem={({ item }) => (
-								<Label
-									item={item}
-									noBorders={noBorders}
-									freshOpenModal={freshOpenModal}
-									taskScreenButton={taskScreenButton}
-								/>
-							)}
-							// horizontal={true}
-							scrollEnabled={false}
-							keyExtractor={(_, index) => index.toString()}
-							showsHorizontalScrollIndicator={false}
-							// ItemSeparatorComponent={() => (
-							// 	<View style={{ width: 10, backgroundColor: "transparent" }}></View>
-							// )}
-							onMomentumScrollEnd={handleScrollEnd}
-						/>
-					</View>
-				) : (
-					<TouchableOpacity onPress={() => freshOpenModal()}>
-						<View
-							ref={anchorRef}
-							collapsable={false}
-							style={{
-								...styles.container,
-								...containerStyle,
-								...placeholder.container
-							}}
-						>
-							<View style={styles.wrapStatus}>
-								<TaskPropertyPlaceholderIcon kind="label" size={12} color={placeholder.ink} />
-								<Text style={{ ...styles.text, color: placeholder.ink, marginLeft: 5 }}></Text>
-								<Text style={{ ...styles.text, color: placeholder.ink }}>
-									{translate('settingScreen.labelScreen.labels')}
-								</Text>
-							</View>
-
-							<ChevronDown size={14} color={placeholder.ink} />
-						</View>
-					</TouchableOpacity>
-				)}
+				<TaskLabelsField anchorRef={anchorRef} onOpen={freshOpenModal} labels={task?.tags ?? []} />
 			</>
 		);
 	}
-);
+
+	return (
+		<>
+			{popup}
+			{(task?.tags !== undefined || newTaskLabels !== undefined) &&
+			(task?.tags?.length > 0 || newTaskLabels?.length > 0) ? (
+				<View ref={anchorRef} collapsable={false}>
+					<FlatList
+						ref={flatListRef}
+						data={task?.tags || newTaskLabels}
+						renderItem={({ item }) => <Label item={item} freshOpenModal={freshOpenModal} />}
+						horizontal={true}
+						keyExtractor={(_, index) => index.toString()}
+						showsHorizontalScrollIndicator={false}
+						ItemSeparatorComponent={() => (
+							<View style={{ width: 10, backgroundColor: 'transparent' }}></View>
+						)}
+						onMomentumScrollEnd={handleScrollEnd}
+					/>
+					{labelIndex >= (task?.tags?.length - 3 || newTaskLabels?.length - 3) ||
+					task?.tags?.length < 3 ||
+					newTaskLabels?.length < 3 ? null : (
+						<TouchableOpacity
+							activeOpacity={0.7}
+							style={[
+								styles.scrollButtons,
+								{
+									backgroundColor: dark ? '#1e2430' : colors.background,
+									right: 0
+								}
+							]}
+							onPress={() => onNextPressed()}
+						>
+							<ChevronRight size={18} color={colors.primary} />
+						</TouchableOpacity>
+					)}
+					{labelIndex >= 1 ? (
+						<TouchableOpacity
+							activeOpacity={0.7}
+							style={[
+								styles.scrollButtons,
+								{
+									left: 0,
+									backgroundColor: dark ? '#1e2430' : colors.background
+								}
+							]}
+							onPress={() => onPrevPressed()}
+						>
+							<ChevronLeft size={18} color={colors.primary} />
+						</TouchableOpacity>
+					) : null}
+				</View>
+			) : (
+				<TouchableOpacity onPress={() => freshOpenModal()}>
+					<View
+						ref={anchorRef}
+						collapsable={false}
+						style={{
+							...styles.container,
+							...containerStyle,
+							...placeholder.container
+						}}
+					>
+						<View style={styles.wrapStatus}>
+							<TaskPropertyPlaceholderIcon kind="label" size={12} color={placeholder.ink} />
+							<Text style={{ ...styles.text, color: placeholder.ink, marginLeft: 5 }}></Text>
+							<Text style={{ ...styles.text, color: placeholder.ink }}>
+								{translate('settingScreen.labelScreen.labels')}
+							</Text>
+						</View>
+
+						<ChevronDown size={14} color={placeholder.ink} />
+					</View>
+				</TouchableOpacity>
+			)}
+		</>
+	);
+});
 
 interface ILabel {
 	item: IndividualTaskLabel | null;
 	/** Opens the menu under the label tapped. */
 	freshOpenModal: (tapped?: View | null) => void;
-	taskScreenButton?: boolean;
-	noBorders?: boolean;
 }
 
-const Label: FC<ILabel> = ({ item, freshOpenModal, taskScreenButton, noBorders }) => {
+const Label: FC<ILabel> = ({ item, freshOpenModal }) => {
 	const theme = useWebTheme();
 	const look = taskChipLookOf(item?.color, theme);
 	const chipRef = useRef<View>(null);
-
-	const { width } = Dimensions.get('screen');
 
 	return (
 		<TouchableOpacity style={{}} onPress={() => freshOpenModal(chipRef.current)}>
@@ -286,15 +224,14 @@ const Label: FC<ILabel> = ({ item, freshOpenModal, taskScreenButton, noBorders }
 					{
 						flexDirection: 'row',
 						alignItems: 'center',
-						marginVertical: taskScreenButton ? 3 : 20,
+						marginVertical: 20,
 						height: 32,
-						minWidth: taskScreenButton ? undefined : 100,
-						maxWidth: taskScreenButton ? '70%' : 120,
+						minWidth: 100,
+						maxWidth: 120,
 						borderRadius: 8,
 						paddingHorizontal: 8
 					},
-					look.container,
-					noBorders && { borderWidth: 0 }
+					look.container
 				]}
 			>
 				<ChipIcon item={{ name: item?.name, bgColor: item?.color }} color={look.ink} kind="label" />
@@ -308,7 +245,7 @@ const Label: FC<ILabel> = ({ item, freshOpenModal, taskScreenButton, noBorders }
 				>
 					{limitTextCharaters({
 						text: item?.name,
-						numChars: taskScreenButton && width > 420 ? 15 : 12
+						numChars: 12
 					})}
 				</Text>
 			</View>
