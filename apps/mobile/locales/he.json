@@ -234,6 +234,7 @@
 		"characterLimitErrorTitle": "לא יכולנו לעדכן את כותרת המשימה.",
 		"characterLimitErrorDescription": "כותרת המשימה יכולה להכיל 255 תווים לכל היותר.",
 		"copyTitle": "הכותרת הועתקה.",
+		"copyTitleButton": "העתק כותרת",
 		"changeParent": "שינוי משימת האב",
 		"addParent": "הוספת משימת אב",
 		"taskScreen": "מסך המשימה",

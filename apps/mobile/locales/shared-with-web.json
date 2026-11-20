@@ -5,6 +5,7 @@
 	"common.confirm": "common.CONFIRM",
 	"common.discard": "common.DISCARD",
 	"common.back": "common.BACK",
+	"taskDetailsScreen.copyTitleButton": "pages.taskDetails.COPY_TITLE",
 	"common.save": "common.SAVE",
 	"shell.tabs.home": "sidebar.HOME",
 	"shell.tabs.tasks": "sidebar.TASKS",

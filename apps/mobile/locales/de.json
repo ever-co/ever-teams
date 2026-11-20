@@ -234,6 +234,7 @@
 		"characterLimitErrorTitle": "Die Aufgabenbezeichnung konnte nicht aktualisiert werden.",
 		"characterLimitErrorDescription": "Die Aufgabenbezeichnung darf nicht mehr als 255 Zeichen umfassen.",
 		"copyTitle": "Titel kopiert.",
+		"copyTitleButton": "Titel kopieren",
 		"changeParent": "Übergeordnete Aufgabe ändern",
 		"addParent": "Übergeordnete Aufgabe hinzufügen",
 		"taskScreen": "Aufgabenansicht",

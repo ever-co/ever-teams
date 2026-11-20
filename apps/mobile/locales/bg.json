@@ -234,6 +234,7 @@
 		"characterLimitErrorTitle": "Не можахме да обновим заглавието на задачата.",
 		"characterLimitErrorDescription": "Заглавието на задачата не може да надвишава 255 знака.",
 		"copyTitle": "Заглавието е копирано.",
+		"copyTitleButton": "Копирай заглавието",
 		"changeParent": "Смени родителската задача",
 		"addParent": "Добави родителска задача",
 		"taskScreen": "Екран на задачата",
