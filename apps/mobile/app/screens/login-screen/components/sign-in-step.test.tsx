@@ -74,13 +74,17 @@ describe('a step of sign-in', () => {
 		expect(StyleSheet.flatten(screen.getByTestId('sign-in-continue').props.style).opacity).toBe(0.5);
 	});
 
-	it('keeps its label and fades while the request is under way', async () => {
+	it('keeps its label, fades and takes no second press while the request is under way', async () => {
+		const submit = submitOf({ isLoading: true });
 		await render(
-			<SignInStep submit={submitOf({ isLoading: true })}>
+			<SignInStep submit={submit}>
 				<Text>Email</Text>
 			</SignInStep>
 		);
 
+		await fireEvent.press(screen.getByTestId('sign-in-continue'));
+
+		expect(submit.onPress).not.toHaveBeenCalled();
 		expect(screen.getByText('Continue')).toBeTruthy();
 		expect(StyleSheet.flatten(screen.getByTestId('sign-in-continue').props.style).opacity).toBe(0.5);
 	});

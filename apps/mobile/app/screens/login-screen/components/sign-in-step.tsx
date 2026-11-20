@@ -10,7 +10,7 @@ const BACK_HIT_SLOP = 12;
 export interface SignInSubmit {
 	label: string;
 	onPress: () => unknown;
-	/** The step cannot be sent yet: the pill fades and ignores a press. */
+	/** The step cannot be sent yet: the pill fades and ignores a press, as it does while the request runs. */
 	disabled: boolean;
 	isLoading: boolean;
 	testID?: string;
@@ -53,8 +53,8 @@ export function SignInStep({ heading, onBack, backTestID, submit, footer, childr
 			<Pressable
 				testID={submit.testID}
 				accessibilityRole="button"
-				accessibilityState={{ disabled: submit.disabled, busy: submit.isLoading }}
-				disabled={submit.disabled}
+				accessibilityState={{ disabled: !isReady, busy: submit.isLoading }}
+				disabled={!isReady}
 				onPress={() => submit.onPress()}
 				style={[styles.submit, submitLook.button]}
 			>
