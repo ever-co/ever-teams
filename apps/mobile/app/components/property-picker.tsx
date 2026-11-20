@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react';
-import { FlatList, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { FlatList, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Check } from '../../src/components/icons';
 import { typography, useWebTheme } from '../theme';
 import LabelItem from './label-item';
@@ -13,6 +13,7 @@ import type { MenuRect } from '../../src/components/menu-placement';
 import type { TaskPropertyKind } from '../../src/components/task-property-icon';
 import { MENU_ICON_SIZE } from '../../src/theme/menu-look';
 import { MenuOption, PropertyMenu } from './property-menu';
+import { PickerForm } from './picker-form';
 
 const CHECK_SIZE = 18;
 const CREATE_ICON_SIZE = 18;
@@ -215,11 +216,7 @@ export function PropertyPicker({
 							{footer}
 						</>
 					)}
-					{!showsList && (
-						<ScrollView testID="picker-form" style={styles.form} keyboardShouldPersistTaps="handled">
-							{children}
-						</ScrollView>
-					)}
+					{!showsList && <PickerForm>{children}</PickerForm>}
 				</Pressable>
 			</Pressable>
 		</Modal>
@@ -260,11 +257,6 @@ const styles = StyleSheet.create({
 		fontFamily: typography.primary.medium,
 		fontSize: 12,
 		textAlign: 'center'
-	},
-	// the create forms are 452 high: on a short screen they scroll inside the dialog
-	form: {
-		flexGrow: 0,
-		flexShrink: 1
 	},
 	list: {
 		flexGrow: 0
