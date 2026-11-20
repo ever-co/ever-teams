@@ -23,7 +23,7 @@ describe('a chip on a card', () => {
 
 		const chip = dataColorChipOf('#ffcc00', 'light');
 		const container = StyleSheet.flatten(screen.getByTestId('task-chip').props.style);
-		expect(container.backgroundColor).toBe(chip?.background);
+		expect(container.experimental_backgroundImage).toBe(`linear-gradient(to bottom, ${chip?.gradient.join(', ')})`);
 		expect(container.borderColor).toBe(chip?.border);
 		expect(container.borderRadius).toBe(8);
 		expect(StyleSheet.flatten(screen.getByText('Backlog').props.style).color).toBe(chip?.ink);

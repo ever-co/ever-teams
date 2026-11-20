@@ -61,4 +61,22 @@ describe('the chip of a data color', () => {
 
 		light.forEach((channel, index) => expect(Math.abs(channel - dark[index])).toBeLessThanOrEqual(2));
 	});
+
+	it("draws the web's chip-3d gradient, lighter at the top in light mode", () => {
+		const chip = dataColorChipOf('#ffcc00', 'light')!;
+
+		const [top, bottom] = chip.gradient;
+		expect(lightnessOf(top)).toBeGreaterThan(lightnessOf(bottom));
+		expect(chip.innerLine).toMatch(/^rgba\(\d+, \d+, \d+, 0\.26\)$/);
+		expect(chip.shadow).toMatch(/^rgba\(\d+, \d+, \d+, 0\.16\)$/);
+	});
+
+	it('draws the dark chip-3d with a faint top line and no shadow', () => {
+		const chip = dataColorChipOf('#ffcc00', 'dark')!;
+
+		expect(chip.gradient[0]).toMatch(/^rgba\(\d+, \d+, \d+, 0\.16\)$/);
+		expect(chip.gradient[1]).toMatch(/^rgba\(\d+, \d+, \d+, 0\.24\)$/);
+		expect(chip.innerLine).toBe('rgba(255, 255, 255, 0.06)');
+		expect(chip.shadow).toBeNull();
+	});
 });
