@@ -15,9 +15,11 @@ interface ISizeItem {
 const SizeItem: FC<ISizeItem> = ({ size, onDeleteSize, openForEdit, readOnly = false }) => {
 	return (
 		<TaskSettingRow
+			kind="size"
 			name={formatName(size?.name ?? '')}
 			color={size?.color}
 			iconUrl={size?.fullIconUrl}
+			storedIcon={size?.icon}
 			onEdit={openForEdit}
 			onDelete={onDeleteSize}
 			readOnly={readOnly}
