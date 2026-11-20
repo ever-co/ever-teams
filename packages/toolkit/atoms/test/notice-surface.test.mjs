@@ -93,6 +93,9 @@ test('each notice tone draws on the kit background, its tint laid over it, never
 		const images = valuesOf(root, tint, 'background-image');
 		assert.equal(images.length, 1, `${tone}: the built stylesheet lays ${tint}`);
 		assert.ok(images[0].includes(`hsl(var(${color})/`), `${tone}: ${images[0]}`);
+		// The contrast test below lays each tint at 5 %: the built gradient must draw it at that opacity.
+		const opacity = Number.parseFloat(images[0].match(/\/\s*([\d.]+)\s*\)/)?.[1]);
+		assert.equal(opacity, 0.05, `${tone}: the tint's opacity in ${images[0]}`);
 		assert.deepEqual(valuesOf(root, tint, 'background-color'), [], `${tone}: the tint sets no background color`);
 	}
 });
