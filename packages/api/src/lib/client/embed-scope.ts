@@ -2,12 +2,12 @@ import { errorFromResponse, NextStepsByStatus } from './error-mapping';
 import { EverTeamsError } from './errors';
 
 /**
- * The claim that marks a token of the API's embed exchange or of a person's sign-in from a site (`embedCredentialId`,
- * ever-gauzy `embed-session.ts`): such a token reaches the timer and the user only, and the API refuses every other
+ * The claims that mark a token of the API's embed exchange or of a person's sign-in from a site (`embedCredentialId`,
+ * `embedGrantId`, ever-gauzy `embed-session.ts`): such a token reaches the timer and the user only, and the API refuses every other
  * route with 403 `EMBED_SCOPE`. In a browser that refusal is never read, since the API opens CORS to an allowed site
  * on the timer's routes only: the client refuses those calls itself, without a request (#5589).
  */
-const EMBED_CREDENTIAL_CLAIM = 'embedCredentialId';
+const EMBED_CLAIMS = ['embedCredentialId', 'embedGrantId'];
 
 /** The payload of a JWT as an object, or null for a token that is not one. Unverified: only its claims are read. */
 function claimsOf(token: string): Record<string, unknown> | null {
@@ -28,7 +28,7 @@ function claimsOf(token: string): Record<string, unknown> | null {
 	}
 }
 
-/** Whether a token is an embed token: one that carries the embed credential claim. */
+/** Whether a token is an embed token: one that carries an embed claim (a sign-in from a site carries both). */
 export function isEmbedToken(token: string | null): boolean {
 	if (!token) {
 		return false;
@@ -37,8 +37,10 @@ export function isEmbedToken(token: string | null): boolean {
 	if (!claims) {
 		return false;
 	}
-	const credentialId = claims[EMBED_CREDENTIAL_CLAIM];
-	return typeof credentialId === 'string' && credentialId.length > 0;
+	return EMBED_CLAIMS.some((claim) => {
+		const value = claims[claim];
+		return typeof value === 'string' && value.length > 0;
+	});
 }
 
 /** The error the API's refusal of a route an embed token cannot reach becomes, with its next step. */

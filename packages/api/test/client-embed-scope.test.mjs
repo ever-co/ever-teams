@@ -4,7 +4,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createClient, EverTeamsForbiddenError } from '../dist/index.es.js';
-import { API_URL, ME, standInApi } from './support/stand-in-api.mjs';
+import { API_URL, json, ME, standInApi } from './support/stand-in-api.mjs';
 
 const tokenWith = (claims) => `header.${Buffer.from(JSON.stringify(claims)).toString('base64url')}.signature`;
 const EMBED_TOKEN = tokenWith({ id: 'user-1', embedCredentialId: 'credential-1', embedEmployeeId: 'employee-1' });
@@ -56,4 +56,28 @@ test('a personal token, or a token that is not a JWT, is sent as before', async 
 
 		assert.equal(today.duration, 60);
 	}
+});
+
+test('a token with the grant claim alone is an embed token too', async () => {
+	const api = standInApi({ 'GET /user/me': ME });
+	const token = tokenWith({ id: 'user-1', embedGrantId: 'grant-1' });
+	const teams = createClient({ apiUrl: API_URL, token, fetch: api.fetch });
+
+	await assert.rejects(teams.totals.today(), (error) => error instanceof EverTeamsForbiddenError);
+	assert.deepEqual(
+		api.routesSent().filter((route) => route !== 'GET /user/me'),
+		[]
+	);
+});
+
+test('a renewed token is checked before the retry: a call refused (401) is not sent again with an embed token', async () => {
+	const api = standInApi({
+		'GET /user/me': ME,
+		'GET /timesheet/statistics/counts': () => json(401, { statusCode: 401, message: 'Unauthorized' })
+	});
+	const tokens = [tokenWith({ id: 'user-1' }), EMBED_TOKEN];
+	const teams = createClient({ apiUrl: API_URL, getToken: async () => tokens.shift(), fetch: api.fetch });
+
+	await assert.rejects(teams.totals.today(), (error) => error instanceof EverTeamsForbiddenError);
+	assert.equal(api.routesSent().filter((route) => route === 'GET /timesheet/statistics/counts').length, 1);
 });
