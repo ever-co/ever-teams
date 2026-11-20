@@ -34,7 +34,13 @@ function TaskSettingRow({ name, color, iconUrl, onEdit, onDelete, readOnly = fal
 	return (
 		<View testID="task-setting-row" style={styles.row}>
 			<View style={styles.chip}>
-				<LabelItem label={name} background={color ?? ''} icon={undefined} iconUrl={iconUrl ?? undefined} />
+				<LabelItem
+					label={name}
+					background={color ?? ''}
+					icon={undefined}
+					iconUrl={iconUrl ?? undefined}
+					keepsCase
+				/>
 			</View>
 			<View style={[styles.actions, { opacity: readOnlyOpacity(readOnly) }]}>
 				<AntDesign

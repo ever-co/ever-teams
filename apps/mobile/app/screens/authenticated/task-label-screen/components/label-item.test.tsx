@@ -4,6 +4,7 @@
  */
 import React from 'react';
 import { render, screen } from '@testing-library/react-native';
+import { StyleSheet } from 'react-native';
 import LabelItem from './label-item';
 import { ITaskLabelItem } from '../../../../services/interfaces/ITaskLabel';
 
@@ -39,5 +40,6 @@ describe('<LabelItem>', () => {
 
 		expect(screen.getByText('bug-fix')).toBeTruthy();
 		expect(screen.queryByText('Bug Fix')).toBeNull();
+		expect(StyleSheet.flatten(screen.getByText('bug-fix').props.style).textTransform).toBe('none');
 	});
 });
