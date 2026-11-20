@@ -56,7 +56,8 @@ const MembersList: React.FC<IMembersList> = ({
 	// const [selectedMembers, setSelectedMembers] = useState<OT_Member[]>([])
 
 	const { dark, colors } = useAppTheme()
-	const input = inputLookOf(useWebTheme())
+	const webTheme = useWebTheme()
+	const input = inputLookOf(webTheme)
 
 	const membersList = teamList?.members?.filter(
 		(member) =>
@@ -98,10 +99,10 @@ const MembersList: React.FC<IMembersList> = ({
 				keyExtractor={(item, index) => index.toString()}
 			/>
 			<View style={[styles.footerContainer, { backgroundColor: colors.background }]}>
-				<Text style={{ fontSize: 14, fontWeight: "400", color: colors.primary }}>
+				<Text style={{ fontSize: 14, fontWeight: "400", color: webTheme.colors.foreground }}>
 					{footerLabel(selectMode)}
 				</Text>
-				<Text style={{ fontSize: 14, fontWeight: "400", color: colors.primary }}>
+				<Text style={{ fontSize: 14, fontWeight: "400", color: webTheme.colors.foreground }}>
 					{selectMode ? selectedMembers?.length : teamList?.members.length}
 				</Text>
 			</View>
@@ -155,6 +156,8 @@ const MemberCard: React.FC<IMemberCard> = ({
 		member?.employee?.user?.imageUrl
 
 	const { colors, dark } = useAppTheme()
+	const webTheme = useWebTheme()
+	const secondaryText = [styles.grayedText, { color: webTheme.colors["muted-foreground"] }]
 
 	const isSelected = useMemo(
 		() => selectedMembers.some((selected) => selected.id === member.id),
@@ -196,16 +199,16 @@ const MemberCard: React.FC<IMemberCard> = ({
 						<TextInput
 							value={newName}
 							onChangeText={(text) => setNewName(text)}
-							style={{ fontSize: 16, color: colors.primary, width: 180 }}
+							style={{ fontSize: 16, color: webTheme.colors.foreground, width: 180 }}
 							autoFocus={isNameEditMode}
 						/>
 					) : (
-						<Text style={{ fontSize: 16, fontWeight: "600", color: colors.primary }}>
+						<Text style={{ fontSize: 16, fontWeight: "600", color: webTheme.colors.foreground }}>
 							{limitTextCharaters({ text: member?.employee?.fullName, numChars: 24 })}
 						</Text>
 					)}
 
-					<Text style={styles.grayedText}>{member?.employee?.user?.email}</Text>
+					<Text style={secondaryText}>{member?.employee?.user?.email}</Text>
 				</View>
 			</View>
 			<View style={{ gap: 7, flexDirection: "column" }}>
@@ -214,7 +217,7 @@ const MemberCard: React.FC<IMemberCard> = ({
 						{roleLabel(member?.role?.name)}
 					</Text>
 				</View>
-				<Text style={styles.grayedText}>
+				<Text style={secondaryText}>
 					{moment(member?.employee?.createdAt).format("DD MMM YYYY hh:mm a")}
 				</Text>
 			</View>
@@ -238,7 +241,7 @@ const styles = StyleSheet.create({
 		shadowOpacity: 0.07,
 		shadowRadius: 10,
 	},
-	grayedText: { color: "#938FA4", fontSize: 12 },
+	grayedText: { fontSize: 12 },
 	memberContainer: {
 		flexDirection: "row",
 		justifyContent: "space-between",
