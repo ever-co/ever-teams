@@ -2093,10 +2093,12 @@ describe('Ever Teams feature surface preservation', () => {
 		// 414 files and 524 verbs with a person's sign-in from an allowed site (/api/embed/authorize POST; #5528,
 		// ever-gauzy #12094).
 		// 414 files and 525 verbs with its setting on each allowed site (/api/embed-allowed-origins/[id] PATCH; #5528).
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(414);
+		// 415 files and 532 verbs with the link that begins the Ever ID sign-in (/api/auth/ever-id/start GET, and HEAD,
+		// POST, PUT, PATCH, DELETE and OPTIONS, which answer 404).
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(415);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(525);
+		).toHaveLength(532);
 		expect(routes).toEqual(
 			expect.arrayContaining([
 				// Proxy mode twins of Gauzy's embed credentials and allowed origins (ever-gauzy #12065, #12066; #5437)
@@ -2345,6 +2347,7 @@ describe('Ever Teams feature surface preservation', () => {
 				'apps/web/app/api/auth/ever-id/finish-setup/route.ts::POST',
 				'apps/web/app/api/auth/ever-id/signup-handoff/route.ts::POST',
 				'apps/web/app/api/auth/ever-id/verify-email/route.ts::GET',
+				'apps/web/app/api/auth/ever-id/start/route.ts::GET',
 				'apps/web/app/api/ever-connect/[...path]/route.ts::GET',
 				'apps/web/app/api/ever-connect/[...path]/route.ts::POST',
 				'apps/web/app/api/ever-connect/[...path]/route.ts::PUT',

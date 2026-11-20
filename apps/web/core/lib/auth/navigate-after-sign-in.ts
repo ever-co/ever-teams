@@ -58,12 +58,15 @@ export const PATH_AFTER_SIGN_IN_TTL_MS = 5 * 60 * 1000;
 
 /**
  * Sets (or, with null, clears) the page the next sign-in of this tab opens instead of the home page: the workspace
- * list's "Create a new workspace" signs in to the chosen workspace, then opens the creation page (#5025).
+ * list's "Create a new workspace" signs in to the chosen workspace, then opens the creation page (#5025). `setBy`
+ * names the flow that set it, for one that may have to take back its own page later
+ * ({@link clearPathAfterSignInSetBy}).
  */
-export function setPathAfterSignIn(path: string | null): void {
+export function setPathAfterSignIn(path: string | null, setBy?: string): void {
 	try {
 		if (path) {
-			window.sessionStorage.setItem(PATH_AFTER_SIGN_IN_KEY, JSON.stringify({ path, setAt: Date.now() }));
+			const entry = { path, setAt: Date.now(), ...(setBy ? { setBy } : {}) };
+			window.sessionStorage.setItem(PATH_AFTER_SIGN_IN_KEY, JSON.stringify(entry));
 		} else {
 			window.sessionStorage.removeItem(PATH_AFTER_SIGN_IN_KEY);
 		}
@@ -91,6 +94,25 @@ export function clearPathAfterSignInIf(path: string): void {
 	}
 }
 
+/**
+ * Clears the page set for this sign-in only when the flow `setBy` set it: an Ever ID start link that names no page
+ * takes back the page an earlier, abandoned one set, never a page another flow set since (even the same page).
+ */
+export function clearPathAfterSignInSetBy(setBy: string): void {
+	try {
+		const stored = window.sessionStorage.getItem(PATH_AFTER_SIGN_IN_KEY);
+		if (!stored) {
+			return;
+		}
+		const entry = JSON.parse(stored) as { setBy?: unknown };
+		if (entry.setBy === setBy) {
+			window.sessionStorage.removeItem(PATH_AFTER_SIGN_IN_KEY);
+		}
+	} catch {
+		// No storage, or an entry that cannot be read: the end of the sign-in drops it (takePathAfterSignIn)
+	}
+}
+
 /** The page set for this sign-in, read once; null (the home page) unless it is a page of this app, set lately. */
 function takePathAfterSignIn(): string | null {
 	try {
@@ -101,9 +123,10 @@ function takePathAfterSignIn(): string | null {
 		if (!isRecent || typeof path !== 'string' || !path.startsWith('/')) {
 			return null;
 		}
-		// Resolved against this origin: "//host" or "/\\host" would lead to another site
+		// Resolved against this origin: "//host" or "/\\host" would lead to another site. The fragment stays: the page
+		// set for the sign-in can name a part of itself (a link's `#section`)
 		const url = new URL(path, window.location.origin);
-		return url.origin === window.location.origin ? `${url.pathname}${url.search}` : null;
+		return url.origin === window.location.origin ? `${url.pathname}${url.search}${url.hash}` : null;
 	} catch {
 		return null;
 	}

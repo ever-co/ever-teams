@@ -2,6 +2,7 @@
 
 import {
 	clearPathAfterSignInIf,
+	clearPathAfterSignInSetBy,
 	navigateAfterSignIn,
 	PATH_AFTER_SIGN_IN_TTL_MS,
 	setPathAfterSignIn
@@ -166,6 +167,28 @@ describe('the page a sign-in opens (#5025)', () => {
 		clearPathAfterSignInIf('/workspace/new');
 
 		expect(signIn({ replace: true })).toHaveBeenCalledWith(consentPage);
+	});
+
+	it('clears the page set for the sign-in only when the flow named set it', () => {
+		setPathAfterSignIn('/task/42', 'ever-id-start');
+		clearPathAfterSignInSetBy('another-flow');
+		expect(signIn()).toHaveBeenCalledWith('/task/42');
+
+		setPathAfterSignIn('/task/42', 'ever-id-start');
+		clearPathAfterSignInSetBy('ever-id-start');
+		expect(signIn()).toHaveBeenCalledWith('/');
+
+		// The same page, set since by a flow that does not name itself: kept.
+		setPathAfterSignIn('/task/42', 'ever-id-start');
+		setPathAfterSignIn('/task/42');
+		clearPathAfterSignInSetBy('ever-id-start');
+		expect(signIn()).toHaveBeenCalledWith('/task/42');
+	});
+
+	it('keeps the part of the page it names (#section)', () => {
+		expect(signInWith('/settings/team?tab=members#invite')).toHaveBeenCalledWith(
+			'/settings/team?tab=members#invite'
+		);
 	});
 
 	it('opens the home page for anything that is not a page of this app', () => {
