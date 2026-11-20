@@ -11,7 +11,7 @@ import { PersonAvatar } from '@/core/components/teams/people-avatars';
 import { activeTeamWorkedDurationByTaskState } from '@/core/stores';
 import { secondsToTime } from '@/core/lib/helpers/date-and-time';
 import { cn } from '@/core/lib/helpers';
-import { NONE_VALUE, type TeamTasksGroup } from '@/core/lib/utils/team-tasks-view';
+import { labelColorOf, NONE_VALUE, type TeamTasksGroup } from '@/core/lib/utils/team-tasks-view';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
 import { useTeamTasksList } from './team-tasks-list-context';
 import { TEAM_TASK_WIDE_CELL } from './team-tasks-grid';
@@ -128,6 +128,15 @@ function useGroupIdentity(group: TeamTasksGroup): GroupIdentity {
 		const name = projectNames.get(group.value) ?? '';
 		return { glyph: <TaskPropertyIcon kind="project" />, name, keepsCase: true };
 	}
+	if (group.grouping === 'label') {
+		if (isNone) {
+			const glyph = <TaskPropertyPlaceholderIcon kind="label" />;
+			return { glyph, name: t('timer.labels.NO_LABEL'), keepsCase: true };
+		}
+		const color = labelColorOf(group.tasks, group.value);
+		const glyph = <TaskPropertyIcon kind="label" name={group.value} color={color} />;
+		return { glyph, name: group.value, keepsCase: true };
+	}
 	if (isNone) {
 		const glyph = <TaskPropertyPlaceholderIcon kind="issueType" />;
 		return { glyph, name: t('pages.teamTasks.NO_ISSUE_TYPE'), keepsCase: true };
@@ -161,6 +170,9 @@ function bandColorOf(group: TeamTasksGroup, priorityItems: ReadonlyMap<string, {
 	}
 	if (group.grouping === 'priority') {
 		return priorityItems.get(group.value)?.bgColor;
+	}
+	if (group.grouping === 'label' && group.value !== NONE_VALUE) {
+		return labelColorOf(group.tasks, group.value);
 	}
 	return undefined;
 }
