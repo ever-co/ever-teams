@@ -25,6 +25,18 @@ describe('a section of the task screen', () => {
 		expect(StyleSheet.flatten(screen.getByText('Details').props.style).color).toBe(dark.colors.foreground);
 	});
 
+	it('draws the line under its open header as a hairline in the border color', async () => {
+		await render(
+			<Accordion title="Description">
+				<Text>Write a complete description</Text>
+			</Accordion>
+		);
+
+		const divider = StyleSheet.flatten(screen.getByTestId('accordion-divider').props.style);
+		expect(divider.backgroundColor).toBe(dark.colors.border);
+		expect(divider.height).toBe(StyleSheet.hairlineWidth);
+	});
+
 	it('draws no surface of its own inside another section', async () => {
 		await render(
 			<Accordion title="Child Issues" nested>
