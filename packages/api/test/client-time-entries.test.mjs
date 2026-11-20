@@ -308,3 +308,45 @@ test('a range over a running timer is a conflict that carries the API code', asy
 		return true;
 	});
 });
+
+test('a refused date names its value in quotes, so that an empty one still shows (#5604)', async () => {
+	const api = standInApi({ 'GET /user/me': ME, 'GET /timesheet/time-log': [] });
+	const teams = createClient({ apiUrl: API_URL, token: 't', fetch: api.fetch });
+
+	await assert.rejects(teams.timeEntries.list({ from: '', to: '2026-11-18' }), {
+		code: 'INVALID_DATE',
+		message: '"" is not a date.'
+	});
+	await assert.rejects(teams.timeEntries.list({ from: '2026-02-31', to: '2026-03-01' }), {
+		message: '"2026-02-31" is not a date.'
+	});
+	await assert.rejects(teams.timeEntries.create({ startedAt: '2026-11-18', stoppedAt: '2026-11-18T10:00:00Z' }), {
+		message: '"2026-11-18" has no time of day.'
+	});
+	assert.equal(api.requests.length, 0);
+});
+
+test('create says which time is not a date and which has no time of day, with the step create takes (#5604)', async () => {
+	const api = standInApi({ 'GET /user/me': ME, 'POST /timesheet/time-log': () => json(201, MANUAL_LOG) });
+	const teams = createClient({ apiUrl: API_URL, token: 't', fetch: api.fetch });
+	const createStep = 'Pass a Date or an ISO date-time, such as 2026-11-18T09:00:00+01:00.';
+	const answers = [
+		['', '"" is not a date.'],
+		['tomorrow morning', '"tomorrow morning" is not a date.'],
+		[new Date('x'), 'Invalid Date is not a date.'],
+		['2026-02-31T09:00:00Z', '"2026-02-31T09:00:00Z" is not a date.'],
+		['2026-02-31', '"2026-02-31" is not a date.'],
+		['2026-11-18', '"2026-11-18" has no time of day.'],
+		['November 18, 2026', '"November 18, 2026" has no time of day.'],
+		['2026-11-18T09', '"2026-11-18T09" has no time of day.']
+	];
+	for (const [startedAt, message] of answers) {
+		await assert.rejects(teams.timeEntries.create({ startedAt, stoppedAt: '2026-11-18T10:00:00Z' }), (error) => {
+			assert.equal(error.code, 'INVALID_DATE');
+			assert.equal(error.message, message);
+			assert.equal(error.nextStep, createStep, `the step for ${String(startedAt)}`);
+			return true;
+		});
+	}
+	assert.equal(api.requests.length, 0);
+});
