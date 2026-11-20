@@ -13,12 +13,12 @@ function shownValue(value: unknown): string {
 	return String(value);
 }
 
-const invalidDate = (value: unknown) =>
-	clientError(
-		'INVALID_DATE',
-		`${shownValue(value)} is not a date.`,
-		'Pass a day as YYYY-MM-DD, a Date, or an ISO date-time.'
-	);
+const DATE_STEP = 'Pass a day as YYYY-MM-DD, a Date, or an ISO date-time.';
+// What create takes: a day alone names no time of day.
+const INSTANT_STEP = 'Pass a Date or an ISO date-time, such as 2026-11-18T09:00:00+01:00.';
+
+const invalidDate = (value: unknown, nextStep = DATE_STEP) =>
+	clientError('INVALID_DATE', `${shownValue(value)} is not a date.`, nextStep);
 
 // The local day a YYYY-MM-DD names, at the given time of day; null for another text.
 function localDay(text: string, hours: number, minutes: number, seconds: number, milliseconds: number): Date | null {
@@ -54,32 +54,38 @@ function isExistingDay(text: string): boolean {
 	return date.getUTCFullYear() === year && date.getUTCMonth() === month && date.getUTCDate() === day;
 }
 
-function instantOf(value: EverTeamsDate): Date {
+function instantOf(value: EverTeamsDate, nextStep = DATE_STEP): Date {
 	const date = new Date(value);
 	const isNamedDay = typeof value !== 'string' || isExistingDay(value);
 	if (Number.isNaN(date.getTime()) || !isNamedDay) {
-		throw invalidDate(value);
+		throw invalidDate(value, nextStep);
 	}
 	return date;
 }
 
 // A date-time text with its time of day: the day, then a T or a space, then hours and minutes.
 const WITH_TIME_OF_DAY = /^([+-]\d{6}|\d{4})-\d{2}-\d{2}[Tt ]\d{2}:\d{2}/;
+const STARTS_WITH_DAY = /^([+-]\d{6}|\d{4})-\d{2}-\d{2}/;
+
+// A text Date cannot read that does not start with a day either: words, or nothing at all (#5604).
+function isNoDate(text: string): boolean {
+	const isUnreadable = Number.isNaN(new Date(text).getTime());
+	return isUnreadable && !STARTS_WITH_DAY.test(text);
+}
 
 /**
  * The instant a Date or an ISO date-time names. A text without hours and minutes (a day alone, 2026-11-18T09) names
  * no time of day: it is refused.
  */
 export function instantAt(value: EverTeamsDate): Date {
+	if (typeof value === 'string' && isNoDate(value)) {
+		throw invalidDate(value, INSTANT_STEP);
+	}
 	const hasNoTimeOfDay = typeof value === 'string' && !WITH_TIME_OF_DAY.test(value);
 	if (hasNoTimeOfDay) {
-		throw clientError(
-			'INVALID_DATE',
-			`${shownValue(value)} has no time of day.`,
-			'Pass a Date or an ISO date-time, such as 2026-11-18T09:00:00+01:00.'
-		);
+		throw clientError('INVALID_DATE', `${shownValue(value)} has no time of day.`, INSTANT_STEP);
 	}
-	return instantOf(value);
+	return instantOf(value, INSTANT_STEP);
 }
 
 /** The start of a range: the first instant of a YYYY-MM-DD, else the instant given. */
