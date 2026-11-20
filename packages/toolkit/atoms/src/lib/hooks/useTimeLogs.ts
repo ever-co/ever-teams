@@ -49,15 +49,23 @@ export const useTimeLogs = ({
 		},
 		[]
 	);
+	// The token of the render that committed last: a refetch a host kept from an earlier render, with another token,
+	// reads nothing and sets nothing (#5602). Set once a render commits, as the token it holds then is the session's.
+	const latestToken = useRef(token);
+	useEffect(() => {
+		latestToken.current = token;
+	});
 
 	const fetchTimeLogs = useCallback(async () => {
+		const isOfAnEarlierToken = token !== latestToken.current;
 		// An embed token reaches the timer only: refetch sends nothing either (#5602)
-		if (timerOnly) {
+		const readsNothing = timerOnly || isOfAnEarlierToken;
+		if (readsNothing) {
 			return;
 		}
 		latestRead.current += 1;
 		const read = latestRead.current;
-		const isCurrent = () => read === latestRead.current;
+		const isCurrent = () => read === latestRead.current && token === latestToken.current;
 		setLoading(true);
 		setError(null);
 

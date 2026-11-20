@@ -263,6 +263,8 @@ test('the time logs hook drops its logs and a pending read once the token is an 
 		React.createElement(TimeLogsProbe, { key: 'probe' })
 	]);
 	assert.deepEqual(probe.data, [], 'read with the full token');
+	// A host that polls with the refetch of its first render keeps the one of the full token
+	const keptRefetch = probe.refetch;
 
 	heldTimeLogs.holding = true;
 	await act(async () => {
@@ -282,4 +284,8 @@ test('the time logs hook drops its logs and a pending read once the token is an 
 	requests.length = 0;
 	await act(async () => probe.refetch());
 	assert.deepEqual(reportReads(), [], 'refetch sends nothing');
+	await act(async () => keptRefetch());
+	await settle();
+	assert.deepEqual(reportReads(), [], 'nor does a refetch kept from the full token');
+	assert.equal(probe.data, null, 'which brings no logs back');
 });
