@@ -20,6 +20,7 @@ const ON_HUGEICONS: string[] = [
 	'app/screens/authenticated/timer-screen/components/combo-box.tsx',
 	'app/screens/authenticated/timer-screen/components/estimate-time.tsx',
 	'app/screens/authenticated/timer-screen/components/individual-task.tsx',
+	'app/screens/authenticated/timer-screen/components/task-display-box.tsx',
 	'app/screens/authenticated/timer-screen/components/timer-task-section.tsx',
 	'src/home/today-tasks.tsx'
 ];
