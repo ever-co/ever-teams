@@ -25,7 +25,7 @@ describe("a task property's trigger on the task page", () => {
 		expect(triggerStyleOf('size')).toMatchObject({
 			backgroundColor: light.colors.card,
 			borderRadius: 14,
-			height: 28
+			minHeight: 28
 		});
 		expect(screen.getByTestId('property-placeholder-size')).toBeTruthy();
 		expect(screen.getByText('Size')).toHaveStyle({ color: light.colors['muted-foreground'], fontSize: 13 });
@@ -35,7 +35,7 @@ describe("a task property's trigger on the task page", () => {
 		await render(<PropertyTrigger kind="size" item={medium} placeholder="Size" />);
 		const look = propertyTriggerLookOf(medium, light);
 
-		expect(triggerStyleOf('size')).toMatchObject({ borderRadius: 6, height: 28 });
+		expect(triggerStyleOf('size')).toMatchObject({ borderRadius: 6, minHeight: 28 });
 		expect(look.ink).not.toBe(light.colors.foreground);
 		expect(screen.getByText('medium')).toHaveStyle({ color: look.ink, fontSize: 12, textTransform: 'capitalize' });
 	});

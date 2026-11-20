@@ -127,7 +127,8 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		flexDirection: 'row',
 		gap: 6,
-		height: TRIGGER_HEIGHT,
+		// a larger system font grows the trigger instead of clipping its name
+		minHeight: TRIGGER_HEIGHT,
 		maxWidth: '100%'
 	}
 });
