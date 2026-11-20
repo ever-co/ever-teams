@@ -150,13 +150,18 @@ export function createTransport(options: EverTeamsClientOptions): Transport {
 	// The refused answer's body is read and dropped, so its connection is free for the retry.
 	const discard = (response: Response) => response.text().then(undefined, () => undefined);
 
-	async function request<T>(call: ClientCall): Promise<T> {
-		const used = accessToken.current();
-		const token = await used;
+	// A call an embed token cannot make is refused before it is sent, with the first token or a renewed one.
+	function assertReachable(call: ClientCall, token: string | null): void {
 		const refusedToEmbedToken = !call.reachableByEmbedToken && isEmbedToken(token);
 		if (refusedToEmbedToken) {
 			throw embedScopeError(call.nextSteps);
 		}
+	}
+
+	async function request<T>(call: ClientCall): Promise<T> {
+		const used = accessToken.current();
+		const token = await used;
+		assertReachable(call, token);
 		const response = await send(call, token);
 		if (response.status !== 401) {
 			return read<T>(response, call.nextSteps);
@@ -166,7 +171,9 @@ export function createTransport(options: EverTeamsClientOptions): Transport {
 			return read<T>(response, call.nextSteps);
 		}
 		await discard(response);
-		const retried = await send(call, await renewed);
+		const renewedToken = await renewed;
+		assertReachable(call, renewedToken);
+		const retried = await send(call, renewedToken);
 		return read<T>(retried, call.nextSteps);
 	}
 
