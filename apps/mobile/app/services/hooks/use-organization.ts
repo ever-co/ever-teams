@@ -150,7 +150,6 @@ export function useOrganizationTeam() {
 		userId: user?.id
 	});
 
-	const [isTeamManager, setIsTeamManager] = useState(false);
 	const [teamsFetching, setTeamsFetching] = useState(false);
 	const currentTeam = useActiveTeamDetails({
 		tenantId,
@@ -172,16 +171,8 @@ export function useOrganizationTeam() {
 
 	const activeTeamManagers = members.filter((m) => m.role?.name === 'MANAGER');
 
-	const isManager = () => {
-		if (activeTeam) {
-			const $u = user;
-			const isM = members.find((member) => {
-				const isUser = member.employee.userId === $u?.id;
-				return isUser && member.role && member.role.name === 'MANAGER';
-			});
-			setIsTeamManager(!!isM);
-		}
-	};
+	// Read from the members on every render: a flag kept in state stayed on the previous team after a switch
+	const isTeamManager = currentUser?.role?.name === 'MANAGER';
 
 	const isTrackingEnabled = useMemo(() => currentUser?.isTrackingEnabled, [currentUser]);
 
@@ -427,7 +418,6 @@ export function useOrganizationTeam() {
 			setOrganizationTeams(organizationTeams);
 			setTeamsFetching(false);
 		}
-		isManager();
 		setIsTrackingEnabled(currentUser?.isTrackingEnabled);
 	}, [organizationTeams, isSuccess, isRefetching]);
 

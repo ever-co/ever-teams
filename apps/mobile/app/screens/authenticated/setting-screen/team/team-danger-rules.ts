@@ -7,8 +7,7 @@ type TeamDangerFacts = {
 
 /** The web's rule for quitting a team: a manager when another manager stays, any other member. */
 export function canQuitTeamOf({ isTeamManager, managerCount, isMember }: TeamDangerFacts): boolean {
-	// Quitting deletes the person's own membership: without one there is nothing to delete, whatever a manager flag
-	// left over from another team says
+	// Quitting deletes the person's own membership: without one there is nothing to delete, manager or not
 	if (!isMember) {
 		return false;
 	}
