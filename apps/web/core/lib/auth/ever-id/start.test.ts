@@ -7,12 +7,15 @@
  */
 import {
 	EVER_ID_SIGN_IN_LANDING_PATH,
+	EVER_ID_START_RETURN_COOKIE,
+	EVER_ID_START_RETURN_MAX_AGE_S,
 	EVER_ID_START_RETURN_MAX_LENGTH,
 	EVER_ID_START_RETURN_PARAM,
 	EVER_ID_START_ROUTE_SWITCH,
-	everIdSignInLanding,
+	everIdStartReturnCookie,
 	isEverIdStartNavigation,
 	isEverIdStartRouteEnabled,
+	readEverIdStartReturnCookie,
 	readEverIdStartReturnPath,
 	toEverIdStartReturnPath
 } from './start';
@@ -247,10 +250,10 @@ describe('toEverIdStartReturnPath: a path of this site, and nothing else', () =>
 			'/kanban\r\nSet-Cookie: a=b',
 			'/\u0000',
 			'/kanban\u007f',
-			'/kanban​',
-			'/kanban‮',
-			'/kanban ',
-			'/kanban﻿',
+			'/kanban\u200b',
+			'/kanban\u202e',
+			'/kanban\u2028',
+			'/kanban\ufeff',
 			'/has space',
 			// Surrounding whitespace is not trimmed away.
 			' /kanban',
@@ -341,20 +344,75 @@ describe('readEverIdStartReturnPath: the one `return` value of an address', () =
 	});
 });
 
-describe('everIdSignInLanding: where the sign-in lands, with the return path for the chooser', () => {
-	it('is the button’s landing, the workspace chooser, without a return path', () => {
+describe('the return-path cookie: where the sign-in lands afterwards', () => {
+	it('the sign-in itself lands where the button lands: the workspace chooser', () => {
 		expect(EVER_ID_SIGN_IN_LANDING_PATH).toBe('/auth/workspace');
-		expect(everIdSignInLanding(undefined)).toBe('/auth/workspace');
 	});
 
-	it.each(['/', '/task/42', '/settings/team?tab=members&x=1#invite', '/search?q=a%20b', '/kanban?next=%2Ftask'])(
-		'carries %s to the chooser, which reads back exactly that path',
-		(path) => {
-			const landing = everIdSignInLanding(path);
+	it('keeps a checked path for as long as the sign-in lasts, readable by the page that ends it', () => {
+		expect(everIdStartReturnCookie('/task/42', true)).toEqual({
+			name: 'ever-id-start-return',
+			value: '/task/42',
+			httpOnly: false,
+			sameSite: 'lax',
+			secure: true,
+			path: '/',
+			maxAge: 900
+		});
+		expect(EVER_ID_START_RETURN_MAX_AGE_S).toBe(15 * 60);
+		expect(everIdStartReturnCookie('/task/42', false).secure).toBe(false);
+	});
 
-			expect(landing.startsWith('/auth/workspace?return=')).toBe(true);
-			expect(landsOn(landing)).toBe(ORIGIN);
-			expect(readEverIdStartReturnPath(new URL(landing, ORIGIN).searchParams)).toBe(path);
+	it('expires it when the link names no path', () => {
+		expect(everIdStartReturnCookie(undefined, true)).toMatchObject({
+			name: EVER_ID_START_RETURN_COOKIE,
+			value: '',
+			maxAge: 0
+		});
+	});
+
+	it.each(['/', '/task/42', '/settings/team?tab=members&x=1#invite', '/search?q=a%20b', '/kanban?next=%2Ftask;a,b'])(
+		'reads back exactly %s',
+		(path) => {
+			const { name, value } = everIdStartReturnCookie(path, true);
+			// As `NextResponse.cookies.set` writes it: a cookie value holds no `;`, `,` or space.
+			const written = encodeURIComponent(value);
+
+			expect(written).not.toMatch(/[;, ]/);
+			expect(readEverIdStartReturnCookie(`other=1; ${name}=${written}; last=2`)).toBe(path);
 		}
 	);
+
+	it('reads nothing when there is no such cookie', () => {
+		for (const header of [
+			undefined,
+			null,
+			'',
+			'other=1',
+			'ever-id-start-return-x=%2Ftask',
+			'ever-id-start-return'
+		]) {
+			expect(readEverIdStartReturnCookie(header)).toBeUndefined();
+		}
+	});
+
+	it('checks the value again, as a link would be checked: anything could have set a cookie of that name', () => {
+		for (const value of [
+			'https%3A%2F%2Fevil.example',
+			'%2F%2Fevil.example',
+			'%2F%5Cevil.example',
+			'%2F%2509%2Fevil.example',
+			'%2F..%2Fsettings',
+			'%E0%A4%A',
+			'/%',
+			''
+		]) {
+			expect(readEverIdStartReturnCookie(`${EVER_ID_START_RETURN_COOKIE}=${value}`)).toBeUndefined();
+		}
+	});
+
+	it('takes the first of several values that is a path of this site', () => {
+		const name = EVER_ID_START_RETURN_COOKIE;
+		expect(readEverIdStartReturnCookie(`${name}=%2F%2Fevil.example; ${name}=%2Fkanban`)).toBe('/kanban');
+	});
 });

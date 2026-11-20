@@ -2,9 +2,11 @@ import { NextResponse } from 'next/server';
 import { signIn } from '@/auth';
 import { DEFAULT_MAIN_PATH, IS_DEMO_MODE } from '@/core/constants/config/constants';
 import { EVER_ID_PROVIDER_ID, isEverIdConfigured } from '@/core/lib/auth/ever-id/config';
+import { everIdCookieSecure } from '@/core/lib/auth/ever-id/handoff';
 import { logEverIdOutcome } from '@/core/lib/auth/ever-id/log';
 import {
-	everIdSignInLanding,
+	EVER_ID_SIGN_IN_LANDING_PATH,
+	everIdStartReturnCookie,
 	isEverIdStartNavigation,
 	isEverIdStartRouteEnabled,
 	readEverIdStartReturnPath
@@ -35,10 +37,11 @@ import { requestAccessToken, requestCookies } from '@/core/services/server/reque
  * | the sign-in cannot start (issuer down, ...)  | `/auth/error?error=<code>`, a code only        |
  *
  * The destination is the `return` path when it is a path of this site (`readEverIdStartReturnPath`), otherwise the
- * page a signed-in visit to the sign-in page opens (`/`). A signed-out person's `return` path travels in the
- * chooser's address (`/auth/workspace?return=...`, checked again there), and the chooser opens it once the
- * workspace sign-in is done. A refused `return` is ignored, never repaired, and never an error: the person still
- * signs in.
+ * page a signed-in visit to the sign-in page opens (`/`). For a signed-out person the path waits in a short-lived
+ * cookie (`everIdStartReturnCookie`, the lifetime of next-auth's own sign-in cookies), since after the issuer the
+ * sign-in can continue on the workspace chooser or on the e-mail code step first: the page that ends it checks the
+ * path again and opens it once the workspace sign-in is done (core/lib/auth/ever-id/start-return.ts). A refused
+ * `return` is ignored, never repaired, and never an error: the person still signs in.
  *
  * "Already signed in" is what the sign-in page itself goes by before it sends a visit on to the app (proxy.ts): an
  * access token that has not expired. Anything else (no token, an expired one) counts as signed out: the person then
@@ -52,7 +55,7 @@ import { requestAccessToken, requestCookies } from '@/core/services/server/reque
  *  - nothing another site loads in the background starts a sign-in (`isEverIdStartNavigation`);
  *  - every answer is `Cache-Control: no-store` and carries the Referrer-Policy the sign-in page has (the browser
  *    default, `strict-origin-when-cross-origin`: this app sends none for it), and no address built here holds a
- *    token, the `state` or a verifier.
+ *    token, the `state` or a verifier; the return-path cookie holds a checked path of this site and nothing else.
  *
  * Under `/api/auth/ever-id` with the other Ever ID routes, which proxy.ts leaves alone: with the switch off the
  * path answers `404` to everyone, as any unknown `/api` path does, and nothing else in the app changes.
@@ -152,7 +155,7 @@ export async function GET(request: Request) {
 	try {
 		// The button's sign-in (signInFunction), answered here as an address instead of a redirect it throws.
 		answer = toAuthorizationUrl(
-			await signIn(EVER_ID_PROVIDER_ID, { redirectTo: everIdSignInLanding(returnPath), redirect: false })
+			await signIn(EVER_ID_PROVIDER_ID, { redirectTo: EVER_ID_SIGN_IN_LANDING_PATH, redirect: false })
 		);
 	} catch (error) {
 		// Anyone can request this address: the log names the kind of failure, and the person sees a code only.
@@ -169,18 +172,22 @@ export async function GET(request: Request) {
 	}
 
 	logEverIdOutcome('ever_id.start', { outcome: 'started', latencyMs: Date.now() - startedAt });
-	return redirectTo(answer.url);
+	const response = redirectTo(answer.url);
+	// The path for the end of this sign-in, or, without one, nothing left by an earlier link that was abandoned.
+	response.cookies.set(everIdStartReturnCookie(returnPath, everIdCookieSecure(request.headers, request.url)));
+	return response;
 }
 
 /**
  * The address is a link: a `GET`, and nothing else. Every other method gets the `404` of a path that does not
  * exist, whatever the switch says, in place of the `405` and the `Allow` list that would tell a route is here while
- * it is off. (`HEAD` is answered through `GET`, which refuses it the same way.)
+ * it is off. `HEAD` is listed too, rather than left to Next.js to answer through `GET` (which refuses it as well).
  */
-async function notALink(): Promise<NextResponse> {
+function notALink(): NextResponse {
 	return notFound();
 }
 
+export const HEAD = notALink;
 export const POST = notALink;
 export const PUT = notALink;
 export const PATCH = notALink;

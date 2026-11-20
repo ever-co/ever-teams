@@ -15,8 +15,7 @@ import { useWorkspaceAnalysis } from '@/core/hooks/auth/use-workspace-analysis';
 import { useRememberedTeamContinue } from '@/core/hooks/auth/use-remembered-team-continue';
 import { firstListedTeam, findLatestServerTeamId } from '@/core/lib/auth/remembered-team';
 import { readEverIdSession } from '@/core/lib/auth/ever-id/session';
-import { readEverIdStartReturnPath } from '@/core/lib/auth/ever-id/start';
-import { setPathAfterSignIn } from '@/core/lib/auth/navigate-after-sign-in';
+import { keepEverIdStartReturnForSignIn } from '@/core/lib/auth/ever-id/start-return';
 import { readSocialSession } from '@/core/lib/auth/social-session';
 import { useEverIdWorkspaceChoice } from '@/core/hooks/auth/use-ever-id-workspace-choice';
 import { PickedWorkspaceScene } from '@/core/components/auth/scenes/auth-scenes';
@@ -107,13 +106,10 @@ function WorkSpaceScreen({
 		setWorkspaces(everIdSession.workspaces);
 	}, [everIdSession, setWorkspaces]);
 
-	// Ever ID: a sign-in begun by a link to the start address (app/api/auth/ever-id/start) lands here with the page the
-	// link named, which the workspace sign-in then opens (navigateAfterSignIn). Checked again here: anyone can write
-	// this address too.
+	// Ever ID: a sign-in begun by a link to the start address (app/api/auth/ever-id/start) opens the page the link
+	// named once the workspace sign-in is done (navigateAfterSignIn)
 	useEffect(() => {
-		if (!everIdSession) return;
-		const returnPath = readEverIdStartReturnPath(new URLSearchParams(window.location.search));
-		if (returnPath) setPathAfterSignIn(returnPath);
+		if (everIdSession) keepEverIdStartReturnForSignIn();
 	}, [everIdSession]);
 
 	// Analyze workspace structure to determine if we should show workspace selection

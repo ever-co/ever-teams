@@ -168,6 +168,12 @@ describe('the page a sign-in opens (#5025)', () => {
 		expect(signIn({ replace: true })).toHaveBeenCalledWith(consentPage);
 	});
 
+	it('keeps the part of the page it names (#section)', () => {
+		expect(signInWith('/settings/team?tab=members#invite')).toHaveBeenCalledWith(
+			'/settings/team?tab=members#invite'
+		);
+	});
+
 	it('opens the home page for anything that is not a page of this app', () => {
 		expect(signInWith('https://evil.example.com/')).toHaveBeenCalledWith('/');
 		expect(signInWith('//evil.example.com/')).toHaveBeenCalledWith('/');

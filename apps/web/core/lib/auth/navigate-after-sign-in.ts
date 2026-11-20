@@ -101,9 +101,10 @@ function takePathAfterSignIn(): string | null {
 		if (!isRecent || typeof path !== 'string' || !path.startsWith('/')) {
 			return null;
 		}
-		// Resolved against this origin: "//host" or "/\\host" would lead to another site
+		// Resolved against this origin: "//host" or "/\\host" would lead to another site. The fragment stays: the page
+		// set for the sign-in can name a part of itself (a link's `#section`)
 		const url = new URL(path, window.location.origin);
-		return url.origin === window.location.origin ? `${url.pathname}${url.search}` : null;
+		return url.origin === window.location.origin ? `${url.pathname}${url.search}${url.hash}` : null;
 	} catch {
 		return null;
 	}

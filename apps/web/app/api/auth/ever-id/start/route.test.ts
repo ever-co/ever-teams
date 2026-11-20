@@ -6,7 +6,7 @@
  *  - **off** (the default), not a link, or Ever ID not offered on the sign-in page: `404`, and with the switch off
  *    nothing is read and nothing is called;
  *  - **on, signed out**: the sign-in the "Login with Ever ID" button starts (the same next-auth `signIn`, the same
- *    provider and landing page), then the issuer's authorization address;
+ *    provider and landing page), then the issuer's authorization address; the return path waits in its own cookie;
  *  - **on, signed in**: straight to the destination, no sign-in;
  *  - **the sign-in cannot start**: the sign-in error page, with a code only.
  *
@@ -40,7 +40,9 @@ const CLEARED_KEYS = [
 	...Object.keys(EVER_ID_ENV),
 	'EVER_ID_START_ROUTE_ENABLED',
 	'NEXT_PUBLIC_GAUZY_API_SERVER_URL',
-	'NEXT_PUBLIC_DEMO'
+	'NEXT_PUBLIC_DEMO',
+	'AUTH_URL',
+	'NEXTAUTH_URL'
 ];
 const ORIGINAL_ENV = { ...process.env };
 
@@ -115,6 +117,11 @@ function expectNotFound(response: Response) {
 	expect(mockSignIn).not.toHaveBeenCalled();
 }
 
+/** The `Set-Cookie` of the return-path cookie the answer carries, or `undefined`. */
+function returnCookie(response: Response): string | undefined {
+	return response.headers.getSetCookie().find((cookie) => cookie.startsWith('ever-id-start-return='));
+}
+
 function expectRedirect(response: Response, location: string) {
 	expect(response.status).toBe(307);
 	expect(response.headers.get('location')).toBe(location);
@@ -173,15 +180,15 @@ describe('GET /api/auth/ever-id/start: only a person following a link', () => {
 		expectNotFound(await loadRoute().GET(get('', { headers })));
 	});
 
-	it('HEAD (answered through GET): 404', async () => {
+	it('HEAD, should it reach GET: 404', async () => {
 		expectNotFound(await loadRoute().GET(get('', { method: 'HEAD' })));
 	});
 
-	it.each(['POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'] as const)(
+	it.each(['HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'] as const)(
 		'%s: 404 whatever the switch says, never a 405',
 		async (method) => {
 			for (const env of [{ ...EVER_ID_ENV, ...SWITCH_ON }, EVER_ID_ENV]) {
-				const response = await loadRoute(env)[method]();
+				const response = loadRoute(env)[method]();
 				expect(response.status).toBe(404);
 				expect(response.headers.get('allow')).toBeNull();
 				expectRouteHeaders(response);
@@ -219,14 +226,32 @@ describe('GET /api/auth/ever-id/start: on, signed out, the sign-in the button st
 		expect(fromLink[1].redirectTo).toBe(fromButton[1].redirectTo);
 	});
 
-	it('carries a return path of this site to the chooser, never into the issuer address', async () => {
-		const response = await loadRoute().GET(get('?return=%2Fsettings%2Fteam%3Ftab%3Dmembers'));
+	it('keeps a return path of this site in its own cookie for the end of the sign-in, never in the sign-in', async () => {
+		const response = await loadRoute().GET(get('?return=%2Fsettings%2Fteam%3Ftab%3Dmembers%23invite'));
 
 		expectRedirect(response, AUTHORIZATION_URL);
-		expect(mockSignIn).toHaveBeenCalledWith('ever-id', {
-			redirectTo: '/auth/workspace?return=%2Fsettings%2Fteam%3Ftab%3Dmembers',
-			redirect: false
-		});
+		// The sign-in is the button's, unchanged.
+		expect(mockSignIn).toHaveBeenCalledWith('ever-id', { redirectTo: '/auth/workspace', redirect: false });
+
+		const cookie = returnCookie(response) ?? '';
+		expect(cookie).toMatch(/^ever-id-start-return=%2Fsettings%2Fteam%3Ftab%3Dmembers%23invite;/);
+		expect(cookie).toMatch(/; Max-Age=900(;|$)/i);
+		expect(cookie).toMatch(/; Path=\/(;|$)/i);
+		expect(cookie).toMatch(/; SameSite=lax(;|$)/i);
+		expect(cookie).toMatch(/; Secure(;|$)/i);
+		expect(cookie).not.toMatch(/HttpOnly/i);
+
+		const { readEverIdStartReturnCookie } = jest.requireActual<typeof import('@/core/lib/auth/ever-id/start')>(
+			'@/core/lib/auth/ever-id/start'
+		);
+		expect(readEverIdStartReturnCookie(cookie.split(';')[0])).toBe('/settings/team?tab=members#invite');
+	});
+
+	it('drops a return path an earlier, abandoned link left, when this one names none', async () => {
+		const response = await loadRoute().GET(get('', { cookie: 'ever-id-start-return=%2Ftask%2F1' }));
+
+		expectRedirect(response, AUTHORIZATION_URL);
+		expect(returnCookie(response)).toMatch(/^ever-id-start-return=;.*Max-Age=0/i);
 	});
 
 	it.each([
@@ -240,6 +265,7 @@ describe('GET /api/auth/ever-id/start: on, signed out, the sign-in the button st
 
 		expectRedirect(response, AUTHORIZATION_URL);
 		expect(mockSignIn).toHaveBeenCalledWith('ever-id', { redirectTo: '/auth/workspace', redirect: false });
+		expect(returnCookie(response)).toMatch(/^ever-id-start-return=;.*Max-Age=0/i);
 	});
 
 	it('counts an expired access token, or one about to expire, as signed out', async () => {
@@ -274,6 +300,7 @@ describe('GET /api/auth/ever-id/start: on, signed in', () => {
 
 		expectRedirect(response, '/task/42?view=board');
 		expect(mockSignIn).not.toHaveBeenCalled();
+		expect(returnCookie(response)).toBeUndefined();
 		expect(outcomeLines(info)).toEqual([expect.stringMatching(/^ever_id\.start outcome=signed_in/)]);
 	});
 
@@ -307,6 +334,8 @@ describe('GET /api/auth/ever-id/start: the sign-in cannot start', () => {
 		const response = await loadRoute().GET(get('?return=/task/42'));
 
 		expectRedirect(response, '/auth/error?error=OAuthSignin');
+		// Nothing started: no path is kept for a sign-in that will not end.
+		expect(returnCookie(response)).toBeUndefined();
 		expect(outcomeLines(warn)).toEqual([expect.stringMatching(/^ever_id\.start outcome=failed/)]);
 		expect(error).toHaveBeenCalledWith('Ever ID sign-in could not start:', expect.stringMatching(/^Error: /));
 	});

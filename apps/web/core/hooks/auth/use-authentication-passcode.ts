@@ -11,6 +11,7 @@ import { authService } from '@/core/services/client/api/auth/auth.service';
 import { ApiErrorService } from '@/core/services/client/api-error.service';
 import { findMostRecentWorkspace } from '@/core/lib/utils/date-comparison.utils';
 import { EVER_ID_STEP_PARAM, isEverIdStep } from '@/core/lib/auth/ever-id/step';
+import { keepEverIdStartReturnForSignIn } from '@/core/lib/auth/ever-id/start-return';
 import {
 	isExpiredWorkspaceTokenError,
 	isWorkspaceTokenExpired,
@@ -273,6 +274,8 @@ export function useAuthenticationPasscode() {
 					setAuthenticated(true);
 					setStatus('success');
 					setScreen('workspace');
+					// A sign-in begun by a link to the start address opens the page the link named once it is done.
+					keepEverIdStartReturnForSignIn();
 					// The key is used up: a later code on this page is an e-mail sign-in again.
 					leaveEverIdStep();
 					return;

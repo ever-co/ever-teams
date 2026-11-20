@@ -10,9 +10,12 @@
  *    address in the background.
  *  - {@link readEverIdStartReturnPath}: where to land afterwards, when the link names a path of this site and
  *    nothing else.
+ *  - {@link everIdStartReturnCookie} / {@link readEverIdStartReturnCookie}: how that path waits, in a short-lived
+ *    cookie, for the page that ends the sign-in (the workspace chooser, or the e-mail code step before it), wherever
+ *    the sign-in goes after the issuer.
  *
- * Nothing here reads a cookie, holds a secret or imports a server module: the workspace chooser reads the same
- * return path in the browser, and the unit test exercises every rule without a request.
+ * Nothing here holds a secret or imports a server module: the pages that end the sign-in read the same cookie in
+ * the browser (start-return.ts), and the unit test exercises every rule without a request.
  */
 
 type Env = Readonly<Record<string, string | undefined>>;
@@ -28,23 +31,72 @@ export function isEverIdStartRouteEnabled(env: Env = process.env): boolean {
 	return env[EVER_ID_START_ROUTE_SWITCH]?.trim().toLowerCase() === 'true';
 }
 
-/** The query key naming where to land after signing in, on the start address and on the workspace chooser. */
+/** The query key naming where to land after signing in. */
 export const EVER_ID_START_RETURN_PARAM = 'return';
 
 /**
  * Where the "Login with Ever ID" button's sign-in lands: the workspace chooser (`signInFunction`,
- * core/lib/helpers/social-logins.ts). The start address lands there too.
+ * core/lib/helpers/social-logins.ts). The start address starts the very same sign-in.
  */
 export const EVER_ID_SIGN_IN_LANDING_PATH = '/auth/workspace';
 
+/** The cookie that keeps a start link's return path for the end of the sign-in. */
+export const EVER_ID_START_RETURN_COOKIE = 'ever-id-start-return';
+
 /**
- * The landing of a sign-in the start address begins: the workspace chooser, with the return path (already checked)
- * in its query, so the chooser opens that page once the workspace sign-in is done.
+ * How long the return path waits: as long as next-auth keeps the sign-in's own PKCE / state / nonce cookies (15
+ * minutes), so it never outlives the sign-in it was set for by much.
  */
-export function everIdSignInLanding(returnPath: string | undefined): string {
-	if (!returnPath) return EVER_ID_SIGN_IN_LANDING_PATH;
-	const query = new URLSearchParams({ [EVER_ID_START_RETURN_PARAM]: returnPath });
-	return `${EVER_ID_SIGN_IN_LANDING_PATH}?${query.toString()}`;
+export const EVER_ID_START_RETURN_MAX_AGE_S = 15 * 60;
+
+/** The attributes of the return-path cookie, as `NextResponse.cookies.set` takes them. */
+export interface EverIdStartReturnCookie {
+	name: string;
+	value: string;
+	httpOnly: false;
+	sameSite: 'lax';
+	secure: boolean;
+	path: '/';
+	maxAge: number;
+}
+
+/**
+ * The cookie that keeps `returnPath` (already checked) for the page that ends the sign-in, or, with `undefined`,
+ * the same cookie expired: a start link without a path drops what an earlier, abandoned one left. Not httpOnly: it
+ * holds a path of this site and nothing else, and the page that ends the sign-in reads it in the browser.
+ */
+export function everIdStartReturnCookie(returnPath: string | undefined, secure: boolean): EverIdStartReturnCookie {
+	return {
+		name: EVER_ID_START_RETURN_COOKIE,
+		// Written percent-encoded by `NextResponse.cookies.set`, so a `;`, `,` or space of the path stays in the value.
+		value: returnPath ?? '',
+		httpOnly: false,
+		sameSite: 'lax',
+		secure,
+		path: '/',
+		maxAge: returnPath ? EVER_ID_START_RETURN_MAX_AGE_S : 0
+	};
+}
+
+/**
+ * The return path a `Cookie` header (or `document.cookie`) keeps (percent-encoded once), checked again as a link's would be
+ * ({@link toEverIdStartReturnPath}): anything can set a cookie of this name on the way, so its value is never
+ * trusted. `undefined` when there is none, or none that is a path of this site.
+ */
+export function readEverIdStartReturnCookie(cookieHeader: string | null | undefined): string | undefined {
+	for (const part of (cookieHeader ?? '').split(';')) {
+		const separator = part.indexOf('=');
+		if (separator <= 0 || part.slice(0, separator).trim() !== EVER_ID_START_RETURN_COOKIE) continue;
+		let value: string;
+		try {
+			value = decodeURIComponent(part.slice(separator + 1).trim());
+		} catch {
+			continue;
+		}
+		const path = toEverIdStartReturnPath(value);
+		if (path) return path;
+	}
+	return undefined;
 }
 
 /**
