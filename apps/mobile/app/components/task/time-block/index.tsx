@@ -12,11 +12,11 @@ import { secondsToTime } from '../../../helpers/date';
 import { ITasksTimesheet } from '../../../services/interfaces/ITimer';
 import TaskRow from '../details-block/components/task-row';
 import { PropertyLabel } from '../details-block/components/property-label';
-import { ProgressBar } from 'react-native-paper';
 import { ITeamTask } from '../../../services/interfaces/ITask';
 import { Chart, ChevronDown, ChevronUp, Clock, Sun, Timer, Users } from '../../../../src/components/icons';
 import { useAppTheme } from '../../../theme';
 import ProfileInfoWithTime from '../estimate-block/components/profile-info-with-time';
+import { Progress } from './time-progress';
 import { translate } from '../../../i18n';
 
 export interface ITime {
@@ -195,26 +195,6 @@ const TimeBlock = () => {
 
 export default TimeBlock;
 
-interface IProgress {
-	task: ITeamTask;
-	percent: () => number;
-}
-
-const Progress: React.FC<IProgress> = ({ task, percent }) => {
-	return (
-		<View style={styles.progressBarContainer}>
-			<View style={{ width: '79%' }}>
-				<ProgressBar
-					style={styles.progressBar}
-					progress={percent()}
-					color={task && task.estimate > 0 ? '#27AE60' : '#F0F0F0'}
-				/>
-			</View>
-			<Text style={{ fontSize: 12, color: '#28204880' }}>{Math.floor(percent() * 100)}%</Text>
-		</View>
-	);
-};
-
 interface ITotalGroupTime {
 	totalTime: string;
 	task: ITeamTask;
@@ -293,13 +273,6 @@ const styles = StyleSheet.create({
 	accordTitle: {
 		fontSize: 12,
 		fontWeight: '600'
-	},
-	progressBar: { backgroundColor: '#E9EBF8', borderRadius: 3, height: 6, width: '100%' },
-	progressBarContainer: {
-		alignItems: 'center',
-		flexDirection: 'row',
-		justifyContent: 'space-between',
-		paddingRight: 12
 	},
 	timeValues: { fontSize: 12, fontWeight: '600' }
 });
