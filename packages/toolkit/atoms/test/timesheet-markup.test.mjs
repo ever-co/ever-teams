@@ -81,11 +81,11 @@ before(async () => {
 
 after(() => removeBundle?.());
 
-function tableBodyOf(loading) {
+function tableBodyOf(loading, props = {}) {
 	globalThis.timeLogsLoading = loading;
 	const { createElement } = require('react');
 	const { renderToStaticMarkup } = require('react-dom/server');
-	const markup = renderToStaticMarkup(createElement(kit.TeamsTimesheet));
+	const markup = renderToStaticMarkup(createElement(kit.TeamsTimesheet, props));
 	return new JSDOM(`<!doctype html><body>${markup}</body>`).window.document.querySelector('tbody');
 }
 
@@ -95,6 +95,16 @@ test('while the time logs load, the table body holds rows only, and the loader s
 	const tags = [...body.children].map((child) => child.tagName.toLowerCase());
 	assert.deepEqual(new Set(tags), new Set(['tr']));
 	assert.match(body.textContent, /loader/, 'the loader shows');
+});
+
+test("the loader's cell and the empty row's cell span every column, the employee's one included", () => {
+	for (const showEmployee of [false, true]) {
+		const body = tableBodyOf(true, { showEmployee });
+		const columns = body.ownerDocument.querySelectorAll('thead th').length;
+
+		const spans = [...body.querySelectorAll('td')].map((cell) => cell.colSpan);
+		assert.deepEqual(spans, [columns, columns], `showEmployee: ${showEmployee}`);
+	}
 });
 
 test('once they are read, no loader row is left', () => {
