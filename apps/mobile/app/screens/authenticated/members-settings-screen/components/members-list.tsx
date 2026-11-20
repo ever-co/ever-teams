@@ -14,6 +14,7 @@ import { searchIconDark, searchIconLight } from "../../../../components/svgs/ico
 import { useSettings } from "../../../../services/hooks/features/use-settings"
 import { limitTextCharaters } from "../../../../helpers/sub-text"
 import { translate } from "../../../../i18n"
+import LabelItem from "../../../../components/label-item"
 
 interface IMembersList {
 	teamList: IOrganizationTeamList
@@ -212,10 +213,8 @@ const MemberCard: React.FC<IMemberCard> = ({
 				</View>
 			</View>
 			<View style={{ gap: 7, flexDirection: "column" }}>
-				<View style={styles.roleContainer}>
-					<Text style={styles.roleText}>
-						{roleLabel(member?.role?.name)}
-					</Text>
+				<View style={styles.role}>
+					<LabelItem label={roleLabel(member?.role?.name)} background="" icon={undefined} />
 				</View>
 				<Text style={secondaryText}>
 					{moment(member?.employee?.createdAt).format("DD MMM YYYY hh:mm a")}
@@ -253,15 +252,7 @@ const styles = StyleSheet.create({
 		fontFamily: typography.fonts.PlusJakartaSans.light,
 		fontSize: 22,
 	},
-	roleContainer: {
-		backgroundColor: "#D4EFDF",
-		borderRadius: 80,
-		marginLeft: "auto",
-		minWidth: 73,
-		paddingHorizontal: 15,
-		paddingVertical: 4,
-	},
-	roleText: { color: "#77846D", fontSize: 10, fontWeight: "700" },
+	role: { alignSelf: "flex-end" },
 	searchContainer: {
 		borderColor: "#0000001A",
 		borderRadius: 8,
