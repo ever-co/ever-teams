@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react';
-import { FlatList, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import { FlatList, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Check } from '../../src/components/icons';
 import { typography, useWebTheme } from '../theme';
 import LabelItem from './label-item';
@@ -215,7 +215,11 @@ export function PropertyPicker({
 							{footer}
 						</>
 					)}
-					{children}
+					{!showsList && (
+						<ScrollView testID="picker-form" style={styles.form} keyboardShouldPersistTaps="handled">
+							{children}
+						</ScrollView>
+					)}
 				</Pressable>
 			</Pressable>
 		</Modal>
@@ -256,6 +260,11 @@ const styles = StyleSheet.create({
 		fontFamily: typography.primary.medium,
 		fontSize: 12,
 		textAlign: 'center'
+	},
+	// the create forms are 452 high: on a short screen they scroll inside the dialog
+	form: {
+		flexGrow: 0,
+		flexShrink: 1
 	},
 	list: {
 		flexGrow: 0

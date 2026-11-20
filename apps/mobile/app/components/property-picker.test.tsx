@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react-native';
+import { fireEvent, render, screen, within } from '@testing-library/react-native';
 import { StyleSheet, Text } from 'react-native';
 import { PickerCreateFooter, PropertyPicker, PickerOption } from './property-picker';
 import { themeFor } from '../../src/theme/use-theme';
@@ -152,5 +152,11 @@ describe('a property picker opened from a chip', () => {
 		expect(screen.getByTestId('picker-dialog')).toBeTruthy();
 		expect(screen.getByTestId('picker-dialog')).toHaveStyle({ overflow: 'hidden' });
 		expect(screen.queryByTestId('property-menu')).toBeNull();
+	});
+
+	it('lets a form taller than the dialog scroll inside it, so its buttons stay within reach', async () => {
+		await renderPicker({ anchor: chip, children: <Text>status form</Text> });
+
+		expect(within(screen.getByTestId('picker-form')).getByText('status form')).toBeTruthy();
 	});
 });
