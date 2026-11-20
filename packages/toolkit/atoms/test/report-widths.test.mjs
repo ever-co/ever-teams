@@ -155,6 +155,20 @@ test('a list row lets its name wrap and keeps its figures whole on a narrow page
 	}
 });
 
+test('a name of one long word breaks inside the row instead of running into the figures', () => {
+	const { createElement } = require('react');
+	const { renderToStaticMarkup } = require('react-dom/server');
+	const stats = {
+		data: [{ title: 'CustomerPortalAuthentication', durationPercentage: 12, duration: 60 }],
+		loading: false
+	};
+	const markup = renderToStaticMarkup(createElement(kit.TeamsBaseList, { title: 'Task', stats }));
+
+	const nameClasses = /<span class="([^"]*)">CustomerPortalAuthentication<\/span>/.exec(markup)?.[1].split(' ') ?? [];
+	assert.ok(nameClasses.includes('[overflow-wrap:anywhere]'));
+	assert.ok(propertiesOf('[overflow-wrap:anywhere]').includes('overflow-wrap'), 'its rule is in the stylesheet');
+});
+
 test("the timesheet's filters wrap onto more lines on a narrow page", () => {
 	const { createElement } = require('react');
 	const { renderToStaticMarkup } = require('react-dom/server');

@@ -73,7 +73,7 @@ interface ITeamsBaseListProps extends VariantProps<typeof teamsBaseListVariants>
 const ItemDetail: React.FC<ItemDetailProps> = ({ name, percentage, time, size }) => {
 	return (
 		<div className="flex justify-between items-start text-xs">
-			<span className="text-sm min-w-0 flex-1 font-normal">{name}</span>
+			<span className="text-sm min-w-0 flex-1 font-normal [overflow-wrap:anywhere]">{name}</span>
 			<div className="flex gap-4 w-[40%] min-w-fit justify-between items-center">
 				<span className="text-sm">{percentage.toFixed(2)}%</span>
 				{size !== 'sm' && <Progress className=" h-2" value={Math.ceil(percentage)} />}
