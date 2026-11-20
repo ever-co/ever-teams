@@ -12,6 +12,12 @@ export function toggledLabels(labels: ITaskLabelItem[], label: ITaskLabelItem): 
 
 type LabelSave = (labels: ITaskLabelItem[]) => Promise<boolean>;
 
+/** A selection waiting for its write, and the task it was made for. */
+interface QueuedLabels {
+	labels: ITaskLabelItem[];
+	madeFor: number;
+}
+
 /**
  * A task's labels as the menu shows them, saved one write at a time: a tap while a write runs waits for it, and the
  * latest selection is the last one written, so quick taps never overwrite each other. A write that fails gives back
@@ -22,9 +28,17 @@ type LabelSave = (labels: ITaskLabelItem[]) => Promise<boolean>;
 export function useLabelSelection(savedLabels: ITaskLabelItem[], save: LabelSave, taskKey?: string) {
 	const [selectedLabels, setSelectedLabels] = useState<ITaskLabelItem[]>(savedLabels);
 	const selection = useRef<ITaskLabelItem[]>(savedLabels);
-	const waiting = useRef<ITaskLabelItem[] | null>(null);
+	const waiting = useRef<QueuedLabels | null>(null);
 	// which task the screen shows: a write made for an earlier one never changes it
 	const generation = useRef(0);
+	// The task moves on in the very render that brings the new task's save, not in an effect after it: a write that
+	// waited for the previous task can then never go out through the new task's save.
+	const shownTaskKey = useRef(taskKey);
+	if (shownTaskKey.current !== taskKey) {
+		shownTaskKey.current = taskKey;
+		generation.current += 1;
+		waiting.current = null;
+	}
 	const latestSavedLabels = useRef<ITaskLabelItem[]>(savedLabels);
 	latestSavedLabels.current = savedLabels;
 	const lastSaved = useRef<ITaskLabelItem[]>(savedLabels);
@@ -41,10 +55,13 @@ export function useLabelSelection(savedLabels: ITaskLabelItem[], save: LabelSave
 	const saveInTurn = useCallback(async () => {
 		isSaving.current = true;
 		while (waiting.current) {
-			const labels = waiting.current;
+			const { labels, madeFor } = waiting.current;
 			waiting.current = null;
-			const madeFor = generation.current;
-			const isSaved = await latestSave.current(labels);
+			if (madeFor !== generation.current) {
+				continue;
+			}
+			// one write at a time is the point: the latest selection must be the last one the API gets
+			const isSaved = await latestSave.current(labels); // NOSONAR
 			const isForAnotherTask = madeFor !== generation.current;
 			if (isForAnotherTask) {
 				continue;
@@ -63,7 +80,7 @@ export function useLabelSelection(savedLabels: ITaskLabelItem[], save: LabelSave
 		(label: ITaskLabelItem) => {
 			const nextLabels = toggledLabels(selection.current, label);
 			show(nextLabels);
-			waiting.current = nextLabels;
+			waiting.current = { labels: nextLabels, madeFor: generation.current };
 			if (!isSaving.current) {
 				void saveInTurn();
 			}
@@ -71,9 +88,8 @@ export function useLabelSelection(savedLabels: ITaskLabelItem[], save: LabelSave
 		[saveInTurn, show]
 	);
 
+	// the new task's labels on screen; what waited for the previous task was dropped in the render above
 	useEffect(() => {
-		generation.current += 1;
-		waiting.current = null;
 		lastSaved.current = latestSavedLabels.current;
 		show(latestSavedLabels.current);
 	}, [taskKey, show]);

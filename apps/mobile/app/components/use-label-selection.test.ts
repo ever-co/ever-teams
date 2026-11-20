@@ -81,6 +81,29 @@ describe("a task's labels saved from the menu", () => {
 		expect(calls).toHaveLength(1);
 		expect(result.current.selectedLabels).toEqual([]);
 	});
+
+	it("never sends a selection made for one task through the next task's save", async () => {
+		const taskA = heldSaves();
+		const taskB = heldSaves();
+		const { result, rerender } = await renderHook(
+			({ saved, taskKey, save }: { saved: ITaskLabelItem[]; taskKey: string; save: typeof taskA.save }) =>
+				useLabelSelection(saved, save, taskKey),
+			{ initialProps: { saved: [PAINT], taskKey: 'task-a', save: taskA.save } }
+		);
+
+		await act(async () => result.current.toggle(OUTDOOR));
+		await act(async () => result.current.toggle(NIGHT));
+		await rerender({ saved: [OUTDOOR], taskKey: 'task-b', save: taskB.save });
+		await act(async () => taskA.calls[0].finish(true));
+
+		expect(taskA.calls.map((call) => call.labels)).toEqual([['paint', 'outdoor']]);
+		expect(taskB.calls).toHaveLength(0);
+		expect(result.current.selectedLabels.map((label) => label.id)).toEqual(['outdoor']);
+
+		await act(async () => result.current.toggle(PAINT));
+
+		expect(taskB.calls.map((call) => call.labels)).toEqual([['outdoor', 'paint']]);
+	});
 });
 
 describe('a label tapped in the menu', () => {
