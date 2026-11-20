@@ -20,8 +20,15 @@ interface OkLab {
 }
 
 export interface DataColorChip {
+	/** The middle of the gradient, under it where a gradient cannot draw. */
 	background: string;
+	/** The web's `chip-3d` gradient, top then bottom. */
+	gradient: [string, string];
 	border: string;
+	/** The inner line: the hue at the bottom in light mode, a faint white at the top in dark mode. */
+	innerLine: string;
+	/** The shadow in the hue under a light chip; none in dark mode, as on the web. */
+	shadow: string | null;
 	ink: string;
 }
 
@@ -145,8 +152,9 @@ export function dataColorHueOf(color: string | null | undefined): string | null 
 }
 
 /**
- * The web's chip for a data color: a light tint of the hue, a hairline of it and an ink of the same hue (its gradient
- * is drawn flat at its middle). Null for a missing or unreadable color, so the caller keeps its neutral look.
+ * The web's chip for a data color (the `chip-3d` utility of styles/globals.css): a gradient of the hue, a hairline of
+ * it, an inner line, a shadow in the hue under a light chip, and an ink of the same hue. Null for a missing or
+ * unreadable color, so the caller keeps its neutral look.
  */
 export function dataColorChipOf(color: string | null | undefined, scheme: ColorScheme): DataColorChip | null {
 	if (!color) {
@@ -160,13 +168,19 @@ export function dataColorChipOf(color: string | null | undefined, scheme: ColorS
 	if (scheme === 'dark') {
 		return {
 			background: translucent(hue, 0.2),
+			gradient: [translucent(hue, 0.16), translucent(hue, 0.24)],
 			border: translucent(hue, 0.36),
+			innerLine: 'rgba(255, 255, 255, 0.06)',
+			shadow: null,
 			ink: rgbText(toRgb(mixWith(hue, 0.62, WHITE)))
 		};
 	}
 	return {
 		background: rgbText(toRgb(mixWith(hue, 0.12, WHITE))),
+		gradient: [rgbText(toRgb(mixWith(hue, 0.07, WHITE))), rgbText(toRgb(mixWith(hue, 0.17, WHITE)))],
 		border: translucent(hue, 0.3),
+		innerLine: translucent(hue, 0.26),
+		shadow: translucent(hue, 0.16),
 		ink: rgbText(toRgb(mixWith(hue, 0.72, BLACK)))
 	};
 }
