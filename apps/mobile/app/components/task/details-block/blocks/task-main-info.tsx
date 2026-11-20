@@ -4,8 +4,9 @@ import { View, Text, StyleSheet } from 'react-native';
 import React from 'react';
 import { useStores } from '../../../../models';
 import TaskRow from '../components/task-row';
+import { PropertyLabel } from '../components/property-label';
 import { SvgXml } from 'react-native-svg';
-import { calendarIcon, categoryIcon, clipboardIcon, peopleIconSmall, profileIcon } from '../../../svgs/icons';
+import { categoryIcon } from '../../../svgs/icons';
 import ProfileInfo from '../components/profile-info';
 import { creatorIdOf, creatorOf } from './task-creator';
 import ManageAssignees from '../components/manage-assignees';
@@ -41,27 +42,15 @@ const TaskMainInfo = observer(() => {
 	const creator = creatorOf(task);
 
 	return (
-		<View style={{ paddingHorizontal: 12, gap: 12, paddingBottom: 12 }}>
+		<View style={styles.properties}>
 			{/* Issue type */}
 			<TaskRow
-				labelComponent={
-					<View style={styles.labelComponent}>
-						<SvgXml xml={clipboardIcon} />
-						<Text style={styles.labelText}>{translate('taskDetailsScreen.typeIssue')}</Text>
-					</View>
-				}
+				labelComponent={<PropertyLabel icon="clipboard" label={translate('taskDetailsScreen.typeIssue')} />}
 			>
 				<IssuesModal task={task} nameIncluded={true} smallFont={true} />
 			</TaskRow>
 			{/* Creator */}
-			<TaskRow
-				labelComponent={
-					<View style={styles.labelComponent}>
-						<SvgXml xml={profileIcon} />
-						<Text style={styles.labelText}>{translate('taskDetailsScreen.creator')}</Text>
-					</View>
-				}
-			>
+			<TaskRow labelComponent={<PropertyLabel icon="user" label={translate('taskDetailsScreen.creator')} />}>
 				<ProfileInfo
 					userId={creatorIdOf(task)}
 					profilePicSrc={creator?.imageUrl ?? ''}
@@ -69,14 +58,7 @@ const TaskMainInfo = observer(() => {
 				/>
 			</TaskRow>
 			{/* Assignees */}
-			<TaskRow
-				labelComponent={
-					<View style={styles.labelComponent}>
-						<SvgXml xml={peopleIconSmall} />
-						<Text style={styles.labelText}>{translate('taskDetailsScreen.assignees')}</Text>
-					</View>
-				}
-			>
+			<TaskRow labelComponent={<PropertyLabel icon="users" label={translate('taskDetailsScreen.assignees')} />}>
 				{task?.members?.map((member, index) => (
 					<ProfileInfo
 						key={index}
@@ -92,12 +74,7 @@ const TaskMainInfo = observer(() => {
 
 			{/* Manage Start Date */}
 			<TaskRow
-				labelComponent={
-					<View style={styles.labelComponent}>
-						<SvgXml xml={calendarIcon} />
-						<Text style={styles.labelText}>{translate('taskDetailsScreen.startDate')}</Text>
-					</View>
-				}
+				labelComponent={<PropertyLabel icon="calendar" label={translate('taskDetailsScreen.startDate')} />}
 			>
 				<CalendarModal
 					updateTask={(date) => updateTask({ ...task, startDate: date }, task?.id)}
@@ -106,13 +83,7 @@ const TaskMainInfo = observer(() => {
 			</TaskRow>
 
 			{/* Manage Due Date */}
-			<TaskRow
-				labelComponent={
-					<View style={[styles.labelComponent, { marginLeft: 19 }]}>
-						<Text style={styles.labelText}>{translate('taskDetailsScreen.dueDate')}</Text>
-					</View>
-				}
-			>
+			<TaskRow labelComponent={<PropertyLabel icon="calendar" label={translate('taskDetailsScreen.dueDate')} />}>
 				<CalendarModal
 					updateTask={(date) => updateTask({ ...task, dueDate: date }, task?.id)}
 					selectedDate={task?.dueDate}
@@ -123,11 +94,7 @@ const TaskMainInfo = observer(() => {
 			{/* Days Remaining */}
 			{task?.startDate && task?.dueDate && (
 				<TaskRow
-					labelComponent={
-						<View style={[styles.labelComponent, { marginLeft: 19 }]}>
-							<Text style={styles.labelText}>{translate('taskDetailsScreen.daysRemaining')}</Text>
-						</View>
-					}
+					labelComponent={<PropertyLabel icon="clock" label={translate('taskDetailsScreen.daysRemaining')} />}
 				>
 					<Text style={{ fontWeight: '600', fontSize: 12, color: colors.primary }}>
 						{moment(task?.dueDate).diff(moment(), 'days') < 0
@@ -143,11 +110,7 @@ const TaskMainInfo = observer(() => {
 			{/* Version */}
 			<TaskRow
 				alignItems={true}
-				labelComponent={
-					<View style={styles.labelComponent}>
-						<Text style={styles.labelText}>{translate('taskDetailsScreen.version')}</Text>
-					</View>
-				}
+				labelComponent={<PropertyLabel icon="git-branch" label={translate('taskDetailsScreen.version')} />}
 			>
 				<TaskVersion
 					task={task}
@@ -163,11 +126,7 @@ const TaskMainInfo = observer(() => {
 			{task && task.issueType === 'Story' && (
 				<TaskRow
 					alignItems={true}
-					labelComponent={
-						<View style={styles.labelComponent}>
-							<Text style={styles.labelText}>{translate('taskDetailsScreen.epic')}</Text>
-						</View>
-					}
+					labelComponent={<PropertyLabel icon="zap" label={translate('taskDetailsScreen.epic')} />}
 				>
 					<TaskEpic
 						task={task}
@@ -183,11 +142,7 @@ const TaskMainInfo = observer(() => {
 			{/* Status */}
 			<TaskRow
 				alignItems={true}
-				labelComponent={
-					<View style={styles.labelComponent}>
-						<Text style={styles.labelText}>{translate('taskDetailsScreen.status')}</Text>
-					</View>
-				}
+				labelComponent={<PropertyLabel icon="circle" label={translate('taskDetailsScreen.status')} />}
 			>
 				<TaskStatus
 					task={task}
@@ -201,13 +156,7 @@ const TaskMainInfo = observer(() => {
 			</TaskRow>
 
 			{/* Labels */}
-			<TaskRow
-				labelComponent={
-					<View style={[styles.labelComponent, { marginTop: 10 }]}>
-						<Text style={styles.labelText}>{translate('taskDetailsScreen.labels')}</Text>
-					</View>
-				}
-			>
+			<TaskRow labelComponent={<PropertyLabel icon="tag" label={translate('taskDetailsScreen.labels')} />}>
 				<TaskLabels
 					task={task}
 					taskScreenButton={true}
@@ -223,11 +172,7 @@ const TaskMainInfo = observer(() => {
 			{/* Size */}
 			<TaskRow
 				alignItems={true}
-				labelComponent={
-					<View style={styles.labelComponent}>
-						<Text style={styles.labelText}>{translate('taskDetailsScreen.size')}</Text>
-					</View>
-				}
+				labelComponent={<PropertyLabel icon="maximize-2" label={translate('taskDetailsScreen.size')} />}
 			>
 				<TaskSize
 					task={task}
@@ -243,11 +188,7 @@ const TaskMainInfo = observer(() => {
 			{/* Priority */}
 			<TaskRow
 				alignItems={true}
-				labelComponent={
-					<View style={styles.labelComponent}>
-						<Text style={styles.labelText}>{translate('taskDetailsScreen.priority')}</Text>
-					</View>
-				}
+				labelComponent={<PropertyLabel icon="flag" label={translate('taskDetailsScreen.priority')} />}
 			>
 				<TaskPriority
 					task={task}
@@ -280,11 +221,7 @@ const EpicParent: React.FC<{ task: ITeamTask }> = ({ task }) => {
 	return (!task?.issueType || task?.issueType === 'Task' || task?.issueType === 'Bug') && task?.rootEpic ? (
 		<TaskRow
 			alignItems={true}
-			labelComponent={
-				<View style={styles.labelComponent}>
-					<Text style={styles.labelText}>{translate('taskDetailsScreen.epic')}</Text>
-				</View>
-			}
+			labelComponent={<PropertyLabel icon="zap" label={translate('taskDetailsScreen.epic')} />}
 		>
 			<TouchableOpacity onPress={navigateToEpic} style={styles.epicParentButton}>
 				<View style={styles.epicParentIconWrapper}>
@@ -316,13 +253,9 @@ const styles = StyleSheet.create({
 		marginVertical: 10,
 		width: '100%'
 	},
-	labelComponent: {
-		alignItems: 'center',
-		flexDirection: 'row',
-		gap: 7
-	},
-	labelText: {
-		color: '#A5A2B2',
-		fontSize: 12
+	properties: {
+		gap: 4,
+		paddingBottom: 12,
+		paddingHorizontal: 16
 	}
 });
