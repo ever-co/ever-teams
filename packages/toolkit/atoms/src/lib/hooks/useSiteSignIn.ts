@@ -125,6 +125,10 @@ export function useSiteSignInControls(
 		if (!site) {
 			return;
 		}
+		// A popup still open would sign the person in again once it answers: a sign-out ends it first (#5580).
+		popup.current?.stop();
+		popup.current = null;
+		setStatus('idle');
 		await site.signOut();
 		await askForToken();
 	}, [site, askForToken]);

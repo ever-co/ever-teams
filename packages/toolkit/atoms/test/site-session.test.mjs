@@ -25,7 +25,8 @@ let api;
 before(async () => {
 	const { bundled, remove } = await bundleKit({
 		name: 'site-session',
-		entry: `export { createSiteSession, KitSiteSignedOut } from '${kitSources}/session/site-session.ts';
+		entry: `export { createSiteSession, endSiteSignIn, KitSiteSignedOut, SIGN_OUT_RENEWAL_WAIT_MS } from '${kitSources}/session/site-session.ts';
+			export { apiConfigManager } from '@ever-teams/api';
 			export {
 				readStoredRenewal,
 				saveStoredRenewal,
@@ -54,14 +55,16 @@ const tokensFor = (n) => ({
 	renewalExpiresAt: new Date(Date.now() + 30 * 24 * 60 * 60_000).toISOString()
 });
 
-// The API: each renewal answers the next pair, unless `refuse` answers instead; `hold` keeps a renewal waiting.
+// The API: each renewal answers the next pair, unless `refuse` answers instead; `hold` keeps a renewal waiting, and
+// `holdRevoke` a revoke.
 function standInApi() {
-	const stand = { requests: [], pairs: 1, refuse: null, hold: null };
+	const stand = { requests: [], pairs: 1, refuse: null, hold: null, holdRevoke: null };
 	stand.fetch = async (url, init) => {
 		const path = new URL(url).pathname.replace(/^\/api/, '');
 		const authorization = new Headers(init.headers).get('authorization');
 		stand.requests.push({ path, body: JSON.parse(init.body), authorization });
 		if (path === '/embed/revoke') {
+			await stand.holdRevoke?.();
 			return new Response(null, { status: 204 });
 		}
 		await stand.hold?.();
@@ -200,6 +203,126 @@ test('sign-out revokes the sign-in, then forgets it, also when the API cannot be
 	};
 	await newTab().signOut();
 	assert.equal(savedRenewal(), null, 'forgotten all the same');
+});
+
+test('endSiteSignIn ends the sign-in saved for its address and organization, with no timer showing it (#5580)', async () => {
+	saveRenewal(1);
+	saveRenewal(2, 'org-2');
+
+	await kit.endSiteSignIn({ apiUrl: API, organizationId: ORGANIZATION });
+
+	assert.deepEqual(
+		sent('/embed/revoke').map(({ body }) => body),
+		[{ renewalToken: renewalTokenFor(1) }]
+	);
+	assert.equal(savedRenewal(), null);
+	assert.equal(savedRenewal('org-2').renewalToken, renewalTokenFor(2), "another organization's sign-in stays");
+});
+
+test('endSiteSignIn waits for a renewal another timer runs, then ends the sign-in it saved', async () => {
+	saveRenewal(1);
+	let release;
+	api.hold = () => new Promise((resolve) => (release = resolve));
+	const renewing = newTab().getToken();
+	await settle();
+	const ending = kit.endSiteSignIn({ apiUrl: API, organizationId: ORGANIZATION });
+	await settle();
+
+	assert.deepEqual(sent('/embed/revoke'), [], 'nothing ended while the renewal runs');
+	api.hold = null;
+	release();
+	await renewing;
+	await ending;
+
+	assert.deepEqual(
+		sent('/embed/revoke').map(({ body }) => body),
+		[{ renewalToken: renewalTokenFor(2) }]
+	);
+	assert.equal(savedRenewal(), null, 'the renewed token is not left behind');
+});
+
+test(
+	'endSiteSignIn does not wait for a renewal that hangs, and forgets what that renewal saves later',
+	{ timeout: 30_000 },
+	async () => {
+		saveRenewal(1);
+		let release;
+		api.hold = () => new Promise((resolve) => (release = resolve));
+		const renewing = newTab().getToken();
+		await settle();
+		const started = Date.now();
+
+		await kit.endSiteSignIn({ apiUrl: API, organizationId: ORGANIZATION });
+
+		assert.ok(Date.now() - started < kit.SIGN_OUT_RENEWAL_WAIT_MS + 2_000, 'the sign-out ends past the wait');
+		assert.equal(savedRenewal(), null, 'forgotten while the renewal hangs');
+		assert.deepEqual(
+			sent('/embed/revoke').map(({ body }) => body),
+			[{ renewalToken: renewalTokenFor(1) }]
+		);
+
+		api.hold = null;
+		release();
+		await renewing.catch(() => undefined);
+		await settle();
+
+		assert.equal(savedRenewal(), null, 'what the late renewal saved is forgotten too');
+		assert.deepEqual(
+			sent('/embed/revoke').map(({ body }) => body),
+			[{ renewalToken: renewalTokenFor(1) }, { renewalToken: renewalTokenFor(2) }]
+		);
+	}
+);
+
+test(
+	'endSiteSignIn revokes once the lock is released: a revoke that hangs holds no new sign-in',
+	{ timeout: 10_000 },
+	async () => {
+		saveRenewal(1);
+		let release;
+		api.holdRevoke = () => new Promise((resolve) => (release = resolve));
+		const ending = kit.endSiteSignIn({ apiUrl: API, organizationId: ORGANIZATION });
+		await settle();
+		assert.equal(sent('/embed/revoke').length, 1, 'the revoke is on its way');
+
+		await newTab().accept(tokensFor(5));
+
+		assert.equal(
+			savedRenewal().renewalToken,
+			renewalTokenFor(5),
+			'the next sign-in is saved while the revoke hangs'
+		);
+		api.holdRevoke = null;
+		release();
+		await ending;
+		assert.deepEqual(
+			sent('/embed/revoke').map(({ body }) => body),
+			[{ renewalToken: renewalTokenFor(1) }]
+		);
+		assert.equal(
+			savedRenewal().renewalToken,
+			renewalTokenFor(5),
+			'the revoke of the previous sign-in forgets nothing new'
+		);
+	}
+);
+
+test("endSiteSignIn without an API address ends the sign-in of the page's, as a provider without apiUrl uses", async () => {
+	const previous = kit.apiConfigManager.getConfig().apiUrl;
+	kit.apiConfigManager.setConfig({ apiUrl: API });
+	saveRenewal(3);
+
+	try {
+		await kit.endSiteSignIn({ organizationId: ORGANIZATION });
+	} finally {
+		kit.apiConfigManager.setConfig({ apiUrl: previous });
+	}
+
+	assert.deepEqual(
+		sent('/embed/revoke').map(({ body }) => body),
+		[{ renewalToken: renewalTokenFor(3) }]
+	);
+	assert.equal(savedRenewal(), null);
 });
 
 test('a renewal token is saved for its API address and organization only', async () => {

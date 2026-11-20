@@ -48,7 +48,8 @@ before(async () => {
 		name: 'site-sign-in',
 		entry: `export { TeamsProvider } from '${kitSources}/components/teams-provider/teams-provider.tsx';
 			export { TeamsLoginDialog, UserNavMenu } from '${kitSources}/components/forms/auth-forms.tsx';
-			export { readStoredRenewal, saveStoredRenewal } from '${kitSources}/session/stored-session.ts';`,
+			export { readStoredRenewal, saveStoredRenewal } from '${kitSources}/session/stored-session.ts';
+			export { useSiteSignIn } from '${kitSources}/session/site-sign-in-context.ts';`,
 		standIns,
 		standInOf: kitStandInOf
 	});
@@ -152,7 +153,7 @@ async function settle() {
 	}
 }
 
-async function openPage(config = SITE) {
+async function openPage(config = SITE, extra = null) {
 	const container = document.createElement('div');
 	document.body.appendChild(container);
 	const root = createRoot(container);
@@ -161,7 +162,8 @@ async function openPage(config = SITE) {
 		kit.TeamsProvider,
 		{ config, onSignOut() {} },
 		React.createElement(kit.TeamsLoginDialog),
-		React.createElement(kit.UserNavMenu)
+		React.createElement(kit.UserNavMenu),
+		extra
 	);
 	await act(async () => root.render(tree));
 	await settle();
@@ -417,4 +419,44 @@ test("a timer set up for another organization does not renew this organization's
 	assert.equal(savedRenewal().renewalToken, renewalTokenFor(1), "org-1's sign-in stays for org-1's timers");
 	await click(signInButton());
 	assert.match(popup.opened.at(-1).url, /organization=org-2/);
+});
+
+test('a sign-out while the popup waits ends the popup: its later answer signs nobody in (#5580)', async () => {
+	let controls = null;
+	const Controls = () => {
+		controls = kit.useSiteSignIn();
+		return null;
+	};
+	await openPage(SITE, React.createElement(Controls));
+	await click(signInButton());
+
+	await act(async () => controls.signOut());
+	await settle();
+	await post(authorized(1));
+
+	assert.equal(savedRenewal(), null, 'no sign-in saved');
+	assert.equal(userReadWith(tokenFor(1)), false, 'the handed token is not used');
+	assert.ok(signInButton(), 'the person stays signed out');
+	assert.doesNotMatch(document.body.textContent, /AUTH.site_sign_in_waiting/);
+});
+
+// The package's entry: a React host signs the person out from its own sign-out, on a shared computer (#5580).
+test('the package exports the sign-in controls and the sign-out of a saved sign-in', () => {
+	const ts = require('typescript');
+	const fs = require('node:fs');
+	const entry = new URL('../src/index.ts', import.meta.url);
+	const source = ts.createSourceFile('index.ts', fs.readFileSync(entry, 'utf8'), ts.ScriptTarget.ES2022, true);
+	const exported = source.statements
+		.filter((statement) => ts.isExportDeclaration(statement) && statement.exportClause)
+		.flatMap((statement) => statement.exportClause.elements.map((element) => element.name.text));
+
+	for (const name of [
+		'useSiteSignIn',
+		'SiteSignInControls',
+		'SiteSignInStatus',
+		'endSiteSignIn',
+		'EndSiteSignInOptions'
+	]) {
+		assert.ok(exported.includes(name), name);
+	}
 });
