@@ -31,42 +31,33 @@ const standIns = {
 	'lucide-react': `export const ChevronLeft = ${nothing};
 		export const ChevronRight = ${nothing};
 		export const LoaderCircle = ${nothing};`,
-	teams: 'export const useOrganizationTeams = () => ({ data: { items: [] }, loading: false });',
-	context: `export const useTeamsContext = () => ({
+	// The kit's own modules, by the end of their path.
+	'hooks/useOrganizationTeams':
+		'export const useOrganizationTeams = () => ({ data: { items: [] }, loading: false });',
+	'context/teams-context': `export const useTeamsContext = () => ({
 		selectedTeam: '',
 		userOrganizations: globalThis.viewerOrganizations ?? null,
 		selectedOrganization: 'org-1'
 	});`,
-	parts: `export const TeamsTimerFooter = ${nothing};
-		export const TeamsTeamCreationFormDialog = ${nothing};`
+	'footers/component-footer': `export const TeamsTimerFooter = ${nothing};`,
+	'team/team-creation-form': `export const TeamsTeamCreationFormDialog = ${nothing};`
 };
-const BY_PATH = [
-	['hooks/useOrganizationTeams', 'teams'],
-	['context/teams-context', 'context'],
-	['component-footer', 'parts'],
-	['team-creation-form', 'parts']
-];
-const standInOf = (importPath) => {
-	const byPath = BY_PATH.find(([part]) => importPath.endsWith(part));
-	if (byPath) {
-		return byPath[1];
-	}
-	return Object.keys(standIns).find((name) => importPath === name);
-};
+// The stand-in an import names: the one whose name ends it, as the kit writes it (`@hooks/...`) or as a path.
+const standInOf = (importPath) => Object.keys(standIns).find((name) => importPath.endsWith(name));
 
-let kit;
+let TeamsTeamsViewer;
 let removeBundle;
 
 before(async () => {
-	const bundle = await bundleKit({
+	const { bundled, remove } = await bundleKit({
 		name: 'teams-viewer-title',
 		entry: `export { TeamsTeamsViewer } from '${kitSources}/components/teams-team/teams-teams-viewer.tsx';`,
 		standIns,
 		standInOf,
 		external: ['react-dom/server']
 	});
-	kit = bundle.bundled;
-	removeBundle = bundle.remove;
+	({ TeamsTeamsViewer } = bundled);
+	removeBundle = remove;
 });
 
 after(() => removeBundle?.());
@@ -76,7 +67,7 @@ function titleWith(organizations) {
 	try {
 		const { createElement } = require('react');
 		const { renderToStaticMarkup } = require('react-dom/server');
-		const markup = renderToStaticMarkup(createElement(kit.TeamsTeamsViewer));
+		const markup = renderToStaticMarkup(createElement(TeamsTeamsViewer));
 		return new JSDOM(`<!doctype html><body>${markup}</body>`).window.document.querySelector('h2').textContent;
 	} finally {
 		globalThis.viewerOrganizations = undefined;
