@@ -308,3 +308,20 @@ test('a range over a running timer is a conflict that carries the API code', asy
 		return true;
 	});
 });
+
+test('a refused date names its value in quotes, so that an empty one still shows (#5604)', async () => {
+	const api = standInApi({ 'GET /user/me': ME, 'GET /timesheet/time-log': [] });
+	const teams = createClient({ apiUrl: API_URL, token: 't', fetch: api.fetch });
+
+	await assert.rejects(teams.timeEntries.list({ from: '', to: '2026-11-18' }), {
+		code: 'INVALID_DATE',
+		message: '"" is not a date.'
+	});
+	await assert.rejects(teams.timeEntries.list({ from: '2026-02-31', to: '2026-03-01' }), {
+		message: '"2026-02-31" is not a date.'
+	});
+	await assert.rejects(teams.timeEntries.create({ startedAt: '2026-11-18', stoppedAt: '2026-11-18T10:00:00Z' }), {
+		message: '"2026-11-18" has no time of day.'
+	});
+	assert.equal(api.requests.length, 0);
+});

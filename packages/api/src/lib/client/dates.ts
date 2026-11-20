@@ -5,10 +5,18 @@ export type EverTeamsDate = string | Date;
 
 const DAY = /^(\d{4})-(\d{2})-(\d{2})$/;
 
+// A value as an error names it: a text in quotes, so that an empty one still shows (#5604).
+function shownValue(value: unknown): string {
+	if (typeof value === 'string') {
+		return JSON.stringify(value);
+	}
+	return String(value);
+}
+
 const invalidDate = (value: unknown) =>
 	clientError(
 		'INVALID_DATE',
-		`${String(value)} is not a date.`,
+		`${shownValue(value)} is not a date.`,
 		'Pass a day as YYYY-MM-DD, a Date, or an ISO date-time.'
 	);
 
@@ -67,7 +75,7 @@ export function instantAt(value: EverTeamsDate): Date {
 	if (hasNoTimeOfDay) {
 		throw clientError(
 			'INVALID_DATE',
-			`${value} has no time of day.`,
+			`${shownValue(value)} has no time of day.`,
 			'Pass a Date or an ISO date-time, such as 2026-11-18T09:00:00+01:00.'
 		);
 	}
