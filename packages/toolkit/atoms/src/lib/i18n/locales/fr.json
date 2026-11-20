@@ -88,6 +88,7 @@
 		"STOP_TIMER": "Arrêter le minuteur",
 		"TIMER_STARTED": "Minuteur démarré",
 		"TIMER_STOPPED": "Minuteur arrêté",
+		"already_stopped": "Votre minuteur était déjà arrêté.",
 		"show_details": "Afficher les détails du minuteur",
 		"hide_details": "Masquer les détails du minuteur"
 	},

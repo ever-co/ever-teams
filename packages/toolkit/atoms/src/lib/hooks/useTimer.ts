@@ -125,6 +125,18 @@ export const useTimer = () => {
 		await refreshEveryWidget();
 	};
 
+	// The API answers 406 to a stop when no entry of the person runs: it was stopped in another tab or app (#5626).
+	const reportAlreadyStopped = (isStillCurrent: () => boolean) => {
+		const message = t('TIME_TRACKER.already_stopped');
+		if (sharedStatus) {
+			if (isStillCurrent()) {
+				sharedStatus.reportNotice({ kind: 'other', message });
+			}
+			return;
+		}
+		toast({ description: message });
+	};
+
 	// A start or stop that got no answer.
 	const reportThrown = async (error: unknown, isStillCurrent: () => boolean) => {
 		if (sharedStatus) {
@@ -175,6 +187,11 @@ export const useTimer = () => {
 
 			if ('message' in timeSlot || 'error' in timeSlot) {
 				await readAgainAfterRefusal(timeSlot);
+				const wasAlreadyStopped = 'statusCode' in timeSlot && timeSlot.statusCode === 406;
+				if (wasAlreadyStopped) {
+					reportAlreadyStopped(isStillCurrent);
+					return;
+				}
 				await reportAnswer(timeSlot, isStillCurrent);
 				return;
 			}
