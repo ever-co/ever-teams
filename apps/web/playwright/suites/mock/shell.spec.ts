@@ -42,8 +42,11 @@ test.describe('authenticated shell', () => {
 		expect(paths).toContain('/api/timesheet/timer/status');
 		expect(paths).toContain('/api/daily-plan/me');
 
-		// The metadata bundle is fetched once per load, not once per widget.
-		expect(paths.filter((path) => path === '/api/task-metadata/bootstrap')).toHaveLength(1);
+		// The metadata bundle is fetched once per load, not once per widget: counted once the page's own requests have
+		// settled, so a duplicate that is still on its way (the mock logs a request when it answers it) is counted too.
+		await page.waitForLoadState('networkidle');
+		const settled = (await mock.requests()).filter((request) => request.path === '/api/task-metadata/bootstrap');
+		expect(settled, 'the metadata bundle was fetched more than once').toHaveLength(1);
 
 		await expect(page).toHaveURL(/\/team\/tasks/);
 	});
