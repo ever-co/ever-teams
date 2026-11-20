@@ -44,6 +44,18 @@ describe('the Auth.js route and framing', () => {
 		);
 	});
 
+	it('sends a person to the error page Auth.js chose, whose own answer cannot take a header', async () => {
+		const errorPage = 'http://localhost:3030/api/auth/error?error=AccessDenied';
+		mockGet.mockImplementationOnce(async () => Response.redirect(errorPage));
+		const response = await GET(
+			new NextRequest('http://localhost:3030/api/auth/callback/google?error=access_denied')
+		);
+
+		expect(response.status).toBe(302);
+		expect(response.headers.get('location')).toBe(errorPage);
+		expect(response.headers.get('Content-Security-Policy')).toBe("frame-ancestors 'self'");
+	});
+
 	it('hands the request to Auth.js unchanged', async () => {
 		const request = new NextRequest('http://localhost:3030/api/auth/session');
 		await GET(request);
