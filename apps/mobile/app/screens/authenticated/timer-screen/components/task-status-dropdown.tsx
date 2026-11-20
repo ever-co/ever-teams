@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
-import { AntDesign } from '@expo/vector-icons';
+import { ChevronDown, ChevronUp } from '../../../../../src/components/icons';
 import { ITeamTask } from '../../../../services/interfaces/ITask';
 
 // COMPONENTS
@@ -42,9 +42,9 @@ const TaskStatusDropdown: FC<Props> = observer(({ task }) => {
 				</View>
 
 				{isOpened ? (
-					<AntDesign name="up" size={18} color={colors.primary} />
+					<ChevronUp size={18} color={colors.primary} />
 				) : (
-					<AntDesign name="down" size={18} color={colors.primary} />
+					<ChevronDown size={18} color={colors.primary} />
 				)}
 			</TouchableOpacity>
 			{isOpened && <TaskStatusList onDismiss={() => setIsOpened(false)} />}
