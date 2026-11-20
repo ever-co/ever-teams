@@ -2,7 +2,7 @@ import React, { forwardRef } from 'react';
 import { StyleSheet, TextInput } from 'react-native';
 import { TextField, TextFieldProps } from '../../../components/text-field';
 import { typography, useWebTheme } from '../../../theme';
-import { AUTH_CONTROL_HEIGHT, authLabelLookOf } from '../../../../src/theme/auth-look';
+import { AUTH_CONTROL_HEIGHT, authFieldBorderColorOf, authLabelLookOf } from '../../../../src/theme/auth-look';
 import { inputLookOf } from '../../../../src/theme/form-look';
 
 type SignInFieldProps = Omit<
@@ -17,6 +17,8 @@ export const SignInField = forwardRef<TextInput, Readonly<SignInFieldProps>>(fun
 ) {
 	const theme = useWebTheme();
 	const input = inputLookOf(theme);
+	// after the input's own border, which would hide the error one TextField sets first
+	const border = { borderColor: authFieldBorderColorOf(props.status === 'error', theme) };
 
 	return (
 		<TextField
@@ -26,7 +28,7 @@ export const SignInField = forwardRef<TextInput, Readonly<SignInFieldProps>>(fun
 			LabelTextProps={{ style: [styles.label, authLabelLookOf(theme)] }}
 			containerStyle={styles.container}
 			placeholderTextColor={input.placeholderColor}
-			inputWrapperStyle={[styles.field, input.field, { backgroundColor: theme.colors.background }]}
+			inputWrapperStyle={[styles.field, input.field, border, { backgroundColor: theme.colors.background }]}
 		/>
 	);
 });

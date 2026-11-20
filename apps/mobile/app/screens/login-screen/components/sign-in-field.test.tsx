@@ -49,4 +49,12 @@ describe('a sign-in field', () => {
 			height: 44
 		});
 	});
+
+	it('keeps the error border while the field shows an error', async () => {
+		await render(<SignInField label="Enter Email" testID="sign-in-email" status="error" />);
+
+		expect(StyleSheet.flatten(screen.getByTestId('sign-in-email').props.style).borderColor).toBe(
+			dark.colors.destructive
+		);
+	});
 });

@@ -23,6 +23,14 @@ export function authHeadingLookOf(theme: Theme): { title: TextStyle; description
 	};
 }
 
+/** A field's border: the input color, destructive while the field shows an error. */
+export function authFieldBorderColorOf(hasError: boolean, theme: Theme): string {
+	if (hasError) {
+		return theme.colors.destructive;
+	}
+	return theme.colors.input;
+}
+
 /** A field's label, 13 in the foreground, above its field. */
 export function authLabelLookOf(theme: Theme): TextStyle {
 	return { color: theme.colors.foreground, fontSize: 13, lineHeight: 16, marginBottom: 8 };

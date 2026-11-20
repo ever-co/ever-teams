@@ -1,4 +1,10 @@
-import { authCodeSlotLookOf, authHeadingLookOf, authLabelLookOf, authSubmitLookOf } from './auth-look';
+import {
+	authCodeSlotLookOf,
+	authFieldBorderColorOf,
+	authHeadingLookOf,
+	authLabelLookOf,
+	authSubmitLookOf
+} from './auth-look';
 import { themeFor } from './use-theme';
 
 const dark = themeFor('dark');
@@ -34,5 +40,10 @@ describe("sign-in's look", () => {
 	it('outlines a code slot in the input color, in primary while it holds the focus', () => {
 		expect(authCodeSlotLookOf(false, dark)).toMatchObject({ borderColor: dark.colors.input, height: 40 });
 		expect(authCodeSlotLookOf(true, dark).borderColor).toBe(dark.colors.primary);
+	});
+
+	it('outlines a field in the input color, in destructive while it shows an error', () => {
+		expect(authFieldBorderColorOf(false, light)).toBe(light.colors.input);
+		expect(authFieldBorderColorOf(true, light)).toBe(light.colors.destructive);
 	});
 });
