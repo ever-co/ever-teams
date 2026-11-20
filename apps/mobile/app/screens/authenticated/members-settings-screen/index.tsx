@@ -10,7 +10,7 @@ import {
 } from '../../../navigators/authenticated-navigator';
 import { Screen } from '../../../components';
 import { typography, useAppTheme } from '../../../theme';
-import { AntDesign, Feather } from '@expo/vector-icons';
+import { ArrowLeft, Plus, X } from '../../../../src/components/icons';
 import { translate } from '../../../i18n';
 import { useStores } from '../../../models';
 import MembersList from './components/members-list';
@@ -85,7 +85,7 @@ export const MembersSettingsScreen: FC<AuthenticatedDrawerScreenProps<'MembersSe
 			<View style={[$headerContainer, { backgroundColor: colors.background }]}>
 				<View style={[styles.container, { backgroundColor: colors.background }]}>
 					<TouchableOpacity onPress={() => navigateTo(navigation, 'Setting', { activeTab: 2 })}>
-						<AntDesign name="arrow-left" size={24} color={colors.primary} />
+						<ArrowLeft size={24} color={colors.primary} />
 					</TouchableOpacity>
 					<Text style={[styles.title, { color: colors.primary }]}>
 						{translate('settingScreen.membersSettingsScreen.mainTitle')}
@@ -94,12 +94,12 @@ export const MembersSettingsScreen: FC<AuthenticatedDrawerScreenProps<'MembersSe
 						<TouchableOpacity onPress={() => selectMode && setShowDropdownMenu(!showDropdownMenu)}>
 							{selectMode ? (
 								showDropdownMenu ? (
-									<AntDesign name="close" size={24} color={colors.primary} />
+									<X size={24} color={colors.primary} />
 								) : (
 									<SvgXml xml={dark ? moreButtonDark : moreButtonLight} />
 								)
 							) : (
-								<Feather name="plus" size={24} color={colors.primary} />
+								<Plus size={24} color={colors.primary} />
 							)}
 						</TouchableOpacity>
 						<MenuDropdown
