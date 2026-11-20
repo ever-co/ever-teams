@@ -6,7 +6,8 @@ import React, { SetStateAction, useCallback, useMemo, useState } from "react"
 import { IOrganizationTeamList, OT_Member } from "../../../../services/interfaces/IOrganizationTeam"
 import { Avatar } from "react-native-paper"
 import { imgTitleProfileAvatar } from "../../../../helpers/img-title-profile-avatar"
-import { typography, useAppTheme } from "../../../../theme"
+import { typography, useAppTheme, useWebTheme } from "../../../../theme"
+import { inputLookOf } from "../../../../../src/theme/form-look"
 import moment from "moment-timezone"
 import { SvgXml } from "react-native-svg"
 import { searchIconDark, searchIconLight } from "../../../../components/svgs/icons"
@@ -55,6 +56,7 @@ const MembersList: React.FC<IMembersList> = ({
 	// const [selectedMembers, setSelectedMembers] = useState<OT_Member[]>([])
 
 	const { dark, colors } = useAppTheme()
+	const input = inputLookOf(useWebTheme())
 
 	const membersList = teamList?.members?.filter(
 		(member) =>
@@ -67,15 +69,15 @@ const MembersList: React.FC<IMembersList> = ({
 			<View
 				style={[
 					styles.searchContainer,
-					{ borderColor: dark ? colors.border : "#0000001A" },
+					{ borderColor: input.field.borderColor },
 				]}
 			>
 				<TextInput
 					placeholder={translate("settingScreen.membersSettingsScreen.searchPlaceholder")}
 					value={filteredMembersList}
 					onChangeText={(text) => setFilteredMembersList(text)}
-					style={[styles.textInput, { color: colors.primary }]}
-					placeholderTextColor={colors.primary}
+					style={[styles.textInput, { color: input.field.color }]}
+					placeholderTextColor={input.placeholderColor}
 				/>
 				<SvgXml xml={dark ? searchIconDark : searchIconLight} style={styles.searchIcon} />
 			</View>
