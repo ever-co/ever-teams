@@ -26,10 +26,20 @@ describe("a property's label on the task page", () => {
 			color: dark.colors['muted-foreground'],
 			fontSize: 13
 		});
-		expect(StyleSheet.flatten(screen.getByTestId('icon-circle').props.style)).toEqual({
+		expect(
+			StyleSheet.flatten(screen.getByTestId('icon-circle', { includeHiddenElements: true }).props.style)
+		).toEqual({
 			color: dark.colors['muted-foreground'],
 			fontSize: 16
 		});
+	});
+
+	it('keeps its icon from a screen reader, which reads the label alone', async () => {
+		await render(<PropertyLabel label="Status" icon="circle" />);
+
+		expect(screen.queryByTestId('icon-circle')).toBeNull();
+		expect(screen.getByTestId('icon-circle', { includeHiddenElements: true })).toBeTruthy();
+		expect(screen.getByText('Status')).toBeTruthy();
 	});
 
 	it('wraps a long label on two lines rather than cutting it', async () => {
