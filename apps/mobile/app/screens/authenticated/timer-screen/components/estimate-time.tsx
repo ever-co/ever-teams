@@ -189,12 +189,10 @@ const EstimateTime: FC<Props> = ({ setEditEstimate, currentTask, setEstimateTime
 			</View>
 			<Text style={[styles.suffix, { color: colors.primary }]}>{' m'}</Text>
 			{showCheckIcon && (
-				<Check
-					size={25}
-					color={'green'}
-					onPress={() => handleSubmit()}
-					style={timerScreen ? { position: 'absolute', right: -24 } : undefined}
-				/>
+				// The Hugeicons drawing drops a style prop, so the timer screen places the mark through its wrapper
+				<View style={timerScreen ? { position: 'absolute', right: -24 } : undefined}>
+					<Check size={25} color={'green'} onPress={() => handleSubmit()} />
+				</View>
 			)}
 			{isLoading && (
 				<ActivityIndicator
