@@ -13,7 +13,7 @@ import { APP_NAME, DEFAULT_APP_PATH } from '@/core/constants/config/constants';
 import { useReactiveAccessTokenCookie } from '@/core/hooks/auth/use-reactive-access-token-cookie';
 import { useAuthorizeEmbedSite } from '@/core/hooks/embeds/use-authorize-embed-site';
 import { useTeamMenuOrganizations } from '@/core/hooks/organizations/teams/use-team-menu-organizations';
-import { setPathAfterSignIn } from '@/core/lib/auth/navigate-after-sign-in';
+import { setPathAfterSlowSignIn } from '@/core/lib/auth/navigate-after-sign-in';
 import {
 	currentPageOf,
 	embedAuthorizeRequestOf,
@@ -106,7 +106,7 @@ function SiteFacts({ origin, organizationName }: Readonly<{ origin: string; orga
 function SignInFirst({ request }: Readonly<{ request: EmbedAuthorizeRequest }>) {
 	const t = useTranslations();
 	const signIn = () => {
-		setPathAfterSignIn(currentPageOf(window));
+		setPathAfterSlowSignIn(currentPageOf(window));
 		window.location.assign(DEFAULT_APP_PATH);
 	};
 	return (
@@ -138,7 +138,7 @@ function Consent({
 	const [refusal, setRefusal] = useState<EmbedSiteRefusal | null>(null);
 	// Set by "Not you?": an answer that arrives while the sign-out runs belongs to the account the person rejected.
 	const leaving = useRef(false);
-	const comeBackAfterSignIn = () => setPathAfterSignIn(currentPageOf(window));
+	const comeBackAfterSignIn = () => setPathAfterSlowSignIn(currentPageOf(window));
 	const notYou = () => {
 		leaving.current = true;
 		comeBackAfterSignIn();
