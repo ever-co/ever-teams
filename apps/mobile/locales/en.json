@@ -588,14 +588,16 @@
 		"search": {
 			"status": "Change status…",
 			"priority": "Set priority to…",
-			"size": "Set size to…"
+			"size": "Set size to…",
+			"label": "Add labels…"
 		},
 		"noResults": "No results",
 		"noOptions": "Nothing to pick yet",
 		"actions": {
 			"createStatus": "Create status",
 			"createPriority": "Create priority",
-			"createSize": "Create size"
+			"createSize": "Create size",
+			"createLabel": "Create label"
 		}
 	}
 }

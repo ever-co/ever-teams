@@ -588,14 +588,16 @@
 		"search": {
 			"status": "שינוי סטטוס…",
 			"priority": "הגדרת עדיפות…",
-			"size": "הגדרת גודל…"
+			"size": "הגדרת גודל…",
+			"label": "הוספת תוויות…"
 		},
 		"noResults": "אין תוצאות",
 		"noOptions": "עדיין אין מה לבחור",
 		"actions": {
 			"createStatus": "יצירת סטטוס",
 			"createPriority": "יצירת עדיפות",
-			"createSize": "יצירת גודל"
+			"createSize": "יצירת גודל",
+			"createLabel": "יצירת תווית"
 		}
 	}
 }
