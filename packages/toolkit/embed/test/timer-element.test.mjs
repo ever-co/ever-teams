@@ -390,9 +390,11 @@ test('token-url keeps its getToken through other changes, gives a new one for an
 
 	await act(async () => element.setAttribute('color-scheme', 'dark'));
 	assert.equal(globalThis.lastConfig.getToken, first);
+	assert.equal(globalThis.unmounted, 0, 'the same session');
 
 	await act(async () => element.setAttribute('token-url', '/other/token'));
 	assert.notEqual(globalThis.lastConfig.getToken, first);
+	assert.equal(globalThis.unmounted, 1, 'another route starts a new session, with no account of the previous one');
 
 	await act(async () => element.removeAttribute('token-url'));
 	assert.equal(globalThis.lastConfig.getToken, undefined);

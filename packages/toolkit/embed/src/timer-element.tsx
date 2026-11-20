@@ -247,7 +247,9 @@ export class EverTeamsTimerElement extends HTMLElement {
 		}
 		this.root.render(
 			<CacheProvider value={this.cache}>
+				{/* A new token-url is a new session: the kit starts afresh rather than keep the account of the previous route. */}
 				<TeamsProvider
+					key={this.getAttribute('token-url') ?? ''}
 					config={{ ...configOf(apiUrl, this.hadApiUrl), ...signInConfigOf(this), ...this.hostTokenConfig() }}
 					scopedStyles
 					colorScheme={colorSchemeOf(this.getAttribute('color-scheme'))}
