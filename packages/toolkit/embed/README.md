@@ -203,8 +203,8 @@ reload stays signed in where the browser lets the page store it (not in a window
 renews the timer token about a minute before it expires, one tab at a time under Web Locks; a browser without them
 gets a best-effort lock in `localStorage`, where a race can end the sign-in and ask the person to sign in again. The
 user menu signs out: the element forgets the sign-in and asks the API to end it, and when the API cannot be reached,
-the person revokes the site from the web app. When the person or an administrator revokes the site, the element shows
-the button again at its next renewal. [Sign in with Ever Teams](https://github.com/ever-co/ever-teams/tree/develop/packages/toolkit/atoms#sign-in-with-ever-teams)
+an administrator removes the site or turns its sign-in off in Settings > Workspace > Embeds. When the sign-in ends
+that way, or the API revokes it, the element shows the button again at its next renewal. [Sign in with Ever Teams](https://github.com/ever-co/ever-teams/tree/develop/packages/toolkit/atoms#sign-in-with-ever-teams)
 in the README of `@ever-teams/atoms` says what happens in each case.
 
 The sign-in is kept for the API address and organization, not for a user of your page. On a computer people share,
