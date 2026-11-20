@@ -1,12 +1,9 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { SettingsSection, SettingsSurface } from '@/core/components/settings/kit/settings-page';
+import { publicApiOriginOrPlaceholder } from '@/core/lib/utils/public-api-origin';
 import { exchangeUrlOf } from '@/core/lib/utils/user-api-tokens';
-
-/** Stands for the API's address when the browser reaches the API through the app's own server and does not know it. */
-const API_URL_PLACEHOLDER = 'API_URL';
 
 function exchangeCommandOf(url: string): string {
 	return [
@@ -19,8 +16,7 @@ function exchangeCommandOf(url: string): string {
 /** How a script uses a token: trade it at the exchange route for an access token, then call the API as usual. */
 export function ApiTokenUsageSection() {
 	const t = useTranslations();
-	const apiOrigin = GAUZY_API_BASE_SERVER_URL.value || API_URL_PLACEHOLDER;
-	const command = exchangeCommandOf(exchangeUrlOf(apiOrigin));
+	const command = exchangeCommandOf(exchangeUrlOf(publicApiOriginOrPlaceholder()));
 
 	return (
 		<SettingsSection id="api-token-usage" title={t('settings.apiTokens.USAGE_TITLE')}>

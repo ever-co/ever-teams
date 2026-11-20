@@ -3,6 +3,7 @@ import {
 	type TUserApiToken,
 	type TUserApiTokenExpiry
 } from '@/core/types/schemas/user/user-api-token.schema';
+import { withoutTrailingSlashes } from './public-api-origin';
 
 /** Gauzy refuses a new token while the person holds this many working ones (`MAX_ACTIVE_USER_API_TOKENS`). */
 export const MAX_ACTIVE_USER_API_TOKENS = 10;
@@ -109,11 +110,7 @@ export function sortUserApiTokens(tokens: ReadonlyArray<TUserApiToken>, now: Dat
  * else the route alone, on whatever address the deployment gives its API.
  */
 export function exchangeUrlOf(apiOrigin = ''): string {
-	let end = apiOrigin.length;
-	while (end > 0 && apiOrigin[end - 1] === '/') {
-		end -= 1;
-	}
-	return `${apiOrigin.slice(0, end)}${EXCHANGE_PATH}`;
+	return `${withoutTrailingSlashes(apiOrigin)}${EXCHANGE_PATH}`;
 }
 
 const DAY_MS = 24 * 60 * 60 * 1000;

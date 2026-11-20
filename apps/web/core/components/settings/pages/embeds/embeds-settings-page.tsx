@@ -33,6 +33,7 @@ import { formatUserApiTokenDate } from '@/core/lib/utils/user-api-tokens';
 import { cn } from '@/core/lib/helpers';
 import { isOriginLike, type EmbedAllowedOrigin, type EmbedCredential } from '@/core/types/schemas/embeds/embed.schema';
 import { CreateEmbedCredentialDialog } from './create-embed-credential-dialog';
+import { EmbedTimerCodeSection } from './embed-timer-code-section';
 
 function RowsSkeleton() {
 	return (
@@ -513,6 +514,7 @@ function EmbedsBody({
 	return (
 		<>
 			<AllowedOriginsSection canAllowPersonSignIn={canAllowPersonSignIn} />
+			{canAllowPersonSignIn && <EmbedTimerCodeSection />}
 			<CredentialsSection canLimitToClient={canLimitToClient} canAllowAddMembers={canAllowAddMembers} />
 		</>
 	);
