@@ -53,4 +53,11 @@ for (const name of ['ExpandIcon', 'CollapseIcon']) {
 		assert.deepEqual(new Set(strokes), new Set(['currentColor']));
 		assert.match(markup, /width="10"/);
 	});
+
+	test(`${name} is decorative: the control that draws it carries the name`, () => {
+		const markup = renderToStaticMarkup(createElement(icons[name], { size: 10 }));
+
+		assert.match(markup, /^<svg[^>]* aria-hidden="true"/);
+		assert.doesNotMatch(markup, /<title|aria-label|role=/);
+	});
 }
