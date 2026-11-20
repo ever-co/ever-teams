@@ -10,62 +10,55 @@ import { dataColorHueOf } from '../theme/data-color';
 export type TaskPropertyKind = 'status' | 'priority' | 'size' | 'label';
 
 type StatusGlyph = 'backlog' | 'todo' | 'started' | 'review' | 'blocked' | 'done' | 'canceled';
-type PriorityGlyph = 'none' | 'urgent' | 'bars';
 
-const STATUS_GLYPH_BY_NAME: Record<string, StatusGlyph> = {
-	backlog: 'backlog',
-	open: 'todo',
-	todo: 'todo',
-	'to do': 'todo',
-	ready: 'todo',
-	'in progress': 'started',
-	'ready for review': 'review',
-	'in review': 'review',
-	'for testing': 'review',
-	testing: 'review',
-	blocked: 'blocked',
-	done: 'done',
-	completed: 'done',
-	closed: 'canceled',
-	cancelled: 'canceled',
-	canceled: 'canceled'
-};
-const PRIORITY_GLYPH_BY_NAME: Record<string, PriorityGlyph> = {
-	none: 'none',
-	'no priority': 'none',
-	urgent: 'urgent',
-	highest: 'urgent',
-	critical: 'urgent',
-	high: 'bars',
-	medium: 'bars',
-	normal: 'bars',
-	low: 'bars',
-	lowest: 'bars'
-};
-const PRIORITY_LEVEL_BY_NAME: Record<string, number> = {
-	high: 3,
-	medium: 2,
-	normal: 2,
-	low: 1,
-	lowest: 1
-};
-const SIZE_LEVEL_BY_NAME: Record<string, number> = {
-	tiny: 1,
-	'extra small': 1,
-	xs: 1,
-	small: 2,
-	medium: 3,
-	large: 4,
-	'x large': 5,
-	'extra large': 5,
-	xl: 5
-};
-const SIZE_SQUARE_SIDES = [2.5, 3.75, 5, 6, 7];
-const PRIORITY_BARS = [
-	{ x: 1.5, y: 8, height: 4.5 },
-	{ x: 5.5, y: 5, height: 7.5 },
-	{ x: 9.5, y: 2, height: 10.5 }
-];
+interface PriorityLook {
+	glyph: 'none' | 'urgent' | 'bars';
+	/** How many of the three bars are filled. */
+	level: number;
+}
+
+type NamedGroup<T> = readonly [T, readonly string[]];
+
+/** Each value, with the names the web draws it for. */
+function lookupOf<T>(groups: ReadonlyArray<NamedGroup<T>>): ReadonlyMap<string, T> {
+	const lookup = new Map<string, T>();
+	for (const [value, names] of groups) {
+		for (const name of names) {
+			lookup.set(name, value);
+		}
+	}
+	return lookup;
+}
+
+const STATUS_GLYPH_BY_NAME = lookupOf<StatusGlyph>([
+	['backlog', ['backlog']],
+	['todo', ['open', 'todo', 'to do', 'ready']],
+	['started', ['in progress']],
+	['review', ['ready for review', 'in review', 'for testing', 'testing']],
+	['blocked', ['blocked']],
+	['done', ['done', 'completed']],
+	['canceled', ['closed', 'cancelled', 'canceled']]
+]);
+const PRIORITY_BY_NAME = lookupOf<PriorityLook>([
+	[{ glyph: 'none', level: 0 }, ['none', 'no priority']],
+	[{ glyph: 'urgent', level: 0 }, ['urgent', 'highest', 'critical']],
+	[{ glyph: 'bars', level: 3 }, ['high']],
+	[{ glyph: 'bars', level: 2 }, ['medium', 'normal']],
+	[{ glyph: 'bars', level: 1 }, ['low', 'lowest']]
+]);
+/** The side of the square a size fills inside its frame, from tiny to extra large. */
+const SIZE_SQUARE_SIDE_BY_NAME = lookupOf<number>([
+	[2.5, ['tiny', 'extra small', 'xs']],
+	[3.75, ['small']],
+	[5, ['medium']],
+	[6, ['large']],
+	[7, ['x large', 'extra large', 'xl']]
+]);
+/** The three priority bars stand on the same baseline, 4 apart, each taller than the last. */
+const PRIORITY_BAR_HEIGHTS = [4.5, 7.5, 10.5];
+const PRIORITY_BAR_BASELINE = 12.5;
+const PRIORITY_BAR_STEP = 4;
+const PRIORITY_BAR_FIRST_X = 1.5;
 
 /** A value's name as the glyph tables read it: lower case, hyphens and underscores as spaces. */
 export function normalizePropertyName(name: string | null | undefined): string {
@@ -148,7 +141,8 @@ function priorityBarOpacity(index: number, level: number) {
 }
 
 function PriorityShape({ name, color, card }: Readonly<{ name: string; color: string; card: string }>) {
-	const glyph = PRIORITY_GLYPH_BY_NAME[name];
+	const priority = PRIORITY_BY_NAME.get(name);
+	const glyph = priority?.glyph;
 	if (glyph === 'none') {
 		return <Path d="M2 7h2M6 7h2M10 7h2" stroke={color} strokeWidth="1.5" strokeLinecap="round" />;
 	}
@@ -162,16 +156,16 @@ function PriorityShape({ name, color, card }: Readonly<{ name: string; color: st
 		);
 	}
 	if (glyph === 'bars') {
-		const level = PRIORITY_LEVEL_BY_NAME[name];
+		const level = priority?.level ?? 0;
 		return (
 			<>
-				{PRIORITY_BARS.map((bar, index) => (
+				{PRIORITY_BAR_HEIGHTS.map((height, index) => (
 					<Rect
-						key={bar.x}
-						x={bar.x}
-						y={bar.y}
+						key={height}
+						x={PRIORITY_BAR_FIRST_X + index * PRIORITY_BAR_STEP}
+						y={PRIORITY_BAR_BASELINE - height}
 						width="3"
-						height={bar.height}
+						height={height}
 						rx="1"
 						fill={color}
 						fillOpacity={priorityBarOpacity(index, level)}
@@ -184,11 +178,10 @@ function PriorityShape({ name, color, card }: Readonly<{ name: string; color: st
 }
 
 function SizeShape({ name, color }: Readonly<{ name: string; color: string }>) {
-	const level = SIZE_LEVEL_BY_NAME[name];
-	if (!level) {
+	const side = SIZE_SQUARE_SIDE_BY_NAME.get(name);
+	if (side === undefined) {
 		return <Circle cx="7" cy="7" r="3.5" fill={color} />;
 	}
-	const side = SIZE_SQUARE_SIDES[level - 1];
 	return (
 		<>
 			<Rect
@@ -220,7 +213,7 @@ export function TaskPropertyIcon({ kind, name, color, size = 16 }: Readonly<ITas
 	const glyphColor = dataColorHueOf(color) ?? theme.colors['muted-foreground'];
 	const card = theme.colors.card;
 	const normalized = normalizePropertyName(name);
-	const statusGlyph = STATUS_GLYPH_BY_NAME[normalized] ?? 'todo';
+	const statusGlyph = STATUS_GLYPH_BY_NAME.get(normalized) ?? 'todo';
 	return (
 		<Svg testID={`property-icon-${kind}`} width={size} height={size} viewBox="0 0 14 14" fill="none">
 			{kind === 'status' && <StatusShape glyph={statusGlyph} color={glyphColor} card={card} />}

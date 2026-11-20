@@ -66,4 +66,39 @@ describe("a task property's glyph", () => {
 
 		expect(screen.getByTestId('circle').props).toMatchObject({ r: '3.5', fill: light.colors['muted-foreground'] });
 	});
+
+	it('places the priority bars on one baseline, 4 apart, all filled for High', async () => {
+		await render(<TaskPropertyIcon kind="priority" name="High" color="#ece8fc" />);
+
+		const bars = screen.getAllByTestId('rect');
+		expect(bars.map((bar) => [bar.props.x, bar.props.y, bar.props.height])).toEqual([
+			[1.5, 8, 4.5],
+			[5.5, 5, 7.5],
+			[9.5, 2, 10.5]
+		]);
+		expect(bars.map((bar) => bar.props.fillOpacity)).toEqual([1, 1, 1]);
+	});
+
+	it('draws Critical as the urgent square', async () => {
+		await render(<TaskPropertyIcon kind="priority" name="Critical" color="#ffcc00" />);
+
+		expect(screen.getByTestId('rect').props).toMatchObject({ width: '12', height: '12', rx: '3' });
+	});
+
+	it('reads a name the way the web spells it, hyphens and underscores as spaces', async () => {
+		await render(<TaskPropertyIcon kind="status" name="for_testing" color="#ffcc00" />);
+
+		expect(screen.getByTestId('path').props.d).toBe('M7 7V4a3 3 0 1 1-3 3Z');
+	});
+
+	it('draws an Extra-Large size with a square of side 7, and an unknown size as a dot', async () => {
+		const { rerender } = await render(<TaskPropertyIcon kind="size" name="Extra-Large" color="#f5e6b8" />);
+
+		expect(screen.getAllByTestId('rect')[1].props).toMatchObject({ width: 7, y: 3.5 });
+
+		await rerender(<TaskPropertyIcon kind="size" name="Huge" color="#f5e6b8" />);
+
+		expect(screen.queryAllByTestId('rect')).toHaveLength(0);
+		expect(screen.getByTestId('circle').props.r).toBe('3.5');
+	});
 });
