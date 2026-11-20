@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
 import React, { useEffect, useState } from 'react';
-import { AntDesign } from '@expo/vector-icons';
+import { ChevronDown } from '../../../../../src/components/icons';
 import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import TimezonePopup from './timezone-popup';
 import { IUser } from '../../../../services/interfaces/IUserData';
@@ -74,7 +74,7 @@ const UserTimezone = ({
 					<Text style={{ ...styles.text, color: colors.primary }}>
 						{limitTextCharaters({ text: userTimeZone, numChars: 32 })}
 					</Text>
-					<AntDesign name="down" size={20} color={colors.primary} />
+					<ChevronDown size={20} color={colors.primary} />
 				</TouchableOpacity>
 			</View>
 

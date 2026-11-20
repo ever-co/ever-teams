@@ -13,7 +13,7 @@ import {
 	Pressable,
 	FlatList
 } from 'react-native';
-import { AntDesign, FontAwesome } from '@expo/vector-icons';
+import { Circle, CircleCheck } from '../../../../../src/components/icons';
 
 // COMPONENTS
 import { ILanguageItemList } from '../../../../services/interfaces/IUserData';
@@ -105,13 +105,9 @@ const LanguageModal: FC<Props> = function FilterPopup({ visible, onDismiss, onLa
 							>
 								<Text style={{ ...styles.tzTitle, color: colors.primary }}>{item.name}</Text>
 								{selectedLanguage?.id === item.id ? (
-									<AntDesign name="check-circle" color={'#27AE60'} size={24} />
+									<CircleCheck color={'#27AE60'} size={24} />
 								) : (
-									<FontAwesome
-										name="circle-thin"
-										size={24}
-										color={dark ? colors.border : 'rgba(40, 32, 72, 0.43)'}
-									/>
+									<Circle size={24} color={dark ? colors.border : 'rgba(40, 32, 72, 0.43)'} />
 								)}
 							</Pressable>
 						)}

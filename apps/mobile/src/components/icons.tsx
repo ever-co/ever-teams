@@ -12,12 +12,15 @@ import BellIcon from '@hugeicons/core-free-icons/BellIcon';
 import Calendar03Icon from '@hugeicons/core-free-icons/Calendar03Icon';
 import Cancel01Icon from '@hugeicons/core-free-icons/Cancel01Icon';
 import ChartHistogramIcon from '@hugeicons/core-free-icons/ChartHistogramIcon';
+import CheckmarkCircle02Icon from '@hugeicons/core-free-icons/CheckmarkCircle02Icon';
+import CircleIcon from '@hugeicons/core-free-icons/CircleIcon';
 import Clock01Icon from '@hugeicons/core-free-icons/Clock01Icon';
 import ComputerIcon from '@hugeicons/core-free-icons/ComputerIcon';
 import Copy01Icon from '@hugeicons/core-free-icons/Copy01Icon';
 import CornerDownRightIcon from '@hugeicons/core-free-icons/CornerDownRightIcon';
 import DashedLineCircleIcon from '@hugeicons/core-free-icons/DashedLineCircleIcon';
 import Delete02Icon from '@hugeicons/core-free-icons/Delete02Icon';
+import File01Icon from '@hugeicons/core-free-icons/File01Icon';
 import Flag01Icon from '@hugeicons/core-free-icons/Flag01Icon';
 import GitBranchIcon from '@hugeicons/core-free-icons/GitBranchIcon';
 import GlobalIcon from '@hugeicons/core-free-icons/GlobalIcon';
@@ -101,8 +104,11 @@ export const Version = icon(GitBranchIcon, 'Version');
 
 // Actions and states
 export const Check = icon(Tick02Icon, 'Check');
+export const Circle = icon(CircleIcon, 'Circle');
 export const CircleAlert = icon(AlertCircleIcon, 'CircleAlert');
+export const CircleCheck = icon(CheckmarkCircle02Icon, 'CircleCheck');
 export const Copy = icon(Copy01Icon, 'Copy');
+export const FileText = icon(File01Icon, 'FileText');
 export const Info = icon(InformationCircleIcon, 'Info');
 export const Pencil = icon(PencilEdit02Icon, 'Pencil');
 export const Plus = icon(PlusSignIcon, 'Plus');

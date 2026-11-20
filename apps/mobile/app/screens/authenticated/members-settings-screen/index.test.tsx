@@ -6,12 +6,9 @@ import { MembersSettingsScreen } from './index';
 // The screen draws through stand-ins: the test reads where its back arrow goes
 jest.mock('../../../navigators/routes', () => ({ navigateTo: jest.fn() }));
 jest.mock('@react-navigation/native', () => ({ useNavigation: () => ({}) }));
-jest.mock('@expo/vector-icons', () => {
-	const { createElement } = jest.requireActual('react');
-	const { Text } = jest.requireActual('react-native');
-	const icon = ({ name }: { name: string }) => createElement(Text, null, `icon ${name}`);
-	return { AntDesign: icon, Feather: icon };
-});
+jest.mock('../../../../src/components/icons', () =>
+	jest.requireActual('../../../../test/icons-stand-in').iconsStandIn()
+);
 jest.mock('../../../components', () => ({
 	Screen: ({ children }: { children: React.ReactNode }) => children
 }));
@@ -39,7 +36,7 @@ describe("the Members settings' back arrow", () => {
 	it('returns to the team settings, where Members opens from', async () => {
 		await render(<MembersSettingsScreen {...({} as ScreenProps)} />);
 
-		await fireEvent.press(screen.getByText('icon arrow-left'));
+		await fireEvent.press(screen.getByTestId('icon-ArrowLeft'));
 
 		expect(navigateTo).toHaveBeenCalledWith(expect.anything(), 'Setting', { activeTab: 2 });
 	});

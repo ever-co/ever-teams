@@ -1,5 +1,5 @@
 import React from 'react';
-import { AntDesign } from '@expo/vector-icons';
+import { ArrowLeft, CircleAlert } from '../../../../../src/components/icons';
 import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { translate } from '../../../../i18n';
 import { typography, useWebTheme } from '../../../../theme';
@@ -20,9 +20,9 @@ const SettingHeader = (props) => {
 					hitSlop={12}
 					onPress={() => navigation.goBack()}
 				>
-					<AntDesign name="arrow-left" size={BAR_ICON_SIZE} color={theme.colors.foreground} />
+					<ArrowLeft size={BAR_ICON_SIZE} color={theme.colors.foreground} />
 				</TouchableOpacity>
-				<AntDesign name="exclamation-circle" size={BAR_ICON_SIZE} color={theme.colors['muted-foreground']} />
+				<CircleAlert size={BAR_ICON_SIZE} color={theme.colors['muted-foreground']} />
 			</View>
 			<View style={styles.heading}>
 				<Text accessibilityRole="header" style={[styles.title, { color: theme.colors.foreground }]}>
