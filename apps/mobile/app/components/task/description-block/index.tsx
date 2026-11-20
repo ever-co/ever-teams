@@ -126,7 +126,10 @@ const DescriptionBlock = () => {
 				/>
 
 				<View style={{ paddingHorizontal: 12 }}>
-					<View style={styles.horizontalSeparator} />
+					<View
+						testID="description-separator"
+						style={[styles.horizontalSeparator, { borderTopColor: colors.border }]}
+					/>
 					<QuillToolbar
 						editor={_editor}
 						styles={{
@@ -241,8 +244,7 @@ const styles = StyleSheet.create({
 		padding: 0,
 	},
 	horizontalSeparator: {
-		borderTopColor: "#F2F2F2",
-		borderTopWidth: 1,
+		borderTopWidth: StyleSheet.hairlineWidth,
 		marginBottom: 10,
 		width: "100%",
 	},

@@ -1,5 +1,6 @@
 import React from 'react';
-import { render } from '@testing-library/react-native';
+import { render, screen } from '@testing-library/react-native';
+import { StyleSheet } from 'react-native';
 import DescriptionBlock from './index';
 
 // The block draws through stand-ins for what surrounds the editor, and through the real editor of react-native-cn-quill,
@@ -31,7 +32,10 @@ jest.mock('../../../models', () => {
 	return { useStores: () => stores };
 });
 jest.mock('../../../theme', () => {
-	const theme = { colors: { background: '#ffffff', primary: '#282048', secondary: '#7e7991' }, dark: false };
+	const theme = {
+		colors: { background: '#ffffff', primary: '#282048', secondary: '#7e7991', border: 'hsl(240, 4%, 16%)' },
+		dark: false
+	};
 	return { useAppTheme: () => theme };
 });
 jest.mock('../../../services/hooks/features/use-team-tasks', () => {
@@ -62,5 +66,13 @@ describe("the task screen's description", () => {
 		await render(<DescriptionBlock />);
 
 		expect(mockWebViewProps.at(-1)?.allowsLinkPreview).toBe(true);
+	});
+
+	it("draws the line above the toolbar in the theme's border color, never a fixed light grey", async () => {
+		await render(<DescriptionBlock />);
+
+		const separator = StyleSheet.flatten(screen.getByTestId('description-separator').props.style);
+		expect(separator.borderTopColor).toBe('hsl(240, 4%, 16%)');
+		expect(separator.borderTopWidth).toBe(StyleSheet.hairlineWidth);
 	});
 });

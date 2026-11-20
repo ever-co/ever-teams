@@ -77,6 +77,7 @@ const RelatedIssues = () => {
 
 	return (
 		<Accordion
+			nested
 			titleFontSize={14}
 			arrowSize={20}
 			title={translate("taskDetailsScreen.relatedIssues")}

@@ -1,9 +1,11 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native"
+import { View, Text, StyleSheet, TouchableOpacity, ViewStyle } from "react-native"
 import React, { ReactElement, useState, useEffect } from "react"
 import { Feather } from "@expo/vector-icons"
-import { useAppTheme } from "../theme"
+import { typography, useWebTheme } from "../theme"
+import { settingsDividerOf, settingsSurfaceOf } from "../../src/theme/settings-look"
+import type { Theme } from "../../src/theme/use-theme"
 
 interface IAccordion {
 	title: string
@@ -12,6 +14,26 @@ interface IAccordion {
 	arrowSize?: number
 	headerElement?: ReactElement
 	setAccordionExpanded?: (isExpanded: boolean) => void
+	/** A section inside another one draws no surface of its own. */
+	nested?: boolean
+}
+
+const TITLE_SIZE = 14
+const CHEVRON_SIZE = 16
+
+/** A section on the web's surface, radius 14 inside a hairline; a nested one on its parent's. */
+export function accordionSurfaceOf(nested: boolean, theme: Theme): ViewStyle {
+	if (nested) {
+		return {}
+	}
+	return settingsSurfaceOf(theme)
+}
+
+function chevronOf(expanded: boolean) {
+	if (expanded) {
+		return "chevron-up" as const
+	}
+	return "chevron-down" as const
 }
 
 const Accordion: React.FC<IAccordion> = ({
@@ -21,9 +43,10 @@ const Accordion: React.FC<IAccordion> = ({
 	titleFontSize,
 	headerElement,
 	setAccordionExpanded,
+	nested = false,
 }) => {
 	const [expanded, setExpanded] = useState(true)
-	const { colors } = useAppTheme()
+	const theme = useWebTheme()
 
 	function toggleItem() {
 		setExpanded(!expanded)
@@ -36,43 +59,31 @@ const Accordion: React.FC<IAccordion> = ({
 
 	const body = <View style={{ gap: 12 }}>{children}</View>
 	return (
-		<View style={[styles.accordContainer, { backgroundColor: colors.background }]}>
-			<TouchableOpacity style={styles.accordHeader} onPress={toggleItem}>
+		<View testID="accordion" style={[styles.accordContainer, accordionSurfaceOf(nested, theme)]}>
+			<TouchableOpacity
+				style={styles.accordHeader}
+				onPress={toggleItem}
+				accessibilityRole="button"
+				accessibilityState={{ expanded }}
+			>
 				<Text
 					style={[
 						styles.accordTitle,
-						{ color: colors.primary, fontSize: titleFontSize || 16 },
+						{ color: theme.colors.foreground, fontSize: titleFontSize || TITLE_SIZE },
 					]}
 				>
 					{title}
 				</Text>
-				<View
-					style={{
-						flexDirection: "row",
-						alignItems: "center",
-						justifyContent: "space-between",
-					}}
-				>
+				<View style={styles.headerEnd}>
 					{headerElement}
 					<Feather
-						name={expanded ? "chevron-up" : "chevron-down"}
-						size={arrowSize || 22}
-						color={colors.primary}
-						style={{ marginLeft: 7 }}
+						name={chevronOf(expanded)}
+						size={arrowSize || CHEVRON_SIZE}
+						color={theme.colors["muted-foreground"]}
 					/>
 				</View>
 			</TouchableOpacity>
-			{expanded && (
-				<View style={{ paddingHorizontal: 12, marginBottom: 12 }}>
-					<View
-						style={{
-							width: "100%",
-							borderBottomColor: "#F2F2F2",
-							borderBottomWidth: 1,
-						}}
-					/>
-				</View>
-			)}
+			{expanded && <View testID="accordion-divider" style={[styles.divider, settingsDividerOf(theme)]} />}
 			{expanded && body}
 		</View>
 	)
@@ -82,7 +93,6 @@ export default Accordion
 
 const styles = StyleSheet.create({
 	accordContainer: {
-		borderRadius: 8,
 		marginVertical: 6,
 		width: "100%",
 	},
@@ -90,9 +100,20 @@ const styles = StyleSheet.create({
 		alignItems: "center",
 		flexDirection: "row",
 		justifyContent: "space-between",
-		padding: 12,
+		minHeight: 48,
+		paddingHorizontal: 16,
+		paddingVertical: 12,
 	},
 	accordTitle: {
-		fontWeight: "600",
+		fontFamily: typography.primary.semiBold,
+	},
+	divider: {
+		marginBottom: 12,
+		marginHorizontal: 16,
+	},
+	headerEnd: {
+		alignItems: "center",
+		flexDirection: "row",
+		gap: 8,
 	},
 })
