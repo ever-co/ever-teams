@@ -78,6 +78,7 @@ const TaskStatus: FC<TaskStatusProps> = observer(
 					{popup}
 					<PropertyTriggerButton
 						anchorRef={anchorRef}
+						expanded={openModal}
 						onPress={() => openFromAnchor(() => setOpenModal(true))}
 						kind="status"
 						placeholder={translate('taskMenus.fields.status')}

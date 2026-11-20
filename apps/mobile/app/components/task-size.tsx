@@ -79,6 +79,7 @@ const TaskSize: FC<TaskSizeProps> = observer(({ task, containerStyle, setSize, s
 				{popup}
 				<PropertyTriggerButton
 					anchorRef={anchorRef}
+					expanded={openModal}
 					onPress={() => openFromAnchor(() => setOpenModal(true))}
 					kind="size"
 					placeholder={translate('taskMenus.fields.size')}

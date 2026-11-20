@@ -1,7 +1,12 @@
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react-native';
 import { StyleSheet, View } from 'react-native';
-import { PropertyTrigger, PropertyTriggerButton, propertyTriggerLookOf } from './property-trigger';
+import {
+	PropertyTrigger,
+	PropertyTriggerButton,
+	propertyTriggerLabelOf,
+	propertyTriggerLookOf
+} from './property-trigger';
 import { themeFor } from '../../src/theme/use-theme';
 
 jest.mock('../theme', () => ({
@@ -63,5 +68,23 @@ describe("a task property's trigger on the task page", () => {
 
 		expect(open).toHaveBeenCalledTimes(1);
 		expect(anchorRef.current).not.toBeNull();
+	});
+
+	it('names the property and its value to a screen reader, and says whether its menu is open', async () => {
+		await render(
+			<PropertyTriggerButton
+				kind="size"
+				item={medium}
+				placeholder="Size"
+				anchorRef={React.createRef<View>()}
+				onPress={jest.fn()}
+				expanded
+			/>
+		);
+
+		const button = screen.getByRole('button');
+		expect(button.props.accessibilityLabel).toBe('Size, medium');
+		expect(button.props.accessibilityState).toMatchObject({ expanded: true });
+		expect(propertyTriggerLabelOf('Size', null)).toBe('Size');
 	});
 });

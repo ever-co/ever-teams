@@ -99,12 +99,34 @@ interface IPropertyTriggerButton extends IPropertyTrigger {
 	/** Where the property's menu opens. */
 	anchorRef: RefObject<View | null>;
 	onPress: () => unknown;
+	/** Whether the property's menu is open. */
+	expanded?: boolean;
+}
+
+/** What a screen reader says for the trigger: the field's name, then its value when it has one. */
+export function propertyTriggerLabelOf(placeholder: string, item: TriggerItem | null | undefined): string {
+	const name = item?.name;
+	if (!name) {
+		return placeholder;
+	}
+	return `${placeholder}, ${name}`;
 }
 
 /** The trigger as a button, as wide as its content, as the web's task page draws it. */
-export function PropertyTriggerButton({ anchorRef, onPress, ...trigger }: Readonly<IPropertyTriggerButton>) {
+export function PropertyTriggerButton({
+	anchorRef,
+	onPress,
+	expanded = false,
+	...trigger
+}: Readonly<IPropertyTriggerButton>) {
 	return (
-		<TouchableOpacity accessibilityRole="button" style={styles.button} onPress={() => onPress()}>
+		<TouchableOpacity
+			accessibilityRole="button"
+			accessibilityLabel={propertyTriggerLabelOf(trigger.placeholder, trigger.item)}
+			accessibilityState={{ expanded }}
+			style={styles.button}
+			onPress={() => onPress()}
+		>
 			<View ref={anchorRef} collapsable={false}>
 				<PropertyTrigger {...trigger} />
 			</View>
