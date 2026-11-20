@@ -1,6 +1,7 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
 import React, { FC, useState, useRef, useMemo, useCallback, useEffect } from 'react';
+import { TaskSettingsList } from '../../../components/task-settings-list';
 import { observer } from 'mobx-react-lite';
 import {
   View,
@@ -220,7 +221,7 @@ export const TaskStatusScreen: FC<AuthenticatedDrawerScreenProps<'TaskStatus'>> 
               </Text>
             ) : null}
 
-            <FlatList
+            <TaskSettingsList
               bounces={false}
               showsVerticalScrollIndicator={false}
               style={{ width: '100%' }}
@@ -235,7 +236,6 @@ export const TaskStatusScreen: FC<AuthenticatedDrawerScreenProps<'TaskStatus'>> 
                 />
               )}
               keyExtractor={(item) => item.id}
-              ListFooterComponent={() => <View style={{ marginBottom: 40 }} />}
             />
           </View>
         </View>

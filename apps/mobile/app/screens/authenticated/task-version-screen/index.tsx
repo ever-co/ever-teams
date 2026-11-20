@@ -1,4 +1,5 @@
 import React, { FC, useRef, useState, useMemo, useCallback, useEffect } from 'react';
+import { TaskSettingsList } from '../../../components/task-settings-list';
 import { observer } from 'mobx-react-lite';
 import {
   View,
@@ -218,7 +219,7 @@ export const TaskVersionScreen: FC<AuthenticatedDrawerScreenProps<'TaskVersion'>
               </Text>
             ) : null}
 
-            <FlatList
+            <TaskSettingsList
               bounces={false}
               showsVerticalScrollIndicator={false}
               style={{ width: '100%' }}
@@ -232,7 +233,6 @@ export const TaskVersionScreen: FC<AuthenticatedDrawerScreenProps<'TaskVersion'>
                 />
               )}
               keyExtractor={(_, index) => index.toString()}
-              ListFooterComponent={() => <View style={{ marginBottom: 40 }} />}
             />
           </View>
         </View>
