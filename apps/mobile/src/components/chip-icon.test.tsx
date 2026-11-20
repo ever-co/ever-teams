@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react-native';
+import { fireEvent, render, screen } from '@testing-library/react-native';
 import { ChipIcon } from './chip-icon';
 
 // The glyph and the icon file as plain text naming what the chip chose to draw
@@ -43,6 +43,24 @@ describe("a chip's icon", () => {
 		await render(<ChipIcon item={item} color="#000" kind="priority" />);
 
 		expect(screen.getByTestId('icon-file')).toHaveTextContent('https://api.example.com/rocket.svg');
+	});
+
+	it('draws a picture the user uploaded as it is, and the glyph once it fails to load', async () => {
+		const item = {
+			name: 'high',
+			bgColor: '#e0eafc',
+			storedIcon: 'image-asset:a1:S3:icons/rocket.png',
+			iconUrl: 'https://files.example.com/icons/rocket.png?signature=abc'
+		};
+		await render(<ChipIcon item={item} color="#000" kind="priority" />);
+
+		expect(screen.getByTestId('chip-icon-picture').props.source).toEqual({ uri: item.iconUrl });
+		expect(screen.queryByTestId('icon-file')).toBeNull();
+
+		await fireEvent(screen.getByTestId('chip-icon-picture'), 'error');
+
+		expect(screen.queryByTestId('chip-icon-picture')).toBeNull();
+		expect(screen.getByTestId('glyph')).toHaveTextContent('priority high #e0eafc');
 	});
 
 	it('draws the glyph for a library icon, which Gauzy gives no file for', async () => {
