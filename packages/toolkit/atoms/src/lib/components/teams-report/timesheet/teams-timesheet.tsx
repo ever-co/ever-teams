@@ -211,6 +211,11 @@ export const TeamsTimesheet = ({
 		userOrganizations?.items.find((elt) => elt.organizationId == selectedOrganization)?.organization?.name ||
 		'Ever';
 
+	let columnCount = 6;
+	if (showEmployee) {
+		columnCount = 7;
+	}
+
 	if (timerOnly) {
 		return <TimerOnlyReportNote label={t('label')} className={className} />;
 	}
@@ -301,10 +306,17 @@ export const TeamsTimesheet = ({
 					</TableRow>
 				</TableHeader>
 				<TableBody className="relative">
-					{loading && <SpinOverlayLoader />}
+					{/* A row of no height holds the overlay: a table body holds rows only (#5616) */}
+					{loading && (
+						<TableRow className="border-0 hover:bg-transparent">
+							<TableCell colSpan={columnCount} className="p-0 h-0">
+								<SpinOverlayLoader />
+							</TableCell>
+						</TableRow>
+					)}
 					{currentLogs.length === 0 ? (
 						<TableRow>
-							<TableCell colSpan={showEmployee ? 7 : 6} className="text-center text-gray-500 py-8">
+							<TableCell colSpan={columnCount} className="text-center text-gray-500 py-8">
 								<div className="flex flex-col items-center gap-2">
 									<FileText className="size-8 text-gray-400" />
 									<span>{t('table_empty.no_time_logs')}</span>
