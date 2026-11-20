@@ -1,6 +1,6 @@
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react-native';
-import TaskLabelPopup, { toggledLabels } from './task-label-popup';
+import TaskLabelPopup from './task-label-popup';
 import { ITaskLabelItem } from '../services/interfaces/ITaskLabel';
 
 const PAINT = { id: 'paint', name: 'Paint', color: '#ffd6d6' } as ITaskLabelItem;
@@ -62,12 +62,5 @@ describe("a task's labels menu", () => {
 
 		expect(screen.getByText('label form')).toBeTruthy();
 		expect(screen.getByTestId('picker-dialog')).toBeTruthy();
-	});
-});
-
-describe('a label tapped in the menu', () => {
-	it('joins the labels the task holds, or leaves them when it was there', () => {
-		expect(toggledLabels([PAINT], OUTDOOR).map((label) => label.id)).toEqual(['paint', 'outdoor']);
-		expect(toggledLabels([PAINT, OUTDOOR], PAINT).map((label) => label.id)).toEqual(['outdoor']);
 	});
 });

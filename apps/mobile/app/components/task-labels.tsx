@@ -9,7 +9,8 @@ import { useTeamTasks } from '../services/hooks/features/use-team-tasks';
 import { useAppTheme, typography, useWebTheme } from '../theme';
 import { taskChipLookOf } from '../../src/components/task-chip';
 import { ChipIcon } from '../../src/components/chip-icon';
-import TaskLabelPopup, { toggledLabels } from './task-label-popup';
+import TaskLabelPopup from './task-label-popup';
+import { useLabelSelection } from './use-label-selection';
 import { useMenuAnchor } from '../../src/components/menu-anchor';
 import { ITaskLabelItem } from '../services/interfaces/ITaskLabel';
 import { translate } from '../i18n';
@@ -49,25 +50,32 @@ const TaskLabels: FC<TaskLabelProps> = observer(
 		const [openModal, setOpenModal] = useState(false);
 		const flatListRef = useRef<FlatList>(null);
 		const [labelIndex, setLabelIndex] = useState<number>(0);
-		const [selectedLabels, setSelectedLabels] = useState<ITaskLabelItem[]>(task?.tags || newTaskLabels || []);
 		const { anchorRef, anchor, openFromAnchor } = useMenuAnchor();
 
-		// The menu starts from the labels the task holds; each tap then saves at once, as on the web
-		const freshOpenModal = () => {
-			openFromAnchor(() => {
-				setSelectedLabels(task?.tags || newTaskLabels || []);
-				setOpenModal(true);
-			});
-		};
-
-		const toggleLabel = async (label: ITaskLabelItem) => {
-			const nextLabels = toggledLabels(selectedLabels, label);
-			setSelectedLabels(nextLabels);
-			if (task) {
-				await updateTask({ ...task, tags: nextLabels }, task.id);
-				return;
+		const saveLabels = async (labels: ITaskLabelItem[]) => {
+			if (!task) {
+				setLabels?.(labels);
+				return true;
 			}
-			setLabels?.(nextLabels);
+			try {
+				const { response } = await updateTask({ ...task, tags: labels }, task.id);
+				return response.ok;
+			} catch {
+				return false;
+			}
+		};
+		const { selectedLabels, toggle, startFrom } = useLabelSelection(
+			task?.tags || newTaskLabels || [],
+			saveLabels,
+			task?.id
+		);
+
+		// The menu starts from the labels the task holds; each tap then saves, one write at a time, as on the web
+		const freshOpenModal = (tapped?: View | null) => {
+			openFromAnchor(() => {
+				startFrom(task?.tags || newTaskLabels || []);
+				setOpenModal(true);
+			}, tapped);
 		};
 
 		const scrollToIndexWithDelay = (index: number) => {
@@ -102,7 +110,7 @@ const TaskLabels: FC<TaskLabelProps> = observer(
 				<TaskLabelPopup
 					selectedLabels={selectedLabels}
 					visible={openModal}
-					onToggleLabel={toggleLabel}
+					onToggleLabel={toggle}
 					onDismiss={() => setOpenModal(false)}
 					canCreateLabel={true}
 					anchor={anchor}
@@ -160,7 +168,7 @@ const TaskLabels: FC<TaskLabelProps> = observer(
 				  (task?.tags?.length > 0 || newTaskLabels?.length > 0) &&
 				  taskScreenButton ? (
 					<View>
-						<TouchableOpacity onPress={freshOpenModal}>
+						<TouchableOpacity onPress={() => freshOpenModal()}>
 							<View
 								ref={anchorRef}
 								collapsable={false}
@@ -210,7 +218,7 @@ const TaskLabels: FC<TaskLabelProps> = observer(
 						/>
 					</View>
 				) : (
-					<TouchableOpacity onPress={freshOpenModal}>
+					<TouchableOpacity onPress={() => freshOpenModal()}>
 						<View
 							ref={anchorRef}
 							collapsable={false}
@@ -239,7 +247,8 @@ const TaskLabels: FC<TaskLabelProps> = observer(
 
 interface ILabel {
 	item: IndividualTaskLabel | null;
-	freshOpenModal: () => void;
+	/** Opens the menu under the label tapped. */
+	freshOpenModal: (tapped?: View | null) => void;
 	taskScreenButton?: boolean;
 	noBorders?: boolean;
 }
@@ -247,12 +256,15 @@ interface ILabel {
 const Label: FC<ILabel> = ({ item, freshOpenModal, taskScreenButton, noBorders }) => {
 	const theme = useWebTheme();
 	const look = taskChipLookOf(item?.color, theme);
+	const chipRef = useRef<View>(null);
 
 	const { width } = Dimensions.get('screen');
 
 	return (
-		<TouchableOpacity style={{}} onPress={freshOpenModal}>
+		<TouchableOpacity style={{}} onPress={() => freshOpenModal(chipRef.current)}>
 			<View
+				ref={chipRef}
+				collapsable={false}
 				style={[
 					{
 						flexDirection: 'row',

@@ -165,4 +165,10 @@ describe('a property picker opened from a chip', () => {
 
 		expect(screen.getByText('in-progress')).not.toHaveStyle({ textTransform: 'capitalize' });
 	});
+
+	it('keeps the names as they were saved in the dialog too, when asked', async () => {
+		await renderPicker({ keepsCase: true });
+
+		expect(screen.getByText('in-progress')).not.toHaveStyle({ textTransform: 'capitalize' });
+	});
 });

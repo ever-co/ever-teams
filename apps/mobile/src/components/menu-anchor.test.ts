@@ -58,4 +58,21 @@ describe('the chip a menu opens under', () => {
 		expect(result.current.anchor).toBeNull();
 		expect(open).toHaveBeenCalledTimes(1);
 	});
+
+	it('opens under the chip that was tapped when the trigger names it, as a label in a row of labels', async () => {
+		const { result } = await renderHook(() => useMenuAnchor());
+		const row = {
+			measureInWindow: (done: (x: number, y: number, width: number, height: number) => void) =>
+				done(16, 420, 320, 32)
+		};
+		const tappedLabel = {
+			measureInWindow: (done: (x: number, y: number, width: number, height: number) => void) =>
+				done(150, 420, 90, 32)
+		};
+		result.current.anchorRef.current = row as unknown as View;
+
+		await act(async () => result.current.openFromAnchor(jest.fn(), tappedLabel as unknown as View));
+
+		expect(result.current.anchor).toEqual({ x: 150, y: 420, width: 90, height: 32 });
+	});
 });
