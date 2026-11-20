@@ -288,7 +288,7 @@ const Label: FC<ILabel> = ({ item, freshOpenModal, taskScreenButton, noBorders }
 					noBorders && { borderWidth: 0 }
 				]}
 			>
-				<ChipIcon item={{ iconUrl: item?.fullIconUrl }} color={look.ink} />
+				<ChipIcon item={{ name: item?.name, bgColor: item?.color }} color={look.ink} kind="label" />
 				<Text
 					style={{
 						color: look.ink,

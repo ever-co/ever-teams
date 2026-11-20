@@ -65,7 +65,7 @@ const TaskPriority: FC<TaskPriorityProps> = observer(
 					<View style={[{ ...styles.container, ...containerStyle }, look.container]}>
 						{(task?.priority || priority) && currentPriority ? (
 							<View style={styles.wrapStatus}>
-								<ChipIcon item={currentPriority} color={look.ink} />
+								<ChipIcon item={currentPriority} color={look.ink} kind="priority" />
 								<Text style={{ ...styles.text, color: look.ink, marginLeft: 10 }}>
 									{limitTextCharaters({
 										text: currentPriority.name,

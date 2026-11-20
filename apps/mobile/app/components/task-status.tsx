@@ -74,7 +74,7 @@ const TaskStatus: FC<TaskStatusProps> = observer(
 					>
 						{statusItem ? (
 							<View style={[styles.wrapStatus, { width: iconsOnly ? '50%' : '70%' }]}>
-								{!labelOnly && <ChipIcon item={statusItem} color={look.ink} />}
+								{!labelOnly && <ChipIcon item={statusItem} color={look.ink} kind="status" />}
 								{iconsOnly ? null : (
 									<Text
 										numberOfLines={1}

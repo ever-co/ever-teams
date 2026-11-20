@@ -69,7 +69,7 @@ const TaskSize: FC<TaskSizeProps> = observer(({ task, containerStyle, setSize, s
 				<View style={[{ ...styles.container, ...containerStyle }, look.container]}>
 					{(task?.size || size) && currentSize ? (
 						<View style={styles.wrapStatus}>
-							<ChipIcon item={currentSize} color={look.ink} />
+							<ChipIcon item={currentSize} color={look.ink} kind="size" />
 							<Text style={{ ...styles.text, color: look.ink, marginLeft: 10 }}>
 								{limitTextCharaters({ text: currentSize.name, numChars: 15 })}
 							</Text>
