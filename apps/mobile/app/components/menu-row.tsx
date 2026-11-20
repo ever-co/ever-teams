@@ -42,7 +42,7 @@ type MenuRowProps = {
 };
 
 /** A 48-tall row of the menu. */
-export function MenuRow({ testID, icon, label, isCurrent = false, tone = 'default', onPress }: MenuRowProps) {
+export function MenuRow({ testID, icon, label, isCurrent = false, tone = 'default', onPress }: Readonly<MenuRowProps>) {
 	const theme = useWebTheme();
 	const look = menuRowLookOf(isCurrent, tone, theme);
 	return (
