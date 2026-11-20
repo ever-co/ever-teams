@@ -267,8 +267,10 @@ const PassCode: FC<Props> = observer(
 					<View style={styles.tenantsContainer}>
 						<Text style={label}>{translate('loginScreen.selectWorkspaceFieldLabel')}</Text>
 
+						{/* The page scrolls too: Android scrolls a list inside it only when it nests its scrolling */}
 						<FlatList
 							data={workspaceData}
+							nestedScrollEnabled
 							showsVerticalScrollIndicator={false}
 							renderItem={({ item, index }: { item: IWorkspace; index: number }) => (
 								<UserTenants

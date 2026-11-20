@@ -16,6 +16,7 @@ jest.mock('../../../components/text-field', () => {
 					LabelTextProps: { style: unknown };
 					inputWrapperStyle: unknown;
 					testID?: string;
+					accessibilityLabel?: string;
 				},
 				_ref: unknown
 			) =>
@@ -23,7 +24,11 @@ jest.mock('../../../components/text-field', () => {
 					MockView,
 					null,
 					mockReact.createElement(MockText, { style: props.LabelTextProps.style }, props.label),
-					mockReact.createElement(MockView, { testID: props.testID, style: props.inputWrapperStyle })
+					mockReact.createElement(MockView, {
+						testID: props.testID,
+						style: props.inputWrapperStyle,
+						accessibilityLabel: props.accessibilityLabel
+					})
 				)
 		)
 	};
@@ -56,5 +61,11 @@ describe('a sign-in field', () => {
 		expect(StyleSheet.flatten(screen.getByTestId('sign-in-email').props.style).borderColor).toBe(
 			dark.colors.destructive
 		);
+	});
+
+	it('names its input by its label for a screen reader', async () => {
+		await render(<SignInField label="Enter Email" testID="sign-in-email" />);
+
+		expect(screen.getByTestId('sign-in-email').props.accessibilityLabel).toBe('Enter Email');
 	});
 });

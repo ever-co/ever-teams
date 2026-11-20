@@ -25,6 +25,8 @@ export const SignInField = forwardRef<TextInput, Readonly<SignInFieldProps>>(fun
 			{...props}
 			ref={ref}
 			label={label}
+			// a screen reader names the input by its label, as the label drawn above it does
+			accessibilityLabel={props.accessibilityLabel ?? label}
 			LabelTextProps={{ style: [styles.label, authLabelLookOf(theme)] }}
 			containerStyle={styles.container}
 			placeholderTextColor={input.placeholderColor}
