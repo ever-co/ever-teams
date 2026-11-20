@@ -1,4 +1,5 @@
 import { IServerError, ITimerStatus, ITimeSlot, IUser, LogType, TimerSource } from '@ever-teams/toolkit-types';
+import { billableFieldsOf } from '../billable';
 import { ApiCall } from '../fetch';
 import qs from 'qs';
 import { ICurrentTeamsState } from '@ever-teams/toolkit-types';
@@ -107,7 +108,8 @@ export const startTimer = async (
 							organizationId,
 							logType: LogType.TRACKED,
 							source,
-							isBillable: true,
+							// Billable as the project is set, else billable as before (ever-co/ever-teams#5571)
+							...billableFieldsOf(undefined, true),
 							startedAt: new Date().toISOString(),
 							organizationContactId,
 							organizationTeamId,

@@ -1,4 +1,5 @@
 import { LogType, TimerSource } from '@ever-teams/toolkit-types';
+import { billableFieldsOf } from '../billable';
 import { EverTeamsValidationError } from './errors';
 import { Identity } from './identity';
 import { TimerListener, TimerWatchOptions, watchTimer } from './timer-watch';
@@ -51,6 +52,11 @@ export interface TimerStartOptions {
 	taskId?: string;
 	organizationTeamId?: string;
 	description?: string;
+	/**
+	 * Whether the time is billable. Left out, it is billable as its project is set (the one named, else its task's), as
+	 * in the web app; time without a project is billable, as before.
+	 */
+	isBillable?: boolean;
 }
 
 export interface TimerResource {
@@ -126,7 +132,7 @@ export function createTimer(transport: Transport, identity: Identity): TimerReso
 					organizationId,
 					logType: LogType.TRACKED,
 					source,
-					isBillable: true,
+					...billableFieldsOf(options.isBillable, true),
 					projectId: options.projectId,
 					taskId: options.taskId,
 					organizationTeamId: options.organizationTeamId,
