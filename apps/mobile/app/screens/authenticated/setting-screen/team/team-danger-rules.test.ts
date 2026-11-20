@@ -13,4 +13,8 @@ describe('quitting a team', () => {
 	it('offers nothing to someone outside the team', () => {
 		expect(canQuitTeamOf({ isTeamManager: false, managerCount: 1, isMember: false })).toBe(false);
 	});
+
+	it('offers nothing outside the team even to a manager of another team', () => {
+		expect(canQuitTeamOf({ isTeamManager: true, managerCount: 2, isMember: false })).toBe(false);
+	});
 });
