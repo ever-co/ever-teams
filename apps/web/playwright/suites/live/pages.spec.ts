@@ -26,11 +26,15 @@ test.describe('the app against the demo API, signed out', () => {
 		test(`${page.label} renders`, async ({ demo, shield }) => {
 			const view = await demo(page.path);
 
+			// `demo()` returns at DOMContentLoaded: let the page land and render (and its startup requests settle)
+			// before reading the error records, or they are read before a startup error can happen.
+			await expect(view).toHaveURL(page.landsOn);
+			await expect(view.locator('body')).not.toHaveText('');
+			await view.waitForLoadState('networkidle');
+
 			expect(shield.pageErrors(), `uncaught errors on ${page.label}`).toEqual([]);
 			expect(shield.consoleErrors(), `app console errors on ${page.label}`).toEqual([]);
 			expect(await devOverlayErrors(view), `the Next dev overlay shows an error on ${page.label}`).toEqual([]);
-			await expect(view).toHaveURL(page.landsOn);
-			await expect(view.locator('body')).not.toHaveText('');
 		});
 	}
 

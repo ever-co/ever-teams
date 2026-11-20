@@ -21,6 +21,11 @@ type CapturedCall = { authorization: string | null; status: number };
 /** Records each call once the paired API has answered it, so a recorded call always carries its status. */
 async function capture(page: Page, path: RegExp, sink: CapturedCall[]): Promise<void> {
 	await page.route(path, async (route) => {
+		// A page route outranks the shield's context route, so this one must not forward off the machine itself:
+		// anything not local falls back to the shield, which blocks and records it.
+		if (!['127.0.0.1', 'localhost', '::1'].includes(new URL(route.request().url()).hostname)) {
+			return route.fallback();
+		}
 		const authorization = route.request().headers()['authorization'] ?? null;
 		const response = await route.fetch();
 		sink.push({ authorization, status: response.status() });

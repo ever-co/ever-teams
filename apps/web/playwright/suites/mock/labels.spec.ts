@@ -54,6 +54,8 @@ async function serveTeamLabels(page: Page, initial: TeamLabel[]): Promise<LabelH
 	});
 
 	await page.route(/\/api\/tags\/bulk(\?.*)?$/, async (route) => {
+		// The bulk write is a POST: another verb with the same body must not count as one.
+		if (route.request().method() !== 'POST') return route.fallback();
 		const items = (route.request().postDataJSON()?.items ?? []) as LabelCreate[];
 		harness.bulkRequests.push(items);
 		const succeeded: Array<{ index: number; id: string }> = [];

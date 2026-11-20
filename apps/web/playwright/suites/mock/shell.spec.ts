@@ -1,4 +1,16 @@
 import { expect, test } from '../../fixtures';
+import { mockRequestsWhen } from '../../helpers';
+
+/** The reads the phase checks below need, all answered: the shell can be ready before the last of them is. */
+const PHASE_PATHS = [
+	'/api/user/me',
+	'/api/auth/workspaces',
+	'/api/organization-team',
+	'/api/tasks/team',
+	'/api/timesheet/timer/status',
+	'/api/daily-plan/me',
+	'/api/task-metadata/bootstrap'
+];
 
 /**
  * The contract the rest of the suite stands on: a signed-in person hard-loading /team/tasks walks
@@ -10,7 +22,7 @@ test.describe('authenticated shell', () => {
 		await mock.scenario({ requirePlanToTrack: true });
 		const page = await app('/team/tasks');
 
-		const requests = await mock.requests();
+		const requests = await mockRequestsWhen((log) => PHASE_PATHS.every((path) => log.some((r) => r.path === path)));
 		const paths = requests.map((request) => request.path);
 		// The mock logs a request once it has answered it, so the log's order is the order of the answers. The
 		// phase order is when each phase was first asked: the earliest `startMs` of its path (NaN when never asked).

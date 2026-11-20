@@ -175,8 +175,11 @@ test.describe('starting the timer', () => {
 		await page.waitForTimeout(1_000);
 		await expect(activeTeam, 'the delayed answer of the workspace left behind').toBeVisible();
 
+		// The log is in answer order, and tenant A's read is the delayed one, so it can be answered last: the read
+		// that matters is the last one *asked* (highest startMs), which the reopened page sent.
 		const teamPlans = (await mock.requests()).filter((request) => request.path.startsWith('/api/daily-plan'));
-		const lastScope = new URLSearchParams(teamPlans.at(-1)?.query ?? '').get('where[tenantId]');
-		expect(lastScope, 'the last plan read is scoped to the workspace now open').toBe(fixture.ids.tenantB);
+		const lastAsked = [...teamPlans].sort((a, b) => a.startMs - b.startMs).at(-1);
+		const lastScope = new URLSearchParams(lastAsked?.query ?? '').get('where[tenantId]');
+		expect(lastScope, 'the last plan read asked is scoped to the workspace now open').toBe(fixture.ids.tenantB);
 	});
 });

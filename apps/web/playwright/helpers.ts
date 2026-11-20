@@ -374,7 +374,10 @@ export async function signInAndVisit(
 	return page;
 }
 
-/** Mirrors `rotateSyntheticAccessToken`: a new token cookie plus the window event the app listens for. */
+/**
+ * The cookie half of `rotateSyntheticAccessToken` (cypress/support/commands.ts): a new `auth-token` cookie only. The
+ * Cypress command also dispatches the window event the app listens for; a spec that needs it dispatches it on its page.
+ */
 export async function rotateAccessToken(context: BrowserContext, fixture: BootstrapFixture, scope: 'A' | 'B' = 'A') {
 	const suffix = scope === 'B' ? 'B' : 'A';
 	// `domain` + `path`, the same shape `signInWithFixture` uses: Playwright refuses a cookie that names both

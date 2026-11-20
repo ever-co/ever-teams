@@ -46,7 +46,9 @@ async function call(method, path, { body, token, note } = {}) {
 	const response = await fetch(url, {
 		method,
 		headers,
-		body: body === undefined ? undefined : JSON.stringify(body)
+		body: body === undefined ? undefined : JSON.stringify(body),
+		// The production-host check covers the configured origin only: a redirect could resend this body elsewhere.
+		redirect: 'error'
 	});
 	const text = await response.text();
 	let payload;

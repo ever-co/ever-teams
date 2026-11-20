@@ -14,7 +14,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { dirname, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { writeGenerated } from './api-routes-lib.mjs';
+import { collectApiRoutes, writeGenerated } from './api-routes-lib.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 // A reporter's outputFile is resolved against the config's own folder, so that is where the report is.
@@ -45,13 +45,23 @@ function collectTests(suites, acc) {
 	return acc;
 }
 
+/** Every bodiless case empty-body.spec.ts runs: the mutating verbs of every handler (the spec's MUTATING list). */
+const MUTATING = ['POST', 'PUT', 'PATCH'];
+const expected = new Set(
+	collectApiRoutes(resolve(here, '../../app/api')).routes.flatMap((route) =>
+		route.verbs.filter((verb) => MUTATING.includes(verb)).map((verb) => `${verb} ${route.path}`)
+	)
+);
+
 const blockers = {};
+const observed = new Set();
 for (const testcase of collectTests(report.suites, [])) {
 	if (!testcase.title.includes('with no body')) continue;
 	// Titles look like: "POST /api/tags with no body answers a 4xx, not a 5xx"
 	const match = testcase.title.match(/^(GET|POST|PUT|PATCH|DELETE) (\S+) with no body/);
 	if (!match) continue;
 	const title = `${match[1]} ${match[2]}`;
+	if (testcase.observedStatus !== undefined) observed.add(title);
 	// The status the handler actually answered, recorded by the spec whether the case passed or failed: a pinned
 	// handler that still answers its 5xx passes, and must keep its entry.
 	if (testcase.observedStatus === undefined || testcase.observedStatus < 500) continue;
@@ -59,6 +69,16 @@ for (const testcase of collectTests(report.suites, [])) {
 		status: testcase.observedStatus,
 		detail: `${title} with no body crashed the handler (${testcase.observedStatus})`
 	};
+}
+
+// A case the report does not hold an observation for (a partial run, a case that failed before it got an answer)
+// says nothing about its handler: rebuilding without it would silently drop its pin. Refuse instead.
+const unobserved = [...expected].filter((title) => !observed.has(title));
+if (unobserved.length) {
+	console.error(
+		`the report has no observed status for ${unobserved.length} of ${expected.size} bodiless cases; run the whole API suite first. Missing: ${unobserved.slice(0, 10).join(', ')}${unobserved.length > 10 ? ', …' : ''}`
+	);
+	process.exit(1);
 }
 
 const sorted = Object.fromEntries(Object.entries(blockers).sort(([a], [b]) => a.localeCompare(b)));
