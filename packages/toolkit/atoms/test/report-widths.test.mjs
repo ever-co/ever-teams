@@ -154,3 +154,12 @@ test('a list row lets its name wrap and keeps its figures whole on a narrow page
 		assert.ok(propertiesOf(className).length > 0, `${className} is in the stylesheet`);
 	}
 });
+
+test("the timesheet's filters wrap onto more lines on a narrow page", () => {
+	const { createElement } = require('react');
+	const { renderToStaticMarkup } = require('react-dom/server');
+	const markup = renderToStaticMarkup(createElement(kit.TeamsTimesheet));
+
+	assert.match(markup, /class="flex flex-wrap gap-3"/);
+	assert.ok(propertiesOf('flex-wrap').includes('flex-wrap'), 'flex-wrap is in the stylesheet');
+});
