@@ -20,6 +20,8 @@ interface ChipIconProps {
 	color: string;
 	/** What the chip shows; with it, the chip draws the web's glyph unless the value has an icon of its own. */
 	kind?: TaskPropertyKind;
+	/** 14 in a chip; a menu row draws its glyph at 16, as the web's menus do. */
+	size?: number;
 }
 
 /**
@@ -41,17 +43,17 @@ function ownIconUrlOf(kind: TaskPropertyKind, item: ChipIconItem | undefined): s
  * value's own icon file in the hue of its color. Without one: the API's icon file in the chip's ink, else the icon
  * the value carries, else nothing.
  */
-export function ChipIcon({ item, color, kind }: Readonly<ChipIconProps>) {
+export function ChipIcon({ item, color, kind, size = CHIP_ICON_SIZE }: Readonly<ChipIconProps>) {
 	if (kind) {
 		const ownIconUrl = ownIconUrlOf(kind, item);
 		if (!ownIconUrl) {
-			return <TaskPropertyIcon kind={kind} name={item?.name} color={item?.bgColor} size={CHIP_ICON_SIZE} />;
+			return <TaskPropertyIcon kind={kind} name={item?.name} color={item?.bgColor} size={size} />;
 		}
 		const ownIconColor = dataColorHueOf(item?.bgColor) ?? color;
-		return <TintedIcon uri={ownIconUrl} color={ownIconColor} size={CHIP_ICON_SIZE} />;
+		return <TintedIcon uri={ownIconUrl} color={ownIconColor} size={size} />;
 	}
 	if (item?.iconUrl) {
-		return <TintedIcon uri={item.iconUrl} color={color} size={CHIP_ICON_SIZE} />;
+		return <TintedIcon uri={item.iconUrl} color={color} size={size} />;
 	}
 	return <>{item?.icon ?? null}</>;
 }
