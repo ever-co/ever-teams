@@ -125,18 +125,37 @@ const TitleIcons: React.FC<ITitleIcons> = ({ edit, setEdit, copyTitle, saveTitle
 			<View style={styles.titleIcons}>
 				<IconButton
 					testID="task-title-save"
+					label={translate('common.save')}
 					icon="check"
 					color={theme.colors['primary-ink']}
 					onPress={saveTitle}
 				/>
-				<IconButton testID="task-title-cancel" icon="x" color={muted} onPress={() => setEdit(false)} />
+				<IconButton
+					testID="task-title-cancel"
+					label={translate('common.cancel')}
+					icon="x"
+					color={muted}
+					onPress={() => setEdit(false)}
+				/>
 			</View>
 		);
 	}
 	return (
 		<View style={styles.titleIcons}>
-			<IconButton testID="task-title-edit" icon="edit-2" color={muted} onPress={() => setEdit(true)} />
-			<IconButton testID="task-title-copy" icon="copy" color={muted} onPress={copyTitle} />
+			<IconButton
+				testID="task-title-edit"
+				label={translate('common.edit')}
+				icon="edit-2"
+				color={muted}
+				onPress={() => setEdit(true)}
+			/>
+			<IconButton
+				testID="task-title-copy"
+				label={translate('taskDetailsScreen.copyTitleButton')}
+				icon="copy"
+				color={muted}
+				onPress={copyTitle}
+			/>
 		</View>
 	);
 };
