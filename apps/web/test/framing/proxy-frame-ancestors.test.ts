@@ -20,13 +20,17 @@ async function framingPolicyOf(path: string): Promise<string | null> {
 	return response.headers.get('Content-Security-Policy');
 }
 
+const ORIGINAL_ENV = process.env;
+
 beforeEach(() => {
+	process.env = { ...ORIGINAL_ENV };
+	delete process.env.FRAME_ANCESTORS;
 	jest.spyOn(console, 'log').mockImplementation(() => undefined);
 });
 
 afterEach(() => {
 	jest.restoreAllMocks();
-	delete process.env.FRAME_ANCESTORS;
+	process.env = ORIGINAL_ENV;
 });
 
 describe('proxy() and framing', () => {
