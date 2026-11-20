@@ -13,7 +13,7 @@ import {
 	TouchableWithoutFeedback,
 	FlatList
 } from 'react-native';
-import { ChevronDown, Circle, CircleCheck } from '../../../../../src/components/icons';
+import { AntDesign, Feather, FontAwesome } from '@expo/vector-icons';
 import { GLOBAL_STYLE as GS } from '../../../../../assets/ts/styles';
 import { observer } from 'mobx-react-lite';
 import { typography, useAppTheme } from '../../../../theme';
@@ -53,9 +53,11 @@ const TaskPriorityFilter: FC<TaskPriorityFilterProps> = observer(
 							<Text style={{ marginRight: 10, color: colors.primary }}>
 								{translate('settingScreen.priorityScreen.priorities')}
 							</Text>
-							{selectedPriorities.length === 0 ? null : <Circle size={24} color={colors.secondary} />}
+							{selectedPriorities.length === 0 ? null : (
+								<FontAwesome name="circle" size={24} color={colors.secondary} />
+							)}
 						</View>
-						<ChevronDown size={14} color={colors.primary} />
+						<AntDesign name="down" size={14} color={colors.primary} />
 					</View>
 				</TouchableOpacity>
 				<TaskStatusFilterDropDown
@@ -157,9 +159,9 @@ const DropDownItem = observer(
 					</Text>
 				</View>
 				{exist ? (
-					<CircleCheck size={24} color="#27AE60" />
+					<AntDesign name="check-circle" size={24} color="#27AE60" />
 				) : (
-					<Circle size={24} color="rgba(40, 32, 72, 0.43)" />
+					<Feather name="circle" size={24} color="rgba(40, 32, 72, 0.43)" />
 				)}
 			</TouchableOpacity>
 		);
