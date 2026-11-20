@@ -8,7 +8,7 @@ describe('the look of a task chip', () => {
 		const look = taskChipLookOf('#ffcc00', themeFor('light'));
 		const chip = dataColorChipOf('#ffcc00', 'light');
 
-		expect(look.container).toEqual({
+		expect(look.container).toMatchObject({
 			backgroundColor: chip?.background,
 			borderColor: chip?.border,
 			borderWidth: StyleSheet.hairlineWidth
@@ -23,5 +23,14 @@ describe('the look of a task chip', () => {
 		expect(look.container.backgroundColor).toBe(dark.colors.card);
 		expect(look.container.borderColor).toBe(dark.colors.input);
 		expect(look.ink).toBe(dark.colors['muted-foreground']);
+	});
+
+	it("gives a colored chip the web's relief: its gradient, its inner line and the hue's shadow", () => {
+		const light = taskChipLookOf('#ffcc00', themeFor('light')).container;
+		const dark = taskChipLookOf('#ffcc00', themeFor('dark')).container;
+
+		expect(light.experimental_backgroundImage).toMatch(/^linear-gradient\(to bottom, rgb\(.+\), rgb\(.+\)\)$/);
+		expect(light.boxShadow).toMatch(/^inset 0 -1px 0 rgba\(.+\), 0 1px 1\.5px rgba\(.+\)$/);
+		expect(dark.boxShadow).toBe('inset 0 1px 0 rgba(255, 255, 255, 0.06)');
 	});
 });
