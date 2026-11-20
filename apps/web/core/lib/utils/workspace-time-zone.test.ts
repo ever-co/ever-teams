@@ -44,6 +44,15 @@ describe('the time zones a workspace can take (#5649)', () => {
 		expect(workspaceTimeZoneOptionsOf('Asia/Tokyo', WINTER)[0].value).not.toBe('Asia/Tokyo');
 	});
 
+	it('shows a padded stored value by the option that holds it, and lists no blank one', () => {
+		const padded = ' Somewhere/Else ';
+		const options = workspaceTimeZoneOptionsOf(padded, WINTER);
+
+		expect(options[0]).toEqual({ value: padded, label: padded });
+		expect(options.map((option) => option.value)).toContain(workspaceTimeZoneChoiceOf(padded));
+		expect(workspaceTimeZoneOptionsOf('  ', WINTER)).toEqual(workspaceTimeZoneOptionsOf(null, WINTER));
+	});
+
 	it('shows no zone as the "not set" choice, and saves that choice as no zone', () => {
 		expect(workspaceTimeZoneChoiceOf(null)).toBe(NO_WORKSPACE_TIME_ZONE);
 		expect(workspaceTimeZoneChoiceOf('  ')).toBe(NO_WORKSPACE_TIME_ZONE);

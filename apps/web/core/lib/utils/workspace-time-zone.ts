@@ -34,6 +34,17 @@ function byOffsetThenName(first: ZoneEntry, second: ZoneEntry): number {
 }
 
 /**
+ * The choice that shows a stored zone: the value exactly as stored, so that it matches its option in the list, or the
+ * "not set" choice when there is none or only blanks.
+ */
+export function workspaceTimeZoneChoiceOf(stored: string | null | undefined): string {
+	if (stored?.trim()) {
+		return stored;
+	}
+	return NO_WORKSPACE_TIME_ZONE;
+}
+
+/**
  * Every zone the API reads, the most western first. A stored value the list does not know (saved by another app) is
  * kept as it is, first, so that the row shows what is stored rather than a zone nobody chose.
  */
@@ -46,17 +57,12 @@ export function workspaceTimeZoneOptionsOf(
 		.map((name) => optionOf(name, at))
 		.sort(byOffsetThenName)
 		.map(({ value, label }) => ({ value, label }));
-	const isStored = typeof stored === 'string' && stored !== '';
-	const keepsUnknown = isStored && !isKnownTimeZone(stored);
+	const choice = workspaceTimeZoneChoiceOf(stored);
+	const keepsUnknown = choice !== NO_WORKSPACE_TIME_ZONE && !isKnownTimeZone(choice);
 	if (keepsUnknown) {
-		return [{ value: stored, label: stored }, ...known];
+		return [{ value: choice, label: choice }, ...known];
 	}
 	return known;
-}
-
-/** The choice that shows a stored zone: its value, or the "not set" choice. */
-export function workspaceTimeZoneChoiceOf(stored: string | null | undefined): string {
-	return stored?.trim() || NO_WORKSPACE_TIME_ZONE;
 }
 
 /** The zone a choice saves: the IANA name picked, or none for "not set". */
