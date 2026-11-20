@@ -51,6 +51,10 @@ export const useTimeLogs = ({
 	);
 
 	const fetchTimeLogs = useCallback(async () => {
+		// An embed token reaches the timer only: refetch sends nothing either (#5602)
+		if (timerOnly) {
+			return;
+		}
 		latestRead.current += 1;
 		const read = latestRead.current;
 		const isCurrent = () => read === latestRead.current;
@@ -94,18 +98,17 @@ export const useTimeLogs = ({
 				setLoading(false);
 			}
 		}
-	}, [user, token, organizationId, date, activityLevel, timeZone, source, logType, selectedEmployee, api]);
+	}, [user, token, organizationId, date, activityLevel, timeZone, source, logType, selectedEmployee, timerOnly, api]);
 
 	useEffect(() => {
-		// An embed token reaches the timer only: no read, so no refusal to show (#5602)
-		if (timerOnly) {
-			return;
-		}
-		if (user && organizationId && token) {
+		const isSignedIn = Boolean(user && organizationId && token);
+		const canRead = isSignedIn && !timerOnly;
+		if (canRead) {
 			fetchTimeLogs();
 			return;
 		}
-		// Signed out, or no organization yet: a read still pending is dropped, and the logs of the session go with it.
+		// Signed out, no organization yet, or an embed token, which reaches the timer only (#5602): a read still pending is
+		// dropped, and the logs of the session go with it.
 		latestRead.current += 1;
 		setData(null);
 		setError(null);

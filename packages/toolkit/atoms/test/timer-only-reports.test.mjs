@@ -118,7 +118,9 @@ before(async () => {
 			export { TeamsProjectsList } from '${kitSources}/components/teams-report/list-report/projects-list.tsx';
 			export { TeamsTasksList } from '${kitSources}/components/teams-report/list-report/tasks-list.tsx';
 			export { TeamsAppsUrlList } from '${kitSources}/components/teams-report/list-report/apps-url-list.tsx';
-			export { TeamsTimesheet } from '${kitSources}/components/teams-report/timesheet/teams-timesheet.tsx';`,
+			export { TeamsTimesheet } from '${kitSources}/components/teams-report/timesheet/teams-timesheet.tsx';
+			export { useTimeLogs } from '${kitSources}/hooks/useTimeLogs.ts';
+			export { useTeamsContext } from '${kitSources}/context/teams-context.ts';`,
 		standIns,
 		standInOf
 	});
@@ -159,27 +161,38 @@ async function settle() {
 	}
 }
 
-async function openReports(config) {
+// The time logs answers held until the test lets them go.
+const heldTimeLogs = { holding: false, waiting: [] };
+
+async function openPage(config, children) {
 	requests = [];
 	const recording = recordingFetch(requests);
 	// The lists' routes answer a list, empty here; recordingFetch answers the rest.
 	globalThis.fetch = async (url, init) => {
 		const answer = await recording(url, init);
 		const path = new URL(url).pathname.replace(/^\/api/, '');
-		if (LIST_ROUTES.includes(path)) {
-			return new Response('[]', { status: 200, headers: { 'Content-Type': 'application/json' } });
+		if (!LIST_ROUTES.includes(path)) {
+			return answer;
 		}
-		return answer;
+		if (path === '/timesheet/time-log' && heldTimeLogs.holding) {
+			await new Promise((release) => heldTimeLogs.waiting.push(release));
+		}
+		return new Response('[]', { status: 200, headers: { 'Content-Type': 'application/json' } });
 	};
 	const container = document.createElement('div');
 	document.body.appendChild(container);
 	const root = createRoot(container);
 	roots.push(root);
-	const widgets = Object.keys(WIDGETS).map((name) => React.createElement(kit[name], { key: name }));
-	const tree = React.createElement(kit.TeamsProvider, { config, onSignOut() {} }, ...widgets);
+	const tree = React.createElement(kit.TeamsProvider, { config, onSignOut() {} }, ...children);
 	await act(async () => root.render(tree));
 	await settle();
 }
+
+const openReports = (config) =>
+	openPage(
+		config,
+		Object.keys(WIDGETS).map((name) => React.createElement(kit[name], { key: name }))
+	);
 
 const notesShown = () => document.body.textContent.split(NOTE).length - 1;
 const reportReads = () => requests.filter(({ path }) => REPORT_ROUTES.has(path));
@@ -216,4 +229,39 @@ test('a getToken that answers a token other than an embed token keeps the report
 
 	assertEachWidgetReads();
 	assert.equal(notesShown(), 0);
+});
+
+// A host's own component on the time logs hook: what it holds, its refetch, and the kit's token.
+const probe = {};
+function TimeLogsProbe() {
+	const { data, loading, refetch } = kit.useTimeLogs();
+	const { setToken } = kit.useTeamsContext();
+	Object.assign(probe, { data, loading, refetch, setToken });
+	return null;
+}
+
+test('the time logs hook drops its logs and a pending read once the token is an embed token, and its refetch sends nothing', async () => {
+	await openPage({ apiUrl: API, getToken: getTokenAnswering(FULL_TOKEN) }, [
+		React.createElement(TimeLogsProbe, { key: 'probe' })
+	]);
+	assert.deepEqual(probe.data, [], 'read with the full token');
+
+	heldTimeLogs.holding = true;
+	await act(async () => {
+		void probe.refetch();
+	});
+	await act(async () => probe.setToken(EMBED_TOKEN));
+	heldTimeLogs.holding = false;
+	await act(async () => {
+		for (const release of heldTimeLogs.waiting.splice(0)) {
+			release();
+		}
+	});
+	await settle();
+	assert.equal(probe.data, null, 'the logs of the full token and its late answer are gone');
+	assert.equal(probe.loading, false);
+
+	requests.length = 0;
+	await act(async () => probe.refetch());
+	assert.deepEqual(reportReads(), [], 'refetch sends nothing');
 });
