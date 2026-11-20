@@ -8,6 +8,11 @@ import { readOnlyOpacity } from '../helpers/read-only-opacity';
 import { dialogLookOf, dialogOverlayColor } from '../../src/theme/dialog-look';
 import { settingsDividerOf } from '../../src/theme/settings-look';
 import type { Theme } from '../../src/theme/use-theme';
+import { ChipIcon } from '../../src/components/chip-icon';
+import type { MenuRect } from '../../src/components/menu-placement';
+import type { TaskPropertyKind } from '../../src/components/task-property-icon';
+import { MENU_ICON_SIZE } from '../../src/theme/menu-look';
+import { MenuOption, PropertyMenu } from './property-menu';
 
 const CHECK_SIZE = 18;
 const CREATE_ICON_SIZE = 18;
@@ -18,6 +23,10 @@ export interface PickerOption {
 	color?: string | null;
 	icon?: ReactNode;
 	iconUrl?: string;
+	/** What the value is, so a menu row draws the web's glyph for it. */
+	kind?: TaskPropertyKind;
+	/** The icon the value was saved with, as Gauzy stores it. */
+	storedIcon?: string;
 	/** The value the task holds now. */
 	isSelected: boolean;
 }
@@ -32,6 +41,47 @@ interface IPropertyPicker {
 	footer?: ReactNode;
 	/** Shown in place of the list, such as the form that creates a value. */
 	children?: ReactNode;
+	/** The chip that opened the picker, on the screen: the values then show in the web's menu under it. */
+	anchor?: MenuRect | null;
+	/** The search line of the menu. */
+	searchPlaceholder?: string;
+}
+
+interface PickerMenuOption extends MenuOption {
+	option: PickerOption;
+}
+
+/** A value as a menu row: the web's glyph for it in the menu's size, its name, checked when the task holds it. */
+function menuOptionOf(option: PickerOption, theme: Theme): PickerMenuOption {
+	const iconItem = {
+		name: option.name,
+		bgColor: option.color ?? undefined,
+		iconUrl: option.iconUrl,
+		storedIcon: option.storedIcon,
+		icon: option.icon
+	};
+	return {
+		key: option.key,
+		label: option.name,
+		icon: (
+			<ChipIcon
+				item={iconItem}
+				color={theme.colors['muted-foreground']}
+				kind={option.kind}
+				size={MENU_ICON_SIZE}
+			/>
+		),
+		isSelected: option.isSelected,
+		option
+	};
+}
+
+/** The chip a menu opens under: none while a form shows in place of the values, or for a picker without one. */
+function menuAnchorOf(showsList: boolean, anchor: MenuRect | null | undefined): MenuRect | null {
+	if (!showsList) {
+		return null;
+	}
+	return anchor ?? null;
 }
 
 function rowBackgroundOf(pressed: boolean, theme: Theme): string {
@@ -100,9 +150,11 @@ export function PickerCreateFooter({ label, canCreate, readOnlyHint, onPress }: 
 }
 
 /**
- * A task's status, priority or size to pick, in the web's dialog over a quiet overlay: the values as rows of their
- * chips, the one the task holds checked. A tap outside, back, or VoiceOver's escape closes it. The overlay and the
- * dialog stay out of the accessibility tree, so a screen reader reaches each row on its own.
+ * A task's status, priority or size to pick. Opened from a chip, in the web's menu under it. Without one, or while a
+ * form shows in place of the values, in the web's dialog over a quiet overlay: the values as rows of their chips, the
+ * one the task holds checked. A tap outside, back, or VoiceOver's escape closes it. The overlay and the dialog stay
+ * out of the accessibility tree, so a screen reader reaches each row on its own. Both are drawn in one modal, so going
+ * from the menu to a form never opens a second one.
  */
 export function PropertyPicker({
 	visible,
@@ -111,10 +163,28 @@ export function PropertyPicker({
 	options,
 	onSelect,
 	footer,
-	children
+	children,
+	anchor,
+	searchPlaceholder
 }: Readonly<IPropertyPicker>) {
 	const theme = useWebTheme();
 	const showsList = !children;
+	const menuAnchor = menuAnchorOf(showsList, anchor);
+
+	if (menuAnchor) {
+		return (
+			<Modal animationType="fade" transparent visible={visible} onRequestClose={() => onDismiss()}>
+				<PropertyMenu
+					anchor={menuAnchor}
+					options={options.map((option) => menuOptionOf(option, theme))}
+					onSelect={(row) => onSelect(row.option)}
+					onDismiss={onDismiss}
+					searchPlaceholder={searchPlaceholder ?? title}
+					footer={footer}
+				/>
+			</Modal>
+		);
+	}
 
 	return (
 		<Modal animationType="fade" transparent visible={visible} onRequestClose={() => onDismiss()}>

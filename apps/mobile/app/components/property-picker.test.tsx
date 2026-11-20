@@ -124,3 +124,31 @@ describe('a property picker', () => {
 		expect(screen.queryByText('Only managers')).toBeNull();
 	});
 });
+
+describe('a property picker opened from a chip', () => {
+	const chip = { x: 16, y: 300, width: 120, height: 30 };
+
+	it("shows the values in the web's menu under the chip, with its search line", async () => {
+		await renderPicker({ anchor: chip, searchPlaceholder: 'Change status…' });
+
+		expect(screen.getByTestId('property-menu')).toBeTruthy();
+		expect(screen.getByPlaceholderText('Change status…')).toBeTruthy();
+		expect(screen.getAllByTestId('menu-option')).toHaveLength(3);
+		expect(screen.queryByTestId('picker-dialog')).toBeNull();
+	});
+
+	it('hands the picked value over from the menu', async () => {
+		const { onSelect } = await renderPicker({ anchor: chip });
+
+		await fireEvent.press(screen.getByLabelText('blocked'));
+
+		expect(onSelect).toHaveBeenCalledWith(expect.objectContaining({ key: 'blocked' }));
+	});
+
+	it('shows a form in the dialog, even when opened from a chip', async () => {
+		await renderPicker({ anchor: chip, children: <Text>status form</Text> });
+
+		expect(screen.getByTestId('picker-dialog')).toBeTruthy();
+		expect(screen.queryByTestId('property-menu')).toBeNull();
+	});
+});
