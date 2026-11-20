@@ -87,7 +87,14 @@ describe("a property's menu", () => {
 	it('opens 4 under its chip on the screen it lives on', () => {
 		const area = { x: 0, y: 24, width: 360, height: 616 };
 
-		const placement = placementInArea(area, { anchor: CHIP, listHeight: 112, footerHeight: 0, keyboardTop: null });
+		const placement = placementInArea(area, {
+			anchor: CHIP,
+			listHeight: 112,
+			footerHeight: 0,
+			keyboardTop: null,
+			bars: { top: 0, bottom: 0 },
+			screenHeight: 640
+		});
 
 		expect(placement).toMatchObject({ top: 310, left: 16, width: 240 });
 	});
@@ -115,5 +122,21 @@ describe("a property's menu", () => {
 
 		expect(screen.getByLabelText('Create status')).toBeDisabled();
 		expect(screen.getByText('Only a manager can create one')).toBeTruthy();
+	});
+
+	it('keeps clear of the status bar when it opens above a low chip', () => {
+		const area = { x: 0, y: 0, width: 360, height: 640 };
+		const lowChip = { x: 162, y: 446, width: 116, height: 30 };
+
+		const placement = placementInArea(area, {
+			anchor: lowChip,
+			listHeight: 400,
+			footerHeight: 150,
+			keyboardTop: null,
+			bars: { top: 24, bottom: 24 },
+			screenHeight: 640
+		});
+
+		expect(placement.top).toBe(32);
 	});
 });

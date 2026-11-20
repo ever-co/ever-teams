@@ -1,5 +1,6 @@
-import React, { ReactNode, useEffect, useRef, useState } from 'react';
-import { Keyboard, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import React, { ReactNode, useContext, useEffect, useRef, useState } from 'react';
+import { Dimensions, Keyboard, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 import { Check } from '../../src/components/icons';
 import { menuPlacementOf, MenuRect } from '../../src/components/menu-placement';
 import {
@@ -37,6 +38,19 @@ interface IPropertyMenu<T extends MenuOption> {
 /** The screen the menu lives on, in window coordinates. */
 export type MenuArea = MenuRect;
 
+/** The room the status bar and the navigation bar take on the screen. */
+export interface SystemBars {
+	top: number;
+	bottom: number;
+}
+
+const NO_SYSTEM_BARS: SystemBars = { top: 0, bottom: 0 };
+
+/** The system bars' room, none where the app gives no safe area, as in a test. */
+function useSystemBars(): SystemBars {
+	return useContext(SafeAreaInsetsContext) ?? NO_SYSTEM_BARS;
+}
+
 const SHOW_KEYBOARD = Platform.select({ ios: 'keyboardWillShow', default: 'keyboardDidShow' } as const);
 const HIDE_KEYBOARD = Platform.select({ ios: 'keyboardWillHide', default: 'keyboardDidHide' } as const);
 
@@ -67,12 +81,20 @@ function emptyTextOf(hasOptions: boolean): string {
 	return translate('taskMenus.noOptions');
 }
 
-/** The bottom of the area the menu may take: the area's own, or the top of the keyboard when it is higher. */
-function areaBottomOf(area: MenuArea, keyboardTop: number | null): number {
+/**
+ * The part of its area the menu may take: under the status bar, above the navigation bar and the keyboard. The
+ * phone's bars are left out only where the area reaches under them.
+ */
+function areaLimitsOf(area: MenuArea, bars: SystemBars, screenHeight: number, keyboardTop: number | null) {
+	const top = Math.max(0, bars.top - area.y);
+	const areaBottom = area.y + area.height;
+	const bottomGap = screenHeight - areaBottom;
+	const bottomBar = Math.max(0, bars.bottom - bottomGap);
+	const aboveBar = area.height - bottomBar;
 	if (keyboardTop === null) {
-		return area.height;
+		return { top, bottom: aboveBar };
 	}
-	return Math.min(area.height, keyboardTop - area.y);
+	return { top, bottom: Math.min(aboveBar, keyboardTop - area.y) };
 }
 
 export interface MenuMeasures {
@@ -80,15 +102,18 @@ export interface MenuMeasures {
 	listHeight: number;
 	footerHeight: number;
 	keyboardTop: number | null;
+	bars: SystemBars;
+	screenHeight: number;
 }
 
 /** The menu's place on its area, from its chip and the height its search line, list and footer take. */
-export function placementInArea(area: MenuArea, { anchor, listHeight, footerHeight, keyboardTop }: MenuMeasures) {
+export function placementInArea(area: MenuArea, measures: MenuMeasures) {
+	const { anchor, listHeight, footerHeight, keyboardTop, bars, screenHeight } = measures;
 	const shownListHeight = Math.min(listHeight, MENU_LIST_MAX_HEIGHT);
 	const menuHeight = MENU_SEARCH_HEIGHT + shownListHeight + footerHeight;
 	const anchorInArea = { ...anchor, x: anchor.x - area.x, y: anchor.y - area.y };
-	const bottom = areaBottomOf(area, keyboardTop);
-	return menuPlacementOf(anchorInArea, menuHeight, { width: area.width, bottom });
+	const limits = areaLimitsOf(area, bars, screenHeight, keyboardTop);
+	return menuPlacementOf(anchorInArea, menuHeight, { width: area.width, ...limits });
 }
 
 /** One value to pick: its glyph, its name, and a check on the value the task holds. */
@@ -173,6 +198,7 @@ export function PropertyMenu<T extends MenuOption>({
 	const [listHeight, setListHeight] = useState<number | null>(null);
 	const [footerHeight, setFooterHeight] = useState(0);
 	const keyboardTop = useKeyboardTop();
+	const bars = useSystemBars();
 	const shownOptions = options.filter((option) => matchesQuery(option.label, query));
 	const isMeasured = area !== null && listHeight !== null;
 
@@ -182,7 +208,8 @@ export function PropertyMenu<T extends MenuOption>({
 
 	let placementStyle = {};
 	if (area !== null && listHeight !== null) {
-		placementStyle = placementInArea(area, { anchor, listHeight, footerHeight, keyboardTop });
+		const screenHeight = Dimensions.get('screen').height;
+		placementStyle = placementInArea(area, { anchor, listHeight, footerHeight, keyboardTop, bars, screenHeight });
 	}
 
 	return (

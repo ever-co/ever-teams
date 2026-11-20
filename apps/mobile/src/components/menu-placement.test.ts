@@ -1,6 +1,6 @@
 import { menuPlacementOf } from './menu-placement';
 
-const PHONE = { width: 360, bottom: 640 };
+const PHONE = { width: 360, top: 0, bottom: 640 };
 
 describe('where a menu opens', () => {
 	it('opens under its trigger, 4 below, its start on the trigger start, 240 wide', () => {
@@ -32,12 +32,31 @@ describe('where a menu opens', () => {
 	it('opens above when the keyboard takes the room below', () => {
 		const trigger = { x: 40, y: 200, width: 120, height: 30 };
 
-		expect(menuPlacementOf(trigger, 150, { width: 360, bottom: 380 }).top).toBe(46);
+		expect(menuPlacementOf(trigger, 150, { width: 360, top: 0, bottom: 380 }).top).toBe(46);
 	});
 
 	it('narrows on a screen under 256 wide, 8 from each edge', () => {
 		const trigger = { x: 20, y: 100, width: 100, height: 30 };
 
-		expect(menuPlacementOf(trigger, 100, { width: 240, bottom: 640 })).toMatchObject({ left: 8, width: 224 });
+		expect(menuPlacementOf(trigger, 100, { width: 240, top: 0, bottom: 640 })).toMatchObject({
+			left: 8,
+			width: 224
+		});
+	});
+
+	it('keeps under the status bar when it opens above', () => {
+		const trigger = { x: 40, y: 330, width: 120, height: 30 };
+
+		const placement = menuPlacementOf(trigger, 400, { width: 360, top: 24, bottom: 616 });
+
+		expect(placement).toEqual({ top: 32, left: 40, width: 240, maxHeight: 294 });
+	});
+
+	it('keeps above a keyboard that covers its trigger', () => {
+		const trigger = { x: 40, y: 446, width: 120, height: 30 };
+
+		const placement = menuPlacementOf(trigger, 220, { width: 360, top: 24, bottom: 340 });
+
+		expect(placement).toEqual({ top: 112, left: 40, width: 240, maxHeight: 300 });
 	});
 });
