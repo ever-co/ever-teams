@@ -8,6 +8,8 @@ import {
 	TeamsLoginDialog,
 	TeamsProvider,
 	useSiteSignIn,
+	type GetKitToken,
+	type KitHostToken,
 	type SiteSignInControls,
 	type TimerChange
 } from '@ever-teams/atoms';
@@ -74,6 +76,26 @@ function signInConfigOf(element: HTMLElement): SiteSignInConfig {
 	return config;
 }
 
+/**
+ * token-url: the host's own route that answers the signed-in person's embed token, as the route handlers of the
+ * `@ever-teams/api` README do (`exchangeEmbedToken`). The element asks it with the page's cookies, as the kit's
+ * config.getToken: a page without React signs people in from its backend (#5596). A refusal is the host saying the
+ * person is signed out of it: the kit shows its note for that.
+ */
+function tokenGetterOf(url: string): GetKitToken {
+	return async () => {
+		const answer = await fetch(url, {
+			method: 'POST',
+			credentials: 'same-origin',
+			headers: { Accept: 'application/json' }
+		});
+		if (!answer.ok) {
+			throw new Error(`token-url answered ${answer.status}`);
+		}
+		return (await answer.json()) as KitHostToken;
+	};
+}
+
 // The sign-in controls of a render, with the API address and organization that render named.
 interface KeptSiteSignIn {
 	controls: SiteSignInControls;
@@ -105,7 +127,15 @@ function SiteSignInBridge({ keep, scope }: { keep: KeepSiteSignIn; scope: string
  * Teams from the page.
  */
 export class EverTeamsTimerElement extends HTMLElement {
-	static readonly observedAttributes = ['api-url', 'color-scheme', 'lang', 'sign-in', 'organization', 'app-url'];
+	static readonly observedAttributes = [
+		'api-url',
+		'color-scheme',
+		'lang',
+		'sign-in',
+		'organization',
+		'app-url',
+		'token-url'
+	];
 
 	private root: Root | null = null;
 	private cache: EmotionCache | null = null;
@@ -191,6 +221,21 @@ export class EverTeamsTimerElement extends HTMLElement {
 		return JSON.stringify([config.apiUrl ?? '', this.getAttribute('organization') ?? '']);
 	}
 
+	// One token source per token-url, kept across renders.
+	private hostToken: { url: string; getToken: GetKitToken } | null = null;
+
+	private hostTokenConfig(): { getToken?: GetKitToken } {
+		const url = this.getAttribute('token-url');
+		if (!url) {
+			this.hostToken = null;
+			return {};
+		}
+		if (this.hostToken?.url !== url) {
+			this.hostToken = { url, getToken: tokenGetterOf(url) };
+		}
+		return { getToken: this.hostToken.getToken };
+	}
+
 	private render() {
 		if (!this.root || !this.cache) {
 			return;
@@ -203,7 +248,7 @@ export class EverTeamsTimerElement extends HTMLElement {
 		this.root.render(
 			<CacheProvider value={this.cache}>
 				<TeamsProvider
-					config={{ ...configOf(apiUrl, this.hadApiUrl), ...signInConfigOf(this) }}
+					config={{ ...configOf(apiUrl, this.hadApiUrl), ...signInConfigOf(this), ...this.hostTokenConfig() }}
 					scopedStyles
 					colorScheme={colorSchemeOf(this.getAttribute('color-scheme'))}
 					lang={lang}

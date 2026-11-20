@@ -22,6 +22,13 @@ export interface EverTeamsTimerAttributes {
 	organization?: string;
 	/** The Ever Teams web app the popup opens, with `sign-in="ever-teams"`. Default: `https://app.ever.team`. */
 	'app-url'?: string;
+	/**
+	 * Your own route that answers the signed-in person's embed token (`{ token, expiresAt }`, what `exchangeEmbedToken`
+	 * of `@ever-teams/api/server` answers). The element asks it with a POST and the page's cookies, signs the person in
+	 * with that token and asks again before it expires; an answer that is not 2xx shows the person as signed out. It
+	 * wins over `sign-in`.
+	 */
+	'token-url'?: string;
 }
 
 /** The values of `sign-in`: `ever-teams`, the sign-in with Ever Teams in a popup. */
