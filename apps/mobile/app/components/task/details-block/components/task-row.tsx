@@ -2,6 +2,9 @@
 import { View, StyleSheet } from "react-native"
 import React from "react"
 
+/** The label column of a property row: the web's 6.75rem. */
+export const PROPERTY_LABEL_WIDTH = 108
+
 interface ITaskRow {
 	labelComponent: React.ReactNode
 	children: React.ReactNode
@@ -10,7 +13,7 @@ interface ITaskRow {
 
 const TaskRow = ({ labelComponent, children, alignItems }: ITaskRow) => {
 	return (
-		<View style={[styles.container, { alignItems: alignItems ? "center" : "flex-start" }]}>
+		<View testID="task-row" style={[styles.container, { alignItems: alignItems ? "center" : "flex-start" }]}>
 			<View style={styles.labelContainer}>{labelComponent}</View>
 			<View style={styles.childrenContainer}>{children}</View>
 		</View>
@@ -20,15 +23,20 @@ const TaskRow = ({ labelComponent, children, alignItems }: ITaskRow) => {
 export default TaskRow
 
 const styles = StyleSheet.create({
+	// a one-line value sits in the middle of the row's 32, level with its label
 	childrenContainer: {
+		flex: 1,
 		gap: 7,
-		width: "56%",
+		justifyContent: "center",
+		minHeight: 32,
+		minWidth: 0,
 	},
 	container: {
 		flexDirection: "row",
-		justifyContent: "space-between",
+		gap: 8,
+		minHeight: 32,
 	},
 	labelContainer: {
-		width: "40%",
+		width: PROPERTY_LABEL_WIDTH,
 	},
 })
