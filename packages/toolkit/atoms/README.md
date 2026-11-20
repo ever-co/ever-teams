@@ -217,7 +217,9 @@ What the kit does with it:
 - When `getToken` throws or rejects, or answers a token with no `expiresAt` or one less than 10 seconds away, the
   widgets show the person as signed out, and `TeamsLoginDialog` says "Sign in to this site to use your Ever Teams
   timer." instead of asking for a password. The kit asks again when the page comes back (focus, or the tab visible
-  again), never sooner than 5 seconds after the failure.
+  again), never sooner than 5 seconds after the failure. Signed out while the timer runs (the last status the kit read
+  showed it running), it also says that the timer keeps running in Ever Teams until the person stops it there: a
+  sign-out stops nothing.
 - A token for another person or organization than the previous one starts a new session: the user is read again.
 - When a person signs in to or out of your product without a page load, mount a new `TeamsProvider` (the `key` in the
   example) or unmount it. Unmounting is what clears the token and the profile the kit holds in memory: the token's

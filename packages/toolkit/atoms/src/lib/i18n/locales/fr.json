@@ -90,6 +90,7 @@
 	"AUTH": {
 		"sign_in_title": "Se connecter",
 		"host_sign_in": "Connectez-vous à ce site pour utiliser votre minuteur Ever Teams.",
+		"timer_left_running": "Votre minuteur tournait quand vous avez été déconnecté : il continue de tourner dans Ever Teams jusqu'à ce que vous l'y arrêtiez.",
 		"sign_in_with_ever_teams": "Se connecter avec Ever Teams",
 		"site_sign_in_waiting": "Terminez la connexion dans la fenêtre Ever Teams.",
 		"site_sign_in_blocked": "Votre navigateur a bloqué la fenêtre Ever Teams. Autorisez les fenêtres pop-up pour ce site, puis réessayez.",
