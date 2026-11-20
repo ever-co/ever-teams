@@ -621,6 +621,7 @@
 			"version": "版本"
 		},
 		"addLabel": "添加标签",
-		"editLabels": "编辑标签"
+		"editLabels": "编辑标签",
+		"rowActions": "{name} 的操作"
 	}
 }

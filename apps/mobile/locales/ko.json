@@ -621,6 +621,7 @@
 			"version": "버전"
 		},
 		"addLabel": "라벨 추가",
-		"editLabels": "라벨 편집"
+		"editLabels": "라벨 편집",
+		"rowActions": "{name} 작업"
 	}
 }

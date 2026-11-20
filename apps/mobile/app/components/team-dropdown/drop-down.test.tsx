@@ -22,6 +22,7 @@ jest.mock('../../theme', () => ({
 }));
 jest.mock('@react-navigation/native', () => ({ useNavigation: () => ({}) }));
 jest.mock('../../navigators/routes', () => ({ navigateTo: jest.fn() }));
+jest.mock('../../../src/components/icons', () => jest.requireActual('../../../test/icons-stand-in').iconsStandIn());
 
 function drawSwitcher(isOpen: boolean, isAccountVerified = true) {
 	const handlers = { setIsOpen: jest.fn(), onCreateTeam: jest.fn() };
@@ -117,5 +118,13 @@ describe('the team switcher', () => {
 
 		expect(name.props.numberOfLines).toBe(1);
 		expect(StyleSheet.flatten(name.props.style).flexShrink).toBe(1);
+	});
+
+	it("closes on the web's up-down chevrons, in muted-foreground", async () => {
+		await drawSwitcher(false).drawing;
+
+		expect(await screen.findByTestId('icon-ChevronsUpDown')).toHaveStyle({
+			color: themeFor('light').colors['muted-foreground']
+		});
 	});
 });

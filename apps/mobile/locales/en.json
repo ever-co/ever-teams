@@ -621,6 +621,7 @@
 			"version": "Version"
 		},
 		"addLabel": "Add label",
-		"editLabels": "Edit labels"
+		"editLabels": "Edit labels",
+		"rowActions": "Actions for {name}"
 	}
 }

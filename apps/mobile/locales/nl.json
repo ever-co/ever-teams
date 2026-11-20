@@ -621,6 +621,7 @@
 			"version": "Versie"
 		},
 		"addLabel": "Label toevoegen",
-		"editLabels": "Labels bewerken"
+		"editLabels": "Labels bewerken",
+		"rowActions": "Acties voor {name}"
 	}
 }

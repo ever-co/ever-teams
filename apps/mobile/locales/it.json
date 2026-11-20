@@ -621,6 +621,7 @@
 			"version": "Versione"
 		},
 		"addLabel": "Aggiungi etichetta",
-		"editLabels": "Modifica etichette"
+		"editLabels": "Modifica etichette",
+		"rowActions": "Azioni per {name}"
 	}
 }

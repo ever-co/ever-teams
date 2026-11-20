@@ -19,7 +19,7 @@ import { translate } from '../i18n';
 import { typography, useWebTheme } from '../theme';
 import type { Theme } from '../../src/theme/use-theme';
 import type { ITaskLabelItem } from '../services/interfaces/ITaskLabel';
-import { menuLimitsOn, placementOnArea, useMenuArea } from './property-menu';
+import { MenuLayer, menuLimitsOn, placementOnArea, useMenuArea } from './property-menu';
 
 /** The web's filter menu (property-filter-menu.tsx): 224 wide, its end on the Filter button's, 6 below it. */
 export const FILTER_MENU_WIDTH = 224;
@@ -253,20 +253,7 @@ export function FilterMenu<F extends string>({
 	};
 
 	return (
-		// VoiceOver's escape goes up from the row it is on: the area holds the rows, the backdrop none
-		<View
-			ref={areaRef}
-			collapsable={false}
-			style={styles.area}
-			onLayout={measureArea}
-			onAccessibilityEscape={() => onDismiss()}
-		>
-			<Pressable
-				testID="menu-backdrop"
-				accessible={false}
-				style={StyleSheet.absoluteFill}
-				onPress={() => onDismiss()}
-			/>
+		<MenuLayer areaRef={areaRef} measureArea={measureArea} onDismiss={onDismiss}>
 			<View
 				testID="filter-menu"
 				style={[styles.menu, raisedSurfaceOf(theme), menuStyle, !isMeasured && styles.measuring]}
@@ -333,14 +320,11 @@ export function FilterMenu<F extends string>({
 					</ScrollView>
 				</View>
 			)}
-		</View>
+		</MenuLayer>
 	);
 }
 
 const styles = StyleSheet.create({
-	area: {
-		flex: 1
-	},
 	capitalized: {
 		textTransform: 'capitalize'
 	},

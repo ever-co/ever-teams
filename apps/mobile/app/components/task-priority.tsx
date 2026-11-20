@@ -75,6 +75,7 @@ const TaskPriority: FC<TaskPriorityProps> = observer(
 					{popup}
 					<PropertyTriggerButton
 						anchorRef={anchorRef}
+						expanded={openModal}
 						onPress={() => openFromAnchor(() => setOpenModal(true))}
 						kind="priority"
 						placeholder={translate('taskMenus.fields.priority')}

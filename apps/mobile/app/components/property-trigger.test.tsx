@@ -1,7 +1,12 @@
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react-native';
 import { StyleSheet, View } from 'react-native';
-import { PropertyTrigger, PropertyTriggerButton, propertyTriggerLookOf } from './property-trigger';
+import {
+	PropertyTrigger,
+	PropertyTriggerButton,
+	propertyTriggerLabelOf,
+	propertyTriggerLookOf
+} from './property-trigger';
 import { themeFor } from '../../src/theme/use-theme';
 
 jest.mock('../theme', () => ({
@@ -25,7 +30,7 @@ describe("a task property's trigger on the task page", () => {
 		expect(triggerStyleOf('size')).toMatchObject({
 			backgroundColor: light.colors.card,
 			borderRadius: 14,
-			height: 28
+			minHeight: 28
 		});
 		expect(screen.getByTestId('property-placeholder-size')).toBeTruthy();
 		expect(screen.getByText('Size')).toHaveStyle({ color: light.colors['muted-foreground'], fontSize: 13 });
@@ -35,7 +40,7 @@ describe("a task property's trigger on the task page", () => {
 		await render(<PropertyTrigger kind="size" item={medium} placeholder="Size" />);
 		const look = propertyTriggerLookOf(medium, light);
 
-		expect(triggerStyleOf('size')).toMatchObject({ borderRadius: 6, height: 28 });
+		expect(triggerStyleOf('size')).toMatchObject({ borderRadius: 6, minHeight: 28 });
 		expect(look.ink).not.toBe(light.colors.foreground);
 		expect(screen.getByText('medium')).toHaveStyle({ color: look.ink, fontSize: 12, textTransform: 'capitalize' });
 	});
@@ -63,5 +68,23 @@ describe("a task property's trigger on the task page", () => {
 
 		expect(open).toHaveBeenCalledTimes(1);
 		expect(anchorRef.current).not.toBeNull();
+	});
+
+	it('names the property and its value to a screen reader, and says whether its menu is open', async () => {
+		await render(
+			<PropertyTriggerButton
+				kind="size"
+				item={medium}
+				placeholder="Size"
+				anchorRef={React.createRef<View>()}
+				onPress={jest.fn()}
+				expanded
+			/>
+		);
+
+		const button = screen.getByRole('button');
+		expect(button.props.accessibilityLabel).toBe('Size, medium');
+		expect(button.props.accessibilityState).toMatchObject({ expanded: true });
+		expect(propertyTriggerLabelOf('Size', null)).toBe('Size');
 	});
 });

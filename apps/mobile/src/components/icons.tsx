@@ -9,6 +9,7 @@ import ArrowLeft02Icon from '@hugeicons/core-free-icons/ArrowLeft02Icon';
 import ArrowRight01Icon from '@hugeicons/core-free-icons/ArrowRight01Icon';
 import ArrowUp01Icon from '@hugeicons/core-free-icons/ArrowUp01Icon';
 import BellIcon from '@hugeicons/core-free-icons/BellIcon';
+import Briefcase01Icon from '@hugeicons/core-free-icons/Briefcase01Icon';
 import Calendar03Icon from '@hugeicons/core-free-icons/Calendar03Icon';
 import Cancel01Icon from '@hugeicons/core-free-icons/Cancel01Icon';
 import ChartHistogramIcon from '@hugeicons/core-free-icons/ChartHistogramIcon';
@@ -33,6 +34,7 @@ import Mail01Icon from '@hugeicons/core-free-icons/Mail01Icon';
 import Menu02Icon from '@hugeicons/core-free-icons/Menu02Icon';
 import Moon02Icon from '@hugeicons/core-free-icons/Moon02Icon';
 import MoreHorizontalIcon from '@hugeicons/core-free-icons/MoreHorizontalIcon';
+import MoreVerticalIcon from '@hugeicons/core-free-icons/MoreVerticalIcon';
 import PencilEdit02Icon from '@hugeicons/core-free-icons/PencilEdit02Icon';
 import PlayIcon from '@hugeicons/core-free-icons/PlayIcon';
 import RefreshIcon from '@hugeicons/core-free-icons/RefreshIcon';
@@ -46,6 +48,7 @@ import Target02Icon from '@hugeicons/core-free-icons/Target02Icon';
 import Task01Icon from '@hugeicons/core-free-icons/Task01Icon';
 import Tick02Icon from '@hugeicons/core-free-icons/Tick02Icon';
 import Timer02Icon from '@hugeicons/core-free-icons/Timer02Icon';
+import UnfoldMoreIcon from '@hugeicons/core-free-icons/UnfoldMoreIcon';
 import UserIcon from '@hugeicons/core-free-icons/UserIcon';
 import UserMultipleIcon from '@hugeicons/core-free-icons/UserMultipleIcon';
 
@@ -69,14 +72,17 @@ function icon(glyph: HugeiconsProps['icon'], name: string): IconComponent {
 
 // Navigation and chrome
 export const ArrowLeft = icon(ArrowLeft02Icon, 'ArrowLeft');
+export const Briefcase = icon(Briefcase01Icon, 'Briefcase');
 export const ChevronDown = icon(ArrowDown01Icon, 'ChevronDown');
 export const ChevronLeft = icon(ArrowLeft01Icon, 'ChevronLeft');
 export const ChevronRight = icon(ArrowRight01Icon, 'ChevronRight');
 export const ChevronUp = icon(ArrowUp01Icon, 'ChevronUp');
+export const ChevronsUpDown = icon(UnfoldMoreIcon, 'ChevronsUpDown');
 export const Globe = icon(GlobalIcon, 'Globe');
 export const Menu = icon(Menu02Icon, 'Menu');
 export const Moon = icon(Moon02Icon, 'Moon');
 export const MoreHorizontal = icon(MoreHorizontalIcon, 'MoreHorizontal');
+export const MoreVertical = icon(MoreVerticalIcon, 'MoreVertical');
 export const Search = icon(Search01Icon, 'Search');
 export const Sun = icon(Sun03Icon, 'Sun');
 export const X = icon(Cancel01Icon, 'X');

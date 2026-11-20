@@ -621,6 +621,7 @@
 			"version": "גרסה"
 		},
 		"addLabel": "הוספת תווית",
-		"editLabels": "עריכת תוויות"
+		"editLabels": "עריכת תוויות",
+		"rowActions": "פעולות עבור {name}"
 	}
 }

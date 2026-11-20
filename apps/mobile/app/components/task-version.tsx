@@ -69,6 +69,7 @@ const TaskVersion: FC<TaskVersionProps> = observer(
 					{popup}
 					<PropertyTriggerButton
 						anchorRef={anchorRef}
+						expanded={openModal}
 						onPress={() => openFromAnchor(() => setOpenModal(true))}
 						kind="version"
 						placeholder={translate('taskMenus.fields.version')}

@@ -4,11 +4,9 @@ import { StyleSheet, Text } from 'react-native';
 import { SignInStep } from './sign-in-step';
 import { themeFor } from '../../../../src/theme/use-theme';
 
-jest.mock('@expo/vector-icons', () => {
-	const mockReact = jest.requireActual('react');
-	const { Text: MockText } = jest.requireActual('react-native');
-	return { Feather: ({ name }: { name: string }) => mockReact.createElement(MockText, null, `icon ${name}`) };
-});
+jest.mock('../../../../src/components/icons', () =>
+	jest.requireActual('../../../../test/icons-stand-in').iconsStandIn()
+);
 jest.mock('../../../i18n', () => ({ translate: (key: string) => key }));
 jest.mock('../../../theme', () => ({
 	typography: { primary: { medium: 'medium', semiBold: 'semiBold' } },
@@ -43,6 +41,10 @@ describe('a step of sign-in', () => {
 		expect(StyleSheet.flatten(screen.getByText('common.back').props.style).color).toBe(
 			light.colors['muted-foreground']
 		);
+		expect(screen.getByTestId('icon-ArrowLeft')).toHaveStyle({
+			color: light.colors['muted-foreground'],
+			fontSize: 14
+		});
 	});
 
 	it('sends the step from a full-width primary pill', async () => {

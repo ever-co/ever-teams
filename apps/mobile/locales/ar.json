@@ -621,6 +621,7 @@
 			"version": "الإصدار"
 		},
 		"addLabel": "إضافة تصنيف",
-		"editLabels": "تعديل التصنيفات"
+		"editLabels": "تعديل التصنيفات",
+		"rowActions": "إجراءات {name}"
 	}
 }
