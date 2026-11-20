@@ -22,6 +22,12 @@ interface IGetTimeLogsParams {
 	employeeIds?: string[];
 }
 
+// The web app stores a time zone with its offset after it, "Europe/Berlin (UTC +01:00)"; the API takes the zone's name
+// only, as Gauzy's own readers keep what comes before " (UTC" (#5628).
+function zoneNameOf(timeZone: string): string {
+	return timeZone.split(' (UTC')[0];
+}
+
 export const getTimeLogs = async (
 	{
 		user,
@@ -44,7 +50,9 @@ export const getTimeLogs = async (
 		const { tenantId } = user;
 
 		// Use provided timezone or fallback to user's timezone or system default
-		const resolvedTimeZone = timeZone || user.timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+		const resolvedTimeZone = zoneNameOf(
+			timeZone || user.timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone
+		);
 
 		// Format dates for API (YYYY-MM-DD HH:mm:ss format)
 		const formatDateForApi = (dateObj: Date): string => {
