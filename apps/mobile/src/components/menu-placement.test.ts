@@ -1,4 +1,4 @@
-import { menuPlacementOf } from './menu-placement';
+import { menuPlacementOf, submenuPlacementOf } from './menu-placement';
 
 const PHONE = { width: 360, top: 0, bottom: 640 };
 
@@ -66,5 +66,36 @@ describe('where a menu opens', () => {
 		const placement = menuPlacementOf(filterButton, 200, PHONE, { width: 224, align: 'end', offset: 6 });
 
 		expect(placement).toEqual({ top: 300, left: 116, width: 224, maxHeight: 332 });
+	});
+});
+
+describe('where a submenu opens', () => {
+	const menu = { x: 260, y: 300, width: 224, height: 180 };
+
+	it('opens left of its menu, its top 4 above the row it opens from, as the web does', () => {
+		const wide = { width: 800, top: 0, bottom: 640 };
+		const row = { x: 264, y: 340, width: 216, height: 32 };
+
+		expect(submenuPlacementOf(menu, row, 200, wide, 192)).toEqual({
+			top: 336,
+			left: 62,
+			width: 192,
+			maxHeight: 296
+		});
+	});
+
+	it('opens right of its menu when the left has no room, and over it when neither side has', () => {
+		const leftMenu = { x: 8, y: 300, width: 224, height: 180 };
+		const row = { x: 12, y: 340, width: 216, height: 32 };
+
+		expect(submenuPlacementOf(leftMenu, row, 200, { width: 800, top: 0, bottom: 640 }, 192).left).toBe(238);
+		const phoneMenu = { x: 128, y: 300, width: 224, height: 180 };
+		expect(submenuPlacementOf(phoneMenu, row, 200, PHONE, 192).left).toBe(8);
+	});
+
+	it('keeps above the bottom of the screen, its list scrolling past it', () => {
+		const lowRow = { x: 264, y: 560, width: 216, height: 32 };
+
+		expect(submenuPlacementOf(menu, lowRow, 200, PHONE, 192)).toMatchObject({ top: 432, maxHeight: 200 });
 	});
 });

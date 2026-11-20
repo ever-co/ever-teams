@@ -79,3 +79,40 @@ export function menuPlacementOf(
 	const heightAbove = Math.min(menuHeight, roomAbove);
 	return { top: bottomAbove - heightAbove, left, width, maxHeight: roomAbove };
 }
+
+/** The gap between a menu and the submenu it opens, and how far above its row the submenu starts (the web's 6 and 4). */
+export const SUBMENU_SIDE_OFFSET = 6;
+export const SUBMENU_ALIGN_OFFSET = 4;
+
+/**
+ * Where a submenu opens beside its menu, as the web's filter submenus do: left of the menu, its top 4 above the row it
+ * opens from; right of the menu when the left has no room; over the menu, kept on screen, when neither side has, as
+ * on a phone. It stays above the bottom of the area, its list scrolling past it.
+ */
+export function submenuPlacementOf(
+	menu: MenuRect,
+	row: MenuRect,
+	submenuHeight: number,
+	area: MenuArea,
+	wantedWidth: number
+): MenuPlacement {
+	const width = Math.min(wantedWidth, area.width - 2 * MENU_COLLISION_PADDING);
+	const rightmostLeft = area.width - MENU_COLLISION_PADDING - width;
+	const leftOfMenu = menu.x - SUBMENU_SIDE_OFFSET - width;
+	const rightOfMenu = menu.x + menu.width + SUBMENU_SIDE_OFFSET;
+	const fitsLeft = leftOfMenu >= MENU_COLLISION_PADDING;
+	const fitsRight = rightOfMenu <= rightmostLeft;
+	let left = clamp(leftOfMenu, MENU_COLLISION_PADDING, rightmostLeft);
+	if (fitsLeft) {
+		left = leftOfMenu;
+	} else if (fitsRight) {
+		left = rightOfMenu;
+	}
+	const highestTop = area.top + MENU_COLLISION_PADDING;
+	const lowestBottom = area.bottom - MENU_COLLISION_PADDING;
+	const maxHeight = lowestBottom - highestTop;
+	const height = Math.min(submenuHeight, maxHeight);
+	const wantedTop = row.y - SUBMENU_ALIGN_OFFSET;
+	const top = clamp(wantedTop, highestTop, lowestBottom - height);
+	return { top, left, width, maxHeight: lowestBottom - top };
+}
