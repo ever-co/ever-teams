@@ -3,11 +3,12 @@ import { observer } from 'mobx-react-lite';
 import React, { FC, useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
+import { estimateRingColorsOf } from '../../../../../src/theme/estimate-ring';
 import { secondsToTime } from '../../../../helpers/date';
 import { useStores } from '../../../../models';
 import { useTaskStatistics } from '../../../../services/hooks/features/use-task-statistics';
 import { I_TeamMemberCardHook } from '../../../../services/hooks/features/use-team-member-card';
-import { useAppTheme } from '../../../../theme';
+import { useAppTheme, useWebTheme } from '../../../../theme';
 import { typography } from '../../../../theme/typography';
 
 interface IProps {
@@ -19,6 +20,7 @@ interface IProps {
 export const TimeProgressBar: FC<IProps> = observer(({ memberInfo, isAuthUser, onPress }) => {
 	// Get current timer seconds
 	const { colors } = useAppTheme();
+	const ringColors = estimateRingColorsOf(useWebTheme());
 
 	const {
 		TimerStore: { timerStatus },
@@ -45,8 +47,8 @@ export const TimeProgressBar: FC<IProps> = observer(({ memberInfo, isAuthUser, o
 					width={5}
 					fill={progress}
 					prefill={0}
-					tintColor="#27AE60"
-					backgroundColor="#F0F0F0"
+					tintColor={ringColors.tint}
+					backgroundColor={ringColors.track}
 				>
 					{() => (
 						<Text style={{ ...styles.progessText, color: colors.primary }}>

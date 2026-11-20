@@ -5,6 +5,7 @@ import { View, TouchableNativeFeedback, TouchableOpacity, StyleSheet, Image } fr
 import { Ionicons } from '@expo/vector-icons';
 import { Card, Text } from 'react-native-paper';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
+import { estimateRingColorsOf } from '../../../../../src/theme/estimate-ring';
 
 // COMPONENTS
 import { GLOBAL_STYLE as GS } from '../../../../../assets/ts/styles';
@@ -50,6 +51,7 @@ export interface Props extends ListItemProps {}
 
 export const ListItemContent: React.FC<ListItemProps> = observer((props) => {
 	const { colors } = useAppTheme();
+	const ringColors = estimateRingColorsOf(useWebTheme());
 	const {
 		TimerStore: { timerStatus }
 	} = useStores();
@@ -149,8 +151,8 @@ export const ListItemContent: React.FC<ListItemProps> = observer((props) => {
 									size={56}
 									width={7}
 									fill={progress}
-									tintColor="#27AE60"
-									backgroundColor="#F0F0F0"
+									tintColor={ringColors.tint}
+									backgroundColor={ringColors.track}
 								>
 									{() => (
 										<Text style={{ ...styles.progessText, color: colors.primary }}>
