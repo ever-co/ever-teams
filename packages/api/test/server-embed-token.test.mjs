@@ -2,6 +2,7 @@
 // node --test test/*.test.mjs (from packages/api). esbuild bundles the module with the error classes it throws.
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
+import { createServer } from 'node:http';
 import { inspect } from 'node:util';
 import {
 	API_URL,
@@ -229,6 +230,31 @@ test('a fetch failure keeps its name, message, code and causes, never the reques
 	assert.equal(error.cause.request, undefined, 'the request a custom fetch kept is not copied');
 	assert.equal(error.cause.cause.code, 'ECONNREFUSED');
 	assert.match(error.cause.cause.message, /^connect ECONNREFUSED for .*\[credential\]/);
+});
+
+// The guide's "Set a time limit" promises this error to a site whose fetch stops waiting (#5639).
+test('a time limit given through fetch cuts an API that never answers, as a network error', async () => {
+	const silent = createServer();
+	// Its own deadline: a helper that stopped passing the fetch on would get the connection dropped after 5 seconds,
+	// and fail here, instead of waiting forever.
+	silent.setTimeout(5_000);
+	await new Promise((resolve) => silent.listen(0, '127.0.0.1', resolve));
+	const apiUrl = `http://127.0.0.1:${silent.address().port}/api`;
+	const fetchWithinALimit = (url, init) => fetch(url, { ...init, signal: AbortSignal.timeout(200) });
+	try {
+		const error = await server.exchangeEmbedToken(optionsFor(fetchWithinALimit, { apiUrl })).then(
+			() => assert.fail('the API answered'),
+			(thrown) => thrown
+		);
+
+		assertWithoutCredential(error);
+		assert.equal(error.name, 'EverTeamsNetworkError');
+		assert.equal(error.status, 0);
+		assert.equal(error.cause.name, 'TimeoutError');
+	} finally {
+		silent.closeAllConnections();
+		silent.close();
+	}
 });
 
 test('a refusal that repeats the credential through JSON escapes loses it once parsed, in values and keys', async () => {

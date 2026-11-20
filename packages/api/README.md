@@ -381,6 +381,20 @@ The entry runs on a server only: Node 20 or later, or another runtime with `fetc
 page refuses it (the `browser` condition of the package's `exports`), and in a page it throws an `EverTeamsError`
 with the code `SERVER_ONLY`.
 
+### Set a time limit
+
+`exchangeEmbedToken` and `getClientReport` set no time limit of their own: when the API does not answer, they wait as
+long as the runtime's `fetch` does, and so does the request of your page that called them. Give them a `fetch` that
+stops waiting:
+
+```js
+const fetchWithin10Seconds = (url, init) => fetch(url, { ...init, signal: AbortSignal.timeout(10_000) });
+
+const { token, expiresAt } = await exchangeEmbedToken({ ...options, fetch: fetchWithin10Seconds });
+```
+
+A request cut by the limit throws an `EverTeamsNetworkError` whose `cause.name` is `TimeoutError`.
+
 ### In a Next.js route handler
 
 ```ts
@@ -645,7 +659,8 @@ const report = await getClientReport({
 
 Today and this week are counted in the organization's time zone (`timeZone`); `projects` holds this week's, the most
 first. The answer is the `IClientTimeReport` of `@ever-teams/toolkit-types`, which the kit's `TeamsClientTimeReport`
-draws: answer it to the page with `Cache-Control: no-store`.
+draws: answer it to the page with `Cache-Control: no-store`. Like the exchange, it takes a `fetch` option, where a
+[time limit](#set-a-time-limit) goes.
 
 Over plain HTTP it is `POST {apiUrl}/embed/client-report` with `{"credential":"gze_..."}`, answered 200 with the
 report. Its refusals are those of the exchange (401, 429, 404, 503), and:
