@@ -37,4 +37,12 @@ describe("a profile's task filter", () => {
 
 		expect(idsOf(result.current.tasksFiltered)).toEqual(['paint', 'bolts']);
 	});
+
+	it('keeps the tasks that hold a picked label, read from their tags', async () => {
+		const { result } = await renderHook(() => useTaskFilter(profileWith([PAINT, BOLTS])));
+
+		await act(async () => result.current.changeStatusFilter('label', ['Outdoor']));
+
+		expect(idsOf(result.current.tasksFiltered)).toEqual(['paint']);
+	});
 });
