@@ -13,7 +13,8 @@ import { expect, test, type Page } from '../../fixtures';
  * `[data-testid="scheduled-meeting"]`, 'Copy invitation', 'Add to calendar').
  *
  * The room itself is out of scope here: joining opens a video server, and a hermetic run does not
- * stand one up. `/api/auth/meet/jwt` is stubbed for the same reason Cypress stubs it.
+ * stand one up. `/api/auth/meet/jwt` is stubbed for the same reason Cypress stubs it, and so is the LiveKit
+ * token route, `/api/livekit`.
  */
 
 async function stubMeetJwt(page: Page): Promise<void> {
@@ -22,6 +23,15 @@ async function stubMeetJwt(page: Page): Promise<void> {
 			status: 200,
 			contentType: 'application/json',
 			body: JSON.stringify({ token: 'synthetic-meet-token', room: 'room_tenant' })
+		})
+	);
+	// The run has no LiveKit keys (test-servers.ts), so the app's own token route (app/api/livekit/route.ts) answers 500
+	// and the room page shows its error; the token is stubbed for the same reason the Jitsi JWT is.
+	await page.route(/\/api\/livekit(\?.*)?$/, (route) =>
+		route.fulfill({
+			status: 200,
+			contentType: 'application/json',
+			body: JSON.stringify({ token: 'synthetic-livekit-token' })
 		})
 	);
 }
@@ -104,10 +114,15 @@ test.describe('meetings', () => {
 		await page.getByRole('button', { name: /^Done$/ }).click();
 		await expect(page.getByTestId('meeting-scheduled')).toHaveCount(0, { timeout: 20_000 });
 
-		await page.getByTestId('scheduled-meeting').click();
-		await page.getByRole('button', { name: /^Delete$/ }).click();
-		// Cancellation asks for a confirmation before it deletes anything.
-		await page.getByRole('button', { name: /cancel the meeting|^Cancel$/ }).click();
+		// Delete is an item of the card's actions menu (core/components/pages/meet/home/meeting-card.tsx).
+		await page
+			.getByTestId('scheduled-meeting')
+			.getByRole('button', { name: 'Actions for To be cancelled' })
+			.click();
+		await page.getByRole('menuitem', { name: 'Delete' }).click();
+		// Cancellation asks for a confirmation before it deletes anything: "Cancel meeting" confirms, "Keep meeting"
+		// backs out (meeting-agenda.tsx).
+		await page.getByRole('button', { name: 'Cancel meeting' }).click();
 
 		await expect(page.getByTestId('scheduled-meeting')).toHaveCount(0, { timeout: 20_000 });
 		expect(written.cancelled, 'the delete never reached the API').toHaveLength(1);
@@ -205,11 +220,14 @@ test.describe('meetings', () => {
 		await input.fill('not a link');
 		await page.getByRole('button', { name: /^Join$/ }).click();
 		await expect(page.getByText('neither a meeting link nor a room name')).toBeVisible({ timeout: 20_000 });
-		await expect(page).not.toHaveURL(/\/meet\/jitsi/);
+		await expect(page, 'a refused input opens no room').toHaveURL(/\/meet$/);
 
 		await input.fill('design-review');
 		await page.getByRole('button', { name: /^Join$/ }).click();
-		await expect(page).toHaveURL(/\/meet\/jitsi$/, { timeout: 20_000 });
+		// The run's NEXT_PUBLIC_MEET_TYPE is not Jitsi (test-servers.ts), so rooms are LiveKit's, named in base64
+		// (meetPathFor and encodeRoomName in core/lib/utils/collaboration.ts).
+		const room = encodeURIComponent(Buffer.from('design-review').toString('base64'));
+		await expect(page).toHaveURL(new RegExp(`/meet/livekit\\?roomName=${room}$`), { timeout: 20_000 });
 		await expect(page.getByTestId('meet-join-now')).toBeVisible({ timeout: 20_000 });
 	});
 

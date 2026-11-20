@@ -53,7 +53,7 @@ async function serveTeamLabels(page: Page, initial: TeamLabel[]): Promise<LabelH
 		});
 	});
 
-	await page.route(/\/api\/tags\/bulk(\?.*)?$/, (route) => {
+	await page.route(/\/api\/tags\/bulk(\?.*)?$/, async (route) => {
 		const items = (route.request().postDataJSON()?.items ?? []) as LabelCreate[];
 		harness.bulkRequests.push(items);
 		const succeeded: Array<{ index: number; id: string }> = [];
@@ -63,7 +63,7 @@ async function serveTeamLabels(page: Page, initial: TeamLabel[]): Promise<LabelH
 				failed.push({ index, code: 'UNIQUE_CONSTRAINT_VIOLATION', message: `"${item.name}" is taken` });
 			else succeeded.push({ index, id: add(item).id });
 		});
-		route.fulfill({
+		await route.fulfill({
 			status: 201,
 			contentType: 'application/json',
 			body: JSON.stringify({
@@ -76,18 +76,21 @@ async function serveTeamLabels(page: Page, initial: TeamLabel[]): Promise<LabelH
 		});
 	});
 
-	await page.route(/\/api\/tags(\?.*)?$/, (route) => {
+	// Only the POST files a label (core/services/client/api/tags/tag.service.ts); a read of `/api/tags` goes on to the
+	// mock.
+	await page.route(/\/api\/tags(\?.*)?$/, async (route) => {
+		if (route.request().method() !== 'POST') return route.fallback();
 		const item = route.request().postDataJSON() as LabelCreate;
 		harness.singleRequests.push(item);
 		if (isTaken(item.name)) {
-			route.fulfill({
+			await route.fulfill({
 				status: 409,
 				contentType: 'application/json',
 				body: JSON.stringify({ statusCode: 409, message: `"${item.name}" is taken` })
 			});
 			return;
 		}
-		route.fulfill({ status: 201, contentType: 'application/json', body: JSON.stringify(add(item)) });
+		await route.fulfill({ status: 201, contentType: 'application/json', body: JSON.stringify(add(item)) });
 	});
 
 	return harness;
@@ -120,7 +123,14 @@ test.describe('the label catalog', () => {
 		await expect(catalog.getByText('6 labels picked')).toBeVisible();
 		await catalog.getByRole('button', { name: 'Add 6 labels' }).click();
 
-		await expect(page.locator('[data-sonner-toast]')).toContainText('6 labels added');
+		// The catalog's own toast (label-catalog-dialog.tsx), and no error toast beside it. The app's development build
+		// also raises an error toast for any read that failed (core/components/common/dev-error-toaster.tsx), so one
+		// here is a failed read on this page — as the mock's old answers to the embeds and API-token switches were
+		// (cypress/support/mock-gauzy-server.mjs).
+		await expect(page.locator('[data-sonner-toast][data-type="success"]')).toContainText('6 labels added');
+		await expect(page.locator('[data-sonner-toast][data-type="error"]'), 'an error toast came with it').toHaveCount(
+			0
+		);
 		await expect(catalog).toHaveCount(0);
 		await expect(page.locator('[data-row-menu]')).toHaveCount(6, { timeout: 20_000 });
 

@@ -32,13 +32,16 @@ for (const route of OWNED) {
 		});
 
 		await app(route.path);
-		const paths = await mock.paths();
 
+		// A route reads its data after the shell is ready, and the mock logs a request once it has answered it — after
+		// the delay above — so the log is polled, not read once. A failure prints the paths it did ask for; an endpoint
+		// ending in `/` stands for any path under it.
 		for (const endpoint of route.endpoints) {
-			const called = endpoint.endsWith('/')
-				? paths.some((path) => path.startsWith(endpoint))
-				: paths.includes(endpoint);
-			expect(called, `${route.path} never requested ${endpoint} (it asked for: ${paths.join(', ')})`).toBe(true);
+			const asked = async () =>
+				(await mock.paths()).map((path) =>
+					endpoint.endsWith('/') && path.startsWith(endpoint) ? endpoint : path
+				);
+			await expect.poll(asked, { message: `${route.path} never requested ${endpoint}` }).toContain(endpoint);
 		}
 	});
 }
@@ -57,7 +60,13 @@ test('opening the create-project form is what loads the currencies', async ({ ap
 
 	expect(await mock.calls('/api/currency'), 'the projects list alone must not load currencies').toHaveLength(0);
 
-	await page.getByRole('button', { name: /create (new )?project/i }).click();
+	// The page's own "Create project" sits in its toolbar, next to the Active/Archived switch "Projects to show"
+	// (core/components/pages/projects/list/projects-toolbar.tsx); the sidebar and the empty list carry one too.
+	await page
+		.getByRole('tablist', { name: 'Projects to show' })
+		.locator('xpath=..')
+		.getByRole('button', { name: 'Create project' })
+		.click();
 	await page.locator('#project_title').fill('Playwright Project');
 	// Cypress's `.closest('form').submit()` (route-ownership.cy.ts): fire the form's own submit event.
 	await page

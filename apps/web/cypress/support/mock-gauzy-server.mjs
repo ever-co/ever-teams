@@ -518,6 +518,9 @@ function routeResponse(
 	if (creation !== undefined) return creation;
 	if (pathname === '/api/user/me') return data.baseUser;
 	if (pathname === '/api/auth/workspaces') return data.workspaces;
+	// The signed-in user's sessions: a plain list (core/services/client/api/auth/user-session.service.ts `list`,
+	// read by Settings › Profile through core/hooks/settings/use-user-sessions.ts)
+	if (pathname === '/api/auth/sessions' && method === 'GET') return [];
 	if (pathname === '/api/auth/refresh-token')
 		return { token: 'synthetic-refreshed-token', refresh_token: 'synthetic-refresh-token' };
 	// Tokens for another organization of the caller's tenant (the web app switches when the token's differs). Like
@@ -707,8 +710,23 @@ function routeResponse(
 	if (method === 'GET' && pathname === '/api/timesheet/time-log') return [];
 	if (method === 'GET' && pathname === '/api/timesheet/statistics/time-slots') return [];
 	if (method === 'GET' && pathname === '/api/timesheet/activity') return [];
+	// The time-log reports (Reports › Actual and expected hours, Payments due, Project budget; the Projects page) are
+	// plain lists too (core/services/client/api/timesheets/time-log.service.ts getTimeLogReportWeekly, and
+	// time-log-report.service.ts getOwedAmountReport and getProjectBudgetReport, each validate an array)
+	if (
+		method === 'GET' &&
+		/^\/api\/timesheet\/time-log\/(?:report\/(?:daily|daily-chart|weekly|owed-report)|project-budget-limit)$/.test(
+			pathname
+		)
+	)
+		return [];
 	if (pathname === '/api/timesheet/statistics/counts') return { today: 0, week: 0, month: 0 };
-	if (pathname.startsWith('/api/timesheet/statistics/tasks')) return { global: {}, today: {} };
+	// Gauzy answers this POST with a plain list of task statistics; the web app asks it twice (all time, today) and
+	// builds `{ global, today }` itself (core/services/client/api/timesheets/statistic.service.ts, taskStatisticsSchema)
+	if (pathname.startsWith('/api/timesheet/statistics/tasks')) return [];
+	// Where the caller stands against each time goal: a plain list (core/services/client/api/timesheets/
+	// time-goal.service.ts `progress`); the goals list itself is the default pagination
+	if (pathname === '/api/time-goals/progress' && method === 'GET') return [];
 	if (/^\/api\/organization-team-employee\//.test(pathname))
 		return body ?? { affected: 1, generatedMaps: [], raw: [] };
 	// Scheduled meetings (employee appointments): kept for the session, so a meeting scheduled shows in the agenda
@@ -728,6 +746,32 @@ function routeResponse(
 	if (appointmentPath && method === 'DELETE') {
 		state.appointments = state.appointments.filter((appointment) => appointment.id !== appointmentPath[1]);
 		return { affected: 1, raw: [] };
+	}
+	// Embeds (Settings › Workspace › Embeds; the settings navigation reads the switch on every settings page,
+	// core/hooks/settings/use-hidden-settings-entries.ts): the server's switch, then the allowed sites and the
+	// credentials as plain lists (core/services/client/api/embeds/embeds.service.ts readConfig, listOrigins,
+	// listCredentials and core/types/schemas/embeds/embed.schema.ts)
+	if (pathname === '/api/embed-credentials/config' && method === 'GET') {
+		return { enabled: true, clientLimits: false, addMembers: false };
+	}
+	if ((pathname === '/api/embed-credentials' || pathname === '/api/embed-allowed-origins') && method === 'GET') {
+		return [];
+	}
+	// Personal API tokens (Settings › Personal › API tokens; the settings navigation reads the switch on every settings
+	// page, core/hooks/settings/use-hidden-settings-entries.ts): the switch, and the tokens as the default pagination
+	// (core/services/client/api/users/user-api-tokens.service.ts readConfig, core/types/schemas/user/user-api-token.schema.ts)
+	if (pathname === '/api/user-api-tokens/config' && method === 'GET') return { enabled: true };
+	// The integration types and an organization's integrations of a type (Settings › Team › Integrations): plain
+	// lists (core/services/client/api/integrations/integration.service.ts getIntegrationTypes, getIntegration)
+	if ((pathname === '/api/integration/types' || pathname === '/api/integration') && method === 'GET') return [];
+	// What an employee is paid (Settings › Personal reads its own): no rate set yet
+	// (core/services/client/api/organizations/rate.service.ts getEmployeePayRate, employeePayRateSchema)
+	const payRate = /^\/api\/employee\/([^/]+)\/pay-rate$/.exec(pathname);
+	if (payRate && method === 'GET') return { employeeId: payRate[1], payRateValue: null, payRateCurrency: null };
+	// The workspace's payment connector (Settings › Team › Integrations): not connected
+	// (core/services/client/api/organizations/invoice-payment-connection.service.ts, invoicePaymentConnectionSchema)
+	if (pathname === '/api/invoice-payments/connection' && method === 'GET') {
+		return { connected: false, isEnabled: false, isTestMode: false, checkoutEndpoint: null, notificationUrl: null };
 	}
 	if (pathname === '/api/favorite') return pagination([]);
 	if (pathname === '/api/organization-team-join') return pagination([]);
@@ -976,13 +1020,17 @@ export async function createMockGauzyServer({ fixture, port = 3988 } = {}) {
 		// The web app's statistics reporter reads `state` every few seconds in the browser runs: counted, not
 		// recorded with the requests the pages make.
 		if (requestUrl.pathname !== '/api/ever-stats/state') {
+			const bearer = String(request.headers.authorization ?? '').match(/^Bearer (.+)$/)?.[1];
 			state.requests.push({
 				method,
 				path: requestUrl.pathname,
 				query: requestUrl.searchParams.toString(),
 				startMs,
 				endMs,
-				status
+				status,
+				// Which access token arrived, as its sha256, never the token: lets a test prove the app forwarded exactly
+				// the token it holds (a reassembled chunked cookie, say) without a credential landing in a report.
+				bearerSha256: bearer ? createHash('sha256').update(bearer).digest('hex') : null
 			});
 		}
 		response.writeHead(status, { ...cors, 'content-type': 'application/json; charset=utf-8' });

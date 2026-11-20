@@ -17,9 +17,15 @@ test.describe('roles, invitations and the public team page', () => {
 	test('a role can be opened and its permissions seen', async ({ app }) => {
 		const page = await app('/permissions');
 
-		await expect(page.getByText('Roles & permissions')).toBeVisible({ timeout: 15_000 });
-		await page.getByText('ADMIN').click();
-		await expect(page.getByText('Activated')).toBeVisible({ timeout: 15_000 });
+		// The page title is its heading; the sidebar link and the breadcrumb repeat the words
+		// (core/components/pages/permissions/page-component.tsx).
+		await expect(page.getByRole('heading', { name: 'Roles & permissions' })).toBeVisible({ timeout: 15_000 });
+		await page.getByText('ADMIN', { exact: true }).click();
+		// A permission row is its label and its toggle's state (`PERMISSION_ROW` in page-component.tsx). The fixture role
+		// grants TIME_TRACKER and not ORG_TEAM_JOIN_REQUEST_EDIT (`rolePermissions` in cypress/support/mock-gauzy-server.mjs).
+		const permissionRow = (label: string) => page.getByText(label, { exact: true }).locator('xpath=..');
+		await expect(permissionRow('Track time')).toContainText('Activated', { timeout: 15_000 });
+		await expect(permissionRow('Handle requests')).toContainText('Deactivated');
 	});
 
 	test('the members page reads the team invitations', async ({ app, mock }) => {
@@ -48,12 +54,15 @@ test.describe('the status editor', () => {
 	test('opens the icon library inside the panel, and narrows it by search', async ({ app }) => {
 		const page = await app('/settings/team/statuses');
 
-		await page.getByRole('button', { name: 'Add status' }).click({ timeout: 20_000 });
+		// "Add status" is the page's button and the add row of each status group; the row of the To do group opens the
+		// inline editor (`data-add-row=<group>`, core/components/settings/pages/task-properties/property-list.tsx).
+		await page.locator('[data-add-row="todo"]').click({ timeout: 20_000 });
 		await page.locator('button[aria-label="Choose an icon"], button[aria-label^="Icon:"]').first().click();
 
 		const search = page.locator('input[placeholder="Search icons"]');
 		await expect(search).toBeVisible({ timeout: 15_000 });
-		await expect(page.getByRole('paragraph')).toContainText('Progress');
+		// Each icon group is labelled by a paragraph (property-icon-panel.tsx), Progress among them.
+		await expect(page.getByRole('paragraph').filter({ hasText: /^Progress$/ })).toBeVisible();
 		// The library draws its icons itself: no image file is fetched for them.
 		await expect(page.locator('button[aria-label="done"] svg')).toBeVisible();
 

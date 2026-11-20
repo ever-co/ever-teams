@@ -1,5 +1,5 @@
 import { expect, test } from '../../fixtures';
-import { hardVisit, mockRequestsWhen, type StubRequest } from '../../helpers';
+import { hardVisit, mockRequests, mockRequestsWhen, type StubRequest } from '../../helpers';
 
 /**
  * Who may read whose work profile.
@@ -69,13 +69,15 @@ test.describe('employee-scoped profile activity', () => {
 			scenario: { manager: false, shareProfileView: true }
 		});
 
-		await page.getByRole('button', { name: /^stats/i }).click();
+		// The profile's tabs are tabs, Stats among them (core/components/pages/profile/task-filters.tsx, the tab list of
+		// core/hooks/tasks/use-task-filter.ts); its count chip follows the name.
+		await page.getByRole('tab', { name: /^stats/i }).click();
 
-		// `mockRequestsWhen` returns the log that satisfied the count, so the settle below cannot add a read unseen.
-		const requests = await mockRequestsWhen((calls) => profileReads(calls).length >= 2);
+		await mockRequestsWhen((calls) => profileReads(calls).length >= 2);
+		// Give a third read the time it would take, then count from the log as it is after that wait.
 		await page.waitForTimeout(300);
 
-		const reads = profileReads(requests);
+		const reads = profileReads(await mockRequests());
 		expect(reads, 'a third profile read is the regression this guards').toHaveLength(2);
 		expect(
 			reads.filter((request) => new URLSearchParams(request.query).get('includeDaily') === 'false').length,

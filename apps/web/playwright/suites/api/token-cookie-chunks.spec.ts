@@ -1,4 +1,9 @@
+import { createHash } from 'node:crypto';
+
 import { expect, test, type ApiCall, type CookieComposer } from '../../api-fixtures';
+
+/** What the mock records of the token it received (`bearerSha256`): the same hash of the token the session holds. */
+const sha256 = (value: string) => createHash('sha256').update(value).digest('hex');
 
 /**
  * A long access token reaches the server as several cookies, and the server has to put it back together.
@@ -75,9 +80,12 @@ test.describe('the access token cookie, split or whole', () => {
 			ids.organizationA
 		);
 
-		expect(await mock.calls('/api/auth/switch-organization').then((calls) => calls.map((c) => c.status))).toEqual([
-			200
-		]);
+		const calls = await mock.calls('/api/auth/switch-organization');
+		expect(calls.map((c) => c.status)).toEqual([200]);
+		// The mock answers any token, so the status alone cannot show the reassembly kept every byte: the hash can.
+		expect(calls[0]?.bearerSha256, 'the API received a different token than the one that was split').toBe(
+			sha256(token)
+		);
 	});
 
 	test('a chunk that is missing is refused here instead of sending half a token', async ({
@@ -138,7 +146,7 @@ test.describe('the access token cookie, split or whole', () => {
 		expect(await mock.requests(), 'a tokenless session reached the API').toEqual([]);
 	});
 
-	test('the second tenant is read the same way, with its own token', async ({ api, cookies, ids }) => {
+	test('the second tenant is read the same way, with its own token', async ({ api, cookies, ids, mock }) => {
 		const token = tokenOf(cookies, 'B');
 		const { status, text } = await switchOrganization(api, chunked(cookies, 'B', token, 2), ids.organizationB);
 
@@ -147,5 +155,7 @@ test.describe('the access token cookie, split or whole', () => {
 		expect(organizationOf(String(body.token)), `the granted organization is not scope B's: ${text}`).toBe(
 			ids.organizationB
 		);
+		const [call] = await mock.calls('/api/auth/switch-organization');
+		expect(call?.bearerSha256, 'the API received a different token than scope B holds').toBe(sha256(token));
 	});
 });

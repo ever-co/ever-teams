@@ -16,14 +16,14 @@ import { signInAndVisit } from '../../helpers';
  * NEXT_PUBLIC_EVER_CONNECT_ENABLED=true, which test-servers.ts sets for that reason.
  */
 
-type CapturedCall = { authorization: string | null; status: number | null };
+type CapturedCall = { authorization: string | null; status: number };
 
+/** Records each call once the paired API has answered it, so a recorded call always carries its status. */
 async function capture(page: Page, path: RegExp, sink: CapturedCall[]): Promise<void> {
 	await page.route(path, async (route) => {
-		const entry: CapturedCall = { authorization: route.request().headers()['authorization'] ?? null, status: null };
-		sink.push(entry);
+		const authorization = route.request().headers()['authorization'] ?? null;
 		const response = await route.fetch();
-		entry.status = response.status();
+		sink.push({ authorization, status: response.status() });
 		await route.fulfill({ response });
 	});
 }

@@ -33,7 +33,14 @@ export const CONSOLE_NOISE = [
 	/Download the React DevTools/,
 	/favicon/i,
 	/\[Vercel\]/,
-	/DevTools setting/i
+	/DevTools setting/i,
+	// A read the app aborted itself, not a failure: `next dev` runs React Strict Mode (Next's App Router default), which
+	// mounts each component twice, so TanStack Query aborts the first fetch of a query whose AbortSignal was handed
+	// to axios and a second fetch answers (the trace shows GET /invite twice 4 ms apart, the first canceled, the
+	// second 200). InviteService.getTeamInvitations logs every rejection, this one too
+	// (core/services/client/api/organizations/teams/invites/invite.service.ts); ApiErrorService maps ERR_CANCELED
+	// to 499 (core/services/client/api-error.service.ts). Matches only that cancellation.
+	/\(Request Canceled\) – The request has been canceled by the client\. \(HTTP 499\)/
 ];
 
 export type StubRequest = {
@@ -43,6 +50,8 @@ export type StubRequest = {
 	startMs: number;
 	endMs: number;
 	status: number;
+	/** sha256 of the `Bearer` token the request carried (the mock never keeps the token), or null without one. */
+	bearerSha256: string | null;
 };
 
 export type BootstrapFixture = {
@@ -256,8 +265,13 @@ export const idpState = () =>
 		minted: Array<Record<string, unknown>>;
 	}>('/idp/state');
 
-/** The NextAuth session support/e2e.ts stubs globally; the app origin serves this route, the mock does not. */
-const SESSION_ROUTE = '**/api/auth/session**';
+/**
+ * The NextAuth session support/e2e.ts stubs globally; the app origin serves this route, the mock does not. Matched on
+ * the app origin and the exact path: a glob ending in `/api/auth/session**` also caught Gauzy's own `/api/auth/sessions`
+ * (the person's sessions, core/services/client/api/auth/user-session.service.ts) and answered it with this object, so
+ * Settings › Profile crashed on "sessions is not iterable".
+ */
+const SESSION_ROUTE = (url: URL) => url.origin === APP_ORIGIN && url.pathname === '/api/auth/session';
 
 /** Takes the session stub away again: a later signed-out visit on the same page must not keep it. */
 export async function unstubNextAuthSession(page: Page): Promise<void> {

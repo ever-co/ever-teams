@@ -35,9 +35,15 @@ async function reportsAbove(count: number, timeoutMs: number) {
 
 test.describe('the anonymous usage statistics switch', () => {
 	test('switching it off stops the reports, and switching it back on resumes them', async ({ app, mock }) => {
+		// The case waits out the reporter's interval over and over (a report first, one interval and four more switched
+		// off, up to four to resume) on top of a page a dev server may compile on the way: more than the default budget.
+		test.slow();
+
+		// The reporter runs in the app's server, started by its instrumentation (instrumentation.ts). As the run's first
+		// test, against a `next dev` that had served nothing yet, no report came within 30 s: the page is opened first.
+		const page = await app('/settings/team/integrations');
 		await reportsAbove(0, 30_000);
 
-		const page = await app('/settings/team/integrations');
 		await expect(page.getByTestId('ever-platform-section')).toBeVisible({ timeout: 20_000 });
 
 		const toggle = page.getByTestId('ever-stats-toggle');

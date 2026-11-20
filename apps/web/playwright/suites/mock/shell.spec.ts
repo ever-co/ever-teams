@@ -10,13 +10,20 @@ test.describe('authenticated shell', () => {
 		await mock.scenario({ requirePlanToTrack: true });
 		const page = await app('/team/tasks');
 
-		const paths = await mock.paths();
-		const user = paths.indexOf('/api/user/me');
-		const workspaces = paths.indexOf('/api/auth/workspaces');
-		const teams = paths.indexOf('/api/organization-team');
-		const tasks = paths.indexOf('/api/tasks/team');
+		const requests = await mock.requests();
+		const paths = requests.map((request) => request.path);
+		// The mock logs a request once it has answered it, so the log's order is the order of the answers. The
+		// phase order is when each phase was first asked: the earliest `startMs` of its path (NaN when never asked).
+		const firstAsked = (path: string) => {
+			const starts = requests.filter((request) => request.path === path).map((request) => request.startMs);
+			return starts.length > 0 ? Math.min(...starts) : Number.NaN;
+		};
+		const user = firstAsked('/api/user/me');
+		const workspaces = firstAsked('/api/auth/workspaces');
+		const teams = firstAsked('/api/organization-team');
+		const tasks = firstAsked('/api/tasks/team');
 
-		expect(user, 'user phase').toBeGreaterThan(-1);
+		expect(user, 'user phase').not.toBeNaN();
 		expect(workspaces, 'workspace phase').toBeGreaterThan(user);
 		expect(teams, 'team phase').toBeGreaterThan(workspaces);
 		expect(tasks, 'task phase').toBeGreaterThan(teams);
@@ -50,7 +57,9 @@ test.describe('authenticated shell', () => {
 
 	test('scope A renders the fixture team of scope A, and nothing of scope B', async ({ app, fixture }) => {
 		const page = await app('/team/tasks', { scope: 'A' });
-		await expect(page.getByText(fixture.names.teamA)).toBeVisible();
+		// The header's team switcher names the active team (core/components/teams/teams-dropdown.tsx); the breadcrumb
+		// repeats the name as a link, so the text alone is not one element.
+		await expect(page.getByRole('button', { name: fixture.names.teamA })).toBeVisible();
 		await expect(page.getByText(fixture.names.teamB)).toHaveCount(0);
 	});
 

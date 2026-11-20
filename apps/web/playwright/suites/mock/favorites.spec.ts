@@ -51,7 +51,10 @@ async function serveFavorites(page: Page, favorites: StoredFavorite[]) {
 			body: JSON.stringify({ items: [FAVORITE_TASK], total: 1 })
 		});
 	});
+	// Filing a favourite is the POST (core/services/client/api/favorites/favorite.service.ts); any other verb goes
+	// on to the mock.
 	await page.route(/\/api\/favorite$/, async (route) => {
+		if (route.request().method() !== 'POST') return route.fallback();
 		const body = (route.request().postDataJSON() ?? {}) as Record<string, string>;
 		const created: StoredFavorite = {
 			id: favoriteIdOf(filed.length + 1),
@@ -66,7 +69,9 @@ async function serveFavorites(page: Page, favorites: StoredFavorite[]) {
 		filed.push(created);
 		await route.fulfill({ status: 201, contentType: 'application/json', body: JSON.stringify(created) });
 	});
+	// Only a DELETE removes a favourite: any other request for one row goes on to the mock, and is not a removal.
 	await page.route(/\/api\/favorite\/[0-9a-f-]{36}$/, async (route) => {
+		if (route.request().method() !== 'DELETE') return route.fallback();
 		const id = new URL(route.request().url()).pathname.split('/').pop() ?? '';
 		removed.push(id);
 		const at = favorites.findIndex((favorite) => favorite.id === id);
@@ -121,7 +126,9 @@ test.describe('favorites', () => {
 		await projects.getByRole('button', { name: 'Remove Fixture Project from favorites' }).click();
 		await expect.poll(() => served.removed.length, { message: 'removing sent no delete to the API' }).toBe(1);
 
-		await expect(page.getByText('No favorites yet')).toBeVisible({ timeout: 20_000 });
+		// The page's empty state is a heading (core/components/pages/favorites/favorites-page.tsx); the sidebar's
+		// Favorites group says the same words when it is open.
+		await expect(page.getByRole('heading', { name: 'No favorites yet' })).toBeVisible({ timeout: 20_000 });
 	});
 
 	test('lists a favourite task of another team, and keeps a favourite whose item is gone apart, to remove it', async ({

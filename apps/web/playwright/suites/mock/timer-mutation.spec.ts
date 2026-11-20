@@ -129,7 +129,11 @@ test.describe('starting the timer', () => {
 		});
 		await hardVisit(page, '/');
 
-		await expect(page.getByText(fixture.names.task)).toBeVisible({ timeout: 20_000 });
+		// The task bar is the timer's task input, which holds the task it would start on
+		// (core/components/tasks/task-input.tsx); the member cards below repeat the title as text.
+		await expect(page.getByRole('textbox', { name: 'What are you working on?' })).toHaveValue(fixture.names.task, {
+			timeout: 20_000
+		});
 		await expect(startButton(page)).toHaveAttribute('aria-disabled', 'false', { timeout: 20_000 });
 		await startButton(page).click();
 
@@ -161,12 +165,12 @@ test.describe('starting the timer', () => {
 		await page.reload({ waitUntil: 'domcontentloaded' });
 		await waitForShellReady(page);
 
-		await expect(page.getByText(fixture.names.teamB)).toBeVisible({ timeout: 15_000 });
+		// The header's team switcher names the active team (core/components/teams/teams-dropdown.tsx); the breadcrumb
+		// repeats the name as a link, so the text alone is not one element.
+		const activeTeam = page.getByRole('button', { name: fixture.names.teamB });
+		await expect(activeTeam).toBeVisible({ timeout: 15_000 });
 		await page.waitForTimeout(1_000);
-		await expect(
-			page.getByText(fixture.names.teamB),
-			'the delayed answer of the workspace left behind'
-		).toBeVisible();
+		await expect(activeTeam, 'the delayed answer of the workspace left behind').toBeVisible();
 
 		const teamPlans = (await mock.requests()).filter((request) => request.path.startsWith('/api/daily-plan'));
 		const lastScope = new URLSearchParams(teamPlans.at(-1)?.query ?? '').get('where[tenantId]');
