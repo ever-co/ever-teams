@@ -141,11 +141,30 @@ function priorityBarOpacity(index: number, level: number) {
 	return 0.3;
 }
 
+function NoPriorityShape({ color }: Readonly<{ color: string }>) {
+	return <Path d="M2 7h2M6 7h2M10 7h2" stroke={color} strokeWidth="1.5" strokeLinecap="round" />;
+}
+
+function SizeFrame({ color }: Readonly<{ color: string }>) {
+	return (
+		<Rect
+			x="1.25"
+			y="1.25"
+			width="11.5"
+			height="11.5"
+			rx="3"
+			stroke={color}
+			strokeOpacity="0.35"
+			strokeWidth="1.5"
+		/>
+	);
+}
+
 function PriorityShape({ name, color, card }: Readonly<{ name: string; color: string; card: string }>) {
 	const priority = PRIORITY_BY_NAME.get(name);
 	const glyph = priority?.glyph;
 	if (glyph === 'none') {
-		return <Path d="M2 7h2M6 7h2M10 7h2" stroke={color} strokeWidth="1.5" strokeLinecap="round" />;
+		return <NoPriorityShape color={color} />;
 	}
 	if (glyph === 'urgent') {
 		return (
@@ -185,16 +204,7 @@ function SizeShape({ name, color }: Readonly<{ name: string; color: string }>) {
 	}
 	return (
 		<>
-			<Rect
-				x="1.25"
-				y="1.25"
-				width="11.5"
-				height="11.5"
-				rx="3"
-				stroke={color}
-				strokeOpacity="0.35"
-				strokeWidth="1.5"
-			/>
+			<SizeFrame color={color} />
 			<Rect x="3.5" y={10.5 - side} width={side} height={side} rx="1" fill={color} />
 		</>
 	);
@@ -224,6 +234,33 @@ export function TaskPropertyIcon({ kind, name, color, size = 16 }: Readonly<ITas
 			{kind === 'priority' && <PriorityShape name={normalized} color={glyphColor} card={card} />}
 			{kind === 'size' && <SizeShape name={normalized} color={glyphColor} />}
 			{kind === 'label' && <Circle cx="7" cy="7" r="3.5" fill={glyphColor} />}
+		</Svg>
+	);
+}
+
+interface ITaskPropertyPlaceholderIcon {
+	kind: TaskPropertyKind;
+	/** muted-foreground unless the place asks for another. */
+	color?: string;
+	size?: number;
+}
+
+/**
+ * The web's glyph for a property without a value (TaskPropertyPlaceholderIcon): the dashed ring of a status, the
+ * dashes of a priority, the empty frame of a size, the tag of a label or a version.
+ */
+export function TaskPropertyPlaceholderIcon({ kind, color, size = 16 }: Readonly<ITaskPropertyPlaceholderIcon>) {
+	const theme = useWebTheme();
+	const glyphColor = color ?? theme.colors['muted-foreground'];
+	const isTagKind = kind === 'label' || kind === 'version';
+	if (isTagKind) {
+		return <Tag testID={`property-placeholder-${kind}`} size={size} color={glyphColor} />;
+	}
+	return (
+		<Svg testID={`property-placeholder-${kind}`} width={size} height={size} viewBox="0 0 14 14" fill="none">
+			{kind === 'status' && <Ring color={glyphColor} dashed />}
+			{kind === 'priority' && <NoPriorityShape color={glyphColor} />}
+			{kind === 'size' && <SizeFrame color={glyphColor} />}
 		</Svg>
 	);
 }

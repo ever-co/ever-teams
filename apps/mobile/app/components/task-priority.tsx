@@ -2,7 +2,8 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, { FC, useState } from 'react';
 import { TouchableOpacity, View, Text, StyleSheet, ViewStyle } from 'react-native';
-import { AntDesign, Entypo } from '@expo/vector-icons';
+import { ChevronDown } from '../../src/components/icons';
+import { TaskPropertyPlaceholderIcon } from '../../src/components/task-property-icon';
 import { observer } from 'mobx-react-lite';
 import { ITeamTask } from '../services/interfaces/ITask';
 import { useTeamTasks } from '../services/hooks/features/use-team-tasks';
@@ -82,13 +83,13 @@ const TaskPriority: FC<TaskPriorityProps> = observer(
 							</View>
 						) : (
 							<View style={styles.wrapStatus}>
-								<Entypo name="circle" size={12} color={look.ink} />
+								<TaskPropertyPlaceholderIcon kind="priority" size={12} color={look.ink} />
 								<Text style={{ ...styles.text, color: look.ink, marginLeft: 5 }}>
 									{translate('settingScreen.priorityScreen.priorities')}
 								</Text>
 							</View>
 						)}
-						<AntDesign name="down" size={14} color={look.ink} />
+						<ChevronDown size={14} color={look.ink} />
 					</View>
 				</TouchableOpacity>
 			</>

@@ -2,7 +2,8 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, { FC, useRef, useState } from 'react';
 import { TouchableOpacity, View, Text, StyleSheet, ViewStyle, FlatList, Dimensions } from 'react-native';
-import { AntDesign, Entypo } from '@expo/vector-icons';
+import { ChevronDown, ChevronLeft, ChevronRight } from '../../src/components/icons';
+import { TaskPropertyPlaceholderIcon } from '../../src/components/task-property-icon';
 import { observer } from 'mobx-react-lite';
 import { ITeamTask } from '../services/interfaces/ITask';
 import { useTeamTasks } from '../services/hooks/features/use-team-tasks';
@@ -145,7 +146,7 @@ const TaskLabels: FC<TaskLabelProps> = observer(
 								]}
 								onPress={() => onNextPressed()}
 							>
-								<AntDesign name="right" size={18} color={colors.primary} />
+								<ChevronRight size={18} color={colors.primary} />
 							</TouchableOpacity>
 						)}
 						{labelIndex >= 1 ? (
@@ -160,7 +161,7 @@ const TaskLabels: FC<TaskLabelProps> = observer(
 								]}
 								onPress={() => onPrevPressed()}
 							>
-								<AntDesign name="left" size={18} color={colors.primary} />
+								<ChevronLeft size={18} color={colors.primary} />
 							</TouchableOpacity>
 						) : null}
 					</View>
@@ -181,7 +182,7 @@ const TaskLabels: FC<TaskLabelProps> = observer(
 								}}
 							>
 								<View style={styles.wrapStatus}>
-									<Entypo name="circle" size={12} color={placeholder.ink} />
+									<TaskPropertyPlaceholderIcon kind="label" size={12} color={placeholder.ink} />
 									<Text
 										style={{
 											...styles.text,
@@ -193,7 +194,7 @@ const TaskLabels: FC<TaskLabelProps> = observer(
 									</Text>
 								</View>
 
-								<AntDesign name="down" size={14} color={placeholder.ink} />
+								<ChevronDown size={14} color={placeholder.ink} />
 							</View>
 						</TouchableOpacity>
 						<FlatList
@@ -229,14 +230,14 @@ const TaskLabels: FC<TaskLabelProps> = observer(
 							}}
 						>
 							<View style={styles.wrapStatus}>
-								<Entypo name="circle" size={12} color={placeholder.ink} />
+								<TaskPropertyPlaceholderIcon kind="label" size={12} color={placeholder.ink} />
 								<Text style={{ ...styles.text, color: placeholder.ink, marginLeft: 5 }}></Text>
 								<Text style={{ ...styles.text, color: placeholder.ink }}>
 									{translate('settingScreen.labelScreen.labels')}
 								</Text>
 							</View>
 
-							<AntDesign name="down" size={14} color={placeholder.ink} />
+							<ChevronDown size={14} color={placeholder.ink} />
 						</View>
 					</TouchableOpacity>
 				)}
