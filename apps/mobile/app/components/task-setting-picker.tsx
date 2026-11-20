@@ -51,6 +51,8 @@ interface ITaskSettingPicker<T extends TaskSettingItem> {
 	searchPlaceholder?: string;
 	/** The menu's create action, in the web's words; the dialog keeps its create button's label. */
 	menuCreateLabel?: string;
+	/** Names shown as they were saved, as versions are. */
+	keepsCase?: boolean;
 }
 
 interface ICreateFooter {
@@ -92,7 +94,8 @@ function TaskSettingPickerView<T extends TaskSettingItem>({
 	kind,
 	anchor,
 	searchPlaceholder,
-	menuCreateLabel
+	menuCreateLabel,
+	keepsCase = false
 }: Readonly<ITaskSettingPicker<T>>) {
 	const { canCreate, readOnlyHint } = useTaskSettingsAccess();
 	const [isCreating, setIsCreating] = useState<boolean>(false);
@@ -120,6 +123,7 @@ function TaskSettingPickerView<T extends TaskSettingItem>({
 			onSelect={onSelect}
 			anchor={anchor}
 			searchPlaceholder={searchPlaceholder}
+			keepsCase={keepsCase}
 			footer={
 				canCreateHere && (
 					<CreateFooter
