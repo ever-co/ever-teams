@@ -59,7 +59,7 @@
 		"worked_this_week": "Worked this week",
 		"worked_over_period": "Worked over the period",
 		"today_activity": "Today's activity",
-		"week_activity": "Weeky activity",
+		"week_activity": "Weekly activity",
 		"activity_over_period": "Activity over the period",
 		"timer_only": "Open Ever Teams to see this. Your sign-in on this site covers your timer only."
 	},
@@ -176,7 +176,7 @@
 	},
 	"ACCOUNT_DELETION_FORM": {
 		"title": "Delete Account",
-		"description": "Account deletion is non-reversable. Please proceed with caution.",
+		"description": "Account deletion is irreversible. Please proceed with caution.",
 		"confirm_delete": "Are you sure you want to delete your account?",
 		"confirm_password": "Confirm Password",
 		"enter_current_password": "Enter your current password",
