@@ -402,6 +402,22 @@ test('token-url keeps its getToken through other changes, gives a new one for an
 	assert.equal(globalThis.lastConfig.getToken, undefined);
 });
 
+test('signOut() with token-url starts a new session that asks the route again, and ends no sign-in with Ever Teams', async () => {
+	const calls = standInTokenRoute(answered(200, TOKEN));
+	const element = await place({ 'api-url': 'https://api.example.com/api', 'token-url': '/api/ever-teams-token' });
+
+	await act(async () => element.signOut());
+
+	assert.equal(globalThis.unmounted, 1, 'the token the kit held goes with its session');
+	await globalThis.lastConfig.getToken();
+	assert.equal(calls.at(-1).url, '/api/ever-teams-token', 'the new session asks the same route');
+	assert.equal(globalThis.kitSignOuts, 0);
+	assert.deepEqual(globalThis.endedSignIns, []);
+
+	await act(async () => element.setAttribute('color-scheme', 'dark'));
+	assert.equal(globalThis.unmounted, 1, 'a later change of attribute keeps that session');
+});
+
 test('the package exports the event name', async () => {
 	const { TIMER_CHANGE_EVENT } = await import(entry);
 

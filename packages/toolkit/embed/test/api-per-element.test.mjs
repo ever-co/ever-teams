@@ -219,3 +219,40 @@ test("another token-url while the first route has not answered: the first route'
 	assert.ok(sentWith.includes(`Bearer ${tokenFor(2)}`), 'the second route signs the person in');
 	assert.ok(!sentWith.includes(`Bearer ${tokenFor(1)}`), "the first route's late token is never used");
 });
+
+test('signOut() with token-url drops the token: the route is asked again, and its 401 leaves no request with the token (#5596)', async () => {
+	const claims = Buffer.from(JSON.stringify({ id: 'user-1', organizationId: 'org-1' })).toString('base64url');
+	const token = `header.${claims}.signature`;
+	const expiresAt = new Date(Date.now() + 15 * 60_000).toISOString();
+	let signedIn = true;
+	let routeAsked = 0;
+	const sentWith = [];
+	const recording = recordingFetch(requests);
+	globalThis.fetch = (url, init) => {
+		if (String(url) === '/api/ever-teams-token') {
+			routeAsked += 1;
+			if (!signedIn) {
+				return Promise.resolve(new Response('{}', { status: 401 }));
+			}
+			return Promise.resolve(new Response(JSON.stringify({ token, expiresAt }), { status: 200 }));
+		}
+		sentWith.push(new Headers(init?.headers).get('authorization'));
+		return recording(url, init);
+	};
+	const timer = await place('https://a.example.com/api');
+	await act(async () => timer.setAttribute('token-url', '/api/ever-teams-token'));
+	await settle();
+	assert.ok(sentWith.includes(`Bearer ${token}`), 'the route signs the person in');
+
+	// The page signs its own user out, then the timers.
+	signedIn = false;
+	await act(async () => timer.signOut());
+	await settle();
+	sentWith.length = 0;
+	// The timer reads its status again when the page gets the focus back: signed in, with the token it holds.
+	await act(async () => window.dispatchEvent(new Event('focus')));
+	await settle();
+
+	assert.equal(routeAsked, 2, 'the new session asks the route again');
+	assert.ok(!sentWith.includes(`Bearer ${token}`), 'no request carries the token after signOut()');
+});
