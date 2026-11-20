@@ -2,7 +2,8 @@
 
 // cspell:ignore Fabrikam Northwind
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
+import { toast } from 'sonner';
 import { embedsAvailabilityOf } from '@/core/hooks/settings/use-embeds';
 import { isOriginLike } from '@/core/types/schemas/embeds/embed.schema';
 import { EmbedsSettingsPage } from './embeds-settings-page';
@@ -33,6 +34,15 @@ jest.mock('@/core/hooks/settings/use-embeds', () => ({
 	useRemoveEmbedOrigin: () => ({ mutate: jest.fn(), isPending: false }),
 	useRevokeEmbedCredential: () => ({ mutate: jest.fn(), isPending: false }),
 	useSetPersonSignIn: () => ({ mutate: mockSetPersonSignIn, isPending: mockIsSettingPersonSignIn })
+}));
+jest.mock('sonner', () => ({ toast: { error: jest.fn() } }));
+jest.mock('@/core/lib/helpers/cookies', () => ({
+	...jest.requireActual('@/core/lib/helpers/cookies'),
+	getOrganizationIdCookie: () => 'org-northwind'
+}));
+jest.mock('@/core/constants/config/constants', () => ({
+	...jest.requireActual('@/core/constants/config/constants'),
+	GAUZY_API_BASE_SERVER_URL: { value: 'https://api.northwind.example' }
 }));
 jest.mock('@/core/hooks/clients/use-clients-query', () => ({
 	useActiveClients: (options: { enabled: boolean }) => mockUseActiveClients(options)
@@ -202,6 +212,63 @@ describe('EmbedsSettingsPage', () => {
 
 			expect(switches()[0].getAttribute('aria-busy')).toBe('true');
 			expect(mockSetPersonSignIn).not.toHaveBeenCalled();
+		});
+	});
+
+	describe('the timer code for a site (#5577)', () => {
+		const signInOffered = (canAllowPersonSignIn: boolean) =>
+			mockUseAvailability.mockReturnValue({ availability: 'enabled', canAllowPersonSignIn, retry: jest.fn() });
+		const copyButton = () => screen.getByRole('button', { name: 'settings.embeds.TIMER_CODE_COPY' });
+		let writeText: jest.Mock;
+
+		beforeEach(() => {
+			writeText = jest.fn().mockResolvedValue(undefined);
+			Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true });
+		});
+
+		it('is not offered by a server that cannot let people sign in from a site', () => {
+			signInOffered(false);
+			render(<EmbedsSettingsPage />);
+
+			expect(screen.queryByText('settings.embeds.TIMER_CODE_TITLE')).toBeNull();
+		});
+
+		it('gives the code with this organization, the API and the web app', () => {
+			signInOffered(true);
+			render(<EmbedsSettingsPage />);
+
+			const code = screen.getByText(/<ever-teams-timer/).textContent ?? '';
+			expect(screen.getByText('settings.embeds.TIMER_CODE_TITLE')).toBeTruthy();
+			expect(code).toContain('organization="org-northwind"');
+			expect(code).toContain('api-url="https://api.northwind.example/api"');
+			expect(code).toContain('sign-in="ever-teams"');
+			expect(code).toContain(`app-url="${window.location.origin}"`);
+		});
+
+		it('copies the code and says so outside the button, which keeps its name', async () => {
+			signInOffered(true);
+			render(<EmbedsSettingsPage />);
+
+			await act(async () => {
+				fireEvent.click(copyButton());
+			});
+
+			expect(writeText).toHaveBeenCalledWith(expect.stringContaining('organization="org-northwind"'));
+			expect(screen.getByRole('status').textContent).toBe('settings.embeds.TIMER_CODE_COPIED');
+			expect(copyButton()).toBeTruthy();
+		});
+
+		it('says to select the code when the browser refuses to copy it', async () => {
+			writeText.mockRejectedValue(new Error('denied'));
+			signInOffered(true);
+			render(<EmbedsSettingsPage />);
+
+			await act(async () => {
+				fireEvent.click(copyButton());
+			});
+
+			expect(toast.error).toHaveBeenCalledWith('settings.embeds.TIMER_CODE_NOT_COPIED');
+			expect(screen.getByRole('status').textContent).toBe('');
 		});
 	});
 
