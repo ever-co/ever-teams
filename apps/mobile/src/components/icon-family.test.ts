@@ -9,6 +9,7 @@ const ON_HUGEICONS: string[] = [
 	'app/components/no-team.tsx',
 	'app/components/task-epic-popup.tsx',
 	'app/components/task-epic.tsx',
+	'app/components/team-dropdown/drop-down-section.tsx',
 	'app/components/timer-actions-menu.tsx',
 	'app/navigators/tab-bar.tsx',
 	'app/screens/authenticated/members-settings-screen/components/change-role-modal.tsx',
