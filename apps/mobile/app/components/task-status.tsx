@@ -3,7 +3,7 @@
 import React, { FC, useState } from 'react';
 import { TouchableOpacity, View, Text, StyleSheet, ViewStyle, TextStyle } from 'react-native';
 import { ChevronDown } from '../../src/components/icons';
-import { TaskPropertyPlaceholderIcon } from '../../src/components/task-property-icon';
+import { EmptyStatus } from './task-status-empty';
 import { ITeamTask } from '../services/interfaces/ITask';
 import { observer } from 'mobx-react-lite';
 import { useTeamTasks } from '../services/hooks/features/use-team-tasks';
@@ -12,7 +12,6 @@ import { typography, useAppTheme, useWebTheme } from '../theme';
 import { taskChipLookOf } from '../../src/components/task-chip';
 import { ChipIcon } from '../../src/components/chip-icon';
 import { useMenuAnchor } from '../../src/components/menu-anchor';
-import { translate } from '../i18n';
 import { useTaskStatusValue } from './status-type';
 import { limitTextCharaters } from '../helpers/sub-text';
 
@@ -99,13 +98,12 @@ const TaskStatus: FC<TaskStatusProps> = observer(
 								)}
 							</View>
 						) : (
-							<Text style={{ ...styles.text, color: look.ink }}>
-								{iconsOnly ? (
-									<TaskPropertyPlaceholderIcon kind="status" size={14} color={colors.divider} />
-								) : (
-									translate('settingScreen.statusScreen.statuses')
-								)}
-							</Text>
+							<EmptyStatus
+								iconsOnly={Boolean(iconsOnly)}
+								labelOnly={Boolean(labelOnly)}
+								ink={look.ink}
+								faintInk={colors.divider}
+							/>
 						)}
 						<ChevronDown size={labelOnly ? 8 : 14} color={look.ink} />
 					</View>
