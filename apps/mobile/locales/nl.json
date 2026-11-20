@@ -622,6 +622,16 @@
 		},
 		"addLabel": "Label toevoegen",
 		"editLabels": "Labels bewerken",
-		"rowActions": "Acties voor {name}"
+		"rowActions": "Acties voor {name}",
+		"dates": {
+			"addDate": "Datum toevoegen",
+			"clear": "Datum wissen",
+			"today": "Vandaag",
+			"tomorrow": "Morgen",
+			"endOfWeek": "Einde van deze week",
+			"inOneWeek": "Over een week",
+			"startAfterDue": "De startdatum moet vóór de vervaldatum liggen.",
+			"dueBeforeStart": "De vervaldatum moet na de startdatum liggen."
+		}
 	}
 }

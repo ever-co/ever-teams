@@ -622,6 +622,16 @@
 		},
 		"addLabel": "Label hinzufügen",
 		"editLabels": "Labels bearbeiten",
-		"rowActions": "Aktionen für {name}"
+		"rowActions": "Aktionen für {name}",
+		"dates": {
+			"addDate": "Datum hinzufügen",
+			"clear": "Datum entfernen",
+			"today": "Heute",
+			"tomorrow": "Morgen",
+			"endOfWeek": "Ende dieser Woche",
+			"inOneWeek": "In einer Woche",
+			"startAfterDue": "Das Startdatum muss vor dem Fälligkeitsdatum liegen.",
+			"dueBeforeStart": "Das Fälligkeitsdatum muss nach dem Startdatum liegen."
+		}
 	}
 }

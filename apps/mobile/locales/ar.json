@@ -622,6 +622,16 @@
 		},
 		"addLabel": "إضافة تصنيف",
 		"editLabels": "تعديل التصنيفات",
-		"rowActions": "إجراءات {name}"
+		"rowActions": "إجراءات {name}",
+		"dates": {
+			"addDate": "إضافة تاريخ",
+			"clear": "مسح التاريخ",
+			"today": "اليوم",
+			"tomorrow": "غدا",
+			"endOfWeek": "نهاية هذا الأسبوع",
+			"inOneWeek": "بعد أسبوع",
+			"startAfterDue": "يجب أن يسبق تاريخ البدء تاريخ الاستحقاق.",
+			"dueBeforeStart": "يجب أن يأتي تاريخ الاستحقاق بعد تاريخ البدء."
+		}
 	}
 }

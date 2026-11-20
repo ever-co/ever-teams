@@ -622,6 +622,16 @@
 		},
 		"addLabel": "Ajouter une étiquette",
 		"editLabels": "Modifier les étiquettes",
-		"rowActions": "Actions pour {name}"
+		"rowActions": "Actions pour {name}",
+		"dates": {
+			"addDate": "Ajouter une date",
+			"clear": "Effacer la date",
+			"today": "Aujourd'hui",
+			"tomorrow": "Demain",
+			"endOfWeek": "Fin de la semaine",
+			"inOneWeek": "Dans une semaine",
+			"startAfterDue": "La date de début doit précéder l’échéance.",
+			"dueBeforeStart": "L’échéance doit suivre la date de début."
+		}
 	}
 }

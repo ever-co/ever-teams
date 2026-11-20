@@ -622,6 +622,16 @@
 		},
 		"addLabel": "הוספת תווית",
 		"editLabels": "עריכת תוויות",
-		"rowActions": "פעולות עבור {name}"
+		"rowActions": "פעולות עבור {name}",
+		"dates": {
+			"addDate": "הוספת תאריך",
+			"clear": "ניקוי התאריך",
+			"today": "היום",
+			"tomorrow": "מחר",
+			"endOfWeek": "סוף השבוע הזה",
+			"inOneWeek": "בעוד שבוע",
+			"startAfterDue": "תאריך ההתחלה חייב להקדים את תאריך היעד.",
+			"dueBeforeStart": "תאריך היעד חייב להיות אחרי תאריך ההתחלה."
+		}
 	}
 }
