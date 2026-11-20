@@ -8,6 +8,7 @@ const ON_HUGEICONS: string[] = [
 	'app/screens/authenticated/setting-screen/components/language-form.tsx',
 	'app/screens/authenticated/setting-screen/components/language-modal.tsx',
 	'app/screens/authenticated/setting-screen/components/setting-header.tsx',
+	'app/screens/authenticated/setting-screen/components/timezone-popup.tsx',
 	'app/screens/authenticated/setting-screen/components/user-timezone.tsx'
 ];
 
