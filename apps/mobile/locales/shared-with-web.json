@@ -160,5 +160,10 @@
 	"taskMenus.search.label": "taskMenus.search.label",
 	"taskMenus.actions.createLabel": "taskMenus.actions.createLabel",
 	"taskMenus.search.version": "taskMenus.search.version",
-	"taskMenus.actions.createVersion": "taskMenus.actions.createVersion"
+	"taskMenus.actions.createVersion": "taskMenus.actions.createVersion",
+	"taskMenus.filter.status": "common.STATUS",
+	"taskMenus.filter.priority": "pages.taskDetails.PRIORITY",
+	"taskMenus.filter.size": "pages.taskDetails.SIZE",
+	"taskMenus.filter.labels": "common.LABELS",
+	"taskMenus.filter.clear": "common.CLEAR_FILTERS"
 }

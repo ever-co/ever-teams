@@ -600,6 +600,13 @@
 			"createSize": "크기 만들기",
 			"createLabel": "라벨 만들기",
 			"createVersion": "버전 만들기"
+		},
+		"filter": {
+			"status": "상태",
+			"priority": "우선순위",
+			"size": "크기",
+			"labels": "라벨",
+			"clear": "필터 지우기"
 		}
 	}
 }

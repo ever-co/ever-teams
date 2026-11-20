@@ -600,6 +600,13 @@
 			"createSize": "יצירת גודל",
 			"createLabel": "יצירת תווית",
 			"createVersion": "יצירת גרסה"
+		},
+		"filter": {
+			"status": "סטטוס",
+			"priority": "עדיפות",
+			"size": "גודל",
+			"labels": "תוויות",
+			"clear": "נקה סננים"
 		}
 	}
 }

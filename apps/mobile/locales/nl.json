@@ -600,6 +600,13 @@
 			"createSize": "Grootte aanmaken",
 			"createLabel": "Label aanmaken",
 			"createVersion": "Versie aanmaken"
+		},
+		"filter": {
+			"status": "Status",
+			"priority": "Prioriteit",
+			"size": "Grootte",
+			"labels": "Labels",
+			"clear": "Filters wissen"
 		}
 	}
 }

@@ -600,6 +600,13 @@
 			"createSize": "Создать размер",
 			"createLabel": "Создать метку",
 			"createVersion": "Создать версию"
+		},
+		"filter": {
+			"status": "Статус",
+			"priority": "Приоритет",
+			"size": "Размер",
+			"labels": "Метки",
+			"clear": "Очистить фильтры"
 		}
 	}
 }

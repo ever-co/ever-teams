@@ -600,6 +600,13 @@
 			"createSize": "Größe erstellen",
 			"createLabel": "Label erstellen",
 			"createVersion": "Version erstellen"
+		},
+		"filter": {
+			"status": "Status",
+			"priority": "Priorität",
+			"size": "Größe",
+			"labels": "Labels",
+			"clear": "Filter löschen"
 		}
 	}
 }

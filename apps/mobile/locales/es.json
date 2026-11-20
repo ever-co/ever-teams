@@ -600,6 +600,13 @@
 			"createSize": "Crear tamaño",
 			"createLabel": "Crear etiqueta",
 			"createVersion": "Crear versión"
+		},
+		"filter": {
+			"status": "Estado",
+			"priority": "Prioridad",
+			"size": "Tamaño",
+			"labels": "Etiquetas",
+			"clear": "Limpiar filtros"
 		}
 	}
 }
