@@ -23,15 +23,6 @@ export interface Props {
 	anchor?: MenuRect | null;
 }
 
-/** The labels with this one added, or taken away when the task already holds it. */
-export function toggledLabels(labels: ITaskLabelItem[], label: ITaskLabelItem): ITaskLabelItem[] {
-	const isHeld = labels.some((held) => held.id === label.id);
-	if (isHeld) {
-		return labels.filter((held) => held.id !== label.id);
-	}
-	return [...labels, label];
-}
-
 /** The form opened here only creates a label: it never updates one. */
 function keepLabelUnchanged() {
 	return undefined;
