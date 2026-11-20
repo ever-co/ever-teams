@@ -5,6 +5,7 @@ import type { IApiRequestConfig } from '@ever-teams/api';
 import { getWeekStartAndEnd, getTodaySoFar, toast } from '@ever-teams/toolkit-ui';
 import { DateRange } from 'react-day-picker';
 import { useTeamsContext } from '@lib/context/teams-context';
+import { pickedEmployeeOf, reportEmployeeIdOf } from '@lib/utils/report-employee';
 import { useKitOptions } from '@components/teams-provider/kit-options';
 import { useTimerOnlyToken } from '@hooks/useTimerOnlyToken';
 
@@ -34,7 +35,7 @@ const getTasksStats = async (
 		}
 
 		const { tenantId } = user;
-		const employeeId = user.employee?.id || (selectedEmployee !== 'all' ? selectedEmployee : undefined);
+		const employeeId = reportEmployeeIdOf(user, selectedEmployee);
 
 		const weekDates = dates;
 		const dayDates = getTodaySoFar();
@@ -96,11 +97,14 @@ const useTasksStats = (): IHookResponse<ITasksStats> => {
 	const {
 		authenticatedUser: user,
 		token,
-		selectedEmployee,
+		selectedEmployee: employeeInPicker,
+		userPermissions,
 		selectedTeam,
 		selectedOrganization: organizationId,
 		reportDates: date
 	} = useTeamsContext();
+	// The employee picked counts only for a person who may pick one (#5631)
+	const selectedEmployee = pickedEmployeeOf(employeeInPicker, userPermissions);
 	const { api } = useKitOptions();
 	const timerOnly = useTimerOnlyToken();
 

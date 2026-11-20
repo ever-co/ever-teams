@@ -46,15 +46,8 @@ export async function getActivitiesStats(
 
 		const { tenantId } = user;
 
-		const employeeId = (() => {
-			if (user?.employee) {
-				return user.employee.id;
-			}
-			if (selectedEmployee !== 'all') {
-				return selectedEmployee;
-			}
-			return undefined;
-		})();
+		// The employee picked first, as the kit's other report reads; with 'all', the signed-in person's own (#5631)
+		const employeeId = selectedEmployee !== 'all' ? selectedEmployee : user.employee?.id;
 
 		const query = QueryString.stringify(
 			{
