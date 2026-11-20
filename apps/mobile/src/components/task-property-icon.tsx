@@ -141,11 +141,30 @@ function priorityBarOpacity(index: number, level: number) {
 	return 0.3;
 }
 
+function NoPriorityShape({ color }: Readonly<{ color: string }>) {
+	return <Path d="M2 7h2M6 7h2M10 7h2" stroke={color} strokeWidth="1.5" strokeLinecap="round" />;
+}
+
+function SizeFrame({ color }: Readonly<{ color: string }>) {
+	return (
+		<Rect
+			x="1.25"
+			y="1.25"
+			width="11.5"
+			height="11.5"
+			rx="3"
+			stroke={color}
+			strokeOpacity="0.35"
+			strokeWidth="1.5"
+		/>
+	);
+}
+
 function PriorityShape({ name, color, card }: Readonly<{ name: string; color: string; card: string }>) {
 	const priority = PRIORITY_BY_NAME.get(name);
 	const glyph = priority?.glyph;
 	if (glyph === 'none') {
-		return <Path d="M2 7h2M6 7h2M10 7h2" stroke={color} strokeWidth="1.5" strokeLinecap="round" />;
+		return <NoPriorityShape color={color} />;
 	}
 	if (glyph === 'urgent') {
 		return (
@@ -185,16 +204,7 @@ function SizeShape({ name, color }: Readonly<{ name: string; color: string }>) {
 	}
 	return (
 		<>
-			<Rect
-				x="1.25"
-				y="1.25"
-				width="11.5"
-				height="11.5"
-				rx="3"
-				stroke={color}
-				strokeOpacity="0.35"
-				strokeWidth="1.5"
-			/>
+			<SizeFrame color={color} />
 			<Rect x="3.5" y={10.5 - side} width={side} height={side} rx="1" fill={color} />
 		</>
 	);
