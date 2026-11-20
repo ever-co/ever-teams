@@ -4,13 +4,7 @@ import { StyleSheet } from 'react-native';
 import { barColorsOf, tasksTabOptions, teamTabOptions, useTabBarScreenOptions, workTabOptions } from './tab-bar';
 import { themeFor } from '../../src/theme/use-theme';
 
-jest.mock('@expo/vector-icons', () => {
-	const { createElement } = jest.requireActual('react');
-	const { Text } = jest.requireActual('react-native');
-	return {
-		Feather: ({ name, color }: { name: string; color: string }) => createElement(Text, null, `${name} ${color}`)
-	};
-});
+jest.mock('../../src/components/icons', () => jest.requireActual('../../test/icons-stand-in').iconsStandIn());
 jest.mock('../models', () => ({ useStores: () => ({ teamStore: { isTrackingEnabled: true } }) }));
 jest.mock('react-native-safe-area-context', () => ({ useSafeAreaInsets: () => ({ bottom: 0 }) }));
 jest.mock('./use-tab-buttons-loading', () => ({ useTabButtonsLoading: () => false }));
@@ -33,13 +27,13 @@ describe('the tab bar', () => {
 	});
 
 	it.each([
-		['Work', workTabOptions, 'user'],
-		['Tasks', tasksTabOptions, 'briefcase'],
-		['Team', teamTabOptions, 'users']
+		['Work', workTabOptions, 'User'],
+		['Tasks', tasksTabOptions, 'Task'],
+		['Team', teamTabOptions, 'Users']
 	] as const)('draws the %s icon in the color the navigator gives it', async (_tab, optionsOf, name) => {
 		await drawIcon(optionsOf(false), false);
 
-		expect(screen.getByText(`${name} hsl(243, 75%, 59%)`)).toBeTruthy();
+		expect(screen.getByTestId(`icon-${name}`)).toHaveStyle({ color: 'hsl(243, 75%, 59%)' });
 	});
 
 	it('gives the Tasks tab, which has an address, the same item style as the other tabs', async () => {
