@@ -57,8 +57,12 @@ const TaskLabels: FC<TaskLabelProps> = observer(
 				setLabels?.(labels);
 				return true;
 			}
-			const { response } = await updateTask({ ...task, tags: labels }, task.id);
-			return response.ok;
+			try {
+				const { response } = await updateTask({ ...task, tags: labels }, task.id);
+				return response.ok;
+			} catch {
+				return false;
+			}
 		};
 		const { selectedLabels, toggle, startFrom } = useLabelSelection(task?.tags || newTaskLabels || [], saveLabels);
 

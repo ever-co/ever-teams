@@ -14,13 +14,15 @@ type LabelSave = (labels: ITaskLabelItem[]) => Promise<boolean>;
 
 /**
  * A task's labels as the menu shows them, saved one write at a time: a tap while a write runs waits for it, and the
- * latest selection is the last one written, so quick taps never overwrite each other. Reopening the menu keeps a
- * selection still being saved.
+ * latest selection is the last one written, so quick taps never overwrite each other. A write that fails gives back
+ * the labels last saved, and the taps waiting behind it are dropped. Reopening the menu keeps a selection still being
+ * saved.
  */
 export function useLabelSelection(savedLabels: ITaskLabelItem[], save: LabelSave) {
 	const [selectedLabels, setSelectedLabels] = useState<ITaskLabelItem[]>(savedLabels);
 	const selection = useRef<ITaskLabelItem[]>(savedLabels);
 	const waiting = useRef<ITaskLabelItem[] | null>(null);
+	const lastSaved = useRef<ITaskLabelItem[]>(savedLabels);
 	const isSaving = useRef(false);
 	// the latest save, so a write that waited sends the task as it is now
 	const latestSave = useRef<LabelSave>(save);
@@ -36,10 +38,16 @@ export function useLabelSelection(savedLabels: ITaskLabelItem[], save: LabelSave
 		while (waiting.current) {
 			const labels = waiting.current;
 			waiting.current = null;
-			await latestSave.current(labels);
+			const isSaved = await latestSave.current(labels);
+			if (isSaved) {
+				lastSaved.current = labels;
+			} else {
+				waiting.current = null;
+				show(lastSaved.current);
+			}
 		}
 		isSaving.current = false;
-	}, []);
+	}, [show]);
 
 	const toggle = useCallback(
 		(label: ITaskLabelItem) => {
@@ -59,6 +67,7 @@ export function useLabelSelection(savedLabels: ITaskLabelItem[], save: LabelSave
 			if (isSaving.current) {
 				return;
 			}
+			lastSaved.current = labels;
 			show(labels);
 		},
 		[show]

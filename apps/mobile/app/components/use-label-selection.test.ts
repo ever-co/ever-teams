@@ -49,6 +49,18 @@ describe("a task's labels saved from the menu", () => {
 
 		expect(result.current.selectedLabels.map((label) => label.id)).toEqual(['paint', 'outdoor', 'night']);
 	});
+
+	it('gives back the labels last saved when a write fails, and drops the taps waiting behind it', async () => {
+		const { calls, save } = heldSaves();
+		const { result } = await renderHook(() => useLabelSelection([PAINT], save));
+
+		await act(async () => result.current.toggle(OUTDOOR));
+		await act(async () => result.current.toggle(NIGHT));
+		await act(async () => calls[0].finish(false));
+
+		expect(result.current.selectedLabels.map((label) => label.id)).toEqual(['paint']);
+		expect(calls).toHaveLength(1);
+	});
 });
 
 describe('a label tapped in the menu', () => {
