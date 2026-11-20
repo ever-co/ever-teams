@@ -5,6 +5,7 @@ import { ChartConfig, ChartData, IWeeklyReports } from '@ever-teams/toolkit-type
 import qs from 'qs';
 import { generateChartConfig, getErrorMessage, reportError, toast, transformData } from '@ever-teams/toolkit-ui';
 import { useTeamsContext } from '@lib/context/teams-context';
+import { reportEmployeeIdOf } from '@lib/utils/report-employee';
 import { useKitOptions } from '@components/teams-provider/kit-options';
 import { useTimerOnlyToken } from '@hooks/useTimerOnlyToken';
 
@@ -38,11 +39,7 @@ const useReport = () => {
 
 			if (!user) throw new Error('User is not authenticated');
 
-			const employeeId = user.employee
-				? user.employee.id
-				: selectedEmployee !== 'all'
-					? selectedEmployee
-					: undefined;
+			const employeeId = reportEmployeeIdOf(user, selectedEmployee);
 			const { tenantId } = user;
 			const teamId = selectedTeam !== 'all' ? selectedTeam : undefined;
 
