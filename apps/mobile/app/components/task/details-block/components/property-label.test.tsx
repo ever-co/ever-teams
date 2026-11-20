@@ -54,7 +54,7 @@ describe("a property's label on the task page", () => {
 	});
 
 	it("draws a property's placeholder glyph, as the web's property rows do", async () => {
-		await render(<PropertyLabel label="Status" placeholder="status" />);
+		await render(<PropertyLabel label="Status" property="status" />);
 
 		expect(screen.getByTestId('property-placeholder-status', { includeHiddenElements: true }).props).toMatchObject({
 			color: dark.colors['muted-foreground'],

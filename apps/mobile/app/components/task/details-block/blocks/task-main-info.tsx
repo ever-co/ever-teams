@@ -46,9 +46,7 @@ const TaskMainInfo = observer(() => {
 		<View style={styles.properties}>
 			{/* Issue type */}
 			<TaskRow
-				labelComponent={
-					<PropertyLabel placeholder="issueType" label={translate('taskDetailsScreen.typeIssue')} />
-				}
+				labelComponent={<PropertyLabel property="issueType" label={translate('taskDetailsScreen.typeIssue')} />}
 			>
 				<IssuesModal task={task} nameIncluded={true} smallFont={true} />
 			</TaskRow>
@@ -113,7 +111,7 @@ const TaskMainInfo = observer(() => {
 			{/* Version */}
 			<TaskRow
 				alignItems={true}
-				labelComponent={<PropertyLabel placeholder="version" label={translate('taskDetailsScreen.version')} />}
+				labelComponent={<PropertyLabel property="version" label={translate('taskDetailsScreen.version')} />}
 			>
 				<TaskVersion
 					task={task}
@@ -128,7 +126,7 @@ const TaskMainInfo = observer(() => {
 			{task && task.issueType === 'Story' && (
 				<TaskRow
 					alignItems={true}
-					labelComponent={<PropertyLabel placeholder="epic" label={translate('taskDetailsScreen.epic')} />}
+					labelComponent={<PropertyLabel property="epic" label={translate('taskDetailsScreen.epic')} />}
 				>
 					<TaskEpic
 						task={task}
@@ -143,7 +141,7 @@ const TaskMainInfo = observer(() => {
 			{/* Status */}
 			<TaskRow
 				alignItems={true}
-				labelComponent={<PropertyLabel placeholder="status" label={translate('taskDetailsScreen.status')} />}
+				labelComponent={<PropertyLabel property="status" label={translate('taskDetailsScreen.status')} />}
 			>
 				<TaskStatus
 					task={task}
@@ -155,9 +153,7 @@ const TaskMainInfo = observer(() => {
 			</TaskRow>
 
 			{/* Labels */}
-			<TaskRow
-				labelComponent={<PropertyLabel placeholder="label" label={translate('taskDetailsScreen.labels')} />}
-			>
+			<TaskRow labelComponent={<PropertyLabel property="label" label={translate('taskDetailsScreen.labels')} />}>
 				<TaskLabels
 					task={task}
 					taskScreenButton={true}
@@ -172,7 +168,7 @@ const TaskMainInfo = observer(() => {
 			{/* Size */}
 			<TaskRow
 				alignItems={true}
-				labelComponent={<PropertyLabel placeholder="size" label={translate('taskDetailsScreen.size')} />}
+				labelComponent={<PropertyLabel property="size" label={translate('taskDetailsScreen.size')} />}
 			>
 				<TaskSize
 					task={task}
@@ -186,9 +182,7 @@ const TaskMainInfo = observer(() => {
 			{/* Priority */}
 			<TaskRow
 				alignItems={true}
-				labelComponent={
-					<PropertyLabel placeholder="priority" label={translate('taskDetailsScreen.priority')} />
-				}
+				labelComponent={<PropertyLabel property="priority" label={translate('taskDetailsScreen.priority')} />}
 			>
 				<TaskPriority
 					task={task}
@@ -219,7 +213,7 @@ const EpicParent: React.FC<{ task: ITeamTask }> = ({ task }) => {
 	return (!task?.issueType || task?.issueType === 'Task' || task?.issueType === 'Bug') && task?.rootEpic ? (
 		<TaskRow
 			alignItems={true}
-			labelComponent={<PropertyLabel placeholder="epic" label={translate('taskDetailsScreen.epic')} />}
+			labelComponent={<PropertyLabel property="epic" label={translate('taskDetailsScreen.epic')} />}
 		>
 			<TouchableOpacity onPress={navigateToEpic} style={styles.epicParentButton}>
 				<View style={styles.epicParentIconWrapper}>
