@@ -121,8 +121,10 @@ only a session saved for the new address, if there is one, so a token never reac
 session saved by an earlier version (see [Security](#security-where-tokens-live-today-and-what-is-planned)). Every
 provider still writes its `apiUrl` there, for your own calls to the request functions of that package.
 
-The API must accept your site's origin: on a self-hosted Gauzy API, add it to `ALLOWED_ORIGINS` (comma-separated)
-and restart the API.
+The API must accept your site's origin. With `getToken` or a sign-in with Ever Teams, an administrator adds your site
+to the allowed sites in Settings > Workspace > Embeds of the web app; the API opens to it at once, on the routes the
+timer needs. The kit's own password and token sign-in reaches other routes: on a self-hosted Gauzy API, add your site
+to `ALLOWED_ORIGINS` (comma-separated) for it, and restart the API.
 
 ## Sign in from your backend
 
@@ -130,12 +132,11 @@ On a site that is not the Ever Teams workspace itself, do not let the kit ask fo
 backend already knows who is signed in. It exchanges an embed credential of the workspace for a short-lived token for
 that person, and `config.getToken` hands it to the kit.
 
-What you need: an Ever Teams API with embed credentials turned on (`GAUZY_EMBED_TOKENS_ENABLED=true`,
-[ever-co/ever-gauzy#12069](https://github.com/ever-co/ever-gauzy/pull/12069)) and an embed credential created by an
-admin of the organization (`POST /api/embed-credentials`). Keep the credential on your server, never in the page.
-An API that also checks allowed origins ([ever-co/ever-gauzy#12066](https://github.com/ever-co/ever-gauzy/issues/12066))
-needs your site in the organization's list (`POST /api/embed-allowed-origins`): the backend sends the page's origin
-with each exchange, and the token then works only from that site.
+What you need: an Ever Teams API with embed credentials turned on (`GAUZY_EMBED_TOKENS_ENABLED=true`) and an embed
+credential an administrator of the organization creates in Settings > Workspace > Embeds of the web app. Keep the
+credential on your server, never in the page. Your site goes in the allowed sites on the same page: the backend sends
+the page's origin with each exchange, and in a browser the token then works only from that site. Outside a browser
+the origin is not checked, which is why the token reaches the timer only and lives a few minutes.
 
 On your server, a route that answers the token for the person signed in to your product (Next.js route handler).
 Its settings stay on the server, never in a `NEXT_PUBLIC_` variable: `EVER_TEAMS_API_URL` is the API's full address
@@ -238,7 +239,7 @@ What the administrator turns on:
 - the API has embeds on (`GAUZY_EMBED_TOKENS_ENABLED=true`) in a version with sign-in from sites
   ([ever-co/ever-gauzy#12094](https://github.com/ever-co/ever-gauzy/issues/12094));
 - your site is one of the organization's allowed sites, and its switch "People can sign in from this site" is on, in
-  Settings > Embeds of the web app. It is off for every site until then.
+  Settings > Workspace > Embeds of the web app. It is off for every site until then.
 
 ```tsx
 'use client';
@@ -474,7 +475,7 @@ allowed to embed it.
 | You see                                                                     | Cause and fix                                                                                                              |
 | --------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
 | The widget is unstyled (digits one under the other, a large coloured block) | Import `@ever-teams/atoms/styles.css` and set `scopedStyles`; with your own Tailwind, add the two `@source` lines instead. |
-| A network or CORS error in the console, sign-in does nothing                | The API does not allow your origin: add it to the API's `ALLOWED_ORIGINS`.                                                 |
+| A network or CORS error in the console, sign-in does nothing                | Allow your origin: for `getToken` or Ever Teams sign-in, in Settings > Workspace > Embeds; else in `ALLOWED_ORIGINS`.      |
 | 404 on every request                                                        | `apiUrl` must end with `/api` (`https://api.example.com/api`).                                                             |
 | "useState only works in Client Components" (Next.js)                        | Add `'use client'` at the top of the file that renders `TeamsProvider`.                                                    |
 
