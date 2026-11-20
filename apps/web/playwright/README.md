@@ -60,7 +60,7 @@ reuses servers you started yourself with `test-servers.ts`'s environment.
 - **Provenance.** A selector or a piece of copy in a spec is copied from somewhere it already works —
   an `apps/web/cypress/e2e/*.cy.ts` spec on the same mock, or the component that renders it. The spec
   says which, in its header. A selector invented by guessing is a test that fails for the wrong reason.
-- **Hermeticity, enforced.** The shield aborts every non-local request and fails the test even if every
+- **Hermetic, enforced.** The shield aborts every non-local request and fails the test even if every
   `expect()` in the body passed. Server-side egress is avoided the same way: the route sweep's dynamic
   segments are filled with local values (`/api/favicons/127.0.0.1:3030`), so no handler fetches from the
   internet either.
