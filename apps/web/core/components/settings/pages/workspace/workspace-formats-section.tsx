@@ -2,6 +2,7 @@
 
 import { useCallback, useId, useMemo } from 'react';
 import { type DottedLanguageObjectStringPaths, useLocale, useTranslations } from 'next-intl';
+import { controlRecipe } from '@/core/components/common/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/core/components/common/select';
 import { Spinner } from '@/core/components/icons';
 import { CurrencySelect } from '@/core/components/rates/currency-select';
@@ -59,6 +60,13 @@ import {
 	type WorkspaceDateFormat,
 	type WorkspaceNumberFormat
 } from '@/core/lib/utils/workspace-formats';
+import {
+	NO_WORKSPACE_TIME_ZONE,
+	workspaceTimeZoneChoiceOf,
+	workspaceTimeZoneLabelOf,
+	workspaceTimeZoneOf,
+	workspaceTimeZoneOptionsOf
+} from '@/core/lib/utils/workspace-time-zone';
 import { EWeekDays } from '@/core/types/generics/enums/date';
 import type { TOrganization } from '@/core/types/schemas';
 
@@ -148,6 +156,77 @@ type SaveDefaultRate = (value: number | null) => Promise<void>;
  * The rate that bills time no client rate and no billing rate prices, empty until an admin sets one. It is in its own
  * currency when another app stored one, else in the workspace's.
  */
+/** "Not set" is a choice here, unlike the formats: a workspace may go back to having no time zone (#5649). */
+function TimeZoneControl({
+	id,
+	timeZone,
+	onSave
+}: Readonly<{ id: string; timeZone: string | null | undefined; onSave: SaveChoice }>) {
+	const t = useTranslations();
+	const { value, isPending, change } = useOptimisticSetting<string>(workspaceTimeZoneChoiceOf(timeZone), onSave);
+	const options = useMemo(() => workspaceTimeZoneOptionsOf(timeZone), [timeZone]);
+
+	const pick = (next: string) => {
+		if (next === value) {
+			return;
+		}
+		void change(next);
+	};
+
+	return (
+		<div className={cn('flex items-center gap-2', CONTROL_WIDTH)}>
+			<PendingMark isPending={isPending} />
+			<select
+				id={id}
+				value={value}
+				disabled={isPending}
+				onChange={(event) => pick(event.target.value)}
+				className={cn(controlRecipe, 'h-8 px-2 text-[13px]')}
+			>
+				<option value={NO_WORKSPACE_TIME_ZONE}>{t('settings.workspace.TIME_ZONE_NOT_SET')}</option>
+				{options.map((option) => (
+					<option key={option.value} value={option.value}>
+						{option.label}
+					</option>
+				))}
+			</select>
+		</div>
+	);
+}
+
+function TimeZoneValue({ timeZone }: Readonly<{ timeZone: string | null | undefined }>) {
+	const t = useTranslations();
+	const label = workspaceTimeZoneLabelOf(timeZone);
+	if (!label) {
+		return <span className="text-[13px] text-muted-foreground">{t('settings.workspace.TIME_ZONE_NOT_SET')}</span>;
+	}
+	return <span className={VALUE_TEXT}>{label}</span>;
+}
+
+function TimeZoneRow({
+	timeZone,
+	canEdit,
+	onSave
+}: Readonly<{ timeZone: string | null | undefined; canEdit: boolean; onSave: SaveChoice }>) {
+	const t = useTranslations();
+	const selectId = useId();
+	const label = t('settings.workspace.TIME_ZONE_LABEL');
+	const description = t('settings.workspace.TIME_ZONE_DESCRIPTION');
+
+	if (!canEdit) {
+		return (
+			<SettingsRow label={label} description={description}>
+				<TimeZoneValue timeZone={timeZone} />
+			</SettingsRow>
+		);
+	}
+	return (
+		<SettingsRow label={label} description={description} htmlFor={selectId}>
+			<TimeZoneControl id={selectId} timeZone={timeZone} onSave={onSave} />
+		</SettingsRow>
+	);
+}
+
 function DefaultRateRow({
 	organization,
 	canEdit,
@@ -512,6 +591,7 @@ interface WorkspaceFormatsSectionProps {
 	saveDateFormat: (dateFormat: WorkspaceDateFormat | null) => Promise<void>;
 	saveNumberFormat: (numberFormat: WorkspaceNumberFormat | null) => Promise<void>;
 	saveWeekStart: (startWeekOn: EWeekDays) => Promise<void>;
+	saveTimeZone: (timeZone: string | null) => Promise<void>;
 	saveClock: (clock: WorkspaceClock) => Promise<void>;
 	saveCurrencyPosition: (position: WorkspaceCurrencyPosition) => Promise<void>;
 	saveDurationRounding: SaveRounding;
@@ -526,6 +606,7 @@ export function WorkspaceFormatsSection({
 	saveDateFormat,
 	saveNumberFormat,
 	saveWeekStart,
+	saveTimeZone,
 	saveClock,
 	saveCurrencyPosition,
 	saveDurationRounding,
@@ -543,6 +624,10 @@ export function WorkspaceFormatsSection({
 	const saveNumberChoice = useCallback(
 		(choice: string) => saveNumberFormat(workspaceNumberFormatOf(choice)),
 		[saveNumberFormat]
+	);
+	const saveTimeZoneChoice = useCallback(
+		(choice: string) => saveTimeZone(workspaceTimeZoneOf(choice)),
+		[saveTimeZone]
 	);
 	const saveWeekStartChoice = useCallback(
 		async (choice: string) => {
@@ -610,6 +695,7 @@ export function WorkspaceFormatsSection({
 					canEdit={canEdit}
 					onSave={saveWeekStartChoice}
 				/>
+				<TimeZoneRow timeZone={organization.timeZone} canEdit={canEdit} onSave={saveTimeZoneChoice} />
 				<ChoiceRow
 					label={t('settings.workspace.CLOCK_LABEL')}
 					description={t('settings.workspace.CLOCK_DESCRIPTION')}
