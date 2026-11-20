@@ -138,7 +138,8 @@ What you need: an Ever Teams API with embed credentials turned on (`GAUZY_EMBED_
 credential an administrator of the organization creates in Settings > Workspace > Embeds of the web app. Keep the
 credential on your server, never in the page. Your site goes in the allowed sites on the same page: the backend sends
 the page's origin with each exchange, and in a browser the token then works only from that site. Outside a browser
-the origin is not checked, which is why the token reaches the timer only and lives a few minutes.
+the origin is not checked, which is why the token reaches the timer only and lives 15 minutes by default
+(`GAUZY_EMBED_TOKEN_TTL_SECONDS` on the API, one hour at most).
 
 On your server, a route that answers the token for the person signed in to your product (Next.js route handler).
 Its settings stay on the server, never in a `NEXT_PUBLIC_` variable: `EVER_TEAMS_API_URL` is the API's full address
@@ -289,8 +290,8 @@ What the kit does with it:
   time tracking off), the kit keeps the renewal token, shows the button, and tries again when the page comes back.
 - The user menu offers to sign out: the kit forgets the sign-in, then asks the API to revoke it
   (`POST /embed/revoke`). When the API cannot be reached, the sign-in is forgotten in the browser all the same, but
-  stays valid at the API until it expires: the person can revoke the site from the web app. A renewal on its way at
-  that moment keeps nothing of its answer.
+  stays valid at the API until it expires, or until an administrator removes the site or turns its sign-in off in
+  Settings > Workspace > Embeds. A renewal on its way at that moment keeps nothing of its answer.
 - As with `getToken`, the token reaches only that person's timer, from your site, and the kit lists no other
   organization.
 - On a computer people share, sign the person out when your page signs its own user out: the sign-in is kept for
@@ -467,10 +468,10 @@ With `config.signIn: 'ever-teams'` (above), the dialog asks for no password or t
 in memory, and the renewal token, which gets the next timer token from your site only, sits in `localStorage` for
 its API address and organization, readable by the scripts of your page. Anyone who reads it can renew from your
 site's origin until the person signs out or revokes the site. Sign-out asks the API to revoke it; when the API cannot
-be reached, the person revokes the site from the web app.
+be reached, an administrator removes the site or turns its sign-in off in Settings > Workspace > Embeds.
 
-Planned ([ever-co/ever-teams#5405](https://github.com/ever-co/ever-teams/issues/5405)): the workspace lists the sites
-allowed to embed it.
+The workspace lists the sites allowed to embed it, in Settings > Workspace > Embeds: with `getToken` and a sign-in with
+Ever Teams, the API answers only those sites.
 
 ## Troubleshooting
 
