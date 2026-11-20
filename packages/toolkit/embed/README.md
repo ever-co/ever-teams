@@ -166,8 +166,21 @@ page. It takes your page's font, like the React kit. Two things are added to the
 ## Sign-in
 
 Without `sign-in`, the element uses the kit's own sign-in: a person types their Ever Teams email and password, or a
-token, in the element. Sign-in from your backend, without a password in the page, comes with the host sign-in model
-of `@ever-teams/atoms`.
+token, in the element.
+
+When your product has a server and already knows who is signed in, `token-url` names your own route that answers that
+person's embed token, the one the route handlers of the
+[`@ever-teams/api` README](https://github.com/ever-co/ever-teams/tree/develop/packages/api#sign-people-in-from-your-server)
+write with `exchangeEmbedToken`. No password or token is typed in the page:
+
+```html
+<ever-teams-timer api-url="https://api.ever.team/api" token-url="/api/ever-teams-token"></ever-teams-timer>
+```
+
+The element asks that route with a `POST` and the page's cookies, signs the person in with the `{ token, expiresAt }`
+it answers, and asks again shortly before the token expires. An answer that is not 2xx (your route's 401 for a person
+signed out of your product) shows the person as signed out, with a note that points to your own sign-in. `token-url`
+wins over `sign-in`.
 
 On a page without a server, `sign-in="ever-teams"` shows a "Sign in with Ever Teams" button instead. It opens the
 Ever Teams web app in a popup, where the person signs in if they are not already and allows your site to start and
