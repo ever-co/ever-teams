@@ -671,3 +671,25 @@ test('time logs that answer once the person signed out show nothing', async () =
 
 	assert.deepEqual(holdings.a, { token: '', userId: null, timeLogs: null });
 });
+
+test('the statistics of the reports ask for today since local midnight, as the web app counts it (#5585)', async () => {
+	// By statistic: counts, projects and activities name today in the query, tasks in its POST body.
+	const todayStarts = {};
+	const recording = globalThis.fetch;
+	globalThis.fetch = (url, init) => {
+		const { pathname, searchParams } = new URL(url);
+		if (pathname.includes('/timesheet/statistics/')) {
+			const body = typeof init?.body === 'string' ? JSON.parse(init.body) : {};
+			const todayStart = searchParams.get('todayStart') ?? body.todayStart;
+			const statistic = pathname.split('/').pop();
+			if (todayStart != null) todayStarts[statistic] = [...(todayStarts[statistic] ?? []), todayStart];
+		}
+		return recording(url, init);
+	};
+	await openPage([['a', { apiUrl: SERVER_A }, reports()]]);
+	await signInOn('a');
+
+	for (const statistic of ['counts', 'tasks', 'projects', 'activities']) {
+		assert.deepEqual([...new Set(todayStarts[statistic] ?? [])], ['since-midnight'], `the ${statistic} statistics`);
+	}
+});

@@ -27,7 +27,8 @@ export const kitStandIns = {
 		export const reportError = () => {};
 		export const getErrorMessage = (error) => String(error);
 		export const getWeekStartAndEnd = () => ({ start: new Date(0), end: new Date(0) });
-		export const getStartAndEndOfDay = () => ({ dayStart: '', dayEnd: '' });
+		export const getStartAndEndOfDay = () => ({ dayStart: 'last-24-hours', dayEnd: 'now' });
+		export const getTodaySoFar = () => ({ dayStart: 'since-midnight', dayEnd: 'now' });
 		export const generateChartConfig = () => ({});
 		export const transformData = () => [];`,
 	'theme-ui': `const passThrough = ({ children }) => children;
