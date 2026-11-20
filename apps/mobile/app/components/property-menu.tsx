@@ -1,4 +1,4 @@
-import React, { ReactNode, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { ReactNode, RefObject, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { Dimensions, Keyboard, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 import { Check } from '../../src/components/icons';
@@ -139,6 +139,39 @@ export function useMenuArea() {
 	return { areaRef, area, measureArea, context };
 }
 
+interface IMenuLayer {
+	areaRef: RefObject<View | null>;
+	measureArea: () => unknown;
+	onDismiss: () => unknown;
+	testID?: string;
+	children: ReactNode;
+}
+
+/**
+ * The screen under a menu, measured to place the menu on it: a tap outside the menu closes it, and so does VoiceOver's
+ * escape, which goes up from the row it is on: the layer holds the menu's rows, the backdrop none.
+ */
+export function MenuLayer({ areaRef, measureArea, onDismiss, testID, children }: Readonly<IMenuLayer>) {
+	return (
+		<View
+			testID={testID}
+			ref={areaRef}
+			collapsable={false}
+			style={styles.area}
+			onLayout={() => measureArea()}
+			onAccessibilityEscape={() => onDismiss()}
+		>
+			<Pressable
+				testID="menu-backdrop"
+				accessible={false}
+				style={StyleSheet.absoluteFill}
+				onPress={() => onDismiss()}
+			/>
+			{children}
+		</View>
+	);
+}
+
 export interface MenuMeasures {
 	anchor: MenuRect;
 	listHeight: number;
@@ -252,21 +285,7 @@ export function PropertyMenu<T extends MenuOption>({
 	}
 
 	return (
-		// VoiceOver's escape goes up from the row or the search line it is on: the area holds both, the backdrop neither
-		<View
-			testID="menu-area"
-			ref={areaRef}
-			collapsable={false}
-			style={styles.area}
-			onLayout={measureArea}
-			onAccessibilityEscape={() => onDismiss()}
-		>
-			<Pressable
-				testID="menu-backdrop"
-				accessible={false}
-				style={StyleSheet.absoluteFill}
-				onPress={() => onDismiss()}
-			/>
+		<MenuLayer testID="menu-area" areaRef={areaRef} measureArea={measureArea} onDismiss={onDismiss}>
 			<View
 				testID="property-menu"
 				style={[styles.menu, raisedSurfaceOf(theme), placementStyle, !isMeasured && styles.measuring]}
@@ -315,7 +334,7 @@ export function PropertyMenu<T extends MenuOption>({
 					</View>
 				)}
 			</View>
-		</View>
+		</MenuLayer>
 	);
 }
 
