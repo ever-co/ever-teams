@@ -9,7 +9,6 @@ describe('the look of a task chip', () => {
 		const chip = dataColorChipOf('#ffcc00', 'light');
 
 		expect(look.container).toMatchObject({
-			backgroundColor: chip?.background,
 			borderColor: chip?.border,
 			borderWidth: StyleSheet.hairlineWidth
 		});
@@ -32,5 +31,14 @@ describe('the look of a task chip', () => {
 		expect(light.experimental_backgroundImage).toMatch(/^linear-gradient\(to bottom, rgb\(.+\), rgb\(.+\)\)$/);
 		expect(light.boxShadow).toMatch(/^inset 0 -1px 0 rgba\(.+\), 0 1px 1\.5px rgba\(.+\)$/);
 		expect(dark.boxShadow).toBe('inset 0 1px 0 rgba(255, 255, 255, 0.06)');
+	});
+
+	it("draws a colored chip's gradient alone, so a dark chip keeps the web's 16% to 24% tint", () => {
+		const dark = taskChipLookOf('#ffcc00', themeFor('dark')).container;
+
+		expect(dark.backgroundColor).toBeUndefined();
+		expect(dark.experimental_backgroundImage).toBe(
+			'linear-gradient(to bottom, ' + dataColorChipOf('#ffcc00', 'dark')!.gradient.join(', ') + ')'
+		);
 	});
 });

@@ -27,7 +27,6 @@ export function taskChipLookOf(color: string | null | undefined, theme: Theme): 
 		const [top, bottom] = chip.gradient;
 		return {
 			container: {
-				backgroundColor: chip.background,
 				experimental_backgroundImage: `linear-gradient(to bottom, ${top}, ${bottom})`,
 				borderColor: chip.border,
 				borderWidth: StyleSheet.hairlineWidth,

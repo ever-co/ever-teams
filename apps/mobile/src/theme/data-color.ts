@@ -20,7 +20,7 @@ interface OkLab {
 }
 
 export interface DataColorChip {
-	/** The middle of the gradient, under it where a gradient cannot draw. */
+	/** The middle of the gradient, as one flat color. */
 	background: string;
 	/** The web's `chip-3d` gradient, top then bottom. */
 	gradient: [string, string];
