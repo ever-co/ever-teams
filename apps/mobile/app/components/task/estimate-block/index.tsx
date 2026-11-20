@@ -8,6 +8,7 @@ import { useStores } from "../../../models"
 import ProfileInfoWithTime from "./components/profile-info-with-time"
 import { useAppTheme } from "../../../theme"
 import { translate } from "../../../i18n"
+import { estimateTextOf } from "./estimate-text"
 
 const EstimateBlock = () => {
 	const {
@@ -15,6 +16,7 @@ const EstimateBlock = () => {
 	} = useStores()
 
 	const { colors } = useAppTheme()
+	const estimateText = estimateTextOf(task?.estimate)
 	return (
 		<Accordion title={translate("taskDetailsScreen.estimate")}>
 			<View style={{ paddingBottom: 12 }}>
@@ -27,16 +29,18 @@ const EstimateBlock = () => {
 						</View>
 					}
 				>
-					<Text
-						style={{
-							fontWeight: "600",
-							fontSize: 12,
-							marginLeft: 5,
-							color: colors.primary,
-						}}
-					>
-						6 h: 40 m
-					</Text>
+					{estimateText && (
+						<Text
+							style={{
+								fontWeight: "600",
+								fontSize: 12,
+								marginLeft: 5,
+								color: colors.primary,
+							}}
+						>
+							{estimateText}
+						</Text>
+					)}
 					{task?.members?.map((member, index) => (
 						<ProfileInfoWithTime
 							key={index}
