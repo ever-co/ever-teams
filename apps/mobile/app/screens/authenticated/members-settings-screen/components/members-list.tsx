@@ -176,7 +176,7 @@ const MemberCard: React.FC<IMemberCard> = ({
 			}}
 			style={[styles.memberContainer, memberRowLookOf(isSelected, webTheme)]}
 		>
-			<View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
+			<View style={styles.identity}>
 				{imageUrl ? (
 					<Avatar.Image size={36} source={{ uri: imageUrl }} />
 				) : (
@@ -186,7 +186,7 @@ const MemberCard: React.FC<IMemberCard> = ({
 						labelStyle={styles.prefix}
 					/>
 				)}
-				<View style={{ gap: 6 }}>
+				<View style={styles.identityText}>
 					{isNameEditMode && isSelected ? (
 						<TextInput
 							value={newName}
@@ -200,7 +200,9 @@ const MemberCard: React.FC<IMemberCard> = ({
 						</Text>
 					)}
 
-					<Text style={secondaryText}>{member?.employee?.user?.email}</Text>
+					<Text style={secondaryText} numberOfLines={1}>
+						{member?.employee?.user?.email}
+					</Text>
 				</View>
 			</View>
 			<View style={{ gap: 7, flexDirection: "column" }}>
@@ -232,9 +234,13 @@ const styles = StyleSheet.create({
 		shadowRadius: 10,
 	},
 	grayedText: { fontSize: 12 },
+	// a long name or address shrinks with an ellipsis, so the role and the day stay on screen
+	identity: { alignItems: "center", flexDirection: "row", flexShrink: 1, gap: 12 },
+	identityText: { flexShrink: 1, gap: 6 },
 	// the row's own inset plus its margin keep the content 24 from the screen's edge, where it was
 	memberContainer: {
 		flexDirection: "row",
+		gap: 12,
 		justifyContent: "space-between",
 		marginHorizontal: 12,
 		paddingHorizontal: 12,
