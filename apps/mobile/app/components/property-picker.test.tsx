@@ -146,10 +146,11 @@ describe('a property picker opened from a chip', () => {
 		expect(onSelect).toHaveBeenCalledWith(expect.objectContaining({ key: 'blocked' }));
 	});
 
-	it('shows a form in the dialog, even when opened from a chip', async () => {
+	it('shows a form in the dialog, clipped to its rounded corners, even when opened from a chip', async () => {
 		await renderPicker({ anchor: chip, children: <Text>status form</Text> });
 
 		expect(screen.getByTestId('picker-dialog')).toBeTruthy();
+		expect(screen.getByTestId('picker-dialog')).toHaveStyle({ overflow: 'hidden' });
 		expect(screen.queryByTestId('property-menu')).toBeNull();
 	});
 });

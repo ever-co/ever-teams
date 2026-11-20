@@ -238,9 +238,11 @@ const styles = StyleSheet.create({
 		fontFamily: typography.primary.semiBold,
 		fontSize: 14
 	},
+	// a form shown in place of the values has square corners of its own
 	dialog: {
 		maxHeight: '75%',
 		maxWidth: 420,
+		overflow: 'hidden',
 		paddingBottom: 16,
 		paddingTop: 20,
 		width: '90%'
