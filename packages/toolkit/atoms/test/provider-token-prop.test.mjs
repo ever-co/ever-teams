@@ -73,7 +73,11 @@ test('a provider without token logs nothing about it', async () => {
 test('a provider given a token says, once, that it does not read it and what to use instead', async () => {
 	await openProvider({ token: 'a-personal-api-token' });
 	await act(async () => root.render(React.createElement(kit.TeamsProvider, { token: 'another-token' })));
+	// A second provider on the same page, also given a token, adds no second warning.
+	const secondRoot = createRoot(document.createElement('div'));
+	await act(async () => secondRoot.render(React.createElement(kit.TeamsProvider, { token: 'a-third-token' })));
+	await act(async () => secondRoot.unmount());
 
 	assert.equal(aboutToken().length, 1);
-	assert.match(aboutToken()[0], /^@ever-teams\/atoms: .*config\.getToken.*sign-in dialog/);
+	assert.match(aboutToken()[0], /^@ever-teams\/atoms: .*config\.getToken.*sign-in dialog \(TeamsLoginDialog\)/);
 });

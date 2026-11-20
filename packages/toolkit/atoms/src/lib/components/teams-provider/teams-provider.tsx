@@ -108,7 +108,7 @@ interface TeamsProviderProps {
 	theme?: Theme<{}>;
 	/**
 	 * @deprecated Not read: sign people in with `config.getToken` (your backend), `config.signIn: 'ever-teams'` or the
-	 * kit's sign-in dialog. Passing it logs a warning once (#5635).
+	 * kit's sign-in dialog (`TeamsLoginDialog`). Passing it logs a warning once (#5635).
 	 */
 	token?: string;
 	lang?: string;
@@ -247,7 +247,7 @@ const TeamsProvider = ({
 		if (hasTokenProp) {
 			warnOnce(
 				'provider-token',
-				"TeamsProvider does not read token: sign people in with config.getToken, config.signIn 'ever-teams' or the kit's sign-in dialog."
+				"TeamsProvider does not read token: sign people in with config.getToken, config.signIn 'ever-teams' or the kit's sign-in dialog (TeamsLoginDialog)."
 			);
 		}
 	}, [hasTokenProp]);
