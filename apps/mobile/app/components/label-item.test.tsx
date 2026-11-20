@@ -64,4 +64,12 @@ describe('a chip on a card', () => {
 			themeFor('light').colors['muted-foreground']
 		);
 	});
+
+	it('capitalizes the name on a card, and keeps its case when asked to', async () => {
+		const { rerender } = await render(<LabelItem label="bug-fix" background="#ffcc00" icon={undefined} />);
+		expect(StyleSheet.flatten(screen.getByText('bug-fix').props.style).textTransform).toBe('capitalize');
+
+		await rerender(<LabelItem label="bug-fix" background="#ffcc00" icon={undefined} keepsCase />);
+		expect(StyleSheet.flatten(screen.getByText('bug-fix').props.style).textTransform).toBe('none');
+	});
 });

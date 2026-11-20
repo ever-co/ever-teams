@@ -62,4 +62,10 @@ describe('<StatusItem>', () => {
 		expect(screen.getByLabelText('edit')).toBeEnabled();
 		expect(screen.getByLabelText('trash-outline')).toBeEnabled();
 	});
+
+	it("reads the status's name formatted, as the list always showed it", async () => {
+		await renderRow();
+
+		expect(screen.getByText('In Review')).toBeTruthy();
+	});
 });

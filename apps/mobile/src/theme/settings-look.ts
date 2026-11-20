@@ -30,3 +30,11 @@ export function settingsSectionTitleColorOf(tone: SettingsTone, theme: Theme): s
 	}
 	return theme.colors.foreground;
 }
+
+/** A list's surface: the settings surface around its rows, nothing around an empty list. */
+export function settingsListSurfaceOf(count: number, theme: Theme): ViewStyle {
+	if (count === 0) {
+		return {};
+	}
+	return settingsSurfaceOf(theme);
+}

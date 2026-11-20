@@ -1,4 +1,6 @@
 import React, { FC, useRef, useState, useMemo, useCallback, useEffect } from 'react';
+import { TaskSettingAddButton } from '../../../components/task-setting-add-button';
+import { TaskSettingsList } from '../../../components/task-settings-list';
 import { observer } from 'mobx-react-lite';
 import {
   View,
@@ -7,13 +9,12 @@ import {
   TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
-  FlatList,
   StatusBar,
   Keyboard,
   Animated,
   Platform
 } from 'react-native';
-import { AntDesign, Ionicons } from '@expo/vector-icons';
+import { AntDesign } from '@expo/vector-icons';
 import { Screen } from '../../../components';
 import { AuthenticatedDrawerScreenProps } from '../../../navigators/authenticated-navigator';
 import { translate } from '../../../i18n';
@@ -184,23 +185,14 @@ export const TaskVersionScreen: FC<AuthenticatedDrawerScreenProps<'TaskVersion'>
         <View style={{ width: '100%', padding: 20, flex: 1 }}>
           <View style={styles.listHeaderContainer}>
             <Text style={styles.title2}>{translate('settingScreen.versionScreen.listOfVersions')}</Text>
-            <TouchableOpacity
-              accessibilityLabel={translate('settingScreen.versionScreen.createNewVersionButton')}
-              accessibilityRole="button"
+            <TaskSettingAddButton
+              label={translate('settingScreen.versionScreen.createNewVersionButton')}
+              iconSize={18}
               disabled={createReadOnly}
-              style={{
-                ...styles.createButtonSmall,
-                borderColor: dark ? '#6755C9' : '#3826A6',
-                backgroundColor: dark ? 'rgba(103, 85, 201, 0.15)' : 'rgba(56, 38, 166, 0.15)',
-                opacity: createOpacity
-              }}
+              style={{ ...styles.createButtonSmall, opacity: createOpacity }}
+              textStyle={styles.btnTextSmall}
               onPress={handleCreateNew}
-            >
-              <Ionicons name="add" size={18} color={dark ? '#6755C9' : '#3826A6'} />
-              <Text style={{ ...styles.btnTextSmall, color: dark ? '#6755C9' : '#3826A6' }}>
-                {translate('settingScreen.versionScreen.createNewVersionButton')}
-              </Text>
-            </TouchableOpacity>
+            />
           </View>
           {showsReadOnlyHint && (
             <Text style={{ ...styles.readOnlyHint, color: colors.tertiary }}>{readOnlyHint}</Text>
@@ -219,7 +211,7 @@ export const TaskVersionScreen: FC<AuthenticatedDrawerScreenProps<'TaskVersion'>
               </Text>
             ) : null}
 
-            <FlatList
+            <TaskSettingsList
               bounces={false}
               showsVerticalScrollIndicator={false}
               style={{ width: '100%' }}
@@ -233,28 +225,18 @@ export const TaskVersionScreen: FC<AuthenticatedDrawerScreenProps<'TaskVersion'>
                 />
               )}
               keyExtractor={(_, index) => index.toString()}
-              ListFooterComponent={() => <View style={{ marginBottom: 40 }} />}
             />
           </View>
         </View>
 
-        <TouchableOpacity
-          accessibilityLabel={translate('settingScreen.versionScreen.createNewVersionButton')}
-          accessibilityRole="button"
+        <TaskSettingAddButton
+          label={translate('settingScreen.versionScreen.createNewVersionButton')}
+          iconSize={24}
           disabled={createReadOnly}
-          style={{
-            ...styles.createButton,
-            borderColor: dark ? '#6755C9' : '#3826A6',
-            backgroundColor: dark ? 'rgba(103, 85, 201, 0.05)' : 'rgba(56, 38, 166, 0.05)',
-            opacity: createOpacity
-          }}
+          style={{ ...styles.createButton, opacity: createOpacity }}
+          textStyle={styles.btnText}
           onPress={handleCreateNew}
-        >
-          <Ionicons name="add" size={24} color={dark ? '#6755C9' : '#3826A6'} />
-          <Text style={{ ...styles.btnText, color: dark ? '#6755C9' : '#3826A6' }}>
-            {translate('settingScreen.versionScreen.createNewVersionButton')}
-          </Text>
-        </TouchableOpacity>
+        />
       </Animated.View>
 
       {/* Bottom Sheet Container */}

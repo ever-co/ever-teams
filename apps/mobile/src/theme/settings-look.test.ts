@@ -1,5 +1,10 @@
 import { StyleSheet } from 'react-native';
-import { settingsDividerOf, settingsSectionTitleColorOf, settingsSurfaceOf } from './settings-look';
+import {
+	settingsDividerOf,
+	settingsListSurfaceOf,
+	settingsSectionTitleColorOf,
+	settingsSurfaceOf
+} from './settings-look';
 import { themeFor } from './use-theme';
 
 describe("the web's settings surface", () => {
@@ -32,4 +37,16 @@ describe("the web's settings surface", () => {
 			expect(settingsSectionTitleColorOf('default', theme)).toBe(theme.colors.foreground);
 		}
 	);
+});
+
+describe("a team settings list's surface", () => {
+	it('puts the rows of a list on the settings surface', () => {
+		const theme = themeFor('light');
+
+		expect(settingsListSurfaceOf(3, theme)).toEqual(settingsSurfaceOf(theme));
+	});
+
+	it('draws no empty frame around a list without rows', () => {
+		expect(settingsListSurfaceOf(0, themeFor('dark'))).toEqual({});
+	});
 });

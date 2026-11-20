@@ -9,16 +9,18 @@ interface Props {
 	background: string;
 	icon: ReactNode | undefined;
 	iconUrl?: string;
+	/** Shows the name with the case it was saved with, where a card capitalizes it. */
+	keepsCase?: boolean;
 }
 
 /** A status, priority, size or label shown on a card or a list: the web's chip of its color. */
-const LabelItem: FC<Props> = ({ label, background, icon, iconUrl }) => {
+const LabelItem: FC<Props> = ({ label, background, icon, iconUrl, keepsCase = false }) => {
 	const theme = useWebTheme();
 	const look = taskChipLookOf(background, theme);
 	return (
 		<View testID="task-chip" style={[styles.container, look.container]}>
 			<ChipIcon item={{ iconUrl, icon }} color={look.ink} />
-			<Text style={[styles.labelTitle, { color: look.ink }]} numberOfLines={1}>
+			<Text style={[styles.labelTitle, keepsCase && styles.keptCase, { color: look.ink }]} numberOfLines={1}>
 				{label}
 			</Text>
 		</View>
@@ -36,6 +38,9 @@ const styles = StyleSheet.create({
 		minHeight: 24,
 		paddingHorizontal: 8,
 		paddingVertical: 3
+	},
+	keptCase: {
+		textTransform: 'none'
 	},
 	labelTitle: {
 		flexShrink: 1,

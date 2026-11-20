@@ -1,19 +1,20 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
 import React, { FC, useState, useRef, useMemo, useCallback, useEffect } from 'react';
+import { TaskSettingAddButton } from '../../../components/task-setting-add-button';
+import { TaskSettingsList } from '../../../components/task-settings-list';
 import {
 	View,
 	Text,
 	ViewStyle,
 	TouchableOpacity,
 	StyleSheet,
-	FlatList,
 	StatusBar,
 	Keyboard,
 	Animated,
 	Platform
 } from 'react-native';
-import { AntDesign, Ionicons } from '@expo/vector-icons';
+import { AntDesign } from '@expo/vector-icons';
 import { Screen } from '../../../components';
 import { AuthenticatedDrawerScreenProps } from '../../../navigators/authenticated-navigator';
 import { translate } from '../../../i18n';
@@ -219,21 +220,13 @@ export const TaskLabelScreen: FC<AuthenticatedDrawerScreenProps<'TaskLabelScreen
 					<View style={{ width: '100%', padding: 20, flex: 1 }}>
 						<View style={styles.listHeaderContainer}>
 							<Text style={styles.title2}>{translate('settingScreen.labelScreen.listLabels')}</Text>
-							<TouchableOpacity
-								accessibilityLabel={translate('settingScreen.labelScreen.createNewLabelText')}
-								accessibilityRole="button"
-								style={{
-									...styles.createButtonSmall,
-									borderColor: dark ? '#6755C9' : '#3826A6',
-									backgroundColor: dark ? 'rgba(103, 85, 201, 0.15)' : 'rgba(56, 38, 166, 0.15)'
-								}}
+							<TaskSettingAddButton
+								label={translate('settingScreen.labelScreen.createNewLabelText')}
+								iconSize={18}
+								style={styles.createButtonSmall}
+								textStyle={styles.btnTextSmall}
 								onPress={handleCreateNew}
-							>
-								<Ionicons name="add" size={18} color={dark ? '#6755C9' : '#3826A6'} />
-								<Text style={{ ...styles.btnTextSmall, color: dark ? '#6755C9' : '#3826A6' }}>
-									{translate('settingScreen.labelScreen.createNewLabelText')}
-								</Text>
-							</TouchableOpacity>
+							/>
 						</View>
 
 						<View
@@ -249,7 +242,7 @@ export const TaskLabelScreen: FC<AuthenticatedDrawerScreenProps<'TaskLabelScreen
 								</Text>
 							) : null}
 
-							<FlatList
+							<TaskSettingsList
 								bounces={false}
 								showsVerticalScrollIndicator={false}
 								style={{ width: '100%' }}
@@ -263,26 +256,17 @@ export const TaskLabelScreen: FC<AuthenticatedDrawerScreenProps<'TaskLabelScreen
 									/>
 								)}
 								keyExtractor={(_, index) => index.toString()}
-								ListFooterComponent={() => <View style={{ marginBottom: 40 }} />}
 							/>
 						</View>
 					</View>
 
-					<TouchableOpacity
-						accessibilityLabel={translate('settingScreen.labelScreen.createNewLabelText')}
-						accessibilityRole="button"
-						style={{
-							...styles.createButton,
-							borderColor: dark ? '#6755C9' : '#3826A6',
-							backgroundColor: dark ? 'rgba(103, 85, 201, 0.05)' : 'rgba(56, 38, 166, 0.05)'
-						}}
+					<TaskSettingAddButton
+						label={translate('settingScreen.labelScreen.createNewLabelText')}
+						iconSize={24}
+						style={styles.createButton}
+						textStyle={styles.btnText}
 						onPress={handleCreateNew}
-					>
-						<Ionicons name="add" size={24} color={dark ? '#6755C9' : '#3826A6'} />
-						<Text style={{ ...styles.btnText, color: dark ? '#6755C9' : '#3826A6' }}>
-							{translate('settingScreen.labelScreen.createNewLabelText')}
-						</Text>
-					</TouchableOpacity>
+					/>
 				</Animated.View>
 
 				{/* Bottom Sheet Container */}
