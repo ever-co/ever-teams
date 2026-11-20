@@ -46,6 +46,8 @@ interface IPropertyPicker {
 	anchor?: MenuRect | null;
 	/** The search line of the menu. */
 	searchPlaceholder?: string;
+	/** Names shown as they were saved, as labels are, where statuses, priorities and sizes are capitalized. */
+	keepsCase?: boolean;
 }
 
 interface PickerMenuOption extends MenuOption {
@@ -166,7 +168,8 @@ export function PropertyPicker({
 	footer,
 	children,
 	anchor,
-	searchPlaceholder
+	searchPlaceholder,
+	keepsCase = false
 }: Readonly<IPropertyPicker>) {
 	const theme = useWebTheme();
 	const showsList = !children;
@@ -182,7 +185,7 @@ export function PropertyPicker({
 					onDismiss={onDismiss}
 					searchPlaceholder={searchPlaceholder ?? title}
 					footer={footer}
-					capitalizesLabels
+					capitalizesLabels={!keepsCase}
 				/>
 			</Modal>
 		);

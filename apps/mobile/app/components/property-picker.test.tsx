@@ -159,4 +159,10 @@ describe('a property picker opened from a chip', () => {
 
 		expect(within(screen.getByTestId('picker-form')).getByText('status form')).toBeTruthy();
 	});
+
+	it('keeps the names as they were saved when asked, as labels are', async () => {
+		await renderPicker({ anchor: chip, keepsCase: true });
+
+		expect(screen.getByText('in-progress')).not.toHaveStyle({ textTransform: 'capitalize' });
+	});
 });
