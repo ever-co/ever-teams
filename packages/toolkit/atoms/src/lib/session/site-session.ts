@@ -176,6 +176,19 @@ export interface EndSiteSignInOptions {
 	organizationId: string;
 }
 
+// How long a sign-out waits for a renewal another timer or tab runs: the renewal's request has no timeout of its own.
+export const SIGN_OUT_RENEWAL_WAIT_MS = 5_000;
+
+// Signs out under the renewal lock, or without it when the lock cannot be taken, as accept() does.
+async function signOutUnderLock(scope: string, session: KitSiteSession): Promise<true> {
+	try {
+		await withRenewalLock(scope, () => session.signOut());
+	} catch {
+		await session.signOut();
+	}
+	return true;
+}
+
 /**
  * Ends the sign-in with Ever Teams saved for an API address and organization when no provider shows it: forgets it,
  * then asks the API to end it, as the user menu does (#5580). A provider on the page signs out with useSiteSignIn().
@@ -184,10 +197,19 @@ export async function endSiteSignIn({ apiUrl, organizationId }: EndSiteSignInOpt
 	const address = apiUrlOf({ apiUrl });
 	const session = createSiteSession(address, organizationId);
 	// Under the renewal lock: a renewal that another timer or tab of the site runs ends first, so it cannot save a new
-	// renewal token once this one forgot the sign-in.
-	try {
-		await withRenewalLock(siteSignInScopeOf(address, organizationId), () => session.signOut());
-	} catch {
+	// renewal token once this one forgot the sign-in. A renewal that hangs does not hold the sign-out: past the wait it
+	// signs out without the lock, and the run still queued under the lock signs out again once that renewal ends,
+	// forgetting and revoking whatever it saved.
+	let timer: ReturnType<typeof setTimeout> | undefined;
+	const waitedTooLong = new Promise<false>((resolve) => {
+		timer = setTimeout(() => resolve(false), SIGN_OUT_RENEWAL_WAIT_MS);
+	});
+	const signedOut = await Promise.race([
+		signOutUnderLock(siteSignInScopeOf(address, organizationId), session),
+		waitedTooLong
+	]);
+	clearTimeout(timer);
+	if (!signedOut) {
 		await session.signOut();
 	}
 }
