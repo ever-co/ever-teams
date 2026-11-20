@@ -1,8 +1,8 @@
-import React, { ReactNode, useContext, useEffect, useRef, useState } from 'react';
+import React, { ReactNode, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { Dimensions, Keyboard, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 import { Check } from '../../src/components/icons';
-import { menuPlacementOf, MenuRect } from '../../src/components/menu-placement';
+import { menuPlacementOf, MenuRect, MenuShape } from '../../src/components/menu-placement';
 import {
 	MENU_ICON_SIZE,
 	MENU_LIST_MAX_HEIGHT,
@@ -102,6 +102,38 @@ function areaLimitsOf(area: MenuArea, bars: SystemBars, screenHeight: number, ke
 	return { top, bottom: Math.min(aboveBar, keyboardTop - area.y) };
 }
 
+export interface AreaContext {
+	keyboardTop: number | null;
+	bars: SystemBars;
+	screenHeight: number;
+}
+
+/** A menu's place on its area under its trigger, for the height it takes and the shape it asks. */
+export function placementOnArea(
+	area: MenuArea,
+	anchor: MenuRect,
+	menuHeight: number,
+	context: AreaContext,
+	shape?: MenuShape
+) {
+	const anchorInArea = { ...anchor, x: anchor.x - area.x, y: anchor.y - area.y };
+	const limits = areaLimitsOf(area, context.bars, context.screenHeight, context.keyboardTop);
+	return menuPlacementOf(anchorInArea, menuHeight, { width: area.width, ...limits }, shape);
+}
+
+/** The screen a menu lives on, measured once laid out, with what limits it there: the system bars and the keyboard. */
+export function useMenuArea() {
+	const areaRef = useRef<View>(null);
+	const [area, setArea] = useState<MenuArea | null>(null);
+	const keyboardTop = useKeyboardTop();
+	const bars = useSystemBars();
+	const measureArea = useCallback(() => {
+		areaRef.current?.measureInWindow((x, y, width, height) => setArea({ x, y, width, height }));
+	}, []);
+	const context: AreaContext = { keyboardTop, bars, screenHeight: Dimensions.get('screen').height };
+	return { areaRef, area, measureArea, context };
+}
+
 export interface MenuMeasures {
 	anchor: MenuRect;
 	listHeight: number;
@@ -116,9 +148,7 @@ export function placementInArea(area: MenuArea, measures: MenuMeasures) {
 	const { anchor, listHeight, footerHeight, keyboardTop, bars, screenHeight } = measures;
 	const shownListHeight = Math.min(listHeight, MENU_LIST_MAX_HEIGHT);
 	const menuHeight = MENU_SEARCH_HEIGHT + shownListHeight + footerHeight;
-	const anchorInArea = { ...anchor, x: anchor.x - area.x, y: anchor.y - area.y };
-	const limits = areaLimitsOf(area, bars, screenHeight, keyboardTop);
-	return menuPlacementOf(anchorInArea, menuHeight, { width: area.width, ...limits });
+	return placementOnArea(area, anchor, menuHeight, { keyboardTop, bars, screenHeight });
 }
 
 /** One value to pick: its glyph, its name, and a check on the value the task holds. */
@@ -204,24 +234,16 @@ export function PropertyMenu<T extends MenuOption>({
 	capitalizesLabels = false
 }: Readonly<IPropertyMenu<T>>) {
 	const theme = useWebTheme();
-	const areaRef = useRef<View>(null);
-	const [area, setArea] = useState<MenuArea | null>(null);
+	const { areaRef, area, measureArea, context } = useMenuArea();
 	const [query, setQuery] = useState('');
 	const [listHeight, setListHeight] = useState<number | null>(null);
 	const [footerHeight, setFooterHeight] = useState(0);
-	const keyboardTop = useKeyboardTop();
-	const bars = useSystemBars();
 	const shownOptions = options.filter((option) => matchesQuery(option.label, query));
 	const isMeasured = area !== null && listHeight !== null;
 
-	const measureArea = () => {
-		areaRef.current?.measureInWindow((x, y, width, height) => setArea({ x, y, width, height }));
-	};
-
 	let placementStyle = {};
 	if (area !== null && listHeight !== null) {
-		const screenHeight = Dimensions.get('screen').height;
-		placementStyle = placementInArea(area, { anchor, listHeight, footerHeight, keyboardTop, bars, screenHeight });
+		placementStyle = placementInArea(area, { anchor, listHeight, footerHeight, ...context });
 	}
 
 	return (
