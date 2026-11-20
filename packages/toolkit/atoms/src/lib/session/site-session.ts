@@ -155,19 +155,31 @@ export function createSiteSession(apiUrl: string, organizationId: string): KitSi
 		const saved = readRenewal();
 		// Forgotten first: a renewal this tab starts meanwhile finds nothing, and one already on its way keeps nothing.
 		forgetRenewal();
-		if (!saved) {
-			return;
-		}
-		try {
-			// Any token of the sign-in ends all of it: one another tab renews meanwhile ends with it.
-			await revokeEmbedSiteSession({ apiUrl, renewalToken: saved.renewalToken });
-		} catch {
-			// Forgotten here all the same: the renewal token expires on its own, and the person can revoke the site from
-			// the web app.
-		}
+		await revokeRenewal(apiUrl, saved);
 	}
 
 	return { getToken, accept, holdsHandedToken: () => handed !== null, signOut };
+}
+
+// Ends a forgotten sign-in at the API, whatever the API answers.
+async function revokeRenewal(apiUrl: string, saved: StoredRenewal | null): Promise<void> {
+	if (!saved) {
+		return;
+	}
+	try {
+		// Any token of the sign-in ends all of it: one another tab renews meanwhile ends with it.
+		await revokeEmbedSiteSession({ apiUrl, renewalToken: saved.renewalToken });
+	} catch {
+		// Forgotten here all the same: the renewal token expires on its own, and the person can revoke the site from
+		// the web app.
+	}
+}
+
+// Forgets the renewal token saved for an API address and organization, and gives it back to be revoked.
+function forgetSavedRenewal(apiUrl: string, organizationId: string): StoredRenewal | null {
+	const saved = readStoredRenewal(apiUrl, organizationId);
+	forgetStoredRenewal(apiUrl, organizationId);
+	return saved;
 }
 
 export interface EndSiteSignInOptions {
@@ -179,37 +191,29 @@ export interface EndSiteSignInOptions {
 // How long a sign-out waits for a renewal another timer or tab runs: the renewal's request has no timeout of its own.
 export const SIGN_OUT_RENEWAL_WAIT_MS = 5_000;
 
-// Signs out under the renewal lock, or without it when the lock cannot be taken, as accept() does.
-async function signOutUnderLock(scope: string, session: KitSiteSession): Promise<true> {
-	try {
-		await withRenewalLock(scope, () => session.signOut());
-	} catch {
-		await session.signOut();
-	}
-	return true;
-}
-
 /**
  * Ends the sign-in with Ever Teams saved for an API address and organization when no provider shows it: forgets it,
  * then asks the API to end it, as the user menu does (#5580). A provider on the page signs out with useSiteSignIn().
  */
 export async function endSiteSignIn({ apiUrl, organizationId }: EndSiteSignInOptions): Promise<void> {
 	const address = apiUrlOf({ apiUrl });
-	const session = createSiteSession(address, organizationId);
-	// Under the renewal lock: a renewal that another timer or tab of the site runs ends first, so it cannot save a new
-	// renewal token once this one forgot the sign-in. A renewal that hangs does not hold the sign-out: past the wait it
-	// signs out without the lock, and the run still queued under the lock signs out again once that renewal ends,
-	// forgetting and revoking whatever it saved.
+	const forget = async () => forgetSavedRenewal(address, organizationId);
+	// Forgotten under the renewal lock (without it when the lock cannot be taken, as accept() does): a renewal that
+	// another timer or tab of the site runs ends first, so it cannot save a new renewal token once this one forgot the
+	// sign-in. The revoke runs once the lock is released: a revoke that hangs holds no renewal or sign-in of the site.
+	const forgotten = withRenewalLock(siteSignInScopeOf(address, organizationId), forget).catch(forget);
 	let timer: ReturnType<typeof setTimeout> | undefined;
-	const waitedTooLong = new Promise<false>((resolve) => {
-		timer = setTimeout(() => resolve(false), SIGN_OUT_RENEWAL_WAIT_MS);
+	const waitedTooLong = new Promise<undefined>((resolve) => {
+		timer = setTimeout(() => resolve(undefined), SIGN_OUT_RENEWAL_WAIT_MS);
 	});
-	const signedOut = await Promise.race([
-		signOutUnderLock(siteSignInScopeOf(address, organizationId), session),
-		waitedTooLong
-	]);
+	const saved = await Promise.race([forgotten, waitedTooLong]);
 	clearTimeout(timer);
-	if (!signedOut) {
-		await session.signOut();
+	if (saved !== undefined) {
+		await revokeRenewal(address, saved);
+		return;
 	}
+	// A renewal that hangs does not hold the sign-out: the sign-in is forgotten and ended now, and the run still queued
+	// under the lock forgets and revokes whatever that renewal saves once it ends.
+	void forgotten.then((late) => revokeRenewal(address, late));
+	await revokeRenewal(address, forgetSavedRenewal(address, organizationId));
 }

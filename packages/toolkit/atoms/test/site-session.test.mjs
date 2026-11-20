@@ -55,14 +55,16 @@ const tokensFor = (n) => ({
 	renewalExpiresAt: new Date(Date.now() + 30 * 24 * 60 * 60_000).toISOString()
 });
 
-// The API: each renewal answers the next pair, unless `refuse` answers instead; `hold` keeps a renewal waiting.
+// The API: each renewal answers the next pair, unless `refuse` answers instead; `hold` keeps a renewal waiting, and
+// `holdRevoke` a revoke.
 function standInApi() {
-	const stand = { requests: [], pairs: 1, refuse: null, hold: null };
+	const stand = { requests: [], pairs: 1, refuse: null, hold: null, holdRevoke: null };
 	stand.fetch = async (url, init) => {
 		const path = new URL(url).pathname.replace(/^\/api/, '');
 		const authorization = new Headers(init.headers).get('authorization');
 		stand.requests.push({ path, body: JSON.parse(init.body), authorization });
 		if (path === '/embed/revoke') {
+			await stand.holdRevoke?.();
 			return new Response(null, { status: 204 });
 		}
 		await stand.hold?.();
@@ -271,6 +273,40 @@ test(
 		);
 	}
 );
+
+test(
+	'endSiteSignIn revokes once the lock is released: a revoke that hangs holds no new sign-in',
+	{ timeout: 10_000 },
+	async () => {
+		saveRenewal(1);
+		let release;
+		api.holdRevoke = () => new Promise((resolve) => (release = resolve));
+		const ending = kit.endSiteSignIn({ apiUrl: API, organizationId: ORGANIZATION });
+		await settle();
+		assert.equal(sent('/embed/revoke').length, 1, 'the revoke is on its way');
+
+		await newTab().accept(tokensFor(5));
+
+		assert.equal(
+			savedRenewal().renewalToken,
+			renewalTokenFor(5),
+			'the next sign-in is saved while the revoke hangs'
+		);
+		api.holdRevoke = null;
+		release();
+		await ending;
+		assert.deepEqual(
+			sent('/embed/revoke').map(({ body }) => body),
+			[{ renewalToken: renewalTokenFor(1) }]
+		);
+		assert.equal(
+			savedRenewal().renewalToken,
+			renewalTokenFor(5),
+			'the revoke of the previous sign-in forgets nothing new'
+		);
+	}
+);
+
 test("endSiteSignIn without an API address ends the sign-in of the page's, as a provider without apiUrl uses", async () => {
 	const previous = kit.apiConfigManager.getConfig().apiUrl;
 	kit.apiConfigManager.setConfig({ apiUrl: API });
