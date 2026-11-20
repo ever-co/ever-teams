@@ -31,7 +31,14 @@ const REGISTRATION = '@property --ever-teams-tw-shadow{syntax:"*";inherits:false
 const stubs = {
 	atoms: `
 		import { createElement, useEffect } from 'react';
+		// What the last provider rendered was told: the bridge of the element reads the sign-in controls under it.
+		let signIn;
+		export const useSiteSignIn = () => (signIn === 'ever-teams' ? globalThis.siteControls : null);
+		export const endSiteSignIn = async (options) => {
+			globalThis.endedSignIns.push(options);
+		};
 		export const TeamsProvider = ({ config, colorScheme, lang, scopedStyles, onTimerChange, children }) => {
+			signIn = config.signIn;
 			useEffect(() => () => { globalThis.unmounted = (globalThis.unmounted ?? 0) + 1; }, []);
 			// What the kit calls at each change of the timer, as the last render gave it.
 			globalThis.onTimerChange = onTimerChange;
@@ -99,6 +106,15 @@ beforeEach(async () => {
 		document.body.innerHTML = '';
 	});
 	globalThis.unmounted = 0;
+	globalThis.endedSignIns = [];
+	globalThis.kitSignOuts = 0;
+	globalThis.siteControls = {
+		status: 'idle',
+		signIn() {},
+		async signOut() {
+			globalThis.kitSignOuts += 1;
+		}
+	};
 });
 
 async function place(attributes = {}) {
@@ -280,6 +296,38 @@ test('the element gives the kit the same callback at every render, so a change o
 
 	assert.equal(typeof first, 'function');
 	assert.equal(globalThis.onTimerChange, first);
+});
+
+const SITE_SIGN_IN = { 'api-url': 'https://api.example.com/api', 'sign-in': 'ever-teams', organization: 'org-1' };
+
+test('signOut() ends the sign-in with Ever Teams through the kit, as its user menu does, while the element shows it', async () => {
+	const element = await place(SITE_SIGN_IN);
+
+	await act(async () => element.signOut());
+
+	assert.equal(globalThis.kitSignOuts, 1);
+	assert.deepEqual(globalThis.endedSignIns, []);
+});
+
+test('signOut() on an element already removed ends the sign-in saved for its api-url and organization', async () => {
+	const element = await place(SITE_SIGN_IN);
+	await act(async () => element.remove());
+
+	await element.signOut();
+
+	assert.equal(globalThis.kitSignOuts, 0);
+	assert.deepEqual(globalThis.endedSignIns, [{ apiUrl: 'https://api.example.com/api', organizationId: 'org-1' }]);
+});
+
+test('signOut() without sign-in="ever-teams" ends nothing, in the page or removed', async () => {
+	const element = await place({ 'api-url': 'https://api.example.com/api' });
+
+	await act(async () => element.signOut());
+	await act(async () => element.remove());
+	await element.signOut();
+
+	assert.equal(globalThis.kitSignOuts, 0);
+	assert.deepEqual(globalThis.endedSignIns, []);
 });
 
 test('the package exports the event name', async () => {

@@ -101,7 +101,8 @@ window.addEventListener(TIMER_CHANGE_EVENT, (event) => {
 	return running;
 });
 export { created, name, attributes, unknownScheme, props, noProps, unknownSchemeProp, loading, eventName, heard };
-export { siteSignIn, siteSignInProps, unknownSignIn };
+const signedOut: Promise<void> = created.signOut();
+export { siteSignIn, siteSignInProps, unknownSignIn, signedOut };
 `;
 
 test('the build writes the declaration next to the element', () => {

@@ -195,6 +195,17 @@ the person revokes the site from the web app. When the person or an administrato
 the button again at its next renewal. [Sign in with Ever Teams](https://github.com/ever-co/ever-teams/tree/develop/packages/toolkit/atoms#sign-in-with-ever-teams)
 in the README of `@ever-teams/atoms` says what happens in each case.
 
+The sign-in is kept for the API address and organization, not for a user of your page. On a computer people share,
+sign the timer out when your page signs its own user out, so the next person does not get the previous one's timer:
+
+```js
+await document.querySelector('ever-teams-timer').signOut();
+```
+
+`signOut()` does what the user menu does and shows the button again. Called on an element already removed from the
+page, it still ends the sign-in saved for its `api-url` and `organization`. Without `sign-in="ever-teams"` it does
+nothing.
+
 ## Size
 
 258 KB gzip when the page loads (React, the kit and its stylesheet), and 63 KB more only when a view needs time zones.

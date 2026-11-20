@@ -36,6 +36,8 @@ const standIns = {
 		import { usePasswordLoginForm } from '${kitSources}/hooks/usePasswordLoginForm.ts';
 		import { useTimer } from '${kitSources}/hooks/useTimer.ts';
 		export { TeamsProvider } from '${kitSources}/components/teams-provider/teams-provider.tsx';
+		export { useSiteSignIn } from '${kitSources}/session/site-sign-in-context.ts';
+		export { endSiteSignIn } from '${kitSources}/session/site-session.ts';
 		export const TeamsLoginDialog = () => {
 			const form = usePasswordLoginForm({});
 			return createElement('button', { 'data-sign-in': '', onClick: form.handleSubmit }, 'Sign In');
