@@ -87,11 +87,6 @@ const DOCUMENTED_SERVER_BLOCKERS: Record<string, { status: number; kind: 'mock g
 		kind: 'mock gap',
 		reason: 'the mock implements no POST /api/invite/accept, so the app reports 502 "The Gauzy API gave no usable answer"'
 	},
-	'GET /api/user-api-tokens/config': {
-		status: 502,
-		kind: 'mock gap',
-		reason: 'the mock implements no /api/user-api-tokens/config; the app reports 502 "Whether this server offers API tokens could not be read."'
-	},
 	'POST /api/auth/login': {
 		status: 500,
 		kind: 'app',
