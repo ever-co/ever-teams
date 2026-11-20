@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react-native/no-color-literals */
 import React from 'react';
-import { View, Text, Dimensions, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import EStyleSheet from 'react-native-extended-stylesheet';
 import { typography, useAppTheme, useWebTheme } from '../../../theme';
 import { SvgXml } from 'react-native-svg';
@@ -17,7 +17,10 @@ const LoginBottom = () => {
 	const { dark } = useAppTheme();
 	const theme = useWebTheme();
 	return (
-		<View style={[styles.bottomSection, { borderTopColor: theme.colors.border }]}>
+		<View
+			testID="login-footer"
+			style={[styles.bottomSection, layout.footer, { borderTopColor: theme.colors.border }]}
+		>
 			<Text style={[styles.bottomSectionTxt, { color: theme.colors['muted-foreground'] }]}>
 				{Config.branding.copyrightText}
 			</Text>
@@ -52,7 +55,13 @@ const LoginBottom = () => {
 
 export default LoginBottom;
 
-const { width } = Dimensions.get('window');
+// The footer sits below the form in the page's flow: placed over the page, it covered a long form
+const layout = StyleSheet.create({
+	footer: {
+		marginTop: 32,
+		width: '100%'
+	}
+});
 
 const styles = EStyleSheet.create({
 	imageTheme: {
@@ -78,18 +87,13 @@ const styles = EStyleSheet.create({
 	},
 	iconWrapper: { borderRadius: 60, padding: 0, justifyContent: 'center', alignItems: 'center' },
 	bottomSection: {
-		position: 'absolute',
 		justifyContent: 'space-between',
 		alignItems: 'center',
-		width: width - 40,
 		display: 'flex',
 		flexDirection: 'row',
-		alignSelf: 'center',
-		bottom: 0,
 		marginBottom: '2rem',
 		paddingTop: '1rem',
-		borderTopWidth: StyleSheet.hairlineWidth,
-		zIndex: 100
+		borderTopWidth: StyleSheet.hairlineWidth
 	},
 	bottomSectionTxt: {
 		flex: 3,
