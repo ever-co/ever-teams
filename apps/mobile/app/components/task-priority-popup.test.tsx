@@ -8,6 +8,7 @@ import { observable, runInAction } from 'mobx';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, fireEvent, render, screen } from '@testing-library/react-native';
 import TaskPriorityPopup from './task-priority-popup';
+import type { MenuRect } from '../../src/components/menu-placement';
 
 let mockStores: Record<string, unknown> = {};
 
@@ -70,7 +71,7 @@ function givenOwnMembership(overrides: Record<string, unknown> = {}) {
 }
 
 /** Renders the popup once the role's permissions are known, as the task details open it. */
-async function renderPopup(permissions: string[], canCreatePriority = true) {
+async function renderPopup(permissions: string[], canCreatePriority = true, anchor: MenuRect | null = null) {
 	const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 	const rows = permissions.map((permission) => ({ id: permission, roleId: 'role-1', permission, enabled: true }));
 	client.setQueryData(['rolePermissions', 'me', 'tenant-1', 'user-1', 'role-1'], rows);
@@ -84,6 +85,7 @@ async function renderPopup(permissions: string[], canCreatePriority = true) {
 				priorityName=""
 				setSelectedPriority={jest.fn()}
 				canCreatePriority={canCreatePriority}
+				anchor={anchor}
 			/>
 		</QueryClientProvider>
 	);
@@ -160,5 +162,38 @@ describe('<TaskPriorityPopup> create button', () => {
 		});
 
 		expect(screen.getByText(READ_ONLY_HINT)).toBeTruthy();
+	});
+});
+
+describe('<TaskPriorityPopup> opened from its chip', () => {
+	const chip = { x: 16, y: 300, width: 120, height: 30 };
+
+	it("shows the web's menu, its search line and its create action", async () => {
+		givenOwnMembership({ isManager: true });
+
+		await renderPopup([], true, chip);
+
+		expect(screen.getByTestId('property-menu')).toBeTruthy();
+		expect(screen.getByPlaceholderText('taskMenus.search.priority')).toBeTruthy();
+		expect(screen.getByLabelText('taskMenus.actions.createPriority')).toBeEnabled();
+	});
+
+	it('shows the create action faded, with the hint, to a member who may not create', async () => {
+		givenOwnMembership();
+
+		await renderPopup([], true, chip);
+
+		expect(screen.getByLabelText('taskMenus.actions.createPriority')).toBeDisabled();
+		expect(screen.getByText(READ_ONLY_HINT)).toBeTruthy();
+	});
+
+	it('opens the create form in the dialog from the create action', async () => {
+		givenOwnMembership({ isManager: true });
+
+		await renderPopup([], true, chip);
+		await fireEvent.press(screen.getByLabelText('taskMenus.actions.createPriority'));
+
+		expect(screen.getByText(PRIORITY_FORM)).toBeTruthy();
+		expect(screen.queryByTestId('property-menu')).toBeNull();
 	});
 });

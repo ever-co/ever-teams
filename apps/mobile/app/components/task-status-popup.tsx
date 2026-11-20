@@ -3,6 +3,7 @@ import { observer } from 'mobx-react-lite';
 import { useTaskStatus } from '../services/hooks/features/use-task-status';
 import { ITaskStatusItem } from '../services/interfaces/ITaskStatus';
 import { translate } from '../i18n';
+import type { MenuRect } from '../../src/components/menu-placement';
 import { useTaskStatusValue } from './status-type';
 import TaskStatusForm from '../screens/authenticated/task-status-screen/components/task-status-form';
 import { PickerOption } from './property-picker';
@@ -14,6 +15,8 @@ export interface Props {
 	statusName: string;
 	setSelectedStatus?: (status: string) => unknown;
 	canCreateStatus?: boolean;
+	/** The chip the picker opens from, so its values show in the web's menu under it. */
+	anchor?: MenuRect | null;
 }
 
 type StatusValues = ReturnType<typeof useTaskStatusValue>;
@@ -40,7 +43,8 @@ const TaskStatusPopup: FC<Props> = observer(function FilterPopup({
 	onDismiss,
 	setSelectedStatus,
 	statusName,
-	canCreateStatus
+	canCreateStatus,
+	anchor
 }) {
 	const { allStatuses, createStatus, updateStatus } = useTaskStatus();
 	const statusValues = useTaskStatusValue();
@@ -54,6 +58,10 @@ const TaskStatusPopup: FC<Props> = observer(function FilterPopup({
 			optionOf={(status) => statusOptionOf(status, statusValues, statusName)}
 			onPick={(status) => setSelectedStatus?.(statusValueOf(status, statusValues))}
 			canCreateHere={canCreateStatus}
+			kind="status"
+			anchor={anchor}
+			searchPlaceholder={translate('taskMenus.search.status')}
+			menuCreateLabel={translate('taskMenus.actions.createStatus')}
 			createLabel={translate('settingScreen.statusScreen.createNewStatusText')}
 			renderCreateForm={(close) => (
 				<TaskStatusForm
