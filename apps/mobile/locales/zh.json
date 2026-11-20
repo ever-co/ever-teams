@@ -588,5 +588,19 @@
 			"heading": "这里看起来有点空",
 			"content": "还没有添加任何收藏。点击某一集上的心形图标即可将其加入收藏！"
 		}
+	},
+	"taskMenus": {
+		"search": {
+			"status": "更改状态…",
+			"priority": "设置优先级…",
+			"size": "设置大小…"
+		},
+		"noResults": "无结果",
+		"noOptions": "暂无可选项",
+		"actions": {
+			"createStatus": "创建状态",
+			"createPriority": "创建优先级",
+			"createSize": "创建大小"
+		}
 	}
 }

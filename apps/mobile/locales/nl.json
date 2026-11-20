@@ -588,5 +588,19 @@
 			"heading": "Dit ziet er wat leeg uit",
 			"content": "Er zijn nog geen favorieten toegevoegd. Tik op het hartje bij een aflevering om die aan je favorieten toe te voegen!"
 		}
+	},
+	"taskMenus": {
+		"search": {
+			"status": "Status wijzigen…",
+			"priority": "Prioriteit instellen…",
+			"size": "Grootte instellen…"
+		},
+		"noResults": "Geen resultaten",
+		"noOptions": "Nog niets om uit te kiezen",
+		"actions": {
+			"createStatus": "Status aanmaken",
+			"createPriority": "Prioriteit aanmaken",
+			"createSize": "Grootte aanmaken"
+		}
 	}
 }

@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react-native';
+import { fireEvent, render, screen, within } from '@testing-library/react-native';
 import { StyleSheet, Text } from 'react-native';
 import { PickerCreateFooter, PropertyPicker, PickerOption } from './property-picker';
 import { themeFor } from '../../src/theme/use-theme';
@@ -122,5 +122,41 @@ describe('a property picker', () => {
 		await fireEvent.press(screen.getByLabelText('Create new status'));
 		expect(onPress).toHaveBeenCalledTimes(1);
 		expect(screen.queryByText('Only managers')).toBeNull();
+	});
+});
+
+describe('a property picker opened from a chip', () => {
+	const chip = { x: 16, y: 300, width: 120, height: 30 };
+
+	it("shows the values in the web's menu under the chip, with its search line", async () => {
+		await renderPicker({ anchor: chip, searchPlaceholder: 'Change status…' });
+
+		expect(screen.getByTestId('property-menu')).toBeTruthy();
+		expect(screen.getByPlaceholderText('Change status…')).toBeTruthy();
+		expect(screen.getAllByTestId('menu-option')).toHaveLength(3);
+		expect(screen.getByText('in-progress')).toHaveStyle({ textTransform: 'capitalize' });
+		expect(screen.queryByTestId('picker-dialog')).toBeNull();
+	});
+
+	it('hands the picked value over from the menu', async () => {
+		const { onSelect } = await renderPicker({ anchor: chip });
+
+		await fireEvent.press(screen.getByLabelText('blocked'));
+
+		expect(onSelect).toHaveBeenCalledWith(expect.objectContaining({ key: 'blocked' }));
+	});
+
+	it('shows a form in the dialog, clipped to its rounded corners, even when opened from a chip', async () => {
+		await renderPicker({ anchor: chip, children: <Text>status form</Text> });
+
+		expect(screen.getByTestId('picker-dialog')).toBeTruthy();
+		expect(screen.getByTestId('picker-dialog')).toHaveStyle({ overflow: 'hidden' });
+		expect(screen.queryByTestId('property-menu')).toBeNull();
+	});
+
+	it('lets a form taller than the dialog scroll inside it, so its buttons stay within reach', async () => {
+		await renderPicker({ anchor: chip, children: <Text>status form</Text> });
+
+		expect(within(screen.getByTestId('picker-form')).getByText('status form')).toBeTruthy();
 	});
 });

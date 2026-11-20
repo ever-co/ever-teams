@@ -588,5 +588,19 @@
 			"heading": "Das sieht etwas leer aus",
 			"content": "Es wurden noch keine Favoriten hinzugefügt. Tippen Sie bei einer Folge auf das Herz, um sie zu Ihren Favoriten hinzuzufügen!"
 		}
+	},
+	"taskMenus": {
+		"search": {
+			"status": "Status ändern…",
+			"priority": "Priorität festlegen…",
+			"size": "Größe festlegen…"
+		},
+		"noResults": "Keine Ergebnisse",
+		"noOptions": "Noch nichts zur Auswahl",
+		"actions": {
+			"createStatus": "Status erstellen",
+			"createPriority": "Priorität erstellen",
+			"createSize": "Größe erstellen"
+		}
 	}
 }

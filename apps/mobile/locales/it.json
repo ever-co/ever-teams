@@ -588,5 +588,19 @@
 			"heading": "Sembra un po' vuoto",
 			"content": "Non hai ancora aggiunto preferiti. Tocca il cuore su un episodio per aggiungerlo ai tuoi preferiti!"
 		}
+	},
+	"taskMenus": {
+		"search": {
+			"status": "Cambia stato…",
+			"priority": "Imposta priorità…",
+			"size": "Imposta dimensione…"
+		},
+		"noResults": "Nessun risultato",
+		"noOptions": "Ancora niente da scegliere",
+		"actions": {
+			"createStatus": "Crea stato",
+			"createPriority": "Crea priorità",
+			"createSize": "Crea dimensione"
+		}
 	}
 }

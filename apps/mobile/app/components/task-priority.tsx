@@ -9,6 +9,7 @@ import { useTeamTasks } from '../services/hooks/features/use-team-tasks';
 import { typography, useWebTheme } from '../theme';
 import { taskChipLookOf } from '../../src/components/task-chip';
 import { ChipIcon } from '../../src/components/chip-icon';
+import { useMenuAnchor } from '../../src/components/menu-anchor';
 import TaskPriorityPopup from './task-priority-popup';
 import { translate } from '../i18n';
 import { useTaskPriorityValue } from './status-type';
@@ -27,6 +28,7 @@ const TaskPriority: FC<TaskPriorityProps> = observer(
 		const theme = useWebTheme();
 		const { updateTask } = useTeamTasks();
 		const [openModal, setOpenModal] = useState(false);
+		const { anchorRef, anchor, openFromAnchor } = useMenuAnchor();
 
 		const allTaskPriorities = useTaskPriorityValue();
 
@@ -59,10 +61,15 @@ const TaskPriority: FC<TaskPriorityProps> = observer(
 					visible={openModal}
 					setSelectedPriority={(e) => onChangePriority(e.value)}
 					onDismiss={() => setOpenModal(false)}
+					anchor={anchor}
 					canCreatePriority={canCreatePriority}
 				/>
-				<TouchableOpacity onPress={() => setOpenModal(true)}>
-					<View style={[{ ...styles.container, ...containerStyle }, look.container]}>
+				<TouchableOpacity onPress={() => openFromAnchor(() => setOpenModal(true))}>
+					<View
+						ref={anchorRef}
+						collapsable={false}
+						style={[{ ...styles.container, ...containerStyle }, look.container]}
+					>
 						{(task?.priority || priority) && currentPriority ? (
 							<View style={styles.wrapStatus}>
 								<ChipIcon item={currentPriority} color={look.ink} kind="priority" />

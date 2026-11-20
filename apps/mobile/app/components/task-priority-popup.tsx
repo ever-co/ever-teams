@@ -3,6 +3,7 @@ import { observer } from 'mobx-react-lite';
 import { useTaskPriority } from '../services/hooks/features/use-task-priority';
 import { ITaskPriorityItem } from '../services/interfaces/ITaskPriority';
 import { translate } from '../i18n';
+import type { MenuRect } from '../../src/components/menu-placement';
 import TaskPriorityForm from '../screens/authenticated/task-priorities-screen/components/task-priority-form';
 import { settingOptionOf, TaskSettingPicker } from './task-setting-picker';
 
@@ -12,6 +13,8 @@ export interface Props {
 	priorityName: string;
 	setSelectedPriority: (status: ITaskPriorityItem) => unknown;
 	canCreatePriority?: boolean;
+	/** The chip the picker opens from, so its values show in the web's menu under it. */
+	anchor?: MenuRect | null;
 }
 
 const TaskPriorityPopup: FC<Props> = observer(function TaskPriorityPopup({
@@ -19,7 +22,8 @@ const TaskPriorityPopup: FC<Props> = observer(function TaskPriorityPopup({
 	onDismiss,
 	setSelectedPriority,
 	priorityName,
-	canCreatePriority
+	canCreatePriority,
+	anchor
 }) {
 	const { allTaskPriorities, createPriority, updatePriority } = useTaskPriority();
 
@@ -32,6 +36,10 @@ const TaskPriorityPopup: FC<Props> = observer(function TaskPriorityPopup({
 			optionOf={(priority) => settingOptionOf(priority, priorityName)}
 			onPick={(priority) => setSelectedPriority(priority)}
 			canCreateHere={canCreatePriority}
+			kind="priority"
+			anchor={anchor}
+			searchPlaceholder={translate('taskMenus.search.priority')}
+			menuCreateLabel={translate('taskMenus.actions.createPriority')}
 			createLabel={translate('settingScreen.priorityScreen.createNewPriorityText')}
 			renderCreateForm={(close) => (
 				<TaskPriorityForm

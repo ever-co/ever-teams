@@ -6,9 +6,17 @@ import { ChipIcon } from './chip-icon';
 jest.mock('./task-property-icon', () => {
 	const { Text: MockText } = jest.requireActual('react-native');
 	return {
-		TaskPropertyIcon: ({ kind, name, color }: { kind: string; name?: string; color?: string }) => (
-			<MockText testID="glyph">{`${kind} ${name} ${color}`}</MockText>
-		)
+		TaskPropertyIcon: ({
+			kind,
+			name,
+			color,
+			size
+		}: {
+			kind: string;
+			name?: string;
+			color?: string;
+			size?: number;
+		}) => <MockText testID="glyph" size={size}>{`${kind} ${name} ${color}`}</MockText>
 	};
 });
 jest.mock('./tinted-icon', () => {
@@ -80,5 +88,15 @@ describe("a chip's icon", () => {
 		await render(<ChipIcon item={{ iconUrl: OPEN_FILE }} color="#000" />);
 
 		expect(screen.getByTestId('icon-file')).toHaveTextContent(OPEN_FILE);
+	});
+
+	it('draws at the size a menu row asks, 14 by default as in a chip', async () => {
+		const { rerender } = await render(<ChipIcon item={{ name: 'open' }} color="#000" kind="status" size={16} />);
+
+		expect(screen.getByTestId('glyph').props.size).toBe(16);
+
+		await rerender(<ChipIcon item={{ name: 'open' }} color="#000" kind="status" />);
+
+		expect(screen.getByTestId('glyph').props.size).toBe(14);
 	});
 });

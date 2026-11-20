@@ -588,5 +588,19 @@
 			"heading": "Trochę tu pusto",
 			"content": "Nie dodano jeszcze żadnych ulubionych. Dotknij serca przy odcinku, aby dodać go do ulubionych!"
 		}
+	},
+	"taskMenus": {
+		"search": {
+			"status": "Zmień status…",
+			"priority": "Ustaw priorytet…",
+			"size": "Ustaw rozmiar…"
+		},
+		"noResults": "Brak wyników",
+		"noOptions": "Na razie nie ma nic do wyboru",
+		"actions": {
+			"createStatus": "Utwórz status",
+			"createPriority": "Utwórz priorytet",
+			"createSize": "Utwórz rozmiar"
+		}
 	}
 }
