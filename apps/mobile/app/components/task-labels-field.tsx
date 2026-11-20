@@ -14,9 +14,10 @@ const ADD_BORDER_ALPHA = 0.25;
 // the add button is 28, as the web's; the slop makes it a 44 target
 const ADD_HIT_SLOP = 8;
 
+// as a task's tags hold them: Gauzy may send a label without its name
 export interface FieldLabel {
 	id?: string;
-	name: string;
+	name?: string;
 	color?: string | null;
 }
 
