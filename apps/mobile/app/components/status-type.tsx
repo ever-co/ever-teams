@@ -13,6 +13,8 @@ export type TStatusItem = {
 	icon?: React.ReactNode | undefined
 	/** The icon file of the value, which a chip draws in its own ink */
 	iconUrl?: string
+	/** The icon the value was saved with, as Gauzy stores it: a classic one gives way to the web's glyph */
+	storedIcon?: string
 	name?: string
 	value?: string
 	bordered?: boolean
@@ -33,6 +35,7 @@ export function useMapToTaskStatusValues<T extends ITaskStatusItem>(
 				value: item.value || item.name,
 				bgColor: item.color,
 				iconUrl: item.fullIconUrl,
+				storedIcon: item.icon,
 				bordered,
 				icon: (
 					<View>
