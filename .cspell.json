@@ -1066,9 +1066,13 @@
 		"Réessayer",
 		"Aujourd'hui",
 		"endgroup",
-		"openbao"
+		"openbao",
+		"blockedbyclient",
+		"domcontentloaded",
+		"networkidle",
+		"unstub"
 	],
-	"ignoreRegExpList": ["/%(?:2F|3A)[A-Za-z]*/g", "/gze_[A-Za-z0-9_-]+/g"],
+	"ignoreRegExpList": ["/%(?:2F|3A|5B|5D)[A-Za-z]*/g", "/gze_[A-Za-z0-9_-]+/g"],
 	"useGitignore": true,
 	"ignorePaths": [
 		"**/locales/**",

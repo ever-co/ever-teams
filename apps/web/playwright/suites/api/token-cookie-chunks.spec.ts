@@ -143,8 +143,8 @@ test.describe('the access token cookie, split or whole', () => {
 	test('a session with no token cookie at all is refused here, not upstream', async ({ api, cookies, ids, mock }) => {
 		const { status, text } = await switchOrganization(api, cookies('A', ['auth-token']), ids.organizationA);
 
-		expect(status, `a tokenless session was answered by the API instead: ${text}`).toBe(401);
-		expect(await mock.requests(), 'a tokenless session reached the API').toEqual([]);
+		expect(status, `a session without a token was answered by the API instead: ${text}`).toBe(401);
+		expect(await mock.requests(), 'a session without a token reached the API').toEqual([]);
 	});
 
 	test('the second tenant is read the same way, with its own token', async ({ api, cookies, ids }) => {

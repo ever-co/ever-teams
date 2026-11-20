@@ -31,10 +31,10 @@ test.describe('real API refusals', () => {
 		);
 
 		// A 4xx: a 5xx would be the app failing on the refusal, not the API refusing.
-		const signins = shield.apiCalls().filter((call) => call.method === 'POST' && /signin/i.test(call.path));
+		const signInCalls = shield.apiCalls().filter((call) => call.method === 'POST' && /signin/i.test(call.path));
 		expect(
-			signins.some((call) => call.status >= 400 && call.status < 500),
-			`the refusal must come from the API, and the page made: ${JSON.stringify(signins)}`
+			signInCalls.some((call) => call.status >= 400 && call.status < 500),
+			`the refusal must come from the API, and the page made: ${JSON.stringify(signInCalls)}`
 		).toBe(true);
 	});
 
