@@ -243,7 +243,7 @@ const styles = StyleSheet.create({
 	// the row's own inset plus its margin keep the content 24 from the screen's edge, where it was
 	memberContainer: {
 		flexDirection: "row",
-		gap: 12,
+		gap: 8,
 		justifyContent: "space-between",
 		marginHorizontal: 12,
 		marginVertical: 2,
