@@ -19,6 +19,7 @@ import { useTaskSizes } from '../../../../services/hooks/features/use-task-sizes
 import { useTaskLabels } from '../../../../services/hooks/features/use-task-labels';
 import { useTaskVersion } from '../../../../services/hooks/features/use-task-version';
 import SwitchTeamPublicity from '../components/switch-team-publicity';
+import { canQuitTeamOf } from './team-danger-rules';
 // import { NavigationProp } from '@react-navigation/native';
 import { AuthenticatedDrawerParamList } from '../../../../navigators/authenticated-navigator';
 import { navigateTo } from '../../../../navigators/routes';
@@ -51,6 +52,12 @@ const TeamSettings: FC<ITeamSettingProps> = observer(({ props, onOpenBottomSheet
 	const { isTeamManager, activeTeamManagers, currentUser } = useOrganizationTeam();
 
 	const [open, setOpen] = useState(false);
+	// currentUser is the person's membership of the active team, found among its members by their user id
+	const canQuitTeam = canQuitTeamOf({
+		isTeamManager,
+		managerCount: activeTeamManagers.length,
+		isMember: Boolean(currentUser)
+	});
 	const { navigation } = props;
 
 	const { statuses } = useTaskStatus();
@@ -138,13 +145,7 @@ const TeamSettings: FC<ITeamSettingProps> = observer(({ props, onOpenBottomSheet
 						title={translate('settingScreen.teamSection.quitTeam')}
 						value={translate('settingScreen.teamSection.quitTeamHint')}
 						onPress={() => onOpenBottomSheet('Quit Team', 5)}
-						disabled={
-							!(
-								(isTeamManager && activeTeamManagers.length > 1) ||
-								(!isTeamManager &&
-									activeTeam?.members?.some((member) => member.employee.userId === currentUser?.id))
-							)
-						}
+						disabled={!canQuitTeam}
 					/>
 				</SettingsSection>
 			</ScrollView>
