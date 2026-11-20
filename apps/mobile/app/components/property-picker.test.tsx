@@ -84,6 +84,21 @@ describe('a property picker', () => {
 		expect(onDismiss).toHaveBeenCalledTimes(1);
 	});
 
+	it("closes with VoiceOver's escape", async () => {
+		const { onDismiss } = await renderPicker();
+
+		await fireEvent(screen.getByTestId('picker-overlay'), 'accessibilityEscape');
+
+		expect(onDismiss).toHaveBeenCalledTimes(1);
+	});
+
+	it('keeps the overlay and the dialog out of the accessibility tree, so a screen reader reaches each row', async () => {
+		await renderPicker();
+
+		expect(screen.getByTestId('picker-overlay').props.accessible).toBe(false);
+		expect(screen.getByTestId('picker-dialog').props.accessible).toBe(false);
+	});
+
 	it('shows its content in place of the list, such as the create form', async () => {
 		await renderPicker({ children: <Text>status form</Text> });
 

@@ -101,7 +101,8 @@ export function PickerCreateFooter({ label, canCreate, readOnlyHint, onPress }: 
 
 /**
  * A task's status, priority or size to pick, in the web's dialog over a quiet overlay: the values as rows of their
- * chips, the one the task holds checked. A tap outside, or back, closes it.
+ * chips, the one the task holds checked. A tap outside, back, or VoiceOver's escape closes it. The overlay and the
+ * dialog stay out of the accessibility tree, so a screen reader reaches each row on its own.
  */
 export function PropertyPicker({
 	visible,
@@ -117,9 +118,16 @@ export function PropertyPicker({
 
 	return (
 		<Modal animationType="fade" transparent visible={visible} onRequestClose={() => onDismiss()}>
-			<Pressable testID="picker-overlay" style={styles.overlay} onPress={() => onDismiss()}>
+			<Pressable
+				testID="picker-overlay"
+				accessible={false}
+				onAccessibilityEscape={() => onDismiss()}
+				style={styles.overlay}
+				onPress={() => onDismiss()}
+			>
 				<Pressable
 					testID="picker-dialog"
+					accessible={false}
 					style={[styles.dialog, dialogLookOf(theme)]}
 					onPress={() => undefined}
 				>
