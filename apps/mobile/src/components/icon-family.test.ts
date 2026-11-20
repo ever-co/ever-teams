@@ -14,6 +14,7 @@ const ON_HUGEICONS: string[] = [
 	'app/screens/authenticated/profile-screen/components/task-label-filter.tsx',
 	'app/screens/authenticated/profile-screen/components/task-priority-filter.tsx',
 	'app/screens/authenticated/profile-screen/components/task-size-filter.tsx',
+	'app/screens/authenticated/profile-screen/components/task-status-filter.tsx',
 	'app/screens/authenticated/setting-screen/components/change-team-logo.tsx',
 	'app/screens/authenticated/setting-screen/components/change-user-avatar.tsx',
 	'app/screens/authenticated/setting-screen/components/language-form.tsx',
