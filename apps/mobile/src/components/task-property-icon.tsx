@@ -2,12 +2,13 @@ import React from 'react';
 import Svg, { Circle, Path, Rect } from 'react-native-svg';
 import { useWebTheme } from '../../app/theme';
 import { dataColorHueOf } from '../theme/data-color';
+import { Tag } from './icons';
 
 /**
  * The glyphs the web draws for a task's status, priority, size and label (apps/web/core/components/tasks/
  * task-property-icon.tsx): the same shapes on the same 14 grid, chosen by the value's name, in the hue of its color.
  */
-export type TaskPropertyKind = 'status' | 'priority' | 'size' | 'label';
+export type TaskPropertyKind = 'status' | 'priority' | 'size' | 'label' | 'version';
 
 type StatusGlyph = 'backlog' | 'todo' | 'started' | 'review' | 'blocked' | 'done' | 'canceled';
 
@@ -212,6 +213,9 @@ export function TaskPropertyIcon({ kind, name, color, size = 16 }: Readonly<ITas
 	const theme = useWebTheme();
 	const glyphColor = dataColorHueOf(color) ?? theme.colors['muted-foreground'];
 	const card = theme.colors.card;
+	if (kind === 'version') {
+		return <Tag testID="property-icon-version" size={size} color={glyphColor} />;
+	}
 	const normalized = normalizePropertyName(name);
 	const statusGlyph = STATUS_GLYPH_BY_NAME.get(normalized) ?? 'todo';
 	return (

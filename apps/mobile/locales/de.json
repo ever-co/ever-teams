@@ -594,7 +594,8 @@
 			"status": "Status ändern…",
 			"priority": "Priorität festlegen…",
 			"size": "Größe festlegen…",
-			"label": "Labels hinzufügen…"
+			"label": "Labels hinzufügen…",
+			"version": "Version ändern…"
 		},
 		"noResults": "Keine Ergebnisse",
 		"noOptions": "Noch nichts zur Auswahl",
@@ -602,7 +603,8 @@
 			"createStatus": "Status erstellen",
 			"createPriority": "Priorität erstellen",
 			"createSize": "Größe erstellen",
-			"createLabel": "Label erstellen"
+			"createLabel": "Label erstellen",
+			"createVersion": "Version erstellen"
 		}
 	}
 }

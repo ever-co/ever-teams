@@ -594,7 +594,8 @@
 			"status": "Zmień status…",
 			"priority": "Ustaw priorytet…",
 			"size": "Ustaw rozmiar…",
-			"label": "Dodaj etykiety…"
+			"label": "Dodaj etykiety…",
+			"version": "Zmień wersję…"
 		},
 		"noResults": "Brak wyników",
 		"noOptions": "Na razie nie ma nic do wyboru",
@@ -602,7 +603,8 @@
 			"createStatus": "Utwórz status",
 			"createPriority": "Utwórz priorytet",
 			"createSize": "Utwórz rozmiar",
-			"createLabel": "Utwórz etykietę"
+			"createLabel": "Utwórz etykietę",
+			"createVersion": "Utwórz wersję"
 		}
 	}
 }
