@@ -1,9 +1,10 @@
 /* eslint-disable react-native/no-inline-styles  */
 /* eslint-disable react-native/no-color-literals  */
-import { View, Text, StyleSheet } from "react-native"
+import { View, Text } from "react-native"
 import React from "react"
 import Accordion from "../../accordion"
 import TaskRow from "../details-block/components/task-row"
+import { PropertyLabel } from "../details-block/components/property-label"
 import { useStores } from "../../../models"
 import ProfileInfoWithTime from "./components/profile-info-with-time"
 import { useAppTheme } from "../../../theme"
@@ -19,15 +20,9 @@ const EstimateBlock = () => {
 	const estimateText = estimateTextOf(task?.estimate)
 	return (
 		<Accordion title={translate("taskDetailsScreen.estimate")}>
-			<View style={{ paddingBottom: 12 }}>
+			<View style={{ paddingBottom: 12, paddingHorizontal: 16 }}>
 				<TaskRow
-					labelComponent={
-						<View style={[styles.labelComponent, { marginLeft: 12 }]}>
-							<Text style={styles.labelText}>
-								{translate("taskDetailsScreen.estimations")}
-							</Text>
-						</View>
-					}
+					labelComponent={<PropertyLabel icon="target" label={translate("taskDetailsScreen.estimations")} />}
 				>
 					{estimateText && (
 						<Text
@@ -58,15 +53,3 @@ const EstimateBlock = () => {
 }
 
 export default EstimateBlock
-
-const styles = StyleSheet.create({
-	labelComponent: {
-		alignItems: "center",
-		flexDirection: "row",
-		gap: 7,
-	},
-	labelText: {
-		color: "#A5A2B2",
-		fontSize: 12,
-	},
-})
