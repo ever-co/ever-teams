@@ -21,7 +21,7 @@ interface Props {
 	setWithTeam: (value: boolean) => unknown;
 	setScreenStatus: (value: { screen: number; animation: boolean }) => unknown;
 	getAuthCode: () => unknown;
-	joinError: string;
+	joinError: string | null;
 	verifyEmailAndCodeOrAcceptInvite: () => unknown;
 	signInWorkspace: () => unknown;
 	setIsWorkspaceScreen: React.Dispatch<React.SetStateAction<boolean>>;

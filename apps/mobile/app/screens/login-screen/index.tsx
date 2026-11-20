@@ -57,6 +57,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
 
 	return (
 		<Screen
+			preset="auto"
 			contentContainerStyle={{ ...$screenContentContainer, backgroundColor: theme.colors.background }}
 			backgroundColor={theme.colors.background}
 			statusBarStyle={statusBarStyleOf(isDark)}
@@ -115,10 +116,10 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
 
 // Styles
 
+// The page grows with its content and scrolls once it runs past the screen, the footer kept at its end
 const $screenContentContainer: ViewStyle = {
 	paddingHorizontal: spacing.large,
-	height: '100%',
-	display: 'flex',
+	flexGrow: 1,
 	justifyContent: 'space-between'
 };
 
