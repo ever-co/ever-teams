@@ -109,4 +109,13 @@ describe('the team switcher', () => {
 
 		expect(handlers.onCreateTeam).not.toHaveBeenCalled();
 	});
+
+	it('keeps a long team name on one line that shrinks before the chevron', async () => {
+		await drawSwitcher(false).drawing;
+
+		const name = await screen.findByText(/Field Crew North/);
+
+		expect(name.props.numberOfLines).toBe(1);
+		expect(StyleSheet.flatten(name.props.style).flexShrink).toBe(1);
+	});
 });

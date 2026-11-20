@@ -85,7 +85,7 @@ const DropDown: FC<Props> = observer(function CreateTeamModal({
 						/>
 					)}
 
-					<Text style={[styles.activeTeamTxt, { color: colors.foreground }]}>
+					<Text numberOfLines={1} style={[styles.activeTeamTxt, { color: colors.foreground }]}>
 						{teamName}{' '}
 						<Text style={{ color: colors['muted-foreground'] }}>({activeTeam?.members.length})</Text>
 					</Text>
@@ -109,7 +109,9 @@ const DropDown: FC<Props> = observer(function CreateTeamModal({
 });
 
 const styles = StyleSheet.create({
+	// one line that ends with an ellipsis within the switcher, before the chevron, whatever the name's length
 	activeTeamTxt: {
+		flexShrink: 1,
 		fontSize: 14,
 		fontWeight: '500',
 		marginLeft: 10
