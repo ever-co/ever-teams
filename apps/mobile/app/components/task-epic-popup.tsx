@@ -13,7 +13,7 @@ import {
 	FlatList,
 	TouchableOpacity,
 } from "react-native"
-import { Feather, AntDesign } from "@expo/vector-icons"
+import { Circle, CircleCheck } from "../../src/components/icons"
 import { useAppTheme } from "../theme"
 import { ITeamTask } from "../services/interfaces/ITask"
 import { formattedEpic } from "./task-epic"
@@ -97,9 +97,9 @@ const Item: React.FC<ItemProps> = ({ currentEpicId, epic, onTaskSelect, teamTask
 				</View>
 				<View>
 					{!selected ? (
-						<Feather name="circle" size={22} color={colors.divider} />
+						<Circle size={22} color={colors.divider} />
 					) : (
-						<AntDesign name="check-circle" size={22} color="#27AE60" />
+						<CircleCheck size={22} color="#27AE60" />
 					)}
 				</View>
 			</View>
