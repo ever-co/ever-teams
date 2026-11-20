@@ -151,7 +151,7 @@ test.describe('starting the timer', () => {
 		expect((await proofOf(mock)).startedTimer, 'a missing plan must not let a timer start').toBe(false);
 	});
 
-	test('a slow first workspace cannot overwrite the workspace signed into meanwhile', async ({
+	test('reopened in another workspace while the first one’s plan read is still slow, the page belongs to the second', async ({
 		page,
 		fixture,
 		mock
@@ -160,7 +160,10 @@ test.describe('starting the timer', () => {
 		await signInWithFixture(page.context(), fixture, 'A');
 		await hardVisit(page, '/team/tasks');
 
-		// Workspace B is opened while tenant A's plan read is still on its way.
+		// Workspace B is opened while tenant A's plan read is still on its way. Like the Cypress original
+		// (feature-parity.cy.ts), this reopens the page: it proves nothing of workspace A survives a reload (storage,
+		// cache, cookies), not the in-page race where A's late answer lands in B's running page — the reload discards
+		// A's JavaScript first. That race needs an in-page workspace switch through the mock (a follow-up).
 		await signInWithFixture(page.context(), fixture, 'B');
 		await page.reload({ waitUntil: 'domcontentloaded' });
 		await waitForShellReady(page);

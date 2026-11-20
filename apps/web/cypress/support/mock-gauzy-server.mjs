@@ -967,6 +967,7 @@ export async function createMockGauzyServer({ fixture, port = 3988 } = {}) {
 			response.end(JSON.stringify({ error: 'Untrusted synthetic browser origin.' }));
 			return;
 		}
+		const trustedOrigin = [...TRUSTED_BROWSER_ORIGINS].find((origin) => origin === requestOrigin);
 		const cors = {
 			'access-control-allow-credentials': 'true',
 			'access-control-allow-headers':
@@ -974,7 +975,8 @@ export async function createMockGauzyServer({ fixture, port = 3988 } = {}) {
 			'access-control-allow-methods': 'DELETE, GET, OPTIONS, PATCH, POST, PUT',
 			'access-control-expose-headers': '*',
 			'cache-control': 'no-store',
-			...(requestOrigin ? { 'access-control-allow-origin': requestOrigin } : {})
+			// The allowlisted value itself, never the request's header: only a trusted origin is ever echoed.
+			...(trustedOrigin ? { 'access-control-allow-origin': trustedOrigin } : {})
 		};
 		if (method === 'OPTIONS') {
 			response.writeHead(204, cors);

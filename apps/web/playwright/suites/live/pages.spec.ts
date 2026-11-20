@@ -34,9 +34,11 @@ test.describe('the app against the demo API, signed out', () => {
 		});
 	}
 
-	test('asking for a team route while signed out is answered by the sign-in page', async ({ demo }) => {
-		const view = await demo('/team/tasks');
-		await expect(view).toHaveURL(/\/auth\/passcode/, { timeout: 30_000 });
+	test('asking for a protected route while signed out is answered at the door', async ({ demo }) => {
+		// Not /team/*: the proxy lets those through on purpose (suites/api/page-gate.spec.ts pins it). A protected
+		// path without a session is a 307 to /unauthorized (proxy.ts, PROTECTED_APP_URL_PATHS).
+		const view = await demo('/settings/personal');
+		await expect(view).toHaveURL(/\/unauthorized/, { timeout: 30_000 });
 	});
 
 	test('a route that does not exist answers 404 and does not crash', async ({ demo, shield }) => {

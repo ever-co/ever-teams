@@ -670,10 +670,34 @@ export const foreignOriginRoutes: ForeignOriginRoute[] = [
 		file: 'apps/web/app/api/integration/github/repository/sync/route.ts'
 	},
 	{
+		path: '/api/integration/jira/[id]',
+		verb: 'DELETE',
+		guard: 'proxy-helper',
+		file: 'apps/web/app/api/integration/jira/[id]/route.ts'
+	},
+	{
 		path: '/api/integration/jira/[id]/conflicts/[conflictId]/resolve',
 		verb: 'POST',
 		guard: 'proxy-helper',
 		file: 'apps/web/app/api/integration/jira/[id]/conflicts/[conflictId]/resolve/route.ts'
+	},
+	{
+		path: '/api/integration/jira/[id]/mappings',
+		verb: 'POST',
+		guard: 'proxy-helper',
+		file: 'apps/web/app/api/integration/jira/[id]/mappings/route.ts'
+	},
+	{
+		path: '/api/integration/jira/[id]/mappings/[mappingId]',
+		verb: 'DELETE',
+		guard: 'proxy-helper',
+		file: 'apps/web/app/api/integration/jira/[id]/mappings/[mappingId]/route.ts'
+	},
+	{
+		path: '/api/integration/jira/[id]/mappings/[mappingId]',
+		verb: 'PUT',
+		guard: 'proxy-helper',
+		file: 'apps/web/app/api/integration/jira/[id]/mappings/[mappingId]/route.ts'
 	},
 	{
 		path: '/api/integration/jira/[id]/mappings/[mappingId]/import',
@@ -826,6 +850,12 @@ export const foreignOriginRoutes: ForeignOriginRoute[] = [
 		file: 'apps/web/app/api/invoice-item/bulk/[invoiceId]/route.ts'
 	},
 	{
+		path: '/api/invoice-payments/connection',
+		verb: 'PUT',
+		guard: 'route',
+		file: 'apps/web/app/api/invoice-payments/connection/route.ts'
+	},
+	{
 		path: '/api/invoice-payments/connection/rotate-secret',
 		verb: 'POST',
 		guard: 'route',
@@ -836,6 +866,18 @@ export const foreignOriginRoutes: ForeignOriginRoute[] = [
 		verb: 'POST',
 		guard: 'route',
 		file: 'apps/web/app/api/invoice-schedules/route.ts'
+	},
+	{
+		path: '/api/invoice-schedules/[id]',
+		verb: 'DELETE',
+		guard: 'route',
+		file: 'apps/web/app/api/invoice-schedules/[id]/route.ts'
+	},
+	{
+		path: '/api/invoice-schedules/[id]',
+		verb: 'PUT',
+		guard: 'route',
+		file: 'apps/web/app/api/invoice-schedules/[id]/route.ts'
 	},
 	{
 		path: '/api/invoices',
@@ -1244,6 +1286,12 @@ export const foreignOriginRoutes: ForeignOriginRoute[] = [
 		verb: 'POST',
 		guard: 'route',
 		file: 'apps/web/app/api/saved-reports/[id]/share/route.ts'
+	},
+	{
+		path: '/api/subscribe',
+		verb: 'POST',
+		guard: 'route',
+		file: 'apps/web/app/api/subscribe/route.ts'
 	},
 	{
 		path: '/api/tags',

@@ -56,13 +56,36 @@ function pathOf(file) {
 	return folder ? `/api/${folder}` : '/api';
 }
 
-/** The handler's own source: from its export to the next export, so a guard of another verb is not credited to this one. */
-function handlerBody(source, verb) {
-	const start = new RegExp(`export\\s+(?:async\\s+)?function\\s+${verb}\\b`).exec(source);
-	if (!start) return undefined;
-	const rest = source.slice(start.index + start[0].length);
-	const next = new RegExp(`\\bexport\\s+(?:async\\s+)?function\\s+(${VERBS.join('|')})\\b`).exec(rest);
+/** A top-level declaration or export starts here: where one handler's source ends and the next begins. */
+const TOP_LEVEL = /\n(?:export\s|(?:async\s+)?function\s|const\s+\w+\s*=)/;
+
+/** From `at` to the next top-level declaration, so a guard of another verb or helper is not credited to this one. */
+function untilNextTopLevel(source, at) {
+	const rest = source.slice(at);
+	const next = TOP_LEVEL.exec(rest);
 	return rest.slice(0, next ? next.index : rest.length);
+}
+
+/**
+ * The handler's own source, for the three ways a route exports a verb:
+ *   export async function PUT(req) { … }
+ *   export const PUT = forwardConnection;      (a local function several verbs share: its body is the handler)
+ *   export const POST = async (req) => { … }
+ */
+function handlerBody(source, verb) {
+	const declared = new RegExp(`export\\s+(?:async\\s+)?function\\s+${verb}\\b`).exec(source);
+	if (declared) return untilNextTopLevel(source, declared.index + declared[0].length);
+
+	const alias = new RegExp(`export\\s+const\\s+${verb}\\s*=\\s*([A-Za-z_$][\\w$]*)\\s*;`).exec(source);
+	if (alias) {
+		const local = new RegExp(
+			`(?:^|\\n)(?:async\\s+)?function\\s+${alias[1]}\\b|(?:^|\\n)const\\s+${alias[1]}\\s*=`
+		).exec(source);
+		return local ? untilNextTopLevel(source, local.index + local[0].length) : undefined;
+	}
+
+	const inline = new RegExp(`export\\s+const\\s+${verb}\\s*=`).exec(source);
+	return inline ? untilNextTopLevel(source, inline.index + inline[0].length) : undefined;
 }
 
 function guardedVerbs(source) {

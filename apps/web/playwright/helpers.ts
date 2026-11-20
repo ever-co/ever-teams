@@ -306,9 +306,10 @@ const DEV_ERROR_MARKUP = [
 	'[data-nextjs-dialog-body]',
 	'[data-nextjs-codeframe]',
 	'.nextjs-container-errors-body',
-	// The issues pill and the error toast exist only while the overlay has something to report
-	// (next/dist/compiled/next-devtools: `data-issues`, `.nextjs-toast-errors-parent`).
-	'[data-issues]',
+	// The dev badge in its error state and the error toast exist only while the overlay reports an issue
+	// (next/dist/compiled/next-devtools). Not the bare `[data-issues]` pill: the badge also shows it for
+	// insights only (`data-insights-only`), which are not errors.
+	'[data-next-badge][data-error="true"]',
 	'.nextjs-toast-errors-parent'
 ].join(',');
 

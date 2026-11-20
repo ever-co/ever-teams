@@ -154,6 +154,8 @@ export const test = base.extend<{
 		const app: AppFactory = async (path, options = {}) => {
 			if (options.scenario) await mockScenario(options.scenario);
 			await signInWithFixture(context, fixture, options.scope ?? 'A');
+			// A stub an earlier call put on this page goes first, so `stubSession: false` really means no stub.
+			await unstubNextAuthSession(page);
 			if (options.stubSession !== false) await stubNextAuthSession(page);
 			await hardVisit(page, path, { requireShell: options.requireShell });
 			return page;

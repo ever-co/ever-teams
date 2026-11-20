@@ -123,7 +123,25 @@ const sharedEnv = (apiOrigin: string): Record<string, string> => ({
 	NEXT_PUBLIC_GA_MEASUREMENT_ID: '',
 	NEXT_PUBLIC_CHATWOOT_API_KEY: '',
 	NEXT_TELEMETRY_DISABLED: '1',
-	NEXT_PUBLIC_DISABLE_AUTO_REFRESH: 'false'
+	NEXT_PUBLIC_DISABLE_AUTO_REFRESH: 'false',
+	// Off unless a config turns it on (everIdServers): a developer's own Ever ID settings would otherwise mount the
+	// Ever ID routes in every run, and suites/api/ever-id-off.spec.ts pins them as absent.
+	EVER_ID_ISSUER_URL: '',
+	EVER_ID_CLIENT_ID: '',
+	EVER_ID_CLIENT_SECRET: '',
+	NEXT_PUBLIC_EVER_ID_APP_NAME: ''
+});
+
+/**
+ * The test backend's ports, from the same constants the configs wait on and helpers.ts calls, so the address the
+ * backend listens on cannot drift from either (backend.mjs only falls back to its defaults when run by hand).
+ */
+const backendEnv = (): Record<string, string> => ({
+	E2E_MOCK_API_PORT: new URL(MOCK_ORIGIN).port,
+	E2E_MOCK_PLATFORM_PORT: new URL(PLATFORM_ORIGIN).port,
+	E2E_CONTROL_PORT: new URL(CONTROL_ORIGIN).port,
+	E2E_EVER_ID_ISSUER_PORT: new URL(EVER_ID_ISSUER_URL).port,
+	E2E_EVER_ID_CLIENT_ID: EVER_ID_CLIENT_ID
 });
 
 /** The mock Gauzy API + the Ever Platform statistics sink + the control API, then the app. */
@@ -134,6 +152,7 @@ export function mockServers(): WebServer[] {
 			port: Number(new URL(CONTROL_ORIGIN).port),
 			timeout: 120_000,
 			reuseExistingServer: REUSE_SERVERS,
+			env: backendEnv(),
 			cwd: REPO_ROOT
 		},
 		{
@@ -164,7 +183,7 @@ export function everIdServers(): WebServer[] {
 			port: Number(new URL(CONTROL_ORIGIN).port),
 			timeout: 120_000,
 			reuseExistingServer: false,
-			env: { E2E_EVER_ID_CLIENT_ID: EVER_ID_CLIENT_ID },
+			env: backendEnv(),
 			cwd: REPO_ROOT
 		},
 		{
