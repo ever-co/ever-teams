@@ -40,7 +40,7 @@ const EstimateBlock = () => {
 						<ProfileInfoWithTime
 							key={index}
 							userId={member?.userId || member?.user?.id}
-							profilePicSrc={member?.user?.imageUrl}
+							profilePicSrc={member?.user?.imageUrl ?? ""}
 							names={`${member?.user?.firstName || ""} ${
 								member?.user?.lastName || ""
 							}`}
