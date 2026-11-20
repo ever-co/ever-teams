@@ -59,4 +59,12 @@ describe('where a menu opens', () => {
 
 		expect(placement).toEqual({ top: 112, left: 40, width: 240, maxHeight: 300 });
 	});
+
+	it('lines its end up with the trigger end when asked, at the width asked, as the web filter menu does', () => {
+		const filterButton = { x: 190, y: 250, width: 150, height: 44 };
+
+		const placement = menuPlacementOf(filterButton, 200, PHONE, { width: 224, align: 'end', offset: 6 });
+
+		expect(placement).toEqual({ top: 300, left: 116, width: 224, maxHeight: 332 });
+	});
 });
