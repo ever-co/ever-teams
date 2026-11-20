@@ -13,1668 +13,1668 @@ export const foreignOriginRoutes: ForeignOriginRoute[] = [
 		path: '/api/ai/transcribe',
 		verb: 'POST',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\ai\\transcribe\\route.ts'
+		file: 'apps/web/app/api/ai/transcribe/route.ts'
 	},
 	{
 		path: '/api/ai/voice-fill',
 		verb: 'POST',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\ai\\voice-fill\\route.ts'
+		file: 'apps/web/app/api/ai/voice-fill/route.ts'
 	},
 	{
 		path: '/api/auth/create-workspace',
 		verb: 'POST',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\auth\\create-workspace\\route.ts'
+		file: 'apps/web/app/api/auth/create-workspace/route.ts'
 	},
 	{
 		path: '/api/auth/sessions/[id]',
 		verb: 'DELETE',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\auth\\sessions\\[id]\\route.ts'
+		file: 'apps/web/app/api/auth/sessions/[id]/route.ts'
 	},
 	{
 		path: '/api/auth/sessions/sign-out-others',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\auth\\sessions\\sign-out-others\\route.ts'
+		file: 'apps/web/app/api/auth/sessions/sign-out-others/route.ts'
 	},
 	{
 		path: '/api/auth/switch-organization',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\auth\\switch-organization\\route.ts'
+		file: 'apps/web/app/api/auth/switch-organization/route.ts'
 	},
 	{
 		path: '/api/auth/switch-workspace',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\auth\\switch-workspace\\route.ts'
+		file: 'apps/web/app/api/auth/switch-workspace/route.ts'
 	},
 	{
 		path: '/api/auth/two-factor/confirm',
 		verb: 'POST',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\auth\\two-factor\\confirm\\route.ts'
+		file: 'apps/web/app/api/auth/two-factor/confirm/route.ts'
 	},
 	{
 		path: '/api/auth/two-factor/disable',
 		verb: 'POST',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\auth\\two-factor\\disable\\route.ts'
+		file: 'apps/web/app/api/auth/two-factor/disable/route.ts'
 	},
 	{
 		path: '/api/auth/two-factor/enroll',
 		verb: 'POST',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\auth\\two-factor\\enroll\\route.ts'
+		file: 'apps/web/app/api/auth/two-factor/enroll/route.ts'
 	},
 	{
 		path: '/api/auth/two-factor/recovery-codes',
 		verb: 'POST',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\auth\\two-factor\\recovery-codes\\route.ts'
+		file: 'apps/web/app/api/auth/two-factor/recovery-codes/route.ts'
 	},
 	{
 		path: '/api/auth/two-factor/users/[userId]',
 		verb: 'DELETE',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\auth\\two-factor\\users\\[userId]\\route.ts'
+		file: 'apps/web/app/api/auth/two-factor/users/[userId]/route.ts'
 	},
 	{
 		path: '/api/auth/verify/code',
 		verb: 'POST',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\auth\\verify\\code\\route.ts'
+		file: 'apps/web/app/api/auth/verify/code/route.ts'
 	},
 	{
 		path: '/api/auth/verify/resend-link',
 		verb: 'POST',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\auth\\verify\\resend-link\\route.ts'
+		file: 'apps/web/app/api/auth/verify/resend-link/route.ts'
 	},
 	{
 		path: '/api/chat',
 		verb: 'POST',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\chat\\route.ts'
+		file: 'apps/web/app/api/chat/route.ts'
 	},
 	{
 		path: '/api/chat/attachments/[documentId]',
 		verb: 'DELETE',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\chat\\attachments\\[documentId]\\route.ts'
+		file: 'apps/web/app/api/chat/attachments/[documentId]/route.ts'
 	},
 	{
 		path: '/api/chat/categories',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\chat\\categories\\route.ts'
+		file: 'apps/web/app/api/chat/categories/route.ts'
 	},
 	{
 		path: '/api/chat/categories/[id]',
 		verb: 'DELETE',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\chat\\categories\\[id]\\route.ts'
+		file: 'apps/web/app/api/chat/categories/[id]/route.ts'
 	},
 	{
 		path: '/api/chat/categories/[id]',
 		verb: 'PATCH',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\chat\\categories\\[id]\\route.ts'
+		file: 'apps/web/app/api/chat/categories/[id]/route.ts'
 	},
 	{
 		path: '/api/chat/categories/reorder',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\chat\\categories\\reorder\\route.ts'
+		file: 'apps/web/app/api/chat/categories/reorder/route.ts'
 	},
 	{
 		path: '/api/chat/conversations',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\chat\\conversations\\route.ts'
+		file: 'apps/web/app/api/chat/conversations/route.ts'
 	},
 	{
 		path: '/api/chat/conversations/[id]',
 		verb: 'PATCH',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\chat\\conversations\\[id]\\route.ts'
+		file: 'apps/web/app/api/chat/conversations/[id]/route.ts'
 	},
 	{
 		path: '/api/chat/conversations/[id]/archive',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\chat\\conversations\\[id]\\archive\\route.ts'
+		file: 'apps/web/app/api/chat/conversations/[id]/archive/route.ts'
 	},
 	{
 		path: '/api/chat/conversations/[id]/join',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\chat\\conversations\\[id]\\join\\route.ts'
+		file: 'apps/web/app/api/chat/conversations/[id]/join/route.ts'
 	},
 	{
 		path: '/api/chat/conversations/[id]/leave',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\chat\\conversations\\[id]\\leave\\route.ts'
+		file: 'apps/web/app/api/chat/conversations/[id]/leave/route.ts'
 	},
 	{
 		path: '/api/chat/conversations/[id]/members',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\chat\\conversations\\[id]\\members\\route.ts'
+		file: 'apps/web/app/api/chat/conversations/[id]/members/route.ts'
 	},
 	{
 		path: '/api/chat/conversations/[id]/members/[employeeId]',
 		verb: 'DELETE',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\chat\\conversations\\[id]\\members\\[employeeId]\\route.ts'
+		file: 'apps/web/app/api/chat/conversations/[id]/members/[employeeId]/route.ts'
 	},
 	{
 		path: '/api/chat/conversations/[id]/messages',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\chat\\conversations\\[id]\\messages\\route.ts'
+		file: 'apps/web/app/api/chat/conversations/[id]/messages/route.ts'
 	},
 	{
 		path: '/api/chat/conversations/[id]/read',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\chat\\conversations\\[id]\\read\\route.ts'
+		file: 'apps/web/app/api/chat/conversations/[id]/read/route.ts'
 	},
 	{
 		path: '/api/chat/conversations/[id]/state',
 		verb: 'PATCH',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\chat\\conversations\\[id]\\state\\route.ts'
+		file: 'apps/web/app/api/chat/conversations/[id]/state/route.ts'
 	},
 	{
 		path: '/api/chat/conversations/[id]/typing',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\chat\\conversations\\[id]\\typing\\route.ts'
+		file: 'apps/web/app/api/chat/conversations/[id]/typing/route.ts'
 	},
 	{
 		path: '/api/chat/conversations/[id]/unarchive',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\chat\\conversations\\[id]\\unarchive\\route.ts'
+		file: 'apps/web/app/api/chat/conversations/[id]/unarchive/route.ts'
 	},
 	{
 		path: '/api/chat/conversations/[id]/webhooks',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\chat\\conversations\\[id]\\webhooks\\route.ts'
+		file: 'apps/web/app/api/chat/conversations/[id]/webhooks/route.ts'
 	},
 	{
 		path: '/api/chat/direct',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\chat\\direct\\route.ts'
+		file: 'apps/web/app/api/chat/direct/route.ts'
 	},
 	{
 		path: '/api/chat/messages/[id]',
 		verb: 'DELETE',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\chat\\messages\\[id]\\route.ts'
+		file: 'apps/web/app/api/chat/messages/[id]/route.ts'
 	},
 	{
 		path: '/api/chat/messages/[id]',
 		verb: 'PATCH',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\chat\\messages\\[id]\\route.ts'
+		file: 'apps/web/app/api/chat/messages/[id]/route.ts'
 	},
 	{
 		path: '/api/chat/messages/[id]/create-task',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\chat\\messages\\[id]\\create-task\\route.ts'
+		file: 'apps/web/app/api/chat/messages/[id]/create-task/route.ts'
 	},
 	{
 		path: '/api/chat/messages/[id]/follow',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\chat\\messages\\[id]\\follow\\route.ts'
+		file: 'apps/web/app/api/chat/messages/[id]/follow/route.ts'
 	},
 	{
 		path: '/api/chat/messages/[id]/interactions',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\chat\\messages\\[id]\\interactions\\route.ts'
+		file: 'apps/web/app/api/chat/messages/[id]/interactions/route.ts'
 	},
 	{
 		path: '/api/chat/messages/[id]/pin',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\chat\\messages\\[id]\\pin\\route.ts'
+		file: 'apps/web/app/api/chat/messages/[id]/pin/route.ts'
 	},
 	{
 		path: '/api/chat/messages/[id]/reactions/[emoji]',
 		verb: 'DELETE',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\chat\\messages\\[id]\\reactions\\[emoji]\\route.ts'
+		file: 'apps/web/app/api/chat/messages/[id]/reactions/[emoji]/route.ts'
 	},
 	{
 		path: '/api/chat/messages/[id]/reactions/[emoji]',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\chat\\messages\\[id]\\reactions\\[emoji]\\route.ts'
+		file: 'apps/web/app/api/chat/messages/[id]/reactions/[emoji]/route.ts'
 	},
 	{
 		path: '/api/chat/messages/[id]/tasks/[taskId]',
 		verb: 'PATCH',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\chat\\messages\\[id]\\tasks\\[taskId]\\route.ts'
+		file: 'apps/web/app/api/chat/messages/[id]/tasks/[taskId]/route.ts'
 	},
 	{
 		path: '/api/chat/messages/[id]/unfollow',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\chat\\messages\\[id]\\unfollow\\route.ts'
+		file: 'apps/web/app/api/chat/messages/[id]/unfollow/route.ts'
 	},
 	{
 		path: '/api/chat/messages/[id]/unpin',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\chat\\messages\\[id]\\unpin\\route.ts'
+		file: 'apps/web/app/api/chat/messages/[id]/unpin/route.ts'
 	},
 	{
 		path: '/api/chat/messages/[id]/unread',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\chat\\messages\\[id]\\unread\\route.ts'
+		file: 'apps/web/app/api/chat/messages/[id]/unread/route.ts'
 	},
 	{
 		path: '/api/chat/read-all',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\chat\\read-all\\route.ts'
+		file: 'apps/web/app/api/chat/read-all/route.ts'
 	},
 	{
 		path: '/api/chat/read-restore',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\chat\\read-restore\\route.ts'
+		file: 'apps/web/app/api/chat/read-restore/route.ts'
 	},
 	{
 		path: '/api/chat/webhooks/[id]',
 		verb: 'DELETE',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\chat\\webhooks\\[id]\\route.ts'
+		file: 'apps/web/app/api/chat/webhooks/[id]/route.ts'
 	},
 	{
 		path: '/api/chat/webhooks/[id]',
 		verb: 'PATCH',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\chat\\webhooks\\[id]\\route.ts'
+		file: 'apps/web/app/api/chat/webhooks/[id]/route.ts'
 	},
 	{
 		path: '/api/chat/webhooks/[id]/secret',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\chat\\webhooks\\[id]\\secret\\route.ts'
+		file: 'apps/web/app/api/chat/webhooks/[id]/secret/route.ts'
 	},
 	{
 		path: '/api/comment',
 		verb: 'POST',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\comment\\route.ts'
+		file: 'apps/web/app/api/comment/route.ts'
 	},
 	{
 		path: '/api/comment/[id]',
 		verb: 'DELETE',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\comment\\[id]\\route.ts'
+		file: 'apps/web/app/api/comment/[id]/route.ts'
 	},
 	{
 		path: '/api/comment/[id]',
 		verb: 'PUT',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\comment\\[id]\\route.ts'
+		file: 'apps/web/app/api/comment/[id]/route.ts'
 	},
 	{
 		path: '/api/comment/[id]/recover',
 		verb: 'PUT',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\comment\\[id]\\recover\\route.ts'
+		file: 'apps/web/app/api/comment/[id]/recover/route.ts'
 	},
 	{
 		path: '/api/comment/[id]/soft',
 		verb: 'DELETE',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\comment\\[id]\\soft\\route.ts'
+		file: 'apps/web/app/api/comment/[id]/soft/route.ts'
 	},
 	{
 		path: '/api/daily-plan',
 		verb: 'POST',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\daily-plan\\route.ts'
+		file: 'apps/web/app/api/daily-plan/route.ts'
 	},
 	{
 		path: '/api/daily-plan/[id]',
 		verb: 'DELETE',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\daily-plan\\[id]\\route.ts'
+		file: 'apps/web/app/api/daily-plan/[id]/route.ts'
 	},
 	{
 		path: '/api/daily-plan/[id]',
 		verb: 'PUT',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\daily-plan\\[id]\\route.ts'
+		file: 'apps/web/app/api/daily-plan/[id]/route.ts'
 	},
 	{
 		path: '/api/daily-plan/[id]/remove',
 		verb: 'PUT',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\daily-plan\\[id]\\remove\\route.ts'
+		file: 'apps/web/app/api/daily-plan/[id]/remove/route.ts'
 	},
 	{
 		path: '/api/daily-plan/plan/[planId]',
 		verb: 'POST',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\daily-plan\\plan\\[planId]\\route.ts'
+		file: 'apps/web/app/api/daily-plan/plan/[planId]/route.ts'
 	},
 	{
 		path: '/api/daily-plan/plan/[planId]',
 		verb: 'PUT',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\daily-plan\\plan\\[planId]\\route.ts'
+		file: 'apps/web/app/api/daily-plan/plan/[planId]/route.ts'
 	},
 	{
 		path: '/api/editor-assist',
 		verb: 'POST',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\editor-assist\\route.ts'
+		file: 'apps/web/app/api/editor-assist/route.ts'
 	},
 	{
 		path: '/api/email-reset/request-change-email',
 		verb: 'POST',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\email-reset\\request-change-email\\route.ts'
+		file: 'apps/web/app/api/email-reset/request-change-email/route.ts'
 	},
 	{
 		path: '/api/email-reset/verify-change-email',
 		verb: 'POST',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\email-reset\\verify-change-email\\route.ts'
+		file: 'apps/web/app/api/email-reset/verify-change-email/route.ts'
 	},
 	{
 		path: '/api/embed-allowed-origins',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\embed-allowed-origins\\route.ts'
+		file: 'apps/web/app/api/embed-allowed-origins/route.ts'
 	},
 	{
 		path: '/api/embed-allowed-origins/[id]',
 		verb: 'DELETE',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\embed-allowed-origins\\[id]\\route.ts'
+		file: 'apps/web/app/api/embed-allowed-origins/[id]/route.ts'
 	},
 	{
 		path: '/api/embed-allowed-origins/[id]',
 		verb: 'PATCH',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\embed-allowed-origins\\[id]\\route.ts'
+		file: 'apps/web/app/api/embed-allowed-origins/[id]/route.ts'
 	},
 	{
 		path: '/api/embed-credentials',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\embed-credentials\\route.ts'
+		file: 'apps/web/app/api/embed-credentials/route.ts'
 	},
 	{
 		path: '/api/embed-credentials/[id]',
 		verb: 'DELETE',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\embed-credentials\\[id]\\route.ts'
+		file: 'apps/web/app/api/embed-credentials/[id]/route.ts'
 	},
 	{
 		path: '/api/embed/authorize',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\embed\\authorize\\route.ts'
+		file: 'apps/web/app/api/embed/authorize/route.ts'
 	},
 	{
 		path: '/api/employee-appointment',
 		verb: 'POST',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\employee-appointment\\route.ts'
+		file: 'apps/web/app/api/employee-appointment/route.ts'
 	},
 	{
 		path: '/api/employee-appointment/[id]',
 		verb: 'DELETE',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\employee-appointment\\[id]\\route.ts'
+		file: 'apps/web/app/api/employee-appointment/[id]/route.ts'
 	},
 	{
 		path: '/api/employee-appointment/[id]',
 		verb: 'PUT',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\employee-appointment\\[id]\\route.ts'
+		file: 'apps/web/app/api/employee-appointment/[id]/route.ts'
 	},
 	{
 		path: '/api/employee-notification-setting',
 		verb: 'POST',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\employee-notification-setting\\route.ts'
+		file: 'apps/web/app/api/employee-notification-setting/route.ts'
 	},
 	{
 		path: '/api/employee-notification-setting/[id]',
 		verb: 'PUT',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\employee-notification-setting\\[id]\\route.ts'
+		file: 'apps/web/app/api/employee-notification-setting/[id]/route.ts'
 	},
 	{
 		path: '/api/employee-notification/[id]',
 		verb: 'PUT',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\employee-notification\\[id]\\route.ts'
+		file: 'apps/web/app/api/employee-notification/[id]/route.ts'
 	},
 	{
 		path: '/api/employee-notification/mark-all-read',
 		verb: 'PUT',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\employee-notification\\mark-all-read\\route.ts'
+		file: 'apps/web/app/api/employee-notification/mark-all-read/route.ts'
 	},
 	{
 		path: '/api/employee-placeholder',
 		verb: 'POST',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\employee-placeholder\\route.ts'
+		file: 'apps/web/app/api/employee-placeholder/route.ts'
 	},
 	{
 		path: '/api/employee-placeholder/[id]/claim',
 		verb: 'POST',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\employee-placeholder\\[id]\\claim\\route.ts'
+		file: 'apps/web/app/api/employee-placeholder/[id]/claim/route.ts'
 	},
 	{
 		path: '/api/employee-placeholder/[id]/merge',
 		verb: 'POST',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\employee-placeholder\\[id]\\merge\\route.ts'
+		file: 'apps/web/app/api/employee-placeholder/[id]/merge/route.ts'
 	},
 	{
 		path: '/api/employee-placeholder/bulk',
 		verb: 'POST',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\employee-placeholder\\bulk\\route.ts'
+		file: 'apps/web/app/api/employee-placeholder/bulk/route.ts'
 	},
 	{
 		path: '/api/employee/[id]',
 		verb: 'PUT',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\employee\\[id]\\route.ts'
+		file: 'apps/web/app/api/employee/[id]/route.ts'
 	},
 	{
 		path: '/api/employee/[id]/profile',
 		verb: 'PUT',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\employee\\[id]\\profile\\route.ts'
+		file: 'apps/web/app/api/employee/[id]/profile/route.ts'
 	},
 	{
 		path: '/api/employee/me/presence',
 		verb: 'PUT',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\employee\\me\\presence\\route.ts'
+		file: 'apps/web/app/api/employee/me/presence/route.ts'
 	},
 	{
 		path: '/api/employee/rate-change-request',
 		verb: 'POST',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\employee\\rate-change-request\\route.ts'
+		file: 'apps/web/app/api/employee/rate-change-request/route.ts'
 	},
 	{
 		path: '/api/ever-connect/[...path]',
 		verb: 'DELETE',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\ever-connect\\[...path]\\route.ts'
+		file: 'apps/web/app/api/ever-connect/[...path]/route.ts'
 	},
 	{
 		path: '/api/ever-connect/[...path]',
 		verb: 'POST',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\ever-connect\\[...path]\\route.ts'
+		file: 'apps/web/app/api/ever-connect/[...path]/route.ts'
 	},
 	{
 		path: '/api/ever-connect/[...path]',
 		verb: 'PUT',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\ever-connect\\[...path]\\route.ts'
+		file: 'apps/web/app/api/ever-connect/[...path]/route.ts'
 	},
 	{
 		path: '/api/ever-stats/enabled',
 		verb: 'PUT',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\ever-stats\\enabled\\route.ts'
+		file: 'apps/web/app/api/ever-stats/enabled/route.ts'
 	},
 	{
 		path: '/api/favorite',
 		verb: 'POST',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\favorite\\route.ts'
+		file: 'apps/web/app/api/favorite/route.ts'
 	},
 	{
 		path: '/api/favorite/[id]',
 		verb: 'DELETE',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\favorite\\[id]\\route.ts'
+		file: 'apps/web/app/api/favorite/[id]/route.ts'
 	},
 	{
 		path: '/api/image-assets/upload/[folder]',
 		verb: 'POST',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\image-assets\\upload\\[folder]\\route.ts'
+		file: 'apps/web/app/api/image-assets/upload/[folder]/route.ts'
 	},
 	{
 		path: '/api/inbox/items/[id]/reply',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\inbox\\items\\[id]\\reply\\route.ts'
+		file: 'apps/web/app/api/inbox/items/[id]/reply/route.ts'
 	},
 	{
 		path: '/api/inbox/items/[id]/state',
 		verb: 'PATCH',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\inbox\\items\\[id]\\state\\route.ts'
+		file: 'apps/web/app/api/inbox/items/[id]/state/route.ts'
 	},
 	{
 		path: '/api/inbox/items/mark-all-read',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\inbox\\items\\mark-all-read\\route.ts'
+		file: 'apps/web/app/api/inbox/items/mark-all-read/route.ts'
 	},
 	{
 		path: '/api/inbox/push-subscriptions',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\inbox\\push-subscriptions\\route.ts'
+		file: 'apps/web/app/api/inbox/push-subscriptions/route.ts'
 	},
 	{
 		path: '/api/inbox/push-subscriptions/[id]',
 		verb: 'DELETE',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\inbox\\push-subscriptions\\[id]\\route.ts'
+		file: 'apps/web/app/api/inbox/push-subscriptions/[id]/route.ts'
 	},
 	{
 		path: '/api/integration-tenant/[id]',
 		verb: 'DELETE',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\integration-tenant\\[id]\\route.ts'
+		file: 'apps/web/app/api/integration-tenant/[id]/route.ts'
 	},
 	{
 		path: '/api/integration/asana/[id]',
 		verb: 'DELETE',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\integration\\asana\\[id]\\route.ts'
+		file: 'apps/web/app/api/integration/asana/[id]/route.ts'
 	},
 	{
 		path: '/api/integration/asana/[id]/conflicts/[conflictId]/resolve',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\integration\\asana\\[id]\\conflicts\\[conflictId]\\resolve\\route.ts'
+		file: 'apps/web/app/api/integration/asana/[id]/conflicts/[conflictId]/resolve/route.ts'
 	},
 	{
 		path: '/api/integration/asana/[id]/mappings',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\integration\\asana\\[id]\\mappings\\route.ts'
+		file: 'apps/web/app/api/integration/asana/[id]/mappings/route.ts'
 	},
 	{
 		path: '/api/integration/asana/[id]/mappings/[mappingId]',
 		verb: 'DELETE',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\integration\\asana\\[id]\\mappings\\[mappingId]\\route.ts'
+		file: 'apps/web/app/api/integration/asana/[id]/mappings/[mappingId]/route.ts'
 	},
 	{
 		path: '/api/integration/asana/[id]/mappings/[mappingId]',
 		verb: 'PUT',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\integration\\asana\\[id]\\mappings\\[mappingId]\\route.ts'
+		file: 'apps/web/app/api/integration/asana/[id]/mappings/[mappingId]/route.ts'
 	},
 	{
 		path: '/api/integration/asana/[id]/mappings/[mappingId]/import',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\integration\\asana\\[id]\\mappings\\[mappingId]\\import\\route.ts'
+		file: 'apps/web/app/api/integration/asana/[id]/mappings/[mappingId]/import/route.ts'
 	},
 	{
 		path: '/api/integration/asana/[id]/mappings/[mappingId]/webhook',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\integration\\asana\\[id]\\mappings\\[mappingId]\\webhook\\route.ts'
+		file: 'apps/web/app/api/integration/asana/[id]/mappings/[mappingId]/webhook/route.ts'
 	},
 	{
 		path: '/api/integration/asana/install/state',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\integration\\asana\\install\\state\\route.ts'
+		file: 'apps/web/app/api/integration/asana/install/state/route.ts'
 	},
 	{
 		path: '/api/integration/github/install',
 		verb: 'POST',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\integration\\github\\install\\route.ts'
+		file: 'apps/web/app/api/integration/github/install/route.ts'
 	},
 	{
 		path: '/api/integration/github/oauth',
 		verb: 'POST',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\integration\\github\\oauth\\route.ts'
+		file: 'apps/web/app/api/integration/github/oauth/route.ts'
 	},
 	{
 		path: '/api/integration/github/repository/sync',
 		verb: 'POST',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\integration\\github\\repository\\sync\\route.ts'
+		file: 'apps/web/app/api/integration/github/repository/sync/route.ts'
 	},
 	{
 		path: '/api/integration/jira/[id]/conflicts/[conflictId]/resolve',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\integration\\jira\\[id]\\conflicts\\[conflictId]\\resolve\\route.ts'
+		file: 'apps/web/app/api/integration/jira/[id]/conflicts/[conflictId]/resolve/route.ts'
 	},
 	{
 		path: '/api/integration/jira/[id]/mappings/[mappingId]/import',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\integration\\jira\\[id]\\mappings\\[mappingId]\\import\\route.ts'
+		file: 'apps/web/app/api/integration/jira/[id]/mappings/[mappingId]/import/route.ts'
 	},
 	{
 		path: '/api/integration/jira/[id]/site',
 		verb: 'PUT',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\integration\\jira\\[id]\\site\\route.ts'
+		file: 'apps/web/app/api/integration/jira/[id]/site/route.ts'
 	},
 	{
 		path: '/api/integration/jira/[id]/webhook',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\integration\\jira\\[id]\\webhook\\route.ts'
+		file: 'apps/web/app/api/integration/jira/[id]/webhook/route.ts'
 	},
 	{
 		path: '/api/integration/jira/install/state',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\integration\\jira\\install\\state\\route.ts'
+		file: 'apps/web/app/api/integration/jira/install/state/route.ts'
 	},
 	{
 		path: '/api/integration/linear/[id]',
 		verb: 'DELETE',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\integration\\linear\\[id]\\route.ts'
+		file: 'apps/web/app/api/integration/linear/[id]/route.ts'
 	},
 	{
 		path: '/api/integration/linear/[id]/conflicts/[conflictId]/resolve',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\integration\\linear\\[id]\\conflicts\\[conflictId]\\resolve\\route.ts'
+		file: 'apps/web/app/api/integration/linear/[id]/conflicts/[conflictId]/resolve/route.ts'
 	},
 	{
 		path: '/api/integration/linear/[id]/mappings',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\integration\\linear\\[id]\\mappings\\route.ts'
+		file: 'apps/web/app/api/integration/linear/[id]/mappings/route.ts'
 	},
 	{
 		path: '/api/integration/linear/[id]/mappings/[mappingId]',
 		verb: 'DELETE',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\integration\\linear\\[id]\\mappings\\[mappingId]\\route.ts'
+		file: 'apps/web/app/api/integration/linear/[id]/mappings/[mappingId]/route.ts'
 	},
 	{
 		path: '/api/integration/linear/[id]/mappings/[mappingId]',
 		verb: 'PUT',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\integration\\linear\\[id]\\mappings\\[mappingId]\\route.ts'
+		file: 'apps/web/app/api/integration/linear/[id]/mappings/[mappingId]/route.ts'
 	},
 	{
 		path: '/api/integration/linear/[id]/mappings/[mappingId]/import',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\integration\\linear\\[id]\\mappings\\[mappingId]\\import\\route.ts'
+		file: 'apps/web/app/api/integration/linear/[id]/mappings/[mappingId]/import/route.ts'
 	},
 	{
 		path: '/api/integration/linear/install/state',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\integration\\linear\\install\\state\\route.ts'
+		file: 'apps/web/app/api/integration/linear/install/state/route.ts'
 	},
 	{
 		path: '/api/integration/trello/[id]',
 		verb: 'DELETE',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\integration\\trello\\[id]\\route.ts'
+		file: 'apps/web/app/api/integration/trello/[id]/route.ts'
 	},
 	{
 		path: '/api/integration/trello/[id]/conflicts/[conflictId]/resolve',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\integration\\trello\\[id]\\conflicts\\[conflictId]\\resolve\\route.ts'
+		file: 'apps/web/app/api/integration/trello/[id]/conflicts/[conflictId]/resolve/route.ts'
 	},
 	{
 		path: '/api/integration/trello/[id]/mappings',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\integration\\trello\\[id]\\mappings\\route.ts'
+		file: 'apps/web/app/api/integration/trello/[id]/mappings/route.ts'
 	},
 	{
 		path: '/api/integration/trello/[id]/mappings/[mappingId]',
 		verb: 'DELETE',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\integration\\trello\\[id]\\mappings\\[mappingId]\\route.ts'
+		file: 'apps/web/app/api/integration/trello/[id]/mappings/[mappingId]/route.ts'
 	},
 	{
 		path: '/api/integration/trello/[id]/mappings/[mappingId]',
 		verb: 'PUT',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\integration\\trello\\[id]\\mappings\\[mappingId]\\route.ts'
+		file: 'apps/web/app/api/integration/trello/[id]/mappings/[mappingId]/route.ts'
 	},
 	{
 		path: '/api/integration/trello/[id]/mappings/[mappingId]/import',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\integration\\trello\\[id]\\mappings\\[mappingId]\\import\\route.ts'
+		file: 'apps/web/app/api/integration/trello/[id]/mappings/[mappingId]/import/route.ts'
 	},
 	{
 		path: '/api/integration/trello/[id]/mappings/[mappingId]/webhook',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\integration\\trello\\[id]\\mappings\\[mappingId]\\webhook\\route.ts'
+		file: 'apps/web/app/api/integration/trello/[id]/mappings/[mappingId]/webhook/route.ts'
 	},
 	{
 		path: '/api/integration/trello/connect',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\integration\\trello\\connect\\route.ts'
+		file: 'apps/web/app/api/integration/trello/connect/route.ts'
 	},
 	{
 		path: '/api/integration/trello/install/state',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\integration\\trello\\install\\state\\route.ts'
+		file: 'apps/web/app/api/integration/trello/install/state/route.ts'
 	},
 	{
 		path: '/api/invite/[id]',
 		verb: 'DELETE',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\invite\\[id]\\route.ts'
+		file: 'apps/web/app/api/invite/[id]/route.ts'
 	},
 	{
 		path: '/api/invite/[id]',
 		verb: 'PUT',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\invite\\[id]\\route.ts'
+		file: 'apps/web/app/api/invite/[id]/route.ts'
 	},
 	{
 		path: '/api/invite/emails',
 		verb: 'POST',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\invite\\emails\\route.ts'
+		file: 'apps/web/app/api/invite/emails/route.ts'
 	},
 	{
 		path: '/api/invite/resend',
 		verb: 'POST',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\invite\\resend\\route.ts'
+		file: 'apps/web/app/api/invite/resend/route.ts'
 	},
 	{
 		path: '/api/invoice-item/bulk/[invoiceId]',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\invoice-item\\bulk\\[invoiceId]\\route.ts'
+		file: 'apps/web/app/api/invoice-item/bulk/[invoiceId]/route.ts'
 	},
 	{
 		path: '/api/invoice-payments/connection/rotate-secret',
 		verb: 'POST',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\invoice-payments\\connection\\rotate-secret\\route.ts'
+		file: 'apps/web/app/api/invoice-payments/connection/rotate-secret/route.ts'
 	},
 	{
 		path: '/api/invoice-schedules',
 		verb: 'POST',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\invoice-schedules\\route.ts'
+		file: 'apps/web/app/api/invoice-schedules/route.ts'
 	},
 	{
 		path: '/api/invoices',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\invoices\\route.ts'
+		file: 'apps/web/app/api/invoices/route.ts'
 	},
 	{
 		path: '/api/invoices/[id]',
 		verb: 'DELETE',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\invoices\\[id]\\route.ts'
+		file: 'apps/web/app/api/invoices/[id]/route.ts'
 	},
 	{
 		path: '/api/invoices/[id]',
 		verb: 'PUT',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\invoices\\[id]\\route.ts'
+		file: 'apps/web/app/api/invoices/[id]/route.ts'
 	},
 	{
 		path: '/api/invoices/[id]/action',
 		verb: 'PUT',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\invoices\\[id]\\action\\route.ts'
+		file: 'apps/web/app/api/invoices/[id]/action/route.ts'
 	},
 	{
 		path: '/api/invoices/[id]/with-items',
 		verb: 'PUT',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\invoices\\[id]\\with-items\\route.ts'
+		file: 'apps/web/app/api/invoices/[id]/with-items/route.ts'
 	},
 	{
 		path: '/api/invoices/email/[email]',
 		verb: 'PUT',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\invoices\\email\\[email]\\route.ts'
+		file: 'apps/web/app/api/invoices/email/[email]/route.ts'
 	},
 	{
 		path: '/api/issue-types',
 		verb: 'POST',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\issue-types\\route.ts'
+		file: 'apps/web/app/api/issue-types/route.ts'
 	},
 	{
 		path: '/api/issue-types/[id]',
 		verb: 'DELETE',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\issue-types\\[id]\\route.ts'
+		file: 'apps/web/app/api/issue-types/[id]/route.ts'
 	},
 	{
 		path: '/api/issue-types/[id]',
 		verb: 'PUT',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\issue-types\\[id]\\route.ts'
+		file: 'apps/web/app/api/issue-types/[id]/route.ts'
 	},
 	{
 		path: '/api/organization-contact',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\organization-contact\\route.ts'
+		file: 'apps/web/app/api/organization-contact/route.ts'
 	},
 	{
 		path: '/api/organization-contact/[id]',
 		verb: 'PUT',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\organization-contact\\[id]\\route.ts'
+		file: 'apps/web/app/api/organization-contact/[id]/route.ts'
 	},
 	{
 		path: '/api/organization-contact/[id]/recover',
 		verb: 'PUT',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\organization-contact\\[id]\\recover\\route.ts'
+		file: 'apps/web/app/api/organization-contact/[id]/recover/route.ts'
 	},
 	{
 		path: '/api/organization-contact/[id]/soft',
 		verb: 'DELETE',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\organization-contact\\[id]\\soft\\route.ts'
+		file: 'apps/web/app/api/organization-contact/[id]/soft/route.ts'
 	},
 	{
 		path: '/api/organization-projects',
 		verb: 'POST',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\organization-projects\\route.ts'
+		file: 'apps/web/app/api/organization-projects/route.ts'
 	},
 	{
 		path: '/api/organization-projects/[id]',
 		verb: 'DELETE',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\organization-projects\\[id]\\route.ts'
+		file: 'apps/web/app/api/organization-projects/[id]/route.ts'
 	},
 	{
 		path: '/api/organization-projects/[id]',
 		verb: 'PUT',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\organization-projects\\[id]\\route.ts'
+		file: 'apps/web/app/api/organization-projects/[id]/route.ts'
 	},
 	{
 		path: '/api/organization-projects/[id]/members/[employeeId]/rate',
 		verb: 'PUT',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\organization-projects\\[id]\\members\\[employeeId]\\rate\\route.ts'
+		file: 'apps/web/app/api/organization-projects/[id]/members/[employeeId]/rate/route.ts'
 	},
 	{
 		path: '/api/organization-projects/[id]/rate',
 		verb: 'PUT',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\organization-projects\\[id]\\rate\\route.ts'
+		file: 'apps/web/app/api/organization-projects/[id]/rate/route.ts'
 	},
 	{
 		path: '/api/organization-projects/setting/[id]',
 		verb: 'PUT',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\organization-projects\\setting\\[id]\\route.ts'
+		file: 'apps/web/app/api/organization-projects/setting/[id]/route.ts'
 	},
 	{
 		path: '/api/organization-team',
 		verb: 'POST',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\organization-team\\route.ts'
+		file: 'apps/web/app/api/organization-team/route.ts'
 	},
 	{
 		path: '/api/organization-team-employee/[id]',
 		verb: 'DELETE',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\organization-team-employee\\[id]\\route.ts'
+		file: 'apps/web/app/api/organization-team-employee/[id]/route.ts'
 	},
 	{
 		path: '/api/organization-team-employee/[id]',
 		verb: 'PUT',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\organization-team-employee\\[id]\\route.ts'
+		file: 'apps/web/app/api/organization-team-employee/[id]/route.ts'
 	},
 	{
 		path: '/api/organization-team-employee/[id]/active-task',
 		verb: 'PUT',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\organization-team-employee\\[id]\\active-task\\route.ts'
+		file: 'apps/web/app/api/organization-team-employee/[id]/active-task/route.ts'
 	},
 	{
 		path: '/api/organization-team-join/[id]/[action]',
 		verb: 'PUT',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\organization-team-join\\[id]\\[action]\\route.ts'
+		file: 'apps/web/app/api/organization-team-join/[id]/[action]/route.ts'
 	},
 	{
 		path: '/api/organization-team/[id]',
 		verb: 'DELETE',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\organization-team\\[id]\\route.ts'
+		file: 'apps/web/app/api/organization-team/[id]/route.ts'
 	},
 	{
 		path: '/api/organization-team/[id]',
 		verb: 'PUT',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\organization-team\\[id]\\route.ts'
+		file: 'apps/web/app/api/organization-team/[id]/route.ts'
 	},
 	{
 		path: '/api/organization-team/employee/[id]',
 		verb: 'DELETE',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\organization-team\\employee\\[id]\\route.ts'
+		file: 'apps/web/app/api/organization-team/employee/[id]/route.ts'
 	},
 	{
 		path: '/api/organization-team/employee/[id]',
 		verb: 'PUT',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\organization-team\\employee\\[id]\\route.ts'
+		file: 'apps/web/app/api/organization-team/employee/[id]/route.ts'
 	},
 	{
 		path: '/api/organization-team/teams/[id]',
 		verb: 'DELETE',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\organization-team\\teams\\[id]\\route.ts'
+		file: 'apps/web/app/api/organization-team/teams/[id]/route.ts'
 	},
 	{
 		path: '/api/organization/[id]',
 		verb: 'PUT',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\organization\\[id]\\route.ts'
+		file: 'apps/web/app/api/organization/[id]/route.ts'
 	},
 	{
 		path: '/api/organization/[id]/soft',
 		verb: 'DELETE',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\organization\\[id]\\soft\\route.ts'
+		file: 'apps/web/app/api/organization/[id]/soft/route.ts'
 	},
 	{
 		path: '/api/plugins/docs/documents',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\plugins\\docs\\documents\\route.ts'
+		file: 'apps/web/app/api/plugins/docs/documents/route.ts'
 	},
 	{
 		path: '/api/plugins/docs/documents/[id]',
 		verb: 'DELETE',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\plugins\\docs\\documents\\[id]\\route.ts'
+		file: 'apps/web/app/api/plugins/docs/documents/[id]/route.ts'
 	},
 	{
 		path: '/api/plugins/docs/documents/[id]',
 		verb: 'PUT',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\plugins\\docs\\documents\\[id]\\route.ts'
+		file: 'apps/web/app/api/plugins/docs/documents/[id]/route.ts'
 	},
 	{
 		path: '/api/plugins/docs/documents/[id]/archive',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\plugins\\docs\\documents\\[id]\\archive\\route.ts'
+		file: 'apps/web/app/api/plugins/docs/documents/[id]/archive/route.ts'
 	},
 	{
 		path: '/api/plugins/docs/documents/[id]/comments/[commentId]/anchor',
 		verb: 'DELETE',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\plugins\\docs\\documents\\[id]\\comments\\[commentId]\\anchor\\route.ts'
+		file: 'apps/web/app/api/plugins/docs/documents/[id]/comments/[commentId]/anchor/route.ts'
 	},
 	{
 		path: '/api/plugins/docs/documents/[id]/comments/[commentId]/anchor',
 		verb: 'PUT',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\plugins\\docs\\documents\\[id]\\comments\\[commentId]\\anchor\\route.ts'
+		file: 'apps/web/app/api/plugins/docs/documents/[id]/comments/[commentId]/anchor/route.ts'
 	},
 	{
 		path: '/api/plugins/docs/documents/[id]/content',
 		verb: 'PUT',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\plugins\\docs\\documents\\[id]\\content\\route.ts'
+		file: 'apps/web/app/api/plugins/docs/documents/[id]/content/route.ts'
 	},
 	{
 		path: '/api/plugins/docs/documents/[id]/duplicate',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\plugins\\docs\\documents\\[id]\\duplicate\\route.ts'
+		file: 'apps/web/app/api/plugins/docs/documents/[id]/duplicate/route.ts'
 	},
 	{
 		path: '/api/plugins/docs/documents/[id]/follow',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\plugins\\docs\\documents\\[id]\\follow\\route.ts'
+		file: 'apps/web/app/api/plugins/docs/documents/[id]/follow/route.ts'
 	},
 	{
 		path: '/api/plugins/docs/documents/[id]/live/awareness',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\plugins\\docs\\documents\\[id]\\live\\awareness\\route.ts'
+		file: 'apps/web/app/api/plugins/docs/documents/[id]/live/awareness/route.ts'
 	},
 	{
 		path: '/api/plugins/docs/documents/[id]/live/updates',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\plugins\\docs\\documents\\[id]\\live\\updates\\route.ts'
+		file: 'apps/web/app/api/plugins/docs/documents/[id]/live/updates/route.ts'
 	},
 	{
 		path: '/api/plugins/docs/documents/[id]/move',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\plugins\\docs\\documents\\[id]\\move\\route.ts'
+		file: 'apps/web/app/api/plugins/docs/documents/[id]/move/route.ts'
 	},
 	{
 		path: '/api/plugins/docs/documents/[id]/mute',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\plugins\\docs\\documents\\[id]\\mute\\route.ts'
+		file: 'apps/web/app/api/plugins/docs/documents/[id]/mute/route.ts'
 	},
 	{
 		path: '/api/plugins/docs/documents/[id]/recover',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\plugins\\docs\\documents\\[id]\\recover\\route.ts'
+		file: 'apps/web/app/api/plugins/docs/documents/[id]/recover/route.ts'
 	},
 	{
 		path: '/api/plugins/docs/documents/[id]/space',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\plugins\\docs\\documents\\[id]\\space\\route.ts'
+		file: 'apps/web/app/api/plugins/docs/documents/[id]/space/route.ts'
 	},
 	{
 		path: '/api/plugins/docs/documents/[id]/unarchive',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\plugins\\docs\\documents\\[id]\\unarchive\\route.ts'
+		file: 'apps/web/app/api/plugins/docs/documents/[id]/unarchive/route.ts'
 	},
 	{
 		path: '/api/plugins/docs/documents/[id]/unfollow',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\plugins\\docs\\documents\\[id]\\unfollow\\route.ts'
+		file: 'apps/web/app/api/plugins/docs/documents/[id]/unfollow/route.ts'
 	},
 	{
 		path: '/api/plugins/docs/documents/[id]/unmute',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\plugins\\docs\\documents\\[id]\\unmute\\route.ts'
+		file: 'apps/web/app/api/plugins/docs/documents/[id]/unmute/route.ts'
 	},
 	{
 		path: '/api/plugins/docs/documents/[id]/versions/[versionId]/restore',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\plugins\\docs\\documents\\[id]\\versions\\[versionId]\\restore\\route.ts'
+		file: 'apps/web/app/api/plugins/docs/documents/[id]/versions/[versionId]/restore/route.ts'
 	},
 	{
 		path: '/api/plugins/docs/documents/reorder',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\plugins\\docs\\documents\\reorder\\route.ts'
+		file: 'apps/web/app/api/plugins/docs/documents/reorder/route.ts'
 	},
 	{
 		path: '/api/plugins/docs/documents/upload',
 		verb: 'POST',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\plugins\\docs\\documents\\upload\\route.ts'
+		file: 'apps/web/app/api/plugins/docs/documents/upload/route.ts'
 	},
 	{
 		path: '/api/plugins/docs/imports',
 		verb: 'POST',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\plugins\\docs\\imports\\route.ts'
+		file: 'apps/web/app/api/plugins/docs/imports/route.ts'
 	},
 	{
 		path: '/api/plugins/docs/links',
 		verb: 'POST',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\plugins\\docs\\links\\route.ts'
+		file: 'apps/web/app/api/plugins/docs/links/route.ts'
 	},
 	{
 		path: '/api/plugins/docs/links/[id]',
 		verb: 'DELETE',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\plugins\\docs\\links\\[id]\\route.ts'
+		file: 'apps/web/app/api/plugins/docs/links/[id]/route.ts'
 	},
 	{
 		path: '/api/reaction',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\reaction\\route.ts'
+		file: 'apps/web/app/api/reaction/route.ts'
 	},
 	{
 		path: '/api/realtime/presence',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\realtime\\presence\\route.ts'
+		file: 'apps/web/app/api/realtime/presence/route.ts'
 	},
 	{
 		path: '/api/realtime/typing',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\realtime\\typing\\route.ts'
+		file: 'apps/web/app/api/realtime/typing/route.ts'
 	},
 	{
 		path: '/api/role-permissions/[id]',
 		verb: 'PUT',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\role-permissions\\[id]\\route.ts'
+		file: 'apps/web/app/api/role-permissions/[id]/route.ts'
 	},
 	{
 		path: '/api/roles',
 		verb: 'POST',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\roles\\route.ts'
+		file: 'apps/web/app/api/roles/route.ts'
 	},
 	{
 		path: '/api/roles/[id]',
 		verb: 'DELETE',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\roles\\[id]\\route.ts'
+		file: 'apps/web/app/api/roles/[id]/route.ts'
 	},
 	{
 		path: '/api/roles/[id]',
 		verb: 'PUT',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\roles\\[id]\\route.ts'
+		file: 'apps/web/app/api/roles/[id]/route.ts'
 	},
 	{
 		path: '/api/roles/options',
 		verb: 'POST',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\roles\\options\\route.ts'
+		file: 'apps/web/app/api/roles/options/route.ts'
 	},
 	{
 		path: '/api/saved-reports',
 		verb: 'POST',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\saved-reports\\route.ts'
+		file: 'apps/web/app/api/saved-reports/route.ts'
 	},
 	{
 		path: '/api/saved-reports/[id]',
 		verb: 'DELETE',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\saved-reports\\[id]\\route.ts'
+		file: 'apps/web/app/api/saved-reports/[id]/route.ts'
 	},
 	{
 		path: '/api/saved-reports/[id]',
 		verb: 'PUT',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\saved-reports\\[id]\\route.ts'
+		file: 'apps/web/app/api/saved-reports/[id]/route.ts'
 	},
 	{
 		path: '/api/saved-reports/[id]/share',
 		verb: 'DELETE',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\saved-reports\\[id]\\share\\route.ts'
+		file: 'apps/web/app/api/saved-reports/[id]/share/route.ts'
 	},
 	{
 		path: '/api/saved-reports/[id]/share',
 		verb: 'POST',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\saved-reports\\[id]\\share\\route.ts'
+		file: 'apps/web/app/api/saved-reports/[id]/share/route.ts'
 	},
 	{
 		path: '/api/tags',
 		verb: 'POST',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\tags\\route.ts'
+		file: 'apps/web/app/api/tags/route.ts'
 	},
 	{
 		path: '/api/tags/[id]',
 		verb: 'DELETE',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\tags\\[id]\\route.ts'
+		file: 'apps/web/app/api/tags/[id]/route.ts'
 	},
 	{
 		path: '/api/tags/[id]',
 		verb: 'PUT',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\tags\\[id]\\route.ts'
+		file: 'apps/web/app/api/tags/[id]/route.ts'
 	},
 	{
 		path: '/api/tags/bulk',
 		verb: 'POST',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\tags\\bulk\\route.ts'
+		file: 'apps/web/app/api/tags/bulk/route.ts'
 	},
 	{
 		path: '/api/task-automations',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\task-automations\\route.ts'
+		file: 'apps/web/app/api/task-automations/route.ts'
 	},
 	{
 		path: '/api/task-automations/[id]',
 		verb: 'DELETE',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\task-automations\\[id]\\route.ts'
+		file: 'apps/web/app/api/task-automations/[id]/route.ts'
 	},
 	{
 		path: '/api/task-automations/[id]',
 		verb: 'PUT',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\task-automations\\[id]\\route.ts'
+		file: 'apps/web/app/api/task-automations/[id]/route.ts'
 	},
 	{
 		path: '/api/task-automations/[id]/test',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\task-automations\\[id]\\test\\route.ts'
+		file: 'apps/web/app/api/task-automations/[id]/test/route.ts'
 	},
 	{
 		path: '/api/task-automations/order',
 		verb: 'PUT',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\task-automations\\order\\route.ts'
+		file: 'apps/web/app/api/task-automations/order/route.ts'
 	},
 	{
 		path: '/api/task-estimation',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\task-estimation\\route.ts'
+		file: 'apps/web/app/api/task-estimation/route.ts'
 	},
 	{
 		path: '/api/task-estimation/[id]',
 		verb: 'DELETE',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\task-estimation\\[id]\\route.ts'
+		file: 'apps/web/app/api/task-estimation/[id]/route.ts'
 	},
 	{
 		path: '/api/task-estimation/[id]',
 		verb: 'PUT',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\task-estimation\\[id]\\route.ts'
+		file: 'apps/web/app/api/task-estimation/[id]/route.ts'
 	},
 	{
 		path: '/api/task-priorities',
 		verb: 'POST',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\task-priorities\\route.ts'
+		file: 'apps/web/app/api/task-priorities/route.ts'
 	},
 	{
 		path: '/api/task-priorities/[id]',
 		verb: 'DELETE',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\task-priorities\\[id]\\route.ts'
+		file: 'apps/web/app/api/task-priorities/[id]/route.ts'
 	},
 	{
 		path: '/api/task-priorities/[id]',
 		verb: 'PUT',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\task-priorities\\[id]\\route.ts'
+		file: 'apps/web/app/api/task-priorities/[id]/route.ts'
 	},
 	{
 		path: '/api/task-related-issue-types',
 		verb: 'POST',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\task-related-issue-types\\route.ts'
+		file: 'apps/web/app/api/task-related-issue-types/route.ts'
 	},
 	{
 		path: '/api/task-related-issue-types/[id]',
 		verb: 'DELETE',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\task-related-issue-types\\[id]\\route.ts'
+		file: 'apps/web/app/api/task-related-issue-types/[id]/route.ts'
 	},
 	{
 		path: '/api/task-related-issue-types/[id]',
 		verb: 'PUT',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\task-related-issue-types\\[id]\\route.ts'
+		file: 'apps/web/app/api/task-related-issue-types/[id]/route.ts'
 	},
 	{
 		path: '/api/task-sizes',
 		verb: 'POST',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\task-sizes\\route.ts'
+		file: 'apps/web/app/api/task-sizes/route.ts'
 	},
 	{
 		path: '/api/task-sizes/[id]',
 		verb: 'DELETE',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\task-sizes\\[id]\\route.ts'
+		file: 'apps/web/app/api/task-sizes/[id]/route.ts'
 	},
 	{
 		path: '/api/task-sizes/[id]',
 		verb: 'PUT',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\task-sizes\\[id]\\route.ts'
+		file: 'apps/web/app/api/task-sizes/[id]/route.ts'
 	},
 	{
 		path: '/api/task-statuses',
 		verb: 'POST',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\task-statuses\\route.ts'
+		file: 'apps/web/app/api/task-statuses/route.ts'
 	},
 	{
 		path: '/api/task-statuses/[id]',
 		verb: 'DELETE',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\task-statuses\\[id]\\route.ts'
+		file: 'apps/web/app/api/task-statuses/[id]/route.ts'
 	},
 	{
 		path: '/api/task-statuses/[id]',
 		verb: 'PUT',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\task-statuses\\[id]\\route.ts'
+		file: 'apps/web/app/api/task-statuses/[id]/route.ts'
 	},
 	{
 		path: '/api/task-statuses/reorder',
 		verb: 'PATCH',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\task-statuses\\reorder\\route.ts'
+		file: 'apps/web/app/api/task-statuses/reorder/route.ts'
 	},
 	{
 		path: '/api/task-versions',
 		verb: 'POST',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\task-versions\\route.ts'
+		file: 'apps/web/app/api/task-versions/route.ts'
 	},
 	{
 		path: '/api/task-versions/[id]',
 		verb: 'DELETE',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\task-versions\\[id]\\route.ts'
+		file: 'apps/web/app/api/task-versions/[id]/route.ts'
 	},
 	{
 		path: '/api/task-versions/[id]',
 		verb: 'PUT',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\task-versions\\[id]\\route.ts'
+		file: 'apps/web/app/api/task-versions/[id]/route.ts'
 	},
 	{
 		path: '/api/task-views',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\task-views\\route.ts'
+		file: 'apps/web/app/api/task-views/route.ts'
 	},
 	{
 		path: '/api/task-views/[id]',
 		verb: 'DELETE',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\task-views\\[id]\\route.ts'
+		file: 'apps/web/app/api/task-views/[id]/route.ts'
 	},
 	{
 		path: '/api/task-views/[id]',
 		verb: 'PUT',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\task-views\\[id]\\route.ts'
+		file: 'apps/web/app/api/task-views/[id]/route.ts'
 	},
 	{
 		path: '/api/task-views/[id]/order',
 		verb: 'PUT',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\task-views\\[id]\\order\\route.ts'
+		file: 'apps/web/app/api/task-views/[id]/order/route.ts'
 	},
 	{
 		path: '/api/tasks/[id]',
 		verb: 'DELETE',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\tasks\\[id]\\route.ts'
+		file: 'apps/web/app/api/tasks/[id]/route.ts'
 	},
 	{
 		path: '/api/tasks/[id]',
 		verb: 'PUT',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\tasks\\[id]\\route.ts'
+		file: 'apps/web/app/api/tasks/[id]/route.ts'
 	},
 	{
 		path: '/api/tasks/[id]/recover',
 		verb: 'PUT',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\tasks\\[id]\\recover\\route.ts'
+		file: 'apps/web/app/api/tasks/[id]/recover/route.ts'
 	},
 	{
 		path: '/api/tasks/[id]/soft',
 		verb: 'DELETE',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\tasks\\[id]\\soft\\route.ts'
+		file: 'apps/web/app/api/tasks/[id]/soft/route.ts'
 	},
 	{
 		path: '/api/tasks/[id]/trashed',
 		verb: 'DELETE',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\tasks\\[id]\\trashed\\route.ts'
+		file: 'apps/web/app/api/tasks/[id]/trashed/route.ts'
 	},
 	{
 		path: '/api/tasks/bulk-update',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\tasks\\bulk-update\\route.ts'
+		file: 'apps/web/app/api/tasks/bulk-update/route.ts'
 	},
 	{
 		path: '/api/tasks/employee/[employeeId]',
 		verb: 'DELETE',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\tasks\\employee\\[employeeId]\\route.ts'
+		file: 'apps/web/app/api/tasks/employee/[employeeId]/route.ts'
 	},
 	{
 		path: '/api/tasks/task-linked-issue',
 		verb: 'POST',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\tasks\\task-linked-issue\\route.ts'
+		file: 'apps/web/app/api/tasks/task-linked-issue/route.ts'
 	},
 	{
 		path: '/api/tasks/task-linked-issue',
 		verb: 'PUT',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\tasks\\task-linked-issue\\route.ts'
+		file: 'apps/web/app/api/tasks/task-linked-issue/route.ts'
 	},
 	{
 		path: '/api/tasks/task-linked-issue/[id]',
 		verb: 'DELETE',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\tasks\\task-linked-issue\\[id]\\route.ts'
+		file: 'apps/web/app/api/tasks/task-linked-issue/[id]/route.ts'
 	},
 	{
 		path: '/api/tasks/team',
 		verb: 'POST',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\tasks\\team\\route.ts'
+		file: 'apps/web/app/api/tasks/team/route.ts'
 	},
 	{
 		path: '/api/tenant',
 		verb: 'PUT',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\tenant\\route.ts'
+		file: 'apps/web/app/api/tenant/route.ts'
 	},
 	{
 		path: '/api/time-goals',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\time-goals\\route.ts'
+		file: 'apps/web/app/api/time-goals/route.ts'
 	},
 	{
 		path: '/api/time-goals/[id]',
 		verb: 'PUT',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\time-goals\\[id]\\route.ts'
+		file: 'apps/web/app/api/time-goals/[id]/route.ts'
 	},
 	{
 		path: '/api/time-goals/[id]/archive',
 		verb: 'PUT',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\time-goals\\[id]\\archive\\route.ts'
+		file: 'apps/web/app/api/time-goals/[id]/archive/route.ts'
 	},
 	{
 		path: '/api/time-goals/[id]/restore',
 		verb: 'PUT',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\time-goals\\[id]\\restore\\route.ts'
+		file: 'apps/web/app/api/time-goals/[id]/restore/route.ts'
 	},
 	{
 		path: '/api/timer/discard',
 		verb: 'POST',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\timer\\discard\\route.ts'
+		file: 'apps/web/app/api/timer/discard/route.ts'
 	},
 	{
 		path: '/api/timer/slot',
 		verb: 'DELETE',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\timer\\slot\\route.ts'
+		file: 'apps/web/app/api/timer/slot/route.ts'
 	},
 	{
 		path: '/api/timer/start',
 		verb: 'POST',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\timer\\start\\route.ts'
+		file: 'apps/web/app/api/timer/start/route.ts'
 	},
 	{
 		path: '/api/timer/started-at',
 		verb: 'PUT',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\timer\\started-at\\route.ts'
+		file: 'apps/web/app/api/timer/started-at/route.ts'
 	},
 	{
 		path: '/api/timer/stop',
 		verb: 'POST',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\timer\\stop\\route.ts'
+		file: 'apps/web/app/api/timer/stop/route.ts'
 	},
 	{
 		path: '/api/timer/sync',
 		verb: 'POST',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\timer\\sync\\route.ts'
+		file: 'apps/web/app/api/timer/sync/route.ts'
 	},
 	{
 		path: '/api/timer/timesheet/bulk-delete',
 		verb: 'DELETE',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\timer\\timesheet\\bulk-delete\\route.ts'
+		file: 'apps/web/app/api/timer/timesheet/bulk-delete/route.ts'
 	},
 	{
 		path: '/api/timer/timesheet/status',
 		verb: 'PUT',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\timer\\timesheet\\status\\route.ts'
+		file: 'apps/web/app/api/timer/timesheet/status/route.ts'
 	},
 	{
 		path: '/api/timer/timesheet/time-log',
 		verb: 'POST',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\timer\\timesheet\\time-log\\route.ts'
+		file: 'apps/web/app/api/timer/timesheet/time-log/route.ts'
 	},
 	{
 		path: '/api/timer/timesheet/time-log/[id]',
 		verb: 'PUT',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\timer\\timesheet\\time-log\\[id]\\route.ts'
+		file: 'apps/web/app/api/timer/timesheet/time-log/[id]/route.ts'
 	},
 	{
 		path: '/api/timer/toggle',
 		verb: 'POST',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\timer\\toggle\\route.ts'
+		file: 'apps/web/app/api/timer/toggle/route.ts'
 	},
 	{
 		path: '/api/timesheet/status',
 		verb: 'PUT',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\timesheet\\status\\route.ts'
+		file: 'apps/web/app/api/timesheet/status/route.ts'
 	},
 	{
 		path: '/api/timesheet/time-log',
 		verb: 'DELETE',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\timesheet\\time-log\\route.ts'
+		file: 'apps/web/app/api/timesheet/time-log/route.ts'
 	},
 	{
 		path: '/api/timesheet/time-log',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\timesheet\\time-log\\route.ts'
+		file: 'apps/web/app/api/timesheet/time-log/route.ts'
 	},
 	{
 		path: '/api/timesheet/time-log/[id]',
 		verb: 'PUT',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\timesheet\\time-log\\[id]\\route.ts'
+		file: 'apps/web/app/api/timesheet/time-log/[id]/route.ts'
 	},
 	{
 		path: '/api/timesheet/time-log/[id]/split',
 		verb: 'POST',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\timesheet\\time-log\\[id]\\split\\route.ts'
+		file: 'apps/web/app/api/timesheet/time-log/[id]/split/route.ts'
 	},
 	{
 		path: '/api/timesheet/time-log/[id]/tags',
 		verb: 'PUT',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\timesheet\\time-log\\[id]\\tags\\route.ts'
+		file: 'apps/web/app/api/timesheet/time-log/[id]/tags/route.ts'
 	},
 	{
 		path: '/api/user-api-tokens',
 		verb: 'POST',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\user-api-tokens\\route.ts'
+		file: 'apps/web/app/api/user-api-tokens/route.ts'
 	},
 	{
 		path: '/api/user-api-tokens/[id]',
 		verb: 'DELETE',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\user-api-tokens\\[id]\\route.ts'
+		file: 'apps/web/app/api/user-api-tokens/[id]/route.ts'
 	},
 	{
 		path: '/api/user/[id]',
 		verb: 'DELETE',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\user\\[id]\\route.ts'
+		file: 'apps/web/app/api/user/[id]/route.ts'
 	},
 	{
 		path: '/api/user/[id]',
 		verb: 'PUT',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\user\\[id]\\route.ts'
+		file: 'apps/web/app/api/user/[id]/route.ts'
 	},
 	{
 		path: '/api/user/[id]/role',
 		verb: 'PUT',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\user\\[id]\\role\\route.ts'
+		file: 'apps/web/app/api/user/[id]/role/route.ts'
 	},
 	{
 		path: '/api/user/reset',
 		verb: 'DELETE',
 		guard: 'route',
-		file: 'apps\\web\\app\\api\\user\\reset\\route.ts'
+		file: 'apps/web/app/api/user/reset/route.ts'
 	},
 	{
 		path: '/api/user/ui-preferences',
 		verb: 'PUT',
 		guard: 'proxy-helper',
-		file: 'apps\\web\\app\\api\\user\\ui-preferences\\route.ts'
+		file: 'apps/web/app/api/user/ui-preferences/route.ts'
 	}
 ];

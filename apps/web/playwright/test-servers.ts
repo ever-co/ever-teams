@@ -34,10 +34,17 @@ export const EVER_ID_ISSUER_URL = 'http://127.0.0.1:3991/oidc';
 export const EVER_ID_CLIENT_ID = process.env.E2E_EVER_ID_CLIENT_ID || 'playwright-teams-client';
 export const EVER_ID_CLIENT_SECRET = 'playwright-fake-issuer-client-secret';
 
+/**
+ * Hosts no run may ever talk to, compared by parsed hostname so that a port (`:443`), a trailing dot, a path or
+ * upper case cannot slip one past. live-fixtures.ts and scripts/provision-demo-tenant.mjs keep the same list.
+ */
+export const PRODUCTION_HOSTS: readonly string[] = ['api.ever.team', 'app.ever.team', 'api.gauzy.co', 'app.gauzy.co'];
+export const isProductionHost = (url: string): boolean =>
+	PRODUCTION_HOSTS.includes(new URL(url).hostname.toLowerCase().replace(/\.$/, ''));
+
 /** A run against the demo API instead of the mock. Never a production API. */
-export const DEMO_API_ORIGIN = (process.env.E2E_DEMO_API_URL || 'https://apidev.ever.team').replace(/\/$/, '');
-const PRODUCTION_APIS = ['https://api.ever.team', 'https://api.gauzy.co'];
-if (PRODUCTION_APIS.includes(DEMO_API_ORIGIN)) {
+export const DEMO_API_ORIGIN = new URL(process.env.E2E_DEMO_API_URL || 'https://apidev.ever.team').origin;
+if (isProductionHost(DEMO_API_ORIGIN)) {
 	throw new Error(`Refusing to configure the live suite against ${DEMO_API_ORIGIN}: that is a production API.`);
 }
 

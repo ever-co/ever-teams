@@ -30,9 +30,10 @@ test.describe('real API refusals', () => {
 			/\/auth\/password/
 		);
 
-		const signins = shield.apiCalls().filter((call) => /signin/i.test(call.path));
+		// A 4xx: a 5xx would be the app failing on the refusal, not the API refusing.
+		const signins = shield.apiCalls().filter((call) => call.method === 'POST' && /signin/i.test(call.path));
 		expect(
-			signins.some((call) => call.status >= 400),
+			signins.some((call) => call.status >= 400 && call.status < 500),
 			`the refusal must come from the API, and the page made: ${JSON.stringify(signins)}`
 		).toBe(true);
 	});
@@ -47,7 +48,7 @@ test.describe('real API refusals', () => {
 			timeout: 30_000
 		});
 
-		const sent = shield.apiCalls().filter((call) => /signin/i.test(call.path));
+		const sent = shield.apiCalls().filter((call) => call.method === 'POST' && /signin/i.test(call.path));
 		expect(
 			sent.some((call) => call.status >= 200 && call.status < 300),
 			`the code request must reach the API, and the page made: ${JSON.stringify(sent)}`
@@ -69,7 +70,7 @@ test.describe('real API refusals', () => {
 			'the answer must not reveal whether the address has an account'
 		).toHaveCount(0);
 
-		const asked = shield.apiCalls().filter((call) => /password/i.test(call.path));
+		const asked = shield.apiCalls().filter((call) => call.method === 'POST' && /password/i.test(call.path));
 		expect(
 			asked.some((call) => call.status >= 200 && call.status < 300),
 			`the reset request must reach the API, and the page made: ${JSON.stringify(asked)}`

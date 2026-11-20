@@ -1,7 +1,7 @@
 import { test as base, expect, type Page } from '@playwright/test';
 
 import { CONSOLE_NOISE } from './helpers';
-import { APP_ORIGIN, DEMO_API_ORIGIN } from './test-servers';
+import { APP_ORIGIN, DEMO_API_ORIGIN, isProductionHost } from './test-servers';
 
 /**
  * Fixtures for the live suite: the web app running locally against the DEMO API (apidev.ever.team).
@@ -16,14 +16,11 @@ import { APP_ORIGIN, DEMO_API_ORIGIN } from './test-servers';
  * No NextAuth session is stubbed here (unlike the mock suite): the real sign-in is the subject.
  */
 
-const APP_HOST = new URL(APP_ORIGIN).hostname;
-const DEMO_HOST = new URL(DEMO_API_ORIGIN).hostname;
-const ALLOWED_HOSTS = new Set([APP_HOST, DEMO_HOST]);
+/** Whole origins (scheme + host + port), not hostnames: `http://localhost:4040` is not this app. */
+const ALLOWED_ORIGINS = new Set([new URL(APP_ORIGIN).origin, new URL(DEMO_API_ORIGIN).origin]);
 
-/** Never, whatever the environment says. */
-const PRODUCTION_HOSTS = new Set(['api.ever.team', 'app.gauzy.co', 'api.gauzy.co']);
-
-const hostOf = (url: string) => new URL(url).hostname;
+/** Allowed, and never a production host whatever the environment says. */
+const isAllowed = (url: string) => ALLOWED_ORIGINS.has(new URL(url).origin) && !isProductionHost(url);
 
 export type ApiCall = { method: string; host: string; path: string; status: number };
 
@@ -51,17 +48,18 @@ export const test = base.extend<{ shield: LiveShield; demo: DemoFactory }>({
 			const documents: Array<{ url: string; status: number }> = [];
 
 			context.on('request', (request) => {
-				const host = hostOf(request.url());
-				if (PRODUCTION_HOSTS.has(host) || !ALLOWED_HOSTS.has(host)) {
-					outside.push(`${request.method()} ${host}${new URL(request.url()).pathname}`);
+				if (!isAllowed(request.url())) {
+					const url = new URL(request.url());
+					outside.push(`${request.method()} ${url.origin}${url.pathname}`);
 				}
 			});
 			context.on('response', (response) => {
 				const url = new URL(response.url());
+				// A page load is a document, not an API answer: kept apart so a spec looking for an API call cannot
+				// be satisfied by the HTML of the page it opened.
 				if (response.request().resourceType() === 'document') {
 					documents.push({ url: response.url(), status: response.status() });
-				}
-				if (ALLOWED_HOSTS.has(url.hostname)) {
+				} else if (isAllowed(response.url())) {
 					calls.push({
 						method: response.request().method(),
 						host: url.hostname,
@@ -78,12 +76,11 @@ export const test = base.extend<{ shield: LiveShield; demo: DemoFactory }>({
 			});
 			page.on('pageerror', (error) => pageErrors.push(error.message));
 
-			await context.route('**/*', (route, request) => {
-				const host = hostOf(request.url());
-				return ALLOWED_HOSTS.has(host) && !PRODUCTION_HOSTS.has(host)
-					? route.fallback()
-					: route.abort('blockedbyclient');
-			});
+			// Playwright routes every request the page makes, but not the hops of a redirect: a redirect to a host
+			// outside the list is still recorded by the request observer above and fails the test.
+			await context.route('**/*', (route, request) =>
+				isAllowed(request.url()) ? route.fallback() : route.abort('blockedbyclient')
+			);
 
 			await use({
 				apiCalls: () => calls,

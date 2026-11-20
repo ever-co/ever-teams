@@ -17,7 +17,7 @@
  * (suites/api/manifests.spec.ts runs it that way).
  */
 import { readdirSync, readFileSync, statSync } from 'node:fs';
-import { dirname, relative, resolve } from 'node:path';
+import { dirname, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { writeGenerated } from './api-routes-lib.mjs';
@@ -96,7 +96,8 @@ for (const file of routeFiles(apiRoot)) {
 	if (!GUARDED_ENTRY.test(source)) continue;
 	const path = pathOf(file);
 	for (const { verb, guard } of guardedVerbs(source)) {
-		entries.push({ path, verb, guard, file: relative(projectRoot, file) });
+		// Forward slashes on every OS, so a manifest generated on Windows matches one generated on Linux.
+		entries.push({ path, verb, guard, file: relative(projectRoot, file).split(sep).join('/') });
 	}
 }
 

@@ -66,6 +66,9 @@ for (const route of apiRoutes) {
 		test(`${title} with no body answers a 4xx, not a 5xx`, async ({ api, ids }) => {
 			const response = await api(resolveRoute(route.path, ids), { method: verb });
 			const status = response.status();
+			// What was observed, pass or fail: scripts/collect-empty-body-blockers.mjs rebuilds the pinned list from
+			// these, so a handler that still answers its pinned 5xx keeps its entry.
+			test.info().annotations.push({ type: 'observed-status', description: String(status) });
 
 			if (blocker) {
 				expect(

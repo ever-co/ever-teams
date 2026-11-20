@@ -26,9 +26,10 @@ const CREDENTIALS_FILE = resolve(
 	process.env.E2E_DEMO_CREDENTIALS_FILE || resolve(homedir(), '.ever-teams', 'playwright-demo-tenant.json')
 );
 
-const API = (process.env.E2E_DEMO_API_URL || 'https://apidev.ever.team').replace(/\/$/, '');
-const PRODUCTION_APIS = ['https://api.ever.team', 'https://api.gauzy.co'];
-if (PRODUCTION_APIS.includes(API)) {
+const API = new URL(process.env.E2E_DEMO_API_URL || 'https://apidev.ever.team').origin;
+// By parsed hostname, so `https://api.ever.team:443` or `API.EVER.TEAM.` is refused too (same list as test-servers.ts).
+const PRODUCTION_HOSTS = ['api.ever.team', 'app.ever.team', 'api.gauzy.co', 'app.gauzy.co'];
+if (PRODUCTION_HOSTS.includes(new URL(API).hostname.toLowerCase().replace(/\.$/, ''))) {
 	console.error(`Refusing to provision against ${API}: that is a production API.`);
 	process.exit(1);
 }

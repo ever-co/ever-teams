@@ -166,6 +166,7 @@ test.describe('the authenticated gate', () => {
 		).toEqual([]);
 		expect(shield.pageErrors()).toEqual([]);
 		expect(last?.status, `the server answered ${last?.status} for a route that does not exist`).toBe(404);
-		await expect(view.getByRole('heading', { name: 'Page not found' })).toBeVisible({ timeout: 20_000 });
+		// core/components/pages/404: the title is a `Text`, not a heading element.
+		await expect(view.getByText('Page not found', { exact: true })).toBeVisible({ timeout: 20_000 });
 	});
 });

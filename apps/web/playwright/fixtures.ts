@@ -12,6 +12,7 @@ import {
 	signInWithFixture,
 	statsReports,
 	stubNextAuthSession,
+	unstubNextAuthSession,
 	waitForShellReady,
 	type BootstrapFixture,
 	type MockScenario,
@@ -167,6 +168,8 @@ export const test = base.extend<{
 			// Signed out means signed out: with a fabricated session the app treats a sign-in page as a
 			// page a signed-in person has already passed, and sends them to the app shell — which renders
 			// nothing, because no session cookies were given. A spec that wants the stub says so.
+			// An earlier `app()` in the same test installed the stub on this page: take it away first.
+			await unstubNextAuthSession(page);
 			if (options.stubSession === true) await stubNextAuthSession(page);
 			await page.goto(`${APP_ORIGIN}${path}`, { waitUntil: 'domcontentloaded' });
 			return page;

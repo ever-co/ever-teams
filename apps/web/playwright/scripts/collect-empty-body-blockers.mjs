@@ -35,11 +35,9 @@ function collectTests(suites, acc) {
 		for (const spec of suite.specs ?? []) {
 			for (const testcase of spec.tests ?? []) {
 				const result = testcase.results?.[testcase.results.length - 1];
-				acc.push({
-					title: spec.title,
-					status: result?.status ?? testcase.status,
-					messages: (result?.errors ?? []).map((error) => error.message ?? '')
-				});
+				const annotations = [...(result?.annotations ?? []), ...(testcase.annotations ?? [])];
+				const observed = annotations.find((annotation) => annotation.type === 'observed-status');
+				acc.push({ title: spec.title, observedStatus: observed ? Number(observed.description) : undefined });
 			}
 		}
 		collectTests(suite.suites, acc);
@@ -54,16 +52,12 @@ for (const testcase of collectTests(report.suites, [])) {
 	const match = testcase.title.match(/^(GET|POST|PUT|PATCH|DELETE) (\S+) with no body/);
 	if (!match) continue;
 	const title = `${match[1]} ${match[2]}`;
-	if (testcase.status !== 'failed') continue;
-	const message = testcase.messages.join('\n');
-	const statusMatch = message.match(/crashed the handler \((\d{3})\)/);
-	if (!statusMatch) continue;
+	// The status the handler actually answered, recorded by the spec whether the case passed or failed: a pinned
+	// handler that still answers its 5xx passes, and must keep its entry.
+	if (testcase.observedStatus === undefined || testcase.observedStatus < 500) continue;
 	blockers[title] = {
-		status: Number(statusMatch[1]),
-		detail: message
-			.split('\n')[0]
-			.replace(/^Error: /, '')
-			.slice(0, 200)
+		status: testcase.observedStatus,
+		detail: `${title} with no body crashed the handler (${testcase.observedStatus})`
 	};
 }
 

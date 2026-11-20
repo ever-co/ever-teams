@@ -1,5 +1,7 @@
 import type { BrowserContext, Page } from '@playwright/test';
 
+import { APP_ORIGIN, CONTROL_ORIGIN } from './test-servers';
+
 /** What `context.addCookies` takes (Playwright's `Cookie` is what `context.cookies()` returns, with `expires`). */
 type CookieToAdd = Parameters<BrowserContext['addCookies']>[0][number];
 
@@ -14,12 +16,11 @@ type CookieToAdd = Parameters<BrowserContext['addCookies']>[0][number];
  */
 
 /**
- * The app origin the mock Gauzy accepts (mock-gauzy-server.mjs allowlist); anything else is 403.
- * It must be `localhost`, not `127.0.0.1` — see the note on APP_ORIGIN in test-servers.ts: a page the dev
- * server serves to `127.0.0.1` never finishes rendering in the browser, and every browser case fails empty.
+ * Both origins come from test-servers.ts, the file that starts the servers, so the address a config waits on and
+ * the address this file talks to cannot disagree. The app origin must be `localhost`, not `127.0.0.1` — see the
+ * note on APP_ORIGIN there.
  */
-export const APP_ORIGIN = (process.env.E2E_APP_ORIGIN || 'http://localhost:3030').replace(/\/$/, '');
-const CONTROL_ORIGIN = (process.env.E2E_CONTROL_URL || 'http://127.0.0.1:3990').replace(/\/$/, '');
+export { APP_ORIGIN };
 
 /**
  * Console noise a hermetic run causes on purpose, or that the app cannot control: a refused or
@@ -256,8 +257,15 @@ export const idpState = () =>
 	}>('/idp/state');
 
 /** The NextAuth session support/e2e.ts stubs globally; the app origin serves this route, the mock does not. */
+const SESSION_ROUTE = '**/api/auth/session**';
+
+/** Takes the session stub away again: a later signed-out visit on the same page must not keep it. */
+export async function unstubNextAuthSession(page: Page): Promise<void> {
+	await page.unroute(SESSION_ROUTE);
+}
+
 export async function stubNextAuthSession(page: Page): Promise<void> {
-	await page.route('**/api/auth/session**', (route) =>
+	await page.route(SESSION_ROUTE, (route) =>
 		route.fulfill({
 			status: 200,
 			contentType: 'application/json',
@@ -283,8 +291,11 @@ const DEV_ERROR_MARKUP = [
 	'[data-nextjs-dialog]',
 	'[data-nextjs-dialog-body]',
 	'[data-nextjs-codeframe]',
-	'nextjs-container-errors-body',
-	'nextjs-toast'
+	'.nextjs-container-errors-body',
+	// The issues pill and the error toast exist only while the overlay has something to report
+	// (next/dist/compiled/next-devtools: `data-issues`, `.nextjs-toast-errors-parent`).
+	'[data-issues]',
+	'.nextjs-toast-errors-parent'
 ].join(',');
 
 export async function devOverlayErrors(page: Page): Promise<string[]> {

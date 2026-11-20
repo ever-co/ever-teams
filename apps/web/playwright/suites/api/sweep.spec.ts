@@ -48,8 +48,9 @@ const PARAMS: Record<string, string> = {
 	profileLink: 'profileLink',
 	workspaceGid: 'workspace-gid-1',
 	projectGid: 'project-gid-1',
-	'[...path]': 'health',
-	'[...nextauth]': 'session'
+	// Keys are the segment without its brackets (resolveRoute strips them).
+	'...path': 'health',
+	'...nextauth': 'session'
 };
 
 function resolveRoute(path: string, ids: Record<string, string>, names: Record<string, string>): string {

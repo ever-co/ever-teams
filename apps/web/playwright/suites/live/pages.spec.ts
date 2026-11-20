@@ -40,7 +40,8 @@ test.describe('the app against the demo API, signed out', () => {
 	});
 
 	test('a route that does not exist answers 404 and does not crash', async ({ demo, shield }) => {
-		const view = await demo('/team/tasks/does-not-exist-anywhere');
+		// Not under /team: `team/[teamId]/[profileLink]` owns /team/tasks/<anything> and answers it 200.
+		const view = await demo('/this-page-does-not-exist-anywhere');
 
 		expect(shield.pageErrors()).toEqual([]);
 		expect(await devOverlayErrors(view), 'a missing route must not leave a dev overlay error').toEqual([]);
