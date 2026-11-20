@@ -8,6 +8,7 @@ describe("a task's issue type plate", () => {
 	it("shows the task's own type, and Task for a task without one", () => {
 		expect(issueShownOf([task, bug], 'Bug')).toBe(bug);
 		expect(issueShownOf([task, bug], undefined)).toBe(task);
+		expect(issueShownOf([task, bug], '')).toBe(task);
 	});
 
 	it('shows nothing when the organization has no issue types, where an empty box was drawn', () => {
