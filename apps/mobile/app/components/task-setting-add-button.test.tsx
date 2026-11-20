@@ -4,11 +4,7 @@ import { StyleSheet } from 'react-native';
 import { TaskSettingAddButton } from './task-setting-add-button';
 import { themeFor } from '../../src/theme/use-theme';
 
-jest.mock('@expo/vector-icons', () => {
-	const mockReact = jest.requireActual('react');
-	const { Text: MockText } = jest.requireActual('react-native');
-	return { Ionicons: ({ name }: { name: string }) => mockReact.createElement(MockText, null, `icon ${name}`) };
-});
+jest.mock('../../src/components/icons', () => jest.requireActual('../../test/icons-stand-in').iconsStandIn());
 jest.mock('../theme', () => ({
 	useWebTheme: () => jest.requireActual('../../src/theme/use-theme').themeFor('light')
 }));

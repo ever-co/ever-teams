@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleProp, StyleSheet, Text, TextStyle, TouchableOpacity, ViewStyle } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Plus } from '../../src/components/icons';
 import { useWebTheme } from '../theme';
 
 interface ITaskSettingAddButton {
@@ -33,7 +33,7 @@ export function TaskSettingAddButton({
 			style={[style, styles.pill, { backgroundColor: theme.colors.primary }]}
 			onPress={onPress}
 		>
-			<Ionicons name="add" size={iconSize} color={ink} />
+			<Plus size={iconSize} color={ink} />
 			<Text style={[textStyle, { color: ink }]}>{label}</Text>
 		</TouchableOpacity>
 	);
