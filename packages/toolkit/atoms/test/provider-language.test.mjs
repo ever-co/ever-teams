@@ -114,3 +114,13 @@ test('a lang the host changes is applied once', async () => {
 	assert.deepEqual(globalThis.applied, ['en', 'fr']);
 	await language.unmount();
 });
+
+// The kit has one i18next instance: the guide's `lang` row says that the providers of a page share it (#5646).
+test('two providers of a page share one language: the last one to load sets it', async () => {
+	const english = await withLanguage('en');
+	const french = await withLanguage('fr');
+
+	assert.deepEqual(globalThis.applied, ['en', 'fr']);
+	await french.unmount();
+	await english.unmount();
+});
