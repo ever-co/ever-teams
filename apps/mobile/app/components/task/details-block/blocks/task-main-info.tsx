@@ -12,7 +12,7 @@ import ProfileInfo from '../components/profile-info';
 import { creatorIdOf, creatorOf } from './task-creator';
 import ManageAssignees from '../components/manage-assignees';
 import { useOrganizationTeam } from '../../../../services/hooks/use-organization';
-import CalendarModal from '../components/calendar-modal';
+import { TaskDateField } from '../components/task-date-field';
 import { useTeamTasks } from '../../../../services/hooks/features/use-team-tasks';
 import moment from 'moment-timezone';
 import TaskStatus from '../../../task-status';
@@ -77,18 +77,21 @@ const TaskMainInfo = observer(() => {
 			<TaskRow
 				labelComponent={<PropertyLabel icon={Calendar} label={translate('taskDetailsScreen.startDate')} />}
 			>
-				<CalendarModal
-					updateTask={(date) => updateTask({ ...task, startDate: date }, task?.id)}
-					selectedDate={task?.startDate}
+				<TaskDateField
+					kind="start"
+					value={task?.startDate}
+					otherDate={task?.dueDate}
+					onChange={(date) => updateTask({ ...task, startDate: date }, task?.id)}
 				/>
 			</TaskRow>
 
 			{/* Manage Due Date */}
 			<TaskRow labelComponent={<PropertyLabel icon={Calendar} label={translate('taskDetailsScreen.dueDate')} />}>
-				<CalendarModal
-					updateTask={(date) => updateTask({ ...task, dueDate: date }, task?.id)}
-					selectedDate={task?.dueDate}
-					isDueDate={true}
+				<TaskDateField
+					kind="due"
+					value={task?.dueDate}
+					otherDate={task?.startDate}
+					onChange={(date) => updateTask({ ...task, dueDate: date }, task?.id)}
 				/>
 			</TaskRow>
 
