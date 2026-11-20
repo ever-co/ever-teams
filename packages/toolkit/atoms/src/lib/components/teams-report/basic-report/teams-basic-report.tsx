@@ -88,7 +88,7 @@ const TeamsBasicReport = ({
 			{draggable && <div className="handle w-full h-8 absolute top-0 left-0 cursor-grab"></div>}
 
 			<div className=" flex flex-col gap-2 ">
-				<div className=" flex w-full justify-between items-center">
+				<div className="flex flex-wrap w-full justify-between items-center gap-2">
 					<h1 className="text-lg font-medium">{t('REPORT.title')}</h1>
 					<div className="flex justify-end items-center gap-2 min-w-0">
 						<TeamsActiveEmployeeSelector label="Select employee" containerClassName="min-w-0" />

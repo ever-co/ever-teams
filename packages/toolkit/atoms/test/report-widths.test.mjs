@@ -182,8 +182,8 @@ test("the timesheet's filters wrap onto more lines on a narrow page", () => {
 	assert.ok(propertiesOf('flex-wrap').includes('flex-wrap'), 'flex-wrap is in the stylesheet');
 });
 
-// The select keeps the chosen name on one line and cuts it short, which it can do only once its picker may shrink.
-test("a long employee name shortens in the timesheet's filters instead of widening them", () => {
+// A long chosen name makes the picker as wide as the name, and the boxes around it with it, unless they may shrink.
+test("a long employee name does not widen the timesheet's filters", () => {
 	const { createElement } = require('react');
 	const { renderToStaticMarkup } = require('react-dom/server');
 	const markup = renderToStaticMarkup(createElement(kit.TeamsTimesheet));
@@ -192,11 +192,13 @@ test("a long employee name shortens in the timesheet's filters instead of wideni
 	assert.ok(propertiesOf('max-w-full').includes('max-width'), 'max-w-full is in the stylesheet');
 });
 
-test("a long employee name shortens in the report's header instead of widening it", () => {
+test("the report's header puts its pickers under the title on a narrow page, and a long name does not widen it", () => {
 	const { createElement } = require('react');
 	const { renderToStaticMarkup } = require('react-dom/server');
 	const markup = renderToStaticMarkup(createElement(kit.TeamsBasicReport));
 
+	const row = /<div class="([^"]*)"><h1[^>]*>REPORT\.title<\/h1>/.exec(markup)?.[1].split(' ') ?? [];
+	assert.ok(row.includes('flex-wrap'), 'the pickers wrap under the title');
 	const header = /<div class="([^"]*)"><div data-stand-in="employee-selector" class="([^"]*)">/.exec(markup);
 	assert.ok(header, 'the employee picker sits in the header');
 	assert.ok(header[1].split(' ').includes('min-w-0'), 'the header group can shrink');
