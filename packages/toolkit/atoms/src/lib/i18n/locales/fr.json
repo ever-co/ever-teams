@@ -60,7 +60,8 @@
 		"worked_over_period": "Travaillé sur la période",
 		"today_activity": "Activité d'aujourd'hui",
 		"week_activity": "Activité de la semaine",
-		"activity_over_period": "Activité sur la periode"
+		"activity_over_period": "Activité sur la periode",
+		"timer_only": "Ouvrez Ever Teams pour voir ceci. Votre connexion sur ce site ne couvre que votre minuteur."
 	},
 	"CLIENT_REPORT": {
 		"title": "Temps passé",
@@ -507,6 +508,7 @@
 	},
 	"TIMESHEET": {
 		"title": "Feuilles de temps pour {{orgName}}",
+		"label": "Feuille de temps",
 		"filters": {
 			"select_date": "Sélectionner une date",
 			"select_sources": "Sélectionner les sources",
