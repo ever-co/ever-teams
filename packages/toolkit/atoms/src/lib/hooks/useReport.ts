@@ -5,7 +5,7 @@ import { ChartConfig, ChartData, IWeeklyReports } from '@ever-teams/toolkit-type
 import qs from 'qs';
 import { generateChartConfig, getErrorMessage, reportError, toast, transformData } from '@ever-teams/toolkit-ui';
 import { useTeamsContext } from '@lib/context/teams-context';
-import { reportEmployeeIdOf } from '@lib/utils/report-employee';
+import { pickedEmployeeOf, reportEmployeeIdOf } from '@lib/utils/report-employee';
 import { useKitOptions } from '@components/teams-provider/kit-options';
 import { useTimerOnlyToken } from '@hooks/useTimerOnlyToken';
 
@@ -19,11 +19,14 @@ const useReport = () => {
 	const {
 		authenticatedUser: user,
 		token,
-		selectedEmployee,
+		selectedEmployee: employeeInPicker,
+		userPermissions,
 		selectedTeam,
 		selectedOrganization: organizationId,
 		reportDates: date
 	} = useTeamsContext();
+	// The employee picked counts only for a person who may pick one (#5631)
+	const selectedEmployee = pickedEmployeeOf(employeeInPicker, userPermissions);
 	const { api } = useKitOptions();
 	const timerOnly = useTimerOnlyToken();
 

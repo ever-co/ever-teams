@@ -5,6 +5,7 @@ import { getWeekStartAndEnd, getTodaySoFar, toast } from '@ever-teams/toolkit-ui
 import QueryString from 'qs';
 import { DateRange } from 'react-day-picker';
 import { useTeamsContext } from '@lib/context/teams-context';
+import { pickedEmployeeOf, reportEmployeeIdOf } from '@lib/utils/report-employee';
 import { useKitOptions } from '@components/teams-provider/kit-options';
 import { useTimerOnlyToken } from '@hooks/useTimerOnlyToken';
 
@@ -21,11 +22,14 @@ const useStatisticsCounts = (): IHookResponse<IStatisticsCounts> => {
 	const {
 		authenticatedUser: user,
 		token,
-		selectedEmployee,
+		selectedEmployee: employeeInPicker,
+		userPermissions,
 		selectedTeam,
 		selectedOrganization: organizationId,
 		reportDates: date
 	} = useTeamsContext();
+	// The employee picked counts only for a person who may pick one (#5631)
+	const selectedEmployee = pickedEmployeeOf(employeeInPicker, userPermissions);
 	const { api } = useKitOptions();
 	const timerOnly = useTimerOnlyToken();
 	const [statisticsCounts, setStatisticsCounts] = useState<IHookResponse<IStatisticsCounts>>({
@@ -75,9 +79,8 @@ const useStatisticsCounts = (): IHookResponse<IStatisticsCounts> => {
 				timeZone: user?.timeZone?.split(' ')[0] || Intl.DateTimeFormat().resolvedOptions().timeZone
 			};
 
-			if (user.employee) objetQuery.employeeIds = [user.employee.id];
-
-			if (selectedEmployee != 'all') objetQuery.employeeIds = [selectedEmployee];
+			const employeeId = reportEmployeeIdOf(user, selectedEmployee);
+			if (employeeId) objetQuery.employeeIds = [employeeId];
 
 			if (selectedTeam != 'all') objetQuery.teamIds = [selectedTeam];
 

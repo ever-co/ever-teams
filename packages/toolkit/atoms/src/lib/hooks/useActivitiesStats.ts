@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { getTodaySoFar, getWeekStartAndEnd, toast } from '@ever-teams/toolkit-ui';
 import { IActivitiesStats } from '@ever-teams/toolkit-types';
 import { useTeamsContext } from '@lib/context/teams-context';
+import { pickedEmployeeOf } from '@lib/utils/report-employee';
 import { useKitOptions } from '@components/teams-provider/kit-options';
 import { useTimerOnlyToken } from '@hooks/useTimerOnlyToken';
 
@@ -16,11 +17,14 @@ const useActivitiesStats = (): IHookResponse<IActivitiesStats> => {
 	const {
 		authenticatedUser: user,
 		token,
-		selectedEmployee,
+		selectedEmployee: employeeInPicker,
+		userPermissions,
 		selectedTeam,
 		selectedOrganization: organizationId,
 		reportDates: date
 	} = useTeamsContext();
+	// The employee picked counts only for a person who may pick one (#5631)
+	const selectedEmployee = pickedEmployeeOf(employeeInPicker, userPermissions);
 	const { api } = useKitOptions();
 	const timerOnly = useTimerOnlyToken();
 
