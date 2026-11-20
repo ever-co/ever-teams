@@ -7,6 +7,8 @@ import { IUserProfile } from '../logics/use-profile-screen-logic';
 import ProfileTabs from './profile-tabs';
 import AssignTaskFormModal from './assign-task-section';
 import FilterPopup from './filter-popup';
+import { ProfileFilterMenu } from './profile-filter-menu';
+import { useMenuAnchor } from '../../../../../src/components/menu-anchor';
 import { ITaskFilter } from '../../../../services/hooks/features/use-task-filters';
 import { SvgXml } from 'react-native-svg';
 import { filterDarkIcon, filterLightIcon } from '../../../../components/svgs/icons';
@@ -16,6 +18,7 @@ const TaskFilter = ({ profile, hook }: { profile: IUserProfile; hook: ITaskFilte
 	const { isAuthUser } = profile;
 	const [showFilterPopup, setShowFilterPopup] = useState(false);
 	const [showModal, setShowModal] = useState(false);
+	const { anchorRef, anchor, openFromAnchor } = useMenuAnchor();
 
 	return (
 		<View>
@@ -25,7 +28,16 @@ const TaskFilter = ({ profile, hook }: { profile: IUserProfile; hook: ITaskFilte
 				isAuthUser={isAuthUser}
 				onDismiss={() => setShowModal(false)}
 			/>
-			<FilterPopup hook={hook} visible={showFilterPopup} onDismiss={() => setShowFilterPopup(false)} />
+			{/* The web's filter menu under the button; the sheet while the button has no place on screen */}
+			<FilterPopup hook={hook} visible={showFilterPopup && !anchor} onDismiss={() => setShowFilterPopup(false)} />
+			{anchor && (
+				<ProfileFilterMenu
+					visible={showFilterPopup}
+					anchor={anchor}
+					hook={hook}
+					onDismiss={() => setShowFilterPopup(false)}
+				/>
+			)}
 			<View style={{ ...$wrapButtons, backgroundColor: colors.background }}>
 				<TouchableOpacity
 					disabled={!profile.userProfile?.isEmailVerified}
@@ -46,8 +58,9 @@ const TaskFilter = ({ profile, hook }: { profile: IUserProfile; hook: ITaskFilte
 					</Text>
 				</TouchableOpacity>
 				<TouchableOpacity
+					ref={anchorRef}
 					style={{ ...$filterButton, borderColor: colors.border }}
-					onPress={() => setShowFilterPopup(true)}
+					onPress={() => openFromAnchor(() => setShowFilterPopup(true))}
 				>
 					{dark ? <SvgXml xml={filterDarkIcon} /> : <SvgXml xml={filterLightIcon} />}
 					<Text style={{ ...$createTaskTitle, color: colors.primary, marginLeft: 10 }}>
