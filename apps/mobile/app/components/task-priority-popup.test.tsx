@@ -74,18 +74,20 @@ async function renderPopup(permissions: string[], canCreatePriority = true) {
 	const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 	const rows = permissions.map((permission) => ({ id: permission, roleId: 'role-1', permission, enabled: true }));
 	client.setQueryData(['rolePermissions', 'me', 'tenant-1', 'user-1', 'role-1'], rows);
+	const onDismiss = jest.fn();
 
 	await render(
 		<QueryClientProvider client={client}>
 			<TaskPriorityPopup
 				visible={true}
-				onDismiss={jest.fn()}
+				onDismiss={onDismiss}
 				priorityName=""
 				setSelectedPriority={jest.fn()}
 				canCreatePriority={canCreatePriority}
 			/>
 		</QueryClientProvider>
 	);
+	return { onDismiss };
 }
 
 describe('<TaskPriorityPopup> create button', () => {
@@ -107,6 +109,19 @@ describe('<TaskPriorityPopup> create button', () => {
 		await fireEvent.press(screen.getByText(CREATE_LABEL));
 
 		expect(screen.getByText(PRIORITY_FORM)).toBeTruthy();
+	});
+
+	it('opens on the priorities again once closed while its create form shows', async () => {
+		givenOwnMembership({ isManager: true });
+
+		const { onDismiss } = await renderPopup([]);
+		await fireEvent.press(screen.getByText(CREATE_LABEL));
+		expect(screen.getByText(PRIORITY_FORM)).toBeTruthy();
+		await fireEvent.press(screen.getByTestId('picker-overlay'));
+
+		expect(onDismiss).toHaveBeenCalledTimes(1);
+		expect(screen.queryByText(PRIORITY_FORM)).toBeNull();
+		expect(screen.getByText(CREATE_LABEL)).toBeTruthy();
 	});
 
 	it('opens the create form for a holder of ORG_TASK_SETTING who does not manage the team', async () => {

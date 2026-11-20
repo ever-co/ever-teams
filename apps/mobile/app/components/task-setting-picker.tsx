@@ -50,18 +50,24 @@ function TaskSettingPickerView<T extends TaskSettingItem>({
 	const { canCreate, readOnlyHint } = useTaskSettingsAccess();
 	const [isCreating, setIsCreating] = useState<boolean>(false);
 
+	// A picker closed while its create form shows opens on its values next time
+	const dismiss = () => {
+		setIsCreating(false);
+		onDismiss();
+	};
+
 	const onSelect = (option: PickerOption) => {
 		const item = items.find((candidate) => candidate.id === option.key);
 		if (item) {
 			onPick(item);
 		}
-		onDismiss();
+		dismiss();
 	};
 
 	return (
 		<PropertyPicker
 			visible={visible}
-			onDismiss={onDismiss}
+			onDismiss={dismiss}
 			title={title}
 			options={items.map(optionOf)}
 			onSelect={onSelect}
