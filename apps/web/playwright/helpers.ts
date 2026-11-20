@@ -50,8 +50,14 @@ export type StubRequest = {
 	startMs: number;
 	endMs: number;
 	status: number;
-	/** sha256 of the `Bearer` token the request carried (the mock never keeps the token), or null without one. */
-	bearerSha256: string | null;
+};
+
+/** sha256 of a `Bearer` token the mock received, by path (the mock never keeps the token itself). */
+export type ReceivedToken = { path: string; sha256: string };
+
+export const receivedTokens = async (path: string): Promise<string[]> => {
+	const state = (await mockState()) as { receivedTokens?: ReceivedToken[] };
+	return (state.receivedTokens ?? []).filter((token) => token.path === path).map((token) => token.sha256);
 };
 
 export type BootstrapFixture = {

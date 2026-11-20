@@ -940,6 +940,7 @@ export async function createMockGauzyServer({ fixture, port = 3988 } = {}) {
 		},
 		everPlatform: { stateReads: 0, toggles: [] },
 		everIdLogouts: [],
+		receivedTokens: [],
 		notificationSetting: null,
 		appointments: [],
 		workspaceCreation: {
@@ -1022,17 +1023,24 @@ export async function createMockGauzyServer({ fixture, port = 3988 } = {}) {
 		// The web app's statistics reporter reads `state` every few seconds in the browser runs: counted, not
 		// recorded with the requests the pages make.
 		if (requestUrl.pathname !== '/api/ever-stats/state') {
-			const bearer = String(request.headers.authorization ?? '').match(/^Bearer (.+)$/)?.[1];
+			// The request log is performance evidence and stays body/header free (tools/performance/
+			// mock-gauzy-server.test.mjs pins its keys), so the token goes to a list of its own.
 			state.requests.push({
 				method,
 				path: requestUrl.pathname,
 				query: requestUrl.searchParams.toString(),
 				startMs,
 				endMs,
-				status,
-				// Which access token arrived, as its sha256, never the token: lets a test prove the app forwarded exactly
-				// the token it holds (a reassembled chunked cookie, say) without a credential landing in a report.
-				bearerSha256: bearer ? createHash('sha256').update(bearer).digest('hex') : null
+				status
+			});
+		}
+		// Which access token arrived, as its sha256, never the token: lets a test prove the app forwarded exactly the
+		// token it holds (a reassembled chunked cookie, say) without a credential landing in a report.
+		const bearer = String(request.headers.authorization ?? '').match(/^Bearer (.+)$/)?.[1];
+		if (bearer) {
+			state.receivedTokens.push({
+				path: requestUrl.pathname,
+				sha256: createHash('sha256').update(bearer).digest('hex')
 			});
 		}
 		response.writeHead(status, { ...cors, 'content-type': 'application/json; charset=utf-8' });
@@ -1069,6 +1077,7 @@ export async function createMockGauzyServer({ fixture, port = 3988 } = {}) {
 			mutationProof: jsonClone(state.mutationProof),
 			everPlatform: jsonClone(state.everPlatform),
 			everIdLogouts: jsonClone(state.everIdLogouts),
+			receivedTokens: jsonClone(state.receivedTokens),
 			notificationSetting: jsonClone(state.notificationSetting),
 			workspaceCreation: jsonClone(state.workspaceCreation),
 			// What was asked since the reset: method, path and the status answered
@@ -1094,6 +1103,7 @@ export async function createMockGauzyServer({ fixture, port = 3988 } = {}) {
 			};
 			state.everPlatform = { stateReads: 0, toggles: [] };
 			state.everIdLogouts = [];
+			state.receivedTokens = [];
 			state.notificationSetting = null;
 			state.appointments = [];
 			state.workspaceCreation = {
