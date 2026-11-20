@@ -183,9 +183,7 @@ const TaskMainInfo = observer(() => {
 				<TaskPriority
 					task={task}
 					canCreatePriority={true}
-					containerStyle={{
-						width: '70%'
-					}}
+					forDetails
 				/>
 			</TaskRow>
 		</View>
