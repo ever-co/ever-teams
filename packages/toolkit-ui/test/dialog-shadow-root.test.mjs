@@ -1,4 +1,5 @@
-// A dialog opened inside a shadow root takes the focus itself: node --test test/*.test.mjs (from packages/toolkit-ui).
+// A dialog opened inside a shadow root takes the focus itself, and the kit's Dialog says when it has no description:
+// node --test test/*.test.mjs (from packages/toolkit-ui).
 // esbuild bundles the dialog with Radix; React renders it in jsdom, in a shadow root as <ever-teams-timer> does.
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
@@ -44,7 +45,8 @@ before(async () => {
 	fs.writeFileSync(
 		entry,
 		`export { ShadCnDialog, DialogContent, DialogTitle } from '${components}/dialog/dialog.tsx';
-		export { PortalContainerContext } from '${components}/portal-container.tsx';`
+		export { PortalContainerContext } from '${components}/portal-container.tsx';
+		export { Dialog } from '${components}/dialog/teams-dailog.tsx';`
 	);
 	const outfile = path.join(bundleDir, 'dialog.mjs');
 	await esbuild.build({
@@ -220,4 +222,43 @@ test('in a shadow root a Tab a control of the dialog handled itself is left to i
 	assert.equal(keydown.defaultPrevented, true, 'the textarea cancels the Tab itself');
 	assert.equal(shadow.activeElement, note);
 	await act(async () => root.unmount());
+});
+
+// The kit's Dialog, open, with `props` (#5642): its content, and the warnings printed while it opened. It closes when
+// the test ends, passed or failed.
+async function openKitDialog(t, props) {
+	const warnings = [];
+	const originalWarn = console.warn;
+	console.warn = (message) => warnings.push(String(message));
+	const container = document.createElement('div');
+	document.body.appendChild(container);
+	const root = createRoot(container);
+	t.after(() => act(async () => root.unmount()));
+	try {
+		await act(async () =>
+			root.render(
+				React.createElement(ui.Dialog, { open: true, title: 'Sign In', hideTitle: true, ...props }, 'form')
+			)
+		);
+	} finally {
+		console.warn = originalWarn;
+	}
+	return { warnings, content: document.querySelector('[role="dialog"]') };
+}
+
+test('a kit dialog without a description says so: no warning, and nothing it is described by', async (t) => {
+	const { warnings, content } = await openKitDialog(t, {});
+
+	assert.deepEqual(
+		warnings.filter((warning) => warning.includes('Missing `Description`')),
+		[]
+	);
+	assert.equal(content.hasAttribute('aria-describedby'), false);
+});
+
+test('a kit dialog with a description is described by it', async (t) => {
+	const { content } = await openKitDialog(t, { description: 'Track your time from this site.' });
+	const describedBy = content.getAttribute('aria-describedby');
+
+	assert.equal(document.getElementById(describedBy).textContent, 'Track your time from this site.');
 });

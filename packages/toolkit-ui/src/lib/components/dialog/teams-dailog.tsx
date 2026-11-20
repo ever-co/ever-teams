@@ -22,6 +22,15 @@ interface IModal extends React.ComponentProps<typeof ShadCnDialog> {
 	children?: React.ReactNode;
 }
 
+// The dialog library links a dialog to a description it expects, and warns in the console, in production too, when
+// none is drawn: a dialog without one says so (#5642).
+function descriptionPropsOf(description?: string): { 'aria-describedby'?: undefined } {
+	if (description) {
+		return {};
+	}
+	return { 'aria-describedby': undefined };
+}
+
 export function Dialog({
 	open,
 	children,
@@ -49,7 +58,7 @@ export function Dialog({
 			<DialogTrigger className={className} asChild>
 				{trigger}
 			</DialogTrigger>
-			<DialogContent className="w-full sm:max-w-[425px]">
+			<DialogContent className="w-full sm:max-w-[425px]" {...descriptionPropsOf(description)}>
 				{hasHeader && (
 					<DialogHeader className={headerClass}>
 						<DialogTitle className={cn(titleClass, hideTitle && 'sr-only')}>{title}</DialogTitle>
