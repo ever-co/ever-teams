@@ -1434,7 +1434,7 @@ async function staleTimer(running) {
 	return seen;
 }
 
-test('a stop refused because the timer already stopped elsewhere reads the status again, and keeps the refusal shown', async () => {
+test('a stop refused because the timer already stopped elsewhere reads the status again, and says so in the kit language', async () => {
 	const seen = await staleTimer(true);
 	assert.equal(seen.a.isRunning, true);
 	const readsBefore = globalThis.__reads.length;
@@ -1449,7 +1449,25 @@ test('a stop refused because the timer already stopped elsewhere reads the statu
 	await flush();
 
 	assert.equal(seen.a.isRunning, false, 'the widget shows the timer stopped');
-	assert.deepEqual(seen.shared.notice, { kind: 'other', message: 'No running log found.' });
+	assert.deepEqual(seen.shared.notice, { kind: 'other', message: 'TIME_TRACKER.already_stopped' });
+});
+
+test('a stop refused for another reason reads the status again, and keeps the API text', async () => {
+	const seen = await staleTimer(true);
+	const readsBefore = globalThis.__reads.length;
+	const refusal = 'This stop names a time log that is not the running one.';
+
+	await act(async () => {
+		seen.a.stopTimer();
+	});
+	await act(async () => globalThis.__actions[0]({ statusCode: 409, message: refusal }));
+	await flush();
+	assert.equal(globalThis.__reads.length, readsBefore + 1, 'the status is read again');
+	await answer(readsBefore, { running: true, lastLog: { startedAt: new Date(Date.now() - 30_000).toISOString() } });
+	await flush();
+
+	assert.equal(seen.a.isRunning, true);
+	assert.deepEqual(seen.shared.notice, { kind: 'other', message: refusal });
 });
 
 test('a start refused because the timer already runs elsewhere reads the status again, and shows it running', async () => {

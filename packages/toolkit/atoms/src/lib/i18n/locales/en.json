@@ -88,6 +88,7 @@
 		"STOP_TIMER": "Stop timer",
 		"TIMER_STARTED": "Timer started",
 		"TIMER_STOPPED": "Timer stopped",
+		"already_stopped": "Your timer was already stopped.",
 		"show_details": "Show timer details",
 		"hide_details": "Hide timer details"
 	},
