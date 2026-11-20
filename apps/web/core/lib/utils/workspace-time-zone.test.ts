@@ -53,6 +53,17 @@ describe('the time zones a workspace can take (#5649)', () => {
 		expect(workspaceTimeZoneOptionsOf('  ', WINTER)).toEqual(workspaceTimeZoneOptionsOf(null, WINTER));
 	});
 
+	it('keeps a zone stored in another spelling as it is, and lists its own spelling once', () => {
+		const lowercase = 'europe/paris';
+		const options = workspaceTimeZoneOptionsOf(lowercase, WINTER);
+		const values = options.map((option) => option.value);
+
+		expect(options[0]).toEqual({ value: lowercase, label: lowercase });
+		expect(values).toContain(workspaceTimeZoneChoiceOf(lowercase));
+		expect(values.filter((value) => value === 'Europe/Paris')).toHaveLength(1);
+		expect(workspaceTimeZoneOptionsOf('Europe/Paris', WINTER)).toEqual(workspaceTimeZoneOptionsOf(null, WINTER));
+	});
+
 	it('shows no zone as the "not set" choice, and saves that choice as no zone', () => {
 		expect(workspaceTimeZoneChoiceOf(null)).toBe(NO_WORKSPACE_TIME_ZONE);
 		expect(workspaceTimeZoneChoiceOf('  ')).toBe(NO_WORKSPACE_TIME_ZONE);

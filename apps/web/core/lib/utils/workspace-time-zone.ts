@@ -58,7 +58,10 @@ export function workspaceTimeZoneOptionsOf(
 		.sort(byOffsetThenName)
 		.map(({ value, label }) => ({ value, label }));
 	const choice = workspaceTimeZoneChoiceOf(stored);
-	const keepsUnknown = choice !== NO_WORKSPACE_TIME_ZONE && !isKnownTimeZone(choice);
+	// By the list, not by the zone database: it also knows a name spelled another way ("europe/paris"), which the
+	// list holds only in its own spelling, so the stored spelling would match no option
+	const isListed = known.some((option) => option.value === choice);
+	const keepsUnknown = choice !== NO_WORKSPACE_TIME_ZONE && !isListed;
 	if (keepsUnknown) {
 		return [{ value: choice, label: choice }, ...known];
 	}
