@@ -116,6 +116,15 @@ describe("a profile's filter menu", () => {
 
 		expect(onClear).toHaveBeenCalledTimes(1);
 	});
+
+	it("marks the values a filter holds with the web's mark", async () => {
+		await renderFilter({ status: ['open'] });
+
+		await fireEvent.press(screen.getByLabelText('Status'));
+
+		expect(screen.getAllByTestId('selected-mark')).toHaveLength(1);
+		expect(screen.getByLabelText('open').props.accessibilityState).toMatchObject({ checked: true });
+	});
 });
 
 describe('the values a filter holds', () => {
