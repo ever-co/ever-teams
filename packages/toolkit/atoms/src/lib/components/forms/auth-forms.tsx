@@ -18,6 +18,7 @@ import {
 	ThemedButton
 } from '@ever-teams/toolkit-ui';
 import { useTeamsContext } from '@lib/context/teams-context';
+import { useTimerStatusContext } from '@lib/context/teams-timer-status-context';
 // import { useLoginForm } from '@hooks/useLoginForm';
 import { CheckIcon, Copy, LoaderCircle, LogOutIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -58,15 +59,38 @@ const HostSignInNote = ({ className }: { className?: string }) => {
 };
 
 /**
- * What a signed-out person sees when the kit asks for no password or token: the "Sign in with Ever Teams" button
- * (config.signIn 'ever-teams'), else the note that points to the host product's own sign-in.
+ * The "Sign in with Ever Teams" button (config.signIn 'ever-teams'), else the note that points to the host product's
+ * own sign-in.
  */
-const SignedOutPrompt = ({ className }: { className?: string }) => {
+const SignInPrompt = ({ className }: { className?: string }) => {
 	const { siteSignIn } = useKitOptions();
 	if (siteSignIn) {
 		return <SiteSignInButton className={className} />;
 	}
 	return <HostSignInNote className={className} />;
+};
+
+/**
+ * What a signed-out person sees when the kit asks for no password or token. Signed out while the timer ran, it also
+ * says that the timer runs on in Ever Teams, where this page can no longer stop it (#5583).
+ */
+const SignedOutPrompt = ({ className }: { className?: string }) => {
+	const { t } = useTranslation();
+	const { status } = useAtomValue(hostSessionAtom);
+	const timerStatus = useTimerStatusContext();
+	const isSignedOut = status === 'signed-out';
+	const wasRunning = Boolean(timerStatus?.leftRunning);
+	if (!isSignedOut || !wasRunning) {
+		return <SignInPrompt className={className} />;
+	}
+	return (
+		<div className={cn('flex max-w-xs flex-col items-start gap-2', className)}>
+			<SignInPrompt />
+			<p role="alert" className={cn(KIT_NOTICE_SURFACE, kitNoticeTone('error'))}>
+				{t('AUTH.timer_left_running')}
+			</p>
+		</div>
+	);
 };
 
 // The name a person goes by in the kit: first and last name, or "" without one. Never the email: these names go into

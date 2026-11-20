@@ -90,6 +90,7 @@
 	"AUTH": {
 		"sign_in_title": "Sign In",
 		"host_sign_in": "Sign in to this site to use your Ever Teams timer.",
+		"timer_left_running": "Your timer was running when you were signed out: it keeps running in Ever Teams until you stop it there.",
 		"sign_in_with_ever_teams": "Sign in with Ever Teams",
 		"site_sign_in_waiting": "Finish signing in in the Ever Teams window.",
 		"site_sign_in_blocked": "Your browser blocked the Ever Teams window. Allow pop-ups for this site, then try again.",

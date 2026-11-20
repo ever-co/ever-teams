@@ -48,6 +48,7 @@ const stubs = {
 		formData: { fullName: '', email: '', password: '', confirmPassword: '', acceptTerms: false }
 	});`,
 	'teams-context': 'export const useTeamsContext = () => ({ authenticatedUser: null, loadings: {} });',
+	'timer-status': 'export const useTimerStatusContext = () => null;',
 	kit: `export const useKitOptions = () => ({ scoped: true });
 		export const SpinOverlayLoader = () => null;
 		export const TeamsTimerFooter = () => null;
@@ -66,6 +67,7 @@ const routes = [
 	[/^@hooks\/useTokenSubmission$/, () => 'token-hook'],
 	[/^@hooks\/useRegistrationForm$/, () => 'registration-hook'],
 	[/^@lib\/context\/teams-context$/, () => 'teams-context'],
+	[/^@lib\/context\/teams-timer-status-context$/, () => 'timer-status'],
 	[
 		/^(@ever-teams\/api|@components\/teams-provider\/kit-root|\.\.\/loaders\/spin-overlay-loader|@components\/layouts\/footers\/component-footer|@lib\/utils\/warn-once|@hooks\/useClearKitSession)$/,
 		() => 'kit'
