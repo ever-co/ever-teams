@@ -11,6 +11,7 @@ const ON_HUGEICONS: string[] = [
 	'app/navigators/tab-bar.tsx',
 	'app/screens/authenticated/members-settings-screen/components/change-role-modal.tsx',
 	'app/screens/authenticated/members-settings-screen/index.tsx',
+	'app/screens/authenticated/profile-screen/components/task-label-filter.tsx',
 	'app/screens/authenticated/setting-screen/components/change-team-logo.tsx',
 	'app/screens/authenticated/setting-screen/components/change-user-avatar.tsx',
 	'app/screens/authenticated/setting-screen/components/language-form.tsx',
