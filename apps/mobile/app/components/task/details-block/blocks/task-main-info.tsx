@@ -146,9 +146,7 @@ const TaskMainInfo = observer(() => {
 				<TaskStatus
 					task={task}
 					canCreateStatus={true}
-					containerStyle={{
-						width: '70%'
-					}}
+					forDetails
 				/>
 			</TaskRow>
 
