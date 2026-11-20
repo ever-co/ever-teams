@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { AntDesign, Ionicons } from '@expo/vector-icons';
 import { useWebTheme } from '../theme';
+import { translate } from '../i18n';
 import LabelItem from './label-item';
 import { readOnlyOpacity } from '../helpers/read-only-opacity';
 
@@ -41,6 +42,7 @@ function TaskSettingRow({ name, color, iconUrl, onEdit, onDelete, readOnly = fal
 					name="edit"
 					color={theme.colors['muted-foreground']}
 					accessibilityRole="button"
+					accessibilityLabel={`${translate('common.edit')} ${name}`}
 					accessibilityState={{ disabled: readOnly }}
 					disabled={readOnly}
 					hitSlop={ACTION_HIT_SLOP}
@@ -51,6 +53,7 @@ function TaskSettingRow({ name, color, iconUrl, onEdit, onDelete, readOnly = fal
 					size={ACTION_ICON_SIZE}
 					color={theme.colors['destructive-ink']}
 					accessibilityRole="button"
+					accessibilityLabel={`${translate('settingScreen.membersSettingsScreen.delete')} ${name}`}
 					accessibilityState={{ disabled: readOnly }}
 					disabled={readOnly}
 					hitSlop={ACTION_HIT_SLOP}

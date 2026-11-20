@@ -4,14 +4,24 @@ import { StyleSheet } from 'react-native';
 import TaskSettingRow from './task-setting-row';
 import { themeFor } from '../../src/theme/use-theme';
 
-// Each icon as the text it renders, labelled with its glyph; `disabled` is dropped so only a withheld handler stops a press
+// Each icon as the text it renders, named by the row (its glyph otherwise); `disabled` is dropped so only a withheld
+// handler stops a press
 jest.mock('@expo/vector-icons', () => {
 	const mockReact = jest.requireActual('react');
 	const { Text: MockText } = jest.requireActual('react-native');
 	const mockIcon = ({ name, disabled: _disabled, ...props }: { name: string; disabled?: boolean }) =>
-		mockReact.createElement(MockText, { ...props, accessibilityLabel: name }, name);
+		mockReact.createElement(MockText, { accessibilityLabel: name, ...props }, name);
 	return { AntDesign: mockIcon, Ionicons: mockIcon };
 });
+jest.mock('../i18n', () => ({
+	translate: (key: string) => {
+		const texts: Record<string, string> = {
+			'common.edit': 'Edit',
+			'settingScreen.membersSettingsScreen.delete': 'Delete'
+		};
+		return texts[key] ?? key;
+	}
+}));
 jest.mock('../theme', () => ({
 	...jest.requireActual('../theme/typography'),
 	useWebTheme: () => jest.requireActual('../../src/theme/use-theme').themeFor('dark')
@@ -39,7 +49,7 @@ describe("a row of a team's task settings", () => {
 	it('draws delete in destructive-ink, never in a fixed orange', async () => {
 		await render(<TaskSettingRow name="high" color="#F5B8B8" onEdit={jest.fn()} onDelete={jest.fn()} />);
 
-		expect(screen.getByLabelText('trash-outline').props.color).toBe(dark.colors['destructive-ink']);
+		expect(screen.getByLabelText('Delete high').props.color).toBe(dark.colors['destructive-ink']);
 	});
 
 	it('edits and deletes, and does neither on a read-only row', async () => {
@@ -47,14 +57,21 @@ describe("a row of a team's task settings", () => {
 		const remove = jest.fn();
 		const { rerender } = await render(<TaskSettingRow name="large" onEdit={edit} onDelete={remove} />);
 
-		await fireEvent.press(screen.getByLabelText('edit'));
-		await fireEvent.press(screen.getByLabelText('trash-outline'));
+		await fireEvent.press(screen.getByLabelText('Edit large'));
+		await fireEvent.press(screen.getByLabelText('Delete large'));
 		expect(edit).toHaveBeenCalledTimes(1);
 		expect(remove).toHaveBeenCalledTimes(1);
 
 		await rerender(<TaskSettingRow name="large" onEdit={edit} onDelete={remove} readOnly />);
-		await fireEvent.press(screen.getByLabelText('edit'));
+		await fireEvent.press(screen.getByLabelText('Edit large'));
 		expect(edit).toHaveBeenCalledTimes(1);
-		expect(screen.getByLabelText('edit')).toBeDisabled();
+		expect(screen.getByLabelText('Edit large')).toBeDisabled();
+	});
+
+	it('names edit and delete with the setting they act on, for a screen reader', async () => {
+		await render(<TaskSettingRow name="Backlog" onEdit={jest.fn()} onDelete={jest.fn()} />);
+
+		expect(screen.getByLabelText('Edit Backlog')).toBeTruthy();
+		expect(screen.getByLabelText('Delete Backlog')).toBeTruthy();
 	});
 });
