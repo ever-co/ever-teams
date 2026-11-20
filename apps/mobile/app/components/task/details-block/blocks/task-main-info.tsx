@@ -116,9 +116,7 @@ const TaskMainInfo = observer(() => {
 				<TaskVersion
 					task={task}
 					canCreateVersion={true}
-					containerStyle={{
-						width: '70%'
-					}}
+					forDetails
 				/>
 			</TaskRow>
 
