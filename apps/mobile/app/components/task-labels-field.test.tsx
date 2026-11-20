@@ -32,7 +32,7 @@ describe("a task's labels on the task page", () => {
 		});
 		expect(screen.queryByTestId('task-label-chip')).toBeNull();
 
-		await fireEvent.press(screen.getByTestId('task-labels-add'));
+		await fireEvent.press(screen.getByRole('button', { name: 'taskMenus.addLabel undefined' }));
 
 		expect(onOpen).toHaveBeenCalledWith();
 		expect(anchorRef.current).not.toBeNull();
@@ -53,17 +53,17 @@ describe("a task's labels on the task page", () => {
 			height: 28,
 			width: 28
 		});
-		expect(screen.getByLabelText('taskMenus.editLabels undefined')).toBeTruthy();
+		expect(screen.getByRole('button', { name: 'taskMenus.editLabels undefined' })).toBeTruthy();
 	});
 
 	it('opens the menu under the label tapped, or under the add button', async () => {
 		const { drawing, onOpen } = drawField([outdoor]);
 		await drawing;
 
-		await fireEvent.press(screen.getByText('outdoor'));
+		await fireEvent.press(screen.getByRole('button', { name: 'outdoor' }));
 		expect(onOpen).toHaveBeenLastCalledWith(expect.anything());
 
-		await fireEvent.press(screen.getByTestId('task-labels-add'));
+		await fireEvent.press(screen.getByRole('button', { name: 'taskMenus.editLabels undefined' }));
 		expect(onOpen).toHaveBeenLastCalledWith();
 	});
 });

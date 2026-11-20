@@ -72,16 +72,18 @@ function AddLabelButton({ anchorRef, onPress }: Readonly<IAddLabel>) {
 function AddFirstLabel({ anchorRef, onPress }: Readonly<IAddLabel>) {
 	const theme = useWebTheme();
 	const muted = theme.colors['muted-foreground'];
+	const addLabel = translate('taskMenus.addLabel');
 	return (
 		<Pressable
 			ref={anchorRef}
 			testID="task-labels-add"
 			accessibilityRole="button"
+			accessibilityLabel={addLabel}
 			onPress={() => onPress()}
 			style={styles.empty}
 		>
 			<Plus size={GLYPH_SIZE} color={muted} />
-			<Text style={[styles.emptyText, { color: muted }]}>{translate('taskMenus.addLabel')}</Text>
+			<Text style={[styles.emptyText, { color: muted }]}>{addLabel}</Text>
 		</Pressable>
 	);
 }
