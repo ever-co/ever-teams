@@ -612,6 +612,13 @@
 			"size": "Grootte",
 			"labels": "Labels",
 			"clear": "Filters wissen"
+		},
+		"fields": {
+			"status": "Status",
+			"priority": "Prioriteit",
+			"size": "Grootte",
+			"label": "Labels",
+			"version": "Versie"
 		}
 	}
 }

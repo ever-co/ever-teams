@@ -612,6 +612,13 @@
 			"size": "Tamaño",
 			"labels": "Etiquetas",
 			"clear": "Limpiar filtros"
+		},
+		"fields": {
+			"status": "Estado",
+			"priority": "Prioridad",
+			"size": "Tamaño",
+			"label": "Etiquetas",
+			"version": "Versión"
 		}
 	}
 }

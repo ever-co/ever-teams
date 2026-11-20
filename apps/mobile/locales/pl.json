@@ -612,6 +612,13 @@
 			"size": "Rozmiar",
 			"labels": "Etykiety",
 			"clear": "Wyczyść filtry"
+		},
+		"fields": {
+			"status": "Status",
+			"priority": "Priorytet",
+			"size": "Rozmiar",
+			"label": "Etykiety",
+			"version": "Wersja"
 		}
 	}
 }

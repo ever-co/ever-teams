@@ -170,5 +170,10 @@
 	"taskMenus.filter.priority": "pages.taskDetails.PRIORITY",
 	"taskMenus.filter.size": "pages.taskDetails.SIZE",
 	"taskMenus.filter.labels": "common.LABELS",
-	"taskMenus.filter.clear": "common.CLEAR_FILTERS"
+	"taskMenus.filter.clear": "common.CLEAR_FILTERS",
+	"taskMenus.fields.status": "taskMenus.fields.status",
+	"taskMenus.fields.priority": "taskMenus.fields.priority",
+	"taskMenus.fields.size": "taskMenus.fields.size",
+	"taskMenus.fields.label": "taskMenus.fields.label",
+	"taskMenus.fields.version": "taskMenus.fields.version"
 }

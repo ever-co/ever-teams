@@ -612,6 +612,13 @@
 			"size": "Größe",
 			"labels": "Labels",
 			"clear": "Filter löschen"
+		},
+		"fields": {
+			"status": "Status",
+			"priority": "Priorität",
+			"size": "Größe",
+			"label": "Labels",
+			"version": "Version"
 		}
 	}
 }
