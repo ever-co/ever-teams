@@ -50,7 +50,7 @@ describe("a property's menu", () => {
 	it('keeps the values whose name holds what was typed, whatever its case', async () => {
 		await renderMenu(statuses('Open'));
 
-		await fireEvent.changeText(screen.getByPlaceholderText('Change status…'), ' progr');
+		await fireEvent.changeText(screen.getByPlaceholderText('Change status…'), ' pro');
 
 		expect(screen.getAllByTestId('menu-option').map((row) => row.props.accessibilityLabel)).toEqual([
 			'In Progress'
