@@ -175,7 +175,7 @@ export class EverTeamsTimerElement extends HTMLElement {
 		}
 		// Controls kept from a render for other attributes (changed in this task, not rendered yet) end another sign-in.
 		const kept = this.siteSignIn;
-		if (kept && kept.scope === this.siteScope()) {
+		if (kept?.scope === this.siteScope()) {
 			await kept.controls.signOut();
 			return;
 		}
