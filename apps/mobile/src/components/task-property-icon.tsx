@@ -2,7 +2,7 @@ import React from 'react';
 import Svg, { Circle, Path, Rect } from 'react-native-svg';
 import { useWebTheme } from '../../app/theme';
 import { dataColorHueOf } from '../theme/data-color';
-import { Tag } from './icons';
+import { Cube, Tag } from './icons';
 
 /**
  * The glyphs the web draws for a task's status, priority, size and label (apps/web/core/components/tasks/
@@ -238,8 +238,19 @@ export function TaskPropertyIcon({ kind, name, color, size = 16 }: Readonly<ITas
 	);
 }
 
+/** What the web draws a placeholder for: a task's properties, and its issue type, epic and project. */
+export type PlaceholderKind = TaskPropertyKind | 'issueType' | 'epic' | 'project';
+
+/** The web's four-square outline of an issue type or an epic (Square4OutlineIcon in apps/web/assets/svg.tsx). */
+const ISSUE_OUTLINE_SQUARES = [
+	'M2.0835 4.16683H2.91683C3.75016 4.16683 4.16683 3.75016 4.16683 2.91683V2.0835C4.16683 1.25016 3.75016 0.833496 2.91683 0.833496H2.0835C1.25016 0.833496 0.833496 1.25016 0.833496 2.0835V2.91683C0.833496 3.75016 1.25016 4.16683 2.0835 4.16683Z',
+	'M7.0835 4.16683H7.91683C8.75016 4.16683 9.16683 3.75016 9.16683 2.91683V2.0835C9.16683 1.25016 8.75016 0.833496 7.91683 0.833496H7.0835C6.25016 0.833496 5.8335 1.25016 5.8335 2.0835V2.91683C5.8335 3.75016 6.25016 4.16683 7.0835 4.16683Z',
+	'M7.0835 9.16683H7.91683C8.75016 9.16683 9.16683 8.75016 9.16683 7.91683V7.0835C9.16683 6.25016 8.75016 5.8335 7.91683 5.8335H7.0835C6.25016 5.8335 5.8335 6.25016 5.8335 7.0835V7.91683C5.8335 8.75016 6.25016 9.16683 7.0835 9.16683Z',
+	'M2.0835 9.16683H2.91683C3.75016 9.16683 4.16683 8.75016 4.16683 7.91683V7.0835C4.16683 6.25016 3.75016 5.8335 2.91683 5.8335H2.0835C1.25016 5.8335 0.833496 6.25016 0.833496 7.0835V7.91683C0.833496 8.75016 1.25016 9.16683 2.0835 9.16683Z'
+];
+
 interface ITaskPropertyPlaceholderIcon {
-	kind: TaskPropertyKind;
+	kind: PlaceholderKind;
 	/** muted-foreground unless the place asks for another. */
 	color?: string;
 	size?: number;
@@ -253,8 +264,21 @@ export function TaskPropertyPlaceholderIcon({ kind, color, size = 16 }: Readonly
 	const theme = useWebTheme();
 	const glyphColor = color ?? theme.colors['muted-foreground'];
 	const isTagKind = kind === 'label' || kind === 'version';
+	const isIssueKind = kind === 'issueType' || kind === 'epic';
 	if (isTagKind) {
 		return <Tag testID={`property-placeholder-${kind}`} size={size} color={glyphColor} />;
+	}
+	if (kind === 'project') {
+		return <Cube testID="property-placeholder-project" size={size} color={glyphColor} />;
+	}
+	if (isIssueKind) {
+		return (
+			<Svg testID={`property-placeholder-${kind}`} width={size} height={size} viewBox="0 0 10 10" fill="none">
+				{ISSUE_OUTLINE_SQUARES.map((square) => (
+					<Path key={square} d={square} stroke={glyphColor} strokeLinecap="round" strokeLinejoin="round" />
+				))}
+			</Svg>
+		);
 	}
 	return (
 		<Svg testID={`property-placeholder-${kind}`} width={size} height={size} viewBox="0 0 14 14" fill="none">

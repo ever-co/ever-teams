@@ -136,4 +136,14 @@ describe("a task property's placeholder glyph", () => {
 
 		expect(screen.getByTestId('icon-Tag')).toHaveStyle({ color: '#282048' });
 	});
+
+	it("draws an empty issue type or epic as the web's four-square outline, and an empty project as its cube", async () => {
+		const { rerender } = await render(<TaskPropertyPlaceholderIcon kind="issueType" />);
+
+		expect(screen.getAllByTestId('path')).toHaveLength(4);
+
+		await rerender(<TaskPropertyPlaceholderIcon kind="project" color="#282048" />);
+
+		expect(screen.getByTestId('icon-Cube')).toHaveStyle({ color: '#282048' });
+	});
 });
