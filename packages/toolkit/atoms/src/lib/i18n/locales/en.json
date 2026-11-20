@@ -74,6 +74,7 @@
 	},
 	"KIT_ERRORS": {
 		"ORIGIN": "This site isn't allowed to show Ever Teams. Ask your workspace admin to add it.",
+		"SIGN_IN_ORIGIN": "This site can't sign you in with an Ever Teams password or token. Ask the site's team to turn on \"Sign in with Ever Teams\".",
 		"SESSION": "Your session ended. Sign in again.",
 		"SIGN_IN_AGAIN": "Sign in again",
 		"PERMISSION": "You don't have permission to track time in this workspace. Ask your admin.",
