@@ -10,6 +10,7 @@ const ON_HUGEICONS: string[] = [
 	'app/components/task-epic-popup.tsx',
 	'app/components/task-epic.tsx',
 	'app/components/task/linked-issues-block/components/action-types-modal.tsx',
+	'app/components/task/linked-issues-block/components/create-linked-issue-modal.tsx',
 	'app/components/team-dropdown/drop-down-section.tsx',
 	'app/components/timer-actions-menu.tsx',
 	'app/navigators/tab-bar.tsx',
