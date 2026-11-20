@@ -167,7 +167,8 @@ test("a past entry is added for the token's member, with only the fields the API
 		source: 'BROWSER',
 		projectId: 'project-1',
 		taskId: 'task-1',
-		description: 'Review the pull request'
+		description: 'Review the pull request',
+		billableFromProject: true
 	});
 	assert.equal(headers.get('tenant-id'), 'tenant-1');
 	assert.equal(headers.get('organization-id'), 'org-1');

@@ -1,4 +1,5 @@
 import { LogType, TimerSource } from '@ever-teams/toolkit-types';
+import { billableFieldsOf } from '../billable';
 import { EverTeamsDate, instantAt, localTimeZone, rangeOf } from './dates';
 import { clientError, NextStepsByStatus } from './error-mapping';
 import { Identity } from './identity';
@@ -41,6 +42,10 @@ export interface TimeEntryCreateParams {
 	description?: string;
 	/** Why the time is added by hand, kept with the entry. */
 	reason?: string;
+	/**
+	 * Whether the time is billable. Left out, it is billable as its project is set, as in the web app; time without a
+	 * project is not billable, as before.
+	 */
 	isBillable?: boolean;
 }
 
@@ -132,7 +137,7 @@ export function createTimeEntries(transport: Transport, identity: Identity): Tim
 			organizationTeamId: params.organizationTeamId,
 			description: params.description,
 			reason: params.reason,
-			isBillable: params.isBillable
+			...billableFieldsOf(params.isBillable)
 		};
 		return transport.request<EverTeamsTimeLog>({
 			method: 'POST',

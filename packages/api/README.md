@@ -136,7 +136,7 @@ if (status.running) {
 ### timer.start(options?)
 
 Starts the timer at the API's time and answers the new time log. Every option is optional: `projectId`, `taskId`,
-`organizationTeamId`, `description`.
+`organizationTeamId`, `description`, `isBillable`.
 
 ```js
 const log = await teams.timer.start({ projectId, taskId, description: 'Review the pull request' });
@@ -144,6 +144,9 @@ const log = await teams.timer.start({ projectId, taskId, description: 'Review th
 
 The time is recorded with the source `EMBED`; an API that predates that source gets `TEAMS` instead, as the kit does.
 In the answer, `projectId`, `taskId` and `organizationTeamId` are `null` when the timer started without them.
+
+Without `isBillable`, the time is billable as its project is set (the one named, else its task's), as in the web app;
+time without a project is billable. An API older than this setting records every start as billable.
 
 ### timer.stop()
 
@@ -242,6 +245,8 @@ the organization does not allow manual time or the member's role may not add it,
 `EverTeamsConflictError` when the range overlaps a timer still running (`code` `RUNNING_TIMER_OVERLAP`) or a break
 (`BREAK_OVERLAP`); each says what to do next. A range with no time of day, or that does not end after it starts, is
 refused before any request (`INVALID_DATE`). An entry it overlaps loses the time the new one covers, as in the web app.
+Without `isBillable`, the entry is billable as its project is set, as in the web app; an entry without a project is
+not billable. An API older than this setting records it as not billable.
 
 ### projects.list()
 
