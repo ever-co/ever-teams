@@ -32,9 +32,9 @@ describe("a property's label on the task page", () => {
 		});
 	});
 
-	it('keeps one line for a long label', async () => {
-		await render(<PropertyLabel label="Days remaining before the due date" />);
+	it('wraps a long label on two lines rather than cutting it', async () => {
+		await render(<PropertyLabel label="Total Group Time" />);
 
-		expect(screen.getByText('Days remaining before the due date').props.numberOfLines).toBe(1);
+		expect(screen.getByText('Total Group Time').props.numberOfLines).toBe(2);
 	});
 });

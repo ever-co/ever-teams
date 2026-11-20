@@ -18,7 +18,7 @@ export function PropertyLabel({ label, icon }: Readonly<IPropertyLabel>) {
 	return (
 		<View style={styles.label}>
 			<View style={styles.icon}>{icon && <Feather name={icon} size={ICON_SIZE} color={ink} />}</View>
-			<Text numberOfLines={1} style={[styles.text, { color: ink }]}>
+			<Text numberOfLines={2} style={[styles.text, { color: ink }]}>
 				{label}
 			</Text>
 		</View>
