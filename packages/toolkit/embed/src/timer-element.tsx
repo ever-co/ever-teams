@@ -21,8 +21,9 @@ export const TIMER_ELEMENT_NAME = 'ever-teams-timer';
 // The event the element dispatches at each change of the person's timer, with the TimerChange as its detail.
 export const TIMER_CHANGE_EVENT = 'ever-teams-timer-change';
 
-// :host stops what the page's rules pass down by inheritance (letter spacing, line height, colors...), except the
-// font, which the widgets take from the page as the React kit does.
+// :host stops what the page's rules pass down by inheritance (letter spacing, line height, colors...). The widgets
+// draw in the kit's font, as the React kit does: the system UI face, or --ever-teams-kit-font when the page sets it on
+// the element or a parent (`all` leaves custom properties alone, so that one still comes through).
 const HOST_STYLES = ':host{all:initial;display:block;font-family:inherit}:host([hidden]){display:none}';
 
 const kitStyles = splitKitStyles(kitStylesheet);
