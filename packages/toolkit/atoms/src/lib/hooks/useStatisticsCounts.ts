@@ -1,7 +1,7 @@
 import { IHookResponse, IServerError, IUser } from '@ever-teams/toolkit-types';
 import { useEffect, useState } from 'react';
 import { ApiCall } from '@ever-teams/api';
-import { getWeekStartAndEnd, getStartAndEndOfDay, toast } from '@ever-teams/toolkit-ui';
+import { getWeekStartAndEnd, getTodaySoFar, toast } from '@ever-teams/toolkit-ui';
 import QueryString from 'qs';
 import { DateRange } from 'react-day-picker';
 import { useTeamsContext } from '@lib/context/teams-context';
@@ -51,7 +51,7 @@ const useStatisticsCounts = (): IHookResponse<IStatisticsCounts> => {
 			const { tenantId } = user;
 
 			const weekDates = dates;
-			const dayDates = getStartAndEndOfDay();
+			const dayDates = getTodaySoFar();
 
 			const objetQuery: {
 				tenantId: string;

@@ -1,7 +1,7 @@
 import { IHookResponse } from '@ever-teams/toolkit-types';
 import { getActivitiesStats } from '@ever-teams/api';
 import { useEffect, useState } from 'react';
-import { getStartAndEndOfDay, getWeekStartAndEnd, toast } from '@ever-teams/toolkit-ui';
+import { getTodaySoFar, getWeekStartAndEnd, toast } from '@ever-teams/toolkit-ui';
 import { IActivitiesStats } from '@ever-teams/toolkit-types';
 import { useTeamsContext } from '@lib/context/teams-context';
 import { useKitOptions } from '@components/teams-provider/kit-options';
@@ -28,7 +28,7 @@ const useActivitiesStats = (): IHookResponse<IActivitiesStats> => {
 		if (user && organizationId) {
 			setActivitiesStats((prev) => ({ ...prev, loading: true }));
 
-			const dayDates = getStartAndEndOfDay();
+			const dayDates = getTodaySoFar();
 			const { end, start } = getWeekStartAndEnd();
 
 			const userStats = await getActivitiesStats(

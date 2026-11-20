@@ -2,7 +2,7 @@ import { IHookResponse, IServerError, IUser } from '@ever-teams/toolkit-types';
 import { useEffect, useState } from 'react';
 import { ApiCall } from '@ever-teams/api';
 import type { IApiRequestConfig } from '@ever-teams/api';
-import { getWeekStartAndEnd, getStartAndEndOfDay, toast } from '@ever-teams/toolkit-ui';
+import { getWeekStartAndEnd, getTodaySoFar, toast } from '@ever-teams/toolkit-ui';
 import QueryString from 'qs';
 import { DateRange } from 'react-day-picker';
 import { useTeamsContext } from '@lib/context/teams-context';
@@ -36,7 +36,7 @@ const getProjectsStats = async (
 			user && user.employee ? user.employee.id : selectedEmployee !== 'all' ? selectedEmployee : undefined;
 
 		const weekDates = dates;
-		const dayDates = getStartAndEndOfDay();
+		const dayDates = getTodaySoFar();
 
 		const queryObject: Record<string, string | string[] | Date> = {
 			tenantId,
