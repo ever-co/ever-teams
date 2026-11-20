@@ -59,6 +59,9 @@ test.describe('the status editor', () => {
 
 		await search.fill('defect');
 		await expect(page.locator('button[aria-label="bug"] svg')).toBeVisible({ timeout: 15_000 });
-		await expect(page.locator('button[aria-label="done"]'), 'the search left no room for icons that do not match').toHaveCount(0);
+		await expect(
+			page.locator('button[aria-label="done"]'),
+			'the search left no room for icons that do not match'
+		).toHaveCount(0);
 	});
 });

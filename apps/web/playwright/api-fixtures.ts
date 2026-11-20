@@ -25,7 +25,8 @@ import type { MockControl } from './fixtures';
 export type ApiCall = (
 	path: string,
 	options?: {
-		method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+		/** Any verb: the sweeps call each verb a handler exports, read from the generated manifest. */
+		method?: string;
 		body?: unknown;
 		scope?: 'A' | 'B';
 		anonymous?: boolean;
@@ -46,18 +47,22 @@ export const test = base.extend<{
 	ids: Record<string, string>;
 	names: Record<string, string>;
 }>({
-	mock: async ({}, use) => {
-		await mockReset();
-		await use({
-			scenario: mockScenario,
-			requests: mockRequests,
-			state: mockState,
-			stats: statsReports,
-			paths: async () => (await mockRequests()).map((request) => request.path),
-			calls: async (fragment) => (await mockRequests()).filter((request) => request.path.includes(fragment)),
-			failures: async () => (await mockRequests()).filter((request) => request.status >= 400)
-		});
-	},
+	// Automatic, as in fixtures.ts: every test starts from a reset mock and an empty request log.
+	mock: [
+		async ({}, use) => {
+			await mockReset();
+			await use({
+				scenario: mockScenario,
+				requests: mockRequests,
+				state: mockState,
+				stats: statsReports,
+				paths: async () => (await mockRequests()).map((request) => request.path),
+				calls: async (fragment) => (await mockRequests()).filter((request) => request.path.includes(fragment)),
+				failures: async () => (await mockRequests()).filter((request) => request.status >= 400)
+			});
+		},
+		{ auto: true }
+	],
 
 	cookies: async ({}, use) => {
 		const fixture: BootstrapFixture = await loadFixture();
@@ -87,9 +92,7 @@ export const test = base.extend<{
 				data: options.body,
 				headers: {
 					accept: 'application/json',
-					...(options.anonymous
-						? {}
-						: { cookie: authCookieHeader(fixture, options.scope ?? 'A') }),
+					...(options.anonymous ? {} : { cookie: authCookieHeader(fixture, options.scope ?? 'A') }),
 					...(options.headers ?? {})
 				},
 				// Only when a case asks for it: in suites/api/page-gate.spec.ts the redirect itself is the answer

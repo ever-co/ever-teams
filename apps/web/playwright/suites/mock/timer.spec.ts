@@ -37,16 +37,24 @@ test.describe('a timer left running', () => {
 
 		const state = await mockStateWhen<ReminderState>((s) => s.scenario.timerRunning === false);
 		expect(state.scenario.timerRunning, 'the mock stopped the run after the reminder button').toBe(false);
-		expect((await mock.calls('/api/timesheet/timer/stop')).length, 'a stop call reached the API').toBeGreaterThan(0);
+		expect((await mock.calls('/api/timesheet/timer/stop')).length, 'a stop call reached the API').toBeGreaterThan(
+			0
+		);
 	});
 
-	test("follows the employee's own threshold: nothing before it", async ({ app, mock }) => {
+	test("follows the employee's own threshold: nothing before it", async ({ app }) => {
 		const page = await app('/', {
-			scenario: { timerRunning: true, timerStartedAt: hoursAgo(9), notificationPreferences: { timerReminderHours: 10 } }
+			scenario: {
+				timerRunning: true,
+				timerStartedAt: hoursAgo(9),
+				notificationPreferences: { timerReminderHours: 10 }
+			}
 		});
 
 		// The status and the preferences were both read; nine hours is under the employee's ten.
-		await mockStateWhen<ReminderState>((s) => asked(s, '/api/timesheet/timer/status') && asked(s, '/api/employee-notification-setting'));
+		await mockStateWhen<ReminderState>(
+			(s) => asked(s, '/api/timesheet/timer/status') && asked(s, '/api/employee-notification-setting')
+		);
 		await page.waitForTimeout(3_000);
 
 		await expect(page.getByText(/Your timer has been running/)).toHaveCount(0);
@@ -66,14 +74,17 @@ test.describe('a timer left running', () => {
 
 		const reads = await settingReads();
 		expect(reads.length, 'the preferences are read and retried').toBeGreaterThanOrEqual(2);
-		expect(reads.every((read) => read.status === 500), 'every preferences read was refused').toBe(true);
+		expect(
+			reads.every((read) => read.status === 500),
+			'every preferences read was refused'
+		).toBe(true);
 
 		await page.waitForTimeout(3_000);
 		// A reminder would come at once after a read that answers; on a refused read the default is not used
 		await expect(page.getByText(/Your timer has been running/)).toHaveCount(0);
 	});
 
-	test('does not repeat a reminder the platform already sent', async ({ app, mock }) => {
+	test('does not repeat a reminder the platform already sent', async ({ app }) => {
 		const timerLogId = 'aaaaaaaa-0000-4000-8000-000000005022';
 		const page = await app('/', {
 			scenario: {
@@ -104,7 +115,7 @@ test.describe('a timer left running', () => {
 		await expect(page.locator('[data-sonner-toast]').getByText(/Your timer has been running/)).toHaveCount(0);
 	});
 
-	test("marks the platform's copy read when the tab shows a reminder of a desktop timer", async ({ app, mock }) => {
+	test("marks the platform's copy read when the tab shows a reminder of a desktop timer", async ({ app }) => {
 		const timerLogId = 'aaaaaaaa-0000-4000-8000-000000005022';
 		const page = await app('/', {
 			scenario: {
@@ -128,12 +139,17 @@ test.describe('a timer left running', () => {
 			}
 		});
 
-		await expect(page.locator('[data-sonner-toast]').getByText('Your timer has been running for 8 hours')).toBeVisible({
+		await expect(
+			page.locator('[data-sonner-toast]').getByText('Your timer has been running for 8 hours')
+		).toBeVisible({
 			timeout: 30_000
 		});
 
 		const state = await mockStateWhen<ReminderState>((s) => s.scenario.notifications?.[0]?.isRead === true);
-		expect(state.scenario.notifications?.[0]?.isRead, 'the platform copy was marked read, so no email follows').toBe(true);
+		expect(
+			state.scenario.notifications?.[0]?.isRead,
+			'the platform copy was marked read, so no email follows'
+		).toBe(true);
 	});
 
 	test('still reminds when the platform reminder is about a different run', async ({ app }) => {
@@ -157,7 +173,9 @@ test.describe('a timer left running', () => {
 			}
 		});
 
-		await expect(page.locator('[data-sonner-toast]').getByText('Your timer has been running for 8 hours')).toBeVisible({
+		await expect(
+			page.locator('[data-sonner-toast]').getByText('Your timer has been running for 8 hours')
+		).toBeVisible({
 			timeout: 30_000
 		});
 	});

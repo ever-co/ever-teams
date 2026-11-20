@@ -54,7 +54,9 @@ test.describe('the Ever ID back-channel logout', () => {
 
 		const seen = await logouts();
 		expect(seen, 'the API was not told to end the sessions').toHaveLength(1);
-		expect(seen[0].tokenSha256, 'a different token reached the API than the one the provider signed').toBe(minted.sha256);
+		expect(seen[0].tokenSha256, 'a different token reached the API than the one the provider signed').toBe(
+			minted.sha256
+		);
 		expect(seen[0].contentType, 'the token was not forwarded the way the provider posted it').toContain(
 			'application/x-www-form-urlencoded'
 		);
@@ -67,10 +69,16 @@ test.describe('the Ever ID back-channel logout', () => {
 		// Claims that are perfect in every way, signed with the key the issuer keeps to itself while the header
 		// names the published one. A verifier that checked only the claims would accept this and end somebody's
 		// sessions; a verifier that resolves the key by `kid` and checks the signature does not.
-		const forged = await idpLogoutToken({ kid: 'playwright-ever-id-rotated-out', headerKid: 'playwright-ever-id-key' });
+		const forged = await idpLogoutToken({
+			kid: 'playwright-ever-id-rotated-out',
+			headerKid: 'playwright-ever-id-key'
+		});
 
 		const answer = await post(api, forged.token);
-		expect(answer.status, `a token with a signature the published key does not match answered ${answer.status}`).toBe(400);
+		expect(
+			answer.status,
+			`a token with a signature the published key does not match answered ${answer.status}`
+		).toBe(400);
 		expect(await logouts(), 'the API was told to end sessions on a forged signature').toEqual([]);
 	});
 
@@ -166,7 +174,9 @@ test.describe('the Ever ID back-channel logout', () => {
 		expect(await logouts(), 'the API was told to end sessions on an unverifiable token').toEqual([]);
 	});
 
-	test('the algorithm confusion is refused: a token signed with the issuer’s published public key', async ({ api }) => {
+	test('the algorithm confusion is refused: a token signed with the issuer’s published public key', async ({
+		api
+	}) => {
 		await cleanSlate();
 		// HS256 with the *public* key: the classic way to forge a token against a verifier that trusts whatever
 		// algorithm the token names. The verifier accepts ES256, RS256 and EdDSA only.
@@ -227,12 +237,14 @@ test.describe('the Ever ID back-channel logout', () => {
 	test('a token longer than the verifier accepts is refused before anything is fetched', async ({ api }) => {
 		await cleanSlate();
 		const before = await askedTheIssuer();
-			const oversized = await idpLogoutToken({ claims: { padding: 'x'.repeat(20_000) } });
+		const oversized = await idpLogoutToken({ claims: { padding: 'x'.repeat(20_000) } });
 		const answer = await post(api, oversized.token);
 
 		expect(answer.status, 'a token over the length cap was accepted').toBe(400);
 		expect(await logouts(), 'an oversized token reached the API').toEqual([]);
-		expect(await askedTheIssuer(), 'the issuer was contacted to check a token that was refused on length').toBe(before);
+		expect(await askedTheIssuer(), 'the issuer was contacted to check a token that was refused on length').toBe(
+			before
+		);
 	});
 
 	test('when the API cannot end the sessions, the provider is told to try again — and the same token then works', async ({
@@ -311,8 +323,10 @@ test.describe('the Ever ID back-channel logout', () => {
 			['the 200', accepted],
 			['the 400', refused]
 		] as const) {
-			expect(answer.headers()['cache-control'] ?? '', `${what}: no cache directive`).toContain('no-store');
-			expect(answer.body, `${what}: the route sent a body, and a logout answer should not name anything`).toBe('');
+			expect(answer.headers['cache-control'] ?? '', `${what}: no cache directive`).toContain('no-store');
+			expect(answer.body, `${what}: the route sent a body, and a logout answer should not name anything`).toBe(
+				''
+			);
 		}
 	});
 });

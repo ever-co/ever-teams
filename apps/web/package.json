@@ -216,6 +216,7 @@
 		"@ever-teams/eslint-config": "*",
 		"@ever-teams/ts-config": "*",
 		"@next/bundle-analyzer": "^16.4.6",
+		"@playwright/test": "^1.65.1",
 		"@svgr/webpack": "^8.1.0",
 		"@tailwindcss/postcss": "^4",
 		"@tailwindcss/typography": "^0.5.19",

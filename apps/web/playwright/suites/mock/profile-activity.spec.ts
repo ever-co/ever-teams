@@ -47,7 +47,7 @@ test.describe('employee-scoped profile activity', () => {
 		);
 	});
 
-	test('a teammate who does not share their profile causes no read at all', async ({ app, fixture }) => {
+	test('a teammate who does not share their profile causes no read at all', async ({ app, fixture, mock }) => {
 		const page = await app(`/profile/${fixture.ids.deniedUser}`, {
 			scenario: { manager: false, shareProfileView: false }
 		});
@@ -85,10 +85,10 @@ test.describe('employee-scoped profile activity', () => {
 			reads.filter((request) => new URLSearchParams(request.query).get('includeDaily') === 'true').length,
 			'exactly one read is the selected year'
 		).toBe(1);
-		expect(
-			reads.map(employeeOf),
-			'both reads stay scoped to the profile being looked at'
-		).toEqual([fixture.ids.teammateEmployee, fixture.ids.teammateEmployee]);
+		expect(reads.map(employeeOf), 'both reads stay scoped to the profile being looked at').toEqual([
+			fixture.ids.teammateEmployee,
+			fixture.ids.teammateEmployee
+		]);
 	});
 
 	test('two profiles opened one after the other keep their own request scopes', async ({ app, fixture }) => {

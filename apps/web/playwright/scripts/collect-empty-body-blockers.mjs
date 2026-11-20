@@ -10,9 +10,11 @@
  *   yarn playwright test --config apps/web/playwright/playwright.api.config.ts
  *   node apps/web/playwright/scripts/collect-empty-body-blockers.mjs
  */
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { dirname, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+
+import { writeGenerated } from './api-routes-lib.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 // A reporter's outputFile is resolved against the config's own folder, so that is where the report is.
@@ -58,7 +60,10 @@ for (const testcase of collectTests(report.suites, [])) {
 	if (!statusMatch) continue;
 	blockers[title] = {
 		status: Number(statusMatch[1]),
-		detail: message.split('\n')[0].replace(/^Error: /, '').slice(0, 200)
+		detail: message
+			.split('\n')[0]
+			.replace(/^Error: /, '')
+			.slice(0, 200)
 	};
 }
 
@@ -77,7 +82,6 @@ export type EmptyBodyBlocker = { status: number; detail: string };
 export const emptyBodyBlockers: Record<string, EmptyBodyBlocker> = ${JSON.stringify(sorted, null, 1)};
 `;
 
-mkdirSync(dirname(outputFile), { recursive: true });
-writeFileSync(outputFile, body, 'utf8');
+await writeGenerated(outputFile, body, 'node apps/web/playwright/scripts/collect-empty-body-blockers.mjs');
 console.log(`pinned ${Object.keys(sorted).length} handlers that 5xx on a bodiless call`);
 console.log(`wrote ${relative(process.cwd(), outputFile)}`);

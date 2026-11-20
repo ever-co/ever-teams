@@ -1,4 +1,7 @@
-import type { BrowserContext, Cookie, Page } from '@playwright/test';
+import type { BrowserContext, Page } from '@playwright/test';
+
+/** What `context.addCookies` takes (Playwright's `Cookie` is what `context.cookies()` returns, with `expires`). */
+type CookieToAdd = Parameters<BrowserContext['addCookies']>[0][number];
 
 /**
  * Shared plumbing for the Playwright suites.
@@ -77,7 +80,10 @@ async function control<T>(path: string, init?: RequestInit): Promise<T> {
 		...init,
 		headers: { accept: 'application/json', 'content-type': 'application/json', ...(init?.headers ?? {}) }
 	});
-	if (!response.ok) throw new Error(`test backend ${path} failed: HTTP ${response.status}`);
+	if (!response.ok) {
+		const detail = await response.text().catch(() => '');
+		throw new Error(`test backend ${path} failed: HTTP ${response.status} ${detail.slice(0, 300)}`);
+	}
 	return (await response.json()) as T;
 }
 
@@ -161,7 +167,7 @@ export async function signInWithFixture(
 	// `domain` + `path`, not `url` + `path`: Playwright refuses a cookie that names both (`Cookie should
 	// have either url or path`), and the path matters here — the app's session cookies are root-path ones.
 	const host = new URL(APP_ORIGIN).hostname;
-	const cookie = (name: string, value: string): Cookie => ({
+	const cookie = (name: string, value: string): CookieToAdd => ({
 		name,
 		value,
 		domain: host,
@@ -243,9 +249,11 @@ export const idpLogoutToken = (
 
 /** What the fake issuer was asked for since the reset: discovery and key-set reads, in order. */
 export const idpState = () =>
-	control<{ issuer: string; contacts: Array<{ method: string; path: string }>; minted: Array<Record<string, unknown>> }>(
-		'/idp/state'
-	);
+	control<{
+		issuer: string;
+		contacts: Array<{ method: string; path: string }>;
+		minted: Array<Record<string, unknown>>;
+	}>('/idp/state');
 
 /** The NextAuth session support/e2e.ts stubs globally; the app origin serves this route, the mock does not. */
 export async function stubNextAuthSession(page: Page): Promise<void> {
@@ -310,11 +318,7 @@ export async function waitForShellReady(page: Page, timeout = 45_000): Promise<v
  * page the app answers 404 for): there is no mark there, and waiting 45 s for one only hides what the
  * route actually did.
  */
-export async function hardVisit(
-	page: Page,
-	path: string,
-	options: { requireShell?: boolean } = {}
-): Promise<void> {
+export async function hardVisit(page: Page, path: string, options: { requireShell?: boolean } = {}): Promise<void> {
 	await page.goto(APP_ORIGIN, { waitUntil: 'domcontentloaded' }).catch(() => undefined);
 	await page.evaluate(() => {
 		window.localStorage.clear();

@@ -7,7 +7,7 @@ import { APP_ORIGIN, mockServers } from './test-servers';
  * browser. The app under test is started with its Gauzy URLs pointed at the mock API, so each
  * handler runs for real against a fake upstream.
  *
- *   yarn playwright test --config apps/web/playwright/playwright.api.config.ts
+ *   yarn workspace @ever-teams/web pw:api
  *
  * These tests do not touch a browser, so they are cheap — but they still share one mock instance, and
  * several specs read its request log ("nothing reached the API" is only proved if the log is empty).
@@ -19,9 +19,9 @@ export default defineConfig({
 	outputDir: 'artifacts/test-results-api',
 	timeout: 120_000,
 	expect: { timeout: 15_000 },
-	fullyParallel: true,
+	fullyParallel: false,
 	forbidOnly: Boolean(process.env.CI),
-	workers: Number(process.env.E2E_WORKERS ?? 1),
+	workers: 1,
 	reporter: [['list'], ['json', { outputFile: 'artifacts/playwright-api.json' }]],
 	use: { baseURL: APP_ORIGIN, extraHTTPHeaders: { accept: 'application/json' } },
 	webServer: mockServers(),

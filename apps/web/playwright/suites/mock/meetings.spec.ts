@@ -60,15 +60,18 @@ test.describe('meetings', () => {
 		expect(written.scheduled, 'the schedule sent nothing to the API').toHaveLength(1);
 		const body = written.scheduled[0];
 		expect(body.agenda, 'the title typed becomes the appointment agenda').toBe('Sprint review');
-		expect(body, 'a meeting scheduled without invitees must not carry an emails field').not.toHaveProperty('emails');
+		expect(body, 'a meeting scheduled without invitees must not carry an emails field').not.toHaveProperty(
+			'emails'
+		);
 		// The API's own names for the two ends of the appointment — not a `startTime` the client invented.
 		expect(body, 'the appointment carries its start as the API names it').toHaveProperty('startDateTime');
 		expect(body, 'the appointment carries its end as the API names it').toHaveProperty('endDateTime');
 
 		const writes = await mock.calls('/api/employee-appointment');
-		expect(writes.every((write) => write.status < 400), `the API refused the schedule: ${JSON.stringify(writes)}`).toBe(
-			true
-		);
+		expect(
+			writes.every((write) => write.status < 400),
+			`the API refused the schedule: ${JSON.stringify(writes)}`
+		).toBe(true);
 	});
 
 	test('the scheduled meeting stays on the agenda after a reload', async ({ app, mock }) => {
@@ -110,7 +113,10 @@ test.describe('meetings', () => {
 		expect(written.cancelled, 'the delete never reached the API').toHaveLength(1);
 
 		const deletes = await mock.calls('/api/employee-appointment');
-		expect(deletes.some((call) => call.method === 'DELETE'), 'the mock recorded the delete').toBe(true);
+		expect(
+			deletes.some((call) => call.method === 'DELETE'),
+			'the mock recorded the delete'
+		).toBe(true);
 	});
 
 	test('invites a team member and an address typed in, as the appointment’s e-mail list', async ({ app }) => {

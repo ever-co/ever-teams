@@ -64,7 +64,10 @@ test.describe('real API refusals', () => {
 			timeout: 30_000
 		});
 		// Confirming the address is missing would itself be the leak.
-		await expect(view.getByRole('alert'), 'the answer must not reveal whether the address has an account').toHaveCount(0);
+		await expect(
+			view.getByRole('alert'),
+			'the answer must not reveal whether the address has an account'
+		).toHaveCount(0);
 
 		const asked = shield.apiCalls().filter((call) => /password/i.test(call.path));
 		expect(

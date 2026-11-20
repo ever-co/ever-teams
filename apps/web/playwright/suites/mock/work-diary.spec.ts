@@ -53,9 +53,9 @@ test.describe('work diary', () => {
 				decodeURIComponent(request.query).includes(fixture.ids.employee)
 		);
 		expect(
-			ownReads.map((request) => request.path),
+			[...new Set(ownReads.map((request) => request.path))].sort(),
 			`the diary read the day of ${fixture.ids.employee} through both endpoints`
-		).toIncludeSameMembers([TIME_LOG_PATH, SLOTS_PATH]);
+		).toEqual([TIME_LOG_PATH, SLOTS_PATH].sort());
 	});
 
 	test('keeps the picked day in its link, so a reload opens the same day and Today comes back', async ({ app }) => {
@@ -69,10 +69,13 @@ test.describe('work diary', () => {
 		// The address already held a date (the start day), so "it changed" has to be waited for, not assumed.
 		let picked = dateParamOf(page);
 		await expect
-			.poll(() => {
-				picked = dateParamOf(page);
-				return /^\d{4}-\d{2}-\d{2}$/.test(picked) && picked !== dayKeyOf(start);
-			}, { message: 'picking another day never reached the address bar' })
+			.poll(
+				() => {
+					picked = dateParamOf(page);
+					return /^\d{4}-\d{2}-\d{2}$/.test(picked) && picked !== dayKeyOf(start);
+				},
+				{ message: 'picking another day never reached the address bar' }
+			)
 			.toBe(true);
 
 		await page.reload({ waitUntil: 'domcontentloaded' });

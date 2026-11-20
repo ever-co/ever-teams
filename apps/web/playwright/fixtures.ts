@@ -69,10 +69,7 @@ export type AppFactory = (
 	options?: { scope?: 'A' | 'B'; stubSession?: boolean; scenario?: MockScenario; requireShell?: boolean }
 ) => Promise<Page>;
 
-export type AnonFactory = (
-	path: string,
-	options?: { stubSession?: boolean; scenario?: MockScenario }
-) => Promise<Page>;
+export type AnonFactory = (path: string, options?: { stubSession?: boolean; scenario?: MockScenario }) => Promise<Page>;
 
 export const test = base.extend<{
 	shield: Shield;
@@ -121,25 +118,31 @@ export const test = base.extend<{
 				logMatching: (fragment) => allConsole.filter((text) => fragment.test(text))
 			});
 
-			expect(external, `the browser left the machine (only ${APP_ORIGIN} and the test backend are allowed)`).toEqual(
-				[]
-			);
+			expect(
+				external,
+				`the browser left the machine (only ${APP_ORIGIN} and the test backend are allowed)`
+			).toEqual([]);
 		},
 		{ auto: true }
 	],
 
-	mock: async ({}, use) => {
-		await mockReset();
-		await use({
-			scenario: mockScenario,
-			requests: mockRequests,
-			state: mockState,
-			stats: statsReports,
-			paths: async () => (await mockRequests()).map((request) => request.path),
-			calls: async (fragment) => (await mockRequests()).filter((request) => request.path.includes(fragment)),
-			failures: async () => (await mockRequests()).filter((request) => request.status >= 400)
-		});
-	},
+	// Automatic: every test starts from a reset mock (scenario, delays, request log), whether or not it names
+	// `mock` — otherwise a scenario one test set leaks into whichever test runs next.
+	mock: [
+		async ({}, use) => {
+			await mockReset();
+			await use({
+				scenario: mockScenario,
+				requests: mockRequests,
+				state: mockState,
+				stats: statsReports,
+				paths: async () => (await mockRequests()).map((request) => request.path),
+				calls: async (fragment) => (await mockRequests()).filter((request) => request.path.includes(fragment)),
+				failures: async () => (await mockRequests()).filter((request) => request.status >= 400)
+			});
+		},
+		{ auto: true }
+	],
 
 	// Served by the backend, so a spec can never assert on ids the mock no longer answers with.
 	fixture: async ({}, use) => {

@@ -43,7 +43,7 @@ for (const route of OWNED) {
 	});
 }
 
-test('a task detail page and a profile page load from a cold cache', async ({ app, fixture }) => {
+test('a task detail page and a profile page load from a cold cache', async ({ app, fixture, mock }) => {
 	const taskPage = await app(`/task/${fixture.ids.task}`);
 	await expect(taskPage).toHaveURL(new RegExp(`/task/${fixture.ids.task}`));
 	expect((await mock.calls('/api/tasks/')).length, 'the task detail asked for its task').toBeGreaterThan(0);
@@ -59,7 +59,11 @@ test('opening the create-project form is what loads the currencies', async ({ ap
 
 	await page.getByRole('button', { name: /create (new )?project/i }).click();
 	await page.locator('#project_title').fill('Playwright Project');
-	await page.locator('#project_title').closest('form').submit();
+	// Cypress's `.closest('form').submit()` (route-ownership.cy.ts): fire the form's own submit event.
+	await page
+		.locator('#project_title')
+		.locator('xpath=ancestor::form[1]')
+		.evaluate((form) => (form as HTMLFormElement).requestSubmit());
 
 	await expect
 		.poll(async () => (await mock.paths()).includes('/api/currency'), {

@@ -9,12 +9,14 @@
  *   node apps/web/playwright/scripts/collect-api-routes.mjs
  *
  * A handler with no recognizable verb export is reported instead of being skipped silently.
+ *
+ * `--check` writes nothing and exits 1 when the checked-in manifest is out of date
+ * (suites/api/manifests.spec.ts runs it that way).
  */
-import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { collectApiRoutes } from './api-routes-lib.mjs';
+import { collectApiRoutes, writeGenerated } from './api-routes-lib.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const apiRoot = resolve(here, '../../app/api');
@@ -36,8 +38,8 @@ export const apiRoutes: ApiRoute[] = ${JSON.stringify(routes, null, 1)};
 export const unattributedApiRoutes: string[] = ${JSON.stringify(unattributed, null, 1)};
 `;
 
-mkdirSync(dirname(outputFile), { recursive: true });
-writeFileSync(outputFile, body, 'utf8');
-console.log(`routes: ${routes.length}, without verb exports: ${unattributed.length}`);
-console.log(`wrote ${relative(process.cwd(), outputFile)}`);
-if (unattributed.length) console.log(unattributed.join('\n'));
+if (await writeGenerated(outputFile, body, 'node apps/web/playwright/scripts/collect-api-routes.mjs')) {
+	console.log(`routes: ${routes.length}, without verb exports: ${unattributed.length}`);
+	console.log(`wrote ${relative(process.cwd(), outputFile)}`);
+	if (unattributed.length) console.log(unattributed.join('\n'));
+}

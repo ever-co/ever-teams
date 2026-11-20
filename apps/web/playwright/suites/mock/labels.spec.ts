@@ -59,7 +59,8 @@ async function serveTeamLabels(page: Page, initial: TeamLabel[]): Promise<LabelH
 		const succeeded: Array<{ index: number; id: string }> = [];
 		const failed: Array<{ index: number; code: string; message: string }> = [];
 		items.forEach((item, index) => {
-			if (isTaken(item.name)) failed.push({ index, code: 'UNIQUE_CONSTRAINT_VIOLATION', message: `"${item.name}" is taken` });
+			if (isTaken(item.name))
+				failed.push({ index, code: 'UNIQUE_CONSTRAINT_VIOLATION', message: `"${item.name}" is taken` });
 			else succeeded.push({ index, id: add(item).id });
 		});
 		route.fulfill({
@@ -95,7 +96,11 @@ async function serveTeamLabels(page: Page, initial: TeamLabel[]): Promise<LabelH
 const checkbox = (name: string) => `[role="checkbox"][aria-label="${name}"]`;
 
 test.describe('the label catalog', () => {
-	test('an empty list offers the catalog, and the picked labels go in one request', async ({ page, fixture, shield }) => {
+	test('an empty list offers the catalog, and the picked labels go in one request', async ({
+		page,
+		fixture,
+		shield
+	}) => {
 		const harness = await serveTeamLabels(page, []);
 		await signInWithFixture(page.context(), fixture);
 		await hardVisit(page, LABELS_PAGE);
@@ -132,7 +137,9 @@ test.describe('the label catalog', () => {
 		]);
 		expect(items.find((item) => item.name === 'Frontend')?.color).toBe('#3B82F6');
 		for (const item of items) {
-			expect(item.organizationTeamId, `${item.name} was not filed under the fixture team`).toBe(fixture.ids.teamA);
+			expect(item.organizationTeamId, `${item.name} was not filed under the fixture team`).toBe(
+				fixture.ids.teamA
+			);
 		}
 		expect(harness.singleRequests, 'a bulk add must not also write label by label').toHaveLength(0);
 
@@ -204,7 +211,10 @@ test.describe('the label catalog', () => {
 		await nameInput.press('Enter');
 
 		await expect(page.locator('[data-row-menu]')).toHaveCount(2, { timeout: 20_000 });
-		expect(harness.singleRequests.map((item) => item.name), 'the accepted name was sent as typed').toEqual(['Feature']);
+		expect(
+			harness.singleRequests.map((item) => item.name),
+			'the accepted name was sent as typed'
+		).toEqual(['Feature']);
 		await expect(page.getByText('The team already has a label with this name.')).toHaveCount(0);
 	});
 });

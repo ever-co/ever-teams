@@ -40,7 +40,10 @@ test.describe('renewing a session', () => {
 			const { status, body: answer } = await refresh(api, body);
 
 			expect(status, `a refresh request with ${what} answered ${status} instead of 400`).toBe(400);
-			expect(answer?.errors?.refresh_token, `a refresh with ${what} was not answered with the reason`).toBeTruthy();
+			expect(
+				answer?.errors?.refresh_token,
+				`a refresh with ${what} was not answered with the reason`
+			).toBeTruthy();
 		}
 		expect(await mock.requests(), 'an invalid refresh request reached the API').toEqual([]);
 	});
@@ -54,9 +57,10 @@ test.describe('renewing a session', () => {
 		expect(body?.user?.id, 'the renewal did not say whose session this is').toBe(ids.user);
 
 		const asked = await mock.calls('/api/auth/refresh-token');
-		expect(asked.map((call) => `${call.method} ${call.path}`), 'the API was not asked to renew').toEqual([
-			'POST /api/auth/refresh-token'
-		]);
+		expect(
+			asked.map((call) => `${call.method} ${call.path}`),
+			'the API was not asked to renew'
+		).toEqual(['POST /api/auth/refresh-token']);
 	});
 
 	test('a profile read that cannot finish does not cost the person the pair the API already rotated', async ({
@@ -72,7 +76,10 @@ test.describe('renewing a session', () => {
 
 		expect(status, `a slow profile read turned the renewal into ${status}`).toBe(200);
 		expect(body?.token, 'the pair was withheld because the profile read failed').toBeTruthy();
-		expect(body?.refresh_token, 'the rotated refresh token was withheld because the profile read failed').toBeTruthy();
+		expect(
+			body?.refresh_token,
+			'the rotated refresh token was withheld because the profile read failed'
+		).toBeTruthy();
 	});
 
 	test('an API that cannot answer is not reported to the browser as a refusal', async ({ api, mock }) => {
@@ -98,8 +105,10 @@ test.describe('renewing a session', () => {
 		const { status, headers } = await refresh(api, 'synthetic-refresh-token');
 
 		expect(status, 'a renewal without cookies was refused').toBe(200);
-		const setCookie = headers()['set-cookie'] ?? '';
-		expect(setCookie, `the renewal set cookies the client does not expect: ${setCookie}`).not.toContain('auth-token');
+		const setCookie = headers['set-cookie'] ?? '';
+		expect(setCookie, `the renewal set cookies the client does not expect: ${setCookie}`).not.toContain(
+			'auth-token'
+		);
 		expect(setCookie, `the renewal set cookies the client does not expect: ${setCookie}`).not.toContain(
 			'auth-refresh-token'
 		);

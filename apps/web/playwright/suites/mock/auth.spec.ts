@@ -83,7 +83,9 @@ test.describe('sign-in pages', () => {
 		const closed = await revealBoxOf(view, 'pw-password');
 		expect(closed, 'the password field is not inside an AuthReveal at all').not.toBeNull();
 		expect(closed?.revealHeight, 'the password reveal is not collapsed on the code method').toBe(0);
-		expect(closed?.inert, 'the collapsed password reveal is not inert, so it still takes focus and input').toBe(true);
+		expect(closed?.inert, 'the collapsed password reveal is not inert, so it still takes focus and input').toBe(
+			true
+		);
 		await expect(methodTab(view, 'E-mail code')).toHaveAttribute('aria-selected', 'true');
 		await expect(view.getByRole('button', { name: 'Send me a code' })).toBeVisible();
 	});
@@ -158,9 +160,10 @@ test.describe('the authenticated gate', () => {
 		const documents = shield.documents();
 		const last = documents[documents.length - 1];
 
-		expect(await devOverlayErrors(view), 'the Next dev overlay shows an error on a route that does not exist').toEqual(
-			[]
-		);
+		expect(
+			await devOverlayErrors(view),
+			'the Next dev overlay shows an error on a route that does not exist'
+		).toEqual([]);
 		expect(shield.pageErrors()).toEqual([]);
 		expect(last?.status, `the server answered ${last?.status} for a route that does not exist`).toBe(404);
 		await expect(view.getByRole('heading', { name: 'Page not found' })).toBeVisible({ timeout: 20_000 });

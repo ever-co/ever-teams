@@ -502,7 +502,17 @@ function workspaceCreationResponse(method, pathname, data, state, body, requestT
 
 // `requestContentType` is what the request arrived with, which the Ever ID logout forward has to keep: the
 // identity provider posts the logout token form-encoded, and the app forwards it the same way.
-function routeResponse(method, pathname, requestUrl, data, fixture, state, body, requestTenantId, requestContentType = '') {
+function routeResponse(
+	method,
+	pathname,
+	requestUrl,
+	data,
+	fixture,
+	state,
+	body,
+	requestTenantId,
+	requestContentType = ''
+) {
 	const { ids } = fixture;
 	const creation = workspaceCreationResponse(method, pathname, data, state, body, requestTenantId);
 	if (creation !== undefined) return creation;

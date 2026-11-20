@@ -6,7 +6,7 @@ import { APP_ORIGIN, everIdServers } from './test-servers';
  * The Ever ID sign-in suite: the routes under `app/api/auth/ever-id`, against the fake OpenID Connect issuer
  * backend.mjs serves on 127.0.0.1:3991 and the mock Gauzy API.
  *
- *   yarn playwright test --config apps/web/playwright/playwright.ever-id.config.ts
+ *   yarn workspace @ever-teams/web pw:ever-id
  *
  * It is a config of its own because the routes it tests only exist with the Ever ID sign-in configured: with
  * any of NEXT_PUBLIC_EVER_ID_APP_NAME, EVER_ID_ISSUER_URL, EVER_ID_CLIENT_ID or EVER_ID_CLIENT_SECRET missing,

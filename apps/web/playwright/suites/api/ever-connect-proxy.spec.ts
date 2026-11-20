@@ -43,7 +43,9 @@ test.describe('the Ever Connect proxy forwards only what it names', () => {
 
 	for (const [path, method] of NOT_FORWARDED) {
 		test(`${method} ${path} is refused without asking the API`, async ({ api, mock }) => {
-			const { status, text, why } = await call(api, path, { method: method as 'GET' | 'POST' | 'PUT' | 'DELETE' });
+			const { status, text, why } = await call(api, path, {
+				method: method as 'GET' | 'POST' | 'PUT' | 'DELETE'
+			});
 
 			expect(status, `${why}: answered ${text}`).toBe(404);
 			expect(text, `${why}: not the route-not-found answer`).toContain('Not Found');
@@ -66,9 +68,10 @@ test.describe('the Ever Connect proxy forwards only what it names', () => {
 
 		expect(status, `${why}: answered ${text}`).toBe(404);
 		const calls = await mock.calls('/api/ever-connect/health');
-		expect(calls.map((call) => `${call.method} ${call.path} ${call.status}`), `${why}: the API was not asked`).toEqual([
-			'GET /api/ever-connect/health 404'
-		]);
+		expect(
+			calls.map((call) => `${call.method} ${call.path} ${call.status}`),
+			`${why}: the API was not asked`
+		).toEqual(['GET /api/ever-connect/health 404']);
 	});
 
 	test('no answer of this proxy is cacheable', async ({ api, mock }) => {
@@ -83,12 +86,17 @@ test.describe('the Ever Connect proxy forwards only what it names', () => {
 			['a route it does not forward', await call(api, '/policy')],
 			['a signed-out person', await call(api, '/status', { anonymous: true })],
 			['a body it rejects', await call(api, '/links', { method: 'POST', body: { link_code: 'nope' } })],
-			['a foreign page asking for the launcher', await call(api, '/launcher/config', { headers: { origin: 'https://some-other-site.example' } })]
+			[
+				'a foreign page asking for the launcher',
+				await call(api, '/launcher/config', { headers: { origin: 'https://some-other-site.example' } })
+			]
 		] as const;
 
 		for (const [what, answer] of answers) {
 			expect(answer.status, `${what}: the proxy answered nothing`).not.toBe(0);
-			expect(answer.headers['cache-control'] ?? '', `${what}: answered without a cache directive`).toContain('no-store');
+			expect(answer.headers['cache-control'] ?? '', `${what}: answered without a cache directive`).toContain(
+				'no-store'
+			);
 		}
 
 		// The 200 is the person's own connection, not a generic one: the payload travelled through untouched.
@@ -105,13 +113,16 @@ test.describe('the Ever Connect proxy forwards only what it names', () => {
 		expect(foreign.status, `${foreign.why}: a foreign page was not refused`).toBe(403);
 		expect(await mock.requests(), `${foreign.why}: the launcher was asked for a foreign page`).toEqual([]);
 
-		const own = await call(api, '/launcher/config', { headers: { origin: APP_ORIGIN, 'sec-fetch-site': 'same-origin' } });
+		const own = await call(api, '/launcher/config', {
+			headers: { origin: APP_ORIGIN, 'sec-fetch-site': 'same-origin' }
+		});
 		// The mock does not answer the launcher: what is proved here is that the request left this app once
 		// the page check passed, which is the other half of the same rule.
 		const asked = await mock.calls('/api/ever-connect/launcher/config');
-		expect(asked.map((call) => call.path), `${own.why}: this app's own page was not forwarded`).toEqual([
-			'/api/ever-connect/launcher/config'
-		]);
+		expect(
+			asked.map((call) => call.path),
+			`${own.why}: this app's own page was not forwarded`
+		).toEqual(['/api/ever-connect/launcher/config']);
 	});
 
 	test('a link code the rule does not accept never reaches the API', async ({ api, mock }) => {
@@ -127,7 +138,10 @@ test.describe('the Ever Connect proxy forwards only what it names', () => {
 
 	test('a body past the proxy’s cap is refused before it is read as JSON', async ({ api, mock }) => {
 		const padding = 'x'.repeat(4096);
-		const { status, why } = await call(api, '/links', { method: 'POST', body: { link_code: 'EVL-AAAA-AAAA-AAAA', padding } });
+		const { status, why } = await call(api, '/links', {
+			method: 'POST',
+			body: { link_code: 'EVL-AAAA-AAAA-AAAA', padding }
+		});
 
 		expect(status, `${why}: an oversized body was processed anyway`).toBe(400);
 		expect(await mock.requests(), `${why}: the oversized body was forwarded`).toEqual([]);

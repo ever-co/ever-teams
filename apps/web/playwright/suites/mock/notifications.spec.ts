@@ -38,14 +38,22 @@ test.describe('personal notification settings', () => {
 		await page.getByRole('button', { name: 'After 8 hours' }).click();
 		await page.getByRole('option', { name: 'After 4 hours' }).click();
 
-		const state = await mockStateWhen<SettingState>((s) => s.notificationSetting?.preferences?.timerReminderHours === 4);
-		expect(state.notificationSetting?.preferences?.timerReminderHours, 'the stored row carries the new threshold').toBe(4);
+		const state = await mockStateWhen<SettingState>(
+			(s) => s.notificationSetting?.preferences?.timerReminderHours === 4
+		);
+		expect(
+			state.notificationSetting?.preferences?.timerReminderHours,
+			'the stored row carries the new threshold'
+		).toBe(4);
 
 		const writes = (await mock.requests()).filter((request) =>
 			request.path.startsWith('/api/employee-notification-setting')
 		);
 		expect(writes.length, 'the page wrote the setting').toBeGreaterThan(0);
-		expect(writes.every((write) => write.status < 400), `a write failed: ${JSON.stringify(writes)}`).toBe(true);
+		expect(
+			writes.every((write) => write.status < 400),
+			`a write failed: ${JSON.stringify(writes)}`
+		).toBe(true);
 	});
 
 	test('a saved threshold is read back from the API rather than defaulted', async ({ app, mock }) => {
@@ -57,9 +65,10 @@ test.describe('personal notification settings', () => {
 		await expect(page.getByRole('button', { name: 'After 10 hours' })).toBeVisible({ timeout: 30_000 });
 		await expect(page.getByRole('button', { name: 'After 8 hours' })).toHaveCount(0);
 
-		expect(await mock.calls('/api/employee-notification-setting'), 'the page read its own settings row').not.toHaveLength(
-			0
-		);
+		expect(
+			await mock.calls('/api/employee-notification-setting'),
+			'the page read its own settings row'
+		).not.toHaveLength(0);
 	});
 
 	test('saving another switch keeps the threshold that was already set', async ({ app }) => {
@@ -70,7 +79,9 @@ test.describe('personal notification settings', () => {
 		await expect(page.getByRole('button', { name: 'After 10 hours' })).toBeVisible({ timeout: 30_000 });
 		await page.locator('#notification-setting-comment').click();
 
-		const state = await mockStateWhen<SettingState>((s) => s.requests.some((request) => request.path === SETTING_ROW));
+		const state = await mockStateWhen<SettingState>((s) =>
+			s.requests.some((request) => request.path === SETTING_ROW)
+		);
 		expect(
 			state.notificationSetting?.preferences?.timerReminderHours,
 			'a partial update must not drop the threshold it did not touch'
@@ -88,7 +99,10 @@ test.describe('personal notification settings', () => {
 
 		const reads = await mock.calls('/api/employee-notification-setting');
 		expect(reads.length, 'the read is attempted').toBeGreaterThan(0);
-		expect(reads.some((read) => read.status === 500), 'the mock refused the read').toBe(true);
+		expect(
+			reads.some((read) => read.status === 500),
+			'the mock refused the read'
+		).toBe(true);
 
 		// A refused read must not take the page down with it.
 		expect(shield.pageErrors(), 'the page crashed on a refused read').toEqual([]);

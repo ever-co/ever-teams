@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '../../fixtures';
-import { signInAndVisit, waitForShellReady, type BootstrapFixture } from '../../helpers';
+import { signInAndVisit, waitForShellReady } from '../../helpers';
 
 /**
  * Favourites across the app (#5017): a project starred from its own page is listed on the Favorites
@@ -71,7 +71,11 @@ async function serveFavorites(page: Page, favorites: StoredFavorite[]) {
 		removed.push(id);
 		const at = favorites.findIndex((favorite) => favorite.id === id);
 		if (at >= 0) favorites.splice(at, 1);
-		await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ affected: 1, raw: [] }) });
+		await route.fulfill({
+			status: 200,
+			contentType: 'application/json',
+			body: JSON.stringify({ affected: 1, raw: [] })
+		});
 	});
 
 	return { starred, removed, typeQueries };
@@ -148,9 +152,9 @@ test.describe('favorites', () => {
 		await expect(gone.getByText('A project you can no longer open')).toBeVisible();
 		await gone.getByRole('button', { name: 'Remove from favorites' }).click();
 
-		await expect.poll(() => served.removed, { message: 'the stale favourite was never deleted' }).toEqual([
-			favoriteIdOf(2)
-		]);
+		await expect
+			.poll(() => served.removed, { message: 'the stale favourite was never deleted' })
+			.toEqual([favoriteIdOf(2)]);
 		await expect(page.getByRole('heading', { name: 'No longer available' })).toHaveCount(0, { timeout: 20_000 });
 	});
 });

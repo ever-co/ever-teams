@@ -61,5 +61,3 @@ test.describe('authenticated shell', () => {
 		expect(await mock.failures()).toEqual([]);
 	});
 });
-
-void (0 as unknown as BootstrapFixture);

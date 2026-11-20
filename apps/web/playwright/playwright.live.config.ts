@@ -7,7 +7,7 @@ import { APP_ORIGIN, liveServers } from './test-servers';
  * the mock. Run it on its own — it needs port 3030 for itself, so it cannot share the machine with
  * the mock suite's dev server:
  *
- *   E2E_BROWSER_CHANNEL=chrome yarn playwright test --config apps/web/playwright/playwright.live.config.ts
+ *   E2E_LIVE=1 yarn workspace @ever-teams/web pw:live
  *
  * What only a live run can prove: the mock answers every Gauzy path with 200 and a synthetic body, so
  * a genuine refusal — 401 on a wrong password, 201 `true` on a password reset for an address that
@@ -18,14 +18,24 @@ import { APP_ORIGIN, liveServers } from './test-servers';
  *   `scripts/provision-demo-tenant.mjs` registers a throwaway account on the demo API successfully,
  *   but both password routes then answer 401: the demo API will not sign in an address whose e-mail
  *   is not confirmed, and the confirmation link goes to a mailbox this suite has no access to.
- *   Until a confirmed test account exists (its credentials would live in <root>/workspace/.config/,
- *   never in the repository), the signed-in half of the app is not covered live — only the mock
+ *   Until a confirmed test account exists (its credentials live outside the repository, see
+ *   E2E_DEMO_CREDENTIALS_FILE in that script), the signed-in half of the app is not covered live — only the mock
  *   suite covers it, with synthetic sessions.
  *
  * Hermetic in the other direction: live-fixtures.ts allows only this app's origin and the demo API,
  * refuses a production host even if E2E_DEMO_API_URL were set to one, and fails a test whose browser
  * reached anything else.
  */
+/**
+ * An explicit opt-in: a live run is not read-only — it asks the shared demo API to send a sign-in code and a
+ * password reset (suites/live/refusals.spec.ts) — so a stray `playwright test` over every config never makes one.
+ */
+if (process.env.E2E_LIVE !== '1') {
+	throw new Error(
+		'The live suite talks to the shared demo API and asks it to send e-mails. Run it on purpose: E2E_LIVE=1 yarn workspace @ever-teams/web pw:live'
+	);
+}
+
 export default defineConfig({
 	testDir: './suites',
 	outputDir: 'artifacts/test-results-live',
@@ -42,8 +52,9 @@ export default defineConfig({
 		trace: 'retain-on-failure',
 		screenshot: 'only-on-failure',
 		video: 'off',
-		channel: (process.env.E2E_BROWSER_CHANNEL ?? 'chromium') as 'chromium' | 'chrome'
+		...devices['Desktop Chrome'],
+		channel: process.env.E2E_BROWSER_CHANNEL ?? 'chromium'
 	},
 	webServer: liveServers(),
-	projects: [{ name: 'live', class: devices['Desktop Chrome'], testMatch: '**/live/**/*.spec.ts' }]
+	projects: [{ name: 'live', testMatch: '**/live/**/*.spec.ts' }]
 });

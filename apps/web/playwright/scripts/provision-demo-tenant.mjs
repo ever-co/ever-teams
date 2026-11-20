@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /**
  * Provisions a throwaway Ever Teams tenant on the DEMO API and writes the credentials
- * OUTSIDE the repository, into the git-ignored homelab .config folder.
+ * OUTSIDE the repository: to E2E_DEMO_CREDENTIALS_FILE, or by default to
+ * ~/.ever-teams/playwright-demo-tenant.json (owner-only on POSIX).
  *
  * It repeats exactly what the web app does when a person signs up (see
  * apps/web/core/services/client/api/auth/register.service.ts):
@@ -13,17 +14,17 @@
  * Usage:
  *   node apps/web/playwright/scripts/provision-demo-tenant.mjs [--fresh] [--label <name>]
  *
- * Writes: <root>/workspace/.config/ever-teams-playwright-demo.json
+ * Writes: E2E_DEMO_CREDENTIALS_FILE (default ~/.ever-teams/playwright-demo-tenant.json)
  * Prints: only ids and non-secret labels, never the password or a token.
  */
 import { randomBytes } from 'node:crypto';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { homedir } from 'node:os';
 import { dirname, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
 
-const here = dirname(fileURLToPath(import.meta.url));
-const repoRoot = resolve(here, '../../../..');
-const CREDENTIALS_FILE = resolve(repoRoot, '../workspace/.config/ever-teams-playwright-demo.json');
+const CREDENTIALS_FILE = resolve(
+	process.env.E2E_DEMO_CREDENTIALS_FILE || resolve(homedir(), '.ever-teams', 'playwright-demo-tenant.json')
+);
 
 const API = (process.env.E2E_DEMO_API_URL || 'https://apidev.ever.team').replace(/\/$/, '');
 const PRODUCTION_APIS = ['https://api.ever.team', 'https://api.gauzy.co'];
@@ -54,7 +55,7 @@ async function call(method, path, { body, token, note } = {}) {
 		payload = { raw: text.slice(0, 300) };
 	}
 	if (!response.ok) {
-		const detail = Array.isArray(payload.message) ? payload.message.join('; ') : payload.message ?? payload.raw;
+		const detail = Array.isArray(payload.message) ? payload.message.join('; ') : (payload.message ?? payload.raw);
 		throw new Error(`${note ?? path} failed: HTTP ${response.status} ${detail}`);
 	}
 	return payload;
@@ -132,7 +133,6 @@ async function main() {
 	const user = unwrap(registered);
 	const login = await signIn(email, password);
 	const accessToken = login.token ?? login.access_token;
-	const refreshToken = login.refresh_token?.token ?? login.refresh_token;
 	if (!accessToken) throw new Error('login returned no access token');
 
 	const tenant = unwrap(
@@ -191,24 +191,19 @@ async function main() {
 		createdAt: new Date().toISOString()
 	};
 
-	mkdirSync(dirname(CREDENTIALS_FILE), { recursive: true });
-	writeFileSync(CREDENTIALS_FILE, `${JSON.stringify(record, null, 2)}\n`, 'utf8');
-	chmodIfNeeded();
+	mkdirSync(dirname(CREDENTIALS_FILE), { recursive: true, mode: 0o700 });
+	writeFileSync(CREDENTIALS_FILE, `${JSON.stringify(record, null, 2)}\n`, { encoding: 'utf8', mode: 0o600 });
+	try {
+		// `mode` only applies when the file is created; this keeps an overwritten file owner-only too.
+		// Windows ignores it.
+		chmodSync(CREDENTIALS_FILE, 0o600);
+	} catch {
+		/* best effort */
+	}
 
 	console.log('provisioned a fresh demo tenant:');
 	console.log(JSON.stringify({ ...record, password: '<written to the credentials file>' }, null, 2));
 	console.log(`credentials: ${CREDENTIALS_FILE}`);
-
-	void refreshToken;
-}
-
-function chmodIfNeeded() {
-	// Windows ignores this; on a POSIX shell it keeps the credentials file owner-only.
-	try {
-		import('node:fs').then(({ chmodSync }) => chmodSync(CREDENTIALS_FILE, 0o600));
-	} catch {
-		/* best effort */
-	}
 }
 
 main().catch((error) => {

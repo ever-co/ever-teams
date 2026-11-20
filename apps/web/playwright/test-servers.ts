@@ -59,6 +59,13 @@ type WebServer = {
  */
 const REPO_ROOT = '../../..';
 
+/**
+ * Off unless asked for (E2E_REUSE_SERVERS=1). A server already listening on these ports may be one a developer
+ * started by hand, with `apps/web/.env` pointing it at the real API — reusing it would send the whole route sweep
+ * there. Opt in only when you started the servers yourself with this file's environment.
+ */
+const REUSE_SERVERS = process.env.E2E_REUSE_SERVERS === '1' && !process.env.CI;
+
 const sharedEnv = (apiOrigin: string): Record<string, string> => ({
 	PORT: new URL(APP_ORIGIN).port,
 	NEXT_PUBLIC_WEB_APP_URL: APP_ORIGIN,
@@ -119,122 +126,16 @@ export function mockServers(): WebServer[] {
 			command: 'node apps/web/playwright/backend.mjs',
 			port: Number(new URL(CONTROL_ORIGIN).port),
 			timeout: 120_000,
-			reuseExistingServer: !process.env.CI,
+			reuseExistingServer: REUSE_SERVERS,
 			cwd: REPO_ROOT
 		},
 		{
 			command: 'yarn turbo dev --filter=@ever-teams/web',
 			port: Number(new URL(APP_ORIGIN).port),
 			timeout: 900_000,
-			reuseExistingServer: !process.env.CI,
+			reuseExistingServer: REUSE_SERVERS,
 			env: sharedEnv(MOCK_ORIGIN),
 			cwd: REPO_ROOT
-		}
-	];
-}
-
-/**
- * The ports of a lane that runs *beside* the canonical suites instead of waiting for them: its own app process,
- * its own mock backend, its own fake issuer. Two runs can then work in the same checkout at the same time
- * without sharing port 3030 or — the part that actually breaks tests — one mock request log.
- *
- * The canonical suites own 3030 and 3988–3991. A lane must stay off those, and must not reuse another lane's.
- */
-export type LanePorts = { app: number; mock: number; platform: number; control: number; idp: number };
-
-/**
- * The lanes handed out so far, so two agents do not pick the same ports and kill each other's servers.
- * `npm run pw:*` and the three configs at the top of this file own 3030 and 3988–3991.
- */
-export const LANE_PORTS: Record<string, LanePorts> = {
-	'lane-a': { app: 3031, mock: 3992, platform: 3993, control: 3994, idp: 3995 },
-	'lane-b': { app: 3032, mock: 3996, platform: 3997, control: 3998, idp: 3999 },
-	'lane-c': { app: 3033, mock: 4002, platform: 4003, control: 4004, idp: 4005 }
-};
-
-/**
- * The build directory of a lane, in apps/web (where `next dev` runs).
- *
- * Next 16 permits only one dev server per project directory — the lock is `<distDir>/dev/logs/next-development.log`,
- * and a second `next dev` in the same folder exits with "Another next dev server is already running" — so lanes work
- * only because each gets its own distDir (apps/web/next.config.js honours `PLAYWRIGHT_LANE_DIST_DIR`). A lane pays
- * for that with a cold compile cache; that is the price of running beside the canonical suite instead of queueing
- * behind it.
- */
-const laneDistDir = (ports: LanePorts): string => `.next-lane-${ports.app}`;
-
-/** The issuer's URL on a given port: the path is part of the issuer identifier the app compares. */
-function everIdIssuerUrl(port: number): string {
-	return `http://127.0.0.1:${port}/oidc`;
-}
-
-/**
- * Points this process at a lane's servers. Call it at the very top of a lane's config file, before importing
- * anything else from this folder: `helpers.ts` and this file read these variables when they are imported, and
- * the worker processes Playwright forks inherit them from the process that read them first.
- */
-export function useLanePorts(ports: LanePorts): { appOrigin: string; controlOrigin: string } {
-	const appOrigin = `http://localhost:${ports.app}`;
-	const controlOrigin = `http://127.0.0.1:${ports.control}`;
-	process.env.E2E_APP_ORIGIN = appOrigin;
-	process.env.E2E_CONTROL_URL = controlOrigin;
-	return { appOrigin, controlOrigin };
-}
-
-/** The app environment of a lane: the shared one, with that lane's mock and statistics sink. */
-function laneEnv(ports: LanePorts, options: { everId?: boolean } = {}): Record<string, string> {
-	return {
-		...sharedEnv(`http://127.0.0.1:${ports.mock}`),
-		PORT: `${ports.app}`,
-		PLAYWRIGHT_LANE_DIST_DIR: laneDistDir(ports),
-		EVER_STATS_API_URL: `http://127.0.0.1:${ports.platform}`,
-		NEXT_PUBLIC_EVER_STATS_API_URL: `http://127.0.0.1:${ports.platform}`,
-		...(options.everId
-			? {
-				EVER_ID_ISSUER_URL: everIdIssuerUrl(ports.idp),
-				EVER_ID_CLIENT_ID,
-				EVER_ID_CLIENT_SECRET,
-				NEXT_PUBLIC_EVER_ID_APP_NAME: 'Ever ID'
-			}
-			: {})
-	};
-}
-
-/** The backend (with its fake issuer) and the app, on a lane's own ports. */
-export function laneServers(ports: LanePorts, options: { everId?: boolean } = {}): WebServer[] {
-	return [
-		{
-			command: 'node apps/web/playwright/backend.mjs',
-			port: ports.control,
-			timeout: 120_000,
-			// Never reused: a leftover backend answers from another run's state, and "the API was asked nothing"
-			// then means nothing at all.
-			reuseExistingServer: false,
-			env: {
-				E2E_MOCK_API_PORT: `${ports.mock}`,
-				E2E_MOCK_PLATFORM_PORT: `${ports.platform}`,
-				E2E_CONTROL_PORT: `${ports.control}`,
-				E2E_EVER_ID_ISSUER_PORT: `${ports.idp}`,
-				E2E_EVER_ID_CLIENT_ID: EVER_ID_CLIENT_ID
-			},
-			cwd: REPO_ROOT
-		},
-		{
-			/**
-			 * Not `yarn turbo dev --filter=@ever-teams/web`: that script is `yarn node env.js && yarn next dev -p 3030`
-			 * (apps/web/package.json), so the port is hardcoded in it and a lane asking for 3031 would start a *third*
-			 * server on 3030 and take the canonical suite's port. `env.js` is dotenv plus console lines only — Next
-			 * reads `.env.local`/`.env` itself and never overrides a variable the process already has — so the lane
-			 * calls the project's own `next dev` with the port it was given. The preamble lines are what is lost.
-			 */
-			command: `node_modules/.bin/next dev -p ${ports.app}`,
-			port: ports.app,
-			timeout: 900_000,
-			reuseExistingServer: false,
-			env: laneEnv(ports, options),
-			// `next dev` reads next.config.js from its working directory, so this is the app's folder — `../..`
-			// counted from the folder holding the config, which is how Playwright reads a cwd.
-			cwd: '../..'
 		}
 	];
 }
@@ -283,14 +184,15 @@ export function liveServers(): WebServer[] {
 			command: 'yarn turbo dev --filter=@ever-teams/web',
 			port: Number(new URL(APP_ORIGIN).port),
 			timeout: 900_000,
-			reuseExistingServer: !process.env.CI,
+			reuseExistingServer: REUSE_SERVERS,
 			env: {
 				...sharedEnv(DEMO_API_ORIGIN),
 				NEXT_PUBLIC_COOKIE_DOMAINS: '',
 				EVER_STATS_API_URL: '',
 				NEXT_PUBLIC_EVER_STATS_API_URL: '',
 				NEXT_PUBLIC_EVER_STATS_ENABLED: 'false'
-			}
+			},
+			cwd: REPO_ROOT
 		}
 	];
 }

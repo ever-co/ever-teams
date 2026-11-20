@@ -25,9 +25,10 @@ async function expectRedirectTo(api: ApiCall, path: string, target: string) {
 	const response = await api(path, NO_SESSION);
 	const body = await response.text();
 
-	expect(response.status(), `${path}: the door answered ${response.status()} instead of redirecting (${body.slice(0, 120)})`).toBe(
-		307
-	);
+	expect(
+		response.status(),
+		`${path}: the door answered ${response.status()} instead of redirecting (${body.slice(0, 120)})`
+	).toBe(307);
 	const location = response.headers()['location'] ?? '';
 	expect(location, `${path}: redirected to ${location}, not ${target}`).toBe(`${APP_ORIGIN}${target}`);
 }
@@ -73,7 +74,13 @@ test.describe('the page gate for an anonymous visitor', () => {
 	}
 
 	test('the auth pages answer 200 to an anonymous visitor', async ({ api }) => {
-		for (const path of ['/auth/passcode', '/auth/password', '/auth/signup', '/auth/forgot-password', '/auth/accept-invite']) {
+		for (const path of [
+			'/auth/passcode',
+			'/auth/password',
+			'/auth/signup',
+			'/auth/forgot-password',
+			'/auth/accept-invite'
+		]) {
 			const response = await api(path, NO_SESSION);
 			expect(response.status(), `${path}: ${await response.text()}`).toBe(200);
 		}

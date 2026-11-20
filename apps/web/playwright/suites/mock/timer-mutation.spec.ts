@@ -102,13 +102,10 @@ test.describe('starting the timer', () => {
 		});
 
 		expect(written.starts, 'the start reached the API').toHaveLength(1);
-		expect(
-			written.taskWrites,
-			'the task update reached the API as a PUT or PATCH on the task'
-		).not.toHaveLength(0);
+		expect(written.taskWrites, 'the task update reached the API as a PUT or PATCH on the task').not.toHaveLength(0);
 	});
 
-	test('starts at once when the team leaves planning to its members', async ({ app, mock }) => {
+	test('starts at once when the team leaves planning to its members', async ({ app }) => {
 		const page = await app('/', { scenario: { hasPlan: false, requirePlanToTrack: false } });
 
 		await expect(startButton(page)).toHaveAttribute('aria-disabled', 'false', { timeout: 20_000 });
@@ -166,7 +163,10 @@ test.describe('starting the timer', () => {
 
 		await expect(page.getByText(fixture.names.teamB)).toBeVisible({ timeout: 15_000 });
 		await page.waitForTimeout(1_000);
-		await expect(page.getByText(fixture.names.teamB), 'the delayed answer of the workspace left behind').toBeVisible();
+		await expect(
+			page.getByText(fixture.names.teamB),
+			'the delayed answer of the workspace left behind'
+		).toBeVisible();
 
 		const teamPlans = (await mock.requests()).filter((request) => request.path.startsWith('/api/daily-plan'));
 		const lastScope = new URLSearchParams(teamPlans.at(-1)?.query ?? '').get('where[tenantId]');

@@ -61,14 +61,14 @@ function resolveRoute(path: string, ids: Record<string, string>, names: Record<s
 		if (names[value]) return names[value];
 		return value;
 	});
-};
+}
 
 /**
  * Handlers that answer 5xx, each pinned to the status it produced and the reason. Two kinds:
  *   'mock gap' — the deterministic backend implements no upstream route, so the app answers its own
  *                upstream-failure status. The handler behaved correctly; the harness cannot go further.
  *   'app'      — the handler itself. Named here so it is a finding with an owner, not a skipped test.
- * `node apps/web/playwright/scripts/collect-api-route-blockers.mjs` rebuilds this list from a run.
+ * There is no generator for this list: it is kept by hand, from what a run of this suite reports.
  */
 const DOCUMENTED_SERVER_BLOCKERS: Record<string, { status: number; kind: 'mock gap' | 'app'; reason: string }> = {
 	'POST /api/ai/transcribe': {
@@ -151,7 +151,9 @@ for (const route of apiRoutes) {
 					`${title} is documented as a ${blocker.status} ${blocker.kind} ("${blocker.reason}"); it answered ${status} — either it was fixed (remove the entry) or it changed (${body.slice(0, 200)})`
 				).toBe(blocker.status);
 			} else {
-				expect(status, `${title} crashed the handler (status ${status}): ${body.slice(0, 400)}`).toBeLessThan(500);
+				expect(status, `${title} crashed the handler (status ${status}): ${body.slice(0, 400)}`).toBeLessThan(
+					500
+				);
 			}
 
 			const contentType = response.headers()['content-type'] ?? '';
@@ -164,9 +166,10 @@ for (const route of apiRoutes) {
 					`${title} answered ${status} with no body but a content-type of ${contentType}`
 				).toBe('');
 			} else if (NON_JSON_ROUTES[title]) {
-				expect(contentType, `${title} answers ${contentType || 'nothing'}: ${NON_JSON_ROUTES[title]}`).not.toContain(
-					'application/json'
-				);
+				expect(
+					contentType,
+					`${title} answers ${contentType || 'nothing'}: ${NON_JSON_ROUTES[title]}`
+				).not.toContain('application/json');
 			} else {
 				expect(
 					contentType,

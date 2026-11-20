@@ -14,9 +14,6 @@
 # next.js
 /.next/
 /out/
-# build directories of the Playwright lanes: each lane runs its own `next dev` in this folder, and Next 16 allows
-# only one dev server per distDir (apps/web/playwright/test-servers.ts, `laneServers`).
-/.next-lane-*/
 
 # production
 /build

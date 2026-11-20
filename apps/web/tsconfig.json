@@ -59,6 +59,7 @@
 	"exclude": [
 		"node_modules",
 		"cypress",
-		"cypress.config.ts"
+		"cypress.config.ts",
+		"playwright"
 	]
 }

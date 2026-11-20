@@ -65,11 +65,7 @@ function organizationOf(token: string): unknown {
 test.describe('the access token cookie, split or whole', () => {
 	test('a token stored in three chunks is sent whole', async ({ api, cookies, ids, mock }) => {
 		const token = tokenOf(cookies);
-		const { status, text } = await switchOrganization(
-			api,
-			chunked(cookies, 'A', token, 3),
-			ids.organizationA
-		);
+		const { status, text } = await switchOrganization(api, chunked(cookies, 'A', token, 3), ids.organizationA);
 
 		// No `auth-token` cookie in that header: reassembly is the only way this can succeed.
 		expect(status, `the app could not reassemble its chunked token: ${text}`).toBe(200);
@@ -79,12 +75,17 @@ test.describe('the access token cookie, split or whole', () => {
 			ids.organizationA
 		);
 
-		expect(await mock.calls('/api/auth/switch-organization').then((calls) => calls.map((c) => c.status))).toEqual(
-			[200]
-		);
+		expect(await mock.calls('/api/auth/switch-organization').then((calls) => calls.map((c) => c.status))).toEqual([
+			200
+		]);
 	});
 
-	test('a chunk that is missing is refused here instead of sending half a token', async ({ api, cookies, ids, mock }) => {
+	test('a chunk that is missing is refused here instead of sending half a token', async ({
+		api,
+		cookies,
+		ids,
+		mock
+	}) => {
 		const token = tokenOf(cookies);
 		const header = chunked(cookies, 'A', token, 3, 3, false); // announces three, writes two
 
@@ -105,7 +106,11 @@ test.describe('the access token cookie, split or whole', () => {
 	});
 
 	test('a chunk count of zero is not a chunked token either', async ({ api, cookies, ids }) => {
-		const { status, text } = await switchOrganization(api, `${cookies('A')}; auth-token_totalChunks=0`, ids.organizationA);
+		const { status, text } = await switchOrganization(
+			api,
+			`${cookies('A')}; auth-token_totalChunks=0`,
+			ids.organizationA
+		);
 
 		expect(status, `auth-token_totalChunks=0 broke a plain session: ${text}`).toBe(200);
 	});
@@ -119,7 +124,7 @@ test.describe('the access token cookie, split or whole', () => {
 			`auth-token_totalChunks=100000000; auth-token0=${'x'.repeat(4000)}; tenant-id=x`,
 			ids.organizationA
 		);
-	 const tookMs = Date.now() - startedAt;
+		const tookMs = Date.now() - startedAt;
 
 		expect(status, `the enormous count was not refused outright: ${text}`).toBe(401);
 		expect(tookMs, `the answer took ${tookMs} ms: the count was used as a loop size`).toBeLessThan(5_000);

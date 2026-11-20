@@ -47,15 +47,17 @@ test.describe('a cross-site write is refused', () => {
 				headers: { origin: FOREIGN_ORIGIN }
 			});
 			const anonymousBody = await anonymous.text();
-			expect(anonymous.status(), `${why}: anonymous cross-site write answered ${anonymous.status()} ${anonymousBody}`).toBe(
-				403
-			);
+			expect(
+				anonymous.status(),
+				`${why}: anonymous cross-site write answered ${anonymous.status()} ${anonymousBody}`
+			).toBe(403);
 
 			const signedIn = await api(path, { method: route.verb, body: {}, headers: { origin: FOREIGN_ORIGIN } });
 			const signedInBody = await signedIn.text();
-			expect(signedIn.status(), `${why}: signed-in cross-site write answered ${signedIn.status()} ${signedInBody}`).toBe(
-				403
-			);
+			expect(
+				signedIn.status(),
+				`${why}: signed-in cross-site write answered ${signedIn.status()} ${signedInBody}`
+			).toBe(403);
 
 			// The mock is reset before every test, so anything in its log here is a request the
 			// refusal let through — which is the failure mode that matters.
@@ -89,7 +91,10 @@ test.describe('a cross-site write is refused', () => {
 						headers: { 'sec-fetch-site': fetchSite }
 					});
 					const body = await response.text();
-					expect(response.status(), `Sec-Fetch-Site: ${fetchSite} answered ${response.status()} ${body}`).toBe(403);
+					expect(
+						response.status(),
+						`Sec-Fetch-Site: ${fetchSite} answered ${response.status()} ${body}`
+					).toBe(403);
 
 					const reached = await mock.requests();
 					expect(reached, 'the header check must also come before any call to the API').toEqual([]);

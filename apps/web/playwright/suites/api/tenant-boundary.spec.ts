@@ -68,14 +68,13 @@ test.describe('switching organization stays inside the session tenant', () => {
 		// The token is only worth what its claims say: the same person, the organization asked for.
 		const claims = claimsOf(String(body.token));
 		expect(claims.sub, `${why}: the token is not the session user's`).toBe(ids.user);
-		expect(claims.organizationId, `${why}: the token is not of the organization asked for`).toBe(
-			ids.organizationA
-		);
+		expect(claims.organizationId, `${why}: the token is not of the organization asked for`).toBe(ids.organizationA);
 
 		const calls = await mock.calls('/api/auth/switch-organization');
-		expect(calls.map((call) => `${call.method} ${call.path} ${call.status}`), `${why}: the API was not asked`).toEqual([
-			'POST /api/auth/switch-organization 200'
-		]);
+		expect(
+			calls.map((call) => `${call.method} ${call.path} ${call.status}`),
+			`${why}: the API was not asked`
+		).toEqual(['POST /api/auth/switch-organization 200']);
 	});
 
 	test('the other tenant of the same person is refused', async ({ api, ids }) => {
@@ -140,11 +139,14 @@ test.describe('switching organization stays inside the session tenant', () => {
 		// Unlike the anonymous case below, this request did reach the API and was refused there: the
 		// proxy had a token to send, it just could not say which tenant acts with it.
 		const calls = await mock.calls('/api/auth/switch-organization');
-		expect(calls.map((call) => call.status), `${why}: the API never saw this request`).toEqual([401]);
+		expect(
+			calls.map((call) => call.status),
+			`${why}: the API never saw this request`
+		).toEqual([401]);
 	});
 
 	test('a request with no session is refused before anything is asked of the API', async ({ api, mock }) => {
-		const { response, body, why } = await switchTo(api, ids_call(), { anonymous: true });
+		const { response, body, why } = await switchTo(api, UNKNOWN_ORGANIZATION, { anonymous: true });
 
 		expect(response.status(), `${why}: answered ${JSON.stringify(body)}`).toBe(401);
 		// The proxy has no token to forward, so it answers without touching the API at all: the mock log
@@ -158,20 +160,14 @@ test.describe('switching organization stays inside the session tenant', () => {
 			headers: { origin: 'https://some-other-site.example' }
 		});
 
-		expect(`${response.status()} ${JSON.stringify(body)}`, `${why}: not refused as cross-site`).toMatch(/403/);
+		expect(response.status(), `${why}: not refused as cross-site, answered ${JSON.stringify(body)}`).toBe(403);
 		expect(await mock.requests(), `${why}: the API was asked anyway`).toEqual([]);
 	});
 
 	test('the switch cannot be read with a GET', async ({ api, ids, mock }) => {
-		// The cross-site guard exempts GET and HEAD, and this route answers 405 for them: a read must not
-		// be able to mint tokens either.
+		// The route exports POST only, so Next answers 405 to a GET: a read must not be able to mint tokens.
 		const response = await api(`${SWITCH}?organizationId=${ids.organizationA}`, { method: 'GET' });
-		expect(response.status(), 'a GET on the organization switch answered with tokens').not.toBe(200);
+		expect(response.status(), 'a GET on the organization switch was not refused as a method').toBe(405);
 		expect(await mock.requests(), 'the API was asked to switch by a GET').toEqual([]);
 	});
 });
-
-/** A body value that is not a fixture id: this case is only about having no session at all. */
-function ids_call(): string {
-	return UNKNOWN_ORGANIZATION;
-}

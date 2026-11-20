@@ -33,7 +33,9 @@ test.describe('the Ever ID sign-in, not configured', () => {
 			await response.text();
 
 			expect(status, `${route.verb} ${route.path}: an unconfigured Ever ID route answered ${status}`).toBe(404);
-			expect(await mock.requests(), `${route.path}: the API was asked by a route that should not exist`).toEqual([]);
+			expect(await mock.requests(), `${route.path}: the API was asked by a route that should not exist`).toEqual(
+				[]
+			);
 			expect((await idpState()).contacts.length, `${route.path}: the identity provider was contacted`).toBe(
 				issuerBefore
 			);
@@ -49,8 +51,9 @@ test.describe('the Ever ID sign-in, not configured', () => {
 		const providers = await response.json();
 
 		expect(status, `the provider list answered ${status} instead of a JSON list of providers`).toBe(200);
-		expect(Object.keys(providers), 'the Ever ID provider was offered while the sign-in is not configured').not.toContain(
-			'ever-id'
-		);
+		expect(
+			Object.keys(providers),
+			'the Ever ID provider was offered while the sign-in is not configured'
+		).not.toContain('ever-id');
 	});
 });

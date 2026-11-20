@@ -29,7 +29,7 @@ async function capture(page: Page, path: RegExp, sink: CapturedCall[]): Promise<
 }
 
 test.describe('the Ever Platform settings section', () => {
-	test('shows the connection parts while the paired API answers health, asked with the person\'s own token', async ({
+	test("shows the connection parts while the paired API answers health, asked with the person's own token", async ({
 		page,
 		fixture
 	}) => {
@@ -38,9 +38,13 @@ test.describe('the Ever Platform settings section', () => {
 		await signInAndVisit(page, fixture, '/settings/team/integrations');
 
 		await expect
-			.poll(() => health.length, { message: 'the integrations page never asked the paired API whether it is reachable' })
+			.poll(() => health.length, {
+				message: 'the integrations page never asked the paired API whether it is reachable'
+			})
 			.toBeGreaterThan(0);
-		expect(health[0].authorization, 'health is asked with the signed-in person, not anonymously').toMatch(/^Bearer /);
+		expect(health[0].authorization, 'health is asked with the signed-in person, not anonymously').toMatch(
+			/^Bearer /
+		);
 		expect(health[0].status, 'the paired API answered health').toBe(200);
 
 		await expect(page.getByTestId('ever-platform-section')).toBeVisible({ timeout: 20_000 });
@@ -78,8 +82,7 @@ test.describe('the Ever Platform settings section', () => {
 
 	test('shows who manages the statistics — and no switch, no payload — to someone who is not the operator', async ({
 		page,
-		fixture,
-		mock
+		fixture
 	}) => {
 		const statuses: CapturedCall[] = [];
 		await capture(page, /\/api\/ever-stats\/status(\?.*)?$/, statuses);
@@ -95,7 +98,9 @@ test.describe('the Ever Platform settings section', () => {
 		await expect(page.getByTestId('ever-stats-managed')).toContainText('Managed by the instance operator', {
 			timeout: 20_000
 		});
-		await expect(page.getByTestId('ever-stats-toggle'), 'no switch for someone who cannot change it').toHaveCount(0);
+		await expect(page.getByTestId('ever-stats-toggle'), 'no switch for someone who cannot change it').toHaveCount(
+			0
+		);
 		await expect(
 			page.getByTestId('ever-stats-card').locator('pre'),
 			'no payload dump for someone who cannot change it'

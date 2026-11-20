@@ -54,21 +54,32 @@ function json(res, status, payload) {
 	res.end(body);
 }
 
+class BadRequest extends Error {}
+
+/** A control request's JSON body. Malformed JSON is the test's own bug, so it is a 400, never a silent `{}`. */
 function readBody(req) {
-	return new Promise((done) => {
+	return new Promise((done, fail) => {
 		let raw = '';
 		req.on('data', (chunk) => (raw += chunk));
+		req.on('error', fail);
 		req.on('end', () => {
 			try {
 				done(raw ? JSON.parse(raw) : {});
-			} catch {
-				done({});
+			} catch (error) {
+				fail(new BadRequest(`malformed JSON body: ${error.message}`));
 			}
 		});
 	});
 }
 
-const control = createServer(async (req, res) => {
+const control = createServer((req, res) => {
+	handleControl(req, res).catch((error) => {
+		if (res.headersSent) return res.end();
+		json(res, error instanceof BadRequest ? 400 : 500, { error: String(error?.message ?? error) });
+	});
+});
+
+async function handleControl(req, res) {
 	const url = new URL(req.url ?? '/', `http://127.0.0.1:${CONTROL_PORT}`);
 
 	if (req.method === 'GET' && url.pathname === '/health') {
@@ -114,7 +125,7 @@ const control = createServer(async (req, res) => {
 		);
 	}
 	return json(res, 404, { error: `no control route for ${req.method} ${url.pathname}` });
-});
+}
 
 await new Promise((done) => control.listen(CONTROL_PORT, '127.0.0.1', done));
 

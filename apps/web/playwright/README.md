@@ -1,22 +1,34 @@
 # The Playwright suites
 
-Three runs, one app, and one rule: **a test states what the app did to the server, not only what it
+Four runs, one app, and one rule: **a test states what the app did to the server, not only what it
 painted.** Where the mock can witness a write (`workspaceCreation`, `mutationProof`, the stored
 notification row, the appointments list, the statistics sink) the assertion reads that witness. Where
 it cannot, the assertion names the request the browser made, and says so in its message.
 
-| Run | Command | What it drives |
-| --- | --- | --- |
-| Mock browser suite | `yarn playwright test --config apps/web/playwright/playwright.config.ts` | the app against the synthetic Gauzy API (deterministic, no network) |
-| Server-route suites | `yarn playwright test --config apps/web/playwright/playwright.api.config.ts` | every Next.js route handler under `apps/web/app/api`, no browser |
-| Live suite | `yarn playwright test --config apps/web/playwright/playwright.live.config.ts` | the app against the demo API (`apidev.ever.team`) |
+| Run                 | Command (from the repository root)                  | What it drives                                                                                                                             |
+| ------------------- | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| Mock browser suite  | `yarn workspace @ever-teams/web pw`                 | the app against the synthetic Gauzy API (deterministic, no network)                                                                        |
+| Server-route suites | `yarn workspace @ever-teams/web pw:api`             | every Next.js route handler under `apps/web/app/api`, no browser                                                                           |
+| Ever ID suite       | `yarn workspace @ever-teams/web pw:ever-id`         | the Ever ID sign-in routes against a fake OpenID Connect issuer on the loopback                                                            |
+| Live suite          | `E2E_LIVE=1 yarn workspace @ever-teams/web pw:live` | the app against the demo API (`apidev.ever.team`); opt-in, because it asks the shared demo API to send a sign-in code and a password reset |
 
-The mock suite and the live suite both want port 3030, so run them one at a time (or point one at
-`E2E_APP_ORIGIN=http://localhost:3031` — `localhost`, for the reason in the blockers below).
+Install the browser once with `yarn workspace @ever-teams/web playwright install chromium`
+(`E2E_BROWSER_CHANNEL=chrome` uses an installed Google Chrome instead).
 
-Let the config start its own servers. A dev server or `backend.mjs` hand-started in another terminal is
-silently reused (`reuseExistingServer`), with whatever env that one happened to have — which is how a run
-can look healthy while it is testing the wrong server.
+Every run wants port 3030 (and the mock suites 3988–3991), so run them one at a time.
+
+After adding, removing or changing a route handler under `apps/web/app/api`, regenerate the manifests the
+server-route suites run over — `suites/api/manifests.spec.ts` fails until you do:
+
+```bash
+node apps/web/playwright/scripts/collect-api-routes.mjs
+node apps/web/playwright/scripts/collect-foreign-origin-routes.mjs
+```
+
+Let the config start its own servers. A run refuses to start while something else holds its ports: a dev
+server hand-started in another terminal has whatever env that one happened to have (`apps/web/.env` points at
+the real API), which is how a run can look healthy while it is testing the wrong server. `E2E_REUSE_SERVERS=1`
+reuses servers you started yourself with `test-servers.ts`'s environment.
 
 ## The pieces
 
@@ -74,17 +86,12 @@ can look healthy while it is testing the wrong server.
   `resolve(configDir, cwd)`), so every command here is repo-root relative and every entry names
   `cwd: '../../..'`. Without that, `node apps/web/playwright/backend.mjs` resolves to a doubled path and the
   test backend dies at startup — a run only looks healthy if a hand-started backend is already listening.
-- **The bundled Chromium cannot be installed on this PC.** `npx playwright install chromium` downloads
-  the whole 179 MB archive and extracts three files (`147.0.7727.15.manifest`, `ABOUT`,
-  `D3DCompiler_47.dll`, 4.7 MB, no `chrome.exe`) — four attempts, including outside the sandbox. Until
-  that is fixed, `E2E_BROWSER_CHANNEL=chrome` runs the same engine against the system Chrome; the config
-  says so where the default is set.
 - **`Next` mounts a `nextjs-portal` on every dev page**, error or not. Asserting it is absent fails
   every page. `devOverlayErrors()` looks for the error markup inside its shadow trees and quotes what it
   finds.
 - **The live suite covers the signed-out half only.** `scripts/provision-demo-tenant.mjs` registers a
   throwaway account on the demo API (refusing production APIs in code, credentials written to
-  `<root>/workspace/.config/`, never to the repository), but both password routes then answer 401: the
+  `E2E_DEMO_CREDENTIALS_FILE`, by default `~/.ever-teams/`, never to the repository), but both password routes then answer 401: the
   demo API will not sign in an address whose e-mail is not confirmed. A confirmed demo account unlocks
   the signed-in live cases; until then they are covered by the mock suite with synthetic sessions.
 - **Statistics timing** needs `EVER_STATS_SEND_INTERVAL_S=5` on the dev server (set in

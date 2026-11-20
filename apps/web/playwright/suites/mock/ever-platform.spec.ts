@@ -64,9 +64,10 @@ test.describe('the anonymous usage statistics switch', () => {
 		await reportsAbove(before, INTERVAL_S * 1_000 * 4);
 
 		const writes = await mock.calls('/api/ever-stats/enabled');
-		expect(writes.map((write) => write.status), 'every toggle write').toEqual(
-			writes.map(() => 200)
-		);
+		expect(
+			writes.map((write) => write.status),
+			'every toggle write'
+		).toEqual(writes.map(() => 200));
 	});
 
 	test('sends nothing while the paired API does not serve this web app', async ({ app, mock }) => {

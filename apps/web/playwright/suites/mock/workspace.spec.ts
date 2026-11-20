@@ -1,4 +1,6 @@
-import { expect, test, type BrowserContext, type Page } from '../../fixtures';
+import type { BrowserContext } from '@playwright/test';
+
+import { expect, test, type Page } from '../../fixtures';
 
 /**
  * Creating another workspace while signed in.
@@ -40,7 +42,7 @@ test.describe('creating another workspace', () => {
 		const context = page.context();
 
 		await page.locator('#workspace-name').fill('Lovelace Studio');
-		await expect(page.locator('#workspace-team')).hasValue('Lovelace Studio');
+		await expect(page.locator('#workspace-team')).toHaveValue('Lovelace Studio');
 		await page.locator('#workspace-team').fill('Design');
 		await page.locator('#workspace-invites').fill('grace@example.test, ada@example.test');
 		await page.getByRole('button', { name: 'Create workspace' }).click();
@@ -49,7 +51,9 @@ test.describe('creating another workspace', () => {
 		expect(await cookieValue(context, 'auth-tenant-id'), 'the browser moved to the new tenant').toBe(NEW_TENANT_ID);
 		expect(await cookieValue(context, 'auth-active-team'), 'and to its team').toBe(NEW_TEAM_ID);
 		await expect(page.getByText('Your workspace is ready')).toBeVisible();
-		await expect(page.locator('[aria-label^="Current workspace: Lovelace Studio."]')).toBeVisible({ timeout: 20_000 });
+		await expect(page.locator('[aria-label^="Current workspace: Lovelace Studio."]')).toBeVisible({
+			timeout: 20_000
+		});
 
 		const created = await creation(mock);
 		expect(created.openings, 'one opening was asked for').toBe(1);
@@ -102,11 +106,14 @@ test.describe('creating another workspace', () => {
 		await openForm(page, 'Lovelace Studio');
 		await page.getByRole('button', { name: 'Create workspace' }).click();
 
-		await expect(page.getByText('Your workspace was created, but could not be opened')).toBeVisible({ timeout: 30_000 });
+		await expect(page.getByText('Your workspace was created, but could not be opened')).toBeVisible({
+			timeout: 30_000
+		});
 		await expect(page.getByRole('button', { name: 'Create workspace' })).toBeDisabled();
-		expect(await cookieValue(page.context(), 'auth-tenant-id'), 'the person is not dropped into a half-open workspace').toBe(
-			before
-		);
+		expect(
+			await cookieValue(page.context(), 'auth-tenant-id'),
+			'the person is not dropped into a half-open workspace'
+		).toBe(before);
 		expect((await creation(mock)).team?.name, 'the workspace really was created').toBe('Lovelace Studio');
 	});
 
@@ -146,7 +153,9 @@ test.describe('creating another workspace', () => {
 		await openForm(page, 'Lovelace Studio');
 		await page.getByRole('button', { name: 'Create workspace' }).click();
 
-		await expect(page.getByText('We could not tell whether your workspace was created')).toBeVisible({ timeout: 20_000 });
+		await expect(page.getByText('We could not tell whether your workspace was created')).toBeVisible({
+			timeout: 20_000
+		});
 		await expect(page.getByRole('button', { name: 'Create workspace' })).toBeDisabled();
 	});
 });

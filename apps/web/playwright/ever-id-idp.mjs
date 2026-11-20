@@ -74,7 +74,8 @@ export async function createEverIdIdp({ port, clientId, path = '/oidc' }) {
 		const key = keyOf(kid);
 		const signingInput = `${base64Url({ alg, typ: 'JWT', kid: headerKid ?? kid })}.${base64Url(claims)}`;
 		if (alg === 'none') return `${signingInput}.`;
-		if (alg === 'HS256') return `${signingInput}.${createHmac('sha256', key.publicPem).update(signingInput).digest('base64url')}`;
+		if (alg === 'HS256')
+			return `${signingInput}.${createHmac('sha256', key.publicPem).update(signingInput).digest('base64url')}`;
 		return `${signingInput}.${createSign('sha256').update(signingInput).sign(key.privateKey).toString('base64url')}`;
 	}
 
@@ -111,7 +112,10 @@ export async function createEverIdIdp({ port, clientId, path = '/oidc' }) {
 	const handle = (request, response) => {
 		const url = new URL(request.url ?? '/', `http://127.0.0.1:${port}`);
 		const send = (status, payload) => {
-			response.writeHead(status, { 'cache-control': 'no-store', 'content-type': 'application/json; charset=utf-8' });
+			response.writeHead(status, {
+				'cache-control': 'no-store',
+				'content-type': 'application/json; charset=utf-8'
+			});
 			response.end(JSON.stringify(payload));
 		};
 
