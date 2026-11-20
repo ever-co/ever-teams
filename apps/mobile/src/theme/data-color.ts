@@ -81,14 +81,17 @@ function fromHsl(color: string): Rgb | null {
 	if (!hsl) {
 		return null;
 	}
+	const hue = Number(hsl[1]);
 	const saturation = Number(hsl[2]) / 100;
 	const lightness = Number(hsl[3]) / 100;
-	const outOfRange = saturation > 1 || lightness > 1;
-	if (outOfRange) {
+	// the pattern takes any run of digits and dots: "." or "1.2.3" is no number, and no color either
+	const isReadable = [hue, saturation, lightness].every((value) => Number.isFinite(value));
+	const isInRange = saturation <= 1 && lightness <= 1;
+	if (!isReadable || !isInRange) {
 		return null;
 	}
 	const chroma = (1 - Math.abs(2 * lightness - 1)) * saturation;
-	const sector = (Number(hsl[1]) % 360) / 60;
+	const sector = (hue % 360) / 60;
 	const second = chroma * (1 - Math.abs((sector % 2) - 1));
 	const [r, g, b] = sectorChannels(sector, chroma, second);
 	const added = lightness - chroma / 2;

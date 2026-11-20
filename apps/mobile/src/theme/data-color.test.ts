@@ -87,4 +87,10 @@ describe('the chip of a data color', () => {
 		expect(fromHsl).toEqual(dataColorChipOf('rgb(100, 103, 242)', 'light'));
 		expect(dataColorChipOf('hsl(239, 184%, 67%)', 'light')).toBeNull();
 	});
+
+	it('reads a malformed hsl() number as no color, never as a broken one', () => {
+		expect(dataColorChipOf('hsl(239, .%, 67%)', 'light')).toBeNull();
+		expect(dataColorChipOf('hsl(239, ..%, 67%)', 'light')).toBeNull();
+		expect(dataColorHueOf('hsl(1.2.3, 84%, 67%)')).toBeNull();
+	});
 });
