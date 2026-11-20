@@ -8,6 +8,7 @@ import { menuRowBackgroundOf } from '../../src/theme/menu-look';
 import { typography, useWebTheme } from '../theme';
 import { translate } from '../i18n';
 import { ActionsMenu } from './actions-menu';
+import { taskSettingsReadOnlyHint } from '../services/hooks/features/task-settings-read-only';
 import type { MenuActionItem } from './actions-menu';
 
 const GLYPH_SIZE = 16;
@@ -48,7 +49,7 @@ function readOnlyHintOf(readOnly: boolean): string | undefined {
 	if (!readOnly) {
 		return undefined;
 	}
-	return translate('settingScreen.teamSection.taskSettingsReadOnly');
+	return taskSettingsReadOnlyHint();
 }
 
 /**

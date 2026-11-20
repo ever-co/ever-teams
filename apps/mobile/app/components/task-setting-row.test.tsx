@@ -2,6 +2,7 @@ import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react-native';
 import { StyleSheet } from 'react-native';
 import TaskSettingRow from './task-setting-row';
+import { taskSettingsReadOnlyHint } from '../services/hooks/features/task-settings-read-only';
 import { themeFor } from '../../src/theme/use-theme';
 
 // The row's icons as their names, with the color they were given
@@ -74,7 +75,7 @@ describe("a row of a team's task settings", () => {
 		await fireEvent.press(screen.getByLabelText('Edit'));
 		expect(edit).toHaveBeenCalledTimes(1);
 		expect(screen.getByLabelText('Edit')).toBeDisabled();
-		expect(screen.getByText('Only team managers can change these settings.')).toBeTruthy();
+		expect(screen.getByText(taskSettingsReadOnlyHint())).toBeTruthy();
 	});
 
 	it('names its menu with the setting it acts on, for a screen reader', async () => {

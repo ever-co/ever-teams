@@ -1,10 +1,10 @@
 import { useCallback, useMemo } from 'react';
-import { translate } from '../../../i18n';
 import { useStores } from '../../../models';
 import useFetchMyRolePermissions from '../../client/queries/user/role-permissions';
 import { IOrganizationTeamList, OT_Member } from '../../interfaces/IOrganizationTeam';
 import { IRolePermission } from '../../interfaces/IRolePermission';
 import { IUser } from '../../interfaces/IUserData';
+import { taskSettingsReadOnlyHint } from './task-settings-read-only';
 
 /** The permission the API states on every write of a task status, priority, size, version or issue type. */
 const TASK_SETTING_PERMISSION = 'ORG_TASK_SETTING';
@@ -144,7 +144,7 @@ export function useTaskSettingsAccess() {
 
 	// The create hooks file a new row under the active team
 	const canCreate = canWriteInTeam(activeTeamId);
-	const readOnlyHint = translate('settingScreen.teamSection.taskSettingsReadOnly');
+	const readOnlyHint = taskSettingsReadOnlyHint();
 
 	return {
 		canCreate,
