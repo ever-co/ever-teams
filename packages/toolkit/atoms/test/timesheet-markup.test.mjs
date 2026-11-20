@@ -35,10 +35,19 @@ const standIns = {
 		export const MultiSelectValue = ${nothing};
 		export const Select = ${children};
 		export const Card = ${children};`,
-	// The key, and the organization's name when the title is given one.
-	'react-i18next': `export const useTranslation = () => ({
-		t: (key, values) => (values?.orgName ? key + ': ' + values.orgName : key)
-	});`,
+	// The kit's English strings, read under the key prefix the component asks for; a key it lacks shows its full path.
+	'react-i18next': `import en from '${kitSources}/i18n/locales/en.json';
+		const textOf = (path) => path.split('.').reduce((node, part) => node?.[part], en);
+		export const useTranslation = (_namespace, options) => ({
+			t: (key, values = {}) => {
+				const path = [options?.keyPrefix, key].filter(Boolean).join('.');
+				const text = textOf(path);
+				if (typeof text !== 'string') {
+					return path;
+				}
+				return text.replace(/{{(\\w+)}}/g, (_match, name) => String(values[name]));
+			}
+		});`,
 	'lucide-react': `export const ChevronLeft = ${nothing};
 		export const ChevronRight = ${nothing};
 		export const FileText = ${nothing};
@@ -140,12 +149,12 @@ function titleWith(organizations) {
 }
 
 test('signed out, or before the organizations are read, the title names no organization', () => {
-	assert.equal(titleWith(null), 'title_without_organization');
-	assert.equal(titleWith({ items: [] }), 'title_without_organization');
+	assert.equal(titleWith(null), 'Timesheets');
+	assert.equal(titleWith({ items: [] }), 'Timesheets');
 });
 
 test('once the selected organization is known, the title names it', () => {
 	const organizations = { items: [{ organizationId: 'org-1', organization: { name: 'Northwind Studio' } }] };
 
-	assert.equal(titleWith(organizations), 'title: Northwind Studio');
+	assert.equal(titleWith(organizations), 'Timesheets for Northwind Studio');
 });
