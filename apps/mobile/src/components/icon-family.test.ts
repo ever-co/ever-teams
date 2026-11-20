@@ -18,6 +18,7 @@ const ON_HUGEICONS: string[] = [
 	'app/screens/authenticated/setting-screen/components/timezone-popup.tsx',
 	'app/screens/authenticated/setting-screen/components/user-timezone.tsx',
 	'app/screens/authenticated/timer-screen/components/combo-box.tsx',
+	'app/screens/authenticated/timer-screen/components/estimate-time.tsx',
 	'src/home/today-tasks.tsx'
 ];
 
