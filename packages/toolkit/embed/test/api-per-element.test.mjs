@@ -184,3 +184,38 @@ test('two elements on two api-url keep their own saved sessions when the page lo
 	assert.ok(signedIn('b.example.com').length > 0, 'B reads the person with its own saved session');
 	assert.deepEqual(refused(), []);
 });
+
+test("another token-url while the first route has not answered: the first route's late token is never used (#5596)", async () => {
+	const claims = (n) =>
+		Buffer.from(JSON.stringify({ id: 'user-1', organizationId: 'org-1', n })).toString('base64url');
+	const tokenFor = (n) => `header.${claims(n)}.signature`;
+	const expiresAt = new Date(Date.now() + 15 * 60_000).toISOString();
+	const answer = (n) => new Response(JSON.stringify({ token: tokenFor(n), expiresAt }), { status: 200 });
+	let releaseFirst;
+	const sentWith = [];
+	const recording = recordingFetch(requests);
+	globalThis.fetch = (url, init) => {
+		const address = String(url);
+		if (address === '/first/token') {
+			return new Promise((resolve) => {
+				releaseFirst = () => resolve(answer(1));
+			});
+		}
+		if (address === '/second/token') {
+			return Promise.resolve(answer(2));
+		}
+		sentWith.push(new Headers(init?.headers).get('authorization'));
+		return recording(url, init);
+	};
+	const timer = await place('https://a.example.com/api');
+
+	await act(async () => timer.setAttribute('token-url', '/first/token'));
+	await settle();
+	await act(async () => timer.setAttribute('token-url', '/second/token'));
+	await settle();
+	await act(async () => releaseFirst());
+	await settle();
+
+	assert.ok(sentWith.includes(`Bearer ${tokenFor(2)}`), 'the second route signs the person in');
+	assert.ok(!sentWith.includes(`Bearer ${tokenFor(1)}`), "the first route's late token is never used");
+});
