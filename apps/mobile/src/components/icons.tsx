@@ -47,6 +47,7 @@ import Target02Icon from '@hugeicons/core-free-icons/Target02Icon';
 import Task01Icon from '@hugeicons/core-free-icons/Task01Icon';
 import Tick02Icon from '@hugeicons/core-free-icons/Tick02Icon';
 import Timer02Icon from '@hugeicons/core-free-icons/Timer02Icon';
+import UnfoldMoreIcon from '@hugeicons/core-free-icons/UnfoldMoreIcon';
 import UserIcon from '@hugeicons/core-free-icons/UserIcon';
 import UserMultipleIcon from '@hugeicons/core-free-icons/UserMultipleIcon';
 
@@ -75,6 +76,7 @@ export const ChevronDown = icon(ArrowDown01Icon, 'ChevronDown');
 export const ChevronLeft = icon(ArrowLeft01Icon, 'ChevronLeft');
 export const ChevronRight = icon(ArrowRight01Icon, 'ChevronRight');
 export const ChevronUp = icon(ArrowUp01Icon, 'ChevronUp');
+export const ChevronsUpDown = icon(UnfoldMoreIcon, 'ChevronsUpDown');
 export const Globe = icon(GlobalIcon, 'Globe');
 export const Menu = icon(Menu02Icon, 'Menu');
 export const Moon = icon(Moon02Icon, 'Moon');

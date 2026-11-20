@@ -3,7 +3,7 @@ import { observer } from 'mobx-react-lite';
 import React, { FC } from 'react';
 import { View, StyleSheet, TouchableOpacity, Text, Platform } from 'react-native';
 import { Avatar } from 'react-native-paper';
-import { Feather } from '@expo/vector-icons';
+import { ChevronsUpDown } from '../../../src/components/icons';
 import { imgTitle } from '../../helpers/img-title';
 import { useStores } from '../../models';
 import { IOrganizationTeamList } from '../../services/interfaces/IOrganizationTeam';
@@ -29,13 +29,6 @@ function nameLengthOf(resized: boolean) {
 		return 9;
 	}
 	return 10;
-}
-
-function chevronOf(isOpen: boolean) {
-	if (isOpen) {
-		return 'chevron-up' as const;
-	}
-	return 'chevron-down' as const;
 }
 
 /** The team switcher: the web's 44-tall control, its list of teams opening under it. */
@@ -91,7 +84,7 @@ const DropDown: FC<Props> = observer(function CreateTeamModal({
 					</Text>
 				</View>
 
-				<Feather name={chevronOf(isOpen)} size={16} color={colors['muted-foreground']} />
+				<ChevronsUpDown size={14} color={colors['muted-foreground']} />
 			</TouchableOpacity>
 
 			{isOpen && (
