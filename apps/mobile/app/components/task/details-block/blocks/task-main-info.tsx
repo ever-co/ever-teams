@@ -231,16 +231,16 @@ const EpicParent: React.FC<{ task: ITeamTask }> = ({ task }) => {
 };
 
 const styles = StyleSheet.create({
+	daysRemaining: {
+		fontSize: 13,
+		fontWeight: '600'
+	},
 	epicParentButton: { alignItems: 'center', flexDirection: 'row', gap: 4, width: '60%' },
 	epicParentIconWrapper: {
 		backgroundColor: '#8154BA',
 		borderRadius: 4,
 		marginVertical: 5,
 		padding: 4
-	},
-	daysRemaining: {
-		fontSize: 13,
-		fontWeight: '600'
 	},
 	horizontalSeparator: {
 		borderBottomWidth: StyleSheet.hairlineWidth,
