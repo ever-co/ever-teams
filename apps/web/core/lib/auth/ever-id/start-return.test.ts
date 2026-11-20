@@ -93,6 +93,29 @@ describe('keepEverIdStartReturnForSignIn', () => {
 		expect(pageOpenedAfterSignIn()).toBe('/kanban');
 	});
 
+	it('leaves the same page when another flow set it since: only the page the start set is taken back', () => {
+		setCookie(encodeURIComponent('/workspace/new'));
+		keepEverIdStartReturnForSignIn();
+		// The workspace list's "Create a new workspace" sets the same page for the sign-in.
+		setPathAfterSignIn('/workspace/new');
+
+		setCookie('');
+		keepEverIdStartReturnForSignIn();
+
+		expect(pageOpenedAfterSignIn()).toBe('/workspace/new');
+	});
+
+	it('ignores a cookie whose name only starts like it', () => {
+		setPathAfterSignIn('/workspace/new');
+		document.cookie = `ever-id-start-return-other=${encodeURIComponent('/task/1')}; Path=/`;
+
+		keepEverIdStartReturnForSignIn();
+
+		expect(document.cookie).toContain('ever-id-start-return-other=');
+		expect(pageOpenedAfterSignIn()).toBe('/workspace/new');
+		document.cookie = 'ever-id-start-return-other=; Path=/; Max-Age=0';
+	});
+
 	it('leaves a page set for the sign-in another way, even when a start names no page', () => {
 		setPathAfterSignIn('/workspace/new');
 		setCookie('');

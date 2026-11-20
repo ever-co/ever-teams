@@ -14,6 +14,7 @@ import {
 	EVER_ID_START_ROUTE_SWITCH,
 	everIdStartReturnCookie,
 	isEverIdStartNavigation,
+	hasEverIdStartReturnCookie,
 	isEverIdStartRouteEnabled,
 	readEverIdStartReturnCookie,
 	readEverIdStartReturnPath,
@@ -383,6 +384,21 @@ describe('the return-path cookie: where the sign-in lands afterwards', () => {
 			expect(readEverIdStartReturnCookie(`other=1; ${name}=${written}; last=2`)).toBe(path);
 		}
 	);
+
+	it('tells a cookie of that exact name, with a path or empty, from any other', () => {
+		expect(hasEverIdStartReturnCookie(`a=1; ${EVER_ID_START_RETURN_COOKIE}=; b=2`)).toBe(true);
+		expect(hasEverIdStartReturnCookie(`${EVER_ID_START_RETURN_COOKIE}=%2Fkanban`)).toBe(true);
+		for (const header of [
+			undefined,
+			null,
+			'',
+			'a=1',
+			`${EVER_ID_START_RETURN_COOKIE}-x=1`,
+			`x-${EVER_ID_START_RETURN_COOKIE}=1`
+		]) {
+			expect(hasEverIdStartReturnCookie(header)).toBe(false);
+		}
+	});
 
 	it('reads nothing when there is no such cookie', () => {
 		for (const header of [

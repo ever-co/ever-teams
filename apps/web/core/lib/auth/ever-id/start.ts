@@ -82,18 +82,33 @@ export function everIdStartReturnCookie(returnPath: string | undefined, secure: 
 	};
 }
 
+/** Every value of the return-path cookie in a `Cookie` header (or `document.cookie`), by its exact name. */
+function returnCookieValues(cookieHeader: string | null | undefined): string[] {
+	const values: string[] = [];
+	for (const part of (cookieHeader ?? '').split(';')) {
+		const separator = part.indexOf('=');
+		if (separator > 0 && part.slice(0, separator).trim() === EVER_ID_START_RETURN_COOKIE) {
+			values.push(part.slice(separator + 1).trim());
+		}
+	}
+	return values;
+}
+
+/** Whether a `Cookie` header (or `document.cookie`) carries the return-path cookie, with a path or empty. */
+export function hasEverIdStartReturnCookie(cookieHeader: string | null | undefined): boolean {
+	return returnCookieValues(cookieHeader).length > 0;
+}
+
 /**
  * The return path a `Cookie` header (or `document.cookie`) keeps (percent-encoded once), checked again as a link's
  * would be ({@link toEverIdStartReturnPath}): anything can set a cookie of this name on the way, so its value is
  * never trusted. `undefined` when there is none, or none that is a path of this site.
  */
 export function readEverIdStartReturnCookie(cookieHeader: string | null | undefined): string | undefined {
-	for (const part of (cookieHeader ?? '').split(';')) {
-		const separator = part.indexOf('=');
-		if (separator <= 0 || part.slice(0, separator).trim() !== EVER_ID_START_RETURN_COOKIE) continue;
+	for (const raw of returnCookieValues(cookieHeader)) {
 		let value: string;
 		try {
-			value = decodeURIComponent(part.slice(separator + 1).trim());
+			value = decodeURIComponent(raw);
 		} catch {
 			continue;
 		}

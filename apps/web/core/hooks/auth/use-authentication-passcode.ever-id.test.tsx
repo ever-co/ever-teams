@@ -24,7 +24,7 @@ jest.mock('next/navigation', () => ({
 jest.mock('@/core/lib/auth/navigate-after-sign-in', () => ({
 	navigateAfterSignIn: () => mockNavigateAfterSignIn(),
 	setPathAfterSignIn: (path: string | null) => mockSetPathAfterSignIn(path),
-	clearPathAfterSignInIf: jest.fn()
+	clearPathAfterSignInSetBy: jest.fn()
 }));
 jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
 jest.mock('@/core/services/client/api/auth/auth.service', () => ({

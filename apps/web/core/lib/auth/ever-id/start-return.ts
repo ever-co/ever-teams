@@ -1,16 +1,8 @@
-import { clearPathAfterSignInIf, setPathAfterSignIn } from '@/core/lib/auth/navigate-after-sign-in';
-import { EVER_ID_START_RETURN_COOKIE, readEverIdStartReturnCookie } from './start';
+import { clearPathAfterSignInSetBy, setPathAfterSignIn } from '@/core/lib/auth/navigate-after-sign-in';
+import { EVER_ID_START_RETURN_COOKIE, hasEverIdStartReturnCookie, readEverIdStartReturnCookie } from './start';
 
-/** The page the last start of this tab kept, so a later start without one can take back exactly that. */
-const KEPT_KEY = 'ever-teams:ever-id-start-return';
-
-function tabStorage(): Storage | null {
-	try {
-		return window.sessionStorage;
-	} catch {
-		return null;
-	}
-}
+/** How a page this module sets for the sign-in is marked, so a later start can take back that one only. */
+const SET_BY = 'ever-id-start';
 
 /**
  * Ever ID, browser side: the page a sign-in begun by a link to the start address (app/api/auth/ever-id/start) opens
@@ -22,24 +14,19 @@ function tabStorage(): Storage | null {
  * the page the sign-in opens (`setPathAfterSignIn`, then `navigateAfterSignIn`), and the cookie is dropped so a later
  * sign-in of the browser does not go there too.
  *
- * A start that names no page (its cookie is empty) undoes what an earlier start of the tab kept and was left before
- * the workspace sign-in, and nothing else: a page set for the sign-in another way stays.
+ * A start that names no page (its cookie is empty) takes back the page an earlier, abandoned start of the tab set,
+ * and nothing else: a page another flow set for the sign-in since stays, even when it is the same page.
  */
 export function keepEverIdStartReturnForSignIn(): void {
-	if (typeof document === 'undefined' || !document.cookie.includes(`${EVER_ID_START_RETURN_COOKIE}=`)) return;
+	if (typeof document === 'undefined' || !hasEverIdStartReturnCookie(document.cookie)) return;
 	const returnPath = readEverIdStartReturnCookie(document.cookie);
-	// Dropped with the attributes it was written with (Secure on https, as the route sets it there)
+	// Dropped by name and path: a cookie is replaced whatever its Secure flag, which follows the page's protocol here
 	const secure = window.location.protocol === 'https:' ? '; Secure' : '';
 	document.cookie = `${EVER_ID_START_RETURN_COOKIE}=; Path=/; Max-Age=0; SameSite=Lax${secure}`;
 
-	const storage = tabStorage();
-	try {
-		const earlier = storage?.getItem(KEPT_KEY);
-		if (earlier) clearPathAfterSignInIf(earlier);
-		if (returnPath) storage?.setItem(KEPT_KEY, returnPath);
-		else storage?.removeItem(KEPT_KEY);
-	} catch {
-		// No storage (a private window): the path below is kept or not the same way
+	if (returnPath) {
+		setPathAfterSignIn(returnPath, SET_BY);
+	} else {
+		clearPathAfterSignInSetBy(SET_BY);
 	}
-	if (returnPath) setPathAfterSignIn(returnPath);
 }
