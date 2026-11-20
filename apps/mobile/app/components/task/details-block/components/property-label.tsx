@@ -11,12 +11,12 @@ interface IPropertyLabel {
 	/** A plain property's icon, from the web's icon family. */
 	icon?: IconComponent;
 	/** A task property's placeholder glyph, as the web's property rows draw it. */
-	placeholder?: PlaceholderKind;
+	property?: PlaceholderKind;
 }
 
-function LabelGlyph({ icon: Icon, placeholder, ink }: Readonly<Omit<IPropertyLabel, 'label'> & { ink: string }>) {
-	if (placeholder) {
-		return <TaskPropertyPlaceholderIcon kind={placeholder} size={ICON_SIZE} color={ink} />;
+function LabelGlyph({ icon: Icon, property, ink }: Readonly<Omit<IPropertyLabel, 'label'> & { ink: string }>) {
+	if (property) {
+		return <TaskPropertyPlaceholderIcon kind={property} size={ICON_SIZE} color={ink} />;
 	}
 	if (Icon) {
 		return <Icon size={ICON_SIZE} color={ink} />;
@@ -25,7 +25,7 @@ function LabelGlyph({ icon: Icon, placeholder, ink }: Readonly<Omit<IPropertyLab
 }
 
 /** A property's label on the task page: a 16 icon and a 13 label in muted-foreground, as the web's property rows. */
-export function PropertyLabel({ label, icon, placeholder }: Readonly<IPropertyLabel>) {
+export function PropertyLabel({ label, icon, property }: Readonly<IPropertyLabel>) {
 	const theme = useWebTheme();
 	const ink = theme.colors['muted-foreground'];
 
@@ -33,7 +33,7 @@ export function PropertyLabel({ label, icon, placeholder }: Readonly<IPropertyLa
 		<View style={styles.label}>
 			{/* the icon only decorates: a screen reader reads the label alone */}
 			<View style={styles.icon} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-				<LabelGlyph icon={icon} placeholder={placeholder} ink={ink} />
+				<LabelGlyph icon={icon} property={property} ink={ink} />
 			</View>
 			<Text numberOfLines={2} style={[styles.text, { color: ink }]}>
 				{label}
