@@ -59,8 +59,39 @@ export interface TimeEntriesResource {
 	create(params: TimeEntryCreateParams): Promise<EverTeamsTimeLog>;
 }
 
-// The relations the kit's time log reads ask, so each entry has the shape of EverTeamsTimeEntry.
-const RELATIONS = ['project', 'task', 'organizationContact', 'employee.user'];
+// The relations the kit's time log reads ask, and the client of each entry's project, so each entry has the shape of
+// EverTeamsTimeEntry.
+const RELATIONS = ['project', 'project.organizationContact', 'task', 'organizationContact', 'employee.user'];
+
+type ClientRecord = { id: string; name: string; imageUrl?: string | null };
+
+// A time log as the API answers it: the project's client comes with the client's whole record.
+type TimeLogAnswer = Omit<EverTeamsTimeEntry, 'project' | 'organizationContact'> & {
+	project: (NonNullable<EverTeamsTimeEntry['project']> & { organizationContact?: ClientRecord | null }) | null;
+	organizationContact: ClientRecord | null;
+};
+
+// Only the fields the entry type gives: the API answers the whole record (billing e-mail, budget...).
+function clientOf(record: ClientRecord | null | undefined): EverTeamsTimeEntry['organizationContact'] {
+	if (!record) {
+		return null;
+	}
+	return { id: record.id, name: record.name, imageUrl: record.imageUrl ?? null };
+}
+
+// The entry's own client when it has one, else its project's, as the web app names it (#5593). Time entries do not
+// record a client of their own today.
+function entryOf(answer: TimeLogAnswer): EverTeamsTimeEntry {
+	const ownClient = clientOf(answer.organizationContact);
+	const projectClient = clientOf(answer.project?.organizationContact);
+	let project: EverTeamsTimeEntry['project'] = null;
+	if (answer.project) {
+		const fields = { ...answer.project };
+		delete fields.organizationContact;
+		project = fields;
+	}
+	return { ...answer, project, organizationContact: ownClient ?? projectClient };
+}
 
 // The API answers 403 when the organization does not allow manual time, or the member's role may not add it, and 409
 // when the range overlaps a timer still running (RUNNING_TIMER_OVERLAP) or a break (BREAK_OVERLAP).
@@ -110,13 +141,14 @@ export function createTimeEntries(transport: Transport, identity: Identity): Tim
 			relations: RELATIONS,
 			employeeIds
 		};
-		return transport.request<EverTeamsTimeEntry[]>({
+		const answers = await transport.request<TimeLogAnswer[]>({
 			method: 'GET',
 			path: '/timesheet/time-log',
 			query,
 			tenantId,
 			organizationId
 		});
+		return answers.map(entryOf);
 	}
 
 	async function create(params: TimeEntryCreateParams): Promise<EverTeamsTimeLog> {
