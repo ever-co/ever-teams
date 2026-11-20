@@ -33,6 +33,7 @@ jest.mock('../../../../components/svgs/icons', () => ({ filterDarkIcon: '', filt
 jest.mock('react-native-svg', () => ({ SvgXml: () => null }));
 jest.mock('../../../../theme', () => ({
 	...jest.requireActual('../../../../theme/typography'),
+	useWebTheme: () => jest.requireActual('../../../../../src/theme/use-theme').themeFor('light'),
 	useAppTheme: () => ({
 		colors: { background: '#ffffff', border: '#e5e5e5', primary: '#282048', secondary: '#3826A6' },
 		dark: false
@@ -67,5 +68,12 @@ describe("the profile's Filter button", () => {
 		await fireEvent.press(screen.getByText('tasksScreen.filter undefined'));
 
 		expect(screen.getByText('filter sheet')).toBeTruthy();
+	});
+
+	it('shows how many values its filters hold, as the web does', async () => {
+		mockAnchor = null;
+		await render(<TaskFilter profile={profile} hook={hookHolding({ status: ['open', 'blocked'], label: [] })} />);
+
+		expect(screen.getByText('2')).toBeTruthy();
 	});
 });

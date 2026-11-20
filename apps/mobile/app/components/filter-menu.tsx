@@ -87,7 +87,8 @@ function rowBackgroundOf(pressed: boolean, isOpen: boolean, theme: Theme) {
 	return menuRowBackgroundOf(pressed || isOpen, theme);
 }
 
-function CountChip({ count }: Readonly<{ count: number }>) {
+/** How many values a filter holds, on its row or on the Filter button. */
+export function FilterCountChip({ count }: Readonly<{ count: number }>) {
 	const theme = useWebTheme();
 	const look = countChipLookOf(theme);
 	return (
@@ -128,7 +129,7 @@ function CategoryRow({ label, kind, count, isOpen, isDisabled, onPress }: Readon
 			<Text numberOfLines={1} style={[styles.rowLabel, { color: theme.colors.foreground }]}>
 				{label}
 			</Text>
-			{hasCount && <CountChip count={count} />}
+			{hasCount && <FilterCountChip count={count} />}
 			<ChevronRight size={MENU_ICON_SIZE} color={theme.colors['muted-foreground']} />
 		</Pressable>
 	);

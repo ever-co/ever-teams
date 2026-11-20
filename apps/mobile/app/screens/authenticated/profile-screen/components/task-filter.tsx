@@ -8,6 +8,7 @@ import ProfileTabs from './profile-tabs';
 import AssignTaskFormModal from './assign-task-section';
 import FilterPopup from './filter-popup';
 import { ProfileFilterMenu } from './profile-filter-menu';
+import { activeFilterCountOf, FilterCountChip } from '../../../../components/filter-menu';
 import { useMenuAnchor } from '../../../../../src/components/menu-anchor';
 import { ITaskFilter } from '../../../../services/hooks/features/use-task-filters';
 import { SvgXml } from 'react-native-svg';
@@ -19,6 +20,7 @@ const TaskFilter = ({ profile, hook }: { profile: IUserProfile; hook: ITaskFilte
 	const [showFilterPopup, setShowFilterPopup] = useState(false);
 	const [showModal, setShowModal] = useState(false);
 	const { anchorRef, anchor, openFromAnchor } = useMenuAnchor();
+	const activeFilterCount = activeFilterCountOf(hook.appliedStatusFilter);
 
 	return (
 		<View>
@@ -66,6 +68,11 @@ const TaskFilter = ({ profile, hook }: { profile: IUserProfile; hook: ITaskFilte
 					<Text style={{ ...$createTaskTitle, color: colors.primary, marginLeft: 10 }}>
 						{translate('tasksScreen.filter')}
 					</Text>
+					{activeFilterCount > 0 && (
+						<View style={{ marginLeft: 8 }}>
+							<FilterCountChip count={activeFilterCount} />
+						</View>
+					)}
 				</TouchableOpacity>
 			</View>
 			<ProfileTabs hook={hook} />
