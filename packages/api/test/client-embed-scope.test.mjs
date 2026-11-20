@@ -63,7 +63,10 @@ test('a token with the grant claim alone is an embed token too', async () => {
 	const token = tokenWith({ id: 'user-1', embedGrantId: 'grant-1' });
 	const teams = createClient({ apiUrl: API_URL, token, fetch: api.fetch });
 
-	await assert.rejects(teams.totals.today(), (error) => error instanceof EverTeamsForbiddenError);
+	await assert.rejects(
+		teams.totals.today(),
+		(error) => error instanceof EverTeamsForbiddenError && error.code === 'EMBED_SCOPE'
+	);
 	assert.deepEqual(
 		api.routesSent().filter((route) => route !== 'GET /user/me'),
 		[]
@@ -78,6 +81,9 @@ test('a renewed token is checked before the retry: a call refused (401) is not s
 	const tokens = [tokenWith({ id: 'user-1' }), EMBED_TOKEN];
 	const teams = createClient({ apiUrl: API_URL, getToken: async () => tokens.shift(), fetch: api.fetch });
 
-	await assert.rejects(teams.totals.today(), (error) => error instanceof EverTeamsForbiddenError);
+	await assert.rejects(
+		teams.totals.today(),
+		(error) => error instanceof EverTeamsForbiddenError && error.code === 'EMBED_SCOPE'
+	);
 	assert.equal(api.routesSent().filter((route) => route === 'GET /timesheet/statistics/counts').length, 1);
 });
