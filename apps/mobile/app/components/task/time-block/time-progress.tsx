@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { ProgressBar } from 'react-native-paper';
 import { ITeamTask } from '../../../services/interfaces/ITask';
+import { useWebTheme } from '../../../theme';
 
 interface IProgress {
 	task: ITeamTask;
@@ -18,17 +19,23 @@ function barColorOf(task: ITeamTask | undefined): string {
 }
 
 export const Progress: React.FC<IProgress> = ({ task, percent }) => {
+	const theme = useWebTheme();
 	return (
 		<View style={styles.progressBarContainer}>
 			<View style={{ width: '79%' }}>
 				<ProgressBar style={styles.progressBar} progress={percent()} color={barColorOf(task)} />
 			</View>
-			<Text style={{ fontSize: 12, color: '#28204880' }}>{Math.floor(percent() * 100)}%</Text>
+			<Text style={[styles.percent, { color: theme.colors['muted-foreground'] }]}>
+				{Math.floor(percent() * 100)}%
+			</Text>
 		</View>
 	);
 };
 
 const styles = StyleSheet.create({
+	percent: {
+		fontSize: 12
+	},
 	progressBar: { backgroundColor: '#E9EBF8', borderRadius: 3, height: 6, width: '100%' },
 	progressBarContainer: {
 		alignItems: 'center',
