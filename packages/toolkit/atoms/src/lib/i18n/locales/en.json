@@ -219,7 +219,8 @@
 	},
 	"TEAMS_VIEWER": {
 		"title": {
-			"all_teams": "Teams for {{orgName}}"
+			"all_teams": "Teams for {{orgName}}",
+			"all_teams_without_organization": "Teams"
 		},
 		"search_placeholder": "Search for a team",
 		"table_headers": {
@@ -516,6 +517,7 @@
 	},
 	"TIMESHEET": {
 		"title": "Timesheets for {{orgName}}",
+		"title_without_organization": "Timesheets",
 		"label": "Timesheet",
 		"filters": {
 			"select_date": "Select date",

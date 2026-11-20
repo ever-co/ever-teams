@@ -1,12 +1,11 @@
 // The timesheet's loader covers its table from outside it, so the table body holds rows only (ever-co/ever-teams#5616):
 // node --test test/*.test.mjs (from packages/toolkit/atoms). bundle-kit.mjs bundles TeamsTimesheet with its time logs
 // hook, the kit's context and the toolkit-ui parts as stand-ins; the table parts draw the real table elements. React
-// renders it to static markup.
+// renders it to static markup. Its title names the selected organization only when it is known (#5644).
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
 import { bundleKit, kitSources } from './bundle-kit.mjs';
-import { kitStandIns } from './kit-stand-ins.mjs';
 
 const require = createRequire(import.meta.url);
 const { JSDOM } = require('jsdom');
@@ -36,7 +35,10 @@ const standIns = {
 		export const MultiSelectValue = ${nothing};
 		export const Select = ${children};
 		export const Card = ${children};`,
-	'react-i18next': kitStandIns['react-i18next'],
+	// The key, and the organization's name when the title is given one.
+	'react-i18next': `export const useTranslation = () => ({
+		t: (key, values) => (values?.orgName ? key + ': ' + values.orgName : key)
+	});`,
 	'lucide-react': `export const ChevronLeft = ${nothing};
 		export const ChevronRight = ${nothing};
 		export const FileText = ${nothing};
@@ -44,7 +46,10 @@ const standIns = {
 		export const LoaderCircle = () => 'loader';`,
 	timeLogs: `export const useTimeLogs = () => ({ loading: globalThis.timeLogsLoading, data: [], error: null, refetch() {} });`,
 	timerOnly: 'export const useTimerOnlyToken = () => false;',
-	context: 'export const useTeamsContext = () => ({ userOrganizations: null, selectedOrganization: null });',
+	context: `export const useTeamsContext = () => ({
+		userOrganizations: globalThis.timesheetOrganizations ?? null,
+		selectedOrganization: 'org-1'
+	});`,
 	parts: `export const TeamsTimerFooter = ${nothing};
 		export const TeamsActiveEmployeeSelector = ${nothing};
 		export const TimerOnlyReportNote = ${nothing};`
@@ -123,4 +128,24 @@ test('once they are read, the loader is gone', () => {
 
 	assert.doesNotMatch(page.body.textContent, /loader/);
 	assert.equal(page.querySelectorAll('tbody tr').length, 1, 'the empty table says so in one row');
+});
+
+function titleWith(organizations) {
+	globalThis.timesheetOrganizations = organizations;
+	try {
+		return timesheetOf(false).querySelector('h2').textContent;
+	} finally {
+		globalThis.timesheetOrganizations = undefined;
+	}
+}
+
+test('signed out, or before the organizations are read, the title names no organization', () => {
+	assert.equal(titleWith(null), 'title_without_organization');
+	assert.equal(titleWith({ items: [] }), 'title_without_organization');
+});
+
+test('once the selected organization is known, the title names it', () => {
+	const organizations = { items: [{ organizationId: 'org-1', organization: { name: 'Northwind Studio' } }] };
+
+	assert.equal(titleWith(organizations), 'title: Northwind Studio');
 });

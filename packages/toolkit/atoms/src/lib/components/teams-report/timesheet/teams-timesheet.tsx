@@ -3,7 +3,6 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LogType, TimerSource } from '@ever-teams/toolkit-types';
-import { useTeamsContext } from '@lib/context/teams-context';
 import { DateRange } from 'react-day-picker';
 import {
 	Avatar,
@@ -29,6 +28,7 @@ import { SpinOverlayLoader } from '@components/loaders/spin-overlay-loader';
 import { TeamsTimerFooter } from '@components/layouts/footers/component-footer';
 import { ChevronLeft, ChevronRight, FileText, RefreshCwIcon } from 'lucide-react';
 import { TeamsActiveEmployeeSelector } from '@components/teams-ui-components/inputs/teams-active-employee-selector';
+import { useOrganizationTitle } from '@hooks/useOrganizationTitle';
 import { useTimeLogs } from '@hooks/useTimeLogs';
 import { useTimerOnlyToken } from '@hooks/useTimerOnlyToken';
 import { TimerOnlyReportNote } from '@components/teams-ui-components/timer-only-report-note';
@@ -140,7 +140,11 @@ export const TeamsTimesheet = ({
 }: TeamsTimesheetProps) => {
 	const { t } = useTranslation(undefined, { keyPrefix: 'TIMESHEET' });
 
-	const { userOrganizations, selectedOrganization } = useTeamsContext();
+	const title = useOrganizationTitle({
+		keyPrefix: 'TIMESHEET',
+		named: 'title',
+		unnamed: 'title_without_organization'
+	});
 	const timerOnly = useTimerOnlyToken();
 
 	// Date filter state - default to today
@@ -206,11 +210,6 @@ export const TeamsTimesheet = ({
 		setCurrentPage(1); // Reset pagination on filter change
 	};
 
-	// Get the name of the selected organization from userOrganizations and selectedOrganization
-	const orgName =
-		userOrganizations?.items.find((elt) => elt.organizationId == selectedOrganization)?.organization?.name ||
-		'Ever';
-
 	let columnCount = 6;
 	if (showEmployee) {
 		columnCount = 7;
@@ -225,7 +224,7 @@ export const TeamsTimesheet = ({
 			{/* Header with title and refresh button */}
 
 			<div className="flex items-center justify-between ">
-				<h2 className="text-xl font-semibold text-gray-900 dark:text-white">{t('title', { orgName })}</h2>
+				<h2 className="text-xl font-semibold text-gray-900 dark:text-white">{title}</h2>
 			</div>
 
 			{/* Filters */}
