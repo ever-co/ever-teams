@@ -8,10 +8,6 @@ import { StyleSheet } from 'react-native';
 import LabelItem from './label-item';
 import { ITaskLabelItem } from '../../../../services/interfaces/ITaskLabel';
 
-jest.mock('../../../../../src/components/icons', () =>
-	jest.requireActual('../../../../../test/icons-stand-in').iconsStandIn()
-);
-
 function labelNamed(name: string): ITaskLabelItem {
 	return {
 		id: `label-${name}`,

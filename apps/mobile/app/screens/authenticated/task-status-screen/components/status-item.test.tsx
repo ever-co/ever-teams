@@ -8,11 +8,6 @@ import { fireEvent, render, screen } from '@testing-library/react-native';
 import StatusItem from './status-item';
 import { ITaskStatusItem } from '../../../../services/interfaces/ITaskStatus';
 
-// The row's icons as their names; the row finds its buttons by the names a screen reader hears
-jest.mock('../../../../../src/components/icons', () =>
-	jest.requireActual('../../../../../test/icons-stand-in').iconsStandIn()
-);
-
 const STATUS: ITaskStatusItem = {
 	id: 'status-1',
 	createdAt: '',

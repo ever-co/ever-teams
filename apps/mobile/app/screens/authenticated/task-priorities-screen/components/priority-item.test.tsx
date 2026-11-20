@@ -8,11 +8,6 @@ import { fireEvent, render, screen } from '@testing-library/react-native';
 import PriorityItem from './priority-item';
 import { ITaskPriorityItem } from '../../../../services/interfaces/ITaskPriority';
 
-// The row's icons as their names; the row finds its buttons by the names a screen reader hears
-jest.mock('../../../../../src/components/icons', () =>
-	jest.requireActual('../../../../../test/icons-stand-in').iconsStandIn()
-);
-
 const PRIORITY: ITaskPriorityItem = {
 	id: 'priority-1',
 	createdAt: '',

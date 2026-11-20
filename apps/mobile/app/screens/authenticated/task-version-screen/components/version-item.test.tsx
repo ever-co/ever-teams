@@ -8,11 +8,6 @@ import { fireEvent, render, screen } from '@testing-library/react-native';
 import VersionItem from './version-item';
 import { ITaskVersionItemList } from '../../../../services/interfaces/ITaskVersion';
 
-// The row's icons as their names; the row finds its buttons by the names a screen reader hears
-jest.mock('../../../../../src/components/icons', () =>
-	jest.requireActual('../../../../../test/icons-stand-in').iconsStandIn()
-);
-
 const VERSION: ITaskVersionItemList = {
 	id: 'version-1',
 	createdAt: '',
