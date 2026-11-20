@@ -1,5 +1,8 @@
 // The kit's words read as people write them (ever-co/ever-teams#5620): node --test test/*.test.mjs (from
 // packages/toolkit/atoms). Reads the two locales the kit ships.
+// The misspellings the test looks for, and the French words it expects:
+// cspell:ignore Muniteur Demarrer Arreter Selectionner Weeky reversable
+// cspell:words Démarrer Arrêter Tâche
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import path from 'node:path';
