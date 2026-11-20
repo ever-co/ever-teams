@@ -2,6 +2,7 @@ import { getTimeLogs } from '@ever-teams/api';
 import { IServerError, ITimeLog, LogType, TimerSource } from '@ever-teams/toolkit-types';
 import { useTeamsContext } from '@lib/context/teams-context';
 import { useKitOptions } from '@components/teams-provider/kit-options';
+import { useTimerOnlyToken } from '@hooks/useTimerOnlyToken';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { DateRange } from 'react-day-picker';
 
@@ -38,6 +39,7 @@ export const useTimeLogs = ({
 		selectedEmployee
 	} = useTeamsContext();
 	const { api } = useKitOptions();
+	const timerOnly = useTimerOnlyToken();
 	// Only the read started last may set the logs, the error or the loading state: one for earlier filters or another
 	// address, or a widget gone since, changes nothing.
 	const latestRead = useRef(0);
@@ -95,6 +97,10 @@ export const useTimeLogs = ({
 	}, [user, token, organizationId, date, activityLevel, timeZone, source, logType, selectedEmployee, api]);
 
 	useEffect(() => {
+		// An embed token reaches the timer only: no read, so no refusal to show (#5602)
+		if (timerOnly) {
+			return;
+		}
 		if (user && organizationId && token) {
 			fetchTimeLogs();
 			return;
@@ -105,7 +111,7 @@ export const useTimeLogs = ({
 		setError(null);
 		setLoading(false);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [fetchTimeLogs]);
+	}, [fetchTimeLogs, timerOnly]);
 
 	return { loading, data, error, refetch: fetchTimeLogs };
 };

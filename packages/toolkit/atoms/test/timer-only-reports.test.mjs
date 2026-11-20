@@ -30,6 +30,7 @@ const WIDGETS = {
 	TeamsProjectsList: '/timesheet/statistics/projects',
 	TeamsTasksList: '/timesheet/statistics/tasks',
 	TeamsAppsUrlList: '/timesheet/statistics/activities',
+	TeamsTimesheet: '/timesheet/time-log'
 };
 const REPORT_ROUTES = new Set(Object.values(WIDGETS));
 const LIST_ROUTES = [
