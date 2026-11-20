@@ -34,7 +34,9 @@ export function EverTeamsTimer() {
 
 `@ever-teams/atoms/styles.css` holds the components' styles, compiled and scoped under the kit root that
 `scopedStyles` renders: your app needs no Tailwind, and the stylesheet changes nothing outside the kit. It ships from
-the first release after 0.2.14; on 0.2.14, style the kit with your own Tailwind (below).
+the first release after 0.2.14; on 0.2.14, style the kit with your own Tailwind (below). Markup of your own placed
+inside `TeamsProvider` is inside the kit root, so the kit's reset reaches it too (margins, padding, borders, heading
+sizes): keep it outside the provider, or style it with selectors stronger than `[data-ever-teams-kit] *`.
 
 ### With your own Tailwind CSS 4
 
