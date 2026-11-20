@@ -82,6 +82,17 @@ export function getWeekStartAndEnd(date = new Date()) {
 	};
 }
 
+// A date as 'YYYY-MM-DD HH:mm:ss' in the browser's zone, the form the API reads todayStart and todayEnd in.
+function formatLocalDateTime(date: Date): string {
+	const year = date.getFullYear();
+	const month = String(date.getMonth() + 1).padStart(2, '0');
+	const day = String(date.getDate()).padStart(2, '0');
+	const hours = String(date.getHours()).padStart(2, '0');
+	const minutes = String(date.getMinutes()).padStart(2, '0');
+	const seconds = String(date.getSeconds()).padStart(2, '0');
+	return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+}
+
 /**
  * Returns an object with `dayStart` and `dayEnd` properties representing the
  * start and end of the day (inclusive) for the given `callTime` date. If no
@@ -113,19 +124,8 @@ export function getStartAndEndOfDay(callTime = new Date()): { dayStart: string; 
 	// End date is exactly the call time
 	const end = new Date(callTime);
 
-	// Helper function to format the date as 'YYYY-MM-DD HH:mm:ss'
-	const formatDate = (date: Date): string => {
-		const year = date.getFullYear();
-		const month = String(date.getMonth() + 1).padStart(2, '0');
-		const day = String(date.getDate()).padStart(2, '0');
-		const hours = String(date.getHours()).padStart(2, '0');
-		const minutes = String(date.getMinutes()).padStart(2, '0');
-		const seconds = String(date.getSeconds()).padStart(2, '0');
-		return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-	};
-
 	return {
-		dayStart: formatDate(start),
-		dayEnd: formatDate(end)
+		dayStart: formatLocalDateTime(start),
+		dayEnd: formatLocalDateTime(end)
 	};
 }
