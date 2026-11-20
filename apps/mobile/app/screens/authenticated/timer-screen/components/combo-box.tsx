@@ -4,7 +4,7 @@
 import React, { FC, useState } from "react"
 import { Text } from "react-native-paper"
 import { View, StyleSheet, TouchableWithoutFeedback, Pressable, FlatList } from "react-native"
-import { Ionicons } from "@expo/vector-icons"
+import { Plus } from "../../../../../src/components/icons"
 import TaskDisplayBox from "./task-display-box"
 import { observer } from "mobx-react-lite"
 import { typography, useAppTheme } from "../../../../theme"
@@ -47,7 +47,7 @@ const ComboBox: FC<Props> = observer(function ComboBox({
 						{ backgroundColor: colors.background, borderColor: colors.secondary },
 					]}
 				>
-					<Ionicons name="add-sharp" size={24} color={colors.secondary} />
+					<Plus size={24} color={colors.secondary} />
 					<Text style={[styles.createTaskTxt, { color: colors.secondary }]}>
 						{translate("myWorkScreen.tabCreateTask")}
 					</Text>
