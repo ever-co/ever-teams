@@ -11,6 +11,7 @@ import { useAppTheme, typography, useWebTheme } from '../theme';
 import { taskChipLookOf } from '../../src/components/task-chip';
 import { ChipIcon } from '../../src/components/chip-icon';
 import TaskLabelPopup from './task-label-popup';
+import { TaskLabelsField } from './task-labels-field';
 import { useLabelSelection } from './use-label-selection';
 import { useMenuAnchor } from '../../src/components/menu-anchor';
 import { ITaskLabelItem } from '../services/interfaces/ITaskLabel';
@@ -25,6 +26,8 @@ interface TaskLabelProps {
 	newTaskLabels?: ITaskLabelItem[] | undefined;
 	taskScreenButton?: boolean;
 	noBorders?: boolean;
+	/** On the task page: the web's chips and dashed add button, as wide as they take. */
+	forDetails?: boolean;
 }
 
 interface IndividualTaskLabel {
@@ -43,7 +46,7 @@ interface IndividualTaskLabel {
 }
 
 const TaskLabels: FC<TaskLabelProps> = observer(
-	({ task, setLabels, newTaskLabels, taskScreenButton, noBorders, containerStyle }) => {
+	({ task, setLabels, newTaskLabels, taskScreenButton, noBorders, containerStyle, forDetails }) => {
 		const { colors, dark } = useAppTheme();
 		const theme = useWebTheme();
 		const placeholder = taskChipLookOf(undefined, theme);
@@ -106,16 +109,29 @@ const TaskLabels: FC<TaskLabelProps> = observer(
 			setLabelIndex(currentIndex);
 		};
 
+		const popup = (
+			<TaskLabelPopup
+				selectedLabels={selectedLabels}
+				visible={openModal}
+				onToggleLabel={toggle}
+				onDismiss={() => setOpenModal(false)}
+				canCreateLabel={true}
+				anchor={anchor}
+			/>
+		);
+
+		if (forDetails) {
+			return (
+				<>
+					{popup}
+					<TaskLabelsField anchorRef={anchorRef} onOpen={freshOpenModal} labels={task?.tags ?? []} />
+				</>
+			);
+		}
+
 		return (
 			<>
-				<TaskLabelPopup
-					selectedLabels={selectedLabels}
-					visible={openModal}
-					onToggleLabel={toggle}
-					onDismiss={() => setOpenModal(false)}
-					canCreateLabel={true}
-					anchor={anchor}
-				/>
+				{popup}
 				{(task?.tags !== undefined || newTaskLabels !== undefined) &&
 				(task?.tags?.length > 0 || newTaskLabels?.length > 0) &&
 				!taskScreenButton ? (
