@@ -88,11 +88,14 @@ test('a credential without a client is forbidden with EMBED_CLIENT_REQUIRED', as
 	assert.match(error.nextStep, /credential of the client/);
 });
 
-test('a credential whose client was deleted is forbidden with EMBED_CLIENT_GONE', async () => {
+test('a credential whose client was archived or deleted is forbidden with EMBED_CLIENT_GONE', async () => {
 	const error = await refusalOf(clientGone);
 
 	assert.equal(error.code, 'EMBED_CLIENT_GONE');
 	assert.match(error.nextStep, /restore the client/);
+	// The web app archives a client with the API's soft delete: the step names both (#5637)
+	assert.match(error.nextStep, /archived or deleted/);
+	assert.match(error.nextStep, /client list/);
 });
 
 test('the limits answer rate-limit errors, with the wait when the API gives one', async () => {
