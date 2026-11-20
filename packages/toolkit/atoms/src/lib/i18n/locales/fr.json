@@ -85,7 +85,9 @@
 		"START_TIMER": "Démarrer le minuteur",
 		"STOP_TIMER": "Arrêter le minuteur",
 		"TIMER_STARTED": "Minuteur démarré",
-		"TIMER_STOPPED": "Minuteur arrêté"
+		"TIMER_STOPPED": "Minuteur arrêté",
+		"show_details": "Afficher les détails du minuteur",
+		"hide_details": "Masquer les détails du minuteur"
 	},
 	"AUTH": {
 		"sign_in_title": "Se connecter",
