@@ -343,8 +343,8 @@ the page (CORS): there, `retryAfter` may stay `undefined`. When a page loads bot
 
 A page of your product shows a person's Ever Teams timer with a short-lived **embed token**, which your server gets
 for them. Your server holds an **embed credential** (`gze_...`): an administrator of the organization creates it in
-Settings > Embeds of the web app, and adds your site to the allowed sites on the same page. The credential stays on
-your server, in an environment variable; only the token reaches the page.
+Settings > Workspace > Embeds of the web app, and adds your site to the allowed sites on the same page. The
+credential stays on your server, in an environment variable; only the token reaches the page.
 
 `@ever-teams/api/server` exchanges the credential for a token in one call:
 
@@ -364,7 +364,7 @@ const { token, expiresAt } = await exchangeEmbedToken({
 | `apiUrl`                | yes         | The API's address, ending with `/api`.                                                                                                                                                        |
 | `credential`            | yes         | The embed credential, from an environment variable.                                                                                                                                           |
 | `email` or `employeeId` | one of them | The person: the email of their Ever Teams account, or their employee id in the credential's organization.                                                                                     |
-| `origin`                | yes         | The site of the page the timer runs in (`https://app.example.com`, no path), one of the organization's allowed sites. The token works only from it.                                           |
+| `origin`                | yes         | The site of the page the timer runs in (`https://app.example.com`, no path), one of the organization's allowed sites. In a browser the token works only from it.                              |
 | `firstName`, `lastName` | no          | Sent only when given: the name of the account the API creates for `email` when the credential may add members ([ever-co/ever-gauzy#12084](https://github.com/ever-co/ever-gauzy/pull/12084)). |
 | `fetch`                 | no          | The `fetch` to send the request with; the platform's by default.                                                                                                                              |
 
@@ -715,6 +715,13 @@ Content-Type: application/json
 
 The answer holds the subscription and its signing `secret`, shown only then (and again when the secret is rotated,
 `POST {apiUrl}/webhooks/subscriptions/:id/rotate-secret`): keep it in an environment variable of your server.
+
+The endpoint must use HTTPS and a public host name. The API refuses a subscription to `localhost` or to a private,
+loopback or link-local address (400), and checks the address again before each delivery, so a name that resolves
+there is refused then (the delivery ends `DEAD`). To try the webhooks on your own machine, expose the endpoint
+through a public HTTPS tunnel; a self-hosted API that posts to its own network sets
+`GAUZY_WEBHOOK_ALLOW_PRIVATE_NETWORK=true`, and outside production a subscription with
+`"metadata": { "allowInsecure": true }` may use plain `http`.
 
 `verifyWebhook` checks a delivery and answers its event. It needs the raw body as received, before any JSON parsing,
 because the signature covers those exact bytes: in Express, `express.raw({ type: 'application/json' })` on the route.

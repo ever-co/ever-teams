@@ -34,7 +34,9 @@ export function EverTeamsTimer() {
 
 `@ever-teams/atoms/styles.css` holds the components' styles, compiled and scoped under the kit root that
 `scopedStyles` renders: your app needs no Tailwind, and the stylesheet changes nothing outside the kit. It ships from
-the first release after 0.2.14; on 0.2.14, style the kit with your own Tailwind (below).
+the first release after 0.2.14; on 0.2.14, style the kit with your own Tailwind (below). Markup of your own placed
+inside `TeamsProvider` is inside the kit root, so the kit's reset reaches it too (margins, padding, borders, heading
+sizes): keep it outside the provider, or style it with selectors stronger than `[data-ever-teams-kit] *`.
 
 ### With your own Tailwind CSS 4
 
@@ -121,8 +123,10 @@ only a session saved for the new address, if there is one, so a token never reac
 session saved by an earlier version (see [Security](#security-where-tokens-live-today-and-what-is-planned)). Every
 provider still writes its `apiUrl` there, for your own calls to the request functions of that package.
 
-The API must accept your site's origin: on a self-hosted Gauzy API, add it to `ALLOWED_ORIGINS` (comma-separated)
-and restart the API.
+The API must accept your site's origin. With `getToken` or a sign-in with Ever Teams, an administrator adds your site
+to the allowed sites in Settings > Workspace > Embeds of the web app; the API opens to it at once, on the routes the
+timer needs. The kit's own password and token sign-in reaches other routes: on a self-hosted Gauzy API, add your site
+to `ALLOWED_ORIGINS` (comma-separated) for it, and restart the API.
 
 ## Sign in from your backend
 
@@ -130,12 +134,12 @@ On a site that is not the Ever Teams workspace itself, do not let the kit ask fo
 backend already knows who is signed in. It exchanges an embed credential of the workspace for a short-lived token for
 that person, and `config.getToken` hands it to the kit.
 
-What you need: an Ever Teams API with embed credentials turned on (`GAUZY_EMBED_TOKENS_ENABLED=true`,
-[ever-co/ever-gauzy#12069](https://github.com/ever-co/ever-gauzy/pull/12069)) and an embed credential created by an
-admin of the organization (`POST /api/embed-credentials`). Keep the credential on your server, never in the page.
-An API that also checks allowed origins ([ever-co/ever-gauzy#12066](https://github.com/ever-co/ever-gauzy/issues/12066))
-needs your site in the organization's list (`POST /api/embed-allowed-origins`): the backend sends the page's origin
-with each exchange, and the token then works only from that site.
+What you need: an Ever Teams API with embed credentials turned on (`GAUZY_EMBED_TOKENS_ENABLED=true`) and an embed
+credential an administrator of the organization creates in Settings > Workspace > Embeds of the web app. Keep the
+credential on your server, never in the page. Your site goes in the allowed sites on the same page: the backend sends
+the page's origin with each exchange, and in a browser the token then works only from that site. Outside a browser
+the origin is not checked, which is why the token reaches the timer only and lives 15 minutes by default
+(`GAUZY_EMBED_TOKEN_TTL_SECONDS` on the API, one hour at most).
 
 On your server, a route that answers the token for the person signed in to your product (Next.js route handler).
 Its settings stay on the server, never in a `NEXT_PUBLIC_` variable: `EVER_TEAMS_API_URL` is the API's full address
@@ -238,7 +242,7 @@ What the administrator turns on:
 - the API has embeds on (`GAUZY_EMBED_TOKENS_ENABLED=true`) in a version with sign-in from sites
   ([ever-co/ever-gauzy#12094](https://github.com/ever-co/ever-gauzy/issues/12094));
 - your site is one of the organization's allowed sites, and its switch "People can sign in from this site" is on, in
-  Settings > Embeds of the web app. It is off for every site until then.
+  Settings > Workspace > Embeds of the web app. It is off for every site until then.
 
 ```tsx
 'use client';
@@ -286,8 +290,8 @@ What the kit does with it:
   time tracking off), the kit keeps the renewal token, shows the button, and tries again when the page comes back.
 - The user menu offers to sign out: the kit forgets the sign-in, then asks the API to revoke it
   (`POST /embed/revoke`). When the API cannot be reached, the sign-in is forgotten in the browser all the same, but
-  stays valid at the API until it expires: the person can revoke the site from the web app. A renewal on its way at
-  that moment keeps nothing of its answer.
+  stays valid at the API until it expires, or until an administrator removes the site or turns its sign-in off in
+  Settings > Workspace > Embeds. A renewal on its way at that moment keeps nothing of its answer.
 - As with `getToken`, the token reaches only that person's timer, from your site, and the kit lists no other
   organization.
 - On a computer people share, sign the person out when your page signs its own user out: the sign-in is kept for
@@ -456,7 +460,7 @@ Without `config.getToken`:
   set `apiUrl`.
 
 With `config.getToken` (above), the sign-in dialog, the stored token and the token in the user menu are gone: the
-token comes from your backend, is limited to the timer and to one person, lives a few minutes and stays in memory; a
+token comes from your backend, is limited to the timer and to one person, lives 15 minutes by default (one hour at most) and stays in memory; a
 revoked embed credential ends its tokens. Requests still go to `config.apiUrl` with that token in their
 `Authorization` header.
 
@@ -464,17 +468,17 @@ With `config.signIn: 'ever-teams'` (above), the dialog asks for no password or t
 in memory, and the renewal token, which gets the next timer token from your site only, sits in `localStorage` for
 its API address and organization, readable by the scripts of your page. Anyone who reads it can renew from your
 site's origin until the person signs out or revokes the site. Sign-out asks the API to revoke it; when the API cannot
-be reached, the person revokes the site from the web app.
+be reached, an administrator removes the site or turns its sign-in off in Settings > Workspace > Embeds.
 
-Planned ([ever-co/ever-teams#5405](https://github.com/ever-co/ever-teams/issues/5405)): the workspace lists the sites
-allowed to embed it.
+The workspace lists the sites allowed to embed it, in Settings > Workspace > Embeds: with `getToken` and a sign-in with
+Ever Teams, the API answers only those sites.
 
 ## Troubleshooting
 
 | You see                                                                     | Cause and fix                                                                                                              |
 | --------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
 | The widget is unstyled (digits one under the other, a large coloured block) | Import `@ever-teams/atoms/styles.css` and set `scopedStyles`; with your own Tailwind, add the two `@source` lines instead. |
-| A network or CORS error in the console, sign-in does nothing                | The API does not allow your origin: add it to the API's `ALLOWED_ORIGINS`.                                                 |
+| A network or CORS error in the console, sign-in does nothing                | Allow your origin: for `getToken` or Ever Teams sign-in, in Settings > Workspace > Embeds; else in `ALLOWED_ORIGINS`.      |
 | 404 on every request                                                        | `apiUrl` must end with `/api` (`https://api.example.com/api`).                                                             |
 | "useState only works in Client Components" (Next.js)                        | Add `'use client'` at the top of the file that renders `TeamsProvider`.                                                    |
 
