@@ -22,7 +22,12 @@ test.describe('authenticated shell', () => {
 		await mock.scenario({ requirePlanToTrack: true });
 		const page = await app('/team/tasks');
 
-		const requests = await mockRequestsWhen((log) => PHASE_PATHS.every((path) => log.some((r) => r.path === path)));
+		// Every read the checks need has been answered, and then the page's startup requests have settled: the mock logs
+		// a request when it answers it, so only a settled log holds a slow early request next to a fast later one (the
+		// phase order) and a duplicate still on its way (the bundle count). One snapshot serves every check below.
+		await mockRequestsWhen((log) => PHASE_PATHS.every((path) => log.some((r) => r.path === path)));
+		await page.waitForLoadState('networkidle');
+		const requests = await mock.requests();
 		const paths = requests.map((request) => request.path);
 		// The mock logs a request once it has answered it, so the log's order is the order of the answers. The
 		// phase order is when each phase was first asked: the earliest `startMs` of its path (NaN when never asked).
@@ -42,11 +47,11 @@ test.describe('authenticated shell', () => {
 		expect(paths).toContain('/api/timesheet/timer/status');
 		expect(paths).toContain('/api/daily-plan/me');
 
-		// The metadata bundle is fetched once per load, not once per widget: counted once the page's own requests have
-		// settled, so a duplicate that is still on its way (the mock logs a request when it answers it) is counted too.
-		await page.waitForLoadState('networkidle');
-		const settled = (await mock.requests()).filter((request) => request.path === '/api/task-metadata/bootstrap');
-		expect(settled, 'the metadata bundle was fetched more than once').toHaveLength(1);
+		// The metadata bundle is fetched once per load, not once per widget.
+		expect(
+			paths.filter((path) => path === '/api/task-metadata/bootstrap'),
+			'the metadata bundle was fetched more than once'
+		).toHaveLength(1);
 
 		await expect(page).toHaveURL(/\/team\/tasks/);
 	});
