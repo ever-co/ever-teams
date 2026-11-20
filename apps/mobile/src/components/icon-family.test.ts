@@ -24,6 +24,7 @@ const ON_HUGEICONS: string[] = [
 	'app/screens/authenticated/timer-screen/components/task-display-box.tsx',
 	'app/screens/authenticated/timer-screen/components/task-status-dropdown.tsx',
 	'app/screens/authenticated/timer-screen/components/timer-task-section.tsx',
+	'src/components/run-button.tsx',
 	'src/home/today-tasks.tsx'
 ];
 

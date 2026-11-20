@@ -1,6 +1,6 @@
 import React from 'react';
 import { Pressable, StyleSheet } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { TimerGlyph } from './timer-glyph';
 import { hsl, webColorTokens } from '../theme/tokens';
 import type { Theme } from '../theme/use-theme';
 
@@ -44,13 +44,6 @@ function shadowOf(theme: Theme, running: boolean, glow: boolean) {
 	return { boxShadow: glowOf(theme, running) };
 }
 
-function iconOf(running: boolean) {
-	if (running) {
-		return 'stop' as const;
-	}
-	return 'play' as const;
-}
-
 function opacityOf(pressed: boolean, disabled: boolean) {
 	if (disabled) {
 		return DISABLED_OPACITY;
@@ -87,7 +80,7 @@ export function RunButton({
 			onPress={onPress}
 			style={({ pressed }) => [styles.button, shape, shadow, { opacity: opacityOf(pressed, disabled) }]}
 		>
-			<Ionicons name={iconOf(running)} size={size / 2} color={theme.colors['primary-foreground']} />
+			<TimerGlyph running={running} size={size / 2} color={theme.colors['primary-foreground']} />
 		</Pressable>
 	);
 }

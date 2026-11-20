@@ -24,10 +24,17 @@ jest.mock('./timer-start-sheet', () => ({ visible }: { visible: boolean }) => {
 	mockSheetVisible.push(visible);
 	return null;
 });
-jest.mock('@expo/vector-icons', () => {
+// The run button draws the web's timer marks; the test reads which one it asks for
+jest.mock('../../src/components/timer-glyph', () => {
 	const { createElement } = jest.requireActual('react');
 	const { Text } = jest.requireActual('react-native');
-	return { Ionicons: ({ name }: { name: string }) => createElement(Text, null, `icon ${name}`) };
+	const markOf = (running: boolean) => {
+		if (running) {
+			return 'stop';
+		}
+		return 'play';
+	};
+	return { TimerGlyph: ({ running }: { running: boolean }) => createElement(Text, null, `icon ${markOf(running)}`) };
 });
 
 function runButton() {
