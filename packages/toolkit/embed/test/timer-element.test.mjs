@@ -39,6 +39,7 @@ const stubs = {
 		};
 		export const TeamsProvider = ({ config, colorScheme, lang, scopedStyles, onTimerChange, children }) => {
 			signIn = config.signIn;
+			globalThis.lastConfig = config;
 			useEffect(() => () => { globalThis.unmounted = (globalThis.unmounted ?? 0) + 1; }, []);
 			// What the kit calls at each change of the timer, as the last render gave it.
 			globalThis.onTimerChange = onTimerChange;
@@ -350,6 +351,71 @@ test('signOut() without sign-in="ever-teams" ends nothing, in the page or remove
 
 	assert.equal(globalThis.kitSignOuts, 0);
 	assert.deepEqual(globalThis.endedSignIns, []);
+});
+// What the host's token route sees and answers, as the API README's route handlers do.
+function standInTokenRoute(answer) {
+	const calls = [];
+	globalThis.fetch = async (url, init) => {
+		calls.push({ url: String(url), method: init?.method, credentials: init?.credentials });
+		return answer();
+	};
+	return calls;
+}
+
+const TOKEN = { token: 'embed-token', expiresAt: '2026-11-20T10:15:00.000Z' };
+const answered = (status, body) => () =>
+	new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
+
+test("token-url gives the kit a getToken that asks the host's route with the page's cookies (#5596)", async () => {
+	const calls = standInTokenRoute(answered(200, TOKEN));
+	await place({ 'api-url': 'https://api.example.com/api', 'token-url': '/api/ever-teams-token' });
+
+	const token = await globalThis.lastConfig.getToken();
+
+	assert.deepEqual(token, TOKEN);
+	assert.deepEqual(calls, [{ url: '/api/ever-teams-token', method: 'POST', credentials: 'same-origin' }]);
+});
+
+test('a token route that refuses shows the person as signed out: getToken fails', async () => {
+	standInTokenRoute(answered(401, { message: 'Sign in first' }));
+	await place({ 'api-url': 'https://api.example.com/api', 'token-url': '/api/ever-teams-token' });
+
+	await assert.rejects(globalThis.lastConfig.getToken(), /token-url answered 401/);
+});
+
+test('token-url keeps its getToken through other changes, gives a new one for another route, and none without it', async () => {
+	const calls = standInTokenRoute(answered(200, TOKEN));
+	const element = await place({ 'api-url': 'https://api.example.com/api', 'token-url': '/api/ever-teams-token' });
+	const first = globalThis.lastConfig.getToken;
+
+	await act(async () => element.setAttribute('color-scheme', 'dark'));
+	assert.equal(globalThis.lastConfig.getToken, first);
+	assert.equal(globalThis.unmounted, 0, 'the same session');
+
+	await act(async () => element.setAttribute('token-url', '/other/token'));
+	assert.notEqual(globalThis.lastConfig.getToken, first);
+	assert.equal(globalThis.unmounted, 1, 'another route starts a new session, with no account of the previous one');
+	await globalThis.lastConfig.getToken();
+	assert.equal(calls.at(-1).url, '/other/token', 'the new session asks the new route');
+
+	await act(async () => element.removeAttribute('token-url'));
+	assert.equal(globalThis.lastConfig.getToken, undefined);
+});
+
+test('signOut() with token-url starts a new session that asks the route again, and ends no sign-in with Ever Teams', async () => {
+	const calls = standInTokenRoute(answered(200, TOKEN));
+	const element = await place({ 'api-url': 'https://api.example.com/api', 'token-url': '/api/ever-teams-token' });
+
+	await act(async () => element.signOut());
+
+	assert.equal(globalThis.unmounted, 1, 'the token the kit held goes with its session');
+	await globalThis.lastConfig.getToken();
+	assert.equal(calls.at(-1).url, '/api/ever-teams-token', 'the new session asks the same route');
+	assert.equal(globalThis.kitSignOuts, 0);
+	assert.deepEqual(globalThis.endedSignIns, []);
+
+	await act(async () => element.setAttribute('color-scheme', 'dark'));
+	assert.equal(globalThis.unmounted, 1, 'a later change of attribute keeps that session');
 });
 
 test('the package exports the event name', async () => {

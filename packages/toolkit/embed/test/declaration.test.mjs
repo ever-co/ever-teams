@@ -173,6 +173,6 @@ test('the declaration types every attribute the element observes, and no other',
 			names.push(member.name.text);
 		}
 	});
-	assert.deepEqual(observed, ['api-url', 'app-url', 'color-scheme', 'lang', 'organization', 'sign-in']);
+	assert.deepEqual(observed, ['api-url', 'app-url', 'color-scheme', 'lang', 'organization', 'sign-in', 'token-url']);
 	assert.deepEqual(typed, observed);
 });
