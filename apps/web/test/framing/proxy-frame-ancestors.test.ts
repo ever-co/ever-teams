@@ -26,6 +26,7 @@ beforeEach(() => {
 
 afterEach(() => {
 	jest.restoreAllMocks();
+	delete process.env.FRAME_ANCESTORS;
 });
 
 describe('proxy() and framing', () => {
@@ -44,6 +45,14 @@ describe('proxy() and framing', () => {
 	it('lets no site frame the page where a person allows a site to use their timer', async () => {
 		expect(await framingPolicyOf('/embed/authorize')).toBe("frame-ancestors 'none'");
 		expect(await framingPolicyOf('/fr/embed/authorize')).toBe("frame-ancestors 'none'");
+	});
+
+	it('adds the sites a deployment lists, read on every request so a published image needs no rebuild', async () => {
+		process.env.FRAME_ANCESTORS = 'https://intranet.example.com';
+		expect(await framingPolicyOf('/auth/passcode')).toBe("frame-ancestors 'self' https://intranet.example.com");
+
+		process.env.FRAME_ANCESTORS = 'https://portal.example.org';
+		expect(await framingPolicyOf('/auth/passcode')).toBe("frame-ancestors 'self' https://portal.example.org");
 	});
 
 	it("CONTROL: leaves the image optimizer's own policy alone", async () => {

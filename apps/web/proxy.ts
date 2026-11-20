@@ -141,7 +141,8 @@ export async function proxy(request: NextRequest) {
 
 	const pathname = withoutLocalePrefix(request.nextUrl.pathname);
 	const response = await answerPageRequest(request);
-	response.headers.set('Content-Security-Policy', frameAncestorsPolicy(pathname));
+	const policy = frameAncestorsPolicy(pathname, process.env.FRAME_ANCESTORS);
+	response.headers.set('Content-Security-Policy', policy);
 	return response;
 }
 
