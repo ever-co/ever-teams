@@ -25,7 +25,8 @@ let api;
 before(async () => {
 	const { bundled, remove } = await bundleKit({
 		name: 'site-session',
-		entry: `export { createSiteSession, KitSiteSignedOut } from '${kitSources}/session/site-session.ts';
+		entry: `export { createSiteSession, endSiteSignIn, KitSiteSignedOut } from '${kitSources}/session/site-session.ts';
+			export { apiConfigManager } from '@ever-teams/api';
 			export {
 				readStoredRenewal,
 				saveStoredRenewal,
@@ -200,6 +201,32 @@ test('sign-out revokes the sign-in, then forgets it, also when the API cannot be
 	};
 	await newTab().signOut();
 	assert.equal(savedRenewal(), null, 'forgotten all the same');
+});
+
+test('endSiteSignIn ends the sign-in saved for its address and organization, with no timer showing it (#5580)', async () => {
+	saveRenewal(1);
+	saveRenewal(2, 'org-2');
+
+	await kit.endSiteSignIn({ apiUrl: API, organizationId: ORGANIZATION });
+
+	assert.deepEqual(sent('/embed/revoke').map(({ body }) => body), [{ renewalToken: renewalTokenFor(1) }]);
+	assert.equal(savedRenewal(), null);
+	assert.equal(savedRenewal('org-2').renewalToken, renewalTokenFor(2), "another organization's sign-in stays");
+});
+
+test("endSiteSignIn without an API address ends the sign-in of the page's, as a provider without apiUrl uses", async () => {
+	const previous = kit.apiConfigManager.getConfig().apiUrl;
+	kit.apiConfigManager.setConfig({ apiUrl: API });
+	saveRenewal(3);
+
+	try {
+		await kit.endSiteSignIn({ organizationId: ORGANIZATION });
+	} finally {
+		kit.apiConfigManager.setConfig({ apiUrl: previous });
+	}
+
+	assert.deepEqual(sent('/embed/revoke').map(({ body }) => body), [{ renewalToken: renewalTokenFor(3) }]);
+	assert.equal(savedRenewal(), null);
 });
 
 test('a renewal token is saved for its API address and organization only', async () => {

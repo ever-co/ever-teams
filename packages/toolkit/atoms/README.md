@@ -288,6 +288,11 @@ What the kit does with it:
   that moment keeps nothing of its answer.
 - As with `getToken`, the token reaches only that person's timer, from your site, and the kit lists no other
   organization.
+- On a computer people share, sign the person out when your page signs its own user out: the sign-in is kept for
+  the API address and organization, not for a user of your page, so the next person would get the same timer.
+  Under the provider, `useSiteSignIn()` gives `signOut()`, which does what the user menu does and shows the button
+  again. With no provider on the page, `endSiteSignIn({ apiUrl, organizationId })` forgets the saved sign-in and
+  asks the API to end it.
 
 A provider without `signIn` keeps the kit's own sign-in, and nothing above changes for it.
 

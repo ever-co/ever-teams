@@ -1,4 +1,5 @@
 import { renewEmbedSiteSession, revokeEmbedSiteSession, type EmbedSiteTokens } from '@ever-teams/api';
+import { apiUrlOf } from '../utils/api-url';
 import { expiryOf, GetKitToken, KitHostToken } from './host-token';
 import { withRenewalLock } from './renewal-lock';
 import {
@@ -167,4 +168,18 @@ export function createSiteSession(apiUrl: string, organizationId: string): KitSi
 	}
 
 	return { getToken, accept, holdsHandedToken: () => handed !== null, signOut };
+}
+
+export interface EndSiteSignInOptions {
+	// The API address the sign-in was saved for; without it, the page's, as a provider without apiUrl takes it.
+	apiUrl?: string;
+	organizationId: string;
+}
+
+/**
+ * Ends the sign-in with Ever Teams saved for an API address and organization when no provider shows it: forgets it,
+ * then asks the API to end it, as the user menu does (#5580). A provider on the page signs out with useSiteSignIn().
+ */
+export async function endSiteSignIn({ apiUrl, organizationId }: EndSiteSignInOptions): Promise<void> {
+	await createSiteSession(apiUrlOf({ apiUrl }), organizationId).signOut();
 }

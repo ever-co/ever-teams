@@ -418,3 +418,24 @@ test("a timer set up for another organization does not renew this organization's
 	await click(signInButton());
 	assert.match(popup.opened.at(-1).url, /organization=org-2/);
 });
+
+// The package's entry: a React host signs the person out from its own sign-out, on a shared computer (#5580).
+test('the package exports the sign-in controls and the sign-out of a saved sign-in', () => {
+	const ts = require('typescript');
+	const fs = require('node:fs');
+	const entry = new URL('../src/index.ts', import.meta.url);
+	const source = ts.createSourceFile('index.ts', fs.readFileSync(entry, 'utf8'), ts.ScriptTarget.ES2022, true);
+	const exported = source.statements
+		.filter((statement) => ts.isExportDeclaration(statement) && statement.exportClause)
+		.flatMap((statement) => statement.exportClause.elements.map((element) => element.name.text));
+
+	for (const name of [
+		'useSiteSignIn',
+		'SiteSignInControls',
+		'SiteSignInStatus',
+		'endSiteSignIn',
+		'EndSiteSignInOptions'
+	]) {
+		assert.ok(exported.includes(name), name);
+	}
+});
