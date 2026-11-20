@@ -63,9 +63,10 @@ const npm = (args, cwd) => {
 	return run(command, [...prefix, ...args], cwd, shell);
 };
 
+// Packs as `changeset publish` does: npm runs the package's own prepare script first (toolkit-types has one, #5578).
 const pack = (dir) => {
 	assert.ok(fs.existsSync(path.join(dir, 'dist')), `build ${path.basename(dir)} first: rollup -c`);
-	const output = npm(['pack', '--ignore-scripts', '--json', '--pack-destination', workDir], dir);
+	const output = npm(['pack', '--json', '--pack-destination', workDir], dir);
 	const [packed] = JSON.parse(output);
 	return path.join(workDir, packed.filename);
 };
@@ -284,6 +285,44 @@ test("webpack's resolver refuses the server entry to a page and gives a server i
 	assert.throws(() => resolved(['browser', 'import', 'module', 'webpack', 'production']), /server/);
 	assert.match(resolved(['node', 'import', 'module', 'webpack', 'production']), /server\.es\.js$/);
 	assert.match(resolved(['node', 'require', 'module', 'webpack', 'production']), /server\.cjs$/);
+});
+
+// The types the package takes from @ever-teams/toolkit-types, from an ES module under nodenext (#5578): an
+// extensionless re-export there leaves them missing, or `any` once the host skips the library check.
+test('TypeScript finds the shared types from an ES module under nodenext', () => {
+	const tsc = path.join(path.dirname(require.resolve('typescript/package.json')), 'bin', 'tsc');
+	fs.writeFileSync(
+		path.join(projectDir, 'shared-types.mts'),
+		[
+			"import type { TimerChange } from '@ever-teams/api';",
+			"import type { IClientTimeReport } from '@ever-teams/api/server';",
+			'// @ts-expect-error not a field of the change',
+			'export const change: TimerChange = { notAField: true };',
+			'// @ts-expect-error not a field of the report',
+			'export const report: IClientTimeReport = { notAField: true };',
+			''
+		].join('\n')
+	);
+
+	assert.doesNotThrow(() =>
+		run(
+			process.execPath,
+			[
+				tsc,
+				'--noEmit',
+				'--strict',
+				'--skipLibCheck',
+				'--lib',
+				'es2022,dom',
+				'--module',
+				'nodenext',
+				'--moduleResolution',
+				'nodenext',
+				'shared-types.mts'
+			],
+			projectDir
+		)
+	);
 });
 
 // The host's TypeScript: ES modules and CommonJS under nodenext, a bundler, and the older node10 resolution.
