@@ -36,8 +36,8 @@ const teamsBasicReportVariants = cva(
 				bordered: 'border-2 border-secondaryColor'
 			},
 			size: {
-				default: 'w-[700px]',
-				sm: 'w-[600px] text-sm p-4',
+				default: 'w-full max-w-[700px]',
+				sm: 'w-full max-w-[600px] text-sm p-4',
 				lg: 'min-w-[1200px] w-full px-10 max-w-screen'
 			}
 		},

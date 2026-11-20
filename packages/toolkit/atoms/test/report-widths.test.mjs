@@ -135,6 +135,12 @@ test('the project, task and app lists shrink on a narrow page and keep their siz
 	}
 });
 
+test('the report shrinks on a narrow page at its default and small sizes; the large one keeps its own layout', () => {
+	assertShrinksUpTo(kit.teamsBasicReportVariants({ size: 'default' }), 700, 'the default report');
+	assertShrinksUpTo(kit.teamsBasicReportVariants({ size: 'sm' }), 600, 'the small report');
+	assert.match(kit.teamsBasicReportVariants({ size: 'lg' }), /min-w-\[1200px\]/);
+});
+
 test('a list row lets its name wrap and keeps its figures whole on a narrow page', () => {
 	const { createElement } = require('react');
 	const { renderToStaticMarkup } = require('react-dom/server');
