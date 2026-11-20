@@ -14,7 +14,7 @@ import React, { useState } from "react"
 import { BlurView } from "expo-blur"
 import { ActionTypeItem } from "./task-linked-issue"
 import { useAppTheme } from "../../../../theme"
-import { AntDesign } from "@expo/vector-icons"
+import { ChevronDown } from "../../../../../src/components/icons"
 
 interface IActionTypesModal {
 	actionType: ActionTypeItem
@@ -36,7 +36,7 @@ const ActionTypesModal: React.FC<IActionTypesModal> = ({ actionType, actionItems
 				<Text style={{ fontSize: 8, fontWeight: "600", color: colors.primary }}>
 					{actionType.data.name}
 				</Text>
-				<AntDesign name="down" size={8} color={colors.primary} style={{ margin: 0 }} />
+				<ChevronDown size={8} color={colors.primary} style={{ margin: 0 }} />
 			</TouchableOpacity>
 
 			<ModalPopUp visible={modalOpen} onDismiss={() => setModalOpen(false)}>
