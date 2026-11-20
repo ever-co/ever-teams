@@ -142,10 +142,7 @@ const TaskMainInfo = observer(() => {
 
 			{/* Labels */}
 			<TaskRow labelComponent={<PropertyLabel property="label" label={translate('taskDetailsScreen.labels')} />}>
-				<TaskLabels
-					task={task}
-					forDetails
-				/>
+				<TaskLabels task={task} forDetails />
 			</TaskRow>
 
 			{/* Size */}
