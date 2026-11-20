@@ -43,7 +43,7 @@ export const TeamsActiveEmployeeSelector = ({
 	}
 
 	return (
-		<div className={cn(`flex flex-col gap-2}`, containerClassName)}>
+		<div className={cn('flex flex-col gap-2', containerClassName)}>
 			{label && (
 				<label htmlFor="employee" className="text-sm text-foreground">
 					{label}
