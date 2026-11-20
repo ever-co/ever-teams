@@ -200,16 +200,17 @@ const ChangeTeamLogo = observer(({ onDismiss, onExtend }: { onDismiss: () => unk
 												) : null}
 												<Image source={{ uri: item.uri }} style={styles.image} />
 												{selectedImage?.id === item.id && (
-													<Check
+													// The Hugeicons drawing drops a style prop: its wrapper takes the place over the picture
+													<View
 														style={{
 															position: 'absolute',
 															alignSelf: 'center',
 															marginTop: 50,
 															zIndex: 1001
 														}}
-														size={84}
-														color="#fff"
-													/>
+													>
+														<Check size={84} color="#fff" />
+													</View>
 												)}
 											</>
 										</TouchableHighlight>
