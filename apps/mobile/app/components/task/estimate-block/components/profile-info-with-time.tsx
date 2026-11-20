@@ -39,7 +39,7 @@ const ProfileInfoWithTime: React.FC<IProfileInfo> = ({ profilePicSrc, names, use
 				paddingRight: !time ? 12 : undefined
 			}}
 		>
-			<TouchableOpacity onPress={userId && navigateToProfile} style={styles.container}>
+			<TouchableOpacity disabled={!userId} onPress={navigateToProfile} style={styles.container}>
 				{profilePicSrc ? (
 					<Avatar.Image
 						source={{ uri: profilePicSrc }}
@@ -68,15 +68,17 @@ const ProfileInfoWithTime: React.FC<IProfileInfo> = ({ profilePicSrc, names, use
 					})}
 				</Text>
 			</TouchableOpacity>
-			<Text
-				style={{
-					fontSize: 12,
-					fontWeight: '600',
-					color: time ? colors.primary : '#938FA3'
-				}}
-			>
-				{time || '6 h: 40 m'}
-			</Text>
+			{time && (
+				<Text
+					style={{
+						fontSize: 12,
+						fontWeight: '600',
+						color: colors.primary
+					}}
+				>
+					{time}
+				</Text>
+			)}
 		</View>
 	);
 };
