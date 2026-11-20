@@ -38,10 +38,10 @@ function localDay(text: string, hours: number, minutes: number, seconds: number,
 }
 
 // The calendar day a date-time text starts with, in each form Date reads: 2026-02-29T..., 2026-02-29t..., 2026-02-29
-// 00:00, and a signed six-digit year (+002026-02-29T...).
-const DATE_TIME_DAY = /^([+-]\d{6}|\d{4})-(\d{2})-(\d{2})[Tt ]/;
+// 00:00, a signed six-digit year (+002026-02-29T...), and a day alone (2026-02-29).
+const DATE_TIME_DAY = /^([+-]\d{6}|\d{4})-(\d{2})-(\d{2})(?:[Tt ]|$)/;
 
-// Whether a date-time text names a day that exists: Date rolls 2026-02-29T00:00:00Z over to March 1.
+// Whether a date or date-time text names a day that exists: Date rolls 2026-02-29T00:00:00Z over to March 1.
 function isExistingDay(text: string): boolean {
 	const match = DATE_TIME_DAY.exec(text);
 	if (!match) {
@@ -78,7 +78,8 @@ function isNoDate(text: string): boolean {
  * no time of day: it is refused.
  */
 export function instantAt(value: EverTeamsDate): Date {
-	if (typeof value === 'string' && isNoDate(value)) {
+	// A day that does not exist is not a date, with or without a time of day (2026-02-31).
+	if (typeof value === 'string' && (isNoDate(value) || !isExistingDay(value))) {
 		throw invalidDate(value, INSTANT_STEP);
 	}
 	const hasNoTimeOfDay = typeof value === 'string' && !WITH_TIME_OF_DAY.test(value);

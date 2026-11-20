@@ -335,6 +335,7 @@ test('create says which time is not a date and which has no time of day, with th
 		['tomorrow morning', '"tomorrow morning" is not a date.'],
 		[new Date('x'), 'Invalid Date is not a date.'],
 		['2026-02-31T09:00:00Z', '"2026-02-31T09:00:00Z" is not a date.'],
+		['2026-02-31', '"2026-02-31" is not a date.'],
 		['2026-11-18', '"2026-11-18" has no time of day.'],
 		['November 18, 2026', '"November 18, 2026" has no time of day.'],
 		['2026-11-18T09', '"2026-11-18T09" has no time of day.']
