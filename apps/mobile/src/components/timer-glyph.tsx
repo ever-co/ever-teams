@@ -14,14 +14,12 @@ const STOP_PIECES = [
 	'M24.4999 12.9383V18.6666C24.4999 22.1666 22.1666 24.4999 18.6666 24.4999H9.33323C8.2599 24.4999 7.2449 24.2083 6.38156 23.6949C5.6349 23.2633 5.68156 22.1666 6.41656 21.7233L22.7266 11.9349C23.5082 11.4683 24.4999 12.0283 24.4999 12.9383Z'
 ];
 
-function piecesOf(running: boolean): string[] {
-	if (running) {
-		return STOP_PIECES;
-	}
-	return PLAY_PIECES;
-}
+type TimerMark = 'play' | 'stop';
 
-function glyphNameOf(running: boolean): string {
+// One table names a mark and holds its pieces, so the test id always tells which pieces are drawn
+const PIECES_OF: Record<TimerMark, string[]> = { play: PLAY_PIECES, stop: STOP_PIECES };
+
+function markOf(running: boolean): TimerMark {
 	if (running) {
 		return 'stop';
 	}
@@ -36,9 +34,10 @@ interface ITimerGlyph {
 }
 
 export function TimerGlyph({ running, size, color }: Readonly<ITimerGlyph>) {
+	const mark = markOf(running);
 	return (
-		<Svg testID={`timer-glyph-${glyphNameOf(running)}`} width={size} height={size} viewBox="0 0 28 28" fill="none">
-			{piecesOf(running).map((piece) => (
+		<Svg testID={`timer-glyph-${mark}`} width={size} height={size} viewBox="0 0 28 28" fill="none">
+			{PIECES_OF[mark].map((piece) => (
 				<Path key={piece} d={piece} fill={color} />
 			))}
 		</Svg>
