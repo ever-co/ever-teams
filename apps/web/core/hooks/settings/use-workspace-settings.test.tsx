@@ -252,6 +252,29 @@ describe('saving the currency and the formats', () => {
 		expect(mockToast.error).toHaveBeenCalledWith('settings.workspace.WEEK_START_NOT_SAVED', expect.anything());
 	});
 
+	it('saves the time zone by its name, clears it as none, and says which one is set (#5649)', async () => {
+		const { view, client } = renderSettings();
+
+		await act(async () => {
+			await view.result.current.saveTimeZone('Europe/Paris');
+		});
+
+		expect(mockUpdateOrganization).toHaveBeenLastCalledWith(expect.anything(), { timeZone: 'Europe/Paris' });
+		expect(client.getQueryData(ORGANIZATION_KEY)).toEqual({ ...organization, timeZone: 'Europe/Paris' });
+		expect(mockToast.success).toHaveBeenLastCalledWith('settings.workspace.TIME_ZONE_SAVED', {
+			description: 'settings.workspace.TIME_ZONE_OUTCOME'
+		});
+
+		await act(async () => {
+			await view.result.current.saveTimeZone(null);
+		});
+
+		expect(mockUpdateOrganization).toHaveBeenLastCalledWith(expect.anything(), { timeZone: null });
+		expect(mockToast.success).toHaveBeenLastCalledWith('settings.workspace.TIME_ZONE_CLEARED', {
+			description: 'settings.workspace.TIME_ZONE_CLEARED_OUTCOME'
+		});
+	});
+
 	it('keeps the organization as the API stored it, with what another admin changed since the page read it', async () => {
 		const pageCopy = {
 			id: 'c9bf9e57-1685-4c89-bafb-ff5af830be8a',
