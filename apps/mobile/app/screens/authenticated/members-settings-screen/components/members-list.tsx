@@ -15,6 +15,7 @@ import { useSettings } from "../../../../services/hooks/features/use-settings"
 import { limitTextCharaters } from "../../../../helpers/sub-text"
 import { translate } from "../../../../i18n"
 import LabelItem from "../../../../components/label-item"
+import { memberRowLookOf } from "../../../../../src/theme/member-row-look"
 
 interface IMembersList {
 	teamList: IOrganizationTeamList
@@ -156,7 +157,6 @@ const MemberCard: React.FC<IMemberCard> = ({
 		member?.employee?.user?.image?.fullUrl ||
 		member?.employee?.user?.imageUrl
 
-	const { colors, dark } = useAppTheme()
 	const webTheme = useWebTheme()
 	const secondaryText = [styles.grayedText, { color: webTheme.colors["muted-foreground"] }]
 
@@ -174,16 +174,7 @@ const MemberCard: React.FC<IMemberCard> = ({
 			onLongPress={() => {
 				setSelectMembersMode(member)
 			}}
-			style={[
-				styles.memberContainer,
-				{
-					backgroundColor: isSelected
-						? dark
-							? colors.border
-							: "#F4F4F4"
-						: "transparent",
-				},
-			]}
+			style={[styles.memberContainer, memberRowLookOf(isSelected, webTheme)]}
 		>
 			<View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
 				{imageUrl ? (
@@ -241,12 +232,13 @@ const styles = StyleSheet.create({
 		shadowRadius: 10,
 	},
 	grayedText: { fontSize: 12 },
+	// the row's own inset plus its margin keep the content 24 from the screen's edge, where it was
 	memberContainer: {
 		flexDirection: "row",
 		justifyContent: "space-between",
-		paddingHorizontal: 24,
+		marginHorizontal: 12,
+		paddingHorizontal: 12,
 		paddingVertical: 14,
-		width: "100%",
 	},
 	prefix: {
 		fontFamily: typography.fonts.PlusJakartaSans.light,
