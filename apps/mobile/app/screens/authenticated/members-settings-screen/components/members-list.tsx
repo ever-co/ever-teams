@@ -243,6 +243,7 @@ const styles = StyleSheet.create({
 		gap: 12,
 		justifyContent: "space-between",
 		marginHorizontal: 12,
+		marginVertical: 2,
 		paddingHorizontal: 12,
 		paddingVertical: 14,
 	},
