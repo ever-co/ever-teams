@@ -106,6 +106,10 @@ function useSiteSignInConfig(config: TeamsProviderConfig | undefined): KitSiteSi
 interface TeamsProviderProps {
 	children?: ReactNode;
 	theme?: Theme<{}>;
+	/**
+	 * @deprecated Not read: sign people in with `config.getToken` (your backend), `config.signIn: 'ever-teams'` or the
+	 * kit's sign-in dialog. Passing it logs a warning once (#5635).
+	 */
 	token?: string;
 	lang?: string;
 	config?: TeamsProviderConfig;
@@ -237,6 +241,16 @@ const TeamsProvider = ({
 	useBeforePaintEffect(() => {
 		setKitPreferences({ colorScheme, loadGoogleFonts });
 	}, [colorScheme, loadGoogleFonts]);
+
+	const hasTokenProp = props.token !== undefined;
+	useEffect(() => {
+		if (hasTokenProp) {
+			warnOnce(
+				'provider-token',
+				"TeamsProvider does not read token: sign people in with config.getToken, config.signIn 'ever-teams' or the kit's sign-in dialog."
+			);
+		}
+	}, [hasTokenProp]);
 
 	const siteSignIn = siteSignInOf(props.config) !== null;
 	// Signed in by the host's getToken or with Ever Teams: a token in memory for one member's timer, no password.
