@@ -1,6 +1,7 @@
-// The timesheet's table body holds rows only, its loader included (ever-co/ever-teams#5616): node --test test/*.test.mjs
-// (from packages/toolkit/atoms). bundle-kit.mjs bundles TeamsTimesheet with its time logs hook, the kit's context and
-// the toolkit-ui parts as stand-ins; the table parts draw the real table elements. React renders it to static markup.
+// The timesheet's loader covers its table from outside it, so the table body holds rows only (ever-co/ever-teams#5616):
+// node --test test/*.test.mjs (from packages/toolkit/atoms). bundle-kit.mjs bundles TeamsTimesheet with its time logs
+// hook, the kit's context and the toolkit-ui parts as stand-ins; the table parts draw the real table elements. React
+// renders it to static markup.
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
@@ -81,35 +82,45 @@ before(async () => {
 
 after(() => removeBundle?.());
 
-function tableBodyOf(loading, props = {}) {
+function timesheetOf(loading, props = {}) {
 	globalThis.timeLogsLoading = loading;
 	const { createElement } = require('react');
 	const { renderToStaticMarkup } = require('react-dom/server');
 	const markup = renderToStaticMarkup(createElement(kit.TeamsTimesheet, props));
-	return new JSDOM(`<!doctype html><body>${markup}</body>`).window.document.querySelector('tbody');
+	return new JSDOM(`<!doctype html><body>${markup}</body>`).window.document;
 }
 
-test('while the time logs load, the table body holds rows only, and the loader shows inside one', () => {
-	const body = tableBodyOf(true);
+test('while the time logs load, the loader covers the table from outside it, and the table body holds rows only', () => {
+	const page = timesheetOf(true);
+	const table = page.querySelector('table');
 
-	const tags = [...body.children].map((child) => child.tagName.toLowerCase());
+	const tags = [...table.tBodies[0].children].map((child) => child.tagName.toLowerCase());
 	assert.deepEqual(new Set(tags), new Set(['tr']));
-	assert.match(body.textContent, /loader/, 'the loader shows');
+	assert.doesNotMatch(table.textContent, /loader/, 'nothing of the loader inside the table');
+	const box = table.parentElement;
+	assert.match(box.className, /\brelative\b/, 'the table sits in a positioned box');
+	assert.match(box.textContent, /loader/, 'the loader shows in that box, beside the table');
 });
 
-test("the loader's cell and the empty row's cell span every column, the employee's one included", () => {
-	for (const showEmployee of [false, true]) {
-		const body = tableBodyOf(true, { showEmployee });
-		const columns = body.ownerDocument.querySelectorAll('thead th').length;
+test('the table has as many rows while the time logs load as once they are read, so nothing moves', () => {
+	const rowsOf = (loading) => timesheetOf(loading).querySelectorAll('table tr').length;
 
-		const spans = [...body.querySelectorAll('td')].map((cell) => cell.colSpan);
-		assert.deepEqual(spans, [columns, columns], `showEmployee: ${showEmployee}`);
+	assert.equal(rowsOf(true), rowsOf(false));
+});
+
+test("the empty row's cell spans every column, the employee's one included", () => {
+	for (const showEmployee of [false, true]) {
+		const page = timesheetOf(false, { showEmployee });
+		const columns = page.querySelectorAll('thead th').length;
+
+		const spans = [...page.querySelectorAll('tbody td')].map((cell) => cell.colSpan);
+		assert.deepEqual(spans, [columns], `showEmployee: ${showEmployee}`);
 	}
 });
 
-test('once they are read, no loader row is left', () => {
-	const body = tableBodyOf(false);
+test('once they are read, the loader is gone', () => {
+	const page = timesheetOf(false);
 
-	assert.doesNotMatch(body.textContent, /loader/);
-	assert.equal(body.querySelectorAll('tr').length, 1, 'the empty table says so in one row');
+	assert.doesNotMatch(page.body.textContent, /loader/);
+	assert.equal(page.querySelectorAll('tbody tr').length, 1, 'the empty table says so in one row');
 });

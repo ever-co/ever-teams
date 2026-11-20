@@ -292,113 +292,108 @@ export const TeamsTimesheet = ({
 				</div>
 			)}
 
-			{/* Table */}
-			<Table className="border-none rounded-lg">
-				<TableHeader>
-					<TableRow className="text-gray-500 dark:text-gray-400 text-xs uppercase dark:border-gray-700">
-						{showEmployee && <TableHead>{t('table_headers.employee')}</TableHead>}
-						<TableHead>{t('table_headers.project')}</TableHead>
-						<TableHead>{t('table_headers.log_type')}</TableHead>
-						<TableHead>{t('table_headers.source')}</TableHead>
-						<TableHead>{t('table_headers.duration')}</TableHead>
-						<TableHead>{t('table_headers.time_span')}</TableHead>
-						<TableHead>{t('table_headers.notes')}</TableHead>
-					</TableRow>
-				</TableHeader>
-				<TableBody className="relative">
-					{/* A row of no height holds the overlay: a table body holds rows only (#5616) */}
-					{loading && (
-						<TableRow className="border-0 hover:bg-transparent">
-							<TableCell colSpan={columnCount} className="p-0 h-0">
-								<SpinOverlayLoader />
-							</TableCell>
+			{/* Table, and the loader over it from outside: a table body holds rows only (#5616) */}
+			<div className="relative">
+				<Table className="border-none rounded-lg">
+					<TableHeader>
+						<TableRow className="text-gray-500 dark:text-gray-400 text-xs uppercase dark:border-gray-700">
+							{showEmployee && <TableHead>{t('table_headers.employee')}</TableHead>}
+							<TableHead>{t('table_headers.project')}</TableHead>
+							<TableHead>{t('table_headers.log_type')}</TableHead>
+							<TableHead>{t('table_headers.source')}</TableHead>
+							<TableHead>{t('table_headers.duration')}</TableHead>
+							<TableHead>{t('table_headers.time_span')}</TableHead>
+							<TableHead>{t('table_headers.notes')}</TableHead>
 						</TableRow>
-					)}
-					{currentLogs.length === 0 ? (
-						<TableRow>
-							<TableCell colSpan={columnCount} className="text-center text-gray-500 py-8">
-								<div className="flex flex-col items-center gap-2">
-									<FileText className="size-8 text-gray-400" />
-									<span>{t('table_empty.no_time_logs')}</span>
-								</div>
-							</TableCell>
-						</TableRow>
-					) : (
-						currentLogs.map((log) => (
-							<TableRow key={log.id} className="text-sm text-gray-700 dark:text-gray-200 border-none">
-								{/* Employee Column (optional) */}
-								{showEmployee && (
-									<TableCell className="flex items-center gap-3 py-4">
-										<Avatar
-											src={log.employee?.user?.imageUrl || ''}
-											title={log.employee?.fullName || ''}
-											fallback={(log.employee?.fullName?.[0] || '?').toUpperCase()}
-											className="w-8 h-8 rounded-full"
-										/>
-										<p className="font-semibold text-sm">{log.employee?.fullName || '-'}</p>
-									</TableCell>
-								)}
-
-								{/* Project Column */}
-								<TableCell className={showEmployee ? '' : 'flex items-center gap-3 py-4'}>
-									{log.project?.name && (
-										<Avatar
-											src={log.project?.imageUrl || ''}
-											title={log.project?.name || ''}
-											fallback={(log.project?.name?.[0]).toUpperCase()}
-											className="w-8 h-8 rounded-full"
-										/>
-									)}
-									<div className="flex flex-col gap-1">
-										<p className="font-semibold text-sm">{log.project?.name || '-'}</p>
-										{log.organizationContact?.name && (
-											<p className="text-xs text-gray-500 dark:text-gray-400 truncate w-28">
-												{log.organizationContact?.name}
-											</p>
-										)}
-										{log.task?.title && (
-											<p className="text-xs text-gray-500 dark:text-gray-400 truncate w-28">
-												{log.task?.title}
-											</p>
-										)}
+					</TableHeader>
+					<TableBody>
+						{currentLogs.length === 0 ? (
+							<TableRow>
+								<TableCell colSpan={columnCount} className="text-center text-gray-500 py-8">
+									<div className="flex flex-col items-center gap-2">
+										<FileText className="size-8 text-gray-400" />
+										<span>{t('table_empty.no_time_logs')}</span>
 									</div>
 								</TableCell>
-
-								{/* Log Type Column */}
-								<TableCell>
-									<Badge variant={getLogTypeBadgeVariant(log.logType)}>
-										{log.logType
-											? t(`TIMESHEET.log_types.${log.logType}`, { defaultValue: log.logType })
-											: '-'}
-									</Badge>
-								</TableCell>
-
-								{/* Source Column */}
-								<TableCell>
-									<Badge variant={getSourceBadgeVariant(log.source)}>
-										{log.source
-											? t(`TIMESHEET.sources.${log.source}`, { defaultValue: log.source })
-											: '-'}
-									</Badge>
-								</TableCell>
-
-								{/* Duration Column */}
-								<TableCell className="font-medium">{formatDuration(log.duration)}</TableCell>
-
-								{/* Time Span Column */}
-								<TableCell className="text-xs">
-									{formatTimeSpan(log.startedAt, log.stoppedAt)}
-								</TableCell>
-
-								{/* Notes Column */}
-								<TableCell className="max-w-[200px] truncate" title={log.description || ''}>
-									{log.description || '-'}
-								</TableCell>
 							</TableRow>
-						))
-					)}
-				</TableBody>
-			</Table>
+						) : (
+							currentLogs.map((log) => (
+								<TableRow key={log.id} className="text-sm text-gray-700 dark:text-gray-200 border-none">
+									{/* Employee Column (optional) */}
+									{showEmployee && (
+										<TableCell className="flex items-center gap-3 py-4">
+											<Avatar
+												src={log.employee?.user?.imageUrl || ''}
+												title={log.employee?.fullName || ''}
+												fallback={(log.employee?.fullName?.[0] || '?').toUpperCase()}
+												className="w-8 h-8 rounded-full"
+											/>
+											<p className="font-semibold text-sm">{log.employee?.fullName || '-'}</p>
+										</TableCell>
+									)}
+
+									{/* Project Column */}
+									<TableCell className={showEmployee ? '' : 'flex items-center gap-3 py-4'}>
+										{log.project?.name && (
+											<Avatar
+												src={log.project?.imageUrl || ''}
+												title={log.project?.name || ''}
+												fallback={(log.project?.name?.[0]).toUpperCase()}
+												className="w-8 h-8 rounded-full"
+											/>
+										)}
+										<div className="flex flex-col gap-1">
+											<p className="font-semibold text-sm">{log.project?.name || '-'}</p>
+											{log.organizationContact?.name && (
+												<p className="text-xs text-gray-500 dark:text-gray-400 truncate w-28">
+													{log.organizationContact?.name}
+												</p>
+											)}
+											{log.task?.title && (
+												<p className="text-xs text-gray-500 dark:text-gray-400 truncate w-28">
+													{log.task?.title}
+												</p>
+											)}
+										</div>
+									</TableCell>
+
+									{/* Log Type Column */}
+									<TableCell>
+										<Badge variant={getLogTypeBadgeVariant(log.logType)}>
+											{log.logType
+												? t(`TIMESHEET.log_types.${log.logType}`, { defaultValue: log.logType })
+												: '-'}
+										</Badge>
+									</TableCell>
+
+									{/* Source Column */}
+									<TableCell>
+										<Badge variant={getSourceBadgeVariant(log.source)}>
+											{log.source
+												? t(`TIMESHEET.sources.${log.source}`, { defaultValue: log.source })
+												: '-'}
+										</Badge>
+									</TableCell>
+
+									{/* Duration Column */}
+									<TableCell className="font-medium">{formatDuration(log.duration)}</TableCell>
+
+									{/* Time Span Column */}
+									<TableCell className="text-xs">
+										{formatTimeSpan(log.startedAt, log.stoppedAt)}
+									</TableCell>
+
+									{/* Notes Column */}
+									<TableCell className="max-w-[200px] truncate" title={log.description || ''}>
+										{log.description || '-'}
+									</TableCell>
+								</TableRow>
+							))
+						)}
+					</TableBody>
+				</Table>
+				{loading && <SpinOverlayLoader />}
+			</div>
 
 			{/* Pagination */}
 			{timeLogs.length > 0 && (
