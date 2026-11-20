@@ -1,8 +1,26 @@
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react-native';
-import { activeFilterCountOf, FilterCategory, FilterMenu, toggledValues } from './filter-menu';
+import { activeFilterCountOf, FilterCategory, FilterMenu, labelOptionsOf, toggledValues } from './filter-menu';
+import { ITaskLabelItem } from '../services/interfaces/ITaskLabel';
 
 jest.mock('../../src/components/icons', () => jest.requireActual('../../test/icons-stand-in').iconsStandIn());
+// The glyphs as plain views naming what they draw, so the test reads the rows without drawing SVG
+jest.mock('../../src/components/task-property-icon', () => {
+	const { createElement } = jest.requireActual('react');
+	const { View } = jest.requireActual('react-native');
+	return {
+		TaskPropertyPlaceholderIcon: ({ kind }: { kind: string }) =>
+			createElement(View, { testID: `placeholder-${kind}` })
+	};
+});
+jest.mock('../../src/components/chip-icon', () => {
+	const { createElement } = jest.requireActual('react');
+	const { View } = jest.requireActual('react-native');
+	return {
+		ChipIcon: ({ kind, item }: { kind: string; item: { name: string } }) =>
+			createElement(View, { testID: 'option-glyph', kind, name: item.name })
+	};
+});
 jest.mock('../theme', () => ({
 	...jest.requireActual('../theme/typography'),
 	useWebTheme: () => jest.requireActual('../../src/theme/use-theme').themeFor('light')
@@ -76,6 +94,19 @@ describe("a profile's filter menu", () => {
 		expect(screen.getByTestId('filter-submenu')).toBeTruthy();
 	});
 
+	it("closes a property's values from its row, as a phone's submenu covers part of the menu", async () => {
+		await renderFilter({});
+
+		await fireEvent.press(screen.getByLabelText('Status'));
+
+		expect(screen.getByLabelText('Status')).toBeExpanded();
+
+		await fireEvent.press(screen.getByLabelText('Status'));
+
+		expect(screen.queryByTestId('filter-submenu')).toBeNull();
+		expect(screen.getByLabelText('Status')).toBeCollapsed();
+	});
+
 	it('leaves a property without values out of reach, and clears every filter from Clear filters', async () => {
 		const { onClear } = await renderFilter({ status: ['open'] });
 
@@ -92,5 +123,23 @@ describe('the values a filter holds', () => {
 		expect(activeFilterCountOf({ status: ['open', 'blocked'], label: ['Outdoor'] })).toBe(3);
 		expect(toggledValues(['open'], 'blocked')).toEqual(['open', 'blocked']);
 		expect(toggledValues(['open', 'blocked'], 'open')).toEqual(['blocked']);
+	});
+});
+
+describe('the labels a filter offers', () => {
+	it('keep the names their tasks hold, one option per name', () => {
+		const labels: Partial<ITaskLabelItem>[] = [
+			{ name: 'QA-Team', color: '#ffcc00' },
+			{ name: 'QA Team' },
+			{ name: 'QA-Team' },
+			{ name: '' }
+		];
+
+		const options = labelOptionsOf(labels as ITaskLabelItem[]);
+
+		expect(options.map((option) => [option.value, option.name, option.color])).toEqual([
+			['QA-Team', 'QA-Team', '#ffcc00'],
+			['QA Team', 'QA Team', undefined]
+		]);
 	});
 });

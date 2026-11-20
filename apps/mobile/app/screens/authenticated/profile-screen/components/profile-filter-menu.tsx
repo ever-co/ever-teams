@@ -1,15 +1,15 @@
 import React from 'react';
 import { Modal } from 'react-native';
-import { FilterCategory, FilterMenu, FilterOption } from '../../../../components/filter-menu';
+import { FilterCategory, FilterMenu, FilterOption, labelOptionsOf } from '../../../../components/filter-menu';
 import {
 	TStatus,
-	useTaskLabelValue,
 	useTaskPriorityValue,
 	useTaskSizeValue,
 	useTaskStatusValue
 } from '../../../../components/status-type';
 import { translate } from '../../../../i18n';
 import { ITaskFilter } from '../../../../services/hooks/features/use-task-filters';
+import { useTaskLabels } from '../../../../services/hooks/features/use-task-labels';
 import type { MenuRect } from '../../../../../src/components/menu-placement';
 
 type FilterField = 'status' | 'priority' | 'size' | 'label';
@@ -30,7 +30,7 @@ function useProfileFilterCategories(): FilterCategory<FilterField>[] {
 	const statuses = useTaskStatusValue();
 	const priorities = useTaskPriorityValue();
 	const sizes = useTaskSizeValue();
-	const labels = useTaskLabelValue();
+	const { allTaskLabels } = useTaskLabels();
 	return [
 		{
 			field: 'status',
@@ -49,7 +49,7 @@ function useProfileFilterCategories(): FilterCategory<FilterField>[] {
 			field: 'label',
 			kind: 'label',
 			label: translate('taskMenus.filter.labels'),
-			options: filterOptionsOf(labels),
+			options: labelOptionsOf(allTaskLabels),
 			keepsCase: true
 		}
 	];

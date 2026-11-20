@@ -18,6 +18,7 @@ import {
 import { translate } from '../i18n';
 import { typography, useWebTheme } from '../theme';
 import type { Theme } from '../../src/theme/use-theme';
+import type { ITaskLabelItem } from '../services/interfaces/ITaskLabel';
 import { menuLimitsOn, placementOnArea, useMenuArea } from './property-menu';
 
 /** The web's filter menu (property-filter-menu.tsx): 224 wide, its end on the Filter button's, 6 below it. */
@@ -54,6 +55,23 @@ export function activeFilterCountOf<F extends string>(selection: FilterSelection
 		count += values?.length ?? 0;
 	}
 	return count;
+}
+
+/**
+ * Labels as filter options, read from the labels themselves: each keeps the name its tasks' tags hold, which the
+ * filter compares, even a name that differs from another only by a hyphen. One option per name.
+ */
+export function labelOptionsOf(labels: ITaskLabelItem[]): FilterOption[] {
+	const options: FilterOption[] = [];
+	const names = new Set<string>();
+	for (const { name, color, fullIconUrl, icon } of labels) {
+		if (!name || names.has(name)) {
+			continue;
+		}
+		names.add(name);
+		options.push({ value: name, name, color, iconUrl: fullIconUrl, storedIcon: icon });
+	}
+	return options;
 }
 
 /** The values with this one added, or taken away when it was there. */
@@ -186,7 +204,7 @@ interface IFilterMenu<F extends string> {
 /**
  * A task filter as the web's filter menu: one row per property with the count it holds, a submenu of its values
  * beside the menu, each value checked or unchecked at once, and Clear filters while one is on. A tap outside, back,
- * or VoiceOver's escape closes it.
+ * or VoiceOver's escape closes it. Its rows scroll where the screen leaves less room than they take.
  */
 export function FilterMenu<F extends string>({
 	anchor,
@@ -199,6 +217,7 @@ export function FilterMenu<F extends string>({
 	const theme = useWebTheme();
 	const { areaRef, area, measureArea, context } = useMenuArea();
 	const [openField, setOpenField] = useState<F | null>(null);
+	const [scrollY, setScrollY] = useState(0);
 	const activeCount = activeFilterCountOf(selection);
 	const hasActiveFilters = activeCount > 0;
 	const menuHeight = menuHeightOf(categories.length, hasActiveFilters);
@@ -213,7 +232,8 @@ export function FilterMenu<F extends string>({
 		menuStyle = placement;
 		if (openCategory) {
 			const menuRect = { x: placement.left, y: placement.top, width: placement.width, height: menuHeight };
-			const rowTop = placement.top + MENU_LIST_PADDING + openIndex * MENU_ROW_HEIGHT;
+			// the row where it shows now, the menu's rows scrolled or not
+			const rowTop = placement.top + MENU_LIST_PADDING + openIndex * MENU_ROW_HEIGHT - scrollY;
 			const row = { x: placement.left, y: rowTop, width: placement.width, height: MENU_ROW_HEIGHT };
 			const submenuHeight = submenuHeightOf(openCategory.options.length);
 			const limits = menuLimitsOn(area, context);
@@ -221,6 +241,11 @@ export function FilterMenu<F extends string>({
 		}
 	}
 	const isMeasured = area !== null;
+
+	// A property's row opens its submenu, and closes it once open: on a phone the submenu covers part of the menu
+	const toggleCategory = (field: F) => {
+		setOpenField((open) => (open === field ? null : field));
+	};
 
 	const toggleOption = (category: FilterCategory<F>, option: FilterOption) => {
 		const values = selectedValuesOf(selection, category.field);
@@ -244,52 +269,57 @@ export function FilterMenu<F extends string>({
 			/>
 			<View
 				testID="filter-menu"
-				style={[
-					styles.menu,
-					styles.menuContent,
-					raisedSurfaceOf(theme),
-					menuStyle,
-					!isMeasured && styles.measuring
-				]}
+				style={[styles.menu, raisedSurfaceOf(theme), menuStyle, !isMeasured && styles.measuring]}
 			>
-				{categories.map((category) => (
-					<CategoryRow
-						key={category.field}
-						label={category.label}
-						kind={category.kind}
-						count={selectedValuesOf(selection, category.field).length}
-						isOpen={category.field === openField}
-						isDisabled={category.options.length === 0}
-						onPress={() => setOpenField(category.field)}
-					/>
-				))}
-				{hasActiveFilters && (
-					<>
-						<View style={[styles.separator, { backgroundColor: theme.colors.border }]} />
-						<Pressable
-							testID="filter-clear"
-							accessibilityRole="button"
-							accessibilityLabel={translate('taskMenus.filter.clear')}
-							onPress={() => onClear()}
-							style={({ pressed }) => [
-								styles.row,
-								{ backgroundColor: menuRowBackgroundOf(pressed, theme) }
-							]}
-						>
-							<X size={MENU_ICON_SIZE} color={theme.colors['muted-foreground']} />
-							<Text numberOfLines={1} style={[styles.rowLabel, { color: theme.colors.foreground }]}>
-								{translate('taskMenus.filter.clear')}
-							</Text>
-						</Pressable>
-					</>
-				)}
+				<ScrollView
+					contentContainerStyle={styles.menuContent}
+					keyboardShouldPersistTaps="handled"
+					scrollEventThrottle={16}
+					onScroll={(event) => setScrollY(event.nativeEvent.contentOffset.y)}
+				>
+					{categories.map((category) => (
+						<CategoryRow
+							key={category.field}
+							label={category.label}
+							kind={category.kind}
+							count={selectedValuesOf(selection, category.field).length}
+							isOpen={category.field === openField}
+							isDisabled={category.options.length === 0}
+							onPress={() => toggleCategory(category.field)}
+						/>
+					))}
+					{hasActiveFilters && (
+						<>
+							<View style={[styles.separator, { backgroundColor: theme.colors.border }]} />
+							<Pressable
+								testID="filter-clear"
+								accessibilityRole="button"
+								accessibilityLabel={translate('taskMenus.filter.clear')}
+								onPress={() => onClear()}
+								style={({ pressed }) => [
+									styles.row,
+									{ backgroundColor: menuRowBackgroundOf(pressed, theme) }
+								]}
+							>
+								<X size={MENU_ICON_SIZE} color={theme.colors['muted-foreground']} />
+								<Text numberOfLines={1} style={[styles.rowLabel, { color: theme.colors.foreground }]}>
+									{translate('taskMenus.filter.clear')}
+								</Text>
+							</Pressable>
+						</>
+					)}
+				</ScrollView>
 			</View>
 			{openCategory && (
 				<View
 					testID="filter-submenu"
 					style={[styles.menu, raisedSurfaceOf(theme), submenuStyle, !isMeasured && styles.measuring]}
 				>
-					<ScrollView style={styles.submenuList} contentContainerStyle={styles.menuContent}>
+					<ScrollView
+						style={styles.submenuList}
+						contentContainerStyle={styles.menuContent}
+						keyboardShouldPersistTaps="handled"
+					>
 						{openCategory.options.map((option) => (
 							<OptionRow
 								key={option.value}
