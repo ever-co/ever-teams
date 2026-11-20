@@ -13,6 +13,14 @@ jest.mock('../../src/components/tinted-icon', () => {
 			createElement(View, { testID: 'chip-icon', uri, color })
 	};
 });
+jest.mock('../../src/components/task-property-icon', () => {
+	const { createElement } = jest.requireActual('react');
+	const { View } = jest.requireActual('react-native');
+	return {
+		TaskPropertyIcon: ({ kind, name }: { kind: string; name: string }) =>
+			createElement(View, { testID: 'property-glyph', kind, name })
+	};
+});
 jest.mock('../theme', () => ({
 	useWebTheme: () => jest.requireActual('../../src/theme/use-theme').themeFor('light')
 }));
@@ -71,5 +79,21 @@ describe('a chip on a card', () => {
 
 		await rerender(<LabelItem label="bug-fix" background="#ffcc00" icon={undefined} keepsCase />);
 		expect(StyleSheet.flatten(screen.getByText('bug-fix').props.style).textTransform).toBe('none');
+	});
+
+	it("draws the web's glyph for a chip that names its kind", async () => {
+		await render(
+			<LabelItem
+				label="In Progress"
+				background="#ece8fc"
+				icon={undefined}
+				iconUrl="https://example.com/in-progress.svg"
+				kind="status"
+				storedIcon="ever-icons/task-statuses/in-progress.svg"
+			/>
+		);
+
+		expect(screen.getByTestId('property-glyph').props).toMatchObject({ kind: 'status', name: 'In Progress' });
+		expect(screen.queryByTestId('chip-icon')).toBeNull();
 	});
 });
