@@ -1,6 +1,7 @@
 import React, { FC } from 'react';
 import { ITaskPriorityItem } from '../../../../services/interfaces/ITaskPriority';
 import TaskSettingRow from '../../../../components/task-setting-row';
+import { formatName } from '../../../../helpers/name-format';
 
 interface IPriorityItem {
 	priority: ITaskPriorityItem;
@@ -14,7 +15,7 @@ interface IPriorityItem {
 const PriorityItem: FC<IPriorityItem> = ({ priority, onDeletePriority, openForEdit, readOnly = false }) => {
 	return (
 		<TaskSettingRow
-			name={priority?.name ?? ''}
+			name={formatName(priority?.name ?? '')}
 			color={priority?.color}
 			iconUrl={priority?.fullIconUrl}
 			onEdit={openForEdit}

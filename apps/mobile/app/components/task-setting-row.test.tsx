@@ -21,13 +21,19 @@ const dark = themeFor('dark');
 
 describe("a row of a team's task settings", () => {
 	it("draws the setting as the web's chip, with no box of its own", async () => {
-		await render(<TaskSettingRow name="in-review" color="#D4EFDF" onEdit={jest.fn()} onDelete={jest.fn()} />);
+		await render(<TaskSettingRow name="In Review" color="#D4EFDF" onEdit={jest.fn()} onDelete={jest.fn()} />);
 
 		expect(screen.getByTestId('task-chip')).toBeTruthy();
 		expect(screen.getByText('In Review')).toBeTruthy();
 		const row = StyleSheet.flatten(screen.getByTestId('task-setting-row').props.style);
 		expect(row.borderWidth).toBeUndefined();
 		expect(row.minHeight).toBe(56);
+	});
+
+	it('shows the name as it is given, hyphens and capitals kept', async () => {
+		await render(<TaskSettingRow name="API-v2" onEdit={jest.fn()} onDelete={jest.fn()} />);
+
+		expect(screen.getByText('API-v2')).toBeTruthy();
 	});
 
 	it('draws delete in destructive-ink, never in a fixed orange', async () => {

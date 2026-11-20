@@ -1,6 +1,7 @@
 import React, { FC } from 'react';
 import { ITaskSizeItem } from '../../../../services/interfaces/ITaskSize';
 import TaskSettingRow from '../../../../components/task-setting-row';
+import { formatName } from '../../../../helpers/name-format';
 
 interface ISizeItem {
 	size: ITaskSizeItem;
@@ -14,7 +15,7 @@ interface ISizeItem {
 const SizeItem: FC<ISizeItem> = ({ size, onDeleteSize, openForEdit, readOnly = false }) => {
 	return (
 		<TaskSettingRow
-			name={size?.name ?? ''}
+			name={formatName(size?.name ?? '')}
 			color={size?.color}
 			iconUrl={size?.fullIconUrl}
 			onEdit={openForEdit}

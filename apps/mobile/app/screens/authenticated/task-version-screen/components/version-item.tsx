@@ -1,6 +1,7 @@
 import React, { FC } from 'react';
 import { ITaskVersionItemList } from '../../../../services/interfaces/ITaskVersion';
 import TaskSettingRow from '../../../../components/task-setting-row';
+import { formatName } from '../../../../helpers/name-format';
 
 interface IVersionItem {
 	version: ITaskVersionItemList;
@@ -14,7 +15,7 @@ interface IVersionItem {
 const VersionItem: FC<IVersionItem> = ({ version, onDeleteTask, openForEdit, readOnly = false }) => {
 	return (
 		<TaskSettingRow
-			name={version?.name ?? ''}
+			name={formatName(version?.name ?? '')}
 			color={undefined}
 			iconUrl={undefined}
 			onEdit={openForEdit}

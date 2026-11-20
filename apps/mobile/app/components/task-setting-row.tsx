@@ -3,13 +3,13 @@ import { StyleSheet, View } from 'react-native';
 import { AntDesign, Ionicons } from '@expo/vector-icons';
 import { useWebTheme } from '../theme';
 import LabelItem from './label-item';
-import { formatName } from '../helpers/name-format';
 import { readOnlyOpacity } from '../helpers/read-only-opacity';
 
 const ACTION_ICON_SIZE = 18;
 const ACTION_HIT_SLOP = 12;
 
 interface ITaskSettingRow {
+	/** Shown as given: each list formats its own names, a label keeps the one it was saved with. */
 	name: string;
 	color?: string | null;
 	iconUrl?: string | null;
@@ -33,12 +33,7 @@ function TaskSettingRow({ name, color, iconUrl, onEdit, onDelete, readOnly = fal
 	return (
 		<View testID="task-setting-row" style={styles.row}>
 			<View style={styles.chip}>
-				<LabelItem
-					label={formatName(name)}
-					background={color ?? ''}
-					icon={undefined}
-					iconUrl={iconUrl ?? undefined}
-				/>
+				<LabelItem label={name} background={color ?? ''} icon={undefined} iconUrl={iconUrl ?? undefined} />
 			</View>
 			<View style={[styles.actions, { opacity: readOnlyOpacity(readOnly) }]}>
 				<AntDesign

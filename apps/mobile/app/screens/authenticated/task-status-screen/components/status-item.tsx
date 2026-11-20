@@ -1,6 +1,7 @@
 import React, { FC } from 'react';
 import { ITaskStatusItem } from '../../../../services/interfaces/ITaskStatus';
 import TaskSettingRow from '../../../../components/task-setting-row';
+import { formatName } from '../../../../helpers/name-format';
 
 interface IStatusItem {
 	status: ITaskStatusItem;
@@ -14,7 +15,7 @@ interface IStatusItem {
 const StatusItem: FC<IStatusItem> = ({ status, onDeleteTask, openForEdit, readOnly = false }) => {
 	return (
 		<TaskSettingRow
-			name={status?.name ?? ''}
+			name={formatName(status?.name ?? '')}
 			color={status?.color}
 			iconUrl={status?.fullIconUrl}
 			onEdit={openForEdit}
