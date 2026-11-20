@@ -85,7 +85,8 @@ test('log adds an entry from a time to another on a day, on a project and task, 
 		source: 'BROWSER',
 		projectId: '<project-2>',
 		taskId: '<task-1>',
-		description: 'Call'
+		description: 'Call',
+		billableFromProject: true
 	});
 });
 
@@ -194,4 +195,40 @@ test('an entry over the running timer says to stop it first', async () => {
 		result.stderr,
 		'Your timer is running over this time: stop it with ever-teams stop, or pick another time.\n'
 	);
+});
+
+test('an entry is billable as its project is set, unless --billable or --not-billable chooses', async () => {
+	const cases = [
+		{ flags: [], billable: { billableFromProject: true } },
+		{ flags: ['--billable'], billable: { isBillable: true } },
+		{ flags: ['--not-billable'], billable: { isBillable: false } }
+	];
+	for (const { flags, billable } of cases) {
+		const api = logApi();
+
+		const result = await runLog(['--from', '09:00', '--to', '10:00', '--project', '<name-4>', ...flags], api);
+
+		assert.equal(result.code, 0, flags.join(' '));
+		const { isBillable, billableFromProject } = createBody(api);
+		const sent = Object.fromEntries(
+			Object.entries({ isBillable, billableFromProject }).filter(([, value]) => value !== undefined)
+		);
+		assert.deepEqual(sent, billable, flags.join(' '));
+	}
+});
+
+test('--billable with --not-billable is a usage error, and nothing is sent', async () => {
+	const api = logApi();
+
+	const result = await runLog(
+		['--from', '09:00', '--to', '10:00', '--project', '<name-4>', '--billable', '--not-billable'],
+		api
+	);
+
+	assert.equal(result.code, 2);
+	assert.equal(
+		result.stderr,
+		'Give --billable or --not-billable, not both. Run ever-teams log --help to see how to use it.\n'
+	);
+	assert.equal(api.requests.length, 0);
 });
