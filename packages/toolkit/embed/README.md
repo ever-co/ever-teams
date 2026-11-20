@@ -26,6 +26,7 @@ The element shows the kit's sign-in button, then the person's timer once they ar
 | `sign-in`      | none                        | `ever-teams`: the "Sign in with Ever Teams" button, see [Sign-in](#sign-in).               |
 | `organization` | none                        | With `sign-in="ever-teams"`: the organization the site signs people in to.                 |
 | `app-url`      | `https://app.ever.team`     | With `sign-in="ever-teams"`: the Ever Teams web app the popup opens.                       |
+| `token-url`    | none                        | Your own route that answers the signed-in person's embed token, see [Sign-in](#sign-in).   |
 
 A change of attribute applies at once. Removing the element stops the timer's display and its polling; moving it in the page keeps it as it is. Each element keeps its own `color-scheme`, until a person picks a scheme with the kit's theme toggle: that pick applies to every timer of the page, until an element's `color-scheme` changes. Each element with an `api-url` talks to that address: two timers of one page can reach two different servers. An element without `api-url` follows the page's address, the one another element or your own code set, and never changes it; when nothing set one, it is `https://api.ever.team/api`. When that address changes, such an element starts afresh: the token and the person it holds in memory are dropped. It then reads back only a session a sign-in saved for the new address, if there is one: each address keeps its own session across reloads, and a token is never sent to another server. The one exception is a session saved by an earlier version of the kit, which names no address: the first element to read it takes it as its own and sends its token once; when that is another server's element, the server refuses it and the person signs in again. An element whose `api-url` is removed does not go back to following the page: it talks to `https://api.ever.team/api` and sets that as the page's address. All the timers of a page share one language: the last element to load or change sets it. A language a person picks in the kit's language switch is kept for their next visits and wins over `lang` when an element loads.
 
@@ -158,7 +159,7 @@ declare module 'svelte/elements' {
 These two declarations stay in the app: they extend Vue's and Svelte's own types, which an app without Vue or Svelte
 does not have.
 
-No framework needs a wrapper component: the element takes six attributes, which every framework binds, and
+No framework needs a wrapper component: the element takes seven attributes, which every framework binds, and
 dispatches one event, `ever-teams-timer-change` (see [Events](#events)), which a framework listens to as to any DOM
 event. Nothing binds both ways.
 
@@ -178,8 +179,24 @@ added to the page:
 ## Sign-in
 
 Without `sign-in`, the element uses the kit's own sign-in: a person types their Ever Teams email and password, or a
-token, in the element. Sign-in from your backend, without a password in the page, comes with the host sign-in model
-of `@ever-teams/atoms`.
+token, in the element.
+
+When your product has a server and already knows who is signed in, `token-url` names your own route that answers that
+person's embed token, the one the route handlers of the
+[`@ever-teams/api` README](https://github.com/ever-co/ever-teams/tree/develop/packages/api#sign-people-in-from-your-server)
+write with `exchangeEmbedToken`. No password or token is typed in the page:
+
+```html
+<ever-teams-timer api-url="https://api.ever.team/api" token-url="/api/ever-teams-token"></ever-teams-timer>
+```
+
+The element asks that route with a `POST` and the page's cookies (a route of your page's own origin: the cookies go to
+no other), signs the person in with the `{ token, expiresAt }` it answers, and asks again shortly before the token
+expires. An answer that is not 2xx (your route's 401 for a person
+signed out of your product) shows the person as signed out, with a note that points to your own sign-in. `token-url`
+wins over `sign-in`. Another `token-url` starts a new session, and so does `signOut()`: when the person signed in to
+your page changes without a page load, call `signOut()` once your route answers for the new person (or 401), give
+`token-url` a new value (your route with that person's id in its query, for example) or replace the element.
 
 On a page without a server, `sign-in="ever-teams"` shows a "Sign in with Ever Teams" button instead. It opens the
 Ever Teams web app in a popup, where the person signs in if they are not already and allows your site to start and
@@ -216,8 +233,9 @@ await Promise.all([...document.querySelectorAll('ever-teams-timer')].map((timer)
 ```
 
 `signOut()` does what the user menu does and shows the button again. Called on an element already removed from the
-page, it still ends the sign-in saved for its `api-url` and `organization`. Without `sign-in="ever-teams"` it does
-nothing. Another tab of your site that shows a timer shows the button again at its next renewal, as after a sign-out
+page, it still ends the sign-in saved for its `api-url` and `organization`. With `token-url`, it drops the token the
+element holds and asks your route again, which then answers 401: call it after your own sign-out. Without
+`sign-in="ever-teams"` or `token-url` it does nothing. Another tab of your site that shows a timer shows the button again at its next renewal, as after a sign-out
 from the user menu.
 
 ## Size

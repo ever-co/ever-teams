@@ -22,6 +22,13 @@ export interface EverTeamsTimerAttributes {
 	organization?: string;
 	/** The Ever Teams web app the popup opens, with `sign-in="ever-teams"`. Default: `https://app.ever.team`. */
 	'app-url'?: string;
+	/**
+	 * Your own route that answers the signed-in person's embed token (`{ token, expiresAt }`, what `exchangeEmbedToken`
+	 * of `@ever-teams/api/server` answers). The element asks it with a POST and the page's cookies, signs the person in
+	 * with that token and asks again before it expires; an answer that is not 2xx shows the person as signed out. It
+	 * wins over `sign-in`. Another value, or `signOut()`, starts a new session.
+	 */
+	'token-url'?: string;
 }
 
 /** The values of `sign-in`: `ever-teams`, the sign-in with Ever Teams in a popup. */
@@ -73,7 +80,9 @@ export declare class EverTeamsTimerElement extends HTMLElement {
 	 * browser, ended at the API, and the "Sign in with Ever Teams" button shows again. Call it on each timer of the
 	 * page when your page signs its own user out, so the next person on a shared computer does not get the previous
 	 * one's timer: each timer holds its own token. An element no longer in the page ends the sign-in saved for its
-	 * `api-url` and `organization`. Without `sign-in="ever-teams"`, it does nothing.
+	 * `api-url` and `organization`. With `token-url`, it drops the token the element holds and asks the route again
+	 * (call it after your own sign-out, so the route answers 401). Without `sign-in="ever-teams"` or `token-url`, it
+	 * does nothing.
 	 */
 	signOut(): Promise<void>;
 }

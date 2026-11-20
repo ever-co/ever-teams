@@ -8,6 +8,8 @@ import {
 	TeamsLoginDialog,
 	TeamsProvider,
 	useSiteSignIn,
+	type GetKitToken,
+	type KitHostToken,
 	type SiteSignInControls,
 	type TimerChange
 } from '@ever-teams/atoms';
@@ -74,6 +76,26 @@ function signInConfigOf(element: HTMLElement): SiteSignInConfig {
 	return config;
 }
 
+/**
+ * token-url: the host's own route that answers the signed-in person's embed token, as the route handlers of the
+ * `@ever-teams/api` README do (`exchangeEmbedToken`). The element asks it with the page's cookies, as the kit's
+ * config.getToken: a page without React signs people in from its backend (#5596). A refusal is the host saying the
+ * person is signed out of it: the kit shows its note for that.
+ */
+function tokenGetterOf(url: string): GetKitToken {
+	return async () => {
+		const answer = await fetch(url, {
+			method: 'POST',
+			credentials: 'same-origin',
+			headers: { Accept: 'application/json' }
+		});
+		if (!answer.ok) {
+			throw new Error(`token-url answered ${answer.status}`);
+		}
+		return (await answer.json()) as KitHostToken;
+	};
+}
+
 // The sign-in controls of a render, with the API address and organization that render named.
 interface KeptSiteSignIn {
 	controls: SiteSignInControls;
@@ -99,13 +121,22 @@ function SiteSignInBridge({ keep, scope }: { keep: KeepSiteSignIn; scope: string
 /**
  * <ever-teams-timer api-url="https://api.ever.team/api">: the kit's sign-in and basic timer, rendered by React in the
  * element's own shadow root with the kit's stylesheet. Attributes: api-url, color-scheme (light, dark, system), lang,
- * and sign-in="ever-teams" with organization and app-url for the sign-in with Ever Teams. Removing the element stops
- * its timer display and its requests. It dispatches ever-teams-timer-change (bubbles, composed) at the first read of
- * the timer and at each start, stop or other running entry a later read shows. signOut() ends a sign-in with Ever
- * Teams from the page.
+ * token-url for the sign-in from the host's backend, and sign-in="ever-teams" with organization and app-url for the
+ * sign-in with Ever Teams. Removing the element stops its timer display and its requests. It dispatches
+ * ever-teams-timer-change (bubbles, composed) at the first read of the timer and at each start, stop or other running
+ * entry a later read shows. signOut() ends a sign-in with Ever Teams from the page, and with token-url drops the token
+ * the element holds.
  */
 export class EverTeamsTimerElement extends HTMLElement {
-	static readonly observedAttributes = ['api-url', 'color-scheme', 'lang', 'sign-in', 'organization', 'app-url'];
+	static readonly observedAttributes = [
+		'api-url',
+		'color-scheme',
+		'lang',
+		'sign-in',
+		'organization',
+		'app-url',
+		'token-url'
+	];
 
 	private root: Root | null = null;
 	private cache: EmotionCache | null = null;
@@ -167,9 +198,14 @@ export class EverTeamsTimerElement extends HTMLElement {
 	 * Ends the person's sign-in with Ever Teams (sign-in="ever-teams") as the user menu does: forgotten here, ended at
 	 * the API, and the button shows again. A page calls it when it signs its own user out, so the next person on a
 	 * shared computer does not get the timer of the previous one (#5580). An element not in the page ends the sign-in
-	 * saved for its api-url and organization.
+	 * saved for its api-url and organization. With token-url, the kit starts a new session: the token it holds is
+	 * dropped and the route is asked again, which answers 401 once the page signed its user out (#5596).
 	 */
 	async signOut(): Promise<void> {
+		if (this.getAttribute('token-url')) {
+			this.tokenSession += 1;
+			this.render();
+		}
 		if (this.getAttribute('sign-in') !== 'ever-teams') {
 			return;
 		}
@@ -191,6 +227,23 @@ export class EverTeamsTimerElement extends HTMLElement {
 		return JSON.stringify([config.apiUrl ?? '', this.getAttribute('organization') ?? '']);
 	}
 
+	// One token source per token-url, kept across renders.
+	private hostToken: { url: string; getToken: GetKitToken } | null = null;
+	// Counts the signOut() calls with token-url: each one starts a new session of the kit.
+	private tokenSession = 0;
+
+	private hostTokenConfig(): { getToken?: GetKitToken } {
+		const url = this.getAttribute('token-url');
+		if (!url) {
+			this.hostToken = null;
+			return {};
+		}
+		if (this.hostToken?.url !== url) {
+			this.hostToken = { url, getToken: tokenGetterOf(url) };
+		}
+		return { getToken: this.hostToken.getToken };
+	}
+
 	private render() {
 		if (!this.root || !this.cache) {
 			return;
@@ -202,8 +255,10 @@ export class EverTeamsTimerElement extends HTMLElement {
 		}
 		this.root.render(
 			<CacheProvider value={this.cache}>
+				{/* A new token-url, or signOut() with one, is a new session: the kit starts afresh rather than keep the account it held. */}
 				<TeamsProvider
-					config={{ ...configOf(apiUrl, this.hadApiUrl), ...signInConfigOf(this) }}
+					key={JSON.stringify([this.getAttribute('token-url') ?? '', this.tokenSession])}
+					config={{ ...configOf(apiUrl, this.hadApiUrl), ...signInConfigOf(this), ...this.hostTokenConfig() }}
 					scopedStyles
 					colorScheme={colorSchemeOf(this.getAttribute('color-scheme'))}
 					lang={lang}

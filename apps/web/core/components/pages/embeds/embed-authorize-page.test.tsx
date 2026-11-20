@@ -23,7 +23,7 @@ const mockOrganizations = jest.fn();
 const mockAuthorize = jest.fn();
 const mockReset = jest.fn();
 let mockIsAllowing = false;
-const mockSetPathAfterSignIn = jest.fn();
+const mockSetPathAfterSlowSignIn = jest.fn();
 
 jest.mock('next/navigation', () => ({ useSearchParams: () => mockQuery }));
 jest.mock('next-intl', () => ({
@@ -44,7 +44,7 @@ jest.mock('@/core/hooks/embeds/use-authorize-embed-site', () => ({
 	useAuthorizeEmbedSite: () => ({ mutate: mockAuthorize, reset: mockReset, isPending: mockIsAllowing })
 }));
 jest.mock('@/core/lib/auth/navigate-after-sign-in', () => ({
-	setPathAfterSignIn: (path: string | null) => mockSetPathAfterSignIn(path)
+	setPathAfterSlowSignIn: (path: string) => mockSetPathAfterSlowSignIn(path)
 }));
 jest.mock('@/core/components/layouts/focus/signed-in-account', () => ({
 	SignedInAccount: ({ onNotYou, disabled }: { onNotYou?: () => void; disabled?: boolean }) => (
@@ -228,7 +228,7 @@ describe('EmbedAuthorizePage', () => {
 
 		fireEvent.click(screen.getByRole('button', { name: 'pages.embedAuthorize.SIGN_IN' }));
 
-		expect(mockSetPathAfterSignIn).toHaveBeenCalledWith(`/embed/authorize?${QUERY}`);
+		expect(mockSetPathAfterSlowSignIn).toHaveBeenCalledWith(`/embed/authorize?${QUERY}`);
 		expect(mockOrganizations).not.toHaveBeenCalled();
 	});
 
@@ -240,7 +240,7 @@ describe('EmbedAuthorizePage', () => {
 		expect(screen.queryByRole('button', { name: 'pages.embedAuthorize.ALLOW' })).toBeNull();
 
 		fireEvent.click(screen.getByRole('button', { name: 'not you' }));
-		expect(mockSetPathAfterSignIn).toHaveBeenCalledWith(`/embed/authorize?${QUERY}`);
+		expect(mockSetPathAfterSlowSignIn).toHaveBeenCalledWith(`/embed/authorize?${QUERY}`);
 	});
 
 	it('shows a loading card while the organizations are read, and a retry when the read failed', () => {

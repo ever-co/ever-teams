@@ -2,6 +2,7 @@ import qs from 'qs';
 import { createAccessToken, tokenOf } from './access-token';
 import { withoutTrailingSlashes } from './address';
 import { parseBody } from './answer-body';
+import { embedScopeError, isEmbedToken } from './embed-scope';
 import { clientError, errorFromResponse, networkError, NextStepsByStatus } from './error-mapping';
 import { EverTeamsError } from './errors';
 import { EverTeamsClientOptions } from './types';
@@ -16,6 +17,8 @@ export interface ClientCall {
 	organizationId?: string;
 	/** The next steps this call gives in place of the general ones, by HTTP status. */
 	nextSteps?: NextStepsByStatus;
+	/** Whether an embed token reaches this route; with an embed token, any other call is refused without a request. */
+	reachableByEmbedToken?: boolean;
 }
 
 export interface Transport {
@@ -50,6 +53,14 @@ function assertOptions(options: EverTeamsClientOptions): void {
 			'createClient needs token or getToken.',
 			'Pass token (a personal API token from Settings > API tokens in the web app, or an embed token), or getToken.'
 		);
+	}
+}
+
+// A call an embed token cannot make is refused before it is sent, with the first token or a renewed one.
+function assertReachable(call: ClientCall, token: string | null): void {
+	const refusedToEmbedToken = !call.reachableByEmbedToken && isEmbedToken(token);
+	if (refusedToEmbedToken) {
+		throw embedScopeError(call.nextSteps);
 	}
 }
 
@@ -149,7 +160,9 @@ export function createTransport(options: EverTeamsClientOptions): Transport {
 
 	async function request<T>(call: ClientCall): Promise<T> {
 		const used = accessToken.current();
-		const response = await send(call, await used);
+		const token = await used;
+		assertReachable(call, token);
+		const response = await send(call, token);
 		if (response.status !== 401) {
 			return read<T>(response, call.nextSteps);
 		}
@@ -158,7 +171,9 @@ export function createTransport(options: EverTeamsClientOptions): Transport {
 			return read<T>(response, call.nextSteps);
 		}
 		await discard(response);
-		const retried = await send(call, await renewed);
+		const renewedToken = await renewed;
+		assertReachable(call, renewedToken);
+		const retried = await send(call, renewedToken);
 		return read<T>(retried, call.nextSteps);
 	}
 

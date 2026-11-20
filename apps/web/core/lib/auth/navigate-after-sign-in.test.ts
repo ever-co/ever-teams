@@ -5,7 +5,9 @@ import {
 	clearPathAfterSignInSetBy,
 	navigateAfterSignIn,
 	PATH_AFTER_SIGN_IN_TTL_MS,
-	setPathAfterSignIn
+	PATH_AFTER_SLOW_SIGN_IN_TTL_MS,
+	setPathAfterSignIn,
+	setPathAfterSlowSignIn
 } from './navigate-after-sign-in';
 import { rememberBoardReturn } from './board-return';
 
@@ -195,5 +197,47 @@ describe('the page a sign-in opens (#5025)', () => {
 		expect(signInWith('https://evil.example.com/')).toHaveBeenCalledWith('/');
 		expect(signInWith('//evil.example.com/')).toHaveBeenCalledWith('/');
 		expect(signInWith('/\\evil.example.com/')).toHaveBeenCalledWith('/');
+	});
+});
+
+describe("a site's consent page waits longer for its sign-in (#5598)", () => {
+	const START = Date.UTC(2026, 10, 20, 9, 0);
+	const CONSENT = '/embed/authorize?origin=https%3A%2F%2Fnotes.example.com&organization=org-1&state=abc';
+	const signInAt = (at: number) => {
+		const assign = jest.fn();
+		Object.defineProperty(window, 'location', {
+			configurable: true,
+			value: { ...originalLocation, origin: 'https://app.ever.team', pathname: '/auth/passcode', assign }
+		});
+		const now = jest.spyOn(Date, 'now').mockReturnValue(at);
+		navigateAfterSignIn({ replace: false });
+		now.mockRestore();
+		return assign;
+	};
+	const setAt = (at: number, set: () => void) => {
+		const now = jest.spyOn(Date, 'now').mockReturnValue(at);
+		set();
+		now.mockRestore();
+	};
+
+	it('comes back to the consent page after a sign-in of ten minutes (a code fetched from the e-mail)', () => {
+		setAt(START, () => setPathAfterSlowSignIn(CONSENT));
+
+		expect(signInAt(START + 10 * 60 * 1000)).toHaveBeenCalledWith(CONSENT);
+	});
+
+	it('opens the home page past half an hour, and keeps five minutes for every other page', () => {
+		setAt(START, () => setPathAfterSlowSignIn(CONSENT));
+		expect(signInAt(START + PATH_AFTER_SLOW_SIGN_IN_TTL_MS + 1)).toHaveBeenCalledWith('/');
+
+		setAt(START, () => setPathAfterSignIn('/workspace/new'));
+		expect(signInAt(START + 10 * 60 * 1000)).toHaveBeenCalledWith('/');
+	});
+
+	it('never waits more than half an hour, whatever the entry says', () => {
+		const entry = { path: CONSENT, setAt: START, waitMs: 24 * 60 * 60 * 1000 };
+		window.sessionStorage.setItem('ever-teams:path-after-sign-in', JSON.stringify(entry));
+
+		expect(signInAt(START + 60 * 60 * 1000)).toHaveBeenCalledWith('/');
 	});
 });
