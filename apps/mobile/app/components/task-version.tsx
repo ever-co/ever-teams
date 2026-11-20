@@ -11,6 +11,7 @@ import { translate } from '../i18n';
 import { useTaskVersionValue } from './status-type';
 import { limitTextCharaters } from '../helpers/sub-text';
 import TaskVersionPopup from './task-version-popup';
+import { useMenuAnchor } from '../../src/components/menu-anchor';
 
 interface TaskVersionProps {
 	task?: ITeamTask;
@@ -25,6 +26,7 @@ const TaskVersion: FC<TaskVersionProps> = observer(
 		const { colors } = useAppTheme();
 		const { updateTask } = useTeamTasks();
 		const [openModal, setOpenModal] = useState(false);
+		const { anchorRef, anchor, openFromAnchor } = useMenuAnchor();
 
 		const allTaskVersions = useTaskVersionValue();
 
@@ -54,9 +56,12 @@ const TaskVersion: FC<TaskVersionProps> = observer(
 					setSelectedVersion={(e) => onChangeVersion(e.value)}
 					onDismiss={() => setOpenModal(false)}
 					canCreateVersion={canCreateVersion}
+					anchor={anchor}
 				/>
-				<TouchableOpacity onPress={() => setOpenModal(true)}>
+				<TouchableOpacity onPress={() => openFromAnchor(() => setOpenModal(true))}>
 					<View
+						ref={anchorRef}
+						collapsable={false}
 						style={{
 							...styles.container,
 							...containerStyle,
