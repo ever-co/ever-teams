@@ -108,7 +108,7 @@ let requests;
 const roots = [];
 
 before(async () => {
-	const { bundled, remove } = await bundleKit({
+	const bundle = await bundleKit({
 		name: 'timer-only-reports',
 		entry: `export { TeamsProvider } from '${kitSources}/components/teams-provider/teams-provider.tsx';
 			export { TeamsDailyWorkedTimeDisplayer, TeamsWeeklyWorkedTimeDisplayer } from '${kitSources}/components/teams-ui-components/report-displayer.tsx';
@@ -122,21 +122,23 @@ before(async () => {
 		standIns,
 		standInOf
 	});
-	kit = bundled;
-	removeBundle = remove;
+	kit = bundle.bundled;
+	removeBundle = bundle.remove;
 	React = require('react');
-	({ act } = React);
-	({ createRoot } = require('react-dom/client'));
+	act = React.act;
+	createRoot = require('react-dom/client').createRoot;
 });
 
-after(() => {
-	removeBundle?.();
-});
+after(() => removeBundle?.());
 
+// Each test unmounts the pages it opened, and leaves the document and the storage empty.
 afterEach(async () => {
-	for (const root of roots.splice(0)) {
-		await act(async () => root.unmount());
-	}
+	const opened = roots.splice(0);
+	await act(async () => {
+		for (const root of opened) {
+			root.unmount();
+		}
+	});
 	document.body.replaceChildren();
 	localStorage.clear();
 });
