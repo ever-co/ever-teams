@@ -4,6 +4,7 @@ import { getOrganisationProjects } from '@ever-teams/api';
 import { toast } from '@ever-teams/toolkit-ui';
 import { useTeamsContext } from '@lib/context/teams-context';
 import { useKitOptions } from '@components/teams-provider/kit-options';
+import { useTimerOnlyToken } from '@hooks/useTimerOnlyToken';
 
 export const useOrganizationProjects = ({ clientId }: { clientId: string | null }): IHookResponse<IProject[]> => {
 	const [projects, setProjects] = useState<IHookResponse<IProject[]>>({
@@ -13,10 +14,13 @@ export const useOrganizationProjects = ({ clientId }: { clientId: string | null 
 
 	const { authenticatedUser: user, token, selectedOrganization: organizationId } = useTeamsContext();
 	const { hostSignIn, api } = useKitOptions();
+	const timerOnly = useTimerOnlyToken();
 
 	useEffect(() => {
-		// A token from the host's getToken does not reach the member's projects: no read, so no refusal to show
-		if (hostSignIn) {
+		// A token from the host's getToken, or an embed token signed in another way, does not reach the member's projects:
+		// no read, so no refusal to show (#5602)
+		const readsNoProjects = hostSignIn || timerOnly;
+		if (readsNoProjects) {
 			setProjects({ data: [], loading: false });
 			return;
 		}
@@ -56,7 +60,7 @@ export const useOrganizationProjects = ({ clientId }: { clientId: string | null 
 			// The next read, if any, sets it again
 			setProjects((prev) => (prev.loading ? { ...prev, loading: false } : prev));
 		};
-	}, [user, clientId, organizationId, hostSignIn, api]);
+	}, [user, clientId, organizationId, hostSignIn, timerOnly, api]);
 
 	return projects;
 };

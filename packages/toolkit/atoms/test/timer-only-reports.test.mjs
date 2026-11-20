@@ -201,6 +201,8 @@ const openReports = (config) =>
 const notesShown = () => document.body.textContent.split(NOTE).length - 1;
 const reportReads = () => requests.filter(({ path }) => REPORT_ROUTES.has(path));
 
+const projectReads = () => requests.filter(({ path }) => path.startsWith('/organization-projects'));
+
 // The session the kit's own sign-in saves, with the token the person signed in with.
 const saveSession = (token) => {
 	const saved = { app: { user: null }, persist: { token, expiry: Date.now() + 60 * 60 * 1000 } };
@@ -236,6 +238,15 @@ test("with the kit's own sign-in, each report widget reads as before and shows n
 
 test('a getToken that answers a token other than an embed token keeps each report as it is', async () => {
 	await assertEachWidgetReadsAlone({ apiUrl: API, getToken: getTokenAnswering(FULL_TOKEN) });
+});
+
+test("an embed token signed in through the kit's own form reads no report and no projects either", async () => {
+	saveSession(EMBED_TOKEN);
+	await openReports({ apiUrl: API });
+
+	assert.deepEqual(reportReads(), [], 'no report route is read');
+	assert.deepEqual(projectReads(), [], "the projects card reads no member's projects");
+	assert.equal(notesShown(), Object.keys(WIDGETS).length, 'each widget shows the note');
 });
 
 // A host's own component on the time logs hook: what it holds, its refetch, and the kit's token.
