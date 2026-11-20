@@ -1,6 +1,6 @@
 import React, { ReactNode } from 'react';
 import { FlatList, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
-import { Feather } from '@expo/vector-icons';
+import { Check } from '../../src/components/icons';
 import { typography, useWebTheme } from '../theme';
 import LabelItem from './label-item';
 import { TaskSettingAddButton } from './task-setting-add-button';
@@ -68,7 +68,7 @@ function PickerRow({
 					iconUrl={option.iconUrl}
 				/>
 			</View>
-			{option.isSelected && <Feather name="check" size={CHECK_SIZE} color={theme.colors.primary} />}
+			{option.isSelected && <Check size={CHECK_SIZE} color={theme.colors.primary} />}
 		</Pressable>
 	);
 }
