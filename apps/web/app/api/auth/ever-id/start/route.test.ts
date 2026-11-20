@@ -247,11 +247,11 @@ describe('GET /api/auth/ever-id/start: on, signed out, the sign-in the button st
 		expect(readEverIdStartReturnCookie(cookie.split(';')[0])).toBe('/settings/team?tab=members#invite');
 	});
 
-	it('drops a return path an earlier, abandoned link left, when this one names none', async () => {
+	it('replaces a return path an earlier, abandoned link left with an empty one, when this one names none', async () => {
 		const response = await loadRoute().GET(get('', { cookie: 'ever-id-start-return=%2Ftask%2F1' }));
 
 		expectRedirect(response, AUTHORIZATION_URL);
-		expect(returnCookie(response)).toMatch(/^ever-id-start-return=;.*Max-Age=0/i);
+		expect(returnCookie(response)).toMatch(/^ever-id-start-return=;.*Max-Age=900/i);
 	});
 
 	it.each([
@@ -265,7 +265,7 @@ describe('GET /api/auth/ever-id/start: on, signed out, the sign-in the button st
 
 		expectRedirect(response, AUTHORIZATION_URL);
 		expect(mockSignIn).toHaveBeenCalledWith('ever-id', { redirectTo: '/auth/workspace', redirect: false });
-		expect(returnCookie(response)).toMatch(/^ever-id-start-return=;.*Max-Age=0/i);
+		expect(returnCookie(response)).toMatch(/^ever-id-start-return=;.*Max-Age=900/i);
 	});
 
 	it('counts an expired access token, or one about to expire, as signed out', async () => {

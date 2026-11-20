@@ -173,7 +173,8 @@ export async function GET(request: Request) {
 
 	logEverIdOutcome('ever_id.start', { outcome: 'started', latencyMs: Date.now() - startedAt });
 	const response = redirectTo(answer.url);
-	// The path for the end of this sign-in, or, without one, nothing left by an earlier link that was abandoned.
+	// The path for the end of this sign-in, or, without one, an empty cookie: this sign-in then opens the usual page,
+	// whatever an earlier, abandoned start kept.
 	response.cookies.set(everIdStartReturnCookie(returnPath, everIdCookieSecure(request.headers, request.url)));
 	return response;
 }

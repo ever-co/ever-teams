@@ -40,12 +40,15 @@ export const EVER_ID_START_RETURN_PARAM = 'return';
  */
 export const EVER_ID_SIGN_IN_LANDING_PATH = '/auth/workspace';
 
-/** The cookie that keeps a start link's return path for the end of the sign-in. */
+/**
+ * The cookie that keeps a start link's return path for the end of the sign-in. Every sign-in the start address
+ * begins writes it: with the path, or empty when the link names none (which undoes what an earlier start kept).
+ */
 export const EVER_ID_START_RETURN_COOKIE = 'ever-id-start-return';
 
 /**
- * How long the return path waits: as long as next-auth keeps the sign-in's own PKCE / state / nonce cookies (15
- * minutes), so it never outlives the sign-in it was set for by much.
+ * How long the cookie waits: as long as next-auth keeps the sign-in's own PKCE / state / nonce cookies (15 minutes),
+ * so it never outlives the sign-in it was set for by much.
  */
 export const EVER_ID_START_RETURN_MAX_AGE_S = 15 * 60;
 
@@ -62,8 +65,9 @@ export interface EverIdStartReturnCookie {
 
 /**
  * The cookie that keeps `returnPath` (already checked) for the page that ends the sign-in, or, with `undefined`,
- * the same cookie expired: a start link without a path drops what an earlier, abandoned one left. Not httpOnly: it
- * holds a path of this site and nothing else, and the page that ends the sign-in reads it in the browser.
+ * empty: the page that ends the sign-in then opens the usual page, even if an earlier, abandoned start of the tab
+ * kept another (start-return.ts). Not httpOnly: it holds a path of this site and nothing else, and that page reads it
+ * in the browser.
  */
 export function everIdStartReturnCookie(returnPath: string | undefined, secure: boolean): EverIdStartReturnCookie {
 	return {
@@ -74,14 +78,14 @@ export function everIdStartReturnCookie(returnPath: string | undefined, secure: 
 		sameSite: 'lax',
 		secure,
 		path: '/',
-		maxAge: returnPath ? EVER_ID_START_RETURN_MAX_AGE_S : 0
+		maxAge: EVER_ID_START_RETURN_MAX_AGE_S
 	};
 }
 
 /**
- * The return path a `Cookie` header (or `document.cookie`) keeps (percent-encoded once), checked again as a link's would be
- * ({@link toEverIdStartReturnPath}): anything can set a cookie of this name on the way, so its value is never
- * trusted. `undefined` when there is none, or none that is a path of this site.
+ * The return path a `Cookie` header (or `document.cookie`) keeps (percent-encoded once), checked again as a link's
+ * would be ({@link toEverIdStartReturnPath}): anything can set a cookie of this name on the way, so its value is
+ * never trusted. `undefined` when there is none, or none that is a path of this site.
  */
 export function readEverIdStartReturnCookie(cookieHeader: string | null | undefined): string | undefined {
 	for (const part of (cookieHeader ?? '').split(';')) {

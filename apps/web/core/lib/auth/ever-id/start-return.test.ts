@@ -4,7 +4,7 @@
  * The page that ends an Ever ID sign-in begun by a link to the start address opens the page the link named: the
  * return path waits in its cookie, is checked again, and becomes the page the sign-in opens. The cookie is used once.
  */
-import { navigateAfterSignIn } from '@/core/lib/auth/navigate-after-sign-in';
+import { navigateAfterSignIn, setPathAfterSignIn } from '@/core/lib/auth/navigate-after-sign-in';
 import { keepEverIdStartReturnForSignIn } from './start-return';
 
 const originalLocation = window.location;
@@ -70,6 +70,36 @@ describe('keepEverIdStartReturnForSignIn', () => {
 
 		expect(hasCookie()).toBe(false);
 		expect(pageOpenedAfterSignIn()).toBe('/');
+	});
+
+	it('undoes what an abandoned start of the tab kept when the next start names no page', () => {
+		setCookie(encodeURIComponent('/task/42'));
+		keepEverIdStartReturnForSignIn();
+
+		// The person leaves the chooser, then follows a start link that names no page (an empty cookie).
+		setCookie('');
+		keepEverIdStartReturnForSignIn();
+
+		expect(hasCookie()).toBe(false);
+		expect(pageOpenedAfterSignIn()).toBe('/');
+	});
+
+	it('replaces what an abandoned start kept with the page the next start names', () => {
+		setCookie(encodeURIComponent('/task/42'));
+		keepEverIdStartReturnForSignIn();
+		setCookie(encodeURIComponent('/kanban'));
+		keepEverIdStartReturnForSignIn();
+
+		expect(pageOpenedAfterSignIn()).toBe('/kanban');
+	});
+
+	it('leaves a page set for the sign-in another way, even when a start names no page', () => {
+		setPathAfterSignIn('/workspace/new');
+		setCookie('');
+
+		keepEverIdStartReturnForSignIn();
+
+		expect(pageOpenedAfterSignIn()).toBe('/workspace/new');
 	});
 
 	it('changes nothing without the cookie: a page set for the sign-in another way stays', () => {

@@ -363,12 +363,13 @@ describe('the return-path cookie: where the sign-in lands afterwards', () => {
 		expect(everIdStartReturnCookie('/task/42', false).secure).toBe(false);
 	});
 
-	it('expires it when the link names no path', () => {
+	it('writes it empty when the link names no path: that start then opens the usual page', () => {
 		expect(everIdStartReturnCookie(undefined, true)).toMatchObject({
 			name: EVER_ID_START_RETURN_COOKIE,
 			value: '',
-			maxAge: 0
+			maxAge: 900
 		});
+		expect(readEverIdStartReturnCookie(`${EVER_ID_START_RETURN_COOKIE}=`)).toBeUndefined();
 	});
 
 	it.each(['/', '/task/42', '/settings/team?tab=members&x=1#invite', '/search?q=a%20b', '/kanban?next=%2Ftask;a,b'])(
