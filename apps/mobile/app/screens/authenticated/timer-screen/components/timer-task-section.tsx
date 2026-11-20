@@ -16,7 +16,7 @@ import { ActivityIndicator } from 'react-native-paper';
 import { GLOBAL_STYLE as GS } from '../../../../../assets/ts/styles';
 import ComboBox from './combo-box';
 import EstimateTime from './estimate-time';
-import { Feather } from '@expo/vector-icons';
+import { Check } from '../../../../../src/components/icons';
 import { observer } from 'mobx-react-lite';
 import TaskPriorities from '../../../../components/task-priority';
 // import TaskLabel from "../../../../components/TaskLabel"
@@ -191,7 +191,7 @@ const TimerTaskSection = observer(
 									setEditMode(false);
 								}}
 							>
-								<Feather name="check" size={24} color="green" />
+								<Check size={24} color="green" />
 							</Pressable>
 						) : null}
 
