@@ -175,5 +175,7 @@
 	"taskMenus.fields.priority": "taskMenus.fields.priority",
 	"taskMenus.fields.size": "taskMenus.fields.size",
 	"taskMenus.fields.label": "taskMenus.fields.label",
-	"taskMenus.fields.version": "taskMenus.fields.version"
+	"taskMenus.fields.version": "taskMenus.fields.version",
+	"taskMenus.addLabel": "taskDetail.properties.ADD_LABEL",
+	"taskMenus.editLabels": "taskDetail.properties.EDIT_LABELS"
 }

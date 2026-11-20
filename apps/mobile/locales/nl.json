@@ -619,6 +619,8 @@
 			"size": "Grootte",
 			"label": "Labels",
 			"version": "Versie"
-		}
+		},
+		"addLabel": "Label toevoegen",
+		"editLabels": "Labels bewerken"
 	}
 }

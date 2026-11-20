@@ -619,6 +619,8 @@
 			"size": "Size",
 			"label": "Labels",
 			"version": "Version"
-		}
+		},
+		"addLabel": "Add label",
+		"editLabels": "Edit labels"
 	}
 }

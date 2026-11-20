@@ -619,6 +619,8 @@
 			"size": "Taille",
 			"label": "Étiquettes",
 			"version": "Version"
-		}
+		},
+		"addLabel": "Ajouter une étiquette",
+		"editLabels": "Modifier les étiquettes"
 	}
 }
