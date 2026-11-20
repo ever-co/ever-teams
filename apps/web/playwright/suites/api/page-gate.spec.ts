@@ -29,8 +29,13 @@ async function expectRedirectTo(api: ApiCall, path: string, target: string) {
 		response.status(),
 		`${path}: the door answered ${response.status()} instead of redirecting (${body.slice(0, 120)})`
 	).toBe(307);
+	// The proxy may answer with a relative Location (`/unauthorized`) or an absolute one; either way it has
+	// to land on this app's own origin, at exactly that path.
 	const location = response.headers()['location'] ?? '';
-	expect(location, `${path}: redirected to ${location}, not ${target}`).toBe(`${APP_ORIGIN}${target}`);
+	const landed = new URL(location, APP_ORIGIN);
+	expect(`${landed.origin}${landed.pathname}`, `${path}: redirected to ${location}, not ${target}`).toBe(
+		`${APP_ORIGIN}${target}`
+	);
 }
 
 test.describe('the page gate for an anonymous visitor', () => {

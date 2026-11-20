@@ -187,9 +187,9 @@ for (const route of apiRoutes) {
 }
 
 test('every route handler is attributed to at least one verb', () => {
-	// The NextAuth catch-all is the one handler the collector cannot give verbs to: its verbs come from
-	// NextAuth's own handler, not from exports in the file. The list is pinned so it cannot grow quietly.
-	expect(unattributedApiRoutes).toEqual(['/api/auth/[...nextauth]']);
+	// Every handler exports its verbs by name, the NextAuth catch-all included since it wraps them
+	// (`export const GET = ...`, #5527). A handler the collector cannot read would go unswept, so none may.
+	expect(unattributedApiRoutes).toEqual([]);
 });
 
 test('the NextAuth route answers its own endpoints', async ({ api }) => {
