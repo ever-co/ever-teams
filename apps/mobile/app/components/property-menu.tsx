@@ -16,6 +16,7 @@ import {
 } from '../../src/theme/menu-look';
 import { translate } from '../i18n';
 import { typography, useWebTheme } from '../theme';
+import type { Theme } from '../../src/theme/use-theme';
 
 /** One row and the list's padding: the least of the values the menu keeps in sight. */
 const MENU_LIST_MIN_HEIGHT = MENU_ROW_HEIGHT + 2 * MENU_LIST_PADDING;
@@ -219,17 +220,35 @@ function MenuRow<T extends MenuOption>({ option, onSelect, capitalizesLabel }: R
 	);
 }
 
+export type MenuActionTone = 'default' | 'destructive';
+
+/** An action's ink: Delete reads in destructive-ink, as in the web's menus. */
+export function menuActionInkOf(tone: MenuActionTone, theme: Theme): string {
+	if (tone === 'destructive') {
+		return theme.colors['destructive-ink'];
+	}
+	return theme.colors.foreground;
+}
+
 interface IPropertyMenuAction {
 	icon: ReactNode;
 	label: string;
 	onPress: () => unknown;
 	disabled?: boolean;
+	tone?: MenuActionTone;
 	/** Under a disabled action: why it is, and who can do it. */
 	hint?: string;
 }
 
 /** An action at the foot of a menu, as a row with its icon in muted text: shown faded while it is out of reach. */
-export function PropertyMenuAction({ icon, label, onPress, disabled = false, hint }: Readonly<IPropertyMenuAction>) {
+export function PropertyMenuAction({
+	icon,
+	label,
+	onPress,
+	disabled = false,
+	tone = 'default',
+	hint
+}: Readonly<IPropertyMenuAction>) {
 	const theme = useWebTheme();
 	const showsHint = disabled && Boolean(hint);
 	return (
@@ -248,7 +267,7 @@ export function PropertyMenuAction({ icon, label, onPress, disabled = false, hin
 				]}
 			>
 				<View style={styles.rowIcon}>{icon}</View>
-				<Text numberOfLines={1} style={[styles.rowLabel, { color: theme.colors.foreground }]}>
+				<Text numberOfLines={1} style={[styles.rowLabel, { color: menuActionInkOf(tone, theme) }]}>
 					{label}
 				</Text>
 			</Pressable>

@@ -2,6 +2,7 @@ import React from 'react';
 import { fireEvent, render, screen, within } from '@testing-library/react-native';
 import { Text } from 'react-native';
 import { MenuOption, placementInArea, PropertyMenu, PropertyMenuAction } from './property-menu';
+import { themeFor } from '../../src/theme/use-theme';
 
 jest.mock('../../src/components/icons', () => jest.requireActual('../../test/icons-stand-in').iconsStandIn());
 jest.mock('../theme', () => ({
@@ -170,5 +171,11 @@ describe("a property's menu", () => {
 		);
 
 		expect(screen.getByText('in progress')).toHaveStyle({ textTransform: 'capitalize' });
+	});
+
+	it('reads a destructive action in destructive-ink, as the web reads Delete', async () => {
+		await render(<PropertyMenuAction icon={null} label="Delete" tone="destructive" onPress={jest.fn()} />);
+
+		expect(screen.getByText('Delete')).toHaveStyle({ color: themeFor('light').colors['destructive-ink'] });
 	});
 });
