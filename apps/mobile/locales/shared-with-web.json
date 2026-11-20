@@ -5,6 +5,7 @@
 	"common.confirm": "common.CONFIRM",
 	"common.discard": "common.DISCARD",
 	"common.back": "common.BACK",
+	"taskDetailsScreen.copyTitleButton": "pages.taskDetails.COPY_TITLE",
 	"common.save": "common.SAVE",
 	"hamburgerMenu.theme": "settings.preferences.SECTION_THEME",
 	"hamburgerMenu.themeSystem": "settings.preferences.THEME_SYSTEM",

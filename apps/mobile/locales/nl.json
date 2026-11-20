@@ -234,6 +234,7 @@
 		"characterLimitErrorTitle": "We konden de taaktitel niet bijwerken.",
 		"characterLimitErrorDescription": "De taaktitel kan niet langer zijn dan 255 tekens.",
 		"copyTitle": "Titel gekopieerd.",
+		"copyTitleButton": "Titel kopiëren",
 		"changeParent": "Hoofd wijzigen",
 		"addParent": "Hoofd toevoegen",
 		"taskScreen": "Taakscherm",

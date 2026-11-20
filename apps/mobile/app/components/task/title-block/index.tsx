@@ -1,16 +1,16 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react-native/no-color-literals */
 import { View, TextInput, StyleSheet, TouchableOpacity, Text, Dimensions } from 'react-native';
-import React, { SetStateAction, useCallback, useEffect, useState } from 'react';
+import React, { ComponentProps, SetStateAction, useCallback, useEffect, useState } from 'react';
 import { useStores } from '../../../models';
-import { typography, useAppTheme } from '../../../theme';
-import { SvgXml } from 'react-native-svg';
+import { typography, useAppTheme, useWebTheme } from '../../../theme';
+import { Feather } from '@expo/vector-icons';
+import IconButton from './icon-button';
 import * as Clipboard from 'expo-clipboard';
-import { closeIconLight, copyIcon, editIcon, tickIconLight } from '../../svgs/icons';
 import { useTeamTasks } from '../../../services/hooks/features/use-team-tasks';
 import { showMessage } from 'react-native-flash-message';
 import { translate } from '../../../i18n';
-import IssuesModal from '../../issues-modal';
+import { TaskEyebrow } from './task-eyebrow';
 import { ITeamTask } from '../../../services/interfaces/ITask';
 import { limitTextCharaters } from '../../../helpers/sub-text';
 import CreateParentTaskModal from './create-parent-task-modal';
@@ -21,10 +21,12 @@ import { navigateTo } from '../../../navigators/routes';
 
 const TaskTitleBlock = observer(() => {
 	const {
-		TaskStore: { detailedTask: task }
+		TaskStore: { detailedTask: task },
+		teamStore: { activeTeam }
 	} = useStores();
 
-	const { dark, colors } = useAppTheme();
+	const { colors } = useAppTheme();
+	const theme = useWebTheme();
 
 	const [title, setTitle] = useState<string>('');
 	const [edit, setEdit] = useState<boolean>(false);
@@ -60,41 +62,32 @@ const TaskTitleBlock = observer(() => {
 	};
 
 	return (
-		<View style={{ gap: 18, marginVertical: 20 }}>
+		<View style={{ gap: 12, marginVertical: 16 }}>
+			<TaskEyebrow task={task} teamName={activeTeam?.name} />
 			<View style={{ flexDirection: 'row', gap: 5 }}>
-				<TextInput
-					testID="task-title"
-					multiline
-					editable={edit}
-					style={[
-						styles.textInput,
-						{
-							color: colors.primary,
-							borderColor: edit ? (dark ? '#464242' : '#e5e7eb') : 'transparent',
-							fontFamily: typography.fonts.PlusJakartaSans.semiBold
-						}
-					]}
-					onChangeText={(text) => setTitle(text)}
-					value={title}
-				/>
-				<TitleIcons
-					dark={dark}
-					edit={edit}
-					setEdit={setEdit}
-					copyTitle={copyTitle}
-					saveTitle={() => saveTitle(title)}
-				/>
+				{edit ? (
+					<TextInput
+						testID="task-title"
+						multiline
+						autoFocus
+						style={[styles.textInput, { color: theme.colors.foreground, borderColor: theme.colors.input }]}
+						onChangeText={(text) => setTitle(text)}
+						value={title}
+					/>
+				) : (
+					<Text
+						testID="task-title"
+						accessibilityRole="button"
+						accessibilityHint={translate('common.edit')}
+						onPress={() => setEdit(true)}
+						style={[styles.title, { color: theme.colors.foreground }]}
+					>
+						{title}
+					</Text>
+				)}
+				<TitleIcons edit={edit} setEdit={setEdit} copyTitle={copyTitle} saveTitle={() => saveTitle(title)} />
 			</View>
 			<View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-				<View style={styles.taskNumber}>
-					<Text style={{ fontSize: 12 }}>#{task?.number}</Text>
-				</View>
-				<IssuesModal task={task} nameIncluded={true} smallFont={true} />
-
-				{task?.issueType !== 'Epic' && (
-					<View style={{ borderRightWidth: 1, height: 24, borderRightColor: '#DBDBDB' }} />
-				)}
-
 				{(!task?.issueType || task?.issueType === 'Task' || task?.issueType === 'Bug') &&
 					task?.rootEpic &&
 					task?.parentId !== task?.rootEpic.id && (
@@ -118,52 +111,52 @@ const TaskTitleBlock = observer(() => {
 export default TaskTitleBlock;
 
 interface ITitleIcons {
-	dark: boolean;
 	edit: boolean;
 	setEdit: React.Dispatch<SetStateAction<boolean>>;
 	copyTitle: () => void;
 	saveTitle: () => void;
 }
 
-const TitleIcons: React.FC<ITitleIcons> = ({ dark, edit, setEdit, copyTitle, saveTitle }) => {
+const TitleIcons: React.FC<ITitleIcons> = ({ edit, setEdit, copyTitle, saveTitle }) => {
+	const theme = useWebTheme();
+	const muted = theme.colors['muted-foreground'];
+	if (edit) {
+		return (
+			<View style={styles.titleIcons}>
+				<IconButton
+					testID="task-title-save"
+					label={translate('common.save')}
+					icon="check"
+					color={theme.colors['primary-ink']}
+					onPress={saveTitle}
+				/>
+				<IconButton
+					testID="task-title-cancel"
+					label={translate('common.cancel')}
+					icon="x"
+					color={muted}
+					onPress={() => setEdit(false)}
+				/>
+			</View>
+		);
+	}
 	return (
-		<>
-			{edit ? (
-				<View style={{ gap: 5 }}>
-					<TouchableOpacity
-						onPress={saveTitle}
-						style={[
-							styles.saveCancelButtons,
-							{
-								borderColor: dark ? '#464242' : '#e5e7eb'
-							}
-						]}
-					>
-						<SvgXml xml={tickIconLight} />
-					</TouchableOpacity>
-					<TouchableOpacity
-						onPress={() => setEdit(false)}
-						style={[
-							styles.saveCancelButtons,
-							{
-								borderColor: dark ? '#464242' : '#e5e7eb'
-							}
-						]}
-					>
-						<SvgXml xml={closeIconLight} />
-					</TouchableOpacity>
-				</View>
-			) : (
-				<View style={{ alignItems: 'center', justifyContent: 'center' }}>
-					<TouchableOpacity onPress={() => setEdit(true)} style={styles.editButton}>
-						<SvgXml xml={editIcon} />
-					</TouchableOpacity>
-					<TouchableOpacity onPress={copyTitle} style={styles.copyButton}>
-						<SvgXml xml={copyIcon} />
-					</TouchableOpacity>
-				</View>
-			)}
-		</>
+		<View style={styles.titleIcons}>
+			<IconButton
+				testID="task-title-edit"
+				label={translate('common.edit')}
+				icon="edit-2"
+				color={muted}
+				onPress={() => setEdit(true)}
+			/>
+			<IconButton
+				testID="task-title-copy"
+				label={translate('taskDetailsScreen.copyTitleButton')}
+				icon="copy"
+				color={muted}
+				onPress={copyTitle}
+			/>
+		</View>
 	);
 };
 
@@ -240,27 +233,35 @@ const ParentTaskBadge: React.FC<{ task: ITeamTask }> = observer(({ task }) => {
 	);
 });
 
+/** The parent action's label: Change parent once the task has one. */
+function parentActionLabelOf(task: ITeamTask): string {
+	if (task?.parentId) {
+		return translate('taskDetailsScreen.changeParent');
+	}
+	return translate('taskDetailsScreen.addParent');
+}
+
+/** The parent action's icon: a plus to add one, a swap to change it. */
+function parentActionIconOf(task: ITeamTask): ComponentProps<typeof Feather>['name'] {
+	if (task?.parentId) {
+		return 'repeat';
+	}
+	return 'plus';
+}
+
 const ParentTaskInput: React.FC<{ task: ITeamTask }> = observer(({ task }) => {
 	const [modalVisible, setModalVisible] = useState<boolean>(false);
+	const theme = useWebTheme();
+	const ink = theme.colors['primary-ink'];
 	return task && task?.issueType !== 'Epic' ? (
 		<TouchableOpacity
-			style={{
-				borderRadius: 3,
-				alignItems: 'center',
-				justifyContent: 'center',
-				height: 24,
-				paddingHorizontal: 8,
-				paddingVertical: 2,
-				borderWidth: 1,
-				borderColor: '#f07258'
-			}}
+			testID="task-parent-action"
+			accessibilityRole="button"
+			style={styles.parentAction}
 			onPress={() => setModalVisible(true)}
 		>
-			<Text style={{ fontSize: 10, color: '#f07258', fontWeight: '600' }}>
-				{task?.parentId
-					? translate('taskDetailsScreen.changeParent')
-					: '+ ' + translate('taskDetailsScreen.addParent')}
-			</Text>
+			<Feather name={parentActionIconOf(task)} size={14} color={ink} />
+			<Text style={[styles.parentActionText, { color: ink }]}>{parentActionLabelOf(task)}</Text>
 
 			<CreateParentTaskModal visible={modalVisible} onDismiss={() => setModalVisible(false)} task={task} />
 		</TouchableOpacity>
@@ -270,42 +271,37 @@ const ParentTaskInput: React.FC<{ task: ITeamTask }> = observer(({ task }) => {
 });
 
 const styles = StyleSheet.create({
-	copyButton: {
+	parentAction: {
 		alignItems: 'center',
-		height: 30,
-		justifyContent: 'center',
-		width: 30
+		borderRadius: 8,
+		flexDirection: 'row',
+		gap: 4,
+		minHeight: 32,
+		paddingHorizontal: 8
 	},
-	editButton: {
-		alignItems: 'center',
-		backgroundColor: '#EDEDED',
-		borderRadius: 100,
-		height: 30,
-		justifyContent: 'center',
-		padding: 5,
-		width: 30
-	},
-	saveCancelButtons: {
-		borderRadius: 5,
-		borderWidth: 1,
-		padding: 3
-	},
-	taskNumber: {
-		alignItems: 'center',
-		backgroundColor: '#D6D6D6',
-		borderRadius: 3,
-		height: 24,
-		justifyContent: 'center',
-		paddingHorizontal: 8,
-		paddingVertical: 2
+	parentActionText: {
+		fontFamily: typography.primary.medium,
+		fontSize: 13
 	},
 	textInput: {
-		borderRadius: 5,
+		borderRadius: 8,
 		borderWidth: 1,
 		flex: 1,
-		fontSize: 20,
-		fontWeight: '600',
+		fontFamily: typography.primary.semiBold,
+		fontSize: 24,
+		lineHeight: 30,
 		maxHeight: 150,
+		paddingHorizontal: 8,
+		paddingVertical: 4,
 		textAlignVertical: 'top'
+	},
+	titleIcons: {
+		gap: 2
+	},
+	title: {
+		flex: 1,
+		fontFamily: typography.primary.semiBold,
+		fontSize: 24,
+		lineHeight: 30
 	}
 });

@@ -234,6 +234,7 @@
 		"characterLimitErrorTitle": "Мы не смогли обновить заголовок задачи.",
 		"characterLimitErrorDescription": "Заголовок задачи не может быть длиннее 255 символов.",
 		"copyTitle": "Заголовок скопирован.",
+		"copyTitleButton": "Копировать название",
 		"changeParent": "Сменить родительскую задачу",
 		"addParent": "Добавить родительскую задачу",
 		"taskScreen": "Экран задачи",

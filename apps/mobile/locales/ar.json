@@ -234,6 +234,7 @@
 		"characterLimitErrorTitle": "لم نتمكن من تحديث عنوان المهمة.",
 		"characterLimitErrorDescription": "لا يمكن أن يتجاوز عنوان المهمة 255 حرفًا.",
 		"copyTitle": "تم نسخ العنوان.",
+		"copyTitleButton": "نسخ العنوان",
 		"changeParent": "تغيير المهمة الأصلية",
 		"addParent": "إضافة مهمة أصلية",
 		"taskScreen": "شاشة المهام",

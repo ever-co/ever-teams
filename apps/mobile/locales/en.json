@@ -234,6 +234,7 @@
 		"characterLimitErrorTitle": "We couldn't update Task Title.",
 		"characterLimitErrorDescription": "Task title can't exceed 255 characters.",
 		"copyTitle": "Title Copied.",
+		"copyTitleButton": "Copy title",
 		"changeParent": "Change Parent",
 		"addParent": "Add Parent",
 		"taskScreen": "Task Screen",
