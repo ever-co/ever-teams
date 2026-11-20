@@ -2,6 +2,7 @@ import React, { ComponentProps, ReactElement } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react-native';
 // Each glyph from its own entry: Metro keeps what a module imports, so the whole set would ship with the app
 import Briefcase01Icon from '@hugeicons/core-free-icons/Briefcase01Icon';
+import MoreVerticalIcon from '@hugeicons/core-free-icons/MoreVerticalIcon';
 import PlusSignIcon from '@hugeicons/core-free-icons/PlusSignIcon';
 import AlertCircleIcon from '@hugeicons/core-free-icons/AlertCircleIcon';
 import ArrowDown01Icon from '@hugeicons/core-free-icons/ArrowDown01Icon';
@@ -81,6 +82,7 @@ export const Globe = icon(GlobalIcon, 'Globe');
 export const Menu = icon(Menu02Icon, 'Menu');
 export const Moon = icon(Moon02Icon, 'Moon');
 export const MoreHorizontal = icon(MoreHorizontalIcon, 'MoreHorizontal');
+export const MoreVertical = icon(MoreVerticalIcon, 'MoreVertical');
 export const Search = icon(Search01Icon, 'Search');
 export const Sun = icon(Sun03Icon, 'Sun');
 export const X = icon(Cancel01Icon, 'X');
