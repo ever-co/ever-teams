@@ -85,6 +85,16 @@ export function useTaskFilter(profile: IUserProfile) {
 		[setStatusFilter]
 	);
 
+	/** A filter changed and applied at once, as the web's filter menu does: no Apply step. */
+	const changeStatusFilter = useCallback((type: IStatusType, value: string[]) => {
+		setStatusFilter((state) => {
+			return { ...state, [type]: value };
+		});
+		setAppliedStatusFilter((state) => {
+			return { ...state, [type]: value };
+		});
+	}, []);
+
 	// Reset status applied filter status when filter changed
 	useEffect(() => {
 		if (filterType !== 'status') {
@@ -133,7 +143,9 @@ export function useTaskFilter(profile: IUserProfile) {
 		taskName,
 		setTaskName,
 		statusFilter,
+		appliedStatusFilter,
 		onChangeStatusFilter,
+		changeStatusFilter,
 		onResetStatusFilter,
 		applyStatusFilter,
 		tasksGrouped: profile.tasksGrouped
