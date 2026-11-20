@@ -36,7 +36,7 @@ const ActionTypesModal: React.FC<IActionTypesModal> = ({ actionType, actionItems
 				<Text style={{ fontSize: 8, fontWeight: "600", color: colors.primary }}>
 					{actionType.data.name}
 				</Text>
-				<ChevronDown size={8} color={colors.primary} style={{ margin: 0 }} />
+				<ChevronDown size={8} color={colors.primary} />
 			</TouchableOpacity>
 
 			<ModalPopUp visible={modalOpen} onDismiss={() => setModalOpen(false)}>

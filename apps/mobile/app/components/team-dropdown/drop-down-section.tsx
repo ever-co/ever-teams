@@ -82,7 +82,7 @@ const DropDownSection: FC<Props> = observer(function DropDownSection({
 					</Text>
 				</View>
 				<TouchableOpacity>
-					<Settings  size={24} color={colors.primary} />
+					<Settings size={24} color={colors.primary} />
 				</TouchableOpacity>
 			</View> */}
 
