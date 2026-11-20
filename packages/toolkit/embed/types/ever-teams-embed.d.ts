@@ -70,10 +70,10 @@ export declare class EverTeamsTimerElement extends HTMLElement {
 	attributeChangedCallback(): void;
 	/**
 	 * Ends the person's sign-in with Ever Teams (`sign-in="ever-teams"`) as the user menu does: forgotten in the
-	 * browser, ended at the API, and the "Sign in with Ever Teams" button shows again. Call it when your page signs
-	 * its own user out, so the next person on a shared computer does not get the previous one's timer. An element no
-	 * longer in the page ends the sign-in saved for its `api-url` and `organization`. Without `sign-in="ever-teams"`,
-	 * it does nothing.
+	 * browser, ended at the API, and the "Sign in with Ever Teams" button shows again. Call it on each timer of the
+	 * page when your page signs its own user out, so the next person on a shared computer does not get the previous
+	 * one's timer: each timer holds its own token. An element no longer in the page ends the sign-in saved for its
+	 * `api-url` and `organization`. Without `sign-in="ever-teams"`, it does nothing.
 	 */
 	signOut(): Promise<void>;
 }

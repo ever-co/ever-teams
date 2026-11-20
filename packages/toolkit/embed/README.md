@@ -196,15 +196,17 @@ the button again at its next renewal. [Sign in with Ever Teams](https://github.c
 in the README of `@ever-teams/atoms` says what happens in each case.
 
 The sign-in is kept for the API address and organization, not for a user of your page. On a computer people share,
-sign the timer out when your page signs its own user out, so the next person does not get the previous one's timer:
+sign the timers out when your page signs its own user out, so the next person does not get the previous one's timer.
+Each timer holds its own token, so sign out every one on the page:
 
 ```js
-await document.querySelector('ever-teams-timer').signOut();
+await Promise.all([...document.querySelectorAll('ever-teams-timer')].map((timer) => timer.signOut()));
 ```
 
 `signOut()` does what the user menu does and shows the button again. Called on an element already removed from the
 page, it still ends the sign-in saved for its `api-url` and `organization`. Without `sign-in="ever-teams"` it does
-nothing.
+nothing. Another tab of your site that shows a timer shows the button again at its next renewal, as after a sign-out
+from the user menu.
 
 ## Size
 
