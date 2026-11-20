@@ -2,7 +2,8 @@ import { createdDayOf } from './created-day';
 
 describe("the line above a task's title", () => {
 	it('shows the day the task was created', () => {
-		expect(createdDayOf('2026-11-19T10:00:00.000Z', 'en-GB')).toBe('19 Nov 2026');
+		// a local noon: the same calendar day in every time zone the tests run in
+		expect(createdDayOf(new Date(2026, 10, 19, 12).toISOString(), 'en-GB')).toBe('19 Nov 2026');
 	});
 
 	it('shows no day the API did not give', () => {
