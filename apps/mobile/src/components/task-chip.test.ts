@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 import { taskChipLookOf } from './task-chip';
 import { dataColorChipOf } from '../theme/data-color';
 import { themeFor } from '../theme/use-theme';
@@ -36,9 +36,30 @@ describe('the look of a task chip', () => {
 	it("draws a colored chip's gradient alone, so a dark chip keeps the web's 16% to 24% tint", () => {
 		const dark = taskChipLookOf('#ffcc00', themeFor('dark')).container;
 
-		expect(dark.backgroundColor).toBeUndefined();
+		expect(dark.backgroundColor).toBe('transparent');
 		expect(dark.experimental_backgroundImage).toBe(
 			'linear-gradient(to bottom, ' + dataColorChipOf('#ffcc00', 'dark')!.gradient.join(', ') + ')'
 		);
+	});
+
+	it("clears a caller's flat fill, so it never shows through a dark chip's translucent gradient", () => {
+		const callerFill = { backgroundColor: '#ECE8FC' };
+		const dark = taskChipLookOf('#ffcc00', themeFor('dark')).container;
+
+		expect(StyleSheet.flatten([callerFill, dark]).backgroundColor).toBe('transparent');
+	});
+
+	it('hands the gradient to React Native Web as the CSS backgroundImage it passes through', () => {
+		const nativeOs = Object.getOwnPropertyDescriptor(Platform, 'OS')!;
+		Object.defineProperty(Platform, 'OS', { configurable: true, get: () => 'web' });
+		try {
+			const web = taskChipLookOf('#ffcc00', themeFor('light')).container;
+			const gradient = dataColorChipOf('#ffcc00', 'light')!.gradient.join(', ');
+
+			expect(web).toMatchObject({ backgroundImage: `linear-gradient(to bottom, ${gradient})` });
+			expect(web).not.toHaveProperty('experimental_backgroundImage');
+		} finally {
+			Object.defineProperty(Platform, 'OS', nativeOs);
+		}
 	});
 });
