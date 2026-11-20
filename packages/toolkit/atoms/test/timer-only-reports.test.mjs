@@ -26,6 +26,9 @@ const WIDGETS = {
 	TeamsDailyActivityDisplayer: '/timesheet/statistics/counts',
 	TeamsWeeklyActivityDisplayer: '/timesheet/statistics/counts',
 	TeamsWorkedProjectDisplayer: '/timesheet/statistics/counts',
+	TeamsProjectsList: '/timesheet/statistics/projects',
+	TeamsTasksList: '/timesheet/statistics/tasks',
+	TeamsAppsUrlList: '/timesheet/statistics/activities',
 };
 const REPORT_ROUTES = new Set(Object.values(WIDGETS));
 const LIST_ROUTES = [

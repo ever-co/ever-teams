@@ -7,6 +7,7 @@ import QueryString from 'qs';
 import { DateRange } from 'react-day-picker';
 import { useTeamsContext } from '@lib/context/teams-context';
 import { useKitOptions } from '@components/teams-provider/kit-options';
+import { useTimerOnlyToken } from '@hooks/useTimerOnlyToken';
 
 interface IProjectStat {
 	name: string;
@@ -90,10 +91,15 @@ const useProjectsStats = (): IHookResponse<IProjectsStats> => {
 		reportDates: date
 	} = useTeamsContext();
 	const { api } = useKitOptions();
+	const timerOnly = useTimerOnlyToken();
 
 	const [projectsStats, setProjectsStats] = useState<IHookResponse<IProjectsStats>>({ data: null, loading: false });
 
 	useEffect(() => {
+		// An embed token reaches the timer only: no read, so no refusal to show (#5602)
+		if (timerOnly) {
+			return;
+		}
 		// A read the effect has moved past (other filters or another address, or the widget gone) shows nothing, not
 		// even its error: the toasts are the page's
 		let current = true;
@@ -151,7 +157,7 @@ const useProjectsStats = (): IHookResponse<IProjectsStats> => {
 			// The next read, if any, sets it again
 			setProjectsStats((prev) => (prev.loading ? { ...prev, loading: false } : prev));
 		};
-	}, [user, selectedEmployee, selectedTeam, date, organizationId, api]);
+	}, [user, selectedEmployee, selectedTeam, date, organizationId, timerOnly, api]);
 
 	return projectsStats;
 };
