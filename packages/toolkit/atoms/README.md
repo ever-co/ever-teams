@@ -460,7 +460,7 @@ Without `config.getToken`:
   set `apiUrl`.
 
 With `config.getToken` (above), the sign-in dialog, the stored token and the token in the user menu are gone: the
-token comes from your backend, is limited to the timer and to one person, lives a few minutes and stays in memory; a
+token comes from your backend, is limited to the timer and to one person, lives 15 minutes by default (one hour at most) and stays in memory; a
 revoked embed credential ends its tokens. Requests still go to `config.apiUrl` with that token in their
 `Authorization` header.
 
