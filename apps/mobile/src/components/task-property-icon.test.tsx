@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react-native';
-import { TaskPropertyIcon } from './task-property-icon';
+import { TaskPropertyIcon, TaskPropertyPlaceholderIcon } from './task-property-icon';
 import { dataColorHueOf } from '../theme/data-color';
 import { themeFor } from '../theme/use-theme';
 
@@ -107,5 +107,33 @@ describe("a task property's glyph", () => {
 		await render(<TaskPropertyIcon kind="version" name="Spring release" />);
 
 		expect(screen.getByTestId('icon-Tag')).toHaveStyle({ color: light.colors['muted-foreground'] });
+	});
+});
+
+describe("a task property's placeholder glyph", () => {
+	it('draws an empty status as the dashed ring, in muted-foreground', async () => {
+		await render(<TaskPropertyPlaceholderIcon kind="status" />);
+
+		expect(screen.getByTestId('circle').props).toMatchObject({
+			strokeDasharray: '1.5 1.51',
+			stroke: light.colors['muted-foreground']
+		});
+	});
+
+	it('draws an empty priority as its dashes, and an empty size as its frame alone', async () => {
+		const { rerender } = await render(<TaskPropertyPlaceholderIcon kind="priority" />);
+
+		expect(screen.getByTestId('path').props.d).toBe('M2 7h2M6 7h2M10 7h2');
+
+		await rerender(<TaskPropertyPlaceholderIcon kind="size" />);
+
+		expect(screen.getAllByTestId('rect')).toHaveLength(1);
+		expect(screen.getByTestId('rect').props.strokeOpacity).toBe('0.35');
+	});
+
+	it('draws an empty label or version as the tag, in the color asked', async () => {
+		await render(<TaskPropertyPlaceholderIcon kind="version" color="#282048" />);
+
+		expect(screen.getByTestId('icon-Tag')).toHaveStyle({ color: '#282048' });
 	});
 });

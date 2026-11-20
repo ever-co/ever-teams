@@ -237,3 +237,30 @@ export function TaskPropertyIcon({ kind, name, color, size = 16 }: Readonly<ITas
 		</Svg>
 	);
 }
+
+interface ITaskPropertyPlaceholderIcon {
+	kind: TaskPropertyKind;
+	/** muted-foreground unless the place asks for another. */
+	color?: string;
+	size?: number;
+}
+
+/**
+ * The web's glyph for a property without a value (TaskPropertyPlaceholderIcon): the dashed ring of a status, the
+ * dashes of a priority, the empty frame of a size, the tag of a label or a version.
+ */
+export function TaskPropertyPlaceholderIcon({ kind, color, size = 16 }: Readonly<ITaskPropertyPlaceholderIcon>) {
+	const theme = useWebTheme();
+	const glyphColor = color ?? theme.colors['muted-foreground'];
+	const isTagKind = kind === 'label' || kind === 'version';
+	if (isTagKind) {
+		return <Tag testID={`property-placeholder-${kind}`} size={size} color={glyphColor} />;
+	}
+	return (
+		<Svg testID={`property-placeholder-${kind}`} width={size} height={size} viewBox="0 0 14 14" fill="none">
+			{kind === 'status' && <Ring color={glyphColor} dashed />}
+			{kind === 'priority' && <NoPriorityShape color={glyphColor} />}
+			{kind === 'size' && <SizeFrame color={glyphColor} />}
+		</Svg>
+	);
+}
