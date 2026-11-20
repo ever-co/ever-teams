@@ -19,7 +19,7 @@ import TaskSize from '../../../task-size';
 import TaskPriority from '../../../task-priority';
 import TaskLabels from '../../../task-labels';
 import TaskVersion from '../../../task-version';
-import { useAppTheme } from '../../../../theme';
+import { useAppTheme, useWebTheme } from '../../../../theme';
 import { ITeamTask } from '../../../../services/interfaces/ITask';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
@@ -38,7 +38,7 @@ const TaskMainInfo = observer(() => {
 	const { currentTeam } = useOrganizationTeam();
 	const { updateTask } = useTeamTasks();
 
-	const { colors } = useAppTheme();
+	const theme = useWebTheme();
 	const creator = creatorOf(task);
 
 	return (
@@ -96,7 +96,7 @@ const TaskMainInfo = observer(() => {
 				<TaskRow
 					labelComponent={<PropertyLabel icon="clock" label={translate('taskDetailsScreen.daysRemaining')} />}
 				>
-					<Text style={{ fontWeight: '600', fontSize: 12, color: colors.primary }}>
+					<Text style={[styles.daysRemaining, { color: theme.colors.foreground }]}>
 						{moment(task?.dueDate).diff(moment(), 'days') < 0
 							? 0
 							: moment(task?.dueDate).diff(moment(), 'days')}
@@ -105,7 +105,7 @@ const TaskMainInfo = observer(() => {
 			)}
 
 			{/* horizontal separator */}
-			<View style={styles.horizontalSeparator} />
+			<View style={[styles.horizontalSeparator, { borderBottomColor: theme.colors.border }]} />
 
 			{/* Version */}
 			<TaskRow
@@ -247,9 +247,12 @@ const styles = StyleSheet.create({
 		marginVertical: 5,
 		padding: 4
 	},
+	daysRemaining: {
+		fontSize: 13,
+		fontWeight: '600'
+	},
 	horizontalSeparator: {
-		borderBottomColor: '#F2F2F2',
-		borderBottomWidth: 1,
+		borderBottomWidth: StyleSheet.hairlineWidth,
 		marginVertical: 10,
 		width: '100%'
 	},
