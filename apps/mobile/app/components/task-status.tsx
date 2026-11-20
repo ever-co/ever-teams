@@ -98,7 +98,12 @@ const TaskStatus: FC<TaskStatusProps> = observer(
 								)}
 							</View>
 						) : (
-							<EmptyStatus iconsOnly={Boolean(iconsOnly)} ink={look.ink} faintInk={colors.divider} />
+							<EmptyStatus
+								iconsOnly={Boolean(iconsOnly)}
+								labelOnly={Boolean(labelOnly)}
+								ink={look.ink}
+								faintInk={colors.divider}
+							/>
 						)}
 						<ChevronDown size={labelOnly ? 8 : 14} color={look.ink} />
 					</View>

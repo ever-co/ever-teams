@@ -6,20 +6,24 @@ import { typography } from '../theme';
 
 interface IEmptyStatus {
 	iconsOnly: boolean;
+	/** Where a status shows its name without its glyph (a linked issue's row), the ring stays out too. */
+	labelOnly?: boolean;
 	ink: string;
 	/** The ring's color where only icons show. */
 	faintInk: string;
 }
 
 /** A status chip without a status: the web's dashed ring, and its name unless only icons show. */
-export function EmptyStatus({ iconsOnly, ink, faintInk }: Readonly<IEmptyStatus>) {
+export function EmptyStatus({ iconsOnly, labelOnly = false, ink, faintInk }: Readonly<IEmptyStatus>) {
 	if (iconsOnly) {
 		return <TaskPropertyPlaceholderIcon kind="status" size={14} color={faintInk} />;
 	}
 	return (
 		<View style={styles.empty}>
-			<TaskPropertyPlaceholderIcon kind="status" size={12} color={ink} />
-			<Text style={[styles.name, { color: ink }]}>{translate('settingScreen.statusScreen.statuses')}</Text>
+			{labelOnly ? null : <TaskPropertyPlaceholderIcon kind="status" size={12} color={ink} />}
+			<Text style={[styles.name, !labelOnly && styles.nameAfterRing, { color: ink }]}>
+				{translate('settingScreen.statusScreen.statuses')}
+			</Text>
 		</View>
 	);
 }
@@ -32,7 +36,9 @@ const styles = StyleSheet.create({
 	name: {
 		fontFamily: typography.fonts.PlusJakartaSans.semiBold,
 		fontSize: 10,
-		marginLeft: 5,
 		textTransform: 'capitalize'
+	},
+	nameAfterRing: {
+		marginLeft: 5
 	}
 });
