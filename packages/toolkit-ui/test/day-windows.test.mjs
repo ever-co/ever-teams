@@ -41,3 +41,14 @@ test('getStartAndEndOfDay keeps its window: the 24 hours before the call', () =>
 		dayEnd: '2026-11-20 07:18:53'
 	});
 });
+
+test('getTodaySoFar asks for today since local midnight, as the web app does (#5585)', () => {
+	assert.deepEqual(utils.getTodaySoFar(new Date(2026, 10, 20, 7, 18, 53)), {
+		dayStart: '2026-11-20 00:00:00',
+		dayEnd: '2026-11-20 07:18:53'
+	});
+	assert.deepEqual(utils.getTodaySoFar(new Date(2026, 10, 20, 0, 0, 30)), {
+		dayStart: '2026-11-20 00:00:00',
+		dayEnd: '2026-11-20 00:00:30'
+	});
+});

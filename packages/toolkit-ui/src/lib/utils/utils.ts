@@ -129,3 +129,16 @@ export function getStartAndEndOfDay(callTime = new Date()): { dayStart: string; 
 		dayEnd: formatLocalDateTime(end)
 	};
 }
+
+/**
+ * Today so far, as the web app counts it: from local midnight of `callTime` to `callTime`, in the same
+ * 'YYYY-MM-DD HH:mm:ss' form as getStartAndEndOfDay, whose window is the 24 hours before the call (#5585).
+ */
+export function getTodaySoFar(callTime = new Date()): { dayStart: string; dayEnd: string } {
+	const midnight = new Date(callTime);
+	midnight.setHours(0, 0, 0, 0);
+	return {
+		dayStart: formatLocalDateTime(midnight),
+		dayEnd: formatLocalDateTime(callTime)
+	};
+}
