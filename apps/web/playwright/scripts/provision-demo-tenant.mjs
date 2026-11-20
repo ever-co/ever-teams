@@ -57,12 +57,18 @@ async function call(method, path, { body, token, note } = {}) {
 	}
 	if (!response.ok) {
 		const detail = Array.isArray(payload.message) ? payload.message.join('; ') : (payload.message ?? payload.raw);
-		throw new Error(`${note ?? path} failed: HTTP ${response.status} ${detail}`);
+		throw new Error(`${note ?? path} failed: HTTP ${response.status} ${safeLog(detail)}`);
 	}
 	return payload;
 }
 
 const unwrap = (payload) => payload?.data ?? payload;
+
+/** A server-supplied value made safe to print on one line: no control characters (no forged log lines), no JWT. */
+const safeLog = (value) =>
+	String(value ?? '')
+		.replace(/\p{Cc}+/gu, ' ')
+		.replace(/eyJ[A-Za-z0-9_.-]+/g, '<token>');
 
 /**
  * The password sign-in, as the web app itself attempts it: `/auth/login` (register.service.ts
@@ -122,13 +128,11 @@ async function main() {
 		},
 		note: 'register'
 	});
-	console.log(`register answered with: ${Object.keys(registered ?? {}).join(', ')}`);
+	console.log(`register answered with: ${safeLog(Object.keys(registered ?? {}).join(', '))}`);
 	// Never a value that could be a token: only the outcome and its message, with any JWT scrubbed.
 	const notice = Array.isArray(registered?.message) ? registered.message.join('; ') : registered?.message;
 	console.log(
-		`register outcome: success=${registered?.success ?? 'not stated'} message=${String(notice ?? '')
-			.replace(/eyJ[A-Za-z0-9_.-]+/g, '<token>')
-			.slice(0, 160)}`
+		`register outcome: success=${safeLog(registered?.success ?? 'not stated')} message=${safeLog(notice).slice(0, 160)}`
 	);
 
 	const user = unwrap(registered);
