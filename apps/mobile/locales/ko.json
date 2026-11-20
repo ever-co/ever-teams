@@ -613,6 +613,13 @@
 			"labels": "라벨",
 			"clear": "필터 지우기"
 		},
+		"fields": {
+			"status": "상태",
+			"priority": "우선순위",
+			"size": "크기",
+			"label": "라벨",
+			"version": "버전"
+		},
 		"rowActions": "{name} 작업"
 	}
 }

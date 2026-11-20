@@ -3,7 +3,7 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, { useState, useCallback } from 'react';
 import { View, ViewStyle, TouchableOpacity, StyleSheet, TouchableWithoutFeedback } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { ChevronLeft, MoreVertical } from '../../../../../src/components/icons';
 
 // COMPONENTS
 import { Card } from '../../../../components';
@@ -248,12 +248,12 @@ const ListCardItem: React.FC<Props> = observer((props) => {
 				<View style={styles.menuCorner}>
 					{showUnassignedList && (
 						<TouchableOpacity onPress={handleBackPress}>
-							<Ionicons name="chevron-back" size={24} color={colors.primary} />
+							<ChevronLeft size={24} color={colors.primary} />
 						</TouchableOpacity>
 					)}
 					{showMenuTrigger && (
 						<TouchableOpacity testID="member-card-menu" hitSlop={12} onPress={handleMenuPress}>
-							<Ionicons name="ellipsis-vertical-outline" size={24} color={colors.primary} />
+							<MoreVertical size={24} color={colors.primary} />
 						</TouchableOpacity>
 					)}
 					<ActionSheet

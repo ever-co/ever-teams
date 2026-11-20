@@ -12,6 +12,7 @@ import { taskChipLookOf } from '../../src/components/task-chip';
 import { ChipIcon } from '../../src/components/chip-icon';
 import { useMenuAnchor } from '../../src/components/menu-anchor';
 import TaskPriorityPopup from './task-priority-popup';
+import { PropertyTriggerButton } from './property-trigger';
 import { translate } from '../i18n';
 import { useTaskPriorityValue } from './status-type';
 import { limitTextCharaters } from '../helpers/sub-text';
@@ -22,10 +23,12 @@ interface TaskPriorityProps {
 	priority?: string;
 	setPriority?: (priority: string) => unknown;
 	canCreatePriority?: boolean;
+	/** On the task page: the web's pill, or its chip when the value has a color, as wide as its content. */
+	forDetails?: boolean;
 }
 
 const TaskPriority: FC<TaskPriorityProps> = observer(
-	({ task, containerStyle, priority, setPriority, canCreatePriority }) => {
+	({ task, containerStyle, priority, setPriority, canCreatePriority, forDetails }) => {
 		const theme = useWebTheme();
 		const { updateTask } = useTeamTasks();
 		const [openModal, setOpenModal] = useState(false);
@@ -55,16 +58,36 @@ const TaskPriority: FC<TaskPriorityProps> = observer(
 			}
 		};
 
+		const popup = (
+			<TaskPriorityPopup
+				priorityName={task ? task?.priority : priority}
+				visible={openModal}
+				setSelectedPriority={(e) => onChangePriority(e.value)}
+				onDismiss={() => setOpenModal(false)}
+				anchor={anchor}
+				canCreatePriority={canCreatePriority}
+			/>
+		);
+
+		if (forDetails) {
+			return (
+				<>
+					{popup}
+					<PropertyTriggerButton
+						anchorRef={anchorRef}
+						expanded={openModal}
+						onPress={() => openFromAnchor(() => setOpenModal(true))}
+						kind="priority"
+						placeholder={translate('taskMenus.fields.priority')}
+						item={currentPriority}
+					/>
+				</>
+			);
+		}
+
 		return (
 			<>
-				<TaskPriorityPopup
-					priorityName={task ? task?.priority : priority}
-					visible={openModal}
-					setSelectedPriority={(e) => onChangePriority(e.value)}
-					onDismiss={() => setOpenModal(false)}
-					anchor={anchor}
-					canCreatePriority={canCreatePriority}
-				/>
+				{popup}
 				<TouchableOpacity onPress={() => openFromAnchor(() => setOpenModal(true))}>
 					<View
 						ref={anchorRef}

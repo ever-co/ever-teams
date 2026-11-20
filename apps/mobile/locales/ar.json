@@ -613,6 +613,13 @@
 			"labels": "تصنيفات",
 			"clear": "مسح الفلاتر"
 		},
+		"fields": {
+			"status": "الحالة",
+			"priority": "الأولوية",
+			"size": "الحجم",
+			"label": "التصنيفات",
+			"version": "الإصدار"
+		},
 		"rowActions": "إجراءات {name}"
 	}
 }

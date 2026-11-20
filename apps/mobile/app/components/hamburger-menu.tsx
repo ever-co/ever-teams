@@ -15,6 +15,7 @@ import { useOrganizationTeam } from '../services/hooks/use-organization';
 import { navigateTo } from '../navigators/routes';
 import { usePathname } from 'expo-router';
 import { MenuRow } from './menu-row';
+import { Briefcase, LogOut, Settings, User, Users } from '../../src/components/icons';
 import { menuEntryOf } from './menu-current';
 import { ThemeChoice } from './theme-choice';
 
@@ -87,7 +88,7 @@ const HamburgerMenu = observer((props: any) => {
 						{activeTeam ? (
 							<MenuRow
 								testID="menu-work"
-								icon="user"
+								icon={User}
 								label={translate('myWorkScreen.name')}
 								isCurrent={currentEntry === 'work'}
 								onPress={() => navigateTo(navigation, 'Timer')}
@@ -95,21 +96,21 @@ const HamburgerMenu = observer((props: any) => {
 						) : null}
 						<MenuRow
 							testID="menu-team"
-							icon="users"
+							icon={Users}
 							label={translate('teamScreen.name')}
 							isCurrent={currentEntry === 'team'}
 							onPress={() => navigateTo(navigation, 'Team')}
 						/>
 						<MenuRow
 							testID="menu-tasks"
-							icon="briefcase"
+							icon={Briefcase}
 							label={translate('tasksScreen.name')}
 							isCurrent={currentEntry === 'tasks'}
 							onPress={() => navigateTo(navigation, 'Profile', { userId: user?.id, tabIndex: 0 })}
 						/>
 						<MenuRow
 							testID="menu-settings"
-							icon="settings"
+							icon={Settings}
 							label={translate('settingScreen.name')}
 							isCurrent={currentEntry === 'settings'}
 							onPress={() => navigateTo(navigation, 'Setting')}
@@ -126,7 +127,7 @@ const HamburgerMenu = observer((props: any) => {
 				<View style={[styles.bottomSection, { borderTopColor: theme.colors.border }]}>
 					<MenuRow
 						testID="menu-log-out"
-						icon="log-out"
+						icon={LogOut}
 						label={translate('common.logOut')}
 						tone="danger"
 						onPress={() => onLogout()}

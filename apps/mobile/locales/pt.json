@@ -613,6 +613,13 @@
 			"labels": "Etiquetas",
 			"clear": "Limpar filtros"
 		},
+		"fields": {
+			"status": "Status",
+			"priority": "Prioridade",
+			"size": "Tamanho",
+			"label": "Etiquetas",
+			"version": "Versão"
+		},
 		"rowActions": "Ações para {name}"
 	}
 }

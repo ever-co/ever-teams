@@ -8,11 +8,13 @@ import { ITeamTask } from '../services/interfaces/ITask';
 import { observer } from 'mobx-react-lite';
 import { useTeamTasks } from '../services/hooks/features/use-team-tasks';
 import TaskStatusPopup from './task-status-popup';
+import { PropertyTriggerButton } from './property-trigger';
+import { translate } from '../i18n';
 import { typography, useAppTheme, useWebTheme } from '../theme';
 import { taskChipLookOf } from '../../src/components/task-chip';
 import { ChipIcon } from '../../src/components/chip-icon';
 import { useMenuAnchor } from '../../src/components/menu-anchor';
-import { useTaskStatusValue } from './status-type';
+import { TStatus, useTaskStatusValue } from './status-type';
 import { limitTextCharaters } from '../helpers/sub-text';
 
 interface TaskStatusProps {
@@ -24,10 +26,25 @@ interface TaskStatusProps {
 	status?: string;
 	setStatus?: (status: string) => unknown;
 	canCreateStatus?: boolean;
+	/** On the task page: the web's pill, or its chip when the value has a color, as wide as its content. */
+	forDetails?: boolean;
+}
+
+/** The status the task holds, or the one picked for a new task, as the icon map knows it. */
+function statusItemOf(
+	allStatuses: TStatus<string> | undefined,
+	task: ITeamTask | undefined,
+	status: string | undefined
+) {
+	const statusValue = (task?.status || status)?.split('-').join(' ').toLowerCase();
+	if (!allStatuses || !statusValue) {
+		return undefined;
+	}
+	return Object.values(allStatuses).find((item) => item?.name?.toLowerCase() === statusValue);
 }
 
 const TaskStatus: FC<TaskStatusProps> = observer(
-	({ task, containerStyle, status, setStatus, iconsOnly, labelOnly, canCreateStatus }) => {
+	({ task, containerStyle, status, setStatus, iconsOnly, labelOnly, canCreateStatus, forDetails }) => {
 		const { colors } = useAppTheme();
 		const theme = useWebTheme();
 		const { updateTask } = useTeamTasks();
@@ -36,12 +53,7 @@ const TaskStatus: FC<TaskStatusProps> = observer(
 
 		const allStatuses = useTaskStatusValue();
 
-		const statusValue = (
-			task?.status?.split('-').join(' ') ||
-			(status && status.split('-').join(' '))
-		)?.toLowerCase();
-		const statusItem =
-			allStatuses && Object.values(allStatuses).find((item) => item?.name.toLowerCase() === statusValue);
+		const statusItem = statusItemOf(allStatuses, task, status);
 		const look = taskChipLookOf(statusItem?.bgColor, theme);
 
 		const onChangeStatus = async (text: string) => {
@@ -57,16 +69,36 @@ const TaskStatus: FC<TaskStatusProps> = observer(
 			}
 		};
 
+		const popup = (
+			<TaskStatusPopup
+				statusName={task ? task?.status : status}
+				visible={openModal}
+				setSelectedStatus={(e) => onChangeStatus(e)}
+				onDismiss={() => setOpenModal(false)}
+				anchor={anchor}
+				canCreateStatus={canCreateStatus}
+			/>
+		);
+
+		if (forDetails) {
+			return (
+				<>
+					{popup}
+					<PropertyTriggerButton
+						anchorRef={anchorRef}
+						expanded={openModal}
+						onPress={() => openFromAnchor(() => setOpenModal(true))}
+						kind="status"
+						placeholder={translate('taskMenus.fields.status')}
+						item={statusItem}
+					/>
+				</>
+			);
+		}
+
 		return (
 			<>
-				<TaskStatusPopup
-					statusName={task ? task?.status : status}
-					visible={openModal}
-					setSelectedStatus={(e) => onChangeStatus(e)}
-					onDismiss={() => setOpenModal(false)}
-					anchor={anchor}
-					canCreateStatus={canCreateStatus}
-				/>
+				{popup}
 				<TouchableOpacity onPress={() => openFromAnchor(() => setOpenModal(true))}>
 					<View
 						ref={anchorRef}

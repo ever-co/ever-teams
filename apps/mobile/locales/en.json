@@ -613,6 +613,13 @@
 			"labels": "Labels",
 			"clear": "Clear filters"
 		},
+		"fields": {
+			"status": "Status",
+			"priority": "Priority",
+			"size": "Size",
+			"label": "Labels",
+			"version": "Version"
+		},
 		"rowActions": "Actions for {name}"
 	}
 }

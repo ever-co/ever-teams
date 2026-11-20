@@ -3,7 +3,7 @@
 import React from 'react';
 import { View, ViewStyle, TouchableOpacity, StyleSheet, TouchableWithoutFeedback } from 'react-native';
 import { Avatar, Text } from 'react-native-paper';
-import { Ionicons, Entypo } from '@expo/vector-icons';
+import { MoreVertical, X } from '../../../../../src/components/icons';
 
 // COMPONENTS
 import { Card, ListItem } from '../../../../components';
@@ -211,9 +211,9 @@ const ListCardItem: React.FC<Props> = (props) => {
 							}}
 						>
 							{props.openMenuIndex !== props.index ? (
-								<Ionicons name="ellipsis-vertical-outline" size={24} color={colors.primary} />
+								<MoreVertical size={24} color={colors.primary} />
 							) : (
-								<Entypo name="cross" size={24} color={colors.primary} />
+								<X size={24} color={colors.primary} />
 							)}
 						</TouchableOpacity>
 					</View>

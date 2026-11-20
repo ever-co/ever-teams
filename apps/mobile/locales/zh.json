@@ -613,6 +613,13 @@
 			"labels": "标签",
 			"clear": "清除筛选器"
 		},
+		"fields": {
+			"status": "状态",
+			"priority": "优先级",
+			"size": "大小",
+			"label": "标签",
+			"version": "版本"
+		},
 		"rowActions": "{name} 的操作"
 	}
 }

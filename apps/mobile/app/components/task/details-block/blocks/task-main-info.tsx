@@ -113,13 +113,7 @@ const TaskMainInfo = observer(() => {
 				alignItems={true}
 				labelComponent={<PropertyLabel property="version" label={translate('taskDetailsScreen.version')} />}
 			>
-				<TaskVersion
-					task={task}
-					canCreateVersion={true}
-					containerStyle={{
-						width: '70%'
-					}}
-				/>
+				<TaskVersion task={task} canCreateVersion={true} forDetails />
 			</TaskRow>
 
 			{/* Epic */}
@@ -143,13 +137,7 @@ const TaskMainInfo = observer(() => {
 				alignItems={true}
 				labelComponent={<PropertyLabel property="status" label={translate('taskDetailsScreen.status')} />}
 			>
-				<TaskStatus
-					task={task}
-					canCreateStatus={true}
-					containerStyle={{
-						width: '70%'
-					}}
-				/>
+				<TaskStatus task={task} canCreateStatus={true} forDetails />
 			</TaskRow>
 
 			{/* Labels */}
@@ -170,13 +158,7 @@ const TaskMainInfo = observer(() => {
 				alignItems={true}
 				labelComponent={<PropertyLabel property="size" label={translate('taskDetailsScreen.size')} />}
 			>
-				<TaskSize
-					task={task}
-					canCreateSize={true}
-					containerStyle={{
-						width: '70%'
-					}}
-				/>
+				<TaskSize task={task} canCreateSize={true} forDetails />
 			</TaskRow>
 
 			{/* Priority */}
@@ -184,13 +166,7 @@ const TaskMainInfo = observer(() => {
 				alignItems={true}
 				labelComponent={<PropertyLabel property="priority" label={translate('taskDetailsScreen.priority')} />}
 			>
-				<TaskPriority
-					task={task}
-					canCreatePriority={true}
-					containerStyle={{
-						width: '70%'
-					}}
-				/>
+				<TaskPriority task={task} canCreatePriority={true} forDetails />
 			</TaskRow>
 		</View>
 	);

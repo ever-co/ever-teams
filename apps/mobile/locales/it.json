@@ -613,6 +613,13 @@
 			"labels": "Etichette",
 			"clear": "Pulisci filtri"
 		},
+		"fields": {
+			"status": "Stato",
+			"priority": "Priorità",
+			"size": "Dimensione",
+			"label": "Etichette",
+			"version": "Versione"
+		},
 		"rowActions": "Azioni per {name}"
 	}
 }

@@ -8,6 +8,7 @@ jest.mock('../theme', () => ({
 	...jest.requireActual('../theme/typography'),
 	useWebTheme: () => jest.requireActual('../../src/theme/use-theme').themeFor('dark')
 }));
+jest.mock('../../src/components/icons', () => jest.requireActual('../../test/icons-stand-in').iconsStandIn());
 
 const dark = themeFor('dark');
 
@@ -58,5 +59,19 @@ describe('a section of the task screen', () => {
 
 		expect(screen.queryByText('2h')).toBeNull();
 		expect(screen.queryByTestId('accordion-divider')).toBeNull();
+	});
+
+	it("points the web's chevron up while open and down once folded", async () => {
+		await render(
+			<Accordion title="Estimate">
+				<Text>2h</Text>
+			</Accordion>
+		);
+
+		expect(screen.getByTestId('icon-ChevronUp')).toBeTruthy();
+
+		await fireEvent.press(screen.getByText('Estimate'));
+
+		expect(screen.getByTestId('icon-ChevronDown')).toBeTruthy();
 	});
 });

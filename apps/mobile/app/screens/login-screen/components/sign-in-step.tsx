@@ -1,6 +1,6 @@
 import React, { ReactNode } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
-import { Feather } from '@expo/vector-icons';
+import { ArrowLeft } from '../../../../src/components/icons';
 import { translate } from '../../../i18n';
 import { typography, useWebTheme } from '../../../theme';
 import { authQuietLinkLookOf, authSubmitLookOf } from '../../../../src/theme/auth-look';
@@ -44,7 +44,7 @@ export function SignInStep({ heading, onBack, backTestID, submit, footer, childr
 					onPress={() => onBack()}
 					style={styles.back}
 				>
-					<Feather name="arrow-left" size={14} color={quietLink.color} />
+					<ArrowLeft size={14} color={quietLink.color} />
 					<Text style={[styles.backText, quietLink]}>{translate('common.back')}</Text>
 				</Pressable>
 			)}

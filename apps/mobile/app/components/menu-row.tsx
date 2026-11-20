@@ -1,6 +1,6 @@
-import React, { type ComponentProps } from 'react';
+import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, type ViewStyle } from 'react-native';
-import { Feather } from '@expo/vector-icons';
+import type { IconComponent } from '../../src/components/icons';
 import { typography, useWebTheme } from '../theme';
 import { hsl, webColorTokens } from '../../src/theme/tokens';
 import type { Theme } from '../../src/theme/use-theme';
@@ -34,7 +34,7 @@ export function menuRowLookOf(isCurrent: boolean, tone: MenuRowTone, theme: Them
 
 type MenuRowProps = {
 	testID: string;
-	icon: ComponentProps<typeof Feather>['name'];
+	icon: IconComponent;
 	label: string;
 	isCurrent?: boolean;
 	tone?: MenuRowTone;
@@ -42,7 +42,14 @@ type MenuRowProps = {
 };
 
 /** A 48-tall row of the menu. */
-export function MenuRow({ testID, icon, label, isCurrent = false, tone = 'default', onPress }: Readonly<MenuRowProps>) {
+export function MenuRow({
+	testID,
+	icon: Icon,
+	label,
+	isCurrent = false,
+	tone = 'default',
+	onPress
+}: Readonly<MenuRowProps>) {
 	const theme = useWebTheme();
 	const look = menuRowLookOf(isCurrent, tone, theme);
 	return (
@@ -53,7 +60,7 @@ export function MenuRow({ testID, icon, label, isCurrent = false, tone = 'defaul
 			style={[styles.row, look.row]}
 			onPress={() => onPress()}
 		>
-			<Feather name={icon} size={ICON_SIZE} color={look.iconColor} />
+			<Icon size={ICON_SIZE} color={look.iconColor} />
 			<Text style={[styles.label, { color: look.labelColor }]}>{label}</Text>
 		</TouchableOpacity>
 	);
