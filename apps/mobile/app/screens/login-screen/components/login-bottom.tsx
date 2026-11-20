@@ -1,9 +1,9 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react-native/no-color-literals */
 import React from 'react';
-import { View, Text, Dimensions, TouchableOpacity } from 'react-native';
+import { View, Text, Dimensions, TouchableOpacity, StyleSheet } from 'react-native';
 import EStyleSheet from 'react-native-extended-stylesheet';
-import { typography, useAppTheme } from '../../../theme';
+import { typography, useAppTheme, useWebTheme } from '../../../theme';
 import { SvgXml } from 'react-native-svg';
 import { moonDarkLarge, moonLightLarge, sunDarkLarge, sunLightLarge } from '../../../components/svgs/icons';
 import { useStores } from '../../../models';
@@ -14,10 +14,13 @@ const LoginBottom = () => {
 		authenticationStore: { toggleTheme }
 	} = useStores();
 
-	const { dark, colors } = useAppTheme();
+	const { dark } = useAppTheme();
+	const theme = useWebTheme();
 	return (
-		<View style={{ ...styles.bottomSection, borderTopColor: dark ? colors.divider : 'rgba(0, 0, 0, 0.16)' }}>
-			<Text style={styles.bottomSectionTxt}>{Config.branding.copyrightText}</Text>
+		<View style={[styles.bottomSection, { borderTopColor: theme.colors.border }]}>
+			<Text style={[styles.bottomSectionTxt, { color: theme.colors['muted-foreground'] }]}>
+				{Config.branding.copyrightText}
+			</Text>
 			<View style={{ flex: 1, justifyContent: 'center', alignItems: 'flex-end' }}>
 				<TouchableOpacity
 					style={[
@@ -85,13 +88,12 @@ const styles = EStyleSheet.create({
 		bottom: 0,
 		marginBottom: '2rem',
 		paddingTop: '1rem',
-		borderTopWidth: 1,
+		borderTopWidth: StyleSheet.hairlineWidth,
 		zIndex: 100
 	},
 	bottomSectionTxt: {
 		flex: 3,
 		fontSize: '0.7rem',
-		fontFamily: typography.primary.medium,
-		color: 'rgba(126, 121, 145, 0.7)'
+		fontFamily: typography.primary.medium
 	}
 });
