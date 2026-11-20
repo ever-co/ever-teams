@@ -6545,6 +6545,11 @@
   resolved "https://registry.yarnpkg.com/@hugeicons/core-free-icons/-/core-free-icons-4.4.0.tgz#4057bf3b06916378d16d76712e2783b163106aa4"
   integrity sha512-7Mz8bmGoY6tZ6l3C2TXwNMLVSr0I8HPwjjFIERAuJFj3rWwLxdF2ZLkDqdrVuEE1dx5b/VXyIsP4WoSU6Q40KQ==
 
+"@hugeicons/react-native@^1.0.17":
+  version "1.0.17"
+  resolved "https://registry.yarnpkg.com/@hugeicons/react-native/-/react-native-1.0.17.tgz#a5be551f0cff3917a84b520fdd62432db9d1b7b4"
+  integrity sha512-pFKCHYpNmxH4GdbHJ+8uSEY9M7LgTh6l2wA/2WvkFqbuzewKLWaeUPX6JWXFbnD3ZhU2L59jwpAkdU1uDlb+dA==
+
 "@hugeicons/react@^1.1.6":
   version "1.1.10"
   resolved "https://registry.yarnpkg.com/@hugeicons/react/-/react-1.1.10.tgz#63b4164123072f964387d61e181418f846fc2d20"
