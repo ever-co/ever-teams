@@ -216,7 +216,8 @@
 	},
 	"TEAMS_VIEWER": {
 		"title": {
-			"all_teams": "Équipes pour {{orgName}}"
+			"all_teams": "Équipes pour {{orgName}}",
+			"all_teams_without_organization": "Équipes"
 		},
 		"search_placeholder": "Rechercher une équipe",
 		"table_headers": {
@@ -512,6 +513,7 @@
 	},
 	"TIMESHEET": {
 		"title": "Feuilles de temps pour {{orgName}}",
+		"title_without_organization": "Feuilles de temps",
 		"label": "Feuille de temps",
 		"filters": {
 			"select_date": "Sélectionner une date",
