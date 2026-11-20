@@ -6,6 +6,7 @@ import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
 import { bundleKit, kitSources } from './bundle-kit.mjs';
+import { englishTranslation } from './kit-stand-ins.mjs';
 
 const require = createRequire(import.meta.url);
 const { JSDOM } = require('jsdom');
@@ -35,19 +36,7 @@ const standIns = {
 		export const MultiSelectValue = ${nothing};
 		export const Select = ${children};
 		export const Card = ${children};`,
-	// The kit's English strings, read under the key prefix the component asks for; a key it lacks shows its full path.
-	'react-i18next': `import en from '${kitSources}/i18n/locales/en.json';
-		const textOf = (path) => path.split('.').reduce((node, part) => node?.[part], en);
-		export const useTranslation = (_namespace, options) => ({
-			t: (key, values = {}) => {
-				const path = [options?.keyPrefix, key].filter(Boolean).join('.');
-				const text = textOf(path);
-				if (typeof text !== 'string') {
-					return path;
-				}
-				return text.replace(/{{(\\w+)}}/g, (_match, name) => String(values[name]));
-			}
-		});`,
+	'react-i18next': englishTranslation,
 	'lucide-react': `export const ChevronLeft = ${nothing};
 		export const ChevronRight = ${nothing};
 		export const FileText = ${nothing};
