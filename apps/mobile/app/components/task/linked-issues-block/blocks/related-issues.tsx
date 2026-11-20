@@ -3,7 +3,7 @@
 import { StyleSheet, TouchableWithoutFeedback, View } from "react-native"
 import React, { useCallback, useMemo, useState } from "react"
 import Accordion from "../../../accordion"
-import { AntDesign, Entypo } from "@expo/vector-icons"
+import { MoreHorizontal, Plus } from "../../../../../src/components/icons"
 import { useStores } from "../../../../models"
 import { useTeamTasks } from "../../../../services/hooks/features/use-team-tasks"
 import {
@@ -84,9 +84,9 @@ const RelatedIssues = () => {
 			headerElement={
 				<View style={styles.headerElement}>
 					<TouchableWithoutFeedback onPress={() => setModalOpen(true)}>
-						<AntDesign name="plus" size={16} color="#B1AEBC" />
+						<Plus size={16} color="#B1AEBC" />
 					</TouchableWithoutFeedback>
-					<Entypo name="dots-three-horizontal" size={16} color="#B1AEBC" />
+					<MoreHorizontal size={16} color="#B1AEBC" />
 					<View style={styles.verticalSeparator} />
 
 					{task && (
