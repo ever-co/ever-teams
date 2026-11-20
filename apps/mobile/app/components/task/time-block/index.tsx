@@ -1,108 +1,106 @@
 /* eslint-disable camelcase */
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react-native/no-color-literals */
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native"
-import React, { useCallback, useEffect, useState } from "react"
-import Accordion from "../../accordion"
-import { useStores } from "../../../models"
-import { useOrganizationTeam } from "../../../services/hooks/use-organization"
-import useAuthenticateUser from "../../../services/hooks/features/use-authentificate-user"
-import { IOrganizationTeamList, OT_Member } from "../../../services/interfaces/IOrganizationTeam"
-import { secondsToTime } from "../../../helpers/date"
-import { ITasksTimesheet } from "../../../services/interfaces/ITimer"
-import TaskRow from "../details-block/components/task-row"
-import { PropertyLabel } from "../details-block/components/property-label"
-import { ProgressBar } from "react-native-paper"
-import { ITeamTask } from "../../../services/interfaces/ITask"
-import { Feather } from "@expo/vector-icons"
-import { useAppTheme } from "../../../theme"
-import ProfileInfoWithTime from "../estimate-block/components/profile-info-with-time"
-import { translate } from "../../../i18n"
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import Accordion from '../../accordion';
+import { useStores } from '../../../models';
+import { useOrganizationTeam } from '../../../services/hooks/use-organization';
+import useAuthenticateUser from '../../../services/hooks/features/use-authentificate-user';
+import { IOrganizationTeamList, OT_Member } from '../../../services/interfaces/IOrganizationTeam';
+import { secondsToTime } from '../../../helpers/date';
+import { ITasksTimesheet } from '../../../services/interfaces/ITimer';
+import TaskRow from '../details-block/components/task-row';
+import { PropertyLabel } from '../details-block/components/property-label';
+import { ProgressBar } from 'react-native-paper';
+import { ITeamTask } from '../../../services/interfaces/ITask';
+import { Feather } from '@expo/vector-icons';
+import { useAppTheme } from '../../../theme';
+import ProfileInfoWithTime from '../estimate-block/components/profile-info-with-time';
+import { translate } from '../../../i18n';
 
 export interface ITime {
-	hours: number
-	minutes: number
+	hours: number;
+	minutes: number;
 }
 
 const TimeBlock = () => {
 	const {
-		TaskStore: { detailedTask: task },
-	} = useStores()
-	const { currentTeam: activeTeam } = useOrganizationTeam()
-	const { user } = useAuthenticateUser()
-	const { colors } = useAppTheme()
+		TaskStore: { detailedTask: task }
+	} = useStores();
+	const { currentTeam: activeTeam } = useOrganizationTeam();
+	const { user } = useAuthenticateUser();
+	const { colors } = useAppTheme();
 
 	const [userTotalTime, setUserTotalTime] = useState<ITime>({
 		hours: 0,
-		minutes: 0,
-	})
+		minutes: 0
+	});
 	const [userTotalTimeToday, setUserTotalTimeToday] = useState<ITime>({
 		hours: 0,
-		minutes: 0,
-	})
+		minutes: 0
+	});
 	const [timeRemaining, setTimeRemaining] = useState<ITime>({
 		hours: 0,
-		minutes: 0,
-	})
+		minutes: 0
+	});
 	const [groupTotalTime, setGroupTotalTime] = useState<ITime>({
 		hours: 0,
-		minutes: 0,
-	})
+		minutes: 0
+	});
 
-	const members = activeTeam?.members || []
+	const members = activeTeam?.members || [];
 
 	const currentUser: OT_Member | undefined = members.find((m) => {
-		return m.employee.user?.id === user?.id
-	})
+		return m.employee.user?.id === user?.id;
+	});
 
 	const userTotalTimeOnTask = useCallback((): void => {
 		const totalOnTaskInSeconds: number =
-			currentUser?.totalWorkedTasks?.find((object) => object.id === task?.id)?.duration || 0
+			currentUser?.totalWorkedTasks?.find((object) => object.id === task?.id)?.duration || 0;
 
-		const { h, m } = secondsToTime(totalOnTaskInSeconds)
+		const { h, m } = secondsToTime(totalOnTaskInSeconds);
 
-		setUserTotalTime({ hours: h, minutes: m })
-	}, [currentUser?.totalWorkedTasks, task?.id])
+		setUserTotalTime({ hours: h, minutes: m });
+	}, [currentUser?.totalWorkedTasks, task?.id]);
 
 	useEffect(() => {
-		userTotalTimeOnTask()
-	}, [userTotalTimeOnTask])
+		userTotalTimeOnTask();
+	}, [userTotalTimeOnTask]);
 
 	const userTotalTimeOnTaskToday = useCallback((): void => {
 		const totalOnTaskInSeconds: number =
-			currentUser?.totalTodayTasks?.find((object) => object.id === task?.id)?.duration || 0
+			currentUser?.totalTodayTasks?.find((object) => object.id === task?.id)?.duration || 0;
 
-		const { h, m } = secondsToTime(totalOnTaskInSeconds)
+		const { h, m } = secondsToTime(totalOnTaskInSeconds);
 
-		setUserTotalTimeToday({ hours: h, minutes: m })
-	}, [currentUser?.totalTodayTasks, task?.id])
+		setUserTotalTimeToday({ hours: h, minutes: m });
+	}, [currentUser?.totalTodayTasks, task?.id]);
 
 	useEffect(() => {
-		userTotalTimeOnTaskToday()
-	}, [userTotalTimeOnTaskToday])
+		userTotalTimeOnTaskToday();
+	}, [userTotalTimeOnTaskToday]);
 
 	useEffect(() => {
 		const matchingMembers: OT_Member[] | undefined = activeTeam?.members.filter((member) =>
-			task?.members.some((taskMember) => taskMember.id === member.employeeId),
-		)
+			task?.members.some((taskMember) => taskMember.id === member.employeeId)
+		);
 
 		const usersTaskArray: ITasksTimesheet[] | undefined = matchingMembers
 			?.flatMap((obj) => obj.totalWorkedTasks)
-			.filter((taskObj) => taskObj?.id === task?.id)
+			.filter((taskObj) => taskObj?.id === task?.id);
 
 		const usersTotalTimeInSeconds: number | undefined = usersTaskArray?.reduce(
 			(totalDuration, item) => totalDuration + item.duration,
-			0,
-		)
+			0
+		);
 
 		const usersTotalTime: number =
-			usersTotalTimeInSeconds === null || usersTotalTimeInSeconds === undefined
-				? 0
-				: usersTotalTimeInSeconds
+			usersTotalTimeInSeconds === null || usersTotalTimeInSeconds === undefined ? 0 : usersTotalTimeInSeconds;
 
-		const timeObj = secondsToTime(usersTotalTime)
-		const { h: hoursTotal, m: minutesTotal } = timeObj
-		setGroupTotalTime({ hours: hoursTotal, minutes: minutesTotal })
+		const timeObj = secondsToTime(usersTotalTime);
+		const { h: hoursTotal, m: minutesTotal } = timeObj;
+		setGroupTotalTime({ hours: hoursTotal, minutes: minutesTotal });
 
 		const remainingTime: number =
 			task?.estimate === null ||
@@ -110,51 +108,52 @@ const TimeBlock = () => {
 			task?.estimate === undefined ||
 			usersTotalTimeInSeconds === undefined
 				? 0
-				: task?.estimate - usersTotalTimeInSeconds
+				: task?.estimate - usersTotalTimeInSeconds;
 
-		const { h, m } = secondsToTime(remainingTime)
-		setTimeRemaining({ hours: h, minutes: m })
+		const { h, m } = secondsToTime(remainingTime);
+		setTimeRemaining({ hours: h, minutes: m });
 		if (remainingTime <= 0) {
-			setTimeRemaining({ hours: 0, minutes: 0 })
+			setTimeRemaining({ hours: 0, minutes: 0 });
 		}
-	}, [task?.members, task?.id, task?.estimate])
+	}, [task?.members, task?.id, task?.estimate]);
 
 	const getTimePercentage = () => {
 		if (task) {
 			if (!task.estimate) {
-				return 0
+				return 0;
 			}
 
-			let taskTotalDuration = 0
+			let taskTotalDuration = 0;
 			activeTeam?.members?.forEach((member) => {
-				const totalWorkedTasks =
-					member?.totalWorkedTasks?.find((item) => item.id === task?.id) || null
+				const totalWorkedTasks = member?.totalWorkedTasks?.find((item) => item.id === task?.id) || null;
 
 				if (totalWorkedTasks) {
-					taskTotalDuration += totalWorkedTasks.duration
+					taskTotalDuration += totalWorkedTasks.duration;
 				}
-			})
+			});
 
-			return taskTotalDuration ? taskTotalDuration / task?.estimate : 0
+			return taskTotalDuration ? taskTotalDuration / task?.estimate : 0;
 		} else {
-			return 0
+			return 0;
 		}
-	}
+	};
 
 	return (
-		<Accordion title={translate("taskDetailsScreen.time")}>
+		<Accordion title={translate('taskDetailsScreen.time')}>
 			<View style={{ paddingBottom: 12, paddingHorizontal: 16, gap: 4 }}>
 				{/* Progress Bar */}
 				<TaskRow
 					alignItems={true}
-					labelComponent={<PropertyLabel icon="bar-chart-2" label={translate("taskDetailsScreen.progress")} />}
+					labelComponent={
+						<PropertyLabel icon="bar-chart-2" label={translate('taskDetailsScreen.progress')} />
+					}
 				>
 					<Progress task={task} percent={getTimePercentage} />
 				</TaskRow>
 				{/* Total Time */}
 				<TaskRow
 					alignItems={true}
-					labelComponent={<PropertyLabel icon="clock" label={translate("tasksScreen.totalTimeLabel")} />}
+					labelComponent={<PropertyLabel icon="clock" label={translate('tasksScreen.totalTimeLabel')} />}
 				>
 					<Text style={[styles.timeValues, { color: colors.primary }]}>
 						{userTotalTime.hours}h : {userTotalTime.minutes}m
@@ -163,7 +162,7 @@ const TimeBlock = () => {
 				{/* Total Time Today */}
 				<TaskRow
 					alignItems={true}
-					labelComponent={<PropertyLabel icon="sun" label={translate("taskDetailsScreen.timeToday")} />}
+					labelComponent={<PropertyLabel icon="sun" label={translate('taskDetailsScreen.timeToday')} />}
 				>
 					<Text style={[styles.timeValues, { color: colors.primary }]}>
 						{userTotalTimeToday.hours}h : {userTotalTimeToday.minutes}m
@@ -172,7 +171,9 @@ const TimeBlock = () => {
 				{/* Total Group Time */}
 				{/* TODO */}
 				<TaskRow
-					labelComponent={<PropertyLabel icon="users" label={translate("taskDetailsScreen.totalGroupTime")} />}
+					labelComponent={
+						<PropertyLabel icon="users" label={translate('taskDetailsScreen.totalGroupTime')} />
+					}
 				>
 					<TotalGroupTime
 						totalTime={`${groupTotalTime.hours}h : ${groupTotalTime.minutes}m`}
@@ -183,7 +184,7 @@ const TimeBlock = () => {
 				{/* Time Remaining */}
 				<TaskRow
 					alignItems={true}
-					labelComponent={<PropertyLabel icon="watch" label={translate("taskDetailsScreen.timeRemaining")} />}
+					labelComponent={<PropertyLabel icon="watch" label={translate('taskDetailsScreen.timeRemaining')} />}
 				>
 					<Text style={[styles.timeValues, { color: colors.primary }]}>
 						{timeRemaining.hours}h : {timeRemaining.minutes}m
@@ -191,73 +192,69 @@ const TimeBlock = () => {
 				</TaskRow>
 			</View>
 		</Accordion>
-	)
-}
+	);
+};
 
-export default TimeBlock
+export default TimeBlock;
 
 interface IProgress {
-	task: ITeamTask
-	percent: () => number
+	task: ITeamTask;
+	percent: () => number;
 }
 
 const Progress: React.FC<IProgress> = ({ task, percent }) => {
 	return (
 		<View style={styles.progressBarContainer}>
-			<View style={{ width: "79%" }}>
+			<View style={{ width: '79%' }}>
 				<ProgressBar
 					style={styles.progressBar}
 					progress={percent()}
-					color={task && task.estimate > 0 ? "#27AE60" : "#F0F0F0"}
+					color={task && task.estimate > 0 ? '#27AE60' : '#F0F0F0'}
 				/>
 			</View>
-			<Text style={{ fontSize: 12, color: "#28204880" }}>{Math.floor(percent() * 100)}%</Text>
+			<Text style={{ fontSize: 12, color: '#28204880' }}>{Math.floor(percent() * 100)}%</Text>
 		</View>
-	)
-}
+	);
+};
 
 interface ITotalGroupTime {
-	totalTime: string
-	task: ITeamTask
-	activeTeam: IOrganizationTeamList
+	totalTime: string;
+	task: ITeamTask;
+	activeTeam: IOrganizationTeamList;
 }
 
 const TotalGroupTime: React.FC<ITotalGroupTime> = ({ totalTime, activeTeam, task }) => {
-	const [expanded, setExpanded] = useState(false)
-	const [numMembersToShow, setNumMembersToShow] = useState<number>(5)
-	const { colors } = useAppTheme()
+	const [expanded, setExpanded] = useState(false);
+	const [numMembersToShow, setNumMembersToShow] = useState<number>(5);
+	const { colors } = useAppTheme();
 
 	function toggleItem() {
-		setExpanded(!expanded)
+		setExpanded(!expanded);
 	}
 
 	const matchingMembers: OT_Member[] | undefined = activeTeam?.members.filter((member) =>
-		task?.members.some((taskMember) => taskMember.id === member.employeeId),
-	)
+		task?.members.some((taskMember) => taskMember.id === member.employeeId)
+	);
 
 	const findUserTotalWorked = (user: OT_Member, id: string | undefined) => {
-		return user?.totalWorkedTasks.find((task: any) => task?.id === id)?.duration || 0
-	}
+		return user?.totalWorkedTasks.find((task: any) => task?.id === id)?.duration || 0;
+	};
 
 	return (
 		<View style={[styles.accordContainer, { backgroundColor: colors.background }]}>
 			<TouchableOpacity style={styles.accordHeader} onPress={toggleItem}>
 				<Text style={[styles.accordTitle, { color: colors.primary }]}>{totalTime}</Text>
-				<Feather
-					name={expanded ? "chevron-up" : "chevron-down"}
-					size={20}
-					color={colors.primary}
-				/>
+				<Feather name={expanded ? 'chevron-up' : 'chevron-down'} size={20} color={colors.primary} />
 			</TouchableOpacity>
 			{expanded && <View style={{ marginBottom: 5 }} />}
 			<View style={{ gap: 7 }}>
 				{expanded &&
 					matchingMembers?.slice(0, numMembersToShow).map((member, idx) => {
-						const taskDurationInSeconds = findUserTotalWorked(member, task?.id)
+						const taskDurationInSeconds = findUserTotalWorked(member, task?.id);
 
-						const { h, m } = secondsToTime(taskDurationInSeconds)
+						const { h, m } = secondsToTime(taskDurationInSeconds);
 
-						const time = `${h}h : ${m}m`
+						const time = `${h}h : ${m}m`;
 
 						return (
 							<ProfileInfoWithTime
@@ -267,47 +264,43 @@ const TotalGroupTime: React.FC<ITotalGroupTime> = ({ totalTime, activeTeam, task
 								userId={member?.employee?.userId}
 								time={time}
 							/>
-						)
+						);
 					})}
-				{task?.members.length > 0 &&
-					task?.members?.length - 2 >= numMembersToShow &&
-					expanded && (
-						<TouchableOpacity
-							onPress={() => setNumMembersToShow((prev) => prev + 5)}
-							style={{ marginLeft: "auto" }}
-						>
-							<Text
-								style={{ fontSize: 10, fontWeight: "600", color: colors.primary }}
-							>
-								{translate("taskDetailsScreen.showMore")}
-							</Text>
-						</TouchableOpacity>
-					)}
+				{task?.members.length > 0 && task?.members?.length - 2 >= numMembersToShow && expanded && (
+					<TouchableOpacity
+						onPress={() => setNumMembersToShow((prev) => prev + 5)}
+						style={{ marginLeft: 'auto' }}
+					>
+						<Text style={{ fontSize: 10, fontWeight: '600', color: colors.primary }}>
+							{translate('taskDetailsScreen.showMore')}
+						</Text>
+					</TouchableOpacity>
+				)}
 			</View>
 		</View>
-	)
-}
+	);
+};
 
 const styles = StyleSheet.create({
 	accordContainer: {
 		paddingRight: 12,
-		width: "100%",
+		width: '100%'
 	},
 	accordHeader: {
-		alignItems: "center",
-		flexDirection: "row",
-		justifyContent: "space-between",
+		alignItems: 'center',
+		flexDirection: 'row',
+		justifyContent: 'space-between'
 	},
 	accordTitle: {
 		fontSize: 12,
-		fontWeight: "600",
+		fontWeight: '600'
 	},
-	progressBar: { backgroundColor: "#E9EBF8", borderRadius: 3, height: 6, width: "100%" },
+	progressBar: { backgroundColor: '#E9EBF8', borderRadius: 3, height: 6, width: '100%' },
 	progressBarContainer: {
-		alignItems: "center",
-		flexDirection: "row",
-		justifyContent: "space-between",
-		paddingRight: 12,
+		alignItems: 'center',
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+		paddingRight: 12
 	},
-	timeValues: { fontSize: 12, fontWeight: "600" },
-})
+	timeValues: { fontSize: 12, fontWeight: '600' }
+});
