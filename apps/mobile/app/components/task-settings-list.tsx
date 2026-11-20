@@ -4,7 +4,7 @@ import { useWebTheme } from '../theme';
 import { settingsDividerOf, settingsListSurfaceOf } from '../../src/theme/settings-look';
 
 /** A team's task settings list: its rows on the settings surface with a hairline between them, no frame without rows. */
-export function TaskSettingsList<T>({ style, ...props }: FlatListProps<T>) {
+export function TaskSettingsList<T>({ style, ...props }: Readonly<FlatListProps<T>>) {
 	const theme = useWebTheme();
 	const rowCount = props.data?.length ?? 0;
 

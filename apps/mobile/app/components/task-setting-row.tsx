@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { AntDesign, Ionicons } from '@expo/vector-icons';
 import { useWebTheme } from '../theme';
@@ -28,7 +28,7 @@ function pressOf(readOnly: boolean, action: () => unknown) {
 }
 
 /** A status, priority, size, label or version in its settings list: the web's chip, then a quiet edit and delete. */
-const TaskSettingRow: FC<ITaskSettingRow> = ({ name, color, iconUrl, onEdit, onDelete, readOnly = false }) => {
+function TaskSettingRow({ name, color, iconUrl, onEdit, onDelete, readOnly = false }: Readonly<ITaskSettingRow>) {
 	const theme = useWebTheme();
 	return (
 		<View testID="task-setting-row" style={styles.row}>
@@ -64,7 +64,7 @@ const TaskSettingRow: FC<ITaskSettingRow> = ({ name, color, iconUrl, onEdit, onD
 			</View>
 		</View>
 	);
-};
+}
 
 const styles = StyleSheet.create({
 	actions: {

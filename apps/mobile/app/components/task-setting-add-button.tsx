@@ -21,7 +21,7 @@ export function TaskSettingAddButton({
 	style,
 	textStyle,
 	disabled = false
-}: ITaskSettingAddButton) {
+}: Readonly<ITaskSettingAddButton>) {
 	const theme = useWebTheme();
 	const ink = theme.colors['primary-foreground'];
 
