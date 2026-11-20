@@ -593,14 +593,16 @@
 		"search": {
 			"status": "Status wijzigen…",
 			"priority": "Prioriteit instellen…",
-			"size": "Grootte instellen…"
+			"size": "Grootte instellen…",
+			"label": "Labels toevoegen…"
 		},
 		"noResults": "Geen resultaten",
 		"noOptions": "Nog niets om uit te kiezen",
 		"actions": {
 			"createStatus": "Status aanmaken",
 			"createPriority": "Prioriteit aanmaken",
-			"createSize": "Grootte aanmaken"
+			"createSize": "Grootte aanmaken",
+			"createLabel": "Label aanmaken"
 		}
 	}
 }

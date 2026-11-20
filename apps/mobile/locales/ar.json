@@ -593,14 +593,16 @@
 		"search": {
 			"status": "تغيير الحالة…",
 			"priority": "تعيين الأولوية…",
-			"size": "تعيين الحجم…"
+			"size": "تعيين الحجم…",
+			"label": "إضافة تصنيفات…"
 		},
 		"noResults": "لا توجد نتائج",
 		"noOptions": "لا يوجد ما يمكن اختياره بعد",
 		"actions": {
 			"createStatus": "إنشاء حالة",
 			"createPriority": "إنشاء أولوية",
-			"createSize": "إنشاء حجم"
+			"createSize": "إنشاء حجم",
+			"createLabel": "إنشاء تصنيف"
 		}
 	}
 }

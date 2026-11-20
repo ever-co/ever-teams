@@ -593,14 +593,16 @@
 		"search": {
 			"status": "Changer le statut…",
 			"priority": "Définir la priorité…",
-			"size": "Définir la taille…"
+			"size": "Définir la taille…",
+			"label": "Ajouter des étiquettes…"
 		},
 		"noResults": "Aucun résultat",
 		"noOptions": "Rien à choisir pour le moment",
 		"actions": {
 			"createStatus": "Créer un statut",
 			"createPriority": "Créer une priorité",
-			"createSize": "Créer une taille"
+			"createSize": "Créer une taille",
+			"createLabel": "Créer une étiquette"
 		}
 	}
 }

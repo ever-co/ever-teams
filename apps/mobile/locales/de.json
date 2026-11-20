@@ -593,14 +593,16 @@
 		"search": {
 			"status": "Status ändern…",
 			"priority": "Priorität festlegen…",
-			"size": "Größe festlegen…"
+			"size": "Größe festlegen…",
+			"label": "Labels hinzufügen…"
 		},
 		"noResults": "Keine Ergebnisse",
 		"noOptions": "Noch nichts zur Auswahl",
 		"actions": {
 			"createStatus": "Status erstellen",
 			"createPriority": "Priorität erstellen",
-			"createSize": "Größe erstellen"
+			"createSize": "Größe erstellen",
+			"createLabel": "Label erstellen"
 		}
 	}
 }
