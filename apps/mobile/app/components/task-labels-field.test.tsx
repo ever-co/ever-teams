@@ -43,10 +43,10 @@ describe("a task's labels on the task page", () => {
 		await drawing;
 
 		expect(screen.getAllByTestId('task-label-chip')).toHaveLength(2);
-		expect(StyleSheet.flatten(screen.getAllByTestId('task-label-chip')[0].props.style)).toMatchObject({
-			borderRadius: 6,
-			height: 28
-		});
+		const chip = StyleSheet.flatten(screen.getAllByTestId('task-label-chip')[0].props.style);
+		expect(chip).toMatchObject({ borderRadius: 6, minHeight: 28 });
+		// a larger system font grows the chip instead of clipping its name
+		expect(chip.height).toBeUndefined();
 		expect(screen.getByText('night shift')).toHaveStyle({ fontSize: 12, textTransform: 'capitalize' });
 		expect(StyleSheet.flatten(screen.getByTestId('task-labels-add').props.style)).toMatchObject({
 			borderStyle: 'dashed',
@@ -65,5 +65,14 @@ describe("a task's labels on the task page", () => {
 
 		await fireEvent.press(screen.getByRole('button', { name: 'taskMenus.editLabels undefined' }));
 		expect(onOpen).toHaveBeenLastCalledWith();
+	});
+
+	it('grows "+ Add label" with a larger system font instead of clipping it', async () => {
+		const { drawing } = drawField([]);
+		await drawing;
+
+		const add = StyleSheet.flatten(screen.getByTestId('task-labels-add').props.style);
+		expect(add.minHeight).toBe(28);
+		expect(add.height).toBeUndefined();
 	});
 });
