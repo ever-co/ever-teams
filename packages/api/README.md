@@ -215,7 +215,8 @@ if (change) {
 
 ### timeEntries.list({ from, to, employeeIds?, mine? })
 
-The time entries started from `from` to `to`, each with its project, task, client and member. A day (`YYYY-MM-DD`)
+The time entries started from `from` to `to`, each with its project, task, client and member. The client is the
+entry's own, else its project's, as the web app names it, with its `id`, `name` and `imageUrl`. A day (`YYYY-MM-DD`)
 means that whole day in the time zone the code runs in; a `Date` or an ISO date-time is the instant it names. Without
 `employeeIds`, the API answers the entries of every member the token may see: a manager's token sees the team's.
 With `mine: true`, it answers only the entries of the token's own member, whatever `employeeIds` names.

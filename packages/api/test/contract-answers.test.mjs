@@ -7,7 +7,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createClient } from '../dist/index.es.js';
-import { CONTRACT_ANSWERS } from '../scripts/contract/answers.mjs';
+import { CONTRACT_ANSWERS, contractAnswer } from '../scripts/contract/answers.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const API_URL = 'https://api.example.com/api';
@@ -48,3 +48,22 @@ for (const contract of CONTRACT_ANSWERS.filter((answer) => answer.call)) {
 		assert.deepEqual(api.sent, [me.route, fixture.route]);
 	});
 }
+
+// The recording holds no entry on a client's project yet: one recorded with it (#5593) names the project's client as the
+// entry's, with its id, name and image, and keeps the project without the client's record, as the contract expects.
+test('timeEntries.list returns a recorded project client as the entry client', async () => {
+	const contract = contractAnswer('timeEntries.list');
+	const fixture = fixtureOf(contract.name);
+	const [first, ...rest] = fixture.answer;
+	const client = { id: '<client-1>', name: '<name-9>', imageUrl: null, primaryEmail: '<email-9>', budget: 0 };
+	const project = { id: '<project-1>', name: '<name-8>', imageUrl: null, color: null, organizationContact: client };
+	const answer = [{ ...first, projectId: project.id, project }, ...rest];
+	const api = recordedApi({ ...fixture, answer });
+	const teams = createClient({ apiUrl: API_URL, token: 'access', fetch: api.fetch });
+
+	const returned = await contract.call(teams, { from: '2026-11-18', to: '2026-11-18' });
+
+	assert.deepEqual(returned, contract.returned(answer));
+	assert.deepEqual(returned[0].organizationContact, { id: '<client-1>', name: '<name-9>', imageUrl: null });
+	assert.deepEqual(returned[0].project, { id: '<project-1>', name: '<name-8>', imageUrl: null, color: null });
+});
