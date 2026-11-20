@@ -1,4 +1,4 @@
-// The timer's collapse icon draws in the text color (ever-co/ever-teams#5608): node --test test/*.test.mjs
+// The timer's expand and collapse icons draw in the text color (ever-co/ever-teams#5608): node --test test/*.test.mjs
 // (from packages/toolkit-ui). esbuild bundles the two icons; react-dom/server renders them.
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
@@ -44,7 +44,7 @@ const { createElement } = require('react');
 const { renderToStaticMarkup } = require('react-dom/server');
 const strokesOf = (markup) => [...markup.matchAll(/stroke="([^"]+)"/g)].map((match) => match[1]);
 
-for (const name of ['CollapseIcon']) {
+for (const name of ['ExpandIcon', 'CollapseIcon']) {
 	test(`${name} draws every stroke in the text color, readable in light and dark`, () => {
 		const markup = renderToStaticMarkup(createElement(icons[name], { size: 10 }));
 
