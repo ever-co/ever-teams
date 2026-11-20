@@ -101,8 +101,9 @@ function PickerDivider() {
 /** One value to pick: its chip, then a check in primary on the value the task holds. */
 function PickerRow({
 	option,
-	onSelect
-}: Readonly<{ option: PickerOption; onSelect: (option: PickerOption) => unknown }>) {
+	onSelect,
+	keepsCase
+}: Readonly<{ option: PickerOption; onSelect: (option: PickerOption) => unknown; keepsCase: boolean }>) {
 	const theme = useWebTheme();
 	return (
 		<Pressable
@@ -119,6 +120,7 @@ function PickerRow({
 					background={option.color ?? ''}
 					icon={option.icon}
 					iconUrl={option.iconUrl}
+					keepsCase={keepsCase}
 				/>
 			</View>
 			{option.isSelected && <Check size={CHECK_SIZE} color={theme.colors.primary} />}
@@ -214,7 +216,9 @@ export function PropertyPicker({
 								data={options}
 								keyExtractor={(option) => option.key}
 								ItemSeparatorComponent={PickerDivider}
-								renderItem={({ item }) => <PickerRow option={item} onSelect={onSelect} />}
+								renderItem={({ item }) => (
+									<PickerRow option={item} onSelect={onSelect} keepsCase={keepsCase} />
+								)}
 							/>
 							{footer}
 						</>
