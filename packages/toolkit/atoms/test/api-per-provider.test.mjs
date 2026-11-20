@@ -673,19 +673,23 @@ test('time logs that answer once the person signed out show nothing', async () =
 });
 
 test('the statistics of the reports ask for today since local midnight, as the web app counts it (#5585)', async () => {
-	const urls = [];
+	// By statistic: counts, projects and activities name today in the query, tasks in its POST body.
+	const todayStarts = {};
 	const recording = globalThis.fetch;
 	globalThis.fetch = (url, init) => {
-		urls.push(new URL(url));
+		const { pathname, searchParams } = new URL(url);
+		if (pathname.includes('/timesheet/statistics/')) {
+			const body = typeof init?.body === 'string' ? JSON.parse(init.body) : {};
+			const todayStart = searchParams.get('todayStart') ?? body.todayStart;
+			const statistic = pathname.split('/').pop();
+			if (todayStart != null) todayStarts[statistic] = [...(todayStarts[statistic] ?? []), todayStart];
+		}
 		return recording(url, init);
 	};
 	await openPage([['a', { apiUrl: SERVER_A }, reports()]]);
 	await signInOn('a');
 
-	const todayStarts = urls
-		.filter(({ pathname }) => pathname.includes('/timesheet/statistics/'))
-		.map(({ searchParams }) => searchParams.get('todayStart'))
-		.filter((todayStart) => todayStart !== null);
-	assert.ok(todayStarts.length >= 3, 'the counts, tasks and projects statistics name a today');
-	assert.deepEqual([...new Set(todayStarts)], ['since-midnight']);
+	for (const statistic of ['counts', 'tasks', 'projects', 'activities']) {
+		assert.deepEqual([...new Set(todayStarts[statistic] ?? [])], ['since-midnight'], `the ${statistic} statistics`);
+	}
 });
