@@ -40,6 +40,9 @@ export interface ITimerStatusContext {
 	// succeeds.
 	notice: KitNotice | null;
 	reportNotice: (notice: KitNotice | null) => void;
+	// True once the person is signed out while the last read showed the timer running, until someone signs in: the
+	// timer runs on in Ever Teams, where this page can no longer stop it.
+	leftRunning: boolean;
 }
 
 const TimerStatusContext = createContext<ITimerStatusContext | null>(null);
@@ -121,6 +124,7 @@ export function TimerStatusProvider({
 	// The text of the notice in the live region, taken out again when the notice goes away.
 	const noticeAnnounced = useRef('');
 	const lastRunning = useRef<boolean | null>(null);
+	const [leftRunning, setLeftRunning] = useState(false);
 	// The last change the host was told (onTimerChange), null until the first read for this person and organization.
 	const toldChange = useRef<TimerChange | null>(null);
 	// The callback of the last render that committed: a render React drops (a transition that suspends) never becomes
@@ -295,12 +299,19 @@ export function TimerStatusProvider({
 	// Another user or organization: the previous status is dropped at once, and no change is announced. The host hears
 	// the next read as a first one (initial).
 	useEffect(() => {
+		// A sign-out does not stop the timer: one that was running runs on in Ever Teams (#5583). A sign-out reached in
+		// two steps (the token, then the user) keeps what the first step saw.
+		if (session === 'signed-in') {
+			setLeftRunning(false);
+		} else if (lastRunning.current === true) {
+			setLeftRunning(true);
+		}
 		setStatus(null);
 		setLoading(false);
 		setNotice(null);
 		lastRunning.current = null;
 		toldChange.current = null;
-	}, [owner]);
+	}, [owner, session]);
 
 	// A new token for the same person drops the answer of the read still pending, and with it the loading state that
 	// read would have ended; the next read sets it again.
@@ -373,8 +384,18 @@ export function TimerStatusProvider({
 	}, [status, t]);
 
 	const value = useMemo(
-		() => ({ status, loading, refetch, registerConsumer, actionPending, runAction, notice, reportNotice }),
-		[status, loading, refetch, registerConsumer, actionPending, runAction, notice, reportNotice]
+		() => ({
+			status,
+			loading,
+			refetch,
+			registerConsumer,
+			actionPending,
+			runAction,
+			notice,
+			reportNotice,
+			leftRunning
+		}),
+		[status, loading, refetch, registerConsumer, actionPending, runAction, notice, reportNotice, leftRunning]
 	);
 
 	return (

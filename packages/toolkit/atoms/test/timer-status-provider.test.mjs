@@ -1396,3 +1396,30 @@ test('the callback of a render that did not commit is never called: a pending re
 	assert.equal(shown.heard.length, 1);
 	assert.deepEqual(dropped.heard, []);
 });
+
+test('signed out while the timer ran, the provider says it was left running, until someone signs in (#5583)', async () => {
+	await reset();
+	const seen = {};
+	await mount([probe(seen)]);
+	await answer(0, { running: true });
+	assert.equal(seen.shared.leftRunning, false);
+
+	await act(async () => globalThis.__setIdentity({ token: '' }));
+	assert.equal(seen.shared.leftRunning, true, 'the timer runs on in Ever Teams');
+
+	await act(async () => globalThis.__setIdentity({ token: 'signed-in-again' }));
+	assert.equal(seen.shared.leftRunning, false);
+});
+
+test('signed out while the timer was stopped, or before any read, nothing is left running', async () => {
+	await reset();
+	const seen = {};
+	await mount([probe(seen)]);
+	await answer(0, { running: false });
+	await act(async () => globalThis.__setIdentity({ token: '' }));
+	assert.equal(seen.shared.leftRunning, false, 'stopped');
+
+	await act(async () => globalThis.__setIdentity({ token: 'another-token' }));
+	await act(async () => globalThis.__setIdentity({ token: '' }));
+	assert.equal(seen.shared.leftRunning, false, 'no read yet');
+});
