@@ -1043,6 +1043,7 @@
 		"getenv",
 		"urlopen",
 		"workerd",
+		"describedby",
 		"labelledby",
 		"valuenow",
 		"valuetext",
