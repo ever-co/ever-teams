@@ -63,8 +63,9 @@ listens to it. `TIMER_CHANGE_EVENT`, exported by the package, holds the name, an
 
 ## Examples
 
-`examples/` holds two pages that run as they are once the files of `dist/` sit next to them, a Svelte component and an
-Angular app:
+The [`examples/`](https://github.com/ever-co/ever-teams/tree/develop/packages/toolkit/embed/examples) folder of the
+repository (the package itself ships `dist/` only) holds two pages that run as they are once the files of `dist/` sit
+next to them, a Svelte component and an Angular app:
 
 - `html/`: a plain page.
 - `vue/`: a Vue app on Vue's browser build, which goes next to the page too (`dist/vue.esm-browser.prod.js` of the `vue`
@@ -120,15 +121,22 @@ no declaration can type them there; a template reference such as `#timer` gets t
 
 Vue's template checker (`vue-tsc`) takes `<ever-teams-timer>` for a component: with `strictTemplates` it refuses a
 component it does not know, and without, it accepts any value. This declaration, in a `.d.ts` file of the app, types
-the attributes under the camelCase names Vue gives them (`colorScheme` for `color-scheme`):
+the attributes under the camelCase names Vue gives them (`colorScheme` for `color-scheme`), and the change event, so
+`@ever-teams-timer-change` gets an `EverTeamsTimerChange` in its `detail`:
 
 ```ts
 import type { HTMLAttributes } from 'vue';
-import type { EverTeamsTimerElement, EverTeamsTimerProps } from '@ever-teams/embed';
+import type { EverTeamsTimerChange, EverTeamsTimerElement, EverTeamsTimerProps } from '@ever-teams/embed';
+
+interface EverTeamsTimerEvents {
+	onEverTeamsTimerChange?: (event: CustomEvent<EverTeamsTimerChange>) => void;
+}
 
 declare module 'vue' {
 	interface GlobalComponents {
-		'ever-teams-timer': new () => EverTeamsTimerElement & { $props: HTMLAttributes & EverTeamsTimerProps };
+		'ever-teams-timer': new () => EverTeamsTimerElement & {
+			$props: HTMLAttributes & EverTeamsTimerProps & EverTeamsTimerEvents;
+		};
 	}
 }
 ```
@@ -157,11 +165,15 @@ event. Nothing binds both ways.
 ## What it changes in your page
 
 The timer draws in the element's own shadow root: your page's CSS does not reach it, and its styles do not reach your
-page. It takes your page's font, like the React kit. Two things are added to the page:
+page. Like the React kit, it draws in the system UI font; to give it your page's font, set `--ever-teams-kit-font` on
+the element or a parent, for example `ever-teams-timer { --ever-teams-kit-font: Georgia, serif; }`. Three things are
+added to the page:
 
 - one `<style data-ever-teams-properties>` in `<head>`, which registers the custom properties the timer's shadows and
   rings use (all named `--ever-teams-tw-*`; browsers ignore these registrations inside a shadow root);
-- the `<ever-teams-timer>` element definition.
+- the `<ever-teams-timer>` element definition;
+- while one of the timer's menus or dialogs is open, two empty `<span data-radix-focus-guard>` at the start and the end
+  of `<body>`, which keep the keyboard focus inside it; they go when it closes.
 
 ## Sign-in
 
@@ -183,8 +195,8 @@ typed in your page:
 ></ever-teams-timer>
 ```
 
-An administrator of the organization turns it on: your site in the allowed sites of Settings > Embeds of the web app,
-with its switch "People can sign in from this site" on, on an API with sign-in from sites
+An administrator of the organization turns it on: your site in the allowed sites of Settings > Workspace > Embeds of
+the web app, with its switch "People can sign in from this site" on, on an API with sign-in from sites
 ([ever-co/ever-gauzy#12094](https://github.com/ever-co/ever-gauzy/issues/12094)). The timer token stays in memory;
 the renewal token is kept in the browser's storage for the API address and organization it was issued for, so a
 reload stays signed in where the browser lets the page store it (not in a window that blocks storage). The element
@@ -210,7 +222,7 @@ from the user menu.
 
 ## Size
 
-258 KB gzip when the page loads (React, the kit and its stylesheet), and 63 KB more only when a view needs time zones.
+271 KB gzip when the page loads (React, the kit and its stylesheet), and 63 KB more only when a view needs time zones.
 
 ## Build
 
