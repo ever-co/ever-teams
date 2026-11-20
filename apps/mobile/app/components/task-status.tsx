@@ -14,7 +14,7 @@ import { typography, useAppTheme, useWebTheme } from '../theme';
 import { taskChipLookOf } from '../../src/components/task-chip';
 import { ChipIcon } from '../../src/components/chip-icon';
 import { useMenuAnchor } from '../../src/components/menu-anchor';
-import { useTaskStatusValue } from './status-type';
+import { TStatus, useTaskStatusValue } from './status-type';
 import { limitTextCharaters } from '../helpers/sub-text';
 
 interface TaskStatusProps {
@@ -30,6 +30,19 @@ interface TaskStatusProps {
 	forDetails?: boolean;
 }
 
+/** The status the task holds, or the one picked for a new task, as the icon map knows it. */
+function statusItemOf(
+	allStatuses: TStatus<string> | undefined,
+	task: ITeamTask | undefined,
+	status: string | undefined
+) {
+	const statusValue = (task?.status || status)?.split('-').join(' ').toLowerCase();
+	if (!allStatuses || !statusValue) {
+		return undefined;
+	}
+	return Object.values(allStatuses).find((item) => item?.name?.toLowerCase() === statusValue);
+}
+
 const TaskStatus: FC<TaskStatusProps> = observer(
 	({ task, containerStyle, status, setStatus, iconsOnly, labelOnly, canCreateStatus, forDetails }) => {
 		const { colors } = useAppTheme();
@@ -40,12 +53,7 @@ const TaskStatus: FC<TaskStatusProps> = observer(
 
 		const allStatuses = useTaskStatusValue();
 
-		const statusValue = (
-			task?.status?.split('-').join(' ') ||
-			(status && status.split('-').join(' '))
-		)?.toLowerCase();
-		const statusItem =
-			allStatuses && Object.values(allStatuses).find((item) => item?.name.toLowerCase() === statusValue);
+		const statusItem = statusItemOf(allStatuses, task, status);
 		const look = taskChipLookOf(statusItem?.bgColor, theme);
 
 		const onChangeStatus = async (text: string) => {
