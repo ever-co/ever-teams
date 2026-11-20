@@ -117,8 +117,13 @@ export function placementOnArea(
 	shape?: MenuShape
 ) {
 	const anchorInArea = { ...anchor, x: anchor.x - area.x, y: anchor.y - area.y };
+	return menuPlacementOf(anchorInArea, menuHeight, menuLimitsOn(area, context), shape);
+}
+
+/** The part of its area a menu may take, in the area's own coordinates, as a submenu is placed in it too. */
+export function menuLimitsOn(area: MenuArea, context: AreaContext) {
 	const limits = areaLimitsOf(area, context.bars, context.screenHeight, context.keyboardTop);
-	return menuPlacementOf(anchorInArea, menuHeight, { width: area.width, ...limits }, shape);
+	return { width: area.width, ...limits };
 }
 
 /** The screen a menu lives on, measured once laid out, with what limits it there: the system bars and the keyboard. */
