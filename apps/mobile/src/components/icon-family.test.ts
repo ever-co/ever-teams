@@ -6,6 +6,7 @@ const MOBILE = resolve(__dirname, '../..');
 // Screens drawn with the web's icon family; an Expo icon font coming back into one of them is a regression
 const ON_HUGEICONS: string[] = [
 	'app/screens/authenticated/setting-screen/components/language-form.tsx',
+	'app/screens/authenticated/setting-screen/components/language-modal.tsx',
 	'app/screens/authenticated/setting-screen/components/setting-header.tsx',
 	'app/screens/authenticated/setting-screen/components/user-timezone.tsx'
 ];
