@@ -24,7 +24,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { TeamsTeamCreationFormDialog } from '@components/forms/team/team-creation-form';
 import { useOrganizationTeams } from '@hooks/useOrganizationTeams';
-import { useOrganizationTitle } from '@hooks/useOrganizationTitle';
+import { useSelectedOrganizationName } from '@hooks/useSelectedOrganizationName';
 
 export function TeamsTeamsViewer({ className }: { className?: string }) {
 	const { selectedTeam } = useTeamsContext();
@@ -36,13 +36,10 @@ export function TeamsTeamsViewer({ className }: { className?: string }) {
 	const [currentPage, setCurrentPage] = useState(1);
 	const [itemsPerPage, setItemsPerPage] = useState(5);
 
-	const title = useOrganizationTitle({
-		keyPrefix: 'TEAMS_VIEWER',
-		named: 'title.all_teams',
-		unnamed: 'title.all_teams_without_organization'
-	});
-
 	const { t } = useTranslation(undefined, { keyPrefix: 'TEAMS_VIEWER' });
+
+	const orgName = useSelectedOrganizationName();
+	const title = orgName ? t('title.all_teams', { orgName }) : t('title.all_teams_without_organization');
 
 	useEffect(() => {
 		setTeams(organizationTeams?.items || []);

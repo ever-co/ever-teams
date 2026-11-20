@@ -28,7 +28,7 @@ import { SpinOverlayLoader } from '@components/loaders/spin-overlay-loader';
 import { TeamsTimerFooter } from '@components/layouts/footers/component-footer';
 import { ChevronLeft, ChevronRight, FileText, RefreshCwIcon } from 'lucide-react';
 import { TeamsActiveEmployeeSelector } from '@components/teams-ui-components/inputs/teams-active-employee-selector';
-import { useOrganizationTitle } from '@hooks/useOrganizationTitle';
+import { useSelectedOrganizationName } from '@hooks/useSelectedOrganizationName';
 import { useTimeLogs } from '@hooks/useTimeLogs';
 import { useTimerOnlyToken } from '@hooks/useTimerOnlyToken';
 import { TimerOnlyReportNote } from '@components/teams-ui-components/timer-only-report-note';
@@ -140,11 +140,8 @@ export const TeamsTimesheet = ({
 }: TeamsTimesheetProps) => {
 	const { t } = useTranslation(undefined, { keyPrefix: 'TIMESHEET' });
 
-	const title = useOrganizationTitle({
-		keyPrefix: 'TIMESHEET',
-		named: 'title',
-		unnamed: 'title_without_organization'
-	});
+	const orgName = useSelectedOrganizationName();
+	const title = orgName ? t('title', { orgName }) : t('title_without_organization');
 	const timerOnly = useTimerOnlyToken();
 
 	// Date filter state - default to today
