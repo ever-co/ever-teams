@@ -133,8 +133,7 @@ before(async () => {
 
 after(() => removeBundle?.());
 
-// Each test unmounts the pages it opened, and leaves the document and the storage empty.
-afterEach(async () => {
+async function closePages() {
 	const opened = roots.splice(0);
 	await act(async () => {
 		for (const root of opened) {
@@ -142,6 +141,11 @@ afterEach(async () => {
 		}
 	});
 	document.body.replaceChildren();
+}
+
+// Each test unmounts the pages it opened, and leaves the document and the storage empty.
+afterEach(async () => {
+	await closePages();
 	localStorage.clear();
 });
 
@@ -197,10 +201,21 @@ const openReports = (config) =>
 const notesShown = () => document.body.textContent.split(NOTE).length - 1;
 const reportReads = () => requests.filter(({ path }) => REPORT_ROUTES.has(path));
 
-function assertEachWidgetReads() {
-	const read = new Set(reportReads().map(({ path }) => path));
+// The session the kit's own sign-in saves, with the token the person signed in with.
+const saveSession = (token) => {
+	const saved = { app: { user: null }, persist: { token, expiry: Date.now() + 60 * 60 * 1000 } };
+	localStorage.setItem('_teams-store', JSON.stringify(saved));
+};
+
+// Each widget on a page of its own: a widget that stopped reading is not hidden by another one reading the same route.
+async function assertEachWidgetReadsAlone(config, beforeEachPage = () => {}) {
 	for (const [widget, route] of Object.entries(WIDGETS)) {
-		assert.ok(read.has(route), `${widget} reads ${route}`);
+		beforeEachPage();
+		await openPage(config, [React.createElement(kit[widget], { key: widget })]);
+		const read = reportReads().map(({ path }) => path);
+		assert.ok(read.includes(route), `${widget} reads ${route}`);
+		assert.equal(notesShown(), 0, `${widget} shows no note`);
+		await closePages();
 	}
 }
 
@@ -215,20 +230,12 @@ test("with the embed token of the host's getToken, every report widget says wher
 	assert.equal(notesShown(), Object.keys(WIDGETS).length, 'each widget shows the note');
 });
 
-test("with the kit's own sign-in, the report widgets read as before and show no note", async () => {
-	const saved = { app: { user: null }, persist: { token: 'token-1', expiry: Date.now() + 60 * 60 * 1000 } };
-	localStorage.setItem('_teams-store', JSON.stringify(saved));
-	await openReports({ apiUrl: API });
-
-	assertEachWidgetReads();
-	assert.equal(notesShown(), 0);
+test("with the kit's own sign-in, each report widget reads as before and shows no note", async () => {
+	await assertEachWidgetReadsAlone({ apiUrl: API }, () => saveSession('token-1'));
 });
 
-test('a getToken that answers a token other than an embed token keeps the reports as they are', async () => {
-	await openReports({ apiUrl: API, getToken: getTokenAnswering(FULL_TOKEN) });
-
-	assertEachWidgetReads();
-	assert.equal(notesShown(), 0);
+test('a getToken that answers a token other than an embed token keeps each report as it is', async () => {
+	await assertEachWidgetReadsAlone({ apiUrl: API, getToken: getTokenAnswering(FULL_TOKEN) });
 });
 
 // A host's own component on the time logs hook: what it holds, its refetch, and the kit's token.
