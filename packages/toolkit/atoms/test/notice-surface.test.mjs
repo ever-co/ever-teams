@@ -103,7 +103,9 @@ test("a notice's action takes the kit's light purple in the dark scheme, and onl
 	const darkRules = [];
 	root.walkRules((rule) => {
 		if (rule.selector.replace(/\\/g, '').includes('.dark:text-primary-xlight')) {
-			rule.walkDecls('color', (declaration) => darkRules.push({ selector: rule.selector, value: declaration.value }));
+			rule.walkDecls('color', (declaration) =>
+				darkRules.push({ selector: rule.selector, value: declaration.value })
+			);
 		}
 	});
 
@@ -113,10 +115,43 @@ test("a notice's action takes the kit's light purple in the dark scheme, and onl
 	assert.equal(darkRules[0].value.toLowerCase(), '#8e76fa');
 });
 
-test('that light purple reads at 4.5:1 or more on the dark notice surface', () => {
-	// The dark scheme's background (kit.css: --background 224 71% 4%); the 5 % tint barely moves it.
-	const darkBackground = rgbOfHsl(224, 71, 4);
-	const lightPurple = [0x8e, 0x76, 0xfa];
+/** The dark scheme's tokens as the built stylesheet declares them, each `h s% l%` read as [h, s, l]. */
+function darkTokensOf(root) {
+	const tokens = {};
+	root.walkRules((rule) => {
+		const isDarkScheme = /data-ever-teams-color-scheme=['"]?dark/.test(rule.selector);
+		if (!isDarkScheme) {
+			return;
+		}
+		rule.walkDecls(/^--(background|foreground|destructive)$/, (declaration) => {
+			tokens[declaration.prop.slice(2)] = declaration.value.split(/\s+/).map((part) => Number.parseFloat(part));
+		});
+	});
+	return tokens;
+}
 
-	assert.ok(contrast(lightPurple, darkBackground) >= 4.5, `contrast ${contrast(lightPurple, darkBackground)}`);
+/** A 5 % tint laid over a background, as the browser blends the notice's gradient over it. */
+function tintedOver(tint, background) {
+	return background.map((channel, index) => Math.round(channel * 0.95 + tint[index] * 0.05));
+}
+
+test("the dark scheme's light purple reads at 4.5:1 or more on both notice tones, as the stylesheet draws them", async () => {
+	const root = await builtStylesheet();
+	const dark = darkTokensOf(root);
+	const actionColors = [];
+	root.walkRules((rule) => {
+		if (rule.selector.replace(/\\/g, '').includes('.dark:text-primary-xlight')) {
+			rule.walkDecls('color', (declaration) => actionColors.push(declaration.value));
+		}
+	});
+	const hex = actionColors[0].replace('#', '');
+	const action = [0, 2, 4].map((at) => Number.parseInt(hex.slice(at, at + 2), 16));
+	const background = rgbOfHsl(...dark.background);
+
+	for (const tone of ['foreground', 'destructive']) {
+		const surface = tintedOver(rgbOfHsl(...dark[tone]), background);
+		const ratio = contrast(action, surface);
+
+		assert.ok(ratio >= 4.5, `${tone} tone: contrast ${ratio.toFixed(2)}`);
+	}
 });
