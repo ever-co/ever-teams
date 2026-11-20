@@ -150,12 +150,6 @@ function CurrencyRow({
 	);
 }
 
-type SaveDefaultRate = (value: number | null) => Promise<void>;
-
-/**
- * The rate that bills time no client rate and no billing rate prices, empty until an admin sets one. It is in its own
- * currency when another app stored one, else in the workspace's.
- */
 /** "Not set" is a choice here, unlike the formats: a workspace may go back to having no time zone (#5649). */
 function TimeZoneControl({
 	id,
@@ -227,6 +221,12 @@ function TimeZoneRow({
 	);
 }
 
+type SaveDefaultRate = (value: number | null) => Promise<void>;
+
+/**
+ * The rate that bills time no client rate and no billing rate prices, empty until an admin sets one. It is in its own
+ * currency when another app stored one, else in the workspace's.
+ */
 function DefaultRateRow({
 	organization,
 	canEdit,
