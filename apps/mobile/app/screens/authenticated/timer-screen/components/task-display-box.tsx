@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, Text } from 'react-native';
-import { FontAwesome, AntDesign } from '@expo/vector-icons';
+import { Circle, CircleCheck } from '../../../../../src/components/icons';
 import { typography, useAppTheme } from '../../../../theme';
 import { translate } from '../../../../i18n';
 
@@ -16,7 +16,7 @@ const TaskDisplayBox = ({ count, openTask, selected }: ITasDisplayBox) => {
 		<View style={[styles.container, { borderColor: colors.border, backgroundColor: colors.background }]}>
 			{openTask ? (
 				<>
-					<FontAwesome name="circle" size={18} color="#9BD9B4" />
+					<Circle size={18} color="#9BD9B4" />
 					<Text
 						style={[
 							styles.filterText,
@@ -28,7 +28,7 @@ const TaskDisplayBox = ({ count, openTask, selected }: ITasDisplayBox) => {
 				</>
 			) : (
 				<>
-					<AntDesign name="check-circle" size={18} color="#BEBCC8" />
+					<CircleCheck size={18} color="#BEBCC8" />
 					<Text
 						style={[
 							styles.filterText,

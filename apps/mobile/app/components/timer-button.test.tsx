@@ -13,11 +13,6 @@ jest.mock('../models', () => ({ useStores: () => mockStores }));
 jest.mock('../theme', () => ({
 	useWebTheme: () => jest.requireActual('../../src/theme/use-theme').themeFor('light')
 }));
-jest.mock('@expo/vector-icons', () => {
-	const { createElement } = jest.requireActual('react');
-	const { Text } = jest.requireActual('react-native');
-	return { Ionicons: ({ name }: { name: string }) => createElement(Text, null, name) };
-});
 
 const light = themeFor('light');
 

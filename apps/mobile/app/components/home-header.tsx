@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, { FC } from 'react';
 import { View, StyleSheet, TouchableOpacity, Platform } from 'react-native';
-import { Feather } from '@expo/vector-icons';
+import { Menu } from '../../src/components/icons';
 import { headerSurfaceOf } from './header-surface';
 import HeaderTimer from './header-timer';
 import { useAppTheme } from '../theme';
@@ -45,7 +45,7 @@ const HomeHeader: FC<Props> = ({ props, showTimer }) => {
 					accessibilityRole="button"
 					accessibilityLabel={translate('common.openMenu')}
 				>
-					<Feather name="menu" size={24} color={colors.primary} />
+					<Menu size={24} color={colors.primary} />
 				</TouchableOpacity>
 			</View>
 		</View>

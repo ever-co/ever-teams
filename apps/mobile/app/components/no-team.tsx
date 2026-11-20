@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react-native/no-color-literals */
 import React, { FC } from 'react';
-import { FontAwesome5 } from '@expo/vector-icons';
+import { Users } from '../../src/components/icons';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { typography, useAppTheme } from '../theme';
 import { translate } from '../i18n';
@@ -14,7 +14,7 @@ const NoTeam: FC<Props> = ({ onPress }) => {
 	const { colors, dark } = useAppTheme();
 	return (
 		<View style={styles.container}>
-			<FontAwesome5 name="user-friends" size={34} color="#3826A6" />
+			<Users size={34} color="#3826A6" />
 			<Text style={{ ...styles.primaryText, color: colors.primary }}>
 				{translate('noTeamScreen.createYourTeam')}
 			</Text>

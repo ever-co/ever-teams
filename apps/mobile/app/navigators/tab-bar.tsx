@@ -1,7 +1,8 @@
 /* eslint-disable react-native/no-inline-styles */
 import React from 'react';
 import { Platform, StyleSheet, TextStyle, View, ViewStyle } from 'react-native';
-import { Feather } from '@expo/vector-icons';
+import { Task, User, Users } from '../../src/components/icons';
+import type { IconComponent } from '../../src/components/icons';
 import type { BottomTabNavigationEventMap, BottomTabNavigationOptions } from '@react-navigation/bottom-tabs';
 import type { EventArg } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -57,21 +58,21 @@ export function barColorsOf(dark: boolean) {
 	return tabBarColorsFor(themeFor(scheme));
 }
 
-type FeatherName = React.ComponentProps<typeof Feather>['name'];
-
 interface TabIconProps {
-	name: FeatherName;
+	/** The glyph's name, which names the icon's test id. */
+	name: string;
+	icon: IconComponent;
 	focused: boolean;
 	color: string;
 	dark: boolean;
 }
 
 /** A tab's icon, tinted by the navigator; the selected tab's icon sits on the primary tint, as on the web. */
-function TabIcon({ name, focused, color, dark }: Readonly<TabIconProps>) {
+function TabIcon({ name, icon: Icon, focused, color, dark }: Readonly<TabIconProps>) {
 	const indicator = barColorsOf(dark).indicatorColor;
 	return (
 		<View testID={`tab-icon-${name}`} style={[$iconPill, focused && { backgroundColor: indicator }]}>
-			<Feather name={name} size={20} color={color} />
+			<Icon size={20} color={color} />
 		</View>
 	);
 }
@@ -109,7 +110,9 @@ export function workTabOptions(dark: boolean): BottomTabNavigationOptions {
 	return {
 		tabBarLabel: translate('myWorkScreen.name'),
 		tabBarButtonTestID: 'tab-work',
-		tabBarIcon: ({ focused, color }) => <TabIcon name="user" focused={focused} color={color} dark={dark} />
+		tabBarIcon: ({ focused, color }) => (
+			<TabIcon name="user" icon={User} focused={focused} color={color} dark={dark} />
+		)
 	};
 }
 
@@ -118,7 +121,9 @@ export function tasksTabOptions(dark: boolean): BottomTabNavigationOptions {
 	return {
 		tabBarLabel: translate('tasksScreen.name'),
 		tabBarButtonTestID: 'tab-tasks',
-		tabBarIcon: ({ focused, color }) => <TabIcon name="briefcase" focused={focused} color={color} dark={dark} />,
+		tabBarIcon: ({ focused, color }) => (
+			<TabIcon name="task" icon={Task} focused={focused} color={color} dark={dark} />
+		),
 		// Expo Router gives a tab with an address (this one) the item style of its own options instead of the bar's
 		tabBarItemStyle: $tabBarItem
 	};
@@ -129,7 +134,9 @@ export function teamTabOptions(dark: boolean): BottomTabNavigationOptions {
 	return {
 		tabBarLabel: translate('teamScreen.name'),
 		tabBarButtonTestID: 'tab-team',
-		tabBarIcon: ({ focused, color }) => <TabIcon name="users" focused={focused} color={color} dark={dark} />
+		tabBarIcon: ({ focused, color }) => (
+			<TabIcon name="users" icon={Users} focused={focused} color={color} dark={dark} />
+		)
 	};
 }
 
