@@ -5,6 +5,7 @@ import React, { ComponentProps, SetStateAction, useCallback, useEffect, useState
 import { useStores } from '../../../models';
 import { typography, useAppTheme, useWebTheme } from '../../../theme';
 import { Feather } from '@expo/vector-icons';
+import IconButton from './icon-button';
 import * as Clipboard from 'expo-clipboard';
 import { useTeamTasks } from '../../../services/hooks/features/use-team-tasks';
 import { showMessage } from 'react-native-flash-message';
@@ -140,22 +141,6 @@ const TitleIcons: React.FC<ITitleIcons> = ({ edit, setEdit, copyTitle, saveTitle
 	);
 };
 
-type IconButtonProps = {
-	testID: string;
-	icon: ComponentProps<typeof Feather>['name'];
-	color: string;
-	onPress: () => void;
-};
-
-/** A quiet icon button: the icon alone, in a 36 square that a tap tints. */
-const IconButton: React.FC<IconButtonProps> = ({ testID, icon, color, onPress }) => {
-	return (
-		<TouchableOpacity testID={testID} accessibilityRole="button" onPress={onPress} style={styles.iconButton}>
-			<Feather name={icon} size={18} color={color} />
-		</TouchableOpacity>
-	);
-};
-
 const ParentTaskBadge: React.FC<{ task: ITeamTask }> = observer(({ task }) => {
 	const navigation = useNavigation<SettingScreenNavigationProp<'TaskScreen'>>();
 
@@ -267,13 +252,6 @@ const ParentTaskInput: React.FC<{ task: ITeamTask }> = observer(({ task }) => {
 });
 
 const styles = StyleSheet.create({
-	iconButton: {
-		alignItems: 'center',
-		borderRadius: 8,
-		height: 36,
-		justifyContent: 'center',
-		width: 36
-	},
 	parentAction: {
 		alignItems: 'center',
 		borderRadius: 8,
