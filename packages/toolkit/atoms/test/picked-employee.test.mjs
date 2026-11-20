@@ -87,8 +87,8 @@ function Reads() {
 	return null;
 }
 
-// Renders the reads (again) with this employee in the kit's state and these permissions, and gives the employee each
-// read asks for, by route: in its query, or in its body.
+// Renders the reads (again) with this employee in the kit's state and these permissions, and gives every employee the
+// reads ask for, by route (in its query, or in its body): a read that first asked for another employee shows too.
 async function employeesAskedFor(selectedEmployee, userPermissions) {
 	globalThis.__reads = [];
 	globalThis.__context = {
@@ -108,7 +108,8 @@ async function employeesAskedFor(selectedEmployee, userPermissions) {
 		const route = read.path.split('?')[0];
 		const query = decodeURIComponent(read.path.split('?')[1] ?? '');
 		const fromQuery = /employeeIds\[0\]=([^&]+)/.exec(query)?.[1];
-		asked[route] = fromQuery ?? read.body?.employeeIds?.[0];
+		const employee = fromQuery ?? read.body?.employeeIds?.[0];
+		asked[route] = [...new Set([...(asked[route] ?? []), employee])];
 	}
 	return asked;
 }
@@ -116,11 +117,11 @@ async function employeesAskedFor(selectedEmployee, userPermissions) {
 // What every read asks for: the apps read hands its employee to @ever-teams/api, "all" for the person's own.
 function everyRead(employee, { apps = employee } = {}) {
 	return {
-		'/timesheet/time-log/report/weekly': employee,
-		'/timesheet/statistics/counts': employee,
-		'/timesheet/statistics/projects': employee,
-		'/timesheet/statistics/tasks': employee,
-		getActivitiesStats: apps
+		'/timesheet/time-log/report/weekly': [employee],
+		'/timesheet/statistics/counts': [employee],
+		'/timesheet/statistics/projects': [employee],
+		'/timesheet/statistics/tasks': [employee],
+		getActivitiesStats: [apps]
 	};
 }
 
