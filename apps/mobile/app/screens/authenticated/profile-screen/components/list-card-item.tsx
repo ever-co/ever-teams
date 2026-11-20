@@ -2,7 +2,7 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, { useMemo, useState } from 'react';
 import { View, TouchableNativeFeedback, TouchableOpacity, StyleSheet, Image } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { MoreVertical } from '../../../../../src/components/icons';
 import { Card, Text } from 'react-native-paper';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import { estimateRingColorsOf } from '../../../../../src/theme/estimate-ring';
@@ -119,7 +119,7 @@ export const ListItemContent: React.FC<ListItemProps> = observer((props) => {
 						onPress={() => props.setOpenMenuIndex(props.index)}
 						style={{ height: 20 }}
 					>
-						<Ionicons name="ellipsis-vertical-outline" size={20} color={colors.primary} />
+						<MoreVertical size={20} color={colors.primary} />
 					</TouchableOpacity>
 				</View>
 

@@ -2,7 +2,7 @@
 /* eslint-disable react-native/no-inline-styles */
 import { View, Text, StyleSheet, TouchableOpacity, ViewStyle } from "react-native"
 import React, { ReactElement, useState, useEffect } from "react"
-import { Feather } from "@expo/vector-icons"
+import { ChevronDown, ChevronUp } from "../../src/components/icons"
 import { typography, useWebTheme } from "../theme"
 import { settingsDividerOf, settingsSurfaceOf } from "../../src/theme/settings-look"
 import type { Theme } from "../../src/theme/use-theme"
@@ -27,13 +27,6 @@ export function accordionSurfaceOf(nested: boolean, theme: Theme): ViewStyle {
 		return {}
 	}
 	return settingsSurfaceOf(theme)
-}
-
-function chevronOf(expanded: boolean) {
-	if (expanded) {
-		return "chevron-up" as const
-	}
-	return "chevron-down" as const
 }
 
 const Accordion: React.FC<IAccordion> = ({
@@ -76,11 +69,12 @@ const Accordion: React.FC<IAccordion> = ({
 				</Text>
 				<View style={styles.headerEnd}>
 					{headerElement}
-					<Feather
-						name={chevronOf(expanded)}
-						size={arrowSize || CHEVRON_SIZE}
-						color={theme.colors["muted-foreground"]}
-					/>
+					{expanded && (
+						<ChevronUp size={arrowSize || CHEVRON_SIZE} color={theme.colors["muted-foreground"]} />
+					)}
+					{!expanded && (
+						<ChevronDown size={arrowSize || CHEVRON_SIZE} color={theme.colors["muted-foreground"]} />
+					)}
 				</View>
 			</TouchableOpacity>
 			{expanded && <View testID="accordion-divider" style={[styles.divider, settingsDividerOf(theme)]} />}

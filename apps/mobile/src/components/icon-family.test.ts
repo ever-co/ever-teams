@@ -5,7 +5,10 @@ const MOBILE = resolve(__dirname, '../..');
 
 // Screens drawn with the web's icon family; an Expo icon font coming back into one of them is a regression
 const ON_HUGEICONS: string[] = [
+	'app/components/accordion.tsx',
+	'app/components/hamburger-menu.tsx',
 	'app/components/home-header.tsx',
+	'app/components/menu-row.tsx',
 	'app/components/no-team.tsx',
 	'app/components/task-epic-popup.tsx',
 	'app/components/task-epic.tsx',
@@ -26,10 +29,12 @@ const ON_HUGEICONS: string[] = [
 	'app/components/task/title-block/icon-button.tsx',
 	'app/components/task/title-block/index.tsx',
 	'app/components/team-dropdown/drop-down-section.tsx',
+	'app/components/team-dropdown/drop-down.tsx',
 	'app/components/timer-actions-menu.tsx',
 	'app/navigators/tab-bar.tsx',
 	'app/screens/authenticated/members-settings-screen/components/change-role-modal.tsx',
 	'app/screens/authenticated/members-settings-screen/index.tsx',
+	'app/screens/authenticated/profile-screen/components/list-card-item.tsx',
 	'app/screens/authenticated/profile-screen/components/task-title-display.tsx',
 	'app/screens/authenticated/setting-screen/components/change-team-logo.tsx',
 	'app/screens/authenticated/setting-screen/components/change-user-avatar.tsx',
@@ -39,6 +44,8 @@ const ON_HUGEICONS: string[] = [
 	'app/screens/authenticated/setting-screen/components/timezone-popup.tsx',
 	'app/screens/authenticated/setting-screen/components/user-timezone.tsx',
 	'app/screens/authenticated/task-screen/index.tsx',
+	'app/screens/authenticated/team-screen/components/invite-card-item.tsx',
+	'app/screens/authenticated/team-screen/components/list-card-item.tsx',
 	'app/screens/authenticated/team-screen/components/task-info.tsx',
 	'app/screens/authenticated/timer-screen/components/combo-box.tsx',
 	'app/screens/authenticated/timer-screen/components/estimate-time.tsx',
@@ -46,6 +53,7 @@ const ON_HUGEICONS: string[] = [
 	'app/screens/authenticated/timer-screen/components/task-display-box.tsx',
 	'app/screens/authenticated/timer-screen/components/task-status-dropdown.tsx',
 	'app/screens/authenticated/timer-screen/components/timer-task-section.tsx',
+	'app/screens/login-screen/components/sign-in-step.tsx',
 	'src/components/run-button.tsx',
 	'src/home/today-tasks.tsx'
 ];
