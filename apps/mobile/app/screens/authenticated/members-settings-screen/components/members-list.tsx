@@ -195,7 +195,10 @@ const MemberCard: React.FC<IMemberCard> = ({
 							autoFocus={isNameEditMode}
 						/>
 					) : (
-						<Text style={{ fontSize: 16, fontWeight: "600", color: webTheme.colors.foreground }}>
+						<Text
+							numberOfLines={1}
+							style={{ fontSize: 16, fontWeight: "600", color: webTheme.colors.foreground }}
+						>
 							{limitTextCharaters({ text: member?.employee?.fullName, numChars: 24 })}
 						</Text>
 					)}
