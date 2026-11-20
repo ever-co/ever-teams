@@ -368,6 +368,7 @@ describe('self-hosting surfaces', () => {
 				'SENTRY_DSN',
 				'NEXT_PUBLIC_SENTRY_DSN',
 				'NEXT_PUBLIC_POSTHOG_HOST',
+				'FRAME_ANCESTORS',
 				...PUBLIC_RUNTIME_ENV_KEYS
 			];
 
