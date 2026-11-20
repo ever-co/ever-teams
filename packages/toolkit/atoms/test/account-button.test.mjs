@@ -37,6 +37,7 @@ const stubs = {
 		authenticatedUser: globalThis.kitTestUser,
 		loadings: { userLoading: false }
 	});`,
+	'timer-status': 'export const useTimerStatusContext = () => null;',
 	forms: 'export const TeamsPasswordLoginForm = () => null; export const TeamsTokenLoginForm = () => null;',
 	kit: `export const useKitOptions = () => ({ scoped: true });
 		export const SpinOverlayLoader = () => null;
@@ -48,6 +49,7 @@ const stubs = {
 const routes = [
 	[/^(@ever-teams\/toolkit-ui|@ever-teams\/api|react-i18next)$/, (p) => p],
 	[/^@lib\/context\/teams-context$/, () => 'teams-context'],
+	[/^@lib\/context\/teams-timer-status-context$/, () => 'timer-status'],
 	[/^\.\/teams-(password|token)-login-form$/, () => 'forms'],
 	[
 		/^(@components\/teams-provider\/kit-root|\.\.\/loaders\/spin-overlay-loader|@components\/layouts\/footers\/component-footer|@lib\/utils\/warn-once|@hooks\/useRegistrationForm|@hooks\/useClearKitSession)$/,
