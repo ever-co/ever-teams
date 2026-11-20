@@ -653,7 +653,7 @@ report. Its refusals are those of the exchange (401, 429, 404, 503), and:
 | Status | Class                     | `code`                  | What to do                                                                                            |
 | ------ | ------------------------- | ----------------------- | ----------------------------------------------------------------------------------------------------- |
 | 403    | `EverTeamsForbiddenError` | `EMBED_CLIENT_REQUIRED` | The credential is the whole organization's: ask an administrator for one limited to the client.       |
-| 403    | `EverTeamsForbiddenError` | `EMBED_CLIENT_GONE`     | The credential's client was deleted: restore the client, or use the credential of another one.        |
+| 403    | `EverTeamsForbiddenError` | `EMBED_CLIENT_GONE`     | The client is archived or deleted: restore it from the web app's client list, or use another client's. |
 | 500    | `EverTeamsServerError`    | none                    | The API accepted the credential but could not read the report: try again, and tell its administrator. |
 
 ## Renew a sign-in from a site
