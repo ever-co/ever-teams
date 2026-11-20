@@ -1,9 +1,9 @@
-import { Card, cn, getWeekStartAndEnd, Progress, areDatesEqual } from '@ever-teams/toolkit-ui';
+import { Card, cn, Progress } from '@ever-teams/toolkit-ui';
 import { useTranslation } from 'react-i18next';
-import { useTeamsContext } from '@lib/context/teams-context';
 import { useStatisticsCounts } from '@hooks/useStatisticsCounts';
 import { TeamsDisplayerLoader } from '@components/loaders/displayer-loader';
 import { useTimerOnlyToken } from '@hooks/useTimerOnlyToken';
+import { useWeekLabel } from '@hooks/useWeekLabel';
 import { TimerOnlyReportNote } from './timer-only-report-note';
 
 interface IActivityDisplayerProps {
@@ -67,17 +67,10 @@ const TeamsDailyActivityDisplayer = ({ showProgress, className }: { showProgress
 };
 
 const TeamsWeeklyActivityDisplayer = ({ showProgress, className }: { showProgress?: boolean; className?: string }) => {
-	const dates = getWeekStartAndEnd();
-	const { t } = useTranslation();
-	const { reportDates } = useTeamsContext();
+	const label = useWeekLabel({ thisWeek: 'REPORT.week_activity', overPeriod: 'REPORT.activity_over_period' });
 
 	const { data: statisticsCounts, loading: statisticsCountsLoading } = useStatisticsCounts();
 	const timerOnly = useTimerOnlyToken();
-	const isThisWeek = areDatesEqual(reportDates?.from, dates.start) && areDatesEqual(reportDates?.to, dates.end);
-	let label = t('REPORT.activity_over_period');
-	if (isThisWeek) {
-		label = t('REPORT.week_activity');
-	}
 	if (timerOnly) {
 		return <TimerOnlyReportNote label={label} className={className} />;
 	}
