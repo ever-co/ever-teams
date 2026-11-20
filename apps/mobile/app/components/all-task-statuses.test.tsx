@@ -7,10 +7,17 @@ import { ITeamTask } from '../services/interfaces/ITask';
 jest.mock('./label-item', () => {
 	const { createElement } = jest.requireActual('react');
 	const { Text } = jest.requireActual('react-native');
-	return ({ label }: { label: string }) => createElement(Text, { testID: 'task-chip' }, label);
+	return ({ label, kind, storedIcon }: { label: string; kind: string; storedIcon?: string }) =>
+		createElement(Text, { testID: 'task-chip', kind, storedIcon }, label);
 });
 jest.mock('./status-type', () => ({
-	useTaskStatusValue: () => ({ 'in progress': { name: 'In Progress', bgColor: '#ece8fc' } }),
+	useTaskStatusValue: () => ({
+		'in progress': {
+			name: 'In Progress',
+			bgColor: '#ece8fc',
+			storedIcon: 'ever-icons/task-statuses/in-progress.svg'
+		}
+	}),
 	useTaskSizeValue: () => ({ medium: { name: 'Medium', bgColor: '#f5f1cb' } }),
 	useTaskPriorityValue: () => ({ high: { name: 'High', bgColor: '#e0eafc' } }),
 	useTaskLabelValue: () => ({
@@ -38,5 +45,13 @@ describe("a task's chips on a card", () => {
 			'Outdoor'
 		]);
 		expect(StyleSheet.flatten(screen.getByTestId('task-chips').props.style).flexWrap).toBe('wrap');
+	});
+
+	it("names the kind of each chip, so each one draws the web's glyph for it", async () => {
+		await render(<AllTaskStatuses task={task} />);
+
+		const chips = screen.getAllByTestId('task-chip');
+		expect(chips.map((chip) => chip.props.kind)).toEqual(['status', 'size', 'priority', 'label', 'label']);
+		expect(chips[0].props.storedIcon).toBe('ever-icons/task-statuses/in-progress.svg');
 	});
 });
