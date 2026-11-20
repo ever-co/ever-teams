@@ -218,6 +218,9 @@ What the kit does with it:
   ([ever-co/ever-gauzy#12080](https://github.com/ever-co/ever-gauzy/issues/12080)); against an API without that route
   it stays empty. The client and task pickers stay empty: the token reads no clients or tasks. Picking another project
   lets go of the task and client the timer remembers from an earlier entry.
+- The report widgets (worked time, activity and project cards, `TeamsBasicReport`, the project, task and app lists,
+  `TeamsTimesheet`) read nothing with that token, which the API refuses on report routes: each says "Open Ever Teams to
+  see this." in its place. The same goes for a sign-in with Ever Teams.
 - When `getToken` throws or rejects, or answers a token with no `expiresAt` or one less than 10 seconds away, the
   widgets show the person as signed out, and `TeamsLoginDialog` says "Sign in to this site to use your Ever Teams
   timer." instead of asking for a password. The kit asks again when the page comes back (focus, or the tab visible
