@@ -8,6 +8,10 @@ import { fireEvent, render, screen } from '@testing-library/react-native';
 import SizeItem from './size-item';
 import { ITaskSizeItem } from '../../../../services/interfaces/ITaskSize';
 
+jest.mock('../../../../../src/components/menu-anchor', () =>
+	jest.requireActual('../../../../../test/menu-anchor-stand-in').menuAnchorStandIn()
+);
+
 const SIZE: ITaskSizeItem = {
 	id: 'size-1',
 	createdAt: '',
@@ -30,7 +34,9 @@ describe('<SizeItem>', () => {
 	it('keeps the edit and delete actions visible but disabled on a read-only row', async () => {
 		const { openForEdit, onDeleteSize } = await renderRow(true);
 
+		await fireEvent.press(screen.getByTestId('task-setting-actions'));
 		await fireEvent.press(screen.getByLabelText(/edit/i));
+		await fireEvent.press(screen.getByTestId('task-setting-actions'));
 		await fireEvent.press(screen.getByLabelText(/delete/i));
 
 		expect(openForEdit).not.toHaveBeenCalled();
@@ -42,11 +48,14 @@ describe('<SizeItem>', () => {
 	it('edits and deletes a row the user may change', async () => {
 		const { openForEdit, onDeleteSize } = await renderRow();
 
+		await fireEvent.press(screen.getByTestId('task-setting-actions'));
 		await fireEvent.press(screen.getByLabelText(/edit/i));
+		await fireEvent.press(screen.getByTestId('task-setting-actions'));
 		await fireEvent.press(screen.getByLabelText(/delete/i));
 
 		expect(openForEdit).toHaveBeenCalledTimes(1);
 		expect(onDeleteSize).toHaveBeenCalledTimes(1);
+		await fireEvent.press(screen.getByTestId('task-setting-actions'));
 		expect(screen.getByLabelText(/edit/i)).toBeEnabled();
 		expect(screen.getByLabelText(/delete/i)).toBeEnabled();
 	});

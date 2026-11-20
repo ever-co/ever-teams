@@ -619,6 +619,7 @@
 			"size": "크기",
 			"label": "라벨",
 			"version": "버전"
-		}
+		},
+		"rowActions": "{name} 작업"
 	}
 }

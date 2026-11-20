@@ -619,6 +619,7 @@
 			"size": "Grootte",
 			"label": "Labels",
 			"version": "Versie"
-		}
+		},
+		"rowActions": "Acties voor {name}"
 	}
 }

@@ -1,4 +1,4 @@
-import React, { ReactNode, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { ReactNode, RefObject, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { Dimensions, Keyboard, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 import { Check } from '../../src/components/icons';
@@ -16,6 +16,7 @@ import {
 } from '../../src/theme/menu-look';
 import { translate } from '../i18n';
 import { typography, useWebTheme } from '../theme';
+import type { Theme } from '../../src/theme/use-theme';
 
 /** One row and the list's padding: the least of the values the menu keeps in sight. */
 const MENU_LIST_MIN_HEIGHT = MENU_ROW_HEIGHT + 2 * MENU_LIST_PADDING;
@@ -139,6 +140,39 @@ export function useMenuArea() {
 	return { areaRef, area, measureArea, context };
 }
 
+interface IMenuLayer {
+	areaRef: RefObject<View | null>;
+	measureArea: () => unknown;
+	onDismiss: () => unknown;
+	testID?: string;
+	children: ReactNode;
+}
+
+/**
+ * The screen under a menu, measured to place the menu on it: a tap outside the menu closes it, and so does VoiceOver's
+ * escape, which goes up from the row it is on: the layer holds the menu's rows, the backdrop none.
+ */
+export function MenuLayer({ areaRef, measureArea, onDismiss, testID, children }: Readonly<IMenuLayer>) {
+	return (
+		<View
+			testID={testID}
+			ref={areaRef}
+			collapsable={false}
+			style={styles.area}
+			onLayout={() => measureArea()}
+			onAccessibilityEscape={() => onDismiss()}
+		>
+			<Pressable
+				testID="menu-backdrop"
+				accessible={false}
+				style={StyleSheet.absoluteFill}
+				onPress={() => onDismiss()}
+			/>
+			{children}
+		</View>
+	);
+}
+
 export interface MenuMeasures {
 	anchor: MenuRect;
 	listHeight: number;
@@ -186,17 +220,35 @@ function MenuRow<T extends MenuOption>({ option, onSelect, capitalizesLabel }: R
 	);
 }
 
+export type MenuActionTone = 'default' | 'destructive';
+
+/** An action's ink: Delete reads in destructive-ink, as in the web's menus. */
+export function menuActionInkOf(tone: MenuActionTone, theme: Theme): string {
+	if (tone === 'destructive') {
+		return theme.colors['destructive-ink'];
+	}
+	return theme.colors.foreground;
+}
+
 interface IPropertyMenuAction {
 	icon: ReactNode;
 	label: string;
 	onPress: () => unknown;
 	disabled?: boolean;
+	tone?: MenuActionTone;
 	/** Under a disabled action: why it is, and who can do it. */
 	hint?: string;
 }
 
 /** An action at the foot of a menu, as a row with its icon in muted text: shown faded while it is out of reach. */
-export function PropertyMenuAction({ icon, label, onPress, disabled = false, hint }: Readonly<IPropertyMenuAction>) {
+export function PropertyMenuAction({
+	icon,
+	label,
+	onPress,
+	disabled = false,
+	tone = 'default',
+	hint
+}: Readonly<IPropertyMenuAction>) {
 	const theme = useWebTheme();
 	const showsHint = disabled && Boolean(hint);
 	return (
@@ -215,7 +267,7 @@ export function PropertyMenuAction({ icon, label, onPress, disabled = false, hin
 				]}
 			>
 				<View style={styles.rowIcon}>{icon}</View>
-				<Text numberOfLines={1} style={[styles.rowLabel, { color: theme.colors.foreground }]}>
+				<Text numberOfLines={1} style={[styles.rowLabel, { color: menuActionInkOf(tone, theme) }]}>
 					{label}
 				</Text>
 			</Pressable>
@@ -252,21 +304,7 @@ export function PropertyMenu<T extends MenuOption>({
 	}
 
 	return (
-		// VoiceOver's escape goes up from the row or the search line it is on: the area holds both, the backdrop neither
-		<View
-			testID="menu-area"
-			ref={areaRef}
-			collapsable={false}
-			style={styles.area}
-			onLayout={measureArea}
-			onAccessibilityEscape={() => onDismiss()}
-		>
-			<Pressable
-				testID="menu-backdrop"
-				accessible={false}
-				style={StyleSheet.absoluteFill}
-				onPress={() => onDismiss()}
-			/>
+		<MenuLayer testID="menu-area" areaRef={areaRef} measureArea={measureArea} onDismiss={onDismiss}>
 			<View
 				testID="property-menu"
 				style={[styles.menu, raisedSurfaceOf(theme), placementStyle, !isMeasured && styles.measuring]}
@@ -315,7 +353,7 @@ export function PropertyMenu<T extends MenuOption>({
 					</View>
 				)}
 			</View>
-		</View>
+		</MenuLayer>
 	);
 }
 

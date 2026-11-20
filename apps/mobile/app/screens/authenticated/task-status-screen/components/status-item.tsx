@@ -15,9 +15,11 @@ interface IStatusItem {
 const StatusItem: FC<IStatusItem> = ({ status, onDeleteTask, openForEdit, readOnly = false }) => {
 	return (
 		<TaskSettingRow
+			kind="status"
 			name={formatName(status?.name ?? '')}
 			color={status?.color}
 			iconUrl={status?.fullIconUrl}
+			storedIcon={status?.icon}
 			onEdit={openForEdit}
 			onDelete={onDeleteTask}
 			readOnly={readOnly}

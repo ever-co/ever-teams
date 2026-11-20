@@ -12,9 +12,11 @@ interface ILabelItem {
 const LabelItem: FC<ILabelItem> = ({ label, onDeleteLabel, openForEdit }) => {
 	return (
 		<TaskSettingRow
+			kind="label"
 			name={label?.name ?? ''}
 			color={label?.color}
 			iconUrl={label?.fullIconUrl}
+			storedIcon={label?.icon}
 			onEdit={openForEdit}
 			onDelete={onDeleteLabel}
 		/>

@@ -619,6 +619,7 @@
 			"size": "大小",
 			"label": "标签",
 			"version": "版本"
-		}
+		},
+		"rowActions": "{name} 的操作"
 	}
 }

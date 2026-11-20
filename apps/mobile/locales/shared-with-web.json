@@ -175,5 +175,6 @@
 	"taskMenus.fields.priority": "taskMenus.fields.priority",
 	"taskMenus.fields.size": "taskMenus.fields.size",
 	"taskMenus.fields.label": "taskMenus.fields.label",
-	"taskMenus.fields.version": "taskMenus.fields.version"
+	"taskMenus.fields.version": "taskMenus.fields.version",
+	"taskMenus.rowActions": "settings.taskProperties.ROW_ACTIONS"
 }

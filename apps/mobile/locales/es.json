@@ -619,6 +619,7 @@
 			"size": "Tamaño",
 			"label": "Etiquetas",
 			"version": "Versión"
-		}
+		},
+		"rowActions": "Acciones para {name}"
 	}
 }

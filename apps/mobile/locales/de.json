@@ -619,6 +619,7 @@
 			"size": "Größe",
 			"label": "Labels",
 			"version": "Version"
-		}
+		},
+		"rowActions": "Aktionen für {name}"
 	}
 }

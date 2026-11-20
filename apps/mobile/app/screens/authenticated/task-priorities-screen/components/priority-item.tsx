@@ -15,9 +15,11 @@ interface IPriorityItem {
 const PriorityItem: FC<IPriorityItem> = ({ priority, onDeletePriority, openForEdit, readOnly = false }) => {
 	return (
 		<TaskSettingRow
+			kind="priority"
 			name={formatName(priority?.name ?? '')}
 			color={priority?.color}
 			iconUrl={priority?.fullIconUrl}
+			storedIcon={priority?.icon}
 			onEdit={openForEdit}
 			onDelete={onDeletePriority}
 			readOnly={readOnly}

@@ -15,6 +15,7 @@ interface IVersionItem {
 const VersionItem: FC<IVersionItem> = ({ version, onDeleteTask, openForEdit, readOnly = false }) => {
 	return (
 		<TaskSettingRow
+			kind="version"
 			name={formatName(version?.name ?? '')}
 			color={undefined}
 			iconUrl={undefined}
