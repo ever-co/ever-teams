@@ -23,6 +23,11 @@ interface EverIdOutcomes {
 	'ever_id.confirm': EverIdStepOutcome;
 	'ever_id.signup': EverIdStepOutcome;
 	'ever_id.setup': EverIdStepOutcome;
+	/**
+	 * The start address (app/api/auth/ever-id/start): a sign-in sent to Ever ID, a person already signed in sent on,
+	 * or a sign-in that could not start.
+	 */
+	'ever_id.start': 'started' | 'signed_in' | 'failed';
 }
 
 type EverIdLogEvent = keyof EverIdOutcomes;
@@ -71,7 +76,8 @@ const WARNINGS: { [E in EverIdLogEvent]: ReadonlySet<EverIdOutcomes[E]> } = {
 	'ever_id.backchannel': new Set(['invalid', 'replay', 'stale', 'unavailable', 'unknown_key', 'forward_failed']),
 	'ever_id.confirm': new Set(['throttled', 'gauzy_error']),
 	'ever_id.signup': new Set(['throttled', 'gauzy_error']),
-	'ever_id.setup': new Set(['throttled', 'gauzy_error'])
+	'ever_id.setup': new Set(['throttled', 'gauzy_error']),
+	'ever_id.start': new Set(['failed'])
 };
 
 /** The exact object that is logged. */

@@ -55,7 +55,14 @@
 			"needsNetwork": "Uruchamianie i zatrzymywanie timera wymaga połączenia.",
 			"weekFailed": "Nie udało się wczytać sumy tygodnia",
 			"weekUnavailable": "To konto nie rejestruje tu czasu",
-			"taskFailed": "Nie udało się wczytać zadania"
+			"taskFailed": "Nie udało się wczytać zadania",
+			"todayTasks": "Dzisiejsze zadania",
+			"todayTasksEmpty": "Dzisiaj nie zarejestrowano jeszcze żadnego zadania",
+			"todayTasksFailed": "Nie udało się wczytać dzisiejszych zadań",
+			"runningTask": "Trwa",
+			"startOnTask": "Uruchom timer dla {title}",
+			"switchToTask": "Zatrzymaj bieżące zadanie i uruchom {title}",
+			"switchFailedTitle": "Nie udało się zmienić zadania timera"
 		}
 	},
 	"session": {
@@ -227,6 +234,7 @@
 		"characterLimitErrorTitle": "Nie udało się zaktualizować Tytułu Zadania.",
 		"characterLimitErrorDescription": "Tytuł zadania nie może przekraczać 255 znaków.",
 		"copyTitle": "Skopiowano tytuł.",
+		"copyTitleButton": "Kopiuj tytuł",
 		"changeParent": "Zmień zadanie nadrzędne",
 		"addParent": "Dodaj zadanie nadrzędne",
 		"taskScreen": "Ekran zadania",
@@ -307,6 +315,7 @@
 		"hintMessage": "Lorem ipsum dolor sit amet consectetur. Blandit lobortis dui risus neque."
 	},
 	"settingScreen": {
+		"description": "Twoje konto, twój zespół i sposób organizacji jego zadań.",
 		"name": "Ustawienia",
 		"personalSection": {
 			"name": "Osobiste",
@@ -501,7 +510,11 @@
 		}
 	},
 	"hamburgerMenu": {
-		"darkMode": "Tryb ciemny"
+		"darkMode": "Tryb ciemny",
+		"theme": "Motyw",
+		"themeSystem": "Systemowy",
+		"themeLight": "Jasny",
+		"themeDark": "Ciemny"
 	},
 	"inviteModal": {
 		"accept": "Akceptuj",
@@ -574,6 +587,24 @@
 		"noFavoritesEmptyState": {
 			"heading": "Trochę tu pusto",
 			"content": "Nie dodano jeszcze żadnych ulubionych. Dotknij serca przy odcinku, aby dodać go do ulubionych!"
+		}
+	},
+	"taskMenus": {
+		"search": {
+			"status": "Zmień status…",
+			"priority": "Ustaw priorytet…",
+			"size": "Ustaw rozmiar…",
+			"label": "Dodaj etykiety…",
+			"version": "Zmień wersję…"
+		},
+		"noResults": "Brak wyników",
+		"noOptions": "Na razie nie ma nic do wyboru",
+		"actions": {
+			"createStatus": "Utwórz status",
+			"createPriority": "Utwórz priorytet",
+			"createSize": "Utwórz rozmiar",
+			"createLabel": "Utwórz etykietę",
+			"createVersion": "Utwórz wersję"
 		}
 	}
 }

@@ -45,6 +45,7 @@ type WorkspaceChanges = Pick<
 	| 'dateFormat'
 	| 'numberFormat'
 	| 'startWeekOn'
+	| 'timeZone'
 	| 'timeFormat'
 	| 'currencyPosition'
 	| 'durationRoundingInterval'
@@ -360,6 +361,27 @@ export function useWorkspaceSettings() {
 		[reportedSave, saveOrganization, scopeOfSave, t]
 	);
 
+	// The zone where no member is involved: a client's time report, invoice dates and reminders (#5649)
+	const saveTimeZone = useCallback(
+		async (timeZone: string | null) => {
+			const scope = scopeOfSave();
+			let text: SaveText = {
+				failureKey: 'settings.workspace.TIME_ZONE_NOT_SAVED',
+				saved: t('settings.workspace.TIME_ZONE_CLEARED'),
+				outcome: t('settings.workspace.TIME_ZONE_CLEARED_OUTCOME')
+			};
+			if (timeZone) {
+				text = {
+					failureKey: 'settings.workspace.TIME_ZONE_NOT_SAVED',
+					saved: t('settings.workspace.TIME_ZONE_SAVED', { timeZone }),
+					outcome: t('settings.workspace.TIME_ZONE_OUTCOME')
+				};
+			}
+			await reportedSave(() => saveOrganization(scope, { timeZone }), text);
+		},
+		[reportedSave, saveOrganization, scopeOfSave, t]
+	);
+
 	const saveClock = useCallback(
 		async (timeFormat: WorkspaceClock) => {
 			const scope = scopeOfSave();
@@ -399,6 +421,7 @@ export function useWorkspaceSettings() {
 		saveDateFormat,
 		saveNumberFormat,
 		saveWeekStart,
+		saveTimeZone,
 		saveClock,
 		saveCurrencyPosition,
 		saveDurationRounding,

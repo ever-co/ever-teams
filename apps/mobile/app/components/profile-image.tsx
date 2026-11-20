@@ -17,6 +17,7 @@ import {
 	suspendedStatusIconLarge
 } from './svgs/icons';
 import { SvgXml } from 'react-native-svg';
+import { avatarBadgeOf, avatarBoxOf, avatarInitialSizeOf } from './avatar-size';
 
 interface Props {
 	user: IUser;
@@ -24,6 +25,7 @@ interface Props {
 }
 const ProfileImage: FC<Props> = ({ user, size }) => {
 	const { colors } = useAppTheme();
+	const badge = avatarBadgeOf(size);
 
 	const { currentTeam } = useOrganizationTeam();
 
@@ -56,7 +58,7 @@ const ProfileImage: FC<Props> = ({ user, size }) => {
 	}
 
 	return (
-		<View style={styles.container}>
+		<View style={[styles.container, avatarBoxOf(size)]}>
 			<View>
 				{imageUrl ? (
 					<Avatar.Image
@@ -95,7 +97,7 @@ const ProfileImage: FC<Props> = ({ user, size }) => {
 											? '#F5BEBE'
 											: '#DCD6D6'
 						}}
-						labelStyle={styles.prefix}
+						labelStyle={[styles.prefix, { fontSize: avatarInitialSizeOf(size) }]}
 					/>
 				)}
 				<View
@@ -103,8 +105,8 @@ const ProfileImage: FC<Props> = ({ user, size }) => {
 						right: 0,
 						bottom: 0,
 						borderRadius: 100,
-						width: 25,
-						height: 25,
+						width: badge.size,
+						height: badge.size,
 						position: 'absolute',
 						backgroundColor:
 							status === 'online'
@@ -117,7 +119,7 @@ const ProfileImage: FC<Props> = ({ user, size }) => {
 						alignItems: 'center',
 						justifyContent: 'center',
 						borderColor: colors.background,
-						borderWidth: 3
+						borderWidth: badge.borderWidth
 					}}
 				>
 					<SvgXml xml={iconSvgXml} />
@@ -130,8 +132,7 @@ export default ProfileImage;
 
 const styles = StyleSheet.create({
 	container: {
-		alignItems: 'center',
-		height: '10%'
+		alignItems: 'center'
 	},
 	prefix: {
 		fontFamily: typography.fonts.PlusJakartaSans.light,

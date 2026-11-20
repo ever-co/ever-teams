@@ -909,7 +909,7 @@ test('a failed sign-in shows its message in the form, unless the person edited a
 	});
 	await act(async () => globalThis.__logins[0]({ message: 'Failed to fetch' }));
 	await flush();
-	assert.equal(seen.form.error, 'KIT_ERRORS.ORIGIN');
+	assert.equal(seen.form.error, 'KIT_ERRORS.SIGN_IN_ORIGIN');
 
 	await act(async () => edit('a@b.c'));
 	let release;
@@ -1395,4 +1395,108 @@ test('the callback of a render that did not commit is never called: a pending re
 
 	assert.equal(shown.heard.length, 1);
 	assert.deepEqual(dropped.heard, []);
+});
+
+test('signed out while the timer ran, the provider says it was left running, until someone signs in (#5583)', async () => {
+	await reset();
+	const seen = {};
+	await mount([probe(seen)]);
+	await answer(0, { running: true });
+	assert.equal(seen.shared.leftRunning, false);
+
+	await act(async () => globalThis.__setIdentity({ token: '' }));
+	assert.equal(seen.shared.leftRunning, true, 'the timer runs on in Ever Teams');
+
+	await act(async () => globalThis.__setIdentity({ token: 'signed-in-again' }));
+	assert.equal(seen.shared.leftRunning, false);
+});
+
+test('signed out while the timer was stopped, or before any read, nothing is left running', async () => {
+	await reset();
+	const seen = {};
+	await mount([probe(seen)]);
+	await answer(0, { running: false });
+	await act(async () => globalThis.__setIdentity({ token: '' }));
+	assert.equal(seen.shared.leftRunning, false, 'stopped');
+
+	await act(async () => globalThis.__setIdentity({ token: 'another-token' }));
+	await act(async () => globalThis.__setIdentity({ token: '' }));
+	assert.equal(seen.shared.leftRunning, false, 'no read yet');
+});
+
+// A tab whose status is stale: the timer was stopped or started in another tab or app since its last read.
+async function staleTimer(running) {
+	await reset();
+	const seen = {};
+	await mount([timer('a', seen), probe(seen)]);
+	const lastLog = running ? { startedAt: new Date(Date.now() - 60_000).toISOString() } : null;
+	await answer(0, { running, lastLog });
+	return seen;
+}
+
+test('a stop refused because the timer already stopped elsewhere reads the status again, and says so in the kit language', async () => {
+	const seen = await staleTimer(true);
+	assert.equal(seen.a.isRunning, true);
+	const readsBefore = globalThis.__reads.length;
+
+	await act(async () => {
+		seen.a.stopTimer();
+	});
+	await act(async () => globalThis.__actions[0]({ statusCode: 406, message: 'No running log found.' }));
+	await flush();
+	assert.equal(globalThis.__reads.length, readsBefore + 1, 'the status is read again');
+	await answer(readsBefore, { running: false });
+	await flush();
+
+	assert.equal(seen.a.isRunning, false, 'the widget shows the timer stopped');
+	assert.deepEqual(seen.shared.notice, { kind: 'other', message: 'TIME_TRACKER.already_stopped' });
+});
+
+test('a stop refused for another reason reads the status again, and keeps the API text', async () => {
+	const seen = await staleTimer(true);
+	const readsBefore = globalThis.__reads.length;
+	const refusal = 'This stop names a time log that is not the running one.';
+
+	await act(async () => {
+		seen.a.stopTimer();
+	});
+	await act(async () => globalThis.__actions[0]({ statusCode: 409, message: refusal }));
+	await flush();
+	assert.equal(globalThis.__reads.length, readsBefore + 1, 'the status is read again');
+	await answer(readsBefore, { running: true, lastLog: { startedAt: new Date(Date.now() - 30_000).toISOString() } });
+	await flush();
+
+	assert.equal(seen.a.isRunning, true);
+	assert.deepEqual(seen.shared.notice, { kind: 'other', message: refusal });
+});
+
+test('a start refused because the timer already runs elsewhere reads the status again, and shows it running', async () => {
+	const seen = await staleTimer(false);
+	const readsBefore = globalThis.__reads.length;
+
+	await act(async () => {
+		seen.a.startTimer();
+	});
+	await act(async () => globalThis.__actions[0]({ statusCode: 409, message: 'The timer is already running.' }));
+	await flush();
+	assert.equal(globalThis.__reads.length, readsBefore + 1, 'the status is read again');
+	await answer(readsBefore, { running: true, lastLog: { startedAt: new Date(Date.now() - 30_000).toISOString() } });
+	await flush();
+
+	assert.equal(seen.a.isRunning, true);
+	assert.deepEqual(seen.shared.notice, { kind: 'other', message: 'The timer is already running.' });
+});
+
+test('a start that got no answer reads nothing more: the network is down, a read would only fail the same way', async () => {
+	const seen = await staleTimer(false);
+	const readsBefore = globalThis.__reads.length;
+
+	await act(async () => {
+		seen.a.startTimer();
+	});
+	await act(async () => globalThis.__actions[0]({ error: 'Failed to fetch' }));
+	await flush();
+
+	assert.equal(globalThis.__reads.length, readsBefore);
+	assert.equal(seen.shared.notice?.kind, 'origin');
 });

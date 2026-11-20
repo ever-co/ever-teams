@@ -48,6 +48,7 @@ const stubs = {
 		formData: { fullName: '', email: '', password: '', confirmPassword: '', acceptTerms: false }
 	});`,
 	'teams-context': 'export const useTeamsContext = () => ({ authenticatedUser: null, loadings: {} });',
+	'timer-status': 'export const useTimerStatusContext = () => null;',
 	kit: `export const useKitOptions = () => ({ scoped: true });
 		export const SpinOverlayLoader = () => null;
 		export const TeamsTimerFooter = () => null;
@@ -66,6 +67,7 @@ const routes = [
 	[/^@hooks\/useTokenSubmission$/, () => 'token-hook'],
 	[/^@hooks\/useRegistrationForm$/, () => 'registration-hook'],
 	[/^@lib\/context\/teams-context$/, () => 'teams-context'],
+	[/^@lib\/context\/teams-timer-status-context$/, () => 'timer-status'],
 	[
 		/^(@ever-teams\/api|@components\/teams-provider\/kit-root|\.\.\/loaders\/spin-overlay-loader|@components\/layouts\/footers\/component-footer|@lib\/utils\/warn-once|@hooks\/useClearKitSession)$/,
 		() => 'kit'
@@ -164,7 +166,7 @@ test('an error is read out on the error notice, and nothing is drawn without one
 	assert.equal(render(kit.KitFormError, { message: null }), '');
 	assert.match(
 		render(kit.KitFormError, { message: REFUSED }),
-		/<p role="alert" class="[^"]*bg-destructive\/5[^"]*">You entered/
+		/<p role="alert" class="[^"]*ring-destructive\/20[^"]*">You entered/
 	);
 });
 
@@ -180,7 +182,7 @@ test('the password form names its two fields, says a refused password on the not
 		fields.every((field) => field.input),
 		'every label points to its input'
 	);
-	assert.match(markup, /<p role="alert" class="[^"]*bg-destructive\/5[^"]*">You entered/);
+	assert.match(markup, /<p role="alert" class="[^"]*ring-destructive\/20[^"]*">You entered/);
 	assert.match(markup, />AUTH\.sign_in_title<\/button>/);
 });
 
@@ -218,7 +220,7 @@ test('the registration form names its four fields, says a refusal on the notice,
 		fields.every((field) => field.input),
 		'every label points to its input'
 	);
-	assert.match(markup, /<p role="alert" class="[^"]*bg-destructive\/5[^"]*">Passwords do not match\./);
+	assert.match(markup, /<p role="alert" class="[^"]*ring-destructive\/20[^"]*">Passwords do not match\./);
 	assert.match(markup, />AUTH\.sign_up_title<\/button>/);
 });
 

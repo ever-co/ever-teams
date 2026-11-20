@@ -1,6 +1,6 @@
 {
 	"name": "@ever-teams/tracking",
-	"version": "0.0.2",
+	"version": "0.0.3",
 	"license": "MIT",
 	"description": "An analytics library that uses web page interactions to generate aggregated insights based on Microsoft Clarity",
 	"main": "dist/tracker.cjs",

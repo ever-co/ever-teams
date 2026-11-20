@@ -156,6 +156,7 @@ services:
       EVER_ID_CLIENT_SECRET: ${EVER_ID_CLIENT_SECRET:-}
       EVER_PLATFORM_PROJECT_ID: ${EVER_PLATFORM_PROJECT_ID:-}
       EVER_ID_TEAMS_AUTO_PROVISION: ${EVER_ID_TEAMS_AUTO_PROVISION:-false}
+      EVER_ID_START_ROUTE_ENABLED: ${EVER_ID_START_ROUTE_ENABLED:-false}
       # Ever Platform (optional, see .env.docker): anonymous usage statistics (on unless false; silent unless the Gauzy
       # API serves teams in EVER_STATS_SERVES and its statistics are on) and the settings' connection parts (off)
       EVER_STATS_ENABLED: ${EVER_STATS_ENABLED:-}

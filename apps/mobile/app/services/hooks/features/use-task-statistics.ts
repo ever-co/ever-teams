@@ -10,6 +10,7 @@ import { useFetchAllTasksStats } from '../../client/queries/task/stats';
 import { Nullable } from '../../interfaces/hooks';
 
 export function useTaskStatistics(addSeconds = 0) {
+	const stores = useStores();
 	const {
 		TaskStore: {
 			activeTask,
@@ -23,7 +24,7 @@ export function useTaskStatistics(addSeconds = 0) {
 		// TimerStore: { timerStatus },
 		authenticationStore: { tenantId, authToken, organizationId, user },
 		teamStore: { activeTeam }
-	} = useStores();
+	} = stores;
 
 	const { firstLoad, firstLoadData: firstLoadtasksStatisticsData } = useFirstLoad();
 
@@ -78,14 +79,20 @@ export function useTaskStatistics(addSeconds = 0) {
 	 */
 	const getActiveTaskStatData = useCallback(async () => {
 		setFetchingTasks(true);
+		const requestedTaskId = activeTask?.id;
 		const { data } = await tasksStatistics({
 			tenantId,
 			bearer_token: authToken,
 			organizationId,
 			activeTask: true,
-			taskId: activeTask?.id
+			taskId: requestedTaskId
 		});
 
+		// The timer moved to another task while this was read: its time is not the new task's live total
+		const isStillActiveTask = stores.TaskStore.activeTask?.id === requestedTaskId;
+		if (!isStillActiveTask) {
+			return data;
+		}
 		setStatActiveTask({
 			total: data?.global ? data?.global[0] || null : null,
 			today: data?.today ? data?.today[0] || null : null

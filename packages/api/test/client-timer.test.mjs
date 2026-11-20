@@ -103,6 +103,7 @@ test("a start sends the kit's fields and only the ids given, and answers the tim
 		logType: 'TRACKED',
 		source: 'EMBED',
 		isBillable: true,
+		billableFromProject: true,
 		projectId: 'project-1',
 		description: 'Review the pull request'
 	});

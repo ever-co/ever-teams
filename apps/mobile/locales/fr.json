@@ -55,7 +55,14 @@
 			"needsNetwork": "Démarrer et arrêter le chronomètre demandent une connexion.",
 			"weekFailed": "Le total de la semaine n'a pas pu se charger",
 			"weekUnavailable": "Ce compte ne suit pas de temps ici",
-			"taskFailed": "La tâche n'a pas pu se charger"
+			"taskFailed": "La tâche n'a pas pu se charger",
+			"todayTasks": "Tâches du jour",
+			"todayTasksEmpty": "Aucune tâche suivie aujourd'hui pour le moment",
+			"todayTasksFailed": "Les tâches du jour n'ont pas pu se charger",
+			"runningTask": "En cours",
+			"startOnTask": "Démarrer le chronomètre sur {title}",
+			"switchToTask": "Arrêter la tâche en cours et démarrer {title}",
+			"switchFailedTitle": "Le chronomètre n'a pas pu changer de tâche"
 		}
 	},
 	"session": {
@@ -227,6 +234,7 @@
 		"characterLimitErrorTitle": "Nous n'avons pas pu mettre à jour le titre de la tâche.",
 		"characterLimitErrorDescription": "Le titre de la tâche ne peut pas dépasser 255 caractères.",
 		"copyTitle": "Titre copié.",
+		"copyTitleButton": "Copier le titre",
 		"changeParent": "Changer de parent",
 		"addParent": "Ajouter un parent",
 		"taskScreen": "Écran des tâches",
@@ -307,6 +315,7 @@
 		"hintMessage": "Lorem ipsum dolor sit amet consectetur. Blandit lobortis dui risus neque."
 	},
 	"settingScreen": {
+		"description": "Votre compte, votre équipe et l'organisation de ses tâches.",
 		"name": "Réglages",
 		"personalSection": {
 			"name": "Personnel",
@@ -501,7 +510,11 @@
 		}
 	},
 	"hamburgerMenu": {
-		"darkMode": "Mode sombre"
+		"darkMode": "Mode sombre",
+		"theme": "Thème",
+		"themeSystem": "Système",
+		"themeLight": "Clair",
+		"themeDark": "Sombre"
 	},
 	"inviteModal": {
 		"accept": "Accepter",
@@ -574,6 +587,24 @@
 		"noFavoritesEmptyState": {
 			"heading": "C'est un peu vide ici",
 			"content": "Aucun favori pour l'instant. Touchez le cœur d'un épisode pour l'ajouter à vos favoris !"
+		}
+	},
+	"taskMenus": {
+		"search": {
+			"status": "Changer le statut…",
+			"priority": "Définir la priorité…",
+			"size": "Définir la taille…",
+			"label": "Ajouter des étiquettes…",
+			"version": "Changer de version…"
+		},
+		"noResults": "Aucun résultat",
+		"noOptions": "Rien à choisir pour le moment",
+		"actions": {
+			"createStatus": "Créer un statut",
+			"createPriority": "Créer une priorité",
+			"createSize": "Créer une taille",
+			"createLabel": "Créer une étiquette",
+			"createVersion": "Créer une version"
 		}
 	}
 }

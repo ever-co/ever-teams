@@ -55,7 +55,14 @@
 			"needsNetwork": "За стартиране и спиране на таймера е нужна връзка.",
 			"weekFailed": "Сборът за седмицата не можа да се зареди",
 			"weekUnavailable": "Този акаунт не отчита време тук",
-			"taskFailed": "Задачата не можа да се зареди"
+			"taskFailed": "Задачата не можа да се зареди",
+			"todayTasks": "Задачи за днес",
+			"todayTasksEmpty": "Днес все още няма отчетена задача",
+			"todayTasksFailed": "Задачите за днес не можаха да се заредят",
+			"runningTask": "Работи",
+			"startOnTask": "Стартиране на таймера за {title}",
+			"switchToTask": "Спиране на текущата задача и стартиране на {title}",
+			"switchFailedTitle": "Таймерът не можа да смени задачата"
 		}
 	},
 	"session": {
@@ -227,6 +234,7 @@
 		"characterLimitErrorTitle": "Не можахме да обновим заглавието на задачата.",
 		"characterLimitErrorDescription": "Заглавието на задачата не може да надвишава 255 знака.",
 		"copyTitle": "Заглавието е копирано.",
+		"copyTitleButton": "Копирай заглавието",
 		"changeParent": "Смени родителската задача",
 		"addParent": "Добави родителска задача",
 		"taskScreen": "Екран на задачата",
@@ -307,6 +315,7 @@
 		"hintMessage": "Lorem ipsum dolor sit amet consectetur. Blandit lobortis dui risus neque."
 	},
 	"settingScreen": {
+		"description": "Вашият акаунт, вашият екип и как са организирани задачите му.",
 		"name": "Настройки",
 		"personalSection": {
 			"name": "Лични",
@@ -501,7 +510,11 @@
 		}
 	},
 	"hamburgerMenu": {
-		"darkMode": "Тъмен режим"
+		"darkMode": "Тъмен режим",
+		"theme": "Тема",
+		"themeSystem": "Системна",
+		"themeLight": "Светла",
+		"themeDark": "Тъмна"
 	},
 	"inviteModal": {
 		"accept": "Приемам",
@@ -574,6 +587,24 @@
 		"noFavoritesEmptyState": {
 			"heading": "Изглежда малко празно",
 			"content": "Все още няма добавени любими. Докоснете сърцето на някой епизод, за да го добавите в любими!"
+		}
+	},
+	"taskMenus": {
+		"search": {
+			"status": "Промяна на статуса…",
+			"priority": "Задаване на приоритет…",
+			"size": "Задаване на големина…",
+			"label": "Добавяне на етикети…",
+			"version": "Промяна на версията…"
+		},
+		"noResults": "Няма резултати",
+		"noOptions": "Все още няма от какво да избирате",
+		"actions": {
+			"createStatus": "Създаване на статус",
+			"createPriority": "Създаване на приоритет",
+			"createSize": "Създаване на големина",
+			"createLabel": "Създаване на етикет",
+			"createVersion": "Създаване на версия"
 		}
 	}
 }

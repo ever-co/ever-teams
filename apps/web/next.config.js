@@ -114,7 +114,10 @@ const nextConfig = {
 	},
 	// The account deletion pages (public; the e-mailed link carries a deletion token in its fragment): no Referer for
 	// anything they load or link to, and not indexed. The pages also render <meta name="referrer">
-	// (app/[locale]/delete-account/layout.tsx). Static exports cannot send headers, so the block is left out there.
+	// (app/[locale]/delete-account/layout.tsx). The page where a person allows a site to use their timer
+	// (/embed/authorize, #5528) is never shown in a frame, so another site cannot lay it under its own and get Allow
+	// clicked; the page itself also refuses to act in a frame. Static exports cannot send headers, so the block is
+	// left out there.
 	...(BUILD_OUTPUT_MODE === 'export'
 		? {}
 		: {
@@ -123,9 +126,16 @@ const nextConfig = {
 						{ key: 'Referrer-Policy', value: 'no-referrer' },
 						{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }
 					];
+					const neverFramedHeaders = [
+						{ key: 'X-Frame-Options', value: 'DENY' },
+						{ key: 'Content-Security-Policy', value: "frame-ancestors 'none'" },
+						{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }
+					];
 					return [
 						{ source: '/delete-account/:path*', headers: accountDeletionHeaders },
-						{ source: '/:locale/delete-account/:path*', headers: accountDeletionHeaders }
+						{ source: '/:locale/delete-account/:path*', headers: accountDeletionHeaders },
+						{ source: '/embed/authorize', headers: neverFramedHeaders },
+						{ source: '/:locale/embed/authorize', headers: neverFramedHeaders }
 					];
 				}
 			}),

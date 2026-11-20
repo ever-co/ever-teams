@@ -1,18 +1,20 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
-import React, { FC, useEffect, useRef, useState } from 'react';
+import React, { FC, useRef, useState } from 'react';
 import { TouchableOpacity, View, Text, StyleSheet, ViewStyle, FlatList, Dimensions } from 'react-native';
 import { AntDesign, Entypo } from '@expo/vector-icons';
 import { observer } from 'mobx-react-lite';
 import { ITeamTask } from '../services/interfaces/ITask';
 import { useTeamTasks } from '../services/hooks/features/use-team-tasks';
-import { useAppTheme, typography } from '../theme';
+import { useAppTheme, typography, useWebTheme } from '../theme';
+import { taskChipLookOf } from '../../src/components/task-chip';
+import { ChipIcon } from '../../src/components/chip-icon';
 import TaskLabelPopup from './task-label-popup';
+import { useLabelSelection } from './use-label-selection';
+import { useMenuAnchor } from '../../src/components/menu-anchor';
 import { ITaskLabelItem } from '../services/interfaces/ITaskLabel';
 import { translate } from '../i18n';
 import { limitTextCharaters } from '../helpers/sub-text';
-import { SvgUri } from 'react-native-svg';
-import { isEqual } from 'lodash';
 
 interface TaskLabelProps {
 	task?: ITeamTask;
@@ -42,53 +44,39 @@ interface IndividualTaskLabel {
 const TaskLabels: FC<TaskLabelProps> = observer(
 	({ task, setLabels, newTaskLabels, taskScreenButton, noBorders, containerStyle }) => {
 		const { colors, dark } = useAppTheme();
+		const theme = useWebTheme();
+		const placeholder = taskChipLookOf(undefined, theme);
 		const { updateTask } = useTeamTasks();
 		const [openModal, setOpenModal] = useState(false);
 		const flatListRef = useRef<FlatList>(null);
 		const [labelIndex, setLabelIndex] = useState<number>(0);
-		const [tempLabels, setTempLabels] = useState<ITaskLabelItem[]>(task?.tags || newTaskLabels || []);
-		const [arrayChanged, setArrayChanged] = useState<boolean>(false);
+		const { anchorRef, anchor, openFromAnchor } = useMenuAnchor();
 
-		const freshOpenModal = () => {
-			setOpenModal(true);
-			setTempLabels(task?.tags || newTaskLabels || []);
-			arraysHaveSameValues(tempLabels, task?.tags || newTaskLabels || []);
-		};
-
-		const saveLabels = async () => {
-			if (task) {
-				const taskEdit = {
-					...task,
-					tags: tempLabels
-				};
-				await updateTask(taskEdit, task.id);
-			} else {
-				setLabels(tempLabels);
+		const saveLabels = async (labels: ITaskLabelItem[]) => {
+			if (!task) {
+				setLabels?.(labels);
+				return true;
 			}
-			setOpenModal(false);
-		};
-
-		const addOrRemoveLabelsInTempArray = (tag: ITaskLabelItem): void => {
-			const exist = tempLabels.find((label) => label.id === tag.id);
-			if (exist) {
-				setTempLabels(tempLabels.filter((label) => label.id !== tag.id));
-			} else {
-				setTempLabels([...tempLabels, tag]);
+			try {
+				const { response } = await updateTask({ ...task, tags: labels }, task.id);
+				return response.ok;
+			} catch {
+				return false;
 			}
 		};
+		const { selectedLabels, toggle, startFrom } = useLabelSelection(
+			task?.tags || newTaskLabels || [],
+			saveLabels,
+			task?.id
+		);
 
-		const arraysHaveSameValues = (array1: ITaskLabelItem[] | [], array2: ITaskLabelItem[] | []): void => {
-			const sortedArray1 = array1.slice().sort((a, b) => a.id.localeCompare(b.id));
-			const sortedArray2 = array2.slice().sort((a, b) => a.id.localeCompare(b.id));
-
-			const areArraysEqual = isEqual(sortedArray1, sortedArray2);
-
-			setArrayChanged(!areArraysEqual);
+		// The menu starts from the labels the task holds; each tap then saves, one write at a time, as on the web
+		const freshOpenModal = (tapped?: View | null) => {
+			openFromAnchor(() => {
+				startFrom(task?.tags || newTaskLabels || []);
+				setOpenModal(true);
+			}, tapped);
 		};
-
-		useEffect(() => {
-			arraysHaveSameValues(tempLabels, task?.tags || newTaskLabels || []);
-		}, [tempLabels]);
 
 		const scrollToIndexWithDelay = (index: number) => {
 			flatListRef.current?.scrollToIndex({
@@ -120,18 +108,17 @@ const TaskLabels: FC<TaskLabelProps> = observer(
 		return (
 			<>
 				<TaskLabelPopup
-					labelNames={tempLabels}
+					selectedLabels={selectedLabels}
 					visible={openModal}
-					saveLabels={saveLabels}
-					arrayChanged={arrayChanged}
-					addOrRemoveLabels={addOrRemoveLabelsInTempArray}
+					onToggleLabel={toggle}
 					onDismiss={() => setOpenModal(false)}
 					canCreateLabel={true}
+					anchor={anchor}
 				/>
 				{(task?.tags !== undefined || newTaskLabels !== undefined) &&
 				(task?.tags?.length > 0 || newTaskLabels?.length > 0) &&
 				!taskScreenButton ? (
-					<View>
+					<View ref={anchorRef} collapsable={false}>
 						<FlatList
 							ref={flatListRef}
 							data={task?.tags || newTaskLabels}
@@ -181,23 +168,24 @@ const TaskLabels: FC<TaskLabelProps> = observer(
 				  (task?.tags?.length > 0 || newTaskLabels?.length > 0) &&
 				  taskScreenButton ? (
 					<View>
-						<TouchableOpacity onPress={freshOpenModal}>
+						<TouchableOpacity onPress={() => freshOpenModal()}>
 							<View
+								ref={anchorRef}
+								collapsable={false}
 								style={{
 									...styles.container,
 									...containerStyle,
-									borderColor: colors.border,
-									borderWidth: 1,
+									...placeholder.container,
 									marginTop: 0,
 									marginBottom: 15
 								}}
 							>
 								<View style={styles.wrapStatus}>
-									<Entypo name="circle" size={12} color={colors.primary} />
+									<Entypo name="circle" size={12} color={placeholder.ink} />
 									<Text
 										style={{
 											...styles.text,
-											color: colors.primary,
+											color: placeholder.ink,
 											marginLeft: 5
 										}}
 									>
@@ -205,7 +193,7 @@ const TaskLabels: FC<TaskLabelProps> = observer(
 									</Text>
 								</View>
 
-								<AntDesign name="down" size={14} color={colors.primary} />
+								<AntDesign name="down" size={14} color={placeholder.ink} />
 							</View>
 						</TouchableOpacity>
 						<FlatList
@@ -230,24 +218,25 @@ const TaskLabels: FC<TaskLabelProps> = observer(
 						/>
 					</View>
 				) : (
-					<TouchableOpacity onPress={freshOpenModal}>
+					<TouchableOpacity onPress={() => freshOpenModal()}>
 						<View
+							ref={anchorRef}
+							collapsable={false}
 							style={{
 								...styles.container,
 								...containerStyle,
-								borderColor: colors.border,
-								borderWidth: 1
+								...placeholder.container
 							}}
 						>
 							<View style={styles.wrapStatus}>
-								<Entypo name="circle" size={12} color={colors.primary} />
-								<Text style={{ ...styles.text, color: colors.primary, marginLeft: 5 }}></Text>
-								<Text style={{ ...styles.text, color: colors.primary }}>
+								<Entypo name="circle" size={12} color={placeholder.ink} />
+								<Text style={{ ...styles.text, color: placeholder.ink, marginLeft: 5 }}></Text>
+								<Text style={{ ...styles.text, color: placeholder.ink }}>
 									{translate('settingScreen.labelScreen.labels')}
 								</Text>
 							</View>
 
-							<AntDesign name="down" size={14} color={colors.primary} />
+							<AntDesign name="down" size={14} color={placeholder.ink} />
 						</View>
 					</TouchableOpacity>
 				)}
@@ -258,37 +247,43 @@ const TaskLabels: FC<TaskLabelProps> = observer(
 
 interface ILabel {
 	item: IndividualTaskLabel | null;
-	freshOpenModal: () => void;
+	/** Opens the menu under the label tapped. */
+	freshOpenModal: (tapped?: View | null) => void;
 	taskScreenButton?: boolean;
 	noBorders?: boolean;
 }
 
 const Label: FC<ILabel> = ({ item, freshOpenModal, taskScreenButton, noBorders }) => {
-	const { colors } = useAppTheme();
+	const theme = useWebTheme();
+	const look = taskChipLookOf(item?.color, theme);
+	const chipRef = useRef<View>(null);
 
 	const { width } = Dimensions.get('screen');
 
 	return (
-		<TouchableOpacity style={{}} onPress={freshOpenModal}>
+		<TouchableOpacity style={{}} onPress={() => freshOpenModal(chipRef.current)}>
 			<View
-				style={{
-					flexDirection: 'row',
-					alignItems: 'center',
-					backgroundColor: item?.color,
-					marginVertical: taskScreenButton ? 3 : 20,
-					height: 32,
-					minWidth: taskScreenButton ? undefined : 100,
-					maxWidth: taskScreenButton ? '70%' : 120,
-					borderRadius: 10,
-					borderColor: colors.border,
-					borderWidth: noBorders ? 0 : 1,
-					paddingHorizontal: 8
-				}}
+				ref={chipRef}
+				collapsable={false}
+				style={[
+					{
+						flexDirection: 'row',
+						alignItems: 'center',
+						marginVertical: taskScreenButton ? 3 : 20,
+						height: 32,
+						minWidth: taskScreenButton ? undefined : 100,
+						maxWidth: taskScreenButton ? '70%' : 120,
+						borderRadius: 8,
+						paddingHorizontal: 8
+					},
+					look.container,
+					noBorders && { borderWidth: 0 }
+				]}
 			>
-				<SvgUri width={14} height={14} uri={item?.fullIconUrl} />
+				<ChipIcon item={{ name: item?.name, bgColor: item?.color }} color={look.ink} kind="label" />
 				<Text
 					style={{
-						color: '#292D32',
+						color: look.ink,
 						fontSize: 10,
 						fontFamily: typography.fonts.PlusJakartaSans.semiBold,
 						marginLeft: 10

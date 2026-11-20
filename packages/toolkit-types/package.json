@@ -1,6 +1,6 @@
 {
 	"name": "@ever-teams/toolkit-types",
-	"version": "0.1.10",
+	"version": "0.2.0",
 	"license": "MIT",
 	"exports": {
 		".": {
@@ -18,7 +18,7 @@
 	},
 	"type": "module",
 	"scripts": {
-		"prepare": "tsc",
+		"prepare": "tsc && node scripts/published-declarations.mjs",
 		"build": "rollup -c"
 	},
 	"packageManager": "yarn@1.22.19",

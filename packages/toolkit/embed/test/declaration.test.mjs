@@ -82,6 +82,10 @@ const props: EverTeamsTimerProps = { apiUrl: 'https://api.example.com/api', colo
 const noProps: EverTeamsTimerProps = {};
 // @ts-expect-error a scheme the element does not know, under its camelCase name
 const unknownSchemeProp: EverTeamsTimerProps = { colorScheme: 'dim' };
+const siteSignIn: EverTeamsTimerAttributes = { 'sign-in': 'ever-teams', organization: 'org-1', 'app-url': 'https://app.example.com' };
+const siteSignInProps: EverTeamsTimerProps = { signIn: 'ever-teams', organization: 'org-1', appUrl: 'https://app.example.com' };
+// @ts-expect-error a sign-in the element does not know
+const unknownSignIn: EverTeamsTimerAttributes = { 'sign-in': 'password' };
 const loading: Promise<unknown> = import('@ever-teams/embed');
 const eventName: 'ever-teams-timer-change' = TIMER_CHANGE_EVENT;
 const heard: EverTeamsTimerChange[] = [];
@@ -97,6 +101,8 @@ window.addEventListener(TIMER_CHANGE_EVENT, (event) => {
 	return running;
 });
 export { created, name, attributes, unknownScheme, props, noProps, unknownSchemeProp, loading, eventName, heard };
+const signedOut: Promise<void> = created.signOut();
+export { siteSignIn, siteSignInProps, unknownSignIn, signedOut };
 `;
 
 test('the build writes the declaration next to the element', () => {
@@ -167,6 +173,6 @@ test('the declaration types every attribute the element observes, and no other',
 			names.push(member.name.text);
 		}
 	});
-	assert.deepEqual(observed, ['api-url', 'color-scheme', 'lang']);
+	assert.deepEqual(observed, ['api-url', 'app-url', 'color-scheme', 'lang', 'organization', 'sign-in', 'token-url']);
 	assert.deepEqual(typed, observed);
 });

@@ -55,7 +55,14 @@
 			"needsNetwork": "Starting and stopping the timer need a connection.",
 			"weekFailed": "This week's total could not load",
 			"weekUnavailable": "This account tracks no time here",
-			"taskFailed": "The task could not load"
+			"taskFailed": "The task could not load",
+			"todayTasks": "Today's tasks",
+			"todayTasksEmpty": "No task tracked today yet",
+			"todayTasksFailed": "Today's tasks could not load",
+			"runningTask": "Running",
+			"startOnTask": "Start the timer on {title}",
+			"switchToTask": "Stop the current task and start {title}",
+			"switchFailedTitle": "The timer could not change task"
 		}
 	},
 	"session": {
@@ -227,6 +234,7 @@
 		"characterLimitErrorTitle": "We couldn't update Task Title.",
 		"characterLimitErrorDescription": "Task title can't exceed 255 characters.",
 		"copyTitle": "Title Copied.",
+		"copyTitleButton": "Copy title",
 		"changeParent": "Change Parent",
 		"addParent": "Add Parent",
 		"taskScreen": "Task Screen",
@@ -307,6 +315,7 @@
 		"hintMessage": "Lorem ipsum dolor sit amet consectetur. Blandit lobortis dui risus neque."
 	},
 	"settingScreen": {
+		"description": "Your account, your team and how its tasks are organised.",
 		"name": "Settings",
 		"personalSection": {
 			"name": "Personal",
@@ -501,7 +510,11 @@
 		}
 	},
 	"hamburgerMenu": {
-		"darkMode": "Dark Mode"
+		"darkMode": "Dark Mode",
+		"theme": "Theme",
+		"themeSystem": "System",
+		"themeLight": "Light",
+		"themeDark": "Dark"
 	},
 	"inviteModal": {
 		"accept": "Accept",
@@ -574,6 +587,24 @@
 		"noFavoritesEmptyState": {
 			"heading": "This looks a bit empty",
 			"content": "No favorites have been added yet. Tap the heart on an episode to add it to your favorites!"
+		}
+	},
+	"taskMenus": {
+		"search": {
+			"status": "Change status…",
+			"priority": "Set priority to…",
+			"size": "Set size to…",
+			"label": "Add labels…",
+			"version": "Change version…"
+		},
+		"noResults": "No results",
+		"noOptions": "Nothing to pick yet",
+		"actions": {
+			"createStatus": "Create status",
+			"createPriority": "Create priority",
+			"createSize": "Create size",
+			"createLabel": "Create label",
+			"createVersion": "Create version"
 		}
 	}
 }

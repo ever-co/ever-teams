@@ -12,7 +12,7 @@ import {
 	TouchableHighlight,
 	Platform
 } from 'react-native';
-import { Ionicons, AntDesign } from '@expo/vector-icons';
+import { Check, Clock, FileText } from '../../../../../src/components/icons';
 import { translate } from '../../../../i18n';
 import { typography, useAppTheme } from '../../../../theme';
 import * as FileSystem from 'expo-file-system';
@@ -158,7 +158,7 @@ const ChangeUserAvatar = ({ onDismiss, onExtend }: { onDismiss: () => unknown; o
 						style={styles.wrapCirclePic}
 					>
 						<View style={[styles.circlePic, { backgroundColor: dark ? '#303540' : '#fff' }]}>
-							<AntDesign name="clock-circle" size={24} color={colors.primary} />
+							<Clock size={24} color={colors.primary} />
 						</View>
 						<Text style={styles.selectText}>{translate('settingScreen.changeAvatar.recentPictures')}</Text>
 					</TouchableOpacity>
@@ -172,7 +172,7 @@ const ChangeUserAvatar = ({ onDismiss, onExtend }: { onDismiss: () => unknown; o
 					</TouchableOpacity>
 					<View style={styles.wrapCirclePic}>
 						<View style={[styles.circlePic, { backgroundColor: dark ? '#303540' : '#fff' }]}>
-							<Ionicons name="document-outline" size={24} color={colors.primary} />
+							<FileText size={24} color={colors.primary} />
 						</View>
 						<Text style={styles.selectText}>{translate('settingScreen.changeAvatar.selectFromFiles')}</Text>
 					</View>
@@ -227,14 +227,13 @@ const ChangeUserAvatar = ({ onDismiss, onExtend }: { onDismiss: () => unknown; o
 												) : null}
 												<Image source={{ uri: item.uri }} style={styles.image} />
 												{selectedImage?.id === item.id && (
-													<Ionicons
+													<Check
 														style={{
 															position: 'absolute',
 															alignSelf: 'center',
 															marginTop: 50,
 															zIndex: 1001
 														}}
-														name="checkmark-sharp"
 														size={84}
 														color="#fff"
 													/>

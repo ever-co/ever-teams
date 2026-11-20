@@ -55,7 +55,14 @@
 			"needsNetwork": "타이머를 시작하고 중지하려면 연결이 필요합니다.",
 			"weekFailed": "이번 주 합계를 불러오지 못했습니다",
 			"weekUnavailable": "이 계정은 여기에서 시간을 기록하지 않습니다",
-			"taskFailed": "작업을 불러오지 못했습니다"
+			"taskFailed": "작업을 불러오지 못했습니다",
+			"todayTasks": "오늘의 작업",
+			"todayTasksEmpty": "오늘 아직 기록된 작업이 없습니다",
+			"todayTasksFailed": "오늘의 작업을 불러오지 못했습니다",
+			"runningTask": "실행 중",
+			"startOnTask": "{title}에서 타이머 시작",
+			"switchToTask": "현재 작업을 멈추고 {title} 시작",
+			"switchFailedTitle": "타이머가 작업을 바꾸지 못했습니다"
 		}
 	},
 	"session": {
@@ -227,6 +234,7 @@
 		"characterLimitErrorTitle": "작업 제목을 업데이트할 수 없습니다.",
 		"characterLimitErrorDescription": "작업 제목은 255자를 초과할 수 없습니다.",
 		"copyTitle": "제목이 복사되었습니다.",
+		"copyTitleButton": "제목 복사",
 		"changeParent": "상위 변경",
 		"addParent": "상위 추가",
 		"taskScreen": "작업 화면",
@@ -307,6 +315,7 @@
 		"hintMessage": "Lorem ipsum dolor sit amet consectetur. Blandit lobortis dui risus neque."
 	},
 	"settingScreen": {
+		"description": "내 계정, 내 팀, 그리고 팀의 작업이 정리되는 방식.",
 		"name": "설정",
 		"personalSection": {
 			"name": "개인",
@@ -501,7 +510,11 @@
 		}
 	},
 	"hamburgerMenu": {
-		"darkMode": "다크 모드"
+		"darkMode": "다크 모드",
+		"theme": "테마",
+		"themeSystem": "시스템",
+		"themeLight": "라이트",
+		"themeDark": "다크"
 	},
 	"inviteModal": {
 		"accept": "수용하다",
@@ -574,6 +587,24 @@
 		"noFavoritesEmptyState": {
 			"heading": "조금 텅 비어 있네요.",
 			"content": "즐겨찾기가 없습니다. 에피소드에 있는 하트를 눌러서 즐겨찾기에 추가하세요."
+		}
+	},
+	"taskMenus": {
+		"search": {
+			"status": "상태 변경…",
+			"priority": "우선순위 설정…",
+			"size": "크기 설정…",
+			"label": "라벨 추가…",
+			"version": "버전 변경…"
+		},
+		"noResults": "결과 없음",
+		"noOptions": "아직 선택할 항목이 없습니다",
+		"actions": {
+			"createStatus": "상태 만들기",
+			"createPriority": "우선순위 만들기",
+			"createSize": "크기 만들기",
+			"createLabel": "라벨 만들기",
+			"createVersion": "버전 만들기"
 		}
 	}
 }

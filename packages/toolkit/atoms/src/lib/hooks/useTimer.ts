@@ -116,6 +116,28 @@ export const useTimer = () => {
 		toast({ variant: 'destructive', description: message });
 	};
 
+	// A start or stop the API refused: the timer may have started or stopped in another tab or app since the last read,
+	// so every widget reads the status again before the refusal shows, which keeps it on screen (#5587).
+	const readAgainAfterRefusal = async (answer: { statusCode?: unknown }) => {
+		if (typeof answer.statusCode !== 'number') {
+			return;
+		}
+		await refreshEveryWidget();
+	};
+
+	// The API answers 406 to a stop when no entry of the person runs, or when the one running started after the stop was
+	// sent: either way the run this stop was for ended in another tab or app (#5626).
+	const reportAlreadyStopped = (isStillCurrent: () => boolean) => {
+		const message = t('TIME_TRACKER.already_stopped');
+		if (sharedStatus) {
+			if (isStillCurrent()) {
+				sharedStatus.reportNotice({ kind: 'other', message });
+			}
+			return;
+		}
+		toast({ description: message });
+	};
+
 	// A start or stop that got no answer.
 	const reportThrown = async (error: unknown, isStillCurrent: () => boolean) => {
 		if (sharedStatus) {
@@ -137,6 +159,7 @@ export const useTimer = () => {
 			const timeSlot = await startApiTimer(user, token, currentTeamsState, organizationId, api);
 
 			if ('message' in timeSlot || 'error' in timeSlot) {
+				await readAgainAfterRefusal(timeSlot);
 				await reportAnswer(timeSlot, isStillCurrent);
 				return;
 			}
@@ -164,6 +187,12 @@ export const useTimer = () => {
 			const timeSlot = await stopApiTimer(user, token, organizationId, api);
 
 			if ('message' in timeSlot || 'error' in timeSlot) {
+				await readAgainAfterRefusal(timeSlot);
+				const wasAlreadyStopped = 'statusCode' in timeSlot && timeSlot.statusCode === 406;
+				if (wasAlreadyStopped) {
+					reportAlreadyStopped(isStillCurrent);
+					return;
+				}
 				await reportAnswer(timeSlot, isStillCurrent);
 				return;
 			}

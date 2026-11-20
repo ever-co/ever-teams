@@ -1,11 +1,13 @@
 import { IHookResponse, IServerError, IUser } from '@ever-teams/toolkit-types';
 import { useEffect, useState } from 'react';
 import { ApiCall } from '@ever-teams/api';
-import { getWeekStartAndEnd, getStartAndEndOfDay, toast } from '@ever-teams/toolkit-ui';
+import { getWeekStartAndEnd, getTodaySoFar, toast } from '@ever-teams/toolkit-ui';
 import QueryString from 'qs';
 import { DateRange } from 'react-day-picker';
 import { useTeamsContext } from '@lib/context/teams-context';
+import { pickedEmployeeOf, reportEmployeeIdOf } from '@lib/utils/report-employee';
 import { useKitOptions } from '@components/teams-provider/kit-options';
+import { useTimerOnlyToken } from '@hooks/useTimerOnlyToken';
 
 export interface IStatisticsCounts {
 	employeesCount: number;
@@ -20,12 +22,16 @@ const useStatisticsCounts = (): IHookResponse<IStatisticsCounts> => {
 	const {
 		authenticatedUser: user,
 		token,
-		selectedEmployee,
+		selectedEmployee: employeeInPicker,
+		userPermissions,
 		selectedTeam,
 		selectedOrganization: organizationId,
 		reportDates: date
 	} = useTeamsContext();
+	// The employee picked counts only for a person who may pick one (#5631)
+	const selectedEmployee = pickedEmployeeOf(employeeInPicker, userPermissions);
 	const { api } = useKitOptions();
+	const timerOnly = useTimerOnlyToken();
 	const [statisticsCounts, setStatisticsCounts] = useState<IHookResponse<IStatisticsCounts>>({
 		data: {
 			employeesCount: 0,
@@ -51,7 +57,7 @@ const useStatisticsCounts = (): IHookResponse<IStatisticsCounts> => {
 			const { tenantId } = user;
 
 			const weekDates = dates;
-			const dayDates = getStartAndEndOfDay();
+			const dayDates = getTodaySoFar();
 
 			const objetQuery: {
 				tenantId: string;
@@ -73,9 +79,8 @@ const useStatisticsCounts = (): IHookResponse<IStatisticsCounts> => {
 				timeZone: user?.timeZone?.split(' ')[0] || Intl.DateTimeFormat().resolvedOptions().timeZone
 			};
 
-			if (user.employee) objetQuery.employeeIds = [user.employee.id];
-
-			if (selectedEmployee != 'all') objetQuery.employeeIds = [selectedEmployee];
+			const employeeId = reportEmployeeIdOf(user, selectedEmployee);
+			if (employeeId) objetQuery.employeeIds = [employeeId];
 
 			if (selectedTeam != 'all') objetQuery.teamIds = [selectedTeam];
 
@@ -100,6 +105,10 @@ const useStatisticsCounts = (): IHookResponse<IStatisticsCounts> => {
 	};
 
 	useEffect(() => {
+		// An embed token reaches the timer only: no read, so no refusal to show (#5602)
+		if (timerOnly) {
+			return;
+		}
 		// A read the effect has moved past (other filters or another address, or the widget gone) shows nothing, not
 		// even its error: the toasts are the page's
 		let current = true;
@@ -136,7 +145,7 @@ const useStatisticsCounts = (): IHookResponse<IStatisticsCounts> => {
 			// The next read, if any, sets it again
 			setStatisticsCounts((prev) => (prev.loading ? { ...prev, loading: false } : prev));
 		};
-	}, [user, selectedEmployee, selectedTeam, date, organizationId, api]);
+	}, [user, selectedEmployee, selectedTeam, date, organizationId, timerOnly, api]);
 
 	return statisticsCounts;
 };

@@ -5,6 +5,7 @@ import {
 	readLastLogOfAnyDay,
 	readTask,
 	readTimerStatus,
+	readTodayTasks,
 	readTrackedTotals,
 	sendTimeSlot,
 	startTimer,
@@ -54,7 +55,9 @@ export const homeKeys = {
 		['home', 'totals', ...personOf(session), employeeId ?? ''] as const,
 	task: (session?: Session, taskId?: string | null) => ['home', 'task', ...personOf(session), taskId ?? ''] as const,
 	lastLog: (session?: Session, employeeId?: string | null) =>
-		['home', 'last-log', ...personOf(session), employeeId ?? ''] as const
+		['home', 'last-log', ...personOf(session), employeeId ?? ''] as const,
+	todayTasks: (session?: Session, employeeId?: string | null, organizationTeamId?: string | null, day?: string) =>
+		['home', 'today-tasks', ...personOf(session), employeeId ?? '', organizationTeamId ?? '', day ?? ''] as const
 };
 
 export function useTimerStatus() {
@@ -93,6 +96,27 @@ export function useTrackedTotals() {
 		queryKey: homeKeys.totals(session, employeeId),
 		queryFn: () => readTrackedTotals(sessionOrFail(session), employeeIdOrFail(employeeId), new Date()),
 		enabled: session !== undefined && Boolean(employeeId),
+		refetchInterval: STATUS_REFRESH_MS
+	});
+}
+
+/**
+ * The tasks the person tracked time on today, the latest first, read again with the status. When today's last log
+ * names a team, only the time tracked in that team counts, and a start from Home names that team, so a tap never starts
+ * a task in a team it was not tracked in today. When it names none, every team counts and a start names no team, as
+ * Home's Start does for that log. Before the day's first log there is nothing to read.
+ */
+export function useTodayTasks(organizationTeamId: string | null | undefined, loggedToday: boolean) {
+	const session = useSignedInSession();
+	const employee = useEmployeeId();
+	const employeeId = employee.data;
+	// The person's day is part of the key, and the read asks for that same day: a new day never shows the tasks of the
+	// day before, even when its first read fails
+	const now = new Date();
+	return useQuery({
+		queryKey: homeKeys.todayTasks(session, employeeId, organizationTeamId, now.toDateString()),
+		queryFn: () => readTodayTasks(sessionOrFail(session), employeeIdOrFail(employeeId), now, organizationTeamId),
+		enabled: session !== undefined && Boolean(employeeId) && loggedToday,
 		refetchInterval: STATUS_REFRESH_MS
 	});
 }
@@ -159,7 +183,8 @@ function useReadTimeAgain(): () => Promise<void> {
 	return async () => {
 		await Promise.all([
 			queryClient.invalidateQueries({ queryKey: ['home', 'timer-status'] }),
-			queryClient.invalidateQueries({ queryKey: ['home', 'totals'] })
+			queryClient.invalidateQueries({ queryKey: ['home', 'totals'] }),
+			queryClient.invalidateQueries({ queryKey: ['home', 'today-tasks'] })
 		]);
 	};
 }
@@ -213,6 +238,30 @@ export function useStopTimer() {
 			}
 		},
 		onSettled: readTimeAgain,
+		networkMode: 'always'
+	});
+}
+
+/** A tap on one of today's tasks: the task to start, and the run going on another task, if one is. */
+export interface TaskSwitch extends StartTarget {
+	running?: TimerLog;
+}
+
+/**
+ * Starts the timer on one of today's tasks. A run on another task stops first, with its last minute written as Stop
+ * writes it; a stop that fails leaves that run going and starts nothing. Home owns this one with its Start and Stop,
+ * and holds them all while any of them is under way, the whole switch included.
+ */
+export function useStartOnTask() {
+	const start = useStartTimer();
+	const stop = useStopTimer();
+	return useMutation({
+		mutationFn: async ({ running, ...target }: TaskSwitch) => {
+			if (running) {
+				await stop.mutateAsync(running);
+			}
+			await start.mutateAsync(target);
+		},
 		networkMode: 'always'
 	});
 }

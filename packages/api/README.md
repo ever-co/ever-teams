@@ -1,14 +1,16 @@
 # @ever-teams/api
 
 The typed client of an Ever Teams API (Gauzy), for Node 20 or later and the browser: start and stop the timer, list
-time entries, projects, tasks and members, and read the tracked totals of the day and the week. It has no user
+and add time entries, projects, tasks and members, and read the tracked totals of the day and the week. It has no user
 interface. It also holds the request functions the Ever Teams kit makes (see [The request functions](#the-request-functions)).
 
 To show a timer or a report in a React page, install [`@ever-teams/atoms`](https://www.npmjs.com/package/@ever-teams/atoms),
 which uses this package: start with [its README](https://github.com/ever-co/ever-teams/tree/develop/packages/toolkit/atoms#readme).
 
 On your server, `@ever-teams/api/server` exchanges an embed credential for a short-lived token for a person signed in
-to your product: see [Sign people in from your server](#sign-people-in-from-your-server). It also checks the
+to your product: see [Sign people in from your server](#sign-people-in-from-your-server). A site without a server
+lets the person sign in with Ever Teams in a popup instead, and renews that sign-in from the page: see
+[Renew a sign-in from a site](#renew-a-sign-in-from-a-site). It also checks the
 signature of the webhooks the API sends when a timer starts or stops: see
 [Receive the API's webhooks](#receive-the-apis-webhooks).
 
@@ -114,6 +116,7 @@ table names the route behind each one; they are the routes the kit already calls
 | `timer.stop()`                        | `POST /timesheet/timer/stop`                      | `EverTeamsTimeLog \| null` |
 | `timer.watch(listener, options?)`     | `GET /timesheet/timer/status`, at each read       | `() => void`               |
 | `timeEntries.list({ from, to, ... })` | `GET /timesheet/time-log`                         | `EverTeamsTimeEntry[]`     |
+| `timeEntries.create({ ... })`         | `POST /timesheet/time-log`                        | `EverTeamsTimeLog`         |
 | `projects.list()`                     | `GET /organization-projects/employee/:employeeId` | `EverTeamsProject[]`       |
 | `tasks.list({ projectId? })`          | `GET /tasks/employee/:employeeId`                 | `EverTeamsTask[]`          |
 | `members.list()`                      | `GET /employee/working`                           | `EverTeamsMember[]`        |
@@ -133,7 +136,7 @@ if (status.running) {
 ### timer.start(options?)
 
 Starts the timer at the API's time and answers the new time log. Every option is optional: `projectId`, `taskId`,
-`organizationTeamId`, `description`.
+`organizationTeamId`, `description`, `isBillable`.
 
 ```js
 const log = await teams.timer.start({ projectId, taskId, description: 'Review the pull request' });
@@ -141,6 +144,9 @@ const log = await teams.timer.start({ projectId, taskId, description: 'Review th
 
 The time is recorded with the source `EMBED`; an API that predates that source gets `TEAMS` instead, as the kit does.
 In the answer, `projectId`, `taskId` and `organizationTeamId` are `null` when the timer started without them.
+
+Without `isBillable`, the time is billable as its project is set (the one named, else its task's), as in the web app;
+time without a project is billable. An API older than this setting records every start as billable.
 
 ### timer.stop()
 
@@ -207,16 +213,41 @@ if (change) {
 }
 ```
 
-### timeEntries.list({ from, to, employeeIds? })
+### timeEntries.list({ from, to, employeeIds?, mine? })
 
-The time entries started from `from` to `to`, each with its project, task, client and member. A day (`YYYY-MM-DD`)
+The time entries started from `from` to `to`, each with its project, task, client and member. The client is the
+entry's own, else its project's, as the web app names it, with its `id`, `name` and `imageUrl`. A day (`YYYY-MM-DD`)
 means that whole day in the time zone the code runs in; a `Date` or an ISO date-time is the instant it names. Without
-`employeeIds`, the API answers the entries of every member the token may see.
+`employeeIds`, the API answers the entries of every member the token may see: a manager's token sees the team's.
+With `mine: true`, it answers only the entries of the token's own member, whatever `employeeIds` names.
 
 ```js
-const today = await teams.timeEntries.list({ from: '2026-11-18', to: '2026-11-18' });
+const today = await teams.timeEntries.list({ from: '2026-11-18', to: '2026-11-18', mine: true });
 const seconds = today.reduce((sum, entry) => sum + entry.duration, 0);
 ```
+
+### timeEntries.create({ startedAt, stoppedAt, ... })
+
+Adds a past entry of the token's member, from `startedAt` to `stoppedAt` (each a `Date` or an ISO date-time with its
+time of day), and answers its time log. The other fields are optional: `projectId`, `taskId`, `organizationTeamId`,
+`description`, `reason` (why the time is added by hand, kept with the entry) and `isBillable`.
+
+```js
+const log = await teams.timeEntries.create({
+	startedAt: '2026-11-18T09:00:00+01:00',
+	stoppedAt: '2026-11-18T10:30:00+01:00',
+	projectId,
+	description: 'Call with the client'
+});
+```
+
+The API records it as time added by hand (`logType` `MANUAL`). It refuses it with an `EverTeamsForbiddenError` when
+the organization does not allow manual time or the member's role may not add it, and with an
+`EverTeamsConflictError` when the range overlaps a timer still running (`code` `RUNNING_TIMER_OVERLAP`) or a break
+(`BREAK_OVERLAP`); each says what to do next. A range with no time of day, or that does not end after it starts, is
+refused before any request (`INVALID_DATE`). An entry it overlaps loses the time the new one covers, as in the web app.
+Without `isBillable`, the entry is billable as its project is set, as in the web app; an entry without a project is
+not billable. An API older than this setting records it as not billable.
 
 ### projects.list()
 
@@ -259,8 +290,12 @@ console.log(`${Math.round(duration / 3600)} h this week`);
 ### With an embed token
 
 An embed token reaches the timer and the user only: `timer.status()`, `timer.start()` and `timer.stop()` work, and
-the other methods throw an `EverTeamsForbiddenError` with the code `EMBED_SCOPE`. Today's tracked seconds are in
-`(await teams.timer.status()).duration`.
+the other methods throw an `EverTeamsForbiddenError` with the code `EMBED_SCOPE`. The client knows an embed token by
+its claims and throws that error without a request, so a browser gets it too (the API answers an allowed site's CORS on
+the timer's routes only). Today's tracked seconds are in `(await teams.timer.status()).duration`.
+
+`isEmbedToken(token)` makes the same check from the token's claims (unverified), for a page that wants to know before
+it calls: `true` for an embed token, `false` for any other token, a string that is not a JWT, or `null`.
 
 ## Errors
 
@@ -311,8 +346,8 @@ the page (CORS): there, `retryAfter` may stay `undefined`. When a page loads bot
 
 A page of your product shows a person's Ever Teams timer with a short-lived **embed token**, which your server gets
 for them. Your server holds an **embed credential** (`gze_...`): an administrator of the organization creates it in
-Settings > Embeds of the web app, and adds your site to the allowed sites on the same page. The credential stays on
-your server, in an environment variable; only the token reaches the page.
+Settings > Workspace > Embeds of the web app, and adds your site to the allowed sites on the same page. The
+credential stays on your server, in an environment variable; only the token reaches the page.
 
 `@ever-teams/api/server` exchanges the credential for a token in one call:
 
@@ -332,7 +367,7 @@ const { token, expiresAt } = await exchangeEmbedToken({
 | `apiUrl`                | yes         | The API's address, ending with `/api`.                                                                                                                                                        |
 | `credential`            | yes         | The embed credential, from an environment variable.                                                                                                                                           |
 | `email` or `employeeId` | one of them | The person: the email of their Ever Teams account, or their employee id in the credential's organization.                                                                                     |
-| `origin`                | yes         | The site of the page the timer runs in (`https://app.example.com`, no path), one of the organization's allowed sites. The token works only from it.                                           |
+| `origin`                | yes         | The site of the page the timer runs in (`https://app.example.com`, no path), one of the organization's allowed sites. In a browser the token works only from it.                              |
 | `firstName`, `lastName` | no          | Sent only when given: the name of the account the API creates for `email` when the credential may add members ([ever-co/ever-gauzy#12084](https://github.com/ever-co/ever-gauzy/pull/12084)). |
 | `fetch`                 | no          | The `fetch` to send the request with; the platform's by default.                                                                                                                              |
 
@@ -345,6 +380,20 @@ which asks your server again before the token expires.
 The entry runs on a server only: Node 20 or later, or another runtime with `fetch` and no `document`. A bundle for a
 page refuses it (the `browser` condition of the package's `exports`), and in a page it throws an `EverTeamsError`
 with the code `SERVER_ONLY`.
+
+### Set a time limit
+
+`exchangeEmbedToken` and `getClientReport` set no time limit of their own: when the API does not answer, they wait as
+long as the runtime's `fetch` does, and so does the request of your page that called them. Give them a `fetch` that
+stops waiting:
+
+```js
+const fetchWithin10Seconds = (url, init) => fetch(url, { ...init, signal: AbortSignal.timeout(10_000) });
+
+const { token, expiresAt } = await exchangeEmbedToken({ ...options, fetch: fetchWithin10Seconds });
+```
+
+A request cut by the limit throws an `EverTeamsNetworkError` whose `cause.name` is `TimeoutError`.
 
 ### In a Next.js route handler
 
@@ -610,7 +659,8 @@ const report = await getClientReport({
 
 Today and this week are counted in the organization's time zone (`timeZone`); `projects` holds this week's, the most
 first. The answer is the `IClientTimeReport` of `@ever-teams/toolkit-types`, which the kit's `TeamsClientTimeReport`
-draws: answer it to the page with `Cache-Control: no-store`.
+draws: answer it to the page with `Cache-Control: no-store`. Like the exchange, it takes a `fetch` option, where a
+[time limit](#set-a-time-limit) goes.
 
 Over plain HTTP it is `POST {apiUrl}/embed/client-report` with `{"credential":"gze_..."}`, answered 200 with the
 report. Its refusals are those of the exchange (401, 429, 404, 503), and:
@@ -618,8 +668,54 @@ report. Its refusals are those of the exchange (401, 429, 404, 503), and:
 | Status | Class                     | `code`                  | What to do                                                                                            |
 | ------ | ------------------------- | ----------------------- | ----------------------------------------------------------------------------------------------------- |
 | 403    | `EverTeamsForbiddenError` | `EMBED_CLIENT_REQUIRED` | The credential is the whole organization's: ask an administrator for one limited to the client.       |
-| 403    | `EverTeamsForbiddenError` | `EMBED_CLIENT_GONE`     | The credential's client was deleted: restore the client, or use the credential of another one.        |
+| 403    | `EverTeamsForbiddenError` | `EMBED_CLIENT_GONE`     | The client is archived or deleted: restore it from the web app's client list, or use another one.     |
 | 500    | `EverTeamsServerError`    | none                    | The API accepted the credential but could not read the report: try again, and tell its administrator. |
+
+## Renew a sign-in from a site
+
+A site without a server of its own lets a person sign in with Ever Teams: the web app's page `/embed/authorize`,
+opened in a popup, asks the person to allow the site, then posts a timer token and a renewal token to the page that
+opened it ([ever-co/ever-gauzy#12094](https://github.com/ever-co/ever-gauzy/issues/12094)). The kit
+(`config.signIn: 'ever-teams'` of [`@ever-teams/atoms`](https://github.com/ever-co/ever-teams/tree/develop/packages/toolkit/atoms#sign-in-with-ever-teams))
+does all of this for you. These two functions of the main entry are what it calls, for a page that does it itself:
+
+```js
+import { renewEmbedSiteSession, revokeEmbedSiteSession } from '@ever-teams/api';
+
+// About a minute before the timer token expires: a new timer token, and a new renewal token in place of the old one.
+const renewed = await renewEmbedSiteSession({
+	apiUrl: 'https://api.ever.team/api',
+	renewalToken: saved.renewalToken
+});
+// The old renewal token is spent: keep the new one at once, for the next renewal. Keep the timer token in memory.
+saved.renewalToken = renewed.renewalToken;
+saved.renewalExpiresAt = renewed.renewalExpiresAt;
+const { token, expiresAt } = renewed;
+
+// Sign-out: the renewal token, and every one renewed from the same sign-in, stop working.
+await revokeEmbedSiteSession({ apiUrl: 'https://api.ever.team/api', renewalToken: saved.renewalToken });
+```
+
+Both send the renewal token in the body and no `Authorization` header: the API refuses a timer token on these routes.
+The renewal runs only from a page of the site the person allowed, since the API checks the browser's `Origin`. A
+renewal token works once, and the API ends the whole sign-in when one is presented twice: renew one tab at a time
+(the kit uses Web Locks, else a lock in `localStorage`) and always with the token the last renewal answered. Keep the
+timer token in memory. The revocation answers the same for any token, so it never says whether a token was valid.
+
+| Status | Class                     | `code`                     | What to do                                                                                                   |
+| ------ | ------------------------- | -------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| 401    | `EverTeamsAuthError`      | `EMBED_GRANT_ENDED`        | The sign-in ended (revoked, expired, or its renewal token already used): forget the token, sign in again.    |
+| 403    | `EverTeamsForbiddenError` | `EMBED_ORIGIN`             | Not from the site the person allowed: renew from a page of that site.                                        |
+| 403    | `EverTeamsForbiddenError` | `EMBED_ORIGIN_NOT_ALLOWED` | The organization no longer allows the site. Keep the renewal token: it works again once the site is allowed. |
+| 403    | `EverTeamsForbiddenError` | `EMBED_SITE_SIGN_IN_OFF`   | Sign-in from the site was turned off. Keep the renewal token: it works again once it is on.                  |
+| 403    | `EverTeamsForbiddenError` | `EMBED_MEMBER_NOT_ALLOWED` | The person may no longer track time. Keep the renewal token: it works again once that is lifted.             |
+| 404    | `EverTeamsNotFoundError`  | none                       | The API has no sign-in from sites, or embeds are off (`GAUZY_EMBED_TOKENS_ENABLED`).                         |
+| 429    | `EverTeamsRateLimitError` | none                       | Too many renewals from this address: wait `error.retryAfter` seconds.                                        |
+| 503    | `EverTeamsServerError`    | none                       | The API cannot reach its database: try again shortly.                                                        |
+
+Each error has its `nextStep`, and `EmbedSiteSessionErrorCode` types the codes. Before any request, a missing
+`apiUrl` or `renewalToken` throws an `EverTeamsError` with the code `CLIENT_OPTIONS`, which never quotes a value; a
+success without the four tokens throws `UNEXPECTED_ANSWER`, and no answer an `EverTeamsNetworkError`.
 
 ## Receive the API's webhooks
 
@@ -637,6 +733,13 @@ Content-Type: application/json
 
 The answer holds the subscription and its signing `secret`, shown only then (and again when the secret is rotated,
 `POST {apiUrl}/webhooks/subscriptions/:id/rotate-secret`): keep it in an environment variable of your server.
+
+The endpoint must use HTTPS and a public host name. The API refuses a subscription to `localhost` or to a private,
+loopback or link-local address (400), and checks the address again before each delivery, so a name that resolves
+there is refused then (the delivery ends `DEAD`). To try the webhooks on your own machine, expose the endpoint
+through a public HTTPS tunnel; a self-hosted API that posts to its own network sets
+`GAUZY_WEBHOOK_ALLOW_PRIVATE_NETWORK=true`, and outside production a subscription with
+`"metadata": { "allowInsecure": true }` may use plain `http`.
 
 `verifyWebhook` checks a delivery and answers its event. It needs the raw body as received, before any JSON parsing,
 because the signature covers those exact bytes: in Express, `express.raw({ type: 'application/json' })` on the route.
@@ -742,6 +845,9 @@ shape for the timer and time entry routes, so the recorded answers are the refer
 
 When the API changes an answer, recording it again shows the change in the fixtures, and the type test names the
 field that no longer fits.
+
+`timeEntries.create()` is not recorded yet: the recording would need an organization that allows manual time. Its
+test serves it the recorded answer of `timer.start()`, the same time log, as an entry added by hand.
 
 ### Record the answers again
 

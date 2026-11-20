@@ -1,12 +1,13 @@
 'use client';
 
-import { FormEvent, useId, useMemo, useState } from 'react';
+import { FormEvent, ReactNode, useId, useMemo, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { Input } from '@/core/components/common/input';
 import { Notice } from '@/core/components/common/notice';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { Globe, Key, Plus, Spinner } from '@/core/components/icons';
 import { ConfirmDestructiveDialog } from '@/core/components/settings/kit/danger';
+import { SettingsSwitch } from '@/core/components/settings/kit/settings-switch';
 import {
 	SETTINGS_SURFACE,
 	SettingsPage,
@@ -24,6 +25,7 @@ import {
 	useEmbedsAvailability,
 	useRemoveEmbedOrigin,
 	useRevokeEmbedCredential,
+	useSetPersonSignIn,
 	type EmbedsAvailability
 } from '@/core/hooks/settings/use-embeds';
 import { errorStatusOf } from '@/core/lib/utils/error-feedback';
@@ -31,6 +33,7 @@ import { formatUserApiTokenDate } from '@/core/lib/utils/user-api-tokens';
 import { cn } from '@/core/lib/helpers';
 import { isOriginLike, type EmbedAllowedOrigin, type EmbedCredential } from '@/core/types/schemas/embeds/embed.schema';
 import { CreateEmbedCredentialDialog } from './create-embed-credential-dialog';
+import { EmbedTimerCodeSection } from './embed-timer-code-section';
 
 function RowsSkeleton() {
 	return (
@@ -137,15 +140,65 @@ function AddOriginForm() {
 	);
 }
 
+/**
+ * Whether the organization's people can sign in from the site themselves (the kit's "Sign in with Ever Teams"). Off
+ * for every site until an administrator turns it on; the switch moves at once and goes back if the API refuses.
+ */
+function PersonSignInSwitch({ row }: Readonly<{ row: EmbedAllowedOrigin }>) {
+	const t = useTranslations();
+	const id = useId();
+	const setPersonSignIn = useSetPersonSignIn();
+	const [failed, setFailed] = useState(false);
+	const toggle = (allowPersonSignIn: boolean) => {
+		setFailed(false);
+		setPersonSignIn.mutate({ id: row.id, allowPersonSignIn }, { onError: () => setFailed(true) });
+	};
+	return (
+		<span className="mt-2 flex flex-col gap-1">
+			<span className="flex items-center gap-2.5">
+				<SettingsSwitch
+					id={id}
+					checked={row.allowPersonSignIn === true}
+					onCheckedChange={toggle}
+					pending={setPersonSignIn.isPending}
+				/>
+				<label htmlFor={id} className="cursor-pointer text-[13px] text-foreground">
+					{t('settings.embeds.PERSON_SIGN_IN')}
+				</label>
+			</span>
+			{failed && (
+				<span role="alert" className="text-xs text-destructive-ink">
+					{t('settings.embeds.PERSON_SIGN_IN_FAILED')}
+				</span>
+			)}
+		</span>
+	);
+}
+
 function OriginRow({
 	row,
+	canAllowPersonSignIn,
 	onRemove
-}: Readonly<{ row: EmbedAllowedOrigin; onRemove: (row: EmbedAllowedOrigin) => void }>) {
+}: Readonly<{
+	row: EmbedAllowedOrigin;
+	canAllowPersonSignIn: boolean;
+	onRemove: (row: EmbedAllowedOrigin) => void;
+}>) {
 	const t = useTranslations();
 	const locale = useLocale();
-	let description: string | undefined;
+	let addedOn: string | null = null;
 	if (row.createdAt) {
-		description = t('settings.embeds.ADDED_ON', { date: formatUserApiTokenDate(row.createdAt, locale) });
+		addedOn = t('settings.embeds.ADDED_ON', { date: formatUserApiTokenDate(row.createdAt, locale) });
+	}
+	// The switch sits under the site, where the row has room: the controls keep only Remove, as before.
+	let description: ReactNode = addedOn ?? undefined;
+	if (canAllowPersonSignIn) {
+		description = (
+			<>
+				{addedOn}
+				<PersonSignInSwitch row={row} />
+			</>
+		);
 	}
 	return (
 		<SettingsRow
@@ -164,8 +217,11 @@ function OriginRow({
 	);
 }
 
-/** The sites allowed to embed the organization's timer: an embed token works only from one of them. */
-function AllowedOriginsSection() {
+/**
+ * The sites allowed to embed the organization's timer: an embed token works only from one of them. On a server that
+ * can let people sign in from a site, each site has its switch.
+ */
+function AllowedOriginsSection({ canAllowPersonSignIn }: Readonly<{ canAllowPersonSignIn: boolean }>) {
 	const t = useTranslations();
 	const { origins, isLoading, isError, refetch } = useEmbedAllowedOrigins(true);
 	const remove = useRemoveEmbedOrigin();
@@ -213,7 +269,12 @@ function AllowedOriginsSection() {
 			{isReady && origins.length > 0 && (
 				<SettingsSurface>
 					{origins.map((row) => (
-						<OriginRow key={row.id} row={row} onRemove={setRemoving} />
+						<OriginRow
+							key={row.id}
+							row={row}
+							canAllowPersonSignIn={canAllowPersonSignIn}
+							onRemove={setRemoving}
+						/>
 					))}
 				</SettingsSurface>
 			)}
@@ -429,10 +490,17 @@ type EmbedsBodyProps = {
 	availability: EmbedsAvailability;
 	canLimitToClient: boolean;
 	canAllowAddMembers: boolean;
+	canAllowPersonSignIn: boolean;
 	onRetry: () => void;
 };
 
-function EmbedsBody({ availability, canLimitToClient, canAllowAddMembers, onRetry }: Readonly<EmbedsBodyProps>) {
+function EmbedsBody({
+	availability,
+	canLimitToClient,
+	canAllowAddMembers,
+	canAllowPersonSignIn,
+	onRetry
+}: Readonly<EmbedsBodyProps>) {
 	const t = useTranslations();
 	if (availability === 'loading') {
 		return (
@@ -445,7 +513,8 @@ function EmbedsBody({ availability, canLimitToClient, canAllowAddMembers, onRetr
 	}
 	return (
 		<>
-			<AllowedOriginsSection />
+			<AllowedOriginsSection canAllowPersonSignIn={canAllowPersonSignIn} />
+			{canAllowPersonSignIn && <EmbedTimerCodeSection />}
 			<CredentialsSection canLimitToClient={canLimitToClient} canAllowAddMembers={canAllowAddMembers} />
 		</>
 	);
@@ -458,13 +527,14 @@ function EmbedsBody({ availability, canLimitToClient, canAllowAddMembers, onRetr
  */
 export function EmbedsSettingsPage() {
 	const t = useTranslations();
-	const { availability, canLimitToClient, canAllowAddMembers, retry } = useEmbedsAvailability();
+	const { availability, canLimitToClient, canAllowAddMembers, canAllowPersonSignIn, retry } = useEmbedsAvailability();
 	return (
 		<SettingsPage title={t('settings.entries.embeds.TITLE')} description={t('settings.embeds.PAGE_DESCRIPTION')}>
 			<EmbedsBody
 				availability={availability}
 				canLimitToClient={canLimitToClient}
 				canAllowAddMembers={canAllowAddMembers}
+				canAllowPersonSignIn={canAllowPersonSignIn}
 				onRetry={() => retry()}
 			/>
 		</SettingsPage>

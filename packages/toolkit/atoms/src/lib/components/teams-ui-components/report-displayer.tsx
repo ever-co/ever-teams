@@ -1,9 +1,11 @@
 import React from 'react';
-import { Card, cn, formatTime, getWeekStartAndEnd, Progress, areDatesEqual } from '@ever-teams/toolkit-ui';
-import { useTeamsContext } from '@lib/context/teams-context';
+import { Card, cn, formatTime, Progress } from '@ever-teams/toolkit-ui';
 import { useTranslation } from 'react-i18next';
 import { useStatisticsCounts } from '@hooks/useStatisticsCounts';
 import { TeamsDisplayerLoader } from '@components/loaders/displayer-loader';
+import { useTimerOnlyToken } from '@hooks/useTimerOnlyToken';
+import { useWeekLabel } from '@hooks/useWeekLabel';
+import { TimerOnlyReportNote } from './timer-only-report-note';
 
 export interface IReportDisplayer {
 	workedTime?: number | undefined;
@@ -76,6 +78,10 @@ const TeamsDailyWorkedTimeDisplayer = ({
 	const { t } = useTranslation();
 
 	const { data: statisticsCounts, loading: statisticsCountsLoading } = useStatisticsCounts();
+	const timerOnly = useTimerOnlyToken();
+	if (timerOnly) {
+		return <TimerOnlyReportNote label={t('REPORT.worked_today')} className={className} />;
+	}
 	return (
 		<TeamsReportDisplayer
 			workedTime={statisticsCounts?.todayDuration}
@@ -101,19 +107,17 @@ const TeamsWeeklyWorkedTimeDisplayer = ({
 	showProgress?: boolean;
 	className?: string;
 }) => {
-	const dates = getWeekStartAndEnd();
-	const { t } = useTranslation();
-	const { reportDates } = useTeamsContext();
+	const label = useWeekLabel({ thisWeek: 'REPORT.worked_this_week', overPeriod: 'REPORT.worked_over_period' });
 
 	const { data: statisticsCounts, loading: statisticsCountsLoading } = useStatisticsCounts();
+	const timerOnly = useTimerOnlyToken();
+	if (timerOnly) {
+		return <TimerOnlyReportNote label={label} className={className} />;
+	}
 	return (
 		<TeamsReportDisplayer
 			workedTime={statisticsCounts?.weekDuration}
-			label={
-				areDatesEqual(reportDates?.from, dates.start) && areDatesEqual(reportDates?.to, dates.end)
-					? t('REPORT.worked_this_week')
-					: t('REPORT.worked_over_period')
-			}
+			label={label}
 			showProgress={showProgress}
 			maxWorkHours={40}
 			className={className}

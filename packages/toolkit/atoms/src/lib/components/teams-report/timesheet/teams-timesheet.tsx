@@ -3,7 +3,6 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LogType, TimerSource } from '@ever-teams/toolkit-types';
-import { useTeamsContext } from '@lib/context/teams-context';
 import { DateRange } from 'react-day-picker';
 import {
 	Avatar,
@@ -29,7 +28,10 @@ import { SpinOverlayLoader } from '@components/loaders/spin-overlay-loader';
 import { TeamsTimerFooter } from '@components/layouts/footers/component-footer';
 import { ChevronLeft, ChevronRight, FileText, RefreshCwIcon } from 'lucide-react';
 import { TeamsActiveEmployeeSelector } from '@components/teams-ui-components/inputs/teams-active-employee-selector';
+import { useSelectedOrganizationName } from '@hooks/useSelectedOrganizationName';
 import { useTimeLogs } from '@hooks/useTimeLogs';
+import { useTimerOnlyToken } from '@hooks/useTimerOnlyToken';
+import { TimerOnlyReportNote } from '@components/teams-ui-components/timer-only-report-note';
 
 /**
  * Format duration in seconds to HH:MM:SS format (e.g., "01:05:40")
@@ -138,7 +140,9 @@ export const TeamsTimesheet = ({
 }: TeamsTimesheetProps) => {
 	const { t } = useTranslation(undefined, { keyPrefix: 'TIMESHEET' });
 
-	const { userOrganizations, selectedOrganization } = useTeamsContext();
+	const orgName = useSelectedOrganizationName();
+	const title = orgName ? t('title', { orgName }) : t('title_without_organization');
+	const timerOnly = useTimerOnlyToken();
 
 	// Date filter state - default to today
 	const [selectedDate, setSelectedDate] = useState<Date | undefined>(initialDate?.from ?? new Date());
@@ -203,23 +207,27 @@ export const TeamsTimesheet = ({
 		setCurrentPage(1); // Reset pagination on filter change
 	};
 
-	// Get the name of the selected organization from userOrganizations and selectedOrganization
-	const orgName =
-		userOrganizations?.items.find((elt) => elt.organizationId == selectedOrganization)?.organization?.name ||
-		'Ever';
+	let columnCount = 6;
+	if (showEmployee) {
+		columnCount = 7;
+	}
+
+	if (timerOnly) {
+		return <TimerOnlyReportNote label={t('label')} className={className} />;
+	}
 
 	return (
 		<div className={cn('flex flex-col gap-5 w-full bg-white dark:bg-black rounded-2xl p-6 shadow-xs', className)}>
 			{/* Header with title and refresh button */}
 
 			<div className="flex items-center justify-between ">
-				<h2 className="text-xl font-semibold text-gray-900 dark:text-white">{t('title', { orgName })}</h2>
+				<h2 className="text-xl font-semibold text-gray-900 dark:text-white">{title}</h2>
 			</div>
 
 			{/* Filters */}
 			<div className="w-full flex justify-between items-end flex-wrap gap-4">
-				<div className="flex gap-3">
-					<TeamsActiveEmployeeSelector label="Select employee" />
+				<div className="flex flex-wrap gap-3 min-w-0">
+					<TeamsActiveEmployeeSelector label="Select employee" containerClassName="min-w-0 max-w-full" />
 					<DatePicker
 						date={selectedDate}
 						setDate={handleDateChange}
@@ -280,106 +288,108 @@ export const TeamsTimesheet = ({
 				</div>
 			)}
 
-			{/* Table */}
-			<Table className="border-none rounded-lg">
-				<TableHeader>
-					<TableRow className="text-gray-500 dark:text-gray-400 text-xs uppercase dark:border-gray-700">
-						{showEmployee && <TableHead>{t('table_headers.employee')}</TableHead>}
-						<TableHead>{t('table_headers.project')}</TableHead>
-						<TableHead>{t('table_headers.log_type')}</TableHead>
-						<TableHead>{t('table_headers.source')}</TableHead>
-						<TableHead>{t('table_headers.duration')}</TableHead>
-						<TableHead>{t('table_headers.time_span')}</TableHead>
-						<TableHead>{t('table_headers.notes')}</TableHead>
-					</TableRow>
-				</TableHeader>
-				<TableBody className="relative">
-					{loading && <SpinOverlayLoader />}
-					{currentLogs.length === 0 ? (
-						<TableRow>
-							<TableCell colSpan={showEmployee ? 7 : 6} className="text-center text-gray-500 py-8">
-								<div className="flex flex-col items-center gap-2">
-									<FileText className="size-8 text-gray-400" />
-									<span>{t('table_empty.no_time_logs')}</span>
-								</div>
-							</TableCell>
+			{/* Table, and the loader over it from outside: a table body holds rows only (#5616) */}
+			<div className="relative">
+				<Table className="border-none rounded-lg">
+					<TableHeader>
+						<TableRow className="text-gray-500 dark:text-gray-400 text-xs uppercase dark:border-gray-700">
+							{showEmployee && <TableHead>{t('table_headers.employee')}</TableHead>}
+							<TableHead>{t('table_headers.project')}</TableHead>
+							<TableHead>{t('table_headers.log_type')}</TableHead>
+							<TableHead>{t('table_headers.source')}</TableHead>
+							<TableHead>{t('table_headers.duration')}</TableHead>
+							<TableHead>{t('table_headers.time_span')}</TableHead>
+							<TableHead>{t('table_headers.notes')}</TableHead>
 						</TableRow>
-					) : (
-						currentLogs.map((log) => (
-							<TableRow key={log.id} className="text-sm text-gray-700 dark:text-gray-200 border-none">
-								{/* Employee Column (optional) */}
-								{showEmployee && (
-									<TableCell className="flex items-center gap-3 py-4">
-										<Avatar
-											src={log.employee?.user?.imageUrl || ''}
-											title={log.employee?.fullName || ''}
-											fallback={(log.employee?.fullName?.[0] || '?').toUpperCase()}
-											className="w-8 h-8 rounded-full"
-										/>
-										<p className="font-semibold text-sm">{log.employee?.fullName || '-'}</p>
-									</TableCell>
-								)}
-
-								{/* Project Column */}
-								<TableCell className={showEmployee ? '' : 'flex items-center gap-3 py-4'}>
-									{log.project?.name && (
-										<Avatar
-											src={log.project?.imageUrl || ''}
-											title={log.project?.name || ''}
-											fallback={(log.project?.name?.[0]).toUpperCase()}
-											className="w-8 h-8 rounded-full"
-										/>
-									)}
-									<div className="flex flex-col gap-1">
-										<p className="font-semibold text-sm">{log.project?.name || '-'}</p>
-										{log.organizationContact?.name && (
-											<p className="text-xs text-gray-500 dark:text-gray-400 truncate w-28">
-												{log.organizationContact?.name}
-											</p>
-										)}
-										{log.task?.title && (
-											<p className="text-xs text-gray-500 dark:text-gray-400 truncate w-28">
-												{log.task?.title}
-											</p>
-										)}
+					</TableHeader>
+					<TableBody>
+						{currentLogs.length === 0 ? (
+							<TableRow>
+								<TableCell colSpan={columnCount} className="text-center text-gray-500 py-8">
+									<div className="flex flex-col items-center gap-2">
+										<FileText className="size-8 text-gray-400" />
+										<span>{t('table_empty.no_time_logs')}</span>
 									</div>
 								</TableCell>
-
-								{/* Log Type Column */}
-								<TableCell>
-									<Badge variant={getLogTypeBadgeVariant(log.logType)}>
-										{log.logType
-											? t(`TIMESHEET.log_types.${log.logType}`, { defaultValue: log.logType })
-											: '-'}
-									</Badge>
-								</TableCell>
-
-								{/* Source Column */}
-								<TableCell>
-									<Badge variant={getSourceBadgeVariant(log.source)}>
-										{log.source
-											? t(`TIMESHEET.sources.${log.source}`, { defaultValue: log.source })
-											: '-'}
-									</Badge>
-								</TableCell>
-
-								{/* Duration Column */}
-								<TableCell className="font-medium">{formatDuration(log.duration)}</TableCell>
-
-								{/* Time Span Column */}
-								<TableCell className="text-xs">
-									{formatTimeSpan(log.startedAt, log.stoppedAt)}
-								</TableCell>
-
-								{/* Notes Column */}
-								<TableCell className="max-w-[200px] truncate" title={log.description || ''}>
-									{log.description || '-'}
-								</TableCell>
 							</TableRow>
-						))
-					)}
-				</TableBody>
-			</Table>
+						) : (
+							currentLogs.map((log) => (
+								<TableRow key={log.id} className="text-sm text-gray-700 dark:text-gray-200 border-none">
+									{/* Employee Column (optional) */}
+									{showEmployee && (
+										<TableCell className="flex items-center gap-3 py-4">
+											<Avatar
+												src={log.employee?.user?.imageUrl || ''}
+												title={log.employee?.fullName || ''}
+												fallback={(log.employee?.fullName?.[0] || '?').toUpperCase()}
+												className="w-8 h-8 rounded-full"
+											/>
+											<p className="font-semibold text-sm">{log.employee?.fullName || '-'}</p>
+										</TableCell>
+									)}
+
+									{/* Project Column */}
+									<TableCell className={showEmployee ? '' : 'flex items-center gap-3 py-4'}>
+										{log.project?.name && (
+											<Avatar
+												src={log.project?.imageUrl || ''}
+												title={log.project?.name || ''}
+												fallback={(log.project?.name?.[0]).toUpperCase()}
+												className="w-8 h-8 rounded-full"
+											/>
+										)}
+										<div className="flex flex-col gap-1">
+											<p className="font-semibold text-sm">{log.project?.name || '-'}</p>
+											{log.organizationContact?.name && (
+												<p className="text-xs text-gray-500 dark:text-gray-400 truncate w-28">
+													{log.organizationContact?.name}
+												</p>
+											)}
+											{log.task?.title && (
+												<p className="text-xs text-gray-500 dark:text-gray-400 truncate w-28">
+													{log.task?.title}
+												</p>
+											)}
+										</div>
+									</TableCell>
+
+									{/* Log Type Column */}
+									<TableCell>
+										<Badge variant={getLogTypeBadgeVariant(log.logType)}>
+											{log.logType
+												? t(`TIMESHEET.log_types.${log.logType}`, { defaultValue: log.logType })
+												: '-'}
+										</Badge>
+									</TableCell>
+
+									{/* Source Column */}
+									<TableCell>
+										<Badge variant={getSourceBadgeVariant(log.source)}>
+											{log.source
+												? t(`TIMESHEET.sources.${log.source}`, { defaultValue: log.source })
+												: '-'}
+										</Badge>
+									</TableCell>
+
+									{/* Duration Column */}
+									<TableCell className="font-medium">{formatDuration(log.duration)}</TableCell>
+
+									{/* Time Span Column */}
+									<TableCell className="text-xs">
+										{formatTimeSpan(log.startedAt, log.stoppedAt)}
+									</TableCell>
+
+									{/* Notes Column */}
+									<TableCell className="max-w-[200px] truncate" title={log.description || ''}>
+										{log.description || '-'}
+									</TableCell>
+								</TableRow>
+							))
+						)}
+					</TableBody>
+				</Table>
+				{loading && <SpinOverlayLoader />}
+			</div>
 
 			{/* Pagination */}
 			{timeLogs.length > 0 && (

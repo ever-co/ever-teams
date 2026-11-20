@@ -1,6 +1,8 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
 import React, { FC, useState, useRef, useMemo, useCallback, useEffect } from 'react';
+import { TaskSettingAddButton } from '../../../components/task-setting-add-button';
+import { TaskSettingsList } from '../../../components/task-settings-list';
 import { observer } from 'mobx-react-lite';
 import {
   View,
@@ -8,18 +10,18 @@ import {
   ViewStyle,
   TouchableOpacity,
   StyleSheet,
-  FlatList,
   StatusBar,
   Animated,
   Keyboard,
   Platform
 } from 'react-native';
-import { AntDesign, Ionicons } from '@expo/vector-icons';
+import { AntDesign } from '@expo/vector-icons';
 import { Screen } from '../../../components';
 import { AuthenticatedDrawerScreenProps } from '../../../navigators/authenticated-navigator';
 import { translate } from '../../../i18n';
 import BottomSheet, { BottomSheetBackdrop, BottomSheetScrollView } from '@gorhom/bottom-sheet';
-import { typography, useAppTheme } from '../../../theme';
+import { typography, useAppTheme, useWebTheme } from '../../../theme';
+import { sheetLookOf, sheetOverlayOpacity } from '../../../../src/theme/sheet-look';
 import { ActivityIndicator } from 'react-native-paper';
 import { ITaskPriorityItem } from '../../../services/interfaces/ITaskPriority';
 import TaskPriorityForm from './components/task-priority-form';
@@ -27,7 +29,6 @@ import { useTaskPriority } from '../../../services/hooks/features/use-task-prior
 import { useTaskSettingsAccess } from '../../../services/hooks/features/use-task-settings-access';
 import { readOnlyOpacity } from '../../../helpers/read-only-opacity';
 import PriorityItem from './components/priority-item';
-import { BlurView } from 'expo-blur';
 import { useRoute, RouteProp } from '@react-navigation/native';
 import { navigateTo } from '../../../navigators/routes';
 
@@ -42,6 +43,7 @@ type TaskPriorityRouteProp = RouteProp<{ TaskPriority: TaskPriorityRouteParams }
 export const TaskPriorityScreen: FC<AuthenticatedDrawerScreenProps<'TaskPriority'>> =
   observer(function AuthenticatedDrawerScreen(_props) {
     const { colors, dark } = useAppTheme();
+    const sheetLook = sheetLookOf(useWebTheme());
     const { navigation } = _props;
 
     // Use the properly typed route
@@ -155,7 +157,7 @@ export const TaskPriorityScreen: FC<AuthenticatedDrawerScreenProps<'TaskPriority
           appearsOnIndex={0}
           enableTouchThrough={false}
           pressBehavior="close"
-          opacity={0.7}
+          opacity={sheetOverlayOpacity}
         />
       ),
       []
@@ -187,23 +189,14 @@ export const TaskPriorityScreen: FC<AuthenticatedDrawerScreenProps<'TaskPriority
               <Text style={styles.title2}>
                 {translate('settingScreen.priorityScreen.listPriorities')}
               </Text>
-              <TouchableOpacity
-                accessibilityLabel={translate('settingScreen.priorityScreen.createNewPriorityText')}
-                accessibilityRole="button"
+              <TaskSettingAddButton
+                label={translate('settingScreen.priorityScreen.createNewPriorityText')}
+                iconSize={18}
                 disabled={createReadOnly}
-                style={{
-                  ...styles.createButtonSmall,
-                  borderColor: dark ? '#6755C9' : '#3826A6',
-                  backgroundColor: dark ? 'rgba(103, 85, 201, 0.15)' : 'rgba(56, 38, 166, 0.15)',
-                  opacity: createOpacity
-                }}
+                style={{ ...styles.createButtonSmall, opacity: createOpacity }}
+                textStyle={styles.btnTextSmall}
                 onPress={handleCreateNew}
-              >
-                <Ionicons name="add" size={18} color={dark ? '#6755C9' : '#3826A6'} />
-                <Text style={{ ...styles.btnTextSmall, color: dark ? '#6755C9' : '#3826A6' }}>
-                  {translate('settingScreen.priorityScreen.createNewPriorityText')}
-                </Text>
-              </TouchableOpacity>
+              />
             </View>
             {showsReadOnlyHint && (
               <Text style={{ ...styles.readOnlyHint, color: colors.tertiary }}>{readOnlyHint}</Text>
@@ -222,7 +215,7 @@ export const TaskPriorityScreen: FC<AuthenticatedDrawerScreenProps<'TaskPriority
                 </Text>
               ) : null}
 
-              <FlatList
+              <TaskSettingsList
                 bounces={false}
                 showsVerticalScrollIndicator={false}
                 style={{ width: '100%' }}
@@ -237,28 +230,18 @@ export const TaskPriorityScreen: FC<AuthenticatedDrawerScreenProps<'TaskPriority
                   />
                 )}
                 keyExtractor={(_, index) => index.toString()}
-                ListFooterComponent={() => <View style={{ marginBottom: 40 }} />}
               />
             </View>
           </View>
 
-          <TouchableOpacity
-            accessibilityLabel={translate('settingScreen.priorityScreen.createNewPriorityText')}
-            accessibilityRole="button"
+          <TaskSettingAddButton
+            label={translate('settingScreen.priorityScreen.createNewPriorityText')}
+            iconSize={24}
             disabled={createReadOnly}
-            style={{
-              ...styles.createButton,
-              borderColor: dark ? '#6755C9' : '#3826A6',
-              backgroundColor: dark ? 'rgba(103, 85, 201, 0.05)' : 'rgba(56, 38, 166, 0.05)',
-              opacity: createOpacity
-            }}
+            style={{ ...styles.createButton, opacity: createOpacity }}
+            textStyle={styles.btnText}
             onPress={handleCreateNew}
-          >
-            <Ionicons name="add" size={24} color={dark ? '#6755C9' : '#3826A6'} />
-            <Text style={{ ...styles.btnText, color: dark ? '#6755C9' : '#3826A6' }}>
-              {translate('settingScreen.priorityScreen.createNewPriorityText')}
-            </Text>
-          </TouchableOpacity>
+          />
         </Animated.View>
 
         {/* Bottom Sheet Container */}
@@ -286,22 +269,8 @@ export const TaskPriorityScreen: FC<AuthenticatedDrawerScreenProps<'TaskPriority
             keyboardBehavior="interactive"
             keyboardBlurBehavior="restore"
             android_keyboardInputMode="adjustResize"
-            backgroundStyle={{
-              backgroundColor: colors.background,
-              shadowColor: '#000',
-              shadowOffset: { width: 0, height: -3 },
-              shadowOpacity: 0.27,
-              shadowRadius: 4.65,
-              elevation: 10,
-              borderTopLeftRadius: 24,
-              borderTopRightRadius: 24
-            }}
-            handleIndicatorStyle={{
-              backgroundColor: dark ? '#FFFFFF' : '#000000',
-              width: 50,
-              height: 5,
-              marginTop: 10
-            }}
+            backgroundStyle={sheetLook.background}
+            handleIndicatorStyle={sheetLook.handle}
           >
             <BottomSheetScrollView
               style={{ backgroundColor: colors.background }}
@@ -323,20 +292,6 @@ export const TaskPriorityScreen: FC<AuthenticatedDrawerScreenProps<'TaskPriority
             </BottomSheetScrollView>
           </BottomSheet>
         </View>
-
-        {/* BlurView shown when the bottom sheet is open */}
-        {bottomSheetVisible && (
-          <BlurView
-            intensity={15}
-            tint="dark"
-            style={{
-              position: 'absolute',
-              width: '100%',
-              height: '100%',
-              zIndex: 999  // Just below the sheet container
-            }}
-          />
-        )}
       </Screen>
     );
   });

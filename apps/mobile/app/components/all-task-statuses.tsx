@@ -1,11 +1,14 @@
-/* eslint-disable react-native/no-inline-styles */
-/* eslint-disable react-native/no-color-literals */
-import React, { useEffect, useRef, useState } from 'react';
-import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { AntDesign } from '@expo/vector-icons';
-import { useAppTheme } from '../theme';
+import React from 'react';
+import { StyleSheet, View } from 'react-native';
 import LabelItem from './label-item';
-import { useTaskLabelValue, useTaskPriorityValue, useTaskSizeValue, useTaskStatusValue } from './status-type';
+import {
+	TStatusItem,
+	useTaskLabelValue,
+	useTaskPriorityValue,
+	useTaskSizeValue,
+	useTaskStatusValue
+} from './status-type';
+import type { TaskPropertyKind } from '../../src/components/task-property-icon';
 import { ITeamTask } from '../services/interfaces/ITask';
 
 function nameMatches(item: { name?: string } | undefined, value: string | undefined): boolean {
@@ -16,11 +19,13 @@ function nameMatches(item: { name?: string } | undefined, value: string | undefi
 	return name.toLowerCase() === value;
 }
 
-const AllTaskStatuses = ({ task }: { task: ITeamTask }) => {
-	const flatListRef = useRef<FlatList>(null);
-	const [labelIndex, setLabelIndex] = useState(0);
-	const { dark, colors } = useAppTheme();
+interface ChipOfKind {
+	kind: TaskPropertyKind;
+	item: TStatusItem | undefined;
+}
 
+/** A task's status, size, priority and labels as the web's chips, wrapping onto a second line when they need it. */
+const AllTaskStatuses = ({ task }: { task: ITeamTask }) => {
 	const allStatuses = useTaskStatusValue();
 	const allSizes = useTaskSizeValue();
 	const allPriorities = useTaskPriorityValue();
@@ -35,67 +40,28 @@ const AllTaskStatuses = ({ task }: { task: ITeamTask }) => {
 	const priorityValue = task?.priority?.split('-').join(' ').toLowerCase();
 	const priority = allPriorities && Object.values(allPriorities).find((item) => nameMatches(item, priorityValue));
 
-	const taskLabels = task?.tags?.map((tag) => allLabels[tag.name]);
-
-	const labels = [status, size, priority, ...(taskLabels || [])].filter((t) => t !== null && t !== undefined);
-
-	useEffect(() => {
-		if (labels.length > 0) {
-			flatListRef.current?.scrollToIndex({
-				animated: true,
-				index: labelIndex,
-				viewPosition: 0
-			});
-		}
-	}, [labelIndex]);
-
-	const onNextPressed = () => {
-		if (labelIndex !== labels.length - 2) {
-			setLabelIndex(labelIndex + 1 === labels.length ? +labelIndex : labelIndex + 1);
-		}
-	};
-
-	const onPrevPressed = () => {
-		if (labelIndex === 0) {
-			return;
-		}
-		setLabelIndex(labelIndex - 1);
-	};
+	const taskLabels = task?.tags?.map((tag) => allLabels[tag.name]) ?? [];
+	const chips: ChipOfKind[] = [
+		{ kind: 'status', item: status },
+		{ kind: 'size', item: size },
+		{ kind: 'priority', item: priority },
+		...taskLabels.map((item): ChipOfKind => ({ kind: 'label', item }))
+	];
+	const shownChips = chips.filter((chip) => chip.item !== null && chip.item !== undefined);
 
 	return (
-		<View style={styles.labelFlatList}>
-			<FlatList
-				data={labels}
-				initialScrollIndex={labelIndex}
-				renderItem={({ item, index }) => (
-					<View key={index} style={{ marginHorizontal: 2 }}>
-						<LabelItem label={item?.name} background={item?.bgColor} icon={item?.icon} />
-					</View>
-				)}
-				horizontal={true}
-				showsHorizontalScrollIndicator={false}
-				ref={flatListRef}
-				keyExtractor={(_, index) => index.toString()}
-				style={{ marginRight: 10, overflow: 'scroll' }}
-			/>
-			{labelIndex === labels.length - 2 || labels.length < 3 ? null : (
-				<TouchableOpacity
-					activeOpacity={0.7}
-					style={[styles.scrollRight, { backgroundColor: dark ? '#1e2430' : colors.background }]}
-					onPress={() => onNextPressed()}
-				>
-					<AntDesign name="right" size={18} color={colors.primary} />
-				</TouchableOpacity>
-			)}
-			{labelIndex !== 0 ? (
-				<TouchableOpacity
-					activeOpacity={0.7}
-					style={[styles.scrollRight, { left: 0, backgroundColor: dark ? '#1e2430' : colors.background }]}
-					onPress={() => onPrevPressed()}
-				>
-					<AntDesign name="left" size={18} color={colors.primary} />
-				</TouchableOpacity>
-			) : null}
+		<View testID="task-chips" style={styles.chips}>
+			{shownChips.map(({ kind, item }, index) => (
+				<LabelItem
+					key={`${item?.name}-${index}`}
+					label={item?.name ?? ''}
+					background={item?.bgColor ?? ''}
+					icon={item?.icon}
+					iconUrl={item?.iconUrl}
+					kind={kind}
+					storedIcon={item?.storedIcon}
+				/>
+			))}
 		</View>
 	);
 };
@@ -103,27 +69,11 @@ const AllTaskStatuses = ({ task }: { task: ITeamTask }) => {
 export default AllTaskStatuses;
 
 const styles = StyleSheet.create({
-	labelFlatList: {
-		alignItems: 'center',
+	chips: {
 		flexDirection: 'row',
-		justifyContent: 'space-between',
+		flexWrap: 'wrap',
+		gap: 6,
 		marginTop: 16,
-		width: '74%'
-	},
-	scrollRight: {
-		alignItems: 'center',
-		backgroundColor: '#fff',
-		borderRadius: 20,
-		elevation: 10,
-		height: 27,
-		justifyContent: 'center',
-		padding: 5,
-		position: 'absolute',
-		right: 0,
-		shadowColor: 'rgba(0,0,0,0.16)',
-		shadowOffset: { width: 0, height: 5 },
-		shadowOpacity: 1,
-		shadowRadius: 15,
-		width: 28
+		width: '100%'
 	}
 });

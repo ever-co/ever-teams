@@ -55,7 +55,14 @@
 			"needsNetwork": "Zum Starten und Stoppen des Timers ist eine Verbindung nötig.",
 			"weekFailed": "Die Wochensumme konnte nicht geladen werden",
 			"weekUnavailable": "Dieses Konto erfasst hier keine Zeit",
-			"taskFailed": "Die Aufgabe konnte nicht geladen werden"
+			"taskFailed": "Die Aufgabe konnte nicht geladen werden",
+			"todayTasks": "Heutige Aufgaben",
+			"todayTasksEmpty": "Heute noch keine Aufgabe erfasst",
+			"todayTasksFailed": "Die heutigen Aufgaben konnten nicht geladen werden",
+			"runningTask": "Läuft",
+			"startOnTask": "Timer für {title} starten",
+			"switchToTask": "Aktuelle Aufgabe stoppen und {title} starten",
+			"switchFailedTitle": "Der Timer konnte die Aufgabe nicht wechseln"
 		}
 	},
 	"session": {
@@ -227,6 +234,7 @@
 		"characterLimitErrorTitle": "Die Aufgabenbezeichnung konnte nicht aktualisiert werden.",
 		"characterLimitErrorDescription": "Die Aufgabenbezeichnung darf nicht mehr als 255 Zeichen umfassen.",
 		"copyTitle": "Titel kopiert.",
+		"copyTitleButton": "Titel kopieren",
 		"changeParent": "Übergeordnete Aufgabe ändern",
 		"addParent": "Übergeordnete Aufgabe hinzufügen",
 		"taskScreen": "Aufgabenansicht",
@@ -307,6 +315,7 @@
 		"hintMessage": "Lorem ipsum dolor sit amet consectetur. Blandit lobortis dui risus neque."
 	},
 	"settingScreen": {
+		"description": "Dein Konto, dein Team und wie seine Aufgaben organisiert sind.",
 		"name": "Einstellungen",
 		"personalSection": {
 			"name": "Persönlich",
@@ -501,7 +510,11 @@
 		}
 	},
 	"hamburgerMenu": {
-		"darkMode": "Dark Mode"
+		"darkMode": "Dark Mode",
+		"theme": "Design",
+		"themeSystem": "System",
+		"themeLight": "Hell",
+		"themeDark": "Dunkel"
 	},
 	"inviteModal": {
 		"accept": "Akzeptieren",
@@ -574,6 +587,24 @@
 		"noFavoritesEmptyState": {
 			"heading": "Das sieht etwas leer aus",
 			"content": "Es wurden noch keine Favoriten hinzugefügt. Tippen Sie bei einer Folge auf das Herz, um sie zu Ihren Favoriten hinzuzufügen!"
+		}
+	},
+	"taskMenus": {
+		"search": {
+			"status": "Status ändern…",
+			"priority": "Priorität festlegen…",
+			"size": "Größe festlegen…",
+			"label": "Labels hinzufügen…",
+			"version": "Version ändern…"
+		},
+		"noResults": "Keine Ergebnisse",
+		"noOptions": "Noch nichts zur Auswahl",
+		"actions": {
+			"createStatus": "Status erstellen",
+			"createPriority": "Priorität erstellen",
+			"createSize": "Größe erstellen",
+			"createLabel": "Label erstellen",
+			"createVersion": "Version erstellen"
 		}
 	}
 }

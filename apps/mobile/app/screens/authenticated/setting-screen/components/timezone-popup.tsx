@@ -17,7 +17,7 @@ import {
 	FlatList,
 	TextInput,
 } from "react-native"
-import { AntDesign, FontAwesome, EvilIcons } from "@expo/vector-icons"
+import { Circle, CircleCheck } from "../../../../../src/components/icons"
 import _debounce from "lodash/debounce"
 
 // COMPONENTS
@@ -161,10 +161,9 @@ const TimezonePopup: FC<Props> = function FilterPopup({
 									{item}
 								</Text>
 								{(selectedTimezone || userTimezone) === item ? (
-									<AntDesign name="check-circle" color={"#27AE60"} size={21.5} />
+									<CircleCheck color={"#27AE60"} size={21.5} />
 								) : (
-									<FontAwesome
-										name="circle-thin"
+									<Circle
 										size={24}
 										color={dark ? "#5a5b5e" : "#00000021"}
 									/>

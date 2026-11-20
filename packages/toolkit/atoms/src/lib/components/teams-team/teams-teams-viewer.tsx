@@ -24,9 +24,10 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { TeamsTeamCreationFormDialog } from '@components/forms/team/team-creation-form';
 import { useOrganizationTeams } from '@hooks/useOrganizationTeams';
+import { useSelectedOrganizationName } from '@hooks/useSelectedOrganizationName';
 
 export function TeamsTeamsViewer({ className }: { className?: string }) {
-	const { selectedTeam, userOrganizations, selectedOrganization } = useTeamsContext();
+	const { selectedTeam } = useTeamsContext();
 
 	const { data: organizationTeams, loading: organisationsLoading } = useOrganizationTeams({ projectId: null });
 
@@ -35,11 +36,10 @@ export function TeamsTeamsViewer({ className }: { className?: string }) {
 	const [currentPage, setCurrentPage] = useState(1);
 	const [itemsPerPage, setItemsPerPage] = useState(5);
 
-	const orgName =
-		userOrganizations?.items.find((elt) => elt.organizationId == selectedOrganization)?.organization?.name ||
-		'Ever';
-
 	const { t } = useTranslation(undefined, { keyPrefix: 'TEAMS_VIEWER' });
+
+	const orgName = useSelectedOrganizationName();
+	const title = orgName ? t('title.all_teams', { orgName }) : t('title.all_teams_without_organization');
 
 	useEffect(() => {
 		setTeams(organizationTeams?.items || []);
@@ -79,9 +79,7 @@ export function TeamsTeamsViewer({ className }: { className?: string }) {
 		>
 			{organisationsLoading && <SpinOverlayLoader />}
 			<div className="flex items-center justify-between ">
-				<h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-					{t('title.all_teams', { orgName })}
-				</h2>
+				<h2 className="text-xl font-semibold text-gray-900 dark:text-white">{title}</h2>
 			</div>
 
 			<div className="flex w-full justify-between items-center">

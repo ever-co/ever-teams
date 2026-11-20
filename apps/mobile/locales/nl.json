@@ -55,7 +55,14 @@
 			"needsNetwork": "Voor starten en stoppen van de timer is een verbinding nodig.",
 			"weekFailed": "Het weektotaal kon niet worden geladen",
 			"weekUnavailable": "Dit account registreert hier geen tijd",
-			"taskFailed": "De taak kon niet worden geladen"
+			"taskFailed": "De taak kon niet worden geladen",
+			"todayTasks": "Taken van vandaag",
+			"todayTasksEmpty": "Vandaag nog geen taak geregistreerd",
+			"todayTasksFailed": "De taken van vandaag konden niet worden geladen",
+			"runningTask": "Loopt",
+			"startOnTask": "Timer starten op {title}",
+			"switchToTask": "Huidige taak stoppen en {title} starten",
+			"switchFailedTitle": "De timer kon niet van taak wisselen"
 		}
 	},
 	"session": {
@@ -227,6 +234,7 @@
 		"characterLimitErrorTitle": "We konden de taaktitel niet bijwerken.",
 		"characterLimitErrorDescription": "De taaktitel kan niet langer zijn dan 255 tekens.",
 		"copyTitle": "Titel gekopieerd.",
+		"copyTitleButton": "Titel kopiëren",
 		"changeParent": "Hoofd wijzigen",
 		"addParent": "Hoofd toevoegen",
 		"taskScreen": "Taakscherm",
@@ -307,6 +315,7 @@
 		"hintMessage": "Lorem ipsum dolor sit amet consectetur. Blandit lobortis dui risus neque."
 	},
 	"settingScreen": {
+		"description": "Je account, je team en hoe de taken ervan zijn georganiseerd.",
 		"name": "Instellingen",
 		"personalSection": {
 			"name": "Persoonlijk",
@@ -501,7 +510,11 @@
 		}
 	},
 	"hamburgerMenu": {
-		"darkMode": "Donkere modus"
+		"darkMode": "Donkere modus",
+		"theme": "Thema",
+		"themeSystem": "Systeem",
+		"themeLight": "Licht",
+		"themeDark": "Donker"
 	},
 	"inviteModal": {
 		"accept": "Accepteren",
@@ -574,6 +587,24 @@
 		"noFavoritesEmptyState": {
 			"heading": "Dit ziet er wat leeg uit",
 			"content": "Er zijn nog geen favorieten toegevoegd. Tik op het hartje bij een aflevering om die aan je favorieten toe te voegen!"
+		}
+	},
+	"taskMenus": {
+		"search": {
+			"status": "Status wijzigen…",
+			"priority": "Prioriteit instellen…",
+			"size": "Grootte instellen…",
+			"label": "Labels toevoegen…",
+			"version": "Versie wijzigen…"
+		},
+		"noResults": "Geen resultaten",
+		"noOptions": "Nog niets om uit te kiezen",
+		"actions": {
+			"createStatus": "Status aanmaken",
+			"createPriority": "Prioriteit aanmaken",
+			"createSize": "Grootte aanmaken",
+			"createLabel": "Label aanmaken",
+			"createVersion": "Versie aanmaken"
 		}
 	}
 }

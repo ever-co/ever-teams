@@ -173,7 +173,7 @@ const UserProfileTasks: FC<IUserProfileTasks> = observer(({ profile, content }) 
 										index={tasks.length + 1 + index}
 										setOpenMenuIndex={setOpenMenuIndex}
 										isAuthUser={profile.isAuthUser}
-										activeAuthTask={false}
+										activeAuthTask={activeTaskId === item?.id}
 										profile={profile}
 									/>
 								</View>

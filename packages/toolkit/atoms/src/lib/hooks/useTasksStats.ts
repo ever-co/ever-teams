@@ -2,10 +2,12 @@ import { IHookResponse, IServerError, IUser } from '@ever-teams/toolkit-types';
 import { useEffect, useState } from 'react';
 import { ApiCall } from '@ever-teams/api';
 import type { IApiRequestConfig } from '@ever-teams/api';
-import { getWeekStartAndEnd, getStartAndEndOfDay, toast } from '@ever-teams/toolkit-ui';
+import { getWeekStartAndEnd, getTodaySoFar, toast } from '@ever-teams/toolkit-ui';
 import { DateRange } from 'react-day-picker';
 import { useTeamsContext } from '@lib/context/teams-context';
+import { pickedEmployeeOf, reportEmployeeIdOf } from '@lib/utils/report-employee';
 import { useKitOptions } from '@components/teams-provider/kit-options';
+import { useTimerOnlyToken } from '@hooks/useTimerOnlyToken';
 
 interface ITasksStat {
 	duration: number;
@@ -33,10 +35,10 @@ const getTasksStats = async (
 		}
 
 		const { tenantId } = user;
-		const employeeId = user.employee?.id || (selectedEmployee !== 'all' ? selectedEmployee : undefined);
+		const employeeId = reportEmployeeIdOf(user, selectedEmployee);
 
 		const weekDates = dates;
-		const dayDates = getStartAndEndOfDay();
+		const dayDates = getTodaySoFar();
 
 		interface ITasksStatsQuery {
 			tenantId: string;
@@ -95,16 +97,24 @@ const useTasksStats = (): IHookResponse<ITasksStats> => {
 	const {
 		authenticatedUser: user,
 		token,
-		selectedEmployee,
+		selectedEmployee: employeeInPicker,
+		userPermissions,
 		selectedTeam,
 		selectedOrganization: organizationId,
 		reportDates: date
 	} = useTeamsContext();
+	// The employee picked counts only for a person who may pick one (#5631)
+	const selectedEmployee = pickedEmployeeOf(employeeInPicker, userPermissions);
 	const { api } = useKitOptions();
+	const timerOnly = useTimerOnlyToken();
 
 	const [tasksStats, setTasksStats] = useState<IHookResponse<ITasksStats>>({ data: null, loading: false });
 
 	useEffect(() => {
+		// An embed token reaches the timer only: no read, so no refusal to show (#5602)
+		if (timerOnly) {
+			return;
+		}
 		// A read the effect has moved past (other filters or another address, or the widget gone) shows nothing, not
 		// even its error: the toasts are the page's
 		let current = true;
@@ -146,7 +156,7 @@ const useTasksStats = (): IHookResponse<ITasksStats> => {
 			// The next read, if any, sets it again
 			setTasksStats((prev) => (prev.loading ? { ...prev, loading: false } : prev));
 		};
-	}, [user, selectedEmployee, selectedTeam, date, organizationId, api]);
+	}, [user, selectedEmployee, selectedTeam, date, organizationId, timerOnly, api]);
 
 	return tasksStats;
 };

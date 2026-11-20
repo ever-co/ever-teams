@@ -6,7 +6,10 @@ import { AntDesign, Entypo } from '@expo/vector-icons';
 import { observer } from 'mobx-react-lite';
 import { ITeamTask } from '../services/interfaces/ITask';
 import { useTeamTasks } from '../services/hooks/features/use-team-tasks';
-import { typography, useAppTheme } from '../theme';
+import { typography, useWebTheme } from '../theme';
+import { taskChipLookOf } from '../../src/components/task-chip';
+import { ChipIcon } from '../../src/components/chip-icon';
+import { useMenuAnchor } from '../../src/components/menu-anchor';
 import TaskPriorityPopup from './task-priority-popup';
 import { translate } from '../i18n';
 import { useTaskPriorityValue } from './status-type';
@@ -22,9 +25,10 @@ interface TaskPriorityProps {
 
 const TaskPriority: FC<TaskPriorityProps> = observer(
 	({ task, containerStyle, priority, setPriority, canCreatePriority }) => {
-		const { colors } = useAppTheme();
+		const theme = useWebTheme();
 		const { updateTask } = useTeamTasks();
 		const [openModal, setOpenModal] = useState(false);
+		const { anchorRef, anchor, openFromAnchor } = useMenuAnchor();
 
 		const allTaskPriorities = useTaskPriorityValue();
 
@@ -35,6 +39,7 @@ const TaskPriority: FC<TaskPriorityProps> = observer(
 
 		const currentPriority =
 			allTaskPriorities && Object.values(allTaskPriorities).find((item) => item.name.toLowerCase() === sizeValue);
+		const look = taskChipLookOf(currentPriority?.bgColor, theme);
 
 		const onChangePriority = async (text: string) => {
 			if (task) {
@@ -56,21 +61,19 @@ const TaskPriority: FC<TaskPriorityProps> = observer(
 					visible={openModal}
 					setSelectedPriority={(e) => onChangePriority(e.value)}
 					onDismiss={() => setOpenModal(false)}
+					anchor={anchor}
 					canCreatePriority={canCreatePriority}
 				/>
-				<TouchableOpacity onPress={() => setOpenModal(true)}>
+				<TouchableOpacity onPress={() => openFromAnchor(() => setOpenModal(true))}>
 					<View
-						style={{
-							...styles.container,
-							...containerStyle,
-							borderColor: colors.border,
-							backgroundColor: currentPriority?.bgColor
-						}}
+						ref={anchorRef}
+						collapsable={false}
+						style={[{ ...styles.container, ...containerStyle }, look.container]}
 					>
 						{(task?.priority || priority) && currentPriority ? (
 							<View style={styles.wrapStatus}>
-								{currentPriority.icon}
-								<Text style={{ ...styles.text, marginLeft: 10 }}>
+								<ChipIcon item={currentPriority} color={look.ink} kind="priority" />
+								<Text style={{ ...styles.text, color: look.ink, marginLeft: 10 }}>
 									{limitTextCharaters({
 										text: currentPriority.name,
 										numChars: 15
@@ -79,17 +82,13 @@ const TaskPriority: FC<TaskPriorityProps> = observer(
 							</View>
 						) : (
 							<View style={styles.wrapStatus}>
-								<Entypo name="circle" size={12} color={colors.primary} />
-								<Text style={{ ...styles.text, color: colors.primary, marginLeft: 5 }}>
+								<Entypo name="circle" size={12} color={look.ink} />
+								<Text style={{ ...styles.text, color: look.ink, marginLeft: 5 }}>
 									{translate('settingScreen.priorityScreen.priorities')}
 								</Text>
 							</View>
 						)}
-						<AntDesign
-							name="down"
-							size={14}
-							color={task?.priority || priority ? '#000000' : colors.primary}
-						/>
+						<AntDesign name="down" size={14} color={look.ink} />
 					</View>
 				</TouchableOpacity>
 			</>
@@ -100,9 +99,7 @@ const TaskPriority: FC<TaskPriorityProps> = observer(
 const styles = StyleSheet.create({
 	container: {
 		alignItems: 'center',
-		borderColor: 'rgba(0,0,0,0.16)',
-		borderRadius: 10,
-		borderWidth: 1,
+		borderRadius: 8,
 		flexDirection: 'row',
 		justifyContent: 'space-between',
 		minHeight: 30,

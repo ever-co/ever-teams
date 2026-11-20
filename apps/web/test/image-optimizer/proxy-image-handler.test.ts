@@ -8,7 +8,10 @@ import createMiddleware from 'next-intl/middleware';
 import { currentAuthenticatedUserRequest, refreshTokenRequest } from '@/core/services/server/requests/auth';
 import { proxy } from '@/proxy';
 
-jest.mock('next-intl/middleware', () => ({ __esModule: true, default: jest.fn(() => jest.fn()) }));
+jest.mock('next-intl/middleware', () => ({
+	__esModule: true,
+	default: jest.fn(() => jest.fn(() => new Response(null)))
+}));
 jest.mock('@/auth', () => ({ auth: jest.fn() }));
 jest.mock('@/core/services/server/requests/auth', () => ({
 	currentAuthenticatedUserRequest: jest.fn(),

@@ -1,4 +1,5 @@
 import { LogType, TimerSource } from '@ever-teams/toolkit-types';
+import { billableFieldsOf } from '../billable';
 import { EverTeamsValidationError } from './errors';
 import { Identity } from './identity';
 import { TimerListener, TimerWatchOptions, watchTimer } from './timer-watch';
@@ -51,6 +52,11 @@ export interface TimerStartOptions {
 	taskId?: string;
 	organizationTeamId?: string;
 	description?: string;
+	/**
+	 * Whether the time is billable. Left out, it is billable as its project is set (the one named, else its task's), as
+	 * in the web app; time without a project is billable, as before.
+	 */
+	isBillable?: boolean;
 }
 
 export interface TimerResource {
@@ -107,6 +113,7 @@ export function createTimer(transport: Transport, identity: Identity): TimerReso
 		return transport.request<EverTeamsTimerStatus>({
 			method: 'GET',
 			path: '/timesheet/timer/status',
+			reachableByEmbedToken: true,
 			query: { tenantId, organizationId },
 			tenantId,
 			organizationId
@@ -119,6 +126,7 @@ export function createTimer(transport: Transport, identity: Identity): TimerReso
 			transport.request<EverTeamsTimeLog>({
 				method: 'POST',
 				path: '/timesheet/timer/start',
+				reachableByEmbedToken: true,
 				tenantId,
 				organizationId,
 				body: {
@@ -126,7 +134,7 @@ export function createTimer(transport: Transport, identity: Identity): TimerReso
 					organizationId,
 					logType: LogType.TRACKED,
 					source,
-					isBillable: true,
+					...billableFieldsOf(options.isBillable, true),
 					projectId: options.projectId,
 					taskId: options.taskId,
 					organizationTeamId: options.organizationTeamId,
@@ -142,6 +150,7 @@ export function createTimer(transport: Transport, identity: Identity): TimerReso
 			transport.request<EverTeamsTimeLog | null>({
 				method: 'POST',
 				path: '/timesheet/timer/stop',
+				reachableByEmbedToken: true,
 				tenantId,
 				organizationId,
 				body: { tenantId, organizationId, logType: LogType.TRACKED, source }

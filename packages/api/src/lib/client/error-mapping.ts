@@ -79,11 +79,13 @@ export function codeOf(body: unknown): string | undefined {
 	return undefined;
 }
 
-function forbiddenStep(code: string | undefined): string {
-	if (code !== undefined && Object.prototype.hasOwnProperty.call(FORBIDDEN_STEPS, code)) {
+// The embed guard refuses a token before the route runs: its code says more than the route's own next step. A route
+// no embed token reaches (the site sign-in's renewal) answers the same codes for reasons of its own: its step wins.
+function forbiddenStep(code: string | undefined, ownStep: string | undefined, embedGuard: boolean): string {
+	if (embedGuard && code !== undefined && Object.prototype.hasOwnProperty.call(FORBIDDEN_STEPS, code)) {
 		return FORBIDDEN_STEPS[code];
 	}
-	return FORBIDDEN_STEP;
+	return ownStep || FORBIDDEN_STEP;
 }
 
 function rateLimitStep(retryAfter: number | undefined): string {
@@ -125,11 +127,17 @@ function retryAfterOf(headers: Headers, now: number): number | undefined {
 /** The next steps a call gives in place of the general ones, by HTTP status. */
 export type NextStepsByStatus = { [status: number]: string };
 
+/** How an answer is read: `embedGuard` false for a route that takes no embed token, whose own steps then always win. */
+export interface ErrorMappingOptions {
+	embedGuard?: boolean;
+}
+
 /** The typed error of an answer that is not a success, from the answer and its body (read as JSON, else null). */
 export function errorFromResponse(
 	response: AnswerHead,
 	body: unknown,
-	nextSteps: NextStepsByStatus = {}
+	nextSteps: NextStepsByStatus = {},
+	{ embedGuard = true }: ErrorMappingOptions = {}
 ): EverTeamsError {
 	const status = response.status;
 	const code = codeOf(body);
@@ -140,7 +148,7 @@ export function errorFromResponse(
 		return new EverTeamsAuthError({ ...fields, nextStep: ownStep || AUTH_STEP });
 	}
 	if (status === 403) {
-		return new EverTeamsForbiddenError({ ...fields, nextStep: ownStep || forbiddenStep(code) });
+		return new EverTeamsForbiddenError({ ...fields, nextStep: forbiddenStep(code, ownStep, embedGuard) });
 	}
 	if (status === 404) {
 		return new EverTeamsNotFoundError({ ...fields, nextStep: ownStep || NOT_FOUND_STEP });

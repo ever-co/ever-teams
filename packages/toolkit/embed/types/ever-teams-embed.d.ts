@@ -12,7 +12,27 @@ export interface EverTeamsTimerAttributes {
 	'color-scheme'?: EverTeamsColorScheme;
 	/** The language of the timer and its sign-in: `en` (the default) or `fr`. */
 	lang?: string;
+	/**
+	 * `ever-teams`: a "Sign in with Ever Teams" button opens the Ever Teams web app in a popup, where the person allows
+	 * this site; no password or token is typed in the page. An administrator turns it on for the site in Settings >
+	 * Embeds. Without it, the kit's own sign-in.
+	 */
+	'sign-in'?: EverTeamsSignIn;
+	/** The organization the site signs people in to, with `sign-in="ever-teams"`. */
+	organization?: string;
+	/** The Ever Teams web app the popup opens, with `sign-in="ever-teams"`. Default: `https://app.ever.team`. */
+	'app-url'?: string;
+	/**
+	 * Your own route that answers the signed-in person's embed token (`{ token, expiresAt }`, what `exchangeEmbedToken`
+	 * of `@ever-teams/api/server` answers). The element asks it with a POST and the page's cookies, signs the person in
+	 * with that token and asks again before it expires; an answer that is not 2xx shows the person as signed out. It
+	 * wins over `sign-in`. Another value, or `signOut()`, starts a new session.
+	 */
+	'token-url'?: string;
 }
+
+/** The values of `sign-in`: `ever-teams`, the sign-in with Ever Teams in a popup. */
+export type EverTeamsSignIn = 'ever-teams';
 
 type CamelCase<Name extends string> = Name extends `${infer Head}-${infer Tail}`
 	? `${Head}${Capitalize<CamelCase<Tail>>}`
@@ -55,6 +75,16 @@ export declare class EverTeamsTimerElement extends HTMLElement {
 	connectedCallback(): void;
 	disconnectedCallback(): void;
 	attributeChangedCallback(): void;
+	/**
+	 * Ends the person's sign-in with Ever Teams (`sign-in="ever-teams"`) as the user menu does: forgotten in the
+	 * browser, ended at the API, and the "Sign in with Ever Teams" button shows again. Call it on each timer of the
+	 * page when your page signs its own user out, so the next person on a shared computer does not get the previous
+	 * one's timer: each timer holds its own token. An element no longer in the page ends the sign-in saved for its
+	 * `api-url` and `organization`. With `token-url`, it drops the token the element holds and asks the route again
+	 * (call it after your own sign-out, so the route answers 401). Without `sign-in="ever-teams"` or `token-url`, it
+	 * does nothing.
+	 */
+	signOut(): Promise<void>;
 }
 
 declare global {

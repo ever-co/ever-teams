@@ -55,7 +55,14 @@
 			"needsNetwork": "כדי להפעיל ולעצור את הטיימר צריך חיבור.",
 			"weekFailed": "לא ניתן היה לטעון את סך השבוע",
 			"weekUnavailable": "החשבון הזה לא מודד כאן זמן",
-			"taskFailed": "לא ניתן היה לטעון את המשימה"
+			"taskFailed": "לא ניתן היה לטעון את המשימה",
+			"todayTasks": "המשימות של היום",
+			"todayTasksEmpty": "עדיין לא נמדדה אף משימה היום",
+			"todayTasksFailed": "לא ניתן היה לטעון את המשימות של היום",
+			"runningTask": "פועל",
+			"startOnTask": "הפעלת הטיימר על {title}",
+			"switchToTask": "עצירת המשימה הנוכחית והפעלת {title}",
+			"switchFailedTitle": "הטיימר לא הצליח להחליף משימה"
 		}
 	},
 	"session": {
@@ -227,6 +234,7 @@
 		"characterLimitErrorTitle": "לא יכולנו לעדכן את כותרת המשימה.",
 		"characterLimitErrorDescription": "כותרת המשימה יכולה להכיל 255 תווים לכל היותר.",
 		"copyTitle": "הכותרת הועתקה.",
+		"copyTitleButton": "העתק כותרת",
 		"changeParent": "שינוי משימת האב",
 		"addParent": "הוספת משימת אב",
 		"taskScreen": "מסך המשימה",
@@ -307,6 +315,7 @@
 		"hintMessage": "Lorem ipsum dolor sit amet consectetur. Blandit lobortis dui risus neque."
 	},
 	"settingScreen": {
+		"description": "החשבון שלך, הצוות שלך ואופן ארגון המשימות שלו.",
 		"name": "הגדרות",
 		"personalSection": {
 			"name": "אישי",
@@ -501,7 +510,11 @@
 		}
 	},
 	"hamburgerMenu": {
-		"darkMode": "מצב כהה"
+		"darkMode": "מצב כהה",
+		"theme": "ערכת נושא",
+		"themeSystem": "מערכת",
+		"themeLight": "בהיר",
+		"themeDark": "כהה"
 	},
 	"inviteModal": {
 		"accept": "קבל",
@@ -574,6 +587,24 @@
 		"noFavoritesEmptyState": {
 			"heading": "נראה קצת ריק כאן",
 			"content": "עדיין לא נוספו מועדפים. הקש על הלב שליד פרק כדי להוסיף אותו למועדפים!"
+		}
+	},
+	"taskMenus": {
+		"search": {
+			"status": "שינוי סטטוס…",
+			"priority": "הגדרת עדיפות…",
+			"size": "הגדרת גודל…",
+			"label": "הוספת תוויות…",
+			"version": "שינוי גרסה…"
+		},
+		"noResults": "אין תוצאות",
+		"noOptions": "עדיין אין מה לבחור",
+		"actions": {
+			"createStatus": "יצירת סטטוס",
+			"createPriority": "יצירת עדיפות",
+			"createSize": "יצירת גודל",
+			"createLabel": "יצירת תווית",
+			"createVersion": "יצירת גרסה"
 		}
 	}
 }

@@ -43,6 +43,7 @@ export * from './lib/svgs/arrow-up';
 export * from './lib/svgs/teams-logo';
 export * from './lib/svgs/close';
 export * from './lib/svgs/expand';
+export * from './lib/svgs/collapse';
 export * from './lib/svgs/pause';
 export * from './lib/svgs/start';
 export * from './lib/svgs/stop';

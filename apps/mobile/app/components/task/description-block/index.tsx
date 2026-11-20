@@ -81,7 +81,7 @@ const DescriptionBlock = () => {
 		showMessage({
 			message: translate("taskDetailsScreen.copyDescription"),
 			type: "info",
-			backgroundColor: colors.secondary,
+			backgroundColor: colors.accentFill,
 		})
 	}
 
@@ -126,7 +126,10 @@ const DescriptionBlock = () => {
 				/>
 
 				<View style={{ paddingHorizontal: 12 }}>
-					<View style={styles.horizontalSeparator} />
+					<View
+						testID="description-separator"
+						style={[styles.horizontalSeparator, { borderTopColor: colors.border }]}
+					/>
 					<QuillToolbar
 						editor={_editor}
 						styles={{
@@ -201,7 +204,7 @@ const DescriptionBlock = () => {
 								onPress={onPressSave}
 								style={{
 									...styles.actionButton,
-									backgroundColor: colors.secondary,
+									backgroundColor: colors.accentFill,
 								}}
 							>
 								<Text style={{ color: "white", fontSize: 12 }}>
@@ -241,8 +244,7 @@ const styles = StyleSheet.create({
 		padding: 0,
 	},
 	horizontalSeparator: {
-		borderTopColor: "#F2F2F2",
-		borderTopWidth: 1,
+		borderTopWidth: StyleSheet.hairlineWidth,
 		marginBottom: 10,
 		width: "100%",
 	},

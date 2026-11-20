@@ -1,53 +1,63 @@
-/* eslint-disable react-native/no-inline-styles */
-import React, { FC, useRef } from 'react';
-import { View, Text, Dimensions, TextInput, ViewStyle, TouchableOpacity } from 'react-native';
+import React, { FC, ReactNode, useRef } from 'react';
+import { StyleSheet, Text, TextInput, TouchableOpacity } from 'react-native';
 import { observer } from 'mobx-react-lite';
-import * as Animatable from 'react-native-animatable';
-import EStyleSheet from 'react-native-extended-stylesheet';
 
 // Components
 import { translate } from '../../../i18n';
-import { Button, TextField } from '../../../components';
-import { spacing, typography, useAppTheme } from '../../../theme';
+import { typography, useWebTheme } from '../../../theme';
 import { useStores } from '../../../models';
-import { GLOBAL_STYLE as GS } from '../../../../assets/ts/styles';
+import { SignInStep } from './sign-in-step';
+import { SignInField } from './sign-in-field';
 
 interface Props {
 	isLoading: boolean;
 	errors: any;
 	setWithTeam: (value: boolean) => unknown;
 	setScreenStatus: (value: { screen: number; animation: boolean }) => unknown;
+	/** The step's title and its line, drawn above the fields. */
+	heading?: ReactNode;
 }
 
-const FillTeamNameForm: FC<Props> = observer(({ isLoading, errors, setScreenStatus, setWithTeam }) => {
-	const authTeamInput = useRef<TextInput | null>(null);
+const TEAM_NAME_MIN_LENGTH = 3;
 
-	const { colors, dark } = useAppTheme();
+const FillTeamNameForm: FC<Props> = observer(({ isLoading, errors, setScreenStatus, setWithTeam, heading }) => {
+	const authTeamInput = useRef<TextInput | null>(null);
+	const theme = useWebTheme();
 
 	const {
 		authenticationStore: { authTeamName, setAuthTeamName }
 	} = useStores();
 
+	const isTeamNameShort = authTeamName.length < TEAM_NAME_MIN_LENGTH;
+
 	return (
-		<Animatable.View
-			animation={'zoomIn'}
-			delay={100}
-			style={{
-				...styles.form,
-				backgroundColor: colors.background,
-				...(!dark && GS.shadowSm)
+		<SignInStep
+			heading={heading}
+			submit={{
+				label: translate('loginScreen.tapContinue'),
+				onPress: () =>
+					setScreenStatus({
+						screen: 2,
+						animation: true
+					}),
+				disabled: isTeamNameShort,
+				isLoading: false
 			}}
+			footer={
+				<TouchableOpacity
+					accessibilityRole="button"
+					style={styles.switchLink}
+					onPress={() => setWithTeam(true)}
+				>
+					<Text style={[styles.switchText, { color: theme.colors['primary-ink'] }]}>
+						{translate('loginScreen.joinExistTeam')}
+					</Text>
+				</TouchableOpacity>
+			}
 		>
-			<Text style={{ ...styles.text, color: colors.primary }}>{translate('loginScreen.step1Title')}</Text>
-			<TextField
+			<SignInField
+				label={translate('loginScreen.step1Title')}
 				placeholder={translate('loginScreen.teamNameFieldPlaceholder')}
-				containerStyle={styles.textField}
-				placeholderTextColor={dark ? '#7B8089' : '#28204866'}
-				inputWrapperStyle={{
-					...styles.inputStyleOverride,
-					backgroundColor: colors.background,
-					borderColor: colors.border
-				}}
 				ref={authTeamInput}
 				value={authTeamName}
 				onChangeText={setAuthTeamName}
@@ -58,98 +68,20 @@ const FillTeamNameForm: FC<Props> = observer(({ isLoading, errors, setScreenStat
 				status={errors?.authTeamName ? 'error' : undefined}
 				onSubmitEditing={() => authTeamInput.current?.focus()}
 			/>
-			<View style={styles.buttonsView}>
-				<TouchableOpacity style={{ width: 130 }} onPress={() => setWithTeam(true)}>
-					<Text style={{ ...styles.joinExistedText, color: colors.secondary }}>
-						{translate('loginScreen.joinExistTeam')}
-					</Text>
-				</TouchableOpacity>
-				<Button
-					style={{
-						...$tapButton,
-						opacity: authTeamName.length < 3 ? 0.5 : 1,
-						backgroundColor: colors.secondary,
-						borderWidth: 0
-					}}
-					textStyle={styles.tapButtonText}
-					onPress={() =>
-						setScreenStatus({
-							screen: 2,
-							animation: true
-						})
-					}
-					disabled={authTeamName.length < 3}
-				>
-					<Text>{translate('loginScreen.tapContinue')}</Text>
-				</Button>
-			</View>
-		</Animatable.View>
+		</SignInStep>
 	);
 });
 
 export default FillTeamNameForm;
 
-const { width } = Dimensions.get('window');
-
-const $tapButton: ViewStyle = {
-	marginTop: spacing.extraSmall,
-	width: width / 3,
-	borderRadius: 10
-	// backgroundColor: '#3826A6'
-};
-
-const styles = EStyleSheet.create({
-	form: {
-		position: 'absolute',
-		display: 'flex',
-		flex: 1,
-		width: '90%',
-		top: '-32%',
-		padding: '1.5rem',
+const styles = StyleSheet.create({
+	switchLink: {
 		alignSelf: 'center',
-		backgroundColor: '#fff',
-		alignItems: 'center',
-		borderRadius: '1rem',
-		justifyContent: 'flex-start',
-		borderWidth: 1,
-		borderColor: 'rgba(0,0,0,0.1)',
-		zIndex: 1000
+		marginTop: 16,
+		minHeight: 24
 	},
-	text: {
-		fontSize: '1.5rem',
-		marginBottom: '2rem',
-		color: '#1A1C1E',
-		width: '100%',
-		textAlign: 'center',
-		fontFamily: typography.primary.semiBold
-	},
-	buttonsView: {
-		width: '100%',
-		display: 'flex',
-		marginTop: '2rem',
-		flexDirection: 'row',
-		alignItems: 'center',
-		justifyContent: 'space-between'
-	},
-	inputStyleOverride: {
-		height: '3.3rem',
-		borderColor: 'rgba(0,0,0,0.1)',
-		backgroundColor: '#FFFFFF',
-		paddingVertical: '0.43rem',
-		paddingHorizontal: '0.6rem',
-		borderRadius: '0.6rem'
-	},
-	textField: {
-		width: '100%',
-		borderRadius: '1.25rem'
-	},
-	joinExistedText: {
-		fontSize: '0.75rem',
-		fontFamily: typography.primary.semiBold
-	},
-	tapButtonText: {
-		color: '#fff',
-		fontFamily: typography.primary.semiBold,
-		fontSize: '1rem'
+	switchText: {
+		fontFamily: typography.primary.medium,
+		fontSize: 14
 	}
 });

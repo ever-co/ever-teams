@@ -1,13 +1,12 @@
-/* eslint-disable react-native/no-color-literals */
-/* eslint-disable react-native/no-inline-styles */
 import React, { FC, useState } from 'react';
 import { observer } from 'mobx-react-lite';
-import { Dimensions, View, ViewStyle } from 'react-native';
+import { Platform, View, ViewStyle } from 'react-native';
+import { SvgXml } from 'react-native-svg';
 
 // Components
 import { Screen } from '../../components';
 import { AppStackScreenProps } from '../../navigators';
-import { spacing, useAppTheme } from '../../theme';
+import { spacing, useWebTheme } from '../../theme';
 import FillTeamNameForm from './components/fill-team-name-form';
 import { useAuthenticationTeam } from '../../services/hooks/features/use-authentication-team';
 import FillUserInfoForm from './components/fill-user-info-form';
@@ -15,10 +14,17 @@ import EmailVerificationForm from './components/email-verification-form';
 import PassCode from './components/pass-code';
 import LoginHeader from './components/login-header';
 import LoginBottom from './components/login-bottom';
+import { loginLogoOf } from './components/login-heading';
 
 interface LoginScreenProps extends AppStackScreenProps<'Login'> {}
 
-const { width } = Dimensions.get('window');
+/** The status bar's icons: light over the dark page, dark over the light one. */
+function statusBarStyleOf(isDark: boolean): 'light' | 'dark' {
+	if (isDark) {
+		return 'light';
+	}
+	return 'dark';
+}
 
 export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_props) {
 	const {
@@ -38,46 +44,59 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
 		verifyEmailAndCodeOrAcceptInvite
 	} = useAuthenticationTeam();
 
-	const { colors } = useAppTheme();
+	const theme = useWebTheme();
+	const isDark = theme.scheme === 'dark';
 
 	const [isWorkspaceScreen, setIsWorkspaceScreen] = useState<boolean>(false);
 
+	const heading = <LoginHeader withTeam={withteam} screenStatus={screenstatus} workspaceScreen={isWorkspaceScreen} />;
+	const showsTeamName = screenstatus.screen === 1 && !withteam;
+	const showsUserInfo = !showsTeamName && screenstatus.screen === 2;
+	const showsEmailVerification = !showsTeamName && screenstatus.screen === 3;
+	const showsPassCode = !showsTeamName && !showsUserInfo && !showsEmailVerification;
+
 	return (
 		<Screen
-			contentContainerStyle={{ ...$screenContentContainer, backgroundColor: '#282149' }}
-			backgroundColor={'#282149'}
-			statusBarStyle={'light'}
+			preset="auto"
+			contentContainerStyle={{ ...$screenContentContainer, backgroundColor: theme.colors.background }}
+			backgroundColor={theme.colors.background}
+			statusBarStyle={statusBarStyleOf(isDark)}
 			safeAreaEdges={['top']}
 			KeyboardAvoidingViewProps={{}}
 		>
-			<View style={$header}>
-				<LoginHeader withTeam={withteam} screenStatus={screenstatus} workspaceScreen={isWorkspaceScreen} />
-			</View>
-			<View style={{ ...$bottom, backgroundColor: colors.background2 }}>
-				{screenstatus.screen === 1 && !withteam ? (
+			<View style={$page}>
+				<SvgXml xml={loginLogoOf(theme.scheme, Platform.OS === 'android')} />
+				{showsTeamName && (
 					<FillTeamNameForm
+						heading={heading}
 						setWithTeam={setWithTeam}
 						setScreenStatus={setScreenStatus}
 						isLoading={isLoading}
 						errors={errors}
 					/>
-				) : screenstatus.screen === 2 ? (
+				)}
+				{showsUserInfo && (
 					<FillUserInfoForm
+						heading={heading}
 						createNewTeam={createNewTeam}
 						isLoading={isLoading}
 						errors={errors}
 						setScreenStatus={setScreenStatus}
 					/>
-				) : screenstatus.screen === 3 ? (
+				)}
+				{showsEmailVerification && (
 					<EmailVerificationForm
+						heading={heading}
 						isLoading={isLoading}
 						verificationError={verificationError}
 						verifyEmailByCode={verifyEmailByCode}
 						setScreenStatus={setScreenStatus}
 						resendEmailVerificationCode={resendEmailVerificationCode}
 					/>
-				) : (
+				)}
+				{showsPassCode && (
 					<PassCode
+						heading={heading}
 						joinError={joinError}
 						signInWorkspace={signInWorkspace}
 						getAuthCode={getAuthCode}
@@ -89,32 +108,23 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
 						setIsWorkspaceScreen={setIsWorkspaceScreen}
 					/>
 				)}
-				<LoginBottom />
 			</View>
+			<LoginBottom />
 		</Screen>
 	);
 });
 
 // Styles
 
+// The page grows with its content and scrolls once it runs past the screen, the footer kept at its end
 const $screenContentContainer: ViewStyle = {
 	paddingHorizontal: spacing.large,
-	height: '100%',
-	display: 'flex',
-	alignItems: 'center',
+	flexGrow: 1,
 	justifyContent: 'space-between'
 };
 
-const $header: ViewStyle = {
-	width: '100%',
-	display: 'flex',
-	paddingTop: 15,
-	flex: 1.4,
-	justifyContent: 'flex-start'
-};
-
-const $bottom: ViewStyle = {
-	width,
-	backgroundColor: '#fff',
-	flex: 2
+const $page: ViewStyle = {
+	gap: 32,
+	paddingTop: 24,
+	width: '100%'
 };

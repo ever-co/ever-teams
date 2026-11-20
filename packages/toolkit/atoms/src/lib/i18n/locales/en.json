@@ -59,8 +59,9 @@
 		"worked_this_week": "Worked this week",
 		"worked_over_period": "Worked over the period",
 		"today_activity": "Today's activity",
-		"week_activity": "Weeky activity",
-		"activity_over_period": "Activity over the period"
+		"week_activity": "Weekly activity",
+		"activity_over_period": "Activity over the period",
+		"timer_only": "Open Ever Teams to see this. Your sign-in on this site covers your timer only."
 	},
 	"CLIENT_REPORT": {
 		"title": "Time spent",
@@ -73,6 +74,7 @@
 	},
 	"KIT_ERRORS": {
 		"ORIGIN": "This site isn't allowed to show Ever Teams. Ask your workspace admin to add it.",
+		"SIGN_IN_ORIGIN": "This site can't sign you in with an Ever Teams password or token. Ask the site's team to turn on \"Sign in with Ever Teams\".",
 		"SESSION": "Your session ended. Sign in again.",
 		"SIGN_IN_AGAIN": "Sign in again",
 		"PERMISSION": "You don't have permission to track time in this workspace. Ask your admin.",
@@ -85,11 +87,18 @@
 		"START_TIMER": "Start timer",
 		"STOP_TIMER": "Stop timer",
 		"TIMER_STARTED": "Timer started",
-		"TIMER_STOPPED": "Timer stopped"
+		"TIMER_STOPPED": "Timer stopped",
+		"already_stopped": "Your timer was already stopped.",
+		"show_details": "Show timer details",
+		"hide_details": "Hide timer details"
 	},
 	"AUTH": {
 		"sign_in_title": "Sign In",
 		"host_sign_in": "Sign in to this site to use your Ever Teams timer.",
+		"timer_left_running": "Your timer was running when you were signed out: it keeps running in Ever Teams until you stop it there.",
+		"sign_in_with_ever_teams": "Sign in with Ever Teams",
+		"site_sign_in_waiting": "Finish signing in in the Ever Teams window.",
+		"site_sign_in_blocked": "Your browser blocked the Ever Teams window. Allow pop-ups for this site, then try again.",
 		"sign_up_title": "Register",
 		"account_menu": "{{name}}: account menu",
 		"account_menu_unnamed": "Account menu",
@@ -168,7 +177,7 @@
 	},
 	"ACCOUNT_DELETION_FORM": {
 		"title": "Delete Account",
-		"description": "Account deletion is non-reversable. Please proceed with caution.",
+		"description": "Account deletion is irreversible. Please proceed with caution.",
 		"confirm_delete": "Are you sure you want to delete your account?",
 		"confirm_password": "Confirm Password",
 		"enter_current_password": "Enter your current password",
@@ -210,7 +219,8 @@
 	},
 	"TEAMS_VIEWER": {
 		"title": {
-			"all_teams": "Teams for {{orgName}}"
+			"all_teams": "Teams for {{orgName}}",
+			"all_teams_without_organization": "Teams"
 		},
 		"search_placeholder": "Search for a team",
 		"table_headers": {
@@ -507,6 +517,8 @@
 	},
 	"TIMESHEET": {
 		"title": "Timesheets for {{orgName}}",
+		"title_without_organization": "Timesheets",
+		"label": "Timesheet",
 		"filters": {
 			"select_date": "Select date",
 			"select_sources": "Select sources",

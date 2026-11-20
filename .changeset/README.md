@@ -8,6 +8,7 @@ version and publish the **public** Ever Teams SDK packages to the npm registry:
 - `@ever-teams/toolkit-ui`
 - `@ever-teams/atoms`
 - `@ever-teams/tracking`
+- `@ever-teams/cli` (the command line `ever-teams`)
 
 All other workspace packages are marked `"private": true` and are **never** published — they are
 consumed locally via Yarn Workspaces, so cloning the repo and building works without any of the SDK

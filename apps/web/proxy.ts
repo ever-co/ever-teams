@@ -12,6 +12,7 @@ import { currentAuthenticatedUserRequest, refreshTokenRequest } from '@/core/ser
 import { unwrapRejection } from '@/core/services/server/fetch';
 import { requestAccessToken, requestCookies } from '@/core/services/server/request-cookies';
 import { isTokenExpired, decodeJWT, getTokenRemainingTime, formatRemainingTime } from '@/core/lib/auth/jwt-utils';
+import { setFramingPolicy } from '@/core/lib/helpers/frame-ancestors';
 import {
 	getRuntimeImageHosts,
 	isImageOptimizerRequest,
@@ -132,11 +133,19 @@ function handleImageRequest(request: NextRequest): NextResponse {
 }
 
 export async function proxy(request: NextRequest) {
-	// Image optimizer requests never go through i18n or auth handling below.
+	// Image optimizer requests never go through i18n or auth handling below, and keep the optimizer's own
+	// Content-Security-Policy.
 	if (isImageOptimizerRequest(request.nextUrl.pathname)) {
 		return handleImageRequest(request);
 	}
 
+	const pathname = withoutLocalePrefix(request.nextUrl.pathname);
+	const response = await answerPageRequest(request);
+	setFramingPolicy(response, pathname);
+	return response;
+}
+
+async function answerPageRequest(request: NextRequest) {
 	const nextIntlMiddleware = createMiddleware({
 		defaultLocale: APPLICATION_DEFAULT_LANGUAGE,
 		locales: APPLICATION_LANGUAGES_CODE,

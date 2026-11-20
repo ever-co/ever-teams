@@ -55,7 +55,14 @@
 			"needsNetwork": "يتطلّب تشغيل المؤقت وإيقافه اتصالًا بالشبكة.",
 			"weekFailed": "تعذّر تحميل مجموع الأسبوع",
 			"weekUnavailable": "هذا الحساب لا يسجّل وقتًا هنا",
-			"taskFailed": "تعذّر تحميل المهمة"
+			"taskFailed": "تعذّر تحميل المهمة",
+			"todayTasks": "مهام اليوم",
+			"todayTasksEmpty": "لم تُسجَّل أي مهمة اليوم بعد",
+			"todayTasksFailed": "تعذّر تحميل مهام اليوم",
+			"runningTask": "قيد التشغيل",
+			"startOnTask": "تشغيل المؤقت على {title}",
+			"switchToTask": "إيقاف المهمة الحالية وتشغيل {title}",
+			"switchFailedTitle": "تعذّر على المؤقت تغيير المهمة"
 		}
 	},
 	"session": {
@@ -227,6 +234,7 @@
 		"characterLimitErrorTitle": "لم نتمكن من تحديث عنوان المهمة.",
 		"characterLimitErrorDescription": "لا يمكن أن يتجاوز عنوان المهمة 255 حرفًا.",
 		"copyTitle": "تم نسخ العنوان.",
+		"copyTitleButton": "نسخ العنوان",
 		"changeParent": "تغيير المهمة الأصلية",
 		"addParent": "إضافة مهمة أصلية",
 		"taskScreen": "شاشة المهام",
@@ -307,6 +315,7 @@
 		"hintMessage": "Lorem ipsum dolor sit amet consectetur. Blandit lobortis dui risus neque."
 	},
 	"settingScreen": {
+		"description": "حسابك وفريقك وطريقة تنظيم مهامه.",
 		"name": "الإعدادات",
 		"personalSection": {
 			"name": "شخصي",
@@ -501,7 +510,11 @@
 		}
 	},
 	"hamburgerMenu": {
-		"darkMode": "الوضع الداكن"
+		"darkMode": "الوضع الداكن",
+		"theme": "المظهر",
+		"themeSystem": "النظام",
+		"themeLight": "فاتح",
+		"themeDark": "داكن"
 	},
 	"inviteModal": {
 		"accept": "يقبل",
@@ -574,6 +587,24 @@
 		"noFavoritesEmptyState": {
 			"heading": "هذا يبدو فارغاً بعض الشيء.",
 			"content": "لم تتم اضافة اي مفضلات حتى الان. اضغط على القلب في إحدى الحلقات لإضافته الى المفضلة."
+		}
+	},
+	"taskMenus": {
+		"search": {
+			"status": "تغيير الحالة…",
+			"priority": "تعيين الأولوية…",
+			"size": "تعيين الحجم…",
+			"label": "إضافة تصنيفات…",
+			"version": "تغيير الإصدار…"
+		},
+		"noResults": "لا توجد نتائج",
+		"noOptions": "لا يوجد ما يمكن اختياره بعد",
+		"actions": {
+			"createStatus": "إنشاء حالة",
+			"createPriority": "إنشاء أولوية",
+			"createSize": "إنشاء حجم",
+			"createLabel": "إنشاء تصنيف",
+			"createVersion": "إنشاء إصدار"
 		}
 	}
 }

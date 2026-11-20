@@ -55,7 +55,14 @@
 			"needsNetwork": "Iniciar y detener el temporizador requieren conexión.",
 			"weekFailed": "No se pudo cargar el total de la semana",
 			"weekUnavailable": "Esta cuenta no registra tiempo aquí",
-			"taskFailed": "No se pudo cargar la tarea"
+			"taskFailed": "No se pudo cargar la tarea",
+			"todayTasks": "Tareas de hoy",
+			"todayTasksEmpty": "Todavía no hay tareas registradas hoy",
+			"todayTasksFailed": "No se pudieron cargar las tareas de hoy",
+			"runningTask": "En curso",
+			"startOnTask": "Iniciar el temporizador en {title}",
+			"switchToTask": "Detener la tarea actual e iniciar {title}",
+			"switchFailedTitle": "El temporizador no pudo cambiar de tarea"
 		}
 	},
 	"session": {
@@ -227,6 +234,7 @@
 		"characterLimitErrorTitle": "No pudimos actualizar el título de la tarea.",
 		"characterLimitErrorDescription": "El título de la tarea no puede superar los 255 caracteres.",
 		"copyTitle": "Título copiado.",
+		"copyTitleButton": "Copiar título",
 		"changeParent": "Cambiar la tarea padre",
 		"addParent": "Añadir tarea padre",
 		"taskScreen": "Pantalla de la tarea",
@@ -307,6 +315,7 @@
 		"hintMessage": "Lorem ipsum dolor sit amet consectetur. Blandit lobortis dui risus neque."
 	},
 	"settingScreen": {
+		"description": "Tu cuenta, tu equipo y cómo se organizan sus tareas.",
 		"name": "Ajustes",
 		"personalSection": {
 			"name": "Personal",
@@ -501,7 +510,11 @@
 		}
 	},
 	"hamburgerMenu": {
-		"darkMode": "Modo oscuro"
+		"darkMode": "Modo oscuro",
+		"theme": "Tema",
+		"themeSystem": "Sistema",
+		"themeLight": "Claro",
+		"themeDark": "Oscuro"
 	},
 	"inviteModal": {
 		"accept": "Aceptar",
@@ -574,6 +587,24 @@
 		"noFavoritesEmptyState": {
 			"heading": "Esto parece un poco vacío",
 			"content": "Todavía no has añadido favoritos. ¡Toca el corazón de un episodio para añadirlo a tus favoritos!"
+		}
+	},
+	"taskMenus": {
+		"search": {
+			"status": "Cambiar estado…",
+			"priority": "Establecer prioridad…",
+			"size": "Establecer tamaño…",
+			"label": "Añadir etiquetas…",
+			"version": "Cambiar versión…"
+		},
+		"noResults": "Sin resultados",
+		"noOptions": "Todavía no hay nada que elegir",
+		"actions": {
+			"createStatus": "Crear estado",
+			"createPriority": "Crear prioridad",
+			"createSize": "Crear tamaño",
+			"createLabel": "Crear etiqueta",
+			"createVersion": "Crear versión"
 		}
 	}
 }

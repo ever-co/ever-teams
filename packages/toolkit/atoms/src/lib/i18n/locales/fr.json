@@ -10,8 +10,8 @@
 		"loading": "Chargement",
 		"client": "Client",
 		"project": "Projet",
-		"team": "Equipe",
-		"task": "Tache",
+		"team": "Équipe",
+		"task": "Tâche",
 		"view_more": "Voir plus",
 		"activity": "Activité",
 		"members": "Membres",
@@ -60,7 +60,8 @@
 		"worked_over_period": "Travaillé sur la période",
 		"today_activity": "Activité d'aujourd'hui",
 		"week_activity": "Activité de la semaine",
-		"activity_over_period": "Activité sur la periode"
+		"activity_over_period": "Activité sur la période",
+		"timer_only": "Ouvrez Ever Teams pour voir ceci. Votre connexion sur ce site ne couvre que votre minuteur."
 	},
 	"CLIENT_REPORT": {
 		"title": "Temps passé",
@@ -73,23 +74,31 @@
 	},
 	"KIT_ERRORS": {
 		"ORIGIN": "Ce site n'est pas autorisé à afficher Ever Teams. Demandez à l'administrateur de votre espace de l'ajouter.",
+		"SIGN_IN_ORIGIN": "Ce site ne peut pas vous connecter avec un mot de passe ou un jeton Ever Teams. Demandez à l'équipe du site d'activer « Se connecter avec Ever Teams ».",
 		"SESSION": "Votre session a pris fin. Reconnectez-vous.",
 		"SIGN_IN_AGAIN": "Se reconnecter",
 		"PERMISSION": "Vous n'avez pas l'autorisation de suivre votre temps dans cet espace. Demandez à votre administrateur.",
 		"UNREACHABLE": "Ever Teams est injoignable. Vérifiez votre connexion et réessayez."
 	},
 	"TIME_TRACKER": {
-		"title": "Muniteur",
-		"start": "Demarrer",
-		"stop": "Arreter",
+		"title": "Minuteur",
+		"start": "Démarrer",
+		"stop": "Arrêter",
 		"START_TIMER": "Démarrer le minuteur",
 		"STOP_TIMER": "Arrêter le minuteur",
 		"TIMER_STARTED": "Minuteur démarré",
-		"TIMER_STOPPED": "Minuteur arrêté"
+		"TIMER_STOPPED": "Minuteur arrêté",
+		"already_stopped": "Votre minuteur était déjà arrêté.",
+		"show_details": "Afficher les détails du minuteur",
+		"hide_details": "Masquer les détails du minuteur"
 	},
 	"AUTH": {
 		"sign_in_title": "Se connecter",
 		"host_sign_in": "Connectez-vous à ce site pour utiliser votre minuteur Ever Teams.",
+		"timer_left_running": "Votre minuteur tournait quand vous avez été déconnecté : il continue de tourner dans Ever Teams jusqu'à ce que vous l'y arrêtiez.",
+		"sign_in_with_ever_teams": "Se connecter avec Ever Teams",
+		"site_sign_in_waiting": "Terminez la connexion dans la fenêtre Ever Teams.",
+		"site_sign_in_blocked": "Votre navigateur a bloqué la fenêtre Ever Teams. Autorisez les fenêtres pop-up pour ce site, puis réessayez.",
 		"account_menu": "{{name}} : menu du compte",
 		"account_menu_unnamed": "Menu du compte",
 		"sign_up_title": "S'inscrire",
@@ -105,22 +114,22 @@
 	},
 	"INPUT": {
 		"language_switcher": {
-			"select_language": "Selectionner la langue"
+			"select_language": "Sélectionner la langue"
 		},
 		"team_select": {
-			"select_team": "Selectionner l'équipe"
+			"select_team": "Sélectionner l'équipe"
 		},
 		"project_select": {
-			"select_project": "Selectionner le projet",
+			"select_project": "Sélectionner le projet",
 			"loading_projects": "Chargement des projets...",
 			"no_projects": "Aucun projet sur lequel suivre votre temps",
 			"projects_failed": "Les projets n'ont pas pu être chargés. Rechargez la page pour réessayer."
 		},
 		"task_select": {
-			"select_task": "Selectionner la tache"
+			"select_task": "Sélectionner la tâche"
 		},
 		"client_select": {
-			"select_client": "Selectionner le client"
+			"select_client": "Sélectionner le client"
 		}
 	},
 	"FOOTER": {
@@ -207,7 +216,8 @@
 	},
 	"TEAMS_VIEWER": {
 		"title": {
-			"all_teams": "Équipes pour {{orgName}}"
+			"all_teams": "Équipes pour {{orgName}}",
+			"all_teams_without_organization": "Équipes"
 		},
 		"search_placeholder": "Rechercher une équipe",
 		"table_headers": {
@@ -503,6 +513,8 @@
 	},
 	"TIMESHEET": {
 		"title": "Feuilles de temps pour {{orgName}}",
+		"title_without_organization": "Feuilles de temps",
+		"label": "Feuille de temps",
 		"filters": {
 			"select_date": "Sélectionner une date",
 			"select_sources": "Sélectionner les sources",

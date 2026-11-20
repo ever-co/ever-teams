@@ -10,6 +10,7 @@
 import { act, renderHook } from '@testing-library/react';
 
 const mockNavigateAfterSignIn = jest.fn();
+const mockSetPathAfterSignIn = jest.fn();
 const mockConfirmLink = jest.fn();
 const mockEmailConfirm = jest.fn();
 const mockSignInWorkspace = jest.fn();
@@ -21,7 +22,9 @@ jest.mock('next/navigation', () => ({
 	usePathname: () => '/auth/passcode'
 }));
 jest.mock('@/core/lib/auth/navigate-after-sign-in', () => ({
-	navigateAfterSignIn: () => mockNavigateAfterSignIn()
+	navigateAfterSignIn: () => mockNavigateAfterSignIn(),
+	setPathAfterSignIn: (path: string | null) => mockSetPathAfterSignIn(path),
+	clearPathAfterSignInSetBy: jest.fn()
 }));
 jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
 jest.mock('@/core/services/client/api/auth/auth.service', () => ({
@@ -113,6 +116,22 @@ describe('useAuthenticationPasscode in Ever ID mode', () => {
 		expect(result.current.formValues.email).toBe('person@example.test');
 		// The chooser stays on this page: nothing navigates away.
 		expect(mockNavigateAfterSignIn).not.toHaveBeenCalled();
+	});
+
+	it('keeps the page a start link named for the end of the sign-in, once the code is accepted', async () => {
+		document.cookie = `ever-id-start-return=${encodeURIComponent('/task/42?view=board')}; Path=/`;
+		mockConfirmLink.mockResolvedValue({ status: 400, data: {} });
+		const { result } = renderHook(() => useAuthenticationPasscode());
+
+		// A wrong code changes nothing yet.
+		await submitCode(result, 'WRONG123');
+		expect(mockSetPathAfterSignIn).not.toHaveBeenCalled();
+
+		mockConfirmLink.mockResolvedValue(confirmed);
+		await submitCode(result, 'ABCD1234');
+
+		expect(mockSetPathAfterSignIn).toHaveBeenCalledWith('/task/42?view=board');
+		expect(document.cookie).not.toContain('ever-id-start-return=');
 	});
 
 	it('ends the Ever ID step once the code is accepted: no marker in the URL, no code kept, e-mail codes again', async () => {

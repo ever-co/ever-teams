@@ -16,6 +16,7 @@ import {
 import type { TabPressEvent } from '../../../../app/navigators/tab-bar';
 import { useOrganizationTeam } from '../../../../app/services/hooks/use-organization';
 import { useAppTheme } from '../../../../app/theme';
+import { ownTasksUserIdOf } from '../../../navigation/own-tasks';
 
 // The app opens on the team, as before, which is `/` as on the web
 export const unstable_settings = { initialRouteName: 'index' };
@@ -84,9 +85,7 @@ export default observer(function SignedInTabs() {
 		authenticationStore: { user }
 	} = useStores();
 	const { currentUser } = useOrganizationTeam();
-	// Without a membership in the active team, the person signed in: on develop the tab then named no one, and the
-	// profile screen showed that person
-	const ownId = currentUser?.id ?? user?.id;
+	const ownId = ownTasksUserIdOf(currentUser, user);
 	const screenOptions = useTabBarScreenOptions();
 	const navigation = useNavigation();
 	// the labels follow a new language
@@ -104,8 +103,10 @@ export default observer(function SignedInTabs() {
 				name="profile/[memberId]"
 				options={{ ...forRouter(tasksTabOptions(dark)), href: ownTasksHref(ownId) }}
 				listeners={{
-					tabPress: (e: TabPressEvent) => {
-						e.preventDefault();
+					// Expo Router's own React Navigation typings drop `preventDefault` from the listener's event without
+					// strictNullChecks (as TabPressEvent explains); the tab bar still sends the event a listener can prevent
+					tabPress: (event) => {
+						(event as TabPressEvent).preventDefault();
 						if (ownId) {
 							navigateTo(navigation, 'Profile', { userId: ownId, activeTab: 'worked' });
 						}

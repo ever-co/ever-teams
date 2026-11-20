@@ -25,4 +25,21 @@ describe('the theme choice', () => {
 		expect(store.followsSystemTheme).toBe(false);
 		expect(store.isDarkMode).toBe(false);
 	});
+
+	it.each(['system', 'light', 'dark'] as const)('keeps %s once the person picks it', (preference) => {
+		const store = create({ user: null, isDarkMode: true });
+
+		store.setThemePreference(preference);
+
+		expect(store.themePreference).toBe(preference);
+	});
+
+	it('follows the phone again, keeping the dark choice for later, when the person picks System', () => {
+		const store = create({ user: null, isDarkMode: true });
+
+		store.setThemePreference('system');
+
+		expect(store.followsSystemTheme).toBe(true);
+		expect(store.isDarkMode).toBe(true);
+	});
 });

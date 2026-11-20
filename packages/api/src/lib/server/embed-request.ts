@@ -1,4 +1,3 @@
-import { withoutTrailingSlashes } from '../client/address';
 import { parseBody } from '../client/answer-body';
 import {
 	clientError,
@@ -9,6 +8,7 @@ import {
 	NextStepsByStatus
 } from '../client/error-mapping';
 import { EverTeamsError } from '../client/errors';
+import { checkedApiUrl, isFilled, optionsError } from '../client/option-checks';
 
 /** One request of a server helper to an embed route, whose body holds the credential. */
 export interface EmbedPost<T> {
@@ -59,39 +59,16 @@ const CODE_STEPS: { [code: string]: string } = {
 		'This credential is not limited to a client: ask an administrator for a credential of the client whose time ' +
 		'the report shows (Settings > Embeds of the web app).',
 	EMBED_CLIENT_GONE:
-		"The credential's client was deleted: restore the client in the web app, or use a credential of another one.",
+		"The credential's client is archived or deleted: restore the client from the web app's client list, or use a " +
+		'credential of another client.',
 	EMBED_EXCHANGE_LIMITED:
 		'Too many refused credentials came from this address: check the credential you send, then try again in a ' +
 		'minute.'
 };
 
-export const isFilled = (value: unknown): value is string => typeof value === 'string' && value.trim().length > 0;
-
-/** Whether the value is an http or https address. */
-export function isWebAddress(value: string): boolean {
-	let url: URL;
-	try {
-		url = new URL(value);
-	} catch {
-		return false;
-	}
-	return url.protocol === 'https:' || url.protocol === 'http:';
-}
-
-// The messages never quote a value: a credential passed in the wrong option would end up in them.
-export const optionsError = (message: string, nextStep: string): EverTeamsError =>
-	clientError('CLIENT_OPTIONS', message, nextStep);
-
 /** apiUrl without its trailing slashes, once it is an http or https address. */
 export function apiUrlOf(caller: string, apiUrl: unknown): string {
-	if (!isFilled(apiUrl)) {
-		throw optionsError(`${caller} needs apiUrl.`, API_URL_STEP);
-	}
-	const address = withoutTrailingSlashes(apiUrl.trim());
-	if (!isWebAddress(address)) {
-		throw optionsError(`${caller} needs apiUrl as an http or https address.`, API_URL_STEP);
-	}
-	return address;
+	return checkedApiUrl(caller, apiUrl, API_URL_STEP);
 }
 
 /** The credential, without the spaces or line break a secret store may add around it. */

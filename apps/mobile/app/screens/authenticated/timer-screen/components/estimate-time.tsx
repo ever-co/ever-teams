@@ -3,7 +3,7 @@
 import React, { FC, useCallback, useEffect, useRef, useState } from 'react';
 import { View, StyleSheet, TextInput } from 'react-native';
 import { Text, ActivityIndicator } from 'react-native-paper';
-import { Feather } from '@expo/vector-icons';
+import { Check } from '../../../../../src/components/icons';
 import { secondsToTime } from '../../../../helpers/date';
 import { typography, useAppTheme } from '../../../../theme';
 import { useTeamTasks } from '../../../../services/hooks/features/use-team-tasks';
@@ -189,13 +189,10 @@ const EstimateTime: FC<Props> = ({ setEditEstimate, currentTask, setEstimateTime
 			</View>
 			<Text style={[styles.suffix, { color: colors.primary }]}>{' m'}</Text>
 			{showCheckIcon && (
-				<Feather
-					size={25}
-					color={'green'}
-					name="check"
-					onPress={() => handleSubmit()}
-					style={timerScreen ? { position: 'absolute', right: -24 } : undefined}
-				/>
+				// The Hugeicons drawing drops a style prop, so the timer screen places the mark through its wrapper
+				<View style={timerScreen ? { position: 'absolute', right: -24 } : undefined}>
+					<Check size={25} color={'green'} onPress={() => handleSubmit()} />
+				</View>
 			)}
 			{isLoading && (
 				<ActivityIndicator

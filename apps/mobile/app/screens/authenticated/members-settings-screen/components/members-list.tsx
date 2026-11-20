@@ -6,13 +6,16 @@ import React, { SetStateAction, useCallback, useMemo, useState } from "react"
 import { IOrganizationTeamList, OT_Member } from "../../../../services/interfaces/IOrganizationTeam"
 import { Avatar } from "react-native-paper"
 import { imgTitleProfileAvatar } from "../../../../helpers/img-title-profile-avatar"
-import { typography, useAppTheme } from "../../../../theme"
+import { typography, useAppTheme, useWebTheme } from "../../../../theme"
+import { inputLookOf } from "../../../../../src/theme/form-look"
 import moment from "moment-timezone"
 import { SvgXml } from "react-native-svg"
 import { searchIconDark, searchIconLight } from "../../../../components/svgs/icons"
 import { useSettings } from "../../../../services/hooks/features/use-settings"
 import { limitTextCharaters } from "../../../../helpers/sub-text"
 import { translate } from "../../../../i18n"
+import LabelItem from "../../../../components/label-item"
+import { memberRowLookOf } from "../../../../../src/theme/member-row-look"
 
 interface IMembersList {
 	teamList: IOrganizationTeamList
@@ -55,6 +58,8 @@ const MembersList: React.FC<IMembersList> = ({
 	// const [selectedMembers, setSelectedMembers] = useState<OT_Member[]>([])
 
 	const { dark, colors } = useAppTheme()
+	const webTheme = useWebTheme()
+	const input = inputLookOf(webTheme)
 
 	const membersList = teamList?.members?.filter(
 		(member) =>
@@ -67,15 +72,15 @@ const MembersList: React.FC<IMembersList> = ({
 			<View
 				style={[
 					styles.searchContainer,
-					{ borderColor: dark ? colors.border : "#0000001A" },
+					{ borderColor: input.field.borderColor },
 				]}
 			>
 				<TextInput
 					placeholder={translate("settingScreen.membersSettingsScreen.searchPlaceholder")}
 					value={filteredMembersList}
 					onChangeText={(text) => setFilteredMembersList(text)}
-					style={[styles.textInput, { color: colors.primary }]}
-					placeholderTextColor={colors.primary}
+					style={[styles.textInput, { color: input.field.color }]}
+					placeholderTextColor={input.placeholderColor}
 				/>
 				<SvgXml xml={dark ? searchIconDark : searchIconLight} style={styles.searchIcon} />
 			</View>
@@ -96,10 +101,10 @@ const MembersList: React.FC<IMembersList> = ({
 				keyExtractor={(item, index) => index.toString()}
 			/>
 			<View style={[styles.footerContainer, { backgroundColor: colors.background }]}>
-				<Text style={{ fontSize: 14, fontWeight: "400", color: colors.primary }}>
+				<Text style={{ fontSize: 14, fontWeight: "400", color: webTheme.colors.foreground }}>
 					{footerLabel(selectMode)}
 				</Text>
-				<Text style={{ fontSize: 14, fontWeight: "400", color: colors.primary }}>
+				<Text style={{ fontSize: 14, fontWeight: "400", color: webTheme.colors.foreground }}>
 					{selectMode ? selectedMembers?.length : teamList?.members.length}
 				</Text>
 			</View>
@@ -152,7 +157,8 @@ const MemberCard: React.FC<IMemberCard> = ({
 		member?.employee?.user?.image?.fullUrl ||
 		member?.employee?.user?.imageUrl
 
-	const { colors, dark } = useAppTheme()
+	const webTheme = useWebTheme()
+	const secondaryText = [styles.grayedText, { color: webTheme.colors["muted-foreground"] }]
 
 	const isSelected = useMemo(
 		() => selectedMembers.some((selected) => selected.id === member.id),
@@ -168,18 +174,9 @@ const MemberCard: React.FC<IMemberCard> = ({
 			onLongPress={() => {
 				setSelectMembersMode(member)
 			}}
-			style={[
-				styles.memberContainer,
-				{
-					backgroundColor: isSelected
-						? dark
-							? colors.border
-							: "#F4F4F4"
-						: "transparent",
-				},
-			]}
+			style={[styles.memberContainer, memberRowLookOf(isSelected, webTheme)]}
 		>
-			<View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
+			<View style={styles.identity}>
 				{imageUrl ? (
 					<Avatar.Image size={36} source={{ uri: imageUrl }} />
 				) : (
@@ -189,30 +186,33 @@ const MemberCard: React.FC<IMemberCard> = ({
 						labelStyle={styles.prefix}
 					/>
 				)}
-				<View style={{ gap: 6 }}>
+				<View style={styles.identityText}>
 					{isNameEditMode && isSelected ? (
 						<TextInput
 							value={newName}
 							onChangeText={(text) => setNewName(text)}
-							style={{ fontSize: 16, color: colors.primary, width: 180 }}
+							style={{ fontSize: 16, color: webTheme.colors.foreground, width: 180 }}
 							autoFocus={isNameEditMode}
 						/>
 					) : (
-						<Text style={{ fontSize: 16, fontWeight: "600", color: colors.primary }}>
+						<Text
+							numberOfLines={1}
+							style={{ fontSize: 16, fontWeight: "600", color: webTheme.colors.foreground }}
+						>
 							{limitTextCharaters({ text: member?.employee?.fullName, numChars: 24 })}
 						</Text>
 					)}
 
-					<Text style={styles.grayedText}>{member?.employee?.user?.email}</Text>
+					<Text style={secondaryText} numberOfLines={1}>
+						{member?.employee?.user?.email}
+					</Text>
 				</View>
 			</View>
 			<View style={{ gap: 7, flexDirection: "column" }}>
-				<View style={styles.roleContainer}>
-					<Text style={styles.roleText}>
-						{roleLabel(member?.role?.name)}
-					</Text>
+				<View style={styles.role}>
+					<LabelItem label={roleLabel(member?.role?.name)} background="" icon={undefined} />
 				</View>
-				<Text style={styles.grayedText}>
+				<Text style={secondaryText}>
 					{moment(member?.employee?.createdAt).format("DD MMM YYYY hh:mm a")}
 				</Text>
 			</View>
@@ -236,27 +236,25 @@ const styles = StyleSheet.create({
 		shadowOpacity: 0.07,
 		shadowRadius: 10,
 	},
-	grayedText: { color: "#938FA4", fontSize: 12 },
+	grayedText: { fontSize: 12 },
+	// a long name or address shrinks with an ellipsis, so the role and the day stay on screen
+	identity: { alignItems: "center", flexDirection: "row", flexShrink: 1, gap: 12 },
+	identityText: { flexShrink: 1, gap: 6 },
+	// the row's own inset plus its margin keep the content 24 from the screen's edge, where it was
 	memberContainer: {
 		flexDirection: "row",
+		gap: 8,
 		justifyContent: "space-between",
-		paddingHorizontal: 24,
+		marginHorizontal: 12,
+		marginVertical: 2,
+		paddingHorizontal: 12,
 		paddingVertical: 14,
-		width: "100%",
 	},
 	prefix: {
 		fontFamily: typography.fonts.PlusJakartaSans.light,
 		fontSize: 22,
 	},
-	roleContainer: {
-		backgroundColor: "#D4EFDF",
-		borderRadius: 80,
-		marginLeft: "auto",
-		minWidth: 73,
-		paddingHorizontal: 15,
-		paddingVertical: 4,
-	},
-	roleText: { color: "#77846D", fontSize: 10, fontWeight: "700" },
+	role: { alignSelf: "flex-end" },
 	searchContainer: {
 		borderColor: "#0000001A",
 		borderRadius: 8,

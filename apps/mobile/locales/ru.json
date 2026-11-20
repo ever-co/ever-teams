@@ -55,7 +55,14 @@
 			"needsNetwork": "Для запуска и остановки таймера нужно подключение.",
 			"weekFailed": "Не удалось загрузить итог за неделю",
 			"weekUnavailable": "Эта учётная запись здесь не учитывает время",
-			"taskFailed": "Не удалось загрузить задачу"
+			"taskFailed": "Не удалось загрузить задачу",
+			"todayTasks": "Задачи на сегодня",
+			"todayTasksEmpty": "Сегодня ещё не учтено ни одной задачи",
+			"todayTasksFailed": "Не удалось загрузить задачи на сегодня",
+			"runningTask": "Идёт",
+			"startOnTask": "Запустить таймер для {title}",
+			"switchToTask": "Остановить текущую задачу и запустить {title}",
+			"switchFailedTitle": "Таймеру не удалось сменить задачу"
 		}
 	},
 	"session": {
@@ -227,6 +234,7 @@
 		"characterLimitErrorTitle": "Мы не смогли обновить заголовок задачи.",
 		"characterLimitErrorDescription": "Заголовок задачи не может быть длиннее 255 символов.",
 		"copyTitle": "Заголовок скопирован.",
+		"copyTitleButton": "Копировать название",
 		"changeParent": "Сменить родительскую задачу",
 		"addParent": "Добавить родительскую задачу",
 		"taskScreen": "Экран задачи",
@@ -307,6 +315,7 @@
 		"hintMessage": "Lorem ipsum dolor sit amet consectetur. Blandit lobortis dui risus neque."
 	},
 	"settingScreen": {
+		"description": "Ваш аккаунт, ваша команда и то, как организованы её задачи.",
 		"name": "Настройки",
 		"personalSection": {
 			"name": "Личные",
@@ -501,7 +510,11 @@
 		}
 	},
 	"hamburgerMenu": {
-		"darkMode": "Тёмная тема"
+		"darkMode": "Тёмная тема",
+		"theme": "Тема",
+		"themeSystem": "Системная",
+		"themeLight": "Светлая",
+		"themeDark": "Тёмная"
 	},
 	"inviteModal": {
 		"accept": "Принять",
@@ -574,6 +587,24 @@
 		"noFavoritesEmptyState": {
 			"heading": "Здесь пока пустовато",
 			"content": "В избранном пока ничего нет. Нажмите на сердечко у выпуска, чтобы добавить его в избранное!"
+		}
+	},
+	"taskMenus": {
+		"search": {
+			"status": "Изменить статус…",
+			"priority": "Задать приоритет…",
+			"size": "Задать размер…",
+			"label": "Добавить метки…",
+			"version": "Изменить версию…"
+		},
+		"noResults": "Ничего не найдено",
+		"noOptions": "Пока не из чего выбрать",
+		"actions": {
+			"createStatus": "Создать статус",
+			"createPriority": "Создать приоритет",
+			"createSize": "Создать размер",
+			"createLabel": "Создать метку",
+			"createVersion": "Создать версию"
 		}
 	}
 }

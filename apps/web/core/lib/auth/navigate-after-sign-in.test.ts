@@ -1,6 +1,14 @@
 /** @jest-environment jsdom */
 
-import { navigateAfterSignIn, PATH_AFTER_SIGN_IN_TTL_MS, setPathAfterSignIn } from './navigate-after-sign-in';
+import {
+	clearPathAfterSignInIf,
+	clearPathAfterSignInSetBy,
+	navigateAfterSignIn,
+	PATH_AFTER_SIGN_IN_TTL_MS,
+	PATH_AFTER_SLOW_SIGN_IN_TTL_MS,
+	setPathAfterSignIn,
+	setPathAfterSlowSignIn
+} from './navigate-after-sign-in';
 import { rememberBoardReturn } from './board-return';
 
 const originalLocation = window.location;
@@ -143,9 +151,93 @@ describe('the page a sign-in opens (#5025)', () => {
 		expect(signIn()).toHaveBeenCalledWith('/');
 	});
 
+	it('clears the page set for the sign-in only when it is the one named', () => {
+		setPathAfterSignIn('/workspace/new');
+		clearPathAfterSignInIf('/workspace/new');
+		expect(signIn()).toHaveBeenCalledWith('/');
+
+		setPathAfterSignIn('/settings/personal');
+		clearPathAfterSignInIf('/workspace/new');
+		expect(signIn()).toHaveBeenCalledWith('/settings/personal');
+	});
+
+	it("comes back to a site's consent page, with its query, after the workspace list's Continue (#5528)", () => {
+		const consentPage = '/embed/authorize?origin=https%3A%2F%2Fteam.example.com&organization=organization-1';
+		setPathAfterSignIn(consentPage);
+
+		// What the workspace list's Continue does
+		clearPathAfterSignInIf('/workspace/new');
+
+		expect(signIn({ replace: true })).toHaveBeenCalledWith(consentPage);
+	});
+
+	it('clears the page set for the sign-in only when the flow named set it', () => {
+		setPathAfterSignIn('/task/42', 'ever-id-start');
+		clearPathAfterSignInSetBy('another-flow');
+		expect(signIn()).toHaveBeenCalledWith('/task/42');
+
+		setPathAfterSignIn('/task/42', 'ever-id-start');
+		clearPathAfterSignInSetBy('ever-id-start');
+		expect(signIn()).toHaveBeenCalledWith('/');
+
+		// The same page, set since by a flow that does not name itself: kept.
+		setPathAfterSignIn('/task/42', 'ever-id-start');
+		setPathAfterSignIn('/task/42');
+		clearPathAfterSignInSetBy('ever-id-start');
+		expect(signIn()).toHaveBeenCalledWith('/task/42');
+	});
+
+	it('keeps the part of the page it names (#section)', () => {
+		expect(signInWith('/settings/team?tab=members#invite')).toHaveBeenCalledWith(
+			'/settings/team?tab=members#invite'
+		);
+	});
+
 	it('opens the home page for anything that is not a page of this app', () => {
 		expect(signInWith('https://evil.example.com/')).toHaveBeenCalledWith('/');
 		expect(signInWith('//evil.example.com/')).toHaveBeenCalledWith('/');
 		expect(signInWith('/\\evil.example.com/')).toHaveBeenCalledWith('/');
+	});
+});
+
+describe("a site's consent page waits longer for its sign-in (#5598)", () => {
+	const START = Date.UTC(2026, 10, 20, 9, 0);
+	const CONSENT = '/embed/authorize?origin=https%3A%2F%2Fnotes.example.com&organization=org-1&state=abc';
+	const signInAt = (at: number) => {
+		const assign = jest.fn();
+		Object.defineProperty(window, 'location', {
+			configurable: true,
+			value: { ...originalLocation, origin: 'https://app.ever.team', pathname: '/auth/passcode', assign }
+		});
+		const now = jest.spyOn(Date, 'now').mockReturnValue(at);
+		navigateAfterSignIn({ replace: false });
+		now.mockRestore();
+		return assign;
+	};
+	const setAt = (at: number, set: () => void) => {
+		const now = jest.spyOn(Date, 'now').mockReturnValue(at);
+		set();
+		now.mockRestore();
+	};
+
+	it('comes back to the consent page after a sign-in of ten minutes (a code fetched from the e-mail)', () => {
+		setAt(START, () => setPathAfterSlowSignIn(CONSENT));
+
+		expect(signInAt(START + 10 * 60 * 1000)).toHaveBeenCalledWith(CONSENT);
+	});
+
+	it('opens the home page past half an hour, and keeps five minutes for every other page', () => {
+		setAt(START, () => setPathAfterSlowSignIn(CONSENT));
+		expect(signInAt(START + PATH_AFTER_SLOW_SIGN_IN_TTL_MS + 1)).toHaveBeenCalledWith('/');
+
+		setAt(START, () => setPathAfterSignIn('/workspace/new'));
+		expect(signInAt(START + 10 * 60 * 1000)).toHaveBeenCalledWith('/');
+	});
+
+	it('never waits more than half an hour, whatever the entry says', () => {
+		const entry = { path: CONSENT, setAt: START, waitMs: 24 * 60 * 60 * 1000 };
+		window.sessionStorage.setItem('ever-teams:path-after-sign-in', JSON.stringify(entry));
+
+		expect(signInAt(START + 60 * 60 * 1000)).toHaveBeenCalledWith('/');
 	});
 });

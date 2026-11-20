@@ -55,7 +55,14 @@
 			"needsNetwork": "启动和停止计时器需要网络连接。",
 			"weekFailed": "无法加载本周总计",
 			"weekUnavailable": "此账户在此不记录时间",
-			"taskFailed": "无法加载任务"
+			"taskFailed": "无法加载任务",
+			"todayTasks": "今天的任务",
+			"todayTasksEmpty": "今天尚未记录任何任务",
+			"todayTasksFailed": "无法加载今天的任务",
+			"runningTask": "进行中",
+			"startOnTask": "在 {title} 上开始计时",
+			"switchToTask": "停止当前任务并开始 {title}",
+			"switchFailedTitle": "计时器无法切换任务"
 		}
 	},
 	"session": {
@@ -227,6 +234,7 @@
 		"characterLimitErrorTitle": "无法更新任务标题。",
 		"characterLimitErrorDescription": "任务标题不能超过255个字符。",
 		"copyTitle": "标题已复制。",
+		"copyTitleButton": "复制标题",
 		"changeParent": "更改父项",
 		"addParent": "添加父项",
 		"taskScreen": "任务界面",
@@ -307,6 +315,7 @@
 		"hintMessage": "Lorem ipsum dolor sit amet consectetur. Blandit lobortis dui risus neque."
 	},
 	"settingScreen": {
+		"description": "你的账户、你的团队，以及团队任务的组织方式。",
 		"name": "设置",
 		"personalSection": {
 			"name": "个人",
@@ -501,7 +510,11 @@
 		}
 	},
 	"hamburgerMenu": {
-		"darkMode": "夜间模式"
+		"darkMode": "夜间模式",
+		"theme": "主题",
+		"themeSystem": "跟随系统",
+		"themeLight": "浅色",
+		"themeDark": "深色"
 	},
 	"inviteModal": {
 		"accept": "接受",
@@ -574,6 +587,24 @@
 		"noFavoritesEmptyState": {
 			"heading": "这里看起来有点空",
 			"content": "还没有添加任何收藏。点击某一集上的心形图标即可将其加入收藏！"
+		}
+	},
+	"taskMenus": {
+		"search": {
+			"status": "更改状态…",
+			"priority": "设置优先级…",
+			"size": "设置大小…",
+			"label": "添加标签…",
+			"version": "更改版本…"
+		},
+		"noResults": "无结果",
+		"noOptions": "暂无可选项",
+		"actions": {
+			"createStatus": "创建状态",
+			"createPriority": "创建优先级",
+			"createSize": "创建大小",
+			"createLabel": "创建标签",
+			"createVersion": "创建版本"
 		}
 	}
 }

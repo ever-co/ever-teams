@@ -17,6 +17,14 @@ import {
 import { warnOnce } from '@lib/utils/warn-once';
 import { useClearKitSession } from './useClearKitSession';
 
+// The console warning of a failed call: its key (one warning per key and page) and its text; null for none.
+export type TokenFailureWarning = (error: unknown) => { key: string; message: string } | null;
+
+const getTokenWarning: TokenFailureWarning = (error) => ({
+	key: 'get-token-failed',
+	message: `config.getToken failed (${(error as Error)?.message ?? error}): the widgets show the person as signed out.`
+});
+
 /**
  * Keeps the kit signed in through the host's `getToken`: a token at start, another shortly before it expires (or when
  * the page comes back after that time), and one more after the API refuses the token (401), once until a request
@@ -24,9 +32,13 @@ import { useClearKitSession } from './useClearKitSession';
  * asked while one runs gets that one's answer. After a failed call, the next one waits for the page to come back
  * (focus or visible again), and never sooner than a few seconds after the failure.
  *
+ * @param warningOf The console warning of a failed call: config.getToken's by default.
  * @returns A function that asks the host for a token now.
  */
-export function useHostToken(getToken?: GetKitToken): () => Promise<void> {
+export function useHostToken(
+	getToken?: GetKitToken,
+	warningOf: TokenFailureWarning = getTokenWarning
+): () => Promise<void> {
 	const setAccessToken = useSetAtom(accessTokenAtom);
 	const setHostSession = useSetAtom(hostSessionAtom);
 	const notice = useAtomValue(kitNoticeAtom);
@@ -37,9 +49,11 @@ export function useHostToken(getToken?: GetKitToken): () => Promise<void> {
 	// commits, before the effects below run: a render React discards never reaches them.
 	const latestGetToken = useRef(getToken);
 	const latestClearSession = useRef(clearSession);
+	const latestWarningOf = useRef(warningOf);
 	useEffect(() => {
 		latestGetToken.current = getToken;
 		latestClearSession.current = clearSession;
+		latestWarningOf.current = warningOf;
 	});
 
 	const pending = useRef<Promise<void> | null>(null);
@@ -89,10 +103,10 @@ export function useHostToken(getToken?: GetKitToken): () => Promise<void> {
 			if (!mounted.current) {
 				return;
 			}
-			warnOnce(
-				'get-token-failed',
-				`config.getToken failed (${(error as Error)?.message ?? error}): the widgets show the person as signed out.`
-			);
+			const warning = latestWarningOf.current(error);
+			if (warning) {
+				warnOnce(warning.key, warning.message);
+			}
 			owner.current = null;
 			latestClearSession.current();
 			setHostSession({ status: 'signed-out', organizationId: null });

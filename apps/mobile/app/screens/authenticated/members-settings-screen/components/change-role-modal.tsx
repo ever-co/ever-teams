@@ -13,7 +13,7 @@ import {
 } from "react-native"
 import React from "react"
 import { BlurView } from "expo-blur"
-import { Feather, AntDesign } from "@expo/vector-icons"
+import { Circle, CircleCheck } from "../../../../../src/components/icons"
 import { useAppTheme } from "../../../../theme"
 import { OT_Member } from "../../../../services/interfaces/IOrganizationTeam"
 import { useTeamMemberCard } from "../../../../services/hooks/features/use-team-member-card"
@@ -73,9 +73,9 @@ const ChangeRoleModal: React.FC<IChangeRoleModal> = ({ onDismiss, visible, membe
 							<Text>{roleLabel(role.name)}</Text>
 							{member?.role?.name.toLowerCase() === role.name.toLowerCase() ||
 							(!member?.role?.name && role.name === "Member") ? (
-								<AntDesign name="check-circle" size={24} color="#27AE60" />
+								<CircleCheck size={24} color="#27AE60" />
 							) : (
-								<Feather name="circle" size={24} color="#FFFFFF" />
+								<Circle size={24} color="#FFFFFF" />
 							)}
 						</View>
 					</TouchableOpacity>

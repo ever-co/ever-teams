@@ -2090,10 +2090,15 @@ describe('Ever Teams feature surface preservation', () => {
 		// ever-gauzy #12030).
 		// 413 files and 523 verbs with Settings → Embeds (/api/embed-credentials GET and POST, config GET, [id] DELETE,
 		// /api/embed-allowed-origins GET and POST, [id] DELETE; #5437, ever-gauzy #12065 and #12066).
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(413);
+		// 414 files and 524 verbs with a person's sign-in from an allowed site (/api/embed/authorize POST; #5528,
+		// ever-gauzy #12094).
+		// 414 files and 525 verbs with its setting on each allowed site (/api/embed-allowed-origins/[id] PATCH; #5528).
+		// 415 files and 532 verbs with the link that begins the Ever ID sign-in (/api/auth/ever-id/start GET, and HEAD,
+		// POST, PUT, PATCH, DELETE and OPTIONS, which answer 404).
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(415);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(523);
+		).toHaveLength(532);
 		expect(routes).toEqual(
 			expect.arrayContaining([
 				// Proxy mode twins of Gauzy's embed credentials and allowed origins (ever-gauzy #12065, #12066; #5437)
@@ -2104,6 +2109,9 @@ describe('Ever Teams feature surface preservation', () => {
 				'apps/web/app/api/embed-allowed-origins/route.ts::GET',
 				'apps/web/app/api/embed-allowed-origins/route.ts::POST',
 				'apps/web/app/api/embed-allowed-origins/[id]/route.ts::DELETE',
+				// Proxy mode twin of Gauzy's sign-in of a person from an allowed site (ever-gauzy #12094, #5528)
+				'apps/web/app/api/embed/authorize/route.ts::POST',
+				'apps/web/app/api/embed-allowed-origins/[id]/route.ts::PATCH',
 				// Proxy mode twin of Gauzy's split of one entry, its slots going with each part (ever-gauzy #12030, #5369)
 				'apps/web/app/api/timesheet/time-log/[id]/split/route.ts::POST',
 				// Proxy mode twin of Gauzy's change of a time entry's own labels (ever-gauzy #12029, #5368)
@@ -2339,6 +2347,7 @@ describe('Ever Teams feature surface preservation', () => {
 				'apps/web/app/api/auth/ever-id/finish-setup/route.ts::POST',
 				'apps/web/app/api/auth/ever-id/signup-handoff/route.ts::POST',
 				'apps/web/app/api/auth/ever-id/verify-email/route.ts::GET',
+				'apps/web/app/api/auth/ever-id/start/route.ts::GET',
 				'apps/web/app/api/ever-connect/[...path]/route.ts::GET',
 				'apps/web/app/api/ever-connect/[...path]/route.ts::POST',
 				'apps/web/app/api/ever-connect/[...path]/route.ts::PUT',

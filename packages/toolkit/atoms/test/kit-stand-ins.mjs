@@ -1,6 +1,9 @@
 // What a test that renders TeamsProvider with the kit's hooks and the built @ever-teams/api gives it instead of the UI
 // packages and the translations, and a stand-in API that records every request: the atoms and embed tests share them.
 // Not a test itself: node --test runs *.test.mjs only.
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
 const passThrough = 'export default ({ children }) => children;';
 const children = '({ children }) => children ?? null';
 export const kitStandIns = {
@@ -27,7 +30,8 @@ export const kitStandIns = {
 		export const reportError = () => {};
 		export const getErrorMessage = (error) => String(error);
 		export const getWeekStartAndEnd = () => ({ start: new Date(0), end: new Date(0) });
-		export const getStartAndEndOfDay = () => ({ dayStart: '', dayEnd: '' });
+		export const getStartAndEndOfDay = () => ({ dayStart: 'last-24-hours', dayEnd: 'now' });
+		export const getTodaySoFar = () => ({ dayStart: 'since-midnight', dayEnd: 'now' });
 		export const generateChartConfig = () => ({});
 		export const transformData = () => [];`,
 	'theme-ui': `const passThrough = ({ children }) => children;
@@ -50,6 +54,25 @@ export const kitStandIns = {
 };
 // The stand-in an import names, as the kit's modules write it.
 export const kitStandInOf = (importPath) => Object.keys(kitStandIns).find((name) => importPath === name);
+
+// The kit's English strings, with forward slashes so that a stand-in can import them.
+const englishStrings = path
+	.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'src', 'lib', 'i18n', 'locales', 'en.json')
+	.replaceAll('\\', '/');
+// react-i18next with the kit's English strings, read under the key prefix the component asks for; a key they lack shows
+// its full path, so a title read from the wrong section fails the test that reads it.
+export const englishTranslation = `import en from '${englishStrings}';
+	const textOf = (path) => path.split('.').reduce((node, part) => node?.[part], en);
+	export const useTranslation = (_namespace, options) => ({
+		t: (key, values = {}) => {
+			const path = [options?.keyPrefix, key].filter(Boolean).join('.');
+			const text = textOf(path);
+			if (typeof text !== 'string') {
+				return path;
+			}
+			return text.replace(/{{(\\w+)}}/g, (_match, name) => String(values[name]));
+		}
+	});`;
 
 const USER = { id: 'user-1', tenantId: 'tenant-1', employee: { id: 'employee-1', organizationId: 'org-1' } };
 // What the stand-in API answers, by the path under /api; anything else gets an empty object.
