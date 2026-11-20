@@ -8,14 +8,6 @@ import { StyleSheet } from 'react-native';
 import LabelItem from './label-item';
 import { ITaskLabelItem } from '../../../../services/interfaces/ITaskLabel';
 
-jest.mock('@expo/vector-icons', () => {
-	const mockReact = jest.requireActual('react');
-	const { Text: MockText } = jest.requireActual('react-native');
-	const mockIcon = ({ name, disabled: _disabled, ...props }: { name: string; disabled?: boolean }) =>
-		mockReact.createElement(MockText, { ...props, accessibilityLabel: name }, name);
-	return { AntDesign: mockIcon, Ionicons: mockIcon };
-});
-
 function labelNamed(name: string): ITaskLabelItem {
 	return {
 		id: `label-${name}`,

@@ -1,6 +1,6 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
-import { AntDesign, Ionicons } from '@expo/vector-icons';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { Pencil, Trash } from '../../src/components/icons';
 import { useWebTheme } from '../theme';
 import { translate } from '../i18n';
 import LabelItem from './label-item';
@@ -20,7 +20,7 @@ interface ITaskSettingRow {
 	readOnly?: boolean;
 }
 
-/** No press handler on a read-only row: it never relies on the icons honoring `disabled`. */
+/** No press handler on a read-only row: it never relies on `disabled` alone. */
 function pressOf(readOnly: boolean, action: () => unknown) {
 	if (readOnly) {
 		return undefined;
@@ -43,28 +43,26 @@ function TaskSettingRow({ name, color, iconUrl, onEdit, onDelete, readOnly = fal
 				/>
 			</View>
 			<View style={[styles.actions, { opacity: readOnlyOpacity(readOnly) }]}>
-				<AntDesign
-					size={ACTION_ICON_SIZE}
-					name="edit"
-					color={theme.colors['muted-foreground']}
+				<Pressable
 					accessibilityRole="button"
 					accessibilityLabel={`${translate('common.edit')} ${name}`}
 					accessibilityState={{ disabled: readOnly }}
 					disabled={readOnly}
 					hitSlop={ACTION_HIT_SLOP}
 					onPress={pressOf(readOnly, onEdit)}
-				/>
-				<Ionicons
-					name="trash-outline"
-					size={ACTION_ICON_SIZE}
-					color={theme.colors['destructive-ink']}
+				>
+					<Pencil size={ACTION_ICON_SIZE} color={theme.colors['muted-foreground']} />
+				</Pressable>
+				<Pressable
 					accessibilityRole="button"
 					accessibilityLabel={`${translate('settingScreen.membersSettingsScreen.delete')} ${name}`}
 					accessibilityState={{ disabled: readOnly }}
 					disabled={readOnly}
 					hitSlop={ACTION_HIT_SLOP}
 					onPress={pressOf(readOnly, onDelete)}
-				/>
+				>
+					<Trash size={ACTION_ICON_SIZE} color={theme.colors['destructive-ink']} />
+				</Pressable>
 			</View>
 		</View>
 	);

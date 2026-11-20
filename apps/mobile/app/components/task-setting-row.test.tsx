@@ -4,15 +4,8 @@ import { StyleSheet } from 'react-native';
 import TaskSettingRow from './task-setting-row';
 import { themeFor } from '../../src/theme/use-theme';
 
-// Each icon as the text it renders, named by the row (its glyph otherwise); `disabled` is dropped so only a withheld
-// handler stops a press
-jest.mock('@expo/vector-icons', () => {
-	const mockReact = jest.requireActual('react');
-	const { Text: MockText } = jest.requireActual('react-native');
-	const mockIcon = ({ name, disabled: _disabled, ...props }: { name: string; disabled?: boolean }) =>
-		mockReact.createElement(MockText, { accessibilityLabel: name, ...props }, name);
-	return { AntDesign: mockIcon, Ionicons: mockIcon };
-});
+// The row's icons as their names, with the color they were given
+jest.mock('../../src/components/icons', () => jest.requireActual('../../test/icons-stand-in').iconsStandIn());
 jest.mock('../i18n', () => ({
 	translate: (key: string) => {
 		const texts: Record<string, string> = {
@@ -49,7 +42,9 @@ describe("a row of a team's task settings", () => {
 	it('draws delete in destructive-ink, never in a fixed orange', async () => {
 		await render(<TaskSettingRow name="high" color="#F5B8B8" onEdit={jest.fn()} onDelete={jest.fn()} />);
 
-		expect(screen.getByLabelText('Delete high').props.color).toBe(dark.colors['destructive-ink']);
+		expect(StyleSheet.flatten(screen.getByTestId('icon-Trash').props.style).color).toBe(
+			dark.colors['destructive-ink']
+		);
 	});
 
 	it('edits and deletes, and does neither on a read-only row', async () => {

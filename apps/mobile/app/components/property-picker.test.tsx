@@ -4,13 +4,7 @@ import { StyleSheet, Text } from 'react-native';
 import { PickerCreateFooter, PropertyPicker, PickerOption } from './property-picker';
 import { themeFor } from '../../src/theme/use-theme';
 
-jest.mock('@expo/vector-icons', () => {
-	const mockReact = jest.requireActual('react');
-	const { Text: MockText } = jest.requireActual('react-native');
-	const mockIcon = ({ name, color }: { name: string; color: string }) =>
-		mockReact.createElement(MockText, { testID: `icon-${name}`, style: { color } }, name);
-	return { Feather: mockIcon, Ionicons: mockIcon };
-});
+jest.mock('../../src/components/icons', () => jest.requireActual('../../test/icons-stand-in').iconsStandIn());
 jest.mock('../theme', () => ({
 	...jest.requireActual('../theme/typography'),
 	useWebTheme: () => jest.requireActual('../../src/theme/use-theme').themeFor('dark')
@@ -60,7 +54,7 @@ describe('a property picker', () => {
 		await renderPicker();
 
 		expect(screen.getAllByTestId('task-chip')).toHaveLength(3);
-		const checks = screen.getAllByTestId('icon-check');
+		const checks = screen.getAllByTestId('icon-Check');
 		expect(checks).toHaveLength(1);
 		expect(StyleSheet.flatten(checks[0].props.style).color).toBe(dark.colors.primary);
 		expect(screen.getByLabelText('in-progress').props.accessibilityState).toMatchObject({ selected: true });

@@ -8,7 +8,7 @@ import {
 	type AccessibilityRole,
 	type ViewStyle
 } from 'react-native';
-import { AntDesign, Ionicons } from '@expo/vector-icons';
+import { ChevronRight, Trash } from '../../../../../src/components/icons';
 import { typography, useWebTheme } from '../../../../theme';
 import type { Theme } from '../../../../../src/theme/use-theme';
 import { Toggle } from '../../../../components/toggle';
@@ -139,7 +139,7 @@ export function SettingsRow({
 					onPressOut={() => setPressed(false)}
 					style={[styles.chevron, chevronStyleOf(disabled)]}
 				>
-					<AntDesign name="right" size={CHEVRON_SIZE} color={theme.colors['muted-foreground']} />
+					<ChevronRight size={CHEVRON_SIZE} color={theme.colors['muted-foreground']} />
 				</Pressable>
 			)}
 		</View>
@@ -204,7 +204,7 @@ export function SettingsImageRow({
 				style={[styles.deleteButton, chevronStyleOf(deleteDisabled)]}
 				onPress={() => onDelete()}
 			>
-				<Ionicons name="trash-outline" size={20} color={theme.colors['destructive-ink']} />
+				<Trash size={20} color={theme.colors['destructive-ink']} />
 			</TouchableOpacity>
 		</View>
 	);
