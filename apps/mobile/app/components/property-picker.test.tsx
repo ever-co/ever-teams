@@ -134,6 +134,7 @@ describe('a property picker opened from a chip', () => {
 		expect(screen.getByTestId('property-menu')).toBeTruthy();
 		expect(screen.getByPlaceholderText('Change status…')).toBeTruthy();
 		expect(screen.getAllByTestId('menu-option')).toHaveLength(3);
+		expect(screen.getByText('in-progress')).toHaveStyle({ textTransform: 'capitalize' });
 		expect(screen.queryByTestId('picker-dialog')).toBeNull();
 	});
 

@@ -181,6 +181,7 @@ export function PropertyPicker({
 					onDismiss={onDismiss}
 					searchPlaceholder={searchPlaceholder ?? title}
 					footer={footer}
+					capitalizesLabels
 				/>
 			</Modal>
 		);

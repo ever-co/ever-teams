@@ -139,4 +139,19 @@ describe("a property's menu", () => {
 
 		expect(placement.top).toBe(32);
 	});
+
+	it('shows the names capitalized when asked, as the chips do', async () => {
+		await render(
+			<PropertyMenu
+				anchor={CHIP}
+				options={[{ key: 'open', label: 'in progress', isSelected: false }]}
+				onSelect={jest.fn()}
+				onDismiss={jest.fn()}
+				searchPlaceholder="Change status…"
+				capitalizesLabels
+			/>
+		);
+
+		expect(screen.getByText('in progress')).toHaveStyle({ textTransform: 'capitalize' });
+	});
 });

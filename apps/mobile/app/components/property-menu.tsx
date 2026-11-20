@@ -33,6 +33,8 @@ interface IPropertyMenu<T extends MenuOption> {
 	searchPlaceholder: string;
 	/** Under the list, over a hairline: the menu's actions. */
 	footer?: ReactNode;
+	/** Names shown capitalized, as the web's status menu and the chips show them. */
+	capitalizesLabels?: boolean;
 }
 
 /** The screen the menu lives on, in window coordinates. */
@@ -117,10 +119,13 @@ export function placementInArea(area: MenuArea, measures: MenuMeasures) {
 }
 
 /** One value to pick: its glyph, its name, and a check on the value the task holds. */
-function MenuRow<T extends MenuOption>({
-	option,
-	onSelect
-}: Readonly<{ option: T; onSelect: (option: T) => unknown }>) {
+interface IMenuRow<T extends MenuOption> {
+	option: T;
+	onSelect: (option: T) => unknown;
+	capitalizesLabel: boolean;
+}
+
+function MenuRow<T extends MenuOption>({ option, onSelect, capitalizesLabel }: Readonly<IMenuRow<T>>) {
 	const theme = useWebTheme();
 	return (
 		<Pressable
@@ -132,7 +137,10 @@ function MenuRow<T extends MenuOption>({
 			style={({ pressed }) => [styles.row, { backgroundColor: menuRowBackgroundOf(pressed, theme) }]}
 		>
 			<View style={styles.rowIcon}>{option.icon}</View>
-			<Text numberOfLines={1} style={[styles.rowLabel, { color: theme.colors.foreground }]}>
+			<Text
+				numberOfLines={1}
+				style={[styles.rowLabel, capitalizesLabel && styles.capitalized, { color: theme.colors.foreground }]}
+			>
 				{option.label}
 			</Text>
 			{option.isSelected && <Check size={MENU_ICON_SIZE} color={theme.colors.primary} />}
@@ -189,7 +197,8 @@ export function PropertyMenu<T extends MenuOption>({
 	onSelect,
 	onDismiss,
 	searchPlaceholder,
-	footer
+	footer,
+	capitalizesLabels = false
 }: Readonly<IPropertyMenu<T>>) {
 	const theme = useWebTheme();
 	const areaRef = useRef<View>(null);
@@ -244,7 +253,12 @@ export function PropertyMenu<T extends MenuOption>({
 					onContentSizeChange={(_, height) => setListHeight(height)}
 				>
 					{shownOptions.map((option) => (
-						<MenuRow key={option.key} option={option} onSelect={onSelect} />
+						<MenuRow
+							key={option.key}
+							option={option}
+							onSelect={onSelect}
+							capitalizesLabel={capitalizesLabels}
+						/>
 					))}
 					{shownOptions.length === 0 && (
 						<View style={styles.empty}>
@@ -270,6 +284,9 @@ export function PropertyMenu<T extends MenuOption>({
 const styles = StyleSheet.create({
 	area: {
 		flex: 1
+	},
+	capitalized: {
+		textTransform: 'capitalize'
 	},
 	disabled: {
 		opacity: 0.5
