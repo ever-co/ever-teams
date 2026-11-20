@@ -9,7 +9,6 @@ import {
 	ViewStyle,
 	TouchableOpacity,
 	StyleSheet,
-	FlatList,
 	StatusBar,
 	Keyboard,
 	Animated,
