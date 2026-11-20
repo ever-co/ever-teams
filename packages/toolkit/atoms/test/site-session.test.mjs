@@ -209,9 +209,34 @@ test('endSiteSignIn ends the sign-in saved for its address and organization, wit
 
 	await kit.endSiteSignIn({ apiUrl: API, organizationId: ORGANIZATION });
 
-	assert.deepEqual(sent('/embed/revoke').map(({ body }) => body), [{ renewalToken: renewalTokenFor(1) }]);
+	assert.deepEqual(
+		sent('/embed/revoke').map(({ body }) => body),
+		[{ renewalToken: renewalTokenFor(1) }]
+	);
 	assert.equal(savedRenewal(), null);
 	assert.equal(savedRenewal('org-2').renewalToken, renewalTokenFor(2), "another organization's sign-in stays");
+});
+
+test('endSiteSignIn waits for a renewal another timer runs, then ends the sign-in it saved', async () => {
+	saveRenewal(1);
+	let release;
+	api.hold = () => new Promise((resolve) => (release = resolve));
+	const renewing = newTab().getToken();
+	await settle();
+	const ending = kit.endSiteSignIn({ apiUrl: API, organizationId: ORGANIZATION });
+	await settle();
+
+	assert.deepEqual(sent('/embed/revoke'), [], 'nothing ended while the renewal runs');
+	api.hold = null;
+	release();
+	await renewing;
+	await ending;
+
+	assert.deepEqual(
+		sent('/embed/revoke').map(({ body }) => body),
+		[{ renewalToken: renewalTokenFor(2) }]
+	);
+	assert.equal(savedRenewal(), null, 'the renewed token is not left behind');
 });
 
 test("endSiteSignIn without an API address ends the sign-in of the page's, as a provider without apiUrl uses", async () => {
@@ -225,7 +250,10 @@ test("endSiteSignIn without an API address ends the sign-in of the page's, as a 
 		kit.apiConfigManager.setConfig({ apiUrl: previous });
 	}
 
-	assert.deepEqual(sent('/embed/revoke').map(({ body }) => body), [{ renewalToken: renewalTokenFor(3) }]);
+	assert.deepEqual(
+		sent('/embed/revoke').map(({ body }) => body),
+		[{ renewalToken: renewalTokenFor(3) }]
+	);
 	assert.equal(savedRenewal(), null);
 });
 

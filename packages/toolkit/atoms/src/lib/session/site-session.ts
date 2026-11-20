@@ -181,5 +181,13 @@ export interface EndSiteSignInOptions {
  * then asks the API to end it, as the user menu does (#5580). A provider on the page signs out with useSiteSignIn().
  */
 export async function endSiteSignIn({ apiUrl, organizationId }: EndSiteSignInOptions): Promise<void> {
-	await createSiteSession(apiUrlOf({ apiUrl }), organizationId).signOut();
+	const address = apiUrlOf({ apiUrl });
+	const session = createSiteSession(address, organizationId);
+	// Under the renewal lock: a renewal that another timer or tab of the site runs ends first, so it cannot save a new
+	// renewal token once this one forgot the sign-in.
+	try {
+		await withRenewalLock(siteSignInScopeOf(address, organizationId), () => session.signOut());
+	} catch {
+		await session.signOut();
+	}
 }
