@@ -1,98 +1,27 @@
-/* eslint-disable react-native/no-color-literals */
-/* eslint-disable react-native/no-inline-styles */
 import React, { FC } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { AntDesign, Ionicons } from '@expo/vector-icons';
-import { typography, useAppTheme } from '../../../../theme';
 import { ITaskStatusItem } from '../../../../services/interfaces/ITaskStatus';
-import { formatName } from '../../../../helpers/name-format';
-import { SvgUri } from 'react-native-svg';
-import { readOnlyOpacity } from '../../../../helpers/read-only-opacity';
-// import { useTaskStatusValue } from "../../../../components/StatusType"
+import TaskSettingRow from '../../../../components/task-setting-row';
 
 interface IStatusItem {
 	status: ITaskStatusItem;
 	onDeleteTask: () => unknown;
 	openForEdit: () => unknown;
-	/** Shows the edit and delete actions disabled, for a user who may not change this status. */
+	/** Shows the edit and delete actions disabled, for a user who may not change it. */
 	readOnly?: boolean;
 }
 
+/** A row of the team's task statuses: the shared settings row. */
 const StatusItem: FC<IStatusItem> = ({ status, onDeleteTask, openForEdit, readOnly = false }) => {
-	const { colors, dark } = useAppTheme();
-	const actionsOpacity = readOnlyOpacity(readOnly);
-	// const allStatuses = useTaskStatusValue()
-	// const cStatus = allStatuses[status.name.split("-").join(" ")]
-
 	return (
-		<View
-			style={{
-				...styles.container,
-				backgroundColor: dark ? '#181C24' : colors.background,
-				borderColor: 'rgba(0,0,0,0.13)'
-			}}
-		>
-			<View style={{ ...styles.statusContainer, backgroundColor: status?.color }}>
-				<SvgUri width={20} height={20} uri={status?.fullIconUrl ?? null} />
-				<Text style={styles.text}>{formatName(status?.name ?? '')}</Text>
-			</View>
-			{/* No press handlers on a read-only row: it never relies on the icons honoring `disabled` */}
-			<View style={{ ...styles.rightSection, opacity: actionsOpacity }}>
-				<AntDesign
-					size={16}
-					name={'edit'}
-					color={colors.primary}
-					accessibilityRole="button"
-					accessibilityState={{ disabled: readOnly }}
-					disabled={readOnly}
-					onPress={readOnly ? undefined : () => openForEdit()}
-				/>
-				<Ionicons
-					name="trash-outline"
-					size={16}
-					color={'#DE5536'}
-					accessibilityRole="button"
-					accessibilityState={{ disabled: readOnly }}
-					disabled={readOnly}
-					onPress={readOnly ? undefined : () => onDeleteTask()}
-				/>
-			</View>
-		</View>
+		<TaskSettingRow
+			name={status?.name ?? ''}
+			color={status?.color}
+			iconUrl={status?.fullIconUrl}
+			onEdit={openForEdit}
+			onDelete={onDeleteTask}
+			readOnly={readOnly}
+		/>
 	);
 };
-
-const styles = StyleSheet.create({
-	container: {
-		alignItems: 'center',
-		borderRadius: 10,
-		borderWidth: 1,
-		flexDirection: 'row',
-		justifyContent: 'space-between',
-		marginTop: 16,
-		padding: 6,
-		paddingRight: 16,
-		width: '100%'
-	},
-	rightSection: {
-		flexDirection: 'row',
-		justifyContent: 'space-between',
-		width: '16%'
-	},
-	statusContainer: {
-		alignItems: 'center',
-		backgroundColor: '#D4EFDF',
-		borderRadius: 10,
-		flexDirection: 'row',
-		height: '100%',
-		paddingHorizontal: 16,
-		paddingVertical: 12,
-		width: '60%'
-	},
-	text: {
-		fontFamily: typography.primary.medium,
-		fontSize: 14,
-		marginLeft: 13.5
-	}
-});
 
 export default StatusItem;
