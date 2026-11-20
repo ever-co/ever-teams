@@ -6,6 +6,7 @@ import qs from 'qs';
 import { generateChartConfig, getErrorMessage, reportError, toast, transformData } from '@ever-teams/toolkit-ui';
 import { useTeamsContext } from '@lib/context/teams-context';
 import { useKitOptions } from '@components/teams-provider/kit-options';
+import { useTimerOnlyToken } from '@hooks/useTimerOnlyToken';
 
 const useReport = () => {
 	const [report, setReport] = useState<IWeeklyReports | null>(null);
@@ -23,6 +24,7 @@ const useReport = () => {
 		reportDates: date
 	} = useTeamsContext();
 	const { api } = useKitOptions();
+	const timerOnly = useTimerOnlyToken();
 
 	// isCurrent turns false once the effect has moved past this read (other filters or another address, or the widget
 	// gone): its answer then shows nothing, not even its error, as the toasts are the page's.
@@ -99,6 +101,10 @@ const useReport = () => {
 	};
 
 	useEffect(() => {
+		// An embed token reaches the timer only: no read, so no refusal to show (#5602)
+		if (timerOnly) {
+			return;
+		}
 		let current = true;
 		if (user && organizationId) void getReport(() => current);
 		return () => {
@@ -106,7 +112,7 @@ const useReport = () => {
 			// The next read, if any, sets it again
 			setLoading(false);
 		};
-	}, [user, date, selectedEmployee, selectedTeam, organizationId, api]);
+	}, [user, date, selectedEmployee, selectedTeam, organizationId, timerOnly, api]);
 
 	return { report, config, chartData, loading };
 };

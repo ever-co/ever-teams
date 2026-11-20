@@ -30,6 +30,8 @@ import { TeamsTimerFooter } from '@components/layouts/footers/component-footer';
 import { ChevronLeft, ChevronRight, FileText, RefreshCwIcon } from 'lucide-react';
 import { TeamsActiveEmployeeSelector } from '@components/teams-ui-components/inputs/teams-active-employee-selector';
 import { useTimeLogs } from '@hooks/useTimeLogs';
+import { useTimerOnlyToken } from '@hooks/useTimerOnlyToken';
+import { TimerOnlyReportNote } from '@components/teams-ui-components/timer-only-report-note';
 
 /**
  * Format duration in seconds to HH:MM:SS format (e.g., "01:05:40")
@@ -139,6 +141,7 @@ export const TeamsTimesheet = ({
 	const { t } = useTranslation(undefined, { keyPrefix: 'TIMESHEET' });
 
 	const { userOrganizations, selectedOrganization } = useTeamsContext();
+	const timerOnly = useTimerOnlyToken();
 
 	// Date filter state - default to today
 	const [selectedDate, setSelectedDate] = useState<Date | undefined>(initialDate?.from ?? new Date());
@@ -207,6 +210,10 @@ export const TeamsTimesheet = ({
 	const orgName =
 		userOrganizations?.items.find((elt) => elt.organizationId == selectedOrganization)?.organization?.name ||
 		'Ever';
+
+	if (timerOnly) {
+		return <TimerOnlyReportNote label={t('label')} className={className} />;
+	}
 
 	return (
 		<div className={cn('flex flex-col gap-5 w-full bg-white dark:bg-black rounded-2xl p-6 shadow-xs', className)}>

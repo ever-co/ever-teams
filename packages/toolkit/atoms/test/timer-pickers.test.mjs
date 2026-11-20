@@ -31,6 +31,8 @@ const standIns = {
 		export const getOrganisationProjects = recorded('projects', () => [{ id: 'project-9', name: 'Internal tools' }]);
 		export const getOrganisationTeams = recorded('teams', () => ({ items: [{ id: 'team-1', name: 'Trails' }] }));
 		export const getMyTasks = recorded('tasks', () => [{ id: 'task-1', title: 'Map the north loop' }]);
+		// The tokens of these tests carry no embed claim: getToken is what tells the pickers apart
+		export const isEmbedToken = () => false;
 		// The answer, or the function that answers each token
 		export const getEmbedProjects = async (token, tenantId) => {
 			globalThis.__reads.push('embed projects');

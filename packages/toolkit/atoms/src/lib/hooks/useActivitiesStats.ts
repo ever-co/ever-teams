@@ -5,6 +5,7 @@ import { getTodaySoFar, getWeekStartAndEnd, toast } from '@ever-teams/toolkit-ui
 import { IActivitiesStats } from '@ever-teams/toolkit-types';
 import { useTeamsContext } from '@lib/context/teams-context';
 import { useKitOptions } from '@components/teams-provider/kit-options';
+import { useTimerOnlyToken } from '@hooks/useTimerOnlyToken';
 
 const useActivitiesStats = (): IHookResponse<IActivitiesStats> => {
 	const [activitiesStats, setActivitiesStats] = useState<IHookResponse<IActivitiesStats>>({
@@ -21,6 +22,7 @@ const useActivitiesStats = (): IHookResponse<IActivitiesStats> => {
 		reportDates: date
 	} = useTeamsContext();
 	const { api } = useKitOptions();
+	const timerOnly = useTimerOnlyToken();
 
 	// isCurrent turns false once the effect has moved past this read (other filters or another address, or the widget
 	// gone): its answer then shows nothing, not even its error, as the toasts are the page's.
@@ -71,6 +73,10 @@ const useActivitiesStats = (): IHookResponse<IActivitiesStats> => {
 	};
 
 	useEffect(() => {
+		// An embed token reaches the timer only: no read, so no refusal to show (#5602)
+		if (timerOnly) {
+			return;
+		}
 		let current = true;
 		void fetchActivitiesStats(() => current);
 		return () => {
@@ -78,7 +84,7 @@ const useActivitiesStats = (): IHookResponse<IActivitiesStats> => {
 			// The next read, if any, sets it again
 			setActivitiesStats((prev) => (prev.loading ? { ...prev, loading: false } : prev));
 		};
-	}, [user, selectedEmployee, selectedTeam, date, organizationId, api]);
+	}, [user, selectedEmployee, selectedTeam, date, organizationId, timerOnly, api]);
 
 	return activitiesStats;
 };

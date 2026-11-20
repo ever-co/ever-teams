@@ -60,7 +60,8 @@
 		"worked_over_period": "Worked over the period",
 		"today_activity": "Today's activity",
 		"week_activity": "Weeky activity",
-		"activity_over_period": "Activity over the period"
+		"activity_over_period": "Activity over the period",
+		"timer_only": "Open Ever Teams to see this. Your sign-in on this site covers your timer only."
 	},
 	"CLIENT_REPORT": {
 		"title": "Time spent",
@@ -511,6 +512,7 @@
 	},
 	"TIMESHEET": {
 		"title": "Timesheets for {{orgName}}",
+		"label": "Timesheet",
 		"filters": {
 			"select_date": "Select date",
 			"select_sources": "Select sources",
