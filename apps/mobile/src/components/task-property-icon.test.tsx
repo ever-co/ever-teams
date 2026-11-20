@@ -20,6 +20,7 @@ jest.mock('react-native-svg', () => {
 		Rect: element('rect')
 	};
 });
+jest.mock('./icons', () => jest.requireActual('../../test/icons-stand-in').iconsStandIn());
 jest.mock('../../app/theme', () => ({
 	useWebTheme: () => jest.requireActual('../theme/use-theme').themeFor('light')
 }));
@@ -100,5 +101,11 @@ describe("a task property's glyph", () => {
 
 		expect(screen.queryAllByTestId('rect')).toHaveLength(0);
 		expect(screen.getByTestId('circle').props.r).toBe('3.5');
+	});
+
+	it("draws a version as the web's tag, in muted-foreground when it has no color", async () => {
+		await render(<TaskPropertyIcon kind="version" name="Spring release" />);
+
+		expect(screen.getByTestId('icon-Tag')).toHaveStyle({ color: light.colors['muted-foreground'] });
 	});
 });
