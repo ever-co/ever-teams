@@ -13,6 +13,7 @@ import { taskChipLookOf } from '../../src/components/task-chip';
 import { ChipIcon } from '../../src/components/chip-icon';
 import { useMenuAnchor } from '../../src/components/menu-anchor';
 import TaskSizePopup from './task-size-popup';
+import { PropertyTriggerButton } from './property-trigger';
 import { translate } from '../i18n';
 import { limitTextCharaters } from '../helpers/sub-text';
 import { useTaskSizeValue } from './status-type';
@@ -24,9 +25,11 @@ interface TaskSizeProps {
 	size?: string;
 	setSize?: (size: string) => unknown;
 	canCreateSize?: boolean;
+	/** On the task page: the web's pill, or its chip when the value has a color, as wide as its content. */
+	forDetails?: boolean;
 }
 
-const TaskSize: FC<TaskSizeProps> = observer(({ task, containerStyle, setSize, size, canCreateSize }) => {
+const TaskSize: FC<TaskSizeProps> = observer(({ task, containerStyle, setSize, size, canCreateSize, forDetails }) => {
 	const theme = useWebTheme();
 	const { updateTask } = useTeamTasks();
 	const [openModal, setOpenModal] = useState(false);
@@ -59,16 +62,35 @@ const TaskSize: FC<TaskSizeProps> = observer(({ task, containerStyle, setSize, s
 		}
 	};
 
+	const popup = (
+		<TaskSizePopup
+			sizeName={task ? task?.size : size}
+			visible={openModal}
+			setSelectedSize={(e) => onChangeSize(e.value)}
+			onDismiss={() => setOpenModal(false)}
+			anchor={anchor}
+			canCreateSize={canCreateSize}
+		/>
+	);
+
+	if (forDetails) {
+		return (
+			<>
+				{popup}
+				<PropertyTriggerButton
+					anchorRef={anchorRef}
+					onPress={() => openFromAnchor(() => setOpenModal(true))}
+					kind="size"
+					placeholder={translate('taskMenus.fields.size')}
+					item={currentSize}
+				/>
+			</>
+		);
+	}
+
 	return (
 		<>
-			<TaskSizePopup
-				sizeName={task ? task?.size : size}
-				visible={openModal}
-				setSelectedSize={(e) => onChangeSize(e.value)}
-				onDismiss={() => setOpenModal(false)}
-				anchor={anchor}
-				canCreateSize={canCreateSize}
-			/>
+			{popup}
 			<TouchableOpacity onPress={() => openFromAnchor(() => setOpenModal(true))}>
 				<View
 					ref={anchorRef}
