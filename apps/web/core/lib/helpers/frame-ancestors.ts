@@ -7,8 +7,13 @@
 /** Pages no site may frame, the app itself included; next.config.js sends the same policy for them. */
 const NEVER_FRAMED_PATHS = new Set(['/embed/authorize']);
 
-/** `*`, or an http(s) origin whose host may start with `*.` and whose port may be `*` (a CSP host source). */
-const FRAME_ANCESTOR_SOURCE = /^(?:\*|https?:\/\/(?:\*\.)?[a-z0-9-]+(?:\.[a-z0-9-]+)*(?::(?:\d{1,5}|\*))?)$/i;
+/** An http(s) origin whose host may start with `*.` and whose port may be `*` (a CSP host source). */
+const ORIGIN_SOURCE = /^https?:\/\/(?:\*\.)?[a-z0-9-]+(?:\.[a-z0-9-]+)*(?::(?:\d{1,5}|\*))?$/i;
+
+/** `*` (any site), or an origin. */
+function isFrameAncestorSource(entry: string): boolean {
+	return entry === '*' || ORIGIN_SOURCE.test(entry);
+}
 
 /**
  * The sites a deployment lets frame the app, from FRAME_ANCESTORS (origins separated by commas or spaces). An entry
@@ -17,7 +22,7 @@ const FRAME_ANCESTOR_SOURCE = /^(?:\*|https?:\/\/(?:\*\.)?[a-z0-9-]+(?:\.[a-z0-9
 export function frameAncestorSources(setting: string | undefined): string[] {
 	const entries = (setting ?? '').split(/[\s,]+/);
 	const origins = entries.map((entry) => entry.replace(/\/$/, ''));
-	return origins.filter((origin) => FRAME_ANCESTOR_SOURCE.test(origin));
+	return origins.filter(isFrameAncestorSource);
 }
 
 /** The Content-Security-Policy a page answers with, for its path without the locale prefix. */
