@@ -384,7 +384,7 @@ test('a token route that refuses shows the person as signed out: getToken fails'
 });
 
 test('token-url keeps its getToken through other changes, gives a new one for another route, and none without it', async () => {
-	standInTokenRoute(answered(200, TOKEN));
+	const calls = standInTokenRoute(answered(200, TOKEN));
 	const element = await place({ 'api-url': 'https://api.example.com/api', 'token-url': '/api/ever-teams-token' });
 	const first = globalThis.lastConfig.getToken;
 
@@ -395,6 +395,8 @@ test('token-url keeps its getToken through other changes, gives a new one for an
 	await act(async () => element.setAttribute('token-url', '/other/token'));
 	assert.notEqual(globalThis.lastConfig.getToken, first);
 	assert.equal(globalThis.unmounted, 1, 'another route starts a new session, with no account of the previous one');
+	await globalThis.lastConfig.getToken();
+	assert.equal(calls.at(-1).url, '/other/token', 'the new session asks the new route');
 
 	await act(async () => element.removeAttribute('token-url'));
 	assert.equal(globalThis.lastConfig.getToken, undefined);
