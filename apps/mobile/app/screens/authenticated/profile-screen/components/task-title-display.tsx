@@ -5,7 +5,7 @@ import { View, StyleSheet, Text, TextInput, TouchableOpacity, ActivityIndicator,
 import { limitTextCharaters } from '../../../../helpers/sub-text';
 import { ITeamTask } from '../../../../services/interfaces/ITask';
 import { typography, useAppTheme } from '../../../../theme';
-import { AntDesign } from '@expo/vector-icons';
+import { Check } from '../../../../../src/components/icons';
 import { useTeamTasks } from '../../../../services/hooks/features/use-team-tasks';
 
 interface Props {
@@ -54,7 +54,7 @@ const TaskTitleDisplay: FC<Props> = ({ editMode, setEditMode, task, navigateToTa
 				/>
 				{!taskTitleChanged && !loading && (
 					<TouchableOpacity onPress={() => onChangeTitle(taskTitle)}>
-						<AntDesign name="check" size={24} color="#27AE60" />
+						<Check size={24} color="#27AE60" />
 					</TouchableOpacity>
 				)}
 				{loading && <ActivityIndicator size={'small'} />}

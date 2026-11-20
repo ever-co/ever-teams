@@ -605,6 +605,13 @@
 			"createSize": "إنشاء حجم",
 			"createLabel": "إنشاء تصنيف",
 			"createVersion": "إنشاء إصدار"
+		},
+		"filter": {
+			"status": "الحالة",
+			"priority": "الأولوية",
+			"size": "الحجم",
+			"labels": "تصنيفات",
+			"clear": "مسح الفلاتر"
 		}
 	}
 }

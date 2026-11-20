@@ -605,6 +605,13 @@
 			"createSize": "Create size",
 			"createLabel": "Create label",
 			"createVersion": "Create version"
+		},
+		"filter": {
+			"status": "Status",
+			"priority": "Priority",
+			"size": "Size",
+			"labels": "Labels",
+			"clear": "Clear filters"
 		}
 	}
 }

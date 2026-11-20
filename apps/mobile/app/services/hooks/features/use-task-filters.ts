@@ -15,6 +15,14 @@ type FilterType = 'status' | 'search' | undefined;
 type IStatusType = 'status' | 'size' | 'priority' | 'label';
 type StatusFilter = { [x in IStatusType]: string[] };
 
+/** What a task holds for a filter: its status, size or priority, or the names of its labels, which live in its tags. */
+function filterValuesOf(task: ITeamTask, type: IStatusType): string[] {
+	if (type === 'label') {
+		return (task.tags ?? []).map((tag) => tag.name);
+	}
+	return [task[type]];
+}
+
 export function useTaskFilter(profile: IUserProfile) {
 	const defaultValue = profile.activeTab;
 
@@ -85,6 +93,16 @@ export function useTaskFilter(profile: IUserProfile) {
 		[setStatusFilter]
 	);
 
+	/** A filter changed and applied at once, as the web's filter menu does: no Apply step. */
+	const changeStatusFilter = useCallback((type: IStatusType, value: string[]) => {
+		setStatusFilter((state) => {
+			return { ...state, [type]: value };
+		});
+		setAppliedStatusFilter((state) => {
+			return { ...state, [type]: value };
+		});
+	}, []);
+
 	// Reset status applied filter status when filter changed
 	useEffect(() => {
 		if (filterType !== 'status') {
@@ -118,7 +136,7 @@ export function useTaskFilter(profile: IUserProfile) {
 				return keys
 					.filter((k) => statusFilters[k].length > 0)
 					.every((k) => {
-						return statusFilters[k].includes(task[k]);
+						return filterValuesOf(task, k).some((value) => statusFilters[k].includes(value));
 					});
 			});
 	}, [tasks, taskName, appliedStatusFilter]);
@@ -133,7 +151,9 @@ export function useTaskFilter(profile: IUserProfile) {
 		taskName,
 		setTaskName,
 		statusFilter,
+		appliedStatusFilter,
 		onChangeStatusFilter,
+		changeStatusFilter,
 		onResetStatusFilter,
 		applyStatusFilter,
 		tasksGrouped: profile.tasksGrouped
