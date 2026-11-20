@@ -909,7 +909,7 @@ test('a failed sign-in shows its message in the form, unless the person edited a
 	});
 	await act(async () => globalThis.__logins[0]({ message: 'Failed to fetch' }));
 	await flush();
-	assert.equal(seen.form.error, 'KIT_ERRORS.ORIGIN');
+	assert.equal(seen.form.error, 'KIT_ERRORS.SIGN_IN_ORIGIN');
 
 	await act(async () => edit('a@b.c'));
 	let release;
