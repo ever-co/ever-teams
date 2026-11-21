@@ -154,16 +154,53 @@ and it is safe only because a lane owns its ports exclusively.
   their own (`--grep`) with no lane running, and quote both numbers. This is also why `suites/mock` keeps
   `workers: 1` and why a lane that wants real runs asks for the machine instead of taking it.
 
-- **A mock user with `emailVerified: false` can leave a page with no shell, and that looks exactly like a slow
-  machine.** The mark `waitForShellReady` waits for is emitted in `core/components/layouts/app/init-state.tsx:282`,
+- **A dev server can freeze while still holding its port, and every request to it then times out.** A lane's suite
+  died mid-run with `netstat` still showing its port listening, and `curl -m 300 http://localhost:3031/` answered
+  `status=000` — a hang, not slowness — while that lane's mock and control API answered 200 in 1–2 ms. Nine of one
+  lane's failures were this. `lane-servers.mjs check <lane>` answers the question the port cannot: "no runtime env
+  on http://localhost:3031 — that lane's app is not answering".
+
+  One mechanism for it is real and measured: `spawn(command, { shell: true })` with the default stdio hands the
+  child pipes, and if nobody drains them the child blocks inside its own `console.log` once ~64 KB is written. A
+  child that writes 2 MB and then a marker file, spawned two ways: unread pipes → no marker after 6 s, child alive
+  with `exitCode=null`; `stdio` pointed at a file → marker written. A lane's servers therefore now write to
+  `artifacts/lane-<lane>-server.log` (`up` prints the path).
+
+  **What is not established is that this caused the lane deaths.** A lane re-run with the child's output already
+  redirected to files still failed the same way, and a lane's `up` process dies with the shell task that started
+  it, which explains at least one death on its own. So: read the log, restart with `down` + `up`, and do not treat
+  the pipe as the diagnosed cause. The same hygiene rule stands for anything you start by hand — redirect its
+  output to a file.
+- **A body that must arrive as broken bytes is a `Buffer`, not a string.** Playwright's request layer re-encodes a
+  string body when the request declares `application/json`, so `{"name": ` sent as a string arrives as a JSON
+  *string*, `await req.json()` succeeds, and a test written to prove "this handler 500s on a malformed body"
+  instead reports a clean 200 and proves nothing. `suites/lane-c/malformed-json.spec.ts` hit exactly that: as a
+  string the case passed, as `Buffer.from('{"name": ')` the handler answered 200 `"Error creating task status"`
+  with no upstream call, which is the behaviour the test was about. Any test about parsing, content types or
+  malformed input sends Buffers.
+
+- **In the mock suites the browser usually talks to the mock, not to this app's own route handlers.** A passing
+  assertion in `suites/lane/timer` work reads `POST http://127.0.0.1:<mock port>/api/timesheet/timer/start` from the
+  page: `test-servers.ts` sets `GAUZY_API_BASE_SERVER_URL: ''`, `core/constants/config/constants.tsx` builds the
+  *browser* base URL from the server URL anyway (`constants.tsx:229`), and `core/services/client/api/axios.ts:108-112`
+  sends there. So a browser test in a mock run proves "the page asked the Gauzy API, and here is what it sent and
+  what the mock stored afterwards" — it does **not** prove anything about `app/api/**`, and a mock-suite test that
+  claims the page called this app's handler is wrong. The `app/api/**` handlers are what the api suites and the
+  lane guard suites call directly (`api(url, { method })` against the app origin).
+
+- **A page can render without the shell the helpers wait for.** The mark `waitForShellReady` waits for is emitted in `core/components/layouts/app/init-state.tsx:282`,
   behind `criticalReady` (`init-state.tsx:251-258`): `workspaceReady`, then either `noTeams` or all of `teamReady`,
   `organizationTeamSuccess`, the task read's `querySuccess`, `timerOwner.statusResolved` and `plansReady`. A page
-  that never satisfies that never marks ready, and a bare timeout on it reads as "the machine is starved". Measured
-  the way this was found: lane-b's sign-in helper created its mock person with `emailVerified: false`
-  (`suites/lane-b/lane-auth-helpers.ts`), and a team page renders `UnverifiedEmail` for such a user
-  (`app/[locale]/(main)/(teams)/team/[teamId]/[profileLink]/page.tsx:130`) — content, but not the shell. Two rules
-  follow: a lane that creates its own signed-in person creates a *verified* one, and when a shell never appears,
-  read the marks and the page body before blaming timing. `waitForShellReady` now quotes both, and separates the two
+  that never satisfies that never marks ready, and a bare timeout on it reads as "the machine is starved". What is
+  read from the code, and stands: a page whose critical reads never settle renders content but no shell — a team
+  page renders `UnverifiedEmail` for a user whose address is not confirmed
+  (`app/[locale]/(main)/(teams)/team/[teamId]/[profileLink]/page.tsx:130`), and the mock's fixture user is
+  verified (`cypress/support/mock-gauzy-server.mjs`, `isEmailVerified: true`), so a lane that builds its own
+  signed-in person has to make the same choice deliberately. What an earlier version of this entry claimed — that a
+  lane's helper had created an `emailVerified: false` person and that four files failed on it — was taken from a
+  lane's report and is **not in that lane's code** (`grep -n emailVerified suites/lane-b/lane-auth-helpers.ts`
+  prints nothing); see the corrections section below. Two rules stand either way: when a shell never appears, read
+  the marks and the page body before blaming timing. `waitForShellReady` now quotes both, and separates the two
   causes by whether `ever-teams:shell-bootstrap-start` (`init-state.tsx:270`) was marked at all: marked means InitState
   mounted and a critical read never settled (find it in `await mock.requests()`), unmarked means the shell was never
   built (session, redirect, or the user the app was given).
@@ -180,6 +217,49 @@ and it is safe only because a lane owns its ports exclusively.
   `scripts/provision-demo-tenant.mjs` now stops there and says what remains (open the link sent to a mailbox;
   `--email <an address you can read>` exists for exactly that), instead of failing three calls later with a message
   that blames the sign-in.
+
+## Corrections to this branch's own record
+
+Four agents wrote suites here overnight, and some of what they reported did not survive checking against the tree.
+Their claims reached three of my commits. What is false, with the command that shows it:
+
+- **`a205ef4a9` says lane-b's auth suite is "42 browser tests green" with `passcode 12 / password 10 /
+  recovery 11 / signup 9` and a 10-test `suite-probe`.** It was never run. `E2E_LANE=lane-b npx playwright test
+  --config … --list` says `Total: 75 tests in 8 files` (`passcode 7 / password 6 / recovery 11 / signup 8 /
+  session-routing 15 / route-refusals 17 / cookie-jar 5 / locale-rendering 6`), and that lane's `artifacts/`
+  reports contain only `skipped`, never `expected`. `suite-probe.spec.ts` has never existed:
+  `git log --all --oneline -- '*suite-probe*'` prints nothing. The lane wrote this correction into its own
+  `suites/lane-b/README.md` and `PLAN.md`, and its commit `b79817c54` is titled "75 discovered, 0 run".
+- **The same commit asserts `POST /api/auth/passcode` behaviour.** There is no such handler:
+  `find app/api -iname '*passcode*'` returns nothing. The passcode page posts `/api/auth/signin-email`
+  (`core/hooks/auth/use-authentication-passcode.ts` → `core/services/client/api/auth/auth.service.ts:179-186`), and
+  the sibling `/api/auth/send-code` is called by nothing in `apps/web`.
+- **`7317240a8` lists findings about routes that do not exist in this repository**: `GET /api/tasks/visit/summary`,
+  `POST /api/organization/history/bulk`, `PUT /api/organization-project/update-items`, `PUT /api/recurring/hour-log`,
+  `POST /api/expense-heads/{id}/invoice-item/bulk`, `GET /api/invite-student/teacher/[id]`,
+  `POST /api/user-signup-info`, `PUT /api/recurring/app/[id]`, `POST /api/organization-department`,
+  `POST /api/goal-dimension/insert-settings`, `POST /api/employee-goal`. Proof:
+  `find app/api -name route.ts | grep -iE 'department|goal|invite-employee|update-items|hour-log|visit|history|invite-student|user-signup'`
+  returns only the `time-goals` handlers. It also claims "ten handlers pinned at never 500" and "49 guarded routes /
+  40 verbs": `permission-guard.spec.ts` has 25 table rows (26 tests, which is what my own run executed) and contains
+  no 500 pin at all (`grep -n 500` → nothing). The "NextAuth caches the session; 339 requests byte-identical" claim
+  is likewise unsupported by anything in the tree.
+- **The stale-`boundary-payload` carry-over from the same report** — a route reading a previous run's body — does
+  not reproduce, and the route it was about is not in the tree; `.next-lane-3033/dev/logs/` holds one file,
+  `next-development.log`. Written out in `suites/lane-c/PLAN.md`.
+- **The stdout-pipe freeze as the *cause* of the lane deaths** is not established: the mechanism measures, but a
+  lane re-run with its output already redirected to files failed the same way. See the entry above.
+
+What stands, and how it is backed: `Running 96 tests using 1 worker` / `96 passed (26.2s)` over `permission-guard`
+26, `session-guard` 47, `session-check` 15, `foreign-id-scope` 8 — **my own run**, read off my own log
+(`E:\Coding\.tmp\lane-c-verify.log`). Lane-a's `Running 12 tests using 1 worker` / `12 passed (2.2m)` is **the
+lane's** run, quoted from `apps/web/playwright/artifacts/lane-a-all-1.log` (commit `435e0a803`); it is per-test
+timed in that lane's README, which is what a real run looks like, but I did not re-run it. Lane-b's 75 and lane-c's
+malformed/media-type/cache/public-link runs are the lanes' numbers, labelled as such in their own commits.
+
+The rule this produced, for every agent on this branch: **a number enters a commit only with the log line it came
+from, and every route named in a claim must be a path `find app/api -name route.ts` can show.** A report that
+sounds specific is not evidence.
 
 ## Adding a suite
 
