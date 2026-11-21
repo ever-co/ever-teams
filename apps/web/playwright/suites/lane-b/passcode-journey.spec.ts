@@ -3,14 +3,14 @@ import { mockRequests } from '../../helpers';
 
 import {
 	askForCode,
-	appAuthAsks,
-	appCallsMatching,
 	describeAppCalls,
 	describeMockLog,
 	fieldError,
 	fillCodeSlots,
 	MOCK_EMAIL,
 	mockAskedNoAuthPath,
+	mockAskedNoNewAuthPath,
+	mockAuthAskCount,
 	mockCalls,
 	mockCallsExactly,
 	mockWasAskedExactly,
@@ -18,9 +18,13 @@ import {
 	codeSlotValues,
 	codeSlots,
 	sessionCookies,
-	watchAppApi,
+	watchMockApi,
 	CODE_LENGTH
 } from './lane-auth-helpers';
+
+/** The mock-leg calls whose path is exactly `path` — `…/signin.email/confirm` contains `…/signin.email`. */
+const mockLegCalls = (calls: ReturnType<typeof watchMockApi>, path: string) =>
+	calls().filter((call) => call.path === path);
 
 /**
  * The passwordless sign-in, end to end, against this lane's mock.
@@ -28,11 +32,22 @@ import {
  * `/auth/passcode` is the page this deployment opens by default (`DEFAULT_APP_PATH`, `NEXT_PUBLIC_DEMO` blank like
  * `apps/web/.env` and the Cypress run). The flow is three legs and the assertions name each one:
  *
- *   1. the browser asks this app's own route handler (`POST /api/auth/signin-email` / `…/signin-email-confirm`),
- *      and `watchAppApi` captures the body it sent — the mock never sees that leg;
- *   2. that handler asks the mock (`POST /auth/signin.email`, `POST /auth/signin.email/confirm`, and an invite-code
- *      check `POST /invite/validate-by-code` before the confirmation), which is what `mock.*` answers;
+ *   1. the browser asks **the mock directly**, and `watchMockApi` captures the body it sent;
+ *   2. the mock's own request log, which is what `mockCalls*` answers: what the fake Gauzy holds afterwards;
  *   3. the browser's jar, which is where a session would appear (`auth-token` and its family).
+ *
+ * ⚠ Leg 1 used to be written as "the browser asks this app's own route handler", and the 2026-11-21 run red-flagged
+ * three cases for it. **There is no such leg in a mock run.** Every sign-in method of
+ * `core/services/client/api/auth/auth.service.ts` branches on `GAUZY_API_BASE_SERVER_URL.value` — which
+ * `playwright/test-servers.ts:109` sets to this lane's mock — and takes the direct branch: `signInEmail` posts
+ * `/auth/signin.email` (lines 179-185), `signInEmailConfirm` `/auth/signin.email/confirm` (201-212) and
+ * `signInWithEmailAndCode`, the hook's attempt 2, posts `/auth/login` (136-142). axios adds the `/api` segment
+ * (`core/services/client/axios.ts:110`), so what leaves the browser is `POST <mock origin>/api/auth/signin.email`,
+ * which is also exactly how the mock's log records it. The three reds read as that explains: `Received array: []`
+ * beside a capture of nothing but NextAuth's own chatter — `GET /api/auth/session → 200, GET /api/health → 200,
+ * POST /api/log → 201, …` (`lane-b-verify.log` lines 522-627). `app/api/auth/signin-email`, `…-confirm` and
+ * `app/api/auth/login` belong to a *proxy* deployment; the only way this lane reaches them is calling the handlers
+ * directly, which is what `route-refusals.spec.ts` does.
  *
  * Selectors and copy are taken from the components that render them: `core/components/pages/auth/sign-in/
  * credentials-step.tsx` (`#passcode-email`, the `Send me a code` submit), `code-step.tsx` (`#passcode-code-label`,
@@ -41,33 +56,40 @@ import {
  * each button makes, and which answers it shows).
  */
 test.describe('lane-b · the passwordless sign-in journey', () => {
-	test('asking for a code asks this app, which asks the mock, and opens the code step with the address in it', async ({
+	test('asking for a code sends it straight to the API with this app\'s branding, and opens the code step with the address in it', async ({
 		anon,
 		shield
 	}) => {
 		const view = await anon('/auth/passcode');
-		const calls = watchAppApi(view);
+		const calls = watchMockApi(view);
 
 		await askForCode(view, MOCK_EMAIL);
 
-		// Leg 1: what the browser asked this app, and with what.
-		const sent = appCallsMatching(calls(), '/api/auth/signin-email');
+		// Leg 1: what left the browser, and with what body. `authService.signInEmail`'s direct branch
+		// (`auth.service.ts:179-185`) sends `signInCodeRequestBody(email)` = the address plus `appEmailBranding()` and
+		// `appMagicSignUrl` (`auth.service.ts:34-37`), so the e-mail the mock was asked to send is this app's own.
+		const sent = mockLegCalls(calls, '/api/auth/signin.email');
 		expect(
 			sent.map((call) => `${call.method} ${call.path} → ${call.status}`),
-			`the sign-in page never asked this app to send a code: ${describeAppCalls(calls())}`
+			`the sign-in page never sent a code request to the API: ${describeAppCalls(calls())}`
 		).toHaveLength(1);
 		expect(sent[0].method, `the code request was ${sent[0].method}, not a POST`).toBe('POST');
 		expect(
 			(sent[0].body as { email?: string })?.email,
-			`the address the app was asked to send a code to is not the one typed: ${JSON.stringify(sent[0].body)}`
+			`the address the API was asked to send a code to is not the one typed: ${JSON.stringify(sent[0].body)}`
 		).toBe(MOCK_EMAIL);
 		expect(
+			(sent[0].body as { appMagicSignUrl?: string })?.appMagicSignUrl,
+			`the code request no longer carries this app's own sign-in link, so the e-mail would not open this app: ${JSON.stringify(sent[0].body)}`
+		).toContain('/auth/passcode');
+		expect(
 			sent[0].status,
-			`this app answered its own code request with ${sent[0].status}; a 400 here means its route refused the address before the mock saw it`
+			`the API answered the code request with ${sent[0].status}; a 400 here means the address was refused before the code step`
 		).toBe(200);
 
-		// Leg 2: what the mock was actually asked. `/auth/signin.email` exactly — the confirm path contains it.
-		const asked = await mockWasAskedExactly('/auth/signin.email');
+		// Leg 2: what the mock recorded, matching leg 1 one-for-one. `/api/auth/signin.email` exactly — the confirm
+		// path contains it.
+		const asked = await mockWasAskedExactly('/api/auth/signin.email');
 		expect(
 			asked.map((request) => `${request.method} ${request.path} → ${request.status}`),
 			`asking for a code asked the mock ${asked.length} times, once expected: ${describeMockLog(await mockRequests())}`
@@ -102,7 +124,7 @@ test.describe('lane-b · the passwordless sign-in journey', () => {
 		anon
 	}) => {
 		const view = await anon('/auth/passcode');
-		const calls = watchAppApi(view);
+		const calls = watchMockApi(view);
 
 		await view.locator('#passcode-email').fill('not-an-email');
 		await view.getByRole('button', { name: 'Send me a code' }).click();
@@ -124,8 +146,8 @@ test.describe('lane-b · the passwordless sign-in journey', () => {
 		).toBeVisible();
 
 		expect(
-			appAuthAsks(calls()),
-			`a malformed address still reached this app's sign-in routes: ${describeAppCalls(calls())}`
+			calls().filter((call) => call.path.startsWith('/api/auth/signin') || call.path === '/api/auth/login'),
+			`a malformed address still reached the API: ${describeAppCalls(calls())}`
 		).toEqual([]);
 		await mockAskedNoAuthPath();
 	});
@@ -134,20 +156,23 @@ test.describe('lane-b · the passwordless sign-in journey', () => {
 		anon
 	}) => {
 		const view = await anon('/auth/passcode');
-		const calls = watchAppApi(view);
+		const calls = watchMockApi(view);
 		await askForCode(view, MOCK_EMAIL);
 
 		await fillCodeSlots(view, SIGN_IN_CODE);
 		await view.getByRole('button', { name: 'Sign in', exact: true }).click();
 
-		// Leg 1: the typed code is what left the browser.
-		const confirm = appCallsMatching(calls(), '/api/auth/signin-email-confirm');
+		// Leg 1: the typed code is what left the browser. Attempt 1 of `verifySignInEmailConfirmRequest`
+		// (`core/hooks/auth/use-authentication-passcode.ts:176-206`) is `authService.signInEmailConfirm`, whose direct
+		// branch (`auth.service.ts:201-212`) posts `/auth/signin.email/confirm` with `{ email, code, includeTeams:true }`
+		// — no password, because this is the passwordless flow.
+		const confirm = mockLegCalls(calls, '/api/auth/signin.email/confirm');
 		expect(
 			confirm.map((call) => `${call.method} ${call.path} → ${call.status}`),
-			`the app was never asked to confirm the code: ${describeAppCalls(calls())}`
+			`the code was never sent to the API for confirmation: ${describeAppCalls(calls())}`
 		).toHaveLength(1);
 		const body = (confirm[0].body ?? {}) as { email?: string; code?: string; password?: string };
-		expect(body.code, `the code the app was asked to confirm is not the one typed (${SIGN_IN_CODE})`).toBe(
+		expect(body.code, `the code the API was asked to confirm is not the one typed (${SIGN_IN_CODE})`).toBe(
 			SIGN_IN_CODE
 		);
 		expect(body.email, `the code was confirmed for another address: ${JSON.stringify(body)}`).toBe(MOCK_EMAIL);
@@ -156,18 +181,25 @@ test.describe('lane-b · the passwordless sign-in journey', () => {
 			`the passwordless confirmation carried a password: ${JSON.stringify(Object.keys(body))}`
 		).toBe(false);
 
-		// Leg 2: what the mock was asked, in order. `…/signin-email-confirm` first tries an invite code, and the
-		// app's second attempt (its invite-code route) asks the same invite check again.
-		const confirmed = await mockWasAskedExactly('/auth/signin.email/confirm');
+		// Leg 2: the mock recorded both attempts of the hook, in this order. Attempt 1 did not sign anyone in (the mock
+		// echoes the body, so it carries no user and no workspaces), so attempt 2 — `signInWithEmailAndCode`
+		// (`auth.service.ts:136-142`) — asked `/api/auth/login` too. That is the *API's* login path, asked by the
+		// browser: the invite-code check this app's own `app/api/auth/login/route.ts` does first is not in this leg at
+		// all, and `route-refusals.spec.ts` pins that handler separately.
+		const confirmed = await mockWasAskedExactly('/api/auth/signin.email/confirm');
 		expect(
 			confirmed.map((request) => `${request.method} ${request.path} → ${request.status}`),
 			'the mock was never asked to confirm the code'
 		).toHaveLength(1);
-		const inviteChecks = await mockCalls('/invite/validate-by-code');
+		const loginAttempts = await mockCallsExactly('/api/auth/login');
 		expect(
-			inviteChecks.length,
-			`the app checked the typed value against the invitation codes ${inviteChecks.length} times; both of its confirm routes do (app/api/auth/signin-email-confirm/route.ts and app/api/auth/login/route.ts)`
-		).toBeGreaterThanOrEqual(1);
+			loginAttempts.length,
+			`the hook's second attempt did not follow a confirmation that signed nobody in: ${describeMockLog(await mockRequests())}`
+		).toBe(1);
+		expect(
+			await mockCalls('/api/invite/validate-by-code'),
+			`the browser's leg asked the app's own invitation-code check, which it does not have: ${describeMockLog(await mockRequests())}`
+		).toEqual([]);
 
 		// The code is not a session: the mock answers every POST it does not know by echoing the body, so it cannot
 		// hand out a token. The app then reports the code as invalid — which is the honest end of this journey, and
@@ -192,8 +224,10 @@ test.describe('lane-b · the passwordless sign-in journey', () => {
 		anon
 	}) => {
 		const view = await anon('/auth/passcode');
-		const calls = watchAppApi(view);
+		const calls = watchMockApi(view);
 		await askForCode(view, MOCK_EMAIL);
+		// The code request `askForCode` just made is counted out, so "nothing left the browser" means nothing *new*.
+		const asksBefore = await mockAuthAskCount();
 
 		// The field itself only takes 8 slots, so a short code is 5 slots filled and 3 left empty.
 		const slots = codeSlots(view);
@@ -201,23 +235,31 @@ test.describe('lane-b · the passwordless sign-in journey', () => {
 		await view.getByRole('button', { name: 'Sign in', exact: true }).click();
 		await view.waitForTimeout(1_000);
 
+		// Neither leg of the confirmation happened: the browser sent no confirmation to the API, and the mock's log
+		// holds no new sign-in ask on top of the code request.
 		expect(
-			appAuthAsks(calls()),
-			`a ${5}-character code still reached this app's sign-in routes: ${describeAppCalls(calls())}`
+			calls().filter((call) => call.path === '/api/auth/signin.email/confirm' || call.path === '/api/auth/login'),
+			`a ${5}-character code still left the browser: ${describeAppCalls(calls())}`
 		).toEqual([]);
-		await mockAskedNoAuthPath();
+		await mockAskedNoNewAuthPath(asksBefore);
 
-		// REAL DEFECT, asserted as it is: `handleCodeSubmit` (core/hooks/auth/use-authentication-passcode.ts) runs
-		// `authFormValidate(['email','code'])`, stores its errors and returns — but it has already put the hook in
-		// status 'loading', and `codeErrorOf` (code-step.tsx) only shows an error line while status is 'error'. So the
-		// person who typed too little is told nothing at all: the slots stay as they are and the button is still
-		// enabled. This assertion pins that silence; a fix that shows the reason fails it, on purpose.
+		// REAL DEFECT, asserted as it is, and read straight off the two functions: `handleCodeSubmit`
+		// (`core/hooks/auth/use-authentication-passcode.ts:323-343`) puts the hook in status 'loading' at line 326, then
+		// runs `authFormValidate(['email','code'])` at 339 and on an invalid form only `setErrors(errors); return;` —
+		// the status is never moved to 'error'. `codeErrorOf` (`core/components/pages/auth/sign-in/code-step.tsx:29-35`)
+		// returns `null` unless `form.status === 'error'`, so the errors are stored and never shown: the person who
+		// typed too little is told nothing at all. This assertion pins that silence; a fix that shows the reason fails
+		// it, on purpose. (It held in the 2026-11-21 run too — that case died two assertions later, on the slots.)
 		await expect(
 			fieldError(view, 'passcode-code'),
 			'a too-short code was refused without any message under the code field'
 		).toHaveCount(0);
 		await expect(
-			codeSlotValues(view),
+			view.locator('#passcode-code-label'),
+			'a too-short code left the code step; the person should still be on it'
+		).toBeVisible();
+		await expect(
+			await codeSlotValues(view),
 			'a too-short code was cleared or changed by the refusal; it should stay as the person typed it'
 		).toBe('AAAAA');
 	});
@@ -226,7 +268,7 @@ test.describe('lane-b · the passwordless sign-in journey', () => {
 		anon
 	}) => {
 		const view = await anon(`/auth/passcode?email=${MOCK_EMAIL}&code=${SIGN_IN_CODE}`);
-		const calls = watchAppApi(view);
+		const calls = watchMockApi(view);
 
 		// The hook reads the query on mount (`use-authentication-passcode.ts`) and confirms it; `code-step.tsx`
 		// `codeFromAddressBar()` fills the slots from the same query and submits the form once they are full.
@@ -238,17 +280,23 @@ test.describe('lane-b · the passwordless sign-in journey', () => {
 		const filled = await codeSlotValues(view);
 		expect(filled, `the code from the link did not reach the slots (slots hold "${filled}")`).toBe(SIGN_IN_CODE);
 
-		const confirms = appCallsMatching(calls(), '/api/auth/signin-email-confirm');
+		const confirms = mockLegCalls(calls, '/api/auth/signin.email/confirm');
 		expect(
 			confirms.map((call) => `${call.method} ${call.path} → ${call.status}`),
-			`the sign-in link never asked this app to confirm its code: ${describeAppCalls(calls())}`
-		).toHaveLength(1);
-		expect(
-			(confirms[0].body as { code?: string })?.code,
-			`the confirmation carried ${JSON.stringify((confirms[0].body as { code?: string })?.code)}, not the code from the link`
-		).toBe(SIGN_IN_CODE);
+			`the sign-in link never sent its code to the API: ${describeAppCalls(calls())}`
+		).not.toHaveLength(0);
+		for (const confirmation of confirms) {
+			expect(
+				(confirmation.body as { code?: string })?.code,
+				`a confirmation carried ${JSON.stringify((confirmation.body as { code?: string })?.code)}, not the code from the link`
+			).toBe(SIGN_IN_CODE);
+			expect(
+				(confirmation.body as { email?: string })?.email,
+				`a confirmation was sent for another address: ${JSON.stringify(confirmation.body)}`
+			).toBe(MOCK_EMAIL);
+		}
 
-		const confirmations = await mockCallsExactly('/auth/signin.email/confirm');
+		const confirmations = await mockCallsExactly('/api/auth/signin.email/confirm');
 		expect(
 			confirmations.length,
 			`the mock was asked to confirm the linked code ${confirmations.length} times; the hook confirms the query once and the filled field submits once, so at least one is expected`
@@ -271,7 +319,7 @@ test.describe('lane-b · the passwordless sign-in journey', () => {
 		const view = await anon('/auth/passcode');
 		await askForCode(view, MOCK_EMAIL);
 
-		const first = await mockCallsExactly('/auth/signin.email');
+		const first = await mockCallsExactly('/api/auth/signin.email');
 		expect(first.length, `asking for a code asked the mock ${first.length} times`).toBe(1);
 
 		// `ResendCode` starts its 60 s cooldown locked (code-step.tsx passes `startLocked`, a code just went out).
@@ -288,7 +336,7 @@ test.describe('lane-b · the passwordless sign-in journey', () => {
 		await resend.click();
 		await view.waitForTimeout(1_000);
 
-		const after = await mockCallsExactly('/auth/signin.email');
+		const after = await mockCallsExactly('/api/auth/signin.email');
 		expect(
 			after.length,
 			`clicking a locked resend asked the mock again (${after.length} asks: ${after

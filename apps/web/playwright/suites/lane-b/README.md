@@ -68,6 +68,31 @@ story:
   cases the mock cannot finish), which is exactly the distinction `PLAN.md` asks for: fix the mock's owner's file only
   with its owner's agreement, never with a `page.route` stub in a lane.
 
+## Diagnosis of those 30 (this lane, from 2026-11-21) — verdicts in PLAN.md §9
+
+The one structural fact that explains most of them: **the mock's request log spells every path with this app's `/api`
+prefix** — `serverFetch` fetches `GAUZY_API_SERVER_URL + path` and that constant is `basePath + '/api'`
+(`core/services/server/fetch.ts`, `core/constants/config/constants.tsx`); the browser's axios `baseURL` is built the
+same way (`core/services/client/axios.ts:110`), so `authService`'s direct branch posts `POST <mock>/api/auth/…`. A
+filter written as `/auth/…` matches nothing: it red-flagged four forwards the app really did, made every
+`mockAskedNothing` witness pass for the wrong reason, and it is why `watchAppApi` (app origin) saw only NextAuth's
+chatter in three browser cases whose sign-in request went straight to the mock. `lane-auth-helpers.ts` now carries a
+`watchMockApi` witness for that leg and `AUTH_API_PATHS` in the recorded spelling.
+
+| file | reds | verdicts | re-run by this lane |
+| --- | --- | --- | --- |
+| `route-refusals.spec.ts` | 7 | 4 T, 2 A (the `/api/auth/login` 500 crash; the unguarded join relay), 2 M (mock gaps) | **`17 passed (22.3s)`** — `E:\Coding\.tmp\lane-b-diag-refusals-1.log`, on a lane this lane started itself; every case 46-420 ms |
+| `passcode-journey.spec.ts` | 5 | 5 T (one is a missing `await`), 1 A inside them (the too-short-code silence), 1 M | none yet — the lane was taken back at 21:47; fixes are written and `tsc`-clean |
+
+Cases renamed while fixing a wrong assumption (same case, honest title): `passcode-journey.spec.ts` "asking for a code
+asks this app, which asks the mock, and opens the code step with the address in it" → "asking for a code sends it
+straight to the API with this app's branding, and opens the code step with the address in it"; `route-refusals.spec.ts`
+"…/verify/resend-link without a session is refused by the guard, not by the API" → "…with no cookies is relayed,
+because this mock hands /api/user/me to anybody"; "POST /api/auth/refresh answers 502, not 401 …" → "POST
+/api/auth/refresh rotates on this mock, because the mock does answer the refresh path with a pair". Nothing was
+deleted, skipped or loosened: two pins got *stricter* (a bearer-less session check, an ask-count witness that the old
+path filter could not prove at all).
+
 ## What each file proves
 
 | file | discovered | run | what it is for |
