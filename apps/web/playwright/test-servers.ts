@@ -18,10 +18,38 @@
  * `localhost` the same document renders. The mock accepts both Origins
  * (`cypress/support/mock-gauzy-server.mjs`, TRUSTED_BROWSER_ORIGINS), so nothing else has to move.
  */
-export const APP_ORIGIN = (process.env.E2E_APP_ORIGIN || 'http://localhost:3030').replace(/\/$/, '');
-export const MOCK_ORIGIN = 'http://127.0.0.1:3988';
-export const PLATFORM_ORIGIN = 'http://127.0.0.1:3989';
-export const CONTROL_ORIGIN = 'http://127.0.0.1:3990';
+/**
+ * The lanes: runs that work *beside* the four canonical configs instead of queueing for port 3030 and 3988–3991.
+ *
+ * A lane needs its own everything — app process, mock, statistics sink, control API, fake issuer — because the mock
+ * request log is what proves "this refusal never reached the API", and two runs sharing one mock invalidate each
+ * other's proofs. The ports are a table so two agents cannot pick the same one and kill each other's servers.
+ *
+ * `E2E_LANE=<lane-name>` is the whole switch, read once here. It has to be an environment variable rather than an
+ * argument to a helper: `helpers.ts`, `fixtures.ts` and a config all import the constants below, each in its own
+ * process (Playwright forks a worker per test file), and the only thing that reaches all of them is the environment
+ * the run was started with. A lane is therefore started as
+ * `E2E_LANE=lane-a npx playwright test --config apps/web/playwright/playwright.lane.config.ts`, and nothing in the
+ * spec or the config has to know a port.
+ */
+export type LanePorts = { app: number; mock: number; platform: number; control: number; idp: number };
+
+export const LANE_PORTS: Record<string, LanePorts> = {
+	'lane-a': { app: 3031, mock: 3992, platform: 3993, control: 3994, idp: 3995 },
+	'lane-b': { app: 3032, mock: 3996, platform: 3997, control: 3998, idp: 3999 },
+	'lane-c': { app: 3033, mock: 4002, platform: 4003, control: 4004, idp: 4005 }
+};
+
+const laneName = process.env.E2E_LANE;
+const lane = laneName ? LANE_PORTS[laneName] : undefined;
+if (laneName && !lane) {
+	throw new Error(`E2E_LANE=${laneName} is not a lane. Known lanes: ${Object.keys(LANE_PORTS).join(', ')}.`);
+}
+
+export const APP_ORIGIN = (process.env.E2E_APP_ORIGIN || `http://localhost:${lane?.app ?? 3030}`).replace(/\/$/, '');
+export const MOCK_ORIGIN = `http://127.0.0.1:${lane?.mock ?? 3988}`;
+export const PLATFORM_ORIGIN = `http://127.0.0.1:${lane?.platform ?? 3989}`;
+export const CONTROL_ORIGIN = `http://127.0.0.1:${lane?.control ?? 3990}`;
 
 /**
  * The fake Ever ID issuer backend.mjs serves (apps/web/playwright/ever-id-idp.mjs). A plain-http issuer on the
@@ -30,7 +58,7 @@ export const CONTROL_ORIGIN = 'http://127.0.0.1:3990';
  * secret below are placeholders for that fake issuer: the back-channel logout verifies a token the issuer
  * *signed*, so this secret authenticates to nothing real.
  */
-export const EVER_ID_ISSUER_URL = 'http://127.0.0.1:3991/oidc';
+export const EVER_ID_ISSUER_URL = `http://127.0.0.1:${lane?.idp ?? 3991}/oidc`;
 export const EVER_ID_CLIENT_ID = process.env.E2E_EVER_ID_CLIENT_ID || 'playwright-teams-client';
 export const EVER_ID_CLIENT_SECRET = 'playwright-fake-issuer-client-secret';
 
@@ -201,6 +229,88 @@ export function everIdServers(): WebServer[] {
 			cwd: REPO_ROOT
 		}
 	];
+}
+
+/**
+ * The servers of a lane: its own backend (with its own fake issuer) and its own app, on the ports `E2E_LANE`
+ * selected. Every constant above — `MOCK_ORIGIN`, `CONTROL_ORIGIN`, `APP_ORIGIN`, `EVER_ID_ISSUER_URL` — already
+ * followed that variable, so the lane's specs and its `webServer` cannot disagree about where the mock is.
+ *
+ * Two facts about this repository and this machine, both measured rather than assumed, are why this looks the way
+ * it does:
+ *
+ * - `yarn turbo dev --filter=@ever-teams/web` is `yarn node env.js && yarn next dev -p 3030`
+ *   (apps/web/package.json): the port is hardcoded in the script, so a lane asking for 3031 got
+ *   `EADDRINUSE :::3030` — it would have taken the canonical suite's port. A lane therefore calls the app's own
+ *   `next dev -p <port>` from `apps/web`. `env.js` is dotenv plus console lines, and Next loads
+ *   `.env.local`/`.env` itself without overriding a variable the process already has.
+ * - Next 16 allows one dev server per project directory: its lock is
+ *   `<distDir>/dev/logs/next-development.log`, and a second `next dev` in `apps/web` prints "Another next dev
+ *   server is already running" and exits (proved: 3031 and 3032 coexisted only once each had its own distDir). So
+ *   a lane gets `.next-lane-<port>` through `PLAYWRIGHT_LANE_DIST_DIR`, which `next.config.js` turns into
+ *   `distDir`. Unset, nothing changes for `yarn dev`. The lane pays a cold compile cache for that freedom.
+ *
+ * `options.everId` mounts the Ever ID routes in that lane's app (see `everIdServers` for why they need four
+ * settings at all). `reuseExistingServer` is deliberately *on* here, unlike the canonical configs: a lane iterates
+ * spec by spec through a night, and a cold Turbopack compile per iteration is minutes lost. A lane owns its ports
+ * exclusively, so the server it reuses is its own.
+ */
+export function laneServers(
+	laneName = laneName ?? '',
+	options: { everId?: boolean } = {}
+): { servers: WebServer[]; ports: LanePorts } {
+	const ports = LANE_PORTS[laneName];
+	if (!ports) {
+		throw new Error(
+			`laneServers needs a lane name. Pass one, or start the run with E2E_LANE set. Known lanes: ${Object.keys(LANE_PORTS).join(', ')}.`
+		);
+	}
+	const appOrigins = [`http://localhost:${ports.app}`, `http://127.0.0.1:${ports.app}`];
+	// `sharedEnv` is already the lane's: MOCK_ORIGIN, PLATFORM_ORIGIN and APP_ORIGIN followed `E2E_LANE` when this
+	// module was imported, so the only thing a lane adds to it is its own build directory.
+	const env = {
+		...sharedEnv(MOCK_ORIGIN),
+		PLAYWRIGHT_LANE_DIST_DIR: `.next-lane-${ports.app}`,
+		...(options.everId
+			? {
+				EVER_ID_ISSUER_URL,
+				EVER_ID_CLIENT_ID,
+				EVER_ID_CLIENT_SECRET,
+				NEXT_PUBLIC_EVER_ID_APP_NAME: 'Ever ID'
+			}
+			: {})
+	};
+	return {
+		servers: [
+			{
+				command: 'node apps/web/playwright/backend.mjs',
+				port: ports.control,
+				timeout: 120_000,
+				reuseExistingServer: true,
+				env: {
+					E2E_MOCK_API_PORT: `${ports.mock}`,
+					E2E_MOCK_PLATFORM_PORT: `${ports.platform}`,
+					E2E_CONTROL_PORT: `${ports.control}`,
+					E2E_EVER_ID_ISSUER_PORT: `${ports.idp}`,
+					E2E_EVER_ID_CLIENT_ID: EVER_ID_CLIENT_ID,
+					// The mock refuses a browser Origin it does not trust; a lane's browser comes from the lane's port.
+					E2E_TRUSTED_APP_ORIGINS: appOrigins.join(',')
+				},
+				cwd: REPO_ROOT
+			},
+			{
+				command: `node_modules/.bin/next dev -p ${ports.app}`,
+				port: ports.app,
+				timeout: 900_000,
+				reuseExistingServer: true,
+				env,
+				// `next dev` reads next.config.js from its working directory: the app folder, counted from the folder
+				// holding the config, which is how Playwright resolves a `cwd`.
+				cwd: '../..'
+			}
+		],
+		ports
+	};
 }
 
 /** The app against the demo API: no mock, real data, real tenant. */

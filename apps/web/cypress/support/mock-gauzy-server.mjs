@@ -7,7 +7,20 @@ import { URL } from 'node:url';
 
 const jsonClone = (value) => JSON.parse(JSON.stringify(value));
 const pagination = (items = []) => ({ items, total: items.length });
+/**
+ * The browser origins this mock answers. 3030 is the canonical app port — Cypress and the four Playwright configs.
+ * A lane (apps/web/playwright/test-servers.ts, `laneServers`) runs the app on its own port and names it here
+ * through `E2E_TRUSTED_APP_ORIGINS`; without that, a lane's browser is refused 403 by its own mock. Only a loopback
+ * origin is ever added, and only from an env var this repository's own launcher sets, so no run can widen the guard
+ * into answering a foreign Origin.
+ */
 const TRUSTED_BROWSER_ORIGINS = new Set(['http://127.0.0.1:3030', 'http://localhost:3030']);
+for (const entry of String(process.env.E2E_TRUSTED_APP_ORIGINS ?? '').split(',')) {
+	const origin = entry.trim();
+	if (/^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:\d{2,5})?$/.test(origin)) {
+		TRUSTED_BROWSER_ORIGINS.add(origin);
+	}
+}
 
 function buildData(fixture, scenario, requestUrl, requestTenantId) {
 	const { ids, names } = fixture;

@@ -223,7 +223,18 @@ const exportedConfig = isSentryEnabled
 
 // next/jest loads this file in PHASE_TEST (`yarn test:web`); every other phase gets the config above unchanged.
 module.exports = async (phase, context) => {
-	const resolvedConfig = typeof exportedConfig === 'function' ? await exportedConfig(phase, context) : exportedConfig;
+	let resolvedConfig = typeof exportedConfig === 'function' ? await exportedConfig(phase, context) : exportedConfig;
+	/**
+	 * The build directory of a Playwright lane (apps/web/playwright/test-servers.ts, `laneServers`).
+	 *
+	 * Next 16 allows one dev server per project directory — its lock is `<distDir>/dev/logs/next-development.log` —
+	 * so a second `next dev` started in apps/web for a parallel run exits with "Another next dev server is already
+	 * running". Each lane therefore gets its own distDir. Unset, nothing here changes: `yarn dev` keeps Next's own
+	 * `.next`.
+	 */
+	if (process.env.PLAYWRIGHT_LANE_DIST_DIR) {
+		resolvedConfig = { ...resolvedConfig, distDir: process.env.PLAYWRIGHT_LANE_DIST_DIR };
+	}
 	if (phase !== PHASE_TEST) {
 		return resolvedConfig;
 	}

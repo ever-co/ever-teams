@@ -43,3 +43,6 @@ guide-1.md
 
 # Sentry Config File with Auth Token
 .sentryclirc
+
+# build directories of the Playwright lanes (each lane runs its own `next dev`; Next 16 allows one per distDir)
+/.next-lane-*/
