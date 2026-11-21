@@ -40,10 +40,10 @@ export const LANE_PORTS: Record<string, LanePorts> = {
 	'lane-c': { app: 3033, mock: 4002, platform: 4003, control: 4004, idp: 4005 }
 };
 
-const laneName = process.env.E2E_LANE;
-const lane = laneName ? LANE_PORTS[laneName] : undefined;
-if (laneName && !lane) {
-	throw new Error(`E2E_LANE=${laneName} is not a lane. Known lanes: ${Object.keys(LANE_PORTS).join(', ')}.`);
+const selectedLane = process.env.E2E_LANE;
+const lane = selectedLane ? LANE_PORTS[selectedLane] : undefined;
+if (selectedLane && !lane) {
+	throw new Error(`E2E_LANE=${selectedLane} is not a lane. Known lanes: ${Object.keys(LANE_PORTS).join(', ')}.`);
 }
 
 export const APP_ORIGIN = (process.env.E2E_APP_ORIGIN || `http://localhost:${lane?.app ?? 3030}`).replace(/\/$/, '');
@@ -256,7 +256,7 @@ export function everIdServers(): WebServer[] {
  * exclusively, so the server it reuses is its own.
  */
 export function laneServers(
-	laneName = laneName ?? '',
+	laneName = selectedLane ?? '',
 	options: { everId?: boolean } = {}
 ): { servers: WebServer[]; ports: LanePorts } {
 	const ports = LANE_PORTS[laneName];
