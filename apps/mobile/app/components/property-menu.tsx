@@ -1,7 +1,7 @@
 import React, { ReactNode, RefObject, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { Dimensions, Keyboard, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
-import { Check } from '../../src/components/icons';
+import { SelectedMark } from '../../src/components/selected-mark';
 import { menuPlacementOf, MenuRect, MenuShape } from '../../src/components/menu-placement';
 import {
 	MENU_ICON_SIZE,
@@ -215,7 +215,7 @@ function MenuRow<T extends MenuOption>({ option, onSelect, capitalizesLabel }: R
 			>
 				{option.label}
 			</Text>
-			{option.isSelected && <Check size={MENU_ICON_SIZE} color={theme.colors.primary} />}
+			{option.isSelected && <SelectedMark />}
 		</Pressable>
 	);
 }
