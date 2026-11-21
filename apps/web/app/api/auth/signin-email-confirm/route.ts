@@ -32,12 +32,14 @@ export async function POST(req: Request) {
 	}).catch(() => void 0);
 
 	// General a random password with 8 chars
-	if (inviteReq && inviteReq.data.fullName) {
+	if (inviteReq) {
 		const password = generateToken(8);
 		// Ids only: the server log is readable by anyone with cluster access.
 		console.log('[API /auth/signin-email-confirm] invite code matched', { inviteId: inviteReq.data.id });
 
-		const names = inviteReq.data.fullName.split(' ');
+		// An invitation sent from the Invite dialog carries no name: the account opens without one
+		const fullName = inviteReq.data.fullName ?? '';
+		const names = fullName.split(' ');
 		const acceptInviteRes = await acceptInviteRequest({
 			code: body.code,
 			email: body.email,
