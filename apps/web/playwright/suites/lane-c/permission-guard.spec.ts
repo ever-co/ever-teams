@@ -1,4 +1,4 @@
-import { expect, test, type ApiCall } from '../../api-fixtures';
+import { expect, test } from '../../api-fixtures';
 
 /**
  * A route that answers only for a role with a certain permission must refuse the fixture person, and it
@@ -19,6 +19,12 @@ import { expect, test, type ApiCall } from '../../api-fixtures';
  * list, so every case here is a refusal. That also means this file cannot show the guard *letting*
  * somebody through — the mock answers the same five permissions whatever the scenario says, which is a
  * limit of the harness, recorded in PLAN.md.
+ *
+ * The table covers every verb of every guarded handler, not one verb per file. It was built from
+ * `grep -rl "refuseWithoutPermission\|refuseUnlessPermitted" app/api --include=route.ts` (20 route files) and the
+ * exported verbs of each (`grep -oE "^export (async function|const) (GET|POST|PUT|PATCH|DELETE)"`), which come to 24
+ * verb+path pairs: `/api/invoices/[id]` is three of them (GET, PUT, DELETE asking three different things) and
+ * `/api/invoice-schedules/[id]` two (PUT and DELETE, one shared gate).
  */
 
 /**
@@ -107,6 +113,13 @@ const GUARDED: Guarded[] = [
 		guardedEndpoint: (ids) => `/api/invoices/${ids.task}`
 	},
 	{
+		verb: 'DELETE',
+		pattern: '/api/invoices/[id] (DELETE)',
+		path: (ids) => `/api/invoices/${ids.task}`,
+		asks: 'canEditInvoices (invoice-access.ts — deleting a draft reads no time)',
+		guardedEndpoint: (ids) => `/api/invoices/${ids.task}`
+	},
+	{
 		verb: 'PUT',
 		pattern: '/api/invoices/[id]/action',
 		path: (ids) => `/api/invoices/${ids.task}/action`,
@@ -156,11 +169,39 @@ const GUARDED: Guarded[] = [
 		guardedEndpoint: (ids) => `/api/invoice-schedules/${ids.task}/runs`
 	},
 	{
+		verb: 'PUT',
+		pattern: '/api/invoice-schedules/[id]',
+		path: (ids) => `/api/invoice-schedules/${ids.task}`,
+		asks: 'canCreateInvoices (forwardScheduleChange, the same gate for PUT and DELETE)',
+		guardedEndpoint: (ids) => `/api/invoice-schedules/${ids.task}`
+	},
+	{
+		verb: 'DELETE',
+		pattern: '/api/invoice-schedules/[id] (DELETE)',
+		path: (ids) => `/api/invoice-schedules/${ids.task}`,
+		asks: 'canCreateInvoices (forwardScheduleChange)',
+		guardedEndpoint: (ids) => `/api/invoice-schedules/${ids.task}`
+	},
+	{
 		verb: 'POST',
 		pattern: '/api/organization-contact',
 		path: () => '/api/organization-contact',
 		asks: 'ORG_CONTACT_ADD / ORG_CONTACT_EDIT (clients.ts CLIENT_CREATE_PERMISSIONS)',
 		guardedEndpoint: () => '/api/organization-contact'
+	},
+	{
+		verb: 'PUT',
+		pattern: '/api/organization-contact/[id]',
+		path: (ids) => `/api/organization-contact/${ids.teammateEmployee}`,
+		asks: 'ORG_CONTACT_EDIT (clients.ts CLIENT_EDIT_PERMISSIONS)',
+		guardedEndpoint: (ids) => `/api/organization-contact/${ids.teammateEmployee}`
+	},
+	{
+		verb: 'PUT',
+		pattern: '/api/organization-contact/[id]/recover',
+		path: (ids) => `/api/organization-contact/${ids.teammateEmployee}/recover`,
+		asks: 'ORG_CONTACT_DELETE / ORG_CONTACT_EDIT (CLIENT_ARCHIVE_PERMISSIONS)',
+		guardedEndpoint: (ids) => `/api/organization-contact/${ids.teammateEmployee}/recover`
 	},
 	{
 		verb: 'DELETE',

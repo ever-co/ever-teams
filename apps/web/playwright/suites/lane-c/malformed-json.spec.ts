@@ -245,6 +245,3 @@ test.describe('a mutating route answers a body that is not the object it expects
 		});
 	});
 });
-
-/** Keeps the `MockControl` import honest: the file's helpers are typed against the fixture the tests get. */
-export type LaneCMock = MockControl;
