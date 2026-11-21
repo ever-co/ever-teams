@@ -1,10 +1,12 @@
 /**
  * Proxy mode: the four plan reads (the team's plans, my plans, a person's plans, a task's plans) reach Gauzy with the
  * session's tenant in the tenant-id header. Gauzy's tenant check refuses a read that names its tenant neither in that
- * header nor in a top-level `tenantId` query, and `where[tenantId]` does not count (ever-co/ever-teams#5611).
+ * header nor in a top-level `tenantId` query, and `where[tenantId]` does not count (ever-co/ever-teams#5611). A read
+ * Gauzy refuses reaches the browser with Gauzy's own status, and one Gauzy never answers with a 502, never a 500.
  */
 import { NextRequest } from 'next/server';
 import { signedIn } from '@/test/auth/guard-answers';
+import { tolerateServerFetchRejections } from '@/test/auth/server-fetch-rejections';
 
 const mockAuthenticatedGuard = jest.fn();
 
@@ -19,6 +21,7 @@ import { GET as getTaskPlans } from './task/[taskId]/route';
 
 const APP_URL = 'https://app.ever.team/api';
 const PLANS = { items: [], total: 0 };
+const GAUZY_REFUSAL = { statusCode: 403, message: 'Forbidden resource', error: 'Forbidden' };
 
 const READS: Array<[string, string, () => Promise<Response | undefined>]> = [
 	['the team plans', '/daily-plan', () => getTeamPlans(new NextRequest(`${APP_URL}/daily-plan`))],
@@ -60,6 +63,7 @@ function upstreamCall() {
 beforeEach(() => {
 	const guardAnswer = signedIn({ id: 'user-1' });
 	mockAuthenticatedGuard.mockResolvedValue(guardAnswer);
+	tolerateServerFetchRejections();
 });
 
 afterEach(() => {
@@ -78,5 +82,24 @@ describe.each(READS)('GET %s', (_name, gauzyPath, read) => {
 		const upstream = upstreamCall();
 		expect(upstream.pathname).toMatch(new RegExp(`${gauzyPath}$`));
 		expect(upstream.headers?.['tenant-id']).toBe('cookie-tenant');
+	});
+
+	it("passes Gauzy's refusal on with its status", async () => {
+		gauzyAnswers(async () => Response.json(GAUZY_REFUSAL, { status: 403 }));
+
+		const response = await read();
+
+		expect(response?.status).toBe(403);
+		expect(await response?.json()).toEqual(GAUZY_REFUSAL);
+	});
+
+	it('answers 502 when Gauzy gives no answer', async () => {
+		gauzyAnswers(async () => {
+			throw new TypeError('fetch failed');
+		});
+
+		const response = await read();
+
+		expect(response?.status).toBe(502);
 	});
 });
