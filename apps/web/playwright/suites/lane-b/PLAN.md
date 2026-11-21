@@ -543,3 +543,36 @@ timeout line itself, which this lane could not collect because lane-b's servers 
 - Per file, of the 30: `route-refusals` 7 diagnosed (4 T, 3 carrying A, 2 carrying M) and re-run **17 passed**; `passcode-journey` 5 T (one of them carrying the A for the too-short-code silence); `password-journey` 4 T; `password-recovery` 3 T (1 fixed, 2 queued) + 1 open; `signup-forms` 2 T fixed + 2 open; `session-routing` 1 M + 1 A+T + 1 A; `cookie-jar` 1 M; `locale-rendering` 1 A + 1 T fixed. **27 carry a verdict, 3 stay open** (`password-recovery:201`, `signup-forms:211`, `signup-forms:253`), each with the probe it needs named above.
 - Cases whose code changed today: 16 — `route-refusals` 7, `passcode-journey` 5, `signup-forms` 2, `password-recovery` 1 (`:255`), `locale-rendering` 1 (`:134`). Six more are queued in the tables above (`password-journey` 4, `password-recovery` `:82` and `:279`) because each needs the mock-leg witness wired into a file this lane could not re-run; queueing them is a note, not a skip — the cases stay red until a lane proves them.
 - Runs this lane produced itself: **`17 passed (22.3s)`** for the two `route-refusals` describes (`E:\Coding\.tmp\lane-b-diag-refusals-1.log`) and `tsc -p playwright/tsconfig.json --noEmit` printing nothing. No browser re-run of the other seven files was possible: lane-b's servers were taken back before one could start, and this lane did not bring up a third app on a 33 GB PC.
+
+---
+
+## 10. Queue for the next session that gets lane-b (written 2026-11-21, no lane was mine)
+
+Machine gate, measured, because it is the reason nothing further ran: `Free KB: 2795928 / Total KB: 33473768` (2.66 GB free) with `strata` at 11 615 MB and **two other lanes listening** (3033 idle, 3034 busy with browsers). My own bar is >= 4.5 GB free to start a lane, and never a lane when two others are up under 6 GB, so `lane-servers.mjs up lane-b` was not pressed. The `.next-lane-3032` distDir is warm from earlier, which cuts the cold compile, but not to nothing.
+
+Commands, in the order that costs least first:
+
+```bash
+export PATH=\"/e/nvm/.nodejs:$PATH\"; export NODE_OPTIONS=\"--no-warnings\"; export E2E_BROWSER_CHANNEL=chrome
+node apps/web/playwright/scripts/lane-servers.mjs up lane-b     # keep this task alive for the whole session
+node apps/web/playwright/scripts/lane-servers.mjs check lane-b  # MISWIRED / no runtime env means down then up
+
+# 1. no browser at all, ~25 s: proves the 7 fixed route-refusals pins are still green
+E2E_LANE=lane-b npx playwright test --config apps/web/playwright/playwright.lane.config.ts \
+  --grep \"the sign-in routes refuse|a POST with no guard\"          # -> E:/Coding/.tmp/lane-b-diag-refusals-2.log
+
+# 2. the whole lane for the honest total, with every duration visible in the list output
+E2E_LANE=lane-b npx playwright test --config apps/web/playwright/playwright.lane.config.ts \
+  > E:/Coding/.tmp/lane-b-full-1.log 2>&1
+
+# 3. the two 3-minute outliers alone, which is how their fix is proved (both must land in seconds):
+#    --grep \"two different passwords are refused on the confirmation\"     (password-recovery:255)
+#    --grep \"a real name with an address that is not an address\"          (signup-forms:75)
+```
+
+Then the six **queued** fixes (each already written out in §9 with the exact body keys and path), and only 
+after them the three **open** cases, each with its probe: `password-recovery:201` dump the rules markup; 
+`signup-forms:211`/`:253` dump `revealBoxOf(page, \"signup-team\")` and the step-1 state into the failure 
+message before touching the assertion. A live probe of the real `api.ever.team` team-join relay is **not** 
+queued: it is unevidenced on this PC (the report that described one was withdrawn by its own author), and 
+it would need the owner's go-ahead and a pushed MAINTENANCE.md row before anyone runs it.
