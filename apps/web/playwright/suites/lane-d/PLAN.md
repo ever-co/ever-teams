@@ -122,17 +122,27 @@ draft of this file blamed the exemption; the correction is in the spec's own com
   file pins that, and the mock log there shows whether an anonymous page drove the API without a token (the mock
   is authentication-blind — AUDIT finding 13 — so a `200` from it is not a real API's answer).
 - **D-8 — no read at the door is origin-guarded** (AUDIT finding 5). `proxy.ts` never calls `refuseForeignOrigin`,
-  so `Sec-Fetch-Site` cannot change a page answer; `same-origin-request.ts:44-47` exempts GET/HEAD by design. The
-  Sec-Fetch group pins status/`Location` equality across `same-origin`, `same-site`, `cross-site` and no header, and
-  proves from the mock log that **no write** reached it in any variant.
+  so `Sec-Fetch-Site` cannot change a page answer; `same-origin-request.ts:43-46` exempts GET/HEAD by design (`:44`),
+  and `refuseForeignOrigin` (`:16-34`) refuses `cross-site` **and** `same-site` at `:18` — worth knowing because this
+  lane's matrix sends both of those to a page. The Sec-Fetch group pins status/`Location` equality across
+  `same-origin`, `same-site`, `cross-site` and no header, and proves from the mock log that **no write** reached it in
+  any variant.
+- **D-9 — `/team/join` is public, but not through the door's `team/` exemption** (a correction of this file's own
+  first draft). `proxy.ts:160-165` returns the i18n response untouched for `paths[0] === 'team'` (or `paths[1]` under
+  a locale) **only when no segment of the path is `join`** — `!paths.includes('join')` at `:161` — so the join page
+  (`app/[locale]/(focus)/team/join/page.tsx`) runs the full door. It still answers 200 to an anonymous visitor, for
+  the simpler reason that `PROTECTED_APP_URL_PATHS` names no `team` pattern at all and SECTION 3 (`proxy.ts:603-615`)
+  lets public paths through. The status is the same as `/team/tasks`' and the reason is not: one is exempted before
+  any token is read, the other is simply unlisted. A gate added to the constants list would move the join page and
+  leave the exemption untouched, which is exactly the difference a spec comment has to keep straight.
 
 ## 5. Files and shape
 
 - `page-gate-lane.spec.ts` — browser-free (`api-fixtures`), because a `request` fetch is far cheaper on this PC
   than a page, and the gate decision is a server-side answer: status + `Location` + the mock's request log.
   Groups: every protected family anonymous; every protected family signed in (the mirror AUDIT 11 says the api
-  suite cannot see); all 13 locales; the 7 unpinned families under `pt`; the unprotected families; the
-  Sec-Fetch-Site matrix.
+  suite cannot see); all 13 locales; the 7 unpinned families under `pt`; the unprotected families (with the D-9
+  `/team/join` case and the D-4 `/auth/workspace` session bounce); the Sec-Fetch-Site matrix. 81 tests.
 - `page-gate-browser.spec.ts` — only what needs a browser: where a signed-out visitor actually lands and what is
   rendered (the sign-in link `core/components/pages/unauthorized/index.tsx:21` → `<Link href={DEFAULT_APP_PATH}>`),
   the `ar` render and its `dir`, and one signed-in family proving the door did not bounce a present session.
