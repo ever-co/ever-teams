@@ -23,17 +23,43 @@ import { spawn, spawnSync } from 'node:child_process';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { LANE_PORTS, laneServers } from '../test-servers.ts';
-
 const HERE = dirname(fileURLToPath(import.meta.url));
 /** `test-servers.ts` writes its `cwd` relative to the folder holding a Playwright config, which is one level above this `scripts/` folder. */
 const CONFIG_DIR = resolve(HERE, '..');
 
 const [action, laneName] = process.argv.slice(2);
+
+if (typeof laneName !== 'string') {
+	console.error('usage: lane-servers.mjs up|down|check <lane>');
+	process.exit(2);
+}
+
+/**
+ * `E2E_LANE` before the import, deliberately. `test-servers.ts` reads it while being imported
+ * (`MOCK_ORIGIN`, `PLATFORM_ORIGIN`, `APP_ORIGIN`), and a static `import` runs before any statement in this file —
+ * so with the import above and the assignment below, a hand-started lane got the *canonical* 3988 as its API
+ * while its own mock sat on the lane's port. Every server-side call then answered 502 "The Gauzy API is
+ * unreachable" and a whole suite went red for a reason that was not in the app. (A config run is safe from this:
+ * the shell exports the variable before Playwright starts.)
+ */
+process.env.E2E_LANE = laneName;
+/**
+ * `test-servers.ts` refuses an unknown lane at import time (it would rather throw than quietly use 3030), so the
+ * import is guarded: a typo in a lane name should read as a usage error, not as a stack trace.
+ */
+let LANE_PORTS;
+let laneServers;
+try {
+	({ LANE_PORTS, laneServers } = await import('../test-servers.ts'));
+} catch (error) {
+	console.error(error instanceof Error ? error.message : error);
+	process.exit(2);
+}
+
 const ports = LANE_PORTS[laneName];
 
 if (!ports) {
-	console.error(`usage: lane-servers.mjs up|down <${Object.keys(LANE_PORTS).join('|')}>`);
+	console.error(`usage: lane-servers.mjs up|down|check <${Object.keys(LANE_PORTS).join('|')}>`);
 	process.exit(2);
 }
 
@@ -69,24 +95,83 @@ if (action === 'down') {
 	process.exit(0);
 }
 
+/**
+ * What a running lane app *thinks* its own origins are, read from the runtime env it renders into
+ * `<html data-ever-teams-runtime-env="…">` (`app/[locale]/layout.tsx` → `getPublicRuntimeEnv()`). That is the
+ * browser half of the configuration; the server-side handlers read the non-public twin (`GAUZY_API_SERVER_URL`),
+ * and both come from the same env object in `test-servers.ts`, so a mismatch here is a real miswiring rather than
+ * a rendering detail.
+ *
+ * This exists because the failure it catches is invisible otherwise: a lane app pointed at a mock that is not its
+ * own answers every request with 200s of HTML and 502 JSON, and a suite reads that as "the guard let this through".
+ */
+const laneAppRuntimeEnv = async (port) => {
+	try {
+		const response = await fetch(`http://localhost:${port}/`, { redirect: 'follow', signal: AbortSignal.timeout(180_000) });
+		const html = await response.text();
+		const match = html.match(/data-ever-teams-runtime-env="([^"]*)"/);
+		if (!match) return undefined;
+		const json = match[1]
+			.replace(/&quot;/g, '"')
+			.replace(/&#x27;/g, "'")
+			.replace(/&lt;/g, '<')
+			.replace(/&gt;/g, '>')
+			.replace(/&amp;/g, '&');
+		return JSON.parse(json);
+	} catch {
+		return undefined;
+	}
+};
+
+/** The four origins a lane's app must name. Returns the mismatches, in words. */
+const laneAppMiswiring = async (lanePorts) => {
+	const env = await laneAppRuntimeEnv(lanePorts.app);
+	if (!env) {
+		return [`no runtime env on http://localhost:${lanePorts.app} — that lane's app is not answering (start it with \`up ${laneName}\`)`];
+	}
+	/**
+	 * Only the public keys, because `getPublicRuntimeEnv()` (core/services/server/runtime-env.ts) is what the page
+	 * carries and it filters out everything non-public — asking for `GAUZY_API_SERVER_URL` here would call every
+	 * healthy lane miswired. `test-servers.ts` sets both twins from one env object, so the public one proves it.
+	 */
+	const expected = {
+		NEXT_PUBLIC_GAUZY_API_SERVER_URL: `http://127.0.0.1:${lanePorts.mock}`,
+		NEXT_PUBLIC_WEB_APP_URL: `http://localhost:${lanePorts.app}`,
+		NEXT_PUBLIC_EVER_STATS_API_URL: `http://127.0.0.1:${lanePorts.platform}`
+	};
+	return Object.entries(expected)
+		.filter(([key, want]) => env[key] !== want)
+		.map(([key, want]) => `${key} is ${JSON.stringify(env[key] ?? null)}, must be ${JSON.stringify(want)}`);
+};
+
+if (action === 'check') {
+	const problems = await laneAppMiswiring(ports);
+	if (problems.length) {
+		console.error(`lane ${laneName}: MISWIRED — ${problems.join('; ')}`);
+		console.error(`fix: \`down ${laneName}\` then \`up ${laneName}\` — a reused server keeps the environment it was started with.`);
+		process.exit(1);
+	}
+	console.log(`lane ${laneName}: OK — the app on ${ports.app} names its own mock ${ports.mock} and stats sink ${ports.platform}`);
+	process.exit(0);
+}
+
 if (action !== 'up') {
-	console.error('usage: lane-servers.mjs up|down <lane>');
+	console.error('usage: lane-servers.mjs up|down|check <lane>');
 	process.exit(2);
 }
 
-process.env.E2E_LANE = laneName;
 const { servers } = laneServers(laneName, { everId: process.env.E2E_EVER_ID === '1' });
 const children = servers.map((server) => {
 	console.log(`starting ${server.command} (port ${server.port})`);
 	return spawn(server.command, { cwd: resolve(CONFIG_DIR, server.cwd), env: { ...process.env, ...server.env }, shell: true });
 });
 
-const shutdown = (why) => {
+const shutdown = (why, code = 0) => {
 	console.log(`stopping (${why})`);
 	for (const child of children) {
 		child.kill('SIGTERM');
 	}
-	process.exit(0);
+	process.exit(code);
 };
 
 process.on('SIGINT', () => shutdown('SIGINT'));
@@ -104,6 +189,19 @@ for (const port of [ports.control, ports.app]) {
 	}
 	console.log(`port ${port} answers`);
 }
+
+/**
+ * The last thing a lane needs before it trusts a run: that the app it just started is configured for *this* lane.
+ * Costs one page render (a cold lane pays it here instead of paying it inside a test), and it is the only thing
+ * that would have caught the miswiring described above. `check` runs the same function on servers already running.
+ */
+const problems = await laneAppMiswiring(ports);
+if (problems.length) {
+	console.error(`lane ${laneName}: MISWIRED — ${problems.join('; ')}`);
+	console.error(`a server left over from another run keeps the environment it was started with; run \`down ${laneName}\` first`);
+	shutdown('miswired lane', 1);
+}
+console.log(`checked: the app on ${ports.app} names its own mock ${ports.mock} and statistics sink ${ports.platform}`);
 
 console.log(`ready: lane ${laneName} — app http://localhost:${ports.app}, mock ${ports.mock}, stats ${ports.platform}, control ${ports.control}, issuer ${ports.idp}`);
 console.log('leave this running while the lane runs Playwright; press Ctrl-C (or run `down`) when it is done.');

@@ -266,14 +266,34 @@ export function laneServers(
 		);
 	}
 	const appOrigins = [`http://localhost:${ports.app}`, `http://127.0.0.1:${ports.app}`];
-	// `sharedEnv` is already the lane's: MOCK_ORIGIN, PLATFORM_ORIGIN and APP_ORIGIN followed `E2E_LANE` when this
-	// module was imported, so the only thing a lane adds to it is its own build directory.
+	/**
+	 * The lane's origins are named from `ports` here rather than taken from `MOCK_ORIGIN` / `PLATFORM_ORIGIN` /
+	 * `APP_ORIGIN`, and that is a bug fix, not tidiness: those constants followed `E2E_LANE` only if it was set
+	 * *before this module was imported*. `scripts/lane-servers.mjs` had to set the variable itself (a lane is
+	 * started by hand, so it is not in the caller's environment), and a static import runs first — so its lane app
+	 * got `http://127.0.0.1:3988`, a port nothing on that lane listens on. Measured: every server-side call from
+	 * that app answered 502 `{"statusCode":502,"message":"The Gauzy API is unreachable"}`
+	 * (`core/services/server/forward-to-gauzy.ts`), and 25 route-guard tests went red reading it as "the fixture
+	 * role was allowed through". A lane's app now cannot be pointed anywhere but its own mock.
+	 */
+	const origins = {
+		app: `http://localhost:${ports.app}`,
+		mock: `http://127.0.0.1:${ports.mock}`,
+		platform: `http://127.0.0.1:${ports.platform}`,
+		issuer: `http://127.0.0.1:${ports.idp}/oidc`
+	};
 	const env = {
-		...sharedEnv(MOCK_ORIGIN),
+		...sharedEnv(origins.mock),
+		// ...and the rest of `sharedEnv`'s origins, which come from the module constants and would otherwise be the
+		// canonical 3030/3989 for a hand-started lane. Same values a config run reaches by having `E2E_LANE` set.
+		PORT: `${ports.app}`,
+		NEXT_PUBLIC_WEB_APP_URL: origins.app,
+		EVER_STATS_API_URL: origins.platform,
+		NEXT_PUBLIC_EVER_STATS_API_URL: origins.platform,
 		PLAYWRIGHT_LANE_DIST_DIR: `.next-lane-${ports.app}`,
 		...(options.everId
 			? {
-				EVER_ID_ISSUER_URL,
+				EVER_ID_ISSUER_URL: origins.issuer,
 				EVER_ID_CLIENT_ID,
 				EVER_ID_CLIENT_SECRET,
 				NEXT_PUBLIC_EVER_ID_APP_NAME: 'Ever ID'
