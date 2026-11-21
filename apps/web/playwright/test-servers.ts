@@ -142,7 +142,12 @@ const sharedEnv = (apiOrigin: string): Record<string, string> => ({
 	LIVEKIT_API_KEY: '',
 	LIVEKIT_API_SECRET: '',
 	NEXT_PUBLIC_LIVEKIT_URL: '',
-	NEXT_PUBLIC_BOARD_APP_DOMAIN: '',
+	// Blank unless a run asks for a Board (E2E_BOARD_APP_DOMAIN), exactly like the Ever ID issuer below is blank unless a
+	// config turns it on: mounting the Board in every lane would mount a feature the other lanes are not testing, and
+	// blank is what a deployment without the Board looks like — which is the state suites/api/board-origin.spec.ts pins.
+	// That file reads this key back off the page it is served and skips its trusted-Board half when it is blank, so a
+	// plain run cannot silently misprove the mounted case.
+	NEXT_PUBLIC_BOARD_APP_DOMAIN: process.env.E2E_BOARD_APP_DOMAIN ?? '',
 	NEXT_PUBLIC_BOARD_BACKEND_POST_URL: '',
 	NEXT_PUBLIC_BOARD_FIREBASE_CONFIG: '',
 	NEXT_PUBLIC_MEET_DOMAIN: '',
