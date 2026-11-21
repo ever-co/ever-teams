@@ -79,10 +79,20 @@ filter written as `/auth/…` matches nothing: it red-flagged four forwards the 
 chatter in three browser cases whose sign-in request went straight to the mock. `lane-auth-helpers.ts` now carries a
 `watchMockApi` witness for that leg and `AUTH_API_PATHS` in the recorded spelling.
 
-| file | reds | verdicts | re-run by this lane |
+| file | reds | verdicts (A app / M mock gap / C contention / T wrong assumption) | re-run by this lane |
 | --- | --- | --- | --- |
-| `route-refusals.spec.ts` | 7 | 4 T, 2 A (the `/api/auth/login` 500 crash; the unguarded join relay), 2 M (mock gaps) | **`17 passed (22.3s)`** — `E:\Coding\.tmp\lane-b-diag-refusals-1.log`, on a lane this lane started itself; every case 46-420 ms |
-| `passcode-journey.spec.ts` | 5 | 5 T (one is a missing `await`), 1 A inside them (the too-short-code silence), 1 M | none yet — the lane was taken back at 21:47; fixes are written and `tsc`-clean |
+| `route-refusals.spec.ts` | 7 | 4 T, 3 carrying A (`/api/auth/login` 500 crash; unguarded join relay; the bearer-less `/user/me` check), 2 carrying M | **`17 passed (22.3s)`** — `E:\Coding\.tmp\lane-b-diag-refusals-1.log`, on a lane this lane started itself; every case 46-420 ms, so no C among them |
+| `passcode-journey.spec.ts` | 5 | 5 T, one carrying A (the too-short-code silence) | none yet — the lane was taken back before a run |
+| `password-journey.spec.ts` | 4 | 4 T (three: `'/api/auth/'` matching NextAuth's own `/api/auth/session`; one: the password POST goes to the mock, not to this app) | none |
+| `password-recovery.spec.ts` | 4 | 3 T (forgot and reset both take the direct branch; one eager-message `textContent()` hang) + **1 open** (the six rules, `:201`) | one fixed in code (`:255`), two queued with their exact fix written in PLAN.md §9 |
+| `signup-forms.spec.ts` | 4 | 2 T fixed (the same eager-`textContent()` hang; a `getByText` that hit both the `<h1>` and the `sr-only` `<legend>`), **2 open** (`:211`, `:253`: the register route really is on the app leg, so the form never submitted) | none |
+| `session-routing.spec.ts` | 3 | 1 M (an expired token is *refreshed* by the door, and this mock always grants a pair → `deny_redirect` is unreachable), 1 A+T (the door does drop the auth page, and lands on `/fr`), 1 A (sign-out leaves `auth-active-project`: `cookiesKeys()` does not list it) | none |
+| `cookie-jar.spec.ts` | 1 | 1 M (the same refresh chain) | none |
+| `locale-rendering.spec.ts` | 2 | 1 A (`NEXT_LOCALE` is next-intl's own cookie, `sameSite lax`; the app writes no locale cookie) + 1 T fixed (`/api/languages` is asked on the mock leg) | none |
+
+**No red here was ever contention (C).** Every one of the 30 died on a legible assertion — the two 3-minute cases died on
+`locator.textContent … waiting for locator('#…-error')`, i.e. a message built eagerly around an element the case asserts
+is absent, not on a slow machine. No case was deleted, skipped or loosened.
 
 Cases renamed while fixing a wrong assumption (same case, honest title): `passcode-journey.spec.ts` "asking for a code
 asks this app, which asks the mock, and opens the code step with the address in it" → "asking for a code sends it

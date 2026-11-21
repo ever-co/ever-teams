@@ -491,3 +491,55 @@ timeout line itself, which this lane could not collect because lane-b's servers 
 | `:191` "a code shorter than the 8 … the page says nothing about it" | `Expected: "AAAAA" / Received: Promise {}` | **T** (test-code bug: `codeSlotValues(view)` was not awaited) **+ A** for the silence itself: `handleCodeSubmit` sets status 'loading' (`use-authentication-passcode.ts:326`) and on an invalid form only `setErrors(errors); return;` (339-343), while `codeErrorOf` (`sign-in/code-step.tsx:29-35`) shows a message only when status is 'error'. The `toHaveCount(0)` assertion at line 215 *ran and held* in the 1.4 h run before this case died on the slots. Its "never leaves the browser" half is now proved on the mock leg plus `mockAskedNoNewAuthPath`, which the old `/auth/…` fragments could not prove at all. |
 | `:225` "the link in the e-mail (?email=&code=)…" | `the sign-in link never asked this app to confirm its code: … POST /api/auth/session → 200 …` | **T** — same leg; now the mock leg, ≥1 confirmation, each carrying the code and address from the link, plus `/api/auth/signin.email/confirm` in the mock's log. |
 | `:268` "a code that is already on its way cannot be asked for again…" | `asking for a code asked the mock 0 times` (`Expected: 1 / Received: 0`) from `mockCallsExactly('/auth/signin.email')` | **T** — the recorded path is `/api/auth/signin.email`. The cooldown UI half (resend `aria-disabled=true`, one ask) is untouched and unmeasured since. |
+
+### The other 18 reds — classified from the recorded assertion text and the source (no re-run yet: lane-b's servers were taken back)
+
+#### `password-journey.spec.ts` — 4 reds, all **T**
+
+| red | died with | verdict |
+| --- | --- | --- |
+| `:36` | `an empty form still reached this app's routes: GET /api/auth/session → 200, …` / `Expected [] / Received 4 × {GET /api/auth/session, 200}` | **T** — the witness is `appCallsMatching(calls(), '/api/auth/')`, which matches **NextAuth's own** `/api/auth/session` reads: exactly the chatter the `APP_SIGN_IN_ROUTES` note in `lane-auth-helpers.ts` says must be excluded. The UI half (both field refusals) ran before it and held. |
+| `:62`, `:81` | the same two lines (75-77, 96-98) | **T** — same filter. |
+| `:102` | `the password form never asked this app to sign in: …` (`Expected 1 / Received 0`) | **T** — `signInEmailPassword` direct branch posts `<mock>/api/auth/signin.email.password` with `{email, password, includeTeams:true}` (`auth.service.ts:188-193`); the log filter also needs the `/api` prefix. **Fix queued** (needs `watchMockApi` in this file): assert the mock-leg body keys `['email','includeTeams','password']` and the mock log. |
+
+#### `password-recovery.spec.ts` — 4 reds: 3 **T** (1 unresolved)
+
+| red | died with | verdict |
+| --- | --- | --- |
+| `:82` | `the forgot-password form never reached this app: …` | **T** — `requestPassword` has a **direct branch** (`auth.service.ts:288-297`): a mock run posts `<mock>/api/auth/request-password` with `{email, appResetPasswordUrl}`, so neither the app's own handler nor the body-keys-`['email']` claim belongs to this leg; both belong to a proxy deployment. **Fix queued**: mock leg, body keys `['appResetPasswordUrl','email']`, and `appResetPasswordUrl` naming `/auth/reset-password`. |
+| `:201` | `the reset form lists 0 rules: Gauzy's five plus "Both passwords match" make six` (`Expected 6 / Received 0`) | **open** — the locator is `ul` filtered by `hasText 'Both passwords match'` then `li`; the renderer is `core/components/auth/kit/password-checks.tsx`. Suspected **T** (the list is not six `li` in one `ul`, or the copy differs from the six strings), but calling it without a DOM dump would be a guess. Probe owed: `--grep "the reset form lists"` with the rules' markup and the six translated labels in the failure message. |
+| `:255` | `locator.textContent: Test timeout of 180000ms exceeded. Call log: - waiting for locator('#reset-password-error')` | **T, fixed** — `expect(value, message)` builds its message **eagerly**, and this message called `.textContent()` on the very element the assertion says is absent, with `use.actionTimeout` unset (0 means wait until the test timeout). This is one of the two 3-minute outliers README flagged. The count is now read first and the text only when the element exists. |
+| `:279` | `the reset form never reached this app: …` | **T** — `resetPassword` direct branch (`auth.service.ts:303-310`) posts `<mock>/api/auth/reset-password`. **Fix queued**: mock leg with body keys `['confirmPassword','password','token']` plus `/api/auth/reset-password` in the log. |
+
+#### `signup-forms.spec.ts` — 4 reds: 2 **T** fixed, 2 open
+
+| red | died with | verdict |
+| --- | --- | --- |
+| `:75` | `locator.textContent: Test timeout of 180000ms exceeded. waiting for locator('#signup-name-error')` | **T, fixed** — the same eager-message bug as `password-recovery:255`; the other 3-minute outlier. |
+| `:126` | `strict mode violation: getByText('How do you want to start?') resolved to 2 elements: 1) <h1 class="text-xl font-semibold …"> 2) <legend class="sr-only">` | **T, fixed** — the copy is on the page twice: the heading and the radiogroup's screen-reader legend. Now `getByRole('heading', …)` plus a `legend.sr-only` count of 1, so the duplicate is pinned instead of tripping the selector. |
+| `:211`, `:253` | `the finished sign-up never reached this app's register route: …` / `the register route was never asked: …` | **open** — here the witness's leg **is** right: `registerUserTeam` uses `getFallbackAPI()` (`auth.service.ts:275-278`), whose axios instance is `axios.create({baseURL: this.config.baseURL})` (`api.service.ts:208-215`) with `API_BASE_URL = '/api'` (`constants.tsx:96`), so a finished form would `POST /api/auth/register` on the app origin. An empty capture therefore means the form never submitted — the likely cause is the step `:126` shows is fragile (mode choice, team reveal) or a client-side refusal. Probe owed: `--grep "a finished sign-up form"` with `revealBoxOf(page,'signup-team')` and the step-1 state in the message. |
+
+#### `session-routing.spec.ts` — 3 reds: 1 **M**, 1 **A+T**, 1 **A**
+
+| red | died with | verdict |
+| --- | --- | --- |
+| `:88` | `an expired session was not sent to the sign-in page (the door answered it some other way)` / `Expected /\/auth\/passcode$/ / Received "http://localhost:3032/settings/personal"` | **M** — `proxy.ts:561-575`: a token expired *locally* is not refused, it goes to `tryRefreshAndVerifyWithRetry()`, which posts `/auth/refresh-token` against `GAUZY_API_SERVER_URL` — the mock — and the mock answers with a pair (§3.1), so `refreshResult.success` and the visit proceeds. `deny_redirect(true)`, which is the cleared jar plus `/auth/passcode` this case pins, needs an API that **refuses** a refresh. Reachable half to pin instead: the door asked `/api/auth/refresh-token` for an expired token and let the page through on that answer. |
+| `:154` | `/fr/auth/passcode kept its locale prefix for a signed-in visitor (the URL is http://localhost:3032/fr)` / `Expected /\/$/` | **A + T** — the door really does send a signed-in visitor off the auth page (`NextResponse.redirect(new URL(DEFAULT_MAIN_PATH, request.url))`, `proxy.ts:461-467`, `DEFAULT_MAIN_PATH = '/'` at `constants.tsx:102`), and the visit lands on `/fr`: the locale comes back through the jar, because the visit wrote next-intl's `NEXT_LOCALE` cookie (`locale-rendering:102` proves it is written). Pin: off the auth page **onto `/fr`** — the auth-page prefix is dropped and the app root takes the jar's locale. |
+| `:189` | `signing out left session cookies in the jar: …` plus `Received ["auth-active-project=aaaaaaaa-aaaa-4aaa-8aaa-…"]` | **A** — the app's own clear list omits that one: `cookiesKeys()` (`core/lib/helpers/cookies/index.ts:271-282`) names refresh-token, token, active-team, tenant-id, organization-id, active-task, active-language, no-team-popup-show, user-active-task and user-id — **no `auth-active-project`**. Sign-out empties those ten and leaves a real value in `auth-active-project`. Pin to rewrite: the ten names emptied, this one still carrying its value, and the next visit still refused. |
+
+#### `cookie-jar.spec.ts` — 1 red, **M**
+
+`:138` "a session the door cleared is still named in the jar, and holds nothing" died with `the expired session was not refused` / `Received "http://localhost:3032/settings/personal"` — the same refresh chain as `session-routing:88`. The "cleared but still named" jar is what `deny_redirect` writes when a refresh is **refused**, and this mock never refuses one. Reachable half: an expired `auth-token` still reads as claims whose `exp` has passed, and the door's renewal ask lands on `/api/auth/refresh-token`.
+
+#### `locale-rendering.spec.ts` — 2 reds: 1 **A**, 1 **T** (both fixed)
+
+| red | died with | verdict |
+| --- | --- | --- |
+| `:102` | `an Arabic visit left a locale marker in the jar: NEXT_LOCALE` | **A, pinned as it is** — `next-intl` has its locale cookie on by default (`node_modules/next-intl/dist/esm/production/routing/config.js`: `localeCookie: … {name:"NEXT_LOCALE", sameSite:"lax", …}`). The app writes nothing of its own for the locale: the jar held exactly `NEXT_LOCALE` and no `auth-active-language`. Pinned both ways now. |
+| `:134` | `Expected: > 0 / Received: 0` on `appCallsMatching(calls(), '/api/languages')` after 20 000 ms | **T, fixed** — the language read is an API-client call, so it goes to `<mock>/api/languages` (`axios.ts:110`), and the mock answers that path with `pagination([])`. The watcher was on the app origin; it is `watchMockApi` now, and the empty answer still produces "No language is available." |
+
+### Tally, stated exactly
+
+- Per file, of the 30: `route-refusals` 7 diagnosed (4 T, 3 carrying A, 2 carrying M) and re-run **17 passed**; `passcode-journey` 5 T (one of them carrying the A for the too-short-code silence); `password-journey` 4 T; `password-recovery` 3 T (1 fixed, 2 queued) + 1 open; `signup-forms` 2 T fixed + 2 open; `session-routing` 1 M + 1 A+T + 1 A; `cookie-jar` 1 M; `locale-rendering` 1 A + 1 T fixed. **27 carry a verdict, 3 stay open** (`password-recovery:201`, `signup-forms:211`, `signup-forms:253`), each with the probe it needs named above.
+- Cases whose code changed today: 16 — `route-refusals` 7, `passcode-journey` 5, `signup-forms` 2, `password-recovery` 1 (`:255`), `locale-rendering` 1 (`:134`). Six more are queued in the tables above (`password-journey` 4, `password-recovery` `:82` and `:279`) because each needs the mock-leg witness wired into a file this lane could not re-run; queueing them is a note, not a skip — the cases stay red until a lane proves them.
+- Runs this lane produced itself: **`17 passed (22.3s)`** for the two `route-refusals` describes (`E:\Coding\.tmp\lane-b-diag-refusals-1.log`) and `tsc -p playwright/tsconfig.json --noEmit` printing nothing. No browser re-run of the other seven files was possible: lane-b's servers were taken back before one could start, and this lane did not bring up a third app on a 33 GB PC.

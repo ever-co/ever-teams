@@ -1,7 +1,7 @@
 import { expect, test } from '../../fixtures';
 import { APP_ORIGIN } from '../../helpers';
 
-import { appCallsMatching, jarCookieNames, watchAppApi } from './lane-auth-helpers';
+import { appCallsMatching, jarCookieNames, watchMockApi } from './lane-auth-helpers';
 
 /**
  * The locale surfaces, rendered.
@@ -102,15 +102,23 @@ test.describe('lane-b · the locale surfaces render, and the direction they do n
 	test('a visit in Arabic leaves no locale marker in the browser: the locale is the address', async ({ anon }) => {
 		const view = await anon('/ar/auth/passcode');
 
-		// The app keeps a language in `auth-active-language`, which a session cookie is, and `next-intl` keeps the
-		// locale in the address rather than a cookie. A signed-out visitor in Arabic therefore holds neither.
-		const localeCookies = (await jarCookieNames(view.context())).filter((name) =>
-			/lang|locale/i.test(name)
-		);
+		/**
+		 * The 2026-11-21 run said `an Arabic visit left a locale marker in the jar: NEXT_LOCALE`, and it is right — the
+		 * case's assumption was wrong. `next-intl`'s routing config defaults its locale cookie on
+		 * (`node_modules/next-intl/dist/esm/production/routing/config.js`:
+		 * `localeCookie: … {name:"NEXT_LOCALE", sameSite:"lax", …}`), so the middleware writes that one cookie. What the
+		 * **app** keeps in a cookie is its language, `auth-active-language`, and an Arabic visit by a signed-out visitor
+		 * writes none of the `auth-*` family. Pinned as measured: exactly next-intl's marker, and no language cookie.
+		 */
+		const localeCookies = (await jarCookieNames(view.context())).filter((name) => /lang|locale/i.test(name));
 		expect(
 			localeCookies,
-			`an Arabic visit left a locale marker in the jar: ${await jarCookieNames(view.context())}`
-		).toEqual([]);
+			`an Arabic visit left something other than next-intl's own locale marker: ${await jarCookieNames(view.context())}`
+		).toEqual(['NEXT_LOCALE']);
+		expect(
+			await jarCookieNames(view.context()),
+			'an Arabic visit wrote a cookie of the app\'s own session family'
+		).not.toContain('auth-active-language');
 	});
 
 	test('the address locale and the cookie locale are different things, and they can disagree', async ({ app }) => {
@@ -137,8 +145,14 @@ test.describe('lane-b · the locale surfaces render, and the direction they do n
 		// Settings › Personal › Preferences › LanguageRow (`core/components/settings/pages/preferences/`) reads the
 		// languages through `usePreferredLanguage` → `languageService.getLanguages` → GET /languages. Attach the
 		// watcher after the shell opened, so what it records is this page's own ask.
+		// The ask is on the **mock** leg, not on this app: `languageService.getLanguages` is an API-client call, and in a
+		// mock run the client posts `GET <mock origin>/api/languages` (axios builds the `/api` segment,
+		// `core/services/client/axios.ts:110`). The 2026-11-21 red was this watcher watching the app origin:
+		// `Expected: > 0 / Received: 0` after 20 000 ms. The mock does answer that path — `pagination([])`
+		// (`cypress/support/mock-gauzy-server.mjs`: `if (pathname === '/api/languages') return pagination([]);`) — which
+		// is why the row then says "No language is available."
 		const shell = await app('/');
-		const calls = watchAppApi(shell);
+		const calls = watchMockApi(shell);
 
 		await shell.goto(`${APP_ORIGIN}/settings/personal/preferences`, { waitUntil: 'domcontentloaded' });
 

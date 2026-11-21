@@ -85,10 +85,13 @@ test.describe('lane-b · the sign-up form', () => {
 			fieldError(view, 'signup-email'),
 			'a malformed address was not refused on the field'
 		).toContainText('properly formatted email address');
-		await expect(
-			fieldError(view, 'signup-name'),
-			`the name "Jane Cooper" was refused too: ${await fieldError(view, 'signup-name').textContent()}`
-		).toHaveCount(0);
+		// Same shape as the confirmation case above: read the count first. `expect(value, message)` evaluates its
+		// message eagerly, and the 2026-11-21 run spent 180 000 ms here on `locator.textContent: … waiting for
+		// locator('#signup-name-error')` while asserting that very element is absent.
+		const nameError = fieldError(view, 'signup-name');
+		const nameErrorCount = await nameError.count();
+		const nameErrorText = nameErrorCount > 0 ? await nameError.textContent() : '(no error line, which is what this asserts)';
+		expect(nameErrorCount, `the name "Jane Cooper" was refused too: ${nameErrorText}`).toBe(0);
 
 		expect(
 			appAuthAsks(calls()),
@@ -131,10 +134,18 @@ test.describe('lane-b · the sign-up form', () => {
 		await view.locator('#signup-email').fill(MOCK_EMAIL);
 		await view.getByRole('button', { name: 'Continue', exact: true }).click();
 
+		// The copy is on the page **twice** and the 2026-11-21 run said so exactly: `strict mode violation:
+		// getByText('How do you want to start?') resolved to 2 elements: 1) <h1 class="text-xl font-semibold …">
+		// 2) <legend class="sr-only">`. So the case names the heading and pins the screen-reader legend beside it —
+		// the duplicate is the form's own accessible name for the radiogroup, not a bug to hide.
 		await expect(
-			view.getByText('How do you want to start?'),
-			'step 1 did not open the mode choice'
+			view.getByRole('heading', { name: 'How do you want to start?' }),
+			'step 1 did not open the mode choice (its heading is not on the page)'
 		).toBeVisible();
+		await expect(
+			view.locator('legend.sr-only', { hasText: 'How do you want to start?' }),
+			'the mode choice has no screen-reader legend naming the choice'
+		).toHaveCount(1);
 		const modes = view.getByRole('radio', { name: /On my own|With my team/ });
 		expect(await modes.count(), `the mode choice offers ${await modes.count()} ways to start, not two`).toBe(2);
 		await expect(

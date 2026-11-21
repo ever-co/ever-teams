@@ -265,10 +265,14 @@ test.describe('lane-b · password recovery', () => {
 			fieldError(view, 'reset-confirm'),
 			'a confirmation that does not match was not refused on its own field'
 		).toContainText("Passwords don't match");
-		await expect(
-			fieldError(view, 'reset-password'),
-			`the matching-enough password was refused too: ${await fieldError(view, 'reset-password').textContent()}`
-		).toHaveCount(0);
+		// The count is read before any text, because `expect(value, message)` builds its message *eagerly*: the
+		// 2026-11-21 run hung here for 180 000 ms on `locator.textContent: … waiting for locator('#reset-password-error')`
+		// — the assertion was that this element is absent, and the message tried to read its text.
+		const passwordError = fieldError(view, 'reset-password');
+		const passwordErrorCount = await passwordError.count();
+		const passwordErrorText =
+			passwordErrorCount > 0 ? await passwordError.textContent() : '(no error line, which is what this asserts)';
+		expect(passwordErrorCount, `the matching-enough password was refused too: ${passwordErrorText}`).toBe(0);
 		expect(
 			appCallsMatching(calls(), '/api/auth/reset-password'),
 			`a mismatched confirmation still reached this app: ${describeAppCalls(calls())}`
