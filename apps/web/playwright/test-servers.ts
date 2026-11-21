@@ -299,14 +299,25 @@ export function laneServers(
 				cwd: REPO_ROOT
 			},
 			{
-				command: `node_modules/.bin/next dev -p ${ports.app}`,
+				/**
+				 * `node <path>/next/dist/bin/next`, not `node_modules/.bin/next`: Playwright starts a `webServer` command
+				 * through the platform shell, and on Windows `node_modules/.bin/next` — a POSIX shell script — answers
+				 * "'node_modules' is not recognized as an internal or external command". The `.cmd` twin would work here
+				 * and nowhere else. `next` is hoisted to the repository root (apps/web has no copy of it), and the cwd
+				 * below is `apps/web`, so the path walks up two.
+				 */
+				command: `node ../../node_modules/next/dist/bin/next dev -p ${ports.app}`,
 				port: ports.app,
 				timeout: 900_000,
 				reuseExistingServer: true,
 				env,
-				// `next dev` reads next.config.js from its working directory: the app folder, counted from the folder
-				// holding the config, which is how Playwright resolves a `cwd`.
-				cwd: '../..'
+				/**
+				 * `next dev` reads next.config.js from its working directory, so this is `apps/web` — one level up from
+				 * the folder holding the config (`apps/web/playwright`), which is how Playwright resolves a `cwd`
+				 * (`REPO_ROOT` above is `../../..` for the same reason). Getting this wrong is not loud: the command then
+				 * runs from `apps` and node answers `Cannot find module 'E:\Coding\node_modules\next\dist\bin\next'`.
+				 */
+				cwd: '..'
 			}
 		],
 		ports
