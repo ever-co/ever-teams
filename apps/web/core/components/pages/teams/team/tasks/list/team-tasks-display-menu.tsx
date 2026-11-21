@@ -17,7 +17,7 @@ import { SAVED_VIEW_ORDERINGS } from '@/core/lib/utils/team-tasks-view-storage';
 import { shownTeamTasksLayout } from '@/core/lib/utils/team-tasks-layouts';
 import type { TeamTasksViewState } from '@/core/hooks/tasks/use-team-tasks-view';
 
-const GROUPINGS: TeamTasksGrouping[] = ['status', 'priority', 'assignee', 'project', 'issueType', 'none'];
+const GROUPINGS: TeamTasksGrouping[] = ['status', 'priority', 'assignee', 'project', 'issueType', 'label', 'none'];
 
 const ORDERINGS: TeamTasksOrdering[] = ['priority', 'updated', 'created', 'dueDate', 'number', 'title'];
 
@@ -27,6 +27,7 @@ const GROUPING_LABEL_KEYS: Record<TeamTasksGrouping, DottedLanguageObjectStringP
 	assignee: 'common.ASSIGNEE',
 	project: 'taskMenus.fields.project',
 	issueType: 'taskMenus.fields.issueType',
+	label: 'taskMenus.fields.label',
 	none: 'pages.teamTasks.GROUP_NONE'
 };
 
