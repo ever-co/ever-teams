@@ -123,8 +123,7 @@ const DOCUMENTED_SERVER_BLOCKERS: Record<
 		// status in it becomes this. It is *not* `forward-to-gauzy.ts`'s outage answer ("The Gauzy API is
 		// unreachable" / "…did not answer in time"), and naming which of the two it is is the point of `body`.
 		body: { statusCode: 502, message: 'The Gauzy API gave no usable answer' },
-		reason:
-			'the mock has no POST /api/invite/accept of its own (its catch-all answers it, and answers it with a body that carries no tokens), so the app reports 502 "The Gauzy API gave no usable answer"'
+		reason: 'the mock has no POST /api/invite/accept of its own (its catch-all answers it, and answers it with a body that carries no tokens), so the app reports 502 "The Gauzy API gave no usable answer"'
 	},
 	'POST /api/auth/login': {
 		status: 500,
@@ -326,7 +325,7 @@ test.describe('a 5xx that can happen: the sweep reading, armed with a real upstr
 		).toBe(true);
 	});
 
-	test('armed with the mock\'s own 500 switch, the app answers the upstream refusal — and the sweep reading is false', async ({
+	test("armed with the mock's own 500 switch, the app answers the upstream refusal — and the sweep reading is false", async ({
 		api,
 		mock
 	}) => {
