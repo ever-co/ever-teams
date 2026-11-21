@@ -133,9 +133,13 @@ whole-object equality, which an added key would break.
 
 ## Open items
 
-1. `aside[aria-label="Details"]` is asserted by `task-work.spec.ts`'s header comment to have measured 0 on
-   `/task/<id>`, which is why the property rows are found from the label instead; the component
-   (`core/components/pages/task/task-detail-page-body.tsx:43,85`) renders exactly that `<aside>` under
-   `(min-width: 1024px)`, and the run viewport is 1280×720. Nobody has re-measured that claim on a healthy lane —
-   the five passing tests do not depend on the answer, so treat "the rail has no such label" as unverified.
+This lane also keeps `PLAN.md` (its own record of the mock gaps that decided what was not written, and of the
+selectors fixed after measuring). Read it beside this file; the numbers in the tables above are only the runs I
+logged.
+
+1. `aside[aria-label="Details"]` is recorded as measuring 0 around the property rows of `/task/<id>` — by
+   `task-work.spec.ts`'s header comment and in `PLAN.md` (commits `aae47171b`, `f624061f0`), which is why the rows are
+   found from their labels instead. The component still appears to render one
+   (`core/components/pages/task/task-detail-page-body.tsx:43,85`, under `(min-width: 1024px)`, viewport 1280×720).
+   The lane measured it; **I did not re-measure it myself**, and the five passing tests do not depend on the answer.
 2. Decide the `state.taskWrites` question above if task writes ever need a server-side shape witness.
