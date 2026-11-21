@@ -29,7 +29,44 @@ $ cat apps/web/playwright/artifacts/playwright-lane-b.json | (stats)
 
 `artifacts/test-results-lane-b/` holds only `.last-run.json` = `{"status":"failed","failedTests":[]}` from **Nov 19
 11:37**, the killed predecessor lane. `netstat` on 3032 / 3996-3999: nothing listening — this lane's servers have
-never been started. So: **75 discovered, 0 run**, for all eight files below. No file here is green.
+never been started. So at commit `b79817c54` the honest state was **75 discovered, 0 run**. It is not that any more — see
+the next section.
+
+## Ran 2026-11-21, by the orchestrator rather than this lane — 45 passed / 30 failed in 4963 s
+
+```
+$ E2E_LANE=lane-b E2E_BROWSER_CHANNEL=chrome npx playwright test --config apps/web/playwright/playwright.lane.config.ts
+  Running 75 tests using 1 worker
+  30 failed
+  45 passed (1.4h)
+  playwright exit=1                                     → full log: E:\Coding\.tmp\lane-b-verify.log
+
+$ (stats of apps/web/playwright/artifacts/playwright-lane-b.json, written by the same run)
+  {"duration":4963,"expected":45,"skipped":0,"unexpected":30,"flaky":0}   → the log and the report agree
+```
+
+Per file (pass / fail, of the discovered counts above): `session-routing 12/3` · `route-refusals 10/7` ·
+`password-recovery 7/4` · `cookie-jar 4/1` · `locale-rendering 4/2` · `signup-forms 4/4` · `passcode-journey 2/5` ·
+`password-journey 2/4`.
+
+What that number does and does not say, stated plainly because 30 reds is a big number and a big number invites the wrong
+story:
+
+- **No red here has been diagnosed yet.** Nobody (me or an agent) read a failure's expected-vs-actual one by one before
+  the owner paused the fleet. Each is still a question, not a verdict.
+- **Two cases took 3.0 min each** (`password-recovery` "two different passwords are refused on the confirmation" and
+  `signup-forms` "a real name with an address that is not an address"), against 1.4–27.6 s for the other 73 — an order of
+  magnitude out of family. The run shared the machine with three other lanes and a 10–11 GB local model server on a
+  33 GB PC, so *some* of these 30 are expected to be contention or timeout artefacts rather than findings. Re-run any
+  red alone with `--grep` and quote both numbers before believing either reading.
+- Four reds are the lane's own claims about the app, and they are the interesting ones if they survive a clean re-run:
+  `POST /api/auth/refresh` answering **502 rather than 401** for an answer with no token pair; `POST /api/auth/login`
+  crashing on the mock's echo of an invitation code (predicted from the source, written in `PLAN.md` §5 before it was
+  seen); `POST /api/organization-team-join` relaying an anonymous, foreign-shaped body with no session and no origin
+  check (audit finding 1 pinned as today's behaviour); and a 5-of-8 magic code producing no message at all.
+- Three reds are about the mock's limits rather than the app (`password-journey`'s valid attempt, the reset/sign-up
+  cases the mock cannot finish), which is exactly the distinction `PLAN.md` asks for: fix the mock's owner's file only
+  with its owner's agreement, never with a `page.route` stub in a lane.
 
 ## What each file proves
 
