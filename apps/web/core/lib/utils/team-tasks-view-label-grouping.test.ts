@@ -1,7 +1,9 @@
 import {
 	buildTeamTasksGroups,
 	DEFAULT_TEAM_TASKS_VIEW,
+	isNoLabelGroup,
 	labelColorOf,
+	NO_LABEL_GROUP_KEY,
 	NONE_VALUE,
 	type TeamTasksLookups,
 	type TeamTasksViewSettings
@@ -27,7 +29,7 @@ describe('grouping the team tasks by label', () => {
 		];
 		const groups = buildTeamTasksGroups(tasks, byLabel, lookups, []);
 		expect(groups.map((group) => group.value)).toEqual(['Bug', 'Frontend', NONE_VALUE]);
-		expect(groups.map((group) => group.key)).toEqual(['label:Bug', 'label:Frontend', `label:${NONE_VALUE}`]);
+		expect(groups.map((group) => group.key)).toEqual(['label:Bug', 'label:Frontend', NO_LABEL_GROUP_KEY]);
 		expect(idsOf(groups[0].tasks).sort()).toEqual(['a', 'b']);
 		expect(idsOf(groups[1].tasks)).toEqual(['a']);
 		expect(idsOf(groups[2].tasks).sort()).toEqual(['c', 'd']);
@@ -39,6 +41,14 @@ describe('grouping the team tasks by label', () => {
 		expect(groups).toHaveLength(1);
 		expect(groups[0].value).toBe('Bug');
 		expect(idsOf(groups[0].tasks)).toEqual(['a']);
+	});
+
+	it('keeps a label named like the no-label value apart from the tasks without a label', () => {
+		const groups = buildTeamTasksGroups([task('a', [{ name: NONE_VALUE }]), task('b')], byLabel, lookups, []);
+		expect(groups.map((group) => group.key)).toEqual([`label:${NONE_VALUE}`, NO_LABEL_GROUP_KEY]);
+		expect(groups.map(isNoLabelGroup)).toEqual([false, true]);
+		expect(idsOf(groups[0].tasks)).toEqual(['a']);
+		expect(idsOf(groups[1].tasks)).toEqual(['b']);
 	});
 
 	it('treats a blank label name as no label', () => {
@@ -60,6 +70,14 @@ describe('grouping the team tasks by label', () => {
 		expect(labelColorOf(tasks, 'Bug')).toBe('#ff0000');
 		expect(labelColorOf(tasks, 'Other')).toBeUndefined();
 		expect(labelColorOf([task('x')], 'Bug')).toBeUndefined();
+	});
+
+	it("takes a task's coloured tag of a label when an uncoloured one of the same name comes first", () => {
+		const tasks = [
+			task('a', [{ name: 'Bug' }, { name: ' Bug ', color: '#ff0000' }]),
+			task('b', [{ name: 'Bug', color: '#00ff00' }])
+		];
+		expect(labelColorOf(tasks, 'Bug')).toBe('#ff0000');
 	});
 });
 

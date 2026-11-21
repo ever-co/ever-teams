@@ -566,30 +566,42 @@ function labelNamesOf(task: TTask) {
 	return [...names];
 }
 
+/**
+ * The key of the group of tasks without a label. Labels are grouped by name and a label may be named like
+ * `NONE_VALUE`, so this group is told by its key, which no `label:<name>` key can take, not by its value.
+ */
+export const NO_LABEL_GROUP_KEY = 'no-label';
+
+/** Whether a group is the one of the tasks without a label (not a label that happens to be named `NONE_VALUE`). */
+export function isNoLabelGroup(group: TeamTasksGroup) {
+	return group.key === NO_LABEL_GROUP_KEY;
+}
+
 /** A task with several labels is listed under each of them, as with assignees; one without any is last. */
 function groupByLabel(tasks: TTask[]) {
 	const byLabel = new Map<string, TTask[]>();
+	const unlabelled: TTask[] = [];
 	for (const task of tasks) {
 		const names = labelNamesOf(task);
 		if (names.length === 0) {
-			pushTo(byLabel, NONE_VALUE, task);
+			unlabelled.push(task);
 			continue;
 		}
 		for (const name of names) {
 			pushTo(byLabel, name, task);
 		}
 	}
-	const names = [...byLabel.keys()].filter((name) => name !== NONE_VALUE);
+	const names = [...byLabel.keys()];
 	names.sort((first, second) => first.localeCompare(second));
 	const groups = names.map((name) => groupOf('label', name, byLabel.get(name) ?? []));
-	groups.push(groupOf('label', NONE_VALUE, byLabel.get(NONE_VALUE) ?? []));
+	groups.push({ ...groupOf('label', NONE_VALUE, unlabelled), key: NO_LABEL_GROUP_KEY });
 	return groups;
 }
 
-/** The colour a label is drawn in, read from the first of the tasks that carries it. */
+/** The colour a label is drawn in: the first coloured tag of that name, read from the tasks in order. */
 export function labelColorOf(tasks: readonly TTask[], name: string) {
 	for (const task of tasks) {
-		const tag = (task.tags ?? []).find((candidate) => candidate.name?.trim() === name);
+		const tag = (task.tags ?? []).find((candidate) => candidate.name?.trim() === name && candidate.color);
 		if (tag?.color) {
 			return tag.color;
 		}
