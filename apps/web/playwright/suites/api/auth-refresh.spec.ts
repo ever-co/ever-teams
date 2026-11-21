@@ -1,4 +1,5 @@
 import { expect, test, type ApiCall } from '../../api-fixtures';
+import { mockReset } from '../../helpers';
 
 /**
  * `POST /api/auth/refresh`: the renewal of a session, and the statuses the browser acts on.
@@ -80,6 +81,13 @@ test.describe('renewing a session', () => {
 			body?.refresh_token,
 			'the rotated refresh token was withheld because the profile read failed'
 		).toBeTruthy();
+
+		// `AUDIT.md` finding 14, the tail `suites/lane-c/session-check.spec.ts:220-223` uses for the same reason:
+		// the mock is still holding `GET /api/user/me` open when this test ends, and `api-fixtures` resets before
+		// each test — so an answer that lands *after* the next test's reset lands in that test's evidence. Outlast
+		// the armed 6 s hold (the app stopped waiting at 5 s), then throw the log away.
+		await new Promise((done) => setTimeout(done, 1_500));
+		await mockReset();
 	});
 
 	test('an API that cannot answer is not reported to the browser as a refusal', async ({ api, mock }) => {
