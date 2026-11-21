@@ -129,6 +129,18 @@ test.describe('lane-d · every protected family is refused to an anonymous visit
 });
 
 test.describe('lane-d · a signed-in fixture person is not bounced', () => {
+	/**
+	 * Measured by lane-d's first real run (`E:\Coding\.tmp\lane-d-run1.log`, 4 failed / 77 passed): bare `/profile`
+	 * answered **404** to a session, every other path here answered 200. That is finding D-3 completed — the door
+	 * counts `/profile` protected (`constants.tsx:118` matches it, and an anonymous `GET /profile` really is
+	 * `307 → /unauthorized`, re-probed at `E:\Coding\.tmp\lane-d-root-probe.log`), the door then lets the session
+	 * through, and Next answers 404 because no page owns bare `/profile` (only
+	 * `app/[locale]/(main)/profile/[memberId]/page.tsx`). A signed-in person clicking a "profile" link lands on a
+	 * not-found page. Pinned at the measured number; the case is kept, not softened — the 404 body is still checked
+	 * below, and the door's session read is still required, because CASE 2 (`proxy.ts:523-546`) ran *before* routing.
+	 */
+	const SIGNED_IN_ANSWER: Record<string, number> = { '/profile': 404 };
+
 	for (const entry of PROTECTED_FAMILIES) {
 		test(`${entry.path} is served to a session that is present`, async ({ api, mock, cookies, ids }) => {
 			const { header: cookieHeader, token } = freshSessionCookie(
@@ -141,8 +153,8 @@ test.describe('lane-d · a signed-in fixture person is not bounced', () => {
 			const answer = await door(api, entry.path, asPage(cookieHeader));
 			expect(
 				answer.status,
-				`GET ${entry.path} with a session answered ${answer.status} → ${answer.location} (${answer.body.slice(0, 160)}); the door should have served the page`
-			).toBe(200);
+				`GET ${entry.path} with a session answered ${answer.status} → ${answer.location || '(no Location)'} (${answer.body.slice(0, 160)}); expected ${SIGNED_IN_ANSWER[entry.path] ?? 200}`
+			).toBe(SIGNED_IN_ANSWER[entry.path] ?? 200);
 			expect(answer.location, `a session present at ${entry.path} still got a Location: ${answer.location}`).toBe('');
 
 			// The door asked this lane's mock who the session belongs to: proxy.ts:523-546 → currentAuthenticatedUserRequest
@@ -186,20 +198,43 @@ test.describe('lane-d · the gate does not depend on the locale prefix', () => {
 		});
 	}
 
-	test('the locale-prefixed root is refused to a different page than the root — pinned, not approved', async ({ api }) => {
-		// proxy.ts:176 compares the RAW `url.pathname` with DEFAULT_MAIN_PATH ('/'), so only the unprefixed root
-		// counts as "the default route": `/en/settings/personal` and `/fr/` both land on /unauthorized, and the
-		// Location (`url.origin + '/unauthorized'`, proxy.ts:178) carries no locale prefix at all.
+	test('the locale-prefixed root is refused to a different page than the root, and its trailing-slash form never reaches the door — pinned, not approved', async ({
+		api
+	}) => {
+		// Finding D-5, measured by lane-d's first run plus the probe at `E:\Coding\.tmp\lane-d-root-probe.log`. Both halves
+		// of the claim are real; the *URL shape* this case first used was not, and it hid a third fact:
+		//
+		//   /        → 307  Location /auth/passcode      (deny_redirect's `defaultRoute || pathname == DEFAULT_MAIN_PATH`, proxy.ts:176)
+		//   /en      → 307  Location /unauthorized        ← same door, different page than the root, locale dropped (:178)
+		//   /fr      → 307  Location /unauthorized
+		//   /ar      → 307  Location /unauthorized
+		//   /en/     → 308  Location /en                  ← NOT the door: Next's own trailing-slash canonicalisation answers
+		//   /fr/     → 308  Location /fr                    first, so `url.pathname == DEFAULT_MAIN_PATH` at :176 can never
+		//   /ar/     → 308  Location /ar                    see a trailing-slash root at all. Following that hop lands on
+		//                                                    /en → 307 → /unauthorized, i.e. the same refusal, one hop
+		//                                                    longer, locale still dropped.
+		// So the case as first written captured the 308 and read it as the door's answer. Pinned both ways now.
 		const bare = await door(api, '/');
+		expect(bare.status, `GET / answered ${bare.status}, not 307`).toBe(307);
 		expect(bare.landed, `the bare root went to ${bare.location}`).toBe(`${APP_ORIGIN}/auth/passcode`);
 
+		const lines: string[] = [`/ → ${bare.status} ${bare.location}`];
 		for (const locale of ['en', 'fr', 'ar']) {
-			const prefixed = await door(api, `/${locale}/`);
+			const prefixed = await door(api, `/${locale}`);
 			expect(
 				prefixed.landed,
-				`finding D-5: /${locale}/ went to ${prefixed.location} while / went to ${bare.location} (proxy.ts:176-179)`
+				`finding D-5: /${locale} went to ${prefixed.location} while / went to ${bare.location} (proxy.ts:176-179)`
 			).toBe(`${APP_ORIGIN}/unauthorized`);
+			lines.push(`/${locale} → ${prefixed.status} ${prefixed.location}`);
+
+			const slashed = await door(api, `/${locale}/`);
+			expect(
+				`${slashed.status} ${slashed.landed}`,
+				`finding D-5b: /${locale}/ answered ${slashed.status} → ${slashed.location}; expected Next's trailing-slash 308 to its own locale path before the door is reached`
+			).toBe(`308 ${APP_ORIGIN}/${locale}`);
+			lines.push(`/${locale}/ → ${slashed.status} ${slashed.location}`);
 		}
+		console.log(`[lane-d] D-5 root answers: ${lines.join(' | ')}`);
 	});
 });
 
@@ -260,25 +295,39 @@ test.describe('lane-d · page families the gate does not cover', () => {
 		cookies,
 		ids
 	}) => {
-		// Finding D-4, the half the tree read missed. `sendsSignedInVisitToApp` (core/lib/auth/signed-in-auth-paths.ts:9-15)
-		// returns true for EVERY `/auth/…` path except password recovery, so a visitor holding a token is redirected at
-		// `proxy.ts:455-469`: the token is read locally (`!isTokenExpired(access_token, 60)` at `:462`) and
-		// `NextResponse.redirect(new URL(DEFAULT_MAIN_PATH, request.url))` answers — no API call, so the mock log is the
-		// witness that the bounce was decided from the cookie alone. And `new URL('/', request.url)` keeps the origin but
-		// drops whatever locale prefix the visitor asked for, the same shape as finding D-5's `Location`.
+		// Finding D-4, measured by lane-d's first run (4 failed / 77 passed, `E:\Coding\.tmp\lane-d-run1.log`). The
+		// asymmetry is the finding, and it is the opposite of what this case first expected:
+		//
+		//   /auth/workspace      + session → 307  Location http://localhost:3034/   (bounced off its own page, to a root
+		//                                             that carries no locale prefix — the D-5 shape, one branch over)
+		//   /pt/auth/workspace   + session → 200  served the sign-in document, session intact
+		//
+		// Why: `sendsSignedInVisitToApp` (core/lib/auth/signed-in-auth-paths.ts:9-15) matches every `/auth/…` except
+		// password recovery, but `proxy.ts:443` hands it the RAW `url.pathname`, so `/pt/auth/…` is not an auth page to
+		// this branch and the bounce at `:455-469` never fires for a locale-prefixed sign-in page. The locale-aware call
+		// exists two lines below (`:448`, `withoutLocalePrefix(url.pathname)`) — for the Board-return branch only. The
+		// bounce itself is decided from the cookie alone (`:462` reads expiry locally, no API call), which is what the
+		// empty mock log below proves.
 		const anonymous = await door(api, '/auth/workspace');
 		expect(anonymous.status, `/auth/workspace was gated to an anonymous visitor (${anonymous.status} → ${anonymous.location})`).toBe(200);
 
 		const { header: cookieHeader } = freshSessionCookie(cookies('A'), ids.user, ids.organizationA, 'lane-d-auth-workspace');
 		const answers: string[] = [];
-		for (const path of ['/auth/workspace', '/pt/auth/workspace', '/ar/auth/workspace']) {
+		const bareBounce = await door(api, '/auth/workspace', asPage(cookieHeader));
+		answers.push(`/auth/workspace → ${bareBounce.status} ${bareBounce.location || '(no Location)'}`);
+		expect(bareBounce.status, `/auth/workspace answered ${bareBounce.status} to a session, not the 307 proxy.ts:469 gives it`).toBe(307);
+		expect(
+			bareBounce.landed,
+			`finding D-4: /auth/workspace bounced its session to ${bareBounce.location} — the root it lands on carries no locale prefix`
+		).toBe(`${APP_ORIGIN}/`);
+
+		for (const path of ['/pt/auth/workspace', '/ar/auth/workspace']) {
 			const answer = await door(api, path, asPage(cookieHeader));
 			answers.push(`${path} → ${answer.status} ${answer.location || '(no Location)'}`);
-			expect(answer.status, `${path} answered ${answer.status} to a session, not the 307 proxy.ts:469 gives it`).toBe(307);
 			expect(
-				answer.landed,
-				`finding D-4: ${path} bounced its session to ${answer.location} — the root it lands on carries no locale prefix`
-			).toBe(`${APP_ORIGIN}/`);
+				`${answer.status} ${answer.location || '(no Location)'}`,
+				`finding D-4b: ${path} answered ${answer.status}${answer.location ? ` → ${answer.location}` : ''}; a locale-prefixed sign-in page is not recognised by proxy.ts:443, so its session must be left on the page`
+			).toBe('200 (no Location)');
 		}
 		console.log(`[lane-d] /auth/workspace with a session: ${answers.join(' | ')}`);
 
@@ -369,9 +418,19 @@ test.describe('lane-d · Sec-Fetch-Site variants against a protected page', () =
 	test('a page path carries no write handler for any Sec-Fetch-Site value, and no write reaches the mock', async ({ api, mock, cookies, ids }) => {
 		// A page.tsx exports a component, not a verb handler; and `refuseForeignWrite`
 		// (same-origin-request.ts:43-46, the GET/HEAD exemption AUDIT finding 5 pins) is consulted by route handlers
-		// only — a page path reaches none of it. Pinned as an invariant today: an HTTP answer below 500 and an
-		// untouched mock. The exact status is printed so the first run can pin it as a number.
-		const { header: cookieHeader } = freshSessionCookie(
+		// only — a page path reaches none of it.
+		//
+		// Measured by lane-d's first run (`E:\Coding\.tmp\lane-d-run1.log`), and it sharpened the claim twice:
+		//   POST /settings/personal → **200** under all four Sec-Fetch-Site variants (no header, same-origin, same-site,
+		//   cross-site) — Next answers a POST to a page path with the page document itself, and `origin:` + a broken
+		//   JSON body changed nothing; and the mock's log held exactly **4 × `GET /api/user/me` 200**, one per variant,
+		//   with **no write** in it. So the invariant that survives is "no write reaches the mock", while the door's
+		//   own session read runs on a POST too: CASE 2 (`proxy.ts:523-546`) tests `protected_path && access_token`,
+		//   never the method. The mock is authentication-blind (AUDIT 13), so what this pins is that the door *asked*,
+		//   four times, on a verb no page handler exists for.
+		// Cost note for the next runner: this is the slowest case in the file — in the cold first run it consumed the
+		// 180 s test budget because each POST compiled the route again. Warm, it is a handful of seconds.
+		const { header: cookieHeader, token } = freshSessionCookie(
 			cookies('A'),
 			ids.user,
 			ids.organizationA,
@@ -394,10 +453,26 @@ test.describe('lane-d · Sec-Fetch-Site variants against a protected page', () =
 			statuses.push(`${variant.label || 'no header'}=${response.status()}`);
 		}
 		console.log(`[lane-d] POST /settings/personal: ${statuses.join(' | ')}`);
-		expect(statuses.every((entry) => Number(entry.split('=')[1]) < 500), `POST /settings/personal: ${statuses.join(' | ')}`).toBe(
-			true
-		);
+		expect(
+			statuses.every((entry) => entry.endsWith('=200')),
+			`POST /settings/personal answered ${statuses.join(' | ')}; every variant is measured at 200 — a page path answers a POST with its own document`
+		).toBe(true);
+
 		const log = await mock.requests();
-		expect(log, `a POST to a page path asked this lane's mock something: ${logLines(log).join(', ')}`).toEqual([]);
+		const writes = log.filter((request) => !['GET', 'HEAD', 'OPTIONS'].includes(request.method));
+		expect(
+			writes,
+			`a POST to a page path caused a write at this lane's mock: ${logLines(writes).join(', ')} (whole log: ${logLines(log).join(', ')})`
+		).toEqual([]);
+		// The door read on a POST is the finding, not noise: one per variant, each carrying this case's token.
+		const reads = log.filter((request) => request.path === '/api/user/me');
+		expect(
+			reads.length,
+			`the door did not run its session read on the POST for every variant (${logLines(log).join(', ')}) — proxy.ts:523-546 gates on the path and the token, not the method`
+		).toBe(VARIANTS.length);
+		expect(
+			await receivedTokens('/api/user/me'),
+			`the door's POST reads carried no bearer matching this case's token (log: ${logLines(log).join(', ')})`
+		).toContain(sha256(token));
 	});
 });

@@ -52,33 +52,92 @@ test.describe('lane-d · what a signed-out browser is actually given', () => {
 		});
 	}
 
-	test('an ungated family serves its page to a signed-out browser, and that page drives the API with no token', async ({
+	test('an ungated family leaves a signed-out browser in a permanent "Loading" shell that asks the API nothing — pinned, not approved', async ({
 		anon,
 		mock
 	}) => {
-		// `/invoices` matches no pattern in `PROTECTED_APP_URL_PATHS` (constants.tsx:116-133), so the door serves the
-		// document and the client decides. Finding, pinned and not approved: the reads go out, and none of them
-		// carries a bearer — which a real Gauzy would answer 401 (AUDIT finding 13: this mock is
-		// authentication-blind, so a 200 here proves what the app *sent*, never who accepted it).
+		// Finding D-7, answered by the browser run (1 failed / 6 passed, `E:\Coding\.tmp\lane-d-browser1.log`) — and the
+		// answer is not the one this case predicted. It expected token-less reads to go out; what the page actually does
+		// is ask for nothing at all. Both halves are pinned, from the run's own evidence:
+		//
+		//   URL        http://localhost:3034/invoices  (no bounce: `PROTECTED_APP_URL_PATHS`, constants.tsx:117-132,
+		//              names no pattern for `invoices`, so the door served the document)
+		//   what is rendered  the app shell with no session — the snapshot at
+		//              `apps/web/playwright/artifacts/test-results-lane-d/lane-d-page-gate-browser-l-11a4f-rives-the-API-with-no-token-lane-d/error-context.md`
+		//              reads `button "Current workspace: No workspace. Click to change the workspace"`, the full sidebar
+		//              (Home / Calendar / Meetings / Assistant / Dashboard / Favorites / Tasks / Projects / Clients / My
+		//              work), `heading level=1: Invoices`, and inside the page's own `main` a single `status: Loading`.
+		//              No login form, no sign-in link, no page data — a visitor is left in a spinner.
+		//   the mock log   empty, over a window four times wider than the one that timed out in the first run.
+		//
+		// The first run waited 40 × 250 ms for any `/api/*` entry and never saw one, which is why the old assertion
+		// (`toBeGreaterThan(0)`) timed out rather than failed. The window below is 40 × 500 ms after
+		// `networkidle`, and the expectation is the measured 0. That is the finding re-pinned to what the browser did,
+		// not the red removed: if the page ever starts asking again, this case goes red and says so.
+		// This case gets its own 7-minute budget (the config's is 180 s per test) because the mount time is measured,
+		// not guessed: the shell was up by **12.9 s** in `lane-d-browser1.log`, by **66 s** in `lane-d-browser3.log`,
+		// and was still not up after **120 s** in `lane-d-browser4.log` — all on the same warm `next dev`, with free RAM
+		// between 3.4 and 4.6 GB and `strata` holding ~11.4 GB. A page-gate case that renders a 448 KB client-only
+		// document is the most expensive thing in this lane on this PC, and the honest fix is to give it room, not to
+		// drop the render assertions.
+		test.setTimeout(420_000);
 		const page = await anon('/invoices');
 		console.log(`[lane-d] signed-out /invoices ended at ${page.url()}`);
 		await expect(page, `the door refused ${page.url()} — /invoices is no longer ungated`).toHaveURL(/\/invoices/);
 
-		const log = await mockRequestsWhen((entries) => entries.some((request) => request.path.startsWith('/api/')), {
-			tries: 40,
-			intervalMs: 250
-		});
+		// What the visitor is shown. The heading is asserted with a wide window because the two runs disagree about
+		// *when* it appears, and that is itself worth pinning: run 1's failure snapshot (taken 12.9 s into the test)
+		// already has `heading level=1: Invoices`, while run 2's `getByRole('heading', { name: 'Invoices' })` found
+		// nothing inside the 15 s `expect` default — so the shell mounts its page between ~3 s and ~13 s on a warm dev
+		// server, and a case that asks too early reads as "the page never renders".
+		const bodyAt = async (label: string) =>
+			(await page.locator('body').innerText()).replace(/\s+/g, ' ').trim().slice(0, 320).replace(/^/, `[lane-d] /invoices ${label}: `);
+		console.log(await bodyAt('at navigation'));
+		// 120 s, not 15 s and not 60 s, and the reason is a measured fact about this PC: the served document carries no
+		// body text at all (`/invoices at navigation:` printed an empty string), and the shell mounts at
+		// **≤ 12.9 s** when earlier browser cases have already compiled the client chunks (run 1's snapshot, taken when
+		// the case failed at 12.9 s, already shows the heading) but **only between 60 s and 66 s** when this case runs
+		// alone on a cold Turbopack (`lane-d-browser3.log`: 60 s `toBeVisible` timed out, and that run's own failure
+		// snapshot at 66 s shows the same shell). A page-gate case that asks "did the page render?" faster than the
+		// dev server compiles it reads as "the page never renders".
+		await expect(
+			page.getByRole('heading', { name: 'Invoices' }),
+			`no "Invoices" heading at ${page.url()} within 300 s; the page said: ${(await page.locator('body').innerText()).replace(/\s+/g, ' ').trim().slice(0, 300)}`
+		).toBeVisible({ timeout: 300_000 });
+		console.log(await bodyAt('once the heading is up'));
+		// The page's own content area is a `status: Loading` with nothing behind it — in both failure snapshots, at
+		// 12.9 s and at 66 s: `main → status → "Loading"`. A signed-out visitor of an ungated family is left in a
+		// spinner, not sent to a sign-in page.
+		await expect(
+			page.getByText('Loading').first(),
+			`the signed-out /invoices page is no longer sitting in a loading state; the page now says: ${await bodyAt('instead')}`
+		).toBeVisible({ timeout: 30_000 });
+		// No way to sign in from here, in either shape: the page offers no form and no link to the sign-in page.
+		await expect(page.locator('form'), `a signed-out visitor is now offered a form at ${page.url()}`).toHaveCount(0);
+		await expect(
+			page.locator('a[href="/auth/passcode"]'),
+			`a signed-out visitor is now offered a sign-in link at ${page.url()}`
+		).toHaveCount(0);
+
+		// The same 20 s doubles as the wait that settles the page and as the window the mock log is read over.
+		let log = await mock.requests();
+		for (let attempt = 0; attempt < 40 && log.length === 0; attempt++) {
+			await new Promise((resolve) => setTimeout(resolve, 500));
+			log = await mock.requests();
+		}
+		console.log(await bodyAt('20 s later'));
 		const paths = [...new Set(log.map((request) => request.path))];
 		const withBearer: string[] = [];
 		for (const path of paths) {
 			const tokens = await receivedTokens(path);
 			if (tokens.length > 0) withBearer.push(`${path} (${tokens.length})`);
 		}
-		console.log(`[lane-d] signed-out /invoices asked: ${logLines(log).join(', ')}`);
+		console.log(`[lane-d] signed-out /invoices asked the mock, after networkidle + 20 s: ${logLines(log).join(', ') || '(nothing)'}`);
 		expect(
 			log.length,
-			`an anonymous /invoices visit asked this lane's mock nothing (${logLines(log).join(', ')}) — the page no longer mounts its reads without a session`
-		).toBeGreaterThan(0);
+			`finding D-7 as measured: an anonymous /invoices visit asked this lane's mock nothing. It now asked ${log.length} thing(s): ${logLines(log).join(', ')} — the shell mounted its reads without a session`
+		).toBe(0);
+		// Kept as the invariant for the day the page does start asking: whatever it asks, it must ask without a bearer.
 		expect(
 			withBearer,
 			`an anonymous visit sent a bearer on: ${withBearer.join(', ')} — finding D-7 pinned it as token-less`
