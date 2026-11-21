@@ -39,7 +39,7 @@ never asked the API anything" is only worth something when the request log is yo
 own app process, mock, statistics sink, control API, fake issuer, build directory, artifacts folder and report.
 
 ```bash
-export E2E_LANE=lane-a                     # lane-a 3031/3992–3995 · lane-b 3032/3996–3999 · lane-c 3033/4002–4005
+export E2E_LANE=lane-a                     # lane-a 3031/3992–3995 · lane-b 3032/3996–3999 · lane-c 3033/4002–4005 · lane-d 3034/4006–4009
 export E2E_BROWSER_CHANNEL=chrome
 npx playwright test --config apps/web/playwright/playwright.lane.config.ts --grep "<your describe block>"
 ```

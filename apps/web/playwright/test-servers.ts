@@ -37,7 +37,8 @@ export type LanePorts = { app: number; mock: number; platform: number; control: 
 export const LANE_PORTS: Record<string, LanePorts> = {
 	'lane-a': { app: 3031, mock: 3992, platform: 3993, control: 3994, idp: 3995 },
 	'lane-b': { app: 3032, mock: 3996, platform: 3997, control: 3998, idp: 3999 },
-	'lane-c': { app: 3033, mock: 4002, platform: 4003, control: 4004, idp: 4005 }
+	'lane-c': { app: 3033, mock: 4002, platform: 4003, control: 4004, idp: 4005 },
+	'lane-d': { app: 3034, mock: 4006, platform: 4007, control: 4008, idp: 4009 }
 };
 
 const selectedLane = process.env.E2E_LANE;
