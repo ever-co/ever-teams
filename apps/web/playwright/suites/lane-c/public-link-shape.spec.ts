@@ -11,6 +11,18 @@ import { expect, test, type ApiCall } from '../../api-fixtures';
  * are the whole local defense. A well-formed but wrong token is not a refusal here, and none of these
  * routes rate-limits or locks, so a wrong token cannot be told apart from a missing link by brute force —
  * that is recorded in PLAN.md rather than asserted as a defect of the handler.
+ *
+ * **Corrected against a run, 2026-11-21**: `Running 19 tests using 1 worker` / `19 passed (9.9s)`, log kept at
+ * `artifacts/lane-c-public-link-shape-3.log` (18 discovered before the two segment tests were split, 19 after).
+ * The invoice half behaves exactly as written above: seven malformed links answered 400 `Invalid link` with the mock
+ * asked nothing. The *segment* half does not: a dot segment (`.`, `..`, `%2e`, `%2e%2e`, and an empty segment) is
+ * removed or unmatched **by the URL layer, before this app routes anything**, so those probes get Next's own 404
+ * `text/html` and never a `400 Invalid link` from `saved-report-proxy.ts:139` or `app/api/public/team/.../route.ts:17`.
+ * Those two guards are reachable only from a URL that is already inside a single segment — and the form that does get
+ * there (`..%2F`, `..%2F..%2Fuser%2Fme`, `a%2Fb%2Fc`) is not refused at all: it is forwarded, re-encoded into one
+ * segment by the request builders, and answered 200. So the defence these routes actually have against a walking id is
+ * the re-encoding, not the shape check; the two tests that pinned "refused before it is asked" now pin the recorded
+ * paths instead, and `PLAN.md` records it as a finding.
  */
 
 const UUID = '2f8a4b6c-9d3e-4c8a-a7f1-0b5d6e4f3a2c';
@@ -88,29 +100,66 @@ test.describe('a shared link that is not shaped like a link is refused here', ()
 		expect(await mock.requests(), 'the API was asked about a payment link this app refused').toEqual([]);
 	});
 
-	test('a malformed saved-report token is refused and nothing is asked', async ({ api, mock }) => {
-		// `saved-report-proxy.ts` refuses an empty token and a `.`/`..` segment; a well-formed one is
-		// forwarded and the platform's 404 is what the browser sees.
-		const probes = ['/api/public/saved-reports/%2e%2e', '/api/public/saved-reports/%2e', '/api/public/saved-reports/a%2Fb%2Fc'];
+	/**
+	 * A dot-segment never reaches this app. Measured 2026-11-21 in a lane-c run (`18 passed (3.4s)`), against
+	 * `app/api/public/saved-reports/[token]/route.ts` and its handler `proxyReadSharedReport`
+	 * (`core/services/server/saved-report-proxy.ts:138-139`, which refuses an empty token and a `.`/`..` token with a
+	 * 400 `Invalid link`): a URL path segment that *is* a dot segment — `.`, `..`, `%2e`, `%2e%2e` (WHATWG treats the
+	 * percent forms as dot segments and removes them while parsing) — is gone before Next routes anything, so what a
+	 * caller gets is **Next's own 404 `text/html` not-found page** and the mock is asked nothing. `saved-report-proxy.ts`'s
+	 * 400 is real code that a fetched URL cannot reach on this route; the file says so rather than crediting it.
+	 *
+	 * The form that *does* reach the handler is a slash an encoder left in one segment (`..%2F`, `a%2Fb%2Fc`): not a dot
+	 * segment, so it survives parsing, is not `.` or `..`, and is handed to the upstream by
+	 * `readSharedReportRequest`, which re-encodes it (`core/services/server/requests/saved-reports.ts:95`
+	 * `encodeURIComponent(token)`) — so it stays inside `/api/public/saved-reports/` and is answered 200. That is the
+	 * honest split this test pins: refused **before the handler by the URL layer**, or forwarded **one segment wide**,
+	 * never a walk out of the prefix.
+	 */
+	const DOT_SEGMENT_PROBES = [
+		'/api/public/saved-reports/%2e%2e',
+		'/api/public/saved-reports/%2e',
+		'/api/public/saved-reports/',
+		'/api/public/team/fixture-team/%2e',
+		'/api/public/team/fixture-team/..'
+	];
 
-		for (const path of probes) {
+	test('a dot-segment token is removed by the URL layer before any handler runs, pinned rather than approved', async ({
+		api,
+		mock
+	}) => {
+		for (const path of DOT_SEGMENT_PROBES) {
 			const { status, text } = await call(api, path);
+			expect(status, `${path}: answered ${status} — expected Next's own 404 for a path whose dot segment the URL parser removed`).toBe(404);
 			expect(
-				status,
-				`${path}: answered ${status} ${text} — a walking or empty report token is refused by this app or by the platform, never answered from a cache`
-			).toBeLessThan(500);
+				(text.match(/<html|nextjs-portal|not-found/i) ?? []).length,
+				`${path}: answered 404 but not with Next's not-found document, so this pin needs re-reading: ${text.slice(0, 200)}`
+			).toBeGreaterThan(0);
 		}
 
-		const walking = (await mock.requests()).filter((request) => request.path.includes('..'));
+		// Nothing of this reached the API — and the filtered view names the only prefix it could have reached.
 		expect(
-			walking.map((request) => `${request.method} ${request.path}`),
-			`a walking report token reached the API as a walking path: ${JSON.stringify(walking)}`
+			await mock.paths(),
+			`a dot-segment probe asked the API something, which the run of 2026-11-21 did not see: ${JSON.stringify(await mock.requests())}`
 		).toEqual([]);
+	});
 
-		const forwarded = await mock.calls('/api/public/saved-reports/');
-		for (const request of forwarded) {
-			expect(request.path, `the report token left its own path: ${request.path}`).toMatch(/^\/api\/public\/saved-reports\/[^/]+$/);
+	test('a saved-report token that keeps an encoded slash is forwarded as one segment of its own path', async ({ api, mock }) => {
+		// `..%2F` and `a%2Fb%2Fc` are not dot segments, so they are routed, pass `isWalkingSegment`, and travel —
+		// re-encoded, which is what keeps them inside `/api/public/saved-reports/`. Pinned with the exact paths the
+		// mock recorded on 2026-11-21.
+		for (const path of ['/api/public/saved-reports/a%2Fb%2Fc', '/api/public/saved-reports/..%2F']) {
+			const { status } = await call(api, path);
+			expect(status, `${path}: answered ${status}, expected 200 (the upstream is the only thing that saw this token)`).toBe(200);
 		}
+
+		expect(
+			(await mock.calls('/api/public/saved-reports/')).map((request) => `${request.method} ${request.path} ${request.status}`),
+			`a saved-report token left its own path on the way to the API: ${JSON.stringify(await mock.requests())}`
+		).toEqual([
+			'GET /api/public/saved-reports/a%2Fb%2Fc 200',
+			'GET /api/public/saved-reports/..%2F 200'
+		]);
 	});
 
 	test('a well-formed saved-report link is forwarded as one segment', async ({ api, mock }) => {
@@ -189,26 +238,48 @@ test.describe('the shared invoice checkout takes only a return address it recogn
 });
 
 test.describe('the public team read', () => {
-	test('a walking profile link or team id is refused before the team is asked for', async ({ api, mock }) => {
+	test('an encoded walking team id is forwarded verbatim inside its own path — the walk is stopped by re-encoding, not by a refusal', async ({
+		api,
+		mock
+	}) => {
+		/**
+		 * The predecessor's claim here ("a walking profile link or team id is refused before the team is asked for") is
+		 * not what the app does, and the run of 2026-11-21 said so. `app/api/public/team/[profileLink]/[teamId]/route.ts:17`
+		 * refuses only a segment that is *exactly* `.` or `..`; `..%2F..%2Fuser%2Fme` decodes to `../../user/me`, is not
+		 * that, passes the guard, and is handed on. What stops the walk is the builder
+		 * (`core/services/server/requests/public-organization-team.ts:34-38`, whose own comment says it: the two
+		 * decoded ids are `encodeURIComponent`-ed back into **one** segment each) — so the id the upstream is asked about
+		 * is still a segment of `/api/public/team/`, never a path of its own. Pinned with the exact recorded paths,
+		 * because "the id could not leave its prefix" is proved by the log, and "the app refused it" is not true.
+		 */
 		const probes = [
-			`/api/public/team/fixture-team/${'..%2F..%2Fuser%2Fme'}`,
-			`/api/public/team/${'..%2F..%2F'}/33333333-3333-4333-8333-111111111111`
+			'/api/public/team/fixture-team/..%2F..%2Fuser%2Fme',
+			'/api/public/team/..%2F..%2F/33333333-3333-4333-8333-111111111111',
+			'/api/public/team/..%2F/33333333-3333-4333-8333-111111111111'
 		];
 
 		for (const path of probes) {
-			const { status, text } = await call(api, path);
+			const { status } = await call(api, path);
 			expect(
 				status,
-				`${path}: answered ${status} ${text} — a walking segment must not be resolved into another read`
-			).toBeLessThan(500);
+				`${path}: answered ${status}, expected 200 — this route refuses only a segment that is exactly "." or "..", and an encoded slash is neither`
+			).toBe(200);
 		}
 
-		const escaped = (await mock.requests()).filter(
-			(request) => request.path === '/api/user/me' || !request.path.startsWith('/api/public/team/')
-		);
 		expect(
-			escaped.map((request) => `${request.method} ${request.path}`),
-			`a walking team link reached something other than its own public team path: ${JSON.stringify(await mock.requests())}`
+			(await mock.calls('/api/public/team/')).map((request) => `${request.method} ${request.path} ${request.status}`),
+			`a walking team id left the public team path on the way to the API: ${JSON.stringify(await mock.requests())}`
+		).toEqual([
+			'GET /api/public/team/fixture-team/..%2F..%2Fuser%2Fme 200',
+			'GET /api/public/team/..%2F..%2F/33333333-3333-4333-8333-111111111111 200',
+			'GET /api/public/team/..%2F/33333333-3333-4333-8333-111111111111 200'
+		]);
+
+		// The half that is a real defence, proved as the absence: no walking id ever became a read of another endpoint
+		// (`/api/user/me` is the endpoint the `..%2F..%2Fuser%2Fme` shape was aimed at).
+		expect(
+			(await mock.requests()).filter((request) => !request.path.startsWith('/api/public/team/')).map((request) => request.path),
+			`a walking team id reached an endpoint outside its own prefix: ${JSON.stringify(await mock.requests())}`
 		).toEqual([]);
 	});
 
