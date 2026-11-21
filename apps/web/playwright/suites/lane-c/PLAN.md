@@ -98,6 +98,80 @@ therefore be started **detached from the agent's shell** — on this PC
 followed by `check lane-c` waiting for `checked:` / `ready:` — and `check` re-run before every batch. The rewritten file
 then ran `19 passed (9.9s)` on the same machine, unchanged except for the servers.
 
+`media-type.spec.ts` — **run on a healthy lane, 41 / 41 passed, no change to the file needed**: `Running 41 tests using
+1 worker` / `41 passed (6.5s)` (log `artifacts/lane-c-media-type-1.log`). Independently of the batch run below, this
+file is green under two writers: 36 declared-type probes answered 415 `message: "Unsupported Media Type"` with an empty
+mock log, the untyped-body pair answered 415, `application/json; charset=utf-8` forwarded once, a GET naming
+`text/plain` forwarded, a cross-site form post answered the **403 origin refusal rather than the 415**, and
+`POST /api/user-api-tokens` answered 415 with the mock asked nothing — its own `isJsonRequest` gate before any session
+read. Only a run-provenance paragraph was added.
+
+`malformed-json.spec.ts` — **re-run here to verify the blocker list another writer filled: `Running 43 tests using 1
+worker` / `43 passed (5.1s)`** (log `artifacts/lane-c-malformed-json-1.log`). Every pinned `MALFORMED_BLOCKERS` status
+is an exact `.toBe()` and every pinned case also asserts `mock.calls(path) === []`, so a green 43 is the blocker list
+holding, not a ceiling passing. Cross-checked the entries against the handlers and against the dev server's own log
+(`apps/web/.next-lane-3033/dev/logs/next-development.log`, the only file in that directory): `app/api/email-reset/
+request-change-email/route.ts:13` is `const { email } = (await req.json())` with no `catch`, and the log carries
+`⨯ TypeError: Cannot destructure property 'email' of '(intermediate value)' as it is null.`; `validate-by-code/route.ts:8,10`
+(`await req.json()` first, then `validateForm(['code','email'], body)`) matches `⨯ TypeError: Cannot read properties of
+null (reading 'code')` and `⨯ TypeError: Cannot create property 'code' on string 'a string instead of an object'`;
+`organization-team/route.ts:24,45-46` catches into `{"error":"Failed to process request"}` 500; `task-statuses/route.ts:32,37-39`
+catches a parse failure into `$res('Error creating task status')`, which on the signed-in path is the success answer.
+None of these is a mock gap: the mock was asked nothing in every pinned case, so the throw happened in this app.
+
+`session-guard.spec.ts` (the coordinator's `LANE_PORTS` edit, run here rather than by them) — **47 tests discovered,
+before and after that edit** (no test was added or removed by it). First run: `Running 47 tests using 1 worker` /
+**`2 failed`, 45 passed (2.1m)**, both reds the last two cases and both `TimeoutError … 60000ms` — the lane's app died
+mid-run (see the harness note below), not the edit. Isolated: `--grep "is not the operator by right of the cookie|the
+app origin is the origin these routes consider their own"` → `Running 2 tests using 1 worker` / `2 passed (2.1s)`.
+Whole file on a healthy lane: `Running 47 tests using 1 worker` / **`47 passed (8.5s)`** (log
+`artifacts/lane-c-session-guard-2.log`), including the new `the app origin is the origin these routes consider their own`
+case at `session-guard.spec.ts:203`. Contended-vs-isolated, as `playwright/README.md:148-156` asks: 60 s timeout each
+against 700 ms and 328 ms.
+
+### The lane's app died a third time, and the pipe theory does not explain it
+
+`artifacts/lane-c-servers-detached.log` shows the lane came up healthy at 13:13 (`checked:` then `ready:`), and the run
+that died did so **5 seconds in**: 45 tests passed in about 5 s, then two 60 s fetch timeouts, and afterwards
+`lane-servers.mjs check lane-c` reported MISWIRED while `down lane-c` found **nothing listening on any of 3033, 4002,
+4003, 4004, 4005** — the mock and the control API were gone with the app, not just the app. This start was launched
+with PowerShell `Start-Process … -RedirectStandardOutput <file> -RedirectStandardError <file>`, so the server's stdout
+and stderr went to **files, not to an unconsumed pipe**, and `…-detached.err` is empty; `next-development.log` ends in
+the middle of its normal every-5-second `ever_stats.send outcome=sent status=202` INFO stream, with no crash line. So
+the unconsumed-pipe back-pressure recorded above is a real hazard for `spawn(command, { shell: true })` with no
+`stdio`, but **it is not what killed this run**, and whatever did kill it is still unnamed. Free RAM at the time was
+5.29 GB of 34.3 GB, so memory pressure is not an obvious answer either. What is safe to say: every red in this lane's
+runs on 2026-11-21 was traced to a lane that had stopped answering, and no app finding rests on any of them.
+
+Written before `a7662a764` landed, so read it against that fix rather than against it: this start **already** had the
+shape the fix produces (the server's output going to files), and the lane still stopped mid-run. If a lane dies again
+with `artifacts/lane-lane-c-server.log` present and ending mid-stream, the unread-pipe explanation is spent and the
+next thing to look for is whatever ends the `lane-servers.mjs` process itself — `down <lane>` finding *every* one of
+its five ports empty is the tell that the tree went together.
+
+### The `POST /api/organization/history/bulk` carry-over hazard: not reproduced, and the route is not in this tree
+
+Timeboxed attempt, 2026-11-21, exactly as asked (two different payloads to the same route in two separate runs, warm
+`distDir`, nothing deleted anywhere):
+
+1. **The route does not exist here.** `grep -rln "history/bulk" --exclude-dir=node_modules --exclude-dir=.git
+   --exclude-dir=.next-lane-3033 --exclude-dir=.next .` over the whole repo returned **nothing**, and the only
+   `app/api` paths containing `history` are `app/api/timesheet/time-log/history/route.ts` and
+   `app/api/timesheet/time-log/[id]/history/route.ts`. So the answer reported by an earlier run for
+   `POST /api/organization/history/bulk` — 201 carrying `{"ids":["pinned"]}` — cannot be re-run against this working
+   tree. Either the route was removed since that run or the path was something else; this lane found no route to pin.
+2. **The suspected carrier is not there.** `<distDir>/dev/logs/` for this lane
+   (`apps/web/.next-lane-3033/dev/logs/`) holds exactly **one** file, `next-development.log` (106,685 bytes), and a
+   grep of it for `pinned` returns 0. There is no boundary-payload file in that directory to serve a previous run's body.
+3. **Carry-over tested live, on a route that does exist.** `POST /api/chat/conversations` (a `forwardToGauzy` proxy,
+   and the mock echoes a POST body, so the bytes that travelled are visible): marker `ALPHA-111` then marker
+   `BRAVO-222` in the same dev-server process answered `{"marker":"ALPHA-111"}` and `{"marker":"BRAVO-222"}`
+   respectively; then the lane was restarted (`down lane-c` + `up lane-c`, `.next-lane-3033` left warm — the exact
+   "kept between runs" state) and `CHARLIE-333` answered `{"marker":"CHARLIE-333"}`, `carries ALPHA? false`,
+   `carries BRAVO? false`, with a mock log holding only the new call.
+
+**It did not reproduce.** No cache-deleting code was added anywhere; nothing was deleted from any build directory.
+
 ### Batch by batch, then the whole lane in one run (lane-c, 2026-11-21)
 
 Every summary line below was read out of a run's own log (`/e/Coding/.tmp/lane-c-*.log` on this machine, kept outside
