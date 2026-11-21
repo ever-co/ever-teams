@@ -20,7 +20,7 @@ import { freshSessionCookie, logLines, sha256 } from './lane-d-session';
  *   (`cypress/support/mock-gauzy-server.mjs:1041`) plus the bearer's sha256 (`:1054`, read through
  *   `helpers.receivedTokens`). A server-side call carries no `Origin`, and the mock's origin guard only fires when
  *   one is present and untrusted (`mock-gauzy-server.mjs:978-982`), so the door's read is logged like any other.
- * - `core/services/server/same-origin-request.ts:44-47` — `refuseForeignWrite` exempts GET and HEAD, and
+ * - `core/services/server/same-origin-request.ts:43-46` — `refuseForeignWrite` exempts GET and HEAD at `:44`, and
  *   `proxy.ts` imports neither guard: nothing at the page door consults `Sec-Fetch-Site`. AUDIT finding 5.
  *
  * Redirects are never followed (`maxRedirects: 0`): the answer under test is the status and the `Location`. What a
@@ -205,7 +205,7 @@ test.describe('lane-d · the gate does not depend on the locale prefix', () => {
 
 test.describe('lane-d · page families the gate does not cover', () => {
 	// Not a green: these document that an anonymous visitor is served a document at all. Every route is client-only
-	// (`app/[locale]/layout-component.tsx:41-43`), so the served HTML carries neither the page nor a login form —
+	// (`app/[locale]/layout-component.tsx:40-42`), so the served HTML carries neither the page nor a login form —
 	// page-gate-browser.spec.ts pins what such a visitor is then shown.
 	for (const path of UNGATED_PAGE_FAMILIES) {
 		test(`${path} is served to an anonymous visitor — documented, not approved`, async ({ api, mock }) => {
@@ -218,19 +218,28 @@ test.describe('lane-d · page families the gate does not cover', () => {
 			// `accept` cannot make a page's client-only body arrive: the route renders behind ClientOnly (ssr: false).
 			expect(
 				answer.body,
-				`${path} now renders its page (or a login form) in the served HTML — the ClientOnly boundary at layout-component.tsx:41-43 moved`
+				`${path} now renders its page (or a login form) in the served HTML — the ClientOnly boundary at layout-component.tsx:40-42 moved`
 			).not.toMatch(/<form/i);
 			const log = await mock.requests();
 			expect(log, `serving ${path} to an anonymous visitor asked the mock: ${logLines(log).join(', ')}`).toEqual([]);
 		});
 	}
 
-	test('/team/join is exempt from the door for the same reason /team/tasks is — pinned, not approved', async ({ api }) => {
-		// proxy.ts:160-165 returns the i18n response untouched for `paths[0] === 'team'` (or `paths[1] === 'team'`
-		// under a locale), before any token is looked at. `/team/join` is `app/[locale]/(focus)/team/join/page.tsx`,
-		// whose first segment is `team` as well, so the exemption swallows it too: an anonymous visitor is served the
-		// join document and decides in the browser. The api lane pins `/team/tasks` (page-gate.spec.ts:99-107); this
-		// is the same door gap one path over.
+	test('/team/join reaches a visitor for a different reason than /team/tasks does — pinned, not approved', async ({ api }) => {
+		// Read from proxy.ts:158-165, and it is not the reason this file first gave:
+		//
+		//     if (!paths.includes('join') && (paths[0] === 'team' || (LANGS.includes(paths[0]) && paths[1] === 'team')))
+		//             ^^^^^^^^^^^^^^^^^^^^ the exemption refuses itself for ANY path carrying a `join` segment
+		//         return response;
+		//
+		// so `/team/join` (`app/[locale]/(focus)/team/join/page.tsx`) is *not* swallowed by the `team/` exemption — it
+		// goes on through the whole door. It is public anyway for the plainer reason: no pattern in
+		// PROTECTED_APP_URL_PATHS (constants.tsx:116-133) names `team` at all, so `protected_path` is false, no CASE
+		// fires, and SECTION 3 (`proxy.ts:603-615`, "public paths: allowed through as-is") returns the document.
+		// `/team/tasks` gets its 200 from the exemption instead, before any token is looked at — which is why the two
+		// answers are the same status reached by two different routes through the same file.
+		// The api lane pins `/team/tasks` (suites/api/page-gate.spec.ts:99-107); this is the join page, whose 200 has
+		// to be re-checked against the constants list rather than the exemption if either ever changes.
 		const join = await door(api, '/team/join');
 		const teamTasks = await door(api, '/team/tasks');
 		const localized = await door(api, '/ar/team/join');
@@ -241,8 +250,43 @@ test.describe('lane-d · page families the gate does not cover', () => {
 		expect(teamTasks.status, `/team/tasks was gated at the door after all (${teamTasks.status})`).toBe(200);
 		expect(
 			localized.status,
-			`/ar/team/join was gated (${localized.status} → ${localized.location}) although proxy.ts:162 exempts a locale-prefixed team path`
+			`/ar/team/join was gated (${localized.status} → ${localized.location}) although no protected pattern names \`team\`, locale-prefixed or not`
 		).toBe(200);
+	});
+
+	test('/auth/workspace is public to an anonymous visitor but a session is bounced off it, to a locale-less root — pinned, not approved', async ({
+		api,
+		mock,
+		cookies,
+		ids
+	}) => {
+		// Finding D-4, the half the tree read missed. `sendsSignedInVisitToApp` (core/lib/auth/signed-in-auth-paths.ts:9-15)
+		// returns true for EVERY `/auth/…` path except password recovery, so a visitor holding a token is redirected at
+		// `proxy.ts:455-469`: the token is read locally (`!isTokenExpired(access_token, 60)` at `:462`) and
+		// `NextResponse.redirect(new URL(DEFAULT_MAIN_PATH, request.url))` answers — no API call, so the mock log is the
+		// witness that the bounce was decided from the cookie alone. And `new URL('/', request.url)` keeps the origin but
+		// drops whatever locale prefix the visitor asked for, the same shape as finding D-5's `Location`.
+		const anonymous = await door(api, '/auth/workspace');
+		expect(anonymous.status, `/auth/workspace was gated to an anonymous visitor (${anonymous.status} → ${anonymous.location})`).toBe(200);
+
+		const { header: cookieHeader } = freshSessionCookie(cookies('A'), ids.user, ids.organizationA, 'lane-d-auth-workspace');
+		const answers: string[] = [];
+		for (const path of ['/auth/workspace', '/pt/auth/workspace', '/ar/auth/workspace']) {
+			const answer = await door(api, path, asPage(cookieHeader));
+			answers.push(`${path} → ${answer.status} ${answer.location || '(no Location)'}`);
+			expect(answer.status, `${path} answered ${answer.status} to a session, not the 307 proxy.ts:469 gives it`).toBe(307);
+			expect(
+				answer.landed,
+				`finding D-4: ${path} bounced its session to ${answer.location} — the root it lands on carries no locale prefix`
+			).toBe(`${APP_ORIGIN}/`);
+		}
+		console.log(`[lane-d] /auth/workspace with a session: ${answers.join(' | ')}`);
+
+		const log = await mock.requests();
+		expect(
+			log,
+			`the bounce off /auth/workspace consulted this lane's mock, although proxy.ts:462 answers it from the local token read alone: ${logLines(log).join(', ')}`
+		).toEqual([]);
 	});
 });
 
@@ -254,7 +298,8 @@ test.describe('lane-d · Sec-Fetch-Site variants against a protected page', () =
 		{ label: 'cross-site', headers: { 'sec-fetch-site': 'cross-site' } }
 	];
 
-	// `refuseForeignOrigin` (core/services/server/same-origin-request.ts:8-47) is what reads these headers, and proxy.ts
+	// `refuseForeignOrigin` (core/services/server/same-origin-request.ts:16-34, which refuses `cross-site` AND
+	// `same-site` at `:18`) is what reads these headers, and proxy.ts
 	// imports neither it nor refuseForeignWrite: the page door cannot be origin-guarded today (AUDIT finding 5).
 	for (const path of ['/settings/personal', '/chat']) {
 		test(`an anonymous visit to ${path} answers the same whichever Sec-Fetch-Site claims`, async ({ api, mock }) => {
@@ -323,7 +368,7 @@ test.describe('lane-d · Sec-Fetch-Site variants against a protected page', () =
 
 	test('a page path carries no write handler for any Sec-Fetch-Site value, and no write reaches the mock', async ({ api, mock, cookies, ids }) => {
 		// A page.tsx exports a component, not a verb handler; and `refuseForeignWrite`
-		// (same-origin-request.ts:41-47, the GET/HEAD exemption AUDIT finding 5 pins) is consulted by route handlers
+		// (same-origin-request.ts:43-46, the GET/HEAD exemption AUDIT finding 5 pins) is consulted by route handlers
 		// only — a page path reaches none of it. Pinned as an invariant today: an HTTP answer below 500 and an
 		// untouched mock. The exact status is printed so the first run can pin it as a number.
 		const { header: cookieHeader } = freshSessionCookie(

@@ -18,7 +18,7 @@ import { logLines, mintAccessToken, sha256 } from './lane-d-session';
  *   locale in the app).
  * - `core/services/client/api/default.ts:23` → every page's layout health check is `GET /api/health` on the app
  *   origin (`app/api/health/route.ts`), which is the one mock entry a bounced page is expected to cause.
- * - `app/[locale]/layout-component.tsx:41-43` (`ClientOnly`, `ssr: false`): no page content and no form exist in the
+ * - `app/[locale]/layout-component.tsx:40-42` (`ClientOnly`, `ssr: false`): no page content and no form exist in the
  *   served HTML, so "is a login form present" is only answerable here, in a browser.
  */
 
