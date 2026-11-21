@@ -553,3 +553,119 @@ unconfirmed at the time of writing; its own run's numbers are recorded above as 
   recorded in the file header instead.
 - A "let through" permission case, a cross-tenant **payload** case and a body-derived `tenant-id` case: all three are
   mock gaps (above), not missing tests.
+
+## Unguarded writes: the handler list I re-derived today, and what was NOT run (lane-c, 2026-11-21 wrap-up)
+
+The owner stopped the effort mid-session for a fleet inference-engine update. **`unguarded-writes.spec.ts` is
+committed as discovered, not run: no lane-c server was started in this session, no case was executed, and no status,
+body or mock-log line below was read off a log.** Its file header carries the same warning, and every claim in it
+cites a `file:line`. It deliberately pins no status code — I never saw one — and every failure message prints the
+cross-site answer, the headerless answer and the mock's request log, so the first run produces the numbers this file
+is missing instead of requiring them to be guessed.
+
+### What I did read myself, with the commands
+
+My own scan over the tree today (`node /e/Coding/.tmp/lane-c-unguarded.mjs`, a read-only re-implementation of the
+collector's own handler splitting; it writes nothing into the repo, and no output of it is checked in):
+
+```
+find apps/web/app/api -name route.ts | wc -l                                415 files
+write verb entries across them (POST/PUT/PATCH/DELETE)                     324
+credited a guard before any upstream call                                  286
+credited none                                                               38, in 35 route files
+GET/HEAD/OPTIONS handler bodies that hand the request to a guarded helper  105
+```
+
+`audit-evidence.md` §C/§E measured 325 write entries, 286 credited, 37 uncredited and 33 handlers against
+`b19990f6e`. The 286 and the 415 agree with mine; 325 / 37 / 33 do not — the tree moved since — so the audit's list
+of 33 was **not** copied forward. The 35 files and 38 write verbs above are today's, and each route named in the
+spec is a path `find apps/web/app/api -name route.ts` shows, with the line that proves a write verb and no guard
+call beside it.
+
+The 105 is not a contradiction of `AUDIT.md` finding 5 ("0 read handler bodies call a foreign-origin guard"): I did
+not re-derive that narrow claim. What I measured is the *guard family* — 105 GET bodies call `forwardToGauzy` or
+`refuseUnlessPermitted`, which call `refuseForeignWrite`, which returns `null` for GET and HEAD
+(`core/services/server/same-origin-request.ts:44`). A read does reach a guarded helper and is let through by design;
+consistent with the finding, and only a run settles it.
+
+### Three of the 35 are origin-guarded, just not in the collector's vocabulary
+
+`collect-foreign-origin-routes.mjs:31,37` knows `refuseForeignOrigin`, `refuseForeignWrite`, `forwardToGauzy`,
+`refuseUnlessPermitted`, `refuseWithoutPermission` and nothing else. My scan used the same list, so it flagged:
+
+- `POST /api/board/notify` — its own exact-origin allowlist at `app/api/board/notify/route.ts:38-41`
+  (`isTrustedBoardOrigin`, `core/lib/board/board-app.ts:81-87`; refusal body `{ message: 'Forbidden' }` at
+  `core/services/server/board-cors.ts:26-28`). Stricter than the shared guard: it also refuses a caller that sends
+  **no** `Origin`, which `refuseForeignOrigin` lets through — this lane's own `session-guard.spec.ts` pins that
+  ("a client that sends neither Origin nor Sec-Fetch-Site passes the write guard"). `audit-evidence.md` §E listing
+  it as unguarded is a vocabulary artefact, and `AUDIT.md` §C had put the same route in a different bucket ("2
+  guarded writes fell through the manifest").
+- `POST /api/timer/toogle` — `app/api/timer/toogle/route.ts:1,7-9` imports the real POST from
+  `app/api/timer/toggle/route.ts`, whose first statement is `refuseForeignOrigin` (`:7-8`).
+- `POST` and `PUT /api/daily-plan/[id]/task` — `app/api/daily-plan/[id]/task/route.ts:1,8-14` imports both verbs
+  from `app/api/daily-plan/plan/[planId]/route.ts`, which guards each of them (`:8` and `:33`).
+
+A per-**file** scan cannot see a guard that lives in another file: `AUDIT.md` finding 2 (coverage decided by a
+hand-kept vocabulary) with a concrete cost. Today the audit's "33 handlers with no origin guard" is 32, and 3 of the
+files it counts are refused before anything is read. The spec pins those three as *guarded* — a run that answers
+anything else there is a finding about the guard, not about the list.
+
+### The cases the file makes, and the source each one came from
+
+- 32 unguarded write handlers, each probed with `Origin: https://some-other-site.example` +
+  `sec-fetch-site: cross-site` and with neither header. The answer must not be the guard's
+  `403 {"statusCode":403,"message":"Cross-site request refused"}` (`same-origin-request.ts:48-53`), and the two
+  answers must carry the same status, because nothing in those handlers reads either header. Grepped each file
+  today: the only Origin uses are `invite/accept:52` (forwarded to the API), `register:31`, `send-code:8`,
+  `request-password:20` and `signin-email:12-13` (link building, from the request URL or the configured origin) —
+  none of them a refusal.
+- Control, so the "no 403" readings mean something: `POST /api/chat/conversations` with those same headers gets 403
+  with the guard's body and an **empty** mock log (`forward-to-gauzy.ts:89-90`; the refusal is produced before any
+  upstream call).
+- `POST /api/organization-team-join`, anonymous: not refused, the mock is asked, and
+  `receivedTokens('/api/organization-team-join')` is `[]` — no credential travelled
+  (`route.ts:19-24` → `request-to-join-team.ts:14-19` → `fetch.ts:91-93`, which writes no `authorization` header
+  without a bearer; the upstream path is built at `fetch.ts:110`). Its GET, ten lines above, runs
+  `authenticatedGuard` (`route.ts:6-8`).
+- `POST /api/public/invoice-payments/invoice/[id]/[token]/checkout`: the only origin check is on a body value,
+  `isPaymentReturnUrl(returnUrl, req.headers.get('origin'))` (`public-invoice-proxy.ts:62-78`), and it passes when
+  the request carried no Origin at all (`!origin || url.origin === origin`, `core/lib/utils/shared-invoice.ts:118`).
+  Three cases: foreign Origin with a matching foreign `returnUrl` → forwarded; no Origin with a foreign host as
+  `returnUrl` → forwarded; foreign Origin naming this app as the `returnUrl` → 400 `Invalid return address` with an
+  empty log. The 400 and its body are read off `public-invoice-proxy.ts:16,66-68`, not off a run.
+- Recorded rather than asserted: `POST /api/invite/accept` hands the caller's `Origin` to the API as the origin its
+  welcome-e-mail links are built on (`invite/accept/route.ts:51-53` with `appOriginOf` at `:188-194`, which falls
+  back to the request URL when the caller sent none). What the API does with that value is a mock blind spot
+  (`mock-gauzy-server.mjs` never reads the Origin of a server-side call), so the file says so instead of claiming a
+  result.
+
+### Left unwritten when the session was cut, and why
+
+`forwarded-host.spec.ts` (AUDIT finding 4) and `tab-session.spec.ts` (AUDIT finding 9) were **not written**. Writing
+them without a run would have put predicted statuses into files whose whole point is measured ones. What I did read,
+to hand over:
+
+- `x-forwarded-host` is read at `same-origin-request.ts:22`, `Host` only as a fallback, and `.split(',')[0].trim()`
+  takes the first entry. Whether `next dev` lets a client-supplied `x-forwarded-host` reach `req.headers` at all is
+  still UNVERIFIED — the audit marks it so and I read no Next code either, which is why that suite's case (a) has
+  to be a probe that answers the question rather than a pin.
+- `tabSessionOf` (`core/services/server/tab-session.ts:36-58`) replaces the cookie token only when the *unverified*
+  decode names the same user (`id ?? sub`), the same `tenantId`, and an organization other than the cookie token's —
+  or, on an `authenticatedGuard` route (`guards/authenticated-guard-app.ts:66-69`), other than the organization
+  **cookie** when the request also names a team in `x-tab-team-id`. `forwardToGauzy` calls it **without** the
+  organization-cookie argument (`forward-to-gauzy.ts:95`), so `isOtherThanCookie` can never be true on a proxy
+  route — worth pinning, and easy to assume wrongly. The fixture's own cookie token carries no `tenantId` claim
+  (`helpers.ts:166-170`), so a same-tenant case must mint both tokens. And the compensating control cannot bite in
+  this harness: the mock records a bearer's sha256 and never validates it (`mock-gauzy-server.mjs:1052-1058` and
+  `:911`), so "the API decides" is not answerable here — a tab-session suite has to state that as its finding.
+
+### To run it
+
+```bash
+node apps/web/playwright/scripts/lane-servers.mjs check lane-c     # or: up lane-c, kept alive all session
+E2E_LANE=lane-c E2E_BROWSER_CHANNEL=chrome npx playwright test \
+  --config apps/web/playwright/playwright.lane.config.ts unguarded-writes \
+  > /e/Coding/.tmp/lane-c-unguarded-run-1.log 2>&1
+```
+
+Then pin each route's status / body / mock triple from that log and re-commit the file with the run's summary line.
