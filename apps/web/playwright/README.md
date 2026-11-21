@@ -15,7 +15,8 @@ it cannot, the assertion names the request the browser made, and says so in its 
 Install the browser once with `yarn workspace @ever-teams/web playwright install chromium`
 (`E2E_BROWSER_CHANNEL=chrome` uses an installed Google Chrome instead).
 
-Every run wants port 3030 (and the mock suites 3988–3991), so run them one at a time.
+Every run wants port 3030 (and the mock suites 3988–3991), so run them one at a time — or run beside them as
+a [lane](#a-lane-a-run-beside-the-four-above), which is what an agent writing new tests should use.
 
 After adding, removing or changing a route handler under `apps/web/app/api`, regenerate the manifests the
 server-route suites run over — `suites/api/manifests.spec.ts` fails until you do:
@@ -29,6 +30,53 @@ Let the config start its own servers. A run refuses to start while something els
 server hand-started in another terminal has whatever env that one happened to have (`apps/web/.env` points at
 the real API), which is how a run can look healthy while it is testing the wrong server. `E2E_REUSE_SERVERS=1`
 reuses servers you started yourself with `test-servers.ts`'s environment.
+
+## A lane: a run beside the four above
+
+When suites are being *written* — one agent on time tracking, one on sign-in, one on route handlers — they
+cannot queue for 3030. Two runs sharing one mock also invalidate each other's central proof: "this refusal
+never asked the API anything" is only worth something when the request log is yours. A lane is a run with its
+own app process, mock, statistics sink, control API, fake issuer, build directory, artifacts folder and report.
+
+```bash
+export E2E_LANE=lane-a                     # lane-a 3031/3992–3995 · lane-b 3032/3996–3999 · lane-c 3033/4002–4005
+export E2E_BROWSER_CHANNEL=chrome
+npx playwright test --config apps/web/playwright/playwright.lane.config.ts --grep "<your describe block>"
+```
+
+`E2E_LANE` is the whole switch, and it has to be an environment variable rather than an argument:
+`helpers.ts`, `fixtures.ts` and the config all import `APP_ORIGIN` / `MOCK_ORIGIN` / `CONTROL_ORIGIN` from
+`test-servers.ts`, each in its own process (Playwright forks a worker per file), and the only thing that reaches
+all of them is the environment the run started with. A spec never names a port. `laneServers()` throws when the
+variable is missing or unknown, instead of quietly falling back to 3030. `E2E_EVER_ID=1` mounts the Ever ID
+routes in that lane's app; off by default, because `suites/api/ever-id-off.spec.ts` pins them as absent.
+
+Two facts about this repository shaped it, both measured rather than assumed:
+
+- `yarn turbo dev --filter=@ever-teams/web` is `yarn node env.js && yarn next dev -p 3030`
+  (`apps/web/package.json`): the port is hardcoded in the script, so a lane asking for 3031 got
+  `EADDRINUSE :::3030`. A lane therefore calls `node ../../node_modules/next/dist/bin/next dev -p <port>` from
+  `apps/web`. Not `node_modules/.bin/next` either — Playwright starts a `webServer` command through the platform
+  shell, and on Windows that POSIX script answers "'node_modules' is not recognized". `env.js` is dotenv plus
+  console lines; Next loads `.env.local`/`.env` itself and never overrides a variable the process already has.
+- Next 16 allows **one dev server per project directory**: its lock is
+  `<distDir>/dev/logs/next-development.log`, and a second `next dev` in `apps/web` exits with "Another next dev
+  server is already running" and points at the first. Each lane gets `.next-lane-<port>` through
+  `PLAYWRIGHT_LANE_DIST_DIR` (`next.config.js` → `distDir`, git-ignored). Unset, `yarn dev` keeps Next's own
+  `.next`. A lane pays a cold compile cache for the freedom.
+
+`suites/lane-a/smoke.spec.ts` is the plumbing proof — the shell loads, the lane's own mock logged the browser's
+call (which is also the proof the mock accepted the lane's origin: `mock-gauzy-server.mjs` trusts only the origins
+its launcher named, via `E2E_TRUSTED_APP_ORIGINS`), the control API answers, an app route answers the lane's
+baseURL. Run it before building anything on a lane.
+
+Keep a lane's servers warm between runs, or the night is spent compiling: Playwright stops a config's
+`webServer` after every run, and a cold Turbopack compile of this app is minutes (measured: 5.5 minutes for a
+4-test run, 1.6 minutes once the build directory was warm). Start them once with
+`node apps/web/playwright/scripts/lane-servers.mjs up <lane>` — it imports `laneServers` from `test-servers.ts`,
+so the ports and environment a lane starts by hand are the same source Playwright uses — and stop them with
+`... down <lane>` when the lane is done. `reuseExistingServer: true` is on in the lane config for exactly this,
+and it is safe only because a lane owns its ports exclusively.
 
 ## The pieces
 
