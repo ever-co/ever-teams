@@ -180,10 +180,18 @@ $ node ../../node_modules/typescript/lib/tsc.js -p playwright/tsconfig.json --no
 36 lines, all in playwright/suites/api/forwarded-host.spec.ts  ·  0 in suites/lane-d/
 ```
 
-**Gate:** this lane starts servers only at ≥ 5 GB free. Free memory fell from 4.49 GB to 2.85 GB across four checks
-while lanes b/c ran browsers, and lane-d's app was not up, so a run meant a cold `next dev` compile below the bar.
-`up lane-d` was therefore never issued, `--list` was not re-issued (the lane config sets `webServer: lane.servers`,
-so a `--list` here could start the app), and **no status, `Location` or URL in this lane has been measured yet.**
+**Gate:** this lane starts servers only at ≥ 5 GB free. Free memory fell from 4.49 GB to 2.85 GB across the first
+checks while lanes b and c ran browsers (3032 and 3033 both listening), so no `up lane-d` was issued in that window.
+After the coordinator took lane-b down (`down lane-b`, PIDs 39880 + 30160, only its own 3032/3996-3999) free RAM
+returned to 4.43–4.60 GB and the run was authorised below the bar, with the number at the moment of `up lane-d`
+stamped in the run's log.
+
+Two things this file first got wrong about the machine, both corrected by measurement elsewhere on it:
+- `--list` needs no lane server. `playwright.lane.config.ts`'s `webServer` does not fire for a `--list`; what a
+  `--list` does change is `playwright/artifacts/playwright-lane-d.json`, which becomes an all-skipped report. That
+  json is not committed and is not where this lane's verdict lives — the run logs are.
+- `E2E_REUSE_SERVERS=1` is an `api`-config thing (`test-servers.ts:103`), not a lane thing: the lane config reuses
+  its own servers unconditionally. A lane run does not set it.
 
 **What the source pass settled:**
 
@@ -212,6 +220,59 @@ so a `--list` here could start the app), and **no status, `Location` or URL in t
 in `page-gate-browser.spec.ts` — 88 total. `E:\Coding\.tmp\lane-d-list.log`'s `Total: 87 tests in 2 files` is the
 pre-correction count; a fresh `--list` is owed too, for the same reason as the run.
 
-**Still owed by a run:** every status / `Location` / URL in both files, the `ar` `<html>` `dir` and computed
-`direction`, what a signed-out `/invoices` visitor is actually shown and which token-less reads it fires, and the
-`--grep` retry numbers for any browser page that hangs.
+**Still owed by a run:** the `/ar` chat-render half of D-6 (does the chat's own `dir` flip without a `dir="rtl"`
+ancestor) and the raised-budget version of the `/invoices` case — see §8.
+
+## 8. The first run, 2026-11-21→22 — every number below is from a log this lane wrote
+
+Free RAM at the instant `up lane-d` ran: **5 744 708 KB of 33 473 768** (stamped in the `up` task's own first lines,
+above the 5 GB bar); `up` printed `port 4008 answers` and `port 3034 answers`, and `check lane-d` went
+`OK — the app on 3034 names its own mock 4006 and stats sink 4007`. By the end of the browser half free RAM had
+fallen to **1 748 376 KB**, and that is what stopped the lane, not the specs.
+
+Logs, all in `E:\Coding\.tmp\`: `lane-d-run0.log`, `lane-d-run1.log`, `lane-d-run2.log`, `lane-d-browser1.log`,
+`lane-d-browser2.log`, `lane-d-browser3.log`, `lane-d-browser4.log`, `lane-d-browser5.log`, `lane-d-root-probe.log`,
+`lane-d-tsc.log`, `lane-d-tsc2.log`. The lane's json report
+(`playwright/artifacts/playwright-lane-d.json`) is not evidence — it is whatever run wrote last.
+
+| run | what it selected | the log's own summary |
+| --- | --- | --- |
+| `lane-d-run0.log` | `--grep "the site root goes to the default sign-in page"` (1) | `1 passed (1.7s)` |
+| `lane-d-run1.log` | `page-gate-lane` (81, cold) | `4 failed` + `77 passed (10.7m)` |
+| `lane-d-run2.log` | `--grep` alternation over the four corrected cases (22, warm) | `22 passed (24.1s)` |
+| `lane-d-browser1.log` | `page-gate-browser` (7, cold) | `1 failed` + `6 passed (3.8m)` |
+| `lane-d-browser2.log` | `--grep "an ungated family leaves a signed-out browser"` (1) | `1 failed` — test line `17.6 s`, heading missing inside the 15 s `expect` default |
+| `lane-d-browser3.log` | the same case with a 60 s window | `1 failed` — test line `1.1m`, json `duration: 248997 ms`; the failure snapshot at 66 s already shows the shell |
+| `lane-d-browser4.log` | `page-gate-browser` while `browser5` was also running | `1 failed / 6 passed (2.6m)` — **not trustworthy**: two Playwright processes shared `artifacts/test-results-lane-d/`, and the failure carries `ENOENT … traces/…recording3.trace` |
+| `lane-d-browser5.log` | `page-gate-browser`, alone, real exit code captured | `1 failed / 6 passed (5.6m)`, `playwright exit code: 1` |
+
+**Method note the next runner needs:** `… | tee file` reports *tee's* exit status, so a killed or failing Playwright
+still looks like `exit 0`. `browser5` redirected instead and printed `playwright exit code: 1`. Judge a run by its
+summary line, never by the shell's status. And never run two lane runs at once: they share one mock request log and
+one `outputDir`, and the `/invoices` case reads that log.
+
+### What the run confirmed
+
+| Finding | Measured answer |
+| --- | --- |
+| D-1 | all 16 protected families answered `307 → http://localhost:3034/unauthorized` except the root (`→ /auth/passcode`), each with an **empty** mock log. The 7 the api lane never probes (`/goals /inbox /favorites /chat /chat/threads /docs /about /workspace/new`) are now pinned from both sides. |
+| D-2 | all 13 `/<locale>/settings/personal` → `307 → /unauthorized`; all 10 unpinned families under `/pt` likewise. 24 tests, no exceptions. |
+| D-3 | **completed, and it is worse than the source read said.** Anonymous `/profile` → `307 → /unauthorized`; `/profile` **with a session → 404, no `Location`**, body `<!DOCTYPE html><html lang="en" data-scroll-behavior="smooth" …>` — the door counts it protected, lets the session through, and Next has no page for it. `/profile/placeholder-member` → `200`. Still pinned with the door's `/api/user/me` read required, and it passed: the door reads the API *before* routing, even for a path that 404s. |
+| D-4 | confirmed and split into **D-4b**. With a session: `/auth/workspace → 307 → http://localhost:3034/` (locale dropped, mock log empty — decided from the local token check); `/pt/auth/workspace` and `/ar/auth/workspace` → **`200`, no `Location`** — because `proxy.ts:443` feeds `sendsSignedInVisitToApp` the RAW pathname, so a locale-prefixed sign-in page is not recognised and its session stays on the page. |
+| D-5 | **confirmed for the bare prefixed root, corrected for the trailing slash (new D-5b).** `/` → `307 /auth/passcode`; `/en`, `/fr`, `/ar` → `307 /unauthorized`; `/en/`, `/fr/`, `/ar/` → **`308` → `/en`, `/fr`, `/ar`** — Next's own trailing-slash canonicalisation answers first, so `deny_redirect`'s `url.pathname == DEFAULT_MAIN_PATH` comparison can never see a trailing-slash root. Following the 308 lands on the same `/unauthorized`, one hop later, locale still dropped. Probe: `lane-d-root-probe.log`. |
+| D-6 | **the `<html>` half is now measured in a browser:** `/ar/auth/passcode → http://localhost:3034/ar/auth/passcode lang="ar" dir=null`, computed `direction: ltr`; and `/ar/settings/personal → http://localhost:3034/unauthorized`, the same landing as `/settings/personal`. The chat's own `dir` behaviour is still unmeasured. |
+| D-7 | **answered by two failure snapshots, and the reads never happen.** A signed-out visitor to `/invoices` stays at `http://localhost:3034/invoices`, is shown the app shell with `Current workspace: No workspace`, the full sidebar, `heading level=1: Invoices` and `main → status → "Loading"` — no form, no sign-in link, no data — and the lane's mock log holds **nothing**, checked over 10 s (run 1) and again over 40 × 500 ms after `networkidle` (runs 4/5, which got as far as the log before the mount assertion). So the page does not send token-less reads; it never asks at all. |
+| D-8 | confirmed: anonymous `/settings/personal` and `/chat` answered `307 → /unauthorized` identically under no `Sec-Fetch-Site`, `same-origin`, `same-site` and `cross-site`; signed-in, all four variants `200`. |
+| new (in the POST case) | `POST /settings/personal` with a session → **200** for all four variants, mock log = exactly **4 × `GET /api/user/me` 200** carrying this case's token, **no write**. The door's session read is gated on path + token (`proxy.ts:523-546`), never on the method; the no-write invariant survives, the "mock untouched" claim did not. |
+| D-9 | `/team/join → 200 (no Location)`, `/team/tasks → 200`, `/ar/team/join → 200` — same status, different route through the file, as §3 now says. |
+
+### What is still open, and what it will take
+
+- The `/invoices` case as it now stands (`test.setTimeout(420_000)`, heading window `300_000`, the `Loading`
+  assertion, the empty-log assertion) **has not been run**: the mount needed >120 s in `browser4`/`browser5` while free
+  RAM fell from 4.1 GB to 1.75 GB, and starting another Chrome under that pressure is the failure mode this PC does
+  not survive. The case is left red-by-environment, not red-by-app: `browser1` (12.9 s) and `browser3` (≤66 s) prove
+  the shell does mount on a less loaded machine, and both snapshots are the D-7 evidence above.
+- `lane-d`'s servers were brought **down** at the end of this pass to hand the ~1.4 GB back; the warm Turbopack build
+  directory is kept, but the next `up lane-d` still re-reads it from disk.
+- D-6's remaining half (does the chat flip without a `dir="rtl"` ancestor) needs a signed-in browser on `/ar/chat`.
