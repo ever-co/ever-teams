@@ -154,17 +154,22 @@ and it is safe only because a lane owns its ports exclusively.
   their own (`--grep`) with no lane running, and quote both numbers. This is also why `suites/mock` keeps
   `workers: 1` and why a lane that wants real runs asks for the machine instead of taking it.
 
-- **A mock user with `emailVerified: false` never gets a shell, and the failure looks like a slow machine.** The
-  app's own layout refuses it: `core/components/layouts/base-layout.tsx` renders `UnverifiedEmail` instead of the
-  shell while `!user?.isEmailVerified`, so no page content appears and `waitForShellReady`'s performance mark
-  `ever-teams:shell-ready` is never recorded — 30 s later the helper fails with "the shell never became ready",
-  which is the same message a starved machine produces. Measured the way this was found: lane-b's sign-in helper
-  created its mock person with `emailVerified: false` (`suites/lane-b/lane-auth-helpers.ts`), and four browser
-  files failed on the shell for it. The canonical suite does not hit this because its fixture user is verified
-  (`cypress/support/mock-gauzy-server.mjs`). Two rules follow: a lane that creates its own signed-in person creates
-  a *verified* one, and when a shell never appears, read the page (`page.locator('body').innerText()`) before
-  blaming timing — if it says `Please verify your email`, it is this finding. `waitForShellReady` quoting the body
-  and the performance entries, instead of only the mark it waited for, is still to be done.
+- **A mock user with `emailVerified: false` can leave a page with no shell, and that looks exactly like a slow
+  machine.** The mark `waitForShellReady` waits for is emitted in `core/components/layouts/app/init-state.tsx:282`,
+  behind `criticalReady` (`init-state.tsx:251-258`): `workspaceReady`, then either `noTeams` or all of `teamReady`,
+  `organizationTeamSuccess`, the task read's `querySuccess`, `timerOwner.statusResolved` and `plansReady`. A page
+  that never satisfies that never marks ready, and a bare timeout on it reads as "the machine is starved". Measured
+  the way this was found: lane-b's sign-in helper created its mock person with `emailVerified: false`
+  (`suites/lane-b/lane-auth-helpers.ts`), and a team page renders `UnverifiedEmail` for such a user
+  (`app/[locale]/(main)/(teams)/team/[teamId]/[profileLink]/page.tsx:130`) — content, but not the shell. Two rules
+  follow: a lane that creates its own signed-in person creates a *verified* one, and when a shell never appears,
+  read the marks and the page body before blaming timing. `waitForShellReady` now quotes both, and separates the two
+  causes by whether `ever-teams:shell-bootstrap-start` (`init-state.tsx:270`) was marked at all: marked means InitState
+  mounted and a critical read never settled (find it in `await mock.requests()`), unmarked means the shell was never
+  built (session, redirect, or the user the app was given).
+  *(Correction, kept visible because the first version of this entry was wrong: it named
+  `core/components/layouts/base-layout.tsx`, a path that does not exist, taken from a lane's report instead of from
+  the file. The gate above is what the code actually does, read from `init-state.tsx`.)*
 - **The live suite's blocker, measured rather than inferred.** `POST /auth/register` on the demo API answers 201 with
   `isActive: false`, `tenantId: null` and `isEmailVerified: false`, and `/auth/login` and `/auth/signin.email.password`
   both answer `401 {"message":"Unauthorized","statusCode":401}`. That is not the API being difficult:

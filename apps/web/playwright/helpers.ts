@@ -337,10 +337,52 @@ export async function devOverlayErrors(page: Page): Promise<string[]> {
 }
 
 /** Resolves once the app has marked its shell ready (the mark startup-performance waits on). */
+/**
+ * Waits for the app's own `ever-teams:shell-ready` mark, and when it never arrives it says which half failed.
+ *
+ * The mark is emitted in `core/components/layouts/app/init-state.tsx:282`, behind `criticalReady`
+ * (`init-state.tsx:251-258`): `workspaceReady` and then either `noTeams` or all of `teamReady`,
+ * `organizationTeamSuccess`, the task read's `querySuccess`, `timerOwner.statusResolved` and `plansReady`. That
+ * means a missing mark has two entirely different causes, and the old failure — a bare Playwright timeout on a
+ * `waitForFunction` — hid both:
+ *
+ * - `ever-teams:shell-bootstrap-start` (`init-state.tsx:270`) present but `shell-ready` absent → InitState
+ *   mounted and one of those critical reads never settled. Which one is answerable from the mock's request log
+ *   (`await mock.requests()`): look for the organization-teams read, the task list, the timer status, the plan
+ *   queries, and for a 4xx among them.
+ * - no `shell-bootstrap-start` either → the shell never mounted at all: wrong or refused session, a redirect away
+ *   from the route, or a user the app will not build a shell for. `app/[locale]/(main)/(teams)/team/[teamId]/
+ *   [profileLink]/page.tsx:130` renders `UnverifiedEmail` for a user whose address is not confirmed, and a lane
+ *   that signs in with an unverified mock person sees a page with no shell and no error anywhere — which is how
+ *   lane-b lost time on 2026-11-21 (its helper created `emailVerified: false`).
+ */
 export async function waitForShellReady(page: Page, timeout = 45_000): Promise<void> {
-	await page.waitForFunction(() => performance.getEntriesByName('ever-teams:shell-ready').length > 0, undefined, {
-		timeout
-	});
+	try {
+		await page.waitForFunction(
+			() => performance.getEntriesByName('ever-teams:shell-ready').length > 0,
+			undefined,
+			{ timeout }
+		);
+	} catch {
+		const marks = await page
+			.evaluate(() => performance.getEntriesByType('mark').map((entry) => entry.name))
+			.catch(() => [] as string[]);
+		const body = await page
+			.locator('body')
+			.innerText()
+			.then((text) => text.replace(/\s+/g, ' ').trim().slice(0, 500))
+			.catch(() => '<no body readable>');
+		// A nested template literal inside the one below is how this file briefly did not compile at all.
+		const diagnosis = marks.includes('ever-teams:shell-bootstrap-start')
+			? 'mounted (bootstrap-start marked), so a critical read never settled: look in `await mock.requests()` for the organization-teams, task-list, timer-status and plan reads, and for a 4xx among them (init-state.tsx:251-258).'
+			: 'never mounted, so no shell was built: check the session, the redirect and the user the app was handed (init-state.tsx:251-258 names everything the shell waits for).';
+		throw new Error(
+			`the shell never became ready at ${page.url()} within ${timeout} ms.\n` +
+				`  marks in this page: ${JSON.stringify(marks)}\n` +
+				`  InitState ${diagnosis}\n` +
+				`  the page says: ${body}`
+		);
+	}
 }
 
 /**
