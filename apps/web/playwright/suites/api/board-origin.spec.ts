@@ -6,9 +6,19 @@ import { APP_ORIGIN } from '../../helpers';
 /**
  * The three Board routes (`/api/board/session`, `/api/board/members`, `/api/board/notify`) are the only routes on this
  * app that answer a request **without an `Origin`** with 403 — and the only ones whose guard is a configured host rather
- * than "this host". Nothing under `playwright/` or `cypress/` has ever called them over HTTP (`isTrustedBoardOrigin`
- * appears in `core/lib/board/board-app.test.ts`, a unit test, and in no spec), so AUDIT.md finding 1's claim that these
- * two guards behave differently for the same caller has never been measured side by side. This file does that.
+ * than "this host".
+ *
+ * What was already measured when this file was written, and what is not (`suites/lane-c/unguarded-writes.spec.ts:1008`,
+ * green in that lane's own runs — `44 passed (7.5s)` in `E:\Coding\.tmp\lane-c-unguarded-run-7.log` at 22:41, whose test
+ * 42 is that Board case; a later report to me claimed a 109-test run in a `…-run-9.log` that does not exist here, and it
+ * is recorded as unattributed in the handover rather than cited): that lane drove **`POST /api/board/notify`** over HTTP
+ * and pinned that it refuses a cross-site caller *and* a headerless one, with its own body, with the API never asked. That
+ * is the refusal half of finding 1, already covered. Not covered there, and what this file adds: the other two routes
+ * (`/api/board/session`, `/api/board/members`), the `OPTIONS` preflights, the **shape** of the refusal (no
+ * `Access-Control-Allow-Origin` at all, `Cache-Control: no-store`, `Vary: Origin, Cookie`), the credential witness
+ * (`state.receivedTokens` stays empty, so the caller's session provably stayed on this host), the look-alike hosts, and
+ * the whole configured-Board half. Read the two files as one body of evidence, not as duplicates: if a claim here and a
+ * claim there disagree, the logs decide, not this comment.
  *
  * Which guard, exactly:
  *
@@ -98,7 +108,17 @@ async function expectForbiddenForBoard(why: string, response: APIResponse) {
 		`${why}: a refused Board call carries Access-Control-Allow-Origin (${headers['access-control-allow-origin']}) — forbiddenForBoard() sets no CORS header at all, and one here would mean the caller could read the answer`
 	).toBeUndefined();
 	expect(headers['cache-control'], `${why}: Cache-Control was ${headers['cache-control']} — privateBoardAnswer() sets no-store on every Board answer`).toBe('no-store');
-	expect(headers['vary'], `${why}: Vary was ${headers['vary']} — a Board answer depends on the caller's Origin and Cookie, and must not be cached across either`).toBe('Origin, Cookie');
+	/**
+	 * Contains, not equals — measured. The app writes `Vary: Origin, Cookie` (`board-cors.ts:14`) and Next 16 answers with
+	 * its own entries merged around it: `rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch,
+	 * Origin, Cookie, Accept-Encoding` (first seen in `E:\Coding\.tmp\api-board-origin-lane-c.log`, where this assertion
+	 * alone red-flagged all 22 of that run's failures while status, body, the missing ACAO, `Cache-Control` and the empty
+	 * mock log all held). The claim worth keeping is that the answer varies on **both** the Origin and the Cookie it was
+	 * written for; the exact string is Next's, not this app's.
+	 */
+	const vary = headers['vary'] ?? '';
+	expect(vary, `${why}: Vary was "${vary}" — a Board answer must vary on the caller's Origin and Cookie (privateBoardAnswer, board-cors.ts:14)`).toContain('Origin');
+	expect(vary, `${why}: Vary was "${vary}" — and on the Cookie that decided it`).toContain('Cookie');
 }
 
 test.describe('api · the Board routes with no Board origin configured', () => {
@@ -146,8 +166,10 @@ test.describe('api · the Board routes with no Board origin configured', () => {
 			test('no Origin at all is refused too — the opposite of the same-origin guard', async ({ api, mock }) => {
 				/**
 				 * The side-by-side AUDIT.md finding 1 rests on. `core/services/server/same-origin-request.ts:20-21` runs its
-				 * host comparison only `if (origin)`, so a write with no Origin passes it (pinned in
-				 * suites/api/forwarded-host.spec.ts); `isTrustedBoardOrigin` compares `origin === trusted` with `origin`
+				 * host comparison only `if (origin)`, so a write with no Origin passes it — pinned there in
+				 * suites/api/forwarded-host.spec.ts, though that file has not been run either; and the lane-c half already
+				 * measured the other side of it, `POST /api/board/notify` refusing a headerless caller (lane-c run 9);
+				 * `isTrustedBoardOrigin` compares `origin === trusted` with `origin`
 				 * null, which cannot match, so the same caller is 403 here. These three routes are credentialed reads and
 				 * writes on another site's word, which is why they refuse the caller `refuseForeignOrigin` lets through.
 				 */
@@ -211,7 +233,9 @@ test.describe('api · the Board routes with a Board origin configured', () => {
 		// appear is 403, which here can only mean the Origin guard refused a caller it trusts.
 		expect(response.status(), `/api/board/session answered ${response.status()} ${await response.text()} for its trusted Origin`).not.toBe(403);
 		expect(headers['cache-control'], 'a trusted Board answer must also be no-store (privateBoardAnswer, board-cors.ts:11-16)').toBe('no-store');
-		expect(headers['vary'], 'and must vary on both the Origin and the Cookie it was written for').toBe('Origin, Cookie');
+		const vary = headers['vary'] ?? '';
+		expect(vary, 'and must vary on both the Origin and the Cookie it was written for (Next 16 merges its own rsc/prefetch entries into this header, so contains, not equals)').toContain('Origin');
+		expect(vary, 'and on the Cookie that decided it').toContain('Cookie');
 	});
 
 	test('POST /api/board/notify from the trusted origin reaches the API — as far as a mock lane can follow it', async ({ api, mock }) => {
