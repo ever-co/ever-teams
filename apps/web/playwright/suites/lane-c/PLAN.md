@@ -17,6 +17,162 @@
 >
 > **Still not executed:** `cache-directive` (10), `malformed-json` (43), `media-type` (41), `public-link-shape` (18)
 > — 112 tests discovered, no pass/fail number claimed for them.
+>
+> **Superseded, same day:** all eight files have now been run, and so has the lane as one suite. Last whole-lane run,
+> read from its log: `Running 209 tests using 1 worker` / **`209 passed (1.1m)`**, 0 failed — `Total: 209 tests in 8
+> files` in the `--list` that brackets it. Batch-by-batch numbers, the one file that was red and why, and the two
+> episodes where the lane's own app stopped answering are in "Batch by batch, then the whole lane in one run" below.
+
+### Executed on 2026-11-21 by lane-c (the four unrun files above, one at a time)
+
+`cache-directive.spec.ts` — **run, 10 discovered / 10 passed / 0 failed**, summary lines `Running 10 tests using 1
+worker` and `10 passed (2.4s)`; log kept at `artifacts/lane-c-cache-directive-4.log` (git-ignored, so the numbers are
+written here as well). Nothing was skipped and nothing was red: the file's five pinned "no directive" / "not marked"
+assertions are now what a run reported, not what the source predicted.
+
+**The answer to open item 2 below, and to `AUDIT.md` 15's UNVERIFIED question:** a Next 16 **dev** `app/api/**`
+handler answer carries **no `Cache-Control` of its own** in this lane. Proved by the contrast inside one run against
+one dev server: `/api/tasks/<task>`, `/api/organization/<org>`, `/api/auth/workspaces` and `/api/task-statuses` all
+answered 200 with `cache-control` **absent from the response headers**, while `/api/auth/sessions`,
+`/api/embed-credentials` and `/api/invoice-payments/connection` — the same server, the same `forwardToGauzy` helper —
+answered with `cache-control: no-store`. `base-server.js`'s dev branch (`node_modules/next/dist/server/base-server.js:1305-1307`)
+therefore never ran for these routes, or ran and was overridden; either way the directive present on three answers and
+absent on four can only come from the route's own `options.noStore` (`core/services/server/forward-to-gauzy.ts:26`).
+Second half of the same measurement: the mock stamps `cache-control: no-store` on **every** answer it gives
+(`cypress/support/mock-gauzy-server.mjs:991`), and none of it reached the browser through the proxy —
+`answerHeaders` (`forward-to-gauzy.ts:22-28`) copies the upstream's `Content-Type` and nothing else. So "the mock said
+no-store" is not what these green pins rest on.
+
+`public-link-shape.spec.ts` — **run, 18 discovered / 18 passed / 0 failed as written** (`Running 18 tests using 1
+worker` / `18 passed (3.4s)`, log `artifacts/lane-c-public-link-shape-1.log`), then **rewritten and re-run: 19 / 19
+passed** (`19 passed (9.9s)`, log `artifacts/lane-c-public-link-shape-3.log`). The first run was green and *wrong*:
+two of its titles claimed something the app does not do, which a probe of the same routes plus the mock's own request
+log made visible. What the app actually does, measured:
+
+- **The invoice half is exactly as the file claimed.** Seven malformed shared-invoice links each answered
+  `400 {"message":"Invalid link"}` with `cache-control: no-store` and **the mock asked nothing** — a refusal made
+  here. Same for the malformed payment link and for four bad `returnUrl` bodies (`400 "Invalid return address"`, empty
+  log), and a well-shaped link is forwarded untouched (`GET /api/public/invoice/<uuid>/<token> 200` in the log, with
+  `relations=…` on the query).
+- **Finding (a guard a fetched URL cannot reach).** A path segment that *is* a dot segment — `.`, `..`, `%2e`,
+  `%2e%2e`, or an empty segment — is removed (or left unmatched) by the URL parser **before Next routes anything**, so
+  the answer is Next's own **404 `text/html`** not-found page and the mock is asked nothing. Measured on
+  `/api/public/saved-reports/%2e%2e`, `/…/%2e`, `/api/public/saved-reports/`,
+  `/api/public/team/fixture-team/%2e`, `/api/public/team/fixture-team/..`, `/api/public/team//<uuid>` and
+  `/api/public/invoice//<token>`. Consequence, stated as a limit rather than as a defect: the `400 Invalid link`
+  of `saved-report-proxy.ts:139` and the `400 Invalid profile link or team` of
+  `app/api/public/team/[profileLink]/[teamId]/route.ts:17` are **not what a caller gets** for those inputs on this dev
+  server — the refusal happens one layer above the handler. Whether a production deployment answers the same way is
+  not proved here; what is proved is that no request of that shape ever reached the handler in this lane.
+- **Finding (the walking id is forwarded, not refused).** A `..` that an encoder left inside one segment passes both
+  guards and is handed upstream verbatim, answered **200**: the mock recorded, exactly,
+  `GET /api/public/team/fixture-team/..%2F..%2Fuser%2Fme 200`,
+  `GET /api/public/team/..%2F..%2F/3333… 200`, `GET /api/public/team/..%2F/3333… 200` and
+  `GET /api/public/saved-reports/..%2F 200`, `GET /api/public/saved-reports/a%2Fb%2Fc 200`. The route's guard is
+  `segment === '.' || segment === '..'` only (`…/team/.../route.ts:17`), and `../../user/me` is not that. What keeps
+  it inside its own prefix is the **re-encoding in the request builders**
+  (`core/services/server/requests/public-organization-team.ts` and `…/saved-reports.ts:95`, each
+  `encodeURIComponent`-ing the decoded id into one single segment) — the upstream was never asked for `/api/user/me`.
+  The test that used to claim "refused before the team is asked for" now pins those five recorded paths and the absence
+  of any entry outside its prefix, and says which of the two defences did the work.
+- Pinned defect 1 stays pinned and confirmed: `GET /api/public/team/fixture-team/<teamB>` answered 200 with
+  **no `Cache-Control`**, and the mock answered its own fixture team A for a team-B id (mock gap, unchanged).
+
+**Harness note, worth repeating before anyone reads a red cache run as an app bug:** the *first* run of this file (log
+`artifacts/lane-c-cache-directive-1.log`) was **10 failed**, every one `TimeoutError: apiRequestContext.fetch: Timeout
+60000ms exceeded` at `api-fixtures.ts:90`, and every one of them a dead lane, not a defect: `lane-servers.mjs check
+lane-c` afterwards answered `MISWIRED — no runtime env on http://localhost:3033 — that lane's app is not answering`,
+and `lane-servers.mjs down lane-c` found two half-dead processes still holding 3033 and 4002–4005. After
+`down` + `lane-servers.mjs up lane-c` the same 10 tests passed in 2.4 s. Free RAM at the time was 3.0 GB of 34.3 GB with
+`lane-a`'s `next dev` also listening on 3031 — the starved-machine signature `playwright/README.md:148-156` documents. A
+lane that sees a wall of identical 60 s timeouts must re-check its own servers before it reads a single finding.
+
+**And the same trap a second time, with a cause worth writing down.** `public-link-shape` was run once more in the middle
+of the rewrite and came back **`19 failed`** — the first case at `1.0m` (the 60 s fetch ceiling of `api-fixtures.ts:101`)
+and the rest failing in ~20 ms each, which is the shape of a refused connection, not of a defect. `lane-servers.mjs check
+lane-c` again answered `MISWIRED — no runtime env on http://localhost:3033`. The servers had been started with
+`up lane-c` **inside the agent's own shell task**, and when that task was reaped the whole tree went with it: Playwright
+reuses an already-listening lane server (`reuseExistingServer: true`) and never restarts it. A lane's warm servers must
+therefore be started **detached from the agent's shell** — on this PC
+`powershell -NoProfile -Command "Start-Process -FilePath node -ArgumentList 'apps/web/playwright/scripts/lane-servers.mjs','up','lane-c' -WorkingDirectory 'E:\Coding\ever-teams' -WindowStyle Hidden -RedirectStandardOutput … -RedirectStandardError …"`
+followed by `check lane-c` waiting for `checked:` / `ready:` — and `check` re-run before every batch. The rewritten file
+then ran `19 passed (9.9s)` on the same machine, unchanged except for the servers.
+
+### Batch by batch, then the whole lane in one run (lane-c, 2026-11-21)
+
+Every summary line below was read out of a run's own log (`/e/Coding/.tmp/lane-c-*.log` on this machine, kept outside
+the repo because `artifacts/` is git-ignored). The lane's servers were warm from `lane-servers.mjs up lane-c`, whose
+`checked:` line confirmed the app on 3033 names its own mock 4002 / stats 4003.
+
+| batch (`--grep` of the describe) | summary lines as printed |
+| --- | --- |
+| `permission-guard` | `Running 26 tests using 1 worker` / `26 passed (15.5s)` |
+| `foreign-id-scope` (both describes, one `--grep` with `\|`) | `Running 8 tests using 1 worker` / `8 passed (4.7s)` |
+| `session-check` | `Running 15 tests using 1 worker` / `15 passed (21.4s)` — includes the 17.1 s stalled-check case |
+| `cache-directive` | `Running 10 tests using 1 worker` / `10 passed (3.3s)` |
+| `public-link-shape` | `Running 18 tests using 1 worker` / `18 passed (9.8s)` |
+| `media-type` | `Running 41 tests using 1 worker` / `41 passed (6.1s)` |
+| `session-guard` | `Running 47 tests using 1 worker` / `47 passed (9.6s)` |
+| `malformed-json`, first pass | `Running 43 tests using 1 worker` / **`7 failed`, 36 passed (14.1s)** — all seven explained below |
+| `malformed-json`, after the fix | `Running 43 tests using 1 worker` / `43 passed (3.5s)` |
+| **whole lane, no `--grep`** | `Running 209 tests using 1 worker` / **`209 passed (1.1m)`** |
+
+Two counts moved while the lane ran, because the lane was edited by another writer at the same time (see "lane-c had a
+second writer during this run"): `session-guard` went 47 → 48 and `public-link-shape` 18 → 19, so the last `--list` of
+the day is `Total: 209 tests in 8 files` and the whole-lane run above is the number to quote. The per-batch lines are
+kept as they were printed, including the 47 and 18 that were true when those batches ran.
+
+**A `--grep` lesson, because it silently shrinks a batch:** two `--grep` flags on one command are not an OR — the last
+one wins, so the first attempt at `foreign-id-scope` printed `Running 2 tests` (only the second describe matched) and
+looked like a green 2/2. One `--grep` with `|` between the describe titles is the shape that selects both.
+
+### lane-c had a second writer during this run
+
+`session-guard.spec.ts` (11:04), `cache-directive.spec.ts` (11:58) and this file (12:16) changed under the lane while
+its tests were running — the origin test derived from `LANE_PORTS` instead of the literal `http://localhost:3033`, the
+`cache-directive` upstream assertion narrowed from "the whole log is non-empty" to `mock.calls(route.path)` equal to
+that route's own triple, and one test appeared in `public-link-shape`. Nothing here conflicts with those edits; the
+warning is for the next reader: **the lane's files were being edited by two agents at once**, so a per-file count in an
+older paragraph of this file can disagree with a newer run by exactly one test.
+
+### The 25 reds that were the lane's wiring, not the app
+
+The first batch after the first warm-up printed `25 failed / 1 passed (47.7s)`, every failure the same text:
+`answered 502 {"statusCode":502,"message":"The Gauzy API is unreachable"}` (`core/services/server/forward-to-gauzy.ts`)
+read as "the fixture role was allowed through". Read against the harness it was a dead upstream port:
+
+- `curl http://127.0.0.1:4004/health` → `{"ok":true,"gauzy":"http://127.0.0.1:4002",…}` — the mock was healthy;
+- `curl http://127.0.0.1:4002/api/role-permissions/me` → 200 with the fixture permissions;
+- `curl http://127.0.0.1:3988/api/role-permissions/me` → nothing listening (canonical mock, off);
+- `GET http://127.0.0.1:4004/requests` → `[]` — the app never reached the mock at all.
+
+The app on 3033 had been started by the pre-fix `lane-servers.mjs`, whose `laneServers` derived its origins from
+constants resolved before `E2E_LANE` was set, so it dialled 3988. After the harness fix and `down` + `up lane-c` the
+same 26 tests printed `26 passed (15.5s)` with no change to the spec file. Two green runs of the same file, one with
+`netstat` looking healthy both times: the check to trust is the lane's own `check lane-c`, not the port table.
+
+### The lane's app died twice mid-run (and one latent hazard in `lane-servers.mjs`)
+
+Both times `netstat` showed 3033 listening and the mock answering, while `lane-servers.mjs check lane-c` said
+`MISWIRED — no runtime env on http://localhost:3033 — that lane's app is not answering`, and a Playwright batch
+started printing 60 s `apiRequestContext.fetch` timeouts (`api-fixtures.ts:90`) instead of answers:
+
+1. after seven green batches plus a re-run of `malformed-json` (so: while a wall of handlers was logging parse
+   errors), and
+2. inside the first whole-lane attempt, around test 149 of 209 (`session-check` cases), which is why that attempt was
+   stopped rather than reported.
+
+Free RAM at the time was 3.34 GB of 33.4 GB with lane-a's `next dev` holding 718 MB and lane-c's 902 MB — the
+starved-machine signature `playwright/README.md` documents. `down lane-c` + `up lane-c` restored the lane both times
+and the same tests went green in seconds, so **no finding is claimed from either episode**.
+
+Worth checking before anyone spends a night on it: `lane-servers.mjs` starts its servers with
+`spawn(server.command, { cwd, env, shell: true })` and **never reads the child's stdout/stderr** (no `stdio: 'inherit'`,
+no data handler). Node documents that unconsumed pipes back-pressure the child, and a 30-line synthetic test proved the
+mechanism on this machine: a `node` child spawned that way, writing 300 KB to stdout and then a marker file, neither
+wrote the marker nor exited within 4 s. A `next dev` that has printed enough route errors to fill the ~64 KB pipe is
+the same shape — alive, listening, and frozen on its own log line. `lane-servers.mjs` is on this lane's never-edit
+list, so it is reported rather than fixed here.
 
 The paragraph below is kept as it was written, because it records what the lane knew at the time and how it knew it.
 Everything below is from reading the handlers and from the one
@@ -205,16 +361,48 @@ only the missing header.
 ## Pinned defects (red-by-design, in the harness's blocker style)
 
 Each is asserted as *what the route answers today*, with a message that says why that is a defect and that the pin and
-the fix have to be removed together. None of them has been confirmed by a run yet — the status/header each names is
-what the source says, not what a log said.
+the fix have to be removed together. **Items 2 and 3 are now confirmed by a run** (the 2026-11-21 `cache-directive`
+run above: 10/10 green, and the header string each case names is the one the response carried). Item 1 was still
+unconfirmed at the time of writing; its own run's numbers are recorded above as each file finishes.
 
 1. `GET /api/public/team/<profileLink>/<teamId>` answers a team's members, tasks and last worked task with **no
    Cache-Control** (`NextResponse.json(response.data)` in its route file). Pinned in `public-link-shape.spec.ts`.
-2. The proxy's own 401 and 415 carry no `Cache-Control`, while its 403 does. Pinned in `cache-directive.spec.ts`.
-3. Four authenticated reads of this tenant's rows answer with no `Cache-Control`. Pinned in `cache-directive.spec.ts`.
-4. `POST /api/task-statuses` answers a body it cannot parse as 200. Pinned in `malformed-json.spec.ts`.
-5. Expect more from the malformed-body sweep (destructured `await req.json()` on `null` is the predicted shape) —
-   those go into `MALFORMED_BLOCKERS` only when a run names the status.
+2. The proxy's own 401 and 415 carry no `Cache-Control`, while its 403 does. **Confirmed 2026-11-21**: the 401 of
+   `GET /api/chat/conversations` (no cookies) and the 415 of `POST /api/chat/conversations` with
+   `content-type: application/x-www-form-urlencoded` both answered with `cache-control` absent; the 403 of a cross-site
+   `POST /api/chat/conversations` answered `cache-control: no-store` (`same-origin-request.ts:51`).
+3. Four authenticated reads of this tenant's rows answer with no `Cache-Control`. **Confirmed 2026-11-21**, all four
+   200 with the tenant's own rows in the body and `cache-control` absent.
+4. `POST /api/task-statuses` answers a body it cannot parse as **200 `"Error creating task status"`**. **Confirmed
+   2026-11-21** (`43 passed` run), with the mock log beside it: the only thing that handler asked was `GET /api/user/me`,
+   never `/api/task-statuses`. It is the *only* handler in the sweep whose parse failure is answered as a success, and
+   it needed the byte-delivery fix below to be visible at all.
+5. **The malformed-body sweep's predicted shape is real, and it is 14 wide.** `MALFORMED_BLOCKERS` in
+   `malformed-json.spec.ts` now names each with the status a run printed — all 14 are **500**, all with an empty body
+   except `organization-team`'s `{"error":"Failed to process request"}`, and every one of them proved *here*: the mock
+   recorded no call to the endpoint the handler guards (its session read `GET /api/user/me` is expected, and is pinned
+   in `session-check.spec.ts`).
+
+   | handler | 500 on | answers a 4xx instead on |
+   | --- | --- | --- |
+   | `POST /api/email-reset/request-change-email` | `null`, not-JSON | `[]`, a bare string → 200 `{}` |
+   | `POST /api/email-reset/verify-change-email` | `null`, not-JSON | `[]`, a bare string → 200 `{}` |
+   | `POST /api/invite/validate-by-code` | `null`, a bare string, not-JSON | `[]` → 400 with field errors |
+   | `POST /api/organization-team` | `null`, not-JSON | `[]`, a bare string → 400 `{"errors":{"name":"Invalid team name !"}}` |
+   | `POST /api/organization-projects`, `POST /api/daily-plan`, `POST /api/favorite`, `POST /api/issue-types`, `PUT /api/employee/[id]` | not-JSON | `null`, `[]`, a bare string → 200, forwarded |
+
+   Two findings sit next to the 500s and are worth whoever fixes them reading together: (a) `validateForm`
+   (`core/lib/helpers/validations.ts:62`) writes back what it trims, `data[key] = …`, which is a TypeError on `null`
+   *and* on a string primitive — the same helper that returns tidy field errors for an array; (b) the handlers that do
+   not crash answer 200 having forwarded a body that was never an object (`POST /api/email-reset/request-change-email`
+   with `[]` reaches the API with `email` undefined and answers `{}`), which is why "no 5xx" is not the whole claim
+   these routes have to satisfy. The two `email-reset` handlers are the ones that answer 200 `{}` on a body with no
+   `email`/`code` in it at all — recorded, because the 200 is what the mock log proved, not what was expected.
+6. **The Playwright request layer re-encodes a body that is not valid JSON** when the request declares
+   `application/json`. Not an app defect, but a fact every future body-validation test in this repo has to know: sent
+   as a string, `{"name": ` arrived at `app/api/task-statuses` as a JSON *string*, the parse succeeded, the body was
+   forwarded and the answer was 200 with the status list. Sent as a `Buffer`, the same bytes produced the handler's
+   real parse path. `malformed-json.spec.ts` sends bytes for this reason and says so at the top of the file.
 
 ## What the mock cannot answer (recorded instead of invented)
 
@@ -245,23 +433,37 @@ what the source says, not what a log said.
 
 ## Open items left for the first run
 
-1. `MALFORMED_BLOCKERS` is empty. The malformed-json run's failure messages and its `observed-status` annotations are
-   the source; paste the statuses in, with the reason each handler gives.
-2. The four `cache-directive` "no directive" pins assume Next dev adds nothing. If it adds a `Cache-Control`, the
-   assertions have to say what Next adds and the finding re-stated for the routes' own headers.
-3. `foreign-id-scope`'s two walking-segment tests assert counts (`asked.length` for the organization probes is
-   `> 0`, the two task deletes is exactly 2). If Next refuses a probe before a handler runs, the count assertion is
-   re-read — the security claim is the per-path regex, not the count.
+1. ~~`MALFORMED_BLOCKERS` is empty.~~ **Filled from the run**, 14 entries, each with the status a run printed and the
+   line of the handler that throws — see "Pinned defects" 5. The first pass printed `7 failed / 36 passed` because
+   seven of those 14 crashes were unasserted *and* the malformed-text bodies were not arriving as written (item 6);
+   after both were fixed the file printed `43 passed`. Every case still carries its `observed-status` annotation, so
+   the list can be rebuilt from a report again if a handler changes.
+2. ~~The four `cache-directive` "no directive" pins assume Next dev adds nothing.~~ **Closed by the 2026-11-21 run:
+   it adds nothing to an `app/api/**` handler answer in this lane** — see "Executed on 2026-11-21" above for the
+   contrast that proves it and for the header strings. The finding stands as written: four authenticated reads of this
+   tenant's rows carry no `Cache-Control` at all.
+3. ~~`foreign-id-scope`'s two walking-segment tests assert counts … if Next refuses a probe before a handler runs, the
+   count assertion is re-read.~~ **Held in the run** (`8 passed (4.7s)`): the organization probes reached their
+   endpoints and the two task deletes recorded exactly two calls, each matching its own single-segment regex
+   (`expect(request.path).toMatch(/^\/api\/organization\/[^/]+$/)` on the encoded-segment probe). The counts and the
+   regexes agree, so nothing had to be re-read; the regexes remain the claim to keep if they ever diverge.
 4. `session-guard`'s `/api/ever-stats/*` cases depend on the mock's `statsOperator` switch reaching the app through
-   4002 (checked in source: `gauzyPassThrough` → `readPairedApiUrl()`); confirm against the log.
+   4002 (checked in source: `gauzyPassThrough` → `readPairedApiUrl()`). **Confirmed against the log** in the
+   `47 passed` run: `PUT /api/ever-stats/enabled` and the three statistics cases passed with the mock's own recorded
+   `GET /api/ever-stats/status 404` — so those routes do go through 4002, and the 4003 statistics sink is still not
+   read by anything in this lane.
 5. Hazards this lane already designed around, keep an eye on them in a shared run:
    - The session-check memo is **dev-server state**, not mock state: `mockReset()` does not clear it, and its 5 s
      window spans tests. Hence the per-test `jti` in `session-check.spec.ts`. A future case that counts
      `/api/user/me` reads without its own token will read another case's check.
    - The stalled-check test leaves the mock holding a request open past the app's 15 s deadline; the test waits 2 s
      past the mock's own 15.5 s delay and resets, so the late entry lands in a log the next test throws away.
-   - The 2 MB body test is the only memory-hungry case in the lane; on a 32 GB box with three `next dev` servers, run
-     it in the malformed-json batch, not alongside another lane's cold compile.
+   - The 2 MB body test is the only memory-hungry case in the lane. It ran twice (once in the red pass, once in the
+     green one, both inside the `malformed-json` batch) and cost nothing measurable: the proxied write and the guarded
+     write both answered under 500 and the whole file finished in 3.5 s. What *did* cost the lane its runs was the dev
+     server dying between batches, not this case — see the death notes above.
+   - The stalled session-check case is the slow test in the lane (17.1 s of the 21.4 s its batch took). A batch that
+     ends in a wall of 60 s timeouts is not that test being slow: it is the server, and `check lane-c` says so.
 
 ## What this lane deliberately did not take
 

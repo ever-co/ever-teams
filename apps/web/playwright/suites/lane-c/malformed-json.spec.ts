@@ -19,6 +19,15 @@ import type { StubRequest } from '../../helpers';
  * generator: it is kept by hand, from what a run of this file reports, and a pinned blocker that stops happening
  * fails the run on purpose.
  *
+ * **Every body here is sent as bytes (`Buffer.from(...)`), never as a string.** Measured against Playwright's own
+ * request layer (`request.newContext().fetch`, which is what the `api` fixture wraps): a `data` string that is
+ * already valid JSON arrives verbatim, but a string that is *not* valid JSON is re-encoded as a JSON string when the
+ * request declares `application/json` — so `{"name": ` reached `app/api/task-statuses` as text *inside a JSON
+ * string*, `req.json()` returned a string instead of throwing, and the handler forwarded it and answered 200 with
+ * the status list rather than with its own parse-failure answer. The same bytes sent as a `Buffer` did make that
+ * handler answer `Error creating task status`, with no upstream call. Text that is not JSON is the subject of this
+ * file, so it travels as bytes; a run that let the request layer help would pin the request layer, not the handler.
+ *
  * The proxy family (`core/services/server/forward-to-gauzy.ts`) is the other half of this file and answers a
  * different question: it refuses a *declared* media type that is not JSON before reading the body (line 104), but
  * a body declared as JSON is forwarded without ever being parsed (line 112/121) — so bytes that are not JSON at
@@ -121,7 +130,73 @@ const UNGUARDED_PARSE: MutatingProbe[] = [
  * A pinned case that starts answering a 4xx fails this file, which is the point (same rule as
  * `DOCUMENTED_SERVER_BLOCKERS` in `suites/api/sweep.spec.ts`).
  */
-const MALFORMED_BLOCKERS: Record<string, { status: number; reason: string }> = {};
+/**
+ * Filled from a real lane-c run (lane lane-c, app 3033, mock 4002, 2026-11-21): `Running 43 tests using 1 worker`,
+ * and the statuses below are what the handlers answered to these exact bytes, each one re-read against the mock's
+ * request log. Every entry is a defect: a body this app cannot use must be answered 4xx, not by a crash.
+ *
+ * `read` says which line of the handler throws, in the handler's own words; `noCall` is what the mock log proved
+ * beside it — a handler that crashed on its own parse never reached the endpoint it guards (the session read it did
+ * make, `GET /api/user/me`, is a separate matter and is pinned in session-check.spec.ts).
+ */
+const MALFORMED_BLOCKERS: Record<string, { status: number; reason: string }> = {
+	'POST /api/email-reset/request-change-email with null': {
+		status: 500,
+		reason: '`const { email } = (await req.json())` destructures `null` — a TypeError, outside any try; answered 500 with an empty body, and the mock saw no call to /api/email-reset/request-change-email'
+	},
+	'POST /api/email-reset/request-change-email with not JSON at all': {
+		status: 500,
+		reason: 'the same line, thrown by the parse itself; 500 with an empty body and no upstream call'
+	},
+	'POST /api/email-reset/verify-change-email with null': {
+		status: 500,
+		reason: '`const { code } = (await req.json())` destructures `null`; 500 with an empty body and no upstream call'
+	},
+	'POST /api/email-reset/verify-change-email with not JSON at all': {
+		status: 500,
+		reason: 'the same line, thrown by the parse itself; 500 with an empty body and no upstream call'
+	},
+	'POST /api/organization-projects with not JSON at all': {
+		status: 500,
+		reason: '`await req.json()` is outside any try in this handler; 500 with an empty body. A `null`/`[]`/string body survives the parse and is forwarded instead — pinned as a pass below, which is its own problem'
+	},
+	'POST /api/daily-plan with not JSON at all': {
+		status: 500,
+		reason: '`(await req.json()) as unknown as ICreateDailyPlan`, uncaught; 500 with an empty body and no upstream call'
+	},
+	'POST /api/favorite with not JSON at all': {
+		status: 500,
+		reason: '`(await req.json()) as IFavoriteCreateRequest`, uncaught; 500 with an empty body and no upstream call'
+	},
+	'POST /api/issue-types with not JSON at all': {
+		status: 500,
+		reason: '`const body = await req.json()` outside the try that wraps the save; 500 with an empty body and no upstream call'
+	},
+	'PUT /api/employee/[id] with not JSON at all': {
+		status: 500,
+		reason: 'the parse sits outside the try that wraps the save, so its SyntaxError is uncaught; 500 with an empty body and no upstream call'
+	},
+	'POST /api/invite/validate-by-code with null': {
+		status: 500,
+		reason: '`validateForm` writes back what it trims (`data[key] = …`, core/lib/helpers/validations.ts line 62) and `null[key]` throws; 500 with an empty body, no upstream call'
+	},
+	'POST /api/invite/validate-by-code with a bare string': {
+		status: 500,
+		reason: 'the same line assigns onto a string primitive (`Cannot create property "code" on string`), which a strict-mode module turns into a TypeError; 500 with an empty body, no upstream call'
+	},
+	'POST /api/invite/validate-by-code with not JSON at all': {
+		status: 500,
+		reason: '`await req.json()` is the first statement of the handler, outside any try; 500 with an empty body, no upstream call'
+	},
+	'POST /api/organization-team with null': {
+		status: 500,
+		reason: '`body.name?.trim()` on `null` throws inside the try, whose catch answers 500 `{"error":"Failed to process request"}` — a bad body answered as a server failure, no upstream call'
+	},
+	'POST /api/organization-team with not JSON at all': {
+		status: 500,
+		reason: 'the parse throws into the same catch: 500 `{"error":"Failed to process request"}`, no upstream call'
+	}
+};
 
 const asText = (requests: StubRequest[]) =>
 	requests.map((request) => `${request.method} ${request.path}?${request.query} ${request.status}`).join(', ');
@@ -137,7 +212,8 @@ test.describe('a mutating route answers a body that is not the object it expects
 
 				const response = await api(path, {
 					method: probe.verb,
-					body: entry.body,
+					// Bytes, so the handler is given this text and not a re-encoded version of it (see the header).
+					body: Buffer.from(entry.body),
 					headers: { 'content-type': 'application/json' }
 				});
 				const status = response.status();
@@ -153,6 +229,13 @@ test.describe('a mutating route answers a body that is not the object it expects
 						status,
 						`${why} is pinned to a ${blocker.status} (${blocker.reason}); it answered ${status} ${text.slice(0, 200)} — either the handler was fixed (drop the entry) or its behaviour changed`
 					).toBe(blocker.status);
+
+					// The refusal happened here: the handler threw on its own body and never asked the API anything
+					// about it. (Its session read, `GET /api/user/me`, is expected and is pinned elsewhere.)
+					expect(
+						(await mock.calls(path)).map((request) => `${request.method} ${request.path} ${request.status}`),
+						`${why} is pinned as a crash, but the API was asked about the body anyway: ${asText(await mock.requests())}`
+					).toEqual([]);
 				} else {
 					expect(status, `${why} crashed the handler (${status}): ${text.slice(0, 300)}`).toBeLessThan(500);
 				}
@@ -175,18 +258,27 @@ test.describe('a mutating route answers a body that is not the object it expects
 		// `$res('Error creating task status')`; on the signed-in path `$res` is the *success* answer
 		// (`(data) => NextResponse.json(data)`), so a body this handler cannot parse is answered 200 and the client's
 		// `if (!response.ok)` never fires. Pinned with the exact status and body so that fixing it to a 4xx fails here.
+		//
+		// It took a run to pin this case correctly: sent as a string, `{"name": ` never reached this handler as broken
+		// text at all (Playwright re-encodes it), the parse succeeded, the body was forwarded and the answer was the
+		// status list — a green-looking 200 that had nothing to do with the `catch`. The bytes version below is what
+		// makes the claim about the handler.
 		const response = await api('/api/task-statuses', {
 			method: 'POST',
-			body: BROKEN_JSON,
+			body: Buffer.from(BROKEN_JSON),
 			headers: { 'content-type': 'application/json' }
 		});
 		const text = await response.text();
 
 		expect(response.status(), `a task-status body this app cannot parse was answered ${response.status()} ${text}`).toBe(200);
 		expect(text, `the swallowed parse failure is not the answer this test pins: ${text}`).toContain('Error creating task status');
+
+		// The parse failure stopped this handler at its own door: the only thing it asked the API was who the caller
+		// is (`authenticatedGuard` runs before the body is read), and it never asked about the body it could not read.
+		const asked = await mock.requests();
 		expect(
-			await mock.requests(),
-			`the refused body still reached the API: ${asText(await mock.requests())}`
+			asked.filter((request) => request.path !== '/api/user/me').map((request) => `${request.method} ${request.path} ${request.status}`),
+			`the unparseable body still reached the API: ${asText(asked)}`
 		).toEqual([]);
 	});
 
@@ -198,7 +290,7 @@ test.describe('a mutating route answers a body that is not the object it expects
 		// answers its generic POST reply, which is what makes the forwarded bytes visible at all.
 		const response = await api('/api/chat/conversations', {
 			method: 'POST',
-			body: BROKEN_JSON,
+			body: Buffer.from(BROKEN_JSON),
 			headers: { 'content-type': 'application/json' }
 		});
 		const text = await response.text();

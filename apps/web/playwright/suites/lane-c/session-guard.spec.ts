@@ -1,5 +1,6 @@
 import { expect, test, type ApiCall } from '../../api-fixtures';
 import { APP_ORIGIN } from '../../helpers';
+import { LANE_PORTS } from '../../test-servers';
 
 /**
  * A route that acts with the session's own token must answer a caller who has no session, and it must
@@ -200,10 +201,27 @@ test.describe('a signed-out caller is refused by the route, not by the API', () 
 	});
 
 	test('the app origin is the origin these routes consider their own', async ({ api }) => {
-		// A guard that compares the Origin host with the host the request arrived at has to agree with the
-		// origin this suite actually calls; if APP_ORIGIN and the config's baseURL ever drift apart, every
-		// cross-site case below would be testing the wrong thing.
-		expect(APP_ORIGIN, 'the suite calls the app by one origin and the helpers name another').toBe('http://localhost:3033');
+		/**
+		 * A guard that compares the Origin host with the host the request arrived at has to agree with the origin
+		 * this suite actually calls; if `APP_ORIGIN` and the config's baseURL ever drift apart, every cross-site
+		 * case here would be testing the wrong thing.
+		 *
+		 * The expected origin is *derived* from `LANE_PORTS[process.env.E2E_LANE]` rather than written as
+		 * `http://localhost:3033`. A literal here passed for as long as this lane happened to hold 3033 and would
+		 * have failed — as a suite bug, in a file nobody had changed — the moment the lane table moved, which it
+		 * did twice today while the lane wiring was fixed. Same check, no number to keep in sync.
+		 */
+		const laneName = process.env.E2E_LANE ?? '';
+		const lanePorts = LANE_PORTS[laneName];
+		if (!lanePorts) {
+			throw new Error(`E2E_LANE=${JSON.stringify(laneName)} is not a lane in LANE_PORTS, so this suite cannot name its own origin.`);
+		}
+		expect(
+			APP_ORIGIN,
+			`the suite calls the app by ${APP_ORIGIN} while the helpers derived their origin from lane ${JSON.stringify(
+				laneName
+			)} (${lanePorts ? `app port ${lanePorts.app}` : 'not a known lane'})`
+		).toBe(`http://localhost:${lanePorts.app}`);
 
 		const own = await api('/api/chat/conversations', {
 			method: 'POST',
