@@ -1,5 +1,5 @@
 import { expect, test, type StubRequest } from '../../api-fixtures';
-import { mockReset, mockRequestsWhen } from '../../helpers';
+import { mockReset } from '../../helpers';
 
 /**
  * The answers this app gives when the platform gives none — and what the mock's log says about each.
@@ -13,10 +13,23 @@ import { mockReset, mockRequestsWhen } from '../../helpers';
  *                         with no token) **and the mock recorded nothing for that route**;
  *   refused upstream    — the answer carries the status and body the mock answered with, **and the mock log
  *                         holds that call**;
- *   no answer at all    — this app's outage answer, **with the log holding the call it gave up on**. That is
- *                         what the cases below arm: `scenario.delays` holds an endpoint open past the deadline
- *                         the *app* set for it, so the API answers — a second later than the app was willing
- *                         to wait. Nothing refused anybody; the app decided.
+ *   no answer at all    — this app's outage answer, **with the mock holding no entry for the call it gave up
+ *                         on**. That is what the cases below arm: `scenario.delays` holds an endpoint open past
+ *                         the deadline the *app* set for it, so the API would have answered — a second later
+ *                         than the app was willing to wait. Nothing refused anybody; the app decided.
+ *
+ * The third line's log half is the 2026-11-21 run correcting what this file assumed when it was written. An
+ * abandoned call is **not** in the mock's log, not even late: the mock records a request only on the path that
+ * answers it, and a call this app cut off never gets there (see `logFor` below for the lines that do it and the
+ * 15 s polling window that measured it). What that leaves, and what these cases therefore prove:
+ *   - the outage itself is proved by the answer alone — `503`, `502 {"statusCode":502}`,
+ *     `504 {"statusCode":504,"message":"The Gauzy API did not answer in time"}` — each a shape no refusal
+ *     writes;
+ *   - an empty log rules the other two readings out: it says the API neither refused the caller nor answered
+ *     with a status the app passed on;
+ *   - and the log **cannot** by itself tell "refused here before asking" (`suites/api/foreign-origin.spec.ts`)
+ *     from "asked, then abandoned". Both leave nothing behind. The status and body are what separate them, so
+ *     a case that asserts only "no entry" is proving nothing about which side acted.
  *
  * The three deadlines an api-suite run can reach, read from the source and armed here:
  *   `SESSION_CHECK_DEADLINE_MS` 15 s (`core/services/server/guards/session-check-memo.ts`) → 503;
@@ -60,16 +73,32 @@ function parseAnswer(text: string): unknown {
 }
 
 /**
- * The mock's log for one path, re-read until the delayed answer lands in it. The mock answers a delayed
- * request *after* this app has already given up on it, so the entry the case wants arrives a moment after
- * the answer under test.
+ * The mock's log for one path, read once the delay this case armed has run out.
+ *
+ * Not `mockRequestsWhen`: waiting for an entry that can never arrive is the mistake this file made first, and
+ * the run named it — all three cases below passed their status and body assertions and then died here, on
+ * `the test backend was never asked for what the test expected (after 30 reads):` with **nothing** after the
+ * colon, i.e. an empty log on every read. That is what the mock does with a call the app abandoned:
+ *   - `mock-gauzy-server.mjs:1011` awaits the armed delay, `:1012` then reads the body by iterating the request
+ *     stream (`readJsonBody`, `for await (const chunk of request)` at `:919`) — and a request the client cut
+ *     off is destroyed, so that iteration throws instead of finishing;
+ *   - the throw is before `state.requests.push` (`:1041`), and the server's own catch swallows exactly this
+ *     case: `if (request.aborted && error?.code === 'ECONNRESET') return;` (`:1064`);
+ *   - `state.receivedTokens` is pushed after the request log (`:1052-1058`), so a cut-off call is missing from
+ *     both lists.
+ * The mechanism is read from those lines, which the run's empty log matches; the thrown error itself was not
+ * observed. The pin below is the measured fact, and `settleMs` outlasts this case's own armed delay so the read
+ * is of a settled log: if the mock ever learns to record a call it was cut off from, this read sees it and the
+ * case goes red saying so — which would also change what "no entry" proves in `suites/api/foreign-origin.spec.ts`,
+ * so read the two files together before re-pinning it.
  */
-async function callsTo(mock: { requests: () => Promise<StubRequest[]> }, path: string): Promise<string[]> {
-	const requests = await mockRequestsWhen((log) => log.some((entry) => entry.path === path), {
-		tries: 30,
-		intervalMs: 500
-	});
-	return requests.filter((entry) => entry.path === path).map(triple);
+async function logFor(
+	mock: { requests: () => Promise<StubRequest[]> },
+	path: string,
+	settleMs: number
+): Promise<string[]> {
+	await new Promise((done) => setTimeout(done, settleMs));
+	return (await mock.requests()).filter((entry) => entry.path === path).map(triple);
 }
 
 const base64url = (value: object) =>
@@ -148,15 +177,17 @@ test.describe('an upstream that never answers is answered as an outage', () => {
 			`GET /api/organization-team's outage answer is not the empty object this route answers with: ${teamsText.slice(0, 200)}`
 		).toBe('{}');
 
-		// The other half: the API never refused anybody. It answered the session check 200, a second after
-		// this app had stopped waiting for it.
-		const checks = await callsTo(mock, '/api/user/me');
+		// The other half: the API never refused anybody and never answered, so it holds nothing. Pinned as the
+		// run measured it — the session check reached the mock (the guard's 15 s deadline is what stopped it, not
+		// a connection failure) and the mock's log stayed empty through 15 s of re-reads, 14 s after its own 16 s
+		// hold elapsed. See `logFor`.
+		const checks = await logFor(mock, '/api/user/me', 2_000);
 		expect(
 			checks,
-			`the session check was expected to reach the API and be answered there (whole log: ${logOf(
+			`the abandoned session check was expected to leave no entry in the mock's log (whole log: ${logOf(
 				await mock.requests()
-			)}). If the log is empty, the app's abort reached the mock before it answered — pin the empty list with that reason and keep the 503 above`
-		).toEqual(['GET /api/user/me 200']);
+			)}). An entry here means the mock now records a call it was cut off from, which would make "no entry" mean something different in every case that reads it this way — re-read this file's header and suites/api/foreign-origin.spec.ts before re-pinning`
+		).toEqual([]);
 
 		await mockReset();
 	});
@@ -186,13 +217,15 @@ test.describe('an upstream that never answers is answered as an outage', () => {
 		).not.toMatch(/Cross-site request refused|Not Found/);
 		expect(response.headers()['cache-control'] ?? '', 'the outage answer was left cacheable').toContain('no-store');
 
-		const asked = await callsTo(mock, '/api/ever-connect/health');
+		// Same reading as the case above, measured the same way: the pass-through gave up at its own 15 s and the
+		// mock recorded nothing for a call it was cut off from before its 16 s hold ended.
+		const asked = await logFor(mock, '/api/ever-connect/health', 2_000);
 		expect(
 			asked,
-			`the paired API was expected to answer GET /api/ever-connect/health 200 after this app gave up (whole log: ${logOf(
+			`the abandoned pass-through was expected to leave no entry in the mock's log (whole log: ${logOf(
 				await mock.requests()
-			)}). If the log is empty, the app's abort reached the mock before it answered — pin the empty list with that reason and keep the 502 above`
-		).toEqual(['GET /api/ever-connect/health 200']);
+			)}). An entry here means the mock recorded a call it was cut off from — read this file's header before re-pinning, because "no entry" is also what suites/api/foreign-origin.spec.ts reads as "refused here"`
+		).toEqual([]);
 
 		await mockReset();
 	});
@@ -236,13 +269,19 @@ test.describe('an upstream that never answers is answered as an outage', () => {
 			/unreachable|Cross-site request refused|Unauthorized/
 		);
 
-		const asked = await callsTo(mock, '/api/auth/switch-organization');
+		// The same reading as the two cases above, and the weakest evidence of the three: this case's original
+		// 15 s poll ran 60→75 s, closing at the moment its own 75 s mock hold expired, so it can only agree that
+		// nothing was recorded, while the 16 s cases above prove it with 14 s to spare. If this one goes red
+		// first, that is the 75 s boundary rather than a new app finding: re-run it alone with no lane running
+		// (`playwright/README.md`, "A starved machine turns strict assertions red") and pin whatever entry it
+		// shows, with its status, instead of this empty list. The 504 answer above stands either way.
+		const asked = await logFor(mock, '/api/auth/switch-organization', 18_000);
 		expect(
 			asked,
-			`the proxy was expected to have asked the API and abandoned it (whole log: ${logOf(
+			`the abandoned proxy call was expected to leave no entry in the mock's log (whole log: ${logOf(
 				await mock.requests()
-			)}). If the log is empty, the app's abort reached the mock before it answered — pin the empty list with that reason and keep the 504 above`
-		).toEqual(['POST /api/auth/switch-organization 200']);
+			)})`
+		).toEqual([]);
 
 		await mockReset();
 	});
