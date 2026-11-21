@@ -1,7 +1,8 @@
 import { expect, test } from '../../fixtures';
 import type { Locator, Page } from '@playwright/test';
 
-import { APP_ORIGIN, mockStateWhen } from '../../helpers';
+import { MOCK_ORIGIN } from '../../test-servers';
+import { mockStateWhen } from '../../helpers';
 
 /**
  * Task work on the task's own page (`/task/<id>`), proven by what the app wrote to the mock.
@@ -67,19 +68,29 @@ function recordTaskWrites(page: Page): BrowserWrite[] {
 const summary = (requests: Array<{ method: string; path: string; status: number }>) =>
 	JSON.stringify(requests.map((request) => [request.method, request.path, request.status]));
 
-/** The properties rail of the task page: on this viewport (1280 px, the config's Desktop Chrome) the rail holds them. */
-async function railOf(page: Page): Promise<Locator> {
-	const rail = page.locator('aside[aria-label="Details"]');
-	await expect(
-		rail,
-		'the task page did not open its properties rail, so none of these pickers exist'
-	).toBeVisible({ timeout: 20_000 });
-	return rail;
+/**
+ * One property row of the task page, found by the label the row renders, by walking up from that label.
+ *
+ * `TaskPropertyRow` is `div.grid > span > (icon span, label span)`
+ * (core/components/tasks/detail/task-property-row.tsx), so the label span's grandparent *is* the row. A landmark is
+ * deliberately not used: the properties grid has none — `TaskDetailProperties` is rendered straight into the task
+ * column (core/components/tasks/detail/task-detail-column.tsx:33), and the `Details` section of that column
+ * (core/components/tasks/detail/task-detail-section.tsx:21, `section aria-labelledby` over `TaskDetailFacts`) holds
+ * the created/updated facts, not these rows. An earlier draft of this file assumed `aside[aria-label="Details"]`
+ * and measured 0 elements for it.
+ */
+function propertyRow(page: Page, label: string): Locator {
+	return page.locator(`div.grid > span > span:text-is("${label}")`).locator('xpath=../..');
 }
 
-/** One property row of the rail, found by the label its row renders, then the control inside it. */
-function propertyRow(rail: Locator, label: string): Locator {
-	return rail.locator('div.grid').filter({ has: rail.locator(`> span > span:text-is("${label}")`) });
+/** The one row with that label, asserted to be the one row before anything clicks inside it. */
+async function oneRow(page: Page, label: string): Promise<Locator> {
+	const row = propertyRow(page, label);
+	await expect(
+		row,
+		`the task page holds exactly one ${label} property row (${await row.count()})`
+	).toHaveCount(1);
+	return row;
 }
 
 /** The picker popup `TaskPropertyMenu` opens, recognised by the search field it holds. */
@@ -93,11 +104,10 @@ const proofOf = async (mock: { state: () => Promise<Record<string, unknown>> }) 
 test.describe('a task edited in its own page', () => {
 	test('picking another status writes the team’s own status record', async ({ app, mock, fixture }) => {
 		const page = await app(`/task/${fixture.ids.task}`);
-		const rail = await railOf(page);
 		const writes = recordTaskWrites(page);
 
-		const trigger = propertyRow(rail, 'Status').getByRole('button');
-		await expect(trigger, 'the status row of the rail holds exactly one control').toHaveCount(1);
+		const trigger = (await oneRow(page, 'Status')).getByRole('button');
+		await expect(trigger, 'the status row holds exactly one control').toHaveCount(1);
 		// The task the mock answers with is 'open' (mock-gauzy-server.mjs statuses[0], the team's default).
 		await expect(
 			trigger,
@@ -111,17 +121,24 @@ test.describe('a task edited in its own page', () => {
 			`the status picker did not list the team's statuses (${await menu.getByRole('option').count()})`
 		).toHaveCount(2);
 
-		await menu.getByRole('option', { name: /in-progress/i }).click();
+		// The row's accessible name is the status label plus what the row also renders: a selected mark and the
+		// keyboard shortcut digit (`TaskPropertyMenuRow`: label span, `SelectedMark`, `<kbd>1</kbd>`), so the picker's
+		// options read "open Selected 1" and "in progress 2" — measured in the failure snapshot of an earlier run.
+		// An anchored or hyphenated match cannot work; the label's own words are what the name starts with.
+		await menu.getByRole('option', { name: /in progress/i }).click();
 
 		await expect
 			.poll(() => writes.length, { message: `the status pick never reached the API (${JSON.stringify(writes)})` })
 			.toBe(1);
 		const write = writes[0];
 		expect(write.method, `the status write is a PUT on the task (${write.method} ${write.path})`).toBe('PUT');
+		// Direct mode, measured in suites/lane-a/timer-journey.spec.ts: with the lane's mock named as the app's
+		// public API URL, the browser's axios base is `<mock origin>/api` (core/services/client/axios.ts:108-112), so
+		// this PUT is the request the mock itself logged — not a request the app's Next route handler relayed.
 		expect(
 			new URL(write.url).origin,
-			`the write went to the app's own route handler (${write.url})`
-		).toBe(APP_ORIGIN);
+			`the write left the browser for the API origin the app was configured with (${write.url})`
+		).toBe(new URL(MOCK_ORIGIN).origin);
 		expect(write.path, `the write names the task being edited (${write.path})`).toBe(`/api/tasks/${fixture.ids.task}`);
 		expect(write.body.status, `the body carries the status picked (${JSON.stringify(write.body.status)})`).toBe(
 			'in-progress'
@@ -152,14 +169,14 @@ test.describe('a task edited in its own page', () => {
 
 	test('picking the status the task already has asks the API for nothing', async ({ app, mock, fixture }) => {
 		const page = await app(`/task/${fixture.ids.task}`);
-		const rail = await railOf(page);
 		const writes = recordTaskWrites(page);
 
-		const trigger = propertyRow(rail, 'Status').getByRole('button');
-		await expect(trigger).toHaveCount(1);
+		const trigger = (await oneRow(page, 'Status')).getByRole('button');
+		await expect(trigger, 'the status row holds exactly one control').toHaveCount(1);
 		await trigger.click();
 		const menu = openMenu(page, 'Change status…');
-		await menu.getByRole('option', { name: /^open$/i }).click();
+		// "open Selected 1" — see the note on the row's accessible name in the test above.
+		await menu.getByRole('option', { name: /^open/i }).click();
 
 		// `handleStatusUpdate` returns without a write when the value is the one the task already holds
 		// (core/hooks/organizations/teams/use-update-task.ts: `status !== (task as any)[field]`).
@@ -232,11 +249,10 @@ test.describe('a task edited in its own page', () => {
 		fixture
 	}) => {
 		const page = await app(`/task/${fixture.ids.task}`);
-		const rail = await railOf(page);
 		const writes = recordTaskWrites(page);
 
 		// The fixture task is assigned to the signed-in person only (mock-gauzy-server.mjs task.members).
-		const assignTrigger = propertyRow(rail, 'Assignees').getByRole('button', { name: 'Assign people' });
+		const assignTrigger = (await oneRow(page, 'Assignees')).getByRole('button', { name: 'Assign people' });
 		await expect(assignTrigger, 'the assignees row holds its picker').toHaveCount(1);
 
 		await assignTrigger.click();
@@ -246,7 +262,8 @@ test.describe('a task edited in its own page', () => {
 			`the assignee picker did not list the team's members (${await menu.getByRole('option').count()})`
 		).toHaveCount(3);
 
-		await menu.getByRole('option', { name: /Fixture Teammate$/i }).click();
+		// Unanchored on purpose: the option's name ends with its shortcut digit ("Fixture Teammate 3").
+		await menu.getByRole('option', { name: /Fixture Teammate/ }).click();
 
 		await expect
 			.poll(() => writes.length, { message: `the assignment never reached the API (${JSON.stringify(writes)})` })
@@ -276,16 +293,16 @@ test.describe('a task edited in its own page', () => {
 
 	test('unassigning a teammate writes the members without them', async ({ app, mock, fixture }) => {
 		const page = await app(`/task/${fixture.ids.task}`);
-		const rail = await railOf(page);
 		const writes = recordTaskWrites(page);
 
 		// The signed-in person is the task's only member, so picking them out of the same menu unassigns them
 		// (TaskAssigneesField toggle → unassignMember).
-		const assignTrigger = propertyRow(rail, 'Assignees').getByRole('button', { name: 'Assign people' });
+		const assignTrigger = (await oneRow(page, 'Assignees')).getByRole('button', { name: 'Assign people' });
 		await expect(assignTrigger, 'the assignees row holds its picker').toHaveCount(1);
 		await assignTrigger.click();
 		const menu = openMenu(page, 'Find a teammate');
-		await menu.getByRole('option', { name: /Fixture Manager$/i }).click();
+		// Unanchored, as above: the option's name ends with its shortcut digit.
+		await menu.getByRole('option', { name: /Fixture Manager/ }).click();
 
 		await expect
 			.poll(() => writes.length, { message: `the unassignment never reached the API (${JSON.stringify(writes)})` })

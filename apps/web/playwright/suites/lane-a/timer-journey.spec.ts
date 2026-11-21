@@ -1,21 +1,33 @@
 import { expect, test, type Page } from '../../fixtures';
-import { APP_ORIGIN, hardVisit, mockStateWhen, receivedTokens } from '../../helpers';
+import { MOCK_ORIGIN } from '../../test-servers';
+import { hardVisit, mockStateWhen, receivedTokens, stubNextAuthSession } from '../../helpers';
 
 /**
  * A timer run, start to stop, proven through the mock rather than through the clock on screen.
  *
- * In this run the browser talks to the app's own route handlers (`API_BASE_URL = '/api'`,
- * core/constants/config/constants.tsx), and those handlers talk to the mock. So a click has two halves to
- * prove, and this file proves both:
+ * **Which hop a timer click takes here was measured, not assumed.** A first draft of this file asserted
+ * `POST http://localhost:3031/api/timer/start` — the app's own route handler — and it failed with the real URL
+ * the browser sent: `POST http://127.0.0.1:3992/api/timesheet/timer/start`. That is the app's *direct* mode, and
+ * it is what this harness configures:
  *
- *   browser → `POST http://localhost:3031/api/timer/start?todayStart=…&todayEnd=…` (recorded at the page,
- *   with its body) and `POST http://127.0.0.1:3992/api/timesheet/timer/start` (recorded by the mock itself).
+ *   - `playwright/test-servers.ts:107-110` names the mock as the app's public API URL
+ *     (`NEXT_PUBLIC_GAUZY_API_SERVER_URL: http://127.0.0.1:<lane mock>`) and leaves
+ *     `NEXT_PUBLIC_GAUZY_API_BASE_SERVER_URL` empty;
+ *   - `core/constants/config/constants.tsx:229` builds `GAUZY_API_BASE_SERVER_URL` from
+ *     `NEXT_PUBLIC_GAUZY_API_SERVER_URL` — i.e. from the mock origin, so it is not empty;
+ *   - `core/services/client/axios.ts:108-112` then sets the browser's axios base to `<that origin>/api`;
+ *   - `core/services/client/api/timers/timer.service.ts` takes its direct branch for start/stop/status, so the
+ *     browser itself sends `/timesheet/timer/start`, `/timesheet/timer/stop` and `/timesheet/timer/status`.
  *
- * The mock is the witness of the write, and of what the write did to it:
- * `mock-gauzy-server.mjs` sets `mutationProof.startedTimer` and flips its own `scenario.timerRunning` when a
- * start reaches it, and flips `scenario.timerRunning` back when a stop does. `app/api/timer/stop/route.ts`
- * then reads `/api/timesheet/timer/status` again *server-side*, so the mock's log holds the stop and the
- * status read that follows it, in that order.
+ * So the request the browser sends *is* the request the mock logs: one hop, proven twice — at the page (method,
+ * URL, body) and at the mock (its own request log, plus the state that write changed). The app's
+ * `app/api/timer/**` route handlers are not in this path at all, which is worth saying plainly because the same
+ * click in a deployment with `NEXT_PUBLIC_GAUZY_API_BASE_SERVER_URL` set does go through them.
+ *
+ * The mock is the witness of what the write did to it: `mock-gauzy-server.mjs` sets `mutationProof.startedTimer`
+ * and flips its own `scenario.timerRunning` when a start reaches it, flips it back when a stop does, and answers
+ * every later `/api/timesheet/timer/status` from that state. `timerService.stopTimer` reads the status again right
+ * after the stop it posted, so the mock's log holds the stop and the status read that follows it, in that order.
  *
  * Selector provenance: `button[aria-label="Start timer"]` / `button[aria-label="Stop timer"]` are the
  * `defaultLabel` of core/components/timer/timer-button.tsx (same control the Cypress spec
@@ -77,6 +89,22 @@ function recordWrites(page: Page): BrowserWrite[] {
 	return writes;
 }
 
+/**
+ * Counts the timer status reads *this page* sent, from the moment it is attached.
+ *
+ * The mock's own log says a status read happened, but not which page asked for it — with two pages open, a poll
+ * from the first one would answer the same question. Counting at the page is what attributes the read, and it
+ * avoids comparing clocks: the mock's `startMs` is its own elapsed-time counter (measured: values like 5842.4,
+ * 8514.9), not a wall-clock time a test can compare with `Date.now()`.
+ */
+function recordStatusReads(page: Page): number[] {
+	const reads: number[] = [];
+	page.on('request', (request) => {
+		if (request.method() === 'GET' && new URL(request.url()).pathname === MOCK_STATUS) reads.push(1);
+	});
+	return reads;
+}
+
 const summary = (requests: Array<{ method: string; path: string; status: number }>) =>
 	JSON.stringify(requests.map((request) => [request.method, request.path, request.status]));
 
@@ -119,7 +147,7 @@ test.describe('a timer run from start to stop', () => {
 			'the mock flipped its own run state, so every later read answers a running timer'
 		).toBe(true);
 
-		// Half two: the browser sent the app's own route handler the start the mock then forwarded.
+		// The same start, seen from the page: the browser itself sent it, to the API origin this harness names.
 		await expect
 			.poll(() => browserWritesTo(writes, 'timer/start').length, {
 				message: `the browser never sent the start the page was clicked (${JSON.stringify(writes)})`,
@@ -130,12 +158,12 @@ test.describe('a timer run from start to stop', () => {
 		expect(write.method, 'the start leaves as a POST').toBe('POST');
 		expect(
 			new URL(write.url).origin,
-			`the start went to the app's own route handler, not straight to the API (${write.url})`
-		).toBe(APP_ORIGIN);
+			`the start left the browser for the API origin the app was configured with (${write.url})`
+		).toBe(new URL(MOCK_ORIGIN).origin);
 		expect(
 			write.path,
-			`the start went to this app's timer start route handler (${write.method} ${write.url})`
-		).toBe('/api/timer/start');
+			`the start is the API's own timer start path, so the page's request is the one the mock logged (${write.method} ${write.url})`
+		).toBe(MOCK_START);
 
 		const mockStarts = await mock.calls(MOCK_START);
 		expect(mockStarts.length, `the mock recorded the forwarded start (${summary(mockStarts)})`).toBeGreaterThanOrEqual(
@@ -174,11 +202,12 @@ test.describe('a timer run from start to stop', () => {
 		await startButton(page).click();
 
 		await expect
-			.poll(() => browserWritesTo(writes, '/api/timer/start').length, {
-				message: `the browser never sent the start (${JSON.stringify(writes)})`
+			.poll(() => browserWritesTo(writes, 'timer/start').length, {
+				message: `the browser never sent the start (${JSON.stringify(writes)})`,
+				timeout: 60_000
 			})
 			.toBe(1);
-		const body = browserWritesTo(writes, '/api/timer/start')[0].body;
+		const body = browserWritesTo(writes, 'timer/start')[0].body;
 
 		expect(body.taskId, `the start names the task bar's task (${JSON.stringify(body.taskId)})`).toBe(fixture.ids.task);
 		expect(typeof body.isBillable, `the start says whether the run is billable (${JSON.stringify(body)})`).toBe(
@@ -190,7 +219,7 @@ test.describe('a timer run from start to stop', () => {
 		const today = new Date().toLocaleDateString('en-CA');
 		expect(body.planDay, `the start names today as its plan day (${JSON.stringify(body.planDay)})`).toBe(today);
 
-		await mockStateWhen<TimerMockState>((current) => current.mutationProof.startedTimer);
+		await mockStateWhen<TimerMockState>((current) => current.mutationProof.startedTimer, { tries: 60 });
 		const mockStarts = await mock.calls(MOCK_START);
 		expect(mockStarts.length, 'the start the browser sent reached the mock').toBeGreaterThanOrEqual(1);
 	});
@@ -201,28 +230,31 @@ test.describe('a timer run from start to stop', () => {
 
 		await expect(startButton(page)).toHaveAttribute('aria-disabled', 'false', { timeout: 20_000 });
 		await startButton(page).click();
-		await mockStateWhen<TimerMockState>((current) => current.scenario.timerRunning === true);
+		await mockStateWhen<TimerMockState>((current) => current.scenario.timerRunning === true, { tries: 60 });
 		await expect(stopButton(page)).toBeVisible({ timeout: 20_000 });
 
 		await stopButton(page).click();
 
 		await expect
-			.poll(() => browserWritesTo(writes, '/api/timer/stop').length, {
-				message: `the browser never sent the stop the page was clicked (${JSON.stringify(writes)})`
+			.poll(() => browserWritesTo(writes, 'timer/stop').length, {
+				message: `the browser never sent the stop the page was clicked (${JSON.stringify(writes)})`,
+				timeout: 60_000
 			})
 			.toBe(1);
-		const stopWrite = browserWritesTo(writes, '/api/timer/stop')[0];
+		const stopWrite = browserWritesTo(writes, 'timer/stop')[0];
 		expect(stopWrite.method, 'the stop leaves as a POST').toBe('POST');
-		// The client sends only what it knows: the source of the run it is ending (core/hooks/timer/use-timer-api.ts
-		// stopTimerMutation → timerService.stopTimer({ source })). The task and the tenant are added by the route.
+		// In direct mode the client sends only what it knows: the source of the run it is ending
+		// (core/hooks/timer/use-timer-api.ts stopTimerMutation → timerService.stopTimer({ source }) →
+		// core/services/client/api/timers/timer.service.ts, the `GAUZY_API_BASE_SERVER_URL.value` branch). No tenant,
+		// no team, no task: those are what the app's own `/api/timer/stop` route would add in a proxied deployment.
 		expect(stopWrite.body.source, `the stop names the source of the run it ends (${JSON.stringify(stopWrite.body)})`).toBe(
 			'TEAMS'
 		);
-		// The app's own route refuses a stop whose stoppedAt is in the future; a plain stop sends no time at all,
-		// so the server decides when the run ended.
+		// A plain stop sends no time at all, so the API ends the run at its own clock rather than at a time the
+		// browser guessed.
 		expect(
 			stopWrite.body.stoppedAt === undefined,
-			`a plain stop sends no stoppedAt, so the server ends the run at its own clock (${JSON.stringify(stopWrite.body)})`
+			`a plain stop sends no stoppedAt, so the API ends the run at its own clock (${JSON.stringify(stopWrite.body)})`
 		).toBe(true);
 
 		const state = await mockStateWhen<TimerMockState>((current) => current.scenario.timerRunning === false);
@@ -232,15 +264,16 @@ test.describe('a timer run from start to stop', () => {
 		).toBe(false);
 
 		const mockStops = await mock.calls(MOCK_STOP);
-		expect(mockStops.length, `the mock recorded the forwarded stop (${summary(mockStops)})`).toBeGreaterThanOrEqual(1);
+		expect(mockStops.length, `the mock recorded the stop the page sent (${summary(mockStops)})`).toBeGreaterThanOrEqual(1);
 		expect(
 			mockStops.every((request) => request.method === 'POST' && request.status === 200),
 			`every stop the mock recorded is a POST it answered 200 (${summary(mockStops)})`
 		).toBe(true);
 
-		// `app/api/timer/stop/route.ts` reads the status again after the stop it forwarded, so the page is handed
-		// the stopped answer rather than the answer the click started from. The mock's log is in answer order:
-		// prove the status read was asked for *after* the stop landed, not only that both happened.
+		// `timerService.stopTimer` reads the status again right after the stop it posted (timer.service.ts: the direct
+		// branch ends `return this.getTimerStatus()`), so the page is handed the stopped answer rather than the answer
+		// the click started from. The mock's log is in answer order: prove the status read was asked for *after* the
+		// stop landed, not only that both happened.
 		const stopEndMs = Math.max(...mockStops.map((request) => request.endMs));
 		const statusReadsAfter = (await mock.requests()).filter(
 			(request) => request.path === MOCK_STATUS && request.startMs >= stopEndMs
@@ -255,33 +288,59 @@ test.describe('a timer run from start to stop', () => {
 		});
 	});
 
-	test('a reopened page takes the run from the mock, not from this device', async ({ app, mock }) => {
+	test('a page that never saw the click shows the run, because the mock holds it', async ({ app, context, mock }) => {
 		const page = await app('/', { scenario: { hasPlan: false, requirePlanToTrack: false } });
 		recordWrites(page);
 
 		await expect(startButton(page)).toHaveAttribute('aria-disabled', 'false', { timeout: 20_000 });
 		await startButton(page).click();
-		await mockStateWhen<TimerMockState>((current) => current.scenario.timerRunning === true);
+		await mockStateWhen<TimerMockState>((current) => current.scenario.timerRunning === true, { tries: 60 });
 		await expect(stopButton(page)).toBeVisible({ timeout: 20_000 });
 
-		// hardVisit clears localStorage and sessionStorage before it navigates, so nothing this device kept about
-		// the run survives it: what the reopened page shows can only be what the mock answers.
-		await hardVisit(page, '/');
+		/*
+		 * What this device kept about the run goes first — localStorage and sessionStorage are cleared while the
+		 * page that started the run is still open — and only then does another page open. Storage is per context, so
+		 * the page below boots with the run forgotten, and the only place left that can answer it is the mock. The
+		 * session cookies stay on purpose: what has to be gone is this device's memory of the run, not the session.
+		 */
+		await page.evaluate(() => {
+			window.localStorage.clear();
+			window.sessionStorage.clear();
+		});
+
+		/*
+		 * A page that never saw the click. The fixtures' `app()` hands out one page per test (fixtures.ts:152-163),
+		 * so a second page has to come from the context; it is closed with it. Its recorder is attached before it
+		 * navigates, so a start it might send while booting cannot slip past.
+		 */
+		const second = await context.newPage();
+		const secondWrites = recordWrites(second);
+		const secondStatusReads = recordStatusReads(second);
+		await stubNextAuthSession(second);
+		await hardVisit(second, '/');
 
 		const state = (await mock.state()) as TimerMockState;
-		expect(state.scenario.timerRunning, 'the mock still holds the run the reopened page is loading').toBe(true);
+		expect(state.scenario.timerRunning, 'the mock still holds the run the new page is loading').toBe(true);
 		expect(state.mutationProof.startedTimer, 'the start the mock witnessed is still there').toBe(true);
 
-		await expect(stopButton(page), 'the reopened page shows the run the mock holds, not one it kept locally').toBeVisible(
-			{ timeout: 20_000 }
-		);
-		await expect(startButton(page)).toHaveCount(0);
+		await expect(stopButton(second), 'the new page shows the run the mock holds, not one it kept locally').toBeVisible({
+			timeout: 20_000
+		});
+		await expect(startButton(second), 'and it offers no second start').toHaveCount(0);
 
-		// And it asked the mock for that answer: a status read landed after the reopened page mounted.
-		const statusReads = await mock.calls(MOCK_STATUS);
+		// It did not begin a run of its own to explain what it shows.
 		expect(
-			statusReads.length,
-			`the reopened page asked the mock for the timer status (${summary(statusReads)})`
-		).toBeGreaterThanOrEqual(1);
+			browserWritesTo(secondWrites, 'timer/start').length,
+			`the new page sent no start of its own (${JSON.stringify(secondWrites)})`
+		).toBe(0);
+
+		// And it asked the mock for that answer itself. Counting the read on this page is what attributes it: with
+		// the first page still open and polling, the mock's log alone cannot say who asked.
+		await expect
+			.poll(() => secondStatusReads.length, {
+				message: `the new page never asked the mock for the timer status itself (${summary(await mock.calls(MOCK_STATUS))})`,
+				timeout: 30_000
+			})
+			.toBeGreaterThanOrEqual(1);
 	});
 });
