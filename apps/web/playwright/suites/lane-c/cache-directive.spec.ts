@@ -19,6 +19,15 @@ import { expect, test } from '../../api-fixtures';
  *
  * Pinned as the harness pins a 5xx blocker: the assertion states what the route answers *today*, the message says
  * why that is a defect, and a route that grows a `no-store` fails this file until the pin is removed.
+ *
+ * Run, lane-c, 2026-11-21: `Running 10 tests using 1 worker` / `10 passed (2.1s)` — every case green, so the pins
+ * below are what a run reported and not what the source predicted. That run answers the question `AUDIT.md` 15 left
+ * UNVERIFIED: a dev-server `app/api/**` handler **does not** get a `Cache-Control` from Next. The four unmarked reads
+ * answered with no directive at all (`cache-control` absent on the response), while the three `noStore: true` routes
+ * answered `cache-control: no-store` — the same Next build answering both ways, so the directive can only come from
+ * the route's own `options.noStore` (`forward-to-gauzy.ts:26`). The mock's own `cache-control: no-store`
+ * (`cypress/support/mock-gauzy-server.mjs:991`, on every proxied answer) does **not** travel through this app:
+ * `answerHeaders` (`forward-to-gauzy.ts:22-28`) copies the upstream's `Content-Type` and nothing else.
  */
 
 const NO_DIRECTIVE = '<no Cache-Control header on this answer>';
@@ -43,10 +52,12 @@ test.describe('a route that asks for no-store answers with it', () => {
 				`${why}: answered ${response.status()} with a cache-control of "${cacheControl ?? ''}" (${text.slice(0, 200)})`
 			).toContain('no-store');
 			expect(response.status(), `${why}: answered ${response.status()} ${text.slice(0, 200)}`).toBeLessThan(500);
+			// The filtered view, not the whole log (`AUDIT.md` 14): the entry that proves the answer came from the
+			// API is the one carrying this route's own upstream path.
 			expect(
-				(await mock.requests()).length,
-				`${why}: the answer did not come from the API: ${JSON.stringify(await mock.requests())}`
-			).toBeGreaterThan(0);
+				(await mock.calls(route.path)).map((request) => `${request.method} ${request.path} ${request.status}`),
+				`${why}: the answer did not come from a read of the API: ${JSON.stringify(await mock.requests())}`
+			).toEqual([`${route.verb} ${route.path} ${response.status()}`]);
 		});
 	}
 
