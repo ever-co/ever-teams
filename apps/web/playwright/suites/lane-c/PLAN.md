@@ -556,6 +556,10 @@ unconfirmed at the time of writing; its own run's numbers are recorded above as 
 
 ## Unguarded writes: the handler list I re-derived today, and what was NOT run (lane-c, 2026-11-21 wrap-up)
 
+> **Superseded later the same day by "unguarded-writes.spec.ts, run and pinned" at the end of this file.** The
+> paragraph below stays as what that writer knew at the time; every "not run" claim in it is now out of date, and
+> four of its counts moved once the file actually ran.
+
 The owner stopped the effort mid-session for a fleet inference-engine update. **`unguarded-writes.spec.ts` is
 committed as discovered, not run: no lane-c server was started in this session, no case was executed, and no status,
 body or mock-log line below was read off a log.** Its file header carries the same warning, and every claim in it
@@ -669,3 +673,127 @@ E2E_LANE=lane-c E2E_BROWSER_CHANNEL=chrome npx playwright test \
 ```
 
 Then pin each route's status / body / mock triple from that log and re-commit the file with the run's summary line.
+
+## `unguarded-writes.spec.ts`, run and pinned (lane-c, 2026-11-21, later the same day)
+
+Same command as above, against a lane that was already listening (`lane-servers.mjs check lane-c` → `OK — the app on
+3033 names its own mock 4002 and stats sink 4003`, then `E2E_REUSE_SERVERS=1` so Playwright reuses it rather than
+spawning a second app onto a bound port).
+
+| run | log | summary lines as printed |
+| --- | --- | --- |
+| first run, file exactly as discovered (43 tests) | `E:\Coding\.tmp\lane-c-unguarded-run-1.log` | `Running 43 tests using 1 worker` / **`2 failed`**, `41 passed (27.7s)` |
+| same file again | `…-run-2.log` | `Running 43 tests using 1 worker` / **`2 failed`**, `41 passed (14.8s)` |
+| the 35-case loop alone (measure pass, mock reset between the two probes) | `…-run-4.log` | `Running 35 tests using 1 worker` / **`2 failed`**, `33 passed (7.1s)` |
+| pinned file | `…-run-5.log` | `Running 44 tests using 1 worker` / `44 passed (8.6s)` |
+| pinned file, repeat | `…-run-6.log` | `44 passed (8.2s)` |
+| pinned file, the committed text | `…-run-7.log` | `44 passed (7.5s)` |
+
+The same two reds in all three unpinned runs, and the same status / body / mock triple for every other case in all of
+them. `tsc -p playwright/tsconfig.json --noEmit` prints nothing.
+
+**The first run's two reds are the file's findings, and both are findings about the list, not about a fix.**
+
+1. **`POST /api/account-deletion/me` is origin-guarded.** Cross-site → **403 `{"message":"Cross-site request
+   refused"}`**, mock log `[]`; headerless (body `{}`) → **400 `{"message":"confirm must be true"}`**, mock log `[]`.
+   The guard is `refuseUntrustedPost` (`core/services/server/requests/account-deletion-me.ts:33-53`): it checks
+   `Sec-Fetch-Site`, then `Origin` against `host`/`x-forwarded-host`, and it answers `{message}` with
+   `Cache-Control: no-store` (`:18-22`) — a body the shared guard does not produce (`same-origin-request.ts:49-52`
+   answers `{statusCode, message}`). It is the **fourth** guard the collector's vocabulary does not know, and it sits
+   in a helper file, which is exactly the shape a per-file scan cannot see. Moved into the guarded describe, where a
+   third probe keeps the half that still matters: a headerless caller that does send `confirm: true` is **forwarded**
+   — 200 `{"confirm":true}` with `POST /api/account-deletion/me 200` recorded and a bearer recorded against it.
+2. **`POST /api/invite/accept` answers the two callers differently, and this app is not what made them differ.**
+   Cross-site → **400 `{"error":"Untrusted synthetic browser origin."}**`; headerless → **502 `{"statusCode":502,
+   "message":"The Gauzy API gave no usable answer"}`**. Both readings, because both are true and only one of them is
+   about a guard:
+   - the app never refused: `route.ts:52` takes the caller's Origin (`appOriginOf`, `:188-194`) and
+     `acceptInviteRequest` writes it into the upstream `origin` header (`core/services/server/requests/invite.ts:192-206`).
+     The 400 body is the **mock's** words (`cypress/support/mock-gauzy-server.mjs:979-981`, which answers only a
+     loopback origin, `:17-22`); the text appears in no file under `app/` or `core/`, so nothing else can have said
+     it. `isGuardRefusal` is false for both answers — the handler is unguarded and its cross-site write is forwarded.
+   - the headerless 502 is a mock-shape artefact, not a second origin reading: no `Origin` → `appOriginOf` falls back
+     to the request URL → the mock accepted `POST /api/invite/accept 200` → the handler went on and threw. The lane's
+     own dev log names it: `the organizations read after the accept failed Error: Tenant ID, User ID, and Bearer token
+     are required` and `no usable answer from the Gauzy API TypeError: Cannot read properties of undefined (reading
+     'length')` — `failureResponse` (`route.ts:214-225`) over a mock that answers a non-GET by echoing the request
+     body (`mock-gauzy-server.mjs:792-794`) instead of an auth response.
+   - what the real API would do with a caller-chosen welcome-link origin stays unanswerable here: the mock is the
+     objector, and it objects on its own rule, not on Gauzy's.
+   - **Harness fact this case proved concretely:** the mock's origin refusal returns *before* `state.requests.push`
+     (`:979-981` vs `:1041`) and before `receivedTokens.push` (`:1054`). So the cross-site probe's log for
+     `/api/invite/accept` is empty even though the call demonstrably arrived. That is the lane's "an empty log is not
+     proof" rule with a second cause beside the 15 s / 60 s abandonment.
+
+**Predictions that held** (all now pinned exactly, statuses and bodies and per-probe filtered calls): the four
+`account-deletion/{confirm,request,verify}` forwards — 200, one recorded call each, and `confirm` forwarded with the
+app manufacturing `confirm: true` (`account-deletion.ts:159`) while `request`'s `callbackUrl` came back as
+`http://localhost:3033/delete-account/confirm`, the configured origin and not the probe's; the three
+`organization-team-join` writes forwarded with **no bearer** (`receivedTokens` empty for the anonymous *and* the
+signed-in probe — `request-to-join-team.ts:14-19` names no `bearer_token`, `fetch.ts:91-93` then writes no
+`authorization`); `invite/validate-by-code` and `auth/signin-email-social-login` forwarded; `POST /api/log` 201 with
+nothing upstream; the checkout triad exactly as `public-invoice-proxy.ts:62-78` reads (foreign Origin + matching
+foreign `returnUrl` → 200 forwarded; **no Origin at all + any foreign host → 200 forwarded**; foreign Origin naming
+this app → 400 `{"message":"Invalid return address"}` with an empty log); the control
+(`POST /api/chat/conversations` → 403 `{"statusCode":403,"message":"Cross-site request refused"}`, log `[]`);
+`board/notify` (403 `{"message":"Forbidden"}` for a foreign **and** for a missing Origin); `timer/toogle` and
+`daily-plan/<id>/task` (the shared guard's 403 body, log `[]`).
+
+**Predictions that were wrong, or that the run refused to answer**
+
+- The three auth routes `POST /api/auth/login`, `/api/auth/register` and `/api/auth/signin-email-confirm` answered
+  **500 with an empty body and no content-type**, mock asked nothing, and the lane's `next-development.log` carried
+  no line for any of them: they crash locally on a body with no code/token. "Not guarded" is still true of them;
+  "a cross-site write reaches the API" is not.
+- `POST /api/auth/_signin-workspace` **is not a route**. Next does not route a private `_` folder, so Auth.js's
+  catch-all answered it — the lane's dev log printed `UnknownAction: Cannot parse action at
+  /api/auth/_signin-workspace` for this probe — with 400 `"Bad request."`, identical to `POST /api/auth/[...nextauth]`
+  (also Auth.js: `Cannot parse action at /api/auth/[...nextauth]`). The handler in that file is reached at
+  `POST /api/auth/signin-workspace` (`app/api/auth/signin-workspace/route.ts:2` re-exports it), where the probe
+  answered 400 with the app's own email-format field errors. `find apps/web/app/api -name route.ts` counts the file,
+  so the collector counts the handler twice: once as a route, once as another route's import.
+- The five `app/api/auth/ever-id/**` handlers answered **404 with an empty body**, nothing called — their own
+  `if (!isEverIdConfigured()) return new NextResponse(null, { status: 404 })` (e.g. `confirm/route.ts:69-70`),
+  because this lane runs with `E2E_EVER_ID` off (`playwright.lane.config.ts:22-25`). Pinned, and pinned as a limit:
+  8 of the 44 cases prove nothing about origin handling. Turning the switch on needs the lane relaunched with
+  `E2E_EVER_ID=1`; at 2.5–4.3 GB free with lane-b and lane-d apps already listening that second `next dev` was not
+  started, so **the ever-id half of the unguarded list is still unmeasured** — deliberately, and recorded rather
+  than guessed.
+- Count, after the run: of the 38 write verbs in 35 files the scan flagged, **36 verbs in 33 files** are reachable
+  unguarded write handlers of this app — `POST /api/account-deletion/me` is guarded, and `POST /api/auth/_signin-workspace`
+  is the same handler as `POST /api/auth/signin-workspace` counted twice.
+
+**A fact worth having measured before anyone writes a case about it:** `POST /api/auth/signin-email-social-login`
+forwards a cross-site write, and the caller's own token goes with it — inside the body. Measured:
+`{"provider":"GOOGLE","access_token":"lane-c-caller-token"}` → 200 `{"provider":"GOOGLE",
+"token":"lane-c-caller-token","includeTeams":true}`, because the mock echoes what it was sent, so the answer is the
+record of what left this app (`signWithSocialLoginsRequest`, `core/services/server/requests/auth.ts:71-78`, puts it
+in `body.token` and names no `bearer_token`; `receivedTokens` stayed empty). Pinned as a named case.
+
+**Across all 35 loop probes, no forwarded write ever carried a bearer** (`receivedTokens` empty for every probe,
+including the ones that carry this lane's session cookies). The mock records a bearer's sha256 and never validates it
+(`mock-gauzy-server.mjs:1052-1058`), so "the API would have rejected it" remains unanswerable and no case here claims
+it.
+
+### Lane-port hardcodes in this lane, as asked
+
+- `session-guard.spec.ts`'s literal `http://localhost:3033` **is already gone** — the origin case at
+  `session-guard.spec.ts:205-224` derives `http://localhost:${LANE_PORTS[E2E_LANE].app}` and asserts it against
+  `APP_ORIGIN`, and that file was green at 47 tests before and after the change (numbers above, "Executed on
+  2026-11-21"). Nothing to fix there, so nothing was touched.
+- What is still literal in this lane, left alone and named: `session-guard.spec.ts:30-31` passes
+  `url=http://127.0.0.1:3033/` as the *target* of the two link-preview probes (if the lane's port moves, the probe
+  asks the app to preview another lane), and `public-link-shape.spec.ts:178, 184, 198, 210` use `http://localhost:3033`
+  as a `returnUrl` and as an `origin` header. Those are other files' assertions with numbers recorded in this plan;
+  changing them without re-running those files would make this file lie about them.
+- One hardcode **this file introduced**: the `account-deletion/request` pin quotes `"callbackUrl":
+  "http://localhost:3033/delete-account/confirm"` because that is what the lane's configured
+  `NEXT_PUBLIC_WEB_APP_URL` produced. Moving this lane's port re-pins that row; the row's own `note` says so.
+
+### Still unverified, on the record
+
+- The five `ever-id` handlers with the switch on (see above).
+- Whether any API would reject what these routes forward: no credential travelled in any measured case, and the mock
+  answers every path and validates no bearer.
+- Whether `POST /api/invite/accept`'s forwarded Origin changes a real welcome e-mail: the mock is the only thing that
+  reacted to it, and this harness cannot show what Gauzy builds from it.
