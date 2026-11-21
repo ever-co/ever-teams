@@ -238,3 +238,84 @@ under `playwright/suites/lane-a/`**. Note for whoever owns the branch: the same 
 - `TaskPropertyMenu`'s option names carry the shortcut digit; anchor on the label's first word, never on the end of
   the name.
 - Keep a run short or restart the lane's servers between runs, and `check lane-a` before believing a timeout.
+
+## 8. Groundwork for the three cases the next lane-a pass was asked to write — read from source, NOT run
+
+**Nothing in this section comes from a run.** On 2026-11-21, before writing anything, the machine check said
+`Free KB: 1301036 / Total KB: 33473768` (with `strata` at 11 170 MB and two other lanes' servers up: the lane-b mock
+127.0.0.1:3996 and lane-c mock 127.0.0.1:4002 were LISTEN, 3032/3033 not), and lane-a's own ports were both
+**CLOSED** — `127.0.0.1:3031 CLOSED`, `127.0.0.1:3992 CLOSED` — so a browser run there would have needed a cold
+`up lane-a` (minutes of Turbopack) on 1.2 GB free, under the 3.5 GB this effort asks for. So no server was started,
+no spec was written, and no `--list` was run (which would have overwritten `artifacts/playwright-lane-a.json` with an
+all-skipped report). What follows is a code reading, and every claim is a file path plus a line, not a number from a
+log. Treat the two "so a future test must…" sentences as hypotheses to be measured, not as results.
+
+### 8.1 `/team/tasks` — what the page is, and which reads a future case would pin
+
+- Route: `app/[locale]/(main)/(teams)/team/tasks/page.tsx` — the whole file is
+  `withAuthentication(TeamTasksPage, { displayName: 'TeamTask', skeleton: TeamTasksPageSkeleton })`.
+- Page: `core/components/pages/teams/team/tasks/list/team-tasks-page.tsx`. Its body picks one state per render —
+  `'loading' | 'error' | 'viewEmpty' | 'emptyTeam' | 'noMatch' | 'scopeEmpty' | 'list'` — so a row-count test has to
+  say which state it expects; `list` needs `view.rows.length > 0`, and a mock that answers the list with `[]` lands on
+  `emptyTeam` instead, which is a different element (`team-tasks-states.tsx`).
+- Reads the components ask for, from the code that asks:
+  - the task list: `core/services/client/api/tasks/task.service.ts:148` GETs `/tasks/team?<query>` **and** `:396`
+    POSTs `/tasks/team`, so a "the list read is one GET" assertion is not safe before measuring;
+  - the statuses: `core/hooks/tasks/use-team-tasks-view.ts:8` (`useTaskStatusesQuery`), which is fed by
+    `useTaskMetadataBootstrapQuery` (`core/hooks/tasks/use-task-statuses-query.ts:10`) →
+    `/task-metadata/bootstrap?<query>` (`core/services/client/api/tasks/task-metadata-bootstrap.service.ts:41`);
+  - the projects: `core/hooks/tasks/use-team-tasks-view.ts:7` (`useOrganizationProjectsQuery`).
+  Which of these the *route* actually triggers, in which order, is still only knowable from the mock's request log —
+  `cypress/e2e/route-ownership.cy.ts:26` pins `{ path: '/team/tasks', expected: ['/api/tasks/team'] }`, and this
+  lane's `smoke.spec.ts` already waits for `/api/tasks/team` on that route.
+- The app's own handler for that path exists (`app/api/tasks/team/route.ts`, from
+  `find app/api -name route.ts`) but is **not** in a mock run's path — see §2 (direct mode). A new case must phrase
+  its proof as "the page asked the mock this" exactly as `timer-journey` and `task-work` do.
+- Rows must be asserted against the ids the control API serves (`fixture.ids.task`, `names.task`), never against a
+  title typed into the spec — the mock's team holds exactly one task (`mock-gauzy-server.mjs:224 tasks: [task]`).
+
+### 8.2 The `aside[aria-label="Details"]` open item — the code half is now settled, the measured half is not
+
+- The file the brief named, `core/components/features/tasks/pages/task-detail-page-body.tsx`, **is not in the tree**:
+  `find core/components -name task-detail-page-body.tsx` prints exactly one path,
+  `core/components/pages/task/task-detail-page-body.tsx` — the one this README's open item §1 already cites. Naming
+  the other path is the same failure mode `playwright/README.md` "Corrections" warns about.
+- What that file does (read, not run): `TaskDetailPageBody` takes `isWide = useMediaQuery('(min-width: 1024px)')`
+  (line 63, query constant line 20) and renders `<TaskDetailRail …/>` only when `isWide` (line 85). `TaskDetailRail`
+  is `<aside aria-label={t('common.DETAILS')}>` (lines 42-43) and **inside it** is
+  `TaskDetailRailSection title={t('taskDetail.sections.PROPERTIES')}` over `TaskDetailProperties` (lines 46-48), then
+  TIME, DAILY PLANS and DETAILS rail sections. `locales/en.json` gives `common.DETAILS = "Details"` and
+  `taskDetail.sections.PROPERTIES = "Properties"` (checked with `node -e` on that file). The route that renders it is
+  `app/[locale]/(main)/task/[id]/page.tsx:132` (`{task && <TaskDetailPageBody key={task.id} task={task} />}`).
+- So at the 1280×720 viewport the property rows *are* inside a labelled `aside`, and the run-6 measurement of
+  "0 elements" cannot be read as "the rail has no such label". The likeliest innocent cause, and it is a hypothesis
+  until re-measured: `core/hooks/common/use-media-query.ts` is `useSyncExternalStore` with
+  `getServerSnapshot = matchesOnServer() → false`, so the rail is absent from the server render and appears only when
+  the client snapshot applies — a locator fired straight after `waitForShellReady` can legitimately catch 0.
+  **The claim stays open**; `task-work.spec.ts`'s label-walking `propertyRow()` stays until someone measures on a
+  healthy lane, and this file's §1 correction ("the properties grid has no landmark") should be re-tested rather than
+  trusted.
+- A future case for "open a task's detail from the list" should record, in the same run: the click's target row (by
+  `fixture.ids.task`), the URL it lands on, and the mock's log entry for `GET /api/tasks/<id>`
+  (`task.service.ts:85-87` — the path carries a query string only when `GAUZY_API_BASE_SERVER_URL.value` is set, which
+  in a lane it is *not*, so expect the bare `/api/tasks/<id>`).
+
+### 8.3 A permission refusal the mock cannot produce, recorded instead of written
+
+- `/permissions` is the one page under `core/components/pages/**` that renders `NotFound` from a permission decision
+  (`core/components/pages/permissions/page-component.tsx`: `canAccessPermissions` at line 57, the refusal at line 78),
+  and its rule is `isOrganizationAdmin || !(activeTeamManagers.length && !isTeamManager)` — i.e. it refuses **only a
+  non-admin viewer when the team has managers and that viewer is not one of them**. Cypress pins the read
+  (`cypress/e2e/route-ownership.cy.ts:24 { path: '/permissions', expected: ['/api/roles'] }`) and the mock answers it
+  (`mock-gauzy-server.mjs:597-600`: `/api/roles/options` → the role, `/api/roles` → `pagination([role])`,
+  `/api/role-permissions/me` → the permission rows).
+- **Mock gap:** the refusal state is unreachable through the switches the control API accepts. `scenario.manager`
+  drives both halves at once — `mock-gauzy-server.mjs:53` (`name: scenario.manager === false ? 'EMPLOYEE' : 'ADMIN'`)
+  and `:190` (`isManager: scenario.manager !== false`) — so `manager: false` yields an EMPLOYEE **and an empty
+  managers list** (`:222`), which the guard reads as allowed. Making this testable needs the mock to take role name
+  and member-manager separately; that is the mock owner's change, not a lane's, and `page.route`-stubbing `/api/roles`
+  here would prove the stub. No test was written for it.
+- The refusal that *is* reachable and worth measuring on the next pass is the unauthenticated one: the `anon` fixture
+  (`fixtures.ts`) visits `/team/tasks` with no session cookies and `hardVisit` is not used, so what the shell does —
+  a redirect, a skeleton that never resolves, or the sign-in page — and whether the mock logged anything before it, is
+  answerable from `/requests`. Unmeasured so far.
