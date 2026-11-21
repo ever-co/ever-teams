@@ -154,6 +154,28 @@ and it is safe only because a lane owns its ports exclusively.
   their own (`--grep`) with no lane running, and quote both numbers. This is also why `suites/mock` keeps
   `workers: 1` and why a lane that wants real runs asks for the machine instead of taking it.
 
+- **A mock user with `emailVerified: false` never gets a shell, and the failure looks like a slow machine.** The
+  app's own layout refuses it: `core/components/layouts/base-layout.tsx` renders `UnverifiedEmail` instead of the
+  shell while `!user?.isEmailVerified`, so no page content appears and `waitForShellReady`'s performance mark
+  `ever-teams:shell-ready` is never recorded — 30 s later the helper fails with "the shell never became ready",
+  which is the same message a starved machine produces. Measured the way this was found: lane-b's sign-in helper
+  created its mock person with `emailVerified: false` (`suites/lane-b/lane-auth-helpers.ts`), and four browser
+  files failed on the shell for it. The canonical suite does not hit this because its fixture user is verified
+  (`cypress/support/mock-gauzy-server.mjs`). Two rules follow: a lane that creates its own signed-in person creates
+  a *verified* one, and when a shell never appears, read the page (`page.locator('body').innerText()`) before
+  blaming timing — if it says `Please verify your email`, it is this finding. `waitForShellReady` quoting the body
+  and the performance entries, instead of only the mark it waited for, is still to be done.
+- **The live suite's blocker, measured rather than inferred.** `POST /auth/register` on the demo API answers 201 with
+  `isActive: false`, `tenantId: null` and `isEmailVerified: false`, and `/auth/login` and `/auth/signin.email.password`
+  both answer `401 {"message":"Unauthorized","statusCode":401}`. That is not the API being difficult:
+  `app/api/auth/register/route.ts` keeps a self-registration inactive until the verification e-mail is opened (owner
+  decision 4, ever-co/ever-gauzy#11341), answers 201 `{verifyEmail: true}`, and lets the *sign-in after the
+  confirmation* build the workspace (`finish-signup.ts`). Asking the API to verify it does not work either — a
+  register body carrying `user.isEmailVerified: true` came back `false`, which is the answer wanted. So
+  `scripts/provision-demo-tenant.mjs` now stops there and says what remains (open the link sent to a mailbox;
+  `--email <an address you can read>` exists for exactly that), instead of failing three calls later with a message
+  that blames the sign-in.
+
 ## Adding a suite
 
 Name it `suites/<name>/*.spec.ts`, make sure the config's `testMatch` covers it, and start from a flow
