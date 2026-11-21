@@ -67,7 +67,9 @@ export async function POST(req: Request) {
 	} else {
 		// General a random password with 8 chars
 		const password = generateToken(8);
-		const names = inviteReq.data.fullName.split(' ');
+		// An invitation sent from the Invite dialog carries no name: the account opens without one
+		const fullName = inviteReq.data.fullName ?? '';
+		const names = fullName.split(' ');
 		const acceptInviteRes = await acceptInviteRequest({
 			code: body.code,
 			email: inviteReq.data.email,
