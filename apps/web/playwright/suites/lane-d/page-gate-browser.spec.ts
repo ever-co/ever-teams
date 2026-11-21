@@ -105,13 +105,13 @@ test.describe('lane-d · the RTL locale', () => {
 		const dir = await html.getAttribute('dir');
 		expect(
 			dir,
-			'finding D-6: <html> for /ar carries no dir today (app/[locale]/layout-component.tsx:107-113 renders lang/className/data-scroll-behavior/suppressHydrationWarning plus the runtime-env attribute, and grep -rniE "rtl" app core styles prints nothing) — if it now carries one, this is the moment that changed and the expectation below has to be re-read, not deleted'
+			'finding D-6, the half that is verified: <html> for /ar carries no dir today — it is rendered in three places only (app/[locale]/layout-component.tsx:107-113, app/not-found.tsx:18, app/global-error.tsx:22) and none sets one. If it now carries a dir, that is the moment D-6 changed and the expectation below has to be re-read, not deleted. D-6 is NOT "the app has no RTL": core/components/pages/chat/message-item.tsx:82 + :118 set dir on the message body for ar/he, chat components use Tailwind rtl: utilities, and limit-heatmap.tsx:949 reads getComputedStyle().direction — see PLAN.md D-6 for what is still unmeasured.'
 		).toBeNull();
 
 		const direction = await page.evaluate(() => getComputedStyle(document.documentElement).direction);
 		expect(
 			direction,
-			`finding D-6: <html> for ar computes direction ${direction}; the app sets no dir for any locale`
+			`finding D-6: <html> for ar computes direction ${direction}; no <html> in this app sets dir (app/[locale]/layout-component.tsx:107-113, app/not-found.tsx:18, app/global-error.tsx:22), though core/components/pages/chat/message-item.tsx:118 does set it on the chat message body for ar/he`
 		).toBe('ltr');
 	});
 

@@ -92,11 +92,21 @@ prints 44 because it also catches `app/[locale]/auth/workspace/page.tsx`, whose 
   before `withoutLocalePrefix` at `:142` is used): `/` → `/auth/passcode`, but `/fr/` (or `/ar/`) → `/unauthorized`
   — the locale-prefixed root is refused to a different page than the root, and the `Location` (`url.origin +
   '/unauthorized'`, `:178`) **drops the locale prefix entirely**. Pinned in the locale group.
-- **D-6 — no RTL support in the page shell.** `app/[locale]/layout-component.tsx:107-113` renders `<html lang={
-  locale} className data-scroll-behavior suppressHydrationWarning {…runtimeEnvHtmlProps}>` — no `dir` — and
-  `grep -rn "<html" app core` prints only that one plus `app/not-found.tsx:18` (`lang="en"`) and
-  `app/global-error.tsx:22`; `grep -rniE "rtl" app core styles` finds nothing. So `ar` and `he` (the two RTL
-  locales among the 13) are served LTR. Pinned as a finding in the browser file.
+- **D-6 — the page shell never carries a `dir`, even though this app does have RTL-aware code.** The part that is
+  true, re-checked against the source: `<html>` is rendered in three places only — `app/[locale]/layout-component.tsx:107-113`,
+  `app/not-found.tsx:18` (`lang="en"`) and `app/global-error.tsx:22` — and none of them sets `dir`, so `ar` and `he`
+  (the two RTL locales among the 13) get a document whose direction is the default LTR.
+  **The wording this finding first had here was wrong, and by how much matters:** "no RTL at all, `grep -rniE "rtl"
+  app core styles` finds nothing" is false twice over — that grep's hits are substring noise (`TimerStartLogType`,
+  `SharedReportLayout`), and real RTL code exists: `core/components/pages/chat/message-item.tsx:82`
+  (`const RTL_LANGUAGES = new Set(['ar', 'he'])`) sets `dir` on the message body at `:118`, several chat components use
+  Tailwind's `rtl:` utilities (`chat-page.tsx:254`, `chat-task-card.tsx:164` and `:265`, `chat-views.tsx:37`), and
+  `limit-heatmap.tsx:949` reads `getComputedStyle(grid).direction === 'rtl'`. So the open question is narrower and
+  testable rather than a headline: Tailwind's `rtl:` variants apply only under an ancestor with `dir="rtl"`, and nothing
+  sets one above the chat message body — which suggests the chat's own back arrow and spacing rules never flip in
+  `ar`/`he`. **That is a browser question and has not been measured.** What this lane pins is only the verified half:
+  `getAttribute('dir')` on `<html>` is `null` (deliberately not `toHaveAttribute`, which fails on an absent attribute),
+  plus one `ar` render.
 - **D-7 — a signed-out visitor is served a document for 40+ page families** (section 3) and every route is
   client-only (`layout-component.tsx:41-43` `ClientOnly`, `ssr: false`), so the served HTML carries **no login
   form and no page content**; only the browser run can say what such a visitor actually sees. The lane's browser
