@@ -2,7 +2,6 @@ name: ✨ Feature Request
 description: Suggest a feature to improve Ever Teams
 title: "[FEATURE]: "
 labels: ["enhancement"]
-assignees: ["Ndekocode", "Innocent-Akim"]
 body:
   - type: markdown
     attributes:
