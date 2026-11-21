@@ -45,7 +45,7 @@ describe("a property's menu", () => {
 		expect(rows.map((row) => row.props.accessibilityLabel)).toEqual(['Open', 'In Progress', 'Blocked']);
 		expect(screen.getByText('glyph Blocked')).toBeTruthy();
 		expect(screen.getByLabelText('In Progress')).toBeSelected();
-		expect(screen.getAllByTestId('icon-Check')).toHaveLength(1);
+		expect(screen.getAllByTestId('selected-mark')).toHaveLength(1);
 	});
 
 	it('keeps the values whose name holds what was typed, whatever its case', async () => {

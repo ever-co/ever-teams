@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { Check, ChevronRight, X } from '../../src/components/icons';
+import { ChevronRight, X } from '../../src/components/icons';
+import { SelectedMark } from '../../src/components/selected-mark';
 import { ChipIcon } from '../../src/components/chip-icon';
 import type { MenuRect } from '../../src/components/menu-placement';
 import { submenuPlacementOf } from '../../src/components/menu-placement';
@@ -186,7 +187,7 @@ function OptionRow({ option, kind, isChecked, keepsCase, onPress }: Readonly<IOp
 			>
 				{option.name}
 			</Text>
-			{isChecked && <Check size={MENU_ICON_SIZE} color={theme.colors.primary} />}
+			{isChecked && <SelectedMark />}
 		</Pressable>
 	);
 }
