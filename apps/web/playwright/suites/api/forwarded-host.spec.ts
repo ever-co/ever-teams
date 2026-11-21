@@ -59,8 +59,19 @@ import { APP_ORIGIN } from '../../helpers';
  *
  * **Ran, and four of its predictions were wrong.** The ten that held were already pins; the four that failed were this
  * file reading a comparison as an assignment, and they are rewritten from what the run answered rather than quietly
- * relaxed. Nothing in this file is now an unrun prediction — but every number quoted here is from the two lane-c logs
- * named above, and a red after a rebase means the guard changed, which is what the assertions are for.
+ * relaxed. Since those runs this file has grown a third route (`POST /api/account-deletion/me`) and a closing describe
+ * comparing the shared guard with its hand-written copy — those are predictions again, and the numbers quoted above are
+ * only for the cases that earned them. A red after a rebase means the guard changed, which is what the assertions are for.
+ *
+ * How it is actually run, because the obvious command runs nothing: `playwright.lane.config.ts` limits a lane run to that
+ * lane's own folder under `suites/`, and this file is a `suites/api` file, so a lane run finds 0 tests here. From the
+ * repository root, against a lane's already-warm app and mock:
+ *
+ *   E2E_LANE=lane-c E2E_REUSE_SERVERS=1 npx playwright test --config apps/web/playwright/playwright.api.config.ts --grep "x-forwarded-host"
+ *
+ * `E2E_REUSE_SERVERS=1` is the part that matters: `playwright.api.config.ts` uses `mockServers()`, whose
+ * `reuseExistingServer` is `REUSE_SERVERS` (`test-servers.ts:103`), off unless that variable is `1` and `CI` is unset.
+ * Without it Playwright starts its own app on the lane's port and the run dies there.
  */
 
 const FOREIGN_ORIGIN = 'https://some-other-site.example';
@@ -69,9 +80,17 @@ const OWN_HOST = new URL(OWN_ORIGIN).host;
 /** Neither this app's host nor the foreign Origin's: what the guard compares against when the header names it. */
 const UNRELATED_HOST = 'forwarded-host-probe.example';
 
+/**
+ * The routes this drives, all with a guard that runs before anything is asked of the API. The third is here on purpose:
+ * `refuseUntrustedPost` (`core/services/server/requests/account-deletion-me.ts:31-51`) is a **hand-written copy** of
+ * `refuseForeignOrigin` — it re-reads `x-forwarded-host ?? host ?? req.url host` and `.split(',')[0].trim()` at `:38-45` —
+ * so testing only the shared helper would leave the copy's behaviour assumed. Where the two differ, the last describe pins
+ * it rather than averaging it out.
+ */
 const PROBE_ROUTES = [
 	{ path: '/api/issue-types', body: { name: 'Playwright forwarded-host probe' } },
-	{ path: '/api/auth/switch-organization', body: { organizationId: 'playwright-forwarded-host-probe' } }
+	{ path: '/api/auth/switch-organization', body: { organizationId: 'playwright-forwarded-host-probe' } },
+	{ path: '/api/account-deletion/me', body: { confirm: true } }
 ];
 
 const triple = (request: { method: string; path: string; status: number }) => `${request.method} ${request.path} ${request.status}`;
@@ -85,13 +104,20 @@ function parseAnswer(text: string): unknown {
 	}
 }
 
-/** This app's own cross-site refusal, body pinned (`same-origin-request.ts:48-53`). */
+/**
+ * "This app's own guard answered, in its own words." The message is what identifies the guard; the **shape is not the
+ * same in both guards** and pinning it equal would be a false claim: `refused()` writes
+ * `{statusCode:403,message:'Cross-site request refused'}` (`same-origin-request.ts:48-53`) while `refuseUntrustedPost`'s
+ * `refuse()` writes `{message:'Cross-site request refused'}` with `Cache-Control: no-store`
+ * (`account-deletion-me.ts:19-21`). The last describe pins that difference; this helper only asks whether these words came
+ * from this app at all, which no upstream answer says.
+ */
 function expectRefusedHere(why: string, status: number, text: string) {
 	expect(status, `${why}: answered ${status} ${text.slice(0, 200)}`).toBe(403);
 	expect(
 		parseAnswer(text),
 		`${why}: 403, but not this app's own cross-site refusal — the answer was ${text.slice(0, 200)}, which means something downstream of the guard answered`
-	).toMatchObject({ statusCode: 403, message: 'Cross-site request refused' });
+	).toMatchObject({ message: 'Cross-site request refused' });
 }
 
 /**
@@ -285,8 +311,73 @@ for (const route of PROBE_ROUTES) {
 			const text = await response.text();
 			expect(
 				parseAnswer(text),
-				`a write with no Origin was refused by this app's guard (answered ${response.status()} ${text.slice(0, 200)}) — same-origin-request.ts:21 runs the host comparison only when an Origin is present, so this cannot be a cross-site refusal`
-			).not.toMatchObject({ statusCode: 403, message: 'Cross-site request refused' });
+				`a write with no Origin was refused by this app's guard (answered ${response.status()} ${text.slice(0, 200)}) — same-origin-request.ts:21 runs the host comparison only when an Origin is present (and so does the copy at account-deletion-me.ts:35), so this cannot be a cross-site refusal`
+			).not.toMatchObject({ message: 'Cross-site request refused' });
 		});
 	});
 }
+
+test.describe('api · the shared guard and the copy of it in account-deletion-me', () => {
+	/**
+	 * `refuseForeignOrigin` (`core/services/server/same-origin-request.ts:16-34`) and `refuseUntrustedPost`
+	 * (`core/services/server/requests/account-deletion-me.ts:31-51`) implement the same host comparison by hand, and the
+	 * lane-c lane found the second one only because it read a helper file (`suites/lane-c/unguarded-writes.spec.ts:939`).
+	 * Where they differ is measurable, and averaging it into one assertion would hide it.
+	 */
+	test('the same refusal words, two different bodies', async ({ api }) => {
+		const shared = await api('/api/issue-types', {
+			method: 'POST',
+			body: { name: 'Playwright forwarded-host probe' },
+			headers: { origin: FOREIGN_ORIGIN, 'sec-fetch-site': 'same-origin' }
+		});
+		const copy = await api('/api/account-deletion/me', {
+			method: 'POST',
+			body: { confirm: true },
+			headers: { origin: FOREIGN_ORIGIN, 'sec-fetch-site': 'same-origin' }
+		});
+
+		const sharedBody = parseAnswer(await shared.text()) as Record<string, unknown>;
+		const copyBody = parseAnswer(await copy.text()) as Record<string, unknown>;
+		expect(shared.status(), `the shared guard answered ${shared.status()} ${JSON.stringify(sharedBody)}`).toBe(403);
+		expect(copy.status(), `the copy answered ${copy.status()} ${JSON.stringify(copyBody)}`).toBe(403);
+		expect(sharedBody.message, `the shared guard's words: ${JSON.stringify(sharedBody)}`).toBe('Cross-site request refused');
+		expect(copyBody.message, `the copy's words: ${JSON.stringify(copyBody)}`).toBe('Cross-site request refused');
+		// `refused()` writes statusCode into the body (`same-origin-request.ts:49-52`); `refuse()` does not
+		// (`account-deletion-me.ts:19-21`, which writes only `{ message }` plus `Cache-Control: no-store`). A client that
+		// reads `statusCode` out of a refusal body gets it from one guard and not the other.
+		expect(Object.keys(sharedBody), `the shared guard's body keys: ${JSON.stringify(sharedBody)}`).toContain('statusCode');
+		expect(Object.keys(copyBody), `the copy's body keys: ${JSON.stringify(copyBody)} — refuse() writes only { message }, so a client reading statusCode gets undefined here`).not.toContain('statusCode');
+	});
+
+	test('Sec-Fetch-Site: same-site — the shared guard refuses that value, the copy does not know it exists', async ({ api, mock }) => {
+		/**
+		 * `same-origin-request.ts:17-18` refuses `cross-site` **or** `same-site`; `account-deletion-me.ts:32` checks
+		 * `=== 'cross-site'` only. `same-site` is what a browser reports for a request between two pages of the *same
+		 * registrable domain* — which is exactly the Board/`app.`/`api.` shape this app deploys in — so on that one value
+		 * the two guards answer opposite ways for the same caller. Both are pinned; nothing here says which is right, and
+		 * `suites/lane-c/PLAN.md` is where the question belongs.
+		 */
+		const shared = await api('/api/issue-types', {
+			method: 'POST',
+			body: { name: 'Playwright forwarded-host probe' },
+			headers: { origin: OWN_ORIGIN, 'sec-fetch-site': 'same-site' }
+		});
+		expectRefusedHere('the shared guard, Sec-Fetch-Site: same-site, this app own Origin', shared.status(), await shared.text());
+		expect(await mock.calls('/api/issue-types'), 'the shared guard refused, so nothing should have been asked of the API').toEqual([]);
+
+		const copy = await api('/api/account-deletion/me', {
+			method: 'POST',
+			body: { confirm: true },
+			headers: { origin: OWN_ORIGIN, 'sec-fetch-site': 'same-site' }
+		});
+		const copyText = await copy.text();
+		const asked = await mock.calls('/api/account-deletion/me');
+		expectPastTheGuard(
+			"the copy, Sec-Fetch-Site: same-site, this app's own Origin (predicted: that value is not one it refuses, and the Origin matches this host, so the write is forwarded)",
+			copy.status(),
+			copyText,
+			asked,
+			await mock.requests()
+		);
+	});
+});

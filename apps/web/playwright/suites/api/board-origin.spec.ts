@@ -51,7 +51,14 @@ import { APP_ORIGIN } from '../../helpers';
  * body never carries, so the number it reports is the mock's amnesia and not an answer about anyone being notified. The
  * tests here claim the **path, the credential and the status**, and say so in the assertion text.
  *
- * **Written from the source, not run.** Every status, body, header and log line below is what the source predicts.
+ * **Ran, in lane-c's warm app and mock** (`E:\Coding\.tmp\api-board-origin-lane-c.log` 22 failed / 4 skipped, then
+ * `api-board-origin-lane-c-2.log` **`22 passed (4.2s)`, 4 skipped**). The command, because the obvious one runs nothing:
+ * `playwright.lane.config.ts` limits a lane run to that lane's own folder under `suites/` and this is a `suites/api` file,
+ * so a lane run finds 0 tests here. From the repository root:
+ * `E2E_LANE=lane-c E2E_REUSE_SERVERS=1 npx playwright test --config apps/web/playwright/playwright.api.config.ts --grep "Board routes"`
+ * — `E2E_REUSE_SERVERS=1` is what lets `mockServers()` reuse the lane's servers instead of starting its own app on a
+ * occupied port (`test-servers.ts:103`). The 4 skips are the configured-Board half described above; the trusted-origin
+ * cases below have **not** been measured yet, and say so.
  */
 
 const PROD_BOARD_ORIGIN = 'https://board.ever.team';
