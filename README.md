@@ -80,12 +80,12 @@ Note: Currently WIP, the screenshot is just a temporary picture :)
 
 #### Examples
 
-- **<https://base.examples.ever.team>** - Ever® Teams™ base example
-- **<https://next.examples.ever.team>** - Ever® Teams™ NextJs example
-- **<https://saas.examples.ever.team>** - Ever® Teams™ SaaS platform example
-- **<https://vite.examples.ever.team>** - Ever® Teams™ example built with Vite
-- **<https://next-boilerplate.examples.ever.team>** - Ever® Teams™ example built with NextJs Boilerplate
-- **<https://remix.examples.ever.team>** - Ever® Teams™ example built with Remix
+- **<https://base-examples.ever.team>** - Ever® Teams™ base example
+- **<https://next-examples.ever.team>** - Ever® Teams™ NextJs example
+- **<https://saas-examples.ever.team>** - Ever® Teams™ SaaS platform example
+- **<https://vite-examples.ever.team>** - Ever® Teams™ example built with Vite
+- **<https://next-boilerplate-examples.ever.team>** - Ever® Teams™ example built with NextJs Boilerplate
+- **<https://remix-examples.ever.team>** - Ever® Teams™ example built with Remix
 
 ### Other Links
 
