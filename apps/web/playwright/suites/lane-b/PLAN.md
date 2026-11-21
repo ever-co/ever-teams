@@ -199,13 +199,21 @@ this mock never issues a token, so what is proved is the shape the app's cookie 
 
 ## 3. What the mock cannot answer (limits, not skips)
 `cypress/support/mock-gauzy-server.mjs`'s `routeResponse` has **no handler for any path of the sign-in family** —
-grep it: nothing matches `'/auth/…'`. Its fall-through is
+grep it for `'/auth/…'` and nothing matches. **Corrected 2026-11-21: that grep was searching the wrong spelling.**
+Every key in that file carries this app's `/api` prefix (`if (pathname === '/api/user/me')`,
+`if (pathname === '/api/auth/switch-organization')`), because both legs of a run send it: `serverFetch` fetches
+`GAUZY_API_SERVER_URL + path` and that constant is `basePath + '/api'` (`core/services/server/fetch.ts`,
+`core/constants/config/constants.tsx`), and the browser's axios `baseURL` is `GAUZY_API_BASE_SERVER_URL + '/api'`
+(`core/services/client/axios.ts:110`). Measured on this lane (`POST /api/auth/signin-email` on 3032 →
+`GET http://127.0.0.1:3998/requests` → `{"method":"POST","path":"/api/auth/signin.email","status":200}`). Grep it for
+`'/api/auth/…'` and three handlers **do** match, listed under this section's gaps below. Its fall-through is
 `if (method === 'DELETE') return { affected: 1, raw: [] }; if (method !== 'GET') return body ?? { success: true };
 return pagination([]);`. So:
 
-- **Every auth POST is answered 200 with the request body echoed.** The mock cannot sign anyone in through a form,
-  cannot 401 a wrong password, cannot refuse a code, cannot hand out a token, cannot refresh (`/auth/refresh-token`
-  answered by echoing `{refresh_token}` carries no `token`), and cannot complete a sign-up.
+- **Every auth POST it does not know is answered 200 with the request body echoed.** The mock cannot sign anyone in
+  through a form, cannot 401 a wrong password, cannot refuse a code, and cannot complete a sign-up. **It can refresh**
+  (see the gap list: `/api/auth/refresh-token` hands out a pair) **and it cannot refuse an unauthenticated caller**
+  (`/api/user/me` answers the fixture user whoever asks, bearer or not).
 - Consequently these app branches are **unreachable in a mock run** and no test of mine pretends otherwise:
   `errors.loginFailed` ("Incorrect email address or password"), the `data.status` starting with `4` in
   `use-authentication-password.ts`, a real refused magic code, a real 401 on a wrong password, a real expired reset
@@ -215,8 +223,29 @@ return pagination([]);`. So:
   locale work here proves rendering and the door's locale handling rather than a successful language change.
 - The mock records method / path / query / status only — **no bodies, no headers** — and Bearer tokens only as
   sha256 (`receivedTokens`). So every "what was sent" assertion in this lane is taken from the browser half
-  (`watchAppApi`, which reads `request.postData()` on same-origin `/api/…`) or from the mock's echo (used once, in
-  the join pin). No test prints a credential: passwords and tokens are asserted by presence, length and key names.
+  (`watchAppApi` on the app origin, `watchMockApi` on the mock origin — both read `request.postData()`) or from the
+  mock's echo. No test prints a credential: passwords and tokens are asserted by presence, length and key names.
+
+**The three sign-in-family handlers this mock really has, and what each one costs this lane.** For the mock's owner:
+each of these is a switch request, not a request to delete the handler.
+
+1. `if (pathname === '/api/auth/refresh-token') return { token: 'synthetic-refreshed-token', refresh_token:
+   'synthetic-refresh-token' };` — a renewal always succeeds, so `app/api/auth/refresh/route.ts`'s deliberate
+   **502** branch (`if (!refreshResult?.data?.token)` → "Token refresh failed: No token received") is unreachable in
+   every mock run, lane or Cypress. **Wanted:** a `scenario` switch that answers 200 with a body that carries
+   `refresh_token` but no `token`, and one that answers 401. Until then the lane pins the reachable half only
+   (`route-refusals.spec.ts`, "POST /api/auth/refresh rotates on this mock…").
+2. `if (pathname === '/api/user/me') return data.baseUser;` — the mock never looks at the bearer, so a request with
+   **no** session cookie passes `authenticatedGuard` (`core/services/server/guards/authenticated-guard-app.ts` counts
+   any 2xx body without `statusCode 401` as authenticated). Every "the guard refuses an anonymous caller" claim in
+   this lane is therefore out of reach, and the lane pins instead what the mock does show: the check was made with no
+   bearer at all (`receivedTokens('/api/user/me')` empty) and the relay that followed it. **Wanted:** `/api/user/me`
+   answering 401 `{statusCode:401}` when the request carries no `Authorization: Bearer`, behind a scenario switch so
+   the existing signed-in suites keep working.
+3. `if (pathname === '/api/organization-team-join') return pagination([]);` — a handler in front of the echo
+   fall-through, so the unguarded-POST pin cannot use an echo body as its witness (it can only prove the ask: `POST`
+   recorded, `receivedTokens` empty). **Wanted:** either the echo for this path under a scenario switch, or a recorded
+   copy of the body it received, so audit finding 1 can be pinned by body and not only by the log line.
 
 ---
 
@@ -421,3 +450,29 @@ taskkill //F //T //PID <pid>          # for each listener of 3032 / 3996-3999, n
   content — what the passcode form puts on the wire and what the mock answers — is now asserted properly in
   `passcode-journey.spec.ts`. It was removed with `rm`, not renamed into anything.
 - No git command other than read-only `log` / `show --stat` / `status` was run in this checkout.
+
+---
+
+## 9. Verdict per red, from the run of 2026-11-21 (`E:\Coding\.tmp\lane-b-verify.log`: `30 failed`, `45 passed (1.4h)`)
+
+Verdicts: **A** = the app genuinely does this (keep the case, it is the finding). **M** = the mock cannot answer it
+(§3 gap, written for the mock's owner). **C** = contention / timeout artefact (only when a solo `--grep` re-run on a
+healthy lane is green while the big run was red, with both numbers quoted). **T** = the test's assumption was wrong
+(fixed, with the source the fix was copied from).
+
+### `route-refusals.spec.ts` — 7 reds → 7 diagnosed, all fixed, re-run green
+
+Live probe numbers are from my own run against a lane I started myself:
+`E2E_LANE=lane-b npx playwright test … --grep "the sign-in routes refuse|a POST with no guard"` →
+**`17 passed (22.3s)`** (`E:\Coding\.tmp\lane-b-diag-refusals-1.log`), against these 7 reds in the 1.4 h run. All 17
+cases there ran in 46–420 ms, so none of them was ever a contention story.
+
+| red (line of `route-refusals.spec.ts` in the 17:59 tree) | what it died with | verdict |
+| --- | --- | --- |
+| `:68` "…is forwarded, once, on Gauzy's own path" | `Expected length: 1 / Received length: 0 / Received array: []`, in the same message the mock log line `POST /api/auth/signin.email → 200` | **T** — the filter omitted the `/api` prefix the mock records; the app *did* forward. Fixed from `core/services/server/fetch.ts` (`fetch(GAUZY_API_SERVER_URL + path)`) and `constants.tsx` (`GAUZY_API_SERVER_URL = basePath + '/api'`). |
+| `:179` "reset-password … is forwarded on Gauzy's own path" | same shape: `[]` against `POST /api/auth/reset-password → 200` | **T** — same prefix. The pin now also reads the echo body (`{"token":"lane-b-route-level-token",…}` measured with curl) because `/api/auth/reset-password` has no mock handler. |
+| `:221` "verify/resend-link without a session is refused by the guard" | `Expected: 401 / Received: 200` with the mock's echo `{email, appName, appSignature, appLogo, appEmailConfirmationUrl}` | **M + A** — the mock's `/api/user/me` handler hands the fixture user to a bearer-less request (§3.2), so `authenticatedGuard` authenticates an anonymous caller in a mock run; the relay itself is real app behaviour and is now pinned with the bearer-less check. |
+| `:250` "refresh answers 502, not 401 … which is every answer this mock gives" | `Expected: 502 / Received: 200` | **T + M** — the premise "no handler, echoes the body" is false: the mock answers that path with a pair (§3.1). Pinned as the renewal that does happen (200 + `synthetic-refreshed-token`, not 401); the 502 branch is recorded as unreachable-by-mock. |
+| `:304` "the passcode page's own route is /api/auth/signin-email…" | `Expected length: 1 / Received length: 0` for the send-code ask | **T** — same prefix, both halves. |
+| `:363` "login crashes on the mock's echo of an invitation code — predicted, §5" | `Expected length: 1 / Received length: 0` (its 500 assertion had already passed) | **A + T** — the crash is real: `HTTP 500`, empty body, one ask `POST /api/invite/validate-by-code → 200`, and the app's own log printed `TypeError: Cannot read properties of undefined (reading 'split')` at `app/api/auth/login/route.ts:70` (`inviteReq.data.fullName.split(' ')`) — that stack is in my run log too. Only the path filter was wrong. |
+| `:393` "organization-team-join relays an anonymous, foreign body" | `Expected: "lane-b-pinned-team" / Received: undefined`, body `{"items":[],"total":0}` | **A + M** — the relay is real (`POST /api/organization-team-join → 200` recorded, `receivedTokens` empty, and the sibling case shows no `Sec-Fetch-Site` guard reads it); the body witness is impossible because the mock answers that path with `pagination([])` (§3.3). |

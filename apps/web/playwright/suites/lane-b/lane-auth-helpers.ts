@@ -1,6 +1,7 @@
 import { expect, type BrowserContext, type Locator, type Page } from '@playwright/test';
 
 import { APP_ORIGIN, authCookieNames, mockRequests, type BootstrapFixture, type StubRequest } from '../../helpers';
+import { MOCK_ORIGIN } from '../../test-servers';
 
 /**
  * Lane-local plumbing for the lane-b sign-in / session / locale specs. It lives in the lane folder on purpose:
@@ -141,18 +142,83 @@ export async function mockAskedNothing(fragment: string): Promise<void> {
 	).toEqual([]);
 }
 
-/** The Gauzy paths of the sign-in family, which is what these specs refuse or cause. */
+/**
+ * The mock leg as the browser actually made it: method, path, body and status of every request the page sent to
+ * **this lane's mock origin**.
+ *
+ * This witness exists because the leg `watchAppApi` was written for does not happen in a mock run. Each sign-in
+ * method of `core/services/client/api/auth/auth.service.ts` branches on `GAUZY_API_BASE_SERVER_URL.value` — set to
+ * the mock by `playwright/test-servers.ts:109` — and takes the direct branch: `signInEmail` posts `/auth/signin.email`
+ * (lines 179-185), `signInEmailConfirm` `/auth/signin.email/confirm` (201-212), `signInEmailPassword`
+ * `/auth/signin.email.password` (188-193), `signInWithEmailAndCode` `/auth/login` (136-142) and `resetPassword`
+ * `/auth/reset-password` (303-310). Only `requestPassword` (and the other non-Gauzy fallbacks) reaches this app's own
+ * handler. So the body a sign-in form sent is observable **here**, on the mock leg, and never on `APP_ORIGIN` —
+ * filtering `/api/auth/signin-email` off the app origin sees nothing but NextAuth's own chatter, which is exactly what
+ * the 2026-11-21 run recorded (`GET /api/auth/session … POST /api/log`, and no sign-in route).
+ *
+ * `OPTIONS` is skipped: a JSON cross-origin POST is preceded by a CORS preflight, and the mock answers it before
+ * recording anything (`cypress/support/mock-gauzy-server.mjs`, the `method === 'OPTIONS'` early return), so counting it
+ * would disagree with the mock's own log.
+ */
+export function watchMockApi(page: Page): () => AppApiCall[] {
+	const calls: AppApiCall[] = [];
+	const isMockCall = (url: URL) => url.origin === new URL(MOCK_ORIGIN).origin && url.pathname.startsWith('/api/');
+
+	page.on('request', (request) => {
+		const url = new URL(request.url());
+		if (!isMockCall(url) || request.method() === 'OPTIONS') return;
+		const raw = request.postData();
+		let body: unknown = null;
+		if (raw !== null && raw !== undefined) {
+			try {
+				body = JSON.parse(raw);
+			} catch {
+				body = raw;
+			}
+		}
+		calls.push({ method: request.method(), path: url.pathname, body, status: 0 });
+	});
+	page.on('response', (response) => {
+		const url = new URL(response.url());
+		if (!isMockCall(url) || response.request().method() === 'OPTIONS') return;
+		for (let index = calls.length - 1; index >= 0; index -= 1) {
+			if (calls[index].path === url.pathname && calls[index].status === 0) {
+				calls[index].status = response.status();
+				break;
+			}
+		}
+	});
+
+	return () => calls;
+}
+
+/**
+ * The paths the mock's own request log holds for the sign-in family.
+ *
+ * ⚠ They carry this app's `/api` prefix, on **both** legs, and a filter written without it matches nothing (measured
+ * 2026-11-21 with `lane-servers.mjs up lane-b`, `POST /api/auth/signin-email` then `GET 127.0.0.1:3998/requests`:
+ * `[{"method":"POST","path":"/api/auth/signin.email",…}]`):
+ *
+ * - the server leg: `serverFetch` fetches `GAUZY_API_SERVER_URL + path` (`core/services/server/fetch.ts`) and that
+ *   constant is `basePath + '/api'` (`core/constants/config/constants.tsx`, `GAUZY_API_SERVER_URL`);
+ * - the browser leg: `apiConfig` sets axios `baseURL = baseURL ? \`${baseURL}/api\` : undefined`
+ *   (`core/services/client/axios.ts:110`) over `GAUZY_API_BASE_SERVER_URL` (`NEXT_PUBLIC_GAUZY_API_SERVER_URL`,
+ *   which `playwright/test-servers.ts:109` sets to this lane's mock).
+ *
+ * The mock's own handlers agree — every one of them is keyed on the prefixed path (`cypress/support/mock-gauzy-server.mjs`,
+ * e.g. `if (pathname === '/api/user/me')`, `if (pathname === '/api/auth/refresh-token')`).
+ */
 export const AUTH_API_PATHS = [
-	'/auth/signin.email',
-	'/auth/signin.email.password',
-	'/auth/signin.email/confirm',
-	'/auth/request-password',
-	'/auth/reset-password',
-	'/auth/register',
-	'/auth/login',
-	'/auth/refresh-token',
-	'/auth/verify-code',
-	'/invite/validate-by-code'
+	'/api/auth/signin.email',
+	'/api/auth/signin.email.password',
+	'/api/auth/signin.email/confirm',
+	'/api/auth/request-password',
+	'/api/auth/reset-password',
+	'/api/auth/register',
+	'/api/auth/login',
+	'/api/auth/refresh-token',
+	'/api/auth/verify-code',
+	'/api/invite/validate-by-code'
 ];
 
 /** How many sign-in asks the mock has recorded so far. Take this *before* the action under test. */
@@ -231,6 +297,12 @@ export function watchAppApi(page: Page): () => AppApiCall[] {
  * `core/components/pages/auth/sign-in/sign-in-page.tsx` calls `useSession()`, so a sign-in page asks NextAuth by
  * itself whether or not the person submitted anything, and that chatter is not the flow under test. Matching the
  * sign-in family on the `/api/auth/` prefix would therefore blame a refused form for a page-mount call.
+ *
+ * ⚠ In a mock run a browser does not ask any of these routes at all — the auth client posts straight to the mock
+ * (`watchMockApi`'s note above, `auth.service.ts:136-142, 179-212, 303-310`). A sign-in spec must not read an empty
+ * `appAuthAsks()` as proof that a form refused: it is also what a form that submitted gives. It is a real witness only
+ * for the routes the client really uses here (`requestPassword`, `resetPassword`'s non-Gauzy fallback), and the
+ * `route-refusals` suite calls those handlers directly with the `api` fixture instead.
  */
 export const APP_SIGN_IN_ROUTES = [
 	'/api/auth/signin-email',

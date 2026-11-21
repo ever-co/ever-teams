@@ -39,6 +39,16 @@ import {
  * `core/services/server/same-origin-request.ts` refuses on `Sec-Fetch-Site: cross-site` **and** `same-site` — the
  * `same-site` case is what a sibling subdomain actually sends, and the audit counts it tested on 3 of 286 guarded
  * entries, so it is pinned here for a sign-in-adjacent route.
+ *
+ * **The mock's log spells every path with this app's `/api` prefix**, and every filter below matches that spelling.
+ * `serverFetch` fetches `GAUZY_API_SERVER_URL + path` (`core/services/server/fetch.ts`) and that constant is
+ * `basePath + '/api'` (`core/constants/config/constants.tsx`), so a handler asking for `/auth/signin.email` arrives at
+ * the mock as `/api/auth/signin.email` — measured 2026-11-21 on this lane (`POST /api/auth/signin-email` on 3032, then
+ * `GET http://127.0.0.1:3998/requests` → `[{"method":"POST","path":"/api/auth/signin.email","status":200}]`). A filter
+ * without the prefix matches nothing, which is why the 2026-11-21 run red-flagged four cases whose forwarding the app
+ * really did (`lane-b-verify.log` lines 950-1120: `Received array: []` beside a log line naming the ask), and made the
+ * `mockAskedNothing` witnesses below pass for the wrong reason. The mock's own handlers are keyed the same way
+ * (`cypress/support/mock-gauzy-server.mjs`: `pathname === '/api/user/me'`, `pathname === '/api/auth/refresh-token'`).
  */
 const CROSS_SITE = { 'sec-fetch-site': 'cross-site' };
 const SAME_SITE = { 'sec-fetch-site': 'same-site' };
@@ -73,11 +83,12 @@ test.describe('lane-b · the sign-in routes refuse on their own, and say so befo
 		expect(response.status(), `a valid code request was answered ${response.status()}: ${await response.text()}`).toBe(
 			200
 		);
-		const asked = await mockCallsExactly('/auth/signin.email');
+		const asked = await mockCallsExactly('/api/auth/signin.email');
 		expect(
 			asked.map((request) => `${request.method} ${request.path} → ${request.status}`),
 			`this app did not forward a valid code request exactly once: ${describeMockLog(await mockRequests())}`
 		).toHaveLength(1);
+		expect(asked[0].method, `the code request reached the API as ${asked[0].method}, not a POST`).toBe('POST');
 	});
 
 	test('POST /api/auth/signin-email-password refuses a one-character password before the API sees a credential', async ({
@@ -98,7 +109,7 @@ test.describe('lane-b · the sign-in routes refuse on their own, and say so befo
 			`the password refusal is not the general empty-field message: ${JSON.stringify(body.errors)}`
 		).toContain('fill out this field');
 
-		await mockAskedNothing('/auth/signin.email.password');
+		await mockAskedNothing('/api/auth/signin.email.password');
 	});
 
 	test('POST /api/auth/signin-email-confirm refuses a short code before it is tried as an invitation code', async ({
@@ -119,8 +130,8 @@ test.describe('lane-b · the sign-in routes refuse on their own, and say so befo
 		).toContain('8 characters');
 
 		// The handler checks the invitation code first, so an empty log proves the refusal happened before it.
-		await mockAskedNothing('/invite/validate-by-code');
-		await mockAskedNothing('/auth/signin.email/confirm');
+		await mockAskedNothing('/api/invite/validate-by-code');
+		await mockAskedNothing('/api/auth/signin.email/confirm');
 	});
 
 	test('POST /api/auth/register answers 400 with the field errors, which is the only status the client reads', async ({
@@ -146,7 +157,7 @@ test.describe('lane-b · the sign-in routes refuse on their own, and say so befo
 			'valid Team Name'
 		);
 
-		await mockAskedNothing('/auth/register');
+		await mockAskedNothing('/api/auth/register');
 	});
 
 	test('POST /api/auth/request-password and /api/auth/reset-password refuse an incomplete body without asking the API', async ({
@@ -158,7 +169,7 @@ test.describe('lane-b · the sign-in routes refuse on their own, and say so befo
 			forgot.status(),
 			`an empty reset-link request was answered ${forgot.status()}, not 400: ${JSON.stringify(forgotBody)}`
 		).toBe(400);
-		await mockAskedNothing('/auth/request-password');
+		await mockAskedNothing('/api/auth/request-password');
 
 		const reset = await api('/api/auth/reset-password', {
 			method: 'POST',
@@ -173,7 +184,7 @@ test.describe('lane-b · the sign-in routes refuse on their own, and say so befo
 			resetBody.message,
 			`the reset refusal does not say what was missing: ${JSON.stringify(resetBody)}`
 		).toContain('required');
-		await mockAskedNothing('/auth/reset-password');
+		await mockAskedNothing('/api/auth/reset-password');
 	});
 
 	test('POST /api/auth/reset-password with everything asked for is forwarded on Gauzy’s own path', async ({ api }) => {
@@ -187,11 +198,21 @@ test.describe('lane-b · the sign-in routes refuse on their own, and say so befo
 			response.status(),
 			`a complete reset request was answered ${response.status()}: ${await response.text()}`
 		).toBe(200);
-		const asked = await mockCallsExactly('/auth/reset-password');
+		const asked = await mockCallsExactly('/api/auth/reset-password');
 		expect(
 			asked.map((request) => `${request.method} ${request.path} → ${request.status}`),
 			`the mock was never asked to reset: ${describeMockLog(await mockRequests())}`
 		).toHaveLength(1);
+
+		// The mock answers a POST it has no handler for by echoing the body it got
+		// (`cypress/support/mock-gauzy-server.mjs`: `if (method !== 'GET') return body ?? { success: true };`), so the
+		// token below is a witness that this app forwarded the body unchanged. Measured 2026-11-21: this request was
+		// answered `{"token":"lane-b-route-level-token","password":"Str0ng!Pass","confirmPassword":"Str0ng!Pass"}`.
+		const echoed = (await response.json()) as { token?: string };
+		expect(
+			echoed.token,
+			`the forwarded body is not what the API was handed: ${JSON.stringify(echoed)}`
+		).toBe(token);
 	});
 
 	test('POST /api/auth/verify/resend-link refuses same-site as firmly as cross-site, and asks the API neither', async ({
@@ -214,19 +235,56 @@ test.describe('lane-b · the sign-in routes refuse on their own, and say so befo
 			).toContain('Cross-site request refused');
 		}
 
-		// Both refusals happen before `authenticatedGuard` and before any Gauzy call.
-		await mockAskedNothing('/auth/email/verify/resend-link');
+		// Both refusals happen before `authenticatedGuard` and before any Gauzy call. Measured 2026-11-21: `HTTP 403`
+		// with `{"statusCode":403,"message":"Cross-site request refused"}`.
+		await mockAskedNothing('/api/auth/email/verify/resend-link');
+		await mockAskedNothing('/api/user/me');
 	});
 
-	test('POST /api/auth/verify/resend-link without a session is refused by the guard, not by the API', async ({ api }) => {
+	test('POST /api/auth/verify/resend-link with no cookies is relayed, because this mock hands /api/user/me to anybody', async ({
+		api
+	}) => {
+		/**
+		 * What the 2026-11-21 run called a 401-vs-200 red, measured on a healthy lane on 2026-11-21 (no cookies, no
+		 * `Sec-Fetch-Site` header): `HTTP 200` with `{"email":"manager@example.test","appName":"Ever Teams",…}` — the
+		 * mock's echo of what this app sent it — and the mock log
+		 * `GET /api/user/me → 200, POST /api/auth/email/verify/resend-link → 200`, with `receivedTokens` empty.
+		 *
+		 * The chain, read from the source: `authenticatedGuard` calls `currentAuthenticatedUserRequest({ bearer_token: '' })`
+		 * (`core/services/server/guards/authenticated-guard-app.ts`) and counts the answer as authenticated unless it is a
+		 * 2xx body carrying `statusCode 401`; this mock answers `if (pathname === '/api/user/me') return data.baseUser`
+		 * (`cypress/support/mock-gauzy-server.mjs`) whoever asks, with no bearer to look at. So the guard finds the fixture
+		 * user, `user.email` is `manager@example.test`, and the resend is forwarded. **Verdict: the mock cannot answer "the
+		 * API refuses a caller with no session"** (PLAN.md §8) — no lane of this harness can show the 401 the real API's
+		 * `/user/me` would give. What this case pins instead is the half that is real here: the app asked for the session
+		 * check with **no bearer token at all**, and then relayed the answer it got.
+		 */
 		const response = await api('/api/auth/verify/resend-link', { method: 'POST', body: {}, anonymous: true });
-		const body = await response.json();
+		const body = (await response.json()) as { email?: string; appEmailConfirmationUrl?: string };
 
 		expect(
 			response.status(),
-			`a session-less resend was answered ${response.status()}: ${JSON.stringify(body)}`
-		).toBe(401);
-		await mockAskedNothing('/auth/email/verify/resend-link');
+			`the relay of a session-less resend is no longer what this lane measured (${response.status()}: ${JSON.stringify(body)})`
+		).toBe(200);
+		expect(
+			body.email,
+			`the relayed resend no longer carries the user the guard's bearer-less /api/user/me check handed it: ${JSON.stringify(body)}`
+		).toBe(MOCK_EMAIL);
+
+		const sessionCheck = await mockCallsExactly('/api/user/me');
+		expect(sessionCheck.length, `the guard did not check the session at all: ${describeMockLog(await mockRequests())}`).toBe(
+			1
+		);
+		expect(
+			await receivedTokens('/api/user/me'),
+			`the session check carried a bearer token after all, so this was not the cookie-less request this pins: ${JSON.stringify(
+				await receivedTokens('/api/user/me')
+			)}`
+		).toEqual([]);
+		expect(
+			await mockCallsExactly('/api/auth/email/verify/resend-link'),
+			`the resend was not forwarded after that answer: ${describeMockLog(await mockRequests())}`
+		).toHaveLength(1);
 	});
 
 	test('POST /api/auth/refresh refuses a body with no refresh token before the API is asked to rotate one', async ({
@@ -244,34 +302,57 @@ test.describe('lane-b · the sign-in routes refuse on their own, and say so befo
 			`the 400 does not name the refresh token as the problem: ${JSON.stringify(body)}`
 		).toContain('refresh token must be provided');
 
-		await mockAskedNothing('/auth/refresh-token');
+		await mockAskedNothing('/api/auth/refresh-token');
 	});
 
-	test('POST /api/auth/refresh answers 502, not 401, when the API says yes and sends no pair — which is every answer this mock gives', async ({
+	test('POST /api/auth/refresh rotates on this mock, because the mock does answer the refresh path with a pair', async ({
 		api
 	}) => {
-		// `app/api/auth/refresh/route.ts`: "Gauzy said yes and sent no pair: a bad answer of the API, not a refusal of
-		// the refresh token. A 401 here would end a session whose refresh token may still be good." The mock has no
-		// handler for `/auth/refresh-token` and answers it by echoing the request body, so its answer really carries no
-		// `token`. This pins both halves at once: the app's deliberate 502, and the reason no mock run can ever renew a
-		// session (§3) — a renewal through this mock always ends as a 502 with no pair.
+		/**
+		 * This is the 2026-11-21 red "expected 502, received 200", and the red was the test's, not the app's.
+		 *
+		 * The case assumed — in its title and in its comment — that this mock "has no handler for `/auth/refresh-token`
+		 * and answers it by echoing the request body, so its answer really carries no `token`". It has one, and it hands
+		 * out a pair: `cypress/support/mock-gauzy-server.mjs`
+		 * `if (pathname === '/api/auth/refresh-token') return { token: 'synthetic-refreshed-token', refresh_token:
+		 * 'synthetic-refresh-token' };`. Measured on this lane 2026-11-21 (`POST /api/auth/refresh` with
+		 * `{"refresh_token":"lane-b-pinned-refresh-token"}`): `HTTP 200` with `{"user":{…Fixture Manager…}, …}`, and the
+		 * mock log `POST /api/auth/refresh-token → 200, GET /api/user/me → 200` (the profile read the route does after a
+		 * renewal).
+		 *
+		 * So the route's deliberate 502 branch (`if (!refreshResult?.data?.token)` → `{ message: 'Token refresh failed:
+		 * No token received', statusCode: 502 }`, `app/api/auth/refresh/route.ts`) is **unreachable in a mock run**: the
+		 * mock always sends the pair. That gap is written to PLAN.md §8 for the mock's owner (an answer *without* a token,
+		 * switchable), and it is not something a lane may fake with a `page.route` stub. What this case pins is the half
+		 * the lane can prove: the renewal is asked on Gauzy's own path, the pair reaches the browser, and the route does
+		 * **not** answer 401 — which is the point the 502 comment makes, kept as a pin because a 401 here would end a
+		 * session whose refresh token may still be good.
+		 */
 		const response = await api('/api/auth/refresh', {
 			method: 'POST',
 			body: { refresh_token: 'lane-b-pinned-refresh-token' }
 		});
-		const body = (await response.json()) as { statusCode?: number; message?: string };
+		const body = (await response.json()) as { token?: string; refresh_token?: string; statusCode?: number };
 
 		expect(
 			response.status(),
-			`a refresh the API could not answer was treated as a refused session (${response.status()}) instead of as a bad answer — a session whose refresh token may still be good would have ended here`
-		).toBe(502);
-		expect(body.message, `the 502 does not name the missing pair: ${JSON.stringify(body)}`).toContain('No token received');
+			`the renewal was not answered with the pair this mock hands out (${response.status()}: ${JSON.stringify(body)})`
+		).toBe(200);
+		expect(
+			body.token,
+			`the pair the mock handed out did not reach this app's answer: ${JSON.stringify(body)}`
+		).toBe('synthetic-refreshed-token');
 		expect(
 			body.statusCode,
-			`the body of the 502 is not Gauzy-shaped (statusCode ${JSON.stringify(body.statusCode)}): ${JSON.stringify(body)}`
-		).toBe(502);
+			`a renewal that succeeded carries a Gauzy error status: ${JSON.stringify(body)}`
+		).toBeUndefined();
+		// The refusal the 502 branch was written to avoid: whatever this lane can reach, a rotated token is never
+		// answered as a refused session.
+		expect(response.status(), 'a successful renewal was answered 401, which ends a session on a bad answer').not.toBe(
+			401
+		);
 
-		const asked = await mockCallsExactly('/auth/refresh-token');
+		const asked = await mockCallsExactly('/api/auth/refresh-token');
 		expect(
 			asked.map((request) => `${request.method} ${request.path} → ${request.status}`),
 			`the app never asked the API to rotate the token: ${describeMockLog(await mockRequests())}`
@@ -298,7 +379,7 @@ test.describe('lane-b · the sign-in routes refuse on their own, and say so befo
 			`the 200 carried no field error, so the shape being pinned is gone: ${JSON.stringify(body)}`
 		).toContain('properly formatted email address');
 
-		await mockAskedNothing('/auth/send-code');
+		await mockAskedNothing('/api/auth/send-code');
 	});
 
 	test('the passcode page’s own route is /api/auth/signin-email, and /api/auth/send-code can never say an account is missing', async ({
@@ -317,7 +398,7 @@ test.describe('lane-b · the sign-in routes refuse on their own, and say so befo
 			send.status(),
 			`the send-code route did not answer a valid address (${send.status()}: ${await send.text()})`
 		).toBe(200);
-		const askedOfSend = await mockCallsExactly('/auth/send-code');
+		const askedOfSend = await mockCallsExactly('/api/auth/send-code');
 		expect(
 			askedOfSend.map((request) => `${request.method} ${request.path} → ${request.status}`),
 			`send-code did not reach the platform API, so its "no such account" answer is no longer unreachable-by-mock: ${describeMockLog(
@@ -330,7 +411,7 @@ test.describe('lane-b · the sign-in routes refuse on their own, and say so befo
 			signIn.status(),
 			`the route the passcode page actually uses answered a valid address ${signIn.status()}: ${await signIn.text()}`
 		).toBe(200);
-		const askedOfSignIn = await mockCallsExactly('/auth/signin.email');
+		const askedOfSignIn = await mockCallsExactly('/api/auth/signin.email');
 		expect(
 			askedOfSignIn.map((request) => `${request.method} ${request.path} → ${request.status}`),
 			`the passcode page's own path was not forwarded exactly once: ${describeMockLog(await mockRequests())}`
@@ -356,14 +437,18 @@ test.describe('lane-b · the sign-in routes refuse on their own, and say so befo
 			`the 200 carried no code error, so the shape being pinned is gone: ${JSON.stringify(body)}`
 		).toContain('8 characters');
 
-		await mockAskedNothing('/invite/validate-by-code');
-		await mockAskedNothing('/auth/verify-code');
+		await mockAskedNothing('/api/invite/validate-by-code');
+		await mockAskedNothing('/api/auth/verify-code');
 	});
 
 	test("POST /api/auth/login crashes on the mock's echo of an invitation code — predicted from the code, §5", async ({
 		api
 	}) => {
-		// Predicted, and a run must confirm or rewrite it. `app/api/auth/login/route.ts` asks
+		// Predicted from the source in PLAN.md §5 before it was seen, and **confirmed** on this lane: 2026-11-21,
+		// `POST /api/auth/login` with `{"email":"manager@example.test","code":"AB12CD34"}` → `HTTP 500` with an empty
+		// body, and the mock log held exactly one ask: `POST /api/invite/validate-by-code → 200` (no
+		// `/auth/verify-code` ask at all — the crash is in the invite branch, before the auth-code branch is reached).
+		// `app/api/auth/login/route.ts` asks
 		// `verifyInviteCodeRequest` first (`POST /invite/validate-by-code`), treats a `response.ok` without a
 		// `response.statusCode` as an accepted invitation, and then reads `inviteReq.data.fullName.split(' ')`. This
 		// mock has no handler for that path and answers it by echoing the request body (`{ email, code }`), so the
@@ -380,12 +465,12 @@ test.describe('lane-b · the sign-in routes refuse on their own, and say so befo
 			`this answered ${response.status()}, not the 500 the invite branch predicts; whatever it really does is what the pin must become: ${(await response.text()).slice(0, 200)}`
 		).toBe(500);
 
-		const inviteChecks = await mockCallsExactly('/invite/validate-by-code');
+		const inviteChecks = await mockCallsExactly('/api/invite/validate-by-code');
 		expect(
 			inviteChecks.map((request) => `${request.method} ${request.path} → ${request.status}`),
 			`the invitation check was not the single ask this pin describes: ${describeMockLog(await mockRequests())}`
 		).toHaveLength(1);
-		await mockAskedNothing('/auth/verify-code');
+		await mockAskedNothing('/api/auth/verify-code');
 	});
 });
 
@@ -398,8 +483,6 @@ test.describe('lane-b · a POST with no guard at all, pinned as it is today', ()
 		// `requestToJoinRequest` (`core/services/server/requests/request-to-join-team.ts`) posts the body straight on
 		// with no bearer token. This test is meant to FAIL the day someone adds a guard — that is what a pin is for.
 		//
-		// The mock's echo is the only body witness available in a mock run (finding 13: its log stores method, path,
-		// query and status only), so the sentinel below proves the body crossed this app unchanged.
 		const sentinel = { organizationTeamId: 'lane-b-pinned-team', email: 'someone@example.test' };
 
 		const response = await api('/api/organization-team-join', {
@@ -414,12 +497,25 @@ test.describe('lane-b · a POST with no guard at all, pinned as it is today', ()
 			response.status(),
 			`the handler refused the request (${response.status()}) — a guard has been added, so update this pin and say so`
 		).toBe(200);
-		expect(
-			body.organizationTeamId,
-			`the body was not relayed as it arrived: ${JSON.stringify(body)}`
-		).toBe(sentinel.organizationTeamId);
 
-		const asked = await mockCallsExactly('/organization-team-join');
+		/**
+		 * The sentinel witness is gone, and here is why it cannot exist in a mock run. This case expected the mock's
+		 * echo (`if (method !== 'GET') return body ?? { success: true };`) and so `body.organizationTeamId`; the mock has
+		 * a **handler** for this exact path before that fallback — `cypress/support/mock-gauzy-server.mjs`,
+		 * `if (pathname === '/api/organization-team-join') return pagination([]);` — so the answer this app gives back is
+		 * the mock's own empty page. Measured 2026-11-21: `HTTP 200` with `{"items":[],"total":0}`, and the mock log
+		 * `[{"method":"POST","path":"/api/organization-team-join","status":200}]` with `receivedTokens` empty.
+		 *
+		 * The relay is therefore pinned the way a mock run can pin it: the ask the platform API really got, as a POST,
+		 * and the absence of any bearer with it. A body witness needs the mock's owner to answer this path with the body
+		 * it received (PLAN.md §8) — not a stub in a lane.
+		 */
+		expect(
+			body,
+			`the mock no longer answers this path with its empty page, so the witness below needs re-reading: ${JSON.stringify(body)}`
+		).toEqual({ items: [], total: 0 });
+
+		const asked = await mockCallsExactly('/api/organization-team-join');
 		expect(
 			asked.map((request) => `${request.method} ${request.path} → ${request.status}`),
 			`the platform API was not asked, so the relay is no longer what was pinned: ${describeMockLog(await mockRequests())}`
@@ -431,9 +527,9 @@ test.describe('lane-b · a POST with no guard at all, pinned as it is today', ()
 
 		// And with nothing authenticating it: the mock records the sha256 of every Bearer token it received, per path.
 		expect(
-			await receivedTokens('/organization-team-join'),
+			await receivedTokens('/api/organization-team-join'),
 			`a bearer token was forwarded after all, so the request was not the anonymous one this pins: ${JSON.stringify(
-				await receivedTokens('/organization-team-join')
+				await receivedTokens('/api/organization-team-join')
 			)}`
 		).toEqual([]);
 	});
