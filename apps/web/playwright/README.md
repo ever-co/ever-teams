@@ -145,6 +145,14 @@ and it is safe only because a lane owns its ports exclusively.
 - **Statistics timing** needs `EVER_STATS_SEND_INTERVAL_S=5` on the dev server (set in
   `test-servers.ts`); a server started before that change must be restarted or the statistics tests
   wait a production interval for one report.
+- **A starved machine turns strict assertions red, and it looks like an app bug.** Measured on this PC: the mock
+  suite took 40.4 minutes with 140 passed / 5 failed while three lanes' `next dev` processes competed for a machine
+  whose LLM server already holds ~11 GB of 32 GB; the same five tests alone took 2.6 minutes, 5 passed. What broke
+  was timing, not behaviour — NextAuth's client fetch timing out and logging `ClientFetchError: Failed to fetch`, a
+  retried `/api/task-metadata/bootstrap` (so "the metadata bundle is fetched once" saw two), and a 30 s navigation
+  that simply did not happen in time. So: before treating a red mock run as a finding, re-run the failing tests on
+  their own (`--grep`) with no lane running, and quote both numbers. This is also why `suites/mock` keeps
+  `workers: 1` and why a lane that wants real runs asks for the machine instead of taking it.
 
 ## Adding a suite
 
