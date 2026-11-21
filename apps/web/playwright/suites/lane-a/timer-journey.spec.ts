@@ -39,7 +39,6 @@ type BrowserWrite = {
 	body: Record<string, unknown>;
 };
 
-const TIMER_ROUTE = /\/api\/timer\/(start|stop)/;
 const MOCK_START = '/api/timesheet/timer/start';
 const MOCK_STOP = '/api/timesheet/timer/stop';
 const MOCK_STATUS = '/api/timesheet/timer/status';
@@ -54,23 +53,26 @@ const asJson = (raw: string | null): Record<string, unknown> => {
 };
 
 /**
- * Records the writes the browser itself sends, without changing them (`route.fallback()` hands the request
- * to the app's route handler as it would have gone). A test needs this because the mock's request log keeps
- * no body — it is kept body-free on purpose, as performance evidence.
+ * Records every write the browser itself sends — its method, its full URL and its body.
+ *
+ * Deliberately unfiltered: which half of the chain a click takes (this app's own route handler under
+ * `/api/…`, or the API origin directly) is exactly the kind of thing a spec should not assume, and a failure
+ * that lists every write the page made says what actually happened. The mock's request log keeps no body —
+ * it is kept body-free on purpose, as performance evidence — so the body half has to be recorded here.
  */
-function recordWrites(page: Page, pattern: RegExp): BrowserWrite[] {
+function recordWrites(page: Page): BrowserWrite[] {
 	const writes: BrowserWrite[] = [];
-	void page.route(pattern, (route) => {
-		const request = route.request();
+	page.on('request', (request) => {
+		const method = request.method();
+		if (method === 'GET' || method === 'HEAD' || method === 'OPTIONS') return;
 		const url = new URL(request.url());
 		writes.push({
-			method: request.method(),
+			method,
 			url: request.url(),
 			path: url.pathname,
 			query: url.searchParams.toString(),
 			body: asJson(request.postData())
 		});
-		return route.fallback();
 	});
 	return writes;
 }
@@ -81,13 +83,13 @@ const summary = (requests: Array<{ method: string; path: string; status: number 
 const startButton = (page: Page) => page.locator('button[aria-label="Start timer"]').first();
 const stopButton = (page: Page) => page.locator('button[aria-label="Stop timer"]').first();
 
-/** The app's own start/stop route handler, as the browser was told to reach it. */
-const browserWriteTo = (writes: BrowserWrite[], path: string) => writes.filter((write) => write.path === path);
+/** The writes the browser sent whose path holds `fragment`, oldest first. */
+const browserWritesTo = (writes: BrowserWrite[], fragment: string) => writes.filter((write) => write.path.includes(fragment));
 
 test.describe('a timer run from start to stop', () => {
 	test('the start the page clicks reaches the mock, which then holds the run', async ({ app, mock }) => {
 		const page = await app('/', { scenario: { hasPlan: false, requirePlanToTrack: false } });
-		const writes = recordWrites(page, TIMER_ROUTE);
+		const writes = recordWrites(page);
 
 		// "The mock was told nothing" is only provable on a clean log, which this test's own reset gave it.
 		const before = (await mock.state()) as TimerMockState;
@@ -102,28 +104,38 @@ test.describe('a timer run from start to stop', () => {
 		await expect(startButton(page)).toHaveAttribute('aria-disabled', 'false', { timeout: 20_000 });
 		await startButton(page).click();
 
-		// Half one: the browser sent the app's own route handler a start.
-		await expect
-			.poll(() => browserWriteTo(writes, '/api/timer/start').length, {
-				message: `the browser never sent the start the page was clicked (${JSON.stringify(writes)})`
-			})
-			.toBe(1);
-		const write = browserWriteTo(writes, '/api/timer/start')[0];
-		expect(write.method, 'the start leaves as a POST').toBe('POST');
-		expect(
-			new URL(write.url).origin,
-			`the start went to the app's own route handler, not straight to the API (${write.url})`
-		).toBe(APP_ORIGIN);
-
-		// Half two: the mock recorded the start its handler forwarded, and the state that start changed.
+		/*
+		 * The mock half is proved first, on purpose. The mock can only witness what this click caused, so "a run
+		 * exists" is the earlier fact — and when it does not happen, `mockStateWhen` dumps the mock's whole request
+		 * log, which is what tells a reader where the chain actually stopped.
+		 */
 		const state = await mockStateWhen<TimerMockState>(
-			(current) => current.mutationProof.startedTimer && current.scenario.timerRunning === true
+			(current) => current.mutationProof.startedTimer && current.scenario.timerRunning === true,
+			{ tries: 60 }
 		);
 		expect(state.mutationProof.startedTimer, 'the mock witnessed the start').toBe(true);
 		expect(
 			state.scenario.timerRunning,
 			'the mock flipped its own run state, so every later read answers a running timer'
 		).toBe(true);
+
+		// Half two: the browser sent the app's own route handler the start the mock then forwarded.
+		await expect
+			.poll(() => browserWritesTo(writes, 'timer/start').length, {
+				message: `the browser never sent the start the page was clicked (${JSON.stringify(writes)})`,
+				timeout: 60_000
+			})
+			.toBe(1);
+		const write = browserWritesTo(writes, 'timer/start')[0];
+		expect(write.method, 'the start leaves as a POST').toBe('POST');
+		expect(
+			new URL(write.url).origin,
+			`the start went to the app's own route handler, not straight to the API (${write.url})`
+		).toBe(APP_ORIGIN);
+		expect(
+			write.path,
+			`the start went to this app's timer start route handler (${write.method} ${write.url})`
+		).toBe('/api/timer/start');
 
 		const mockStarts = await mock.calls(MOCK_START);
 		expect(mockStarts.length, `the mock recorded the forwarded start (${summary(mockStarts)})`).toBeGreaterThanOrEqual(
@@ -150,7 +162,7 @@ test.describe('a timer run from start to stop', () => {
 
 	test('the start names the task the timer bar holds and today’s plan day', async ({ app, mock, fixture }) => {
 		const page = await app('/', { scenario: { hasPlan: false, requirePlanToTrack: false } });
-		const writes = recordWrites(page, TIMER_ROUTE);
+		const writes = recordWrites(page);
 
 		// The task bar is the timer's task input (core/components/tasks/task-input.tsx); it holds the task a
 		// start would run on, which is the task the fixture signed in with.
@@ -162,11 +174,11 @@ test.describe('a timer run from start to stop', () => {
 		await startButton(page).click();
 
 		await expect
-			.poll(() => browserWriteTo(writes, '/api/timer/start').length, {
+			.poll(() => browserWritesTo(writes, '/api/timer/start').length, {
 				message: `the browser never sent the start (${JSON.stringify(writes)})`
 			})
 			.toBe(1);
-		const body = browserWriteTo(writes, '/api/timer/start')[0].body;
+		const body = browserWritesTo(writes, '/api/timer/start')[0].body;
 
 		expect(body.taskId, `the start names the task bar's task (${JSON.stringify(body.taskId)})`).toBe(fixture.ids.task);
 		expect(typeof body.isBillable, `the start says whether the run is billable (${JSON.stringify(body)})`).toBe(
@@ -185,7 +197,7 @@ test.describe('a timer run from start to stop', () => {
 
 	test('the stop ends the run the mock holds, and the status is read again after it', async ({ app, mock }) => {
 		const page = await app('/', { scenario: { hasPlan: false, requirePlanToTrack: false } });
-		const writes = recordWrites(page, TIMER_ROUTE);
+		const writes = recordWrites(page);
 
 		await expect(startButton(page)).toHaveAttribute('aria-disabled', 'false', { timeout: 20_000 });
 		await startButton(page).click();
@@ -195,11 +207,11 @@ test.describe('a timer run from start to stop', () => {
 		await stopButton(page).click();
 
 		await expect
-			.poll(() => browserWriteTo(writes, '/api/timer/stop').length, {
+			.poll(() => browserWritesTo(writes, '/api/timer/stop').length, {
 				message: `the browser never sent the stop the page was clicked (${JSON.stringify(writes)})`
 			})
 			.toBe(1);
-		const stopWrite = browserWriteTo(writes, '/api/timer/stop')[0];
+		const stopWrite = browserWritesTo(writes, '/api/timer/stop')[0];
 		expect(stopWrite.method, 'the stop leaves as a POST').toBe('POST');
 		// The client sends only what it knows: the source of the run it is ending (core/hooks/timer/use-timer-api.ts
 		// stopTimerMutation → timerService.stopTimer({ source })). The task and the tenant are added by the route.
@@ -245,7 +257,7 @@ test.describe('a timer run from start to stop', () => {
 
 	test('a reopened page takes the run from the mock, not from this device', async ({ app, mock }) => {
 		const page = await app('/', { scenario: { hasPlan: false, requirePlanToTrack: false } });
-		recordWrites(page, TIMER_ROUTE);
+		recordWrites(page);
 
 		await expect(startButton(page)).toHaveAttribute('aria-disabled', 'false', { timeout: 20_000 });
 		await startButton(page).click();
