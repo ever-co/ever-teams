@@ -12,6 +12,23 @@ was run by this audit: I started no server, no browser, and ran no Playwright co
   written, not run", 09:34), and `git status --short apps/web/playwright` then showed two further new lane-b
   specs (`password-recovery.spec.ts`, `signup-forms.spec.ts`). Nothing I quote from `app/**`, `core/**`, the
   manifests or the mock moved in those commits; the lane residuals may have.
+  The §K.1 re-reading was taken later, at HEAD `913d1abd8` ("test(playwright): lane-b ran — 45 passed / 30
+  failed in 4963 s, with the report and the log both quoted").
+- **This audit lane filed no claim row and holds no live target.** It ran no server, no test, no browser and no
+  cluster command, so nothing it did needs a §3 ACTIVE row under the workstation rules (read-only work needs
+  none). A peer lane searched the board for a `test_lane_c_20261121` row and for six lane commits and found
+  neither: those belong to whichever lane ran live probes against `apidev`, not to this one, and that lane owes
+  the board a row.
+- **One repo, one machine, one worktree — and commits that are not in it.** `git worktree list` here returns only
+  `E:/Coding/ever-teams 65e928e3e [test/playwright-e2e-suite]`, and `ls -d /e/Coding/ever-teams*` returns one
+  checkout. A peer check asked whether five commits (`49181d521 f001c823e 5119f1e11 791f8d644 1361e2160`) exist:
+  `git cat-file -e <sha>^{commit}` answers **unknown revision** for all five, on this branch and in `--all`, while
+  `913d1abd8` and `65e928e3e` (the lane runs on this PC) are present, as are the lane logs in
+  `E:/Coding/.tmp/` (`lane-a-run6..10`, `lane-b-verify.log`, `lane-c-full.log`, `lane-d-list.log`,
+  `lane-c-unguarded.mjs`). Files named in that peer check — `gate*`, `wf31.txt`, `lane-b-73.txt` — do not exist in
+  that folder. `git log --oneline -- playwright/AUDIT.md playwright/audit-evidence.md` here gives one commit,
+  `72d8a0a64`, so the audit is in this branch history; the corrections made after it are uncommitted working-tree
+  edits, because this lane is not allowed to run git write commands.
 - **The tree moved under me three times while I read it** (`git status --short` at three moments showed different
   lane files: `lane-c/malformed-json.spec.ts`, `lane-c/permission-guard.spec.ts`, `lane-c/PLAN.md`,
   `lane-b/passcode-journey.spec.ts`, `lane-b/password-journey.spec.ts`, `lane-b/lane-auth-helpers.ts`,
@@ -71,6 +88,26 @@ Same scan, counting a family when `\b<name>\s*\(` appears in the route file:
 `no guard, but talks upstream: []` — every guard-free handler in this app goes through a request helper rather
 than calling `fetch()` on its own.
 
+**That table is a vocabulary, not a fact about the code.** It counts a handler as guarded only for the nine
+names the scan knows. A tenth exists: `core/lib/board/board-app.ts:81-87` `isTrustedBoardOrigin(origin)` — used
+at `app/api/board/notify/route.ts:38-41`, and **stricter** than `refuseForeignOrigin`: it refuses a caller that
+sends no `Origin` at all (`origin === trusted` fails for null), where `same-origin-request.ts:21` allows a
+missing `Origin`. With that name added, 1 more write entry becomes guarded (287 instead of 286).
+
+And the scan is **per file**: a route file that re-exports another route's handler inherits that handler's
+guard without naming it. Three write entries are guarded this way (`scan-corrected.cjs`):
+
+```
+POST /api/timer/toogle              -> apps/web/app/api/timer/toggle/route.ts            guards: refuseForeignOrigin, authenticatedGuard
+POST /api/daily-plan/[id]/task      -> apps/web/app/api/daily-plan/plan/[planId]/route.ts  guards: refuseForeignOrigin, authenticatedGuard
+PUT  /api/daily-plan/[id]/task      -> same file, same guards
+```
+
+`app/api/timer/toogle/route.ts:1-9` is literally `import { POST as togglePOST } from '../toggle/route'` and
+`return togglePOST(req)`; `app/api/daily-plan/[id]/task/route.ts:1-14` imports `POST`/`PUT` from
+`daily-plan/plan/[planId]/route` and forwards them. Neither file names a guard, so `collect-foreign-origin-routes.mjs`
+cannot see one — and its `GUARDED_ENTRY` test at `:114` then never considers the file at all.
+
 ## C. The foreign-origin manifest, and the write-verb arithmetic
 
 `apps/web/playwright/suites/api/foreign-origin.generated.ts`, parsed entry-by-entry
@@ -84,17 +121,37 @@ by verb: POST 143, DELETE 63, PUT 72, PATCH 9
 
 The arithmetic (my `final.cjs`, whose verb list is `POST/PUT/PATCH/DELETE`):
 
+First measurement (`final.cjs`, per **file**, at `b19990f6e`):
+
 ```
-write verb entries in the sweep manifest (all 415 handlers):      325
-write verb entries of a handler that calls a guard:               288
-write verb entries of a handler that calls NO guard:               37
-write verbs of a GUARDED handler that are NOT in the manifest:      2
+write verb entries across the 415 handlers:                       325
+write verb entries of a handler whose FILE calls a guard:         288
+write verb entries of a handler whose FILE calls NO guard:         37
+   across 33 route files
+write verbs of a GUARDED handler NOT in the manifest:               2
       ["POST /api/board/notify", "POST /api/organization-team-join"]
-handlers with no guard call and at least one write verb:           33
 ```
 
-`286 + 37 + 2 = 325`: the manifest covers the guarded writes, the 33 unguarded ones are invisible to it, and two
-guarded writes fell through (see F).
+`286 + 37 + 2 = 325` held, but the 37/33 half was counted per file and is superseded (see §E.1). Re-measured
+per **handler**, with the imported-guard vocabulary and alias resolution, at HEAD `65e928e3e`
+(`scan-corrected.cjs`):
+
+```
+route.ts files:                                                   415
+write verb entries:                                               325
+own handler body calls a guard (extended vocabulary):             287
+   of which only through isTrustedBoardOrigin:                      1
+guard reached through an alias re-export:                           3
+no guard, own or inherited:                                        35
+   across 32 route files
+```
+
+The lane that ran the same subtraction on this branch reported 324 write entries / 286 guarded / 38 unguarded
+in 35 files (`65e928e3e`, `/e/Coding/.tmp/lane-c-unguarded.mjs`), and independently removed the same three
+alias-guarded routes plus `isTrustedBoardOrigin` to reach 32 files.
+`git diff --name-only 913d1abd8 65e928e3e -- apps/web/app/api apps/web/core` shows no handler changed between
+those commits, so the 324-vs-325 difference is a scanning rule, not the tree; the lists, not the counts, are
+what a lane should diff.
 
 ## D. Reads
 
@@ -191,6 +248,66 @@ understands INVITE codes typed into this…"), `core/lib/auth/account-deletion.t
 `core/services/client/api/auth/account-deletion.service.ts:46` ("proxy mode calls this app's
 `/api/account-deletion/*` routes"), `core/lib/board/board-notify.ts:7` (`/api/board/notify`),
 `core/services/server/requests/account-deletion-me.ts:56-58`.
+
+### E.1 Corrected list — 35 unguarded write verbs in 32 route files (per handler, at HEAD `65e928e3e`)
+
+The list above (§E) was counted per **file** and is superseded by this one. Re-derived with `scan-corrected.cjs`
+(per-handler bodies, the guard vocabulary widened with `isTrustedBoardOrigin`, and alias re-exports resolved to
+the file that holds the handler):
+
+```
+DELETE /api/auth/ever-id/start
+PATCH  /api/auth/ever-id/start
+PUT    /api/auth/ever-id/start
+POST   /api/auth/ever-id/start
+POST   /api/auth/[...nextauth]
+POST   /api/auth/_signin-workspace
+POST   /api/auth/ever-id/backchannel-logout
+POST   /api/auth/ever-id/confirm
+POST   /api/auth/ever-id/finish-setup
+POST   /api/auth/ever-id/signup-handoff
+POST   /api/auth/finish-setup
+POST   /api/auth/login
+POST   /api/auth/refresh
+POST   /api/auth/register
+POST   /api/auth/request-password
+POST   /api/auth/reset-password
+POST   /api/auth/send-code
+POST   /api/auth/signin-email
+POST   /api/auth/signin-email-confirm
+POST   /api/auth/signin-email-password
+POST   /api/auth/signin-email-social-login
+POST   /api/auth/signin-workspace
+POST   /api/auth/two-factor/verify
+POST   /api/auth/verify/token
+POST   /api/account-deletion/confirm
+POST   /api/account-deletion/me
+POST   /api/account-deletion/request
+POST   /api/account-deletion/verify
+POST   /api/invite/accept
+POST   /api/invite/validate-by-code
+POST   /api/log
+POST   /api/organization-team-join
+POST   /api/organization-team-join/resend-code
+POST   /api/organization-team-join/validate
+POST   /api/public/invoice-payments/invoice/[id]/[token]/checkout
+```
+
+Three entries the first list carried are **removed** because they are guarded and my first scan could not
+see the guard: `POST /api/board/notify` (`isTrustedBoardOrigin`, `route.ts:38-41`), `POST /api/timer/toogle
+(alias of `timer/toggle/route.ts`, whose POST starts with `refuseForeignOrigin` at `:7`), and `POST`+`PUT
+/api/daily-plan/[id]/task` (aliases of `daily-plan/plan/[planId]/route.ts:8` and `:33`). One entry the first
+list missed is **added**: plain `POST /api/organization-team-join` — the file's GET runs `authenticatedGuard
+(route.ts:8)`, its POST (`:19-22`) runs nothing, and per-file counting hid that.
+`/api/auth/ever-id/start` contributes four verbs (POST/PUT/PATCH/DELETE), which the per-file list folded into
+one line.
+
+Who found it: the lane-c lane on this branch re-ran the subtraction at `65e928e3e` and named the same three
+import-guarded files plus `isTrustedBoardOrigin` (`/e/Coding/.tmp/lane-c-unguarded.mjs`). Re-derived independently
+here, the same scan yields 38 unguarded entries across 34 files **before** alias resolution and **35 across 32**
+after it, so both scans land on 32 route files. Their 324 write entries / 286 guarded / 38 unguarded in 35 files
+and my 325 / 287 / 35 in 32 are the same family measured with slightly different verb and file rules — the list
+above is what a lane should diff, not the counts.
 
 ## F. Is the collector sound in what it does cover?
 
@@ -426,6 +543,64 @@ The last of those is fixed in the current source: `suites/api/ever-connect-proxy
 `answer.headers['cache-control']`. The log-contamination failures are **not reproducing today** (the 05:32 api
 run is 1152/0) — UNVERIFIED whether they were fixed or are timing-dependent.
 
+### K.1 Second reading, 2026-11-21 18:2x — the same six files, four different sets of numbers
+
+Re-read with the same script (`node C:\Users\Evereq\AppData\Local\Temp\everteams-audit\tally.cjs`), now mapping
+the reporter's per-result statuses (`passed` / `failed` / `timedOut`), against HEAD `913d1abd8`:
+
+| artifact | started (UTC) | expected | skipped | unexpected | duration |
+| --- | --- | --- | --- | --- | --- |
+| `playwright-api.json` | 2026-11-21T15:43:26 | 1159 | 0 | **3** | 531 s |
+| `playwright-mock.json` | 2026-11-21T05:09:55 | 5 | 0 | 0 | 157 s (unchanged file) |
+| `playwright-ever-id.json` | 2026-11-21T05:22:09 | 23 | 0 | 0 | 79 s (unchanged file) |
+| `playwright-lane-a.json` | 2026-11-21T15:14:34 | 12 | 0 | 0 | 121 s |
+| `playwright-lane-b.json` | 2026-11-21T15:36:56 | 45 | 0 | **30** | 4963 s |
+| `playwright-lane-c.json` | 2026-11-21T14:35:51 | 29 | 0 | 0 | 14 s |
+| `playwright-lane-d.json` | 2026-11-21T16:39:20 | 0 | **87** | 0 | 0.13 s (list run) |
+
+Per file, with failures named (my tally script prints the first eight per file):
+
+```
+api/auth-refresh 5/0     api/foreign-origin 296/0      api/sweep 537/0
+api/empty-body 261/0     api/ever-connect-proxy 15/0   api/tenant-boundary 11/0
+api/ever-id-off 6/0      api/manifests 2/2             api/token-cookie-chunks 7/0
+api/page-gate 19/0       api/upstream-outage 0/3   ← new file in the api suite
+lane-a/smoke 3/0  lane-a/task-work 5/0  lane-a/timer-journey 4/0
+lane-c/cache-directive 10/0   lane-c/public-link-shape 19/0     (8 lane-c files still unrun)
+lane-b/cookie-jar 4/1     lane-b/locale-rendering 4/2   lane-b/passcode-journey 2/5
+lane-b/password-journey 2/4  lane-b/password-recovery 7/4  lane-b/route-refusals 10/7
+lane-b/session-routing 12/3  lane-b/signup-forms 4/4
+```
+
+The three api failures are all `api/upstream-outage.spec.ts`, all with the same message — "the test backend was
+never asked for what the test expected (after 30 reads)", pointing at `playwright/helpers.ts:215`. The file's own
+scenarios delay `/api/user/me` (`:137`) and `/api/ever-connect/health` (`:199`) by 16 s.
+
+The lane-b run, checked independently of the lane that ran it: 75 results in the artifact (45 passed, 30
+failed/timedOut), matching that lane's own log `E:\Coding\.tmp\lane-b-verify.log` (115 KB, "Running 75 tests
+using 1 worker"). Slowest results, from `r.duration` in the artifact (`slow.cjs`):
+
+```
+180.2 s  timedOut  lane-b/signup-forms.spec.ts     "a real name with an address that is not an address…"
+180.2 s  timedOut  lane-b/password-recovery.spec.ts "two different passwords are refused on the confirmation…"
+ 64.3 s  passed    lane-b/cookie-jar.spec.ts        "a signed-in browser holds the app's own cookie family…"
+ 27.6 s  failed    lane-b/locale-rendering.spec.ts  "the language list this deployment offers is empty…"
+```
+
+so the two 3-minute cases are the two `timedOut` ones, and the rest of the spread runs 1.4 s–64 s (not 1.4–27.6 s:
+the 64.3 s cookie-jar case **passed**).
+
+**One failure in that run is `AUDIT.md` finding 1, confirmed by a log.** `lane-b/route-refusals.spec.ts`'s case
+"POST /api/organization-team-join relays an anonymous, foreign body to the platform API with no session and no
+origin check" failed with the mock's catch-all answer `{"items":[],"total":0}` in its Received line — the relay
+happened, and the body came back echoed. That is `app/api/organization-team-join/route.ts:19-22` +
+`request-to-join-team.ts:14-19` + `fetch.ts:91-92` behaving exactly as §E and finding 1 describe.
+
+Files that exist in the suites now and did not when §K was first written:
+`suites/api/upstream-outage.spec.ts`, `suites/lane-c/unguarded-writes.spec.ts` (its header quotes `AUDIT.md`
+finding 1 and re-derives the unguarded set against the newer tree as 38 uncredited write verbs in 35 route
+files — my 37/33 was measured at `b19990f6e`), and `suites/lane-d/`.
+
 ## L. Lane-side counts, and who says them
 
 - `suites/lane-c/PLAN.md:5` — "**No test in this lane has been executed yet.**" and its run queue at `:45-76`.
@@ -446,8 +621,8 @@ run is 1152/0) — UNVERIFIED whether they were fixed or are timing-dependent.
   (`grep -n "status: " | sort | uniq -c`), generated by
   `scripts/collect-empty-body-blockers.mjs` from a run's observed statuses, asserted exactly by
   `suites/api/empty-body.spec.ts`.
-- `suites/api/page-gate.spec.ts:56-66` — 9 protected app paths probed; `:69-72` — 4 locales
-  (`fr, de, ar, zh`), each only `/settings/personal`; `:90-98` — `/team/*` exemption pinned as
+- `suites/api/page-gate.spec.ts:56-66` — 9 protected app paths probed (loop at `:68-71`); `:74-78` — 4 locales
+  (`fr, de, ar, zh`), each only `/settings/personal`; `:81-91` — the 5 auth pages answered 200; `:99-107` — `/team/*` exemption pinned as
   "documented, not approved". `core/constants/config/constants.tsx:116-133` — **16** protected patterns:
   root, profile, settings, task, meet, board, views, work-diary, my-week, goals, inbox, favorites, chat, docs,
   about, workspace. Unprobed families: **goals, inbox, favorites, chat, docs, about, workspace** (7).
@@ -466,6 +641,10 @@ Read-only; none of them starts a server, and `--check` writes nothing.
 cd /e/Coding/ever-teams
 
 # A, B — handlers, verbs, guard families
+# §E.1 — the corrected unguarded-write subtraction (per handler, with alias resolution):
+node C:/Users/Evereq/AppData/Local/Temp/everteams-audit/scan-corrected.cjs
+   # 415 files / 325 write entries / 287 own-guarded / 3 via alias / 35 unguarded in 32 files at 65e928e3e
+
 find apps/web/app/api -name route.ts | wc -l                                    # 415
 grep -rlo "authenticatedGuard(" apps/web/app/api --include=route.ts | wc -l    # 138
 grep -rl "refuseForeignOrigin(" apps/web/app/api --include=route.ts | wc -l    # 111

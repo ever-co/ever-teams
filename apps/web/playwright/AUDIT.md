@@ -15,12 +15,18 @@ Order is by harm, not by effort.
 
 ---
 
-## 1. 33 mutating handlers have no origin guard at all, and no cross-site test
+## 1. 35 unguarded write verbs in 32 route files have no cross-site test
 
-**Read.** `audit-evidence.md` §C/§E, from a walk of all 415 `route.ts`: 47 handlers call no guard helper; 33 of
-them export a write verb. `core/services/server/same-origin-request.ts:43-46` (`refuseForeignWrite`) is reached
-only through `forward-to-gauzy.ts:89` and `refuse-without-permission.ts:38`, and **0 route files call it
-directly** (`grep -rl "refuseForeignWrite(" apps/web/app/api --include=route.ts` → nothing).
+**Read.** `audit-evidence.md` §C/§E/§E.1. My first walk counted per file and got 47 guard-free handlers / 33 with
+a write verb; the corrected per-handler walk at HEAD `65e928e3e` gives **35 unguarded write verbs across 32
+route files**, after crediting `isTrustedBoardOrigin` and three handlers whose guard lives in the file they
+re-export from (`timer/toogle`, `daily-plan/[id]/task`) — a correction the lane-c lane found and I re-derived.
+`core/services/server/same-origin-request.ts:43-46` (`refuseForeignWrite`) is reached only through `forward-to-gauzy.ts:89` and `refuse-without-permission.ts:38`, and **0 route files call it
+directly** (`grep -rl "refuseForeignWrite(" apps/web/app/api --include=route.ts` → nothing). Where an origin gate does exist
+under another name, the suite still cannot see it: `app/api/board/notify/route.ts:38-41` gates on
+`isTrustedBoardOrigin` (`core/lib/board/board-app.ts:81-87`), which is **stricter** than the shared guard — it
+refuses a caller that sends no `Origin`, where `same-origin-request.ts:21` allows one — and it still produces no
+manifest entry and no test.
 
 The sharpest of them:
 
@@ -61,6 +67,16 @@ catch-all at `mock-gauzy-server.mjs:792-794`. For the join POST add
 and expect `[]`: that is the mock recording that no credential travelled, which is what makes the "no bearer"
 reading a fact rather than an opinion.
 
+**Already taken up, and now backed by a run.** **lane-c** wrote `suites/lane-c/unguarded-writes.spec.ts` out of
+this finding (its header quotes finding 1 and re-derives the set against the newer tree as 38 uncredited write
+verbs in 35 route files, against my 37 in 33 handlers at `b19990f6e` — the difference is the tree moving, and
+their file says so). That file is marked "DISCOVERED, NOT RUN", so it is not yet evidence. But an independent
+lane run already met the sharpest case of this finding: `lane-b/route-refusals.spec.ts`'s case "POST
+/api/organization-team-join relays an anonymous, foreign body to the platform API with no session and no origin
+check" **failed** in the 15:36 lane-b run, its Received line carrying the mock's catch-all answer
+`{"items":[],"total":0}` — the unguarded relay read off a log rather than off the source
+(`audit-evidence.md` §K.1).
+
 ---
 
 ## 2. Guard coverage is defined by a hand-kept vocabulary, and the harness's own recovery from a missing guard is to delete its test
@@ -72,13 +88,24 @@ reading a fact rather than an opinion.
 would write from **today's source** and, on a mismatch, exits 1 printing `… is out of date. Regenerate it: <command>`.
 `suites/api/manifests.spec.ts:14-29` runs exactly those two checks and asserts nothing else.
 
-**Wrong.** Two consequences, both structural:
+**Wrong.** Three consequences, all structural:
 
 1. A guard the vocabulary does not know is invisible. `app/api/board/notify/route.ts:39` guards with
    `isTrustedBoardOrigin` (`core/lib/board/board-app.ts`); the manifest has no `POST /api/board/notify` entry
-   (`audit-evidence.md` §C). `app/api/ever-connect/[...path]/route.ts` has its own `sameOrigin` launcher gate —
-   also credited only because `forwardToGauzy` happens to be in the list.
-2. If a guard is **removed** from a guarded handler, `--check` fails, and the message tells the next agent to
+   (`audit-evidence.md` §C). `app/api/ever-connect/[...path]/route.ts` calls `refuseForeignOrigin` itself at
+   `route.ts:90,96,102` and gates the launcher on `fromOwnPage`/`webAppOrigin` (`:53-54`,
+   `connect-proxy-rules.ts:79` is `sec-fetch-site === 'same-origin'`) — and reaches the manifest only because
+   `forwardToGauzy` happens to be in `GUARDED_HELPERS`. Its allow-list is 14 named paths and four named query
+   params with strict shapes (`connect-proxy-rules.ts:36-50`, `:86-88`), and the forwarded path comes from URL
+   segments only (`route.ts:43,66,73`): the proxy is the best-guarded route in the app, and none of that
+   guarding is what the manifest is measuring.
+2. A guard reached through an import is invisible. `app/api/timer/toogle/route.ts:1-9` is
+   `import { POST as togglePOST } from '../toggle/route'` + `return togglePOST(req)`; its guard is
+   `refuseForeignOrigin` at `timer/toggle/route.ts:7`, but the file names nothing, so `GUARDED_ENTRY` (`:114`)
+   never considers it and no test exists for it. Three write entries are guarded this way (§B). A per-file scan
+   structurally cannot see an inherited guard, and cannot see a guard under a name the list does not carry
+   (`isTrustedBoardOrigin`).
+3. If a guard is **removed** from a guarded handler, `--check` fails, and the message tells the next agent to
    **regenerate the manifest** — which deletes the test for the guard that vanished. The green suite you get
    back is the suite that never asked the question. (The intermediate red state also exists: `foreign-origin.spec.ts`
    iterates the stale manifest and would fail on the now-unrefusing route. Which failure you hit first is
@@ -219,9 +246,13 @@ status; a guard that only reads `Origin` answers 200 here and leaves a mock entr
 labelled honestly as a mock gap (`POST /api/invite/accept` → 502).
 
 **Wrong.** The mock only produces a 5xx behind a fixture switch — its 500s are `[HTTP_STATUS]: 500` in three
-places and its catch-all (`mock-gauzy-server.mjs:792-794`) answers 200/201/204 — and the sweep sets no scenario
-(`grep -n "scenario(" suites/api/sweep.spec.ts` → no match). So `upstream.every(status < 500)` is satisfied by
-construction: it cannot tell a route that behaved from a route that misbehaved upstream. The status assertion at
+places and its catch-all (`mock-gauzy-server.mjs:792-794`) answers 200/201/204 — and at the commit I measured
+(`b19990f6e`) the sweep set no scenario at all (`grep -n "scenario(" suites/api/sweep.spec.ts` → no match). So
+`upstream.every(status < 500)` was satisfied by construction: it could not tell a route that behaved from a route
+that misbehaved upstream. **This half has since been fixed on the branch** — `sweep.spec.ts:328-340` now
+`await mock.scenario({ notificationSettingFails: true })` and asserts `GET <route> 500` in the log, in a test
+titled "armed with the mock's own 500 switch, the app answers the upstream refusal — and the sweep reading is
+false" (read at HEAD `913d1abd8`, 2026-11-21). The rest of this finding stands: the status assertion at
 `:194` is the one carrying weight, and `toBeLessThan(500)` is the ceiling that lets a 403-shaped "the mock
 cannot answer this" pass as correct behaviour — which is the category-3 weakness in its purest form: a 502 from
 `forward-to-gauzy.ts:135-145` (upstream gave no answer) and a 502 from a real refusal look identical.
@@ -275,6 +306,15 @@ cookie token when the decoded claims name the same user and tenant and a differe
 (`grep -rln "x-tab-team-id|TAB_TEAM_HEADER|tabSessionOf" playwright cypress core` → core files only). The
 behaviour decides **which token a proxied request is forwarded with** — the single most load-bearing thing in
 the proxy layer — and its proof today is unit-level only (`core/services/server/guards/authenticated-guard-app.test.ts`).
+
+**Correction from the lane that tried to write this test** (and the reason it declined): on a proxy route only
+one of the two triggers is reachable. `tabSessionOf(req, sharedToken, sharedOrganizationId?)`
+(`tab-session.ts:31-35`) computes `isOtherThanCookie = namesTabTeam && !!sharedOrganizationId && …` (`:56`), but
+`forwardToGauzy` calls it with **two** arguments (`forward-to-gauzy.ts:95`), so `sharedOrganizationId` is
+undefined and `isOtherThanCookie` can never be true on a proxied route; the reachable path is
+`isOtherThanSession` (`:55`), the decoded cookie token naming another organization. And the mock never
+validates a bearer (`mock-gauzy-server.mjs:532`, `:911`, `:1052-1058`), so "is the replaced token accepted
+upstream" is not answerable in a mock lane at all — that half needs the mock's owner or a live run.
 
 **Close it.** **lane-c** — four cases in `foreign-id-scope.spec.ts` (whose whole subject is "which credentials
 travel"): same user + same tenant + different organization + `x-tab-team-id` → `receivedTokens(path)` must be
@@ -409,6 +449,12 @@ is what `session-guard.spec.ts:105-107` and `foreign-origin.spec.ts:64-68` do to
 should end with the same reset `session-check.spec.ts` does. **user** — if the mock should stamp each entry with
 a test id, that is a `mock-gauzy-server.mjs` decision.
 
+**Confirmed by a run today, in the api suite.** `api/upstream-outage.spec.ts` — the file that answers
+"refused here vs refused upstream" for outages (its scenarios at `:137` and `:199` delay `/api/user/me` and
+`/api/ever-connect/health` by 16 s) — went 3/3 red in the 15:43 api run, every case with the same message:
+"the test backend was never asked for what the test expected (after 30 reads)" pointing at `helpers.ts:215`.
+That is the evidence channel failing, not the behaviour: a delay case outlasts its own wait and then finds a
+test backend that has moved on. It is the strongest argument in this file for the filtered-view rule above.
 **Proof.** A contaminated assertion shows up as a superset in the "Received" line; a filtered assertion fails on
 the entry it actually cares about, and the message names it.
 
@@ -434,6 +480,11 @@ constant to `LANE_PORTS` rather than to a literal keeps the check and drops the 
 the four cases once and record which side answered — the mock's `no-store` (`mock-gauzy-server.mjs:991`) versus
 the dev server's — in `lane-c/PLAN.md`.
 
+**Answered by a run, partly.** lane-c's 14:35 artifact ran 29 tests green, and 10 of them are
+`cache-directive.spec.ts` — so the four "no directive" pins survived an actual run, and the open item at
+`lane-c/PLAN.md:68` is closed for those cases. The same artifact holds only 2 of the lane's 10 files
+(`cache-directive` 10, `public-link-shape` 19), so the other eight — including `session-guard.spec.ts`'s port
+literal — are still unmeasured.
 **Proof.** The header string itself is the evidence; `public-link-shape.spec.ts` already pins a missing
 directive on `/api/public/team/...` whose handler returns `NextResponse.json(response.data)` with no
 `Cache-Control` (`app/api/public/team/[profileLink]/[teamId]/route.ts:29,37`).
@@ -451,6 +502,14 @@ read from `git show HEAD:apps/web/playwright/suites/lane-b/zz-probe.spec.ts`); i
 941 s for 4 tests), which is the starved-machine signature `playwright/README.md:148-156` documents with numbers
 (140 passed / 5 failed in 40.4 min under three competing `next dev` processes; the same 5 alone: 2.6 min, 5 passed).
 
+**Both halves moved after I read them, and in the right direction.** `zz-probe.spec.ts` is gone from the
+working tree, and lane-a's four timeouts are gone too: its 15:14 artifact is 12 tests / 12 passed in 121 s
+across `smoke` 3, `task-work` 5 and `timer-journey` 4. **The rest of this paragraph was wrong when it was written, and
+is corrected here rather than left standing:** `ls apps/web/playwright/suites/lane-a/` shows `README.md` and `PLAN.md`
+both present — the README landed in `721cfec9b` and §8 of the lane's `PLAN.md` in `aae47171b` — so lane-a does have the
+place to record "written, not run" that the paragraph below says a lane needs. What is still true is that the
+"written, not run" state had to travel in a commit message (`0068ffcb9`) at the time, and that a lane with no such file
+would make its reds read as app bugs.
 **Wrong.** A committed always-fail probe is indistinguishable from a defect to anyone reading CI, and a lane
 with no README has no place to record "not yet run", so its red reads as an app bug. `lane-a`'s timeouts are the
 case in point: they are harness conditions, not findings.
@@ -522,7 +581,12 @@ in this finding needs doing.
 1. **No history of runs.** `artifacts/` is git-ignored (`.gitignore:132-133`), so each run overwrites the last:
    the lane-c artifact I read at 07:45 (`expected 1, unexpected 25`) was gone by 08:08, and
    `artifacts/test-results-lane-c/` that held ~20 `permission-guard` failure directories is now empty. A finding
-   that a run produced cannot survive the next run. (One line appended per run — time, config, counts, the
+   that a run produced cannot survive the next run — measured twice inside one day: the same six files carried
+   api 1152/0 at 05:32 then 1159/3 at 15:43, lane-b 'skipped 1' at 05:41 then 45 passed / 30 failed at 15:36,
+   lane-a 4 timeouts at 05:39 then 12/12 at 15:14, lane-c 25 failures at 07:28 then 29 green at 14:35, and
+   `test-results/` was emptied twice. Lanes have started saving logs outside the repository to compensate
+(`E:\Coding\.tmp\lane-b-verify.log`, 115 KB, read by this audit) — evidence that survives
+   only as long as somebody remembers the filename. (One line appended per run — time, config, counts, the
    `--grep` used — would fix this without new plumbing.)
 2. **"Which tests ran" is not recoverable.** Today's mock artifact holds 5 tests across 4 files while
    `README.md:148-156` describes a 145-test mock run; the artifact records `config` but not the filter. Green
