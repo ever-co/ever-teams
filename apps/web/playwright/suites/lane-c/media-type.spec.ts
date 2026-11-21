@@ -17,6 +17,16 @@ import { expect, test, type ApiCall } from '../../api-fixtures';
  * Every case here sends a body that is not JSON-parsable, so Playwright passes it through as it is rather
  * than re-encoding it (playwright-core client/fetch.js: a string that does not parse as JSON is sent as
  * raw bytes, with no content-type unless the test names one).
+ *
+ * **Run on lane-c, 2026-11-21, with no change needed to the file:** `Running 41 tests using 1 worker` /
+ * `41 passed (6.5s)` (log `artifacts/lane-c-media-type-1.log`; a second writer's batch of the same file printed
+ * `41 passed (6.1s)`, so the file is green under two independent runs). Every one of the 36 declared-type probes
+ * answered 415 with a body whose `message` is exactly `Unsupported Media Type` and the mock asked nothing; the two
+ * untyped-body probes, the charset probe (200, one forwarded call), the GET-with-a-type probe (200, forwarded), the
+ * cross-site form post (`403` whose body says `Cross-site request refused`, not the 415 — the order the header
+ * claims) and `POST /api/user-api-tokens` (415 with an **empty** mock log, i.e. its own `isJsonRequest` gate ran
+ * before any session read) all behaved as written. Nothing in this file is a finding: it is the shape the proxy
+ * actually keeps.
  */
 
 const FORM_BODY = 'name=Fixture&email=manager@example.test';
