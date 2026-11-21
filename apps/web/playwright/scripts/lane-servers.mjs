@@ -20,6 +20,7 @@
  * started with settings that are not its own.
  */
 import { spawn, spawnSync } from 'node:child_process';
+import { openSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -160,10 +161,32 @@ if (action !== 'up') {
 	process.exit(2);
 }
 
+/**
+ * A lane's server output goes to a file, and that is a bug fix rather than a convenience.
+ *
+ * `spawn(..., { shell: true })` with the default stdio hands the child pipes, and nothing in this script ever
+ * reads them. A child that writes enough output fills the pipe buffer (~64 KB) and blocks *inside its own
+ * `console.log`* — alive, listening on its port, and frozen mid-request. Measured on this machine, with a child
+ * that writes 2 MB and then a marker file: with unread pipes the marker never appeared in 6 s and the child was
+ * alive with `exitCode=null`; with `stdio` pointed at a file descriptor the marker appeared. This is what two
+ * lane runs hit today — "the app died mid-suite while `netstat` still showed its port listening", with a wall of
+ * 60 s request timeouts behind it, fixed each time by `down` + `up`.
+ *
+ * The file is also what a lane reads when a suite goes strange: `artifacts/` is git-ignored, so the log is there
+ * to look at and never ends up in a commit.
+ */
+const serverLog = resolve(CONFIG_DIR, 'artifacts', `lane-${laneName}-server.log`);
+const serverLogFd = openSync(serverLog, 'w');
+
 const { servers } = laneServers(laneName, { everId: process.env.E2E_EVER_ID === '1' });
 const children = servers.map((server) => {
-	console.log(`starting ${server.command} (port ${server.port})`);
-	return spawn(server.command, { cwd: resolve(CONFIG_DIR, server.cwd), env: { ...process.env, ...server.env }, shell: true });
+	console.log(`starting ${server.command} (port ${server.port}), output → ${serverLog}`);
+	return spawn(server.command, {
+		cwd: resolve(CONFIG_DIR, server.cwd),
+		env: { ...process.env, ...server.env },
+		shell: true,
+		stdio: ['ignore', serverLogFd, serverLogFd]
+	});
 });
 
 const shutdown = (why, code = 0) => {
