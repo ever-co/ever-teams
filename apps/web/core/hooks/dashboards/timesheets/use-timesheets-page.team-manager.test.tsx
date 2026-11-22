@@ -9,6 +9,8 @@ import type { ReactNode } from 'react';
 import { act, renderHook } from '@testing-library/react';
 import { createStore, Provider } from 'jotai';
 import { activeTeamIdState, organizationTeamsState } from '@/core/stores/teams/organization-team';
+import { offersApproveAndReject, reviewStatusesOf } from '@/core/lib/helpers/timesheet-review';
+import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 import type { TOrganizationTeam } from '@/core/types/schemas';
 
 const mockUseTimesheetPageLogs = jest.fn();
@@ -135,5 +137,36 @@ describe('the Timesheets page of a team manager without CAN_APPROVE_TIMESHEET (#
 		renderPageAs('kofi', 'ADMIN', ['TIME_TRACKER', 'CAN_APPROVE_TIMESHEET', 'CHANGE_SELECTED_EMPLOYEE']);
 
 		expect(lastReadEmployeeIds()).toEqual([]);
+	});
+});
+
+describe('the review the Timesheets page offers a team manager without CAN_APPROVE_TIMESHEET (#5622)', () => {
+	const ronanPending = [{ employeeId: 'ronan' }];
+	const kofiPending = [{ employeeId: 'kofi' }];
+
+	it("offers him Approve and Reject on a member's timesheet, never on his own", () => {
+		const { result } = renderPageAs('kofi');
+		const { permissions } = result.current;
+
+		expect(permissions.canApprove).toBe(false);
+		expect(offersApproveAndReject(permissions, ronanPending)).toBe(true);
+		expect(offersApproveAndReject(permissions, kofiPending)).toBe(false);
+		expect(offersApproveAndReject(permissions, [...ronanPending, ...kofiPending])).toBe(false);
+	});
+
+	it('CONTROL: offers a plain member no review, on their own time or a teammate', () => {
+		const { result } = renderPageAs('ronan');
+		const { permissions } = result.current;
+
+		expect(offersApproveAndReject(permissions, ronanPending)).toBe(false);
+		expect(offersApproveAndReject(permissions, kofiPending)).toBe(false);
+	});
+
+	it('CONTROL: keeps every status on every timesheet for a role with CAN_APPROVE_TIMESHEET', () => {
+		const { result } = renderPageAs('kofi', 'ADMIN', ['TIME_TRACKER', 'CAN_APPROVE_TIMESHEET']);
+		const { permissions } = result.current;
+
+		expect(offersApproveAndReject(permissions, kofiPending)).toBe(true);
+		expect(reviewStatusesOf(permissions, ronanPending)).toEqual(Object.values(ETimesheetStatus));
 	});
 });

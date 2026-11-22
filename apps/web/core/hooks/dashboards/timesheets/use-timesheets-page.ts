@@ -43,7 +43,8 @@ import {
 	totalDurationOf
 } from '@/core/lib/utils/dashboards/timesheets';
 import { breakSecondsOf, isBreakLog } from '@/core/lib/utils/timer/timer-break';
-import { isMembershipInEffect } from '@/core/lib/helpers/timesheet-review';
+import { isMembershipInEffect, type TimesheetReviewer } from '@/core/lib/helpers/timesheet-review';
+import { useTimesheetReviewer } from '@/core/hooks/timesheet/use-timesheet-review';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import type { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import type { SheetEditingSource } from './use-sheet-editing';
@@ -79,9 +80,15 @@ export interface TimesheetPermissions {
 	hasOrganizationRole: boolean;
 	/** Organisation roles and team managers: see and filter other members. */
 	isManage: boolean;
+	/** CAN_APPROVE_TIMESHEET: any status on any timesheet. */
 	canApprove: boolean;
 	userId: string | null;
 	employeeId: string | null;
+	/**
+	 * The reviewer of the team manager rule (getAllowedTimesheetStatuses): approve and reject the timesheets of the
+	 * members of the teams the reader manages, never their own. A page without it reviews by canApprove alone.
+	 */
+	reviewer?: TimesheetReviewer | null;
 }
 
 export function canEditLog(log: ITimeLog, permissions: TimesheetPermissions) {
@@ -210,10 +217,11 @@ export function useTimesheetsPage() {
 	const canApprove = myPermissions.includes(APPROVE_PERMISSION);
 	const ownEmployeeId = user?.employee?.id ?? null;
 	const userId = user?.id ?? null;
+	const reviewer = useTimesheetReviewer();
 
 	const permissions = useMemo<TimesheetPermissions>(
-		() => ({ hasOrganizationRole, isManage, canApprove, userId, employeeId: ownEmployeeId }),
-		[canApprove, hasOrganizationRole, isManage, ownEmployeeId, userId]
+		() => ({ hasOrganizationRole, isManage, canApprove, userId, employeeId: ownEmployeeId, reviewer }),
+		[canApprove, hasOrganizationRole, isManage, ownEmployeeId, reviewer, userId]
 	);
 
 	const teamMembers = activeTeam?.members ?? NO_TEAM_MEMBERS;
