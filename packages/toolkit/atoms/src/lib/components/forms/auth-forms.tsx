@@ -31,6 +31,7 @@ import { logOut as teamsLogOut } from '@ever-teams/api';
 import { TeamsPasswordLoginForm } from './teams-password-login-form';
 import { TeamsTokenLoginForm } from './teams-token-login-form';
 import { KitFormError, KitFormField } from './kit-form-field';
+import { AUTH_LINK, AUTH_LINK_BUTTON } from './auth-link';
 import { KIT_NOTICE_SURFACE, kitNoticeTone } from '@components/teams-ui-components/notice-surface';
 import { useKitOptions } from '@components/teams-provider/kit-root';
 import { warnOnce } from '@lib/utils/warn-once';
@@ -103,12 +104,6 @@ function fullNameOf(user: { firstName?: string; lastName?: string }): string {
 type AuthFormMode = 'signin' | 'signup';
 
 type FormSource = 'storybook' | 'example';
-
-// The links of the sign-in and registration forms: the theme's primary, lighter in dark mode to stay readable there.
-const AUTH_LINK =
-	'cursor-pointer font-medium text-primary underline-offset-4 hover:underline focus-visible:underline focus-visible:outline-none dark:text-primary-xlight';
-// The same link on a button, for the switch between the two forms.
-const AUTH_LINK_BUTTON = cn('border-none bg-transparent p-0 font-inherit', AUTH_LINK);
 
 // The title of the sign-in and registration forms, above a separator.
 function AuthFormTitle({ children }: Readonly<{ children: React.ReactNode }>) {
