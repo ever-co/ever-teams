@@ -316,6 +316,38 @@ test('a getToken that fails shows the person as signed out, once, with no reques
 	}
 });
 
+test('a getToken that Ever Teams refused for the person signs out with the refusal, and says so once', async () => {
+	const warnings = [];
+	const warn = mock.method(console, 'warn', (message) => warnings.push(message));
+	try {
+		const refused = Object.assign(new Error('This member cannot track time through an embed.'), {
+			code: 'EMBED_MEMBER_NOT_ALLOWED'
+		});
+		const { seen, store } = await mount(async () => {
+			throw refused;
+		});
+
+		assert.equal(seen.token, '');
+		assert.deepEqual(store.get(kit.hostSessionAtom), { status: 'signed-out', organizationId: null, refused: true });
+		assert.deepEqual(paths(), []);
+		assert.equal(warnings.filter((w) => /getToken failed .*Ever Teams refused this person/.test(w)).length, 1);
+	} finally {
+		warn.mock.restore();
+	}
+});
+
+test('a host that signed the person out keeps the signed-out session, with no refusal', async () => {
+	const warn = mock.method(console, 'warn', () => {});
+	try {
+		const backend = hostBackend({ fails: true });
+		const { store } = await mount(backend.getToken);
+
+		assert.deepEqual(store.get(kit.hostSessionAtom), { status: 'signed-out', organizationId: null, refused: false });
+	} finally {
+		warn.mock.restore();
+	}
+});
+
 test('a token with a past or unreadable expiry is refused, and not asked for again in a loop', async () => {
 	mock.timers.enable({ apis: ['setTimeout', 'Date'], now: Date.now() });
 	const warn = mock.method(console, 'warn', () => {});
