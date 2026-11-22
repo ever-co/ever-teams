@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { enabledPermissionsOf } from '@/core/lib/utils/member-access';
+import { readsTimeLogReports } from '@/core/lib/utils/report-access';
 import { gauzyErrorResponse } from './gauzy-error-response';
 import { authenticatedGuard } from './guards/authenticated-guard-app';
 import { getMyRolePermissionsRequest } from './requests/role-permissions';
@@ -18,9 +19,6 @@ import {
  * of the public read of a shared report, `/api/public/saved-reports/:token`. Gauzy's answers and refusals pass through
  * unchanged: a report of someone else is its 404, a link asked from an API token session its 403.
  */
-
-/** Gauzy reads saved reports with the permissions of the time log reports they describe: one of these is needed. */
-const SAVED_REPORT_PERMISSIONS: ReadonlyArray<string> = ['TIME_TRACKER', 'ALL_ORG_EDIT', 'ALL_ORG_VIEW'];
 
 /** The token of a link, and the report it opens, are never cached on the way. */
 const NO_STORE = { 'Cache-Control': 'no-store' };
@@ -53,7 +51,7 @@ interface ProxySession {
 async function mayUseSavedReports(session: ProxySession): Promise<boolean> {
 	const { data: permissions } = await getMyRolePermissionsRequest(session);
 	const enabled = enabledPermissionsOf(permissions ?? []);
-	return SAVED_REPORT_PERMISSIONS.some((permission) => enabled.includes(permission));
+	return readsTimeLogReports(enabled);
 }
 
 function refused(): NextResponse {
