@@ -58,4 +58,16 @@ describe.each([
 		expect(screen.queryByAltText('Team Avatar')).toBeNull();
 		expect(screen.getByText('K')).toBeTruthy();
 	});
+
+	it('shows the first letter of a name in another script when the image fails to load', () => {
+		const li = {
+			...kofi,
+			memberUser: { ...kofi.memberUser, firstName: '李', lastName: '雷' }
+		} as I_MemberIdentityHook;
+		render(<MemberInfo memberInfo={li} />);
+
+		fireEvent.error(screen.getByAltText('Team Avatar'));
+
+		expect(screen.getByText('李')).toBeTruthy();
+	});
 });
