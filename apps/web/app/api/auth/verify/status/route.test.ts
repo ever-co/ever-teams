@@ -7,14 +7,14 @@ import { GET } from './route';
 
 afterEach(restoreFetch);
 
-const URL = 'https://app.ever.team/api/auth/verify/status';
+const STATUS_URL = 'https://app.ever.team/api/auth/verify/status';
 
 describe('GET /api/auth/verify/status', () => {
 	it("reads Gauzy's GET /auth/email/verify/status, marked no-store", async () => {
 		const status = { isEmailVerified: false, verificationEmailSent: true };
 		const fetchMock = gauzyAnswers(Response.json(status, { status: 200 }));
 
-		const response = await GET(signedInRequest(URL));
+		const response = await GET(signedInRequest(STATUS_URL));
 
 		const sent = sentToGauzy(fetchMock);
 		expect(sent.url).toBe(gauzyUrl('/auth/email/verify/status'));
@@ -28,7 +28,7 @@ describe('GET /api/auth/verify/status', () => {
 		const switchedOff = { statusCode: 404, message: 'Cannot GET /api/auth/email/verify/status' };
 		gauzyAnswers(Response.json(switchedOff, { status: 404 }));
 
-		const response = await GET(signedInRequest(URL));
+		const response = await GET(signedInRequest(STATUS_URL));
 
 		expect(response.status).toBe(404);
 		await expect(response.json()).resolves.toEqual(switchedOff);
@@ -37,7 +37,7 @@ describe('GET /api/auth/verify/status', () => {
 	it('sends nothing for a browser without a session', async () => {
 		const fetchMock = gauzyAnswers(Response.json({ isEmailVerified: true }, { status: 200 }));
 
-		const response = await GET(new Request(URL));
+		const response = await GET(new Request(STATUS_URL));
 
 		expect(response.status).toBe(401);
 		expect(fetchMock).not.toHaveBeenCalled();
