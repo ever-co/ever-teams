@@ -116,18 +116,57 @@ describe("a task card's Start", () => {
 		expect(view.result.current.loading).toBe(false);
 	});
 
+	it('settles only once the switch it waited for has started its task, so Continue keeps its notes until then', async () => {
+		const { store, view } = renderCardOfTaskB(null);
+		mockGetTimerStatus.mockImplementation(async () => {
+			store.set(timerStatusState, RUN_ON_TASK_A);
+			return { data: RUN_ON_TASK_A };
+		});
+		let answerStart: () => void = () => undefined;
+		mockStartTimer.mockImplementationOnce(
+			(task: TTask) =>
+				new Promise((resolve) => {
+					answerStart = () => {
+						mockCalls.push(`start ${task.id}`);
+						resolve('started');
+					};
+				})
+		);
+		let isSettled = false;
+		let start: Promise<void> = Promise.resolve();
+
+		await act(async () => {
+			start = view.result.current.startTimerWithTask().then(() => {
+				isSettled = true;
+			});
+		});
+		await waitFor(() => expect(mockStartTimer).toHaveBeenCalledTimes(1));
+		expect(isSettled).toBe(false);
+
+		await act(async () => {
+			answerStart();
+			await start;
+		});
+		expect(isSettled).toBe(true);
+		expect(mockCalls).toEqual(['stop', 'start task-b']);
+	});
+
 	it('starts its task, with no stop, when the first read finds no run', async () => {
 		const { store, view } = renderCardOfTaskB(null);
 		mockGetTimerStatus.mockImplementation(async () => {
 			store.set(timerStatusState, { running: false, lastLog: null } as never);
 			return { data: { running: false, lastLog: null } };
 		});
+		let start: Promise<void> = Promise.resolve();
 
 		await act(async () => {
-			await view.result.current.startTimerWithTask();
+			start = view.result.current.startTimerWithTask();
 		});
 
 		await waitFor(() => expect(mockCalls).toEqual(['start task-b']));
+		await act(async () => {
+			await start;
+		});
 	});
 
 	it.each([

@@ -100,17 +100,18 @@ export function useTimerButtonLogic({ task }: { task: TTask }) {
 		}
 	}, [task, timerStatus?.running, setActiveTask, startTimer, handleStop, t]);
 
-	// Set while a start waits for this tab's first read of the timer
-	const startsOnceStatusIsRead = useRef(false);
+	// Set while a start waits for this tab's first read of the timer: settles that start once the switch has run
+	const queuedStartDone = useRef<(() => void) | null>(null);
 	const isStatusRead = timerStatus !== null;
 
 	useEffect(() => {
-		if (!startsOnceStatusIsRead.current || !isStatusRead) {
+		const done = queuedStartDone.current;
+		if (!done || !isStatusRead) {
 			return;
 		}
-		startsOnceStatusIsRead.current = false;
+		queuedStartDone.current = null;
 		setLoading(false);
-		void stopThenStart();
+		void stopThenStart().finally(done);
 	}, [isStatusRead, stopThenStart]);
 
 	const startTimerWithTask = useCallback(async () => {
@@ -128,17 +129,23 @@ export function useTimerButtonLogic({ task }: { task: TTask }) {
 
 		// The page has not read the timer yet: a run it does not show would not be stopped first, the start would take
 		// it for another device's and be refused, and the task change would then stop it, leaving nothing running
-		// (#5684). The start goes once the timer is read.
-		startsOnceStatusIsRead.current = true;
+		// (#5684). The start goes once the timer is read, and settles when it has: a caller may wait for it (Continue
+		// keeps the entry's notes until then).
+		const switched = new Promise<void>((resolve) => {
+			queuedStartDone.current = resolve;
+		});
 		setLoading(true);
 		const read = await Promise.resolve(getTimerStatus()).catch(() => undefined);
 		// No status came back: the start goes as before, and its own checks read the timer
 		const hasNoStatus = !read?.data;
-		if (startsOnceStatusIsRead.current && hasNoStatus) {
-			startsOnceStatusIsRead.current = false;
+		const isStillQueued = queuedStartDone.current !== null;
+		if (isStillQueued && hasNoStatus) {
+			queuedStartDone.current = null;
 			setLoading(false);
 			await stopThenStart();
+			return;
 		}
+		await switched;
 	}, [task.status, t, isStatusRead, stopThenStart, getTimerStatus]);
 
 	const { modals, startStopTimerHandler } = useStartStopTimerHandler({ startTimer, stopTimer });
