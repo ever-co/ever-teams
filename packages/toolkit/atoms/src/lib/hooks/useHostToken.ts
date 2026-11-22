@@ -8,6 +8,7 @@ import { hostSessionAtom } from '@lib/session/host-session';
 import {
 	expiryOf,
 	GetKitToken,
+	isRefusedPerson,
 	MIN_REFRESH_DELAY_MS,
 	MIN_TOKEN_LIFE_MS,
 	organizationOfToken,
@@ -20,10 +21,19 @@ import { useClearKitSession } from './useClearKitSession';
 // The console warning of a failed call: its key (one warning per key and page) and its text; null for none.
 export type TokenFailureWarning = (error: unknown) => { key: string; message: string } | null;
 
-const getTokenWarning: TokenFailureWarning = (error) => ({
-	key: 'get-token-failed',
-	message: `config.getToken failed (${(error as Error)?.message ?? error}): the widgets show the person as signed out.`
-});
+const getTokenWarning: TokenFailureWarning = (error) => {
+	const reason = (error as Error)?.message ?? error;
+	if (isRefusedPerson(error)) {
+		return {
+			key: 'get-token-refused',
+			message: `config.getToken failed (${reason}): Ever Teams refused this person, and the widgets say so.`
+		};
+	}
+	return {
+		key: 'get-token-failed',
+		message: `config.getToken failed (${reason}): the widgets show the person as signed out.`
+	};
+};
 
 /**
  * Keeps the kit signed in through the host's `getToken`: a token at start, another shortly before it expires (or when
@@ -109,7 +119,7 @@ export function useHostToken(
 			}
 			owner.current = null;
 			latestClearSession.current();
-			setHostSession({ status: 'signed-out', organizationId: null });
+			setHostSession({ status: 'signed-out', organizationId: null, refused: isRefusedPerson(error) });
 			// Asked again when the page comes back (the person may have signed in to the host meanwhile), not sooner.
 			refreshAt.current = Date.now() + MIN_REFRESH_DELAY_MS;
 		}

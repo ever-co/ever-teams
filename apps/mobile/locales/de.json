@@ -312,7 +312,7 @@
 	},
 	"noTeamScreen": {
 		"createYourTeam": "Erstellen Sie Ihr eigenes Team oder treten Sie einem bestehenden bei",
-		"hintMessage": "Lorem ipsum dolor sit amet consectetur. Blandit lobortis dui risus neque."
+		"hintMessage": "Erstellen Sie ein Team und laden Sie die Personen ein, mit denen Sie arbeiten."
 	},
 	"settingScreen": {
 		"description": "Dein Konto, dein Team und wie seine Aufgaben organisiert sind.",
@@ -622,6 +622,16 @@
 		},
 		"addLabel": "Label hinzufügen",
 		"editLabels": "Labels bearbeiten",
-		"rowActions": "Aktionen für {name}"
+		"rowActions": "Aktionen für {name}",
+		"dates": {
+			"addDate": "Datum hinzufügen",
+			"clear": "Datum entfernen",
+			"today": "Heute",
+			"tomorrow": "Morgen",
+			"endOfWeek": "Ende dieser Woche",
+			"inOneWeek": "In einer Woche",
+			"startAfterDue": "Das Startdatum muss vor dem Fälligkeitsdatum liegen.",
+			"dueBeforeStart": "Das Fälligkeitsdatum muss nach dem Startdatum liegen."
+		}
 	}
 }

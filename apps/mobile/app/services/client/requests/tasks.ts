@@ -8,18 +8,9 @@ export function getTeamTasksRequest({
 	organizationId,
 	bearer_token,
 	activeTeamId, // Added parameter
-	relations = [
-		"tags",
-		"teams",
-		"members",
-		"members.user",
-		"createdByUser",
-		"linkedIssues",
-		"linkedIssues.taskTo",
-		"linkedIssues.taskFrom",
-		"parent",
-		"children"
-	],
+	// What the lists show, as the web's list reads it: linked issues and the creator are one-to-many joins that
+	// multiply the rows behind /tasks/team (31 s for eleven tasks on a bench); the task page reads them for its task
+	relations = ["tags", "teams", "members", "members.user", "parent", "children"],
 }: {
 	tenantId: string
 	organizationId: string

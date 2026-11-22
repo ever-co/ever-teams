@@ -14,6 +14,7 @@ import { findTimerPlans } from '@/core/lib/helpers/daily-plan-day';
 import { canRunTimerForState } from '@/core/lib/helpers/timer-policy';
 
 import { useAuthenticateUser } from '../auth/use-authenticate-user';
+import { useIsEmailVerificationSatisfied } from '../auth/use-email-verification-status';
 import { useMyDailyPlans } from '../daily-plans/use-my-daily-plans';
 
 // ==================== TYPES ====================
@@ -58,6 +59,7 @@ export function useTimerPlanStatus(): UseTimerPlanStatusReturn {
 	const shownTimerStatus = useAtomValue(teamTimerStatusState);
 
 	const { user } = useAuthenticateUser();
+	const meetsEmailVerification = useIsEmailVerificationSatisfied(user);
 	const { myDailyPlans } = useMyDailyPlans();
 
 	// ==================== DERIVED STATE ====================
@@ -84,7 +86,7 @@ export function useTimerPlanStatus(): UseTimerPlanStatusReturn {
 	const canRunTimer = useMemo(
 		() =>
 			canRunTimerForState({
-				isEmailVerified: !!user?.isEmailVerified,
+				isEmailVerified: meetsEmailVerification,
 				hasActiveTask: !!activeTeamTask,
 				isActiveTaskClosed: activeTeamTask?.status === ETaskStatusName.CLOSED,
 				isTimerRunning: !!timerStatus?.running,
@@ -92,7 +94,7 @@ export function useTimerPlanStatus(): UseTimerPlanStatusReturn {
 				timerSource: timerStatus?.lastLog?.source
 			}),
 		[
-			user?.isEmailVerified,
+			meetsEmailVerification,
 			activeTeamTask,
 			timerStatus?.running,
 			shownTimerStatus?.running,

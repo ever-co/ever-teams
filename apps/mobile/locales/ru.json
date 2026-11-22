@@ -312,7 +312,7 @@
 	},
 	"noTeamScreen": {
 		"createYourTeam": "Создайте свою команду или присоединитесь к существующей",
-		"hintMessage": "Lorem ipsum dolor sit amet consectetur. Blandit lobortis dui risus neque."
+		"hintMessage": "Создайте команду и пригласите людей, с которыми работаете."
 	},
 	"settingScreen": {
 		"description": "Ваш аккаунт, ваша команда и то, как организованы её задачи.",
@@ -622,6 +622,16 @@
 		},
 		"addLabel": "Добавить метку",
 		"editLabels": "Изменить метки",
-		"rowActions": "Действия для {name}"
+		"rowActions": "Действия для {name}",
+		"dates": {
+			"addDate": "Добавить дату",
+			"clear": "Очистить дату",
+			"today": "Сегодня",
+			"tomorrow": "Завтра",
+			"endOfWeek": "Конец этой недели",
+			"inOneWeek": "Через неделю",
+			"startAfterDue": "Дата начала должна быть раньше срока.",
+			"dueBeforeStart": "Срок должен быть позже даты начала."
+		}
 	}
 }

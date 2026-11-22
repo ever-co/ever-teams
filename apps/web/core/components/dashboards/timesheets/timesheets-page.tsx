@@ -31,6 +31,7 @@ import { useTimerTaskStart } from '@/core/hooks/timer/use-timer-task-start';
 import { useTimeEntryDuplicate } from '@/core/hooks/timesheet/use-time-entry-duplicate';
 import { canMemberTrackTime } from '@/core/lib/helpers/team-member-tracking';
 import { isBreakLog } from '@/core/lib/utils/timer/timer-break';
+import { offersApproveAndReject } from '@/core/lib/helpers/timesheet-review';
 import { formatDurationShort } from '@/core/lib/utils/dashboard-figures';
 import type { BulkEditResult } from '@/core/lib/utils/dashboards/timesheet-bulk-edit';
 import { ADD_TIME_ENTRY_STEP_MINUTES, canDuplicateLog } from '@/core/lib/utils/time-entry-reuse';
@@ -265,6 +266,7 @@ export function TimesheetsPage({ params }: Readonly<{ params: Promise<{ memberId
 	const hasSelection = selectedLogs.length > 0;
 	const canDeleteSelection = selectedLogs.every((log) => canEditLog(log, permissions));
 	const canEditSelection = selectedLogs.some((log) => canEditLog(log, permissions));
+	const canApproveSelection = offersApproveAndReject(permissions, selectedLogs);
 	const selectedSeconds = useMemo(() => totalDurationOf(selectedLogs), [selectedLogs]);
 	const isSheetView = page.view === 'sheet';
 	const isListView = page.view === 'list';
@@ -288,6 +290,7 @@ export function TimesheetsPage({ params }: Readonly<{ params: Promise<{ memberId
 	const sheetEditingSource = sheetEditingSourceOf(page);
 	const sheetEditing = useSheetEditing(sheetEditingSource, sheet);
 	const { pendingLogs } = sheet;
+	const canApprovePending = offersApproveAndReject(permissions, pendingLogs);
 
 	const approveSelection = async () => {
 		const isDone = await changeStatus(selectedLogs, ETimesheetStatus.APPROVED, false);
@@ -415,6 +418,7 @@ export function TimesheetsPage({ params }: Readonly<{ params: Promise<{ memberId
 				selection={{
 					count: selectedLogs.length,
 					seconds: selectedSeconds,
+					canApprove: canApproveSelection,
 					canDelete: canDeleteSelection,
 					onApprove: () => void approveSelection(),
 					onReject: () => openReject(selectedLogs, 'bulk'),
@@ -424,6 +428,7 @@ export function TimesheetsPage({ params }: Readonly<{ params: Promise<{ memberId
 				pending={{
 					count: pendingLogs.length,
 					seconds: sheet.pendingSeconds,
+					canApprove: canApprovePending,
 					onApprove: approvePending,
 					onReject: rejectPending
 				}}
@@ -539,7 +544,7 @@ export function TimesheetsPage({ params }: Readonly<{ params: Promise<{ memberId
 			{showsSelectionBar && (
 				<TimesheetsSelectionBar
 					count={selectedLogs.length}
-					canApprove={permissions.canApprove}
+					canApprove={canApproveSelection}
 					canEdit={canEditSelection}
 					canDelete={canDeleteSelection}
 					isApproving={isChangingStatus}

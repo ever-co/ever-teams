@@ -1,6 +1,6 @@
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react-native';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, type ViewStyle } from 'react-native';
 import TimerTaskSection from './timer-task-section';
 import { ITeamTask } from '../../../../services/interfaces/ITask';
 import { RTuseTaskInput } from '../../../../services/hooks/features/use-task-input';
@@ -15,10 +15,18 @@ jest.mock('../../../../models', () => ({
 }));
 jest.mock('../../../../components/timer-card', () => () => null);
 jest.mock('../../../../components/issues-modal', () => () => null);
-jest.mock('../../../../components/task-status', () => () => null);
-jest.mock('../../../../components/task-size', () => () => null);
-jest.mock('../../../../components/task-priority', () => () => null);
-jest.mock('../../../../components/task-labels', () => () => null);
+// The chips stand in as their name, with the container style the card gives them
+const mockChipStyles: Record<string, ViewStyle> = {};
+function mockChip(name: string) {
+	return (props: { containerStyle?: ViewStyle }) => {
+		mockChipStyles[name] = props.containerStyle ?? {};
+		return null;
+	};
+}
+jest.mock('../../../../components/task-status', () => mockChip('status'));
+jest.mock('../../../../components/task-size', () => mockChip('size'));
+jest.mock('../../../../components/task-priority', () => mockChip('priority'));
+jest.mock('../../../../components/task-labels', () => mockChip('labels'));
 jest.mock('./estimate-time', () => () => null);
 
 const task = {
@@ -96,5 +104,15 @@ describe("Work's panel", () => {
 		expect(screen.getByTestId('task-picker-field').props.selection).toEqual({ start: 0, end: 0 });
 		expect(screen.getByText('Repaint maintenance hatch').props.numberOfLines).toBe(1);
 		expect(styleOf('task-picker-field').opacity).toBe(0);
+	});
+
+	// At a larger system font a fixed height cut the chips' text in half (the Labels chip at 200 %)
+	it.each(['status', 'size', 'priority', 'labels'])('lets the %s chip grow with its text', async (chip) => {
+		mockTimer.running = false;
+		await render(<TimerTaskSection taskInput={taskInput} outsideClick={jest.fn()} />);
+
+		const style = StyleSheet.flatten(mockChipStyles[chip]);
+		expect(style.height).toBeUndefined();
+		expect(style.minHeight).toBe(32);
 	});
 });

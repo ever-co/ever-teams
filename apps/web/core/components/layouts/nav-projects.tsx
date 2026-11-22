@@ -23,6 +23,7 @@ import {
 } from '@/core/components/common/sidebar';
 import { useOrganizationAndTeamManagers } from '@/core/hooks/organizations/teams/use-organization-teams-managers';
 import { useAuthenticateUser } from '@/core/hooks';
+import { useIsEmailVerificationSatisfied } from '@/core/hooks/auth/use-email-verification-status';
 import { Button } from '@/core/components/common/button';
 import { useTranslations } from 'next-intl';
 
@@ -38,6 +39,7 @@ export function NavProjects({
 	const { isMobile } = useSidebar();
 
 	const { user } = useAuthenticateUser();
+	const meetsEmailVerification = useIsEmailVerificationSatisfied(user);
 	const { userManagedTeams } = useOrganizationAndTeamManagers();
 	const t = useTranslations();
 
@@ -98,7 +100,7 @@ export function NavProjects({
 								className="mt-3 w-full max-w-[230px]"
 								variant="outline"
 								size="default"
-								disabled={!user?.isEmailVerified}
+								disabled={!meetsEmailVerification}
 							>
 								<Plus className="size-4" />
 								{t('common.CREATE_PROJECT')}

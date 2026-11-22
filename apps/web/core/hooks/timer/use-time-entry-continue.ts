@@ -5,6 +5,7 @@ import { useCallback, useRef } from 'react';
 
 import { useSyncRef } from '@/core/hooks/common/use-sync-ref';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { useIsEmailVerificationSatisfied } from '@/core/hooks/auth/use-email-verification-status';
 import { canMemberTrackTime } from '@/core/lib/helpers/team-member-tracking';
 import { type ContinueViewer, continuableTaskOf, tasksByIdOf, timerCarryOf } from '@/core/lib/utils/time-entry-reuse';
 import { activeTeamState, teamTasksState } from '@/core/stores';
@@ -27,13 +28,16 @@ function isTrackingOnFor(team: TOrganizationTeam | null, userId: string | undefi
 	});
 }
 
-function continueViewerOf(user: TUser | null | undefined, team: TOrganizationTeam | null): ContinueViewer {
-	const isEmailVerified = Boolean(user?.isEmailVerified);
+function continueViewerOf(
+	user: TUser | null | undefined,
+	team: TOrganizationTeam | null,
+	meetsEmailVerification: boolean
+): ContinueViewer {
 	const isTrackingOn = isTrackingOnFor(team, user?.id);
 	return {
 		userId: user?.id,
 		employeeId: user?.employee?.id,
-		canTrackTime: isEmailVerified && isTrackingOn
+		canTrackTime: meetsEmailVerification && isTrackingOn
 	};
 }
 
@@ -51,6 +55,8 @@ export function useTimeEntryContinue(startOn: StartTimerOn) {
 	const store = useStore();
 	const { data: user } = useUserQuery();
 	const userRef = useSyncRef(user);
+	const meetsEmailVerification = useIsEmailVerificationSatisfied(user);
+	const meetsEmailVerificationRef = useSyncRef(meetsEmailVerification);
 	const reachableRef = useRef<ReachableTasks | null>(null);
 
 	const reachableTasksOf = useCallback((tasks: TTask[]) => {
@@ -66,11 +72,11 @@ export function useTimeEntryContinue(startOn: StartTimerOn) {
 	const continuableTask = useCallback(
 		(log: ITimeLog): TTask | null => {
 			const team = store.get(activeTeamState);
-			const viewer = continueViewerOf(userRef.current, team);
+			const viewer = continueViewerOf(userRef.current, team, meetsEmailVerificationRef.current);
 			const reachableTasks = reachableTasksOf(store.get(teamTasksState));
 			return continuableTaskOf(log, viewer, reachableTasks);
 		},
-		[reachableTasksOf, store, userRef]
+		[meetsEmailVerificationRef, reachableTasksOf, store, userRef]
 	);
 
 	const canContinue = useCallback((log: ITimeLog) => continuableTask(log) !== null, [continuableTask]);

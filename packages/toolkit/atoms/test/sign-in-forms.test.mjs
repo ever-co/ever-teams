@@ -37,7 +37,8 @@ const stubs = {
 		export const TabsTrigger = passThrough;`,
 	'react-i18next': 'export const useTranslation = () => ({ t: (key) => key });',
 	'password-hook': `export const usePasswordLoginForm = () => ({
-		handleSubmit() {}, handleInputChange() {}, formData: { email: '', password: '' }, error: globalThis.formError, loading: false
+		handleSubmit() {}, handleInputChange() {}, formData: { email: 'ayla@example.com', password: '' }, error: globalThis.formError,
+		loading: false, twoFactor: globalThis.twoFactorStep ?? null, backToPassword() {}
 	});`,
 	'token-hook': `export const useTokenSubmission = () => ({
 		handleSubmit() {}, handleInputChange() {}, tokenInput: '', error: globalThis.formError, isLoading: Boolean(globalThis.formLoading)
@@ -235,4 +236,56 @@ test('the English sign-in strings read without a typo or a space before the ques
 	assert.equal(en.AUTH.dont_have_an_account, "Don't have an account?");
 	assert.equal(en.AUTH.have_an_account, 'Have an account?');
 	assert.equal(en.ERROR.invalid_password_or_email, 'You entered an invalid email or password.');
+});
+
+// The code step of a sign-in for an account with two-factor sign-in on (ever-co/ever-teams#5701).
+function codeStep(usesRecoveryCode) {
+	return {
+		code: '',
+		usesRecoveryCode,
+		loading: false,
+		error: undefined,
+		codeLength: 6,
+		handleCodeChange() {},
+		async handleCodeSubmit() {},
+		toggleRecoveryCode() {}
+	};
+}
+
+test('a sign-in that asks for a two-factor code shows the code step in the form, with its field named for the code', () => {
+	globalThis.twoFactorStep = { ...codeStep(false), error: 'AUTH.two_factor_wrong_code' };
+	try {
+		const markup = render(kit.TeamsPasswordLoginForm);
+		const fields = labelledInputs(markup);
+
+		assert.deepEqual(
+			fields.map((field) => field.text),
+			['AUTH.two_factor_code_label']
+		);
+		assert.match(fields[0].input, /autoComplete="one-time-code"|autocomplete="one-time-code"/);
+		assert.match(fields[0].input, /inputMode="numeric"|inputmode="numeric"/);
+		assert.match(markup, />AUTH\.two_factor_description<\/p>/);
+		assert.match(markup, /<p role="alert"[^>]*>AUTH\.two_factor_wrong_code<\/p>/);
+		assert.match(markup, />AUTH\.two_factor_submit<\/button>/);
+		assert.match(markup, /<button type="button"[^>]*>AUTH\.two_factor_use_recovery<\/button>/);
+		assert.match(markup, /<button type="button"[^>]*>AUTH\.two_factor_back<\/button>/);
+		assert.doesNotMatch(markup, /COMMON\.password/);
+	} finally {
+		globalThis.twoFactorStep = null;
+	}
+});
+
+test('the recovery code takes letters and offers the authenticator app back', () => {
+	globalThis.twoFactorStep = codeStep(true);
+	try {
+		const markup = render(kit.TeamsPasswordLoginForm);
+		const [field] = labelledInputs(markup);
+
+		assert.equal(field.text, 'AUTH.two_factor_recovery_label');
+		assert.match(field.input, /inputMode="text"|inputmode="text"/);
+		assert.match(markup, />AUTH\.two_factor_recovery_description<\/p>/);
+		assert.match(markup, />AUTH\.two_factor_use_app<\/button>/);
+	} finally {
+		globalThis.twoFactorStep = null;
+	}
 });

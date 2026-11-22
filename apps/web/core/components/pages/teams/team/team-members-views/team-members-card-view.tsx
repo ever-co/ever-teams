@@ -10,6 +10,7 @@ import { InviteFormModal } from '@/core/components/features/teams/invite-form-mo
 import { EInviteStatus } from '@/core/types/generics/enums/invite';
 import { useTeamInvitationsQuery } from '@/core/hooks/invitations/use-team-invitations-query';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { useIsEmailVerificationSatisfied } from '@/core/hooks/auth/use-email-verification-status';
 import { clsxm } from '@/core/lib/utils';
 import { MEMBER_CARD } from '@/core/components/teams/member-row-grid';
 import {
@@ -207,12 +208,13 @@ const TeamMembersCardView: React.FC<Props> = memo(
 
 function Invite() {
 	const { data: user } = useUserQuery();
+	const meetsEmailVerification = useIsEmailVerificationSatisfied(user);
 	const { openModal, isOpen, closeModal } = useModal();
 
 	return (
 		<>
-			<InviteUserTeamCard active={user?.isEmailVerified} onClick={openModal} />
-			<InviteFormModal open={isOpen && !!user?.isEmailVerified} closeModal={closeModal} />
+			<InviteUserTeamCard active={meetsEmailVerification} onClick={openModal} />
+			<InviteFormModal open={isOpen && meetsEmailVerification} closeModal={closeModal} />
 		</>
 	);
 }
