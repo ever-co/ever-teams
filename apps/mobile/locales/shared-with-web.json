@@ -154,6 +154,8 @@
 	"accountVerificationModal.verify": "common.VERIFY",
 	"demoPodcastListScreen.favoriteButton": "favorites.FAVORITE",
 	"settingScreen.description": "settings.index.DESCRIPTION",
+	"noTeamScreen.createYourTeam": "common.NO_TEAM",
+	"noTeamScreen.hintMessage": "common.NO_TEAM_SUB",
 	"taskMenus.search.status": "taskMenus.search.status",
 	"taskMenus.search.priority": "taskMenus.search.priority",
 	"taskMenus.search.size": "taskMenus.search.size",
@@ -178,7 +180,5 @@
 	"taskMenus.fields.version": "taskMenus.fields.version",
 	"taskMenus.addLabel": "taskDetail.properties.ADD_LABEL",
 	"taskMenus.editLabels": "taskDetail.properties.EDIT_LABELS",
-	"taskMenus.rowActions": "settings.taskProperties.ROW_ACTIONS",
-	"noTeamScreen.createYourTeam": "common.NO_TEAM",
-	"noTeamScreen.hintMessage": "common.NO_TEAM_SUB"
+	"taskMenus.rowActions": "settings.taskProperties.ROW_ACTIONS"
 }
