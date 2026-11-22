@@ -34,15 +34,15 @@ import { translate } from '../../../../i18n';
 import { navigateTo } from '../../../../navigators/routes';
 
 const TaskMainInfo = observer(() => {
-	const {
-		TaskStore: { detailedTask: task, setDetailedTask }
-	} = useStores();
+	const { TaskStore } = useStores();
+	const { detailedTask: task, setDetailedTask } = TaskStore;
 
 	const { currentTeam } = useOrganizationTeam();
 	const { updateTask } = useTeamTasks();
 
 	const saveDate = async (changes: Pick<ITeamTask, 'startDate'> | Pick<ITeamTask, 'dueDate'>) => {
-		const isSaved = await saveTaskDate(task, changes, {
+		const isSaved = await saveTaskDate(changes, {
+			current: () => TaskStore.detailedTask,
 			show: setDetailedTask,
 			save: async (changed) => {
 				const { response } = await updateTask(changed, changed.id);
