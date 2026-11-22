@@ -193,6 +193,7 @@
 		"codeSentTo": "코드를 보냈습니다:",
 		"errors": {
 			"invalidCode": "인증 코드 또는 이메일 주소가 올바르지 않습니다",
+			"existingAccountSignInFirst": "이 이메일에는 이미 계정이 있습니다. 해당 계정으로 로그인한 다음 앱에서 초대를 수락하세요.",
 			"notSetUp": "계정 설정이 아직 완료되지 않았습니다",
 			"workspaceNotLoaded": "워크스페이스를 불러오지 못했습니다. 다시 시도하세요.",
 			"emptyEmail": "이메일을 입력하세요",

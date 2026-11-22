@@ -193,6 +193,7 @@
 		"codeSentTo": "We hebben een code gestuurd naar:",
 		"errors": {
 			"invalidCode": "Verificatiecode of e-mailadres ongeldig",
+			"existingAccountSignInFirst": "Dit e-mailadres heeft al een account. Log daarop in en accepteer daarna de uitnodiging in de app.",
 			"notSetUp": "Uw account is nog niet volledig ingesteld",
 			"workspaceNotLoaded": "Uw werkruimte kon niet worden geladen. Probeer het opnieuw.",
 			"emptyEmail": "E-mailadres mag niet leeg zijn",
