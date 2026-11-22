@@ -1,7 +1,6 @@
 import { APP_NAME } from '@/core/constants/config/constants';
 import { decodeJWT } from '@/core/lib/auth/jwt-utils';
 import { setAuthCookies, setNoTeamPopupShowCookie } from '@/core/lib/helpers/cookies';
-import { apiRefusalResponse } from '@/core/services/server/api-refusal-response';
 import { unwrapRejection } from '@/core/services/server/fetch';
 import {
 	AcceptInviteParams,
@@ -207,7 +206,30 @@ function isJsonBody(req: Request): boolean {
 	return normalized === 'application/json';
 }
 
-/** Gauzy's refusal goes back with the status it names, else 400, the status of the accept handler's own refusals. */
-function failureResponse(error: unknown) {
-	return apiRefusalResponse(error, 'POST /invite/accept');
+/**
+ * serverFetch rejects a Gauzy refusal with a rejected promise of Gauzy's error body: it goes back with the status it
+ * names, else 400, the status of the accept handler's refusals, whose body names none. Anything else (Gauzy
+ * unreachable, a body that is not JSON) is a 502.
+ */
+async function failureResponse(error: unknown) {
+	const isRefusal = error instanceof Promise;
+	const body = await unwrapRejection(error);
+	const hasBody = typeof body === 'object' && body !== null;
+	if (!isRefusal || !hasBody) {
+		console.error('[WEB][API] POST /invite/accept: no usable answer from the Gauzy API', error);
+		return NextResponse.json({ statusCode: 502, message: 'The Gauzy API gave no usable answer' }, { status: 502 });
+	}
+
+	const status = refusalStatus(body);
+	return NextResponse.json(body, { status });
+}
+
+function refusalStatus(body: object): number {
+	const statusCode = (body as { statusCode?: unknown }).statusCode;
+	if (typeof statusCode !== 'number') return 400;
+
+	const isErrorStatus = statusCode >= 400 && statusCode <= 599;
+	if (!isErrorStatus) return 400;
+
+	return statusCode;
 }

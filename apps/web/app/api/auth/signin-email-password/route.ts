@@ -1,5 +1,5 @@
 import { validateForm } from '@/core/lib/helpers/validations';
-import { apiRefusalResponse } from '@/core/services/server/api-refusal-response';
+import { gauzyErrorResponse } from '@/core/services/server/gauzy-error-response';
 import { signInEmailPasswordRequest } from '@/core/services/server/requests';
 
 import { NextResponse } from 'next/server';
@@ -18,6 +18,6 @@ export async function POST(req: Request) {
 		return NextResponse.json(data);
 	} catch (error) {
 		// A wrong password is the API's 401: it goes back as it is, so the form can say so (#5741)
-		return await apiRefusalResponse(error, 'POST /auth/signin-email-password');
+		return await gauzyErrorResponse(error, 'Sign-in failed');
 	}
 }

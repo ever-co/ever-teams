@@ -28,6 +28,15 @@ describe('POST /api/auth/signin-email-password', () => {
 		expect(await res.json()).toEqual({ message: 'Unauthorized', statusCode: 401 });
 	}, 15_000);
 
+	it('answers 502, never a wrong password, when the API gives no readable answer', async () => {
+		signIn.gauzy.on('POST', '/api/auth/signin.email.password', { status: 500, body: 'Internal Server Error' });
+		tolerateServerFetchRejections();
+
+		const res = await signInWith('her-password');
+
+		expect(res.status).toBe(502);
+	}, 15_000);
+
 	it('answers the workspaces of a right password, as before', async () => {
 		const workspaces = { workspaces: [{ token: 'workspace-token', user: { id: 'user-1' } }], total_workspaces: 1 };
 		signIn.gauzy.on('POST', '/api/auth/signin.email.password', { status: 200, body: workspaces });
