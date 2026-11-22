@@ -1009,6 +1009,32 @@ export async function createMockGauzyServer({ fixture, port = 3988 } = {}) {
 				0
 		);
 		if (delayMs > 0) await new Promise((resolve) => setTimeout(resolve, delayMs));
+		/**
+		 * `drops`: a path this mock accepts and then cuts off — a connection opened, a request received, no answer
+		 * ever written, the way a front proxy or a dying process does it. Addressed exactly like `delays`
+		 * (`tenant:path`, then `tenant`, then `path`); the value is how many milliseconds to hold the socket open
+		 * first, `1` meaning "at once". Off unless a test arms it, and `reset()` clears it, as it clears `delays`.
+		 *
+		 * Why it exists: a suite can prove an app answered an outage, but only for the outages a test can cause. The
+		 * control API could make the upstream *slow* (`delays`) and could make it *refuse* (a status), and nothing
+		 * could leave the caller's `fetch` without an answer — so `core/services/server/forward-to-gauzy.ts`'s 502
+		 * "The Gauzy API is unreachable" and `gauzyPassThrough`'s 502 were unreachable from any run
+		 * (`playwright/suites/api/upstream-outage.spec.ts` says exactly that, and `suites/lane-b/PLAN.md` hit the
+		 * same branch by miswiring a lane and read it as an app answer).
+		 *
+		 * A dropped call is still recorded in the request log, with `status: 0` — a number no refusal and no upstream
+		 * answer writes. Recording it is the point: the log otherwise cannot tell "never asked" (no entry) from
+		 * "refused upstream" (a 4xx/5xx entry) from "asked, then the connection died" (this `0` entry), and
+		 * `playwright/api-fixtures.ts`'s `failures()` filters `status >= 400`, so a drop is never counted as a
+		 * refusal. The bearer is recorded too, because "the session had already left this app when the connection
+		 * died" is a fact a test needs to know and not a fact to discover later.
+		 */
+		const dropMs = Number(
+			state.scenario.drops?.[`${tenantId}:${requestUrl.pathname}`] ??
+				state.scenario.drops?.[tenantId] ??
+				state.scenario.drops?.[requestUrl.pathname] ??
+				0
+		);
 		const body = await readJsonBody(request);
 		const data = buildData(
 			fixture,
@@ -1044,7 +1070,8 @@ export async function createMockGauzyServer({ fixture, port = 3988 } = {}) {
 				query: requestUrl.searchParams.toString(),
 				startMs,
 				endMs,
-				status
+				// 0 for a call this mock cut off: no status may be recorded for a call that was never answered
+				status: dropMs > 0 ? 0 : status
 			});
 		}
 		// Which access token arrived, as its sha256, never the token: lets a test prove the app forwarded exactly the
@@ -1055,6 +1082,14 @@ export async function createMockGauzyServer({ fixture, port = 3988 } = {}) {
 				path: requestUrl.pathname,
 				sha256: createHash('sha256').update(bearer).digest('hex')
 			});
+		}
+		if (dropMs > 0) {
+			// Hold the socket open first when asked to (an upstream that dies mid-request is a different outage from an
+			// instant reset), then cut it: no headers, no body, nothing written. The caller's `fetch` rejects with a
+			// connection error — which is what this switch exists to cause.
+			if (dropMs > 1) await new Promise((resolve) => setTimeout(resolve, dropMs - 1));
+			request.socket?.destroy();
+			return;
 		}
 		response.writeHead(status, { ...cors, 'content-type': 'application/json; charset=utf-8' });
 		response.end(JSON.stringify(payload));

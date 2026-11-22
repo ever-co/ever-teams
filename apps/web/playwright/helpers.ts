@@ -88,6 +88,13 @@ export type MockScenario = {
 	connectHealth?: boolean;
 	connectConnected?: boolean;
 	delays?: Record<string, number>;
+	/**
+	 * A path this mock accepts and then cuts off mid-request: no headers, no body, nothing written. Addressed like
+	 * `delays` (`tenant:path`, then `tenant`, then `path`), the value being milliseconds to hold the socket open first
+	 * (`1` = at once). The call is recorded with `status: 0`, which is neither a refusal nor an answer — see
+	 * `cypress/support/mock-gauzy-server.mjs` and `suites/api/upstream-dropped.spec.ts`. `mockReset()` clears it.
+	 */
+	drops?: Record<string, number>;
 	[key: string]: unknown;
 };
 
