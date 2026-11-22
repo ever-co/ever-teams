@@ -4,17 +4,21 @@ import { mockRequests } from '../../helpers';
 import {
 	askForCode,
 	describeAppCalls,
+	describeMockCutOff,
 	describeMockLog,
 	fieldError,
 	fillCodeSlots,
 	MOCK_EMAIL,
 	mockAskedNoAuthPath,
 	mockAskedNoNewAuthPath,
+	mockAskAfterWaiting,
 	mockAuthAskCount,
 	mockCalls,
 	mockCallsExactly,
 	mockWasAskedExactly,
 	SIGN_IN_CODE,
+	watchedMockCall,
+	watchMockCutOff,
 	codeSlotValues,
 	codeSlots,
 	sessionCookies,
@@ -68,7 +72,8 @@ test.describe('lane-b · the passwordless sign-in journey', () => {
 		// Leg 1: what left the browser, and with what body. `authService.signInEmail`'s direct branch
 		// (`auth.service.ts:179-185`) sends `signInCodeRequestBody(email)` = the address plus `appEmailBranding()` and
 		// `appMagicSignUrl` (`auth.service.ts:34-37`), so the e-mail the mock was asked to send is this app's own.
-		const sent = mockLegCalls(calls, '/api/auth/signin.email');
+		// awaited, because the answer lands after the click: `watchedMockCall` in `lane-auth-helpers.ts`.
+		const sent = await watchedMockCall(calls, '/api/auth/signin.email');
 		expect(
 			sent.map((call) => `${call.method} ${call.path} → ${call.status}`),
 			`the sign-in page never sent a code request to the API: ${describeAppCalls(calls())}`
@@ -157,6 +162,7 @@ test.describe('lane-b · the passwordless sign-in journey', () => {
 	}) => {
 		const view = await anon('/auth/passcode');
 		const calls = watchMockApi(view);
+		const cutOff = watchMockCutOff(view);
 		await askForCode(view, MOCK_EMAIL);
 
 		await fillCodeSlots(view, SIGN_IN_CODE);
@@ -181,21 +187,58 @@ test.describe('lane-b · the passwordless sign-in journey', () => {
 			`the passwordless confirmation carried a password: ${JSON.stringify(Object.keys(body))}`
 		).toBe(false);
 
-		// Leg 2: the mock recorded both attempts of the hook, in this order. Attempt 1 did not sign anyone in (the mock
-		// echoes the body, so it carries no user and no workspaces), so attempt 2 — `signInWithEmailAndCode`
-		// (`auth.service.ts:136-142`) — asked `/api/auth/login` too. That is the *API's* login path, asked by the
-		// browser: the invite-code check this app's own `app/api/auth/login/route.ts` does first is not in this leg at
-		// all, and `route-refusals.spec.ts` pins that handler separately.
+		// Leg 2: attempt 1 as the mock recorded it. The mock echoes the body, so the confirmation carries no user and no
+		// workspaces and signs nobody in — which is what makes the hook run attempt 2 at all (pinned below, on the
+		// browser side, because the mock never sees it).
 		const confirmed = await mockWasAskedExactly('/api/auth/signin.email/confirm');
 		expect(
 			confirmed.map((request) => `${request.method} ${request.path} → ${request.status}`),
 			'the mock was never asked to confirm the code'
 		).toHaveLength(1);
-		const loginAttempts = await mockCallsExactly('/api/auth/login');
+		// Attempt 2 — `signInWithEmailAndCode` (`auth.service.ts:136-142`), the invite-code leg. Measured twice
+		// 2026-11-22, and the two readings only agree once the witness is *waited for*:
+		// - `lane-b-passcode-journey-3.log` read the mock's log once, straight after the confirmation, and got nothing
+		//   for it while the browser watcher still held the ask open: `POST /api/auth/login → (no answer yet)` against
+		//   `Mock log: POST /api/auth/signin.email → 200, POST /api/auth/signin.email/confirm → 200`.
+		// - `lane-b-passcode-journey-4.log`, waiting up to 10 s for the same entry, recorded
+		//   `POST /api/auth/login → 200` from the mock.
+		// Same page, same click, one reading too early — the race `watchedMockCall` exists for, on the mock's own log
+		// side. It is not a mock gap either: this lane's mock was asked the same path directly and answered it in 2 ms
+		// (`curl -X POST 127.0.0.1:3996/api/auth/login -d '{"email":"manager@example.test","code":"AB12CD34"}'` →
+		// `{"method":"POST","path":"/api/auth/login","status":200}` in its own `/requests` log). So the pin is the
+		// answered ask, exactly once, carrying the typed code — plus an empty cut-off witness, so that the day this
+		// really is a cut-off the case says so instead of quietly matching the earlier reading.
+		const servedLogin = await mockAskAfterWaiting('/api/auth/login', { tries: 40, intervalMs: 500 });
 		expect(
-			loginAttempts.length,
-			`the hook's second attempt did not follow a confirmation that signed nobody in: ${describeMockLog(await mockRequests())}`
-		).toBe(1);
+			servedLogin.map((request) => `${request.method} ${request.path} → ${request.status}`),
+			`the hook's second attempt never reached the mock. Mock log: ${describeMockLog(
+				await mockRequests()
+			)}; browser side: ${describeAppCalls(calls())}; cut off: ${describeMockCutOff(
+				cutOff()
+			)} (attempt 2 is \`queryCall\` = authService.signInWithEmailAndCode, use-authentication-passcode.ts:219-221 → auth.service.ts:136-142)`
+		).toEqual(['POST /api/auth/login → 200']);
+
+		const loginCall = calls().find((call) => call.path === '/api/auth/login');
+		const loginBody = (loginCall?.body ?? {}) as { email?: string; code?: string; password?: string };
+		expect(loginBody.code, `the retry asked the API with code ${JSON.stringify(loginBody.code)}, not the code typed (${SIGN_IN_CODE}): ${JSON.stringify(loginBody)}`).toBe(
+			SIGN_IN_CODE
+		);
+		expect(loginBody.email, `the retry asked the API for address ${JSON.stringify(loginBody.email)}, not ${MOCK_EMAIL}: ${JSON.stringify(loginBody)}`).toBe(
+			MOCK_EMAIL
+		);
+		expect(
+			'password' in loginBody,
+			`the retry carried a password, which the passwordless flow does not have: ${JSON.stringify(Object.keys(loginBody))}`
+		).toBe(false);
+
+		expect(
+			cutOff()
+				.filter((entry) => entry.path === '/api/auth/login')
+				.map((entry) => `${entry.method} ${entry.path} ${entry.failure}`),
+			`the retry was reported cut off although the mock answered it (${servedLogin.map((request) => `${request.method} ${request.path} → ${request.status}`).join(', ')}): ${describeMockCutOff(
+				cutOff()
+			)}`
+		).toEqual([]);
 		expect(
 			await mockCalls('/api/invite/validate-by-code'),
 			`the browser's leg asked the app's own invitation-code check, which it does not have: ${describeMockLog(await mockRequests())}`
@@ -232,8 +275,19 @@ test.describe('lane-b · the passwordless sign-in journey', () => {
 		// The field itself only takes 8 slots, so a short code is 5 slots filled and 3 left empty.
 		const slots = codeSlots(view);
 		for (let index = 0; index < 5; index += 1) await slots.nth(index).fill('A');
+		// Read the slots *before* the submit as well. `lane-b-passcode-journey-3.log` measured `Expected: "AAAAA" /
+		// Received: "AAAA"` for this assertion, which on its own cannot say whether the refusal dropped a character or
+		// whether the five `fill()` calls never put five characters in (each slot auto-advances focus, so a `fill()` can
+		// land on a slot the component has already moved). Both readings are in the message below, so whichever way the
+		// next run goes, the cause is named with it.
+		const typedBeforeClick = await codeSlotValues(view);
+		expect(
+			typedBeforeClick,
+			`the five slots did not hold the five characters typed (they read ${JSON.stringify(typedBeforeClick)}): the code field is ${CODE_LENGTH} one-character slots, so this half is how the case types, not what the app refuses`
+		).toBe('AAAAA');
 		await view.getByRole('button', { name: 'Sign in', exact: true }).click();
 		await view.waitForTimeout(1_000);
+		const typedAfterClick = await codeSlotValues(view);
 
 		// Neither leg of the confirmation happened: the browser sent no confirmation to the API, and the mock's log
 		// holds no new sign-in ask on top of the code request.
@@ -259,8 +313,12 @@ test.describe('lane-b · the passwordless sign-in journey', () => {
 			'a too-short code left the code step; the person should still be on it'
 		).toBeVisible();
 		await expect(
-			await codeSlotValues(view),
-			'a too-short code was cleared or changed by the refusal; it should stay as the person typed it'
+			typedAfterClick,
+			`a too-short code was cleared or changed by the refusal; it should stay as the person typed it. Five slots were filled and read "${typedBeforeClick}" before the click and "${typedAfterClick}" after it, so the character went missing ${
+				typedBeforeClick === 'AAAAA'
+					? 'in the refusal, which is the app doing this'
+					: 'before any submit, which is how the slots were filled, not the app'
+			}`
 		).toBe('AAAAA');
 	});
 
@@ -317,10 +375,15 @@ test.describe('lane-b · the passwordless sign-in journey', () => {
 		anon
 	}) => {
 		const view = await anon('/auth/passcode');
+		const calls = watchMockApi(view);
+		const asks = () => calls().filter((call) => call.path === '/api/auth/signin.email').length;
+
 		await askForCode(view, MOCK_EMAIL);
 
 		const first = await mockCallsExactly('/api/auth/signin.email');
 		expect(first.length, `asking for a code asked the mock ${first.length} times`).toBe(1);
+		// The same moment from the browser side, so a second ask can be placed on one side or the other of the click.
+		const asksBeforeClick = asks();
 
 		// `ResendCode` starts its 60 s cooldown locked (code-step.tsx passes `startLocked`, a code just went out).
 		const resend = view.getByRole('button', { name: /New code in|Send a new code/ });
@@ -333,7 +396,23 @@ test.describe('lane-b · the passwordless sign-in journey', () => {
 			'the resend is not locked although a code just went out'
 		).toHaveAttribute('aria-disabled', 'true');
 
-		await resend.click();
+		// Four seconds with nobody touching the page. Added 2026-11-22 because `lane-b-passcode-probe-2.log` recorded
+		// "1 code request left the page before the click and 2 after it", and that alone cannot tell a click from a
+		// page that re-asks by itself. If this line goes red, the claim below is not measurable at all.
+		await view.waitForTimeout(4_000);
+		const asksIdle = asks();
+		expect(
+			asksIdle,
+			`the code step asked for another code on its own, with nobody clicking: ${describeAppCalls(
+				calls()
+			)} — until this stops, nothing in this case can blame or clear the resend button`
+		).toBe(asksBeforeClick);
+
+		// `dispatchEvent`, not `click()`: the locked button carries a `CooldownRing` that ticks every second, so
+		// Playwright's stability check made an ordinary `click()` here eat ~60 s of the 180 s test budget
+		// (`lane-b-passcode-journey-1.log`: this case at 1.1m, `lane-b-passcode-probe-2.log` the same). What is under
+		// test is the button's click handler, and `dispatchEvent('click')` calls exactly that.
+		await resend.dispatchEvent('click');
 		await view.waitForTimeout(1_000);
 
 		const after = await mockCallsExactly('/api/auth/signin.email');
@@ -341,7 +420,9 @@ test.describe('lane-b · the passwordless sign-in journey', () => {
 			after.length,
 			`clicking a locked resend asked the mock again (${after.length} asks: ${after
 				.map((request) => `${request.method} ${request.path} → ${request.status}`)
-				.join(', ')})`
+				.join(', ')}). Browser side: ${asksBeforeClick} code request(s) left the page before the click, ${asksIdle} after 4 s of idle, ${asks()} after the click (${describeAppCalls(
+				calls()
+			)}). The button's own guard is resend() → if (isLocked) return, core/components/auth/kit/resend-code.tsx:75-78`
 		).toBe(1);
 	});
 

@@ -1,21 +1,47 @@
 import { expect, test } from '../../fixtures';
 import { mockRequests } from '../../helpers';
+import type { Page } from '@playwright/test';
 
 import {
 	appAuthAsks,
 	appCallsMatching,
+	type AppApiCall,
 	describeAppCalls,
-	describeCookies,
 	describeMockLog,
 	fieldError,
 	MOCK_EMAIL,
 	mockAuthAskCount,
-	mockCallsExactly,
 	mockAskedNoNewAuthPath,
+	mockWasAsked,
 	revealBoxOf,
-	sessionCookies,
 	watchAppApi
 } from './lane-auth-helpers';
+
+/**
+ * What the sign-up page holds, as one readable object, for the two failure messages that have to say *which step* the
+ * form was on. Written because the 2026-11-21 run and `lane-b-signup-forms-1.log` both recorded `Received length: 0`
+ * for `/api/auth/register` with no hint of where the form stopped: the mode radios, the reveal and the team-name
+ * refusal all pass, so the step that does not submit has to be named by its own state, not guessed.
+ */
+const signupState = (view: { evaluate: <T>(fn: () => T) => Promise<T> }) =>
+	view.evaluate(() => {
+		const inputOf = (id: string) => (document.getElementById(id) as HTMLInputElement | null)?.value ?? null;
+		const field = document.getElementById('signup-team');
+		const reveal = field?.closest('[class*="grid-rows-"]') as HTMLElement | null;
+		const errorOf = (id: string) => document.getElementById(`${id}-error`)?.textContent?.trim() ?? null;
+		return {
+			url: window.location.href,
+			name: inputOf('signup-name'),
+			email: inputOf('signup-email'),
+			team: inputOf('signup-team'),
+			revealHeight: reveal ? Math.round(reveal.getBoundingClientRect().height) : null,
+			inert: reveal ? reveal.hasAttribute('inert') : null,
+			errors: ['signup-name', 'signup-email', 'signup-team'].map((id) => `${id}=${errorOf(id)}`).join(', '),
+			buttons: Array.from(document.querySelectorAll('button'))
+				.map((button) => `${button.textContent?.trim() ?? ''}[${button.type}]`)
+				.join(' | ')
+		};
+	});
 
 /**
  * The sign-up form's own refusals, and the one submission the mock lets through.
@@ -38,6 +64,28 @@ import {
  * login, tenant, organization, employee, team, refresh, `setAuthCookies` — runs on an answer that carries none of
  * the fields it reads. The last test states what that leaves the browser with, measured, not as an app bug.
  */
+/**
+ * Every request the page made, whatever its origin or method.
+ *
+ * The probe PLAN §10 asked for on the two register cases. Both witnesses here watch one origin and only `/api/…`
+ * paths, so when a case died saying "the register route was never asked" the failure could not tell whether the
+ * submit took another leg or never happened — while the mock's own log (`GET 127.0.0.1:3998/requests`) held this
+ * app's whole server-side register chain (`POST /api/auth/register` → `login` → `tenant` → `organization` →
+ * `employee` → `organization-projects` → `organization-team` → `refresh-token`) in the same minutes. A dump of the
+ * browser's side is what settles that disagreement, so it is in the message now.
+ */
+const watchEveryRequest = (page: Page): (() => string[]) => {
+	const seen: string[] = [];
+	page.on('request', (request) => seen.push(`${request.method()} ${request.url()}`));
+	return () => seen;
+};
+
+/** The asks of this app's register route, with the whole page dump behind them, as one pollable string. */
+const registerAsks = (calls: AppApiCall[], everything: () => string[]): string =>
+	`asks on /api/auth/register: [${appCallsMatching(calls, '/api/auth/register')
+		.map((call) => `${call.method} ${call.path} → ${call.status || '(no answer yet)'}`)
+		.join(', ')}] | every request the page made: ${JSON.stringify(everything())}`;
+
 test.describe('lane-b · the sign-up form', () => {
 	test('an empty sign-up is refused on the name and on the address, and nothing is sent', async ({ anon }) => {
 		const view = await anon('/auth/signup');
@@ -224,6 +272,7 @@ test.describe('lane-b · the sign-up form', () => {
 	}) => {
 		const view = await anon('/auth/signup');
 		const calls = watchAppApi(view);
+		const everything = watchEveryRequest(view);
 
 		await view.locator('#signup-name').fill('Jane Cooper');
 		await view.locator('#signup-email').fill(MOCK_EMAIL);
@@ -234,10 +283,25 @@ test.describe('lane-b · the sign-up form', () => {
 		await view.getByRole('button', { name: 'Create my workspace' }).click();
 
 		// Leg 1: the browser asked this app, once, and the body is the form.
+		//
+		// ⚠ Poll the witness, do not read it once. Measured in `lane-b-signup-forms-me1.log` on the same eight steps:
+		// this case read the watcher 3.7 s after the click and saw `[]` while the case below it, a few hundred ms
+		// slower to reach the same assertion, saw the `POST /api/auth/register`. `click()` resolves when the click has
+		// been dispatched, not when the client has issued the request (`use-authentication-team.ts` → `authService
+		// .registerUserTeam` → `getFallbackAPI()`, `auth.service.ts:275-278`, axios `baseURL = API_BASE_URL` =
+		// `/api`, `constants.tsx:96`) — so a single read races the submit. The witness string carries the whole page
+		// dump, so a red here still says what the page *did* ask.
+		await expect
+			.poll(() => registerAsks(calls(), everything), { timeout: 20_000 })
+			.toContain('POST /api/auth/register →');
+
 		const sent = appCallsMatching(calls(), '/api/auth/register');
 		expect(
 			sent.map((call) => `${call.method} ${call.path} → ${call.status}`),
-			`the finished sign-up never reached this app's register route: ${describeAppCalls(calls())}`
+			`the finished sign-up reached this app's register route ${sent.length} times, not once: ${registerAsks(
+				calls(),
+				everything
+			)}`
 		).toHaveLength(1);
 		const body = (sent[0].body ?? {}) as Record<string, unknown>;
 		expect(body.name, `the register body carries name ${JSON.stringify(body.name)}`).toBe('Jane Cooper');
@@ -253,46 +317,112 @@ test.describe('lane-b · the sign-up form', () => {
 		).toBe(false);
 
 		// Leg 2: the route accepted the body (its own `authFormValidate(['email','name','team'])` passed) and asked
-		// Gauzy's path. The mock answers it by echoing the body.
-		const asked = await mockCallsExactly('/auth/register');
+		// Leg 2: the route accepted the body (its own `authFormValidate(['email','name','team'])` passed) and asked
+		// Gauzy's path, recorded with this app's `/api` prefix on it (`serverFetch` fetches
+		// `GAUZY_API_SERVER_URL + path`, `constants.tsx`, and `route-refusals.spec.ts` pins the same reading).
+		//
+		// ⚠ It is proved through the **last** ask of the chain, not through `/api/auth/register` itself. The mock's
+		// log is a 10-entry ring (`apps/web/playwright/backend.mjs:40`, `MAX_REQUESTS = 10`, `/requests` returns
+		// `requests.slice(-10)`) and this one request chains eight asks of its own — register, login, tenant,
+		// organization, employee, organization-projects, organization-team, refresh-token — so the entry a witness
+		// wants can be pushed out of the ring before any witness reads it. Two runs red exactly that line:
+		// `lane-b-signup-forms-me2.log` (`Expected length: 1 / Received array: []` beside a mock log naming
+		// `POST /api/auth/register → 200`) and `lane-b-signup-forms-me4.log` (same, polled). `POST
+		// /api/organization-team` is asked by nothing else in a mock run, so seeing it says the register route ran
+		// its Gauzy chain end to end.
+		const chain = await mockWasAsked('/api/organization-team');
 		expect(
-			asked.map((request) => `${request.method} ${request.path} → ${request.status}`),
-			`the mock was never asked to register the user: ${describeMockLog(await mockRequests())}`
-		).toHaveLength(1);
+			chain.map((request) => `${request.method} ${request.path} → ${request.status}`),
+			`the register route never ran its Gauzy chain (no ${'/api/organization-team'} ask): ${describeMockLog(
+				await mockRequests()
+			)}`
+		).not.toHaveLength(0);
 	});
 
-	test('a sign-up the mock cannot finish leaves the browser with no session at all', async ({ anon }) => {
+	test('a sign-up the mock answers leaves a half session: 200, the mock’s own access token, and no user id', async ({
+		anon
+	}) => {
 		const view = await anon('/auth/signup');
 		const calls = watchAppApi(view);
+		const everything = watchEveryRequest(view);
 
 		await view.locator('#signup-name').fill('Jane Cooper');
 		await view.locator('#signup-email').fill(MOCK_EMAIL);
 		await view.getByRole('button', { name: 'Continue', exact: true }).click();
 		await view.getByText('With my team', { exact: true }).click();
 		await view.locator('#signup-team').fill('Lane B Team');
+		// The answer is waited for from before the click: `waitForResponse` only catches a response that has not
+		// finished yet, and `click()` returns when the click has landed, not when the client has posted.
+		const registerAnswer = view.waitForResponse((response) => new URL(response.url()).pathname === '/api/auth/register', {
+			timeout: 30_000
+		});
+
 		await view.getByRole('button', { name: 'Create my workspace' }).click();
 
-		// Read the app's own answer to its register route. `app/api/auth/register/route.ts` registers the user, then
-		// logs in to get a token, creates tenant/organization/employee/team, refreshes, and calls `setAuthCookies`,
-		// which reads `access_token.length` (`core/lib/helpers/cookies/index.ts`). The mock answers every one of those
-		// POSTs by echoing the request body, so the login answer carries no `token`, and this route dies on the
-		// undefined token instead of writing cookies. A 500 here is the mock's limit, not a session the app granted;
-		// the point this test pins is that no cookie of a session was written on the way.
+		// What this app answers its own register route, measured on this mock — not the prediction PLAN §5 made.
+		//
+		// `app/api/auth/register/route.ts` registers, logs in, creates tenant / organization / employee / team, then
+		// re-reads the token **from the refresh step**: `auth_token = refreshTokenRes.token` (route.ts:156-157), and
+		// this mock answers `/api/auth/refresh-token` with a pair (`cypress/support/mock-gauzy-server.mjs:537-538`,
+		// `{token:'synthetic-refreshed-token', refresh_token:'synthetic-refresh-token'}` — PLAN §3.1). The missing
+		// `loginRes.token` therefore never reaches `setAuthCookies`: the chain completes and the route hands back the
+		// bare `NextResponse` it made at route.ts:29 and returns at route.ts:175 → **HTTP 200, empty body**.
+		// Measured twice 2026-11-22: in the browser (`lane-b-signup-forms-me2.log`: `Expected: 500 / Received: 200`)
+		// and straight against this lane's own app (`curl -X POST 127.0.0.1:3032/api/auth/register`, headers saved at
+		// `E:\Coding\.tmp\lane-b-register-probe-headers.txt`): `200` plus `auth-token=synthetic-refreshed-token`,
+		// `auth-tenant-id`, `auth-organization-id`, `auth-active-team` and `auth-active-language=en`.
+		//
+		// What the mock cannot supply is the other half: its echo of `POST /auth/register` carries no user `id` and its
+		// echo of the login no `refresh_token`, so `setAuthCookies` writes those two **empty** (same headers:
+		// `auth-user-id=;`, `auth-refresh-token=`). A mock run cannot pin "a sign-up that failed left no session"; it
+		// can pin the half session, and those two empties are the witness that it was never a real one.
+		// Both the ask and its answer are polled before being read. `lane-b-signup-forms-me1.log` is why: this case
+		// *did* find the one `POST /api/auth/register` (so the leg and the count are right) but its `status` was
+		// `0` at the moment the assertion ran, because `watchAppApi` fills the status only when the response event
+		// arrives — and `Test timeout of 180000ms exceeded` after that says the case then sat on the *next* two
+		// assertions, not on this one. `stateOfTheForm` is read first, never inside the message (PLAN §9, the two
+		// 3-minute outliers were messages that reached for a page state eagerly).
+		const stateOfTheForm = await signupState(view).catch(() => '(the page would not report its state)');
+		await expect
+			.poll(() => registerAsks(calls(), everything), { timeout: 20_000 })
+			.toContain('POST /api/auth/register →');
+		await expect
+			.poll(() => appCallsMatching(calls(), '/api/auth/register')[0]?.status ?? 0, { timeout: 60_000 })
+			.not.toBe(0);
+
 		const sent = appCallsMatching(calls(), '/api/auth/register');
 		expect(
 			sent.map((call) => `${call.method} ${call.path} → ${call.status}`),
-			`the register route was never asked: ${describeAppCalls(calls())}`
+			`the register route was asked ${sent.length} times, not once: ${describeAppCalls(
+				calls()
+			)} / the form held: ${JSON.stringify(stateOfTheForm)}`
 		).toHaveLength(1);
-		expect(
-			sent[0].status,
-			`this app answered its own register route with ${sent[0].status}; the chain was expected to die on the mock's token-less login answer (see PLAN.md)`
-		).toBe(500);
+		// The answer this app gave the browser, read off the response itself, and the cookies it wrote, off its own
+		// `Set-Cookie` headers — before anything in the browser can change them.
+		const answer = await registerAnswer;
+		const writtenCookies = (await answer.headersArray())
+			.filter((header) => header.name.toLowerCase() === 'set-cookie')
+			.map((header) => header.value.split(';')[0]);
 
 		expect(
-			await sessionCookies(view.context()),
-			`a sign-up that never produced a token still left session cookies in the jar: ${await describeCookies(
-				view.context()
-			)}`
-		).toEqual([]);
+			answer.status(),
+			`this app answered its own register route with ${answer.status()}; the chain ends at route.ts:175 with the ` +
+				`bare response it created at route.ts:29, because route.ts:156-157 takes the token from the refresh ` +
+				`step, which this mock answers with a pair (mock-gauzy-server.mjs:537-538). Written cookies: ` +
+				`${JSON.stringify(writtenCookies)}`
+		).toBe(200);
+
+		// The half session: an access token the mock minted, and the two fields its echoes do not carry written empty.
+		expect(
+			writtenCookies,
+			`the register route did not write the half session measured 2026-11-22 (headers saved at ` +
+				`E:\\Coding\\.tmp\\lane-b-register-probe-headers.txt): ${JSON.stringify(writtenCookies)}`
+		).toEqual(
+			expect.arrayContaining([
+				'auth-token=synthetic-refreshed-token',
+				'auth-user-id=',
+				'auth-refresh-token='
+			])
+		);
 	});
 });

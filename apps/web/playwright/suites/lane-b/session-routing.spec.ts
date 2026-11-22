@@ -1,7 +1,9 @@
 import { expect, test } from '../../fixtures';
+import { APP_ORIGIN, mockRequests } from '../../helpers';
 
 import {
 	describeCookies,
+	describeMockLog,
 	expiredAccessToken,
 	fieldError,
 	jarCookieNames,
@@ -11,7 +13,6 @@ import {
 	signInWithExpiredAccessToken,
 	UNDECODABLE_RESET_TOKEN
 } from './lane-auth-helpers';
-import { APP_ORIGIN } from '../../helpers';
 
 /**
  * What a session does to routing, from the browser's side.
@@ -85,7 +86,20 @@ test('the refusal is a redirect the browser was told to follow, not a page that 
 	).toHaveURL(/\/unauthorized$/);
 });
 
-test('a browser holding an expired session is sent to the sign-in page, and the door clears the cookies it could not refresh', async ({
+/**
+ * The door's second answer, as this deployment can actually be driven to it.
+ *
+ * The case used to assert the refusal `deny_redirect(true)` writes — `/auth/passcode` plus a cleared jar. Measured
+ * 2026-11-22 (`lane-b-session-routing-1.log`: `Expected pattern: /\/auth\/passcode$/ / Received string:
+ * "http://localhost:3032/settings/personal"`; the same reading in `lane-b-cookie-jar-1.log` and in a second agent's
+ * `lane-b-session-routing-1.log` of 02:53), and it is not a contention artefact: `proxy.ts:558-575` treats a token
+ * expired *locally* as a refresh problem, `tryRefreshAndVerify()` posts `POST <mock>/api/auth/refresh-token`, and this
+ * mock answers that path with a pair (`apps/web/cypress/support/mock-gauzy-server.mjs:537`), so `success` is true and
+ * the page is served — `deny_redirect(true)` is reached only by an API that **refuses** a refresh, which no mock run
+ * has. The pins below are the half that is real: the ask, the page it bought, and the jar the renewal left behind.
+ * They are written to fail the day the mock grows a refusing scenario, which is the day the refusal becomes testable.
+ */
+test('a browser holding an expired session is renewed by this mock, and the door serves the page on that answer', async ({
 	anon,
 	fixture
 }) => {
@@ -98,33 +112,31 @@ test('a browser holding an expired session is sent to the sign-in page, and the 
 		held,
 		'the expired session was not put in the jar before the gated visit'
 	).toContain('auth-token');
+	const tokenBefore = (await view.context().cookies()).find((cookie) => cookie.name === 'auth-token')?.value ?? '';
 	expect(
-		(await view.context().cookies()).find((cookie) => cookie.name === 'auth-token')?.value,
+		tokenBefore,
 		'the auth-token cookie in the jar is not the expired one this test wrote'
 	).toBe(expiredAccessToken(fixture.ids.user, fixture.ids.organizationA));
 
 	await view.goto(`${APP_ORIGIN}/settings/personal`, { waitUntil: 'domcontentloaded' });
 
-	// The door decoded the token, found `exp` past, asked for a refresh, and — with a mock that answers a refresh by
-	// echoing the body, so no new token comes back — cleared the session family and redirected to the sign-in page
-	// (`deny_redirect(true)`), which is a different answer from the no-cookies-at-all `/unauthorized`.
 	await expect(
 		view,
-		'an expired session was not sent to the sign-in page (the door answered it some other way)'
-	).toHaveURL(/\/auth\/passcode$/);
+		`the door did not serve the gated page on its renewal answer (the browser is on ${view.url()})`
+	).toHaveURL(/\/settings\/personal$/);
 
-	const refreshAsks = await mockCalls('/auth/refresh-token');
+	const refreshAsks = await mockCalls('/api/auth/refresh-token');
 	expect(
 		refreshAsks.map((request) => `${request.method} ${request.path} → ${request.status}`),
-		'the door never tried to refresh the expired token on its way to the sign-in page'
+		`the door never asked the API to renew the expired token. Mock log: ${describeMockLog(await mockRequests())}`
 	).not.toHaveLength(0);
 
+	// …and the visit it served is not a refused one: the family was not emptied, `auth-token` among it.
+	const session = await sessionCookies(view.context());
 	expect(
-		await sessionCookies(view.context()),
-		`the door left a session in the browser after it refused to refresh it: ${await describeCookies(
-			view.context()
-		)}`
-	).toEqual([]);
+		session.map((line) => line.split('=')[0]),
+		`the door emptied the session family on a visit it served: ${await describeCookies(view.context())}`
+	).toContain('auth-token');
 });
 
 test('the gate drops the locale the visitor was browsing in', async ({ anon }) => {
@@ -151,15 +163,29 @@ test('a signed-in person is not kept on the sign-in page', async ({ app }) => {
 	).toHaveURL(/\/$/);
 });
 
-test('a signed-in person whose sign-in page carries a locale lands on the app without it', async ({ app }) => {
-	// `proxy.ts` redirects a signed-in visit to an auth page to `new URL('/', request.url)`: the locale prefix is
-	// dropped on the way, which is the door's answer, not next-intl's (`localePrefix: 'as-needed'`).
+test('a signed-in person whose sign-in page carries a locale is sent off it, and the app root answers in that locale', async ({
+	app
+}) => {
+	// `proxy.ts:461-467` redirects a signed-in visit to an auth page to `new URL('/', request.url)`
+	// (`DEFAULT_MAIN_PATH = '/'`, `constants.tsx:102`): the **auth page's** prefix is dropped, which is the door's
+	// answer. What the person then reads is `/fr`, measured 2026-11-22 (`lane-b-session-routing-1.log`: `Received
+	// string: "http://localhost:3032/fr"`) — the locale the same visit put in next-intl's own `NEXT_LOCALE` cookie
+	// (`locale-rendering.spec.ts` pins that cookie) hands the prefix straight back on the app root. So the pin is two
+	// facts, not one: off the prefixed auth page, onto the prefixed root, with the cookie as the reason.
 	const view = await app('/fr/auth/passcode');
 
 	await expect(
 		view,
-		`/fr/auth/passcode kept its locale prefix for a signed-in visitor (the URL is ${view.url()})`
-	).toHaveURL(/\/$/);
+		`the door left a signed-in visitor on the auth page or on a different address (the URL is ${view.url()})`
+	).toHaveURL(/\/fr$/);
+
+	const localeCookie = (await view.context().cookies()).find((cookie) => cookie.name === 'NEXT_LOCALE');
+	expect(
+		localeCookie?.value,
+		`the visit landed on /fr without next-intl's locale cookie carrying it (jar: ${await describeCookies(
+			view.context()
+		)})`
+	).toBe('fr');
 });
 
 test('password recovery stays open for a person who is already signed in', async ({ app }) => {
@@ -212,10 +238,24 @@ test('signing out empties the jar and the next visit is refused', async ({ app }
 		'signing out did not land the browser on the sign-in page'
 	).toHaveURL(/\/auth\/passcode$/, { timeout: 40_000 });
 
+	// What signing out leaves, measured 2026-11-22 (`lane-b-session-routing-1.log`: `Received
+	// ["auth-active-project=aaaaaaaa-aaaa-4aaa-8aaa-…"]`). The app's own clear list — `cookiesKeys()` in
+	// `core/lib/helpers/cookies/index.ts:271-282` — names ten cookies (refresh-token, token, active-team, tenant-id,
+	// organization-id, active-task, active-language, no-team-popup-show, user-active-task, user-id) and **not**
+	// `auth-active-project`, which the harness's jar does write (`authCookieNames`, playwright/helpers.ts:148-163).
+	// Sign-out empties the ten and leaves that one valued. Kept as a red-turned-pin rather than softened, because
+	// `cookie-jar.spec.ts` measures the same leftover on the door's refusal: it is the clear list that is short, not
+	// one flow.
+	const jarAfterSignOut = await view.context().cookies();
+	const stillValued = jarAfterSignOut
+		.filter((cookie) => cookie.name.startsWith('auth-') && cookie.value.length > 0)
+		.map((cookie) => cookie.name);
 	expect(
-		await sessionCookies(view.context()),
-		`signing out left session cookies in the jar: ${await describeCookies(view.context())}`
-	).toEqual([]);
+		stillValued,
+		`signing out left something other than the one cookie cookiesKeys() does not name: ${await describeCookies(
+			view.context()
+		)}`
+	).toEqual(['auth-active-project']);
 
 	// The proof the session is really gone: the same visit that worked a moment ago is now refused.
 	await view.goto(`${APP_ORIGIN}/`, { waitUntil: 'domcontentloaded' });

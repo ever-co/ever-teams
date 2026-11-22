@@ -2,7 +2,7 @@ import { expect, test } from '../../fixtures';
 import { mockRequests } from '../../helpers';
 
 import {
-	appCallsMatching,
+	appAuthAsks,
 	describeAppCalls,
 	describeCookies,
 	describeMockLog,
@@ -11,9 +11,13 @@ import {
 	mockAuthAskCount,
 	mockAskedNoNewAuthPath,
 	mockWasAskedExactly,
+	RESET_PASSWORD_OTHER,
+	RESET_PASSWORD_VALUE,
 	sessionCookies,
 	UNDECODABLE_RESET_TOKEN,
 	watchAppApi,
+	watchedMockCall,
+	watchMockApi,
 	expiredResetToken
 } from './lane-auth-helpers';
 
@@ -21,10 +25,22 @@ import {
  * Password recovery: the two forms and what each of them proves.
  *
  * `/auth/forgot-password` (`core/components/pages/auth/forgot-password/forgot-password-form.tsx`) validates the
- * address with `emailErrorOf` (`core/components/auth/kit/auth-email.ts`) before it calls
- * `authService.requestPassword`, which in proxy mode posts this app's own `POST /api/auth/request-password`; that
- * route re-validates the address (`authFormValidate(['email'])` → **400** when it is bad), adds the reset link of
- * *this* deployment from its configured public origin, and asks the mock `POST /auth/request-password`.
+ * address with `emailErrorOf` (`core/components/auth/kit/auth-email.ts`) before it calls `authService.requestPassword`.
+ *
+ * ⚠ Which leg that call takes, measured in this lane (`lane-b-password-recovery-1.log`): `requestPassword` branches on
+ * `GAUZY_API_BASE_SERVER_URL.value` (`auth.service.ts:288-297`) and `playwright/test-servers.ts:109` sets it to this
+ * lane's mock, so a mock run posts `POST <mock origin>/api/auth/request-password` **from the browser**, carrying the
+ * reset link of the origin it is on (`appResetPasswordUrl = location.origin + RESET_PASSWORD_CALLBACK_PATH`,
+ * `constants.tsx:290` = `/auth/reset-password`). Neither this app's `app/api/auth/request-password` handler nor its
+ * body-keys-`['email']` shape belongs to this leg — those are a proxy deployment's, and `route-refusals.spec.ts`
+ * reaches them by calling the handlers directly. `resetPassword` branches the same way (`auth.service.ts:303-310`).
+ *
+ * Which is also why every *refusal* witness in this file is a mock-leg one (`watchMockApi` plus the mock's ask count)
+ * rather than an `app/api/auth/…` one: on this deployment a browser never asks those handlers, whatever a form does,
+ * so "this app's handler was asked nothing" can only pass here. Those assertions were dropped rather than kept as
+ * green lines; the surviving proof is the stronger one — the mock, which a submitted form *would* reach, was asked
+ * nothing new. The two tests that submit do assert the empty handler list, and say there that it pins *which leg* was
+ * taken, not that nothing was sent.
  *
  * `/auth/reset-password` is read on the server first: `app/[locale]/auth/reset-password/page.tsx` decodes the
  * `?token=` and refuses it only when it decodes to a payload whose `exp` has passed — so an undecodable token still
@@ -40,7 +56,7 @@ import {
 test.describe('lane-b · password recovery', () => {
 	test('a forgot-password form with nothing typed is refused on the field and asks nothing', async ({ anon }) => {
 		const view = await anon('/auth/forgot-password');
-		const calls = watchAppApi(view);
+		const calls = watchMockApi(view);
 		const asksBefore = await mockAuthAskCount();
 
 		await view.getByRole('button', { name: 'Send the link' }).click();
@@ -54,15 +70,15 @@ test.describe('lane-b · password recovery', () => {
 			'a refused address was given aria-invalid'
 		).toHaveAttribute('aria-invalid', 'true');
 		expect(
-			appCallsMatching(calls(), '/api/auth/request-password'),
-			`an empty forgot-password form still reached this app: ${describeAppCalls(calls())}`
+			calls().filter((call) => call.path === '/api/auth/request-password'),
+			`an empty forgot-password form still sent its request to the API: ${describeAppCalls(calls())}`
 		).toEqual([]);
 		await mockAskedNoNewAuthPath(asksBefore);
 	});
 
 	test('an address that is not an address is refused with the auth forms’ own wording', async ({ anon }) => {
 		const view = await anon('/auth/forgot-password');
-		const calls = watchAppApi(view);
+		const calls = watchMockApi(view);
 		const asksBefore = await mockAuthAskCount();
 
 		await view.locator('#forgot-email').fill('nope@nope');
@@ -73,42 +89,66 @@ test.describe('lane-b · password recovery', () => {
 			'a malformed address was not refused on the field'
 		).toContainText('Enter a valid e-mail address');
 		expect(
-			appCallsMatching(calls(), '/api/auth/request-password'),
-			`a malformed address still reached this app: ${describeAppCalls(calls())}`
+			calls().filter((call) => call.path === '/api/auth/request-password'),
+			`a malformed address still sent its request to the API: ${describeAppCalls(calls())}`
 		).toEqual([]);
 		await mockAskedNoNewAuthPath(asksBefore);
 	});
 
-	test('asking for a reset link asks this app, which asks the mock, and leaves the browser with no session', async ({
+	test('asking for a reset link sends it straight to the API with this app\'s reset-link address, and leaves the browser with no session', async ({
 		anon
 	}) => {
 		const view = await anon('/auth/forgot-password');
-		const calls = watchAppApi(view);
+		const calls = watchMockApi(view);
+		const appCalls = watchAppApi(view);
 
 		await view.locator('#forgot-email').fill(MOCK_EMAIL);
 		await view.getByRole('button', { name: 'Send the link' }).click();
 
-		// Leg 1: the browser asked this app's route, with the address and nothing else.
-		const sent = appCallsMatching(calls(), '/api/auth/request-password');
+		// Leg 1: what left the browser, on the leg a mock run really takes (file header). The body names the address
+		// and the page the e-mail link will open — that pair is the whole request, and it is what a real reset link
+		// would be built from.
+		const sent = await watchedMockCall(calls, '/api/auth/request-password');
 		expect(
 			sent.map((call) => `${call.method} ${call.path} → ${call.status}`),
-			`the forgot-password form never reached this app: ${describeAppCalls(calls())}`
+			`the forgot-password form never sent its request to the API: ${describeAppCalls(calls())}`
 		).toHaveLength(1);
 		expect(
 			Object.keys((sent[0].body ?? {}) as Record<string, unknown>).sort(),
-			'the request-password body is not just the address'
-		).toEqual(['email']);
+			`the request-password body is not {email, appResetPasswordUrl}: ${JSON.stringify(
+				Object.keys((sent[0].body ?? {}) as Record<string, unknown>).sort()
+			)}`
+		).toEqual(['appResetPasswordUrl', 'email']);
 		expect(
 			(sent[0].body as { email?: string })?.email,
 			'the reset link was asked for another address'
 		).toBe(MOCK_EMAIL);
+		expect(
+			(sent[0].body as { appResetPasswordUrl?: string })?.appResetPasswordUrl,
+			`the request no longer names the page the reset link opens: ${JSON.stringify(
+				(sent[0].body as { appResetPasswordUrl?: string })?.appResetPasswordUrl
+			)}`
+		).toContain('/auth/reset-password');
 
-		// Leg 2: the mock was asked on Gauzy's own path.
-		const asked = await mockWasAskedExactly('/auth/request-password');
+		expect(
+			sent[0].status,
+			`the API answered the reset-link request with ${sent[0].status}; the "sent" state below is only honest if the request went`
+		).toBe(200);
+
+		// Leg 2: the mock recorded the same call, in the spelling its log holds.
+		const asked = await mockWasAskedExactly('/api/auth/request-password');
 		expect(
 			asked.map((request) => `${request.method} ${request.path} → ${request.status}`),
 			`the mock was never asked to send a reset link: ${describeMockLog(await mockRequests())}`
 		).toHaveLength(1);
+		// Which leg that was: this app's own `app/api/auth/request-password` handler was asked nothing. This asserts
+		// *which door the browser went through*, not that nothing was sent — leg 1 and 2 already proved the send.
+		expect(
+			appAuthAsks(appCalls()),
+			`this app's own sign-in route was asked, although the mock leg is the one the client takes here: ${describeAppCalls(
+				appCalls()
+			)}`
+		).toEqual([]);
 
 		// What the person is told, and that a link request is not a session.
 		await expect(
@@ -201,16 +241,33 @@ test.describe('lane-b · password recovery', () => {
 	test('the reset form lists the five rules Gauzy enforces, plus the confirmation', async ({ anon }) => {
 		const view = await anon(`/auth/reset-password?token=${UNDECODABLE_RESET_TOKEN}`);
 
-		// Scoped to the list `PasswordChecks` renders (the one whose last rule is the confirmation), so a list
-		// elsewhere on the page cannot change the count.
+		// The form first, then the list. `locator.count()` does **not** wait, and the 2026-11-21 reading of 0 here was
+		// taken against a page that had not rendered the list yet (`lane-b-password-recovery-1.log`: `Expected: 6 /
+		// Received: 0`, then the case sat until the 180 s test timeout on the six label assertions that follow).
+		// `toHaveCount` polls, so the number is measured against a rendered page, and the message prints every `ul`
+		// and `li` text the page really holds — the markup dump PLAN.md §9 asked for, so a red here says what the form
+		// listed rather than only that it did not list six.
+		await expect(
+			view.locator('#reset-password'),
+			'the reset form is not on the page, so counting its rules proves nothing'
+		).toBeVisible();
+
+		const ulTexts = () =>
+			view.locator('ul').evaluateAll((nodes) =>
+				nodes.map((node) => (node.textContent ?? '').replace(/\s+/g, ' ').trim().slice(0, 200))
+			);
 		const rules = view
 			.locator('ul')
 			.filter({ hasText: 'Both passwords match' })
 			.locator('li');
-		expect(
-			await rules.count(),
-			`the reset form lists ${await rules.count()} rules: Gauzy's five plus "Both passwords match" make six`
-		).toBe(6);
+
+		await expect(
+			rules,
+			`the reset form listed ${await rules.count()} rules where Gauzy's five plus "Both passwords match" make six. ` +
+				`uls on the page: ${JSON.stringify(await ulTexts())}. ` +
+				`Renderer: core/components/auth/kit/password-checks.tsx (RESET_PASSWORD_RULES.map + the confirmation row), ` +
+				`labels from locales/en.json auth.password.RULE_*`
+		).toHaveCount(6);
 		for (const label of [
 			'At least 8 characters',
 			'An uppercase letter (A-Z)',
@@ -221,7 +278,7 @@ test.describe('lane-b · password recovery', () => {
 		]) {
 			await expect(
 				rules.filter({ hasText: label }),
-				`the reset form does not list the rule "${label}"`
+				`the reset form does not list the rule "${label}" (its uls: ${JSON.stringify(await ulTexts())})`
 			).toHaveCount(1);
 		}
 
@@ -234,7 +291,7 @@ test.describe('lane-b · password recovery', () => {
 
 	test('a password shorter than the 8 Gauzy asks for is refused on the field and never sent', async ({ anon }) => {
 		const view = await anon(`/auth/reset-password?token=${UNDECODABLE_RESET_TOKEN}`);
-		const calls = watchAppApi(view);
+		const calls = watchMockApi(view);
 		const asksBefore = await mockAuthAskCount();
 
 		await view.locator('#reset-password').fill('Ab1!x');
@@ -246,19 +303,19 @@ test.describe('lane-b · password recovery', () => {
 			'a 5-character password was not refused on the field'
 		).toContainText('At least 8 characters');
 		expect(
-			appCallsMatching(calls(), '/api/auth/reset-password'),
-			`a too-short password still reached this app: ${describeAppCalls(calls())}`
+			calls().filter((call) => call.path === '/api/auth/reset-password'),
+			`a too-short password still sent its new password to the API: ${describeAppCalls(calls())}`
 		).toEqual([]);
 		await mockAskedNoNewAuthPath(asksBefore);
 	});
 
 	test('two different passwords are refused on the confirmation, not on the password', async ({ anon }) => {
 		const view = await anon(`/auth/reset-password?token=${UNDECODABLE_RESET_TOKEN}`);
-		const calls = watchAppApi(view);
+		const calls = watchMockApi(view);
 		const asksBefore = await mockAuthAskCount();
 
-		await view.locator('#reset-password').fill('Str0ng!Pass');
-		await view.locator('#reset-confirm').fill('Str0ng!Pass2');
+		await view.locator('#reset-password').fill(RESET_PASSWORD_VALUE);
+		await view.locator('#reset-confirm').fill(RESET_PASSWORD_OTHER);
 		await view.getByRole('button', { name: 'Save the password' }).click();
 
 		await expect(
@@ -274,27 +331,29 @@ test.describe('lane-b · password recovery', () => {
 			passwordErrorCount > 0 ? await passwordError.textContent() : '(no error line, which is what this asserts)';
 		expect(passwordErrorCount, `the matching-enough password was refused too: ${passwordErrorText}`).toBe(0);
 		expect(
-			appCallsMatching(calls(), '/api/auth/reset-password'),
-			`a mismatched confirmation still reached this app: ${describeAppCalls(calls())}`
+			calls().filter((call) => call.path === '/api/auth/reset-password'),
+			`a mismatched confirmation still sent its new password to the API: ${describeAppCalls(calls())}`
 		).toEqual([]);
 		await mockAskedNoNewAuthPath(asksBefore);
 	});
 
-	test('a valid reset is handed to this app, which asks the mock on Gauzy’s own reset path, and changes no session', async ({
+	test('a valid reset is sent straight to the API with the token and both passwords, and changes no session', async ({
 		anon
 	}) => {
 		const view = await anon(`/auth/reset-password?token=${UNDECODABLE_RESET_TOKEN}`);
-		const calls = watchAppApi(view);
+		const calls = watchMockApi(view);
+		const appCalls = watchAppApi(view);
 
-		await view.locator('#reset-password').fill('Str0ng!Pass');
-		await view.locator('#reset-confirm').fill('Str0ng!Pass');
+		await view.locator('#reset-password').fill(RESET_PASSWORD_VALUE);
+		await view.locator('#reset-confirm').fill(RESET_PASSWORD_VALUE);
 		await view.getByRole('button', { name: 'Save the password' }).click();
 
-		// Leg 1: the browser asked this app, once, with the token and both copies of the password.
-		const sent = appCallsMatching(calls(), '/api/auth/reset-password');
+		// Leg 1: what left the browser, on the leg a mock run really takes (file header): once, with the token and
+		// both copies of the password.
+		const sent = calls().filter((call) => call.path === '/api/auth/reset-password');
 		expect(
 			sent.map((call) => `${call.method} ${call.path} → ${call.status}`),
-			`the reset form never reached this app: ${describeAppCalls(calls())}`
+			`the reset form never sent its new password to the API: ${describeAppCalls(calls())}`
 		).toHaveLength(1);
 		const body = (sent[0].body ?? {}) as Record<string, unknown>;
 		expect(
@@ -302,15 +361,29 @@ test.describe('lane-b · password recovery', () => {
 			`the reset body is not {token, password, confirmPassword}: ${JSON.stringify(Object.keys(body).sort())}`
 		).toEqual(['confirmPassword', 'password', 'token']);
 		expect(body.token, 'the reset was asked with another token').toBe(UNDECODABLE_RESET_TOKEN);
-		expect(body.password, 'the reset body does not carry the new password').toBe('Str0ng!Pass');
-		expect(body.confirmPassword, 'the reset body does not carry the confirmation').toBe('Str0ng!Pass');
+		expect(body.password, `the reset body does not carry the new password (${JSON.stringify(body.password)})`).toBe(
+			RESET_PASSWORD_VALUE
+		);
+		expect(
+			body.confirmPassword,
+			`the reset body does not carry the confirmation (${JSON.stringify(body.confirmPassword)})`
+		).toBe(RESET_PASSWORD_VALUE);
 
-		// Leg 2: the mock was asked. It answers by echoing the body, so this proves the chain, not a change anywhere.
-		const asked = await mockWasAskedExactly('/auth/reset-password');
+		// Leg 2: the mock recorded the same call, in the spelling its log holds. It answers by echoing the body, so
+		// this proves the chain, not a change anywhere.
+		const asked = await mockWasAskedExactly('/api/auth/reset-password');
 		expect(
 			asked.map((request) => `${request.method} ${request.path} → ${request.status}`),
 			`the mock was never asked to reset the password: ${describeMockLog(await mockRequests())}`
 		).toHaveLength(1);
+		// And this app's own `app/api/auth/reset-password` handler was asked nothing — the route `route-refusals.spec.ts`
+		// pins by calling it directly is not on the leg a browser on this deployment takes.
+		expect(
+			appAuthAsks(appCalls()),
+			`this app's own sign-in route was asked, although the mock leg is the one the client takes here: ${describeAppCalls(
+				appCalls()
+			)}`
+		).toEqual([]);
 
 		await expect(
 			view.getByText('Password changed', { exact: true }),

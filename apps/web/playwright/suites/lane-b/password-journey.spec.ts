@@ -2,7 +2,7 @@ import { expect, test } from '../../fixtures';
 import { mockRequests } from '../../helpers';
 
 import {
-	appCallsMatching,
+	appAuthAsks,
 	describeAppCalls,
 	describeCookies,
 	describeMockLog,
@@ -11,8 +11,13 @@ import {
 	mockAskedNoAuthPath,
 	mockWasAskedExactly,
 	sessionCookies,
-	watchAppApi
+	watchAppApi,
+	watchMockApi
 } from './lane-auth-helpers';
+
+/** The mock-leg calls whose path is exactly `path`. */
+const mockLegCalls = (calls: ReturnType<typeof watchMockApi>, path: string) =>
+	calls().filter((call) => call.path === path);
 
 /**
  * The password sign-in and what it refuses.
@@ -20,10 +25,18 @@ import {
  * `/auth/password` renders the same page as `/auth/passcode` and only opens it on the other method
  * (`core/components/pages/auth/sign-in/sign-in-page.tsx`), so the interesting part is which request each button makes
  * and which refusal stops it. `use-authentication-password.ts` validates with `validateForm(['email','password'])`
- * (`core/lib/helpers/validations.ts`) before it calls `authService.signInEmailPassword`, which in proxy mode
- * (`GAUZY_API_BASE_SERVER_URL` blank, as this run sets it) posts `/api/auth/signin-email-password` with
- * `{ email, password, includeTeams: true }`; that route asks the mock `POST /auth/signin.email.password`
- * (`core/services/server/requests/auth.ts`).
+ * (`core/lib/helpers/validations.ts`) before it calls `authService.signInEmailPassword`.
+ *
+ * ⚠ Which leg that call takes, measured 2026-11-21 in this lane (`lane-b-password-journey-1.log`): the branch is on
+ * `GAUZY_API_BASE_SERVER_URL.value` (`auth.service.ts:188-193`), and `playwright/test-servers.ts:109` sets
+ * `NEXT_PUBLIC_GAUZY_API_SERVER_URL` to this lane's mock, so a mock run takes the **direct** branch — the browser
+ * posts `POST <mock origin>/api/auth/signin.email.password` with `{ email, password, includeTeams: true }` (axios adds
+ * the `/api` segment, `core/services/client/axios.ts:110`) and this app's own `app/api/auth/signin-email-password`
+ * handler is never asked. That handler belongs to a proxy deployment; `route-refusals.spec.ts` reaches it directly.
+ * The refusals below are therefore witnessed two ways: `appAuthAsks` (no handler of this app's sign-in family was
+ * asked — NextAuth's own `/api/auth/session` chatter is deliberately outside that list, `lane-auth-helpers.ts`) and
+ * the mock's own log. The 2026-11-21 reds here were a filter written as `'/api/auth/'`, which matches NextAuth's
+ * chatter on any page mount and so red-flagged a page, not a submit.
  *
  * What the mock cannot answer here, and therefore what this lane cannot prove: a *refusal by the API*. The mock
  * answers every POST it does not know with 200 and the request body echoed
@@ -53,8 +66,8 @@ test.describe('lane-b · the password sign-in journey', () => {
 		).toHaveAttribute('aria-invalid', 'true');
 
 		expect(
-			appCallsMatching(calls(), '/api/auth/'),
-			`an empty form still reached this app's routes: ${describeAppCalls(calls())}`
+			appAuthAsks(calls()),
+			`an empty form still reached this app's sign-in routes: ${describeAppCalls(calls())}`
 		).toEqual([]);
 		await mockAskedNoAuthPath();
 	});
@@ -72,8 +85,8 @@ test.describe('lane-b · the password sign-in journey', () => {
 			'a malformed address was not refused on the field'
 		).toContainText('valid email address');
 		expect(
-			appCallsMatching(calls(), '/api/auth/'),
-			`a malformed address still reached this app's routes: ${describeAppCalls(calls())}`
+			appAuthAsks(calls()),
+			`a malformed address still reached this app's sign-in routes: ${describeAppCalls(calls())}`
 		).toEqual([]);
 		await mockAskedNoAuthPath();
 	});
@@ -93,8 +106,8 @@ test.describe('lane-b · the password sign-in journey', () => {
 			'a one-character password was not refused on the field'
 		).toContainText('fill out this field');
 		expect(
-			appCallsMatching(calls(), '/api/auth/'),
-			`a one-character password still reached this app's routes: ${describeAppCalls(calls())}`
+			appAuthAsks(calls()),
+			`a one-character password still reached this app's sign-in routes: ${describeAppCalls(calls())}`
 		).toEqual([]);
 		await mockAskedNoAuthPath();
 	});
@@ -103,17 +116,19 @@ test.describe('lane-b · the password sign-in journey', () => {
 		anon
 	}) => {
 		const view = await anon('/auth/password');
-		const calls = watchAppApi(view);
+		const calls = watchMockApi(view);
+		const appCalls = watchAppApi(view);
 
 		await view.locator('#passcode-email').fill(MOCK_EMAIL);
 		await view.locator('#pw-password').fill('secret123');
 		await view.getByRole('button', { name: 'Sign in', exact: true }).click();
 
-		// Leg 1: what left the browser. The body is asserted by shape, never printed: it carries the credential.
-		const attempt = appCallsMatching(calls(), '/api/auth/signin-email-password');
+		// Leg 1: what left the browser, on the leg a mock run really takes (see the file header). The body is
+		// asserted by shape and length only, never printed: it carries the credential.
+		const attempt = mockLegCalls(calls, '/api/auth/signin.email.password');
 		expect(
 			attempt.map((call) => `${call.method} ${call.path} → ${call.status}`),
-			`the password form never asked this app to sign in: ${describeAppCalls(calls())}`
+			`the password form never sent its attempt to the API: ${describeAppCalls(calls())}`
 		).toHaveLength(1);
 		const body = (attempt[0].body ?? {}) as Record<string, unknown>;
 		expect(
@@ -127,12 +142,20 @@ test.describe('lane-b · the password sign-in journey', () => {
 		).toBe(true);
 		expect(body.includeTeams, 'the password sign-in did not ask for the workspaces with the session').toBe(true);
 
-		// Leg 2: the mock was asked, by this app's route, on Gauzy's own path.
-		const asked = await mockWasAskedExactly('/auth/signin.email.password');
+		// Leg 2: the mock recorded the same call, with this app's `/api` prefix — the spelling its log holds.
+		const asked = await mockWasAskedExactly('/api/auth/signin.email.password');
 		expect(
 			asked.map((request) => `${request.method} ${request.path} → ${request.status}`),
 			`the mock was never asked to sign in with a password: ${describeMockLog(await mockRequests())}`
 		).toHaveLength(1);
+		// …and this app's own handler was not asked at all, which is what says the attempt went on the direct leg
+		// rather than through `app/api/auth/signin-email-password` (that route is a proxy-deployment leg).
+		expect(
+			appAuthAsks(appCalls()),
+			`this app's own sign-in route was asked, although the mock leg is the one the client takes here: ${describeAppCalls(
+				appCalls()
+			)}`
+		).toEqual([]);
 
 		// Leg 3: the answer carried no session, so none was written. The mock echoes the body it was given, so what
 		// the app got back has no `workspaces` and no token; `use-authentication-password.ts` then does nothing at

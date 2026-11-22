@@ -53,6 +53,25 @@ import {
 const CROSS_SITE = { 'sec-fetch-site': 'cross-site' };
 const SAME_SITE = { 'sec-fetch-site': 'same-site' };
 
+/**
+ * The two values the reset-link cases post.
+ *
+ * Both are **fixtures, not credentials**: they are posted to this lane's own route handlers on `127.0.0.1:3032` and
+ * forwarded only to this lane's mock on `127.0.0.1:3996` (`playwright/test-servers.ts`), never to any service, and
+ * nothing in this file asserts them as secrets — `app/api/auth/reset-password/route.ts:12` only checks that token,
+ * password and confirmation are all present. The shape still matters: the case at
+ * "POST /api/auth/reset-password with everything asked for" exists to prove a *complete* body is forwarded unchanged,
+ * so the body has to carry all three.
+ *
+ * One copy of each, named for what they are, because the same credential-looking pair was written four times in this
+ * file and a secret scanner is right to notice that: GitGuardian flagged it on PR #5675 (finding 40824812, four
+ * hits on this file). The values changed with the hoist — that is deliberate and safe here, since the only value
+ * witness is `echoed.token` compared against `FIXTURE_RESET_TOKEN` itself, which is the mock's echo of what this
+ * file sent it.
+ */
+const FIXTURE_PASSWORD = 'lane-b-fixture-password-not-a-credential';
+const FIXTURE_RESET_TOKEN = 'lane-b-fixture-reset-token-not-a-credential';
+
 test.describe('lane-b · the sign-in routes refuse on their own, and say so before the API is asked', () => {
 	test('POST /api/auth/signin-email refuses a body whose address is not an address, and never asks the API', async ({
 		api
@@ -173,7 +192,7 @@ test.describe('lane-b · the sign-in routes refuse on their own, and say so befo
 
 		const reset = await api('/api/auth/reset-password', {
 			method: 'POST',
-			body: { token: '', password: 'Str0ng!Pass', confirmPassword: 'Str0ng!Pass' }
+			body: { token: '', password: FIXTURE_PASSWORD, confirmPassword: FIXTURE_PASSWORD }
 		});
 		const resetBody = (await reset.json()) as { message?: string };
 		expect(
@@ -188,10 +207,10 @@ test.describe('lane-b · the sign-in routes refuse on their own, and say so befo
 	});
 
 	test('POST /api/auth/reset-password with everything asked for is forwarded on Gauzy’s own path', async ({ api }) => {
-		const token = 'lane-b-route-level-token';
+		const token = FIXTURE_RESET_TOKEN;
 		const response = await api('/api/auth/reset-password', {
 			method: 'POST',
-			body: { token, password: 'Str0ng!Pass', confirmPassword: 'Str0ng!Pass' }
+			body: { token, password: FIXTURE_PASSWORD, confirmPassword: FIXTURE_PASSWORD }
 		});
 
 		expect(
@@ -206,8 +225,10 @@ test.describe('lane-b · the sign-in routes refuse on their own, and say so befo
 
 		// The mock answers a POST it has no handler for by echoing the body it got
 		// (`cypress/support/mock-gauzy-server.mjs`: `if (method !== 'GET') return body ?? { success: true };`), so the
-		// token below is a witness that this app forwarded the body unchanged. Measured 2026-11-21: this request was
-		// answered `{"token":"lane-b-route-level-token","password":"Str0ng!Pass","confirmPassword":"Str0ng!Pass"}`.
+		// token below is a witness that this app forwarded the body unchanged. Measured 2026-11-21, and the same reading
+		// after the two fixtures were hoisted into the constants above (`lane-b-refusals-2.log`, 2026-11-22): the answer
+		// is exactly what was posted — `{token: FIXTURE_RESET_TOKEN, password: FIXTURE_PASSWORD, confirmPassword:
+		// FIXTURE_PASSWORD}`.
 		const echoed = (await response.json()) as { token?: string };
 		expect(
 			echoed.token,

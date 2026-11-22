@@ -29,6 +29,20 @@ export const SIGN_IN_CODE = 'AB12CD34';
  */
 export const UNDECODABLE_RESET_TOKEN = 'playwright-lane-b-reset-token';
 
+/**
+ * A new password the reset form's own five rules accept: `RESET_PASSWORD_RULES` in
+ * `core/components/auth/kit/password-checks.tsx` — at least `RULE_MIN_LENGTH` (8), an uppercase, a lowercase, a digit
+ * and a symbol, wording from `locales/en.json` `auth.password.RULE_*`.
+ *
+ * Hoisted out of `password-recovery.spec.ts` on 2026-11-22 (PLAN §11.6) because the literal it replaces read as a
+ * credential to a secret scanner (GitGuardian finding 40824812 on PR #5675). It is posted to this lane's mock only
+ * (`POST <mock>/api/auth/reset-password`, echoed back), it is compared against itself in that spec's body witness,
+ * and it is not a password anybody uses anywhere. Same for `RESET_PASSWORD_OTHER`, the second value the
+ * "passwords don't match" case needs — also rule-valid, so the refusal it measures is the mismatch and not the rules.
+ */
+export const RESET_PASSWORD_VALUE = 'lane-b-reset-Lane#2026';
+export const RESET_PASSWORD_OTHER = 'lane-b-reset-Lane#2026x';
+
 const base64Url = (value: object): string => Buffer.from(JSON.stringify(value)).toString('base64url');
 
 /** An unsigned JWT whose `exp` is one hour in the past, in the shape `decodeJWT` accepts (`iat` and `exp` required). */
@@ -250,6 +264,84 @@ export async function mockAskedNoAuthPath(): Promise<void> {
 }
 
 export type AppApiCall = { method: string; path: string; body: unknown; status: number };
+
+/**
+ * The watched mock-leg calls whose path is exactly `path`, **after** their answers arrived.
+ *
+ * `watchMockApi` fills `status` on the `response` event, which lands *after* the action that caused the request — a
+ * `click()` resolves when the element was clicked, not when the network finished. Reading `call.status` straight
+ * after the action therefore races the answer: measured 2026-11-21 in `lane-b-password-recovery-3.log`, the
+ * request-password leg read `Expected: 200 / Received: 0` while the mock's own log had already recorded the 200. The
+ * body and method are safe to read at once (the `request` event wrote them); the status is not, so it is polled here.
+ */
+export async function watchedMockCall(
+	calls: () => AppApiCall[],
+	path: string,
+	{ tries = 40, intervalMs = 250 }: { tries?: number; intervalMs?: number } = {}
+): Promise<AppApiCall[]> {
+	for (let attempt = 0; attempt < tries; attempt += 1) {
+		const sent = calls().filter((call) => call.path === path);
+		if (sent.length > 0 && sent.every((call) => call.status > 0)) return sent;
+		await new Promise((done) => setTimeout(done, intervalMs));
+	}
+	const last = calls().filter((call) => call.path === path);
+	throw new Error(
+		`no answer was recorded for ${path} on the mock leg (after ${(tries * intervalMs) / 1000}s): ${describeAppCalls(
+			last.length > 0 ? last : calls()
+		)}`
+	);
+}
+
+/**
+ * The mock-leg requests that **never got an answer**: `requestfailed`, the event `watchMockApi` does not listen to.
+ *
+ * Written 2026-11-22 because `lane-b-passcode-journey-3.log` recorded a mock-leg ask that stayed at status 0 for the
+ * whole case (`POST /api/auth/login → (no answer yet)`) while the mock's own log held no entry for it. Those two
+ * readings only agree if the request was cut off between the browser and the mock, and only this witness says so —
+ * a spec otherwise has to guess between "the mock hung" and "the browser gave up".
+ *
+ * The mock writes its request log *before* it ends the response (`state.requests.push(…)` then `response.end(…)`,
+ * `cypress/support/mock-gauzy-server.mjs:1067-1095`) and returns without logging a request the socket aborted
+ * (`…:1098-1099`), so "no log entry" and "no answer" are one event here, not two.
+ */
+export function watchMockCutOff(page: Page): () => { method: string; path: string; failure: string }[] {
+	const cut: { method: string; path: string; failure: string }[] = [];
+
+	page.on('requestfailed', (request) => {
+		const url = new URL(request.url());
+		if (url.origin !== new URL(MOCK_ORIGIN).origin || !url.pathname.startsWith('/api/')) return;
+		cut.push({
+			method: request.method(),
+			path: url.pathname,
+			failure: request.failure()?.errorText ?? '(the browser reported no failure text)'
+		});
+	});
+
+	return () => cut;
+}
+
+export const describeMockCutOff = (cut: { method: string; path: string; failure: string }[]): string =>
+	cut.map((entry) => `${entry.method} ${entry.path} cut off: ${entry.failure}`).join(', ') || 'nothing was cut off';
+
+/**
+ * The mock's own log entries for `path`, waited for — and returned even when they never arrive.
+ *
+ * `mockCallsExactly` reads once, which is right for "was it asked" when the answer is already in, and wrong for
+ * proving that something was **not**. This waits a bounded time and hands back what the log holds, so the spec can
+ * assert the emptiness with a number instead of a `Test timeout`.
+ */
+export async function mockAskAfterWaiting(
+	path: string,
+	{ tries = 40, intervalMs = 500 }: { tries?: number; intervalMs?: number } = {}
+): Promise<StubRequest[]> {
+	for (let attempt = 0; attempt < tries; attempt += 1) {
+		const log = await mockRequests();
+		const asked = log.filter((request) => request.path === path);
+		if (asked.length > 0) return asked;
+		await new Promise((done) => setTimeout(done, intervalMs));
+	}
+	return [];
+}
 
 /**
  * Watches this app's *own* route handlers (`/api/...` on the app origin), which is the half the mock's log cannot

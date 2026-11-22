@@ -9,9 +9,24 @@ The long form — every case, the mock's limits, the findings and the prediction
 
 ## Run status, stated exactly
 
-**Nothing in this lane has been executed.** Every number below is a `--list` count I read off a real command; no test
-of mine has ever produced a `N passed (Xm Ys)` line. `--list` compiles the specs and resolves the fixtures, and starts
-no server and no browser.
+**Run 2026-11-22 by the two lane-b agents of that day: the whole lane green — 76 passed (3.5m)**
+(`E2E_LANE=lane-b npx playwright test --config apps/web/playwright/playwright.lane.config.ts`, log
+`E:\Coding\.tmp\lane-b-full-1.log`; per file and per run: **PLAN.md §11 and §12**, which name the log beside every
+number). The status below it is kept as it was written, because it is the state this lane was in before that run.
+
+```
+$ E2E_LANE=lane-b npx playwright test --config apps/web/playwright/playwright.lane.config.ts
+  Running 76 tests using 1 worker
+  76 passed (3.5m)                                      → full log: E:\Coding\.tmp\lane-b-full-1.log
+  per file, from that log's own ok lines: route-refusals 17 · session-routing 15 · password-recovery 11
+  · signup-forms 8 · passcode-journey 7 · cookie-jar 6 · password-journey 6 · locale-rendering 6
+```
+
+---
+
+**Written 2026-11-20, before any of the above: "nothing in this lane has been executed."** Every number below *that*
+line is a `--list` count read off a real command; `--list` compiles the specs and resolves the fixtures, and starts no
+server and no browser.
 
 ```
 $ cd apps/web && node ../../node_modules/typescript/lib/tsc.js -p playwright/tsconfig.json --noEmit

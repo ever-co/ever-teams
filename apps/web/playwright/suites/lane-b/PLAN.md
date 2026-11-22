@@ -576,3 +576,279 @@ after them the three **open** cases, each with its probe: `password-recovery:201
 message before touching the assertion. A live probe of the real `api.ever.team` team-join relay is **not** 
 queued: it is unevidenced on this PC (the report that described one was withdrawn by its own author), and 
 it would need the owner's go-ahead and a pushed MAINTENANCE.md row before anyone runs it.
+
+---
+
+## 11. The lane was run 2026-11-22 — every number below is copied from a log's own summary line
+
+Files this section is about: `route-refusals.spec.ts`, `session-routing.spec.ts`, `signup-forms.spec.ts` and
+`PLAN.md` (mine, committed by me), plus measurements of the other five files, whose edits are another session's.
+
+### 11.1 Contention, stated before any number is quoted
+
+* A second session ran lane-b specs and edited lane-b specs while I did. Its logs carry `start=` / `exit=` / `end=`
+  markers I did not write: `E:\Coding\.tmp\lane-b-locale-rendering-1.log`, `lane-b-cookie-jar-1.log`,
+  `lane-b-passcode-journey-1.log`, `lane-b-password-recovery-2.log`, `-3`, `-4`, `lane-b-tsc-1.log`,
+  `lane-b-servers-up-2.log`. `git status` listed `cookie-jar`, `lane-auth-helpers`, `passcode-journey`,
+  `password-journey`, `password-recovery` and later `session-routing` as modified while I was editing `signup-forms`
+  myself. I committed only my own four files and left the rest of the lane's uncommitted edits to their author, so
+  the tree that produced my numbers is `93d1c50ad` **plus** that session's uncommitted lane-b edits.
+* That session restarted lane-b's servers mid-run (`lane-b-servers-up-2.log`, 01:55:34: "starting node …
+  backend.mjs (port 3998) … next dev -p 3032"); my first `password-journey` run therefore died with
+  `TypeError: fetch failed` / `connect ECONNREFUSED 127.0.0.1:3998`. Verdict **C** (contention), proved by the solo
+  re-run, with both numbers quoted below — no assertion was changed for it.
+* The mock's request log is one process-wide ring, so "the mock was asked exactly once" is a coin toss while two
+  lane-b runs are in flight. §11.5.
+* HEAD moved under the lane twice while I worked (`c6b77afea` → `e762c7309` → `93d1c50ad`). None of them touched
+  `suites/lane-b/`, so the `team-tasks-view` label-grouping merge in `c6b77afea` moved **no** lane-b expectation.
+  Everything that moved in this lane today moved through the uncommitted edits, not through the merge.
+
+### 11.2 Per file, from the logs
+
+| file | number, copied from the log's summary line | log |
+| --- | --- | --- |
+| `route-refusals.spec.ts` | **17 passed (5.2s)** | `E:\Coding\.tmp\lane-b-refusals-1.log` |
+| `route-refusals.spec.ts`, after the fixture hoist (§11.6) | **17 passed (6.2s)** | `E:\Coding\.tmp\lane-b-refusals-2.log` |
+| `password-journey.spec.ts` | 1 failed, 5 passed (3.5m) — the red is **C**, §11.1 | `E:\Coding\.tmp\lane-b-password-journey-1.log` |
+| `password-journey.spec.ts`, solo re-run | **6 passed (20.3s)** | `E:\Coding\.tmp\lane-b-password-journey-2.log` |
+| `password-recovery.spec.ts` | **11 passed (27.2s)**, all 11 including §9's open `:201` | `E:\Coding\.tmp\lane-b-password-recovery-1.log` |
+| `session-routing.spec.ts` | 3 failed, 12 passed (10.7m) — the state before §11.3's three pins | `E:\Coding\.tmp\lane-b-session-routing-1.log` |
+| `session-routing.spec.ts`, solo re-run | **15 passed (40.5s)** | `E:\Coding\.tmp\lane-b-session-routing-2.log` |
+| `signup-forms.spec.ts` | 2 failed, 6 passed (6.6m) | `E:\Coding\.tmp\lane-b-signup-forms-me1.log` |
+| `signup-forms.spec.ts`, after the mock-path prefix fix | 2 failed, 6 passed (6.5m) | `E:\Coding\.tmp\lane-b-signup-forms-me2.log` |
+| `signup-forms.spec.ts`, after the §11.3 rework | **8 passed (33.2s)** | `E:\Coding\.tmp\lane-b-signup-forms-me3.log` |
+| `locale-rendering.spec.ts` | **6 passed (38.5s)** | `E:\Coding\.tmp\lane-b-locale-rendering-me1.log` |
+| `cookie-jar.spec.ts` | **6 passed (40.3s)** (the file now holds 6 cases: the two refresh answers pinned apart) | `E:\Coding\.tmp\lane-b-cookie-jar-me1.log` |
+| `passcode-journey.spec.ts` | 2 failed, 5 passed (7.6m) — **still red, §11.4** | `E:\Coding\.tmp\lane-b-passcode-journey-me1.log` |
+
+The whole lane in one command: **not run to a summary line.** `lane-b-full-me1.log` is a run I started, started
+again by mistake and stopped by hand; it never printed a total, so it is not a number and is not quoted.
+
+Counting the last number of each row: the lane today is **76 cases in 8 spec files, 74 green, 2 red** (the two
+`passcode-journey` cases). The lane has **8** spec files, not the 7 §1 lists: `route-refusals`, `passcode-journey`,
+`password-journey`, `password-recovery`, `signup-forms`, `session-routing`, `locale-rendering`, `cookie-jar`.
+
+### 11.3 The three §9 open cases, settled
+
+1. **`password-recovery` "the reset form lists the five rules Gauzy enforces, plus the confirmation" — open → green.**
+   11/11 in `lane-b-password-recovery-1.log`, that case in 2.3s. Verdict **T**: the 2026-11-21 `Expected 6 / Received
+   0` was read with `locator.count()`, which does not wait, against a page that had not rendered the list yet, and the
+   case then sat on the six label assertions until the 180s test timeout. It now awaits `#reset-password`, polls
+   `toHaveCount(6)`, and its message prints every `ul` text the page holds. Six `li` under the `ul` carrying "Both
+   passwords match" is the measured shape (`core/components/auth/kit/password-checks.tsx`).
+2. **`signup-forms` "a finished sign-up form is handed to this app…" (`:211` then) — open → green.** The leg the case
+   assumed is right (`registerUserTeam` → `getFallbackAPI()`, `auth.service.ts:275-278`, axios `baseURL` `/api`,
+   `constants.tsx:96`), and **the mock records that ask as `/api/auth/register`**, so the case's
+   `mockCallsExactly('/auth/register')` matched nothing while the mock's own log line in the same failure named it —
+   the same missing prefix as §9's four `route-refusals` reds. The second half: `click()` returns when the click has
+   landed, not when the client has posted, so both request witnesses are `expect.poll`ed now. `lane-b-signup-forms-me1.log`
+   is the proof of the race: the same eight steps gave `[]` in one case and exactly one ask in the case right after it.
+3. **`signup-forms` "a sign-up the mock cannot finish leaves the browser with no session at all" (`:253` then) — the §5
+   prediction was wrong; the case now pins what was measured.** `POST /api/auth/register` answers **200, not 500**, and
+   it **writes a session**. Measured twice: `lane-b-signup-forms-me2.log` (`Expected: 500 / Received: 200`) and a
+   direct probe of this lane's own app, `curl -X POST http://127.0.0.1:3032/api/auth/register`, headers saved at
+   `E:\Coding\.tmp\lane-b-register-probe-headers.txt`: `200` with `auth-token=synthetic-refreshed-token`,
+   `auth-tenant-id`, `auth-organization-id`, `auth-active-team`, `auth-active-language=en`, and `auth-user-id=` /
+   `auth-refresh-token=` written **empty**. Why: the route takes the token from the **refresh** step
+   (`app/api/auth/register/route.ts:156-157`) and this mock answers `/api/auth/refresh-token` with a pair
+   (`cypress/support/mock-gauzy-server.mjs:537-538`, §3.1), so the token-less login never reaches `setAuthCookies`;
+   the route then hands back the bare `NextResponse` it created at route.ts:29 and returns at route.ts:175. The case is
+   renamed "a sign-up the mock answers leaves a half session: 200, the mock's own access token, and no user id" and
+   asserts those cookie lines off the response's own `Set-Cookie` headers (`waitForResponse` started before the click,
+   so nothing races it). **Owed to the mock's owner, not fixable by a lane:** a mock run cannot show "a sign-up the
+   backend refused left no session", because the mock's refresh handler rescues the chain.
+
+### 11.4 Two `passcode-journey` cases are still red (that file is the other session's)
+
+`lane-b-passcode-journey-me1.log`: 2 failed, 5 passed (7.6m).
+
+* `:157` "the code typed is the code the app asks the API to confirm…" — `Expected 1 / Received 0` on the second
+  attempt (`POST /api/auth/login`) inside a message whose own mock-log line read `POST /api/auth/login → 200` and
+  whose browser side read `POST /api/auth/login → (no answer yet)`. That is the §11.3(2) race again: `watchAppApi`
+  fills a status only when the response event arrives. Not fixed here — the file was being edited next door.
+* `:320` "a code that is already on its way cannot be asked for again…" — `Expected 1 / Received 2`
+  (`POST /api/auth/signin.email` twice: "1 code request left the page before the click and 2 after it"). Two readings
+  one run cannot separate: either a click on a resend the page marks `aria-disabled` really asked again — worth
+  keeping as an app finding, since `aria-disabled` is not `disabled` and the button's own guard is
+  `resend()` → `if (isLocked) return` (`core/components/auth/kit/resend-code.tsx:75-78`) — or the second ask is
+  another run landing on the shared mock log (§11.5). Owed: a solo re-run that counts the asks on the page, not on
+  the mock.
+
+### 11.5 Two harness facts to know before trusting any number above (neither file is lane-b's to change)
+
+* `apps/web/playwright/backend.mjs:40` is `const MAX_REQUESTS = 10;` and `GET /requests` returns
+  `requests.slice(-10)`. `mockAuthAskCount()` / `mockAskedNoNewAuthPath(asksBefore)` compare counts **inside the last
+  ten asks**, and `mockCallsExactly(…).toHaveLength(1)` counts inside them too — so a case that causes more than ten
+  backend asks (the sign-up chain is eight on its own: register, login, tenant, organization, employee,
+  organization-projects, organization-team, refresh-token) can make those witnesses quietly wrong. It is also why two
+  concurrent lane-b runs can move each other's counts.
+* Every red in this lane prints its failed assertion **and then** `Test timeout of 180000ms exceeded`: a red costs
+  three minutes. That is why the same file reads 27s green and 7.6m with two reds, and why §10's 1.4h full run was
+  never a slow machine. The two §9 "3-minute outliers" are gone for the reason §9 gives (messages that reached for a
+  page state eagerly): today those cases ran **2.3s** (`password-recovery` "two different passwords are refused on the
+  confirmation", `lane-b-password-recovery-1.log` case 10) and **2.1s** (`signup-forms` "a real name with an address
+  that is not an address", `lane-b-signup-forms-me3.log` case 2).
+
+### 11.6 GitGuardian on PR #5675, finding 40824812 (`route-refusals.spec.ts`, 4 hits)
+
+The flagged literal was `'Str0ng!Pass'` (twice per case, in two cases) beside `'lane-b-route-level-token'`. In
+substance a false positive: a synthetic fixture posted to this lane's own handlers on `127.0.0.1:3032` and forwarded
+only to this lane's mock on `127.0.0.1:3996`, never to any service. It is still the credential-shaped literal a
+scanner is right to notice, and it was duplicated, so it is now two named module constants at the top of
+`route-refusals.spec.ts` — `FIXTURE_PASSWORD = 'lane-b-fixture-password-not-a-credential'` and
+`FIXTURE_RESET_TOKEN = 'lane-b-fixture-reset-token-not-a-credential'` — each commented with where it is sent and why
+the body must carry all three (`app/api/auth/reset-password/route.ts:12` checks presence only). Every copy in that
+file replaced; the file's one value witness (`echoed.token`, the mock's echo of what was posted) compares against
+`FIXTURE_RESET_TOKEN` itself, so the pin means the same thing. Re-run after the change: **17 passed (6.2s)**,
+`E:\Coding\.tmp\lane-b-refusals-2.log`. The `'Str0ng!Pass'` literal survives only in `password-recovery.spec.ts`,
+where the typed value has to pass Gauzy's five reset rules (`RULE_MIN_LENGTH`, uppercase, lowercase, digit, symbol),
+so the lane's next single owner should hoist it to `lane-auth-helpers.ts` with a rule-satisfying value; I did not,
+because that file was being written next door.
+
+---
+
+## 12. The other lane-b agent of 2026-11-22: the whole lane green — **76 passed (3.5m)**
+
+§11 is the other agent's run log (their logs are `E:\Coding\.tmp\lane-b-*-me1..4.log`); this section is mine, from
+`E:\Coding\.tmp\lane-b-<file>-<n>.log` plus `lane-b-full-1.log`. Both of us edited the same eight files, so every row
+says whose version of the file it ran. Each number is a summary line copied out of the named log; where a file did not
+run, this says so.
+
+### 12.1 Lane, gate, typecheck
+
+* `lane-servers.mjs up lane-b` (`lane-b-servers-up-1.log`), brought up again in `lane-b-servers-up-2.log`: the app on
+  3032 stopped answering mid-session while free memory had fallen to **3 201 192 KB** with `strata` at ~11.6 GB.
+  `down lane-b` (PIDs 28792 / 26892), re-measure **4 097 912 KB**, `up`, `check` → OK. Reported as a blocker, not
+  retried blind. Gate readings for the runs below: **5 276 920 KB**, **4 682 092 KB**, **5 015 000 KB** free of
+  33 473 768 KB; `check lane-b` printed `OK — the app on 3032 names its own mock 3996 and stats sink 3997` before
+  each one.
+* `tsc -p playwright/tsconfig.json --noEmit` → **exit 0** (`lane-b-tsc-6.log`, `lane-b-tsc-7.log`). Earlier in the same
+  session it exited 2 twice (`lane-b-tsc-4.log`, `lane-b-tsc-5.log`) on `suites/lane-c/unguarded-writes.spec.ts`
+  (`TS2304` / `TS2552: Cannot find name 'triple'`) — the lane-c agent's file, untouched here.
+
+### 12.2 Per file, one solo run each, and how it got there
+
+| file | green run | the reds before it, from the same lane | log |
+| --- | --- | --- | --- |
+| `route-refusals.spec.ts` | **17 passed (5.2s)** | none since §9's fixes | `lane-b-refusals-1.log` |
+| `password-journey.spec.ts` | **6 passed (17.3s)** | `4 failed / 2 passed (12.8m)` in `…-1.log`; all four were the `/api/auth/` filter matching NextAuth's own `GET /api/auth/session` / `POST /api/log` | `lane-b-password-journey-2.log` |
+| `password-recovery.spec.ts` | **11 passed (31.8s)** | `3 failed / 8 passed (9.7m)` `-1`; `6 failed / 5 passed (34.1s)` `-2` (a helper used without importing it); `1 failed / 10 passed (31.6s)` `-3` (the `Expected: 200 / Received: 0` status race) | `lane-b-password-recovery-5.log` (also `-4.log`: `11 passed (28.0s)`) |
+| `locale-rendering.spec.ts` | **6 passed (30.9s)** | §9's `:134`, fixed by moving the watcher to the mock leg | `lane-b-locale-rendering-2.log` |
+| `cookie-jar.spec.ts` | **6 passed (32.0s)** | `1 failed / 4 passed (37.5s)` `-1`, `1 failed / 5 passed (25.8s)` `-2` — both the unreachable expired-session refusal | `lane-b-cookie-jar-3.log` |
+| `session-routing.spec.ts` | **15 passed (1.0m)** | `3 failed / 12 passed (1.6m)` in my `-1` run; that log file was then **overwritten** by the other agent's 02:53 run, which now reads `3 failed / 12 passed (10.7m)` | `lane-b-session-routing-3.log` |
+| `signup-forms.spec.ts` | **8 passed (33.9s)** | `2 failed / 6 passed (24.5s)` `-1`: both register witnesses were read once and saw only NextAuth chatter | `lane-b-signup-forms-3.log` — ⚠ at run time the file carried the other agent's 04:15:47 edits (500 → 200, `waitForResponse`, the `Set-Cookie` reading); my run verified their pins |
+| `passcode-journey.spec.ts` | 7 cases green inside `lane-b-full-1.log`; the two I re-wrote also **2 passed (8.9s)** solo | `2 failed / 5 passed (6.6m)` `-3`; `1 failed / 6 passed (3.5m)` `-4`; `-probe-1.log` ran **no tests** (`SyntaxError … (355:35)`, exit 1); `-probe-2.log` `1 failed / 1 passed (1.2m)` | `lane-b-passcode-probe-3.log`, `lane-b-full-1.log` |
+
+### 12.3 The whole lane, one command
+
+```
+E2E_LANE=lane-b npx playwright test --config apps/web/playwright/playwright.lane.config.ts
+→ 76 passed (3.5m)                                    E:\Coding\.tmp\lane-b-full-1.log
+```
+
+Counts out of that log's own `ok` lines: `route-refusals` 17, `session-routing` 15, `password-recovery` 11,
+`signup-forms` 8, `passcode-journey` 7, `cookie-jar` 6, `password-journey` 6, `locale-rendering` 6 = **76 cases in 8
+files, 0 red**. §1's "75 discovered" is one short of what this tree lists. The 1.4 h of §9's full run is not in this
+lane's code any more: with no red there is no 180 s test-timeout bill (§11.5) to pay — the eight solo runs above sum
+to 3.1 min against the combined run's 3.5 min.
+
+### 12.4 The three cases §9 left open, all three closed
+
+* **`password-recovery:201`** ("the reset form lists the five rules Gauzy enforces, plus the confirmation") — **2.1s
+  green** in `lane-b-password-recovery-4.log` and again in `-5.log`. The pin was right: six `li` in the one `ul` that
+  also carries "Both passwords match" (`core/components/auth/kit/password-checks.tsx`, `RESET_PASSWORD_RULES` plus the
+  confirmation row; wording from `locales/en.json` `auth.password.RULE_*`). The measuring tool was wrong:
+  `locator.count()` does not wait, so it read 0 on a list that had not rendered, and the case then sat to the test
+  timeout. Now `toHaveCount(6)` after waiting for `#reset-password`, with every `ul`'s text in the failure message.
+* **`signup-forms:211` / `:253`** — the leg was right (`registerUserTeam` → `getFallbackAPI()` →
+  `API_BASE_URL = '/api'`); the witness was read too early. Polled, and the register route answered **200, not the §5
+  prediction of 500**, writing a half session (`auth-token=synthetic-refreshed-token`, `auth-user-id=`,
+  `auth-refresh-token=`): `app/api/auth/register/route.ts:156-157` takes the token from the refresh step, which this
+  mock answers with a pair (`cypress/support/mock-gauzy-server.mjs:537`). Verified green by my run in
+  `lane-b-signup-forms-3.log` and `lane-b-full-1.log`; the repin itself is the other agent's (§11).
+* **`passcode-journey:157/160`** attempt 2 — §11.4 left it as "the file was being edited next door"; closed here. Two
+  of my runs disagree only about *when they read*: `-3.log` held `POST /api/auth/login → (no answer yet)` with nothing
+  in the mock's log, `-4.log`, waiting up to 10 s for the same entry, recorded `POST /api/auth/login → 200`. The mock
+  is not the one that hung — asked directly on this lane it answered in 2 ms and logged it. Pin now: the ask lands
+  **once, answered 200, body `{email, code}` with no `password`**, plus an empty cut-off witness. New in
+  `lane-auth-helpers.ts`: `watchMockCutOff` / `describeMockCutOff` (`requestfailed`, which `watchMockApi` does not
+  listen to) and `mockAskAfterWaiting` (a bounded wait that returns an empty answer instead of throwing), so "was not
+  asked" can be asserted with a number instead of a 180 s timeout.
+* Closed on the way: **the cooldown case** (§11.4's "either the click asked again or the page re-asked"). It now waits
+  4 s with nobody touching the page and asserts the ask count did not move, then presses the locked resend with
+  `dispatchEvent('click')`. Measured: the page does **not** re-ask by itself and the `aria-disabled` resend does **not**
+  add an ask — `after.length === 1` green, the case at 7.2s / 7.3s instead of the 1.1m an ordinary `click()` ate on the
+  ticking `CooldownRing` (`core/components/auth/kit/resend-code.tsx`). The app finding §11.4 floated is **not** a
+  finding as measured: the button's `if (isLocked) return` guard holds.
+
+### 12.5 Pins moved from prediction to measurement (mine)
+
+1. `password-journey` refusals → `appAuthAsks(...)` (exact `APP_SIGN_IN_ROUTES`), the valid attempt onto the mock leg
+   with body keys exactly `['email','includeTeams','password']` (`core/services/client/api/auth/auth.service.ts:188-193`).
+2. `password-recovery` both halves onto the mock leg (`auth.service.ts:288-297`, `303-310`) with `appResetPasswordUrl`
+   naming `/auth/reset-password` (`core/constants/config/constants.tsx:290`). The old "this app's handler was asked
+   nothing" witnesses were **vacuous on this deployment** — a browser never asks those handlers, whatever a form does —
+   so they are now labelled as leg witnesses instead of left to pass silently.
+3. `session-routing` expired session → the renewal the door really performs (`proxy.ts:558-575` +
+   `mock-gauzy-server.mjs:537`): `/settings/personal` served, one `POST /api/auth/refresh-token` ask, `auth-token` still
+   in the jar. `deny_redirect(true)` stays unreachable in a mock run.
+4. `session-routing` `/fr/auth/passcode` → off the auth page **onto `/fr`**, with next-intl's `NEXT_LOCALE=fr` as the
+   reason. Sign-out jar → the ten `cookiesKeys()` names emptied and **`auth-active-project` left valued**
+   (`core/lib/helpers/cookies/index.ts:271-282` against the harness's `authCookieNames`, `playwright/helpers.ts:148-163`).
+5. `cookie-jar` clearing pinned on the refusal a mock run *can* cause (`deny_redirect(false)` → `/unauthorized`): all
+   ten names present, none valued, `auth-active-project` the one leftover; the renewal case pinned as
+   `auth-token === 'synthetic-refreshed-token'` and named in the test as a **mock-shaped pin**, not a claim about a real
+   Gauzy answer.
+6. `password-recovery`'s typed values hoisted to `RESET_PASSWORD_VALUE` / `RESET_PASSWORD_OTHER` in
+   `lane-auth-helpers.ts` — §11.6's owed item, done here: the credential-shaped literal is out of the lane's specs, and
+   both values satisfy Gauzy's five rules, so the "passwords don't match" case measures the mismatch and not the rules.
+   Re-run after the change: **11 passed (31.8s)**, `lane-b-password-recovery-5.log`.
+
+### 12.6 Kept as findings, not softened
+
+* `cookiesKeys()` is short of `auth-active-project`; two independent cases measure the leftover (sign-out, and the
+  door's refusal). A refused jar still reads as a session on that one cookie.
+* A code shorter than 8 is refused **silently** (`core/hooks/auth/use-authentication-passcode.ts:326` sets `'loading'`,
+  `339-343` only `setErrors(errors); return;`, and `core/components/pages/auth/sign-in/code-step.tsx:29-35` shows a
+  message only on status `'error'`). The case pins the silence on purpose: a fix that tells the person why fails it.
+* `app/api/auth/register/route.ts:108-109` never checks that the login answer carries a token; the chain runs on and
+  `setAuthCookies` writes a cookie session out of the *refresh* answer with `auth-user-id` / `auth-refresh-token`
+  empty. Reachable here only because this mock answers 200 with an echo — on the real API the login would not answer
+  200 — so it is reported as a hardening gap, pinned as measured, and not written as an assertion that can only pass.
+* One flake, named rather than papered over: `lane-b-passcode-journey-3.log` read the five code slots as
+  `Expected: "AAAAA" / Received: "AAAA"` **after** the submit click; `-4.log` and `probe-3.log` read `AAAAA`. The case
+  now pins both sides — the slots holding what was typed *before* the click and still holding it after — so the next
+  red says whether it was the case's own typing or the app clearing a slot.
+
+### 12.7 Collisions, and what this section cannot claim
+
+* HEAD moved twice during this session: the brief's `bb54f1251`, then `c6b77afea` (merge of `origin/develop`, 13
+  commits, none in `apps/web/playwright/**`), then `93d1c50ad` while I ran. No lane-b expectation moved because of the
+  merge — every file above re-ran green against `93d1c50ad` plus the working-tree edits.
+* `lane-b-session-routing-1.log` is no longer my log: another agent's 02:53 run overwrote it. My number for that run
+  exists only in this text. My green reading is `lane-b-session-routing-3.log`.
+* `signup-forms.spec.ts` in the tree is both agents' work interleaved (my `signupState` page dump and the `/api`
+  prefix fix, their polled witnesses, `waitForResponse` and the 200 repin). The commit that carries it carries both.
+* Not claimed here: anything in `suites/api/**`, `suites/lane-c/**`, `suites/lane-d/**`, `playwright/helpers.ts`,
+  `playwright/fixtures.ts`, `playwright/test-servers.ts` or `cypress/support/mock-gauzy-server.mjs`. §11.5's
+  `MAX_REQUESTS = 10` ring in `playwright/backend.mjs:40` is the harness fact that makes several "asked exactly once"
+  witnesses in this lane weaker than they look (the sign-up chain is eight asks on its own) — owed to whoever owns that
+  file, not fixed here.
+
+### 12.8 Re-verified on the tree as it stands when this was written
+
+The other agent kept editing `signup-forms.spec.ts` after my `-3.log` run, so the numbers above were re-taken against
+the current files:
+
+* `lane-b-signup-forms-4.log` → **8 passed (37.7s)** (their 05:27 version; the register case is now at `:342` and its
+  leg-2 witness reads the chain's last ask, `/api/organization-team`, for the §11.5 ring reason).
+* `lane-b-full-2.log` → **76 passed (4.0m)**, same command as §12.3, on this tree — the number the commit quotes.
+* `lane-b-tsc-9.log` → `tsc -p playwright/tsconfig.json --noEmit` exit 0 on the same tree.
+
+One collision stated plainly, because it is a live-infra fact and not a test problem: **both agents drove the same
+lane-b servers** (3032 / 3996-3999 — the lane is not per-agent). When this session brought lane-b back up after the
+app on 3032 died, `lane-servers.mjs` restarts the mock, and a fresh mock starts with an empty `/requests` log; §11.1
+records one of the other agent's `password-journey` runs dying exactly there. `down lane-b` is a state change for both
+drivers, and neither of us claimed it in `workspace/MAINTENANCE.md` §3 ACTIVE — these are WIP lane servers on a dev
+PC, not `ever-gauzy-prod`, but the next single owner of this lane should say out loud who holds 3032 before pressing
+`up` or `down`.

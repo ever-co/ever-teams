@@ -1,18 +1,37 @@
 import { expect, test } from '../../fixtures';
-import { APP_ORIGIN, authCookieNames } from '../../helpers';
+import { APP_ORIGIN, authCookieNames, mockRequests } from '../../helpers';
 
 import {
 	askForCode,
 	assertCookiesStayOnThisOrigin,
 	describeCookies,
-	expiredAccessToken,
+	describeMockLog,
 	jarCookieNames,
 	MOCK_EMAIL,
+	mockCalls,
 	sessionCookies,
 	signInWithExpiredAccessToken,
 	SIGN_IN_CODE,
 	fillCodeSlots
 } from './lane-auth-helpers';
+
+/**
+ * The cookie names the door empties when it refuses: `cookiesKeys()` in `core/lib/helpers/cookies/index.ts:271-282`.
+ * Spelled here rather than imported, because a suite must not reach into the app's module graph for a constant it is
+ * only *checking*. Note what it does not name: `auth-active-project`, which the harness's jar does write.
+ */
+const DOOR_CLEARED_NAMES = [
+	'auth-refresh-token',
+	'auth-token',
+	'auth-active-team',
+	'auth-tenant-id',
+	'auth-organization-id',
+	'auth-active-task',
+	'auth-active-language',
+	'no-team-popup-show',
+	'auth-user-active-task',
+	'auth-user-id'
+];
 
 /**
  * What the browser's jar actually holds, read through the browser context.
@@ -29,6 +48,13 @@ import {
  * `secure` and `sameSite` values asserted below are therefore the shape the harness writes, and they are asserted
  * because that shape is what the app's own cookie reading expects; the attributes a real sign-in would get come
  * from `setAuthCookies` (`core/lib/helpers/cookies/index.ts`), which no mock run can produce.
+ *
+ * One limit that decides the last two cases, measured 2026-11-22: the mock cannot refuse the *door*. `proxy.ts` asks
+ * it to renew an expired access token and the mock answers `POST /api/auth/refresh-token` with a pair
+ * (`apps/web/cypress/support/mock-gauzy-server.mjs:537`), so the door's expired-session refusal — `deny_redirect(true)`,
+ * the cleared jar plus `/auth/passcode` — is out of reach, while its no-tokens refusal (`deny_redirect(false)` →
+ * `/unauthorized`, same clearing) is not. The clearing is therefore pinned on the refusal this lane can cause, and the
+ * renewal the mock forces is pinned as its own case.
  */
 test.describe('lane-b · what the jar holds', () => {
 	test('a signed-in browser holds the app’s own cookie family, on this origin, at the root path', async ({
@@ -137,43 +163,129 @@ test.describe('lane-b · what the jar holds', () => {
 
 	test('a session the door cleared is still named in the jar, and holds nothing', async ({ anon, fixture }) => {
 		// `deny_redirect` clears the session family by writing each name empty (`cookiesKeys().forEach(key =>
-		// redirectResponse.cookies.set(key, ''))`), so the names survive the clearing and the values do not. A test
-		// that only looked at names would read a session here; a test that only looked for names would miss the
-		// leftover. Both are asserted.
+		// redirectResponse.cookies.set(key, ''))`, `proxy.ts:175-184`), so the names survive the clearing and the
+		// values do not. A test that only looked at names would read a session here; a test that only looked at values
+		// would miss the leftover. Both are asserted.
+		//
+		// Which refusal, measured 2026-11-22 (`lane-b-cookie-jar-1.log`): the one a mock run can cause. A protected
+		// path whose jar has neither `auth-token` nor `auth-refresh-token` is `proxy.ts` CASE 1 →
+		// `deny_redirect(false)` → `/unauthorized`, and that is where the clearing is written. The expired-token
+		// variant this case used to drive is **not** a refusal on this mock — the next test pins what happens instead.
 		const view = await anon('/auth/passcode');
-		await signInWithExpiredAccessToken(view.context(), fixture);
+		const host = new URL(APP_ORIGIN).hostname;
+		await view.context().clearCookies();
+		await view.context().addCookies(
+			authCookieNames(fixture, 'A')
+				// the two the door judges; without them the visit is the "no tokens at all" case
+				.filter(([name]) => name !== 'auth-token' && name !== 'auth-refresh-token')
+				.map(([name, value]) => ({
+					name,
+					value,
+					domain: host,
+					path: '/',
+					httpOnly: false,
+					secure: false,
+					sameSite: 'Lax' as const
+				}))
+		);
+		const jarBefore = await jarCookieNames(view.context());
 		await view.goto(`${APP_ORIGIN}/settings/personal`, { waitUntil: 'domcontentloaded' });
 
 		await expect(
 			view,
-			'the expired session was not refused'
-		).toHaveURL(/\/auth\/passcode$/);
+			`the door let a protected visit through although the jar held no token and no refresh cookie (jar before: ${jarBefore.join(
+				', '
+			)}, now ${view.url()})`
+		).toHaveURL(/\/unauthorized$/);
 
 		const cookies = await view.context().cookies();
-		const tokenCookie = cookies.find((cookie) => cookie.name === 'auth-token');
+		const missing = DOOR_CLEARED_NAMES.filter((name) => !cookies.some((cookie) => cookie.name === name));
 		expect(
-			tokenCookie,
-			`the door did not leave the cleared name in the jar at all (jar: ${await describeCookies(view.context())})`
-		).toBeTruthy();
+			missing,
+			`the door refused the visit without writing these names into the jar at all (jar: ${await describeCookies(
+				view.context()
+			)})`
+		).toEqual([]);
+
+		const stillValued = cookies
+			.filter((cookie) => DOOR_CLEARED_NAMES.includes(cookie.name) && cookie.value.length > 0)
+			.map((cookie) => `${cookie.name}=${cookie.value.slice(0, 12)}…`);
 		expect(
-			tokenCookie?.value,
-			`auth-token still carries a value after the door cleared it: ${JSON.stringify((tokenCookie?.value ?? '').slice(0, 12))}`
-		).toBe('');
+			stillValued,
+			`the door left a value behind in names it is supposed to empty: ${await describeCookies(view.context())}`
+		).toEqual([]);
+
+		// The leftover, and the app's own list is what explains it: `cookiesKeys()` names no `auth-active-project`, so
+		// the door never empties it — the same leftover `session-routing.spec.ts` measures at sign-out. Pinned as it
+		// is, not forgiven: one named cookie is all `sessionCookies()` needs to read a session in a refused jar.
+		const projectCookie = cookies.find((cookie) => cookie.name === 'auth-active-project');
+		expect(
+			projectCookie?.value ?? '',
+			`auth-active-project is in the harness's jar (authCookieNames, playwright/helpers.ts:148-163) but not in the door's clear list (cookiesKeys, core/lib/helpers/cookies/index.ts:271-282), and here it holds nothing: ${await describeCookies(
+				view.context()
+			)}`
+		).not.toBe('');
+		expect(
+			(await sessionCookies(view.context())).map((line) => line.split('=')[0]),
+			`the refused jar reads as a session on names other than the known leftover: ${await describeCookies(
+				view.context()
+			)}`
+		).toEqual(['auth-active-project']);
+	});
+
+	test('an expired session is renewed by this mock rather than refused, and the jar is left alone', async ({
+		anon,
+		fixture
+	}) => {
+		// The half of the old case that *is* reachable. Written 2026-11-22 from `lane-b-cookie-jar-1.log`: the browser
+		// ended on `http://localhost:3032/settings/personal`, not on `/auth/passcode`. `proxy.ts:558-575` treats an
+		// access token expired *locally* as a refresh problem, not a refusal; `tryRefreshAndVerify()` posts
+		// `POST <mock>/api/auth/refresh-token` and this mock answers it with a pair
+		// (`apps/web/cypress/support/mock-gauzy-server.mjs:537`), so `success` is true and the page is served.
+		// `deny_redirect(true)` — the cleared jar plus `/auth/passcode` — needs an API that refuses a refresh, and no
+		// mock run has one. The pin below is the door's *renewal*, measured.
+		const view = await anon('/auth/passcode');
+		await signInWithExpiredAccessToken(view.context(), fixture);
+		const tokenBefore = (await view.context().cookies()).find((cookie) => cookie.name === 'auth-token')?.value ?? '';
+
+		await view.goto(`${APP_ORIGIN}/settings/personal`, { waitUntil: 'domcontentloaded' });
+
+		const refreshAsks = await mockCalls('/api/auth/refresh-token');
+		expect(
+			refreshAsks.map((request) => `${request.method} ${request.path} → ${request.status}`),
+			`the door never tried to renew the expired token. Mock log: ${describeMockLog(await mockRequests())}`
+		).not.toHaveLength(0);
+
+		await expect(
+			view,
+			`the expired session was not let through on the renewal answer (${view.url()})`
+		).toHaveURL(/\/settings\/personal$/);
+
+		// What the renewal actually did to the jar, measured 2026-11-22 (`lane-b-cookie-jar-2.log`): `auth-token` is no
+		// longer the expired token this test wrote — it is the answer the mock handed the door, verbatim
+		// (`{ token: 'synthetic-refreshed-token', refresh_token: 'synthetic-refresh-token' }`,
+		// `apps/web/cypress/support/mock-gauzy-server.mjs:537`). So the door *does* write what it renewed with, and what
+		// it wrote is the mock's own string: this is a mock-shaped pin, named as one. It is not what a real Gauzy answer
+		// would put there, and nothing here claims that a real one would.
+		const tokenAfter = (await view.context().cookies()).find((cookie) => cookie.name === 'auth-token')?.value ?? '';
+		expect(
+			tokenAfter,
+			`the door did not replace the expired auth-token with the renewal answer (before ${JSON.stringify(
+				tokenBefore.slice(0, 12)
+			)}…, after ${JSON.stringify(tokenAfter)}); the value expected here is the mock's own token string`
+		).toBe('synthetic-refreshed-token');
+		expect(
+			tokenAfter,
+			`the door served the page on a renewal without changing the token it renewed: ${JSON.stringify(
+				tokenAfter.slice(0, 12)
+			)}…`
+		).not.toBe(tokenBefore);
+
 		expect(
 			await sessionCookies(view.context()),
-			`the cleared jar still reads as a session: ${await describeCookies(view.context())}`
-		).toEqual([]);
-		expect(
-			(cookies.find((cookie) => cookie.name === 'auth-refresh-token')?.value ?? '').length,
-			'the refresh cookie kept a value after the door cleared it, so a later visit could refresh a session nobody authorized'
-		).toBe(0);
-		// What the expired token was, for the record: a claims-only line, never the token.
-		const claims = JSON.parse(
-			Buffer.from((expiredAccessToken(fixture.ids.user, fixture.ids.organizationA).split('.')[1] ?? ''), 'base64url').toString()
-		) as Record<string, unknown>;
-		expect(
-			typeof claims.exp === 'number' && claims.exp * 1000 < Date.now(),
-			`the token this test wrote is not expired (exp ${JSON.stringify(claims.exp)}), so the refusal it proved is not the one pinned`
-		).toBe(true);
+			`the jar was cleared anyway, which contradicts the page the door served: ${await describeCookies(
+				view.context()
+			)}`
+		).not.toEqual([]);
 	});
 });
