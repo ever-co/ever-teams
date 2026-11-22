@@ -2,8 +2,9 @@
 
 import { useCallback } from 'react';
 import { useSetAtom } from 'jotai';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { queryKeys } from '@/core/query/keys';
 import { useEmailReset } from '@/core/hooks/users/use-email-reset';
 import { authService } from '@/core/services/client/api/auth/auth.service';
 import { emailVerificationService } from '@/core/services/client/api/users/emails/email-verification.service';
@@ -20,6 +21,7 @@ export function useAccountEmail() {
 	const user = userQuery.data;
 	const refetchUser = userQuery.refetch;
 	const setUser = useSetAtom(userState);
+	const queryClient = useQueryClient();
 	const {
 		emailResetRequestQueryCall,
 		emailResetRequestLoading,
@@ -29,6 +31,11 @@ export function useAccountEmail() {
 
 	const resendVerificationMutation = useMutation({
 		mutationFn: (account: TUser) => authService.resendVerifyUserLink(account),
+		// The banner on the home page reads whether a code went out from the verification status
+		onSuccess: (_answer, account) => {
+			const queryKey = queryKeys.users.emailVerificationStatus(account.id, account.lastOrganizationId);
+			void queryClient.invalidateQueries({ queryKey });
+		},
 		meta: { handlesOwnError: true }
 	});
 	const verifyAddressMutation = useMutation({
