@@ -189,6 +189,28 @@ async function readRunGoingOn(employeeId: string): Promise<RunGoingOn | null> {
 }
 
 /**
+ * How the check of a tracking flag this tab's status does not show ended: the start refused, the flag cleared by a stop,
+ * or no run for that stop to end.
+ */
+type TrackingFlagCheck = 'refused' | 'cleared' | 'no-run';
+
+/**
+ * Stops to clear a tracking flag that no run backs (#5121). The API answers 406 when no run is left to stop: the flag
+ * backs no run then, whatever a later read of the user still says (#5684).
+ */
+async function clearTrackingFlag(source: ETimeLogSource): Promise<TrackingFlagCheck> {
+	try {
+		await timerService.stopTimer({ source });
+		return 'cleared';
+	} catch (error) {
+		if (isNothingToStopRefusal(error)) {
+			return 'no-run';
+		}
+		throw error;
+	}
+}
+
+/**
  * Tell the user about an automatic stop once its request has settled, so a
  * failed stop never reads as "timer stopped" while the server keeps tracking.
  */
@@ -569,10 +591,10 @@ export function useTimerApi({
 	 * was found. This tab's status can be out of date: up to a minute old, or read while a start elsewhere was landing.
 	 * A run a fresh read finds goes on in another tab or device, so the flag is not stuck: the run is kept and shown
 	 * here, and the start is refused. Else the flag is stuck, and a stop clears it on the server (#5121). A failed read
-	 * refuses the start too: Gauzy's start stops any run it finds. Resolves to true when the start is refused.
+	 * refuses the start too: Gauzy's start stops any run it finds.
 	 */
 	const keepRunOrClearStuckFlag = useCallback(
-		async (employeeId: string): Promise<boolean> => {
+		async (employeeId: string): Promise<TrackingFlagCheck> => {
 			const commandSeq = timerCommandMark();
 			// Labels saved on the run while the read is on its way are kept over the ones it brings (#5368)
 			const labelSavesSeen = labelSavesLanded();
@@ -584,13 +606,10 @@ export function useTimerApi({
 				const reasonKey = errorReasonKeyOf(error) as DottedLanguageObjectStringPaths;
 				toast.error(t('toasts.timer.START_FAILED'), { id: 'timer-start-failed', description: t(reasonKey) });
 				logErrorInDev('[startTimer] Timer status read failed:', error);
-				return true;
+				return 'refused';
 			}
 			if (!runGoingOn) {
-				await timerService.stopTimer({
-					source: timerStatusRef.current?.lastLog?.source || ETimeLogSource.TEAMS
-				});
-				return false;
+				return clearTrackingFlag(timerStatusRef.current?.lastLog?.source || ETimeLogSource.TEAMS);
 			}
 			toast.warning(t('timer.ALREADY_TRACKING_MESSAGE'), { id: ALREADY_TRACKING_TOAST_ID });
 			// Shown now, so this tab's Stop reaches the run: a default instance never reads its status again. Not after
@@ -612,7 +631,7 @@ export function useTimerApi({
 			if (runGoingOn.inDayStatus) {
 				void queryClient.invalidateQueries({ queryKey: queryKeys.timer.all });
 			}
-			return true;
+			return 'refused';
 		},
 		[isCurrentScope, queryClient, setTimerStatus, statusEnabled, store, t, timerStatusRef]
 	);
@@ -655,7 +674,11 @@ export function useTimerApi({
 					// A TEAMS timer left behind by a closed tab is credited up to its last heartbeat, not now
 					const stoppedStale = await stopStaleTeamsTimer(userData.employee.id);
 					// Else a run going on in another tab or device is kept, and only a stuck flag is cleared (#5121)
-					if (!stoppedStale && (await keepRunOrClearStuckFlag(userData.employee.id))) {
+					let flagCheck: TrackingFlagCheck = 'cleared';
+					if (!stoppedStale) {
+						flagCheck = await keepRunOrClearStuckFlag(userData.employee.id);
+					}
+					if (flagCheck === 'refused') {
 						return false;
 					}
 					// Refresh user data to confirm the flag was reset
@@ -663,7 +686,10 @@ export function useTimerApi({
 					if (refuseWhenTrackingIsOff(refreshed)) {
 						return false;
 					}
-					if (refreshed?.employee.isTrackingTime) {
+					// The API had no run to stop: a read can still say tracking right after this tab's own stop, and a flag
+					// that no run backs refuses nothing (#5684)
+					const hasNoRun = flagCheck === 'no-run';
+					if (refreshed?.employee.isTrackingTime && !hasNoRun) {
 						// Flag still stuck after stop — cannot auto-heal, block with toast
 						toast.warning(t('timer.ALREADY_TRACKING_MESSAGE'), { id: ALREADY_TRACKING_TOAST_ID });
 						return false;
