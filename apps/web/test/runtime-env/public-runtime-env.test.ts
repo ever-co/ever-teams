@@ -107,10 +107,23 @@ describe('getPublicRuntimeEnv', () => {
 				(key) =>
 					key.startsWith('NEXT_PUBLIC_') ||
 					key === 'EVER_TEAMS_AUTH_PROVIDERS' ||
+					key === 'INVITE_CALLBACK_URL' ||
 					key.startsWith('APP_') ||
 					/^(COMPANY_|TERMS_|PRIVACY_|MAIN_PICTURE)/.test(key)
 			)
 		).toBe(true);
+	});
+
+	// In direct mode the browser sends invitations itself, so it needs the page their e-mails link to.
+	it('publishes the page invitation e-mails link to, read at call time', () => {
+		const { runtimeEnv } = loadModules();
+		const configuredPage = 'https://join.example.org/auth/accept-invite';
+
+		process.env.INVITE_CALLBACK_URL = configuredPage;
+		expect(runtimeEnv.getPublicRuntimeEnv().INVITE_CALLBACK_URL).toBe(configuredPage);
+
+		delete process.env.INVITE_CALLBACK_URL;
+		expect(runtimeEnv.getPublicRuntimeEnv()).not.toHaveProperty('INVITE_CALLBACK_URL');
 	});
 
 	it('keeps set-but-empty keys (readers distinguish "set" from "absent")', () => {
