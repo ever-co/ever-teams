@@ -3069,6 +3069,7 @@
 		"START_TIMER": "Please, select or create a new task to start tracking the time or create a plan",
 		"ALREADY_TRACKING_MESSAGE": "You're already tracking time in another tab or device.",
 		"TRACKING_DISABLED_MESSAGE": "Time tracking is turned off for you. An organization admin can turn it on.",
+		"DAILY_PLAN_REQUIRED_MESSAGE": "Your team asks for a plan of the day before you track time. Plan your day, then start again.",
 		"TRACKING_OFF": "Tracking off",
 		"REQUIRED_TEAM_MESSAGE": "Your organization requires a team on every timer. Open one of your teams, then start again.",
 		"REQUIRED_PROJECT_MESSAGE": "Your organization requires a project on every timer. Put the task in a project, or give the team a default project, then start again.",
