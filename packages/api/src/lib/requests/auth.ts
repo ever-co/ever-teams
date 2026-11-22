@@ -74,19 +74,11 @@ export const authLogin = async ({ email, password }: { email: string; password: 
 	}
 };
 
-/**
- * Completes a sign-in that the API answered with `TWO_FACTOR_REQUIRED`: the challenge it gave, with the code of the
- * person's authenticator app or one of their recovery codes. Answers the session, as `authLogin` does.
- */
-export const authVerifyTwoFactor = async (
-	{ challenge, code, recoveryCode }: { challenge: string; code?: string; recoveryCode?: string },
-	api?: IApiRequestConfig
-) => {
+// A step of a sign-in that answers the session: the session, or the API's refusal as the other sign-in requests
+// return it (with its status; without one when no answer came).
+const sessionRequest = async (path: string, body: Record<string, unknown>, api?: IApiRequestConfig) => {
 	try {
-		const response = await ApiCall<IAuthLogin>(
-			{ path: '/auth/two-factor/verify', method: 'POST', body: { challenge, code, recoveryCode } },
-			api
-		);
+		const response = await ApiCall<IAuthLogin>({ path, method: 'POST', body }, api);
 		if ('data' in response) {
 			return response.data;
 		}
@@ -95,6 +87,15 @@ export const authVerifyTwoFactor = async (
 		return { message: (error as Error).message } as IServerError;
 	}
 };
+
+/**
+ * Completes a sign-in that the API answered with `TWO_FACTOR_REQUIRED`: the challenge it gave, with the code of the
+ * person's authenticator app or one of their recovery codes. Answers the session, as `authLogin` does.
+ */
+export const authVerifyTwoFactor = (
+	{ challenge, code, recoveryCode }: { challenge: string; code?: string; recoveryCode?: string },
+	api?: IApiRequestConfig
+) => sessionRequest('/auth/two-factor/verify', { challenge, code, recoveryCode }, api);
 
 export const authSignUp = async (
 	{
