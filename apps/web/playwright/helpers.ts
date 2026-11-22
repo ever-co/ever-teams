@@ -93,6 +93,8 @@ export type MockScenario = {
 	 * `delays` (`tenant:path`, then `tenant`, then `path`), the value being milliseconds to hold the socket open first
 	 * (`1` = at once). The call is recorded with `status: 0`, which is neither a refusal nor an answer — see
 	 * `cypress/support/mock-gauzy-server.mjs` and `suites/api/upstream-dropped.spec.ts`. `mockReset()` clears it.
+	 * The value is clamped to 0..30 000 ms by the mock (`MAX_DROP_MS`): an oversized, negative or non-numeric arm
+	 * reads as "no drop", because a lane must not be able to stall itself with a typo in a scenario.
 	 */
 	drops?: Record<string, number>;
 	[key: string]: unknown;

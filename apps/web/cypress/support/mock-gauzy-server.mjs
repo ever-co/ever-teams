@@ -17,10 +17,22 @@ const pagination = (items = []) => ({ items, total: items.length });
 const TRUSTED_BROWSER_ORIGINS = new Set(['http://127.0.0.1:3030', 'http://localhost:3030']);
 for (const entry of String(process.env.E2E_TRUSTED_APP_ORIGINS ?? '').split(',')) {
 	const origin = entry.trim();
+	// Anchored at both ends: an entry carrying a path, credentials or any host that is not loopback is not added at
+	// all, so this env var can name a lane's port and cannot name a machine.
 	if (/^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:\d{2,5})?$/.test(origin)) {
 		TRUSTED_BROWSER_ORIGINS.add(origin);
 	}
 }
+
+/**
+ * The longest a `drops` arm (`handleRequest`, below) may hold a socket open before cutting it.
+ *
+ * `drops` is written by a test, in milliseconds, and an unbounded value would park this mock's request handler — and
+ * the lane's test worker waiting behind it — for as long as the typo says. It is clamped into [0, MAX_DROP_MS], so a
+ * negative, NaN or absurd value reads as "no drop here" instead of "this run stalls". A suite that needs a *slow*
+ * upstream uses `delays`, which has its own handling.
+ */
+const MAX_DROP_MS = 30_000;
 
 function buildData(fixture, scenario, requestUrl, requestTenantId) {
 	const { ids, names } = fixture;
@@ -1029,12 +1041,15 @@ export async function createMockGauzyServer({ fixture, port = 3988 } = {}) {
 		 * refusal. The bearer is recorded too, because "the session had already left this app when the connection
 		 * died" is a fact a test needs to know and not a fact to discover later.
 		 */
-		const dropMs = Number(
+		const dropArm = Number(
 			state.scenario.drops?.[`${tenantId}:${requestUrl.pathname}`] ??
 				state.scenario.drops?.[tenantId] ??
 				state.scenario.drops?.[requestUrl.pathname] ??
 				0
 		);
+		// Clamped, not trusted: the arm is a test's own number, and a negative, NaN or oversized one is a typo that
+		// would otherwise stall this handler (see MAX_DROP_MS above). 0 means "answer this normally", as unset does.
+		const dropMs = Number.isFinite(dropArm) ? Math.min(Math.max(dropArm, 0), MAX_DROP_MS) : 0;
 		const body = await readJsonBody(request);
 		const data = buildData(
 			fixture,

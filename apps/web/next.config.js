@@ -233,7 +233,20 @@ module.exports = async (phase, context) => {
 	 * `.next`.
 	 */
 	if (process.env.PLAYWRIGHT_LANE_DIST_DIR) {
-		resolvedConfig = { ...resolvedConfig, distDir: process.env.PLAYWRIGHT_LANE_DIST_DIR };
+		/**
+		 * The value comes from this repo's own launcher, and it decides where Next writes a build. It is still checked,
+		 * because a mistyped one would put a lane's build outside apps/web — outside the lane-build entry of
+		 * apps/web/.gitignore, where it would look like source rather than build output. So: relative, no `..` segment, no
+		 * absolute path, or the lane is refused here with its own name in the message, instead of failing later as
+		 * Next's "Another next dev server is already running".
+		 */
+		const laneDistDir = process.env.PLAYWRIGHT_LANE_DIST_DIR;
+		if (path.isAbsolute(laneDistDir) || laneDistDir.split(/[\\/]/).includes('..')) {
+			throw new Error(
+				`PLAYWRIGHT_LANE_DIST_DIR must be a path relative to apps/web, without a ".." segment: got ${laneDistDir}`
+			);
+		}
+		resolvedConfig = { ...resolvedConfig, distDir: laneDistDir };
 	}
 	if (phase !== PHASE_TEST) {
 		return resolvedConfig;
