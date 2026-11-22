@@ -446,7 +446,11 @@ The owner's own `curl` at 06:2x measured the same 448 416 bytes and `text/html`,
 is no red on a healthy lane to explain.
 
 What the reds this lane actually read were, with their files — "200 with an empty body" is not among them, and
-`lane-d-browser10.log` does not exist in `E:\Coding\.tmp`:
+`lane-d-browser10.log` does not exist in `E:\Coding\.tmp`. A claim that travelled through this lane's handover — that a lane-d run
+"reported a 256-char cap" in `core/services/server/forward-to-gauzy.ts` — was never made by this lane and is not in any lane-d log;
+the owner recorded that as their own error in their §10.4, and this lane confirmed the file the way they did (`grep -n "256"` finds
+nothing, `git log -S "content-disposition"` finds no commit). Nothing in this section proposes reversing an app change — the two
+reds below are a selector and a missing browser binary:
 
 | log (mtime)                      | its summary lines                                         | the failure, in the log's own words                                                                                                                                                                                                                                               |
 | -------------------------------- | --------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -477,9 +481,14 @@ window opened. No app change is claimed as a cause of anything here, and none is
 Same numbers as `mounted-4` / `unmounted-3`, on the newer mock and the newer config: the `MAX_DROP_MS` clamp sits nowhere near the
 Board routes, and this file's two halves behave as pinned.
 
-One obstacle, recorded because it cost a lane cycle and it is not this lane's file: at 07:4x a `down lane-d` + `up lane-d` pair
+One obstacle, recorded because it cost a lane cycle and it is not this lane's file: at **07:49** a `down lane-d` + `up lane-d` pair
 died on `SyntaxError: Invalid or unexpected token` at `apps/web/playwright/scripts/lane-servers.mjs:287`
-(`if (process.platform !== 'win32) {` — an unterminated string). That file is in another lane's uncommitted set, so the reading is
-that the file was caught mid-modification rather than any claim about who wrote it; `node --check` on the same path a minute later
-parsed clean and the identical `down` / `up` commands then worked, which is how `up-board6` and `up-plain5` got started. Nothing was
-killed by hand, no port was taken, and this lane did not edit that script.
+(`if (process.platform !== 'win32) {` — an unterminated string). **Attributed, by the owner's own correction (their §10.4): the
+launcher was being edited live for CodeRabbit findings on `up`/`down` and the half-edited file was on disk while this lane executed
+it.** It was fixed before this lane's next command: `node --check` and prettier clean, and the launcher now creates the artifacts
+directory (`mkdirSync(dirname(serverLog), { recursive: true })`, `:259`), finds listeners per platform (`netstat` on Windows,
+`ss -tlnp` on Linux, `lsof` per port elsewhere, `:84-119`) reporting a spawn failure instead of crashing on it, and shuts a lane
+down as a tree (`taskkill /F /T` on Windows, `:130-136`; the process group elsewhere). `up-board6` and `up-plain5` are the retries.
+Nothing was killed by hand, no port was taken, and this lane did not edit that script. The lesson this lane takes from it: a shared
+launcher must not be left half-edited while other lanes are executing it — the break costs the _other_ lane a lane cycle and shows
+up as someone else's failed command.
