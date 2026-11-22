@@ -20,6 +20,7 @@ import { TaskPropertyIcon } from '@/core/components/tasks/task-property-icon';
 import { Check, MoreHorizontal, Pencil, Trash, X } from '@/core/components/icons';
 import { canEditLog, type TimesheetPermissions } from '@/core/hooks/dashboards/timesheets/use-timesheets-page';
 import { cn } from '@/core/lib/helpers';
+import { offersApproveAndReject } from '@/core/lib/helpers/timesheet-review';
 import { formatDurationShort } from '@/core/lib/utils/dashboard-figures';
 import {
 	logDurationSeconds,
@@ -36,7 +37,7 @@ import { type TimeEntryReuseHandlers, TimeEntryReuseMenuItems } from './time-ent
 import { EntryNotesLine, LogChangeChips, ManualReasonLine } from './timesheet-log-changes';
 import { EntryLabelChips } from '@/core/components/features/entry-labels/entry-label-chips';
 import { entryLabelsOf } from '@/core/lib/utils/time-log-labels';
-import { BillableSubmenu, StatusSubmenu } from './timesheet-menu-parts';
+import { BillableSubmenu, offeredStatusesOf, StatusSubmenu } from './timesheet-menu-parts';
 import { TimesheetStatusChip } from './timesheet-status';
 import { DEFERRED_ROW, logGridOf, NARROW_ONLY, NESTED_ROW, NESTED_TASK_INDENT, WIDE_ONLY } from './timesheets-grid';
 
@@ -127,6 +128,8 @@ function LogMenu({
 }>) {
 	const t = useTranslations();
 	const canEdit = canEditLog(log, permissions);
+	const reviewStatuses = offeredStatusesOf(permissions, [log]);
+	const offersStatus = reviewStatuses.length > 0;
 	const isBillable = Boolean(log.isBillable);
 	// A break is never billable: Gauzy keeps it so whatever is sent (#5216)
 	const offersBillable = !isBreakLog(log);
@@ -151,8 +154,12 @@ function LogMenu({
 						<span>{t('common.EDIT')}</span>
 					</DropdownMenuItem>
 				)}
-				{permissions.canApprove && (
-					<StatusSubmenu status={status} onChange={(option) => handlers.changeStatus(log, option)} />
+				{offersStatus && (
+					<StatusSubmenu
+						status={status}
+						statuses={reviewStatuses}
+						onChange={(option) => handlers.changeStatus(log, option)}
+					/>
 				)}
 				{offersBillable && (
 					<BillableSubmenu isBillable={isBillable} onChange={(value) => handlers.setBillable(log, value)} />
@@ -246,7 +253,8 @@ export const TimesheetLogRow = memo(function TimesheetLogRow({
 	const t = useTranslations();
 	const status = statusOfLog(log);
 	const isPending = status === ETimesheetStatus.PENDING;
-	const showsQuickReview = isPending && permissions.canApprove;
+	const offersReview = offersApproveAndReject(permissions, [log]);
+	const showsQuickReview = isPending && offersReview;
 	const taskNumber = taskNumberOf(log);
 	const hasTask = Boolean(log.task);
 	const taskSize = log.task?.size;
