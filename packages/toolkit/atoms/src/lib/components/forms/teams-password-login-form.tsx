@@ -4,6 +4,21 @@ import { LoaderCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { KitFormError, KitFormField } from './kit-form-field';
 
+const FORM = 'flex flex-col gap-4 min-w-[20rem] ';
+
+function SubmitButton({ loading, disabled, label }: Readonly<{ loading: boolean; disabled: boolean; label: string }>) {
+	return (
+		<ThemedButton disabled={disabled} className="flex h-9 gap-2">
+			{loading && (
+				<span className=" animate-spin ">
+					<LoaderCircle />
+				</span>
+			)}
+			{label}
+		</ThemedButton>
+	);
+}
+
 const TeamsPasswordLoginForm = ({
 	className,
 	redirectHandler
@@ -14,7 +29,7 @@ const TeamsPasswordLoginForm = ({
 	const form = usePasswordLoginForm({ redirectHandler });
 	const { t } = useTranslation();
 	return (
-		<form onSubmit={form.handleSubmit} className={cn('flex flex-col gap-4 min-w-[20rem] ', className)}>
+		<form onSubmit={form.handleSubmit} className={cn(FORM, className)}>
 			<KitFormField
 				label={t('COMMON.email')}
 				required
@@ -39,14 +54,11 @@ const TeamsPasswordLoginForm = ({
 
 			<KitFormError message={form.error} />
 
-			<ThemedButton disabled={Boolean(form.error) || form.loading} className="flex h-9 gap-2">
-				{form.loading && (
-					<span className=" animate-spin ">
-						<LoaderCircle />
-					</span>
-				)}
-				{t('AUTH.sign_in_title')}
-			</ThemedButton>
+			<SubmitButton
+				loading={form.loading}
+				disabled={Boolean(form.error) || form.loading}
+				label={t('AUTH.sign_in_title')}
+			/>
 		</form>
 	);
 };
