@@ -12,6 +12,7 @@ import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { shouldReplaceStoredUser } from '@/core/lib/utils/stored-user';
 import { decodeJWT } from '@/core/lib/auth/jwt-utils';
 import { getAccessTokenCookie } from '@/core/lib/helpers/cookies';
+import { UserReadFailedState } from './user-read-failed-state';
 
 type Params = {
 	displayName: string;
@@ -76,6 +77,19 @@ export function withAuthentication(Component: NextPage<any, any>, params: Params
 		}, []);
 
 		// REMOVED: fetchUserData is now redundant since useEffect above handles sync
+
+		const { refetch: refetchUser } = userQuery;
+		const retryUserRead = useCallback(() => {
+			void refetchUser();
+		}, [refetchUser]);
+
+		// A first read on its way keeps the skeleton. Once a read failed, the page says so until one answers, also while
+		// the next attempt runs (React Query is then back to pending): flipping back to the skeleton would mount and
+		// unmount the page frame on every attempt (user-read-retry.ts).
+		const hasUserReadFailed = !userQuery.data && userQuery.errorUpdateCount > 0;
+		if (hasUserReadFailed) {
+			return <UserReadFailedState error={userQuery.error} onRetry={retryUserRead} />;
+		}
 
 		const isUserPending = !userQuery.data || userQuery.isLoading;
 		if (isUserPending) {

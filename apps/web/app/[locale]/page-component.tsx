@@ -43,9 +43,10 @@ import {
 	LazyTeamMemberHeader
 } from '@/core/components/optimized-components/teams';
 import { LazyChatwootWidget, LazyUnverifiedEmail, LazyNoTeam } from '@/core/components/optimized-components/common';
-import { activeTeamState, isTeamMemberState, isTrackingEnabledState } from '@/core/stores';
+import { activeTeamState, isTeamMemberState, isTrackingEnabledState, organizationTeamsState } from '@/core/stores';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { useAsksForEmailVerification } from '@/core/hooks/auth/use-email-verification-status';
+import { isInNoTeamForLackOfMemberProfile } from '@/core/lib/utils/member-profile';
 
 function MainPage() {
 	const t = useTranslations();
@@ -59,6 +60,10 @@ function MainPage() {
 	const { data: user } = useUserQuery();
 	const employeeId = user?.employee?.id ?? user?.employeeId ?? '';
 	const { employeeOutstandingPlans, employeeSortedPlans } = useEmployeeDailyPlans(employeeId);
+	// Without a member profile no team ever loads: the team's name, figures and columns would stay placeholders
+	const teams = useAtomValue(organizationTeamsState);
+	const showsTeamParts = !isInNoTeamForLackOfMemberProfile(user, teams.length);
+	const showsTeamWork = isTeamMember && showsTeamParts;
 
 	const { isTeamManager } = useIsMemberManager(user);
 	const asksForEmailVerification = useAsksForEmailVerification(user);
@@ -66,11 +71,10 @@ function MainPage() {
 	const { myInvitations: myInvitationsList, refetchMyInvitations } = useMyInvitationsQuery();
 	const [view, setView] = useAtom(headerTabs);
 	const path = usePathname();
-	const breadcrumb = [
-		{ title: JSON.parse(t('pages.home.BREADCRUMB')), href: '/' },
-		{ title: activeTeam?.name || '', href: '/' },
-		{ title: t(`common.${view}`), href: `/` }
-	];
+	const breadcrumb = [{ title: JSON.parse(t('pages.home.BREADCRUMB')), href: '/' }];
+	if (showsTeamParts) {
+		breadcrumb.push({ title: activeTeam?.name || '', href: '/' }, { title: t(`common.${view}`), href: `/` });
+	}
 
 	useEffect(() => {
 		if (view == IssuesView.KANBAN && path == '/') {
@@ -103,10 +107,12 @@ function MainPage() {
 					mainHeaderSlot={
 						<div>
 							<div className="px-4">
-								<div className="flex flex-wrap items-center justify-between gap-3 py-3">
-									<TeamLiveSummary />
-									<HeaderTabs linkAll={false} />
-								</div>
+								{showsTeamParts && (
+									<div className="flex flex-wrap items-center justify-between gap-3 py-3">
+										<TeamLiveSummary />
+										<HeaderTabs linkAll={false} />
+									</div>
+								)}
 
 								<AnimatedHeight>
 									<div className="w-full">
@@ -144,7 +150,7 @@ function MainPage() {
 									</div>
 								</AnimatedHeight>
 
-								{isTeamMember ? (
+								{showsTeamWork ? (
 									<Suspense
 										fallback={<TaskTimerSectionSkeleton isTrackingEnabled={isTrackingEnabled} />}
 									>
@@ -152,9 +158,11 @@ function MainPage() {
 									</Suspense>
 								) : null}
 							</div>
-							<Suspense fallback={<TeamMemberHeaderSkeleton view={view} />}>
-								<LazyTeamMemberHeader view={view} />
-							</Suspense>
+							{showsTeamParts && (
+								<Suspense fallback={<TeamMemberHeaderSkeleton view={view} />}>
+									<LazyTeamMemberHeader view={view} />
+								</Suspense>
+							)}
 						</div>
 					}
 					footerClassName={clsxm('')}
@@ -162,7 +170,7 @@ function MainPage() {
 					<LazyChatwootWidget />
 					<div className="h-full">
 						<div className="mx-auto w-full">
-							{isTeamMember ? (
+							{showsTeamWork ? (
 								<Suspense fallback={<TeamMembersSkeleton view={view} />}>
 									<LazyTeamMembers kanbanView={view} />
 								</Suspense>

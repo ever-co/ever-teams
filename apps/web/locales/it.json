@@ -279,6 +279,7 @@
 		"NO_TEAM": "Crea il tuo team o unisciti a uno esistente",
 		"NO_TEAM_SUB": "Crea un team e invita le persone con cui lavori.",
 		"NO_TEAM_TOOLTIP": "È necessario verificare il tuo indirizzo email",
+		"NO_MEMBER_PROFILE_MESSAGE": "Team, attività e timer compaiono non appena fai parte di un team.",
 		"CANCEL": "Annulla",
 		"DISCARD": "Scarta",
 		"EXISTING_MEMBER": "Già un Membro",
@@ -2809,7 +2810,8 @@
 		"error": {
 			"TITLE": "Errore",
 			"HEADING_TITLE": "Qualcosa è andato storto",
-			"HEADING_DESCRIPTION": "Se il problema persiste, invia un segnale di soccorso al nostro team di supporto."
+			"HEADING_DESCRIPTION": "Se il problema persiste, invia un segnale di soccorso al nostro team di supporto.",
+			"PAGE_NOT_LOADED": "Impossibile caricare questa pagina"
 		},
 		"maintenance": {
 			"HEADING_TITLE": "Siamo in manutenzione",

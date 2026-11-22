@@ -304,6 +304,7 @@
 		"NO_TEAM": "Create your team or join existing",
 		"NO_TEAM_SUB": "Create a team and invite the people you work with.",
 		"NO_TEAM_TOOLTIP": "You need to verify your email address",
+		"NO_MEMBER_PROFILE_MESSAGE": "Teams, tasks and the timer show up once you are in a team.",
 		"CANCEL": "Cancel",
 		"DISCARD": "Discard",
 		"EXISTING_MEMBER": "Already a member",
@@ -2809,7 +2810,8 @@
 		"error": {
 			"TITLE": "Error",
 			"HEADING_TITLE": "Something went wrong",
-			"HEADING_DESCRIPTION": "If the problem persists, send a distress signal to our support team."
+			"HEADING_DESCRIPTION": "If the problem persists, send a distress signal to our support team.",
+			"PAGE_NOT_LOADED": "This page could not be loaded"
 		},
 		"maintenance": {
 			"HEADING_TITLE": "We are under maintenance",

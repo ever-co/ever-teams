@@ -280,6 +280,7 @@
 		"NO_TEAM": "Créez votre propre équipe ou rejoignez une équipe existante",
 		"NO_TEAM_SUB": "Créez une équipe et invitez les personnes avec qui vous travaillez.",
 		"NO_TEAM_TOOLTIP": "Vous devez vérifier votre adresse e-mail",
+		"NO_MEMBER_PROFILE_MESSAGE": "Les équipes, les tâches et le chronomètre apparaissent dès que vous êtes dans une équipe.",
 		"CANCEL": "Annuler",
 		"DISCARD": "Annuler",
 		"EXISTING_MEMBER": "Déjà membre",
@@ -2809,7 +2810,8 @@
 		"error": {
 			"TITLE": "Erreur",
 			"HEADING_TITLE": "Une erreur s'est produite",
-			"HEADING_DESCRIPTION": "Si le problème persiste, envoyez un signal de détresse à notre équipe d'assistance."
+			"HEADING_DESCRIPTION": "Si le problème persiste, envoyez un signal de détresse à notre équipe d'assistance.",
+			"PAGE_NOT_LOADED": "Cette page n'a pas pu être chargée"
 		},
 		"maintenance": {
 			"HEADING_TITLE": "Nous sommes en cours de maintenance",
