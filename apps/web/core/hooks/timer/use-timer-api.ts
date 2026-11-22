@@ -938,8 +938,10 @@ export function useTimerApi({
 					store.set(timerStartsInFlightState, (count) => Math.max(0, count - 1));
 					if (!statusEnabled || isCurrentScope()) setTimerStatusFetching(false);
 				});
-			// Updating the task status to "In Progress" when the timer is started
-			if (taskToUse && taskToUse.status !== ETaskStatusName.IN_PROGRESS) {
+			const moveTaskToInProgress = () => {
+				if (!taskToUse || taskToUse.status === ETaskStatusName.IN_PROGRESS) {
+					return;
+				}
 				const selectedStatus = taskStatuses.find(
 					(s) => s.name === ETaskStatusName.IN_PROGRESS && s.value === ETaskStatusName.IN_PROGRESS
 				);
@@ -949,7 +951,10 @@ export function useTimerApi({
 					taskStatusId: taskStatusId ?? taskToUse.taskStatusId,
 					status: ETaskStatusName.IN_PROGRESS
 				});
-			}
+			};
+			// The task moves to In Progress once the timer runs: a start that fails leaves its status as it was (#5683)
+			const leaveTaskAsItWas = () => undefined;
+			promise.then(moveTaskToInProgress, leaveTaskAsItWas);
 
 			// Update Current user's active task to sync across multiple devices
 			// Only execute this block on /task/ page to avoid redundancy
