@@ -175,3 +175,44 @@ describe('MustBeAManager', () => {
 		expect(mockReplace).toHaveBeenCalledWith('/');
 	});
 });
+
+describe('MustBeAManager with admitsMembers, a report that reads only the reader own time (#5623)', () => {
+	beforeEach(() => {
+		jest.useFakeTimers();
+		mockReplace.mockReset();
+		setState({
+			user: { id: 'u1' },
+			userLoading: false,
+			isTeamManager: false,
+			teamsLoading: false,
+			areTeamsSettled: true,
+			teams: [{ id: 't1' }],
+			activeTeam: { members: [OTHER, SELF] }
+		});
+	});
+	afterEach(() => jest.useRealTimers());
+
+	it('shows the report to a member who manages nothing once the membership is loaded, without redirecting', () => {
+		render(
+			<MustBeAManager useRedirect admitsMembers>
+				{<div>child</div>}
+			</MustBeAManager>
+		);
+
+		expect(screen.getByText('child')).toBeTruthy();
+		expect(mockReplace).not.toHaveBeenCalled();
+	});
+
+	it('still waits for the membership first, so a manager never sees the member picture', () => {
+		setState({ activeTeam: { members: [OTHER] } });
+
+		render(
+			<MustBeAManager useRedirect admitsMembers>
+				{<div>child</div>}
+			</MustBeAManager>
+		);
+
+		expect(screen.getByTestId('skeleton')).toBeTruthy();
+		expect(mockReplace).not.toHaveBeenCalled();
+	});
+});

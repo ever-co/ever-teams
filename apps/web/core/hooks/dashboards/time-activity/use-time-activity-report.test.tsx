@@ -99,6 +99,8 @@ const mockRatesByProject = new Map([['website', { id: 'website', billRateValue: 
 // Breaks (#5216) off, as in a workspace that never turned them on, unless a test turns them on
 let mockAllowsBreaks = false;
 let mockBreaksQuery: { data?: number; isError: boolean } = { data: undefined, isError: false };
+/** The reader's role: an organisation admin, unless a test reads the report as a member (#5623). */
+let mockRoleName = 'ADMIN';
 jest.mock('@/core/hooks/timer/use-breaks-allowed', () => ({ useBreaksAllowed: () => mockAllowsBreaks }));
 jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key, useLocale: () => 'en' }));
 jest.mock('@/core/hooks/auth', () => ({
@@ -106,7 +108,7 @@ jest.mock('@/core/hooks/auth', () => ({
 		user: {
 			id: 'user',
 			tenantId: 'tenant',
-			role: { name: 'ADMIN' },
+			role: { name: mockRoleName },
 			employee: { id: 'ada', organizationId: 'organization' }
 		},
 		isTeamManager: false
@@ -655,5 +657,61 @@ describe('useTimeActivityReport with breaks on (#5216)', () => {
 		const { figures } = renderHook(() => useTimeActivityReport()).result.current;
 
 		expect(figures.breakSeconds).toBeNull();
+	});
+});
+
+describe('useTimeActivityReport for a member who manages no team (#5623)', () => {
+	/** An answer that also holds the time of another member: the page must still show only the reader's own. */
+	const REPORT_WITH_ANOTHER_MEMBER = [
+		{
+			date: '2026-11-03',
+			logs: [
+				{
+					project: { id: 'website', name: 'Website', organizationContact: null },
+					employeeLogs: [
+						{ employee: { id: 'ada' }, sum: 600, activity: 50, tasks: [] },
+						{ employee: { id: 'kofi' }, sum: 900, activity: 40, tasks: [] }
+					]
+				}
+			]
+		}
+	] as unknown as ITimeLogGroupedDailyReport[];
+
+	beforeEach(() => {
+		resetMocks('project');
+		getDefaultStore().set(currentOrganizationState, null);
+		mockRoleName = 'EMPLOYEE';
+		// Filters that name another member, as a link copied from a manager's report would
+		mockFilters = { ...NO_FILTERS, employeeIds: ['kofi'] };
+		mockDailyReport = REPORT_WITH_ANOTHER_MEMBER;
+	});
+
+	afterEach(() => {
+		mockRoleName = 'ADMIN';
+		mockFilters = NO_FILTERS;
+		mockDailyReport = DAILY_REPORT;
+	});
+
+	it('asks for her own time only, whoever the filters name', () => {
+		const report = renderHook(() => useTimeActivityReport()).result.current;
+
+		expect(report.isManager).toBe(false);
+		expect(report.request?.employeeIds).toEqual(['ada']);
+	});
+
+	it('shows only her own rows, should an answer hold the time of anyone else', () => {
+		const report = renderHook(() => useTimeActivityReport()).result.current;
+
+		expect(report.rows.map((row) => row.employeeId)).toEqual(['ada']);
+		expect(report.figures.reportSeconds).toBe(600);
+	});
+
+	it('CONTROL: an organisation admin reads the members the filters name', () => {
+		mockRoleName = 'ADMIN';
+
+		const report = renderHook(() => useTimeActivityReport()).result.current;
+
+		expect(report.isManager).toBe(true);
+		expect(report.request?.employeeIds).toEqual(['kofi']);
 	});
 });
