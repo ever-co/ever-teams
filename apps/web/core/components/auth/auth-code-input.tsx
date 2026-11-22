@@ -186,7 +186,9 @@ export const AuthCodeInputField = forwardRef<AuthCodeRef, AuthCodeProps>(
 			// A box selects its character on focus, and typing that same character over it changes nothing, so no change
 			// event moves the focus on: a code retyped from the first box stayed in the first box (#5681)
 			const usesShortcut = e.ctrlKey || e.metaKey || e.altKey;
-			const isSameCharacter = key.length === 1 && target.value !== '' && key.toUpperCase() === target.value;
+			// A pasted code keeps its lowercase letters, so both are compared in one case
+			const heldCharacter = target.value.toUpperCase();
+			const isSameCharacter = key.length === 1 && heldCharacter !== '' && key.toUpperCase() === heldCharacter;
 			if (isSameCharacter && !usesShortcut) {
 				e.preventDefault();
 				const nextBox = target.nextElementSibling as HTMLInputElement | null;

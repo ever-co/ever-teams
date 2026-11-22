@@ -26,6 +26,7 @@ function renderCodeBoxes() {
 function typeCharacter(character: string) {
 	const box = document.activeElement as HTMLInputElement;
 	const isSameCharacter = box.value === character;
+	// Typing over a selected character replaces it: the box reads the new one, whatever its case
 	const wasStopped = !fireEvent.keyDown(box, { key: character });
 	if (isSameCharacter || wasStopped) {
 		return;
@@ -57,6 +58,16 @@ describe('AuthCodeInputField (#5681)', () => {
 
 		expect(boxes.map((box) => box.value).join('')).toBe(RIGHT_CODE);
 		expect(typed.code).toBe(RIGHT_CODE);
+	});
+
+	it('replaces a code pasted in lowercase with the right one typed in lowercase', () => {
+		const { boxes, typed } = renderCodeBoxes();
+		fireEvent.paste(boxes[0], { clipboardData: { getData: () => WRONG_CODE.toLowerCase() } });
+		expect(boxes.map((box) => box.value).join('')).toBe(WRONG_CODE.toLowerCase());
+
+		typeCodeFromFirstBox(boxes, RIGHT_CODE.toLowerCase());
+
+		expect(typed.code.toUpperCase()).toBe(RIGHT_CODE);
 	});
 
 	it('moves on from a box whose character is typed again, and leaves the next box as it is', () => {
