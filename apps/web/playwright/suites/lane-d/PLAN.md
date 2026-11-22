@@ -412,3 +412,52 @@ reusable by the process that owns it, and `mounted-4` exists because `mounted-3`
 Typecheck for the committed state: `E:\Coding\.tmp\lane-d-tsc7.log`, `tsc exit: 0`, zero `error TS` lines. (`lane-d-tsc6.log`,
 run an hour earlier, exited 2 with three errors all in `suites/lane-b/signup-forms.spec.ts` — another lane mid-edit, not mine to
 touch, and gone by `tsc7`.)
+
+### 9.4 The re-run the owner asked for, on a lane restarted under newer code — green, same measurements
+
+The owner restarted all three lanes at 06:21:41–06:21:52 (`lane-b-up-4.log`, `lane-c-up-4.log`, `lane-d-up-4.log`) so every lane's
+mock carries the `MAX_DROP_MS` clamp from `2f98d3df3`, then released lane-d. This lane's last action on lane-d before that was its
+teardown at **05:59:42** (`lane-d-down-final.log`), so no run of this lane was in flight across the restart; the run below is
+nevertheless made on the restarted lane and the newer HEAD, so the question is answered with a number rather than an argument.
+
+| log (mtime)                                      | how it was run                                                                                                                                                                                                                               | the log's own summary                             |
+| ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
+| `E:\Coding\.tmp\lane-d-browser9.log` (05:37:30)  | `export PATH="/e/nvm/.nodejs:$PATH" && E2E_BROWSER_CHANNEL=chrome E2E_LANE=lane-d npx playwright test --config apps/web/playwright/playwright.lane.config.ts page-gate-browser.spec.ts`, HEAD `93d1c50ad`, on the lane this lane had started | **`7 passed (1.4m)`**, `playwright exit code: 0`  |
+| `E:\Coding\.tmp\lane-d-browser11.log` (07:00:22) | the identical command line, HEAD `2f98d3df3`, on the owner's lane restarted at 06:21:48 (`lane-servers.mjs check lane-d` before it: `OK — the app on 3034 names its own mock 4006 and stats sink 4007`)                                      | **`7 passed (59.1s)`**, `playwright exit code: 0` |
+
+browser11's own `/invoices` lines reproduce browser9's finding instead of moving it: `/invoices at navigation:` (nothing after the
+colon — read below), `loading skeleton up 3722 ms after navigation (1 status region(s), body text 16 chars)`,
+`{"visibleH1":1,"accessibleHeading":0,"hiddenAwareHeading":1,"ariaHiddenAncestor":"div[aria-hidden=\"true\"]"}`, the body 20 s later
+`…Clients My work Invoices Loading`, and `signed-out /invoices asked the mock, over the 20 s after the skeleton settled:
+(nothing)`. The two green runs differ only in how fast the shell came up (10 739 ms vs 3 722 ms), which is exactly why the case
+asserts the state and not a duration. **D-7 and the aria-hidden witness stay exactly as pinned in `2848ec3a4`; nothing moved, and
+nothing here is a candidate for rollback.**
+
+The response facts, measured read-only on that same lane at 07:0x (`curl`, then a read of the mock's own `/state` before and after
+one page fetch):
+
+| what                                                                                           | measured                                                                                                                                                                                                                                    |
+| ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GET http://127.0.0.1:3034/invoices`, `Accept: text/html`, redirects not followed              | `200`, `content-type: text/html; charset=utf-8`, 448 416 bytes downloaded (the same document read through Node: 447 922 characters); it carries `data-ever-teams-runtime-env` on `<html>` and the word "Invoices" in the shell's navigation |
+| the mock's `requests` log across that fetch                                                    | 44 entries before, 44 after — **the served page asked this lane's mock nothing**                                                                                                                                                            |
+| the same lane's `/invoices` in a browser, 20 s after the skeleton settled (browser11, line 19) | `signed-out /invoices asked the mock, over the 20 s after the skeleton settled: (nothing)` — the case's own witness, taken with `receivedTokens` read per path                                                                              |
+
+The owner's own `curl` at 06:2x measured the same 448 416 bytes and `text/html`, so the lane is serving a real document, and there
+is no red on a healthy lane to explain.
+
+What the reds this lane actually read were, with their files — "200 with an empty body" is not among them, and
+`lane-d-browser10.log` does not exist in `E:\Coding\.tmp`:
+
+| log (mtime)                      | its summary lines                                         | the failure, in the log's own words                                                                                                                                                                                                                                               |
+| -------------------------------- | --------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `lane-d-browser6.log` (01:21:12) | `1 failed` + `6 passed (8.8m)`, `playwright exit code: 1` | `Error: element(s) not found`, `Locator: getByRole('heading', { name: 'Invoices' })`, after 300 000 ms — while **the same run's** failure snapshot lists `main → heading [level=1]: Invoices` and `main → status → Loading`. A selector red, with its proof inside the same file. |
+| `lane-d-browser8.log` (05:33:16) | `7 failed`, `playwright exit code: 1`                     | seven copies of `browserType.launch: Executable doesn't exist at …\ms-playwright\chromium-1217\chrome-win64\chrome.exe`, every case dead in ~5 ms. No page was reached, so nothing about the app is knowable from it. The lane needs `E2E_BROWSER_CHANNEL=chrome` on this PC.     |
+
+The "empty body" that appears in the older failure text — `no "Invoices" heading at http://localhost:3034/invoices within 300 s;
+the page said: ` — is not a symptom of a dev server that is not serving yet, and it prints in **green** runs too: browser11 line 15
+is `[lane-d] /invoices at navigation:` with nothing after the colon. Two reasons, both readable in the source: the served document
+carries no body text at that instant because the layout is client-only (`app/[locale]/layout-component.tsx:40-42`, `ClientOnly`,
+`ssr: false`) — the HTML above is 448 KB of shell, not of page body — and `expect(locator, message)` builds its message before it
+starts polling, so a message that reads the body inside its template quotes the page at t=0 rather than at the moment of failure.
+`2848ec3a4` took that lie out of the message: the 150 s window now quotes `bodyWhenOpened`, labelled as the read taken when the
+window opened. No app change is claimed as a cause of anything here, and none is proposed for reversal.
