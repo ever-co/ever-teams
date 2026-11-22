@@ -587,14 +587,12 @@ export function useTimerApi({
 	const startTimerMutate = startTimerMutation.mutateAsync;
 
 	/**
-	 * The tracking flag says a timer runs while this tab's status says stopped, and no run left behind by a closed tab
-	 * was found. This tab's status can be out of date: up to a minute old, or read while a start elsewhere was landing.
-	 * A run a fresh read finds goes on in another tab or device, so the flag is not stuck: the run is kept and shown
-	 * here, and the start is refused. Else the flag is stuck, and a stop clears it on the server (#5121). A failed read
-	 * refuses the start too: Gauzy's start stops any run it finds.
+	 * Reads afresh whether a run goes on for the employee. One that does goes on in another tab or device: it is kept
+	 * and shown here, and the start is refused. A failed read refuses the start too: Gauzy's start stops any run it
+	 * finds. Resolves to 'none' when no run goes on.
 	 */
-	const keepRunOrClearStuckFlag = useCallback(
-		async (employeeId: string): Promise<TrackingFlagCheck> => {
+	const keepRunGoingOn = useCallback(
+		async (employeeId: string): Promise<'refused' | 'none'> => {
 			const commandSeq = timerCommandMark();
 			// Labels saved on the run while the read is on its way are kept over the ones it brings (#5368)
 			const labelSavesSeen = labelSavesLanded();
@@ -609,7 +607,7 @@ export function useTimerApi({
 				return 'refused';
 			}
 			if (!runGoingOn) {
-				return clearTrackingFlag(timerStatusRef.current?.lastLog?.source || ETimeLogSource.TEAMS);
+				return 'none';
 			}
 			toast.warning(t('timer.ALREADY_TRACKING_MESSAGE'), { id: ALREADY_TRACKING_TOAST_ID });
 			// Shown now, so this tab's Stop reaches the run: a default instance never reads its status again. Not after
@@ -634,6 +632,23 @@ export function useTimerApi({
 			return 'refused';
 		},
 		[isCurrentScope, queryClient, setTimerStatus, statusEnabled, store, t, timerStatusRef]
+	);
+
+	/**
+	 * The tracking flag says a timer runs while this tab's status says stopped, and no run left behind by a closed tab
+	 * was found. This tab's status can be out of date: up to a minute old, or read while a start elsewhere was landing.
+	 * A run a fresh read finds is kept and refuses the start (keepRunGoingOn). Else the flag is stuck, and a stop clears
+	 * it on the server (#5121).
+	 */
+	const keepRunOrClearStuckFlag = useCallback(
+		async (employeeId: string): Promise<TrackingFlagCheck> => {
+			const runCheck = await keepRunGoingOn(employeeId);
+			if (runCheck === 'refused') {
+				return 'refused';
+			}
+			return clearTrackingFlag(timerStatusRef.current?.lastLog?.source || ETimeLogSource.TEAMS);
+		},
+		[keepRunGoingOn, timerStatusRef]
 	);
 
 	// Check if the user is tracking time in another tab or device
