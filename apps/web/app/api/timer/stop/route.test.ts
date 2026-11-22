@@ -10,7 +10,8 @@ import { signedIn } from '@/test/auth/guard-answers';
 const mockAuthenticatedGuard = jest.fn();
 
 jest.mock('@/core/services/server/guards/authenticated-guard-app', () => ({
-	authenticatedGuard: (...args: unknown[]) => mockAuthenticatedGuard(...args)
+	authenticatedGuard: (...args: unknown[]) => mockAuthenticatedGuard(...args),
+	sessionChecks: { drop: jest.fn() }
 }));
 
 import { POST } from './route';
