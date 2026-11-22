@@ -617,16 +617,26 @@ Files this section is about: `route-refusals.spec.ts`, `session-routing.spec.ts`
 | `signup-forms.spec.ts` | 2 failed, 6 passed (6.6m) | `E:\Coding\.tmp\lane-b-signup-forms-me1.log` |
 | `signup-forms.spec.ts`, after the mock-path prefix fix | 2 failed, 6 passed (6.5m) | `E:\Coding\.tmp\lane-b-signup-forms-me2.log` |
 | `signup-forms.spec.ts`, after the §11.3 rework | **8 passed (33.2s)** | `E:\Coding\.tmp\lane-b-signup-forms-me3.log` |
+| `signup-forms.spec.ts`, a run mid-rework | 1 failed, 7 passed (4.0m) — the red is `ReferenceError: mockWasAskedExactly is not defined`, i.e. the file was mid-edit between two sessions (§11.1), not a verdict | `E:\Coding\.tmp\lane-b-signup-forms-me4.log` |
+| `signup-forms.spec.ts`, after leg 2 was moved to the chain's last ask (§11.5's ring cap) | **8 passed (34.7s)** | `E:\Coding\.tmp\lane-b-signup-forms-me5.log` |
 | `locale-rendering.spec.ts` | **6 passed (38.5s)** | `E:\Coding\.tmp\lane-b-locale-rendering-me1.log` |
 | `cookie-jar.spec.ts` | **6 passed (40.3s)** (the file now holds 6 cases: the two refresh answers pinned apart) | `E:\Coding\.tmp\lane-b-cookie-jar-me1.log` |
 | `passcode-journey.spec.ts` | 2 failed, 5 passed (7.6m) — **still red, §11.4** | `E:\Coding\.tmp\lane-b-passcode-journey-me1.log` |
 
-The whole lane in one command: **not run to a summary line.** `lane-b-full-me1.log` is a run I started, started
-again by mistake and stopped by hand; it never printed a total, so it is not a number and is not quoted.
+The whole lane in one command, my own run of it: **2 failed, 74 passed (9.5m)**,
+`E:\Coding\.tmp\lane-b-full-me2.log` (76 tests, 1 worker, 04:44:33 → 04:54:07). Its two reds were
+`passcode-journey.spec.ts:157` (the §11.4 race) and `signup-forms.spec.ts:270` — that case was green solo in
+`-me3` 28 minutes earlier and green again solo in `-me5` after it, so it reads as the shared-mock-log contention of
+§11.1/§11.5 rather than a third verdict. `lane-b-full-me1.log` is a run I started, started again by mistake and
+stopped by hand; it never printed a total, so it is not a number and is not quoted.
 
-Counting the last number of each row: the lane today is **76 cases in 8 spec files, 74 green, 2 red** (the two
-`passcode-journey` cases). The lane has **8** spec files, not the 7 §1 lists: `route-refusals`, `passcode-journey`,
-`password-journey`, `password-recovery`, `signup-forms`, `session-routing`, `locale-rendering`, `cookie-jar`.
+Counting the last number of each row: the lane as I measured it is **76 cases in 8 spec files, 74 green, 2 red** (the
+two `passcode-journey` cases). With the `signup-forms` solo re-runs folded in, every file in this lane except
+`passcode-journey` ended green on its own. The lane has **8** spec files, not the 7 §1 lists: `route-refusals`,
+`passcode-journey`, `password-journey`, `password-recovery`, `signup-forms`, `session-routing`, `locale-rendering`,
+`cookie-jar`. The lane's owner who worked beside me reports the whole lane **76 passed (3.5m)**
+(`E:\Coding\.tmp\lane-b-full-1.log`) and **76 passed (4.0m)** (`lane-b-full-2.log`), which is §12's claim, not mine;
+`lane-b-full-2.log` ran the tree that already carried my `signup-forms` chain witness at `:342`.
 
 ### 11.3 The three §9 open cases, settled
 
@@ -703,7 +713,27 @@ file replaced; the file's one value witness (`echoed.token`, the mock's echo of 
 `E:\Coding\.tmp\lane-b-refusals-2.log`. The `'Str0ng!Pass'` literal survives only in `password-recovery.spec.ts`,
 where the typed value has to pass Gauzy's five reset rules (`RULE_MIN_LENGTH`, uppercase, lowercase, digit, symbol),
 so the lane's next single owner should hoist it to `lane-auth-helpers.ts` with a rule-satisfying value; I did not,
-because that file was being written next door.
+because that file was being written next door. **That hoist happened** (§12.5 item 6: `RESET_PASSWORD_VALUE` /
+`RESET_PASSWORD_OTHER` in `lane-auth-helpers.ts:43-44`), so as this section was last written
+`grep -rn "Str0ng!Pass" apps/web/playwright/suites/lane-b/` hits **only this PLAN's prose** — no spec in the lane
+carries a credential-shaped literal any more. Finding 40824812 needs no second reply.
+
+### 11.7 Corrections to §11.2 and §11.4, written after §12 existed
+
+* §11.2's whole-lane row is now a real number: **2 failed, 74 passed (9.5m)**, `lane-b-full-me2.log`. Of its two reds,
+  `signup-forms:270` was green solo before it (`-me3`) and after it (`-me5`, **8 passed (34.7s)**), and
+  `passcode-journey:157` was closed green by §12.4, so nothing in that combined run is a third verdict.
+* §11.4's floated app finding ("`aria-disabled` resend asked twice") is **not a finding as measured** — §12.4 pressed
+  the locked resend with `dispatchEvent('click')` after a 4 s untouched wait and counted the page's own asks:
+  `after.length === 1`. I did not re-run that case myself, so I report §12's measurement as theirs and keep my
+  `-me1` number as the observation that started it.
+* Everything in §11 is in the branch: `afb413364a` ("test(playwright): lane-b runs green end to end, 76 passed")
+  carries my `route-refusals` fixture hoist, my `signup-forms` polled witnesses + 200/half-session repin, my
+  `session-routing` three re-pins and §11 of this file, next to the other session's five spec files. No lane-b push
+  was made by this session; the coordinating session pushed.
+* Lane-b's servers (3032 / 3996-3999) were taken **down** by this session at the end of the run, with
+  `node apps/web/playwright/scripts/lane-servers.mjs down lane-b` — a state change that also ended the other
+  session's lane, which is why §11.1's contention warning is written before any number, not after.
 
 ---
 
