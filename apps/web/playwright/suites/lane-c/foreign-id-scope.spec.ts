@@ -39,11 +39,7 @@ const FOREIGN_UUID = '99999999-9999-4999-8999-999999999999';
 const FOREIGN_PROJECT = 'bbbbbbbb-bbbb-4bbb-8bbb-999999999999';
 
 const base64url = (value: object) =>
-	Buffer.from(JSON.stringify(value))
-		.toString('base64')
-		.replace(/=/g, '')
-		.replace(/\+/g, '-')
-		.replace(/\//g, '_');
+	Buffer.from(JSON.stringify(value)).toString('base64').replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
 
 /** The cookie token's shape, with a `jti` of this test's own (the session-check memo keys its answer by the token). */
 function tokenOfNonce(ids: Record<string, string>, organizationId: string, nonce: string): string {
@@ -113,13 +109,17 @@ test.describe('a route forwards the ids its caller named', () => {
 		expect(response.status(), `answered ${response.status()} ${text}`).toBe(200);
 
 		const asked = await mock.calls('/api/task-statuses');
-		expect(await triple(mock, '/api/task-statuses'), `the read did not reach the API exactly once: ${asText(asked)}`).toEqual([
-			'GET /api/task-statuses 200'
-		]);
-		expect(asked[0].query, `a caller-named tenant reached the scoped read: ${asked[0].query}`).not.toContain(ids.tenantB);
-		expect(asked[0].query, `the session's own tenant is missing from the read it authenticated: ${asked[0].query}`).toContain(
-			`tenantId=${ids.tenantA}`
+		expect(
+			await triple(mock, '/api/task-statuses'),
+			`the read did not reach the API exactly once: ${asText(asked)}`
+		).toEqual(['GET /api/task-statuses 200']);
+		expect(asked[0].query, `a caller-named tenant reached the scoped read: ${asked[0].query}`).not.toContain(
+			ids.tenantB
 		);
+		expect(
+			asked[0].query,
+			`the session's own tenant is missing from the read it authenticated: ${asked[0].query}`
+		).toContain(`tenantId=${ids.tenantA}`);
 	});
 
 	test('GET /api/saved-reports?organizationId=<other organization> asks for it with this session’s token', async ({
@@ -139,9 +139,10 @@ test.describe('a route forwards the ids its caller named', () => {
 			await triple(mock, '/api/saved-reports'),
 			`the saved-reports read never happened: ${asText(reports)}`
 		).toEqual(['GET /api/saved-reports 200']);
-		expect(reports[0].query, `the organization the caller named is not the one the read asked for: ${reports[0].query}`).toContain(
-			`organizationId=${ids.organizationB}`
-		);
+		expect(
+			reports[0].query,
+			`the organization the caller named is not the one the read asked for: ${reports[0].query}`
+		).toContain(`organizationId=${ids.organizationB}`);
 
 		// The route's own permission gate ran first and let it through — the fixture role holds TIME_TRACKER, one of
 		// SAVED_REPORT_PERMISSIONS — which is what leaves the organization id as the only boundary in this request.
@@ -161,10 +162,13 @@ test.describe('a route forwards the ids its caller named', () => {
 		expect(response.status(), `the members read answered ${response.status()} ${text}`).toBe(200);
 
 		const asked = await mock.calls('/api/employee/members');
-		expect(await triple(mock, '/api/employee/members'), `the members read never reached the API: ${asText(asked)}`).toEqual([
-			'GET /api/employee/members 200'
-		]);
-		expect(asked[0].query, `the caller's team id did not travel: ${asked[0].query}`).toContain(`organizationTeamId=${ids.teamB}`);
+		expect(
+			await triple(mock, '/api/employee/members'),
+			`the members read never reached the API: ${asText(asked)}`
+		).toEqual(['GET /api/employee/members 200']);
+		expect(asked[0].query, `the caller's team id did not travel: ${asked[0].query}`).toContain(
+			`organizationTeamId=${ids.teamB}`
+		);
 	});
 
 	test('forwardToGauzy forwards the whole query string it was given', async ({ api, cookies, ids, mock }) => {
@@ -225,7 +229,11 @@ test.describe('a route forwards the ids its caller named', () => {
 });
 
 test.describe('a proxied read that takes an id from the path asks for exactly that id', () => {
-	test('GET /api/tasks/<an id that is not mine> is forwarded as that id, with my token', async ({ api, ids, mock }) => {
+	test('GET /api/tasks/<an id that is not mine> is forwarded as that id, with my token', async ({
+		api,
+		ids,
+		mock
+	}) => {
 		// `app/api/tasks/[id]/route.ts` puts the id into `getTaskByIdRequest` together with the session's tenant and
 		// organization; the upstream decides whether the id is the caller's. What this app did is provable: it put the
 		// id it was given into a request authenticated as this session.

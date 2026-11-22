@@ -233,7 +233,9 @@ test.describe('a mutating route answers a body that is not the object it expects
 					// The refusal happened here: the handler threw on its own body and never asked the API anything
 					// about it. (Its session read, `GET /api/user/me`, is expected and is pinned elsewhere.)
 					expect(
-						(await mock.calls(path)).map((request) => `${request.method} ${request.path} ${request.status}`),
+						(await mock.calls(path)).map(
+							(request) => `${request.method} ${request.path} ${request.status}`
+						),
 						`${why} is pinned as a crash, but the API was asked about the body anyway: ${asText(await mock.requests())}`
 					).toEqual([]);
 				} else {
@@ -270,14 +272,21 @@ test.describe('a mutating route answers a body that is not the object it expects
 		});
 		const text = await response.text();
 
-		expect(response.status(), `a task-status body this app cannot parse was answered ${response.status()} ${text}`).toBe(200);
-		expect(text, `the swallowed parse failure is not the answer this test pins: ${text}`).toContain('Error creating task status');
+		expect(
+			response.status(),
+			`a task-status body this app cannot parse was answered ${response.status()} ${text}`
+		).toBe(200);
+		expect(text, `the swallowed parse failure is not the answer this test pins: ${text}`).toContain(
+			'Error creating task status'
+		);
 
 		// The parse failure stopped this handler at its own door: the only thing it asked the API was who the caller
 		// is (`authenticatedGuard` runs before the body is read), and it never asked about the body it could not read.
 		const asked = await mock.requests();
 		expect(
-			asked.filter((request) => request.path !== '/api/user/me').map((request) => `${request.method} ${request.path} ${request.status}`),
+			asked
+				.filter((request) => request.path !== '/api/user/me')
+				.map((request) => `${request.method} ${request.path} ${request.status}`),
 			`the unparseable body still reached the API: ${asText(asked)}`
 		).toEqual([]);
 	});
@@ -300,12 +309,17 @@ test.describe('a mutating route answers a body that is not the object it expects
 			`a declared-JSON body that is not JSON was refused as a media type is (${response.status()} ${text})`
 		).toBe(200);
 		expect(
-			(await mock.calls('/api/chat/conversations')).map((request) => `${request.method} ${request.path} ${request.status}`),
+			(await mock.calls('/api/chat/conversations')).map(
+				(request) => `${request.method} ${request.path} ${request.status}`
+			),
 			`the unparseable body was not forwarded after all: ${text}`
 		).toEqual(['POST /api/chat/conversations 200']);
 	});
 
-	test('a body larger than any form sends is refused, forwarded or accepted — never a crash', async ({ api, mock }) => {
+	test('a body larger than any form sends is refused, forwarded or accepted — never a crash', async ({
+		api,
+		mock
+	}) => {
 		// Neither `forwardToGauzy` nor `serverFetch` caps a body, and no route here sets `sizeLimit`; the only size
 		// limit in play is Next's own. 2 MB of JSON is well past what this app's own clients ever send, so whatever
 		// the answer is, "no 5xx and no half-read request" is the claim.
@@ -322,7 +336,11 @@ test.describe('a mutating route answers a body that is not the object it expects
 			`a 2 MB proxied write answered ${proxied.status()} ${proxiedText.slice(0, 200)} — a body this app cannot answer must not crash it`
 		).toBeLessThan(500);
 
-		const guarded = await api('/api/daily-plan', { method: 'POST', body: big, headers: { 'content-type': 'application/json' } });
+		const guarded = await api('/api/daily-plan', {
+			method: 'POST',
+			body: big,
+			headers: { 'content-type': 'application/json' }
+		});
 		const guardedText = await guarded.text();
 		expect(
 			guarded.status(),

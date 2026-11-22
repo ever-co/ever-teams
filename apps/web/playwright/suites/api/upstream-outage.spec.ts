@@ -1,5 +1,6 @@
 import { expect, test, type StubRequest } from '../../api-fixtures';
 import { mockReset } from '../../helpers';
+import { logOf, parseAnswer, triple } from './log-helpers';
 
 /**
  * The answers this app gives when the platform gives none — and what the mock's log says about each.
@@ -61,16 +62,7 @@ import { mockReset } from '../../helpers';
  * they care about for the same reason.
  */
 
-const triple = (request: StubRequest) => `${request.method} ${request.path} ${request.status}`;
-const logOf = (requests: StubRequest[]) => requests.map(triple).join(', ');
-
-function parseAnswer(text: string): unknown {
-	try {
-		return JSON.parse(text) as unknown;
-	} catch {
-		return { unparsed: text.slice(0, 200) };
-	}
-}
+// `triple`, `logOf` and `parseAnswer` moved to `./log-helpers.ts` (PR #5675's SonarQube duplication finding).
 
 /**
  * The mock's log for one path, read once the delay this case armed has run out.

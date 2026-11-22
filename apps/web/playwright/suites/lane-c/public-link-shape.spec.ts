@@ -75,10 +75,13 @@ test.describe('a shared link that is not shaped like a link is refused here', ()
 		expectNotCacheable(headers, `GET /api/public/invoice/${UUID}/${GOOD_TOKEN}`);
 
 		const asked = await mock.calls('/api/public/invoice/');
-		expect(asked.map((call) => `${call.method} ${call.path}`), `the link did not reach the API: ${JSON.stringify(await mock.requests())}`).toEqual([
-			`GET /api/public/invoice/${UUID}/${GOOD_TOKEN}`
-		]);
-		expect(asked[0].query, `the relations the route names did not travel: ${asked[0].query}`).toContain('relations=');
+		expect(
+			asked.map((call) => `${call.method} ${call.path}`),
+			`the link did not reach the API: ${JSON.stringify(await mock.requests())}`
+		).toEqual([`GET /api/public/invoice/${UUID}/${GOOD_TOKEN}`]);
+		expect(asked[0].query, `the relations the route names did not travel: ${asked[0].query}`).toContain(
+			'relations='
+		);
 	});
 
 	test('the invoice download forwards the same link to its own path', async ({ api, mock }) => {
@@ -92,7 +95,10 @@ test.describe('a shared link that is not shaped like a link is refused here', ()
 	});
 
 	test('a malformed invoice-payments link is refused the same way', async ({ api, mock }) => {
-		const { status, text, headers } = await call(api, `/api/public/invoice-payments/invoice/not-a-uuid/${GOOD_TOKEN}`);
+		const { status, text, headers } = await call(
+			api,
+			`/api/public/invoice-payments/invoice/not-a-uuid/${GOOD_TOKEN}`
+		);
 
 		expect(status, `a malformed payment link answered ${status} ${text}`).toBe(400);
 		expect(text, `the payment-link refusal did not say the link is invalid`).toContain('Invalid link');
@@ -130,7 +136,10 @@ test.describe('a shared link that is not shaped like a link is refused here', ()
 	}) => {
 		for (const path of DOT_SEGMENT_PROBES) {
 			const { status, text } = await call(api, path);
-			expect(status, `${path}: answered ${status} — expected Next's own 404 for a path whose dot segment the URL parser removed`).toBe(404);
+			expect(
+				status,
+				`${path}: answered ${status} — expected Next's own 404 for a path whose dot segment the URL parser removed`
+			).toBe(404);
 			expect(
 				(text.match(/<html|nextjs-portal|not-found/i) ?? []).length,
 				`${path}: answered 404 but not with Next's not-found document, so this pin needs re-reading: ${text.slice(0, 200)}`
@@ -144,22 +153,27 @@ test.describe('a shared link that is not shaped like a link is refused here', ()
 		).toEqual([]);
 	});
 
-	test('a saved-report token that keeps an encoded slash is forwarded as one segment of its own path', async ({ api, mock }) => {
+	test('a saved-report token that keeps an encoded slash is forwarded as one segment of its own path', async ({
+		api,
+		mock
+	}) => {
 		// `..%2F` and `a%2Fb%2Fc` are not dot segments, so they are routed, pass `isWalkingSegment`, and travel —
 		// re-encoded, which is what keeps them inside `/api/public/saved-reports/`. Pinned with the exact paths the
 		// mock recorded on 2026-11-21.
 		for (const path of ['/api/public/saved-reports/a%2Fb%2Fc', '/api/public/saved-reports/..%2F']) {
 			const { status } = await call(api, path);
-			expect(status, `${path}: answered ${status}, expected 200 (the upstream is the only thing that saw this token)`).toBe(200);
+			expect(
+				status,
+				`${path}: answered ${status}, expected 200 (the upstream is the only thing that saw this token)`
+			).toBe(200);
 		}
 
 		expect(
-			(await mock.calls('/api/public/saved-reports/')).map((request) => `${request.method} ${request.path} ${request.status}`),
+			(await mock.calls('/api/public/saved-reports/')).map(
+				(request) => `${request.method} ${request.path} ${request.status}`
+			),
 			`a saved-report token left its own path on the way to the API: ${JSON.stringify(await mock.requests())}`
-		).toEqual([
-			'GET /api/public/saved-reports/a%2Fb%2Fc 200',
-			'GET /api/public/saved-reports/..%2F 200'
-		]);
+		).toEqual(['GET /api/public/saved-reports/a%2Fb%2Fc 200', 'GET /api/public/saved-reports/..%2F 200']);
 	});
 
 	test('a well-formed saved-report link is forwarded as one segment', async ({ api, mock }) => {
@@ -178,61 +192,93 @@ test.describe('the shared invoice checkout takes only a return address it recogn
 	const RETURN = 'http://localhost:3033/shared-invoice/2f8a4b6c';
 
 	test('a return address outside this app’s shared-invoice page is refused here', async ({ api, mock }) => {
-		const { status, text, headers } = await call(api, `/api/public/invoice-payments/invoice/${UUID}/${GOOD_TOKEN}/checkout`, {
-			method: 'POST',
-			body: { returnUrl: 'https://some-other-site.example/steal' },
-			headers: { origin: 'http://localhost:3033' }
-		});
+		const { status, text, headers } = await call(
+			api,
+			`/api/public/invoice-payments/invoice/${UUID}/${GOOD_TOKEN}/checkout`,
+			{
+				method: 'POST',
+				body: { returnUrl: 'https://some-other-site.example/steal' },
+				headers: { origin: 'http://localhost:3033' }
+			}
+		);
 
 		expect(status, `a foreign return address was accepted (${status} ${text})`).toBe(400);
 		expect(text, `the refusal did not name the return address as the problem`).toContain('Invalid return address');
 		expectNotCacheable(headers, 'POST checkout with a foreign return address');
-		expect(await mock.requests(), 'the checkout endpoint was asked about a return address this app refused').toEqual([]);
+		expect(
+			await mock.requests(),
+			'the checkout endpoint was asked about a return address this app refused'
+		).toEqual([]);
 	});
 
 	test('a return address that is not a URL at all is refused here', async ({ api, mock }) => {
-		for (const body of [{ returnUrl: 'not-a-url' }, { returnUrl: '' }, { returnUrl: 'ftp://localhost/shared-invoice' }, {}]) {
+		for (const body of [
+			{ returnUrl: 'not-a-url' },
+			{ returnUrl: '' },
+			{ returnUrl: 'ftp://localhost/shared-invoice' },
+			{}
+		]) {
 			const response = await api(`/api/public/invoice-payments/invoice/${UUID}/${GOOD_TOKEN}/checkout`, {
 				method: 'POST',
 				body,
 				headers: { origin: 'http://localhost:3033' }
 			});
 			const text = await response.text();
-			expect(response.status(), `a checkout with ${JSON.stringify(body)} answered ${response.status()} ${text}`).toBe(400);
+			expect(
+				response.status(),
+				`a checkout with ${JSON.stringify(body)} answered ${response.status()} ${text}`
+			).toBe(400);
 		}
 		expect(await mock.requests(), 'a refused checkout reached the API anyway').toEqual([]);
 	});
 
 	test('this app’s own shared-invoice page is accepted and forwarded', async ({ api, mock }) => {
-		const { status, text } = await call(api, `/api/public/invoice-payments/invoice/${UUID}/${GOOD_TOKEN}/checkout`, {
-			method: 'POST',
-			body: { returnUrl: RETURN },
-			headers: { origin: 'http://localhost:3033' }
-		});
+		const { status, text } = await call(
+			api,
+			`/api/public/invoice-payments/invoice/${UUID}/${GOOD_TOKEN}/checkout`,
+			{
+				method: 'POST',
+				body: { returnUrl: RETURN },
+				headers: { origin: 'http://localhost:3033' }
+			}
+		);
 
 		expect(status, `a return address this app accepts was refused (${status} ${text})`).toBe(200);
 		const asked = await mock.calls('/api/public/invoice-payments/invoice/');
-		expect(asked.map((call) => `${call.method} ${call.path}`), `the checkout did not reach the API: ${JSON.stringify(await mock.requests())}`).toEqual([
-			`POST /api/public/invoice-payments/invoice/${UUID}/${GOOD_TOKEN}/checkout`
-		]);
+		expect(
+			asked.map((call) => `${call.method} ${call.path}`),
+			`the checkout did not reach the API: ${JSON.stringify(await mock.requests())}`
+		).toEqual([`POST /api/public/invoice-payments/invoice/${UUID}/${GOOD_TOKEN}/checkout`]);
 		// The mock answers a POST by echoing the body it was given, which is how "only returnUrl travelled"
 		// is provable at all.
 		const forwardedBody = JSON.parse(text) as Record<string, unknown>;
-		expect(Object.keys(forwardedBody).sort(), `the app forwarded more than the return address: ${text}`).toEqual(['returnUrl']);
+		expect(Object.keys(forwardedBody).sort(), `the app forwarded more than the return address: ${text}`).toEqual([
+			'returnUrl'
+		]);
 		expect(forwardedBody.returnUrl, `the return address was rewritten on the way: ${text}`).toBe(RETURN);
 	});
 
-	test('the return-address origin check only runs when the client reports an origin — pinned, not approved', async ({ api, mock }) => {
+	test('the return-address origin check only runs when the client reports an origin — pinned, not approved', async ({
+		api,
+		mock
+	}) => {
 		// `isPaymentReturnUrl` compares the address's origin with the `Origin` header *when that header is
 		// present*. A client that sends no Origin (anything that is not a browser form post) therefore gets
 		// an address of another host accepted, as long as its path is `/shared-invoice`. Pinned so that
 		// tightening it — or explaining why it is enough — has to happen in the open.
-		const { status, text } = await call(api, `/api/public/invoice-payments/invoice/${UUID}/${GOOD_TOKEN}/checkout`, {
-			method: 'POST',
-			body: { returnUrl: 'https://some-other-site.example/shared-invoice/ok' }
-		});
+		const { status, text } = await call(
+			api,
+			`/api/public/invoice-payments/invoice/${UUID}/${GOOD_TOKEN}/checkout`,
+			{
+				method: 'POST',
+				body: { returnUrl: 'https://some-other-site.example/shared-invoice/ok' }
+			}
+		);
 
-		expect(status, `a no-Origin checkout with a foreign return address was refused after all (${status} ${text})`).toBe(200);
+		expect(
+			status,
+			`a no-Origin checkout with a foreign return address was refused after all (${status} ${text})`
+		).toBe(200);
 		expect((await mock.calls('/api/public/invoice-payments/')).length, 'the checkout was not forwarded').toBe(1);
 	});
 });
@@ -267,7 +313,9 @@ test.describe('the public team read', () => {
 		}
 
 		expect(
-			(await mock.calls('/api/public/team/')).map((request) => `${request.method} ${request.path} ${request.status}`),
+			(await mock.calls('/api/public/team/')).map(
+				(request) => `${request.method} ${request.path} ${request.status}`
+			),
 			`a walking team id left the public team path on the way to the API: ${JSON.stringify(await mock.requests())}`
 		).toEqual([
 			'GET /api/public/team/fixture-team/..%2F..%2Fuser%2Fme 200',
@@ -278,7 +326,9 @@ test.describe('the public team read', () => {
 		// The half that is a real defence, proved as the absence: no walking id ever became a read of another endpoint
 		// (`/api/user/me` is the endpoint the `..%2F..%2Fuser%2Fme` shape was aimed at).
 		expect(
-			(await mock.requests()).filter((request) => !request.path.startsWith('/api/public/team/')).map((request) => request.path),
+			(await mock.requests())
+				.filter((request) => !request.path.startsWith('/api/public/team/'))
+				.map((request) => request.path),
 			`a walking team id reached an endpoint outside its own prefix: ${JSON.stringify(await mock.requests())}`
 		).toEqual([]);
 	});

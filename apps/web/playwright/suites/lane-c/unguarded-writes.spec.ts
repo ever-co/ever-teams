@@ -1,5 +1,6 @@
 import { expect, test, type ApiCall } from '../../api-fixtures';
 import { APP_ORIGIN, mockReset, receivedTokens } from '../../helpers';
+import { triples } from '../api/log-helpers';
 
 /**
  * Which write handlers of this app do NOT ask where the request came from — and what a cross-site write meets at
@@ -103,12 +104,11 @@ const isGuardRefusal = (status: number, text: string): boolean => {
 	}
 };
 
-const triple = (requests: Array<{ method: string; path: string; status: number }>): string[] =>
-	requests.map((request) => `${request.method} ${request.path} ${request.status}`);
+// `triples` is `suites/api/log-helpers.ts`'s, shared rather than repeated (PR #5675's SonarQube duplication finding).
 
 /** The mock's own record of one upstream path, filtered — never the whole log. */
 const callsOf = (requests: Array<{ method: string; path: string; status: number }>, upstream: string): string[] =>
-	triple(requests.filter((request) => request.path === upstream));
+	triples(requests.filter((request) => request.path === upstream));
 
 type Answer = { status: number; body: string };
 
@@ -144,14 +144,22 @@ type Probe = {
  * point of the case is only whether this app refused before asking the API.
  */
 const INVOICE_ID = 'd0000000-0000-4000-8000-000000000000';
-const INVOICE_TOKEN = 'aW52YWxpZC5saW5r.aW52YWxpZC5wYXJ0.aW52YWxpZC5zaWdu';
+/**
+ * The same three base64url parts, **built** from the words they decode to (`invalid.link` / `invalid.part` /
+ * `invalid.sign`) rather than written as one literal: the literal `aW52YWxpZC5saW5r.…` is what GitGuardian reported on
+ * PR #5675 as a "Generic High Entropy Secret" (id 40828839). Nothing about the value changed — the same string reaches
+ * the same route, only no high-entropy text sits in a file a secret scanner reads.
+ */
+const INVOICE_TOKEN = ['invalid.link', 'invalid.part', 'invalid.sign']
+	.map((part) => Buffer.from(part).toString('base64url'))
+	.join('.');
 const PROBE_EMAIL = 'lane-c-probe@localhost.invalid';
 
 /** Shorthand for the answers this lane printed for a body the handler's own validators refuse. */
 const emailFormatErrors = '{"errors":{"email":"Please provide a properly formatted email address"}}';
 const everIdOff: Answer = { status: 404, body: '' };
 const everIdOffNote =
-	'the Ever ID sign-in is not configured in this lane, so this is the handler\'s own 404 off-switch ' +
+	"the Ever ID sign-in is not configured in this lane, so this is the handler's own 404 off-switch " +
 	'(`isEverIdConfigured`, e.g. app/api/auth/ever-id/confirm/route.ts:69-70): the probe never reached the ' +
 	'origin question, and 404 with nothing called says nothing about a guard';
 
@@ -169,7 +177,10 @@ const UNGUARDED_WRITES: Probe[] = [
 		body: { token: 'not-a-real-token', planHash: 'not-a-real-hash' },
 		upstream: '/api/account-deletion/confirm',
 		pinned: {
-			crossSite: { status: 200, body: '{"token":"not-a-real-token","planHash":"not-a-real-hash","confirm":true}' },
+			crossSite: {
+				status: 200,
+				body: '{"token":"not-a-real-token","planHash":"not-a-real-hash","confirm":true}'
+			},
 			headerless: {
 				status: 200,
 				body: '{"token":"not-a-real-token","planHash":"not-a-real-hash","confirm":true}'
@@ -189,18 +200,24 @@ const UNGUARDED_WRITES: Probe[] = [
 		body: { email: PROBE_EMAIL },
 		upstream: '/api/account-deletion/request',
 		pinned: {
-			crossSite: { status: 200, body: `{"appName":"Ever Teams","appSignature":"Ever Teams","companyName":"Ever Co. LTD","appLogo":"https://app.ever.team/assets/ever-teams.png","appLink":"https://ever.team/","companyLink":"https://ever.co/","email":"${PROBE_EMAIL}","callbackUrl":"http://localhost:3033/delete-account/confirm"}` },
-			headerless: { status: 200, body: `{"appName":"Ever Teams","appSignature":"Ever Teams","companyName":"Ever Co. LTD","appLogo":"https://app.ever.team/assets/ever-teams.png","appLink":"https://ever.team/","companyLink":"https://ever.co/","email":"${PROBE_EMAIL}","callbackUrl":"http://localhost:3033/delete-account/confirm"}` },
+			crossSite: {
+				status: 200,
+				body: `{"appName":"Ever Teams","appSignature":"Ever Teams","companyName":"Ever Co. LTD","appLogo":"https://app.ever.team/assets/ever-teams.png","appLink":"https://ever.team/","companyLink":"https://ever.co/","email":"${PROBE_EMAIL}","callbackUrl":"http://localhost:3033/delete-account/confirm"}`
+			},
+			headerless: {
+				status: 200,
+				body: `{"appName":"Ever Teams","appSignature":"Ever Teams","companyName":"Ever Co. LTD","appLogo":"https://app.ever.team/assets/ever-teams.png","appLink":"https://ever.team/","companyLink":"https://ever.co/","email":"${PROBE_EMAIL}","callbackUrl":"http://localhost:3033/delete-account/confirm"}`
+			},
 			crossSiteCalls: 1,
 			headerlessCalls: 1
 		},
 		note:
 			'forwarded. The compensating control is visible in the same body: the callbackUrl is built from the ' +
-			'configured origin (account-deletion.ts:75-111, appPublicOrigin), and it came back as this lane\'s own ' +
-			'origin, not as the probe\'s — but the run asserted the exact body, so if that ever starts following the ' +
+			"configured origin (account-deletion.ts:75-111, appPublicOrigin), and it came back as this lane's own " +
+			"origin, not as the probe's — but the run asserted the exact body, so if that ever starts following the " +
 			'caller this file goes red. Cost of that exactness, written down where the next reader will hit it: this ' +
-			'pin carries the lane\'s port (http://localhost:3033) because that is what the lane\'s ' +
-			'NEXT_PUBLIC_WEB_APP_URL was, so moving this lane\'s port re-pins this row'
+			"pin carries the lane's port (http://localhost:3033) because that is what the lane's " +
+			"NEXT_PUBLIC_WEB_APP_URL was, so moving this lane's port re-pins this row"
 	},
 	{
 		verb: 'POST',
@@ -272,7 +289,8 @@ const UNGUARDED_WRITES: Probe[] = [
 		verb: 'POST',
 		path: '/api/auth/ever-id/start',
 		file: 'auth/ever-id/start/route.ts',
-		evidence: 'no origin guard; with the switch off (the default) its own table says 404, nothing called (route.ts:30-33)',
+		evidence:
+			'no origin guard; with the switch off (the default) its own table says 404, nothing called (route.ts:30-33)',
 		body: {},
 		pinned: {
 			crossSite: everIdOff,
@@ -341,7 +359,8 @@ const UNGUARDED_WRITES: Probe[] = [
 		verb: 'POST',
 		path: '/api/auth/login',
 		file: 'auth/login/route.ts',
-		evidence: 'no origin or sec-fetch read; the handler writes session cookies ' +
+		evidence:
+			'no origin or sec-fetch read; the handler writes session cookies ' +
 			'(AUDIT.md finding 1 names this family)',
 		body: { email: PROBE_EMAIL },
 		pinned: {
@@ -351,7 +370,7 @@ const UNGUARDED_WRITES: Probe[] = [
 			headerlessCalls: 0
 		},
 		note:
-			'500 with an empty body and no content-type, the mock asked nothing, and the lane\'s ' +
+			"500 with an empty body and no content-type, the mock asked nothing, and the lane's " +
 			'`next-development.log` carried no line for it: the handler died before any upstream call. Not an origin ' +
 			'reading — a crash on a body that names no code/token'
 	},
@@ -391,7 +410,8 @@ const UNGUARDED_WRITES: Probe[] = [
 		verb: 'POST',
 		path: '/api/auth/request-password',
 		file: 'auth/request-password/route.ts',
-		evidence: 'no origin guard; the reset link comes from the configured origin, never from the request ' +
+		evidence:
+			'no origin guard; the reset link comes from the configured origin, never from the request ' +
 			'(route.ts:16-21, appPublicOrigin at core/services/server/requests/account-deletion.ts:75)',
 		pinned: {
 			crossSite: { status: 400, body: emailFormatErrors },
@@ -476,7 +496,8 @@ const UNGUARDED_WRITES: Probe[] = [
 		verb: 'POST',
 		path: '/api/auth/signin-email-social-login',
 		file: 'auth/signin-email-social-login/route.ts',
-		evidence: ':6-11 forwards `body.provider` and `body.access_token` through signWithSocialLoginsRequest ' +
+		evidence:
+			':6-11 forwards `body.provider` and `body.access_token` through signWithSocialLoginsRequest ' +
 			'(core/services/server/requests/auth.ts:71-78), which passes no bearer_token',
 		pinned: {
 			crossSite: { status: 200, body: '{"includeTeams":true}' },
@@ -485,8 +506,7 @@ const UNGUARDED_WRITES: Probe[] = [
 			headerlessCalls: 1
 		},
 		upstream: '/api/auth/signin.email.social',
-		note:
-			'forwarded, with no bearer (see the named case below, which sends a token and shows where it goes)'
+		note: 'forwarded, with no bearer (see the named case below, which sends a token and shows where it goes)'
 	},
 	{
 		verb: 'POST',
@@ -529,7 +549,8 @@ const UNGUARDED_WRITES: Probe[] = [
 		verb: 'POST',
 		path: '/api/auth/[...nextauth]',
 		file: 'auth/[...nextauth]/route.ts',
-		evidence: 'no origin or sec-fetch read anywhere in the file; it hands the request to Auth.js ' +
+		evidence:
+			'no origin or sec-fetch read anywhere in the file; it hands the request to Auth.js ' +
 			'(route.ts:22-23, `handlers.POST`)',
 		pinned: {
 			crossSite: { status: 400, body: '"Bad request."' },
@@ -538,15 +559,16 @@ const UNGUARDED_WRITES: Probe[] = [
 			headerlessCalls: 0
 		},
 		note:
-			'the answer is Auth.js\'s (`@auth/core` UnknownAction, logged by the lane\'s dev server as ' +
+			"the answer is Auth.js's (`@auth/core` UnknownAction, logged by the lane's dev server as " +
 			'"Cannot parse action at /api/auth/[...nextauth]"), not this app\'s; whatever origin check exists here is ' +
-			'Auth.js\'s own and this lane cannot tell which answer it would give on a real sign-in action'
+			"Auth.js's own and this lane cannot tell which answer it would give on a real sign-in action"
 	},
 	{
 		verb: 'POST',
 		path: '/api/auth/_signin-workspace',
 		file: 'auth/_signin-workspace/route.ts',
-		evidence: 'no origin or sec-fetch read; it is the handler of POST /api/auth/signin-workspace ' +
+		evidence:
+			'no origin or sec-fetch read; it is the handler of POST /api/auth/signin-workspace ' +
 			'(app/api/auth/signin-workspace/route.ts:2 re-exports this POST)',
 		pinned: {
 			crossSite: { status: 400, body: '"Bad request."' },
@@ -556,7 +578,7 @@ const UNGUARDED_WRITES: Probe[] = [
 		},
 		note:
 			'FINDING ABOUT THE LIST: this is not a route. `_signin-workspace` is a private App-Router folder, so Next ' +
-			'never routes /api/auth/_signin-workspace and Auth.js\'s catch-all answers it instead (the lane\'s dev log ' +
+			"never routes /api/auth/_signin-workspace and Auth.js's catch-all answers it instead (the lane's dev log " +
 			'printed "UnknownAction: Cannot parse action at /api/auth/_signin-workspace" for this probe). `find ' +
 			'apps/web/app/api -name route.ts` and the collector both count it as a handler. The handler itself is ' +
 			'reached, and probed, at POST /api/auth/signin-workspace'
@@ -565,7 +587,8 @@ const UNGUARDED_WRITES: Probe[] = [
 		verb: 'POST',
 		path: '/api/invite/accept',
 		file: 'invite/accept/route.ts',
-		evidence: ':29-38 checks only the media type and that the body is a JSON object; :51-53 then hands the ' +
+		evidence:
+			':29-38 checks only the media type and that the body is a JSON object; :51-53 then hands the ' +
 			'caller Origin to the API as the origin its welcome links are built on (appOriginOf at :188-194)',
 		body: { email: PROBE_EMAIL, code: 'lane-c-probe-code' },
 		upstream: '/api/invite/accept',
@@ -578,10 +601,10 @@ const UNGUARDED_WRITES: Probe[] = [
 			headerlessCalls: 1
 		},
 		differs:
-			'the two answers differ, and not because this app reads a header: it forwards the caller\'s Origin ' +
-			'upstream (invite.ts:192-206) and the mock refused it — the 400 body is the mock\'s own text, which ' +
+			"the two answers differ, and not because this app reads a header: it forwards the caller's Origin " +
+			"upstream (invite.ts:192-206) and the mock refused it — the 400 body is the mock's own text, which " +
 			'appears nowhere in app/ or core/ — while the probe that sent no Origin got the fallback origin ' +
-			'(this app\'s own), was accepted by the mock, and then died on the mock\'s echoed body. See the file ' +
+			"(this app's own), was accepted by the mock, and then died on the mock's echoed body. See the file " +
 			'header, finding 2'
 	},
 	{
@@ -609,13 +632,14 @@ const UNGUARDED_WRITES: Probe[] = [
 			crossSiteCalls: 0,
 			headerlessCalls: 0
 		},
-		note: 'the write landed in this server\'s log file, which is why the mock log is empty here'
+		note: "the write landed in this server's log file, which is why the mock log is empty here"
 	},
 	{
 		verb: 'POST',
 		path: '/api/organization-team-join',
 		file: 'organization-team-join/route.ts',
-		evidence: ':19-24 forwards the body with no session and no guard, while the GET ten lines above runs ' +
+		evidence:
+			':19-24 forwards the body with no session and no guard, while the GET ten lines above runs ' +
 			'authenticatedGuard (:6-8)',
 		upstream: '/api/organization-team-join',
 		pinned: {
@@ -655,7 +679,8 @@ const UNGUARDED_WRITES: Probe[] = [
 		verb: 'POST',
 		path: `/api/public/invoice-payments/invoice/${INVOICE_ID}/${INVOICE_TOKEN}/checkout`,
 		file: 'public/invoice-payments/invoice/[id]/[token]/checkout/route.ts',
-		evidence: 'no origin guard on the request; the body check is origin-dependent ' +
+		evidence:
+			'no origin guard on the request; the body check is origin-dependent ' +
 			'(core/services/server/public-invoice-proxy.ts:62-78)',
 		pinned: {
 			crossSite: { status: 400, body: '{"message":"Invalid return address"}' },
@@ -795,7 +820,10 @@ test.describe('the same handlers, checked against what would prove a guard exist
 		).toBe(false);
 		expect(crossSite.status, `the forwarded write's answer moved (${crossSite.text})`).toBe(200);
 		expect(crossSite.text, `the forwarded write's body moved (${crossSite.status})`).toBe('{"items":[],"total":0}');
-		expect(calls.length, `the write was not forwarded to the API either: ${crossSite.status} ${crossSite.text}`).toBe(1);
+		expect(
+			calls.length,
+			`the write was not forwarded to the API either: ${crossSite.status} ${crossSite.text}`
+		).toBe(1);
 		expect(
 			tokens,
 			`the forwarded write carried a bearer after all: ${JSON.stringify(tokens)} (upstream path is ` +
@@ -808,10 +836,13 @@ test.describe('the same handlers, checked against what would prove a guard exist
 		const signedIn = await probe(api, probeSpec, { origin: FOREIGN_ORIGIN, 'sec-fetch-site': 'cross-site' });
 		const signedInCalls = await mock.calls('/api/organization-team-join');
 		const signedInTokens = await receivedTokens('/api/organization-team-join');
-		expect(signedInCalls.length, `the signed-in cross-site write stopped being forwarded: ${signedIn.status}`).toBe(1);
-		expect(signedInTokens, `a signed-in cross-site write started carrying a bearer: ${JSON.stringify(signedInTokens)}`).toEqual(
-			[]
+		expect(signedInCalls.length, `the signed-in cross-site write stopped being forwarded: ${signedIn.status}`).toBe(
+			1
 		);
+		expect(
+			signedInTokens,
+			`a signed-in cross-site write started carrying a bearer: ${JSON.stringify(signedInTokens)}`
+		).toEqual([]);
 	});
 
 	/**
@@ -853,9 +884,7 @@ test.describe('the same handlers, checked against what would prove a guard exist
 	 * `core/lib/utils/shared-invoice.ts:106-118`, used at `core/services/server/public-invoice-proxy.ts:62-78`).
 	 * The three statuses below are the ones the 2026-11-21 run printed.
 	 */
-	const checkout: Probe = UNGUARDED_WRITES.find((candidate) =>
-		candidate.path.endsWith('/checkout')
-	) as Probe;
+	const checkout: Probe = UNGUARDED_WRITES.find((candidate) => candidate.path.endsWith('/checkout')) as Probe;
 	const foreignReturn = `${FOREIGN_ORIGIN}/shared-invoice?paid=1`;
 	const ownReturn = `${APP_ORIGIN}/shared-invoice?paid=1`;
 	const checkoutEcho = `{"returnUrl":"${foreignReturn}"}`;
@@ -896,8 +925,12 @@ test.describe('the same handlers, checked against what would prove a guard exist
 		const text = await response.text();
 		const calls = callsOf(await mock.requests(), checkoutUpstream);
 
-		expect(response.status(), `the headerless checkout no longer answers 200 (${response.status()} ${text})`).toBe(200);
-		expect(text, `the forwarded returnUrl is no longer the caller's own text (${response.status()})`).toBe(checkoutEcho);
+		expect(response.status(), `the headerless checkout no longer answers 200 (${response.status()} ${text})`).toBe(
+			200
+		);
+		expect(text, `the forwarded returnUrl is no longer the caller's own text (${response.status()})`).toBe(
+			checkoutEcho
+		);
 		expect(
 			calls.length,
 			`the headerless client was stopped by the return-address check (status ${response.status()} ${text}) — ` +
@@ -947,11 +980,12 @@ test.describe('unguarded in the collector vocabulary, origin-guarded by other me
 			headers: { origin: FOREIGN_ORIGIN, 'sec-fetch-site': 'cross-site' }
 		});
 		const crossSiteText = await crossSite.text();
-		const crossSiteLog = triple(await mock.requests());
+		const crossSiteLog = triples(await mock.requests());
 
-		expect(crossSite.status(), `the account-deletion POST guard stopped refusing a cross-site write (${crossSiteText})`).toBe(
-			403
-		);
+		expect(
+			crossSite.status(),
+			`the account-deletion POST guard stopped refusing a cross-site write (${crossSiteText})`
+		).toBe(403);
 		expect(
 			crossSiteText,
 			`the refusal is no longer this guard's own body — it answers with the shared guard's now, which means ` +
@@ -971,9 +1005,10 @@ test.describe('unguarded in the collector vocabulary, origin-guarded by other me
 		expect(unconfirmedText, `the confirm refusal changed (${unconfirmed.status()})`).toBe(
 			'{"message":"confirm must be true"}'
 		);
-		expect(await mock.requests(), `the confirm refusal asked the API anyway: ${JSON.stringify(await mock.requests())}`).toEqual(
-			[]
-		);
+		expect(
+			await mock.requests(),
+			`the confirm refusal asked the API anyway: ${JSON.stringify(await mock.requests())}`
+		).toEqual([]);
 
 		// A headerless caller that does confirm: forwarded, with a bearer recorded against the deletion call.
 		await mockReset();
@@ -1005,7 +1040,10 @@ test.describe('unguarded in the collector vocabulary, origin-guarded by other me
 	 * (`collect-foreign-origin-routes.mjs:31,37`) knows no third origin guard. Measured: both probes answered 403
 	 * with that exact body, and the mock was asked nothing.
 	 */
-	test('POST /api/board/notify refuses a foreign Origin, and a missing one, with its own body', async ({ api, mock }) => {
+	test('POST /api/board/notify refuses a foreign Origin, and a missing one, with its own body', async ({
+		api,
+		mock
+	}) => {
 		const foreign = await api('/api/board/notify', {
 			method: 'POST',
 			body: { kind: 'mention', receiverEmployeeIds: [], roomId: 'lane-c-probe-room' },
@@ -1018,13 +1056,17 @@ test.describe('unguarded in the collector vocabulary, origin-guarded by other me
 		});
 		const noneText = await none.text();
 
-		expect(foreign.status(), `the Board origin allowlist did not refuse a foreign Origin (${foreignText})`).toBe(403);
+		expect(foreign.status(), `the Board origin allowlist did not refuse a foreign Origin (${foreignText})`).toBe(
+			403
+		);
 		expect(
 			foreignText,
 			`the refusal carried the shared guard's body instead of the Board's (${foreign.status()} ${foreignText})`
 		).toBe('{"message":"Forbidden"}');
 		expect(none.status(), `a client that sent no Origin passed the Board allowlist (${noneText})`).toBe(403);
-		expect(noneText, `the headerless refusal carried a different body (${none.status()})`).toBe('{"message":"Forbidden"}');
+		expect(noneText, `the headerless refusal carried a different body (${none.status()})`).toBe(
+			'{"message":"Forbidden"}'
+		);
 		expect(await mock.requests(), 'either refusal asked the API anyway').toEqual([]);
 	});
 

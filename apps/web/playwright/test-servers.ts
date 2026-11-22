@@ -299,11 +299,11 @@ export function laneServers(
 		PLAYWRIGHT_LANE_DIST_DIR: `.next-lane-${ports.app}`,
 		...(options.everId
 			? {
-				EVER_ID_ISSUER_URL: origins.issuer,
-				EVER_ID_CLIENT_ID,
-				EVER_ID_CLIENT_SECRET,
-				NEXT_PUBLIC_EVER_ID_APP_NAME: 'Ever ID'
-			}
+					EVER_ID_ISSUER_URL: origins.issuer,
+					EVER_ID_CLIENT_ID,
+					EVER_ID_CLIENT_SECRET,
+					NEXT_PUBLIC_EVER_ID_APP_NAME: 'Ever ID'
+				}
 			: {})
 	};
 	return {

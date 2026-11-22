@@ -46,11 +46,7 @@ const CHECKED_ROUTES: Array<{ verb: 'GET'; path: string }> = [
 ];
 
 const base64url = (value: object) =>
-	Buffer.from(JSON.stringify(value))
-		.toString('base64')
-		.replace(/=/g, '')
-		.replace(/\+/g, '-')
-		.replace(/\//g, '_');
+	Buffer.from(JSON.stringify(value)).toString('base64').replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
 
 /**
  * The same unsigned token `helpers.ts` puts in the cookies, with a `jti` of this test's own: the memo keys an answer
@@ -69,7 +65,9 @@ function withToken(cookieHeader: string, token: string): string {
 
 const sha256 = (value: string) => createHash('sha256').update(value).digest('hex');
 
-async function sessionChecks(mock: { requests: () => Promise<Array<{ method: string; path: string; status: number }>> }) {
+async function sessionChecks(mock: {
+	requests: () => Promise<Array<{ method: string; path: string; status: number }>>;
+}) {
 	return (await mock.requests())
 		.filter((request) => request.path === '/api/user/me')
 		.map((request) => `${request.method} ${request.path} ${request.status}`);
@@ -84,7 +82,10 @@ const nextNonce = () => `nonce-${Date.now()}-${(nonceCounter += 1)}`;
 
 test.describe('a route guarded by the session check asks the API who the caller is', () => {
 	for (const route of CHECKED_ROUTES) {
-		test(`${route.verb} ${route.path} with no session: the check runs, with no credential in it`, async ({ api, mock }) => {
+		test(`${route.verb} ${route.path} with no session: the check runs, with no credential in it`, async ({
+			api,
+			mock
+		}) => {
 			const why = `${route.verb} ${route.path} (${GUARD})`;
 			const response = await api(route.path, { method: route.verb, anonymous: true });
 			const text = await response.text();
@@ -108,7 +109,10 @@ test.describe('a route guarded by the session check asks the API who the caller 
 				response.status(),
 				`${why}: this route refused the signed-out caller by itself (${response.status()} ${text}) — the guard delegates that to the API, so a 401 here means the answer came from upstream`
 			).not.toBe(401);
-			expect(response.status(), `${why}: the route crashed the handler (${response.status()} ${text})`).toBeLessThan(500);
+			expect(
+				response.status(),
+				`${why}: the route crashed the handler (${response.status()} ${text})`
+			).toBeLessThan(500);
 		});
 	}
 
@@ -119,7 +123,9 @@ test.describe('a route guarded by the session check asks the API who the caller 
 		const text = await response.text();
 
 		expect(response.status(), `the guarded read answered ${response.status()} ${text}`).toBe(200);
-		expect(await sessionChecks(mock), `the session check was not made: ${await wholeLog(mock)}`).toEqual(['GET /api/user/me 200']);
+		expect(await sessionChecks(mock), `the session check was not made: ${await wholeLog(mock)}`).toEqual([
+			'GET /api/user/me 200'
+		]);
 
 		// The mock keeps no token, only its hash, so this compares the hash of the cookie's token with the hash of
 		// what arrived: exactly one, and it is this session's.
@@ -141,9 +147,16 @@ test.describe('a route guarded by the session check asks the API who the caller 
 		const second = await api('/api/issue-types', { headers: { cookie } });
 		const third = await api('/api/daily-plan', { headers: { cookie } });
 
-		expect(first.status(), `the first guarded read answered ${first.status()} ${await first.text()}`).toBeLessThan(500);
-		expect(second.status(), `the second guarded read answered ${second.status()} ${await second.text()}`).toBeLessThan(500);
-		expect(third.status(), `the third guarded read answered ${third.status()} ${await third.text()}`).toBeLessThan(500);
+		expect(first.status(), `the first guarded read answered ${first.status()} ${await first.text()}`).toBeLessThan(
+			500
+		);
+		expect(
+			second.status(),
+			`the second guarded read answered ${second.status()} ${await second.text()}`
+		).toBeLessThan(500);
+		expect(third.status(), `the third guarded read answered ${third.status()} ${await third.text()}`).toBeLessThan(
+			500
+		);
 
 		expect(
 			await sessionChecks(mock),
@@ -183,15 +196,18 @@ test.describe('a route guarded by the session check asks the API who the caller 
 		const cookie = withToken(cookies('A'), token);
 
 		const checked = await api('/api/task-statuses', { headers: { cookie } });
-		expect(checked.status(), `the ordinary guarded read answered ${checked.status()} ${await checked.text()}`).toBeLessThan(
-			500
-		);
+		expect(
+			checked.status(),
+			`the ordinary guarded read answered ${checked.status()} ${await checked.text()}`
+		).toBeLessThan(500);
 
 		const roomless = await api('/api/livekit', { headers: { cookie } });
 		const text = await roomless.text();
 		// The check runs before the route looks at its query, so a request the route refuses for a missing room
 		// still paid the fresh check.
-		expect(roomless.status(), `the livekit route refused a missing room with ${roomless.status()} ${text}`).toBe(400);
+		expect(roomless.status(), `the livekit route refused a missing room with ${roomless.status()} ${text}`).toBe(
+			400
+		);
 
 		const checks = await receivedTokens('/api/user/me');
 		expect(
@@ -200,7 +216,12 @@ test.describe('a route guarded by the session check asks the API who the caller 
 		).toEqual([sha256(token), sha256(token)]);
 	});
 
-	test('an API that cannot answer the check is not reported as an expired session', async ({ api, cookies, ids, mock }) => {
+	test('an API that cannot answer the check is not reported as an expired session', async ({
+		api,
+		cookies,
+		ids,
+		mock
+	}) => {
 		// `SessionCheckMemo.withDeadline` gives a check 15 s (SESSION_CHECK_DEADLINE_MS) and the guard answers a
 		// check that never produced an answer with 503, so the browser client does not treat an outage as a session
 		// to throw away. A mock delay past the deadline stands for an API that never answers.

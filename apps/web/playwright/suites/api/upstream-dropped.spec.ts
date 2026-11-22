@@ -1,6 +1,7 @@
 import { expect, test } from '../../api-fixtures';
 import { MOCK_ORIGIN } from '../../test-servers';
 import { mockReset, mockScenario } from '../../helpers';
+import { logOf, parseAnswer, triple } from './log-helpers';
 
 /**
  * The upstream accepted the connection, took the request, and answered nothing at all. `suites/api/upstream-outage.spec.ts`
@@ -93,18 +94,7 @@ async function dropSwitchIsLive(): Promise<boolean> {
 	return dropSwitch === 'live';
 }
 
-const parseAnswer = (text: string): unknown => {
-	try {
-		return JSON.parse(text) as unknown;
-	} catch {
-		return text;
-	}
-};
-
-const triple = (request: { method: string; path: string; status: number }) =>
-	`${request.method} ${request.path} ${request.status}`;
-const logOf = (requests: Array<{ method: string; path: string; status: number }>) =>
-	requests.map(triple).join(', ');
+// The same `parseAnswer` / `triple` / `logOf` the other `suites/api` specs read, from `./log-helpers.ts`.
 
 test.beforeAll(async () => {
 	dropSwitch = (await dropSwitchIsLive()) ? 'live' : 'absent';
@@ -130,7 +120,10 @@ test.afterEach(async () => {
 test.describe('api · a proxy route whose upstream connection is cut off', () => {
 	const PROXY_PATH = '/api/auth/switch-organization';
 
-	test("the answer is the proxy's own outage body, and the log says the call was asked and cut", async ({ api, mock }) => {
+	test("the answer is the proxy's own outage body, and the log says the call was asked and cut", async ({
+		api,
+		mock
+	}) => {
 		await mockScenario({ drops: { [PROXY_PATH]: 1 } });
 		const response = await api(PROXY_PATH, { method: 'POST', body: { organizationId: 'playwright-drop-probe' } });
 		const text = await response.text();
@@ -143,9 +136,10 @@ test.describe('api · a proxy route whose upstream connection is cut off', () =>
 
 		// The witness that this is the third reading and not the first: the mock really was asked.
 		const asked = await mock.calls(PROXY_PATH);
-		expect(asked.map(triple), `the cut call must be in the mock log as a cut call; whole log: ${logOf(await mock.requests())}`).toEqual([
-			`POST ${PROXY_PATH} 0`
-		]);
+		expect(
+			asked.map(triple),
+			`the cut call must be in the mock log as a cut call; whole log: ${logOf(await mock.requests())}`
+		).toEqual([`POST ${PROXY_PATH} 0`]);
 	});
 
 	test("the caller's session had already left this app when the connection died", async ({ api, mock }) => {
@@ -162,7 +156,10 @@ test.describe('api · a proxy route whose upstream connection is cut off', () =>
 		).toBeGreaterThan(0);
 	});
 
-	test('a cross-site write is still refused before anything is asked, even with that path dying', async ({ api, mock }) => {
+	test('a cross-site write is still refused before anything is asked, even with that path dying', async ({
+		api,
+		mock
+	}) => {
 		await mockScenario({ drops: { [PROXY_PATH]: 1 } });
 		const response = await api(PROXY_PATH, {
 			method: 'POST',
@@ -172,7 +169,10 @@ test.describe('api · a proxy route whose upstream connection is cut off', () =>
 		const text = await response.text();
 
 		expect(response.status(), `a foreign Origin over a dying upstream: ${text}`).toBe(403);
-		expect(parseAnswer(text), `the refusal must be this app's own words, not the outage's (body: ${text})`).toMatchObject({
+		expect(
+			parseAnswer(text),
+			`the refusal must be this app's own words, not the outage's (body: ${text})`
+		).toMatchObject({
 			message: 'Cross-site request refused'
 		});
 		// `forward-to-gauzy.ts:89-90` returns the refusal before the forwarding call, so the dying path was never asked.
@@ -202,14 +202,20 @@ test.describe('api · a proxy route whose upstream connection is cut off', () =>
 		).toEqual([]);
 	});
 
-	test('a GET proxy route answers the same outage shape (the 502 is not a POST-only answer)', async ({ api, mock }) => {
+	test('a GET proxy route answers the same outage shape (the 502 is not a POST-only answer)', async ({
+		api,
+		mock
+	}) => {
 		const getPath = '/api/auth/workspaces';
 		await mockScenario({ drops: { [getPath]: 1 } });
 		const response = await api(getPath);
 		const text = await response.text();
 
 		expect(response.status(), `GET ${getPath} over a cut upstream: ${text}`).toBe(502);
-		expect(parseAnswer(text), `body: ${text}`).toMatchObject({ statusCode: 502, message: 'The Gauzy API is unreachable' });
+		expect(parseAnswer(text), `body: ${text}`).toMatchObject({
+			statusCode: 502,
+			message: 'The Gauzy API is unreachable'
+		});
 		expect((await mock.calls(getPath)).map(triple), `whole mock log: ${logOf(await mock.requests())}`).toEqual([
 			`GET ${getPath} 0`
 		]);
@@ -229,7 +235,7 @@ test.describe('api · a proxy route whose upstream connection is cut off', () =>
 		expect(entries, `whole mock log: ${logOf(await mock.requests())}`).toEqual([`GET ${healthy} 200`]);
 	});
 
-	test('mockReset() clears the arm, exactly as it clears a delay', async ({ api, mock }) => {
+	test('mockReset() clears the arm, exactly as it clears a delay', async ({ api }) => {
 		const getPath = '/api/auth/workspaces';
 		await mockScenario({ drops: { [getPath]: 1 } });
 		expect((await api(getPath)).status(), 'the armed path must answer 502 before the reset').toBe(502);
@@ -243,7 +249,7 @@ test.describe('api · a proxy route whose upstream connection is cut off', () =>
 test.describe('api · a guarded route whose session-check connection is cut off', () => {
 	const GUARDED_PATH = '/api/activity-log';
 
-	test('a cut session check is an outage (503), not an expired session (401)', async ({ api, mock }) => {
+	test('a cut session check is an outage (503), not an expired session (401)', async ({ api }) => {
 		await mockScenario({ drops: { '/api/user/me': 1 } });
 		const response = await api(GUARDED_PATH);
 		const text = await response.text();
@@ -305,9 +311,10 @@ test.describe('api · the pass-through half answers an outage with a status and 
 		const keys = body && typeof body === 'object' ? Object.keys(body) : [];
 		expect(parseAnswer(text), `the pass-through's outage body: ${text}`).toMatchObject({ statusCode: 502 });
 		expect(keys, `no message on this 502, unlike forward-to-gauzy's (body: ${text})`).not.toContain('message');
-		expect((await mock.calls(PASS_THROUGH_PATH)).map(triple), `whole mock log: ${logOf(await mock.requests())}`).toEqual([
-			`GET ${PASS_THROUGH_PATH} 0`
-		]);
+		expect(
+			(await mock.calls(PASS_THROUGH_PATH)).map(triple),
+			`whole mock log: ${logOf(await mock.requests())}`
+		).toEqual([`GET ${PASS_THROUGH_PATH} 0`]);
 	});
 });
 
@@ -316,9 +323,10 @@ test.describe('api · the cut-call witness itself', () => {
 
 	test('a cut call is never counted as an upstream refusal', async ({ api, mock }) => {
 		await mockScenario({ drops: { [PROXY_PATH]: 1 } });
-		expect((await api(PROXY_PATH, { method: 'POST', body: { organizationId: 'playwright-drop-probe' } })).status(), 'expected 502').toBe(
-			502
-		);
+		expect(
+			(await api(PROXY_PATH, { method: 'POST', body: { organizationId: 'playwright-drop-probe' } })).status(),
+			'expected 502'
+		).toBe(502);
 
 		// `api-fixtures.ts`'s `failures()` filters `status >= 400`. `status: 0` in the log therefore reads as "answered
 		// nothing" and not as "refused", which is what keeps the three log readings apart. If the mock ever recorded a cut
@@ -328,8 +336,9 @@ test.describe('api · the cut-call witness itself', () => {
 			failures.filter((entry) => entry.path === PROXY_PATH).map(triple),
 			`a cut call must not appear in failures(); whole log: ${logOf(await mock.requests())}`
 		).toEqual([]);
-		expect((await mock.requests()).some((entry) => entry.status === 0), 'the cut call must be in the log with status 0').toBe(
-			true
-		);
+		expect(
+			(await mock.requests()).some((entry) => entry.status === 0),
+			'the cut call must be in the log with status 0'
+		).toBe(true);
 	});
 });

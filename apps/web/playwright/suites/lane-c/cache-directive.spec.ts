@@ -34,7 +34,11 @@ const NO_DIRECTIVE = '<no Cache-Control header on this answer>';
 
 /** The routes that pass `{ noStore: true }` (read from their files), with the answer each one is about. */
 const MARKED: Array<{ verb: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'; path: string; about: string }> = [
-	{ verb: 'GET', path: '/api/auth/sessions', about: "the person's own sessions, which is what a stolen cookie looks like" },
+	{
+		verb: 'GET',
+		path: '/api/auth/sessions',
+		about: "the person's own sessions, which is what a stolen cookie looks like"
+	},
 	{ verb: 'POST', path: '/api/embed-credentials', about: 'a credential this app creates and shows once' },
 	{ verb: 'GET', path: '/api/invoice-payments/connection', about: 'the workspace’s payment connector' }
 ];
@@ -61,7 +65,10 @@ test.describe('a route that asks for no-store answers with it', () => {
 		});
 	}
 
-	test('the cross-site refusal is marked no-store, so a cache cannot hold a browser to a 403', async ({ api, mock }) => {
+	test('the cross-site refusal is marked no-store, so a cache cannot hold a browser to a 403', async ({
+		api,
+		mock
+	}) => {
 		// `same-origin-request.ts` `refused()` sets the header on its 403; this is the guard's own answer, not a
 		// proxied one, and it is the refusal most likely to be replayed by a cache if it were ever cacheable.
 		const response = await api('/api/chat/conversations', {
@@ -76,7 +83,10 @@ test.describe('a route that asks for no-store answers with it', () => {
 			response.headers()['cache-control'] ?? NO_DIRECTIVE,
 			`the cross-site 403 was answered with a cache-control of "${response.headers()['cache-control'] ?? ''}": ${text}`
 		).toContain('no-store');
-		expect(await mock.requests(), `the cross-site 403 reached the API: ${JSON.stringify(await mock.requests())}`).toEqual([]);
+		expect(
+			await mock.requests(),
+			`the cross-site 403 reached the API: ${JSON.stringify(await mock.requests())}`
+		).toEqual([]);
 	});
 });
 
@@ -109,7 +119,10 @@ test.describe('the refusals of the same proxy are not marked, pinned rather than
 			response.headers()['cache-control'] ?? NO_DIRECTIVE,
 			`the 415 answered with a cache-control of "${response.headers()['cache-control'] ?? ''}": ${text}`
 		).toBe(NO_DIRECTIVE);
-		expect(await mock.requests(), `the refused body reached the API: ${JSON.stringify(await mock.requests())}`).toEqual([]);
+		expect(
+			await mock.requests(),
+			`the refused body reached the API: ${JSON.stringify(await mock.requests())}`
+		).toEqual([]);
 	});
 });
 

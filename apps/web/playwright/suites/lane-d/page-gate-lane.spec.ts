@@ -32,7 +32,6 @@ import { freshSessionCookie, logLines, sha256 } from './lane-d-session';
  * `suites/lane-c/session-check.spec.ts`. A fresh token also makes the `receivedTokens` hash unambiguous.
  */
 
-
 /** Read, in the order `APPLICATION_LANGUAGES_CODE` lists them (`constants.tsx:567-580`); `apps/web/locales/` holds exactly these 13 JSON files. */
 const LOCALES = ['en', 'fr', 'ar', 'bg', 'zh', 'nl', 'de', 'he', 'it', 'pl', 'pt', 'ru', 'es'];
 
@@ -41,26 +40,81 @@ type Family = { family: string; path: string; pageFile: string; alreadyPinnedByA
 
 /** Every path here is a `find "apps/web/app/[locale]" -name page.tsx` result (see PLAN.md §2). */
 const PROTECTED_FAMILIES: Family[] = [
-	{ family: 'settings', path: '/settings/personal', pageFile: 'app/[locale]/(main)/settings/personal/page.tsx', alreadyPinnedByApiLane: true },
-	{ family: 'settings', path: '/settings/team/members', pageFile: 'app/[locale]/(main)/settings/team/members/page.tsx', alreadyPinnedByApiLane: true },
-	{ family: 'settings', path: '/settings/workspace/embeds', pageFile: 'app/[locale]/(main)/settings/workspace/embeds/page.tsx', alreadyPinnedByApiLane: false },
-	{ family: 'profile', path: '/profile', pageFile: '(no page file: only app/[locale]/(main)/profile/[memberId]/page.tsx exists)', alreadyPinnedByApiLane: true },
-	{ family: 'profile', path: '/profile/placeholder-member', pageFile: 'app/[locale]/(main)/profile/[memberId]/page.tsx', alreadyPinnedByApiLane: false },
-	{ family: 'task', path: '/task/eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee', pageFile: 'app/[locale]/(main)/task/[id]/page.tsx', alreadyPinnedByApiLane: true },
+	{
+		family: 'settings',
+		path: '/settings/personal',
+		pageFile: 'app/[locale]/(main)/settings/personal/page.tsx',
+		alreadyPinnedByApiLane: true
+	},
+	{
+		family: 'settings',
+		path: '/settings/team/members',
+		pageFile: 'app/[locale]/(main)/settings/team/members/page.tsx',
+		alreadyPinnedByApiLane: true
+	},
+	{
+		family: 'settings',
+		path: '/settings/workspace/embeds',
+		pageFile: 'app/[locale]/(main)/settings/workspace/embeds/page.tsx',
+		alreadyPinnedByApiLane: false
+	},
+	{
+		family: 'profile',
+		path: '/profile',
+		pageFile: '(no page file: only app/[locale]/(main)/profile/[memberId]/page.tsx exists)',
+		alreadyPinnedByApiLane: true
+	},
+	{
+		family: 'profile',
+		path: '/profile/placeholder-member',
+		pageFile: 'app/[locale]/(main)/profile/[memberId]/page.tsx',
+		alreadyPinnedByApiLane: false
+	},
+	{
+		family: 'task',
+		path: '/task/eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee',
+		pageFile: 'app/[locale]/(main)/task/[id]/page.tsx',
+		alreadyPinnedByApiLane: true
+	},
 	{ family: 'meet', path: '/meet', pageFile: 'app/[locale]/(main)/meet/page.tsx', alreadyPinnedByApiLane: true },
 	{ family: 'board', path: '/board', pageFile: 'app/[locale]/(main)/board/page.tsx', alreadyPinnedByApiLane: true },
 	{ family: 'views', path: '/views', pageFile: 'app/[locale]/(main)/views/page.tsx', alreadyPinnedByApiLane: true },
-	{ family: 'work-diary', path: '/work-diary', pageFile: 'app/[locale]/(main)/work-diary/page.tsx', alreadyPinnedByApiLane: true },
-	{ family: 'my-week', path: '/my-week', pageFile: 'app/[locale]/(main)/my-week/page.tsx', alreadyPinnedByApiLane: true },
+	{
+		family: 'work-diary',
+		path: '/work-diary',
+		pageFile: 'app/[locale]/(main)/work-diary/page.tsx',
+		alreadyPinnedByApiLane: true
+	},
+	{
+		family: 'my-week',
+		path: '/my-week',
+		pageFile: 'app/[locale]/(main)/my-week/page.tsx',
+		alreadyPinnedByApiLane: true
+	},
 	// The seven AUDIT finding 11 says nobody pins:
 	{ family: 'goals', path: '/goals', pageFile: 'app/[locale]/(main)/goals/page.tsx', alreadyPinnedByApiLane: false },
 	{ family: 'inbox', path: '/inbox', pageFile: 'app/[locale]/(main)/inbox/page.tsx', alreadyPinnedByApiLane: false },
-	{ family: 'favorites', path: '/favorites', pageFile: 'app/[locale]/(main)/favorites/page.tsx', alreadyPinnedByApiLane: false },
+	{
+		family: 'favorites',
+		path: '/favorites',
+		pageFile: 'app/[locale]/(main)/favorites/page.tsx',
+		alreadyPinnedByApiLane: false
+	},
 	{ family: 'chat', path: '/chat', pageFile: 'app/[locale]/(main)/chat/page.tsx', alreadyPinnedByApiLane: false },
-	{ family: 'chat', path: '/chat/threads', pageFile: 'app/[locale]/(main)/chat/threads/page.tsx', alreadyPinnedByApiLane: false },
+	{
+		family: 'chat',
+		path: '/chat/threads',
+		pageFile: 'app/[locale]/(main)/chat/threads/page.tsx',
+		alreadyPinnedByApiLane: false
+	},
 	{ family: 'docs', path: '/docs', pageFile: 'app/[locale]/(main)/docs/page.tsx', alreadyPinnedByApiLane: false },
 	{ family: 'about', path: '/about', pageFile: 'app/[locale]/(main)/about/page.tsx', alreadyPinnedByApiLane: false },
-	{ family: 'workspace', path: '/workspace/new', pageFile: 'app/[locale]/(main)/workspace/new/page.tsx', alreadyPinnedByApiLane: false }
+	{
+		family: 'workspace',
+		path: '/workspace/new',
+		pageFile: 'app/[locale]/(main)/workspace/new/page.tsx',
+		alreadyPinnedByApiLane: false
+	}
 ];
 
 /** Page families `PROTECTED_APP_URL_PATHS` does not name, all found on disk (PLAN.md §3). Pinned as findings. */
@@ -99,7 +153,10 @@ async function door(api: ApiCall, path: string, options: Parameters<ApiCall>[1] 
 	return { status, location, landed: landed ? `${landed.origin}${landed.pathname}` : '', body };
 }
 
-const asPage = (cookieHeader: string): Parameters<ApiCall>[1] => ({ maxRedirects: 0, headers: { cookie: cookieHeader } });
+const asPage = (cookieHeader: string): Parameters<ApiCall>[1] => ({
+	maxRedirects: 0,
+	headers: { cookie: cookieHeader }
+});
 
 test.describe('lane-d · every protected family is refused to an anonymous visitor', () => {
 	test('the site root goes to the default sign-in page', async ({ api }) => {
@@ -116,14 +173,16 @@ test.describe('lane-d · every protected family is refused to an anonymous visit
 				answer.status,
 				`GET ${entry.path} answered ${answer.status}, not the 307 proxy.ts:519-522 gives a protected path with no token (${answer.body.slice(0, 160)})`
 			).toBe(307);
-			expect(answer.landed, `${entry.path} redirected to ${answer.location}, not ${APP_ORIGIN}/unauthorized`).toBe(
-				`${APP_ORIGIN}/unauthorized`
-			);
+			expect(
+				answer.landed,
+				`${entry.path} redirected to ${answer.location}, not ${APP_ORIGIN}/unauthorized`
+			).toBe(`${APP_ORIGIN}/unauthorized`);
 			// The refusal is decided before anything is asked: CASE 1 (`proxy.ts:519-522`) holds no token to ask about.
 			const log = await mock.requests();
-			expect(log, `the door asked this lane's mock something while refusing ${entry.path}: ${logLines(log).join(', ')}`).toEqual(
-				[]
-			);
+			expect(
+				log,
+				`the door asked this lane's mock something while refusing ${entry.path}: ${logLines(log).join(', ')}`
+			).toEqual([]);
 		});
 	}
 });
@@ -142,7 +201,7 @@ test.describe('lane-d · a signed-in fixture person is not bounced', () => {
 	const SIGNED_IN_ANSWER: Record<string, number> = { '/profile': 404 };
 
 	for (const entry of PROTECTED_FAMILIES) {
-		test(`${entry.path} is served to a session that is present`, async ({ api, mock, cookies, ids }) => {
+		test(`${entry.path} is served to a session that is present`, async ({ api, cookies, ids }) => {
 			const { header: cookieHeader, token } = freshSessionCookie(
 				cookies('A'),
 				ids.user,
@@ -155,14 +214,19 @@ test.describe('lane-d · a signed-in fixture person is not bounced', () => {
 				answer.status,
 				`GET ${entry.path} with a session answered ${answer.status} → ${answer.location || '(no Location)'} (${answer.body.slice(0, 160)}); expected ${SIGNED_IN_ANSWER[entry.path] ?? 200}`
 			).toBe(SIGNED_IN_ANSWER[entry.path] ?? 200);
-			expect(answer.location, `a session present at ${entry.path} still got a Location: ${answer.location}`).toBe('');
+			expect(answer.location, `a session present at ${entry.path} still got a Location: ${answer.location}`).toBe(
+				''
+			);
 
 			// The door asked this lane's mock who the session belongs to: proxy.ts:523-546 → currentAuthenticatedUserRequest
 			// → GET /user/me (requests/auth.ts:141-158) → logged by the mock as /api/user/me.
-			const log = await mockRequestsWhen((entries) => entries.some((request) => request.path === '/api/user/me'), {
-				tries: 20,
-				intervalMs: 250
-			});
+			const log = await mockRequestsWhen(
+				(entries) => entries.some((request) => request.path === '/api/user/me'),
+				{
+					tries: 20,
+					intervalMs: 250
+				}
+			);
 			const tokens = await receivedTokens('/api/user/me');
 			expect(
 				tokens,
@@ -171,7 +235,10 @@ test.describe('lane-d · a signed-in fixture person is not bounced', () => {
 
 			// A fetch runs no page code, so nothing else was asked: the door's read, and only it.
 			const other = log.filter((request) => request.path !== '/api/user/me');
-			expect(other, `the door visit asked the mock more than the session check: ${logLines(other).join(', ')}`).toEqual([]);
+			expect(
+				other,
+				`the door visit asked the mock more than the session check: ${logLines(other).join(', ')}`
+			).toEqual([]);
 		});
 	}
 });
@@ -194,7 +261,9 @@ test.describe('lane-d · the gate does not depend on the locale prefix', () => {
 			// `pt` is in the matcher (`proxy.ts:99`) and in LOCALE_PREFIX, and is outside the api lane's four locales.
 			const answer = await door(api, `/pt${entry.path}`);
 			expect(answer.status, `GET /pt${entry.path} answered ${answer.status}, not 307`).toBe(307);
-			expect(answer.landed, `/pt${entry.path} redirected to ${answer.location}`).toBe(`${APP_ORIGIN}/unauthorized`);
+			expect(answer.landed, `/pt${entry.path} redirected to ${answer.location}`).toBe(
+				`${APP_ORIGIN}/unauthorized`
+			);
 		});
 	}
 
@@ -256,11 +325,15 @@ test.describe('lane-d · page families the gate does not cover', () => {
 				`${path} now renders its page (or a login form) in the served HTML — the ClientOnly boundary at layout-component.tsx:40-42 moved`
 			).not.toMatch(/<form/i);
 			const log = await mock.requests();
-			expect(log, `serving ${path} to an anonymous visitor asked the mock: ${logLines(log).join(', ')}`).toEqual([]);
+			expect(log, `serving ${path} to an anonymous visitor asked the mock: ${logLines(log).join(', ')}`).toEqual(
+				[]
+			);
 		});
 	}
 
-	test('/team/join reaches a visitor for a different reason than /team/tasks does — pinned, not approved', async ({ api }) => {
+	test('/team/join reaches a visitor for a different reason than /team/tasks does — pinned, not approved', async ({
+		api
+	}) => {
 		// Read from proxy.ts:158-165, and it is not the reason this file first gave:
 		//
 		//     if (!paths.includes('join') && (paths[0] === 'team' || (LANGS.includes(paths[0]) && paths[1] === 'team')))
@@ -309,13 +382,24 @@ test.describe('lane-d · page families the gate does not cover', () => {
 		// bounce itself is decided from the cookie alone (`:462` reads expiry locally, no API call), which is what the
 		// empty mock log below proves.
 		const anonymous = await door(api, '/auth/workspace');
-		expect(anonymous.status, `/auth/workspace was gated to an anonymous visitor (${anonymous.status} → ${anonymous.location})`).toBe(200);
+		expect(
+			anonymous.status,
+			`/auth/workspace was gated to an anonymous visitor (${anonymous.status} → ${anonymous.location})`
+		).toBe(200);
 
-		const { header: cookieHeader } = freshSessionCookie(cookies('A'), ids.user, ids.organizationA, 'lane-d-auth-workspace');
+		const { header: cookieHeader } = freshSessionCookie(
+			cookies('A'),
+			ids.user,
+			ids.organizationA,
+			'lane-d-auth-workspace'
+		);
 		const answers: string[] = [];
 		const bareBounce = await door(api, '/auth/workspace', asPage(cookieHeader));
 		answers.push(`/auth/workspace → ${bareBounce.status} ${bareBounce.location || '(no Location)'}`);
-		expect(bareBounce.status, `/auth/workspace answered ${bareBounce.status} to a session, not the 307 proxy.ts:469 gives it`).toBe(307);
+		expect(
+			bareBounce.status,
+			`/auth/workspace answered ${bareBounce.status} to a session, not the 307 proxy.ts:469 gives it`
+		).toBe(307);
 		expect(
 			bareBounce.landed,
 			`finding D-4: /auth/workspace bounced its session to ${bareBounce.location} — the root it lands on carries no locale prefix`
@@ -351,10 +435,16 @@ test.describe('lane-d · Sec-Fetch-Site variants against a protected page', () =
 	// `same-site` at `:18`) is what reads these headers, and proxy.ts
 	// imports neither it nor refuseForeignWrite: the page door cannot be origin-guarded today (AUDIT finding 5).
 	for (const path of ['/settings/personal', '/chat']) {
-		test(`an anonymous visit to ${path} answers the same whichever Sec-Fetch-Site claims`, async ({ api, mock }) => {
+		test(`an anonymous visit to ${path} answers the same whichever Sec-Fetch-Site claims`, async ({
+			api,
+			mock
+		}) => {
 			const answers = [];
 			for (const variant of VARIANTS) {
-				answers.push({ variant: variant.label, answer: await door(api, path, { anonymous: true, maxRedirects: 0, headers: variant.headers }) });
+				answers.push({
+					variant: variant.label,
+					answer: await door(api, path, { anonymous: true, maxRedirects: 0, headers: variant.headers })
+				});
 			}
 			const reference = answers[0].answer;
 			for (const entry of answers) {
@@ -383,10 +473,15 @@ test.describe('lane-d · Sec-Fetch-Site variants against a protected page', () =
 			for (const variant of VARIANTS) {
 				answers.push({
 					variant: variant.label,
-					answer: await door(api, path, { maxRedirects: 0, headers: { ...variant.headers, cookie: cookieHeader } })
+					answer: await door(api, path, {
+						maxRedirects: 0,
+						headers: { ...variant.headers, cookie: cookieHeader }
+					})
 				});
 			}
-			console.log(`[lane-d] ${path} signed-in: ${answers.map((entry) => `${entry.variant}=${entry.answer.status}${entry.answer.landed ? `→${entry.answer.landed}` : ''}`).join(' | ')}`);
+			console.log(
+				`[lane-d] ${path} signed-in: ${answers.map((entry) => `${entry.variant}=${entry.answer.status}${entry.answer.landed ? `→${entry.answer.landed}` : ''}`).join(' | ')}`
+			);
 			const statuses = new Set(answers.map((entry) => entry.answer.status));
 			expect(
 				statuses.size,
@@ -415,7 +510,12 @@ test.describe('lane-d · Sec-Fetch-Site variants against a protected page', () =
 		});
 	}
 
-	test('a page path carries no write handler for any Sec-Fetch-Site value, and no write reaches the mock', async ({ api, mock, cookies, ids }) => {
+	test('a page path carries no write handler for any Sec-Fetch-Site value, and no write reaches the mock', async ({
+		api,
+		mock,
+		cookies,
+		ids
+	}) => {
 		// A page.tsx exports a component, not a verb handler; and `refuseForeignWrite`
 		// (same-origin-request.ts:43-46, the GET/HEAD exemption AUDIT finding 5 pins) is consulted by route handlers
 		// only — a page path reaches none of it.

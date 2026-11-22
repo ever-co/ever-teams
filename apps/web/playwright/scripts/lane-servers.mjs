@@ -89,7 +89,9 @@ if (action === 'down') {
 		console.log(`lane ${laneName}: nothing listening on ${Object.values(ports).join(', ')}`);
 		process.exit(0);
 	}
-	console.log(`lane ${laneName}: killing ${[...victims].join(', ')} (only its own ports ${Object.values(ports).join(', ')})`);
+	console.log(
+		`lane ${laneName}: killing ${[...victims].join(', ')} (only its own ports ${Object.values(ports).join(', ')})`
+	);
 	for (const pid of victims) {
 		spawnSync('taskkill', ['/F', '/T', '/PID', pid], { stdio: 'inherit', shell: true });
 	}
@@ -108,7 +110,10 @@ if (action === 'down') {
  */
 const laneAppRuntimeEnv = async (port) => {
 	try {
-		const response = await fetch(`http://localhost:${port}/`, { redirect: 'follow', signal: AbortSignal.timeout(180_000) });
+		const response = await fetch(`http://localhost:${port}/`, {
+			redirect: 'follow',
+			signal: AbortSignal.timeout(180_000)
+		});
 		const html = await response.text();
 		const match = html.match(/data-ever-teams-runtime-env="([^"]*)"/);
 		if (!match) return undefined;
@@ -128,7 +133,9 @@ const laneAppRuntimeEnv = async (port) => {
 const laneAppMiswiring = async (lanePorts) => {
 	const env = await laneAppRuntimeEnv(lanePorts.app);
 	if (!env) {
-		return [`no runtime env on http://localhost:${lanePorts.app} — that lane's app is not answering (start it with \`up ${laneName}\`)`];
+		return [
+			`no runtime env on http://localhost:${lanePorts.app} — that lane's app is not answering (start it with \`up ${laneName}\`)`
+		];
 	}
 	/**
 	 * Only the public keys, because `getPublicRuntimeEnv()` (core/services/server/runtime-env.ts) is what the page
@@ -149,10 +156,14 @@ if (action === 'check') {
 	const problems = await laneAppMiswiring(ports);
 	if (problems.length) {
 		console.error(`lane ${laneName}: MISWIRED — ${problems.join('; ')}`);
-		console.error(`fix: \`down ${laneName}\` then \`up ${laneName}\` — a reused server keeps the environment it was started with.`);
+		console.error(
+			`fix: \`down ${laneName}\` then \`up ${laneName}\` — a reused server keeps the environment it was started with.`
+		);
 		process.exit(1);
 	}
-	console.log(`lane ${laneName}: OK — the app on ${ports.app} names its own mock ${ports.mock} and stats sink ${ports.platform}`);
+	console.log(
+		`lane ${laneName}: OK — the app on ${ports.app} names its own mock ${ports.mock} and stats sink ${ports.platform}`
+	);
 	process.exit(0);
 }
 
@@ -221,10 +232,14 @@ for (const port of [ports.control, ports.app]) {
 const problems = await laneAppMiswiring(ports);
 if (problems.length) {
 	console.error(`lane ${laneName}: MISWIRED — ${problems.join('; ')}`);
-	console.error(`a server left over from another run keeps the environment it was started with; run \`down ${laneName}\` first`);
+	console.error(
+		`a server left over from another run keeps the environment it was started with; run \`down ${laneName}\` first`
+	);
 	shutdown('miswired lane', 1);
 }
 console.log(`checked: the app on ${ports.app} names its own mock ${ports.mock} and statistics sink ${ports.platform}`);
 
-console.log(`ready: lane ${laneName} — app http://localhost:${ports.app}, mock ${ports.mock}, stats ${ports.platform}, control ${ports.control}, issuer ${ports.idp}`);
+console.log(
+	`ready: lane ${laneName} — app http://localhost:${ports.app}, mock ${ports.mock}, stats ${ports.platform}, control ${ports.control}, issuer ${ports.idp}`
+);
 console.log('leave this running while the lane runs Playwright; press Ctrl-C (or run `down`) when it is done.');

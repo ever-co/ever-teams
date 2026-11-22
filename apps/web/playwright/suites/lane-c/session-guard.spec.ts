@@ -97,20 +97,28 @@ test.describe('a signed-out caller is refused by the route, not by the API', () 
 		});
 	}
 
-	test('a session whose cookies name everything except the token is refused the same way', async ({ api, cookies, ids, mock }) => {
+	test('a session whose cookies name everything except the token is refused the same way', async ({
+		api,
+		cookies,
+		ids,
+		mock
+	}) => {
 		// The rest of the session is there — tenant, organization, team, user — so this is not a request
 		// with no cookies at all; it is a session that cannot be acted with, and the route must notice.
 		const response = await api('/api/chat/conversations', { headers: { cookie: cookies('A', ['auth-token']) } });
 		const text = await response.text();
 
 		expect(response.status(), `a tokenless session was answered by the API instead (${text})`).toBe(401);
-		expect(await mock.requests(), `a tokenless session reached the API anyway: ${JSON.stringify(await mock.requests())}`).toEqual(
-			[]
-		);
+		expect(
+			await mock.requests(),
+			`a tokenless session reached the API anyway: ${JSON.stringify(await mock.requests())}`
+		).toEqual([]);
 
 		// Not a tenant problem: the same cookies with their token are forwarded.
 		const signedIn = await api('/api/chat/conversations');
-		expect(signedIn.status(), `the same session with its token was not forwarded: ${await signedIn.text()}`).toBe(200);
+		expect(signedIn.status(), `the same session with its token was not forwarded: ${await signedIn.text()}`).toBe(
+			200
+		);
 		expect(ids.tenantA, 'the fixture lost its tenant id').toBeTruthy();
 	});
 
@@ -133,10 +141,15 @@ test.describe('a signed-out caller is refused by the route, not by the API', () 
 			// alone, so with the session's cookies present a request the browser says came from another
 			// site is forwarded. Pinned so that closing it (or widening the guard) is a decision somebody
 			// has to make here, in the open.
-			const response = await api('/api/auth/sessions', { headers: { origin: 'https://some-other-site.example' } });
+			const response = await api('/api/auth/sessions', {
+				headers: { origin: 'https://some-other-site.example' }
+			});
 			const text = await response.text();
 
-			expect(response.status(), `a cross-site read was refused as a write is (${response.status()} ${text})`).toBe(200);
+			expect(
+				response.status(),
+				`a cross-site read was refused as a write is (${response.status()} ${text})`
+			).toBe(200);
 			expect(
 				(await mock.calls('/api/auth/sessions')).map((call) => `${call.method} ${call.path}`),
 				`the cross-site read was not forwarded to the API: ${JSON.stringify(await mock.requests())}`
@@ -148,12 +161,17 @@ test.describe('a signed-out caller is refused by the route, not by the API', () 
 			// refused *as cross-site* — it is only refused if it has no session. Recorded here because the
 			// suite's own calls are exactly that kind of client, and a green cross-site suite must not be
 			// read as "a non-browser client cannot write".
-			const response = await api('/api/chat/conversations', { method: 'POST', body: { title: 'no origin here' } });
+			const response = await api('/api/chat/conversations', {
+				method: 'POST',
+				body: { title: 'no origin here' }
+			});
 			const text = await response.text();
 
 			expect(response.status(), `a signed-in write with no Origin header was refused (${text})`).toBe(200);
 			expect(
-				(await mock.calls('/api/chat/conversations')).map((call) => `${call.method} ${call.path} ${call.status}`),
+				(await mock.calls('/api/chat/conversations')).map(
+					(call) => `${call.method} ${call.path} ${call.status}`
+				),
 				`the write was not forwarded, so it was refused somewhere: ${text}`
 			).toEqual(['POST /api/chat/conversations 200']);
 		});
@@ -161,11 +179,16 @@ test.describe('a signed-out caller is refused by the route, not by the API', () 
 		test('a foreign Origin on a read that is also a proxy does not hide the read', async ({ api, mock }) => {
 			// Same rule from the other side: the origin check is not applied to GET at all, so a foreign
 			// Origin on a read is not a refusal, and the read reaches the API.
-			const response = await api('/api/realtime/events', { headers: { origin: 'https://some-other-site.example' } });
+			const response = await api('/api/realtime/events', {
+				headers: { origin: 'https://some-other-site.example' }
+			});
 			const text = await response.text();
 
 			expect(response.status(), `a foreign Origin turned a read into ${response.status()} (${text})`).toBe(200);
-			expect(await mock.calls('/api/realtime/events').then((calls) => calls.length), 'the read did not reach the API').toBe(1);
+			expect(
+				await mock.calls('/api/realtime/events').then((calls) => calls.length),
+				'the read did not reach the API'
+			).toBe(1);
 		});
 	});
 
@@ -194,7 +217,9 @@ test.describe('a signed-out caller is refused by the route, not by the API', () 
 
 			expect(response.status(), `a non-operator was shown the operator's status (${text})`).toBe(404);
 			expect(
-				(await mock.calls('/api/ever-stats/status')).map((call) => `${call.method} ${call.path} ${call.status}`),
+				(await mock.calls('/api/ever-stats/status')).map(
+					(call) => `${call.method} ${call.path} ${call.status}`
+				),
 				`the paired API was not asked who the operator is: ${JSON.stringify(await mock.requests())}`
 			).toEqual(['GET /api/ever-stats/status 404']);
 		});
@@ -214,7 +239,9 @@ test.describe('a signed-out caller is refused by the route, not by the API', () 
 		const laneName = process.env.E2E_LANE ?? '';
 		const lanePorts = LANE_PORTS[laneName];
 		if (!lanePorts) {
-			throw new Error(`E2E_LANE=${JSON.stringify(laneName)} is not a lane in LANE_PORTS, so this suite cannot name its own origin.`);
+			throw new Error(
+				`E2E_LANE=${JSON.stringify(laneName)} is not a lane in LANE_PORTS, so this suite cannot name its own origin.`
+			);
 		}
 		expect(
 			APP_ORIGIN,

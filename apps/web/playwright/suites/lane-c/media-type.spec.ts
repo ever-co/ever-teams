@@ -46,7 +46,12 @@ const PROXIED_WRITES: WriteProbe[] = [
 	{ verb: 'POST', path: '/api/plugins/docs/documents' }
 ];
 
-const DECLARED_TYPES = ['text/plain', 'application/x-www-form-urlencoded', 'multipart/form-data', 'application/octet-stream'];
+const DECLARED_TYPES = [
+	'text/plain',
+	'application/x-www-form-urlencoded',
+	'multipart/form-data',
+	'application/octet-stream'
+];
 
 async function write(api: ApiCall, probe: WriteProbe, headers: Record<string, string>) {
 	const response = await api(probe.path, { method: probe.verb, body: FORM_BODY, headers });
@@ -68,7 +73,9 @@ test.describe('a write whose body is not JSON is refused before it is read', () 
 				} catch {
 					// Left empty; the message below quotes the body.
 				}
-				expect(answer.message, `${why}: the 415 did not name the media type (${text})`).toBe('Unsupported Media Type');
+				expect(answer.message, `${why}: the 415 did not name the media type (${text})`).toBe(
+					'Unsupported Media Type'
+				);
 
 				expect(
 					(await mock.requests()).map((request) => `${request.method} ${request.path}`),
@@ -113,7 +120,10 @@ test.describe('a write whose body is not JSON is refused before it is read', () 
 		expect((await mock.calls('/api/chat/conversations')).length, 'the write never reached the API').toBe(1);
 	});
 
-	test('the gate is about a body, not about a request: a GET naming a media type is forwarded', async ({ api, mock }) => {
+	test('the gate is about a body, not about a request: a GET naming a media type is forwarded', async ({
+		api,
+		mock
+	}) => {
 		// `hasBody` is false for GET and HEAD, so a read that declares an odd type is not refused. Pinned so
 		// the gate is not read as a blanket content-type policy.
 		const response = await api('/api/chat/conversations', { headers: { 'content-type': 'text/plain' } });
@@ -134,12 +144,20 @@ test.describe('a write whose body is not JSON is refused before it is read', () 
 		});
 		const text = await response.text();
 
-		expect(response.status(), `a cross-site form post answered ${response.status()} ${text} instead of the origin refusal`).toBe(403);
-		expect(text, `the refusal was about the media type, not the origin: ${text}`).toContain('Cross-site request refused');
+		expect(
+			response.status(),
+			`a cross-site form post answered ${response.status()} ${text} instead of the origin refusal`
+		).toBe(403);
+		expect(text, `the refusal was about the media type, not the origin: ${text}`).toContain(
+			'Cross-site request refused'
+		);
 		expect(await mock.requests(), 'a cross-site form post reached the API').toEqual([]);
 	});
 
-	test('POST /api/user-api-tokens refuses the media type before it even asks who the caller is', async ({ api, mock }) => {
+	test('POST /api/user-api-tokens refuses the media type before it even asks who the caller is', async ({
+		api,
+		mock
+	}) => {
 		// This route's own gate (`isJsonRequest`) runs before `authenticatedGuard`, so unlike every other
 		// guard-backed route in this lane it asks the mock API nothing at all — not even the session check.
 		const response = await api('/api/user-api-tokens', {
@@ -150,6 +168,9 @@ test.describe('a write whose body is not JSON is refused before it is read', () 
 		const text = await response.text();
 
 		expect(response.status(), `a form-encoded token creation answered ${response.status()} ${text}`).toBe(415);
-		expect(await mock.requests(), 'the session check or the token creation reached the API despite the 415').toEqual([]);
+		expect(
+			await mock.requests(),
+			'the session check or the token creation reached the API despite the 415'
+		).toEqual([]);
 	});
 });

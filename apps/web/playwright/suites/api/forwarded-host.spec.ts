@@ -1,5 +1,6 @@
 import { expect, test, type StubRequest } from '../../api-fixtures';
 import { APP_ORIGIN } from '../../helpers';
+import { logOf, parseAnswer, triple } from './log-helpers';
 
 /**
  * `x-forwarded-host` decides what the origin guard compares against. This suite is the route-level test AUDIT.md finding 4
@@ -93,16 +94,7 @@ const PROBE_ROUTES = [
 	{ path: '/api/account-deletion/me', body: { confirm: true } }
 ];
 
-const triple = (request: { method: string; path: string; status: number }) => `${request.method} ${request.path} ${request.status}`;
-const logOf = (requests: Array<{ method: string; path: string; status: number }>) => requests.map(triple).join(', ');
-
-function parseAnswer(text: string): unknown {
-	try {
-		return JSON.parse(text) as unknown;
-	} catch {
-		return { unparsed: text.slice(0, 200) };
-	}
-}
+// `triple`, `logOf` and `parseAnswer` moved to `./log-helpers.ts` (PR #5675's SonarQube duplication finding).
 
 /**
  * "This app's own guard answered, in its own words." The message is what identifies the guard; the **shape is not the
@@ -147,7 +139,13 @@ for (const route of PROBE_ROUTES) {
 			});
 			const text = await response.text();
 			const asked = await mock.calls(route.path);
-			expectPastTheGuard(`own Origin (${OWN_ORIGIN}), no x-forwarded-host, ${route.path}`, response.status(), text, asked, await mock.requests());
+			expectPastTheGuard(
+				`own Origin (${OWN_ORIGIN}), no x-forwarded-host, ${route.path}`,
+				response.status(),
+				text,
+				asked,
+				await mock.requests()
+			);
 		});
 
 		test('control: a foreign Origin with an honest Host is refused here', async ({ api, mock }) => {
@@ -156,7 +154,11 @@ for (const route of PROBE_ROUTES) {
 				body: route.body,
 				headers: { origin: FOREIGN_ORIGIN, 'sec-fetch-site': 'same-origin' }
 			});
-			expectRefusedHere(`foreign Origin (${FOREIGN_ORIGIN}), no x-forwarded-host, ${route.path}`, response.status(), await response.text());
+			expectRefusedHere(
+				`foreign Origin (${FOREIGN_ORIGIN}), no x-forwarded-host, ${route.path}`,
+				response.status(),
+				await response.text()
+			);
 
 			const asked = await mock.calls(route.path);
 			expect(
@@ -165,7 +167,10 @@ for (const route of PROBE_ROUTES) {
 			).toEqual([]);
 		});
 
-		test('a foreign Origin whose forwarded host names this app is refused — the header cannot launder an Origin', async ({ api, mock }) => {
+		test('a foreign Origin whose forwarded host names this app is refused — the header cannot launder an Origin', async ({
+			api,
+			mock
+		}) => {
 			const response = await api(route.path, {
 				method: 'POST',
 				body: route.body,
@@ -182,15 +187,29 @@ for (const route of PROBE_ROUTES) {
 			 * does is hand the caller the right hand of the comparison: the case that matches is the one below, where the
 			 * caller names its *own* host.
 			 */
-			expectRefusedHere(`foreign Origin + x-forwarded-host: ${OWN_HOST}, ${route.path}`, response.status(), await response.text());
-			expect(await mock.calls(route.path), `${route.path} reached the test backend despite the refusal (whole log: ${logOf(await mock.requests())})`).toEqual([]);
+			expectRefusedHere(
+				`foreign Origin + x-forwarded-host: ${OWN_HOST}, ${route.path}`,
+				response.status(),
+				await response.text()
+			);
+			expect(
+				await mock.calls(route.path),
+				`${route.path} reached the test backend despite the refusal (whole log: ${logOf(await mock.requests())})`
+			).toEqual([]);
 		});
 
-		test("the comparison the caller can supply: a foreign Origin whose forwarded host names that same foreign host", async ({ api, mock }) => {
+		test('the comparison the caller can supply: a foreign Origin whose forwarded host names that same foreign host', async ({
+			api,
+			mock
+		}) => {
 			const response = await api(route.path, {
 				method: 'POST',
 				body: route.body,
-				headers: { origin: FOREIGN_ORIGIN, 'sec-fetch-site': 'same-origin', 'x-forwarded-host': new URL(FOREIGN_ORIGIN).host }
+				headers: {
+					origin: FOREIGN_ORIGIN,
+					'sec-fetch-site': 'same-origin',
+					'x-forwarded-host': new URL(FOREIGN_ORIGIN).host
+				}
 			});
 			const text = await response.text();
 			const asked = await mock.calls(route.path);
@@ -236,15 +255,29 @@ for (const route of PROBE_ROUTES) {
 			 * is kept for that reason: it is the control that shows the *other* cases' 403s are the guard's own body and
 			 * not something the header caused.
 			 */
-			expectRefusedHere(`foreign Origin + x-forwarded-host: ${UNRELATED_HOST}, ${route.path}`, response.status(), await response.text());
-			expect(await mock.calls(route.path), `${route.path} reached the API despite the refusal (whole log: ${logOf(await mock.requests())})`).toEqual([]);
+			expectRefusedHere(
+				`foreign Origin + x-forwarded-host: ${UNRELATED_HOST}, ${route.path}`,
+				response.status(),
+				await response.text()
+			);
+			expect(
+				await mock.calls(route.path),
+				`${route.path} reached the API despite the refusal (whole log: ${logOf(await mock.requests())})`
+			).toEqual([]);
 		});
 
-		test('the same list read the other way round: hosts[0] decides, so the caller puts its own host first', async ({ api, mock }) => {
+		test('the same list read the other way round: hosts[0] decides, so the caller puts its own host first', async ({
+			api,
+			mock
+		}) => {
 			const response = await api(route.path, {
 				method: 'POST',
 				body: route.body,
-				headers: { origin: FOREIGN_ORIGIN, 'sec-fetch-site': 'same-origin', 'x-forwarded-host': `${new URL(FOREIGN_ORIGIN).host}, ${OWN_HOST}` }
+				headers: {
+					origin: FOREIGN_ORIGIN,
+					'sec-fetch-site': 'same-origin',
+					'x-forwarded-host': `${new URL(FOREIGN_ORIGIN).host}, ${OWN_HOST}`
+				}
 			});
 			const text = await response.text();
 			const asked = await mock.calls(route.path);
@@ -268,7 +301,10 @@ for (const route of PROBE_ROUTES) {
 			).not.toEqual([]);
 		});
 
-		test("predicted reverse: this app's own Origin with a forwarded host naming another host is refused", async ({ api, mock }) => {
+		test("predicted reverse: this app's own Origin with a forwarded host naming another host is refused", async ({
+			api,
+			mock
+		}) => {
 			const response = await api(route.path, {
 				method: 'POST',
 				body: route.body,
@@ -289,10 +325,13 @@ for (const route of PROBE_ROUTES) {
 				response.status(),
 				await response.text()
 			);
-			expect(await mock.calls(route.path), `${route.path} reached the API despite the refusal (whole log: ${logOf(await mock.requests())})`).toEqual([]);
+			expect(
+				await mock.calls(route.path),
+				`${route.path} reached the API despite the refusal (whole log: ${logOf(await mock.requests())})`
+			).toEqual([]);
 		});
 
-		test('no Origin at all is outside this guard entirely, whatever the forwarded host says', async ({ api, mock }) => {
+		test('no Origin at all is outside this guard entirely, whatever the forwarded host says', async ({ api }) => {
 			/**
 			 * `same-origin-request.ts:20-21`: the host comparison runs only `if (origin)`. A write with no `Origin` — curl, a
 			 * non-browser client, a client the browser declines to attribute — passes this guard, and no value of
@@ -340,16 +379,26 @@ test.describe('api · the shared guard and the copy of it in account-deletion-me
 		const copyBody = parseAnswer(await copy.text()) as Record<string, unknown>;
 		expect(shared.status(), `the shared guard answered ${shared.status()} ${JSON.stringify(sharedBody)}`).toBe(403);
 		expect(copy.status(), `the copy answered ${copy.status()} ${JSON.stringify(copyBody)}`).toBe(403);
-		expect(sharedBody.message, `the shared guard's words: ${JSON.stringify(sharedBody)}`).toBe('Cross-site request refused');
+		expect(sharedBody.message, `the shared guard's words: ${JSON.stringify(sharedBody)}`).toBe(
+			'Cross-site request refused'
+		);
 		expect(copyBody.message, `the copy's words: ${JSON.stringify(copyBody)}`).toBe('Cross-site request refused');
 		// `refused()` writes statusCode into the body (`same-origin-request.ts:49-52`); `refuse()` does not
 		// (`account-deletion-me.ts:19-21`, which writes only `{ message }` plus `Cache-Control: no-store`). A client that
 		// reads `statusCode` out of a refusal body gets it from one guard and not the other.
-		expect(Object.keys(sharedBody), `the shared guard's body keys: ${JSON.stringify(sharedBody)}`).toContain('statusCode');
-		expect(Object.keys(copyBody), `the copy's body keys: ${JSON.stringify(copyBody)} — refuse() writes only { message }, so a client reading statusCode gets undefined here`).not.toContain('statusCode');
+		expect(Object.keys(sharedBody), `the shared guard's body keys: ${JSON.stringify(sharedBody)}`).toContain(
+			'statusCode'
+		);
+		expect(
+			Object.keys(copyBody),
+			`the copy's body keys: ${JSON.stringify(copyBody)} — refuse() writes only { message }, so a client reading statusCode gets undefined here`
+		).not.toContain('statusCode');
 	});
 
-	test('Sec-Fetch-Site: same-site — the shared guard refuses that value, the copy does not know it exists', async ({ api, mock }) => {
+	test('Sec-Fetch-Site: same-site — the shared guard refuses that value, the copy does not know it exists', async ({
+		api,
+		mock
+	}) => {
 		/**
 		 * `same-origin-request.ts:17-18` refuses `cross-site` **or** `same-site`; `account-deletion-me.ts:32` checks
 		 * `=== 'cross-site'` only. `same-site` is what a browser reports for a request between two pages of the *same
@@ -362,8 +411,15 @@ test.describe('api · the shared guard and the copy of it in account-deletion-me
 			body: { name: 'Playwright forwarded-host probe' },
 			headers: { origin: OWN_ORIGIN, 'sec-fetch-site': 'same-site' }
 		});
-		expectRefusedHere('the shared guard, Sec-Fetch-Site: same-site, this app own Origin', shared.status(), await shared.text());
-		expect(await mock.calls('/api/issue-types'), 'the shared guard refused, so nothing should have been asked of the API').toEqual([]);
+		expectRefusedHere(
+			'the shared guard, Sec-Fetch-Site: same-site, this app own Origin',
+			shared.status(),
+			await shared.text()
+		);
+		expect(
+			await mock.calls('/api/issue-types'),
+			'the shared guard refused, so nothing should have been asked of the API'
+		).toEqual([]);
 
 		const copy = await api('/api/account-deletion/me', {
 			method: 'POST',

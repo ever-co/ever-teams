@@ -219,7 +219,9 @@ const GUARDED: Guarded[] = [
 	}
 ];
 
-async function permissionReads(mock: { requests: () => Promise<Array<{ method: string; path: string; status: number }>> }) {
+async function permissionReads(mock: {
+	requests: () => Promise<Array<{ method: string; path: string; status: number }>>;
+}) {
 	return (await mock.requests())
 		.filter((request) => request.path === '/api/role-permissions/me')
 		.map((request) => `${request.method} ${request.path} ${request.status}`);
@@ -232,10 +234,19 @@ test.describe('a permission-guarded route refuses the fixture role itself', () =
 			const why = `${route.verb} ${path} (asks ${route.asks})`;
 
 			// 1. Nobody signed in: even the permission read is refused before it is made.
-			const anonymous = await api(path, { method: route.verb, body: route.verb === 'GET' ? undefined : {}, anonymous: true });
+			const anonymous = await api(path, {
+				method: route.verb,
+				body: route.verb === 'GET' ? undefined : {},
+				anonymous: true
+			});
 			const anonymousText = await anonymous.text();
-			expect(anonymous.status(), `${why}: a signed-out caller answered ${anonymous.status()} ${anonymousText}`).toBe(401);
-			expect(await mock.requests(), `${why}: the API was asked something for a caller with no session`).toEqual([]);
+			expect(
+				anonymous.status(),
+				`${why}: a signed-out caller answered ${anonymous.status()} ${anonymousText}`
+			).toBe(401);
+			expect(await mock.requests(), `${why}: the API was asked something for a caller with no session`).toEqual(
+				[]
+			);
 
 			// 2. Signed in, role without the permission: refused here, after exactly one permission read.
 			const signedIn = await api(path, { method: route.verb, body: route.verb === 'GET' ? undefined : {} });
@@ -248,7 +259,9 @@ test.describe('a permission-guarded route refuses the fixture role itself', () =
 			} catch {
 				// Left empty; the next message quotes what actually came back.
 			}
-			expect(answer.message, `${why}: the 403 did not name the resource refusal (${body})`).toBe('Forbidden resource');
+			expect(answer.message, `${why}: the 403 did not name the resource refusal (${body})`).toBe(
+				'Forbidden resource'
+			);
 
 			expect(await permissionReads(mock), `${why}: the guard did not read the role's permissions first`).toEqual([
 				'GET /api/role-permissions/me 200'
@@ -282,8 +295,14 @@ test.describe('a permission-guarded route refuses the fixture role itself', () =
 
 		const rows = probes.filter((route): route is Guarded => Boolean(route));
 		for (const route of rows) {
-			const response = await api(route.path(ids), { method: route.verb, body: route.verb === 'GET' ? undefined : {} });
-			expect(response.status(), `${route.verb} ${route.path(ids)}: answered ${response.status()} ${await response.text()}`).toBe(403);
+			const response = await api(route.path(ids), {
+				method: route.verb,
+				body: route.verb === 'GET' ? undefined : {}
+			});
+			expect(
+				response.status(),
+				`${route.verb} ${route.path(ids)}: answered ${response.status()} ${await response.text()}`
+			).toBe(403);
 		}
 
 		const requests = await mock.requests();
@@ -300,11 +319,16 @@ test.describe('a permission-guarded route refuses the fixture role itself', () =
 	test('a signed-out caller is not told anything about the permission it lacked', async ({ api, ids }) => {
 		// 401 before 403: the anonymous answer must not leak which permission the route asks for, which is
 		// what a probe of the danger-zone routes would want to learn.
-		const response = await api(`/api/organization/${ids.organizationA}/soft`, { method: 'DELETE', anonymous: true });
+		const response = await api(`/api/organization/${ids.organizationA}/soft`, {
+			method: 'DELETE',
+			anonymous: true
+		});
 		const text = await response.text();
 
 		expect(response.status(), `the organization delete answered ${response.status()} ${text}`).toBe(401);
 		expect(text, `the signed-out refusal names a permission: ${text}`).not.toContain('ALL_ORG_EDIT');
-		expect(text, `the signed-out refusal is a resource refusal, not an authentication one: ${text}`).not.toContain('Forbidden resource');
+		expect(text, `the signed-out refusal is a resource refusal, not an authentication one: ${text}`).not.toContain(
+			'Forbidden resource'
+		);
 	});
 });

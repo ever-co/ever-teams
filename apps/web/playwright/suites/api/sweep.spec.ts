@@ -1,5 +1,6 @@
 import { expect, test, type StubRequest } from '../../api-fixtures';
 import { apiRoutes, unattributedApiRoutes } from './routes.generated';
+import { logOf, parseAnswer, triple } from './log-helpers';
 
 /**
  * Every Next.js route handler in the web app, called over HTTP with no browser in the loop.
@@ -271,18 +272,7 @@ test('the NextAuth route answers its own endpoints', async ({ api }) => {
 });
 
 /** `METHOD PATH STATUS`, the entry a log assertion cares about, named as it is written in the mock's log. */
-const triple = (request: StubRequest) => `${request.method} ${request.path} ${request.status}`;
-
-/** The whole log, for a failure message that has to show what the filtered view left out. */
-const logOf = (requests: StubRequest[]) => requests.map(triple).join(', ');
-
-function parseAnswer(text: string): unknown {
-	try {
-		return JSON.parse(text) as unknown;
-	} catch {
-		return { unparsed: text.slice(0, 200) };
-	}
-}
+// `triple`, `logOf` and `parseAnswer` moved to `./log-helpers.ts` (PR #5675's SonarQube duplication finding).
 
 /**
  * The two no-5xx readings of the sweep above, in a case where they can fail (AUDIT.md finding 7).

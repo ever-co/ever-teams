@@ -365,11 +365,9 @@ export async function devOverlayErrors(page: Page): Promise<string[]> {
  */
 export async function waitForShellReady(page: Page, timeout = 45_000): Promise<void> {
 	try {
-		await page.waitForFunction(
-			() => performance.getEntriesByName('ever-teams:shell-ready').length > 0,
-			undefined,
-			{ timeout }
-		);
+		await page.waitForFunction(() => performance.getEntriesByName('ever-teams:shell-ready').length > 0, undefined, {
+			timeout
+		});
 	} catch {
 		const marks = await page
 			.evaluate(() => performance.getEntriesByType('mark').map((entry) => entry.name))

@@ -1,6 +1,7 @@
 import { expect, test } from '../../api-fixtures';
 import { APP_ORIGIN } from '../../helpers';
 import { foreignOriginRoutes } from './foreign-origin.generated';
+import { logOf, parseAnswer, triple } from './log-helpers';
 
 /**
  * A write that comes from another site must not reach the platform.
@@ -48,18 +49,7 @@ function concretePath(path: string, ids: Record<string, string>): string {
 }
 
 /** `METHOD PATH STATUS`, the shape a log entry is named in (lane-c/foreign-id-scope.spec.ts's `triple`). */
-const triple = (request: { method: string; path: string; status: number }) =>
-	`${request.method} ${request.path} ${request.status}`;
-
-const logOf = (requests: Array<{ method: string; path: string; status: number }>) => requests.map(triple).join(', ');
-
-function parseAnswer(text: string): unknown {
-	try {
-		return JSON.parse(text) as unknown;
-	} catch {
-		return { unparsed: text.slice(0, 200) };
-	}
-}
+// `triple`, `logOf` and `parseAnswer` moved to `./log-helpers.ts` (PR #5675's SonarQube duplication finding).
 
 /**
  * The refusal this app writes itself (`refused()` in `core/services/server/same-origin-request.ts`). Pinning
