@@ -132,4 +132,27 @@ describe('a team task settings list screen', () => {
 		expect(screen.getByText('form for Backlog')).toBeTruthy();
 		jest.useRealTimers();
 	});
+
+	it('keeps a form opened after two quick closes', async () => {
+		jest.useFakeTimers();
+		const { drawing } = drawScreen([backlog]);
+		await drawing;
+
+		await fireEvent.press(screen.getAllByText('Create new status')[0]);
+		await fireEvent.press(screen.getByLabelText('Close the form'));
+		await act(async () => {
+			jest.advanceTimersByTime(100);
+		});
+		await fireEvent.press(screen.getByLabelText('Close the form'));
+		await act(async () => {
+			jest.advanceTimersByTime(50);
+		});
+		await fireEvent.press(screen.getByLabelText('Edit Backlog'));
+		await act(async () => {
+			jest.advanceTimersByTime(400);
+		});
+
+		expect(screen.getByText('form for Backlog')).toBeTruthy();
+		jest.useRealTimers();
+	});
 });

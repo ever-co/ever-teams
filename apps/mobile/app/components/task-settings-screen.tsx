@@ -156,13 +156,14 @@ function TaskSettingsScreenView<T extends SettingRow>({
 
 	const handleClose = useCallback(() => {
 		sheetRef.current?.close();
+		cancelClose();
 		// the state clears once the sheet's close animation is over
 		closeTimer.current = setTimeout(() => {
 			closeTimer.current = null;
 			setBottomSheetVisible(false);
 			Keyboard.dismiss();
 		}, 250);
-	}, []);
+	}, [cancelClose]);
 
 	useEffect(() => {
 		const sheetOnScreen = sheetRef.current;
