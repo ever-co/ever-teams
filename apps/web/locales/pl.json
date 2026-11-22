@@ -279,6 +279,7 @@
 		"NO_TEAM": "Stwórz swój własny zespół lub dołącz do istniejącego",
 		"NO_TEAM_SUB": "Utwórz zespół i zaproś osoby, z którymi pracujesz.",
 		"NO_TEAM_TOOLTIP": "Musisz zweryfikować swój adres e-mail",
+		"NO_MEMBER_PROFILE_MESSAGE": "Zespoły, zadania i timer pojawią się, gdy będziesz w zespole.",
 		"CANCEL": "Anuluj",
 		"DISCARD": "Odrzuć",
 		"EXISTING_MEMBER": "Już Członek",
@@ -2809,7 +2810,8 @@
 		"error": {
 			"TITLE": "Błąd",
 			"HEADING_TITLE": "Coś poszło nie tak",
-			"HEADING_DESCRIPTION": "Jeśli problem będzie się powtarzał, wyślij sygnał o niebezpieczeństwie do naszego zespołu wsparcia."
+			"HEADING_DESCRIPTION": "Jeśli problem będzie się powtarzał, wyślij sygnał o niebezpieczeństwie do naszego zespołu wsparcia.",
+			"PAGE_NOT_LOADED": "Nie udało się wczytać tej strony"
 		},
 		"maintenance": {
 			"HEADING_TITLE": "Jesteśmy w trakcie konserwacji",
@@ -4281,6 +4283,8 @@
 			"VERIFY_TITLE": "Potwierdź adres e-mail",
 			"VERIFY_TEXT": "Wysłaliśmy kod na adres {email}.",
 			"VERIFY_TEXT_GENERIC": "Wysłaliśmy kod na Twój adres e-mail.",
+			"VERIFY_TEXT_NOT_SENT": "Wyślij kod na adres {email}, aby potwierdzić, że należy do Ciebie.",
+			"VERIFY_TEXT_NOT_SENT_GENERIC": "Wyślij kod na swój adres e-mail, aby potwierdzić, że należy do Ciebie.",
 			"VERIFY_ACTION": "Wpisz kod",
 			"VERIFY_RESEND": "Wyślij nowy kod",
 			"VERIFY_SENDING": "Wysyłanie nowego kodu"

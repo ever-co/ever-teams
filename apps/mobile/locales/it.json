@@ -312,7 +312,7 @@
 	},
 	"noTeamScreen": {
 		"createYourTeam": "Crea il tuo team o unisciti a uno esistente",
-		"hintMessage": "Lorem ipsum dolor sit amet consectetur. Blandit lobortis dui risus neque."
+		"hintMessage": "Crea un team e invita le persone con cui lavori."
 	},
 	"settingScreen": {
 		"description": "Il tuo account, il tuo team e come sono organizzate le sue attività.",
@@ -622,6 +622,16 @@
 		},
 		"addLabel": "Aggiungi etichetta",
 		"editLabels": "Modifica etichette",
-		"rowActions": "Azioni per {name}"
+		"rowActions": "Azioni per {name}",
+		"dates": {
+			"addDate": "Aggiungi data",
+			"clear": "Cancella la data",
+			"today": "Oggi",
+			"tomorrow": "Domani",
+			"endOfWeek": "Fine di questa settimana",
+			"inOneWeek": "Tra una settimana",
+			"startAfterDue": "La data di inizio deve precedere la scadenza.",
+			"dueBeforeStart": "La scadenza deve seguire la data di inizio."
+		}
 	}
 }

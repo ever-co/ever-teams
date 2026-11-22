@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import { Plus, X } from '@/core/components/icons';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/core/components/common/tooltip';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { useIsEmailVerificationSatisfied } from '@/core/hooks/auth/use-email-verification-status';
 import { useLiveTaskId } from '@/core/hooks/tasks/use-live-task-id';
 import { useTaskHierarchy } from '@/core/hooks/tasks/use-task-hierarchy';
 import { cn } from '@/core/lib/helpers';
@@ -56,7 +57,7 @@ export function TaskDetailSubtasks({ task }: Readonly<{ task: TTask }>) {
 	const children = task.children ?? [];
 	const progress = childProgressOf(children);
 	const hasChildren = progress.total > 0;
-	const canCreate = Boolean(user?.isEmailVerified);
+	const canCreate = useIsEmailVerificationSatisfied(user);
 	const addLabel = t('taskDrawer.ADD_CHILD_ISSUE');
 	let onCreate: ((title: string) => void) | undefined;
 	if (canCreate) {

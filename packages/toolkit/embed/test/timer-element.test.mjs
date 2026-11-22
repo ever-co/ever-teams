@@ -383,6 +383,30 @@ test('a token route that refuses shows the person as signed out: getToken fails'
 	await assert.rejects(globalThis.lastConfig.getToken(), /token-url answered 401/);
 });
 
+test("a token route's 403 with the API's code gives getToken an error that carries it (#5706)", async () => {
+	standInTokenRoute(answered(403, { code: 'EMBED_MEMBER_NOT_ALLOWED' }));
+	await place({ 'api-url': 'https://api.example.com/api', 'token-url': '/api/ever-teams-token' });
+
+	await assert.rejects(globalThis.lastConfig.getToken(), (error) => {
+		assert.equal(error.code, 'EMBED_MEMBER_NOT_ALLOWED');
+		assert.match(error.message, /token-url answered 403 EMBED_MEMBER_NOT_ALLOWED/);
+		return true;
+	});
+});
+
+test('a 403 without a code, and a 502, stay the signed-out failure they were', async () => {
+	standInTokenRoute(answered(403, { error: 'No Ever Teams token' }));
+	await place({ 'api-url': 'https://api.example.com/api', 'token-url': '/api/ever-teams-token' });
+	await assert.rejects(globalThis.lastConfig.getToken(), (error) => error.code === undefined);
+
+	standInTokenRoute(answered(502, { code: 'EMBED_MEMBER_NOT_ALLOWED' }));
+	await assert.rejects(globalThis.lastConfig.getToken(), (error) => {
+		assert.equal(error.code, undefined);
+		assert.match(error.message, /token-url answered 502/);
+		return true;
+	});
+});
+
 test('token-url keeps its getToken through other changes, gives a new one for another route, and none without it', async () => {
 	const calls = standInTokenRoute(answered(200, TOKEN));
 	const element = await place({ 'api-url': 'https://api.example.com/api', 'token-url': '/api/ever-teams-token' });

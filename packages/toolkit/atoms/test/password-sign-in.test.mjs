@@ -332,3 +332,66 @@ test('a refused workspace sign-in says so on the workspace step, and Back return
 	assert.equal(form.workspaces, null);
 	assert.equal(form.formData.email, 'ayla@example.com');
 });
+
+test('a check that got no answer, read after the person left its step, leaves the next step checking', async () => {
+	let probeStarted;
+	const probeCalled = new Promise((resolve) => {
+		probeStarted = resolve;
+	});
+	let releaseProbe;
+	const probeHeld = new Promise((resolve) => {
+		releaseProbe = resolve;
+	});
+	let answerSecondCheck;
+	const secondCheckHeld = new Promise((resolve) => {
+		answerSecondCheck = resolve;
+	});
+	let checks = 0;
+	const api = apiAskingForACode({
+		expiresAt: IN_FIVE_MINUTES(),
+		verify: () => {
+			checks += 1;
+			if (checks === 1) {
+				return Promise.reject(new TypeError('Failed to fetch'));
+			}
+			return secondCheckHeld;
+		}
+	});
+	// The kit probes the API (a no-cors request) to say why a check got no answer: held here until the next step checks.
+	await signInWithPassword(async (url, init) => {
+		if (init?.mode === 'no-cors') {
+			probeStarted();
+			await probeHeld;
+			return new Response('');
+		}
+		return api(url, init);
+	});
+
+	await act(async () => form.twoFactor.handleCodeChange(typed('123456')));
+	let firstCheck;
+	await act(async () => {
+		firstCheck = form.twoFactor.handleCodeSubmit(submitted);
+	});
+	await probeCalled;
+	await act(async () => form.backToPassword());
+	await act(async () => form.handleSubmit(submitted));
+	await act(async () => form.twoFactor.handleCodeChange(typed('654321')));
+	let secondCheck;
+	await act(async () => {
+		secondCheck = form.twoFactor.handleCodeSubmit(submitted);
+	});
+	assert.equal(form.twoFactor.loading, true);
+
+	await act(async () => {
+		releaseProbe();
+		await firstCheck;
+	});
+
+	assert.equal(form.twoFactor.loading, true, 'the next step keeps its spinner while its own check runs');
+	assert.equal(form.twoFactor.error, undefined, 'the left step says nothing on the next one');
+	await act(async () => {
+		answerSecondCheck(json(200, SESSION));
+		await secondCheck;
+	});
+	assert.equal(form.twoFactor, null, 'the next check signs the person in');
+});

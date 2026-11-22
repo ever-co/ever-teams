@@ -118,7 +118,3 @@ _Add here any context, help, or known issues for the person reviewing:_
 ## ⚠️⚠️⚠️ Reviewers Suggested
 
 - `@evereq` for architecture validation
-- `@ndekocode` for integration review
-- `@Innocent-Akim` for auth and cookie handling and assistance
-- `@AnicetFantomas` and `@Sergemuhundu` for mobile app and some web issues
-- `@Cedric921` and `@GloireMutaliko21` for complex issues

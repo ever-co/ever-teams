@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-inline-styles  */
 /* eslint-disable react-native/no-color-literals  */
 import { View, Text, StyleSheet } from 'react-native';
-import React from 'react';
+import React, { useState } from 'react';
 import { useStores } from '../../../../models';
 import TaskRow from '../components/task-row';
 import { PropertyLabel } from '../components/property-label';
@@ -12,7 +12,10 @@ import ProfileInfo from '../components/profile-info';
 import { creatorIdOf, creatorOf } from './task-creator';
 import ManageAssignees from '../components/manage-assignees';
 import { useOrganizationTeam } from '../../../../services/hooks/use-organization';
-import CalendarModal from '../components/calendar-modal';
+import { TaskDateField } from '../components/task-date-field';
+import { saveTaskDate, shownDatesOf, type TaskDateChanges } from '../components/task-date-save';
+import { useOneSaveAtATime } from '../components/use-one-save-at-a-time';
+import { showMessage } from 'react-native-flash-message';
 import { useTeamTasks } from '../../../../services/hooks/features/use-team-tasks';
 import moment from 'moment-timezone';
 import TaskStatus from '../../../task-status';
@@ -32,12 +35,32 @@ import { translate } from '../../../../i18n';
 import { navigateTo } from '../../../../navigators/routes';
 
 const TaskMainInfo = observer(() => {
-	const {
-		TaskStore: { detailedTask: task }
-	} = useStores();
+	const { TaskStore } = useStores();
+	const { detailedTask: task, setDetailedTask } = TaskStore;
 
 	const { currentTeam } = useOrganizationTeam();
 	const { updateTask } = useTeamTasks();
+
+	// one date save at a time: both date fields wait for it, so no save carries another one's pending date
+	const { isSaving: isSavingDate, runAlone } = useOneSaveAtATime();
+	const [pendingDates, setPendingDates] = useState<TaskDateChanges | null>(null);
+	const shownDates = shownDatesOf(task, pendingDates);
+
+	const saveDate = (changes: Pick<ITeamTask, 'startDate'> | Pick<ITeamTask, 'dueDate'>) =>
+		runAlone(async () => {
+			const isSaved = await saveTaskDate(changes, {
+				current: () => TaskStore.detailedTask,
+				showPending: setPendingDates,
+				keep: setDetailedTask,
+				save: async (changed) => {
+					const { response } = await updateTask(changed, changed.id);
+					return response.ok;
+				}
+			});
+			if (!isSaved) {
+				showMessage({ message: translate('common.somethingWrong'), type: 'danger' });
+			}
+		});
 
 	const theme = useWebTheme();
 	const creator = creatorOf(task);
@@ -77,18 +100,23 @@ const TaskMainInfo = observer(() => {
 			<TaskRow
 				labelComponent={<PropertyLabel icon={Calendar} label={translate('taskDetailsScreen.startDate')} />}
 			>
-				<CalendarModal
-					updateTask={(date) => updateTask({ ...task, startDate: date }, task?.id)}
-					selectedDate={task?.startDate}
+				<TaskDateField
+					kind="start"
+					value={shownDates.startDate}
+					otherDate={shownDates.dueDate}
+					onChange={(date) => saveDate({ startDate: date })}
+					disabled={isSavingDate}
 				/>
 			</TaskRow>
 
 			{/* Manage Due Date */}
 			<TaskRow labelComponent={<PropertyLabel icon={Calendar} label={translate('taskDetailsScreen.dueDate')} />}>
-				<CalendarModal
-					updateTask={(date) => updateTask({ ...task, dueDate: date }, task?.id)}
-					selectedDate={task?.dueDate}
-					isDueDate={true}
+				<TaskDateField
+					kind="due"
+					value={shownDates.dueDate}
+					otherDate={shownDates.startDate}
+					onChange={(date) => saveDate({ dueDate: date })}
+					disabled={isSavingDate}
 				/>
 			</TaskRow>
 

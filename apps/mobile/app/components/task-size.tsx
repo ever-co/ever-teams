@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
 import React, { FC, useState } from 'react';
-import { TouchableOpacity, View, Text, StyleSheet, ViewStyle, TextStyle } from 'react-native';
+import { TouchableOpacity, View, StyleSheet, ViewStyle, TextStyle } from 'react-native';
 import { ChevronDown } from '../../src/components/icons';
 import { TaskPropertyPlaceholderIcon } from '../../src/components/task-property-icon';
 import { observer } from 'mobx-react-lite';
@@ -11,6 +11,7 @@ import { showMessage } from 'react-native-flash-message';
 import { typography, useWebTheme } from '../theme';
 import { taskChipLookOf } from '../../src/components/task-chip';
 import { ChipIcon } from '../../src/components/chip-icon';
+import { ChipLabel } from '../../src/components/chip-label';
 import { useMenuAnchor } from '../../src/components/menu-anchor';
 import TaskSizePopup from './task-size-popup';
 import { PropertyTriggerButton } from './property-trigger';
@@ -101,16 +102,16 @@ const TaskSize: FC<TaskSizeProps> = observer(({ task, containerStyle, setSize, s
 					{(task?.size || size) && currentSize ? (
 						<View style={styles.wrapStatus}>
 							<ChipIcon item={currentSize} color={look.ink} kind="size" />
-							<Text style={{ ...styles.text, color: look.ink, marginLeft: 10 }}>
+							<ChipLabel style={{ ...styles.text, color: look.ink, marginLeft: 10 }}>
 								{limitTextCharaters({ text: currentSize.name, numChars: 15 })}
-							</Text>
+							</ChipLabel>
 						</View>
 					) : (
 						<View style={styles.wrapStatus}>
 							<TaskPropertyPlaceholderIcon kind="size" size={12} color={look.ink} />
-							<Text style={{ ...styles.text, color: look.ink, marginLeft: 5 }}>
+							<ChipLabel style={{ ...styles.text, color: look.ink, marginLeft: 5 }}>
 								{translate('settingScreen.sizeScreen.sizes')}
-							</Text>
+							</ChipLabel>
 						</View>
 					)}
 					<ChevronDown size={14} color={look.ink} />

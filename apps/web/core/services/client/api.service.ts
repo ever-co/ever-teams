@@ -56,6 +56,27 @@ function isSameOriginRequest(config: { baseURL?: string; url?: string }): boolea
 	return typeof window !== 'undefined' && target.startsWith(`${window.location.origin}/`);
 }
 
+/** A page's path segments without the language in front of them: `/de/auth/passcode` is the page `/auth/passcode`. */
+function withoutLanguagePrefix(segments: string[]): string[] {
+	const hasLanguagePrefix = APPLICATION_LANGUAGES_CODE.includes(segments[0]);
+	if (hasLanguagePrefix) {
+		return segments.slice(1);
+	}
+	return segments;
+}
+
+/**
+ * Whether a page is open without a session, in every language: a sign-in page, or a public team page
+ * (`/team/<teamId>/<profileLink>`). The team's task list (`/team/tasks`, `/team/tasks/trash`) and the join page sit
+ * under `/team` too, and need a session.
+ */
+function isPageOpenWithoutSession(pathname: string): boolean {
+	const segments = withoutLanguagePrefix(pathname.split('/').filter(Boolean));
+	const isSignInPage = segments[0] === 'auth';
+	const isPublicTeamPage = segments[0] === 'team' && segments[1] !== 'tasks' && !segments.includes('join');
+	return isSignInPage || isPublicTeamPage;
+}
+
 /**
  * Gives a request of this tab its Authorization (#5134): the access token cookie's, or this tab's own token while
  * another tab has the cookies on another organization of the session (tab-organization.ts). A proxied request then also
@@ -308,20 +329,17 @@ export class APIService {
 	 *   of the refused session), or none: the request fails with its 401 and is never sent with that other token,
 	 *   pinned or not.
 	 *
-	 * Sign-in pages and public team pages are open without a session: a 401 there is the request's answer.
+	 * Sign-in pages and public team pages are open without a session, in every language: a 401 there is the request's
+	 * answer.
 	 *
 	 * @param {any} error - The error object from Axios response.
 	 * @returns The answer of the request sent again.
 	 * @private
 	 */
 	private async handleUnauthorized(error: any): Promise<AxiosResponse> {
-		const paths = location.pathname.split('/').filter(Boolean);
-		const isAuthPath =
-			(!paths.includes('join') &&
-				(paths[0] === 'team' || (APPLICATION_LANGUAGES_CODE.includes(paths[0]) && paths[1] === 'team'))) ||
-			paths[0] === 'auth';
+		const isOpenWithoutSession = isPageOpenWithoutSession(location.pathname);
 		const request = error.config as RefusedRequest | undefined;
-		if (isAuthPath || !request || request.noSessionRenewal || request.sentAgainAfterRenewal) {
+		if (isOpenWithoutSession || !request || request.noSessionRenewal || request.sentAgainAfterRenewal) {
 			throw error;
 		}
 

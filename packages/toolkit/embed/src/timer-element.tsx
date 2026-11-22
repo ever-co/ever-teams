@@ -78,6 +78,24 @@ function signInConfigOf(element: HTMLElement): SiteSignInConfig {
 }
 
 /**
+ * What a refusal of token-url throws: with a 403 whose body names the API's code (a person Ever Teams refused, as the
+ * `@ever-teams/api` README's route handlers answer `EMBED_MEMBER_NOT_ALLOWED`), an error that carries that code, so
+ * the kit says why (ever-co/ever-teams#5706); for any other answer, the error the kit takes for a signed-out person.
+ */
+async function refusalOf(answer: Response): Promise<Error> {
+	const failure = new Error(`token-url answered ${answer.status}`);
+	if (answer.status !== 403) {
+		return failure;
+	}
+	const body: unknown = await answer.json().catch(() => null);
+	const code = (body as { code?: unknown } | null)?.code;
+	if (typeof code !== 'string') {
+		return failure;
+	}
+	return Object.assign(new Error(`token-url answered 403 ${code}`), { code });
+}
+
+/**
  * token-url: the host's own route that answers the signed-in person's embed token, as the route handlers of the
  * `@ever-teams/api` README do (`exchangeEmbedToken`). The element asks it with the page's cookies, as the kit's
  * config.getToken: a page without React signs people in from its backend (#5596). A refusal is the host saying the
@@ -91,7 +109,7 @@ function tokenGetterOf(url: string): GetKitToken {
 			headers: { Accept: 'application/json' }
 		});
 		if (!answer.ok) {
-			throw new Error(`token-url answered ${answer.status}`);
+			throw await refusalOf(answer);
 		}
 		return (await answer.json()) as KitHostToken;
 	};

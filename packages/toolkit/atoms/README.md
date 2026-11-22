@@ -167,7 +167,9 @@ export async function POST() {
 		cache: 'no-store'
 	});
 	if (!answer.ok) {
-		return NextResponse.json({ error: 'No Ever Teams token' }, { status: answer.status });
+		// Keep the API's code: the page tells a person Ever Teams refused (EMBED_MEMBER_NOT_ALLOWED) apart.
+		const { code } = await answer.json().catch(() => ({}));
+		return NextResponse.json({ error: 'No Ever Teams token', code }, { status: answer.status });
 	}
 	const { token, expiresAt } = await answer.json();
 	return NextResponse.json({ token, expiresAt }, { headers: { 'Cache-Control': 'no-store' } });
@@ -188,7 +190,8 @@ import { TeamsProvider, TeamsBasicTimer } from '@ever-teams/atoms';
 async function getToken() {
 	const answer = await fetch('/api/ever-teams-token', { method: 'POST' });
 	if (!answer.ok) {
-		throw new Error('Not signed in');
+		const { code } = await answer.json().catch(() => ({}));
+		throw Object.assign(new Error('No Ever Teams token'), { code });
 	}
 	return answer.json(); // { token, expiresAt }
 }
@@ -223,8 +226,10 @@ What the kit does with it:
   see this." in its place. The same goes for a sign-in with Ever Teams.
 - When `getToken` throws or rejects, or answers a token with no `expiresAt` or one less than 10 seconds away, the
   widgets show the person as signed out, and `TeamsLoginDialog` says "Sign in to this site to use your Ever Teams
-  timer." instead of asking for a password. The kit asks again when the page comes back (focus, or the tab visible
-  again), never sooner than 5 seconds after the failure. Signed out while the timer runs (the last status the kit read
+  timer." instead of asking for a password. When the error it throws has the `code` `EMBED_MEMBER_NOT_ALLOWED` (Ever
+  Teams refused the person: no account, time tracking off, no longer a member, as `exchangeEmbedToken` throws it),
+  the dialog says instead that the person may not track time in the workspace and should ask their admin. The kit
+  asks again when the page comes back (focus, or the tab visible again), never sooner than 5 seconds after the failure. Signed out while the timer runs (the last status the kit read
   showed it running), it also says that the timer keeps running in Ever Teams until the person stops it there: a
   sign-out stops nothing.
 - A token for another person or organization than the previous one starts a new session: the user is read again.

@@ -39,12 +39,14 @@ import { forgetSavedStop, saveStop } from '@/core/lib/utils/timer/saved-stop';
 import { timerStatusState } from '@/core/stores';
 import { DisconnectionReason } from '@/core/types/enums/disconnection-reason';
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
-import { openFakeGauzyPage, type FakeGauzyPage } from '@/test/auth/fake-gauzy-page';
+import { openFakeGauzyPage, PAGE_OPENED_AT, type FakeGauzyPage } from '@/test/auth/fake-gauzy-page';
 import { SessionEndedNotice } from './session-ended-notice';
 
-const STARTED_AT = '2026-11-14T08:00:00.000Z';
-const LAST_HEARTBEAT = '2026-11-14T08:59:00.000Z';
 const MINUTE = 60_000;
+const HOUR = 60 * MINUTE;
+/** The run began an hour before the page opened; its last heartbeat was a minute before the page opened. */
+const STARTED_AT = new Date(PAGE_OPENED_AT - HOUR).toISOString();
+const LAST_HEARTBEAT = new Date(PAGE_OPENED_AT - MINUTE).toISOString();
 
 let page: FakeGauzyPage;
 
@@ -132,12 +134,12 @@ describe('the sign-in page, when a timer was running as the app ended the sessio
 	});
 
 	it('gives a time of another day with its date', async () => {
-		// The computer slept over the weekend with the timer running
-		const fridayHeartbeat = Date.parse('2026-11-11T16:30:00.000Z');
+		// The computer slept for days with the timer running: its last heartbeat was 2 days and 16.5 hours before
+		const fridayHeartbeat = PAGE_OPENED_AT - (2 * 24 * HOUR + 16 * HOUR + 30 * MINUTE);
 		openAppWithTimer({
 			source: ETimeLogSource.TEAMS,
 			isRunning: true,
-			startedAt: '2026-11-11T13:00:00.000Z',
+			startedAt: new Date(fridayHeartbeat - 3 * HOUR - 30 * MINUTE).toISOString(),
 			stoppedAt: new Date(fridayHeartbeat).toISOString()
 		});
 

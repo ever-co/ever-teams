@@ -66,6 +66,7 @@ jest.mock('@/core/components/optimized-components/calendar', () => ({ LazyAddMan
 jest.mock('@/core/hooks/queries/user-user.query', () => ({
 	useUserQuery: () => ({ data: { isEmailVerified: true } })
 }));
+jest.mock('@/core/hooks/auth/use-email-verification-status', () => ({ useIsEmailVerificationSatisfied: () => true }));
 jest.mock('@/core/hooks/timer', () => ({
 	useTimerActions: () => ({ startTimer: jest.fn(), stopTimer: jest.fn() })
 }));

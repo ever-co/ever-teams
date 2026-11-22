@@ -9,9 +9,10 @@ import { getConfiguredAuthProviderIds } from '@/core/lib/utils/check-provider-en
  * image is configured entirely by the env it is started with: `docker run -e
  * NEXT_PUBLIC_CAPTCHA_SITE_KEY=... -e NEXT_PUBLIC_GAUZY_API_SERVER_URL=...`.
  *
- * Only `NEXT_PUBLIC_*` keys and the allow-listed branding keys (env-config.ts
- * PUBLIC_RUNTIME_ENV_KEYS) are returned, plus the derived EVER_TEAMS_AUTH_PROVIDERS — never server
- * secrets such as AUTH_SECRET, CAPTCHA_SECRET_KEY, *_CLIENT_ID or *_CLIENT_SECRET. Keys that are set
+ * Only `NEXT_PUBLIC_*` keys, the allow-listed branding keys (env-config.ts PUBLIC_RUNTIME_ENV_KEYS)
+ * and e-mail link keys (PUBLIC_EMAIL_LINK_ENV_KEYS) are returned, plus the derived
+ * EVER_TEAMS_AUTH_PROVIDERS — never server secrets such as AUTH_SECRET, CAPTCHA_SECRET_KEY,
+ * *_CLIENT_ID or *_CLIENT_SECRET. Keys that are set
  * to an empty string are kept (empty), because some readers distinguish "set" from "absent" (e.g.
  * NEXT_PUBLIC_<X>_APP_NAME).
  */

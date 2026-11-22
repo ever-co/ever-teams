@@ -151,7 +151,12 @@ export function useTwoFactorStep({ api, onSignedIn }: UseTwoFactorStepParams) {
 			return;
 		}
 		const failure = await failureOf(answer);
-		const isStillShown = steps.current === stepAtSubmit && edits.current === editsAtSubmit;
+		// The step may have been left while the failure was read (a request with no answer probes the API): its spinner
+		// and message belong to the step shown now, which this check no longer touches.
+		if (steps.current !== stepAtSubmit) {
+			return;
+		}
+		const isStillShown = edits.current === editsAtSubmit;
 		if (isStillShown) {
 			setError(failure.message);
 			setRetryable(failure.retryable);

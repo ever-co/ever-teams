@@ -11,6 +11,8 @@ import { Button } from '@/core/components/duplicated-components/_button';
 import { Mail, User, UserAdd } from '@/core/components/icons';
 import { useHasBeenOpen } from '@/core/hooks/common/use-has-been-open';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { useEmailVerificationStatus } from '@/core/hooks/auth/use-email-verification-status';
+import { asksForEmailVerification, isEmailVerificationSatisfied } from '@/core/lib/auth/email-verification';
 import { useMemberPlaceholders } from '@/core/hooks/settings/use-member-placeholders';
 import { SettingsPage } from '@/core/components/settings/kit/settings-page';
 import { TeamSettingsGate } from '@/core/components/settings/kit/team-settings-gate';
@@ -52,7 +54,9 @@ function MembersContent() {
 	const teamId = useAtomValue(activeTeamIdState);
 	const [isInviteOpen, setIsInviteOpen] = useState(false);
 	const mountsInvite = useHasBeenOpen(isInviteOpen);
-	const canInvite = Boolean(user?.isEmailVerified);
+	const verificationState = useEmailVerificationStatus(user);
+	const canInvite = isEmailVerificationSatisfied(user, verificationState);
+	const asksForVerification = asksForEmailVerification(user, verificationState);
 	const openInvite = () => setIsInviteOpen(true);
 	const placeholders = useMemberPlaceholders();
 	const [isAddingPlaceholder, setIsAddingPlaceholder] = useState(false);
@@ -77,7 +81,7 @@ function MembersContent() {
 				</div>
 			}
 		>
-			{!canInvite && <UnverifiedNotice />}
+			{asksForVerification && <UnverifiedNotice />}
 			<MembersSection key={`members-${teamId}`} onInvite={openInvite} canInvite={canInvite} />
 			<PendingInvitationsSection key={`invitations-${teamId}`} onInvite={openInvite} canInvite={canInvite} />
 			<JoinRequestsSection />

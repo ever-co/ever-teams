@@ -195,7 +195,10 @@ write with `exchangeEmbedToken`. No password or token is typed in the page:
 The element asks that route with a `POST` and the page's cookies (a route of your page's own origin: the cookies go to
 no other), signs the person in with the `{ token, expiresAt }` it answers, and asks again shortly before the token
 expires. An answer that is not 2xx (your route's 401 for a person
-signed out of your product) shows the person as signed out, with a note that points to your own sign-in. `token-url`
+signed out of your product) shows the person as signed out, with a note that points to your own sign-in. A 403 whose
+body is `{ "code": "EMBED_MEMBER_NOT_ALLOWED" }`, which the route handlers of that README answer for a person Ever Teams
+refused (no account, time tracking off, no longer a member), says instead that the person may not track time in the
+workspace and should ask their admin. `token-url`
 wins over `sign-in`. Another `token-url` starts a new session, and so does `signOut()`: when the person signed in to
 your page changes without a page load, call `signOut()` once your route answers for the new person (or 401), give
 `token-url` a new value (your route with that person's id in its query, for example) or replace the element.

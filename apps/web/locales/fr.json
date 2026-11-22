@@ -280,6 +280,7 @@
 		"NO_TEAM": "Créez votre propre équipe ou rejoignez une équipe existante",
 		"NO_TEAM_SUB": "Créez une équipe et invitez les personnes avec qui vous travaillez.",
 		"NO_TEAM_TOOLTIP": "Vous devez vérifier votre adresse e-mail",
+		"NO_MEMBER_PROFILE_MESSAGE": "Les équipes, les tâches et le chronomètre apparaissent dès que vous êtes dans une équipe.",
 		"CANCEL": "Annuler",
 		"DISCARD": "Annuler",
 		"EXISTING_MEMBER": "Déjà membre",
@@ -2809,7 +2810,8 @@
 		"error": {
 			"TITLE": "Erreur",
 			"HEADING_TITLE": "Une erreur s'est produite",
-			"HEADING_DESCRIPTION": "Si le problème persiste, envoyez un signal de détresse à notre équipe d'assistance."
+			"HEADING_DESCRIPTION": "Si le problème persiste, envoyez un signal de détresse à notre équipe d'assistance.",
+			"PAGE_NOT_LOADED": "Cette page n'a pas pu être chargée"
 		},
 		"maintenance": {
 			"HEADING_TITLE": "Nous sommes en cours de maintenance",
@@ -4281,6 +4283,8 @@
 			"VERIFY_TITLE": "Confirmez votre adresse e-mail",
 			"VERIFY_TEXT": "Nous avons envoyé un code à {email}.",
 			"VERIFY_TEXT_GENERIC": "Nous avons envoyé un code à votre adresse e-mail.",
+			"VERIFY_TEXT_NOT_SENT": "Envoyez un code à {email} pour confirmer que cette adresse est la vôtre.",
+			"VERIFY_TEXT_NOT_SENT_GENERIC": "Envoyez un code à votre adresse e-mail pour confirmer qu'elle est la vôtre.",
 			"VERIFY_ACTION": "Saisir le code",
 			"VERIFY_RESEND": "Envoyer un nouveau code",
 			"VERIFY_SENDING": "Envoi d'un nouveau code"

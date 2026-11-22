@@ -9,6 +9,7 @@ import { TaskPropertyIcon } from '@/core/components/tasks/task-property-icon';
 import { TaskPropertyMenuAction } from '@/core/components/tasks/task-property-menu';
 import { useTaskHierarchy } from '@/core/hooks/tasks/use-task-hierarchy';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { useIsEmailVerificationSatisfied } from '@/core/hooks/auth/use-email-verification-status';
 import { parentCandidatesOf } from '@/core/lib/utils/task-detail';
 import { tasksByTeamState } from '@/core/stores';
 import { EIssueType } from '@/core/types/generics/enums/task';
@@ -48,7 +49,7 @@ export function TaskParentField({ task }: Readonly<{ task: TTask }>) {
 	}
 	const hasParent = Boolean(parent);
 	const newParentType = parentTypeFor(task);
-	const canCreate = Boolean(user?.isEmailVerified);
+	const canCreate = useIsEmailVerificationSatisfied(user);
 	let onCreate: ((title: string) => void) | undefined;
 	if (canCreate) {
 		onCreate = (title) => void createParent(title, newParentType);
