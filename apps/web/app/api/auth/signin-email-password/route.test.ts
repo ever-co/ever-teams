@@ -3,7 +3,6 @@
  * password goes back to the form with its 401, where the route answered an empty 500. Runs against a stand-in of the
  * Gauzy API.
  */
-import { tolerateServerFetchRejections } from '@/test/auth/server-fetch-rejections';
 import { RouteAgainstGauzy } from '@/test/auth/route-against-gauzy';
 
 const signIn = new RouteAgainstGauzy(() => jest.requireActual<typeof import('./route')>('./route'));
@@ -20,7 +19,6 @@ describe('POST /api/auth/signin-email-password', () => {
 			status: 401,
 			body: { message: 'Unauthorized', statusCode: 401 }
 		});
-		tolerateServerFetchRejections();
 
 		const res = await signInWith('not-her-password');
 
@@ -30,7 +28,6 @@ describe('POST /api/auth/signin-email-password', () => {
 
 	it('answers 502, never a wrong password, when the API gives no readable answer', async () => {
 		signIn.gauzy.on('POST', '/api/auth/signin.email.password', { status: 500, body: 'Internal Server Error' });
-		tolerateServerFetchRejections();
 
 		const res = await signInWith('her-password');
 
