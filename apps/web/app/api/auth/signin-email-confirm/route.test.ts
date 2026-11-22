@@ -98,7 +98,7 @@ describe('POST /api/auth/signin-email-confirm — server log', () => {
 });
 
 describe('POST /api/auth/signin-email-confirm, invitation code', () => {
-	it('signs in a person whose invitation carries no name, as one sent from the Invite dialog', async () => {
+	it('signs in a person whose invitation carries no name, the account named after the address', async () => {
 		primeInvitedPerson(gauzy, null);
 		tolerateServerFetchRejections();
 		const { POST } = loadRoute();
@@ -113,7 +113,7 @@ describe('POST /api/auth/signin-email-confirm, invitation code', () => {
 		expect(accept?.body).toMatchObject({
 			code: INVITED.code,
 			email: INVITED.email,
-			user: { firstName: '', lastName: '', email: INVITED.email }
+			user: { firstName: 'invited', lastName: '', email: INVITED.email }
 		});
 		// The invitation code is no sign-in code: confirming it as one is what refused the person
 		expect(gauzy.calls('POST', '/api/auth/signin.email/confirm')).toHaveLength(0);

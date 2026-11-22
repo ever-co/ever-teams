@@ -11,6 +11,7 @@ import {
 import { NextResponse } from 'next/server';
 import { APP_NAME } from '@/core/constants/config/constants';
 import { pickTokenOrganization } from '@/core/lib/auth/jwt-utils';
+import { invitedPersonNames } from '@/core/lib/auth/invited-person-names';
 
 export async function POST(req: Request) {
 	const body = (await req.json()) as unknown as { email: string; code: string };
@@ -37,16 +38,14 @@ export async function POST(req: Request) {
 		// Ids only: the server log is readable by anyone with cluster access.
 		console.log('[API /auth/signin-email-confirm] invite code matched', { inviteId: inviteReq.data.id });
 
-		// An invitation sent from the Invite dialog carries no name: the account opens without one
-		const fullName = inviteReq.data.fullName ?? '';
-		const names = fullName.split(' ');
+		const { firstName, lastName } = invitedPersonNames(inviteReq.data.fullName, body.email);
 		const acceptInviteRes = await acceptInviteRequest({
 			code: body.code,
 			email: body.email,
 			password: password,
 			user: {
-				firstName: names[0],
-				lastName: names[1] || '',
+				firstName,
+				lastName,
 				email: body.email
 			}
 		}).catch(() => void 0);

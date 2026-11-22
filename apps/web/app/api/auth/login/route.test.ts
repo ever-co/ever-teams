@@ -51,7 +51,7 @@ function post(body: Record<string, unknown>) {
 }
 
 describe('POST /api/auth/login, invitation code', () => {
-	it('signs in a person whose invitation carries no name, as one sent from the Invite dialog', async () => {
+	it('signs in a person whose invitation carries no name, the account named after the address', async () => {
 		primeInvitedPerson(gauzy, null);
 		const { POST } = loadRoute();
 
@@ -66,7 +66,7 @@ describe('POST /api/auth/login, invitation code', () => {
 		expect(accept?.body).toMatchObject({
 			code: INVITED.code,
 			email: INVITED.email,
-			user: { firstName: '', lastName: '', email: INVITED.email }
+			user: { firstName: 'invited', lastName: '', email: INVITED.email }
 		});
 	}, 15_000);
 
