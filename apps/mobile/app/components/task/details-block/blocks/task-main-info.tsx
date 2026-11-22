@@ -13,6 +13,8 @@ import { creatorIdOf, creatorOf } from './task-creator';
 import ManageAssignees from '../components/manage-assignees';
 import { useOrganizationTeam } from '../../../../services/hooks/use-organization';
 import { TaskDateField } from '../components/task-date-field';
+import { saveTaskDate } from '../components/task-date-save';
+import { showMessage } from 'react-native-flash-message';
 import { useTeamTasks } from '../../../../services/hooks/features/use-team-tasks';
 import moment from 'moment-timezone';
 import TaskStatus from '../../../task-status';
@@ -33,11 +35,24 @@ import { navigateTo } from '../../../../navigators/routes';
 
 const TaskMainInfo = observer(() => {
 	const {
-		TaskStore: { detailedTask: task }
+		TaskStore: { detailedTask: task, setDetailedTask }
 	} = useStores();
 
 	const { currentTeam } = useOrganizationTeam();
 	const { updateTask } = useTeamTasks();
+
+	const saveDate = async (changes: Pick<ITeamTask, 'startDate'> | Pick<ITeamTask, 'dueDate'>) => {
+		const isSaved = await saveTaskDate(task, changes, {
+			show: setDetailedTask,
+			save: async (changed) => {
+				const { response } = await updateTask(changed, changed.id);
+				return response.ok;
+			}
+		});
+		if (!isSaved) {
+			showMessage({ message: translate('common.somethingWrong'), type: 'danger' });
+		}
+	};
 
 	const theme = useWebTheme();
 	const creator = creatorOf(task);
@@ -81,7 +96,7 @@ const TaskMainInfo = observer(() => {
 					kind="start"
 					value={task?.startDate}
 					otherDate={task?.dueDate}
-					onChange={(date) => updateTask({ ...task, startDate: date }, task?.id)}
+					onChange={(date) => saveDate({ startDate: date })}
 				/>
 			</TaskRow>
 
@@ -91,7 +106,7 @@ const TaskMainInfo = observer(() => {
 					kind="due"
 					value={task?.dueDate}
 					otherDate={task?.startDate}
-					onChange={(date) => updateTask({ ...task, dueDate: date }, task?.id)}
+					onChange={(date) => saveDate({ dueDate: date })}
 				/>
 			</TaskRow>
 
