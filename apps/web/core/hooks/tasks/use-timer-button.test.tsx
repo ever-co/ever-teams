@@ -28,8 +28,15 @@ const mockGetTimerStatus = jest.fn();
 const mockSetActiveTask = jest.fn(async () => undefined);
 
 jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
+const mockToastWarning = jest.fn();
+
 jest.mock('sonner', () => ({
-	toast: { loading: jest.fn(() => 'toast-1'), success: jest.fn(), dismiss: jest.fn(), warning: jest.fn() }
+	toast: {
+		loading: jest.fn(() => 'toast-1'),
+		success: jest.fn(),
+		dismiss: jest.fn(),
+		warning: (...args: unknown[]) => mockToastWarning(...args)
+	}
 }));
 jest.mock('@/core/hooks/timer', () => ({
 	useTimerActions: () => ({
@@ -167,6 +174,37 @@ describe("a task card's Start", () => {
 		await act(async () => {
 			await start;
 		});
+	});
+
+	it('starts nothing when its task was closed while the first read was on its way', async () => {
+		const store = createStore();
+		store.set(timerStatusState, null);
+		const wrapper = ({ children }: PropsWithChildren) => <Provider store={store}>{children}</Provider>;
+		const view = renderHook(({ task }) => useTimerButtonLogic({ task }), {
+			wrapper,
+			initialProps: { task: TASK_B }
+		});
+		let answerRead: () => void = () => undefined;
+		mockGetTimerStatus.mockImplementation(
+			() =>
+				new Promise((resolve) => {
+					answerRead = () => {
+						store.set(timerStatusState, RUN_ON_TASK_A);
+						resolve({ data: RUN_ON_TASK_A });
+					};
+				})
+		);
+
+		await act(async () => {
+			void view.result.current.startTimerWithTask();
+		});
+		view.rerender({ task: { ...TASK_B, status: 'closed' } as never as TTask });
+		await act(async () => {
+			answerRead();
+		});
+
+		await waitFor(() => expect(mockToastWarning).toHaveBeenCalledWith('timer.TASK_CLOSED', expect.anything()));
+		expect(mockCalls).toEqual([]);
 	});
 
 	it.each([

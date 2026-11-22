@@ -44,8 +44,23 @@ export function useTimerButtonLogic({ task }: { task: TTask }) {
 	const isPlanRequired = Boolean(requirePlan);
 	const canTrackThisTask = canTrackTask(canTrack, isPlanRequired, hasPlan, task.id);
 
+	// A closed task does not start: checked at the click, and again when a start that waited for the timer read goes
+	const warnWhenTaskClosed = useCallback(() => {
+		const isClosed = task.status === 'closed';
+		if (isClosed) {
+			toast.warning(t('timer.TASK_CLOSED'), {
+				id: 'timer-task-closed',
+				description: t('toasts.timer.TASK_CLOSED_HINT')
+			});
+		}
+		return isClosed;
+	}, [task.status, t]);
+
 	// The card's switch: the run this tab shows is stopped first, then the task starts
 	const stopThenStart = useCallback(async () => {
+		if (warnWhenTaskClosed()) {
+			return;
+		}
 		if (timerStatus?.running) {
 			setLoading(true);
 			try {
@@ -98,7 +113,7 @@ export function useTimerButtonLogic({ task }: { task: TTask }) {
 			toast.dismiss(toastId);
 			console.error('Failed to start timer:', error);
 		}
-	}, [task, timerStatus?.running, setActiveTask, startTimer, handleStop, t]);
+	}, [task, timerStatus?.running, setActiveTask, startTimer, handleStop, t, warnWhenTaskClosed]);
 
 	// Set while a start waits for this tab's first read of the timer: settles that start once the switch has run
 	const queuedStartDone = useRef<(() => void) | null>(null);
@@ -115,11 +130,7 @@ export function useTimerButtonLogic({ task }: { task: TTask }) {
 	}, [isStatusRead, stopThenStart]);
 
 	const startTimerWithTask = useCallback(async () => {
-		if (task.status === 'closed') {
-			toast.warning(t('timer.TASK_CLOSED'), {
-				id: 'timer-task-closed',
-				description: t('toasts.timer.TASK_CLOSED_HINT')
-			});
+		if (warnWhenTaskClosed()) {
 			return;
 		}
 		if (isStatusRead) {
@@ -146,7 +157,7 @@ export function useTimerButtonLogic({ task }: { task: TTask }) {
 			return;
 		}
 		await switched;
-	}, [task.status, t, isStatusRead, stopThenStart, getTimerStatus]);
+	}, [warnWhenTaskClosed, isStatusRead, stopThenStart, getTimerStatus]);
 
 	const { modals, startStopTimerHandler } = useStartStopTimerHandler({ startTimer, stopTimer });
 
