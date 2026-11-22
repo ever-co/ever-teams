@@ -492,3 +492,210 @@ down as a tree (`taskkill /F /T` on Windows, `:130-136`; the process group elsew
 Nothing was killed by hand, no port was taken, and this lane did not edit that script. The lesson this lane takes from it: a shared
 launcher must not be left half-edited while other lanes are executing it — the break costs the _other_ lane a lane cycle and shows
 up as someone else's failed command.
+
+## 10. 2026-11-22, third pass — lane-b's four download claims re-measured on lane-d, before the owner sees any of them
+
+Why this section exists: `06869ca77` (lane-b §13) put four statements on the table, and tonight two published findings
+turned out to name files that do not exist. All four were re-measured here, in lane-d's own files, against lane-d's own
+app (3034) and mock (4006). No lane-b number, log or wording was reused; where this lane's own prediction disagreed
+with what happened, the prediction is what got changed (10.6).
+
+**Files this pass added**: `download-claims-headers.spec.ts` (10 cases) and `download-claims-guid-token.spec.ts`
+(9 cases). The only existing file touched is this lane's own `lane-d-session.ts`, which gained `mintAccessTokenWith` —
+the same three-part token with the claims a case names, so a case can hand the app an `exp` dated 1970 while every
+cookie around it stays the fixture's.
+
+| run / probe | what it was | the log's own line |
+| --- | --- | --- |
+| `E:\Coding\.tmp\lane-d-up-1.log` | `lane-servers.mjs up lane-d` (background, `E2E_EVER_ID=1`) | `ready: lane lane-d — app http://localhost:3034, mock 4006, stats 4007, control 4008, issuer 4009` |
+| `E:\Coding\.tmp\lane-d-claims-1.log` | `E2E_LANE=lane-d E2E_REUSE_SERVERS=1 npx playwright test --config apps/web/playwright/playwright.lane.config.ts download-claims` | `1 failed` + **`19 passed (15.0s)`** — the red was this lane's prediction, 10.6 |
+| `E:\Coding\.tmp\lane-d-claims-2.log` | the same command after the re-pin | **`20 passed (10.4s)`** |
+| `E:\Coding\.tmp\lane-d-claims-probe-1.txt`, `-probe-2.txt`, `-probe-3.txt` | read-only probes of lane-d's app and mock: response headers, `drops` arms, guid ids, token shapes | every quoted line below is a `###` block in one of these (line numbers given) |
+| `E:\Coding\.tmp\lane-d-typecheck-2.log` | `node ../../node_modules/typescript/lib/tsc.js -p playwright/tsconfig.json --noEmit` from `apps/web` | exit 0, 0 `error TS` lines. The earlier `lane-d-typecheck-1.log` had 14 errors, all in *this* lane's two new files, plus 2 in lane-b's then-uncommitted `suites/lane-b/board-preflight.spec.ts` (not this lane's, not touched) |
+
+### 10.1 Statement 1 — "a PDF download route forwards through the JSON proxy, which drops `Content-Disposition`"
+
+**Verdict: the proxy's header copy CONFIRMED (code read + measured differential). The invoice route's forwarding half
+NOT REACHABLE on this harness. An upstream-offered filename being dropped NOT REACHABLE — no harness here can produce
+one.**
+
+- Read out of the file (`cat -n`), `core/services/server/forward-to-gauzy.ts:22-28`: `answerHeaders` returns
+  `{ 'Content-Type': upstream.headers.get('Content-Type') ?? 'application/json' }` and adds
+  `headers['Cache-Control'] = 'no-store'` only `if (noStore)`. Those are the only two names it writes.
+- Measured differential on the same mock answer (`probe-2`): the mock's own answer on `/api/role-permissions/me`
+  carries `cache-control: no-store` plus four `access-control-*` names plus `content-type: application/json;
+  charset=utf-8` (`:2-6`); the app's answer on `GET /api/role-permissions/me` (its route passes no options,
+  `app/api/role-permissions/me/route.ts:8`) carries `content-type: application/json; charset=utf-8` and **no
+  `cache-control` and no `access-control-*`** (`:8-12`); the app's answer on `GET /api/auth/sessions` (route with
+  `{ noStore: true }`, `app/api/auth/sessions/route.ts:8`) does answer `cache-control: no-store` (`:14-18`). So exactly
+  one upstream header travels, and the only other header the proxy can write is its own option. `Content-Disposition`
+  is neither.
+- The invoice route itself (`app/api/invoices/download/[id]/route.ts:14` calls `forwardToGauzy` for
+  `/invoices/download/<encodeURIComponent(id)>`) **never reaches that proxy on this lane**: with the fixture session it
+  answers `403 {"statusCode":403,"message":"Forbidden resource"}` and the mock recorded only
+  `GET /api/role-permissions/me 200` — no entry for the invoice path (`probe-1:26-30`, `probe-2:67-71`, and the spec
+  case *GET /api/invoices/download/:id is refused by its own gate here*). The refusal is `refuseUnlessPermitted`
+  (`refuse-without-permission.ts:42-56`) answering for `canViewInvoices` (`invoice-access.ts:19-31`, rate half from
+  `rates.ts:11`), because the mock fixture role's permissions (`mock-gauzy-server.mjs:50-62`, served at `:611`) hold
+  `ORG_EMPLOYEES_EDIT` and **no `INVOICES_VIEW`** — measured off the mock's own answer in the case *and the reason is
+  the mock fixture role*, and in `probe-1:14-19`.
+- What the browser actually receives today, exact names and values: on the invoice route a
+  `403` whose header set is `content-type: application/json` + `content-encoding: gzip` + Next's own `vary`,
+  `connection`, `date`, `keep-alive`, `transfer-encoding: chunked` — no download header at all (`probe-1:26-30`); on
+  the download-helper route a `200` whose header set is `cache-control: no-store`, `content-type: application/json;
+  charset=utf-8` + the same Next-owned names (`probe-1:20-24`). `content-disposition` appears in neither.
+- Why the filename half is NOT REACHABLE: the mock writes every graded answer through the single
+  `response.writeHead(status, { ...cors, 'content-type': 'application/json; charset=utf-8' })`
+  (`mock-gauzy-server.mjs:1109`) followed by `end(JSON.stringify(payload))`, and its answer on a download path is
+  measured as `{"items":[],"total":0}` (`pagination([])`, `:806` and `:9`) with `transfer-encoding: chunked`, **no
+  `content-length` and no `content-disposition`** (`probe-1:2-6` for the docs path, `:8-12` for the invoice path). There
+  is no way to make this upstream offer a name, so no lane can watch one being dropped.
+
+**What may be reported to the owner**: the JSON proxy writes two header names, one of them the upstream `Content-Type`,
+measured on a reachable route. **What must not**: "we watched an upstream filename get dropped on the invoice PDF
+route", or any header list for that route other than the 403 above.
+
+### 10.2 Statement 2 — "a cross-site GET is forwarded with the session bearer, and the caller's `tenant-id` is ignored (the cookie wins)"
+
+**Verdict: CONFIRMED, on both proxies, with a limit on what "cross-site" means here (below).**
+
+- Cross-site GET on the download route is forwarded, with the cookie's token (`probe-1:41-47`): request
+  `Origin: https://some-other-site.example` + `sec-fetch-site: cross-site` + `tenant-id: <tenantB>`, cookie tenant A →
+  app `200`, mock recorded `GET /api/plugins/docs/documents/2f7e0b3a-…/export.pdf 200`, and the recorded bearer hash
+  `a21e130a2ce49e8729de0e7a53952f1ce541cb1c63ed61d8303193769da21fda` is the sha256 of the token that case minted. The
+  spec case *a cross-site GET on the download route is forwarded* re-derives that hash itself. No origin check exists
+  in `forward-download-to-gauzy.ts` at all, and `refuseForeignWrite` returns null for GET and HEAD
+  (`same-origin-request.ts:43-46`).
+- The tenant differential, on the download route (`probe-1:49-75`; the spec case *the caller tenant-id header never
+  reaches the platform* repeats all four arms in one run). Every arm sends `tenant-id: <tenantB>` as the caller's own
+  header and `auth-tenant-id=<tenantA>` in the cookie:
+
+  | `drops` arm | app answer | mock's recorded request |
+  | --- | --- | --- |
+  | `<tenantA>:<path>` | `502 {"statusCode":502,"message":"The Gauzy API is unreachable"}` | `GET /api/plugins/docs/documents/2f7e0b3a-…/export.pdf 0` |
+  | `<tenantB>:<path>` | `200 {"items":[],"total":0}` | `… export.pdf 200` |
+  | `<tenantB>` (bare tenant key) | `200` | `… export.pdf 200` |
+  | `<path>` only | `502` | `… export.pdf 0` |
+
+  The mock keys `drops` as `${tenantId}:${pathname}` → `tenant` → `pathname` from the `tenant-id` header of the request
+  **it received** (`mock-gauzy-server.mjs:1044-1049`, header read at `:1013-1016`), so an arm keyed on the caller's
+  header tenant only bites if that header travelled. It never bit; the arm keyed on the cookie's tenant bit every time.
+- With no `auth-tenant-id` cookie at all (`probe-3:2-15`): armed `<path>` → `502` and `… export.pdf 0` (the call went
+  out, tenant-less) while armed `<tenantB>:<path>` → `200` and `… export.pdf 200`. A caller cannot supply the tenant by
+  header, in either direction.
+- Same differential on the JSON proxy route (`probe-2:21-34`): armed `<tenantA>:/api/role-permissions/me` → `502` +
+  `GET /api/role-permissions/me 0`; armed `<tenantB>:/api/role-permissions/me` → `200` + `GET /api/role-permissions/me
+  200` — with `origin` and `sec-fetch-site: cross-site` on the caller's request, so the forwarded GET is not stopped by
+  an origin either. The code matches: `tenantId` comes from `cookies.get(TENANT_ID_COOKIE_NAME)`
+  (`forward-to-gauzy.ts:97`, written at `:119`; `forward-download-to-gauzy.ts:41`, written at `:48`), and `tenant-id` is
+  in `SESSION_HEADERS` (`forward-to-gauzy.ts:13`), so no route's `forwardHeaders` list can pass a caller's value either.
+- The limit, stated plainly: "cross-site" here means the caller's `Origin` / `sec-fetch-site` headers reaching the
+  route together with a `Cookie:` header the test itself composes (`playwright/api-fixtures.ts:87-104`). What a browser
+  would attach is a separate fact this lane did not measure: the harness writes its session cookies as
+  `sameSite: 'Lax'` (`playwright/helpers.ts:116-124`), and `same-origin-request.ts:8-9` names
+  `NEXT_PUBLIC_COOKIE_SAME_SITE=none` as the deployment where they travel. See 10.5 for what a real page-level version
+  would need.
+
+### 10.3 Statement 3 — "`z.guid()` is a shape check that runs ahead of the bearer check and puts the accepted id into the upstream path verbatim"
+
+**Verdict: CONFIRMED for the accepted ids, the ordering and the verbatim path; one spelling REFUTED as written; the
+`../` and two-segment spellings re-classified.**
+
+- The check, read out of the installed package (`zod@4.6.6`, `node_modules/zod/package.json`):
+  `export const guid = /^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$/`
+  (`node_modules/zod/v4/core/regexes.js:21`, its comment at `:20` says "any UUID-like identifier: 8-4-4-4-12 hex
+  pattern"). It names no version nibble; zod's version-aware form is a different function, `uuid(version)` (`:25-29`),
+  which `app/api/plugins/docs/documents/[id]/export.pdf/route.ts:5` does not use.
+- Accepted, and each one reaches the upstream path spelled exactly as the caller wrote it (`probe-1:77-104`; spec case
+  *the shape check accepts a 0-prefixed id, an uppercase id and bad version nibbles*):
+
+  | id asked for | app answer | mock's recorded request |
+  | --- | --- | --- |
+  | `0f7e0b3a-4a53-4a1c-9c0e-8d7b6a5f4e3d` (`0`-prefixed) | `200` | `GET /api/plugins/docs/documents/0f7e0b3a-4a53-4a1c-9c0e-8d7b6a5f4e3d/export.pdf 200` |
+  | `2F7E0B3A-4A53-4A1C-9C0E-8D7B6A5F4E3D` (uppercase) | `200` | `GET /api/plugins/docs/documents/2F7E0B3A-4A53-4A1C-9C0E-8D7B6A5F4E3D/export.pdf 200` |
+  | `2f7e0b3a-4a53-7a1c-9c0e-8d7b6a5f4e3d` (version nibble `7`) | `200` | `… /2f7e0b3a-4a53-7a1c-9c0e-8d7b6a5f4e3d/export.pdf 200` |
+  | `2f7e0b3a-4a53-0a1c-9c0e-8d7b6a5f4e3d` (version nibble `0`) | `200` | `… /2f7e0b3a-4a53-0a1c-9c0e-8d7b6a5f4e3d/export.pdf 200` |
+
+  The uppercase row is the direct proof of "verbatim": the mock logs the path it was fetched for, and the uppercase
+  spelling survives into it, because `route.ts:14` interpolates `parsed.data` as it stands.
+- Refused before any upstream call — `400 {"error":"A document id is required"}` (`route.ts:13`) with the mock log
+  empty (`probe-1:105-125`; spec case *the shape check refuses a non-hex version nibble, a 38-character id and a
+  dash-less id*): `2f7e0b3a-4a53-za1c-9c0e-8d7b6a5f4e3d`, `2f7e0b3a-4a53-4a1c-9c0e-8d7b6a5f4e3d00` (38 characters), and
+  `2f7e0b3a4a534a1c9c0e8d7b6a5f4e3d` (32 hex, no dashes).
+- **REFUTED as written**: the version nibble `z` is *refused*. `z` is not a hex digit, so what fails is the digit class
+  at `:21`, not a version rule. The accepted "bad version" ids are the hex ones — `7` and `0` above. A report that says
+  "`z` is accepted" is wrong, and one that says "any version nibble is accepted" is only true for `0-9a-f`.
+- Re-classified, because these never meet the shape check the way the claim implies (`probe-1:126-166`; spec case *a
+  percent-encoded ../ reaches the shape check and is refused*): `..%2Femployee`, `%2e%2e%2femployee` and
+  `..%2f..%2femployee` each reach the route and get its `400` with an empty mock log; `../employee` and
+  `../../employee` written plain get `404` with `content-type: text/html` (the app's page, not this route's JSON) and an
+  empty mock log — the client resolves `..` while building the URL, so the route is never asked; and
+  `2f7e0b3a-…-4e3d/extra/export.pdf` (two segments) is the same `404` page with an empty mock log.
+- The ordering, with no session at all (`probe-3:16-29`; spec case *the shape check answers ahead of the session*):
+  anonymous + bad id → `400 {"error":"A document id is required"}`, mock log `[]`; anonymous + valid id →
+  `401 {"statusCode":401,"message":"Unauthorized"}`, mock log `[]`. The shape check answers first and the bearer check
+  second (`route.ts:12-14`, then `forward-download-to-gauzy.ts:40`), and neither reached the platform.
+
+### 10.4 Statement 4 — "the token's claims are never validated (an `exp` in 1970 is forwarded), while a chunked `auth-token` cookie with a missing chunk is a 401"
+
+**Verdict: CONFIRMED on both halves, on the download route and — for the claims half — on the JSON proxy route too.**
+
+- `exp: 100` (`1970-01-01T00:01:40Z`), everything else the fixture's (`probe-1:168-174`; spec case *an exp of 1970 is
+  forwarded by the download helper*): app `200`, mock recorded `GET /api/plugins/docs/documents/2f7e0b3a-…/export.pdf
+  200`, and the bearer the mock hashed is `4bfc6de5b0d215a61c33e5736c2e153a3e92b6bb0c8bba7bf26351a5354c9625` — the
+  sha256 of that exact expired token. The spec recomputes the hash rather than quoting it.
+- A token with **no `exp` claim at all** is forwarded on both proxies (`probe-3:30-43`): `200` on the download route and
+  `200` on `/api/auth/sessions`, bearer hash `a9613c166825dd2b4128e32824c57e7f0fab5682e3797cf1bfb9fcf03cb57e56`
+  recorded against both paths. Nothing in `forward-download-to-gauzy.ts:36-51` or `forward-to-gauzy.ts:92-124` reads a
+  claim, and with no `Authorization` request header `tabSessionOf` returns at `tab-session.ts:38` before decoding one.
+- Chunked session, chunk 1 of 2 missing (`probe-1:176-182`; spec case *a chunked auth-token with a missing chunk is a
+  401*): header `auth-token_totalChunks=2; auth-token0=<first 20 chars>` with no `auth-token1` and no plain
+  `auth-token` → `401 {"statusCode":401,"message":"Unauthorized"}`, mock log `[]`, no bearer recorded. Both chunks
+  present → `200` with bearer `a21e130a2ce49e8729de0e7a53952f1ce541cb1c63ed61d8303193769da21fda`, i.e. the hash of the
+  concatenation of the two chunks (`probe-1:183-189`).
+- An announced count no sign-in writes (`probe-3:44-49`): `auth-token_totalChunks=1000` with one chunk →
+  `401 {"statusCode":401,"message":"Unauthorized"}`, mock log `[]`. `tokenCookieChunkCount` rejects anything that is not
+  1-3 digits (`core/lib/helpers/cookies/token-chunks.ts:16`), `requestAccessToken` then falls through to the plain
+  cookie (`request-cookies.ts:37`), finds nothing, and the helper refuses at `forward-download-to-gauzy.ts:40`.
+
+### 10.5 What this lane needed from the harness and did not have (for the main session, not fixes this lane made)
+
+1. **A mock handler for a download path that can answer caller-named headers** (`content-disposition`, a real
+   `content-length`, a binary body). Without it the filename half of 10.1 is unmeasurable by anyone; every statement
+   about `PASSED_HEADERS` copying a filename is a code reading, not an observation. This lane did not add one —
+   `cypress/support/mock-gauzy-server.mjs` is shared with lane-a and lane-c, which are running now.
+2. **A way to give the fixture role `INVOICES_VIEW`** (a `scenario` knob on `role-permissions`, or a second fixture
+   role). Until then `GET /api/invoices/download/:id` cannot reach `forwardToGauzy` in any lane, so statement 1's named
+   route is only testable up to its gate.
+3. **`scenario.fails`** — still not a switch this checkout's mock reads. `grep -c "scenario.fails"
+   apps/web/cypress/support/mock-gauzy-server.mjs` → `0` (this lane's own read), and arming `fails` on a download path
+   is answered `200` with a `200` log entry (spec case *scenario.fails is not a switch this mock reads*). No upstream
+   4xx/5xx is reachable on a download path, so 10.1's "the proxy forwards an upstream refusal" cannot be pinned.
+4. **`playwright.api.config.ts` cannot run a lane folder**: its project `testMatch` is `'**/api/**/*.spec.ts'`
+   (`playwright.api.config.ts:28`), and asking it for `suites/lane-d/download-claims-headers.spec.ts` printed
+   `Error: No tests found.` / `Total: 0 tests in 0 files`. Lane specs run on `playwright.lane.config.ts`
+   (`testMatch: '**/<lane>/**/*.spec.ts'`, `:57`), which is what every number here was run with.
+5. **A page-level cross-site case is now possible and worth having**: the mock answers its own lane's browser origin
+   and echoes it in `access-control-allow-origin` (`probe-2:49-54`), because `laneServers` names it through
+   `E2E_TRUSTED_APP_ORIGINS` (`playwright/test-servers.ts:323`) and the mock accepts every loopback entry of that
+   variable (`mock-gauzy-server.mjs:18-25`). Once item 1 exists, the SameSite half of 10.2 can be measured for real
+   instead of stated as a limit.
+6. Not attempted here, and owned by lane-b §13: the 504 and 499 shapes.
+7. Nothing shared was edited by this lane: `mock-gauzy-server.mjs`, `test-servers.ts`, `helpers.ts`,
+   `api-fixtures.ts` and `lane-servers.mjs` were read only. No lane but lane-d was started or stopped, and lane-d was
+   left running until these runs finished.
+
+### 10.6 The prediction this lane got wrong, recorded because it is the reason a claim here changed
+
+`lane-d-claims-1.log` ends `1 failed` + `19 passed (15.0s)`. The red was this lane's own statement that "the mock
+refuses a lane origin of its own", predicted as `403` for `http://localhost:3034` on the strength of
+`TRUSTED_BROWSER_ORIGINS = new Set(['http://127.0.0.1:3030', 'http://localhost:3030'])`
+(`mock-gauzy-server.mjs:17`). Measured, it is `200` with `access-control-allow-origin: http://localhost:3034`
+(`probe-2:49-54`), and reading the rest of that block explains it: the launcher names the lane through
+`E2E_TRUSTED_APP_ORIGINS` (`test-servers.ts:323`) and the mock adds any loopback entry of that variable
+(`mock-gauzy-server.mjs:18-25`). The case was rewritten to pin all three measured facts — lane origin answered and
+echoed, `https://some-other-site.example` refused `403 {"error":"Untrusted synthetic browser origin."}` (`:991-993`,
+`probe-2:55-60`), and an app-forwarded call carrying no `Origin` at all answered without any CORS echo
+(`probe-2:61-66`) — which is why every cross-site case in this file is written as the caller's `Origin` header reaching
+the app, and never as the app's own call to the platform. `lane-d-claims-2.log` is `20 passed (10.4s)` after that. No
+app file and no shared harness file was changed for it.

@@ -28,6 +28,15 @@ export function mintAccessToken(userId: string, organizationId: string, jti: str
 	return `${base64Url({ alg: 'none', typ: 'JWT' })}.${base64Url(claims)}.lane-d`;
 }
 
+/**
+ * The same three-part token with the claims a case names, for a case that must hand the app a token whose claims
+ * differ from the fixture's (an `exp` of 1970, no `exp` at all) while every cookie around it stays the fixture's own.
+ * Nothing fills a claim in: a case that wants an `iat` has to name one.
+ */
+export function mintAccessTokenWith(claims: Record<string, unknown>): string {
+	return `${base64Url({ alg: 'none', typ: 'JWT' })}.${base64Url(claims)}.lane-d`;
+}
+
 export const sha256 = (value: string): string => createHash('sha256').update(value).digest('hex');
 
 /** The fixture session header with only `auth-token` swapped for a freshly minted one. */
