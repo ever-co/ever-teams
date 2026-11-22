@@ -112,6 +112,18 @@ describe('getAllowedTimesheetStatuses', () => {
 		}
 	});
 
+	it("reads a membership's employee from its employee when the team was read without employeeId (#5622)", () => {
+		const managerById = { employeeId: null, employee: { id: MANAGER_ID } };
+		const memberById = { employeeId: null, employee: { id: MEMBER_ID } };
+		const reviewer = teamManager({ teams: [managedTeam(managerById, memberById)] });
+
+		const memberStatuses = statusesFor(reviewer, MEMBER_ID);
+		const ownStatuses = statusesFor(reviewer, MANAGER_ID);
+
+		expect(memberStatuses).toEqual(TEAM_MANAGER_STATUSES);
+		expect(ownStatuses).toEqual([]);
+	});
+
 	it('gives nothing to a team manager the API refuses before its team check', () => {
 		const withoutTimeTracker = teamManager({ permissions: [] });
 		const withoutEmployee = teamManager({ employeeId: null });

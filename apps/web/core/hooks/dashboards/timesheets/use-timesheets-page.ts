@@ -43,7 +43,11 @@ import {
 	totalDurationOf
 } from '@/core/lib/utils/dashboards/timesheets';
 import { breakSecondsOf, isBreakLog } from '@/core/lib/utils/timer/timer-break';
-import { isMembershipInEffect, type TimesheetReviewer } from '@/core/lib/helpers/timesheet-review';
+import {
+	isMembershipInEffect,
+	membershipEmployeeIdOf,
+	type TimesheetReviewer
+} from '@/core/lib/helpers/timesheet-review';
 import { useTimesheetReviewer } from '@/core/hooks/timesheet/use-timesheet-review';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import type { TOrganizationTeamEmployee } from '@/core/types/schemas';
@@ -125,7 +129,7 @@ function ownScopeOf(ownEmployeeId: string | null): string[] {
 function teamMemberIdsInEffectOf(teamMembers: ReadonlyArray<TOrganizationTeamEmployee>): string[] {
 	const employeeIds = new Set<string>();
 	for (const member of teamMembers) {
-		const employeeId = member.employeeId ?? member.employee?.id;
+		const employeeId = membershipEmployeeIdOf(member);
 		if (employeeId && isMembershipInEffect(member)) {
 			employeeIds.add(employeeId);
 		}

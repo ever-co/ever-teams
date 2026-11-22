@@ -4,7 +4,10 @@ import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import type { TOrganizationTeamEmployee } from '@/core/types/schemas';
 
 /** A team membership, as the teams the app loads carry it. */
-type TeamMembership = Pick<TOrganizationTeamEmployee, 'employeeId' | 'isManager' | 'isActive' | 'isArchived'>;
+type TeamMembership = Pick<
+	TOrganizationTeamEmployee,
+	'employeeId' | 'employee' | 'isManager' | 'isActive' | 'isArchived'
+>;
 
 /** A team with the memberships the app loaded for it. */
 type ReviewerTeam = { members?: readonly TeamMembership[] | null };
@@ -47,9 +50,15 @@ export function isMembershipInEffect(member: Pick<TeamMembership, 'isActive' | '
 	return isActive && isNotArchived;
 }
 
+/** The membership's employee: its employeeId, or the id of its employee when the team was read without it. */
+export function membershipEmployeeIdOf(member: Pick<TeamMembership, 'employeeId' | 'employee'>): ID | null {
+	const employeeId: ID | null | undefined = member.employeeId ?? member.employee?.id;
+	return employeeId ?? null;
+}
+
 /** Whether the membership is the employee's and still in effect. */
 function isActiveMembership(member: TeamMembership, employeeId: ID): boolean {
-	const isEmployee = member.employeeId === employeeId;
+	const isEmployee = membershipEmployeeIdOf(member) === employeeId;
 	return isEmployee && isMembershipInEffect(member);
 }
 
