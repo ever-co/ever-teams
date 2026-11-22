@@ -4283,6 +4283,8 @@
 			"VERIFY_TITLE": "Potwierdź adres e-mail",
 			"VERIFY_TEXT": "Wysłaliśmy kod na adres {email}.",
 			"VERIFY_TEXT_GENERIC": "Wysłaliśmy kod na Twój adres e-mail.",
+			"VERIFY_TEXT_NOT_SENT": "Wyślij kod na adres {email}, aby potwierdzić, że należy do Ciebie.",
+			"VERIFY_TEXT_NOT_SENT_GENERIC": "Wyślij kod na swój adres e-mail, aby potwierdzić, że należy do Ciebie.",
 			"VERIFY_ACTION": "Wpisz kod",
 			"VERIFY_RESEND": "Wyślij nowy kod",
 			"VERIFY_SENDING": "Wysyłanie nowego kodu"

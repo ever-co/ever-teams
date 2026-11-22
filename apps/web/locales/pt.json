@@ -4283,6 +4283,8 @@
 			"VERIFY_TITLE": "Confirme seu endereço de e-mail",
 			"VERIFY_TEXT": "Enviamos um código para {email}.",
 			"VERIFY_TEXT_GENERIC": "Enviamos um código para o seu endereço de e-mail.",
+			"VERIFY_TEXT_NOT_SENT": "Envie um código para {email} para confirmar que o endereço é seu.",
+			"VERIFY_TEXT_NOT_SENT_GENERIC": "Envie um código para o seu endereço de e-mail para confirmar que é seu.",
 			"VERIFY_ACTION": "Inserir o código",
 			"VERIFY_RESEND": "Enviar um novo código",
 			"VERIFY_SENDING": "Enviando um novo código"

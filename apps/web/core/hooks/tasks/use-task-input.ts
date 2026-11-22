@@ -6,6 +6,7 @@ import { useAtomValue } from 'jotai';
 import { useModal, useSyncRef } from '../common';
 import { useTeamTasksQuery, useSetActiveTask, useCreateTask, useUpdateTask } from '../organizations';
 import { useAuthenticateUser } from '../auth';
+import { useIsEmailVerificationSatisfied } from '../auth/use-email-verification-status';
 import { Nullable } from '@/core/types/generics/utils';
 import { TTag } from '@/core/types/schemas';
 import { useTaskStatusesQuery } from './use-task-statuses-query';
@@ -57,6 +58,8 @@ export function useTaskInput({
 
 	const { user } = useAuthenticateUser();
 	const userRef = useSyncRef(user);
+	const meetsEmailVerification = useIsEmailVerificationSatisfied(user);
+	const meetsEmailVerificationRef = useSyncRef(meetsEmailVerification);
 	const [taskIssue, setTaskIssue] = useState('');
 	const taskStatus = useRef<null | string>(null);
 	const taskPriority = useRef<null | string>(null);
@@ -155,7 +158,7 @@ export function useTaskInput({
 			id: string;
 		}[];
 	} = {}) => {
-		if (query.trim().length < 2 || inputTask?.title === query.trim() || !userRef.current?.isEmailVerified) return;
+		if (query.trim().length < 2 || inputTask?.title === query.trim() || !meetsEmailVerificationRef.current) return;
 		const openId = taskStatusList.find((item) => item.value === 'open')?.id;
 		const statusId = taskStatusList.find((item) => item.name === taskStatus.current)?.id;
 
@@ -185,14 +188,14 @@ export function useTaskInput({
 
 	const updateTaskTitleHandler = useCallback(
 		(task: TTask, title: string) => {
-			if (!userRef.current?.isEmailVerified) return;
+			if (!meetsEmailVerificationRef.current) return;
 
 			return updateTask({
 				...task,
 				title
 			});
 		},
-		[updateTask, userRef]
+		[updateTask, meetsEmailVerificationRef]
 	);
 
 	const closedTaskCount = useMemo(() => {
@@ -243,6 +246,7 @@ export function useTaskInput({
 		taskDescription,
 		user,
 		userRef,
+		meetsEmailVerification,
 		taskProject,
 		taskAssignees,
 		isCreatingTask

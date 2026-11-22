@@ -14,6 +14,8 @@ import {
 } from '@/core/components/settings/kit/settings-page';
 import { AUTH_CODE_LENGTH } from '@/core/constants/config/constants';
 import { useAccountEmail } from '@/core/hooks/settings/use-account-email';
+import { useEmailVerificationStatus } from '@/core/hooks/auth/use-email-verification-status';
+import { asksForEmailVerification, wasVerificationEmailSent } from '@/core/lib/auth/email-verification';
 import { cn } from '@/core/lib/helpers';
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
 import { emailChangeProblemOf, EmailChangeProblem } from '@/core/lib/utils/settings-profile';
@@ -82,7 +84,11 @@ export function EmailRow() {
 	const codeFieldRef = useRef<AuthCodeRef>(null);
 	const currentEmail = user?.email ?? '';
 	const isVerified = user?.isEmailVerified;
-	const showsVerificationPanel = step === 'read' && isVerified === false;
+	// Where the deployment verifies no address, no code can be sent or entered: the panel stays away
+	const verificationState = useEmailVerificationStatus(user);
+	const asksForVerification = asksForEmailVerification(user, verificationState);
+	const codeWasSent = wasVerificationEmailSent(verificationState);
+	const showsVerificationPanel = step === 'read' && asksForVerification;
 	const isCodeComplete = code.length >= AUTH_CODE_LENGTH;
 	const label = t('settings.profile.EMAIL');
 
@@ -304,6 +310,7 @@ export function EmailRow() {
 			{showsVerificationPanel && (
 				<EmailVerificationPanel
 					email={currentEmail}
+					codeWasSent={codeWasSent}
 					onSendCode={sendVerificationCode}
 					isSendingCode={isSendingVerificationCode}
 					onVerify={confirmVerification}

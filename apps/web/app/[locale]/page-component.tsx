@@ -45,6 +45,7 @@ import {
 import { LazyChatwootWidget, LazyUnverifiedEmail, LazyNoTeam } from '@/core/components/optimized-components/common';
 import { activeTeamState, isTeamMemberState, isTrackingEnabledState, organizationTeamsState } from '@/core/stores';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { useAsksForEmailVerification } from '@/core/hooks/auth/use-email-verification-status';
 import { isInNoTeamForLackOfMemberProfile } from '@/core/lib/utils/member-profile';
 
 function MainPage() {
@@ -65,6 +66,7 @@ function MainPage() {
 	const showsTeamWork = isTeamMember && showsTeamParts;
 
 	const { isTeamManager } = useIsMemberManager(user);
+	const asksForEmailVerification = useAsksForEmailVerification(user);
 
 	const { myInvitations: myInvitationsList, refetchMyInvitations } = useMyInvitationsQuery();
 	const [view, setView] = useAtom(headerTabs);
@@ -114,8 +116,8 @@ function MainPage() {
 
 								<AnimatedHeight>
 									<div className="w-full">
-										{/* UnverifiedEmail - Only render when user email is not verified */}
-										{user && !user.isEmailVerified && (
+										{/* UnverifiedEmail - Only render when the API asks this user to verify their address */}
+										{asksForEmailVerification && (
 											<Suspense fallback={<UnverifiedEmailSkeleton />}>
 												<LazyUnverifiedEmail user={user} />
 											</Suspense>

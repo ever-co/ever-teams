@@ -4283,6 +4283,8 @@
 			"VERIFY_TITLE": "Bestätige deine E-Mail-Adresse",
 			"VERIFY_TEXT": "Wir haben einen Code an {email} gesendet.",
 			"VERIFY_TEXT_GENERIC": "Wir haben einen Code an deine E-Mail-Adresse gesendet.",
+			"VERIFY_TEXT_NOT_SENT": "Sende einen Code an {email}, um zu bestätigen, dass die Adresse dir gehört.",
+			"VERIFY_TEXT_NOT_SENT_GENERIC": "Sende einen Code an deine E-Mail-Adresse, um zu bestätigen, dass sie dir gehört.",
 			"VERIFY_ACTION": "Code eingeben",
 			"VERIFY_RESEND": "Neuen Code senden",
 			"VERIFY_SENDING": "Neuer Code wird gesendet"

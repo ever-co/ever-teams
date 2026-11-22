@@ -9,7 +9,7 @@
  * #5123: while the time a run went on without the app is still to be settled (the person is being asked), the
  * heartbeat and a stop would each put that time in the run: neither is sent before the answer.
  */
-import { act, renderHook } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createStore, Provider } from 'jotai';
 import type { PropsWithChildren } from 'react';
@@ -17,6 +17,7 @@ import type { PropsWithChildren } from 'react';
 import { queryKeys } from '@/core/query/keys';
 import {
 	activeTeamIdState,
+	activeTeamTaskState,
 	organizationOpeningState,
 	organizationTeamsState,
 	timerNotesState,
@@ -111,6 +112,8 @@ const mockResolveBillable = jest.fn(async () => false);
 const mockSyncTimer = jest.fn(async () => ({
 	data: { running: !!mockGauzy.lastLog?.isRunning, lastLog: mockGauzy.lastLog }
 }));
+/** Gauzy's address verification status: `null` where the deployment verifies no address (its route answers 404). */
+const mockGetVerificationStatus = jest.fn();
 /** What the guard of the app shell says of the time a run went on without the app: still to be settled, or not. */
 const mockUnfollowedTime: { settled: Promise<boolean> | null } = { settled: null };
 
@@ -153,6 +156,9 @@ jest.mock('@/core/services/client/api/timers', () => ({
 		// The heartbeat, which a stop sends first too
 		syncTimer: () => mockSyncTimer()
 	}
+}));
+jest.mock('@/core/services/client/api/users/emails/email-verification.service', () => ({
+	emailVerificationService: { getVerificationStatus: () => mockGetVerificationStatus() }
 }));
 jest.mock('./use-stale-timer-guard', () => ({
 	...jest.requireActual('./use-stale-timer-guard'),
@@ -879,5 +885,43 @@ describe('a heartbeat the API took', () => {
 		});
 
 		expect(tab.store.get(timerStatusState)?.lastLog?.tags).toEqual([meeting, support]);
+	});
+});
+
+describe('canRunTimer for an owner whose address is not verified (#5677)', () => {
+	beforeEach(() => {
+		mockGauzy.lastLog = null;
+		mockGauzy.isTrackingTime = false;
+		mockUser.isEmailVerified = false;
+		mockGetVerificationStatus.mockReset();
+	});
+
+	afterEach(() => {
+		mockUser.isEmailVerified = true;
+	});
+
+	function renderTabOnTask() {
+		const tab = renderTab();
+		act(() => tab.store.set(activeTeamTaskState, TASK));
+		return tab;
+	}
+
+	it('lets the timer start where the deployment verifies no address (the status route answers 404)', async () => {
+		mockGetVerificationStatus.mockResolvedValue(null);
+
+		const tab = renderTabOnTask();
+
+		await waitFor(() => expect(tab.result.current.canRunTimer).toBe(true));
+	});
+
+	it('keeps the timer from starting where the deployment verifies addresses', async () => {
+		mockGetVerificationStatus.mockResolvedValue({ isEmailVerified: false, verificationEmailSent: true });
+
+		const tab = renderTabOnTask();
+		await act(async () => {
+			await new Promise((resolve) => setTimeout(resolve, 0));
+		});
+
+		expect(tab.result.current.canRunTimer).toBe(false);
 	});
 });

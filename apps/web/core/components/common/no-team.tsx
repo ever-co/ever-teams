@@ -9,6 +9,7 @@ import { CreateTeamModal } from '../features/teams/create-team-modal';
 import { organizationTeamsState } from '@/core/stores';
 import { useAtomValue } from 'jotai';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { useIsEmailVerificationSatisfied } from '@/core/hooks/auth/use-email-verification-status';
 import { NoTeamIcon } from '@/assets/svg';
 import { Users } from '@/core/components/icons';
 import { hasNoMemberProfile } from '@/core/lib/utils/member-profile';
@@ -19,15 +20,16 @@ const NoTeam = ({ className, ...rest }: Props) => {
 	const t = useTranslations();
 	const { isOpen, closeModal, openModal } = useModal();
 	const { data: user } = useUserQuery();
+	const meetsEmailVerification = useIsEmailVerificationSatisfied(user);
 
 	const teams = useAtomValue(organizationTeamsState);
 
 	React.useEffect(() => {
 		closeModal();
-		if (teams.length < 1 && user?.isEmailVerified == true) openModal();
-	}, [closeModal, openModal, teams.length, user?.isEmailVerified]);
+		if (teams.length < 1 && meetsEmailVerification) openModal();
+	}, [closeModal, openModal, teams.length, meetsEmailVerification]);
 
-	const isEmailUnverified = user?.isEmailVerified === false;
+	const isEmailUnverified = Boolean(user) && !meetsEmailVerification;
 
 	return (
 		<div className={clsxm('flex flex-col justify-center items-center mx-auto mt-8 xs:mt-32', className)} {...rest}>

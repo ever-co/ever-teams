@@ -8,10 +8,18 @@ import { activeTeamIdState, organizationTeamsState, teamTasksState } from '@/cor
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 
 let mockUser: Record<string, unknown> | undefined;
+/** What the API says of the address verification: `null` where the deployment verifies no address. */
+let mockVerificationState: { isEmailVerified: boolean } | null | undefined;
 
 jest.mock('@/core/hooks/queries/user-user.query', () => ({
 	useUserQuery: () => ({ data: mockUser })
 }));
+jest.mock('@/core/hooks/auth/use-email-verification-status', () => {
+	const { isEmailVerificationSatisfied } = jest.requireActual('@/core/lib/auth/email-verification');
+	return {
+		useIsEmailVerificationSatisfied: (user: unknown) => isEmailVerificationSatisfied(user, mockVerificationState)
+	};
+});
 
 import { useTimeEntryContinue } from './use-time-entry-continue';
 
@@ -53,6 +61,7 @@ function renderContinue(store: JotaiStore) {
 
 beforeEach(() => {
 	mockUser = { id: 'user-1', isEmailVerified: true, employee: { id: 'employee-1' } };
+	mockVerificationState = { isEmailVerified: false };
 });
 
 describe('useTimeEntryContinue', () => {
@@ -81,6 +90,14 @@ describe('useTimeEntryContinue', () => {
 		const { result } = renderContinue(storeWith(memberOf(true)));
 
 		expect(result.current.canContinue(entryOf())).toBe(false);
+	});
+
+	it('offers Continue to an unverified owner where the deployment verifies no address (#5677)', () => {
+		mockUser = { id: 'user-1', isEmailVerified: false, employee: { id: 'employee-1' } };
+		mockVerificationState = null;
+		const { result } = renderContinue(storeWith(memberOf(true)));
+
+		expect(result.current.canContinue(entryOf())).toBe(true);
 	});
 
 	it("offers nothing on a teammate's entry", () => {
