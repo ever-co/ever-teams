@@ -22,6 +22,12 @@ function withTimeLogMove<T extends object>(body: T, moveTimeLogs: boolean | unde
 	return { ...body, moveTimeLogs: true };
 }
 
+// A field the caller left undefined keeps the service's default, as it does in proxy mode once the body is sent as JSON.
+function fieldsSetBy<T extends object>(body: T): Partial<T> {
+	const setEntries = Object.entries(body).filter(([, value]) => value !== undefined);
+	return Object.fromEntries(setEntries) as Partial<T>;
+}
+
 /**
  * Enhanced Task Service with Zod validation
  *
@@ -362,7 +368,7 @@ class TaskService extends APIService {
 					tenantId,
 					projectId,
 					estimate: 0,
-					...body,
+					...fieldsSetBy(body),
 					title // this must be called after ...body
 				};
 

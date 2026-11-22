@@ -311,8 +311,8 @@
 		"closedCount": "{count, plural, other {# gesloten}}"
 	},
 	"noTeamScreen": {
-		"createYourTeam": "Maak je eigen team of sluit je aan bij een bestaand team",
-		"hintMessage": "Lorem ipsum dolor sit amet consectetur. Blandit lobortis dui risus neque."
+		"createYourTeam": "Maak uw eigen team of sluit u aan bij een bestaand team",
+		"hintMessage": "Maak een team aan en nodig de mensen uit met wie je werkt."
 	},
 	"settingScreen": {
 		"description": "Je account, je team en hoe de taken ervan zijn georganiseerd.",
@@ -622,6 +622,16 @@
 		},
 		"addLabel": "Label toevoegen",
 		"editLabels": "Labels bewerken",
-		"rowActions": "Acties voor {name}"
+		"rowActions": "Acties voor {name}",
+		"dates": {
+			"addDate": "Datum toevoegen",
+			"clear": "Datum wissen",
+			"today": "Vandaag",
+			"tomorrow": "Morgen",
+			"endOfWeek": "Einde van deze week",
+			"inOneWeek": "Over een week",
+			"startAfterDue": "De startdatum moet vóór de vervaldatum liggen.",
+			"dueBeforeStart": "De vervaldatum moet na de startdatum liggen."
+		}
 	}
 }

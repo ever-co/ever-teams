@@ -4,7 +4,12 @@
  * web shows approve and reject exactly where the API takes them.
  */
 import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
-import { getAllowedTimesheetStatuses, type TimesheetReviewer } from './timesheet-review';
+import {
+	getAllowedTimesheetStatuses,
+	offersApproveAndReject,
+	reviewStatusesOf,
+	type TimesheetReviewer
+} from './timesheet-review';
 
 type Team = TimesheetReviewer['teams'][number];
 type Membership = NonNullable<Team['members']>[number];
@@ -107,6 +112,18 @@ describe('getAllowedTimesheetStatuses', () => {
 		}
 	});
 
+	it("reads a membership's employee from its employee when the team was read without employeeId (#5622)", () => {
+		const managerById = { employeeId: null, employee: { id: MANAGER_ID } };
+		const memberById = { employeeId: null, employee: { id: MEMBER_ID } };
+		const reviewer = teamManager({ teams: [managedTeam(managerById, memberById)] });
+
+		const memberStatuses = statusesFor(reviewer, MEMBER_ID);
+		const ownStatuses = statusesFor(reviewer, MANAGER_ID);
+
+		expect(memberStatuses).toEqual(TEAM_MANAGER_STATUSES);
+		expect(ownStatuses).toEqual([]);
+	});
+
 	it('gives nothing to a team manager the API refuses before its team check', () => {
 		const withoutTimeTracker = teamManager({ permissions: [] });
 		const withoutEmployee = teamManager({ employeeId: null });
@@ -127,5 +144,46 @@ describe('getAllowedTimesheetStatuses', () => {
 		expect(memberStatuses).toEqual(TEAM_MANAGER_STATUSES);
 		expect(ownStatuses).toEqual([]);
 		expect(outsiderStatuses).toEqual([]);
+	});
+});
+
+describe('reviewStatusesOf and offersApproveAndReject, what a page offers (#5622)', () => {
+	const memberLogs = [{ employeeId: MEMBER_ID }];
+	const ownLogs = [{ employeeId: MANAGER_ID }];
+
+	it("offers a team manager without CAN_APPROVE_TIMESHEET approve and reject on a member's timesheet, never their own", () => {
+		const access = { canApprove: false, reviewer: teamManager() };
+
+		expect(reviewStatusesOf(access, memberLogs)).toEqual(TEAM_MANAGER_STATUSES);
+		expect(offersApproveAndReject(access, memberLogs)).toBe(true);
+		expect(reviewStatusesOf(access, ownLogs)).toEqual([]);
+		expect(offersApproveAndReject(access, ownLogs)).toBe(false);
+	});
+
+	it('keeps every status on every timesheet for a role that approves any timesheet, as before', () => {
+		const withReviewer = { canApprove: true, reviewer: teamManager() };
+		const withoutReviewer = { canApprove: true };
+
+		for (const access of [withReviewer, withoutReviewer]) {
+			expect(reviewStatusesOf(access, ownLogs)).toEqual(Object.values(ETimesheetStatus));
+			expect(offersApproveAndReject(access, memberLogs)).toBe(true);
+		}
+	});
+
+	it('offers nothing on a page that passes no reviewer, as before', () => {
+		const access = { canApprove: false };
+
+		expect(reviewStatusesOf(access, memberLogs)).toEqual([]);
+		expect(offersApproveAndReject(access, memberLogs)).toBe(false);
+	});
+
+	it('offers nothing to a plain member, who manages no team', () => {
+		const plainMember = teamManager({ employeeId: MEMBER_ID, teams: [managedTeam()] });
+		const access = { canApprove: false, reviewer: plainMember };
+		const theirOwnLogs = memberLogs;
+		const theirManagerLogs = ownLogs;
+
+		expect(offersApproveAndReject(access, theirOwnLogs)).toBe(false);
+		expect(offersApproveAndReject(access, theirManagerLogs)).toBe(false);
 	});
 });

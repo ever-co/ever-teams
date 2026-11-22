@@ -74,6 +74,28 @@ export const authLogin = async ({ email, password }: { email: string; password: 
 	}
 };
 
+/**
+ * Completes a sign-in that the API answered with `TWO_FACTOR_REQUIRED`: the challenge it gave, with the code of the
+ * person's authenticator app or one of their recovery codes. Answers the session, as `authLogin` does.
+ */
+export const authVerifyTwoFactor = async (
+	{ challenge, code, recoveryCode }: { challenge: string; code?: string; recoveryCode?: string },
+	api?: IApiRequestConfig
+) => {
+	try {
+		const response = await ApiCall<IAuthLogin>(
+			{ path: '/auth/two-factor/verify', method: 'POST', body: { challenge, code, recoveryCode } },
+			api
+		);
+		if ('data' in response) {
+			return response.data;
+		}
+		return response;
+	} catch (error) {
+		return { message: (error as Error).message } as IServerError;
+	}
+};
+
 export const authSignUp = async (
 	{
 		fullName,

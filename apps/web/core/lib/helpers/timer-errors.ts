@@ -16,6 +16,14 @@ export function isTrackingOffRefusal(error: unknown): boolean {
 	return TRACKING_OFF_REFUSAL.test(error.message);
 }
 
+/** Gauzy's answer to a stop when no run is left to stop (406), which the proxy's stop route passes on as it is. */
+export function isNothingToStopRefusal(error: unknown): boolean {
+	if (!ApiErrorService.isApiError(error)) {
+		return false;
+	}
+	return error.hasHttpResponseStatus(406);
+}
+
 const TRACKING_FIELD_REQUIRED = 'TRACKING_FIELD_REQUIRED';
 
 /**

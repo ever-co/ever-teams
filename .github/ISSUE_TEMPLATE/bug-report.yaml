@@ -2,7 +2,6 @@ name: 🐛 Bug Report
 description: Report a bug to help us improve Ever Teams
 title: "[BUG]: "
 labels: ["bug"]
-assignees: ["Ndekocode", "Innocent-Akim"]
 body:
   - type: markdown
     attributes:

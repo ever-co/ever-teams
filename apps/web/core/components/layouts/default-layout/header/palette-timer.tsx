@@ -13,6 +13,7 @@ import { LazyAddManualTimeModal } from '@/core/components/optimized-components/c
 import { useSyncRef } from '@/core/hooks/common/use-sync-ref';
 import { useStartStopTimerHandler } from '@/core/hooks/activities/use-start-stop-timer-handler';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { useIsEmailVerificationSatisfied } from '@/core/hooks/auth/use-email-verification-status';
 import { useTimerButtonLogic } from '@/core/hooks/tasks/use-timer-button';
 import { useTimerActions } from '@/core/hooks/timer';
 import { useIsTimerRunShown, usePaletteTimer } from '@/core/hooks/timer/use-palette-timer';
@@ -84,6 +85,7 @@ function PaletteTimerStop() {
 function PaletteTimerStart({ task }: Readonly<{ task: TTask }>) {
 	const t = useTranslations();
 	const { data: user } = useUserQuery();
+	const meetsEmailVerification = useIsEmailVerificationSatisfied(user);
 	const { activeTeamTask, disabled, canTrack, startTimer, stopTimer, startTimerWithTask } = useTimerButtonLogic({
 		task
 	});
@@ -104,7 +106,7 @@ function PaletteTimerStart({ task }: Readonly<{ task: TTask }>) {
 			isActiveTask: activeTeamTask?.id === task.id,
 			isTimerRunning,
 			isRunOnOtherTask,
-			isEmailVerified: Boolean(user?.isEmailVerified),
+			isEmailVerified: meetsEmailVerification,
 			isMainStartDisabled: disabled,
 			canTrackTask: canTrack
 		});

@@ -6,6 +6,7 @@ import { hsl, webColorTokens } from '../../src/theme/tokens';
 import { translate } from '../i18n';
 import { useWebTheme } from '../theme';
 import { propertyTriggerLookOf } from './property-trigger';
+import { EmptyValueButton } from './empty-value-button';
 
 const FIELD_HEIGHT = 28;
 const GLYPH_SIZE = 14;
@@ -68,26 +69,6 @@ function AddLabelButton({ anchorRef, onPress }: Readonly<IAddLabel>) {
 	);
 }
 
-/** "+ Add label" in muted text, as the web's task page reads a task without labels. */
-function AddFirstLabel({ anchorRef, onPress }: Readonly<IAddLabel>) {
-	const theme = useWebTheme();
-	const muted = theme.colors['muted-foreground'];
-	const addLabel = translate('taskMenus.addLabel');
-	return (
-		<Pressable
-			ref={anchorRef}
-			testID="task-labels-add"
-			accessibilityRole="button"
-			accessibilityLabel={addLabel}
-			onPress={() => onPress()}
-			style={styles.empty}
-		>
-			<Plus size={GLYPH_SIZE} color={muted} />
-			<Text style={[styles.emptyText, { color: muted }]}>{addLabel}</Text>
-		</Pressable>
-	);
-}
-
 interface ITaskLabelsField {
 	labels: FieldLabel[];
 	/** Where the labels' menu opens when it is not opened from a label. */
@@ -108,7 +89,14 @@ export function TaskLabelsField({ labels, anchorRef, onOpen }: Readonly<ITaskLab
 				<LabelChip key={label.id ?? `${label.name}-${index}`} label={label} onOpen={onOpen} />
 			))}
 			{hasLabels && <AddLabelButton anchorRef={anchorRef} onPress={() => onOpen()} />}
-			{!hasLabels && <AddFirstLabel anchorRef={anchorRef} onPress={() => onOpen()} />}
+			{!hasLabels && (
+				<EmptyValueButton
+					anchorRef={anchorRef}
+					testID="task-labels-add"
+					label={translate('taskMenus.addLabel')}
+					onPress={() => onOpen()}
+				/>
+			)}
 		</View>
 	);
 }
@@ -132,18 +120,6 @@ const styles = StyleSheet.create({
 	},
 	chipName: {
 		flexShrink: 1
-	},
-	empty: {
-		alignItems: 'center',
-		borderRadius: 6,
-		flexDirection: 'row',
-		gap: 6,
-		minHeight: FIELD_HEIGHT,
-		marginLeft: -6,
-		paddingHorizontal: 6
-	},
-	emptyText: {
-		fontSize: 13
 	},
 	field: {
 		alignItems: 'center',

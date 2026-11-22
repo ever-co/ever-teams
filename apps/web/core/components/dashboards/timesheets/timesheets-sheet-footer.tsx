@@ -24,6 +24,8 @@ function Summary({ children }: Readonly<{ children: ReactNode }>) {
 export interface SheetSelectionActions {
 	count: number;
 	seconds: number;
+	/** Whether the reader may approve and reject the timesheets of the selected logs. */
+	canApprove: boolean;
 	canDelete: boolean;
 	onApprove: () => void;
 	onReject: () => void;
@@ -35,8 +37,19 @@ export interface SheetPendingActions {
 	count: number;
 	seconds: number;
 	memberName: string;
+	/** Whether the reader may approve and reject the member's pending time: never their own as a team manager. */
+	canApprove: boolean;
 	onApprove: () => void;
 	onReject: () => void;
+}
+
+/** Approve and Reject act on the selection when there is one, otherwise on the member's pending time. */
+function canApproveIn(selection: SheetSelectionActions, pending: SheetPendingActions) {
+	const hasSelection = selection.count > 0;
+	if (hasSelection) {
+		return selection.canApprove;
+	}
+	return pending.canApprove;
 }
 
 /**
@@ -47,15 +60,14 @@ export interface SheetPendingActions {
 export function TimesheetsSheetFooter({
 	selection,
 	pending,
-	canApprove,
 	isApproving
 }: Readonly<{
 	selection: SheetSelectionActions;
 	pending: SheetPendingActions;
-	canApprove: boolean;
 	isApproving: boolean;
 }>) {
 	const t = useTranslations();
+	const canApprove = canApproveIn(selection, pending);
 	const hasSelection = selection.count > 0;
 	const hasPending = pending.count > 0;
 	const hasSomethingToAct = hasSelection || hasPending;

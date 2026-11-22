@@ -70,6 +70,7 @@ const stubs = {
 			new Promise((resolve) => globalThis.__userReads.push(Object.assign(resolve, { token })));
 		globalThis.__logins = [];
 		export const authLogin = () => new Promise((resolve) => globalThis.__logins.push(resolve));
+		export const authVerifyTwoFactor = () => new Promise(() => {});
 		export const apiConfigManager = { getConfig: () => ({ apiUrl: 'http://api.test/api' }) };
 		globalThis.__manualTimes = [];
 		export const addManualTime = ({ body }) =>

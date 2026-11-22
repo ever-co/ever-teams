@@ -3,6 +3,7 @@ import { authenticatedGuard } from '@/core/services/server/guards/authenticated-
 import { createPlanRequest, getAllDayPlans } from '@/core/services/server/requests';
 import { NextRequest, NextResponse } from 'next/server';
 import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
+import { gauzyErrorResponse } from '@/core/services/server/gauzy-error-response';
 
 export async function POST(req: NextRequest) {
 	const foreign = refuseForeignOrigin(req);
@@ -32,12 +33,16 @@ export async function GET(req: NextRequest) {
 	} = await authenticatedGuard(req, res);
 	if (!user) return $res('Unauthorized');
 
-	const response = await getAllDayPlans({
-		bearer_token: access_token || '',
-		organizationId: organizationId || '',
-		tenantId: tenantId || '',
-		organizationTeamId: organizationTeamId || ''
-	});
+	try {
+		const response = await getAllDayPlans({
+			bearer_token: access_token || '',
+			organizationId: organizationId || '',
+			tenantId: tenantId || '',
+			organizationTeamId: organizationTeamId || ''
+		});
 
-	return $res(response.data);
+		return $res(response.data);
+	} catch (error) {
+		return gauzyErrorResponse(error, 'The team plans could not be read.');
+	}
 }

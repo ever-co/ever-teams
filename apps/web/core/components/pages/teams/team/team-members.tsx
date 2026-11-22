@@ -14,6 +14,7 @@ import { useProcessedTeamMembers, useFilteredTeamMembers } from '@/core/hooks/te
 import { activeTeamState } from '@/core/stores';
 import { activeTeamDetailLoadingState } from '@/core/stores/teams/organization-team';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { useIsEmailVerificationSatisfied } from '@/core/hooks/auth/use-email-verification-status';
 import { TeamMemberFilterType } from '@/core/lib/utils/team-members.utils';
 import { useFuseMemberSearch } from '@/core/hooks/teams/use-fuse-member-search';
 import { useTeamDailyPlansOwner, useTeamPresenceView } from '@/core/hooks/bootstrap/use-feature-data';
@@ -43,6 +44,7 @@ export const TeamMembers = memo<TeamMembersProps>(({ publicTeam = false, kanbanV
 	useTeamPresenceView(!publicTeam);
 	// Hooks
 	const { data: user } = useUserQuery();
+	const meetsEmailVerification = useIsEmailVerificationSatisfied(user);
 	const activeFilter = useAtomValue(taskBlockFilterState) as TeamMemberFilterType;
 	const searchQuery = useAtomValue(blockViewSearchQueryState);
 	const activeTeam = useAtomValue(activeTeamState);
@@ -69,7 +71,7 @@ export const TeamMembers = memo<TeamMembersProps>(({ publicTeam = false, kanbanV
 			publicTeam={publicTeam}
 			view={view}
 			blockViewMembers={filteredBlockViewMembers}
-			isMemberActive={user?.isEmailVerified}
+			isMemberActive={meetsEmailVerification}
 			statsPending={statsPending}
 		/>
 	);

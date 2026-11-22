@@ -20,6 +20,7 @@ import { taskOnStartProject, timerStartProjectId } from '@/core/lib/helpers/team
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
 import { isSessionEnding } from '@/core/lib/auth/handle-unauthorized';
 import {
+	isNothingToStopRefusal,
 	isTrackingOffRefusal,
 	requiredTrackingFieldsMessageKeyOf,
 	requiredTrackingFieldsOf
@@ -31,7 +32,6 @@ import { notesForStartOf } from '@/core/lib/utils/timer/timer-start-notes';
 import { startTaskOf } from '@/core/lib/utils/timer/timer-start-task';
 import { labelSavesLanded, statusKeepingSavedLabels } from '@/core/lib/utils/timer-status-labels';
 import { queryKeys } from '@/core/query/keys';
-import { ApiErrorService } from '@/core/services/client/api-error.service';
 import { timerService } from '@/core/services/client/api/timers';
 import {
 	activeTeamIdState,
@@ -60,6 +60,7 @@ import type { TOrganizationTeam } from '@/core/types/schemas';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { useAuthenticateUser } from '../auth/use-authenticate-user';
+import { useIsEmailVerificationSatisfied } from '../auth/use-email-verification-status';
 import { useQueryCall } from '../common/use-query';
 import { useSyncRef } from '../common/use-sync-ref';
 import { useMyDailyPlans } from '../daily-plans/use-my-daily-plans';
@@ -189,6 +190,28 @@ async function readRunGoingOn(employeeId: string): Promise<RunGoingOn | null> {
 }
 
 /**
+ * How the check of a tracking flag this tab's status does not show ended: the start refused, the flag cleared by a stop,
+ * or no run for that stop to end.
+ */
+type TrackingFlagCheck = 'refused' | 'cleared' | 'no-run';
+
+/**
+ * Stops to clear a tracking flag that no run backs (#5121). The API answers 406 when no run is left to stop: the flag
+ * backs no run then, whatever a later read of the user still says (#5684).
+ */
+async function clearTrackingFlag(source: ETimeLogSource): Promise<TrackingFlagCheck> {
+	try {
+		await timerService.stopTimer({ source });
+		return 'cleared';
+	} catch (error) {
+		if (isNothingToStopRefusal(error)) {
+			return 'no-run';
+		}
+		throw error;
+	}
+}
+
+/**
  * Tell the user about an automatic stop once its request has settled, so a
  * failed stop never reads as "timer stopped" while the server keeps tracking.
  */
@@ -273,6 +296,7 @@ export function useTimerApi({
 	const { setActiveTask, isUpdatingActiveTask } = useTeamTasksState();
 	const { updateOrganizationTeamEmployeeActiveTask } = useOrganizationEmployeeTeams();
 	const { user, $user, refreshUserData } = useAuthenticateUser();
+	const meetsEmailVerification = useIsEmailVerificationSatisfied(user);
 	const stopStaleTeamsTimer = useStopStaleTeamsTimer();
 	const resolveTimerBillable = useResolveTimerBillable();
 	const warnWhenStopLostNotes = useStopNotesWarning();
@@ -380,7 +404,7 @@ export function useTimerApi({
 			} catch (error) {
 				// 406 means Gauzy has no running timer left: a previous attempt whose response was lost,
 				// or another device, already stopped it. Report the real status instead of a failure.
-				if (ApiErrorService.isApiError(error) && error.hasHttpResponseStatus(406)) {
+				if (isNothingToStopRefusal(error)) {
 					return { ...(await timerService.getTimerStatus()), alreadyStopped: true };
 				}
 				// The proxy route turns Gauzy's 406 into a 500: the stop only failed if the timer still runs.
@@ -439,7 +463,7 @@ export function useTimerApi({
 	const canRunTimer = useMemo(
 		() =>
 			canRunTimerForState({
-				isEmailVerified: !!user?.isEmailVerified,
+				isEmailVerified: meetsEmailVerification,
 				hasActiveTask: !!activeTeamTask,
 				isActiveTaskClosed: activeTeamTask?.status === ETaskStatusName.CLOSED,
 				isTimerRunning: !!timerStatus?.running,
@@ -447,7 +471,7 @@ export function useTimerApi({
 				timerSource: timerStatus?.lastLog?.source
 			}),
 		[
-			user?.isEmailVerified,
+			meetsEmailVerification,
 			activeTeamTask,
 			timerStatus?.running,
 			filteredTimerStatus?.running,
@@ -565,14 +589,12 @@ export function useTimerApi({
 	const startTimerMutate = startTimerMutation.mutateAsync;
 
 	/**
-	 * The tracking flag says a timer runs while this tab's status says stopped, and no run left behind by a closed tab
-	 * was found. This tab's status can be out of date: up to a minute old, or read while a start elsewhere was landing.
-	 * A run a fresh read finds goes on in another tab or device, so the flag is not stuck: the run is kept and shown
-	 * here, and the start is refused. Else the flag is stuck, and a stop clears it on the server (#5121). A failed read
-	 * refuses the start too: Gauzy's start stops any run it finds. Resolves to true when the start is refused.
+	 * Reads afresh whether a run goes on for the employee. One that does goes on in another tab or device: it is kept
+	 * and shown here, and the start is refused. A failed read refuses the start too: Gauzy's start stops any run it
+	 * finds. Resolves to 'none' when no run goes on.
 	 */
-	const keepRunOrClearStuckFlag = useCallback(
-		async (employeeId: string): Promise<boolean> => {
+	const keepRunGoingOn = useCallback(
+		async (employeeId: string): Promise<'refused' | 'none'> => {
 			const commandSeq = timerCommandMark();
 			// Labels saved on the run while the read is on its way are kept over the ones it brings (#5368)
 			const labelSavesSeen = labelSavesLanded();
@@ -584,13 +606,10 @@ export function useTimerApi({
 				const reasonKey = errorReasonKeyOf(error) as DottedLanguageObjectStringPaths;
 				toast.error(t('toasts.timer.START_FAILED'), { id: 'timer-start-failed', description: t(reasonKey) });
 				logErrorInDev('[startTimer] Timer status read failed:', error);
-				return true;
+				return 'refused';
 			}
 			if (!runGoingOn) {
-				await timerService.stopTimer({
-					source: timerStatusRef.current?.lastLog?.source || ETimeLogSource.TEAMS
-				});
-				return false;
+				return 'none';
 			}
 			toast.warning(t('timer.ALREADY_TRACKING_MESSAGE'), { id: ALREADY_TRACKING_TOAST_ID });
 			// Shown now, so this tab's Stop reaches the run: a default instance never reads its status again. Not after
@@ -612,9 +631,26 @@ export function useTimerApi({
 			if (runGoingOn.inDayStatus) {
 				void queryClient.invalidateQueries({ queryKey: queryKeys.timer.all });
 			}
-			return true;
+			return 'refused';
 		},
 		[isCurrentScope, queryClient, setTimerStatus, statusEnabled, store, t, timerStatusRef]
+	);
+
+	/**
+	 * The tracking flag says a timer runs while this tab's status says stopped, and no run left behind by a closed tab
+	 * was found. This tab's status can be out of date: up to a minute old, or read while a start elsewhere was landing.
+	 * A run a fresh read finds is kept and refuses the start (keepRunGoingOn). Else the flag is stuck, and a stop clears
+	 * it on the server (#5121).
+	 */
+	const keepRunOrClearStuckFlag = useCallback(
+		async (employeeId: string): Promise<TrackingFlagCheck> => {
+			const runCheck = await keepRunGoingOn(employeeId);
+			if (runCheck === 'refused') {
+				return 'refused';
+			}
+			return clearTrackingFlag(timerStatusRef.current?.lastLog?.source || ETimeLogSource.TEAMS);
+		},
+		[keepRunGoingOn, timerStatusRef]
 	);
 
 	// Check if the user is tracking time in another tab or device
@@ -655,7 +691,11 @@ export function useTimerApi({
 					// A TEAMS timer left behind by a closed tab is credited up to its last heartbeat, not now
 					const stoppedStale = await stopStaleTeamsTimer(userData.employee.id);
 					// Else a run going on in another tab or device is kept, and only a stuck flag is cleared (#5121)
-					if (!stoppedStale && (await keepRunOrClearStuckFlag(userData.employee.id))) {
+					let flagCheck: TrackingFlagCheck = 'cleared';
+					if (!stoppedStale) {
+						flagCheck = await keepRunOrClearStuckFlag(userData.employee.id);
+					}
+					if (flagCheck === 'refused') {
 						return false;
 					}
 					// Refresh user data to confirm the flag was reset
@@ -663,10 +703,20 @@ export function useTimerApi({
 					if (refuseWhenTrackingIsOff(refreshed)) {
 						return false;
 					}
-					if (refreshed?.employee.isTrackingTime) {
+					const isFlagStillOn = Boolean(refreshed?.employee.isTrackingTime);
+					const hasNoRun = flagCheck === 'no-run';
+					if (isFlagStillOn && !hasNoRun) {
 						// Flag still stuck after stop — cannot auto-heal, block with toast
 						toast.warning(t('timer.ALREADY_TRACKING_MESSAGE'), { id: ALREADY_TRACKING_TOAST_ID });
 						return false;
+					}
+					// The API had no run to stop, yet the read still says tracking: it can predate this tab's own stop, or
+					// another device may have started a run since. Only a run read afresh refuses the start (#5684)
+					if (isFlagStillOn) {
+						const runCheck = await keepRunGoingOn(userData.employee.id);
+						if (runCheck === 'refused') {
+							return false;
+						}
 					}
 				} catch (healError) {
 					// A read that failed tells nothing about a run on another tab or device, and Gauzy's start stops
@@ -687,7 +737,16 @@ export function useTimerApi({
 			logErrorInDev('Failed to verify tracking status', error);
 			return false;
 		}
-	}, [activeTeamRef, keepRunOrClearStuckFlag, queryClient, refreshUserData, stopStaleTeamsTimer, t, timerStatusRef]);
+	}, [
+		activeTeamRef,
+		keepRunGoingOn,
+		keepRunOrClearStuckFlag,
+		queryClient,
+		refreshUserData,
+		stopStaleTeamsTimer,
+		t,
+		timerStatusRef
+	]);
 
 	/**
 	 * A new workspace (#5025), or another organization of this one (#5204), is opening: says so and tells the start to

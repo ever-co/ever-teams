@@ -17,14 +17,17 @@ export const INVITED = {
 	refreshToken: 'refresh-token-2b8d4e6f-never-log-me'
 } as const;
 
-/** Sets the stand-in's invite, accept, user-organization and team answers for the INVITED person. */
-export function primeInvitedPerson(gauzy: MockGauzyApi): void {
+/**
+ * Sets the stand-in's invite, accept, user-organization and team answers for the INVITED person. `fullName` is the
+ * name the invitation was sent with: null for one sent from the Invite dialog, which asks for none.
+ */
+export function primeInvitedPerson(gauzy: MockGauzyApi, fullName: string | null = 'Invited Person'): void {
 	gauzy.on('POST', '/api/invite/validate-by-code', {
 		status: 201,
 		body: {
 			id: 'invite-1',
 			email: INVITED.email,
-			fullName: 'Invited Person',
+			fullName,
 			organization: { name: 'Acme' },
 			isExpired: false
 		}

@@ -39,10 +39,10 @@ function iconInkOf(tone: MenuActionTone | undefined, theme: Theme): string {
 	return theme.colors['muted-foreground'];
 }
 
-function Separator({ theme }: Readonly<{ theme: Theme }>) {
-	return (
-		<View testID="actions-menu-separator" style={[styles.separator, { backgroundColor: theme.colors.border }]} />
-	);
+/** The line a menu sets its groups apart with, from edge to edge of the menu. */
+export function MenuSeparator({ testID }: Readonly<{ testID?: string }>) {
+	const theme = useWebTheme();
+	return <View testID={testID} style={[styles.separator, { backgroundColor: theme.colors.border }]} />;
 }
 
 /**
@@ -83,12 +83,12 @@ export function ActionsMenu({ anchor, actions, hint, onDismiss }: Readonly<IActi
 				{showsHint && (
 					<>
 						<Text style={[styles.hint, { color: theme.colors['muted-foreground'] }]}>{hint}</Text>
-						<Separator theme={theme} />
+						<MenuSeparator testID="actions-menu-separator" />
 					</>
 				)}
 				{actions.map((action) => (
 					<Fragment key={action.key}>
-						{action.separated && <Separator theme={theme} />}
+						{action.separated && <MenuSeparator testID="actions-menu-separator" />}
 						<PropertyMenuAction
 							icon={<action.icon size={MENU_ICON_SIZE} color={iconInkOf(action.tone, theme)} />}
 							label={action.label}

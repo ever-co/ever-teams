@@ -78,10 +78,10 @@ function groupingOf(isGrouping: boolean, isEveryGroupOpen = false): SimilarEntry
 	};
 }
 
-function renderList(grouping: SimilarEntryGrouping) {
+function renderList(grouping: SimilarEntryGrouping, days = DAYS, permissions = MEMBER) {
 	render(
 		<TimesheetsList
-			days={DAYS}
+			days={days}
 			visibleDayCount={20}
 			collapsedDayKeys={[]}
 			onToggleDay={jest.fn()}
@@ -89,7 +89,7 @@ function renderList(grouping: SimilarEntryGrouping) {
 			onSelectDay={jest.fn()}
 			showsMember={false}
 			selectedIdSet={new Set()}
-			permissions={MEMBER}
+			permissions={permissions}
 			formatters={formatters}
 			handlers={{
 				toggleLog: jest.fn(),
@@ -159,5 +159,58 @@ describe('TimesheetsList with similar entries', () => {
 
 		expect(entryRows()).toHaveLength(7);
 		expect(screen.queryByText('dashboard.timesheets.SIMILAR.ENTRY_COUNT(count=6)')).toBeNull();
+	});
+});
+
+describe('TimesheetsList for a team manager without CAN_APPROVE_TIMESHEET (#5622)', () => {
+	// Kofi manages Marie's team by the team's manager flag; his employee role does not hold CAN_APPROVE_TIMESHEET
+	const TEAM_MANAGER: TimesheetPermissions = {
+		hasOrganizationRole: false,
+		isManage: true,
+		canApprove: false,
+		userId: 'kofi-user',
+		employeeId: 'kofi',
+		reviewer: {
+			permissions: ['TIME_TRACKER'],
+			employeeId: 'kofi',
+			teams: [{ members: [{ employeeId: 'kofi', isManager: true }, { employeeId: 'marie' }] }]
+		}
+	};
+	const MARIE_PENDING = logOf('marie-pending', 9);
+	const KOFI_PENDING = logOf('kofi-pending', 11, {
+		employeeId: 'kofi',
+		task: { id: 'review', title: 'Review the release' } as ITimeLog['task']
+	});
+
+	function rowOfTask(title: string) {
+		const row = entryRows().find((candidate) => within(candidate).queryByText(title) !== null);
+		expect(row).toBeTruthy();
+		return row as HTMLElement;
+	}
+
+	function reviewButtonsOf(row: HTMLElement) {
+		const approve = within(row).queryByRole('button', { name: 'dashboard.timesheets.APPROVE' });
+		const reject = within(row).queryByRole('button', { name: 'dashboard.timesheets.REJECT' });
+		return { approve, reject };
+	}
+
+	it("offers Approve and Reject on a member's pending entry, never on his own", () => {
+		renderList(groupingOf(false), groupLogsByWorkDay([MARIE_PENDING, KOFI_PENDING]), TEAM_MANAGER);
+
+		const marieButtons = reviewButtonsOf(rowOfTask('Fix the login page'));
+		expect(marieButtons.approve).toBeTruthy();
+		expect(marieButtons.reject).toBeTruthy();
+
+		const ownButtons = reviewButtonsOf(rowOfTask('Review the release'));
+		expect(ownButtons.approve).toBeNull();
+		expect(ownButtons.reject).toBeNull();
+	});
+
+	it('CONTROL: offers a plain member no review on their own pending entry', () => {
+		renderList(groupingOf(false), groupLogsByWorkDay([MARIE_PENDING]));
+
+		const buttons = reviewButtonsOf(rowOfTask('Fix the login page'));
+		expect(buttons.approve).toBeNull();
+		expect(buttons.reject).toBeNull();
 	});
 });
