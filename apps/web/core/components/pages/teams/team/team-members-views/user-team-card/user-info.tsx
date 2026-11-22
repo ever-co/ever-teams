@@ -1,15 +1,14 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { I_MemberIdentityHook } from '@/core/hooks';
-import { clsxm, isValidUrl } from '@/core/lib/utils';
+import { clsxm } from '@/core/lib/utils';
 import { Text } from '@/core/components';
 import Link from 'next/link';
 import { CHARACTER_LIMIT_TO_SHOW } from '@/core/constants/config/constants';
 import { useMemo } from 'react';
 import stc from 'string-to-color';
-import { imgTitle } from '@/core/lib/helpers/index';
 import { Mail } from '@/core/components/icons';
 import { getTimerStatusValue, TimerStatus } from '@/core/components/timer/timer-status';
-import { Avatar } from '@/core/components/duplicated-components/avatar';
+import { MemberAvatar } from '../member-avatar';
 import { Tooltip } from '@/core/components/duplicated-components/tooltip';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
 import { ETimerStatus } from '@/core/types/generics/enums/timer';
@@ -36,11 +35,6 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 		return getTimerStatusValue(timerStatus, member, publicTeam);
 	}, [timerStatus, member, publicTeam]);
 
-	// the same initial without an image and when the image fails to load
-	const initial = (
-		<div className="flex size-9 items-center justify-center rounded-full">{imgTitle(fullname).charAt(0)}</div>
-	);
-
 	return (
 		<Link
 			href={publicTeam ? '#' : `/profile/${memberInfo.memberUser?.id}?name=${fullname}`}
@@ -56,17 +50,7 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 					backgroundColor: `${stc(fullname)}80`
 				}}
 			>
-				{imageUrl && isValidUrl(imageUrl) ? (
-					<Avatar
-						size={36}
-						className="relative cursor-pointer"
-						imageUrl={imageUrl}
-						alt="Team Avatar"
-						fallback={initial}
-					/>
-				) : (
-					initial
-				)}
+				<MemberAvatar fullname={fullname} imageUrl={imageUrl} />
 				<TimerStatus
 					status={timerStatusValue}
 					size="sm"
