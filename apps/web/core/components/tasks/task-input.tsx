@@ -800,7 +800,7 @@ function TaskCard({
 								ariaLabel={t('common.FILTER')}
 							/>
 							<Tooltip
-								enabled={!datas.user?.isEmailVerified}
+								enabled={!datas.meetsEmailVerification}
 								label={t('common.VERIFY_ACCOUNT_MSG')}
 								placement="top-start"
 								className="inline-block"
@@ -809,7 +809,7 @@ function TaskCard({
 									variant="outline"
 									size="sm"
 									disabled={
-										!datas.hasCreateForm || datas.createLoading || !datas.user?.isEmailVerified
+										!datas.hasCreateForm || datas.createLoading || !datas.meetsEmailVerification
 									}
 									loading={datas.createLoading}
 									onClick={handleTaskCreation}
