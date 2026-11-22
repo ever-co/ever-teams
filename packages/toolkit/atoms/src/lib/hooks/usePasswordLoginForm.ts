@@ -52,6 +52,28 @@ export const usePasswordLoginForm = ({ redirectHandler }: UsePasswordLoginFormPa
 	};
 	const twoFactor = useTwoFactorStep({ api, onSignedIn: completeSignIn });
 
+	// What the form says of a refused sign-in. No answer (the API package returns it with no status), the site not
+	// allowed, a missing permission or the API down: the kit's own words, inside the form and with no toast on the host
+	// page. A wrong email or password: the kit's words too. Anything else: the API's text, also in a toast.
+	const reportFailure = async (answer: IServerError, showError: (message: string) => void) => {
+		const kind = await kindOfSignInFailure(answer, apiUrlOf(api));
+		if (kind) {
+			showError(t(SIGN_IN_ERROR_MESSAGE_KEYS[kind]));
+			return;
+		}
+		if ('statusCode' in answer && answer.statusCode === 401) {
+			showError(t('ERROR.invalid_password_or_email'));
+			reportError(t('ERROR.invalid_password_or_email'));
+			return;
+		}
+		const errorMessage = errorMessageOf(answer);
+		showError(errorMessage);
+		toast({
+			variant: 'destructive',
+			description: errorMessage
+		});
+	};
+
 	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const { name, value } = e.target;
 		edits.current += 1;
@@ -83,29 +105,7 @@ export const usePasswordLoginForm = ({ redirectHandler }: UsePasswordLoginFormPa
 					return;
 				}
 
-				// No answer (the API package returns it with no status), the site not allowed, a missing permission or
-				// the API down: the kit's own words, inside the form and with no toast on the host page.
-				const kind = await kindOfSignInFailure(authResponse, apiUrlOf(api));
-				if (kind) {
-					showError(t(SIGN_IN_ERROR_MESSAGE_KEYS[kind]));
-					setLoading(false);
-					return;
-				}
-
-				if ('statusCode' in authResponse && authResponse.statusCode === 401) {
-					showError(t('ERROR.invalid_password_or_email'));
-					reportError(t('ERROR.invalid_password_or_email'));
-					setLoading(false);
-					return;
-				}
-				const errorMessage = errorMessageOf(authResponse);
-
-				showError(errorMessage);
-				toast({
-					variant: 'destructive',
-					description: errorMessage
-				});
-				setLoading(false);
+				await reportFailure(authResponse, showError);
 				return;
 			}
 
