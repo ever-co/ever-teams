@@ -2809,7 +2809,8 @@
 		"error": {
 			"TITLE": "Błąd",
 			"HEADING_TITLE": "Coś poszło nie tak",
-			"HEADING_DESCRIPTION": "Jeśli problem będzie się powtarzał, wyślij sygnał o niebezpieczeństwie do naszego zespołu wsparcia."
+			"HEADING_DESCRIPTION": "Jeśli problem będzie się powtarzał, wyślij sygnał o niebezpieczeństwie do naszego zespołu wsparcia.",
+			"PAGE_NOT_LOADED": "Nie udało się wczytać tej strony"
 		},
 		"maintenance": {
 			"HEADING_TITLE": "Jesteśmy w trakcie konserwacji",

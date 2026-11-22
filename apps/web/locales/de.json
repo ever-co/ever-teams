@@ -2809,7 +2809,8 @@
 		"error": {
 			"TITLE": "Fehler",
 			"HEADING_TITLE": "Etwas ist schiefgelaufen",
-			"HEADING_DESCRIPTION": "Wenn das Problem weiterhin besteht, wenden Sie sich an unser Support-Team."
+			"HEADING_DESCRIPTION": "Wenn das Problem weiterhin besteht, wenden Sie sich an unser Support-Team.",
+			"PAGE_NOT_LOADED": "Diese Seite konnte nicht geladen werden"
 		},
 		"maintenance": {
 			"HEADING_TITLE": "Wir führen Wartungsarbeiten durch",
