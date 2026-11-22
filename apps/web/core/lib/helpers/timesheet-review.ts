@@ -114,3 +114,38 @@ export function getAllowedTimesheetStatuses(
 
 	return TEAM_MANAGER_STATUSES;
 }
+
+/**
+ * What a page knows of the person who reviews: whether their role approves every timesheet, and the reviewer the
+ * team manager rule reads, on the pages that pass one.
+ */
+export interface TimesheetReviewAccess {
+	canApprove: boolean;
+	reviewer?: TimesheetReviewer | null;
+}
+
+/**
+ * The statuses a page offers on the timesheets of these time logs: every status when the role approves every
+ * timesheet; otherwise those of getAllowedTimesheetStatuses where the page passes its reviewer, and none elsewhere.
+ */
+export function reviewStatusesOf(
+	access: TimesheetReviewAccess,
+	logs: readonly ReviewedTimeLog[]
+): readonly ETimesheetStatus[] {
+	if (access.canApprove) {
+		return ANY_TIMESHEET_STATUS;
+	}
+	const reviewer = access.reviewer;
+	if (!reviewer) {
+		return NO_TIMESHEET_STATUS;
+	}
+	return getAllowedTimesheetStatuses(reviewer, logs);
+}
+
+/** Whether a page offers Approve and Reject on the timesheets of these time logs. */
+export function offersApproveAndReject(access: TimesheetReviewAccess, logs: readonly ReviewedTimeLog[]): boolean {
+	const statuses = reviewStatusesOf(access, logs);
+	const canApprove = statuses.includes(ETimesheetStatus.APPROVED);
+	const canReject = statuses.includes(ETimesheetStatus.DENIED);
+	return canApprove && canReject;
+}
