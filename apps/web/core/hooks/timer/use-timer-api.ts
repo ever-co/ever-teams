@@ -21,6 +21,7 @@ import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
 import { isSessionEnding } from '@/core/lib/auth/handle-unauthorized';
 import {
 	isNothingToStopRefusal,
+	isDailyPlanRequiredRefusal,
 	isTrackingOffRefusal,
 	requiredTrackingFieldsMessageKeyOf,
 	requiredTrackingFieldsOf
@@ -917,6 +918,15 @@ export function useTimerApi({
 					if (isTrackingOffRefusal(error)) {
 						toast.warning(t('timer.TRACKING_DISABLED_MESSAGE'), { id: TRACKING_DISABLED_TOAST_ID });
 						queryClient.invalidateQueries({ queryKey: queryKeys.organizationTeams.all });
+						return;
+					}
+					if (isDailyPlanRequiredRefusal(error)) {
+						toast.error(t('toasts.timer.START_FAILED'), {
+							id: 'timer-start-failed',
+							description: t('timer.DAILY_PLAN_REQUIRED_MESSAGE')
+						});
+						// The page may still show a plan that is gone: it is read again
+						queryClient.invalidateQueries({ queryKey: queryKeys.dailyPlans.all });
 						return;
 					}
 					const requiredFields = requiredTrackingFieldsOf(error);
