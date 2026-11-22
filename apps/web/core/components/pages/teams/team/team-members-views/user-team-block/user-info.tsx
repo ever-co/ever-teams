@@ -30,6 +30,11 @@ export function UserBoxInfo({ className, memberInfo, publicTeam = false }: Props
 		return getTimerStatusValue(timerStatus, member, publicTeam);
 	}, [timerStatus, member, publicTeam]);
 
+	// the same initial without an image and when the image fails to load
+	const initial = (
+		<div className="flex size-9 items-center justify-center rounded-full">{imgTitle(fullname).charAt(0)}</div>
+	);
+
 	return (
 		<Link
 			href={publicTeam ? '#' : `/profile/${memberInfo.memberUser?.id}?name=${fullname}`}
@@ -45,11 +50,15 @@ export function UserBoxInfo({ className, memberInfo, publicTeam = false }: Props
 				}}
 			>
 				{imageUrl && isValidUrl(imageUrl) ? (
-					<Avatar size={36} className="relative cursor-pointer" imageUrl={imageUrl} alt="Team Avatar" />
+					<Avatar
+						size={36}
+						className="relative cursor-pointer"
+						imageUrl={imageUrl}
+						alt="Team Avatar"
+						fallback={initial}
+					/>
 				) : (
-					<div className="flex size-9 items-center justify-center rounded-full">
-						{imgTitle(fullname).charAt(0)}
-					</div>
+					initial
 				)}
 				<TimerStatus
 					status={timerStatusValue}
