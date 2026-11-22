@@ -3,8 +3,10 @@ import {
 	SIGN_IN_FIRST_CODE,
 	SIGN_IN_FIRST_MESSAGE,
 	carriesSignInFirstCode,
-	inviteAcceptRefusalAnswer
+	inviteAcceptRefusalAnswer,
+	isSignInFirstError
 } from './invite-sign-in-first';
+import { ApiErrorService } from '@/core/services/client/api-error.service';
 
 describe('inviteAcceptRefusalAnswer', () => {
 	it('tells a person whose address already has an account to sign in first', () => {
@@ -37,4 +39,30 @@ describe('carriesSignInFirstCode', () => {
 			expect(carriesSignInFirstCode(answer)).toBe(false);
 		}
 	);
+});
+
+describe('isSignInFirstError', () => {
+	const answer = inviteAcceptRefusalAnswer({ statusCode: 409 });
+
+	it("reads the code from the API client's own error", () => {
+		const refused = ApiErrorService.fromAxiosError({
+			message: 'Request failed with status code 400',
+			status: 400,
+			response: { status: 400, data: answer }
+		});
+
+		expect(isSignInFirstError(refused)).toBe(true);
+	});
+
+	it('reads the code from a raw request error', () => {
+		expect(isSignInFirstError({ response: { status: 400, data: answer } })).toBe(true);
+	});
+
+	it.each([
+		['an invalid code', ApiErrorService.fromAxiosError({ status: 400, response: { status: 400, data: { errors: {} } } })],
+		['a network failure', new Error('Network Error')],
+		['nothing', undefined]
+	])('finds none in %s', (_case, error) => {
+		expect(isSignInFirstError(error)).toBe(false);
+	});
 });

@@ -50,3 +50,19 @@ export function carriesSignInFirstCode(answer: unknown): boolean {
 	}
 	return (answer as { code?: unknown }).code === SIGN_IN_FIRST_CODE;
 }
+
+/**
+ * Whether a failed sign-in request carries that code. The API client hands back its own error, which keeps the code
+ * of the answer as `errorCode`; a raw request error keeps the whole answer in `response.data`.
+ */
+export function isSignInFirstError(error: unknown): boolean {
+	const hasError = typeof error === 'object' && error !== null;
+	if (!hasError) {
+		return false;
+	}
+	const { errorCode, response } = error as { errorCode?: unknown; response?: { data?: unknown } };
+	if (errorCode === SIGN_IN_FIRST_CODE) {
+		return true;
+	}
+	return carriesSignInFirstCode(response?.data);
+}

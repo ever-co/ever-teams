@@ -22,18 +22,10 @@ import { everIdService } from '@/core/services/client/api/auth/ever-id.service';
 import { navigateAfterSignIn, setPathAfterSignIn } from '@/core/lib/auth/navigate-after-sign-in';
 import { TWO_FACTOR_SETTINGS_PATH, asksTwoFactorSetup, twoFactorChallengeOf } from '@/core/lib/auth/two-factor';
 import { useTwoFactorSignIn } from './use-two-factor-sign-in';
-import { carriesSignInFirstCode } from '@/core/lib/auth/invite-sign-in-first';
+import { carriesSignInFirstCode, isSignInFirstError } from '@/core/lib/auth/invite-sign-in-first';
 
 /** Shown for a 429: Gauzy throttles the code endpoints and locks an account after repeated wrong codes. */
 const TOO_MANY_ATTEMPTS = 'pages.auth.everId.TOO_MANY_ATTEMPTS';
-
-/** Whether a refused confirmation says the invited address already has an account (invite-sign-in-first.ts). */
-function isRefusedForExistingAccount(error: unknown): boolean {
-	if (!isAxiosError(error)) {
-		return false;
-	}
-	return carriesSignInFirstCode(error.response?.data);
-}
 
 /** The message for each answer of the Ever ID code confirmation that is not a success. */
 const EVER_ID_CONFIRM_ERRORS = {
@@ -235,7 +227,7 @@ export function useAuthenticationPasscode() {
 				}
 				setStatus('error');
 				const hasExistingAccount =
-					carriesSignInFirstCode(loginResponse?.data) || isRefusedForExistingAccount(confirmError);
+					carriesSignInFirstCode(loginResponse?.data) || isSignInFirstError(confirmError);
 				if (hasExistingAccount) {
 					setErrors({ code: t('pages.auth.EXISTING_ACCOUNT_SIGN_IN_FIRST') });
 					return;
@@ -244,7 +236,7 @@ export function useAuthenticationPasscode() {
 			} catch (loginError) {
 				setStatus('error');
 				const hasExistingAccount =
-					isRefusedForExistingAccount(confirmError) || isRefusedForExistingAccount(loginError);
+					isSignInFirstError(confirmError) || isSignInFirstError(loginError);
 				if (hasExistingAccount) {
 					setErrors({ code: t('pages.auth.EXISTING_ACCOUNT_SIGN_IN_FIRST') });
 					return;
