@@ -304,9 +304,11 @@ jobs:
         timeout-minutes: 60
         run: yarn workspace @ever-teams/web pw:api
 
-      - name: Servers left after the route-handler suite
+      # The Ever ID config never reuses a server (reuseExistingServer: false): one the route-handler suite left on
+      # these ports would make it refuse to start, so stop it here rather than only list it
+      - name: Free the ports the route-handler suite left
         if: ${{ !cancelled() && steps.install.outcome == 'success' }}
-        run: bash apps/web/playwright/scripts/port-listeners.sh 3030 3988 3989 3990 3991
+        run: bash apps/web/playwright/scripts/port-listeners.sh --stop 3030 3988 3989 3990 3991
 
       # Runs even when the route-handler suite failed, so one run reports both
       - name: Playwright Ever ID suite
