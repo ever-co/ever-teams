@@ -319,3 +319,184 @@ log. Treat the two "so a future test must…" sentences as hypotheses to be meas
   (`fixtures.ts`) visits `/team/tasks` with no session cookies and `hardVisit` is not used, so what the shell does —
   a redirect, a skeleton that never resolves, or the sign-in page — and whether the mock logged anything before it, is
   answerable from `/requests`. Unmeasured so far.
+
+## 9. `public-assets.spec.ts` — the `/api/public-assets/[...path]` route, pinned from its own header
+
+32 tests, `suites/lane-a/public-assets.spec.ts` (743 lines). Every number below is asserted in the committed file and
+comes from `/e/Coding/.tmp/lane-a-assets-4.log`, whose summary line is **`32 passed (7.7s)`** (run 1 of the same file,
+`/e/Coding/.tmp/lane-a-assets-1.log`, was `1 failed` / `31 passed (8.1s)` — the failure was this file's own filter bug,
+§9.6).
+
+**Read from source before writing anything:** `app/api/public-assets/[...path]/route.ts` (45 lines),
+`core/lib/helpers/proxy-gauzy-image.ts` (41), `core/lib/helpers/public-asset-url.ts` (63),
+`core/constants/config/constants.tsx:194-213` (`resolveGauzyApiServerBase`), `:214` (`basePath`), `:225`
+(`GAUZY_API_SERVER_ORIGIN`), `:227` (`GAUZY_API_SERVER_URL`), `:229-232` (`GAUZY_API_BASE_SERVER_URL`),
+`core/components/settings/pages/task-properties/property-icon-image.tsx:28-31`,
+`core/components/settings/icon-items.tsx:101-112`, `cypress/support/mock-gauzy-server.mjs:806`, `:1080`,
+`:1094-1100`, `:1109`. Nothing in this section is quoted from another lane or from a plan.
+
+### 9.1 What the route's two header sentences measure as
+
+| the claim (`route.ts:9-16`) | the measurement |
+| --- | --- |
+| "serves them from the origin the /api routes already proxy to" | `GET /api/public-assets/ever-icons/task-statuses/open.svg` writes **exactly one** entry into the lane mock's log: `GET /public/ever-icons/task-statuses/open.svg 200`. That log belongs to the mock on this lane's own port (`test-servers.ts:38` `LANE_PORTS['lane-a']`, `:285-290`), so a route still falling back to `https://api.ever.team` (`constants.tsx:212`) would leave it **empty** — and every refusal below does leave it empty. The app's own error line names the full upstream: `artifacts/lane-lane-a-server.log:218` `[WEB][API] public-assets: http://127.0.0.1:3992/public/ever-icons/task-statuses/open.svg is unreachable` (read by hand, not asserted in a spec — a spec must not depend on the launcher's log file name). |
+| "every path segment must be a plain file name … no request can point this at another host or escape `<origin>/public/`" | 16 shapes, one test each, §9.2. Every shape the guards refuse writes **no** upstream call. |
+
+### 9.2 The refusal matrix (status / bytes / content-type / was the mock asked)
+
+Three layers answer, and the byte count says which one did: the route's own
+`new NextResponse(null, { status: 404 })` (`route.ts:25`) is **404, 0 bytes, no `content-type`, no
+`cache-control`**; Next's not-found page is **404, ~20 KB `text/html`, `cache-control: no-store`**; Next's rewrite
+layer is **308 + a `location`**.
+
+| path after `/api/public-assets` | answer | mock asked? |
+| --- | --- | --- |
+| `ever-icons/task-statuses/open.svg` | 404, 0 bytes | **yes** — `GET /public/ever-icons/task-statuses/open.svg 200` |
+| `task-sizes/large.svg` | 404, 0 bytes | yes — `GET /public/task-sizes/large.svg 200` |
+| `open.svg?x=1&y=%2e%2e` | 404, 0 bytes | yes, **with `query: ""`** — the route forwards no query string |
+| `..` written raw to the socket | 308 → `location: /api` | no |
+| `.` raw, and `%2e` encoded | 308 → `location: /api/public-assets` | no |
+| *(no segments at all: `/api/public-assets`)* | 404, **20 296 bytes**, `text/html`, `no-store` | no |
+| `%2e%2e/ever-icons/task-statuses/open.svg` | 404, **20 324 bytes**, `text/html`, `no-store` | no |
+| `open.svg/` (trailing slash) and `ever-icons//task-statuses//open.svg` | 308 → `location: /api/public-assets/ever-icons/task-statuses/open.svg` | not for the 308 itself; a client that follows it lands on the normal forwarded case |
+| `..%2Fever-icons%2Ftask-statuses%2Fopen.svg` | 404, 0 bytes | **no** |
+| `ever-icons%2Ftask-statuses%2Fopen.svg` (one segment holding `%2F`) | 404, 0 bytes | no |
+| `ever-icons/..%2Fopen.svg`, `%2E%2E%2Fetc/passwd.png` | 404, 0 bytes | no |
+| `https%3A%2F%2Fexample.invalid%2Fx.png`, and the same with a raw colon | 404, 0 bytes | no |
+| `.hidden.png` (dotfile), `a%5Cb.png` (backslash) | 404, 0 bytes | no |
+| `open` (no extension), `open.txt`, `open.svgz`, `open.tar.gz` | 404, 0 bytes | no |
+| `s1/s2/s3/s4/s5/s6/s7/open.svg` — 8 segments | 404, 0 bytes | **yes** |
+| `s1/…/s8/open.svg` — 9 segments | 404, 0 bytes | **no** — `MAX_SEGMENTS = 8` (`route.ts:23`, `:32`) is the boundary |
+| `a..b.png` | 404, 0 bytes | **yes** — `GET /public/a..b.png 200` |
+| a 4 004-character segment (`'a' × 4000 + '.png'`) | 404, 0 bytes | **yes** — the mock recorded a **4 012-character** path |
+| `open.SVG` | 404, 0 bytes | yes, case preserved |
+
+Three findings out of that table:
+
+- **Nothing in this route bounds a name's length.** The only bound is `MAX_SEGMENTS = 8`; a single 4 004-character
+  segment is forwarded to `<origin>/public/` untouched (the 4 012-character path is in the mock's log). The header's
+  "plain file name" is a shape rule, not a size rule, and there is no `content-disposition` anywhere on this route. For
+  the record: `core/services/server/forward-to-gauzy.ts` is 145 lines and contains no such constant, and
+  `MAX_CONTENT_DISPOSITION_LENGTH` appears nowhere in `apps/web` (`grep -rn` over `apps/web`, 2026-11-22).
+- **`SAFE_SEGMENT` (`route.ts:20`) refuses a *leading* dot only.** `a..b.png` is forwarded verbatim. That is not a
+  traversal (`..` is not a segment), but it is the exact edge of the promise, so it is pinned rather than assumed.
+- **`route.ts:31`'s `segments.length === 0` guard is never reached over HTTP.** `/api/public-assets` with no segments
+  is answered by Next's not-found page (20 296 bytes of HTML), and `/api/public-assets/` is 308-redirected to it. What
+  the measurement shows is that the handler never ran for a zero-segment request; on that reading the guard is
+  defensive code the router does not exercise.
+
+### 9.3 Verbs on one icon path
+
+| verb | status | body | headers | mock asked |
+| --- | --- | --- | --- | --- |
+| GET | 404 | 0 bytes | no `content-type`, no `cache-control` | yes, `GET … 200` |
+| HEAD | 404 | 0 bytes | same | **yes, and the recorded call is a `GET`** — the route exports no HEAD, and `proxy-gauzy-image.ts:21` always fetches the whole file |
+| OPTIONS | **204** | 0 bytes | `allow: GET, HEAD, OPTIONS` | **no** |
+| POST / PUT / DELETE | 405 | 0 bytes | **no `allow` header at all** | no |
+
+The 405 naming no `allow` while the OPTIONS answer names one matches what
+`suites/lane-c/method-and-preflight.spec.ts` recorded for other routes. No answer in this family is a 3xx with a
+`location`, and a refusal never carries one.
+
+### 9.4 Anonymous and a lane session are the same request
+
+Anonymous and `scope: 'A'` (the `auth-token` + `auth-refresh-token` cookie pair `helpers.ts:150-167` builds) answer
+identically — same status, same 0-byte body, same absent `content-type` — and each writes exactly one
+`GET /public/ever-icons/task-statuses/open.svg 200`. `receivedTokens('/public/ever-icons/task-statuses/open.svg')` is
+`[]` for both: the mock records only a `Bearer` (`mock-gauzy-server.mjs:1094-1100`, as a sha256) and none arrived, and
+the route could not have sent one — `proxy-gauzy-image.ts:21` fetches with `{ headers: { Accept: accept } }` and
+nothing else. A refused path is refused identically with a session attached (`..%2F…` → 404, 0 bytes, nothing asked),
+so a session is never the reason a refusal reaches upstream.
+
+### 9.5 The differential, and where the mock makes it partial
+
+- The served document hands the browser `NEXT_PUBLIC_GAUZY_API_SERVER_URL` = `http://127.0.0.1:3992` in its
+  `data-ever-teams-runtime-env` attribute (measured on the 428 KB `/auth/passcode` document, compared to `MOCK_ORIGIN`).
+- `GET http://127.0.0.1:3992/public/ever-icons/task-statuses/open.svg` — the URL `publicAssetUrl(path)` builds **with**
+  an origin (`public-asset-url.ts:62`; what `icon-items.tsx:107` and `edit-status-modal.tsx:53` hand the browser) —
+  answers **200, 22 bytes `{"items":[],"total":0}`, `content-type: application/json`, `cache-control: no-store`**: the
+  mock's unmatched-path payload (`mock-gauzy-server.mjs:806`), not an icon.
+- `GET /api/public-assets/ever-icons/task-statuses/open.svg` on the app — the URL built **without** an origin, which is
+  exactly what `property-icon-image.tsx:30` passes (`publicAssetUrl(text, '')`) — answers **404, 0 bytes, no
+  `cache-control`**: the upstream's `no-store` is not inherited by a refusal, and nothing here is cached (no `etag`, no
+  `set-cookie` on any answer in this family).
+- **The 200 pass-through of `proxy-gauzy-image.ts:29-40` is not exercisable on a lane.** The mock answers
+  `application/json` for every answer it gives (`:1109`) and 200s an unknown path with its pagination payload
+  (`:806`), and `proxy-gauzy-image.ts:27` maps a non-`image/*` answer to 404. So `Cache-Control: public, max-age=3600,
+  stale-while-revalidate=86400` and `X-Content-Type-Options: nosniff` (`proxy-gauzy-image.ts:34-37`) and the
+  `Content-Security-Policy: script-src 'none'; frame-src 'none'; sandbox;` this route adds (`route.ts:43`) are
+  **untested** — they need a mock that can answer `image/*`, which is the mock owner's change, not a lane's. The
+  `Accept: image/*` the route sends upstream (`proxy-gauzy-image.ts:21`) is unobservable too: the request log is body-
+  and header-free by design (`mock-gauzy-server.mjs:1080`).
+- One outage half *is* measurable: arming `scenario.drops` on `/public/ever-icons/task-statuses/open.svg` gives the
+  route a call with **no answer**, recorded as `GET … 0`, and the route still answers **404, 0 bytes** — the same body
+  as a refusal, distinguishable only by that `0` in the log.
+
+### 9.6 Corrections
+
+- **Correction to the run command this lane was handed.** `playwright.api.config.ts` cannot run a `suites/lane-a`
+  file: its only project is `testMatch: '**/api/**/*.spec.ts'` (`playwright.api.config.ts:28`), so
+  `npx playwright test --config apps/web/playwright/playwright.api.config.ts suites/lane-a/public-assets.spec.ts`
+  prints `Error: No tests found. … Total: 0 tests in 0 files` (measured with `--list`). This file runs under
+  `playwright.lane.config.ts` like every other lane spec (`testMatch: '**/lane-a/**/*.spec.ts'`, `:57`), with
+  `E2E_LANE=lane-a E2E_REUSE_SERVERS=1`. It needs no browser, so `E2E_BROWSER_CHANNEL` is irrelevant here.
+- **Correction to `suites/api/sweep.spec.ts:176`.** It lists `GET /api/public-assets/[...path]` under `NON_JSON_ROUTES`
+  with the reason "serves a static public asset". On a lane it serves **nothing**: every path this route accepts is
+  stopped by its content-type gate (404, 0 bytes) and every path it refuses is a 404 too. Before this spec the only
+  mentions of the route in `suites/` were the generated manifest entry (`routes.generated.ts:1223`), that one-line
+  reason, and a comment in `lane-c/method-and-preflight.spec.ts:878` — no behaviour was pinned anywhere.
+- **Correction to §8.2 of this file.** It states that `GAUZY_API_BASE_SERVER_URL.value` is unset in a lane ("expect the
+  bare `/api/tasks/<id>`"). That cannot hold for a browser in this harness: `GAUZY_API_BASE_SERVER_URL` *is*
+  `getNextPublicEnv('NEXT_PUBLIC_GAUZY_API_SERVER_URL', …)` (`constants.tsx:229-232`), `getNextPublicEnv` reads that
+  key lazily at access time (`apps/web/env-config.ts:144-157`), and `test-servers.ts:109` sets exactly that key to the
+  lane mock — measured by the runtime-env test in this file. It also contradicts §2 of this file, which measured the
+  browser calling the API origin directly. **Not measured by me:** the `/tasks/<id>` request itself — whoever writes
+  that test must measure its URL rather than take either sentence.
+- Run 1 failed one test for a reason inside this spec, not in the app: the anonymous/session test filtered the **whole**
+  mock log (both halves) instead of the entries the session request added — `GET /public/… 200, GET /public/… 200`
+  against an expectation of one. Fixed by slicing the log at the anonymous half's length.
+
+### 9.7 Secondary target: `core/lib/auth/rotated-refresh-token.ts` — no test written, and why
+
+`rotated-refresh-token.ts` is 18 lines: one `Set` of three messages (`Token is rotated`, `Token is not active`,
+`Failed to rotate token - concurrent modification`) and one `typeof message === 'string' && set.has(message)`. Its two
+readers are `proxy.ts` and `core/lib/auth/session-renewal.ts`.
+
+- `suites/api/auth-refresh.spec.ts` (124 lines, 5 tests) already pins the route-side half: nothing to renew is answered
+  with the API never asked; the pair is answered even when the profile read fails; an API that cannot answer is not
+  reported to the browser as a refusal; the renewal is authenticated by the body token, not the cookies.
+- **The rotated branch is already owned by unit tests that can produce it**:
+  `apps/web/test/auth/refresh-token-rotation-race.test.tsx` runs against `apps/web/test/auth/fake-gauzy-session.ts`,
+  whose `RefreshTokenRecord` state `'rotated'` answers 401 `Token is rotated` (`:4`, `:50`, `:162`, `:280`).
+- **The lane mock cannot produce it.** `/api/auth/refresh-token` answers
+  `{ token: 'synthetic-refreshed-token', refresh_token: 'synthetic-refresh-token' }` unconditionally
+  (`mock-gauzy-server.mjs:549-550`); the mock's only 401 is `UNAUTHORIZED` (`:810`), used at `:879` and `:890` in the
+  Ever Platform routes, and there is no scenario key for a refused refresh. Testing the three strings here would have
+  meant editing the shared mock (owned by the Cypress suite and by the other lanes' servers), so nothing was written —
+  rather than a test that proves a stub.
+
+### 9.8 Commands and the counts as printed
+
+```bash
+export PATH="/e/nvm/.nodejs:$PATH" NODE_OPTIONS=--no-warnings
+cd /e/Coding/ever-teams
+node apps/web/playwright/scripts/lane-servers.mjs up lane-a     # → /e/Coding/.tmp/lane-a-up-1.log
+node apps/web/playwright/scripts/lane-servers.mjs check lane-a
+#   lane lane-a: OK — the app on 3031 names its own mock 3992 and statistics sink 3993
+
+E2E_LANE=lane-a E2E_REUSE_SERVERS=1 npx playwright test \
+  --config apps/web/playwright/playwright.lane.config.ts suites/lane-a/public-assets.spec.ts \
+  > /e/Coding/.tmp/lane-a-assets-N.log 2>&1
+#   run 1 (lane-a-assets-1.log): Running 32 tests using 1 worker → 1 failed / 31 passed (8.1s)   (this spec's own
+#          filter bug, §9.6)
+#   run 2 (lane-a-assets-2.log): Running 32 tests using 1 worker → 32 passed (5.6s)
+#   run 3 (lane-a-assets-3.log): Running 32 tests using 1 worker → 32 passed (6.6s)
+#   run 4 (lane-a-assets-4.log): Running 32 tests using 1 worker → 32 passed (7.7s)   ← the committed state
+
+cd apps/web && node ../../node_modules/typescript/lib/tsc.js -p playwright/tsconfig.json --noEmit
+npx eslint playwright/suites/lane-a/public-assets.spec.ts --max-warnings=0    # from apps/web, exit 0
+```
+
+Type check at the run-4 pass: **no error in any `suites/lane-a` file**. The same command does report two errors in
+another lane's in-flight file — `playwright/suites/lane-b/board-preflight.spec.ts(260,3) TS2322` and
+`playwright/suites/lane-b/board-preflight.spec.ts(671,4) TS2769`. Lane-a did not touch that file.
