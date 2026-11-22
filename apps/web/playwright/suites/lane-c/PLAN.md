@@ -797,3 +797,180 @@ it.
   answers every path and validates no bearer.
 - Whether `POST /api/invite/accept`'s forwarded Origin changes a real welcome e-mail: the mock is the only thing that
   reacted to it, and this harness cannot show what Gauzy builds from it.
+
+## Method and preflight answers: `method-and-preflight.spec.ts`, run and pinned (lane-c, 2026-11-22)
+
+One new file (1055 lines), no new dependency, nothing outside `apps/web/playwright/suites/lane-c/` touched. It calls
+the routes this app itself implements **with a verb their file does not export, and with a CORS preflight**, and pins
+which layer answers: Next's method dispatch, Next's not-found document, the middleware door (`proxy.ts`), or the
+route's own refusal — plus whether the test backend was asked anything at all.
+
+### Runs, with the logs
+
+| run | log | summary lines as printed |
+| --- | --- | --- |
+| `--list` of the file as first written | `E:\Coding\.tmp\lane-c-method-list-1.log` | `Total: 68 tests in 1 file` |
+| first run, file exactly as written | `E:\Coding\.tmp\lane-c-method-1.log` | `Running 68 tests using 1 worker` / **`1 failed`**, `67 passed (33.8s)` |
+| pinned + Board-split file | `E:\Coding\.tmp\lane-c-method-2.log` | `Running 72 tests using 1 worker` / **`72 passed (12.5s)`** |
+| same file, final confirming run | `E:\Coding\.tmp\lane-c-method-3.log` | `Running 72 tests using 1 worker` / **`72 passed (11.9s)`** |
+| lane health before that run | `E:\Coding\.tmp\lane-c-method-check-3.log` | `lane lane-c: OK — the app on 3033 names its own mock 4002 and stats sink 4003` |
+| typecheck `tsc -p playwright/tsconfig.json --noEmit`, 1st / after each fix / final before the commit | `E:\Coding\.tmp\lane-c-method-tsc-1.log` … `-5.log` | 8 error lines → 4 → 2 → **0 lines, exit 0** (twice) |
+
+No lane was started, stopped or restarted for this file (`check lane-c` before the run, output above); no other
+lane's file was touched. My 3 typecheck errors were `APIResponse` imported from `api-fixtures` (that module declares
+it locally and does not export it — now `import type { APIResponse } from '@playwright/test';`, the same shape
+`suites/api/board-origin.spec.ts` uses) and a local `const headAnswer` that had shadowed the `readAnswer` helper
+(TS7022 + TS2448, both at `:411`). The 5 errors in `-tsc-1.log` are a peer's in-flight lane-b download specs, which
+were untracked in this tree at the time and are not mine to fix or to delete.
+
+### What the 72 cases pin, by describe (counts read off `lane-c-method-2.log`)
+
+- **`a verb the route does not export: Next answers before the route runs` — 36 cases** (18 routes × 2). `OPTIONS` →
+  **204**, 0 bytes, no `content-type`, `allow` exactly the list computed from the manifest's verbs (`OPTIONS` + the
+  exports + `HEAD` when `GET` is exported, sorted — `auto-implement-methods.js:49-71`), **no `Access-Control-Allow-*`
+  of any kind**, no `Cache-Control`, `vary` containing `rsc`, and `mock.requests()` **empty**. The wrong verb →
+  **405**, 0 bytes, no `content-type`, **no `Allow` at all**, no CORS header, no `Cache-Control`, log empty. The 18
+  `vary` values are kept as `observed-vary` annotations in `artifacts/playwright-lane-c.json` (18 of the 72 specs in
+  that report carry it; the value is `rsc, next-router-state-tree, next-router-prefetch,
+  next-router-segment-prefetch`).
+- **`the three routes that export an OPTIONS handler of their own` — 6 cases** (`/api/board/members`,
+  `/api/board/session`, `/api/board/notify` — 3 of the 415 manifest paths — × 2). Their `OPTIONS` →
+  **403 `{"message":"Forbidden"}`** with **no `Allow`**, **no CORS header**, `cache-control: no-store` and a `vary`
+  that names `Origin`; beside it the wrong verb is still Next's bodiless 405 with neither `Allow` nor
+  `Cache-Control`, so exporting an OPTIONS handler changes only the OPTIONS answer.
+- **`HEAD is answered only where a GET handler exists` — 5 cases.** `HEAD` at three POST/PUT/DELETE-only routes →
+  **405**; signed-in `HEAD /api/chat/conversations` → **200**, 0 bytes of body,
+  `content-type: application/json; charset=utf-8`, backend log exactly `HEAD /api/chat/conversations 200` (the verb
+  travels upstream **as HEAD**, not as GET); the same `HEAD` with a foreign `Origin` and `sec-fetch-site: cross-site`
+  → **200 forwarded**, same entry, no CORS header.
+- **`the method answer does not read the caller Origin` — 6 cases.** 5 routes × 4 caller shapes (no `Origin`, this
+  app's `Origin`, a foreign `Origin`, this app's `Origin` with `sec-fetch-site: cross-site`) → **byte-identical**
+  `status`, body, `allow` and `vary`, and an empty backend log; plus the contrast at the same path: cross-site `POST`
+  → **403 `{"statusCode":403,"message":"Cross-site request refused"}`** while cross-site `PUT` → the same **405** the
+  headerless caller gets. The two headerless-vs-`OPTIONS` cases the main session asked me to re-run are inside these
+  two describes and are green in `lane-c-method-2.log`.
+- **`the door answers a locale-prefixed API path, and never an API path` — 4 cases.** `OPTIONS` at
+  `/api/chat/conversations` carries **no** `content-security-policy`; `OPTIONS /en/api/chat/conversations`
+  (`maxRedirects: 0`) → **307** with a CSP containing `frame-ancestors 'self'`, `location: /api/chat/conversations`, a
+  `NEXT_LOCALE` cookie, **no `Allow`** and an empty log; followed → **204** + `allow: GET, HEAD, OPTIONS, POST`;
+  `PUT` on the prefixed path → **307** whose body is `/api/chat/conversations`, followed → **405**; and the CSP on
+  `GET /api/auth/session` comes from the route (`app/api/auth/[...nextauth]/route.ts:15-21` calls
+  `setFramingPolicy`), not from the door — `GET /board` is the door side of that pair.
+- **`what a proxied route forwards, and what it keeps back` — 6 cases**, detailed in the block below.
+- **`a wrong verb at a route that exists is not a 404` — 6 cases.** 3 pairs where the known path gets the bodiless
+  **405** and a path the manifest matches nowhere gets the **404** document (`text/html`, > 1000 bytes,
+  `cache-control: no-store`) with nothing asked, plus the dynamic-route swallow, the static-vs-dynamic pair and the
+  unknown-verb case, all under "findings" below.
+- **`the verb-class table still matches the manifest` — 3 cases**, one server call only: every verb class in
+  `routes.generated.ts` is covered (one named skip, `/api/auth/ever-id/start`); every row is a real manifest route
+  that really does not export the verb the case calls it with; and `OPTIONS /api/board/session` from this app's own
+  origin answers **`403 {"message":"Forbidden"}`** — the precondition the Board rows stand on.
+
+### The passthrough half, in detail (`forwardToGauzy` routes)
+
+- **Query:** `GET /api/chat/conversations?limit=7&limit=9&q=a%20b&empty=&flag&where%5BtenantId%5D=zz&plus=a+b` → 200,
+  one entry `GET /api/chat/conversations 200`, and the backend's recorded `query` string is
+  `limit=7&limit=9&q=a+b&empty=&flag=&where%5BtenantId%5D=zz&plus=a+b`. All seven parameters arrive
+  (`limit=7`, `limit=9`, `q=a b`, `empty=`, `flag=`, `where[tenantId]=zz`, `plus=a b`). The app forwards
+  `new URL(req.url).search` untouched (`forward-to-gauzy.ts:112`); the `%20` → `+`, the valueless `flag` → `flag=` and
+  `a+b` → a space are the backend's own re-serialisation (`mock-gauzy-server.mjs:1085`), so the pinned string is the
+  pair "bytes forwarded / meaning made at the far end", not a claim about Next.
+- The same URL with `PUT` → 405 and **nothing** asked, so the query is never half-forwarded.
+- **`tenant-id`:** a caller-supplied `tenant-id` header does **not** reach the API. Decidable trio on
+  `/api/auth/switch-organization` (the backend authorises that path on the `tenant-id` header, `mock-gauzy-server.mjs:554-565`):
+  switch to organization B on a tenant-A session → **401**; the same switch with a caller `tenant-id` naming tenant B
+  → still **401** `{"statusCode":401,"message":"Unauthorized"}`; the control (switch to organization A) → **200**.
+  Backend log: `401, 401, 200` in that order. `forward-to-gauzy.ts:9-19` blocks the session headers and builds the
+  tenant header from the cookie session.
+- **Caller bearer:** an anonymous `POST /api/chat/conversations` with `authorization: Bearer caller-supplied-probe-token`
+  → **401** `{"statusCode":401,"message":"Unauthorized"}`, `receivedTokens('/api/chat/conversations')` **`[]`** and the
+  whole log **empty** — the header was not used and the request never left. Which side wrote that 401 is told from
+  the header rather than the body: `content-type: application/json` with **no charset** is this app's own
+  `NextResponse.json` (`forward-to-gauzy.ts:96`), where an upstream refusal arrives as
+  `application/json; charset=utf-8` (visible in the switch-organization entries above).
+- **`Idempotency-Key`** (the only request header a route hands on, `app/api/chat/messages/[id]/interactions/route.ts:17`
+  with `forwardHeaders`): the call happens once (`POST /api/chat/messages/playwright-method-probe/interactions 200`),
+  and the case says in an annotation that the header itself is **not observable** here — the request log carries
+  `method, path, query, startMs, endMs, status` and no headers or body (`mock-gauzy-server.mjs:1080-1091`).
+- A cross-site `POST` is refused with 403 and nothing asked; the refusal itself stays `suites/api/foreign-origin.spec.ts`'s
+  claim, and the file annotates that it pins only the forwarded-nothing half.
+
+### Findings kept as findings
+
+1. **A made-up name under a parent that has a dynamic route is answered by that route, not by the 404 page.**
+   `GET /api/user/reset-playwright-nope` → **200**, `content-type` containing `application/json`, no `<!DOCTYPE`, and
+   the backend log holds `GET /api/user/reset-playwright-nope 200` — the handler ran and asked about the made-up id.
+   `/api/user/[id]` (GET/PUT/DELETE) matches every one-segment name under `/api/user`. This is why the first run's
+   single red exists: the file's first version used that path as its "unknown" path, expected 404 and was told 200
+   (`lane-c-method-1.log`, 1 failed / 67 passed). Nothing was weakened — the pairs were narrowed to paths the
+   manifest matches nowhere, and this case was added so the swallow is **pinned** rather than hidden. The same probe
+   also puts a `GET /api/user/me` entry in the log (`authenticatedGuard` asks even of a cookie-less caller —
+   `session-check.spec.ts`'s finding), which is annotated rather than pinned because the dev-server's 5 s
+   `SessionCheckMemo` can serve that read.
+2. **`HEAD` is answered as the read it is, and it is forwarded as `HEAD`.** A cross-site `HEAD` of session data is
+   forwarded (200, backend log `HEAD /api/chat/conversations 200`, no CORS header) because `refuseForeignWrite`
+   returns `null` for GET and `HEAD` (`same-origin-request.ts:43-46`). Not a guard failure — recorded because it is
+   the one verb outside `GET` for which a cross-site caller is answered with the session's own data.
+3. **A preflight is never a grant.** Next's automatic `OPTIONS` answer names `Allow` and never an
+   `Access-Control-*` header (36 cases), and the Board routes' own `OPTIONS` refusal carries **no** CORS header while
+   carrying `cache-control: no-store` and a `Vary` that names `Origin` — the same asymmetry `suites/api/board-origin.spec.ts`
+   measured for its 403s. `core/services/server/board-cors.ts:20-40` is the only code under `app`/`core` that writes
+   any CORS header (grep over both trees), so every absent CORS header pinned here is an app-wide statement.
+4. **`Content-Security-Policy` is not proof the door ran.** `app/api/auth/[...nextauth]/route.ts:15-21` calls
+   `setFramingPolicy` itself ("where the proxy does not run"), so the CSP on `/api/auth/session` is the route's; the
+   door's own header (`proxy.ts:144` → `frame-ancestors.ts:38-41`) appears on the locale-prefixed path and on
+   `/board`, and never on an `/api/...` path (`proxy.ts:96-112` excludes `api`). Both sides are pinned in one test so
+   the door claim stays falsifiable.
+5. **A verb Next does not dispatch is a third shape.** `PROPFIND` and `QUERY` at `/api/chat/conversations` →
+   **400** with no body, no `content-type`, no CORS header, nothing asked — neither the 405 nor the 404 document.
+6. **A static segment is not answered by the dynamic route beside it.** `PATCH /api/chat/conversations/browse` → 405
+   with `mock.calls(...) === []`; the control `PATCH /api/chat/conversations/playwright-method-probe` → 200 with its
+   entry. The 405 there is a routing answer, not a handler refusing for its own reason.
+
+### Deliberately not taken, so the lane is not spent twice
+
+`suites/api/sweep.spec.ts` calls every route **only with the verbs its own file exports**; this file is the other
+half and therefore skips, on purpose: the exported verbs and their documented 5xx blockers (`sweep.spec.ts`),
+bodiless calls (`empty-body.spec.ts`), declared media types (`media-type.spec.ts`), cross-site refusals **on exported
+write verbs** (`suites/api/foreign-origin.spec.ts`, this lane's `unguarded-writes.spec.ts`), the Board Origin gate and
+its CORS set on 200/201/400/413/415 answers (`suites/api/board-origin.spec.ts`), `x-forwarded-host` as the guard's
+right-hand side (`suites/api/forwarded-host.spec.ts`), the ever-connect query narrowing and body cap
+(`suites/api/ever-connect-proxy.spec.ts`), and which answers carry `Cache-Control`
+(`suites/lane-c/cache-directive.spec.ts`, which already proved a forwarded answer carries only the upstream
+`Content-Type`). What is new here is the out-of-list verb, the preflight, the door/handler boundary, and the
+"nothing at all was asked" assertion read as the **whole** log rather than filtered to the route.
+
+### Not reachable in this lane, recorded instead of guessed
+
+- The Board routes' **trusted** preflight (`boardPreflight`'s 204 with `Access-Control-Allow-Methods`,
+  `Access-Control-Allow-Headers` and `Access-Control-Max-Age: 600`) needs a lane started with
+  `E2E_BOARD_APP_DOMAIN`. This lane names no Board domain — `OPTIONS /api/board/session` from this app's own origin is
+  `403 {"message":"Forbidden"}` (`-2.log`), which the file pins as the precondition of its Board rows. With no
+  trusted origin, `Access-Control-Max-Age` is unobservable anywhere in this app.
+- The `app/api/auth/ever-id` verb class is named as the one the coverage test skips: with `E2E_EVER_ID` off those
+  handlers answer 404 from their own guard (measured in the 2026-11-21 run above).
+- Neither app was restarted for this file, and no fourth `next dev` was started (33 GB host, `strata` holds ~11 GB).
+- **Header passthrough is a harness gap, not a test gap.** The mock log is header- and body-free by design
+  (`mock-gauzy-server.mjs:1080-1091`), so `Idempotency-Key` can only be proven to have coincided with a call. The
+  harness (`helpers.ts`, `test-servers.ts`, `mock-gauzy-server.mjs`) belongs to the coordinating session, so the need
+  is written here rather than implemented: a control-API echo of the upstream request headers for one named path —
+  the shape `/api/auth/switch-organization` already uses for the tenant header — would turn the two header cases
+  above from "nothing was refused" into "this header arrived / did not arrive".
+
+### The 256-character `content-disposition` claim is not this file's, and is not in it
+
+No `MAX_CONTENT_DISPOSITION_LENGTH`, `MAX_HEADER_VALUE_LENGTH` or `forwardHeaderSet` exists in this repository, in any
+branch, or in any source file on this machine, and nothing in this section or in `method-and-preflight.spec.ts`
+asserts a header-length cap. Evidence, commands and exact output in **`E:\Coding\.tmp\lane-c-cap-evidence.txt`**
+(`wc -l` 145 for `forward-to-gauzy.ts` and 77 for `forward-download-to-gauzy.ts`; empty `git log --all -S` for both
+constant names; empty `git grep` at HEAD; a whole-tree `rg` returning only `sha256` hits; and a whole-`E:\Coding`
+search that finds the string **only in three prose files** — `E:\Coding\.tmp\handover_s11.md`, the 2026-11-21 lane
+handover under `workspace/projects/ever-teams/knowledge/handoffs/`, and `workspace/.git/COMMIT_EDITMSG` — i.e. only in
+agent-report text, never in code). A filter to source extensions returns no file at all. The claim's line numbers were
+also impossible: `:493-501` of a 145-line file. What the forwarders really do carry, re-read today at the printed
+lines, is `forward-to-gauzy.ts:8` `UPSTREAM_TIMEOUT_MS = 60_000` armed at `:123` and `forward-download-to-gauzy.ts:7`
+`120_000` with `options.timeoutMs ?? UPSTREAM_TIMEOUT_MS` at `:35` armed at `:50`; `content-disposition` appears in
+the shipped code only as a name in that file's `PASSED_HEADERS` (`:13`, copied verbatim per
+`forward-download-to-gauzy.test.ts:40`) and in the client-side `docs-import.service.ts:93`. Downloads are not this
+file's subject: `rg` for `disposition|256|MAX_|forwardHeaderSet|download|logo|cap ` over
+`method-and-preflight.spec.ts` returns nothing.
