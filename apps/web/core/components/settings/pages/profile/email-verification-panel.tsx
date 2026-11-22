@@ -12,6 +12,8 @@ import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
 
 type EmailVerificationPanelProps = {
 	email: string;
+	/** Whether the API says a code that is still valid went out: the panel says one was sent only then. */
+	codeWasSent?: boolean;
 	onSendCode: () => Promise<void>;
 	isSendingCode: boolean;
 	onVerify: (code: string) => Promise<void>;
@@ -19,8 +21,19 @@ type EmailVerificationPanelProps = {
 	onVerified: (message: string) => void;
 };
 
+/** Says a code was sent only when one went out; otherwise it offers to send one. */
+function VerificationText({ email, saysCodeWasSent }: Readonly<{ email: string; saysCodeWasSent: boolean }>) {
+	const t = useTranslations();
+	if (saysCodeWasSent) {
+		return <>{t('settings.profile.VERIFY_TEXT', { email })}</>;
+	}
+
+	return <>{t('notifications.NOTICES.VERIFY_TEXT_NOT_SENT', { email })}</>;
+}
+
 export function EmailVerificationPanel({
 	email,
+	codeWasSent = true,
 	onSendCode,
 	isSendingCode,
 	onVerify,
@@ -32,6 +45,8 @@ export function EmailVerificationPanel({
 	const [code, setCode] = useState('');
 	const [error, setError] = useState<string | null>(null);
 	const [status, setStatus] = useState('');
+	const [hasSentCode, setHasSentCode] = useState(false);
+	const saysCodeWasSent = codeWasSent || hasSentCode;
 	const isCodeComplete = code.length >= AUTH_CODE_LENGTH;
 	const canVerify = isCodeComplete && !isVerifying;
 
@@ -66,6 +81,7 @@ export function EmailVerificationPanel({
 		try {
 			await onSendCode();
 			codeFieldRef.current?.clear();
+			setHasSentCode(true);
 			const message = t('settings.profile.VERIFY_SENT', { email });
 			setStatus(message);
 		} catch (failure) {
@@ -80,7 +96,7 @@ export function EmailVerificationPanel({
 			<div className="flex flex-col gap-0.5">
 				<p className="text-[13px] font-medium text-foreground">{t('notifications.NOTICES.VERIFY_TITLE')}</p>
 				<p className="text-xs text-pretty text-muted-foreground">
-					{t('settings.profile.VERIFY_TEXT', { email })}
+					<VerificationText email={email} saysCodeWasSent={saysCodeWasSent} />
 				</p>
 			</div>
 			<form onSubmit={verify} className="flex flex-col gap-2 sm:flex-row sm:items-center">
