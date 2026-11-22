@@ -33,7 +33,11 @@ export function useAccountEmail() {
 		mutationFn: (account: TUser) => authService.resendVerifyUserLink(account),
 		// The banner on the home page reads whether a code went out from the verification status
 		onSuccess: (_answer, account) => {
-			const queryKey = queryKeys.users.emailVerificationStatus(account.id, account.lastOrganizationId);
+			const queryKey = queryKeys.users.emailVerificationStatus(
+				account.id,
+				account.lastOrganizationId,
+				account.email
+			);
 			void queryClient.invalidateQueries({ queryKey });
 		},
 		meta: { handlesOwnError: true }

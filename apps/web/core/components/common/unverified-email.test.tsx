@@ -202,7 +202,7 @@ describe('UnverifiedEmail (#5677)', () => {
 
 		expect(mockToastSuccess).toHaveBeenCalledWith('settings.profile.VERIFY_SENT');
 		expect(mockInvalidateQueries).toHaveBeenCalledWith({
-			queryKey: ['users', 'email-verification-status', 'user-1', null]
+			queryKey: ['users', 'email-verification-status', 'user-1', null, 'ruth@example.com']
 		});
 	});
 });

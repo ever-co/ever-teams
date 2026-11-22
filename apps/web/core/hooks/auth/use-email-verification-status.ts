@@ -10,7 +10,7 @@ import { queryKeys } from '@/core/query/keys';
 import { emailVerificationService } from '@/core/services/client/api/users/emails/email-verification.service';
 import type { TUser } from '@/core/types/schemas';
 
-type SignedInUser = Pick<TUser, 'id' | 'isEmailVerified' | 'lastOrganizationId'> | null | undefined;
+type SignedInUser = Pick<TUser, 'id' | 'email' | 'isEmailVerified' | 'lastOrganizationId'> | null | undefined;
 
 /** The deployment's verification switch changes by hand, rarely: read as seldom as the user is. */
 const STATUS_STALE_TIME_MS = 1000 * 60 * 15;
@@ -23,7 +23,7 @@ export function useEmailVerificationStatus(user: SignedInUser): EmailVerificatio
 	const hasUser = Boolean(user?.id);
 	const isUnverified = hasUser && !user?.isEmailVerified;
 	const query = useQuery({
-		queryKey: queryKeys.users.emailVerificationStatus(user?.id, user?.lastOrganizationId),
+		queryKey: queryKeys.users.emailVerificationStatus(user?.id, user?.lastOrganizationId, user?.email),
 		queryFn: () => emailVerificationService.getVerificationStatus(),
 		enabled: isUnverified,
 		staleTime: STATUS_STALE_TIME_MS

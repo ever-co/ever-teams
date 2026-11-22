@@ -48,7 +48,7 @@ function useResendVerificationCode(user: TUser | null | undefined) {
 		}
 		const onSent = () => {
 			toast.success(t('settings.profile.VERIFY_SENT', { email: user.email ?? '' }));
-			const queryKey = queryKeys.users.emailVerificationStatus(user.id, user.lastOrganizationId);
+			const queryKey = queryKeys.users.emailVerificationStatus(user.id, user.lastOrganizationId, user.email);
 			void queryClient.invalidateQueries({ queryKey });
 		};
 		const onFailed = (error: unknown) => {

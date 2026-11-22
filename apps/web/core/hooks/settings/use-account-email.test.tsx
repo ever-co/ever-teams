@@ -54,7 +54,7 @@ describe('useAccountEmail sendVerificationCode', () => {
 
 		expect(mockResend).toHaveBeenCalledWith(OWNER);
 		expect(invalidate).toHaveBeenCalledWith({
-			queryKey: ['users', 'email-verification-status', 'user-1', 'organization-1']
+			queryKey: ['users', 'email-verification-status', 'user-1', 'organization-1', 'ruth@example.com']
 		});
 	});
 

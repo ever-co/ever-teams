@@ -16,7 +16,12 @@ jest.mock('@/core/services/client/api/users/emails/email-verification.service', 
 
 import { useAsksForEmailVerification, useIsEmailVerificationSatisfied } from './use-email-verification-status';
 
-const OWNER = { id: 'user-1', isEmailVerified: false, lastOrganizationId: 'organization-1' };
+const OWNER = {
+	id: 'user-1',
+	email: 'ruth@example.com',
+	isEmailVerified: false,
+	lastOrganizationId: 'organization-1'
+};
 
 function renderGate(user: typeof OWNER) {
 	const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
@@ -25,11 +30,11 @@ function renderGate(user: typeof OWNER) {
 	);
 
 	return renderHook(
-		() => ({
-			satisfied: useIsEmailVerificationSatisfied(user),
-			asks: useAsksForEmailVerification(user)
+		({ person }) => ({
+			satisfied: useIsEmailVerificationSatisfied(person),
+			asks: useAsksForEmailVerification(person)
 		}),
-		{ wrapper }
+		{ wrapper, initialProps: { person: user } }
 	);
 }
 
@@ -69,5 +74,18 @@ describe('useIsEmailVerificationSatisfied and useAsksForEmailVerification', () =
 
 		await waitFor(() => expect(mockGetVerificationStatus).toHaveBeenCalled());
 		expect(result.current).toEqual({ satisfied: false, asks: false });
+	});
+
+	it('reads the status again for a new address instead of keeping the answer for the old one', async () => {
+		mockGetVerificationStatus.mockResolvedValueOnce({ isEmailVerified: true, verificationEmailSent: false });
+		const { result, rerender } = renderGate(OWNER);
+		await waitFor(() => expect(result.current.satisfied).toBe(true));
+
+		mockGetVerificationStatus.mockResolvedValueOnce({ isEmailVerified: false, verificationEmailSent: true });
+		rerender({ person: { ...OWNER, email: 'ruth.north@example.com' } });
+
+		await waitFor(() => expect(result.current.asks).toBe(true));
+		expect(result.current.satisfied).toBe(false);
+		expect(mockGetVerificationStatus).toHaveBeenCalledTimes(2);
 	});
 });
