@@ -12,6 +12,7 @@ import { ActivityIndicator } from 'react-native-paper';
 import { Screen } from './screen';
 import { TaskSettingAddButton } from './task-setting-add-button';
 import { TaskSettingsList } from './task-settings-list';
+import { taskSettingsListStyles } from './task-settings-list-styles';
 import { typography, useAppTheme, useWebTheme } from '../theme';
 import { sheetLookOf, sheetOverlayOpacity } from '../../src/theme/sheet-look';
 import { useTaskSettingsAccess } from '../services/hooks/features/use-task-settings-access';
@@ -296,52 +297,11 @@ const $headerContainer: ViewStyle = {
 };
 
 const styles = StyleSheet.create({
+	...taskSettingsListStyles,
 	body: {
 		flex: 1,
 		padding: 20,
 		width: '100%'
-	},
-	btnText: {
-		color: '#3826A6',
-		fontFamily: typography.primary.semiBold,
-		fontSize: 18,
-		fontStyle: 'normal',
-		marginLeft: 8
-	},
-	btnTextSmall: {
-		color: '#3826A6',
-		fontFamily: typography.primary.semiBold,
-		fontSize: 14,
-		fontStyle: 'normal',
-		marginLeft: 4
-	},
-	container: {
-		alignItems: 'center',
-		flexDirection: 'row',
-		width: '100%'
-	},
-	createButton: {
-		alignItems: 'center',
-		alignSelf: 'center',
-		borderColor: '#3826A6',
-		borderRadius: 12,
-		borderWidth: 2,
-		flexDirection: 'row',
-		justifyContent: 'center',
-		marginBottom: 16,
-		marginTop: 8,
-		padding: 14,
-		width: '90%'
-	},
-	createButtonSmall: {
-		alignItems: 'center',
-		borderColor: '#3826A6',
-		borderRadius: 8,
-		borderWidth: 1,
-		flexDirection: 'row',
-		justifyContent: 'center',
-		padding: 6,
-		paddingHorizontal: 10
 	},
 	emptyText: {
 		color: '#7E7991',
@@ -358,13 +318,6 @@ const styles = StyleSheet.create({
 	listGrows: {
 		flexGrow: 1
 	},
-	listHeaderContainer: {
-		alignItems: 'center',
-		flexDirection: 'row',
-		justifyContent: 'space-between',
-		marginBottom: 12,
-		width: '100%'
-	},
 	listView: {
 		width: '100%'
 	},
@@ -379,17 +332,5 @@ const styles = StyleSheet.create({
 		position: 'absolute',
 		right: 0,
 		top: 0
-	},
-	title: {
-		alignSelf: 'center',
-		fontFamily: typography.primary.semiBold,
-		fontSize: 16,
-		textAlign: 'center',
-		width: '80%'
-	},
-	title2: {
-		color: '#7E7991',
-		fontFamily: typography.primary.semiBold,
-		fontSize: 16
 	}
 });
