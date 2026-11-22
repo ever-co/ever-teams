@@ -882,3 +882,254 @@ records one of the other agent's `password-journey` runs dying exactly there. `d
 drivers, and neither of us claimed it in `workspace/MAINTENANCE.md` §3 ACTIVE — these are WIP lane servers on a dev
 PC, not `ever-gauzy-prod`, but the next single owner of this lane should say out loud who holds 3032 before pressing
 `up` or `down`.
+
+---
+
+## 13. The download-forwarding family, pinned 2026-11-22 (third lane-b session: `download-forwarding.spec.ts`, `download-outage.spec.ts`)
+
+One new family, two files: `core/services/server/forward-download-to-gauzy.ts` and both route handlers that call it
+(`app/api/export/route.ts`, `app/api/plugins/docs/documents/[id]/export.pdf/route.ts` — found by grepping the exported
+name; those are the only two callers in `apps/web/app/**`).
+
+### 13.1 Runs, gate, lane
+
+```
+E2E_LANE=lane-b npx playwright test --config apps/web/playwright/playwright.lane.config.ts download-
+→ 1 failed, 2 skipped, 25 passed (40.1s)                E:\Coding\.tmp\lane-b-dl-1.log   (the red is §13.3, mine)
+→ 2 skipped, 26 passed (44.8s)                          E:\Coding\.tmp\lane-b-dl-2.log   (green after that repin)
+→ 2 skipped, 28 passed (37.3s)                          E:\Coding\.tmp\lane-b-dl-3.log   (with §13.10's two cases)
+→ 2 skipped, 28 passed (45.2s)                          E:\Coding\.tmp\lane-b-dl-4.log   (the run the commit is on)
+```
+
+`lane-b-dl-4.log` is the state everything below describes: 30 tests, 28 green, 2 gated skips. The line numbers cited
+per case are that log's own `…spec.ts:NNN` positions.
+
+30 tests discovered in the last run: 22 in `download-forwarding.spec.ts`, 8 in `download-outage.spec.ts` (6 run + 2
+gated). Per-case durations quoted in §13.2 are `lane-b-dl-2.log`'s `ok` lines, except the two invoice cases, which
+only exist in `lane-b-dl-3.log`.
+
+* `tsc -p playwright/tsconfig.json --noEmit` from `apps/web`: **exit 2** in `lane-b-dl-tsc-3.log` (two errors of mine:
+  a headers array that inferred `origin?: undefined`, and a `const text` read but never used), **exit 0** in
+  `lane-b-dl-tsc-4.log`, **exit 0** in `lane-b-dl-tsc-5.log` after the §13.3 repin, **exit 0** in
+  `lane-b-dl-tsc-6.log` with §13.10's two cases added, and **exit 0** in `lane-b-dl-tsc-7.log` — the state the commit
+  was made on, which is also `npx prettier --check` clean on both files with no line over 120 characters. Prettier ran
+  on both files from the repo root; `lane-b/README.md` is the only lane-b spec file I did not touch.
+* Lane: taken **up** and restarted by the coordinating session; `check lane-b` printed `OK — the app on 3032 names its
+  own mock 3996 and stats sink 3997` before both runs and I pressed neither `up` nor `down`. In this checkout that
+  check line does **not** name the OIDC issuer port 3999, which is worth knowing when a run dies on a missing issuer.
+* Read-only probes, each in its own `E:\Coding\.tmp\lane-b-dl-probe-<n>.mjs` + `.txt`: 1 (the two routes' answers),
+  2 (query passthrough), 3 (drop/delay arms on the download path, timings), 4 (verb shapes, id shapes), 5 (expired and
+  chunked tokens), 6 (`scenario.fails` spellings), 7 (`/api/invoices/download/{id}`, before §13.10 was written). Every
+  number in §13.4, §13.5 and §13.10 is copied out of those files.
+
+### 13.2 What is pinned, in one line each
+
+`download-forwarding.spec.ts`, first three describes (green in `lane-b-dl-4.log`, durations from that log):
+
+1. Body passthrough **byte-for-byte, hashed on both sides** (`sha256(app body) === sha256(mock body)`, the mock asked
+   directly at `MOCK_ORIGIN` first, so the log the assertions read is only the app's own call), with the mock's own
+   `content-type` **including its `charset`** copied verbatim, `cache-control: no-store` copied, and
+   `x-content-type-options`, `access-control-allow-origin`, `content-disposition`, `content-length` and any
+   `Set-Cookie` all measured absent — the whitelist's *silence* is asserted, not assumed (`:113`, 1.3 s).
+2. The route fixes the upstream path to its own and hands the whole query on in the caller's order: a `%20` arrives at
+   the mock as `+` and the emoji stays percent-encoded (`subtree=true&format=zip&file=a+b.pdf&emoji=%F0%9F%98%80`,
+   `:172`, 63 ms — the mock logs `searchParams.toString()` of what the app fetched, measured in
+   `lane-b-dl-probe-2.txt`); no query reaches the API as `''`, not as an appended `?` (`:199`).
+3. Guard order: no token → **401** `application/json` with **nothing asked** (`:209`); the `z.guid()` check answers
+   **ahead of** the bearer check — a bad id with no session at all is 400, not 401 (`:233`); the id gate is a **hex
+   shape check, not a UUID version check** — `11111111-…`, all-zeros and an UPPERCASE id are accepted and forwarded
+   verbatim into the upstream path, a no-dash 32-hex and a 35-char id are refused with
+   `{"error":"A document id is required"}` with nothing reaching the API (`:257`, 515 ms). **App finding, kept as a
+   finding:** a caller controls the id segment of the path the server fetches.
+4. No origin guard on a download: a cross-site GET (with `origin: https://some-other-site.example` and
+   `sec-fetch-site: cross-site`, `same-site`, and origin alone) is **forwarded with the session bearer**, proven by
+   `receivedTokens(UP_FILE)` equalling `sha256` of the cookie token minted in the same test (`:304`, 197 ms).
+   **App finding.**
+5. The two routes differ for the same signed-in caller: the document route answers 200, the export route answers 403
+   `{"statusCode":403,"message":"Forbidden resource"}`, and the reason is measurable — the mock's own
+   `GET /api/role-permissions/me` lists exactly `['TIME_TRACKER','ORG_TASK_ADD','ORG_TASK_EDIT','ORG_INVITE_EDIT',`
+   `'ORG_EMPLOYEES_EDIT']` as enabled, with `EXPORT_ADD` absent (`:339`, 760 ms). If those rows ever gain `EXPORT_ADD`
+   this case goes red with a message that says the forwarded half has to be written.
+6. Verbs on a GET-only route, both routes: **HEAD** is answered by the GET handler, empty-bodied, and it costs a
+   **full upstream GET** (`:407`); **OPTIONS** is answered by Next itself with 204 and `allow: GET, HEAD, OPTIONS`
+   with nothing asked (`:431`); POST/PUT/DELETE are 405 with an **empty body, no content-type and no allow**
+   (`:449`); POST on the export route is a verb refusal too, so no body ever reaches the permission gate (`:480`);
+   HEAD on the export route **runs the permission gate** and answers its 403 empty-bodied (`:494`).
+7. The token a download route accepts: a token whose `exp` claim passed an hour ago — and one with `exp: 1_000` — is
+   forwarded **as it is**, 200 with the bearer hash matching (`:516`); a chunked `auth-token0..2` with
+   `_totalChunks=3` is reassembled and forwarded as **one** bearer (`:553`); a declared chunk count with a chunk
+   **missing** is a 401 with nothing asked (`:576`). **App finding, kept as a finding:** `forwardDownloadToGauzy`
+   reads the cookie and never validates its claims, so expiry is enforced only by whoever sits in front of it.
+8. What leaves: the bearer is the session cookie token (as the mock hashed it); the upstream `tenant-id` is the
+   `auth-tenant-id` **cookie**, proven differentially on the mock's `scenario.drops` key `<tenantA>:<path>` — cookie A
+   ⇒ entry `status 0` + app 502, cookie B ⇒ 200, no tenant cookie ⇒ 200, and cookie A plus a hostile
+   `tenant-id: tenantB` **request header** ⇒ still 502, i.e. the caller's own header is ignored (`:614`, 199 ms); no
+   organisation header is written upstream and dropping the organisation cookie changes nothing (`:665`).
+
+`download-forwarding.spec.ts`, last describe — §13.10's route, green in `lane-b-dl-4.log`:
+
+9. `GET /api/invoices/download/{id}` for the fixture role → **403** `{"statusCode":403,"message":"Forbidden resource"}`
+   having asked **only** `GET /api/role-permissions/me 200`, with its own path never asked (`:713`, 174 ms); anonymously
+   → **401** `{"statusCode":401,"message":"Unauthorized"}` having asked **nothing at all** (`:730`, 64 ms).
+
+`download-outage.spec.ts` (green in `lane-b-dl-4.log`, durations from that log):
+
+10. A dropped upstream call on the file route → **502** `{"statusCode":502,"message":"The Gauzy API is unreachable"}`,
+   `content-type: application/json`, no `content-disposition`, no `content-length`, entry `GET … 0`, and
+   `mock.failures()` empty (a `status: 0` entry is not a failure the harness counts) (`:74`, 80 ms).
+11. The export route answers the same outage with the **JSON proxy** shape, because its permission read is where it
+    died — and the download path is never asked (`:114`, 49 ms); the download helper's outage answer and the JSON
+    proxy's are **byte-identical** (the same arm, both routes, compared as text, `:140`, 120 ms).
+12. Arms that are not a number or below zero (`-5`, `'not-a-number'`, `0`) **answer the file** instead of dropping it
+    (`:219`, 189 ms); a 3 000 ms `scenario.delays` arm is **waited out**, inside the app answer and inside the mock
+    entry (`:236`, 3.1 s).
+13. The clamp pin — §13.4.
+
+### 13.3 The one red was my own wrong prediction, and what it was repinned to
+
+`download-forwarding.spec.ts`, then at `:371` and today at `:372` (cross-site GET of `/api/export` → 403 with the
+permission body) also asserted
+`mock.requests()` **`toEqual([])`**, on the prediction that a cross-site request is turned away before anything is
+asked. The run measured one ask — `GET /api/role-permissions/me 200` (`lane-b-dl-1.log`, test 9: "the refusal asked
+something other than the permission read"). `refuseForeignWrite` answers writes only, so the origin guard never reaches
+this route and the permission read is what refused it. Re-pinned to what was measured, and to the stronger form: the
+log is exactly `[GET /api/role-permissions/me 200]` **and** the export upstream path was never asked.
+`lane-b-dl-2.log` case 9 green (26 ms). Nothing was weakened: an exact log contents replaced an emptiness claim.
+
+### 13.4 The clamp, stated exactly as it asserts today
+
+The case (`download-outage.spec.ts:165`, `30.1s` in every one of `lane-b-dl-1.log`, `-2.log`, `-3.log`, `-4.log`) arms
+`scenario.drops` on the download **path** with `DROP_CEILING_MS * 2 = 60 000` and asserts four things: the app answers
+**502** with the unreachable body verbatim; the mock entry carries **`status === 0`**; the client's own wall is
+**`<= 35 000`** (`MAX_DROP_MS + HOLD_WINDOW_MS`) **and `>= 25 000`**; and the entry's own
+`(endMs ?? 0) - (startMs ?? 0)` is **`< 1 000`**. It is a **clamp pin, not an outage pin**: it pins that an arm aimed
+above the ceiling costs the lane the ceiling, and that the mock's `/requests` entry cannot be used as the witness for
+either number.
+
+Measured in `E:\Coding\.tmp\lane-b-dl-probe-3.txt`, same lane, same mock:
+
+| arm on `<path>` | client wall | entry `endMs - startMs` | app answer |
+| --- | --- | --- | --- |
+| `1` | 21 ms | 0 | 502 unreachable |
+| `60 000` | **30 033 ms** | **0** | 502 unreachable |
+| `-5` | 35 ms | 0 | 200 `{"items":[],"total":0}` |
+| `'not-a-number'` | 15 ms | 0 | 200 `{"items":[],"total":0}` |
+| `delays` 3 000 | 3 017 ms | **3 001 ms** | 200 |
+
+So: **the mock writes the `/requests` entry before it holds the socket** — `endMs - startMs` reports 0 for a 1 ms arm
+and for a 30 s hold alike, while the client waited 21 ms and 30 033 ms. The `< 1 000` assertion pins that ordering on
+purpose; a red there means the harness moved the write after the hold, and both that assertion and the wall bounds
+have to be re-pinned from a new measurement, not relaxed. A delay, by contrast, **is** inside the entry (3 001 ms),
+which is why the delay case measures the hold two ways and the drop case cannot.
+
+Harness facts as read at `c4e6fadc5` in this checkout (`apps/web/cypress/support/mock-gauzy-server.mjs`):
+`MAX_DROP_MS = 30_000` at `:35`, `const dropMs = Number.isFinite(dropArm) ? Math.min(Math.max(dropArm, 0), MAX_DROP_MS)`
+at `:1052`, `status: dropMs > 0 ? 0 : status` at `:1089`, the `setTimeout(resolve, dropMs - 1)` hold at `:1105`. The
+coordinating session reports a newer clamp (arm 45 000 → ~45 s) and a `scenario.fails` switch (`60fe12221`, then
+`8d9229c52`); **neither object is in this checkout** — `git cat-file -e 8d9229c52` → "Not a valid object name",
+`git ls-remote --heads origin test/playwright-e2e-suite` → `2f98d3df304dce5cb82d49fdf8889b693da9dd5a`, and
+`grep -c "scenario.fails" apps/web/cypress/support/mock-gauzy-server.mjs` → **0**. If that clamp lands, this case goes
+red at ≈60 000 ms wall **by design**; that is a change to re-measure and re-pin with the new number written here, and
+it is not a rollback candidate.
+
+Also from `lane-b-dl-probe-3.txt`: a client that aborts at 1 500 ms while the upstream is delayed 8 000 ms ends in a
+node `fetch` `TimeoutError` at **1 513 ms with an empty mock log** — the app's 499 branch has no reader in this
+harness, so it is **not asserted anywhere in these two files** (see §13.6).
+
+### 13.5 Gated, not quietly green: an upstream that *refuses* with a status
+
+Nothing in this checkout's mock makes it answer a 4xx/5xx for a path it does not know: its fall-through for an unknown
+GET is `pagination([])` on 200, and its 4xx/5xx answers are all keyed to paths it knows (`/api/auth/workspaces`,
+`/api/auth/signin.workspace`, `/api/auth/switch-organization`, the Ever ID back-channel, the notification read,
+`/api/ever-*`). `lane-b-dl-probe-6.txt` armed `{ fails: { <path>: 503 } }`, `{ fails: { <path>: '503' } }`,
+`{ failureScenarios: … }` and `{ scenario: { fails: … } }` in turn: each control call returned 200, each app call
+answered **200 `{"items":[],"total":0}`** with the mock logging **200**, and the arm showed up only as an unused key in
+`state.scenario`. So `download-outage.spec.ts`'s last describe runs a `beforeAll` probe (three spellings; both the app
+status and the mock entry status must be ≥ 400) and its `beforeEach` skips with a printed reason naming the restart
+that would make them live. Those 2 skips are the `2 skipped` in both logs. When they do run they assert **app-vs-mock
+equality only** — the app's status and body equal what the same armed mock answers the same path when asked directly,
+and the refusal recorded with its own status and present in `mock.failures()` — so no number in them is invented.
+
+### 13.6 Limits: what this harness cannot do to a download (needs, written down — not built)
+
+* The mock has **no handler for either download path**. It answers both as JSON: `content-type: application/json;`
+  `charset=utf-8`, `cache-control: no-store`, chunked (`writeHead` + `end`), so **no `content-length`**, **no
+  `content-disposition`**, and no binary body. Therefore unreachable here, and deliberately not faked: the
+  `attachment; filename=…` half of `downloadHeadersOf` (verbatim / quoted / non-ASCII filename), a binary or **empty**
+  body, the `application/octet-stream` fallback (`forward-download-to-gauzy.ts:75`), and the branch that drops
+  `content-length` when the upstream declares `content-encoding` (`:66-77`). Today only
+  `core/services/server/forward-download-to-gauzy.test.ts:32-45` and `:58-63` cover those, as unit tests. Case 1
+  asserts the *absence* of `content-disposition`/`content-length` and says in its failure message that a mock which
+  grows a download handler turns that assertion red on purpose, so the gap cannot rot silently.
+* Not a `fetch` limitation, proven in scratch: `lane-b-dl-fetch-header-probe.txt` (node `fetch` **does** surface a
+  `content-length` a server writes) and `lane-b-dl-fetch-header-probe2.txt` (`writeHead(…) + end(string)` → chunked,
+  no `content-length`) — i.e. the missing length is the mock's own shape.
+* **Owed to the harness owner** (`cypress/support/mock-gauzy-server.mjs` was not edited here): a download handler on
+  these two paths that sends a binary body, a `content-disposition` with a quoted non-ASCII filename and an explicit
+  `content-length`; a per-path status arm (`scenario.fails` keyed `<tenant>:<path>`), which §13.5 is waiting for; and
+  a shared token mint — `b64url`/`tokenWithClaims` are repeated in `download-forwarding.spec.ts:99-101` because the
+  same five lines live in `playwright/helpers.ts:175-179` and in `suites/api/tab-session.spec.ts`, neither of which a
+  lane may edit.
+* `/api/export`' **forwarding** leg is unreachable in every mock run today (§13.2 item 5: `EXPORT_ADD` is not in the
+  fixture role), so what is pinned about that route is its gate and its verbs, never its download.
+* **504** (the helper's own `AbortSignal.timeout`) is unreachable from a test: the routes ask 15 min and 2 min and
+  `api-fixtures.ts:101` cuts the client at 60 000 ms. **499** is unassertable (§13.4's abort probe). Both are stated
+  as limits, not skipped cases.
+
+### 13.7 Not duplicated (who already owns what)
+
+`suites/api/tab-session.spec.ts` owns the FILE route's credential half and `suites/lane-c/permission-guard.spec.ts`
+owns `/api/export`'s 401/403 for a signed-in caller. What lives here is the rest of the family: body/header
+passthrough, query passthrough, the id gate and its order against the bearer check, the verbs, the token shapes, the
+outage answers, the clamp, and the cross-site/HEAD halves of the export gate.
+
+### 13.8 The two cases that carry a wall-clock margin (flake rule)
+
+Only the clamp pin (`>= 25 000` / `<= 35 000` around a 30 000 ms hold; measured 30 033 ms in `lane-b-dl-probe-3.txt`,
+30.1 s in each of the four suite logs) and the delay case (`>= 2 500` and `< 15 000`; measured 3 017 ms in the probe,
+3.1 s in `lane-b-dl-4.log`).
+If either goes red on a loaded machine, read the number out of the log first and re-pin from that number; the delay
+case's lower bound is the mock's own entry (`endMs - startMs = 3 001`), which does not depend on machine load, so a
+red there is a harness change, not a slow PC.
+
+### 13.9 Statements this section does **not** make
+
+* No `externalProxy` / `/api/external` claim: this checkout has no `apps/web/app/api/external/` directory, and
+  `grep -rn "api/external" apps/web/playwright/suites/` and
+  `grep -n "external" apps/web/cypress/support/mock-gauzy-server.mjs` both return nothing, so the pin the coordinating
+  session asked me to keep is not something I can see or run from this tree.
+* No "256-char cap" claim anywhere: `grep -n "256" apps/web/playwright/suites/lane-b/*` hits only `sha256`.
+* Nothing in `playwright/helpers.ts`, `fixtures.ts`, `test-servers.ts`, `api-fixtures.ts`,
+  `cypress/support/mock-gauzy-server.mjs`, or another lane's specs was touched; no lane server was started or stopped;
+  no dependency was added. My only writes: the two spec files, this section, and my own `E:\Coding\.tmp\lane-b-dl-*`
+  logs.
+
+### 13.10 The third route with `download` in its name, and the one thing about it that is a finding
+
+`grep -rn "forwardDownloadToGauzy" apps packages` finds **exactly two** callers (`app/api/export/route.ts:18`,
+`app/api/plugins/docs/documents/[id]/export.pdf/route.ts:14`), so §13.2's family is complete. But
+`app/api/invoices/download/[id]/route.ts` is a **download route that is not in that family**: `:8`
+`refuseUnlessPermitted(req, canViewInvoices)` and then `:14`
+`forwardToGauzy(req, \`/invoices/download/${encodeURIComponent(id)}\`)` — the **JSON** proxy. `apps/web/app/api/reports/`
+does not exist on this branch (`ls` → "No such file or directory"), and no spec in `apps/web/playwright/suites/`
+referenced `/api/invoices/download` before this section.
+
+Measured (`E:\Coding\.tmp\lane-b-dl-probe-7.txt`, then pinned as the two cases of §13.2 item 9 in
+`lane-b-dl-3.log`): signed in it answers **403** `{"statusCode":403,"message":"Forbidden resource"}` after exactly one
+ask (`GET /api/role-permissions/me 200`) and never asks its own path; anonymously it answers **401**
+`{"statusCode":401,"message":"Unauthorized"}` with **nothing asked** (the permission read itself goes
+*through* `forwardToGauzy`, which refuses a caller with no token before it fetches
+— `refuse-without-permission.ts:41-45`); an id aimed at path traversal (`/api/invoices/download/..%2Femployee`) gets
+the same 403, so `encodeURIComponent` at `:13` never runs for this role and **that guard is not measurable
+end-to-end in this harness** — stated as a limit, not tested.
+
+**Finding, read from the code and deliberately not measured:** a caller who *does* pass `canViewInvoices` gets a PDF
+answer built by `forwardToGauzy`, whose own header set is `Content-Type` plus an optional `Cache-Control`
+(`forward-to-gauzy.ts:21-27`) — so `Content-Disposition` never travels, the invoice PDF arrives **without the name
+Gauzy gave it**, and its ceiling is the JSON proxy's `UPSTREAM_TIMEOUT_MS = 60_000` (`forward-to-gauzy.ts:8`, armed at
+`:123`) rather than the download helper's 120 000 (`forward-download-to-gauzy.ts:7`, `:35`, `:50`). The route's own
+comment says it is the "proxy mode twin of Gauzy's `GET /invoices/download/:id`, which answers the invoice as a PDF".
+What would make the forwarded half measurable: a mock role that grants `INVOICES_VIEW` **and** a rate-admin permission
+(`core/lib/utils/invoice-access.ts:3-22`, `core/lib/utils/rates.ts:258-260`) — the fixture role's enabled list
+(§13.2 item 5) has neither. Until then the only honest statement about that route is its gate, which is what is
+pinned.
