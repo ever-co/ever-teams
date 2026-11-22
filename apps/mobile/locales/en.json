@@ -311,8 +311,8 @@
 		"closedCount": "{count, plural, other {# Closed}}"
 	},
 	"noTeamScreen": {
-		"createYourTeam": "Create your own team or join existed",
-		"hintMessage": "Lorem ipsum dolor sit amet consectetur. Blandit lobortis dui risus neque."
+		"createYourTeam": "Create your team or join existing",
+		"hintMessage": "Create a team and invite the people you work with."
 	},
 	"settingScreen": {
 		"description": "Your account, your team and how its tasks are organised.",

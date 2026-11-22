@@ -154,6 +154,8 @@
 	"accountVerificationModal.verify": "common.VERIFY",
 	"demoPodcastListScreen.favoriteButton": "favorites.FAVORITE",
 	"settingScreen.description": "settings.index.DESCRIPTION",
+	"noTeamScreen.createYourTeam": "common.NO_TEAM",
+	"noTeamScreen.hintMessage": "common.NO_TEAM_SUB",
 	"taskMenus.search.status": "taskMenus.search.status",
 	"taskMenus.search.priority": "taskMenus.search.priority",
 	"taskMenus.search.size": "taskMenus.search.size",

@@ -312,7 +312,7 @@
 	},
 	"noTeamScreen": {
 		"createYourTeam": "Създайте свой екип или се присъединете към съществуващ",
-		"hintMessage": "Lorem ipsum dolor sit amet consectetur. Blandit lobortis dui risus neque."
+		"hintMessage": "Създайте екип и поканете хората, с които работите."
 	},
 	"settingScreen": {
 		"description": "Вашият акаунт, вашият екип и как са организирани задачите му.",

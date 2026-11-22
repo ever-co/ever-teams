@@ -312,7 +312,7 @@
 	},
 	"noTeamScreen": {
 		"createYourTeam": "צור צוות משלך או הצטרף לצוות קיים",
-		"hintMessage": "Lorem ipsum dolor sit amet consectetur. Blandit lobortis dui risus neque."
+		"hintMessage": "צור צוות והזמן את האנשים שאתה עובד איתם."
 	},
 	"settingScreen": {
 		"description": "החשבון שלך, הצוות שלך ואופן ארגון המשימות שלו.",

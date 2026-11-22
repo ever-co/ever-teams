@@ -312,7 +312,7 @@
 	},
 	"noTeamScreen": {
 		"createYourTeam": "أنشئ فريقك الخاص أو انضم إلى فريق موجود",
-		"hintMessage": "Lorem ipsum dolor sit amet consectetur. Blandit lobortis dui risus neque."
+		"hintMessage": "أنشئ فريقًا وادعُ الأشخاص الذين تعمل معهم."
 	},
 	"settingScreen": {
 		"description": "حسابك وفريقك وطريقة تنظيم مهامه.",
