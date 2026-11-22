@@ -45,6 +45,16 @@ describe('PlanHoursStepper (#5713)', () => {
 		expect(toast.warning).not.toHaveBeenCalled();
 	});
 
+	it('reads back the hours it wrote itself, past ninety-nine', () => {
+		const { field, saved } = renderStepper(100.5);
+		expect(field.value).toBe('100:30');
+
+		typeAndLeave(field, '100:45');
+
+		expect(saved.hours).toBe(100.75);
+		expect(toast.warning).not.toHaveBeenCalled();
+	});
+
 	it('keeps what the person types while they type it', () => {
 		const { field, saved } = renderStepper(8);
 
