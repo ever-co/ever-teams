@@ -20,7 +20,7 @@
  * started with settings that are not its own.
  */
 import { spawn, spawnSync } from 'node:child_process';
-import { openSync } from 'node:fs';
+import { mkdirSync, openSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -75,26 +75,92 @@ const listening = async (port) => {
 	}
 };
 
-if (action === 'down') {
-	const netstat = spawnSync('netstat', ['-ano'], { encoding: 'utf8' });
-	const victims = new Set();
-	for (const line of netstat.stdout.split(/\r?\n/)) {
-		if (!line.includes('LISTENING')) continue;
-		const match = line.match(/:(\d{2,5})\s/);
-		if (match && Object.values(ports).includes(Number(match[1]))) {
-			victims.add(line.trim().split(/\s+/).pop());
+const wantedPorts = Object.values(ports);
+
+/**
+ * Which pids hold this lane's own ports, per platform — and a tool that is not on this machine is *reported*, not
+ * crashed on. The first version read `netstat.stdout.split(...)` without checking the spawn, so on any Linux or
+ * macOS box `down` died with a TypeError instead of saying what it tried. Windows reads `netstat -ano`, Linux
+ * `ss -tlnp`, macOS (and Linux as a fallback) `lsof`, one call per port. A port is still only ever matched against
+ * this lane's own list, so `down` cannot reach another lane or anything else on the machine.
+ */
+const pidsListeningOn = (wanted) => {
+	const pids = new Set();
+	const errors = [];
+	const text = (command, args) => {
+		const run = spawnSync(command, args, { encoding: 'utf8' });
+		if (run.error || run.status !== 0) {
+			errors.push(`${command}: ${run.error?.message ?? `exit ${run.status ?? `signal ${run.signal}`}`}`);
+			return '';
+		}
+		return run.stdout ?? '';
+	};
+
+	if (process.platform === 'win32') {
+		for (const line of text('netstat', ['-ano']).split(/\r?\n/)) {
+			if (!line.includes('LISTENING')) continue;
+			const port = line.match(/:(\d{2,5})\s/);
+			if (port && wanted.includes(Number(port[1]))) pids.add(line.trim().split(/\s+/).pop());
+		}
+		return { pids, errors };
+	}
+
+	if (process.platform === 'linux') {
+		for (const line of text('ss', ['-tlnp']).split(/\r?\n/)) {
+			if (!line.startsWith('LISTEN')) continue;
+			const portsOnLine = [...line.matchAll(/:(\d{2,5})\b/g)].map((match) => Number(match[1]));
+			const pid = line.match(/pid=(\d+)/);
+			if (pid && portsOnLine.some((port) => wanted.includes(port))) pids.add(pid[1]);
+		}
+		if (pids.size > 0) return { pids, errors };
+	}
+
+	for (const port of wanted) {
+		for (const line of text('lsof', ['-nP', `-tiTCP:${port}`, '-sTCP:LISTEN']).split(/\r?\n/)) {
+			if (/^\d+$/.test(line.trim())) pids.add(line.trim());
 		}
 	}
-	if (victims.size === 0) {
-		console.log(`lane ${laneName}: nothing listening on ${Object.values(ports).join(', ')}`);
+	return { pids, errors };
+};
+
+/**
+ * End a process *and what hangs below it*. A lane's servers start with `shell: true`, so the child this script holds
+ * is a shell, and Node documents that signalling a shell does not reliably terminate its descendants: on Windows
+ * `child.kill()` ends `cmd.exe` while the app and the mock keep holding their ports (which is the "down did not
+ * take the lane, the port is still listening" report). Windows gets `taskkill /F /T` — the tree, walked while the
+ * shell is still alive; every other platform gets the process group, because the child is detached below.
+ */
+const killTree = (pid) => {
+	if (typeof pid !== 'number' || !Number.isFinite(pid)) return false;
+	if (process.platform === 'win32') {
+		const run = spawnSync('taskkill', ['/F', '/T', '/PID', String(pid)], { stdio: 'inherit' });
+		return !run.error && run.status === 0;
+	}
+	let killed = false;
+	for (const target of [-pid, pid]) {
+		try {
+			process.kill(target, 'SIGKILL');
+			killed = true;
+		} catch {
+			// No such group, or it is already gone.
+		}
+	}
+	return killed;
+};
+
+if (action === 'down') {
+	const { pids, errors } = pidsListeningOn(wantedPorts);
+	for (const error of errors) console.error(`listener scan: ${error}`);
+	if (pids.size === 0) {
+		console.log(`lane ${laneName}: nothing listening on ${wantedPorts.join(', ')}`);
+		if (errors.length) {
+			console.error('that is only what the scan could read: no listener tool on this machine answered');
+			process.exit(1);
+		}
 		process.exit(0);
 	}
-	console.log(
-		`lane ${laneName}: killing ${[...victims].join(', ')} (only its own ports ${Object.values(ports).join(', ')})`
-	);
-	for (const pid of victims) {
-		spawnSync('taskkill', ['/F', '/T', '/PID', pid], { stdio: 'inherit', shell: true });
-	}
+	console.log(`lane ${laneName}: killing ${[...pids].join(', ')} (only its own ports ${wantedPorts.join(', ')})`);
+	for (const pid of pids) killTree(Number(pid));
 	process.exit(0);
 }
 
@@ -187,6 +253,10 @@ if (action !== 'up') {
  * to look at and never ends up in a commit.
  */
 const serverLog = resolve(CONFIG_DIR, 'artifacts', `lane-${laneName}-server.log`);
+// `openSync(..., 'w')` creates the file and not the folder holding it, so on a checkout that has never run a lane
+// this failed with ENOENT before either server started. `artifacts/` is git-ignored, so it is exactly the folder
+// that is missing on a fresh clone.
+mkdirSync(dirname(serverLog), { recursive: true });
 const serverLogFd = openSync(serverLog, 'w');
 
 const { servers } = laneServers(laneName, { everId: process.env.E2E_EVER_ID === '1' });
@@ -196,20 +266,52 @@ const children = servers.map((server) => {
 		cwd: resolve(CONFIG_DIR, server.cwd),
 		env: { ...process.env, ...server.env },
 		shell: true,
+		// Off Windows this child leads its own process group, which is what `killTree` signals. On Windows the
+		// option does nothing and `taskkill /T` walks the tree instead.
+		detached: process.platform !== 'win32',
 		stdio: ['ignore', serverLogFd, serverLogFd]
 	});
 });
 
-const shutdown = (why, code = 0) => {
+/**
+ * Stop this lane's servers, and mean it: signal each child, wait for it to be gone, and end the whole tree of any
+ * that did not go. Used by Ctrl-C, by SIGTERM, by "a port never answered" and by "this lane is miswired" — the same
+ * cleanup in all four, because a launcher that exits while its app and mock keep their ports leaves the next agent a
+ * server configured for somebody else's run.
+ */
+const shutdown = async (why, code = 0) => {
 	console.log(`stopping (${why})`);
-	for (const child of children) {
-		child.kill('SIGTERM');
+	const gone = children.map(
+		(child) => new Promise((done) => (child.exitCode !== null || child.killed ? done() : child.once('exit', done)))
+	);
+	if (process.platform !== 'win32') {
+		for (const child of children) {
+			try {
+				process.kill(-child.pid, 'SIGTERM');
+			} catch {
+				try {
+					child.kill('SIGTERM');
+				} catch {
+					// Already gone.
+				}
+			}
+		}
+	}
+	const allGone = await Promise.race([Promise.all(gone).then(() => true), sleep(5000).then(() => false)]);
+	if (!allGone || children.some((child) => child.exitCode === null)) {
+		for (const child of children) {
+			if (child.exitCode === null) killTree(child.pid);
+		}
 	}
 	process.exit(code);
 };
 
-process.on('SIGINT', () => shutdown('SIGINT'));
-process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => {
+	void shutdown('SIGINT');
+});
+process.on('SIGTERM', () => {
+	void shutdown('SIGTERM');
+});
 
 const deadline = Date.now() + 25 * 60 * 1000;
 for (const port of [ports.control, ports.app]) {

@@ -642,8 +642,10 @@ cd /e/Coding/ever-teams
 
 # A, B — handlers, verbs, guard families
 # §E.1 — the corrected unguarded-write subtraction (per handler, with alias resolution):
-node C:/Users/Evereq/AppData/Local/Temp/everteams-audit/scan-corrected.cjs
-   # 415 files / 325 write entries / 287 own-guarded / 3 via alias / 35 unguarded in 32 files at 65e928e3e
+node apps/web/playwright/scripts/audit-unguarded-writes.cjs
+   # 415 files / 325 write entries / 287 own-guarded / 3 via alias / 35 unguarded in 32 files — the numbers §E.1 was
+   # written from at 65e928e3e, reproduced by the same script now living in this repo (its own header says what its
+   # guard vocabulary is; run it against the commit you are quoting, because the counts follow the checkout)
 
 find apps/web/app/api -name route.ts | wc -l                                    # 415
 grep -rlo "authenticatedGuard(" apps/web/app/api --include=route.ts | wc -l    # 138
