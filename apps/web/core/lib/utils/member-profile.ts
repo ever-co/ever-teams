@@ -12,3 +12,12 @@ export function hasNoMemberProfile(user: TUser | null | undefined): boolean {
 	const employeeId = user.employee?.id;
 	return !employeeId;
 }
+
+/**
+ * Whether the app treats the signed-in user as in no team for lack of a member profile. Teams a tab already shows stay:
+ * a later read of `/user/me` that misses the employee hides nothing.
+ */
+export function isInNoTeamForLackOfMemberProfile(user: TUser | null | undefined, shownTeamCount: number): boolean {
+	const showsNoTeam = shownTeamCount === 0;
+	return hasNoMemberProfile(user) && showsNoTeam;
+}

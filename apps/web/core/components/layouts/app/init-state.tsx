@@ -13,7 +13,7 @@ import { useStaleTimerGuard, useTimerRunningPastMidnight } from '@/core/hooks/ti
 import { useTimerSessionEndWitness } from '@/core/hooks/timer/use-timer-session-end-witness';
 import { DISABLE_AUTO_REFRESH, TEAM_PRESENCE_REFRESH_INTERVAL } from '@/core/constants/config/constants';
 import { teamDetailRefreshOf } from '@/core/lib/utils/team-detail-refresh';
-import { hasNoMemberProfile } from '@/core/lib/utils/member-profile';
+import { isInNoTeamForLackOfMemberProfile } from '@/core/lib/utils/member-profile';
 import { realtimeStatusAtom } from '@/core/stores/common/realtime';
 import { shellSettledState } from '@/core/stores/common/shell';
 import {
@@ -114,10 +114,9 @@ export function InitState() {
 	});
 	const { activeTeam, teams } = teamOwner;
 	// Without an employee the team list never runs (its organization is the employee's), so nothing would ever say
-	// there is no team. Teams this tab already shows stay: a later read that misses the employee does not hide them.
+	// there is no team
 	const setIsTeamMember = useSetAtom(isTeamMemberState);
-	const hasNoTeamToShow = teams.length === 0;
-	const isInNoTeam = hasNoMemberProfile(user) && hasNoTeamToShow;
+	const isInNoTeam = isInNoTeamForLackOfMemberProfile(user, teams.length);
 	useEffect(() => {
 		if (isInNoTeam) {
 			setIsTeamMember(false);
