@@ -312,7 +312,7 @@
 	},
 	"noTeamScreen": {
 		"createYourTeam": "Създайте свой екип или се присъединете към съществуващ",
-		"hintMessage": "Lorem ipsum dolor sit amet consectetur. Blandit lobortis dui risus neque."
+		"hintMessage": "Създайте екип и поканете хората, с които работите."
 	},
 	"settingScreen": {
 		"description": "Вашият акаунт, вашият екип и как са организирани задачите му.",
@@ -622,6 +622,16 @@
 		},
 		"addLabel": "Добави етикет",
 		"editLabels": "Редактирай етикетите",
-		"rowActions": "Действия за {name}"
+		"rowActions": "Действия за {name}",
+		"dates": {
+			"addDate": "Добави дата",
+			"clear": "Изчисти датата",
+			"today": "Днес",
+			"tomorrow": "Утре",
+			"endOfWeek": "Края на тази седмица",
+			"inOneWeek": "След една седмица",
+			"startAfterDue": "Началната дата трябва да е преди крайния срок.",
+			"dueBeforeStart": "Крайният срок трябва да е след началната дата."
+		}
 	}
 }

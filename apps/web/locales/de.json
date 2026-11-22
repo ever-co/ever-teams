@@ -279,6 +279,7 @@
 		"NO_TEAM": "Erstellen Sie Ihr eigenes Team oder treten Sie einem bestehenden bei",
 		"NO_TEAM_SUB": "Erstellen Sie ein Team und laden Sie die Personen ein, mit denen Sie arbeiten.",
 		"NO_TEAM_TOOLTIP": "Sie müssen Ihre E-Mail-Adresse bestätigen",
+		"NO_MEMBER_PROFILE_MESSAGE": "Teams, Aufgaben und der Timer erscheinen, sobald du in einem Team bist.",
 		"CANCEL": "Abbrechen",
 		"DISCARD": "Verwerfen",
 		"EXISTING_MEMBER": "Bereits Mitglied",
@@ -2809,7 +2810,8 @@
 		"error": {
 			"TITLE": "Fehler",
 			"HEADING_TITLE": "Etwas ist schiefgelaufen",
-			"HEADING_DESCRIPTION": "Wenn das Problem weiterhin besteht, wenden Sie sich an unser Support-Team."
+			"HEADING_DESCRIPTION": "Wenn das Problem weiterhin besteht, wenden Sie sich an unser Support-Team.",
+			"PAGE_NOT_LOADED": "Diese Seite konnte nicht geladen werden"
 		},
 		"maintenance": {
 			"HEADING_TITLE": "Wir führen Wartungsarbeiten durch",
@@ -4281,6 +4283,8 @@
 			"VERIFY_TITLE": "Bestätige deine E-Mail-Adresse",
 			"VERIFY_TEXT": "Wir haben einen Code an {email} gesendet.",
 			"VERIFY_TEXT_GENERIC": "Wir haben einen Code an deine E-Mail-Adresse gesendet.",
+			"VERIFY_TEXT_NOT_SENT": "Sende einen Code an {email}, um zu bestätigen, dass die Adresse dir gehört.",
+			"VERIFY_TEXT_NOT_SENT_GENERIC": "Sende einen Code an deine E-Mail-Adresse, um zu bestätigen, dass sie dir gehört.",
 			"VERIFY_ACTION": "Code eingeben",
 			"VERIFY_RESEND": "Neuen Code senden",
 			"VERIFY_SENDING": "Neuer Code wird gesendet"

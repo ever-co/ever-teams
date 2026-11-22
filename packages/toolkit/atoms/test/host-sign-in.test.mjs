@@ -214,6 +214,17 @@ test('the helpers: a minute before expiry, half of a shorter life, and the organ
 	assert.equal(kit.ownerOfToken('not-a-token'), 'not-a-token', 'unreadable: never taken for the same person');
 });
 
+test('a refused person is told from a signed-out one by the API code their getToken failed with (#5706)', () => {
+	const refused = Object.assign(new Error('This member cannot track time through an embed.'), {
+		code: 'EMBED_MEMBER_NOT_ALLOWED'
+	});
+	assert.equal(kit.isRefusedPerson(refused), true);
+	assert.equal(kit.isRefusedPerson(Object.assign(new Error('refused'), { code: 'EMBED_ORIGIN_NOT_ALLOWED' })), false);
+	assert.equal(kit.isRefusedPerson(new Error('token-url answered 401')), false);
+	assert.equal(kit.isRefusedPerson(null), false);
+	assert.equal(kit.isRefusedPerson('EMBED_MEMBER_NOT_ALLOWED'), false);
+});
+
 test('getToken is called once at start, even under strict mode, and the token stays in memory', async () => {
 	const backend = hostBackend();
 	const { seen, store } = await mount(backend.getToken, { strict: true });
@@ -300,6 +311,38 @@ test('a getToken that fails shows the person as signed out, once, with no reques
 		assert.equal(store.get(kit.hostSessionAtom).status, 'signed-out');
 		assert.deepEqual(paths(), []);
 		assert.equal(warnings.filter((w) => /getToken failed/.test(w)).length, 1);
+	} finally {
+		warn.mock.restore();
+	}
+});
+
+test('a getToken that Ever Teams refused for the person signs out with the refusal, and says so once', async () => {
+	const warnings = [];
+	const warn = mock.method(console, 'warn', (message) => warnings.push(message));
+	try {
+		const refused = Object.assign(new Error('This member cannot track time through an embed.'), {
+			code: 'EMBED_MEMBER_NOT_ALLOWED'
+		});
+		const { seen, store } = await mount(async () => {
+			throw refused;
+		});
+
+		assert.equal(seen.token, '');
+		assert.deepEqual(store.get(kit.hostSessionAtom), { status: 'signed-out', organizationId: null, refused: true });
+		assert.deepEqual(paths(), []);
+		assert.equal(warnings.filter((w) => /getToken failed .*Ever Teams refused this person/.test(w)).length, 1);
+	} finally {
+		warn.mock.restore();
+	}
+});
+
+test('a host that signed the person out keeps the signed-out session, with no refusal', async () => {
+	const warn = mock.method(console, 'warn', () => {});
+	try {
+		const backend = hostBackend({ fails: true });
+		const { store } = await mount(backend.getToken);
+
+		assert.deepEqual(store.get(kit.hostSessionAtom), { status: 'signed-out', organizationId: null, refused: false });
 	} finally {
 		warn.mock.restore();
 	}

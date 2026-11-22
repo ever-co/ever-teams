@@ -1,385 +1,67 @@
-import React, { FC, useRef, useState, useMemo, useCallback, useEffect } from 'react';
-import { TaskSettingAddButton } from '../../../components/task-setting-add-button';
-import { TaskSettingsList } from '../../../components/task-settings-list';
+import React, { FC } from 'react';
 import { observer } from 'mobx-react-lite';
-import {
-  View,
-  Text,
-  ViewStyle,
-  TouchableOpacity,
-  StyleSheet,
-  ActivityIndicator,
-  StatusBar,
-  Keyboard,
-  Animated,
-  Platform
-} from 'react-native';
-import { AntDesign } from '@expo/vector-icons';
-import { Screen } from '../../../components';
+import { RouteProp, useRoute } from '@react-navigation/native';
 import { AuthenticatedDrawerScreenProps } from '../../../navigators/authenticated-navigator';
+import { navigateTo } from '../../../navigators/routes';
 import { translate } from '../../../i18n';
-import { typography, useAppTheme, useWebTheme } from '../../../theme';
-import { sheetLookOf, sheetOverlayOpacity } from '../../../../src/theme/sheet-look';
-import BottomSheet, { BottomSheetBackdrop, BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { useTaskVersion } from '../../../services/hooks/features/use-task-version';
-import { useTaskSettingsAccess } from '../../../services/hooks/features/use-task-settings-access';
-import { readOnlyOpacity } from '../../../helpers/read-only-opacity';
-import { ITaskVersionItemList } from '../../../services/interfaces/ITaskVersion';
+import { TaskSettingsScreen } from '../../../components/task-settings-screen';
 import VersionItem from './components/version-item';
 import TaskVersionForm from './components/task-version-form';
-import { useRoute, RouteProp } from '@react-navigation/native';
-import { navigateTo } from '../../../navigators/routes';
 
-// Create a type for the route params
-type TaskVersionRouteParams = {
-  previousTab?: 1 | 2; // Change to match the expected union type
+type TaskVersionScreenParams = {
+	previousTab?: 1 | 2;
 };
 
-// Properly type the route object
-type TaskVersionRouteProp = RouteProp<{ TaskVersion: TaskVersionRouteParams }, 'TaskVersion'>;
+type TaskVersionScreenRouteProp = RouteProp<{ TaskVersion: TaskVersionScreenParams }, 'TaskVersion'>;
 
-export const TaskVersionScreen: FC<AuthenticatedDrawerScreenProps<'TaskVersion'>> = observer(function AuthenticatedDrawerScreen(
-  _props
-) {
-  const { colors, dark } = useAppTheme();
-  const sheetLook = sheetLookOf(useWebTheme());
-  const { navigation } = _props;
+/** Settings, then the team's task versions, on the shared settings list screen. */
+export const TaskVersionScreen: FC<AuthenticatedDrawerScreenProps<'TaskVersion'>> = observer(
+	function AuthenticatedDrawerScreen({ navigation }) {
+		const route = useRoute<TaskVersionScreenRouteProp>();
+		// back to the Settings tab the screen was opened from, the team's by default
+		const previousTab = route.params?.previousTab || (2 as const);
+		const { isLoading, versions, deleteTaskVersion, updateTaskVersion, createTaskVersion } = useTaskVersion();
 
-  // Use the properly typed route
-  const route = useRoute<TaskVersionRouteProp>();
-
-  // Get the previousTab parameter or default to team tab (2) if not specified
-  // Now previousTab is explicitly typed as 1 | 2
-  const previousTab = route.params?.previousTab || 2 as const;
-
-  const { isLoading, versions, deleteTaskVersion, updateTaskVersion, createTaskVersion } = useTaskVersion();
-  // A version edit also names the active team: this list only holds that team's versions and the shared defaults,
-  // so the row's own team decides, as for the other edits
-  const { canCreate, canWriteRow, readOnlyHint } = useTaskSettingsAccess();
-  const createReadOnly = !canCreate;
-  const createOpacity = readOnlyOpacity(createReadOnly);
-  const versionItems = versions?.items ?? [];
-  const hasReadOnlyVersion = versionItems.some((version) => !canWriteRow(version));
-  const showsReadOnlyHint = createReadOnly || hasReadOnlyVersion;
-
-  const [editMode, setEditMode] = useState(false);
-  const [itemToEdit, setItemToEdit] = useState<ITaskVersionItemList | null>(null);
-  const [bottomSheetVisible, setBottomSheetVisible] = useState(false);
-  const [keyboardVisible, setKeyboardVisible] = useState(false);
-  const [keyboardHeight, setKeyboardHeight] = useState(0);
-
-  const sheetRef = useRef<BottomSheet>(null);
-
-  // Use previous working snapPoints that showed the form correctly
-  const snapPoints = useMemo(() => ['60%'], []);
-
-  // Handle back navigation with the correct tab
-  const handleGoBack = useCallback(() => {
-    navigateTo(navigation, 'Setting', { activeTab: previousTab });
-  }, [navigation, previousTab]);
-
-  const openForEdit = useCallback((item: ITaskVersionItemList) => {
-    setEditMode(true);
-    setItemToEdit(item);
-    setBottomSheetVisible(true);
-
-    // Force immediate update of the sheet position
-    setTimeout(() => {
-      if (sheetRef.current) {
-        sheetRef.current.snapToIndex(0);
-      }
-    }, 150);
-  }, []);
-
-  const handleCreateNew = useCallback(() => {
-    setEditMode(false);
-    setItemToEdit(null);
-    setBottomSheetVisible(true);
-
-    // Force immediate update of the sheet position
-    setTimeout(() => {
-      if (sheetRef.current) {
-        sheetRef.current.snapToIndex(0);
-      }
-    }, 150);
-  }, []);
-
-  const handleClose = useCallback(() => {
-    if (sheetRef.current) {
-      sheetRef.current.close();
-    }
-
-    // Clear state after animation completes
-    setTimeout(() => {
-      setBottomSheetVisible(false);
-      Keyboard.dismiss();
-    }, 250);
-  }, []);
-
-  // Clean up on unmount
-  useEffect(() => {
-    return () => {
-      if (sheetRef.current) {
-        sheetRef.current.close();
-      }
-    };
-  }, []);
-
-  // Keyboard listeners
-  useEffect(() => {
-    const keyboardWillShowListener = Keyboard.addListener(
-      Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
-      (e) => {
-        setKeyboardVisible(true);
-        setKeyboardHeight(e.endCoordinates.height);
-      }
-    );
-
-    const keyboardWillHideListener = Keyboard.addListener(
-      Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
-      () => {
-        setKeyboardVisible(false);
-        setKeyboardHeight(0);
-      }
-    );
-
-    return () => {
-      keyboardWillShowListener.remove();
-      keyboardWillHideListener.remove();
-    };
-  }, []);
-
-  // Backdrop component
-  const renderBackdrop = useCallback(
-    (props) => (
-      <BottomSheetBackdrop
-        {...props}
-        disappearsOnIndex={-1}
-        appearsOnIndex={0}
-        enableTouchThrough={false}
-        pressBehavior="close"
-        opacity={sheetOverlayOpacity}
-      />
-    ),
-    []
-  );
-
-  return (
-    <Screen contentContainerStyle={[$container, { backgroundColor: colors.background2 }]} safeAreaEdges={['top']}>
-      <StatusBar barStyle={dark ? 'light-content' : 'dark-content'} />
-      <Animated.View style={{ flex: 1 }}>
-        <View style={[$headerContainer, { backgroundColor: colors.background }]}>
-          <View style={[styles.container, { backgroundColor: colors.background }]}>
-            <TouchableOpacity
-              accessibilityRole="button"
-              onPress={handleGoBack} // Use our custom handler
-            >
-              <AntDesign name="arrow-left" size={24} color={colors.primary} />
-            </TouchableOpacity>
-            <Text style={[styles.title, { color: colors.primary }]}>
-              {translate('settingScreen.versionScreen.mainTitle')}
-            </Text>
-          </View>
-        </View>
-
-        <View style={{ width: '100%', padding: 20, flex: 1 }}>
-          <View style={styles.listHeaderContainer}>
-            <Text style={styles.title2}>{translate('settingScreen.versionScreen.listOfVersions')}</Text>
-            <TaskSettingAddButton
-              label={translate('settingScreen.versionScreen.createNewVersionButton')}
-              iconSize={18}
-              disabled={createReadOnly}
-              style={{ ...styles.createButtonSmall, opacity: createOpacity }}
-              textStyle={styles.btnTextSmall}
-              onPress={handleCreateNew}
-            />
-          </View>
-          {showsReadOnlyHint && (
-            <Text style={{ ...styles.readOnlyHint, color: colors.tertiary }}>{readOnlyHint}</Text>
-          )}
-
-          <View
-            style={{
-              flex: 1,
-              width: '100%'
-            }}
-          >
-            {isLoading ? <ActivityIndicator size={'small'} color={'#3826A6'} /> : null}
-            {!isLoading && versions?.total === 0 ? (
-              <Text style={{ ...styles.noVersionTxt, color: colors.primary }}>
-                {translate('settingScreen.versionScreen.noActiveVersions')}
-              </Text>
-            ) : null}
-
-            <TaskSettingsList
-              bounces={false}
-              showsVerticalScrollIndicator={false}
-              style={{ width: '100%' }}
-              data={versions?.items}
-              renderItem={({ item }) => (
-                <VersionItem
-                  openForEdit={() => openForEdit(item)}
-                  onDeleteTask={() => deleteTaskVersion(item.id)}
-                  version={item}
-                  readOnly={!canWriteRow(item)}
-                />
-              )}
-              keyExtractor={(_, index) => index.toString()}
-            />
-          </View>
-        </View>
-
-        <TaskSettingAddButton
-          label={translate('settingScreen.versionScreen.createNewVersionButton')}
-          iconSize={24}
-          disabled={createReadOnly}
-          style={{ ...styles.createButton, opacity: createOpacity }}
-          textStyle={styles.btnText}
-          onPress={handleCreateNew}
-        />
-      </Animated.View>
-
-      {/* Bottom Sheet Container */}
-      <View
-        style={[
-          {
-            position: 'absolute',
-            left: 0,
-            right: 0,
-            top: 0,
-            bottom: 0,
-            pointerEvents: bottomSheetVisible ? 'auto' : 'none',
-            zIndex: bottomSheetVisible ? 1000 : -1
-          }
-        ]}
-      >
-        <BottomSheet
-          ref={sheetRef}
-          index={-1}  // Start closed (-1)
-          snapPoints={snapPoints}
-          enablePanDownToClose={true}
-          onClose={handleClose}
-          backdropComponent={renderBackdrop}
-          enableContentPanningGesture={true}
-          keyboardBehavior="extend"
-          keyboardBlurBehavior="none"
-          android_keyboardInputMode="adjustResize"
-          backgroundStyle={sheetLook.background}
-          handleIndicatorStyle={sheetLook.handle}
-        >
-          {/* Keep using BottomSheetScrollView to ensure the form is visible */}
-          <BottomSheetScrollView
-            style={{ backgroundColor: colors.background }}
-            contentContainerStyle={{
-              padding: 16
-            }}
-            keyboardShouldPersistTaps="always"
-            showsVerticalScrollIndicator={false}
-          >
-            {bottomSheetVisible && (
-              <TaskVersionForm
-                item={itemToEdit}
-                onDismiss={handleClose}
-                onUpdateVersion={updateTaskVersion}
-                onCreateVersion={createTaskVersion}
-                isEdit={editMode}
-              />
-            )}
-          </BottomSheetScrollView>
-        </BottomSheet>
-      </View>
-    </Screen>
-  );
-});
-
-const $container: ViewStyle = {
-  flex: 1
-};
-
-const $headerContainer: ViewStyle = {
-  padding: 20,
-  paddingVertical: 16,
-  shadowColor: 'rgba(0, 0, 0, 0.6)',
-  shadowOffset: {
-    width: 0,
-    height: 2
-  },
-  shadowOpacity: 0.07,
-  shadowRadius: 1.0,
-  elevation: 1,
-  zIndex: 10
-};
-
-const styles = StyleSheet.create({
-  btnText: {
-    color: '#3826A6',
-    fontFamily: typography.primary.semiBold,
-    fontSize: 18,
-    fontStyle: 'normal',
-    marginLeft: 8
-  },
-  btnTextSmall: {
-    color: '#3826A6',
-    fontFamily: typography.primary.semiBold,
-    fontSize: 14,
-    fontStyle: 'normal',
-    marginLeft: 4
-  },
-  container: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    width: '100%'
-  },
-  createButton: {
-    alignItems: 'center',
-    alignSelf: 'center',
-    borderColor: '#3826A6',
-    borderRadius: 12,
-    borderWidth: 2,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginBottom: 16,
-    marginTop: 8,
-    padding: 14,
-    width: '90%'
-  },
-  createButtonSmall: {
-    alignItems: 'center',
-    borderColor: '#3826A6',
-    borderRadius: 8,
-    borderWidth: 1,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    padding: 6,
-    paddingHorizontal: 10
-  },
-  listHeaderContainer: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 12,
-    width: '100%'
-  },
-  noVersionTxt: {
-    color: '#7E7991',
-    fontFamily: typography.primary.semiBold,
-    fontSize: 16
-  },
-  readOnlyHint: {
-    fontFamily: typography.primary.medium,
-    fontSize: 14,
-    marginBottom: 12
-  },
-  title: {
-    alignSelf: 'center',
-    fontFamily: typography.primary.semiBold,
-    fontSize: 16,
-    textAlign: 'center',
-    width: '80%'
-  },
-  title2: {
-    color: '#7E7991',
-    fontFamily: typography.primary.semiBold,
-    fontSize: 16
-  }
-});
+		return (
+			<TaskSettingsScreen
+				texts={{
+					title: translate('settingScreen.versionScreen.mainTitle'),
+					listTitle: translate('settingScreen.versionScreen.listOfVersions'),
+					create: translate('settingScreen.versionScreen.createNewVersionButton'),
+					empty: translate('settingScreen.versionScreen.noActiveVersions')
+				}}
+				isLoading={isLoading}
+				items={versions?.items}
+				total={versions?.total}
+				keyOf={(_, index) => index.toString()}
+				onBack={() => navigateTo(navigation, 'Setting', { activeTab: previousTab })}
+				renderRow={(item, row) => (
+					<VersionItem
+						version={item}
+						openForEdit={row.openForEdit}
+						onDeleteTask={() => deleteTaskVersion(item.id)}
+						readOnly={row.readOnly}
+					/>
+				)}
+				renderForm={(form) => (
+					<TaskVersionForm
+						item={form.item ?? undefined}
+						isEdit={form.isEdit}
+						onDismiss={form.onDismiss}
+						onUpdateVersion={updateTaskVersion}
+						onCreateVersion={createTaskVersion}
+					/>
+				)}
+				// the versions form kept its own way with the keyboard, and a list as high as its rows
+				sheet={{
+					keyboardBehavior: 'extend',
+					keyboardBlurBehavior: 'none',
+					keyboardShouldPersistTaps: 'always',
+					contentStyle: { padding: 16 },
+					listGrows: false
+				}}
+			/>
+		);
+	}
+);

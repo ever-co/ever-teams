@@ -312,7 +312,7 @@
 	},
 	"noTeamScreen": {
 		"createYourTeam": "צור צוות משלך או הצטרף לצוות קיים",
-		"hintMessage": "Lorem ipsum dolor sit amet consectetur. Blandit lobortis dui risus neque."
+		"hintMessage": "צור צוות והזמן את האנשים שאתה עובד איתם."
 	},
 	"settingScreen": {
 		"description": "החשבון שלך, הצוות שלך ואופן ארגון המשימות שלו.",
@@ -622,6 +622,16 @@
 		},
 		"addLabel": "הוספת תווית",
 		"editLabels": "עריכת תוויות",
-		"rowActions": "פעולות עבור {name}"
+		"rowActions": "פעולות עבור {name}",
+		"dates": {
+			"addDate": "הוספת תאריך",
+			"clear": "ניקוי התאריך",
+			"today": "היום",
+			"tomorrow": "מחר",
+			"endOfWeek": "סוף השבוע הזה",
+			"inOneWeek": "בעוד שבוע",
+			"startAfterDue": "תאריך ההתחלה חייב להקדים את תאריך היעד.",
+			"dueBeforeStart": "תאריך היעד חייב להיות אחרי תאריך ההתחלה."
+		}
 	}
 }

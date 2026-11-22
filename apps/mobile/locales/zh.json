@@ -312,7 +312,7 @@
 	},
 	"noTeamScreen": {
 		"createYourTeam": "创建您自己的团队或加入已有团队",
-		"hintMessage": "Lorem ipsum dolor sit amet consectetur. Blandit lobortis dui risus neque."
+		"hintMessage": "创建团队，并邀请与你一起工作的人。"
 	},
 	"settingScreen": {
 		"description": "你的账户、你的团队，以及团队任务的组织方式。",
@@ -622,6 +622,16 @@
 		},
 		"addLabel": "添加标签",
 		"editLabels": "编辑标签",
-		"rowActions": "{name} 的操作"
+		"rowActions": "{name} 的操作",
+		"dates": {
+			"addDate": "添加日期",
+			"clear": "清除日期",
+			"today": "今天",
+			"tomorrow": "明天",
+			"endOfWeek": "本周末",
+			"inOneWeek": "一周后",
+			"startAfterDue": "开始日期必须早于截止日期。",
+			"dueBeforeStart": "截止日期必须晚于开始日期。"
+		}
 	}
 }

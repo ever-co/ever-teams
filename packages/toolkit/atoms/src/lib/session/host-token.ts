@@ -10,6 +10,20 @@ export interface KitHostToken {
 
 export type GetKitToken = () => Promise<KitHostToken>;
 
+// The API's code for a person it lets track no time through an embed: no account, time tracking off, or not an active
+// member of the organization (ever-co/ever-teams#5706).
+export const MEMBER_NOT_ALLOWED_CODE = 'EMBED_MEMBER_NOT_ALLOWED';
+
+/**
+ * Whether getToken failed because Ever Teams refused the person, rather than because the host signed them out: the
+ * SDK's EverTeamsForbiddenError of a refused exchange, rethrown, or the element's error for a token-url that answered
+ * 403 with that code.
+ */
+export function isRefusedPerson(error: unknown): boolean {
+	const code = (error as { code?: unknown } | null)?.code;
+	return code === MEMBER_NOT_ALLOWED_CODE;
+}
+
 // A token is asked for again a minute before it expires, or halfway through a shorter life.
 export const REFRESH_LEAD_MS = 60_000;
 // Never sooner than this after the last answer, whatever expiry the host returned.

@@ -311,8 +311,8 @@
 		"closedCount": "{count, plural, other {# Closed}}"
 	},
 	"noTeamScreen": {
-		"createYourTeam": "Create your own team or join existed",
-		"hintMessage": "Lorem ipsum dolor sit amet consectetur. Blandit lobortis dui risus neque."
+		"createYourTeam": "Create your team or join existing",
+		"hintMessage": "Create a team and invite the people you work with."
 	},
 	"settingScreen": {
 		"description": "Your account, your team and how its tasks are organised.",
@@ -622,6 +622,16 @@
 		},
 		"addLabel": "Add label",
 		"editLabels": "Edit labels",
-		"rowActions": "Actions for {name}"
+		"rowActions": "Actions for {name}",
+		"dates": {
+			"addDate": "Add date",
+			"clear": "Clear date",
+			"today": "Today",
+			"tomorrow": "Tomorrow",
+			"endOfWeek": "End of this week",
+			"inOneWeek": "In one week",
+			"startAfterDue": "The start date must come before the due date.",
+			"dueBeforeStart": "The due date must come after the start date."
+		}
 	}
 }

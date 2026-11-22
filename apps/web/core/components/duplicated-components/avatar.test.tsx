@@ -11,7 +11,7 @@
  * The rendered `src` is decoded before asserting so the expectation holds whether next/image emits
  * the raw path or its optimiser URL (`/_next/image?url=...`).
  */
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { Avatar } from './avatar';
 
 jest.mock('jotai', () => ({
@@ -44,5 +44,47 @@ describe('Avatar', () => {
 
 		expect(screen.queryByAltText('Rafael S.')).toBeNull();
 		expect(screen.getByText('R')).toBeTruthy();
+	});
+
+	// An address that no longer answers, or a host the image optimiser refuses, drew the browser's broken-image icon
+	// with the alt text over the circle
+	it('shows the initial instead of a broken image when the image fails to load', () => {
+		render(
+			<Avatar size={32} imageUrl="https://cdn.ever.co/avatars/gone.png" imageTitle="Rafael" alt="Rafael S." />
+		);
+
+		fireEvent.error(screen.getByAltText('Rafael S.'));
+
+		expect(screen.queryByAltText('Rafael S.')).toBeNull();
+		expect(screen.getByText('R')).toBeTruthy();
+	});
+
+	it('shows the fallback it was given when the image fails to load', () => {
+		render(
+			<Avatar
+				size={36}
+				imageUrl="https://cdn.ever.co/avatars/gone.png"
+				alt="Team Avatar"
+				fallback={<span>K</span>}
+			/>
+		);
+
+		fireEvent.error(screen.getByAltText('Team Avatar'));
+
+		expect(screen.queryByAltText('Team Avatar')).toBeNull();
+		expect(screen.getByText('K')).toBeTruthy();
+	});
+
+	it('tries a new address again after an earlier one failed', () => {
+		const { rerender } = render(
+			<Avatar size={32} imageUrl="https://cdn.ever.co/avatars/gone.png" imageTitle="Rafael" alt="Rafael S." />
+		);
+		fireEvent.error(screen.getByAltText('Rafael S.'));
+
+		rerender(
+			<Avatar size={32} imageUrl="https://cdn.ever.co/avatars/new.png" imageTitle="Rafael" alt="Rafael S." />
+		);
+
+		expect(decodedSrc('Rafael S.')).toContain('https://cdn.ever.co/avatars/new.png');
 	});
 });

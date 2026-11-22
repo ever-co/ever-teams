@@ -1,386 +1,59 @@
-/* eslint-disable react-native/no-color-literals */
-/* eslint-disable react-native/no-inline-styles */
-import React, { FC, useState, useRef, useMemo, useCallback, useEffect } from 'react';
-import { TaskSettingAddButton } from '../../../components/task-setting-add-button';
-import { TaskSettingsList } from '../../../components/task-settings-list';
+import React, { FC } from 'react';
 import { observer } from 'mobx-react-lite';
-import {
-  View,
-  Text,
-  ViewStyle,
-  TouchableOpacity,
-  StyleSheet,
-  StatusBar,
-  Keyboard,
-  Animated,
-  Platform
-} from 'react-native';
-import { AntDesign } from '@expo/vector-icons';
-import { Screen } from '../../../components';
+import { RouteProp, useRoute } from '@react-navigation/native';
 import { AuthenticatedDrawerScreenProps } from '../../../navigators/authenticated-navigator';
-import { translate } from '../../../i18n';
-import BottomSheet, { BottomSheetBackdrop, BottomSheetScrollView } from '@gorhom/bottom-sheet';
-import { typography, useAppTheme, useWebTheme } from '../../../theme';
-import { sheetLookOf, sheetOverlayOpacity } from '../../../../src/theme/sheet-look';
-import { ActivityIndicator } from 'react-native-paper';
-import { ITaskStatusItem } from '../../../services/interfaces/ITaskStatus';
-import TaskSizeForm from './components/task-size-form';
-import SizeItem from './components/size-item';
-import { useTaskSizes } from '../../../services/hooks/features/use-task-sizes';
-import { useTaskSettingsAccess } from '../../../services/hooks/features/use-task-settings-access';
-import { readOnlyOpacity } from '../../../helpers/read-only-opacity';
-import { useRoute, RouteProp } from '@react-navigation/native';
 import { navigateTo } from '../../../navigators/routes';
-// import { ITaskSizeItem } from '../../../services/interfaces/ITaskSize';
+import { translate } from '../../../i18n';
+import { useTaskSizes } from '../../../services/hooks/features/use-task-sizes';
+import { TaskSettingsScreen } from '../../../components/task-settings-screen';
+import SizeItem from './components/size-item';
+import TaskSizeForm from './components/task-size-form';
 
-// Create a type for the route params
-type TaskSizeRouteParams = {
-  previousTab?: 1 | 2; // Explicitly type as 1 | 2 union type
+type TaskSizeScreenParams = {
+	previousTab?: 1 | 2;
 };
 
-// Properly type the route object
-type TaskSizeRouteProp = RouteProp<{ TaskSizeScreen: TaskSizeRouteParams }, 'TaskSizeScreen'>;
+type TaskSizeScreenRouteProp = RouteProp<{ TaskSizeScreen: TaskSizeScreenParams }, 'TaskSizeScreen'>;
 
-export const TaskSizeScreen: FC<AuthenticatedDrawerScreenProps<'TaskSizeScreen'>> = observer(function AuthenticatedDrawerScreen(
-  _props
-) {
-  const { colors, dark } = useAppTheme();
-  const sheetLook = sheetLookOf(useWebTheme());
-  const { navigation } = _props;
+/** Settings, then the team's task sizes, on the shared settings list screen. */
+export const TaskSizeScreen: FC<AuthenticatedDrawerScreenProps<'TaskSizeScreen'>> = observer(
+	function AuthenticatedDrawerScreen({ navigation }) {
+		const route = useRoute<TaskSizeScreenRouteProp>();
+		// back to the Settings tab the screen was opened from, the team's by default
+		const previousTab = route.params?.previousTab || (2 as const);
+		const { isLoading, sizes, deleteSize, updateSize, createSize } = useTaskSizes();
 
-  // Use the properly typed route
-  const route = useRoute<TaskSizeRouteProp>();
-
-  // Get the previousTab parameter with type assertion
-  const previousTab = route.params?.previousTab || 2 as const;
-
-  // Handle back navigation with correct tab
-  const handleGoBack = useCallback(() => {
-    navigateTo(navigation, 'Setting', { activeTab: previousTab });
-  }, [navigation, previousTab]);
-
-  const { isLoading, sizes, deleteSize, updateSize, createSize } = useTaskSizes();
-  const { canCreate, canWriteRow, readOnlyHint } = useTaskSettingsAccess();
-  const createReadOnly = !canCreate;
-  const createOpacity = readOnlyOpacity(createReadOnly);
-  const sizeItems = sizes?.items ?? [];
-  const hasReadOnlySize = sizeItems.some((size) => !canWriteRow(size));
-  const showsReadOnlyHint = createReadOnly || hasReadOnlySize;
-  const [editMode, setEditMode] = useState(false);
-  const [itemToEdit, setItemToEdit] = useState<ITaskStatusItem | null>(null);
-  const [bottomSheetVisible, setBottomSheetVisible] = useState(false);
-  const [keyboardVisible, setKeyboardVisible] = useState(false);
-  const [keyboardHeight, setKeyboardHeight] = useState(0);
-
-  // ref
-  const sheetRef = useRef<BottomSheet>(null);
-
-  // Define snap points with only one snap point at 60%
-  const snapPoints = useMemo(() => ['60%'], []);
-
-  const openForEdit = useCallback((item: ITaskStatusItem) => {
-    setEditMode(true);
-    setItemToEdit(item);
-    setBottomSheetVisible(true);
-
-    // Force immediate update of the sheet position
-    setTimeout(() => {
-      if (sheetRef.current) {
-        sheetRef.current.snapToIndex(0);
-      }
-    }, 150);
-  }, []);
-
-  const handleCreateNew = useCallback(() => {
-    setEditMode(false);
-    setItemToEdit(null);
-    setBottomSheetVisible(true);
-
-    // Force immediate update of the sheet position
-    setTimeout(() => {
-      if (sheetRef.current) {
-        sheetRef.current.snapToIndex(0);
-      }
-    }, 150);
-  }, []);
-
-  const handleClose = useCallback(() => {
-    // Close the sheet first
-    if (sheetRef.current) {
-      sheetRef.current.close();
-    }
-
-    // Clear state after animation completes
-    setTimeout(() => {
-      setBottomSheetVisible(false);
-      Keyboard.dismiss();
-    }, 250);
-  }, []);
-
-  // Clean up on unmount
-  useEffect(() => {
-    return () => {
-      if (sheetRef.current) {
-        sheetRef.current.close();
-      }
-    };
-  }, []);
-
-  // Keyboard listeners
-  useEffect(() => {
-    const keyboardWillShowListener = Keyboard.addListener(
-      Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
-      (e) => {
-        setKeyboardVisible(true);
-        setKeyboardHeight(e.endCoordinates.height);
-      }
-    );
-
-    const keyboardWillHideListener = Keyboard.addListener(
-      Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
-      () => {
-        setKeyboardVisible(false);
-        setKeyboardHeight(0);
-      }
-    );
-
-    return () => {
-      keyboardWillShowListener.remove();
-      keyboardWillHideListener.remove();
-    };
-  }, []);
-
-  // Backdrop component
-  const renderBackdrop = useCallback(
-    (props) => (
-      <BottomSheetBackdrop
-        {...props}
-        disappearsOnIndex={-1}
-        appearsOnIndex={0}
-        enableTouchThrough={false}
-        pressBehavior="close"
-        opacity={sheetOverlayOpacity}
-      />
-    ),
-    []
-  );
-
-  return (
-    <Screen contentContainerStyle={[$container, { backgroundColor: colors.background2 }]} safeAreaEdges={['top']}>
-      <StatusBar barStyle={dark ? 'light-content' : 'dark-content'} />
-      <Animated.View style={{ flex: 1 }}>
-        <View style={[$headerContainer, { backgroundColor: colors.background }]}>
-          <View style={[styles.container, { backgroundColor: colors.background }]}>
-            <TouchableOpacity
-              accessibilityRole="button"
-              onPress={handleGoBack} // Use our custom handler for back navigation
-            >
-              <AntDesign name="arrow-left" size={24} color={colors.primary} />
-            </TouchableOpacity>
-            <Text style={[styles.title, { color: colors.primary }]}>
-              {translate('settingScreen.sizeScreen.mainTitle')}
-            </Text>
-          </View>
-        </View>
-
-        <View style={{ width: '100%', padding: 20, flex: 1 }}>
-          <View style={styles.listHeaderContainer}>
-            <Text style={styles.title2}>{translate('settingScreen.sizeScreen.listSizes')}</Text>
-            <TaskSettingAddButton
-              label={translate('settingScreen.sizeScreen.createSizeButton')}
-              iconSize={18}
-              disabled={createReadOnly}
-              style={{ ...styles.createButtonSmall, opacity: createOpacity }}
-              textStyle={styles.btnTextSmall}
-              onPress={handleCreateNew}
-            />
-          </View>
-          {showsReadOnlyHint && (
-            <Text style={{ ...styles.readOnlyHint, color: colors.tertiary }}>{readOnlyHint}</Text>
-          )}
-
-          <View
-            style={{
-              flex: 1,
-              width: '100%'
-            }}
-          >
-            {isLoading ? <ActivityIndicator size={'small'} color={'#3826A6'} /> : null}
-            {!isLoading && sizes?.total === 0 ? (
-              <Text style={{ ...styles.noStatusTxt, color: colors.primary }}>
-                {translate('settingScreen.sizeScreen.noActiveSizes')}
-              </Text>
-            ) : null}
-
-            <TaskSettingsList
-              bounces={false}
-              showsVerticalScrollIndicator={false}
-              style={{ width: '100%' }}
-              contentContainerStyle={{ flexGrow: 1 }}
-              data={sizes?.items}
-              renderItem={({ item }) => (
-                <SizeItem
-                  openForEdit={() => openForEdit(item)}
-                  onDeleteSize={() => deleteSize(item.id)}
-                  size={item}
-                  readOnly={!canWriteRow(item)}
-                />
-              )}
-              keyExtractor={(_, index) => index.toString()}
-            />
-          </View>
-        </View>
-
-        <TaskSettingAddButton
-          label={translate('settingScreen.sizeScreen.createSizeButton')}
-          iconSize={24}
-          disabled={createReadOnly}
-          style={{ ...styles.createButton, opacity: createOpacity }}
-          textStyle={styles.btnText}
-          onPress={handleCreateNew}
-        />
-      </Animated.View>
-
-      {/* Bottom Sheet Container */}
-      <View
-        style={[
-          {
-            position: 'absolute',
-            left: 0,
-            right: 0,
-            top: 0,
-            bottom: 0,
-            pointerEvents: bottomSheetVisible ? 'auto' : 'none',
-            zIndex: bottomSheetVisible ? 1000 : -1
-          }
-        ]}
-      >
-        <BottomSheet
-          ref={sheetRef}
-          index={-1}  // Start fully closed
-          snapPoints={snapPoints}
-          enablePanDownToClose={true}
-          onClose={handleClose}
-          backdropComponent={renderBackdrop}
-          enableContentPanningGesture={true}
-          keyboardBehavior="interactive"
-          keyboardBlurBehavior="restore"
-          android_keyboardInputMode="adjustResize"
-          backgroundStyle={sheetLook.background}
-          handleIndicatorStyle={sheetLook.handle}
-        >
-          <BottomSheetScrollView
-            style={{ backgroundColor: colors.background }}
-            contentContainerStyle={{
-              flexGrow: 1
-            }}
-            keyboardShouldPersistTaps="handled"
-            showsVerticalScrollIndicator={false}
-          >
-            {bottomSheetVisible && (
-              <TaskSizeForm
-                item={itemToEdit}
-                onDismiss={handleClose}
-                onUpdateSize={updateSize}
-                onCreateSize={createSize}
-                isEdit={editMode}
-              />
-            )}
-          </BottomSheetScrollView>
-        </BottomSheet>
-      </View>
-    </Screen>
-  );
-});
-
-const $container: ViewStyle = {
-  flex: 1
-};
-
-const $headerContainer: ViewStyle = {
-  padding: 20,
-  paddingVertical: 16,
-  shadowColor: 'rgba(0, 0, 0, 0.6)',
-  shadowOffset: {
-    width: 0,
-    height: 2
-  },
-  shadowOpacity: 0.07,
-  shadowRadius: 1.0,
-  elevation: 1,
-  zIndex: 10
-};
-
-const styles = StyleSheet.create({
-  btnText: {
-    color: '#3826A6',
-    fontFamily: typography.primary.semiBold,
-    fontSize: 18,
-    fontStyle: 'normal',
-    marginLeft: 8
-  },
-  btnTextSmall: {
-    color: '#3826A6',
-    fontFamily: typography.primary.semiBold,
-    fontSize: 14,
-    fontStyle: 'normal',
-    marginLeft: 4
-  },
-  container: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    width: '100%'
-  },
-  createButton: {
-    alignItems: 'center',
-    alignSelf: 'center',
-    borderColor: '#3826A6',
-    borderRadius: 12,
-    borderWidth: 2,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginBottom: 16,
-    marginTop: 8,
-    padding: 14,
-    width: '90%'
-  },
-  createButtonSmall: {
-    alignItems: 'center',
-    borderColor: '#3826A6',
-    borderRadius: 8,
-    borderWidth: 1,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    padding: 6,
-    paddingHorizontal: 10
-  },
-  listHeaderContainer: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 12,
-    width: '100%'
-  },
-  noStatusTxt: {
-    color: '#7E7991',
-    fontFamily: typography.primary.semiBold,
-    fontSize: 16
-  },
-  readOnlyHint: {
-    fontFamily: typography.primary.medium,
-    fontSize: 14,
-    marginBottom: 12
-  },
-  title: {
-    alignSelf: 'center',
-    fontFamily: typography.primary.semiBold,
-    fontSize: 16,
-    textAlign: 'center',
-    width: '80%'
-  },
-  title2: {
-    color: '#7E7991',
-    fontFamily: typography.primary.semiBold,
-    fontSize: 16
-  }
-});
+		return (
+			<TaskSettingsScreen
+				texts={{
+					title: translate('settingScreen.sizeScreen.mainTitle'),
+					listTitle: translate('settingScreen.sizeScreen.listSizes'),
+					create: translate('settingScreen.sizeScreen.createSizeButton'),
+					empty: translate('settingScreen.sizeScreen.noActiveSizes')
+				}}
+				isLoading={isLoading}
+				items={sizes?.items}
+				total={sizes?.total}
+				keyOf={(_, index) => index.toString()}
+				onBack={() => navigateTo(navigation, 'Setting', { activeTab: previousTab })}
+				renderRow={(item, row) => (
+					<SizeItem
+						size={item}
+						openForEdit={row.openForEdit}
+						onDeleteSize={() => deleteSize(item.id)}
+						readOnly={row.readOnly}
+					/>
+				)}
+				renderForm={(form) => (
+					<TaskSizeForm
+						item={form.item ?? undefined}
+						isEdit={form.isEdit}
+						onDismiss={form.onDismiss}
+						onUpdateSize={updateSize}
+						onCreateSize={createSize}
+					/>
+				)}
+			/>
+		);
+	}
+);

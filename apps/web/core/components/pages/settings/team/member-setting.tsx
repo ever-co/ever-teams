@@ -9,6 +9,7 @@ import { InputField } from '@/core/components/duplicated-components/_input';
 import { activeTeamState } from '@/core/stores';
 import { useAtomValue } from 'jotai';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { useIsEmailVerificationSatisfied } from '@/core/hooks/auth/use-email-verification-status';
 import { LIST_SURFACE_CLASS } from '@/core/components/teams/list-surface';
 
 export const MemberSetting = () => {
@@ -18,6 +19,7 @@ export const MemberSetting = () => {
 	const [filterString, setFilterString] = useState<string>('');
 
 	const { data: user } = useUserQuery();
+	const meetsEmailVerification = useIsEmailVerificationSatisfied(user);
 	const { isOpen, closeModal } = useModal();
 
 	const members = useMemo(() => {
@@ -90,7 +92,7 @@ export const MemberSetting = () => {
 				</div>
 			</div> */}
 
-			<InviteFormModal open={isOpen && !!user?.isEmailVerified} closeModal={closeModal} />
+			<InviteFormModal open={isOpen && meetsEmailVerification} closeModal={closeModal} />
 		</div>
 	);
 };

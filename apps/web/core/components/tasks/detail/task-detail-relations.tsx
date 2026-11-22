@@ -9,6 +9,7 @@ import { TaskPropertyMenu, type TaskPropertyMenuOption } from '@/core/components
 import { useLiveTaskId } from '@/core/hooks/tasks/use-live-task-id';
 import { useTaskRelations } from '@/core/hooks/tasks/use-task-relations';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { useIsEmailVerificationSatisfied } from '@/core/hooks/auth/use-email-verification-status';
 import { cn } from '@/core/lib/helpers';
 import { relationCandidatesOf } from '@/core/lib/utils/task-detail';
 import { tasksByTeamState } from '@/core/stores';
@@ -151,7 +152,7 @@ export function TaskDetailRelations({ task }: Readonly<{ task: TTask }>) {
 	const count = linkCountOf(groups);
 	const hasLinks = count > 0;
 	const addLabel = t('taskDrawer.ADD_RELATED_ISSUE');
-	const canCreate = Boolean(user?.isEmailVerified);
+	const canCreate = useIsEmailVerificationSatisfied(user);
 	let onCreate: ((title: string) => void) | undefined;
 	if (canCreate) {
 		onCreate = (title) => void createAndLink(title);

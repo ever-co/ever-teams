@@ -44,6 +44,7 @@ jest.mock('@/core/hooks/common/use-detect-os', () => ({ useDetectOS: () => ({ os
 jest.mock('../../../../hooks/auth', () => ({
 	useAuthenticateUser: () => ({ user: { id: 'user-1', name: 'User', isEmailVerified: true } })
 }));
+jest.mock('@/core/hooks/auth/use-email-verification-status', () => ({ useIsEmailVerificationSatisfied: () => true }));
 jest.mock('../../../../hooks', () => ({
 	useModal: () => ({ isOpen: false, openModal: jest.fn(), closeModal: jest.fn() })
 }));
