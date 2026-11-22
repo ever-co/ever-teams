@@ -190,3 +190,32 @@ test('too many codes say to wait', async () => {
 
 	assert.equal(form.twoFactor.error, 'AUTH.two_factor_too_many');
 });
+
+test('Back while a code is checked drops its answer: no sign-in from the step the person left', async () => {
+	let answer;
+	const held = new Promise((resolve) => {
+		answer = resolve;
+	});
+	await signInWithPassword(apiAskingForACode({ expiresAt: IN_FIVE_MINUTES(), verify: () => held }));
+
+	await act(async () => form.twoFactor.handleCodeChange(typed('123456')));
+	let checking;
+	await act(async () => {
+		checking = form.twoFactor.handleCodeSubmit(submitted);
+	});
+	await act(async () => form.backToPassword());
+	await act(async () => {
+		answer(json(200, SESSION));
+		await checking;
+	});
+
+	assert.equal(form.twoFactor, null);
+	assert.equal(form.loading, false);
+	const verify = sent.find((request) => request.path === '/auth/two-factor/verify');
+	const afterVerify = sent.slice(sent.indexOf(verify) + 1);
+	assert.equal(
+		afterVerify.some((request) => request.authorization === 'Bearer token-1'),
+		false,
+		'the session of the abandoned check is not used'
+	);
+});

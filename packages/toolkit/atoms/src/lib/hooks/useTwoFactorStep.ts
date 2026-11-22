@@ -62,18 +62,24 @@ export function useTwoFactorStep({ api, onSignedIn }: UseTwoFactorStepParams) {
 	const [error, setError] = useState<string | undefined>(undefined);
 	// Counts the edits: a failure that comes back after an edit is not shown, as in the password step.
 	const edits = useRef(0);
+	// Counts the steps opened and closed: the answer of a step left meanwhile (Back, a new sign-in) is dropped.
+	const steps = useRef(0);
 
 	const open = (next: TwoFactorChallenge) => {
+		steps.current += 1;
 		setChallenge(next);
 		setCode('');
 		setUsesRecoveryCode(false);
 		setError(undefined);
+		setLoading(false);
 	};
 
 	const close = () => {
+		steps.current += 1;
 		setChallenge(null);
 		setCode('');
 		setError(undefined);
+		setLoading(false);
 	};
 
 	const handleCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -123,19 +129,24 @@ export function useTwoFactorStep({ api, onSignedIn }: UseTwoFactorStepParams) {
 			return;
 		}
 		const editsAtSubmit = edits.current;
+		const stepAtSubmit = steps.current;
 		setLoading(true);
 		setError(undefined);
 		const proof = proofOf(code, usesRecoveryCode);
 		const answer = await authVerifyTwoFactor({ challenge: challenge.challenge, ...proof }, api);
+		const isStepLeft = steps.current !== stepAtSubmit;
+		if (isStepLeft) {
+			return;
+		}
 		const isSession = 'token' in answer;
 		if (isSession) {
-			setLoading(false);
 			close();
 			onSignedIn(answer);
 			return;
 		}
 		const message = await failureMessage(answer);
-		if (edits.current === editsAtSubmit) {
+		const isStillShown = steps.current === stepAtSubmit && edits.current === editsAtSubmit;
+		if (isStillShown) {
 			setError(message);
 		}
 		setLoading(false);
