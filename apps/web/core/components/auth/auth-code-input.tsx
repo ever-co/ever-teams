@@ -181,6 +181,17 @@ export const AuthCodeInputField = forwardRef<AuthCodeRef, AuthCodeProps>(
 					target.value = '';
 				}
 				sendResult();
+				return;
+			}
+			// A box selects its character on focus, and typing that same character over it changes nothing, so no change
+			// event moves the focus on: a code retyped from the first box stayed in the first box (#5681)
+			const usesShortcut = e.ctrlKey || e.metaKey || e.altKey;
+			const isSameCharacter = key.length === 1 && target.value !== '' && key.toUpperCase() === target.value;
+			if (isSameCharacter && !usesShortcut) {
+				e.preventDefault();
+				const nextBox = target.nextElementSibling as HTMLInputElement | null;
+				nextBox?.focus();
+				sendResult();
 			}
 		};
 
