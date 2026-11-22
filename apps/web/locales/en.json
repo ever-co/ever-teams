@@ -304,6 +304,7 @@
 		"NO_TEAM": "Create your team or join existing",
 		"NO_TEAM_SUB": "Create a team and invite the people you work with.",
 		"NO_TEAM_TOOLTIP": "You need to verify your email address",
+		"NO_MEMBER_PROFILE_MESSAGE": "Teams, tasks and the timer show up once you are in a team. Ask an admin to add you to one.",
 		"CANCEL": "Cancel",
 		"DISCARD": "Discard",
 		"EXISTING_MEMBER": "Already a member",
