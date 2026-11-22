@@ -36,6 +36,11 @@ describe('isEmailVerificationSatisfied', () => {
 		expect(isEmailVerificationSatisfied(UNVERIFIED, NOT_KNOWN)).toBe(false);
 	});
 
+	it('lets an address the API says was verified meanwhile through, before the user is read again', () => {
+		const verifiedMeanwhile = { isEmailVerified: true, verificationEmailSent: false };
+		expect(isEmailVerificationSatisfied(UNVERIFIED, verifiedMeanwhile)).toBe(true);
+	});
+
 	it('lets nobody through before the user is known', () => {
 		expect(isEmailVerificationSatisfied(null, SWITCHED_OFF)).toBe(false);
 		expect(isEmailVerificationSatisfied(undefined, SWITCHED_OFF)).toBe(false);

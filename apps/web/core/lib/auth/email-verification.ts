@@ -12,7 +12,8 @@ type VerifiableUser = Pick<TUser, 'isEmailVerified'> | null | undefined;
 /**
  * Whether the person may use what the app keeps for a verified address (inviting, creating a team, a project or a
  * task, tracking time): their address is verified, or the deployment verifies no address. Until the API has said
- * which, an unverified address keeps them waiting, as it always has.
+ * which, an unverified address keeps them waiting, as it always has. The status is read after the user, so it also
+ * lets through an address verified meanwhile (in another browser) before the user is read again.
  */
 export function isEmailVerificationSatisfied(user: VerifiableUser, state: EmailVerificationState): boolean {
 	if (!user) {
@@ -21,8 +22,11 @@ export function isEmailVerificationSatisfied(user: VerifiableUser, state: EmailV
 	if (user.isEmailVerified) {
 		return true;
 	}
+	if (state === null) {
+		return true;
+	}
 
-	return state === null;
+	return state?.isEmailVerified === true;
 }
 
 /**
