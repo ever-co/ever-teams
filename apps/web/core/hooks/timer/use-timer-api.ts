@@ -20,6 +20,7 @@ import { taskOnStartProject, timerStartProjectId } from '@/core/lib/helpers/team
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
 import { isSessionEnding } from '@/core/lib/auth/handle-unauthorized';
 import {
+	isNothingToStopRefusal,
 	isTrackingOffRefusal,
 	requiredTrackingFieldsMessageKeyOf,
 	requiredTrackingFieldsOf
@@ -31,7 +32,6 @@ import { notesForStartOf } from '@/core/lib/utils/timer/timer-start-notes';
 import { startTaskOf } from '@/core/lib/utils/timer/timer-start-task';
 import { labelSavesLanded, statusKeepingSavedLabels } from '@/core/lib/utils/timer-status-labels';
 import { queryKeys } from '@/core/query/keys';
-import { ApiErrorService } from '@/core/services/client/api-error.service';
 import { timerService } from '@/core/services/client/api/timers';
 import {
 	activeTeamIdState,
@@ -380,7 +380,7 @@ export function useTimerApi({
 			} catch (error) {
 				// 406 means Gauzy has no running timer left: a previous attempt whose response was lost,
 				// or another device, already stopped it. Report the real status instead of a failure.
-				if (ApiErrorService.isApiError(error) && error.hasHttpResponseStatus(406)) {
+				if (isNothingToStopRefusal(error)) {
 					return { ...(await timerService.getTimerStatus()), alreadyStopped: true };
 				}
 				// The proxy route turns Gauzy's 406 into a 500: the stop only failed if the timer still runs.
