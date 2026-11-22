@@ -19,8 +19,8 @@ import { formatOwed } from '@/core/lib/utils/dashboards/payments-due';
 import { downloadBlob } from '@/core/lib/utils/dashboard-export';
 import { errorStatusOf } from '@/core/lib/utils/error-feedback';
 import { invoiceNumberTextOf, invoicePdfFileNameOf } from '@/core/lib/utils/invoice-labels';
-import { todayDayKey } from '@/core/lib/utils/invoices';
 import { PAID_RETURN_QUERY, paymentReturnUrlOf } from '@/core/lib/utils/shared-invoice';
+import { sharedInvoiceDaysOf } from '@/core/lib/utils/shared-invoice-days';
 import { sharedInvoiceService } from '@/core/services/client/api/public/shared-invoice.service';
 import type { TSharedInvoice } from '@/core/types/schemas/organization/shared-invoice.schema';
 
@@ -207,8 +207,6 @@ function SharedInvoiceView({ id, token, isReturn }: Readonly<{ id: string; token
 	const locale = useLocale();
 	const { invoice, payOption } = useSharedInvoice(id, token, isReturn);
 	const isConfirmingPayment = useIsConfirmingPayment(isReturn);
-	const timeZone = null;
-	const todayKey = todayDayKey(timeZone);
 
 	if (invoice.isPending) {
 		return <SharedInvoiceLoading />;
@@ -235,6 +233,7 @@ function SharedInvoiceView({ id, token, isReturn }: Readonly<{ id: string; token
 	}
 
 	const shown = invoice.data;
+	const days = sharedInvoiceDaysOf(shown);
 	const numberText = invoiceNumberTextOf(shown);
 	const senderName = senderNameOf(shown);
 	const isPaid = PAID_STATUSES.has(shown.status ?? '');
@@ -262,7 +261,12 @@ function SharedInvoiceView({ id, token, isReturn }: Readonly<{ id: string; token
 								? t('invoices.detail.HEADING', { number: numberText })
 								: t('invoices.detail.PAPER_TITLE')}
 						</h1>
-						<InvoiceStandingLabel invoice={shown} todayKey={todayKey} timeZone={timeZone} variant="badge" />
+						<InvoiceStandingLabel
+							invoice={days.invoice}
+							todayKey={days.todayKey}
+							timeZone={days.timeZone}
+							variant="badge"
+						/>
 					</div>
 					{senderName && (
 						<p className="text-[13px] text-muted-foreground">
@@ -305,11 +309,11 @@ function SharedInvoiceView({ id, token, isReturn }: Readonly<{ id: string; token
 				/>
 			)}
 			<InvoiceDetailPaper
-				invoice={shown}
+				invoice={days.invoice}
 				senderName={senderName}
 				clientName={shown.toContact?.name?.trim() || ''}
 				numberText={numberText}
-				timeZone={timeZone}
+				timeZone={days.timeZone}
 			/>
 		</SharedInvoiceFrame>
 	);
