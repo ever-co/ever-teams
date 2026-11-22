@@ -43,7 +43,9 @@ import {
 	totalDurationOf
 } from '@/core/lib/utils/dashboards/timesheets';
 import { breakSecondsOf, isBreakLog } from '@/core/lib/utils/timer/timer-break';
+import { isMembershipInEffect } from '@/core/lib/helpers/timesheet-review';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
+import type { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import type { SheetEditingSource } from './use-sheet-editing';
 import { useWorkspaceLocale } from '@/core/hooks/common/use-workspace-locale';
 import { useWorkspaceWeekPeriod } from '@/core/hooks/common/use-workspace-week-period';
@@ -62,6 +64,8 @@ type PageFilterSelection = Record<PageFilterField, string[]>;
 const EMPTY_FILTERS: PageFilterSelection = { members: [], projects: [], tasks: [] };
 
 const NO_LOGS: ITimeLog[] = [];
+
+const NO_TEAM_MEMBERS: TOrganizationTeamEmployee[] = [];
 
 const VIEW_STORAGE_KEY = 'timesheets-view';
 
@@ -95,14 +99,49 @@ function viewOf(stored: string): TimesheetView {
 	return 'sheet';
 }
 
-function scopeEmployeeIdsOf(isManage: boolean, pickedMembers: string[], ownEmployeeId: string | null): string[] {
-	if (isManage) {
-		return pickedMembers;
-	}
+interface EmployeeScope {
+	hasOrganizationRole: boolean;
+	isTeamManager: boolean;
+	pickedMembers: string[];
+	teamMembers: ReadonlyArray<TOrganizationTeamEmployee>;
+	ownEmployeeId: string | null;
+}
+
+function ownScopeOf(ownEmployeeId: string | null): string[] {
 	if (ownEmployeeId) {
 		return [ownEmployeeId];
 	}
 	return [];
+}
+
+/** The employees of the team's memberships in effect, the manager's own included, each once. */
+function teamMemberIdsInEffectOf(teamMembers: ReadonlyArray<TOrganizationTeamEmployee>): string[] {
+	const employeeIds = new Set<string>();
+	for (const member of teamMembers) {
+		const employeeId = member.employeeId ?? member.employee?.id;
+		if (employeeId && isMembershipInEffect(member)) {
+			employeeIds.add(employeeId);
+		}
+	}
+	return [...employeeIds];
+}
+
+/**
+ * Whose time the page asks for. An organization role sends the members picked, or none to read everyone it may see.
+ * Gauzy gives a team manager without one the time of other members only when the request names them and the
+ * manager manages every one (#5622), so until members are picked the page names those of the active team. Anyone
+ * else asks for their own time.
+ */
+function scopeEmployeeIdsOf(scope: EmployeeScope): string[] {
+	const isManage = scope.hasOrganizationRole || scope.isTeamManager;
+	if (!isManage) {
+		return ownScopeOf(scope.ownEmployeeId);
+	}
+	const hasPickedMembers = scope.pickedMembers.length > 0;
+	if (hasPickedMembers || scope.hasOrganizationRole) {
+		return scope.pickedMembers;
+	}
+	return teamMemberIdsInEffectOf(scope.teamMembers);
 }
 
 /** Today, as the old page opened, or the week or month around it when the page opens on the sheet or a calendar. */
@@ -177,9 +216,17 @@ export function useTimesheetsPage() {
 		[canApprove, hasOrganizationRole, isManage, ownEmployeeId, userId]
 	);
 
+	const teamMembers = activeTeam?.members ?? NO_TEAM_MEMBERS;
 	const employeeIds = useMemo(
-		() => scopeEmployeeIdsOf(isManage, filters.members, ownEmployeeId),
-		[filters.members, isManage, ownEmployeeId]
+		() =>
+			scopeEmployeeIdsOf({
+				hasOrganizationRole,
+				isTeamManager,
+				pickedMembers: filters.members,
+				teamMembers,
+				ownEmployeeId
+			}),
+		[filters.members, hasOrganizationRole, isTeamManager, ownEmployeeId, teamMembers]
 	);
 
 	const isTeamKnown = hasOrganizationRole || Boolean(activeTeam);

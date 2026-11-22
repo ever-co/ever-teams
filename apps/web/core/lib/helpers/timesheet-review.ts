@@ -40,12 +40,17 @@ function reachesTeamManagerCheck(permissions: readonly string[]): boolean {
 	return permissions.includes('TIME_TRACKER');
 }
 
-/** Whether the membership is the employee's and still in effect. The API counts a missing flag as in effect. */
-function isActiveMembership(member: TeamMembership, employeeId: ID): boolean {
-	const isEmployee = member.employeeId === employeeId;
+/** Whether the membership is still in effect. The API counts a missing flag as in effect. */
+export function isMembershipInEffect(member: Pick<TeamMembership, 'isActive' | 'isArchived'>): boolean {
 	const isActive = member.isActive !== false;
 	const isNotArchived = member.isArchived !== true;
-	return isEmployee && isActive && isNotArchived;
+	return isActive && isNotArchived;
+}
+
+/** Whether the membership is the employee's and still in effect. */
+function isActiveMembership(member: TeamMembership, employeeId: ID): boolean {
+	const isEmployee = member.employeeId === employeeId;
+	return isEmployee && isMembershipInEffect(member);
 }
 
 /** Whether the employee manages the team through this membership. The API reads the manager flag, not the role. */
