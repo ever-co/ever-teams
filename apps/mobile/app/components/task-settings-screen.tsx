@@ -119,15 +119,25 @@ function TaskSettingsScreenView<T extends SettingRow>({
 	const [bottomSheetVisible, setBottomSheetVisible] = useState(false);
 
 	const sheetRef = useRef<BottomSheet>(null);
+	// the reset a close schedules once its animation is over, which a form opened meanwhile cancels
+	const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 	const snapPoints = useMemo(() => ['60%'], []);
+
+	const cancelClose = useCallback(() => {
+		if (closeTimer.current) {
+			clearTimeout(closeTimer.current);
+			closeTimer.current = null;
+		}
+	}, []);
 
 	// The sheet opens a moment after its content is set, so it snaps with the form in place
 	const openSheet = useCallback(() => {
+		cancelClose();
 		setBottomSheetVisible(true);
 		setTimeout(() => {
 			sheetRef.current?.snapToIndex(0);
 		}, 150);
-	}, []);
+	}, [cancelClose]);
 
 	const openForEdit = useCallback(
 		(item: T) => {
@@ -147,7 +157,8 @@ function TaskSettingsScreenView<T extends SettingRow>({
 	const handleClose = useCallback(() => {
 		sheetRef.current?.close();
 		// the state clears once the sheet's close animation is over
-		setTimeout(() => {
+		closeTimer.current = setTimeout(() => {
+			closeTimer.current = null;
 			setBottomSheetVisible(false);
 			Keyboard.dismiss();
 		}, 250);
@@ -157,8 +168,9 @@ function TaskSettingsScreenView<T extends SettingRow>({
 		const sheetOnScreen = sheetRef.current;
 		return () => {
 			sheetOnScreen?.close();
+			cancelClose();
 		};
-	}, []);
+	}, [cancelClose]);
 
 	const renderBackdrop = useCallback(
 		(props: BottomSheetBackdropProps) => (
