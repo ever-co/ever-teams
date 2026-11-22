@@ -622,6 +622,16 @@
 		},
 		"addLabel": "Dodaj etykietę",
 		"editLabels": "Edytuj etykiety",
-		"rowActions": "Akcje dla: {name}"
+		"rowActions": "Akcje dla: {name}",
+		"dates": {
+			"addDate": "Dodaj datę",
+			"clear": "Wyczyść datę",
+			"today": "Dziś",
+			"tomorrow": "Jutro",
+			"endOfWeek": "Koniec tego tygodnia",
+			"inOneWeek": "Za tydzień",
+			"startAfterDue": "Data rozpoczęcia musi być wcześniejsza niż termin.",
+			"dueBeforeStart": "Termin musi być późniejszy niż data rozpoczęcia."
+		}
 	}
 }

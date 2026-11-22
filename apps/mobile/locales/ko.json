@@ -622,6 +622,16 @@
 		},
 		"addLabel": "라벨 추가",
 		"editLabels": "라벨 편집",
-		"rowActions": "{name} 작업"
+		"rowActions": "{name} 작업",
+		"dates": {
+			"addDate": "날짜 추가",
+			"clear": "날짜 지우기",
+			"today": "오늘",
+			"tomorrow": "내일",
+			"endOfWeek": "이번 주 말",
+			"inOneWeek": "일주일 후",
+			"startAfterDue": "시작일은 마감일보다 앞서야 합니다.",
+			"dueBeforeStart": "마감일은 시작일보다 뒤여야 합니다."
+		}
 	}
 }

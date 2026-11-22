@@ -180,5 +180,13 @@
 	"taskMenus.fields.version": "taskMenus.fields.version",
 	"taskMenus.addLabel": "taskDetail.properties.ADD_LABEL",
 	"taskMenus.editLabels": "taskDetail.properties.EDIT_LABELS",
-	"taskMenus.rowActions": "settings.taskProperties.ROW_ACTIONS"
+	"taskMenus.rowActions": "settings.taskProperties.ROW_ACTIONS",
+	"taskMenus.dates.addDate": "taskDetail.dates.ADD_DATE",
+	"taskMenus.dates.clear": "taskDetail.dates.CLEAR",
+	"taskMenus.dates.today": "common.TODAY",
+	"taskMenus.dates.tomorrow": "common.TOMORROW",
+	"taskMenus.dates.endOfWeek": "taskDetail.dates.END_OF_WEEK",
+	"taskMenus.dates.inOneWeek": "taskDetail.dates.IN_ONE_WEEK",
+	"taskMenus.dates.startAfterDue": "taskDetail.dates.START_AFTER_DUE",
+	"taskMenus.dates.dueBeforeStart": "taskDetail.dates.DUE_BEFORE_START"
 }
