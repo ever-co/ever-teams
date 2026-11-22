@@ -1,4 +1,6 @@
-import { saveTaskDate } from './task-date-save';
+import { act, renderHook } from '@testing-library/react-native';
+import { saveTaskDate, shownDatesOf, type TaskDateChanges } from './task-date-save';
+import { useOneSaveAtATime } from './use-one-save-at-a-time';
 import type { ITeamTask } from '../../../../services/interfaces/ITask';
 
 const hatch = {
@@ -14,59 +16,82 @@ const pier = {
 	dueDate: null
 } as unknown as ITeamTask;
 const monday = '2026-11-23T00:00:00.000Z';
+const tuesday = '2026-11-24T00:00:00.000Z';
 const saturday = '2026-11-28T00:00:00.000Z';
 
-/** The page's task store and an API that keeps what it takes; the save waits for the test to answer it. */
-function benchOf(task: ITeamTask) {
-	const bench = {
-		shown: task,
+/**
+ * The task page: its task store, the dates its fields show, and an API that keeps what it takes. Each save waits for
+ * the test to answer it.
+ */
+function pageOf(task: ITeamTask) {
+	const page = {
+		task,
+		pending: null as TaskDateChanges | null,
 		stored: { [task.id]: task } as Record<string, ITeamTask>,
+		sent: [] as ITeamTask[],
 		answer: (saved: boolean): unknown => saved
 	};
 	const options = {
-		current: () => bench.shown,
-		show: (shown: ITeamTask) => {
-			bench.shown = shown;
+		current: () => page.task,
+		showPending: (pending: TaskDateChanges | null) => {
+			page.pending = pending;
+		},
+		keep: (kept: ITeamTask) => {
+			page.task = kept;
 		},
 		save: (sent: ITeamTask) =>
 			new Promise<boolean>((resolve) => {
-				bench.answer = (saved: boolean) => {
+				page.sent.push(sent);
+				page.answer = (saved: boolean) => {
 					if (saved) {
-						bench.stored[sent.id] = sent;
+						page.stored[sent.id] = sent;
 					}
 					resolve(saved);
 					return saved;
 				};
 			})
 	};
+	const shown = () => shownDatesOf(page.task, page.pending);
 	// lets the save reach the API before the test answers it
-	const sent = async () => {
+	const reached = async () => {
 		for (let turn = 0; turn < 5; turn++) {
 			await Promise.resolve();
 		}
 	};
-	return { bench, options, sent };
+	return { page, options, shown, reached };
 }
 
 describe("saving a task's date", () => {
-	it('shows the new date at once, before the save answers, then keeps it once saved', async () => {
-		const { bench, options, sent } = benchOf(hatch);
+	it('shows the picked date on its field at once, and keeps it once the API took it', async () => {
+		const { page, options, shown, reached } = pageOf(hatch);
 		const saving = saveTaskDate({ dueDate: saturday }, options);
 
-		expect(bench.shown.dueDate).toBe(saturday);
+		expect(shown().dueDate).toBe(saturday);
 
-		await sent();
-		bench.answer(true);
+		await reached();
+		page.answer(true);
 		await expect(saving).resolves.toBe(true);
-		expect(bench.shown.dueDate).toBe(saturday);
-		expect(bench.stored['task-1'].dueDate).toBe(saturday);
+		expect(page.pending).toBeNull();
+		expect(page.task.dueDate).toBe(saturday);
+		expect(page.stored['task-1'].dueDate).toBe(saturday);
 	});
 
-	it('takes its date back when the save is refused or fails, so the page shows what the API holds', async () => {
-		const { bench, options, sent } = benchOf(hatch);
+	it('keeps the saved dates in the page task while a date save is pending, so another save of the page never sends it', async () => {
+		const { page, options, reached } = pageOf(hatch);
+		const saving = saveTaskDate({ startDate: monday }, options);
+		await reached();
+
+		expect(page.task.startDate).toBeNull();
+
+		page.answer(false);
+		await saving;
+	});
+
+	it('goes back to what the API holds when the save is refused or fails', async () => {
+		const { page, options, shown, reached } = pageOf(hatch);
 		const refused = saveTaskDate({ startDate: monday }, options);
-		await sent();
-		bench.answer(false);
+		await reached();
+		page.answer(false);
 		await expect(refused).resolves.toBe(false);
 		const failed = saveTaskDate(
 			{ startDate: monday },
@@ -79,46 +104,77 @@ describe("saving a task's date", () => {
 		);
 
 		await expect(failed).resolves.toBe(false);
-		expect(bench.shown.startDate).toBeNull();
-		expect(bench.shown.startDate).toBe(bench.stored['task-1'].startDate);
+		expect(page.pending).toBeNull();
+		expect(shown().startDate).toBeNull();
+		expect(shown().startDate).toBe(page.stored['task-1'].startDate);
 	});
 
-	it('saves the date on the task it was picked on, even when the page shows another task by then', async () => {
-		const { bench, options, sent } = benchOf(hatch);
+	it('saves the date on the task it was picked on, and leaves another task the page shows by then as it is', async () => {
+		const { page, options, reached } = pageOf(hatch);
 		const saving = saveTaskDate({ startDate: monday }, options);
-		bench.shown = pier;
+		page.task = pier;
 
-		await sent();
-		bench.answer(true);
+		await reached();
+		page.answer(true);
 		await saving;
 
-		expect(bench.stored['task-1'].startDate).toBe(monday);
-		expect(bench.stored['task-2']).toBeUndefined();
-		expect(bench.shown).toBe(pier);
+		expect(page.stored['task-1'].startDate).toBe(monday);
+		expect(page.stored['task-2']).toBeUndefined();
+		expect(page.task).toBe(pier);
+	});
+});
+
+describe("a task's two dates saved one at a time, against an API that keeps what it takes", () => {
+	async function pageWithGuard() {
+		const bench = pageOf(hatch);
+		const { result } = await renderHook(() => useOneSaveAtATime());
+		let running: Promise<unknown> = Promise.resolve();
+		const pick = async (changes: TaskDateChanges) => {
+			await act(async () => {
+				running = result.current.runAlone(() => saveTaskDate(changes, bench.options));
+				await bench.reached();
+			});
+		};
+		const answer = async (saved: boolean) => {
+			await act(async () => {
+				bench.page.answer(saved);
+				await running;
+			});
+		};
+		return { ...bench, pick, answer };
+	}
+
+	it('keeps the page on what the API holds when the start is saved and the due date then fails', async () => {
+		const { page, shown, pick, answer } = await pageWithGuard();
+
+		await pick({ startDate: monday });
+		await answer(true);
+		await pick({ dueDate: saturday });
+		await answer(false);
+
+		expect(page.stored['task-1'].startDate).toBe(monday);
+		expect(page.stored['task-1'].dueDate).toBeNull();
+		expect(shown()).toEqual({ startDate: monday, dueDate: null });
 	});
 
-	it('leaves another task the page shows by then as it is when the save fails', async () => {
-		const { bench, options, sent } = benchOf(hatch);
-		const pierOnMonday = { ...pier, startDate: monday };
-		const saving = saveTaskDate({ startDate: monday }, options);
-		bench.shown = pierOnMonday;
+	it('sends no other pick of either date while one is pending, and saves a retry after a failure', async () => {
+		const { page, shown, pick, answer } = await pageWithGuard();
 
-		await sent();
-		bench.answer(false);
-		await saving;
+		await pick({ startDate: monday });
+		await pick({ startDate: tuesday });
+		await pick({ dueDate: saturday });
+		expect(page.sent).toHaveLength(1);
 
-		expect(bench.shown).toBe(pierOnMonday);
-	});
+		await answer(false);
+		expect(shown()).toEqual({ startDate: null, dueDate: null });
+		expect(page.stored['task-1'].startDate).toBeNull();
 
-	it('keeps a date that changed meanwhile, as when the task was reloaded, when the save fails', async () => {
-		const { bench, options, sent } = benchOf(hatch);
-		const saving = saveTaskDate({ startDate: monday }, options);
-		bench.shown = { ...bench.shown, startDate: saturday };
+		await pick({ startDate: tuesday });
+		await answer(true);
+		await pick({ dueDate: saturday });
+		await answer(true);
 
-		await sent();
-		bench.answer(false);
-		await saving;
-
-		expect(bench.shown.startDate).toBe(saturday);
+		expect(page.stored['task-1']).toMatchObject({ startDate: tuesday, dueDate: saturday });
+		expect(shown()).toEqual({ startDate: tuesday, dueDate: saturday });
 	});
 });

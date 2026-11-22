@@ -1,33 +1,17 @@
 import type { ITeamTask } from '../../../../services/interfaces/ITask';
 
-type TaskDateChanges = Partial<Pick<ITeamTask, 'startDate' | 'dueDate'>>;
-type DateKey = keyof TaskDateChanges;
-
-const DATE_KEYS: DateKey[] = ['startDate', 'dueDate'];
+export type TaskDateChanges = Partial<Pick<ITeamTask, 'startDate' | 'dueDate'>>;
+type TaskDates = Pick<ITeamTask, 'startDate' | 'dueDate'>;
 
 interface ITaskDateSave {
 	/** The task as the page's store holds it now. */
 	current: () => ITeamTask;
-	/** Puts the task on the page, through the task store. */
-	show: (task: ITeamTask) => unknown;
+	/** The picked dates shown on their fields while their save is pending, or null once it answered. */
+	showPending: (pending: TaskDateChanges | null) => unknown;
+	/** Puts the task the API took on the page, through the task store. */
+	keep: (task: ITeamTask) => unknown;
 	/** Sends the task; true once the API took it. */
 	save: (task: ITeamTask) => Promise<boolean>;
-}
-
-function changedKeysOf(changes: TaskDateChanges): DateKey[] {
-	return DATE_KEYS.filter((key) => key in changes);
-}
-
-/** The task with a failed save's dates taken back, each only while the page still shows the value that save set. */
-function rolledBackOf(task: ITeamTask, changes: TaskDateChanges, previous: TaskDateChanges): ITeamTask {
-	const rolledBack = { ...task };
-	for (const key of changedKeysOf(changes)) {
-		const isStillShown = task[key] === changes[key];
-		if (isStillShown) {
-			rolledBack[key] = previous[key] ?? null;
-		}
-	}
-	return rolledBack;
 }
 
 async function sendSafely(save: ITaskDateSave['save'], task: ITeamTask): Promise<boolean> {
@@ -38,26 +22,38 @@ async function sendSafely(save: ITaskDateSave['save'], task: ITeamTask): Promise
 	}
 }
 
+function pendingOrSaved(pending: TaskDateChanges | null, task: ITeamTask | null, key: keyof TaskDates) {
+	const isPending = pending !== null && key in pending;
+	if (isPending) {
+		return pending[key] ?? null;
+	}
+	return task?.[key] ?? null;
+}
+
+/** The dates the page's fields show: a pending pick over the date the task holds. */
+export function shownDatesOf(task: ITeamTask | null, pending: TaskDateChanges | null): TaskDates {
+	return {
+		startDate: pendingOrSaved(pending, task, 'startDate'),
+		dueDate: pendingOrSaved(pending, task, 'dueDate')
+	};
+}
+
 /**
- * A task's new date shows on the page at once, as the calendar dialog did, then goes to the API with the task as the
- * page showed it when the day was picked. A refused or failed save takes its date back, unless the page shows another
- * task by then or that date changed meanwhile. The page sends one date save at a time (useOneSaveAtATime), so a save
- * never carries another one's pending date. The page reads the task store, which a save only refreshes with the task
- * list.
+ * A task's picked date shows on its field at once, as the calendar dialog did, and goes to the API with the task as
+ * the page held it when the day was picked. The page's task keeps the saved dates until the API took the new one, so
+ * another save of the page (status, size...) never sends a date still pending; the page sends one date save at a time
+ * (useOneSaveAtATime). A refused or failed save leaves the task as the API holds it. The page reads the task store,
+ * which a save only refreshes with the task list.
  */
-export async function saveTaskDate(changes: TaskDateChanges, { current, show, save }: ITaskDateSave) {
-	const before = current();
-	const previous: TaskDateChanges = {};
-	for (const key of changedKeysOf(changes)) {
-		previous[key] = before[key];
-	}
-	const changed = { ...before, ...changes };
-	show(changed);
-	const isSaved = await sendSafely(save, changed);
+export async function saveTaskDate(changes: TaskDateChanges, { current, showPending, keep, save }: ITaskDateSave) {
+	const picked = { ...current(), ...changes };
+	showPending(changes);
+	const isSaved = await sendSafely(save, picked);
 	const now = current();
-	const showsSameTask = now?.id === changed.id;
-	if (!isSaved && showsSameTask) {
-		show(rolledBackOf(now, changes, previous));
+	const showsSameTask = now?.id === picked.id;
+	if (isSaved && showsSameTask) {
+		keep({ ...now, ...changes });
 	}
+	showPending(null);
 	return isSaved;
 }

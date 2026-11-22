@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-inline-styles  */
 /* eslint-disable react-native/no-color-literals  */
 import { View, Text, StyleSheet } from 'react-native';
-import React from 'react';
+import React, { useState } from 'react';
 import { useStores } from '../../../../models';
 import TaskRow from '../components/task-row';
 import { PropertyLabel } from '../components/property-label';
@@ -13,7 +13,7 @@ import { creatorIdOf, creatorOf } from './task-creator';
 import ManageAssignees from '../components/manage-assignees';
 import { useOrganizationTeam } from '../../../../services/hooks/use-organization';
 import { TaskDateField } from '../components/task-date-field';
-import { saveTaskDate } from '../components/task-date-save';
+import { saveTaskDate, shownDatesOf, type TaskDateChanges } from '../components/task-date-save';
 import { useOneSaveAtATime } from '../components/use-one-save-at-a-time';
 import { showMessage } from 'react-native-flash-message';
 import { useTeamTasks } from '../../../../services/hooks/features/use-team-tasks';
@@ -43,12 +43,15 @@ const TaskMainInfo = observer(() => {
 
 	// one date save at a time: both date fields wait for it, so no save carries another one's pending date
 	const { isSaving: isSavingDate, runAlone } = useOneSaveAtATime();
+	const [pendingDates, setPendingDates] = useState<TaskDateChanges | null>(null);
+	const shownDates = shownDatesOf(task, pendingDates);
 
 	const saveDate = (changes: Pick<ITeamTask, 'startDate'> | Pick<ITeamTask, 'dueDate'>) =>
 		runAlone(async () => {
 			const isSaved = await saveTaskDate(changes, {
 				current: () => TaskStore.detailedTask,
-				show: setDetailedTask,
+				showPending: setPendingDates,
+				keep: setDetailedTask,
 				save: async (changed) => {
 					const { response } = await updateTask(changed, changed.id);
 					return response.ok;
@@ -99,8 +102,8 @@ const TaskMainInfo = observer(() => {
 			>
 				<TaskDateField
 					kind="start"
-					value={task?.startDate}
-					otherDate={task?.dueDate}
+					value={shownDates.startDate}
+					otherDate={shownDates.dueDate}
 					onChange={(date) => saveDate({ startDate: date })}
 					disabled={isSavingDate}
 				/>
@@ -110,8 +113,8 @@ const TaskMainInfo = observer(() => {
 			<TaskRow labelComponent={<PropertyLabel icon={Calendar} label={translate('taskDetailsScreen.dueDate')} />}>
 				<TaskDateField
 					kind="due"
-					value={task?.dueDate}
-					otherDate={task?.startDate}
+					value={shownDates.dueDate}
+					otherDate={shownDates.startDate}
 					onChange={(date) => saveDate({ dueDate: date })}
 					disabled={isSavingDate}
 				/>
