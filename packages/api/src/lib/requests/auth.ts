@@ -97,6 +97,14 @@ export const authVerifyTwoFactor = (
 	api?: IApiRequestConfig
 ) => sessionRequest('/auth/two-factor/verify', { challenge, code, recoveryCode }, api);
 
+/**
+ * Signs in to one of the workspaces `authWithEmailPassword` listed for an email and password, with the token the list
+ * gave it. Answers the session, as `authLogin` does, or `TWO_FACTOR_REQUIRED` with a challenge for
+ * `authVerifyTwoFactor`.
+ */
+export const authSignInWorkspace = ({ email, token }: { email: string; token: string }, api?: IApiRequestConfig) =>
+	sessionRequest('/auth/signin.workspace', { email, token }, api);
+
 export const authSignUp = async (
 	{
 		fullName,
