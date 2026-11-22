@@ -90,6 +90,27 @@ describe('sharedInvoiceDaysOf (#5718)', () => {
 		expect(shownDays(invoice, WEST)).toEqual(expect.objectContaining({ issue: '2026-11-22', due: '2026-12-22' }));
 	});
 
+	it("reads in the organization's zone when the sender's is empty or unknown, and the sender's first", () => {
+		const now = new Date('2026-12-22T23:30:00.000Z');
+		const zoneOf = (fromZone: string | null, organizationZone: string | null) =>
+			sharedInvoiceDaysOf(
+				{ ...BERLIN, fromOrganization: { timeZone: fromZone }, organization: { timeZone: organizationZone } },
+				now,
+				WEST
+			).timeZone;
+
+		expect(zoneOf('', 'Europe/Berlin')).toBe('Europe/Berlin');
+		expect(zoneOf('Mars/Olympus_Mons', 'Europe/Berlin')).toBe('Europe/Berlin');
+		expect(zoneOf('Europe/Berlin', 'Asia/Tokyo')).toBe('Europe/Berlin');
+	});
+
+	it("counts today in the reader's zone when the due date is no edge of a day", () => {
+		// The due date reads Dec 21 in New York, where it is still Dec 21; it is already Dec 22 on Berlin's clock
+		const invoice = { invoiceDate: BERLIN.invoiceDate, dueDate: '2026-12-22T03:17:42.000Z' };
+		const { issue, due, today } = shownDays(invoice, WEST, new Date('2026-12-22T00:30:00.000Z'));
+		expect([issue, due, today]).toEqual(['2026-11-22', '2026-12-21', '2026-12-21']);
+	});
+
 	it("reads a date that is no edge of a day in the reader's zone, as before", () => {
 		const invoice = { invoiceDate: '2026-11-22T03:17:42.000Z', dueDate: '2026-12-22T03:17:42.000Z' };
 		const west = sharedInvoiceDaysOf(invoice, new Date('2026-11-22T12:00:00.000Z'), WEST);
@@ -100,9 +121,12 @@ describe('sharedInvoiceDaysOf (#5718)', () => {
 	});
 
 	it('keeps a missing date missing', () => {
-		const days = sharedInvoiceDaysOf({ invoiceDate: BERLIN.invoiceDate, dueDate: null }, new Date(), WEST);
+		// 00:30 on Dec 23 in Berlin: without a due day, today is counted on the issue date's clock
+		const now = new Date('2026-12-22T23:30:00.000Z');
+		const days = sharedInvoiceDaysOf({ invoiceDate: BERLIN.invoiceDate, dueDate: null }, now, WEST);
 		expect(days.invoice.dueDate).toBeNull();
 		expect(invoiceDayOf(days.invoice.invoiceDate, days.timeZone)).toBe('2026-11-22');
+		expect(days.todayKey).toBe('2026-12-23');
 	});
 });
 

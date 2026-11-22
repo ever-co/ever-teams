@@ -128,9 +128,8 @@ function isKnownTimeZone(timeZone: string): boolean {
 	}
 }
 
-/** The zone the workspace dates its invoices in, when the public read gives it (ever-co/ever-gauzy#12136). */
-function workspaceTimeZoneOf(invoice: SharedInvoiceDates): string | null {
-	const stated = invoice.fromOrganization?.timeZone ?? invoice.organization?.timeZone;
+/** A stated zone, trimmed, when the browser knows it; null for none, an empty one or one it does not know. */
+function knownTimeZoneOf(stated: string | null | undefined): string | null {
 	const timeZone = stated?.trim();
 	if (!timeZone) {
 		return null;
@@ -142,10 +141,33 @@ function workspaceTimeZoneOf(invoice: SharedInvoiceDates): string | null {
 }
 
 /**
+ * The zone the workspace dates its invoices in, when the public read gives it (ever-co/ever-gauzy#12136): the sender's,
+ * else the invoice's organization's, the first one the browser knows.
+ */
+function workspaceTimeZoneOf(invoice: SharedInvoiceDates): string | null {
+	return knownTimeZoneOf(invoice.fromOrganization?.timeZone) ?? knownTimeZoneOf(invoice.organization?.timeZone);
+}
+
+/**
+ * Today for the due and overdue label, on the clock its due day was read on: the offset the due date was written at,
+ * or the reader's zone when the due date is no edge of a day. An invoice without a due date counts it at the offset its
+ * issue date was written at.
+ */
+function todayKeyOf(issue: DateReading, due: DateReading, now: Date, readerTimeZone: string | null): string {
+	if (due.offset !== null) {
+		return dayAtOffset(now, due.offset);
+	}
+	const hasNoDueDay = due.day === null;
+	if (hasNoDueDay && issue.offset !== null) {
+		return dayAtOffset(now, issue.offset);
+	}
+	return todayDayKey(readerTimeZone, now);
+}
+
+/**
  * The shared invoice as its page dates it: in the workspace's zone when the public read gives it; otherwise each date
- * re-dated at the UTC midnight of the day it opens or closes, read in UTC, and today counted at the offset the invoice
- * was written at, for its due and overdue label. A date that is no edge of a day is read in the reader's zone, as
- * before.
+ * re-dated at the UTC midnight of the day it opens or closes, read in UTC, and today counted on the clock the due day
+ * was read on, for its due and overdue label. A date that is no edge of a day is read in the reader's zone, as before.
  *
  * @param invoice The invoice the share link opened.
  * @param now The moment the page shows it.
@@ -162,11 +184,12 @@ export function sharedInvoiceDaysOf<T extends SharedInvoiceDates>(
 	}
 	const issue = readingOf(invoice.invoiceDate, readerTimeZone);
 	const due = readingOf(invoice.dueDate, readerTimeZone);
-	// Today is compared with the due day, so it is counted on that day's clock: the clocks may change after the issue day
-	const writtenOffset = due.offset ?? issue.offset;
-	if (writtenOffset === null) {
-		return { invoice, timeZone: readerTimeZone, todayKey: todayDayKey(readerTimeZone, now) };
+	// Today is compared with the due day, so it is counted on that day's clock: it may differ from the issue day's
+	const todayKey = todayKeyOf(issue, due, now, readerTimeZone);
+	const isEdgeOfDay = issue.offset !== null || due.offset !== null;
+	if (!isEdgeOfDay) {
+		return { invoice, timeZone: readerTimeZone, todayKey };
 	}
 	const dated = { ...invoice, invoiceDate: utcMidnightOf(issue.day), dueDate: utcMidnightOf(due.day) };
-	return { invoice: dated, timeZone: DAY_ZONE, todayKey: dayAtOffset(now, writtenOffset) };
+	return { invoice: dated, timeZone: DAY_ZONE, todayKey };
 }
