@@ -204,7 +204,7 @@
 		"name": "工作",
 		"estimateLabel": "估计",
 		"statusText": "状态",
-		"taskFieldPlaceholder": "您正在做什么？",
+		"taskFieldPlaceholder": "您在做什么?",
 		"sizeText": "大小",
 		"prioritiesText": "优先级",
 		"tabCreateTask": "创建新任务",
