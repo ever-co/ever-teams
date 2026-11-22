@@ -1,5 +1,5 @@
 import { APIService } from '../../../../api.service';
-import { GAUZY_API_BASE_SERVER_URL, INVITE_CALLBACK_URL } from '@/core/constants/config/constants';
+import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { inviteCallbackUrl } from '@/core/lib/utils/invite-callback-url';
 import qs from 'qs';
 import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
@@ -57,7 +57,7 @@ class InviteService extends APIService {
 				invitationExpirationPeriod: 'Never',
 				inviteType: 'TEAM',
 				appliedDate: null,
-				callbackUrl: INVITE_CALLBACK_URL,
+				callbackUrl: inviteCallbackUrl(window.location.origin),
 				organizationId: data.organizationId,
 				tenantId: this.tenantId,
 				startedWorkOn: date.toISOString()
