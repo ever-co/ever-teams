@@ -66,7 +66,8 @@ export const inviteVerifyCodeSchema = z.object({
 export const inviteVerifiedSchema = z.object({
 	id: z.string(),
 	email: z.string().email(),
-	fullName: z.string(),
+	// The Invite dialog sends no name, so Gauzy keeps none and answers null: the accept form asks for it
+	fullName: z.string().optional().nullable(),
 	organization: z.object({
 		name: z.string(),
 		image: z.string().nullable()
