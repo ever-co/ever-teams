@@ -290,6 +290,7 @@ export function TimesheetsPage({ params }: Readonly<{ params: Promise<{ memberId
 	const sheetEditingSource = sheetEditingSourceOf(page);
 	const sheetEditing = useSheetEditing(sheetEditingSource, sheet);
 	const { pendingLogs } = sheet;
+	const canApprovePending = offersApproveAndReject(permissions, pendingLogs);
 
 	const approveSelection = async () => {
 		const isDone = await changeStatus(selectedLogs, ETimesheetStatus.APPROVED, false);
@@ -417,6 +418,7 @@ export function TimesheetsPage({ params }: Readonly<{ params: Promise<{ memberId
 				selection={{
 					count: selectedLogs.length,
 					seconds: selectedSeconds,
+					canApprove: canApproveSelection,
 					canDelete: canDeleteSelection,
 					onApprove: () => void approveSelection(),
 					onReject: () => openReject(selectedLogs, 'bulk'),
@@ -426,6 +428,7 @@ export function TimesheetsPage({ params }: Readonly<{ params: Promise<{ memberId
 				pending={{
 					count: pendingLogs.length,
 					seconds: sheet.pendingSeconds,
+					canApprove: canApprovePending,
 					onApprove: approvePending,
 					onReject: rejectPending
 				}}

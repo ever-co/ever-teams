@@ -1,14 +1,16 @@
 /** @jest-environment jsdom */
 import type { ReactNode } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import { createStore, Provider } from 'jotai';
 import { type SheetEditingSource, useSheetEditing } from '@/core/hooks/dashboards/timesheets/use-sheet-editing';
 import { useTimesheetSheet } from '@/core/hooks/dashboards/timesheets/use-timesheet-sheet';
 import type { TimesheetPermissions } from '@/core/hooks/dashboards/timesheets/use-timesheets-page';
+import type { TimesheetReviewer } from '@/core/lib/helpers/timesheet-review';
 import type { Period } from '@/core/lib/utils/dashboard-period';
 import { timesheetFormattersOf } from '@/core/lib/utils/dashboards/timesheets';
 import { ETimeLogType } from '@/core/types/generics/enums/timer';
+import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import type { TOrganization } from '@/core/types/schemas/organization/organization.schema';
 import type { TimesheetRowHandlers } from './timesheet-log-row';
@@ -89,9 +91,10 @@ const formatters = timesheetFormattersOf('en');
 interface Scenario {
 	log: ITimeLog;
 	hasOrganizationRole: boolean;
+	reviewer?: TimesheetReviewer;
 }
 
-function SheetOf({ log, hasOrganizationRole }: Readonly<Scenario>) {
+function SheetOf({ log, hasOrganizationRole, reviewer }: Readonly<Scenario>) {
 	const logs = [log];
 	const source: SheetEditingSource = {
 		ownEmployeeId: 'viewer',
@@ -109,7 +112,8 @@ function SheetOf({ log, hasOrganizationRole }: Readonly<Scenario>) {
 		isManage: true,
 		canApprove: false,
 		userId: 'user',
-		employeeId: 'viewer'
+		employeeId: 'viewer',
+		reviewer
 	};
 	const sheet = useTimesheetSheet(logs, period);
 	const editing = useSheetEditing(source, sheet);
@@ -124,13 +128,14 @@ function SheetOf({ log, hasOrganizationRole }: Readonly<Scenario>) {
 			selection={{
 				count: 0,
 				seconds: 0,
+				canApprove: false,
 				canDelete: false,
 				onApprove: ignore,
 				onReject: ignore,
 				onDelete: ignore,
 				onClear: ignore
 			}}
-			pending={{ count: 0, seconds: 0, onApprove: ignore, onReject: ignore }}
+			pending={{ count: 0, seconds: 0, canApprove: false, onApprove: ignore, onReject: ignore }}
 			isApproving={false}
 			emptyContent={null}
 			editing={editing}
@@ -146,7 +151,11 @@ function renderSheet(scenario: Scenario) {
 	return render(
 		<Provider store={store}>
 			<QueryClientProvider client={client}>
-				<SheetOf log={scenario.log} hasOrganizationRole={scenario.hasOrganizationRole} />
+				<SheetOf
+					log={scenario.log}
+					hasOrganizationRole={scenario.hasOrganizationRole}
+					reviewer={scenario.reviewer}
+				/>
 			</QueryClientProvider>
 		</Provider>
 	);
@@ -181,5 +190,44 @@ describe('TimesheetsSheetView, the notice of a sheet closed by a permission', ()
 		renderSheet({ log: TEAMMATE_LOG, hasOrganizationRole: false });
 		expect(screen.getByText(MEMBER_OR_ADMIN_NOTICE)).toBeTruthy();
 		expect(screen.queryByText(ROLE_NOTICE)).toBeNull();
+	});
+});
+
+describe("TimesheetsSheetView, a team manager on a member's pending entry (#5622)", () => {
+	// The viewer manages the teammate's team by the team's manager flag, with the employee role
+	const TEAM_MANAGER_REVIEWER: TimesheetReviewer = {
+		permissions: ['TIME_TRACKER'],
+		employeeId: 'viewer',
+		teams: [{ members: [{ employeeId: 'viewer', isManager: true }, { employeeId: 'teammate' }] }]
+	};
+	const PENDING_TEAMMATE_LOG: ITimeLog = {
+		...TEAMMATE_LOG,
+		timesheet: { id: 'timesheet-teammate', status: ETimesheetStatus.PENDING } as ITimeLog['timesheet']
+	};
+
+	async function openTeammateCell() {
+		fireEvent.click(screen.getByRole('button', { name: /^dashboard\.timesheets\.SHEET\.CELL_LABEL/ }));
+		return await screen.findByRole('dialog', { name: 'dashboard.timesheets.SHEET.ENTRIES_LABEL' });
+	}
+
+	beforeEach(() => {
+		window.localStorage.clear();
+		mockPermissions.mockReturnValue({ myPermissions: ['TIME_TRACKER'], isLoading: false });
+	});
+
+	it('offers Approve and Reject on the entry when he manages the member', async () => {
+		renderSheet({ log: PENDING_TEAMMATE_LOG, hasOrganizationRole: false, reviewer: TEAM_MANAGER_REVIEWER });
+
+		const entries = await openTeammateCell();
+		expect(within(entries).getByRole('button', { name: 'dashboard.timesheets.APPROVE' })).toBeTruthy();
+		expect(within(entries).getByRole('button', { name: 'dashboard.timesheets.REJECT' })).toBeTruthy();
+	});
+
+	it('CONTROL: offers no review on the same entry to a viewer who manages no team of the member', async () => {
+		renderSheet({ log: PENDING_TEAMMATE_LOG, hasOrganizationRole: false });
+
+		const entries = await openTeammateCell();
+		expect(within(entries).queryByRole('button', { name: 'dashboard.timesheets.APPROVE' })).toBeNull();
+		expect(within(entries).queryByRole('button', { name: 'dashboard.timesheets.REJECT' })).toBeNull();
 	});
 });
