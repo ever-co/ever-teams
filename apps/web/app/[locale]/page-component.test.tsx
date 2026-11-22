@@ -6,6 +6,7 @@ type Crumb = { title: string | string[] };
 
 let mockUser: Record<string, unknown> | undefined;
 let mockIsTeamMember = true;
+let mockTeams: unknown[] = [];
 const mockActiveTeam = { id: 'team-1', name: 'Platform' };
 
 jest.mock('next-intl', () => ({
@@ -16,6 +17,7 @@ jest.mock('@vercel/analytics/react', () => ({ Analytics: () => null }));
 jest.mock('@/core/stores', () => ({
 	activeTeamState: 'activeTeam',
 	isTeamMemberState: 'isTeamMember',
+	organizationTeamsState: 'teams',
 	isTrackingEnabledState: 'isTrackingEnabled'
 }));
 jest.mock('@/core/stores/common/header-tabs', () => ({ headerTabs: 'headerTabs' }));
@@ -24,6 +26,7 @@ jest.mock('jotai', () => ({
 	useAtomValue: (atom: string) => {
 		if (atom === 'activeTeam') return mockActiveTeam;
 		if (atom === 'isTeamMember') return mockIsTeamMember;
+		if (atom === 'teams') return mockTeams;
 		return true;
 	}
 }));
@@ -107,6 +110,7 @@ import MainPage from './page-component';
 describe('Home page', () => {
 	beforeEach(() => {
 		mockIsTeamMember = true;
+		mockTeams = [];
 	});
 
 	it('shows the team, its timer and its members to a user with a member profile, as before', () => {
@@ -146,5 +150,21 @@ describe('Home page', () => {
 
 		expect(screen.getByText('no-team')).toBeTruthy();
 		expect(screen.queryByText('team-members')).toBeNull();
+	});
+
+	it('keeps the team this tab already shows when a later read of /user/me misses the employee', () => {
+		mockUser = { id: 'user-1', isEmailVerified: true };
+		mockTeams = [mockActiveTeam];
+
+		render(<MainPage />);
+
+		expect(screen.getByRole('navigation', { name: 'breadcrumb' }).textContent).toBe(
+			'Home > Platform > common.CARDS'
+		);
+		expect(screen.getByText('team-live-summary')).toBeTruthy();
+		expect(screen.getByText('task-timer-section')).toBeTruthy();
+		expect(screen.getByText('team-member-header')).toBeTruthy();
+		expect(screen.getByText('team-members')).toBeTruthy();
+		expect(screen.queryByText('no-team')).toBeNull();
 	});
 });

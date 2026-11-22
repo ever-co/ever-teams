@@ -43,9 +43,9 @@ import {
 	LazyTeamMemberHeader
 } from '@/core/components/optimized-components/teams';
 import { LazyChatwootWidget, LazyUnverifiedEmail, LazyNoTeam } from '@/core/components/optimized-components/common';
-import { activeTeamState, isTeamMemberState, isTrackingEnabledState } from '@/core/stores';
+import { activeTeamState, isTeamMemberState, isTrackingEnabledState, organizationTeamsState } from '@/core/stores';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
-import { hasNoMemberProfile } from '@/core/lib/utils/member-profile';
+import { isInNoTeamForLackOfMemberProfile } from '@/core/lib/utils/member-profile';
 
 function MainPage() {
 	const t = useTranslations();
@@ -60,8 +60,9 @@ function MainPage() {
 	const employeeId = user?.employee?.id ?? user?.employeeId ?? '';
 	const { employeeOutstandingPlans, employeeSortedPlans } = useEmployeeDailyPlans(employeeId);
 	// Without a member profile no team ever loads: the team's name, figures and columns would stay placeholders
-	const hasMemberProfile = !hasNoMemberProfile(user);
-	const showsTeamWork = isTeamMember && hasMemberProfile;
+	const teams = useAtomValue(organizationTeamsState);
+	const showsTeamParts = !isInNoTeamForLackOfMemberProfile(user, teams.length);
+	const showsTeamWork = isTeamMember && showsTeamParts;
 
 	const { isTeamManager } = useIsMemberManager(user);
 
@@ -69,7 +70,7 @@ function MainPage() {
 	const [view, setView] = useAtom(headerTabs);
 	const path = usePathname();
 	const breadcrumb = [{ title: JSON.parse(t('pages.home.BREADCRUMB')), href: '/' }];
-	if (hasMemberProfile) {
+	if (showsTeamParts) {
 		breadcrumb.push({ title: activeTeam?.name || '', href: '/' }, { title: t(`common.${view}`), href: `/` });
 	}
 
@@ -104,7 +105,7 @@ function MainPage() {
 					mainHeaderSlot={
 						<div>
 							<div className="px-4">
-								{hasMemberProfile && (
+								{showsTeamParts && (
 									<div className="flex flex-wrap items-center justify-between gap-3 py-3">
 										<TeamLiveSummary />
 										<HeaderTabs linkAll={false} />
@@ -155,7 +156,7 @@ function MainPage() {
 									</Suspense>
 								) : null}
 							</div>
-							{hasMemberProfile && (
+							{showsTeamParts && (
 								<Suspense fallback={<TeamMemberHeaderSkeleton view={view} />}>
 									<LazyTeamMemberHeader view={view} />
 								</Suspense>
