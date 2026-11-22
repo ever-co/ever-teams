@@ -14,6 +14,7 @@ interface IEmptyValueButton {
 	testID?: string;
 	/** What a screen reader says, when the label alone does not name the field. */
 	accessibilityLabel?: string;
+	disabled?: boolean;
 }
 
 /** A task page field without a value, as the web reads it: a plus and the action in muted text, 28 high at least. */
@@ -22,7 +23,8 @@ export function EmptyValueButton({
 	onPress,
 	anchorRef,
 	testID,
-	accessibilityLabel = label
+	accessibilityLabel = label,
+	disabled = false
 }: Readonly<IEmptyValueButton>) {
 	const theme = useWebTheme();
 	const muted = theme.colors['muted-foreground'];
@@ -32,6 +34,8 @@ export function EmptyValueButton({
 			testID={testID}
 			accessibilityRole="button"
 			accessibilityLabel={accessibilityLabel}
+			accessibilityState={{ disabled }}
+			disabled={disabled}
 			onPress={() => onPress()}
 			style={styles.button}
 		>

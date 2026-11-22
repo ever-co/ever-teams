@@ -199,11 +199,12 @@ interface IDateTrigger {
 	day: Date | null;
 	locale: string;
 	anchorRef: RefObject<View | null>;
+	disabled: boolean;
 	onPress: () => unknown;
 }
 
 /** The field as the web's task page reads it: "+ Add date" while empty, else the calendar glyph and the short day. */
-function DateTrigger({ kind, day, locale, anchorRef, onPress }: Readonly<IDateTrigger>) {
+function DateTrigger({ kind, day, locale, anchorRef, disabled, onPress }: Readonly<IDateTrigger>) {
 	const theme = useWebTheme();
 	const fieldName = translate(FIELD_KEYS[kind]);
 	if (!day) {
@@ -213,6 +214,7 @@ function DateTrigger({ kind, day, locale, anchorRef, onPress }: Readonly<IDateTr
 				testID={`task-date-${kind}`}
 				label={translate('taskMenus.dates.addDate')}
 				accessibilityLabel={fieldName}
+				disabled={disabled}
 				onPress={onPress}
 			/>
 		);
@@ -224,6 +226,8 @@ function DateTrigger({ kind, day, locale, anchorRef, onPress }: Readonly<IDateTr
 			testID={`task-date-${kind}`}
 			accessibilityRole="button"
 			accessibilityLabel={`${fieldName}, ${shownDay}`}
+			accessibilityState={{ disabled }}
+			disabled={disabled}
 			onPress={() => onPress()}
 			style={styles.value}
 		>
@@ -241,6 +245,8 @@ interface ITaskDateField {
 	otherDate?: string | null;
 	/** Saves the picked day as the task page sends a date, or null to clear it. */
 	onChange: (stored: string | null) => unknown;
+	/** True while a save of the task's dates is pending: the field does not open meanwhile. */
+	disabled?: boolean;
 }
 
 /**
@@ -248,7 +254,7 @@ interface ITaskDateField {
  * set, and a popover under it with the quick picks, the calendar and Clear date. A start after the due day, or a due
  * day before the start, is refused with the reason.
  */
-export function TaskDateField({ kind, value, otherDate, onChange }: Readonly<ITaskDateField>) {
+export function TaskDateField({ kind, value, otherDate, onChange, disabled = false }: Readonly<ITaskDateField>) {
 	const locale = useAppLocale();
 	const [isOpen, setOpen] = useState(false);
 	const { anchorRef, anchor, openFromAnchor } = useMenuAnchor();
@@ -279,6 +285,7 @@ export function TaskDateField({ kind, value, otherDate, onChange }: Readonly<ITa
 				day={day}
 				locale={locale}
 				anchorRef={anchorRef}
+				disabled={disabled}
 				onPress={() => openFromAnchor(() => setOpen(true))}
 			/>
 			<Modal animationType="fade" transparent visible={showsMenu} onRequestClose={close}>

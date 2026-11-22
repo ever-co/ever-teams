@@ -82,4 +82,16 @@ describe("a task's date on the task page", () => {
 			expect.objectContaining({ message: 'taskMenus.dates.startAfterDue undefined', type: 'warning' })
 		);
 	});
+
+	it('does not open while a save of the dates is pending', async () => {
+		const empty = drawField({ disabled: true });
+		await empty.drawing;
+		await fireEvent.press(screen.getByText('taskMenus.dates.addDate undefined'));
+		expect(screen.queryByText('taskMenus.dates.today undefined')).toBeNull();
+
+		const set = drawField({ value: friday, disabled: true });
+		await set.drawing;
+		await fireEvent.press(screen.getByTestId('task-date-start'));
+		expect(screen.queryByText('taskMenus.dates.today undefined')).toBeNull();
+	});
 });
