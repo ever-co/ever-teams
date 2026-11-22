@@ -1133,3 +1133,229 @@ What would make the forwarded half measurable: a mock role that grants `INVOICES
 (`core/lib/utils/invoice-access.ts:3-22`, `core/lib/utils/rates.ts:258-260`) — the fixture role's enabled list
 (§13.2 item 5) has neither. Until then the only honest statement about that route is its gate, which is what is
 pinned.
+
+---
+
+## 14. The Board half, on a lane that actually mounted a Board domain (fourth lane-b session, 2026-11-22: `board-preflight.spec.ts`)
+
+Everything below was measured on **lane-b with `E2E_BOARD_APP_DOMAIN` set**, which no earlier lane-b run had. lane-c
+pinned only the refusal (`suites/lane-c/method-and-preflight.spec.ts`, whose own header calls the trusted preflight not
+reachable in its lane); lane-d pinned the mounted *data* answers on 3034. What is new here is the granted preflight, the
+verb shapes on these three routes, and what a real browser page can and cannot do with them.
+
+### 14.1 Lane, mount, and every run
+
+```
+node apps/web/playwright/scripts/lane-servers.mjs down lane-b
+  -> "lane lane-b: killing 16512, 8612 (only its own ports 3032, 3996, 3997, 3998, 3999)"          exit 0
+export … E2E_BOARD_APP_DOMAIN=http://localhost:3032 E2E_EVER_ID=1 && node … up lane-b
+  -> E:\Coding\.tmp\lane-b-board-up-1.log: "port 3998 answers" / "port 3032 answers"
+     / "checked: the app on 3032 names its own mock 3996 and statistics sink 3997"
+     / "ready: lane lane-b — app http://localhost:3032, mock 3996, stats 3997, control 3998, issuer 3999"
+node apps/web/playwright/scripts/lane-servers.mjs check lane-b -> "lane lane-b: OK …"                exit 0
+```
+
+`E2E_BOARD_APP_DOMAIN=http://localhost:3032` is **state A**: the Board mounted at the app's own origin. `down`/`up` were
+mine (lane-b is mine); lane-a and lane-c were not touched. The coordinating session restarted lane-b partway through
+this section (its own message: "lane-b is restarted with its Board half mounted"), and the mount it restarted with is
+the same one: `E:\Coding\.tmp\lane-b-board-home-2.html`, read after the restart, still carries
+`"NEXT_PUBLIC_BOARD_APP_DOMAIN":"http://localhost:3032"`.
+
+Runs, each with the log's own summary line:
+
+```
+E2E_LANE=lane-b E2E_REUSE_SERVERS=1 npx playwright test --config apps/web/playwright/playwright.api.config.ts suites/api/board-origin.spec.ts
+  -> E:\Coding\.tmp\lane-b-board-api-1.log     "22 skipped" / "4 passed (7.2s)"
+     (the mounted half green, the unconfigured half skipping itself)
+
+E2E_LANE=lane-b E2E_BROWSER_CHANNEL=chrome npx playwright test --config apps/web/playwright/playwright.lane.config.ts suites/lane-b/board-preflight.spec.ts
+  -> E:\Coding\.tmp\lane-b-board-preflight-1.log   "1 failed / 6 passed (3.9m)"   (the red is §14.8's wrong target)
+  -> E:\Coding\.tmp\lane-b-board-preflight-2.log   "1 failed / 6 passed (3.4m)"   (the red is §14.9's mock-log claim)
+```
+
+Read-only probes, all outside the repo, each in its own `E:\Coding\.tmp\` file: `board-probe-b-1.sh` →
+`lane-b-board-probe-1.log` (curl, header by header, three routes × ten verb/Origin combinations); a cookie probe built
+from the mock's own `/fixture` → `lane-b-board-cred-probe-1.log`; `board-browser-probe-1.mjs` →
+`lane-b-board-browser-probe-1.log` (a real Chromium page, request and response events).
+
+* `tsc -p playwright/tsconfig.json --noEmit` from `apps/web`: **exit 2** at first (`Type '{ accept: string; origin?:
+  undefined; }' is not assignable to …` — the same headers-inference trap §13.1 records — and a `page.evaluate` tuple
+  argument Playwright's `PageFunction` type refuses), **exit 0** in `E:\Coding\.tmp\lane-b-board-tsc-1.log` after both
+  were fixed, which is the state this section was committed on. `npx prettier --check` and
+  `npx eslint playwright/suites/lane-b/board-preflight.spec.ts --max-warnings=0` on that one file: **exit 0** each. The
+  whole `web:lint` target was never run (it OOMs on this PC).
+* **The whole-project typecheck is shared with two other live agents.** The first failing read listed
+  `suites/lane-d/download-claims-headers.spec.ts` and `…-guid-token.spec.ts` errors from a lane-d edit in flight; those
+  went to 0 when lane-d's fixes landed. My file's own two errors were the only ones I had to fix.
+
+### 14.2 CONFIRMED — what the mount published
+
+`curl -sL http://localhost:3032/` (`E:\Coding\.tmp\lane-b-board-home-1.html`, re-read as `…-home-2.html` after the
+coordinator's restart) carries, in `data-ever-teams-runtime-env`:
+`"NEXT_PUBLIC_BOARD_APP_DOMAIN":"http://localhost:3032"`, `"NEXT_PUBLIC_WEB_APP_URL":"http://localhost:3032"`,
+`"NEXT_PUBLIC_GAUZY_API_SERVER_URL":"http://127.0.0.1:3996"`, `"NEXT_PUBLIC_BOARD_BACKEND_POST_URL":""` and
+`"NEXT_PUBLIC_BOARD_FIREBASE_CONFIG":""`. The Board half was really mounted, and the spec's gating (`publishedEnv`)
+reads the same attribute `lane-servers.mjs check` reads.
+
+### 14.3 CONFIRMED — the existing `suites/api` Board suite on a mounted lane
+
+`lane-b-board-api-1.log`: **4 passed / 22 skipped (7.2s)**. That is `board-origin.spec.ts` behaving as its header says
+it should: the 22 "no Board origin configured" cases skip themselves because a Board domain is mounted, and the four
+configured cases pass. It is the first run of that file on lane-b and the first with the Board mounted on this lane.
+
+**REFUTED as a claim, CONFIRMED as a limitation of state A:** with the Board mounted at `http://localhost:3032`, the
+suite's own-origin probes collapse — the case at `board-origin.spec.ts:512` filters out any origin equal to the mounted
+one, so this app's own origin is no longer probed as a refusal. That is the warning the file's header makes at
+`:78-80`; state A confirms the warning rather than the "only the Board origin passes" claim. The distinct-origin half of
+that claim is what §14.4 measures instead, with the same server named the other way round.
+
+### 14.4 CONFIRMED — the preflight matrix (21 probes: 3 routes × 7 Origins)
+
+`board-preflight.spec.ts` test 1, green in `lane-b-board-preflight-2.log` (`ok 1 … (5.8s)`). Per probe the spec prints
+the status, the five CORS names, `cache-control`, `content-type`, `vary`, the body byte count and every other header
+name, so the log carries the answer. Three MEASURE lines out of that test:
+
+```
+MEASURE OPTIONS /api/board/session | Origin http://localhost:3032 (the Board origin this lane mounted) | ACRM GET
+  -> 204 | access-control-allow-origin="http://localhost:3032" access-control-allow-methods="GET"
+      access-control-allow-headers="Accept, Content-Type" access-control-allow-credentials="true"
+      access-control-max-age="600" cache-control="no-store"
+      vary="rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch, Origin, Cookie"
+      | body(0B)="" | other header names: date,connection,keep-alive
+MEASURE OPTIONS /api/board/session | Origin http://127.0.0.1:3032 (the same server under the other loopback name)
+  -> 403 | cache-control="no-store" content-type="application/json"
+      vary="rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch, Origin, Cookie, Accept-Encoding"
+      | body(23B)="{\"message\":\"Forbidden\"}"
+MEASURE OPTIONS /api/board/notify | Origin NONE (no Origin header at all)
+  -> 403 | cache-control="no-store" content-type="application/json" … | body(23B)="{\"message\":\"Forbidden\"}"
+```
+
+* **Granted (Origin == the mounted `NEXT_PUBLIC_BOARD_APP_DOMAIN`)**: `204`, empty body,
+  `Access-Control-Allow-Methods` = `GET` on `/api/board/session` and `/api/board/members` and `POST` on
+  `/api/board/notify`; `Access-Control-Allow-Headers: Accept, Content-Type`; `Access-Control-Max-Age: 600`;
+  `Access-Control-Allow-Origin` = the caller's own origin; `Access-Control-Allow-Credentials: true`;
+  `Cache-Control: no-store`. `board-cors.ts:37-41` is those five lines and each is pinned separately.
+* **Refused** (`http://127.0.0.1:3032` — the *same server*, other loopback name; `http://localhost:3998`;
+  `https://some-other-site.example`; `https://board.ever.team`; no Origin at all): `403` with body exactly
+  `{"message":"Forbidden"}`, **none of the five CORS names present**, `Cache-Control: no-store`, `Vary` containing both
+  `Origin` and `Cookie`. The `127.0.0.1:3032` row is the one worth keeping: `LOOPBACK_HOSTS`
+  (`core/lib/board/board-app.ts:26`) admits both names, yet the comparison is `url.origin` string equality (`:86`), so
+  one server answers its own two host names differently.
+* **No preflight ever reached the API**: after each route's seven probes the spec asserts the whole mock log is `[]`,
+  granted probes included (`lane-b-board-preflight-2.log`, `ok 1`).
+
+### 14.5 CONFIRMED — the grant is per route, fixed, and does not extend
+
+`ok 2 (392ms)`. `boardPreflight(req, methods)` never reads `Access-Control-Request-Method`: an OPTIONS asking for
+`DELETE` (and `Access-Control-Request-Headers: x-custom`) from the mounted origin still answers
+`Access-Control-Allow-Methods: GET` on the two GET routes and `POST` on notify. And the blessed `/api/board/session`
+still answers a `POST` from the same origin with Next's own **405**, carrying none of the CORS names and no `Allow`.
+
+### 14.6 CONFIRMED — GET versus HEAD, and the shapes a Board route answers
+
+`ok 3 (376ms)` and `ok 4 (783ms)`; raw corroboration verb by verb in `lane-b-board-probe-1.log`.
+
+| call | answer | what is on it |
+| --- | --- | --- |
+| `GET` from the mounted origin, no cookies | **401** `{"message":"Unauthorized"}` | ACAO echo + `Allow-Credentials: true` + `no-store` (`session route.ts:25-27`) |
+| `HEAD` from the mounted origin | **401**, **0 B body** | the same ACAO echo — the GET handler ran (`auto-implement-methods.js:39-45`, quoted in `suites/lane-c/method-and-preflight.spec.ts`), so the Origin guard and the cookie check ran |
+| `HEAD` from a refused origin | **403**, **0 B body**, no ACAO | the refusal ran, but a HEAD response carries none of `{"message":"Forbidden"}` |
+| `PUT` / `DELETE` from the mounted origin | **405**, 0 B body | no CORS name, **no `Allow`**, **no `Cache-Control`**, `vary` = Next's own four entries **without** `Cookie` → the route module was never entered |
+| `TRACE` (no Origin) | **500**, `content-type: text/html; charset=utf-8`, 4791 B | Next's error document; `lane-b-board-probe-1.log` quotes `'TRACE' HTTP method is unsupported.` from `NextRequest` construction. No CORS name, no Board JSON. Dev-server behaviour. |
+
+**Refusal-shape claim, CONFIRMED:** the app's own refusal (`403`) is a JSON body with `no-store` and a `Vary` naming
+Origin and Cookie; Next's own verb refusal (`405`) is bodiless and carries none of that. The two are distinguishable
+from the response alone.
+
+### 14.7 CONFIRMED — a preflight grant is not a data grant
+
+`ok 5 (4.0s)`, in that order on one origin:
+
+1. `OPTIONS /api/board/session` from the mounted origin → `204` + `Allow-Methods: GET` + `Max-Age: 600`, mock log empty.
+2. `GET /api/board/session` from **the very same origin**, no cookies → **401 `{"message":"Unauthorized"}`**, echoed
+   (`MEASURE GET /api/board/session | the preflighted origin, no cookies -> 401 …`), mock log still empty. The 204 bought
+   the right to ask and nothing more: `session route.ts:25-27` checks the cookies after the Origin.
+3. The same `GET` with the lane's session cookies → **200**
+   `{"id":"44444444-4444-4444-8444-111111111111","name":"Fixture Manager","imageUrl":null}`, with the mock asked exactly
+   one more `/api/user/me` — the guard's own check (`authenticated-guard-app.ts:44`: it authenticates at `/user/me`).
+   The same bodies and header sets, read straight off the mock's fixture cookies in `lane-b-board-cred-probe-1.log`,
+   which also pinned `/api/board/members` → `200 {"items":[{employeeId,name,imageUrl}, …]}` after
+   `GET /api/organization-team 200`.
+
+### 14.8 CONFIRMED — what a real page on this app can and cannot do (where the mount bites)
+
+`ok 6 (3.4s)`, plus the earlier `lane-b-board-browser-probe-1.log`. A page served by this lane's app at
+`http://localhost:3032`, doing `fetch(…, { credentials: 'include' })` inside the page:
+
+* **Same-origin GET → 403 `{"message":"Forbidden"}`.** Chromium sends **no `Origin`** on a same-origin GET, and these
+  routes refuse a caller with none (`board-app.ts:85-86`: `origin === null` never equals `trusted`). **State A therefore
+  does not let this app's own pages read `/api/board/session`** — the simplest-looking mount is the one the Board feature
+  cannot use. Corroborated independently in `lane-b-board-browser-probe-1.log` (the same 403, before any spec existed)
+  and in `lane-b-board-probe-1.log` (the same refusal with no Origin header at all).
+* Same-origin `POST` with `content-type: text/plain` → **415 `{"message":"Send the request as application/json"}`** with
+  `access-control-allow-origin: http://localhost:3032`: a same-origin POST **does** carry an Origin, the guard accepted
+  it, and the answer is a body gate (`notify route.ts:43-49`) rather than the Origin gate. In state B the same call is
+  expected to answer 403 instead; the spec asserts that branch too, and state B has no log yet (§14.10).
+* Cross-host GET (`http://127.0.0.1:3032/api/board/session` from the `localhost` page, signed in): the browser **let the
+  page read** it (`resolved: true`, `status 401`, `{"message":"Unauthorized"}`) because the server echoed the *page's*
+  origin — and it was **401, not 200**, because `signInWithFixture` puts the session cookies on the `localhost` host
+  (`helpers.ts:194-206`) and a request to `127.0.0.1` never carries them. The Board's premise is that it and the app are
+  one site (`session route.ts:10-13`); two loopback host names are not one site. **CONFIRMED for the status half.**
+* **What a page can see is not what was sent**: on that cross-origin answer the network layer carried
+  `access-control-allow-origin` and `vary` while the page read both as `null` (`exposedAcao:null, exposedVary:null` in
+  `lane-b-board-preflight-2.log`, same in the probe log); on the same-origin answers the page read `vary` whole and the
+  ACAO the server had written. Nothing on these routes sets `Access-Control-Expose-Headers`. For anyone writing Board
+  tests later: header claims come from the network layer (`response.headers()`), never from what `fetch()` exposes.
+
+### 14.9 REFUTED — my own assertion, not an app bug: the whole-mock-log witness is invalid once a page mounted the shell
+
+`lane-b-board-preflight-2.log`'s one red is this: `the cookieless cross-host Board call asked the test backend anyway`,
+with the log holding two `GET /api/user/me 200` — written by the **app shell** that `app('/', { requireShell: false })`
+loads, not by the Board call. The claim was wrong-shaped; the app did nothing wrong. Re-pinned in the file: those two
+tests now use a document on the app's origin that runs no code (`/favicon.ico`, `200 image/x-icon`) and put the session
+cookies on the context through `signInWithFixture` directly, so the log holds only what the Board calls caused; §14.7
+step 3 asserts the *delta* of `/api/user/me` (`askedBefore + 1`) rather than "not empty".
+
+**NOT YET RE-RUN:** §14.7 step 3 and §14.8's cookie test in their re-pinned form. The numbers above are run 2's, with
+the pre-repin bodies; run 3 is owed before those two lines are quoted as green.
+
+### 14.10 NOT REACHABLE here, recorded rather than guessed
+
+* **State B (`E2E_BOARD_APP_DOMAIN=http://127.0.0.1:3032`) was never started.** Every "the Board is on another origin
+  from the app" claim in this section — the 403-versus-415 branch of §14.8, and the "own origin refused while the Board
+  origin granted" matrix — is asserted by the spec's derived gating but has **no log on this lane yet**. The command is
+  `down lane-b`, then `E2E_BOARD_APP_DOMAIN=http://127.0.0.1:3032 … up lane-b`, then the two runs of §14.1 with lane-b.
+* No Board **data** answer involving a real Board app: the mock has no Board upstream handler, so `{notified: 0}` stays
+  exactly what `board-origin.spec.ts`'s header says it is (the mock's echo), and nothing here claims anyone was notified.
+* Whether Chromium issues an `OPTIONS` preflight for a cross-origin `content-type: application/json` POST is **not
+  claimed**: no OPTIONS for those fetches surfaced to Playwright's `context.on('request')` / `page.on('response')`
+  listeners in either probe, so the OPTIONS answers of §14.4 were driven explicitly, not observed as browser-generated.
+
+### 14.11 Harness gaps this hit (not patched — the harness is shared with lane-a and lane-d)
+
+1. `lane-servers.mjs check` cannot see a Board mount: `laneAppMiswiring` compares only
+   `NEXT_PUBLIC_GAUZY_API_SERVER_URL`, `NEXT_PUBLIC_WEB_APP_URL` and `NEXT_PUBLIC_EVER_STATS_API_URL`
+   (`scripts/lane-servers.mjs:211-215`), so a lane started with `E2E_BOARD_APP_DOMAIN` prints the same `OK` line as one
+   without it. The mount had to be read off `<html data-ever-teams-runtime-env>` by hand (§14.2), which is also what
+   `board-origin.spec.ts:73-75` records for lane-d.
+2. `MockControl.requests()` is the whole log, with no attribution and no snapshot, and `mock` auto-resets per test; a
+   browser test that loads the app shell therefore cannot assert "nothing reached the mock". A `callsSince()` on the
+   control client would close it; I worked around it with `/favicon.ico`.
+3. Playwright reports Chromium's own `Origin` on `response.request().headers()` for a POST and not for a same-origin GET
+   (which is exactly the distinction this finding needs), and reports none at all on `context.on('request')`
+   (`lane-b-board-browser-probe-1.log` against `lane-b-board-preflight-2.log`) — so an Origin claim has to come from
+   what the app answered.
+4. The whole-project `tsc` is a shared resource with three live lanes on one branch; a red there can be another lane's
+   in-flight file (it was, twice — §14.1).
+
+### 14.12 Statements this section does **not** make
+
+* Nothing is claimed about the Board *front end*: no Board app was mounted and no Board UI was opened.
+* No lane server other than lane-b's was started, stopped or restarted; nothing under `suites/api`, `suites/lane-a`,
+  `suites/lane-c` or `suites/lane-d`, and no harness file (`lane-servers.mjs`, `test-servers.ts`, `helpers.ts`,
+  `fixtures.ts`, `api-fixtures.ts`, `mock-gauzy-server.mjs`), was edited. My writes:
+  `suites/lane-b/board-preflight.spec.ts`, this section, and my own `E:\Coding\.tmp\lane-b-board-*` logs and probe
+  scripts.
+* No live infrastructure, no real API, no `provision-demo-tenant.mjs`, no new dependency, no secret read or printed.
+* **Lane-b was left UP** with the Board mounted at `http://localhost:3032` (state A) for whoever takes the lane next;
+  `down lane-b` is one command away, and §14.10 names the command for state B.
