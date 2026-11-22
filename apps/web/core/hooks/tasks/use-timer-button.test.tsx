@@ -158,6 +158,37 @@ describe("a task card's Start", () => {
 		expect(mockCalls).toEqual(['stop', 'start task-b']);
 	});
 
+	it('starts nothing, and settles, when it goes away while the first read is on its way', async () => {
+		const { store, view } = renderCardOfTaskB(null);
+		let answerRead: () => void = () => undefined;
+		mockGetTimerStatus.mockImplementation(
+			() =>
+				new Promise((resolve) => {
+					answerRead = () => {
+						store.set(timerStatusState, RUN_ON_TASK_A);
+						resolve({ data: RUN_ON_TASK_A });
+					};
+				})
+		);
+		let isSettled = false;
+		let start: Promise<void> = Promise.resolve();
+
+		await act(async () => {
+			start = view.result.current.startTimerWithTask().then(() => {
+				isSettled = true;
+			});
+		});
+		view.unmount();
+		await act(async () => {
+			answerRead();
+			await start;
+		});
+
+		expect(isSettled).toBe(true);
+		expect(mockCalls).toEqual([]);
+		expect(mockSetActiveTask).not.toHaveBeenCalled();
+	});
+
 	it('starts its task, with no stop, when the first read finds no run', async () => {
 		const { store, view } = renderCardOfTaskB(null);
 		mockGetTimerStatus.mockImplementation(async () => {

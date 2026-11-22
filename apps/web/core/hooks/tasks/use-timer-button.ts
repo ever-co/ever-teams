@@ -129,6 +129,18 @@ export function useTimerButtonLogic({ task }: { task: TTask }) {
 		void stopThenStart().finally(done);
 	}, [isStatusRead, stopThenStart]);
 
+	// A start still waiting for that read when this Start goes away (its page left, or a newer Continue took its place)
+	// is given up: nothing starts, and its caller settles, so Continue drops the notes it handed instead of leaving
+	// them to a later start of the task
+	useEffect(
+		() => () => {
+			const done = queuedStartDone.current;
+			queuedStartDone.current = null;
+			done?.();
+		},
+		[]
+	);
+
 	const startTimerWithTask = useCallback(async () => {
 		if (warnWhenTaskClosed()) {
 			return;
