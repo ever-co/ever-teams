@@ -333,6 +333,55 @@ test('a refused workspace sign-in says so on the workspace step, and Back return
 	assert.equal(form.formData.email, 'ayla@example.com');
 });
 
+test('Back during a workspace sign-in drops its answer: nobody is signed in to the workspace left', async () => {
+	let answerSignIn;
+	const held = () =>
+		new Promise((resolve) => {
+			answerSignIn = resolve;
+		});
+	await signInWithPassword(workspaceApi({ workspaces: [BRIGHTLINE, KESTREL], signIn: held }));
+	let pick;
+	await act(async () => {
+		pick = form.workspaces.choose(form.workspaces.choices[0]);
+	});
+
+	await act(async () => form.backToPassword());
+	await act(async () => {
+		answerSignIn(json(200, { ...SESSION, token: 'session-answered-late' }));
+		await pick;
+	});
+
+	assert.equal(usesSession('session-answered-late'), false, 'the late answer signs nobody in');
+	assert.equal(form.workspaces, null);
+	assert.equal(form.twoFactor, null);
+	assert.equal(form.formData.email, 'ayla@example.com');
+});
+
+test('a code asked for after Back opens no code step', async () => {
+	let answerSignIn;
+	const held = () =>
+		new Promise((resolve) => {
+			answerSignIn = resolve;
+		});
+	await signInWithPassword(workspaceApi({ workspaces: [BRIGHTLINE, KESTREL], signIn: held }));
+	let pick;
+	await act(async () => {
+		pick = form.workspaces.choose(form.workspaces.choices[0]);
+	});
+
+	await act(async () => form.backToPassword());
+	await act(async () => {
+		answerSignIn(
+			json(403, { statusCode: 403, code: 'TWO_FACTOR_REQUIRED', message: 'Enter the code', challenge: 'challenge-1' })
+		);
+		await pick;
+	});
+
+	assert.equal(form.twoFactor, null, 'the left step opens nothing');
+	assert.equal(form.workspaces, null);
+	assert.equal(form.error, undefined);
+});
+
 test('a check that got no answer, read after the person left its step, leaves the next step checking', async () => {
 	let probeStarted;
 	const probeCalled = new Promise((resolve) => {

@@ -55,6 +55,9 @@ export const usePasswordLoginForm = ({ redirectHandler }: UsePasswordLoginFormPa
 	const { api } = useKitOptions();
 	// Counts the edits: a failure that comes back after an edit is not shown, since the edit cleared the error.
 	const edits = useRef(0);
+	// Counts the picks of a workspace and the returns to the password: an answer that comes back after one of them is
+	// for a step the person left, and signs nobody in.
+	const workspaceAttempts = useRef(0);
 
 	const completeSignIn = (session: IAuthLogin) => {
 		setToken(session.token);
@@ -91,8 +94,15 @@ export const usePasswordLoginForm = ({ redirectHandler }: UsePasswordLoginFormPa
 
 	// Signs in to one workspace of the list: the session, the code step of an account with two-factor sign-in on
 	// (ever-co/ever-teams#5701), or the refusal in the form's words.
-	const signInToWorkspace = async (choice: WorkspaceChoice, showError: (message: string) => void) => {
+	const signInToWorkspace = async (
+		choice: WorkspaceChoice,
+		showError: (message: string) => void,
+		isStillWanted: () => boolean
+	) => {
 		const answer = await authSignInWorkspace({ email: formData.email, token: choice.token }, api);
+		if (!isStillWanted()) {
+			return;
+		}
 		if ('token' in answer) {
 			setChoices(null);
 			completeSignIn(answer);
@@ -103,17 +113,28 @@ export const usePasswordLoginForm = ({ redirectHandler }: UsePasswordLoginFormPa
 			twoFactor.open(challenge);
 			return;
 		}
-		await reportFailure(answer, showError);
+		const showErrorIfWanted = (message: string) => {
+			if (isStillWanted()) {
+				showError(message);
+			}
+		};
+		await reportFailure(answer, showErrorIfWanted);
 	};
 
 	const chooseWorkspace = async (choice: WorkspaceChoice) => {
+		workspaceAttempts.current += 1;
+		const attempt = workspaceAttempts.current;
+		const isStillWanted = () => workspaceAttempts.current === attempt;
 		setChoosing(choice.token);
 		setWorkspaceError(undefined);
-		await signInToWorkspace(choice, setWorkspaceError);
-		setChoosing(null);
+		await signInToWorkspace(choice, setWorkspaceError, isStillWanted);
+		if (isStillWanted()) {
+			setChoosing(null);
+		}
 	};
 
 	const backToPassword = () => {
+		workspaceAttempts.current += 1;
 		twoFactor.close();
 		setChoices(null);
 		setChoosing(null);
@@ -154,7 +175,8 @@ export const usePasswordLoginForm = ({ redirectHandler }: UsePasswordLoginFormPa
 				return;
 			}
 			if (found.length === 1) {
-				await signInToWorkspace(found[0], showError);
+				const isOnlyWorkspace = () => true;
+				await signInToWorkspace(found[0], showError, isOnlyWorkspace);
 				return;
 			}
 			setChoices(found);
