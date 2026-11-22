@@ -24,6 +24,7 @@ import { CheckIcon, Copy, LoaderCircle, LogOutIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useAtomValue } from 'jotai';
 import { hostSessionAtom } from '@lib/session/host-session';
+import { KIT_ERROR_MESSAGE_KEYS } from '@lib/errors/kit-error';
 import { useTranslation } from 'react-i18next';
 import { SpinOverlayLoader } from '../loaders/spin-overlay-loader';
 import { TeamsTimerFooter } from '@components/layouts/footers/component-footer';
@@ -44,12 +45,21 @@ import { SiteSignInButton } from './site-sign-in-button';
 /**
  * What a signed-out person sees when the host signs people in from its backend (config.getToken): the kit asks for no
  * password or token, it points to the host product's own sign-in. Nothing while the host's first answer is pending.
+ * A person Ever Teams refused (no account, tracking off, not a member) reads the kit's permission message instead,
+ * as a person without the permission does (ever-co/ever-teams#5706).
  */
 const HostSignInNote = ({ className }: { className?: string }) => {
 	const { t } = useTranslation();
-	const { status } = useAtomValue(hostSessionAtom);
+	const { status, refused } = useAtomValue(hostSessionAtom);
 	if (status !== 'signed-out') {
 		return null;
+	}
+	if (refused) {
+		return (
+			<p role="status" className={cn('max-w-xs', KIT_NOTICE_SURFACE, kitNoticeTone('error'), className)}>
+				{t(KIT_ERROR_MESSAGE_KEYS.permission)}
+			</p>
+		);
 	}
 	return (
 		<p role="status" className={cn('max-w-xs', KIT_NOTICE_SURFACE, kitNoticeTone('neutral'), className)}>
