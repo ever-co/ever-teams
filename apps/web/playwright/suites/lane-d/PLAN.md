@@ -461,3 +461,25 @@ carries no body text at that instant because the layout is client-only (`app/[lo
 starts polling, so a message that reads the body inside its template quotes the page at t=0 rather than at the moment of failure.
 `2848ec3a4` took that lie out of the message: the 150 s window now quotes `bodyWhenOpened`, labelled as the read taken when the
 window opened. No app change is claimed as a cause of anything here, and none is proposed for reversal.
+
+### 9.5 Both halves of `suites/api/board-origin.spec.ts` re-measured on the newer HEAD and the clamped mock
+
+`2f98d3df3` changed the mock itself (`apps/web/cypress/support/mock-gauzy-server.mjs`, the `MAX_DROP_MS` clamp) and
+`apps/web/next.config.js`, and `2848ec3a4`/`5b86ec793` are only evidence about the tree they ran in. So the lane was rebuilt on
+`2f98d3df3` and both halves were run again, each on a lane whose Board state was read off the served page first:
+
+| log (mtime)                                                                                                             | lane state, read back                                                                                                              | the log's own summary                             |
+| ----------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
+| `E:\Coding\.tmp\lane-d-up-board6.log`                                                                                   | `E2E_BOARD_APP_DOMAIN=http://127.0.0.1:3034 … up lane-d`; the page carries `NEXT_PUBLIC_BOARD_APP_DOMAIN":"http://127.0.0.1:3034"` | `port 4008 answers`, `port 3034 answers`          |
+| `E:\Coding\.tmp\api-board-origin-lane-d-mounted-5.log` (07:55:46)                                                       | Board mounted                                                                                                                      | **`4 passed` + `22 skipped (4.4s)`**, `exit B: 0` |
+| `E:\Coding\.tmp\api-board-origin-lane-d-unmounted-4.log` (08:00:41, lane started by `lane-d-up-plain5.log` at 08:00:39) | `up lane-d` with **no** Board variable; the four configured cases skipping is itself the proof the domain is blank                 | **`22 passed` + `4 skipped (5.3s)`**, `exit B: 0` |
+
+Same numbers as `mounted-4` / `unmounted-3`, on the newer mock and the newer config: the `MAX_DROP_MS` clamp sits nowhere near the
+Board routes, and this file's two halves behave as pinned.
+
+One obstacle, recorded because it cost a lane cycle and it is not this lane's file: at 07:4x a `down lane-d` + `up lane-d` pair
+died on `SyntaxError: Invalid or unexpected token` at `apps/web/playwright/scripts/lane-servers.mjs:287`
+(`if (process.platform !== 'win32) {` — an unterminated string). That file is in another lane's uncommitted set, so the reading is
+that the file was caught mid-modification rather than any claim about who wrote it; `node --check` on the same path a minute later
+parsed clean and the identical `down` / `up` commands then worked, which is how `up-board6` and `up-plain5` got started. Nothing was
+killed by hand, no port was taken, and this lane did not edit that script.
