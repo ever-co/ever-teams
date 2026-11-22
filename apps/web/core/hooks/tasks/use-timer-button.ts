@@ -158,7 +158,11 @@ export function useTimerButtonLogic({ task }: { task: TTask }) {
 			queuedStartDone.current = resolve;
 		});
 		setLoading(true);
-		const read = await Promise.resolve(getTimerStatus()).catch(() => undefined);
+		// The read, unless the start settles first: this Start went away, or another read of the timer let it switch
+		const read = await Promise.race([
+			Promise.resolve(getTimerStatus()).catch(() => undefined),
+			switched.then(() => undefined)
+		]);
 		// No status came back: the start goes as before, and its own checks read the timer
 		const hasNoStatus = !read?.data;
 		const isStillQueued = queuedStartDone.current !== null;

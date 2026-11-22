@@ -180,11 +180,14 @@ describe("a task card's Start", () => {
 		});
 		view.unmount();
 		await act(async () => {
-			answerRead();
 			await start;
 		});
-
+		// Settled without waiting for the read, so Continue drops its notes at once
 		expect(isSettled).toBe(true);
+
+		await act(async () => {
+			answerRead();
+		});
 		expect(mockCalls).toEqual([]);
 		expect(mockSetActiveTask).not.toHaveBeenCalled();
 	});
