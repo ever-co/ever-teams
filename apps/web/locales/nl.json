@@ -4281,6 +4281,8 @@
 			"VERIFY_TITLE": "Bevestig je e-mailadres",
 			"VERIFY_TEXT": "We hebben een code naar {email} gestuurd.",
 			"VERIFY_TEXT_GENERIC": "We hebben een code naar je e-mailadres gestuurd.",
+			"VERIFY_TEXT_NOT_SENT": "Stuur een code naar {email} om te bevestigen dat het adres van jou is.",
+			"VERIFY_TEXT_NOT_SENT_GENERIC": "Stuur een code naar je e-mailadres om te bevestigen dat het van jou is.",
 			"VERIFY_ACTION": "Code invoeren",
 			"VERIFY_RESEND": "Nieuwe code sturen",
 			"VERIFY_SENDING": "Nieuwe code wordt verstuurd"

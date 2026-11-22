@@ -4281,6 +4281,8 @@
 			"VERIFY_TITLE": "אשרו את כתובת הדוא״ל",
 			"VERIFY_TEXT": "שלחנו קוד אל {email}.",
 			"VERIFY_TEXT_GENERIC": "שלחנו קוד לכתובת הדוא״ל שלכם.",
+			"VERIFY_TEXT_NOT_SENT": "שלחו קוד אל {email} כדי לאשר שהכתובת שלכם.",
+			"VERIFY_TEXT_NOT_SENT_GENERIC": "שלחו קוד לכתובת הדוא״ל שלכם כדי לאשר שהיא שלכם.",
 			"VERIFY_ACTION": "הזנת הקוד",
 			"VERIFY_RESEND": "שליחת קוד חדש",
 			"VERIFY_SENDING": "שולחים קוד חדש"

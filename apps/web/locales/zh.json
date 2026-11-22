@@ -4281,6 +4281,8 @@
 			"VERIFY_TITLE": "请确认你的电子邮箱地址",
 			"VERIFY_TEXT": "我们已向 {email} 发送了验证码。",
 			"VERIFY_TEXT_GENERIC": "我们已向你的电子邮箱发送了验证码。",
+			"VERIFY_TEXT_NOT_SENT": "向 {email} 发送验证码，以确认该地址属于你。",
+			"VERIFY_TEXT_NOT_SENT_GENERIC": "向你的电子邮箱发送验证码，以确认它属于你。",
 			"VERIFY_ACTION": "输入验证码",
 			"VERIFY_RESEND": "重新发送验证码",
 			"VERIFY_SENDING": "正在发送新的验证码"

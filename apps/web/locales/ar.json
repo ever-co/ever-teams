@@ -4281,6 +4281,8 @@
 			"VERIFY_TITLE": "أكّد عنوان بريدك الإلكتروني",
 			"VERIFY_TEXT": "أرسلنا رمزًا إلى {email}.",
 			"VERIFY_TEXT_GENERIC": "أرسلنا رمزًا إلى بريدك الإلكتروني.",
+			"VERIFY_TEXT_NOT_SENT": "أرسل رمزًا إلى {email} لتأكيد أن العنوان يخصك.",
+			"VERIFY_TEXT_NOT_SENT_GENERIC": "أرسل رمزًا إلى بريدك الإلكتروني لتأكيد أنه يخصك.",
 			"VERIFY_ACTION": "إدخال الرمز",
 			"VERIFY_RESEND": "إرسال رمز جديد",
 			"VERIFY_SENDING": "جارٍ إرسال رمز جديد"
