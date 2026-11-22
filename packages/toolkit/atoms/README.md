@@ -442,6 +442,8 @@ Without `config.getToken`:
 
 - The sign-in dialog (`TeamsLoginDialog`) takes the user's email and password inside your page and sends them to
   `{apiUrl}/auth/login`. A "Token" tab also accepts a pasted access token.
+- For an account with two-factor sign-in on, the dialog then asks for the code of the person's authenticator app, or
+  one of their recovery codes, and sends it with the API's challenge to `{apiUrl}/auth/two-factor/verify`.
 - The access token and the user record are kept in `localStorage['_teams-store']`, readable by every script of your
   page, with the API address that issued the token (`persist.apiUrl`). A provider reads back only the session saved
   for the address it sends to, so a token never reaches another server (but see the next point for a session saved
