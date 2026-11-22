@@ -341,7 +341,8 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		borderColor: 'rgba(255, 255, 255, 0.13)',
 		borderWidth: 1,
-		height: 32,
+		// grows with a larger system font instead of cutting the chip's text
+		minHeight: 32,
 		paddingHorizontal: 9,
 		width: width / 2.7
 	},
