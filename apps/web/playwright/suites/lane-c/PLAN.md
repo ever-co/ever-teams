@@ -974,3 +974,39 @@ the shipped code only as a name in that file's `PASSED_HEADERS` (`:13`, copied v
 `forward-download-to-gauzy.test.ts:40`) and in the client-side `docs-import.service.ts:93`. Downloads are not this
 file's subject: `rg` for `disposition|256|MAX_|forwardHeaderSet|download|logo|cap ` over
 `method-and-preflight.spec.ts` returns nothing.
+
+## Dynamic segment shapes: pre-run save before the 2026-11-22 reboot (lane-c — NOTHING run, nothing written)
+
+`apps/web/playwright/suites/lane-c/dynamic-segment-shape.spec.ts` **was not created and nothing was executed** for this
+task: no Playwright run, no log, no test count, no measurement of mine, and no typecheck/lint/prettier pass. The
+save exists only so a planned PC reboot does not silently eat the shortlist. The draft — a commented shortlist, not a
+spec, explicitly marked unrun — is at **`E:\Coding\.tmp\lane-c-segments-draft.ts.txt`** (outside the repo, uncommitted
+by design: it has no green run behind it).
+
+Four things I did read myself before the save, each with its command:
+
+- **HEAD is not the sha the brief names.** `git rev-parse --short HEAD` → `8ebe64dbf`, one commit past `5575b1c85`;
+  `git fetch origin test/playwright-e2e-suite` then `git rev-parse --short origin/test/playwright-e2e-suite` → the same
+  `8ebe64dbf`, so there was nothing to pull. `5575b1c85` is that commit's parent (`git log --oneline`).
+- **The brief's run command cannot collect a lane-c file.** `grep -nE 'testMatch|testDir'` over the two configs:
+  `apps/web/playwright/playwright.api.config.ts:28` is `projects: [{ name: 'api', testMatch: '**/api/**/*.spec.ts' }]`
+  and `apps/web/playwright/playwright.lane.config.ts:57` is ``testMatch: **/${laneName}/**/*.spec.ts``. So
+  `--config apps/web/playwright/playwright.api.config.ts suites/lane-c/…` matches nothing under `suites/lane-c` and
+  would have reported an empty run. The correct form is the one this PLAN's own run command already uses:
+  `E2E_LANE=lane-c E2E_REUSE_SERVERS=1 npx playwright test --config apps/web/playwright/playwright.lane.config.ts suites/lane-c/dynamic-segment-shape.spec.ts`.
+  Read off the config files, **not yet proven by a run of mine**.
+- **Part of this task is already on the branch, on a different segment kind.** `git show --stat 8ebe64dbf` added
+  `apps/web/playwright/suites/lane-a/public-assets.spec.ts` (32 tests, its own log `lane-a-assets-4.log`) over the
+  catch-all `apps/web/app/api/public-assets/[...path]/route.ts`, pinning `..`, `..%2F`, an absolute URL, an empty
+  segment and a 4 004-char segment there. A `suites/lane-c` file on this subject must stay on **named** single
+  segments (`[id]`, `[documentId]`, `[host]`, `[token]`, `[profileLink]`) and on the asked-or-not-at-the-mock
+  question, and must re-read `apps/web/playwright/suites/api/sweep.spec.ts` first, or it repeats lane-a's work.
+- **Gate hazard for the next session.** `git status --porcelain` at the save shows another agent's in-flight
+  untracked `apps/web/playwright/suites/lane-b/board-preflight.spec.ts` and modified lane-d files in this shared
+  working tree; `8ebe64dbf`'s own message records two `tsc` errors sitting in that lane-b file. So
+  `tsc -p playwright/tsconfig.json --noEmit` is not necessarily exit 0 here for a reason that is not mine — check
+  which file each error is in before acting on it.
+
+Route shortlist (14, from `find apps/web/app/api -name route.ts | grep -E '\[[a-zA-Z]+\]'`, 200 such files at
+`8ebe64dbf`) and the 16 segment shapes are in the draft file. None of those handlers has been read yet, so no
+CONFIRMED / REFUTED / NOT REACHABLE table exists for this task yet.
