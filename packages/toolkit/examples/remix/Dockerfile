@@ -11,7 +11,22 @@ COPY . .
 RUN yarn install --network-timeout 1000000 --frozen-lockfile --non-interactive --ignore-scripts && yarn cache clean
 
 RUN yarn turbo run build --filter=@ever-teams/example-remix
-WORKDIR /app/packages/toolkit/examples/remix
+# Pruned production install: the packages the server bundle leaves external (Vite bundles the linked
+# workspace packages into it) plus remix-serve, with their dependencies, copied from the install above.
+RUN node .deploy/examples/copy-runtime-deps.mjs --root /app --app /app/packages/toolkit/examples/remix \
+	--out /runtime --scan /app/packages/toolkit/examples/remix/build/server @remix-run/serve
+
+# Runtime: the build output and that pruned node_modules only. Shipping the build stage (the whole
+# monorepo and its full install) made this image ~1.7 GB compressed, several GB on every worker.
+FROM node:${NODE_VERSION}-slim AS runner
 ENV NODE_ENV=production PORT=3000 HOSTNAME=0.0.0.0
+WORKDIR /app
+COPY --from=build --chown=node:node /runtime/ ./
+# package.json: `"type": "module"` makes Node load build/server/index.js as ESM.
+COPY --from=build --chown=node:node /app/packages/toolkit/examples/remix/package.json ./packages/toolkit/examples/remix/
+COPY --from=build --chown=node:node /app/packages/toolkit/examples/remix/build ./packages/toolkit/examples/remix/build
+# remix-serve serves build/client relative to the working directory.
+WORKDIR /app/packages/toolkit/examples/remix
+USER node
 EXPOSE 3000
-CMD ["yarn","start"]
+CMD ["node", "/app/node_modules/@remix-run/serve/dist/cli.js", "./build/server/index.js"]
