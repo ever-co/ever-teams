@@ -49,7 +49,7 @@ const NoTeam = ({ className, ...rest }: Props) => {
 	);
 };
 
-/** A team this account creates would not make it a member: what it misses, and who can add it to a team. */
+/** A team this account creates would not make it a member: what it misses, with no step that does not work today. */
 function NoMemberProfile({ className }: Readonly<{ className?: string }>) {
 	const t = useTranslations();
 	return (

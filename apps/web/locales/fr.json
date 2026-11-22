@@ -280,7 +280,7 @@
 		"NO_TEAM": "Créez votre propre équipe ou rejoignez une équipe existante",
 		"NO_TEAM_SUB": "Créez une équipe et invitez les personnes avec qui vous travaillez.",
 		"NO_TEAM_TOOLTIP": "Vous devez vérifier votre adresse e-mail",
-		"NO_MEMBER_PROFILE_MESSAGE": "Les équipes, les tâches et le chronomètre apparaissent dès que vous êtes dans une équipe. Demandez à un administrateur de vous ajouter à une équipe.",
+		"NO_MEMBER_PROFILE_MESSAGE": "Les équipes, les tâches et le chronomètre apparaissent dès que vous êtes dans une équipe.",
 		"CANCEL": "Annuler",
 		"DISCARD": "Annuler",
 		"EXISTING_MEMBER": "Déjà membre",

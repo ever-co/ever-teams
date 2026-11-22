@@ -22,10 +22,22 @@ describe('no member profile translations', () => {
 		expect(localeFiles).toHaveLength(13);
 	});
 
-	it.each(localeFiles)('says what is missing and what to do next in %s', (file) => {
+	it.each(localeFiles)('says what is missing in %s', (file) => {
 		const messages = readMessages(file);
 		expect(messages.dashboard.calendar.NO_MEMBER_TITLE).toBeTruthy();
 		expect(messages.common.NO_MEMBER_PROFILE_MESSAGE).toBeTruthy();
+	});
+
+	// An admin cannot add such an account to a team from the app today, and a second invitation of the same address
+	// creates a second account (ever-co/ever-gauzy#12143): the message states the fact and sends nobody anywhere
+	it.each(localeFiles)('states one fact and gives no advice in %s', (file) => {
+		const message = readMessages(file).common.NO_MEMBER_PROFILE_MESSAGE;
+		const sentenceEnds = message.match(/[.。](\s|$)/g) ?? [];
+		expect(sentenceEnds).toHaveLength(1);
+	});
+
+	it('does not send the person to an admin', () => {
+		expect(english.common.NO_MEMBER_PROFILE_MESSAGE).not.toMatch(/admin/i);
 	});
 
 	it.each(translatedLocaleFiles)('says it in the language of %s', (file) => {
