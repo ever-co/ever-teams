@@ -1,5 +1,13 @@
 import { expect, test } from '../../fixtures';
-import { APP_ORIGIN, hardVisit, mockRequestsWhen, receivedTokens, signInWithFixture, stubNextAuthSession } from '../../helpers';
+import type { Page } from '@playwright/test';
+import {
+	APP_ORIGIN,
+	hardVisit,
+	mockRequestsWhen,
+	receivedTokens,
+	signInWithFixture,
+	stubNextAuthSession
+} from '../../helpers';
 import { logLines, mintAccessToken, sha256 } from './lane-d-session';
 
 /**
@@ -24,6 +32,14 @@ import { logLines, mintAccessToken, sha256 } from './lane-d-session';
 
 const UNAUTHORIZED_TITLE = 'Sign in to see this page';
 
+/**
+ * What the page is saying, in one line, for a failure message or a log line. Read at the moment the message is built —
+ * `expect(locator, message)` evaluates its message before the assertion starts polling — so every call below names the
+ * instant it was read, and no red case has to guess what the page looked like.
+ */
+const pageWords = async (page: Page) =>
+	(await page.locator('body').innerText()).replace(/\s+/g, ' ').trim().slice(0, 320);
+
 test.describe('lane-d · what a signed-out browser is actually given', () => {
 	for (const path of ['/board', '/chat', '/goals']) {
 		test(`${path} bounces to the sign-in affordance, not to a page`, async ({ anon, mock }) => {
@@ -34,10 +50,10 @@ test.describe('lane-d · what a signed-out browser is actually given', () => {
 				page,
 				`a signed-out visitor is sitting on ${path} — the door's 307 (proxy.ts:519-522) no longer takes them off it`
 			).not.toHaveURL(new RegExp(path));
-			await expect(page.getByText(UNAUTHORIZED_TITLE), `the bounced page does not show "${UNAUTHORIZED_TITLE}"; it says: ${await page
-				.locator('body')
-				.innerText()
-				.then((text) => text.replace(/\s+/g, ' ').trim().slice(0, 300))}`).toBeVisible();
+			await expect(
+				page.getByText(UNAUTHORIZED_TITLE),
+				`the bounced page does not show "${UNAUTHORIZED_TITLE}"; it says: ${await pageWords(page)}`
+			).toBeVisible();
 			await expect(
 				page.locator('a[href="/auth/passcode"]'),
 				'the bounced page offers no sign-in link (core/components/pages/unauthorized/index.tsx:21 → DEFAULT_APP_PATH)'
@@ -52,74 +68,146 @@ test.describe('lane-d · what a signed-out browser is actually given', () => {
 		});
 	}
 
-	test('an ungated family leaves a signed-out browser in a permanent "Loading" shell that asks the API nothing — pinned, not approved', async ({
+	test('an ungated family leaves a signed-out browser in a permanent loading skeleton that asks the API nothing and carries no accessible page name — pinned, not approved', async ({
 		anon,
 		mock
 	}) => {
-		// Finding D-7, answered by the browser run (1 failed / 6 passed, `E:\Coding\.tmp\lane-d-browser1.log`) — and the
-		// answer is not the one this case predicted. It expected token-less reads to go out; what the page actually does
-		// is ask for nothing at all. Both halves are pinned, from the run's own evidence:
-		//
-		//   URL        http://localhost:3034/invoices  (no bounce: `PROTECTED_APP_URL_PATHS`, constants.tsx:117-132,
-		//              names no pattern for `invoices`, so the door served the document)
-		//   what is rendered  the app shell with no session — the snapshot at
-		//              `apps/web/playwright/artifacts/test-results-lane-d/lane-d-page-gate-browser-l-11a4f-rives-the-API-with-no-token-lane-d/error-context.md`
-		//              reads `button "Current workspace: No workspace. Click to change the workspace"`, the full sidebar
-		//              (Home / Calendar / Meetings / Assistant / Dashboard / Favorites / Tasks / Projects / Clients / My
-		//              work), `heading level=1: Invoices`, and inside the page's own `main` a single `status: Loading`.
-		//              No login form, no sign-in link, no page data — a visitor is left in a spinner.
-		//   the mock log   empty, over a window four times wider than the one that timed out in the first run.
-		//
-		// The first run waited 40 × 250 ms for any `/api/*` entry and never saw one, which is why the old assertion
-		// (`toBeGreaterThan(0)`) timed out rather than failed. The window below is 40 × 500 ms after
-		// `networkidle`, and the expectation is the measured 0. That is the finding re-pinned to what the browser did,
-		// not the red removed: if the page ever starts asking again, this case goes red and says so.
-		// This case gets its own 7-minute budget (the config's is 180 s per test) because the mount time is measured,
-		// not guessed: the shell was up by **12.9 s** in `lane-d-browser1.log`, by **66 s** in `lane-d-browser3.log`,
-		// and was still not up after **120 s** in `lane-d-browser4.log` — all on the same warm `next dev`, with free RAM
-		// between 3.4 and 4.6 GB and `strata` holding ~11.4 GB. A page-gate case that renders a 448 KB client-only
-		// document is the most expensive thing in this lane on this PC, and the honest fix is to give it room, not to
-		// drop the render assertions.
-		test.setTimeout(420_000);
+		/**
+		 * Finding D-7, measured. The door serves the document (`PROTECTED_APP_URL_PATHS`, constants.tsx:117-132, names no
+		 * pattern for `invoices`), the client mounts, and the page then renders **its own loading skeleton, forever**:
+		 *
+		 *  - why it never loads: `withAuthentication` (`core/components/layouts/app/authenticator.tsx:80-83`) returns
+		 *    `params.skeleton` while `userQuery.data` is missing, and `useUserQuery`
+		 *    (`core/hooks/queries/user-user.query.ts:13-23`) is `enabled: hasToken` (`:22`, `hasToken` read from the
+		 *    `auth-token` cookie at `:8-12`). Signed out there is no token, so the query is never enabled and never
+		 *    settles — which is also *why the mock log stays empty*: the read that would have carried a token is switched
+		 *    off before anything is asked, and `InvoicesContent` (the part that reads invoices) is never mounted at all.
+		 *  - what is shown: `InvoicesPageSkeleton` (`core/components/pages/invoices/invoices-states.tsx:204-210`) inside
+		 *    `PageSkeletonFrame` (`core/components/layouts/page-skeleton.tsx:97-116`), whose body is
+		 *    `<div role="status" aria-live="polite" aria-busy="true">` + `<span class="sr-only">Loading</span>`
+		 *    (`:110-112`), and whose "Invoices" title is the skeleton toolbar's own `<h1>` sitting inside
+		 *    `<div className="px-4" aria-hidden="true">` (`invoices-states.tsx:190-193`).
+		 *  - why this case was red in `lane-d-browser2/3/5/6.log`, and was never red-by-app: it asked
+		 *    `getByRole('heading', { name: 'Invoices' })`. That engine matches only what the accessibility tree exposes,
+		 *    and this title sits inside an `aria-hidden="true"` subtree, so no window can reach it — 15 s (browser2),
+		 *    60 s (browser3), 120 s (browser5) and 300 s (browser6) each ended with `element(s) not found` **while the
+		 *    same run's own failure snapshot listed `heading level=1: Invoices`** (browser6's:
+		 *    `apps/web/playwright/artifacts/test-results-lane-d/lane-d-page-gate-browser-l-9f3e7-thing-—-pinned-not-approved-lane-d/error-context.md`).
+		 *    The selector's failure is itself the finding, and a sharper one than "the page never renders": a signed-out
+		 *    visitor of an ungated family has **no accessible page name at all** — the title they read is decorative
+		 *    markup the app marks hidden from assistive technology. Both halves are pinned below from this case's own
+		 *    measurement: the visible `<h1>` (a DOM-level locator + `toBeVisible`) and its absence from the a11y tree
+		 *    (`getByRole` 0 / `includeHidden: true` 1 / the `aria-hidden` ancestor named).
+		 *  - the mount is server-compile-bound, not client-bound: this lane's own dev-server log for browser6 says
+		 *    `○ Compiling /[locale]/invoices ...` then `GET /invoices 200 in 9.7s (next.js: 9.1s, proxy.ts: 8ms,
+		 *    application-code: 578ms)` — `apps/web/playwright/artifacts/lane-lane-d-server.log` — and the page's own reads
+		 *    (`GET /api/health`, `GET /api/auth/session`, `POST /api/log`) follow that line, none of them to this lane's
+		 *    mock. The windows below cover a cold compile of this route and nothing wider.
+		 *
+		 * Measured by this case itself in `E:\Coding\.tmp\lane-d-browser7.log` — `7 passed (59.0s)`, the file's first clean
+		 * full-file number, on a lane warmed by the browser6 run that failed: the loading skeleton was up **4 972 ms**
+		 * after navigation (1 status region, 16 chars of body text at that instant); the title measured
+		 * `visibleH1 1 / accessibleHeading 0 / hiddenAwareHeading 1 / ariaHiddenAncestor div[aria-hidden="true"]`; the body
+		 * 20 s later read "…Clients My work Invoices Loading" with no form and no sign-in link; and this lane's mock was
+		 * asked **nothing**.
+		 *
+		 * Re-measured in `E:\Coding\.tmp\lane-d-browser9.log` — `7 passed (1.4m)`, `playwright exit code: 0` — once the
+		 * case's body reads had been pulled into `pageWords`: the skeleton was up **10 739 ms** after navigation with 1
+		 * status region and 162 chars of shell text already there, the four title measurements came back identical, and the
+		 * mock was again asked `(nothing)` over the 20 s after it settled. The two runs differ only in how fast the shell
+		 * came up, which is exactly why the assertions wait for the state and not for a duration.
+		 * (`lane-d-browser8.log`, between them, is void for a reason unlike browser4's: this PC no longer has a bundled
+		 * Chromium — `C:\Users\Evereq\AppData\Local\ms-playwright\` holds only an empty `chromium-1217\chrome-win64` — so
+		 * all 7 cases died in ~5 ms on `browserType.launch` until the run was given `E2E_BROWSER_CHANNEL=chrome`, the
+		 * installed Google Chrome the lane config already names.)
+		 */
+		test.setTimeout(300_000);
+		const openedAt = Date.now();
 		const page = await anon('/invoices');
 		console.log(`[lane-d] signed-out /invoices ended at ${page.url()}`);
 		await expect(page, `the door refused ${page.url()} — /invoices is no longer ungated`).toHaveURL(/\/invoices/);
 
-		// What the visitor is shown. The heading is asserted with a wide window because the two runs disagree about
-		// *when* it appears, and that is itself worth pinning: run 1's failure snapshot (taken 12.9 s into the test)
-		// already has `heading level=1: Invoices`, while run 2's `getByRole('heading', { name: 'Invoices' })` found
-		// nothing inside the 15 s `expect` default — so the shell mounts its page between ~3 s and ~13 s on a warm dev
-		// server, and a case that asks too early reads as "the page never renders".
-		const bodyAt = async (label: string) =>
-			(await page.locator('body').innerText()).replace(/\s+/g, ' ').trim().slice(0, 320).replace(/^/, `[lane-d] /invoices ${label}: `);
-		console.log(await bodyAt('at navigation'));
-		// 120 s, not 15 s and not 60 s, and the reason is a measured fact about this PC: the served document carries no
-		// body text at all (`/invoices at navigation:` printed an empty string), and the shell mounts at
-		// **≤ 12.9 s** when earlier browser cases have already compiled the client chunks (run 1's snapshot, taken when
-		// the case failed at 12.9 s, already shows the heading) but **only between 60 s and 66 s** when this case runs
-		// alone on a cold Turbopack (`lane-d-browser3.log`: 60 s `toBeVisible` timed out, and that run's own failure
-		// snapshot at 66 s shows the same shell). A page-gate case that asks "did the page render?" faster than the
-		// dev server compiles it reads as "the page never renders".
+		const bodyAt = async (label: string) => `[lane-d] /invoices ${label}: ${await pageWords(page)}`;
+		const bodyWhenOpened = await bodyAt('at navigation');
+		console.log(bodyWhenOpened);
+
+		// The loading state is what the served document grows into, so it is the assertion with the wide window: the
+		// client-only document (`layout-component.tsx:40-42`, `ssr: false`) carries no body text at all — every run's
+		// `at navigation` line above printed an empty string — and the route's first paint waits for Turbopack to compile
+		// `[locale]/invoices` (9.7 s of server time in browser6's dev log, cold). `role="status"` is the skeleton's own
+		// region (`page-skeleton.tsx:110-112`); the region is counted below rather than merely found, because
+		// `getByText('Loading')` would also match a sr-only span of some *other* loading region and call that the page.
+		const status = page.getByRole('status');
 		await expect(
-			page.getByRole('heading', { name: 'Invoices' }),
-			`no "Invoices" heading at ${page.url()} within 300 s; the page said: ${(await page.locator('body').innerText()).replace(/\s+/g, ' ').trim().slice(0, 300)}`
-		).toBeVisible({ timeout: 300_000 });
-		console.log(await bodyAt('once the heading is up'));
-		// The page's own content area is a `status: Loading` with nothing behind it — in both failure snapshots, at
-		// 12.9 s and at 66 s: `main → status → "Loading"`. A signed-out visitor of an ungated family is left in a
-		// spinner, not sent to a sign-in page.
+			status.first(),
+			// the quoted body is the one read when this window opened (`bodyWhenOpened` above), not a live read at the
+			// moment of failure — `expect` builds its message before it starts polling, and a message that pretended
+			// otherwise printed an empty page in browser2/3/5/6 while the skeleton was plainly there.
+			`the signed-out /invoices page is no longer sitting in a loading state; when this 150 s window opened the page said ${JSON.stringify(bodyWhenOpened)}`
+		).toContainText('Loading', { timeout: 150_000 });
+		console.log(
+			// the raw length, not `pageWords`: that one is for quoting a page into a message and is cut at 320 chars;
+			// this one is a measurement of how much text the served document carries.
+			`[lane-d] /invoices loading skeleton up ${Date.now() - openedAt} ms after navigation (${await status.count()} status region(s), body text ${(await page.locator('body').innerText()).length} chars)`
+		);
+		expect(
+			await status.count(),
+			'the signed-out /invoices page now reports a different number of loading regions than the one skeleton region this case pins'
+		).toBe(1);
+
+		// The title, measured at both levels — and the gap between the two levels is the finding. `locator('h1')` is
+		// DOM-level and reaches an `aria-hidden` subtree; `getByRole` is accessibility-tree level and does not.
+		const title = page.locator('h1', { hasText: 'Invoices' });
+		const measured = {
+			visibleH1: await title.count(),
+			accessibleHeading: await page.getByRole('heading', { name: 'Invoices' }).count(),
+			hiddenAwareHeading: await page.getByRole('heading', { name: 'Invoices', includeHidden: true }).count(),
+			ariaHiddenAncestor: await title
+				.first()
+				.evaluate((element) => {
+					const hidden = element.closest('[aria-hidden="true"]');
+					return hidden ? `${hidden.tagName.toLowerCase()}[aria-hidden="true"]` : null;
+				})
+				.catch(() => 'no matching h1')
+		};
+		console.log(`[lane-d] /invoices title measured: ${JSON.stringify(measured)}`);
+
 		await expect(
-			page.getByText('Loading').first(),
-			`the signed-out /invoices page is no longer sitting in a loading state; the page now says: ${await bodyAt('instead')}`
-		).toBeVisible({ timeout: 30_000 });
+			title.first(),
+			`no "Invoices" title anywhere on ${page.url()} — the skeleton stopped drawing one`
+		).toBeVisible();
+		expect(
+			measured.visibleH1,
+			`the signed-out /invoices page draws its title ${measured.visibleH1} times; the skeleton drew it once`
+		).toBe(1);
+		expect(
+			measured.accessibleHeading,
+			`finding D-7's sharp half moved: the "Invoices" title is now reachable through the accessibility tree (${measured.accessibleHeading} match(es)) — it was 0 because the skeleton's title sits inside ${measured.ariaHiddenAncestor} (core/components/pages/invoices/invoices-states.tsx:190-193), which is exactly why getByRole('heading', { name: 'Invoices' }) could not match it in browser2/3/5/6`
+		).toBe(0);
+		expect(
+			measured.hiddenAwareHeading,
+			`the title is in the DOM (${measured.visibleH1} h1) yet not reachable even with includeHidden:true (${measured.hiddenAwareHeading}) — then the h1 this case pins is not the one the page draws`
+		).toBe(1);
+		expect(
+			measured.ariaHiddenAncestor,
+			`the signed-out /invoices title's aria-hidden ancestor is now ${measured.ariaHiddenAncestor}; the skeleton hid it from assistive tech (core/components/pages/invoices/invoices-states.tsx:190-193)`
+		).toBe('div[aria-hidden="true"]');
 		// No way to sign in from here, in either shape: the page offers no form and no link to the sign-in page.
-		await expect(page.locator('form'), `a signed-out visitor is now offered a form at ${page.url()}`).toHaveCount(0);
+		await expect(page.locator('form'), `a signed-out visitor is now offered a form at ${page.url()}`).toHaveCount(
+			0
+		);
 		await expect(
 			page.locator('a[href="/auth/passcode"]'),
 			`a signed-out visitor is now offered a sign-in link at ${page.url()}`
 		).toHaveCount(0);
 
-		// The same 20 s doubles as the wait that settles the page and as the window the mock log is read over.
+		/**
+		 * The witness: 40 reads over 20 s, starting from the settled skeleton the assertions above already waited for. The
+		 * loop leaves early the moment anything arrives, so a page that starts asking is reported, not missed.
+		 *
+		 * Hand-rolled rather than `mockRequestsWhen` (helpers.ts:212-227) on purpose: that helper **throws** when its
+		 * predicate never becomes true, and here the absence is the assertion — `log.length === 0` is the finding.
+		 */
 		let log = await mock.requests();
 		for (let attempt = 0; attempt < 40 && log.length === 0; attempt++) {
 			await new Promise((resolve) => setTimeout(resolve, 500));
@@ -132,7 +220,9 @@ test.describe('lane-d · what a signed-out browser is actually given', () => {
 			const tokens = await receivedTokens(path);
 			if (tokens.length > 0) withBearer.push(`${path} (${tokens.length})`);
 		}
-		console.log(`[lane-d] signed-out /invoices asked the mock, after networkidle + 20 s: ${logLines(log).join(', ') || '(nothing)'}`);
+		console.log(
+			`[lane-d] signed-out /invoices asked the mock, over the 20 s after the skeleton settled: ${logLines(log).join(', ') || '(nothing)'}`
+		);
 		expect(
 			log.length,
 			`finding D-7 as measured: an anonymous /invoices visit asked this lane's mock nothing. It now asked ${log.length} thing(s): ${logLines(log).join(', ')} — the shell mounted its reads without a session`
@@ -157,7 +247,10 @@ test.describe('lane-d · the RTL locale', () => {
 			)}`
 		);
 
-		await expect(html, `the Arabic page was not served with lang="ar" (${page.url()})`).toHaveAttribute('lang', 'ar');
+		await expect(html, `the Arabic page was not served with lang="ar" (${page.url()})`).toHaveAttribute(
+			'lang',
+			'ar'
+		);
 
 		// `getAttribute`, not `toHaveAttribute`: an attribute that is simply absent is what is being pinned here, and
 		// Playwright's toHaveAttribute fails on a missing attribute whatever the expected value is.
@@ -185,8 +278,13 @@ test.describe('lane-d · the RTL locale', () => {
 			['/ar/settings/personal', localized],
 			['/settings/personal', plain]
 		] as const) {
-			await expect(page, `${label} left the visitor on a protected page (${page.url()})`).not.toHaveURL(/settings\/personal/);
-			await expect(page.getByText(UNAUTHORIZED_TITLE), `${label} did not land on the same sign-in page as the other`).toBeVisible();
+			await expect(page, `${label} left the visitor on a protected page (${page.url()})`).not.toHaveURL(
+				/settings\/personal/
+			);
+			await expect(
+				page.getByText(UNAUTHORIZED_TITLE),
+				`${label} did not land on the same sign-in page as the other`
+			).toBeVisible();
 		}
 	});
 });
@@ -195,8 +293,9 @@ test.describe('lane-d · the door does not bounce a session that is present', ()
 	test('the fixture person reaches /my-week and the door read carries their token', async ({
 		page,
 		context,
-		fixture,
-		mock
+		fixture
+		// `mock` is not destructured here on purpose: it is an auto fixture (fixtures.ts:145), so the backend is reset
+		// for this test whether or not the case reads it.
 	}) => {
 		// The mirror case AUDIT finding 11 says the api suite cannot run: it has no cookies, so it can only ever show
 		// the refusal. A fresh token per case (lane-d-session.ts) keeps the 5 s session-check memo from handing this
