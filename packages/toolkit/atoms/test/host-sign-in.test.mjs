@@ -214,6 +214,17 @@ test('the helpers: a minute before expiry, half of a shorter life, and the organ
 	assert.equal(kit.ownerOfToken('not-a-token'), 'not-a-token', 'unreadable: never taken for the same person');
 });
 
+test('a refused person is told from a signed-out one by the API code their getToken failed with (#5706)', () => {
+	const refused = Object.assign(new Error('This member cannot track time through an embed.'), {
+		code: 'EMBED_MEMBER_NOT_ALLOWED'
+	});
+	assert.equal(kit.isRefusedPerson(refused), true);
+	assert.equal(kit.isRefusedPerson(Object.assign(new Error('refused'), { code: 'EMBED_ORIGIN_NOT_ALLOWED' })), false);
+	assert.equal(kit.isRefusedPerson(new Error('token-url answered 401')), false);
+	assert.equal(kit.isRefusedPerson(null), false);
+	assert.equal(kit.isRefusedPerson('EMBED_MEMBER_NOT_ALLOWED'), false);
+});
+
 test('getToken is called once at start, even under strict mode, and the token stays in memory', async () => {
 	const backend = hostBackend();
 	const { seen, store } = await mount(backend.getToken, { strict: true });
