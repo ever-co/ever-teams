@@ -6,6 +6,7 @@ import { Button } from '@/core/components/duplicated-components/_button';
 import { Check, Info, Pencil, Trash, X } from '@/core/components/icons';
 import type { SheetCellTarget } from '@/core/hooks/dashboards/timesheets/use-timesheet-sheet';
 import { canEditLog, type TimesheetPermissions } from '@/core/hooks/dashboards/timesheets/use-timesheets-page';
+import { offersApproveAndReject } from '@/core/lib/helpers/timesheet-review';
 import { formatDurationShort } from '@/core/lib/utils/dashboard-figures';
 import {
 	isPendingLog,
@@ -63,7 +64,8 @@ export type SheetEntryHandlers = Partial<Pick<TimesheetRowHandlers, 'approve' | 
 
 function canReviewLog(log: ITimeLog, permissions: TimesheetPermissions) {
 	const isPending = isPendingLog(log);
-	return isPending && permissions.canApprove;
+	const offersReview = offersApproveAndReject(permissions, [log]);
+	return isPending && offersReview;
 }
 
 function offersReviewOf(log: ITimeLog, permissions: TimesheetPermissions, handlers: SheetEntryHandlers) {

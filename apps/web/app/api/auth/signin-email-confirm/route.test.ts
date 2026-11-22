@@ -96,3 +96,36 @@ describe('POST /api/auth/signin-email-confirm — server log', () => {
 		expect(logs.text()).not.toContain(workspace.token);
 	}, 15_000);
 });
+
+describe('POST /api/auth/signin-email-confirm, invitation code', () => {
+	it('signs in a person whose invitation carries no name, the account named after the address', async () => {
+		primeInvitedPerson(gauzy, null);
+		tolerateServerFetchRejections();
+		const { POST } = loadRoute();
+
+		const res = await POST(post({ email: INVITED.email, code: INVITED.code }));
+
+		expect(res.status).toBe(200);
+		const body = await res.json();
+		expect(body.team.id).toBe(INVITED.teamId);
+		expect(body.loginResponse.token).toBe(INVITED.accessToken);
+		const [accept] = gauzy.calls('POST', '/api/invite/accept');
+		expect(accept?.body).toMatchObject({
+			code: INVITED.code,
+			email: INVITED.email,
+			user: { firstName: 'invited', lastName: '', email: INVITED.email }
+		});
+		// The invitation code is no sign-in code: confirming it as one is what refused the person
+		expect(gauzy.calls('POST', '/api/auth/signin.email/confirm')).toHaveLength(0);
+	}, 15_000);
+
+	it('still gives the invitation name to the account it opens', async () => {
+		primeInvitedPerson(gauzy);
+		const { POST } = loadRoute();
+
+		await POST(post({ email: INVITED.email, code: INVITED.code }));
+
+		const [accept] = gauzy.calls('POST', '/api/invite/accept');
+		expect(accept?.body).toMatchObject({ user: { firstName: 'Invited', lastName: 'Person' } });
+	}, 15_000);
+});

@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 import React from 'react';
-import { Platform, StyleSheet, TextStyle, View, ViewStyle } from 'react-native';
+import { Platform, StyleSheet, TextStyle, useWindowDimensions, View, ViewStyle } from 'react-native';
 import { Task, User, Users } from '../../src/components/icons';
 import type { IconComponent } from '../../src/components/icons';
 import type { BottomTabNavigationEventMap, BottomTabNavigationOptions } from '@react-navigation/bottom-tabs';
@@ -77,9 +77,19 @@ function TabIcon({ name, icon: Icon, focused, color, dark }: Readonly<TabIconPro
 	);
 }
 
+const TAB_BAR_HEIGHT = 60;
+const LABEL_LINE_HEIGHT = 16;
+
+/** The bar's height over the phone's bottom inset, with room for the label at the size the phone's font setting draws it. */
+export function tabBarHeightOf(bottomInset: number, fontScale: number): number {
+	const labelGrowth = LABEL_LINE_HEIGHT * Math.max(fontScale - 1, 0);
+	return bottomInset + TAB_BAR_HEIGHT + Math.ceil(labelGrowth);
+}
+
 /** The signed-in tab bar's look; while the first screens load, placeholders stand for its buttons. */
 export function useTabBarScreenOptions(): BottomTabNavigationOptions {
 	const { bottom } = useSafeAreaInsets();
+	const { fontScale } = useWindowDimensions();
 	const { colors, dark } = useAppTheme();
 	const {
 		teamStore: { isTrackingEnabled }
@@ -95,7 +105,7 @@ export function useTabBarScreenOptions(): BottomTabNavigationOptions {
 				borderTopColor: colors.border,
 				borderTopWidth: StyleSheet.hairlineWidth
 			},
-			{ height: bottom + 60 }
+			{ height: tabBarHeightOf(bottom, fontScale) }
 		],
 		tabBarActiveTintColor: bar.tintColor,
 		tabBarInactiveTintColor: bar.iconColor.default,
@@ -146,7 +156,7 @@ const $tabBarItem: ViewStyle = {
 
 const $tabBarLabel: TextStyle = {
 	fontSize: 12,
-	lineHeight: 16,
+	lineHeight: LABEL_LINE_HEIGHT,
 	fontWeight: '500',
 	flex: 1
 };

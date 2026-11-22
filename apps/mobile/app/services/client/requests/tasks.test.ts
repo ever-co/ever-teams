@@ -1,5 +1,5 @@
 import { serverFetch } from '../fetch';
-import { getTaskByIdRequest } from './tasks';
+import { getTaskByIdRequest, getTeamTasksRequest } from './tasks';
 
 jest.mock('../fetch', () => ({ serverFetch: jest.fn(() => Promise.resolve({ data: {}, response: { ok: true } })) }));
 
@@ -27,5 +27,24 @@ describe('the request for one task', () => {
 		expect(relationsAskedFor()).toEqual(
 			expect.arrayContaining(['members', 'members.user', 'linkedIssues', 'parent', 'children'])
 		);
+	});
+});
+
+describe("the request for the team's task list", () => {
+	beforeEach(() => {
+		jest.mocked(serverFetch).mockClear();
+	});
+
+	// Linked issues and the creator are one-to-many joins that multiply the rows behind /tasks/team: with them a team of
+	// eleven tasks took 31 s to answer on a bench, and the reads that piled up held every other request of the app
+	it('asks only for what the lists show, as the web does, and leaves linked issues and the creator to the task page', async () => {
+		await getTeamTasksRequest({
+			tenantId: 't',
+			organizationId: 'o',
+			bearer_token: 'token',
+			activeTeamId: 'team-1'
+		});
+
+		expect(relationsAskedFor()).toEqual(['tags', 'teams', 'members', 'members.user', 'parent', 'children']);
 	});
 });

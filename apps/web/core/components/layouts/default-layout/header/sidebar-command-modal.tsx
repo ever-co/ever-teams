@@ -32,6 +32,7 @@ import {
 	UserCircleIcon
 } from '../../../icons';
 import { useAuthenticateUser } from '../../../../hooks/auth';
+import { useIsEmailVerificationSatisfied } from '@/core/hooks/auth/use-email-verification-status';
 import { useModal } from '../../../../hooks';
 import { useCanInviteToActiveTeam } from '@/core/hooks/invitations/use-can-invite-to-active-team';
 import { useTranslations } from 'next-intl';
@@ -184,6 +185,7 @@ export const SidebarCommandModal: FC<{
 	const [search, setSearch] = useState('');
 	const [lastOpen, setLastOpen] = useState(open);
 	const { user } = useAuthenticateUser();
+	const meetsEmailVerification = useIsEmailVerificationSatisfied(user);
 	// The API refuses an invitation into a team the user does not manage (403): offer "Invite User", and its
 	// key sequence, only to who may send it.
 	const canInvite = useCanInviteToActiveTeam();
@@ -828,10 +830,10 @@ export const SidebarCommandModal: FC<{
 				document.body
 			)}
 			{!publicTeam && (
-				<CreateTeamModal open={teamModal.isOpen && !!user?.isEmailVerified} closeModal={teamModal.closeModal} />
+				<CreateTeamModal open={teamModal.isOpen && meetsEmailVerification} closeModal={teamModal.closeModal} />
 			)}
 
-			<InviteFormModal open={inviteModal.isOpen && !!user?.isEmailVerified} closeModal={inviteModal.closeModal} />
+			<InviteFormModal open={inviteModal.isOpen && meetsEmailVerification} closeModal={inviteModal.closeModal} />
 			<CreateProjectModal open={createProjectModal.isOpen} closeModal={createProjectModal.closeModal} />
 			{!publicTeam && <PaletteTimerLayer timer={paletteTimer} />}
 		</>

@@ -19,9 +19,46 @@ import { queryKeys } from '@/core/query/keys';
 import { logErrorInDev } from '@/core/lib/helpers/error-message';
 import { errorReasonKeyOf, errorReasonOf } from '@/core/lib/utils/error-feedback';
 import { toast } from 'sonner';
+import { useEmailVerificationStatus } from '@/core/hooks/auth/use-email-verification-status';
+import { asksForEmailVerification, wasVerificationEmailSent } from '@/core/lib/auth/email-verification';
 
 interface UnverifiedEmailProps {
 	user?: TUser | null; // Accept user as prop for conditional rendering optimization
+}
+
+/** Why no new code went out, with what to do about it. */
+function resendFailureMessageOf(error: unknown, t: ReturnType<typeof useTranslations>): string {
+	const reasonKey = errorReasonKeyOf(error) as DottedLanguageObjectStringPaths;
+	const reason = t(reasonKey);
+	return t('settings.profile.VERIFY_SEND_FAILED', { reason });
+}
+
+/**
+ * Sends the signed-in user a new verification code, and says on screen whether it went out. Once sent, the status is
+ * read again, so the notice says a code was sent.
+ */
+function useResendVerificationCode(user: TUser | null | undefined) {
+	const t = useTranslations();
+	const queryClient = useQueryClient();
+	const { loading, queryCall } = useQueryCall(authService.resendVerifyUserLink);
+
+	const resendCode = useCallback(() => {
+		if (!user) {
+			return;
+		}
+		const onSent = () => {
+			toast.success(t('settings.profile.VERIFY_SENT', { email: user.email ?? '' }));
+			const queryKey = queryKeys.users.emailVerificationStatus(user.id, user.lastOrganizationId, user.email);
+			void queryClient.invalidateQueries({ queryKey });
+		};
+		const onFailed = (error: unknown) => {
+			logErrorInDev('UnverifiedEmail: no new verification code was sent', error);
+			toast.error(resendFailureMessageOf(error, t));
+		};
+		void queryCall(user).then(onSent, onFailed);
+	}, [queryCall, queryClient, t, user]);
+
+	return { isSending: loading, resendCode };
 }
 
 export function UnverifiedEmail({ user: propUser }: UnverifiedEmailProps = {}) {
@@ -30,17 +67,17 @@ export function UnverifiedEmail({ user: propUser }: UnverifiedEmailProps = {}) {
 	const user = propUser !== undefined ? propUser : hookUser;
 	const t = useTranslations();
 	const [verified, setVerified] = useState(true);
+	// Asked only once the API confirmed the deployment verifies addresses: where it verifies none, no code is ever sent
+	const verificationState = useEmailVerificationStatus(user);
+	const asksForCode = asksForEmailVerification(user, verificationState);
+	const codeWasSent = wasVerificationEmailSent(verificationState);
 
-	const { loading: resendLinkLoading, queryCall: resendLinkQueryCall } = useQueryCall(
-		authService.resendVerifyUserLink
-	);
+	const { isSending, resendCode } = useResendVerificationCode(user);
 
 	const { openModal, isOpen, closeModal } = useModal();
 
 	useEffect(() => {
-		const hasVerified = user ? user.isEmailVerified : true;
-
-		if (hasVerified) {
+		if (!asksForCode) {
 			setVerified(true);
 			return;
 		}
@@ -53,7 +90,7 @@ export function UnverifiedEmail({ user: propUser }: UnverifiedEmailProps = {}) {
 		}
 
 		setVerified(false);
-	}, [user]);
+	}, [asksForCode, user]);
 
 	if (verified) {
 		return null;
@@ -66,13 +103,10 @@ export function UnverifiedEmail({ user: propUser }: UnverifiedEmailProps = {}) {
 				glyph={<Mail />}
 				className="my-3 w-full"
 				title={t('notifications.NOTICES.VERIFY_TITLE')}
-				description={<VerifyEmailLine email={user?.email} />}
+				description={<VerifyEmailLine email={user?.email} codeWasSent={codeWasSent} />}
 				actions={
 					<>
-						<ResendCodeButton
-							isSending={resendLinkLoading}
-							onResend={() => user && resendLinkQueryCall(user as TUser)}
-						/>
+						<ResendCodeButton isSending={isSending} onResend={resendCode} />
 						<UiButton type="button" variant="outline" size="sm" onClick={openModal}>
 							{t('notifications.NOTICES.VERIFY_ACTION')}
 						</UiButton>
@@ -84,13 +118,26 @@ export function UnverifiedEmail({ user: propUser }: UnverifiedEmailProps = {}) {
 	);
 }
 
-function VerifyEmailLine({ email }: Readonly<{ email?: string | null }>) {
+/** Says a code was sent only when the API says a valid one went out; otherwise it offers to send one. */
+function VerifyEmailLine({ email, codeWasSent }: Readonly<{ email?: string | null; codeWasSent: boolean }>) {
 	const t = useTranslations();
+	if (!codeWasSent) {
+		return <SendCodeLine email={email} />;
+	}
 	if (!email) {
 		return <>{t('notifications.NOTICES.VERIFY_TEXT_GENERIC')}</>;
 	}
 
 	return <>{t('notifications.NOTICES.VERIFY_TEXT', { email })}</>;
+}
+
+function SendCodeLine({ email }: Readonly<{ email?: string | null }>) {
+	const t = useTranslations();
+	if (!email) {
+		return <>{t('notifications.NOTICES.VERIFY_TEXT_NOT_SENT_GENERIC')}</>;
+	}
+
+	return <>{t('notifications.NOTICES.VERIFY_TEXT_NOT_SENT', { email })}</>;
 }
 
 /** The recovery stays a quiet link beside the main action, with its own pending state. */
@@ -137,9 +184,7 @@ export function ConfirmUserModal({
 	closeModal: () => void;
 }) {
 	const { loading, queryCall } = useQueryCall(emailVerificationService.verifyUserEmailByCode);
-	const { loading: resendLinkLoading, queryCall: resendLinkQueryCall } = useQueryCall(
-		authService.resendVerifyUserLink
-	);
+	const { isSending: resendLinkLoading, resendCode } = useResendVerificationCode(user);
 
 	const [code, setCode] = useState('');
 	const t = useTranslations();
@@ -196,7 +241,7 @@ export function ConfirmUserModal({
 									<button
 										type="button"
 										className="text-xs text-muted-foreground"
-										onClick={() => user && resendLinkQueryCall(user)}
+										onClick={resendCode}
 									>
 										{'Re'}
 										<span className="font-medium text-primary-ink">

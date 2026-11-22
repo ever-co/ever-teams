@@ -279,6 +279,7 @@
 		"NO_TEAM": "Crie sua própria equipe ou junte-se a uma existente",
 		"NO_TEAM_SUB": "Crie uma equipe e convide as pessoas com quem você trabalha.",
 		"NO_TEAM_TOOLTIP": "Você precisa verificar seu endereço de e-mail",
+		"NO_MEMBER_PROFILE_MESSAGE": "Equipes, tarefas e o temporizador aparecem assim que você estiver em uma equipe.",
 		"CANCEL": "Cancelar",
 		"DISCARD": "Descartar",
 		"EXISTING_MEMBER": "Já é Membro",
@@ -2809,7 +2810,8 @@
 		"error": {
 			"TITLE": "Erro",
 			"HEADING_TITLE": "Algo deu errado",
-			"HEADING_DESCRIPTION": "Se o problema persistir, envie um sinal de socorro à nossa equipe de suporte."
+			"HEADING_DESCRIPTION": "Se o problema persistir, envie um sinal de socorro à nossa equipe de suporte.",
+			"PAGE_NOT_LOADED": "Não foi possível carregar esta página"
 		},
 		"maintenance": {
 			"HEADING_TITLE": "Estamos em manutenção",
@@ -4281,6 +4283,8 @@
 			"VERIFY_TITLE": "Confirme seu endereço de e-mail",
 			"VERIFY_TEXT": "Enviamos um código para {email}.",
 			"VERIFY_TEXT_GENERIC": "Enviamos um código para o seu endereço de e-mail.",
+			"VERIFY_TEXT_NOT_SENT": "Envie um código para {email} para confirmar que o endereço é seu.",
+			"VERIFY_TEXT_NOT_SENT_GENERIC": "Envie um código para o seu endereço de e-mail para confirmar que é seu.",
 			"VERIFY_ACTION": "Inserir o código",
 			"VERIFY_RESEND": "Enviar um novo código",
 			"VERIFY_SENDING": "Enviando um novo código"

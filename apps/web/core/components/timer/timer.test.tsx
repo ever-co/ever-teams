@@ -72,6 +72,7 @@ jest.mock('@/core/hooks/activities/use-today-worked-time', () => ({
 jest.mock('@/core/hooks/auth/use-authenticate-user', () => ({
 	useAuthenticateUser: () => ({ user: { isEmailVerified: true } })
 }));
+jest.mock('@/core/hooks/auth/use-email-verification-status', () => ({ useIsEmailVerificationSatisfied: () => true }));
 jest.mock('@/core/hooks/daily-plans/use-my-daily-plans', () => ({
 	useMyDailyPlans: () => ({ myDailyPlans: { items: [] } })
 }));

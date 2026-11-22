@@ -21,7 +21,8 @@ const NEXT_PUBLIC_ENVS: { value: Env } = { value: {} };
  * `script-src unsafe-inline` on deployments with a strict CSP.
  *
  * Only keys that are public by definition may be exposed: every `NEXT_PUBLIC_*` key plus the
- * branding keys below (all rendered in the UI anyway). NEVER add a secret here.
+ * branding keys below (all rendered in the UI anyway) and the e-mail link keys (sent to every
+ * recipient anyway). NEVER add a secret here.
  */
 const RUNTIME_ENV_GLOBAL = '__EVER_TEAMS_RUNTIME_ENV__';
 export const RUNTIME_ENV_ATTRIBUTE = 'data-ever-teams-runtime-env';
@@ -40,8 +41,17 @@ export const PUBLIC_RUNTIME_ENV_KEYS = [
 	'APP_FAVICON_URL'
 ] as const;
 
+/**
+ * Pages the e-mails link to, when a deployment overrides them. In direct mode the browser sends the
+ * invitation to Gauzy itself, so it needs the page the server routes use.
+ */
+export const PUBLIC_EMAIL_LINK_ENV_KEYS = ['INVITE_CALLBACK_URL'] as const;
+
 export function isPublicRuntimeEnvKey(key: string): boolean {
-	return key.startsWith('NEXT_PUBLIC_') || (PUBLIC_RUNTIME_ENV_KEYS as readonly string[]).includes(key);
+	const isNextPublic = key.startsWith('NEXT_PUBLIC_');
+	const isBranding = (PUBLIC_RUNTIME_ENV_KEYS as readonly string[]).includes(key);
+	const isEmailLink = (PUBLIC_EMAIL_LINK_ENV_KEYS as readonly string[]).includes(key);
+	return isNextPublic || isBranding || isEmailLink;
 }
 
 /**

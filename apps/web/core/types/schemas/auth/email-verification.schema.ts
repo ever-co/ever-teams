@@ -18,7 +18,17 @@ export const emailVerificationResponseSchema = z.object({
 });
 
 /**
+ * Gauzy's `GET /auth/email/verify/status`: whether the signed-in user's address is verified, and whether a
+ * verification e-mail that is still valid went out to them.
+ */
+export const emailVerificationStatusSchema = z.object({
+	isEmailVerified: z.boolean(),
+	verificationEmailSent: z.boolean().optional()
+});
+
+/**
  * Inferred TypeScript types from Zod schemas
  */
 export type TEmailVerificationRequest = z.infer<typeof emailVerificationRequestSchema>;
 export type TEmailVerificationResponse = z.infer<typeof emailVerificationResponseSchema>;
+export type TEmailVerificationStatus = z.infer<typeof emailVerificationStatusSchema>;

@@ -12,9 +12,21 @@ import {
 	setAccessTokenCookie,
 	setRefreshTokenCookie
 } from '@/core/lib/helpers/cookies';
-import { createFakeGauzy, type FakeGauzyOptions } from './fake-gauzy-session';
+import { createFakeGauzy, HOUR_MS, type FakeGauzyOptions } from './fake-gauzy-session';
 
-const START = Date.parse('2026-11-14T09:00:00.000Z');
+/**
+ * When the page opens: the last 09:00 UTC before the suite runs, so 0 to 24 hours ago.
+ *
+ * Not a fixed date: the page writes its session cookies to expire with the refresh token, 7 days after the page's
+ * clock issued it, and jsdom's cookie jar drops an expired cookie by the real clock. Opened on a fixed day, every
+ * session test failed once that day was more than 7 days old: the refresh token cookie was gone before the renewal.
+ */
+export const PAGE_OPENED_AT = (() => {
+	const realNow = Date.now();
+	const nineToday = Math.floor(realNow / (24 * HOUR_MS)) * 24 * HOUR_MS + 9 * HOUR_MS;
+	return nineToday <= realNow ? nineToday : nineToday - 24 * HOUR_MS;
+})();
+const START = PAGE_OPENED_AT;
 const originalLocation = window.location;
 
 type TokenPair = { token: string; refresh_token: string };

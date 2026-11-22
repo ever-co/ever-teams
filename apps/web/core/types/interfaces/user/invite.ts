@@ -55,7 +55,8 @@ export type IInviteVerifyCode = {
 export interface IInviteVerified {
 	id: string;
 	email: string;
-	fullName: string;
+	/** Null for an invitation sent without a name, as the Invite dialog sends them. */
+	fullName?: string | null;
 	organization: {
 		name: string;
 	};

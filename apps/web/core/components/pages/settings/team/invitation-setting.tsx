@@ -9,6 +9,7 @@ import { InvitationTable } from '../../../teams/invite/invitation-table';
 import { InputField } from '@/core/components/duplicated-components/_input';
 import { useTeamInvitationsQuery } from '@/core/hooks/invitations/use-team-invitations-query';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { useIsEmailVerificationSatisfied } from '@/core/hooks/auth/use-email-verification-status';
 import { LIST_SURFACE_CLASS } from '@/core/components/teams/list-surface';
 
 export const InvitationSetting = () => {
@@ -18,6 +19,7 @@ export const InvitationSetting = () => {
 	const { getRequestToJoin, requestToJoin } = useRequestToJoinQuery();
 
 	const { data: user } = useUserQuery();
+	const meetsEmailVerification = useIsEmailVerificationSatisfied(user);
 	const { openModal, isOpen, closeModal } = useModal();
 
 	const [filterString, setFilterString] = useState<string>('');
@@ -137,7 +139,7 @@ export const InvitationSetting = () => {
 				</div>
 			</div> */}
 
-			<InviteFormModal open={isOpen && !!user?.isEmailVerified} closeModal={closeModal} />
+			<InviteFormModal open={isOpen && meetsEmailVerification} closeModal={closeModal} />
 		</div>
 	);
 };

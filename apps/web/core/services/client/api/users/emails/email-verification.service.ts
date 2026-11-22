@@ -4,15 +4,44 @@ import { ISuccessResponse } from '@/core/types/interfaces/common/data-response';
 import {
 	emailVerificationRequestSchema,
 	emailVerificationResponseSchema,
-	TEmailVerificationResponse
+	emailVerificationStatusSchema,
+	TEmailVerificationResponse,
+	TEmailVerificationStatus
 } from '@/core/types/schemas/auth/email-verification.schema';
 import { validateApiResponse, ZodValidationError } from '@/core/types/schemas';
+import { errorStatusOf } from '@/core/lib/utils/error-feedback';
+
+const NOT_FOUND = 404;
 
 class EmailVerificationService extends APIService {
 	verifyUserEmailByCode = async ({ code, email }: { code: string; email: string }) => {
 		const endpoint = GAUZY_API_BASE_SERVER_URL.value ? '/auth/email/verify/code' : `/auth/verify/code`;
 
 		return this.post<ISuccessResponse>(endpoint, { code, tenantId: this.tenantId, email });
+	};
+
+	/**
+	 * Where the signed-in user stands with Gauzy's address verification, or `null` on a deployment that verifies no
+	 * address: Gauzy keeps its verification routes behind FEATURE_EMAIL_VERIFICATION and answers them with 404 while it
+	 * is off, so that a client asks nobody to verify there (ever-co/ever-gauzy#10332). `isEmailVerified` on the user
+	 * cannot say it: nobody is ever verified on such a deployment, apart from people who joined through an invitation.
+	 */
+	getVerificationStatus = async (): Promise<TEmailVerificationStatus | null> => {
+		const endpoint = GAUZY_API_BASE_SERVER_URL.value ? '/auth/email/verify/status' : '/auth/verify/status';
+
+		try {
+			const response = await this.get<TEmailVerificationStatus>(endpoint);
+			return validateApiResponse(
+				emailVerificationStatusSchema,
+				response.data,
+				'getVerificationStatus API response'
+			);
+		} catch (error) {
+			if (errorStatusOf(error) === NOT_FOUND) {
+				return null;
+			}
+			throw error;
+		}
 	};
 
 	/**

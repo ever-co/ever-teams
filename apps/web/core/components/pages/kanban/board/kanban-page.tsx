@@ -16,6 +16,7 @@ import { useKanbanBoard, type KanbanBoardState } from '@/core/hooks/tasks/use-ka
 import { useTeamDailyPlansOwner } from '@/core/hooks/bootstrap/use-feature-data';
 import { useCanInviteToActiveTeam } from '@/core/hooks/invitations/use-can-invite-to-active-team';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { useIsEmailVerificationSatisfied } from '@/core/hooks/auth/use-email-verification-status';
 import { activeTeamState, isTrackingEnabledState } from '@/core/stores';
 import { tasksByTeamState, teamTasksCompleteState } from '@/core/stores/teams/team-tasks';
 import type { TTaskStatus } from '@/core/types/schemas';
@@ -234,8 +235,8 @@ export function KanbanPage() {
 		return () => window.removeEventListener('keydown', handleKeyDown);
 	}, [clearSelection, isPickerOpen, selectionCount]);
 
-	const isEmailVerified = Boolean(user?.isEmailVerified);
-	const showsInvite = isInviteOpen && isEmailVerified;
+	const meetsEmailVerification = useIsEmailVerificationSatisfied(user);
+	const showsInvite = isInviteOpen && meetsEmailVerification;
 	const pageTitle = t('pages.kanban.KANBAN_BOARD');
 
 	return (
