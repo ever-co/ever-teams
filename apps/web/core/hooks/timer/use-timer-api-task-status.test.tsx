@@ -9,6 +9,7 @@ import { createStore, Provider } from 'jotai';
 import type { PropsWithChildren } from 'react';
 
 import { activeTeamIdState, organizationTeamsState, timerStatusState } from '@/core/stores';
+import { teamTasksState } from '@/core/stores/teams/team-tasks';
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
 import { useTimerApi } from './use-timer-api';
@@ -86,9 +87,13 @@ const STARTED: StartAnswer = {
 	}
 };
 
-/** Start is pressed on a task that reads Done, and the start's answer is awaited. */
-async function pressStartOnDoneTask() {
+/**
+ * Start is pressed on a task that reads Done, and the start's answer is awaited. `whileStarting` runs once the start
+ * request is sent, before its answer is read.
+ */
+async function pressStartOnDoneTask(whileStarting?: (store: ReturnType<typeof createStore>) => void) {
 	const store = createStore();
+	store.set(teamTasksState, [DONE_TASK]);
 	store.set(organizationTeamsState, [{ id: TEAM, name: TEAM, members: [], projects: [] }] as never);
 	store.set(activeTeamIdState, TEAM);
 	store.set(timerStatusState, { running: false, lastLog: null } as never);
@@ -104,6 +109,7 @@ async function pressStartOnDoneTask() {
 
 	await act(async () => {
 		const start = Promise.resolve(result.current.startTimer(DONE_TASK));
+		whileStarting?.(store);
 		await start.catch(() => undefined);
 	});
 	await waitFor(() => expect(mockStartTimer).toHaveBeenCalledTimes(1));
@@ -125,6 +131,17 @@ describe("the task's status when its timer is started (#5683)", () => {
 		await pressStartOnDoneTask();
 
 		expect(mockUpdateTask.updateTask).not.toHaveBeenCalled();
+	});
+
+	it('keeps what was saved on the task while the start was on its way', async () => {
+		mockStartTimer.mockResolvedValue(STARTED);
+		const renamed = { ...DONE_TASK, title: 'Task, renamed meanwhile' };
+
+		await pressStartOnDoneTask((store) => store.set(teamTasksState, [renamed]));
+
+		expect(mockUpdateTask.updateTask).toHaveBeenCalledWith(
+			expect.objectContaining({ title: 'Task, renamed meanwhile', status: 'in-progress' })
+		);
 	});
 
 	it('moves the task to In Progress once the timer runs', async () => {

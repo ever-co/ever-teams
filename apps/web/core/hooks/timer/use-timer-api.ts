@@ -48,6 +48,7 @@ import {
 	timerStatusState,
 	workspaceOpeningState
 } from '@/core/stores';
+import { teamTasksState } from '@/core/stores/teams/team-tasks';
 import { teamTimerStatusState } from '@/core/stores/timer/team-timer-status';
 import { timerLabelsSavedState } from '@/core/stores/timer/timer-labels';
 import { ETaskStatusName } from '@/core/types/generics/enums/task';
@@ -939,7 +940,13 @@ export function useTimerApi({
 					if (!statusEnabled || isCurrentScope()) setTimerStatusFetching(false);
 				});
 			const moveTaskToInProgress = () => {
-				if (!taskToUse || taskToUse.status === ETaskStatusName.IN_PROGRESS) {
+				if (!taskToUse) {
+					return;
+				}
+				// The task as the list holds it now: what was saved on it while the start was on its way is kept
+				const listedTask = store.get(teamTasksState).find((task) => task.id === taskToUse.id);
+				const currentTask = listedTask ?? taskToUse;
+				if (currentTask.status === ETaskStatusName.IN_PROGRESS) {
 					return;
 				}
 				const selectedStatus = taskStatuses.find(
@@ -947,8 +954,8 @@ export function useTimerApi({
 				);
 				const taskStatusId = selectedStatus?.id;
 				updateTask({
-					...taskToUse,
-					taskStatusId: taskStatusId ?? taskToUse.taskStatusId,
+					...currentTask,
+					taskStatusId: taskStatusId ?? currentTask.taskStatusId,
 					status: ETaskStatusName.IN_PROGRESS
 				});
 			};
