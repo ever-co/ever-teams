@@ -7,6 +7,13 @@
  * that page as `callbackUrl`; an invitation that names none gets a link to the accept page of Gauzy's own web app,
  * outside this app. In proxy mode this app's route names the page, so the browser sends the addresses only.
  */
+// A deployment that sets no INVITE_CALLBACK_URL, whatever the environment the suite runs in: the constant is read once,
+// when the module loads.
+jest.mock('@/core/constants/config/constants', () => ({
+	...jest.requireActual('@/core/constants/config/constants'),
+	INVITE_CALLBACK_URL: undefined
+}));
+
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { inviteService } from '.';
 
