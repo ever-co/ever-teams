@@ -1,37 +1,67 @@
-/* eslint-disable react-native/no-inline-styles */
-/* eslint-disable react-native/no-color-literals */
-import React, { FC } from 'react';
+import React from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Users } from '../../src/components/icons';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { typography, useAppTheme } from '../theme';
+import { useWebTheme } from '../theme';
+import type { Theme } from '../../src/theme/use-theme';
 import { translate } from '../i18n';
+
+// The web's illustration keeps its two brand purples in both themes: a soft disc and the people glyph on it
+const ILLUSTRATION_DISC = 'rgba(103, 85, 201, 0.2)';
+const ILLUSTRATION_GLYPH = '#3826A6';
+const ILLUSTRATION_SIZE = 70;
+const GLYPH_SIZE = 32;
+const PRESSED_OPACITY = 0.85;
+
+// On a dark page the brand ink barely shows on its disc: the glyph takes the primary's ink for dark surfaces there
+function glyphColorOf(theme: Theme): string {
+	if (theme.scheme === 'dark') {
+		return theme.colors['primary-ink'];
+	}
+	return ILLUSTRATION_GLYPH;
+}
+
+function opacityWhen(pressed: boolean): number {
+	if (pressed) {
+		return PRESSED_OPACITY;
+	}
+	return 1;
+}
 
 interface Props {
 	onPress: () => unknown;
 }
 
-const NoTeam: FC<Props> = ({ onPress }) => {
-	const { colors, dark } = useAppTheme();
+/** The page of a person without a team, as the web draws it: the illustration, the heading, one line and Create. */
+const NoTeam = ({ onPress }: Readonly<Props>) => {
+	const theme = useWebTheme();
 	return (
 		<View style={styles.container}>
-			<Users size={34} color="#3826A6" />
-			<Text style={{ ...styles.primaryText, color: colors.primary }}>
+			<View style={styles.illustration}>
+				<Users size={GLYPH_SIZE} color={glyphColorOf(theme)} />
+			</View>
+			<Text accessibilityRole="header" style={[styles.heading, { color: theme.colors.foreground }]}>
 				{translate('noTeamScreen.createYourTeam')}
 			</Text>
-			<Text
-				style={{
-					...styles.small,
-					color: !dark ? 'rgba(40, 32, 72, 0.4)' : 'rgba(255, 255, 255, 0.5)'
-				}}
-			>
+			<Text style={[styles.hint, { color: theme.colors['muted-foreground'] }]}>
 				{translate('noTeamScreen.hintMessage')}
 			</Text>
-
-			<TouchableOpacity style={styles.createButton} onPress={() => onPress()}>
-				<Text style={{ ...styles.buttonText, color: '#fff' }}>
+			<Pressable
+				accessibilityRole="button"
+				onPress={() => onPress()}
+				style={({ pressed }) => [
+					styles.createButton,
+					{
+						backgroundColor: theme.colors.primary,
+						borderRadius: theme.radius.full,
+						minHeight: theme.minimumTouchTarget,
+						opacity: opacityWhen(pressed)
+					}
+				]}
+			>
+				<Text style={[styles.createLabel, { color: theme.colors['primary-foreground'] }]}>
 					{translate('teamScreen.createNewTeamButton')}
 				</Text>
-			</TouchableOpacity>
+			</Pressable>
 		</View>
 	);
 };
@@ -39,35 +69,41 @@ const NoTeam: FC<Props> = ({ onPress }) => {
 export default NoTeam;
 
 const styles = StyleSheet.create({
-	buttonText: {
-		fontFamily: typography.fonts.PlusJakartaSans.semiBold,
-		fontSize: 14
-	},
 	container: {
 		alignItems: 'center',
 		flex: 1,
 		justifyContent: 'center',
-		paddingHorizontal: 20
+		paddingHorizontal: 24
 	},
 	createButton: {
 		alignItems: 'center',
-		backgroundColor: '#3826A6',
-		borderRadius: 10,
-		height: 47,
 		justifyContent: 'center',
-		marginTop: 16,
-		width: '50%'
+		marginTop: 24,
+		paddingHorizontal: 20
 	},
-	primaryText: {
-		fontFamily: typography.fonts.PlusJakartaSans.semiBold,
-		fontSize: 18,
-		marginTop: 10
+	createLabel: {
+		fontSize: 14,
+		fontWeight: '500'
 	},
-	small: {
-		color: 'rgba(40, 32, 72, 0.4)',
-		fontFamily: typography.fonts.PlusJakartaSans.medium,
-		fontSize: 16,
-		marginTop: 12,
+	heading: {
+		fontSize: 20,
+		fontWeight: '600',
+		lineHeight: 28,
+		marginBottom: 8,
 		textAlign: 'center'
+	},
+	hint: {
+		fontSize: 14,
+		lineHeight: 20,
+		textAlign: 'center'
+	},
+	illustration: {
+		alignItems: 'center',
+		backgroundColor: ILLUSTRATION_DISC,
+		borderRadius: ILLUSTRATION_SIZE / 2,
+		height: ILLUSTRATION_SIZE,
+		justifyContent: 'center',
+		marginBottom: 16,
+		width: ILLUSTRATION_SIZE
 	}
 });
