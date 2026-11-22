@@ -66,6 +66,17 @@ describe('sharedInvoiceDaysOf (#5718)', () => {
 		expect(shownDays(BERLIN, EAST, now).today).toBe('2026-12-23');
 	});
 
+	it('counts today on the clock of the due day when the clocks changed after the issue day', () => {
+		// Issued Oct 20 on Berlin summer time (UTC+2), due Nov 20 on Berlin winter time (UTC+1)
+		const acrossClockChange = { invoiceDate: '2026-10-19T22:00:00.000Z', dueDate: '2026-11-20T22:59:59.999Z' };
+		const lateOnDueDayInBerlin = new Date('2026-11-20T22:30:00.000Z');
+
+		const { due, today } = shownDays(acrossClockChange, WEST, lateOnDueDayInBerlin);
+
+		expect(due).toBe('2026-11-20');
+		expect(today).toBe('2026-11-20');
+	});
+
 	it('reads in the zone the public read gives, when it gives one', () => {
 		const invoice = { ...BERLIN, organization: { timeZone: 'Europe/Berlin' } };
 		const days = sharedInvoiceDaysOf(invoice, new Date('2026-12-22T23:30:00.000Z'), WEST);

@@ -162,7 +162,8 @@ export function sharedInvoiceDaysOf<T extends SharedInvoiceDates>(
 	}
 	const issue = readingOf(invoice.invoiceDate, readerTimeZone);
 	const due = readingOf(invoice.dueDate, readerTimeZone);
-	const writtenOffset = issue.offset ?? due.offset;
+	// Today is compared with the due day, so it is counted on that day's clock: the clocks may change after the issue day
+	const writtenOffset = due.offset ?? issue.offset;
 	if (writtenOffset === null) {
 		return { invoice, timeZone: readerTimeZone, todayKey: todayDayKey(readerTimeZone, now) };
 	}
