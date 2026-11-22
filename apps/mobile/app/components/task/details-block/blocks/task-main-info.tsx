@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-inline-styles  */
 /* eslint-disable react-native/no-color-literals  */
 import { View, Text, StyleSheet } from 'react-native';
-import React, { useRef } from 'react';
+import React from 'react';
 import { useStores } from '../../../../models';
 import TaskRow from '../components/task-row';
 import { PropertyLabel } from '../components/property-label';
@@ -13,7 +13,8 @@ import { creatorIdOf, creatorOf } from './task-creator';
 import ManageAssignees from '../components/manage-assignees';
 import { useOrganizationTeam } from '../../../../services/hooks/use-organization';
 import { TaskDateField } from '../components/task-date-field';
-import { createSaveQueue, saveTaskDate } from '../components/task-date-save';
+import { saveTaskDate } from '../components/task-date-save';
+import { useOneSaveAtATime } from '../components/use-one-save-at-a-time';
 import { showMessage } from 'react-native-flash-message';
 import { useTeamTasks } from '../../../../services/hooks/features/use-team-tasks';
 import moment from 'moment-timezone';
@@ -40,23 +41,23 @@ const TaskMainInfo = observer(() => {
 	const { currentTeam } = useOrganizationTeam();
 	const { updateTask } = useTeamTasks();
 
-	// the two date fields save one after another, so one never sends the other's failed date
-	const enqueueDateSave = useRef(createSaveQueue()).current;
+	// one date save at a time: both date fields wait for it, so no save carries another one's pending date
+	const { isSaving: isSavingDate, runAlone } = useOneSaveAtATime();
 
-	const saveDate = async (changes: Pick<ITeamTask, 'startDate'> | Pick<ITeamTask, 'dueDate'>) => {
-		const isSaved = await saveTaskDate(changes, {
-			current: () => TaskStore.detailedTask,
-			show: setDetailedTask,
-			enqueue: enqueueDateSave,
-			save: async (changed) => {
-				const { response } = await updateTask(changed, changed.id);
-				return response.ok;
+	const saveDate = (changes: Pick<ITeamTask, 'startDate'> | Pick<ITeamTask, 'dueDate'>) =>
+		runAlone(async () => {
+			const isSaved = await saveTaskDate(changes, {
+				current: () => TaskStore.detailedTask,
+				show: setDetailedTask,
+				save: async (changed) => {
+					const { response } = await updateTask(changed, changed.id);
+					return response.ok;
+				}
+			});
+			if (!isSaved) {
+				showMessage({ message: translate('common.somethingWrong'), type: 'danger' });
 			}
 		});
-		if (!isSaved) {
-			showMessage({ message: translate('common.somethingWrong'), type: 'danger' });
-		}
-	};
 
 	const theme = useWebTheme();
 	const creator = creatorOf(task);
@@ -101,6 +102,7 @@ const TaskMainInfo = observer(() => {
 					value={task?.startDate}
 					otherDate={task?.dueDate}
 					onChange={(date) => saveDate({ startDate: date })}
+					disabled={isSavingDate}
 				/>
 			</TaskRow>
 
@@ -111,6 +113,7 @@ const TaskMainInfo = observer(() => {
 					value={task?.dueDate}
 					otherDate={task?.startDate}
 					onChange={(date) => saveDate({ dueDate: date })}
+					disabled={isSavingDate}
 				/>
 			</TaskRow>
 
