@@ -60,6 +60,7 @@ import type { TOrganizationTeam } from '@/core/types/schemas';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { useAuthenticateUser } from '../auth/use-authenticate-user';
+import { useIsEmailVerificationSatisfied } from '../auth/use-email-verification-status';
 import { useQueryCall } from '../common/use-query';
 import { useSyncRef } from '../common/use-sync-ref';
 import { useMyDailyPlans } from '../daily-plans/use-my-daily-plans';
@@ -273,6 +274,7 @@ export function useTimerApi({
 	const { setActiveTask, isUpdatingActiveTask } = useTeamTasksState();
 	const { updateOrganizationTeamEmployeeActiveTask } = useOrganizationEmployeeTeams();
 	const { user, $user, refreshUserData } = useAuthenticateUser();
+	const meetsEmailVerification = useIsEmailVerificationSatisfied(user);
 	const stopStaleTeamsTimer = useStopStaleTeamsTimer();
 	const resolveTimerBillable = useResolveTimerBillable();
 	const warnWhenStopLostNotes = useStopNotesWarning();
@@ -439,7 +441,7 @@ export function useTimerApi({
 	const canRunTimer = useMemo(
 		() =>
 			canRunTimerForState({
-				isEmailVerified: !!user?.isEmailVerified,
+				isEmailVerified: meetsEmailVerification,
 				hasActiveTask: !!activeTeamTask,
 				isActiveTaskClosed: activeTeamTask?.status === ETaskStatusName.CLOSED,
 				isTimerRunning: !!timerStatus?.running,
@@ -447,7 +449,7 @@ export function useTimerApi({
 				timerSource: timerStatus?.lastLog?.source
 			}),
 		[
-			user?.isEmailVerified,
+			meetsEmailVerification,
 			activeTeamTask,
 			timerStatus?.running,
 			filteredTimerStatus?.running,
