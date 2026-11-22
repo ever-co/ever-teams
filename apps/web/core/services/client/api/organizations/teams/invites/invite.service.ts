@@ -1,9 +1,6 @@
 import { APIService } from '../../../../api.service';
-import {
-	GAUZY_API_BASE_SERVER_URL,
-	INVITE_CALLBACK_PATH,
-	INVITE_CALLBACK_URL
-} from '@/core/constants/config/constants';
+import { GAUZY_API_BASE_SERVER_URL, INVITE_CALLBACK_URL } from '@/core/constants/config/constants';
+import { inviteCallbackUrl } from '@/core/lib/utils/invite-callback-url';
 import qs from 'qs';
 import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import { IGetInvitationRequest, IInviteCreate, IInviteVerifyCode } from '@/core/types/interfaces/user/invite';
@@ -246,7 +243,7 @@ class InviteService extends APIService {
 					inviteId,
 					inviteType: 'TEAM' as const,
 					organizationId,
-					callbackUrl: INVITE_CALLBACK_URL || `${window.location.origin}${INVITE_CALLBACK_PATH}`
+					callbackUrl: inviteCallbackUrl(window.location.origin)
 				}
 			: { inviteId };
 	}
