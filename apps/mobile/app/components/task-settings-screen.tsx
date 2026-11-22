@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-color-literals */
 import React, { ReactElement, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, Keyboard, StatusBar, StyleSheet, Text, TouchableOpacity, View, ViewStyle } from 'react-native';
-import { AntDesign } from '@expo/vector-icons';
+import { ArrowLeft } from '../../src/components/icons';
 import BottomSheet, {
 	BottomSheetBackdrop,
 	BottomSheetBackdropProps,
@@ -180,7 +180,7 @@ export function TaskSettingsScreen<T extends SettingRow>({
 				<View style={[$headerContainer, { backgroundColor: colors.background }]}>
 					<View style={[styles.container, { backgroundColor: colors.background }]}>
 						<TouchableOpacity accessibilityRole="button" onPress={() => onBack()}>
-							<AntDesign name="arrow-left" size={24} color={colors.primary} />
+							<ArrowLeft size={24} color={colors.primary} />
 						</TouchableOpacity>
 						<Text style={[styles.title, { color: colors.primary }]}>{texts.title}</Text>
 					</View>

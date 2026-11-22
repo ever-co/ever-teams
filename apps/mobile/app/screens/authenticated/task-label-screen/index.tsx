@@ -14,7 +14,7 @@ import {
 	Animated,
 	Platform
 } from 'react-native';
-import { AntDesign } from '@expo/vector-icons';
+import { ArrowLeft } from '../../../../src/components/icons';
 import { Screen } from '../../../components';
 import { AuthenticatedDrawerScreenProps } from '../../../navigators/authenticated-navigator';
 import { translate } from '../../../i18n';
@@ -209,7 +209,7 @@ export const TaskLabelScreen: FC<AuthenticatedDrawerScreenProps<'TaskLabelScreen
 					<View style={[$headerContainer, { backgroundColor: colors.background }]}>
 						<View style={[styles.container, { backgroundColor: colors.background }]}>
 							<TouchableOpacity accessibilityRole="button" onPress={handleGoBack}>
-								<AntDesign name="arrow-left" size={24} color={colors.primary} />
+								<ArrowLeft size={24} color={colors.primary} />
 							</TouchableOpacity>
 							<Text style={[styles.title, { color: colors.primary }]}>
 								{translate('settingScreen.labelScreen.mainTitle')}
