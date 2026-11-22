@@ -281,6 +281,7 @@
 		"NO_TEAM": "创建您自己的团队或加入已有团队",
 		"NO_TEAM_SUB": "创建团队，并邀请与你一起工作的人。",
 		"NO_TEAM_TOOLTIP": "您需要验证您的电子邮件地址",
+		"NO_MEMBER_PROFILE_MESSAGE": "加入团队后，团队、任务和计时就会出现。",
 		"CANCEL": "取消",
 		"DISCARD": "放弃",
 		"EXISTING_MEMBER": "已是成员",

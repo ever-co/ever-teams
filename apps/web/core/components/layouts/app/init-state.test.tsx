@@ -138,6 +138,7 @@ jest.mock('@/core/lib/auth/token-organization', () => ({
 import { getDefaultStore } from 'jotai';
 import { leaveSessionEndedNotice, storedSessionEndedNotice } from '@/core/lib/auth/session-ended-notice';
 import { shellSettledState } from '@/core/stores/common/shell';
+import { isTeamMemberState } from '@/core/stores/teams/organization-team';
 import { InitState } from './init-state';
 
 function resetState() {
@@ -449,6 +450,43 @@ describe('InitState, once someone is signed in', () => {
 		render(<InitState />);
 
 		expect(storedSessionEndedNotice()).toBeNull();
+	});
+});
+
+// ever-co/ever-teams#5678: an admin invited without an employee record signs in, /user/me carries no employee, and the
+// team list (scoped on the employee's organization) never runs: the shell says she is in no team instead of waiting
+describe('InitState for a user without a member profile', () => {
+	beforeEach(() => {
+		resetState();
+		getDefaultStore().set(isTeamMemberState, true);
+	});
+
+	it('publishes that the user is in no team when /user/me has no employee', () => {
+		user = { id: 'user-1', tenantId: 'tenant-1' };
+		workspaceSuccess = true;
+		currentWorkspace = { user: { tenant: { id: 'tenant-1' } } };
+
+		render(<InitState />);
+
+		expect(calls.teams).toHaveBeenLastCalledWith(expect.objectContaining({ enabled: false }));
+		expect(getDefaultStore().get(isTeamMemberState)).toBe(false);
+	});
+
+	it('changes nothing for a user with an employee while the team list loads', () => {
+		resolveWorkspace();
+
+		render(<InitState />);
+
+		expect(getDefaultStore().get(isTeamMemberState)).toBe(true);
+	});
+
+	it('leaves the teams this tab already shows when a later read of /user/me misses the employee', () => {
+		user = { id: 'user-1', tenantId: 'tenant-1' };
+		resolveTeam(false);
+
+		render(<InitState />);
+
+		expect(getDefaultStore().get(isTeamMemberState)).toBe(true);
 	});
 });
 

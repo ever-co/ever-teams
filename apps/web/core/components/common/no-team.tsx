@@ -10,6 +10,9 @@ import { organizationTeamsState } from '@/core/stores';
 import { useAtomValue } from 'jotai';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { NoTeamIcon } from '@/assets/svg';
+import { Users } from '@/core/components/icons';
+import { hasNoMemberProfile } from '@/core/lib/utils/member-profile';
+import { AnimatedEmptyState } from './empty-state';
 
 type Props = PropsWithChildren & React.ComponentPropsWithRef<'div'>;
 const NoTeam = ({ className, ...rest }: Props) => {
@@ -46,4 +49,26 @@ const NoTeam = ({ className, ...rest }: Props) => {
 	);
 };
 
-export default NoTeam;
+/** A team this account creates would not make it a member: what it misses, with no step that does not work today. */
+function NoMemberProfile({ className }: Readonly<{ className?: string }>) {
+	const t = useTranslations();
+	return (
+		<AnimatedEmptyState
+			title={t('dashboard.calendar.NO_MEMBER_TITLE')}
+			message={t('common.NO_MEMBER_PROFILE_MESSAGE')}
+			icon={<Users />}
+			minHeight="420px"
+			className={clsxm('mt-3', className)}
+		/>
+	);
+}
+
+function NoTeamScreen(props: Props) {
+	const { data: user } = useUserQuery();
+	if (hasNoMemberProfile(user)) {
+		return <NoMemberProfile className={props.className} />;
+	}
+	return <NoTeam {...props} />;
+}
+
+export default NoTeamScreen;
