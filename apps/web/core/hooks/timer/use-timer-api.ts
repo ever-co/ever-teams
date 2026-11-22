@@ -701,13 +701,20 @@ export function useTimerApi({
 					if (refuseWhenTrackingIsOff(refreshed)) {
 						return false;
 					}
-					// The API had no run to stop: a read can still say tracking right after this tab's own stop, and a flag
-					// that no run backs refuses nothing (#5684)
+					const isFlagStillOn = Boolean(refreshed?.employee.isTrackingTime);
 					const hasNoRun = flagCheck === 'no-run';
-					if (refreshed?.employee.isTrackingTime && !hasNoRun) {
+					if (isFlagStillOn && !hasNoRun) {
 						// Flag still stuck after stop — cannot auto-heal, block with toast
 						toast.warning(t('timer.ALREADY_TRACKING_MESSAGE'), { id: ALREADY_TRACKING_TOAST_ID });
 						return false;
+					}
+					// The API had no run to stop, yet the read still says tracking: it can predate this tab's own stop, or
+					// another device may have started a run since. Only a run read afresh refuses the start (#5684)
+					if (isFlagStillOn) {
+						const runCheck = await keepRunGoingOn(userData.employee.id);
+						if (runCheck === 'refused') {
+							return false;
+						}
 					}
 				} catch (healError) {
 					// A read that failed tells nothing about a run on another tab or device, and Gauzy's start stops
@@ -728,7 +735,16 @@ export function useTimerApi({
 			logErrorInDev('Failed to verify tracking status', error);
 			return false;
 		}
-	}, [activeTeamRef, keepRunOrClearStuckFlag, queryClient, refreshUserData, stopStaleTeamsTimer, t, timerStatusRef]);
+	}, [
+		activeTeamRef,
+		keepRunGoingOn,
+		keepRunOrClearStuckFlag,
+		queryClient,
+		refreshUserData,
+		stopStaleTeamsTimer,
+		t,
+		timerStatusRef
+	]);
 
 	/**
 	 * A new workspace (#5025), or another organization of this one (#5204), is opening: says so and tells the start to

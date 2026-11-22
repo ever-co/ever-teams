@@ -81,13 +81,16 @@ const mockRefreshUserData = jest.fn(async () => ({
 	...mockUser,
 	employee: { ...mockUser.employee, isTrackingTime: mockGauzy.userReadFlag ?? mockGauzy.isTrackingTime }
 }));
+/** Gauzy's answer to a stop with no run left to stop. */
+const nothingToStop = () =>
+	ApiErrorService.fromAxiosError({
+		message: 'Request failed with status code 406',
+		status: 406,
+		response: { status: 406, data: { statusCode: 406, message: 'No running log found.' } }
+	});
 const mockStopTimer = jest.fn(async (body: { source: ETimeLogSource; stoppedAt?: string }) => {
 	if (mockGauzy.stopRefusesWhenNothingRuns && !mockGauzy.lastLog?.isRunning) {
-		throw ApiErrorService.fromAxiosError({
-			message: 'Request failed with status code 406',
-			status: 406,
-			response: { status: 406, data: { statusCode: 406, message: 'No running log found.' } }
-		});
+		throw nothingToStop();
 	}
 	if (mockGauzy.lastLog?.isRunning) {
 		mockGauzy.lastLog = {
@@ -509,6 +512,33 @@ describe('Start on another task right after this tab stopped its run', () => {
 		mockGauzy.isTrackingTime = true;
 
 		await expectStartRefusedKeeping(tab, 'log-desktop');
+	});
+
+	it('still refuses the start, and keeps the run, when another device starts one right after the stop found nothing', async () => {
+		const tab = await switchedTab();
+		mockGauzy.userReadFlag = true;
+		mockStopTimer.mockImplementationOnce(async () => {
+			// The API had no run left to stop; the desktop app starts one right after
+			mockGauzy.lastLog = {
+				id: 'log-desktop',
+				source: ETimeLogSource.DESKTOP,
+				isRunning: true,
+				startedAt: minutesAgo(0),
+				stoppedAt: minutesAgo(0)
+			};
+			mockGauzy.isTrackingTime = true;
+			throw nothingToStop();
+		});
+
+		const outcome = await tab.pressStart();
+
+		expect(outcome).toBe('blocked');
+		expect(mockStartTimer).not.toHaveBeenCalled();
+		expect(mockGauzy.lastLog).toMatchObject({ id: 'log-desktop', isRunning: true });
+		expect(mockToastWarning).toHaveBeenCalledWith('timer.ALREADY_TRACKING_MESSAGE', {
+			id: ALREADY_TRACKING_TOAST_ID
+		});
+		expect(tab.store.get(timerStatusState)).toMatchObject({ running: true, lastLog: { id: 'log-desktop' } });
 	});
 
 	it('still ends in a start when the flag stays on with no run, which the stop of the API cannot clear', async () => {
