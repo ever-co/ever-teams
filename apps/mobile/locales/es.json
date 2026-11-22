@@ -312,7 +312,7 @@
 	},
 	"noTeamScreen": {
 		"createYourTeam": "Crea tu propio equipo o únete a uno existente",
-		"hintMessage": "Lorem ipsum dolor sit amet consectetur. Blandit lobortis dui risus neque."
+		"hintMessage": "Crea un equipo e invita a las personas con las que trabajas."
 	},
 	"settingScreen": {
 		"description": "Tu cuenta, tu equipo y cómo se organizan sus tareas.",

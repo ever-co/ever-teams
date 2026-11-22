@@ -312,7 +312,7 @@
 	},
 	"noTeamScreen": {
 		"createYourTeam": "创建您自己的团队或加入已有团队",
-		"hintMessage": "Lorem ipsum dolor sit amet consectetur. Blandit lobortis dui risus neque."
+		"hintMessage": "创建团队，并邀请与你一起工作的人。"
 	},
 	"settingScreen": {
 		"description": "你的账户、你的团队，以及团队任务的组织方式。",

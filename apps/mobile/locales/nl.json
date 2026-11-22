@@ -311,8 +311,8 @@
 		"closedCount": "{count, plural, other {# gesloten}}"
 	},
 	"noTeamScreen": {
-		"createYourTeam": "Maak je eigen team of sluit je aan bij een bestaand team",
-		"hintMessage": "Lorem ipsum dolor sit amet consectetur. Blandit lobortis dui risus neque."
+		"createYourTeam": "Maak uw eigen team of sluit u aan bij een bestaand team",
+		"hintMessage": "Maak een team aan en nodig de mensen uit met wie je werkt."
 	},
 	"settingScreen": {
 		"description": "Je account, je team en hoe de taken ervan zijn georganiseerd.",

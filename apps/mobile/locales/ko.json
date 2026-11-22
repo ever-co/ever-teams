@@ -312,7 +312,7 @@
 	},
 	"noTeamScreen": {
 		"createYourTeam": "나만의 팀을 만들거나 기존 팀에 합류하세요",
-		"hintMessage": "Lorem ipsum dolor sit amet consectetur. Blandit lobortis dui risus neque."
+		"hintMessage": "팀을 만들고 함께 일하는 사람들을 초대하세요."
 	},
 	"settingScreen": {
 		"description": "내 계정, 내 팀, 그리고 팀의 작업이 정리되는 방식.",

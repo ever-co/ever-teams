@@ -178,5 +178,7 @@
 	"taskMenus.fields.version": "taskMenus.fields.version",
 	"taskMenus.addLabel": "taskDetail.properties.ADD_LABEL",
 	"taskMenus.editLabels": "taskDetail.properties.EDIT_LABELS",
-	"taskMenus.rowActions": "settings.taskProperties.ROW_ACTIONS"
+	"taskMenus.rowActions": "settings.taskProperties.ROW_ACTIONS",
+	"noTeamScreen.createYourTeam": "common.NO_TEAM",
+	"noTeamScreen.hintMessage": "common.NO_TEAM_SUB"
 }
