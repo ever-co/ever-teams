@@ -11,6 +11,8 @@ export interface HostSession {
 	status: HostSessionStatus;
 	// The organization the host's token was issued for (its claims): the kit reads no organization list in this mode.
 	organizationId: string | null;
+	// Signed out because Ever Teams refused the person (EMBED_MEMBER_NOT_ALLOWED), not because the host signed them out.
+	refused?: boolean;
 }
 
 export const hostSessionAtom = atom<HostSession>({ status: 'pending', organizationId: null });

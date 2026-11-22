@@ -15,6 +15,7 @@ import { LazyCreateTeamModal } from '@/core/components/optimized-components/team
 import { Suspense } from 'react';
 import { ModalSkeleton } from '@/core/components/common/skeleton/modal-skeleton';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { useIsEmailVerificationSatisfied } from '@/core/hooks/auth/use-email-verification-status';
 import {
 	activeTeamState,
 	detailedTaskState,
@@ -58,6 +59,7 @@ const ORGANIZATION_SWITCH_FAILED_TOAST_ID = 'organization-switch-failed';
 
 export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 	const { data: user } = useUserQuery();
+	const meetsEmailVerification = useIsEmailVerificationSatisfied(user);
 
 	const activeTeam = useAtomValue(activeTeamState);
 	const teams = useAtomValue(organizationTeamsState);
@@ -165,7 +167,7 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 	const queryClient = useQueryClient();
 	const hasPendingWrites = useIsMutating() > 0;
 	const blocksOrganizationSwitch = blocksTeamChange || isTimerStarting || hasPendingWrites;
-	const cannotCreateTeam = !user?.isEmailVerified || blocksTeamChange;
+	const cannotCreateTeam = !meetsEmailVerification || blocksTeamChange;
 
 	const selectTeam = useCallback(
 		(team: TOrganizationTeam) => {
@@ -352,7 +354,7 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 
 						{!publicTeam && (
 							<Tooltip
-								enabled={!user?.isEmailVerified}
+								enabled={!meetsEmailVerification}
 								label={t('common.VERIFY_ACCOUNT_MSG')}
 								placement="left"
 							>
@@ -370,7 +372,7 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 				</DropdownMenu>
 			</Tooltip>
 
-			{!publicTeam && isOpen && !!user?.isEmailVerified && !timerRunningStatus && (
+			{!publicTeam && isOpen && meetsEmailVerification && !timerRunningStatus && (
 				<Suspense fallback={<ModalSkeleton size="md" />}>
 					<LazyCreateTeamModal open={isOpen} closeModal={closeModal} />
 				</Suspense>

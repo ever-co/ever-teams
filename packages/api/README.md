@@ -400,6 +400,7 @@ A request cut by the limit throws an `EverTeamsNetworkError` whose `cause.name` 
 ```ts
 // app/api/ever-teams-token/route.ts
 import { NextResponse } from 'next/server';
+import { EverTeamsForbiddenError } from '@ever-teams/api';
 import { exchangeEmbedToken } from '@ever-teams/api/server';
 import { currentUser } from '@/lib/session'; // your own sign-in
 
@@ -420,6 +421,10 @@ export async function POST() {
 		return NextResponse.json(answer, { headers: noStore });
 	} catch (error) {
 		console.error(error); // its message and nextStep say why; no error holds the credential
+		if (error instanceof EverTeamsForbiddenError && error.code === 'EMBED_MEMBER_NOT_ALLOWED') {
+			// Ever Teams refused this person: the timer tells them they may not track time here.
+			return NextResponse.json({ code: error.code }, { status: 403, headers: noStore });
+		}
 		return NextResponse.json({ error: 'No Ever Teams token' }, { status: 502, headers: noStore });
 	}
 }
@@ -429,6 +434,7 @@ export async function POST() {
 
 ```js
 import express from 'express';
+import { EverTeamsForbiddenError } from '@ever-teams/api';
 import { exchangeEmbedToken } from '@ever-teams/api/server';
 
 const app = express();
@@ -449,6 +455,9 @@ app.post('/api/ever-teams-token', async (req, res) => {
 		res.json(answer);
 	} catch (error) {
 		console.error(error);
+		if (error instanceof EverTeamsForbiddenError && error.code === 'EMBED_MEMBER_NOT_ALLOWED') {
+			return res.status(403).json({ code: error.code });
+		}
 		res.status(502).json({ error: 'No Ever Teams token' });
 	}
 });
@@ -460,6 +469,7 @@ A server whose handlers take a `Request` and answer a `Response` (the Fetch API)
 Worker or Hono:
 
 ```js
+import { EverTeamsForbiddenError } from '@ever-teams/api';
 import { exchangeEmbedToken } from '@ever-teams/api/server';
 import { signedInUser } from './session.js'; // your own sign-in
 
@@ -480,6 +490,9 @@ export async function everTeamsToken(request, env) {
 		return Response.json(answer, { headers: noStore });
 	} catch (error) {
 		console.error(error);
+		if (error instanceof EverTeamsForbiddenError && error.code === 'EMBED_MEMBER_NOT_ALLOWED') {
+			return Response.json({ code: error.code }, { status: 403, headers: noStore });
+		}
 		return Response.json({ error: 'No Ever Teams token' }, { status: 502, headers: noStore });
 	}
 }
@@ -499,6 +512,11 @@ Each refusal is an `EverTeamsError` subclass with the API's `code` and a `nextSt
 | 429    | `EverTeamsRateLimitError` | none                       | Too many exchanges: wait `error.retryAfter` seconds (the `Retry-After` header).                                                                                              |
 | 404    | `EverTeamsNotFoundError`  | none                       | Embeds are off on this API (its administrator sets `GAUZY_EMBED_TOKENS_ENABLED=true`), or `apiUrl` is not its address.                                                       |
 | 503    | `EverTeamsServerError`    | none                       | The API cannot reach its database: try again shortly.                                                                                                                        |
+
+Answer your page a refused person (`EMBED_MEMBER_NOT_ALLOWED`) with a 403 whose body is `{ "code": "EMBED_MEMBER_NOT_ALLOWED" }`,
+as the examples above do: the timer of `@ever-teams/embed` (`token-url`) then tells the person they may not track time
+in the workspace and to ask their admin. Any other answer, your 401 for a person signed out of your product included,
+shows its note that points to your own sign-in.
 
 Before any request, a missing or malformed option throws an `EverTeamsError` with the code `CLIENT_OPTIONS` (status
 0), and a call in a page `SERVER_ONLY`. A success that is not a token throws `UNEXPECTED_ANSWER` (`apiUrl` is likely
@@ -536,7 +554,8 @@ A refusal has the status and `code` of the table above, with a `message`:
 }
 ```
 
-Answer the token to your page with `Cache-Control: no-store`, whatever the language. Each snippet below uses the
+Answer the token to your page with `Cache-Control: no-store`, whatever the language, and a refusal of the person
+(`EMBED_MEMBER_NOT_ALLOWED`) with a 403 and `{"code":"EMBED_MEMBER_NOT_ALLOWED"}`. Each snippet below uses the
 standard library's HTTP client and reads the credential from the environment.
 
 **PHP**

@@ -1,6 +1,6 @@
 /** @jest-environment jsdom */
 
-import { fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import type { TimesheetPermissions } from '@/core/hooks/dashboards/timesheets/use-timesheets-page';
 import type { TimesheetEntryGroup } from '@/core/lib/utils/dashboards/timesheet-entry-groups';
 import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
@@ -42,6 +42,20 @@ const MEMBER: TimesheetPermissions = {
 	canApprove: false,
 	userId: 'marie-user',
 	employeeId: 'marie'
+};
+
+/** Kofi manages Marie's team by the team's manager flag; his employee role does not hold CAN_APPROVE_TIMESHEET. */
+const TEAM_MANAGER: TimesheetPermissions = {
+	hasOrganizationRole: false,
+	isManage: true,
+	canApprove: false,
+	userId: 'kofi-user',
+	employeeId: 'kofi',
+	reviewer: {
+		permissions: ['TIME_TRACKER'],
+		employeeId: 'kofi',
+		teams: [{ members: [{ employeeId: 'kofi', isManager: true }, { employeeId: 'marie' }] }]
+	}
 };
 
 function logOf(id: string, employeeId = 'marie'): ITimeLog {
@@ -92,6 +106,26 @@ describe('TimesheetEntryGroupMenu', () => {
 	it('offers no status to someone who may not approve', () => {
 		renderMenu(MEMBER);
 
+		expect(screen.queryByText('common.CHANGE_STATUS')).toBeNull();
+	});
+
+	it("offers a team manager without CAN_APPROVE_TIMESHEET Approved and Rejected on a member's entries, never on his own (#5622)", () => {
+		const statusLabels = () =>
+			screen
+				.getAllByRole('menuitem')
+				.map((item) => item.textContent)
+				.filter((text) => text?.startsWith('dashboard.timesheets.STATUS.'));
+
+		const memberEntries = renderMenu(TEAM_MANAGER);
+		expect(statusLabels()).toEqual(['dashboard.timesheets.STATUS.APPROVED', 'dashboard.timesheets.STATUS.DENIED']);
+		fireEvent.click(menuItemNamed('dashboard.timesheets.STATUS.APPROVED') as HTMLElement);
+		expect(memberEntries.handlers.changeStatus).toHaveBeenCalledWith(
+			memberEntries.group,
+			ETimesheetStatus.APPROVED
+		);
+		cleanup();
+
+		renderMenu(TEAM_MANAGER, groupOf([logOf('own-a', 'kofi'), logOf('own-b', 'kofi')]));
 		expect(screen.queryByText('common.CHANGE_STATUS')).toBeNull();
 	});
 

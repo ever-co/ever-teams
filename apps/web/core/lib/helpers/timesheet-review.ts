@@ -4,7 +4,10 @@ import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import type { TOrganizationTeamEmployee } from '@/core/types/schemas';
 
 /** A team membership, as the teams the app loads carry it. */
-type TeamMembership = Pick<TOrganizationTeamEmployee, 'employeeId' | 'isManager' | 'isActive' | 'isArchived'>;
+type TeamMembership = Pick<
+	TOrganizationTeamEmployee,
+	'employeeId' | 'employee' | 'isManager' | 'isActive' | 'isArchived'
+>;
 
 /** A team with the memberships the app loaded for it. */
 type ReviewerTeam = { members?: readonly TeamMembership[] | null };
@@ -40,12 +43,23 @@ function reachesTeamManagerCheck(permissions: readonly string[]): boolean {
 	return permissions.includes('TIME_TRACKER');
 }
 
-/** Whether the membership is the employee's and still in effect. The API counts a missing flag as in effect. */
-function isActiveMembership(member: TeamMembership, employeeId: ID): boolean {
-	const isEmployee = member.employeeId === employeeId;
+/** Whether the membership is still in effect. The API counts a missing flag as in effect. */
+export function isMembershipInEffect(member: Pick<TeamMembership, 'isActive' | 'isArchived'>): boolean {
 	const isActive = member.isActive !== false;
 	const isNotArchived = member.isArchived !== true;
-	return isEmployee && isActive && isNotArchived;
+	return isActive && isNotArchived;
+}
+
+/** The membership's employee: its employeeId, or the id of its employee when the team was read without it. */
+export function membershipEmployeeIdOf(member: Pick<TeamMembership, 'employeeId' | 'employee'>): ID | null {
+	const employeeId: ID | null | undefined = member.employeeId ?? member.employee?.id;
+	return employeeId ?? null;
+}
+
+/** Whether the membership is the employee's and still in effect. */
+function isActiveMembership(member: TeamMembership, employeeId: ID): boolean {
+	const isEmployee = membershipEmployeeIdOf(member) === employeeId;
+	return isEmployee && isMembershipInEffect(member);
 }
 
 /** Whether the employee manages the team through this membership. The API reads the manager flag, not the role. */
@@ -113,4 +127,39 @@ export function getAllowedTimesheetStatuses(
 	}
 
 	return TEAM_MANAGER_STATUSES;
+}
+
+/**
+ * What a page knows of the person who reviews: whether their role approves every timesheet, and the reviewer the
+ * team manager rule reads, on the pages that pass one.
+ */
+export interface TimesheetReviewAccess {
+	canApprove: boolean;
+	reviewer?: TimesheetReviewer | null;
+}
+
+/**
+ * The statuses a page offers on the timesheets of these time logs: every status when the role approves every
+ * timesheet; otherwise those of getAllowedTimesheetStatuses where the page passes its reviewer, and none elsewhere.
+ */
+export function reviewStatusesOf(
+	access: TimesheetReviewAccess,
+	logs: readonly ReviewedTimeLog[]
+): readonly ETimesheetStatus[] {
+	if (access.canApprove) {
+		return ANY_TIMESHEET_STATUS;
+	}
+	const reviewer = access.reviewer;
+	if (!reviewer) {
+		return NO_TIMESHEET_STATUS;
+	}
+	return getAllowedTimesheetStatuses(reviewer, logs);
+}
+
+/** Whether a page offers Approve and Reject on the timesheets of these time logs. */
+export function offersApproveAndReject(access: TimesheetReviewAccess, logs: readonly ReviewedTimeLog[]): boolean {
+	const statuses = reviewStatusesOf(access, logs);
+	const canApprove = statuses.includes(ETimesheetStatus.APPROVED);
+	const canReject = statuses.includes(ETimesheetStatus.DENIED);
+	return canApprove && canReject;
 }

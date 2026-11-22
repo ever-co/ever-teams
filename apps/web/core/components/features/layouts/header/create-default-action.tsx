@@ -14,6 +14,7 @@ import { useMemo } from 'react';
 import { AddUserIcon, Plus, ProjectIcon, TaskIcon, TeamIcon } from '../../../icons';
 import { useAuthenticateUser, useModal } from '@/core/hooks';
 import { useCanInviteToActiveTeam } from '@/core/hooks/invitations/use-can-invite-to-active-team';
+import { useIsEmailVerificationSatisfied } from '@/core/hooks/auth/use-email-verification-status';
 import { useTranslations } from 'next-intl';
 import { useAtomValue } from 'jotai';
 import { timerStatusState } from '@/core/stores';
@@ -37,6 +38,7 @@ type DefaultCreateActionProps = {
 export const DefaultCreateAction = ({ publicTeam, className }: DefaultCreateActionProps) => {
 	const t = useTranslations();
 	const { user } = useAuthenticateUser();
+	const meetsEmailVerification = useIsEmailVerificationSatisfied(user);
 	// The API refuses an invitation into a team the user does not manage (403): offer Invite only to who may send it.
 	const canInvite = useCanInviteToActiveTeam();
 	const { isOpen, closeModal, openModal } = useModal();
@@ -67,13 +69,12 @@ export const DefaultCreateAction = ({ publicTeam, className }: DefaultCreateActi
 	};
 
 	const quickCreateLabel = t('sidebar.QUICK_CREATE');
-	const isEmailVerified = Boolean(user?.isEmailVerified);
-	const teamItemDisabled = !isEmailVerified || timerRunningStatus;
+	const teamItemDisabled = !meetsEmailVerification || timerRunningStatus;
 
 	let teamItemTitle: string | undefined;
 	if (timerRunningStatus) {
 		teamItemTitle = t('common.CREATE_DISABLED_MESSAGE_WHEN_TIMER_RUNNING');
-	} else if (!isEmailVerified) {
+	} else if (!meetsEmailVerification) {
 		teamItemTitle = t('common.VERIFY_ACCOUNT_MSG');
 	}
 
@@ -169,11 +170,14 @@ export const DefaultCreateAction = ({ publicTeam, className }: DefaultCreateActi
 				/>
 			</Modal>
 			{!publicTeam && (
-				<CreateTeamModal open={isOpen && isEmailVerified && !timerRunningStatus} closeModal={closeModal} />
+				<CreateTeamModal
+					open={isOpen && meetsEmailVerification && !timerRunningStatus}
+					closeModal={closeModal}
+				/>
 			)}
 
-			<InviteFormModal open={inviteIsOpen && isEmailVerified} closeModal={inviteCloseModal} />
-			<CreateProjectModal open={projectIsOpen && isEmailVerified} closeModal={projectCloseModal} />
+			<InviteFormModal open={inviteIsOpen && meetsEmailVerification} closeModal={inviteCloseModal} />
+			<CreateProjectModal open={projectIsOpen && meetsEmailVerification} closeModal={projectCloseModal} />
 		</div>
 	);
 };

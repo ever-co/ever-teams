@@ -18,6 +18,7 @@ import { useTimerPlanStatus } from './use-timer-plan-status';
 jest.mock('@/core/hooks/auth/use-authenticate-user', () => ({
 	useAuthenticateUser: () => ({ user: { isEmailVerified: true } })
 }));
+jest.mock('@/core/hooks/auth/use-email-verification-status', () => ({ useIsEmailVerificationSatisfied: () => true }));
 jest.mock('@/core/hooks/daily-plans/use-my-daily-plans', () => ({
 	useMyDailyPlans: () => ({ myDailyPlans: { items: [] } })
 }));

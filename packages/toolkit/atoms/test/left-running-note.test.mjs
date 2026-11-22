@@ -1,5 +1,6 @@
-// A timer the kit loses the sign-in of while it runs (ever-co/ever-teams#5583): node --test test/*.test.mjs (from
-// packages/toolkit/atoms, after the toolkit-types and api builds). bundle-kit.mjs bundles TeamsProvider and the sign-in
+// A timer the kit loses the sign-in of while it runs (ever-co/ever-teams#5583), and a person Ever Teams refused
+// (#5706): node --test test/*.test.mjs (from packages/toolkit/atoms, after the toolkit-types and api builds).
+// bundle-kit.mjs bundles TeamsProvider and the sign-in
 // prompt with the built @ever-teams/api; a stand-in fetch answers the API, and getToken stands in for the host's
 // backend: it hands a token, then fails once the host's credential is revoked, while the API refuses the old token.
 import { test, before, after, afterEach } from 'node:test';
@@ -150,4 +151,31 @@ test('signed out while the timer is stopped, the prompt says only to sign in', a
 
 	assert.match(document.body.textContent, new RegExp(SIGN_IN_NOTE.replace('.', '\\.')));
 	assert.doesNotMatch(document.body.textContent, /AUTH\.timer_left_running/);
+});
+
+// A person the host signs in, whom Ever Teams refuses (ever-co/ever-teams#5706): the host's backend relays the API's
+// refusal of the person, as the SDK throws it, instead of saying the person is signed out of the host.
+const PERMISSION = 'KIT_ERRORS.PERMISSION';
+const refusedByEverTeams = async () => {
+	throw Object.assign(new Error('This member cannot track time through an embed.'), { code: 'EMBED_MEMBER_NOT_ALLOWED' });
+};
+
+test('a person Ever Teams refused reads the permission message, not a call to sign in to the site', async () => {
+	const stand = standIns({ running: false });
+	stand.getToken = refusedByEverTeams;
+	await openPage(stand);
+
+	assert.match(document.body.textContent, new RegExp(PERMISSION.replace('.', '\\.')));
+	assert.doesNotMatch(document.body.textContent, new RegExp(SIGN_IN_NOTE.replace('.', '\\.')));
+});
+
+test('a person the site signed out keeps the note that points to its sign-in, not the permission message', async () => {
+	const stand = standIns({ running: false });
+	stand.getToken = async () => {
+		throw new Error('token-url answered 401');
+	};
+	await openPage(stand);
+
+	assert.match(document.body.textContent, new RegExp(SIGN_IN_NOTE.replace('.', '\\.')));
+	assert.doesNotMatch(document.body.textContent, new RegExp(PERMISSION.replace('.', '\\.')));
 });

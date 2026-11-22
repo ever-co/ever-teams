@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
 import React, { FC, useState } from 'react';
-import { TouchableOpacity, View, Text, StyleSheet, ViewStyle } from 'react-native';
+import { TouchableOpacity, View, StyleSheet, ViewStyle } from 'react-native';
 import { ChevronDown } from '../../src/components/icons';
 import { TaskPropertyPlaceholderIcon } from '../../src/components/task-property-icon';
 import { observer } from 'mobx-react-lite';
@@ -10,6 +10,7 @@ import { useTeamTasks } from '../services/hooks/features/use-team-tasks';
 import { typography, useWebTheme } from '../theme';
 import { taskChipLookOf } from '../../src/components/task-chip';
 import { ChipIcon } from '../../src/components/chip-icon';
+import { ChipLabel } from '../../src/components/chip-label';
 import { useMenuAnchor } from '../../src/components/menu-anchor';
 import TaskPriorityPopup from './task-priority-popup';
 import { PropertyTriggerButton } from './property-trigger';
@@ -97,19 +98,19 @@ const TaskPriority: FC<TaskPriorityProps> = observer(
 						{(task?.priority || priority) && currentPriority ? (
 							<View style={styles.wrapStatus}>
 								<ChipIcon item={currentPriority} color={look.ink} kind="priority" />
-								<Text style={{ ...styles.text, color: look.ink, marginLeft: 10 }}>
+								<ChipLabel style={{ ...styles.text, color: look.ink, marginLeft: 10 }}>
 									{limitTextCharaters({
 										text: currentPriority.name,
 										numChars: 15
 									})}
-								</Text>
+								</ChipLabel>
 							</View>
 						) : (
 							<View style={styles.wrapStatus}>
 								<TaskPropertyPlaceholderIcon kind="priority" size={12} color={look.ink} />
-								<Text style={{ ...styles.text, color: look.ink, marginLeft: 5 }}>
+								<ChipLabel style={{ ...styles.text, color: look.ink, marginLeft: 5 }}>
 									{translate('settingScreen.priorityScreen.priorities')}
-								</Text>
+								</ChipLabel>
 							</View>
 						)}
 						<ChevronDown size={14} color={look.ink} />

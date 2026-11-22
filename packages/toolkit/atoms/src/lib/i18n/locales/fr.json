@@ -110,7 +110,22 @@
 		"full_name_prompt": "Entrez votre nom complet",
 		"logout": "Se déconnecter",
 		"dont_have_an_account": "Vous n'avez pas de compte ? ",
-		"have_an_account": "Vous avez déjà un compte ? "
+		"have_an_account": "Vous avez déjà un compte ? ",
+		"two_factor_description": "Ouvrez votre application d'authentification et saisissez le code à {{length}} chiffres qu'elle affiche pour {{email}}.",
+		"two_factor_recovery_description": "Saisissez l'un des codes de récupération enregistrés lors de l'activation de l'authentification à deux facteurs. Chaque code ne sert qu'une fois.",
+		"two_factor_code_label": "Code d'authentification",
+		"two_factor_recovery_label": "Code de récupération",
+		"two_factor_use_recovery": "Utiliser un code de récupération",
+		"two_factor_use_app": "Utiliser l'application d'authentification",
+		"two_factor_submit": "Vérifier et se connecter",
+		"two_factor_back": "Retour à la connexion",
+		"two_factor_wrong_code": "Ce code n'est pas le bon. Saisissez le code affiché maintenant par votre application d'authentification.",
+		"two_factor_wrong_recovery_code": "Ce code de récupération n'est pas le bon, ou il a déjà servi.",
+		"two_factor_code_incomplete": "Saisissez les {{length}} chiffres du code.",
+		"two_factor_recovery_incomplete": "Saisissez le code de récupération en entier.",
+		"two_factor_expired": "Cette connexion a trop attendu son code. Connectez-vous à nouveau.",
+		"two_factor_too_many": "Trop de codes erronés. Patientez quelques minutes, puis réessayez.",
+		"two_factor_failed": "Le code n'a pas pu être vérifié. Réessayez dans un instant."
 	},
 	"INPUT": {
 		"language_switcher": {

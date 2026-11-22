@@ -304,6 +304,7 @@
 		"NO_TEAM": "Create your team or join existing",
 		"NO_TEAM_SUB": "Create a team and invite the people you work with.",
 		"NO_TEAM_TOOLTIP": "You need to verify your email address",
+		"NO_MEMBER_PROFILE_MESSAGE": "Teams, tasks and the timer show up once you are in a team.",
 		"CANCEL": "Cancel",
 		"DISCARD": "Discard",
 		"EXISTING_MEMBER": "Already a member",
@@ -2809,7 +2810,8 @@
 		"error": {
 			"TITLE": "Error",
 			"HEADING_TITLE": "Something went wrong",
-			"HEADING_DESCRIPTION": "If the problem persists, send a distress signal to our support team."
+			"HEADING_DESCRIPTION": "If the problem persists, send a distress signal to our support team.",
+			"PAGE_NOT_LOADED": "This page could not be loaded"
 		},
 		"maintenance": {
 			"HEADING_TITLE": "We are under maintenance",
@@ -4281,6 +4283,8 @@
 			"VERIFY_TITLE": "Confirm your email address",
 			"VERIFY_TEXT": "We sent a code to {email}.",
 			"VERIFY_TEXT_GENERIC": "We sent a code to your email address.",
+			"VERIFY_TEXT_NOT_SENT": "Send a code to {email} to confirm the address is yours.",
+			"VERIFY_TEXT_NOT_SENT_GENERIC": "Send a code to your email address to confirm it is yours.",
 			"VERIFY_ACTION": "Enter the code",
 			"VERIFY_RESEND": "Send a new code",
 			"VERIFY_SENDING": "Sending a new code"

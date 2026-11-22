@@ -281,6 +281,7 @@
 		"NO_TEAM": "创建您自己的团队或加入已有团队",
 		"NO_TEAM_SUB": "创建团队，并邀请与你一起工作的人。",
 		"NO_TEAM_TOOLTIP": "您需要验证您的电子邮件地址",
+		"NO_MEMBER_PROFILE_MESSAGE": "加入团队后，团队、任务和计时就会出现。",
 		"CANCEL": "取消",
 		"DISCARD": "放弃",
 		"EXISTING_MEMBER": "已是成员",
@@ -2809,7 +2810,8 @@
 		"error": {
 			"TITLE": "错误",
 			"HEADING_TITLE": "出了点问题",
-			"HEADING_DESCRIPTION": "如果问题仍然存在，请向我们的支持团队发送求救信号。"
+			"HEADING_DESCRIPTION": "如果问题仍然存在，请向我们的支持团队发送求救信号。",
+			"PAGE_NOT_LOADED": "无法加载此页面"
 		},
 		"maintenance": {
 			"HEADING_TITLE": "我們正在維護中",
@@ -4281,6 +4283,8 @@
 			"VERIFY_TITLE": "请确认你的电子邮箱地址",
 			"VERIFY_TEXT": "我们已向 {email} 发送了验证码。",
 			"VERIFY_TEXT_GENERIC": "我们已向你的电子邮箱发送了验证码。",
+			"VERIFY_TEXT_NOT_SENT": "向 {email} 发送验证码，以确认该地址属于你。",
+			"VERIFY_TEXT_NOT_SENT_GENERIC": "向你的电子邮箱发送验证码，以确认它属于你。",
 			"VERIFY_ACTION": "输入验证码",
 			"VERIFY_RESEND": "重新发送验证码",
 			"VERIFY_SENDING": "正在发送新的验证码"

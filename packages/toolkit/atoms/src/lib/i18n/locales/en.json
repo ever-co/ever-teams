@@ -113,7 +113,22 @@
 		"phone_number_prompt": "Enter your phone number",
 		"logout": "Logout",
 		"dont_have_an_account": "Don't have an account?",
-		"have_an_account": "Have an account?"
+		"have_an_account": "Have an account?",
+		"two_factor_description": "Open your authenticator app and enter the {{length}}-digit code it shows for {{email}}.",
+		"two_factor_recovery_description": "Enter one of the recovery codes you saved when you turned on two-factor authentication. Each code works once.",
+		"two_factor_code_label": "Authentication code",
+		"two_factor_recovery_label": "Recovery code",
+		"two_factor_use_recovery": "Use a recovery code instead",
+		"two_factor_use_app": "Use your authenticator app instead",
+		"two_factor_submit": "Verify and sign in",
+		"two_factor_back": "Back to sign in",
+		"two_factor_wrong_code": "This code is not right. Enter the code your authenticator app shows now.",
+		"two_factor_wrong_recovery_code": "This recovery code is not right, or it was already used.",
+		"two_factor_code_incomplete": "Enter all {{length}} digits of the code.",
+		"two_factor_recovery_incomplete": "Enter the whole recovery code.",
+		"two_factor_expired": "This sign-in waited too long for its code. Sign in again.",
+		"two_factor_too_many": "Too many wrong codes. Wait a few minutes, then try again.",
+		"two_factor_failed": "The code could not be checked. Try again in a moment."
 	},
 	"INPUT": {
 		"language_switcher": {

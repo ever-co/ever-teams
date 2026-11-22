@@ -41,10 +41,13 @@ export function getAllDayPlans({
 
 	const query = qs.stringify(obj);
 
+	// Gauzy's tenant check reads a GET's tenant from the tenant-id header or a top-level `tenantId` query, never from
+	// `where[tenantId]`: without the header every read of this file is refused with 403 (ever-co/ever-teams#5611)
 	return serverFetch<IDailyPlan>({
 		path: `/daily-plan?${query}`,
 		method: 'GET',
-		bearer_token
+		bearer_token,
+		tenantId
 	});
 }
 
@@ -80,7 +83,8 @@ export function getMyDailyPlansRequest({
 	return serverFetch<IDailyPlan>({
 		path: `/daily-plan/me?${query}`,
 		method: 'GET',
-		bearer_token
+		bearer_token,
+		tenantId
 	});
 }
 
@@ -118,7 +122,8 @@ export function getDayPlansByEmployee({
 	return serverFetch<IDailyPlan>({
 		path: `/daily-plan/employee/${employeeId}?${query}`,
 		method: 'GET',
-		bearer_token
+		bearer_token,
+		tenantId
 	});
 }
 
@@ -146,7 +151,8 @@ export function getPlansByTask({
 	return serverFetch<IDailyPlan>({
 		path: `/daily-plan/task/${taskId}?${query}`,
 		method: 'GET',
-		bearer_token
+		bearer_token,
+		tenantId
 	});
 }
 
