@@ -4,7 +4,7 @@
 import { avatarState } from '@/core/stores';
 import { clsxm, isValidUrl, normalizeImageUrl } from '@/core/lib/utils';
 import Image from 'next/image';
-import { PropsWithChildren, useEffect, useMemo } from 'react';
+import { PropsWithChildren, ReactNode, useEffect, useMemo, useState } from 'react';
 import { useAtom } from 'jotai';
 import hasOwn from 'lodash/has';
 
@@ -16,7 +16,19 @@ type Props = {
 	alt?: string;
 	imageTitle?: string;
 	backgroundColor?: string;
+	/** Shown while there is no image, or once it failed to load; the title's initial when none is given. */
+	fallback?: ReactNode;
 } & PropsWithChildren;
+
+function fallbackOf(fallback: ReactNode, imageTitle: string | undefined): ReactNode {
+	if (fallback) {
+		return fallback;
+	}
+	if (imageTitle) {
+		return <span className="text-lg font-normal uppercase">{imageTitle[0] || ''}</span>;
+	}
+	return null;
+}
 
 export function Avatar({
 	className,
@@ -26,7 +38,8 @@ export function Avatar({
 	children,
 	alt,
 	imageTitle,
-	backgroundColor
+	backgroundColor,
+	fallback
 }: Props) {
 	const [avatar, setAvatar] = useAtom(avatarState);
 
@@ -50,6 +63,12 @@ export function Avatar({
 		/* eslint-disable react-hooks/exhaustive-deps */
 	}, [imagePathName, cachedUrl]);
 
+	// An address that failed to load is not drawn again: the browser would show its broken-image icon and the alt text
+	const [failedUrl, setFailedUrl] = useState<string>();
+	const showsImage = Boolean(imgUrl) && failedUrl !== imgUrl;
+	const fallbackContent = fallbackOf(fallback, imageTitle);
+	const showsFallback = !showsImage && Boolean(fallbackContent);
+
 	useEffect(() => {
 		setAvatar((avatar: any) =>
 			avatar[imagePathName] === imageUrl ? avatar : { ...avatar, [imagePathName]: imageUrl }
@@ -62,7 +81,7 @@ export function Avatar({
 				'relative bg-foreground/5 hairline-ring ring-border',
 				shape === 'circle' && ['rounded-full'],
 				shape === 'square' && ['rounded-md'],
-				imageTitle && !imgUrl && ['flex justify-center items-center'],
+				showsFallback && ['flex justify-center items-center'],
 				className
 			)}
 			style={{
@@ -75,9 +94,9 @@ export function Avatar({
 					: {})
 			}}
 		>
-			{imageTitle && !imgUrl && <span className="text-lg font-normal uppercase">{imageTitle[0] || ''}</span>}
+			{showsFallback && fallbackContent}
 
-			{imgUrl && (
+			{showsImage && imgUrl && (
 				<Image
 					fill
 					sizes={`${size}px`}
@@ -88,6 +107,7 @@ export function Avatar({
 						shape === 'square' && ['rounded-md']
 					)}
 					alt={alt || 'Avatar'}
+					onError={() => setFailedUrl(imgUrl)}
 				/>
 			)}
 			{children}
