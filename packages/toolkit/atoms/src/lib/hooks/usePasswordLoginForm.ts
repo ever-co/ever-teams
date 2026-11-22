@@ -2,7 +2,7 @@
 import { IAuthLogin, IServerError } from '@ever-teams/toolkit-types';
 import { useRef, useState } from 'react';
 
-import { authLogin } from '@ever-teams/api';
+import { authSignInWorkspace, authWithEmailPassword } from '@ever-teams/api';
 import { reportError, toast } from '@ever-teams/toolkit-ui';
 import { useTranslation } from 'react-i18next';
 import { useAccessToken } from './useAccessToken';
@@ -13,6 +13,16 @@ import { useKitOptions } from '@components/teams-provider/kit-options';
 import { apiUrlOf } from '@lib/utils/api-url';
 import { twoFactorChallengeOf } from '@lib/errors/two-factor';
 import { useTwoFactorStep, type TwoFactorStep } from './useTwoFactorStep';
+import { workspaceChoicesOf, type WorkspaceChoice } from '@lib/session/workspace-choices';
+
+/** The workspace step, while an email and password that open several workspaces wait for the person's pick. */
+export interface WorkspaceStep {
+	choices: WorkspaceChoice[];
+	// The token of the workspace being signed in to; null while the person has not picked one.
+	choosing: string | null;
+	error?: string;
+	choose: (choice: WorkspaceChoice) => Promise<void>;
+}
 
 interface UsePasswordLoginFormReturn {
 	formData: {
@@ -25,7 +35,9 @@ interface UsePasswordLoginFormReturn {
 	handleSubmit: (e: React.FormEvent<HTMLFormElement>) => Promise<void>;
 	/** The code step, while the API waits for a two-factor code of this sign-in; null otherwise. */
 	twoFactor: TwoFactorStep | null;
-	/** Leaves the code step for the email and password, which the form kept. */
+	/** The workspace step, when the email and password open several workspaces; null otherwise. */
+	workspaces: WorkspaceStep | null;
+	/** Leaves the code or workspace step for the email and password, which the form kept. */
 	backToPassword: () => void;
 }
 
@@ -51,6 +63,9 @@ export const usePasswordLoginForm = ({ redirectHandler }: UsePasswordLoginFormPa
 		redirectHandler && redirectHandler();
 	};
 	const twoFactor = useTwoFactorStep({ api, onSignedIn: completeSignIn });
+	const [choices, setChoices] = useState<WorkspaceChoice[] | null>(null);
+	const [choosing, setChoosing] = useState<string | null>(null);
+	const [workspaceError, setWorkspaceError] = useState<string | undefined>(undefined);
 
 	// What the form says of a refused sign-in. No answer (the API package returns it with no status), the site not
 	// allowed, a missing permission or the API down: the kit's own words, inside the form and with no toast on the host
@@ -74,6 +89,37 @@ export const usePasswordLoginForm = ({ redirectHandler }: UsePasswordLoginFormPa
 		});
 	};
 
+	// Signs in to one workspace of the list: the session, the code step of an account with two-factor sign-in on
+	// (ever-co/ever-teams#5701), or the refusal in the form's words.
+	const signInToWorkspace = async (choice: WorkspaceChoice, showError: (message: string) => void) => {
+		const answer = await authSignInWorkspace({ email: formData.email, token: choice.token }, api);
+		if ('token' in answer) {
+			setChoices(null);
+			completeSignIn(answer);
+			return;
+		}
+		const challenge = twoFactorChallengeOf(answer);
+		if (challenge) {
+			twoFactor.open(challenge);
+			return;
+		}
+		await reportFailure(answer, showError);
+	};
+
+	const chooseWorkspace = async (choice: WorkspaceChoice) => {
+		setChoosing(choice.token);
+		setWorkspaceError(undefined);
+		await signInToWorkspace(choice, setWorkspaceError);
+		setChoosing(null);
+	};
+
+	const backToPassword = () => {
+		twoFactor.close();
+		setChoices(null);
+		setChoosing(null);
+		setWorkspaceError(undefined);
+	};
+
 	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const { name, value } = e.target;
 		edits.current += 1;
@@ -93,23 +139,25 @@ export const usePasswordLoginForm = ({ redirectHandler }: UsePasswordLoginFormPa
 		};
 
 		try {
+			// The workspaces the email and password open, as the web app's sign-in lists them: one signs in at once,
+			// several wait for the person's pick (ever-co/ever-teams#5700).
 			const { email, password } = formData;
-			const authResponse: IAuthLogin | IServerError = await authLogin({ email, password }, api);
-
-			if ('message' in authResponse || 'error' in authResponse) {
-				// An account with two-factor sign-in on: the code step, never a refusal (ever-co/ever-teams#5701).
-				const challenge = twoFactorChallengeOf(authResponse);
-				if (challenge) {
-					twoFactor.open(challenge);
-					setLoading(false);
-					return;
-				}
-
-				await reportFailure(authResponse, showError);
+			const listed = await authWithEmailPassword({ email, password, includeTeams: false }, api);
+			const isList = 'workspaces' in listed;
+			if (!isList) {
+				await reportFailure(listed, showError);
 				return;
 			}
-
-			completeSignIn(authResponse);
+			const found = workspaceChoicesOf(listed);
+			if (found.length === 0) {
+				showError(t('ERROR.invalid_password_or_email'));
+				return;
+			}
+			if (found.length === 1) {
+				await signInToWorkspace(found[0], showError);
+				return;
+			}
+			setChoices(found);
 		} catch {
 			// No answer: say whether this site is not allowed or Ever Teams is unreachable, inside the form.
 			const kind = await kindOfFailedRequest(apiUrlOf(api));
@@ -119,6 +167,13 @@ export const usePasswordLoginForm = ({ redirectHandler }: UsePasswordLoginFormPa
 		}
 	};
 
+	const workspaceStepOf = (): WorkspaceStep | null => {
+		if (!choices) {
+			return null;
+		}
+		return { choices, choosing, error: workspaceError, choose: chooseWorkspace };
+	};
+
 	return {
 		formData,
 		loading,
@@ -126,7 +181,8 @@ export const usePasswordLoginForm = ({ redirectHandler }: UsePasswordLoginFormPa
 		handleInputChange,
 		handleSubmit,
 		twoFactor: twoFactor.step,
-		backToPassword: twoFactor.close
+		workspaces: workspaceStepOf(),
+		backToPassword
 	};
 };
 
