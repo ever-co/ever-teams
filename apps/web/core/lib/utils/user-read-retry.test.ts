@@ -1,3 +1,4 @@
+import { AxiosError } from 'axios';
 import { ApiErrorService } from '@/core/services/client/api-error.service';
 import {
 	USER_READ_RETRY_FIRST_DELAY_MS,
@@ -20,6 +21,22 @@ describe('isTemporaryReadFailure', () => {
 
 	it.each([400, 401, 403, 404])('reads %i as a refusal', (status) => {
 		expect(isTemporaryReadFailure(new ApiErrorService('Refused', status))).toBe(false);
+	});
+
+	it('reads a read that never reached the API (refused connection, no network) as temporary', () => {
+		const unreachable = ApiErrorService.fromAxiosError(new AxiosError('Network Error', AxiosError.ERR_NETWORK));
+
+		expect(isTemporaryReadFailure(unreachable)).toBe(true);
+		expect(userReadFailureReasonKey(unreachable)).toBe('toasts.REASONS.SERVER');
+	});
+
+	it('reads a read that timed out as temporary', () => {
+		const timedOut = ApiErrorService.fromAxiosError(
+			new AxiosError('timeout of 60000ms exceeded', AxiosError.ECONNABORTED)
+		);
+
+		expect(isTemporaryReadFailure(timedOut)).toBe(true);
+		expect(userReadFailureReasonKey(timedOut)).toBe('toasts.REASONS.SERVER');
 	});
 
 	it('reads an answer the app could not read as no temporary failure', () => {
