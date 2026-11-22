@@ -188,5 +188,6 @@
 	"taskMenus.dates.endOfWeek": "taskDetail.dates.END_OF_WEEK",
 	"taskMenus.dates.inOneWeek": "taskDetail.dates.IN_ONE_WEEK",
 	"taskMenus.dates.startAfterDue": "taskDetail.dates.START_AFTER_DUE",
-	"taskMenus.dates.dueBeforeStart": "taskDetail.dates.DUE_BEFORE_START"
+	"taskMenus.dates.dueBeforeStart": "taskDetail.dates.DUE_BEFORE_START",
+	"myWorkScreen.taskFieldPlaceholder": "form.TASK_INPUT_PLACEHOLDER"
 }
