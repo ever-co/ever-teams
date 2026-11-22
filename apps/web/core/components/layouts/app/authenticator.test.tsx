@@ -47,6 +47,7 @@ jest.mock('@/core/components', () => ({
 }));
 
 jest.mock('../../common/global-skeleton', () => () => null);
+jest.mock('./user-read-failed-state', () => ({ UserReadFailedState: () => null }));
 jest.mock('../../common/skeleton/modal-skeleton', () => ({ ModalSkeleton: () => null }));
 jest.mock('../../optimized-components', () => ({
 	LazyCreateTeamModal: () => null,

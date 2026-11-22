@@ -2809,7 +2809,8 @@
 		"error": {
 			"TITLE": "Erreur",
 			"HEADING_TITLE": "Une erreur s'est produite",
-			"HEADING_DESCRIPTION": "Si le problème persiste, envoyez un signal de détresse à notre équipe d'assistance."
+			"HEADING_DESCRIPTION": "Si le problème persiste, envoyez un signal de détresse à notre équipe d'assistance.",
+			"PAGE_NOT_LOADED": "Cette page n'a pas pu être chargée"
 		},
 		"maintenance": {
 			"HEADING_TITLE": "Nous sommes en cours de maintenance",

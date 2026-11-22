@@ -2809,7 +2809,8 @@
 		"error": {
 			"TITLE": "Error",
 			"HEADING_TITLE": "Algo salió mal",
-			"HEADING_DESCRIPTION": "Si el problema persiste, envíe una señal de socorro a nuestro equipo de soporte."
+			"HEADING_DESCRIPTION": "Si el problema persiste, envíe una señal de socorro a nuestro equipo de soporte.",
+			"PAGE_NOT_LOADED": "No se pudo cargar esta página"
 		},
 		"maintenance": {
 			"HEADING_TITLE": "Estamos en Mantenimiento",

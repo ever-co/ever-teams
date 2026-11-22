@@ -2809,7 +2809,8 @@
 		"error": {
 			"TITLE": "שגיאה",
 			"HEADING_TITLE": "משהו השתבש",
-			"HEADING_DESCRIPTION": "אם הבעיה נמשכת, שלח אות מצוקה לצוות התמיכה שלנו"
+			"HEADING_DESCRIPTION": "אם הבעיה נמשכת, שלח אות מצוקה לצוות התמיכה שלנו",
+			"PAGE_NOT_LOADED": "לא ניתן היה לטעון את הדף הזה"
 		},
 		"maintenance": {
 			"HEADING_TITLE": "אנחנו בשלבי תחזוקה ",
