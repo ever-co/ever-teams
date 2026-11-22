@@ -11,6 +11,8 @@ import { kindOfFailedRequest, kindOfSignInFailure, SIGN_IN_ERROR_MESSAGE_KEYS } 
 import { errorMessageOf } from '@lib/context/teams-timer-status-context';
 import { useKitOptions } from '@components/teams-provider/kit-options';
 import { apiUrlOf } from '@lib/utils/api-url';
+import { twoFactorChallengeOf } from '@lib/errors/two-factor';
+import { useTwoFactorStep, type TwoFactorStep } from './useTwoFactorStep';
 
 interface UsePasswordLoginFormReturn {
 	formData: {
@@ -21,6 +23,10 @@ interface UsePasswordLoginFormReturn {
 	error?: string;
 	handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 	handleSubmit: (e: React.FormEvent<HTMLFormElement>) => Promise<void>;
+	/** The code step, while the API waits for a two-factor code of this sign-in; null otherwise. */
+	twoFactor: TwoFactorStep | null;
+	/** Leaves the code step for the email and password, which the form kept. */
+	backToPassword: () => void;
 }
 
 interface UsePasswordLoginFormParams {
@@ -37,6 +43,14 @@ export const usePasswordLoginForm = ({ redirectHandler }: UsePasswordLoginFormPa
 	const { api } = useKitOptions();
 	// Counts the edits: a failure that comes back after an edit is not shown, since the edit cleared the error.
 	const edits = useRef(0);
+
+	const completeSignIn = (session: IAuthLogin) => {
+		setToken(session.token);
+		setAccessToken(session.token);
+		setUser(() => ({ data: session.user, loading: false }));
+		redirectHandler && redirectHandler();
+	};
+	const twoFactor = useTwoFactorStep({ api, onSignedIn: completeSignIn });
 
 	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const { name, value } = e.target;
@@ -61,6 +75,14 @@ export const usePasswordLoginForm = ({ redirectHandler }: UsePasswordLoginFormPa
 			const authResponse: IAuthLogin | IServerError = await authLogin({ email, password }, api);
 
 			if ('message' in authResponse || 'error' in authResponse) {
+				// An account with two-factor sign-in on: the code step, never a refusal (ever-co/ever-teams#5701).
+				const challenge = twoFactorChallengeOf(authResponse);
+				if (challenge) {
+					twoFactor.open(challenge);
+					setLoading(false);
+					return;
+				}
+
 				// No answer (the API package returns it with no status), the site not allowed, a missing permission or
 				// the API down: the kit's own words, inside the form and with no toast on the host page.
 				const kind = await kindOfSignInFailure(authResponse, apiUrlOf(api));
@@ -87,12 +109,7 @@ export const usePasswordLoginForm = ({ redirectHandler }: UsePasswordLoginFormPa
 				return;
 			}
 
-			// Set both token and user data from authResponse
-			setToken(authResponse.token);
-			setAccessToken(authResponse.token);
-			setUser(() => ({ data: authResponse.user, loading: false }));
-
-			redirectHandler && redirectHandler();
+			completeSignIn(authResponse);
 		} catch {
 			// No answer: say whether this site is not allowed or Ever Teams is unreachable, inside the form.
 			const kind = await kindOfFailedRequest(apiUrlOf(api));
@@ -107,7 +124,9 @@ export const usePasswordLoginForm = ({ redirectHandler }: UsePasswordLoginFormPa
 		loading,
 		error,
 		handleInputChange,
-		handleSubmit
+		handleSubmit,
+		twoFactor: twoFactor.step,
+		backToPassword: twoFactor.close
 	};
 };
 
