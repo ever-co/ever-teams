@@ -1,5 +1,6 @@
 /* eslint-disable react-native/no-color-literals */
 import React, { ReactElement, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { observer } from 'mobx-react-lite';
 import { Animated, Keyboard, StatusBar, StyleSheet, Text, TouchableOpacity, View, ViewStyle } from 'react-native';
 import { ArrowLeft } from '../../src/components/icons';
 import BottomSheet, {
@@ -94,7 +95,7 @@ function sheetLayerOf(isOpen: boolean): ViewStyle {
  * A team's task statuses, priorities, sizes or versions in Settings: the header and its back arrow, the list with its
  * Create buttons and the read-only reason, and the form in a sheet to create or edit a value.
  */
-export function TaskSettingsScreen<T extends SettingRow>({
+function TaskSettingsScreenView<T extends SettingRow>({
 	texts,
 	isLoading,
 	items,
@@ -259,6 +260,9 @@ export function TaskSettingsScreen<T extends SettingRow>({
 		</Screen>
 	);
 }
+
+// The access rights come from MobX stores: the screen draws again when they change
+export const TaskSettingsScreen = observer(TaskSettingsScreenView) as typeof TaskSettingsScreenView;
 
 const $container: ViewStyle = {
 	flex: 1

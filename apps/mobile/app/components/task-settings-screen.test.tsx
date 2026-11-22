@@ -1,6 +1,7 @@
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react-native';
+import { act, fireEvent, render, screen } from '@testing-library/react-native';
 import { Pressable, Text } from 'react-native';
+import { runInAction } from 'mobx';
 import { TaskSettingsScreen } from './task-settings-screen';
 
 jest.mock('@gorhom/bottom-sheet', () => jest.requireActual('../../test/bottom-sheet-stand-in').bottomSheetStandIn());
@@ -8,12 +9,15 @@ jest.mock('./screen', () => {
 	const { View } = jest.requireActual('react-native');
 	return { Screen: View };
 });
-const mockAccess = {
-	canCreate: true,
-	canWriteRow: (row: { organizationTeamId?: string | null }) => row.organizationTeamId === 'team-1',
-	readOnlyHint: 'Only team managers can change these settings.'
-};
-jest.mock('../services/hooks/features/use-task-settings-access', () => ({ useTaskSettingsAccess: () => mockAccess }));
+// The access rights in a MobX store, as the real hook reads them: the screen must follow a change of them
+const mockRights = jest.requireActual('mobx').observable({ canCreate: true });
+jest.mock('../services/hooks/features/use-task-settings-access', () => ({
+	useTaskSettingsAccess: () => ({
+		canCreate: mockRights.canCreate,
+		canWriteRow: (row: { organizationTeamId?: string | null }) => row.organizationTeamId === 'team-1',
+		readOnlyHint: 'Only team managers can change these settings.'
+	})
+}));
 
 type Row = { id: string; name: string; organizationTeamId?: string | null };
 
@@ -89,5 +93,22 @@ describe('a team task settings list screen', () => {
 		await drawing;
 
 		expect(screen.getByText('No statuses yet')).toBeTruthy();
+	});
+
+	it('follows a change of the access rights in their store', async () => {
+		const { drawing } = drawScreen([backlog]);
+		await drawing;
+		expect(screen.queryByText('Only team managers can change these settings.')).toBeNull();
+
+		await act(async () => {
+			runInAction(() => {
+				mockRights.canCreate = false;
+			});
+		});
+
+		expect(screen.getByText('Only team managers can change these settings.')).toBeTruthy();
+		runInAction(() => {
+			mockRights.canCreate = true;
+		});
 	});
 });
