@@ -58,6 +58,9 @@ export const queryKeys = {
 			refreshUser: ['users', 'settings', 'refresh-user'] as const
 		},
 		me: ['users', 'me'] as const,
+		// Gauzy resolves its verification switch for the user's tenant and last organization
+		emailVerificationStatus: (userId: string | undefined | null, organizationId: string | undefined | null) =>
+			['users', 'email-verification-status', userId ?? null, organizationId ?? null] as const,
 		all: ['users'] as const,
 		userProfile: (userId: string | undefined | null) => ['profile', ...(userId ? [userId] : [])] as const,
 		// Employee-related keys under users
