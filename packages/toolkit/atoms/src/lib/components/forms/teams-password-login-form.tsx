@@ -62,7 +62,7 @@ function TwoFactorCodeStep({
 
 			<SubmitButton
 				loading={step.loading}
-				disabled={Boolean(step.error) || step.loading}
+				disabled={step.blocksSubmit || step.loading}
 				label={t('AUTH.two_factor_submit')}
 			/>
 

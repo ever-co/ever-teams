@@ -37,6 +37,8 @@ export interface TwoFactorStep {
 	usesRecoveryCode: boolean;
 	loading: boolean;
 	error?: string;
+	/** Whether the error keeps the button off until the code changes: a refused code, not a failure to try again. */
+	blocksSubmit: boolean;
 	codeLength: number;
 	handleCodeChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 	handleCodeSubmit: (e: React.FormEvent<HTMLFormElement>) => Promise<void>;
@@ -60,6 +62,7 @@ export function useTwoFactorStep({ api, onSignedIn }: UseTwoFactorStepParams) {
 	const [usesRecoveryCode, setUsesRecoveryCode] = useState(false);
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | undefined>(undefined);
+	const [retryable, setRetryable] = useState(false);
 	// Counts the edits: a failure that comes back after an edit is not shown, as in the password step.
 	const edits = useRef(0);
 	// Counts the steps opened and closed: the answer of a step left meanwhile (Back, a new sign-in) is dropped.
@@ -106,17 +109,19 @@ export function useTwoFactorStep({ api, onSignedIn }: UseTwoFactorStepParams) {
 		return t('AUTH.two_factor_code_incomplete', { length: TWO_FACTOR_CODE_LENGTH });
 	};
 
-	const failureMessage = async (answer: IServerError) => {
+	// The message of a failed check, and whether the same code may be sent again (no answer, a server failure).
+	const failureOf = async (answer: IServerError): Promise<{ message: string; retryable: boolean }> => {
 		if (gotNoAnswer(answer)) {
 			const kind = await kindOfFailedRequest(apiUrlOf(api));
-			return t(SIGN_IN_ERROR_MESSAGE_KEYS[kind]);
+			return { message: t(SIGN_IN_ERROR_MESSAGE_KEYS[kind]), retryable: true };
 		}
 		const failure = twoFactorFailureOf(answer, challenge?.expiresAt ?? '', Date.now());
+		const retryable = failure === 'failed';
 		const isWrongRecoveryCode = failure === 'wrong-code' && usesRecoveryCode;
 		if (isWrongRecoveryCode) {
-			return t('AUTH.two_factor_wrong_recovery_code');
+			return { message: t('AUTH.two_factor_wrong_recovery_code'), retryable };
 		}
-		return t(FAILURE_MESSAGE_KEYS[failure]);
+		return { message: t(FAILURE_MESSAGE_KEYS[failure]), retryable };
 	};
 
 	const handleCodeSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -126,6 +131,7 @@ export function useTwoFactorStep({ api, onSignedIn }: UseTwoFactorStepParams) {
 		}
 		if (!isCompleteTwoFactorCode(code, usesRecoveryCode)) {
 			setError(incompleteMessage());
+			setRetryable(false);
 			return;
 		}
 		const editsAtSubmit = edits.current;
@@ -144,10 +150,11 @@ export function useTwoFactorStep({ api, onSignedIn }: UseTwoFactorStepParams) {
 			onSignedIn(answer);
 			return;
 		}
-		const message = await failureMessage(answer);
+		const failure = await failureOf(answer);
 		const isStillShown = steps.current === stepAtSubmit && edits.current === editsAtSubmit;
 		if (isStillShown) {
-			setError(message);
+			setError(failure.message);
+			setRetryable(failure.retryable);
 		}
 		setLoading(false);
 	};
@@ -160,6 +167,7 @@ export function useTwoFactorStep({ api, onSignedIn }: UseTwoFactorStepParams) {
 		usesRecoveryCode,
 		loading,
 		error,
+		blocksSubmit: Boolean(error) && !retryable,
 		codeLength: TWO_FACTOR_CODE_LENGTH,
 		handleCodeChange,
 		handleCodeSubmit,

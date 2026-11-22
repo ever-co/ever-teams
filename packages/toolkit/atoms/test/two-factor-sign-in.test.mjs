@@ -219,3 +219,20 @@ test('Back while a code is checked drops its answer: no sign-in from the step th
 		'the session of the abandoned check is not used'
 	);
 });
+
+test('a refused code keeps the button off until the code changes, a server failure lets the same code go again', async () => {
+	let status = 401;
+	await signInWithPassword(
+		apiAskingForACode({ expiresAt: IN_FIVE_MINUTES(), verify: () => json(status, { statusCode: status, message: 'Refused' }) })
+	);
+
+	await act(async () => form.twoFactor.handleCodeChange(typed('123456')));
+	await act(async () => form.twoFactor.handleCodeSubmit(submitted));
+	assert.equal(form.twoFactor.blocksSubmit, true);
+
+	status = 503;
+	await act(async () => form.twoFactor.handleCodeChange(typed('654321')));
+	await act(async () => form.twoFactor.handleCodeSubmit(submitted));
+	assert.equal(form.twoFactor.error, 'AUTH.two_factor_failed');
+	assert.equal(form.twoFactor.blocksSubmit, false);
+});
