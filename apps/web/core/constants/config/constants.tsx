@@ -282,7 +282,7 @@ export const LOG_FOLDER_MAX_SIZE = getNextPublicEnv(
 ) || { value: process.env.LOG_FOLDER_MAX_SIZE || 10 };
 
 // Invite
-export const INVITE_CALLBACK_URL = process.env.INVITE_CALLBACK_URL;
+export const INVITE_CALLBACK_URL = readRuntimeEnv('INVITE_CALLBACK_URL') || process.env.INVITE_CALLBACK_URL;
 export const INVITE_CALLBACK_PATH = '/auth/accept-invite';
 /** The page the link of the sign-in code e-mail opens: it takes the link's `?email=&code=` and signs the person in. */
 export const SIGN_IN_CALLBACK_PATH = '/auth/passcode';
