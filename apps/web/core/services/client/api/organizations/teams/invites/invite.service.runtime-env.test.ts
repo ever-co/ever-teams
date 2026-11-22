@@ -10,6 +10,9 @@ jest.mock('@/core/lib/utils/check-provider-env-vars', () => ({
 	getConfiguredAuthProviderIds: () => []
 }));
 
+// No top-level import in this file: keep it a module so its consts stay file-scoped.
+export {};
+
 const CONFIGURED_PAGE = 'https://join.example.org/auth/accept-invite';
 const INVITATION = { emails: ['ines.okafor@example.com'], teamId: 'team-1', organizationId: 'organization-1' };
 const PUBLISHED_KEYS = ['INVITE_CALLBACK_URL', 'NEXT_PUBLIC_GAUZY_API_SERVER_URL'] as const;
