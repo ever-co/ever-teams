@@ -67,13 +67,13 @@ describe('useIsEmailVerificationSatisfied and useAsksForEmailVerification', () =
 		expect(result.current.satisfied).toBe(false);
 	});
 
-	it('holds an unverified owner back while the status cannot be read', async () => {
+	it('holds an unverified owner back, and asks as before, while the status cannot be read', async () => {
 		mockGetVerificationStatus.mockRejectedValue({ statusCode: 502 });
 
 		const { result } = renderGate(OWNER);
 
-		await waitFor(() => expect(mockGetVerificationStatus).toHaveBeenCalled());
-		expect(result.current).toEqual({ satisfied: false, asks: false });
+		await waitFor(() => expect(result.current.asks).toBe(true));
+		expect(result.current.satisfied).toBe(false);
 	});
 
 	it('reads the status again for a new address instead of keeping the answer for the old one', async () => {
