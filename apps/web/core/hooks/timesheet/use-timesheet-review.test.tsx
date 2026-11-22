@@ -66,4 +66,24 @@ describe('useTimesheetReviewer', () => {
 		const ronan = result.current.teams[0].members?.[1];
 		expect(ronan?.isArchived).toBe(true);
 	});
+
+	it('gives a new reviewer when another member takes a place in a team read without employeeId', () => {
+		const teamReadWithoutEmployeeIds = (memberId: string) => {
+			const members = [
+				{ employee: { id: 'kofi' }, isManager: true, isActive: true, isArchived: false },
+				{ employee: { id: memberId }, isManager: false, isActive: true, isArchived: false }
+			];
+			return { id: 'platform', name: 'Platform', members } as unknown as TOrganizationTeam;
+		};
+		const { store, result } = renderReviewer([teamReadWithoutEmployeeIds('ronan')]);
+		const firstReviewer = result.current;
+		const teamsWithAma = [teamReadWithoutEmployeeIds('ama')];
+
+		act(() => {
+			store.set(organizationTeamsState, teamsWithAma);
+		});
+
+		expect(result.current).not.toBe(firstReviewer);
+		expect(result.current.teams).toBe(teamsWithAma);
+	});
 });

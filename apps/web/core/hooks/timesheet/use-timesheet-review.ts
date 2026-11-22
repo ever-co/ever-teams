@@ -9,18 +9,23 @@ import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import {
 	canApproveAnyTimesheet,
 	getAllowedTimesheetStatuses,
+	membershipEmployeeIdOf,
 	type TimesheetReviewer
 } from '@/core/lib/helpers/timesheet-review';
 import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import type { TOrganizationTeam } from '@/core/types/schemas';
 
-/** The memberships the review rule reads, for every team: who, whether they manage, whether it is in effect. */
+/**
+ * The memberships the review rule reads, for every team: who, whether they manage, whether it is in effect. "Who" is
+ * read as the rule reads it (membershipEmployeeIdOf), so a team read without `employeeId` still changes the reviewer
+ * when another member takes a place.
+ */
 function reviewMembershipsSignatureOf(teams: readonly TOrganizationTeam[]): string {
 	const teamSignatures = teams.map((team) => {
 		const members = team.members ?? [];
 		const memberSignatures = members.map(
-			(member) => `${member.employeeId}:${member.isManager}:${member.isActive}:${member.isArchived}`
+			(member) => `${membershipEmployeeIdOf(member)}:${member.isManager}:${member.isActive}:${member.isArchived}`
 		);
 		return `${team.id}=${memberSignatures.join(',')}`;
 	});
