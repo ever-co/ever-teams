@@ -2437,6 +2437,7 @@
 			"ENTER_EMAIL": "Wprowadź E-mail",
 			"WORKSPACES_NOT_FOUND": "Nie znaleziono Przestrzeni Roboczych",
 			"INVALID_CODE_TRY_AGAIN": "Nieprawidłowy Kod. Proszę spróbować ponownie.",
+			"EXISTING_ACCOUNT_SIGN_IN_FIRST": "Ten adres e-mail ma już konto. Zaloguj się na nie, a następnie zaakceptuj zaproszenie na swojej stronie głównej.",
 			"EMPTY_WORKSPACE_WARNING_TITLE": "Ta przestrzeń robocza nie ma zespołów",
 			"EMPTY_WORKSPACE_WARNING_MESSAGE": "Zostaniesz poproszony o utworzenie zespołu po zalogowaniu.",
 			"NO_TEAMS_BADGE": "Brak zespołów",
