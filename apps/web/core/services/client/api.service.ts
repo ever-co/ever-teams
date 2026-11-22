@@ -65,11 +65,15 @@ function withoutLanguagePrefix(segments: string[]): string[] {
 	return segments;
 }
 
-/** Whether a page is open without a session, in every language: a sign-in page, or a public team page. */
+/**
+ * Whether a page is open without a session, in every language: a sign-in page, or a public team page
+ * (`/team/<teamId>/<profileLink>`). The team's task list (`/team/tasks`, `/team/tasks/trash`) and the join page sit
+ * under `/team` too, and need a session.
+ */
 function isPageOpenWithoutSession(pathname: string): boolean {
 	const segments = withoutLanguagePrefix(pathname.split('/').filter(Boolean));
 	const isSignInPage = segments[0] === 'auth';
-	const isPublicTeamPage = segments[0] === 'team' && !segments.includes('join');
+	const isPublicTeamPage = segments[0] === 'team' && segments[1] !== 'tasks' && !segments.includes('join');
 	return isSignInPage || isPublicTeamPage;
 }
 

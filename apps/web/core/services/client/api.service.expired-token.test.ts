@@ -71,6 +71,22 @@ describe('a request made with an expired access token, while the refresh token i
 		expect(gauzy.acceptsRefreshToken(getRefreshTokenCookie())).toBe(true);
 	});
 
+	it.each(['/team/tasks', '/team/tasks/trash', '/de/team/tasks', '/fr/team/tasks/trash'])(
+		'renews the token on the team task list %s, a page that needs a session',
+		async (pathname) => {
+			page.signIn();
+			gauzy.runTimer();
+			page.wait(25 * HOUR_MS);
+			page.openAt(pathname);
+
+			const status = await timerService.getTimerStatus();
+
+			expect(status.data.running).toBe(true);
+			expect(page.renewals()).toBe(1);
+			expect(page.isSignedOut()).toBe(false);
+		}
+	);
+
 	it('renews the token once for requests refused together, and answers each of them', async () => {
 		page.signIn();
 		gauzy.runTimer();
@@ -168,6 +184,18 @@ describe('a session the API no longer renews', () => {
 		'signs the person out on a page in %s when no refresh token is left',
 		async (language) => {
 			page.openAt(`/${language}/settings/personal`);
+
+			const error = await failureOf(timerService.getTimerStatus());
+
+			expect(error.statusCode).toBe(401);
+			expect(page.sentToSignIn).toHaveBeenCalledTimes(1);
+		}
+	);
+
+	it.each(['/team/tasks', '/de/team/tasks/trash'])(
+		'signs the person out on the team task list %s when no refresh token is left',
+		async (pathname) => {
+			page.openAt(pathname);
 
 			const error = await failureOf(timerService.getTimerStatus());
 
@@ -273,20 +301,22 @@ describe('a request pinned to the token of the scope it was built for', () => {
 });
 
 describe('a 401 on a page that is open without a session', () => {
-	it.each(['/auth/passcode', '/team/11111111-1111-4111-8111-111111111111', '/fr/team/some-team'])(
-		'is the answer on %s: nothing is renewed and nobody is sent elsewhere',
-		async (pathname) => {
-			page.signIn();
-			page.wait(25 * HOUR_MS);
-			page.openAt(pathname);
+	it.each([
+		'/auth/passcode',
+		'/team/11111111-1111-4111-8111-111111111111',
+		'/fr/team/some-team',
+		'/de/team/11111111-1111-4111-8111-111111111111/public-link'
+	])('is the answer on %s: nothing is renewed and nobody is sent elsewhere', async (pathname) => {
+		page.signIn();
+		page.wait(25 * HOUR_MS);
+		page.openAt(pathname);
 
-			const error = await failureOf(timerService.getTimerStatus());
+		const error = await failureOf(timerService.getTimerStatus());
 
-			expect(error.statusCode).toBe(401);
-			expect(page.renewals()).toBe(0);
-			expect(page.isSignedOut()).toBe(false);
-		}
-	);
+		expect(error.statusCode).toBe(401);
+		expect(page.renewals()).toBe(0);
+		expect(page.isSignedOut()).toBe(false);
+	});
 
 	it.each(APPLICATION_LANGUAGES_CODE)(
 		'is the answer to a wrong code on the sign-in page in %s: the page stays, and nothing says a session ended',
