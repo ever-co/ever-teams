@@ -235,6 +235,27 @@ describe('projectForecastOf', () => {
 		expect(forecastOf(older)).toEqual({ open: 2, velocity: 1, weeksLeft: 2, isBeyondHorizon: false });
 	});
 
+	it('keeps the whole window when a task has no creation date, instead of cutting at the dated tasks', () => {
+		const tasks = [
+			taskOf({ status: 'done', createdAt: null, resolvedAt: new Date(2026, 9, 20) }),
+			taskOf({ status: 'done', createdAt: null, resolvedAt: new Date(2026, 9, 27) }),
+			taskOf({ status: 'todo', createdAt: new Date(2026, 10, 2) })
+		];
+
+		// 2 done over the 3 complete weeks, 1 open: 0.7 a week, 2 weeks.
+		expect(forecastOf(tasks)).toEqual({ open: 1, velocity: 0.7, weeksLeft: 2, isBeyondHorizon: false });
+	});
+
+	it('does not cut off completions that predate the recorded creation dates', () => {
+		const tasks = [
+			taskOf({ status: 'done', createdAt: new Date(2026, 10, 2), resolvedAt: new Date(2026, 9, 20) }),
+			taskOf({ status: 'done', createdAt: new Date(2026, 10, 2), resolvedAt: new Date(2026, 9, 27) }),
+			taskOf({ status: 'todo', createdAt: new Date(2026, 10, 2) })
+		];
+
+		expect(forecastOf(tasks)).toEqual({ open: 1, velocity: 0.7, weeksLeft: 2, isBeyondHorizon: false });
+	});
+
 	it('gives no forecast when nothing is open, nothing was completed, or there are no tasks', () => {
 		expect(forecastOf([])).toBeNull();
 		expect(forecastOf([doneOn(new Date(2026, 9, 20))])).toBeNull();

@@ -126,8 +126,9 @@ export interface ProjectForecast {
 /**
  * How long the open tasks take at the pace of the recent weeks, or null when no honest estimate exists: nothing is open,
  * nothing was completed, or the project has fewer than `MIN_FORECAST_WEEKS` complete weeks in the window. The pace counts
- * complete weeks only (the running week would drag it down) and starts at the week of the project's first task when that
- * falls inside the window, so a young project is not averaged against weeks before it existed. Tasks done without a
+ * complete weeks only (the running week would drag it down) and starts at the week of the project's first task (creation
+ * or resolution date) when that falls inside the window, so a young project is not averaged against weeks before it
+ * existed. If any task has no creation date the project's age is unknown and the whole window is used. Tasks done without a
  * resolution date are not counted: the pace errs on the slow side.
  */
 export function projectForecastOf(
@@ -141,25 +142,39 @@ export function projectForecastOf(
 		return null;
 	}
 	let open = 0;
-	let earliest: Date | null = null;
+	let earliestTime = Number.POSITIVE_INFINITY;
+	let hasUndatedTask = false;
 	for (const task of tasks) {
-		if (statusCategoryOf(task.status, statuses) !== 'done') {
+		const isDone = statusCategoryOf(task.status, statuses) === 'done';
+		if (!isDone) {
 			open += 1;
 		}
 		const createdAt = realDateOf(task.createdAt);
-		if (createdAt && (!earliest || createdAt < earliest)) {
-			earliest = createdAt;
+		if (createdAt) {
+			earliestTime = Math.min(earliestTime, createdAt.getTime());
+		} else {
+			hasUndatedTask = true;
+		}
+		// A task finished before its recorded creation still proves the project was running by then.
+		const resolvedAt = isDone ? realDateOf(task.resolvedAt) : null;
+		if (resolvedAt) {
+			earliestTime = Math.min(earliestTime, resolvedAt.getTime());
 		}
 	}
 	if (open === 0) {
 		return null;
 	}
-	const firstIndex = earliest
-		? Math.min(
-				weeks.length - 1,
-				Math.max(0, differenceInCalendarWeeks(earliest, weeks[0].weekStart, { weekStartsOn }))
-			)
-		: 0;
+	// A task with no creation date may be as old as the window: its history is kept, not cut at the dated tasks.
+	const firstIndex =
+		Number.isFinite(earliestTime) && !hasUndatedTask
+			? Math.min(
+					weeks.length - 1,
+					Math.max(
+						0,
+						differenceInCalendarWeeks(new Date(earliestTime), weeks[0].weekStart, { weekStartsOn })
+					)
+				)
+			: 0;
 	const completeWeeks = weeks.slice(firstIndex, weeks.length - 1);
 	if (completeWeeks.length < MIN_FORECAST_WEEKS) {
 		return null;
