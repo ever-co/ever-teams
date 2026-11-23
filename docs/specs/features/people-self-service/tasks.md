@@ -136,7 +136,8 @@
       `core/components/features/offline/register-app-worker.tsx`, mounted in `app/[locale]/(main)/layout.tsx` whatever
       the flags, puts `inbox-push-sw.js` back on the registration at `/` once both features are off (the push
       subscription stays with the registration), removes a registration without a push subscription, deletes the app
-      worker's caches, and does nothing on a browser that never ran the app worker; the registration of `app-sw.js` and the cleanup
+      worker's caches only on a later page load that finds the registration no longer running `app-sw.js` (or gone), and
+      does nothing on a browser that never ran the app worker; the registration of `app-sw.js` and the cleanup
       both run inside one cross-tab lock (`navigator.locks.request('app-worker')`), and inside it the cleanup asks the
       worker for its window clients and goes ahead only when this tab is the only one (otherwise it is left to a later
       page load), so no tab has to answer and no tab loses the worker it uses. Files: `core/lib/utils/app-worker.ts`,
@@ -150,7 +151,8 @@
       runs `inbox-push-sw.js` with the same push subscription and a test push is shown; without a subscription the
       registration and the caches are gone; with a second tab open, whatever it shows and even when it cannot
       reach the platform, the registration and the caches stay, and the last remaining tab cleans up on its next load; a
-      tab that opens with a feature on while a cleanup holds the lock registers `app-sw.js` after it and keeps it).
+      tab that opens with a feature on while a cleanup holds the lock registers `app-sw.js` after it and keeps it; a tab
+      that loads during a cleanup still finds the app worker's caches, which go only on a later load without `app-sw.js`).
 
 ## Phase 3 — Live updates, notifications, polish
 
