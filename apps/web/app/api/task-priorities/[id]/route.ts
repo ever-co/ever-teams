@@ -4,6 +4,7 @@ import { deleteTaskPrioritiesRequest, editTaskPrioritiesRequest } from '@/core/s
 import { NextResponse } from 'next/server';
 import { ITaskPrioritiesCreate } from '@/core/types/interfaces/task/task-priority';
 import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
+import { gauzyErrorResponse } from '@/core/services/server/gauzy-error-response';
 
 export async function PUT(req: Request, props: INextParams) {
 	const foreign = refuseForeignOrigin(req);
@@ -21,14 +22,18 @@ export async function PUT(req: Request, props: INextParams) {
 
 	const datas = (await req.json()) as unknown as ITaskPrioritiesCreate;
 
-	const response = await editTaskPrioritiesRequest({
-		id: params.id,
-		bearer_token: access_token || '',
-		datas,
-		tenantId
-	});
-
-	return $res(response.data);
+	try {
+		const response = await editTaskPrioritiesRequest({
+			id: params.id,
+			bearer_token: access_token || '',
+			datas,
+			tenantId
+		});
+		return $res(response.data);
+	} catch (error) {
+		// A refusal of the API goes back with its status and reason, as in direct mode (#5726)
+		return await gauzyErrorResponse(error, 'The priority could not be updated.');
+	}
 }
 
 export async function DELETE(req: Request, props: INextParams) {
@@ -45,11 +50,15 @@ export async function DELETE(req: Request, props: INextParams) {
 
 	if (!user) return $res('Unauthorized');
 
-	const response = await deleteTaskPrioritiesRequest({
-		id: params.id,
-		bearer_token: access_token,
-		tenantId
-	});
-
-	return $res(response.data);
+	try {
+		const response = await deleteTaskPrioritiesRequest({
+			id: params.id,
+			bearer_token: access_token,
+			tenantId
+		});
+		return $res(response.data);
+	} catch (error) {
+		// A refusal of the API goes back with its status and reason, as in direct mode (#5726)
+		return await gauzyErrorResponse(error, 'The priority could not be deleted.');
+	}
 }
