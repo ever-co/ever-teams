@@ -31,7 +31,24 @@ import { runSignOutCleanups } from '@/core/lib/auth/sign-out-cleanups';
 import { leaveOwnSignOutMark } from '@/core/lib/auth/own-sign-out-mark';
 import { rememberTeam } from '@/core/lib/auth/remembered-team';
 
-export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserResult => {
+/**
+ * Stops the timer as the person signs out, and tells the other tabs of the browser which run that ended: they still
+ * show it going on (#5721). The run is the one the API answers as stopped, which is not always the one this tab
+ * showed. A stop that fails leaves no mark: that run goes on.
+ *
+ * @param shownTimeLogId The run this tab showed, named when the API's answer names none.
+ */
+async function stopTimerForSignOut(shownTimeLogId: string | null): Promise<void> {
+	try {
+		const answer = await timerService.stopTimer({ source: ETimeLogSource.TEAMS });
+		const stoppedTimeLogId = answer?.data?.lastLog?.id ?? shownTimeLogId;
+		leaveOwnSignOutMark(stoppedTimeLogId);
+	} catch (error) {
+		logErrorInDev('[Auth] Timer stop before logout failed:', error);
+	}
+}
+
+export const useAuthenticateUser =(defaultUser?: TUser): UseAuthenticateUserResult => {
 	const userDataQuery = useUserQuery();
 	const user = userDataQuery.data;
 	const setUser = useSetAtom(userState);
@@ -136,20 +153,9 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 			(timerStatus?.running && timerStatus.lastLog?.source === ETimeLogSource.TEAMS) ||
 			isRunningTeamsLog(pastMidnightLog)
 		) {
-			const stopTimer = timerService
-				.stopTimer({ source: ETimeLogSource.TEAMS })
-				.then(() => true)
-				.catch((error) => {
-					logErrorInDev('[Auth] Timer stop before logout failed:', error);
-					return false;
-				});
-			const gaveUp = new Promise<boolean>((resolve) => window.setTimeout(() => resolve(false), 3000));
-			const isStopped = await Promise.race([stopTimer, gaveUp]);
-			// The other tabs of this browser still show that run going on: they read here that it is stopped
-			if (isStopped) {
-				const stoppedLog = timerStatus?.running ? timerStatus.lastLog : pastMidnightLog;
-				leaveOwnSignOutMark(stoppedLog?.id ?? null);
-			}
+			const shownLog = timerStatus?.running ? timerStatus.lastLog : pastMidnightLog;
+			const stopTimer = stopTimerForSignOut(shownLog?.id ?? null);
+			await Promise.race([stopTimer, new Promise((resolve) => window.setTimeout(resolve, 3000))]);
 		}
 
 		// This browser stops receiving the person's inbox notifications (a shared browser), bounded like the timer stop.

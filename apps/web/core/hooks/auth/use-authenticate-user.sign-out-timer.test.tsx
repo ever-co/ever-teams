@@ -88,6 +88,36 @@ describe('a sign-out while the timer runs', () => {
 		expect(page.leftAfterSignOut).toHaveBeenCalledTimes(1);
 	});
 
+	it('names the run the API stopped, when this tab showed another', async () => {
+		const stoppedByTheApi = { data: { running: false, lastLog: { id: 'log-2' } } };
+		jest.spyOn(timerService, 'stopTimer').mockResolvedValue(stoppedByTheApi as never);
+		const signOut = await openPageWithRunningTimer();
+
+		await signOut();
+
+		expect(ownSignOutMark()?.stoppedTimeLogId).toBe('log-2');
+	});
+
+	it('still tells them when the stop answers after the sign-out stopped waiting for it', async () => {
+		let answerStop: (answer: unknown) => void = () => undefined;
+		const slowStop = new Promise((resolve) => {
+			answerStop = resolve;
+		});
+		jest.spyOn(timerService, 'stopTimer').mockReturnValue(slowStop as never);
+		const signOut = await openPageWithRunningTimer();
+
+		// The sign-out waits three seconds for the stop, then goes on without it
+		await signOut();
+		expect(page.leftAfterSignOut).toHaveBeenCalledTimes(1);
+		expect(ownSignOutMark()).toBeNull();
+
+		await act(async () => {
+			answerStop({ data: { running: false, lastLog: { id: 'log-1' } } });
+		});
+
+		expect(ownSignOutMark()?.stoppedTimeLogId).toBe('log-1');
+	}, 10_000);
+
 	it('leaves no mark when the stop failed: that run goes on', async () => {
 		jest.spyOn(timerService, 'stopTimer').mockRejectedValue(new Error('offline'));
 		const signOut = await openPageWithRunningTimer();
