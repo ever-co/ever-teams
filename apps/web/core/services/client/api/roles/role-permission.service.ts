@@ -20,6 +20,17 @@ function rolePermissionsPath(roleId: string, query: string): string {
 }
 
 /**
+ * Whether an answer is the API's result of an update (`{ generatedMaps, raw, affected }`), which carries no row.
+ */
+function isUpdateResult(answer: unknown): boolean {
+	const isObject = typeof answer === 'object' && answer !== null;
+	if (!isObject) {
+		return false;
+	}
+	return typeof (answer as { affected?: unknown }).affected === 'number';
+}
+
+/**
  * Enhanced Role Permission Service with Zod validation
  *
  * This service extends the base APIService to add schema validation
@@ -82,6 +93,12 @@ class RolePermissionService extends APIService {
 			const validatedInput = validateApiResponse(rolePermissionSchema, data, 'updateRolePermission input data');
 
 			const response = await this.put<TRolePermission>(`/role-permissions/${data.id}`, validatedInput);
+
+			// The API answers a saved switch with its update result, not with the row: read as a row, that answer
+			// failed the check below and the page said the change was not saved (#5729). The row sent is what was saved.
+			if (isUpdateResult(response.data)) {
+				return validatedInput;
+			}
 
 			// Validate the response data
 			return validateApiResponse(rolePermissionSchema, response.data, 'updateRolePermission API response');

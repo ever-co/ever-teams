@@ -127,3 +127,34 @@ describe('rolePermissionService.getRolePermission', () => {
 		expect(result).toEqual({ items: expectedRows, total: 2 });
 	});
 });
+
+describe('rolePermissionService.updateRolePermission (#5729)', () => {
+	const [, , , timeTracker] = ROWS;
+	const switchedOff = { ...timeTracker, enabled: false };
+
+	function saveAnswers(data: unknown) {
+		return jest.spyOn(rolePermissionService, 'put').mockResolvedValue(okAnswer(data) as never);
+	}
+
+	it('takes the update result the API answers for a saved switch, and gives back the row it saved', async () => {
+		const put = saveAnswers({ generatedMaps: [], raw: [], affected: 1 });
+
+		const saved = await rolePermissionService.updateRolePermission(switchedOff);
+
+		expect(saved).toEqual(switchedOff);
+		expect(put).toHaveBeenCalledWith(`/role-permissions/${switchedOff.id}`, switchedOff);
+	});
+
+	it('still reads a row when the API answers one', async () => {
+		saveAnswers(switchedOff);
+
+		await expect(rolePermissionService.updateRolePermission(switchedOff)).resolves.toEqual(switchedOff);
+	});
+
+	it('still refuses an answer that is neither', async () => {
+		jest.spyOn(console, 'error').mockImplementation(() => undefined);
+		saveAnswers({ message: 'unexpected' });
+
+		await expect(rolePermissionService.updateRolePermission(switchedOff)).rejects.toThrow();
+	});
+});
