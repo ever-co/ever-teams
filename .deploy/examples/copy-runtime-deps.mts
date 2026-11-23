@@ -5,10 +5,11 @@
  * image already did (same yarn.lock versions, no second resolution, no network).
  *
  * Used by the Remix demo image (packages/toolkit/examples/remix/Dockerfile). The Next.js demos do not
- * need it: their `output: 'standalone'` build traces its own files.
+ * need it: their `output: 'standalone'` build traces its own files. Node runs this file as is (type
+ * stripping), so it only uses erasable TypeScript syntax and needs no build step.
  *
  * Usage:
- *   node copy-runtime-deps.mjs --root <repo root> --app <app dir> --out <dir> \
+ *   node copy-runtime-deps.mts --root <repo root> --app <app dir> --out <dir> \
  *     [--scan <dir of built server files>]... [<package name>]...
  *
  * - --scan: every package imported by a top-level import declaration of the .js/.mjs/.cjs files under
@@ -18,11 +19,21 @@
  * Packages are looked up from --app upwards, as Node resolves them, and copied to --out at the same
  * path relative to --root, so the copied tree resolves the same way. `dependencies` must resolve;
  * `optionalDependencies` and non-optional `peerDependencies` are copied when installed.
+ *
+ * Tested by apps/web/test/architecture/copy-runtime-deps.test.ts.
  */
 import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, realpathSync, symlinkSync } from 'node:fs';
 import { isBuiltin } from 'node:module';
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { parseArgs } from 'node:util';
+
+type PackageManifest = {
+	name?: string;
+	dependencies?: Record<string, string>;
+	optionalDependencies?: Record<string, string>;
+	peerDependencies?: Record<string, string>;
+	peerDependenciesMeta?: Record<string, { optional?: boolean }>;
+};
 
 const { values, positionals } = parseArgs({
 	allowPositionals: true,
@@ -35,7 +46,7 @@ const { values, positionals } = parseArgs({
 });
 
 if (!values.root || !values.app || !values.out) {
-	console.error('usage: copy-runtime-deps.mjs --root <dir> --app <dir> --out <dir> [--scan <dir>]... [<package>]...');
+	console.error('usage: copy-runtime-deps.mts --root <dir> --app <dir> --out <dir> [--scan <dir>]... [<package>]...');
 	process.exit(2);
 }
 
@@ -44,13 +55,13 @@ const app = resolve(values.app);
 const out = resolve(values.out);
 
 /** `@scope/name/sub/path` -> `@scope/name`, `name/sub` -> `name`; null for relative, absolute or built-in. */
-function packageName(specifier) {
+function packageName(specifier: string): string | null {
 	if (/^[./]/.test(specifier) || specifier.includes(':') || isBuiltin(specifier)) return null;
 	const parts = specifier.split('/');
 	return specifier.startsWith('@') ? parts.slice(0, 2).join('/') : parts[0];
 }
 
-function* filesUnder(dir) {
+function* filesUnder(dir: string): Generator<string> {
 	for (const entry of readdirSync(dir, { withFileTypes: true })) {
 		const full = join(dir, entry.name);
 		if (entry.isDirectory()) yield* filesUnder(full);
@@ -68,15 +79,15 @@ const REEXPORT = /^export\s*(?:\*|\{[^}]*\})(?:\s*as\s+[\w$]+)?\s*from\s*["']([^
 const DYNAMIC_IMPORT = /\bimport\(\s*["']([^"'`\s]+)["']\s*\)/g;
 const PACKAGE_NAME = /^(?:@[a-z0-9][\w.-]*\/)?[a-z0-9][\w.-]*$/i;
 
-const entries = new Set(positionals);
-const lazyEntries = new Set();
+const entries = new Set<string>(positionals);
+const lazyEntries = new Set<string>();
 
-function addEntry(set, specifier) {
+function addEntry(set: Set<string>, specifier: string): void {
 	const name = packageName(specifier);
 	if (name && PACKAGE_NAME.test(name)) set.add(name);
 }
 
-for (const dir of values.scan) {
+for (const dir of values.scan ?? []) {
 	for (const file of filesUnder(resolve(dir))) {
 		const code = readFileSync(file, 'utf8');
 		for (const [, specifier] of code.matchAll(STATIC_IMPORT)) addEntry(entries, specifier);
@@ -87,7 +98,7 @@ for (const dir of values.scan) {
 for (const name of entries) lazyEntries.delete(name);
 
 /** Node's lookup: <from>/node_modules/<name>, then each parent directory's, up to the filesystem root. */
-function findPackage(name, from) {
+function findPackage(name: string, from: string): string | null {
 	for (let dir = from; ; dir = dirname(dir)) {
 		const candidate = join(dir, 'node_modules', name);
 		if (existsSync(join(candidate, 'package.json'))) return candidate;
@@ -95,11 +106,11 @@ function findPackage(name, from) {
 	}
 }
 
-const copied = new Map(); // package dir (as installed) -> name
-const queue = [];
-const missing = [];
+const copied = new Map<string, string>(); // package dir (as installed) -> name
+const queue: string[] = [];
+const missing: string[] = [];
 
-function visit(name, from, required, requiredBy) {
+function visit(name: string, from: string, required: boolean, requiredBy: string): void {
 	const dir = findPackage(name, from);
 	if (!dir) {
 		if (required) missing.push(`${name} (required by ${requiredBy})`);
@@ -114,16 +125,17 @@ for (const name of entries) visit(name, app, true, 'the app');
 for (const name of lazyEntries) visit(name, app, false, 'the app');
 
 while (queue.length > 0) {
-	const dir = queue.shift();
-	const manifest = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'));
+	const dir = queue.shift() as string;
+	const manifest = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8')) as PackageManifest;
+	const requiredBy = manifest.name ?? dir;
 	// A workspace package is a symlink: its own dependencies resolve from where it really lives.
 	const from = realpathSync(dir);
-	for (const name of Object.keys(manifest.dependencies ?? {})) visit(name, from, true, manifest.name);
-	for (const name of Object.keys(manifest.optionalDependencies ?? {})) visit(name, from, false, manifest.name);
+	for (const name of Object.keys(manifest.dependencies ?? {})) visit(name, from, true, requiredBy);
+	for (const name of Object.keys(manifest.optionalDependencies ?? {})) visit(name, from, false, requiredBy);
 	// Optional peers (e.g. `typescript` for @remix-run/*) are only for tooling: a runtime need shows up
 	// as an import of the app or a dependency of some package.
 	for (const name of Object.keys(manifest.peerDependencies ?? {})) {
-		if (!manifest.peerDependenciesMeta?.[name]?.optional) visit(name, from, false, manifest.name);
+		if (!manifest.peerDependenciesMeta?.[name]?.optional) visit(name, from, false, requiredBy);
 	}
 }
 
@@ -133,7 +145,7 @@ if (missing.length > 0) {
 }
 
 /** `path` relative to --root; refuses anything outside it. */
-function insideRoot(path) {
+function insideRoot(path: string): string {
 	const relativePath = relative(root, path);
 	if (relativePath.startsWith('..') || isAbsolute(relativePath)) {
 		throw new Error(`copy-runtime-deps: ${path} is outside --root ${root}`);
@@ -141,7 +153,7 @@ function insideRoot(path) {
 	return relativePath;
 }
 
-for (const dir of copied.keys()) {
+for (const [dir, name] of copied) {
 	const target = join(out, insideRoot(dir));
 	const source = realpathSync(dir);
 	const copyTo = join(out, insideRoot(source));
@@ -149,13 +161,13 @@ for (const dir of copied.keys()) {
 		recursive: true,
 		dereference: true,
 		// Nested node_modules hold packages of their own: copied only if something needs them.
-		filter: (path) => !relative(source, path).split(sep).includes('node_modules')
+		filter: (path: string) => !relative(source, path).split(sep).includes('node_modules')
 	});
 	// A workspace package keeps its symlink, so it resolves its dependencies from the same place as before.
 	if (copyTo !== target) {
 		mkdirSync(dirname(target), { recursive: true });
 		symlinkSync(relative(dirname(target), copyTo), target, 'dir');
-		console.log(`  workspace package ${copied.get(dir)}: ${insideRoot(dir)} -> ${insideRoot(source)}`);
+		console.log(`  workspace package ${name}: ${insideRoot(dir)} -> ${insideRoot(source)}`);
 	}
 }
 

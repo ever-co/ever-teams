@@ -22,11 +22,16 @@ RUN yarn turbo run build --filter=@ever-teams/example-saas-starter
 # which the standalone server does not need. Install only drizzle-kit, drizzle-orm and the postgres
 # driver, at the ranges saas-starter declares and the versions the monorepo yarn.lock pins.
 FROM node:${NODE_VERSION}-slim AS migrate-deps
-RUN npm install -g yarn --force
+# Yarn classic (the monorepo's package manager), pinned to its latest release, without install scripts.
+ARG YARN_VERSION=1.22.22
+RUN npm install -g --ignore-scripts yarn@${YARN_VERSION}
 WORKDIR /deps
 COPY yarn.lock ./
 COPY packages/toolkit/examples/saas-starter/package.json ./app.package.json
-RUN node -e "const app = require('./app.package.json'); const dependencies = Object.fromEntries(['drizzle-kit', 'drizzle-orm', 'postgres'].map((name) => [name, app.dependencies[name]])); require('node:fs').writeFileSync('package.json', JSON.stringify({ private: true, dependencies }));" \
+RUN node -e "const app = require('./app.package.json'); \
+		const names = ['drizzle-kit', 'drizzle-orm', 'postgres']; \
+		const dependencies = Object.fromEntries(names.map((name) => [name, app.dependencies[name]])); \
+		require('node:fs').writeFileSync('package.json', JSON.stringify({ private: true, dependencies }));" \
 	&& yarn install --production --frozen-lockfile --non-interactive --ignore-scripts --network-timeout 1000000 \
 	&& yarn cache clean
 
@@ -39,7 +44,8 @@ COPY --from=build --chown=node:node /app/packages/toolkit/examples/saas-starter/
 COPY --from=build --chown=node:node /app/packages/toolkit/examples/saas-starter/.next/static ./packages/toolkit/examples/saas-starter/.next/static
 COPY --from=build --chown=node:node /app/packages/toolkit/examples/saas-starter/public ./packages/toolkit/examples/saas-starter/public
 # Migrations: `yarn db:migrate` needs yarn (the slim image has none), drizzle-kit, its config and the SQL.
-RUN npm install -g yarn --force && npm cache clean --force
+ARG YARN_VERSION=1.22.22
+RUN npm install -g --ignore-scripts yarn@${YARN_VERSION} && npm cache clean --force
 COPY --from=migrate-deps --chown=node:node /deps/node_modules ./packages/toolkit/examples/saas-starter/node_modules
 COPY --from=build --chown=node:node /app/packages/toolkit/examples/saas-starter/package.json /app/packages/toolkit/examples/saas-starter/drizzle.config.ts ./packages/toolkit/examples/saas-starter/
 COPY --from=build --chown=node:node /app/packages/toolkit/examples/saas-starter/lib/db/migrations ./packages/toolkit/examples/saas-starter/lib/db/migrations

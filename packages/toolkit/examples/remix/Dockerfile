@@ -13,7 +13,7 @@ RUN yarn install --network-timeout 1000000 --frozen-lockfile --non-interactive -
 RUN yarn turbo run build --filter=@ever-teams/example-remix
 # Pruned production install: the packages the server bundle leaves external (Vite bundles the linked
 # workspace packages into it) plus remix-serve, with their dependencies, copied from the install above.
-RUN node .deploy/examples/copy-runtime-deps.mjs --root /app --app /app/packages/toolkit/examples/remix \
+RUN node .deploy/examples/copy-runtime-deps.mts --root /app --app /app/packages/toolkit/examples/remix \
 	--out /runtime --scan /app/packages/toolkit/examples/remix/build/server @remix-run/serve
 
 # Runtime: the build output and that pruned node_modules only. Shipping the build stage (the whole
