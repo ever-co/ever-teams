@@ -40,6 +40,7 @@ describe('isEverIdStartRouteEnabled: off unless `true`', () => {
 		expect(isEverIdStartRouteEnabled({ EVER_ID_START_ROUTE_ENABLED: value })).toBe(true);
 	});
 
+	// cspell:ignore truee
 	it.each(['', 'false', '1', 'yes', 'on', 'enabled', 'truee', 'tru e'])('is off for %j', (value) => {
 		expect(isEverIdStartRouteEnabled({ EVER_ID_START_ROUTE_ENABLED: value })).toBe(false);
 	});
