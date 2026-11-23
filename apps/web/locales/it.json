@@ -2437,6 +2437,7 @@
 			"ENTER_EMAIL": "Inserisci l'Email",
 			"WORKSPACES_NOT_FOUND": "Spazi di Lavoro Non Trovati",
 			"INVALID_CODE_TRY_AGAIN": "Codice non valido. Riprova.",
+			"EXISTING_ACCOUNT_SIGN_IN_FIRST": "Questa email ha già un account. Accedi a quell'account, poi accetta l'invito dalla tua home.",
 			"EMPTY_WORKSPACE_WARNING_TITLE": "Questo spazio di lavoro non ha team",
 			"EMPTY_WORKSPACE_WARNING_MESSAGE": "Ti verrà chiesto di creare un team dopo l'accesso.",
 			"NO_TEAMS_BADGE": "Nessun team",
@@ -3511,6 +3512,7 @@
 		"FILL_IN": "Da compilare: {fields}.",
 		"END_AFTER_START": "L'ora di fine deve essere successiva all'ora di inizio.",
 		"OWN_TIME_ONLY": "Aggiungi tempo per te. Un amministratore può aggiungerlo per qualcun altro.",
+		"RUNNING_TIMER_OVERLAP": "Il tuo timer è in corso in questo intervallo. Fermalo prima, oppure scegli un intervallo al di fuori.",
 		"DURATION": {
 			"LABEL": "Durata",
 			"PLACEHOLDER": "1:30 o 90m",

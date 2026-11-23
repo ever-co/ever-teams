@@ -5,6 +5,7 @@ import {
 } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
 import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
+import { gauzyErrorResponse } from '@/core/services/server/gauzy-error-response';
 
 export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
 	const foreign = refuseForeignOrigin(req);
@@ -20,13 +21,17 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
 
 	if (!user) return NextResponse.json({}, { status: status ?? 401 });
 
-	const response = await removeEmployeeOrganizationTeamRequest({
-		bearer_token: access_token,
-		tenantId,
-		employeeId: id
-	});
-
-	return $res(response.data);
+	try {
+		const response = await removeEmployeeOrganizationTeamRequest({
+			bearer_token: access_token,
+			tenantId,
+			employeeId: id
+		});
+		return $res(response.data);
+	} catch (error) {
+		// A refusal of the API goes back with its status and reason, as in direct mode (#5726)
+		return await gauzyErrorResponse(error, 'The team member could not be deleted.');
+	}
 }
 
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -47,14 +52,18 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 
 	const order = body.order;
 
-	const response = await addEmployeeOrganizationTeamOrderRequest({
-		bearer_token: access_token,
-		employeeId: id,
-		tenantId,
-		order,
-		organizationTeamId: body.organizationTeamId,
-		organizationId: body.organizationId
-	});
-
-	return $res(response.data);
+	try {
+		const response = await addEmployeeOrganizationTeamOrderRequest({
+			bearer_token: access_token,
+			employeeId: id,
+			tenantId,
+			order,
+			organizationTeamId: body.organizationTeamId,
+			organizationId: body.organizationId
+		});
+		return $res(response.data);
+	} catch (error) {
+		// A refusal of the API goes back with its status and reason, as in direct mode (#5726)
+		return await gauzyErrorResponse(error, 'The team member could not be updated.');
+	}
 }

@@ -1,7 +1,7 @@
-// A password sign-in for an account with two-factor sign-in on (ever-co/ever-teams#5701): node --test test/*.test.mjs
-// (from packages/toolkit/atoms, after the toolkit-types and api builds). bundle-kit.mjs bundles the provider and the
-// password sign-in hook; a stand-in fetch plays the API, which answers the password with TWO_FACTOR_REQUIRED and its
-// challenge, then the verify route as each case needs.
+// The kit's password sign-in: an account with two-factor sign-in on (ever-co/ever-teams#5701), and an email and
+// password that open several workspaces (ever-co/ever-teams#5700). node --test test/*.test.mjs (from
+// packages/toolkit/atoms, after the toolkit-types and api builds). bundle-kit.mjs bundles the provider and the password
+// sign-in hook; a stand-in fetch plays the API's workspace sign-in, its two-factor challenge and its verify route.
 import { test, before, after, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
@@ -72,7 +72,11 @@ function apiAskingForACode({ expiresAt, verify }) {
 		const headers = new Headers(init?.headers);
 		const body = init?.body;
 		sent.push({ path, authorization: headers.get('authorization'), body: body && JSON.parse(body) });
-		if (path === '/auth/login') {
+		// The email and password open one workspace, whose sign-in asks for the code (ever-co/ever-teams#5700).
+		if (path === '/auth/signin.email.password') {
+			return json(200, { workspaces: [{ token: 'workspace-token', user: { tenant: { name: 'Kestrel Studio' } } }] });
+		}
+		if (path === '/auth/signin.workspace') {
 			return json(403, { statusCode: 403, code: 'TWO_FACTOR_REQUIRED', message: 'Enter the code', challenge: 'challenge-1', expiresAt });
 		}
 		if (path === '/auth/two-factor/verify') {
@@ -235,6 +239,147 @@ test('a refused code keeps the button off until the code changes, a server failu
 	await act(async () => form.twoFactor.handleCodeSubmit(submitted));
 	assert.equal(form.twoFactor.error, 'AUTH.two_factor_failed');
 	assert.equal(form.twoFactor.blocksSubmit, false);
+});
+
+// Several workspaces (ever-co/ever-teams#5700): the workspaces the email and password open, by their tenant's name.
+const KESTREL = { token: 'token-kestrel', user: { tenant: { name: 'Kestrel Studio' } } };
+const BRIGHTLINE = { token: 'token-brightline', user: { tenant: { name: 'Brightline Agency' } } };
+
+// The API: the email and password open `workspaces` (or are refused with `listStatus`); each workspace's sign-in
+// answers a session named after its token, or what `signIn` gives.
+function workspaceApi({ workspaces = [], listStatus = 200, signIn } = {}) {
+	return async (url, init) => {
+		const path = new URL(url).pathname.replace(/^\/api/, '');
+		const headers = new Headers(init?.headers);
+		const body = init?.body;
+		sent.push({ path, authorization: headers.get('authorization'), body: body && JSON.parse(body) });
+		if (path === '/auth/signin.email.password') {
+			if (listStatus !== 200) {
+				return json(listStatus, { statusCode: listStatus, message: 'Unauthorized' });
+			}
+			return json(200, { workspaces, total_workspaces: workspaces.length });
+		}
+		if (path === '/auth/signin.workspace') {
+			const token = JSON.parse(body).token;
+			if (signIn) {
+				return signIn(token);
+			}
+			return json(200, { ...SESSION, token: `session-of-${token}` });
+		}
+		return json(200, READS[path] ?? {});
+	};
+}
+
+const pathsSent = () => sent.map((request) => request.path).filter((path) => path.startsWith('/auth/'));
+const usesSession = (token) => sent.some((request) => request.authorization === `Bearer ${token}`);
+
+test('an email and password that open one workspace sign in to it at once, as before', async () => {
+	await signInWithPassword(workspaceApi({ workspaces: [KESTREL] }));
+
+	assert.deepEqual(pathsSent(), ['/auth/signin.email.password', '/auth/signin.workspace']);
+	assert.deepEqual(sent.find((request) => request.path === '/auth/signin.workspace').body, {
+		email: 'ayla@example.com',
+		token: 'token-kestrel'
+	});
+	assert.equal(form.workspaces, null);
+	assert.ok(usesSession('session-of-token-kestrel'), 'the kit reads on with the workspace session');
+});
+
+test('two workspaces wait for the pick, and the pick is the workspace signed in to', async () => {
+	await signInWithPassword(workspaceApi({ workspaces: [BRIGHTLINE, KESTREL] }));
+
+	assert.deepEqual(pathsSent(), ['/auth/signin.email.password']);
+	assert.deepEqual(
+		form.workspaces.choices.map((choice) => choice.name),
+		['Brightline Agency', 'Kestrel Studio']
+	);
+
+	await act(async () => form.workspaces.choose(form.workspaces.choices[1]));
+
+	assert.deepEqual(sent.find((request) => request.path === '/auth/signin.workspace').body.token, 'token-kestrel');
+	assert.equal(form.workspaces, null);
+	assert.ok(usesSession('session-of-token-kestrel'));
+	assert.equal(usesSession('session-of-token-brightline'), false);
+});
+
+test('a wrong password keeps its message, and no workspace is signed in to', async () => {
+	await signInWithPassword(workspaceApi({ listStatus: 401 }));
+
+	assert.equal(form.error, 'ERROR.invalid_password_or_email');
+	assert.deepEqual(pathsSent(), ['/auth/signin.email.password']);
+	assert.equal(form.workspaces, null);
+});
+
+test('a picked workspace that asks for a two-factor code opens the code step', async () => {
+	const asksForCode = () =>
+		json(403, { statusCode: 403, code: 'TWO_FACTOR_REQUIRED', message: 'Enter the code', challenge: 'challenge-1' });
+	await signInWithPassword(workspaceApi({ workspaces: [BRIGHTLINE, KESTREL], signIn: asksForCode }));
+
+	await act(async () => form.workspaces.choose(form.workspaces.choices[0]));
+
+	assert.ok(form.twoFactor, 'the code step is open');
+});
+
+test('a refused workspace sign-in says so on the workspace step, and Back returns to the email and password', async () => {
+	const refused = () => json(401, { statusCode: 401, message: 'Unauthorized' });
+	await signInWithPassword(workspaceApi({ workspaces: [BRIGHTLINE, KESTREL], signIn: refused }));
+
+	await act(async () => form.workspaces.choose(form.workspaces.choices[0]));
+	assert.equal(form.workspaces.error, 'ERROR.invalid_password_or_email');
+	assert.equal(form.workspaces.choosing, null);
+
+	await act(async () => form.backToPassword());
+	assert.equal(form.workspaces, null);
+	assert.equal(form.formData.email, 'ayla@example.com');
+});
+
+test('Back during a workspace sign-in drops its answer: nobody is signed in to the workspace left', async () => {
+	let answerSignIn;
+	const held = () =>
+		new Promise((resolve) => {
+			answerSignIn = resolve;
+		});
+	await signInWithPassword(workspaceApi({ workspaces: [BRIGHTLINE, KESTREL], signIn: held }));
+	let pick;
+	await act(async () => {
+		pick = form.workspaces.choose(form.workspaces.choices[0]);
+	});
+
+	await act(async () => form.backToPassword());
+	await act(async () => {
+		answerSignIn(json(200, { ...SESSION, token: 'session-answered-late' }));
+		await pick;
+	});
+
+	assert.equal(usesSession('session-answered-late'), false, 'the late answer signs nobody in');
+	assert.equal(form.workspaces, null);
+	assert.equal(form.twoFactor, null);
+	assert.equal(form.formData.email, 'ayla@example.com');
+});
+
+test('a code asked for after Back opens no code step', async () => {
+	let answerSignIn;
+	const held = () =>
+		new Promise((resolve) => {
+			answerSignIn = resolve;
+		});
+	await signInWithPassword(workspaceApi({ workspaces: [BRIGHTLINE, KESTREL], signIn: held }));
+	let pick;
+	await act(async () => {
+		pick = form.workspaces.choose(form.workspaces.choices[0]);
+	});
+
+	await act(async () => form.backToPassword());
+	await act(async () => {
+		answerSignIn(
+			json(403, { statusCode: 403, code: 'TWO_FACTOR_REQUIRED', message: 'Enter the code', challenge: 'challenge-1' })
+		);
+		await pick;
+	});
+
+	assert.equal(form.twoFactor, null, 'the left step opens nothing');
+	assert.equal(form.workspaces, null);
+	assert.equal(form.error, undefined);
 });
 
 test('a check that got no answer, read after the person left its step, leaves the next step checking', async () => {

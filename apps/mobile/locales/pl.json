@@ -193,6 +193,7 @@
 		"codeSentTo": "Wysłaliśmy kod na adres:",
 		"errors": {
 			"invalidCode": "Nieprawidłowy kod uwierzytelniający lub adres e-mail",
+			"existingAccountSignInFirst": "Ten adres e-mail ma już konto. Zaloguj się na nie, a następnie zaakceptuj zaproszenie w aplikacji.",
 			"notSetUp": "Twoje konto nie jest jeszcze w pełni skonfigurowane",
 			"workspaceNotLoaded": "Nie udało się wczytać Twojej przestrzeni roboczej. Spróbuj ponownie.",
 			"emptyEmail": "Adres e-mail nie może być pusty",

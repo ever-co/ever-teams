@@ -2437,6 +2437,7 @@
 			"ENTER_EMAIL": "Inserir E-mail",
 			"WORKSPACES_NOT_FOUND": "Espaços de trabalho não encontrados",
 			"INVALID_CODE_TRY_AGAIN": "Código inválido. Por favor, tente novamente.",
+			"EXISTING_ACCOUNT_SIGN_IN_FIRST": "Este e-mail já tem uma conta. Inicie sessão nela e depois aceite o convite a partir da sua página inicial.",
 			"EMPTY_WORKSPACE_WARNING_TITLE": "Este espaço de trabalho não tem equipes",
 			"EMPTY_WORKSPACE_WARNING_MESSAGE": "Você será solicitado a criar uma equipe após o login.",
 			"NO_TEAMS_BADGE": "Sem equipes",
@@ -3511,6 +3512,7 @@
 		"FILL_IN": "Preencha: {fields}.",
 		"END_AFTER_START": "A hora de fim tem de ser depois da hora de início.",
 		"OWN_TIME_ONLY": "Você adiciona tempo para si. Um administrador pode adicionar para outra pessoa.",
+		"RUNNING_TIMER_OVERLAP": "O seu temporizador está a correr neste período. Pare-o primeiro ou escolha um período fora dele.",
 		"DURATION": {
 			"LABEL": "Duração",
 			"PLACEHOLDER": "1:30 ou 90m",

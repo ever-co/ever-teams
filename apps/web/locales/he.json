@@ -2437,6 +2437,7 @@
 			"ENTER_EMAIL": "הכנס אימייל",
 			"WORKSPACES_NOT_FOUND": "סביבות עבודה לא נמצאו",
 			"INVALID_CODE_TRY_AGAIN": "קוד לא תקין. אנא נסה שוב.",
+			"EXISTING_ACCOUNT_SIGN_IN_FIRST": "לכתובת האימייל הזו כבר יש חשבון. יש להתחבר אליו ולאחר מכן לאשר את ההזמנה מדף הבית.",
 			"EMPTY_WORKSPACE_WARNING_TITLE": "סביבת עבודה זו אין לה צוותים",
 			"EMPTY_WORKSPACE_WARNING_MESSAGE": "תתבקש ליצור צוות לאחר ההתחברות.",
 			"NO_TEAMS_BADGE": "אין צוותים",
@@ -3511,6 +3512,7 @@
 		"FILL_IN": "יש למלא: {fields}.",
 		"END_AFTER_START": "שעת הסיום חייבת להיות אחרי שעת ההתחלה.",
 		"OWN_TIME_ONLY": "הזמן נוסף עבורך בלבד. מנהל יכול להוסיף זמן עבור מישהו אחר.",
+		"RUNNING_TIMER_OVERLAP": "הטיימר שלך פועל בטווח הזמן הזה. יש לעצור אותו קודם, או לבחור זמן מחוץ לו.",
 		"DURATION": {
 			"LABEL": "משך",
 			"PLACEHOLDER": "1:30 או 90m",
