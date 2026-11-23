@@ -15,6 +15,10 @@ jest.mock('jotai', () => ({
 jest.mock('@/core/hooks/queries/user-user.query', () => ({
 	useUserQuery: () => ({ data: mockUser })
 }));
+// A team may be created once the address verification is satisfied (#5677): every user here has a verified address
+jest.mock('@/core/hooks/auth/use-email-verification-status', () => ({
+	useIsEmailVerificationSatisfied: () => true
+}));
 jest.mock('@/core/hooks', () => ({
 	useModal: () => ({ isOpen: false, closeModal: jest.fn(), openModal: mockOpenModal })
 }));

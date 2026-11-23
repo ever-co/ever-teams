@@ -193,6 +193,7 @@
 		"codeSentTo": "Enviamos un código a:",
 		"errors": {
 			"invalidCode": "Código de autenticación o correo no válido",
+			"existingAccountSignInFirst": "Este correo electrónico ya tiene una cuenta. Inicia sesión en ella y luego acepta la invitación en la aplicación.",
 			"notSetUp": "Tu cuenta aún no está completamente configurada",
 			"workspaceNotLoaded": "No se pudo cargar tu espacio de trabajo. Inténtalo de nuevo.",
 			"emptyEmail": "El correo no debe estar vacío",

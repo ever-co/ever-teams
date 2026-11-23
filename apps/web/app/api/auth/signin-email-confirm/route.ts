@@ -12,6 +12,8 @@ import { NextResponse } from 'next/server';
 import { APP_NAME } from '@/core/constants/config/constants';
 import { pickTokenOrganization } from '@/core/lib/auth/jwt-utils';
 import { invitedPersonNames } from '@/core/lib/auth/invited-person-names';
+import { inviteAcceptRefusalAnswer } from '@/core/lib/auth/invite-sign-in-first';
+import { unwrapRejection } from '@/core/services/server/fetch';
 
 export async function POST(req: Request) {
 	const body = (await req.json()) as unknown as { email: string; code: string };
@@ -39,6 +41,7 @@ export async function POST(req: Request) {
 		console.log('[API /auth/signin-email-confirm] invite code matched', { inviteId: inviteReq.data.id });
 
 		const { firstName, lastName } = invitedPersonNames(inviteReq.data.fullName, body.email);
+		let acceptRefusal: unknown;
 		const acceptInviteRes = await acceptInviteRequest({
 			code: body.code,
 			email: body.email,
@@ -48,7 +51,10 @@ export async function POST(req: Request) {
 				lastName,
 				email: body.email
 			}
-		}).catch(() => void 0);
+		}).catch(async (rejection: unknown) => {
+			acceptRefusal = await unwrapRejection(rejection);
+			return undefined;
+		});
 
 		if (
 			!acceptInviteRes ||
@@ -57,14 +63,7 @@ export async function POST(req: Request) {
 			acceptInviteRes.response.status === 400 ||
 			(acceptInviteRes?.data as any).response?.statusCode
 		) {
-			return NextResponse.json(
-				{
-					errors: {
-						email: 'Authentication code or email address invalid'
-					}
-				},
-				{ status: 400 }
-			);
+			return NextResponse.json(inviteAcceptRefusalAnswer(acceptRefusal), { status: 400 });
 		}
 
 		loginResponse = acceptInviteRes.data;

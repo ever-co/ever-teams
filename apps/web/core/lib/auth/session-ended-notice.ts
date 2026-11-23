@@ -11,6 +11,8 @@
  * person is told what becomes of it. Nothing here imports the timer: the app's timer says it when asked
  * (witnessTimerAtSessionEnd).
  */
+import { wasStoppedByOwnSignOut } from '@/core/lib/auth/own-sign-out-mark';
+
 const NOTICE_KEY = 'ever-teams.session-ended';
 
 /** The timer run a tab showed as its session ended. */
@@ -51,7 +53,13 @@ export function witnessTimerAtSessionEnd(witness: TimerWitness): () => void {
 
 function timerAtSessionEnd(): TimerAtSessionEnd | null {
 	try {
-		return timerWitness?.() ?? null;
+		const timer = timerWitness?.() ?? null;
+		// A sign-out the person made in another tab ended this session, and stopped that run first: the tab still
+		// shows it running, and the sign-in page would tell the person to sign in again to stop it (#5721).
+		if (timer && wasStoppedByOwnSignOut(timer.timeLogId)) {
+			return null;
+		}
+		return timer;
 	} catch {
 		// The session ends whatever the timer could say
 		return null;

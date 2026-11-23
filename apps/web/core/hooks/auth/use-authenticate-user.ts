@@ -28,9 +28,42 @@ import { useUserQuery } from '../queries/user-user.query';
 import { logErrorInDev, logInDev } from '@/core/lib/helpers/error-message';
 import { clearChatHistoryForUser } from '@/core/components/features/chat-panel/chat-history';
 import { runSignOutCleanups } from '@/core/lib/auth/sign-out-cleanups';
+import { leaveOwnSignOutMark } from '@/core/lib/auth/own-sign-out-mark';
 import { rememberTeam } from '@/core/lib/auth/remembered-team';
 
-export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserResult => {
+/**
+ * Stops the timer as the person signs out, and tells the other tabs of the browser which run that ended: they still
+ * show it going on (#5721). The run is the one the API answers as stopped, which is not always the one this tab
+ * showed. A stop that fails leaves no mark: that run goes on.
+ *
+ * @param shownTimeLogId The run this tab showed, named when the API's answer names none.
+ */
+/**
+ * The run a stop ended, from the status read after it. A status that shows a run going on is of a run started since,
+ * in another tab: it is not the one that was stopped, and the run this tab showed is named instead.
+ */
+function stoppedTimeLogIdOf(
+	statusAfterStop: { running?: boolean; lastLog?: { id?: string; isRunning?: boolean } | null } | undefined,
+	shownTimeLogId: string | null
+): string | null {
+	const lastLog = statusAfterStop?.lastLog;
+	const showsRunGoingOn = Boolean(statusAfterStop?.running) || Boolean(lastLog?.isRunning);
+	if (showsRunGoingOn) {
+		return shownTimeLogId;
+	}
+	return lastLog?.id ?? shownTimeLogId;
+}
+
+async function stopTimerForSignOut(shownTimeLogId: string | null): Promise<void> {
+	try {
+		const answer = await timerService.stopTimer({ source: ETimeLogSource.TEAMS });
+		leaveOwnSignOutMark(stoppedTimeLogIdOf(answer?.data, shownTimeLogId));
+	} catch (error) {
+		logErrorInDev('[Auth] Timer stop before logout failed:', error);
+	}
+}
+
+export const useAuthenticateUser =(defaultUser?: TUser): UseAuthenticateUserResult => {
 	const userDataQuery = useUserQuery();
 	const user = userDataQuery.data;
 	const setUser = useSetAtom(userState);
@@ -135,9 +168,8 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 			(timerStatus?.running && timerStatus.lastLog?.source === ETimeLogSource.TEAMS) ||
 			isRunningTeamsLog(pastMidnightLog)
 		) {
-			const stopTimer = timerService
-				.stopTimer({ source: ETimeLogSource.TEAMS })
-				.catch((error) => logErrorInDev('[Auth] Timer stop before logout failed:', error));
+			const shownLog = timerStatus?.running ? timerStatus.lastLog : pastMidnightLog;
+			const stopTimer = stopTimerForSignOut(shownLog?.id ?? null);
 			await Promise.race([stopTimer, new Promise((resolve) => window.setTimeout(resolve, 3000))]);
 		}
 

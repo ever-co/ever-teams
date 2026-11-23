@@ -1,6 +1,6 @@
-import { usePasswordLoginForm } from '@hooks/usePasswordLoginForm';
+import { usePasswordLoginForm, type WorkspaceStep } from '@hooks/usePasswordLoginForm';
 import type { TwoFactorStep } from '@hooks/useTwoFactorStep';
-import { cn, ThemedButton } from '@ever-teams/toolkit-ui';
+import { Button, cn, ThemedButton } from '@ever-teams/toolkit-ui';
 import { LoaderCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { KitFormError, KitFormField } from './kit-form-field';
@@ -78,6 +78,56 @@ function TwoFactorCodeStep({
 	);
 }
 
+/**
+ * The workspace step of a sign-in whose email and password open several workspaces: the person picks the one this
+ * site tracks their time in, as in the web app (ever-co/ever-teams#5700).
+ */
+function WorkspaceChoiceStep({
+	step,
+	onBack,
+	className
+}: Readonly<{ step: WorkspaceStep; onBack: () => void; className?: string }>) {
+	const { t } = useTranslation();
+	const isChoosing = step.choosing !== null;
+	return (
+		<div className={cn(FORM, className)}>
+			<div className="flex flex-col gap-1">
+				<p className="text-sm font-medium text-foreground">{t('AUTH.workspace_choice_title')}</p>
+				<p className="text-sm text-muted-foreground">{t('AUTH.workspace_choice_description')}</p>
+			</div>
+
+			<ul className="flex flex-col gap-2" aria-label={t('AUTH.workspace_choice_title')}>
+				{step.choices.map((choice) => (
+					<li key={choice.token}>
+						<Button
+							type="button"
+							variant="outline"
+							className="h-10 w-full justify-between gap-2 text-foreground"
+							disabled={isChoosing}
+							onClick={() => void step.choose(choice)}
+						>
+							<span className="truncate">{choice.name || t('AUTH.workspace_unnamed')}</span>
+							{step.choosing === choice.token && (
+								<span className="animate-spin">
+									<LoaderCircle size={16} />
+								</span>
+							)}
+						</Button>
+					</li>
+				))}
+			</ul>
+
+			<KitFormError message={step.error} />
+
+			<div className="text-sm">
+				<button type="button" className={AUTH_LINK_BUTTON} onClick={onBack}>
+					{t('AUTH.workspace_back')}
+				</button>
+			</div>
+		</div>
+	);
+}
+
 const TeamsPasswordLoginForm = ({
 	className,
 	redirectHandler
@@ -96,6 +146,9 @@ const TeamsPasswordLoginForm = ({
 				className={className}
 			/>
 		);
+	}
+	if (form.workspaces) {
+		return <WorkspaceChoiceStep step={form.workspaces} onBack={form.backToPassword} className={className} />;
 	}
 	return (
 		<form onSubmit={form.handleSubmit} className={cn(FORM, className)}>

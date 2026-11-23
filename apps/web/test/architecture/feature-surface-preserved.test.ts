@@ -2097,10 +2097,11 @@ describe('Ever Teams feature surface preservation', () => {
 		// POST, PUT, PATCH, DELETE and OPTIONS, which answer 404).
 		// 416 files and 533 verbs with the e-mail verification status of the signed-in user (/api/auth/verify/status GET;
 		// #5677).
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(416);
+		// 417 files and 534 verbs with a profile's month summary (/api/timesheet/statistics/profile-activity GET; #5612).
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(417);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(533);
+		).toHaveLength(534);
 		expect(routes).toEqual(
 			expect.arrayContaining([
 				// Proxy mode twin of Gauzy's e-mail verification status (#5677)

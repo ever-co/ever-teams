@@ -3,6 +3,7 @@ import { authenticatedGuard } from '@/core/services/server/guards/authenticated-
 import { deleteEmployeeFromTasksRequest, getEmployeeTasksRequest } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
 import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
+import { gauzyErrorResponse } from '@/core/services/server/gauzy-error-response';
 
 export async function GET(req: Request, props: INextParams) {
 	const params = await props.params;
@@ -52,12 +53,20 @@ export async function DELETE(req: Request, props: INextParams) {
 
 	const organizationTeamId = searchParams.get('organizationTeamId') as string;
 
-	const response = await deleteEmployeeFromTasksRequest({
-		employeeId: params.employeeId,
-		organizationTeamId,
-		tenantId: tenantId || '',
-		bearer_token: bearer_token || ''
-	});
-
-	return $res(response.data);
+	try {
+		const response = await deleteEmployeeFromTasksRequest({
+			employeeId: params.employeeId,
+			organizationTeamId,
+			tenantId: tenantId || '',
+			bearer_token: bearer_token || ''
+		});
+		// The API answers this unassignment 200 with an empty body, which is no JSON to hand on (#5727)
+		const hasBody = response.data !== undefined && response.data !== null;
+		if (!hasBody) {
+			return new NextResponse(null, { status: 200 });
+		}
+		return $res(response.data);
+	} catch (error) {
+		return await gauzyErrorResponse(error, 'The tasks could not be unassigned');
+	}
 }

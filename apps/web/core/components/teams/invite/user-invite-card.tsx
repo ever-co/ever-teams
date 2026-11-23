@@ -13,9 +13,8 @@ import { Tooltip } from '../../duplicated-components/tooltip';
 import { ETimerStatus } from '@/core/types/generics/enums/timer';
 import { cn } from '@/core/lib/helpers';
 import { TInvite } from '@/core/types/schemas';
-import { InviteStatusDisplayMap } from '@/core/constants/config/constants';
 import { EInviteStatus } from '@/core/types/generics/enums/invite';
-import type { CSSProperties } from 'react';
+import { InviteStatusChip } from './invite-status-chip';
 import {
 	MEMBER_CARD_PADDING,
 	MEMBER_CELL,
@@ -46,8 +45,6 @@ const ROW_DRAG_HANDLE =
 export function InvitedCard({ invitation, className }: Props) {
 	const t = useTranslations();
 
-	const { foreground: statusColor, label } = InviteStatusDisplayMap[invitation.status as EInviteStatus];
-	const statusChipStyle = { '--chip': statusColor } as CSSProperties;
 
 	return (
 		<div className="group/row">
@@ -75,12 +72,7 @@ export function InvitedCard({ invitation, className }: Props) {
 								<Text.Heading className="truncate text-sm font-medium text-foreground/70" as="h3">
 									{invitation.fullName}
 								</Text.Heading>
-								<span
-									style={statusChipStyle}
-									className="chip-3d inline-flex h-5 shrink-0 items-center rounded-md px-1.5 text-[11px] font-medium"
-								>
-									{label}
-								</span>
+								<InviteStatusChip status={invitation.status as EInviteStatus} />
 							</div>
 
 							<Text className="flex min-w-0 items-center gap-1 text-xs text-muted-foreground">
@@ -114,12 +106,7 @@ export function InvitedCard({ invitation, className }: Props) {
 							<Text.Heading as="h3" className="truncate text-sm font-medium text-foreground/70">
 								{invitation.fullName}
 							</Text.Heading>
-							<span
-								style={statusChipStyle}
-								className="chip-3d inline-flex h-5 shrink-0 items-center rounded-md px-1.5 text-[11px] font-medium"
-							>
-								{label}
-							</span>
+							<InviteStatusChip status={invitation.status as EInviteStatus} />
 						</div>
 						<Text className="flex min-w-0 items-center gap-1 text-xs text-muted-foreground">
 							<Mail className="size-3.5 shrink-0" />

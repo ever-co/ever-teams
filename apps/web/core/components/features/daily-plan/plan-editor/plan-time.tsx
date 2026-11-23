@@ -1,12 +1,13 @@
 'use client';
 
-import type { ChangeEvent, ReactNode } from 'react';
+import { useState, type ChangeEvent, type ReactNode } from 'react';
 import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
+import { toast } from 'sonner';
 import { controlGroupRecipe } from '@/core/components/common/input';
 import { CircleAlert, Minus, Plus } from '@/core/components/icons';
 import { cn } from '@/core/lib/helpers';
 import { formatIntegerToHour } from '@/core/lib/helpers/index';
-import { plannedHoursFrom } from '@/core/lib/utils/daily-plan-editor';
+import { oneHourLess, plannedHoursFromInput, plannedHoursText } from '@/core/lib/utils/daily-plan-editor';
 
 const SEGMENT_COUNT = 24;
 
@@ -17,7 +18,7 @@ const STEP_BUTTON =
 	'flex size-8 shrink-0 items-center justify-center text-muted-foreground outline-none transition-colors hover:bg-foreground/5 hover:text-foreground focus-visible:bg-foreground/5 disabled:pointer-events-none disabled:opacity-50 [&_svg]:size-3.5';
 
 const HOURS_INPUT =
-	'w-7 bg-transparent p-0 text-center text-[13px] font-medium tabular-nums text-foreground outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none';
+	'w-10 bg-transparent p-0 text-center text-[13px] font-medium tabular-nums text-foreground outline-none';
 
 const READ_ONLY_VALUE = 'text-[13px] font-medium tabular-nums text-foreground';
 
@@ -39,19 +40,41 @@ interface PlanHoursStepperProps {
 	onChange: (hours: number) => void;
 }
 
-/** Whole hours, as the plan always stored them; the field and the two buttons write the same value. */
+/**
+ * The plan's hours, typed as the Set hours box of the same plan takes them (2,5, 2.5 or 2:30) or moved an hour at a
+ * time. While a person types, the field keeps their text and the plan takes every entry it can read; an entry it
+ * cannot read is refused when they leave the field, and the plan keeps the hours it had (#5713).
+ */
 export function PlanHoursStepper({ hours, canEdit, onChange }: Readonly<PlanHoursStepperProps>) {
 	const t = useTranslations();
+	const [typedText, setTypedText] = useState<string | null>(null);
 	const isAtZero = hours <= 0;
 	const isLessDisabled = !canEdit || isAtZero;
+	const shownText = typedText ?? plannedHoursText(hours);
 	const handleInput = (event: ChangeEvent<HTMLInputElement>) => {
-		onChange(plannedHoursFrom(event.target.value));
+		const text = event.target.value;
+		setTypedText(text);
+		const typedHours = plannedHoursFromInput(text);
+		if (typedHours !== null) {
+			onChange(typedHours);
+		}
+	};
+	const handleBlur = () => {
+		const isUnreadable = typedText !== null && plannedHoursFromInput(typedText) === null;
+		if (isUnreadable) {
+			toast.warning(t('toasts.plans.HOURS_INVALID'), { id: 'plan-hours-invalid' });
+		}
+		setTypedText(null);
+	};
+	const stepTo = (nextHours: number) => {
+		setTypedText(null);
+		onChange(nextHours);
 	};
 	return (
 		<div className={cn(controlGroupRecipe, 'h-8 w-auto overflow-hidden')}>
 			<button
 				type="button"
-				onClick={() => onChange(hours - 1)}
+				onClick={() => stepTo(oneHourLess(hours))}
 				disabled={isLessDisabled}
 				aria-label={t('dailyPlan.editor.LESS_HOUR')}
 				className={STEP_BUTTON}
@@ -60,12 +83,11 @@ export function PlanHoursStepper({ hours, canEdit, onChange }: Readonly<PlanHour
 			</button>
 			<label className="flex h-full items-center gap-0.5 hairline-l hairline-r border-border px-2">
 				<input
-					type="number"
-					inputMode="numeric"
-					min={0}
-					step={1}
-					value={hours}
+					type="text"
+					inputMode="decimal"
+					value={shownText}
 					onChange={handleInput}
+					onBlur={handleBlur}
 					onFocus={(event) => event.target.select()}
 					readOnly={!canEdit}
 					aria-label={t('dailyPlan.PLANNED_TIME')}
@@ -77,7 +99,7 @@ export function PlanHoursStepper({ hours, canEdit, onChange }: Readonly<PlanHour
 			</label>
 			<button
 				type="button"
-				onClick={() => onChange(hours + 1)}
+				onClick={() => stepTo(hours + 1)}
 				disabled={!canEdit}
 				aria-label={t('dailyPlan.editor.MORE_HOUR')}
 				className={STEP_BUTTON}

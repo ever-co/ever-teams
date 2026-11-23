@@ -70,6 +70,9 @@ const stubs = {
 			new Promise((resolve) => globalThis.__userReads.push(Object.assign(resolve, { token })));
 		globalThis.__logins = [];
 		export const authLogin = () => new Promise((resolve) => globalThis.__logins.push(resolve));
+		// The password sign-in reads the workspaces first (ever-co/ever-teams#5700): its answer is held the same way.
+		export const authWithEmailPassword = () => new Promise((resolve) => globalThis.__logins.push(resolve));
+		export const authSignInWorkspace = () => new Promise(() => {});
 		export const authVerifyTwoFactor = () => new Promise(() => {});
 		export const apiConfigManager = { getConfig: () => ({ apiUrl: 'http://api.test/api' }) };
 		globalThis.__manualTimes = [];
