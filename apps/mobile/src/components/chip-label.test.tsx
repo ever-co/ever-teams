@@ -4,6 +4,7 @@ import { StyleSheet } from 'react-native';
 import { ChipLabel } from './chip-label';
 
 describe("a chip's name", () => {
+	// cspell:ignore Mediu Prioriti
 	// At 200 % the size and priority chips cut their name mid-word ("Mediu") or broke it over two lines ("Prioriti / es")
 	it('stays on one line and gives way, so a name too long for its chip ends with an ellipsis', async () => {
 		await render(<ChipLabel style={{ fontSize: 10 }}>Priorities</ChipLabel>);

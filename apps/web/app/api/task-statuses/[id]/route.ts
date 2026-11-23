@@ -4,6 +4,7 @@ import { deleteTaskStatusRequest, editTaskStatusRequest } from '@/core/services/
 import { NextResponse } from 'next/server';
 import { ITaskStatusCreate } from '@/core/types/interfaces/task/task-status/task-status';
 import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
+import { gauzyErrorResponse } from '@/core/services/server/gauzy-error-response';
 
 export async function PUT(req: Request, props: INextParams) {
 	const foreign = refuseForeignOrigin(req);
@@ -21,14 +22,18 @@ export async function PUT(req: Request, props: INextParams) {
 
 	const datas = (await req.json()) as ITaskStatusCreate;
 
-	const response = await editTaskStatusRequest({
-		id: params.id,
-		bearer_token: access_token || '',
-		datas,
-		tenantId: tenantId || ''
-	});
-
-	return $res(response.data);
+	try {
+		const response = await editTaskStatusRequest({
+			id: params.id,
+			bearer_token: access_token || '',
+			datas,
+			tenantId: tenantId || ''
+		});
+		return $res(response.data);
+	} catch (error) {
+		// A refusal of the API goes back with its status and reason, as in direct mode (#5726)
+		return await gauzyErrorResponse(error, 'The status could not be updated');
+	}
 }
 
 export async function DELETE(req: Request, props: INextParams) {
@@ -47,11 +52,14 @@ export async function DELETE(req: Request, props: INextParams) {
 		return $res('Unauthorized');
 	}
 
-	const response = await deleteTaskStatusRequest({
-		id: params.id,
-		bearer_token: access_token,
-		tenantId
-	});
-
-	return $res(response.data);
+	try {
+		const response = await deleteTaskStatusRequest({
+			id: params.id,
+			bearer_token: access_token,
+			tenantId
+		});
+		return $res(response.data);
+	} catch (error) {
+		return await gauzyErrorResponse(error, 'The status could not be deleted');
+	}
 }

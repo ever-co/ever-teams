@@ -29,11 +29,24 @@ import { APP_ORIGIN, liveServers } from './test-servers';
 /**
  * An explicit opt-in: a live run is not read-only — it asks the shared demo API to send a sign-in code and a
  * password reset (suites/live/refusals.spec.ts) — so a stray `playwright test` over every config never makes one.
+ *
+ * The refusal is made as a run starts (refuse-live-run.ts), before any server or browser, and not as this file
+ * loads: a tool that only reads the config, like the unused-code check of a release, could not load it and failed.
  */
-if (process.env.E2E_LIVE !== '1') {
-	throw new Error(
-		'The live suite talks to the shared demo API and asks it to send e-mails. Run it on purpose: E2E_LIVE=1 yarn workspace @ever-teams/web pw:live'
-	);
+const isLiveRun = process.env.E2E_LIVE === '1';
+
+function serversOfThisRun() {
+	if (!isLiveRun) {
+		return undefined;
+	}
+	return liveServers();
+}
+
+function setupOfThisRun() {
+	if (isLiveRun) {
+		return undefined;
+	}
+	return './refuse-live-run.ts';
 }
 
 export default defineConfig({
@@ -55,6 +68,7 @@ export default defineConfig({
 		...devices['Desktop Chrome'],
 		channel: process.env.E2E_BROWSER_CHANNEL ?? 'chromium'
 	},
-	webServer: liveServers(),
+	globalSetup: setupOfThisRun(),
+	webServer: serversOfThisRun(),
 	projects: [{ name: 'live', testMatch: '**/live/**/*.spec.ts' }]
 });

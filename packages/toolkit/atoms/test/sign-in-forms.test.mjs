@@ -38,7 +38,8 @@ const stubs = {
 	'react-i18next': 'export const useTranslation = () => ({ t: (key) => key });',
 	'password-hook': `export const usePasswordLoginForm = () => ({
 		handleSubmit() {}, handleInputChange() {}, formData: { email: 'ayla@example.com', password: '' }, error: globalThis.formError,
-		loading: false, twoFactor: globalThis.twoFactorStep ?? null, backToPassword() {}
+		loading: false, twoFactor: globalThis.twoFactorStep ?? null, workspaces: globalThis.workspaceStep ?? null,
+		backToPassword() {}
 	});`,
 	'token-hook': `export const useTokenSubmission = () => ({
 		handleSubmit() {}, handleInputChange() {}, tokenInput: '', error: globalThis.formError, isLoading: Boolean(globalThis.formLoading)
@@ -287,5 +288,52 @@ test('the recovery code takes letters and offers the authenticator app back', ()
 		assert.match(markup, />AUTH\.two_factor_use_app<\/button>/);
 	} finally {
 		globalThis.twoFactorStep = null;
+	}
+});
+
+// The workspace step of a sign-in whose email and password open several workspaces (ever-co/ever-teams#5700).
+test('several workspaces show the workspace step: a button per workspace, an unnamed one named so, and Back', () => {
+	globalThis.workspaceStep = {
+		choices: [
+			{ token: 't-1', name: 'Brightline Agency' },
+			{ token: 't-2', name: '' }
+		],
+		choosing: null,
+		error: undefined,
+		async choose() {}
+	};
+	try {
+		const markup = render(kit.TeamsPasswordLoginForm);
+
+		assert.match(markup, />AUTH\.workspace_choice_title<\/p>/);
+		assert.match(markup, />AUTH\.workspace_choice_description<\/p>/);
+		assert.match(markup, /<ul[^>]*aria-label="AUTH\.workspace_choice_title"/);
+		assert.match(markup, /<button type="button"[^>]*><span[^>]*>Brightline Agency<\/span><\/button>/);
+		assert.match(markup, /<span[^>]*>AUTH\.workspace_unnamed<\/span>/);
+		assert.match(markup, /<button type="button"[^>]*>AUTH\.workspace_back<\/button>/);
+		assert.doesNotMatch(markup, /COMMON\.password/);
+	} finally {
+		globalThis.workspaceStep = null;
+	}
+});
+
+test('while a workspace is being opened, every workspace button is off', () => {
+	globalThis.workspaceStep = {
+		choices: [
+			{ token: 't-1', name: 'Brightline Agency' },
+			{ token: 't-2', name: 'Kestrel Studio' }
+		],
+		choosing: 't-2',
+		error: 'ERROR.invalid_password_or_email',
+		async choose() {}
+	};
+	try {
+		const markup = render(kit.TeamsPasswordLoginForm);
+		const buttons = [...markup.matchAll(/<button type="button"[^>]*disabled=""[^>]*>/g)];
+
+		assert.equal(buttons.length, 2);
+		assert.match(markup, /<p role="alert"[^>]*>ERROR\.invalid_password_or_email<\/p>/);
+	} finally {
+		globalThis.workspaceStep = null;
 	}
 });

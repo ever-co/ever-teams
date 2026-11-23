@@ -73,6 +73,11 @@ export interface IDocumentPage {
 	contentHtml?: string | null;
 	/** A locked page is read-only until unlocked on the platform. */
 	isLocked?: boolean;
+	/**
+	 * Whether the signed-in person may change the page, as the single-page read answers it. A platform that
+	 * predates the field sends none, and the page then opens as before (#5723).
+	 */
+	canWrite?: boolean;
 	/** Bumped by the platform on every version snapshot. */
 	version?: number;
 	visibility: EDocumentVisibility;

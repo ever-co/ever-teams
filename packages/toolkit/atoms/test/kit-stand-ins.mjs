@@ -78,6 +78,10 @@ const USER = { id: 'user-1', tenantId: 'tenant-1', employee: { id: 'employee-1',
 // What the stand-in API answers, by the path under /api; anything else gets an empty object.
 const ANSWERS = {
 	'/auth/login': { token: 'token-1', refresh_token: 'refresh-1', user: USER },
+	// The password sign-in (ever-co/ever-teams#5700): the email and password open one workspace, whose sign-in answers
+	// the session.
+	'/auth/signin.email.password': { workspaces: [{ token: 'workspace-token-1', user: { tenant: { name: 'Kestrel Studio' } } }] },
+	'/auth/signin.workspace': { token: 'token-1', refresh_token: 'refresh-1', user: USER },
 	'/user/me': USER,
 	'/role-permissions/me': [],
 	'/user-organization': { items: [{ organizationId: 'org-1', isDefault: true }], total: 1 },
@@ -118,7 +122,8 @@ export function tokenCheckingServers() {
 		const authorization = new Headers(init?.headers).get('authorization');
 		let status = 200;
 		let body = ANSWERS[path] ?? {};
-		if (path === '/auth/login') {
+		const issuesSession = path === '/auth/login' || path === '/auth/signin.workspace';
+		if (issuesSession) {
 			const token = `${host}-token`;
 			accept(host, token);
 			body = { ...body, token };

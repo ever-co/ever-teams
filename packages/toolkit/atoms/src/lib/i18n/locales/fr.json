@@ -125,7 +125,11 @@
 		"two_factor_recovery_incomplete": "Saisissez le code de récupération en entier.",
 		"two_factor_expired": "Cette connexion a trop attendu son code. Connectez-vous à nouveau.",
 		"two_factor_too_many": "Trop de codes erronés. Patientez quelques minutes, puis réessayez.",
-		"two_factor_failed": "Le code n'a pas pu être vérifié. Réessayez dans un instant."
+		"two_factor_failed": "Le code n'a pas pu être vérifié. Réessayez dans un instant.",
+		"workspace_choice_title": "Choisissez un espace de travail",
+		"workspace_choice_description": "Votre e-mail et votre mot de passe ouvrent plusieurs espaces de travail. Choisissez celui dans lequel ce site suit votre temps.",
+		"workspace_unnamed": "Espace de travail sans nom",
+		"workspace_back": "Retour à la connexion"
 	},
 	"INPUT": {
 		"language_switcher": {

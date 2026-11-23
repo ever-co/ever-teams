@@ -3,6 +3,7 @@ import { getRolePermissionsRequest, updateRolePermissionRequest } from '@/core/s
 import { INextParams } from '@/core/types/interfaces/common/data-response';
 import { NextResponse } from 'next/server';
 import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
+import { gauzyErrorResponse } from '@/core/services/server/gauzy-error-response';
 
 export async function GET(req: Request, props: INextParams) {
 	const params = await props.params;
@@ -16,13 +17,17 @@ export async function GET(req: Request, props: INextParams) {
 
 	if (!user) return $res('unauthorized');
 
-	const response = await getRolePermissionsRequest({
-		roleId: params.id,
-		bearer_token: access_token || '',
-		tenantId: tenantId || ''
-	});
-
-	return $res(response.data);
+	try {
+		const response = await getRolePermissionsRequest({
+			roleId: params.id,
+			bearer_token: access_token || '',
+			tenantId: tenantId || ''
+		});
+		return $res(response.data);
+	} catch (error) {
+		// A refusal of the API goes back with its status and reason, as in direct mode (#5726)
+		return await gauzyErrorResponse(error, 'The permission of the role could not be read.');
+	}
 }
 
 export async function PUT(req: Request, props: INextParams) {
@@ -41,11 +46,15 @@ export async function PUT(req: Request, props: INextParams) {
 
 	const body = await req.json();
 
-	const response = await updateRolePermissionRequest({
-		bearer_token: access_token || '',
-		tenantId: tenantId || '',
-		data: body
-	});
-
-	return $res(response.data);
+	try {
+		const response = await updateRolePermissionRequest({
+			bearer_token: access_token || '',
+			tenantId: tenantId || '',
+			data: body
+		});
+		return $res(response.data);
+	} catch (error) {
+		// A refusal of the API goes back with its status and reason, as in direct mode (#5726)
+		return await gauzyErrorResponse(error, 'The permission of the role could not be updated.');
+	}
 }

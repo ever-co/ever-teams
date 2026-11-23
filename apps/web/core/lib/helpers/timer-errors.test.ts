@@ -1,5 +1,6 @@
 import { ApiErrorService } from '@/core/services/client/api-error.service';
 import {
+	isDailyPlanRequiredRefusal,
 	isNothingToStopRefusal,
 	isTrackingOffRefusal,
 	requiredTrackingFieldsMessageKeyOf,
@@ -76,5 +77,31 @@ describe('isNothingToStopRefusal', () => {
 			isNothingToStopRefusal(ApiErrorService.fromAxiosError({ message: 'Network Error', code: 'ERR_NETWORK' }))
 		).toBe(false);
 		expect(isNothingToStopRefusal(apiError('Not Acceptable', 406))).toBe(false);
+	});
+});
+
+describe('a start refused because the team requires a daily plan (#5716)', () => {
+	const refusal = (code?: string) =>
+		ApiErrorService.fromAxiosError({
+			message: 'Request failed with status code 422',
+			status: 422,
+			response: {
+				status: 422,
+				data: {
+					statusCode: 422,
+					message: 'Your team requires a daily plan before you track time. Plan your day first.',
+					code
+				}
+			}
+		});
+
+	it('is recognized by the code of the 422', () => {
+		expect(isDailyPlanRequiredRefusal(refusal('DAILY_PLAN_REQUIRED'))).toBe(true);
+	});
+
+	it('leaves any other refusal to its own message', () => {
+		expect(isDailyPlanRequiredRefusal(refusal('TRACKING_FIELD_REQUIRED'))).toBe(false);
+		expect(isDailyPlanRequiredRefusal(refusal())).toBe(false);
+		expect(isDailyPlanRequiredRefusal(new Error('Network Error'))).toBe(false);
 	});
 });

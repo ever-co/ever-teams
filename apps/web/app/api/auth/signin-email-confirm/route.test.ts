@@ -5,6 +5,7 @@
  * Runs against a stand-in of the Gauzy API.
  */
 import { NextRequest } from 'next/server';
+import { SIGN_IN_FIRST_CODE, SIGN_IN_FIRST_MESSAGE } from '@/core/lib/auth/invite-sign-in-first';
 import { INVITED, expectNoInvitedSecretsIn, primeInvitedPerson } from '@/test/auth/invited-person';
 import { tolerateServerFetchRejections } from '@/test/auth/server-fetch-rejections';
 import { MockGauzyApi, everIdWorkspace, workspacesAnswer } from '@/test/ever-id/mock-gauzy-api';
@@ -127,5 +128,22 @@ describe('POST /api/auth/signin-email-confirm, invitation code', () => {
 
 		const [accept] = gauzy.calls('POST', '/api/invite/accept');
 		expect(accept?.body).toMatchObject({ user: { firstName: 'Invited', lastName: 'Person' } });
+	}, 15_000);
+
+	it('tells a person whose address already has an account to sign in first, and opens no session', async () => {
+		primeInvitedPerson(gauzy);
+		gauzy.on('POST', '/api/invite/accept', {
+			status: 409,
+			body: { statusCode: 409, message: 'This email already has an account.', error: 'Conflict' }
+		});
+		tolerateServerFetchRejections();
+		const { POST } = loadRoute();
+
+		const res = await POST(post({ email: INVITED.email, code: INVITED.code }));
+
+		expect(res.status).toBe(400);
+		const body = await res.json();
+		expect(body).toEqual({ errors: { email: SIGN_IN_FIRST_MESSAGE }, code: SIGN_IN_FIRST_CODE });
+		expect(res.headers.get('set-cookie')).toBeNull();
 	}, 15_000);
 });

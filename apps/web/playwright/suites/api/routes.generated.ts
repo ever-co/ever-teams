@@ -1592,6 +1592,10 @@ export const apiRoutes: ApiRoute[] = [
 		verbs: ['GET']
 	},
 	{
+		path: '/api/timesheet/statistics/profile-activity',
+		verbs: ['GET']
+	},
+	{
 		path: '/api/timesheet/status',
 		verbs: ['PUT']
 	},

@@ -14,6 +14,8 @@ import { NextResponse } from 'next/server';
 import { APP_NAME } from '@/core/constants/config/constants';
 import { pickTokenOrganization } from '@/core/lib/auth/jwt-utils';
 import { invitedPersonNames } from '@/core/lib/auth/invited-person-names';
+import { inviteAcceptRefusalAnswer } from '@/core/lib/auth/invite-sign-in-first';
+import { unwrapRejection } from '@/core/services/server/fetch';
 
 export async function POST(req: Request) {
 	const body = (await req.json()) as unknown as ILoginDataAPI;
@@ -69,6 +71,7 @@ export async function POST(req: Request) {
 		// General a random password with 8 chars
 		const password = generateToken(8);
 		const { firstName, lastName } = invitedPersonNames(inviteReq.data.fullName, body.email);
+		let acceptRefusal: unknown;
 		const acceptInviteRes = await acceptInviteRequest({
 			code: body.code,
 			email: inviteReq.data.email,
@@ -78,7 +81,10 @@ export async function POST(req: Request) {
 				lastName,
 				email: body.email
 			}
-		}).catch(() => void 0);
+		}).catch(async (rejection: unknown) => {
+			acceptRefusal = await unwrapRejection(rejection);
+			return undefined;
+		});
 
 		if (
 			!acceptInviteRes ||
@@ -87,11 +93,7 @@ export async function POST(req: Request) {
 			acceptInviteRes.response.status === 400 ||
 			(acceptInviteRes.data as any).response?.statusCode
 		) {
-			return NextResponse.json({
-				errors: {
-					email: 'Authentication code or email address invalid'
-				}
-			});
+			return NextResponse.json(inviteAcceptRefusalAnswer(acceptRefusal));
 		}
 
 		loginResponse = acceptInviteRes.data;

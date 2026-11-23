@@ -3,6 +3,7 @@ import { authenticatedGuard } from '@/core/services/server/guards/authenticated-
 import { createOrganizationProjectRequest, getOrganizationProjectsRequest } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
 import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
+import { gauzyErrorResponse } from '@/core/services/server/gauzy-error-response';
 
 export async function POST(req: Request) {
 	const foreign = refuseForeignOrigin(req);
@@ -18,9 +19,13 @@ export async function POST(req: Request) {
 		organizationId: string;
 	} = await req.json();
 
-	const response = await createOrganizationProjectRequest(body, access_token);
-
-	return $res(response.data);
+	try {
+		const response = await createOrganizationProjectRequest(body, access_token);
+		return $res(response.data);
+	} catch (error) {
+		// A refusal of the API goes back with its status and reason, as in direct mode (#5726)
+		return await gauzyErrorResponse(error, 'The project could not be created.');
+	}
 }
 
 export async function GET(req: Request) {
@@ -32,12 +37,16 @@ export async function GET(req: Request) {
 
 	const { searchParams } = new URL(req.url);
 
-	const response = await getOrganizationProjectsRequest({
-		bearer_token: access_token,
-		tenantId,
-		organizationId,
-		searchParams
-	});
-
-	return $res(response.data);
+	try {
+		const response = await getOrganizationProjectsRequest({
+			bearer_token: access_token,
+			tenantId,
+			organizationId,
+			searchParams
+		});
+		return $res(response.data);
+	} catch (error) {
+		// A refusal of the API goes back with its status and reason, as in direct mode (#5726)
+		return await gauzyErrorResponse(error, 'The projects could not be read.');
+	}
 }
