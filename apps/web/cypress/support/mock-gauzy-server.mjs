@@ -67,9 +67,18 @@ function buildData(fixture, scenario, requestUrl, requestTenantId) {
 		enabled: true,
 		tenantId
 	}));
+	// `scenario.roleName`: the fixture role's name on its own, for pages that ask for one role by name (the data export
+	// of the workspace is the workspace owner's, `SUPER_ADMIN`). Only an upper-case name counts; unset keeps the name
+	// `scenario.manager` picks, and the team-manager flag of the member below stays `scenario.manager`'s alone.
+	const roleName =
+		typeof scenario.roleName === 'string' && /^[A-Z][A-Z_]*$/.test(scenario.roleName)
+			? scenario.roleName
+			: scenario.manager === false
+				? 'EMPLOYEE'
+				: 'ADMIN';
 	const role = {
 		id: ids.role,
-		name: scenario.manager === false ? 'EMPLOYEE' : 'ADMIN',
+		name: roleName,
 		isSystem: true,
 		rolePermissions,
 		tenantId

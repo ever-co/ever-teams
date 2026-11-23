@@ -111,6 +111,13 @@ export type MockScenario = {
 	 * upper-case names count. Served by `/api/role-permissions/me`. `mockReset()` clears it.
 	 */
 	extraPermissions?: string[];
+	/**
+	 * The fixture role's name, apart from `manager` (which keeps deciding whether the member manages the team):
+	 * e.g. `SUPER_ADMIN`, the workspace owner, the only role offered the data export. Only an upper-case name counts;
+	 * unset answers `ADMIN`, or `EMPLOYEE` with `manager: false`. Served on the user's `role` and `/api/roles/options`.
+	 * `mockReset()` clears it.
+	 */
+	roleName?: string;
 	[key: string]: unknown;
 };
 

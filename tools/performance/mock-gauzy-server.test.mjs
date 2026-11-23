@@ -66,6 +66,26 @@ test('scopes fixture responses from the tenant header and models a non-manager r
 	assert.equal(user.role.name, 'EMPLOYEE');
 });
 
+test('names the fixture role apart from the manager flag, and ignores a name that is not upper case', async (context) => {
+	const server = await createMockGauzyServer({ fixture, port: 0 });
+	context.after(() => server.close());
+	const roleOf = async () => (await (await fetch(`${server.origin}/api/user/me`)).json()).role.name;
+	const isManager = async () => {
+		const team = await (await fetch(`${server.origin}/api/organization-team/${fixture.ids.teamA}`)).json();
+		return team.members.find((member) => member.employeeId === fixture.ids.employee)?.isManager;
+	};
+
+	assert.equal(await roleOf(), 'ADMIN');
+	server.setScenario({ roleName: 'SUPER_ADMIN' });
+	assert.equal(await roleOf(), 'SUPER_ADMIN');
+	assert.equal(await isManager(), true);
+	server.setScenario({ roleName: 'EMPLOYEE', manager: true });
+	assert.equal(await roleOf(), 'EMPLOYEE');
+	assert.equal(await isManager(), true);
+	server.setScenario({ roleName: 'super admin', manager: false });
+	assert.equal(await roleOf(), 'EMPLOYEE');
+});
+
 test('survives an aborted request body and continues serving deterministic traffic', async (context) => {
 	const server = await createMockGauzyServer({ fixture, port: 0 });
 	context.after(() => server.close());
