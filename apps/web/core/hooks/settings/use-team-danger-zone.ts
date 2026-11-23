@@ -123,7 +123,11 @@ export function useTeamDangerZone() {
 		if (!ownRow?.id) {
 			throw new Error('No membership row');
 		}
-		await deleteOrganizationTeamEmployee({ id: ownRow.id, employeeId: ownRow.employeeId ?? '' });
+		await deleteOrganizationTeamEmployee({
+			id: ownRow.id,
+			employeeId: ownRow.employeeId ?? '',
+			organizationTeamId: team?.id
+		});
 	}, [deleteOrganizationTeamEmployee, getActiveTeam, user?.employee?.id]);
 
 	return {
