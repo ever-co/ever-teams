@@ -35,7 +35,11 @@ and proxies keep working; new behaviour sits behind this feature's flag and thei
 Building blocks: (1) the existing screens extended; (2) a **chat cache** with a local index, kept current from the
 chat sync route and the real-time client's cursor catch-up, whose offline sends are a kind of the app's one offline
 queue (`people-self-service`); (3) **one composer** built from the chat composer and the comment composer. Push, the
-area-availability check, offline storage, the app worker and the unsent prompt are those of `people-self-service`.
+area-availability check, offline storage, the app worker and the unsent prompt are those of `people-self-service`. The
+app worker, the manifest, the offline queue with its unsent badge and conflict review, the unsent prompt and the
+offline wrapper's route list are on while either feature is on for the tenant (`core/lib/utils/app-worker.ts` of
+`people-self-service`), so this feature never needs the flag of `people-self-service`; its chat and Docs routes join
+the offline route list with this feature's own flag.
 
 ```mermaid
 flowchart LR
@@ -62,7 +66,7 @@ flowchart LR
 | Chat sync | `core/lib/chat-cache/`: conversations and messages cached on the device (IndexedDB on web and desktop, the encrypted `react-native-mmkv` store on mobile, the storage adapters of the offline queue), filled from `/chat/sync?cursor=&window=` and kept current by the real-time client's cursor catch-up (`core/lib/realtime/client.ts`, `GET /realtime/events`) where it carries chat events; drafts stay with `core/hooks/chat/use-chat-draft.ts` | spec FR-31; builds on the realtime cursor, no second engine |
 | Offline sends | kind `chat.send` (and `share.send`) of the offline queue `packages/utils/src/offline-queue/` of `people-self-service`, with its conflict review | spec FR-31, FR-78; one queue, one storage adapter |
 | Local search | a small full-text index over cached messages built in a worker (web, desktop) and on the device (mobile), tokenised per the message language | spec FR-18 |
-| One composer | `core/components/common/composer/` generalised from `pages/chat/message-composer.tsx` and `tasks/drawer/comment-composer.tsx` (both kept as thin wrappers); targets declare what they accept | spec FR-74; nothing removed |
+| One composer | `core/components/common/composer/` generalized from `pages/chat/message-composer.tsx` and `tasks/drawer/comment-composer.tsx` (both kept as thin wrappers); targets declare what they accept | spec FR-74; nothing removed |
 | Gauzy web app links | `NEXT_PUBLIC_GAUZY_WEB_APP_URL` of `people-self-service`; discussions, workbooks and decks open there at the record | spec FR-6, FR-68 to FR-73 |
 | Meetings | the existing room screens keep their two media adapters; join tokens and rooms come from the platform when `/meetings/status` answers; the current token routes stay for the off case | spec FR-33; MEE FR-2 |
 | Call window | the browser's document picture-in-picture where offered, else an in-page floating window; desktop always-on-top window; mobile system picture-in-picture | spec FR-41 |
@@ -72,7 +76,7 @@ flowchart LR
 | Templates | the Docs home reads `/templates?kind=page`; the client list `core/lib/utils/docs-templates.ts` is used only while the platform does not answer (the platform seeds the same three page templates) | spec FR-64 |
 | Live updates | shared real-time client (`core/lib/realtime/`); documented polling per area otherwise | Principle VII |
 | UI | `core/components/common` wrappers, Tailwind tokens, central icons | Principle V |
-| Flag | `NEXT_PUBLIC_COLLABORATION_CLIENTS_ENABLED` via `readRuntimeEnv()`, helper `core/lib/utils/collaboration-clients-enabled.ts` in the pattern of the existing `*-enabled.ts` helpers; area helpers also read their page flag | Principle IV |
+| Flag | `NEXT_PUBLIC_COLLABORATION_CLIENTS_ENABLED` via `readRuntimeEnv()` offers the feature on a deployment; helper `core/lib/utils/collaboration-clients-enabled.ts` in the pattern of the existing `*-enabled.ts` helpers also requires, per tenant, the tenant's feature code `FEATURE_TEAMS_COLLABORATION_CLIENTS` (platform feature catalogue, off by default), read once per session from the tenant's feature toggles that `GET /user/me` returns with the relations `tenant.featureOrganizations.feature` (the same session read as `people-self-service`); the mobile and desktop apps read the same key and the same toggle; area helpers also read their page flag | Principle IV; a tenant-level setting the platform already stores, with a default for new tenants |
 
 ## 3. Platform API Used
 
@@ -95,6 +99,7 @@ plans and consumed as they are. Chat routes are under the chat plugin's `/chat` 
 | `GET/POST/PATCH/DELETE` | `/chat/messages/:id/actions` (+ `run`), `/chat/conversations/:id/tool-commands[/:tool]`, `/subscriptions`, `/sources/mute`, `/bot-posts`, `/event-subscriptions`; `POST /chat/webhooks/:id/rotate` | actions, record posts, integrations panel | `chat-agents-and-record-actions` |
 | `GET/POST` | `/chat/conversations/:id/rights`, `/chat/client-status`, `/chat/sync?cursor=&window=`, `/chat/share-in`, `/chat/messages/:id/share-out`, `/chat/files/:documentId/url`, `/chat/dlp/check`, `/chat/conversations/:id/calls` (+ `/calls/:id/{join,leave,end}`, `/calls/live`) | rights, states, sync, share, media, data-loss check, calls | `chat-administration-and-clients` |
 | `GET` | existing `/realtime/events?cursor=` | cursor catch-up feeding the chat cache | existing |
+| `GET` | existing `/user/me` with the relations `tenant.featureOrganizations.feature` | the tenant's toggle of `FEATURE_TEAMS_COLLABORATION_CLIENTS` | existing route; the code is an entry of the platform's feature catalogue |
 | `GET/POST/PATCH` | `/meetings/status`, `/meetings/rooms[/:id]`, `/rooms/by-key/:roomKey`, `/rooms/:id/{join,presence,lobby,agenda,links}`, `/meetings/lobby/:entryId/{admit,reject}`, `/meetings/sessions/:id/{mute-all,lower-hands,lock,unlock,end,polls,notes,recordings,summary,log-time}`, `/meetings/recordings[/:id]` (+ `stream`, `transcript`, `clips`), `/meetings/search`, `/meetings/schedule`, `/meetings/preferences/me` | rooms, lobby, host controls, recording, captions, notes, library | `meetings` |
 | `GET/POST/PATCH/PUT` | `/calendar/calendars[/:id]` (+ `shares`, `my-settings`), `/calendar/events` (+ `send`, `cancel`, `answer`, `proposals`, `links`, `reminders/me`, `log-time`), `/calendar/records/:type/:id/events` | events layer, calendars, invitations, rooms | `calendar-and-scheduling` |
 | `GET/POST` | `/mail/mailboxes` (+ `/:id/folders`), `/mail/messages?mailboxId=&folderId=&labelId=&view=`, `/mail/conversations/:threadId` (+ `snooze`, `mute`, `assign`, `state`, `remind`, `comments`, `records`), `/mail/messages/actions`, `/mail/drafts/**`, `/mail/identities`, `/mail/recipients`, `/mail/labels`, `/mail/search`, `/mail/messages/:emailId/attachments/:aid/save`, `/mail/mailboxes/:id/{rules,auto-reply/me,sender-review}` | Mail view of the Inbox, Summary mail items, composer replies | `mail` |
@@ -126,7 +131,7 @@ version read; `409` refreshes and, for queued items, feeds the conflict review o
 - New: `core/services/client/api/{meetings/rooms,calendar/calendar-events,mail/mail}.service.ts` with proxies
   `app/api/{meetings,calendar,mail}/**/route.ts` (validate → forward → response, multipart streamed) through the existing
   `forwardToGauzy`.
-- Area availability: the shared `core/hooks/common/use-area-availability.ts` of `people-self-service` (generalised from
+- Area availability: the shared `core/hooks/common/use-area-availability.ts` of `people-self-service` (generalized from
   `use-docs-availability.ts` and `use-inbox-availability.ts`), with the areas of this feature registered (MEE
   `/meetings/status`, CAL capabilities, MAIL, DRV, DOC feature answers, `/chat/client-status`).
 - The existing token routes `app/api/livekit/route.ts` and `app/api/auth/meet/jwt/route.ts` stay and are used only
@@ -234,7 +239,7 @@ relevance or time and writes actions back to each source.
    every target, the Inbox Mail and Summary views, call window with captions, share target, offline documents, Gauzy
    web app links for discussions, workbooks and decks.
 4. **Other clients and general availability**: mobile native screens and the Mail view inside the app, desktop
-   tray, notifications, call window and capture hotkey, extension. The feature is off by default; after the trial period it may be switched on by default for new tenants only; existing tenants keep their setting until an administrator changes it.
+   tray, notifications, call window and capture hotkey, extension. The feature is off by default (the runtime flag off on a deployment, the tenant's code `FEATURE_TEAMS_COLLABORATION_CLIENTS` off); after the trial period the code may be switched on by default for new tenants only (its default in the platform's feature catalogue, which gives each new tenant its own toggle); existing tenants keep their stored toggle until an administrator changes it in the platform's feature settings.
 
 ## 11. Constitution Reconciliation
 
@@ -258,7 +263,7 @@ relevance or time and writes actions back to each source.
 | ---- | ---------- | ------ | ---------- |
 | Platform areas land at different times | High | Medium | per-area probe; each area ships independently behind the same flag |
 | The Docs editor meets wiki nodes it does not know | Medium | High | `core/lib/docs-live/schema-guard.ts` and `pages/docs/docs-editor-extensions.ts` take the new nodes in the same release as the platform; the platform's schema-version check refuses older saves |
-| Files make the Docs tree slow | Medium | Medium | the tree pages by folder; drive views list through their own routes; virtualised list |
+| Files make the Docs tree slow | Medium | Medium | the tree pages by folder; drive views list through their own routes; virtualized list |
 | One composer regresses the existing chat or comment composer | Medium | High | old components become wrappers with their tests kept; target adapters tested per target |
 | Chat cache grows on phones | Medium | Medium | platform window (200 per conversation), budget warning, media cache cap |
 | Two token paths for meetings confuse links | Low | Medium | room names identical by MEE FR-3; one switch by `/meetings/status` |

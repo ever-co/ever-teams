@@ -39,7 +39,10 @@ through the existing `withAuthentication` (`core/components/layouts/app/authenti
 
 Logic both clients share (the offline queue engine, conflict classification, Home card assembly, attachment resizing)
 lives in `packages/` so the mobile app reuses it. The offline queue is also the queue of `workspace-collaboration-clients`
-(chat sends and shares are kinds of it).
+(chat sends and shares are kinds of it). The app manifest, the app worker (shell cache, update prompt, inbox push), the
+offline queue with its unsent badge, conflict review drawer and unsent prompt at sign-out, and the offline wrapper's
+route list are shared by both features and are on while either of them is on for the tenant
+(`core/lib/utils/app-worker.ts`); the cards, pages, offline routes and queue kinds of each feature follow its own flag.
 
 ```mermaid
 flowchart LR
@@ -61,15 +64,15 @@ flowchart LR
 | ------- | ------ | --------- |
 | Data fetching | TanStack Query hooks in `core/hooks/{time-off,attendance,shifts}/`; keys `queryKeys.timeOff.*`, `queryKeys.attendance.*`, `queryKeys.shifts.*` in the existing `core/query/keys/index.ts` | Principle II; existing key registry |
 | State | Jotai atoms in `core/stores/offline/` (queue view, conflicts) and the existing session atoms for the employee summary | Principle II; existing state management |
-| Area availability | one helper `core/hooks/common/use-area-availability.ts` generalised from `core/hooks/docs/use-docs-availability.ts`, `core/hooks/inbox/use-inbox-availability.ts` and `core/hooks/ai/use-server-ai-availability.ts` (those keep their names and call it); flag helper `core/lib/utils/self-service-enabled.ts` in the pattern of the existing `*-enabled.ts` helpers | spec FR-2; one probe pattern for every Ever Teams area (also used by `workspace-collaboration-clients`) |
+| Area availability | one helper `core/hooks/common/use-area-availability.ts` generalized from `core/hooks/docs/use-docs-availability.ts`, `core/hooks/inbox/use-inbox-availability.ts` and `core/hooks/ai/use-server-ai-availability.ts` (those keep their names and call it); flag helper `core/lib/utils/self-service-enabled.ts` in the pattern of the existing `*-enabled.ts` helpers | spec FR-2; one probe pattern for every Ever Teams area (also used by `workspace-collaboration-clients`) |
 | Live updates | shared real-time client (`core/hooks/realtime/use-realtime-event.ts`) invalidating the three key groups; 60 s fallback while visible | Principle VII |
 | Offline queue | pure engine in `packages/utils/src/offline-queue/` (ordering, idempotency keys, retry with backoff, conflict classification, kinds registered by features); storage adapters: IndexedDB (web), the existing `react-native-mmkv` store encrypted with a key in the secure store (mobile) | spec FR-19 to FR-23; one queue for every Ever Teams feature |
 | Offline reading | `OfflineWrapper` gains a route list (Home, My week, Calendar, time off, attendance, shifts) rendered from the TanStack Query cache persisted to IndexedDB, under a banner; other routes keep the existing Offline page | spec FR-22; extends the existing wrapper |
-| Installable app | `app/manifest.ts` (start URL `/`); one app worker `public/app-sw.js` (shell cache, update prompt, badge) that imports the existing `public/inbox-push-sw.js`; registered only with the flag on | spec FR-3; nothing replaced |
+| Installable app | `app/manifest.ts` (start URL `/`); one app worker `public/app-sw.js` (shell cache, update prompt, badge) that imports the existing `public/inbox-push-sw.js`; registered only while this feature or `workspace-collaboration-clients` is on; both registration paths (the worker registration and the push switch of `use-inbox-web-push.ts`) take the script from one helper `core/lib/utils/app-worker.ts`, so switching push on keeps `app-sw.js`; once both are off, a browser whose registration at `/` still runs `app-sw.js` gets `inbox-push-sw.js` back on the same registration (its push subscription stays with the registration) or, without a push subscription, loses the registration, and the app worker's caches are deleted | spec FR-3; nothing replaced; the push-only path of today stays as it is with the feature off |
 | Approvals | the existing Inbox decision row answered in place; bulk through `POST /workflows/tasks/decide-bulk`; digest through the existing notification settings and inbox delivery digests | spec FR-46 to FR-49; one approvals list |
 | UI | `core/components/common` wrappers, Tailwind tokens, central icons; swipe rows built on the common list primitives with button equivalents | Principle V |
 | Gauzy web app links | runtime key `NEXT_PUBLIC_GAUZY_WEB_APP_URL` read through `readRuntimeEnv()`; links hidden when unset | spec FR-46, FR-52 |
-| Flag | `NEXT_PUBLIC_PEOPLE_SELF_SERVICE_ENABLED` via `readRuntimeEnv()`; mobile reads the same key from its runtime config | Principle IV |
+| Flag | `NEXT_PUBLIC_PEOPLE_SELF_SERVICE_ENABLED` via `readRuntimeEnv()` offers the feature on a deployment; per tenant, `core/lib/utils/self-service-enabled.ts` also requires the tenant's feature code `FEATURE_TEAMS_PEOPLE_SELF_SERVICE` (platform feature catalogue, off by default), read once per session from the tenant's feature toggles that `GET /user/me` returns with the relations `tenant.featureOrganizations.feature` (the existing `user.service.ts` adds them) and kept in the session state; the mobile app reads the same key from its runtime config and the same toggle | Principle IV; a tenant-level setting the platform already stores, with a default for new tenants |
 
 ## 3. Platform API Used
 
@@ -81,6 +84,7 @@ this client consumes them as they are. Time off ships first on the existing core
 | Method | Endpoint | Purpose | Platform spec |
 | ------ | -------- | ------- | ------------- |
 | `GET` | `/employee/me`, `/auth/*` (existing sign-in, refresh, request and reset password, two-factor) | session, employee summary with position and department | existing |
+| `GET` | `/user/me` with the relations `tenant.featureOrganizations.feature` | the tenant's toggle of `FEATURE_TEAMS_PEOPLE_SELF_SERVICE` | existing route; the code is an entry of the platform's feature catalogue |
 | `GET/POST/PUT` | `/time-off-request`, `/time-off-policy`, `/time-off-balance`, `/official-holiday` | first slice: my requests, policies, balances, holidays | existing |
 | `GET/POST` | `/attendance/me/status`, `/attendance/me/check-ins`, `/attendance/me/offline-batch`, `/attendance/me/phone-code` | check-in state, check-in, queued check-ins, kiosk code | `attendance-and-shifts` |
 | `GET` | `/attendance/me/days`, `/attendance/calendar`, `/attendance/days/:id/changes` | recent check-ins, Calendar layer, day sources | `attendance-and-shifts` |
@@ -96,8 +100,12 @@ this client consumes them as they are. Time off ships first on the existing core
 | `GET/POST` | existing `/inbox/items`, `/inbox/items/counts` and the decision reply used by `inbox-decision.tsx`; `POST /workflows/tasks/decide-bulk` | Decisions view, single and bulk decisions | existing inbox; `approval-workflows` |
 | `GET/POST/DELETE` | `/inbox/push-subscriptions` (+ `/public-key`); `PUT /employee-notification-setting/:id` | push devices, per-kind choices, digest time | existing inbox; `automation-and-notifications` |
 
-Every writing call carries an `Idempotency-Key` (the queued action's client id) and, where the platform asks for it, the
-record version; `409` answers refresh the record and feed the conflict review. Timesheet approvals are not called here:
+Every writing call carries an `Idempotency-Key` (the queued action's client id, the same on every retry) and, where the
+platform asks for it, the record version. A repeated key is answered by the platform's idempotency kernel: the first
+answer again with `Idempotency-Replayed: true`, `409` `IDEMPOTENCY_IN_PROGRESS` with `Retry-After` while the first
+request still runs, `409` `IDEMPOTENCY_KEY_REUSED` for another payload under the same key; the offline batch also
+ignores a check-in whose client event id it already holds. `409` answers about the record (changed or decided
+elsewhere) refresh the record and feed the conflict review; the idempotency answers are read as in §6. Timesheet approvals are not called here:
 their Inbox rows open the existing Timesheets page (`core/components/dashboards/timesheets/timesheet-status.tsx`).
 
 ## 4. Types and Schemas
@@ -133,8 +141,12 @@ their Inbox rows open the existing Timesheets page (`core/components/dashboards/
 | `useOfflineQueue`, `useSyncConflicts`, `useQueueReplay` | `offlineQueueAtom`, `syncConflictsAtom` | queue, replay on reconnect, conflict review (FR-19 to FR-23) |
 
 Mutations go through `useQueuedMutation(kind)`: online it sends at once with the client id as idempotency key; offline
-or on a network error it stores the action and updates the cache optimistically; the replay sends in sequence and
-classifies refusals into conflicts (`CHANGED`, `DECIDED`, `LOCKED`, `OVERLAP`, `TOO_OLD`, `FORBIDDEN`, `INVALID`).
+or on a network error it stores the action with that same client id and updates the cache optimistically; the replay
+sends in sequence, every retry under the action's client id, and classifies refusals into conflicts (`CHANGED`,
+`DECIDED`, `LOCKED`, `OVERLAP`, `TOO_OLD`, `FORBIDDEN`, `INVALID`). Answers to a repeated key: a replayed first answer
+counts as that answer (a success marks the item sent; a refusal is classified as above), `IDEMPOTENCY_IN_PROGRESS`
+waits for `Retry-After` and retries under the same key, `IDEMPOTENCY_KEY_REUSED` is `INVALID`. A retry after editing in
+the conflict review is a new action with a new client id.
 
 ## 7. Pages, Components and Navigation
 
@@ -149,7 +161,11 @@ classifies refusals into conflicts (`CHANGED`, `DECIDED`, `LOCKED`, `OVERLAP`, `
   grid, request forms with preview panels, the unsent-items badge in the header and a conflict review drawer opened
   from it (no page of its own).
 - `app/manifest.ts` (name, icons, standalone, start URL `/`), `public/app-sw.js` registered by
-  `core/components/features/offline/register-app-worker.tsx` only with the flag on.
+  `core/components/features/offline/register-app-worker.tsx` only while this feature or
+  `workspace-collaboration-clients` is on; the component is mounted in `app/[locale]/(main)/layout.tsx` whatever the
+  flags, so that once both are off it puts the existing `inbox-push-sw.js` back on the registration at `/` (or removes
+  a registration without a push subscription) and deletes the app worker's caches; on a browser that never ran the app
+  worker it does nothing.
 - i18n namespaces `timeOff.*`, `attendance.*`, `shifts.*`, `offline.*` in every file of `apps/web/locales/`; cspell
   words added.
 
@@ -172,9 +188,14 @@ classifies refusals into conflicts (`CHANGED`, `DECIDED`, `LOCKED`, `OVERLAP`, `
 - The app shows what the platform returns for the caller and hides areas and actions the platform forbids; it never
   decides access itself. Own requests never appear in the Decisions view (filtered by requester as well).
 - Web tokens stay server-side as today; the mobile token stays in the secure store; the mobile cache and queue are
-  encrypted with a key in the secure store and wiped on sign-out after the unsent-items prompt.
-- Location: read once at the tap through the browser or device API with a 10-second timeout, sent with the check-in,
-  not kept on the device; no map tiles, so no outbound call is added to `docs/ever-platform/outbound-calls.md`.
+  encrypted with a key in the secure store. Sign-out with unsent items first asks to send them (when online), discard
+  them or stay signed in; the cache and the queue are then wiped on web and mobile, so nothing of the account stays on
+  the device.
+- Location: read once at the tap through the browser or device API with a 10-second timeout and sent with the
+  check-in; an online check-in keeps nothing on the device; a check-in queued offline carries the tap's coordinates in
+  its queue entry only (the encrypted queue store on mobile; never in the query cache or logs), removed as soon as the
+  platform has answered the item (accepted or refused), when it is discarded, when it passes the platform's offline age
+  limit (default 7 days) and at sign-out; no map tiles, so no outbound call is added to `docs/ever-platform/outbound-calls.md`.
 - User content (comments, reasons) rendered as text; links open safely; uploaded images stripped of their location
   metadata before upload.
 
@@ -187,7 +208,7 @@ classifies refusals into conflicts (`CHANGED`, `DECIDED`, `LOCKED`, `OVERLAP`, `
    mobile Phase 2.
 3. **Live updates, notifications and depth**: real-time invalidation, push on web and mobile, digest time, swipe and
    bulk decisions, Calendar layers, attendance requests, shifts, Home prompts; mobile Phase 3; extension button.
-4. **General availability**: the feature is off by default; after the trial period it may be switched on by default for new tenants only; existing tenants keep their setting until an administrator changes it.
+4. **General availability**: the feature is off by default (the runtime flag off on a deployment, the tenant's code `FEATURE_TEAMS_PEOPLE_SELF_SERVICE` off); after the trial period the code may be switched on by default for new tenants only (its default in the platform's feature catalogue, which gives each new tenant its own toggle); existing tenants keep their stored toggle until an administrator changes it in the platform's feature settings.
 
 ## 11. Constitution Reconciliation
 
@@ -209,7 +230,7 @@ classifies refusals into conflicts (`CHANGED`, `DECIDED`, `LOCKED`, `OVERLAP`, `
 | Risk | Likelihood | Impact | Mitigation |
 | ---- | ---------- | ------ | ---------- |
 | Platform areas land at different times | High | Medium | per-area probe; time off ships on the existing core routes first; each area ships independently behind the same flag |
-| Two service workers on one scope | Medium | High | one app worker importing the inbox push handler; registration only with the flag on |
+| Two service workers on one scope | Medium | High | one app worker importing the inbox push handler; registration only with the feature on; one helper picks the script for both registration paths; once off, the inbox push worker is put back with its subscription and push delivery is tested after the switch |
 | Offline wrapper change exposes a page that cannot render from cache | Medium | Medium | explicit route list; every listed page has a cache test; others keep the existing Offline page |
 | Replayed actions after a long offline period surprise approvers | Medium | Medium | platform age limit; conflict review; decisions carry the record version |
 | Mobile push registration unavailable on the platform | High | Low | in-app list and live updates (spec §8) |

@@ -15,7 +15,7 @@
 - Tasks are sequential by default; `(parallel)` tasks can run alongside their predecessor.
 - Each task names its files so an implementer can pick it up cold.
 - Tick the checkbox as the PR lands; add new tasks at the bottom, never renumber.
-- Everything stays behind the runtime flag: the feature is off by default; after the trial period it may be switched on by default for new tenants only; existing tenants keep their setting until an administrator changes it.
+- Everything stays behind the runtime flag and the tenant's feature code `FEATURE_TEAMS_PEOPLE_SELF_SERVICE`: the feature is off by default; after the trial period the code may be switched on by default for new tenants only (its default in the platform's feature catalogue); existing tenants keep their stored toggle until an administrator changes it.
 - Paths that start with `core/`, `app/` or `public/` are under `apps/web/` of the Ever Teams repository; mobile paths
   start with `apps/mobile/` (or `app/` where a task names the mobile app).
 
@@ -23,30 +23,36 @@
 
 - [ ] **T1**. Runtime flag `NEXT_PUBLIC_PEOPLE_SELF_SERVICE_ENABLED` and the Gauzy web app address
       `NEXT_PUBLIC_GAUZY_WEB_APP_URL` in `apps/web/.env.sample`, helper `core/lib/utils/self-service-enabled.ts` in the
-      pattern of the existing `*-enabled.ts` helpers (`core/lib/utils/inbox-enabled.ts`), mobile runtime config key. Test: helper spec (off by default);
+      pattern of the existing `*-enabled.ts` helpers (`core/lib/utils/inbox-enabled.ts`), combining the flag with the
+      tenant's toggle of `FEATURE_TEAMS_PEOPLE_SELF_SERVICE` read once per session from `GET /user/me` with the relations
+      `tenant.featureOrganizations.feature` (`core/services/client/api/users/user.service.ts`), mobile runtime config key. Test: helper spec (off by default;
+      off for a tenant whose code is off while the flag is on; on only when both are on);
       links hidden without the address.
 - [ ] **T2**. Interfaces `core/types/interfaces/{time-off,attendance,shifts,offline}/*` and Zod schemas
       `core/types/schemas/{time-off,attendance,shifts,offline}/*`, promoted to `packages/types/src/time-attendance/`.
       Test: schema specs against platform response samples.
-- [ ] **T3**. One area-availability helper `core/hooks/common/use-area-availability.ts` generalised from
+- [ ] **T3**. One area-availability helper `core/hooks/common/use-area-availability.ts` generalized from
       `core/hooks/docs/use-docs-availability.ts`, `core/hooks/inbox/use-inbox-availability.ts` and
       `core/hooks/ai/use-server-ai-availability.ts` (which keep their names and call it); areas `attendance`, `shifts`,
       `timeOff` registered. Test: `404` hides an area once per session; the docs and inbox probes behave as before.
 - [ ] **T4**. Offline queue engine `packages/utils/src/offline-queue/` (ordering, client ids, backoff, conflict
       classifier, kinds registered by features) with storage adapters `apps/web/core/lib/offline/indexed-db-queue-store.ts`
       and the mobile store on the existing `react-native-mmkv`, encrypted with a key in the secure store
-      (`apps/mobile/app/services/offline/encrypted-queue-store.ts`). Test: order, single send, restart survival,
+      (`apps/mobile/app/services/offline/encrypted-queue-store.ts`). Test: order, single application across retries
+      (every retry under the same client id; a replayed first answer marks the item sent), restart survival,
       classifier table.
 - [ ] **T5**. `useQueuedMutation`, `useOfflineQueue`, `useSyncConflicts`, `useQueueReplay` in
       `core/hooks/offline/`; atoms in `core/stores/offline/queue.ts`. Test: offline mutation queued and replayed; `409`
-      becomes a conflict.
+      becomes a conflict; `IDEMPOTENCY_IN_PROGRESS` waits and retries under the same key; `IDEMPOTENCY_KEY_REUSED`
+      becomes `INVALID`; a retry after editing gets a new client id.
 - [ ] **T6** (parallel). Attendance and shifts services `core/services/client/api/{attendance,shifts}/*.service.ts`,
       proxy routes `app/api/attendance/**`, `app/api/shifts/**` with `forwardToGauzy` (`core/services/server/forward-to-gauzy.ts`), hooks `useCheckInState`,
       `useCheckIn`, `useLocationOnce`, `useMyCheckIns`, `useAttendanceLayer`, `useAttendanceExceptions`,
       `useAttendanceRequest`, `useTeamPresence`, `useMyShifts`, `useOpenShifts`, `useShiftTrades`, `useShiftRequest`
       (`core/hooks/attendance/`, `core/hooks/shifts/`);
-      keys in `core/query/keys/index.ts`. Test: hook specs; check-in offline goes through the batch; a running timer
-      reads as present where the organization counts the timer as check-in.
+      keys in `core/query/keys/index.ts`. Test: hook specs; check-in offline goes through the batch; the coordinates of
+      a queued check-in exist only in its queue entry and are gone once the platform has answered it or it is
+      discarded; a running timer reads as present where the organization counts the timer as check-in.
 - [ ] **T7** (parallel). Time-off service and routes `app/api/time-off/**` (`core/services/client/api/time-off/time-off.service.ts`), first over the existing core
       `/time-off-request`, `/time-off-policy`, `/time-off-balance`, `/official-holiday`, then over the `time-off-management`
       routes when the probe finds them; hooks `useTimeOffBalances`, `useTimeOffPreview`, `useTimeOffRequests`,
@@ -64,7 +70,9 @@
       `POST /workflows/tasks/decide-bulk`. Test: own requests filtered; undo cancels the send; timesheet rows open the
       Timesheets page.
 - [ ] **T11**. Session states on the existing authenticator and session state: no-employee state for this feature's
-      cards and pages, forced password change in the existing sign-in, sign-out with unsent items. Files: `apps/web/core/components/layouts/app/authenticator.tsx`. Test: each state.
+      cards and pages, forced password change in the existing sign-in, sign-out with unsent items (send when online,
+      discard, or stay signed in). Files: `apps/web/core/components/layouts/app/authenticator.tsx`. Test: each state;
+      after sign-out no cached record or queued item of the account remains.
 
 ## Phase 2 — Screens on existing pages
 
@@ -87,8 +95,10 @@
 - [ ] **T16**. Inbox Decisions view in `core/components/pages/inbox/inbox-page.tsx`: decision rows with facts, comment
       dialog, transitions, links to the Gauzy web app for other kinds. Test: comment required where the platform
       requires it.
-- [ ] **T17**. Link to the Gauzy web app for payslip pages; test: link shown when the web app address is configured. Files:
-      `core/components/features/gauzy-links/payslips-link.tsx`, `core/components/layouts/app-sidebar.tsx`.
+- [ ] **T17**. Link to the Gauzy web app for payslip pages in the work section of Settings → Profile (T18), with no
+      sidebar entry; test: link shown in the profile section when the web app address is configured; the sidebar has no
+      payslip entry. Files: `core/components/features/gauzy-links/payslips-link.tsx`,
+      `core/components/settings/pages/profile/profile-settings-page.tsx`.
 - [ ] **T18**. Work section of `core/components/settings/pages/profile/profile-settings-page.tsx` (organization, position,
       department, read-only) with the Gauzy web app link for HR records; install choice in Preferences
       (`core/components/settings/pages/preferences/preferences-settings-page.tsx`); the existing
@@ -102,9 +112,26 @@
       action.
 - [ ] **T20**. Installable app: `app/manifest.ts` (start URL `/`), `public/app-sw.js` (shell cache, update prompt and
       badge, imports `inbox-push-sw.js`), `core/components/features/offline/register-app-worker.tsx`, install prompt with
-      30-day snooze. Test: worker registered only with the flag on; update prompt; inbox push still delivered.
+      30-day snooze (the script choice for both registration paths and the way back to the inbox worker: T37). Test:
+      worker registered only with the flag on; update prompt; inbox push still delivered.
 - [ ] **T21**. i18n `timeOff.*`, `attendance.*`, `shifts.*`, `offline.*` in every file of `apps/web/locales/`; cspell
       words. Test: locale completeness gate.
+- [ ] **T37**. One worker for both registration paths and the way back: `core/lib/utils/app-worker.ts` answers whether
+      the app worker is on (this feature or `workspace-collaboration-clients` on for the tenant) and which script to
+      register (`/app-sw.js` while on, `/inbox-push-sw.js` otherwise); `enable` of the existing
+      `core/hooks/inbox/use-inbox-web-push.ts` registers that script instead of the fixed `/inbox-push-sw.js`, so
+      switching push on keeps the app worker and works as today with the feature off;
+      `core/components/features/offline/register-app-worker.tsx`, mounted in `app/[locale]/(main)/layout.tsx` whatever
+      the flags, puts `inbox-push-sw.js` back on the registration at `/` once the feature is off (the push subscription
+      stays with the registration), removes a registration without a push subscription, deletes the app worker's caches,
+      and does nothing on a browser that never ran the app worker. Files: `core/lib/utils/app-worker.ts`,
+      `core/hooks/inbox/use-inbox-web-push.ts`, `core/components/features/offline/register-app-worker.tsx`,
+      `app/[locale]/(main)/layout.tsx`. Test: `core/lib/utils/app-worker.test.ts` (script per state);
+      `core/hooks/inbox/use-inbox-web-push.test.tsx` (switching push on while the app worker runs keeps `app-sw.js` and
+      its shell cache; with the feature off it registers `inbox-push-sw.js` as today);
+      `core/components/features/offline/register-app-worker.test.tsx` (after the feature is switched off the
+      registration runs `inbox-push-sw.js` with the same push subscription and a test push is shown; without a
+      subscription the registration and the caches are gone).
 
 ## Phase 3 — Live updates, notifications, polish
 
@@ -164,6 +191,14 @@
 - [ ] **T36**. PDFs of decided time-off and attendance requests where the platform prints them. Files:
       `core/components/features/time-off/request-pdf-link.tsx`, `core/components/features/attendance/request-pdf-link.tsx`. Test: download link
       shown only when the platform answers.
+- [ ] **T38**. In and late status on the existing team member cards: `useTeamPresence` (T6) over
+      `/attendance/presence?teamId=` rendered as a status badge (text, not only color) beside the time-off status of
+      T15 on `TeamLiveSummary` (`core/components/pages/teams/team/team-live-summary.tsx`) and
+      `core/components/dashboards/team/team-today-card.tsx`, shown only where the attendance area is available. Files:
+      `core/components/features/attendance/team-presence-badge.tsx`,
+      `core/components/pages/teams/team/team-live-summary.tsx`, `core/components/dashboards/team/team-today-card.tsx`.
+      Test: `core/components/features/attendance/team-presence-badge.test.tsx` (in, late and off each show their text;
+      nothing shown without the attendance area; both cards render as before with the flag off).
 
 ## Requirement Coverage
 
@@ -171,9 +206,9 @@ Every functional requirement of `spec.md` §3 and the tasks that implement it; e
 
 | Requirements | Spec section | Tasks |
 | --- | --- | --- |
-| FR-1 | §3.1 Enabling, installing, signing in | T1, T12, T20 |
+| FR-1 | §3.1 Enabling, installing, signing in | T1, T12, T20, T37 |
 | FR-2 | §3.1 Enabling, installing, signing in | T3 |
-| FR-3 | §3.1 Enabling, installing, signing in | T18, T20 |
+| FR-3 | §3.1 Enabling, installing, signing in | T18, T20, T37 |
 | FR-4 | §3.1 Enabling, installing, signing in | T27, T35 |
 | FR-5–FR-8 | §3.1 Enabling, installing, signing in | T11 |
 | FR-9 | §3.1 Enabling, installing, signing in | T9, T17, T18 |
@@ -204,7 +239,7 @@ Every functional requirement of `spec.md` §3 and the tasks that implement it; e
 | FR-47 | §3.9 Approvals in the Inbox | T16 |
 | FR-48 | §3.9 Approvals in the Inbox | T10, T16, T24 |
 | FR-49 | §3.9 Approvals in the Inbox | T24 |
-| FR-50 | §3.9 Approvals in the Inbox | T10, T15 |
+| FR-50 | §3.9 Approvals in the Inbox | T10, T15, T38 |
 | FR-51 | §3.9 Approvals in the Inbox | T10, T16 |
 | FR-52–FR-53 | §3.10 Profile | T18 |
 | FR-54–FR-55 | §3.11 Notifications and live updates | T23 |
@@ -224,5 +259,5 @@ Every functional requirement of `spec.md` §3 and the tasks that implement it; e
 - With the flag off, the existing Home, My week, Calendar, Inbox, Settings, timer, offline page, push worker and mobile
   screens behave exactly as before.
 - No new page, menu entry or service duplicates an existing Ever Teams screen (Home, Inbox, Calendar, Settings).
-- No queued action is lost or sent twice in the replay test suite (restart, crash, reconnect, conflict).
+- No queued action is lost or applied twice in the replay test suite (restart, crash, reconnect, lost answer, conflict).
 - No personal record remains on the device after sign-out on web and mobile.

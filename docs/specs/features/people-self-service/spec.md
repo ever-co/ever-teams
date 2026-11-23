@@ -10,7 +10,7 @@
 **Created**: 2026-11-16
 **Last updated**: 2026-11-23
 **Owner**: app maintainers
-**Runtime flag**: `NEXT_PUBLIC_PEOPLE_SELF_SERVICE_ENABLED` (default off; the mobile app reads the same key from its runtime config)
+**Runtime flag**: `NEXT_PUBLIC_PEOPLE_SELF_SERVICE_ENABLED` (default off; the mobile app reads the same key from its runtime config) offers the feature on a deployment; for each tenant it is on only where the tenant's feature code `FEATURE_TEAMS_PEOPLE_SELF_SERVICE` of the platform's feature catalogue (off by default) is on as well
 **Platform API dependency**: platform specs `attendance-and-shifts`, `time-off-management`, `approval-workflows` (approval items of the Inbox), `calendar-and-scheduling` (personal calendar feed); the existing time-off, time-off policy, time-off balance and official holiday routes, the existing inbox (items, decisions, push devices, delivery digests) and the existing session routes
 
 ---
@@ -66,7 +66,8 @@ undo, in bulk where allowed, and get one morning digest of what still waits.
 ### 2.2 Edge cases & failures
 
 - **Given** the flag is off, **when** a path of this feature is visited, **then** the user is sent home and no new card,
-  page, menu entry, layer, worker or prompt appears; timer, tasks, inbox, calendar and settings are unchanged.
+  page, menu entry, layer, worker or prompt appears (the app worker stays while `workspace-collaboration-clients` is
+  on); timer, tasks, inbox, calendar and settings are unchanged.
 - **Given** a platform without a feature (for example shifts), **when** the app starts, **then** that area is hidden
   for the session and nothing errors.
 - **Given** a signed-in user without an employee record, **then** the new cards are hidden and the time-off,
@@ -78,8 +79,8 @@ undo, in bulk where allowed, and get one morning digest of what still waits.
 - **Given** an approval decided offline after the request was withdrawn, **when** it syncs, **then** the conflict
   review shows "withdrawn by the requester" and nothing is decided.
 - **Given** a manager who is also the requester, **then** their own request never shows in their Decisions view.
-- **Given** sign-out with three unsent items, **then** the app lists them and asks to send, keep for this account, or
-  discard before signing out.
+- **Given** sign-out with three unsent items, **then** the app lists them and asks to send them (when online), discard
+  them, or stay signed in until they are sent; once signed out, nothing of the account stays on the device.
 - **Given** notifications blocked by the browser or the phone, **then** the existing notification settings say so with
   steps to allow them, and the Inbox keeps working.
 - **Given** the platform answers `409` (decided elsewhere or changed), **then** the screen refreshes the record and says
@@ -89,14 +90,15 @@ undo, in bulk where allowed, and get one morning digest of what still waits.
 
 ### 3.1 Enabling, installing, signing in
 
-- **FR-1** The app MUST, with the flag off, show and register nothing of this feature and keep the timer, tasks,
+- **FR-1** The app MUST, with the flag or the tenant's feature code off, show and register nothing of this feature and keep the timer, tasks,
   teams, inbox, calendar, settings and the mobile screens as they are.
 - **FR-2** The app MUST show each area (check-in and attendance, shifts, time off) only when the platform answers its
   routes and the person holds its permission, probing once per session through the app's one area-availability check.
 - **FR-3** The Ever Teams web app MUST be installable as a whole: one app manifest (name, icons, standalone display,
   opening on the existing Home), an install prompt the person can dismiss (asked again after 30 days at most), and one
   app service worker that caches the app shell, keeps the existing inbox push handling and offers "Reload to update"
-  when a new version is ready.
+  when a new version is ready; switching push on keeps that worker, and once the feature is off again each browser gets
+  the existing inbox push worker back with its push subscription.
 - **FR-4** The mobile app MUST offer the same features inside its existing navigation (check-in on the timer screen, a
   time off and shifts section beside timer, team and profile), with the same rules.
 - **FR-5** These features MUST use the existing Ever Teams sign-in and session (password, one-time code, social
@@ -106,8 +108,8 @@ undo, in bulk where allowed, and get one morning digest of what still waits.
 - **FR-7** With the flag on, a signed-in user without an employee record in the current organization MUST see the new
   cards hidden and, on the time-off, attendance and shift pages, an explanation with the existing organization switch.
 - **FR-8** The app MUST keep the employee and organization summary in its existing session state, refresh it on resume
-  and on platform events, and on sign-out clear every cached record of this feature after handling unsent items
-  (FR-22).
+  and on platform events, and on sign-out, once the unsent items are sent or discarded (§2.2, FR-19), clear every
+  cached record and queued item of this feature.
 - **FR-9** Ever Teams shows a link to the Gauzy web app for device lock before payslips and HR records.
 
 ### 3.2 Home and My week
@@ -140,11 +142,14 @@ undo, in bulk where allowed, and get one morning digest of what still waits.
 
 ### 3.4 Offline queue and conflict review
 
-- **FR-19** The app MUST queue while offline, with device time, sequence and a client id: check-ins, time-off,
+- **FR-19** The app MUST queue while offline, with device time, sequence and a client id: check-ins (with the
+  coordinates read at the tap where location proof is required), time-off,
   attendance, overtime and shift requests, withdrawals, exception resolutions and Inbox decisions; the queue survives
   restarts and shows a count and each item's state. *(advanced)*
-- **FR-20** The app MUST send queued items in order on reconnect, each with its idempotency key, check-ins through the
-  platform's offline batch so their original time is kept, and never send an item twice.
+- **FR-20** The app MUST send queued items in order on reconnect, each with its idempotency key (the queued action's
+  client id, the same on every retry), check-ins through the platform's offline batch so their original time is kept,
+  and never have an item applied twice: a retry after a lost answer may reach the platform again, which then returns
+  its first answer instead of acting a second time.
 - **FR-21** The app MUST put every item the platform refuses on sync (changed or decided elsewhere, locked day,
   overlap, too old, permission lost) in a conflict review with the reason and the current state, offering retry after
   editing, a related action (for example request a correction) or discard. *(advanced)*
@@ -251,11 +256,14 @@ undo, in bulk where allowed, and get one morning digest of what still waits.
 
 - **Performance**: Home cards visible under 1 s from cache and under 2 s cold on a mid-range phone over 4G; a check-in
   confirmed under 1 s online and instantly as queued offline; lists of 500 requests scroll without dropped frames.
-- **Reliability**: no queued item lost across restarts, crashes or updates; each sent once (idempotency key); live
+- **Reliability**: no queued item lost across restarts, crashes or updates; each applied once (idempotency key reused
+  on every retry); live
   updates resume after a reconnect without a reload; a failed card never blanks the page.
 - **Security & privacy**: tokens exchanged server-side on the web as today; the mobile token in the device's secure
-  store; cached records encrypted on mobile and cleared on sign-out; location read only at the tap, sent as coordinates
-  for the platform's check and never stored on the device; no third-party map tiles; outbound calls: none beyond the
+  store; cached records encrypted on mobile and cleared on sign-out; location read only at the tap and sent as
+  coordinates for the platform's check: an online check-in keeps none on the device, and a check-in queued offline
+  keeps the tap's coordinates only in its queue entry (encrypted on mobile) until the platform has answered it, it is
+  discarded, it passes the offline age limit or the person signs out; no third-party map tiles; outbound calls: none beyond the
   platform API and the push services the platform configures.
 - **Accessibility**: keyboard operation on the web, screen-reader labels, status by text not only colour, swipe actions
   with button equivalents, touch targets at least 44 pixels, contrast in both themes.
@@ -286,14 +294,17 @@ undo, in bulk where allowed, and get one morning digest of what still waits.
 ## 7. Acceptance Criteria
 
 - [ ] **AC-1** With the flag on, the Ever Teams web app installs, opens standalone on Home and offers "Reload to update"
-      after a deploy; with the flag off nothing changes (FR-3).
+      after a deploy; switching push on keeps the app worker; with the flag off nothing changes, and once it is off
+      again the existing inbox push worker is back and delivers push (FR-3).
 - [ ] **AC-2** Home shows shift, check-in, time off, requests, exceptions and prompts beside the timer and daily plans;
       one card failing leaves the others (advanced: Home cards; FR-10, FR-12).
 - [ ] **AC-3** Check-in with location proof inside and outside the radius, with location denied, and on a remote day
       behaves per FR-13 to FR-15.
 - [ ] **AC-4** Offline: check-in, a time-off request and an Inbox decision are queued, survive a restart, sync in order
-      with original times; a locked-day refusal lands in the conflict review with a correction action; Home stays
-      readable under the offline banner (advanced: offline queue; FR-19, FR-20, FR-51).
+      with original times; a retry after a lost answer is applied once; a locked-day refusal lands in the conflict
+      review with a correction action; Home stays readable under the offline banner; signing out with unsent items
+      offers send, discard or stay signed in and leaves no record of the account on the device (advanced: offline
+      queue; FR-8, FR-19, FR-20, FR-51).
 - [ ] **AC-5** A time-off request shows its preview, submits, is approved by the manager by swipe with undo in the Inbox
       Decisions view, and the requester's list updates live (advanced: swipe approvals and digest; FR-25, FR-47, FR-48).
 - [ ] **AC-6** With the flag on, this feature adds no expense, advance, travel, payslip or HR-editing entry to Ever Teams

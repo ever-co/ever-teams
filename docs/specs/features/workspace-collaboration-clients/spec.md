@@ -10,7 +10,7 @@
 **Created**: 2026-11-16
 **Last updated**: 2026-11-23
 **Owner**: app maintainers
-**Runtime flag**: `NEXT_PUBLIC_COLLABORATION_CLIENTS_ENABLED` (default off; the mobile and desktop apps read the same key); existing pages also keep their own flags (`NEXT_PUBLIC_CHAT_ENABLED`, `NEXT_PUBLIC_DOCS_ENABLED`, `NEXT_PUBLIC_INBOX_ENABLED`, `NEXT_PUBLIC_REALTIME_ENABLED`)
+**Runtime flag**: `NEXT_PUBLIC_COLLABORATION_CLIENTS_ENABLED` (default off; the mobile and desktop apps read the same key) offers the feature on a deployment; for each tenant it is on only where the tenant's feature code `FEATURE_TEAMS_COLLABORATION_CLIENTS` of the platform's feature catalogue (off by default) is on as well; existing pages also keep their own flags (`NEXT_PUBLIC_CHAT_ENABLED`, `NEXT_PUBLIC_DOCS_ENABLED`, `NEXT_PUBLIC_INBOX_ENABLED`, `NEXT_PUBLIC_REALTIME_ENABLED`)
 **Platform API dependency**: platform specs `chat-messaging`, `chat-agents-and-record-actions`, `chat-administration-and-clients`, `meetings`, `calendar-and-scheduling`, `mail`, `drive`, `documents-and-wiki`; the existing chat, docs, inbox and real-time channel routes
 
 ---
@@ -88,7 +88,7 @@ feature; none is restated.
 
 ### 3.1 Enabling, navigation and states
 
-- **FR-1** The app MUST, with the flag off, register nothing of this feature and keep chat, docs, inbox, meetings,
+- **FR-1** The app MUST, with the flag or the tenant's feature code off, register nothing of this feature and keep chat, docs, inbox, meetings,
   whiteboard and calendar pages as today under their own flags.
 - **FR-2** The app MUST show each area or depth only when its page flag is on (where one exists), the platform answers
   its probe or status route (MEE FR-4, CAL FR-5, MAIL FR-1, DRV FR-2, DOC FR-2, CA FR-41) and the person holds its
@@ -119,7 +119,7 @@ feature; none is restated.
   mark unread and translate, from the toolbar, context menu and long press (CM FR-39 to FR-44, FR-78, FR-81, FR-122).
 - **FR-13** The stream MUST show day separators, the new line, grouping, jumps to date, pin or latest, galleries with a
   lightbox, players, voice clips with transcript, hidden spoilers, the person's preview style and blocked links as
-  plain links, in a virtualised list (CM FR-45, FR-46, FR-51, FR-53, FR-58, FR-90, FR-126; CA FR-4, FR-48).
+  plain links, in a virtualized list (CM FR-45, FR-46, FR-51, FR-53, FR-58, FR-90, FR-126; CA FR-4, FR-48).
 - **FR-14** Threads MUST follow as the platform decides, list followed and all threads, show repliers live, open from
   any push, hit or link, and let a reader join from the thread (CM FR-64 to FR-70).
 - **FR-15** Chat MUST offer quick reactions from the person's most used, the reactions dialog, bundled reactions in
@@ -236,8 +236,9 @@ feature; none is restated.
 - **FR-57** The share dialog MUST offer the five levels, inheritance, restriction, outside recipients with expiry and the
   access panel; links and file requests carry password, expiry, limits and receipts (DRV FR-13 to FR-31).
 - **FR-58** A person can preview files, see thumbnails and manage versions in the existing versions panel; the existing
-  Docs trash (archived items) MUST gain restore, delete forever, empty and retention labels and holds (DRV FR-32 to
-  FR-48).
+  Docs trash (archived items) MUST keep its restore and delete forever as they work today and gain empty, retention
+  labels and holds; a hold applies only where one is set in Ever Gauzy, and an item without one is deleted forever as
+  today (DRV FR-32 to FR-48).
 - **FR-59** A person can search with filters, ask a folder with citations through the platform's assistant, see
   duplicates and their quota (DRV FR-53 to FR-59).
 - **FR-60** The existing files panels on the app's task and project pages MUST show Docs files with "attached to
@@ -319,7 +320,8 @@ feature; none is restated.
 - **Performance**: a conversation opens with 50 messages under 1 s warm, 300 ms from the device cache; the Summary view
   under 1.5 s with 200 items; the Calendar events layer under 1 s for a month; a day of chat changes over 300
   conversations synced under 3 s on 4G; a 50-page space kept offline under 30 s on broadband.
-- **Reliability**: no message, comment, reply or share lost across restarts or reconnects; each sent once by its key;
+- **Reliability**: no message, comment, reply or share lost across restarts or reconnects; each applied once by its
+  key, which every retry reuses;
   downloads resume; live updates resume after a reconnect; one failing area never blanks another.
 - **Security & privacy**: web tokens server-side, the secure store on mobile and desktop; offline data encrypted on
   phones and removed at sign-out; mail bodies only in the isolated frame; no media, captions or text leave for a
@@ -360,7 +362,8 @@ feature; none is restated.
 - [ ] **AC-1** Flag off: chat, docs, inbox, meetings, whiteboard and calendar unchanged; on: areas follow FR-2.
 - [ ] **AC-2** Chat depth (sections, modes, people, composer, Saved, Scheduled, polls, search, Activity, status, agents
       with plan and undo, cards, actions) works between two users on web and phone (FR-8, FR-16, FR-18, FR-23).
-- [ ] **AC-3** A day offline syncs from the cursor with deletions; local search works; offline sends show their time (FR-31).
+- [ ] **AC-3** A day offline syncs from the cursor with deletions; local search works; offline sends show their time,
+      also with `people-self-service` off for the tenant (FR-31).
 - [ ] **AC-4** A call from a conversation rings a phone, joins the platform room and posts its card and thread links (FR-29, FR-33).
 - [ ] **AC-5** Lobby, guest join, host controls, recording notice, captions, summary approval and old links work (FR-33, FR-35, FR-38).
 - [ ] **AC-6** Calendar events show as a layer of the existing time-log calendar with time entries unchanged; an
