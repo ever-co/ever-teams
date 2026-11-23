@@ -4,6 +4,7 @@ import { getTeamProjectScope } from '@/core/services/server/team-project-scope';
 import { createSizesRequest, getTaskSizesListRequest } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
 import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
+import { gauzyErrorResponse } from '@/core/services/server/gauzy-error-response';
 
 export async function GET(req: Request) {
 	const res = new NextResponse();
@@ -13,9 +14,13 @@ export async function GET(req: Request) {
 
 	const par = { tenantId, organizationId, ...getTeamProjectScope(req) };
 
-	const { data } = await getTaskSizesListRequest(par, access_token);
-
-	return $res(data);
+	try {
+		const { data } = await getTaskSizesListRequest(par, access_token);
+		return $res(data);
+	} catch (error) {
+		// A refusal of the API goes back with its status and reason, as in direct mode (#5726)
+		return await gauzyErrorResponse(error, 'The task size could not be read.');
+	}
 }
 
 export async function POST(req: Request) {
@@ -28,7 +33,11 @@ export async function POST(req: Request) {
 
 	const body = (await req.json()) as unknown as ITaskSizesCreate;
 
-	const response = await createSizesRequest(body, access_token || '', body?.tenantId);
-
-	return $res(response.data);
+	try {
+		const response = await createSizesRequest(body, access_token || '', body?.tenantId);
+		return $res(response.data);
+	} catch (error) {
+		// A refusal of the API goes back with its status and reason, as in direct mode (#5726)
+		return await gauzyErrorResponse(error, 'The task size could not be created.');
+	}
 }
