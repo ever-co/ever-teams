@@ -4,19 +4,17 @@
 /**
  * DELETE /api/tasks/employee/:employeeId (#5727): the API answers this unassignment 200 with an empty body. The route
  * handed that to a JSON answer, which threw, so removing a member said "That change was not saved" although it was.
+ * The API is stood in for at `fetch`, so the route's own request helper runs.
  */
 const mockAuthenticatedGuard = jest.fn();
-const mockDeleteFromTasks = jest.fn();
 
 jest.mock('@/core/services/server/guards/authenticated-guard-app', () => ({
 	authenticatedGuard: (...args: unknown[]) => mockAuthenticatedGuard(...args)
 }));
-jest.mock('@/core/services/server/requests', () => ({
-	deleteEmployeeFromTasksRequest: (...args: unknown[]) => mockDeleteFromTasks(...args),
-	getEmployeeTasksRequest: jest.fn()
-}));
 
 import { DELETE } from './route';
+
+const originalFetch = global.fetch;
 
 const SIGNED_IN = {
 	$res: (data: unknown) => Response.json(data),
@@ -25,57 +23,70 @@ const SIGNED_IN = {
 	tenantId: 'tenant-1'
 };
 
+/** The API gives `answer` to the call the route makes; the returned mock records that call. */
+function apiAnswers(answer: Response): jest.Mock {
+	const fetchMock = jest.fn().mockResolvedValue(answer);
+	global.fetch = fetchMock;
+	return fetchMock;
+}
+
 function unassign() {
 	const request = new Request('https://app.example.com/api/tasks/employee/employee-1?organizationTeamId=team-1', {
 		method: 'DELETE',
 		headers: { origin: 'https://app.example.com' }
 	});
-	return DELETE(request, { params: Promise.resolve({ employeeId: 'employee-1' }) } as never);
-}
-
-/** What serverFetch throws for an answer that is not 2xx: a rejected promise of the API's error body. */
-function refusalOf(body: unknown) {
-	const rejection = Promise.reject(body);
-	rejection.catch(() => undefined);
-	return rejection;
+	return DELETE(request, { params: Promise.resolve({ employeeId: 'employee-1' }) } as never) as Promise<Response>;
 }
 
 describe('DELETE /api/tasks/employee/:employeeId', () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
+		jest.spyOn(console, 'error').mockImplementation(() => undefined);
 		mockAuthenticatedGuard.mockResolvedValue(SIGNED_IN);
 	});
 
-	it('answers 200 when the API accepted the unassignment with an empty body', async () => {
-		mockDeleteFromTasks.mockResolvedValue({ data: undefined, response: { status: 200 } });
+	afterEach(() => {
+		global.fetch = originalFetch;
+		jest.restoreAllMocks();
+	});
 
-		const response = (await unassign()) as Response;
+	it('answers 200 when the API accepted the unassignment with an empty body', async () => {
+		const fetchMock = apiAnswers(new Response(null, { status: 200 }));
+
+		const response = await unassign();
 
 		expect(response.status).toBe(200);
 		expect(await response.text()).toBe('');
-		expect(mockDeleteFromTasks).toHaveBeenCalledWith({
-			employeeId: 'employee-1',
-			organizationTeamId: 'team-1',
-			tenantId: 'tenant-1',
-			bearer_token: 'session-token'
-		});
+		const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+		expect(url).toContain('/tasks/employee/employee-1?organizationTeamId=team-1');
+		expect(init.method).toBe('DELETE');
 	});
 
 	it('passes on what the API answered when it answers a body', async () => {
-		mockDeleteFromTasks.mockResolvedValue({ data: { affected: 2 }, response: { status: 200 } });
+		apiAnswers(Response.json({ affected: 2 }, { status: 200 }));
 
-		const response = (await unassign()) as Response;
+		const response = await unassign();
 
 		expect(response.status).toBe(200);
 		expect(await response.json()).toEqual({ affected: 2 });
 	});
 
 	it('passes a refusal of the API on with its status', async () => {
-		mockDeleteFromTasks.mockRejectedValue(refusalOf({ statusCode: 403, message: 'Forbidden resource' }));
+		const forbidden = { statusCode: 403, message: 'Forbidden resource' };
+		apiAnswers(Response.json(forbidden, { status: 403 }));
 
-		const response = (await unassign()) as Response;
+		const response = await unassign();
 
 		expect(response.status).toBe(403);
-		expect(await response.json()).toEqual({ statusCode: 403, message: 'Forbidden resource' });
+		expect(await response.json()).toEqual(forbidden);
+	});
+
+	it('keeps the status of a refusal whose body is empty', async () => {
+		apiAnswers(new Response(null, { status: 403, statusText: 'Forbidden' }));
+
+		const response = await unassign();
+
+		expect(response.status).toBe(403);
+		expect(await response.json()).toEqual({ statusCode: 403, message: 'Forbidden' });
 	});
 });
