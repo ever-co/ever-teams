@@ -318,6 +318,16 @@ describe('manualTimeRefusalKeyOf', () => {
 		);
 	});
 
+	it('names the running timer the range covers, from the code of the 409 (#5724)', () => {
+		const refusal = new ApiErrorService('A timer is running over this time range.', 409, 'RUNNING_TIMER_OVERLAP');
+
+		expect(manualTimeRefusalKeyOf(refusal)).toBe('manualTime.RUNNING_TIMER_OVERLAP');
+	});
+
+	it('keeps the usual reason for any other 409', () => {
+		expect(manualTimeRefusalKeyOf(new ApiErrorService('Conflict', 409))).toBe('toasts.REASONS.CONFLICT');
+	});
+
 	it('gives every other failure the reason of its status', () => {
 		expect(manualTimeRefusalKeyOf(requiredFieldRefusal([]))).toBe('toasts.REASONS.INVALID');
 		expect(manualTimeRefusalKeyOf(new ApiErrorService('Forbidden', 403))).toBe('toasts.REASONS.PERMISSION');
