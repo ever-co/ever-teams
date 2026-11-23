@@ -246,6 +246,15 @@ describe('projectForecastOf', () => {
 		expect(forecastOf(tasks)).toEqual({ open: 1, velocity: 0.7, weeksLeft: 2, isBeyondHorizon: false });
 	});
 
+	it('keeps a completion from three weeks ago that has no creation date next to a task created last week', () => {
+		const tasks = [
+			taskOf({ status: 'done', resolvedAt: new Date(2026, 9, 21) }),
+			taskOf({ status: 'todo', createdAt: new Date(2026, 10, 2) })
+		];
+
+		expect(forecastOf(tasks)).toEqual({ open: 1, velocity: 0.3, weeksLeft: 3, isBeyondHorizon: false });
+	});
+
 	it('does not cut off completions that predate the recorded creation dates', () => {
 		const tasks = [
 			taskOf({ status: 'done', createdAt: new Date(2026, 10, 2), resolvedAt: new Date(2026, 9, 20) }),
