@@ -20,22 +20,7 @@ jest.mock('@/core/services/server/requests', () => ({
 }));
 
 import { GET, PUT, DELETE } from './route';
-
-const FORBIDDEN = { statusCode: 403, message: 'Forbidden resource' };
-
-const SIGNED_IN = {
-	$res: (data: unknown) => Response.json(data),
-	user: { id: 'user-1' },
-	access_token: 'session-token',
-	tenantId: 'tenant-1'
-};
-
-/** What serverFetch throws for an answer that is not 2xx: a rejected promise of the API's error body. */
-function refusalOf(body: unknown) {
-	const rejection = Promise.reject(body);
-	rejection.catch(() => undefined);
-	return rejection;
-}
+import { describeRefusalsPassedOn } from '@/test/api/refusals-passed-on';
 
 function requestOf(method: string, body?: unknown) {
 	let sentBody: string | undefined = undefined;
@@ -54,41 +39,8 @@ const read = () => GET(requestOf('GET'), routeParams) as Promise<Response>;
 const update = () => PUT(requestOf('PUT', { workTimePlanned: 6 }), routeParams) as Promise<Response>;
 const remove = () => DELETE(requestOf('DELETE'), routeParams) as Promise<Response>;
 
-const CALLS = [
+describeRefusalsPassedOn('GET, PUT and DELETE /api/daily-plan/:id', mockAuthenticatedGuard, [
 	['a read', read, mockRead],
 	['an update', update, mockUpdate],
 	['a deletion', remove, mockRemove]
-] as const;
-
-describe('GET, PUT and DELETE /api/daily-plan/:id', () => {
-	beforeEach(() => {
-		jest.clearAllMocks();
-		mockAuthenticatedGuard.mockResolvedValue(SIGNED_IN);
-	});
-
-	it.each(CALLS)("passes the API's 403 on for %s", async (_case, call, request) => {
-		request.mockRejectedValue(refusalOf(FORBIDDEN));
-
-		const response = await call();
-
-		expect(response.status).toBe(403);
-		expect(await response.json()).toEqual(FORBIDDEN);
-	});
-
-	it.each(CALLS)('answers 502 for %s the API gave no answer to', async (_case, call, request) => {
-		request.mockRejectedValue(new TypeError('fetch failed'));
-
-		const response = await call();
-
-		expect(response.status).toBe(502);
-	});
-
-	it.each(CALLS)('answers what the API answered for %s it accepts', async (_case, call, request) => {
-		request.mockResolvedValue({ data: { id: 'plan-1' } });
-
-		const response = await call();
-
-		expect(response.status).toBe(200);
-		expect(await response.json()).toEqual({ id: 'plan-1' });
-	});
-});
+]);
