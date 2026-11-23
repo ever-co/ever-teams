@@ -87,14 +87,13 @@ import { MOCK_ORIGIN } from '../../test-servers';
  * 7. Status 500 on load → the timer area offers a Start with no run and no Stop, no user-facing timer failure copy, and
  *    the mock records its own 500 reads (2 within the test's own window). Both shell marks are on the page.
  *
- * **One toast that belongs to the harness, not to a refusal:** every case that *started* a run (4, 5, 6) also shows
- * `toasts.teams.ACTIVE_TASK_NOT_SAVED` = "The active task was not saved" (`locales/en.json:4397`, shown by
- * `core/hooks/organizations/teams/use-organization-teams-employee.ts:234-242`). A start ends with
+ * **The start's active-task save, before and after 475cafe3f:** a start ends with
  * `updateOrganizationTeamEmployeeActiveTask` (`use-timer-api.ts:875-891`), which `PUT`s
- * `/api/organization-team-employee/<id>/active-task` (`core/services/client/api/organizations/teams/team-employee.service.ts:71-89`);
- * this mock has no handler for that path and answers its generic `{ items: [], total: 0 }`, which the route's own Zod
- * schema rejects (`affected: Invalid input: expected number, received undefined`). It is printed in every such run, it
- * says nothing about a timer refusal, and no assertion here depends on it.
+ * `/api/organization-team-employee/<id>/active-task` (`core/services/client/api/organizations/teams/team-employee.service.ts:71-89`).
+ * The mock used to echo that body, which `updateActiveTaskSchema` rejects, so cases 4, 5 and 6 also showed
+ * `toasts.teams.ACTIVE_TASK_NOT_SAVED` ("The active task was not saved"). Since 475cafe3f the mock answers an update
+ * result: no such toast, and the save now invalidates the team and timer queries, which is why case 5 ends the run
+ * elsewhere only when its Stop is sent. No assertion here depends on that toast either way.
  */
 
 const MOCK_API_ORIGIN = new URL(MOCK_ORIGIN).origin;
@@ -393,7 +392,21 @@ test.describe('lane-c · a refused timer Start or Stop, on screen', () => {
 		 * `{ ...status, alreadyStopped: true }` inside the mutation (`use-timer-api.ts:407-409`), so `onError`
 		 * (`:419-422`) never runs — no failure toast — and the status read it carries says the run is over.
 		 */
-		await mock.scenario({ timerRunning: false, fails: { [MOCK_STOP]: 406 } });
+		/*
+		 * The run ends elsewhere at the moment this Stop is sent, not before the click: armed any earlier, the page's
+		 * own status refetch (the start's active-task save invalidates the team and timer queries) can notice the
+		 * ended run first and turn the button back into Start, so the click would start a new run instead. Measured
+		 * on a lane started after 475cafe3f, where that save succeeds: `POST .../timer/start` twice and no stop.
+		 * `mock.scenario` shallow-merges (`playwright/helpers.ts:129-132`), so the armed 406 stays.
+		 */
+		await mock.scenario({ fails: { [MOCK_STOP]: 406 } });
+		await page.route(
+			(url) => url.origin === MOCK_API_ORIGIN && url.pathname === MOCK_STOP,
+			async (route) => {
+				if (route.request().method() === 'POST') await mock.scenario({ timerRunning: false });
+				return route.fallback();
+			}
+		);
 		await stopButton(page).click();
 
 		await expect(toastLine(page, STOP_FAILED)).toHaveCount(0);
