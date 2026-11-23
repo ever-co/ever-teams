@@ -74,6 +74,30 @@ describe('PlanHoursStepper (#5713)', () => {
 		expect(toast.warning).toHaveBeenCalledWith('toasts.plans.HOURS_INVALID', { id: 'plan-hours-invalid' });
 	});
 
+	it('gives the plan its hours back when an entry that began readable ends unreadable', () => {
+		const { field, saved } = renderStepper(8);
+
+		fireEvent.change(field, { target: { value: '3' } });
+		expect(saved.hours).toBe(3);
+		fireEvent.change(field, { target: { value: '3h' } });
+		fireEvent.blur(field);
+
+		expect(saved.hours).toBe(8);
+		expect(field.value).toBe('8');
+		expect(toast.warning).toHaveBeenCalledWith('toasts.plans.HOURS_INVALID', { id: 'plan-hours-invalid' });
+	});
+
+	it('keeps a later entry that reads, after one that was taken back', () => {
+		const { field, saved } = renderStepper(8);
+
+		fireEvent.change(field, { target: { value: '3' } });
+		fireEvent.change(field, { target: { value: '3h' } });
+		fireEvent.blur(field);
+		typeAndLeave(field, '6');
+
+		expect(saved.hours).toBe(6);
+	});
+
 	it('moves an hour at a time from a part of an hour, never below no time', () => {
 		const { field, saved } = renderStepper(0.5);
 
