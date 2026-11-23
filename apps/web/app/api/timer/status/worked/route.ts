@@ -1,6 +1,7 @@
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { getTimerWorkedStatusRequest } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
+import { gauzyErrorResponse } from '@/core/services/server/gauzy-error-response';
 
 const EMPLOYEE_IDS_PARAM = /^employeeIds(\[\d*\])?$/;
 
@@ -20,15 +21,24 @@ export async function GET(req: Request) {
 	// Teammates' last logs: Gauzy answers with the caller's own last log only, unless the caller may see theirs
 	const employeeIds = namedEmployeeIdsOf(req);
 	if (employeeIds.length > 0) {
-		const { data } = await getTimerWorkedStatusRequest({ tenantId, organizationId, employeeIds }, access_token);
-		return $res(data);
+		try {
+			const { data } = await getTimerWorkedStatusRequest({ tenantId, organizationId, employeeIds }, access_token);
+			return $res(data);
+		} catch (error) {
+			// A refusal of the API goes back with its status and reason, as in direct mode (#5726)
+			return await gauzyErrorResponse(error, 'The last time worked could not be read.');
+		}
 	}
 
 	// The employee comes from the session, never from the query string. Without one there is no last log.
 	const employeeId = user.employee?.id;
 	if (!employeeId) return $res([]);
 
-	const { data } = await getTimerWorkedStatusRequest({ tenantId, organizationId, employeeId }, access_token);
-
-	return $res(data);
+	try {
+		const { data } = await getTimerWorkedStatusRequest({ tenantId, organizationId, employeeId }, access_token);
+		return $res(data);
+	} catch (error) {
+		// A refusal of the API goes back with its status and reason, as in direct mode (#5726)
+		return await gauzyErrorResponse(error, 'The last time worked could not be read.');
+	}
 }
