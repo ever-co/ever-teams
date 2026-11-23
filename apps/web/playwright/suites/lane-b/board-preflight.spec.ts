@@ -533,9 +533,13 @@ test.describe('lane-b · the Board preflight matrix on a lane with the Board mou
 		// `request` above is Playwright's cookieless context; `page.request` carries the browser context's jar. The
 		// session goes on that context through `signInWithFixture` directly — the same call `app()` makes
 		// (`fixtures.ts:153-164` → helpers.ts:187-207) — because a page that mounted the app shell asks the mock for its
-		// own `/api/user/me`, and this test's claim is about *who* asked it. `/favicon.ico` is the document: it is on
-		// this app's origin, answers `200 image/x-icon`, and runs no code.
-		await anon('/favicon.ico');
+		// own `/api/user/me`, and this test's claim is about *who* asked it. The page is a path this app has no route for
+		// (`404 text/html`), measured to ask the test backend nothing both signed out and once a session cookie lands —
+		// the block comment above the cookie test records that measurement, and why `/favicon.ico` (which is what
+		// `lane-b-board-preflight-2.log` used) cannot be navigated to under the shield's route interception. A signed-in
+		// `/` or `/auth/passcode` here would add a `GET /api/user/me` of the page's own and make the delta below say
+		// something false.
+		await anon('/lane-b-no-such-document');
 		await signInWithFixture(context, fixture);
 		const askedBefore = (await mock.calls('/api/user/me')).length;
 		const signedIn = await record(
@@ -554,6 +558,10 @@ test.describe('lane-b · the Board preflight matrix on a lane with the Board mou
 		expect(user.name, `the session answer was ${signedIn.body} — no name`).toBeTruthy();
 		expect(user, `the session answer was ${signedIn.body} — no imageUrl key`).toHaveProperty('imageUrl');
 		const askedAfter = await mock.calls('/api/user/me');
+		console.log(
+			`[lane-b board] asks of /api/user/me across the credentialed Board read: ${askedBefore} -> ` +
+				`${askedAfter.length} (${askedAfter.map((r) => `${r.method} ${r.status}`).join(', ') || 'none'})`
+		);
 		expect(
 			askedAfter.map((r) => `${r.method} ${r.path} ${r.status}`),
 			`the credentialed Board session read did not check its token against the test backend (${askedBefore} → ${askedAfter.length} asks of /api/user/me)`
@@ -633,9 +641,24 @@ test.describe('lane-b · what a real page on this app can read on the Board rout
 	 * Deliberately no `app()` here. A signed-in shell mounts React, and the shell asks the mock for its own data
 	 * (`GET /api/user/me` twice, measured in `E:\Coding\.tmp\lane-b-board-preflight-2.log`), which would make every
 	 * "nothing reached the test backend" claim in this test mean nothing. The page this test needs is any document on
-	 * the app's own origin — `/favicon.ico` answers `200 image/x-icon` and runs no code — plus the session cookies put
-	 * on the context directly (`signInWithFixture`, helpers.ts:187-207, which is exactly what `app()` does before it
-	 * navigates).
+	 * the app's own origin that asks the test backend nothing — a path this app has no route for (`404 text/html`) —
+	 * plus the session cookies put on the context directly (`signInWithFixture`, helpers.ts:187-207, which is exactly
+	 * what `app()` does before it navigates).
+	 *
+	 * Two documents that look usable and are not, measured on this lane on 2026-11-22 (`E:\Coding\.tmp\s2-nav-probe2.cjs`,
+	 * a throwaway probe that replays the shield's `context.route` interception outside a spec):
+	 * - `/favicon.ico` answers `200 image/x-icon` to `curl`, but a top-level navigation to it is a download, and a
+	 *   download under the shield's catch-all `context.route` (fixtures.ts:110-112) aborts: `page.goto: net::ERR_ABORTED`
+	 *   (`E:\Coding\.tmp\s2-lane-b-board-1.log`, `-2.log`). The same `goto` succeeds in a context with no route handler
+	 *   installed (`E:\Coding\.tmp\s2-nav-probe.cjs`), so the abort is the interception and not the app.
+	 * - `/` and `/auth/passcode` are real `200 text/html` documents that ask nothing while signed out, yet each recorded
+	 *   `GET /api/user/me 200` within 4 s of a session cookie landing on the context — which is exactly when this test
+	 *   reads its empty log. They would make `toEqual([])` red for a reason that has nothing to do with the Board call.
+	 *
+	 * The document this test uses instead — `/lane-b-no-such-document`, a path with no route: `404`,
+	 * `text/html; charset=utf-8`, 34 script tags — asks the test backend nothing in either moment
+	 * (`E:\Coding\.tmp\s2-nav-probe3.cjs`, the same probe aimed at this one path), which is the whole property this
+	 * test needs from its page.
 	 */
 	test('the session cookie is scoped to a host: a Board on the other loopback name is refused the session it would otherwise carry', async ({
 		anon,
@@ -643,7 +666,7 @@ test.describe('lane-b · what a real page on this app can read on the Board rout
 		fixture,
 		mock
 	}) => {
-		const page = await anon('/favicon.ico');
+		const page = await anon('/lane-b-no-such-document');
 		await signInWithFixture(context, fixture);
 		const trusted = mountedBoardOrigin(await publishedEnv(page));
 		const seen = watchBoardResponses(page);
@@ -675,9 +698,14 @@ test.describe('lane-b · what a real page on this app can read on the Board rout
 				network?.status,
 				`the cross-host Board call answered ${JSON.stringify(network?.status)} where the cookie check should have: ${JSON.stringify(cross)}`
 			).toBe(401);
-			expect(await mock.requests(), 'the cookieless cross-host Board call asked the test backend anyway').toEqual(
-				[]
+			// The witness is read once and printed, so a green run carries it too: this is the line §14.9 of `PLAN.md`
+			// quotes, and the reason the test's document must ask nothing itself.
+			const asked = await mock.requests();
+			const askedLines = asked.map((request) => `${request.method} ${request.path} ${request.status}`);
+			console.log(
+				`[lane-b board] mock log after the cookieless cross-host Board call: ${askedLines.join(', ') || 'empty'}`
 			);
+			expect(asked, 'the cookieless cross-host Board call asked the test backend anyway').toEqual([]);
 		}
 
 		// The signed-in page's own host, called with the Origin header set to the mounted Board origin and the browser

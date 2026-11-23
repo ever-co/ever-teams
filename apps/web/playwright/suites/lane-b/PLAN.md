@@ -1317,7 +1317,48 @@ cookies on the context through `signInWithFixture` directly, so the log holds on
 step 3 asserts the *delta* of `/api/user/me` (`askedBefore + 1`) rather than "not empty".
 
 **NOT YET RE-RUN:** §14.7 step 3 and §14.8's cookie test in their re-pinned form. The numbers above are run 2's, with
-the pre-repin bodies; run 3 is owed before those two lines are quoted as green.
+the pre-repin bodies; run 3 is owed before those two lines are quoted as green. — **answered on 2026-11-22 below.**
+
+**2026-11-22, the owed re-run, and the re-pin's own bug.** Final log `E:\Coding\.tmp\s2-lane-b-board-7.log`, summary
+line `7 passed (19.8s)`; `s2-lane-b-board-4.log` (`7 passed (28.9s)`), `-5.log` (`7 passed (24.0s)`) and `-6.log`
+(`7 passed (25.8s)`) are the same seven green — `-4` and `-5` before the two prints described below were added. Lane as
+it was left: state A (`E2E_BOARD_APP_DOMAIN=http://localhost:3032`), app 3032, mock 3996 — no lane was started, stopped
+or restarted, and `E2E_BROWSER_CHANNEL=chrome` is required here (§14.1's command already carries it): without it every
+case dies on `browserType.launch: Executable doesn't exist at …chromium-1217\chrome-win64\chrome.exe`, because bundled
+Chromium is not installed on this PC (`playwright.lane.config.ts:52-54`) — that was `s2-lane-b-board-1.log`, all seven
+red, with no assertion reached.
+
+**The re-pin above is what went red, not the app.** `s2-lane-b-board-2.log` failed both re-pinned tests at their first
+statement: `page.goto: net::ERR_ABORTED at http://localhost:3032/favicon.ico`. `/favicon.ico` really does answer
+`200 image/x-icon` to `curl`, but a **top-level navigation** to it is a download, and a download under the shield's
+catch-all `context.route` (`fixtures.ts:110-112`) is aborted — measured both ways in throwaway probes
+(`E:\Coding\.tmp\s2-nav-probe.cjs`: the same `goto` succeeds with no route handler on the context; `s2-nav-probe2.cjs`:
+it aborts once the shield's interception is replayed). So it is the interception, not the app. (`-3.log` is the record
+of the `*/` that phrase produced inside a block comment: the file stopped parsing, "No tests found".)
+
+Both tests now navigate `/lane-b-no-such-document` — a path this app has no route for: `404`,
+`text/html; charset=utf-8`, 34 script tags — and it asked the test backend **nothing** for 2 s signed out and **nothing**
+for a further 4 s after a session cookie landed on the context (`s2-nav-probe3.cjs`, the run of that probe aimed at this
+one path). `/` and `/auth/passcode` were measured out of the same choice: both `200 text/html`, both silent while signed
+out, both recording `GET /api/user/me 200` within 4 s of a cookie landing — which is §14.9's pollution arriving from a
+page instead of from a shell the test asked for, and the reason the document has to be a not-found page.
+
+The two witnesses are now **printed** as well as asserted, so a green log carries them. From `-7.log`:
+
+```
+[lane-b board] asks of /api/user/me across the credentialed Board read: 0 -> 1 (GET 200)
+[lane-b board] mock log after the cookieless cross-host Board call: empty
+[lane-b board] in-page cross-host GET http://127.0.0.1:3032/api/board/session (mounted Board = http://localhost:3032)
+  -> {"resolved":true,"status":401,"body":"{\"message\":\"Unauthorized\"}","exposedAcao":null,"exposedVary":null}
+```
+
+§14.7 step 3: its `askedBefore + 1` held as `0 → 1` — the credentialed Board session read checked its token against the
+test backend exactly once, and its own page caused nothing. §14.8: the browser let the page read the cross-host call
+(state A granted its Origin) and the app answered `401 {"message":"Unauthorized"}` because `signInWithFixture`'s cookies
+are `localhost`-hosted and `127.0.0.1` never receives them, with the mock log **empty** at that moment — the claim run 2
+got wrong, now green for the right reason. The same test's own-host call answered `200` with
+`{"id":"44444444-4444-4444-8444-111111111111","name":"Fixture Manager","imageUrl":null}`. Nothing in §14.10 moved:
+state B is still unstarted, and no other lane, harness file or app file was touched.
 
 ### 14.10 NOT REACHABLE here, recorded rather than guessed
 
