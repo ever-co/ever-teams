@@ -104,6 +104,13 @@ export type MockScenario = {
 	 * no mock state, and the call is recorded with that status, so `failures()` counts it. `mockReset()` clears it.
 	 */
 	fails?: Record<string, number>;
+	/**
+	 * More enabled permissions for the fixture role, on top of its five (`TIME_TRACKER`, `ORG_TASK_ADD`,
+	 * `ORG_TASK_EDIT`, `ORG_INVITE_EDIT`, `ORG_EMPLOYEES_EDIT`): for routes that refuse this role before forwarding
+	 * (`refuseUnlessPermitted` — e.g. `canViewInvoices` needs `INVOICES_VIEW` and a rate-admin permission). Only
+	 * upper-case names count. Served by `/api/role-permissions/me`. `mockReset()` clears it.
+	 */
+	extraPermissions?: string[];
 	[key: string]: unknown;
 };
 

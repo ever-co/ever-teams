@@ -47,13 +47,20 @@ function buildData(fixture, scenario, requestUrl, requestTenantId) {
 	const organizationName = scopeB ? names.organizationB : names.organizationA;
 	const teamName = scopeB ? names.teamB : names.teamA;
 
-	const rolePermissions = [
-		'TIME_TRACKER',
-		'ORG_TASK_ADD',
-		'ORG_TASK_EDIT',
-		'ORG_INVITE_EDIT',
-		'ORG_EMPLOYEES_EDIT'
-	].map((permission, index) => ({
+	const basePermissions = ['TIME_TRACKER', 'ORG_TASK_ADD', 'ORG_TASK_EDIT', 'ORG_INVITE_EDIT', 'ORG_EMPLOYEES_EDIT'];
+	// `scenario.extraPermissions`: more enabled permissions for the fixture role, opt-in, for the routes and pages that
+	// refuse this role first (`refuseUnlessPermitted`: invoices, client rates…). Only upper-case permission names count,
+	// and a name the role already holds is not repeated; unset answers the five above, as before.
+	const extraPermissions = Array.isArray(scenario.extraPermissions)
+		? scenario.extraPermissions.filter(
+				(permission, index, list) =>
+					typeof permission === 'string' &&
+					/^[A-Z][A-Z_]*$/.test(permission) &&
+					!basePermissions.includes(permission) &&
+					list.indexOf(permission) === index
+			)
+		: [];
+	const rolePermissions = [...basePermissions, ...extraPermissions].map((permission, index) => ({
 		id: `dddddddd-dddd-4ddd-8ddd-${String(index + 1).padStart(12, '0')}`,
 		roleId: ids.role,
 		permission,
