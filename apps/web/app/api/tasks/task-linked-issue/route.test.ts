@@ -18,72 +18,11 @@ jest.mock('@/core/services/server/requests', () => ({
 }));
 
 import { POST, PUT } from './route';
+import { describeRefusalsPassedOn, routeRequest } from '@/test/api/refusals-passed-on';
 
-const FORBIDDEN = { statusCode: 403, message: 'Forbidden resource' };
+const ROUTE = 'https://app.example.com/api/tasks/task-linked-issue';
 
-const SIGNED_IN = {
-	$res: (data: unknown) => Response.json(data),
-	user: { id: 'user-1' },
-	access_token: 'session-token',
-	tenantId: 'tenant-1',
-	organizationId: 'organization-1',
-	teamId: 'team-1'
-};
-
-/** What serverFetch throws for an answer that is not 2xx: a rejected promise of the API's error body. */
-function refusalOf(body: unknown) {
-	const rejection = Promise.reject(body);
-	rejection.catch(() => undefined);
-	return rejection;
-}
-
-function requestOf(method: string) {
-	const hasBody = method !== 'GET' && method !== 'DELETE';
-	let body: string | undefined = undefined;
-	if (hasBody) {
-		body = JSON.stringify({ name: 'Sample' });
-	}
-	return new Request('https://app.example.com/api/tasks/task-linked-issue', {
-		method,
-		headers: { 'content-type': 'application/json', origin: 'https://app.example.com' },
-		body
-	});
-}
-
-const CALLS = [
-	['a creation', () => POST(requestOf('POST')) as Promise<Response>, mockPOST],
-	['an update', () => PUT(requestOf('PUT')) as Promise<Response>, mockPUT]
-] as const;
-
-describe('POST and PUT /api/tasks/task-linked-issue', () => {
-	beforeEach(() => {
-		jest.clearAllMocks();
-		mockAuthenticatedGuard.mockResolvedValue(SIGNED_IN);
-	});
-
-	it.each(CALLS)("passes the API's 403 on for %s", async (_case, call, request) => {
-		request.mockRejectedValue(refusalOf(FORBIDDEN));
-
-		const response = await call();
-
-		expect(response.status).toBe(403);
-		expect(await response.json()).toEqual(FORBIDDEN);
-	});
-
-	it.each(CALLS)('answers 502 for %s the API gave no answer to', async (_case, call, request) => {
-		request.mockRejectedValue(new TypeError('fetch failed'));
-
-		const response = await call();
-
-		expect(response.status).toBe(502);
-	});
-
-	it.each(CALLS)('answers what the API answered for %s it accepts', async (_case, call, request) => {
-		request.mockResolvedValue({ data: { id: 'row-1' } });
-
-		const response = await call();
-
-		expect(response.status).toBe(200);
-		expect(await response.json()).toEqual({ id: 'row-1' });
-	});
-});
+describeRefusalsPassedOn('POST and PUT /api/tasks/task-linked-issue', mockAuthenticatedGuard, [
+	['a creation', () => POST(routeRequest(ROUTE, 'POST')) as Promise<Response>, mockPOST],
+	['an update', () => PUT(routeRequest(ROUTE, 'PUT')) as Promise<Response>, mockPUT]
+]);
