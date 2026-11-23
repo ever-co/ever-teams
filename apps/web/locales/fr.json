@@ -2275,6 +2275,8 @@
 				"WEEKLY_TREND_SUMMARY": "{weeks} dernières semaines : {created} créées, {completed} terminées",
 				"WEEKLY_TREND_WEEK": "Semaine du {date} : {created} créées, {completed} terminées",
 				"WEEKLY_TREND_UNDATED": "Les tâches terminées sans date de fin ne sont pas affichées : {count}",
+				"WEEKLY_PACE": "Rythme : {velocity, number} terminées par semaine. Tâches ouvertes : {open}. Semaines restantes à ce rythme : {weeks}",
+				"WEEKLY_PACE_BEYOND": "Rythme : {velocity, number} terminées par semaine. Tâches ouvertes : {open}. Semaines restantes à ce rythme : plus de {weeks}",
 				"NO_ASSIGNEE": "Sans assigné",
 				"SHARE_OF": "{percent} % sur {total}",
 				"TASKS_IN_TEAM": "Tâches de ce projet dans {team}",

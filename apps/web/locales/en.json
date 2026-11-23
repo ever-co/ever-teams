@@ -2195,6 +2195,8 @@
 				"WEEKLY_TREND_SUMMARY": "Last {weeks} weeks: {created} created, {completed} completed",
 				"WEEKLY_TREND_WEEK": "Week of {date}: {created} created, {completed} completed",
 				"WEEKLY_TREND_UNDATED": "Completed tasks with no completion date are not shown: {count}",
+				"WEEKLY_PACE": "Pace: {velocity, number} completed per week. Open tasks: {open}. Weeks left at this pace: {weeks}",
+				"WEEKLY_PACE_BEYOND": "Pace: {velocity, number} completed per week. Open tasks: {open}. Weeks left at this pace: more than {weeks}",
 				"NO_ASSIGNEE": "No assignee",
 				"SHARE_OF": "{percent}% of {total}",
 				"TASKS_IN_TEAM": "Tasks of this project in {team}",

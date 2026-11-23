@@ -8,6 +8,7 @@ import {
 	activityBarPercentOf,
 	DEFAULT_ACTIVITY_WEEKS,
 	projectActivityOf,
+	projectForecastOf,
 	type ProjectActivity
 } from '@/core/lib/utils/project-activity';
 import type { WeekStart } from '@/core/lib/utils/dashboard-period';
@@ -98,7 +99,11 @@ export function ProjectActivityChart({
 		() => projectActivityOf(tasks, statuses, now, DEFAULT_ACTIVITY_WEEKS, weekStart),
 		[now, statuses, tasks, weekStart]
 	);
-	const hasActivity = activity.created > 0 || activity.completed > 0;
+	const forecast = useMemo(
+		() => projectForecastOf(tasks, statuses, activity, weekStart),
+		[activity, statuses, tasks, weekStart]
+	);
+	const hasActivity =activity.created > 0 || activity.completed > 0;
 	const hasUndated = activity.undatedDone > 0;
 
 	if (!hasActivity && !hasUndated) {
@@ -126,6 +131,16 @@ export function ProjectActivityChart({
 				</div>
 			)}
 			{hasActivity && <WeekBars activity={activity} />}
+			{forecast && (
+				<p className="text-xs text-muted-foreground">
+					{t(
+						forecast.isBeyondHorizon
+							? 'pages.projects.detail.WEEKLY_PACE_BEYOND'
+							: 'pages.projects.detail.WEEKLY_PACE',
+						{ velocity: forecast.velocity, open: forecast.open, weeks: forecast.weeksLeft }
+					)}
+				</p>
+			)}
 			{hasUndated && (
 				<p className="text-xs text-muted-foreground">
 					{t('pages.projects.detail.WEEKLY_TREND_UNDATED', { count: activity.undatedDone })}
