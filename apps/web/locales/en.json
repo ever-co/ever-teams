@@ -7228,6 +7228,7 @@
 		"UNSAVED": "Unsaved changes",
 		"NOT_SAVED": "Not saved",
 		"SAVE_ERROR": "The last change could not be saved. It stays in this tab; retry, or check your connection.",
+		"SAVE_FORBIDDEN": "You can read this page, but not change it: the last change was not saved. It stays in this tab. Ask the author to share the page with you for editing.",
 		"SAVE_TITLE_ERROR": "The title could not be saved.",
 		"TOO_LARGE": "This page is too large to save. Split it, or remove some pictures.",
 		"CONFLICT_TITLE": "Someone else saved this page",

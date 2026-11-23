@@ -107,7 +107,7 @@ const RANGE_WAIT_MS = 1500;
 const DRAFT_SAVE_ATTEMPTS = 20;
 const DRAFT_SAVE_WAIT_MS = 300;
 /** The save states that wait for the person: nothing is saved until they act. */
-const SAVE_FAILURES: ReadonlySet<DocsSaveState> = new Set<DocsSaveState>(['conflict', 'locked', 'too-large', 'error']);
+const SAVE_FAILURES: ReadonlySet<DocsSaveState> = new Set<DocsSaveState>(['conflict', 'locked', 'too-large', 'forbidden', 'error']);
 
 /** The selector of a block by its anchor, in the editor and in the read-only view (the platform's spelling too). */
 function blockSelectorOf(blockId: string): string {
@@ -1027,6 +1027,11 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES, onOpen
 									<span>{t('docs.TOO_LARGE')}</span>
 								</Notice>
 							)}
+							{autosave.state === 'forbidden' && (
+								<Notice tone="warning">
+									<span>{t('docs.SAVE_FORBIDDEN')}</span>
+								</Notice>
+							)}
 							{autosave.state === 'error' && (
 								<Notice tone="warning">
 									<span>{t('docs.SAVE_ERROR')}</span>
@@ -1272,19 +1277,21 @@ function BodySkeleton() {
 
 function SaveStateLabel({ state }: Readonly<{ state: DocsSaveState }>) {
 	const t = useTranslations();
+	// A save refused for lack of access is not saved either: the notice above the page says why
+	const isNotSaved = state === 'error' || state === 'forbidden';
 	const label =
-		state === 'saving' ? t('docs.SAVING') : state === 'saved' ? t('docs.SAVED') : state === 'dirty' ? t('docs.UNSAVED') : state === 'error' ? t('docs.NOT_SAVED') : '';
+		state === 'saving' ? t('docs.SAVING') : state === 'saved' ? t('docs.SAVED') : state === 'dirty' ? t('docs.UNSAVED') : isNotSaved ? t('docs.NOT_SAVED') : '';
 	if (!label) return null;
 	return (
 		<span
 			role="status"
 			aria-live="polite"
-			className={cn('mr-1 inline-flex shrink-0 items-center gap-1.5 text-xs', state === 'error' ? 'text-destructive' : 'text-muted-foreground')}
+			className={cn('mr-1 inline-flex shrink-0 items-center gap-1.5 text-xs', isNotSaved ? 'text-destructive' : 'text-muted-foreground')}
 		>
 			{state === 'saving' && <Spinner className="size-3 animate-spin" aria-hidden="true" />}
 			{state === 'saved' && <Check className="size-3.5 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />}
 			{state === 'dirty' && <span className="size-1.5 rounded-full bg-amber-500" aria-hidden="true" />}
-			{state === 'error' && <CircleAlert className="size-3.5" aria-hidden="true" />}
+			{isNotSaved && <CircleAlert className="size-3.5" aria-hidden="true" />}
 			<span className="hidden sm:inline">{label}</span>
 		</span>
 	);

@@ -7228,6 +7228,7 @@
 		"UNSAVED": "Niezapisane zmiany",
 		"NOT_SAVED": "Nie zapisano",
 		"SAVE_ERROR": "Nie udało się zapisać ostatniej zmiany. Pozostaje w tej karcie; ponów próbę lub sprawdź połączenie.",
+		"SAVE_FORBIDDEN": "Możesz czytać tę stronę, ale nie możesz jej zmieniać: ostatnia zmiana nie została zapisana. Pozostaje w tej karcie. Poproś autora o udostępnienie strony do edycji.",
 		"SAVE_TITLE_ERROR": "Nie udało się zapisać tytułu.",
 		"TOO_LARGE": "Ta strona jest za duża, aby ją zapisać. Podziel ją lub usuń część obrazów.",
 		"CONFLICT_TITLE": "Ktoś inny zapisał tę stronę",

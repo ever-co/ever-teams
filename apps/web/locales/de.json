@@ -7228,6 +7228,7 @@
 		"UNSAVED": "Ungespeicherte Änderungen",
 		"NOT_SAVED": "Nicht gespeichert",
 		"SAVE_ERROR": "Die letzte Änderung konnte nicht gespeichert werden. Sie bleibt in diesem Tab; versuche es erneut oder prüfe deine Verbindung.",
+		"SAVE_FORBIDDEN": "Du kannst diese Seite lesen, aber nicht ändern: Die letzte Änderung wurde nicht gespeichert. Sie bleibt in diesem Tab. Bitte den Autor, die Seite zum Bearbeiten mit dir zu teilen.",
 		"SAVE_TITLE_ERROR": "Der Titel konnte nicht gespeichert werden.",
 		"TOO_LARGE": "Diese Seite ist zu groß zum Speichern. Teile sie auf oder entferne einige Bilder.",
 		"CONFLICT_TITLE": "Jemand anderes hat diese Seite gespeichert",

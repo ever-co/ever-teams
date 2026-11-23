@@ -7228,6 +7228,7 @@
 		"UNSAVED": "Modifications non enregistrées",
 		"NOT_SAVED": "Non enregistré",
 		"SAVE_ERROR": "La dernière modification n’a pas pu être enregistrée. Elle reste dans cet onglet ; réessayez ou vérifiez votre connexion.",
+		"SAVE_FORBIDDEN": "Vous pouvez lire cette page, mais pas la modifier : la dernière modification n’a pas été enregistrée. Elle reste dans cet onglet. Demandez à l’auteur de partager la page avec vous en modification.",
 		"SAVE_TITLE_ERROR": "Le titre n’a pas pu être enregistré.",
 		"TOO_LARGE": "Cette page est trop grande pour être enregistrée. Découpez-la ou retirez quelques images.",
 		"CONFLICT_TITLE": "Quelqu’un d’autre a enregistré cette page",

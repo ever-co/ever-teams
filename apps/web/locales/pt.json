@@ -7228,6 +7228,7 @@
 		"UNSAVED": "Alterações não salvas",
 		"NOT_SAVED": "Não salvo",
 		"SAVE_ERROR": "A última alteração não pôde ser salva. Ela fica nesta aba; tente novamente ou verifique sua conexão.",
+		"SAVE_FORBIDDEN": "Pode ler esta página, mas não alterá-la: a última alteração não foi guardada. Fica neste separador. Peça ao autor que partilhe a página consigo para edição.",
 		"SAVE_TITLE_ERROR": "Não foi possível salvar o título.",
 		"TOO_LARGE": "Esta página é grande demais para ser salva. Divida-a ou remova algumas imagens.",
 		"CONFLICT_TITLE": "Outra pessoa salvou esta página",
