@@ -1085,9 +1085,7 @@
 		"Ftab",
 		"IJKL",
 		"MNOP",
-		"Mediu",
 		"NDEKTSV",
-		"Prioriti",
 		"RRFFQ",
 		"S'inscrire",
 		"Solberg",
@@ -1097,8 +1095,7 @@
 		"känban",
 		"maintenant",
 		"netinfo",
-		"thème",
-		"truee"
+		"thème"
 	],
 	"ignoreRegExpList": ["/%(?:2F|3A|5B|5D)[A-Za-z]*/g", "/gze_[A-Za-z0-9_-]+/g"],
 	"useGitignore": true,
