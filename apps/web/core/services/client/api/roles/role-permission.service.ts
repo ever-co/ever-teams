@@ -20,14 +20,19 @@ function rolePermissionsPath(roleId: string, query: string): string {
 }
 
 /**
- * Whether an answer is the API's result of an update (`{ generatedMaps, raw, affected }`), which carries no row.
+ * The number of rows the API says an update changed, from its update result (`{ generatedMaps, raw, affected }`),
+ * which carries no row; null for any other answer.
  */
-function isUpdateResult(answer: unknown): boolean {
+function affectedRowsOf(answer: unknown): number | null {
 	const isObject = typeof answer === 'object' && answer !== null;
 	if (!isObject) {
-		return false;
+		return null;
 	}
-	return typeof (answer as { affected?: unknown }).affected === 'number';
+	const affected = (answer as { affected?: unknown }).affected;
+	if (typeof affected !== 'number') {
+		return null;
+	}
+	return affected;
 }
 
 /**
@@ -96,7 +101,12 @@ class RolePermissionService extends APIService {
 
 			// The API answers a saved switch with its update result, not with the row: read as a row, that answer
 			// failed the check below and the page said the change was not saved (#5729). The row sent is what was saved.
-			if (isUpdateResult(response.data)) {
+			const affectedRows = affectedRowsOf(response.data);
+			if (affectedRows === 0) {
+				// The row is gone (removed since the page loaded): nothing was saved
+				throw new Error('The permission was not saved: the API changed no row');
+			}
+			if (affectedRows !== null) {
 				return validatedInput;
 			}
 

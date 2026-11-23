@@ -145,6 +145,12 @@ describe('rolePermissionService.updateRolePermission (#5729)', () => {
 		expect(put).toHaveBeenCalledWith(`/role-permissions/${switchedOff.id}`, switchedOff);
 	});
 
+	it('reports a save that changed no row as failed', async () => {
+		saveAnswers({ generatedMaps: [], raw: [], affected: 0 });
+
+		await expect(rolePermissionService.updateRolePermission(switchedOff)).rejects.toThrow('changed no row');
+	});
+
 	it('still reads a row when the API answers one', async () => {
 		saveAnswers(switchedOff);
 
