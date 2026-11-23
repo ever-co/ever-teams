@@ -28,6 +28,7 @@ import { useEffect, useMemo, useRef } from 'react';
 import { reownActiveQueriesAfterTokenRefresh } from './token-refresh-query-ownership';
 import { syncTokenOrganization } from '@/core/lib/auth/token-organization';
 import { clearSessionEndedNotice } from '@/core/lib/auth/session-ended-notice';
+import { clearOwnSignOutMark } from '@/core/lib/auth/own-sign-out-mark';
 import { rememberTeam } from '@/core/lib/auth/remembered-team';
 import { queryKeys } from '@/core/query/keys';
 import { getShellCriticalQueryKeys, useScopeTransitionGuard } from './use-scope-transition-guard';
@@ -60,6 +61,7 @@ export function InitState() {
 	// Someone is signed in: what the sign-in page said about a session the app ended in this tab is over
 	useEffect(() => {
 		clearSessionEndedNotice();
+		clearOwnSignOutMark();
 	}, []);
 	// And should the app end this one, the sign-in page says what became of the timer
 	useTimerSessionEndWitness();

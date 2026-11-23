@@ -137,6 +137,7 @@ jest.mock('@/core/lib/auth/token-organization', () => ({
 
 import { getDefaultStore } from 'jotai';
 import { leaveSessionEndedNotice, storedSessionEndedNotice } from '@/core/lib/auth/session-ended-notice';
+import { leaveOwnSignOutMark, ownSignOutMark } from '@/core/lib/auth/own-sign-out-mark';
 import { shellSettledState } from '@/core/stores/common/shell';
 import { isTeamMemberState } from '@/core/stores/teams/organization-team';
 import { InitState } from './init-state';
@@ -450,6 +451,14 @@ describe('InitState, once someone is signed in', () => {
 		render(<InitState />);
 
 		expect(storedSessionEndedNotice()).toBeNull();
+	});
+
+	it('forgets the mark of the sign-out that came before this sign-in (#5721)', () => {
+		leaveOwnSignOutMark('log-1');
+
+		render(<InitState />);
+
+		expect(ownSignOutMark()).toBeNull();
 	});
 });
 
