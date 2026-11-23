@@ -18,14 +18,22 @@ type TMembershipUpdateResult = z.infer<typeof membershipUpdateResultSchema>;
 class OrganizationTeamEmployeeService extends APIService {
 	deleteOrganizationTeamEmployee = async ({
 		organizationTeamEmployeeId,
-		employeeId
+		employeeId,
+		organizationTeamId
 	}: {
 		organizationTeamEmployeeId: string;
 		employeeId: string;
+		/**
+		 * The team of the membership. The API removes a plain member from the team named here, whatever the id in
+		 * the path: left to the active-team cookie, which every tab shares, a Leave took the person out of the team
+		 * another tab had open (#5737).
+		 */
+		organizationTeamId?: string;
 	}): Promise<void> => {
+		const teamId = organizationTeamId || this.activeTeamId;
 		// Gauzy answers with a DeleteResult whose shape varies with the ORM and driver, and no caller reads it.
 		const { data } = await this.delete<unknown>(
-			`/organization-team-employee/${organizationTeamEmployeeId}?tenantId=${this.tenantId}&employeeId=${employeeId}&organizationId=${this.organizationId}&organizationTeamId=${this.activeTeamId}`
+			`/organization-team-employee/${organizationTeamEmployeeId}?tenantId=${this.tenantId}&employeeId=${employeeId}&organizationId=${this.organizationId}&organizationTeamId=${teamId}`
 		);
 
 		// In proxy mode the auth guard refuses with HTTP 200 and a { statusCode: 401 } body, before anything is deleted.

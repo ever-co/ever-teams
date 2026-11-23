@@ -446,7 +446,9 @@ session to read.
 Without `config.getToken`:
 
 - The sign-in dialog (`TeamsLoginDialog`) takes the user's email and password inside your page and sends them to
-  `{apiUrl}/auth/login`. A "Token" tab also accepts a pasted access token.
+  `{apiUrl}/auth/signin.email.password`, which lists the workspaces they open. The dialog signs in to the only one, or
+  to the one the person picks when there are several, through `{apiUrl}/auth/signin.workspace`, as the web app does.
+  A "Token" tab also accepts a pasted access token.
 - For an account with two-factor sign-in on, the dialog then asks for the code of the person's authenticator app, or
   one of their recovery codes, and sends it with the API's challenge to `{apiUrl}/auth/two-factor/verify`.
 - The access token and the user record are kept in `localStorage['_teams-store']`, readable by every script of your

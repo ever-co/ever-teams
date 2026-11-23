@@ -61,7 +61,7 @@ const browserOnThisSite =
 			return new Response(null, { status: 200 });
 		}
 		const path = new URL(url).pathname.replace(/^\/api/, '');
-		const isSignIn = path === '/auth/login' || path.startsWith('/user/me');
+		const isSignIn = path.startsWith('/auth/') || path.startsWith('/user/me');
 		if (isProbe || isSignIn) {
 			throw new TypeError('Failed to fetch');
 		}

@@ -11,6 +11,8 @@ type Language = { code: string; id: string; name: string };
 const english: Language = { code: 'en', id: 'language-en', name: 'English' };
 
 jest.mock('@/core/constants/config/constants', () => ({
+	// The menu reads the page's language from its address, among the app's languages
+	APPLICATION_LANGUAGES_CODE: ['en'],
 	languagesFlags: [{ code: 'en', Flag: () => <span data-testid="english-flag" /> }]
 }));
 jest.mock('@/core/hooks/common/use-language', () => ({

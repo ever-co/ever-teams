@@ -45,6 +45,7 @@ describe('formatIntegerToHour', () => {
 describe('parseStringInputToHours', () => {
 	it('reads H:MM and decimal inputs', () => {
 		expect(parseStringInputToHours('4:30')).toEqual({ hours: 4.5 });
+		expect(parseStringInputToHours('100:45')).toEqual({ hours: 100.75 });
 		expect(parseStringInputToHours('2,5')).toEqual({ hours: 2.5 });
 		expect(parseStringInputToHours(' ')).toEqual({ hours: 0 });
 	});

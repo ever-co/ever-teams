@@ -4,6 +4,7 @@
  * null), and the route answered 500 on it. Runs against a stand-in of the Gauzy API.
  */
 import { INVITED, primeInvitedPerson } from '@/test/auth/invited-person';
+import { SIGN_IN_FIRST_CODE, SIGN_IN_FIRST_MESSAGE } from '@/core/lib/auth/invite-sign-in-first';
 import { RouteAgainstGauzy } from '@/test/auth/route-against-gauzy';
 
 const login = new RouteAgainstGauzy(() => jest.requireActual<typeof import('./route')>('./route'));
@@ -44,5 +45,19 @@ describe('POST /api/auth/login, invitation code', () => {
 
 		expect(res.status).toBe(200);
 		expect(acceptedInvitation()).toMatchObject({ user: { firstName: 'Invited', lastName: 'Person' } });
+	}, 15_000);
+
+	it('tells a person whose address already has an account to sign in first, and opens no session', async () => {
+		primeInvitedPerson(login.gauzy);
+		login.gauzy.on('POST', '/api/invite/accept', {
+			status: 409,
+			body: { statusCode: 409, message: 'This email already has an account.', error: 'Conflict' }
+		});
+
+		const res = await signInWithCode();
+
+		const body = await res.json();
+		expect(body).toEqual({ errors: { email: SIGN_IN_FIRST_MESSAGE }, code: SIGN_IN_FIRST_CODE });
+		expect(res.headers.get('set-cookie')).toBeNull();
 	}, 15_000);
 });

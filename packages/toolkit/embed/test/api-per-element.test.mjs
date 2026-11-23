@@ -125,12 +125,12 @@ test('two elements with two api-url each send the sign-in and the timer to their
 	const second = await place('https://b.example.com/api');
 
 	await signInOn(first);
-	assert.equal(requestsTo('/auth/login').length, 1);
+	assert.equal(requestsTo('/auth/signin.workspace').length, 1);
 	assert.ok(requestsTo('/timesheet/timer/status').length > 0, 'the timer reads its status');
 	assert.deepEqual(hosts(), new Set(['a.example.com']));
 
 	await signInOn(second);
-	assert.equal(requestsTo('/auth/login').length, 1);
+	assert.equal(requestsTo('/auth/signin.workspace').length, 1);
 	assert.ok(requestsTo('/timesheet/timer/status').length > 0, 'the timer reads its status');
 	assert.deepEqual(hosts(), new Set(['b.example.com']));
 });
@@ -141,14 +141,14 @@ test('an element without api-url follows the address the page holds, and never c
 	assert.equal(pageConfig.getConfig().apiUrl, 'https://host.example.com/api');
 
 	await signInOn(plain);
-	assert.equal(requestsTo('/auth/login').length, 1);
+	assert.equal(requestsTo('/auth/signin.workspace').length, 1);
 	assert.deepEqual(hosts(), new Set(['host.example.com']));
 
 	// Another element points at a self-hosted API, which becomes the page's address; it starts signed out.
 	localStorage.clear();
 	await place('https://teams.example.org/api');
 	await signInOn(plain);
-	assert.equal(requestsTo('/auth/login').length, 1);
+	assert.equal(requestsTo('/auth/signin.workspace').length, 1);
 	assert.deepEqual(hosts(), new Set(['teams.example.org']));
 
 	await act(async () => plain.setAttribute('color-scheme', 'dark'));

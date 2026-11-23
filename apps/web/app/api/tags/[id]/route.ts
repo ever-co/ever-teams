@@ -4,6 +4,7 @@ import { deleteTaskLabelsRequest, editTaskLabelsRequest } from '@/core/services/
 import { NextResponse } from 'next/server';
 import { ITagCreate } from '@/core/types/interfaces/tag/tag';
 import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
+import { gauzyErrorResponse } from '@/core/services/server/gauzy-error-response';
 
 export async function DELETE(req: Request, props: INextParams) {
 	const foreign = refuseForeignOrigin(req);
@@ -21,13 +22,17 @@ export async function DELETE(req: Request, props: INextParams) {
 		return NextResponse.json({ error: 'unauthorized' }, { status: status ?? 401 });
 	}
 
-	const response = await deleteTaskLabelsRequest({
-		id: params.id,
-		bearer_token: access_token || '',
-		tenantId: tenantId || ''
-	});
-
-	return $res(response.data);
+	try {
+		const response = await deleteTaskLabelsRequest({
+			id: params.id,
+			bearer_token: access_token || '',
+			tenantId: tenantId || ''
+		});
+		return $res(response.data);
+	} catch (error) {
+		// A refusal of the API goes back with its status and reason, as in direct mode (#5726)
+		return await gauzyErrorResponse(error, 'The label could not be deleted.');
+	}
 }
 
 export async function PUT(req: Request, props: INextParams) {
@@ -48,12 +53,16 @@ export async function PUT(req: Request, props: INextParams) {
 		return NextResponse.json({ error: 'unauthorized' }, { status: status ?? 401 });
 	}
 
-	const response = await editTaskLabelsRequest({
-		id: params.id,
-		datas: body,
-		bearer_token: access_token || '',
-		tenantId: tenantId || ''
-	});
-
-	return $res(response.data);
+	try {
+		const response = await editTaskLabelsRequest({
+			id: params.id,
+			datas: body,
+			bearer_token: access_token || '',
+			tenantId: tenantId || ''
+		});
+		return $res(response.data);
+	} catch (error) {
+		// A refusal of the API goes back with its status and reason, as in direct mode (#5726)
+		return await gauzyErrorResponse(error, 'The label could not be updated.');
+	}
 }

@@ -55,6 +55,10 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
 	const { searchParams } = new URL(req.url);
 
 	const employeeId = searchParams.get('employeeId') as string;
+	// The team the page names for this membership; the active-team cookie is shared by every tab and may name
+	// another team (#5737). A request without it keeps the cookie, as before.
+	const namedTeamId = searchParams.get('organizationTeamId');
+	const organizationTeamId = namedTeamId || teamId || '';
 
 	try {
 		const response = await deleteOrganizationTeamEmployeeRequest({
@@ -63,7 +67,7 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
 			tenantId: tenantId || '',
 			organizationId: organizationId || '',
 			employeeId: employeeId,
-			organizationTeamId: teamId || ''
+			organizationTeamId
 		});
 		return $res(response.data);
 	} catch (error) {

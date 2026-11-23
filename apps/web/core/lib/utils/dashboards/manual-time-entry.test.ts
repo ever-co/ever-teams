@@ -318,6 +318,35 @@ describe('manualTimeRefusalKeyOf', () => {
 		);
 	});
 
+	it('names the running timer the range covers, from the code of the 409 (#5724)', () => {
+		const refusal = new ApiErrorService('A timer is running over this time range.', 409, 'RUNNING_TIMER_OVERLAP');
+
+		expect(manualTimeRefusalKeyOf(refusal)).toBe('manualTime.RUNNING_TIMER_OVERLAP');
+	});
+
+	it('names the running timer from the answer the API gives, as the API client reads it (#5724)', () => {
+		const refusal = ApiErrorService.fromAxiosError({
+			message: 'Request failed with status code 409',
+			status: 409,
+			response: {
+				data: {
+					message: 'A timer is running over this time range. Stop it first, or choose a range outside it.',
+					code: 'RUNNING_TIMER_OVERLAP',
+					runningTimeLog: { id: 'log-1', startedAt: '2026-11-23T09:00:00.000Z', source: 'WEB_TIMER' }
+				},
+				headers: {},
+				status: 409,
+				statusText: ''
+			}
+		});
+
+		expect(manualTimeRefusalKeyOf(refusal)).toBe('manualTime.RUNNING_TIMER_OVERLAP');
+	});
+
+	it('keeps the usual reason for any other 409', () => {
+		expect(manualTimeRefusalKeyOf(new ApiErrorService('Conflict', 409))).toBe('toasts.REASONS.CONFLICT');
+	});
+
 	it('gives every other failure the reason of its status', () => {
 		expect(manualTimeRefusalKeyOf(requiredFieldRefusal([]))).toBe('toasts.REASONS.INVALID');
 		expect(manualTimeRefusalKeyOf(new ApiErrorService('Forbidden', 403))).toBe('toasts.REASONS.PERMISSION');

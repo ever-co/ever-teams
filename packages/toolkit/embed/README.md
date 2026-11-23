@@ -179,8 +179,9 @@ added to the page:
 ## Sign-in
 
 Without `sign-in`, the element uses the kit's own sign-in: a person types their Ever Teams email and password, or a
-token, in the element. After the email and password, a person with two-factor sign-in on types the code of their
-authenticator app, or one of their recovery codes, in the same form; a pasted token asks for no code.
+token, in the element. A person whose email and password open several workspaces then picks the one to track time
+in. After the email and password, a person with two-factor sign-in on types the code of their authenticator app, or
+one of their recovery codes, in the same form; a pasted token asks for no code.
 
 When your product has a server and already knows who is signed in, `token-url` names your own route that answers that
 person's embed token, the one the route handlers of the

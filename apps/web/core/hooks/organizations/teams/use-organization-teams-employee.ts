@@ -21,6 +21,13 @@ function useFailureToast() {
 	);
 }
 
+/** A membership to delete: its row, its employee, and the team it belongs to (the active team when left out). */
+interface TMembershipToDelete {
+	id: string;
+	employeeId: string;
+	organizationTeamId?: string;
+}
+
 export function useOrganizationEmployeeTeams() {
 	const { loadTeamsData } = useOrganizationTeamsQuery();
 	const queryClient = useQueryClient();
@@ -29,10 +36,11 @@ export function useOrganizationEmployeeTeams() {
 
 	// React Query mutation for delete organization employee team
 	const deleteOrganizationEmployeeTeamMutation = useMutation({
-		mutationFn: ({ id, employeeId }: { id: string; employeeId: string }) =>
+		mutationFn: ({ id, employeeId, organizationTeamId }: TMembershipToDelete) =>
 			organizationTeamEmployeeService.deleteOrganizationTeamEmployee({
 				organizationTeamEmployeeId: id,
-				employeeId
+				employeeId,
+				organizationTeamId
 			}),
 		mutationKey: queryKeys.organizationTeams.mutations.employee.delete(undefined),
 		onSuccess: async () => {
@@ -120,10 +128,11 @@ export function useOrganizationEmployeeTeams() {
 
 	// Delete organization team employee function
 	const deleteOrganizationTeamEmployee = useCallback(
-		async ({ id, employeeId }: { id: string; employeeId: string }) => {
+		async ({ id, employeeId, organizationTeamId }: TMembershipToDelete) => {
 			return await deleteOrganizationEmployeeTeamMutateAsync({
 				id,
-				employeeId
+				employeeId,
+				organizationTeamId
 			});
 		},
 		[deleteOrganizationEmployeeTeamMutateAsync]

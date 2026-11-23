@@ -12,6 +12,8 @@ import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-tea
 import { IAuthResponse } from '@/core/types/interfaces/auth/auth';
 import { APP_NAME } from '@/core/constants/config/constants';
 import { pickTokenOrganization } from '@/core/lib/auth/jwt-utils';
+import { inviteAcceptRefusalAnswer } from '@/core/lib/auth/invite-sign-in-first';
+import { unwrapRejection } from '@/core/services/server/fetch';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
 	if (req.method !== 'POST') {
@@ -54,6 +56,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 			const password = generateToken(8);
 
 			const names = inviteReq.data.fullName.split(' ');
+			let acceptRefusal: unknown;
 			const acceptInviteRes = await acceptInviteRequest({
 				code: body.code,
 				email: body.email,
@@ -63,7 +66,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 					lastName: names[1] || '',
 					email: body.email
 				}
-			}).catch(() => void 0);
+			}).catch(async (rejection: unknown) => {
+				acceptRefusal = await unwrapRejection(rejection);
+				return undefined;
+			});
 
 			if (
 				!acceptInviteRes ||
@@ -72,11 +78,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 				acceptInviteRes.response.status === 400 ||
 				(acceptInviteRes?.data as any).response?.statusCode
 			) {
-				return res.status(400).json({
-					errors: {
-						email: 'Authentication code or email address invalid'
-					}
-				});
+				return res.status(400).json(inviteAcceptRefusalAnswer(acceptRefusal));
 			}
 			loginResponse = acceptInviteRes.data;
 
