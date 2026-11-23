@@ -8,7 +8,7 @@ import { logOf, parseAnswer, triples } from '../api/log-helpers';
  * The half of `core/services/server/gauzy-error-response.ts` that `suites/lane-a/daily-plan-reads.spec.ts` could not
  * reach: a rejection that IS a Gauzy answer. That file says it outright (its own header, "What this lane cannot
  * answer"), because nothing in the mock refused a call. The mock grew exactly that switch — `scenario.fails`
- * (`cypress/support/mock-gauzy-server.mjs:1060-1074`) — so 16 handlers, in 14 of the 37 route files that catch with
+ * (`cypress/support/mock-gauzy-server.mjs:1081-1095`) — so 16 handlers, in 14 of the 37 route files that catch with
  * `gauzyErrorResponse(error, '<fallback>')` (`grep -rln gauzyErrorResponse( apps/web/app/api --include=route.ts`), are
  * pinned here against an upstream that answers 400, 401, 403, 404, 409, 500 and 503: one control, one test per armed
  * status, one for the sentence staying out and one for the sentence appearing when the call is cut instead. The four
@@ -24,21 +24,21 @@ import { logOf, parseAnswer, triples } from '../api/log-helpers';
  *   Gauzy's own body inside a rejected promise, and `:141-150` (`unwrapRejection`) is what pulls it back out. So an
  *   armed `fails` arm is exactly the branch at `gauzy-error-response.ts:31-37`, where a `drops` arm is the branch at
  *   `:26-28` (a cut connection rejects with a plain error, `fetch.ts:141-142`).
- * - The mock's switch: `scenario.fails` (`mock-gauzy-server.mjs:1060-1074`) is keyed `<tenant>:<path>`, then
+ * - The mock's switch: `scenario.fails` (`mock-gauzy-server.mjs:1081-1095`) is keyed `<tenant>:<path>`, then
  *   `<tenant>`, then `<path>` — the tenant itself coming from `?tenantId`, then `where[tenantId]`, then the
- *   `tenant-id` header (`:1013-1016`) — and only an integer 400-599 arms it (`:1074`). Its payload is
- *   `{ statusCode, message: 'Synthetic Gauzy refusal (<status>)' }` (`:1078-1079`), the fixture handler is skipped
- *   (`:1075-1077`, `:1080-1093`), the answer's status is the armed one (`:1094`) and the log entry carries it
- *   (`:1101-1109`), which is what `mock.failures()` counts. A `drops` arm instead writes nothing (`:1125`) and is
- *   logged with `status: 0` (`:1108`), so it is never counted as a refusal.
+ *   `tenant-id` header (`:1034-1037`) — and only an integer 400-599 arms it (`:1095`). Its payload is
+ *   `{ statusCode, message: 'Synthetic Gauzy refusal (<status>)' }` (`:1099-1100`), the fixture handler is skipped
+ *   (`:1096-1098`, `:1101-1114`), the answer's status is the armed one (`:1115`) and the log entry carries it
+ *   (`:1122-1130`), which is what `mock.failures()` counts. A `drops` arm instead writes nothing (`:1146`) and is
+ *   logged with `status: 0` (`:1129`), so it is never counted as a refusal.
  * - `core/services/server/guards/authenticated-guard-app.ts`: every route here authenticates through it, and it
  *   authenticates by asking the upstream `/user/me` (`:76-80`, shared per token for 5 s by `sessionChecks`, `:29-31`).
  *   `fails` is therefore never armed on `/api/user/me` and never keyed on a bare tenant: both would refuse the guard
  *   instead of the route under test.
  * - What the mock answers an unarmed call of these 16 paths: `mock-gauzy-server.mjs` has no handler for most of them,
- *   so its catch-all answers them — a DELETE as `{ affected: 1, raw: [] }` (`:804`), any other verb as the body it was
- *   sent or `{ success: true }` (`:805`), a GET as an empty page (`:806`); `POST /api/timesheet/timer/start` is
- *   answered at `:687-691` and `/api/timesheet/timer/status` at `:686`. That is why every control below is a real 2xx
+ *   so its catch-all answers them — a DELETE as `{ affected: 1, raw: [] }` (`:825`), any other verb as the body it was
+ *   sent or `{ success: true }` (`:826`), a GET as an empty page (`:827`); `POST /api/timesheet/timer/start` is
+ *   answered at `:703-707` and `/api/timesheet/timer/status` at `:702`. That is why every control below is a real 2xx
  *   rather than a mock 404, and why an id the fixture does not carry (EXTRA_IDS) still gets answered: the mock never
  *   looks the record up.
  *
@@ -76,7 +76,7 @@ const ONE_REFUSAL = 403;
  * Three ids the bootstrap fixture has no entry for. They only have to pass the route's own id schema — `z.guid()` for
  * a comment (`app/api/comment/[id]/route.ts:8`) and a notification (`app/api/employee-notification/[id]/route.ts:9`),
  * `z.uuid()` for an API token (`app/api/user-api-tokens/[id]/route.ts:9`) — and the mock answers an id it has never
- * seen (mock-gauzy-server.mjs:804-806), which is what makes a DELETE of a token that does not exist a 204.
+ * seen (mock-gauzy-server.mjs:825-827), which is what makes a DELETE of a token that does not exist a 204.
  */
 const EXTRA_IDS = {
 	comment: 'dddddddd-dddd-4ddd-8ddd-111111111111',
@@ -284,7 +284,7 @@ const ROUTES: RefusalRoute[] = [
 	}
 ];
 
-/** The body the mock writes for an armed refusal (mock-gauzy-server.mjs:1079), spelled the way the app passes it on. */
+/** The body the mock writes for an armed refusal (mock-gauzy-server.mjs:1100), spelled the way the app passes it on. */
 const gauzyRefusal = (status: number) => ({ statusCode: status, message: `Synthetic Gauzy refusal (${status})` });
 
 const describeAnswer = (path: string, response: APIResponse, body: string) =>
@@ -360,7 +360,7 @@ test.describe('lane-a · 16 proxy routes handing a Gauzy refusal straight to the
 				const path = route.app(ids);
 				const upstream = route.upstream(ids);
 				// Armed on the upstream path and never on a bare tenant: `fails` is keyed `<tenant>:<path>`, then
-				// `<tenant>`, then `<path>` (mock-gauzy-server.mjs:1068-1073), and a tenant-wide arm would refuse the
+				// `<tenant>`, then `<path>` (mock-gauzy-server.mjs:1089-1094), and a tenant-wide arm would refuse the
 				// guard's own `/api/user/me` check too (authenticated-guard-app.ts:76-80) — a different failure.
 				await mock.scenario({ fails: { [upstream]: status } });
 
@@ -372,7 +372,7 @@ test.describe('lane-a · 16 proxy routes handing a Gauzy refusal straight to the
 
 				// `gauzyErrorResponse` passes the unwrapped body on with its own status whenever that body carries a
 				// `statusCode` of 400 or more (gauzy-error-response.ts:32-37 with errorStatusOf :4-17), and the mock's
-				// refusal body carries the armed number (mock-gauzy-server.mjs:1078-1079, :1094).
+				// refusal body carries the armed number (mock-gauzy-server.mjs:1099-1100, :1115).
 				expect(response.status(), `an armed upstream ${status} was not answered ${status}: ${witness}`).toBe(
 					status
 				);
@@ -459,7 +459,7 @@ test.describe('lane-a · 16 proxy routes handing a Gauzy refusal straight to the
 			// The other half of the same function, pinned per route so the two halves cannot be confused: a rejection
 			// with no readable Gauzy body is answered with `{ message: <fallback> }` on a 502, with no `statusCode`
 			// added (gauzy-error-response.ts:26-28), and the mock recorded the call it cut with status 0
-			// (mock-gauzy-server.mjs:1108 with the socket destroyed at :1125).
+			// (mock-gauzy-server.mjs:1129 with the socket destroyed at :1146).
 			expect(response.status(), `the outage answer of the ${route.label} moved: ${witness}`).toBe(502);
 			expect(parseAnswer(body), `the outage body is no longer this route's sentence alone: ${witness}`).toEqual({
 				message: route.fallback
