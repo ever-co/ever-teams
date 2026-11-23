@@ -6,6 +6,7 @@ import { resolve } from 'node:path';
  * of the app.
  */
 const LOCALES_DIRECTORY = resolve(__dirname, '../../locales');
+const SECTION_SOURCE = resolve(__dirname, '../../core/components/settings/pages/security/allowed-sites-section.tsx');
 
 const APP_LOCALE_FILES = ['ar', 'bg', 'de', 'en', 'es', 'fr', 'he', 'it', 'nl', 'pl', 'pt', 'ru', 'zh'].map(
 	(language) => `${language}.json`
@@ -28,6 +29,13 @@ function argumentsOf(message: string): string[] {
 	return [...new Set(names)].sort();
 }
 
+/** Every `settings.allowedSites.*` key the section asks for. */
+function keysTheSectionUses(): string[] {
+	const text = readFileSync(SECTION_SOURCE, 'utf8');
+	const keys = [...text.matchAll(/'settings\.allowedSites\.([A-Z][A-Z_]*[A-Z])'/g)].map((match) => match[1]);
+	return [...new Set(keys)].sort();
+}
+
 const localeFiles = readdirSync(LOCALES_DIRECTORY).filter((file) => file.endsWith('.json'));
 const translatedLocaleFiles = localeFiles.filter((file) => file !== 'en.json');
 const english = messagesOf('en.json').allowedSites;
@@ -36,6 +44,10 @@ const KEYS = Object.keys(english);
 describe('translations of the sites a person signed in from', () => {
 	it('covers the 13 languages of the app', () => {
 		expect([...localeFiles].sort()).toEqual(APP_LOCALE_FILES);
+	});
+
+	it('defines in English every message the section asks for, and none it does not', () => {
+		expect([...KEYS].sort()).toEqual(keysTheSectionUses());
 	});
 
 	it('names in English what each message needs', () => {
