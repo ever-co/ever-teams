@@ -24,10 +24,17 @@
 - [ ] **T1**. Runtime flag `NEXT_PUBLIC_PEOPLE_SELF_SERVICE_ENABLED` and the Gauzy web app address
       `NEXT_PUBLIC_GAUZY_WEB_APP_URL` in `apps/web/.env.sample`, helper `core/lib/utils/self-service-enabled.ts` in the
       pattern of the existing `*-enabled.ts` helpers (`core/lib/utils/inbox-enabled.ts`), combining the flag with the
-      tenant's toggle of `FEATURE_TEAMS_PEOPLE_SELF_SERVICE` read once per session from `GET /user/me` with the relations
-      `tenant.featureOrganizations.feature` (`core/services/client/api/users/user.service.ts`), mobile runtime config key. Test: helper spec (off by default;
-      off for a tenant whose code is off while the flag is on; on only when both are on);
-      links hidden without the address.
+      tenant's toggle of `FEATURE_TEAMS_PEOPLE_SELF_SERVICE` read once per session from `GET /user/me`, mobile runtime
+      config key. `getAuthenticatedUserData` of `core/services/client/api/users/user.service.ts` requests the relations
+      `['role', 'tenant']` today and gains `tenant.featureOrganizations` and `tenant.featureOrganizations.feature`; the
+      `ITenant` interface of `core/types/interfaces/tenant/tenant.ts` gains `featureOrganizations` (a new
+      `IFeatureOrganization` with `isEnabled` and `feature.code`); a code without a toggle row reads as off. This one
+      session read also serves `workspace-collaboration-clients`. Files: `apps/web/.env.sample`,
+      `core/lib/utils/self-service-enabled.ts`, `core/services/client/api/users/user.service.ts`,
+      `core/types/interfaces/tenant/tenant.ts`. Test: helper spec (off by default; off for a tenant whose code is off
+      while the flag is on; on only when both are on); `core/services/client/api/users/user.service.test.ts` (the
+      `/user/me` request carries both relations; signed in as an ordinary employee without administration permissions,
+      the session holds the tenant's toggle of the code, on and off); links hidden without the address.
 - [ ] **T2**. Interfaces `core/types/interfaces/{time-off,attendance,shifts,offline}/*` and Zod schemas
       `core/types/schemas/{time-off,attendance,shifts,offline}/*`, promoted to `packages/types/src/time-attendance/`.
       Test: schema specs against platform response samples.
@@ -113,7 +120,8 @@
 - [ ] **T20**. Installable app: `app/manifest.ts` (start URL `/`), `public/app-sw.js` (shell cache, update prompt and
       badge, imports `inbox-push-sw.js`), `core/components/features/offline/register-app-worker.tsx`, install prompt with
       30-day snooze (the script choice for both registration paths and the way back to the inbox worker: T37). Test:
-      worker registered only with the flag on; update prompt; inbox push still delivered.
+      worker registered while this feature or `workspace-collaboration-clients` is on for the tenant (each alone and
+      both), not registered with both off; update prompt; inbox push still delivered.
 - [ ] **T21**. i18n `timeOff.*`, `attendance.*`, `shifts.*`, `offline.*` in every file of `apps/web/locales/`; cspell
       words. Test: locale completeness gate.
 - [ ] **T37**. One worker for both registration paths and the way back: `core/lib/utils/app-worker.ts` answers whether
@@ -122,16 +130,18 @@
       `core/hooks/inbox/use-inbox-web-push.ts` registers that script instead of the fixed `/inbox-push-sw.js`, so
       switching push on keeps the app worker and works as today with the feature off;
       `core/components/features/offline/register-app-worker.tsx`, mounted in `app/[locale]/(main)/layout.tsx` whatever
-      the flags, puts `inbox-push-sw.js` back on the registration at `/` once the feature is off (the push subscription
-      stays with the registration), removes a registration without a push subscription, deletes the app worker's caches,
-      and does nothing on a browser that never ran the app worker. Files: `core/lib/utils/app-worker.ts`,
+      the flags, puts `inbox-push-sw.js` back on the registration at `/` once both features are off (the push
+      subscription stays with the registration), removes a registration without a push subscription, deletes the app
+      worker's caches, and does nothing on a browser that never ran the app worker. Files: `core/lib/utils/app-worker.ts`,
       `core/hooks/inbox/use-inbox-web-push.ts`, `core/components/features/offline/register-app-worker.tsx`,
-      `app/[locale]/(main)/layout.tsx`. Test: `core/lib/utils/app-worker.test.ts` (script per state);
+      `app/[locale]/(main)/layout.tsx`. Test: `core/lib/utils/app-worker.test.ts` (script for each of the four flag
+      combinations: `/app-sw.js` while either feature is on, `/inbox-push-sw.js` with both off);
       `core/hooks/inbox/use-inbox-web-push.test.tsx` (switching push on while the app worker runs keeps `app-sw.js` and
-      its shell cache; with the feature off it registers `inbox-push-sw.js` as today);
-      `core/components/features/offline/register-app-worker.test.tsx` (after the feature is switched off the
-      registration runs `inbox-push-sw.js` with the same push subscription and a test push is shown; without a
-      subscription the registration and the caches are gone).
+      its shell cache; with both features off it registers `inbox-push-sw.js` as today);
+      `core/components/features/offline/register-app-worker.test.tsx` (this feature switched off while
+      `workspace-collaboration-clients` stays on keeps `app-sw.js` and its caches; once both are off the registration
+      runs `inbox-push-sw.js` with the same push subscription and a test push is shown; without a subscription the
+      registration and the caches are gone).
 
 ## Phase 3 — Live updates, notifications, polish
 

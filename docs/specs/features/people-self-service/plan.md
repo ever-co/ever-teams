@@ -72,7 +72,7 @@ flowchart LR
 | Approvals | the existing Inbox decision row answered in place; bulk through `POST /workflows/tasks/decide-bulk`; digest through the existing notification settings and inbox delivery digests | spec FR-46 to FR-49; one approvals list |
 | UI | `core/components/common` wrappers, Tailwind tokens, central icons; swipe rows built on the common list primitives with button equivalents | Principle V |
 | Gauzy web app links | runtime key `NEXT_PUBLIC_GAUZY_WEB_APP_URL` read through `readRuntimeEnv()`; links hidden when unset | spec FR-46, FR-52 |
-| Flag | `NEXT_PUBLIC_PEOPLE_SELF_SERVICE_ENABLED` via `readRuntimeEnv()` offers the feature on a deployment; per tenant, `core/lib/utils/self-service-enabled.ts` also requires the tenant's feature code `FEATURE_TEAMS_PEOPLE_SELF_SERVICE` (platform feature catalogue, off by default), read once per session from the tenant's feature toggles that `GET /user/me` returns with the relations `tenant.featureOrganizations.feature` (the existing `user.service.ts` adds them) and kept in the session state; the mobile app reads the same key from its runtime config and the same toggle | Principle IV; a tenant-level setting the platform already stores, with a default for new tenants |
+| Flag | `NEXT_PUBLIC_PEOPLE_SELF_SERVICE_ENABLED` via `readRuntimeEnv()` offers the feature on a deployment; per tenant, `core/lib/utils/self-service-enabled.ts` also requires the tenant's feature code `FEATURE_TEAMS_PEOPLE_SELF_SERVICE` (shared: declared in the Ever Gauzy feature catalogue, off by default), read once per session from the tenant's feature toggles that `GET /user/me` returns with the relations `tenant.featureOrganizations` and `tenant.featureOrganizations.feature` (the route accepts these relations for any signed-in user; `getAuthenticatedUserData` of `core/services/client/api/users/user.service.ts` requests only `role` and `tenant` today and gains both relations, and `ITenant` of `core/types/interfaces/tenant/tenant.ts` gains `featureOrganizations`, task T1; a code without a toggle row reads as off) and kept in the session state; the mobile app reads the same key from its runtime config and the same toggle | Principle IV; a tenant-level setting the platform already stores, with a default for new tenants |
 
 ## 3. Platform API Used
 
@@ -84,7 +84,7 @@ this client consumes them as they are. Time off ships first on the existing core
 | Method | Endpoint | Purpose | Platform spec |
 | ------ | -------- | ------- | ------------- |
 | `GET` | `/employee/me`, `/auth/*` (existing sign-in, refresh, request and reset password, two-factor) | session, employee summary with position and department | existing |
-| `GET` | `/user/me` with the relations `tenant.featureOrganizations.feature` | the tenant's toggle of `FEATURE_TEAMS_PEOPLE_SELF_SERVICE` | existing route; the code is an entry of the platform's feature catalogue |
+| `GET` | existing `/user/me`, whose relations requested by `getAuthenticatedUserData` gain `tenant.featureOrganizations` and `tenant.featureOrganizations.feature` (T1) | the tenant's toggle of `FEATURE_TEAMS_PEOPLE_SELF_SERVICE` | existing route, which accepts these relations for any signed-in user; the code is an entry of the platform's feature catalogue |
 | `GET/POST/PUT` | `/time-off-request`, `/time-off-policy`, `/time-off-balance`, `/official-holiday` | first slice: my requests, policies, balances, holidays | existing |
 | `GET/POST` | `/attendance/me/status`, `/attendance/me/check-ins`, `/attendance/me/offline-batch`, `/attendance/me/phone-code` | check-in state, check-in, queued check-ins, kiosk code | `attendance-and-shifts` |
 | `GET` | `/attendance/me/days`, `/attendance/calendar`, `/attendance/days/:id/changes` | recent check-ins, Calendar layer, day sources | `attendance-and-shifts` |
@@ -248,4 +248,5 @@ the conflict review is a new action with a new client id.
   `apps/web/core/lib/utils/inbox-entry.ts`, `apps/web/core/components/settings/pages/profile/profile-settings-page.tsx`,
   `apps/web/core/components/common/offline-wrapper.tsx`, `apps/web/core/hooks/docs/use-docs-availability.ts`,
   `apps/web/core/hooks/inbox/use-inbox-web-push.ts`, `apps/web/public/inbox-push-sw.js`,
-  `apps/web/core/hooks/realtime/`, `apps/mobile/app/navigators/authenticated-navigator.tsx`
+  `apps/web/core/hooks/realtime/`, `apps/mobile/app/navigators/authenticated-navigator.tsx`,
+  `apps/web/core/services/client/api/users/user.service.ts`, `apps/web/core/types/interfaces/tenant/tenant.ts`

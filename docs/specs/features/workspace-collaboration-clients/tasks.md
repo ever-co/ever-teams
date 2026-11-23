@@ -15,8 +15,8 @@
 - Tasks are sequential by default; `(parallel)` tasks can run alongside their predecessor.
 - Each task names its files so an implementer can pick it up cold.
 - Tick the checkbox as the PR lands; add new tasks at the bottom, never renumber.
-- Everything stays behind the runtime flag and the tenant's feature code `FEATURE_TEAMS_COLLABORATION_CLIENTS`: the feature is off by default; after the trial period the code may be switched on by default for new tenants only (its default in the platform's feature catalogue); existing tenants keep their stored toggle until an administrator changes it.
-- Depends on `people-self-service` T1 (Gauzy web app address), T3 (area availability), T4, T5, T19 (offline queue,
+- Everything stays behind the runtime flag and the tenant's feature code `FEATURE_TEAMS_COLLABORATION_CLIENTS` (shared: declared in the Ever Gauzy feature catalogue): the feature is off by default; after the trial period the code may be switched on by default for new tenants only (its default in the platform's feature catalogue); existing tenants keep their stored toggle until an administrator changes it.
+- Depends on `people-self-service` T1 (Gauzy web app address and the tenant's feature toggles in the session), T3 (area availability), T4, T5, T19 (offline queue,
   conflict review, offline wrapper), T20 (app worker), T37 (worker choice) and T23 (push).
 - Paths that start with `core/`, `app/`, `public/` or `locales/` are in `apps/web/`; every component and hook has its
   `*.test.tsx` (or `*.test.ts`) beside it, and every new proxy route its `route.test.ts`.
@@ -26,11 +26,14 @@
 - [ ] **T1**. Runtime flag `NEXT_PUBLIC_COLLABORATION_CLIENTS_ENABLED` in `apps/web/.env.sample`, helper
       `core/lib/utils/collaboration-clients-enabled.ts` combining it with the tenant's toggle of
       `FEATURE_TEAMS_COLLABORATION_CLIENTS` (read once per session from `GET /user/me` with the relations
-      `tenant.featureOrganizations.feature`) and with each page flag; mobile and desktop keys. Files:
-      `apps/web/.env.sample`, `core/lib/utils/collaboration-clients-enabled.ts`, `apps/mobile/.env.template`,
-      `apps/server-web/src/main/helpers/constant.ts`. Test: `core/lib/utils/collaboration-clients-enabled.test.ts` (off by
-      default; off for a tenant whose code is off while the flag is on; area needs both flags; nothing registered with
-      the flag off).
+      `tenant.featureOrganizations` and `tenant.featureOrganizations.feature`, which `people-self-service` T1 adds to
+      `getAuthenticatedUserData` of `core/services/client/api/users/user.service.ts`) and with each page flag; mobile and
+      desktop keys. Files: `apps/web/.env.sample`, `core/lib/utils/collaboration-clients-enabled.ts`,
+      `apps/mobile/.env.template`, `apps/server-web/src/main/helpers/constant.ts`. Test:
+      `core/lib/utils/collaboration-clients-enabled.test.ts` (off by default; off for a tenant whose code is off while the
+      flag is on; area needs both flags; nothing registered with the flag off; signed in as an ordinary employee without
+      administration permissions, the helper follows the tenant's toggle of this code from the `/user/me` session read,
+      on and off).
 - [ ] **T2**. Interfaces and Zod schemas `core/types/{interfaces,schemas}/{chat,meetings,calendar,mail,docs,summary,
       composer,share,offline}/`, promoted to `packages/types/src/collaboration/`. Files: `core/types/interfaces/chat/`,
       `core/types/schemas/chat/` and the other folders named, `packages/types/src/collaboration/index.ts`. Test:

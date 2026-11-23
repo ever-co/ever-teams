@@ -97,8 +97,9 @@ undo, in bulk where allowed, and get one morning digest of what still waits.
 - **FR-3** The Ever Teams web app MUST be installable as a whole: one app manifest (name, icons, standalone display,
   opening on the existing Home), an install prompt the person can dismiss (asked again after 30 days at most), and one
   app service worker that caches the app shell, keeps the existing inbox push handling and offers "Reload to update"
-  when a new version is ready; switching push on keeps that worker, and once the feature is off again each browser gets
-  the existing inbox push worker back with its push subscription.
+  when a new version is ready; switching push on keeps that worker, the worker stays while this feature or
+  `workspace-collaboration-clients` is on, and once both are off each browser gets the existing inbox push worker back
+  with its push subscription.
 - **FR-4** The mobile app MUST offer the same features inside its existing navigation (check-in on the timer screen, a
   time off and shifts section beside timer, team and profile), with the same rules.
 - **FR-5** These features MUST use the existing Ever Teams sign-in and session (password, one-time code, social
@@ -294,8 +295,9 @@ undo, in bulk where allowed, and get one morning digest of what still waits.
 ## 7. Acceptance Criteria
 
 - [ ] **AC-1** With the flag on, the Ever Teams web app installs, opens standalone on Home and offers "Reload to update"
-      after a deploy; switching push on keeps the app worker; with the flag off nothing changes, and once it is off
-      again the existing inbox push worker is back and delivers push (FR-3).
+      after a deploy; switching push on keeps the app worker; with the flag off nothing changes; with this feature off
+      and `workspace-collaboration-clients` on the app worker stays, and once both are off the existing inbox push
+      worker is back and delivers push (FR-3).
 - [ ] **AC-2** Home shows shift, check-in, time off, requests, exceptions and prompts beside the timer and daily plans;
       one card failing leaves the others (advanced: Home cards; FR-10, FR-12).
 - [ ] **AC-3** Check-in with location proof inside and outside the radius, with location denied, and on a remote day
