@@ -71,10 +71,12 @@ describe('POST /api/timer/start with a break', () => {
 		expect(options).toEqual({ keepsStatusOnError: true });
 	});
 
-	it('reads the refusal of a work start as before', async () => {
+	// Gauzy refuses a work start without the required daily plan with a body that carries no status either (422
+	// DAILY_PLAN_REQUIRED): read as before, it reached the timer as a 502 and its reason was lost (#5716)
+	it('keeps the status of a refused work start too', async () => {
 		await startTimer({ taskId: 'task-1' });
 
 		const [, , options] = mockStartTimerRequest.mock.calls[0];
-		expect(options).toBeUndefined();
+		expect(options).toEqual({ keepsStatusOnError: true });
 	});
 });
