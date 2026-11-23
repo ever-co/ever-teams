@@ -51,6 +51,7 @@ import type { DocsEditorApi, DocsEditorComments, DocsEditorLive } from './docs-e
 import { DocsLiveStatusLabel, useLiveReadOnlyText } from './docs-live-presence';
 import { DocsPageGlyph } from './docs-page-glyph';
 import { DocsVersionPanel } from './docs-version-panel';
+import { isPageWithoutWriteAccess } from '@/core/lib/utils/docs-page-access';
 
 const DocsEditorSurface = dynamic(() => import('./docs-editor-surface').then((module) => module.DocsEditorSurface), {
 	ssr: false,
@@ -791,7 +792,8 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES, onOpen
 
 	const isPrivate = page.visibility === EDocumentVisibility.PRIVATE;
 	const isFolder = page.kind === EDocumentKind.FOLDER;
-	const isReadOnly = Boolean(page.isLocked || page.isArchived || unsupported);
+	const hasNoWriteAccess = isPageWithoutWriteAccess(page);
+	const isReadOnly = Boolean(page.isLocked || page.isArchived || unsupported || hasNoWriteAccess);
 	const isFavorite = actions.isFavorite(page.id);
 	const shownTitle = pageTitle({ name: title }, t('docs.UNTITLED'));
 	const crumbs = [
@@ -991,6 +993,11 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES, onOpen
 							{page.isLocked && !page.isArchived && (
 								<Notice tone="muted" icon={<Lock className="size-4" />}>
 									<span>{t('docs.LOCKED_NOTICE')}</span>
+								</Notice>
+							)}
+							{hasNoWriteAccess && !page.isLocked && !page.isArchived && (
+								<Notice tone="muted" icon={<Lock className="size-4" />}>
+									<span>{t('docs.NO_WRITE_ACCESS_NOTICE')}</span>
 								</Notice>
 							)}
 							{isLiveEditing && liveReadOnlyText && (
