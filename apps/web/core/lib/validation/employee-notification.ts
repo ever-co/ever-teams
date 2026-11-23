@@ -39,7 +39,7 @@ export const notificationSettingSwitchesSchema = z
  * The receiver's own state on one notification. Gauzy's update route writes the body as given, so the sender,
  * the receiver, the type and the text never go through.
  */
-export const notificationPatchSchema = z
+const notificationPatchSchema = z
 	.object({
 		isRead: z.boolean().optional(),
 		readAt: z.iso.datetime().nullable().optional(),
