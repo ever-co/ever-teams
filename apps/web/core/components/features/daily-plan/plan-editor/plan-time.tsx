@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type ChangeEvent, type ReactNode } from 'react';
+import { useRef, useState, type ChangeEvent, type ReactNode } from 'react';
 import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
 import { toast } from 'sonner';
 import { controlGroupRecipe } from '@/core/components/common/input';
@@ -48,11 +48,17 @@ interface PlanHoursStepperProps {
 export function PlanHoursStepper({ hours, canEdit, onChange }: Readonly<PlanHoursStepperProps>) {
 	const t = useTranslations();
 	const [typedText, setTypedText] = useState<string | null>(null);
+	// The hours the plan had as the person began to type: an entry that ends unreadable gives them back
+	const hoursBeforeTyping = useRef(hours);
 	const isAtZero = hours <= 0;
 	const isLessDisabled = !canEdit || isAtZero;
 	const shownText = typedText ?? plannedHoursText(hours);
 	const handleInput = (event: ChangeEvent<HTMLInputElement>) => {
 		const text = event.target.value;
+		const isFirstKeystroke = typedText === null;
+		if (isFirstKeystroke) {
+			hoursBeforeTyping.current = hours;
+		}
 		setTypedText(text);
 		const typedHours = plannedHoursFromInput(text);
 		if (typedHours !== null) {
@@ -62,6 +68,8 @@ export function PlanHoursStepper({ hours, canEdit, onChange }: Readonly<PlanHour
 	const handleBlur = () => {
 		const isUnreadable = typedText !== null && plannedHoursFromInput(typedText) === null;
 		if (isUnreadable) {
+			// What could be read on the way ("3" of "3h") was applied as it was typed: it is taken back
+			onChange(hoursBeforeTyping.current);
 			toast.warning(t('toasts.plans.HOURS_INVALID'), { id: 'plan-hours-invalid' });
 		}
 		setTypedText(null);
