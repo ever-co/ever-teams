@@ -3511,6 +3511,7 @@
 		"FILL_IN": "请填写：{fields}。",
 		"END_AFTER_START": "结束时间必须晚于开始时间。",
 		"OWN_TIME_ONLY": "你只能为自己添加时间。管理员可以为其他人添加时间。",
+		"RUNNING_TIMER_OVERLAP": "您的计时器正在这段时间内运行。请先停止它，或选择这段时间之外的时间。",
 		"DURATION": {
 			"LABEL": "时长",
 			"PLACEHOLDER": "1:30 或 90m",

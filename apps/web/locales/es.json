@@ -3511,6 +3511,7 @@
 		"FILL_IN": "Completa: {fields}.",
 		"END_AFTER_START": "La hora de fin debe ser posterior a la de inicio.",
 		"OWN_TIME_ONLY": "Añades tiempo para ti. Un administrador puede añadirlo para otra persona.",
+		"RUNNING_TIMER_OVERLAP": "Tu temporizador está en marcha durante este tiempo. Detenlo primero o elige un tiempo fuera de él.",
 		"DURATION": {
 			"LABEL": "Duración",
 			"PLACEHOLDER": "1:30 o 90m",
