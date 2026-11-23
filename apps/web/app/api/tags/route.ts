@@ -3,6 +3,7 @@ import { authenticatedGuard } from '@/core/services/server/guards/authenticated-
 import { createLabelsRequest, getTaskLabelsListRequest } from '@/core/services/server/requests/task-labels';
 import { NextResponse } from 'next/server';
 import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
+import { gauzyErrorResponse } from '@/core/services/server/gauzy-error-response';
 
 export async function GET(req: Request) {
 	const res = new NextResponse();
@@ -20,9 +21,13 @@ export async function GET(req: Request) {
 		organizationTeamId
 	};
 
-	const { data } = await getTaskLabelsListRequest(par, access_token);
-
-	return $res(data);
+	try {
+		const { data } = await getTaskLabelsListRequest(par, access_token);
+		return $res(data);
+	} catch (error) {
+		// A refusal of the API goes back with its status and reason, as in direct mode (#5726)
+		return await gauzyErrorResponse(error, 'The labels could not be read.');
+	}
 }
 
 export async function POST(req: Request) {
@@ -35,7 +40,11 @@ export async function POST(req: Request) {
 
 	if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: status ?? 401 });
 
-	const response = await createLabelsRequest(body, access_token || '', body?.tenantId);
-
-	return $res(response.data);
+	try {
+		const response = await createLabelsRequest(body, access_token || '', body?.tenantId);
+		return $res(response.data);
+	} catch (error) {
+		// A refusal of the API goes back with its status and reason, as in direct mode (#5726)
+		return await gauzyErrorResponse(error, 'The label could not be created.');
+	}
 }
