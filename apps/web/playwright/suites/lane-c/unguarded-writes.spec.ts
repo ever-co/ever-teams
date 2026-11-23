@@ -81,7 +81,10 @@ import { triples } from '../api/log-helpers';
  *   e.g. `app/api/auth/ever-id/confirm/route.ts:69-70`), with nothing called. That pins today's answer and proves
  *   nothing about origin handling — those probes never got past the switch. Measuring them needs the lane started
  *   with `E2E_EVER_ID=1`, which a second `next dev` at this machine's free-RAM level is not worth. Recorded as
- *   unverified in `PLAN.md`.
+ *   unverified in `PLAN.md`. **Update 2026-11-23:** lane-c now runs with `E2E_EVER_ID=1`, and then four of them get
+ *   past the switch: each refuses the empty `{}` body with its own first check (400, 410 `expired`, 400 `invalid`,
+ *   410 `expired`), cross-site and headerless alike, nothing called — no origin question in front of the body check.
+ *   `everIdPinned` picks the pin by `E2E_EVER_ID`, so the file holds on either lane start. `start` stays 404 either way.
  * - **Whether an API would reject what travelled.** The mock never validates a bearer token, so "the substituted /
  *   absent credential would be refused upstream" is not answerable here; the mock's `receivedTokens` says only which
  *   calls *carried* one. Across all 35 loop probes it says: none of them did.
@@ -164,6 +167,26 @@ const everIdOffNote =
 	'origin question, and 404 with nothing called says nothing about a guard';
 
 /**
+ * Whether this lane was started with the Ever ID routes mounted (`E2E_EVER_ID=1`, `playwright.lane.config.ts:22-32`).
+ * The four Ever ID handlers below answer their off-switch 404 without it and their own first refusal of an empty `{}`
+ * body with it — measured on lane-c on 2026-11-23 (`E:\Coding\.tmp\s2-lead-lane-c-full-1.log`), cross-site and
+ * headerless word for word alike, nothing called. That is the probe getting past the switch and finding no origin
+ * question in front of the body check: the same answer either way, which is what this list is about.
+ */
+const EVER_ID_ON = process.env.E2E_EVER_ID === '1';
+const everIdOnNote =
+	'the Ever ID sign-in is configured in this lane (E2E_EVER_ID=1): the probe reached the handler, which refused the ' +
+	'empty body with its own first check, the same for a cross-site and a headerless request';
+/** The off-switch answer, or the handler's own first refusal when the lane mounts Ever ID. */
+const everIdPinned = (on: Answer) => ({
+	crossSite: EVER_ID_ON ? on : everIdOff,
+	headerless: EVER_ID_ON ? on : everIdOff,
+	crossSiteCalls: 0,
+	headerlessCalls: 0
+});
+const everIdNote = EVER_ID_ON ? everIdOnNote : everIdOffNote;
+
+/**
  * The write handlers whose route file names none of `refuseForeignOrigin`, `refuseForeignWrite`, `forwardToGauzy`,
  * `refuseUnlessPermitted` or `refuseWithoutPermission`: 31 of the 35 files the scan flagged — `account-deletion/me`
  * left this list after the first run (finding 1) and is pinned as guarded below.
@@ -237,53 +260,37 @@ const UNGUARDED_WRITES: Probe[] = [
 		verb: 'POST',
 		path: '/api/auth/ever-id/backchannel-logout',
 		file: 'auth/ever-id/backchannel-logout/route.ts',
-		evidence: 'no origin or sec-fetch read anywhere in the file (grepped today); 404 while Ever ID is off (:62)',
-		pinned: {
-			crossSite: everIdOff,
-			headerless: everIdOff,
-			crossSiteCalls: 0,
-			headerlessCalls: 0
-		},
-		note: everIdOffNote
+		evidence:
+			'no origin or sec-fetch read anywhere in the file (grepped today); 404 while Ever ID is off (:62), 400 with no logout token when on (:70-72)',
+		pinned: everIdPinned({ status: 400, body: '' }),
+		note: everIdNote
 	},
 	{
 		verb: 'POST',
 		path: '/api/auth/ever-id/confirm',
 		file: 'auth/ever-id/confirm/route.ts',
-		evidence: 'no origin or sec-fetch read anywhere in the file; 404 while Ever ID is off (:69-70)',
-		pinned: {
-			crossSite: everIdOff,
-			headerless: everIdOff,
-			crossSiteCalls: 0,
-			headerlessCalls: 0
-		},
-		note: everIdOffNote
+		evidence:
+			'no origin or sec-fetch read anywhere in the file; 404 while Ever ID is off (:69-70), 410 expired with no handoff when on (:76-77)',
+		pinned: everIdPinned({ status: 410, body: '{"reason":"expired"}' }),
+		note: everIdNote
 	},
 	{
 		verb: 'POST',
 		path: '/api/auth/ever-id/finish-setup',
 		file: 'auth/ever-id/finish-setup/route.ts',
-		evidence: 'no origin or sec-fetch read anywhere in the file; 404 while Ever ID is off (:46-47)',
-		pinned: {
-			crossSite: everIdOff,
-			headerless: everIdOff,
-			crossSiteCalls: 0,
-			headerlessCalls: 0
-		},
-		note: everIdOffNote
+		evidence:
+			'no origin or sec-fetch read anywhere in the file; 404 while Ever ID is off (:46-47), 400 invalid with no workspace index when on (:51-52)',
+		pinned: everIdPinned({ status: 400, body: '{"reason":"invalid"}' }),
+		note: everIdNote
 	},
 	{
 		verb: 'POST',
 		path: '/api/auth/ever-id/signup-handoff',
 		file: 'auth/ever-id/signup-handoff/route.ts',
-		evidence: 'no origin or sec-fetch read anywhere in the file; 404 while Ever ID is off (:93-94)',
-		pinned: {
-			crossSite: everIdOff,
-			headerless: everIdOff,
-			crossSiteCalls: 0,
-			headerlessCalls: 0
-		},
-		note: everIdOffNote
+		evidence:
+			'no origin or sec-fetch read anywhere in the file; 404 while Ever ID is off (:93-94), 410 expired with no handoff when on (:101-103)',
+		pinned: everIdPinned({ status: 410, body: '{"reason":"expired"}' }),
+		note: everIdNote
 	},
 	{
 		verb: 'POST',
