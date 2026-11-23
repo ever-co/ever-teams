@@ -19,8 +19,12 @@ RUN yarn turbo run build --filter=@ever-teams/example-nextjs-boilerplate
 # sharp 0.33, so yarn nests the libvips of Next's sharp (0.35) where the sharp binary's rpath does not
 # look, and /_next/image would serve the original files. Install the version Next resolves, flat, with npm
 # (apps/web's image also installs its sharp with npm); the runtime stage lays it over the traced copy.
+# sharp's `exports` hides ./package.json, so the version is read from the folder its entry resolves to.
 RUN cd packages/toolkit/examples/next-boilerplate-ixartz \
-	&& version="$(node -p "require(require.resolve('sharp/package.json', { paths: [require('node:path').dirname(require.resolve('next/package.json'))] })).version")" \
+	&& version="$(node -p "const path = require('node:path'); \
+		let dir = path.dirname(require.resolve('sharp', { paths: [path.dirname(require.resolve('next/package.json'))] })); \
+		while (path.basename(dir) !== 'sharp' && dir !== path.dirname(dir)) dir = path.dirname(dir); \
+		JSON.parse(require('node:fs').readFileSync(path.join(dir, 'package.json'), 'utf8')).version")" \
 	&& mkdir /sharp && cd /sharp \
 	&& npm install --omit=dev --no-save --no-package-lock --no-audit --no-fund --ignore-scripts "sharp@${version}" \
 	&& npm cache clean --force
