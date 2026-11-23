@@ -47,10 +47,24 @@ function linkDirectory(target: string, path: string): void {
 	symlinkSync(target, path, process.platform === 'win32' ? 'junction' : 'dir');
 }
 
+/** As the Remix Dockerfile runs it. */
 function run(root: string, app: string, out: string, extra: string[] = []) {
 	return spawnSync(
 		process.execPath,
-		[SCRIPT, '--root', root, '--app', app, '--out', out, '--scan', join(app, 'build/server'), ...extra],
+		[
+			'--experimental-vm-modules',
+			'--disable-warning=ExperimentalWarning',
+			SCRIPT,
+			'--root',
+			root,
+			'--app',
+			app,
+			'--out',
+			out,
+			'--scan',
+			join(app, 'build/server'),
+			...extra
+		],
 		{ encoding: 'utf8' }
 	);
 }
@@ -62,17 +76,20 @@ describe('copy-runtime-deps', () => {
 		const out = join(workspace, 'out');
 		const modules = join(root, 'node_modules');
 
-		// `a` needs b@2 (nested under it) while the app itself imports the hoisted b@1.
+		// `a` needs b@2 (nested under it) while the app itself imports the hoisted b@1. `native` is in both
+		// its dependencies and optionalDependencies, which makes it optional (as in yarn): not installed here.
 		writePackage(
 			join(modules, 'a'),
 			{
 				name: 'a',
-				dependencies: { b: '^2.0.0' },
+				dependencies: { b: '^2.0.0', native: '*' },
+				optionalDependencies: { native: '*', opt: '*' },
 				peerDependencies: { p: '*', big: '*' },
 				peerDependenciesMeta: { big: { optional: true } }
 			},
 			"module.exports = { b: require('b').version, p: require('p').p };"
 		);
+		writePackage(join(modules, 'opt'), { name: 'opt' });
 		writePackage(
 			join(modules, 'a/node_modules/b'),
 			{ name: 'b', version: '2.0.0' },
@@ -106,26 +123,40 @@ describe('copy-runtime-deps', () => {
 				'import * as lib from "@ws/lib/sub/path";',
 				'import fs from "node:fs";',
 				'import chunk from "./chunk.js";',
-				'  import indented from "noise";',
+				// Import-shaped text that is not an import: none of it may become an entry (`ghost` is
+				// not installed, so taking it for one would fail the copy).
 				'const inString = \'import z from "noise"\';',
 				'const inTemplate = `${_a} from "noise"`;',
+				'const example = `',
+				'import "ghost";',
+				'export { y } from "noise";',
+				'`;',
+				'// import "ghost";',
+				'/*',
+				'import "noise";',
+				'*/',
 				'const later = () => import("lazy");',
 				'const notInstalled = () => import("lazy-missing");'
 			].join('\n')
 		);
+		// --root and --app reached through a link to the repository: package realpaths must still be
+		// recognised as inside --root.
+		const rootLink = join(workspace, 'repo-link');
+		linkDirectory(root, rootLink);
 
-		const result = run(root, app, out, ['cli']);
-		expect(result.stderr).not.toContain('cannot find');
+		const result = run(rootLink, join(rootLink, 'apps/app'), out, ['cli']);
+		expect(result.stderr).toBe('');
 		expect(result.status).toBe(0);
 
-		for (const name of ['a', 'b', 'p', 'side', 'reexp', 'lazy', 'cli']) {
+		for (const name of ['a', 'b', 'p', 'opt', 'side', 'reexp', 'lazy', 'cli']) {
 			expect(existsSync(join(out, 'node_modules', name, 'package.json'))).toBe(true);
 		}
 		expect(JSON.parse(readFileSync(join(out, 'node_modules/a/node_modules/b/package.json'), 'utf8')).version).toBe(
 			'2.0.0'
 		);
-		expect(existsSync(join(out, 'node_modules/noise'))).toBe(false);
-		expect(existsSync(join(out, 'node_modules/big'))).toBe(false);
+		for (const name of ['noise', 'ghost', 'big', 'native']) {
+			expect(existsSync(join(out, 'node_modules', name))).toBe(false);
+		}
 		expect(lstatSync(join(out, 'node_modules/@ws/lib')).isSymbolicLink()).toBe(true);
 		expect(existsSync(join(out, 'packages/lib/node_modules/c/package.json'))).toBe(true);
 

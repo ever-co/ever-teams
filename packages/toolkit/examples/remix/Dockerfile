@@ -13,8 +13,10 @@ RUN yarn install --network-timeout 1000000 --frozen-lockfile --non-interactive -
 RUN yarn turbo run build --filter=@ever-teams/example-remix
 # Pruned production install: the packages the server bundle leaves external (Vite bundles the linked
 # workspace packages into it) plus remix-serve, with their dependencies, copied from the install above.
-RUN node .deploy/examples/copy-runtime-deps.mts --root /app --app /app/packages/toolkit/examples/remix \
-	--out /runtime --scan /app/packages/toolkit/examples/remix/build/server @remix-run/serve
+# --experimental-vm-modules: the script parses the bundle with vm.SourceTextModule (never runs it).
+RUN node --experimental-vm-modules --disable-warning=ExperimentalWarning .deploy/examples/copy-runtime-deps.mts \
+	--root /app --app /app/packages/toolkit/examples/remix --out /runtime \
+	--scan /app/packages/toolkit/examples/remix/build/server @remix-run/serve
 
 # Runtime: the build output and that pruned node_modules only. Shipping the build stage (the whole
 # monorepo and its full install) made this image ~1.7 GB compressed, several GB on every worker.

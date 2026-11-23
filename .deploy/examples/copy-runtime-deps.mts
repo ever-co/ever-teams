@@ -9,16 +9,19 @@
  * stripping), so it only uses erasable TypeScript syntax and needs no build step.
  *
  * Usage:
- *   node copy-runtime-deps.mts --root <repo root> --app <app dir> --out <dir> \
+ *   node --experimental-vm-modules copy-runtime-deps.mts --root <repo root> --app <app dir> --out <dir> \
  *     [--scan <dir of built server files>]... [<package name>]...
  *
- * - --scan: every package imported by a top-level import declaration of the .js/.mjs/.cjs files under
- *   that directory is an entry (what the bundler left external), so a dependency the app forgot to
- *   declare is still found. `import('pkg')` with a literal adds an optional entry.
+ * - --scan: every package that an ES module (.js/.mjs) under that directory imports or re-exports
+ *   statically is an entry (what the bundler left external), so a dependency the app forgot to declare is
+ *   still found. V8 parses each module (vm.SourceTextModule, hence the flag) without running it, so text
+ *   in strings, template literals or comments is never taken for an import. `import('pkg')` with a
+ *   literal, in any scanned file, adds an optional entry.
  * - <package name>: extra entry packages (e.g. the server CLI the image runs).
  * Packages are looked up from --app upwards, as Node resolves them, and copied to --out at the same
  * path relative to --root, so the copied tree resolves the same way. `dependencies` must resolve;
- * `optionalDependencies` and non-optional `peerDependencies` are copied when installed.
+ * `optionalDependencies` (which win over `dependencies` for a name in both, as in yarn) and non-optional
+ * `peerDependencies` are copied when installed.
  *
  * Tested by apps/web/test/architecture/copy-runtime-deps.test.ts.
  */
@@ -26,6 +29,7 @@ import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, realpathSync,
 import { isBuiltin } from 'node:module';
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { parseArgs } from 'node:util';
+import vm from 'node:vm';
 
 type PackageManifest = {
 	name?: string;
@@ -50,9 +54,21 @@ if (!values.root || !values.app || !values.out) {
 	process.exit(2);
 }
 
-const root = resolve(values.root);
-const app = resolve(values.app);
+// Canonical paths, like the realpaths of the packages compared with them below (out may not exist yet).
+const root = realpathSync(resolve(values.root));
+const app = realpathSync(resolve(values.app));
 const out = resolve(values.out);
+
+/** The parsed (never evaluated) module's static requests; only the specifiers are used. */
+type ParsedModule = { moduleRequests?: { specifier: string }[]; dependencySpecifiers?: readonly string[] };
+const SourceTextModule = (vm as unknown as { SourceTextModule?: new (code: string, options: object) => ParsedModule })
+	.SourceTextModule;
+if (!SourceTextModule) {
+	console.error(
+		'copy-runtime-deps: run with `node --experimental-vm-modules` (it parses modules with vm.SourceTextModule)'
+	);
+	process.exit(2);
+}
 
 /** `@scope/name/sub/path` -> `@scope/name`, `name/sub` -> `name`; null for relative, absolute or built-in. */
 function packageName(specifier: string): string | null {
@@ -69,13 +85,19 @@ function* filesUnder(dir: string): Generator<string> {
 	}
 }
 
-// Rollup (Vite) writes each static import or re-export of a chunk as one top-level declaration on its own,
-// unindented line: `import { x } from "pkg";`, `import * as x from "pkg";`, `import "pkg";`,
-// `export { x } from "pkg";`. Matching only such whole lines, rather than any `from "..."` in the file,
-// keeps strings and template literals inside the bundled code from being taken for imports.
-const STATIC_IMPORT = /^import\s*(?:[^'"`;]*?\sfrom\s*)?["']([^"'`]+)["'];?[ \t]*$/gm;
-const REEXPORT = /^export\s*(?:\*|\{[^}]*\})(?:\s*as\s+[\w$]+)?\s*from\s*["']([^"'`]+)["'];?[ \t]*$/gm;
-// `import("pkg")` with a literal: loaded lazily, so copied when installed but not required.
+/** Every specifier the ES module `code` imports or re-exports statically, as V8 parses it. */
+function staticImports(code: string, file: string): string[] {
+	let parsed: ParsedModule;
+	try {
+		parsed = new (SourceTextModule as NonNullable<typeof SourceTextModule>)(code, { identifier: file });
+	} catch (error) {
+		throw new Error(`copy-runtime-deps: cannot parse ${file} as an ES module: ${(error as Error).message}`);
+	}
+	return parsed.moduleRequests?.map((request) => request.specifier) ?? [...(parsed.dependencySpecifiers ?? [])];
+}
+
+// `import("pkg")` with a literal: loaded lazily, so copied when installed but not required. A match inside
+// a string can only add a package that is installed anyway, never fail the copy.
 const DYNAMIC_IMPORT = /\bimport\(\s*["']([^"'`\s]+)["']\s*\)/g;
 const PACKAGE_NAME = /^(?:@[a-z0-9][\w.-]*\/)?[a-z0-9][\w.-]*$/i;
 
@@ -90,8 +112,8 @@ function addEntry(set: Set<string>, specifier: string): void {
 for (const dir of values.scan ?? []) {
 	for (const file of filesUnder(resolve(dir))) {
 		const code = readFileSync(file, 'utf8');
-		for (const [, specifier] of code.matchAll(STATIC_IMPORT)) addEntry(entries, specifier);
-		for (const [, specifier] of code.matchAll(REEXPORT)) addEntry(entries, specifier);
+		// A .cjs file has no static imports (its require() calls are not scanned).
+		if (!file.endsWith('.cjs')) for (const specifier of staticImports(code, file)) addEntry(entries, specifier);
 		for (const [, specifier] of code.matchAll(DYNAMIC_IMPORT)) addEntry(lazyEntries, specifier);
 	}
 }
@@ -130,8 +152,12 @@ while (queue.length > 0) {
 	const requiredBy = manifest.name ?? dir;
 	// A workspace package is a symlink: its own dependencies resolve from where it really lives.
 	const from = realpathSync(dir);
-	for (const name of Object.keys(manifest.dependencies ?? {})) visit(name, from, true, requiredBy);
-	for (const name of Object.keys(manifest.optionalDependencies ?? {})) visit(name, from, false, requiredBy);
+	// As in yarn, a name listed in both `dependencies` and `optionalDependencies` is optional.
+	const optional = new Set(Object.keys(manifest.optionalDependencies ?? {}));
+	for (const name of Object.keys(manifest.dependencies ?? {})) {
+		if (!optional.has(name)) visit(name, from, true, requiredBy);
+	}
+	for (const name of optional) visit(name, from, false, requiredBy);
 	// Optional peers (e.g. `typescript` for @remix-run/*) are only for tooling: a runtime need shows up
 	// as an import of the app or a dependency of some package.
 	for (const name of Object.keys(manifest.peerDependencies ?? {})) {
