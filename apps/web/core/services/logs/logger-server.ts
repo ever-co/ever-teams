@@ -34,6 +34,12 @@ export async function logServerToFile(filename: string, logEntry: LogEntry) {
 
 	const logString = JSON.stringify(logEntry, null, 2) + '\n';
 
+	// The directory may not exist yet: `createLogDir` runs only when `/api/log` is called, and a fresh checkout (a CI
+	// run, a new clone) has no `logs/`. Without it the append failed with ENOENT, and the logger reported that failure
+	// with a console.error after its caller had returned. Under Jest that late log made `jest --ci` exit 1 with every
+	// test green (`freezeConsole` sets `process.exitCode`). `recursive` makes this a no-op when the directory exists.
+	await mkdir(LOG_DIR, { recursive: true });
+
 	// `basename` as well: the name is already one segment, and the path is built from nothing else.
 	await appendFile(join(LOG_DIR, basename(filename)), logString, { encoding: 'utf8' });
 }

@@ -59,6 +59,20 @@ describe('logger-server actions', () => {
 		}
 	);
 
+	it('creates the log directory when it is missing, as in a fresh checkout', async () => {
+		rmSync(join(work, 'logs'), { recursive: true });
+
+		// Both files at once, as `Logger.logToFile` writes an error: `error-<day>.log` and `<day>.log`.
+		await Promise.all([logServerToFile('error-2026-10-20.log', entry), logServerToFile('2026-10-20.log', entry)]);
+
+		expect(tree().sort()).toEqual([
+			'app/',
+			'app/logs/',
+			'app/logs/2026-10-20.log',
+			'app/logs/error-2026-10-20.log'
+		]);
+	});
+
 	it.each([
 		['a parent directory', '../../escaped.log'],
 		['a path', 'nested/file.log'],
