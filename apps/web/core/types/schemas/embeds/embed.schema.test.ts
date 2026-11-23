@@ -7,7 +7,8 @@ import { validateApiResponse } from '@/core/types/schemas/utils/validation';
 import {
 	createdEmbedCredentialSchema,
 	embedConfigSchema,
-	embedCredentialListSchema
+	embedCredentialListSchema,
+	embedSiteGrantListSchema
 } from '@/core/types/schemas/embeds/embed.schema';
 
 const CREDENTIAL = {
@@ -105,5 +106,29 @@ describe('embedCredentialSchema', () => {
 
 		expect(created.canAddMembers).toBe(true);
 		expect(created.secret).toBe('gze_abcdefgh.secret');
+	});
+});
+
+describe('embedSiteGrantListSchema', () => {
+	const GRANT = {
+		id: 'grant-1',
+		origin: 'https://team.example.com',
+		organizationId: 'organization-1',
+		userId: 'user-1',
+		employeeId: 'employee-1',
+		renewedAt: '2026-11-20T09:00:00.000Z',
+		expiresAt: '2026-12-20T09:00:00.000Z'
+	};
+
+	it('keeps of each site the person allowed only what the list shows', () => {
+		const grants = validateApiResponse(embedSiteGrantListSchema, [GRANT]);
+
+		expect(grants).toEqual([
+			{ id: 'grant-1', origin: 'https://team.example.com', expiresAt: '2026-12-20T09:00:00.000Z' }
+		]);
+	});
+
+	it('refuses a site without the id that ends it', () => {
+		expect(() => validateApiResponse(embedSiteGrantListSchema, [{ ...GRANT, id: '' }])).toThrow();
 	});
 });
