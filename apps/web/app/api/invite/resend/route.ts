@@ -4,6 +4,7 @@ import { authenticatedGuard } from '@/core/services/server/guards/authenticated-
 import { resendInvitationEmailRequest } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
 import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
+import { gauzyErrorResponse } from '@/core/services/server/gauzy-error-response';
 
 export async function POST(req: Request) {
 	const foreign = refuseForeignOrigin(req);
@@ -24,16 +25,20 @@ export async function POST(req: Request) {
 		return NextResponse.json({ errors }, { status: 400 });
 	}
 
-	const { data } = await resendInvitationEmailRequest(
-		{
-			tenantId,
-			inviteId: body.inviteId,
-			inviteType: 'TEAM',
-			organizationId,
-			callbackUrl: INVITE_CALLBACK_URL || callbackUrl
-		},
-		access_token
-	);
-
-	return $res(data);
+	try {
+		const { data } = await resendInvitationEmailRequest(
+			{
+				tenantId,
+				inviteId: body.inviteId,
+				inviteType: 'TEAM',
+				organizationId,
+				callbackUrl: INVITE_CALLBACK_URL || callbackUrl
+			},
+			access_token
+		);
+		return $res(data);
+	} catch (error) {
+		// A refusal of the API goes back with its status and reason, as in direct mode (#5726)
+		return await gauzyErrorResponse(error, 'The invitation could not be sent again.');
+	}
 }
