@@ -5636,6 +5636,19 @@
 			"SIGNED_OUT_OTHERS": "{count, plural, =0 {Keine andere Sitzung war angemeldet.} one {# weitere Sitzung wurde abgemeldet.} other {# weitere Sitzungen wurden abgemeldet.}}",
 			"APP_ON_DEVICE": "{app} · {device}"
 		},
+		"allowedSites": {
+			"TITLE": "Websites, von denen aus du dich angemeldet hast",
+			"DESCRIPTION": "Die Websites, denen du erlaubt hast, deinen {appName}-Timer zu starten und zu stoppen. Beende die Anmeldung einer Website, die du nicht mehr nutzt oder nicht erkennst.",
+			"RENEWS_UNTIL": "Kann die Anmeldung bis {date} erneuern",
+			"END": "Beenden",
+			"EMPTY": "Du hast dich von keiner Website aus angemeldet.",
+			"LOAD_FAILED": "Die Websites, von denen aus du dich angemeldet hast, konnten nicht geladen werden.",
+			"RETRY": "Erneut versuchen",
+			"END_TITLE": "Anmeldung von {site} beenden?",
+			"END_DESCRIPTION": "Die Website kann die Anmeldung nicht mehr erneuern. Bei der nächsten Erneuerung zeigt sie wieder ihre Schaltfläche „Mit {appName} anmelden“.",
+			"ENDED": "Die Anmeldung von {site} wurde beendet.",
+			"END_FAILED": "Die Anmeldung wurde nicht beendet. Versuche es erneut."
+		},
 		"profile": {
 			"SECTION_PROFILE": "Profil",
 			"PHOTO": "Foto",

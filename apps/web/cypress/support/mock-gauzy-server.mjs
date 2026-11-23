@@ -318,6 +318,12 @@ function buildData(fixture, scenario, requestUrl, requestTenantId) {
 /** Marks a `routeResponse` answer that goes out with this HTTP status instead of 200 (symbol keys are not serialized). */
 const HTTP_STATUS = Symbol('http-status');
 
+/** The sites the fixture person signed in from, as Gauzy lists them (`GET /embed/grants`), for the `siteGrants` scenario. */
+const siteGrantsOfFixture = () => [
+	{ id: 'grant-notes', origin: 'https://notes.example.com', expiresAt: '2030-01-20T10:00:00.000Z' },
+	{ id: 'grant-wiki', origin: 'https://wiki.example.com', expiresAt: '2030-01-05T10:00:00.000Z' }
+];
+
 /** An unsigned token shaped like Gauzy's: the web app only decodes its claims (`organizationId` since Gauzy #11316). */
 function syntheticToken(userId, organizationId, rotation) {
 	const part = (value) => Buffer.from(JSON.stringify(value)).toString('base64url');
@@ -757,6 +763,24 @@ function routeResponse(
 	if ((pathname === '/api/embed-credentials' || pathname === '/api/embed-allowed-origins') && method === 'GET') {
 		return [];
 	}
+	// The sites the signed-in person signed in from (Settings › Security, #5595; embeds.service.ts listSiteGrants and
+	// endSiteGrant). A Gauzy without the route answers 404, which stays the default: the `siteGrants` scenario turns
+	// the list on. Ending a site answers 204, and 404 for a sign-in that is already gone.
+	const siteGrantPath = /^\/api\/embed\/grants\/([^/]+)$/.exec(pathname);
+	const asksSiteGrants = pathname === '/api/embed/grants' || siteGrantPath !== null;
+	if (asksSiteGrants && state.scenario.siteGrants !== true) {
+		return { [HTTP_STATUS]: 404, statusCode: 404, message: 'Not Found' };
+	}
+	if (pathname === '/api/embed/grants' && method === 'GET') return state.siteGrants;
+	if (siteGrantPath && method === 'DELETE') {
+		const kept = state.siteGrants.filter((grant) => grant.id !== siteGrantPath[1]);
+		const wasListed = kept.length !== state.siteGrants.length;
+		state.siteGrants = kept;
+		if (!wasListed) {
+			return { [HTTP_STATUS]: 404, statusCode: 404, message: 'Not Found' };
+		}
+		return { [HTTP_STATUS]: 204 };
+	}
 	// Personal API tokens (Settings › Personal › API tokens; the settings navigation reads the switch on every settings
 	// page, core/hooks/settings/use-hidden-settings-entries.ts): the switch, and the tokens as the default pagination
 	// (core/services/client/api/users/user-api-tokens.service.ts readConfig, core/types/schemas/user/user-api-token.schema.ts)
@@ -943,6 +967,7 @@ export async function createMockGauzyServer({ fixture, port = 3988 } = {}) {
 		receivedTokens: [],
 		notificationSetting: null,
 		appointments: [],
+		siteGrants: siteGrantsOfFixture(),
 		workspaceCreation: {
 			openings: 0,
 			tenant: null,
@@ -1106,6 +1131,7 @@ export async function createMockGauzyServer({ fixture, port = 3988 } = {}) {
 			state.receivedTokens = [];
 			state.notificationSetting = null;
 			state.appointments = [];
+			state.siteGrants = siteGrantsOfFixture();
 			state.workspaceCreation = {
 				openings: 0,
 				tenant: null,

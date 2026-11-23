@@ -5636,6 +5636,19 @@
 			"SIGNED_OUT_OTHERS": "{count, plural, =0 {No other session was signed in.} one {# other session was signed out.} other {# other sessions were signed out.}}",
 			"APP_ON_DEVICE": "{app} · {device}"
 		},
+		"allowedSites": {
+			"TITLE": "Sites you signed in from",
+			"DESCRIPTION": "The sites you allowed to start and stop your {appName} timer. End the sign-in from one you no longer use or do not recognize.",
+			"RENEWS_UNTIL": "Can renew the sign-in until {date}",
+			"END": "End",
+			"EMPTY": "You have not signed in from any site.",
+			"LOAD_FAILED": "The sites you signed in from could not be loaded.",
+			"RETRY": "Try again",
+			"END_TITLE": "End the sign-in from {site}?",
+			"END_DESCRIPTION": "The site can no longer renew the sign-in. At its next renewal it shows its “Sign in with {appName}” button again.",
+			"ENDED": "The sign-in from {site} was ended.",
+			"END_FAILED": "The sign-in was not ended. Try again."
+		},
 		"profile": {
 			"SECTION_PROFILE": "Profile",
 			"PHOTO": "Photo",

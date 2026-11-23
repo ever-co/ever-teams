@@ -5,6 +5,9 @@ import { act, fireEvent, render, screen } from '@testing-library/react';
 const mockSettings = jest.fn();
 jest.mock('@/core/hooks/auth/use-two-factor-settings', () => ({ useTwoFactorSettings: () => mockSettings() }));
 jest.mock('sonner', () => ({ toast: { success: jest.fn(), error: jest.fn() } }));
+jest.mock('./allowed-sites-section', () => ({
+	AllowedSitesSection: () => <section data-testid="allowed-sites" />
+}));
 jest.mock('next-intl', () => ({
 	useTranslations: () => (key: string, values?: Record<string, unknown>) =>
 		values ? `${key} ${JSON.stringify(values)}` : key,
@@ -141,5 +144,16 @@ describe('SecuritySettingsPage', () => {
 		render(<SecuritySettingsPage />);
 
 		expect(screen.getByText('settings.security.REQUIRED_TITLE')).toBeTruthy();
+	});
+
+	it('shows the sites the person signed in from below two-factor authentication', () => {
+		mockSettings.mockReturnValue(settingsOf());
+		render(<SecuritySettingsPage />);
+
+		const twoFactorTitle = screen.getByText('settings.security.SECTION_TITLE');
+		const allowedSites = screen.getByTestId('allowed-sites');
+		const position = twoFactorTitle.compareDocumentPosition(allowedSites);
+
+		expect(position & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 	});
 });

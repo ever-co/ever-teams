@@ -5636,6 +5636,19 @@
 			"SIGNED_OUT_OTHERS": "{count, plural, =0 {Aucune autre session n'était connectée.} one {# autre session a été déconnectée.} other {# autres sessions ont été déconnectées.}}",
 			"APP_ON_DEVICE": "{app} · {device}"
 		},
+		"allowedSites": {
+			"TITLE": "Sites depuis lesquels vous vous êtes connecté",
+			"DESCRIPTION": "Les sites que vous avez autorisés à démarrer et arrêter votre minuteur {appName}. Mettez fin à la connexion depuis un site que vous n’utilisez plus ou que vous ne reconnaissez pas.",
+			"RENEWS_UNTIL": "Peut renouveler la connexion jusqu’au {date}",
+			"END": "Mettre fin",
+			"EMPTY": "Vous ne vous êtes connecté depuis aucun site.",
+			"LOAD_FAILED": "Les sites depuis lesquels vous vous êtes connecté n’ont pas pu être chargés.",
+			"RETRY": "Réessayer",
+			"END_TITLE": "Mettre fin à la connexion depuis {site} ?",
+			"END_DESCRIPTION": "Le site ne peut plus renouveler la connexion. À son prochain renouvellement, il affiche de nouveau son bouton « Se connecter avec {appName} ».",
+			"ENDED": "La connexion depuis {site} a pris fin.",
+			"END_FAILED": "La connexion n’a pas pris fin. Réessayez."
+		},
 		"profile": {
 			"SECTION_PROFILE": "Profil",
 			"PHOTO": "Photo",

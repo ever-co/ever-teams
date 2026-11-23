@@ -5636,6 +5636,19 @@
 			"SIGNED_OUT_OTHERS": "{count, plural, =0 {没有其他已登录的会话。} other {已退出另外 # 个会话。}}",
 			"APP_ON_DEVICE": "{app} · {device}"
 		},
+		"allowedSites": {
+			"TITLE": "你登录过的网站",
+			"DESCRIPTION": "你允许启动和停止你的 {appName} 计时器的网站。可以结束你不再使用或不认识的网站的登录。",
+			"RENEWS_UNTIL": "可续期登录至 {date}",
+			"END": "结束",
+			"EMPTY": "你尚未从任何网站登录。",
+			"LOAD_FAILED": "无法加载你登录过的网站。",
+			"RETRY": "重试",
+			"END_TITLE": "结束来自 {site} 的登录？",
+			"END_DESCRIPTION": "该网站将无法再续期登录。下次续期时，它会重新显示“使用 {appName} 登录”按钮。",
+			"ENDED": "来自 {site} 的登录已结束。",
+			"END_FAILED": "登录未结束。请重试。"
+		},
 		"profile": {
 			"SECTION_PROFILE": "个人资料",
 			"PHOTO": "头像",

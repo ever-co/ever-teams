@@ -66,3 +66,28 @@ function parsedBody(body: RequestInit['body']): unknown {
 	if (typeof body !== 'string') return undefined;
 	return JSON.parse(body);
 }
+
+/** A case of a forwarded route: what Gauzy answers when it has nothing at that address goes back as it is. */
+export function itAnswersGauzys404AsItIs(title: string, call: () => Promise<Response>, message: string): void {
+	it(title, async () => {
+		const missing = { statusCode: 404, message };
+		gauzyAnswers(Response.json(missing, { status: 404 }));
+
+		const response = await call();
+
+		expect(response.status).toBe(404);
+		await expect(response.json()).resolves.toEqual(missing);
+	});
+}
+
+/** A case of a forwarded route: a browser without a session is answered 401 and nothing reaches Gauzy. */
+export function itSendsNothingWithoutASession(call: () => Promise<Response>): void {
+	it('sends nothing for a browser without a session', async () => {
+		const fetchMock = gauzyAnswers(new Response(null, { status: 204 }));
+
+		const response = await call();
+
+		expect(response.status).toBe(401);
+		expect(fetchMock).not.toHaveBeenCalled();
+	});
+}
