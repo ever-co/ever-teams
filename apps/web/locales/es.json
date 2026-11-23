@@ -7206,6 +7206,7 @@
 		"IN_TRASH": "En la papelera",
 		"IN_TRASH_NOTICE": "Esta página está en la papelera. Restáurala para editarla.",
 		"LOCKED_NOTICE": "Esta página está bloqueada en la plataforma y solo se puede leer.",
+		"NO_WRITE_ACCESS_NOTICE": "Puedes leer esta página, pero no cambiarla. Pide a su autor que la comparta contigo para editarla.",
 		"LOCKED_WHILE_EDITING": "La página se bloqueó mientras escribías. Recárgala para leer el texto más reciente; tus cambios se quedan en esta pestaña hasta entonces.",
 		"SEARCH_PAGES": "Buscar páginas",
 		"CLEAR_SEARCH": "Borrar búsqueda",

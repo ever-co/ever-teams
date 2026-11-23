@@ -7206,6 +7206,7 @@
 		"IN_TRASH": "In the trash",
 		"IN_TRASH_NOTICE": "This page is in the trash. Restore it to edit it.",
 		"LOCKED_NOTICE": "This page is locked on the platform and can only be read.",
+		"NO_WRITE_ACCESS_NOTICE": "You can read this page, but not change it. Ask its author to share it with you for editing.",
 		"LOCKED_WHILE_EDITING": "The page was locked while you were writing. Reload it to read the latest text; your changes stay in this tab until then.",
 		"SEARCH_PAGES": "Search pages",
 		"CLEAR_SEARCH": "Clear search",

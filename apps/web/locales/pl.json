@@ -7206,6 +7206,7 @@
 		"IN_TRASH": "W koszu",
 		"IN_TRASH_NOTICE": "Ta strona jest w koszu. Przywróć ją, aby edytować.",
 		"LOCKED_NOTICE": "Ta strona jest zablokowana na platformie i można ją tylko czytać.",
+		"NO_WRITE_ACCESS_NOTICE": "Możesz czytać tę stronę, ale nie możesz jej zmieniać. Poproś autora o udostępnienie jej do edycji.",
 		"LOCKED_WHILE_EDITING": "Strona została zablokowana, gdy pisałeś. Załaduj ją ponownie, aby przeczytać najnowszy tekst; do tego czasu Twoje zmiany pozostają w tej karcie.",
 		"SEARCH_PAGES": "Szukaj stron",
 		"CLEAR_SEARCH": "Wyczyść wyszukiwanie",

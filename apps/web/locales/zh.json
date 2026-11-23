@@ -7206,6 +7206,7 @@
 		"IN_TRASH": "在回收站中",
 		"IN_TRASH_NOTICE": "此页面在回收站中。恢复后才能编辑。",
 		"LOCKED_NOTICE": "此页面已在平台上锁定，只能阅读。",
+		"NO_WRITE_ACCESS_NOTICE": "您可以阅读此页面，但不能修改。请让作者与您共享编辑权限。",
 		"LOCKED_WHILE_EDITING": "你编辑时页面被锁定了。重新加载以阅读最新内容；在此之前你的修改会保留在此标签页中。",
 		"SEARCH_PAGES": "搜索页面",
 		"CLEAR_SEARCH": "清除搜索",

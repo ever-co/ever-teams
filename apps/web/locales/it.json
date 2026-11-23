@@ -7206,6 +7206,7 @@
 		"IN_TRASH": "Nel cestino",
 		"IN_TRASH_NOTICE": "Questa pagina è nel cestino. Ripristinala per modificarla.",
 		"LOCKED_NOTICE": "Questa pagina è bloccata sulla piattaforma e può solo essere letta.",
+		"NO_WRITE_ACCESS_NOTICE": "Puoi leggere questa pagina, ma non modificarla. Chiedi all’autore di condividerla con te in modifica.",
 		"LOCKED_WHILE_EDITING": "La pagina è stata bloccata mentre scrivevi. Ricaricala per leggere il testo più recente; le tue modifiche restano in questa scheda fino ad allora.",
 		"SEARCH_PAGES": "Cerca pagine",
 		"CLEAR_SEARCH": "Cancella ricerca",
