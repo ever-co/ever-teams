@@ -27,7 +27,7 @@
       `core/lib/utils/collaboration-clients-enabled.ts` combining it with the tenant's toggle of
       `FEATURE_TEAMS_COLLABORATION_CLIENTS` (read once per session from `GET /user/me` with the relations
       `tenant.featureOrganizations` and `tenant.featureOrganizations.feature`, which `people-self-service` T1 adds to
-      `getAuthenticatedUserData` of `core/services/client/api/users/user.service.ts`) and with each page flag; mobile and
+      `getAuthenticatedUserData` of `core/services/client/api/users/user.service.ts` and to the proxy route's request) and with each page flag; mobile and
       desktop keys. Files: `apps/web/.env.sample`, `core/lib/utils/collaboration-clients-enabled.ts`,
       `apps/mobile/.env.template`, `apps/server-web/src/main/helpers/constant.ts`. Test:
       `core/lib/utils/collaboration-clients-enabled.test.ts` (off by default; off for a tenant whose code is off while the

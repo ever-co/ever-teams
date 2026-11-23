@@ -28,13 +28,17 @@
       config key. `getAuthenticatedUserData` of `core/services/client/api/users/user.service.ts` requests the relations
       `['role', 'tenant']` today and gains `tenant.featureOrganizations` and `tenant.featureOrganizations.feature`; the
       `ITenant` interface of `core/types/interfaces/tenant/tenant.ts` gains `featureOrganizations` (a new
-      `IFeatureOrganization` with `isEnabled` and `feature.code`); a code without a toggle row reads as off. This one
+      `IFeatureOrganization` with `isEnabled` and `feature.code`); in proxy mode the same read goes through
+      `app/api/user/me/route.ts`, whose guard calls `currentAuthenticatedUserRequest` of
+      `core/services/server/requests/auth.ts` with its default relations, so that default gains the two relations as
+      well; a code without a toggle row reads as off. This one
       session read also serves `workspace-collaboration-clients`. Files: `apps/web/.env.sample`,
       `core/lib/utils/self-service-enabled.ts`, `core/services/client/api/users/user.service.ts`,
+      `core/services/server/requests/auth.ts`,
       `core/types/interfaces/tenant/tenant.ts`. Test: helper spec (off by default; off for a tenant whose code is off
       while the flag is on; on only when both are on); `core/services/client/api/users/user.service.test.ts` (the
       `/user/me` request carries both relations; signed in as an ordinary employee without administration permissions,
-      the session holds the tenant's toggle of the code, on and off); links hidden without the address.
+      the session holds the tenant's toggle of the code, on and off, in direct mode and through the proxy route); links hidden without the address.
 - [ ] **T2**. Interfaces `core/types/interfaces/{time-off,attendance,shifts,offline}/*` and Zod schemas
       `core/types/schemas/{time-off,attendance,shifts,offline}/*`, promoted to `packages/types/src/time-attendance/`.
       Test: schema specs against platform response samples.
@@ -132,10 +136,10 @@
       `core/components/features/offline/register-app-worker.tsx`, mounted in `app/[locale]/(main)/layout.tsx` whatever
       the flags, puts `inbox-push-sw.js` back on the registration at `/` once both features are off (the push
       subscription stays with the registration), removes a registration without a push subscription, deletes the app
-      worker's caches, and does nothing on a browser that never ran the app worker; before it changes the registration
-      or deletes a cache it asks the other open tabs of the origin over a `BroadcastChannel` (`app-worker`), a tab that
-      shows a feature on re-reads the tenant's toggles before it answers, and while any tab answers on the cleanup is
-      left to the next page load, so no tab loses the worker it uses. Files: `core/lib/utils/app-worker.ts`,
+      worker's caches, and does nothing on a browser that never ran the app worker; the registration of `app-sw.js` and the cleanup
+      both run inside one cross-tab lock (`navigator.locks.request('app-worker')`), and inside it the cleanup asks the
+      worker for its window clients and goes ahead only when this tab is the only one (otherwise it is left to a later
+      page load), so no tab has to answer and no tab loses the worker it uses. Files: `core/lib/utils/app-worker.ts`,
       `core/hooks/inbox/use-inbox-web-push.ts`, `core/components/features/offline/register-app-worker.tsx`,
       `app/[locale]/(main)/layout.tsx`. Test: `core/lib/utils/app-worker.test.ts` (script for each of the four flag
       combinations: `/app-sw.js` while either feature is on, `/inbox-push-sw.js` with both off);
@@ -144,8 +148,9 @@
       `core/components/features/offline/register-app-worker.test.tsx` (this feature switched off while
       `workspace-collaboration-clients` stays on keeps `app-sw.js` and its caches; once both are off the registration
       runs `inbox-push-sw.js` with the same push subscription and a test push is shown; without a subscription the
-      registration and the caches are gone; with a second tab that still has a feature on, the registration and the
-      caches stay, and after that tab re-read the toggles as off the next load cleans up).
+      registration and the caches are gone; with a second tab open, whatever it shows and even when it cannot
+      reach the platform, the registration and the caches stay, and the last remaining tab cleans up on its next load; a
+      tab that opens with a feature on while a cleanup holds the lock registers `app-sw.js` after it and keeps it).
 
 ## Phase 3 — Live updates, notifications, polish
 
