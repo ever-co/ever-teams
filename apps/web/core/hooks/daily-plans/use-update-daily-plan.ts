@@ -15,7 +15,6 @@ import {
 	TRemoveTaskFromPlansRequest,
 	TUpdateDailyPlan
 } from '@/core/types/schemas/task/daily-plan.schema';
-import { TTask } from '@/core/types/schemas/task/task.schema';
 import { activeTeamState } from '@/core/stores';
 import { logErrorInDev } from '@/core/lib/helpers/error-message';
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
@@ -23,6 +22,7 @@ import { queryKeys } from '@/core/query/keys';
 import { useDailyPlanInvalidation } from './use-daily-plan-invalidation';
 import { useTrackPlanAddition } from './use-pending-plan-additions';
 import { teamDefaultProjectId } from '@/core/lib/helpers/team-default-project';
+import { cachedTeamTaskOf } from '@/core/lib/utils/cached-team-task';
 
 interface UseUpdateDailyPlanOptions {
 	/** Set when the caller reports every failure of these mutations itself: the global fallback then stays silent. */
@@ -80,8 +80,8 @@ export function useUpdateDailyPlan({ handlesOwnError = false }: UseUpdateDailyPl
 				// when adding tasks to other employees' plans
 				const requestEmployeeId = variables.data.employeeId;
 
-				// Get the task from React Query cache
-				const tasksData = queryClient.getQueryData<{ items: TTask[]; total: number }>(
+				// The team task list in the cache, when it holds the task: it only saves a read for a person already assigned
+				const cachedTasks = queryClient.getQueryData(
 					queryKeys.tasks.byTeamByScope(
 						activeTeam?.tenantId,
 						activeTeam?.organizationId,
@@ -89,12 +89,10 @@ export function useUpdateDailyPlan({ handlesOwnError = false }: UseUpdateDailyPl
 						teamDefaultProjectId(activeTeam)
 					)
 				);
-
-				const task = tasksData?.items?.find((t) => t.id === taskId);
-
-				if (task && requestEmployeeId) {
+				if (requestEmployeeId && taskId) {
+					const cachedTask = cachedTeamTaskOf(cachedTasks, taskId);
 					// Check if employee is already assigned to the task
-					const isAlreadyAssigned = task.members?.some((member) => member.id === requestEmployeeId);
+					const isAlreadyAssigned = cachedTask?.members?.some((member) => member.id === requestEmployeeId);
 
 					if (!isAlreadyAssigned) {
 						// Get employee object from activeTeam.members
@@ -102,7 +100,8 @@ export function useUpdateDailyPlan({ handlesOwnError = false }: UseUpdateDailyPl
 						if (employee && employee.employeeId) {
 							// PUT /tasks/:id replaces the whole task, so build the payload from a fresh read:
 							// the cached copy can predate a teammate's edit and would send the old values back.
-							const freshTask = await taskService.getTaskById(task.id);
+							// The task is read by its id, so one the list has not loaded yet is assigned too (#5714).
+							const freshTask = await taskService.getTaskById(taskId);
 							// Add employee to task members (deduplicate by userId for idempotence)
 							const existingMembers = freshTask.members ?? [];
 							const memberExists = existingMembers.some(
