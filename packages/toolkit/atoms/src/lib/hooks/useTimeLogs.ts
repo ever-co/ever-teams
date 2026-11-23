@@ -1,7 +1,9 @@
 import { getTimeLogs } from '@ever-teams/api';
 import { IServerError, ITimeLog, LogType, TimerSource } from '@ever-teams/toolkit-types';
 import { useTeamsContext } from '@lib/context/teams-context';
-import { useCallback, useEffect, useState } from 'react';
+import { useKitOptions } from '@components/teams-provider/kit-options';
+import { useTimerOnlyToken } from '@hooks/useTimerOnlyToken';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { DateRange } from 'react-day-picker';
 
 interface IUseTimeLogsParams {
@@ -30,24 +32,61 @@ export const useTimeLogs = ({
 	const [data, setData] = useState<ITimeLog[] | null>(null);
 	const [error, setError] = useState<IServerError | null>(null);
 
-	const { authenticatedUser: user, token, selectedOrganization: organizationId, selectedEmployee } = useTeamsContext();
+	const {
+		authenticatedUser: user,
+		token,
+		selectedOrganization: organizationId,
+		selectedEmployee
+	} = useTeamsContext();
+	const { api } = useKitOptions();
+	const timerOnly = useTimerOnlyToken();
+	// Only the read started last may set the logs, the error or the loading state: one for earlier filters or another
+	// address, or a widget gone since, changes nothing.
+	const latestRead = useRef(0);
+	useEffect(
+		() => () => {
+			latestRead.current += 1;
+		},
+		[]
+	);
+	// The token of the render that committed last: a refetch a host kept from an earlier render, with another token,
+	// reads nothing and sets nothing (#5602). Set once a render commits, as the token it holds then is the session's.
+	const latestToken = useRef(token);
+	useEffect(() => {
+		latestToken.current = token;
+	});
 
 	const fetchTimeLogs = useCallback(async () => {
+		const isOfAnEarlierToken = token !== latestToken.current;
+		// An embed token reaches the timer only: refetch sends nothing either (#5602)
+		const readsNothing = timerOnly || isOfAnEarlierToken;
+		if (readsNothing) {
+			return;
+		}
+		latestRead.current += 1;
+		const read = latestRead.current;
+		const isCurrent = () => read === latestRead.current && token === latestToken.current;
 		setLoading(true);
 		setError(null);
 
 		try {
-			const response = await getTimeLogs({
-				user,
-				token,
-				organizationId,
-				date,
-				activityLevel,
-				timeZone,
-				source,
-				logType,
-				employeeIds: selectedEmployee !== 'all' ? [selectedEmployee] : undefined
-			});
+			const response = await getTimeLogs(
+				{
+					user,
+					token,
+					organizationId,
+					date,
+					activityLevel,
+					timeZone,
+					source,
+					logType,
+					employeeIds: selectedEmployee !== 'all' ? [selectedEmployee] : undefined
+				},
+				api
+			);
+			if (!isCurrent()) {
+				return;
+			}
 
 			if ('error' in response || 'message' in response) {
 				setError(response as IServerError);
@@ -57,17 +96,33 @@ export const useTimeLogs = ({
 				setError(null);
 			}
 		} catch (err) {
+			if (!isCurrent()) {
+				return;
+			}
 			setError({ error: (err as Error).message, message: 'Failed to fetch time logs' } as IServerError);
 			setData(null);
 		} finally {
-			setLoading(false);
+			if (isCurrent()) {
+				setLoading(false);
+			}
 		}
-	}, [user, token, organizationId, date, activityLevel, timeZone, source, logType, selectedEmployee]);
+	}, [user, token, organizationId, date, activityLevel, timeZone, source, logType, selectedEmployee, timerOnly, api]);
 
 	useEffect(() => {
-		user && organizationId && token && fetchTimeLogs();
+		const isSignedIn = Boolean(user && organizationId && token);
+		const canRead = isSignedIn && !timerOnly;
+		if (canRead) {
+			fetchTimeLogs();
+			return;
+		}
+		// Signed out, no organization yet, or an embed token, which reaches the timer only (#5602): a read still pending is
+		// dropped, and the logs of the session go with it.
+		latestRead.current += 1;
+		setData(null);
+		setError(null);
+		setLoading(false);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [fetchTimeLogs]);
+	}, [fetchTimeLogs, timerOnly]);
 
 	return { loading, data, error, refetch: fetchTimeLogs };
 };

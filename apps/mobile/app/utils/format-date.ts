@@ -1,5 +1,5 @@
 import { Locale, format, parseISO, intervalToDuration } from 'date-fns';
-import I18n from 'i18n-js';
+import { currentLocale } from '../i18n';
 
 import { arSA } from 'date-fns/locale/ar-SA';
 import { ko } from 'date-fns/locale/ko';
@@ -8,7 +8,7 @@ import { enUS } from 'date-fns/locale/en-US';
 type Options = Parameters<typeof format>[2];
 
 const getLocale = (): Locale => {
-	const locale = I18n.currentLocale().split('-')[0];
+	const locale = currentLocale();
 	return (locale === 'ar' ? arSA : locale === 'ko' ? ko : enUS) as any;
 };
 

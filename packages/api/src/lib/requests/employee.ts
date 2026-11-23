@@ -1,29 +1,36 @@
 import { IEmployeeWithUser, IServerError } from '@ever-teams/toolkit-types';
 import { ApiCall } from '../fetch';
+import { IApiRequestConfig } from '../config/api-config';
 
-export const createEmployee = async ({
-	userId,
-	organizationId,
-	tenantId,
-	token
-}: {
-	userId: string;
-	organizationId: string;
-	tenantId: string;
-	token: string;
-}) => {
+export const createEmployee = async (
+	{
+		userId,
+		organizationId,
+		tenantId,
+		token
+	}: {
+		userId: string;
+		organizationId: string;
+		tenantId: string;
+		token: string;
+	},
+	api?: IApiRequestConfig
+) => {
 	try {
-		const response = await ApiCall<IEmployeeWithUser>({
-			path: '/employee',
-			method: 'POST',
-			bearer_token: token,
-			body: {
-				startedWorkOn: new Date().toISOString(),
-				userId,
-				organizationId,
-				tenantId
-			}
-		});
+		const response = await ApiCall<IEmployeeWithUser>(
+			{
+				path: '/employee',
+				method: 'POST',
+				bearer_token: token,
+				body: {
+					startedWorkOn: new Date().toISOString(),
+					userId,
+					organizationId,
+					tenantId
+				}
+			},
+			api
+		);
 
 		if ('data' in response) {
 			return response.data;

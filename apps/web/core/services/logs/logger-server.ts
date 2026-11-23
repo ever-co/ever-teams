@@ -34,6 +34,11 @@ export async function logServerToFile(filename: string, logEntry: LogEntry) {
 
 	const logString = JSON.stringify(logEntry, null, 2) + '\n';
 
+	// The directory is made here too, not only by `createLogDir`: a checkout that never ran the app has none, the
+	// write then failed, and the failure was logged after the caller had gone on. Under Jest that late log alone
+	// fails a run whose tests all pass.
+	await mkdir(LOG_DIR, { recursive: true });
+
 	// `basename` as well: the name is already one segment, and the path is built from nothing else.
 	await appendFile(join(LOG_DIR, basename(filename)), logString, { encoding: 'utf8' });
 }

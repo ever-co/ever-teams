@@ -10,7 +10,7 @@ import {
 } from '../../../navigators/authenticated-navigator';
 import { Screen } from '../../../components';
 import { typography, useAppTheme } from '../../../theme';
-import { AntDesign, Feather } from '@expo/vector-icons';
+import { ArrowLeft, Plus, X } from '../../../../src/components/icons';
 import { translate } from '../../../i18n';
 import { useStores } from '../../../models';
 import MembersList from './components/members-list';
@@ -23,6 +23,7 @@ import { useOrganizationTeam } from '../../../services/hooks/use-organization';
 import { useTeamMemberCard } from '../../../services/hooks/features/use-team-member-card';
 import { useNavigation } from '@react-navigation/native';
 import ChangeRoleModal from './components/change-role-modal';
+import { navigateTo } from '../../../navigators/routes';
 
 export const MembersSettingsScreen: FC<AuthenticatedDrawerScreenProps<'MembersSettingsScreen'>> = (_props) => {
 	const { colors, dark } = useAppTheme();
@@ -56,9 +57,9 @@ export const MembersSettingsScreen: FC<AuthenticatedDrawerScreenProps<'MembersSe
 				}
 			}
 		} else {
-			alternateNavigation.navigate('AuthenticatedTab');
+			navigateTo(alternateNavigation, 'AuthenticatedTab');
 			setTimeout(() => {
-				navigation.navigate('Profile', {
+				navigateTo(navigation, 'Profile', {
 					userId: member?.employee?.userId,
 					activeTab: 'worked'
 				});
@@ -83,8 +84,8 @@ export const MembersSettingsScreen: FC<AuthenticatedDrawerScreenProps<'MembersSe
 			<StatusBar barStyle={dark ? 'light-content' : 'dark-content'} />
 			<View style={[$headerContainer, { backgroundColor: colors.background }]}>
 				<View style={[styles.container, { backgroundColor: colors.background }]}>
-					<TouchableOpacity onPress={() => navigation.navigate('Setting')}>
-						<AntDesign name="arrow-left" size={24} color={colors.primary} />
+					<TouchableOpacity onPress={() => navigateTo(navigation, 'Setting', { activeTab: 2 })}>
+						<ArrowLeft size={24} color={colors.primary} />
 					</TouchableOpacity>
 					<Text style={[styles.title, { color: colors.primary }]}>
 						{translate('settingScreen.membersSettingsScreen.mainTitle')}
@@ -93,12 +94,12 @@ export const MembersSettingsScreen: FC<AuthenticatedDrawerScreenProps<'MembersSe
 						<TouchableOpacity onPress={() => selectMode && setShowDropdownMenu(!showDropdownMenu)}>
 							{selectMode ? (
 								showDropdownMenu ? (
-									<AntDesign name="close" size={24} color={colors.primary} />
+									<X size={24} color={colors.primary} />
 								) : (
 									<SvgXml xml={dark ? moreButtonDark : moreButtonLight} />
 								)
 							) : (
-								<Feather name="plus" size={24} color={colors.primary} />
+								<Plus size={24} color={colors.primary} />
 							)}
 						</TouchableOpacity>
 						<MenuDropdown

@@ -1,7 +1,7 @@
 import React, { FC, useRef, useState } from 'react';
 import { ActivityIndicator, StyleSheet, TouchableOpacity } from 'react-native';
 import { Menu } from 'react-native-paper';
-import { Ionicons } from '@expo/vector-icons';
+import { MoreHorizontal } from '../../src/components/icons';
 import { observer } from 'mobx-react-lite';
 import { translate } from '../i18n';
 import { typography, useAppTheme } from '../theme';
@@ -66,7 +66,7 @@ const TimerActionsMenu: FC<ITimerActionsMenuProps> = observer(({ onChangeStart }
 						{discarding ? (
 							<ActivityIndicator size="small" color={colors.primary} />
 						) : (
-							<Ionicons name="ellipsis-horizontal" size={20} color={colors.primary} />
+							<MoreHorizontal size={20} color={colors.primary} />
 						)}
 					</TouchableOpacity>
 				}

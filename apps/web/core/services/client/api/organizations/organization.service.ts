@@ -9,10 +9,14 @@ import {
 	organizationCountsSchema
 } from '@/core/types/schemas/organization/organization-counts.schema';
 
-/** What a save changes. A format saved as null leaves every reader with their own language's way again. */
-export type TOrganizationChanges = Partial<Omit<IOrganization, 'dateFormat' | 'numberFormat'>> & {
+/**
+ * What a save changes. A format saved as null leaves every reader with their own language's way again; a time zone saved
+ * as null leaves the workspace without one.
+ */
+export type TOrganizationChanges = Partial<Omit<IOrganization, 'dateFormat' | 'numberFormat' | 'timeZone'>> & {
 	dateFormat?: string | null;
 	numberFormat?: string | null;
+	timeZone?: string | null;
 };
 
 class OrganizationService extends APIService {

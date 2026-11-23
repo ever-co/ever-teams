@@ -1,10 +1,14 @@
 import { IHookResponse, IServerError, IUser } from '@ever-teams/toolkit-types';
 import { useEffect, useState } from 'react';
 import { ApiCall } from '@ever-teams/api';
-import { getWeekStartAndEnd, getStartAndEndOfDay, toast } from '@ever-teams/toolkit-ui';
+import type { IApiRequestConfig } from '@ever-teams/api';
+import { getWeekStartAndEnd, getTodaySoFar, toast } from '@ever-teams/toolkit-ui';
 import QueryString from 'qs';
 import { DateRange } from 'react-day-picker';
 import { useTeamsContext } from '@lib/context/teams-context';
+import { pickedEmployeeOf, reportEmployeeIdOf } from '@lib/utils/report-employee';
+import { useKitOptions } from '@components/teams-provider/kit-options';
+import { useTimerOnlyToken } from '@hooks/useTimerOnlyToken';
 
 interface IProjectStat {
 	name: string;
@@ -21,7 +25,8 @@ const getProjectsStats = async (
 	selectedEmployee: string,
 	selectedTeam: string,
 	organizationId: string,
-	dates?: DateRange
+	dates?: DateRange,
+	api?: IApiRequestConfig
 ): Promise<IProjectsStats | IServerError> => {
 	try {
 		if (!user) {
@@ -29,11 +34,10 @@ const getProjectsStats = async (
 		}
 
 		const { tenantId } = user;
-		const employeeId =
-			user && user.employee ? user.employee.id : selectedEmployee !== 'all' ? selectedEmployee : undefined;
+		const employeeId = reportEmployeeIdOf(user, selectedEmployee);
 
 		const weekDates = dates;
-		const dayDates = getStartAndEndOfDay();
+		const dayDates = getTodaySoFar();
 
 		const queryObject: Record<string, string | string[] | Date> = {
 			tenantId,
@@ -55,12 +59,15 @@ const getProjectsStats = async (
 
 		const query = QueryString.stringify(queryObject);
 
-		const response = await ApiCall<IProjectsStats>({
-			path: `/timesheet/statistics/projects?${query}`,
-			method: 'GET',
-			bearer_token: token,
-			tenantId
-		});
+		const response = await ApiCall<IProjectsStats>(
+			{
+				path: `/timesheet/statistics/projects?${query}`,
+				method: 'GET',
+				bearer_token: token,
+				tenantId
+			},
+			api
+		);
 
 		if ('data' in response) {
 			return response.data;
@@ -78,16 +85,27 @@ const useProjectsStats = (): IHookResponse<IProjectsStats> => {
 	const {
 		authenticatedUser: user,
 		token,
-		selectedEmployee,
+		selectedEmployee: employeeInPicker,
+		userPermissions,
 		selectedTeam,
 		selectedOrganization: organizationId,
 		reportDates: date
 	} = useTeamsContext();
-
+	// The employee picked counts only for a person who may pick one (#5631)
+	const selectedEmployee = pickedEmployeeOf(employeeInPicker, userPermissions);
+	const { api } = useKitOptions();
+	const timerOnly = useTimerOnlyToken();
 
 	const [projectsStats, setProjectsStats] = useState<IHookResponse<IProjectsStats>>({ data: null, loading: false });
 
 	useEffect(() => {
+		// An embed token reaches the timer only: no read, so no refusal to show (#5602)
+		if (timerOnly) {
+			return;
+		}
+		// A read the effect has moved past (other filters or another address, or the widget gone) shows nothing, not
+		// even its error: the toasts are the page's
+		let current = true;
 		if (user && organizationId) {
 			(async () => {
 				try {
@@ -99,8 +117,12 @@ const useProjectsStats = (): IHookResponse<IProjectsStats> => {
 						selectedEmployee,
 						selectedTeam,
 						organizationId,
-						date
+						date,
+						api
 					);
+					if (!current) {
+						return;
+					}
 
 					if ('message' in userStats || 'error' in userStats) {
 						const errorMessage =
@@ -119,16 +141,26 @@ const useProjectsStats = (): IHookResponse<IProjectsStats> => {
 					}
 					setProjectsStats({ data: userStats, loading: false });
 				} catch (error) {
+					if (!current) {
+						return;
+					}
 					toast({
 						variant: 'destructive',
 						description: (error as Error).message
 					});
 				} finally {
-					setProjectsStats((prev) => ({ ...prev, loading: false }));
+					if (current) {
+						setProjectsStats((prev) => ({ ...prev, loading: false }));
+					}
 				}
 			})();
 		}
-	}, [user, selectedEmployee, selectedTeam, date, organizationId]);
+		return () => {
+			current = false;
+			// The next read, if any, sets it again
+			setProjectsStats((prev) => (prev.loading ? { ...prev, loading: false } : prev));
+		};
+	}, [user, selectedEmployee, selectedTeam, date, organizationId, timerOnly, api]);
 
 	return projectsStats;
 };

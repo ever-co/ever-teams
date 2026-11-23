@@ -5,6 +5,9 @@ import { ChartConfig, ChartData, IWeeklyReports } from '@ever-teams/toolkit-type
 import qs from 'qs';
 import { generateChartConfig, getErrorMessage, reportError, toast, transformData } from '@ever-teams/toolkit-ui';
 import { useTeamsContext } from '@lib/context/teams-context';
+import { pickedEmployeeOf, reportEmployeeIdOf } from '@lib/utils/report-employee';
+import { useKitOptions } from '@components/teams-provider/kit-options';
+import { useTimerOnlyToken } from '@hooks/useTimerOnlyToken';
 
 const useReport = () => {
 	const [report, setReport] = useState<IWeeklyReports | null>(null);
@@ -16,13 +19,20 @@ const useReport = () => {
 	const {
 		authenticatedUser: user,
 		token,
-		selectedEmployee,
+		selectedEmployee: employeeInPicker,
+		userPermissions,
 		selectedTeam,
 		selectedOrganization: organizationId,
 		reportDates: date
 	} = useTeamsContext();
+	// The employee picked counts only for a person who may pick one (#5631)
+	const selectedEmployee = pickedEmployeeOf(employeeInPicker, userPermissions);
+	const { api } = useKitOptions();
+	const timerOnly = useTimerOnlyToken();
 
-	const getReport = async () => {
+	// isCurrent turns false once the effect has moved past this read (other filters or another address, or the widget
+	// gone): its answer then shows nothing, not even its error, as the toasts are the page's.
+	const getReport = async (isCurrent: () => boolean) => {
 		setLoading(true);
 		try {
 			if (!date) {
@@ -32,11 +42,7 @@ const useReport = () => {
 
 			if (!user) throw new Error('User is not authenticated');
 
-			const employeeId = user.employee
-				? user.employee.id
-				: selectedEmployee !== 'all'
-					? selectedEmployee
-					: undefined;
+			const employeeId = reportEmployeeIdOf(user, selectedEmployee);
 			const { tenantId } = user;
 			const teamId = selectedTeam !== 'all' ? selectedTeam : undefined;
 
@@ -55,11 +61,17 @@ const useReport = () => {
 				{ skipNulls: true }
 			);
 
-			const report = await ApiCall<IWeeklyReports>({
-				path: `/timesheet/time-log/report/weekly?${queryWeeklyReport}`,
-				method: 'GET',
-				bearer_token: token
-			});
+			const report = await ApiCall<IWeeklyReports>(
+				{
+					path: `/timesheet/time-log/report/weekly?${queryWeeklyReport}`,
+					method: 'GET',
+					bearer_token: token
+				},
+				api
+			);
+			if (!isCurrent()) {
+				return;
+			}
 
 			if ('data' in report) {
 				setReport(report.data);
@@ -73,19 +85,34 @@ const useReport = () => {
 				});
 			}
 		} catch (error) {
+			if (!isCurrent()) {
+				return;
+			}
 			toast({
 				title: 'Ever Teams Error',
 				description: 'Report error : ' + getErrorMessage(error),
 				variant: 'destructive'
 			});
 		} finally {
-			setLoading(false);
+			if (isCurrent()) {
+				setLoading(false);
+			}
 		}
 	};
 
 	useEffect(() => {
-		if (user && organizationId) getReport();
-	}, [user, date, selectedEmployee, selectedTeam, organizationId]);
+		// An embed token reaches the timer only: no read, so no refusal to show (#5602)
+		if (timerOnly) {
+			return;
+		}
+		let current = true;
+		if (user && organizationId) void getReport(() => current);
+		return () => {
+			current = false;
+			// The next read, if any, sets it again
+			setLoading(false);
+		};
+	}, [user, date, selectedEmployee, selectedTeam, organizationId, timerOnly, api]);
 
 	return { report, config, chartData, loading };
 };

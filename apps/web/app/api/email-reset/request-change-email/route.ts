@@ -2,6 +2,7 @@ import { authenticatedGuard } from '@/core/services/server/guards/authenticated-
 import { emailResetRequest } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
 import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
+import { gauzyErrorResponse } from '@/core/services/server/gauzy-error-response';
 
 export async function POST(req: Request) {
 	const foreign = refuseForeignOrigin(req);
@@ -14,11 +15,15 @@ export async function POST(req: Request) {
 		email: string;
 	};
 
-	const response = await emailResetRequest({
-		email,
-		tenantId,
-		bearer_token: access_token
-	});
-
-	return $res(response.data);
+	try {
+		const response = await emailResetRequest({
+			email,
+			tenantId,
+			bearer_token: access_token
+		});
+		return $res(response.data);
+	} catch (error) {
+		// A refusal of the API goes back with its status and reason, as in direct mode (#5726)
+		return await gauzyErrorResponse(error, 'The change of e-mail could not be created.');
+	}
 }

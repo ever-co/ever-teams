@@ -4,6 +4,7 @@ import { useAuthTeamTasks } from "../../../../services/hooks/features/use-auth-t
 import { useTeamTasks } from "../../../../services/hooks/features/use-team-tasks"
 import { ICreateTask, ITeamTask } from "../../../../services/interfaces/ITask"
 import { createTaskRequest } from "../../../../services/client/requests/tasks"
+import { useActiveUserTask } from "./use-active-user-task"
 
 export const useProfileScreenLogic = ({
 	activeTab,
@@ -17,7 +18,7 @@ export const useProfileScreenLogic = ({
 		authenticationStore: { user, authToken, tenantId, organizationId },
 		teamStore: { activeTeam },
 	} = useStores()
-	const { updateTask, isRefetching } = useTeamTasks()
+	const { updateTask } = useTeamTasks()
 
 	const [showCreateTeamModal, setShowCreateTeamModal] = useState(false)
 	const [isLoading, setIsLoading] = useState(true)
@@ -38,10 +39,7 @@ export const useProfileScreenLogic = ({
 
 	const isAuthUser = user?.employee.userId === currentUserId
 
-	const activeUserTeamTask = useMemo(
-		() => (isAuthUser ? activeTask : matchUser?.lastWorkedTask),
-		[userId, isRefetching],
-	)
+	const activeUserTeamTask = useActiveUserTask(isAuthUser, activeTask, matchUser?.lastWorkedTask)
 
 	const userProfile = isAuthUser ? user : matchUser?.employee.user
 

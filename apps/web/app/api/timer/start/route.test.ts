@@ -57,6 +57,17 @@ describe('POST /api/timer/start', () => {
 		await expect(response.json()).resolves.toEqual(refusal);
 	});
 
+	it('answers a start refused for lack of a daily plan with its 422 and its code (#5716)', async () => {
+		// As Gauzy sends it: the reason and its code, no status in the body
+		const refusal = { message: 'A daily plan is required to start the timer.', code: 'DAILY_PLAN_REQUIRED' };
+		global.fetch = jest.fn().mockResolvedValue(Response.json(refusal, { status: 422 }));
+
+		const response = await startTimer();
+
+		expect(response.status).toBe(422);
+		await expect(response.json()).resolves.toMatchObject({ code: 'DAILY_PLAN_REQUIRED', statusCode: 422 });
+	});
+
 	it('answers a 502 when Gauzy cannot be reached', async () => {
 		const networkFailure = new TypeError('fetch failed');
 		global.fetch = jest.fn().mockRejectedValue(networkFailure);

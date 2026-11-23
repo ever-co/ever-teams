@@ -9,7 +9,7 @@
  * #5123: while the time a run went on without the app is still to be settled (the person is being asked), the
  * heartbeat and a stop would each put that time in the run: neither is sent before the answer.
  */
-import { act, renderHook } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createStore, Provider } from 'jotai';
 import type { PropsWithChildren } from 'react';
@@ -17,6 +17,7 @@ import type { PropsWithChildren } from 'react';
 import { queryKeys } from '@/core/query/keys';
 import {
 	activeTeamIdState,
+	activeTeamTaskState,
 	organizationOpeningState,
 	organizationTeamsState,
 	timerNotesState,
@@ -24,6 +25,7 @@ import {
 	timerStatusState
 } from '@/core/stores';
 import { landLabelSave } from '@/core/lib/utils/timer-status-labels';
+import { ApiErrorService } from '@/core/services/client/api-error.service';
 import { timerLabelsSavedState } from '@/core/stores/timer/timer-labels';
 import { timerStartNotesState } from '@/core/stores/timer/timer-start-notes';
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
@@ -52,6 +54,10 @@ const mockGauzy: {
 	lastLogReadFails?: boolean;
 	/** A status read waits for it: a read on its way while something else happens. */
 	statusReadHold?: Promise<void>;
+	/** The flag the user reads answer instead of Gauzy's: a read answered by a session check made before a stop. */
+	userReadFlag?: boolean;
+	/** Gauzy's stop with no run going answers 406 and changes nothing, as the API does. */
+	stopRefusesWhenNothingRuns?: boolean;
 } = {
 	lastLog: null,
 	isTrackingTime: false,
@@ -74,9 +80,19 @@ const mockUser = {
 };
 const mockRefreshUserData = jest.fn(async () => ({
 	...mockUser,
-	employee: { ...mockUser.employee, isTrackingTime: mockGauzy.isTrackingTime }
+	employee: { ...mockUser.employee, isTrackingTime: mockGauzy.userReadFlag ?? mockGauzy.isTrackingTime }
 }));
+/** Gauzy's answer to a stop with no run left to stop. */
+const nothingToStop = () =>
+	ApiErrorService.fromAxiosError({
+		message: 'Request failed with status code 406',
+		status: 406,
+		response: { status: 406, data: { statusCode: 406, message: 'No running log found.' } }
+	});
 const mockStopTimer = jest.fn(async (body: { source: ETimeLogSource; stoppedAt?: string }) => {
+	if (mockGauzy.stopRefusesWhenNothingRuns && !mockGauzy.lastLog?.isRunning) {
+		throw nothingToStop();
+	}
 	if (mockGauzy.lastLog?.isRunning) {
 		mockGauzy.lastLog = {
 			...mockGauzy.lastLog,
@@ -111,6 +127,8 @@ const mockResolveBillable = jest.fn(async () => false);
 const mockSyncTimer = jest.fn(async () => ({
 	data: { running: !!mockGauzy.lastLog?.isRunning, lastLog: mockGauzy.lastLog }
 }));
+/** Gauzy's address verification status: `null` where the deployment verifies no address (its route answers 404). */
+const mockGetVerificationStatus = jest.fn();
 /** What the guard of the app shell says of the time a run went on without the app: still to be settled, or not. */
 const mockUnfollowedTime: { settled: Promise<boolean> | null } = { settled: null };
 
@@ -153,6 +171,9 @@ jest.mock('@/core/services/client/api/timers', () => ({
 		// The heartbeat, which a stop sends first too
 		syncTimer: () => mockSyncTimer()
 	}
+}));
+jest.mock('@/core/services/client/api/users/emails/email-verification.service', () => ({
+	emailVerificationService: { getVerificationStatus: () => mockGetVerificationStatus() }
 }));
 jest.mock('./use-stale-timer-guard', () => ({
 	...jest.requireActual('./use-stale-timer-guard'),
@@ -414,6 +435,151 @@ describe('Start while the tracking flag says a timer runs and this tab says stop
 		});
 		expect(outcome).toBe('started');
 		expect(mockStartTimer).toHaveBeenCalledTimes(1);
+	});
+});
+
+/**
+ * #5684: Start on another task stops the run, then checks the user again before it starts. That read could still say
+ * the stopped run goes on (in proxy mode the server answered it from a session check made before the stop). The check
+ * took the flag for stuck, sent a stop the API answered 406 (nothing to stop), and refused the start with "Some values
+ * were not accepted": the first run ended and nothing ran.
+ */
+describe('Start on another task right after this tab stopped its run', () => {
+	// The module remembers when it last stopped, to debounce the automatic stops: each test runs a minute after the
+	// previous one, and well before the hours the later tests move to
+	const realNow = Date.now;
+	let clockOffset = 0;
+
+	/** A tab that shows the run on task A, which the switch stops first, as a task card's Start does. */
+	async function switchedTab() {
+		mockGauzy.lastLog = {
+			id: 'log-task-a',
+			source: ETimeLogSource.TEAMS,
+			isRunning: true,
+			startedAt: minutesAgo(0.5),
+			stoppedAt: minutesAgo(0.5)
+		};
+		mockGauzy.isTrackingTime = true;
+		const tab = renderTab();
+		act(() => tab.store.set(timerStatusState, { running: true, lastLog: mockGauzy.lastLog } as never));
+		await tab.pressStop();
+		expect(mockGauzy.lastLog).toMatchObject({ id: 'log-task-a', isRunning: false });
+		mockStopTimer.mockClear();
+		return tab;
+	}
+
+	beforeEach(() => {
+		clockOffset += MINUTE;
+		jest.spyOn(Date, 'now').mockImplementation(() => realNow() + clockOffset);
+		mockGauzy.statusReadFails = false;
+		mockGauzy.lastLogReadFails = false;
+		mockGauzy.statusReadHold = undefined;
+		mockGauzy.stopRefusesWhenNothingRuns = true;
+	});
+
+	afterEach(() => {
+		mockGauzy.userReadFlag = undefined;
+		mockGauzy.stopRefusesWhenNothingRuns = undefined;
+		jest.restoreAllMocks();
+	});
+
+	it('starts the other task when the user read still says the stopped run goes on', async () => {
+		const tab = await switchedTab();
+		mockGauzy.userReadFlag = true;
+
+		const outcome = await tab.pressStart();
+
+		expect(outcome).toBe('started');
+		expect(mockStartTimer).toHaveBeenCalledTimes(1);
+		expect(mockGauzy.lastLog).toMatchObject({ id: 'log-new', isRunning: true });
+		expect(mockToastError).not.toHaveBeenCalled();
+		expect(mockToastWarning).not.toHaveBeenCalled();
+	});
+
+	it('starts it at once, with no second stop, when the user read says the run stopped', async () => {
+		const tab = await switchedTab();
+
+		const outcome = await tab.pressStart();
+
+		expect(outcome).toBe('started');
+		expect(mockStopTimer).not.toHaveBeenCalled();
+		expect(mockStartTimer).toHaveBeenCalledTimes(1);
+	});
+
+	it('still refuses the start, and keeps the run, when another device started one right after the stop', async () => {
+		const tab = await switchedTab();
+		mockGauzy.lastLog = {
+			id: 'log-desktop',
+			source: ETimeLogSource.DESKTOP,
+			isRunning: true,
+			startedAt: minutesAgo(0),
+			stoppedAt: minutesAgo(0)
+		};
+		mockGauzy.isTrackingTime = true;
+
+		await expectStartRefusedKeeping(tab, 'log-desktop');
+	});
+
+	it('still refuses the start, and keeps the run, when another device starts one right after the stop found nothing', async () => {
+		const tab = await switchedTab();
+		mockGauzy.userReadFlag = true;
+		mockStopTimer.mockImplementationOnce(async () => {
+			// The API had no run left to stop; the desktop app starts one right after
+			mockGauzy.lastLog = {
+				id: 'log-desktop',
+				source: ETimeLogSource.DESKTOP,
+				isRunning: true,
+				startedAt: minutesAgo(0),
+				stoppedAt: minutesAgo(0)
+			};
+			mockGauzy.isTrackingTime = true;
+			throw nothingToStop();
+		});
+
+		const outcome = await tab.pressStart();
+
+		expect(outcome).toBe('blocked');
+		expect(mockStartTimer).not.toHaveBeenCalled();
+		expect(mockGauzy.lastLog).toMatchObject({ id: 'log-desktop', isRunning: true });
+		expect(mockToastWarning).toHaveBeenCalledWith('timer.ALREADY_TRACKING_MESSAGE', {
+			id: ALREADY_TRACKING_TOAST_ID
+		});
+		expect(tab.store.get(timerStatusState)).toMatchObject({ running: true, lastLog: { id: 'log-desktop' } });
+	});
+
+	it('still ends in a start when the flag stays on with no run, which the stop of the API cannot clear', async () => {
+		mockGauzy.lastLog = {
+			id: 'log-yesterday',
+			source: ETimeLogSource.TEAMS,
+			isRunning: false,
+			startedAt: minutesAgo(600),
+			stoppedAt: minutesAgo(540)
+		};
+		mockGauzy.isTrackingTime = true;
+		mockGauzy.userReadFlag = true;
+		const { pressStart } = renderTab();
+
+		const outcome = await pressStart();
+
+		expect(mockStopTimer).toHaveBeenCalledTimes(1);
+		expect(outcome).toBe('started');
+		expect(mockStartTimer).toHaveBeenCalledTimes(1);
+		expect(mockToastError).not.toHaveBeenCalled();
+	});
+
+	it('still refuses the start when the stop that clears the flag fails for another reason', async () => {
+		const tab = await switchedTab();
+		mockGauzy.userReadFlag = true;
+		mockStopTimer.mockRejectedValueOnce(new Error('Network Error'));
+
+		const outcome = await tab.pressStart();
+
+		expect(outcome).toBe('blocked');
+		expect(mockStartTimer).not.toHaveBeenCalled();
+		expect(mockToastError).toHaveBeenCalledWith(
+			'toasts.timer.START_FAILED',
+			expect.objectContaining({ id: 'timer-start-failed' })
+		);
 	});
 });
 
@@ -879,5 +1045,43 @@ describe('a heartbeat the API took', () => {
 		});
 
 		expect(tab.store.get(timerStatusState)?.lastLog?.tags).toEqual([meeting, support]);
+	});
+});
+
+describe('canRunTimer for an owner whose address is not verified (#5677)', () => {
+	beforeEach(() => {
+		mockGauzy.lastLog = null;
+		mockGauzy.isTrackingTime = false;
+		mockUser.isEmailVerified = false;
+		mockGetVerificationStatus.mockReset();
+	});
+
+	afterEach(() => {
+		mockUser.isEmailVerified = true;
+	});
+
+	function renderTabOnTask() {
+		const tab = renderTab();
+		act(() => tab.store.set(activeTeamTaskState, TASK));
+		return tab;
+	}
+
+	it('lets the timer start where the deployment verifies no address (the status route answers 404)', async () => {
+		mockGetVerificationStatus.mockResolvedValue(null);
+
+		const tab = renderTabOnTask();
+
+		await waitFor(() => expect(tab.result.current.canRunTimer).toBe(true));
+	});
+
+	it('keeps the timer from starting where the deployment verifies addresses', async () => {
+		mockGetVerificationStatus.mockResolvedValue({ isEmailVerified: false, verificationEmailSent: true });
+
+		const tab = renderTabOnTask();
+		await act(async () => {
+			await new Promise((resolve) => setTimeout(resolve, 0));
+		});
+
+		expect(tab.result.current.canRunTimer).toBe(false);
 	});
 });

@@ -1,24 +1,19 @@
-/* eslint-disable react-native/no-inline-styles */
-/* eslint-disable react-native/no-color-literals */
-import React, { FC, useEffect, useRef, useState } from 'react';
-import * as Animatable from 'react-native-animatable';
-import EStyleSheet from 'react-native-extended-stylesheet';
-import { View, Text, Dimensions, TextInput, ViewStyle, TouchableOpacity, FlatList } from 'react-native';
+import React, { FC, ReactNode, useEffect, useRef, useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
 import { observer } from 'mobx-react-lite';
-import { Feather } from '@expo/vector-icons';
-import { ActivityIndicator } from 'react-native-paper';
 
 import { translate } from '../../../i18n';
-import { Button, TextField } from '../../../components';
-import { spacing, typography, useAppTheme } from '../../../theme';
+import { typography, useWebTheme } from '../../../theme';
 import { useStores } from '../../../models';
-import { GLOBAL_STYLE as GS } from '../../../../assets/ts/styles';
 import { EMAIL_REGEX } from '../../../helpers/regex';
 import UserTenants from './user-tenants';
 import { IWorkspace, VerificationResponse } from '../../../services/interfaces/IAuthentication';
 import { CodeInputField } from '../../../components/code-field';
 import { isCompleteEmailedCode } from '../../../helpers/emailed-code';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { SignInStep } from './sign-in-step';
+import { SignInField } from './sign-in-field';
+import { authLabelLookOf, authQuietLinkLookOf } from '../../../../src/theme/auth-look';
 
 interface Props {
 	isLoading: boolean;
@@ -26,17 +21,31 @@ interface Props {
 	setWithTeam: (value: boolean) => unknown;
 	setScreenStatus: (value: { screen: number; animation: boolean }) => unknown;
 	getAuthCode: () => unknown;
-	joinError: string;
+	joinError: string | null;
 	verifyEmailAndCodeOrAcceptInvite: () => unknown;
 	signInWorkspace: () => unknown;
 	setIsWorkspaceScreen: React.Dispatch<React.SetStateAction<boolean>>;
+	/** The step's title and its line, drawn above the fields. */
+	heading?: ReactNode;
 }
 export type defaultUserInfoType = {
 	defaultUserId: string;
 	defaultUserTenantId: string;
 };
 
-const { width } = Dimensions.get('window');
+type SignInStepName = 'Email' | 'Code' | 'Tenant';
+
+/** Whether the step's field holds what Continue sends: an e-mail, a whole code, or a chosen workspace. */
+function isStepValid(step: SignInStepName, isValid: { step1: boolean; step2: boolean; step3: boolean }): boolean {
+	if (step === 'Email') {
+		return isValid.step1;
+	}
+	if (step === 'Code') {
+		return isValid.step2;
+	}
+	return isValid.step3;
+}
+
 const PassCode: FC<Props> = observer(
 	({
 		isLoading,
@@ -47,16 +56,22 @@ const PassCode: FC<Props> = observer(
 		joinError,
 		verifyEmailAndCodeOrAcceptInvite,
 		signInWorkspace,
-		setIsWorkspaceScreen
+		setIsWorkspaceScreen,
+		heading
 	}) => {
-		const { colors, dark } = useAppTheme();
+		const theme = useWebTheme();
+		const label = [styles.label, authLabelLookOf(theme)];
+		const quietLink = authQuietLinkLookOf(theme);
+		const errorText = [styles.error, { color: theme.colors['destructive-ink'] }];
 		const {
 			authenticationStore: { authEmail, setAuthEmail, setAuthInviteCode, authInviteCode, setTempAuthToken },
 			teamStore: { activeTeamId, setActiveTeamId }
 		} = useStores();
 
 		const authTeamInput = useRef<TextInput | null>(null);
-		const [step, setStep] = useState<'Email' | 'Code' | 'Tenant'>('Email');
+		// A request for the code under way: Continue pressed again meanwhile sends no second one
+		const isSendingCode = useRef(false);
+		const [step, setStep] = useState<SignInStepName>('Email');
 		const [isValid, setIsValid] = useState<{ step1: boolean; step2: boolean; step3: boolean }>({
 			step1: false,
 			step2: false,
@@ -71,13 +86,18 @@ const PassCode: FC<Props> = observer(
 
 		const onNextStep = async () => {
 			if (step === 'Email') {
-				getAuthCode();
-				setTimeout(() => {
-					if (!isLoading) {
-						setStep('Code');
-						setAuthInviteCode('');
-					}
-				}, 1000);
+				if (isSendingCode.current) {
+					return;
+				}
+				isSendingCode.current = true;
+				// The code step opens once the API has answered: the code the person is asked for exists by then
+				try {
+					await getAuthCode();
+				} finally {
+					isSendingCode.current = false;
+				}
+				setStep('Code');
+				setAuthInviteCode('');
 				return;
 			}
 
@@ -187,75 +207,70 @@ const PassCode: FC<Props> = observer(
 			}
 		}, [step]);
 
+		const showsCodeDestination = Boolean(authEmail);
+
 		return (
-			<Animatable.View
-				animation={'zoomIn'}
-				delay={100}
-				style={{
-					...styles.form,
-					backgroundColor: colors.background,
-					...(!dark && GS.shadowSm)
+			<SignInStep
+				heading={heading}
+				onBack={() => onPrevStep()}
+				backTestID="sign-in-back"
+				submit={{
+					label: translate('loginScreen.tapContinue'),
+					onPress: () => onNextStep(),
+					disabled: !isStepValid(step, isValid),
+					isLoading,
+					testID: 'sign-in-continue'
 				}}
 			>
-				{step === 'Email' ? (
-					<>
-						<Text style={{ ...styles.text, color: colors.primary }}>
-							{translate('loginScreen.inviteStepLabel')}
-						</Text>
-						<TextField
-							placeholder={translate('loginScreen.emailFieldPlaceholder')}
-							containerStyle={styles.textField}
-							placeholderTextColor={dark ? '#7B8089' : '#28204866'}
-							inputWrapperStyle={{
-								...styles.inputStyleOverride,
-								backgroundColor: colors.background,
-								borderColor: colors.border
-							}}
-							ref={authTeamInput}
-							value={authEmail}
-							onChangeText={onChangeEmail}
-							autoCapitalize="none"
-							autoCorrect={false}
-							editable={!isLoading}
-							helper={errors?.authEmail}
-							status={errors?.authEmail ? 'error' : undefined}
-							onSubmitEditing={() => authTeamInput.current?.focus()}
-						/>
-					</>
-				) : step === 'Code' ? (
+				{step === 'Email' && (
+					<SignInField
+						label={translate('loginScreen.inviteStepLabel')}
+						placeholder={translate('loginScreen.emailFieldPlaceholder')}
+						ref={authTeamInput}
+						testID="sign-in-email"
+						value={authEmail}
+						onChangeText={onChangeEmail}
+						autoCapitalize="none"
+						autoCorrect={false}
+						editable={!isLoading}
+						helper={errors?.authEmail}
+						status={errors?.authEmail ? 'error' : undefined}
+						onSubmitEditing={() => authTeamInput.current?.focus()}
+					/>
+				)}
+				{step === 'Code' && (
 					<View>
-						<Text style={{ ...styles.text, alignSelf: 'center', color: colors.primary }}>
-							{translate('loginScreen.inviteCodeFieldLabel')}
-						</Text>
-						{authEmail && (
-							<Text
-								numberOfLines={2}
-								style={{ fontSize: 13, textAlign: 'center', color: colors.tertiary, marginBottom: 16 }}
-							>
+						<Text style={label}>{translate('loginScreen.inviteCodeFieldLabel')}</Text>
+						{showsCodeDestination && (
+							<Text numberOfLines={2} style={[styles.hint, { color: theme.colors['muted-foreground'] }]}>
 								{translate('loginScreen.codeSentTo')}{' '}
-								<Text style={{ fontWeight: '600', color: colors.primary }}>{authEmail}</Text>
+								<Text style={[styles.email, { color: theme.colors.foreground }]}>{authEmail}</Text>
 							</Text>
 						)}
 						<CodeInputField editable onChange={onChangeAuthCode} defaultValue={authInviteCode} />
-						{joinError ? <Text style={styles.verifyError}>{joinError}</Text> : null}
-						<TouchableOpacity onPress={() => getAuthCode()}>
-							<Text style={styles.resendText}>
-								{translate('loginScreen.codeNotReceived')}
-								{translate('loginScreen.sendCode').substring(0, 2)}
-								<Text style={{ color: colors.secondary }}>
-									{translate('loginScreen.sendCode').substring(2)}
+						{joinError ? <Text style={errorText}>{joinError}</Text> : null}
+						<TouchableOpacity
+							testID="sign-in-resend-code"
+							onPress={() => getAuthCode()}
+							style={styles.resend}
+						>
+							<Text style={quietLink}>
+								{translate('loginScreen.codeNotReceived')}{' '}
+								<Text style={[styles.link, { color: theme.colors['primary-ink'] }]}>
+									{translate('loginScreen.sendCode')}
 								</Text>
 							</Text>
 						</TouchableOpacity>
 					</View>
-				) : (
+				)}
+				{step === 'Tenant' && (
 					<View style={styles.tenantsContainer}>
-						<Text style={{ ...styles.text, alignSelf: 'center', color: colors.primary }}>
-							{translate('loginScreen.selectWorkspaceFieldLabel')}
-						</Text>
+						<Text style={label}>{translate('loginScreen.selectWorkspaceFieldLabel')}</Text>
 
+						{/* The page scrolls too: Android scrolls a list inside it only when it nests its scrolling */}
 						<FlatList
 							data={workspaceData}
+							nestedScrollEnabled
 							showsVerticalScrollIndicator={false}
 							renderItem={({ item, index }: { item: IWorkspace; index: number }) => (
 								<UserTenants
@@ -274,148 +289,41 @@ const PassCode: FC<Props> = observer(
 							)}
 						/>
 						{/* A sign-in error of the chosen workspace (not loaded, setup not complete) shows here too */}
-						{joinError ? <Text style={styles.verifyError}>{joinError}</Text> : null}
+						{joinError ? <Text style={errorText}>{joinError}</Text> : null}
 					</View>
 				)}
-				<View style={styles.buttonsView}>
-					<TouchableOpacity
-						style={{
-							flexDirection: 'row',
-							justifyContent: 'space-between',
-							alignItems: 'center',
-							width: 65
-						}}
-						onPress={() => onPrevStep()}
-					>
-						<Feather name="arrow-left" size={24} color={dark ? colors.primary : '#3826A6'} />
-						<Text
-							style={[styles.backButtonText, { color: dark ? colors.primary : '#282048', fontSize: 14 }]}
-						>
-							{translate('common.back')}
-						</Text>
-					</TouchableOpacity>
-					<Button
-						style={[
-							$tapButton,
-							{
-								width: width / 2.1,
-								opacity:
-									isLoading ||
-									(step === 'Email' && !isValid.step1) ||
-									(step === 'Code' && !isValid.step2) ||
-									(step === 'Tenant' && !isValid.step3)
-										? 0.5
-										: 1,
-								backgroundColor: colors.secondary,
-								borderWidth: 0
-							}
-						]}
-						textStyle={styles.tapButtonText}
-						onPress={() => onNextStep()}
-						disabled={
-							(step === 'Email' && !isValid.step1) ||
-							(step === 'Code' && !isValid.step2) ||
-							(step === 'Tenant' && !isValid.step3)
-						}
-					>
-						<Text>{translate('loginScreen.tapContinue')}</Text>
-					</Button>
-					<ActivityIndicator style={styles.loading} animating={isLoading} size={'small'} color={'#fff'} />
-				</View>
-			</Animatable.View>
+			</SignInStep>
 		);
 	}
 );
 
 export default PassCode;
 
-const $tapButton: ViewStyle = {
-	marginTop: spacing.extraSmall,
-	width: width / 3,
-	borderRadius: 10,
-	backgroundColor: '#3826A6'
-};
-
-const styles = EStyleSheet.create({
-	tenantsContainer: {
-		width: '100%',
-		// height: 220,
-		minHeight: 202,
-		maxHeight: 400
-	},
-	form: {
-		position: 'absolute',
-		display: 'flex',
-		flex: 1,
-		width: '90%',
-		top: '-32%',
-		padding: '1.5rem',
-		alignSelf: 'center',
-		backgroundColor: '#fff',
-		alignItems: 'center',
-		borderRadius: '1rem',
-		justifyContent: 'flex-start',
-		borderWidth: 1,
-		borderColor: 'rgba(0,0,0,0.1)',
-		zIndex: 1000
-	},
-	text: {
-		fontSize: '1.5rem',
-		marginBottom: '2rem',
-		width: '100%',
-		textAlign: 'center',
+const styles = StyleSheet.create({
+	email: {
 		fontFamily: typography.primary.semiBold
 	},
-	buttonsView: {
-		width: '100%',
-		display: 'flex',
-		marginTop: '2rem',
-		flexDirection: 'row',
-		alignItems: 'center',
-		justifyContent: 'space-between'
+	error: {
+		fontSize: 13,
+		marginTop: 10
 	},
-	inputStyleOverride: {
-		height: '3.3rem',
-		borderColor: 'rgba(0,0,0,0.1)',
-		backgroundColor: '#FFFFFF',
-		paddingVertical: '0.43rem',
-		paddingHorizontal: '0.6rem',
-		borderRadius: '0.6rem'
+	hint: {
+		fontSize: 13,
+		marginBottom: 16
 	},
-	textField: {
-		width: '100%',
-		borderRadius: '1.25rem'
-	},
-	backButtonText: {
-		fontSize: '0.87rem',
-		fontFamily: typography.primary.semiBold,
-		color: '#3826A6'
-	},
-	tapButtonText: {
-		color: '#fff',
-		fontFamily: typography.primary.semiBold,
-		fontSize: '1rem'
-	},
-	inputInviteTitle: {
-		fontSize: '0.87rem',
-		marginTop: '1.8rem',
-		marginBottom: '1rem',
-		fontFamily: typography.primary.medium,
-		color: '#B1AEBC'
-	},
-	resendText: {
-		fontSize: '0.87rem',
-		color: '#B1AEBC',
-		marginTop: '1.2rem',
+	label: {
 		fontFamily: typography.primary.medium
 	},
-	loading: {
-		position: 'absolute',
-		bottom: '20%',
-		right: '47%'
+	link: {
+		fontFamily: typography.primary.medium
 	},
-	verifyError: {
-		color: 'red',
-		margin: 10
+	resend: {
+		alignSelf: 'flex-start',
+		marginTop: 16
+	},
+	tenantsContainer: {
+		width: '100%',
+		minHeight: 202,
+		maxHeight: 400
 	}
 });

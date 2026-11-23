@@ -1,15 +1,21 @@
 /* eslint-disable react-native/no-inline-styles  */
 /* eslint-disable react-native/no-color-literals  */
 import { View, Text, StyleSheet } from 'react-native';
-import React from 'react';
+import React, { useState } from 'react';
 import { useStores } from '../../../../models';
 import TaskRow from '../components/task-row';
+import { PropertyLabel } from '../components/property-label';
+import { Calendar, Clock, User, Users } from '../../../../../src/components/icons';
 import { SvgXml } from 'react-native-svg';
-import { calendarIcon, categoryIcon, clipboardIcon, peopleIconSmall, profileIcon } from '../../../svgs/icons';
+import { categoryIcon } from '../../../svgs/icons';
 import ProfileInfo from '../components/profile-info';
+import { creatorIdOf, creatorOf } from './task-creator';
 import ManageAssignees from '../components/manage-assignees';
 import { useOrganizationTeam } from '../../../../services/hooks/use-organization';
-import CalendarModal from '../components/calendar-modal';
+import { TaskDateField } from '../components/task-date-field';
+import { saveTaskDate, shownDatesOf, type TaskDateChanges } from '../components/task-date-save';
+import { useOneSaveAtATime } from '../components/use-one-save-at-a-time';
+import { showMessage } from 'react-native-flash-message';
 import { useTeamTasks } from '../../../../services/hooks/features/use-team-tasks';
 import moment from 'moment-timezone';
 import TaskStatus from '../../../task-status';
@@ -17,7 +23,7 @@ import TaskSize from '../../../task-size';
 import TaskPriority from '../../../task-priority';
 import TaskLabels from '../../../task-labels';
 import TaskVersion from '../../../task-version';
-import { useAppTheme } from '../../../../theme';
+import { useAppTheme, useWebTheme } from '../../../../theme';
 import { ITeamTask } from '../../../../services/interfaces/ITask';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
@@ -26,54 +32,57 @@ import TaskEpic from '../../../task-epic';
 import IssuesModal from '../../../issues-modal';
 import { observer } from 'mobx-react-lite';
 import { translate } from '../../../../i18n';
+import { navigateTo } from '../../../../navigators/routes';
 
 const TaskMainInfo = observer(() => {
-	const {
-		TaskStore: { detailedTask: task }
-	} = useStores();
+	const { TaskStore } = useStores();
+	const { detailedTask: task, setDetailedTask } = TaskStore;
 
 	const { currentTeam } = useOrganizationTeam();
 	const { updateTask } = useTeamTasks();
 
-	const { colors } = useAppTheme();
+	// one date save at a time: both date fields wait for it, so no save carries another one's pending date
+	const { isSaving: isSavingDate, runAlone } = useOneSaveAtATime();
+	const [pendingDates, setPendingDates] = useState<TaskDateChanges | null>(null);
+	const shownDates = shownDatesOf(task, pendingDates);
+
+	const saveDate = (changes: Pick<ITeamTask, 'startDate'> | Pick<ITeamTask, 'dueDate'>) =>
+		runAlone(async () => {
+			const isSaved = await saveTaskDate(changes, {
+				current: () => TaskStore.detailedTask,
+				showPending: setPendingDates,
+				keep: setDetailedTask,
+				save: async (changed) => {
+					const { response } = await updateTask(changed, changed.id);
+					return response.ok;
+				}
+			});
+			if (!isSaved) {
+				showMessage({ message: translate('common.somethingWrong'), type: 'danger' });
+			}
+		});
+
+	const theme = useWebTheme();
+	const creator = creatorOf(task);
 
 	return (
-		<View style={{ paddingHorizontal: 12, gap: 12, paddingBottom: 12 }}>
+		<View style={styles.properties}>
 			{/* Issue type */}
 			<TaskRow
-				labelComponent={
-					<View style={styles.labelComponent}>
-						<SvgXml xml={clipboardIcon} />
-						<Text style={styles.labelText}>{translate('taskDetailsScreen.typeIssue')}</Text>
-					</View>
-				}
+				labelComponent={<PropertyLabel property="issueType" label={translate('taskDetailsScreen.typeIssue')} />}
 			>
 				<IssuesModal task={task} nameIncluded={true} smallFont={true} />
 			</TaskRow>
 			{/* Creator */}
-			<TaskRow
-				labelComponent={
-					<View style={styles.labelComponent}>
-						<SvgXml xml={profileIcon} />
-						<Text style={styles.labelText}>{translate('taskDetailsScreen.creator')}</Text>
-					</View>
-				}
-			>
+			<TaskRow labelComponent={<PropertyLabel icon={User} label={translate('taskDetailsScreen.creator')} />}>
 				<ProfileInfo
-					userId={task?.creatorId || task?.creator?.id}
-					profilePicSrc={task?.creator?.imageUrl}
-					names={`${task?.creator?.firstName || ''} ${task?.creator?.lastName || ''}`}
+					userId={creatorIdOf(task)}
+					profilePicSrc={creator?.imageUrl ?? ''}
+					names={`${creator?.firstName || ''} ${creator?.lastName || ''}`}
 				/>
 			</TaskRow>
 			{/* Assignees */}
-			<TaskRow
-				labelComponent={
-					<View style={styles.labelComponent}>
-						<SvgXml xml={peopleIconSmall} />
-						<Text style={styles.labelText}>{translate('taskDetailsScreen.assignees')}</Text>
-					</View>
-				}
-			>
+			<TaskRow labelComponent={<PropertyLabel icon={Users} label={translate('taskDetailsScreen.assignees')} />}>
 				{task?.members?.map((member, index) => (
 					<ProfileInfo
 						key={index}
@@ -89,44 +98,34 @@ const TaskMainInfo = observer(() => {
 
 			{/* Manage Start Date */}
 			<TaskRow
-				labelComponent={
-					<View style={styles.labelComponent}>
-						<SvgXml xml={calendarIcon} />
-						<Text style={styles.labelText}>{translate('taskDetailsScreen.startDate')}</Text>
-					</View>
-				}
+				labelComponent={<PropertyLabel icon={Calendar} label={translate('taskDetailsScreen.startDate')} />}
 			>
-				<CalendarModal
-					updateTask={(date) => updateTask({ ...task, startDate: date }, task?.id)}
-					selectedDate={task?.startDate}
+				<TaskDateField
+					kind="start"
+					value={shownDates.startDate}
+					otherDate={shownDates.dueDate}
+					onChange={(date) => saveDate({ startDate: date })}
+					disabled={isSavingDate}
 				/>
 			</TaskRow>
 
 			{/* Manage Due Date */}
-			<TaskRow
-				labelComponent={
-					<View style={[styles.labelComponent, { marginLeft: 19 }]}>
-						<Text style={styles.labelText}>{translate('taskDetailsScreen.dueDate')}</Text>
-					</View>
-				}
-			>
-				<CalendarModal
-					updateTask={(date) => updateTask({ ...task, dueDate: date }, task?.id)}
-					selectedDate={task?.dueDate}
-					isDueDate={true}
+			<TaskRow labelComponent={<PropertyLabel icon={Calendar} label={translate('taskDetailsScreen.dueDate')} />}>
+				<TaskDateField
+					kind="due"
+					value={shownDates.dueDate}
+					otherDate={shownDates.startDate}
+					onChange={(date) => saveDate({ dueDate: date })}
+					disabled={isSavingDate}
 				/>
 			</TaskRow>
 
 			{/* Days Remaining */}
 			{task?.startDate && task?.dueDate && (
 				<TaskRow
-					labelComponent={
-						<View style={[styles.labelComponent, { marginLeft: 19 }]}>
-							<Text style={styles.labelText}>{translate('taskDetailsScreen.daysRemaining')}</Text>
-						</View>
-					}
+					labelComponent={<PropertyLabel icon={Clock} label={translate('taskDetailsScreen.daysRemaining')} />}
 				>
-					<Text style={{ fontWeight: '600', fontSize: 12, color: colors.primary }}>
+					<Text style={[styles.daysRemaining, { color: theme.colors.foreground }]}>
 						{moment(task?.dueDate).diff(moment(), 'days') < 0
 							? 0
 							: moment(task?.dueDate).diff(moment(), 'days')}
@@ -135,42 +134,26 @@ const TaskMainInfo = observer(() => {
 			)}
 
 			{/* horizontal separator */}
-			<View style={styles.horizontalSeparator} />
+			<View style={[styles.horizontalSeparator, { borderBottomColor: theme.colors.border }]} />
 
 			{/* Version */}
 			<TaskRow
 				alignItems={true}
-				labelComponent={
-					<View style={styles.labelComponent}>
-						<Text style={styles.labelText}>{translate('taskDetailsScreen.version')}</Text>
-					</View>
-				}
+				labelComponent={<PropertyLabel property="version" label={translate('taskDetailsScreen.version')} />}
 			>
-				<TaskVersion
-					task={task}
-					canCreateVersion={true}
-					containerStyle={{
-						width: '70%',
-						borderRadius: 3
-					}}
-				/>
+				<TaskVersion task={task} canCreateVersion={true} forDetails />
 			</TaskRow>
 
 			{/* Epic */}
 			{task && task.issueType === 'Story' && (
 				<TaskRow
 					alignItems={true}
-					labelComponent={
-						<View style={styles.labelComponent}>
-							<Text style={styles.labelText}>{translate('taskDetailsScreen.epic')}</Text>
-						</View>
-					}
+					labelComponent={<PropertyLabel property="epic" label={translate('taskDetailsScreen.epic')} />}
 				>
 					<TaskEpic
 						task={task}
 						containerStyle={{
-							width: '70%',
-							borderRadius: 3
+							width: '70%'
 						}}
 					/>
 				</TaskRow>
@@ -180,81 +163,30 @@ const TaskMainInfo = observer(() => {
 			{/* Status */}
 			<TaskRow
 				alignItems={true}
-				labelComponent={
-					<View style={styles.labelComponent}>
-						<Text style={styles.labelText}>{translate('taskDetailsScreen.status')}</Text>
-					</View>
-				}
+				labelComponent={<PropertyLabel property="status" label={translate('taskDetailsScreen.status')} />}
 			>
-				<TaskStatus
-					task={task}
-					canCreateStatus={true}
-					containerStyle={{
-						width: '70%',
-						borderRadius: 3,
-						borderWidth: !task?.status ? 1 : 0
-					}}
-				/>
+				<TaskStatus task={task} canCreateStatus={true} forDetails />
 			</TaskRow>
 
 			{/* Labels */}
-			<TaskRow
-				labelComponent={
-					<View style={[styles.labelComponent, { marginTop: 10 }]}>
-						<Text style={styles.labelText}>{translate('taskDetailsScreen.labels')}</Text>
-					</View>
-				}
-			>
-				<TaskLabels
-					task={task}
-					taskScreenButton={true}
-					noBorders={true}
-					containerStyle={{
-						width: '70%',
-						borderRadius: 3,
-						marginVertical: task?.tags.length ? 20 : 0
-					}}
-				/>
+			<TaskRow labelComponent={<PropertyLabel property="label" label={translate('taskDetailsScreen.labels')} />}>
+				<TaskLabels task={task} forDetails />
 			</TaskRow>
 
 			{/* Size */}
 			<TaskRow
 				alignItems={true}
-				labelComponent={
-					<View style={styles.labelComponent}>
-						<Text style={styles.labelText}>{translate('taskDetailsScreen.size')}</Text>
-					</View>
-				}
+				labelComponent={<PropertyLabel property="size" label={translate('taskDetailsScreen.size')} />}
 			>
-				<TaskSize
-					task={task}
-					canCreateSize={true}
-					containerStyle={{
-						width: '70%',
-						borderRadius: 3,
-						borderWidth: !task?.size ? 1 : 0
-					}}
-				/>
+				<TaskSize task={task} canCreateSize={true} forDetails />
 			</TaskRow>
 
 			{/* Priority */}
 			<TaskRow
 				alignItems={true}
-				labelComponent={
-					<View style={styles.labelComponent}>
-						<Text style={styles.labelText}>{translate('taskDetailsScreen.priority')}</Text>
-					</View>
-				}
+				labelComponent={<PropertyLabel property="priority" label={translate('taskDetailsScreen.priority')} />}
 			>
-				<TaskPriority
-					task={task}
-					canCreatePriority={true}
-					containerStyle={{
-						width: '70%',
-						borderRadius: 3,
-						borderWidth: !task?.priority ? 1 : 0
-					}}
-				/>
+				<TaskPriority task={task} canCreatePriority={true} forDetails />
 			</TaskRow>
 		</View>
 	);
@@ -268,7 +200,7 @@ const EpicParent: React.FC<{ task: ITeamTask }> = ({ task }) => {
 	const navigation = useNavigation<SettingScreenNavigationProp<'TaskScreen'>>();
 
 	const navigateToEpic = () => {
-		navigation.navigate('TaskScreen', { taskId: task?.rootEpic?.id });
+		navigateTo(navigation, 'TaskScreen', { taskId: task?.rootEpic?.id });
 	};
 
 	if (task?.issueType === 'Story') {
@@ -277,11 +209,7 @@ const EpicParent: React.FC<{ task: ITeamTask }> = ({ task }) => {
 	return (!task?.issueType || task?.issueType === 'Task' || task?.issueType === 'Bug') && task?.rootEpic ? (
 		<TaskRow
 			alignItems={true}
-			labelComponent={
-				<View style={styles.labelComponent}>
-					<Text style={styles.labelText}>{translate('taskDetailsScreen.epic')}</Text>
-				</View>
-			}
+			labelComponent={<PropertyLabel property="epic" label={translate('taskDetailsScreen.epic')} />}
 		>
 			<TouchableOpacity onPress={navigateToEpic} style={styles.epicParentButton}>
 				<View style={styles.epicParentIconWrapper}>
@@ -300,6 +228,10 @@ const EpicParent: React.FC<{ task: ITeamTask }> = ({ task }) => {
 };
 
 const styles = StyleSheet.create({
+	daysRemaining: {
+		fontSize: 13,
+		fontWeight: '600'
+	},
 	epicParentButton: { alignItems: 'center', flexDirection: 'row', gap: 4, width: '60%' },
 	epicParentIconWrapper: {
 		backgroundColor: '#8154BA',
@@ -308,18 +240,13 @@ const styles = StyleSheet.create({
 		padding: 4
 	},
 	horizontalSeparator: {
-		borderBottomColor: '#F2F2F2',
-		borderBottomWidth: 1,
+		borderBottomWidth: StyleSheet.hairlineWidth,
 		marginVertical: 10,
 		width: '100%'
 	},
-	labelComponent: {
-		alignItems: 'center',
-		flexDirection: 'row',
-		gap: 7
-	},
-	labelText: {
-		color: '#A5A2B2',
-		fontSize: 12
+	properties: {
+		gap: 4,
+		paddingBottom: 12,
+		paddingHorizontal: 16
 	}
 });

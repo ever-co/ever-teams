@@ -8,6 +8,7 @@ import { typography, useAppTheme } from '../../../../theme';
 import { limitTextCharaters } from '../../../../helpers/sub-text';
 import { useNavigation } from '@react-navigation/native';
 import { DrawerNavigationProp, SettingScreenNavigationProp } from '../../../../navigators/authenticated-navigator';
+import { navigateTo } from '../../../../navigators/routes';
 
 interface IProfileInfo {
 	names: string;
@@ -25,9 +26,9 @@ const ProfileInfoWithTime: React.FC<IProfileInfo> = ({ profilePicSrc, names, use
 	const navigation = useNavigation<SettingScreenNavigationProp<'Profile'>>();
 
 	const navigateToProfile = () => {
-		alternateNavigation.navigate('AuthenticatedTab');
+		navigateTo(alternateNavigation, 'AuthenticatedTab');
 		setTimeout(() => {
-			navigation.navigate('Profile', { userId, activeTab: 'worked' });
+			navigateTo(navigation, 'Profile', { userId, activeTab: 'worked' });
 		}, 50);
 	};
 	return (
@@ -38,7 +39,7 @@ const ProfileInfoWithTime: React.FC<IProfileInfo> = ({ profilePicSrc, names, use
 				paddingRight: !time ? 12 : undefined
 			}}
 		>
-			<TouchableOpacity onPress={userId && navigateToProfile} style={styles.container}>
+			<TouchableOpacity disabled={!userId} onPress={navigateToProfile} style={styles.container}>
 				{profilePicSrc ? (
 					<Avatar.Image
 						source={{ uri: profilePicSrc }}
@@ -67,15 +68,18 @@ const ProfileInfoWithTime: React.FC<IProfileInfo> = ({ profilePicSrc, names, use
 					})}
 				</Text>
 			</TouchableOpacity>
-			<Text
-				style={{
-					fontSize: 12,
-					fontWeight: '600',
-					color: time ? colors.primary : '#938FA3'
-				}}
-			>
-				{time || '6 h: 40 m'}
-			</Text>
+			{/* a ternary, not `time &&`: an empty time would reach the View as a bare string, which React Native refuses */}
+			{time ? (
+				<Text
+					style={{
+						fontSize: 12,
+						fontWeight: '600',
+						color: colors.primary
+					}}
+				>
+					{time}
+				</Text>
+			) : null}
 		</View>
 	);
 };

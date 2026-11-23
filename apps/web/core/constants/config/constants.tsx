@@ -282,7 +282,7 @@ export const LOG_FOLDER_MAX_SIZE = getNextPublicEnv(
 ) || { value: process.env.LOG_FOLDER_MAX_SIZE || 10 };
 
 // Invite
-export const INVITE_CALLBACK_URL = process.env.INVITE_CALLBACK_URL;
+export const INVITE_CALLBACK_URL = readRuntimeEnv('INVITE_CALLBACK_URL') || process.env.INVITE_CALLBACK_URL;
 export const INVITE_CALLBACK_PATH = '/auth/accept-invite';
 /** The page the link of the sign-in code e-mail opens: it takes the link's `?email=&code=` and signs the person in. */
 export const SIGN_IN_CALLBACK_PATH = '/auth/passcode';
@@ -1161,21 +1161,25 @@ export const paginationPageSizeOptions = [5, 10, 20, 30, 40, 50];
 export const InviteStatusDisplayMap = {
 	[EInviteStatus.INVITED]: {
 		label: 'Pending',
+		labelKey: 'modals.invite.PENDING_STATUS',
 		foreground: 'rgb(30, 144, 255)',
 		background: 'rgba(30, 144, 255, 0.1)'
 	},
 	[EInviteStatus.ACCEPTED]: {
 		label: 'Accepted',
+		labelKey: 'common.ACCEPTED',
 		foreground: 'rgb(0, 128, 0)',
 		background: 'rgba(0, 128, 0, 0.1)'
 	},
 	[EInviteStatus.EXPIRED]: {
 		label: 'Expired',
+		labelKey: 'modals.invite.EXPIRED_STATUS',
 		foreground: 'rgb(128, 128, 128)',
 		background: 'rgba(128, 128, 128, 0.1)'
 	},
 	[EInviteStatus.REJECTED]: {
 		label: 'Rejected',
+		labelKey: 'common.REJECTED',
 		foreground: 'rgb(255, 99, 71)',
 		background: 'rgba(255, 99, 71, 0.1)'
 	}

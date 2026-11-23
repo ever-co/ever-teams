@@ -1,5 +1,0 @@
----
-'@ever-teams/atoms': minor
----
-
-The kit leaves the host page alone. Two visible changes: the widgets use the host's font until a person picks one in `TeamsFontToggle` (no Geist by default), and fonts are requested from Google Fonts only with the new `loadGoogleFonts` prop. theme-ui no longer writes styles on `html`, `body` or every element, nor stores a color mode. With `scopedStyles`, the picked font and the color scheme stay on the kit root (new `colorScheme` prop: `'light' | 'dark' | 'system'`, default `'system'`), nothing is written on `<html>`, and a sign-out keeps the page where it is. The new `onSignOut` prop is called after a sign-out from the user menu; without `scopedStyles` and without `onSignOut`, the kit still sends the browser to `/` and warns once, and a picked font still goes on `document.body` with a warning. Pass `onSignOut={() => { window.location.href = '/'; }}` to keep the redirect. The picked font is stored under `ever-teams:selected-font`; a choice stored under the old `selected-font` key is carried over.

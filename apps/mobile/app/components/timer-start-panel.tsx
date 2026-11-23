@@ -1,10 +1,19 @@
 import React, { FC, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+	ActivityIndicator,
+	KeyboardTypeOptions,
+	Platform,
+	StyleSheet,
+	Text,
+	TouchableOpacity,
+	View
+} from 'react-native';
 import { BottomSheetTextInput } from '@gorhom/bottom-sheet';
 import { showMessage } from 'react-native-flash-message';
 import type { TxKeyPath } from '../i18n/i18n';
 import { translate } from '../i18n';
 import {
+	timeTextFromTyping,
 	TIMER_START_REASON_MAX_LENGTH,
 	TimerStartMoveAccess,
 	TimerStartViewReason,
@@ -16,7 +25,8 @@ import {
 	timerStartMoveRefusalKeyOf
 } from '../helpers/timer-start-move';
 import type { ITimerStartMoveFailure } from '../services/hooks/use-timer-start-move';
-import { typography, useAppTheme } from '../theme';
+import { typography, useWebTheme } from '../theme';
+import { buttonLookOf, choiceLookOf, inputLookOf } from '../../src/theme/form-look';
 
 /** The line that says why the panel shows the start alone. */
 const VIEW_KEYS: Readonly<Record<TimerStartViewReason, TxKeyPath>> = {
@@ -26,14 +36,6 @@ const VIEW_KEYS: Readonly<Record<TimerStartViewReason, TxKeyPath>> = {
 	unsupported: 'timer.startMove.unsupported'
 };
 
-const ERROR_COLOR = '#DA5E5E';
-const FIELD_BORDER_COLOR = '#DCE4E8';
-const PLACEHOLDER_COLOR = '#7B8089';
-const CANCEL_BACKGROUND = '#E6E6E9';
-const CANCEL_TEXT_COLOR = '#1A1C1E';
-const SAVE_TEXT_COLOR = '#FFF';
-const ACCENT_LIGHT = '#3826A6';
-const ACCENT_DARK = '#6755C9';
 /** A day of the run as its choice shows it, in the phone's language: `Sun 15 Nov`. */
 const DAY_FORMAT: Intl.DateTimeFormatOptions = { weekday: 'short', day: 'numeric', month: 'short' };
 /** The Save button while the save is under way. */
@@ -49,6 +51,14 @@ interface ITimerStartPanelProps {
 	onClose: () => void;
 }
 
+// iOS has a keyboard of digits and a colon; Android shows the digits, and the field places the colon
+function timeKeyboard(): KeyboardTypeOptions {
+	if (Platform.OS === 'ios') {
+		return 'numbers-and-punctuation';
+	}
+	return 'number-pad';
+}
+
 /**
  * The panel of the running time (ever-co/ever-teams#5373): when the run started and, where the person may change it,
  * a time field to move the start (with the day of the new start for a run that started before midnight, never guessed),
@@ -57,7 +67,10 @@ interface ITimerStartPanelProps {
  * phone are told after.
  */
 export const TimerStartPanel: FC<ITimerStartPanelProps> = ({ access, runStart, saving, onSave, onClose }) => {
-	const { colors, dark } = useAppTheme();
+	const theme = useWebTheme();
+	const cancelLook = buttonLookOf('secondary', theme);
+	const saveLook = buttonLookOf('primary', theme);
+	const inputLook = inputLookOf(theme);
 	const [timeText, setTimeText] = useState(() => (runStart === null ? '' : timeTextOf(new Date(runStart))));
 	const [reason, setReason] = useState('');
 	const [errorKey, setErrorKey] = useState<TxKeyPath | null>(null);
@@ -94,7 +107,6 @@ export const TimerStartPanel: FC<ITimerStartPanelProps> = ({ access, runStart, s
 	const startedAtText = isRunning
 		? translate('timer.startMove.startedAt', { time: timeTextOf(new Date(runStart)) })
 		: '';
-	const accentColor = dark ? ACCENT_DARK : ACCENT_LIGHT;
 	const saveOpacity = saving ? SAVING_OPACITY : 1;
 
 	const save = async () => {
@@ -145,7 +157,7 @@ export const TimerStartPanel: FC<ITimerStartPanelProps> = ({ access, runStart, s
 
 	const changeTime = (text: string) => {
 		typedTime.current = true;
-		setTimeText(text);
+		setTimeText(timeTextFromTyping(text));
 		setErrorKey(null);
 	};
 
@@ -160,46 +172,46 @@ export const TimerStartPanel: FC<ITimerStartPanelProps> = ({ access, runStart, s
 	};
 
 	return (
-		<View style={[styles.container, { backgroundColor: colors.background }]} testID="timer-start-panel">
-			<Text style={[styles.title, { color: colors.primary }]}>{translate('timer.startMove.title')}</Text>
+		<View style={styles.container} testID="timer-start-panel">
+			<Text style={[styles.title, { color: theme.colors.foreground }]}>{translate('timer.startMove.title')}</Text>
 			{isRunning ? (
-				<Text style={[styles.startedAt, { color: colors.primary }]}>{startedAtText}</Text>
+				<Text style={[styles.startedAt, { color: theme.colors.foreground }]}>{startedAtText}</Text>
 			) : (
-				<Text style={[styles.note, { color: colors.tertiary }]}>{translate('timer.startMove.notRunning')}</Text>
+				<Text style={[styles.note, { color: theme.colors['muted-foreground'] }]}>
+					{translate('timer.startMove.notRunning')}
+				</Text>
 			)}
 
 			{isRunning && access.kind === 'view' ? (
 				<View style={styles.viewLine}>
-					{access.why === 'checking' ? <ActivityIndicator size="small" color={accentColor} /> : null}
-					<Text style={[styles.note, { color: colors.tertiary }]}>{translate(VIEW_KEYS[access.why])}</Text>
+					{access.why === 'checking' ? <ActivityIndicator size="small" color={theme.colors.primary} /> : null}
+					<Text style={[styles.note, { color: theme.colors['muted-foreground'] }]}>
+						{translate(VIEW_KEYS[access.why])}
+					</Text>
 				</View>
 			) : null}
 
 			{isEditable ? (
 				<View>
-					<Text style={[styles.label, { color: colors.primary }]}>
+					<Text style={[styles.label, { color: theme.colors.foreground }]}>
 						{translate('timer.startMove.newStart')}
 					</Text>
 					{asksForDay ? (
 						<View style={styles.days} accessibilityRole="radiogroup">
 							{runDays.map((day, index) => {
 								const isChosen = day.getTime() === chosenDay;
-								const dayTextColor = isChosen ? SAVE_TEXT_COLOR : colors.primary;
+								const dayLook = choiceLookOf(isChosen, theme);
 								return (
 									<TouchableOpacity
 										key={day.getTime()}
 										testID={`timer-start-day-${index}`}
-										style={[
-											styles.day,
-											{ borderColor: isChosen ? accentColor : FIELD_BORDER_COLOR },
-											isChosen ? { backgroundColor: accentColor } : null
-										]}
+										style={[styles.day, dayLook.chip]}
 										onPress={() => chooseDay(day.getTime())}
 										disabled={saving}
 										accessibilityRole="radio"
 										accessibilityState={{ checked: isChosen, disabled: saving }}
 									>
-										<Text style={[styles.dayText, { color: dayTextColor }]}>
+										<Text style={[styles.dayText, { color: dayLook.labelColor }]}>
 											{day.toLocaleDateString(undefined, DAY_FORMAT)}
 										</Text>
 									</TouchableOpacity>
@@ -209,34 +221,34 @@ export const TimerStartPanel: FC<ITimerStartPanelProps> = ({ access, runStart, s
 					) : null}
 					<BottomSheetTextInput
 						testID="timer-start-time"
-						style={[styles.input, { color: colors.primary, borderColor: FIELD_BORDER_COLOR }]}
+						style={[styles.input, inputLook.field]}
 						value={timeText}
 						onChangeText={changeTime}
 						placeholder={translate('timer.startMove.timePlaceholder')}
-						placeholderTextColor={PLACEHOLDER_COLOR}
-						keyboardType="numbers-and-punctuation"
+						placeholderTextColor={inputLook.placeholderColor}
+						keyboardType={timeKeyboard()}
 						maxLength={5}
 						editable={!saving}
 						autoCorrect={false}
 						accessibilityLabel={translate('timer.startMove.newStart')}
 					/>
 					{access.earlierAllowed ? null : (
-						<Text style={[styles.note, { color: colors.tertiary }]}>
+						<Text style={[styles.note, { color: theme.colors['muted-foreground'] }]}>
 							{translate('timer.startMove.laterOnly')}
 						</Text>
 					)}
 					{access.reasonRequired ? (
 						<>
-							<Text style={[styles.label, { color: colors.primary }]}>
+							<Text style={[styles.label, { color: theme.colors.foreground }]}>
 								{translate('timer.startMove.reason')}
 							</Text>
 							<BottomSheetTextInput
 								testID="timer-start-reason"
-								style={[styles.input, { color: colors.primary, borderColor: FIELD_BORDER_COLOR }]}
+								style={[styles.input, inputLook.field]}
 								value={reason}
 								onChangeText={changeReason}
 								placeholder={translate('timer.startMove.reasonPlaceholder')}
-								placeholderTextColor={PLACEHOLDER_COLOR}
+								placeholderTextColor={inputLook.placeholderColor}
 								maxLength={TIMER_START_REASON_MAX_LENGTH}
 								editable={!saving}
 								accessibilityLabel={translate('timer.startMove.reason')}
@@ -247,30 +259,39 @@ export const TimerStartPanel: FC<ITimerStartPanelProps> = ({ access, runStart, s
 			) : null}
 
 			{errorKey ? (
-				<Text style={styles.error} accessibilityLiveRegion="polite" testID="timer-start-error">
+				<Text
+					style={[styles.error, { color: theme.colors['destructive-ink'] }]}
+					accessibilityLiveRegion="polite"
+					testID="timer-start-error"
+				>
 					{translate(errorKey)}
 				</Text>
 			) : null}
 
 			<View style={styles.buttons}>
-				<TouchableOpacity style={styles.cancelButton} onPress={onClose} accessibilityRole="button">
-					<Text style={styles.cancelText}>
+				<TouchableOpacity
+					testID="timer-start-cancel"
+					style={[styles.cancelButton, cancelLook.button]}
+					onPress={onClose}
+					accessibilityRole="button"
+				>
+					<Text style={[styles.cancelText, { color: cancelLook.labelColor }]}>
 						{isEditable ? translate('common.cancel') : translate('timer.startMove.close')}
 					</Text>
 				</TouchableOpacity>
 				{isEditable ? (
 					<TouchableOpacity
 						testID="timer-start-save"
-						style={[styles.saveButton, { backgroundColor: accentColor, opacity: saveOpacity }]}
+						style={[styles.saveButton, saveLook.button, { opacity: saveOpacity }]}
 						onPress={save}
 						disabled={saving}
 						accessibilityRole="button"
 						accessibilityState={{ busy: saving, disabled: saving }}
 					>
 						{saving ? (
-							<ActivityIndicator style={styles.spinner} size="small" color={SAVE_TEXT_COLOR} />
+							<ActivityIndicator style={styles.spinner} size="small" color={saveLook.labelColor} />
 						) : null}
-						<Text style={styles.saveText}>
+						<Text style={[styles.saveText, { color: saveLook.labelColor }]}>
 							{saving ? translate('timer.startMove.saving') : translate('timer.startMove.save')}
 						</Text>
 					</TouchableOpacity>
@@ -289,14 +310,11 @@ const styles = StyleSheet.create({
 	},
 	cancelButton: {
 		alignItems: 'center',
-		backgroundColor: CANCEL_BACKGROUND,
-		borderRadius: 12,
 		height: 52,
 		justifyContent: 'center',
 		width: '48%'
 	},
 	cancelText: {
-		color: CANCEL_TEXT_COLOR,
 		fontFamily: typography.primary.semiBold,
 		fontSize: 16
 	},
@@ -306,7 +324,7 @@ const styles = StyleSheet.create({
 		paddingTop: 8
 	},
 	day: {
-		borderRadius: 12,
+		borderRadius: 8,
 		borderWidth: 1,
 		height: 40,
 		justifyContent: 'center',
@@ -323,14 +341,11 @@ const styles = StyleSheet.create({
 		marginTop: 8
 	},
 	error: {
-		color: ERROR_COLOR,
 		fontFamily: typography.primary.medium,
 		fontSize: 13,
 		marginTop: 12
 	},
 	input: {
-		borderRadius: 12,
-		borderWidth: 1,
 		fontFamily: typography.primary.medium,
 		fontSize: 16,
 		height: 52,
@@ -351,14 +366,12 @@ const styles = StyleSheet.create({
 	},
 	saveButton: {
 		alignItems: 'center',
-		borderRadius: 12,
 		flexDirection: 'row',
 		height: 52,
 		justifyContent: 'center',
 		width: '48%'
 	},
 	saveText: {
-		color: SAVE_TEXT_COLOR,
 		fontFamily: typography.primary.semiBold,
 		fontSize: 16
 	},

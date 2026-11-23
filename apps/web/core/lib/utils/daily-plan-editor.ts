@@ -1,6 +1,7 @@
 import moment from 'moment';
 import type { DottedLanguageObjectStringPaths } from 'next-intl';
 import { getDailyPlanDay } from '@/core/lib/helpers/daily-plan-day';
+import { hoursToHMM, parseStringInputToHours } from '@/core/lib/helpers/date-and-time';
 import type { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
 
@@ -140,11 +141,31 @@ export function otherPlanIdsByTask(tasks: TTask[], upcomingPlans: TDailyPlan[], 
 	return idsByTask;
 }
 
-/** Whole hours only, as the previous field read them; anything else counts as no time. */
-export function plannedHoursFrom(raw: string) {
-	const hours = Number.parseInt(raw, 10);
-	if (Number.isNaN(hours)) {
-		return 0;
+/**
+ * The hours typed in the editor's Planned time, read like the Set hours box of the same plan reads them: 2,5, 2.5 and
+ * 2:30 are all 2 h 30 min (#5713). Null for an entry that cannot be read.
+ */
+export function plannedHoursFromInput(raw: string): number | null {
+	const { hours, error } = parseStringInputToHours(raw);
+	if (error || hours === undefined) {
+		return null;
 	}
-	return Math.max(0, hours);
+	const isUsable = Number.isFinite(hours) && hours >= 0;
+	if (!isUsable) {
+		return null;
+	}
+	return hours;
+}
+
+/** What the Planned time field shows for the plan's hours: whole hours as a number, anything else as H:MM. */
+export function plannedHoursText(hours: number): string {
+	if (Number.isInteger(hours)) {
+		return String(hours);
+	}
+	return hoursToHMM(hours);
+}
+
+/** One hour less, never below none: a plan of half an hour steps down to nothing. */
+export function oneHourLess(hours: number): number {
+	return Math.max(0, hours - 1);
 }

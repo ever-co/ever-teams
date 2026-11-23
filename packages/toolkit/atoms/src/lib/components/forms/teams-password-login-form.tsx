@@ -1,7 +1,132 @@
-import { usePasswordLoginForm } from '@hooks/usePasswordLoginForm';
-import { cn, Input, ThemedButton } from '@ever-teams/toolkit-ui';
+import { usePasswordLoginForm, type WorkspaceStep } from '@hooks/usePasswordLoginForm';
+import type { TwoFactorStep } from '@hooks/useTwoFactorStep';
+import { Button, cn, ThemedButton } from '@ever-teams/toolkit-ui';
 import { LoaderCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { KitFormError, KitFormField } from './kit-form-field';
+import { AUTH_LINK_BUTTON } from './auth-link';
+
+const FORM = 'flex flex-col gap-4 min-w-[20rem] ';
+
+function SubmitButton({ loading, disabled, label }: Readonly<{ loading: boolean; disabled: boolean; label: string }>) {
+	return (
+		<ThemedButton disabled={disabled} className="flex h-9 gap-2">
+			{loading && (
+				<span className=" animate-spin ">
+					<LoaderCircle />
+				</span>
+			)}
+			{label}
+		</ThemedButton>
+	);
+}
+
+/**
+ * The code step of a sign-in for an account with two-factor sign-in on: the authenticator app's code, or a recovery
+ * code, in the same form (ever-co/ever-teams#5701).
+ */
+function TwoFactorCodeStep({
+	step,
+	email,
+	onBack,
+	className
+}: Readonly<{ step: TwoFactorStep; email: string; onBack: () => void; className?: string }>) {
+	const { t } = useTranslation();
+	let description = t('AUTH.two_factor_description', { length: step.codeLength, email });
+	let label = t('AUTH.two_factor_code_label');
+	let switchLabel = t('AUTH.two_factor_use_recovery');
+	let inputMode: 'numeric' | 'text' = 'numeric';
+	if (step.usesRecoveryCode) {
+		description = t('AUTH.two_factor_recovery_description');
+		label = t('AUTH.two_factor_recovery_label');
+		switchLabel = t('AUTH.two_factor_use_app');
+		inputMode = 'text';
+	}
+	return (
+		<form onSubmit={step.handleCodeSubmit} className={cn(FORM, className)}>
+			<p className="text-sm text-muted-foreground">{description}</p>
+
+			<KitFormField
+				label={label}
+				required
+				autoFocus
+				onChange={step.handleCodeChange}
+				value={step.code}
+				size={30}
+				name="code"
+				autoComplete="one-time-code"
+				inputMode={inputMode}
+			/>
+
+			<KitFormError message={step.error} />
+
+			<SubmitButton
+				loading={step.loading}
+				disabled={step.blocksSubmit || step.loading}
+				label={t('AUTH.two_factor_submit')}
+			/>
+
+			<div className="flex flex-wrap justify-between gap-x-4 gap-y-2 text-sm">
+				<button type="button" className={AUTH_LINK_BUTTON} onClick={step.toggleRecoveryCode}>
+					{switchLabel}
+				</button>
+				<button type="button" className={AUTH_LINK_BUTTON} onClick={onBack}>
+					{t('AUTH.two_factor_back')}
+				</button>
+			</div>
+		</form>
+	);
+}
+
+/**
+ * The workspace step of a sign-in whose email and password open several workspaces: the person picks the one this
+ * site tracks their time in, as in the web app (ever-co/ever-teams#5700).
+ */
+function WorkspaceChoiceStep({
+	step,
+	onBack,
+	className
+}: Readonly<{ step: WorkspaceStep; onBack: () => void; className?: string }>) {
+	const { t } = useTranslation();
+	const isChoosing = step.choosing !== null;
+	return (
+		<div className={cn(FORM, className)}>
+			<div className="flex flex-col gap-1">
+				<p className="text-sm font-medium text-foreground">{t('AUTH.workspace_choice_title')}</p>
+				<p className="text-sm text-muted-foreground">{t('AUTH.workspace_choice_description')}</p>
+			</div>
+
+			<ul className="flex flex-col gap-2" aria-label={t('AUTH.workspace_choice_title')}>
+				{step.choices.map((choice) => (
+					<li key={choice.token}>
+						<Button
+							type="button"
+							variant="outline"
+							className="h-10 w-full justify-between gap-2 text-foreground"
+							disabled={isChoosing}
+							onClick={() => void step.choose(choice)}
+						>
+							<span className="truncate">{choice.name || t('AUTH.workspace_unnamed')}</span>
+							{step.choosing === choice.token && (
+								<span className="animate-spin">
+									<LoaderCircle size={16} />
+								</span>
+							)}
+						</Button>
+					</li>
+				))}
+			</ul>
+
+			<KitFormError message={step.error} />
+
+			<div className="text-sm">
+				<button type="button" className={AUTH_LINK_BUTTON} onClick={onBack}>
+					{t('AUTH.workspace_back')}
+				</button>
+			</div>
+		</div>
+	);
+}
 
 const TeamsPasswordLoginForm = ({
 	className,
@@ -12,15 +137,25 @@ const TeamsPasswordLoginForm = ({
 }) => {
 	const form = usePasswordLoginForm({ redirectHandler });
 	const { t } = useTranslation();
+	if (form.twoFactor) {
+		return (
+			<TwoFactorCodeStep
+				step={form.twoFactor}
+				email={form.formData.email}
+				onBack={form.backToPassword}
+				className={className}
+			/>
+		);
+	}
+	if (form.workspaces) {
+		return <WorkspaceChoiceStep step={form.workspaces} onBack={form.backToPassword} className={className} />;
+	}
 	return (
-		<form onSubmit={form.handleSubmit} className={cn('flex flex-col gap-3 min-w-[20rem] ', className)}>
-			<label htmlFor="email" className="text-slate-500 dark:text-white">
-				{t('COMMON.email')} :
-			</label>
-			<Input
+		<form onSubmit={form.handleSubmit} className={cn(FORM, className)}>
+			<KitFormField
+				label={t('COMMON.email')}
 				required
 				onChange={form.handleInputChange}
-				className="border"
 				placeholder={t('AUTH.email_prompt')}
 				value={form.formData.email}
 				size={30}
@@ -28,13 +163,10 @@ const TeamsPasswordLoginForm = ({
 				name="email"
 			/>
 
-			<label htmlFor="password" className="text-slate-500 dark:text-white">
-				{t('COMMON.password')} :
-			</label>
-			<Input
+			<KitFormField
+				label={t('COMMON.password')}
 				required
 				onChange={form.handleInputChange}
-				className="border"
 				placeholder={t('AUTH.password_prompt')}
 				value={form.formData.password}
 				size={30}
@@ -42,16 +174,13 @@ const TeamsPasswordLoginForm = ({
 				type="password"
 			/>
 
-			{form.error && <span className="text-red-500 text-xs">{form.error}</span>}
+			<KitFormError message={form.error} />
 
-			<ThemedButton disabled={(form.error ? true : false) || form.loading} className="flex gap-2">
-				{form.loading && (
-					<span className=" animate-spin ">
-						<LoaderCircle />
-					</span>
-				)}
-				{t('AUTH.sign_in_title').toUpperCase()}
-			</ThemedButton>
+			<SubmitButton
+				loading={form.loading}
+				disabled={Boolean(form.error) || form.loading}
+				label={t('AUTH.sign_in_title')}
+			/>
 		</form>
 	);
 };

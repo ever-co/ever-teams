@@ -2,7 +2,12 @@ import { endOfDay } from 'date-fns';
 import { localDayKeyOf } from '@/core/lib/utils/dashboard-export';
 import { SHARED_REPORT_PATH, sharedReportFragmentOf } from '@/core/lib/utils/shared-report-path';
 import { DEFAULT_PERIOD_PRESETS, type Period, type WeekStart, presetOfPeriod } from '@/core/lib/utils/dashboard-period';
-import { BILLABLE_ONLY_VALUE, isBillableOnly, writeReportUrlFilter } from '@/core/lib/utils/dashboards/report-filters';
+import {
+	BILLABLE_ONLY_VALUE,
+	isBillableOnly,
+	readReportUrlFilters,
+	writeReportUrlFilter
+} from '@/core/lib/utils/dashboards/report-filters';
 import {
 	TIME_ACTIVITY_GROUPING_PARAM,
 	type TimeActivityFilters,
@@ -17,6 +22,7 @@ import {
 	periodOfDays,
 	writeLinkedFilters
 } from '@/core/lib/utils/dashboards/time-activity-link';
+import { entryLabelFiltersOf, entryLabelsOfFilters } from '@/core/lib/utils/time-log-labels';
 import type {
 	ITimeLogGroupedDailyReport,
 	ITimerEmployeeLog,
@@ -54,6 +60,10 @@ export function savedPeriodOf(period: Period, weekStartsOn: WeekStart): SavedPer
 	return { periodRule: null, startDate: localDayKeyOf(period.from), endDate: localDayKeyOf(period.to) };
 }
 
+/**
+ * The filters a saved report stores. The entry Labels filter goes as the daily report takes it (`tagIds`, and "No label"
+ * as `untagged`), only for a view narrowed by labels: the body of any other view is the one an older Gauzy takes.
+ */
 function savedFiltersOf(filters: TimeActivityFilters): ISavedReportFilters {
 	return {
 		teamIds: [...filters.teamIds],
@@ -61,19 +71,56 @@ function savedFiltersOf(filters: TimeActivityFilters): ISavedReportFilters {
 		projectIds: [...filters.projectIds],
 		taskIds: [...filters.taskIds],
 		clientIds: [...filters.clientIds],
-		billableOnly: isBillableOnly(filters.billable)
+		billableOnly: isBillableOnly(filters.billable),
+		...entryLabelFiltersOf(filters.entryLabels)
 	};
 }
 
+/** Whether the view is narrowed by the labels of entries, or grouped by label. */
+export function viewUsesEntryLabels(view: TimeActivityView): boolean {
+	const hasEntryLabels = view.filters.entryLabels.length > 0;
+	const isGroupedByLabel = view.grouping === 'label';
+	return hasEntryLabels || isGroupedByLabel;
+}
+
 /**
- * The grouping a saved report stores. The saved reports API knows no Label grouping (#5368): a view grouped by label is
- * saved with the default grouping, by date.
+ * Whether the page link asks for labels of entries: a labels filter, or the Label grouping. The view shows them only
+ * once the page knows that entries have labels; until then it shows the view without them (`effectiveGroupingOf`).
  */
-function savedGroupingOf(grouping: TimeActivityGrouping): Exclude<TimeActivityGrouping, 'label'> | null {
-	if (grouping === 'label') {
-		return null;
+export function linkUsesEntryLabels(params: Pick<URLSearchParams, 'get'>): boolean {
+	const hasEntryLabels = readReportUrlFilters(params).entryLabels.length > 0;
+	const isGroupedByLabel = params.get(TIME_ACTIVITY_GROUPING_PARAM) === 'label';
+	return hasEntryLabels || isGroupedByLabel;
+}
+
+/** Whether a saved report keeps labels of entries: a labels filter, or the Label grouping. */
+export function savedReportUsesEntryLabels(report: ISavedReport | null | undefined): boolean {
+	if (!report) {
+		return false;
 	}
-	return grouping;
+	const hasEntryLabels = entryLabelsOfFilters(report.filters).length > 0;
+	const isGroupedByLabel = report.grouping === 'label';
+	return hasEntryLabels || isGroupedByLabel;
+}
+
+/**
+ * Whether a saved report can keep the view as the page shows it. Only a Gauzy with ever-gauzy#12073 keeps labels of
+ * entries (`keepsEntryLabels`, see `useSavedReportLabelsSupport`): an older one drops a labels filter and refuses the
+ * Label grouping (#5368). There, a view narrowed or grouped by labels, saved anyway, would reopen and be shared as
+ * another view: Save and Update stay off for it, and say why.
+ */
+export function canSaveView(view: TimeActivityView, keepsEntryLabels = false): boolean {
+	return keepsEntryLabels || !viewUsesEntryLabels(view);
+}
+
+/**
+ * Whether "Update with this view" may write the view over a report: the view can be saved (`canSaveView`), and a report
+ * that keeps labels is written over only once labels are known to be kept. Until then the page shows a view without
+ * them (it drops the labels of a link while it does not know whether entries have labels), which would take them off.
+ */
+export function canUpdateReport(report: ISavedReport, view: TimeActivityView, keepsEntryLabels = false): boolean {
+	const keepsReportLabels = keepsEntryLabels || !savedReportUsesEntryLabels(report);
+	return canSaveView(view, keepsEntryLabels) && keepsReportLabels;
 }
 
 /** The body that saves the view, or that updates a saved report with it. */
@@ -86,7 +133,7 @@ export function savedReportInputOf(
 		...savedPeriodOf(view.period, weekStartsOn),
 		timeZone,
 		filters: savedFiltersOf(view.filters),
-		grouping: savedGroupingOf(view.grouping)
+		grouping: view.grouping
 	};
 }
 
@@ -108,8 +155,8 @@ function writeSavedPeriod(params: URLSearchParams, report: ISavedReport) {
 }
 
 /**
- * The page link of a saved report: its period, every filter, its grouping and its id. Opening it replaces the whole
- * view, so nothing of the view it replaces is left behind.
+ * The page link of a saved report: its period, every filter (the entry Labels filter included), its grouping and its id.
+ * Opening it replaces the whole view, so nothing of the view it replaces is left behind.
  */
 export function linkParamsOfSavedReport(report: ISavedReport): URLSearchParams {
 	const params = new URLSearchParams();
@@ -125,6 +172,7 @@ export function linkParamsOfSavedReport(report: ISavedReport): URLSearchParams {
 	if (filters.billableOnly) {
 		params.set('billable', BILLABLE_ONLY_VALUE);
 	}
+	writeReportUrlFilter(params, 'entryLabels', entryLabelsOfFilters(filters));
 	const groupingParam = groupingParamOf(report.grouping ?? 'date');
 	if (groupingParam) {
 		params.set(TIME_ACTIVITY_GROUPING_PARAM, groupingParam);
@@ -147,7 +195,8 @@ function sameFilters(saved: ISavedReportFilters, shown: ISavedReportFilters) {
 	const sameTasks = sameIds(saved.taskIds, shown.taskIds);
 	const sameClients = sameIds(saved.clientIds, shown.clientIds);
 	const sameBillable = Boolean(saved.billableOnly) === Boolean(shown.billableOnly);
-	return sameTeams && sameMembers && sameProjects && sameTasks && sameClients && sameBillable;
+	const sameEntryLabels = sameIds(entryLabelsOfFilters(saved), entryLabelsOfFilters(shown));
+	return sameTeams && sameMembers && sameProjects && sameTasks && sameClients && sameBillable && sameEntryLabels;
 }
 
 /**
@@ -164,14 +213,11 @@ function showsSavedPeriod(report: ISavedReport, period: Period, weekStartsOn: We
 }
 
 /**
- * Whether the view shown is the one the report saved: when it is not, the menu offers to update the report. A saved
- * report keeps no labels of entries (#5368), so a view narrowed by them is never the saved one.
+ * Whether the view shown is the one the report saved: when it is not, the menu offers to update the report. The labels
+ * of entries count as every other filter: a report saved without them (on an older Gauzy, all of them) is never the view
+ * of a page narrowed or grouped by them.
  */
 export function showsSavedView(report: ISavedReport, view: TimeActivityView, weekStartsOn: WeekStart): boolean {
-	const hasEntryLabels = view.filters.entryLabels.length > 0;
-	if (hasEntryLabels) {
-		return false;
-	}
 	const shown = savedReportInputOf(view, weekStartsOn, report.timeZone ?? '');
 	const samePeriod = showsSavedPeriod(report, view.period, weekStartsOn);
 	const sameGrouping = (report.grouping ?? 'date') === shown.grouping;
@@ -228,6 +274,14 @@ function teamOfTaskLog(taskLog: IPublicSavedReportTask) {
 	return { organizationTeamId: taskLog.organizationTeamId };
 }
 
+/** The labels of an entry, stated by a shared report grouped by label only: its rows then group by them. */
+function labelsOfTaskLog(taskLog: IPublicSavedReportTask) {
+	if (!Array.isArray(taskLog.tags)) {
+		return {};
+	}
+	return { tags: taskLog.tags as ITimerEmployeeLog['tasks'][number]['tags'] };
+}
+
 /**
  * The rate an entry states, so its row is priced as on the report page (`statedRateOf`): the rate the entry stores, else
  * the member's current one. An API that states only the member's rate gives none, and the row takes the member's.
@@ -258,7 +312,8 @@ export function dailyReportOfPublic(report: IPublicSavedReport): ITimeLogGrouped
 					duration: taskLog.duration,
 					client: (taskLog.client ?? null) as unknown as ITimerEmployeeLog['tasks'][number]['client'],
 					...teamOfTaskLog(taskLog),
-					...rateOfTaskLog(taskLog)
+					...rateOfTaskLog(taskLog),
+					...labelsOfTaskLog(taskLog)
 				}))
 			}))
 		}))

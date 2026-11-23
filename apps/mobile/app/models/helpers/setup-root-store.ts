@@ -9,19 +9,75 @@
  *
  * @refresh reset
  */
-import { applySnapshot, IDisposer, onSnapshot } from 'mobx-state-tree';
+import { comparer, reaction } from 'mobx';
+import { applySnapshot, getSnapshot, IDisposer, onSnapshot } from 'mobx-state-tree';
 import type { RootStore } from '../root-store';
 import * as storage from '../../utils/storage';
+import {
+	forgetStoredSession,
+	hasTokens,
+	moveSessionToSecureStorage,
+	readStoredSession,
+	StoredSession,
+	keepStoredSessionInOrder
+} from '../../services/client/secure-session';
+import { sessionInSnapshot, someoneWasSignedIn, withoutSession } from './session-snapshot';
 
 /**
  * The key we'll be saving our state as within async storage.
  */
 const ROOT_STATE_STORAGE_KEY = 'root-v1';
 
+/** Where the session is after startup, and whether the person must be told it ended. */
+interface RestoredSession {
+	/** The secure storage holds the session: the AsyncStorage snapshot is saved without it. */
+	inSecureStorage: boolean;
+	ended: boolean;
+}
+
+async function restoreSession(rootStore: RootStore, restoredState: unknown): Promise<RestoredSession> {
+	const authentication = rootStore.authenticationStore;
+	const sessionOfAnEarlierVersion = sessionInSnapshot(restoredState);
+
+	if (hasTokens(sessionOfAnEarlierVersion)) {
+		// The snapshot already put these tokens in the store: the person stays signed in either way. When the move
+		// fails, they stay in the snapshot and the move is tried again at the next launch.
+		const moved = await moveSessionToSecureStorage(sessionOfAnEarlierVersion);
+		return { inSecureStorage: moved, ended: false };
+	}
+
+	let stored: StoredSession;
+	try {
+		stored = await readStoredSession();
+	} catch {
+		// The Keystore key can be gone, after a device restore for one: the tokens cannot be decrypted anymore
+		const ended = someoneWasSignedIn(restoredState);
+		if (ended) {
+			// as when the session ends while the app runs: the person's teams and tasks go with it
+			rootStore.TaskStore?.resetTeamTasksData();
+			rootStore.teamStore?.clearStoredTeamData();
+			authentication.logout();
+		}
+		await forgetStoredSession();
+		return { inSecureStorage: true, ended };
+	}
+	// logout() clears the tenant and the user, which the snapshot keeps: tokens found while it says nobody is signed in
+	// were left by a sign-out whose delete did not go through, or by an iOS Keychain that outlived the app
+	const signedOut = !someoneWasSignedIn(restoredState);
+	const leftOver = signedOut && hasTokens(stored);
+	if (leftOver) {
+		await forgetStoredSession();
+		return { inSecureStorage: true, ended: false };
+	}
+	authentication.setAuthToken(stored.accessToken);
+	authentication.setRefreshToken(stored.refreshToken ?? '');
+	return { inSecureStorage: true, ended: false };
+}
+
 /**
  * Setup the root state.
  */
-let _disposer: IDisposer;
+let _disposer: IDisposer | undefined;
 export async function setupRootStore(rootStore: RootStore) {
 	let restoredState: any;
 
@@ -29,23 +85,57 @@ export async function setupRootStore(rootStore: RootStore) {
 		// load the last known state from AsyncStorage
 		restoredState = (await storage.load(ROOT_STATE_STORAGE_KEY)) || {};
 		applySnapshot(rootStore, restoredState);
-	} catch (e) {
+	} catch (error) {
 		// if there's any problems loading, then inform the dev what happened
 		if (__DEV__) {
-			console.tron.error(e.message, null);
+			const message = String((error as Error)?.message ?? error);
+			console.tron.error(message, null);
 		}
 	}
+
+	const session = await restoreSession(rootStore, restoredState);
 
 	// stop tracking state changes if we've already setup
 	if (_disposer) _disposer();
 
-	// track changes & save to AsyncStorage
-	_disposer = onSnapshot(rootStore, (snapshot) => storage.save(ROOT_STATE_STORAGE_KEY, snapshot));
+	// track changes & save to AsyncStorage, the session aside
+	const stopSaving = onSnapshot(rootStore, (snapshot) => {
+		// storage.save never rejects: it answers false when AsyncStorage refuses the value
+		if (session.inSecureStorage) {
+			void storage.save(ROOT_STATE_STORAGE_KEY, withoutSession(snapshot));
+			return;
+		}
+		void storage.save(ROOT_STATE_STORAGE_KEY, snapshot);
+	});
+	if (session.inSecureStorage) {
+		await storage.save(ROOT_STATE_STORAGE_KEY, withoutSession(getSnapshot(rootStore)));
+	}
+
+	// each new pair of tokens (sign-in, renewal) goes to the secure storage; a sign-out deletes the stored pair even
+	// while the tokens wait in root-v1 for a move that failed, in case that move's own cleanup did not go through
+	const authentication = rootStore.authenticationStore;
+	const stopKeepingSession = reaction(
+		() => ({ accessToken: authentication.authToken, refreshToken: authentication.refreshToken }),
+		(tokens) => {
+			const signedOut = !hasTokens(tokens);
+			if (!session.inSecureStorage && !signedOut) {
+				return;
+			}
+			// keepStoredSessionInOrder never rejects
+			void keepStoredSessionInOrder(tokens);
+		},
+		{ equals: comparer.structural }
+	);
+
+	_disposer = () => {
+		stopSaving();
+		stopKeepingSession();
+	};
 
 	const unsubscribe = () => {
-		_disposer();
+		_disposer?.();
 		_disposer = undefined;
 	};
 
-	return { rootStore, restoredState, unsubscribe };
+	return { rootStore, restoredState, unsubscribe, sessionEnded: session.ended };
 }

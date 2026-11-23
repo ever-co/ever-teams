@@ -1,9 +1,9 @@
 /* eslint-disable camelcase */
 import { convertMsToTime, secondsToTime } from '../../helpers/date';
-import { startTimerRequest, stopTimerRequest, toggleTimerRequest } from '../client/requests/timer';
+import { startTimerRequest, stopTimerRequest, syncTimeSlotRequest, toggleTimerRequest } from '../client/requests/timer';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSyncRef } from './use-sync-ref';
-import { ILocalTimerStatus, ITimerParams, ITimerStatus, TimerSource } from '../interfaces/ITimer';
+import { ILocalTimerStatus, ITimer, ITimerParams, ITimerStatus, TimerSource } from '../interfaces/ITimer';
 import { useFirstLoad } from './use-first-load';
 import isEqual from 'lodash/isEqual';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -16,8 +16,25 @@ import useFetchTimerStatus from '../client/queries/timer/timer';
 import { useTaskStatistics } from './features/use-task-statistics';
 import moment from 'moment-timezone';
 import { runStartOf } from '../../helpers/timer-run-start';
+import { countTimeFrom } from './shared-time-counter';
+import { observer } from 'mobx-react-lite';
+import { runningTimeWriter } from './running-time-writer';
 
 const LOCAL_TIMER_STORAGE_KEY = 'local-timer-ever-teams';
+
+/** Saves the timer's local status on the phone, then in the store; the order matters. */
+function useUpdateLocalTimerStatus() {
+	const {
+		TimerStore: { setLocalTimerStatus }
+	} = useStores();
+	return useCallback(
+		(status: ILocalTimerStatus) => {
+			AsyncStorage.setItem(LOCAL_TIMER_STORAGE_KEY, JSON.stringify(status));
+			setLocalTimerStatus(status);
+		},
+		[setLocalTimerStatus]
+	);
+}
 
 /**
  * Don't modify this function unless you know what you're doing
@@ -44,14 +61,7 @@ function useLocalTimeCounter(timerStatus: ITimerStatus | null, activeTeamTask: I
 	const timerSecondsRef = useRef(0);
 	const seconds = Math.floor(timeCounterState / 1000);
 
-	const updateLocalStorage = useCallback((status: ILocalTimerStatus) => {
-		AsyncStorage.setItem(LOCAL_TIMER_STORAGE_KEY, JSON.stringify(status));
-	}, []);
-
-	const updateLocalTimerStatus = useCallback((status: ILocalTimerStatus) => {
-		updateLocalStorage(status); // the order is important (first update localstorage, then update the store state)
-		setLocalTimerStatus(status);
-	}, []);
+	const updateLocalTimerStatus = useUpdateLocalTimerStatus();
 
 	const getLocalCounterStatus = useCallback(async () => {
 		let data: ILocalTimerStatus | null = null;
@@ -134,18 +144,11 @@ function useLocalTimeCounter(timerStatus: ITimerStatus | null, activeTeamTask: I
 	// Time Counter
 	useEffect(() => {
 		if (firstLoad || !localTimerStatus) return clearInterval(timeCounterIntervalRef.current);
-		let timerFuntion;
-
 		if (localTimerStatus.running) {
-			timerFuntion = setInterval(() => {
-				const now = Date.now();
-				setTimerCounterState(now - localTimerStatus.runnedDateTime);
-			}, 50);
-		} else {
-			clearInterval(timerFuntion);
-			setTimerCounterState(0);
+			return countTimeFrom(localTimerStatus.runnedDateTime, setTimerCounterState);
 		}
-		return () => clearInterval(timerFuntion);
+		setTimerCounterState(0);
+		return undefined;
 	}, [localTimerStatus, firstLoad]);
 
 	return {
@@ -155,8 +158,81 @@ function useLocalTimeCounter(timerStatus: ITimerStatus | null, activeTeamTask: I
 	};
 }
 
+/**
+ * Counts the running time for the whole app. Each component calling useTimer used to run this count itself and read
+ * the time as it went by, so all of them rendered again 20 times a second while the timer ran: about twenty on the
+ * Team tab. It runs once now, in the signed-in part of the app, and only the components that show the time read it.
+ */
+export const TimeCounterHost = observer(function TimeCounterHost() {
+	const {
+		TaskStore: { activeTask },
+		TimerStore: { timerStatus }
+	} = useStores();
+	const { firstLoad } = useFirstLoad();
+	useLocalTimeCounter(timerStatus, activeTask, firstLoad);
+	return null;
+});
+
 /** The stops under way together, and what the screen showed running before the first of them. */
 type StopsUnderWay = { count: number; stopped: boolean; failed: boolean; shownAsRunning: ILocalTimerStatus | null };
+
+/** How long a stop waits for the other writer's last write before it is sent anyway. */
+export const WRITE_BEFORE_STOP_MS = 5_000;
+
+/** Waits for the work, at most that long: what it does after does not hold the caller back, and it never rejects. */
+function atMost(ms: number, work: Promise<void>): Promise<void> {
+	let bound: ReturnType<typeof setTimeout> | undefined;
+	const timeUp = new Promise<void>((resolve) => {
+		bound = setTimeout(resolve, ms);
+	});
+	return Promise.race([work.catch(() => undefined), timeUp]).finally(() => clearTimeout(bound));
+}
+
+/**
+ * The status read that a start or a stop made on this phone since outdates: the store holds what runs after it, and
+ * that read no longer says so until the next one. One for the app, as the read is: every timer hook shares it.
+ */
+let readOutdatedByOwnChange: ITimerStatus | undefined;
+
+/** Tells the other writer of the running time, if one is registered, that the API started or stopped the timer. */
+function tellTimerChanged(log: ITimer | undefined): void {
+	const writer = runningTimeWriter();
+	if (!writer) {
+		return;
+	}
+	if (log?.isRunning) {
+		writer.afterStart(log);
+		return;
+	}
+	// a toggle that stopped the timer answers with the run it stopped
+	writer.afterStop(log);
+}
+
+/** Writes seconds of the running timer as a time slot: rejects when the API did not write them. */
+async function writeTimeSlot(
+	params: ITimerParams,
+	employeeId: string | undefined,
+	authToken: string | undefined,
+	seconds: number
+): Promise<void> {
+	if (!employeeId || !authToken) {
+		throw new Error('No employee to write the running time for');
+	}
+	const { response } = await syncTimeSlotRequest(
+		{
+			tenantId: params.tenantId,
+			organizationId: params.organizationId,
+			employeeId,
+			source: params.source,
+			duration: seconds,
+			logType: 'TRACKED'
+		},
+		authToken
+	);
+	if (!response.ok) {
+		throw new Error(`The API did not write the running time: ${response.status}`);
+	}
+}
 
 export function useTimer() {
 	const {
@@ -182,11 +258,7 @@ export function useTimer() {
 	const canRunTimer = !!activeTask?.id && activeTask.status !== 'Closed';
 
 	// // Local time status
-	const { timeCounterState, updateLocalTimerStatus, timerSecondsState } = useLocalTimeCounter(
-		timerStatus,
-		activeTask,
-		firstLoad
-	);
+	const updateLocalTimerStatus = useUpdateLocalTimerStatus();
 
 	const { isSuccess, data: timerStatusData } = useFetchTimerStatus(
 		{
@@ -198,6 +270,13 @@ export function useTimer() {
 		timerStatus?.running,
 		timerStatusRef.current?.lastLog?.source ?? TimerSource.MOBILE
 	);
+	// What the API said runs, once it was read this session: until then the status is the one the last session saved
+	const readStatusRef = useSyncRef(isSuccess ? timerStatusData : undefined);
+	/** The status a start or a stop made here answered: newer than the last read until the next one. */
+	const setStatusOfOwnChange = (status: ITimerStatus) => {
+		readOutdatedByOwnChange = readStatusRef.current;
+		setTimerStatus(status);
+	};
 
 	const toggleTimer = useCallback(async (taskId: string) => {
 		const response = await toggleTimerRequest(
@@ -216,7 +295,8 @@ export function useTimer() {
 			duration: response?.data.duration,
 			running: response?.data.isRunning
 		};
-		setTimerStatus(status);
+		setStatusOfOwnChange(status);
+		tellTimerChanged(response?.data);
 	}, []);
 
 	useEffect(() => {
@@ -254,8 +334,9 @@ export function useTimer() {
 			running: data?.isRunning,
 			lastLog: data
 		};
-		setTimerStatus(status);
+		setStatusOfOwnChange(status);
 		setTimerStatusFetching(false);
+		tellTimerChanged(data);
 
 		/**
 		 *  Updating the task status to "In Progress" when the timer is started.
@@ -324,15 +405,29 @@ export function useTimer() {
 		};
 
 		setStopTimerLoading(true);
+		const otherWriter = runningTimeWriter();
+		const runToStop = timerStatusRef.current?.lastLog;
+		let stopped = false;
 
 		try {
+			// Where another writer writes the running time, the time since its last write goes first, as its own stop does.
+			// A write that hangs never holds the stop back: after WRITE_BEFORE_STOP_MS the stop is sent anyway
+			if (otherWriter) {
+				await atMost(
+					WRITE_BEFORE_STOP_MS,
+					otherWriter.beforeStop(runToStop, (seconds) =>
+						writeTimeSlot(params, session.user?.employee?.id, authToken, seconds)
+					)
+				);
+			}
 			const { data, response } = await stopTimerRequest(params, authToken as string);
 
 			// Nothing was running anymore: the timer was stopped from another device. The screen is right to show it
 			// stopped, and its status says the same until the next read
 			if (response.status === 406) {
 				stops.stopped = true;
-				setTimerStatus({ ...timerStore.timerStatus, running: false });
+				stopped = true;
+				setStatusOfOwnChange({ ...timerStore.timerStatus, running: false });
 				return;
 			}
 			// The API did not stop the timer, which goes on there. The body of a refusal is not a timer: read as one,
@@ -343,12 +438,13 @@ export function useTimer() {
 			}
 
 			stops.stopped = true;
+			stopped = true;
 			const status: ITimerStatus = {
 				duration: data.duration,
 				running: data.isRunning,
 				lastLog: data
 			};
-			setTimerStatus(status);
+			setStatusOfOwnChange(status);
 		} catch {
 			// The stop never reached the API (no network): the timer goes on there, as for a refusal
 			stops.failed = true;
@@ -357,6 +453,8 @@ export function useTimer() {
 			if (stops.count === 0) {
 				settleStops(stops);
 			}
+			// a stop that failed leaves the run to the other writer, which goes on writing it
+			otherWriter?.afterStop(stopped ? runToStop : undefined);
 		}
 	}, [taskId.current]);
 
@@ -375,14 +473,26 @@ export function useTimer() {
 		}
 	}, [firstLoad, activeTeamId, activeTeam]);
 
-	// If active task changes then stop the timer
+	// If active task changes then stop the timer. Not when the app only takes up the task the timer runs on: at launch
+	// the team's task sync names it after the person's card or the last session's state named another, and a timer
+	// started on another device runs on the task the team names. Nor before the API said what runs: the saved status
+	// can name a run that ended on another device since
 	useEffect(() => {
 		const taskId = activeTask?.id;
+		const readStatus = readStatusRef.current;
+		const runsOnTask = (status?: ITimerStatus | null) =>
+			!!taskId && !!status?.running && status.lastLog?.taskId === taskId;
+		// The status in the store and the one read can differ for a render: a read reaches the store in an effect that
+		// runs after this one. A start or a stop made here reaches the store first, and outdates the read until the next
+		const currentRead = readStatus === readOutdatedByOwnChange ? undefined : readStatus;
+		const takesUpRunningTask = runsOnTask(timerStatusRef.current) || runsOnTask(currentRead);
 		if (
 			lastActiveTaskId.current !== null &&
 			taskId !== lastActiveTaskId.current &&
 			!firstLoad &&
-			timerStatusRef.current?.running
+			readStatus &&
+			timerStatusRef.current?.running &&
+			!takesUpRunningTask
 		) {
 			stopTimer();
 		}
@@ -400,7 +510,10 @@ export function useTimer() {
 	}, [timerStatusData]);
 
 	return {
-		fomatedTimeCounter: convertMsToTime(timeCounterState),
+		// read only by the components that show the time, so the others do not render again on each tick
+		get fomatedTimeCounter() {
+			return convertMsToTime(timerStore.timeCounterState);
+		},
 		timerStatusFetchingState,
 		timerStatus,
 		firstLoadTimerData,
@@ -409,7 +522,9 @@ export function useTimer() {
 		canRunTimer,
 		firstLoad,
 		toggleTimer,
-		timerSecondsState,
+		get timerSecondsState() {
+			return timerStore.timerSecondsState;
+		},
 		activeTeamTask: activeTask
 	};
 }

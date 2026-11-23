@@ -3,5 +3,9 @@
 	"$schema": "../../node_modules/nx/schemas/project-schema.json",
 	"sourceRoot": "apps/mobile",
 	"projectType": "application",
-	"targets": {}
+	"targets": {
+		"test": {
+			"inputs": ["default", "^default", "{workspaceRoot}/apps/web/locales/*.json"]
+		}
+	}
 }

@@ -447,10 +447,6 @@ export interface StatusOrderEntry {
 	order: number;
 }
 
-export function orderEntriesOf(ids: ReadonlyArray<string>): StatusOrderEntry[] {
-	return ids.map((id, index) => ({ id, order: index }));
-}
-
 /** Where a row sorts in the list, with the kind of row it is: a built-in status keeps the order Gauzy stores. */
 interface PlacedRow {
 	order: number;

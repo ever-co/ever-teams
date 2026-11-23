@@ -8,6 +8,7 @@ import {
 	errorMessageOf,
 	useTimerStatusContext
 } from '@lib/context/teams-timer-status-context';
+import { useKitOptions } from '@components/teams-provider/kit-options';
 
 /**
  * The timer status of the signed-in employee. Under a TeamsProvider every caller shares one read (see
@@ -35,11 +36,12 @@ function useOwnTimerStatus(
 		data: null,
 		loading: false
 	});
+	const { api } = useKitOptions();
 
 	const fetchTimerStatus = async (): Promise<void> => {
 		try {
 			setTimerStatus((prev) => ({ ...prev, loading: true }));
-			const userTimerStatus = await getTimerStatus(user, token, organizationId);
+			const userTimerStatus = await getTimerStatus(user, token, organizationId, api);
 
 			if ('message' in userTimerStatus || 'error' in userTimerStatus) {
 				toast({
@@ -68,7 +70,7 @@ function useOwnTimerStatus(
 			const interval = setInterval(fetchTimerStatus, TIMER_STATUS_REFRESH_MS);
 			return () => clearInterval(interval);
 		}
-	}, [user, token, organizationId, enabled]);
+	}, [user, token, organizationId, enabled, api]);
 
 	return timerStatus;
 }

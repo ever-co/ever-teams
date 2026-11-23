@@ -11,5 +11,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ email: s
 	}
 	// Encoded, so an address such as `../employee` stays one path segment instead of reaching another endpoint
 	const encodedEmail = encodeURIComponent(email);
-	return forwardToGauzy(req, `/invoices/email/${encodedEmail}`);
+	// Gauzy builds the e-mail's link to the invoice on the page's Origin when it serves that address, and on its own
+	// client's address otherwise: handed on, the link opens this app as it does in direct mode
+	return forwardToGauzy(req, `/invoices/email/${encodedEmail}`, { forwardHeaders: ['origin'] });
 }

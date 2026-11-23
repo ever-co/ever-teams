@@ -4,7 +4,6 @@ import React, { createContext, useContext, useState, useCallback, useEffect, use
 import { ITeamsSession, isSuccessResponse, ITrackingApiHeaders } from '@ever-teams/toolkit-types';
 import { trackingApiClient } from '@ever-teams/api';
 import { useTeamsContext } from './teams-context';
-import { convertSessionDatesToTimezone, getUserTimezone } from '@lib/utils/time-zone';
 
 /**
  * Global Filter State Interface
@@ -60,7 +59,6 @@ interface ITrackingProviderProps {
 	children: ReactNode;
 	config?: {
 		baseUrl?: string;
-		defaultBaseUrl?: string;
 		headers?: ITrackingApiHeaders;
 		timeout?: number;
 	};
@@ -94,6 +92,8 @@ export const TrackingProvider: React.FC<ITrackingProviderProps> = ({ children, c
 
 	// Only the latest read may write the state: an older one that ends later is ignored.
 	const latestRead = useRef(0);
+	// The provider's own address, sent with each of its reads.
+	const baseUrl = config?.baseUrl;
 
 	const registerConsumer = useCallback(() => {
 		setConsumerCount((count) => count + 1);
@@ -134,7 +134,8 @@ export const TrackingProvider: React.FC<ITrackingProviderProps> = ({ children, c
 				formData.employeeIds,
 				selectedOrganization,
 				user?.tenantId,
-				token!
+				token!,
+				{ apiUrl: baseUrl }
 			);
 
 			if (!isLatest()) {
@@ -142,6 +143,13 @@ export const TrackingProvider: React.FC<ITrackingProviderProps> = ({ children, c
 			}
 
 			if (isSuccessResponse(response)) {
+				// The time-zone helpers carry the whole zone database: they load with the first sessions to convert, so a page
+				// that shows no session list never downloads it.
+				const { convertSessionDatesToTimezone, getUserTimezone } = await import('@lib/utils/time-zone');
+				if (!isLatest()) {
+					return;
+				}
+
 				// Get the user's timezone with fallback priority
 				const userTimezone = getUserTimezone(user?.timeZone);
 
@@ -168,7 +176,7 @@ export const TrackingProvider: React.FC<ITrackingProviderProps> = ({ children, c
 				setLoading(false);
 			}
 		}
-	}, [formData, selectedOrganization, selectedEmployee, token, user]);
+	}, [formData, selectedOrganization, selectedEmployee, token, user, baseUrl]);
 
 	/**
 	 * Refetch sessions - alias for fetchSessions for clarity
@@ -177,10 +185,12 @@ export const TrackingProvider: React.FC<ITrackingProviderProps> = ({ children, c
 		return fetchSessions();
 	}, [fetchSessions]);
 
-	// Update API client config when config changes
+	// Update API client config when config changes, but never with the provider's address: kept in the page's one
+	// client, it would reach the reads of a provider without an address of its own, which follow the page's address at
+	// the time of each read (or the base URL a host gave the client itself).
 	useEffect(() => {
 		if (config) {
-			trackingApiClient.updateConfig(config);
+			trackingApiClient.updateConfig({ headers: config.headers, timeout: config.timeout });
 		}
 	}, [config]);
 

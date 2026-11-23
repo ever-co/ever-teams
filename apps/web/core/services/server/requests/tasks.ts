@@ -181,7 +181,9 @@ export function deleteEmployeeFromTasksRequest({
 		path: `/tasks/employee/${employeeId}?organizationTeamId=${organizationTeamId}`,
 		method: 'DELETE',
 		bearer_token,
-		tenantId
+		tenantId,
+		// A refusal with an empty body still goes back with its status, not as "no answer" (#5727)
+		keepsStatusOnError: true
 	});
 }
 

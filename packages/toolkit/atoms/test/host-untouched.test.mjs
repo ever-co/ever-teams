@@ -1,7 +1,9 @@
-// The kit leaves the host page alone (font, color scheme, Google Fonts): node --test test/*.test.mjs (from
-// packages/toolkit/atoms).
-// esbuild bundles the kit root, the font hook and the preference store with toolkit-ui's portal context replaced by a
-// stand-in; React renders them in jsdom.
+// The kit leaves the host page alone (font, color scheme, theme toggles, Google Fonts): node --test test/*.test.mjs
+// (from packages/toolkit/atoms).
+// esbuild bundles the kit root, the font hook, the theme toggles and the preference store with toolkit-ui's portal
+// context replaced by a stand-in, and next-themes by one whose provider, as a host page would render one, draws the
+// theme as the class of <html> (without a provider its setTheme does nothing, as next-themes' own does). React renders
+// them in jsdom.
 import { test, before, after, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
 import path from 'node:path';
@@ -29,6 +31,15 @@ let kit;
 let bundleDir;
 const warnings = [];
 const POPPINS = '"Poppins", sans-serif';
+const STUBS = {
+	'@ever-teams/toolkit-ui':
+		"import { createContext } from 'react'; export const PortalContainerContext = createContext(null); export const cn = (...names) => names.filter(Boolean).join(' ');",
+	'next-themes': `import { createContext, createElement, useContext } from 'react';
+		const ThemeContext = createContext({ setTheme() {} });
+		const setTheme = (theme) => { document.documentElement.className = theme; };
+		export const ThemeProvider = ({ children }) => createElement(ThemeContext.Provider, { value: { setTheme } }, children);
+		export const useTheme = () => useContext(ThemeContext);`
+};
 const ROBOTO = '"Roboto", sans-serif';
 const OLD_DEFAULT_FONT = '"Geist", serif';
 
@@ -41,6 +52,8 @@ before(async () => {
 		`export { KitRoot } from '${lib}/components/teams-provider/kit-root.tsx';
 		export { default as useFontSelector } from '${lib}/hooks/useFontSelector.ts';
 		export { KitOptionsProvider } from '${lib}/components/teams-provider/kit-root.tsx';
+		export { ThemeToggle, ToggleThemeContainer } from '${lib}/components/teams-theme/theme-toggle.tsx';
+		export { ThemeProvider } from 'next-themes';
 		export * from '${lib}/stores/kit-preferences.ts';`
 	);
 	const outfile = path.join(bundleDir, 'kit.mjs');
@@ -60,13 +73,12 @@ before(async () => {
 			{
 				name: 'stubs',
 				setup(build) {
-					build.onResolve({ filter: /^@ever-teams\/toolkit-ui$/ }, () => ({
-						path: 'toolkit-ui',
+					build.onResolve({ filter: /^(@ever-teams\/toolkit-ui|next-themes)$/ }, (args) => ({
+						path: args.path,
 						namespace: 'stub'
 					}));
-					build.onLoad({ filter: /.*/, namespace: 'stub' }, () => ({
-						contents:
-							"import { createContext } from 'react'; export const PortalContainerContext = createContext(null);",
+					build.onLoad({ filter: /.*/, namespace: 'stub' }, (args) => ({
+						contents: STUBS[args.path],
 						loader: 'js',
 						resolveDir: here
 					}));
@@ -109,6 +121,7 @@ beforeEach(() => {
 	document.head.innerHTML = '';
 	document.body.innerHTML = '';
 	document.body.removeAttribute('style');
+	document.documentElement.className = '';
 	systemDark = false;
 	warnings.length = 0;
 	kit.resetKitPreferences();
@@ -166,11 +179,32 @@ test('a picked font applies to the kit root and its portal container, the host f
 	await act(async () => root.unmount());
 });
 
-test('without a picked font the kit root keeps the host font', async () => {
+// Until 0.2.x the widgets took the host's font; they now draw in the web app's face, which a host can replace.
+test('without a picked font the kit root and its portal container take the web app font, the host page keeps its own', async () => {
+	const hostFont = '"Comic Sans MS", cursive';
+	document.body.style.fontFamily = hostFont;
 	const { root, container } = await render(React.createElement(kit.KitRoot));
+	const portal = document.querySelector('[data-ever-teams-portal]');
 
-	assert.equal(container.firstElementChild.style.fontFamily, '');
+	assert.match(container.firstElementChild.getAttribute('style'), /var\(--ever-teams-kit-font, -apple-system/);
+	assert.match(portal.getAttribute('style') ?? '', /var\(--ever-teams-kit-font, -apple-system/);
+	assert.equal(document.body.style.fontFamily, hostFont);
 	await act(async () => root.unmount());
+});
+
+test('a kit root rendered in a shadow root opens its dialogs there, not in the page body', async () => {
+	const host = document.createElement('div');
+	document.body.appendChild(host);
+	const shadow = host.attachShadow({ mode: 'open' });
+	const container = document.createElement('div');
+	shadow.appendChild(container);
+	const root = createRoot(container);
+	await act(async () => root.render(React.createElement(kit.KitRoot)));
+
+	assert.ok(shadow.querySelector('[data-ever-teams-portal]'), 'the portal container is in the shadow root');
+	assert.equal(document.body.querySelector(':scope > [data-ever-teams-portal]'), null);
+	await act(async () => root.unmount());
+	assert.equal(shadow.querySelector('[data-ever-teams-portal]'), null, 'and leaves with the kit root');
 });
 
 test('the color scheme is drawn on the kit root and its portal container, never on <html>', async () => {
@@ -190,6 +224,50 @@ test('the color scheme is drawn on the kit root and its portal container, never 
 	assert.equal(wrapper.classList.contains('dark'), false);
 	assert.equal(portal.classList.contains('dark'), false);
 	await act(async () => root.unmount());
+});
+
+// A kit root of a scoped provider given colorScheme, with a theme toggle in it.
+function schemedRoot(colorScheme) {
+	return React.createElement(kit.KitRoot, { colorScheme }, inKit(true, React.createElement(kit.ThemeToggle)));
+}
+
+const schemeOf = (rendered) => rendered.container.firstElementChild.getAttribute('data-ever-teams-color-scheme');
+
+async function clickScheme(rendered, name) {
+	const [light, dark] = rendered.container.querySelectorAll('button');
+	const button = name === 'dark' ? dark : light;
+	await act(async () => button.dispatchEvent(new window.MouseEvent('click', { bubbles: true })));
+}
+
+test('two kit roots of a page keep the schemes their providers gave them, until a person picks one', async () => {
+	const light = await render(schemedRoot('light'));
+	const dark = await render(schemedRoot('dark'));
+
+	assert.equal(schemeOf(light), 'light');
+	assert.equal(schemeOf(dark), 'dark');
+
+	// The theme toggle's choice applies to every widget of the page
+	await clickScheme(light, 'dark');
+	assert.equal(kit.getKitPreferences().chosenColorScheme, 'dark');
+	assert.equal(schemeOf(light), 'dark');
+	assert.equal(schemeOf(dark), 'dark');
+	await act(async () => light.root.unmount());
+	await act(async () => dark.root.unmount());
+});
+
+test('a scheme the host changes after a person picked one applies at once', async () => {
+	const first = await render(schemedRoot('light'));
+	const second = await render(schemedRoot('light'));
+	await clickScheme(first, 'dark');
+	assert.equal(schemeOf(second), 'dark');
+
+	await act(async () => second.root.render(schemedRoot('system')));
+
+	assert.equal(kit.getKitPreferences().chosenColorScheme, null);
+	assert.equal(schemeOf(second), 'light', 'system, and the system is light');
+	assert.equal(schemeOf(first), 'light', 'back to the scheme its own provider gave it');
+	await act(async () => first.root.unmount());
+	await act(async () => second.root.unmount());
 });
 
 test('a font picked with versions up to 0.2.14 is kept, under the prefixed key', () => {
@@ -284,3 +362,32 @@ test('system follows the system scheme, light and dark are kept as chosen', () =
 	assert.equal(kit.resolveColorScheme('light', true), 'light');
 	assert.equal(kit.resolveColorScheme('dark', false), 'dark');
 });
+
+// A theme toggle on a host page that has its own next-themes provider, inside <TeamsProvider scopedStyles> or not.
+async function clickDarkOnHostPage(scoped, toggle) {
+	document.documentElement.className = 'light';
+	const { root, container } = await render(
+		React.createElement(kit.ThemeProvider, null, inKit(scoped, React.createElement(toggle)))
+	);
+	const [, dark] = container.querySelectorAll('button');
+	await act(async () => dark.dispatchEvent(new window.MouseEvent('click', { bubbles: true })));
+	return root;
+}
+
+for (const name of ['ThemeToggle', 'ToggleThemeContainer']) {
+	test(`with scopedStyles, ${name} switches the kit and leaves the host page's theme alone`, async () => {
+		const root = await clickDarkOnHostPage(true, kit[name]);
+
+		assert.equal(kit.getKitPreferences().colorScheme, 'dark');
+		assert.equal(document.documentElement.className, 'light');
+		await act(async () => root.unmount());
+	});
+
+	test(`without scopedStyles, ${name} still switches the page through next-themes`, async () => {
+		const root = await clickDarkOnHostPage(false, kit[name]);
+
+		assert.equal(kit.getKitPreferences().colorScheme, 'dark');
+		assert.equal(document.documentElement.className, 'dark');
+		await act(async () => root.unmount());
+	});
+}

@@ -1,14 +1,13 @@
-/* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
 import { observer } from 'mobx-react-lite';
 import React, { FC } from 'react';
 import { View, StyleSheet, TouchableOpacity, Text, Platform } from 'react-native';
 import { Avatar } from 'react-native-paper';
-import { AntDesign } from '@expo/vector-icons';
+import { ChevronsUpDown } from '../../../src/components/icons';
 import { imgTitle } from '../../helpers/img-title';
 import { useStores } from '../../models';
 import { IOrganizationTeamList } from '../../services/interfaces/IOrganizationTeam';
-import { typography, useAppTheme } from '../../theme';
+import { useWebTheme } from '../../theme';
 import DropDownSection from './drop-down-section';
 import { limitTextCharaters } from '../../helpers/sub-text';
 
@@ -21,6 +20,18 @@ export interface Props {
 	isDrawer?: boolean;
 }
 
+/** How many characters of the team's name fit: fewer when the switcher shares its row with Invite. */
+function nameLengthOf(resized: boolean) {
+	if (!resized) {
+		return 26;
+	}
+	if (Platform.OS === 'android') {
+		return 9;
+	}
+	return 10;
+}
+
+/** The team switcher: the web's 44-tall control, its list of teams opening under it. */
 const DropDown: FC<Props> = observer(function CreateTeamModal({
 	onCreateTeam,
 	resized,
@@ -29,11 +40,13 @@ const DropDown: FC<Props> = observer(function CreateTeamModal({
 	isAccountVerified,
 	isDrawer
 }) {
-	const { colors } = useAppTheme();
+	const { colors } = useWebTheme();
 	const {
 		teamStore: { teams, setActiveTeam, activeTeam },
 		TaskStore: { setActiveTask, setActiveTaskId }
 	} = useStores();
+	const teamImageUri = activeTeam?.image?.thumbUrl || activeTeam?.logo || activeTeam?.image?.fullUrl;
+	const teamName = limitTextCharaters({ text: activeTeam?.name, numChars: nameLengthOf(resized) });
 
 	const changeActiveTeam = (newActiveTeam: IOrganizationTeamList) => {
 		setActiveTeam(newActiveTeam);
@@ -45,39 +58,33 @@ const DropDown: FC<Props> = observer(function CreateTeamModal({
 	return (
 		<View style={styles.mainContainer}>
 			<TouchableOpacity
-				style={[styles.mainDropDown, { backgroundColor: colors.background, borderColor: colors.border }]}
+				testID="team-switcher"
+				accessibilityRole="button"
+				accessibilityState={{ expanded: isOpen }}
+				style={[styles.mainDropDown, { backgroundColor: colors.card, borderColor: colors.input }]}
 				activeOpacity={0.7}
 				onPress={() => setIsOpen(!isOpen)}
 			>
-				<View style={{ flexDirection: 'row', alignItems: 'center' }}>
-					{activeTeam?.image?.thumbUrl || activeTeam?.logo || activeTeam?.image?.fullUrl ? (
-						<Avatar.Image
-							style={styles.teamImage}
-							size={30}
-							source={{
-								uri: activeTeam?.image?.thumbUrl || activeTeam?.logo || activeTeam?.image?.fullUrl
-							}}
-						/>
+				<View style={styles.teamRow}>
+					{teamImageUri ? (
+						<Avatar.Image size={28} source={{ uri: teamImageUri }} />
 					) : (
 						<Avatar.Text
-							style={styles.teamImage}
-							size={30}
+							style={{ backgroundColor: colors.muted }}
+							size={28}
+							color={colors.foreground}
 							label={imgTitle(activeTeam?.name)}
 							labelStyle={styles.prefix}
 						/>
 					)}
 
-					<Text style={[styles.activeTeamTxt, { color: colors.primary }]}>{`${limitTextCharaters({
-						text: activeTeam?.name,
-						numChars: resized ? (Platform.OS === 'android' ? 9 : 10) : 26
-					})} (${activeTeam?.members.length})`}</Text>
+					<Text numberOfLines={1} style={[styles.activeTeamTxt, { color: colors.foreground }]}>
+						{teamName}{' '}
+						<Text style={{ color: colors['muted-foreground'] }}>({activeTeam?.members.length})</Text>
+					</Text>
 				</View>
 
-				{isOpen ? (
-					<AntDesign name="up" size={16} color={colors.primary} />
-				) : (
-					<AntDesign name="down" size={16} color={colors.primary} />
-				)}
+				<ChevronsUpDown size={14} color={colors['muted-foreground']} />
 			</TouchableOpacity>
 
 			{isOpen && (
@@ -95,11 +102,12 @@ const DropDown: FC<Props> = observer(function CreateTeamModal({
 });
 
 const styles = StyleSheet.create({
+	// one line that ends with an ellipsis within the switcher, before the chevron, whatever the name's length
 	activeTeamTxt: {
-		fontFamily: typography.fonts.PlusJakartaSans.semiBold,
-		fontSize: 12,
-		fontWeight: '600',
-		left: 12
+		flexShrink: 1,
+		fontSize: 14,
+		fontWeight: '500',
+		marginLeft: 10
 	},
 	mainContainer: {
 		alignItems: 'center',
@@ -110,30 +118,23 @@ const styles = StyleSheet.create({
 	},
 	mainDropDown: {
 		alignItems: 'center',
-		borderRadius: 10,
-		borderWidth: 1,
+		borderRadius: 8,
+		borderWidth: StyleSheet.hairlineWidth,
+		boxShadow: '0 1px 2px rgba(0, 0, 0, 0.04)',
 		flexDirection: 'row',
-		height: 56,
+		height: 44,
 		justifyContent: 'space-between',
-		paddingHorizontal: 10,
-		paddingVertical: 10,
+		paddingHorizontal: 12,
 		width: '100%'
 	},
 	prefix: {
-		fontFamily: typography.fonts.PlusJakartaSans.semiBold,
 		fontSize: 12,
 		fontWeight: '600'
 	},
-	teamImage: {
-		backgroundColor: '#C1E0EA',
-		elevation: 2,
-		shadowColor: '#000',
-		shadowOffset: {
-			width: 0,
-			height: 1.5
-		},
-		shadowOpacity: 0.18,
-		shadowRadius: 1.0
+	teamRow: {
+		alignItems: 'center',
+		flexDirection: 'row',
+		flexShrink: 1
 	}
 });
 

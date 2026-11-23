@@ -1,16 +1,16 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
-import React, { FC, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { View, TouchableNativeFeedback, TouchableOpacity, StyleSheet, Image } from 'react-native';
-import { Ionicons, Entypo } from '@expo/vector-icons';
+import { MoreVertical } from '../../../../../src/components/icons';
 import { Card, Text } from 'react-native-paper';
-import { LinearGradient } from 'expo-linear-gradient';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
+import { estimateRingColorsOf } from '../../../../../src/theme/estimate-ring';
 
 // COMPONENTS
-import { ListItem } from '../../../../components';
 import { GLOBAL_STYLE as GS } from '../../../../../assets/ts/styles';
-import { spacing, typography, useAppTheme } from '../../../../theme';
+import { typography, useAppTheme, useWebTheme } from '../../../../theme';
+import { cardEdgeOf } from '../../../../components/card-edge';
 import { ITeamTask } from '../../../../services/interfaces/ITask';
 import WorkedOnTask from '../../../../components/worked-on-task';
 import TaskStatus from '../../../../components/task-status';
@@ -21,12 +21,17 @@ import TaskTitleDisplay from './task-title-display';
 import AllTaskStatuses from '../../../../components/all-task-statuses';
 import WorkedOnTaskHours from '../../../../components/worked-day-hours';
 import EstimateTime from '../../timer-screen/components/estimate-time';
+import { cardProgressOf } from '../logics/card-progress';
 import { secondsToTime } from '../../../../helpers/date';
 import { useTaskStatistics } from '../../../../services/hooks/features/use-task-statistics';
 import { useStores } from '../../../../models';
 import IssuesModal from '../../../../components/issues-modal';
 import { SettingScreenNavigationProp } from '../../../../navigators/authenticated-navigator';
 import { useNavigation } from '@react-navigation/native';
+import { translate } from '../../../../i18n';
+import { navigateTo } from '../../../../navigators/routes';
+import ActionSheet from '../../../../components/action-sheet';
+import { TaskCardHandlers, taskCardActionsOf } from './task-card-actions';
 
 export type ListItemProps = {
 	active?: boolean;
@@ -46,6 +51,7 @@ export interface Props extends ListItemProps {}
 
 export const ListItemContent: React.FC<ListItemProps> = observer((props) => {
 	const { colors } = useAppTheme();
+	const ringColors = estimateRingColorsOf(useWebTheme());
 	const {
 		TimerStore: { timerStatus }
 	} = useStores();
@@ -57,18 +63,29 @@ export const ListItemContent: React.FC<ListItemProps> = observer((props) => {
 	const { getTaskStat, activeTaskTotalStat } = useTaskStatistics();
 	const { taskTotalStat } = getTaskStat(props.task);
 
-	const progress = useMemo(() => {
-		if (!props.isAuthUser) {
-			return (taskTotalStat?.duration * 100) / props.task?.estimate;
-		}
-
-		return (activeTaskTotalStat?.duration * 100) / props.task?.estimate || 0;
-	}, [timerStatus, props.activeAuthTask, activeTaskTotalStat]);
+	const progress = useMemo(
+		() =>
+			cardProgressOf({
+				isAuthUser: props.isAuthUser,
+				isActiveTask: props.activeAuthTask,
+				taskSeconds: taskTotalStat?.duration,
+				activeTaskSeconds: activeTaskTotalStat?.duration,
+				estimate: props.task?.estimate
+			}),
+		[timerStatus, props.isAuthUser, props.activeAuthTask, taskTotalStat, activeTaskTotalStat, props.task?.estimate]
+	);
 
 	const navigation = useNavigation<SettingScreenNavigationProp<'TaskScreen'>>();
 
+	const menuHandlers: TaskCardHandlers = {
+		editTitle: () => setEditTitle(true),
+		editEstimate: () => setEnableEstimate(true),
+		assign: () => props.profile?.assignTask(props.task),
+		unassign: () => props.profile?.unassignTask(props.task)
+	};
+
 	const navigateToTask = (taskId: string) => {
-		!editTitle && navigation.navigate('TaskScreen', { taskId });
+		!editTitle && navigateTo(navigation, 'TaskScreen', { taskId });
 	};
 
 	return (
@@ -92,19 +109,17 @@ export const ListItemContent: React.FC<ListItemProps> = observer((props) => {
 						memberTask={props.task}
 						isAuthUser={props.profile.isAuthUser}
 						isActiveTask={props.activeAuthTask}
-						title={'Total time'}
+						title={translate('teamScreen.cardTotalTimeLabel')}
 						containerStyle={{ flexDirection: 'row', alignItems: 'center' }}
 						totalTimeText={{ color: colors.primary }}
 					/>
 					<TouchableOpacity
-						onPress={() => props.setOpenMenuIndex(props.openMenuIndex === props.index ? null : props.index)}
+						testID="task-card-menu"
+						hitSlop={12}
+						onPress={() => props.setOpenMenuIndex(props.index)}
 						style={{ height: 20 }}
 					>
-						{props.index !== props.openMenuIndex ? (
-							<Ionicons name="ellipsis-vertical-outline" size={20} color={colors.primary} />
-						) : (
-							<Entypo name="cross" size={20} color={colors.primary} />
-						)}
+						<MoreVertical size={20} color={colors.primary} />
 					</TouchableOpacity>
 				</View>
 
@@ -136,8 +151,8 @@ export const ListItemContent: React.FC<ListItemProps> = observer((props) => {
 									size={56}
 									width={7}
 									fill={progress}
-									tintColor="#27AE60"
-									backgroundColor="#F0F0F0"
+									tintColor={ringColors.tint}
+									backgroundColor={ringColors.track}
 								>
 									{() => (
 										<Text style={{ ...styles.progessText, color: colors.primary }}>
@@ -172,141 +187,51 @@ export const ListItemContent: React.FC<ListItemProps> = observer((props) => {
 						{props.isAssigned ? (
 							<WorkedOnTaskHours
 								memberTask={props.task}
-								title={'Today Work'}
+								title={translate('teamScreen.cardTodayWorkLabel')}
 								containerStyle={{ alignItems: 'center' }}
 								totalTimeText={{ color: colors.primary }}
 							/>
 						) : (
 							<View style={{ left: 12, justifyContent: 'center', alignItems: 'center' }}>
-								<Text style={[styles.timeHeading, { color: colors.tertiary }]}>Assigned</Text>
+								<Text style={[styles.timeHeading, { color: colors.tertiary }]}>
+									{translate('tasksScreen.assignedTab')}
+								</Text>
 								<Text style={[styles.timeNumber, { color: colors.primary }]}>
-									{props.task.members.length} people
+									{translate('tasksScreen.assignedPeople', { count: props.task.members.length })}
 								</Text>
 							</View>
 						)}
 					</View>
 					<TaskStatus containerStyle={styles.statusContainer} task={props.task} />
 				</View>
-				{props.index === props.openMenuIndex && (
-					<SidePopUp
-						setEditTitle={setEditTitle}
-						setShowMenu={() => props.setOpenMenuIndex(null)}
-						setEnableEstimate={setEnableEstimate}
-						props={props}
-					/>
-				)}
+				<ActionSheet
+					visible={props.index === props.openMenuIndex}
+					onClose={() => props.setOpenMenuIndex(null)}
+					title={props.task?.title}
+					actions={taskCardActionsOf(Boolean(props.isAssigned), menuHandlers, translate)}
+				/>
 			</View>
 		</TouchableNativeFeedback>
 	);
 });
 
-interface IMenuProps {
-	setShowMenu: () => unknown;
-	setEditTitle: (value: boolean) => unknown;
-	setEnableEstimate: (value: boolean) => unknown;
-	props: ListItemProps;
-}
-const SidePopUp: FC<IMenuProps> = ({ props, setShowMenu, setEditTitle, setEnableEstimate }) => {
-	const { colors } = useAppTheme();
-	const { isAssigned, task, profile } = props;
-	return (
-		<View
-			style={{
-				...GS.positionAbsolute,
-				...GS.p2,
-				...GS.mt1,
-				...GS.pt1,
-				...GS.shadow,
-				...GS.r0,
-				...GS.rounded,
-				...GS.border,
-				borderColor: colors.border,
-				...GS.zIndexFront,
-				width: 120,
-				shadowColor: colors.border,
-				marginRight: 27,
-				backgroundColor: colors.background,
-				minWidth: spacing.huge * 2
-			}}
-		>
-			<View style={{}}>
-				<ListItem
-					textStyle={[styles.dropdownTxt, { color: colors.primary }]}
-					onPress={() => {
-						setEditTitle(true);
-						setShowMenu();
-					}}
-				>
-					Edit Task
-				</ListItem>
-				<ListItem
-					textStyle={[styles.dropdownTxt, { color: colors.primary }]}
-					onPress={() => {
-						setEnableEstimate(true);
-						setShowMenu();
-					}}
-				>
-					Estimate
-				</ListItem>
-
-				{!isAssigned && (
-					<ListItem
-						textStyle={[styles.dropdownTxt, { color: colors.primary }]}
-						onPress={() => {
-							profile.assignTask(task);
-							setShowMenu();
-						}}
-					>
-						Assign Task
-					</ListItem>
-				)}
-
-				{isAssigned && (
-					<ListItem
-						textStyle={[styles.dropdownTxt, { color: colors.primary }]}
-						TextProps={{ numberOfLines: 1 }}
-						onPress={() => {
-							profile.unassignTask(task);
-							setShowMenu();
-						}}
-					>
-						Unassign Task
-					</ListItem>
-				)}
-			</View>
-		</View>
-	);
-};
-
 const ListCardItem: React.FC<Props> = (props) => {
-	const { colors, dark } = useAppTheme();
+	const { colors } = useAppTheme();
+	const theme = useWebTheme();
 	// STATS
 
 	const { activeAuthTask } = props;
+	// the task the timer runs on, in the worked tab: marked by the primary hairline, as the person's own card on Team
+	const isCurrentTask = Boolean(activeAuthTask && props.isNowTab);
 
 	return (
 		<Card
-			style={[
-				styles.cardContainer,
-				!dark && activeAuthTask && props.isNowTab && { borderColor: '#8C7AE4', borderWidth: 3 }
-			]}
+			testID="profile-task-card"
+			style={[styles.cardContainer, { borderColor: cardEdgeOf(isCurrentTask, theme) }]}
 		>
-			{dark ? (
-				<LinearGradient
-					colors={['#B993E6', '#6EB0EC', '#5855D8']}
-					start={{ x: 0.1, y: 0.5 }}
-					end={{ x: 1, y: 0.5 }}
-					style={{ padding: activeAuthTask && props.isNowTab ? 3 : 0, borderRadius: 14 }}
-				>
-					<View style={{ backgroundColor: colors.background, borderRadius: 14 }}>
-						<ListItemContent {...props} />
-					</View>
-				</LinearGradient>
-			) : (
-				<View style={{ backgroundColor: colors.background, borderRadius: 14 }}>
-					<ListItemContent {...props} />
-				</View>
-			)}
+			<View style={{ backgroundColor: colors.background, borderRadius: 14 }}>
+				<ListItemContent {...props} />
+			</View>
 		</Card>
 	);
 };
@@ -314,18 +239,11 @@ const ListCardItem: React.FC<Props> = (props) => {
 export default ListCardItem;
 
 const styles = StyleSheet.create({
+	// The web's card: radius 14, a hairline and the light shadow
 	cardContainer: {
 		borderRadius: 14,
-		elevation: 5,
-		shadowColor: '#000',
-		shadowOffset: { width: 0, height: 12 },
-		shadowOpacity: 0.05,
-		shadowRadius: 5
-	},
-	dropdownTxt: {
-		color: '#282048',
-		fontFamily: typography.primary.semiBold,
-		fontSize: 14
+		borderWidth: StyleSheet.hairlineWidth,
+		boxShadow: '0 1px 2px rgba(0, 0, 0, 0.065)'
 	},
 	firstContainer: {
 		alignItems: 'center',

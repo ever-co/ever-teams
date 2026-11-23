@@ -1,10 +1,10 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
 import React, { useEffect } from 'react';
-import { View, StyleSheet, Image, TouchableOpacity, Dimensions, TouchableWithoutFeedback } from 'react-native';
+import { View, StyleSheet, Dimensions, TouchableWithoutFeedback } from 'react-native';
 import { Text } from 'react-native-paper';
 import { DrawerContentScrollView, useDrawerStatus } from '@react-navigation/drawer';
-import { typography, useAppTheme } from '../theme';
+import { typography, useAppTheme, useWebTheme } from '../theme';
 import { useStores } from '../models';
 import DropDown from './team-dropdown/drop-down';
 import CreateTeamModal from './create-team-modal';
@@ -12,39 +12,28 @@ import ProfileImage from './profile-image';
 import { translate } from '../i18n';
 import { observer } from 'mobx-react-lite';
 import { useOrganizationTeam } from '../services/hooks/use-organization';
-import { SvgXml } from 'react-native-svg';
-import {
-	briefCaseNotFocusedDark2,
-	briefCaseNotFocusedLight,
-	moonDarkLarge,
-	moonDarkMedium,
-	moonLightLarge,
-	moonLightMedium,
-	peopleCaseNotFocusedDark2,
-	peopleNotFocusedLight,
-	settingsIconDark,
-	settingsIconLight,
-	sunDarkLarge,
-	sunLightLarge,
-	userNotFocusedDark2,
-	userNotFocusedLight
-} from './svgs/icons';
-import { BlurView } from 'expo-blur';
+import { navigateTo } from '../navigators/routes';
+import { usePathname } from 'expo-router';
+import { MenuRow } from './menu-row';
+import { Briefcase, LogOut, Settings, User, Users } from '../../src/components/icons';
+import { menuEntryOf } from './menu-current';
+import { ThemeChoice } from './theme-choice';
 
 const HamburgerMenu = observer((props: any) => {
 	const { colors, dark } = useAppTheme();
+	const theme = useWebTheme();
 	const {
 		TaskStore: { resetTeamTasksData },
-		authenticationStore: { user, logout, toggleTheme },
+		authenticationStore: { user, logout },
 		teamStore: { clearStoredTeamData }
 	} = useStores();
 	const { createOrganizationTeam, activeTeam } = useOrganizationTeam();
 	const [showCreateTeamModal, setShowCreateTeamModal] = React.useState(false);
 	const [isTeamModalOpen, setIsTeamModalOpen] = React.useState<boolean>(false);
-	const [containerWidth, setContainerWidth] = React.useState(0);
 
 	const { navigation } = props;
 	const isOpen = useDrawerStatus() === 'open';
+	const currentEntry = menuEntryOf(usePathname());
 
 	const onLogout = () => {
 		resetTeamTasksData();
@@ -57,43 +46,38 @@ const HamburgerMenu = observer((props: any) => {
 	}, [isOpen]);
 
 	return (
-		<TouchableWithoutFeedback
-			onLayout={(event) => {
-				const { width } = event.nativeEvent.layout;
-				setContainerWidth(width);
-			}}
-			onPress={() => setIsTeamModalOpen(false)}
-		>
+		<TouchableWithoutFeedback onPress={() => setIsTeamModalOpen(false)}>
 			<View style={[styles.container, { backgroundColor: dark ? colors.background2 : colors.background }]}>
 				<CreateTeamModal
 					onCreateTeam={createOrganizationTeam}
 					visible={showCreateTeamModal}
 					onDismiss={() => setShowCreateTeamModal(false)}
 				/>
-				<DrawerContentScrollView style={{ width: '100%' }} {...props}>
-					<View style={styles.profileSection}>
-						<View style={{ marginBottom: 40 }}>
-							<ProfileImage size={76} user={user} />
+				<DrawerContentScrollView
+					style={{ width: '100%' }}
+					{...props}
+					contentContainerStyle={styles.scrollContent}
+				>
+					<View style={[styles.profileSection, { borderBottomColor: theme.colors.border }]}>
+						<View testID="menu-person" style={styles.person}>
+							<ProfileImage size={40} user={user} />
+							<View style={styles.personText}>
+								<Text numberOfLines={1} style={[styles.userName, { color: theme.colors.foreground }]}>
+									{user?.name}
+								</Text>
+								<Text
+									numberOfLines={1}
+									style={[styles.userEmail, { color: theme.colors['muted-foreground'] }]}
+								>
+									{user?.email}
+								</Text>
+							</View>
 						</View>
-						<Text style={[styles.userProfileName, { color: colors.primary, marginTop: 30 }]}>
-							{user?.name}
-						</Text>
-						<Text
-							style={{
-								color: colors.tertiary,
-								fontSize: 14,
-								marginBottom: 20,
-								fontFamily: typography.secondary.medium,
-								marginTop: 4
-							}}
-						>
-							{user?.email}
-						</Text>
 						{activeTeam ? (
 							<DropDown
 								isOpen={isTeamModalOpen}
 								setIsOpen={setIsTeamModalOpen}
-								resized={true}
+								resized={false}
 								onCreateTeam={() => setShowCreateTeamModal(true)}
 								isAccountVerified={user?.isEmailVerified}
 								isDrawer={true}
@@ -102,103 +86,53 @@ const HamburgerMenu = observer((props: any) => {
 					</View>
 					<View style={styles.navigationSection}>
 						{activeTeam ? (
-							<TouchableOpacity style={styles.item} onPress={() => navigation.navigate('Timer')}>
-								<SvgXml xml={dark ? userNotFocusedDark2 : userNotFocusedLight} />
-								<Text style={[styles.screenLabel, { color: colors.primary }]}>
-									{translate('myWorkScreen.name')}
-								</Text>
-							</TouchableOpacity>
+							<MenuRow
+								testID="menu-work"
+								icon={User}
+								label={translate('myWorkScreen.name')}
+								isCurrent={currentEntry === 'work'}
+								onPress={() => navigateTo(navigation, 'Timer')}
+							/>
 						) : null}
-
-						<TouchableOpacity style={styles.item} onPress={() => navigation.navigate('Team')}>
-							<SvgXml xml={dark ? peopleCaseNotFocusedDark2 : peopleNotFocusedLight} />
-							<Text style={[styles.screenLabel, { color: colors.primary }]}>
-								{translate('teamScreen.name')}
+						<MenuRow
+							testID="menu-team"
+							icon={Users}
+							label={translate('teamScreen.name')}
+							isCurrent={currentEntry === 'team'}
+							onPress={() => navigateTo(navigation, 'Team')}
+						/>
+						<MenuRow
+							testID="menu-tasks"
+							icon={Briefcase}
+							label={translate('tasksScreen.name')}
+							isCurrent={currentEntry === 'tasks'}
+							onPress={() => navigateTo(navigation, 'Profile', { userId: user?.id, tabIndex: 0 })}
+						/>
+						<MenuRow
+							testID="menu-settings"
+							icon={Settings}
+							label={translate('settingScreen.name')}
+							isCurrent={currentEntry === 'settings'}
+							onPress={() => navigateTo(navigation, 'Setting')}
+						/>
+						<View testID="menu-theme" style={styles.themeSection}>
+							<Text style={[styles.themeLabel, { color: theme.colors['muted-foreground'] }]}>
+								{translate('hamburgerMenu.theme')}
 							</Text>
-						</TouchableOpacity>
-						<TouchableOpacity
-							style={styles.item}
-							onPress={() => navigation.navigate('Profile', { userId: user?.id, tabIndex: 0 })}
-						>
-							<SvgXml xml={dark ? briefCaseNotFocusedDark2 : briefCaseNotFocusedLight} />
-							<Text style={[styles.screenLabel, { color: colors.primary }]}>
-								{translate('tasksScreen.name')}
-							</Text>
-						</TouchableOpacity>
-						<TouchableOpacity style={styles.item} onPress={() => navigation.navigate('Setting')}>
-							<SvgXml xml={dark ? settingsIconDark : settingsIconLight} />
-							<Text style={[styles.screenLabel, { color: colors.primary }]}>
-								{translate('settingScreen.name')}
-							</Text>
-						</TouchableOpacity>
-						<TouchableOpacity style={styles.screenItem}>
-							<View style={{ flexDirection: 'row' }}>
-								<SvgXml xml={dark ? moonDarkMedium : moonLightMedium} />
-								<Text style={[styles.screenLabel, { color: colors.primary }]}>
-									{translate('hamburgerMenu.darkMode')}
-								</Text>
-							</View>
-							<TouchableOpacity
-								onPress={toggleTheme}
-								style={[
-									styles.toggle,
-									dark ? { backgroundColor: '#1D222A' } : { backgroundColor: '#E7E7EA' }
-								]}
-							>
-								{dark ? (
-									<View style={styles.iconsContainer}>
-										<SvgXml xml={sunDarkLarge} />
-										<SvgXml xml={moonDarkLarge} />
-									</View>
-								) : (
-									<View style={styles.iconsContainer}>
-										<View style={[styles.iconWrapper, { backgroundColor: 'white' }]}>
-											<SvgXml xml={sunLightLarge} />
-										</View>
-										<View style={[styles.iconWrapper, { backgroundColor: 'transparent' }]}>
-											<SvgXml xml={moonLightLarge} />
-										</View>
-									</View>
-								)}
-							</TouchableOpacity>
-						</TouchableOpacity>
+							<ThemeChoice />
+						</View>
 					</View>
 				</DrawerContentScrollView>
 
-				<View style={styles.bottomSection}>
-					<TouchableOpacity
-						style={{ flexDirection: 'row', justifyContent: 'space-between' }}
+				<View style={[styles.bottomSection, { borderTopColor: theme.colors.border }]}>
+					<MenuRow
+						testID="menu-log-out"
+						icon={LogOut}
+						label={translate('common.logOut')}
+						tone="danger"
 						onPress={() => onLogout()}
-					>
-						<View style={{ flexDirection: 'row', alignItems: 'center' }}>
-							<Image source={require('../../assets/icons/new/logout.png')} />
-							<Text
-								style={{
-									marginLeft: 10,
-									color: '#DE437B',
-									fontFamily: typography.primary.semiBold,
-									fontSize: 16
-								}}
-							>
-								{translate('common.logOut')}
-							</Text>
-						</View>
-					</TouchableOpacity>
-				</View>
-				{isOpen && (
-					<BlurView
-						intensity={15}
-						onTouchStart={() => navigation.closeDrawer()}
-						tint="dark"
-						style={{
-							position: 'absolute',
-							width: '100%',
-							height: '100%',
-							right: containerWidth,
-							zIndex: 1000
-						}}
 					/>
-				)}
+				</View>
 			</View>
 		</TouchableWithoutFeedback>
 	);
@@ -207,10 +141,9 @@ const HamburgerMenu = observer((props: any) => {
 const { width } = Dimensions.get('window');
 const styles = StyleSheet.create({
 	bottomSection: {
-		borderTopColor: 'rgba(0, 0, 0, 0.16)',
-		borderTopWidth: 1,
-		marginBottom: 37,
-		paddingTop: 37
+		borderTopWidth: StyleSheet.hairlineWidth,
+		marginBottom: 24,
+		paddingTop: 8
 	},
 	close: {
 		alignItems: 'center',
@@ -226,33 +159,16 @@ const styles = StyleSheet.create({
 	},
 	container: {
 		flex: 1,
-		paddingHorizontal: 50
+		paddingHorizontal: 16
 	},
 	headerIconsContainer: {
 		flexDirection: 'row',
 		justifyContent: 'space-between'
 	},
 	icon: { width: 30 },
-	iconWrapper: { borderRadius: 60, padding: 7 },
-	iconsContainer: {
-		alignItems: 'center',
-		backgroundColor: 'transparent',
-		display: 'flex',
-		flexDirection: 'row',
-		height: '100%',
-		justifyContent: 'space-between',
-		paddingLeft: 4,
-		paddingRight: 4,
-		width: '100%'
-	},
-	item: {
-		alignItems: 'center',
-		flexDirection: 'row',
-		marginBottom: 30
-	},
 	navigationSection: {
-		marginTop: 20,
-		padding: 0,
+		gap: 2,
+		marginTop: 12,
 		zIndex: 1
 	},
 	profileImage: {
@@ -269,35 +185,46 @@ const styles = StyleSheet.create({
 		justifyContent: 'center',
 		width: 84
 	},
-	profileSection: {
+	person: {
 		alignItems: 'center',
-		borderBottomColor: 'rgba(0, 0, 0, 0.16)',
-		borderBottomWidth: 1,
-		justifyContent: 'center',
-		marginHorizontal: '1%',
-		paddingBottom: 10,
+		flexDirection: 'row',
+		gap: 12
+	},
+	personText: {
+		flex: 1,
+		gap: 2
+	},
+	profileSection: {
+		borderBottomWidth: StyleSheet.hairlineWidth,
+		gap: 16,
+		paddingBottom: 16,
+		paddingTop: 8,
 		zIndex: 10
 	},
 
-	screenItem: {
-		alignItems: 'center',
-		flexDirection: 'row',
-		justifyContent: 'space-between'
+	// the drawer's scroll view adds 12 on each side: the menu keeps its own 16 for every row
+	scrollContent: {
+		paddingEnd: 0,
+		paddingStart: 0
 	},
-	screenLabel: {
-		fontFamily: typography.secondary.medium,
-		fontSize: 16,
-		left: 15
+	themeLabel: {
+		fontFamily: typography.primary.medium,
+		fontSize: 13,
+		paddingHorizontal: 12
 	},
-	toggle: {
-		borderRadius: 60,
-		height: 40,
-		width: 86
+	themeSection: {
+		gap: 8,
+		marginTop: 16
 	},
-	userProfileName: {
-		fontFamily: typography.primary.semiBold,
-		fontSize: 20,
-		marginTop: 15
+	userEmail: {
+		fontFamily: typography.primary.normal,
+		fontSize: 13,
+		lineHeight: 17
+	},
+	userName: {
+		fontFamily: typography.primary.medium,
+		fontSize: 14,
+		lineHeight: 18
 	}
 });
 

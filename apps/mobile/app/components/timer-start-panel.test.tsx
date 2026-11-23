@@ -3,10 +3,12 @@
  * (ever-co/ever-teams#5266), or the start alone with a line saying why it cannot change here.
  */
 import React from 'react';
+import { Platform, StyleSheet } from 'react-native';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import { showMessage } from 'react-native-flash-message';
 import { TimerStartMoveAccess } from '../helpers/timer-start-move';
 import { TimerStartPanel } from './timer-start-panel';
+import { themeFor } from '../../src/theme/use-theme';
 
 jest.mock('react-native-flash-message', () => ({ showMessage: jest.fn() }));
 // The fields are the sheet's own inputs: the library's stand-in, marked as an ES module
@@ -19,7 +21,8 @@ jest.mock('../theme', () => ({
 	useAppTheme: () => ({
 		colors: { primary: '#282048', background: '#FFFFFF', tertiary: '#7E7991', border: '#DDD' },
 		dark: false
-	})
+	}),
+	useWebTheme: () => jest.requireActual('../../src/theme/use-theme').themeFor('light')
 }));
 
 /** 9:25 and 9:30 on 16 November 2026, in the phone's own time zone. */
@@ -250,5 +253,37 @@ describe('The panel of the running time', () => {
 
 		expect(screen.getByText(/timer\.startMove\.unsupported/)).toBeTruthy();
 		expect(screen.queryByTestId('timer-start-time')).toBeNull();
+	});
+});
+
+describe('The time field on Android', () => {
+	const platform = Platform.OS;
+
+	afterEach(() => {
+		Object.defineProperty(Platform, 'OS', { configurable: true, get: () => platform });
+	});
+
+	it('asks for a keyboard of digits and places the colon itself', async () => {
+		Object.defineProperty(Platform, 'OS', { configurable: true, get: () => 'android' });
+		await renderPanel();
+
+		expect(screen.getByTestId('timer-start-time').props.keyboardType).toBe('number-pad');
+		await fireEvent.changeText(screen.getByTestId('timer-start-time'), '905');
+
+		expect(screen.getByTestId('timer-start-time').props.value).toBe('9:05');
+	});
+});
+
+describe('The look of the panel', () => {
+	it('puts Cancel on the secondary fill and Save on the primary one, where both had fixed colors', async () => {
+		await renderPanel({});
+
+		const light = themeFor('light');
+		expect(StyleSheet.flatten(screen.getByTestId('timer-start-cancel').props.style).backgroundColor).toBe(
+			light.colors.secondary
+		);
+		expect(StyleSheet.flatten(screen.getByTestId('timer-start-save').props.style).backgroundColor).toBe(
+			light.colors.primary
+		);
 	});
 });

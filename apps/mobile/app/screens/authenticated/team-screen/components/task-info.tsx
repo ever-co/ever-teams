@@ -7,7 +7,7 @@ import { limitTextCharaters } from '../../../../helpers/sub-text';
 import { typography, useAppTheme } from '../../../../theme';
 import { useTeamTasks } from '../../../../services/hooks/features/use-team-tasks';
 import { I_TeamMemberCardHook } from '../../../../services/hooks/features/use-team-member-card';
-import { Feather } from '@expo/vector-icons';
+import { Check } from '../../../../../src/components/icons';
 import IssuesModal from '../../../../components/issues-modal';
 
 const { width: screenWidth } = Dimensions.get('screen');
@@ -56,7 +56,7 @@ const TaskInfo = ({
 				/>
 				{titleChanged && !loading && (
 					<TouchableOpacity onPress={() => onChangeTitle()}>
-						<Feather size={24} name="check" color="green" />
+						<Check size={24} color="green" />
 					</TouchableOpacity>
 				)}
 				{loading && <ActivityIndicator size={'small'} color={colors.primary} />}
@@ -71,7 +71,7 @@ const TaskInfo = ({
 					<IssuesModal task={task} readonly={true} />
 				</View>
 				{task ? (
-					<Text numberOfLines={1} style={[styles.otherText, { color: colors.primary }]}>
+					<Text testID="member-task" numberOfLines={1} style={[styles.otherText, { color: colors.primary }]}>
 						<Text style={styles.taskNumberStyle}>#{task?.taskNumber}</Text>{' '}
 						{limitTextCharaters({
 							text: task.title,

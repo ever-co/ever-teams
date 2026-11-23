@@ -12,12 +12,14 @@
 import './i18n';
 import './utils/ignore-warnings';
 import { useFonts } from 'expo-font';
-import React from 'react';
+import React, { ComponentProps, useRef, useState } from 'react';
+import { useColorScheme } from 'react-native';
 import { Provider as PaperProvider } from 'react-native-paper';
 
 import { initialWindowMetrics, SafeAreaProvider } from 'react-native-safe-area-context';
 import { useInitialRootStore, useStores } from './models';
 import { AppNavigator, useNavigationPersistence } from './navigators';
+import { useAppLocale, useLanguageStarted } from './i18n';
 import { ErrorBoundary } from './screens/error-screen/error-boundary';
 import * as storage from './utils/storage';
 import { customDarkTheme, customFontsToLoad, customLightTheme, navigationTheme } from './theme';
@@ -26,6 +28,8 @@ import Config from './config';
 import { observer } from 'mobx-react-lite';
 import { initCrashReporting } from './utils/crash-reporting';
 import FlashMessage from 'react-native-flash-message';
+import { tellSessionEnded } from './services/client/fetch';
+import { useOnceReady } from './utils/use-once-ready';
 import { ClickOutsideProvider } from 'react-native-click-outside';
 
 // Initialize Sentry before any component renders
@@ -48,6 +52,8 @@ setupReactotron({
 
 export const NAVIGATION_PERSISTENCE_KEY = 'NAVIGATION_STATE';
 
+type NavigationState = ComponentProps<typeof AppNavigator>['initialState'];
+
 interface AppProps {
 	hideSplashScreen: () => Promise<void>;
 }
@@ -63,14 +69,23 @@ const App = observer((props: AppProps) => {
 		isRestored: isNavigationStateRestored
 	} = useNavigationPersistence(storage, NAVIGATION_PERSISTENCE_KEY);
 	const {
-		authenticationStore: { isDarkMode }
+		authenticationStore: { isDarkMode, followsSystemTheme }
 	} = useStores();
 
 	// Sentry initialization moved to module level (top of file)
 
 	const [areFontsLoaded] = useFonts(customFontsToLoad);
+	// read with the other hooks: the app returns early below until it is ready
+	const systemColorScheme = useColorScheme();
 
-	const { rehydrated } = useInitialRootStore(() => {
+	const [sessionEnded, setSessionEnded] = useState(false);
+	// The screens read their messages when they render: a new language mounts the navigator again, on the screen the
+	// person was on
+	const locale = useAppLocale();
+	const languageStarted = useLanguageStarted();
+	const navigationStateRef = useRef<NavigationState>(undefined);
+
+	const { rehydrated } = useInitialRootStore(({ sessionEnded: ended }) => {
 		// This runs after the root store has been initialized and rehydrated.
 
 		// If your initialization scripts run very fast, it's good to show the splash screen for just a bit longer to prevent flicker.
@@ -78,7 +93,12 @@ const App = observer((props: AppProps) => {
 		// Note: (vanilla Android) The splash-screen will not appear if you launch your app via the terminal or Android Studio. Kill the app and launch it normally by tapping on the launcher icon. https://stackoverflow.com/a/69831106
 		// Note: (vanilla iOS) You might notice the splash-screen logo change size. This happens in debug/development mode. Try building the app for release.
 		setTimeout(hideSplashScreen, 500);
+		setSessionEnded(ended);
 	});
+
+	const ready = rehydrated && isNavigationStateRestored && areFontsLoaded && languageStarted;
+	// told on the first render that shows the message host, however long the fonts and the navigation state take
+	useOnceReady(sessionEnded, ready, tellSessionEnded);
 
 	// Before we show the app, we have to wait for our state to be ready.
 	// In the meantime, don't render anything. This will be the background
@@ -86,11 +106,18 @@ const App = observer((props: AppProps) => {
 	// In iOS: application:didFinishLaunchingWithOptions:
 	// In Android: https://stackoverflow.com/a/45838109/204044
 	// You can replace with your own loading component if you wish.
-	if (!rehydrated || !isNavigationStateRestored || !areFontsLoaded) return null;
+	if (!ready) return null;
+
+	const rememberNavigationState = (state: NavigationState) => {
+		navigationStateRef.current = state;
+		onNavigationStateChange(state);
+	};
 
 	// otherwise, we're ready to render the app
 
-	const theme = isDarkMode ? customDarkTheme : customLightTheme;
+	const systemIsDark = systemColorScheme === 'dark';
+	const dark = followsSystemTheme ? systemIsDark : isDarkMode;
+	const theme = dark ? customDarkTheme : customLightTheme;
 	return (
 		<SafeAreaProvider initialMetrics={initialWindowMetrics}>
 			<PaperProvider theme={theme}>
@@ -98,9 +125,10 @@ const App = observer((props: AppProps) => {
 					<FlashMessage position="top" />
 					<ClickOutsideProvider>
 						<AppNavigator
-							theme={navigationTheme(isDarkMode)}
-							initialState={initialNavigationState}
-							onStateChange={onNavigationStateChange}
+							key={locale}
+							theme={navigationTheme(dark)}
+							initialState={navigationStateRef.current ?? initialNavigationState}
+							onStateChange={rememberNavigationState}
 						/>
 					</ClickOutsideProvider>
 				</ErrorBoundary>

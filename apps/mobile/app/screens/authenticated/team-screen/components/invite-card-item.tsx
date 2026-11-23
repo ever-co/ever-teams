@@ -3,22 +3,26 @@
 import React from 'react';
 import { View, ViewStyle, TouchableOpacity, StyleSheet, TouchableWithoutFeedback } from 'react-native';
 import { Avatar, Text } from 'react-native-paper';
-import { Ionicons, Entypo } from '@expo/vector-icons';
+import { MoreVertical, X } from '../../../../../src/components/icons';
 
 // COMPONENTS
 import { Card, ListItem } from '../../../../components';
 
 // STYLES
 import { GLOBAL_STYLE as GS } from '../../../../../assets/ts/styles';
-import { spacing, typography, useAppTheme } from '../../../../theme';
+import { spacing, typography, useAppTheme, useWebTheme } from '../../../../theme';
 import { observer } from 'mobx-react-lite';
 import { useOrganizationTeam } from '../../../../services/hooks/use-organization';
 import { translate } from '../../../../i18n';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
+import { estimateRingColorsOf } from '../../../../../src/theme/estimate-ring';
 import { useTeamInvitations } from '../../../../services/hooks/use-team-invitation';
 import { imgTitleProfileAvatar } from '../../../../helpers/img-title-profile-avatar';
 import { SvgXml } from 'react-native-svg';
 import { invitedStatusIcon } from '../../../../components/svgs/icons';
+
+// Someone invited has no time, task or estimate yet: the card marks them empty, as the web's invited card does
+const NO_VALUE = '–';
 
 export type ListItemProps = {
 	invite: any;
@@ -34,9 +38,10 @@ export interface Props extends ListItemProps {
 export const ListItemContent: React.FC<ListItemProps> = observer(({ invite, onPressIn }) => {
 	// HOOKS
 	const { colors } = useAppTheme();
+	const ringColors = estimateRingColorsOf(useWebTheme());
 
 	return (
-		<TouchableWithoutFeedback onPress={() => onPressIn()}>
+		<TouchableWithoutFeedback onPress={() => onPressIn?.()}>
 			<View
 				style={{
 					...GS.p3,
@@ -62,16 +67,13 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ invite, onPr
 						<View style={{ ...GS.alignCenter, height: '80%', justifyContent: 'space-between' }}>
 							<Text style={styles.totalTimeTitle}>{translate('teamScreen.cardTotalTimeLabel')}</Text>
 							<Text style={[styles.totalTimeText, { color: colors.primary, fontSize: 14 }]}>
-								20 h:30 m
+								{NO_VALUE}
 							</Text>
 						</View>
 					</View>
 				</View>
 				<View style={[styles.wrapTaskTitle, { borderTopColor: colors.divider }]}>
-					<Text style={[styles.otherText, { color: colors.primary }]}>
-						{/* {memberTask ? memberTask.title : ""} */}
-						Working on UI Design & making prototype for user testing tomorrow
-					</Text>
+					<Text style={[styles.otherText, styles.email, { color: colors.primary }]}>{invite.email}</Text>
 				</View>
 				<View style={[styles.times, { borderTopColor: colors.divider }]}>
 					<View
@@ -86,14 +88,14 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ invite, onPr
 						<View style={{ ...GS.alignCenter, height: '80%', justifyContent: 'space-between' }}>
 							<Text style={styles.totalTimeTitle}>{translate('teamScreen.cardTodayWorkLabel')}</Text>
 							<Text style={[styles.totalTimeText, { color: colors.primary, fontSize: 14 }]}>
-								20 h:30 m
+								{NO_VALUE}
 							</Text>
 						</View>
 						<View style={{ ...GS.alignCenter }}>
 							<View style={{ ...GS.alignCenter, height: '80%', justifyContent: 'space-between' }}>
 								<Text style={styles.totalTimeTitle}>{translate('teamScreen.cardTotalWorkLabel')}</Text>
 								<Text style={[styles.totalTimeText, { color: colors.primary, fontSize: 14 }]}>
-									20 h:30 m
+									{NO_VALUE}
 								</Text>
 							</View>
 						</View>
@@ -102,10 +104,10 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ invite, onPr
 								size={48}
 								width={5}
 								fill={0}
-								tintColor="#27AE60"
-								backgroundColor="#F0F0F0"
+								tintColor={ringColors.tint}
+								backgroundColor={ringColors.track}
 							>
-								{() => <Text style={{ ...styles.progessText, color: colors.primary }}>0 H</Text>}
+								{() => <Text style={{ ...styles.progessText, color: colors.primary }}>{NO_VALUE}</Text>}
 							</AnimatedCircularProgress>
 						</View>
 					</View>
@@ -209,9 +211,9 @@ const ListCardItem: React.FC<Props> = (props) => {
 							}}
 						>
 							{props.openMenuIndex !== props.index ? (
-								<Ionicons name="ellipsis-vertical-outline" size={24} color={colors.primary} />
+								<MoreVertical size={24} color={colors.primary} />
 							) : (
-								<Entypo name="cross" size={24} color={colors.primary} />
+								<X size={24} color={colors.primary} />
 							)}
 						</TouchableOpacity>
 					</View>
@@ -228,10 +230,12 @@ const ListCardItem: React.FC<Props> = (props) => {
 					{showConfirm && (
 						<View style={[styles.confirmContainer, { backgroundColor: colors.background }]}>
 							<TouchableOpacity onPress={() => handleRemoveInvitation(invite.id)}>
-								<Text style={[styles.confirmText, { color: colors.secondary }]}>Confirm</Text>
+								<Text style={[styles.confirmText, { color: colors.secondary }]}>
+									{translate('common.confirm')}
+								</Text>
 							</TouchableOpacity>
 							<TouchableOpacity onPress={() => setShowConfirm(false)}>
-								<Text>Cancel</Text>
+								<Text>{translate('common.cancel')}</Text>
 							</TouchableOpacity>
 						</View>
 					)}
@@ -286,6 +290,11 @@ const styles = StyleSheet.create({
 		fontSize: 12,
 		left: 15,
 		opacity: 0.2
+	},
+	// For an invitation sent without a name, the address is all that says who it is: it stays readable, in the main
+	// text color (the muted one falls under 4.5:1 against the card in both themes)
+	email: {
+		opacity: 1
 	},
 	otherText: {
 		color: '#282048',

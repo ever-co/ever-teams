@@ -2,14 +2,19 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, { FC, useState } from 'react';
 import { TouchableOpacity, View, Text, StyleSheet, ViewStyle, TextStyle } from 'react-native';
-import { AntDesign, Feather } from '@expo/vector-icons';
+import { ChevronDown } from '../../src/components/icons';
+import { EmptyStatus } from './task-status-empty';
 import { ITeamTask } from '../services/interfaces/ITask';
 import { observer } from 'mobx-react-lite';
 import { useTeamTasks } from '../services/hooks/features/use-team-tasks';
 import TaskStatusPopup from './task-status-popup';
-import { typography, useAppTheme } from '../theme';
+import { PropertyTriggerButton } from './property-trigger';
 import { translate } from '../i18n';
-import { useTaskStatusValue } from './status-type';
+import { typography, useAppTheme, useWebTheme } from '../theme';
+import { taskChipLookOf } from '../../src/components/task-chip';
+import { ChipIcon } from '../../src/components/chip-icon';
+import { useMenuAnchor } from '../../src/components/menu-anchor';
+import { TStatus, useTaskStatusValue } from './status-type';
 import { limitTextCharaters } from '../helpers/sub-text';
 
 interface TaskStatusProps {
@@ -21,22 +26,35 @@ interface TaskStatusProps {
 	status?: string;
 	setStatus?: (status: string) => unknown;
 	canCreateStatus?: boolean;
+	/** On the task page: the web's pill, or its chip when the value has a color, as wide as its content. */
+	forDetails?: boolean;
+}
+
+/** The status the task holds, or the one picked for a new task, as the icon map knows it. */
+function statusItemOf(
+	allStatuses: TStatus<string> | undefined,
+	task: ITeamTask | undefined,
+	status: string | undefined
+) {
+	const statusValue = (task?.status || status)?.split('-').join(' ').toLowerCase();
+	if (!allStatuses || !statusValue) {
+		return undefined;
+	}
+	return Object.values(allStatuses).find((item) => item?.name?.toLowerCase() === statusValue);
 }
 
 const TaskStatus: FC<TaskStatusProps> = observer(
-	({ task, containerStyle, status, setStatus, iconsOnly, labelOnly, canCreateStatus }) => {
-		const { colors, dark } = useAppTheme();
+	({ task, containerStyle, status, setStatus, iconsOnly, labelOnly, canCreateStatus, forDetails }) => {
+		const { colors } = useAppTheme();
+		const theme = useWebTheme();
 		const { updateTask } = useTeamTasks();
 		const [openModal, setOpenModal] = useState(false);
+		const { anchorRef, anchor, openFromAnchor } = useMenuAnchor();
 
 		const allStatuses = useTaskStatusValue();
 
-		const statusValue = (
-			task?.status?.split('-').join(' ') ||
-			(status && status.split('-').join(' '))
-		)?.toLowerCase();
-		const statusItem =
-			allStatuses && Object.values(allStatuses).find((item) => item?.name.toLowerCase() === statusValue);
+		const statusItem = statusItemOf(allStatuses, task, status);
+		const look = taskChipLookOf(statusItem?.bgColor, theme);
 
 		const onChangeStatus = async (text: string) => {
 			if (task) {
@@ -51,36 +69,55 @@ const TaskStatus: FC<TaskStatusProps> = observer(
 			}
 		};
 
+		const popup = (
+			<TaskStatusPopup
+				statusName={task ? task?.status : status}
+				visible={openModal}
+				setSelectedStatus={(e) => onChangeStatus(e)}
+				onDismiss={() => setOpenModal(false)}
+				anchor={anchor}
+				canCreateStatus={canCreateStatus}
+			/>
+		);
+
+		if (forDetails) {
+			return (
+				<>
+					{popup}
+					<PropertyTriggerButton
+						anchorRef={anchorRef}
+						expanded={openModal}
+						onPress={() => openFromAnchor(() => setOpenModal(true))}
+						kind="status"
+						placeholder={translate('taskMenus.fields.status')}
+						item={statusItem}
+					/>
+				</>
+			);
+		}
+
 		return (
 			<>
-				<TaskStatusPopup
-					statusName={task ? task?.status : status}
-					visible={openModal}
-					setSelectedStatus={(e) => onChangeStatus(e)}
-					onDismiss={() => setOpenModal(false)}
-					canCreateStatus={canCreateStatus}
-				/>
-				<TouchableOpacity onPress={() => setOpenModal(true)}>
+				{popup}
+				<TouchableOpacity onPress={() => openFromAnchor(() => setOpenModal(true))}>
 					<View
+						ref={anchorRef}
+						collapsable={false}
 						style={[
-							{
-								...styles.container,
-								borderWidth: iconsOnly ? 0 : 1,
-								...containerStyle,
-								backgroundColor: !dark ? '#F2F2F2' : colors.background,
-								borderColor: colors.border
-							},
-							statusItem ? { backgroundColor: statusItem?.bgColor } : null
+							{ ...styles.container, ...containerStyle },
+							look.container,
+							iconsOnly && styles.iconsOnly
 						]}
 					>
 						{statusItem ? (
 							<View style={[styles.wrapStatus, { width: iconsOnly ? '50%' : '70%' }]}>
-								{!labelOnly && statusItem.icon}
+								{!labelOnly && <ChipIcon item={statusItem} color={look.ink} kind="status" />}
 								{iconsOnly ? null : (
 									<Text
 										numberOfLines={1}
 										style={{
 											...styles.text,
+											color: look.ink,
 											marginLeft: labelOnly ? 0 : 11,
 											fontSize: labelOnly ? 8 : 10
 										}}
@@ -93,19 +130,14 @@ const TaskStatus: FC<TaskStatusProps> = observer(
 								)}
 							</View>
 						) : (
-							<Text style={{ ...styles.text, color: colors.primary }}>
-								{iconsOnly ? (
-									<Feather name="circle" size={14} color={colors.divider} />
-								) : (
-									translate('settingScreen.statusScreen.statuses')
-								)}
-							</Text>
+							<EmptyStatus
+								iconsOnly={Boolean(iconsOnly)}
+								labelOnly={Boolean(labelOnly)}
+								ink={look.ink}
+								faintInk={colors.divider}
+							/>
 						)}
-						<AntDesign
-							name="down"
-							size={labelOnly ? 8 : 14}
-							color={task?.status || status ? '#000000' : colors.primary}
-						/>
+						<ChevronDown size={labelOnly ? 8 : 14} color={look.ink} />
 					</View>
 				</TouchableOpacity>
 			</>
@@ -116,11 +148,14 @@ const TaskStatus: FC<TaskStatusProps> = observer(
 const styles = StyleSheet.create({
 	container: {
 		alignItems: 'center',
-		borderRadius: 10,
+		borderRadius: 8,
 		flexDirection: 'row',
 		justifyContent: 'space-between',
 		minHeight: 30,
 		paddingHorizontal: 8
+	},
+	iconsOnly: {
+		borderWidth: 0
 	},
 	text: {
 		fontFamily: typography.fonts.PlusJakartaSans.semiBold,

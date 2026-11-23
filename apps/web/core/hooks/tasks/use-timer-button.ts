@@ -1,5 +1,5 @@
 // core/hooks/task-card/useTimerButton.ts
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useStartStopTimerHandler } from '@/core/hooks/activities/use-start-stop-timer-handler';
 import { useSetActiveTask } from '@/core/hooks/organizations/teams/use-team-tasks-state';
 import { useTimerActions } from '@/core/hooks/timer';
@@ -24,7 +24,7 @@ export function useTimerButtonLogic({ task }: { task: TTask }) {
 	// while a timer runs, plus a wasted time-format computation each time. None of the five values below
 	// come from Layer 3; they are all Layer 1 (useTimerApi). useTimerActions is the codebase's own
 	// Layers-1+2 hook for exactly this case (its docblock: "No 50ms ticking interval").
-	const { canTrack, canRunTimer, startTimer, stopTimer, hasPlan } = useTimerActions();
+	const { canTrack, canRunTimer, startTimer, stopTimer, hasPlan, getTimerStatus } = useTimerActions();
 	const disabled = !canRunTimer;
 	const { setActiveTask } = useSetActiveTask();
 	const t = useTranslations();
@@ -44,15 +44,23 @@ export function useTimerButtonLogic({ task }: { task: TTask }) {
 	const isPlanRequired = Boolean(requirePlan);
 	const canTrackThisTask = canTrackTask(canTrack, isPlanRequired, hasPlan, task.id);
 
-	const startTimerWithTask = useCallback(async () => {
-		if (task.status === 'closed') {
+	// A closed task does not start: checked at the click, and again when a start that waited for the timer read goes
+	const warnWhenTaskClosed = useCallback(() => {
+		const isClosed = task.status === 'closed';
+		if (isClosed) {
 			toast.warning(t('timer.TASK_CLOSED'), {
 				id: 'timer-task-closed',
 				description: t('toasts.timer.TASK_CLOSED_HINT')
 			});
+		}
+		return isClosed;
+	}, [task.status, t]);
+
+	// The card's switch: the run this tab shows is stopped first, then the task starts
+	const stopThenStart = useCallback(async () => {
+		if (warnWhenTaskClosed()) {
 			return;
 		}
-
 		if (timerStatus?.running) {
 			setLoading(true);
 			try {
@@ -105,7 +113,67 @@ export function useTimerButtonLogic({ task }: { task: TTask }) {
 			toast.dismiss(toastId);
 			console.error('Failed to start timer:', error);
 		}
-	}, [task, timerStatus?.running, setActiveTask, startTimer, handleStop, t]);
+	}, [task, timerStatus?.running, setActiveTask, startTimer, handleStop, t, warnWhenTaskClosed]);
+
+	// Set while a start waits for this tab's first read of the timer: settles that start once the switch has run
+	const queuedStartDone = useRef<(() => void) | null>(null);
+	const isStatusRead = timerStatus !== null;
+
+	useEffect(() => {
+		const done = queuedStartDone.current;
+		if (!done || !isStatusRead) {
+			return;
+		}
+		queuedStartDone.current = null;
+		setLoading(false);
+		void stopThenStart().finally(done);
+	}, [isStatusRead, stopThenStart]);
+
+	// A start still waiting for that read when this Start goes away (its page left, or a newer Continue took its place)
+	// is given up: nothing starts, and its caller settles, so Continue drops the notes it handed instead of leaving
+	// them to a later start of the task
+	useEffect(
+		() => () => {
+			const done = queuedStartDone.current;
+			queuedStartDone.current = null;
+			done?.();
+		},
+		[]
+	);
+
+	const startTimerWithTask = useCallback(async () => {
+		if (warnWhenTaskClosed()) {
+			return;
+		}
+		if (isStatusRead) {
+			await stopThenStart();
+			return;
+		}
+
+		// The page has not read the timer yet: a run it does not show would not be stopped first, the start would take
+		// it for another device's and be refused, and the task change would then stop it, leaving nothing running
+		// (#5684). The start goes once the timer is read, and settles when it has: a caller may wait for it (Continue
+		// keeps the entry's notes until then).
+		const switched = new Promise<void>((resolve) => {
+			queuedStartDone.current = resolve;
+		});
+		setLoading(true);
+		// The read, unless the start settles first: this Start went away, or another read of the timer let it switch
+		const read = await Promise.race([
+			Promise.resolve(getTimerStatus()).catch(() => undefined),
+			switched.then(() => undefined)
+		]);
+		// No status came back: the start goes as before, and its own checks read the timer
+		const hasNoStatus = !read?.data;
+		const isStillQueued = queuedStartDone.current !== null;
+		if (isStillQueued && hasNoStatus) {
+			queuedStartDone.current = null;
+			setLoading(false);
+			await stopThenStart();
+			return;
+		}
+		await switched;
+	}, [warnWhenTaskClosed, isStatusRead, stopThenStart, getTimerStatus]);
 
 	const { modals, startStopTimerHandler } = useStartStopTimerHandler({ startTimer, stopTimer });
 

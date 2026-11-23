@@ -1,11 +1,18 @@
 {
 	"name": "@ever-teams/toolkit-ui",
-	"version": "0.2.6",
+	"version": "0.3.0",
 	"sideEffects": false,
 	"exports": {
 		".": {
-			"types": "./dist/index.d.ts",
-			"import": "./dist/index.es.js"
+			"import": {
+				"types": "./dist/index.d.ts",
+				"default": "./dist/index.es.js"
+			},
+			"require": {
+				"types": "./dist/cjs/index.d.ts",
+				"default": "./dist/cjs/index.cjs"
+			},
+			"default": "./dist/index.es.js"
 		}
 	},
 	"license": "MIT",
@@ -22,12 +29,8 @@
 		"react-dom": ">=18.0.0",
 		"theme-ui": ">=0.16.2"
 	},
-	"optionalDependencies": {
-		"@emotion/react": "^11.13.5",
-		"theme-ui": "^0.16.2"
-	},
 	"dependencies": {
-		"@ever-teams/toolkit-types": "*"
+		"@ever-teams/toolkit-types": "^0.2.0"
 	},
 	"devDependencies": {
 		"@ever-teams/eslint-config": "*",
@@ -80,9 +83,11 @@
 		"typescript": "^5.6.3",
 		"cmdk": "^1.1.1",
 		"embla-carousel-react": "^8.6.0",
-		"@radix-ui/react-menubar": "^1.1.12"
+		"@radix-ui/react-menubar": "^1.1.12",
+		"@emotion/react": "^11.13.5",
+		"theme-ui": "^0.16.2"
 	},
-	"main": "dist/index.es.js",
+	"main": "dist/cjs/index.cjs",
 	"module": "dist/index.es.js",
 	"types": "dist/index.d.ts",
 	"type": "module",

@@ -1,12 +1,28 @@
 'use client';
 import { IAuthLogin, IServerError } from '@ever-teams/toolkit-types';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
-import { authLogin } from '@ever-teams/api';
-import { getErrorMessage, reportError, toast } from '@ever-teams/toolkit-ui';
+import { authSignInWorkspace, authWithEmailPassword } from '@ever-teams/api';
+import { reportError, toast } from '@ever-teams/toolkit-ui';
 import { useTranslation } from 'react-i18next';
 import { useAccessToken } from './useAccessToken';
 import { useTeamsContext } from '../context/teams-context';
+import { kindOfFailedRequest, kindOfSignInFailure, SIGN_IN_ERROR_MESSAGE_KEYS } from '@lib/errors/kit-error';
+import { errorMessageOf } from '@lib/context/teams-timer-status-context';
+import { useKitOptions } from '@components/teams-provider/kit-options';
+import { apiUrlOf } from '@lib/utils/api-url';
+import { twoFactorChallengeOf } from '@lib/errors/two-factor';
+import { useTwoFactorStep, type TwoFactorStep } from './useTwoFactorStep';
+import { workspaceChoicesOf, type WorkspaceChoice } from '@lib/session/workspace-choices';
+
+/** The workspace step, while an email and password that open several workspaces wait for the person's pick. */
+export interface WorkspaceStep {
+	choices: WorkspaceChoice[];
+	// The token of the workspace being signed in to; null while the person has not picked one.
+	choosing: string | null;
+	error?: string;
+	choose: (choice: WorkspaceChoice) => Promise<void>;
+}
 
 interface UsePasswordLoginFormReturn {
 	formData: {
@@ -17,6 +33,12 @@ interface UsePasswordLoginFormReturn {
 	error?: string;
 	handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 	handleSubmit: (e: React.FormEvent<HTMLFormElement>) => Promise<void>;
+	/** The code step, while the API waits for a two-factor code of this sign-in; null otherwise. */
+	twoFactor: TwoFactorStep | null;
+	/** The workspace step, when the email and password open several workspaces; null otherwise. */
+	workspaces: WorkspaceStep | null;
+	/** Leaves the code or workspace step for the email and password, which the form kept. */
+	backToPassword: () => void;
 }
 
 interface UsePasswordLoginFormParams {
@@ -30,9 +52,98 @@ export const usePasswordLoginForm = ({ redirectHandler }: UsePasswordLoginFormPa
 	const { t } = useTranslation();
 	const { setAccessToken } = useAccessToken();
 	const { setToken, setAuthenticatedUser: setUser } = useTeamsContext();
+	const { api } = useKitOptions();
+	// Counts the edits: a failure that comes back after an edit is not shown, since the edit cleared the error.
+	const edits = useRef(0);
+	// Counts the picks of a workspace and the returns to the password: an answer that comes back after one of them is
+	// for a step the person left, and signs nobody in.
+	const workspaceAttempts = useRef(0);
+
+	const completeSignIn = (session: IAuthLogin) => {
+		setToken(session.token);
+		setAccessToken(session.token);
+		setUser(() => ({ data: session.user, loading: false }));
+		redirectHandler && redirectHandler();
+	};
+	const twoFactor = useTwoFactorStep({ api, onSignedIn: completeSignIn });
+	const [choices, setChoices] = useState<WorkspaceChoice[] | null>(null);
+	const [choosing, setChoosing] = useState<string | null>(null);
+	const [workspaceError, setWorkspaceError] = useState<string | undefined>(undefined);
+
+	// What the form says of a refused sign-in. No answer (the API package returns it with no status), the site not
+	// allowed, a missing permission or the API down: the kit's own words, inside the form and with no toast on the host
+	// page. A wrong email or password: the kit's words too. Anything else: the API's text, also in a toast.
+	const reportFailure = async (answer: IServerError, showError: (message: string) => void) => {
+		const kind = await kindOfSignInFailure(answer, apiUrlOf(api));
+		if (kind) {
+			showError(t(SIGN_IN_ERROR_MESSAGE_KEYS[kind]));
+			return;
+		}
+		if ('statusCode' in answer && answer.statusCode === 401) {
+			showError(t('ERROR.invalid_password_or_email'));
+			reportError(t('ERROR.invalid_password_or_email'));
+			return;
+		}
+		const errorMessage = errorMessageOf(answer);
+		showError(errorMessage);
+		toast({
+			variant: 'destructive',
+			description: errorMessage
+		});
+	};
+
+	// Signs in to one workspace of the list: the session, the code step of an account with two-factor sign-in on
+	// (ever-co/ever-teams#5701), or the refusal in the form's words.
+	const signInToWorkspace = async (
+		choice: WorkspaceChoice,
+		showError: (message: string) => void,
+		isStillWanted: () => boolean
+	) => {
+		const answer = await authSignInWorkspace({ email: formData.email, token: choice.token }, api);
+		if (!isStillWanted()) {
+			return;
+		}
+		if ('token' in answer) {
+			setChoices(null);
+			completeSignIn(answer);
+			return;
+		}
+		const challenge = twoFactorChallengeOf(answer);
+		if (challenge) {
+			twoFactor.open(challenge);
+			return;
+		}
+		const showErrorIfWanted = (message: string) => {
+			if (isStillWanted()) {
+				showError(message);
+			}
+		};
+		await reportFailure(answer, showErrorIfWanted);
+	};
+
+	const chooseWorkspace = async (choice: WorkspaceChoice) => {
+		workspaceAttempts.current += 1;
+		const attempt = workspaceAttempts.current;
+		const isStillWanted = () => workspaceAttempts.current === attempt;
+		setChoosing(choice.token);
+		setWorkspaceError(undefined);
+		await signInToWorkspace(choice, setWorkspaceError, isStillWanted);
+		if (isStillWanted()) {
+			setChoosing(null);
+		}
+	};
+
+	const backToPassword = () => {
+		workspaceAttempts.current += 1;
+		twoFactor.close();
+		setChoices(null);
+		setChoosing(null);
+		setWorkspaceError(undefined);
+	};
 
 	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const { name, value } = e.target;
+		edits.current += 1;
 		if (error) setError(undefined);
 		setFormData((prev) => ({ ...prev, [name]: value }));
 	};
@@ -41,48 +152,48 @@ export const usePasswordLoginForm = ({ redirectHandler }: UsePasswordLoginFormPa
 		e.preventDefault();
 		setLoading(true);
 		setError(undefined);
+		const editsAtSubmit = edits.current;
+		const showError = (message: string) => {
+			if (edits.current === editsAtSubmit) {
+				setError(message);
+			}
+		};
 
 		try {
+			// The workspaces the email and password open, as the web app's sign-in lists them: one signs in at once,
+			// several wait for the person's pick (ever-co/ever-teams#5700).
 			const { email, password } = formData;
-			const authResponse: IAuthLogin | IServerError = await authLogin({ email, password });
-
-			if ('message' in authResponse || 'error' in authResponse) {
-				const isServerError = 'statusCode' in authResponse;
-
-				if (isServerError && authResponse.statusCode === 401) {
-					setError(t('ERROR.invalid_password_or_email'));
-					reportError(t('ERROR.invalid_password_or_email'));
-					setLoading(false);
-					return;
-				}
-				const errorMessage =
-					'message' in authResponse
-						? Array.isArray(authResponse.message)
-							? authResponse.message.join(', ')
-							: authResponse.message
-						: String(authResponse.error);
-
-				setError(errorMessage);
-				toast({
-					variant: 'destructive',
-					description: errorMessage
-				});
-				setLoading(false);
+			const listed = await authWithEmailPassword({ email, password, includeTeams: false }, api);
+			const isList = 'workspaces' in listed;
+			if (!isList) {
+				await reportFailure(listed, showError);
 				return;
 			}
-
-			// Set both token and user data from authResponse
-			setToken(authResponse.token);
-			setAccessToken(authResponse.token);
-			setUser(() => ({ data: authResponse.user, loading: false }));
-
-			redirectHandler && redirectHandler();
-		} catch (error) {
-			reportError(getErrorMessage(error));
-			setError(getErrorMessage(error));
+			const found = workspaceChoicesOf(listed);
+			if (found.length === 0) {
+				showError(t('ERROR.invalid_password_or_email'));
+				return;
+			}
+			if (found.length === 1) {
+				const isOnlyWorkspace = () => true;
+				await signInToWorkspace(found[0], showError, isOnlyWorkspace);
+				return;
+			}
+			setChoices(found);
+		} catch {
+			// No answer: say whether this site is not allowed or Ever Teams is unreachable, inside the form.
+			const kind = await kindOfFailedRequest(apiUrlOf(api));
+			showError(t(SIGN_IN_ERROR_MESSAGE_KEYS[kind]));
 		} finally {
 			setLoading(false);
 		}
+	};
+
+	const workspaceStepOf = (): WorkspaceStep | null => {
+		if (!choices) {
+			return null;
+		}
+		return { choices, choosing, error: workspaceError, choose: chooseWorkspace };
 	};
 
 	return {
@@ -90,7 +201,10 @@ export const usePasswordLoginForm = ({ redirectHandler }: UsePasswordLoginFormPa
 		loading,
 		error,
 		handleInputChange,
-		handleSubmit
+		handleSubmit,
+		twoFactor: twoFactor.step,
+		workspaces: workspaceStepOf(),
+		backToPassword
 	};
 };
 

@@ -43,6 +43,7 @@ export function navigateAfterSignIn({ replace = false }: { replace?: boolean } =
 		window.location.replace('/');
 		return;
 	}
+	// eslint-disable-next-line @next/next/no-location-assign-relative-destination -- a full page load, see above
 	window.location.assign('/');
 }
 
@@ -56,13 +57,22 @@ const PATH_AFTER_SIGN_IN_KEY = 'ever-teams:path-after-sign-in';
 export const PATH_AFTER_SIGN_IN_TTL_MS = 5 * 60 * 1000;
 
 /**
- * Sets (or, with null, clears) the page the next sign-in of this tab opens instead of the home page: the workspace
- * list's "Create a new workspace" signs in to the chosen workspace, then opens the creation page (#5025).
+ * How long the consent page of a sign-in from a site waits for it: in that window the person may first fetch a code
+ * from their e-mail or reset a password, and a later sign-in of that window is meant for that page (#5598).
  */
-export function setPathAfterSignIn(path: string | null): void {
+export const PATH_AFTER_SLOW_SIGN_IN_TTL_MS = 30 * 60 * 1000;
+
+/**
+ * Sets (or, with null, clears) the page the next sign-in of this tab opens instead of the home page: the workspace
+ * list's "Create a new workspace" signs in to the chosen workspace, then opens the creation page (#5025). `setBy`
+ * names the flow that set it, for one that may have to take back its own page later
+ * ({@link clearPathAfterSignInSetBy}).
+ */
+export function setPathAfterSignIn(path: string | null, setBy?: string): void {
 	try {
 		if (path) {
-			window.sessionStorage.setItem(PATH_AFTER_SIGN_IN_KEY, JSON.stringify({ path, setAt: Date.now() }));
+			const entry = { path, setAt: Date.now(), ...(setBy ? { setBy } : {}) };
+			window.sessionStorage.setItem(PATH_AFTER_SIGN_IN_KEY, JSON.stringify(entry));
 		} else {
 			window.sessionStorage.removeItem(PATH_AFTER_SIGN_IN_KEY);
 		}
@@ -71,19 +81,83 @@ export function setPathAfterSignIn(path: string | null): void {
 	}
 }
 
+/**
+ * Sets the page the next sign-in of this tab opens, for a sign-in that may take longer than a few minutes: it waits
+ * {@link PATH_AFTER_SLOW_SIGN_IN_TTL_MS}. Every other page set for a sign-in keeps its few minutes.
+ */
+export function setPathAfterSlowSignIn(path: string): void {
+	try {
+		const entry = { path, setAt: Date.now(), waitMs: PATH_AFTER_SLOW_SIGN_IN_TTL_MS };
+		window.sessionStorage.setItem(PATH_AFTER_SIGN_IN_KEY, JSON.stringify(entry));
+	} catch {
+		// No storage (a private window): the sign-in opens the home page
+	}
+}
+
+// How long an entry waits: its own wait when it names one, never more than a slow sign-in's.
+function waitOf(waitMs: unknown): number {
+	if (typeof waitMs !== 'number') {
+		return PATH_AFTER_SIGN_IN_TTL_MS;
+	}
+	return Math.min(waitMs, PATH_AFTER_SLOW_SIGN_IN_TTL_MS);
+}
+
+/**
+ * Clears the page set for this sign-in only when it is `path`: the workspace list drops its own "Create a new
+ * workspace" and keeps a page another page set before the sign-in (the site sign-in's consent page, #5528).
+ */
+export function clearPathAfterSignInIf(path: string): void {
+	try {
+		const stored = window.sessionStorage.getItem(PATH_AFTER_SIGN_IN_KEY);
+		if (!stored) {
+			return;
+		}
+		const entry = JSON.parse(stored) as { path?: unknown };
+		if (entry.path === path) {
+			window.sessionStorage.removeItem(PATH_AFTER_SIGN_IN_KEY);
+		}
+	} catch {
+		// No storage, or an entry that cannot be read: the end of the sign-in drops it (takePathAfterSignIn)
+	}
+}
+
+/**
+ * Clears the page set for this sign-in only when the flow `setBy` set it: an Ever ID start link that names no page
+ * takes back the page an earlier, abandoned one set, never a page another flow set since (even the same page).
+ */
+export function clearPathAfterSignInSetBy(setBy: string): void {
+	try {
+		const stored = window.sessionStorage.getItem(PATH_AFTER_SIGN_IN_KEY);
+		if (!stored) {
+			return;
+		}
+		const entry = JSON.parse(stored) as { setBy?: unknown };
+		if (entry.setBy === setBy) {
+			window.sessionStorage.removeItem(PATH_AFTER_SIGN_IN_KEY);
+		}
+	} catch {
+		// No storage, or an entry that cannot be read: the end of the sign-in drops it (takePathAfterSignIn)
+	}
+}
+
 /** The page set for this sign-in, read once; null (the home page) unless it is a page of this app, set lately. */
 function takePathAfterSignIn(): string | null {
 	try {
 		const stored = window.sessionStorage.getItem(PATH_AFTER_SIGN_IN_KEY);
 		window.sessionStorage.removeItem(PATH_AFTER_SIGN_IN_KEY);
-		const { path, setAt } = (stored ? JSON.parse(stored) : {}) as { path?: unknown; setAt?: unknown };
-		const isRecent = typeof setAt === 'number' && Date.now() - setAt <= PATH_AFTER_SIGN_IN_TTL_MS;
+		const { path, setAt, waitMs } = (stored ? JSON.parse(stored) : {}) as {
+			path?: unknown;
+			setAt?: unknown;
+			waitMs?: unknown;
+		};
+		const isRecent = typeof setAt === 'number' && Date.now() - setAt <= waitOf(waitMs);
 		if (!isRecent || typeof path !== 'string' || !path.startsWith('/')) {
 			return null;
 		}
-		// Resolved against this origin: "//host" or "/\\host" would lead to another site
+		// Resolved against this origin: "//host" or "/\\host" would lead to another site. The fragment stays: the page
+		// set for the sign-in can name a part of itself (a link's `#section`)
 		const url = new URL(path, window.location.origin);
-		return url.origin === window.location.origin ? `${url.pathname}${url.search}` : null;
+		return url.origin === window.location.origin ? `${url.pathname}${url.search}${url.hash}` : null;
 	} catch {
 		return null;
 	}

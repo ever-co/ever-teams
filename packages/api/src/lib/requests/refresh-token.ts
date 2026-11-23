@@ -1,5 +1,6 @@
 import { IServerError } from '@ever-teams/toolkit-types';
 import { ApiCall } from '../fetch';
+import { IApiRequestConfig } from '../config/api-config';
 
 interface TokenResponse {
 	token: string;
@@ -17,20 +18,26 @@ interface TokenResponse {
  * @throws {Error} If refresh_token is not provided
  *
  */
-export async function refreshToken({
-	refresh_token
-}: {
-	refresh_token: string;
-}): Promise<TokenResponse | IServerError> {
+export async function refreshToken(
+	{
+		refresh_token
+	}: {
+		refresh_token: string;
+	},
+	api?: IApiRequestConfig
+): Promise<TokenResponse | IServerError> {
 	try {
 		if (!refresh_token) {
 			throw new Error('Refresh token is required');
 		}
-		const newTokens = await ApiCall<TokenResponse>({
-			path: '/auth/refresh-token',
-			method: 'POST',
-			body: { refresh_token }
-		});
+		const newTokens = await ApiCall<TokenResponse>(
+			{
+				path: '/auth/refresh-token',
+				method: 'POST',
+				body: { refresh_token }
+			},
+			api
+		);
 
 		if ('error' in newTokens || 'message' in newTokens) {
 			return newTokens as IServerError;

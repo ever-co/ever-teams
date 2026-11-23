@@ -1,8 +1,7 @@
-/* eslint-disable react-native/no-inline-styles */
-/* eslint-disable react-native/no-color-literals */
 import React, { FC, useEffect, useState } from 'react';
-import { View, StyleSheet, Text, Dimensions, PixelRatio, Platform } from 'react-native';
-import { colors, typography, useAppTheme } from '../theme';
+import { View, StyleSheet, Text, Platform } from 'react-native';
+import { typography, useWebTheme } from '../theme';
+import { AUTH_CODE_SLOT_SIZE, authCodeSlotLookOf } from '../../src/theme/auth-look';
 import { EMAILED_CODE_LENGTH, normalizeEmailedCode } from '../helpers/emailed-code';
 import { CodeField, Cursor, useBlurOnFulfill, useClearByFocusCell } from 'react-native-confirmation-code-field';
 
@@ -13,12 +12,12 @@ interface ICodeField {
 	defaultValue?: string;
 }
 
-const { height: screeHeight } = Dimensions.get('screen');
-const screenDimension = PixelRatio.get();
+// iOS centers one line only through its line height: the slot's height inside its two border lines
+const SLOT_LINE_HEIGHT = Platform.select({ ios: AUTH_CODE_SLOT_SIZE - 2, default: undefined });
 
 export const CodeInputField: FC<ICodeField> = (props) => {
 	const { onChange, editable, length = EMAILED_CODE_LENGTH } = props;
-	const { colors } = useAppTheme();
+	const theme = useWebTheme();
 
 	const [value, setValue] = useState<string>('');
 
@@ -45,6 +44,7 @@ export const CodeInputField: FC<ICodeField> = (props) => {
 			maxLength={undefined}
 			onChangeText={(text: string) => setValue(normalizeEmailedCode(text, length))}
 			cellCount={length}
+			testID="emailed-code-input"
 			autoFocus
 			textInputStyle={styles.hiddenInput}
 			rootStyle={styles.container}
@@ -53,19 +53,11 @@ export const CodeInputField: FC<ICodeField> = (props) => {
 			renderCell={({ index, symbol, isFocused }) => (
 				<View key={index} style={styles.inputContainer}>
 					<Text
+						testID={`emailed-code-slot-${index}`}
 						style={[
 							styles.inputStyle,
-							{
-								borderColor: isFocused ? colors.primary : colors.border,
-								backgroundColor: colors.background,
-								color: colors.primary,
-								textAlignVertical: 'center',
-								flexDirection: 'column',
-								justifyContent: 'center',
-								alignItems: 'center',
-								lineHeight:
-									Platform.OS === 'ios' ? screeHeight * 0.055 * (screenDimension / 3) : undefined
-							}
+							authCodeSlotLookOf(isFocused, theme),
+							{ lineHeight: SLOT_LINE_HEIGHT }
 						]}
 						onLayout={getCellOnLayoutHandler(index)}
 					>
@@ -89,26 +81,19 @@ const styles = StyleSheet.create({
 	},
 	container: {
 		flexDirection: 'row',
-		justifyContent: 'center',
+		gap: 6,
+		justifyContent: 'space-between',
 		width: '100%'
 	},
 	inputContainer: {
-		backgroundColor: '#fff',
-		borderRadius: 10,
 		flex: 1,
-		marginHorizontal: 3,
-		maxWidth: 48
+		maxWidth: AUTH_CODE_SLOT_SIZE
 	},
 	inputStyle: {
-		backgroundColor: '#fff',
-		borderColor: 'rgba(0, 0, 0, 0.1)',
-		borderRadius: 10,
-		borderWidth: 1,
-		color: colors.primary,
-		fontFamily: typography.primary.semiBold,
+		fontFamily: typography.primary.medium,
 		fontSize: 16,
-		height: 53,
 		textAlign: 'center',
+		textAlignVertical: 'center',
 		width: '100%'
 	}
 });

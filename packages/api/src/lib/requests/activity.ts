@@ -1,6 +1,7 @@
 import { IActivitiesStats, IServerError, IUser } from '@ever-teams/toolkit-types';
 import QueryString from 'qs';
 import { ApiCall } from '../fetch';
+import { IApiRequestConfig } from '../config/api-config';
 
 interface IGetActivitiesStatsParams {
 	user: IUser | null;
@@ -36,29 +37,17 @@ interface IGetActivitiesStatsParams {
  *
  * @throws Will return an IServerError if an exception occurs during execution
  */
-export async function getActivitiesStats({
-	user,
-	token,
-	selectedEmployee,
-	selectedTeam,
-	organizationId,
-	dates,
-	dayDates
-}: IGetActivitiesStatsParams): Promise<IServerError | IActivitiesStats> {
+export async function getActivitiesStats(
+	{ user, token, selectedEmployee, selectedTeam, organizationId, dates, dayDates }: IGetActivitiesStatsParams,
+	api?: IApiRequestConfig
+): Promise<IServerError | IActivitiesStats> {
 	try {
 		if (!user) return { error: 'User not authenticated' } as IServerError;
 
 		const { tenantId } = user;
 
-		const employeeId = (() => {
-			if (user?.employee) {
-				return user.employee.id;
-			}
-			if (selectedEmployee !== 'all') {
-				return selectedEmployee;
-			}
-			return undefined;
-		})();
+		// The employee picked first, as the kit's other report reads; with 'all', the signed-in person's own (#5631)
+		const employeeId = selectedEmployee !== 'all' ? selectedEmployee : user.employee?.id;
 
 		const query = QueryString.stringify(
 			{
@@ -75,12 +64,15 @@ export async function getActivitiesStats({
 			{ skipNulls: true }
 		);
 
-		const activitiesStats = await ApiCall<IActivitiesStats>({
-			path: `/timesheet/statistics/activities?${query}`,
-			method: 'GET',
-			bearer_token: token,
-			tenantId
-		});
+		const activitiesStats = await ApiCall<IActivitiesStats>(
+			{
+				path: `/timesheet/statistics/activities?${query}`,
+				method: 'GET',
+				bearer_token: token,
+				tenantId
+			},
+			api
+		);
 
 		if ('data' in activitiesStats) {
 			return activitiesStats.data;

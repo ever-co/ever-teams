@@ -2,7 +2,8 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, { FC, useState } from 'react';
 import { TouchableOpacity, View, Text, StyleSheet, ViewStyle } from 'react-native';
-import { AntDesign, Entypo } from '@expo/vector-icons';
+import { ChevronDown } from '../../src/components/icons';
+import { TaskPropertyPlaceholderIcon } from '../../src/components/task-property-icon';
 import { observer } from 'mobx-react-lite';
 import { ITeamTask } from '../services/interfaces/ITask';
 import { useTeamTasks } from '../services/hooks/features/use-team-tasks';
@@ -11,6 +12,8 @@ import { translate } from '../i18n';
 import { useTaskVersionValue } from './status-type';
 import { limitTextCharaters } from '../helpers/sub-text';
 import TaskVersionPopup from './task-version-popup';
+import { PropertyTriggerButton } from './property-trigger';
+import { useMenuAnchor } from '../../src/components/menu-anchor';
 
 interface TaskVersionProps {
 	task?: ITeamTask;
@@ -18,13 +21,16 @@ interface TaskVersionProps {
 	version?: string;
 	setVersion?: (priority: string) => unknown;
 	canCreateVersion?: boolean;
+	/** On the task page: the web's pill, or its chip when the value has a color, as wide as its content. */
+	forDetails?: boolean;
 }
 
 const TaskVersion: FC<TaskVersionProps> = observer(
-	({ task, containerStyle, version, setVersion, canCreateVersion }) => {
+	({ task, containerStyle, version, setVersion, canCreateVersion, forDetails }) => {
 		const { colors } = useAppTheme();
 		const { updateTask } = useTeamTasks();
 		const [openModal, setOpenModal] = useState(false);
+		const { anchorRef, anchor, openFromAnchor } = useMenuAnchor();
 
 		const allTaskVersions = useTaskVersionValue();
 
@@ -46,17 +52,40 @@ const TaskVersion: FC<TaskVersionProps> = observer(
 			}
 		};
 
+		const popup = (
+			<TaskVersionPopup
+				versionName={task ? task?.version : version}
+				visible={openModal}
+				setSelectedVersion={(e) => onChangeVersion(e.value)}
+				onDismiss={() => setOpenModal(false)}
+				canCreateVersion={canCreateVersion}
+				anchor={anchor}
+			/>
+		);
+
+		if (forDetails) {
+			return (
+				<>
+					{popup}
+					<PropertyTriggerButton
+						anchorRef={anchorRef}
+						expanded={openModal}
+						onPress={() => openFromAnchor(() => setOpenModal(true))}
+						kind="version"
+						placeholder={translate('taskMenus.fields.version')}
+						item={currentVersion}
+					/>
+				</>
+			);
+		}
+
 		return (
 			<>
-				<TaskVersionPopup
-					versionName={task ? task?.version : version}
-					visible={openModal}
-					setSelectedVersion={(e) => onChangeVersion(e.value)}
-					onDismiss={() => setOpenModal(false)}
-					canCreateVersion={canCreateVersion}
-				/>
-				<TouchableOpacity onPress={() => setOpenModal(true)}>
+				{popup}
+				<TouchableOpacity onPress={() => openFromAnchor(() => setOpenModal(true))}>
 					<View
+						ref={anchorRef}
+						collapsable={false}
 						style={{
 							...styles.container,
 							...containerStyle,
@@ -82,13 +111,13 @@ const TaskVersion: FC<TaskVersionProps> = observer(
 							</View>
 						) : (
 							<View style={styles.wrapStatus}>
-								<Entypo name="circle" size={12} color={colors.primary} />
+								<TaskPropertyPlaceholderIcon kind="version" size={12} color={colors.primary} />
 								<Text style={{ ...styles.text, color: colors.primary, marginLeft: 5 }}>
 									{translate('taskDetailsScreen.version')}
 								</Text>
 							</View>
 						)}
-						<AntDesign name="down" size={14} color={colors.primary} />
+						<ChevronDown size={14} color={colors.primary} />
 					</View>
 				</TouchableOpacity>
 			</>

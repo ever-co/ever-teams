@@ -15,6 +15,8 @@ jest.mock('@/core/constants/config/constants', () => ({
 // What the app logs is sent to its own log route
 jest.mock('@/core/services/logs/logger-client', () => ({ sendLogToAPI: jest.fn(async () => undefined) }));
 
+import { APPLICATION_LANGUAGES_CODE } from '@/core/constants/config/constants';
+import { clearSessionEndedNotice, storedSessionEndedNotice } from '@/core/lib/auth/session-ended-notice';
 import { getAccessTokenCookie, getRefreshTokenCookie } from '@/core/lib/helpers/cookies';
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
 import { openFakeGauzyPage, type FakeGauzyPage } from '@/test/auth/fake-gauzy-page';
@@ -68,6 +70,22 @@ describe('a request made with an expired access token, while the refresh token i
 		expect(gauzy.acceptsAccessToken(getAccessTokenCookie())).toBe(true);
 		expect(gauzy.acceptsRefreshToken(getRefreshTokenCookie())).toBe(true);
 	});
+
+	it.each(['/team/tasks', '/team/tasks/trash', '/de/team/tasks', '/fr/team/tasks/trash'])(
+		'renews the token on the team task list %s, a page that needs a session',
+		async (pathname) => {
+			page.signIn();
+			gauzy.runTimer();
+			page.wait(25 * HOUR_MS);
+			page.openAt(pathname);
+
+			const status = await timerService.getTimerStatus();
+
+			expect(status.data.running).toBe(true);
+			expect(page.renewals()).toBe(1);
+			expect(page.isSignedOut()).toBe(false);
+		}
+	);
 
 	it('renews the token once for requests refused together, and answers each of them', async () => {
 		page.signIn();
@@ -161,6 +179,30 @@ describe('a session the API no longer renews', () => {
 		expect(page.renewals()).toBe(0);
 		expect(page.sentToSignIn).toHaveBeenCalledTimes(1);
 	});
+
+	it.each(APPLICATION_LANGUAGES_CODE)(
+		'signs the person out on a page in %s when no refresh token is left',
+		async (language) => {
+			page.openAt(`/${language}/settings/personal`);
+
+			const error = await failureOf(timerService.getTimerStatus());
+
+			expect(error.statusCode).toBe(401);
+			expect(page.sentToSignIn).toHaveBeenCalledTimes(1);
+		}
+	);
+
+	it.each(['/team/tasks', '/de/team/tasks/trash'])(
+		'signs the person out on the team task list %s when no refresh token is left',
+		async (pathname) => {
+			page.openAt(pathname);
+
+			const error = await failureOf(timerService.getTimerStatus());
+
+			expect(error.statusCode).toBe(401);
+			expect(page.sentToSignIn).toHaveBeenCalledTimes(1);
+		}
+	);
 });
 
 describe('a route that answers 401 for a reason of its own', () => {
@@ -259,18 +301,36 @@ describe('a request pinned to the token of the scope it was built for', () => {
 });
 
 describe('a 401 on a page that is open without a session', () => {
-	it.each(['/auth/passcode', '/team/11111111-1111-4111-8111-111111111111', '/fr/team/some-team'])(
-		'is the answer on %s: nothing is renewed and nobody is sent elsewhere',
-		async (pathname) => {
-			page.signIn();
-			page.wait(25 * HOUR_MS);
-			page.openAt(pathname);
+	it.each([
+		'/auth/passcode',
+		'/team/11111111-1111-4111-8111-111111111111',
+		'/fr/team/some-team',
+		'/de/team/11111111-1111-4111-8111-111111111111/public-link'
+	])('is the answer on %s: nothing is renewed and nobody is sent elsewhere', async (pathname) => {
+		page.signIn();
+		page.wait(25 * HOUR_MS);
+		page.openAt(pathname);
 
-			const error = await failureOf(timerService.getTimerStatus());
+		const error = await failureOf(timerService.getTimerStatus());
+
+		expect(error.statusCode).toBe(401);
+		expect(page.renewals()).toBe(0);
+		expect(page.isSignedOut()).toBe(false);
+	});
+
+	it.each(APPLICATION_LANGUAGES_CODE)(
+		'is the answer to a wrong code on the sign-in page in %s: the page stays, and nothing says a session ended',
+		async (language) => {
+			// A visitor without a session, whom the API answers 401 for a wrong code
+			clearSessionEndedNotice();
+			page.openAt(`/${language}/auth/passcode`);
+
+			const error = await failureOf(authService.signInEmailConfirm('selma.weber@example.com', '000000'));
 
 			expect(error.statusCode).toBe(401);
 			expect(page.renewals()).toBe(0);
-			expect(page.isSignedOut()).toBe(false);
+			expect(page.sentToSignIn).not.toHaveBeenCalled();
+			expect(storedSessionEndedNotice()).toBeNull();
 		}
 	);
 });

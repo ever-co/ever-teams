@@ -168,7 +168,6 @@ export function TimesheetsSheetView({
 					<TimesheetsSheetFooter
 						selection={selection}
 						pending={{ ...pending, memberName }}
-						canApprove={permissions.canApprove}
 						isApproving={isApproving}
 					/>
 				)}

@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
 import React, { useEffect, useState } from 'react';
-import { AntDesign } from '@expo/vector-icons';
+import { ChevronDown } from '../../../../../src/components/icons';
 import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { useQueryClient } from '@tanstack/react-query';
 import LanguageModal from './language-modal';
@@ -73,7 +73,7 @@ const LanguageForm = ({
 					<Text style={{ ...styles.text, color: colors.primary }}>
 						{limitTextCharaters({ text: userLanguage?.name, numChars: 17 })}
 					</Text>
-					<AntDesign name="down" size={20} color={colors.primary} />
+					<ChevronDown size={20} color={colors.primary} />
 				</TouchableOpacity>
 			</View>
 

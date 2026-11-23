@@ -58,7 +58,7 @@ export async function signIn(params: ISignInDataAPI) {
 			response: {
 				status: 400,
 				errors: {
-					email: 'Your workspace could not be loaded. Please try again.'
+					email: translate('loginScreen.errors.workspaceNotLoaded')
 				}
 			}
 		};
@@ -125,7 +125,7 @@ export async function signIn(params: ISignInDataAPI) {
 			response: {
 				status: 400,
 				errors: {
-					email: 'Your account isn’t fully set up yet'
+					email: translate('loginScreen.errors.notSetUp')
 				}
 			}
 		};

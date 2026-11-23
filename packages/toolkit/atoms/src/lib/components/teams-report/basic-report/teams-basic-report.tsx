@@ -17,6 +17,8 @@ import { TeamsTimerFooter } from '@components/layouts/footers/component-footer';
 import { BarChartHorizontal } from '@components/teams-ui-components/teams-ui-charts/bar-chart/bar-chart-horizontal';
 import { useReport } from '@hooks/useReport';
 import { ChartLoader } from '@components/loaders/chart-loader';
+import { useTimerOnlyToken } from '@hooks/useTimerOnlyToken';
+import { TimerOnlyReportNote } from '@components/teams-ui-components/timer-only-report-note';
 
 export type ChartType = 'bar' | 'bar-horizontal' | 'area' | 'pie' | 'line' | 'radar' | 'radial' | 'tooltip';
 interface ITeamsBasicReportProps extends VariantProps<typeof teamsBasicReportVariants> {
@@ -34,8 +36,8 @@ const teamsBasicReportVariants = cva(
 				bordered: 'border-2 border-secondaryColor'
 			},
 			size: {
-				default: 'w-[700px]',
-				sm: 'w-[600px] text-sm p-4',
+				default: 'w-full max-w-[700px]',
+				sm: 'w-full max-w-[600px] text-sm p-4',
 				lg: 'min-w-[1200px] w-full px-10 max-w-screen'
 			}
 		},
@@ -73,6 +75,10 @@ const TeamsBasicReport = ({
 	const { chartData: data, report, loading: reportLoading, config } = useReport();
 
 	const { t } = useTranslation();
+	const timerOnly = useTimerOnlyToken();
+	if (timerOnly) {
+		return <TimerOnlyReportNote label={t('REPORT.title')} className={className} />;
+	}
 
 	return (
 		<Card
@@ -82,10 +88,10 @@ const TeamsBasicReport = ({
 			{draggable && <div className="handle w-full h-8 absolute top-0 left-0 cursor-grab"></div>}
 
 			<div className=" flex flex-col gap-2 ">
-				<div className=" flex w-full justify-between items-center">
+				<div className="flex flex-wrap w-full justify-between items-center gap-2">
 					<h1 className="text-lg font-medium">{t('REPORT.title')}</h1>
-					<div className=" flex justify-end items-center gap-2 ">
-						<TeamsActiveEmployeeSelector label="Select employee" />
+					<div className="flex justify-end items-center gap-2 min-w-0">
+						<TeamsActiveEmployeeSelector label="Select employee" containerClassName="min-w-0" />
 						<TeamsReportDatesRangePicker />
 					</div>
 				</div>

@@ -16,6 +16,27 @@ export function isTrackingOffRefusal(error: unknown): boolean {
 	return TRACKING_OFF_REFUSAL.test(error.message);
 }
 
+/** Gauzy's answer to a stop when no run is left to stop (406), which the proxy's stop route passes on as it is. */
+export function isNothingToStopRefusal(error: unknown): boolean {
+	if (!ApiErrorService.isApiError(error)) {
+		return false;
+	}
+	return error.hasHttpResponseStatus(406);
+}
+
+const DAILY_PLAN_REQUIRED = 'DAILY_PLAN_REQUIRED';
+
+/**
+ * A start Gauzy refused because the team requires a daily plan and the person has none for today (#5716): its 422
+ * alone reads like a value to correct.
+ */
+export function isDailyPlanRequiredRefusal(error: unknown): boolean {
+	if (!ApiErrorService.isApiError(error)) {
+		return false;
+	}
+	return error.errorCode === DAILY_PLAN_REQUIRED;
+}
+
 const TRACKING_FIELD_REQUIRED = 'TRACKING_FIELD_REQUIRED';
 
 /**

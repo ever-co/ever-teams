@@ -17,8 +17,8 @@ export type ITeamTask = {
 	estimateDays?: number
 	estimateHours?: number
 	estimateMinutes?: number
-	startDate?: string
-	dueDate: string
+	startDate?: string | null
+	dueDate: string | null
 	projectId: string
 	public: boolean
 	resolvedAt?: string
@@ -30,6 +30,8 @@ export type ITeamTask = {
 	linkedIssues?: LinkedTaskIssue[]
 	children?: Omit<ITeamTask, "children">[]
 	creator: Creator
+	createdByUserId?: string
+	createdByUser?: Creator
 	taskNumber: string
 	label?: string
 	parentId?: string
@@ -54,7 +56,7 @@ export interface Tag {
 	isSystem: boolean
 }
 
-interface Creator {
+export interface Creator {
 	id: string
 	createdAt: string
 	updatedAt: string

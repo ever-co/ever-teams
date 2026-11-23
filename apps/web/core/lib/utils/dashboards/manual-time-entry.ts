@@ -1,6 +1,7 @@
 import { requiredTrackingFieldsOf } from '@/core/lib/helpers/timer-errors';
 import { formatDurationShort } from '@/core/lib/utils/dashboard-figures';
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
+import { ApiErrorService } from '@/core/services/client/api-error.service';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import {
 	busyWindowsOf,
@@ -392,11 +393,27 @@ function requiredFieldsKeyOf(fields: ReadonlyArray<string>): string | null {
 	return null;
 }
 
+const RUNNING_TIMER_OVERLAP = 'RUNNING_TIMER_OVERLAP';
+
 /**
- * The sentence that says why manual time was not saved: the field the organization requires and the entry misses,
- * or else the reason every failed request gets.
+ * Whether the API refused manual time because the person's timer is running over that range (its 409 with the
+ * code RUNNING_TIMER_OVERLAP): read as any other 409, it said someone else had changed the entry (#5724).
+ */
+function isRunningTimerOverlapRefusal(error: unknown): boolean {
+	if (!ApiErrorService.isApiError(error)) {
+		return false;
+	}
+	return error.errorCode === RUNNING_TIMER_OVERLAP;
+}
+
+/**
+ * The sentence that says why manual time was not saved: the running timer the range covers, the field the
+ * organization requires and the entry misses, or else the reason every failed request gets.
  */
 export function manualTimeRefusalKeyOf(error: unknown): string {
+	if (isRunningTimerOverlapRefusal(error)) {
+		return 'manualTime.RUNNING_TIMER_OVERLAP';
+	}
 	const missingFields = requiredTrackingFieldsOf(error) ?? [];
 	const requiredKey = requiredFieldsKeyOf(missingFields);
 	if (requiredKey) {

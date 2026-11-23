@@ -1,4 +1,5 @@
 import { createServer } from 'node:http';
+import { createHash } from 'node:crypto';
 import { Buffer } from 'node:buffer';
 import { performance } from 'node:perf_hooks';
 import { setTimeout } from 'node:timers';
@@ -499,12 +500,27 @@ function workspaceCreationResponse(method, pathname, data, state, body, requestT
 	return undefined;
 }
 
-function routeResponse(method, pathname, requestUrl, data, fixture, state, body, requestTenantId) {
+// `requestContentType` is what the request arrived with, which the Ever ID logout forward has to keep: the
+// identity provider posts the logout token form-encoded, and the app forwards it the same way.
+function routeResponse(
+	method,
+	pathname,
+	requestUrl,
+	data,
+	fixture,
+	state,
+	body,
+	requestTenantId,
+	requestContentType = ''
+) {
 	const { ids } = fixture;
 	const creation = workspaceCreationResponse(method, pathname, data, state, body, requestTenantId);
 	if (creation !== undefined) return creation;
 	if (pathname === '/api/user/me') return data.baseUser;
 	if (pathname === '/api/auth/workspaces') return data.workspaces;
+	// The signed-in user's sessions: a plain list (core/services/client/api/auth/user-session.service.ts `list`,
+	// read by Settings › Profile through core/hooks/settings/use-user-sessions.ts)
+	if (pathname === '/api/auth/sessions' && method === 'GET') return [];
 	if (pathname === '/api/auth/refresh-token')
 		return { token: 'synthetic-refreshed-token', refresh_token: 'synthetic-refresh-token' };
 	// Tokens for another organization of the caller's tenant (the web app switches when the token's differs). Like
@@ -521,6 +537,31 @@ function routeResponse(method, pathname, requestUrl, data, fixture, state, body,
 			token: syntheticToken(ids.user, organizationId, `switched-${organizationId}`),
 			refresh_token: 'synthetic-refresh-token'
 		};
+	}
+
+	/**
+	 * The Ever ID back-channel logout (`app/api/auth/ever-id/backchannel-logout`): the app verified a logout
+	 * token the identity provider signed, and posts it here form-encoded, because that is how the provider sent
+	 * it. What this answers decides what the app answers the provider, so `scenario.everIdLogout` picks it:
+	 * `accepted`, `refused` (the API ends the sessions for a token it does not accept), `rate_limited` or
+	 * `down` (both mean "try again", which is the app's 503). A `delays` entry on this path that passes the
+	 * app's own 4 s forwarding timeout stands for an API that never answers.
+	 *
+	 * Recorded as the sha256 of what arrived, never the token: a test proves which token travelled without a
+	 * signed credential landing in a report.
+	 */
+	if (pathname === '/api/auth/zitadel/backchannel-logout' && method === 'POST') {
+		const answer = state.scenario.everIdLogout ?? 'accepted';
+		const logoutToken = typeof body?.logout_token === 'string' ? body.logout_token : '';
+		state.everIdLogouts.push({
+			answer,
+			tokenSha256: logoutToken ? createHash('sha256').update(logoutToken).digest('hex') : null,
+			contentType: String(requestContentType ?? '')
+		});
+		if (answer === 'down') return { [HTTP_STATUS]: 500, statusCode: 500, message: 'Internal server error' };
+		if (answer === 'rate_limited') return { [HTTP_STATUS]: 429, statusCode: 429, message: 'Too Many Requests' };
+		if (answer === 'refused') return { [HTTP_STATUS]: 403, statusCode: 403, message: 'Forbidden' };
+		return { success: true };
 	}
 
 	if (pathname === '/api/organization-team' && method === 'GET') return pagination([data.team]);
@@ -669,8 +710,23 @@ function routeResponse(method, pathname, requestUrl, data, fixture, state, body,
 	if (method === 'GET' && pathname === '/api/timesheet/time-log') return [];
 	if (method === 'GET' && pathname === '/api/timesheet/statistics/time-slots') return [];
 	if (method === 'GET' && pathname === '/api/timesheet/activity') return [];
+	// The time-log reports (Reports › Actual and expected hours, Payments due, Project budget; the Projects page) are
+	// plain lists too (core/services/client/api/timesheets/time-log.service.ts getTimeLogReportWeekly, and
+	// time-log-report.service.ts getOwedAmountReport and getProjectBudgetReport, each validate an array)
+	if (
+		method === 'GET' &&
+		/^\/api\/timesheet\/time-log\/(?:report\/(?:daily|daily-chart|weekly|owed-report)|project-budget-limit)$/.test(
+			pathname
+		)
+	)
+		return [];
 	if (pathname === '/api/timesheet/statistics/counts') return { today: 0, week: 0, month: 0 };
-	if (pathname.startsWith('/api/timesheet/statistics/tasks')) return { global: {}, today: {} };
+	// Gauzy answers this POST with a plain list of task statistics; the web app asks it twice (all time, today) and
+	// builds `{ global, today }` itself (core/services/client/api/timesheets/statistic.service.ts, taskStatisticsSchema)
+	if (pathname.startsWith('/api/timesheet/statistics/tasks')) return [];
+	// Where the caller stands against each time goal: a plain list (core/services/client/api/timesheets/
+	// time-goal.service.ts `progress`); the goals list itself is the default pagination
+	if (pathname === '/api/time-goals/progress' && method === 'GET') return [];
 	if (/^\/api\/organization-team-employee\//.test(pathname))
 		return body ?? { affected: 1, generatedMaps: [], raw: [] };
 	// Scheduled meetings (employee appointments): kept for the session, so a meeting scheduled shows in the agenda
@@ -690,6 +746,32 @@ function routeResponse(method, pathname, requestUrl, data, fixture, state, body,
 	if (appointmentPath && method === 'DELETE') {
 		state.appointments = state.appointments.filter((appointment) => appointment.id !== appointmentPath[1]);
 		return { affected: 1, raw: [] };
+	}
+	// Embeds (Settings › Workspace › Embeds; the settings navigation reads the switch on every settings page,
+	// core/hooks/settings/use-hidden-settings-entries.ts): the server's switch, then the allowed sites and the
+	// credentials as plain lists (core/services/client/api/embeds/embeds.service.ts readConfig, listOrigins,
+	// listCredentials and core/types/schemas/embeds/embed.schema.ts)
+	if (pathname === '/api/embed-credentials/config' && method === 'GET') {
+		return { enabled: true, clientLimits: false, addMembers: false };
+	}
+	if ((pathname === '/api/embed-credentials' || pathname === '/api/embed-allowed-origins') && method === 'GET') {
+		return [];
+	}
+	// Personal API tokens (Settings › Personal › API tokens; the settings navigation reads the switch on every settings
+	// page, core/hooks/settings/use-hidden-settings-entries.ts): the switch, and the tokens as the default pagination
+	// (core/services/client/api/users/user-api-tokens.service.ts readConfig, core/types/schemas/user/user-api-token.schema.ts)
+	if (pathname === '/api/user-api-tokens/config' && method === 'GET') return { enabled: true };
+	// The integration types and an organization's integrations of a type (Settings › Team › Integrations): plain
+	// lists (core/services/client/api/integrations/integration.service.ts getIntegrationTypes, getIntegration)
+	if ((pathname === '/api/integration/types' || pathname === '/api/integration') && method === 'GET') return [];
+	// What an employee is paid (Settings › Personal reads its own): no rate set yet
+	// (core/services/client/api/organizations/rate.service.ts getEmployeePayRate, employeePayRateSchema)
+	const payRate = /^\/api\/employee\/([^/]+)\/pay-rate$/.exec(pathname);
+	if (payRate && method === 'GET') return { employeeId: payRate[1], payRateValue: null, payRateCurrency: null };
+	// The workspace's payment connector (Settings › Team › Integrations): not connected
+	// (core/services/client/api/organizations/invoice-payment-connection.service.ts, invoicePaymentConnectionSchema)
+	if (pathname === '/api/invoice-payments/connection' && method === 'GET') {
+		return { connected: false, isEnabled: false, isTestMode: false, checkoutEndpoint: null, notificationUrl: null };
 	}
 	if (pathname === '/api/favorite') return pagination([]);
 	if (pathname === '/api/organization-team-join') return pagination([]);
@@ -823,8 +905,14 @@ async function readJsonBody(request) {
 	const chunks = [];
 	for await (const chunk of request) chunks.push(chunk);
 	if (!chunks.length) return undefined;
+	const text = Buffer.concat(chunks).toString('utf8');
+	// A form-encoded body is a body too: the Ever ID back-channel logout forwards the logout token that way,
+	// exactly as an OpenID Connect identity provider posts it.
+	if (/application\/x-www-form-urlencoded/i.test(String(request.headers['content-type'] ?? ''))) {
+		return Object.fromEntries(new URLSearchParams(text));
+	}
 	try {
-		return JSON.parse(Buffer.concat(chunks).toString('utf8'));
+		return JSON.parse(text);
 	} catch {
 		return undefined;
 	}
@@ -847,9 +935,12 @@ export async function createMockGauzyServer({ fixture, port = 3988 } = {}) {
 			statsEnabledUi: true,
 			statsOperator: true,
 			connectHealth: true,
-			connectConnected: true
+			connectConnected: true,
+			everIdLogout: 'accepted'
 		},
 		everPlatform: { stateReads: 0, toggles: [] },
+		everIdLogouts: [],
+		receivedTokens: [],
 		notificationSetting: null,
 		appointments: [],
 		workspaceCreation: {
@@ -877,6 +968,7 @@ export async function createMockGauzyServer({ fixture, port = 3988 } = {}) {
 			response.end(JSON.stringify({ error: 'Untrusted synthetic browser origin.' }));
 			return;
 		}
+		const trustedOrigin = [...TRUSTED_BROWSER_ORIGINS].find((origin) => origin === requestOrigin);
 		const cors = {
 			'access-control-allow-credentials': 'true',
 			'access-control-allow-headers':
@@ -884,7 +976,8 @@ export async function createMockGauzyServer({ fixture, port = 3988 } = {}) {
 			'access-control-allow-methods': 'DELETE, GET, OPTIONS, PATCH, POST, PUT',
 			'access-control-expose-headers': '*',
 			'cache-control': 'no-store',
-			...(requestOrigin ? { 'access-control-allow-origin': requestOrigin } : {})
+			// The allowlisted value itself, never the request's header: only a trusted origin is ever echoed.
+			...(trustedOrigin ? { 'access-control-allow-origin': trustedOrigin } : {})
 		};
 		if (method === 'OPTIONS') {
 			response.writeHead(204, cors);
@@ -922,13 +1015,16 @@ export async function createMockGauzyServer({ fixture, port = 3988 } = {}) {
 					fixture,
 					state,
 					body,
-					request.headers['tenant-id']
+					request.headers['tenant-id'],
+					request.headers['content-type']
 				);
 		const status = everPlatform ? everPlatform.status : (payload?.[HTTP_STATUS] ?? 200);
 		const endMs = performance.now() - state.startedAt;
 		// The web app's statistics reporter reads `state` every few seconds in the browser runs: counted, not
 		// recorded with the requests the pages make.
 		if (requestUrl.pathname !== '/api/ever-stats/state') {
+			// The request log is performance evidence and stays body/header free (tools/performance/
+			// mock-gauzy-server.test.mjs pins its keys), so the token goes to a list of its own.
 			state.requests.push({
 				method,
 				path: requestUrl.pathname,
@@ -936,6 +1032,15 @@ export async function createMockGauzyServer({ fixture, port = 3988 } = {}) {
 				startMs,
 				endMs,
 				status
+			});
+		}
+		// Which access token arrived, as its sha256, never the token: lets a test prove the app forwarded exactly the
+		// token it holds (a reassembled chunked cookie, say) without a credential landing in a report.
+		const bearer = String(request.headers.authorization ?? '').match(/^Bearer (.+)$/)?.[1];
+		if (bearer) {
+			state.receivedTokens.push({
+				path: requestUrl.pathname,
+				sha256: createHash('sha256').update(bearer).digest('hex')
 			});
 		}
 		response.writeHead(status, { ...cors, 'content-type': 'application/json; charset=utf-8' });
@@ -971,6 +1076,8 @@ export async function createMockGauzyServer({ fixture, port = 3988 } = {}) {
 			scenario: jsonClone(state.scenario),
 			mutationProof: jsonClone(state.mutationProof),
 			everPlatform: jsonClone(state.everPlatform),
+			everIdLogouts: jsonClone(state.everIdLogouts),
+			receivedTokens: jsonClone(state.receivedTokens),
 			notificationSetting: jsonClone(state.notificationSetting),
 			workspaceCreation: jsonClone(state.workspaceCreation),
 			// What was asked since the reset: method, path and the status answered
@@ -991,9 +1098,12 @@ export async function createMockGauzyServer({ fixture, port = 3988 } = {}) {
 				statsEnabledUi: true,
 				statsOperator: true,
 				connectHealth: true,
-				connectConnected: true
+				connectConnected: true,
+				everIdLogout: 'accepted'
 			};
 			state.everPlatform = { stateReads: 0, toggles: [] };
+			state.everIdLogouts = [];
+			state.receivedTokens = [];
 			state.notificationSetting = null;
 			state.appointments = [];
 			state.workspaceCreation = {

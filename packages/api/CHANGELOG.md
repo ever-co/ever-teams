@@ -1,5 +1,18 @@
 # @ever-teams/api
 
+## 0.2.1
+
+### Patch Changes
+
+- Auto-generated patch version bump for SDK changes
+- bb7c0e5: `TrackingApiClient` created without a base URL now reads sessions from the API the SDK is configured with (`apiConfigManager`, `https://api.ever.team/api` by default) instead of the demo Gauzy API, so the user's token is never sent to another server. A base URL given to the constructor or to `updateConfig` still wins.
+- d166bc2: READMEs: what each package is, and a pointer to the quick start of `@ever-teams/atoms`. `@ever-teams/tracking` says what it records and sends, and asks hosts to get consent and set `apiUrl`.
+- e885587: The kit's timers now start and stop with `source: 'EMBED'`, so managers can tell embedded time from the web app's in reports. Against an API that does not know that source yet (a 400 naming `source`), the kit sends the request again with `TEAMS`, as before, and keeps `TEAMS` for that API for the rest of the page: nothing changes for hosts on an older API. `currentTimerSource()` tells which one is in use.
+- Updated dependencies
+- Updated dependencies [d166bc2]
+- Updated dependencies [1221223]
+    - @ever-teams/toolkit-types@0.2.0
+
 ## 0.2.0
 
 ### Minor Changes

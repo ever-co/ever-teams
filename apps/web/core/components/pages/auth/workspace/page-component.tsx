@@ -15,6 +15,7 @@ import { useWorkspaceAnalysis } from '@/core/hooks/auth/use-workspace-analysis';
 import { useRememberedTeamContinue } from '@/core/hooks/auth/use-remembered-team-continue';
 import { firstListedTeam, findLatestServerTeamId } from '@/core/lib/auth/remembered-team';
 import { readEverIdSession } from '@/core/lib/auth/ever-id/session';
+import { keepEverIdStartReturnForSignIn } from '@/core/lib/auth/ever-id/start-return';
 import { readSocialSession } from '@/core/lib/auth/social-session';
 import { useEverIdWorkspaceChoice } from '@/core/hooks/auth/use-ever-id-workspace-choice';
 import { PickedWorkspaceScene } from '@/core/components/auth/scenes/auth-scenes';
@@ -104,6 +105,12 @@ function WorkSpaceScreen({
 		setSigninResult((current) => ({ ...current, confirmed_mail: everIdSession.confirmedEmail }));
 		setWorkspaces(everIdSession.workspaces);
 	}, [everIdSession, setWorkspaces]);
+
+	// Ever ID: a sign-in begun by a link to the start address (app/api/auth/ever-id/start) opens the page the link
+	// named once the workspace sign-in is done (navigateAfterSignIn)
+	useEffect(() => {
+		if (everIdSession) keepEverIdStartReturnForSignIn();
+	}, [everIdSession]);
 
 	// Analyze workspace structure to determine if we should show workspace selection
 	// Using centralized hook to avoid code duplication across auth components

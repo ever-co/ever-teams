@@ -1,6 +1,7 @@
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { getGithubIntegrationRepositoriesRequest } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
+import { gauzyErrorResponse } from '@/core/services/server/gauzy-error-response';
 
 export async function GET(req: Request) {
 	const res = new NextResponse();
@@ -13,14 +14,18 @@ export async function GET(req: Request) {
 	// Without it Gauzy would be asked for /integration/github/undefined/...
 	if (!integrationId) return NextResponse.json({ message: 'integrationId is required' }, { status: 400 });
 
-	const response = await getGithubIntegrationRepositoriesRequest(
-		{
-			tenantId,
-			organizationId,
-			integrationId
-		},
-		access_token
-	);
-
-	return $res(response.data);
+	try {
+		const response = await getGithubIntegrationRepositoriesRequest(
+			{
+				tenantId,
+				organizationId,
+				integrationId
+			},
+			access_token
+		);
+		return $res(response.data);
+	} catch (error) {
+		// A refusal of the API goes back with its status and reason, as in direct mode (#5726)
+		return await gauzyErrorResponse(error, 'The list of GitHub repositories could not be read.');
+	}
 }

@@ -19,7 +19,7 @@ export function useAuthenticationTeam() {
 	const authTeamInput = useRef<TextInput | null>(null);
 	const [isSubmitted, setIsSubmitted] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
-	const [joinError, setJoinError] = useState(null);
+	const [joinError, setJoinError] = useState<string | null>(null);
 	const [verificationError, setVerificationError] = useState(null);
 	const [screenstatus, setScreenStatus] = useState<{ screen: number; animation: boolean }>({
 		screen: 1,
@@ -71,7 +71,7 @@ export function useAuthenticationTeam() {
 			// person can try again. Reading the data first threw, and the message never reached the screen.
 			if (response && 'errors' in response) {
 				setIsSubmitted(false);
-				setJoinError(response.errors.email);
+				setJoinError(response.errors?.email ?? null);
 				return;
 			}
 
@@ -173,6 +173,8 @@ export function useAuthenticationTeam() {
 				setIsSubmitted(false);
 				console.log(e);
 			});
+		// A form the API's own checks refuse answers neither case above: free it, so the person can correct it
+		setIsLoading(false);
 	};
 
 	/**
@@ -242,8 +244,10 @@ export function useAuthenticationTeam() {
 					setAuthInviteCode('');
 					setAuthConfirmCode('');
 				} else {
-					if (errors) {
-						setJoinError(errors.email);
+					// A refused invite, or an account not set up yet, answers its error under `response`
+					const failure = errors ?? (response as { errors?: { email?: string } } | undefined)?.errors;
+					if (failure) {
+						setJoinError(failure.email);
 						setIsLoading(false);
 						setIsSubmitted(false);
 					}
@@ -275,8 +279,11 @@ export function useAuthenticationTeam() {
 				response: response.response.status,
 				success: response.response.status === 201,
 				data: response.data,
-				error: response.response.status === 401 ? 'Authentication code or email address invalid' : null
+				error: response.response.status === 401 ? translate('loginScreen.errors.invalidCode') : null
 			};
+		} finally {
+			// Every answer, a failed one included, frees Continue: it takes no press while this request runs
+			setIsLoading(false);
 		}
 	};
 
@@ -292,6 +299,7 @@ export function useAuthenticationTeam() {
 				const { data } = res;
 				if (data.status === 400) {
 					setVerificationError(data.message);
+					setIsLoading(false);
 					return;
 				}
 
@@ -316,12 +324,15 @@ export function useAuthenticationTeam() {
 	 */
 	const resendEmailVerificationCode = async () => {
 		setIsLoading(true);
-		await resentVerifyUserLinkRequest({
-			bearer_token: tempAuthToken,
-			email: authEmail,
-			tenantId
-		});
-		setIsLoading(false);
+		try {
+			await resentVerifyUserLinkRequest({
+				bearer_token: tempAuthToken,
+				email: authEmail,
+				tenantId
+			});
+		} finally {
+			setIsLoading(false);
+		}
 	};
 
 	useEffect(() => {

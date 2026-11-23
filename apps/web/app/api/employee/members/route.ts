@@ -1,6 +1,7 @@
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { getOrganizationEmployees } from '@/core/services/server/requests';
 import { NextRequest, NextResponse } from 'next/server';
+import { gauzyErrorResponse } from '@/core/services/server/gauzy-error-response';
 
 export async function GET(req: NextRequest) {
 	const res = new NextResponse();
@@ -12,12 +13,16 @@ export async function GET(req: NextRequest) {
 
 	const organizationTeamId = req.nextUrl.searchParams.get('organizationTeamId') ?? undefined;
 
-	const response = await getOrganizationEmployees(
-		access_token || '',
-		tenantId || '',
-		organizationId || '',
-		organizationTeamId
-	);
-
-	return $res(response.data);
+	try {
+		const response = await getOrganizationEmployees(
+			access_token || '',
+			tenantId || '',
+			organizationId || '',
+			organizationTeamId
+		);
+		return $res(response.data);
+	} catch (error) {
+		// A refusal of the API goes back with its status and reason, as in direct mode (#5726)
+		return await gauzyErrorResponse(error, 'The list of members could not be read.');
+	}
 }

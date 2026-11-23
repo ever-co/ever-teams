@@ -16,6 +16,7 @@ import { useTaskIssue } from "../services/hooks/features/use-task-issue"
 import { ITeamTask } from "../services/interfaces/ITask"
 import { SvgUri } from "react-native-svg"
 import { IIssueType } from "../services/interfaces/ITaskIssue"
+import { issueShownOf } from "./issue-shown"
 import { useTeamTasks } from "../services/hooks/features/use-team-tasks"
 import { useAppTheme } from "../theme"
 import { BlurView } from "expo-blur"
@@ -40,9 +41,7 @@ const IssuesModal: FC<IssuesModalProps> = ({
 	const { updateTask } = useTeamTasks()
 	const { colors } = useAppTheme()
 
-	const currentIssue = task?.issueType
-		? allTaskIssues.find((issue) => issue.name === task?.issueType)
-		: allTaskIssues.find((issue) => issue.name === "Task")
+	const currentIssue = issueShownOf(allTaskIssues, task?.issueType)
 
 	const onChangeIssue = async (text) => {
 		if (task) {
@@ -60,6 +59,11 @@ const IssuesModal: FC<IssuesModalProps> = ({
 
 	const smallerIconDimension: number =
 		currentIssue?.name === "Bug" ? 10 : currentIssue?.name === "Story" ? 10 : 8
+
+	// without an issue type to show there is nothing to draw nor to pick: no empty box
+	if (!currentIssue) {
+		return null
+	}
 
 	return (
 		<View>

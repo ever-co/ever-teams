@@ -643,7 +643,7 @@ function TaskCard({
 
 			<div className={modalFooterClass}>
 				<Tooltip
-					enabled={!datas.user?.isEmailVerified}
+					enabled={!datas.meetsEmailVerification}
 					label={t('common.VERIFY_ACCOUNT_MSG')}
 					placement="top-start"
 					className="inline-block"
@@ -672,7 +672,7 @@ function TaskCard({
 function isTaskCreationBlocked(datas: Partial<RTuseTaskInput>, timerRunningStatus: boolean) {
 	const hasNoCreateForm = !datas.hasCreateForm;
 	const isCreating = Boolean(datas.createLoading);
-	const isUnverified = !datas.user?.isEmailVerified;
+	const isUnverified = !datas.meetsEmailVerification;
 	return hasNoCreateForm || isCreating || isUnverified || timerRunningStatus;
 }
 

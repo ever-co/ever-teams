@@ -8,7 +8,7 @@ import { dayNumberOf, dayOfStoredDate } from './date-only';
 /** Which part of the team's work the page shows, from the statuses' own workflow flags. */
 export type TeamTasksScope = 'active' | 'done' | 'all';
 
-export type TeamTasksGrouping = 'status' | 'priority' | 'assignee' | 'project' | 'issueType' | 'none';
+export type TeamTasksGrouping = 'status' | 'priority' | 'assignee' | 'project' | 'issueType' | 'label' | 'none';
 
 /** `manual` is a saved view's own order (its `manualOrder`), offered only on a saved view. */
 export type TeamTasksOrdering = 'priority' | 'updated' | 'created' | 'dueDate' | 'number' | 'title' | 'manual';
@@ -554,6 +554,61 @@ function groupByAssignee(tasks: TTask[], memberNames: Map<string, string>) {
 	return groups;
 }
 
+/** The distinct label names of a task, as the label filter reads them (by name), blanks left out. */
+function labelNamesOf(task: TTask) {
+	const names = new Set<string>();
+	for (const tag of task.tags ?? []) {
+		const name = tag.name?.trim();
+		if (name) {
+			names.add(name);
+		}
+	}
+	return [...names];
+}
+
+/**
+ * The key of the group of tasks without a label. Labels are grouped by name and a label may be named like
+ * `NONE_VALUE`, so this group is told by its key, which no `label:<name>` key can take, not by its value.
+ */
+export const NO_LABEL_GROUP_KEY = 'no-label';
+
+/** Whether a group is the one of the tasks without a label (not a label that happens to be named `NONE_VALUE`). */
+export function isNoLabelGroup(group: TeamTasksGroup) {
+	return group.key === NO_LABEL_GROUP_KEY;
+}
+
+/** A task with several labels is listed under each of them, as with assignees; one without any is last. */
+function groupByLabel(tasks: TTask[]) {
+	const byLabel = new Map<string, TTask[]>();
+	const unlabelled: TTask[] = [];
+	for (const task of tasks) {
+		const names = labelNamesOf(task);
+		if (names.length === 0) {
+			unlabelled.push(task);
+			continue;
+		}
+		for (const name of names) {
+			pushTo(byLabel, name, task);
+		}
+	}
+	const names = [...byLabel.keys()];
+	names.sort((first, second) => first.localeCompare(second));
+	const groups = names.map((name) => groupOf('label', name, byLabel.get(name) ?? []));
+	groups.push({ ...groupOf('label', NONE_VALUE, unlabelled), key: NO_LABEL_GROUP_KEY });
+	return groups;
+}
+
+/** The colour a label is drawn in: the first coloured tag of that name, read from the tasks in order. */
+export function labelColorOf(tasks: readonly TTask[], name: string) {
+	for (const task of tasks) {
+		const tag = (task.tags ?? []).find((candidate) => candidate.name?.trim() === name && candidate.color);
+		if (tag?.color) {
+			return tag.color;
+		}
+	}
+	return undefined;
+}
+
 function groupByProject(tasks: TTask[], projectNames: Map<string, string>) {
 	const byProject = new Map<string, TTask[]>();
 	for (const task of tasks) {
@@ -589,6 +644,8 @@ export function buildTeamTasksGroups(
 		groups = groupByAssignee(sorted, lookups.memberNames);
 	} else if (settings.grouping === 'project') {
 		groups = groupByProject(sorted, lookups.projectNames);
+	} else if (settings.grouping === 'label') {
+		groups = groupByLabel(sorted);
 	} else {
 		groups = [groupOf('none', 'all', sorted)];
 	}

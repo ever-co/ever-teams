@@ -93,6 +93,15 @@ const eslintConfig = [
 		}
 	},
 	{
+		// Playwright fixtures: `async ({}, use) => …` is the documented way to declare a fixture with no
+		// dependencies, and its `use` callback is not a React hook.
+		files: ['playwright/**/*.ts'],
+		rules: {
+			'no-empty-pattern': 'off',
+			'react-hooks/rules-of-hooks': 'off'
+		}
+	},
+	{
 		// The code carries eslint-disable comments for rules that are not enabled (no-console,
 		// no-mixed-spaces-and-tabs, the old @typescript-eslint/no-var-requires...). Reporting them is off until
 		// they are cleaned up (README.md, "Linting").

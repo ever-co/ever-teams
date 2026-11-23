@@ -6,6 +6,7 @@ import { ViewStyle, View, LogBox, TouchableWithoutFeedback, StatusBar } from 're
 import { Screen } from '../../../components';
 import { AuthenticatedTabScreenProps } from '../../../navigators/authenticated-navigator';
 import HomeHeader from '../../../components/home-header';
+import { headerSurfaceOf } from '../../../components/header-surface';
 import DropDown from '../../../components/team-dropdown/drop-down';
 import CreateTeamModal from '../../../components/create-team-modal';
 import TimerTaskSection from './components/timer-task-section';
@@ -75,7 +76,13 @@ export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<'Timer'>> 
 
 							{activeTeam ? (
 								<React.Fragment>
-									<View style={{ padding: 20, zIndex: 999, backgroundColor: colors.background }}>
+									<View
+										style={{
+											padding: 20,
+											zIndex: 999,
+											backgroundColor: headerSurfaceOf(dark, colors)
+										}}
+									>
 										<DropDown
 											isOpen={isTeamModalOpen}
 											setIsOpen={setIsTeamModalOpen}

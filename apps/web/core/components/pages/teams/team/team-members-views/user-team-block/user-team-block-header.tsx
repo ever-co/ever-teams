@@ -16,6 +16,7 @@ import { VerticalSeparator } from '@/core/components/duplicated-components/separ
 import { useProcessedTeamMembers } from '@/core/hooks/teams/use-processed-team-members';
 import { useTeamMemberFilterStatsForUI } from '@/core/hooks/teams/use-team-member-filter-stats';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { useIsEmailVerificationSatisfied } from '@/core/hooks/auth/use-email-verification-status';
 import { useCanInviteToActiveTeam } from '@/core/hooks/invitations/use-can-invite-to-active-team';
 import { TeamMemberFilterType } from '@/core/lib/utils/team-members.utils';
 import { Tabs, TabsList, TabsTrigger } from '@/core/components/common/tabs';
@@ -73,6 +74,7 @@ export function UserTeamBlockHeader() {
 
 	const activeTeam = useAtomValue(activeTeamState);
 	const { data: user } = useUserQuery();
+	const meetsEmailVerification = useIsEmailVerificationSatisfied(user);
 	const { openModal, isOpen, closeModal } = useModal();
 	// The API refuses an invitation into a team the user does not manage (403): show Invite only to who may send it.
 	const canInvite = useCanInviteToActiveTeam();
@@ -175,7 +177,7 @@ export function UserTeamBlockHeader() {
 					)}
 				</div>
 			</div>
-			<InviteFormModal open={isOpen && !!user?.isEmailVerified} closeModal={closeModal} />
+			<InviteFormModal open={isOpen && meetsEmailVerification} closeModal={closeModal} />
 		</>
 	);
 }

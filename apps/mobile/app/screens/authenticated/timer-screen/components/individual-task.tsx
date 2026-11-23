@@ -2,7 +2,7 @@
 /* eslint-disable react-native/no-color-literals */
 import React, { FC, useCallback, useMemo, useState } from "react"
 import { View, StyleSheet, Text, ImageStyle, TouchableOpacity } from "react-native"
-import { Entypo, EvilIcons } from "@expo/vector-icons"
+import { Refresh, X } from "../../../../../src/components/icons"
 import { GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
 import { colors, spacing, typography, useAppTheme } from "../../../../theme"
 import DeletePopUp from "./delete-popup"
@@ -89,6 +89,7 @@ const IndividualTask: FC<Props> = observer(
 
 		return (
 			<TouchableOpacity
+				testID="task-picker-option"
 				style={styles.container}
 				onPress={() => {
 					closeCombo()
@@ -185,15 +186,14 @@ const IndividualTask: FC<Props> = observer(
 						</View>
 
 						{task.status === "closed" ? (
-							<EvilIcons
-								name="refresh"
+							<Refresh
 								size={24}
 								color="#8F97A1"
 								onPress={() => onReopenTask()}
 							/>
 						) : (
 							<View onTouchStart={() => setShowDel(true)}>
-								<Entypo name="cross" size={15} color="#8F97A1" />
+								<X size={15} color="#8F97A1" />
 							</View>
 						)}
 						{showDel && (

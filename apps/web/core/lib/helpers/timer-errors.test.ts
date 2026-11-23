@@ -1,5 +1,11 @@
 import { ApiErrorService } from '@/core/services/client/api-error.service';
-import { isTrackingOffRefusal, requiredTrackingFieldsMessageKeyOf, requiredTrackingFieldsOf } from './timer-errors';
+import {
+	isDailyPlanRequiredRefusal,
+	isNothingToStopRefusal,
+	isTrackingOffRefusal,
+	requiredTrackingFieldsMessageKeyOf,
+	requiredTrackingFieldsOf
+} from './timer-errors';
 
 /** An Error carrying an HTTP status, as the API client throws it. */
 function apiError(message: string, statusCode: number) {
@@ -48,5 +54,54 @@ describe('a start refused for a field the organization requires', () => {
 		expect(requiredTrackingFieldsMessageKeyOf(['projectId'])).toBe('timer.REQUIRED_PROJECT_MESSAGE');
 		expect(requiredTrackingFieldsMessageKeyOf(['description'])).toBe('timer.REQUIRED_DETAILS_MESSAGE');
 		expect(requiredTrackingFieldsMessageKeyOf([])).toBe('timer.REQUIRED_DETAILS_MESSAGE');
+	});
+});
+
+describe('isNothingToStopRefusal', () => {
+	/** The error the API client throws for an answer with this status. */
+	const answeredWith = (status: number) =>
+		ApiErrorService.fromAxiosError({
+			message: `Request failed with status code ${status}`,
+			status,
+			response: { status, data: { statusCode: status, message: 'No running log found.' } }
+		});
+
+	it('recognizes the 406 a stop gets when no run is left to stop', () => {
+		expect(isNothingToStopRefusal(answeredWith(406))).toBe(true);
+	});
+
+	it('leaves any other failure of the stop to its own handling', () => {
+		expect(isNothingToStopRefusal(answeredWith(409))).toBe(false);
+		expect(isNothingToStopRefusal(answeredWith(500))).toBe(false);
+		expect(
+			isNothingToStopRefusal(ApiErrorService.fromAxiosError({ message: 'Network Error', code: 'ERR_NETWORK' }))
+		).toBe(false);
+		expect(isNothingToStopRefusal(apiError('Not Acceptable', 406))).toBe(false);
+	});
+});
+
+describe('a start refused because the team requires a daily plan (#5716)', () => {
+	const refusal = (code?: string) =>
+		ApiErrorService.fromAxiosError({
+			message: 'Request failed with status code 422',
+			status: 422,
+			response: {
+				status: 422,
+				data: {
+					statusCode: 422,
+					message: 'Your team requires a daily plan before you track time. Plan your day first.',
+					code
+				}
+			}
+		});
+
+	it('is recognized by the code of the 422', () => {
+		expect(isDailyPlanRequiredRefusal(refusal('DAILY_PLAN_REQUIRED'))).toBe(true);
+	});
+
+	it('leaves any other refusal to its own message', () => {
+		expect(isDailyPlanRequiredRefusal(refusal('TRACKING_FIELD_REQUIRED'))).toBe(false);
+		expect(isDailyPlanRequiredRefusal(refusal())).toBe(false);
+		expect(isDailyPlanRequiredRefusal(new Error('Network Error'))).toBe(false);
 	});
 });

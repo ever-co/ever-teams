@@ -13,6 +13,11 @@ type Props = {
 	useRedirect?: boolean;
 	/** What shows while membership is checked: the guarded page's own skeleton, so the wait never changes picture. */
 	fallback?: React.ReactNode;
+	/**
+	 * The page reads only the reader's own time for anyone who manages nothing: once the membership is known it opens
+	 * for them too, so the page knows from its first picture whether the reader manages the team.
+	 */
+	admitsMembers?: boolean;
 };
 
 const SELF_MEMBERSHIP_WAIT_MS = 8000;
@@ -25,8 +30,14 @@ function boundedWaitOf(teamsSettled: boolean) {
 	return TEAMS_LIST_WAIT_MS;
 }
 
-/** Restricts report content to team managers and tenant-wide administrators. */
-export default function MustBeAManager({ children, redirectTo = '/', useRedirect = true, fallback }: Readonly<Props>) {
+/** Restricts report content to team managers and tenant-wide administrators; `admitsMembers` opens it to members. */
+export default function MustBeAManager({
+	children,
+	redirectTo = '/',
+	useRedirect = true,
+	fallback,
+	admitsMembers = false
+}: Readonly<Props>) {
 	// All hooks must be called before any conditional returns
 	const { user, isTeamManager } = useAuthenticateUser();
 	const { getOrganizationTeamsLoading: isTeamsLoading, teams, activeTeam } = useOrganizationTeamsQuery();
@@ -37,6 +48,7 @@ export default function MustBeAManager({ children, redirectTo = '/', useRedirect
 	const isGlobalAdmin =
 		!!user?.role?.name && [ERoleName.ADMIN, ERoleName.SUPER_ADMIN].includes(user.role.name as ERoleName);
 	const isAuthorizedManager = isTeamManager || isGlobalAdmin;
+	const isAdmitted = isAuthorizedManager || admitsMembers;
 
 	// Determine if we're still loading critical data.
 	//
@@ -82,18 +94,18 @@ export default function MustBeAManager({ children, redirectTo = '/', useRedirect
 		// Only proceed with authorization check when both user and teams data are loaded
 		if (!isLoading) {
 			setChecked(true);
-			if (!isAuthorizedManager && redirectTo && useRedirect) {
+			if (!isAdmitted && redirectTo && useRedirect) {
 				setIsRedirecting(true);
 				router.replace(redirectTo);
 			}
 		}
-	}, [isLoading, isAuthorizedManager, redirectTo, router, useRedirect]);
+	}, [isLoading, isAdmitted, redirectTo, router, useRedirect]);
 
 	// Compute all conditions after all hooks are called
 	const shouldShowLoading = isLoading || !checked || isRedirecting;
-	const shouldShowAccessDenied = !isAuthorizedManager && !useRedirect;
-	const shouldShowLoadingForRedirect = !isAuthorizedManager && useRedirect;
-	const shouldShowChildren = isAuthorizedManager;
+	const shouldShowAccessDenied = !isAdmitted && !useRedirect;
+	const shouldShowLoadingForRedirect = !isAdmitted && useRedirect;
+	const shouldShowChildren = isAdmitted;
 
 	const pending = fallback ?? <GlobalSkeleton />;
 

@@ -17,16 +17,17 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 // COMPONENTS
 import { Screen } from '../../../components';
 import { GLOBAL_STYLE as GS } from '../../../../assets/ts/styles';
-import { AuthenticatedDrawerScreenProps, SettingScreenRouteProp } from '../../../navigators/authenticated-navigator';
+import { AuthenticatedDrawerScreenProps } from '../../../navigators/authenticated-navigator';
 import SectionTab from './components/section-tab';
 import SettingHeader from './components/setting-header';
 import { useSettings } from '../../../services/hooks/features/use-settings';
 import BottomSheetContent from './components/bottom-sheet-content';
 import PersonalSettings from './personal';
 import TeamSettings from './team';
-import { useAppTheme } from '../../../theme';
+import { useAppTheme, useWebTheme } from '../../../theme';
+import { sheetLookOf, sheetOverlayOpacity } from '../../../../src/theme/sheet-look';
 import { useOrganizationTeam } from '../../../services/hooks/use-organization';
-import { useRoute, useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect } from '@react-navigation/native';
 
 export type IPopup =
 	| 'Names'
@@ -47,29 +48,32 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<'Sett
 	function AuthenticatedDrawerScreen(_props) {
 		LogBox.ignoreAllLogs();
 		const { colors, dark } = useAppTheme();
+		const sheetLook = sheetLookOf(useWebTheme());
 		const { isLoading } = useSettings();
 		const { activeTeam } = useOrganizationTeam();
-		const route = useRoute<SettingScreenRouteProp<'Setting'>>();
+		const { route } = _props;
 		// const { navigation } = _props;
+		const routeActiveTab = route.params?.activeTab;
 
 		// ref
 		const bottomSheetRef = useRef<BottomSheet>(null);
 
 		// STATES
-		const [activeTab, setActiveTab] = useState(route.params?.activeTab || 1); // Initialize from route params
+		const [activeTab, setActiveTab] = useState(routeActiveTab || 1); // Initialize from route params
 		const [showPopup, setShowPopup] = useState<IPopup>(null);
 		const [bottomSheetVisible, setBottomSheetVisible] = useState(false);
 		const [keyboardVisible, setKeyboardVisible] = useState(false);
 		const [keyboardHeight, setKeyboardHeight] = useState(0);
 		const [desiredSnapIndex, setDesiredSnapIndex] = useState(1); // New state for tracking desired snap index
 
-		// Update active tab when route params change
+		// Update active tab when the tab the route asks for changes. Under Expo Router the route's params are a new object
+		// at each render of the route: watching them put the route's tab back over the one the person picked
 		useFocusEffect(
 			useCallback(() => {
-				if (route.params?.activeTab) {
-					setActiveTab(route.params.activeTab);
+				if (routeActiveTab) {
+					setActiveTab(routeActiveTab);
 				}
-			}, [route.params])
+			}, [routeActiveTab])
 		);
 
 		// Include multiple snap points for different sheet heights
@@ -184,7 +188,7 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<'Sett
 					appearsOnIndex={0}
 					enableTouchThrough={false}
 					pressBehavior="close"
-					opacity={0.7}
+					opacity={sheetOverlayOpacity}
 				/>
 			),
 			[]
@@ -200,11 +204,11 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<'Sett
 					>
 						<StatusBar barStyle={dark ? 'light-content' : 'dark-content'} />
 						<View style={{ flex: 1 }}>
-							<View style={[$headerContainer, { flex: 0.75, backgroundColor: colors.background }]}>
+							<View style={[$headerContainer, { backgroundColor: colors.background }]}>
 								<SettingHeader {..._props} />
 								<SectionTab activeTabId={activeTab} toggleTab={setActiveTab} />
 							</View>
-							<View style={{ flex: 4, paddingHorizontal: 20 }}>
+							<View style={{ flex: 1, paddingHorizontal: 20 }}>
 								{isLoading ? (
 									<View
 										style={{
@@ -252,22 +256,8 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<'Sett
 							keyboardBehavior="interactive" // Changed from "extend" to "interactive"
 							keyboardBlurBehavior="none" // Changed from "restore" to "none"
 							android_keyboardInputMode="adjustResize"
-							backgroundStyle={{
-								backgroundColor: colors.background,
-								shadowColor: '#000',
-								shadowOffset: { width: 0, height: -3 },
-								shadowOpacity: 0.27,
-								shadowRadius: 4.65,
-								elevation: 10,
-								borderTopLeftRadius: 20,
-								borderTopRightRadius: 20
-							}}
-							handleIndicatorStyle={{
-								backgroundColor: dark ? '#FFFFFF' : '#000000',
-								width: 50,
-								height: 5,
-								marginTop: 10
-							}}
+							backgroundStyle={sheetLook.background}
+							handleIndicatorStyle={sheetLook.handle}
 						>
 							<BottomSheetScrollView
 								contentContainerStyle={{
@@ -301,8 +291,9 @@ const $container: ViewStyle = {
 };
 
 const $headerContainer: ViewStyle = {
-	padding: 20,
-	paddingBottom: 32
+	gap: 16,
+	paddingHorizontal: 20,
+	paddingTop: 8
 };
 
 const styles = StyleSheet.create({

@@ -1,16 +1,20 @@
 import { IPermission, IServerError, IUser } from '@ever-teams/toolkit-types';
 import { ApiCall } from '../fetch';
+import { IApiRequestConfig } from '../config/api-config';
 
-export const getMyPermissions = async (user: IUser, token: string) => {
+export const getMyPermissions = async (user: IUser, token: string, api?: IApiRequestConfig) => {
 	try {
 		const { tenantId } = user;
 
-		const response = await ApiCall<IPermission[]>({
-			path: `/role-permissions/me`,
-			method: 'GET',
-			bearer_token: token,
-			tenantId
-		});
+		const response = await ApiCall<IPermission[]>(
+			{
+				path: `/role-permissions/me`,
+				method: 'GET',
+				bearer_token: token,
+				tenantId
+			},
+			api
+		);
 
 		if ('data' in response) {
 			return response.data;

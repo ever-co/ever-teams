@@ -1,0 +1,146 @@
+#!/usr/bin/env node
+/**
+ * Writes `suites/api/foreign-origin.generated.ts`: every Next.js route handler that says a request
+ * which changes something must come from this app's own pages, and the verb it says it for.
+ *
+ * Why this is generated: the guard is a helper (`refuseForeignOrigin` / `refuseForeignWrite` in
+ * core/services/server/same-origin-request.ts) used by dozens of handlers, and a security guard that
+ * only exists where somebody remembered to write a test is not a guard. Re-run this after adding a
+ * route; the suite then refuses a cross-site write on all of them.
+ *
+ * Only a guard that runs before anything reaches the API counts: a refusal after the upstream call
+ * would be too late to prove, and is a finding rather than a test.
+ *
+ * Run: node apps/web/playwright/scripts/collect-foreign-origin-routes.mjs
+ *
+ * `--check` writes nothing and exits 1 when the checked-in list is out of date
+ * (suites/api/manifests.spec.ts runs it that way).
+ */
+import { readdirSync, readFileSync, statSync } from 'node:fs';
+import { dirname, relative, resolve, sep } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+import { writeGenerated } from './api-routes-lib.mjs';
+
+const here = dirname(fileURLToPath(import.meta.url));
+const projectRoot = resolve(here, '../../../..');
+const apiRoot = resolve(projectRoot, 'apps/web/app/api');
+const outputFile = resolve(here, '../suites/api/foreign-origin.generated.ts');
+
+const VERBS = ['POST', 'PUT', 'PATCH', 'DELETE'];
+const GUARD = /\brefuseForeign(Write|Origin)\s*\(/;
+/**
+ * Helpers that call the guard themselves, as their first step, before any request leaves: a route that
+ * hands its request to one of them is guarded even though the route file never names the guard. Most
+ * proxy routes are guarded this way, so leaving them out would hide the majority of them from the suite.
+ */
+const GUARDED_HELPERS = ['forwardToGauzy', 'refuseUnlessPermitted', 'refuseWithoutPermission'];
+/** Anything that talks to the API on its own: a guard after one of these is a refusal that came too late. */
+const UPSTREAM = /\b(gauzyPassThrough|serverFetch|[a-zA-Z]+Request\(|fetch\()/;
+
+function routeFiles(dir) {
+	const found = [];
+	for (const entry of readdirSync(dir)) {
+		const full = resolve(dir, entry);
+		if (statSync(full).isDirectory()) found.push(...routeFiles(full));
+		else if (entry === 'route.ts') found.push(full);
+	}
+	return found;
+}
+
+/** The URL a test must call: the route's folder under app/api, as the app serves it (so `/api/...`). */
+function pathOf(file) {
+	const folder = relative(apiRoot, dirname(file))
+		.replace(/\\/g, '/')
+		.replace(/(^|\/)route\.ts$/, '');
+	return folder ? `/api/${folder}` : '/api';
+}
+
+/** A top-level declaration or export starts here: where one handler's source ends and the next begins. */
+const TOP_LEVEL = /\n(?:export\s|(?:async\s+)?function\s|const\s+\w+\s*=)/;
+
+/** From `at` to the next top-level declaration, so a guard of another verb or helper is not credited to this one. */
+function untilNextTopLevel(source, at) {
+	const rest = source.slice(at);
+	const next = TOP_LEVEL.exec(rest);
+	return rest.slice(0, next ? next.index : rest.length);
+}
+
+/**
+ * The handler's own source, for the three ways a route exports a verb:
+ *   export async function PUT(req) { … }
+ *   export const PUT = forwardConnection;      (a local function several verbs share: its body is the handler)
+ *   export const POST = async (req) => { … }
+ */
+function handlerBody(source, verb) {
+	const declared = new RegExp(`export\\s+(?:async\\s+)?function\\s+${verb}\\b`).exec(source);
+	if (declared) return untilNextTopLevel(source, declared.index + declared[0].length);
+
+	const alias = new RegExp(`export\\s+const\\s+${verb}\\s*=\\s*([A-Za-z_$][\\w$]*)\\s*;`).exec(source);
+	if (alias) {
+		const local = new RegExp(
+			`(?:^|\\n)(?:async\\s+)?function\\s+${alias[1]}\\b|(?:^|\\n)const\\s+${alias[1]}\\s*=`
+		).exec(source);
+		return local ? untilNextTopLevel(source, local.index + local[0].length) : undefined;
+	}
+
+	const inline = new RegExp(`export\\s+const\\s+${verb}\\s*=`).exec(source);
+	return inline ? untilNextTopLevel(source, inline.index + inline[0].length) : undefined;
+}
+
+function guardedVerbs(source) {
+	const guarded = [];
+	for (const verb of VERBS) {
+		const body = handlerBody(source, verb);
+		if (body === undefined) continue;
+
+		const guardAt = body.search(GUARD);
+		const helperAt = body.search(new RegExp(`\\b(${GUARDED_HELPERS.join('|')})\\s*\\(`));
+		const candidates = [
+			{ at: guardAt, guard: 'route' },
+			{ at: helperAt, guard: 'proxy-helper' }
+		].filter((candidate) => candidate.at >= 0);
+		if (!candidates.length) continue;
+		const [first] = candidates.sort((a, b) => a.at - b.at);
+
+		const upstreamAt = body.search(UPSTREAM);
+		if (upstreamAt >= 0 && upstreamAt < first.at) continue;
+
+		guarded.push({ verb, guard: first.guard });
+	}
+	return guarded;
+}
+
+const GUARDED_ENTRY = new RegExp(`\\brefuseForeign(Write|Origin)\\s*\\(|\\b(${GUARDED_HELPERS.join('|')})\\s*\\(`);
+
+const entries = [];
+for (const file of routeFiles(apiRoot)) {
+	const source = readFileSync(file, 'utf8');
+	if (!GUARDED_ENTRY.test(source)) continue;
+	const path = pathOf(file);
+	for (const { verb, guard } of guardedVerbs(source)) {
+		// Forward slashes on every OS, so a manifest generated on Windows matches one generated on Linux.
+		entries.push({ path, verb, guard, file: relative(projectRoot, file).split(sep).join('/') });
+	}
+}
+
+entries.sort((a, b) => `${a.path} ${a.verb}`.localeCompare(`${b.path} ${b.verb}`));
+
+const body = `// Generated by apps/web/playwright/scripts/collect-foreign-origin-routes.mjs — do not edit by hand.
+// Every write handler that refuses a request not coming from this app's own pages.
+export type ForeignOriginRoute = {
+	path: string;
+	verb: 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+	/** What refuses it: the route's own call, or the proxy helper it hands the request to. */
+	guard: 'route' | 'proxy-helper';
+	file: string;
+};
+
+export const foreignOriginRoutes: ForeignOriginRoute[] = ${JSON.stringify(entries, null, '\t')};
+`;
+
+if (await writeGenerated(outputFile, body, 'node apps/web/playwright/scripts/collect-foreign-origin-routes.mjs')) {
+	console.log(
+		`${entries.length} guarded write handlers across ${new Set(entries.map((entry) => entry.path)).size} routes`
+	);
+}
