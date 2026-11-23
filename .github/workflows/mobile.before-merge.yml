@@ -68,6 +68,23 @@ jobs:
           # instead of the npm cache set up above, a network flake that failed whole builds (2026-11-18)
           SKIP_SERVER_WEB_POSTINSTALL: 'false'
 
+      - name: Probe - server-web postinstall outputs (do not merge)
+        shell: bash
+        run: |
+          set +e
+          echo "PROBE install step flag: $(grep -o "SKIP_SERVER_WEB_POSTINSTALL: '[a-z]*'" .github/workflows/mobile.before-merge.yml)"
+          if [ -d apps/server-web/release/app/node_modules ]; then
+            echo 'PROBE release/app/node_modules EXISTS:' $(ls apps/server-web/release/app/node_modules apps/server-web/release/app/node_modules/@img 2>/dev/null)
+          else
+            echo 'PROBE release/app/node_modules ABSENT (install-app-deps did not run)'
+          fi
+          if [ -d apps/server-web/.erb/dll ]; then echo 'PROBE .erb/dll EXISTS:' $(ls apps/server-web/.erb/dll); else echo 'PROBE .erb/dll ABSENT (build:dll did not run)'; fi
+          cache=$(yarn cache dir 2>/dev/null)
+          for m in "$cache"/npm-@img-sharp-linux-x64-0.35.4-*/node_modules/@img/sharp-linux-x64/.yarn-metadata.json "$cache"/npm-sharp-0.35.4-*/node_modules/sharp/.yarn-metadata.json; do
+            [ -f "$m" ] && echo "PROBE yarn cache entry $m fetched from: $(node -e 'console.log(require(process.argv[1]).remote.resolved)' "$m")"
+          done
+          exit 0
+
       - name: Build Mobile
         run: |
           yarn build:mobile
