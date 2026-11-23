@@ -4,10 +4,19 @@ on:
   push:
     branches:
       - develop
+    # Everything the eight images are built from: the apps, the workspace packages they bundle
+    # (atoms, embed, tracking, toolkit-ui, toolkit-types, api and the shared Tailwind/TS configs) and the
+    # Docker helpers in .deploy/examples. The in-cluster build reads the same list from k8s-gitops
+    # apps/ci-builds (catalog.json, tools/policy-overrides.json): change both together.
     paths:
-      - "packages/toolkit/examples/**"
+      - "packages/toolkit/**"
+      - "packages/toolkit-ui/**"
+      - "packages/toolkit-types/**"
+      - "packages/api/**"
+      - "packages/config-tailwind/**"
+      - "packages/ts-config/**"
       - "apps/storybook/**"
-      - "packages/toolkit/builder/**"
+      - ".deploy/examples/**"
       - ".github/workflows/k8s-build-examples.yml"
 concurrency:
   group: k8s-build-examples-${{ github.ref }}
