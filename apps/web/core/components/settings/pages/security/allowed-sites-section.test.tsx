@@ -15,17 +15,13 @@ jest.mock('sonner', () => ({
 		error: (...args: unknown[]) => mockToastError(...args)
 	}
 }));
-jest.mock('next-intl', () => ({
-	useTranslations: () => (key: string, values?: Record<string, unknown>) => {
-		if (!values) {
-			return key;
-		}
-		return `${key} ${JSON.stringify(values)}`;
-	},
-	useFormatter: () => ({
-		dateTime: (value: Date) => `date(${value.toISOString().slice(0, 10)})`
-	})
-}));
+jest.mock('next-intl', () => {
+	const { dayOf, translationKey } = jest.requireActual('@/test/i18n/translation-keys');
+	return {
+		useTranslations: () => translationKey,
+		useFormatter: () => ({ dateTime: dayOf })
+	};
+});
 jest.mock('@/core/components/icons', () => ({
 	Globe: () => <span data-icon="site" />
 }));
