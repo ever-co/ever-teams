@@ -5633,6 +5633,19 @@
 			"SIGNED_OUT_OTHERS": "{count, plural, =0 {Nessun'altra sessione era aperta.} one {# altra sessione è stata chiusa.} other {# altre sessioni sono state chiuse.}}",
 			"APP_ON_DEVICE": "{app} · {device}"
 		},
+		"allowedSites": {
+			"TITLE": "Siti da cui hai effettuato l’accesso",
+			"DESCRIPTION": "I siti a cui hai consentito di avviare e fermare il tuo timer di {appName}. Termina l’accesso da un sito che non usi più o che non riconosci.",
+			"RENEWS_UNTIL": "Può rinnovare l’accesso fino al {date}",
+			"END": "Termina",
+			"EMPTY": "Non hai effettuato l’accesso da nessun sito.",
+			"LOAD_FAILED": "Non è stato possibile caricare i siti da cui hai effettuato l’accesso.",
+			"RETRY": "Riprova",
+			"END_TITLE": "Terminare l’accesso da {site}?",
+			"END_DESCRIPTION": "Il sito non può più rinnovare l’accesso. Al prossimo rinnovo mostrerà di nuovo il pulsante «Accedi con {appName}».",
+			"ENDED": "L’accesso da {site} è stato terminato.",
+			"END_FAILED": "L’accesso non è stato terminato. Riprova."
+		},
 		"profile": {
 			"SECTION_PROFILE": "Profilo",
 			"PHOTO": "Foto",

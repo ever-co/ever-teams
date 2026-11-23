@@ -5633,6 +5633,19 @@
 			"SIGNED_OUT_OTHERS": "{count, plural, =0 {Nenhuma outra sessão estava conectada.} one {# outra sessão foi encerrada.} other {# outras sessões foram encerradas.}}",
 			"APP_ON_DEVICE": "{app} · {device}"
 		},
+		"allowedSites": {
+			"TITLE": "Sites de onde você entrou",
+			"DESCRIPTION": "Os sites que você permitiu iniciar e parar seu cronômetro do {appName}. Encerre o acesso de um site que você não usa mais ou não reconhece.",
+			"RENEWS_UNTIL": "Pode renovar o acesso até {date}",
+			"END": "Encerrar",
+			"EMPTY": "Você não entrou a partir de nenhum site.",
+			"LOAD_FAILED": "Não foi possível carregar os sites de onde você entrou.",
+			"RETRY": "Tentar novamente",
+			"END_TITLE": "Encerrar o acesso feito de {site}?",
+			"END_DESCRIPTION": "O site não pode mais renovar o acesso. Na próxima renovação, ele mostra de novo o botão “Entrar com {appName}”.",
+			"ENDED": "O acesso feito de {site} foi encerrado.",
+			"END_FAILED": "O acesso não foi encerrado. Tente novamente."
+		},
 		"profile": {
 			"SECTION_PROFILE": "Perfil",
 			"PHOTO": "Foto",

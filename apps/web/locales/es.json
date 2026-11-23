@@ -5633,6 +5633,19 @@
 			"SIGNED_OUT_OTHERS": "{count, plural, =0 {No había otra sesión abierta.} one {Se cerró # sesión más.} other {Se cerraron # sesiones más.}}",
 			"APP_ON_DEVICE": "{app} · {device}"
 		},
+		"allowedSites": {
+			"TITLE": "Sitios desde los que iniciaste sesión",
+			"DESCRIPTION": "Los sitios a los que permitiste iniciar y detener tu temporizador de {appName}. Finaliza la sesión de un sitio que ya no usas o que no reconoces.",
+			"RENEWS_UNTIL": "Puede renovar la sesión hasta el {date}",
+			"END": "Finalizar",
+			"EMPTY": "No has iniciado sesión desde ningún sitio.",
+			"LOAD_FAILED": "No se pudieron cargar los sitios desde los que iniciaste sesión.",
+			"RETRY": "Reintentar",
+			"END_TITLE": "¿Finalizar la sesión iniciada desde {site}?",
+			"END_DESCRIPTION": "El sitio ya no puede renovar la sesión. En su próxima renovación volverá a mostrar su botón «Iniciar sesión con {appName}».",
+			"ENDED": "Se finalizó la sesión iniciada desde {site}.",
+			"END_FAILED": "No se finalizó la sesión. Inténtalo de nuevo."
+		},
 		"profile": {
 			"SECTION_PROFILE": "Perfil",
 			"PHOTO": "Foto",
