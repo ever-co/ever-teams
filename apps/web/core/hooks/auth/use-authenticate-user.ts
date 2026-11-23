@@ -38,11 +38,26 @@ import { rememberTeam } from '@/core/lib/auth/remembered-team';
  *
  * @param shownTimeLogId The run this tab showed, named when the API's answer names none.
  */
+/**
+ * The run a stop ended, from the status read after it. A status that shows a run going on is of a run started since,
+ * in another tab: it is not the one that was stopped, and the run this tab showed is named instead.
+ */
+function stoppedTimeLogIdOf(
+	statusAfterStop: { running?: boolean; lastLog?: { id?: string; isRunning?: boolean } | null } | undefined,
+	shownTimeLogId: string | null
+): string | null {
+	const lastLog = statusAfterStop?.lastLog;
+	const showsRunGoingOn = Boolean(statusAfterStop?.running) || Boolean(lastLog?.isRunning);
+	if (showsRunGoingOn) {
+		return shownTimeLogId;
+	}
+	return lastLog?.id ?? shownTimeLogId;
+}
+
 async function stopTimerForSignOut(shownTimeLogId: string | null): Promise<void> {
 	try {
 		const answer = await timerService.stopTimer({ source: ETimeLogSource.TEAMS });
-		const stoppedTimeLogId = answer?.data?.lastLog?.id ?? shownTimeLogId;
-		leaveOwnSignOutMark(stoppedTimeLogId);
+		leaveOwnSignOutMark(stoppedTimeLogIdOf(answer?.data, shownTimeLogId));
 	} catch (error) {
 		logErrorInDev('[Auth] Timer stop before logout failed:', error);
 	}

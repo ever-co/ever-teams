@@ -98,6 +98,16 @@ describe('a sign-out while the timer runs', () => {
 		expect(ownSignOutMark()?.stoppedTimeLogId).toBe('log-2');
 	});
 
+	it('does not name a run started in another tab right after the stop', async () => {
+		const startedSince = { data: { running: true, lastLog: { id: 'log-3', isRunning: true } } };
+		jest.spyOn(timerService, 'stopTimer').mockResolvedValue(startedSince as never);
+		const signOut = await openPageWithRunningTimer();
+
+		await signOut();
+
+		expect(ownSignOutMark()?.stoppedTimeLogId).toBe('log-1');
+	});
+
 	it('still tells them when the stop answers after the sign-out stopped waiting for it', async () => {
 		let answerStop: (answer: unknown) => void = () => undefined;
 		const slowStop = new Promise((resolve) => {
