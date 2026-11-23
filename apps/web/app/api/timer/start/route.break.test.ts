@@ -71,6 +71,20 @@ describe('POST /api/timer/start with a break', () => {
 		expect(options).toEqual({ keepsStatusOnError: true });
 	});
 
+	// A refusal that names its status in its body (403 while tracking is off) is answered as it always was: keeping
+	// the status changes nothing for it
+	it('reads the refusal of a work start as before', async () => {
+		const refusal = { statusCode: 403, message: 'Time tracking is turned off for you in this team.' };
+		const rejection = Promise.reject(refusal);
+		rejection.catch(() => undefined);
+		mockStartTimerRequest.mockRejectedValue(rejection);
+
+		const response = await startTimer({ taskId: 'task-1' });
+
+		expect(response.status).toBe(403);
+		await expect(response.json()).resolves.toEqual(refusal);
+	});
+
 	// Gauzy refuses a work start without the required daily plan with a body that carries no status either (422
 	// DAILY_PLAN_REQUIRED): read as before, it reached the timer as a 502 and its reason was lost (#5716)
 	it('keeps the status of a refused work start too', async () => {
