@@ -7225,6 +7225,7 @@
 		"UNSAVED": "Niet-opgeslagen wijzigingen",
 		"NOT_SAVED": "Niet opgeslagen",
 		"SAVE_ERROR": "De laatste wijziging kon niet worden opgeslagen. Hij blijft in dit tabblad; probeer opnieuw of controleer je verbinding.",
+		"SAVE_FORBIDDEN": "Je kunt deze pagina lezen, maar niet wijzigen: de laatste wijziging is niet opgeslagen. Ze blijft in dit tabblad staan. Vraag de auteur de pagina met je te delen om te bewerken.",
 		"SAVE_TITLE_ERROR": "De titel kon niet worden opgeslagen.",
 		"TOO_LARGE": "Deze pagina is te groot om op te slaan. Splits hem of verwijder enkele afbeeldingen.",
 		"CONFLICT_TITLE": "Iemand anders heeft deze pagina opgeslagen",

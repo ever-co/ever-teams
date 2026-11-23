@@ -7225,6 +7225,7 @@
 		"UNSAVED": "Cambios sin guardar",
 		"NOT_SAVED": "No guardado",
 		"SAVE_ERROR": "No se pudo guardar el último cambio. Se queda en esta pestaña; reintenta o revisa tu conexión.",
+		"SAVE_FORBIDDEN": "Puedes leer esta página, pero no cambiarla: el último cambio no se guardó. Se queda en esta pestaña. Pide al autor que comparta la página contigo para editarla.",
 		"SAVE_TITLE_ERROR": "No se pudo guardar el título.",
 		"TOO_LARGE": "Esta página es demasiado grande para guardarla. Divídela o quita algunas imágenes.",
 		"CONFLICT_TITLE": "Alguien más guardó esta página",

@@ -7225,6 +7225,7 @@
 		"UNSAVED": "Modifiche non salvate",
 		"NOT_SAVED": "Non salvato",
 		"SAVE_ERROR": "L’ultima modifica non è stata salvata. Resta in questa scheda; riprova o controlla la connessione.",
+		"SAVE_FORBIDDEN": "Puoi leggere questa pagina, ma non modificarla: l’ultima modifica non è stata salvata. Resta in questa scheda. Chiedi all’autore di condividere la pagina con te in modifica.",
 		"SAVE_TITLE_ERROR": "Impossibile salvare il titolo.",
 		"TOO_LARGE": "Questa pagina è troppo grande per essere salvata. Dividila o rimuovi alcune immagini.",
 		"CONFLICT_TITLE": "Qualcun altro ha salvato questa pagina",
