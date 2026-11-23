@@ -193,6 +193,7 @@
 		"codeSentTo": "我们已将验证码发送至：",
 		"errors": {
 			"invalidCode": "验证码或电子邮箱无效",
+			"existingAccountSignInFirst": "此电子邮箱已有账户。请先登录该账户，然后在应用中接受邀请。",
 			"notSetUp": "你的账户尚未完全设置",
 			"workspaceNotLoaded": "无法加载你的工作区，请重试。",
 			"emptyEmail": "电子邮箱不能为空",

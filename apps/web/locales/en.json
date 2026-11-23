@@ -2437,6 +2437,7 @@
 			"ENTER_EMAIL": "Enter email",
 			"WORKSPACES_NOT_FOUND": "Workspaces not found",
 			"INVALID_CODE_TRY_AGAIN": "Invalid code. Please try again.",
+			"EXISTING_ACCOUNT_SIGN_IN_FIRST": "This email already has an account. Sign in to it, then accept the invitation from your home.",
 			"EMPTY_WORKSPACE_WARNING_TITLE": "This workspace has no teams",
 			"EMPTY_WORKSPACE_WARNING_MESSAGE": "You'll be prompted to create a team after logging in.",
 			"NO_TEAMS_BADGE": "No teams",
