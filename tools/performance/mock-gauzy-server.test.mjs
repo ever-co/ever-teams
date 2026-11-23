@@ -101,7 +101,10 @@ test('survives an aborted request body and continues serving deterministic traff
 	const response = await fetch(`${server.origin}/api/user/me`);
 	assert.equal(response.status, 200);
 	assert.equal((await response.json()).id, fixture.ids.user);
-	assert.equal(server.requests().some((request) => request.path === '/api/tasks'), false);
+	assert.equal(
+		server.requests().some((request) => request.path === '/api/tasks'),
+		false
+	);
 });
 
 test('allows credentials only for the deterministic local browser origins', async (context) => {
@@ -120,4 +123,23 @@ test('allows credentials only for the deterministic local browser origins', asyn
 	});
 	assert.equal(untrusted.status, 403);
 	assert.equal(untrusted.headers.get('access-control-allow-origin'), null);
+});
+
+test('answers the active-task save with an update result, while other team-member writes keep their echo', async (context) => {
+	const server = await createMockGauzyServer({ fixture, port: 0 });
+	context.after(() => server.close());
+	const write = (path, payload) =>
+		fetch(`${server.origin}${path}`, {
+			method: 'PUT',
+			headers: { 'content-type': 'application/json' },
+			body: JSON.stringify(payload)
+		}).then((response) => response.json());
+
+	const saved = await write('/api/organization-team-employee/member-1/active-task', {
+		activeTaskId: fixture.ids.task
+	});
+	assert.deepEqual(saved, { affected: 1, generatedMaps: [], raw: [] });
+
+	const echoed = await write('/api/organization-team-employee/member-1', { isTrackingEnabled: true });
+	assert.deepEqual(echoed, { isTrackingEnabled: true });
 });

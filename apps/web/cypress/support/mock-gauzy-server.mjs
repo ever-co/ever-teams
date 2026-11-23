@@ -759,6 +759,11 @@ function routeResponse(
 	// Where the caller stands against each time goal: a plain list (core/services/client/api/timesheets/
 	// time-goal.service.ts `progress`); the goals list itself is the default pagination
 	if (pathname === '/api/time-goals/progress' && method === 'GET') return [];
+	// A timer start ends by saving the member's active task, and the app reads that answer as an update result
+	// (core/services/client/api/organizations/teams/team-employee.service.ts, updateActiveTaskSchema): an echo of the
+	// body would be refused and show "The active task was not saved" after every start
+	if (/^\/api\/organization-team-employee\/[^/]+\/active-task$/.test(pathname) && method === 'PUT')
+		return { affected: 1, generatedMaps: [], raw: [] };
 	if (/^\/api\/organization-team-employee\//.test(pathname))
 		return body ?? { affected: 1, generatedMaps: [], raw: [] };
 	// Scheduled meetings (employee appointments): kept for the session, so a meeting scheduled shows in the agenda
