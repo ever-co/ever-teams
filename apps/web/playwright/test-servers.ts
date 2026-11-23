@@ -148,6 +148,10 @@ const sharedEnv = (apiOrigin: string): Record<string, string> => ({
 	// That file reads this key back off the page it is served and skips its trusted-Board half when it is blank, so a
 	// plain run cannot silently misprove the mounted case.
 	NEXT_PUBLIC_BOARD_APP_DOMAIN: process.env.E2E_BOARD_APP_DOMAIN ?? '',
+	// Docs is off by default (core/lib/utils/docs-enabled.ts) and off here unless a run asks for it (E2E_DOCS=1), like
+	// the Board above: with it off `/docs/<id>` sends the person home before any docs read (docs-page.tsx), so a docs
+	// spec needs an app started with it on. Blank also keeps a developer's own .env from turning it on in every run.
+	NEXT_PUBLIC_DOCS_ENABLED: process.env.E2E_DOCS === '1' ? 'true' : '',
 	NEXT_PUBLIC_BOARD_BACKEND_POST_URL: '',
 	NEXT_PUBLIC_BOARD_FIREBASE_CONFIG: '',
 	NEXT_PUBLIC_MEET_DOMAIN: '',
