@@ -595,7 +595,10 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES, onOpen
 
 	// The read-only view shows the stored HTML, which lacks the block anchors: a page whose JSON has them is rendered
 	// from it (the editor's HTML code loads for that), so a link to a block finds it there too.
-	const readOnlyNow = Boolean(page && (page.isLocked || page.isArchived || unsupported));
+	// A page the person may read and not change opens read-only (#5723). A live session has its own read-only
+	// editor and says why itself, with the text as it changes: it keeps the page then.
+	const hasNoWriteAccess = Boolean(page && isPageWithoutWriteAccess(page) && !isLiveEditing);
+	const readOnlyNow = Boolean(page && (page.isLocked || page.isArchived || unsupported || hasNoWriteAccess));
 	const storedHtml = page?.contentHtml ?? '';
 	const storedJson = page?.contentJson ?? null;
 	const [anchoredHtml, setAnchoredHtml] = useState<{ json: IDocumentNode; html: string } | null>(null);
@@ -792,7 +795,6 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES, onOpen
 
 	const isPrivate = page.visibility === EDocumentVisibility.PRIVATE;
 	const isFolder = page.kind === EDocumentKind.FOLDER;
-	const hasNoWriteAccess = isPageWithoutWriteAccess(page);
 	const isReadOnly = Boolean(page.isLocked || page.isArchived || unsupported || hasNoWriteAccess);
 	const isFavorite = actions.isFavorite(page.id);
 	const shownTitle = pageTitle({ name: title }, t('docs.UNTITLED'));
