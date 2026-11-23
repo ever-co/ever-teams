@@ -2,7 +2,15 @@
  * Proxy mode: the sites the signed-in person allowed to use their timer (#5595) are read through Gauzy with the
  * session's token, answered as Gauzy answers (the 404 of a server without embeds included) and marked no-store.
  */
-import { gauzyAnswers, gauzyUrl, restoreFetch, sentToGauzy, signedInRequest } from '@/test/api/forward-to-gauzy';
+import {
+	gauzyAnswers,
+	gauzyUrl,
+	itAnswersGauzys404AsItIs,
+	itSendsNothingWithoutASession,
+	restoreFetch,
+	sentToGauzy,
+	signedInRequest
+} from '@/test/api/forward-to-gauzy';
 import { GET } from './route';
 
 afterEach(restoreFetch);
@@ -32,22 +40,11 @@ describe('GET /api/embed/grants', () => {
 		await expect(response.json()).resolves.toEqual([GRANT]);
 	});
 
-	it("answers a server without embeds with Gauzy's 404, which the page reads as not available", async () => {
-		const missing = { statusCode: 404, message: 'Cannot GET /api/embed/grants' };
-		gauzyAnswers(Response.json(missing, { status: 404 }));
+	itAnswersGauzys404AsItIs(
+		"answers a server without embeds with Gauzy's 404, which the page reads as not available",
+		() => GET(signedInRequest(URL)),
+		'Cannot GET /api/embed/grants'
+	);
 
-		const response = await GET(signedInRequest(URL));
-
-		expect(response.status).toBe(404);
-		await expect(response.json()).resolves.toEqual(missing);
-	});
-
-	it('sends nothing for a browser without a session', async () => {
-		const fetchMock = gauzyAnswers(Response.json([], { status: 200 }));
-
-		const response = await GET(new Request(URL));
-
-		expect(response.status).toBe(401);
-		expect(fetchMock).not.toHaveBeenCalled();
-	});
+	itSendsNothingWithoutASession(() => GET(new Request(URL)));
 });
