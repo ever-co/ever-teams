@@ -144,6 +144,11 @@
       "source": "router"
     },
     {
+      "path": "/:locale/embed/authorize",
+      "file": "apps/web/app/[locale]/(focus)/embed/authorize/page.tsx",
+      "source": "router"
+    },
+    {
       "path": "/:locale/favorites",
       "file": "apps/web/app/[locale]/(main)/favorites/page.tsx",
       "source": "router"
@@ -361,6 +366,11 @@
     {
       "path": "/:locale/settings/workspace",
       "file": "apps/web/app/[locale]/(main)/settings/workspace/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/settings/workspace/embeds",
+      "file": "apps/web/app/[locale]/(main)/settings/workspace/embeds/page.tsx",
       "source": "router"
     },
     {

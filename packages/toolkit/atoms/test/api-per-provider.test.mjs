@@ -211,7 +211,13 @@ test('a sign-in on the first of two providers goes to its own API only, with a p
 	]);
 
 	await signInOn('a');
-	assert.deepEqual(requestsTo('/auth/login'), [{ host: hostOf(SERVER_A), path: '/auth/login', method: 'POST' }]);
+	assert.deepEqual(
+		[...requestsTo('/auth/signin.email.password'), ...requestsTo('/auth/signin.workspace')],
+		[
+			{ host: hostOf(SERVER_A), path: '/auth/signin.email.password', method: 'POST' },
+			{ host: hostOf(SERVER_A), path: '/auth/signin.workspace', method: 'POST' }
+		]
+	);
 
 	await signInWithTokenOn('a');
 	assert.deepEqual(requestsTo('/user/me'), [{ host: hostOf(SERVER_A), path: '/user/me', method: 'GET' }]);
@@ -368,7 +374,13 @@ test('a team created and a password changed under the second of two providers go
 	await settle();
 
 	const sent = requests.filter(({ method }) => method !== 'GET').map(({ method, path }) => `${method} ${path}`);
-	assert.deepEqual(sent, ['POST /auth/login', 'POST /organization-team', 'POST /auth/login', 'PUT /user/user-1']);
+	assert.deepEqual(sent, [
+		'POST /auth/signin.email.password',
+		'POST /auth/signin.workspace',
+		'POST /organization-team',
+		'POST /auth/login',
+		'PUT /user/user-1'
+	]);
 	assert.ok(requestsTo('/organization-team/me').length > 0, 'the teams are read again');
 	assert.deepEqual(new Set(requests.map(({ host }) => host)), new Set([hostOf(SERVER_B)]));
 });
@@ -447,7 +459,7 @@ const hostSignInOn = (server) => ({
 });
 
 test('a sign-in that answers once its provider moved to another address leaves no session there', async () => {
-	const api = answering([{ host: hostOf(SERVER_A), path: '/auth/login', held: true }]);
+	const api = answering([{ host: hostOf(SERVER_A), path: '/auth/signin.workspace', held: true }]);
 	const { root } = await openPage([['a', { apiUrl: SERVER_A }, holdingsOf('a')]]);
 	let signingIn;
 	await act(async () => {
@@ -546,7 +558,13 @@ test('sessions read on the previous address of a provider never show once it has
 
 test('reads that fail once their provider moved to another address show no error there', async () => {
 	// After the sign-in on A, every read of the pickers and the reports waits, then A refuses it.
-	const answeredAtOnce = ['/auth/login', '/user/me', '/role-permissions/me', '/user-organization'];
+	const answeredAtOnce = [
+		'/auth/signin.email.password',
+		'/auth/signin.workspace',
+		'/user/me',
+		'/role-permissions/me',
+		'/user-organization'
+	];
 	const standard = recordingFetch(requests);
 	const waiting = [];
 	globalThis.fetch = async (url, init) => {

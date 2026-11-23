@@ -323,8 +323,8 @@ export function parseStringInputToHours(input: string): {
 	const raw = input.trim();
 	if (!raw) return { hours: 0 };
 
-	// Support H:MM format
-	const colonMatch = raw.match(/^(\d{1,2}):(\d{1,2})$/);
+	// Support H:MM format, with as many hour digits as hoursToHMM writes (100:30 for 100.5 hours)
+	const colonMatch = raw.match(/^(\d{1,3}):(\d{1,2})$/);
 	if (colonMatch) {
 		const h = Number(colonMatch[1]);
 		const m = Number(colonMatch[2]);

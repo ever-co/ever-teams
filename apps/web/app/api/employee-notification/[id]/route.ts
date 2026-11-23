@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { updateEmployeeNotificationRequest } from '@/core/services/server/requests/employee-notification';
 import { gauzyErrorResponse } from '@/core/services/server/gauzy-error-response';
-import { notificationPatchSchema } from '@/core/lib/validation/employee-notification';
+import { parseNotificationPatch } from '@/core/lib/validation/employee-notification';
 import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
 
 const notificationIdSchema = z.guid();
@@ -21,7 +21,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 	if (!user) return $res('Unauthorized');
 
 	const requestBody: unknown = await req.json().catch(() => null);
-	const parsed = notificationPatchSchema.safeParse(requestBody);
+	const parsed = parseNotificationPatch(requestBody);
 	if (!parsed.success) {
 		return NextResponse.json({ error: 'Only the read, archived and snooze state can change' }, { status: 400 });
 	}

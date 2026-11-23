@@ -193,6 +193,7 @@
 		"codeSentTo": "Wir haben einen Code gesendet an:",
 		"errors": {
 			"invalidCode": "Authentifizierungscode oder E-Mail-Adresse ungültig",
+			"existingAccountSignInFirst": "Für diese E-Mail-Adresse gibt es bereits ein Konto. Melde dich dort an und nimm die Einladung dann in der App an.",
 			"notSetUp": "Ihr Konto ist noch nicht vollständig eingerichtet",
 			"workspaceNotLoaded": "Ihr Arbeitsbereich konnte nicht geladen werden. Bitte versuchen Sie es erneut.",
 			"emptyEmail": "Die E-Mail-Adresse darf nicht leer sein",

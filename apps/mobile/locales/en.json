@@ -193,6 +193,7 @@
 		"codeSentTo": "We sent a code to:",
 		"errors": {
 			"invalidCode": "Authentication code or email address invalid",
+			"existingAccountSignInFirst": "This email already has an account. Sign in to it, then accept the invitation in the app.",
 			"notSetUp": "Your account isn’t fully set up yet",
 			"workspaceNotLoaded": "Your workspace could not be loaded. Please try again.",
 			"emptyEmail": "Email should not be empty",

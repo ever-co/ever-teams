@@ -4,7 +4,9 @@ import { savedInvoiceSchema } from './invoice.schema';
 const sharedInvoiceSenderSchema = z.object({
 	name: z.string().nullable().optional(),
 	officialName: z.string().nullable().optional(),
-	brandColor: z.string().nullable().optional()
+	brandColor: z.string().nullable().optional(),
+	/** The zone the organization dates its invoices in, once the public read gives it (ever-co/ever-gauzy#12136). */
+	timeZone: z.string().nullable().optional()
 });
 
 /**

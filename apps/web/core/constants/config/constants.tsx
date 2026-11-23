@@ -1161,21 +1161,25 @@ export const paginationPageSizeOptions = [5, 10, 20, 30, 40, 50];
 export const InviteStatusDisplayMap = {
 	[EInviteStatus.INVITED]: {
 		label: 'Pending',
+		labelKey: 'modals.invite.PENDING_STATUS',
 		foreground: 'rgb(30, 144, 255)',
 		background: 'rgba(30, 144, 255, 0.1)'
 	},
 	[EInviteStatus.ACCEPTED]: {
 		label: 'Accepted',
+		labelKey: 'common.ACCEPTED',
 		foreground: 'rgb(0, 128, 0)',
 		background: 'rgba(0, 128, 0, 0.1)'
 	},
 	[EInviteStatus.EXPIRED]: {
 		label: 'Expired',
+		labelKey: 'modals.invite.EXPIRED_STATUS',
 		foreground: 'rgb(128, 128, 128)',
 		background: 'rgba(128, 128, 128, 0.1)'
 	},
 	[EInviteStatus.REJECTED]: {
 		label: 'Rejected',
+		labelKey: 'common.REJECTED',
 		foreground: 'rgb(255, 99, 71)',
 		background: 'rgba(255, 99, 71, 0.1)'
 	}

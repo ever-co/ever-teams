@@ -31,6 +31,8 @@ jest.mock('jotai', () => ({
 	}
 }));
 jest.mock('@/core/hooks/queries/user-user.query', () => ({ useUserQuery: () => ({ data: mockUser }) }));
+// The page asks the API whether to ask for a verified address (#5677): every user here has one, so it is not asked
+jest.mock('@/core/hooks/auth/use-email-verification-status', () => ({ useAsksForEmailVerification: () => false }));
 jest.mock('@/core/hooks', () => ({ useIsMemberManager: () => ({ isTeamManager: false }) }));
 jest.mock('@/core/hooks/invitations/use-my-invitations-query', () => ({
 	useMyInvitationsQuery: () => ({ myInvitations: [], refetchMyInvitations: jest.fn() })

@@ -180,6 +180,10 @@ export const apiRoutes: ApiRoute[] = [
 		verbs: ['POST']
 	},
 	{
+		path: '/api/auth/verify/status',
+		verbs: ['GET']
+	},
+	{
 		path: '/api/auth/verify/token',
 		verbs: ['POST']
 	},
@@ -1577,6 +1581,10 @@ export const apiRoutes: ApiRoute[] = [
 	},
 	{
 		path: '/api/timesheet/statistics/counts',
+		verbs: ['GET']
+	},
+	{
+		path: '/api/timesheet/statistics/profile-activity',
 		verbs: ['GET']
 	},
 	{

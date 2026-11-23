@@ -4,6 +4,7 @@ import { deleteTaskSizesRequest, editTaskSizesRequest } from '@/core/services/se
 import { NextResponse } from 'next/server';
 import { ITaskSizesCreate } from '@/core/types/interfaces/task/task-size';
 import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
+import { gauzyErrorResponse } from '@/core/services/server/gauzy-error-response';
 
 export async function PUT(req: Request, props: INextParams) {
 	const foreign = refuseForeignOrigin(req);
@@ -23,14 +24,18 @@ export async function PUT(req: Request, props: INextParams) {
 
 	const datas = (await req.json()) as unknown as ITaskSizesCreate;
 
-	const response = await editTaskSizesRequest({
-		id: params.id,
-		bearer_token: access_token || '',
-		datas,
-		tenantId: tenantId || ''
-	});
-
-	return $res(response.data);
+	try {
+		const response = await editTaskSizesRequest({
+			id: params.id,
+			bearer_token: access_token || '',
+			datas,
+			tenantId: tenantId || ''
+		});
+		return $res(response.data);
+	} catch (error) {
+		// A refusal of the API goes back with its status and reason, as in direct mode (#5726)
+		return await gauzyErrorResponse(error, 'The size could not be updated.');
+	}
 }
 
 export async function DELETE(req: Request, props: INextParams) {
@@ -47,11 +52,15 @@ export async function DELETE(req: Request, props: INextParams) {
 
 	if (!user) return $res('Unauthorized');
 
-	const response = await deleteTaskSizesRequest({
-		id: params.id,
-		bearer_token: access_token,
-		tenantId
-	});
-
-	return $res(response.data);
+	try {
+		const response = await deleteTaskSizesRequest({
+			id: params.id,
+			bearer_token: access_token,
+			tenantId
+		});
+		return $res(response.data);
+	} catch (error) {
+		// A refusal of the API goes back with its status and reason, as in direct mode (#5726)
+		return await gauzyErrorResponse(error, 'The size could not be deleted.');
+	}
 }

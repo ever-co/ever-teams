@@ -128,7 +128,11 @@
 		"two_factor_recovery_incomplete": "Enter the whole recovery code.",
 		"two_factor_expired": "This sign-in waited too long for its code. Sign in again.",
 		"two_factor_too_many": "Too many wrong codes. Wait a few minutes, then try again.",
-		"two_factor_failed": "The code could not be checked. Try again in a moment."
+		"two_factor_failed": "The code could not be checked. Try again in a moment.",
+		"workspace_choice_title": "Choose a workspace",
+		"workspace_choice_description": "Your email and password open more than one workspace. Pick the one this site tracks your time in.",
+		"workspace_unnamed": "Unnamed workspace",
+		"workspace_back": "Back to sign in"
 	},
 	"INPUT": {
 		"language_switcher": {

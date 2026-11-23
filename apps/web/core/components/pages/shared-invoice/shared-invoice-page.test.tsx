@@ -7,6 +7,8 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 const search = new URLSearchParams();
 const mockLink = { current: undefined as { id: string; token: string } | null | undefined };
 const mockKeepLinkWhilePaying = jest.fn();
+const mockPaperProps = jest.fn();
+const mockStandingProps = jest.fn();
 
 jest.mock('next-intl', () => ({
 	useTranslations: () => (key: string, values?: Record<string, unknown>) =>
@@ -19,10 +21,16 @@ jest.mock('@/core/components/pages/invoices/detail/invoice-detail-skeleton', () 
 	InvoiceDetailBodySkeleton: () => null
 }));
 jest.mock('@/core/components/pages/invoices/detail/invoice-detail-paper', () => ({
-	InvoiceDetailPaper: () => <div data-testid="paper" />
+	InvoiceDetailPaper: (props: unknown) => {
+		mockPaperProps(props);
+		return <div data-testid="paper" />;
+	}
 }));
 jest.mock('@/core/components/invoices/invoice-standing', () => ({
-	InvoiceStandingLabel: () => <span data-testid="standing" />
+	InvoiceStandingLabel: (props: unknown) => {
+		mockStandingProps(props);
+		return <span data-testid="standing" />;
+	}
 }));
 jest.mock('@/core/hooks/invoices/use-shared-invoice-link', () => ({
 	useSharedInvoiceLink: () => mockLink.current,
@@ -38,6 +46,7 @@ jest.mock('@/core/services/client/api/public/shared-invoice.service', () => ({
 }));
 
 import { sharedInvoiceService } from '@/core/services/client/api/public/shared-invoice.service';
+import { invoiceDayOf } from '@/core/lib/utils/invoices';
 import { SharedInvoicePage } from './shared-invoice-page';
 
 const service = sharedInvoiceService as jest.Mocked<typeof sharedInvoiceService>;
@@ -282,4 +291,28 @@ describe('SharedInvoicePage (ever-co/ever-gauzy#11856)', () => {
 		expect(screen.getByLabelText('common.LOADING')).toBeTruthy();
 		expect(service.getSharedInvoice).not.toHaveBeenCalled();
 	});
+
+	it('dates the invoice with the days it was written for, for a client west or east of the workspace', async () => {
+		// Issued Nov 22 and due Dec 22 in Berlin: the first instant of the one and the last instant of the other there
+		const berlinDays = { invoiceDate: '2026-11-21T23:00:00.000Z', dueDate: '2026-12-22T22:59:59.999Z' };
+		service.getSharedInvoice.mockResolvedValue({ ...INVOICE, ...berlinDays } as never);
+		show();
+		await screen.findByTestId('paper');
+
+		const { invoice, timeZone } = mockPaperProps.mock.lastCall[0] as DatedProps;
+		const standing = mockStandingProps.mock.lastCall[0] as DatedProps;
+		for (const readerZone of ['America/New_York', 'Asia/Tokyo']) {
+			// The paper reads a date in the zone it is given, and in the reader's when it is given none
+			const zone = timeZone ?? readerZone;
+			expect(invoiceDayOf(invoice.invoiceDate, zone)).toBe('2026-11-22');
+			expect(invoiceDayOf(invoice.dueDate, zone)).toBe('2026-12-22');
+		}
+		expect(standing.invoice.dueDate).toBe(invoice.dueDate);
+		expect(standing.timeZone).toBe(timeZone);
+	});
 });
+
+interface DatedProps {
+	invoice: { invoiceDate?: string | null; dueDate?: string | null };
+	timeZone: string | null | undefined;
+}
