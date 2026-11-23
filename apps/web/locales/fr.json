@@ -7206,6 +7206,7 @@
 		"IN_TRASH": "Dans la corbeille",
 		"IN_TRASH_NOTICE": "Cette page est dans la corbeille. Restaurez-la pour la modifier.",
 		"LOCKED_NOTICE": "Cette page est verrouillée sur la plateforme et ne peut qu’être lue.",
+		"NO_WRITE_ACCESS_NOTICE": "Vous pouvez lire cette page, mais pas la modifier. Demandez à son auteur de la partager avec vous en modification.",
 		"LOCKED_WHILE_EDITING": "La page a été verrouillée pendant que vous écriviez. Rechargez-la pour lire le texte le plus récent ; vos modifications restent dans cet onglet d’ici là.",
 		"SEARCH_PAGES": "Rechercher des pages",
 		"CLEAR_SEARCH": "Effacer la recherche",

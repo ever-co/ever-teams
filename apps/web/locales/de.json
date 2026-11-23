@@ -7206,6 +7206,7 @@
 		"IN_TRASH": "Im Papierkorb",
 		"IN_TRASH_NOTICE": "Diese Seite liegt im Papierkorb. Stelle sie wieder her, um sie zu bearbeiten.",
 		"LOCKED_NOTICE": "Diese Seite ist auf der Plattform gesperrt und kann nur gelesen werden.",
+		"NO_WRITE_ACCESS_NOTICE": "Du kannst diese Seite lesen, aber nicht ändern. Bitte den Autor, sie zum Bearbeiten mit dir zu teilen.",
 		"LOCKED_WHILE_EDITING": "Die Seite wurde gesperrt, während du geschrieben hast. Lade sie neu, um den aktuellen Text zu lesen; deine Änderungen bleiben bis dahin in diesem Tab.",
 		"SEARCH_PAGES": "Seiten suchen",
 		"CLEAR_SEARCH": "Suche leeren",
