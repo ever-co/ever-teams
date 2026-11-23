@@ -550,5 +550,13 @@
 	{
 		"id": "removed:testNames:packages/toolkit/atoms/test/host-untouched.test.mjs::without a picked font the kit root keeps the host font::#1",
 		"reason": "Replaced by the KIT-22 font change (#5456, 2fb51f509): without a picked font, the kit root and its portal container now draw in the web app's font instead of inheriting the host's. What the old test guarded, that the host page keeps its own font, is still checked by \"without a picked font the kit root and its portal container take the web app font, the host page keeps its own\" in the same file."
+	},
+	{
+		"id": "removed:navigation:apps/web/core/components/settings/pages/api-tokens/api-token-usage-section.tsx::API_URL_PLACEHOLDER=API_URL::#1",
+		"reason": "Moved, not removed, by the refactor of #5577 (358585c06): the placeholder shown when no API address is known is now the exported API_URL_PLACEHOLDER of apps/web/core/lib/utils/public-api-origin.ts, which this section reads through publicApiOriginOrPlaceholder. The page shows the same text, covered by api-tokens-settings-page.test.tsx and public-api-origin.test.ts."
+	},
+	{
+		"id": "removed:navigation:apps/web/core/components/settings/pages/api-tokens/api-token-usage-section.tsx::constant=API_URL_PLACEHOLDER::#1",
+		"reason": "Moved, not removed, by the refactor of #5577 (358585c06): the placeholder shown when no API address is known is now the exported API_URL_PLACEHOLDER of apps/web/core/lib/utils/public-api-origin.ts, which this section reads through publicApiOriginOrPlaceholder. The page shows the same text, covered by api-tokens-settings-page.test.tsx and public-api-origin.test.ts."
 	}
 ]
