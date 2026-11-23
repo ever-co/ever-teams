@@ -180,6 +180,10 @@ export const apiRoutes: ApiRoute[] = [
 		verbs: ['POST']
 	},
 	{
+		path: '/api/auth/verify/status',
+		verbs: ['GET']
+	},
+	{
 		path: '/api/auth/verify/token',
 		verbs: ['POST']
 	},
@@ -466,6 +470,14 @@ export const apiRoutes: ApiRoute[] = [
 	{
 		path: '/api/embed/authorize',
 		verbs: ['POST']
+	},
+	{
+		path: '/api/embed/grants/[id]',
+		verbs: ['DELETE']
+	},
+	{
+		path: '/api/embed/grants',
+		verbs: ['GET']
 	},
 	{
 		path: '/api/employee-appointment/[id]',
