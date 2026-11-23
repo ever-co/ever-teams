@@ -3,6 +3,7 @@ import { authenticatedGuard } from '@/core/services/server/guards/authenticated-
 import { verifyUserEmailByCodeRequest } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
 import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
+import { gauzyErrorResponse } from '@/core/services/server/gauzy-error-response';
 
 export async function POST(req: Request) {
 	const foreign = refuseForeignOrigin(req);
@@ -20,12 +21,16 @@ export async function POST(req: Request) {
 		return NextResponse.json({ errors });
 	}
 
-	const { data } = await verifyUserEmailByCodeRequest({
-		bearer_token: access_token,
-		tenantId,
-		code: body.code,
-		email: user.email || ''
-	});
-
-	return $res(data);
+	try {
+		const { data } = await verifyUserEmailByCodeRequest({
+			bearer_token: access_token,
+			tenantId,
+			code: body.code,
+			email: user.email || ''
+		});
+		return $res(data);
+	} catch (error) {
+		// A refusal of the API goes back with its status and reason, as in direct mode (#5726)
+		return await gauzyErrorResponse(error, 'The address could not be confirmed.');
+	}
 }
