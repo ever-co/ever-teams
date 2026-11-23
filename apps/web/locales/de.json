@@ -3512,6 +3512,7 @@
 		"FILL_IN": "Bitte ausfüllen: {fields}.",
 		"END_AFTER_START": "Die Endzeit muss nach der Startzeit liegen.",
 		"OWN_TIME_ONLY": "Sie fügen Zeit für sich selbst hinzu. Ein Admin kann Zeit für andere hinzufügen.",
+		"RUNNING_TIMER_OVERLAP": "Dein Timer läuft in diesem Zeitraum. Stoppe ihn zuerst oder wähle einen Zeitraum außerhalb.",
 		"DURATION": {
 			"LABEL": "Dauer",
 			"PLACEHOLDER": "1:30 oder 90m",

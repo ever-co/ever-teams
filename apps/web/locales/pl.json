@@ -3512,6 +3512,7 @@
 		"FILL_IN": "Uzupełnij: {fields}.",
 		"END_AFTER_START": "Godzina zakończenia musi być późniejsza niż godzina rozpoczęcia.",
 		"OWN_TIME_ONLY": "Dodajesz czas dla siebie. Administrator może dodać czas komuś innemu.",
+		"RUNNING_TIMER_OVERLAP": "Twój licznik czasu działa w tym przedziale. Najpierw go zatrzymaj albo wybierz przedział poza nim.",
 		"DURATION": {
 			"LABEL": "Czas trwania",
 			"PLACEHOLDER": "1:30 lub 90m",

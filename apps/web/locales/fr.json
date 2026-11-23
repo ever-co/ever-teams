@@ -3512,6 +3512,7 @@
 		"FILL_IN": "À compléter : {fields}.",
 		"END_AFTER_START": "L'heure de fin doit être après l'heure de début.",
 		"OWN_TIME_ONLY": "Vous ajoutez du temps pour vous-même. Un administrateur peut en ajouter pour quelqu'un d'autre.",
+		"RUNNING_TIMER_OVERLAP": "Votre minuteur tourne sur cette plage. Arrêtez-le d'abord, ou choisissez une plage en dehors.",
 		"DURATION": {
 			"LABEL": "Durée",
 			"PLACEHOLDER": "1:30 ou 90m",

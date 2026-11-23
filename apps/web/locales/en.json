@@ -3512,6 +3512,7 @@
 		"FILL_IN": "Fill in: {fields}.",
 		"END_AFTER_START": "The end time must come after the start time.",
 		"OWN_TIME_ONLY": "You add time for yourself. An admin can add time for someone else.",
+		"RUNNING_TIMER_OVERLAP": "Your timer is running over this time. Stop it first, or choose a time outside it.",
 		"DURATION": {
 			"LABEL": "Duration",
 			"PLACEHOLDER": "1:30 or 90m",

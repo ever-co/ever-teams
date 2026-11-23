@@ -3512,6 +3512,7 @@
 		"FILL_IN": "Vul in: {fields}.",
 		"END_AFTER_START": "De eindtijd moet na de begintijd liggen.",
 		"OWN_TIME_ONLY": "Je voegt tijd toe voor jezelf. Een beheerder kan tijd toevoegen voor iemand anders.",
+		"RUNNING_TIMER_OVERLAP": "Je timer loopt in deze periode. Stop hem eerst, of kies een periode waarin de timer niet loopt.",
 		"DURATION": {
 			"LABEL": "Duur",
 			"PLACEHOLDER": "1:30 of 90m",
