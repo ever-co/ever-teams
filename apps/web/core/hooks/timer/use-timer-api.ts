@@ -48,6 +48,7 @@ import {
 	timerStatusState,
 	workspaceOpeningState
 } from '@/core/stores';
+import { teamTasksState } from '@/core/stores/teams/team-tasks';
 import { teamTimerStatusState } from '@/core/stores/timer/team-timer-status';
 import { timerLabelsSavedState } from '@/core/stores/timer/timer-labels';
 import { ETaskStatusName } from '@/core/types/generics/enums/task';
@@ -938,18 +939,29 @@ export function useTimerApi({
 					store.set(timerStartsInFlightState, (count) => Math.max(0, count - 1));
 					if (!statusEnabled || isCurrentScope()) setTimerStatusFetching(false);
 				});
-			// Updating the task status to "In Progress" when the timer is started
-			if (taskToUse && taskToUse.status !== ETaskStatusName.IN_PROGRESS) {
+			const moveTaskToInProgress = () => {
+				if (!taskToUse) {
+					return;
+				}
+				// The task as the list holds it now: what was saved on it while the start was on its way is kept
+				const listedTask = store.get(teamTasksState).find((task) => task.id === taskToUse.id);
+				const currentTask = listedTask ?? taskToUse;
+				if (currentTask.status === ETaskStatusName.IN_PROGRESS) {
+					return;
+				}
 				const selectedStatus = taskStatuses.find(
 					(s) => s.name === ETaskStatusName.IN_PROGRESS && s.value === ETaskStatusName.IN_PROGRESS
 				);
 				const taskStatusId = selectedStatus?.id;
 				updateTask({
-					...taskToUse,
-					taskStatusId: taskStatusId ?? taskToUse.taskStatusId,
+					...currentTask,
+					taskStatusId: taskStatusId ?? currentTask.taskStatusId,
 					status: ETaskStatusName.IN_PROGRESS
 				});
-			}
+			};
+			// The task moves to In Progress once the timer runs: a start that fails leaves its status as it was (#5683)
+			const leaveTaskAsItWas = () => undefined;
+			promise.then(moveTaskToInProgress, leaveTaskAsItWas);
 
 			// Update Current user's active task to sync across multiple devices
 			// Only execute this block on /task/ page to avoid redundancy
