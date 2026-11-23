@@ -28,6 +28,7 @@ import { useUserQuery } from '../queries/user-user.query';
 import { logErrorInDev, logInDev } from '@/core/lib/helpers/error-message';
 import { clearChatHistoryForUser } from '@/core/components/features/chat-panel/chat-history';
 import { runSignOutCleanups } from '@/core/lib/auth/sign-out-cleanups';
+import { leaveOwnSignOutMark } from '@/core/lib/auth/own-sign-out-mark';
 import { rememberTeam } from '@/core/lib/auth/remembered-team';
 
 export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserResult => {
@@ -137,8 +138,18 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 		) {
 			const stopTimer = timerService
 				.stopTimer({ source: ETimeLogSource.TEAMS })
-				.catch((error) => logErrorInDev('[Auth] Timer stop before logout failed:', error));
-			await Promise.race([stopTimer, new Promise((resolve) => window.setTimeout(resolve, 3000))]);
+				.then(() => true)
+				.catch((error) => {
+					logErrorInDev('[Auth] Timer stop before logout failed:', error);
+					return false;
+				});
+			const gaveUp = new Promise<boolean>((resolve) => window.setTimeout(() => resolve(false), 3000));
+			const isStopped = await Promise.race([stopTimer, gaveUp]);
+			// The other tabs of this browser still show that run going on: they read here that it is stopped
+			if (isStopped) {
+				const stoppedLog = timerStatus?.running ? timerStatus.lastLog : pastMidnightLog;
+				leaveOwnSignOutMark(stoppedLog?.id ?? null);
+			}
 		}
 
 		// This browser stops receiving the person's inbox notifications (a shared browser), bounded like the timer stop.
