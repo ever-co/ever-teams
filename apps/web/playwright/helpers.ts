@@ -97,6 +97,13 @@ export type MockScenario = {
 	 * reads as "no drop", because a lane must not be able to stall itself with a typo in a scenario.
 	 */
 	drops?: Record<string, number>;
+	/**
+	 * A path this mock answers with an HTTP refusal instead of its fixture: the value is the status (an integer from
+	 * 400 to 599; anything else answers normally), the body Gauzy's error shape `{ statusCode, message }`. Addressed
+	 * like `drops` (`tenant:path`, then `tenant`, then `path`). The route handler is skipped, so a refused write changes
+	 * no mock state, and the call is recorded with that status, so `failures()` counts it. `mockReset()` clears it.
+	 */
+	fails?: Record<string, number>;
 	[key: string]: unknown;
 };
 

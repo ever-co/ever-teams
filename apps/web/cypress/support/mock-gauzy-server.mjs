@@ -1057,22 +1057,41 @@ export async function createMockGauzyServer({ fixture, port = 3988 } = {}) {
 			requestUrl,
 			typeof tenantId === 'string' ? tenantId : undefined
 		);
-		const everPlatform = everPlatformResponse(method, requestUrl.pathname, request, state, body);
-		const payload = everPlatform
-			? everPlatform.payload
-			: // The organization switch is authorized on the tenant-id HEADER only (a query value must not override it)
-				routeResponse(
-					method,
-					requestUrl.pathname,
-					requestUrl,
-					data,
-					fixture,
-					state,
-					body,
-					request.headers['tenant-id'],
-					request.headers['content-type']
-				);
-		const status = everPlatform ? everPlatform.status : (payload?.[HTTP_STATUS] ?? 200);
+		/**
+		 * `scenario.fails`: answer this call with an HTTP refusal instead of its fixture, keyed like `drops` and `delays`
+		 * (`tenant:path`, then `tenant`, then `path`), the value being the status. Opt-in: unset answers as before. Only
+		 * an integer from 400 to 599 arms it — anything else is a typo and answers normally, as an unset arm does. The
+		 * body is Gauzy's error shape, `{ statusCode, message }`; the route handler is skipped, so a refused write
+		 * changes nothing here, as a refused write changes nothing upstream. Logged with its status, so
+		 * `api-fixtures.ts` `failures()` counts it, unlike a drop.
+		 */
+		const failArm = Number(
+			state.scenario.fails?.[`${tenantId}:${requestUrl.pathname}`] ??
+				state.scenario.fails?.[tenantId] ??
+				state.scenario.fails?.[requestUrl.pathname] ??
+				0
+		);
+		const failStatus = Number.isInteger(failArm) && failArm >= 400 && failArm <= 599 ? failArm : 0;
+		const everPlatform = failStatus
+			? null
+			: everPlatformResponse(method, requestUrl.pathname, request, state, body);
+		const payload = failStatus
+			? { statusCode: failStatus, message: `Synthetic Gauzy refusal (${failStatus})` }
+			: everPlatform
+				? everPlatform.payload
+				: // The organization switch is authorized on the tenant-id HEADER only (a query value must not override it)
+					routeResponse(
+						method,
+						requestUrl.pathname,
+						requestUrl,
+						data,
+						fixture,
+						state,
+						body,
+						request.headers['tenant-id'],
+						request.headers['content-type']
+					);
+		const status = failStatus || (everPlatform ? everPlatform.status : (payload?.[HTTP_STATUS] ?? 200));
 		const endMs = performance.now() - state.startedAt;
 		// The web app's statistics reporter reads `state` every few seconds in the browser runs: counted, not
 		// recorded with the requests the pages make.

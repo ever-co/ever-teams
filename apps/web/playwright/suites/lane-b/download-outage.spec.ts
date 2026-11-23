@@ -284,6 +284,11 @@ test.afterEach(async () => {
  * answered **200 `{"items":[],"total":0}`** every time, with the mock logging `200` and the arm visible only as an
  * unused key in `state.scenario`.
  *
+ * Update 2026-11-23: the switch now exists in the mock — `scenario.fails`, keyed like `drops`, an integer status
+ * 400-599, Gauzy's `{ statusCode, message }` body, logged with its status (see `MockScenario.fails` in
+ * `playwright/helpers.ts`). With it, the probe below finds the switch live and both cases run: on lane-b with
+ * Playwright 1.65.1, `E:\Coding\.tmp\s2-pw165-lane-b-1.log` → this file and its family `65 passed (4.3m)`, 0 skipped.
+ *
  * So the probe below asks the mock, once per run, whether such an arm changes an answer, and the two cases after it
  * run only when it does. They assert nothing invented: each compares the app's answer with what the same mock answers
  * the same armed path when asked directly, so the numbers come from the run rather than from a guess.
