@@ -45,7 +45,7 @@ export const PUBLIC_RUNTIME_ENV_KEYS = [
  * Pages the e-mails link to, when a deployment overrides them. In direct mode the browser sends the
  * invitation to Gauzy itself, so it needs the page the server routes use.
  */
-export const PUBLIC_EMAIL_LINK_ENV_KEYS = ['INVITE_CALLBACK_URL'] as const;
+const PUBLIC_EMAIL_LINK_ENV_KEYS = ['INVITE_CALLBACK_URL'] as const;
 
 export function isPublicRuntimeEnvKey(key: string): boolean {
 	const isNextPublic = key.startsWith('NEXT_PUBLIC_');
