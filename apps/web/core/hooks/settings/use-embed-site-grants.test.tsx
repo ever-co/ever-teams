@@ -1,6 +1,6 @@
 /** @jest-environment jsdom */
 
-import { focusManager, QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { focusManager, onlineManager, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import type { PropsWithChildren } from 'react';
 
@@ -132,6 +132,41 @@ describe('useEmbedSiteGrants', () => {
 
 		await waitFor(() => expect(mockListSiteGrants).toHaveBeenCalledTimes(2));
 		focusManager.setFocused(undefined);
+	});
+
+	it('ends a site without waiting for the list to be read again', async () => {
+		mockListSiteGrants.mockResolvedValue([PORTAL, TEAM]);
+		mockEndSiteGrant.mockResolvedValue(undefined);
+		const { result } = renderSiteGrants();
+		await waitFor(() => expect(result.current.grants).toHaveLength(2));
+		// The read that follows never answers, as on a connection lost right after the end request
+		mockListSiteGrants.mockReturnValue(new Promise(() => undefined));
+
+		await act(async () => {
+			await result.current.endSite('grant-1');
+		});
+
+		expect(result.current.endingId).toBeNull();
+	});
+
+	it('sends the end request even when the browser reports no network, so a failure is told', async () => {
+		mockListSiteGrants.mockResolvedValue([PORTAL, TEAM]);
+		mockEndSiteGrant.mockRejectedValue(new Error('Network Error'));
+		const { result } = renderSiteGrants();
+		await waitFor(() => expect(result.current.grants).toHaveLength(2));
+		onlineManager.setOnline(false);
+
+		let refused: unknown = null;
+		await act(async () => {
+			await result.current.endSite('grant-1').catch((error: unknown) => {
+				refused = error;
+			});
+		});
+		onlineManager.setOnline(true);
+
+		expect(mockEndSiteGrant).toHaveBeenCalledWith('grant-1');
+		expect(refused).toBeInstanceOf(Error);
+		expect(result.current.endingId).toBeNull();
 	});
 
 	it('marks the site whose sign-in is being ended, then reads the list again', async () => {

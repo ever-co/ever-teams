@@ -52,13 +52,17 @@ export function useEmbedSiteGrants() {
 	const isUnavailable = grantsQuery.isError && isSiteGrantsUnavailable(grantsQuery.error);
 	const isError = grantsQuery.isError && !isUnavailable;
 
-	const readAgain = useCallback(
-		() => queryClient.invalidateQueries({ queryKey: queryKeys.embeds.siteGrants(userId) }),
-		[queryClient, userId]
-	);
+	// Started, not awaited: the confirmation closes on the answer of the end request, and never waits for a list that
+	// a lost connection keeps from coming back
+	const readAgain = useCallback(() => {
+		void queryClient.invalidateQueries({ queryKey: queryKeys.embeds.siteGrants(userId) });
+	}, [queryClient, userId]);
 
 	const endMutation = useMutation({
 		mutationFn: (grantId: string) => embedsService.endSiteGrant(grantId),
+		// Sent at once even when the browser reports no network: held back until the network returns, it would keep the
+		// confirmation locked with nothing to cancel. A request that cannot leave fails, and the dialog says so.
+		networkMode: 'always',
 		onSettled: readAgain,
 		meta: { handlesOwnError: true }
 	});
