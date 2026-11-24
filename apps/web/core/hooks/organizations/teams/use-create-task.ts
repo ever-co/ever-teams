@@ -2,6 +2,7 @@
 
 import { taskService } from '@/core/services/client/api';
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
+import { newTaskStatusNameOf } from '@/core/lib/utils/new-task-status-name';
 import { useCallback } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
@@ -52,7 +53,7 @@ export function useCreateTask() {
 			title,
 			issueType,
 			taskStatusId,
-			status = taskStatuses[0]?.name,
+			status,
 			priority,
 			size,
 			tags,
@@ -73,11 +74,13 @@ export function useCreateTask() {
 			projectId?: string | null;
 			members?: TEmployee[] | { id: string }[] | null;
 		}) => {
+			// With no status picked, the name follows the record the task is created with (#5682)
+			const statusName = newTaskStatusNameOf(status, taskStatusId, taskStatuses);
 			try {
 				const res = await createTaskMutateAsync({
 					title,
 					issueType,
-					status: status ?? taskStatuses?.[0]?.name,
+					status: statusName,
 					priority,
 					size,
 					tags,
