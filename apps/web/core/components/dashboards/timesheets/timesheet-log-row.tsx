@@ -314,13 +314,13 @@ export const TimesheetLogRow = memo(function TimesheetLogRow({
 				)}
 				<span
 					className={cn(
-						'flex min-w-0 items-center gap-2 text-xs text-muted-foreground',
-						// Indented under its group, the line has less room: it wraps rather than run past the column
-						isNested && 'flex-wrap gap-y-1',
+						// On a phone the line wraps, as the line of a group of entries does: kept on one line, the status and
+						// the member were cut to a letter or two to make room for the time
+						'flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground',
 						NARROW_ONLY
 					)}
 				>
-					<TimesheetStatusChip status={status} className="h-5 px-1.5" />
+					<TimesheetStatusChip status={status} className="h-5 shrink-0 px-1.5" />
 					<LogChangeChips log={log} formatters={formatters} opensHistory />
 					<span className="shrink-0 tabular-nums">{timeRange}</span>
 					{showsMember && <span className="truncate">{memberName}</span>}
