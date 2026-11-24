@@ -79,16 +79,31 @@ export function TimeOverlapConfirmDialog({
 	);
 }
 
-/** Shown in the dialog when the overlap lookup failed: nothing was saved, and the member is told so. */
+/** Why the check saved nothing, in the words the dialog shows: a running timer in the way, or a lookup that failed. */
+function checkRefusalKeyOf(guard: TimeOverlapGuard) {
+	if (guard.isOverRunningTimer) {
+		return 'manualTime.RUNNING_TIMER_OVERLAP' as const;
+	}
+	if (guard.hasCheckFailed) {
+		return 'timeOverlap.CHECK_FAILED' as const;
+	}
+	return null;
+}
+
+/**
+ * Shown in the dialog when the check saved nothing: the range covers a running timer, or the overlap lookup failed.
+ * The member is told which.
+ */
 export function TimeOverlapCheckError({ guard }: Readonly<{ guard: TimeOverlapGuard }>) {
 	const t = useTranslations();
-	if (!guard.hasCheckFailed) {
+	const refusalKey = checkRefusalKeyOf(guard);
+	if (!refusalKey) {
 		return null;
 	}
 	return (
 		<p role="alert" className="flex items-start gap-1.5 text-[13px] text-destructive-ink">
 			<CircleAlert className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
-			{t('timeOverlap.CHECK_FAILED')}
+			{t(refusalKey)}
 		</p>
 	);
 }
