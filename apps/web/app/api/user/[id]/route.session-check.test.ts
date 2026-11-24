@@ -75,6 +75,18 @@ describe('the user read right after a profile save through this server', () => {
 		expect(await timeZoneOf(await userRead())).toBe('Europe/Lisbon');
 	});
 
+	it('answers a read that asks for a check made anew from the API, even where an older check is kept', async () => {
+		// Another instance of this server: it kept the user before the save, and never saw the save itself
+		await userRead();
+		gauzy.timeZone = 'Europe/Lisbon';
+
+		const kept = await userRead();
+		const fresh = await readUser(new Request(`${ORIGIN}/api/user/me?fresh=1`, { headers: { cookie: COOKIE } }));
+
+		expect(await timeZoneOf(kept)).toBe('Europe/Berlin');
+		expect(await timeZoneOf(fresh)).toBe('Europe/Lisbon');
+	});
+
 	it('still shares one check between the routes that follow the save', async () => {
 		await saveTimeZone('Europe/Lisbon');
 		const readsAfterSave = gauzy.userReads;
