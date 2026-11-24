@@ -72,7 +72,7 @@ type ITimesheetProps = {
 export function getTaskTimesheetRequest(params: ITimesheetProps, bearer_token: string) {
 	const queries = qs.stringify(params);
 	return serverFetch<ITimeLog[]>({
-		path: `/timesheet/time-log?activityLevel?${queries.toString()}`,
+		path: `/timesheet/time-log?${queries.toString()}`,
 		method: 'GET',
 		bearer_token,
 		tenantId: params.tenantId
