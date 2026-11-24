@@ -80,10 +80,7 @@ test('the refusal is a redirect the browser was told to follow, not a page that 
 		asked?.status,
 		`/goals was answered ${asked?.status}; the gate is expected to answer it 307 and let the browser follow`
 	).toBe(307);
-	await expect(
-		view,
-		'the browser did not end on the page the redirect named'
-	).toHaveURL(/\/unauthorized$/);
+	await expect(view, 'the browser did not end on the page the redirect named').toHaveURL(/\/unauthorized$/);
 });
 
 /**
@@ -108,15 +105,28 @@ test('a browser holding an expired session is renewed by this mock, and the door
 	await signInWithExpiredAccessToken(view.context(), fixture);
 
 	const held = await jarCookieNames(view.context());
-	expect(
-		held,
-		'the expired session was not put in the jar before the gated visit'
-	).toContain('auth-token');
+	expect(held, 'the expired session was not put in the jar before the gated visit').toContain('auth-token');
 	const tokenBefore = (await view.context().cookies()).find((cookie) => cookie.name === 'auth-token')?.value ?? '';
+	// Compared by its claims, not byte for byte: `expiredAccessToken` stamps `iat`/`exp` from the clock, so a second
+	// rebuilt here can differ by one second from the one the jar holds (seen in the post-merge run of 2026-11-24).
+	const claimsOf = (token: string): { sub?: string; organizationId?: string; jti?: string; exp?: number } => {
+		const payload = token.split('.')[1] ?? '';
+		return JSON.parse(Buffer.from(payload, 'base64url').toString('utf8')) as {
+			sub?: string;
+			organizationId?: string;
+			jti?: string;
+			exp?: number;
+		};
+	};
+	const written = claimsOf(expiredAccessToken(fixture.ids.user, fixture.ids.organizationA));
+	const heldClaims = claimsOf(tokenBefore);
 	expect(
-		tokenBefore,
+		{ sub: heldClaims.sub, organizationId: heldClaims.organizationId, jti: heldClaims.jti },
 		'the auth-token cookie in the jar is not the expired one this test wrote'
-	).toBe(expiredAccessToken(fixture.ids.user, fixture.ids.organizationA));
+	).toEqual({ sub: written.sub, organizationId: written.organizationId, jti: written.jti });
+	expect(heldClaims.exp ?? Infinity, 'the auth-token cookie in the jar has not expired').toBeLessThan(
+		Date.now() / 1000
+	);
 
 	await view.goto(`${APP_ORIGIN}/settings/personal`, { waitUntil: 'domcontentloaded' });
 
@@ -192,20 +202,16 @@ test('password recovery stays open for a person who is already signed in', async
 	// `core/lib/auth/signed-in-auth-paths.ts`: every auth page sends a signed-in visitor to the app except the two
 	// recovery pages, because a reset link can open while the person is still signed in somewhere else.
 	const forgot = await app('/auth/forgot-password', { requireShell: false });
-	await expect(
-		forgot,
-		'a signed-in visit to /auth/forgot-password was bounced to the app'
-	).toHaveURL(/\/auth\/forgot-password/);
+	await expect(forgot, 'a signed-in visit to /auth/forgot-password was bounced to the app').toHaveURL(
+		/\/auth\/forgot-password/
+	);
 	await expect(
 		forgot.locator('#forgot-email'),
 		'the forgot-password form a signed-in person was sent to is not on the page'
 	).toBeVisible();
 
 	const reset = await app(`/auth/reset-password?token=${UNDECODABLE_RESET_TOKEN}`, { requireShell: false });
-	await expect(
-		reset,
-		'a signed-in visit to a reset link was bounced to the app'
-	).toHaveURL(/\/auth\/reset-password/);
+	await expect(reset, 'a signed-in visit to a reset link was bounced to the app').toHaveURL(/\/auth\/reset-password/);
 	await expect(
 		reset.locator('#reset-password'),
 		'the reset form a signed-in person opened from a link is not on the page'
@@ -233,10 +239,9 @@ test('signing out empties the jar and the next visit is refused', async ({ app }
 
 	// `useAuthenticateUser().logOut()` (stop the timer, forget this browser's push registration, remove the auth
 	// cookies, clear the query cache, replace the page) and then NextAuth's `signOut({ redirectTo: DEFAULT_APP_PATH })`.
-	await expect(
-		view,
-		'signing out did not land the browser on the sign-in page'
-	).toHaveURL(/\/auth\/passcode$/, { timeout: 40_000 });
+	await expect(view, 'signing out did not land the browser on the sign-in page').toHaveURL(/\/auth\/passcode$/, {
+		timeout: 40_000
+	});
 
 	// What signing out leaves, measured 2026-11-22 (`lane-b-session-routing-1.log`: `Received
 	// ["auth-active-project=aaaaaaaa-aaaa-4aaa-8aaa-…"]`). The app's own clear list — `cookiesKeys()` in
@@ -259,10 +264,9 @@ test('signing out empties the jar and the next visit is refused', async ({ app }
 
 	// The proof the session is really gone: the same visit that worked a moment ago is now refused.
 	await view.goto(`${APP_ORIGIN}/`, { waitUntil: 'domcontentloaded' });
-	await expect(
-		view,
-		'after signing out, the page that needs a session let the browser in'
-	).toHaveURL(/\/auth\/passcode$/);
+	await expect(view, 'after signing out, the page that needs a session let the browser in').toHaveURL(
+		/\/auth\/passcode$/
+	);
 });
 
 test('the sign-in page a signed-out visitor is sent to is the passwordless one this deployment opens', async ({
@@ -273,10 +277,9 @@ test('the sign-in page a signed-out visitor is sent to is the passwordless one t
 
 	await view.getByRole('link', { name: 'Sign in', exact: true }).click();
 
-	await expect(
-		view,
-		'the sign-in link from a refused page does not open the passwordless sign-in page'
-	).toHaveURL(/\/auth\/passcode$/);
+	await expect(view, 'the sign-in link from a refused page does not open the passwordless sign-in page').toHaveURL(
+		/\/auth\/passcode$/
+	);
 	await expect(
 		view.locator('#passcode-email'),
 		'the sign-in page the visitor reached does not ask for an address'
