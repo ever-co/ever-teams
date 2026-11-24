@@ -13,7 +13,11 @@ import { logOf, parseAnswer, triples } from '../api/log-helpers';
  * `desktop-server`, arms that must not fire), `probe-body.mjs` / `probe-post.mjs` (the two POSTs) and
  * `probe-final.mjs` / `probe-final2.mjs` / `probe-final3.mjs` / `probe-scopeb.mjs` (`measured-final.txt`,
  * `measured-final2.txt`, `measured-final3.txt`: the body matrices, the cookie removals, the control queries, the
- * scope-B calls, the role switches) — and only then written down. Nothing here was predicted from the source.
+ * scope-B calls, the role switches) — and only then written down. Nothing here was predicted from the source. Every row
+ * of `GET /api/favorite/type` and of `GET|POST /api/roles/options` was then measured a second time, after develop's
+ * #5726 fixes (commits `659374eb1`, `90590d9d7`) were merged into this branch, by
+ * `E:\Coding\.tmp\probe-repin-c\probe.mjs` (readings in `measured-1.txt` beside it) — that rerun is what findings 1 and
+ * 2 now state.
  *
  * ## The 11 routes, and which half of the server code answered them
  *
@@ -25,9 +29,10 @@ import { logOf, parseAnswer, triples } from '../api/log-helpers';
  * - **Four reads that build the upstream call themselves** on `serverFetch` (`core/services/server/fetch.ts:52`):
  *   `GET /api/employee-appointment/invited` (`app/api/employee-appointment/invited/route.ts:16-20` →
  *   `core/services/server/requests/employee-appointment.ts:86-102`), `GET /api/favorite/type`
- *   (`app/api/favorite/type/route.ts:21-25` → `requests/favorite.ts:58-71`), `GET /api/roles/team-assignable`
+ *   (`app/api/favorite/type/route.ts:22-32` → `requests/favorite.ts:58-71`), `GET /api/roles/team-assignable`
  *   (`app/api/roles/team-assignable/route.ts:10-16` → `requests/roles.ts:35-42`) and `GET /api/roles/options`
- *   (`app/api/roles/options/route.ts:17-21` → `requests/roles.ts:5-24`). Only two of the four `catch`.
+ *   (`app/api/roles/options/route.ts:18-29` → `requests/roles.ts:5-24`). All four `catch` an upstream refusal, and after
+ *   #5726 only `employee-appointment/invited` still lets a cut escape its `catch` (finding 1).
  * - **One read that runs two upstream calls** and composes its own answer: `GET /api/organization-team/organizations`
  *   (`app/api/organization-team/organizations/route.ts:25-37` → `requests/organization.ts:25-66`, then
  *   `requests/organization-team.ts:184-215`) through `core/lib/utils/team-menu-organizations.ts:115-139`.
@@ -37,7 +42,7 @@ import { logOf, parseAnswer, triples } from '../api/log-helpers';
  *   `core/services/server/requests/desktop-source.ts:4-12`).
  * - **One pair that would call an AI provider, and one that reads a role and writes an invitation**:
  *   `GET|POST /api/editor-assist` (`app/api/editor-assist/route.ts:132-173`) and `GET|POST /api/roles/options`
- *   (`app/api/roles/options/route.ts:12-86`).
+ *   (`app/api/roles/options/route.ts:13-97`).
  *
  * None of them is named by another spec. `grep -rn` over `apps/web/playwright` for these eleven paths answers only
  * `suites/api/routes.generated.ts` (the verb manifest `suites/api/sweep.spec.ts` walks),
@@ -59,10 +64,10 @@ import { logOf, parseAnswer, triples } from '../api/log-helpers';
  * type of every answer, and on every tenant-bearing read the pair `fails["<tenant A>:<path>"]` (fires) /
  * `fails["<tenant B>:<path>"]` (never fires). Each case reads the mock's request log (`playwright/api-fixtures.ts:56`;
  * an entry is `method`, `path`, `query`, `startMs`, `endMs`, `status` and nothing else —
- * `cypress/support/mock-gauzy-server.mjs:1122-1130`, with `status: 0` for a cut), so an upstream **verb, path and query
+ * `cypress/support/mock-gauzy-server.mjs:1191-1199`, with `status: 0` for a cut), so an upstream **verb, path and query
  * key list** is provable while a POST body is not: where a body is the only carrier, the witness is the mock's own
- * record of what it was given (`mock-gauzy-server.mjs:537-540`, read back through `mock.state()` as
- * `workspaceCreation.invites`) or the sha256 list of the bearer tokens it received (`mock-gauzy-server.mjs:1133-1141`,
+ * record of what it was given (`mock-gauzy-server.mjs:584-587`, read back through `mock.state()` as
+ * `workspaceCreation.invites`) or the sha256 list of the bearer tokens it received (`mock-gauzy-server.mjs:1202-1209`,
  * `state.receivedTokens`). `GET /api/user/me` — the guard's own check (`authenticated-guard-app.ts:76`), memoised per
  * token for 5 s by `sessionChecks` (`:29`) — is excepted from every log claim here, as in
  * `suites/lane-c/gauzy-refusals-relayed.spec.ts:33-38`: whether it lands in a given log depends on what ran seconds
@@ -70,40 +75,59 @@ import { logOf, parseAnswer, triples } from '../api/log-helpers';
  *
  * ## The findings, stated up front (each pinned on the row it names)
  *
- * 1. **Three of the four `serverFetch` reads answer an upstream refusal, and two of them a cut, with a bare 500: no
- *    body, no media type, no `Cache-Control`.** `GET /api/favorite/type` (`app/api/favorite/type/route.ts:21-25`: no
- *    `try`, no `catch`) and `GET /api/roles/options` (`app/api/roles/options/route.ts:17-21`) answered all four armed
- *    statuses *and* the cut with `500` + empty body + `content-type` absent; `GET /api/employee-appointment/invited`
- *    relays all four refusals with Gauzy's own status and body but rethrows the cut (`:25`,
- *    `if (apiStatus === undefined) throw error;`) and is answered the same bare 500. Witnessed by the mock's own entry
- *    for that path (`GET /api/favorite/type 403`, `GET /api/employee-appointment/invited 0`, in `measured-final2.txt`).
- *    `MEASURED, NOT INTENDED`: `app/api/employee-appointment/invited/route.ts:8` says "Gauzy's refusal goes back with
- *    its status", the `catch` at `:22-27` exists to do exactly that, and its siblings in this same set answer a cut
- *    with a real answer — `app/api/roles/team-assignable/route.ts:18-23` (502 `{message:'Roles request failed'}`, whose
- *    comment at `:18-19` is "pass Gauzy's status on … instead of a 500 with a stack trace") and
- *    `app/api/organization-team/organizations/route.ts:39-41` (502 `{error:'Failed to read the organizations'}`).
- *    `app/api/favorite/type/route.test.ts` has no upstream-failure test at all (`:44-71`); `app/api/roles/options` has
- *    no route test. The client consequence is measurable: `core/services/client/api/favorites/favorite.service.ts:115`
- *    and `core/services/client/api/meetings/scheduled-meeting.service.ts:50` route on the HTTP status, and a 500 is
- *    neither Gauzy's refusal nor an outage this app named.
- * 2. **A refusal of the invitation *list* read at the end of `POST /api/roles/options` is swallowed into a 200 with an
- *    empty list**, while a refusal of either of that POST's other two calls is the bare 500 of finding 1. Measured with
- *    `fails["<tenant A>:/api/invite"]` armed 403, and with that path cut: the app answered 200 `{items:[],total:0}`
+ * 1. **`GET /api/favorite/type` and `GET /api/roles/options` used to answer an upstream refusal *and* a cut with a bare
+ *    500; #5726 fixed both (commits `659374eb1`, `90590d9d7`), and each now answers a refusal with Gauzy's own status
+ *    and body.** The fix is the `try`/`catch` at `app/api/favorite/type/route.ts:22-32` and at
+ *    `app/api/roles/options/route.ts:18-29` (GET) and `:51-96` (POST); each `catch` hands the error to
+ *    `core/services/server/gauzy-error-response.ts` (`gauzyErrorResponse`, `:24-38`: "Gauzy's status and body are passed
+ *    on (a 400 or a 403 stays one, a 401 still reaches the client's re-authentication) … A failure without a readable
+ *    answer from Gauzy is a 502, never a 500"). Re-measured on this lane (`measured-1.txt`): an armed 400/401/403/429
+ *    comes back as **that status** with `{statusCode,message}` = the mock's refusal body, **this app's** media type
+ *    (`application/json`, because `NextResponse.json` writes the answer — not the mock's, which only `forwardToGauzy`
+ *    copies) and no `Cache-Control`; a cut comes back as **502 with the route's own sentence** —
+ *    `{message:'The favourite tasks could not be read.'}` (`favorite/type/route.ts:31`),
+ *    `{message:'The role could not be read.'}` (`roles/options/route.ts:28`) and `{message:'The invitation could not be
+ *    sent.'}` for either cut of the POST (`:95`, one `catch` around its calls, though the list read's failure never
+ *    reaches it — finding 2). These rows are no longer
+ *    `MEASURED, NOT INTENDED`: what the routes answer is now what their code says, and both fixes brought the route test
+ *    they never had (`app/api/favorite/type/route.refusals.test.ts`, `app/api/roles/options/route.refusals.test.ts`;
+ *    before the merge `app/api/favorite/type/route.test.ts:44-71` covered the kind gate only and `app/api/roles/options`
+ *    had no route test at all). The consequence this finding used to complain about is gone the same way:
+ *    `core/services/client/api/favorites/favorite.service.ts:115` and
+ *    `core/services/client/api/meetings/scheduled-meeting.service.ts:50` route on the HTTP status, and that status is
+ *    now Gauzy's refusal or an outage this app named.
+ *    Two `MEASURED, NOT INTENDED` rows of the same family survive, both re-measured. `GET
+ *    /api/employee-appointment/invited` relays all four refusals with Gauzy's own status and body but **rethrows the
+ *    cut** (`route.ts:25`, `if (apiStatus === undefined) throw error;`), so a cut there is answered `500` + empty body +
+ *    `content-type` absent (witnessed by the mock's own entry `GET /api/employee-appointment/invited 0`); its comment at
+ *    `:8` ("Gauzy's refusal goes back with its status") holds for the refusals only, and every sibling in this set now
+ *    answers a cut with a real answer — `app/api/roles/team-assignable/route.ts:18-23` (502
+ *    `{message:'Roles request failed'}`, whose comment at `:18-19` is "pass Gauzy's status on … instead of a 500 with a
+ *    stack trace"), `app/api/organization-team/organizations/route.ts:39-41` (502 `{error:'Failed to read the
+ *    organizations'}`) and the two routes #5726 just fixed. And `POST /api/roles/options` still answers a body it cannot
+ *    read (`route.ts:43`, a bare `await req.json()` **outside** the `try`) with the same bare 500, having asked nothing:
+ *    its JSON-null, JSON-string, bodiless, form-encoded and unparseable rows stay pinned that way, with
+ *    `suites/api/empty-body-blockers.generated.ts:137-139` as their sibling.
+ * 2. **A refusal of the invitation *list* read at the end of `POST /api/roles/options` is still swallowed into a 200 with
+ *    an empty list** — the one failure of that POST this app hides, and the one #5726 left alone, because the swallow is
+ *    in the request helper rather than in the route. Re-measured with `fails["<tenant A>:/api/invite"]` armed
+ *    400/401/403/429 and with that path cut (`measured-1.txt`): the app answered 200 `{items:[],total:0}` every time,
  *    although the mock had recorded `POST /api/invite/emails 200` — the invitation was really written — and
- *    `GET /api/invite 403` (`measured-final.txt`). The swallow is `core/services/server/requests/invite.ts:119-128`
- *    (`getAllTeamInvitationsRequest`'s own `catch` at `:123`, "Fallback to empty result" at `:125`), so it is that
- *    helper's
- *    stated intent and is pinned without `MEASURED, NOT INTENDED`. What it costs is the caller's read: the team's
- *    invitation list right after an invite
- *    (`core/services/client/api/organizations/teams/invites/invite.service.ts:44`) cannot tell "no invitations" from
- *    "the list was refused", while the same POST answers 500 for its two other paths.
+ *    `GET /api/invite 403` (or `GET /api/invite 0`) as the last entry of the log. The answer is byte for byte what it was
+ *    before the merge (`measured-final.txt`), so the row is re-pinned rather than carried over. The swallow is
+ *    `core/services/server/requests/invite.ts:115-132` (`getAllTeamInvitationsRequest`'s own `catch` at `:123`, "Fallback
+ *    to empty result" at `:125`), which swallows a refusal and a cut alike, so it is that helper's stated intent and is
+ *    pinned without `MEASURED, NOT INTENDED`. What it costs is the caller's read — the team's invitation list right
+ *    after an invite (`core/services/client/api/organizations/teams/invites/invite.service.ts:44`) cannot tell "no
+ *    invitations" from "the list was refused" — while the same POST now answers its two other paths with Gauzy's
+ *    status, or with its own 502 on a cut (finding 1).
  * 3. **Which query keys travel is per route, and on six routes a caller's `?organizationId=` / `?tenantId=` wins over
  *    the session's.** The three forwarders append the caller's whole search string (`core/services/server/forward-to-gauzy.ts:112`),
  *    `employee-appointment/invited` re-serialises the caller's `searchParams` (`route.ts:17` →
- *    `requests/employee-appointment.ts:96`) and `favorite/type` re-serialises its own (`route.ts:22` →
+ *    `requests/employee-appointment.ts:96`) and `favorite/type` re-serialises its own (`route.ts:17`, `:24` →
  *    `requests/favorite.ts:68`): measured with `?organizationId=<organization B>&tenantId=<tenant B>&laneProbe=7`, every
  *    key travels with its value, and the armed arm that fires is the one keyed on the **caller's** tenant, because the
- *    mock reads the tenant off `?tenantId` before the header (`mock-gauzy-server.mjs:1034-1037`).
+ *    mock reads the tenant off `?tenantId` before the header (`mock-gauzy-server.mjs:1103-1106`).
  *    `roles/team-assignable`, `roles/options` and `organization-team/organizations` send no caller key at all
  *    (`requests/roles.ts:18`, `:37`; `route.ts:25` → `requests/organization.ts:41-45`), and `changelog` sends only
  *    `platform` and `isFeature` (`route.ts:20-25`, promised by its comment at `:9-10` and pinned by its own unit test
@@ -112,7 +136,9 @@ import { logOf, parseAnswer, triples } from '../api/log-helpers';
  *    **and** intended; they are the proof of which side each route sits on.
  * 4. **The tenant that travels is the session's cookie on every read that sends one**, proven by
  *    `<tenant A>:<path>` firing / `<tenant B>:<path>` never firing, and by a scope-B session (whose cookies name the
- *    other tenant, `playwright/helpers.ts:171-186`) making the `<tenant B>:<path>` arm fire instead.
+ *    other tenant, `playwright/helpers.ts:171-186`) making the `<tenant B>:<path>` arm fire instead — re-run on both
+ *    routes of finding 1 (`measured-1.txt`): a scope-B session makes the `<tenant B>:/api/roles/options` arm fire, and
+ *    the `GET /api/favorite/type` row of this finding's describe still shows the query's tenant beating the cookie's.
  *    `GET /api/changelog` proves the rule from the other side: its upstream query carries no `tenantId` and no
  *    `tenant-id` header travels (`core/services/server/fetch.ts:91-97`, fed only when a caller of `serverFetch` passes a
  *    tenant — `app/api/changelog/route.ts:20-25` passes none), so **neither** tenant-keyed arm fires there and only the
@@ -120,8 +146,9 @@ import { logOf, parseAnswer, triples } from '../api/log-helpers';
  *    One measurement could not be reproduced and is disclosed rather than pinned: in one phase-C run
  *    (`measured-C.txt`) a scope-A `GET /api/roles/options?…` was followed by a scope-B call whose answer named tenant A's
  *    permissions. Four reruns (`probe-roles.mjs`, `probe-roles2.mjs`, `probe-roles3.mjs`, `probe-final.mjs`) all named
- *    tenant B, so the only tenant read out of a body anywhere in this file is the `roles/options` role row, which
- *    `probe-final.mjs` measured on both scopes and signed out.
+ *    tenant B, as did the post-#5726 rerun (`measured-1.txt`: a scope-B session is answered with a role naming tenant B
+ *    and five permissions naming tenant B), so the only tenant read out of a body anywhere in this file is the
+ *    `roles/options` role row, which `probe-final.mjs` measured on both scopes and signed out.
  * 5. **`GET /api/editor-assist` reports `{"server":false}` on this lane** (`route.ts:132-138` →
  *    `core/lib/chat/server-ai-provider.ts:15-17` → `core/lib/ai/server-providers.ts:166-169`, which admits a provider to
  *    the chain only when its key is in the server env: `GROQ_API_KEY` `:86`, `CLOUDFLARE_AI_ACCOUNT_ID` +
@@ -136,7 +163,7 @@ import { logOf, parseAnswer, triples } from '../api/log-helpers';
  *    the URL decides the target: with a body carrying the *other* tenant's `organizationId`, `tenantId`, `teamIds`,
  *    `roleId` and `callbackUrl`, the three upstream calls were still the session's (`where[tenantId]` /
  *    `where[organizationId]` / `where[teams][id][0]` = tenant A / organization A / team A) and the mock recorded the
- *    session's team (`route.ts:55-73` → `requests/invite.ts:19-32`). A padded `email`/`name` is trimmed before it is
+ *    session's team (`route.ts:62-80` → `requests/invite.ts:19-32`). A padded `email`/`name` is trimmed before it is
  *    used (`core/lib/helpers/validations.ts:61-62`; the mock recorded `padded@example.test`).
  *
  * ## Safety on `/api/editor-assist`
@@ -156,14 +183,14 @@ import { logOf, parseAnswer, triples } from '../api/log-helpers';
  *
  * - The mock has no handler for `/api/changelog`, `/api/chat/states`, `/api/reaction/comments`,
  *   `/api/employee-appointment/invited`, `/api/favorite/type`, `/api/user-organization` or `/api/roles/team-assignable`,
- *   so those payloads are its catch-all: a GET `{items:[],total:0}` (`mock-gauzy-server.mjs:827`), a write its own body
- *   or `{success:true}` (`:826`). `/api/time-goals/progress` does answer, with a plain `[]` (`:770`), and
- *   `/api/roles/options` answers the fixture role whatever `?name=` arrives with (`:625`, no method or query check) — so
+ *   so those payloads are its catch-all: a GET `{items:[],total:0}` (`mock-gauzy-server.mjs:895`), a write its own body
+ *   or `{success:true}` (`:894`). `/api/time-goals/progress` does answer, with a plain `[]` (`:820`), and
+ *   `/api/roles/options` answers the fixture role whatever `?name=` arrives with (`:672`, no method or query check) — so
  *   "the EMPLOYEE role" is pinned only as the `?name=EMPLOYEE` this app sent, never as the role the answer names (that
  *   one is the mock's own record, whose `name` follows the `roleName` switch, `:74-79`). What is pinned is this app's
  *   handling — status, cache header, media type, which upstream call with which keys — not Gauzy's payload.
  * - `GET /api/organization-team/organizations`: the mock answers `GET /api/user-organization` with the catch-all page
- *   (`:827`), so this person has **no** memberships here. The composed answer is `{current:null,others:[]}` for every
+ *   (`:895`), so this person has **no** memberships here. The composed answer is `{current:null,others:[]}` for every
  *   role, the admin half (`listsTeams`, `route.ts:29` → `core/lib/utils/roles.ts:3-11`) never reads any team
  *   (`core/lib/utils/team-menu-organizations.ts:127`, which needs `others.length > 0`), and `fails["<tenant A>:/api/organization-team"]`
  *   can therefore never fire — measured 200 with only the memberships read in the log. `roleName`, `manager` and
@@ -171,12 +198,12 @@ import { logOf, parseAnswer, triples } from '../api/log-helpers';
  *   (`:54-62`). No route here calls `refuseUnlessPermitted`: `grep -rn refuseUnlessPermitted` over these eleven route
  *   files answers nothing.
  * - A signed-out caller is answered by the six guarded routes **as if they knew who they were**, because this mock
- *   answers `GET /api/user/me` whatever arrives (`:560`) and `authenticated-guard-app.ts:88-113` delegates the decision
+ *   answers `GET /api/user/me` whatever arrives (`:607`) and `authenticated-guard-app.ts:88-113` delegates the decision
  *   to the API. Their signed-out rows are pinned as what this app then did — including the 502 of
  *   `organization-team/organizations`, which is that delegation plus `requests/organization.ts:37-39` refusing to build
  *   a read with an empty tenant or token — together with the proof that the reads went out with **no bearer**
- *   (`state.receivedTokens` empty, asserted). Their guards' own refusals (`favorite/type/route.ts:14`,
- *   `roles/options/route.ts:15` and `:31`, `organization-team/organizations/route.ts:17-19`, `editor-assist/route.ts:134`
+ *   (`state.receivedTokens` empty, asserted). Their guards' own refusals (`favorite/type/route.ts:15`,
+ *   `roles/options/route.ts:16` and `:37`, `organization-team/organizations/route.ts:17-19`, `editor-assist/route.ts:134`
  *   and `:149`) are unreachable rows here, named and not asserted. The three forwarders do refuse a cookie-less caller
  *   themselves (`core/services/server/forward-to-gauzy.ts:96`), with an empty log as proof. Same delegation as
  *   `suites/lane-c/session-check.spec.ts`.
@@ -196,7 +223,7 @@ import { logOf, parseAnswer, triples } from '../api/log-helpers';
  * `POST /api/roles/options` rows (1 control + 3 trio + 1 own origin + 1 cross-site bodiless + 14 bodies + 1 trimming
  * + 1 foreign body + 1 caller query + 1 scope-B + 15 arms and cuts on its three paths), 29 editor-assist rows (3 GET
  * + 3 origin + 1 own origin + 21 bodies + 1 signed out), 5 "no gate here" rows and 15 verb rows: **215 cases**, all
- * green in both runs named in the acceptance note (`E:\Coding\.tmp\s2-lane-c-reads-1.log` and `-2.log`), none skipped,
+ * green in both runs named in the acceptance note (`E:\Coding\.tmp\s2-lane-c-repin-1.log` and `-2.log`), none skipped,
  * none flaky.
  */
 
@@ -219,18 +246,18 @@ const UP_INVITE_LIST = '/api/invite';
 /** The guard's own session check (`authenticated-guard-app.ts:76`, memoised at `:29`), excepted from every log claim. */
 const GUARD_CHECK = '/api/user/me';
 
-/** The media type the mock writes on every answer it makes (`mock-gauzy-server.mjs:1149`), which `forwardToGauzy` copies. */
+/** The media type the mock writes on every answer it makes (`mock-gauzy-server.mjs:1218`), which `forwardToGauzy` copies. */
 const UPSTREAM_MEDIA_TYPE = 'application/json; charset=utf-8';
 /** The media type of an answer this app wrote itself (`NextResponse.json`). */
 const OWN_MEDIA_TYPE = 'application/json';
 
-/** The mock's refusal body (`mock-gauzy-server.mjs:1099-1101`). */
+/** The mock's refusal body (`mock-gauzy-server.mjs:1168-1170`). */
 const gauzyRefusal = (status: number) => ({ statusCode: status, message: `Synthetic Gauzy refusal (${status})` });
-/** The mock's answer to a GET it has no handler for (`mock-gauzy-server.mjs:827`). */
+/** The mock's answer to a GET it has no handler for (`mock-gauzy-server.mjs:895`). */
 const MOCK_PAGE = { items: [], total: 0 };
-/** The mock's own answer to `/api/time-goals/progress` (`mock-gauzy-server.mjs:770`): a plain list. */
+/** The mock's own answer to `/api/time-goals/progress` (`mock-gauzy-server.mjs:820`): a plain list. */
 const MOCK_PROGRESS_LIST: unknown[] = [];
-/** The mock's team-invitation page it answers `/api/invite` with (`mock-gauzy-server.mjs:614-624`), for one scope. */
+/** The mock's team-invitation page it answers `/api/invite` with (`mock-gauzy-server.mjs:661-671`), for one scope. */
 const mockInviteList = (ids: Record<string, string>, scope: 'A' | 'B' = 'A') => ({
 	items: [
 		{
@@ -284,8 +311,16 @@ const FOREIGN_SITE_REFUSAL: Answer = ownJson(
 const REFUSED_BY_THIS_APP: Answer = ownJson(401, { statusCode: 401, message: 'Unauthorized' }, null);
 /** What `forwardToGauzy` answers when the upstream gave no answer at all (`:135-144`). */
 const UNREACHABLE: Answer = ownJson(502, { statusCode: 502, message: 'The Gauzy API is unreachable' }, null);
-/** What this lane answers a handler that threw — the routes of finding 1. */
+/** What this lane answers a handler that threw. Since #5726 only two kinds of row still do: the
+ * `employee-appointment/invited` cut (`app/api/employee-appointment/invited/route.ts:25`) and the unreadable
+ * `POST /api/roles/options` bodies (`app/api/roles/options/route.ts:43`) — finding 1. */
 const HANDLER_CRASH: Answer = { status: 500, text: '', contentType: null, cacheControl: null };
+/** `app/api/favorite/type/route.ts:31`: `gauzyErrorResponse` on a read that got no answer (`core/services/server/gauzy-error-response.ts:24-38`). */
+const FAVORITE_READ_FAILURE: Answer = ownJson(502, { message: 'The favourite tasks could not be read.' }, null);
+/** `app/api/roles/options/route.ts:28`, the same on the GET's role read. */
+const ROLE_READ_FAILURE: Answer = ownJson(502, { message: 'The role could not be read.' }, null);
+/** `app/api/roles/options/route.ts:95`, the same on the POST whichever of its two caught reads was cut. */
+const INVITE_SEND_FAILURE: Answer = ownJson(502, { message: 'The invitation could not be sent.' }, null);
 /** `app/api/organization-team/organizations/route.ts:39-41`. */
 const ORGANIZATIONS_FAILURE: Answer = ownJson(502, { error: 'Failed to read the organizations' }, null);
 /** `app/api/roles/team-assignable/route.ts:23`, on a 502. */
@@ -300,7 +335,7 @@ const CHANGELOG_KEY_REFUSAL: Answer = ownJson(
 const CHANGELOG_OUTAGE: Answer = ownJson(502, MOCK_PAGE, null);
 /** `app/api/changelog/route.ts:26`, the only caching header in this file. */
 const CHANGELOG_CONTROL: Answer = ownJson(200, MOCK_PAGE, 'public, max-age=300');
-/** `app/api/favorite/type/route.ts:16-19`. */
+/** `app/api/favorite/type/route.ts:18-20`. */
 const FAVORITE_KIND_REFUSAL: Answer = ownJson(400, { error: 'Only favourite tasks are read here' }, null);
 /** `app/api/editor-assist/route.ts:150-153` and `:165-166`. */
 const EDITOR_INVALID: Answer = ownJson(400, { error: 'invalid_request' }, null);
@@ -444,7 +479,7 @@ type ContractRoute = {
 	armPath: string;
 	/**
 	 * `tenant`: armed as `<session tenant>:<path>`, which is how the mock reads the tenant this app sent
-	 * (`mock-gauzy-server.mjs:1034-1037`); `bare`: armed as the path alone, because this app sends no tenant at all.
+	 * (`mock-gauzy-server.mjs:1103-1106`); `bare`: armed as the path alone, because this app sends no tenant at all.
 	 */
 	armStyle: 'tenant' | 'bare';
 	/** The upstream calls the control causes, in the order the mock recorded them. */
@@ -456,7 +491,9 @@ type ContractRoute = {
 	refusal: (status: number) => Answer;
 	/** The answer to a `drops` cut of that same path. */
 	drop: Answer;
-	/** Set when the row pins what was measured rather than what the code means to do. */
+	/** Set on a route whose *cut* row pins what was measured rather than what the code means to do. Since #5726
+	 * `employee-appointment/invited` is the only route of this set left with one; finding 1 names the other rows
+	 * that still carry the label. */
 	notIntended?: string;
 };
 
@@ -494,7 +531,7 @@ const ROUTES: ContractRoute[] = [
 		armPath: UP_TIME_GOALS_PROGRESS,
 		armStyle: 'tenant',
 		asks: () => [askProgress()],
-		// The mock does answer this one (`mock-gauzy-server.mjs:770`), and the proxy hands a plain `[]` on.
+		// The mock does answer this one (`mock-gauzy-server.mjs:820`), and the proxy hands a plain `[]` on.
 		control: () => ({
 			status: 200,
 			body: MOCK_PROGRESS_LIST,
@@ -514,7 +551,7 @@ const ROUTES: ContractRoute[] = [
 		asks: () => [askInvited()],
 		// [mock limit] no handler, so the catch-all page; Gauzy answers this route with a plain list.
 		control: () => ownJson(200, MOCK_PAGE, null),
-		// [mock limit] the guard delegated (`mock-gauzy-server.mjs:560`), so the read went out — with no bearer, which the
+		// [mock limit] the guard delegated (`mock-gauzy-server.mjs:607`), so the read went out — with no bearer, which the
 		// row asserts from `state.receivedTokens`.
 		signedOut: () => ({ answer: ownJson(200, MOCK_PAGE, null), asks: [askInvited()] }),
 		refusal: (status) => ownJson(status, gauzyRefusal(status), null),
@@ -530,9 +567,10 @@ const ROUTES: ContractRoute[] = [
 		asks: (ids) => [askFavorite(ids)],
 		control: () => ownJson(200, MOCK_PAGE, null),
 		signedOut: (ids) => ({ answer: ownJson(200, MOCK_PAGE, null), asks: [askFavorite(ids)] }),
-		refusal: () => HANDLER_CRASH,
-		drop: HANDLER_CRASH,
-		notIntended: "an upstream refusal and a cut are both this app's bare 500 (`route.ts:21-25`, no catch)"
+		// #5726 (`659374eb1`) gave this route a `catch` (`route.ts:29-31`): Gauzy's status and body come back as they
+		// arrived, and a read with no answer at all becomes the 502 below. Re-measured row by row after the merge.
+		refusal: (status) => ownJson(status, gauzyRefusal(status), null),
+		drop: FAVORITE_READ_FAILURE
 	},
 	{
 		label: 'GET /api/organization-team/organizations',
@@ -571,15 +609,16 @@ const ROUTES: ContractRoute[] = [
 		armPath: UP_ROLES_OPTIONS,
 		armStyle: 'tenant',
 		asks: () => [askRolesOptions()],
-		// [mock limit] `mock-gauzy-server.mjs:625` answers the fixture role whatever `?name=` arrives with, so the row
+		// [mock limit] `mock-gauzy-server.mjs:672` answers the fixture role whatever `?name=` arrives with, so the row
 		// pins the *asked* name and the tenant the answer names — never that the role is the EMPLOYEE one.
 		control: roleAnswerOfTenant('A'),
 		// [mock limit] the guard delegated, and the read went out with no bearer at all: the mock then answers its own
 		// fixture role, of its own default tenant (`measured-final.mjs` reading `roles/options signed-out`).
 		signedOut: (ids) => ({ answer: roleAnswerOfTenant('A')(ids), asks: [askRolesOptions()] }),
-		refusal: () => HANDLER_CRASH,
-		drop: HANDLER_CRASH,
-		notIntended: "an upstream refusal and a cut are both this app's bare 500 (`route.ts:17-21`, no catch)"
+		// #5726 (`90590d9d7`) gave this GET a `catch` too (`route.ts:26-28`), so the four refusals come back as Gauzy
+		// sent them and a cut role read becomes the 502 below. Re-measured on both tenant scopes after the merge.
+		refusal: (status) => ownJson(status, gauzyRefusal(status), null),
+		drop: ROLE_READ_FAILURE
 	},
 	{
 		label: 'GET /api/changelog',
@@ -794,7 +833,7 @@ async function bearerPaths(mock: { state: () => Promise<Record<string, unknown>>
 	return ((state.receivedTokens ?? []) as { path: string }[]).map((token) => token.path);
 }
 
-/** What the mock recorded of the invitation it was asked to create (`mock-gauzy-server.mjs:537-540`). */
+/** What the mock recorded of the invitation it was asked to create (`mock-gauzy-server.mjs:584-587`). */
 async function recordedInvites(mock: {
 	state: () => Promise<Record<string, unknown>>;
 }): Promise<{ emails?: string[]; teamIds?: string[] } | undefined> {
@@ -863,8 +902,8 @@ test.describe('lane-c · the 9 routes that read the Gauzy API, each pinned on it
 						? 'turned into the empty listing on a 502'
 						: route.half === 'composed'
 							? "turned into this app's composed failure"
-							: "relayed, or turned into this app's bare 500"
-			}${route.notIntended ? NOT_INTENDED : ''}`, async ({ api, mock, ids, cookies }) => {
+							: "relayed, with Gauzy's own status and body"
+			}`, async ({ api, mock, ids, cookies }) => {
 				const arm = armFor(route, ids);
 				await mock.scenario({ fails: { [arm]: status } });
 
@@ -1088,7 +1127,7 @@ test.describe('lane-c · which query keys travel upstream, and which key each ro
 
 /**
  * A read whose session cookies name the other tenant, and the arm that must fire for it. Where the route's own query
- * carries a `tenantId`, the mock reads the tenant off the query before the header (`mock-gauzy-server.mjs:1034-1037`),
+ * carries a `tenantId`, the mock reads the tenant off the query before the header (`mock-gauzy-server.mjs:1103-1106`),
  * so the row spells the query it sends and the arm that fires against it.
  */
 const SCOPE_B_ARMS: Array<{
@@ -1183,7 +1222,7 @@ test.describe("lane-c · the tenant that travels is the session's cookie, on eve
 		const { response, text } = await callApi(api, cookies, path);
 		const log = await mock.requests();
 		// The route ignores the caller entirely (`route.ts:25` → `requests/organization.ts:41-45`), so the read is built
-		// with the session's tenant even though the mock would resolve the caller's (`mock-gauzy-server.mjs:1034-1037`).
+		// with the session's tenant even though the mock would resolve the caller's (`mock-gauzy-server.mjs:1103-1106`).
 		const asked = [organizationsAskScoped(ids, 'A')];
 
 		console.log(
@@ -1233,8 +1272,9 @@ test.describe("lane-c · the tenant that travels is the session's cookie, on eve
 		const label = 'GET /api/favorite/type';
 		const route = routeByLabel(label);
 		// A scope-B session (cookies name tenant B) asking a query that names tenant A: the mock resolves the tenant off
-		// `?tenantId` then `where[tenantId]` before the header (`mock-gauzy-server.mjs:1034-1037`), so the arm keyed on
-		// the *cookie's* tenant does not fire and the one keyed on the query's tenant does.
+		// `?tenantId` then `where[tenantId]` before the header (`mock-gauzy-server.mjs:1103-1106`), so the arm keyed on
+		// the *cookie's* tenant does not fire and the one keyed on the query's tenant does — and what
+		// that arm answers now is the 403 Gauzy sent back, not this app's bare 500 (#5726, re-measured).
 		const path = `/api/favorite/type?where[entity]=Task&where[employeeId]=${ids.employee}&where[organizationId]=${ids.organizationB}&where[tenantId]=${ids.tenantA}`;
 		const asked = [
 			{
@@ -1281,7 +1321,7 @@ test.describe("lane-c · the tenant that travels is the session's cookie, on eve
 			queryArm.text,
 			queryArm.path,
 			queryLog,
-			HANDLER_CRASH,
+			route.refusal(403),
 			`${label} with ${ids.tenantA}:${UP_FAVORITE_TYPE} armed 403`
 		);
 	});
@@ -1574,7 +1614,7 @@ test.describe('lane-c · GET /api/favorite/type reads favourite tasks and nothin
 			if (kind.status === 400)
 				expect(
 					log.filter((request) => request.path === UP_FAVORITE_TYPE).map(lineOf),
-					`${path}: a kind this route refuses still reached the API (${logOf(log)}) — route.ts:16-19 refuses before the read`
+					`${path}: a kind this route refuses still reached the API (${logOf(log)}) — route.ts:18-20 refuses before the read`
 				).toEqual([]);
 		});
 	}
@@ -1653,7 +1693,7 @@ test.describe('lane-c · GET /api/organization-team/organizations: one session-b
 			const { response, text, path } = await callApi(api, cookies, route.app(ids));
 			const log = await mock.requests();
 			// [mock limit] the mock answers `GET /api/user-organization` with its catch-all page
-			// (`mock-gauzy-server.mjs:827`), so this person has no memberships: `listsTeams` (`route.ts:29`,
+			// (`mock-gauzy-server.mjs:895`), so this person has no memberships: `listsTeams` (`route.ts:29`,
 			// `isTenantAdminRole` at `core/lib/utils/roles.ts:3-11`) has no other organization to read teams for
 			// (`core/lib/utils/team-menu-organizations.ts:127`), and `ALL_ORG_VIEW` cannot extend the relation list
 			// either — `requests/organization.ts:48-58` only grows for a caller that passes `userPermissions`, which
@@ -1817,7 +1857,7 @@ test.describe('lane-c · POST /api/roles/options: the origin trio, the body it r
 
 		expectAnswer(asked, 200, response, text, path, log, postControl(ids), 'POST /api/roles/options control');
 
-		// The mock keeps what it was posted (`mock-gauzy-server.mjs:537-540`), which is the only witness a POST body has.
+		// The mock keeps what it was posted (`mock-gauzy-server.mjs:584-587`), which is the only witness a POST body has.
 		expect(
 			invites,
 			`the invite the mock recorded is no longer the caller's email in the session's team (${JSON.stringify(invites)}) — ` +
@@ -1836,7 +1876,7 @@ test.describe('lane-c · POST /api/roles/options: the origin trio, the body it r
 			ids,
 			cookies
 		}) => {
-			// Armed on the role read too, to prove the refusal happens before the route reaches it (`route.ts:27-28`).
+			// Armed on the role read too, to prove the refusal happens before the route reaches it (`route.ts:33-34`).
 			await mock.scenario({ fails: { [`${ids.tenantA}:${UP_ROLES_OPTIONS}`]: 403 } });
 
 			const { response, text, path } = await callApi(api, cookies, '/api/roles/options', {
@@ -2017,14 +2057,16 @@ test.describe('lane-c · POST /api/roles/options: the origin trio, the body it r
 			expectAnswer(asked, 200, response, text, path, log, answer, `POST /api/roles/options with ${item.label}`);
 
 			if (crashed) {
-				// `route.ts:37` is a bare `await req.json()` with nothing around it, so a body it cannot read is a throw
+				// `route.ts:43` is a bare `await req.json()` with nothing around it, so a body it cannot read is a throw
 				// this app never answers. `suites/api/empty-body-blockers.generated.ts:137-139` already calls the bodiless
 				// one a blocker; the JSON-null, JSON-string, form-encoded and unparseable rows measured here are its
-				// siblings, and none of them asked the API first.
+				// siblings, and none of them asked the API first. #5726 wrapped the reads below in a `catch`
+				// (`route.ts:51`, `:93-96`) and left this line outside it, so every one of these five bodies still
+				// measured a bare 500 with nothing in it after the merge.
 				const stray = log.filter((request) => request.path !== GUARD_CHECK);
 				expect(
 					triples(stray),
-					`POST /api/roles/options with ${item.label} asked the API before failing (${logOf(log)}) — the throw is at route.ts:37`
+					`POST /api/roles/options with ${item.label} asked the API before failing (${logOf(log)}) — the throw is at route.ts:43`
 				).toEqual([]);
 			}
 		});
@@ -2060,7 +2102,7 @@ test.describe('lane-c · POST /api/roles/options: the origin trio, the body it r
 			'POST /api/roles/options with padded fields'
 		);
 		// The trimmed value is the only one the mock can witness: it records the emails it was given, not the name
-		// (`mock-gauzy-server.mjs:537-540`); the trim itself is `core/lib/helpers/validations.ts:61-62`.
+		// (`mock-gauzy-server.mjs:584-587`); the trim itself is `core/lib/helpers/validations.ts:61-62`.
 		expect(
 			invites?.emails,
 			`the email the mock recorded is no longer the trimmed one (${JSON.stringify(invites)}) — ${witnessOf(
@@ -2102,9 +2144,9 @@ test.describe('lane-c · POST /api/roles/options: the origin trio, the body it r
 			postControl(ids),
 			'POST /api/roles/options with a body naming the other tenant'
 		);
-		// The two witnesses: the invitation *list* query the app built from the session (`route.ts:76-83` →
+		// The two witnesses: the invitation *list* query the app built from the session (`route.ts:83-90` →
 		// `requests/invite.ts:71-103`, asserted in `asked`), and what the mock recorded of the write
-		// (`mock-gauzy-server.mjs:537-540`): the caller's email, the session's team, and nothing the body named.
+		// (`mock-gauzy-server.mjs:584-587`): the caller's email, the session's team, and nothing the body named.
 		expect(
 			invites,
 			`the invite the mock recorded is no longer the session's team (${JSON.stringify(invites)}) — ${witnessOf(
@@ -2191,8 +2233,15 @@ test.describe('lane-c · POST /api/roles/options: the origin trio, the body it r
 	] as const) {
 		const swallowed = armedPath === UP_INVITE_LIST;
 
+		// #5726 (`90590d9d7`) wrapped this POST's role read and invite write in a `catch` (`route.ts:51-96`): a refusal of
+		// either now comes back with Gauzy's own status and body, and a cut of either is the route's 502 at `route.ts:95`.
+		// The third arm is the one #5726 did not touch — `getAllTeamInvitationsRequest` swallows whatever the list read
+		// answers (`requests/invite.ts:123-131`, `// Fallback to empty result` at `:125`), so this app still posted the
+		// invite, still answered 200 with an empty page, and the refusal only shows in the mock log. Finding 2,
+		// re-measured on 400/401/403/429 and on a cut after the merge.
+
 		for (const status of REFUSAL_STATUSES) {
-			test(`POST /api/roles/options with the ${label} refused ${status} upstream${swallowed ? '' : NOT_INTENDED}`, async ({
+			test(`POST /api/roles/options with the ${label} refused ${status} upstream`, async ({
 				api,
 				mock,
 				ids,
@@ -2207,7 +2256,7 @@ test.describe('lane-c · POST /api/roles/options: the origin trio, the body it r
 				});
 				const log = await mock.requests();
 				const asked = postFlowUpTo(ids, armedPath, status);
-				const answer = swallowed ? ownJson(200, MOCK_PAGE, null) : HANDLER_CRASH;
+				const answer = swallowed ? ownJson(200, MOCK_PAGE, null) : ownJson(status, gauzyRefusal(status), null);
 
 				console.log(
 					`[lane-c reads] MEASURE invite-armed-${status}-${label} ${witnessOf(path, response, text, log, pathsOf(asked))}`
@@ -2226,12 +2275,7 @@ test.describe('lane-c · POST /api/roles/options: the origin trio, the body it r
 			});
 		}
 
-		test(`POST /api/roles/options with the ${label} cut upstream${swallowed ? '' : NOT_INTENDED}`, async ({
-			api,
-			mock,
-			ids,
-			cookies
-		}) => {
+		test(`POST /api/roles/options with the ${label} cut upstream`, async ({ api, mock, ids, cookies }) => {
 			const arm = `${ids.tenantA}:${armedPath}`;
 			await mock.scenario({ drops: { [arm]: 1 } });
 
@@ -2241,7 +2285,7 @@ test.describe('lane-c · POST /api/roles/options: the origin trio, the body it r
 			});
 			const log = await mock.requests();
 			const asked = postFlowUpTo(ids, armedPath, 0);
-			const answer = swallowed ? ownJson(200, MOCK_PAGE, null) : HANDLER_CRASH;
+			const answer = swallowed ? ownJson(200, MOCK_PAGE, null) : INVITE_SEND_FAILURE;
 
 			console.log(
 				`[lane-c reads] MEASURE invite-cut-${label} ${witnessOf(path, response, text, log, pathsOf(asked))}`
@@ -2322,7 +2366,7 @@ test.describe('lane-c · /api/editor-assist with no provider on this deployment 
 		console.log(`[lane-c reads] MEASURE editor-get-signed-out ${witnessOf(path, response, text, log, [])}`);
 
 		// [mock limit] `route.ts:134` (`if (!guard.user) return guard.deny()`) is unreachable here: the mock answers
-		// `/api/user/me` with no bearer (`mock-gauzy-server.mjs:560`), so the guard found a user.
+		// `/api/user/me` with no bearer (`mock-gauzy-server.mjs:607`), so the guard found a user.
 		expectAnswer(
 			[],
 			200,
