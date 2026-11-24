@@ -5,9 +5,10 @@ on:
     branches:
       - develop
     # Everything the eight images are built from: the apps, the workspace packages they bundle
-    # (atoms, embed, tracking, toolkit-ui, toolkit-types, api and the shared Tailwind/TS configs) and the
-    # Docker helpers in .deploy/examples. The in-cluster build reads the same list from k8s-gitops
-    # apps/ci-builds (catalog.json, tools/policy-overrides.json): change both together.
+    # (atoms, embed, tracking, toolkit-ui, toolkit-types, api and the shared Tailwind/TS configs), the
+    # Docker helpers in .deploy/examples and the root install inputs (a yarn.lock-only bump changes the
+    # images too). The in-cluster build reads the same list from k8s-gitops apps/ci-builds (catalog.json,
+    # tools/policy-overrides.json): change both together.
     paths:
       - "packages/toolkit/**"
       - "packages/toolkit-ui/**"
@@ -17,6 +18,11 @@ on:
       - "packages/ts-config/**"
       - "apps/storybook/**"
       - ".deploy/examples/**"
+      - "package.json"
+      - "yarn.lock"
+      - ".yarnrc"
+      - ".npmrc"
+      - "turbo.json"
       - ".github/workflows/k8s-build-examples.yml"
 concurrency:
   group: k8s-build-examples-${{ github.ref }}
