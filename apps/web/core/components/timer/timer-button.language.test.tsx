@@ -1,4 +1,5 @@
 /** @jest-environment jsdom */
+// cspell:ignore starten stoppen Zurück Arbeit
 import { render, screen } from '@testing-library/react';
 import { NextIntlClientProvider } from 'next-intl';
 import english from '@/locales/en.json';

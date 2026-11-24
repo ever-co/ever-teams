@@ -1,3 +1,4 @@
+// cspell:ignore Gauzys
 /**
  * Proxy mode: the sites the signed-in person allowed to use their timer (#5595) are read through Gauzy with the
  * session's token, answered as Gauzy answers (the 404 of a server without embeds included) and marked no-store.

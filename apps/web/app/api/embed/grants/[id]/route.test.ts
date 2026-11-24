@@ -1,3 +1,4 @@
+// cspell:ignore Gauzys
 /**
  * Proxy mode: the sign-in of one site the signed-in person allowed (#5595) is ended through Gauzy's
  * DELETE /embed/grants/:id, which answers 404 for a sign-in that is gone or is another person's.
