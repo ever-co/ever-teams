@@ -6,7 +6,16 @@ import { render, screen } from '@testing-library/react';
 import { TimerButton } from './timer-button';
 
 jest.mock('assets/svg', () => ({ TimerPlayIcon: () => null, TimerStopIcon: () => null }), { virtual: true });
-jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
+// The two labels of the timer button are answered in English, every other text as its key
+jest.mock('next-intl', () => ({
+	useTranslations: () => (key: string) => {
+		const labels: Record<string, string> = {
+			'hotkeys.START_TIMER': 'Start timer',
+			'hotkeys.STOP_TIMER': 'Stop timer'
+		};
+		return labels[key] ?? key;
+	}
+}));
 jest.mock('@/core/lib/utils', () => ({ clsxm: (...values: string[]) => values.filter(Boolean).join(' ') }));
 jest.mock('@/core/components', () => ({
 	Button: ({ children, ...props }: React.ComponentProps<'button'>) => <button {...props}>{children}</button>
