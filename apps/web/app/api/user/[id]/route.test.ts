@@ -6,7 +6,9 @@ const mockAuthenticatedGuard = jest.fn();
 const mockUpdateUser = jest.fn();
 
 jest.mock('@/core/services/server/guards/authenticated-guard-app', () => ({
-	authenticatedGuard: (...args: unknown[]) => mockAuthenticatedGuard(...args)
+	authenticatedGuard: (...args: unknown[]) => mockAuthenticatedGuard(...args),
+	// The route drops the session check kept for the token after a save (see route.session-check.test.ts)
+	sessionChecks: { drop: jest.fn() }
 }));
 jest.mock('@/core/services/server/requests', () => ({
 	getTaskCreator: jest.fn(),
