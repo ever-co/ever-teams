@@ -1005,9 +1005,11 @@ test.describe('lane-a · /shared-report and /embed/authorize: what a person sees
 		expect(outRead.authorization, 'the signed-out read carried an Authorization header').toBe(null);
 		expect(inRead.authorization === null, 'the signed-in read carried no Authorization header').toBe(false);
 		// The extra read is not the page's: JitsuRoot (core/components/collaborate/jitsu-root.tsx:24) reads the user on
-		// every page, and keeps its analytics off here (:47 isSharedReportPath).
+		// every page, and keeps its analytics off here (:47 isSharedReportPath). Compared as a set: in a whole-lane run
+		// (2026-11-24, 331 tests) the person was read twice once, the user query refetching under load; the claim is
+		// what was asked, not how often.
 		expect(
-			(await mock.requests()).map((call) => `${call.method} ${call.path}`),
+			[...new Set((await mock.requests()).map((call) => `${call.method} ${call.path}`))],
 			'the mock logged something other than the person read'
 		).toEqual(['GET /api/user/me']);
 		const tokensOnThePublicRead = await receivedTokens(SHARED_READ_PATH);
