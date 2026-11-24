@@ -26,10 +26,14 @@ describe('the timesheets list on a phone', () => {
 					expect(word.clientWidth, `${status} is not cut`).to.be.at.least(word.scrollWidth);
 				});
 			}
-			cy.contains('[role="row"] span.truncate:visible', fixture.names.teammate).then(($member) => {
-				const member = $member[0];
-				expect(member.clientWidth, 'the member is not cut').to.be.at.least(member.scrollWidth);
-			});
+			const members = [fixture.names.teammate, fixture.names.user];
+			cy.get('[role="row"] span.truncate:visible')
+				.filter((_index, element) => members.includes(element.textContent ?? ''))
+				.should('have.length', STATUSES.length)
+				.each(($member) => {
+					const member = $member[0];
+					expect(member.clientWidth, `${member.textContent} is not cut`).to.be.at.least(member.scrollWidth);
+				});
 		});
 	});
 });
