@@ -1,3 +1,4 @@
+// cspell:ignore Gauzys
 /**
  * Test-only helpers for the app/api routes that hand a request on to Gauzy with forwardToGauzy (never part of the
  * app): a request from a signed-in browser, a stand-in for Gauzy's answer, and what the route sent to Gauzy.
