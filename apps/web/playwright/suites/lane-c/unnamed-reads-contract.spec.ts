@@ -1825,7 +1825,7 @@ test.describe('lane-c · POST /api/roles/options: the origin trio, the body it r
 		).toEqual({ emails: [INVITE_BODY.email], teamIds: [ids.teamA] });
 	});
 
-	for (const trio of [
+	for (const trio of <Array<{ label: string; headers: Record<string, string> }>>[
 		{ label: 'Sec-Fetch-Site: cross-site', headers: { 'sec-fetch-site': 'cross-site' } },
 		{ label: 'Sec-Fetch-Site: same-site', headers: { 'sec-fetch-site': 'same-site' } },
 		{ label: 'Origin: https://evil.example', headers: { origin: 'https://evil.example' } }
@@ -2335,7 +2335,7 @@ test.describe('lane-c · /api/editor-assist with no provider on this deployment 
 		);
 	});
 
-	const ORIGIN_CASES = [
+	const ORIGIN_CASES: Array<{ label: string; headers: Record<string, string> }> = [
 		{ label: 'Sec-Fetch-Site: cross-site', headers: { 'sec-fetch-site': 'cross-site' } },
 		{ label: 'Sec-Fetch-Site: same-site', headers: { 'sec-fetch-site': 'same-site' } },
 		{ label: 'Origin: https://evil.example', headers: { origin: 'https://evil.example' } }
