@@ -147,7 +147,8 @@ export function SheetHeader({
 			<div className="flex min-w-0 items-center">{lead}</div>
 			<div className="flex min-w-0 items-center gap-2">
 				<span className="truncate text-xs tabular-nums text-muted-foreground">{counts}</span>
-				<TimesheetStatusChip status={status} />
+				{/* The counts give way first: the status is what a reviewer came for */}
+				<TimesheetStatusChip status={status} className="shrink-0" />
 				{copyWeek && <SheetCopyWeekMenu copyWeek={copyWeek} />}
 			</div>
 		</div>
