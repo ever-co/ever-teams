@@ -2,6 +2,7 @@ import * as React from 'react';
 import { type DialogProps } from '@radix-ui/react-dialog';
 import { Command as CommandPrimitive } from 'cmdk';
 import { Search } from '@/core/components/icons';
+import { useTranslations } from 'next-intl';
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from 'core/components/common/dialog';
 import { cn } from '@/core/lib/helpers';
@@ -30,22 +31,20 @@ const Command = React.forwardRef<
 Command.displayName = CommandPrimitive.displayName;
 
 const CommandDialog = ({ children, ...props }: DialogProps) => {
+	const t = useTranslations();
+	// The name of the button that opens it, in the 13 languages
+	const name = t('sidebar.COMMAND');
 	return (
-		<Dialog
-			{...props}
-			aria-label="Command Dialog"
-			aria-labelledby="Command Dialog"
-			aria-describedby="Command Dialog"
-		>
+		<Dialog {...props} aria-label={name} aria-labelledby="Command Dialog" aria-describedby="Command Dialog">
 			<DialogContent
 				className="top-[12%] max-w-[40rem] translate-y-0 gap-0 overflow-hidden p-0 max-sm:top-4"
 				showCloseButton={false}
-				aria-label="Command Dialog"
+				aria-label={name}
 				aria-labelledby="Command Dialog"
 				aria-describedby="Command Dialog"
 			>
 				<DialogHeader>
-					<DialogTitle className="sr-only">Command Dialog</DialogTitle>
+					<DialogTitle className="sr-only">{name}</DialogTitle>
 				</DialogHeader>
 				<Command
 					className={cn(

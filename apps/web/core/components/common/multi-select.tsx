@@ -35,6 +35,8 @@ export function MultiSelect<T>({
 }: MultiSelectProps<T>) {
 	const t = useTranslations();
 	const isControlled = value !== undefined;
+	// Each chip's remove button says which item it removes, in the language of the page
+	const removeLabelOf = (item: T) => `${t('common.REMOVE')}: ${itemToString(item)}`;
 
 	// Internal state only if not controlled (optional here, but useful if you want fallback)
 	const [internalSelectedItems, setInternalSelectedItems] = useState<T[]>(() => {
@@ -169,7 +171,7 @@ export function MultiSelect<T>({
 							<button
 								onClick={() => removeItem(item)}
 								className="ml-1.5 text-muted-foreground transition-colors hover:text-destructive-ink"
-								aria-label="Remove item"
+								aria-label={removeLabelOf(item)}
 							>
 								<span className="flex justify-center items-center w-4 h-4">
 									<X className="size-3.5" aria-hidden="true" />
