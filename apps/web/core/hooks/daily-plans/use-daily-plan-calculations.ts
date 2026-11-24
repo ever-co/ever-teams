@@ -7,9 +7,10 @@ import { TTask } from '@/core/types/schemas/task/task.schema';
 import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import { isTaskFinished } from '@/core/lib/helpers/task';
+import { OUTSTANDING_NO_PLAN_ID } from '@/core/lib/utils/outstanding-notice';
 
 /** Id of the outstanding view's placeholder plan for unplanned tasks: it does not exist on the API. */
-export const OUTSTANDING_NO_PLAN_ID = 'outstanding-no-plan';
+export { OUTSTANDING_NO_PLAN_ID };
 
 interface PlanListsOfDay {
 	dayKey: string;
