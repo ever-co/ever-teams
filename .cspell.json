@@ -1095,7 +1095,11 @@
 		"känban",
 		"maintenant",
 		"netinfo",
-		"thème"
+		"thème",
+		"linuxmusl",
+		"minifiers",
+		"realpaths",
+		"reexp"
 	],
 	"ignoreRegExpList": ["/%(?:2F|3A|5B|5D)[A-Za-z]*/g", "/gze_[A-Za-z0-9_-]+/g"],
 	"useGitignore": true,

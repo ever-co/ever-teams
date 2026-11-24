@@ -5,6 +5,7 @@ import {
 } from '@/core/services/server/requests/timer/timer-slot';
 import { NextResponse } from 'next/server';
 import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
+import { gauzyErrorResponse } from '@/core/services/server/gauzy-error-response';
 
 export async function GET(req: Request) {
 	const res = new NextResponse();
@@ -26,18 +27,22 @@ export async function GET(req: Request) {
 			.filter(([name]) => name === key || (name.startsWith(`${key}[`) && name.endsWith(']')))
 			.map(([, value]) => value);
 
-	const { data } = await getEmployeeTimeSlotsRequest({
-		tenantId,
-		organizationId,
-		employeeId: searchParams.get('employeeId') || listParam('employeeIds')[0] || user.employee?.id || '',
-		// A manager sees another member's slots only when that member's team is named
-		teamIds: listParam('teamIds'),
-		todayEnd,
-		todayStart,
-		bearer_token: access_token
-	});
-
-	return $res(data);
+	try {
+		const { data } = await getEmployeeTimeSlotsRequest({
+			tenantId,
+			organizationId,
+			employeeId: searchParams.get('employeeId') || listParam('employeeIds')[0] || user.employee?.id || '',
+			// A manager sees another member's slots only when that member's team is named
+			teamIds: listParam('teamIds'),
+			todayEnd,
+			todayStart,
+			bearer_token: access_token
+		});
+		return $res(data);
+	} catch (error) {
+		// A refusal of the API goes back with its status and reason, as in direct mode (#5726)
+		return await gauzyErrorResponse(error, 'The time slots could not be read.');
+	}
 }
 
 export async function DELETE(req: Request) {
@@ -55,13 +60,17 @@ export async function DELETE(req: Request) {
 		return NextResponse.json({ error: 'ids must be a non-empty array' }, { status: 400 });
 	}
 
-	const { data } = await deleteEmployeeTimeSlotsRequest({
-		tenantId,
-		organizationId,
-		ids,
-		forceDelete: searchParams.get('forceDelete') === 'true',
-		bearer_token: access_token
-	});
-
-	return $res(data);
+	try {
+		const { data } = await deleteEmployeeTimeSlotsRequest({
+			tenantId,
+			organizationId,
+			ids,
+			forceDelete: searchParams.get('forceDelete') === 'true',
+			bearer_token: access_token
+		});
+		return $res(data);
+	} catch (error) {
+		// A refusal of the API goes back with its status and reason, as in direct mode (#5726)
+		return await gauzyErrorResponse(error, 'The time slots could not be deleted.');
+	}
 }

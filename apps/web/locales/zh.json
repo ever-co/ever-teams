@@ -5636,6 +5636,19 @@
 			"SIGNED_OUT_OTHERS": "{count, plural, =0 {没有其他已登录的会话。} other {已退出另外 # 个会话。}}",
 			"APP_ON_DEVICE": "{app} · {device}"
 		},
+		"allowedSites": {
+			"TITLE": "你登录过的网站",
+			"DESCRIPTION": "你允许启动和停止你的 {appName} 计时器的网站。可以结束你不再使用或不认识的网站的登录。",
+			"RENEWS_UNTIL": "可续期登录至 {date}",
+			"END": "结束",
+			"EMPTY": "你尚未从任何网站登录。",
+			"LOAD_FAILED": "无法加载你登录过的网站。",
+			"RETRY": "重试",
+			"END_TITLE": "结束来自 {site} 的登录？",
+			"END_DESCRIPTION": "该网站将无法再续期登录。下次续期时，它会重新显示“使用 {appName} 登录”按钮。",
+			"ENDED": "来自 {site} 的登录已结束。",
+			"END_FAILED": "登录未结束。请重试。"
+		},
 		"profile": {
 			"SECTION_PROFILE": "个人资料",
 			"PHOTO": "头像",
@@ -7206,7 +7219,7 @@
 		"IN_TRASH": "在回收站中",
 		"IN_TRASH_NOTICE": "此页面在回收站中。恢复后才能编辑。",
 		"LOCKED_NOTICE": "此页面已在平台上锁定，只能阅读。",
-		"NO_WRITE_ACCESS_NOTICE": "您可以阅读此页面，但不能修改。请让作者与您共享编辑权限。",
+		"NO_WRITE_ACCESS_NOTICE": "您可以阅读此页面，但不能修改。请向作者或管理员申请编辑权限。",
 		"LOCKED_WHILE_EDITING": "你编辑时页面被锁定了。重新加载以阅读最新内容；在此之前你的修改会保留在此标签页中。",
 		"SEARCH_PAGES": "搜索页面",
 		"CLEAR_SEARCH": "清除搜索",
@@ -7229,7 +7242,7 @@
 		"UNSAVED": "有未保存的更改",
 		"NOT_SAVED": "未保存",
 		"SAVE_ERROR": "最近一次更改未能保存。它会保留在此标签页中；请重试或检查网络连接。",
-		"SAVE_FORBIDDEN": "您可以阅读此页面，但不能修改：上次更改未保存。它保留在此标签页中。请让作者与您共享此页面的编辑权限。",
+		"SAVE_FORBIDDEN": "您可以阅读此页面，但不能修改：上次更改未保存。它保留在此标签页中。请向页面作者或管理员申请编辑权限。",
 		"SAVE_TITLE_ERROR": "标题未能保存。",
 		"TOO_LARGE": "此页面太大，无法保存。请拆分页面或删除部分图片。",
 		"CONFLICT_TITLE": "其他人保存了此页面",

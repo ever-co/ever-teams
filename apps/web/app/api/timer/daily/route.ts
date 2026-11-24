@@ -1,6 +1,7 @@
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { getEmployeeDailyRequest } from '@/core/services/server/requests/timer/daily';
 import { NextResponse } from 'next/server';
+import { gauzyErrorResponse } from '@/core/services/server/gauzy-error-response';
 
 // A date the client did not send stays undefined; one it sent that does not parse is null, so the route can
 // answer 400 for it, as Gauzy does in direct mode.
@@ -25,17 +26,21 @@ export async function GET(req: Request) {
 	const type = searchParams.get('types[0]') || searchParams.get('type') || undefined;
 	const title = searchParams.get('title[0]') || undefined;
 
-	const { data } = await getEmployeeDailyRequest({
-		tenantId,
-		organizationId,
-		employeeId: searchParams.get('employeeIds[0]') || user.employee?.id || '',
-		todayEnd: endDate,
-		todayStart: startDate,
-		type,
-		title,
-		bearer_token: access_token,
-		activityLevel: { start: 0, end: 100 }
-	});
-
-	return $res(data);
+	try {
+		const { data } = await getEmployeeDailyRequest({
+			tenantId,
+			organizationId,
+			employeeId: searchParams.get('employeeIds[0]') || user.employee?.id || '',
+			todayEnd: endDate,
+			todayStart: startDate,
+			type,
+			title,
+			bearer_token: access_token,
+			activityLevel: { start: 0, end: 100 }
+		});
+		return $res(data);
+	} catch (error) {
+		// A refusal of the API goes back with its status and reason, as in direct mode (#5726)
+		return await gauzyErrorResponse(error, 'The activity of the day could not be read.');
+	}
 }

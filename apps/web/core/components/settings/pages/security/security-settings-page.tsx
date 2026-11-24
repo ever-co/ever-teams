@@ -16,6 +16,7 @@ import {
 } from '@/core/components/settings/kit/settings-page';
 import { useTwoFactorSettings } from '@/core/hooks/auth/use-two-factor-settings';
 import type { ITwoFactorEnrollment, ITwoFactorProof, ITwoFactorStatus } from '@/core/types/interfaces/auth/two-factor';
+import { AllowedSitesSection } from './allowed-sites-section';
 import { ProofForm, RecoveryCodesPanel, SetupPanel, writeFailureMessageOf } from './two-factor-parts';
 
 type Settings = ReturnType<typeof useTwoFactorSettings>;
@@ -244,7 +245,8 @@ function TwoFactorSection({ settings }: Readonly<{ settings: Settings }>) {
 
 /**
  * Settings > Security: two-factor authentication with an authenticator app, off until the person turns it on. A
- * server without it says so; nothing else changes for anyone who leaves it off.
+ * server without it says so; nothing else changes for anyone who leaves it off. Below it, the sites the person signed
+ * in from, on a server that has embeds.
  */
 export function SecuritySettingsPage() {
 	const t = useTranslations();
@@ -262,6 +264,7 @@ export function SecuritySettingsPage() {
 			>
 				<TwoFactorSection settings={settings} />
 			</SettingsSection>
+			<AllowedSitesSection />
 		</SettingsPage>
 	);
 }

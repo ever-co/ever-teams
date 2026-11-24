@@ -533,7 +533,9 @@ export const queryKeys = {
 		origins: (tenantId: string | undefined | null, organizationId: string | undefined | null) =>
 			['embeds', 'origins', tenantId ?? null, organizationId ?? null] as const,
 		credentials: (tenantId: string | undefined | null, organizationId: string | undefined | null) =>
-			['embeds', 'credentials', tenantId ?? null, organizationId ?? null] as const
+			['embeds', 'credentials', tenantId ?? null, organizationId ?? null] as const,
+		// The sites the signed-in person allowed to use their timer (Settings > Security): each person's own
+		siteGrants: (userId: string | undefined | null) => ['embeds', 'site-grants', userId ?? null] as const
 	},
 
 	// Settings → Automations: the organization's rules, the templates and a rule's run history. The user is part of

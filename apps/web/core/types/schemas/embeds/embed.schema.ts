@@ -69,6 +69,18 @@ export const embedSiteTokensSchema = z.object({
 });
 
 /**
+ * `GET /embed/grants`: a site the signed-in person allowed to use their timer, by its origin, with the time until
+ * which the site can renew that sign-in. Only what Settings > Security shows is kept.
+ */
+export const embedSiteGrantSchema = z.object({
+	id: z.string().min(1),
+	origin: z.string().min(1),
+	expiresAt: z.string().min(1)
+});
+
+export const embedSiteGrantListSchema = z.array(embedSiteGrantSchema);
+
+/**
  * What a new credential is made from: its name, the client it is limited to (`null`: the whole workspace), and
  * whether it adds the people it signs in as members (off when absent).
  */
@@ -105,4 +117,5 @@ export type EmbedConfig = z.infer<typeof embedConfigSchema>;
 export type EmbedAllowedOrigin = z.infer<typeof embedAllowedOriginSchema>;
 export type EmbedCredential = z.infer<typeof embedCredentialSchema>;
 export type CreatedEmbedCredential = z.infer<typeof createdEmbedCredentialSchema>;
+export type EmbedSiteGrant = z.infer<typeof embedSiteGrantSchema>;
 export type EmbedSiteTokens = z.infer<typeof embedSiteTokensSchema>;

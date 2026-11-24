@@ -5636,6 +5636,19 @@
 			"SIGNED_OUT_OTHERS": "{count, plural, =0 {No other session was signed in.} one {# other session was signed out.} other {# other sessions were signed out.}}",
 			"APP_ON_DEVICE": "{app} · {device}"
 		},
+		"allowedSites": {
+			"TITLE": "Sites you signed in from",
+			"DESCRIPTION": "The sites you allowed to start and stop your {appName} timer. End the sign-in from one you no longer use or do not recognize.",
+			"RENEWS_UNTIL": "Can renew the sign-in until {date}",
+			"END": "End",
+			"EMPTY": "You have not signed in from any site.",
+			"LOAD_FAILED": "The sites you signed in from could not be loaded.",
+			"RETRY": "Try again",
+			"END_TITLE": "End the sign-in from {site}?",
+			"END_DESCRIPTION": "The site can no longer renew the sign-in. At its next renewal it shows its “Sign in with {appName}” button again.",
+			"ENDED": "The sign-in from {site} was ended.",
+			"END_FAILED": "The sign-in was not ended. Try again."
+		},
 		"profile": {
 			"SECTION_PROFILE": "Profile",
 			"PHOTO": "Photo",
@@ -7206,7 +7219,7 @@
 		"IN_TRASH": "In the trash",
 		"IN_TRASH_NOTICE": "This page is in the trash. Restore it to edit it.",
 		"LOCKED_NOTICE": "This page is locked on the platform and can only be read.",
-		"NO_WRITE_ACCESS_NOTICE": "You can read this page, but not change it. Ask its author to share it with you for editing.",
+		"NO_WRITE_ACCESS_NOTICE": "You can read this page, but not change it. Ask its author or an administrator for edit access.",
 		"LOCKED_WHILE_EDITING": "The page was locked while you were writing. Reload it to read the latest text; your changes stay in this tab until then.",
 		"SEARCH_PAGES": "Search pages",
 		"CLEAR_SEARCH": "Clear search",
@@ -7229,7 +7242,7 @@
 		"UNSAVED": "Unsaved changes",
 		"NOT_SAVED": "Not saved",
 		"SAVE_ERROR": "The last change could not be saved. It stays in this tab; retry, or check your connection.",
-		"SAVE_FORBIDDEN": "You can read this page, but not change it: the last change was not saved. It stays in this tab. Ask the author to share the page with you for editing.",
+		"SAVE_FORBIDDEN": "You can read this page, but not change it: the last change was not saved. It stays in this tab. Ask the page’s author or an administrator for edit access.",
 		"SAVE_TITLE_ERROR": "The title could not be saved.",
 		"TOO_LARGE": "This page is too large to save. Split it, or remove some pictures.",
 		"CONFLICT_TITLE": "Someone else saved this page",

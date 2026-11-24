@@ -472,6 +472,14 @@ export const apiRoutes: ApiRoute[] = [
 		verbs: ['POST']
 	},
 	{
+		path: '/api/embed/grants/[id]',
+		verbs: ['DELETE']
+	},
+	{
+		path: '/api/embed/grants',
+		verbs: ['GET']
+	},
+	{
 		path: '/api/employee-appointment/[id]',
 		verbs: ['PUT', 'DELETE']
 	},
