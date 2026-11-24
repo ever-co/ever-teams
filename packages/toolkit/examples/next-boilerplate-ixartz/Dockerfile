@@ -20,13 +20,13 @@ RUN yarn turbo run build --filter=@ever-teams/example-nextjs-boilerplate
 # look, and /_next/image would serve the original files. Install the version Next resolves, flat, with npm
 # (apps/web's image also installs its sharp with npm); the runtime stage lays it over the traced copy.
 # sharp's `exports` hides ./package.json, so the version is read from the folder its entry resolves to.
-RUN cd packages/toolkit/examples/next-boilerplate-ixartz \
-	&& version="$(node -p "const path = require('node:path'); \
+WORKDIR /app/packages/toolkit/examples/next-boilerplate-ixartz
+RUN version="$(node -p "const path = require('node:path'); \
 		let dir = path.dirname(require.resolve('sharp', { paths: [path.dirname(require.resolve('next/package.json'))] })); \
 		while (path.basename(dir) !== 'sharp' && dir !== path.dirname(dir)) dir = path.dirname(dir); \
 		JSON.parse(require('node:fs').readFileSync(path.join(dir, 'package.json'), 'utf8')).version")" \
-	&& mkdir /sharp && cd /sharp \
-	&& npm install --omit=dev --no-save --no-package-lock --no-audit --no-fund --ignore-scripts "sharp@${version}" \
+	&& npm install --prefix /sharp --omit=dev --no-save --no-package-lock --no-audit --no-fund --ignore-scripts \
+		"sharp@${version}" \
 	&& npm cache clean --force
 
 # Runtime: the traced server, its static assets and public/ only. Shipping the build stage (the whole
