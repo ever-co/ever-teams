@@ -71,6 +71,20 @@ export const PRODUCTION_HOSTS: readonly string[] = ['api.ever.team', 'app.ever.t
 export const isProductionHost = (url: string): boolean =>
 	PRODUCTION_HOSTS.includes(new URL(url).hostname.toLowerCase().replace(/\.$/, ''));
 
+/** The Jitsi settings a lane started with `E2E_MEET=1` runs on (see `MEET_JWT_APP_SECRET` in `sharedEnv` below). */
+export const MEET_TEST = {
+	secret: 'playwright-deterministic-meet-secret',
+	appId: 'playwright-meet-app',
+	domain: '127.0.0.1:4119'
+} as const;
+
+/** The LiveKit settings a lane started with `E2E_LIVEKIT=1` runs on (see `LIVEKIT_API_SECRET` in `sharedEnv` below). */
+export const LIVEKIT_TEST = {
+	apiKey: 'playwright-livekit-key',
+	apiSecret: 'playwright-deterministic-livekit-secret',
+	url: 'ws://127.0.0.1:4120'
+} as const;
+
 /** A run against the demo API instead of the mock. Never a production API. */
 export const DEMO_API_ORIGIN = new URL(process.env.E2E_DEMO_API_URL || 'https://apidev.ever.team').origin;
 if (isProductionHost(DEMO_API_ORIGIN)) {
@@ -138,10 +152,19 @@ const sharedEnv = (apiOrigin: string): Record<string, string> => ({
 	NEXT_PUBLIC_TWITTER_APP_NAME: '',
 	NEXT_PUBLIC_CAPTCHA_SITE_KEY: '',
 	NEXT_PUBLIC_MEET_TYPE: 'None',
-	MEET_JWT_APP_SECRET: '',
-	LIVEKIT_API_KEY: '',
-	LIVEKIT_API_SECRET: '',
-	NEXT_PUBLIC_LIVEKIT_URL: '',
+	// Meeting tokens are off unless a run asks for them (E2E_MEET=1), like Docs below: `/api/auth/meet/jwt` then signs with
+	// this deterministic test secret, for an app id of this harness only, so a spec can read the token's claims. The
+	// Jitsi host is a loopback port nothing listens on: the lane shield (fixtures.ts) lets a local address through, so a
+	// spec can answer the host's `external_api.js` itself with `page.route`, and an unanswered load fails on this machine.
+	// Blank, the route answers "Server misconfigured" — and blank also keeps a developer's own .env app id out of a run.
+	MEET_JWT_APP_SECRET: process.env.E2E_MEET === '1' ? MEET_TEST.secret : '',
+	MEET_JWT_APP_ID: process.env.E2E_MEET === '1' ? MEET_TEST.appId : '',
+	// LiveKit room tokens, the same way (E2E_LIVEKIT=1): `/api/livekit` signs with this test key and secret, and the
+	// server URL is a loopback port nothing listens on, so a spec can read the token's grant and answer or refuse the
+	// room connection itself (`page.routeWebSocket`). Blank, the route answers 500 "Server misconfigured".
+	LIVEKIT_API_KEY: process.env.E2E_LIVEKIT === '1' ? LIVEKIT_TEST.apiKey : '',
+	LIVEKIT_API_SECRET: process.env.E2E_LIVEKIT === '1' ? LIVEKIT_TEST.apiSecret : '',
+	NEXT_PUBLIC_LIVEKIT_URL: process.env.E2E_LIVEKIT === '1' ? LIVEKIT_TEST.url : '',
 	// Blank unless a run asks for a Board (E2E_BOARD_APP_DOMAIN), exactly like the Ever ID issuer below is blank unless a
 	// config turns it on: mounting the Board in every lane would mount a feature the other lanes are not testing, and
 	// blank is what a deployment without the Board looks like — which is the state suites/api/board-origin.spec.ts pins.
@@ -154,7 +177,7 @@ const sharedEnv = (apiOrigin: string): Record<string, string> => ({
 	NEXT_PUBLIC_DOCS_ENABLED: process.env.E2E_DOCS === '1' ? 'true' : '',
 	NEXT_PUBLIC_BOARD_BACKEND_POST_URL: '',
 	NEXT_PUBLIC_BOARD_FIREBASE_CONFIG: '',
-	NEXT_PUBLIC_MEET_DOMAIN: '',
+	NEXT_PUBLIC_MEET_DOMAIN: process.env.E2E_MEET === '1' ? MEET_TEST.domain : '',
 	NEXT_PUBLIC_SENTRY_DSN: '',
 	SENTRY_DSN: '',
 	SENTRY_AUTH_TOKEN: '',
