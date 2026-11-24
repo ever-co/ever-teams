@@ -1,4 +1,4 @@
-import { newTaskStatusNameOf } from './new-task-status-name';
+import { newTaskStatusNameOf, openStatusOfNewTask } from './new-task-status-name';
 
 const STATUSES = [
 	{ id: 'status-backlog', name: 'backlog' },
@@ -35,5 +35,29 @@ describe('the status name of a new task', () => {
 
 	it('is undefined while the list is empty', () => {
 		expect(newTaskStatusNameOf(undefined, 'status-open', [])).toBeUndefined();
+	});
+});
+
+describe('the open status of a new task', () => {
+	const OF_THE_PLATFORM = { id: 'open-platform', value: 'open', organizationTeamId: null };
+	const OF_THE_TEAM = { id: 'open-team', value: 'open', organizationTeamId: 'team-1' };
+	const BACKLOG = { id: 'backlog-team', value: 'backlog', organizationTeamId: 'team-1' };
+
+	it("is the team's own when the list holds the platform's row too", () => {
+		expect(openStatusOfNewTask([OF_THE_PLATFORM, BACKLOG, OF_THE_TEAM])).toBe(OF_THE_TEAM);
+	});
+
+	it("is the platform's row for a team without statuses of its own, as before", () => {
+		expect(openStatusOfNewTask([OF_THE_PLATFORM, { id: 'done', value: 'done' }])).toBe(OF_THE_PLATFORM);
+	});
+
+	it("is the first open status when several are the team's", () => {
+		const second = { id: 'open-team-2', value: 'open', organizationTeamId: 'team-1' };
+
+		expect(openStatusOfNewTask([OF_THE_TEAM, second])).toBe(OF_THE_TEAM);
+	});
+
+	it('is undefined for a list without an open status', () => {
+		expect(openStatusOfNewTask([BACKLOG])).toBeUndefined();
 	});
 });
