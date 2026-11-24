@@ -8,10 +8,13 @@ import { logOf, parseAnswer, triples } from '../api/log-helpers';
 
 /**
  * The contract of the 11 integration "connect" API routes that no other spec names, pinned on lane-b (app 3032, mock
- * 3996, control 3998) in the runs `E:\Coding\.tmp\s2-lane-b-integ-1.log` … `-4.log`: 243 tests, green in all four. Every
- * number, body, key list and header below is a measurement, taken first against the live lane with
- * `E:\Coding\.tmp\probe-integ\probe.mjs` … `probe6.mjs` (readings in `measured1.txt` … `measured5.txt` beside them) and
- * only then written down.
+ * 3996, control 3998) in the runs `E:\Coding\.tmp\s2-lane-b-integ-1.log` … `-4.log` (2026-11-23): 243 tests, green in all
+ * four of those runs. Every number, body, key list and header below is a measurement, taken first against the live lane
+ * with `E:\Coding\.tmp\probe-integ\probe.mjs` … `probe6.mjs` (readings in `measured1.txt` … `measured5.txt` beside them)
+ * and only then written down. `GET /api/integration-tenant/remember/state` and every mock line number here were
+ * re-measured on 2026-11-24, after develop's #5726 fixes and the mock changes that came with them landed on this branch:
+ * probe `E:\Coding\.tmp\probe-repin\integ.mjs`, readings in `E:\Coding\.tmp\probe-repin\integ-1.txt`, lane runs
+ * `E:\Coding\.tmp\s2-lane-b-repin-1.log` and `-2.log`.
  *
  * ## The 11 routes and which half of the server code answers them
  *
@@ -27,12 +30,15 @@ import { logOf, parseAnswer, triples } from '../api/log-helpers';
  * routes does with **its own path, body and query**, which is where they differ from one another.
  *
  * Two are not proxies at all, and both run `authenticatedGuard` (`core/services/server/guards/authenticated-guard-app.ts:55`)
- * and then a `serverFetch` call **with no `try`/`catch` and no `gauzyErrorResponse`**: `POST /api/integration/github/install`
- * (`app/api/integration/github/install/route.ts:6-26`, which starts with its own `refuseForeignOrigin` at `:7`) and
- * `GET /api/integration-tenant/remember/state` (`app/api/integration-tenant/remember/state/route.ts:5-23`, a read with no
- * site check). They call `installGitHubIntegration` (`core/services/server/requests/integrations/github.ts:7-23`) and
- * `getIntegrationTenantRequest` (`core/services/server/requests/integrations/integration-tenant.ts:12-27`), which build the
- * upstream query themselves out of the session's cookies.
+ * and then a `serverFetch` call of their own. `POST /api/integration/github/install` (`app/api/integration/github/install/
+ * route.ts:6-26`, which starts with its own `refuseForeignOrigin` at `:7`) still makes that call **with no `try`/`catch`
+ * and no `gauzyErrorResponse`**; `GET /api/integration-tenant/remember/state` (`app/api/integration-tenant/remember/state/
+ * route.ts:6-29`, a read with no site check) no longer does: develop wrapped its read in a `try` (`:14-28`) and answers a
+ * failure through `gauzyErrorResponse` (`:25-27`), the line its own comment describes — "A refusal of the API goes back
+ * with its status and reason, as in direct mode (#5726)" (`:26`). They call `installGitHubIntegration`
+ * (`core/services/server/requests/integrations/github.ts:7-23`) and `getIntegrationTenantRequest`
+ * (`core/services/server/requests/integrations/integration-tenant.ts:12-27`), which build the upstream query themselves
+ * out of the session's cookies.
  *
  * `GET /api/integration/types` and `GET /api/integration` are deliberately **not** here: both are already pinned, control
  * and armed refusal, in `suites/lane-c/gauzy-refusals-relayed.spec.ts` — `:428-435` (`the integrations read`) and
@@ -50,41 +56,47 @@ import { logOf, parseAnswer, triples } from '../api/log-helpers';
  * same-site`, `Origin: https://evil.example`) plus a same-origin control on every write, the query keys that travel
  * upstream, and `Cache-Control` + media type on every answer. Each case reads the mock's request log
  * (`playwright/api-fixtures.ts` `mock.requests()`), whose entries carry `method`, `path`, `query` and `status` and nothing
- * else (`cypress/support/mock-gauzy-server.mjs:1122-1130`): an upstream **verb, path and query key list** are provable, a
+ * else (`cypress/support/mock-gauzy-server.mjs:1191-1199`): an upstream **verb, path and query key list** are provable, a
  * POST body is not — so where a body is the only carrier, the witness is either the mock's echo (it answers a write with
- * the body it was given, `:831`) or a pair of tenant-keyed arms (`fails` is read as `<tenant>:<path>` first,
- * `:1089-1093`, and the tenant is the `tenant-id` header the app writes from the session — `forward-to-gauzy.ts:97`, `:119`
+ * the body it was given, `:894`) or a pair of tenant-keyed arms (`fails` is read as `<tenant>:<path>` first,
+ * `:1158-1163`, and the tenant is the `tenant-id` header the app writes from the session — `forward-to-gauzy.ts:97`, `:119`
  * for the nine, `core/services/server/fetch.ts:95-97` for the two request builders). Neither is ever armed on
  * `/api/user/me` nor on a bare tenant id.
  *
- * ## The findings, stated up front (each one pinned on the row it names, with `MEASURED, NOT INTENDED`)
+ * ## The findings, stated up front (each one pinned on the row it names; the rows that answer something other than what
+ * the code means to carry `MEASURED, NOT INTENDED`)
  *
  * 1. **No answer of the nine `forwardToGauzy` routes carries `Cache-Control` at all — including the four minted install
  *    `state`s and the `trello/connect` answer.** (That answer is the connection summary, `ITrelloConnectionSummary` at
  *    `core/types/interfaces/integrations/trello.ts:3-14`, no token in it — Trello's token travels in the request.) The
  *    upstream marks them `no-store` and the proxy drops it. None of the nine passes `{ noStore: true }`
- *    (`grep -rn "noStore: true" app/api --include=route.ts` answers 12 lines across 10 files, none of them under
+ *    (`grep -rn "noStore: true" app/api --include=route.ts` answers 13 lines across 11 files, none of them under
  *    `app/api/integration*`), so `answerHeaders` writes a media type only (`core/services/server/forward-to-gauzy.ts:22-28`)
  *    — the option whose own doc line is "for a route whose answer can hold a secret shown once … which no cache on the way
  *    may keep" (`:54-58`). Measured on the control, on all four armed refusals, on a 200 KB body and on a bodiless write:
  *    `cache-control` is absent. The contrast is pinned in the same run: the upstream itself marks these very answers
- *    `Cache-Control: no-store` (`mock-gauzy-server.mjs:1024`, in the headers written at `:1149`), and a route that did ask
+ *    `Cache-Control: no-store` (`mock-gauzy-server.mjs:1093`, in the headers written at `:1218`), and a route that did ask
  *    for `noStore` — `app/api/auth/sessions/route.ts:8` — hands that `no-store` on. So it is the missing option, not the
  *    mock and not the helper.
- * 2. **`POST /api/integration/github/install` and `GET /api/integration-tenant/remember/state` answer an upstream refusal,
- *    a 401 from the platform and an outage with a bare 500: no body, no media type, no `Cache-Control` — where their two
- *    sibling guarded integration routes relay Gauzy's status and sentence.** Both routes call their request builder with
- *    no `catch` (`github/install/route.ts:15-23`, `remember/state/route.ts:13-21`), and `serverFetch` rejects every non-2xx
- *    answer with Gauzy's body inside a rejected promise (`core/services/server/fetch.ts:125-131`); nothing unwraps it here,
- *    so the throw reaches Next. Measured for all four armed statuses on each route's own path and for a cut: 500, `""`,
- *    `content-type` absent. `app/api/integration/types/route.ts:19-22` and `app/api/integration/route.ts:24-27` of the same
- *    family do catch and answer `gauzyErrorResponse` ("A refusal of the API goes back with its status and reason, as in
- *    direct mode (#5726)" — `types/route.ts:20`). The client consequence is measurable too: an armed 429 (rate limited) and
- *    an unreachable API both become 500 for `integration-tenant.service.ts:25` and `github.service.ts:18`, which is what
- *    the browser clients re-authenticate or retry on (`core/services/client/api.service.ts` reads the HTTP status).
+ * 2. **`POST /api/integration/github/install` is the one route of this family that answers an upstream refusal, a 401 from
+ *    the platform and an outage with a bare 500: no body, no media type, no `Cache-Control`.** It calls its request builder
+ *    with no `catch` (`github/install/route.ts:15-23`) and `serverFetch` rejects every non-2xx answer with Gauzy's body
+ *    inside a rejected promise (`core/services/server/fetch.ts:125-131`); nothing unwraps it here, so the throw reaches
+ *    Next. Measured for all four armed statuses on its own path and for a cut: 500, `""`, `content-type` absent. Every
+ *    other guarded route of the family catches and answers `gauzyErrorResponse` — `app/api/integration/types/route.ts:19-22`
+ *    and `app/api/integration/route.ts:24-27` ("A refusal of the API goes back with its status and reason, as in direct
+ *    mode (#5726)" — `types/route.ts:20`), and `app/api/integration-tenant/remember/state/route.ts:25-27`, whose
+ *    `serverFetch` call **used** to be uncoded like this one and was fixed on develop for exactly that reason (commit
+ *    984c8fe43, "the integration state proxy route passes the API's refusal on (#5726)"): measured there, an armed 400,
+ *    401, 403 and 429 come back as that status with Gauzy's own body, and a cut call as 502
+ *    `{"message":"The integration could not be read."}` (`gauzy-error-response.ts:24-37`), each in this app's media type —
+ *    pinned on the `remember/state` rows below, which no longer carry `MEASURED, NOT INTENDED`. The client consequence of
+ *    the route that is left is measurable too: an armed 429 (rate limited) and an unreachable API both become 500 for
+ *    `github.service.ts:18`, which is what the browser clients re-authenticate or retry on (`core/services/client/api.service.ts`
+ *    reads the HTTP status).
  * 3. **`POST /api/integration/github/install` answers Gauzy's payload wrapped in `{"data": … , "response": {}}`.**
  *    `installGitHubIntegration` returns what `serverFetch` resolves — `{data, response}` (`fetch.ts:134-137`) — and
- *    `github/install/route.ts:25` hands that whole object to `$res`, while `remember/state/route.ts:22` of the same family
+ *    `github/install/route.ts:25` hands that whole object to `$res`, while `remember/state/route.ts:24` of the same family
  *    passes `response.data`. In direct mode the same call answers the payload itself, so the two modes of this one route
  *    differ by that wrapper; measured: `{"data":{"tenantId":…,"organizationId":…,"installation_id":…,"setup_action":…},`
  *    `"response":{}}`. Nothing in this repo reads the wrapper (`use-github-integration.ts:77-89` uses the mutation only for
@@ -121,7 +133,7 @@ import { logOf, parseAnswer, triples } from '../api/log-helpers';
  * 7. **The tenant that travels is the session's cookie, on all 11 routes.** An arm keyed `<tenant A>:<the route's own `
  *    path>` fires for the fixture's session and the identical arm on `<tenant B>` never does; with `auth-tenant-id` removed
  *    from the session the tenant-keyed arm cannot fire at all while the same arm written as a bare path does — the header
- *    is what the mock reads the tenant off (`mock-gauzy-server.mjs:1034-1037`, `:1089-1093`), and both request builders
+ *    is what the mock reads the tenant off (`mock-gauzy-server.mjs:1103-1106`, `:1158-1163`), and both request builders
  *    write it only when a tenant was named (`fetch.ts:95-97`). For `github/install` that is also why a cookie-less caller's
  *    body carries no `tenantId` at all: the two fields come from the guard, never from the caller's body (measured with a
  *    body naming tenant B and organization B — the answer names the session's pair).
@@ -129,15 +141,15 @@ import { logOf, parseAnswer, triples } from '../api/log-helpers';
  * ## Mock limits — branches this lane cannot answer, stated instead of faked
  *
  * - `cypress/support/mock-gauzy-server.mjs` has **no handler for any of these paths** except the two it already answered
- *   (`/api/integration/types` and `/api/integration` at `:812`); `grep -n "integration" cypress/support/mock-gauzy-server.mjs`
+ *   (`/api/integration/types` and `/api/integration` at `:880`); `grep -n "integration" cypress/support/mock-gauzy-server.mjs`
  *   answers nothing else for `/api/integration/**` or `/api/integration-tenant`. So every payload below is the mock's
- *   catch-all: a GET answers `{items:[],total:0}` (`:832`), a write echoes its own request body or `{success:true}`
- *   (`:831`), and only when the body parses as JSON (a `where[…]=` filter, an unparseable body). What is pinned is
+ *   catch-all: a GET answers `{items:[],total:0}` (`:895`), a write echoes its own request body or `{success:true}`
+ *   (`:894`), and only when the body parses as JSON (a `where[…]=` filter, an unparseable body). What is pinned is
  *   **this app's** handling — status, cache header, media type, which upstream call was made and with which query keys —
  *   not Gauzy's payload. The echo *is* used as a witness where a body is the only carrier of the payload: the minted
  *   `state` request, the Trello token+state, and `github/install`'s rebuilt body.
  * - A signed-out caller is answered by the two guarded routes as if they knew who they were, because this mock answers
- *   `GET /api/user/me` whatever arrives (`mock-gauzy-server.mjs:565`) and `authenticated-guard-app.ts:88` delegates the
+ *   `GET /api/user/me` whatever arrives (`mock-gauzy-server.mjs:607`) and `authenticated-guard-app.ts:88` delegates the
  *   decision to the API. On `remember/state` that means the read went out with **no** `where[organizationId]` /
  *   `where[tenantId]` and no tenant header (measured), and on `github/install` the install went out at all. The nine
  *   forwarders refuse a cookie-less caller themselves (`forward-to-gauzy.ts:96`), with an empty log as proof. Same
@@ -145,7 +157,7 @@ import { logOf, parseAnswer, triples } from '../api/log-helpers';
  * - The guard's own refusal status (`authenticated-guard-app.ts:96-112`) cannot be pinned on this lane: arming
  *   `/api/user/me` would race the 5 s session-check memo (`guards/authenticated-guard-app.ts:29`,
  *   `guards/session-check-memo.ts`), which is also why `GET /api/user/me` is excepted from every log claim here.
- *   `github/install/route.ts:11` (`NextResponse.json({}, {status: status ?? 401})`) and `remember/state/route.ts:8`
+ *   `github/install/route.ts:11` (`NextResponse.json({}, {status: status ?? 401})`) and `remember/state/route.ts:9`
  *   (`{error:'Unauthorized'}`) are therefore pinned as unreachable rows, not asserted.
  * - `extraPermissions` only adds permissions and only accepts upper-case names (`mock-gauzy-server.mjs:54-62`), and none of
  *   these 11 routes reads one (`grep -rn "refuseUnlessPermitted\|permission" app/api/integration app/api/integration-tenant`
@@ -181,17 +193,17 @@ const GUARD_CHECK = '/api/user/me';
 
 const PLATFORMS = ['asana', 'jira', 'linear', 'trello'] as const;
 
-/** The media type the mock writes on every answer it makes (`mock-gauzy-server.mjs:1149`), which `forwardToGauzy` copies. */
+/** The media type the mock writes on every answer it makes (`mock-gauzy-server.mjs:1218`), which `forwardToGauzy` copies. */
 const UPSTREAM_MEDIA_TYPE = 'application/json; charset=utf-8';
 /** The media type of an answer this app wrote itself (`NextResponse.json`). */
 const OWN_MEDIA_TYPE = 'application/json';
 
-/** The mock's refusal body (`mock-gauzy-server.mjs:1100`). */
+/** The mock's refusal body (`mock-gauzy-server.mjs:1168-1169`). */
 const gauzyRefusal = (status: number) => ({ statusCode: status, message: `Synthetic Gauzy refusal (${status})` });
 
-/** The mock's answer to a GET it has no handler for (`mock-gauzy-server.mjs:832`). */
+/** The mock's answer to a GET it has no handler for (`mock-gauzy-server.mjs:895`). */
 const MOCK_PAGE = { items: [], total: 0 };
-/** The mock's answer to a write whose body it cannot parse (`:831`). */
+/** The mock's answer to a write whose body it cannot parse (`:894`). */
 const MOCK_SUCCESS = { success: true };
 
 /** What `refuseForeignOrigin` / `refuseForeignWrite` answer (`same-origin-request.ts:48-53`). */
@@ -206,7 +218,7 @@ const REFUSED_BY_THIS_APP: Answer = ownJson(401, { statusCode: 401, message: 'Un
 const UNREACHABLE: Answer = ownJson(502, { statusCode: 502, message: 'The Gauzy API is unreachable' }, null);
 /** The media-type refusal of the forward helper (`forward-to-gauzy.ts:30-31`, `:104`, `:107`). */
 const UNSUPPORTED_MEDIA: Answer = ownJson(415, { statusCode: 415, message: 'Unsupported Media Type' }, null);
-/** What Next answers a handler that threw — the two routes of finding 2. */
+/** What Next answers a handler that threw — the one route of finding 2. */
 const HANDLER_CRASH: Answer = { status: 500, text: '', contentType: null, cacheControl: null };
 
 const NOT_INTENDED = ' [MEASURED, NOT INTENDED]';
@@ -275,6 +287,13 @@ const relayedByForward = (status: number): Answer => ({
 	contentType: UPSTREAM_MEDIA_TYPE,
 	cacheControl: null
 });
+
+/**
+ * A Gauzy refusal relayed by a route's own `catch` → `gauzyErrorResponse` (`core/services/server/gauzy-error-response.ts`):
+ * Gauzy's status and body as they stand (`:31-37`), written by `NextResponse.json`, so in **this app's** media type and with
+ * no `Cache-Control` — measured, unlike the `forwardToGauzy` copy.
+ */
+const relayedByCatch = (status: number): Answer => ownJson(status, gauzyRefusal(status), null);
 
 type ContractRoute = {
 	label: string;
@@ -440,10 +459,10 @@ const ROUTES: ContractRoute[] = [
 				}
 			]
 		},
-		refusal: () => HANDLER_CRASH,
-		drop: HANDLER_CRASH,
-		notIntended:
-			"an upstream refusal is this app's bare 500, where its two sibling guarded routes relay the status (finding 2)"
+		// `route.ts:25-27` catches and hands the failure to `gauzyErrorResponse`, so the refusal keeps Gauzy's status and
+		// body; with nothing to relay the same catch answers 502 and the route's own sentence (`route.ts:27`).
+		refusal: (status: number) => relayedByCatch(status),
+		drop: ownJson(502, { message: 'The integration could not be read.' }, null)
 	}
 ];
 
@@ -713,7 +732,11 @@ test.describe('lane-b · the 11 connect routes, each pinned on its own upstream 
 
 		for (const status of REFUSAL_STATUSES) {
 			test(`${route.label}: an upstream ${status} on its own path is ${
-				route.half === 'forwardToGauzy' ? 'relayed as it arrived' : "turned into this app's bare 500"
+				route.half === 'forwardToGauzy'
+					? 'relayed as it arrived'
+					: route.half === 'github-route'
+						? "turned into this app's bare 500"
+						: "relayed with Gauzy's status and body, under this app's own media type"
 			}${noteOf(route)}`, async ({ api, mock, ids, cookies }) => {
 				const firstAsk = route.asks(ids)[0];
 				await mock.scenario({ fails: { [`${ids.tenantA}:${firstAsk.path}`]: status } });
@@ -1119,7 +1142,7 @@ const REMEMBER_ROWS: RouteRow[] = [
 		path: () => rememberApp(''),
 		asks: (ids) => [rememberAsk(ids, null)],
 		answer: () => ownJson(200, MOCK_PAGE, null),
-		notIntended: 'a name-less lookup asks for every integration of the organization (`route.ts:11`)'
+		notIntended: 'a name-less lookup asks for every integration of the organization (`route.ts:12`)'
 	},
 	{
 		label: 'an empty `?name=` is the same as no name at all (`searchParams.get(…) || undefined`)',
@@ -1423,7 +1446,7 @@ test.describe('lane-b · an arm addressed to the session tenant fires, the same 
 	}
 
 	/** The four routes measured with `auth-tenant-id` gone: the mock reads the tenant off the `tenant-id` header it was
-	 *  given (`mock-gauzy-server.mjs:1034-1037`), and these two helpers write that header only when a tenant was named
+	 *  given (`mock-gauzy-server.mjs:1103-1106`), and these two helpers write that header only when a tenant was named
 	 *  (`forward-to-gauzy.ts:119`, `fetch.ts:95-97`), so no tenant-addressed arm can reach the call. */
 	const NO_TENANT_ROUTES: ContractRoute[] = [asanaStatusRoute, asanaStateRoute, connectRoute, githubRoute];
 
@@ -1745,7 +1768,7 @@ test.describe('lane-b · Cache-Control on these answers, measured against the up
 			).toBeNull();
 			expect(
 				upstream.headers.get('cache-control'),
-				`${row.label}: the mock no longer marks its own answer no-store (mock-gauzy-server.mjs:1024, :1149), so ` +
+				`${row.label}: the mock no longer marks its own answer no-store (mock-gauzy-server.mjs:1093, :1218), so ` +
 					`the contrast this row pins is gone — ${witness}`
 			).toBe('no-store');
 		});

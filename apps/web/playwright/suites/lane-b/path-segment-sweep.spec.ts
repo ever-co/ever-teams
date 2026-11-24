@@ -22,11 +22,15 @@ import { logOf } from '../api/log-helpers';
  *
  * Measured on lane-b (app 3032, mock 3996) on 2026-11-23, against the live lane, twice
  * (`E:\Coding\.tmp\s2-lane-b-path-sweep-1.log` and `-2.log`, after the probe pass
- * `E:\Coding\.tmp\s2-lane-b-path-sweep-probe-3.log` / `-7.log` that every number below was read from).
+ * `E:\Coding\.tmp\s2-lane-b-path-sweep-probe-3.log` / `-7.log` that every number below was read from). Re-measured on
+ * the same live lane on 2026-11-24, twice (`E:\Coding\.tmp\s2-lane-b-repin-1.log` and `-2.log`), after `develop` was
+ * merged: every pinned form-row of every group answered as pinned, and the only change is the scope — `develop` added
+ * `DELETE /api/embed/grants/[id]`, measured here by `E:\Coding\.tmp\probe-repin\sweep.mjs`
+ * (`E:\Coding\.tmp\probe-repin\sweep-1.txt`) and pinned below.
  *
  * ## What is in scope, and what is not
  *
- * `routes.generated.ts` lists 415 route handlers; 199 of them have a dynamic segment. Of those:
+ * `routes.generated.ts` lists 419 route handlers; 200 of them have a dynamic segment. Of those:
  *
  *   - 3 are catch-alls, where the segment is not one segment: `/api/auth/[...nextauth]`, `/api/ever-connect/[...path]`
  *     and `/api/public-assets/[...path]`. A `..` in a rest param is a different question (and `ever-connect` is the
@@ -44,7 +48,14 @@ import { logOf } from '../api/log-helpers';
  *     also the one route whose upstream is not the Gauzy API at all: `core/services/server/favicons.ts` fetches the
  *     host the segment names, which is exactly why `host` is never crafted.
  *
- * That leaves **239 route-verbs, 271 route-verb-param groups and 813 pinned form-rows** (271 × 3 forms).
+ * The scope grew by one with the merge of `develop`: `DELETE /api/embed/grants/[id]`
+ * (`app/api/embed/grants/[id]/route.ts:9-13`, from `develop`'s #5595) is a new route-verb and is swept like the rest.
+ * That route encodes the id itself (`:11-12`), and measured on all three forms the mock was asked for exactly
+ * `DELETE /api/embed/grants/<that segment, still percent-encoded>` — CONTAINED on all three, each answered 404, which
+ * is the mock's "a Gauzy without this route" answer relayed (the `siteGrants` scenario is off on this sweep,
+ * `mock-gauzy-server.mjs:859-863`), not a refusal by the route.
+ *
+ * That leaves **240 route-verbs, 272 route-verb-param groups and 816 pinned form-rows** (272 × 3 forms).
  *
  * Nothing in this sweep may reach the public internet. Checked two ways: `grep -rlE "https?://" apps/web/app/api
  * --include=route.ts` returns only `app/api/subscribe/route.ts` (Mailchimp, `:92`, no dynamic segment, so not in
@@ -105,16 +116,16 @@ import { logOf } from '../api/log-helpers';
  *     body or an unfit fixture value before reaching any builder. **Those rows prove nothing about escaping**, and
  *     they are listed so the reader is not told otherwise.
  *
- * One limit of the witness: the mock re-encodes a query with `URLSearchParams` (`cypress/support/mock-gauzy-server.mjs:1116`),
+ * One limit of the witness: the mock re-encodes a query with `URLSearchParams` (`cypress/support/mock-gauzy-server.mjs:1194`),
  * so an id that lands raw in a *query value* reads the same as an encoded one — the pinned key list is what such a
  * row can prove. `GET /api/role-permissions/[id]` is the only row whose id travels in a query value (inside a JSON
  * `data=` blob) and it reads CONTAINED.
  *
- * ## What 813 form-rows measured
+ * ## What 816 form-rows measured
  *
  * | class | rows | groups of route-verb-param |
  * | --- | --- | --- |
- * | CONTAINED | 687 | 213 groups contained on all three forms; 12 of the rows are the `DROPPED_ROWS` flavour below |
+ * | CONTAINED | 690 | 214 groups contained on all three forms; 18 of the rows are the 6 `DROPPED_ROWS` groups below |
  * | ESCAPED | 66 | 33 groups, both crafted forms escaped in every one of them |
  * | REFUSED | 30 | 15 groups, both crafted forms refused |
  * | NO-CALL | 30 | 10 groups, the control made no call either |
@@ -173,7 +184,7 @@ import { logOf } from '../api/log-helpers';
  * builder encoded the id: the route simply did not put the caller's segment on the upstream path. Each is pinned with
  * the call the mock recorded, so the day one of them starts forwarding the raw segment this file says so.
  *
- *   - `GET /api/invite/[id]` → `GET /api/invite/me`: `app/api/invite/[id]/route.ts:23` calls
+ *   - `GET /api/invite/[id]` → `GET /api/invite/me`: `app/api/invite/[id]/route.ts:25` calls
  *     `getMyInvitationsRequest` (`core/services/server/requests/invite.ts:215-221`), which writes `/invite/me`;
  *   - `PUT /api/role-permissions/[id]` → `PUT /api/role-permissions/undefined`: `app/api/role-permissions/[id]/route.ts:50-53`
  *     hands only `{ data: body }`, and `core/services/server/requests/role-permissions.ts:58` writes
@@ -209,7 +220,7 @@ import { logOf } from '../api/log-helpers';
  *
  * ## Limits of this harness, stated rather than hidden
  *
- *   - the mock answers 2xx for a path it holds no route for (`mock-gauzy-server.mjs:816-818`), so an escaped call that
+ *   - the mock answers 2xx for a path it holds no route for (`mock-gauzy-server.mjs:893-895`), so an escaped call that
  *     does not exist upstream still reads 200 here; what is pinned is *which* path and verb the mock was asked for,
  *     never real content;
  *   - every case is signed in as the lane's fixture role, so an unauthenticated path is not measured (as in lane-d);
@@ -504,6 +515,9 @@ export const PINNED: PinnedRow[] = [
 	{ route: 'PATCH /api/embed-allowed-origins/[id]', param: 'id', status: [200, 200, 200] },
 	{ route: 'DELETE /api/embed-allowed-origins/[id]', param: 'id', status: [200, 200, 200] },
 	{ route: 'DELETE /api/embed-credentials/[id]', param: 'id', status: [200, 200, 200] },
+	// New from `develop` (#5595). `route.ts:11-12` encodes the id, so all three forms stayed inside their own segment;
+	// the 404 is the mock's "a Gauzy without this route" with `siteGrants` off (`mock-gauzy-server.mjs:859-863`), relayed.
+	{ route: 'DELETE /api/embed/grants/[id]', param: 'id', status: [404, 404, 404] },
 	{ route: 'PUT /api/employee-appointment/[id]', param: 'id', status: [200, 200, 200] },
 	{ route: 'DELETE /api/employee-appointment/[id]', param: 'id', status: [200, 200, 200] },
 	{
@@ -1557,7 +1571,7 @@ export const DROPPED_ROWS: DroppedRow[] = [
 	{
 		route: 'GET /api/invite/[id]',
 		param: 'id',
-		line: 'app/api/invite/[id]/route.ts:23 calls getMyInvitationsRequest (core/services/server/requests/invite.ts:215-221), which writes /invite/me',
+		line: 'app/api/invite/[id]/route.ts:25 calls getMyInvitationsRequest (core/services/server/requests/invite.ts:215-221), which writes /invite/me',
 		calls: [{ method: 'GET', path: '/api/invite/me', keys: [], status: 200 }]
 	},
 	{

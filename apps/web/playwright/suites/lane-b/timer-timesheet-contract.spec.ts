@@ -24,36 +24,48 @@ import { logOf, parseAnswer, triples } from '../api/log-helpers';
  *
  * The other twelve are hand-written handlers over `core/services/server/requests/**` and `serverFetch`
  * (`core/services/server/fetch.ts`): they build their own upstream query (`qs` or `URLSearchParams`), authenticate
- * through `authenticatedGuard` (`guards/authenticated-guard-app.ts:55`), and each holds its own validation in front.
- * None of the twelve uses `gauzyErrorResponse`, so none of them relays a Gauzy refusal — that is what the armed cases
- * below exist to show, and it is the difference between this file and `suites/lane-c/gauzy-refusals-relayed.spec.ts`.
+ * through `authenticatedGuard` (`guards/authenticated-guard-app.ts:55`), and each holds its own validation in front. Five
+ * of the twelve now wrap their call in a `try` and answer the failure through `gauzyErrorResponse`, so they do relay a
+ * Gauzy refusal: `app/api/timer/daily/route.ts:42-45`, `app/api/timer/slot/window/route.ts:35-38`, `app/api/timer/
+ * status/worked/route.ts:27-30` and `:40-43`, `app/api/timer/timesheet/all-statistics-tasks/route.ts:22-25` and
+ * `app/api/timer/timesheet/statistics-tasks/route.ts:55-58` — each catch carries the same comment, "A refusal of the API
+ * goes back with its status and reason, as in direct mode (#5726)". The other seven answer the same refusal with
+ * something of their own instead of Gauzy's answer: a 500 carrying their own sentence (finding 2), the bodyless 500 of
+ * finding 1, or the 200 of finding 3 — which is what the armed cases below exist to show and what still separates this
+ * file from `suites/lane-c/gauzy-refusals-relayed.spec.ts`.
  *
  * ## What every route was measured on
  *
  * One control (signed in, nothing armed), the same call signed out, one armed 403 on the route's own upstream path,
  * one cut (`drops`) call on that path, and the route's own missing-required-value case. Every case reads the mock's
  * request log (`playwright/api-fixtures.ts` `mock.requests()`), whose entries carry `method`, `path` and `query` and
- * nothing else (`mock-gauzy-server.mjs:1122-1131`) — so an upstream **path**, verb and query key list are provable, a
+ * nothing else (`mock-gauzy-server.mjs:1191-1199`) — so an upstream **path**, verb and query key list are provable, a
  * POST or PUT **body** is not, and where a body is the only carrier of the scoping (the two `POST
  * /api/timesheet/statistics/tasks` calls, `POST /api/timesheet/time-slot`, `PUT /api/timesheet/status` from the guard
  * route) the scoping is pinned with a tenant-keyed arm instead: `fails` is read as `<tenant>:<path>` first
- * (`mock-gauzy-server.mjs:1089-1093`) and the tenant is resolved from `?tenantId`, then from the `tenant-id` header
- * (`:1034-1037`), so an arm keyed `<session tenant>:<path>` fires only when that header travelled, and the same arm
+ * (`mock-gauzy-server.mjs:1158-1163`) and the tenant is resolved from `?tenantId`, then from the `tenant-id` header
+ * (`:1103-1106`), so an arm keyed `<session tenant>:<path>` fires only when that header travelled, and the same arm
  * keyed on the fixture's other tenant proves the arm is not simply matching the path. Neither is ever armed on
  * `/api/user/me` nor on a bare tenant key, for the reason `suites/lane-c/gauzy-refusals-relayed.spec.ts:35-38` gives:
  * both would refuse the guard rather than the route under test.
  *
  * ## The findings, stated up front (each one is pinned on the row it names, with `MEASURED, NOT INTENDED`)
  *
- * 1. **Six of the twelve answer an upstream refusal with a 500 that has no body and no `content-type` at all**:
- *   `GET /api/timer/daily` (`app/api/timer/daily/route.ts:28`, returned at `:40`), `GET /api/timer/slot/window`
- *   (`app/api/timer/slot/window/route.ts:24`, `:33`), `GET /api/timer/status/worked` (`app/api/timer/status/worked/
- *   route.ts:23`, `:31`, `:33`), `POST /api/timer/sync` (`app/api/timer/sync/route.ts:25`), `GET
- *   /api/timer/timesheet/all-statistics-tasks` (`app/api/timer/timesheet/all-statistics-tasks/route.ts:10`, `:20`)
- *   and `GET /api/timer/timesheet/statistics-tasks` (`app/api/timer/timesheet/statistics-tasks/route.ts:24`). These
- *   handlers hold no `try`, so `serverFetch`'s rejection (`fetch.ts:122-132`) leaves the handler and Next answers its
- *   own empty 500: Gauzy's 403 and Gauzy's body are both gone, and the client's re-authentication on a 401 cannot see
- *   one either. The same happens on a cut call.
+ * 1. **One route still answers an upstream refusal, or a cut call, with a 500 that has no body and no `content-type` at
+ *   all**: `POST /api/timer/sync` (`app/api/timer/sync/route.ts:25`, whose write is `requests/timer.ts:129`). Its handler
+ *   holds no `try`, so `serverFetch`'s rejection (`fetch.ts:122-132`) leaves the handler and Next answers its own empty
+ *   500: Gauzy's 403 and Gauzy's body are both gone, and the client's re-authentication on a 401 cannot see one either.
+ *   The same happens on a cut call. **Five more used to answer exactly that way and were fixed for it on develop
+ *   (#5726)**, each now catching and answering through `gauzyErrorResponse`: `GET /api/timer/daily` (`app/api/timer/daily/
+ *   route.ts:42-45`), `GET /api/timer/slot/window` (`app/api/timer/slot/window/route.ts:35-38`), `GET
+ *   /api/timer/status/worked` (`app/api/timer/status/worked/route.ts:27-30` and `:40-43`), `GET
+ *   /api/timer/timesheet/all-statistics-tasks` (`…/all-statistics-tasks/route.ts:22-25`) and `GET
+ *   /api/timer/timesheet/statistics-tasks` (`…/statistics-tasks/route.ts:55-58`). Measured on all five: an armed 403 comes
+ *   back as 403 with `{"statusCode":403,"message":"Synthetic Gauzy refusal (403)"}` and a cut call as 502 with the
+ *   route's own sentence — "The activity of the day could not be read.", "The time slots could not be read.", "The last
+ *   time worked could not be read." and, on both statistics routes, "The time worked on the tasks could not be read."
+ *   (`gauzy-error-response.ts:24-37`), every one in this app's media type and with no `Cache-Control`. Those rows are what
+ *   the code means to do, so they no longer carry `MEASURED, NOT INTENDED`.
  * 2. **Five of them turn a refusal into a 500 carrying their own sentence**, so the caller can neither see Gauzy's
  *   status nor its message: `GET /api/timer/timesheet/daily` (`app/api/timer/timesheet/daily/route.ts:32-34`), `GET
  *   /api/timesheet/statistics/counts` (`app/api/timesheet/statistics/counts/route.ts:86-88`), `GET
@@ -83,7 +95,7 @@ import { logOf, parseAnswer, triples } from '../api/log-helpers';
  *   `undefined`. Signed out, the call left as `organizationId=undefined&tenantId=undefined`.
  * 7. **A signed-out caller is answered by the twelve guarded routes as if they knew who they were** — the guard
  *   delegates that decision to the API (`authenticated-guard-app.ts:76`) and this mock answers `GET /api/user/me`
- *   whatever arrives (`mock-gauzy-server.mjs:560`). Already pinned as a limitation in
+ *   whatever arrives (`mock-gauzy-server.mjs:607`). Already pinned as a limitation in
  *   `suites/lane-c/session-check.spec.ts`; here it is pinned per route only for what it does to the *scoping*: the
  *   session keys vanish from the upstream query (or turn into `undefined`, finding 6) while the ids the caller sent
  *   stay. The seven `forwardToGauzy` routes are the opposite: 401 from this app, and the mock logged nothing at all.
@@ -94,10 +106,10 @@ import { logOf, parseAnswer, triples } from '../api/log-helpers';
  *   after a successful write answers **200 with `null`** (`app/api/timer/sync/route.ts:41-49`, whose comment says a
  *   failed read must not fail the sync or the retry would credit the interval twice). Pinned, intended.
  * - Three branches are unreachable from this mock and are therefore not faked: the two `if (!employeeId) return
- *   $res([])` exits (`app/api/timer/slot/window/route.ts:22`, `app/api/timer/status/worked/route.ts:29`) and the `if
+ *   $res([])` exits (`app/api/timer/slot/window/route.ts:23`, `app/api/timer/status/worked/route.ts:35`) and the `if
  *   (!data) → 404` of `app/api/timer/timesheet/daily/route.ts:26-29`. The mock's `/api/user/me` always carries an
  *   `employee` (`mock-gauzy-server.mjs:155`, `baseUser.employee`) and its `/api/timesheet/time-log` handler answers
- *   `[]` for a GET (`:751`), which is truthy.
+ *   `[]` for a GET (`:798-801`), which is truthy.
  * - `504` (a 60 s upstream timeout) is not reachable from a test: `UPSTREAM_TIMEOUT_MS` is 60 000 ms
  *   (`forward-to-gauzy.ts:8`), the same budget `playwright/api-fixtures.ts` gives the caller — see the note at the top
  *   of `suites/lane-b/download-outage.spec.ts`.
@@ -127,10 +139,10 @@ const PROBE_TIME_LOG_ID = 'lane-b-timesheet-probe-log';
 /** The one refusal status this file arms: what a role that may not do the thing gets in production. */
 const REFUSAL = 403;
 
-/** The mock's refusal body (`mock-gauzy-server.mjs:1099-1100`). */
+/** The mock's refusal body (`mock-gauzy-server.mjs:1168-1169`). */
 const gauzyRefusal = (status: number) => ({ statusCode: status, message: `Synthetic Gauzy refusal (${status})` });
 
-/** The media type the mock writes on every answer it makes (`mock-gauzy-server.mjs:1128`), which `forwardToGauzy` copies. */
+/** The media type the mock writes on every answer it makes (`mock-gauzy-server.mjs:1218`), which `forwardToGauzy` copies. */
 const UPSTREAM_MEDIA_TYPE = 'application/json; charset=utf-8';
 /** The media type of an answer this app wrote itself (`NextResponse.json`, and the hand-built `new Response`). */
 const OWN_MEDIA_TYPE = 'application/json';
@@ -442,12 +454,21 @@ const relayed = (status: number): Answer => ({
 /** An answer this app wrote itself: JSON on `status`, with this app's own media type. */
 const ownJson = (status: number, body: unknown): Answer => ({ status, body, contentType: OWN_MEDIA_TYPE });
 
+/** A Gauzy refusal that a route's own `catch` handed to `gauzyErrorResponse`: Gauzy's status and body as they stand,
+ * written by `NextResponse.json`, so in this app's media type and with no `Cache-Control`
+ * (`core/services/server/gauzy-error-response.ts:31-37`). */
+const relayedThroughCatch = (status: number): Answer => ownJson(status, gauzyRefusal(status));
+
+/** What that same `catch` answers when Gauzy gave nothing readable at all: 502 and the route's own sentence
+ * (`gauzy-error-response.ts:24-29`). */
+const noUpstreamAnswer = (sentence: string): Answer => ownJson(502, { message: sentence });
+
 /** The session check every guarded route runs first (`authenticated-guard-app.ts:76`), excepted from every log claim. */
 const GUARD_CHECK = '/api/user/me';
 
-/** The empty page this mock answers an unhandled GET with (`mock-gauzy-server.mjs:827`). */
+/** The empty page this mock answers an unhandled GET with (`mock-gauzy-server.mjs:895`). */
 const MOCK_PAGE = { items: [], total: 0 };
-/** The plain list this mock answers its timesheet list handlers with (`mock-gauzy-server.mjs:751-767`). */
+/** The plain list this mock answers its timesheet list handlers with (`mock-gauzy-server.mjs:798-817`). */
 const MOCK_LIST: unknown[] = [];
 
 const ROUTES: ContractRoute[] = [
@@ -510,9 +531,10 @@ const ROUTES: ContractRoute[] = [
 				}
 			]
 		},
-		refusal: THROWN_ERROR,
-		drop: THROWN_ERROR,
-		notIntended: 'an armed upstream 403 and a cut call both answer 500 with no body and no media type'
+		// `route.ts:42-45` catches and answers `gauzyErrorResponse`: the 403 keeps Gauzy's status and body, the cut call
+		// gets this route's own sentence on a 502
+		refusal: relayedThroughCatch(REFUSAL),
+		drop: noUpstreamAnswer('The activity of the day could not be read.')
 	},
 	{
 		label: 'GET /api/timer/slot/window',
@@ -549,15 +571,15 @@ const ROUTES: ContractRoute[] = [
 				}
 			]
 		},
-		refusal: THROWN_ERROR,
-		drop: THROWN_ERROR,
-		notIntended: 'an armed upstream 403 and a cut call both answer 500 with no body and no media type'
+		// `route.ts:35-38` catches: the same relay, and this route's own sentence on a cut call
+		refusal: relayedThroughCatch(REFUSAL),
+		drop: noUpstreamAnswer('The time slots could not be read.')
 	},
 	{
 		label: 'GET /api/timer/status/worked',
 		method: 'GET',
 		half: 'guard',
-		// A caller-sent `employeeId` is not a filter this route reads; only the indexed form is (route.ts:8-15)
+		// A caller-sent `employeeId` is not a filter this route reads; only the indexed form is (route.ts:6-14)
 		app: (ids) => `/api/timer/status/worked?employeeId=${ids.teammateEmployee}`,
 		asks: (ids) => [
 			{
@@ -579,9 +601,9 @@ const ROUTES: ContractRoute[] = [
 				{ method: 'GET', path: UP.timerWorked, keys: ['employeeId'], absent: ['tenantId', 'organizationId'] }
 			]
 		},
-		refusal: THROWN_ERROR,
-		drop: THROWN_ERROR,
-		notIntended: 'an armed upstream 403 and a cut call both answer 500 with no body and no media type'
+		// `route.ts:27-30` (teammate ids) and `:40-43` (the session member) both catch and relay
+		refusal: relayedThroughCatch(REFUSAL),
+		drop: noUpstreamAnswer('The last time worked could not be read.')
 	},
 	{
 		label: 'POST /api/timer/sync',
@@ -644,7 +666,7 @@ const ROUTES: ContractRoute[] = [
 			{
 				// core/services/server/requests/timesheet.ts:29 — a POST whose whole payload is the body (`{tenantId,
 				// organizationId, employeeIds: [], defaultRange: 'false'}`, app/api/timer/timesheet/all-statistics-tasks/
-				// route.ts:10-18), invisible in the log: the tenant-keyed arm below pins its tenant instead
+				// route.ts:12-20), invisible in the log: the tenant-keyed arm below pins its tenant instead
 				method: 'POST',
 				path: UP.statisticsTasks,
 				keys: []
@@ -652,9 +674,9 @@ const ROUTES: ContractRoute[] = [
 		],
 		control: ownJson(200, MOCK_LIST),
 		signedOut: { ...ownJson(200, MOCK_LIST), asks: () => [{ method: 'POST', path: UP.statisticsTasks, keys: [] }] },
-		refusal: THROWN_ERROR,
-		drop: THROWN_ERROR,
-		notIntended: 'an armed upstream 403 and a cut call both answer 500 with no body and no media type'
+		// `route.ts:22-25` catches: the relayed 403, and this route's sentence on a 502
+		refusal: relayedThroughCatch(REFUSAL),
+		drop: noUpstreamAnswer('The time worked on the tasks could not be read.')
 	},
 	{
 		label: 'GET /api/timer/timesheet/daily',
@@ -699,7 +721,7 @@ const ROUTES: ContractRoute[] = [
 		half: 'guard',
 		app: () => '/api/timer/timesheet/statistics-tasks',
 		asks: () => [
-			// The same POST twice: all time (`defaultRange: 'false'`) and today (`'true'`), `route.ts:24-48`
+			// The same POST twice: all time (`defaultRange: 'false'`) and today (`'true'`), `route.ts:26-49`
 			{ method: 'POST', path: UP.statisticsTasks, keys: [] },
 			{ method: 'POST', path: UP.statisticsTasks, keys: [] }
 		],
@@ -711,10 +733,9 @@ const ROUTES: ContractRoute[] = [
 				{ method: 'POST', path: UP.statisticsTasks, keys: [] }
 			]
 		},
-		refusal: THROWN_ERROR,
-		drop: THROWN_ERROR,
-		notIntended:
-			'the first POST answers 500 with no body and no media type; only the second of the two is ever asked then'
+		// `route.ts:55-58` catches both POSTs: the first refused one ends the route, so only one call is ever asked
+		refusal: relayedThroughCatch(REFUSAL),
+		drop: noUpstreamAnswer('The time worked on the tasks could not be read.')
 	},
 	{
 		label: 'PUT /api/timer/timesheet/status',
@@ -730,7 +751,7 @@ const ROUTES: ContractRoute[] = [
 				keys: []
 			}
 		],
-		// The mock echoes the body it was sent (`mock-gauzy-server.mjs:826`), so this answer is the witness of what
+		// The mock echoes the body it was sent (`mock-gauzy-server.mjs:894`), so this answer is the witness of what
 		// `route.ts:45-53` put in the write: the caller's ids, unchanged, and the session's two scoping ids
 		control: (ids) =>
 			ownJson(200, {
@@ -948,7 +969,7 @@ const ROUTES: ContractRoute[] = [
 				values: { status: 'approved' }
 			}
 		],
-		// The mock answers an unmatched write by echoing its body (`mock-gauzy-server.mjs:826`): the echo is the witness
+		// The mock answers an unmatched write by echoing its body (`mock-gauzy-server.mjs:894`): the echo is the witness
 		// that exactly this JSON reached Gauzy
 		control: {
 			status: 200,
@@ -2116,7 +2137,7 @@ test.describe('lane-b · the POST and the two PUTs of those 19 refuse a caller t
 
 /**
  * The mock addresses `fails` / `drops` as `<tenant>:<path>`, then `<tenant>`, then `<path>`
- * (`cypress/support/mock-gauzy-server.mjs:1065-1115`), and the tenant it matches is the `tenant-id` header
+ * (`cypress/support/mock-gauzy-server.mjs:1134-1139` and `:1158-1163`), and the tenant it matches is the `tenant-id` header
  * `serverFetch` sends from the session (`core/services/server/fetch.ts`). Four of these 19 take their scoping from the
  * session and not from the query — `POST /api/timesheet/time-slot`, `POST /api/timesheet/statistics/tasks` (twice),
  * `PUT /api/timesheet/status` and `GET /api/timesheet/statistics/counts` — so their payload is invisible in the log.
