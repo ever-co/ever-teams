@@ -1,3 +1,6 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
 import { expect, test, type Page } from '../../fixtures';
 import type { APIRequestContext, Locator } from '@playwright/test';
 
@@ -106,8 +109,7 @@ import { MOCK_ORIGIN } from '../../test-servers';
  *   the selector a `?block=` link is resolved with (`blockSelectorOf`, `docs-page-view.tsx:114-117`), rendered from the
  *   JSON because the stored HTML carried none. That is 217661ac8 pinned.
  * - `canWrite` absent + the save refused 403 (G): what the person gets is the alert
- *   `docs.SAVE_FORBIDDEN` — "You can read this page, but not change it: the last change was not saved. It stays in this
- *   tab. Ask the author to share the page with you for editing." — with the editor still editable, the typed text still
+ *   `docs.SAVE_FORBIDDEN` ("You can read this page, but not change it: the last change was not saved. …") — with the editor still editable, the typed text still
  *   in it, the toolbar's `role="status"` saying `docs.NOT_SAVED`, exactly one refused `PUT` in the mock's log
  *   (no retry), and no `docs.NO_WRITE_ACCESS_NOTICE` (the platform never said `canWrite: false`). The app classifies
  *   the status at `use-docs-autosave.ts:365` (`403 → 'forbidden'`) and renders it at `docs-page-view.tsx:1040-1042`.
@@ -151,16 +153,22 @@ const CORS_HEADERS = {
 	'cache-control': 'no-store'
 };
 
-/** The English, copied from `locales/en.json` (the key named in each entry; the suite has no locale helper). */
+/**
+ * The English the page renders, read from `locales/en.json` when the file loads, by the key the component asks for — so
+ * a change of copy (#5723's notices were reworded on develop on 2026-11-23) moves these cases with it instead of
+ * breaking them. The cases pin which notice appears, not its wording.
+ */
+const EN_DOCS = (
+	JSON.parse(readFileSync(join(__dirname, '../../../locales/en.json'), 'utf8')) as { docs: Record<string, string> }
+).docs;
 const TEXT = {
-	noWriteAccess: 'You can read this page, but not change it. Ask its author to share it with you for editing.', // docs.NO_WRITE_ACCESS_NOTICE, en.json:7209
-	locked: 'This page is locked on the platform and can only be read.', // docs.LOCKED_NOTICE, en.json:7208
-	inTrash: 'This page is in the trash. Restore it to edit it.', // docs.IN_TRASH_NOTICE, en.json:7207
-	saveForbidden:
-		'You can read this page, but not change it: the last change was not saved. It stays in this tab. Ask the author to share the page with you for editing.', // docs.SAVE_FORBIDDEN, en.json:7232
-	notSaved: 'Not saved', // docs.NOT_SAVED, the SaveStateLabel of docs-page-view.tsx:1295 for state 'forbidden'
-	restore: 'Restore', // docs.RESTORE
-	pageTitle: 'Page title', // docs.PAGE_TITLE, en.json:7171
+	noWriteAccess: EN_DOCS.NO_WRITE_ACCESS_NOTICE,
+	locked: EN_DOCS.LOCKED_NOTICE,
+	inTrash: EN_DOCS.IN_TRASH_NOTICE,
+	saveForbidden: EN_DOCS.SAVE_FORBIDDEN,
+	notSaved: EN_DOCS.NOT_SAVED, // the SaveStateLabel of docs-page-view.tsx for state 'forbidden'
+	restore: EN_DOCS.RESTORE,
+	pageTitle: EN_DOCS.PAGE_TITLE,
 	heading: 'Probe heading',
 	paragraph: 'Probe paragraph text.'
 };
