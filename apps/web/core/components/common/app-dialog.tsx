@@ -26,6 +26,9 @@ const POSITION =
 /** Marks the element a dialog focuses when it opens (the first field, or Cancel in a confirmation). */
 const INITIAL_FOCUS_ATTRIBUTE = 'data-initial-focus';
 
+const TITLE =
+	'min-w-0 text-[13px] font-medium text-foreground sm:truncate max-sm:line-clamp-2 max-sm:flex-1 max-sm:wrap-break-word';
+
 export const APP_DIALOG_BODY = 'min-h-0 flex-1 overflow-y-auto overscroll-contain px-5';
 
 export const APP_DIALOG_FOOTER = 'flex shrink-0 flex-wrap items-center gap-2 hairline-t border-border px-5 py-3';
@@ -91,16 +94,17 @@ export function AppDialogHeader({ title, context, onClose, actions, className }:
 	const hasContext = Boolean(context);
 	const hasCloseButton = Boolean(onClose);
 	return (
-		<div className={cn('flex h-13 shrink-0 items-center gap-1.5 pr-3 pl-5', className)}>
+		<div className={cn('flex min-h-13 shrink-0 items-center gap-1.5 pr-3 pl-5 max-sm:py-2', className)}>
 			{hasContext && (
 				<>
-					<span className="inline-flex h-6 max-w-52 min-w-0 shrink items-center gap-1.5 rounded-md bg-card px-1.5 text-[13px] text-muted-foreground hairline-ring ring-border [&_svg]:size-3.5 [&_svg]:shrink-0">
+					<span className="inline-flex h-6 max-w-52 min-w-0 shrink items-center max-sm:max-w-36 gap-1.5 rounded-md bg-card px-1.5 text-[13px] text-muted-foreground hairline-ring ring-border [&_svg]:size-3.5 [&_svg]:shrink-0">
 						{context}
 					</span>
 					<ChevronRight aria-hidden="true" className="size-3.5 shrink-0 text-muted-foreground" />
 				</>
 			)}
-			<DialogTitle className="min-w-0 truncate text-[13px] font-medium text-foreground">{title}</DialogTitle>
+			{/* On a phone a title too long for its line takes a second one: cut, it lost the word that says what is asked */}
+			<DialogTitle className={TITLE}>{title}</DialogTitle>
 			<span className="ml-auto flex shrink-0 items-center gap-1">
 				{actions}
 				{hasCloseButton && (
