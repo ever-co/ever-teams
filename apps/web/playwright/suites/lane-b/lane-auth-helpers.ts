@@ -75,10 +75,7 @@ export const expiredAccessToken = (userId: string, organizationId?: string): str
  * `exp` has passed. The refresh cookie is left as the fixture gives it, because that is what a browser left open
  * overnight actually holds.
  */
-export async function signInWithExpiredAccessToken(
-	context: BrowserContext,
-	fixture: BootstrapFixture
-): Promise<void> {
+export async function signInWithExpiredAccessToken(context: BrowserContext, fixture: BootstrapFixture): Promise<void> {
 	const host = new URL(APP_ORIGIN).hostname;
 	const cookies = authCookieNames(fixture, 'A').map(([name, value]) => ({
 		name,
@@ -449,7 +446,12 @@ export const fieldError = (page: Page, fieldId: string): Locator => page.locator
 /** The 8 code slots of the sign-in code field, scoped to the fieldset its label names. */
 export const codeSlots = (page: Page): Locator => page.locator('[aria-labelledby="passcode-code-label"] input');
 
-/** Types a code one slot at a time, the way the field takes it (each slot holds one character). */
+/**
+ * Types a code one slot at a time, the way the field takes it (each slot holds one character), then reads the slots
+ * back. Under a whole-lane run one slot was once found empty after its fill (`s2-lead-lane-b-whole-1.log`,
+ * cookie-jar: slot 2 of 8), so the code was never complete and never sent. A slot that lost its character gets one more
+ * pass, and that is printed, never hidden; the read-back must then equal the code.
+ */
 export async function fillCodeSlots(page: Page, code: string): Promise<void> {
 	const slots = codeSlots(page);
 	expect(await slots.count(), `the code field rendered ${await slots.count()} slots, not ${code.length}`).toBe(
@@ -458,6 +460,18 @@ export async function fillCodeSlots(page: Page, code: string): Promise<void> {
 	for (let index = 0; index < code.length; index += 1) {
 		await slots.nth(index).fill(code[index]);
 	}
+	const firstPass = await codeSlotValues(page);
+	if (firstPass !== code) {
+		console.log(
+			`[lane-b] code slots held "${firstPass}" after one pass, not "${code}": filling the empty ones again`
+		);
+		for (let index = 0; index < code.length; index += 1) {
+			if ((await slots.nth(index).inputValue()) !== code[index]) {
+				await slots.nth(index).fill(code[index]);
+			}
+		}
+	}
+	expect(await codeSlotValues(page), 'the code slots do not hold the code that was typed').toBe(code);
 }
 
 /** What the slots actually hold, as one string. */
@@ -511,7 +525,10 @@ export const describeCookies = async (context: BrowserContext): Promise<string> 
 	const cookies = await context.cookies();
 	return cookies.length === 0
 		? 'an empty jar'
-		: cookies.map((cookie) => `${cookie.name} on ${cookie.domain}${cookie.path}`).sort().join(', ');
+		: cookies
+				.map((cookie) => `${cookie.name} on ${cookie.domain}${cookie.path}`)
+				.sort()
+				.join(', ');
 };
 
 /** Every cookie in the jar must belong to the origin the run is on: `NEXT_PUBLIC_COOKIE_DOMAINS` is blank. */
