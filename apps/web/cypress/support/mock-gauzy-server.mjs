@@ -212,9 +212,14 @@ function buildData(fixture, scenario, requestUrl, requestTenantId) {
 		statuses
 	};
 	const today = new Date().toISOString().slice(0, 10);
+	// `planDate` puts the plan on another day: the person then has no plan for today
+	let planDate = today;
+	if (typeof scenario.planDate === 'string') {
+		planDate = scenario.planDate;
+	}
 	const plan = {
 		id: ids.plan,
-		date: today,
+		date: planDate,
 		workTimePlanned: 8,
 		status: 'ready',
 		employeeId: ids.employee,
