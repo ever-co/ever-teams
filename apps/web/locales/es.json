@@ -5636,6 +5636,19 @@
 			"SIGNED_OUT_OTHERS": "{count, plural, =0 {No había otra sesión abierta.} one {Se cerró # sesión más.} other {Se cerraron # sesiones más.}}",
 			"APP_ON_DEVICE": "{app} · {device}"
 		},
+		"allowedSites": {
+			"TITLE": "Sitios desde los que iniciaste sesión",
+			"DESCRIPTION": "Los sitios a los que permitiste iniciar y detener tu temporizador de {appName}. Finaliza la sesión de un sitio que ya no usas o que no reconoces.",
+			"RENEWS_UNTIL": "Puede renovar la sesión hasta el {date}",
+			"END": "Finalizar",
+			"EMPTY": "No has iniciado sesión desde ningún sitio.",
+			"LOAD_FAILED": "No se pudieron cargar los sitios desde los que iniciaste sesión.",
+			"RETRY": "Reintentar",
+			"END_TITLE": "¿Finalizar la sesión iniciada desde {site}?",
+			"END_DESCRIPTION": "El sitio ya no puede renovar la sesión. En su próxima renovación volverá a mostrar su botón «Iniciar sesión con {appName}».",
+			"ENDED": "Se finalizó la sesión iniciada desde {site}.",
+			"END_FAILED": "No se finalizó la sesión. Inténtalo de nuevo."
+		},
 		"profile": {
 			"SECTION_PROFILE": "Perfil",
 			"PHOTO": "Foto",
@@ -7206,7 +7219,7 @@
 		"IN_TRASH": "En la papelera",
 		"IN_TRASH_NOTICE": "Esta página está en la papelera. Restáurala para editarla.",
 		"LOCKED_NOTICE": "Esta página está bloqueada en la plataforma y solo se puede leer.",
-		"NO_WRITE_ACCESS_NOTICE": "Puedes leer esta página, pero no cambiarla. Pide a su autor que la comparta contigo para editarla.",
+		"NO_WRITE_ACCESS_NOTICE": "Puedes leer esta página, pero no cambiarla. Pide acceso de edición a su autor o a un administrador.",
 		"LOCKED_WHILE_EDITING": "La página se bloqueó mientras escribías. Recárgala para leer el texto más reciente; tus cambios se quedan en esta pestaña hasta entonces.",
 		"SEARCH_PAGES": "Buscar páginas",
 		"CLEAR_SEARCH": "Borrar búsqueda",
@@ -7229,7 +7242,7 @@
 		"UNSAVED": "Cambios sin guardar",
 		"NOT_SAVED": "No guardado",
 		"SAVE_ERROR": "No se pudo guardar el último cambio. Se queda en esta pestaña; reintenta o revisa tu conexión.",
-		"SAVE_FORBIDDEN": "Puedes leer esta página, pero no cambiarla: el último cambio no se guardó. Se queda en esta pestaña. Pide al autor que comparta la página contigo para editarla.",
+		"SAVE_FORBIDDEN": "Puedes leer esta página, pero no cambiarla: el último cambio no se guardó. Se queda en esta pestaña. Pide acceso de edición al autor de la página o a un administrador.",
 		"SAVE_TITLE_ERROR": "No se pudo guardar el título.",
 		"TOO_LARGE": "Esta página es demasiado grande para guardarla. Divídela o quita algunas imágenes.",
 		"CONFLICT_TITLE": "Alguien más guardó esta página",

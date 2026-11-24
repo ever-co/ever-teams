@@ -57,6 +57,17 @@ const SITE_TOKENS = {
 // The organization and the exact origin, nothing else: the route takes no tenant or other field in its body
 const AUTHORIZE_BODY = '{"organizationId":"organization-1","origin":"https://team.example.com"}';
 const SITE = { id: 'origin-1', origin: 'https://team.example.com', allowPersonSignIn: true };
+// What GET /embed/grants answers for each site the person allowed, made up for the tests
+const SITE_GRANT = {
+	id: 'grant-1',
+	origin: 'https://team.example.com',
+	organizationId: 'organization-1',
+	userId: 'user-1',
+	employeeId: 'employee-1',
+	renewedAt: '2026-11-20T09:00:00.000Z',
+	expiresAt: '2026-12-20T09:00:00.000Z'
+};
+const LISTED_SITE_GRANT = { id: 'grant-1', origin: 'https://team.example.com', expiresAt: '2026-12-20T09:00:00.000Z' };
 
 /** The client's base URL, which decides the mode (none: proxy mode). */
 function setBaseUrl(baseURL: string | undefined): void {
@@ -345,6 +356,26 @@ describe('embedsService', () => {
 				['delete', '/embed-credentials/credential-1']
 			]);
 		});
+
+		it('lists the sites the person signed in from, with no query, keeping only what the list shows', async () => {
+			const sent = directRequests([SITE_GRANT]);
+
+			const grants = await embedsService.listSiteGrants();
+
+			expect(grants).toEqual([LISTED_SITE_GRANT]);
+			expect(sent[0].method).toBe('get');
+			expect(sent[0].url).toBe('/embed/grants');
+		});
+
+		it('ends the sign-in from a site by its id, kept as one path segment', async () => {
+			const sent = directRequests(undefined);
+
+			await embedsService.endSiteGrant('grant/../2');
+
+			expect(sent[0].method).toBe('delete');
+			expect(sent[0].url).toBe('/embed/grants/grant%2F..%2F2');
+			expect(sent[0].data).toBeUndefined();
+		});
 	});
 
 	describe('proxy mode', () => {
@@ -431,6 +462,17 @@ describe('embedsService', () => {
 				MEMBERS_BODY
 			]);
 			expect(mockFallback.delete.mock.calls.map(([url]) => url)).toEqual(['/embed-credentials/credential-1']);
+		});
+
+		it('lists the sites the person signed in from, then ends one, through this app’s /api routes', async () => {
+			mockFallback.get.mockResolvedValue({ data: [SITE_GRANT], status: 200 });
+			mockFallback.delete.mockResolvedValue({ data: undefined, status: 204 });
+
+			await expect(embedsService.listSiteGrants()).resolves.toEqual([LISTED_SITE_GRANT]);
+			await embedsService.endSiteGrant('grant-1');
+
+			expect(mockFallback.get.mock.calls[0][0]).toBe('/embed/grants');
+			expect(mockFallback.delete.mock.calls[0][0]).toBe('/embed/grants/grant-1');
 		});
 	});
 });

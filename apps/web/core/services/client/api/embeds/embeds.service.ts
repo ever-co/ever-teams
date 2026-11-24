@@ -8,18 +8,21 @@ import {
 	EmbedConfig,
 	EmbedCredential,
 	EmbedCredentialInput,
+	EmbedSiteGrant,
 	EmbedSiteTokens,
 	createdEmbedCredentialSchema,
 	embedAllowedOriginListSchema,
 	embedAllowedOriginSchema,
 	embedConfigSchema,
 	embedCredentialListSchema,
+	embedSiteGrantListSchema,
 	embedSiteTokensSchema
 } from '@/core/types/schemas/embeds/embed.schema';
 
 const CREDENTIALS = '/embed-credentials';
 const ORIGINS = '/embed-allowed-origins';
 const SITE_AUTHORIZE = '/embed/authorize';
+const SITE_GRANTS = '/embed/grants';
 
 /**
  * The API made the credential without the client it was asked to limit it to (an API that drops the field, behind a
@@ -167,6 +170,20 @@ class EmbedsService extends APIService {
 		const body = { organizationId, origin };
 		const response = await this.post<unknown>(SITE_AUTHORIZE, body, { secretResponse: true }, false);
 		return validateApiResponse(embedSiteTokensSchema, response.data, 'embeds.authorizeSite API response');
+	};
+
+	/**
+	 * The sites the signed-in person allowed to use their timer: Gauzy answers with this person's own only. A server
+	 * with embeds off, or without the route, answers 404.
+	 */
+	listSiteGrants = async (signal?: AbortSignal): Promise<EmbedSiteGrant[]> => {
+		const response = await this.get<unknown>(SITE_GRANTS, { signal });
+		return validateApiResponse(embedSiteGrantListSchema, response.data, 'embeds.siteGrants API response');
+	};
+
+	/** Ends a site's sign-in: its next renewal is refused. A sign-in already gone answers 404. */
+	endSiteGrant = async (id: string): Promise<void> => {
+		await this.delete(`${SITE_GRANTS}/${encodeURIComponent(id)}`);
 	};
 
 	/** Revokes a credential: its tokens are refused within 30 seconds. */
