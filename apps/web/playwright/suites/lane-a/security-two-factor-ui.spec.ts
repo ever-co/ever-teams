@@ -229,7 +229,16 @@ import { MOCK_ORIGIN } from '../../test-servers';
  * `The result of getSnapshot should be cached to avoid an infinite loop` — shell store noise that this file cannot
  * attribute to any two-factor code (see `SHELL_STORE_NOISE` above; 1 hit in 8 runs here, and the committed
  * `suites/lane-a/reports-gate-by-role-ui.spec.ts:116-120` measured it in 40 of 215 MEASURE lines). It is still printed
- * in every MEASURE line, and every other console error the app logs still fails this file.
+ * in every MEASURE line, and every other console error the app logs still fails this file. Since develop's #5595 the
+ * same page also mounts "Sites you signed in from" (`core/components/settings/pages/security/allowed-sites-section.tsx`),
+ * whose read answers 404 on this mock (the `siteGrants` scenario off, `mock-gauzy-server.mjs:855-863`): the section then
+ * hides itself as meant (`:79`, `isSiteGrantsUnavailable`), but the client logs that expected 404 as
+ * `[ERROR] [HttpClient] HTTP Error: GET /embed/grants 404` (`api.service.ts` `logError`, which has no way to be told a
+ * status is expected). That line belongs to the section, which `suites/lane-b/allowed-sites.spec.ts` pins, so it is
+ * excluded here too (`SITE_GRANTS_404`), and only that exact text. The same failed read also raises the dev-only
+ * `DEV Query failed` toast of `core/components/common/dev-error-toaster.tsx:194-201` (every failed query, by design of
+ * that tool), naming the query key `["embeds","site-grants",…]`: it shares the toaster with this page's own toasts, so
+ * every toast count and text here reads `appToasts`, which leaves out that one toast by its key.
  * `shield.pageErrors()` (uncaught exceptions) was empty in every measurement in this file and is asserted on the
  * success paths.
  */
@@ -381,8 +390,11 @@ const report = (label: string, value: Record<string, unknown>) =>
  * console error the app logs still fails this file.
  */
 const SHELL_STORE_NOISE = 'The result of getSnapshot should be cached to avoid an infinite loop';
-/** What the silence assertions are allowed to be empty about: everything the app logged except that one warning. */
-const consoleFindings = (shield: Shield) => shield.consoleErrors().filter((line) => !line.includes(SHELL_STORE_NOISE));
+/** What the silence assertions are allowed to be empty about: everything the app logged except these two lines. */
+/** The Allowed sites section's expected 404 on this mock, as the client logs it (see the header). */
+const SITE_GRANTS_404 = '[ERROR] [HttpClient] HTTP Error: GET /embed/grants 404 ';
+const consoleFindings = (shield: Shield) =>
+	shield.consoleErrors().filter((line) => !line.includes(SHELL_STORE_NOISE) && !line.includes(SITE_GRANTS_404));
 
 /**
  * This spec's own answers for every `/api/auth/two-factor*` call, as a queue per `METHOD path`, plus the browser's
@@ -468,7 +480,9 @@ const settingsNavEntry = (page: Page) =>
 const flat = (value: string) => value.replace(/\s+/g, ' ').trim();
 const sectionText = async (page: Page) => flat(await section(page).innerText());
 const sectionButtons = async (page: Page) => (await section(page).getByRole('button').allInnerTexts()).map(flat);
-const toastTexts = async (page: Page) => (await page.locator('[data-sonner-toast]').allInnerTexts()).map(flat);
+/** The page's own toasts: every toast but the dev-only one the Allowed sites section's 404 raises (see the header). */
+const appToasts = (page: Page) => page.locator('[data-sonner-toast]').filter({ hasNotText: '"site-grants"' });
+const toastTexts = async (page: Page) => (await appToasts(page).allInnerTexts()).map(flat);
 const alertTexts = async (page: Page) => (await page.getByRole('alert').allInnerTexts()).map(flat);
 const codeField = (page: Page) => page.getByPlaceholder('000000');
 const proofField = (page: Page) => page.getByPlaceholder(PROOF_PLACEHOLDER);
@@ -504,7 +518,7 @@ async function sampleWhileWatching(countOf: (path: string) => number, path: stri
 async function watchToastCounts(page: Page, tries = 5, intervalMs = 400) {
 	const samples: number[] = [];
 	for (let attempt = 0; attempt < tries; attempt += 1) {
-		samples.push(await page.locator('[data-sonner-toast]').count());
+		samples.push(await appToasts(page).count());
 		await new Promise((done) => setTimeout(done, intervalMs));
 	}
 	return samples;
@@ -738,8 +752,11 @@ test.describe('lane-a · Settings › Personal › Security: what two-factor aut
 			saved.map((download) => download.fileName),
 			'the codes were not saved under one file name'
 		).toEqual(['ever-teams-recovery-codes.txt']);
-		await expect(page.locator('[data-sonner-toast]'), 'the confirmation said more than once').toHaveCount(1);
-		await expect(text(page, TURNED_ON)).toBeVisible();
+		await expect(appToasts(page), 'the confirmation said more than once').toHaveCount(1);
+		await expect(
+			appToasts(page).filter({ hasText: TURNED_ON }),
+			'the one toast was not the confirmation'
+		).toHaveCount(1);
 		expect(shield.pageErrors(), 'turning it on threw in the page').toEqual([]);
 
 		// The row can only say "On since …" once the re-read the successful write triggered has landed
@@ -1125,7 +1142,7 @@ test.describe('lane-a · Settings › Personal › Security: what two-factor aut
 		await expect(text(page, ON), 'a refused proof switched it off after all').toHaveCount(1);
 		await expect(text(page, OFF), 'a refused proof showed an Off badge').toHaveCount(0);
 		await expect(proofField(page), 'the refused proof left the field').toHaveValue('111111');
-		await expect(page.locator('[data-sonner-toast]'), 'a refused proof toasted').toHaveCount(0);
+		await expect(appToasts(page), 'a refused proof toasted').toHaveCount(0);
 		expect(stub.countOf(STATUS_PATH), 'a refused proof read the state again').toBe(5);
 
 		// An empty proof is refused on the page, before any request (two-factor-parts.tsx:283-292)
@@ -1228,6 +1245,8 @@ test.describe('lane-a · Settings › Personal › Security: what two-factor aut
 			answer: StubAnswer;
 			copy: string;
 			reads: number;
+			/** Set where a second read is the app's own doing too, depending on what mounted first (the 404 row). */
+			readsAtMost?: number;
 			navEntry: 'shown' | 'hidden';
 		}> = [
 			{
@@ -1252,8 +1271,13 @@ test.describe('lane-a · Settings › Personal › Security: what two-factor aut
 				answer: { ...refusal(404, 'Not Found'), holdMs: READ_HOLD_MS },
 				copy: UNSUPPORTED_TITLE,
 				// no retry at all: a 404 is the `unsupported` kind, which `shouldRetryStatus` never retries
-				// (`two-factor.ts:137-142` feeding `use-two-factor-settings.ts:19`)
+				// (`two-factor.ts:137-142` feeding `use-two-factor-settings.ts:19`). But the section and the settings sidebar
+				// both observe this one query (`use-two-factor-settings.ts:26-31`, `use-hidden-settings-entries.ts:75`), and
+				// TanStack Query reads a query that failed again when another observer mounts after the failure (its
+				// `retryOnMount` default): a sidebar that mounts after the held 404 landed asks once more. Measured 2 in 1 of 4
+				// lead runs (`s2-lead-2fa-a-4.log`), 1 in the others — both are the app as it is.
 				reads: 1,
+				readsAtMost: 2,
 				navEntry: 'hidden'
 			}
 		];
@@ -1296,17 +1320,22 @@ test.describe('lane-a · Settings › Personal › Security: what two-factor aut
 			// sampling 5 times over 2 s (`workspace-data-export.spec.ts:295-310`). The number is the hook's own doing:
 			// a failed read that is an `error` is retried while `failureCount < 2` (`use-two-factor-settings.ts:18-20`) =
 			// 3 reads, and a 404 — the `unsupported` kind, `two-factor.ts:137-142` — is never retried = 1 read.
-			await expect.poll(() => stub.countOf(STATUS_PATH), { timeout: 25_000 }).toBe(one.reads);
+			const mostReads = one.readsAtMost ?? one.reads;
+			await expect.poll(() => stub.countOf(STATUS_PATH), { timeout: 25_000 }).toBeGreaterThanOrEqual(one.reads);
 			const readSamples = await sampleWhileWatching(stub.countOf, STATUS_PATH);
-			expect(readSamples.join(','), `${one.label}: the reads did not stay at the measured ${one.reads}`).toBe(
-				Array.from({ length: readSamples.length }, () => one.reads).join(',')
+			const settledReads = readSamples[readSamples.length - 1];
+			expect(settledReads, `${one.label}: more reads than the measured ${mostReads}`).toBeLessThanOrEqual(
+				mostReads
+			);
+			expect(readSamples.join(','), `${one.label}: the reads did not stay at ${settledReads}`).toBe(
+				Array.from({ length: readSamples.length }, () => settledReads).join(',')
 			);
 			// The app logs every failed read itself (`api.service.ts:272-274`), so its own log lines count the reads too.
 			const logged = shield.logMatching(/HTTP Error: GET \/auth\/two-factor/).slice(loggedBefore);
 			expect(
 				logged,
-				`${one.label}: the app did not log exactly the ${one.reads} failed reads it made`
-			).toHaveLength(one.reads);
+				`${one.label}: the app did not log exactly the ${settledReads} failed reads it made`
+			).toHaveLength(settledReads);
 			expect(await mock.calls(TWO_FACTOR_PREFIX), `${one.label}: a stubbed read reached the mock`).toEqual([]);
 
 			report(`10 read fails ${one.label}`, {
