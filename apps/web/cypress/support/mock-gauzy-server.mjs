@@ -329,6 +329,42 @@ const siteGrantsOfFixture = () => [
 	{ id: 'grant-wiki', origin: 'https://wiki.example.com', expiresAt: '2030-01-05T10:00:00.000Z' }
 ];
 
+/**
+ * Four entries of today, one per review status and two people, as Gauzy lists them (`GET /timesheet/time-log`), for the
+ * `timeLogs` scenario: what Reports > Timesheets shows a manager.
+ */
+function timeLogsOfFixture(data) {
+	const day = new Date().toISOString().slice(0, 10);
+	const entryOf = (id, employee, status, hour) => ({
+		id,
+		startedAt: `${day}T${hour}:00:00.000Z`,
+		stoppedAt: `${day}T${hour}:45:00.000Z`,
+		duration: 2700,
+		logType: 'TRACKED',
+		source: 'TEAMS',
+		isBillable: true,
+		isRunning: false,
+		version: '1',
+		employeeId: employee.id,
+		employee,
+		taskId: data.task.id,
+		task: data.task,
+		projectId: data.project.id,
+		project: data.project,
+		timesheetId: `sheet-${id}`,
+		timesheet: { id: `sheet-${id}`, status },
+		organizationId: data.organization.id,
+		tenantId: data.organization.tenantId
+	});
+	const { self, teammate } = data.employees;
+	return [
+		entryOf('log-pending', teammate, 'PENDING', '08'),
+		entryOf('log-approved', self, 'APPROVED', '09'),
+		entryOf('log-denied', teammate, 'DENIED', '10'),
+		entryOf('log-in-review', self, 'IN REVIEW', '11')
+	];
+}
+
 /** An unsigned token shaped like Gauzy's: the web app only decodes its claims (`organizationId` since Gauzy #11316). */
 function syntheticToken(userId, organizationId, rotation) {
 	const part = (value) => Buffer.from(JSON.stringify(value)).toString('base64url');
@@ -718,7 +754,10 @@ function routeResponse(
 	}
 	if (pathname === '/api/timesheet/time-log/time-limit') return [];
 	// A member's day (Work diary, Calendar, Timesheets) comes as plain lists: logs, ten-minute slots, apps and sites
-	if (method === 'GET' && pathname === '/api/timesheet/time-log') return [];
+	if (method === 'GET' && pathname === '/api/timesheet/time-log') {
+		if (state.scenario.timeLogs === true) return timeLogsOfFixture(data);
+		return [];
+	}
 	if (method === 'GET' && pathname === '/api/timesheet/statistics/time-slots') return [];
 	if (method === 'GET' && pathname === '/api/timesheet/activity') return [];
 	// The time-log reports (Reports › Actual and expected hours, Payments due, Project budget; the Projects page) are
