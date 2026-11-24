@@ -61,7 +61,8 @@ const EVER_ID_KEYS = [
 	'EVER_ID_CLIENT_ID',
 	'EVER_ID_CLIENT_SECRET',
 	'EVER_PLATFORM_PROJECT_ID',
-	'EVER_ID_TEAMS_AUTO_PROVISION'
+	'EVER_ID_TEAMS_AUTO_PROVISION',
+	'EVER_ID_START_ROUTE_ENABLED'
 ];
 const ORIGINAL_ENV = { ...process.env };
 
@@ -194,6 +195,25 @@ describe('Ever ID with no settings', () => {
 		]);
 
 		expect(answers.map((answer) => answer.status)).toEqual([404, 404, 404, 404]);
+		expect(fetchSpy).not.toHaveBeenCalled();
+	});
+
+	it('answers 404 on the sign-in start address, even with its own switch on, without any request', async () => {
+		process.env.EVER_ID_START_ROUTE_ENABLED = 'true';
+		type StartRoute = typeof import('@/app/api/auth/ever-id/start/route');
+		let start: StartRoute | undefined;
+		jest.isolateModules(() => {
+			start = jest.requireActual<StartRoute>('@/app/api/auth/ever-id/start/route');
+		});
+
+		const answer = await (start as NonNullable<typeof start>).GET(
+			new Request('https://teams.example.test/api/auth/ever-id/start?return=/kanban', {
+				headers: { 'sec-fetch-mode': 'navigate', 'sec-fetch-dest': 'document' }
+			})
+		);
+
+		expect(answer.status).toBe(404);
+		expect(answer.headers.get('location')).toBeNull();
 		expect(fetchSpy).not.toHaveBeenCalled();
 	});
 

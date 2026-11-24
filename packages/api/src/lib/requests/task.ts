@@ -1,12 +1,14 @@
 import { IServerError, ITeamTask, IUser } from '@ever-teams/toolkit-types';
 import qs from 'qs';
 import { ApiCall } from '../fetch';
+import { IApiRequestConfig } from '../config/api-config';
 
 export const getMyTasks = async (
 	user: IUser | null,
 	token: string,
 	projectId: string | null,
-	organizationId: string
+	organizationId: string,
+	api?: IApiRequestConfig
 ) => {
 	try {
 		if (!user || !user.employee) throw new Error('No employee or user found !');
@@ -24,12 +26,15 @@ export const getMyTasks = async (
 
 		const path = `/tasks/employee/${employeeId}?${query}`;
 
-		const response = await ApiCall<ITeamTask[]>({
-			path,
-			method: 'GET',
-			bearer_token: token,
-			tenantId
-		});
+		const response = await ApiCall<ITeamTask[]>(
+			{
+				path,
+				method: 'GET',
+				bearer_token: token,
+				tenantId
+			},
+			api
+		);
 
 		if ('data' in response) return response.data;
 

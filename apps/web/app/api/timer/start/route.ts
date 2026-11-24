@@ -171,13 +171,10 @@ export async function POST(req: Request) {
 	}
 
 	try {
-		// Gauzy refuses a break with a body that names its reason (BREAKS_NOT_ALLOWED) but not its status: the status
-		// is kept so the timer can say why. A work start reads its refusals as before.
-		if (startsBreak) {
-			await startTimerRequest(startParams, access_token || '', { keepsStatusOnError: true });
-		} else {
-			await startTimerRequest(startParams, access_token || '');
-		}
+		// Gauzy refuses some starts with a body that names its reason but not its status: a break that is not allowed
+		// (BREAKS_NOT_ALLOWED), a work start without the daily plan the team requires (DAILY_PLAN_REQUIRED, #5716).
+		// The status is kept so the timer can say why, as it does when the browser calls Gauzy itself.
+		await startTimerRequest(startParams, access_token || '', { keepsStatusOnError: true });
 	} catch (error) {
 		// Gauzy's refusal goes back with its status and message (403 when tracking is off) instead of a 500, so the
 		// timer can tell the user why

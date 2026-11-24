@@ -110,7 +110,9 @@ const FilterPopup: FC<Props> = function FilterPopup({ visible, onDismiss, hook }
 				<TouchableWithoutFeedback>
 					<View style={[styles.mainContainer, { backgroundColor: colors.background }]}>
 						<View style={{ width: '100%', marginBottom: 10 }}>
-							<Text style={{ ...styles.mainTitle, color: colors.primary }}>Filter</Text>
+							<Text style={{ ...styles.mainTitle, color: colors.primary }}>
+								{translate('tasksScreen.filter')}
+							</Text>
 						</View>
 
 						<View
@@ -167,6 +169,7 @@ const FilterPopup: FC<Props> = function FilterPopup({ visible, onDismiss, hook }
 
 						<View style={styles.wrapButtons}>
 							<TouchableOpacity
+								testID="filter-reset"
 								onPress={() => {
 									hook.onResetStatusFilter();
 									setSelectedStatuses({
@@ -184,6 +187,7 @@ const FilterPopup: FC<Props> = function FilterPopup({ visible, onDismiss, hook }
 								</Text>
 							</TouchableOpacity>
 							<TouchableOpacity
+								testID="filter-apply"
 								style={[styles.button, { backgroundColor: '#3826A6' }]}
 								onPress={() => {
 									hook.applyStatusFilter();
@@ -211,8 +215,9 @@ const styles = StyleSheet.create({
 	button: {
 		alignItems: 'center',
 		borderRadius: 11,
-		height: height / 16,
 		justifyContent: 'center',
+		// at least a sixteenth of the screen, and as tall as its label needs on a short one
+		minHeight: height / 16,
 		padding: 10,
 		width: width / 2.5
 	},

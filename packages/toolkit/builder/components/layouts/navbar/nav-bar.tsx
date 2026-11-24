@@ -12,7 +12,7 @@ interface NavItem {
 	hasSublinks?: boolean;
 }
 
-const NAV_ITEMS: NavItem[] = [];
+const NAV_ITEMS: NavItem[] = [{ title: 'Embed a timer', url: '/snippet' }];
 
 export function Navbar({ className }: { className?: string }) {
 	const [hidden, setHidden] = useState(false);
@@ -64,7 +64,7 @@ export function Navbar({ className }: { className?: string }) {
 								<div className="text-slate-900 dark:text-white">
 									<TeamsLogo />
 								</div>
-								<div className="flex items-center gap-2">
+								<div className="hidden items-center gap-2 sm:flex">
 									{NAV_ITEMS.map((item, index) => (
 										<NavLink
 											key={item.title}

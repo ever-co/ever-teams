@@ -1,0 +1,290 @@
+import React from 'react';
+import Svg, { Circle, Path, Rect } from 'react-native-svg';
+import { useWebTheme } from '../../app/theme';
+import { dataColorHueOf } from '../theme/data-color';
+import { Cube, Tag } from './icons';
+
+/**
+ * The glyphs the web draws for a task's status, priority, size and label (apps/web/core/components/tasks/
+ * task-property-icon.tsx): the same shapes on the same 14 grid, chosen by the value's name, in the hue of its color.
+ */
+export type TaskPropertyKind = 'status' | 'priority' | 'size' | 'label' | 'version';
+
+type StatusGlyph = 'backlog' | 'todo' | 'started' | 'review' | 'blocked' | 'done' | 'canceled';
+
+interface PriorityLook {
+	glyph: 'none' | 'urgent' | 'bars';
+	/** How many of the three bars are filled. */
+	level: number;
+}
+
+type NamedGroup<T> = readonly [T, readonly string[]];
+
+/** Each value, with the names the web draws it for. */
+function lookupOf<T>(groups: ReadonlyArray<NamedGroup<T>>): ReadonlyMap<string, T> {
+	const lookup = new Map<string, T>();
+	for (const [value, names] of groups) {
+		for (const name of names) {
+			lookup.set(name, value);
+		}
+	}
+	return lookup;
+}
+
+const STATUS_GLYPH_BY_NAME = lookupOf<StatusGlyph>([
+	['backlog', ['backlog']],
+	['todo', ['open', 'todo', 'to do', 'ready']],
+	['started', ['in progress']],
+	['review', ['ready for review', 'in review', 'for testing', 'testing']],
+	['blocked', ['blocked']],
+	['done', ['done', 'completed']],
+	['canceled', ['closed', 'cancelled', 'canceled']]
+]);
+const PRIORITY_BY_NAME = lookupOf<PriorityLook>([
+	[{ glyph: 'none', level: 0 }, ['none', 'no priority']],
+	[{ glyph: 'urgent', level: 0 }, ['urgent', 'highest', 'critical']],
+	[{ glyph: 'bars', level: 3 }, ['high']],
+	[{ glyph: 'bars', level: 2 }, ['medium', 'normal']],
+	[{ glyph: 'bars', level: 1 }, ['low', 'lowest']]
+]);
+/** The side of the square a size fills inside its frame, from tiny to extra large. */
+const SIZE_SQUARE_SIDE_BY_NAME = lookupOf<number>([
+	[2.5, ['tiny', 'extra small', 'xs']],
+	[3.75, ['small']],
+	[5, ['medium']],
+	[6, ['large']],
+	[7, ['x large', 'extra large', 'xl']]
+]);
+/** The three priority bars stand on the same baseline, 4 apart, each taller than the last. */
+const PRIORITY_BAR_HEIGHTS = [4.5, 7.5, 10.5];
+const PRIORITY_BAR_BASELINE = 12.5;
+const PRIORITY_BAR_STEP = 4;
+const PRIORITY_BAR_FIRST_X = 1.5;
+
+/** A value's name as the glyph tables read it: lower case, hyphens and underscores as spaces. */
+export function normalizePropertyName(name: string | null | undefined): string {
+	const lowerCased = (name ?? '').toLowerCase();
+	const spaced = lowerCased.replace(/[-_]+/g, ' ');
+	const collapsed = spaced.replace(/\s+/g, ' ');
+	return collapsed.trim();
+}
+
+function ringDashArray(dashed: boolean) {
+	if (!dashed) {
+		return undefined;
+	}
+	return '1.5 1.51';
+}
+
+function Ring({ color, dashed = false }: Readonly<{ color: string; dashed?: boolean }>) {
+	return <Circle cx="7" cy="7" r="5.75" stroke={color} strokeWidth="1.5" strokeDasharray={ringDashArray(dashed)} />;
+}
+
+function StatusShape({ glyph, color, card }: Readonly<{ glyph: StatusGlyph; color: string; card: string }>) {
+	if (glyph === 'backlog') {
+		return <Ring color={color} dashed />;
+	}
+	if (glyph === 'started') {
+		return (
+			<>
+				<Ring color={color} />
+				<Path d="M7 4a3 3 0 0 1 0 6Z" fill={color} />
+			</>
+		);
+	}
+	if (glyph === 'review') {
+		return (
+			<>
+				<Ring color={color} />
+				<Path d="M7 7V4a3 3 0 1 1-3 3Z" fill={color} />
+			</>
+		);
+	}
+	if (glyph === 'blocked') {
+		return (
+			<>
+				<Ring color={color} />
+				<Path d="M4.5 7h5" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
+			</>
+		);
+	}
+	if (glyph === 'done') {
+		return (
+			<>
+				<Circle cx="7" cy="7" r="6.5" fill={color} />
+				<Path
+					d="m4.4 7.1 1.75 1.75L9.6 5.4"
+					stroke={card}
+					strokeWidth="1.5"
+					strokeLinecap="round"
+					strokeLinejoin="round"
+				/>
+			</>
+		);
+	}
+	if (glyph === 'canceled') {
+		return (
+			<>
+				<Circle cx="7" cy="7" r="6.5" fill={color} />
+				<Path d="m5 5 4 4m0-4-4 4" stroke={card} strokeWidth="1.5" strokeLinecap="round" />
+			</>
+		);
+	}
+	return <Ring color={color} />;
+}
+
+function priorityBarOpacity(index: number, level: number) {
+	const isFilled = index < level;
+	if (isFilled) {
+		return 1;
+	}
+	return 0.3;
+}
+
+function NoPriorityShape({ color }: Readonly<{ color: string }>) {
+	return <Path d="M2 7h2M6 7h2M10 7h2" stroke={color} strokeWidth="1.5" strokeLinecap="round" />;
+}
+
+function SizeFrame({ color }: Readonly<{ color: string }>) {
+	return (
+		<Rect
+			x="1.25"
+			y="1.25"
+			width="11.5"
+			height="11.5"
+			rx="3"
+			stroke={color}
+			strokeOpacity="0.35"
+			strokeWidth="1.5"
+		/>
+	);
+}
+
+function PriorityShape({ name, color, card }: Readonly<{ name: string; color: string; card: string }>) {
+	const priority = PRIORITY_BY_NAME.get(name);
+	const glyph = priority?.glyph;
+	if (glyph === 'none') {
+		return <NoPriorityShape color={color} />;
+	}
+	if (glyph === 'urgent') {
+		return (
+			<>
+				<Rect x="1" y="1" width="12" height="12" rx="3" fill={color} />
+				<Path d="M7 3.75v4" stroke={card} strokeWidth="1.6" strokeLinecap="round" />
+				<Circle cx="7" cy="10.1" r="0.95" fill={card} />
+			</>
+		);
+	}
+	if (glyph === 'bars') {
+		const level = priority?.level ?? 0;
+		return (
+			<>
+				{PRIORITY_BAR_HEIGHTS.map((height, index) => (
+					<Rect
+						key={height}
+						x={PRIORITY_BAR_FIRST_X + index * PRIORITY_BAR_STEP}
+						y={PRIORITY_BAR_BASELINE - height}
+						width="3"
+						height={height}
+						rx="1"
+						fill={color}
+						fillOpacity={priorityBarOpacity(index, level)}
+					/>
+				))}
+			</>
+		);
+	}
+	return <Circle cx="7" cy="7" r="3.5" fill={color} />;
+}
+
+function SizeShape({ name, color }: Readonly<{ name: string; color: string }>) {
+	const side = SIZE_SQUARE_SIDE_BY_NAME.get(name);
+	if (side === undefined) {
+		return <Circle cx="7" cy="7" r="3.5" fill={color} />;
+	}
+	return (
+		<>
+			<SizeFrame color={color} />
+			<Rect x="3.5" y={10.5 - side} width={side} height={side} rx="1" fill={color} />
+		</>
+	);
+}
+
+interface ITaskPropertyIcon {
+	kind: TaskPropertyKind;
+	name?: string | null;
+	/** The value's API color; the glyph takes its hue, or muted-foreground without one. */
+	color?: string | null;
+	size?: number;
+}
+
+/** A status, priority, size or label drawn as the web draws it, by name, in the hue of its color. */
+export function TaskPropertyIcon({ kind, name, color, size = 16 }: Readonly<ITaskPropertyIcon>) {
+	const theme = useWebTheme();
+	const glyphColor = dataColorHueOf(color) ?? theme.colors['muted-foreground'];
+	const card = theme.colors.card;
+	if (kind === 'version') {
+		return <Tag testID="property-icon-version" size={size} color={glyphColor} />;
+	}
+	const normalized = normalizePropertyName(name);
+	const statusGlyph = STATUS_GLYPH_BY_NAME.get(normalized) ?? 'todo';
+	return (
+		<Svg testID={`property-icon-${kind}`} width={size} height={size} viewBox="0 0 14 14" fill="none">
+			{kind === 'status' && <StatusShape glyph={statusGlyph} color={glyphColor} card={card} />}
+			{kind === 'priority' && <PriorityShape name={normalized} color={glyphColor} card={card} />}
+			{kind === 'size' && <SizeShape name={normalized} color={glyphColor} />}
+			{kind === 'label' && <Circle cx="7" cy="7" r="3.5" fill={glyphColor} />}
+		</Svg>
+	);
+}
+
+/** What the web draws a placeholder for: a task's properties, and its issue type, epic and project. */
+export type PlaceholderKind = TaskPropertyKind | 'issueType' | 'epic' | 'project';
+
+/** The web's four-square outline of an issue type or an epic (Square4OutlineIcon in apps/web/assets/svg.tsx). */
+const ISSUE_OUTLINE_SQUARES = [
+	'M2.0835 4.16683H2.91683C3.75016 4.16683 4.16683 3.75016 4.16683 2.91683V2.0835C4.16683 1.25016 3.75016 0.833496 2.91683 0.833496H2.0835C1.25016 0.833496 0.833496 1.25016 0.833496 2.0835V2.91683C0.833496 3.75016 1.25016 4.16683 2.0835 4.16683Z',
+	'M7.0835 4.16683H7.91683C8.75016 4.16683 9.16683 3.75016 9.16683 2.91683V2.0835C9.16683 1.25016 8.75016 0.833496 7.91683 0.833496H7.0835C6.25016 0.833496 5.8335 1.25016 5.8335 2.0835V2.91683C5.8335 3.75016 6.25016 4.16683 7.0835 4.16683Z',
+	'M7.0835 9.16683H7.91683C8.75016 9.16683 9.16683 8.75016 9.16683 7.91683V7.0835C9.16683 6.25016 8.75016 5.8335 7.91683 5.8335H7.0835C6.25016 5.8335 5.8335 6.25016 5.8335 7.0835V7.91683C5.8335 8.75016 6.25016 9.16683 7.0835 9.16683Z',
+	'M2.0835 9.16683H2.91683C3.75016 9.16683 4.16683 8.75016 4.16683 7.91683V7.0835C4.16683 6.25016 3.75016 5.8335 2.91683 5.8335H2.0835C1.25016 5.8335 0.833496 6.25016 0.833496 7.0835V7.91683C0.833496 8.75016 1.25016 9.16683 2.0835 9.16683Z'
+];
+
+interface ITaskPropertyPlaceholderIcon {
+	kind: PlaceholderKind;
+	/** muted-foreground unless the place asks for another. */
+	color?: string;
+	size?: number;
+}
+
+/**
+ * The web's glyph for a property without a value (TaskPropertyPlaceholderIcon): the dashed ring of a status, the
+ * dashes of a priority, the empty frame of a size, the tag of a label or a version.
+ */
+export function TaskPropertyPlaceholderIcon({ kind, color, size = 16 }: Readonly<ITaskPropertyPlaceholderIcon>) {
+	const theme = useWebTheme();
+	const glyphColor = color ?? theme.colors['muted-foreground'];
+	const isTagKind = kind === 'label' || kind === 'version';
+	const isIssueKind = kind === 'issueType' || kind === 'epic';
+	if (isTagKind) {
+		return <Tag testID={`property-placeholder-${kind}`} size={size} color={glyphColor} />;
+	}
+	if (kind === 'project') {
+		return <Cube testID="property-placeholder-project" size={size} color={glyphColor} />;
+	}
+	if (isIssueKind) {
+		return (
+			<Svg testID={`property-placeholder-${kind}`} width={size} height={size} viewBox="0 0 10 10" fill="none">
+				{ISSUE_OUTLINE_SQUARES.map((square) => (
+					<Path key={square} d={square} stroke={glyphColor} strokeLinecap="round" strokeLinejoin="round" />
+				))}
+			</Svg>
+		);
+	}
+	return (
+		<Svg testID={`property-placeholder-${kind}`} width={size} height={size} viewBox="0 0 14 14" fill="none">
+			{kind === 'status' && <Ring color={glyphColor} dashed />}
+			{kind === 'priority' && <NoPriorityShape color={glyphColor} />}
+			{kind === 'size' && <SizeFrame color={glyphColor} />}
+		</Svg>
+	);
+}

@@ -234,6 +234,86 @@ describe('billable entries that look alike', () => {
 		expect(exportBillableTotalsOf(rows, billables).amounts).toEqual(billableFiguresOfFacts(facts).amounts);
 	});
 
+	// Bo's entries of one task on one day at his rate of 60: only the labels, or nothing at all, tell them apart
+	function labelledEntryOf(seconds: number, label: string | null) {
+		const tags = label ? [{ id: label.toLowerCase(), name: label, color: null }] : [];
+		return { ...taskOf({ task: 'API', seconds }), tags };
+	}
+
+	function boReportOf(entries: ReadonlyArray<ReturnType<typeof labelledEntryOf>>) {
+		const sum = entries.reduce((total, entry) => total + entry.duration, 0);
+		const log = { employee: bo, sum, activity: 50, tasks: entries };
+		return [dayOf('2026-11-08', [{ project: 'app', employeeLogs: [log] }])];
+	}
+
+	it.each([
+		['with different labels', 'Design', 'Review'],
+		['the first without a label', null, 'Review'],
+		['the second without a label', 'Review', null]
+	])(
+		'of two equal entries %s, bills the billable one and not the one listed first',
+		(_case, unbilledLabel, billedLabel) => {
+			const unbilled = labelledEntryOf(HOUR, unbilledLabel);
+			const billed = labelledEntryOf(HOUR, billedLabel);
+
+			const rows = rowsOf(boReportOf([unbilled, billed]));
+			const facts = factsOf(boReportOf([billed]));
+			const billables = exportBillablesOf(rows, facts);
+
+			const cells = rows.map((row) => [row.labels, billables.get(row)?.amount ?? null]);
+			expect(cells).toEqual([
+				[unbilledLabel ?? '', null],
+				[billedLabel ?? '', 60]
+			]);
+			expect(exportBillableTotalsOf(rows, billables).amounts).toEqual(billableFiguresOfFacts(facts).amounts);
+		}
+	);
+
+	it('finds the row of an entry with several labels whatever order Gauzy states its tags in', () => {
+		const tagOf = (name: string) => ({ id: name.toLowerCase(), name, color: null });
+		const unbilled = labelledEntryOf(HOUR, 'Design');
+		const billed = { ...labelledEntryOf(HOUR, null), tags: [tagOf('Review'), tagOf('Design'), tagOf('Review')] };
+
+		const rows = rowsOf(boReportOf([unbilled, billed]));
+		const billables = exportBillablesOf(rows, factsOf(boReportOf([billed])));
+
+		const cells = rows.map((row) => [row.labels, billables.get(row)?.amount ?? null]);
+		expect(cells).toEqual([
+			['Design', null],
+			['Design, Review', 60]
+		]);
+	});
+
+	it('keeps an entry whose time changed between the two reads on the row of its own label', () => {
+		const unbilled = labelledEntryOf(HOUR, 'Design');
+		const billed = labelledEntryOf(HOUR + HOUR / 2, 'Review');
+		const reRead = labelledEntryOf(HOUR + 60, 'Review');
+
+		const rows = rowsOf(boReportOf([unbilled, billed]));
+		const billables = exportBillablesOf(rows, factsOf(boReportOf([reRead])));
+
+		const cells = rows.map((row) => [row.labels, billables.get(row) ?? null]);
+		expect(cells).toEqual([
+			['Review', { seconds: HOUR + 60, amount: 61, currency: 'EUR' }],
+			['Design', null]
+		]);
+	});
+
+	it('bills one of two entries that differ only by the billable flag, and the file reads the same either way', () => {
+		const unbilled = labelledEntryOf(HOUR, 'Review');
+		const billed = labelledEntryOf(HOUR, 'Review');
+
+		const rows = rowsOf(boReportOf([unbilled, billed]));
+		const facts = factsOf(boReportOf([billed]));
+		const billables = exportBillablesOf(rows, facts);
+
+		// The rows write the same cells: which of them carries the amount cannot be seen in the file
+		expect(rows[0]).toEqual(rows[1]);
+		const amounts = rows.map((row) => billables.get(row)?.amount ?? null);
+		expect(amounts.filter((amount) => amount !== null)).toEqual([60]);
+		expect(exportBillableTotalsOf(rows, billables).amounts).toEqual(billableFiguresOfFacts(facts).amounts);
+	});
+
 	it('rounds a half cent as the page writes the amount', () => {
 		const log = employeeLogOf(ana, [{ task: 'Review', seconds: HOUR / 2 }]);
 		const report = [dayOf('2026-11-07', [{ project: 'half-cent', employeeLogs: [log] }])];

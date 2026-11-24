@@ -14,10 +14,10 @@ import type { TimesheetGroupHandlers } from '@/core/hooks/dashboards/timesheets/
 import { canEditLog, type TimesheetPermissions } from '@/core/hooks/dashboards/timesheets/use-timesheets-page';
 import type { TimesheetEntryGroup } from '@/core/lib/utils/dashboards/timesheet-entry-groups';
 import { statusOfLog } from '@/core/lib/utils/dashboards/timesheets';
-import { BillableSubmenu, StatusSubmenu } from './timesheet-menu-parts';
+import { BillableSubmenu, offeredStatusesOf, StatusSubmenu } from './timesheet-menu-parts';
 
 /**
- * The menu of a group row: the status (for whoever may approve), the billable state and the delete of every entry of
+ * The menu of a group row: the statuses the reader may give, the billable state and the delete of every entry of
  * the group, offered as each entry's own menu offers them. The delete needs every entry to be one the reader may
  * delete; editing, continuing and duplicating stay on each entry under the open group.
  */
@@ -35,6 +35,8 @@ export function TimesheetEntryGroupMenu({
 	const status = statusOfLog(firstLog);
 	const isBillable = Boolean(firstLog.isBillable);
 	const canDelete = group.logs.every((log) => canEditLog(log, permissions));
+	const reviewStatuses = offeredStatusesOf(permissions, group.logs);
+	const offersStatus = reviewStatuses.length > 0;
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
@@ -49,8 +51,12 @@ export function TimesheetEntryGroupMenu({
 				</Button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align="end" className="min-w-48">
-				{permissions.canApprove && (
-					<StatusSubmenu status={status} onChange={(option) => handlers.changeStatus(group, option)} />
+				{offersStatus && (
+					<StatusSubmenu
+						status={status}
+						statuses={reviewStatuses}
+						onChange={(option) => handlers.changeStatus(group, option)}
+					/>
 				)}
 				{handlers.hasBillableChange(group) && (
 					<BillableSubmenu isBillable={isBillable} onChange={(value) => handlers.setBillable(group, value)} />

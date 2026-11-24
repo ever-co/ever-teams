@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
-import { AntDesign } from '@expo/vector-icons';
+import { ChevronDown, ChevronUp } from '../../../../../src/components/icons';
 import { ITeamTask } from '../../../../services/interfaces/ITask';
 
 // COMPONENTS
@@ -10,6 +10,7 @@ import { observer } from 'mobx-react-lite';
 // STYLES
 import { typography, useAppTheme } from '../../../../theme';
 import TaskStatusList from './task-status-list';
+import { translate } from '../../../../i18n';
 
 export interface Props {
 	task: ITeamTask;
@@ -36,14 +37,14 @@ const TaskStatusDropdown: FC<Props> = observer(({ task }) => {
 							}
 						]}
 					>
-						{task ? task.status : 'Status'}
+						{task ? task.status : translate('myWorkScreen.statusText')}
 					</Text>
 				</View>
 
 				{isOpened ? (
-					<AntDesign name="up" size={18} color={colors.primary} />
+					<ChevronUp size={18} color={colors.primary} />
 				) : (
-					<AntDesign name="down" size={18} color={colors.primary} />
+					<ChevronDown size={18} color={colors.primary} />
 				)}
 			</TouchableOpacity>
 			{isOpened && <TaskStatusList onDismiss={() => setIsOpened(false)} />}

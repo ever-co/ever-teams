@@ -1,0 +1,20 @@
+{
+	"extends": "../../../tsconfig.base.json",
+	"compilerOptions": {
+		"types": ["node"],
+		"target": "es2022",
+		"lib": ["dom", "dom.iterable", "es2023"],
+		"module": "esnext",
+		"moduleResolution": "bundler",
+		"strict": true,
+		"skipLibCheck": true,
+		"esModuleInterop": true,
+		"resolveJsonModule": true,
+		"allowJs": true,
+		"checkJs": false,
+		"importHelpers": false,
+		"noEmit": true
+	},
+	"include": ["./**/*.ts", "./**/*.mjs"],
+	"exclude": ["artifacts"]
+}

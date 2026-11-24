@@ -9,7 +9,7 @@ import {
 	type TeamTasksViewSettings
 } from './team-tasks-view';
 
-const GROUPINGS: TeamTasksGrouping[] = ['status', 'priority', 'assignee', 'project', 'issueType', 'none'];
+const GROUPINGS: TeamTasksGrouping[] = ['status', 'priority', 'assignee', 'project', 'issueType', 'label', 'none'];
 
 const LAYOUTS: TeamTasksLayout[] = ['list', 'board', 'timeline', 'calendar', 'table'];
 

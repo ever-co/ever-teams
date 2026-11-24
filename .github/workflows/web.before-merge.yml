@@ -98,6 +98,40 @@ jobs:
       - name: Test performance tooling
         run: yarn test:performance
 
+      # The kit's node:test suites stub the other kit packages, but some read build output: the api tests import
+      # packages/api/dist, the atoms side-effects test reads atoms/dist, and embed's kit-styles test reads
+      # atoms/dist/styles.css. Build in dependency order, so each package compiles against the declarations of the
+      # ones it imports. toolkit-types and tracking have no tests of their own.
+      - name: Build kit packages
+        run: |
+          for pkg in toolkit-types api toolkit-ui atoms; do
+            echo "::group::Build @ever-teams/$pkg"
+            yarn workspace "@ever-teams/$pkg" build
+            echo "::endgroup::"
+          done
+
+      - name: Test kit packages
+        shell: bash
+        run: |
+          failed=''
+          summary=''
+          for dir in packages/api packages/toolkit-ui packages/toolkit/atoms packages/toolkit/embed packages/toolkit/builder; do
+            log="$RUNNER_TEMP/kit-tests-$(basename "$dir").log"
+            echo "::group::node --test $dir"
+            if ! (cd "$dir" && node --test --test-reporter=spec test/*.test.mjs) 2>&1 | tee "$log"; then
+              failed="$failed $dir"
+            fi
+            echo "::endgroup::"
+            counts=$(grep -E '^ℹ (tests|pass|fail|skipped) ' "$log" | sed 's/^ℹ //' | paste -sd ',' - | sed 's/,/, /g')
+            summary="$summary$dir: ${counts:-no summary}"$'\n'
+          done
+          echo "Kit test suites:"
+          printf '%s' "$summary"
+          if [ -n "$failed" ]; then
+            echo "::error::Kit tests failed in:$failed"
+            exit 1
+          fi
+
       - name: Verify preserved feature surface
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha || format('origin/{0}', inputs.base) }}

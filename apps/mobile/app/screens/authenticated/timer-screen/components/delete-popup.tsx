@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { translate } from '../../../../i18n';
 
 type IDeletePopUp = {
 	onCloseTask: any;
@@ -18,7 +19,9 @@ const DeletePopUp = ({ onCloseTask, setShowDel, setEditMode }: IDeletePopUp) => 
 					setEditMode(false);
 				}}
 			>
-				<Text style={{ fontWeight: 'bold', color: '#1B005D', fontSize: 10 }}>Confirm</Text>
+				<Text style={{ fontWeight: 'bold', color: '#1B005D', fontSize: 10 }}>
+					{translate('common.confirm')}
+				</Text>
 			</TouchableOpacity>
 			<TouchableOpacity
 				activeOpacity={0.7}
@@ -27,7 +30,7 @@ const DeletePopUp = ({ onCloseTask, setShowDel, setEditMode }: IDeletePopUp) => 
 					setShowDel(false);
 				}}
 			>
-				<Text style={{ color: '#1B005D', fontSize: 10 }}>Cancel</Text>
+				<Text style={{ color: '#1B005D', fontSize: 10 }}>{translate('common.cancel')}</Text>
 			</TouchableOpacity>
 		</TouchableOpacity>
 	);

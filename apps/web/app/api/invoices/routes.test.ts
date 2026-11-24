@@ -4,6 +4,7 @@
  * role reads invoices, and an invoice states what a client is billed per hour.
  */
 import { gauzyUrl, idParams, restoreFetch, signedInRequest } from '@/test/api/forward-to-gauzy';
+import { SAME_ORIGIN_HEADERS } from '@/test/api/request-origin';
 import { POST as createInvoice } from './route';
 import { GET as listInvoices } from './pagination/route';
 import { GET as readHighestNumber } from './highest/route';
@@ -48,7 +49,7 @@ function gauzyAnswersInOrder(...answers: Response[]) {
 
 function callOf(fetchMock: jest.Mock, index: number) {
 	const [url, init] = fetchMock.mock.calls[index] as [string, RequestInit];
-	return { url, method: init.method, body: init.body };
+	return { url, method: init.method, body: init.body, headers: init.headers as Record<string, string> };
 }
 
 afterEach(restoreFetch);
@@ -245,6 +246,26 @@ describe('PUT /api/invoices/email/:email', () => {
 		expect(callOf(fetchMock, 1).method).toBe('PUT');
 		expect(JSON.parse(callOf(fetchMock, 1).body as string)).toEqual(sendBody);
 		expect(response.status).toBe(202);
+	});
+
+	it("hands the page's origin on to Gauzy, which builds the e-mailed invoice link on it as in direct mode", async () => {
+		const fetchMock = gauzyAnswersInOrder(jsonAnswer(permissionRows(EDITOR)), acceptedAnswer());
+		const url = `${ORIGIN}/api/invoices/email/billing%40acme.test`;
+		const request = signedInRequest(url, 'PUT', sendBody, SAME_ORIGIN_HEADERS);
+
+		const response = await emailInvoice(request, emailParams('billing@acme.test'));
+
+		expect(response.status).toBe(202);
+		expect(callOf(fetchMock, 1).headers).toEqual(expect.objectContaining({ origin: ORIGIN }));
+	});
+
+	it('sends no origin when the request has none, so Gauzy keeps its own address for the link', async () => {
+		const fetchMock = gauzyAnswersInOrder(jsonAnswer(permissionRows(EDITOR)), acceptedAnswer());
+		const request = signedInRequest(`${ORIGIN}/api/invoices/email/billing%40acme.test`, 'PUT', sendBody);
+
+		await emailInvoice(request, emailParams('billing@acme.test'));
+
+		expect(callOf(fetchMock, 1).headers).not.toHaveProperty('origin');
 	});
 
 	it('refuses a member without asking Gauzy to send anything', async () => {

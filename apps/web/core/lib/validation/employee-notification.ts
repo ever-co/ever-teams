@@ -39,7 +39,7 @@ export const notificationSettingSwitchesSchema = z
  * The receiver's own state on one notification. Gauzy's update route writes the body as given, so the sender,
  * the receiver, the type and the text never go through.
  */
-export const notificationPatchSchema = z
+const notificationPatchSchema = z
 	.object({
 		isRead: z.boolean().optional(),
 		readAt: z.iso.datetime().nullable().optional(),
@@ -48,3 +48,23 @@ export const notificationPatchSchema = z
 		onHoldUntil: z.iso.datetime().nullable().optional()
 	})
 	.strict();
+
+/**
+ * The scope the app's own API client adds to every PUT body. The update route takes the tenant from the session and
+ * sends neither on, so they are no part of what the body asks to change (#5722).
+ */
+const CLIENT_SCOPE_FIELDS: ReadonlyArray<string> = ['tenantId', 'organizationId'];
+
+/**
+ * Reads the body of a notification update as the app sends it: the receiver's own state, with or without the scope
+ * its API client adds. Any other field is still refused.
+ */
+export function parseNotificationPatch(body: unknown) {
+	const isObject = typeof body === 'object' && body !== null && !Array.isArray(body);
+	if (!isObject) {
+		return notificationPatchSchema.safeParse(body);
+	}
+	const entries = Object.entries(body);
+	const stateEntries = entries.filter(([field]) => !CLIENT_SCOPE_FIELDS.includes(field));
+	return notificationPatchSchema.safeParse(Object.fromEntries(stateEntries));
+}

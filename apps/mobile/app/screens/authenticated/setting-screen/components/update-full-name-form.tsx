@@ -134,7 +134,7 @@ const UpdateFullNameForm = observer(
 								marginTop: 5
 							}}
 						>
-							Provide a valid last name
+							{translate('settingScreen.changeFullName.firstNameError')}
 						</Text>
 					) : null}
 
@@ -162,7 +162,7 @@ const UpdateFullNameForm = observer(
 								marginTop: 5
 							}}
 						>
-							Provide a valid last name
+							{translate('settingScreen.changeFullName.lastNameError')}
 						</Text>
 					) : null}
 				</View>

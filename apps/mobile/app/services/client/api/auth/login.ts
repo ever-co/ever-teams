@@ -7,6 +7,8 @@ import { acceptInviteRequest, verifyInviteCodeRequest } from '../../requests/inv
 import { getUserOrganizationsRequest } from '../../requests/organization';
 import { pickTokenOrganization } from './workspace-setup';
 import { getAllOrganizationTeamRequest } from '../../requests/organization-team';
+import { translate } from '../../../../i18n';
+import { inviteAcceptRefusalKey } from './invite-accept-refusal';
 
 export async function login(params: ILoginDataAPI) {
 	let loginResponse: ILoginResponse | null = null;
@@ -46,7 +48,7 @@ export async function login(params: ILoginDataAPI) {
 			return {
 				status: 400,
 				errors: {
-					email: 'Authentication code or email address invalid'
+					email: translate('loginScreen.errors.invalidCode')
 				}
 			};
 		}
@@ -90,11 +92,12 @@ export async function login(params: ILoginDataAPI) {
 			acceptInviteRes.response.status === 400 ||
 			(acceptInviteRes.data as any).response?.statusCode
 		) {
+			const refusalKey = inviteAcceptRefusalKey(acceptInviteRes?.response.status);
 			return {
 				response: {
 					status: 400,
 					errors: {
-						email: 'Authentication code or email address invalid'
+						email: translate(refusalKey)
 					}
 				}
 			};
@@ -107,7 +110,7 @@ export async function login(params: ILoginDataAPI) {
 		return {
 			status: 400,
 			errors: {
-				email: 'Authentication code or email address invalid'
+				email: translate('loginScreen.errors.invalidCode')
 			}
 		};
 	}
@@ -129,7 +132,7 @@ export async function login(params: ILoginDataAPI) {
 			response: {
 				status: 400,
 				errors: {
-					email: 'Your account isn’t fully set up yet'
+					email: translate('loginScreen.errors.notSetUp')
 				}
 			}
 		};

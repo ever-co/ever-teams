@@ -1,0 +1,101 @@
+import { menuPlacementOf, submenuPlacementOf } from './menu-placement';
+
+const PHONE = { width: 360, top: 0, bottom: 640 };
+
+describe('where a menu opens', () => {
+	it('opens under its trigger, 4 below, its start on the trigger start, 240 wide', () => {
+		const trigger = { x: 40, y: 200, width: 120, height: 30 };
+
+		expect(menuPlacementOf(trigger, 300, PHONE)).toEqual({ top: 234, left: 40, width: 240, maxHeight: 398 });
+	});
+
+	it('stays 8 from the right edge when the trigger sits near it', () => {
+		const trigger = { x: 300, y: 200, width: 50, height: 30 };
+
+		expect(menuPlacementOf(trigger, 300, PHONE).left).toBe(112);
+	});
+
+	it('opens above a trigger with no room below', () => {
+		const trigger = { x: 40, y: 500, width: 120, height: 30 };
+
+		expect(menuPlacementOf(trigger, 300, PHONE)).toEqual({ top: 196, left: 40, width: 240, maxHeight: 488 });
+	});
+
+	it('takes the larger side when it fits on neither, so its list scrolls there', () => {
+		const trigger = { x: 40, y: 260, width: 120, height: 30 };
+
+		const placement = menuPlacementOf(trigger, 500, PHONE);
+
+		expect(placement).toEqual({ top: 294, left: 40, width: 240, maxHeight: 338 });
+	});
+
+	it('opens above when the keyboard takes the room below', () => {
+		const trigger = { x: 40, y: 200, width: 120, height: 30 };
+
+		expect(menuPlacementOf(trigger, 150, { width: 360, top: 0, bottom: 380 }).top).toBe(46);
+	});
+
+	it('narrows on a screen under 256 wide, 8 from each edge', () => {
+		const trigger = { x: 20, y: 100, width: 100, height: 30 };
+
+		expect(menuPlacementOf(trigger, 100, { width: 240, top: 0, bottom: 640 })).toMatchObject({
+			left: 8,
+			width: 224
+		});
+	});
+
+	it('keeps under the status bar when it opens above', () => {
+		const trigger = { x: 40, y: 330, width: 120, height: 30 };
+
+		const placement = menuPlacementOf(trigger, 400, { width: 360, top: 24, bottom: 616 });
+
+		expect(placement).toEqual({ top: 32, left: 40, width: 240, maxHeight: 294 });
+	});
+
+	it('keeps above a keyboard that covers its trigger', () => {
+		const trigger = { x: 40, y: 446, width: 120, height: 30 };
+
+		const placement = menuPlacementOf(trigger, 220, { width: 360, top: 24, bottom: 340 });
+
+		expect(placement).toEqual({ top: 112, left: 40, width: 240, maxHeight: 300 });
+	});
+
+	it('lines its end up with the trigger end when asked, at the width asked, as the web filter menu does', () => {
+		const filterButton = { x: 190, y: 250, width: 150, height: 44 };
+
+		const placement = menuPlacementOf(filterButton, 200, PHONE, { width: 224, align: 'end', offset: 6 });
+
+		expect(placement).toEqual({ top: 300, left: 116, width: 224, maxHeight: 332 });
+	});
+});
+
+describe('where a submenu opens', () => {
+	const menu = { x: 260, y: 300, width: 224, height: 180 };
+
+	it('opens left of its menu, its top 4 above the row it opens from, as the web does', () => {
+		const wide = { width: 800, top: 0, bottom: 640 };
+		const row = { x: 264, y: 340, width: 216, height: 32 };
+
+		expect(submenuPlacementOf(menu, row, 200, wide, 192)).toEqual({
+			top: 336,
+			left: 62,
+			width: 192,
+			maxHeight: 296
+		});
+	});
+
+	it('opens right of its menu when the left has no room, and over it when neither side has', () => {
+		const leftMenu = { x: 8, y: 300, width: 224, height: 180 };
+		const row = { x: 12, y: 340, width: 216, height: 32 };
+
+		expect(submenuPlacementOf(leftMenu, row, 200, { width: 800, top: 0, bottom: 640 }, 192).left).toBe(238);
+		const phoneMenu = { x: 128, y: 300, width: 224, height: 180 };
+		expect(submenuPlacementOf(phoneMenu, row, 200, PHONE, 192).left).toBe(8);
+	});
+
+	it('keeps above the bottom of the screen, its list scrolling past it', () => {
+		const lowRow = { x: 264, y: 560, width: 216, height: 32 };
+
+		expect(submenuPlacementOf(menu, lowRow, 200, PHONE, 192)).toMatchObject({ top: 432, maxHeight: 200 });
+	});
+});

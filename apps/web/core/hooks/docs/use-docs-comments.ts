@@ -94,10 +94,13 @@ export function useDocsComments(page: { id: string; name?: string | null } | nul
 	useEffect(() => {
 		if (answeredUnsupported) setRangesOff(true);
 	}, [answeredUnsupported]);
+	// The 404 counts from the render its answer arrives in, before the effect above has turned the ranges off: a comment
+	// posted from that render asks for no range either.
+	const rangesUnavailable = rangesOff || answeredUnsupported;
 	// Ranges that could not be read leave the threads on their blocks.
-	const anchorItems = rangesOff ? NO_ANCHORS : (anchorsQuery.data?.items ?? NO_ANCHORS);
+	const anchorItems = rangesUnavailable ? NO_ANCHORS : (anchorsQuery.data?.items ?? NO_ANCHORS);
 	const anchors = useMemo(() => anchorsByComment(anchorItems), [anchorItems]);
-	const anchorsSupported = !rangesOff && (anchorsQuery.data?.supported ?? false);
+	const anchorsSupported = !rangesUnavailable && (anchorsQuery.data?.supported ?? false);
 
 	// The comments' key holds the ranges' too: both are read again.
 	const refresh = useCallback(() => queryClient.invalidateQueries({ queryKey: key }), [key, queryClient]);
@@ -124,7 +127,7 @@ export function useDocsComments(page: { id: string; name?: string | null } | nul
 	 */
 	const placeRange = useCallback(
 		async (commentId: string, range: IDocumentCommentAnchorInput) => {
-			if (!pageId || rangesOff) return;
+			if (!pageId || rangesUnavailable) return;
 			try {
 				await docsService.setCommentAnchor(pageId, commentId, range);
 			} catch (error) {
@@ -135,7 +138,7 @@ export function useDocsComments(page: { id: string; name?: string | null } | nul
 				void queryClient.invalidateQueries({ queryKey: anchorsKey });
 			}
 		},
-		[anchorsKey, pageId, queryClient, rangesOff]
+		[anchorsKey, pageId, queryClient, rangesUnavailable]
 	);
 
 	const post = useCallback(
@@ -187,7 +190,7 @@ export function useDocsComments(page: { id: string; name?: string | null } | nul
 		/** The platform keeps ranges: a thread made on selected text gets one. */
 		anchorsSupported,
 		/** The ranges were read, or will not be (a link to a thread can bring its text into sight). */
-		anchorsSettled: isEnabled && (rangesOff || !anchorsQuery.isPending),
+		anchorsSettled: isEnabled && (rangesUnavailable || !anchorsQuery.isPending),
 		isLoading: isEnabled && query.isPending,
 		/** The comments were read (a thread a link asks for can be looked for). */
 		isReady: isEnabled && query.isSuccess,

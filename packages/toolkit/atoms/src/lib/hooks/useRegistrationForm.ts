@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useTeamsContext } from '../context/teams-context';
 import { useAccessToken } from './useAccessToken';
 import { useTranslation } from 'react-i18next';
+import { useKitOptions } from '@components/teams-provider/kit-options';
 
 const useRegistrationForm = (redirectHandler?: () => void) => {
 	const [formData, setFormData] = useState<{
@@ -17,6 +18,7 @@ const useRegistrationForm = (redirectHandler?: () => void) => {
 	const [errors, setErrors] = useState<string[]>([]);
 
 	const { setToken } = useTeamsContext();
+	const { api } = useKitOptions();
 
 	const { t } = useTranslation();
 
@@ -85,7 +87,7 @@ const useRegistrationForm = (redirectHandler?: () => void) => {
 		try {
 			// Signup User
 
-			const registeredUser = await createCompleteAccount({ confirmPassword, fullName, email, password });
+			const registeredUser = await createCompleteAccount({ confirmPassword, fullName, email, password }, api);
 
 			if ('message' in registeredUser || 'error' in registeredUser) {
 				const errorMessage =

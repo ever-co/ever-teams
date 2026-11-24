@@ -1,7 +1,6 @@
-import i18n from 'i18n-js';
 import React from 'react';
 import { StyleProp, Text as RNText, TextProps as RNTextProps, TextStyle } from 'react-native';
-import { isRTL, translate, TxKeyPath } from '../i18n';
+import { isRTL, translate, TranslateValues, TxKeyPath } from '../i18n';
 import { colors, typography } from '../theme';
 
 type Sizes = keyof typeof $sizeStyles;
@@ -18,10 +17,10 @@ export interface TextProps extends RNTextProps {
 	 */
 	text?: string;
 	/**
-	 * Optional options to pass to i18n. Useful for interpolation
-	 * as well as explicitly setting locale or translation fallbacks.
+	 * The values of the message's placeholders (`{ time: '09:30' }`). The message is in the app's language, or in
+	 * English when that language misses it.
 	 */
-	txOptions?: i18n.TranslateOptions;
+	txOptions?: TranslateValues;
 	/**
 	 * An optional style override useful for padding & margin.
 	 */

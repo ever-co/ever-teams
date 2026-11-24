@@ -67,7 +67,12 @@ export default [
 	},
 	{
 		input: 'dist/types/index.d.ts',
-		output: [{ file: 'dist/index.d.ts', format: 'es' }],
+		// index.d.cts: the same declarations for CommonJS callers ("require" in package.json "exports"), as every .d.ts of
+		// a "type": "module" package describes an ES module
+		output: [
+			{ file: 'dist/index.d.ts', format: 'es' },
+			{ file: 'dist/index.d.cts', format: 'es' }
+		],
 		plugins: [dts()]
 	}
 ];

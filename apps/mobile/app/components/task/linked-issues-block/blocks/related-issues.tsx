@@ -3,7 +3,7 @@
 import { StyleSheet, TouchableWithoutFeedback, View } from "react-native"
 import React, { useCallback, useMemo, useState } from "react"
 import Accordion from "../../../accordion"
-import { AntDesign, Entypo } from "@expo/vector-icons"
+import { MoreHorizontal, Plus } from "../../../../../src/components/icons"
 import { useStores } from "../../../../models"
 import { useTeamTasks } from "../../../../services/hooks/features/use-team-tasks"
 import {
@@ -14,6 +14,7 @@ import {
 import TaskLinkedIssue from "../components/task-linked-issue"
 import CreateLinkedIssueModal from "../components/create-linked-issue-modal"
 import { useTaskLinkedIssues } from "../../../../services/hooks/features/use-task-linked-issue"
+import { translate } from "../../../../i18n"
 
 const RelatedIssues = () => {
 	const {
@@ -76,15 +77,16 @@ const RelatedIssues = () => {
 
 	return (
 		<Accordion
+			nested
 			titleFontSize={14}
 			arrowSize={20}
-			title="Related Issues"
+			title={translate("taskDetailsScreen.relatedIssues")}
 			headerElement={
 				<View style={styles.headerElement}>
 					<TouchableWithoutFeedback onPress={() => setModalOpen(true)}>
-						<AntDesign name="plus" size={16} color="#B1AEBC" />
+						<Plus size={16} color="#B1AEBC" />
 					</TouchableWithoutFeedback>
-					<Entypo name="dots-three-horizontal" size={16} color="#B1AEBC" />
+					<MoreHorizontal size={16} color="#B1AEBC" />
 					<View style={styles.verticalSeparator} />
 
 					{task && (

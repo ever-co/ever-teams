@@ -1,6 +1,7 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
 import React, { FC, useState } from 'react';
+import { observer } from 'mobx-react-lite';
 import { ViewStyle, LogBox, StatusBar } from 'react-native';
 import { AuthenticatedTabScreenProps } from '../../../navigators/authenticated-navigator';
 import { Screen } from '../../../components';
@@ -19,7 +20,8 @@ import { useOrganizationTeam } from '../../../services/hooks/use-organization';
 import { useProfileScreenLogic } from './logics/use-profile-screen-logic';
 import { useAppTheme } from '../../../theme';
 
-export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<'Profile'>> =
+// an observer: the task under Now comes from the store, and must redraw the screen when it arrives
+export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<'Profile'>> = observer(
 	function AuthenticatedProfileScreen(_props) {
 		LogBox.ignoreAllLogs();
 		const {
@@ -78,7 +80,8 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<'Profile
 				)}
 			</Screen>
 		);
-	};
+	}
+);
 
 const $container: ViewStyle = {
 	flex: 1

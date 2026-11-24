@@ -1,7 +1,8 @@
 import React from 'react';
 import { View, StyleSheet, Text } from 'react-native';
-import { FontAwesome, AntDesign } from '@expo/vector-icons';
+import { Circle, CircleCheck } from '../../../../../src/components/icons';
 import { typography, useAppTheme } from '../../../../theme';
+import { translate } from '../../../../i18n';
 
 type ITasDisplayBox = {
 	count: number;
@@ -15,23 +16,27 @@ const TaskDisplayBox = ({ count, openTask, selected }: ITasDisplayBox) => {
 		<View style={[styles.container, { borderColor: colors.border, backgroundColor: colors.background }]}>
 			{openTask ? (
 				<>
-					<FontAwesome name="circle" size={18} color="#9BD9B4" />
+					<Circle size={18} color="#9BD9B4" />
 					<Text
 						style={[
 							styles.filterText,
 							selected ? { color: colors.secondary, fontWeight: 'bold' } : { color: colors.tertiary }
 						]}
-					>{`${count} Open`}</Text>
+					>
+						{translate('tasksScreen.openCount', { count })}
+					</Text>
 				</>
 			) : (
 				<>
-					<AntDesign name="check-circle" size={18} color="#BEBCC8" />
+					<CircleCheck size={18} color="#BEBCC8" />
 					<Text
 						style={[
 							styles.filterText,
 							selected ? { color: colors.secondary, fontWeight: 'bold' } : { color: colors.tertiary }
 						]}
-					>{`${count} Closed`}</Text>
+					>
+						{translate('tasksScreen.closedCount', { count })}
+					</Text>
 				</>
 			)}
 		</View>

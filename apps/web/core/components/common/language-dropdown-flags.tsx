@@ -8,6 +8,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { mapLanguageItems } from './language-item';
+import { languageNameOf, pageLanguageCodeOf } from '@/core/lib/i18n/page-language';
 
 export function LanguageDropDownWithFlags({
 	btnClassName,
@@ -129,6 +130,10 @@ export function LanguageDropDownWithFlags({
 		return acc;
 	}, {});
 	const ActiveFlag = converLanguageToObject[isLanguageNotEn ? pathArray[1] : 'en'].Flag;
+	// The page's address says its language before the list of languages is loaded (#5692)
+	const pageLanguageCode = pageLanguageCodeOf(path);
+	const listedLanguage = items.find((item) => item.data?.code == pageLanguageCode);
+	const pageLanguageName = listedLanguage?.data?.name ?? languageNameOf(pageLanguageCode);
 	return (
 		<Select
 			{...(isDeferred ? { open, onOpenChange: handleOpenChange } : {})}
@@ -145,7 +150,7 @@ export function LanguageDropDownWithFlags({
 				{showFlag ? <ActiveFlag className="size-3 shrink-0 mr-2.5 " /> : null}
 
 				<span className="text-sm text-muted-foreground">
-					{items.find((v) => v.data?.code == pathArray[1])?.data?.name ?? 'English'}
+					{pageLanguageName}
 				</span>
 			</SelectTrigger>
 			<SelectContent className="overflow-y-auto w-auto z-[1070] relative">

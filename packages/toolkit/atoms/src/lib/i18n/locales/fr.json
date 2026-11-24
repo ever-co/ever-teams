@@ -6,12 +6,12 @@
 		"email": "Email",
 		"token": "Token",
 		"now": "Maintenant",
-		"today": "Aujourdhui",
+		"today": "Aujourd'hui",
 		"loading": "Chargement",
 		"client": "Client",
 		"project": "Projet",
-		"team": "Equipe",
-		"task": "Tache",
+		"team": "Équipe",
+		"task": "Tâche",
 		"view_more": "Voir plus",
 		"activity": "Activité",
 		"members": "Membres",
@@ -60,19 +60,47 @@
 		"worked_over_period": "Travaillé sur la période",
 		"today_activity": "Activité d'aujourd'hui",
 		"week_activity": "Activité de la semaine",
-		"activity_over_period": "Activité sur la periode"
+		"activity_over_period": "Activité sur la période",
+		"timer_only": "Ouvrez Ever Teams pour voir ceci. Votre connexion sur ce site ne couvre que votre minuteur."
+	},
+	"CLIENT_REPORT": {
+		"title": "Temps passé",
+		"today": "Aujourd'hui",
+		"this_week": "Cette semaine",
+		"by_project": "Par projet",
+		"empty": "Aucun temps passé pour {{client}} cette semaine.",
+		"error": "Le temps passé n'a pas pu être chargé.",
+		"retry": "Réessayer"
+	},
+	"KIT_ERRORS": {
+		"ORIGIN": "Ce site n'est pas autorisé à afficher Ever Teams. Demandez à l'administrateur de votre espace de l'ajouter.",
+		"SIGN_IN_ORIGIN": "Ce site ne peut pas vous connecter avec un mot de passe ou un jeton Ever Teams. Demandez à l'équipe du site d'activer « Se connecter avec Ever Teams ».",
+		"SESSION": "Votre session a pris fin. Reconnectez-vous.",
+		"SIGN_IN_AGAIN": "Se reconnecter",
+		"PERMISSION": "Vous n'avez pas l'autorisation de suivre votre temps dans cet espace. Demandez à votre administrateur.",
+		"UNREACHABLE": "Ever Teams est injoignable. Vérifiez votre connexion et réessayez."
 	},
 	"TIME_TRACKER": {
-		"title": "Muniteur",
-		"start": "Demarrer",
-		"stop": "Arreter",
+		"title": "Minuteur",
+		"start": "Démarrer",
+		"stop": "Arrêter",
 		"START_TIMER": "Démarrer le minuteur",
 		"STOP_TIMER": "Arrêter le minuteur",
 		"TIMER_STARTED": "Minuteur démarré",
-		"TIMER_STOPPED": "Minuteur arrêté"
+		"TIMER_STOPPED": "Minuteur arrêté",
+		"already_stopped": "Votre minuteur était déjà arrêté.",
+		"show_details": "Afficher les détails du minuteur",
+		"hide_details": "Masquer les détails du minuteur"
 	},
 	"AUTH": {
 		"sign_in_title": "Se connecter",
+		"host_sign_in": "Connectez-vous à ce site pour utiliser votre minuteur Ever Teams.",
+		"timer_left_running": "Votre minuteur tournait quand vous avez été déconnecté : il continue de tourner dans Ever Teams jusqu'à ce que vous l'y arrêtiez.",
+		"sign_in_with_ever_teams": "Se connecter avec Ever Teams",
+		"site_sign_in_waiting": "Terminez la connexion dans la fenêtre Ever Teams.",
+		"site_sign_in_blocked": "Votre navigateur a bloqué la fenêtre Ever Teams. Autorisez les fenêtres pop-up pour ce site, puis réessayez.",
+		"account_menu": "{{name}} : menu du compte",
+		"account_menu_unnamed": "Menu du compte",
 		"sign_up_title": "S'inscrire",
 		"register_now": "S'inscrire maintenant",
 		"email_prompt": "Entrez votre email",
@@ -82,23 +110,45 @@
 		"full_name_prompt": "Entrez votre nom complet",
 		"logout": "Se déconnecter",
 		"dont_have_an_account": "Vous n'avez pas de compte ? ",
-		"have_an_account": "Vous avez déjà un compte ? "
+		"have_an_account": "Vous avez déjà un compte ? ",
+		"two_factor_description": "Ouvrez votre application d'authentification et saisissez le code à {{length}} chiffres qu'elle affiche pour {{email}}.",
+		"two_factor_recovery_description": "Saisissez l'un des codes de récupération enregistrés lors de l'activation de l'authentification à deux facteurs. Chaque code ne sert qu'une fois.",
+		"two_factor_code_label": "Code d'authentification",
+		"two_factor_recovery_label": "Code de récupération",
+		"two_factor_use_recovery": "Utiliser un code de récupération",
+		"two_factor_use_app": "Utiliser l'application d'authentification",
+		"two_factor_submit": "Vérifier et se connecter",
+		"two_factor_back": "Retour à la connexion",
+		"two_factor_wrong_code": "Ce code n'est pas le bon. Saisissez le code affiché maintenant par votre application d'authentification.",
+		"two_factor_wrong_recovery_code": "Ce code de récupération n'est pas le bon, ou il a déjà servi.",
+		"two_factor_code_incomplete": "Saisissez les {{length}} chiffres du code.",
+		"two_factor_recovery_incomplete": "Saisissez le code de récupération en entier.",
+		"two_factor_expired": "Cette connexion a trop attendu son code. Connectez-vous à nouveau.",
+		"two_factor_too_many": "Trop de codes erronés. Patientez quelques minutes, puis réessayez.",
+		"two_factor_failed": "Le code n'a pas pu être vérifié. Réessayez dans un instant.",
+		"workspace_choice_title": "Choisissez un espace de travail",
+		"workspace_choice_description": "Votre e-mail et votre mot de passe ouvrent plusieurs espaces de travail. Choisissez celui dans lequel ce site suit votre temps.",
+		"workspace_unnamed": "Espace de travail sans nom",
+		"workspace_back": "Retour à la connexion"
 	},
 	"INPUT": {
 		"language_switcher": {
-			"select_language": "Selectionner la langue"
+			"select_language": "Sélectionner la langue"
 		},
 		"team_select": {
-			"select_team": "Selectionner l'équipe"
+			"select_team": "Sélectionner l'équipe"
 		},
 		"project_select": {
-			"select_project": "Selectionner le projet"
+			"select_project": "Sélectionner le projet",
+			"loading_projects": "Chargement des projets...",
+			"no_projects": "Aucun projet sur lequel suivre votre temps",
+			"projects_failed": "Les projets n'ont pas pu être chargés. Rechargez la page pour réessayer."
 		},
 		"task_select": {
-			"select_task": "Selectionner la tache"
+			"select_task": "Sélectionner la tâche"
 		},
 		"client_select": {
-			"select_client": "Selectionner le client"
+			"select_client": "Sélectionner le client"
 		}
 	},
 	"FOOTER": {
@@ -185,7 +235,8 @@
 	},
 	"TEAMS_VIEWER": {
 		"title": {
-			"all_teams": "Équipes pour {{orgName}}"
+			"all_teams": "Équipes pour {{orgName}}",
+			"all_teams_without_organization": "Équipes"
 		},
 		"search_placeholder": "Rechercher une équipe",
 		"table_headers": {
@@ -481,6 +532,8 @@
 	},
 	"TIMESHEET": {
 		"title": "Feuilles de temps pour {{orgName}}",
+		"title_without_organization": "Feuilles de temps",
+		"label": "Feuille de temps",
 		"filters": {
 			"select_date": "Sélectionner une date",
 			"select_sources": "Sélectionner les sources",
@@ -523,5 +576,27 @@
 			"IDLE": "Inactif",
 			"RESUMED": "Repris"
 		}
+	},
+	"THEME_PICKER": {
+		"placeholder": "Choisir un thème",
+		"default": "Par défaut",
+		"purple_gradient": "Dégradé violet",
+		"theme1": "Noir et blanc",
+		"theme2": "Rouge et vert",
+		"theme3": "Jaune et rouge",
+		"theme5": "Bleu et vert (noir)",
+		"theme6": "Rose et blanc",
+		"theme7": "Bleu sarcelle et orange",
+		"theme8": "Rouge et bleu",
+		"theme9": "Vert et jaune",
+		"theme10": "Rose et bleu",
+		"theme11": "Orange et rouge",
+		"theme12": "Chocolat et blanc",
+		"theme13": "Bleu et rose",
+		"theme14": "Jaune et rose"
+	},
+	"FONT_PICKER": {
+		"default_font": "Police par défaut",
+		"page_font": "Police de la page"
 	}
 }

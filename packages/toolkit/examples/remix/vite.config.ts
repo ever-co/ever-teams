@@ -14,7 +14,10 @@ export default defineConfig({
 				v3_relativeSplatPath: true,
 				v3_throwAbortReason: true
 			},
-			presets: [vercelPreset()]
+			// The Vercel preset splits the server build into per-function bundles under build/server/<id>/,
+			// so `remix-serve ./build/server/index.js` (the `start` script, used by the Docker image) finds
+			// nothing and the container exits. Apply it only on Vercel, which sets VERCEL=1 during builds.
+			presets: process.env.VERCEL ? [vercelPreset()] : []
 		}),
 		tsconfigPaths()
 	]

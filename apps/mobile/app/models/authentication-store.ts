@@ -1,6 +1,7 @@
-import { getRoot, Instance, SnapshotOut, types } from 'mobx-state-tree';
+import { getRoot, Instance, SnapshotIn, SnapshotOut, types } from 'mobx-state-tree';
 import { holdSession } from '../services/client/session';
 import { ILanguageItemList, IUser } from '../services/interfaces/IUserData';
+import type { ThemePreference } from '../../src/theme/color-scheme';
 
 /** The stores beside this one in the app's root store, whose data is the signed-in person's. */
 type StoresOfThePerson = {
@@ -8,7 +9,7 @@ type StoresOfThePerson = {
 	teamStore?: { clearStoredTeamData(): void };
 };
 
-export const AuthenticationStoreModel = types
+const AuthenticationStoreBase = types
 	.model('AuthenticationStore')
 	.props({
 		authToken: types.maybe(types.string),
@@ -26,9 +27,21 @@ export const AuthenticationStoreModel = types
 		user: types.frozen<IUser | null>(),
 		employeeId: types.optional(types.string, ''),
 		preferredLanguage: types.optional(types.frozen(), null),
-		isDarkMode: types.optional(types.boolean, false)
+		isDarkMode: types.optional(types.boolean, false),
+		/** While true the app is light or dark like the phone; isDarkMode is the person's own choice otherwise. */
+		followsSystemTheme: types.optional(types.boolean, true)
 	})
 	.views((store) => ({
+		/** The person's theme choice: the phone's, light or dark. */
+		get themePreference(): ThemePreference {
+			if (store.followsSystemTheme) {
+				return 'system';
+			}
+			if (store.isDarkMode) {
+				return 'dark';
+			}
+			return 'light';
+		},
 		get isAuthenticated() {
 			return !!store.authToken;
 		},
@@ -91,8 +104,19 @@ export const AuthenticationStoreModel = types
 		setTempAuthToken(value?: string) {
 			store.tempAuthToken = value;
 		},
-		toggleTheme() {
-			store.isDarkMode = !store.isDarkMode;
+		/** The person picks the other theme than the one on screen, which can be the phone's. */
+		toggleTheme(shownDark?: boolean) {
+			const currentlyDark = shownDark ?? store.isDarkMode;
+			store.isDarkMode = !currentlyDark;
+			store.followsSystemTheme = false;
+		},
+		/** The person picks the phone's theme, light or dark; the dark choice is kept while they follow the phone. */
+		setThemePreference(preference: ThemePreference) {
+			store.followsSystemTheme = preference === 'system';
+			if (preference === 'system') {
+				return;
+			}
+			store.isDarkMode = preference === 'dark';
 		},
 		logout() {
 			store.authToken = '';
@@ -141,6 +165,22 @@ export const AuthenticationStoreModel = types
 			}
 		};
 	});
+
+type AuthenticationSnapshot = SnapshotIn<typeof AuthenticationStoreBase>;
+
+/**
+ * A snapshot saved before followsSystemTheme existed: someone who had dark keeps dark, everyone else now follows the
+ * phone, which is what a first launch did once.
+ */
+export const AuthenticationStoreModel = types.snapshotProcessor(AuthenticationStoreBase, {
+	preProcessor(snapshot: AuthenticationSnapshot) {
+		const savedBeforeTheSetting = snapshot && snapshot.followsSystemTheme === undefined;
+		if (!savedBeforeTheSetting) {
+			return snapshot;
+		}
+		return { ...snapshot, followsSystemTheme: !snapshot.isDarkMode };
+	}
+});
 
 export interface AuthenticationStore extends Instance<typeof AuthenticationStoreModel> {}
 export interface AuthenticationStoreSnapshot extends SnapshotOut<typeof AuthenticationStoreModel> {}

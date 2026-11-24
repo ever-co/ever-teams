@@ -68,6 +68,7 @@ export function WorkspaceSettingsPage() {
 				saveDateFormat={settings.saveDateFormat}
 				saveNumberFormat={settings.saveNumberFormat}
 				saveWeekStart={settings.saveWeekStart}
+				saveTimeZone={settings.saveTimeZone}
 				saveClock={settings.saveClock}
 				saveCurrencyPosition={settings.saveCurrencyPosition}
 				saveDurationRounding={settings.saveDurationRounding}

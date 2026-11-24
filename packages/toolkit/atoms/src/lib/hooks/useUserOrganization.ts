@@ -5,12 +5,15 @@ import { useAtom } from 'jotai';
 import { useEffect } from 'react';
 import { userOrganizationsAtom } from '../teams-jotai/atoms/teams-atoms';
 import QueryString from 'qs';
+import { useKitOptions } from '@components/teams-provider/kit-options';
 
 const useUserOrganization = (
 	user: IUser | null,
 	token: string
 ): IHookResponse<PaginationResponse<IUserOrganization> | null> => {
 	const [userOrganizations, setUserOrganizations] = useAtom(userOrganizationsAtom);
+	// A token from the host's getToken names its organization and reaches no organization list.
+	const { hostSignIn, api } = useKitOptions();
 
 	const getOrganisation = async (user: IUser | null, token: string) => {
 		try {
@@ -27,12 +30,15 @@ const useUserOrganization = (
 				includeEmployee: true
 			});
 
-			const response = await ApiCall<PaginationResponse<IUserOrganization>>({
-				path: `/user-organization?${query}`,
-				method: 'GET',
-				bearer_token: token,
-				tenantId
-			});
+			const response = await ApiCall<PaginationResponse<IUserOrganization>>(
+				{
+					path: `/user-organization?${query}`,
+					method: 'GET',
+					bearer_token: token,
+					tenantId
+				},
+				api
+			);
 
 			if ('data' in response) {
 				return response.data;
@@ -49,11 +55,17 @@ const useUserOrganization = (
 	};
 
 	useEffect(() => {
-		if (user && token) {
+		// A read the effect has moved past (another person, token or address, or the provider gone) shows nothing, not
+		// even its error: the toasts are the page's
+		let current = true;
+		if (user && token && !hostSignIn) {
 			(async () => {
 				setUserOrganizations((prev) => ({ ...prev, loading: true }));
 
 				const userOrganization = await getOrganisation(user, token);
+				if (!current) {
+					return;
+				}
 
 				if ('message' in userOrganization || 'error' in userOrganization) {
 					const errorMessage =
@@ -97,7 +109,12 @@ const useUserOrganization = (
 			})();
 			// }
 		}
-	}, [user, token]);
+		return () => {
+			current = false;
+			// The next read, if any, sets it again
+			setUserOrganizations((prev) => (prev.loading ? { ...prev, loading: false } : prev));
+		};
+	}, [user, token, hostSignIn, api]);
 
 	return userOrganizations;
 };

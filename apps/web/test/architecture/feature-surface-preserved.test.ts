@@ -2088,12 +2088,35 @@ describe('Ever Teams feature surface preservation', () => {
 		// #5368, ever-gauzy #12029).
 		// 408 files and 516 verbs with the split of one entry (/api/timesheet/time-log/[id]/split POST; #5369,
 		// ever-gauzy #12030).
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(408);
+		// 413 files and 523 verbs with Settings → Embeds (/api/embed-credentials GET and POST, config GET, [id] DELETE,
+		// /api/embed-allowed-origins GET and POST, [id] DELETE; #5437, ever-gauzy #12065 and #12066).
+		// 414 files and 524 verbs with a person's sign-in from an allowed site (/api/embed/authorize POST; #5528,
+		// ever-gauzy #12094).
+		// 414 files and 525 verbs with its setting on each allowed site (/api/embed-allowed-origins/[id] PATCH; #5528).
+		// 415 files and 532 verbs with the link that begins the Ever ID sign-in (/api/auth/ever-id/start GET, and HEAD,
+		// POST, PUT, PATCH, DELETE and OPTIONS, which answer 404).
+		// 416 files and 533 verbs with the e-mail verification status of the signed-in user (/api/auth/verify/status GET;
+		// #5677).
+		// 417 files and 534 verbs with a profile's month summary (/api/timesheet/statistics/profile-activity GET; #5612).
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(417);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(516);
+		).toHaveLength(534);
 		expect(routes).toEqual(
 			expect.arrayContaining([
+				// Proxy mode twin of Gauzy's e-mail verification status (#5677)
+				'apps/web/app/api/auth/verify/status/route.ts::GET',
+				// Proxy mode twins of Gauzy's embed credentials and allowed origins (ever-gauzy #12065, #12066; #5437)
+				'apps/web/app/api/embed-credentials/route.ts::GET',
+				'apps/web/app/api/embed-credentials/route.ts::POST',
+				'apps/web/app/api/embed-credentials/config/route.ts::GET',
+				'apps/web/app/api/embed-credentials/[id]/route.ts::DELETE',
+				'apps/web/app/api/embed-allowed-origins/route.ts::GET',
+				'apps/web/app/api/embed-allowed-origins/route.ts::POST',
+				'apps/web/app/api/embed-allowed-origins/[id]/route.ts::DELETE',
+				// Proxy mode twin of Gauzy's sign-in of a person from an allowed site (ever-gauzy #12094, #5528)
+				'apps/web/app/api/embed/authorize/route.ts::POST',
+				'apps/web/app/api/embed-allowed-origins/[id]/route.ts::PATCH',
 				// Proxy mode twin of Gauzy's split of one entry, its slots going with each part (ever-gauzy #12030, #5369)
 				'apps/web/app/api/timesheet/time-log/[id]/split/route.ts::POST',
 				// Proxy mode twin of Gauzy's change of a time entry's own labels (ever-gauzy #12029, #5368)
@@ -2329,6 +2352,7 @@ describe('Ever Teams feature surface preservation', () => {
 				'apps/web/app/api/auth/ever-id/finish-setup/route.ts::POST',
 				'apps/web/app/api/auth/ever-id/signup-handoff/route.ts::POST',
 				'apps/web/app/api/auth/ever-id/verify-email/route.ts::GET',
+				'apps/web/app/api/auth/ever-id/start/route.ts::GET',
 				'apps/web/app/api/ever-connect/[...path]/route.ts::GET',
 				'apps/web/app/api/ever-connect/[...path]/route.ts::POST',
 				'apps/web/app/api/ever-connect/[...path]/route.ts::PUT',
@@ -2370,7 +2394,6 @@ describe('Ever Teams feature surface preservation', () => {
 		expect(surface.exclusions).toEqual(
 			expect.arrayContaining([
 				'apps/mobile/jest.config.js::testPathIgnorePatterns=<rootDir>/node_modules/',
-				'apps/mobile/jest.config.js::testPathIgnorePatterns=/detox',
 				'apps/mobile/jest.config.js::testPathIgnorePatterns=@react-native'
 			])
 		);

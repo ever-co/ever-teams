@@ -33,6 +33,7 @@ import { ChangeEvent, useEffect, useState } from 'react';
 import { IOrganizationTeamList, OT_Member, RoleName } from '@ever-teams/toolkit-types';
 import { SpinOverlayLoader } from '@components/loaders/spin-overlay-loader';
 import { useTeamsContext } from '@lib/context/teams-context';
+import { useKitOptions } from '@components/teams-provider/kit-options';
 import { TeamsTimerFooter } from '@components/layouts/footers/component-footer';
 import { ChevronLeft, ChevronRight, EllipsisVertical, LoaderCircleIcon, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -42,6 +43,7 @@ import { TeamsMemberInvitationFormDialog } from '@components/forms/team/member-i
 
 export function TeamsTeamMembers({ className }: { className?: string }) {
 	const { selectedTeam, authenticatedUser: user, selectedOrganization: organizationId, token } = useTeamsContext();
+	const { api } = useKitOptions();
 
 	const { data: fetchedOrganizationTeams, loading: organisationsLoading } = useOrganizationTeams({ projectId: null });
 
@@ -83,7 +85,8 @@ export function TeamsTeamMembers({ className }: { className?: string }) {
 		const uniqueMembers = Array.from(
 			new Map(
 				team
-					.map((team) => team.members)
+					// A read with the host's getToken has the teams without their members
+					.map((team) => team.members ?? [])
 					.flat(1)
 					.map((member) => [member.employeeId, member])
 			).values()
@@ -132,7 +135,7 @@ export function TeamsTeamMembers({ className }: { className?: string }) {
 			return;
 		}
 
-		const updatedMembers = currentTeam.members.filter((member) => member.employeeId !== memberId);
+		const updatedMembers = (currentTeam.members ?? []).filter((member) => member.employeeId !== memberId);
 
 		const managerIds = updatedMembers
 			.filter((member) => member.role?.name == RoleName.MANAGER)
@@ -145,12 +148,15 @@ export function TeamsTeamMembers({ className }: { className?: string }) {
 		try {
 			if (!user) throw Error('User not authenticated');
 
-			const updatedTeam = await updateTeam({
-				currentUser: user,
-				token,
-				organizationId: organizationId,
-				data: { teamId: currentTeam?.id, name: currentTeam.name, managerIds, memberIds, tags: [] }
-			});
+			const updatedTeam = await updateTeam(
+				{
+					currentUser: user,
+					token,
+					organizationId: organizationId,
+					data: { teamId: currentTeam?.id, name: currentTeam.name, managerIds, memberIds, tags: [] }
+				},
+				api
+			);
 
 			if ('error' in updatedTeam) {
 				toast({ variant: 'destructive', description: updatedTeam.error });
@@ -161,7 +167,7 @@ export function TeamsTeamMembers({ className }: { className?: string }) {
 			toast({ variant: 'default', description: t('dialog.remove_member_success') });
 
 			// Update Teams - refetch from API
-			const newTeams = await getOrganisationTeams({ user, token, organizationId, projectId: null });
+			const newTeams = await getOrganisationTeams({ user, token, organizationId, projectId: null }, api);
 			if (!newTeams || 'error' in newTeams) {
 				toast({ variant: 'destructive', description: newTeams?.error || 'Failed to update teams' });
 				setRemoveLoading(false);
@@ -184,7 +190,7 @@ export function TeamsTeamMembers({ className }: { className?: string }) {
 		const currentTeam = team.find((t) => t?.id === selectedTeam);
 		if (!currentTeam) return false;
 
-		return currentTeam.members.some(
+		return (currentTeam.members ?? []).some(
 			(member) => member.employeeId === user.employee?.id && member.role?.name === RoleName.MANAGER
 		);
 	};

@@ -2,6 +2,7 @@ import { authenticatedGuard } from '@/core/services/server/guards/authenticated-
 import { removeUserFromAllTeam } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
 import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
+import { gauzyErrorResponse } from '@/core/services/server/gauzy-error-response';
 
 export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
 	const foreign = refuseForeignOrigin(req);
@@ -19,11 +20,15 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
 		return NextResponse.json({}, { status: status ?? 401 });
 	}
 
-	const response = await removeUserFromAllTeam({
-		userId: id,
-		bearer_token: access_token,
-		tenantId
-	});
-
-	return $res(response.data);
+	try {
+		const response = await removeUserFromAllTeam({
+			userId: id,
+			bearer_token: access_token,
+			tenantId
+		});
+		return $res(response.data);
+	} catch (error) {
+		// A refusal of the API goes back with its status and reason, as in direct mode (#5726)
+		return await gauzyErrorResponse(error, 'The team could not be deleted.');
+	}
 }

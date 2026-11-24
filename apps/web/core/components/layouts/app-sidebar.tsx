@@ -75,6 +75,7 @@ import {
 	SidebarTrackingMark
 } from './sidebar-projects';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { useIsEmailVerificationSatisfied } from '@/core/hooks/auth/use-email-verification-status';
 import { APP_NAME } from '@/core/constants/config/constants';
 import { GlobalAllPlansModal } from '../daily-plan';
 import { GlobalAssignTaskModal } from '../features/tasks/global-assign-task-modal';
@@ -181,7 +182,8 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	const createProjectModal = useModal();
 	const hasOpenedCreateProject = useHasBeenOpen(createProjectModal.isOpen);
 	const openCreateProject = createProjectModal.openModal;
-	const canCreateProject = Boolean(user?.isEmailVerified);
+	const meetsEmailVerification = useIsEmailVerificationSatisfied(user);
+	const canCreateProject = meetsEmailVerification;
 
 	const encodedUsername = encodeURIComponent(username || '');
 	const userId = user?.id;
@@ -508,7 +510,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	const sidebarPages = useSidebarPages(firstLevelLinks, navMain);
 
 	const showAccountMenu = !publicTeam;
-	const showCreateTeamModal = !publicTeam && isOpen && Boolean(user?.isEmailVerified);
+	const showCreateTeamModal = !publicTeam && isOpen && meetsEmailVerification;
 	const appSwitcherPlacement = useAppSwitcherPlacement();
 	const showsAppRail = appSwitcherPlacement === 'rail';
 	const sidebarClassName = cn('z-1000', showsAppRail && APP_RAIL_SIDEBAR_CLASS);

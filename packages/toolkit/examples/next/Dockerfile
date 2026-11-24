@@ -9,9 +9,20 @@ COPY . .
 # Drop the yarn cache in the SAME layer as the install: it holds every platform variant of the native
 # packages (GBs), and exporting a layer that still carries it overflows the CI runner's 24Gi docker volume.
 RUN yarn install --network-timeout 1000000 --frozen-lockfile --non-interactive --ignore-scripts && yarn cache clean
-
+# next.config reads NEXT_BUILD_OUTPUT_TYPE (as apps/web does): `standalone` makes the build trace the files
+# its server loads into .next/standalone, so the runtime stage below needs neither the monorepo nor its
+# install. Not a deployment value: NEXT_PUBLIC_* stay runtime reads (readRuntimeEnv).
+ENV NEXT_BUILD_OUTPUT_TYPE=standalone
 RUN yarn turbo run build --filter=@ever-teams/example-nextjs
+
+# Runtime: the traced server, its static assets and public/ only. Shipping the build stage (the whole
+# monorepo and its full install) made each demo image ~1.8 GB compressed, several GB on every worker.
+FROM node:${NODE_VERSION}-slim AS runner
+ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 PORT=3000 HOSTNAME=0.0.0.0
+WORKDIR /app
+COPY --from=build --chown=node:node /app/packages/toolkit/examples/next/.next/standalone ./
+COPY --from=build --chown=node:node /app/packages/toolkit/examples/next/.next/static ./packages/toolkit/examples/next/.next/static
 WORKDIR /app/packages/toolkit/examples/next
-ENV NODE_ENV=production PORT=3000 HOSTNAME=0.0.0.0
+USER node
 EXPOSE 3000
-CMD ["yarn","start"]
+CMD ["node", "server.js"]

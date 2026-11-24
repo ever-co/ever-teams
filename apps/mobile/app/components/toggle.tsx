@@ -16,6 +16,7 @@ import Animated, { FadeIn, useAnimatedStyle, withTiming } from 'react-native-rea
 import { colors, spacing } from '../theme';
 import { iconRegistry } from './icon';
 import { Text, TextProps } from './text';
+import { switchKnobColorOf } from './switch-knob';
 
 type Variants = 'checkbox' | 'switch' | 'radio';
 
@@ -67,6 +68,10 @@ export interface ToggleProps extends Omit<TouchableOpacityProps, 'style'> {
 	 * For switch, this affects the knob View.
 	 */
 	inputDetailStyle?: ViewStyle & ImageStyle;
+	/**
+	 * For switch: one knob color, on and off. Without it, the knob takes the "on" fill of inputInnerStyle while off.
+	 */
+	knobColor?: string;
 	/**
 	 * The position of the label relative to the action component.
 	 * Default: right
@@ -123,6 +128,7 @@ interface ToggleInputProps {
 	outerStyle: ViewStyle;
 	innerStyle: ViewStyle;
 	detailStyle: ViewStyle & ImageStyle;
+	knobColor?: string;
 	switchAccessibilityMode?: ToggleProps['switchAccessibilityMode'];
 }
 
@@ -187,6 +193,7 @@ export function Toggle(props: ToggleProps) {
 					outerStyle={props.inputOuterStyle}
 					innerStyle={props.inputInnerStyle}
 					detailStyle={props.inputDetailStyle}
+					knobColor={props.knobColor}
 					switchAccessibilityMode={props.switchAccessibilityMode}
 				/>
 
@@ -335,6 +342,7 @@ function Switch(props: ToggleInputProps) {
 		on,
 		status,
 		disabled,
+		knobColor,
 		outerStyle: $outerStyleOverride,
 		innerStyle: $innerStyleOverride,
 		detailStyle: $detailStyleOverride
@@ -362,23 +370,14 @@ function Switch(props: ToggleInputProps) {
 		colors.palette.secondary500
 	].filter(Boolean)[0];
 
-	const knobBackgroundColor = (function () {
-		if (on) {
-			return [
-				$detailStyleOverride?.backgroundColor,
-				status === 'error' && colors.error,
-				disabled && colors.palette.neutral600,
-				colors.palette.neutral100
-			].filter(Boolean)[0];
-		} else {
-			return [
-				$innerStyleOverride?.backgroundColor,
-				disabled && colors.palette.neutral600,
-				status === 'error' && colors.error,
-				colors.palette.neutral200
-			].filter(Boolean)[0];
-		}
-	})();
+	const knobBackgroundColor = switchKnobColorOf({
+		on,
+		disabled,
+		status,
+		onFill: $innerStyleOverride?.backgroundColor,
+		knobFill: $detailStyleOverride?.backgroundColor,
+		knobColor
+	});
 
 	const $animatedSwitchKnob = useAnimatedStyle(() => {
 		if (renderedKnobWidth === null) return {};

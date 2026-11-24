@@ -51,6 +51,7 @@ import type { DocsEditorApi, DocsEditorComments, DocsEditorLive } from './docs-e
 import { DocsLiveStatusLabel, useLiveReadOnlyText } from './docs-live-presence';
 import { DocsPageGlyph } from './docs-page-glyph';
 import { DocsVersionPanel } from './docs-version-panel';
+import { isPageWithoutWriteAccess } from '@/core/lib/utils/docs-page-access';
 
 const DocsEditorSurface = dynamic(() => import('./docs-editor-surface').then((module) => module.DocsEditorSurface), {
 	ssr: false,
@@ -107,7 +108,7 @@ const RANGE_WAIT_MS = 1500;
 const DRAFT_SAVE_ATTEMPTS = 20;
 const DRAFT_SAVE_WAIT_MS = 300;
 /** The save states that wait for the person: nothing is saved until they act. */
-const SAVE_FAILURES: ReadonlySet<DocsSaveState> = new Set<DocsSaveState>(['conflict', 'locked', 'too-large', 'error']);
+const SAVE_FAILURES: ReadonlySet<DocsSaveState> = new Set<DocsSaveState>(['conflict', 'locked', 'too-large', 'forbidden', 'error']);
 
 /** The selector of a block by its anchor, in the editor and in the read-only view (the platform's spelling too). */
 function blockSelectorOf(blockId: string): string {
@@ -594,7 +595,10 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES, onOpen
 
 	// The read-only view shows the stored HTML, which lacks the block anchors: a page whose JSON has them is rendered
 	// from it (the editor's HTML code loads for that), so a link to a block finds it there too.
-	const readOnlyNow = Boolean(page && (page.isLocked || page.isArchived || unsupported));
+	// A page the person may read and not change opens read-only (#5723). A live session has its own read-only
+	// editor and says why itself, with the text as it changes: it keeps the page then.
+	const hasNoWriteAccess = Boolean(page && isPageWithoutWriteAccess(page) && !isLiveEditing);
+	const readOnlyNow = Boolean(page && (page.isLocked || page.isArchived || unsupported || hasNoWriteAccess));
 	const storedHtml = page?.contentHtml ?? '';
 	const storedJson = page?.contentJson ?? null;
 	const [anchoredHtml, setAnchoredHtml] = useState<{ json: IDocumentNode; html: string } | null>(null);
@@ -791,7 +795,7 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES, onOpen
 
 	const isPrivate = page.visibility === EDocumentVisibility.PRIVATE;
 	const isFolder = page.kind === EDocumentKind.FOLDER;
-	const isReadOnly = Boolean(page.isLocked || page.isArchived || unsupported);
+	const isReadOnly = Boolean(page.isLocked || page.isArchived || unsupported || hasNoWriteAccess);
 	const isFavorite = actions.isFavorite(page.id);
 	const shownTitle = pageTitle({ name: title }, t('docs.UNTITLED'));
 	const crumbs = [
@@ -993,6 +997,11 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES, onOpen
 									<span>{t('docs.LOCKED_NOTICE')}</span>
 								</Notice>
 							)}
+							{hasNoWriteAccess && !page.isLocked && !page.isArchived && (
+								<Notice tone="muted" icon={<Lock className="size-4" />}>
+									<span>{t('docs.NO_WRITE_ACCESS_NOTICE')}</span>
+								</Notice>
+							)}
 							{isLiveEditing && liveReadOnlyText && (
 								<Notice tone="muted" icon={<Lock className="size-4" />}>
 									<span>{liveReadOnlyText}</span>
@@ -1025,6 +1034,11 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES, onOpen
 							{autosave.state === 'too-large' && (
 								<Notice tone="warning">
 									<span>{t('docs.TOO_LARGE')}</span>
+								</Notice>
+							)}
+							{autosave.state === 'forbidden' && (
+								<Notice tone="warning">
+									<span>{t('docs.SAVE_FORBIDDEN')}</span>
 								</Notice>
 							)}
 							{autosave.state === 'error' && (
@@ -1272,19 +1286,21 @@ function BodySkeleton() {
 
 function SaveStateLabel({ state }: Readonly<{ state: DocsSaveState }>) {
 	const t = useTranslations();
+	// A save refused for lack of access is not saved either: the notice above the page says why
+	const isNotSaved = state === 'error' || state === 'forbidden';
 	const label =
-		state === 'saving' ? t('docs.SAVING') : state === 'saved' ? t('docs.SAVED') : state === 'dirty' ? t('docs.UNSAVED') : state === 'error' ? t('docs.NOT_SAVED') : '';
+		state === 'saving' ? t('docs.SAVING') : state === 'saved' ? t('docs.SAVED') : state === 'dirty' ? t('docs.UNSAVED') : isNotSaved ? t('docs.NOT_SAVED') : '';
 	if (!label) return null;
 	return (
 		<span
 			role="status"
 			aria-live="polite"
-			className={cn('mr-1 inline-flex shrink-0 items-center gap-1.5 text-xs', state === 'error' ? 'text-destructive' : 'text-muted-foreground')}
+			className={cn('mr-1 inline-flex shrink-0 items-center gap-1.5 text-xs', isNotSaved ? 'text-destructive' : 'text-muted-foreground')}
 		>
 			{state === 'saving' && <Spinner className="size-3 animate-spin" aria-hidden="true" />}
 			{state === 'saved' && <Check className="size-3.5 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />}
 			{state === 'dirty' && <span className="size-1.5 rounded-full bg-amber-500" aria-hidden="true" />}
-			{state === 'error' && <CircleAlert className="size-3.5" aria-hidden="true" />}
+			{isNotSaved && <CircleAlert className="size-3.5" aria-hidden="true" />}
 			<span className="hidden sm:inline">{label}</span>
 		</span>
 	);

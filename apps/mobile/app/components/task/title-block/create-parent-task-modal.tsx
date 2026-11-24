@@ -19,7 +19,7 @@ import IssuesModal from "../../issues-modal"
 import { useStores } from "../../../models"
 import { useTaskInput } from "../../../services/hooks/features/use-task-input"
 import { typography, useAppTheme } from "../../../theme"
-import { Feather } from "@expo/vector-icons"
+import { Check } from "../../../../src/components/icons"
 import { ITeamTask } from "../../../services/interfaces/ITask"
 import { BlurView } from "expo-blur"
 
@@ -114,7 +114,7 @@ const CreateParentTaskModal: React.FC<ICreateParentTaskModal> = ({ visible, onDi
 								// setEditMode(false)
 							}}
 						>
-							<Feather name="check" size={24} color="green" />
+							<Check size={24} color="green" />
 						</Pressable>
 					) : null}
 

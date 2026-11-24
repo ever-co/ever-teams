@@ -1,13 +1,19 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
 import React, { FC, useState } from 'react';
-import { TouchableOpacity, View, Text, StyleSheet, ViewStyle } from 'react-native';
-import { AntDesign, Entypo } from '@expo/vector-icons';
+import { TouchableOpacity, View, StyleSheet, ViewStyle } from 'react-native';
+import { ChevronDown } from '../../src/components/icons';
+import { TaskPropertyPlaceholderIcon } from '../../src/components/task-property-icon';
 import { observer } from 'mobx-react-lite';
 import { ITeamTask } from '../services/interfaces/ITask';
 import { useTeamTasks } from '../services/hooks/features/use-team-tasks';
-import { typography, useAppTheme } from '../theme';
+import { typography, useWebTheme } from '../theme';
+import { taskChipLookOf } from '../../src/components/task-chip';
+import { ChipIcon } from '../../src/components/chip-icon';
+import { ChipLabel } from '../../src/components/chip-label';
+import { useMenuAnchor } from '../../src/components/menu-anchor';
 import TaskPriorityPopup from './task-priority-popup';
+import { PropertyTriggerButton } from './property-trigger';
 import { translate } from '../i18n';
 import { useTaskPriorityValue } from './status-type';
 import { limitTextCharaters } from '../helpers/sub-text';
@@ -18,13 +24,16 @@ interface TaskPriorityProps {
 	priority?: string;
 	setPriority?: (priority: string) => unknown;
 	canCreatePriority?: boolean;
+	/** On the task page: the web's pill, or its chip when the value has a color, as wide as its content. */
+	forDetails?: boolean;
 }
 
 const TaskPriority: FC<TaskPriorityProps> = observer(
-	({ task, containerStyle, priority, setPriority, canCreatePriority }) => {
-		const { colors } = useAppTheme();
+	({ task, containerStyle, priority, setPriority, canCreatePriority, forDetails }) => {
+		const theme = useWebTheme();
 		const { updateTask } = useTeamTasks();
 		const [openModal, setOpenModal] = useState(false);
+		const { anchorRef, anchor, openFromAnchor } = useMenuAnchor();
 
 		const allTaskPriorities = useTaskPriorityValue();
 
@@ -35,6 +44,7 @@ const TaskPriority: FC<TaskPriorityProps> = observer(
 
 		const currentPriority =
 			allTaskPriorities && Object.values(allTaskPriorities).find((item) => item.name.toLowerCase() === sizeValue);
+		const look = taskChipLookOf(currentPriority?.bgColor, theme);
 
 		const onChangePriority = async (text: string) => {
 			if (task) {
@@ -49,47 +59,61 @@ const TaskPriority: FC<TaskPriorityProps> = observer(
 			}
 		};
 
+		const popup = (
+			<TaskPriorityPopup
+				priorityName={task ? task?.priority : priority}
+				visible={openModal}
+				setSelectedPriority={(e) => onChangePriority(e.value)}
+				onDismiss={() => setOpenModal(false)}
+				anchor={anchor}
+				canCreatePriority={canCreatePriority}
+			/>
+		);
+
+		if (forDetails) {
+			return (
+				<>
+					{popup}
+					<PropertyTriggerButton
+						anchorRef={anchorRef}
+						expanded={openModal}
+						onPress={() => openFromAnchor(() => setOpenModal(true))}
+						kind="priority"
+						placeholder={translate('taskMenus.fields.priority')}
+						item={currentPriority}
+					/>
+				</>
+			);
+		}
+
 		return (
 			<>
-				<TaskPriorityPopup
-					priorityName={task ? task?.priority : priority}
-					visible={openModal}
-					setSelectedPriority={(e) => onChangePriority(e.value)}
-					onDismiss={() => setOpenModal(false)}
-					canCreatePriority={canCreatePriority}
-				/>
-				<TouchableOpacity onPress={() => setOpenModal(true)}>
+				{popup}
+				<TouchableOpacity onPress={() => openFromAnchor(() => setOpenModal(true))}>
 					<View
-						style={{
-							...styles.container,
-							...containerStyle,
-							borderColor: colors.border,
-							backgroundColor: currentPriority?.bgColor
-						}}
+						ref={anchorRef}
+						collapsable={false}
+						style={[{ ...styles.container, ...containerStyle }, look.container]}
 					>
 						{(task?.priority || priority) && currentPriority ? (
 							<View style={styles.wrapStatus}>
-								{currentPriority.icon}
-								<Text style={{ ...styles.text, marginLeft: 10 }}>
+								<ChipIcon item={currentPriority} color={look.ink} kind="priority" />
+								<ChipLabel style={{ ...styles.text, color: look.ink, marginLeft: 10 }}>
 									{limitTextCharaters({
 										text: currentPriority.name,
 										numChars: 15
 									})}
-								</Text>
+								</ChipLabel>
 							</View>
 						) : (
 							<View style={styles.wrapStatus}>
-								<Entypo name="circle" size={12} color={colors.primary} />
-								<Text style={{ ...styles.text, color: colors.primary, marginLeft: 5 }}>
+								<TaskPropertyPlaceholderIcon kind="priority" size={12} color={look.ink} />
+								<ChipLabel style={{ ...styles.text, color: look.ink, marginLeft: 5 }}>
 									{translate('settingScreen.priorityScreen.priorities')}
-								</Text>
+								</ChipLabel>
 							</View>
 						)}
-						<AntDesign
-							name="down"
-							size={14}
-							color={task?.priority || priority ? '#000000' : colors.primary}
-						/>
+						<ChevronDown size={14} color={look.ink} />
 					</View>
 				</TouchableOpacity>
 			</>
@@ -100,9 +124,7 @@ const TaskPriority: FC<TaskPriorityProps> = observer(
 const styles = StyleSheet.create({
 	container: {
 		alignItems: 'center',
-		borderColor: 'rgba(0,0,0,0.16)',
-		borderRadius: 10,
-		borderWidth: 1,
+		borderRadius: 8,
 		flexDirection: 'row',
 		justifyContent: 'space-between',
 		minHeight: 30,

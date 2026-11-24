@@ -8,6 +8,7 @@ const mockSaveCurrency = jest.fn(async () => undefined);
 const mockSaveDateFormat = jest.fn(async () => undefined);
 const mockSaveNumberFormat = jest.fn(async () => undefined);
 const mockSaveWeekStart = jest.fn(async () => undefined);
+const mockSaveTimeZone = jest.fn<Promise<void>, [string | null]>(async () => undefined);
 const mockSaveClock = jest.fn(async () => undefined);
 const mockSaveCurrencyPosition = jest.fn(async () => undefined);
 const mockSaveDurationRounding = jest.fn(async () => undefined);
@@ -34,6 +35,7 @@ function settingsOf(overrides: Record<string, unknown> = {}) {
 		saveDateFormat: mockSaveDateFormat,
 		saveNumberFormat: mockSaveNumberFormat,
 		saveWeekStart: mockSaveWeekStart,
+		saveTimeZone: mockSaveTimeZone,
 		saveClock: mockSaveClock,
 		saveCurrencyPosition: mockSaveCurrencyPosition,
 		saveDurationRounding: mockSaveDurationRounding,
@@ -224,7 +226,8 @@ describe('WorkspaceSettingsPage', () => {
 
 		expect(screen.getByText('settings.workspace.NAME_SUPER_ADMIN_ONLY')).toBeTruthy();
 		expect(screen.queryByRole('button', { name: EDIT_NAME })).toBeNull();
-		expect(screen.getByRole('combobox')).toBeTruthy();
+		expect(within(rowOf('settings.workspace.CURRENCY_LABEL')).getByRole('combobox')).toBeTruthy();
+		expect(within(rowOf('settings.workspace.TIME_ZONE_LABEL')).getByRole('combobox')).toBeTruthy();
 		expect(screen.getAllByTestId('format-select')).toHaveLength(5);
 		expect(screen.queryByText('settings.workspace.READ_ONLY_NOTE')).toBeNull();
 	});
@@ -258,7 +261,9 @@ describe('WorkspaceSettingsPage', () => {
 		render(<WorkspaceSettingsPage />);
 
 		await act(async () => {
-			fireEvent.change(screen.getByRole('combobox'), { target: { value: 'EUR' } });
+			// Scoped to its row: the time zone row is a list too (#5649)
+			const currencyRow = rowOf('settings.workspace.CURRENCY_LABEL');
+			fireEvent.change(within(currencyRow).getByRole('combobox'), { target: { value: 'EUR' } });
 		});
 
 		expect(mockSaveCurrency).toHaveBeenCalledWith('EUR');
@@ -409,6 +414,37 @@ describe('WorkspaceSettingsPage', () => {
 		expect(mockSaveWeekStart).toHaveBeenCalledWith('SUNDAY');
 		expect(mockSaveClock).toHaveBeenCalledWith(24);
 		expect(mockSaveCurrencyPosition).toHaveBeenCalledWith('RIGHT');
+	});
+
+	it('saves the time zone an admin picks by its name, and "Not set" as no zone (#5649)', async () => {
+		mockSettings = settingsOf({ organization: { ...ORGANIZATION, timeZone: 'Asia/Tokyo' } });
+		render(<WorkspaceSettingsPage />);
+		const select = within(rowOf('settings.workspace.TIME_ZONE_LABEL')).getByRole('combobox');
+
+		expect((select as HTMLSelectElement).value).toBe('Asia/Tokyo');
+		await act(async () => {
+			fireEvent.change(select, { target: { value: 'Europe/Paris' } });
+		});
+		expect(mockSaveTimeZone).toHaveBeenLastCalledWith('Europe/Paris');
+
+		await act(async () => {
+			fireEvent.change(select, { target: { value: '' } });
+		});
+		expect(mockSaveTimeZone).toHaveBeenLastCalledWith(null);
+	});
+
+	it('shows a member the time zone with its offset, or that none is set', () => {
+		mockSettings = settingsOf({ canEdit: false, organization: { ...ORGANIZATION, timeZone: 'Asia/Tokyo' } });
+		const { unmount } = render(<WorkspaceSettingsPage />);
+
+		expect(within(rowOf('settings.workspace.TIME_ZONE_LABEL')).getByText('Asia/Tokyo (UTC+09:00)')).toBeTruthy();
+		unmount();
+		mockSettings = settingsOf({ canEdit: false });
+		render(<WorkspaceSettingsPage />);
+
+		const row = rowOf('settings.workspace.TIME_ZONE_LABEL');
+		expect(within(row).getByText('settings.workspace.TIME_ZONE_NOT_SET')).toBeTruthy();
+		expect(within(row).queryByRole('combobox')).toBeNull();
 	});
 
 	const DEFAULT_RATE = 'settings.workspace.DEFAULT_RATE_LABEL';

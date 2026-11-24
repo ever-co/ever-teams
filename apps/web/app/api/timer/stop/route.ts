@@ -1,4 +1,4 @@
-import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
+import { authenticatedGuard, sessionChecks } from '@/core/services/server/guards/authenticated-guard-app';
 import { getTimerStatusRequest, readTodayRange, stopTimerRequest } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
 import { TIMER_NOTES_MAX_LENGTH, readTimerNotes } from '@/core/lib/utils/timer/timer-notes';
@@ -109,6 +109,10 @@ export async function POST(req: Request) {
 		const passed = await passedRefusalOf(error);
 		if (passed) return NextResponse.json(passed, { status: passed.statusCode });
 		throw error;
+	} finally {
+		// The session check this server keeps for a few seconds holds the employee as still tracking: a Start sent right
+		// after this stop read the user through it, took the flag for stuck and refused to start (#5684)
+		sessionChecks.drop(access_token);
 	}
 
 	const { data: timerStatus } = await getTimerStatusRequest(

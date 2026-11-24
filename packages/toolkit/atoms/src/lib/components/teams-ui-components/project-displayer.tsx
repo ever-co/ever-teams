@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { useStatisticsCounts } from '@hooks/useStatisticsCounts';
 import { TeamsDisplayerLoader } from '@components/loaders/displayer-loader';
 import { useOrganizationProjects } from '@hooks/useOrganisationProjects';
+import { useTimerOnlyToken } from '@hooks/useTimerOnlyToken';
+import { TimerOnlyReportNote } from './timer-only-report-note';
 
 export interface IProjectDisplayer {
 	icon?: React.ReactNode;
@@ -53,6 +55,10 @@ const TeamsWorkedProjectDisplayer = ({ showProgress, className }: { showProgress
 	const { data: organizationProjects } = useOrganizationProjects({ clientId: null });
 
 	const { data: statisticsCounts, loading: statisticsCountsLoading } = useStatisticsCounts();
+	const timerOnly = useTimerOnlyToken();
+	if (timerOnly) {
+		return <TimerOnlyReportNote label={t('COMMON.project')} className={className} />;
+	}
 	return (
 		<TeamsProjectDisplayer
 			workedprojects={statisticsCounts?.projectsCount}

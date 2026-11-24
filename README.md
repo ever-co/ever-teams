@@ -80,12 +80,12 @@ Note: Currently WIP, the screenshot is just a temporary picture :)
 
 #### Examples
 
-- **<https://base.examples.ever.team>** - Ever® Teams™ base example
-- **<https://next.examples.ever.team>** - Ever® Teams™ NextJs example
-- **<https://saas.examples.ever.team>** - Ever® Teams™ SaaS platform example
-- **<https://vite.examples.ever.team>** - Ever® Teams™ example built with Vite
-- **<https://next-boilerplate.examples.ever.team>** - Ever® Teams™ example built with NextJs Boilerplate
-- **<https://remix.examples.ever.team>** - Ever® Teams™ example built with Remix
+- **<https://base-examples.ever.team>** - Ever® Teams™ base example
+- **<https://next-examples.ever.team>** - Ever® Teams™ NextJs example
+- **<https://saas-examples.ever.team>** - Ever® Teams™ SaaS platform example
+- **<https://vite-examples.ever.team>** - Ever® Teams™ example built with Vite
+- **<https://next-boilerplate-examples.ever.team>** - Ever® Teams™ example built with NextJs Boilerplate
+- **<https://remix-examples.ever.team>** - Ever® Teams™ example built with Remix
 
 ### Other Links
 
@@ -227,6 +227,7 @@ docker run -d -p 3030:3030 \
   throwaway demo credentials only.
 - `NEXT_PUBLIC_IMAGES_HOSTS` (comma-separated) allows extra remote image hosts at runtime; the origins of the `NEXT_PUBLIC_GAUZY_API_SERVER_URL`, `APP_LOGO_URL` and `MAIN_PICTURE*` URLs are allowed automatically. An entry is either `host`, `*.host` (subdomains only) or `host:port`, which means https, or a full origin such as `http://minio.lan:9000`, which allows exactly that origin (use it for http or a custom port). Hosts that were not in the list the image was built with are served without Next.js image optimization (`/_next/image` redirects the browser to the original image); hosts in the build-time list always go through the optimizer.
 - An empty value counts as unset, so the built-in default applies. The one exception is `NEXT_PUBLIC_<PROVIDER>_APP_NAME`: setting it, even to an empty value, advertises that social login, which still only appears once `<PROVIDER>_CLIENT_ID` and `<PROVIDER>_CLIENT_SECRET` are set. Social sign-in buttons exist only for Google, Facebook, GitHub and Twitter/X; Ever ID has its own (see [Sign in with Ever ID](#sign-in-with-ever-id-optional)).
+- Only the app itself may show its pages in a frame. `FRAME_ANCESTORS` lists the other sites that may, as origins separated by commas (`https://intranet.example.com`, or `https://*.example.com` for its subdomains); such a site also needs `NEXT_PUBLIC_COOKIE_SAME_SITE=none`, served over https.
 - Only `NEXT_PUBLIC_*` and branding variables reach the browser. Secrets (`AUTH_SECRET`, `CAPTCHA_SECRET_KEY`, `*_CLIENT_SECRET`, `SMTP_PASSWORD`, ...) stay on the server.
 - [`.env.docker`](.env.docker) lists every runtime variable with its default. You can pass it as is: `docker run --env-file .env.docker -p 3030:3030 everco/ever-teams-webapp`.
 
@@ -272,7 +273,8 @@ Ever Teams can offer Ever ID as one more sign-in method, through OpenID Connect.
     - `EVER_ID_ISSUER_URL`: the issuer, an https URL used exactly as written (plain http only on the local machine);
     - `EVER_ID_CLIENT_ID` and `EVER_ID_CLIENT_SECRET`: the client of step 1 (server only, never sent to the browser);
     - `EVER_PLATFORM_PROJECT_ID` (optional): also requests the audience of that project id;
-    - `EVER_ID_TEAMS_AUTO_PROVISION` (default `false`): a sign-in whose Ever ID is linked to no workspace ends on an explanatory page and creates nothing; with `true` that page also offers the usual sign-up, and an account is created only once the person completes it.
+    - `EVER_ID_TEAMS_AUTO_PROVISION` (default `false`): a sign-in whose Ever ID is linked to no workspace ends on an explanatory page and creates nothing; with `true` that page also offers the usual sign-up, and an account is created only once the person completes it;
+    - `EVER_ID_START_ROUTE_ENABLED` (default `false`): with `true` (any case), a link from another Ever app to `https://<host>/api/auth/ever-id/start` begins the Ever ID sign-in directly instead of opening the sign-in page, exactly as the button does. An optional `?return=/a/path` names the page to open afterward: only a relative path of this site is followed (no other host, no `//`, no backslash, no encoded form of those, at most 512 characters), anything else opens the usual page. A person already signed in goes straight to that page. The address answers 404 while the switch is off, while the Ever ID sign-in above is off, in demo mode, for any method but `GET`, and for a request the browser marks as not a person following a link (`Sec-Fetch-Mode` / `Sec-Fetch-Dest` of a background load, `Sec-Purpose` of a prefetch). A client that sends none of those headers (an older browser, a command-line check) is taken at its word, as it could send any headers it liked: the link signs nobody in by itself, it only begins the sign-in at the issuer.
 3. The Gauzy API the web app uses must run its Ever ID sign-in with this client id in its allowed audiences (`ZITADEL_ALLOWED_AUDIENCES`): the web app exchanges the ID token there for the person's workspaces (and sends its name, logo and links for the API's one-time code e-mail), signs in through the usual workspace sign-in, and forwards back-channel logouts there, which the API accepts for the clients of its allowed audiences. A forward the API refuses is logged as `ever_id.backchannel outcome=forward_failed`.
 
 The button appears after Google, and demo mode (`NEXT_PUBLIC_DEMO=true`) hides it like the other sign-in buttons. No token, key or e-mail address is ever put in a URL: the steps that continue on another page (the API's one-time e-mail code before an existing account is linked, or the confirmation of a new workspace) carry only a step marker, and their one-time key travels in a short-lived, encrypted, httpOnly cookie that only the web app's own `/api/auth` routes receive.

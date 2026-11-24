@@ -1,5 +1,6 @@
 import { useAuthenticateUser, useModal } from '@/core/hooks';
 import { useCanInviteToActiveTeam } from '@/core/hooks/invitations/use-can-invite-to-active-team';
+import { useIsEmailVerificationSatisfied } from '@/core/hooks/auth/use-email-verification-status';
 import { InviteUserTeamCard } from '../../../../../teams/invite/user-invite-card';
 import { InviteFormModal } from '../../../../../features/teams/invite-form-modal';
 import { useTranslations } from 'next-intl';
@@ -63,6 +64,7 @@ const TeamMembersTableView = memo(
 
 function Invite() {
 	const { user } = useAuthenticateUser();
+	const meetsEmailVerification = useIsEmailVerificationSatisfied(user);
 	const { openModal, isOpen, closeModal } = useModal();
 	// The API refuses an invitation into a team the user does not manage (403): show the card only to who may send it.
 	const canInvite = useCanInviteToActiveTeam();
@@ -71,8 +73,8 @@ function Invite() {
 
 	return (
 		<div className="hairline-t border-dashed border-border">
-			<InviteUserTeamCard active={user?.isEmailVerified} onClick={openModal} />
-			<InviteFormModal open={isOpen && !!user?.isEmailVerified} closeModal={closeModal} />
+			<InviteUserTeamCard active={meetsEmailVerification} onClick={openModal} />
+			<InviteFormModal open={isOpen && meetsEmailVerification} closeModal={closeModal} />
 		</div>
 	);
 }

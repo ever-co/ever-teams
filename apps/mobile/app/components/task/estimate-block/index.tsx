@@ -1,68 +1,56 @@
 /* eslint-disable react-native/no-inline-styles  */
 /* eslint-disable react-native/no-color-literals  */
-import { View, Text, StyleSheet } from "react-native"
-import React from "react"
-import Accordion from "../../accordion"
-import TaskRow from "../details-block/components/task-row"
-import { useStores } from "../../../models"
-import ProfileInfoWithTime from "./components/profile-info-with-time"
-import { useAppTheme } from "../../../theme"
-import { translate } from "../../../i18n"
+import { Target } from '../../../../src/components/icons';
+import { View, Text } from 'react-native';
+import React from 'react';
+import { observer } from 'mobx-react-lite';
+import Accordion from '../../accordion';
+import TaskRow from '../details-block/components/task-row';
+import { PropertyLabel } from '../details-block/components/property-label';
+import { useStores } from '../../../models';
+import ProfileInfoWithTime from './components/profile-info-with-time';
+import { useAppTheme } from '../../../theme';
+import { translate } from '../../../i18n';
+import { estimateTextOf } from './estimate-text';
 
-const EstimateBlock = () => {
+// an observer: the page loads its task after mounting, and the estimate follows it
+const EstimateBlock = observer(() => {
 	const {
-		TaskStore: { detailedTask: task },
-	} = useStores()
+		TaskStore: { detailedTask: task }
+	} = useStores();
 
-	const { colors } = useAppTheme()
+	const { colors } = useAppTheme();
+	const estimateText = estimateTextOf(task?.estimate);
 	return (
-		<Accordion title={translate("taskDetailsScreen.estimate")}>
-			<View style={{ paddingBottom: 12 }}>
+		<Accordion title={translate('taskDetailsScreen.estimate')}>
+			<View style={{ paddingBottom: 12, paddingHorizontal: 16 }}>
 				<TaskRow
-					labelComponent={
-						<View style={[styles.labelComponent, { marginLeft: 12 }]}>
-							<Text style={styles.labelText}>
-								{translate("taskDetailsScreen.estimations")}
-							</Text>
-						</View>
-					}
+					labelComponent={<PropertyLabel icon={Target} label={translate('taskDetailsScreen.estimations')} />}
 				>
-					<Text
-						style={{
-							fontWeight: "600",
-							fontSize: 12,
-							marginLeft: 5,
-							color: colors.primary,
-						}}
-					>
-						6 h: 40 m
-					</Text>
+					{estimateText && (
+						<Text
+							style={{
+								fontWeight: '600',
+								fontSize: 12,
+								marginLeft: 5,
+								color: colors.primary
+							}}
+						>
+							{estimateText}
+						</Text>
+					)}
 					{task?.members?.map((member, index) => (
 						<ProfileInfoWithTime
 							key={index}
 							userId={member?.userId || member?.user?.id}
-							profilePicSrc={member?.user?.imageUrl}
-							names={`${member?.user?.firstName || ""} ${
-								member?.user?.lastName || ""
-							}`}
+							profilePicSrc={member?.user?.imageUrl ?? ''}
+							names={`${member?.user?.firstName || ''} ${member?.user?.lastName || ''}`}
 						/>
 					))}
 				</TaskRow>
 			</View>
 		</Accordion>
-	)
-}
+	);
+});
 
-export default EstimateBlock
-
-const styles = StyleSheet.create({
-	labelComponent: {
-		alignItems: "center",
-		flexDirection: "row",
-		gap: 7,
-	},
-	labelText: {
-		color: "#A5A2B2",
-		fontSize: 12,
-	},
-})
+export default EstimateBlock;

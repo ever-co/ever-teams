@@ -22,7 +22,7 @@ import {
 	flattenDailyReport
 } from '@/core/lib/utils/daily-report-figures';
 import { filterDailyReportByClients, isBillableOnly } from '@/core/lib/utils/dashboards/report-filters';
-import { NO_LABEL_VALUE } from '@/core/lib/utils/time-log-labels';
+import { entryLabelFiltersOf } from '@/core/lib/utils/time-log-labels';
 import {
 	type ChartDayLabels,
 	type BillableFigures,
@@ -151,16 +151,6 @@ function employeeIdsOf(filters: TimeActivityFilters, access: ReportAccess, ownEm
 		return filters.employeeIds;
 	}
 	return appliedTeamMemberIdsOf(filters.teamIds, access.managedTeams);
-}
-
-/** The entry Labels filter as the daily report takes it: the labels picked, and "No label" as `untagged`. */
-function entryLabelFiltersOf(picked: ReadonlyArray<string>): { tagIds?: string[]; untagged?: boolean } {
-	if (picked.length === 0) {
-		return {};
-	}
-	const tagIds = picked.filter((value) => value !== NO_LABEL_VALUE);
-	const untagged = picked.includes(NO_LABEL_VALUE);
-	return { tagIds, untagged };
 }
 
 function requestOf(

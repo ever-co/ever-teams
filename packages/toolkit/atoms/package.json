@@ -1,27 +1,36 @@
 {
 	"name": "@ever-teams/atoms",
-	"version": "0.2.14",
+	"version": "0.3.0",
 	"license": "MIT",
 	"type": "module",
 	"sideEffects": [
-		"*.css"
+		"*.css",
+		"./dist/lib/i18n/init.es.js",
+		"./dist/cjs/lib/i18n/init.cjs"
 	],
 	"scripts": {
 		"build": "rm -rf dist && rollup -c",
 		"dev": "rollup -c --watch && node post-build.js",
-		"test": "node --test test/*.test.mjs"
+		"test": "yarn --cwd ../../toolkit-types build && yarn --cwd ../../api build && node --test test/*.test.mjs"
 	},
 	"exports": {
 		".": {
-			"types": "./dist/index.d.ts",
-			"import": "./dist/index.es.js"
+			"import": {
+				"types": "./dist/index.d.ts",
+				"default": "./dist/index.es.js"
+			},
+			"require": {
+				"types": "./dist/cjs/index.d.ts",
+				"default": "./dist/cjs/index.cjs"
+			},
+			"default": "./dist/index.es.js"
 		},
 		"./styles.css": "./dist/styles.css"
 	},
 	"dependencies": {
-		"@ever-teams/api": "*",
-		"@ever-teams/toolkit-types": "*",
-		"@ever-teams/toolkit-ui": "*"
+		"@ever-teams/api": "^0.2.0",
+		"@ever-teams/toolkit-types": "^0.2.0",
+		"@ever-teams/toolkit-ui": "^0.3.0"
 	},
 	"peerDependencies": {
 		"@emotion/react": ">=11.13.5",
@@ -29,11 +38,6 @@
 		"react": ">=18.0.0",
 		"react-dom": ">=18.0.0",
 		"theme-ui": ">=0.16.2"
-	},
-	"optionalDependencies": {
-		"next-themes": "^0.4.4",
-		"@emotion/react": "^11.13.5",
-		"theme-ui": "^0.16.2"
 	},
 	"devDependencies": {
 		"@ever-teams/eslint-config": "*",
@@ -73,9 +77,12 @@
 		"typescript": "^5.6.3",
 		"i18next": "^24.2.2",
 		"react-i18next": "^15.4.1",
-		"@tailwindcss/vite": ""
+		"@tailwindcss/vite": "",
+		"next-themes": "^0.4.4",
+		"@emotion/react": "^11.13.5",
+		"theme-ui": "^0.16.2"
 	},
-	"main": "dist/index.es.js",
+	"main": "dist/cjs/index.cjs",
 	"module": "dist/index.es.js",
 	"types": "dist/index.d.ts",
 	"files": [

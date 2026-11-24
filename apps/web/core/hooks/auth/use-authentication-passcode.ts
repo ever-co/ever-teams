@@ -11,6 +11,7 @@ import { authService } from '@/core/services/client/api/auth/auth.service';
 import { ApiErrorService } from '@/core/services/client/api-error.service';
 import { findMostRecentWorkspace } from '@/core/lib/utils/date-comparison.utils';
 import { EVER_ID_STEP_PARAM, isEverIdStep } from '@/core/lib/auth/ever-id/step';
+import { keepEverIdStartReturnForSignIn } from '@/core/lib/auth/ever-id/start-return';
 import {
 	isExpiredWorkspaceTokenError,
 	isWorkspaceTokenExpired,
@@ -21,6 +22,7 @@ import { everIdService } from '@/core/services/client/api/auth/ever-id.service';
 import { navigateAfterSignIn, setPathAfterSignIn } from '@/core/lib/auth/navigate-after-sign-in';
 import { TWO_FACTOR_SETTINGS_PATH, asksTwoFactorSetup, twoFactorChallengeOf } from '@/core/lib/auth/two-factor';
 import { useTwoFactorSignIn } from './use-two-factor-sign-in';
+import { carriesSignInFirstCode, isSignInFirstError } from '@/core/lib/auth/invite-sign-in-first';
 
 /** Shown for a 429: Gauzy throttles the code endpoints and locks an account after repeated wrong codes. */
 const TOO_MANY_ATTEMPTS = 'pages.auth.everId.TOO_MANY_ATTEMPTS';
@@ -224,9 +226,21 @@ export function useAuthenticationPasscode() {
 					return;
 				}
 				setStatus('error');
+				const hasExistingAccount =
+					carriesSignInFirstCode(loginResponse?.data) || isSignInFirstError(confirmError);
+				if (hasExistingAccount) {
+					setErrors({ code: t('pages.auth.EXISTING_ACCOUNT_SIGN_IN_FIRST') });
+					return;
+				}
 				setErrors({ code: t('pages.auth.INVALID_CODE_TRY_AGAIN') });
 			} catch (loginError) {
 				setStatus('error');
+				const hasExistingAccount =
+					isSignInFirstError(confirmError) || isSignInFirstError(loginError);
+				if (hasExistingAccount) {
+					setErrors({ code: t('pages.auth.EXISTING_ACCOUNT_SIGN_IN_FIRST') });
+					return;
+				}
 				if (isAxiosError(confirmError) && confirmError.response?.status === 400) {
 					setErrors(confirmError.response.data?.errors || {});
 				} else if (isAxiosError(loginError) && loginError.response?.status === 400) {
@@ -273,6 +287,8 @@ export function useAuthenticationPasscode() {
 					setAuthenticated(true);
 					setStatus('success');
 					setScreen('workspace');
+					// A sign-in begun by a link to the start address opens the page the link named once it is done.
+					keepEverIdStartReturnForSignIn();
 					// The key is used up: a later code on this page is an e-mail sign-in again.
 					leaveEverIdStep();
 					return;

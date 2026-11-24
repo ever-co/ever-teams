@@ -2,7 +2,19 @@
  * The saved reports calls: the caller's reports of one organization, the token of a link kept out of the development
  * log, and the read of a shared report by its link.
  */
+import { ApiErrorService } from '@/core/services/client/api-error.service';
 import { savedReportService } from './saved-report.service';
+
+/** A refusal of Gauzy as the API client throws it: its status, and its message (a list for a validation refusal). */
+function refusal(status: number, message: unknown) {
+	return ApiErrorService.fromAxiosError({
+		message: `Request failed with status code ${status}`,
+		status,
+		response: { status, data: { statusCode: status, message } }
+	});
+}
+
+const NIL_REPORT = '/saved-reports/00000000-0000-0000-0000-000000000000';
 
 describe('savedReportService', () => {
 	afterEach(() => {
@@ -91,5 +103,46 @@ describe('savedReportService', () => {
 		await savedReportService.readShared('a/b');
 
 		expect(get).toHaveBeenCalledWith('/public/saved-reports/a%2Fb', { secretAddress: true });
+	});
+});
+
+describe('savedReportService.keepsEntryLabels (ever-gauzy#12073)', () => {
+	afterEach(() => {
+		jest.restoreAllMocks();
+	});
+
+	it('asks with a change to the Label grouping of a report no database has, so nothing is ever written', async () => {
+		const put = jest.spyOn(savedReportService, 'put').mockRejectedValue(refusal(404, 'Not Found'));
+
+		await savedReportService.keepsEntryLabels();
+
+		expect(put).toHaveBeenCalledTimes(1);
+		expect(put).toHaveBeenCalledWith(NIL_REPORT, { grouping: 'label' });
+	});
+
+	it('is true when Gauzy takes the Label grouping and finds no such report (404)', async () => {
+		jest.spyOn(savedReportService, 'put').mockRejectedValue(refusal(404, 'Not Found'));
+
+		await expect(savedReportService.keepsEntryLabels()).resolves.toBe(true);
+	});
+
+	it('is false when an older Gauzy refuses the Label grouping (400 naming it)', async () => {
+		const older = refusal(400, [
+			'grouping must be one of the following values: date, member, project, client, task, week'
+		]);
+		jest.spyOn(savedReportService, 'put').mockRejectedValue(older);
+
+		await expect(savedReportService.keepsEntryLabels()).resolves.toBe(false);
+	});
+
+	it('takes no other refusal or failure as an answer, so it is asked again', async () => {
+		const put = jest.spyOn(savedReportService, 'put');
+
+		put.mockRejectedValueOnce(refusal(400, ['organizationId must be a UUID']));
+		await expect(savedReportService.keepsEntryLabels()).rejects.toBeTruthy();
+		put.mockRejectedValueOnce(refusal(403, 'Forbidden'));
+		await expect(savedReportService.keepsEntryLabels()).rejects.toBeTruthy();
+		put.mockRejectedValueOnce(refusal(500, 'Internal server error'));
+		await expect(savedReportService.keepsEntryLabels()).rejects.toBeTruthy();
 	});
 });

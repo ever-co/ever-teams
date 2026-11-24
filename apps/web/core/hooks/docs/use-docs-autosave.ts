@@ -16,10 +16,19 @@ export const DOCS_AUTOSAVE_DELAY_MS = 2_000;
 /**
  * Where a page's text stands between the editor and the platform.
  * `dirty` → `saving` → `saved`; `conflict` when someone else saved first (409); `locked` when the page was locked
- * (423); `too-large` when the text passed the platform's limit; `error` for anything else, retried on the next
- * change or by `flush`.
+ * (423); `too-large` when the text passed the platform's limit; `forbidden` when the person may read the page but
+ * not write it (403); `error` for anything else, retried on the next change or by `flush`.
  */
-export type DocsSaveState = 'idle' | 'dirty' | 'saving' | 'saved' | 'conflict' | 'locked' | 'too-large' | 'error';
+export type DocsSaveState =
+	| 'idle'
+	| 'dirty'
+	| 'saving'
+	| 'saved'
+	| 'conflict'
+	| 'locked'
+	| 'too-large'
+	| 'forbidden'
+	| 'error';
 
 interface Draft {
 	html: string;
@@ -353,6 +362,7 @@ export function saveStateFromError(error: unknown): DocsSaveState {
 		if (error.statusCode === 409) return 'conflict';
 		if (error.statusCode === 423) return 'locked';
 		if (error.statusCode === 413) return 'too-large';
+		if (error.statusCode === 403) return 'forbidden';
 	}
 	return 'error';
 }

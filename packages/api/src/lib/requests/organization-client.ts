@@ -1,8 +1,14 @@
 import { IUser, IOrganizationContact, IServerError } from '@ever-teams/toolkit-types';
 import qs from 'qs';
 import { ApiCall } from '../fetch';
+import { IApiRequestConfig } from '../config/api-config';
 
-export const getOrganizationClients = async (user: IUser | null, token: string, organizationId: string) => {
+export const getOrganizationClients = async (
+	user: IUser | null,
+	token: string,
+	organizationId: string,
+	api?: IApiRequestConfig
+) => {
 	try {
 		if (!user || !user.employee) throw new Error('User is not authenticated');
 
@@ -18,13 +24,16 @@ export const getOrganizationClients = async (user: IUser | null, token: string, 
 			? `/organization-contact/employee/${employeeId}?${query}`
 			: `/organization-contact?${query}`;
 
-		const response = await ApiCall<IOrganizationContact[]>({
-			path,
-			method: 'GET',
-			bearer_token: token,
-			tenantId,
-			organizationId
-		});
+		const response = await ApiCall<IOrganizationContact[]>(
+			{
+				path,
+				method: 'GET',
+				bearer_token: token,
+				tenantId,
+				organizationId
+			},
+			api
+		);
 
 		if ('data' in response) return response.data;
 

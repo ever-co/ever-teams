@@ -639,6 +639,31 @@ describe('useDocsAutosave, leaving a page', () => {
 	});
 });
 
+describe('useDocsAutosave, a save refused for lack of write access (#5723)', () => {
+	it('says the person may not write the page, and keeps their text in the tab', async () => {
+		const { wrapper } = setup();
+		const page = pageOf('page-read-only-for-me');
+		mockUpdateContent.mockRejectedValueOnce({ statusCode: 403 });
+
+		const view = renderHook(() => useDocsAutosave(page), { wrapper });
+		await typeAndSaveNow(view, '<p>mine</p>');
+
+		expect(view.result.current.state).toBe('forbidden');
+		expect(view.result.current.hasDraft()).toBe(true);
+	});
+
+	it('keeps the retry of any other failed save', async () => {
+		const { wrapper } = setup();
+		const page = pageOf('page-server-down');
+		mockUpdateContent.mockRejectedValueOnce({ statusCode: 500 });
+
+		const view = renderHook(() => useDocsAutosave(page), { wrapper });
+		await typeAndSaveNow(view, '<p>mine</p>');
+
+		expect(view.result.current.state).toBe('error');
+	});
+});
+
 describe('useDocsAutosave, restoring a version', () => {
 	const contentsSaved = (): string[] => mockUpdateContent.mock.calls.map((call) => (call[1] as { contentHtml: string }).contentHtml);
 

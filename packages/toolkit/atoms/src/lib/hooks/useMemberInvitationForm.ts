@@ -4,6 +4,7 @@ import { findRole, sendTeamInvitation } from '@ever-teams/api';
 import { RoleName } from '@ever-teams/toolkit-types';
 import { useAccessToken } from './useAccessToken';
 import { useTeamsContext } from '@lib/context/teams-context';
+import { useKitOptions } from '@components/teams-provider/kit-options';
 
 interface FormValues {
 	email: string;
@@ -13,6 +14,7 @@ interface FormValues {
 
 export const useMemberInvitationForm = () => {
 	const { authenticatedUser: user, selectedOrganization: organizationId, selectedTeam } = useTeamsContext();
+	const { api } = useKitOptions();
 	const [formValues, setFormValues] = useState<FormValues>({
 		email: '',
 		name: '',
@@ -83,7 +85,7 @@ export const useMemberInvitationForm = () => {
 		setIsSubmitting(true);
 
 		try {
-			const role = await findRole(formValues.roleName, user, token);
+			const role = await findRole(formValues.roleName, user, token, api);
 
 			if ('message' in role || 'error' in role) {
 				const errorMessage =
@@ -102,14 +104,17 @@ export const useMemberInvitationForm = () => {
 				return;
 			}
 
-			const sentInvitation = await sendTeamInvitation({
-				user,
-				token,
-				organizationId,
-				roleId: role.id,
-				teamId: selectedTeam,
-				formData: formValues
-			});
+			const sentInvitation = await sendTeamInvitation(
+				{
+					user,
+					token,
+					organizationId,
+					roleId: role.id,
+					teamId: selectedTeam,
+					formData: formValues
+				},
+				api
+			);
 
 			if ('message' in sentInvitation || 'error' in sentInvitation) {
 				const errorMessage =

@@ -4,6 +4,12 @@ export * from './lib/teams-jotai/atoms/teams-atoms';
 
 export * from './lib/components/teams-progress-circle/teams-progress-circle';
 export * from './lib/components/teams-provider/teams-provider';
+export type { GetKitToken, KitHostToken } from './lib/session/host-token';
+export { useSiteSignIn } from './lib/session/site-sign-in-context';
+export type { SiteSignInControls, SiteSignInStatus } from './lib/session/site-sign-in-context';
+export { endSiteSignIn } from './lib/session/site-session';
+export type { EndSiteSignInOptions } from './lib/session/site-session';
+export type { TimerChange } from '@ever-teams/toolkit-types';
 export * from './lib/components/teams-report/basic-member/basic-teams-member';
 export * from './lib/components/teams-report/basic-member/teams-member';
 export * from './lib/components/teams-report/basic-report/teams-basic-report';
@@ -98,6 +104,8 @@ export * from './lib/components/teams-ui-components/project-displayer';
 export * from './lib/components/teams-report/list-report/projects-list';
 export * from './lib/components/teams-report/list-report/tasks-list';
 export * from './lib/components/teams-report/list-report/apps-url-list';
+export * from './lib/components/teams-report/client-report/teams-client-time-report';
+export type { GetClientTimeReport } from './lib/hooks/useClientTimeReport';
 
 export * from './lib/components/teams-ui-components/inputs/teams-time-select';
 export * from './lib/components/teams-ui-components/inputs/teams-report-dates-range-picker';

@@ -1,0 +1,24 @@
+{
+	"name": "ever-teams-embed-angular-example",
+	"version": "0.0.0",
+	"private": true,
+	"scripts": {
+		"start": "ng serve",
+		"build": "ng build"
+	},
+	"dependencies": {
+		"@angular/common": "^22.2.0",
+		"@angular/compiler": "^22.2.0",
+		"@angular/core": "^22.2.0",
+		"@angular/platform-browser": "^22.2.0",
+		"@ever-teams/embed": "file:../..",
+		"rxjs": "~7.8.0",
+		"tslib": "^2.3.0"
+	},
+	"devDependencies": {
+		"@angular/build": "^22.2.0",
+		"@angular/cli": "^22.2.0",
+		"@angular/compiler-cli": "^22.2.0",
+		"typescript": "~6.0.2"
+	}
+}

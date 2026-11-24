@@ -1,0 +1,3 @@
+# `maestro test apps/mobile/.maestro` runs the flows of this folder; the shared steps in common/ only run from them.
+flows:
+  - "*"

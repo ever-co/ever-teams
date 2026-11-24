@@ -13,11 +13,13 @@ import { useStaleTimerGuard, useTimerRunningPastMidnight } from '@/core/hooks/ti
 import { useTimerSessionEndWitness } from '@/core/hooks/timer/use-timer-session-end-witness';
 import { DISABLE_AUTO_REFRESH, TEAM_PRESENCE_REFRESH_INTERVAL } from '@/core/constants/config/constants';
 import { teamDetailRefreshOf } from '@/core/lib/utils/team-detail-refresh';
+import { isInNoTeamForLackOfMemberProfile } from '@/core/lib/utils/member-profile';
 import { realtimeStatusAtom } from '@/core/stores/common/realtime';
 import { shellSettledState } from '@/core/stores/common/shell';
 import {
 	activeTeamDetailLoadingState,
 	activeTeamState,
+	isTeamMemberState,
 	teamPresenceViewCountState
 } from '@/core/stores/teams/organization-team';
 import { useQueryClient } from '@tanstack/react-query';
@@ -26,6 +28,7 @@ import { useEffect, useMemo, useRef } from 'react';
 import { reownActiveQueriesAfterTokenRefresh } from './token-refresh-query-ownership';
 import { syncTokenOrganization } from '@/core/lib/auth/token-organization';
 import { clearSessionEndedNotice } from '@/core/lib/auth/session-ended-notice';
+import { clearOwnSignOutMark } from '@/core/lib/auth/own-sign-out-mark';
 import { rememberTeam } from '@/core/lib/auth/remembered-team';
 import { queryKeys } from '@/core/query/keys';
 import { getShellCriticalQueryKeys, useScopeTransitionGuard } from './use-scope-transition-guard';
@@ -58,6 +61,7 @@ export function InitState() {
 	// Someone is signed in: what the sign-in page said about a session the app ended in this tab is over
 	useEffect(() => {
 		clearSessionEndedNotice();
+		clearOwnSignOutMark();
 	}, []);
 	// And should the app end this one, the sign-in page says what became of the timer
 	useTimerSessionEndWitness();
@@ -111,6 +115,15 @@ export function InitState() {
 		detailRefetchOnWindowFocus: teamDetailRefresh.onWindowFocus
 	});
 	const { activeTeam, teams } = teamOwner;
+	// Without an employee the team list never runs (its organization is the employee's), so nothing would ever say
+	// there is no team
+	const setIsTeamMember = useSetAtom(isTeamMemberState);
+	const isInNoTeam = isInNoTeamForLackOfMemberProfile(user, teams.length);
+	useEffect(() => {
+		if (isInNoTeam) {
+			setIsTeamMember(false);
+		}
+	}, [isInNoTeam, setIsTeamMember]);
 	const setTeamDetailLoading = useSetAtom(activeTeamDetailLoadingState);
 	useEffect(() => {
 		setTeamDetailLoading(teamOwner.teamDetailPending);
