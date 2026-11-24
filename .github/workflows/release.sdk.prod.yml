@@ -142,6 +142,10 @@ jobs:
           # postinstall (a large download over the public network, outside Verdaccio). It failed this install on
           # 2026-10-26 (run 40252197246), as it had the web and mobile jobs before they got the same setting.
           CYPRESS_INSTALL_BINARY: '0'
+          # This job does not build the server-web desktop app: skip its postinstall, whose nested yarn install
+          # (electron-builder install-app-deps) follows apps/server-web/release/app/yarn.lock to the public registry
+          # instead of the npm cache set up above, a network flake that failed whole builds (2026-11-18)
+          SKIP_SERVER_WEB_POSTINSTALL: 'true'
 
       - name: Restore registry config (keep the checkout npmjs-clean)
         # Configure Registry above may rewrite yarn.lock and append registry lines

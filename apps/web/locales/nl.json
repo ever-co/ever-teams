@@ -5636,6 +5636,19 @@
 			"SIGNED_OUT_OTHERS": "{count, plural, =0 {Er was geen andere sessie ingelogd.} one {# andere sessie is uitgelogd.} other {# andere sessies zijn uitgelogd.}}",
 			"APP_ON_DEVICE": "{app} · {device}"
 		},
+		"allowedSites": {
+			"TITLE": "Sites waarvandaan je bent ingelogd",
+			"DESCRIPTION": "De sites die je hebt toegestaan je {appName}-timer te starten en te stoppen. Beëindig de login vanaf een site die je niet meer gebruikt of niet herkent.",
+			"RENEWS_UNTIL": "Kan de login verlengen tot {date}",
+			"END": "Beëindigen",
+			"EMPTY": "Je bent vanaf geen enkele site ingelogd.",
+			"LOAD_FAILED": "De sites waarvandaan je bent ingelogd konden niet worden geladen.",
+			"RETRY": "Opnieuw proberen",
+			"END_TITLE": "Login vanaf {site} beëindigen?",
+			"END_DESCRIPTION": "De site kan de login niet meer verlengen. Bij de volgende verlenging toont de site weer de knop ‘Inloggen met {appName}’.",
+			"ENDED": "De login vanaf {site} is beëindigd.",
+			"END_FAILED": "De login is niet beëindigd. Probeer het opnieuw."
+		},
 		"profile": {
 			"SECTION_PROFILE": "Profiel",
 			"PHOTO": "Foto",
@@ -7206,7 +7219,7 @@
 		"IN_TRASH": "In de prullenbak",
 		"IN_TRASH_NOTICE": "Deze pagina staat in de prullenbak. Herstel hem om te bewerken.",
 		"LOCKED_NOTICE": "Deze pagina is op het platform vergrendeld en kan alleen worden gelezen.",
-		"NO_WRITE_ACCESS_NOTICE": "Je kunt deze pagina lezen, maar niet wijzigen. Vraag de auteur de pagina met je te delen om te bewerken.",
+		"NO_WRITE_ACCESS_NOTICE": "Je kunt deze pagina lezen, maar niet wijzigen. Vraag de auteur of een beheerder om bewerkrechten.",
 		"LOCKED_WHILE_EDITING": "De pagina werd vergrendeld terwijl je schreef. Laad hem opnieuw om de nieuwste tekst te lezen; je wijzigingen blijven tot dan in dit tabblad.",
 		"SEARCH_PAGES": "Pagina’s zoeken",
 		"CLEAR_SEARCH": "Zoekopdracht wissen",
@@ -7229,7 +7242,7 @@
 		"UNSAVED": "Niet-opgeslagen wijzigingen",
 		"NOT_SAVED": "Niet opgeslagen",
 		"SAVE_ERROR": "De laatste wijziging kon niet worden opgeslagen. Hij blijft in dit tabblad; probeer opnieuw of controleer je verbinding.",
-		"SAVE_FORBIDDEN": "Je kunt deze pagina lezen, maar niet wijzigen: de laatste wijziging is niet opgeslagen. Ze blijft in dit tabblad staan. Vraag de auteur de pagina met je te delen om te bewerken.",
+		"SAVE_FORBIDDEN": "Je kunt deze pagina lezen, maar niet wijzigen: de laatste wijziging is niet opgeslagen. Ze blijft in dit tabblad staan. Vraag de auteur van de pagina of een beheerder om bewerkrechten.",
 		"SAVE_TITLE_ERROR": "De titel kon niet worden opgeslagen.",
 		"TOO_LARGE": "Deze pagina is te groot om op te slaan. Splits hem of verwijder enkele afbeeldingen.",
 		"CONFLICT_TITLE": "Iemand anders heeft deze pagina opgeslagen",
