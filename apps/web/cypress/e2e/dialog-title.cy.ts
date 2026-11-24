@@ -1,24 +1,26 @@
 /// <reference types="cypress" />
 
-// cspell:ignore Erstellen einen heute
+// cspell:ignore Erstellen einen heute starten
 
 /**
  * The header of the app's dialogs, on the sheet a person without a plan for today gets when pressing Start (#5736).
  * In German the title is longer than a phone's line: it was cut with an ellipsis and lost "heute" (today).
  */
+// The timer button is named in the language of the page
 const START = 'button[aria-label="Start timer"]';
+const GERMAN_START = 'button[aria-label="Timer starten"]';
 const GERMAN_TITLE = 'Erstellen Sie einen Plan für heute';
 const ENGLISH_TITLE = 'Create a plan for today';
 const ONE_LINE = 20;
 
-function openNoPlanSheet(path: string) {
+function openNoPlanSheet(path: string, start: string) {
 	// The sheet opens once the person's plans are read: until then Start cannot tell that today has none
 	cy.intercept('GET', /\/api\/daily-plan\/me(?:\?.*)?$/).as('plans');
 	cy.hardVisit(path);
 	cy.wait('@plans', { timeout: 20_000 });
-	cy.get(START, { timeout: 20_000 }).should('have.attr', 'aria-disabled', 'false');
+	cy.get(start, { timeout: 20_000 }).should('have.attr', 'aria-disabled', 'false');
 	cy.wait(1000);
-	cy.get(START).first().click({ force: true });
+	cy.get(start).first().click({ force: true });
 }
 
 function titleOf(text: string) {
@@ -34,7 +36,7 @@ describe('the title of a dialog', () => {
 
 	it('shows a long title whole on a phone, on two lines', () => {
 		cy.viewport(375, 812);
-		openNoPlanSheet('/de/team/tasks');
+		openNoPlanSheet('/de/team/tasks', GERMAN_START);
 
 		titleOf(GERMAN_TITLE).then(($title) => {
 			const title = $title[0];
@@ -46,7 +48,7 @@ describe('the title of a dialog', () => {
 
 	it('keeps a title that fits on one line as it was on a phone', () => {
 		cy.viewport(375, 812);
-		openNoPlanSheet('/team/tasks');
+		openNoPlanSheet('/team/tasks', START);
 
 		titleOf(ENGLISH_TITLE).then(($title) => {
 			const title = $title[0];
@@ -57,7 +59,7 @@ describe('the title of a dialog', () => {
 
 	it('keeps a long title on one line from the width where the dialog leaves the bottom edge', () => {
 		cy.viewport(768, 1024);
-		openNoPlanSheet('/de/team/tasks');
+		openNoPlanSheet('/de/team/tasks', GERMAN_START);
 
 		titleOf(GERMAN_TITLE).then(($title) => {
 			const title = $title[0];
