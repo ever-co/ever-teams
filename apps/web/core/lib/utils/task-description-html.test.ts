@@ -31,6 +31,20 @@ describe('newTaskDescriptionOf', () => {
 		expect(newTaskDescriptionOf('<pre><code>x</code></pre>')).toBe('<pre><code>x</code></pre>');
 	});
 
+	it('keeps a description that starts with an image or another media element', () => {
+		const image = '<img src="https://example.com/a.png" alt="shot"><p>Steps</p>';
+		expect(newTaskDescriptionOf(image)).toBe(image);
+		expect(newTaskDescriptionOf('<img src="a.png"/>')).toBe('<img src="a.png"/>');
+		expect(newTaskDescriptionOf('<figure><img src="a.png"></figure>')).toBe('<figure><img src="a.png"></figure>');
+		expect(newTaskDescriptionOf('<br><p>Steps</p>')).toBe('<br><p>Steps</p>');
+		expect(newTaskDescriptionOf('<video src="a.mp4"></video>')).toBe('<video src="a.mp4"></video>');
+	});
+
+	it('still wraps text that only looks like one of those tags', () => {
+		expect(newTaskDescriptionOf('<image of the bug>')).toBe('<p><image of the bug></p>');
+		expect(newTaskDescriptionOf('<brief> note')).toBe('<p><brief> note</p>');
+	});
+
 	it('is stable when a task is copied again and again', () => {
 		const once = newTaskDescriptionOf('<p>Steps</p>') as string;
 		expect(newTaskDescriptionOf(once)).toBe('<p>Steps</p>');

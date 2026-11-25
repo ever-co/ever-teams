@@ -4,8 +4,12 @@
  * copy of a task carries the description of the original, which is HTML too.
  */
 
-/** A description that already starts with a block element: it is HTML and needs no paragraph around it. */
-const STARTS_WITH_BLOCK_TAG = /^\s*<(p|div|h[1-6]|ul|ol|pre|blockquote|table|hr)[\s>/]/i;
+/**
+ * A description that already starts with a block element, or with a media element the editor writes at the top level
+ * (an image first, a figure, a video, a line break): it is HTML and needs no paragraph around it.
+ */
+const STARTS_WITH_BLOCK_TAG =
+	/^\s*<(p|div|h[1-6]|ul|ol|pre|blockquote|table|hr|br|img|figure|video|iframe|section|article|details)[\s>/]/i;
 
 /**
  * The description as HTML for a new task, or null for none. Text gets one paragraph around it; HTML is kept as it is,
