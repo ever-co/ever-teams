@@ -99,6 +99,8 @@ export function useTimeOverlapGuard({ isOpen = true }: TimeOverlapGuardOptions =
 	const queryClient = useQueryClient();
 	const [isChecking, setIsChecking] = useState(false);
 	const [hasCheckFailed, setHasCheckFailed] = useState(false);
+	// The range covers a timer that is still running: the API never accepts that save, so it is not offered
+	const [isOverRunningTimer, setIsOverRunningTimer] = useState(false);
 	const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 	// Kept after the confirmation closes, so its closing transition still shows the same figures
 	const [summary, setSummary] = useState<OverlapSummary>(NO_OVERLAP);
@@ -114,6 +116,7 @@ export function useTimeOverlapGuard({ isOpen = true }: TimeOverlapGuardOptions =
 		if (!isOpen) {
 			setIsChecking(false);
 			setHasCheckFailed(false);
+			setIsOverRunningTimer(false);
 			setIsConfirmOpen(false);
 		}
 	}
@@ -139,6 +142,7 @@ export function useTimeOverlapGuard({ isOpen = true }: TimeOverlapGuardOptions =
 				return;
 			}
 			setHasCheckFailed(false);
+			setIsOverRunningTimer(false);
 			// Without a member there is no entry the API could remove time from: it refuses the save itself
 			if (!employeeId) {
 				await save();
@@ -178,6 +182,12 @@ export function useTimeOverlapGuard({ isOpen = true }: TimeOverlapGuardOptions =
 				refuseOverlap(overlap);
 				return;
 			}
+			// A running timer cannot be saved over (the API answers 409): said now, with no "anyway" to press (#5724)
+			const coversRunningTimer = overlap.entries.some((entry) => entry.isRunning);
+			if (coversRunningTimer) {
+				setIsOverRunningTimer(true);
+				return;
+			}
 			heldSaveRef.current = save;
 			setSummary(overlap);
 			setIsConfirmOpen(true);
@@ -199,7 +209,7 @@ export function useTimeOverlapGuard({ isOpen = true }: TimeOverlapGuardOptions =
 		setIsConfirmOpen(false);
 	}, []);
 
-	return { saveAfterCheck, isChecking, hasCheckFailed, isConfirmOpen, summary, confirm, cancel };
+	return { saveAfterCheck, isChecking, hasCheckFailed, isOverRunningTimer, isConfirmOpen, summary, confirm, cancel };
 }
 
 export type TimeOverlapGuard = ReturnType<typeof useTimeOverlapGuard>;

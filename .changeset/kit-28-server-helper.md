@@ -1,5 +1,0 @@
----
-'@ever-teams/api': minor
----
-
-A server entry, `@ever-teams/api/server`: `exchangeEmbedToken({ apiUrl, credential, email | employeeId, origin, firstName?, lastName? })` exchanges an embed credential for a short-lived token for one person (`POST /embed/token`) and answers `{ token, expiresAt }`; `getClientReport({ apiUrl, credential })` answers the time spent for the client a credential is limited to (`POST /embed/client-report`) as an `IClientTimeReport`. Both check their options before any request, throw the SDK's typed errors (the same classes as `@ever-teams/api`) with a next step for each embed code (`EMBED_MEMBER_NOT_ALLOWED`, `EMBED_ORIGIN_NOT_ALLOWED`, `EMBED_EXCHANGE_LIMITED`, `EMBED_CLIENT_REQUIRED`, `EMBED_CLIENT_GONE`), and never put the credential in an error. The entry runs on a server only: its `browser` export condition is `null`, so a page bundle refuses it, and it throws `SERVER_ONLY` when a page loads it. The main entry is unchanged. The README shows the exchange in a Next.js route handler, in Express and in a Fetch API handler, and as one HTTP request with snippets for PHP, Python, Ruby, Go, Java and .NET.
