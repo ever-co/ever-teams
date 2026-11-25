@@ -230,11 +230,14 @@ test('signing out empties the jar and the next visit is refused', async ({ app }
 	// The account menu is at the foot of the sidebar at this viewport; the top-bar avatar of the same menu is
 	// `md:hidden`, so only the visible one can be clicked (`:visible` keeps strict mode from matching both).
 	const accountMenu = view.locator('[aria-label="Account menu"]:visible');
-	expect(await accountMenu.count(), 'the signed-in shell does not offer exactly one account menu').toBe(1);
+	// a web-first wait: under a whole-lane run the shell can still be mounting when the jar is already read
+	await expect(accountMenu, 'the signed-in shell does not offer exactly one account menu').toHaveCount(1, {
+		timeout: 30_000
+	});
 	await accountMenu.click();
 
 	const logOut = view.locator('button:visible').filter({ hasText: /^Log out$/ });
-	expect(await logOut.count(), 'the opened account menu does not offer exactly one Log out button').toBe(1);
+	await expect(logOut, 'the opened account menu does not offer exactly one Log out button').toHaveCount(1);
 	await logOut.click();
 
 	// `useAuthenticateUser().logOut()` (stop the timer, forget this browser's push registration, remove the auth
