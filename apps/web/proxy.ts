@@ -26,6 +26,7 @@ import { delay } from './core/lib/auth/retry-logic';
 import { isRotatedRefreshTokenRefusal } from './core/lib/auth/rotated-refresh-token';
 import { sendsSignedInVisitToApp } from './core/lib/auth/signed-in-auth-paths';
 import { BOARD_RETURN_PARAM, boardReturnUrl } from './core/lib/board/board-app';
+import { keepRoutingLocaleOnPrefetch } from './core/lib/i18n/routing-locale-cookie';
 
 /** How long a sign-in the Board app started waits for the API to confirm the session it finds here. */
 const BOARD_SESSION_CHECK_TIMEOUT_MS = 5_000;
@@ -142,6 +143,8 @@ export async function proxy(request: NextRequest) {
 	const pathname = withoutLocalePrefix(request.nextUrl.pathname);
 	const response = await answerPageRequest(request);
 	setFramingPolicy(response, pathname);
+	// A page that is only prefetched does not move the language of the links that name none (#5735)
+	keepRoutingLocaleOnPrefetch(request.headers, response.headers);
 	return response;
 }
 
