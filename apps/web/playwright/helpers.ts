@@ -470,3 +470,38 @@ export async function rotateAccessToken(context: BrowserContext, fixture: Bootst
 		}
 	]);
 }
+
+/**
+ * A test-side switch for runtime deployment flags the lane's server does not set (for example
+ * `NEXT_PUBLIC_TASK_VIEWS_ENABLED`), for a spec that must not change what every other spec on the lane sees.
+ *
+ * `env-config.ts` `readInjectedRuntimeEnv()` reads the `__EVER_TEAMS_RUNTIME_ENV__` global before the
+ * `<html data-ever-teams-runtime-env>` payload. Before any page script runs, that global becomes the document's own
+ * payload plus `flags`, and it ignores the layout provider's later `installRuntimeEnv(env)`
+ * (`core/components/providers/runtime-env-provider.tsx`), which would otherwise put the server's payload back during
+ * hydration. Only the browser's `readRuntimeEnv` readers see the change: the server's markup is untouched, and
+ * components that read the RSC context (`useRuntimeEnvValue`) keep the server's values.
+ */
+export async function overrideRuntimeEnv(page: Page, flags: Record<string, string>): Promise<void> {
+	await page.addInitScript((overrides: Record<string, string>) => {
+		let cached: Record<string, string> | null = null;
+		const view = () => {
+			if (cached) return cached;
+			const raw = document.documentElement?.getAttribute('data-ever-teams-runtime-env') ?? '';
+			let base: Record<string, string> = {};
+			try {
+				base = raw ? (JSON.parse(raw) as Record<string, string>) : {};
+			} catch {
+				base = {};
+			}
+			cached = { ...base, ...overrides };
+			return cached;
+		};
+		Object.defineProperty(globalThis, '__EVER_TEAMS_RUNTIME_ENV__', {
+			configurable: true,
+			enumerable: false,
+			get: () => view(),
+			set: () => undefined
+		});
+	}, flags);
+}
