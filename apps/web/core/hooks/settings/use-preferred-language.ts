@@ -7,7 +7,7 @@ import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { useSettings } from '@/core/hooks/users/use-settings';
 import { useLanguage } from '@/core/hooks/common/use-language';
 import { useLanguageSettings } from '@/core/hooks/common/use-language-settings';
-import { setActiveLanguageIdCookie } from '@/core/lib/helpers/cookies';
+import { setActiveLanguageIdCookie, setRoutingLocaleCookie } from '@/core/lib/helpers/cookies';
 
 const PREFERENCES_PATH = '/settings/personal/preferences';
 
@@ -28,6 +28,7 @@ export function usePreferredLanguage() {
 				return;
 			}
 			setActiveLanguageIdCookie(code);
+			setRoutingLocaleCookie(code);
 			changeLanguage(code);
 			const differs = storedLanguage !== code;
 			if (userId && differs) {
