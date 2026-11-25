@@ -19,6 +19,7 @@ import { IDecodedRefreshToken } from '@/core/types/interfaces/auth/auth';
 import { deleteCookie, getCookie, setCookie, deleteCookieCrossSite as _deleteCookieCrossSite } from './helpers';
 import { chunk, range } from '@/core/lib/helpers';
 import { tokenCookieChunkCount } from './token-chunks';
+import { ROUTING_LOCALE_COOKIE } from '@/core/lib/i18n/routing-locale-cookie';
 
 // Re-export for use in other modules
 export const deleteCookieCrossSite = _deleteCookieCrossSite;
@@ -550,6 +551,14 @@ export function getActiveLanguageIdCookie(ctx?: NextCtx) {
 
 export function setActiveLanguageIdCookie(languageIds: string, ctx?: NextCtx) {
 	return setCookie(ACTIVE_LANGUAGE_COOKIE_NAME, languageIds, sessionWrite(ctx));
+}
+
+/**
+ * The language the routing gives to a link that names none. Written when the person picks a language, so the next
+ * such link follows the pick at once, whatever page is served in between (#5735).
+ */
+export function setRoutingLocaleCookie(code: string, ctx?: NextCtx) {
+	return setCookie(ROUTING_LOCALE_COOKIE, code, { ...ctx, path: '/', sameSite: 'lax' });
 }
 
 // Timezone
