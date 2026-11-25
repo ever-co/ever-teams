@@ -1353,7 +1353,7 @@ test.describe('lane-c · Reports › Weekly limit: what a manager sees and what 
 			'the calm line is not dashboard.weeklyLimit.ATTENTION_NONE'
 		).toBeVisible();
 		// `meta = hasItems && meta` (`limit-attention.tsx:157-165`): with nothing flagged the section has no meta line
-		expect(
+		await expect(
 			attentionSection(page).locator('header span'),
 			'the calm list carries a member count it should not have'
 		).toHaveCount(0);
