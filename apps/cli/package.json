@@ -1,6 +1,6 @@
 {
 	"name": "@ever-teams/cli",
-	"version": "0.0.0",
+	"version": "0.1.0",
 	"description": "The Ever Teams command line: start and stop your timer, add past time, export your time entries.",
 	"license": "MIT",
 	"type": "module",
@@ -28,7 +28,7 @@
 		"test": "tsc -p tsconfig.json && node --test test/*.test.mjs"
 	},
 	"dependencies": {
-		"@ever-teams/api": "^0.2.0"
+		"@ever-teams/api": "^0.3.0"
 	},
 	"devDependencies": {
 		"@types/node": "^26.6.5",
