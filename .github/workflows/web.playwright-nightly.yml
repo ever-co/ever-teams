@@ -46,9 +46,13 @@ jobs:
           NODE_OPTIONS: '--dns-result-order=ipv4first'
 
       # The config runs the full Chromium build (channel `chromium`), so the separate headless shell is not needed.
-      # --with-deps installs its system libraries (apt, through sudo unless the step runs as root).
+      # --with-deps installs its system libraries (apt, through sudo unless the step runs as root). The CLI is resolved
+      # from apps/web on purpose: the repository root holds an older @playwright/test (another package's), whose browser
+      # build would not match the runner. Called through node, not `yarn ... install`, which SonarCloud (S6505) reads as
+      # a package install with lifecycle scripts on.
       - name: Install Chromium
-        run: yarn workspace @ever-teams/web playwright install --with-deps --no-shell chromium
+        working-directory: apps/web
+        run: node "$(node -p "require.resolve('@playwright/test/cli')")" install --with-deps --no-shell chromium
 
       - name: Playwright mock browser suite
         timeout-minutes: 90
