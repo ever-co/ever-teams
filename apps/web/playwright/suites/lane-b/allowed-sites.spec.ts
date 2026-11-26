@@ -47,7 +47,7 @@ import { logOf, parseAnswer, triples } from '../api/log-helpers';
  *
  * Browser half: `core/components/settings/pages/security/allowed-sites-section.tsx` over
  * `core/hooks/settings/use-embed-site-grants.ts`, whose reads and writes go through
- * `core/services/client/api/embeds/embeds.service.ts:179-187`, with `core/lib/utils/embed-site-grants.ts` deciding the
+ * `core/services/client/api/embeds/embeds.service.ts:177-190`, with `core/lib/utils/embed-site-grants.ts` deciding the
  * order, the date, the host and the two meanings of a 404.
  *
  * **On a lane the browser half never touches those two route files.** `playwright/test-servers.ts` gives the served
@@ -1455,9 +1455,9 @@ uiTest.describe('lane-b · Settings › Personal › Security: the "Sites you si
 			]);
 			expect(
 				grantConsoleErrors(shield),
-				'the client logged nothing about the 404 it was answered — a server without embeds is a read that found no ' +
-					'route (isSiteGrantsUnavailable, embed-site-grants.ts:51-53), not a silence'
-			).toEqual([expect.stringContaining('GET /embed/grants 404')]);
+				'the client logged the 404 as an error — a server without embeds is a supported one, and the read takes its ' +
+					'404 as the answer (embeds.service.ts listSiteGrants, quietStatuses; isSiteGrantsUnavailable)'
+			).toEqual([]);
 		}
 	);
 

@@ -23,6 +23,8 @@ const CREDENTIALS = '/embed-credentials';
 const ORIGINS = '/embed-allowed-origins';
 const SITE_AUTHORIZE = '/embed/authorize';
 const SITE_GRANTS = '/embed/grants';
+/** What a server with embeds off, or a Gauzy without the route, answers. */
+const NOT_FOUND = 404;
 
 /**
  * The API made the credential without the client it was asked to limit it to (an API that drops the field, behind a
@@ -174,10 +176,11 @@ class EmbedsService extends APIService {
 
 	/**
 	 * The sites the signed-in person allowed to use their timer: Gauzy answers with this person's own only. A server
-	 * with embeds off, or without the route, answers 404.
+	 * with embeds off, or without the route, answers 404: the read fails with it and the section is not shown
+	 * (`isSiteGrantsUnavailable`), and that 404 stays out of the error log, since such a Gauzy is a supported one.
 	 */
 	listSiteGrants = async (signal?: AbortSignal): Promise<EmbedSiteGrant[]> => {
-		const response = await this.get<unknown>(SITE_GRANTS, { signal });
+		const response = await this.get<unknown>(SITE_GRANTS, { signal, quietStatuses: [NOT_FOUND] });
 		return validateApiResponse(embedSiteGrantListSchema, response.data, 'embeds.siteGrants API response');
 	};
 

@@ -420,6 +420,17 @@ export class APIService {
 	}
 
 	/**
+	 * Whether a failed request was answered with a status it takes as its answer (`APIConfig.quietStatuses`, such as the
+	 * 404 of a Gauzy without the route): its caller reads that status, so it is not logged as an error. The flag travels
+	 * with the request, so the proxy mode client honours it too.
+	 */
+	private isQuietStatus(error: any): boolean {
+		const status = error?.response?.status;
+		const quietStatuses = (error?.config as APIConfig | undefined)?.quietStatuses;
+		return typeof status === 'number' && Array.isArray(quietStatuses) && quietStatuses.includes(status);
+	}
+
+	/**
 	 * Mark an error as logged using WeakMap (robust, no object pollution)
 	 */
 	private markErrorAsLogged(error: Error): void {
@@ -442,7 +453,7 @@ export class APIService {
 			return;
 		}
 
-		if (this.staysOutOfLogs(error?.config)) {
+		if (this.staysOutOfLogs(error?.config) || this.isQuietStatus(error)) {
 			return;
 		}
 
