@@ -3,6 +3,7 @@
 import { taskService } from '@/core/services/client/api';
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
 import { newTaskStatusNameOf } from '@/core/lib/utils/new-task-status-name';
+import { newTaskDescriptionOf } from '@/core/lib/utils/task-description-html';
 import { useCallback } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
@@ -76,6 +77,7 @@ export function useCreateTask() {
 		}) => {
 			// With no status picked, the name follows the record the task is created with (#5682)
 			const statusName = newTaskStatusNameOf(status, taskStatusId, taskStatuses);
+			const descriptionHtml = newTaskDescriptionOf(description);
 			try {
 				const res = await createTaskMutateAsync({
 					title,
@@ -85,7 +87,7 @@ export function useCreateTask() {
 					size,
 					tags,
 					projectId,
-					...(description ? { description: `<p>${description}</p>` } : {}),
+					...(descriptionHtml ? { description: descriptionHtml } : {}),
 					members: members ?? [],
 					taskStatusId: taskStatusId
 				});
