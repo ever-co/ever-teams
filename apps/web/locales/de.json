@@ -5763,7 +5763,7 @@
 			"MANAGE_APPS_MOVE_DOWN": "{name} nach unten verschieben",
 			"MANAGE_APPS_REORDER": "Ziehen, um {name} zu verschieben",
 			"MANAGE_APPS_MOVED": "{name} steht jetzt an Stelle {position}",
-			"MANAGE_APPS_REORDER_HINT": "Ziehen Sie eine Zeile, nutzen Sie ihre Pfeile oder drücken Sie Alt+Nach-oben oder Alt+Nach-unten auf einer ausgewählten Zeile.",
+			"MANAGE_APPS_REORDER_HINT": "Ziehen Sie eine Zeile am Griff oder nutzen Sie ihre Pfeile. Auf dem ausgewählten Griff verschieben Alt+Nach-oben und Alt+Nach-unten die Zeile ebenfalls.",
 			"MANAGE_APPS_REMOVE": "{name} entfernen",
 			"ADD_APP_TITLE": "Eigene App hinzufügen",
 			"ADD_APP_DESCRIPTION": "Sie erscheint unter „Ihre Apps“ und öffnet sich in einem neuen Tab.",

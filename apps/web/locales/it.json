@@ -5763,7 +5763,7 @@
 			"MANAGE_APPS_MOVE_DOWN": "Sposta giù {name}",
 			"MANAGE_APPS_REORDER": "Trascina per spostare {name}",
 			"MANAGE_APPS_MOVED": "{name} ora è al posto {position}",
-			"MANAGE_APPS_REORDER_HINT": "Trascina una riga, usa le sue frecce o premi Alt+Su o Alt+Giù su una riga selezionata.",
+			"MANAGE_APPS_REORDER_HINT": "Trascina una riga dalla maniglia o usa le sue frecce. Con la maniglia selezionata, anche Alt+Su e Alt+Giù spostano la riga.",
 			"MANAGE_APPS_REMOVE": "Rimuovi {name}",
 			"ADD_APP_TITLE": "Aggiungi una tua app",
 			"ADD_APP_DESCRIPTION": "Compare in Le tue app e si apre in una nuova scheda.",

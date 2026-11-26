@@ -5763,7 +5763,7 @@
 			"MANAGE_APPS_MOVE_DOWN": "{name} omlaag",
 			"MANAGE_APPS_REORDER": "Sleep om {name} te verplaatsen",
 			"MANAGE_APPS_MOVED": "{name} staat nu op plaats {position}",
-			"MANAGE_APPS_REORDER_HINT": "Sleep een rij, gebruik de pijlen of druk op Alt+Omhoog of Alt+Omlaag op een geselecteerde rij.",
+			"MANAGE_APPS_REORDER_HINT": "Sleep een rij aan de greep of gebruik de pijlen. Op een geselecteerde greep verplaatsen Alt+Omhoog en Alt+Omlaag de rij ook.",
 			"MANAGE_APPS_REMOVE": "{name} verwijderen",
 			"ADD_APP_TITLE": "Je eigen app toevoegen",
 			"ADD_APP_DESCRIPTION": "Hij staat onder Jouw apps en opent in een nieuw tabblad.",

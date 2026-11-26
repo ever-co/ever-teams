@@ -38,12 +38,13 @@ const ICON_BUTTON = cn(buttonVariants({ variant: 'ghost', size: 'icon-sm' }), 't
 /** The Show and Pin columns: one width, so the boxes line up from row to row and under their headings. */
 const CHECK_COLUMN = 'flex w-10 shrink-0 justify-center';
 
+/** `randomUUID` needs a secure context; `getRandomValues` works on a plain-http self-hosted deployment too. */
 function newCustomAppId() {
-	const hasRandomUuid = typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function';
-	if (hasRandomUuid) {
+	if (typeof crypto.randomUUID === 'function') {
 		return crypto.randomUUID();
 	}
-	return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+	const bytes = crypto.getRandomValues(new Uint8Array(16));
+	return Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('');
 }
 
 /** The launcher's link lands on `#manage-apps`; the page renders after the navigation, so scroll once it is there. */
@@ -93,9 +94,9 @@ function ManageRow({
 	const isDragging = draggingKey === item.key;
 	const name = item.name;
 
-	const onKeyDown = (event: KeyboardEvent<HTMLLIElement>) => {
-		const isOwnRow = event.target === event.currentTarget;
-		if (!event.altKey || !isOwnRow) {
+	// The handle is the row's keyboard control: Alt+Up / Alt+Down move the row, as in Ever Works.
+	const onHandleKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
+		if (!event.altKey) {
 			return;
 		}
 		if (event.key === 'ArrowUp') {
@@ -119,11 +120,9 @@ function ManageRow({
 
 	return (
 		<li
-			tabIndex={0}
-			aria-label={name}
 			data-testid="manage-apps-row"
 			data-key={item.key}
-			onKeyDown={onKeyDown}
+			data-name={name}
 			onDragOver={(event) => {
 				if (draggingKey !== null) {
 					event.preventDefault();
@@ -134,14 +133,15 @@ function ManageRow({
 				onDrop(index);
 			}}
 			className={cn(
-				'flex h-12 items-center gap-2 hairline-t border-border px-2 outline-none first:border-t-0 focus-visible:bg-foreground/[0.03] focus-visible:ring-[3px] focus-visible:ring-ring/25 focus-visible:ring-inset sm:px-3',
+				'flex h-12 items-center gap-2 hairline-t border-border px-2 first:border-t-0 has-[[data-drag-handle]:focus-visible]:bg-foreground/[0.03] sm:px-3',
 				isDragging && 'opacity-50'
 			)}
 		>
 			<button
 				type="button"
 				draggable
-				tabIndex={-1}
+				data-drag-handle
+				aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown"
 				aria-label={t('settings.preferences.MANAGE_APPS_REORDER', { name })}
 				title={t('settings.preferences.MANAGE_APPS_REORDER', { name })}
 				onDragStart={(event) => {
@@ -149,7 +149,8 @@ function ManageRow({
 					onDragStart(item.key);
 				}}
 				onDragEnd={onDragEnd}
-				className="flex h-7 w-5 shrink-0 cursor-grab items-center justify-center rounded-md text-muted-foreground/70 hover:text-foreground active:cursor-grabbing"
+				onKeyDown={onHandleKeyDown}
+				className="flex h-7 w-5 shrink-0 cursor-grab items-center justify-center rounded-md text-muted-foreground/70 outline-none hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/25 active:cursor-grabbing"
 			>
 				<DragHandle className="size-4" aria-hidden="true" />
 			</button>
@@ -344,11 +345,12 @@ export function AppLauncherManage() {
 			withMoved(preferences, section, item.key, position),
 			t('settings.preferences.MANAGE_APPS_MOVED', { name: item.name, position: position + 1 })
 		);
-		// Keep the keyboard on the row that moved: it re-renders at its new place.
+		// Keep the keyboard on the handle of the row that moved: the row re-renders at its new place.
+		const handleHadFocus = document.activeElement?.hasAttribute('data-drag-handle') === true;
 		requestAnimationFrame(() => {
-			const row = listRef.current?.querySelector<HTMLElement>(`[data-key="${item.key}"]`);
-			if (row && document.activeElement?.closest('[data-testid="manage-apps-row"]')) {
-				row.focus();
+			const handle = listRef.current?.querySelector<HTMLElement>(`[data-key="${item.key}"] [data-drag-handle]`);
+			if (handle && handleHadFocus) {
+				handle.focus();
 			}
 		});
 	};
@@ -406,7 +408,7 @@ function SectionList({ section, ...rowProps }: Readonly<SectionListProps>) {
 	const t = useTranslations();
 	const headingId = useId();
 	return (
-		<div role="group" aria-labelledby={headingId} data-section={section.id} className="pb-2">
+		<div data-section={section.id} className="pb-2">
 			<div className="flex items-center gap-2 px-4 pt-2 pb-1 sm:px-6">
 				<h3 id={headingId} className="min-w-0 flex-1 truncate pl-7 text-xs font-medium text-muted-foreground">
 					{t(SECTION_LABEL_KEYS[section.id])}
@@ -419,7 +421,7 @@ function SectionList({ section, ...rowProps }: Readonly<SectionListProps>) {
 				</span>
 				<span aria-hidden="true" className="w-[84px] shrink-0" />
 			</div>
-			<ul className="mx-2 rounded-lg hairline-ring ring-border sm:mx-3">
+			<ul aria-labelledby={headingId} className="mx-2 rounded-lg hairline-ring ring-border sm:mx-3">
 				{section.items.map((item, index) => (
 					<ManageRow key={item.key} item={item} section={section} index={index} {...rowProps} />
 				))}

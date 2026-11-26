@@ -5763,7 +5763,7 @@
 			"MANAGE_APPS_MOVE_DOWN": "نقل {name} للأسفل",
 			"MANAGE_APPS_REORDER": "اسحب لإعادة ترتيب {name}",
 			"MANAGE_APPS_MOVED": "نُقل {name} إلى الموضع {position}",
-			"MANAGE_APPS_REORDER_HINT": "اسحب صفًا، أو استخدم أسهمه، أو اضغط Alt+أعلى أو Alt+أسفل على صف محدد.",
+			"MANAGE_APPS_REORDER_HINT": "اسحب الصف من مقبضه أو استخدم أسهمه. وعند تحديد المقبض، يحرّك Alt+أعلى وAlt+أسفل الصف أيضًا.",
 			"MANAGE_APPS_REMOVE": "إزالة {name}",
 			"ADD_APP_TITLE": "أضف تطبيقك الخاص",
 			"ADD_APP_DESCRIPTION": "يظهر ضمن تطبيقاتك ويُفتح في علامة تبويب جديدة.",

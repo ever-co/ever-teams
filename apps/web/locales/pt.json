@@ -5763,7 +5763,7 @@
 			"MANAGE_APPS_MOVE_DOWN": "Mover {name} para baixo",
 			"MANAGE_APPS_REORDER": "Arraste para mover {name}",
 			"MANAGE_APPS_MOVED": "{name} agora está na posição {position}",
-			"MANAGE_APPS_REORDER_HINT": "Arraste uma linha, use as setas dela ou pressione Alt+Seta para cima ou Alt+Seta para baixo em uma linha selecionada.",
+			"MANAGE_APPS_REORDER_HINT": "Arraste uma linha pela alça ou use as setas dela. Com a alça selecionada, Alt+Seta para cima e Alt+Seta para baixo também movem a linha.",
 			"MANAGE_APPS_REMOVE": "Remover {name}",
 			"ADD_APP_TITLE": "Adicione seu próprio app",
 			"ADD_APP_DESCRIPTION": "Ele aparece em Seus apps e abre em uma nova aba.",

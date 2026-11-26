@@ -187,7 +187,7 @@ export function manageSections(everApps: ReadonlyArray<EverApp>, preferences: Ap
 	const byKey = new Map(all.map((item) => [item.key, item]));
 	const pinned = preferences.pinned
 		.map((key) => byKey.get(key))
-		.filter((item): item is LauncherItem => item !== undefined && item.isPinned);
+		.filter((item): item is LauncherItem => item?.isPinned === true);
 	const sections: LauncherSection[] = [
 		{ id: 'pinned', items: pinned },
 		{ id: 'ever', items: ever.filter((item) => !item.isPinned) },

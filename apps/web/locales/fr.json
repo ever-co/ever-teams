@@ -5763,7 +5763,7 @@
 			"MANAGE_APPS_MOVE_DOWN": "Descendre {name}",
 			"MANAGE_APPS_REORDER": "Faites glisser pour déplacer {name}",
 			"MANAGE_APPS_MOVED": "{name} est maintenant en position {position}",
-			"MANAGE_APPS_REORDER_HINT": "Faites glisser une ligne, utilisez ses flèches ou appuyez sur Alt+Haut ou Alt+Bas sur une ligne sélectionnée.",
+			"MANAGE_APPS_REORDER_HINT": "Faites glisser une ligne par sa poignée ou utilisez ses flèches. Sur la poignée sélectionnée, Alt+Haut et Alt+Bas déplacent aussi la ligne.",
 			"MANAGE_APPS_REMOVE": "Retirer {name}",
 			"ADD_APP_TITLE": "Ajouter votre propre appli",
 			"ADD_APP_DESCRIPTION": "Elle s'affiche dans Vos applis et s'ouvre dans un nouvel onglet.",

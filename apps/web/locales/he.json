@@ -5763,7 +5763,7 @@
 			"MANAGE_APPS_MOVE_DOWN": "הזזת {name} למטה",
 			"MANAGE_APPS_REORDER": "גררו כדי להזיז את {name}",
 			"MANAGE_APPS_MOVED": "{name} הועברה למקום {position}",
-			"MANAGE_APPS_REORDER_HINT": "גררו שורה, השתמשו בחצים שלה, או הקישו Alt+למעלה או Alt+למטה על שורה נבחרת.",
+			"MANAGE_APPS_REORDER_HINT": "גררו שורה בידית שלה או השתמשו בחצים שלה. כשהידית נבחרת, Alt+למעלה ו-Alt+למטה מזיזים גם הם את השורה.",
 			"MANAGE_APPS_REMOVE": "הסרת {name}",
 			"ADD_APP_TITLE": "הוספת אפליקציה משלכם",
 			"ADD_APP_DESCRIPTION": "היא מופיעה תחת האפליקציות שלך ונפתחת בכרטיסייה חדשה.",

@@ -5763,7 +5763,7 @@
 			"MANAGE_APPS_MOVE_DOWN": "Move {name} down",
 			"MANAGE_APPS_REORDER": "Drag to reorder {name}",
 			"MANAGE_APPS_MOVED": "{name} moved to place {position}",
-			"MANAGE_APPS_REORDER_HINT": "Drag a row, use its arrows, or press Alt+Up or Alt+Down on a focused row.",
+			"MANAGE_APPS_REORDER_HINT": "Drag a row by its handle or use its arrows. On a focused handle, Alt+Up and Alt+Down move the row too.",
 			"MANAGE_APPS_REMOVE": "Remove {name}",
 			"ADD_APP_TITLE": "Add your own app",
 			"ADD_APP_DESCRIPTION": "It shows under Your apps and opens in a new tab.",

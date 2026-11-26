@@ -62,7 +62,7 @@ function section(id: string) {
 function rowNames(id: string) {
 	return within(section(id))
 		.getAllByTestId('manage-apps-row')
-		.map((row) => row.getAttribute('aria-label'));
+		.map((row) => row.getAttribute('data-name'));
 }
 
 beforeAll(() => {
@@ -128,15 +128,19 @@ describe('Manage apps', () => {
 		fireEvent.click(screen.getByRole('button', { name: 'settings.preferences.MANAGE_APPS_MOVE_UP Ever Gauzy' }));
 		expect(rowNames('ever').slice(0, 4)).toEqual(['Ever Platform', 'Ever Works', 'Ever Gauzy', 'Ever Teams']);
 
-		const platform = within(section('ever')).getAllByTestId('manage-apps-row')[0];
+		const handle = screen.getByRole('button', { name: 'settings.preferences.MANAGE_APPS_REORDER Ever Platform' });
 		act(() => {
-			platform.focus();
+			handle.focus();
 		});
-		fireEvent.keyDown(platform, { key: 'ArrowDown', altKey: true });
+		fireEvent.keyDown(handle, { key: 'ArrowDown', altKey: true });
 
 		expect(rowNames('ever').slice(0, 2)).toEqual(['Ever Works', 'Ever Platform']);
 		expect(stored().order.ever.slice(0, 2)).toEqual(['ever:works', 'ever:platform']);
 		expect(screen.getByRole('status').textContent).toBe('settings.preferences.MANAGE_APPS_MOVED Ever Platform 2');
+		// The keyboard stays on the handle of the row that moved.
+		expect(document.activeElement?.getAttribute('aria-label')).toBe(
+			'settings.preferences.MANAGE_APPS_REORDER Ever Platform'
+		);
 	});
 
 	it('stops at six pins', () => {

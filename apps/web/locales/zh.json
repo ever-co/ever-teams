@@ -5763,7 +5763,7 @@
 			"MANAGE_APPS_MOVE_DOWN": "将 {name} 下移",
 			"MANAGE_APPS_REORDER": "拖动以移动 {name}",
 			"MANAGE_APPS_MOVED": "{name} 已移到第 {position} 位",
-			"MANAGE_APPS_REORDER_HINT": "拖动一行，使用该行的箭头，或在选中的行上按 Alt+上 或 Alt+下。",
+			"MANAGE_APPS_REORDER_HINT": "拖动行的手柄，或使用该行的箭头。选中手柄时，按 Alt+上 或 Alt+下 也能移动该行。",
 			"MANAGE_APPS_REMOVE": "移除 {name}",
 			"ADD_APP_TITLE": "添加你自己的应用",
 			"ADD_APP_DESCRIPTION": "它会显示在“你的应用”中，并在新标签页中打开。",
