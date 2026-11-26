@@ -133,14 +133,14 @@ function ManageRow({
 				onDrop(index);
 			}}
 			className={cn(
-				'flex h-12 items-center gap-2 hairline-t border-border px-2 first:border-t-0 has-[[data-drag-handle]:focus-visible]:bg-foreground/[0.03] sm:px-3',
+				'flex h-12 items-center gap-2 hairline-t border-border px-2 first:border-t-0 has-[[data-control=handle]:focus-visible]:bg-foreground/[0.03] sm:px-3',
 				isDragging && 'opacity-50'
 			)}
 		>
 			<button
 				type="button"
 				draggable
-				data-drag-handle
+				data-control="handle"
 				aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown"
 				aria-label={t('settings.preferences.MANAGE_APPS_REORDER', { name })}
 				title={t('settings.preferences.MANAGE_APPS_REORDER', { name })}
@@ -166,6 +166,7 @@ function ManageRow({
 			</div>
 			<span className={CHECK_COLUMN} title={showTitle}>
 				<Checkbox
+					data-control="show"
 					checked={item.isShown}
 					disabled={item.isCurrent}
 					aria-label={t('settings.preferences.MANAGE_APPS_SHOW', { name })}
@@ -174,6 +175,7 @@ function ManageRow({
 			</span>
 			<span className={CHECK_COLUMN} title={pinTitle}>
 				<Checkbox
+					data-control="pin"
 					checked={item.isPinned}
 					disabled={isPinLocked}
 					aria-label={t('settings.preferences.MANAGE_APPS_PIN', { name })}
@@ -183,6 +185,7 @@ function ManageRow({
 			<div className="flex shrink-0 items-center">
 				<button
 					type="button"
+					data-control="up"
 					disabled={isFirst}
 					aria-label={t('settings.preferences.MANAGE_APPS_MOVE_UP', { name })}
 					title={t('settings.preferences.MANAGE_APPS_MOVE_UP', { name })}
@@ -193,6 +196,7 @@ function ManageRow({
 				</button>
 				<button
 					type="button"
+					data-control="down"
 					disabled={isLast}
 					aria-label={t('settings.preferences.MANAGE_APPS_MOVE_DOWN', { name })}
 					title={t('settings.preferences.MANAGE_APPS_MOVE_DOWN', { name })}
@@ -325,9 +329,38 @@ export function AppLauncherManage() {
 	const pinCount = preferences.pinned.length;
 	const isPinBudgetSpent = pinCount >= APP_LAUNCHER_PIN_LIMIT;
 
-	const save = (next: AppLauncherPreferences, message: string) => {
-		setPreferences(next);
-		setAnnouncement(message);
+	/**
+	 * Keep the keyboard where it was: pinning, unpinning or hiding moves a row to another section, where it mounts
+	 * again, so the same control of the same row takes the focus back once it is drawn (the handle when that
+	 * control is now disabled, as the up arrow of a row that reached the top).
+	 */
+	const keepFocusOn = (key: string) => {
+		const active = document.activeElement;
+		const isInRow = active instanceof HTMLElement && active.closest(`[data-key="${key}"]`) !== null;
+		const control = isInRow ? active.dataset.control : undefined;
+		if (!control) {
+			return;
+		}
+		requestAnimationFrame(() => {
+			const row = listRef.current?.querySelector<HTMLElement>(`[data-key="${key}"]`);
+			const same = row?.querySelector<HTMLElement>(`[data-control="${control}"]:not(:disabled)`);
+			const handle = row?.querySelector<HTMLElement>('[data-control="handle"]');
+			(same ?? handle)?.focus();
+		});
+	};
+
+	/**
+	 * A browser that refuses the write (storage full or blocked) keeps the choice for this page only, as for the
+	 * launcher's position: say so in the status line instead of "Saved".
+	 */
+	const save = (key: string, next: AppLauncherPreferences, message: string) => {
+		keepFocusOn(key);
+		try {
+			setPreferences(next);
+			setAnnouncement(message);
+		} catch {
+			setAnnouncement(t('settings.preferences.SYNC_SAVE_FAILED'));
+		}
 	};
 
 	const saved = t('settings.preferences.MANAGE_APPS_SAVED');
@@ -342,17 +375,10 @@ export function AppLauncherManage() {
 		}
 		const position = Math.min(Math.max(to, 0), section.items.length - 1);
 		save(
+			item.key,
 			withMoved(preferences, section, item.key, position),
 			t('settings.preferences.MANAGE_APPS_MOVED', { name: item.name, position: position + 1 })
 		);
-		// Keep the keyboard on the handle of the row that moved: the row re-renders at its new place.
-		const handleHadFocus = document.activeElement?.hasAttribute('data-drag-handle') === true;
-		requestAnimationFrame(() => {
-			const handle = listRef.current?.querySelector<HTMLElement>(`[data-key="${item.key}"] [data-drag-handle]`);
-			if (handle && handleHadFocus) {
-				handle.focus();
-			}
-		});
 	};
 
 	const drop = (section: LauncherSection, index: number) => {
@@ -388,16 +414,16 @@ export function AppLauncherManage() {
 					onDragStart={setDraggingKey}
 					onDragEnd={() => setDraggingKey(null)}
 					onDrop={(index) => drop(section, index)}
-					onShow={(item, isShown) => save(withShown(preferences, item.key, isShown), saved)}
-					onPin={(item, isPinned) => save(withPinned(preferences, item.key, isPinned), saved)}
+					onShow={(item, isShown) => save(item.key, withShown(preferences, item.key, isShown), saved)}
+					onPin={(item, isPinned) => save(item.key, withPinned(preferences, item.key, isPinned), saved)}
 					onMove={move}
-					onRemove={(item) => save(withoutCustomApp(preferences, item.key), saved)}
+					onRemove={(item) => save(item.key, withoutCustomApp(preferences, item.key), saved)}
 				/>
 			))}
 			<p className="px-4 pt-1 pb-3 text-xs text-pretty text-muted-foreground">
 				{t('settings.preferences.MANAGE_APPS_REORDER_HINT')}
 			</p>
-			<AddCustomAppForm preferences={preferences} onAdd={(next) => save(next, saved)} />
+			<AddCustomAppForm preferences={preferences} onAdd={(next) => save('', next, saved)} />
 		</div>
 	);
 }

@@ -114,6 +114,22 @@ export function normalizeAppLauncherPreferences(value: unknown): AppLauncherPref
 	};
 }
 
+/**
+ * The stored choices, read against what this deployment lists now: a pin of an app whose link was taken away (or of
+ * an app of your own that is gone) is dropped, so it never uses up one of the six with no row left to unpin it.
+ */
+export function reconcileAppLauncherPreferences(
+	everApps: ReadonlyArray<EverApp>,
+	preferences: AppLauncherPreferences
+): AppLauncherPreferences {
+	const known = new Set([...everApps.map(everAppKey), ...preferences.custom.map(customAppKey)]);
+	const pinned = preferences.pinned.filter((key) => known.has(key));
+	if (pinned.length === preferences.pinned.length) {
+		return preferences;
+	}
+	return { ...preferences, pinned };
+}
+
 export function everAppKey(app: Pick<EverApp, 'id'>) {
 	return `ever:${app.id}`;
 }

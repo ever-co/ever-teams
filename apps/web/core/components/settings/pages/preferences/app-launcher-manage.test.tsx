@@ -1,6 +1,6 @@
 /** @jest-environment jsdom */
 
-import { act, fireEvent, render, screen, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { Provider } from 'jotai';
 
 jest.mock('next-intl', () => ({
@@ -74,8 +74,9 @@ beforeAll(() => {
 
 beforeEach(() => {
 	window.localStorage.clear();
+	// After the next render, as in a browser: a row that moved to another section is drawn there by then.
 	jest.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
-		callback(0);
+		setTimeout(() => callback(0), 0);
 		return 0;
 	});
 });
@@ -141,6 +142,50 @@ describe('Manage apps', () => {
 		expect(document.activeElement?.getAttribute('aria-label')).toBe(
 			'settings.preferences.MANAGE_APPS_REORDER Ever Platform'
 		);
+	});
+
+	it('keeps the keyboard on the pin box of a row that pinning moved to Pinned', async () => {
+		renderEditor();
+		const pin = screen.getByRole('checkbox', { name: 'settings.preferences.MANAGE_APPS_PIN Ever Works' });
+		act(() => {
+			pin.focus();
+		});
+
+		fireEvent.click(pin);
+
+		await waitFor(() => {
+			const moved = within(section('pinned')).getByRole('checkbox', {
+				name: 'settings.preferences.MANAGE_APPS_PIN Ever Works'
+			});
+			expect(document.activeElement).toBe(moved);
+		});
+	});
+
+	it('does not count a pin of an app this deployment no longer lists', () => {
+		window.localStorage.setItem(
+			STORAGE_KEY,
+			JSON.stringify({
+				hidden: [],
+				pinned: ['ever:works', 'ever:gone', 'custom:gone'],
+				order: { ever: [], yours: [] },
+				custom: []
+			})
+		);
+		renderEditor();
+
+		expect(screen.getByText('settings.preferences.MANAGE_APPS_PIN_COUNT 1 6')).toBeTruthy();
+		expect(rowNames('pinned')).toEqual(['Ever Works']);
+	});
+
+	it('says so when the browser refuses to keep the change', () => {
+		renderEditor();
+		jest.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+			throw new DOMException('full', 'QuotaExceededError');
+		});
+
+		fireEvent.click(screen.getByRole('checkbox', { name: 'settings.preferences.MANAGE_APPS_PIN Ever Works' }));
+
+		expect(screen.getByRole('status').textContent).toBe('settings.preferences.SYNC_SAVE_FAILED');
 	});
 
 	it('stops at six pins', () => {

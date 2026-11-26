@@ -9,6 +9,7 @@ import {
 	normalizeAppLauncherPreferences,
 	panelSections,
 	railItems,
+	reconcileAppLauncherPreferences,
 	withCustomApp,
 	withMoved,
 	withoutCustomApp,
@@ -169,6 +170,20 @@ describe('the Manage apps edits', () => {
 		preferences = withPinned(preferences, 'custom:linear', true);
 
 		expect(withoutCustomApp(preferences, 'custom:linear')).toEqual(DEFAULTS);
+	});
+});
+
+describe('pins of apps that are gone', () => {
+	it('drops them, so they never use up one of the six', () => {
+		const stored = { ...DEFAULTS, pinned: ['ever:rec', 'ever:works', 'custom:gone'] };
+
+		expect(reconcileAppLauncherPreferences(APPS, stored).pinned).toEqual(['ever:works']);
+	});
+
+	it('returns the same value when nothing is stale', () => {
+		const stored = { ...DEFAULTS, pinned: ['ever:works'] };
+
+		expect(reconcileAppLauncherPreferences(APPS, stored)).toBe(stored);
 	});
 });
 
