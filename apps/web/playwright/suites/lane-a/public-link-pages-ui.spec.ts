@@ -463,6 +463,49 @@ async function openConsent(context: BrowserContext, site: Awaited<ReturnType<typ
 	return popup;
 }
 
+/** What a consent window held at the moment it called `window.close()` itself. */
+type ConsentWindowAtClose = { href: string; textHasToken: boolean; storageKeysHoldingToken: string[] };
+
+/**
+ * Records, for every window of `context` opened after this call, what it holds at the moment it closes itself
+ * (`window.close()`, embed-authorize-page.tsx:53): its address, whether its text carries `token`, and which
+ * localStorage / sessionStorage keys hold a value carrying it. A page cannot be read once it has closed, so this is
+ * the only moment "the tokens are not left on the page" can be checked. The close itself still happens, once the
+ * record has reached the test.
+ */
+async function recordConsentWindowAtClose(context: BrowserContext, token: string): Promise<ConsentWindowAtClose[]> {
+	const records: ConsentWindowAtClose[] = [];
+	await context.exposeBinding('__e2eConsentAtClose', (_source, record: ConsentWindowAtClose) => {
+		records.push(record);
+	});
+	await context.addInitScript((needle: string) => {
+		const close = window.close.bind(window);
+		window.close = () => {
+			const send = (window as unknown as { __e2eConsentAtClose?: (record: unknown) => Promise<void> })
+				.__e2eConsentAtClose;
+			const holding: string[] = [];
+			for (const storage of [window.localStorage, window.sessionStorage]) {
+				try {
+					for (let index = 0; index < storage.length; index += 1) {
+						const key = storage.key(index);
+						if (key !== null && (storage.getItem(key) ?? '').includes(needle)) holding.push(key);
+					}
+				} catch {
+					// a storage this origin may not read holds nothing this page wrote
+				}
+			}
+			const record = {
+				href: window.location.href,
+				textHasToken: (document.body?.innerText ?? '').includes(needle),
+				storageKeysHoldingToken: holding
+			};
+			if (!send) return close();
+			void send(record).finally(close);
+		};
+	}, token);
+	return records;
+}
+
 /** `GET /user-organization` answer: the person is a member of exactly these organizations. */
 const membershipsOf = (organizations: Array<{ id: string; name: string }>) => ({
 	items: organizations.map((organization) => ({
@@ -1472,6 +1515,7 @@ test.describe('lane-a · /shared-report and /embed/authorize: what a person sees
 		});
 		await signInWithFixture(context, fixture, 'A');
 		const site = await openSitePage(context);
+		const atClose = await recordConsentWindowAtClose(context, SITE_TOKENS.token);
 		const popup = await openConsent(context, site, authorizeQuery(SITE_A, fixture.ids.organizationA));
 		await expect(popup.getByRole('button', { name: EMBED_ALLOW, exact: true })).toBeVisible({ timeout: 25_000 });
 
@@ -1511,28 +1555,19 @@ test.describe('lane-a · /shared-report and /embed/authorize: what a person sees
 			...SITE_TOKENS
 		});
 
-		// The window closes (embed-authorize-page.tsx:197 closeWindow), and the tokens are not left on the page.
+		// The window closes (embed-authorize-page.tsx:197 closeWindow), and the tokens are not left on the page. What
+		// the window held is read at the moment it closes itself: read after the close, as this test first did, every
+		// page read could only return its `.catch` fallback, so none of these checks could fail.
 		await expect.poll(() => popup.isClosed(), { timeout: 15_000 }).toBe(true);
-		const pageText = await popup
-			.locator('body')
-			.innerText()
-			.catch(() => '<closed>');
-		expect(pageText.includes(SITE_TOKENS.token), 'the popup kept the token it had just handed over').toBe(false);
-		expect(
-			await popup.evaluate(() => window.location.href).catch(() => '<closed>'),
-			'the token reached an address'
-		).not.toContain(SITE_TOKENS.token);
+		expect(atClose, 'the consent window closed without calling window.close()').toHaveLength(1);
+		const [closing] = atClose;
+		expect(closing.textHasToken, 'the popup kept the token it had just handed over').toBe(false);
+		expect(closing.href, 'the token reached an address').not.toContain(SITE_TOKENS.token);
 		expect(
 			stub.calls.filter((call) => call.url.includes(SITE_TOKENS.token)),
 			'a request URL carried the site token'
 		).toEqual([]);
-		const stored = await popup
-			.evaluate(() => [...Object.keys(window.localStorage), ...Object.keys(window.sessionStorage)])
-			.catch(() => [] as string[]);
-		expect(
-			stored.filter((key) => key.includes('embed')),
-			'the page stored the site tokens under an embed key'
-		).toEqual([]);
+		expect(closing.storageKeysHoldingToken, 'the page stored the site token in web storage').toEqual([]);
 
 		report('16 Allow', {
 			authorizeRequest: stub.calls

@@ -102,10 +102,10 @@ test.describe('lane-b · the sign-up form', () => {
 			fieldError(view, 'signup-email'),
 			'an empty address produced no error line under the address field'
 		).toContainText('properly formatted email address');
-		await expect(
-			view.locator('#signup-email'),
-			'a refused address was given aria-invalid'
-		).toHaveAttribute('aria-invalid', 'true');
+		await expect(view.locator('#signup-email'), 'a refused address was given aria-invalid').toHaveAttribute(
+			'aria-invalid',
+			'true'
+		);
 
 		// Still step 1: the mode choice never opened.
 		await expect(
@@ -138,7 +138,8 @@ test.describe('lane-b · the sign-up form', () => {
 		// locator('#signup-name-error')` while asserting that very element is absent.
 		const nameError = fieldError(view, 'signup-name');
 		const nameErrorCount = await nameError.count();
-		const nameErrorText = nameErrorCount > 0 ? await nameError.textContent() : '(no error line, which is what this asserts)';
+		const nameErrorText =
+			nameErrorCount > 0 ? await nameError.textContent() : '(no error line, which is what this asserts)';
 		expect(nameErrorCount, `the name "Jane Cooper" was refused too: ${nameErrorText}`).toBe(0);
 
 		expect(
@@ -148,7 +149,9 @@ test.describe('lane-b · the sign-up form', () => {
 		await mockAskedNoNewAuthPath(asksBefore);
 	});
 
-	test('the form never claims an address already has an account; it points to signing in instead', async ({ anon }) => {
+	test('the form never claims an address already has an account; it points to signing in instead', async ({
+		anon
+	}) => {
 		const view = await anon('/auth/signup');
 
 		// Gauzy answers a sign-up the same way whether the address is known or not, so the form cannot refuse a
@@ -177,6 +180,7 @@ test.describe('lane-b · the sign-up form', () => {
 	test('step 1 accepted opens the mode choice with the team field closed', async ({ anon }) => {
 		const view = await anon('/auth/signup');
 		const calls = watchAppApi(view);
+		const asksBefore = await mockAuthAskCount();
 
 		await view.locator('#signup-name').fill('Jane Cooper');
 		await view.locator('#signup-email').fill(MOCK_EMAIL);
@@ -218,14 +222,18 @@ test.describe('lane-b · the sign-up form', () => {
 			`the closed team field's row is ${closed?.revealHeight}px tall, not 0`
 		).toBe(0);
 
-		// Choosing a method is not submitting: nothing was asked yet.
-		expect(
-			appAuthAsks(calls()),
-			`moving to step 2 already asked this app: ${describeAppCalls(calls())}`
-		).toEqual([]);
+		// Choosing a method is not submitting: nothing was asked yet. In a mock run the sign-up posts straight to the
+		// mock (lane-auth-helpers.ts, `APP_SIGN_IN_ROUTES`), so the app-side list is empty either way: the mock's own
+		// sign-in asks are the witness that can fail.
+		expect(appAuthAsks(calls()), `moving to step 2 already asked this app: ${describeAppCalls(calls())}`).toEqual(
+			[]
+		);
+		await mockAskedNoNewAuthPath(asksBefore);
 	});
 
-	test('choosing "With my team" opens its field, and a one-character team name is refused there', async ({ anon }) => {
+	test('choosing "With my team" opens its field, and a one-character team name is refused there', async ({
+		anon
+	}) => {
 		const view = await anon('/auth/signup');
 		const calls = watchAppApi(view);
 
@@ -353,9 +361,12 @@ test.describe('lane-b · the sign-up form', () => {
 		await view.locator('#signup-team').fill('Lane B Team');
 		// The answer is waited for from before the click: `waitForResponse` only catches a response that has not
 		// finished yet, and `click()` returns when the click has landed, not when the client has posted.
-		const registerAnswer = view.waitForResponse((response) => new URL(response.url()).pathname === '/api/auth/register', {
-			timeout: 30_000
-		});
+		const registerAnswer = view.waitForResponse(
+			(response) => new URL(response.url()).pathname === '/api/auth/register',
+			{
+				timeout: 30_000
+			}
+		);
 
 		await view.getByRole('button', { name: 'Create my workspace' }).click();
 
@@ -418,11 +429,7 @@ test.describe('lane-b · the sign-up form', () => {
 			`the register route did not write the half session measured 2026-11-22 (headers saved at ` +
 				`E:\\Coding\\.tmp\\lane-b-register-probe-headers.txt): ${JSON.stringify(writtenCookies)}`
 		).toEqual(
-			expect.arrayContaining([
-				'auth-token=synthetic-refreshed-token',
-				'auth-user-id=',
-				'auth-refresh-token='
-			])
+			expect.arrayContaining(['auth-token=synthetic-refreshed-token', 'auth-user-id=', 'auth-refresh-token='])
 		);
 	});
 });

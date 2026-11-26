@@ -1,6 +1,6 @@
 import { defineConfig, devices } from '@playwright/test';
 
-import { APP_ORIGIN, laneServers } from './test-servers';
+import { APP_ORIGIN, LANE_TIME_ZONE, laneServers } from './test-servers';
 
 /**
  * One config for every lane, chosen by `E2E_LANE`:
@@ -23,11 +23,19 @@ import { APP_ORIGIN, laneServers } from './test-servers';
  * `suites/api/ever-id-off.spec.ts` pins them as absent, and a lane that mounts them in the wrong app turns those
  * cases into confusing 404-less failures.
  *
- * `reuseExistingServer: true` here and nowhere else: a lane spends a night iterating spec by spec, and a cold
- * Turbopack compile of this app costs minutes each time. A lane owns its ports exclusively, so the server it
- * reuses is its own — and it must be killed when the lane is done (`taskkill //F //T //PID <pid>` on the listener
- * of its app and control ports), or the next run inherits a server that was started with different settings.
+ * A lane reuses a server already on its ports, outside CI (`laneServers` in test-servers.ts): a lane spends a night
+ * iterating spec by spec, and a cold Turbopack compile of this app costs minutes each time. Nothing checks whose
+ * server that is, so two people (or agents) on one machine must not run the same lane at once, and a lane's servers
+ * must be killed when it is done (`taskkill //F //T //PID <pid>` on the listener of its app and control ports), or the
+ * next run inherits a server started with different settings or from another checkout.
+ *
+ * One lane at a time on a small disk: each lane's `apps/web/.next-lane-<port>` dev build grows to 4–11 GB, and four
+ * lanes together filled a drive on 2026-11-26. Delete the folder after a run (it is git-ignored build output).
  */
+// The specs build some expected dates and times in the test process itself (Node's Intl), so the runner and its workers
+// run in the lane's zone too: the workers inherit this environment, and Node reads a changed `TZ` at once.
+process.env.TZ = LANE_TIME_ZONE;
+
 const laneName = process.env.E2E_LANE ?? '';
 const everId = process.env.E2E_EVER_ID === '1';
 const lane = laneServers(laneName, { everId });
@@ -49,6 +57,10 @@ export default defineConfig({
 		screenshot: 'only-on-failure',
 		video: 'off',
 		...devices['Desktop Chrome'],
+		// The zone every lane spec was measured in (several pin Europe/Madrid instants and the "Your profile uses UTC"
+		// notice that a non-UTC browser shows). Pinned so a UTC runner, such as CI, renders the same page; the lane's
+		// servers get the same zone through `TZ` (test-servers.ts, `laneServers`).
+		timezoneId: LANE_TIME_ZONE,
 		// Bundled Chromium cannot be installed on this PC (see README); the same engine runs through an installed
 		// Google Chrome. Irrelevant to a browser-free lane, harmless to keep.
 		channel: (process.env.E2E_BROWSER_CHANNEL ?? 'chromium') as 'chromium' | 'chrome'

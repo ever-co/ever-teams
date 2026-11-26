@@ -41,8 +41,8 @@ import { mintAccessToken, sha256 } from './lane-d-session';
  *
  * The mock writes every answer through one `writeHead` that names the CORS set and a JSON type only, so it cannot
  * offer a `Content-Disposition`, a `content-length` (it answers chunked) or a binary body on any download path — test
- * 1 measures that on the mock's own answer. `scenario.fails` is not a switch this checkout's mock reads: test 7 arms
- * it and the call is answered 200 anyway. And the mock's permission list has no `INVOICES_VIEW`, so
+ * 1 measures that on the mock's own answer. `scenario.fails` is read by the mock since #5675: test 7 arms it and
+ * measures the refusal the caller gets. And the mock's permission list has no `INVOICES_VIEW`, so
  * `GET /api/invoices/download/:id` is refused by its own gate before `forwardToGauzy` runs on this lane — test 5 and
  * test 6 measure both halves. Those are recorded in `PLAN.md` as blockers, not worked around here.
  */
@@ -242,19 +242,22 @@ test.describe('lane-d · re-measuring the download claims: the answer headers, a
 		).not.toContain('INVOICES_VIEW');
 	});
 
-	test('scenario.fails is not a switch this mock reads, so an upstream refusal cannot be caused here', async ({
-		api
-	}) => {
+	test('an upstream refusal (scenario.fails) reaches the caller with its own status and body', async ({ api }) => {
+		// This case used to pin "the mock ignores `fails`". The mock has read the switch since #5675
+		// (mock-gauzy-server.mjs, `scenario.fails`), so it now measures what the switch was wanted for:
+		// `forwardDownloadToGauzy` hands the platform's refusal on as it came, status and body.
 		await mockScenario({ fails: { [FILE]: 503 } });
 		const response = await api(FILE);
 		const body = await response.text();
 		const log = await mockRequests();
 
-		// Armed exactly the way a test would arm it; the mock answers 200 and logs 200 (helpers.ts MockScenario
-		// carries [key: string]: unknown, so this compiles even though the mock ignores the key).
-		expect(response.status(), `the mock answered a refusal it cannot produce: ${body}`).toBe(200);
+		expect(response.status(), `the download route did not pass the upstream 503 on: ${body}`).toBe(503);
+		expect(parseAnswer(body), `the refusal body changed on its way through the app: ${body}`).toEqual({
+			statusCode: 503,
+			message: 'Synthetic Gauzy refusal (503)'
+		});
 		expect(asksFor(log, FILE), `the download call the mock recorded changed: ${logOf(log)}`).toEqual([
-			`GET ${FILE} 200`
+			`GET ${FILE} 503`
 		]);
 		await mockReset();
 	});

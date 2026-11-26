@@ -274,7 +274,7 @@ const consoleFindings = (shield: Shield, excused: RegExp[] = []) =>
 
 /** One `TProjectBudgetReport` row as the schema answers it (`time-log-reports.schema.ts:43-63`). */
 type ServedReportRow = {
-	project: { id?: string; name?: string | null; currency?: string; projectHidden?: boolean };
+	project: { id?: string; name?: string | null; currency?: string; projectHidden?: boolean; color?: string };
 	budgetType?: string;
 	budget: number | string;
 	spent: number | string;
@@ -362,7 +362,9 @@ const REPORT_ROWS: ServedReportRow[] = [
 		spentPercentage: 1
 	},
 	{
-		project: { id: 'pb-hidden-keep', projectHidden: true },
+		// A name and a colour the page must never show (test 5): without them the "nothing of it reached the page"
+		// checks had nothing to find, so they could not fail.
+		project: { id: 'pb-hidden-keep', projectHidden: true, name: 'Hidden Probe Project', color: '#0c0ffe' },
 		budgetType: 'hours',
 		budget: 0,
 		spent: 1.5,
@@ -976,6 +978,7 @@ test.describe('lane-a · Reports › Project budget: what the page shows and sen
 			false
 		);
 		expect(html.includes('Hidden Probe Project'), 'a private project name reached the page').toBe(false);
+		expect(html.toLowerCase().includes('#0c0ffe'), 'a private project colour reached the page').toBe(false);
 		// and it is not drawn on the board, because the API gave it no budget to measure against
 		await expect(board(page).getByText(EN.common.PRIVATE_PROJECT)).toHaveCount(0);
 

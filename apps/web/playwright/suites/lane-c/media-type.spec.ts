@@ -1,4 +1,8 @@
+import { request as httpRequest } from 'node:http';
+
 import { expect, test, type ApiCall } from '../../api-fixtures';
+import { authCookieHeader, loadFixture } from '../../helpers';
+import { APP_ORIGIN } from '../../test-servers';
 
 /**
  * A proxy route forwards a JSON body and nothing else.
@@ -15,8 +19,9 @@ import { expect, test, type ApiCall } from '../../api-fixtures';
  * is asked nothing, not even the `GET /user/me` the app's session guard makes.
  *
  * Every case here sends a body that is not JSON-parsable, so Playwright passes it through as it is rather
- * than re-encoding it (playwright-core client/fetch.js: a string that does not parse as JSON is sent as
- * raw bytes, with no content-type unless the test names one).
+ * than re-encoding it. Playwright still *types* such a body: playwright-core server/fetch.js sets
+ * `application/octet-stream` on any post data the test does not type itself. So the untyped-body case below goes
+ * through `node:http` instead, the one client here that sends a body with no `Content-Type` header at all.
  *
  * **Run on lane-c, 2026-11-21, with no change needed to the file:** `Running 41 tests using 1 worker` /
  * `41 passed (6.5s)` (log `artifacts/lane-c-media-type-1.log`; a second writer's batch of the same file printed
@@ -30,6 +35,33 @@ import { expect, test, type ApiCall } from '../../api-fixtures';
  */
 
 const FORM_BODY = 'name=Fixture&email=manager@example.test';
+
+type UntypedAnswer = { status: number; text: string; sentContentType: string | undefined };
+
+/** A write sent with `node:http`, which adds no `Content-Type` of its own: the one way here to send an untyped body. */
+function sendUntyped(method: string, path: string, body: string, cookie: string): Promise<UntypedAnswer> {
+	return new Promise((resolve, reject) => {
+		const outgoing = httpRequest(
+			new URL(path, APP_ORIGIN),
+			{ method, headers: { accept: 'application/json', cookie, 'content-length': Buffer.byteLength(body) } },
+			(incoming) => {
+				let text = '';
+				incoming.setEncoding('utf8');
+				incoming.on('data', (chunk: string) => (text += chunk));
+				incoming.on('end', () =>
+					resolve({
+						status: incoming.statusCode ?? 0,
+						text,
+						sentContentType: outgoing.getHeader('content-type') as string | undefined
+					})
+				);
+			}
+		);
+		outgoing.on('error', reject);
+		outgoing.setTimeout(60_000, () => outgoing.destroy(new Error(`${method} ${path}: no answer within 60 s`)));
+		outgoing.end(body);
+	});
+}
 
 type WriteProbe = { verb: 'POST' | 'PUT' | 'PATCH' | 'DELETE'; path: string };
 
@@ -85,19 +117,24 @@ test.describe('a write whose body is not JSON is refused before it is read', () 
 		}
 	}
 
-	test('a body that arrives with no declared type at all is refused too', async ({ api, mock }) => {
+	test('a body that arrives with no declared type at all is refused too', async ({ mock }) => {
 		// The harder half of the rule: `text/plain` a client declares is visible, an untyped body is only
-		// known once read — and `forwardToGauzy` reads it, sees something there, and refuses.
+		// known once read — and `forwardToGauzy` reads it, sees something there, and refuses (line 107).
+		// Sent with `node:http`, not the `api` fixture: Playwright types every body it sends (see the header).
 		const probes: WriteProbe[] = [
 			{ verb: 'POST', path: '/api/chat/conversations' },
 			{ verb: 'PUT', path: '/api/user/ui-preferences' }
 		];
+		const cookie = authCookieHeader(await loadFixture(), 'A');
 
 		for (const probe of probes) {
-			const response = await api(probe.path, { method: probe.verb, body: FORM_BODY });
-			const text = await response.text();
+			const answer = await sendUntyped(probe.verb, probe.path, FORM_BODY, cookie);
 
-			expect(response.status(), `${probe.verb} ${probe.path} with an untyped body answered ${text}`).toBe(415);
+			expect(
+				answer.sentContentType,
+				`${probe.verb} ${probe.path}: the probe itself declared a type`
+			).toBeUndefined();
+			expect(answer.status, `${probe.verb} ${probe.path} with an untyped body answered ${answer.text}`).toBe(415);
 		}
 
 		expect(
