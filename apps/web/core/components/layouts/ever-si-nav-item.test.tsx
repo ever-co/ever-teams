@@ -122,15 +122,22 @@ describe('Ever SI sidebar row', () => {
 		expect(row.getAttribute('data-active')).toBe('false');
 	});
 
-	it('closes the sidebar sheet when it opens Ever SI full screen, and leaves it alone when it closes Ever SI', () => {
+	it('closes the sidebar sheet on phones when it opens Ever SI full screen', () => {
 		renderRow();
-		const row = screen.getByRole('button', { name: 'Ever SI' });
 
-		fireEvent.click(row);
+		fireEvent.click(screen.getByRole('button', { name: 'Ever SI' }));
+
 		expect(mockSidebar.setOpenMobile).toHaveBeenCalledWith(false);
+	});
 
-		mockSidebar.setOpenMobile.mockClear();
-		fireEvent.click(row);
+	it('leaves the sidebar sheet alone when it closes Ever SI', () => {
+		const store = createStore();
+		store.set(everSiPanelOpenAtom, true);
+		renderRow(store);
+
+		fireEvent.click(screen.getByRole('button', { name: 'Ever SI' }));
+
+		expect(store.get(everSiPanelOpenAtom)).toBe(false);
 		expect(mockSidebar.setOpenMobile).not.toHaveBeenCalled();
 	});
 
