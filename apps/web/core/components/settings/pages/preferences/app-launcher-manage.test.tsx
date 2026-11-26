@@ -14,6 +14,7 @@ jest.mock('@/core/constants/config/ever-apps', () => {
 		return {
 			id,
 			name,
+			lineKey: `switchers.APP_LINE_${id.toUpperCase()}`,
 			logo: `/assets/ever-apps/${id}.svg`,
 			url: isLinked ? `https://${id}.example.com/` : '',
 			domain: isLinked ? `${id}.example.com` : '',

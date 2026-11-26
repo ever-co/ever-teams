@@ -2,11 +2,12 @@
 
 import { useTranslations } from 'next-intl';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/core/components/common/tooltip';
+import { EVER_APP_ADD_URL } from '@/core/constants/config/ever-apps';
 import { useAppLauncher } from '@/core/hooks/common/use-app-launcher';
 import { useAppSwitcherPlacement } from '@/core/hooks/common/use-app-switcher-placement';
 import type { LauncherItem } from '@/core/lib/utils/app-launcher';
 import { cn } from '@/core/lib/helpers';
-import { AppGlyph } from './app-glyph';
+import { AddGlyph, AppGlyph } from './app-glyph';
 
 const TOOLTIP_DELAY_MS = 400;
 
@@ -24,10 +25,10 @@ const RAIL_SLOT = 'flex size-10 items-center justify-center rounded-lg';
 const RAIL_LINK =
 	'outline-none transition-colors hover:bg-foreground/5 focus-visible:ring-[3px] focus-visible:ring-ring/50';
 
-function RailTooltip({ item }: Readonly<{ item: LauncherItem }>) {
+function RailTooltip({ label }: Readonly<{ label: string }>) {
 	return (
 		<TooltipContent side="right" sideOffset={6}>
-			{item.name}
+			{label}
 		</TooltipContent>
 	);
 }
@@ -47,7 +48,7 @@ function CurrentAppTile({ item }: Readonly<{ item: LauncherItem }>) {
 						<span className="sr-only">{t('switchers.CURRENT_APP', { app: item.name })}</span>
 					</span>
 				</TooltipTrigger>
-				<RailTooltip item={item} />
+				<RailTooltip label={item.name} />
 			</Tooltip>
 		</>
 	);
@@ -64,29 +65,37 @@ function UnlinkedAppTile({ item }: Readonly<{ item: LauncherItem }>) {
 					<span className="sr-only">{t('switchers.APP_COMING_SOON', { app: item.name })}</span>
 				</span>
 			</TooltipTrigger>
-			<RailTooltip item={item} />
+			<RailTooltip label={item.name} />
 		</Tooltip>
 	);
 }
 
+/** Same tab, as the panel's rows: a plain link (Ctrl/Cmd/middle click still opens a new tab when wanted). */
 function OtherAppTile({ item }: Readonly<{ item: LauncherItem }>) {
-	const t = useTranslations();
-	const label = t('switchers.APP_OPENS_IN_NEW_TAB', { app: item.name });
-
 	return (
 		<Tooltip>
 			<TooltipTrigger asChild delay={TOOLTIP_DELAY_MS}>
-				<a
-					href={item.url}
-					target="_blank"
-					rel="noopener noreferrer"
-					aria-label={label}
-					className={cn(RAIL_SLOT, RAIL_LINK)}
-				>
+				<a href={item.url} aria-label={item.name} className={cn(RAIL_SLOT, RAIL_LINK)}>
 					<AppGlyph item={item} size="md" />
 				</a>
 			</TooltipTrigger>
-			<RailTooltip item={item} />
+			<RailTooltip label={item.name} />
+		</Tooltip>
+	);
+}
+
+/** "+ Add" at the end of the rail: a "+" tile, named by its tooltip, to Ever Platform's page that adds an app. */
+function AddAppTile({ href }: Readonly<{ href: string }>) {
+	const t = useTranslations();
+	const label = t('switchers.ADD_APPS_IN_PLATFORM');
+	return (
+		<Tooltip>
+			<TooltipTrigger asChild delay={TOOLTIP_DELAY_MS}>
+				<a href={href} aria-label={label} className={cn(RAIL_SLOT, RAIL_LINK)}>
+					<AddGlyph size="md" />
+				</a>
+			</TooltipTrigger>
+			<RailTooltip label={label} />
 		</Tooltip>
 	);
 }
@@ -123,6 +132,12 @@ export function AppRail() {
 						<RailTile item={item} />
 					</li>
 				))}
+				{EVER_APP_ADD_URL && (
+					<li className="mt-1 flex w-full flex-col items-center gap-1">
+						<span aria-hidden="true" className="w-6 hairline-t border-border" />
+						<AddAppTile href={EVER_APP_ADD_URL} />
+					</li>
+				)}
 			</ul>
 		</nav>
 	);
