@@ -276,7 +276,7 @@ jobs:
   # (playwright/test-servers.ts): the mock Gauzy backend on 127.0.0.1:3988-3991 and `next dev` on localhost:3030.
   # No `needs`: the suites do not use the build. On Actions the job runs beside deploy; in-cluster, where every job of
   # this file runs in one pod one at a time, it runs before browser-parity (which needs deploy), and
-  # `ci-builds-run.py ... --job playwright-routes` runs it on its own.
+  # `ci-builds-run.py ... --job playwright-routes` (in the private ever-co/homelab repository's scripts/) runs it alone.
   playwright-routes:
     runs-on: ${{ vars.RUNNER_LINUX_X64_4 || 'ubuntu-latest' }}
 

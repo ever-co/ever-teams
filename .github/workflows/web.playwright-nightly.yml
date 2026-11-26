@@ -9,7 +9,8 @@ permissions:
 #
 # Manual-only on purpose: GitHub Actions never runs it by itself. In-cluster, ever-co/k8s-gitops
 # apps/ci-builds/tools/policy-overrides.json (`schedules`) runs it every night on develop with event workflow_dispatch,
-# the way the Gauzy SDK generate.yml files run; a failed night sends the usual ci-builds failure mail. By hand:
+# the way the Gauzy SDK generate.yml files run; a failed night sends the usual ci-builds failure mail. By hand, from a
+# checkout of the private ever-co/homelab repository (its scripts/ folder, with the cluster's kubeconfig in .config/):
 #   python scripts/ci-builds-run.py ever-co/ever-teams <branch> web.playwright-nightly.yml 8 --event workflow_dispatch
 on:
   workflow_dispatch:
