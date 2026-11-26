@@ -103,7 +103,7 @@ export function ProjectActivityChart({
 		() => projectForecastOf(tasks, statuses, activity, weekStart),
 		[activity, statuses, tasks, weekStart]
 	);
-	const hasActivity =activity.created > 0 || activity.completed > 0;
+	const hasActivity = activity.created > 0 || activity.completed > 0;
 	const hasUndated = activity.undatedDone > 0;
 
 	if (!hasActivity && !hasUndated) {
