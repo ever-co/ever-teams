@@ -31,12 +31,13 @@ describe('the API tokens entry of Settings (#5209)', () => {
 		const forMembers = entriesOfGroup('account', false).map((entry) => entry.id);
 		const forManagers = entriesOfGroup('account', true).map((entry) => entry.id);
 
+		// Profile, Preferences, Notifications first, as in every Ever app (spec A9 of the shared shell).
 		expect(forMembers).toEqual([
 			'profile',
 			'preferences',
-			'workingHours',
 			'notifications',
 			'security',
+			'workingHours',
 			'apiTokens'
 		]);
 		expect(forManagers).toEqual(forMembers);

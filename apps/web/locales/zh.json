@@ -254,6 +254,8 @@
 		"DARK_MODE": "夜间模式",
 		"THEME_LIGHT": "浅色",
 		"THEME_DARK": "深色",
+		"SWITCH_TO_DARK_THEME": "切换到深色主题",
+		"SWITCH_TO_LIGHT_THEME": "切换到浅色主题",
 		"SETTINGS": "设置",
 		"PERSONAL": "个人",
 		"USE_SETTING": "使用设置",

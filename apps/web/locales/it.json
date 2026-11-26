@@ -253,6 +253,8 @@
 		"DARK_MODE": "Modalità Scura",
 		"THEME_LIGHT": "Chiaro",
 		"THEME_DARK": "Scuro",
+		"SWITCH_TO_DARK_THEME": "Passa al tema scuro",
+		"SWITCH_TO_LIGHT_THEME": "Passa al tema chiaro",
 		"SETTINGS": "Impostazioni",
 		"PERSONAL": "Personale",
 		"USE_SETTING": "Usa Impostazione",

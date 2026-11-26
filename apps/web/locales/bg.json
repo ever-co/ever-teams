@@ -253,6 +253,8 @@
 		"DARK_MODE": "Тъмен режим",
 		"THEME_LIGHT": "Светла",
 		"THEME_DARK": "Тъмна",
+		"SWITCH_TO_DARK_THEME": "Превключване към тъмната тема",
+		"SWITCH_TO_LIGHT_THEME": "Превключване към светлата тема",
 		"SETTINGS": "Настройки",
 		"PERSONAL": "Лични",
 		"USE_SETTING": "Използвай настройка",
