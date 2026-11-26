@@ -33,7 +33,7 @@ function linksOf(apps: EverAppsModule['EVER_APPS']) {
 	return apps.map(({ id, url, domain }) => ({ id, url, domain }));
 }
 
-describe('the apps of the App Launcher', () => {
+describe('the apps of the app switcher', () => {
 	it('lists no app and hides the switcher when the deployment names no link', async () => {
 		const { EVER_APPS, HAS_EVER_APP_SWITCHER } = await loadWithLinks(undefined);
 
@@ -48,7 +48,7 @@ describe('the apps of the App Launcher', () => {
 		expect(EVER_APPS).toEqual([]);
 	});
 
-	it('lists the linked apps in the shared order, this app even without a link, and Ever Demand as coming soon', async () => {
+	it('lists the linked apps in the switcher order, and this app even without a link', async () => {
 		const { EVER_APPS, HAS_EVER_APP_SWITCHER } = await loadWithLinks(
 			'gauzy=https://gauzy.example.com, works = https://works.example.com/'
 		);

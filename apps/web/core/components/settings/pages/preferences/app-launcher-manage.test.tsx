@@ -188,6 +188,18 @@ describe('Manage apps', () => {
 		expect(screen.getByRole('status').textContent).toBe('settings.preferences.SYNC_SAVE_FAILED');
 	});
 
+	it('says so when the browser blocks its storage altogether, and keeps the choice for this page', () => {
+		renderEditor();
+		jest.spyOn(window, 'localStorage', 'get').mockImplementation(() => {
+			throw new DOMException('denied', 'SecurityError');
+		});
+
+		fireEvent.click(screen.getByRole('checkbox', { name: 'settings.preferences.MANAGE_APPS_PIN Ever Works' }));
+
+		expect(screen.getByRole('status').textContent).toBe('settings.preferences.SYNC_SAVE_FAILED');
+		expect(rowNames('pinned')).toEqual(['Ever Works']);
+	});
+
 	it('stops at six pins', () => {
 		renderEditor();
 		for (const name of ['Ever Platform', 'Ever Works', 'Ever Teams', 'Ever Gauzy', 'Ever Rec', 'Ever Traduora']) {
