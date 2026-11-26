@@ -1,3 +1,4 @@
+import type { DottedLanguageObjectStringPaths } from 'next-intl';
 import { isCurrentEverApp, type EverApp, type EverAppStatus } from '@/core/constants/config/ever-apps';
 
 /** As in Ever Works and Ever Platform: six pins at most, so the Pinned section stays a short list. */
@@ -41,7 +42,7 @@ export interface LauncherItem {
 	home: Exclude<LauncherSectionId, 'pinned'>;
 	name: string;
 	/** The message key of the line under an Ever app's name; null for an app the person added. */
-	lineKey: string | null;
+	lineKey: DottedLanguageObjectStringPaths | null;
 	/** Empty when the row is not a link: the app you are in, or one coming soon without a link. */
 	url: string;
 	domain: string;

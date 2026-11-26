@@ -1,4 +1,5 @@
 // cspell:words traduora
+import type { DottedLanguageObjectStringPaths } from 'next-intl';
 import { readRuntimeEnv } from '@/env-config';
 
 type EverAppId = 'gauzy' | 'teams' | 'works' | 'platform' | 'demand' | 'rec' | 'traduora' | 'tech';
@@ -11,7 +12,7 @@ export interface EverApp {
 	/** The product's name, the same in every language and in every Ever app's launcher. */
 	name: string;
 	/** The message key of the one line under the name: what the app does, in the reader's language. */
-	lineKey: string;
+	lineKey: DottedLanguageObjectStringPaths;
 	logo: string;
 	/** Empty for this app, and for an app that is coming soon, when the deployment gives it no link. */
 	url: string;

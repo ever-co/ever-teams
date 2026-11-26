@@ -23,7 +23,7 @@ function app(id: EverApp['id'], name: string, status: EverApp['status'] = 'avail
 	return {
 		id,
 		name,
-		lineKey: `switchers.APP_LINE_${id.toUpperCase()}`,
+		lineKey: `switchers.APP_LINE_${id.toUpperCase()}` as EverApp['lineKey'],
 		logo: `/assets/ever-apps/${id}.svg`,
 		url: isLinked ? `https://${id}.example.com/` : '',
 		domain: isLinked ? `${id}.example.com` : '',
