@@ -4,7 +4,6 @@ import type { RefObject } from 'react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { ArrowUp, Bot, Key, Stop } from '@/core/components/icons';
-import { APP_NAME } from '@/core/constants/config/constants';
 import { cn } from '@/core/lib/helpers';
 import { DictationButton } from '@/core/components/common/dictation-button';
 import { appendDictatedText } from '@/core/hooks/ai/use-dictation';
@@ -137,7 +136,7 @@ export function AssistantComposer({
 	const hasText = trimmedValue.length > 0;
 	const canSend = hasText && isConfigured;
 
-	const readyPlaceholder = t('chatView.ASK_PLACEHOLDER', { appName: APP_NAME });
+	const readyPlaceholder = t('chatView.ASK_PLACEHOLDER');
 	const lockedPlaceholder = t('chatView.INPUT_PLACEHOLDER_NO_KEY');
 	const placeholder = pickPlaceholder(isConfigured, readyPlaceholder, lockedPlaceholder);
 

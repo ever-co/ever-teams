@@ -5,7 +5,7 @@ import { SidebarProvider, SidebarInset } from '@/core/components/common/sidebar'
 import AppContainer from './app-container';
 import { useIsInsideLayoutShell } from './layout-shell-context';
 import { PageLayout } from './page-layout';
-import { LazyAppSidebar } from '@/core/components/optimized-components/common';
+import { LazyAppSidebar, LazyEverSiPanel } from '@/core/components/optimized-components/common';
 import { AppSidebarSkeleton } from '@/core/components/common/skeleton/app-sidebar-skeleton';
 
 type MainLayoutProps = PropsWithChildren<{
@@ -41,6 +41,7 @@ export function MainLayout({ children, ...pageProps }: MainLayoutProps) {
 				<Suspense fallback={<AppSidebarSkeleton />}>
 					<LazyAppSidebar publicTeam={isPublicTeam} />
 				</Suspense>
+				<LazyEverSiPanel publicTeam={isPublicTeam} />
 				<SidebarInset>{pageContent}</SidebarInset>
 			</SidebarProvider>
 		</AppContainer>

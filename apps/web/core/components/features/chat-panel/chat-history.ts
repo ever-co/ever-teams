@@ -1,5 +1,10 @@
 export const CHAT_HISTORY_KEY = 'ever-teams-chat-history-v1';
 export const CHAT_HISTORY_LIMIT = 50;
+/**
+ * How long a conversation is kept after its last message: Ever SI tells the person "We keep this conversation for
+ * 30 days" (platform decision D-91), so older ones are forgotten whenever history is read or written.
+ */
+export const CHAT_HISTORY_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000;
 
 export type ChatHistoryScope = {
 	userId: string;
@@ -105,6 +110,19 @@ export function createChatSession(messages: ChatHistoryMessage[], id = `chat-${D
 	};
 }
 
+export function isChatSessionExpired(session: Pick<ChatSession, 'updatedAt'>, now = Date.now()) {
+	return now - session.updatedAt > CHAT_HISTORY_MAX_AGE_MS;
+}
+
+/** The conversations still inside the 30 days, counted from their last message. */
+export function pruneExpiredChatSessions(sessions: ChatSession[], now = Date.now()) {
+	return sessions.filter((session) => !isChatSessionExpired(session, now));
+}
+
+export function removeChatSession(sessions: ChatSession[], id: string) {
+	return sessions.filter((session) => session.id !== id);
+}
+
 export function upsertChatSession(sessions: ChatSession[], session: ChatSession): ChatSession[] {
 	return [session, ...sessions.filter((item) => item.id !== session.id)]
 		.sort((left, right) => right.updatedAt - left.updatedAt)
@@ -127,22 +145,72 @@ export function canPersistChatHistory(
 	return Boolean(scope && messageCount > 0 && loadedScopeKey === chatHistoryKey(scope));
 }
 
-export function readChatHistory(scope: ChatHistoryScope): ChatSession[] {
+function readStoredSessions(key: string): ChatSession[] {
+	const value: unknown = JSON.parse(localStorage.getItem(key) || '[]');
+	return Array.isArray(value) ? value.filter(isChatSession) : [];
+}
+
+/** An empty history removes its key, so deleting the last conversation leaves nothing of it in the browser. */
+function storeSessions(key: string, sessions: ChatSession[]) {
+	if (sessions.length === 0) {
+		localStorage.removeItem(key);
+		return;
+	}
+	localStorage.setItem(key, JSON.stringify(sessions.slice(0, CHAT_HISTORY_LIMIT)));
+}
+
+function storedHistoryKeys() {
+	const prefix = `${CHAT_HISTORY_KEY}:`;
+	const keys: string[] = [];
+	for (let index = 0; index < localStorage.length; index += 1) {
+		const key = localStorage.key(index);
+		if (key?.startsWith(prefix)) {
+			keys.push(key);
+		}
+	}
+	return keys;
+}
+
+/**
+ * Forgets the conversations older than 30 days in every scope this browser holds, not only the open one: a team
+ * or workspace the person never opens again must not keep its history past what the disclosure promises.
+ */
+export function pruneExpiredChatHistory(now = Date.now()) {
+	if (typeof window === 'undefined') return;
+	try {
+		for (const key of storedHistoryKeys()) {
+			try {
+				const sessions = readStoredSessions(key);
+				const kept = pruneExpiredChatSessions(sessions, now);
+				if (kept.length !== sessions.length) {
+					storeSessions(key, kept);
+				}
+			} catch {
+				// One unreadable entry must not keep the others from being pruned.
+			}
+		}
+	} catch {
+		// Browser storage can be unavailable; there is nothing kept to prune then.
+	}
+}
+
+export function readChatHistory(scope: ChatHistoryScope, now = Date.now()): ChatSession[] {
 	if (typeof window === 'undefined') return [];
 	try {
 		// Never expose history written by the former origin-wide key to another signed-in account.
 		localStorage.removeItem(CHAT_HISTORY_KEY);
-		const value: unknown = JSON.parse(localStorage.getItem(chatHistoryKey(scope)) || '[]');
-		return Array.isArray(value) ? value.filter(isChatSession).slice(0, CHAT_HISTORY_LIMIT) : [];
+		pruneExpiredChatHistory(now);
+		const sessions = readStoredSessions(chatHistoryKey(scope));
+		return pruneExpiredChatSessions(sessions, now).slice(0, CHAT_HISTORY_LIMIT);
 	} catch {
 		return [];
 	}
 }
 
-export function writeChatHistory(scope: ChatHistoryScope, sessions: ChatSession[]) {
+export function writeChatHistory(scope: ChatHistoryScope, sessions: ChatSession[], now = Date.now()) {
 	if (typeof window === 'undefined') return;
 	try {
-		localStorage.setItem(chatHistoryKey(scope), JSON.stringify(sessions.slice(0, CHAT_HISTORY_LIMIT)));
+		storeSessions(chatHistoryKey(scope), pruneExpiredChatSessions(sessions, now));
 	} catch {
 		// Browser storage can be unavailable or full; chat must remain usable without persistence.
 	}

@@ -642,22 +642,6 @@
       "count": 1
     }
   },
-  "core/components/features/chat-panel/components/chat-panel-layout.tsx": {
-    "react-hooks/refs": {
-      "count": 9
-    }
-  },
-  "core/components/features/chat-panel/components/chat-view.tsx": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    },
-    "react-hooks/preserve-manual-memoization": {
-      "count": 1
-    },
-    "react-hooks/set-state-in-effect": {
-      "count": 4
-    }
-  },
   "core/components/features/daily-plan/active-task-handler-modal.tsx": {
     "@typescript-eslint/no-unused-expressions": {
       "count": 2
