@@ -133,7 +133,9 @@ const pidsListeningOn = (wanted) => {
 const killTree = (pid) => {
 	if (typeof pid !== 'number' || !Number.isFinite(pid)) return false;
 	if (process.platform === 'win32') {
-		const run = spawnSync('taskkill', ['/F', '/T', '/PID', String(pid)], { stdio: 'inherit' });
+		// By its full path, not through PATH: a PATH entry earlier than System32 could otherwise supply the binary.
+		const taskkill = resolve(process.env.SystemRoot || 'C:\\Windows', 'System32', 'taskkill.exe');
+		const run = spawnSync(taskkill, ['/F', '/T', '/PID', String(pid)], { stdio: 'inherit' });
 		return !run.error && run.status === 0;
 	}
 	let killed = false;
@@ -321,7 +323,7 @@ for (const port of [ports.control, ports.app]) {
 		if (!ready) await sleep(2000);
 	}
 	if (!ready) {
-		shutdown(`port ${port} never answered`);
+		await shutdown(`port ${port} never answered`, 1);
 	}
 	console.log(`port ${port} answers`);
 }
@@ -337,7 +339,7 @@ if (problems.length) {
 	console.error(
 		`a server left over from another run keeps the environment it was started with; run \`down ${laneName}\` first`
 	);
-	shutdown('miswired lane', 1);
+	await shutdown('miswired lane', 1);
 }
 console.log(`checked: the app on ${ports.app} names its own mock ${ports.mock} and statistics sink ${ports.platform}`);
 

@@ -88,7 +88,10 @@ test.describe('lane-b · what the jar holds', () => {
 				(cookie) =>
 					expected.includes(cookie.name) && (cookie.httpOnly || cookie.secure || cookie.sameSite !== 'Lax')
 			)
-			.map((cookie) => `${cookie.name} httpOnly=${cookie.httpOnly} secure=${cookie.secure} sameSite=${cookie.sameSite}`);
+			.map(
+				(cookie) =>
+					`${cookie.name} httpOnly=${cookie.httpOnly} secure=${cookie.secure} sameSite=${cookie.sameSite}`
+			);
 		expect(
 			wrongShape,
 			`a session cookie is no longer readable the way the app reads it: ${wrongShape.join(', ')}`
@@ -111,7 +114,7 @@ test.describe('lane-b · what the jar holds', () => {
 
 		expect(token, 'no auth-token cookie in the jar of a signed-in shell').toBeTruthy();
 		// Three-part, unsigned: the harness mints it (`helpers.ts` syntheticAccessToken), the mock never issues one.
-		const parts = (token as string).split('.');
+		const parts = (token ?? '').split('.');
 		expect(parts.length, `auth-token is not a three-part token (${parts.length} parts)`).toBe(3);
 
 		// Claims only are read out here, never the token itself: a failure message must not print a session.
@@ -246,7 +249,8 @@ test.describe('lane-b · what the jar holds', () => {
 		// mock run has one. The pin below is the door's *renewal*, measured.
 		const view = await anon('/auth/passcode');
 		await signInWithExpiredAccessToken(view.context(), fixture);
-		const tokenBefore = (await view.context().cookies()).find((cookie) => cookie.name === 'auth-token')?.value ?? '';
+		const tokenBefore =
+			(await view.context().cookies()).find((cookie) => cookie.name === 'auth-token')?.value ?? '';
 
 		await view.goto(`${APP_ORIGIN}/settings/personal`, { waitUntil: 'domcontentloaded' });
 
@@ -256,10 +260,9 @@ test.describe('lane-b · what the jar holds', () => {
 			`the door never tried to renew the expired token. Mock log: ${describeMockLog(await mockRequests())}`
 		).not.toHaveLength(0);
 
-		await expect(
-			view,
-			`the expired session was not let through on the renewal answer (${view.url()})`
-		).toHaveURL(/\/settings\/personal$/);
+		await expect(view, `the expired session was not let through on the renewal answer (${view.url()})`).toHaveURL(
+			/\/settings\/personal$/
+		);
 
 		// What the renewal actually did to the jar, measured 2026-11-22 (`lane-b-cookie-jar-2.log`): `auth-token` is no
 		// longer the expired token this test wrote — it is the answer the mock handed the door, verbatim

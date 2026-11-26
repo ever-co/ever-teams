@@ -154,4 +154,10 @@ for (const r of rows)
 	for (const a of r.viaAlias)
 		console.log('   ' + a.verb + ' ' + r.path + ' -> ' + a.target + ' guards=' + JSON.stringify(a.guards));
 console.log('corrected unguarded write list (' + unguarded.length + '):');
-console.log(JSON.stringify(unguarded.sort(), null, 1));
+console.log(
+	JSON.stringify(
+		[...unguarded].sort((a, b) => a.localeCompare(b)),
+		null,
+		1
+	)
+);

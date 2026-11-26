@@ -1,5 +1,5 @@
 const path = require('node:path');
-const { PHASE_TEST } = require('next/constants');
+const { PHASE_DEVELOPMENT_SERVER, PHASE_TEST } = require('next/constants');
 const withNextIntl = require('next-intl/plugin')('./core/lib/i18n/request.ts');
 const { withSentryConfig } = require('@sentry/nextjs');
 const { parseImageHosts, serializeImageRemotePatterns } = require('./image-hosts');
@@ -241,12 +241,15 @@ module.exports = async (phase, context) => {
 		 * Next's "Another next dev server is already running".
 		 */
 		const laneDistDir = process.env.PLAYWRIGHT_LANE_DIST_DIR;
-		if (path.isAbsolute(laneDistDir) || laneDistDir.split(/[\\/]/).includes('..')) {
-			throw new Error(
-				`PLAYWRIGHT_LANE_DIST_DIR must be a path relative to apps/web, without a ".." segment: got ${laneDistDir}`
-			);
+		// Only the name the launcher writes (`.next-lane-<port>`, the apps/web/.gitignore entry): any other value, even a
+		// relative one such as `.` or `core`, would let Next empty an app directory as its output folder.
+		if (!/^\.next-lane-\d{2,5}$/.test(laneDistDir)) {
+			throw new Error(`PLAYWRIGHT_LANE_DIST_DIR must be .next-lane-<port>: got ${laneDistDir}`);
 		}
-		resolvedConfig = { ...resolvedConfig, distDir: laneDistDir };
+		// Lanes run `next dev` only; a build or `next start` keeps Next's own `.next` even if the variable leaked in.
+		if (phase === PHASE_DEVELOPMENT_SERVER) {
+			resolvedConfig = { ...resolvedConfig, distDir: laneDistDir };
+		}
 	}
 	if (phase !== PHASE_TEST) {
 		return resolvedConfig;
