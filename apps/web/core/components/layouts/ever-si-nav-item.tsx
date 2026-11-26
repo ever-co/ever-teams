@@ -32,6 +32,7 @@ function ariaCurrentFor(isActive: boolean) {
 	return undefined;
 }
 
+/** In the icon-only sidebar the label is hidden: the row's `aria-label` keeps its name. */
 function RowContent({ label }: Readonly<{ label: string }>) {
 	return (
 		<>
@@ -74,7 +75,7 @@ export function EverSiNavItem({ publicTeam = false }: Readonly<{ publicTeam?: bo
 							tooltip={label}
 							className={rowClassName(isOnFullPage)}
 						>
-							<Link href={EVER_SI_PATH} aria-current={ariaCurrentFor(isOnFullPage)}>
+							<Link href={EVER_SI_PATH} aria-label={label} aria-current={ariaCurrentFor(isOnFullPage)}>
 								<RowContent label={label} />
 							</Link>
 						</SidebarMenuButton>
@@ -84,6 +85,7 @@ export function EverSiNavItem({ publicTeam = false }: Readonly<{ publicTeam?: bo
 							type="button"
 							isActive={isOpen}
 							tooltip={label}
+							aria-label={label}
 							aria-expanded={isOpen}
 							aria-controls={EVER_SI_PANEL_ID}
 							onClick={togglePanel}

@@ -11,6 +11,7 @@ import { isPathActive } from '@/core/lib/utils/navigation-path';
 import { EVER_SI_PANEL_ID, EVER_SI_PATH, everSiPanelOpenAtom, everSiPanelWidthAtom } from './atoms/ever-si-panel.atom';
 import { EVER_SI_PANEL_WIDTH, clampEverSiPanelWidth, maxEverSiPanelWidth } from './ever-si-panel-width';
 import { EverSiResizeHandle } from './components/ever-si-resize-handle';
+import { useEverSiScopeWatcher } from './hooks/use-ever-si-scope-watcher';
 
 /** The chat, its markdown and the AI SDK load the first time the panel opens, not with every page. */
 const EverSiPanelBody = dynamic(
@@ -135,6 +136,8 @@ function EverSiMobileLayer({ onClose }: Readonly<EverSiSurfaceProps>) {
  * `/assistant`, where the page is Ever SI, nor to the visitors of a public team page, who have no conversation to keep.
  */
 export function EverSiPanel({ publicTeam = false }: Readonly<{ publicTeam?: boolean }>) {
+	// Mounted in both shells whether the panel is open or not: the one place that sees every change of scope.
+	useEverSiScopeWatcher();
 	const pathname = usePathname();
 	const { isMobile } = useSidebar();
 	const [isOpen, setIsOpen] = useAtom(everSiPanelOpenAtom);

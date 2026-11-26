@@ -76,7 +76,8 @@ describe('Ever SI sidebar row', () => {
 		const row = screen.getByRole('button', { name: 'Ever SI' });
 		expect(row.getAttribute('aria-expanded')).toBe('false');
 		expect(row.getAttribute('aria-controls')).toBe('ever-si-panel');
-		// Its name is the tooltip of the icon-only sidebar
+		// Its name stays when the sidebar shows icons only (the label hidden), and is the tooltip there
+		expect(row.getAttribute('aria-label')).toBe('Ever SI');
 		expect(row.getAttribute('data-tooltip')).toBe('Ever SI');
 		expect(screen.queryByRole('link')).toBeNull();
 	});
@@ -122,6 +123,7 @@ describe('Ever SI sidebar row', () => {
 		const link = screen.getByRole('link', { name: 'Ever SI' });
 		expect(link.getAttribute('href')).toBe('/assistant');
 		expect(link.getAttribute('aria-current')).toBe('page');
+		expect(link.getAttribute('aria-label')).toBe('Ever SI');
 		expect(screen.queryByRole('button')).toBeNull();
 	});
 

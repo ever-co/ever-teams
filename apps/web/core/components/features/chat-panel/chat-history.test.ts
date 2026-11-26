@@ -12,9 +12,11 @@ import {
 	pruneExpiredChatSessions,
 	readChatHistory,
 	removeChatSession,
+	withChatSessionMessages,
 	upsertChatSession,
 	writeChatHistory
 } from './chat-history';
+import { onLiveChatScopeChange, setLiveChatScope } from './chat-scope';
 
 const DAY = 24 * 60 * 60 * 1000;
 const NOW = Date.UTC(2026, 10, 26, 12);
@@ -187,5 +189,70 @@ describe('chat history', () => {
 			expect(storage.removeItem).toHaveBeenCalledWith(chatHistoryKey(scope));
 			expect(storage.setItem).not.toHaveBeenCalled();
 		});
+	});
+
+	describe('the date of a conversation', () => {
+		const stored = sessionAt('stored', NOW - 20 * DAY);
+
+		it('stays when the conversation is only opened again or shown in another view', () => {
+			const reopened = [{ id: 'stored-1', role: 'user', parts: [{ type: 'text', text: 'stored' }] }];
+
+			const sessions = withChatSessionMessages([stored], 'stored', reopened, NOW);
+
+			expect(sessions).toEqual([stored]);
+			expect(sessions[0].updatedAt).toBe(NOW - 20 * DAY);
+		});
+
+		it('stays for a conversation saved in the older content format and opened in the new one', () => {
+			const legacy = { ...stored, messages: [{ id: 'stored-1', role: 'user', content: 'stored' }] };
+			const reopened = [{ id: 'stored-1', role: 'user', parts: [{ type: 'text', text: 'stored' }] }];
+
+			expect(withChatSessionMessages([legacy], 'stored', reopened, NOW)[0].updatedAt).toBe(NOW - 20 * DAY);
+		});
+
+		it('moves when a message is added', () => {
+			const added = [
+				...stored.messages,
+				{ id: 'stored-2', role: 'assistant', parts: [{ type: 'text', text: 'An answer' }] }
+			];
+
+			const sessions = withChatSessionMessages([stored], 'stored', added, NOW);
+
+			expect(sessions[0].updatedAt).toBe(NOW);
+			expect(sessions[0].messages).toEqual(added);
+		});
+
+		it('moves when a message changes, as an answer streams in', () => {
+			const answering = [...stored.messages, { id: 'stored-2', role: 'assistant', content: 'Half' }];
+			const answered = [...stored.messages, { id: 'stored-2', role: 'assistant', content: 'Half an answer' }];
+			const halfway = withChatSessionMessages([stored], 'stored', answering, NOW - DAY);
+
+			expect(withChatSessionMessages(halfway, 'stored', answered, NOW)[0].updatedAt).toBe(NOW);
+		});
+
+		it('is now for a new conversation, and nothing is saved before its first message', () => {
+			expect(withChatSessionMessages([stored], 'new', [], NOW)).toEqual([stored]);
+			expect(
+				withChatSessionMessages([stored], 'new', [{ id: 'n', role: 'user', content: 'Hi' }], NOW)[0]
+			).toMatchObject({
+				id: 'new',
+				updatedAt: NOW
+			});
+		});
+	});
+
+	it('ends the live Ever SI scope before it clears the history on sign-out', () => {
+		setLiveChatScope(chatHistoryKey(scope));
+		const ended = jest.fn();
+		const stopListening = onLiveChatScopeChange(ended);
+		Object.defineProperty(storage, 'length', { configurable: true, value: 1 });
+		storage.key.mockImplementation((index) => (index === 0 ? chatHistoryKey(scope) : null));
+
+		clearChatHistoryForUser(scope.userId);
+		stopListening();
+
+		expect(ended).toHaveBeenCalledWith(null);
+		// A running answer stops before the history goes, so it cannot write it back
+		expect(ended.mock.invocationCallOrder[0]).toBeLessThan(storage.removeItem.mock.invocationCallOrder[0]);
 	});
 });

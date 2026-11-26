@@ -26,6 +26,10 @@ jest.mock('next/dynamic', () => ({
 jest.mock('@/core/components/common/sidebar', () => ({
 	useSidebar: () => mockSidebar
 }));
+// The scope watcher has its own test (use-ever-si-scope-watcher.test.tsx).
+jest.mock('./hooks/use-ever-si-scope-watcher', () => ({
+	useEverSiScopeWatcher: () => undefined
+}));
 jest.mock('@/core/components/common/sheet', () => ({
 	Sheet: ({ children }: { children: ReactNode }) => <div data-testid="ever-si-sheet">{children}</div>,
 	SheetContent: ({ children, id }: { children: ReactNode; id?: string }) => (

@@ -4,12 +4,13 @@ import {
 	type ChatHistoryMessage,
 	type ChatHistoryScope,
 	type ChatSession,
-	createChatSession,
+	chatHistoryKey,
 	readChatHistory,
 	toChatUiMessages,
-	upsertChatSession,
+	withChatSessionMessages,
 	writeChatHistory
 } from '@/core/components/features/chat-panel/chat-history';
+import { isChatScopeLive, onLiveChatScopeChange } from '@/core/components/features/chat-panel/chat-scope';
 
 const CHAT_API = '/api/chat';
 
@@ -30,13 +31,19 @@ function createSessionId() {
 	return `chat-${Date.now()}-${random.toString(36)}`;
 }
 
-/** An answer that finishes while no view shows it (the panel closed, say) still lands in the history. */
+/**
+ * An answer that finishes while no view shows it (the panel closed, say) still lands in the history, unless its
+ * scope ended meanwhile: another workspace or team, another account, or a sign-out that cleared the history.
+ */
 function keepFinishedConversation(scope: ChatHistoryScope | null, id: string, messages: UIMessage[]) {
 	if (!scope || messages.length === 0) {
 		return;
 	}
-	const session = createChatSession(messages as unknown as ChatHistoryMessage[], id);
-	writeChatHistory(scope, upsertChatSession(readChatHistory(scope), session));
+	if (!isChatScopeLive(chatHistoryKey(scope))) {
+		return;
+	}
+	const historyMessages = messages as unknown as ChatHistoryMessage[];
+	writeChatHistory(scope, withChatSessionMessages(readChatHistory(scope), id, historyMessages));
 }
 
 /** A new conversation, or a saved one to carry on. */
@@ -81,13 +88,17 @@ export function replaceEverSiChat(scopeKey: string, chat: Chat<UIMessage>) {
 	}
 }
 
-/** The person moved to another workspace or team, or signed in as someone else: the other scopes' answers stop. */
-export function closeEverSiChatsOutside(scopeKey: string) {
+/** The person moved to another workspace or team, signed in as someone else or signed out: those answers stop. */
+export function closeEverSiChatsOutside(liveKey: string | null) {
 	for (const [key, chat] of openChats) {
-		if (key === scopeKey) {
+		if (key === liveKey) {
 			continue;
 		}
 		openChats.delete(key);
 		void chat.stop();
 	}
 }
+
+// The shell reports every change of scope, whether an Ever SI view is mounted or not (the panel may be closed while
+// an answer runs). Registered once, when the chat first loads; before that there is no answer to stop.
+onLiveChatScopeChange(closeEverSiChatsOutside);

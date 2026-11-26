@@ -1,3 +1,5 @@
+import { setLiveChatScope } from './chat-scope';
+
 export const CHAT_HISTORY_KEY = 'ever-teams-chat-history-v1';
 export const CHAT_HISTORY_LIMIT = 50;
 /**
@@ -101,13 +103,51 @@ export function toChatUiMessages(messages: ChatHistoryMessage[]): ChatUiMessage[
 	return converted;
 }
 
-export function createChatSession(messages: ChatHistoryMessage[], id = `chat-${Date.now()}`): ChatSession {
+export function createChatSession(
+	messages: ChatHistoryMessage[],
+	id = `chat-${Date.now()}`,
+	now = Date.now()
+): ChatSession {
 	return {
 		id,
 		title: conversationTitle(messages),
-		updatedAt: Date.now(),
+		updatedAt: now,
 		messages
 	};
+}
+
+/** What a person sees of a conversation: who said what, in order, whatever format it was saved in. */
+function shownMessagesOf(messages: ChatHistoryMessage[]) {
+	return toChatUiMessages(messages).map((message) =>
+		JSON.stringify([message.id, message.role, message.parts[0].text])
+	);
+}
+
+function sameShownMessages(left: ChatHistoryMessage[], right: ChatHistoryMessage[]) {
+	const shownLeft = shownMessagesOf(left);
+	const shownRight = shownMessagesOf(right);
+	return shownLeft.length === shownRight.length && shownLeft.every((message, index) => message === shownRight[index]);
+}
+
+/**
+ * The history with this conversation as it reads now. Its date is its last message's: opening, picking from the
+ * history or showing it again in another view keeps the date, so the 30 days of the disclosure count from the last
+ * message; only a message added or changed moves it.
+ */
+export function withChatSessionMessages(
+	sessions: ChatSession[],
+	id: string,
+	messages: ChatHistoryMessage[],
+	now = Date.now()
+): ChatSession[] {
+	if (messages.length === 0) {
+		return sessions;
+	}
+	const stored = sessions.find((session) => session.id === id);
+	if (stored && sameShownMessages(stored.messages, messages)) {
+		return sessions;
+	}
+	return upsertChatSession(sessions, createChatSession(messages, id, now));
 }
 
 export function isChatSessionExpired(session: Pick<ChatSession, 'updatedAt'>, now = Date.now()) {
@@ -217,6 +257,9 @@ export function writeChatHistory(scope: ChatHistoryScope, sessions: ChatSession[
 }
 
 export function clearChatHistoryForUser(userId?: string | null) {
+	// No scope is live any more: an Ever SI answer still running stops now, and one that ends later writes nothing,
+	// so nothing of this account comes back after its history is cleared below.
+	setLiveChatScope(null);
 	if (typeof window === 'undefined') return;
 	try {
 		const userPrefix = userId ? `${CHAT_HISTORY_KEY}:${scopeSegment(userId)}:` : null;

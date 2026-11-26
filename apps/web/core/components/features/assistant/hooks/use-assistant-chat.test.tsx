@@ -2,7 +2,14 @@
 import type { ReactNode } from 'react';
 import { act, renderHook } from '@testing-library/react';
 import { createStore, Provider, type PrimitiveAtom } from 'jotai';
-import { readChatHistory } from '@/core/components/features/chat-panel/chat-history';
+import {
+	type ChatHistoryScope,
+	chatHistoryKey,
+	clearChatHistoryForUser,
+	readChatHistory,
+	writeChatHistory
+} from '@/core/components/features/chat-panel/chat-history';
+import { setLiveChatScope } from '@/core/components/features/chat-panel/chat-scope';
 import { useAssistantChat } from './use-assistant-chat';
 
 type TestMessage = { id: string; role: 'user' | 'assistant'; parts: Array<{ type: 'text'; text: string }> };
@@ -95,10 +102,18 @@ const stores = jest.requireMock<{
 }>('@/core/stores');
 const aiSdk = jest.requireMock<{ created: MockChat[] }>('@ai-sdk/react');
 
-/** One signed-in person; each test signs in someone else, so the conversations of one test never reach another. */
+function scopeOf(userId: string, teamId = 'team-a'): ChatHistoryScope {
+	return { userId, workspaceId: 'workspace-a', teamId };
+}
+
+/**
+ * One signed-in person, whose scope the shell reports as live (useEverSiScopeWatcher). Each test signs in someone
+ * else, so the conversations of one test never reach another.
+ */
 function signedInStore(userId: string) {
 	const store = createStore();
 	store.set(stores.userState, { id: userId });
+	act(() => setLiveChatScope(chatHistoryKey(scopeOf(userId))));
 	return store;
 }
 
@@ -199,8 +214,8 @@ describe('Ever SI conversation across views', () => {
 		expect(history.some((session) => session.id === chat.id)).toBe(false);
 	});
 
-	it('stops the answer of the team the person leaves', () => {
-		const store = signedInStore('user-team-switch');
+	it('opens the conversation of the other team in a view that stays mounted', () => {
+		const store = signedInStore('user-team-view');
 		const view = mountView(store);
 		ask(view, 'Prioritize my work');
 		const teamAChat = chatWithId(view.result.current.sessionId);
@@ -208,6 +223,78 @@ describe('Ever SI conversation across views', () => {
 		act(() => store.set(stores.activeTeamIdState, 'team-b'));
 
 		expect(view.result.current.sessionId).not.toBe(teamAChat.id);
+	});
+});
+
+describe('Ever SI when a scope ends with no view open', () => {
+	beforeEach(() => {
+		localStorage.clear();
+	});
+
+	it('stops the background answer of the team the person leaves, and never saves it under that team', () => {
+		const store = signedInStore('user-team-switch');
+		const panel = mountView(store);
+		ask(panel, 'Prioritize my work');
+		const teamAChat = chatWithId(panel.result.current.sessionId);
+		panel.unmount();
+
+		// The shell reports the new team; no Ever SI view is mounted.
+		act(() => setLiveChatScope(chatHistoryKey(scopeOf('user-team-switch', 'team-b'))));
 		expect(teamAChat.stop).toHaveBeenCalledTimes(1);
+
+		// The view had saved the conversation as far as it went; the answer that ends later is not written there.
+		const savedBefore = readChatHistory(scopeOf('user-team-switch'));
+		const finished: TestMessage[] = [
+			...teamAChat.messages.slice(0, 1),
+			{ id: `${teamAChat.id}-answer`, role: 'assistant', parts: [{ type: 'text', text: 'The whole answer' }] }
+		];
+		act(() => teamAChat.finish({ messages: finished, isAbort: false }));
+		expect(readChatHistory(scopeOf('user-team-switch'))).toEqual(savedBefore);
+		expect(JSON.stringify(savedBefore)).not.toContain('The whole answer');
+	});
+
+	it('stops the answer before sign-out clears the history, and writes nothing back after', () => {
+		const store = signedInStore('user-sign-out');
+		const panel = mountView(store);
+		ask(panel, 'Summarize my day');
+		const chat = chatWithId(panel.result.current.sessionId);
+		panel.unmount();
+		const removeItem = jest.spyOn(Storage.prototype, 'removeItem');
+
+		act(() => clearChatHistoryForUser('user-sign-out'));
+
+		expect(chat.stop).toHaveBeenCalledTimes(1);
+		expect(chat.stop.mock.invocationCallOrder[0]).toBeLessThan(removeItem.mock.invocationCallOrder[0]);
+		act(() => chat.finish({ messages: chat.messages, isAbort: false }));
+		expect(readChatHistory(scopeOf('user-sign-out'))).toEqual([]);
+		removeItem.mockRestore();
+	});
+});
+
+describe('Ever SI keeps the date of a conversation that is only reopened', () => {
+	it('does not move it when the conversation is picked from the history and shown again in another view', () => {
+		const tenDaysAgo = Date.now() - 10 * 24 * 60 * 60 * 1000;
+		const scope = scopeOf('user-reopen');
+		const saved = {
+			id: 'chat-saved',
+			title: 'Plan the release',
+			updatedAt: tenDaysAgo,
+			messages: [
+				{ id: 'm1', role: 'user', parts: [{ type: 'text', text: 'Plan the release' }] },
+				{ id: 'm2', role: 'assistant', parts: [{ type: 'text', text: 'Here is a plan' }] }
+			]
+		};
+		writeChatHistory(scope, [saved]);
+		const store = signedInStore('user-reopen');
+
+		const panel = mountView(store);
+		act(() => panel.result.current.selectSession(saved));
+		expect(panel.result.current.sessionId).toBe('chat-saved');
+		panel.unmount();
+		const page = mountView(store);
+		expect(page.result.current.sessionId).toBe('chat-saved');
+		page.unmount();
+
+		expect(readChatHistory(scope).find((session) => session.id === 'chat-saved')?.updatedAt).toBe(tenDaysAgo);
 	});
 });

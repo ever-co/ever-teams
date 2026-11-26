@@ -14,13 +14,12 @@ import {
 	type ChatSession,
 	canPersistChatHistory,
 	chatHistoryKey,
-	createChatSession,
 	readChatHistory,
 	removeChatSession,
-	upsertChatSession,
+	withChatSessionMessages,
 	writeChatHistory
 } from '@/core/components/features/chat-panel/chat-history';
-import { closeEverSiChatsOutside, createEverSiChat, openEverSiChat, replaceEverSiChat } from './ever-si-chat-store';
+import { createEverSiChat, openEverSiChat, replaceEverSiChat } from './ever-si-chat-store';
 
 const NO_SCOPE_KEY = 'no-scope';
 
@@ -78,12 +77,8 @@ function createScopeState(scope: ChatHistoryScope | null, key: string): ScopeSta
 }
 
 function withCurrentSession(storedSessions: ChatSession[], messages: UIMessage[], sessionId: string) {
-	if (messages.length === 0) {
-		return storedSessions;
-	}
 	const historyMessages = messages as unknown as ChatHistoryMessage[];
-	const session = createChatSession(historyMessages, sessionId);
-	return upsertChatSession(storedSessions, session);
+	return withChatSessionMessages(storedSessions, sessionId, historyMessages);
 }
 
 function findSessionTitle(sessions: ChatSession[], id: string) {
@@ -145,10 +140,7 @@ export function useAssistantChat() {
 	);
 
 	// Unmounting a view does not stop the answer: the panel, the phone sheet and the full page share it. A change of
-	// workspace, team or account does.
-	useEffect(() => {
-		closeEverSiChatsOutside(scopeKey);
-	}, [scopeKey]);
+	// workspace, team or account does, from the shell (useEverSiScopeWatcher), even with no view mounted.
 
 	useEffect(() => {
 		if (!historyScope) {
