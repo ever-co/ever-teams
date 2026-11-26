@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useId, useMemo, useState, useSyncExternalStore } from 'react';
 import dynamic from 'next/dynamic';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { useAtom, useSetAtom } from 'jotai';
 import { useTranslations } from 'next-intl';
 import { useSidebar } from '@/core/components/common/sidebar';
@@ -14,7 +14,7 @@ import {
 	everSiPanelWidthAtom,
 	everSiReturnPathAtom
 } from './atoms/ever-si-panel.atom';
-import { currentPagePath, everSiPanelModeOf, focusElementSoon } from './ever-si-panel-mode';
+import { currentPagePath, everSiPanelModeOf, focusElementSoon, isDesktopViewport } from './ever-si-panel-mode';
 import { EVER_SI_PANEL_WIDTH, clampEverSiPanelWidth, maxEverSiPanelWidth } from './ever-si-panel-width';
 import { EverSiCollapseButton, EverSiExpandLink } from './components/ever-si-edge-controls';
 import { EverSiResizeHandle } from './components/ever-si-resize-handle';
@@ -45,18 +45,14 @@ function useViewportWidth() {
 	return useSyncExternalStore(subscribeToResize, readViewportWidth, readServerViewportWidth);
 }
 
-type EverSiSurfaceProps = {
-	onClose: () => void;
-	/** The person goes on to the full page, from the header's link or from the edge. */
-	onOpenFullPage: () => void;
-};
+type EverSiSurfaceProps = { onClose: () => void };
 
 /**
  * Desktop: a rounded panel of its own between the sidebar and the page, with the page's surface, radius and
  * hairline (`SidebarInset`), resizable from its edge and remembered per browser. The edge carries the panel's three
  * controls, as in Ever Works: collapse to the sidebar's button, the grip, and on to the full page.
  */
-export function EverSiDesktopPanel({ onClose, onOpenFullPage }: Readonly<EverSiSurfaceProps>) {
+export function EverSiDesktopPanel({ onClose }: Readonly<EverSiSurfaceProps>) {
 	const t = useTranslations();
 	const titleId = useId();
 	const viewportWidth = useViewportWidth();
@@ -88,10 +84,9 @@ export function EverSiDesktopPanel({ onClose, onOpenFullPage }: Readonly<EverSiS
 					</h2>
 				}
 				onClose={onClose}
-				onOpenFullPage={onOpenFullPage}
 			/>
 		),
-		[onClose, onOpenFullPage, t, titleId]
+		[onClose, t, titleId]
 	);
 
 	return (
@@ -115,13 +110,13 @@ export function EverSiDesktopPanel({ onClose, onOpenFullPage }: Readonly<EverSiS
 				onCommit={commitWidth}
 				onReset={resetWidth}
 			/>
-			<EverSiExpandLink onNavigate={onOpenFullPage} />
+			<EverSiExpandLink />
 		</div>
 	);
 }
 
 /** Phones: Ever SI takes the whole screen, over the page, with its own close button. */
-function EverSiMobileLayer({ onClose, onOpenFullPage }: Readonly<EverSiSurfaceProps>) {
+function EverSiMobileLayer({ onClose }: Readonly<EverSiSurfaceProps>) {
 	const t = useTranslations();
 	const handleOpenChange = useCallback(
 		(open: boolean) => {
@@ -143,7 +138,8 @@ function EverSiMobileLayer({ onClose, onOpenFullPage }: Readonly<EverSiSurfacePr
 				<EverSiPanelBody
 					title={<SheetTitle className={PANEL_TITLE_RECIPE}>{t('chatView.ASSISTANT')}</SheetTitle>}
 					onClose={onClose}
-					onOpenFullPage={onOpenFullPage}
+					// The sheet would come back over the next page, so going to the full page closes it.
+					onOpenFullPage={onClose}
 				/>
 			</SheetContent>
 		</Sheet>
@@ -160,6 +156,8 @@ export function EverSiPanel({ publicTeam = false }: Readonly<{ publicTeam?: bool
 	// Mounted in both shells whether the panel is open or not: the one place that sees every change of scope.
 	useEverSiScopeWatcher();
 	const pathname = usePathname();
+	// The query as well as the path: a filter or a tab changes the page the person is on without changing its path.
+	const query = useSearchParams()?.toString() ?? '';
 	const { isMobile } = useSidebar();
 	const [isOpen, setIsOpen] = useAtom(everSiPanelOpenAtom);
 	const setReturnPath = useSetAtom(everSiReturnPathAtom);
@@ -172,23 +170,30 @@ export function EverSiPanel({ publicTeam = false }: Readonly<{ publicTeam?: bool
 		setIsOpen(false);
 		focusElementSoon(EVER_SI_OPEN_BUTTON_ID);
 	}, [setIsOpen]);
-	// Desktop: the panel stays "open" under the full page, so leaving that page brings it back beside the next one.
-	const rememberReturnPath = useCallback(() => setReturnPath(currentPagePath()), [setReturnPath]);
 
-	// Every page that is not the full page is where its "show beside the page" control leads back to, however the
-	// person reached the full page (the edge, the header's link, the command palette, a bookmark).
+	// Every page that is not the full page is where its "show beside the page" control leads back to, with the
+	// query it has now, however the person then reaches the full page (the edge, the header's link, the command
+	// palette, a bookmark).
 	useEffect(() => {
 		if (!isOnFullPage) {
 			setReturnPath(currentPagePath());
 		}
-	}, [isOnFullPage, pathname, setReturnPath]);
+	}, [isOnFullPage, pathname, query, setReturnPath]);
+
+	// The full page is Ever SI at its widest, so leaving it is one step down, to the panel beside the next page,
+	// however the person came. Not on phones, where the panel is a sheet that would cover that page; the window is
+	// measured here because the sidebar's own `isMobile` is not known yet on the first render.
+	useEffect(() => {
+		if (isOnFullPage && !publicTeam && isDesktopViewport()) {
+			setIsOpen(true);
+		}
+	}, [isOnFullPage, publicTeam, setIsOpen]);
 
 	if (publicTeam || mode !== 'docked') {
 		return null;
 	}
 	if (isMobile) {
-		// Phones: the sheet would come back over the next page, so going to the full page closes it.
-		return <EverSiMobileLayer onClose={close} onOpenFullPage={close} />;
+		return <EverSiMobileLayer onClose={close} />;
 	}
-	return <EverSiDesktopPanel onClose={collapse} onOpenFullPage={rememberReturnPath} />;
+	return <EverSiDesktopPanel onClose={collapse} />;
 }

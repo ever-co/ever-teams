@@ -1,3 +1,4 @@
+import { BREAKPOINTS } from '@/core/constants/config/constants';
 import { isPathActive } from '@/core/lib/utils/navigation-path';
 import { EVER_SI_PATH } from './atoms/ever-si-panel.atom';
 
@@ -18,6 +19,11 @@ export function everSiPanelModeOf(pathname: string | null | undefined, isOpen: b
 		return 'docked';
 	}
 	return 'collapsed';
+}
+
+/** Whether the window has room for the panel beside the page: the breakpoint of `useIsMobile`, measured now. */
+export function isDesktopViewport() {
+	return window.innerWidth >= BREAKPOINTS.MOBILE;
 }
 
 /** The page the browser is on, with its query, as the place to come back to from the full page. */

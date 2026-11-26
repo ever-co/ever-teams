@@ -7,7 +7,7 @@ import { everSiPanelOpenAtom, everSiPanelWidthAtom, everSiReturnPathAtom } from 
 import { everSiPanelModeOf } from './ever-si-panel-mode';
 import { EVER_SI_PANEL_WIDTH, clampEverSiPanelWidth, maxEverSiPanelWidth } from './ever-si-panel-width';
 
-const mockNavigation = { pathname: '/en/dashboard' };
+const mockNavigation = { pathname: '/en/dashboard', query: '' };
 const mockSidebar = { isMobile: false };
 
 jest.mock('next-intl', () => ({
@@ -15,6 +15,7 @@ jest.mock('next-intl', () => ({
 }));
 jest.mock('next/navigation', () => ({
 	usePathname: () => mockNavigation.pathname,
+	useSearchParams: () => new URLSearchParams(mockNavigation.query),
 	useRouter: () => ({ push: jest.fn() })
 }));
 jest.mock('next/link', () => ({
@@ -37,7 +38,7 @@ jest.mock('next/dynamic', () => ({
 		}: {
 			title: ReactNode;
 			onClose: () => void;
-			onOpenFullPage: () => void;
+			onOpenFullPage?: () => void;
 		}) {
 			return (
 				<div>
@@ -320,25 +321,14 @@ describe('Ever SI panel edge', () => {
 		expect(store.get(everSiPanelOpenAtom)).toBe(false);
 	});
 
-	it('stays open under the full page, and remembers the page it was widened from', () => {
+	it('stays open when the person goes on to the full page, from the edge or from the header', () => {
 		const store = renderPanel(openStore());
-		// The page changed its query since the panel was shown (a filter, a tab): the way back keeps it.
-		window.history.replaceState(null, '', '/en/tasks?view=board');
 
 		fireEvent.click(fullPageLink());
-
 		expect(store.get(everSiPanelOpenAtom)).toBe(true);
-		expect(store.get(everSiReturnPathAtom)).toBe('/en/tasks?view=board');
-	});
-
-	it("does the same from the header's full-page link", () => {
-		const store = renderPanel(openStore());
-		window.history.replaceState(null, '', '/en/projects');
 
 		fireEvent.click(screen.getByRole('button', { name: 'header-full-page' }));
-
 		expect(store.get(everSiPanelOpenAtom)).toBe(true);
-		expect(store.get(everSiReturnPathAtom)).toBe('/en/projects');
 	});
 
 	it('closes on phones when the person goes to the full page, so no sheet waits over the next page', () => {
@@ -349,16 +339,92 @@ describe('Ever SI panel edge', () => {
 
 		expect(store.get(everSiPanelOpenAtom)).toBe(false);
 	});
+});
 
-	it('remembers every page but the full page as the way back, open or not', () => {
-		window.history.replaceState(null, '', '/en/dashboard?team=7');
+describe("Ever SI's way back from the full page", () => {
+	/** The app's router and the address bar move together: the hooks read one, the way back is taken from the other. */
+	function goTo(pathname: string, query = '') {
+		mockNavigation.pathname = pathname;
+		mockNavigation.query = query;
+		const search = query ? `?${query}` : '';
+		window.history.replaceState(null, '', `${pathname}${search}`);
+	}
+
+	function panelIn(store: ReturnType<typeof createStore>) {
+		return (
+			<Provider store={store}>
+				<EverSiPanel />
+			</Provider>
+		);
+	}
+
+	beforeEach(() => {
+		localStorage.clear();
+		mockSidebar.isMobile = false;
+		Object.defineProperty(window, 'innerWidth', { configurable: true, value: 1024 });
+		goTo('/en/dashboard');
+	});
+
+	afterEach(() => {
+		goTo('/en/dashboard');
+	});
+
+	it('is every page but the full page, whether the panel is open or not', () => {
+		goTo('/en/dashboard', 'team=7');
 		const store = renderPanel();
 		expect(store.get(everSiReturnPathAtom)).toBe('/en/dashboard?team=7');
 
 		cleanup();
-		mockNavigation.pathname = '/en/assistant';
-		window.history.replaceState(null, '', '/en/assistant');
+		goTo('/en/assistant');
 		const fullPageStore = renderPanel(openStore());
 		expect(fullPageStore.get(everSiReturnPathAtom)).toBeNull();
+	});
+
+	it('follows a change of the query alone, so a filter or a tab chosen on the page is kept', () => {
+		goTo('/en/projects');
+		const store = createStore();
+		const view = render(panelIn(store));
+		expect(store.get(everSiReturnPathAtom)).toBe('/en/projects');
+
+		goTo('/en/projects', 'archived=true');
+		view.rerender(panelIn(store));
+		expect(store.get(everSiReturnPathAtom)).toBe('/en/projects?archived=true');
+
+		// Reached from the command palette, not from the panel: the way back is still the page as it was left.
+		goTo('/en/assistant');
+		view.rerender(panelIn(store));
+		expect(store.get(everSiReturnPathAtom)).toBe('/en/projects?archived=true');
+	});
+
+	it('opens the panel under the full page however the person got there, so leaving it shows the panel', () => {
+		goTo('/en/assistant');
+		const store = createStore();
+		const view = render(panelIn(store));
+
+		expect(store.get(everSiPanelOpenAtom)).toBe(true);
+		expect(localStorage.getItem('ever-si-panel-open')).toBe('true');
+		expect(screen.queryByTestId('ever-si-body')).toBeNull();
+
+		goTo('/en/tasks');
+		view.rerender(panelIn(store));
+		expect(screen.getByTestId('ever-si-body')).toBeTruthy();
+	});
+
+	it('leaves the panel closed under the full page on a phone, before the sidebar knows it is one', () => {
+		// The sidebar's `isMobile` is false on the first render even on a phone: the window's width decides.
+		Object.defineProperty(window, 'innerWidth', { configurable: true, value: 390 });
+		goTo('/en/assistant');
+
+		const store = renderPanel();
+
+		expect(store.get(everSiPanelOpenAtom)).toBe(false);
+	});
+
+	it('leaves the panel closed under the full page for the visitors of a public team page', () => {
+		goTo('/en/assistant');
+
+		const store = renderPanel(createStore(), true);
+
+		expect(store.get(everSiPanelOpenAtom)).toBe(false);
 	});
 });

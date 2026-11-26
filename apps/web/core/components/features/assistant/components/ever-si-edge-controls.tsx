@@ -106,8 +106,11 @@ export function EverSiCollapseButton({ onCollapse }: Readonly<{ onCollapse: () =
 	);
 }
 
-/** On the panel's edge, below the grip: on to the full page, which holds the same conversation. */
-export function EverSiExpandLink({ onNavigate }: Readonly<{ onNavigate: () => void }>) {
+/**
+ * On the panel's edge, below the grip: on to the full page, which holds the same conversation. The panel stays open
+ * under it, so the way back, or any link out of the full page, shows the panel again.
+ */
+export function EverSiExpandLink() {
 	const t = useTranslations();
 	const label = t('chatView.OPEN_FULL_PAGE');
 
@@ -118,7 +121,7 @@ export function EverSiExpandLink({ onNavigate }: Readonly<{ onNavigate: () => vo
 				variant="outline"
 				className={cn(EDGE_BUTTON_RECIPE, 'absolute -end-2 top-[calc(50%+1rem)] z-20')}
 			>
-				<Link href={EVER_SI_PATH} onClick={onNavigate} aria-label={label}>
+				<Link href={EVER_SI_PATH} aria-label={label}>
 					<ChevronRight aria-hidden="true" className={CHEVRON_RECIPE} />
 				</Link>
 			</Button>

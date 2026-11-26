@@ -20,12 +20,15 @@ type EverSiPanelBodyProps = {
 	/** The panel's name, as a heading on desktop or as the sheet's title on phones. */
 	title: ReactNode;
 	onClose: () => void;
-	/** Runs as the person follows the link to the full page; what it does to the panel is the surface's choice. */
-	onOpenFullPage: () => void;
+	/**
+	 * Runs as the person follows the link to the full page. The phone's sheet closes itself with it; the desktop
+	 * panel passes nothing, it stays open under the full page and is back beside the next page.
+	 */
+	onOpenFullPage?: () => void;
 };
 
 /** The full page holds the same conversation: the page takes it over, and the panel is not shown there. */
-function FullPageLink({ onNavigate }: Readonly<{ onNavigate: () => void }>) {
+function FullPageLink({ onNavigate }: Readonly<{ onNavigate?: () => void }>) {
 	const t = useTranslations();
 	const label = t('chatView.OPEN_FULL_PAGE');
 	return (

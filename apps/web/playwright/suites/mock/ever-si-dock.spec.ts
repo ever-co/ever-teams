@@ -132,4 +132,16 @@ test.describe('Ever SI: collapsed, docked, full page', () => {
 		await expect(page).toHaveURL(/\/team\/tasks/, { timeout: FIRST_COMPILE });
 		await expect(panelOf(page), 'docked again beside the page it was widened from').toBeVisible();
 	});
+
+	test('expanded: reached without the panel, leaving it by a sidebar link still shows the panel', async ({ app }) => {
+		// A bookmark or the command palette: the panel was never opened in this browser.
+		const page = await app('/assistant');
+		await expect(page.getByRole('button', { name: DOCK })).toBeVisible();
+
+		await page.locator('[data-sidebar="sidebar"]').getByRole('link', { name: 'Calendar', exact: true }).click();
+
+		await expect(page).not.toHaveURL(/\/assistant/, { timeout: FIRST_COMPILE });
+		await expect(panelOf(page), 'one step down from the full page is the panel').toBeVisible();
+		await expect(openButtonOf(page)).toHaveCount(0);
+	});
 });
