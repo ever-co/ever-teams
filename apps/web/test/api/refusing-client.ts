@@ -23,7 +23,7 @@ export function refusingClient(service: APIService): RefusingClient {
 		refuse(status) {
 			// A base URL is what puts the service in direct mode: its own client sends, and logs, the request
 			internals.baseURL = 'https://api.example.test';
-			service.axiosInstance.defaults.adapter = async (config) => {
+			service.axiosInstance.defaults.adapter = (config) => {
 				const response = {
 					config,
 					data: { statusCode: status, message: 'Refused' },
@@ -31,7 +31,8 @@ export function refusingClient(service: APIService): RefusingClient {
 					status,
 					statusText: 'Refused'
 				} as AxiosResponse;
-				throw new AxiosError(`Request failed with status code ${status}`, 'ERR_BAD_RESPONSE', config, null, response);
+				const message = `Request failed with status code ${status}`;
+				return Promise.reject(new AxiosError(message, 'ERR_BAD_RESPONSE', config, null, response));
 			};
 			return jest.spyOn(internals.httpLogger, 'logError').mockImplementation(() => undefined);
 		},
@@ -46,7 +47,7 @@ export function refusingClient(service: APIService): RefusingClient {
 export async function failureOf(call: Promise<unknown>): Promise<unknown> {
 	return call.then(
 		() => null,
-		(failure: unknown) => failure
+		(error_: unknown) => error_
 	);
 }
 
