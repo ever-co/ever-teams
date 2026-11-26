@@ -6,6 +6,9 @@ import { expect, test, type BootstrapFixture, type MockControl, type Page, type 
 import { APP_ORIGIN, mockReset, signInWithFixture } from '../../helpers';
 import { LIVEKIT_TEST } from '../../test-servers';
 
+// Without E2E_LIVEKIT=1 the lane app has no LiveKit key, and /api/livekit answers 500 "Server misconfigured": skip, do not fail.
+test.skip(process.env.E2E_LIVEKIT !== '1', 'needs a lane started with E2E_LIVEKIT=1 (test-servers.ts LIVEKIT_TEST)');
+
 /**
  * What a signed-in person sees on **`/meet/livekit?roomName=…`**, and what **`GET /api/livekit`** really answers,
  * measured on lane-c (app `http://localhost:3033`, mock `http://127.0.0.1:4002`, stats `4003`, control `4004`, issuer

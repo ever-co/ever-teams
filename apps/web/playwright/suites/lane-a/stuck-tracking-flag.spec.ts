@@ -1,6 +1,22 @@
 import { expect, test, type Page } from '../../fixtures';
 import { APP_ORIGIN, mockState, signInAndVisit, type BootstrapFixture } from '../../helpers';
 import { MOCK_ORIGIN } from '../../test-servers';
+import type { Route } from '@playwright/test';
+
+/**
+ * `route.fetch()` of a read, with one retry when the connection was reset. The mock is a Node server, which closes an
+ * idle keep-alive socket after 5 s; a fetch that reuses that socket at that moment fails with `ECONNRESET`, and the
+ * page then sees a network error the app never caused. Measured 2026-11-26: test 2 went red once that way in a full
+ * lane run, then passed 21 of 21 in three repeats of this file. Reads only: a write is not safe to send twice.
+ */
+async function fetchReadFromMock(route: Route) {
+	try {
+		return await route.fetch();
+	} catch (error) {
+		if (!/ECONNRESET|socket hang up/i.test(String(error))) throw error;
+		return route.fetch();
+	}
+}
 
 /**
  * #5684 in the browser: the person presses Start right after a Stop and the app used to refuse with
@@ -231,7 +247,7 @@ async function stubTrackingFlag(
 		async (route) => {
 			if (route.request().method() !== 'GET') return route.fallback();
 
-			const upstream = await route.fetch();
+			const upstream = await fetchReadFromMock(route);
 			const original = (await upstream.json()) as Record<string, unknown>;
 			const employee = (original.employee ?? {}) as Record<string, unknown>;
 			const isStuckRead = mode === 'every read' || (window.armed && window.used === 0);
