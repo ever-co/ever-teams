@@ -34,6 +34,7 @@ const ALL_KEYS = [...NAME_KEYS, ...NAMING_KEYS, ...PANEL_KEYS];
 const TRANSLATED_KEYS = [...NAMING_KEYS, ...PANEL_KEYS];
 
 /** The word "assistant" in the 13 languages, as these messages spelled it before. */
+// cspell:disable-next-line -- the word in German, Spanish, Polish, Bulgarian, Russian, Arabic and Hebrew
 const ASSISTANT_WORDS = /assistant|assistent|asistente|asystent|асистент|ассистент|助手|مساعد|עוזר/i;
 
 const DISCLOSURE_EN =
