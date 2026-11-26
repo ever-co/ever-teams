@@ -1,4 +1,6 @@
 import qs from 'qs';
+import { AxiosError, AxiosResponse } from 'axios';
+import { ApiErrorService } from '@/core/services/client/api-error.service';
 import { DOCS_IMPORT_UPLOAD_TIMEOUT_MS, DOCS_PDF_DOWNLOAD_TIMEOUT_MS } from '@/core/lib/utils/docs-import';
 import { EDocumentVisibility } from '@/core/types/interfaces/common/docs';
 import { docsImportService } from './docs-import.service';
@@ -8,8 +10,32 @@ function queryOf(url: unknown): Record<string, unknown> {
 	return qs.parse(String(url).split('?')[1] ?? '');
 }
 
+const client = docsImportService as unknown as { baseURL?: string; httpLogger: { logError: (error: unknown) => void } };
+const originalBaseUrl = client.baseURL;
+const originalAdapter = docsImportService.axiosInstance.defaults.adapter;
+
+/** Direct mode: every request the client sends is refused with `status`, in Gauzy's error shape; answers its error log. */
+function refusingEveryRequest(status: number): jest.SpyInstance {
+	client.baseURL = 'https://api.example.test';
+	docsImportService.axiosInstance.defaults.adapter = async (config) => {
+		const response = {
+			config,
+			data: { statusCode: status, message: 'Refused' },
+			headers: {},
+			status,
+			statusText: 'Refused'
+		} as AxiosResponse;
+		throw new AxiosError(`Request failed with status code ${status}`, 'ERR_BAD_RESPONSE', config, null, response);
+	};
+	return jest.spyOn(client.httpLogger, 'logError').mockImplementation(() => undefined);
+}
+
 describe('docsImportService', () => {
-	afterEach(() => jest.restoreAllMocks());
+	afterEach(() => {
+		client.baseURL = originalBaseUrl;
+		docsImportService.axiosInstance.defaults.adapter = originalAdapter;
+		jest.restoreAllMocks();
+	});
 
 	it('probes the import and the PDF export on their routes', async () => {
 		const get = jest.spyOn(docsImportService, 'get').mockResolvedValue({ data: { items: [], maxZipBytes: 10 } } as never);
@@ -17,6 +43,36 @@ describe('docsImportService', () => {
 		expect(String(get.mock.calls[0][0])).toMatch(/^\/plugins\/docs\/imports\?/);
 		await docsImportService.probePdf();
 		expect(get.mock.calls[1][0]).toBe('/plugins/docs/exports/pdf');
+		// A 404 is how a probe hears the feature is off: both ask the client to keep it out of its error log
+		expect(get.mock.calls.map(([, config]) => config?.quietStatuses)).toEqual([[404], [404]]);
+	});
+
+	it.each([
+		['import', () => docsImportService.probeImport()],
+		['PDF export', () => docsImportService.probePdf()]
+	])('fails the %s probe of a platform with the feature off with its 404, and keeps it out of the error log', async (_name, probe) => {
+		const errorLog = refusingEveryRequest(404);
+
+		const error = await probe().then(
+			() => null,
+			(failure: unknown) => failure
+		);
+
+		// What `isFeatureOff` (use-docs-import.ts) reads as the feature off
+		expect(ApiErrorService.isApiError(error) && error.statusCode).toBe(404);
+		expect(errorLog).not.toHaveBeenCalled();
+	});
+
+	it.each([
+		['import', () => docsImportService.probeImport()],
+		['PDF export', () => docsImportService.probePdf()]
+	])('still logs a %s probe that failed with another status', async (_name, probe) => {
+		const errorLog = refusingEveryRequest(500);
+
+		await expect(probe()).rejects.toBeTruthy();
+
+		expect(errorLog).toHaveBeenCalledTimes(1);
+		expect((errorLog.mock.calls[0][0] as AxiosError).response?.status).toBe(500);
 	});
 
 	it('starts an import into a space: the file, the space and the team, with upload progress', async () => {

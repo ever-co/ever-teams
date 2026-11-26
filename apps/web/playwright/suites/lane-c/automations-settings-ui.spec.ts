@@ -1548,7 +1548,10 @@ test.describe('lane-c · Settings › Team › Automations: what the page shows 
 				retry: 0,
 				rulesSection: 0,
 				navEntry: 0,
-				armed: armedHttpError('GET', `${LOGGED_TEMPLATES_ROUTE}?organizationId=${organizationId}`, 404)
+				armed: armedHttpError('GET', `${LOGGED_TEMPLATES_ROUTE}?organizationId=${organizationId}`, 404),
+				// A platform without the plugin is a supported one: the probe keeps this 404 out of the client's error log
+				// (`task-automations.service.ts` templates, `quietStatuses`), so its line must not show at all
+				quiet: true
 			},
 			{
 				label: 'templates 500',
@@ -1566,7 +1569,10 @@ test.describe('lane-c · Settings › Team › Automations: what the page shows 
 		for (const item of cases) {
 			const served = await serveAutomations(page, item.script);
 			await signInAndVisit(page, fixture, PAGE_PATH);
-			armed.push(item.armed);
+			const isQuiet = 'quiet' in item && item.quiet === true;
+			if (!isQuiet) {
+				armed.push(item.armed);
+			}
 
 			await expect(settingsArea(page)).toBeVisible({ timeout: 25_000 });
 			await expect.poll(() => noticeTexts(settingsArea(page)), { timeout: 20_000 }).toEqual(item.notice);
@@ -1593,6 +1599,12 @@ test.describe('lane-c · Settings › Team › Automations: what the page shows 
 				area: flat(await settingsArea(page).innerText()),
 				armedLines: shield.consoleErrors().filter((line) => line.includes(item.armed)).length
 			});
+			if (isQuiet) {
+				expect(
+					shield.consoleErrors().filter((line) => line.includes(item.armed)),
+					`${item.label}: the client logged a 404 the probe takes as its answer`
+				).toEqual([]);
+			}
 			expect(
 				consoleFindings(shield, armed),
 				`${item.label}: besides its own HTTP error lines the page logged a console error`

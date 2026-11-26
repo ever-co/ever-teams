@@ -111,7 +111,9 @@ import { logOf, parseAnswer, triples } from '../api/log-helpers';
  *    `#allowed-sites` count 0 and the heading count 0 with the rest of the page intact.
  * 6. **A 404 on the end is a success, and the row afterwards depends on what the re-read found.** `confirmEnd` swallows
  *    an error `isSiteGrantAlreadyEnded` recognises (`allowed-sites-section.tsx:110-121`, `embed-site-grants.ts:59-61`)
- *    and toasts `ENDED`; `onSettled` re-reads the list either way (`use-embed-site-grants.ts:57-59,66`). Measured with
+ *    and toasts `ENDED`; `onSettled` re-reads the list either way (`use-embed-site-grants.ts:57-59,66`). The end asks
+ *    the client to keep that 404 out of its error log (`embeds.service.ts` `endSiteGrant`, `quietStatuses`), so no
+ *    `[HttpClient]` line names it, real or armed; a 500, 403 or 502 still gets its line. Measured with
  *    the grant really gone (ended through this app's own DELETE route before the click): DELETE 404, `ENDED` toast,
  *    dialog closed, and the row gone because the re-read no longer listed it. Measured with the 404 *armed* instead: the
  *    same toast and closed dialog, but the row came back — an armed refusal changes no mock state, so the list still holds
@@ -1774,9 +1776,11 @@ uiTest.describe('lane-b · Settings › Personal › Security: the "Sites you si
 				copy.ENDED('wiki.example.com'),
 				expect.stringMatching(/^DEV Mutation failed useEmbedSiteGrants\.useMutation\[endMutation\] 404/)
 			]);
-			expect(grantConsoleErrors(shield), 'the client stayed silent about a 404 it really received').toEqual([
-				expect.stringContaining(`DELETE ${grantPath(GRANT_WIKI.id).slice('/api'.length)} 404`)
-			]);
+			expect(
+				grantConsoleErrors(shield),
+				'the client logged the 404 of a sign-in already gone as an error — the end takes it as its answer ' +
+					'(embeds.service.ts endSiteGrant, quietStatuses; isSiteGrantAlreadyEnded)'
+			).toEqual([]);
 		}
 	);
 
@@ -1821,6 +1825,7 @@ uiTest.describe('lane-b · Settings › Personal › Security: the "Sites you si
 				copy.ENDED('wiki.example.com'),
 				expect.stringMatching(/^DEV Mutation failed useEmbedSiteGrants\.useMutation\[endMutation\] 404/)
 			]);
+			expect(grantConsoleErrors(shield), 'the client logged an armed 404 the end takes as its answer').toEqual([]);
 		}
 	);
 
