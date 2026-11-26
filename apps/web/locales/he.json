@@ -252,6 +252,8 @@
 		"DARK_MODE": "מצב כהה",
 		"THEME_LIGHT": "בהיר",
 		"THEME_DARK": "כהה",
+		"SWITCH_TO_DARK_THEME": "מעבר לערכת הנושא הכהה",
+		"SWITCH_TO_LIGHT_THEME": "מעבר לערכת הנושא הבהירה",
 		"SETTINGS": "הגדרות",
 		"PERSONAL": "אישי",
 		"USE_SETTING": "השתמש בהגדרה",
