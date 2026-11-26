@@ -28,6 +28,7 @@ jest.mock('@/core/services/client/axios', () => ({
 
 import { errorStatusOf } from '@/core/lib/utils/error-feedback';
 import { isSiteGrantAlreadyEnded, isSiteGrantsUnavailable } from '@/core/lib/utils/embed-site-grants';
+import { expectOnly404Quiet } from '@/test/api/refusing-client';
 import { EmbedClientNotLimitedError, EmbedMembersNotAddedError, embedsService } from './embeds.service';
 
 const CREDENTIAL = {
@@ -410,47 +411,17 @@ describe('embedsService', () => {
 			expect(errorLog().mock.calls[0][0].response.status).toBe(500);
 		});
 
-		it('fails the config read of a server with embeds off with its 404, and keeps that 404 out of the error log', async () => {
-			directRefusals(404);
-
-			const error = await embedsService.readConfig().then(
-				() => null,
-				(failure: unknown) => failure
-			);
+		it('keeps the 404 of a config read, a server with embeds off, out of the error log, and still logs a 500', async () => {
+			const notFound = await expectOnly404Quiet(embedsService, () => embedsService.readConfig());
 
 			// The status `embedsAvailabilityOf` (use-embeds.ts) reads as `disabled`
-			expect(errorStatusOf(error)).toBe(404);
-			expect(errorLog()).not.toHaveBeenCalled();
+			expect(errorStatusOf(notFound)).toBe(404);
 		});
 
-		it('still logs a config read that failed with another status', async () => {
-			directRefusals(500);
+		it('keeps the 404 of an end already done out of the error log, and still logs a 500', async () => {
+			const notFound = await expectOnly404Quiet(embedsService, () => embedsService.endSiteGrant('grant-1'));
 
-			await expect(embedsService.readConfig()).rejects.toBeTruthy();
-
-			expect(errorLog()).toHaveBeenCalledTimes(1);
-			expect(errorLog().mock.calls[0][0].response.status).toBe(500);
-		});
-
-		it('fails the end of a sign-in already gone with its 404, and keeps that 404 out of the error log', async () => {
-			directRefusals(404);
-
-			const error = await embedsService.endSiteGrant('grant-1').then(
-				() => null,
-				(failure: unknown) => failure
-			);
-
-			expect(isSiteGrantAlreadyEnded(error)).toBe(true);
-			expect(errorLog()).not.toHaveBeenCalled();
-		});
-
-		it('still logs an end that failed with another status', async () => {
-			directRefusals(500);
-
-			await expect(embedsService.endSiteGrant('grant-1')).rejects.toBeTruthy();
-
-			expect(errorLog()).toHaveBeenCalledTimes(1);
-			expect(errorLog().mock.calls[0][0].response.status).toBe(500);
+			expect(isSiteGrantAlreadyEnded(notFound)).toBe(true);
 		});
 
 		it('ends the sign-in from a site by its id, kept as one path segment', async () => {

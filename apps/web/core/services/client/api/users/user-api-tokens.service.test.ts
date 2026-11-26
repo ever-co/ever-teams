@@ -7,32 +7,12 @@ jest.mock('@/core/constants/config/constants', () => ({
 	GAUZY_API_BASE_SERVER_URL: { value: undefined }
 }));
 
-import { AxiosError, AxiosResponse } from 'axios';
 import { errorStatusOf } from '@/core/lib/utils/error-feedback';
+import { expectOnly404Quiet } from '@/test/api/refusing-client';
 import { userApiTokensService } from './user-api-tokens.service';
 
 function answer(data: unknown, status = 200) {
 	return { config: {}, data, headers: {}, status, statusText: 'OK' } as never;
-}
-
-const client = userApiTokensService as unknown as { baseURL?: string; httpLogger: { logError: (error: unknown) => void } };
-const originalBaseUrl = client.baseURL;
-const originalAdapter = userApiTokensService.axiosInstance.defaults.adapter;
-
-/** Direct mode: every request the client sends is refused with `status`, in Gauzy's error shape; answers its error log. */
-function refusingEveryRequest(status: number): jest.SpyInstance {
-	client.baseURL = 'https://api.example.test';
-	userApiTokensService.axiosInstance.defaults.adapter = async (config) => {
-		const response = {
-			config,
-			data: { statusCode: status, message: 'Refused' },
-			headers: {},
-			status,
-			statusText: 'Refused'
-		} as AxiosResponse;
-		throw new AxiosError(`Request failed with status code ${status}`, 'ERR_BAD_RESPONSE', config, null, response);
-	};
-	return jest.spyOn(client.httpLogger, 'logError').mockImplementation(() => undefined);
 }
 
 const LISTED = {
@@ -48,8 +28,6 @@ const LISTED = {
 };
 
 afterEach(() => {
-	client.baseURL = originalBaseUrl;
-	userApiTokensService.axiosInstance.defaults.adapter = originalAdapter;
 	jest.restoreAllMocks();
 });
 
@@ -72,26 +50,11 @@ describe('userApiTokensService.readConfig', () => {
 		expect(get).toHaveBeenCalledWith('/user-api-tokens/config', { signal, quietStatuses: [404] });
 	});
 
-	it('fails the read of an API without the route with its 404, and keeps that 404 out of the error log', async () => {
-		const errorLog = refusingEveryRequest(404);
-
-		const error = await userApiTokensService.readConfig().then(
-			() => null,
-			(failure: unknown) => failure
-		);
+	it('keeps the 404 of an API without the route out of the error log, and still logs a 500', async () => {
+		const notFound = await expectOnly404Quiet(userApiTokensService, () => userApiTokensService.readConfig());
 
 		// The status `userApiTokensAvailabilityOf` (use-user-api-tokens.ts) reads as `disabled`
-		expect(errorStatusOf(error)).toBe(404);
-		expect(errorLog).not.toHaveBeenCalled();
-	});
-
-	it('still logs a read that failed with another status', async () => {
-		const errorLog = refusingEveryRequest(500);
-
-		await expect(userApiTokensService.readConfig()).rejects.toBeTruthy();
-
-		expect(errorLog).toHaveBeenCalledTimes(1);
-		expect(errorStatusOf(errorLog.mock.calls[0][0])).toBe(500);
+		expect(errorStatusOf(notFound)).toBe(404);
 	});
 
 	it('refuses an answer that does not say it', async () => {

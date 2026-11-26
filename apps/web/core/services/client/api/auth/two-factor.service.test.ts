@@ -8,34 +8,12 @@ jest.mock('@/core/lib/helpers/cookies', () => ({
 	getOrganizationIdCookie: () => 'organization 1'
 }));
 
-import { AxiosError, AxiosResponse } from 'axios';
 import { twoFactorStatusFailureOf } from '@/core/lib/auth/two-factor';
+import { expectOnly404Quiet } from '@/test/api/refusing-client';
 import { twoFactorService } from './two-factor.service';
-
-const client = twoFactorService as unknown as { baseURL?: string; httpLogger: { logError: (error: unknown) => void } };
-const originalBaseUrl = client.baseURL;
-const originalAdapter = twoFactorService.axiosInstance.defaults.adapter;
-
-/** Direct mode: every request the client sends is refused with `status`, in Gauzy's error shape; answers its error log. */
-function refusingEveryRequest(status: number): jest.SpyInstance {
-	client.baseURL = 'https://api.example.test';
-	twoFactorService.axiosInstance.defaults.adapter = async (config) => {
-		const response = {
-			config,
-			data: { statusCode: status, message: 'Refused' },
-			headers: {},
-			status,
-			statusText: 'Refused'
-		} as AxiosResponse;
-		throw new AxiosError(`Request failed with status code ${status}`, 'ERR_BAD_RESPONSE', config, null, response);
-	};
-	return jest.spyOn(client.httpLogger, 'logError').mockImplementation(() => undefined);
-}
 
 describe('twoFactorService', () => {
 	afterEach(() => {
-		client.baseURL = originalBaseUrl;
-		twoFactorService.axiosInstance.defaults.adapter = originalAdapter;
 		jest.restoreAllMocks();
 	});
 
@@ -47,25 +25,10 @@ describe('twoFactorService', () => {
 		expect(get).toHaveBeenCalledWith('/auth/two-factor?organizationId=organization%201', { quietStatuses: [404] });
 	});
 
-	it('fails the state read of an API without these routes with its 404, and keeps it out of the error log', async () => {
-		const errorLog = refusingEveryRequest(404);
+	it('keeps the 404 of an API without these routes out of the error log, and still logs a 500', async () => {
+		const notFound = await expectOnly404Quiet(twoFactorService, () => twoFactorService.getStatus());
 
-		const error = await twoFactorService.getStatus().then(
-			() => null,
-			(failure: unknown) => failure
-		);
-
-		expect(twoFactorStatusFailureOf(error)).toBe('unsupported');
-		expect(errorLog).not.toHaveBeenCalled();
-	});
-
-	it('still logs a state read that failed with another status', async () => {
-		const errorLog = refusingEveryRequest(500);
-
-		await expect(twoFactorService.getStatus()).rejects.toBeTruthy();
-
-		expect(errorLog).toHaveBeenCalledTimes(1);
-		expect((errorLog.mock.calls[0][0] as AxiosError).response?.status).toBe(500);
+		expect(twoFactorStatusFailureOf(notFound)).toBe('unsupported');
 	});
 
 	it('keeps the secret of a new setup out of the log', async () => {
