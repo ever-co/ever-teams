@@ -464,45 +464,59 @@ async function openConsent(context: BrowserContext, site: Awaited<ReturnType<typ
 }
 
 /** What a consent window held at the moment it called `window.close()` itself. */
-type ConsentWindowAtClose = { href: string; textHasToken: boolean; storageKeysHoldingToken: string[] };
+type ConsentWindowAtClose = {
+	href: string;
+	/** The secrets its visible text still carried. */
+	secretsInText: string[];
+	/** Every localStorage / sessionStorage key it held. */
+	storageKeys: string[];
+	/** The keys among them whose value carries one of the secrets. */
+	storageKeysHoldingSecret: string[];
+};
 
 /**
  * Records, for every window of `context` opened after this call, what it holds at the moment it closes itself
- * (`window.close()`, embed-authorize-page.tsx:53): its address, whether its text carries `token`, and which
- * localStorage / sessionStorage keys hold a value carrying it. A page cannot be read once it has closed, so this is
- * the only moment "the tokens are not left on the page" can be checked. The close itself still happens, once the
- * record has reached the test.
+ * (`window.close()`, embed-authorize-page.tsx:53): its address, which of `secrets` its text still carries, its
+ * localStorage / sessionStorage keys, and which of those hold a value carrying a secret. A page cannot be read once it
+ * has closed, so this is the only moment "the tokens are not left on the page" can be checked. The close itself still
+ * happens, once the record has reached the test.
  */
-async function recordConsentWindowAtClose(context: BrowserContext, token: string): Promise<ConsentWindowAtClose[]> {
+async function recordConsentWindowAtClose(context: BrowserContext, secrets: string[]): Promise<ConsentWindowAtClose[]> {
 	const records: ConsentWindowAtClose[] = [];
 	await context.exposeBinding('__e2eConsentAtClose', (_source, record: ConsentWindowAtClose) => {
 		records.push(record);
 	});
-	await context.addInitScript((needle: string) => {
+	await context.addInitScript((needles: string[]) => {
 		const close = window.close.bind(window);
 		window.close = () => {
 			const send = (window as unknown as { __e2eConsentAtClose?: (record: unknown) => Promise<void> })
 				.__e2eConsentAtClose;
-			const holding: string[] = [];
+			const storageKeys: string[] = [];
+			const storageKeysHoldingSecret: string[] = [];
 			for (const storage of [window.localStorage, window.sessionStorage]) {
 				try {
 					for (let index = 0; index < storage.length; index += 1) {
 						const key = storage.key(index);
-						if (key !== null && (storage.getItem(key) ?? '').includes(needle)) holding.push(key);
+						if (key === null) continue;
+						storageKeys.push(key);
+						const value = storage.getItem(key) ?? '';
+						if (needles.some((needle) => value.includes(needle))) storageKeysHoldingSecret.push(key);
 					}
 				} catch {
 					// a storage this origin may not read holds nothing this page wrote
 				}
 			}
+			const text = document.body?.innerText ?? '';
 			const record = {
 				href: window.location.href,
-				textHasToken: (document.body?.innerText ?? '').includes(needle),
-				storageKeysHoldingToken: holding
+				secretsInText: needles.filter((needle) => text.includes(needle)),
+				storageKeys,
+				storageKeysHoldingSecret
 			};
 			if (!send) return close();
 			void send(record).finally(close);
 		};
-	}, token);
+	}, secrets);
 	return records;
 }
 
@@ -1515,7 +1529,9 @@ test.describe('lane-a · /shared-report and /embed/authorize: what a person sees
 		});
 		await signInWithFixture(context, fixture, 'A');
 		const site = await openSitePage(context);
-		const atClose = await recordConsentWindowAtClose(context, SITE_TOKENS.token);
+		// Both secrets the site is handed: the access token and the longer-lived renewal token.
+		const secrets = [SITE_TOKENS.token, SITE_TOKENS.renewalToken];
+		const atClose = await recordConsentWindowAtClose(context, secrets);
 		const popup = await openConsent(context, site, authorizeQuery(SITE_A, fixture.ids.organizationA));
 		await expect(popup.getByRole('button', { name: EMBED_ALLOW, exact: true })).toBeVisible({ timeout: 25_000 });
 
@@ -1561,13 +1577,20 @@ test.describe('lane-a · /shared-report and /embed/authorize: what a person sees
 		await expect.poll(() => popup.isClosed(), { timeout: 15_000 }).toBe(true);
 		expect(atClose, 'the consent window closed without calling window.close()').toHaveLength(1);
 		const [closing] = atClose;
-		expect(closing.textHasToken, 'the popup kept the token it had just handed over').toBe(false);
-		expect(closing.href, 'the token reached an address').not.toContain(SITE_TOKENS.token);
+		expect(closing.secretsInText, 'the popup kept a token it had just handed over').toEqual([]);
 		expect(
-			stub.calls.filter((call) => call.url.includes(SITE_TOKENS.token)),
-			'a request URL carried the site token'
+			secrets.filter((secret) => closing.href.includes(secret)),
+			'a token reached the address'
 		).toEqual([]);
-		expect(closing.storageKeysHoldingToken, 'the page stored the site token in web storage').toEqual([]);
+		expect(
+			stub.calls.filter((call) => secrets.some((secret) => call.url.includes(secret))),
+			'a request URL carried a site token'
+		).toEqual([]);
+		expect(closing.storageKeysHoldingSecret, 'the page stored a site token in web storage').toEqual([]);
+		expect(
+			closing.storageKeys.filter((key) => key.includes('embed')),
+			'the page stored something under an embed key'
+		).toEqual([]);
 
 		report('16 Allow', {
 			authorizeRequest: stub.calls

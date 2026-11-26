@@ -46,6 +46,8 @@ function sendUntyped(method: string, path: string, body: string, cookie: string)
 			{ method, headers: { accept: 'application/json', cookie, 'content-length': Buffer.byteLength(body) } },
 			(incoming) => {
 				let text = '';
+				// A connection cut after the headers never emits `end`: reject instead of waiting for the test timeout.
+				incoming.once('error', reject);
 				incoming.setEncoding('utf8');
 				incoming.on('data', (chunk: string) => (text += chunk));
 				incoming.on('end', () =>
