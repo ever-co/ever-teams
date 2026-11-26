@@ -8,6 +8,7 @@ import {
 import { INextParams } from '@/core/types/interfaces/common/data-response';
 import { NextResponse } from 'next/server';
 import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
+import { gauzyErrorResponse } from '@/core/services/server/gauzy-error-response';
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
 	const id = (await params).id;
@@ -21,16 +22,20 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
 
 	if (!user) return NextResponse.json({}, { status: 400 });
 
-	const { data } = await getOrganizationTeamRequest(
-		{
-			organizationId,
-			tenantId,
-			teamId: id
-		},
-		access_token || ''
-	);
-
-	return $res(data);
+	try {
+		const { data } = await getOrganizationTeamRequest(
+			{
+				organizationId,
+				tenantId,
+				teamId: id
+			},
+			access_token || ''
+		);
+		return $res(data);
+	} catch (error) {
+		// A refusal of the API goes back with its status and reason, as in direct mode (#5726)
+		return await gauzyErrorResponse(error, 'The team could not be read.');
+	}
 }
 
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -49,18 +54,21 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 
 	const body = await req.json();
 
-	await updateOrganizationTeamRequest({ ...body, id }, access_token || '');
-
-	const { data } = await getOrganizationTeamRequest(
-		{
-			organizationId,
-			tenantId,
-			teamId: id
-		},
-		access_token || ''
-	);
-
-	return $res(data);
+	try {
+		await updateOrganizationTeamRequest({ ...body, id }, access_token || '');
+		const { data } = await getOrganizationTeamRequest(
+			{
+				organizationId,
+				tenantId,
+				teamId: id
+			},
+			access_token || ''
+		);
+		return $res(data);
+	} catch (error) {
+		// A refusal of the API goes back with its status and reason, as in direct mode (#5726)
+		return await gauzyErrorResponse(error, 'The team could not be updated.');
+	}
 }
 
 export async function DELETE(req: Request, props: INextParams) {
@@ -77,12 +85,16 @@ export async function DELETE(req: Request, props: INextParams) {
 
 	if (!user) return NextResponse.json({}, { status: 400 });
 
-	const response = await deleteOrganizationTeamRequest({
-		id: params.id,
-		bearer_token: access_token || '',
-		tenantId: tenantId || '',
-		organizationId: organizationId || ''
-	});
-
-	return $res(response.data);
+	try {
+		const response = await deleteOrganizationTeamRequest({
+			id: params.id,
+			bearer_token: access_token || '',
+			tenantId: tenantId || '',
+			organizationId: organizationId || ''
+		});
+		return $res(response.data);
+	} catch (error) {
+		// A refusal of the API goes back with its status and reason, as in direct mode (#5726)
+		return await gauzyErrorResponse(error, 'The team could not be deleted.');
+	}
 }

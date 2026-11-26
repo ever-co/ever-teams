@@ -88,6 +88,15 @@ describe('logger-server actions', () => {
 		expect(tree()).toEqual(['app/', 'app/logs/']);
 	});
 
+	it('writes in a working directory that has no log directory yet', async () => {
+		rmSync(join(work, 'logs'), { recursive: true, force: true });
+
+		await expect(logServerToFile('2026-10-20.log', entry)).resolves.toBeUndefined();
+
+		expect(readFileSync(join(work, 'logs', '2026-10-20.log'), 'utf8')).toContain('"hello"');
+		expect(tree()).toEqual(['app/', 'app/logs/', 'app/logs/2026-10-20.log']);
+	});
+
 	it('takes no directory from its caller: an extra argument is not a path', async () => {
 		await callFromClient(logServerToFile, '2026-10-20.log', entry, root);
 

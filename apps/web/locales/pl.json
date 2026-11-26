@@ -5636,6 +5636,19 @@
 			"SIGNED_OUT_OTHERS": "{count, plural, =0 {Żadna inna sesja nie była zalogowana.} one {Wylogowano # inną sesję.} few {Wylogowano # inne sesje.} many {Wylogowano # innych sesji.} other {Wylogowano # innej sesji.}}",
 			"APP_ON_DEVICE": "{app} · {device}"
 		},
+		"allowedSites": {
+			"TITLE": "Witryny, z których się zalogowano",
+			"DESCRIPTION": "Witryny, którym zezwolono na uruchamianie i zatrzymywanie twojego timera {appName}. Zakończ logowanie z witryny, której już nie używasz lub której nie rozpoznajesz.",
+			"RENEWS_UNTIL": "Może odnawiać logowanie do {date}",
+			"END": "Zakończ",
+			"EMPTY": "Nie zalogowano się z żadnej witryny.",
+			"LOAD_FAILED": "Nie udało się wczytać witryn, z których się zalogowano.",
+			"RETRY": "Spróbuj ponownie",
+			"END_TITLE": "Zakończyć logowanie z {site}?",
+			"END_DESCRIPTION": "Witryna nie może już odnawiać logowania. Przy następnym odnowieniu ponownie pokaże swój przycisk „Zaloguj się przez {appName}”.",
+			"ENDED": "Logowanie z {site} zostało zakończone.",
+			"END_FAILED": "Logowanie nie zostało zakończone. Spróbuj ponownie."
+		},
 		"profile": {
 			"SECTION_PROFILE": "Profil",
 			"PHOTO": "Zdjęcie",
@@ -7206,7 +7219,7 @@
 		"IN_TRASH": "W koszu",
 		"IN_TRASH_NOTICE": "Ta strona jest w koszu. Przywróć ją, aby edytować.",
 		"LOCKED_NOTICE": "Ta strona jest zablokowana na platformie i można ją tylko czytać.",
-		"NO_WRITE_ACCESS_NOTICE": "Możesz czytać tę stronę, ale nie możesz jej zmieniać. Poproś autora o udostępnienie jej do edycji.",
+		"NO_WRITE_ACCESS_NOTICE": "Możesz czytać tę stronę, ale nie możesz jej zmieniać. Poproś autora lub administratora o dostęp do edycji.",
 		"LOCKED_WHILE_EDITING": "Strona została zablokowana, gdy pisałeś. Załaduj ją ponownie, aby przeczytać najnowszy tekst; do tego czasu Twoje zmiany pozostają w tej karcie.",
 		"SEARCH_PAGES": "Szukaj stron",
 		"CLEAR_SEARCH": "Wyczyść wyszukiwanie",
@@ -7229,7 +7242,7 @@
 		"UNSAVED": "Niezapisane zmiany",
 		"NOT_SAVED": "Nie zapisano",
 		"SAVE_ERROR": "Nie udało się zapisać ostatniej zmiany. Pozostaje w tej karcie; ponów próbę lub sprawdź połączenie.",
-		"SAVE_FORBIDDEN": "Możesz czytać tę stronę, ale nie możesz jej zmieniać: ostatnia zmiana nie została zapisana. Pozostaje w tej karcie. Poproś autora o udostępnienie strony do edycji.",
+		"SAVE_FORBIDDEN": "Możesz czytać tę stronę, ale nie możesz jej zmieniać: ostatnia zmiana nie została zapisana. Pozostaje w tej karcie. Poproś autora strony lub administratora o dostęp do edycji.",
 		"SAVE_TITLE_ERROR": "Nie udało się zapisać tytułu.",
 		"TOO_LARGE": "Ta strona jest za duża, aby ją zapisać. Podziel ją lub usuń część obrazów.",
 		"CONFLICT_TITLE": "Ktoś inny zapisał tę stronę",

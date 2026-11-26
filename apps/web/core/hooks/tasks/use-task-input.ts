@@ -10,6 +10,7 @@ import { useIsEmailVerificationSatisfied } from '../auth/use-email-verification-
 import { Nullable } from '@/core/types/generics/utils';
 import { TTag } from '@/core/types/schemas';
 import { useTaskStatusesQuery } from './use-task-statuses-query';
+import { openStatusOfNewTask } from '@/core/lib/utils/new-task-status-name';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 
 export const h_filter = (status: ETaskStatusName, filters: 'closed' | 'open') => {
@@ -159,7 +160,7 @@ export function useTaskInput({
 		}[];
 	} = {}) => {
 		if (query.trim().length < 2 || inputTask?.title === query.trim() || !meetsEmailVerificationRef.current) return;
-		const openId = taskStatusList.find((item) => item.value === 'open')?.id;
+		const openId = openStatusOfNewTask(taskStatusList)?.id;
 		const statusId = taskStatusList.find((item) => item.name === taskStatus.current)?.id;
 
 		return createTask({

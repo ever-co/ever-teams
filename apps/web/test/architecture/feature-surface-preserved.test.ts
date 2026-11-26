@@ -2098,10 +2098,12 @@ describe('Ever Teams feature surface preservation', () => {
 		// 416 files and 533 verbs with the e-mail verification status of the signed-in user (/api/auth/verify/status GET;
 		// #5677).
 		// 417 files and 534 verbs with a profile's month summary (/api/timesheet/statistics/profile-activity GET; #5612).
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(417);
+		// 419 files and 536 verbs with the sites the signed-in person signed in from (/api/embed/grants GET, [id] DELETE;
+		// #5595).
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(419);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(534);
+		).toHaveLength(536);
 		expect(routes).toEqual(
 			expect.arrayContaining([
 				// Proxy mode twin of Gauzy's e-mail verification status (#5677)
@@ -2117,6 +2119,9 @@ describe('Ever Teams feature surface preservation', () => {
 				// Proxy mode twin of Gauzy's sign-in of a person from an allowed site (ever-gauzy #12094, #5528)
 				'apps/web/app/api/embed/authorize/route.ts::POST',
 				'apps/web/app/api/embed-allowed-origins/[id]/route.ts::PATCH',
+				// Proxy mode twins of the sites the signed-in person signed in from (#5595)
+				'apps/web/app/api/embed/grants/route.ts::GET',
+				'apps/web/app/api/embed/grants/[id]/route.ts::DELETE',
 				// Proxy mode twin of Gauzy's split of one entry, its slots going with each part (ever-gauzy #12030, #5369)
 				'apps/web/app/api/timesheet/time-log/[id]/split/route.ts::POST',
 				// Proxy mode twin of Gauzy's change of a time entry's own labels (ever-gauzy #12029, #5368)

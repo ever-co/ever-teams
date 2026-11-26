@@ -8,19 +8,25 @@ import {
 } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
 import { refuseForeignOrigin } from '@/core/services/server/same-origin-request';
+import { gauzyErrorResponse } from '@/core/services/server/gauzy-error-response';
 
 export async function GET(req: Request) {
 	const res = new NextResponse();
 	const { $res, user, access_token, tenantId, status } = await authenticatedGuard(req, res);
 	if (!user) return NextResponse.json({ errors: 'Unauthorized' }, { status: status ?? 401 });
 
-	const { data: employeeRole } = await getEmployeeRoleRequest({
-		tenantId,
-		role: 'EMPLOYEE',
-		bearer_token: access_token
-	});
+	try {
+		const { data: employeeRole } = await getEmployeeRoleRequest({
+			tenantId,
+			role: 'EMPLOYEE',
+			bearer_token: access_token
+		});
 
-	return $res(employeeRole);
+		return $res(employeeRole);
+	} catch (error) {
+		// A refusal of the API goes back with its status and reason, as in direct mode (#5726)
+		return await gauzyErrorResponse(error, 'The role could not be read.');
+	}
 }
 
 export async function POST(req: Request) {
@@ -42,45 +48,50 @@ export async function POST(req: Request) {
 		return NextResponse.json({ errors }, { status: 400 });
 	}
 
-	const { data: employeeRole } = await getEmployeeRoleRequest({
-		tenantId,
-		role: 'EMPLOYEE',
-		bearer_token: access_token
-	});
-
-	const date = new Date();
-
-	date.setDate(date.getDate() - 1);
-
-	await inviteByEmailsRequest(
-		{
-			emailIds: [body.email],
-			projectIds: [],
-			departmentIds: [],
-			organizationContactIds: [],
-			teamIds: [teamId],
-			roleId: employeeRole?.id || '',
-			invitationExpirationPeriod: 'Never',
-			inviteType: 'TEAM',
-			appliedDate: null,
-			fullName: body.name,
-			callbackUrl: INVITE_CALLBACK_URL || callbackUrl,
-			organizationId,
+	try {
+		const { data: employeeRole } = await getEmployeeRoleRequest({
 			tenantId,
-			startedWorkOn: date.toISOString()
-		},
-		access_token
-	);
+			role: 'EMPLOYEE',
+			bearer_token: access_token
+		});
 
-	// Get all team invitations (all roles)
-	const { data } = await getAllTeamInvitationsRequest(
-		{
-			tenantId,
-			teamId,
-			organizationId
-		},
-		access_token
-	);
+		const date = new Date();
 
-	return $res(data);
+		date.setDate(date.getDate() - 1);
+
+		await inviteByEmailsRequest(
+			{
+				emailIds: [body.email],
+				projectIds: [],
+				departmentIds: [],
+				organizationContactIds: [],
+				teamIds: [teamId],
+				roleId: employeeRole?.id || '',
+				invitationExpirationPeriod: 'Never',
+				inviteType: 'TEAM',
+				appliedDate: null,
+				fullName: body.name,
+				callbackUrl: INVITE_CALLBACK_URL || callbackUrl,
+				organizationId,
+				tenantId,
+				startedWorkOn: date.toISOString()
+			},
+			access_token
+		);
+
+		// Get all team invitations (all roles)
+		const { data } = await getAllTeamInvitationsRequest(
+			{
+				tenantId,
+				teamId,
+				organizationId
+			},
+			access_token
+		);
+
+		return $res(data);
+	} catch (error) {
+		// A refusal of the API goes back with its status and reason, as in direct mode (#5726)
+		return await gauzyErrorResponse(error, 'The invitation could not be sent.');
+	}
 }

@@ -5636,6 +5636,19 @@
 			"SIGNED_OUT_OTHERS": "{count, plural, =0 {Aucune autre session n'était connectée.} one {# autre session a été déconnectée.} other {# autres sessions ont été déconnectées.}}",
 			"APP_ON_DEVICE": "{app} · {device}"
 		},
+		"allowedSites": {
+			"TITLE": "Sites depuis lesquels vous vous êtes connecté",
+			"DESCRIPTION": "Les sites que vous avez autorisés à démarrer et arrêter votre minuteur {appName}. Mettez fin à la connexion depuis un site que vous n’utilisez plus ou que vous ne reconnaissez pas.",
+			"RENEWS_UNTIL": "Peut renouveler la connexion jusqu’au {date}",
+			"END": "Mettre fin",
+			"EMPTY": "Vous ne vous êtes connecté depuis aucun site.",
+			"LOAD_FAILED": "Les sites depuis lesquels vous vous êtes connecté n’ont pas pu être chargés.",
+			"RETRY": "Réessayer",
+			"END_TITLE": "Mettre fin à la connexion depuis {site} ?",
+			"END_DESCRIPTION": "Le site ne peut plus renouveler la connexion. À son prochain renouvellement, il affiche de nouveau son bouton « Se connecter avec {appName} ».",
+			"ENDED": "La connexion depuis {site} a pris fin.",
+			"END_FAILED": "La connexion n’a pas pris fin. Réessayez."
+		},
 		"profile": {
 			"SECTION_PROFILE": "Profil",
 			"PHOTO": "Photo",
@@ -7206,7 +7219,7 @@
 		"IN_TRASH": "Dans la corbeille",
 		"IN_TRASH_NOTICE": "Cette page est dans la corbeille. Restaurez-la pour la modifier.",
 		"LOCKED_NOTICE": "Cette page est verrouillée sur la plateforme et ne peut qu’être lue.",
-		"NO_WRITE_ACCESS_NOTICE": "Vous pouvez lire cette page, mais pas la modifier. Demandez à son auteur de la partager avec vous en modification.",
+		"NO_WRITE_ACCESS_NOTICE": "Vous pouvez lire cette page, mais pas la modifier. Demandez l’accès en modification à son auteur ou à un administrateur.",
 		"LOCKED_WHILE_EDITING": "La page a été verrouillée pendant que vous écriviez. Rechargez-la pour lire le texte le plus récent ; vos modifications restent dans cet onglet d’ici là.",
 		"SEARCH_PAGES": "Rechercher des pages",
 		"CLEAR_SEARCH": "Effacer la recherche",
@@ -7229,7 +7242,7 @@
 		"UNSAVED": "Modifications non enregistrées",
 		"NOT_SAVED": "Non enregistré",
 		"SAVE_ERROR": "La dernière modification n’a pas pu être enregistrée. Elle reste dans cet onglet ; réessayez ou vérifiez votre connexion.",
-		"SAVE_FORBIDDEN": "Vous pouvez lire cette page, mais pas la modifier : la dernière modification n’a pas été enregistrée. Elle reste dans cet onglet. Demandez à l’auteur de partager la page avec vous en modification.",
+		"SAVE_FORBIDDEN": "Vous pouvez lire cette page, mais pas la modifier : la dernière modification n’a pas été enregistrée. Elle reste dans cet onglet. Demandez l’accès en modification à l’auteur de la page ou à un administrateur.",
 		"SAVE_TITLE_ERROR": "Le titre n’a pas pu être enregistré.",
 		"TOO_LARGE": "Cette page est trop grande pour être enregistrée. Découpez-la ou retirez quelques images.",
 		"CONFLICT_TITLE": "Quelqu’un d’autre a enregistré cette page",

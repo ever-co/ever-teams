@@ -45,7 +45,16 @@ jest.mock('@/core/hooks/timer/use-timer-break', () => ({
 	}),
 	useBreakElapsedSeconds: () => 0
 }));
-jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
+// The two labels of the timer button are answered in English, every other text as its key
+jest.mock('next-intl', () => ({
+	useTranslations: () => (key: string) => {
+		const labels: Record<string, string> = {
+			'hotkeys.START_TIMER': 'Start timer',
+			'hotkeys.STOP_TIMER': 'Stop timer'
+		};
+		return labels[key] ?? key;
+	}
+}));
 jest.mock('sonner', () => ({ toast: { warning: jest.fn(), info: jest.fn(), error: jest.fn() } }));
 jest.mock('assets/svg', () => ({ TimerPlayIcon: () => null, TimerStopIcon: () => null }), { virtual: true });
 jest.mock('@headlessui/react', () => ({ Transition: ({ children }: TChildrenProps) => <>{children}</> }));

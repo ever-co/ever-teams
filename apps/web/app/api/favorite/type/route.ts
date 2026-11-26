@@ -2,6 +2,7 @@ import { authenticatedGuard } from '@/core/services/server/guards/authenticated-
 import { getFavoriteDetailsRequest } from '@/core/services/server/requests/favorite';
 import { EBaseEntityEnum } from '@/core/types/generics/enums/entity';
 import { NextResponse } from 'next/server';
+import { gauzyErrorResponse } from '@/core/services/server/gauzy-error-response';
 
 /** The kinds the app reads through `/favorite/type`: tasks of every team (#5017). Pages never go this way. */
 const READABLE_KINDS: ReadonlySet<string> = new Set([EBaseEntityEnum.Task]);
@@ -18,11 +19,15 @@ export async function GET(req: Request) {
 		return NextResponse.json({ error: 'Only favourite tasks are read here' }, { status: 400 });
 	}
 
-	const { data } = await getFavoriteDetailsRequest({
-		query: search.toString(),
-		bearer_token: access_token,
-		tenantId
-	});
-
-	return $res(data);
+	try {
+		const { data } = await getFavoriteDetailsRequest({
+			query: search.toString(),
+			bearer_token: access_token,
+			tenantId
+		});
+		return $res(data);
+	} catch (error) {
+		// A refusal of the API goes back with its status and reason, as in direct mode (#5726)
+		return await gauzyErrorResponse(error, 'The favourite tasks could not be read.');
+	}
 }

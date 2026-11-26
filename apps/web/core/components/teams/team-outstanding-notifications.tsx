@@ -17,8 +17,8 @@ import {
 } from '@/core/lib/helpers/notifications';
 import { getDailyPlanDay } from '@/core/lib/helpers/daily-plan-day';
 import { NOTIFICATION_KEYS } from '@/core/constants/config/notification';
-import { TTask } from '@/core/types/schemas/task/task.schema';
 import { isTaskFinished } from '@/core/lib/helpers/task';
+import { outstandingNoticeTasksOf } from '@/core/lib/utils/outstanding-notice';
 
 const MEMBER_LINK_CLASS =
 	'rounded-sm font-medium text-foreground underline decoration-foreground/25 underline-offset-2 outline-none transition-colors hover:decoration-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50';
@@ -66,12 +66,8 @@ const UserOutstandingNotification = memo(function UserOutstandingNotification({
 	const [visible, setVisible] = useState(false);
 
 	const { validTasks, outStandingTasksCount } = useMemo(() => {
-		const validTasks = outstandingPlans.flatMap((plan) => plan.tasks || []).filter((t) => t?.id);
-		const uniqueIds = new Set(validTasks.map((t) => t.id));
-		return {
-			validTasks: validTasks as Partial<TTask>[],
-			outStandingTasksCount: uniqueIds.size
-		};
+		const notice = outstandingNoticeTasksOf(outstandingPlans);
+		return { validTasks: notice.tasks, outStandingTasksCount: notice.count };
 	}, [outstandingPlans]);
 
 	useEffect(() => {

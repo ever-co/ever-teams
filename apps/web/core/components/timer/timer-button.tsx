@@ -4,6 +4,7 @@ import { clsxm } from '@/core/lib/utils/clsxm';
 import { Button } from '@/core/components/common/button';
 import { TimerPlayIcon, TimerStopIcon } from 'assets/svg';
 import { MouseEventHandler, Ref } from 'react';
+import { useTranslations } from 'next-intl';
 
 type Props = {
 	onClick?: MouseEventHandler<HTMLButtonElement>;
@@ -32,6 +33,14 @@ function timerButtonGlow(running: boolean | undefined) {
 	return 'shadow-[0_6px_16px_-6px_hsl(var(--primary)/0.55)]';
 }
 
+/** What the button does, in the words the keyboard shortcuts list already uses for the same action. */
+function defaultLabelKey(running: boolean | undefined) {
+	if (running) {
+		return 'hotkeys.STOP_TIMER' as const;
+	}
+	return 'hotkeys.START_TIMER' as const;
+}
+
 function TimerButtonIcon({ running }: Readonly<{ running: boolean | undefined }>) {
 	if (running) {
 		return <TimerStopIcon className="size-1/2" />;
@@ -50,7 +59,8 @@ export function TimerButton({
 	emphasized = false
 }: Props) {
 	const variant = timerButtonVariant(running);
-	const defaultLabel = running ? 'Stop timer' : 'Start timer';
+	const t = useTranslations();
+	const defaultLabel = t(defaultLabelKey(running));
 
 	return (
 		<Button

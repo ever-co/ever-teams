@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { usePathname } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { Slot } from '@radix-ui/react-slot';
 import { VariantProps, cva } from 'class-variance-authority';
 import { Sidebar as SidebarIcon } from '@/core/components/icons/hugeicons';
@@ -234,6 +235,9 @@ Sidebar.displayName = 'Sidebar';
 const SidebarTrigger = React.forwardRef<React.ElementRef<typeof Button>, React.ComponentProps<typeof Button>>(
 	({ className, onClick, ...props }, ref) => {
 		const { toggleSidebar } = useSidebar();
+		const t = useTranslations();
+		// The words the keyboard shortcuts list uses for the same action, in the 13 languages
+		const toggleLabel = t('shortcuts.commands.sidebarToggle');
 
 		return (
 			<Button
@@ -254,7 +258,7 @@ const SidebarTrigger = React.forwardRef<React.ElementRef<typeof Button>, React.C
 			>
 				<SidebarIcon aria-hidden="true" />
 
-				<span className="sr-only">Toggle Sidebar</span>
+				<span className="sr-only">{toggleLabel}</span>
 			</Button>
 		);
 	}
@@ -285,15 +289,18 @@ SidebarTriggerButton.displayName = 'SidebarTriggerButton';
 const SidebarRail = React.forwardRef<HTMLButtonElement, React.ComponentProps<'button'>>(
 	({ className, ...props }, ref) => {
 		const { toggleSidebar } = useSidebar();
+		const t = useTranslations();
+		// The words the keyboard shortcuts list uses for the same action, in the 13 languages
+		const toggleLabel = t('shortcuts.commands.sidebarToggle');
 
 		return (
 			<button
 				ref={ref}
 				data-sidebar="rail"
-				aria-label="Toggle Sidebar"
+				aria-label={toggleLabel}
 				tabIndex={-1}
 				onClick={toggleSidebar}
-				title="Toggle Sidebar"
+				title={toggleLabel}
 				className={cn(
 					'absolute inset-y-0 z-20 hidden w-4 -translate-x-1/2 transition-[translate,background-color,left,right] ease-linear after:absolute after:inset-y-0 after:left-1/2 after:w-[2px] hover:after:bg-sidebar-border group-data-[side=left]:-right-4 group-data-[side=right]:left-0 sm:flex',
 					'in-data-[side=left]:cursor-w-resize in-data-[side=right]:cursor-e-resize',

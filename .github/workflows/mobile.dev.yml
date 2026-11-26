@@ -50,6 +50,10 @@ jobs:
           # This job runs no Cypress: skip the binary download in cypress's postinstall, a network flake that failed
           # whole builds (the npm package and its types are still installed for the typecheck)
           CYPRESS_INSTALL_BINARY: '0'
+          # This job does not build the server-web desktop app: skip its postinstall, whose nested yarn install
+          # (electron-builder install-app-deps) follows apps/server-web/release/app/yarn.lock to the public registry
+          # instead of the npm cache set up above, a network flake that failed whole builds (2026-11-18)
+          SKIP_SERVER_WEB_POSTINSTALL: 'true'
 
       - name: Build Mobile
         run: |

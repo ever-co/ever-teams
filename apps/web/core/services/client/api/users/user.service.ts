@@ -2,6 +2,7 @@ import { TUser } from '@/core/types/schemas';
 import { APIService } from '../../api.service';
 import { GAUZY_API_BASE_SERVER_URL, IS_DEMO_MODE } from '@/core/constants/config/constants';
 import qs from 'qs';
+import { asksFreshUserRead, FRESH_USER_READ_PARAM, noteProfileSaved } from '@/core/lib/utils/fresh-user-read';
 import {
 	validateApiResponse,
 	deleteResponseSchema,
@@ -66,7 +67,8 @@ class UserService extends APIService {
 			// Construct the query string with 'qs', including the includeEmployee parameter
 			const query = qs.stringify({
 				relations: relations,
-				includeEmployee: true // Append includeEmployee parameter set to true
+				includeEmployee: true, // Append includeEmployee parameter set to true
+				...this.freshReadParam()
 			});
 
 			// Execute the GET request to fetch the user data
@@ -98,8 +100,23 @@ class UserService extends APIService {
 		}
 	};
 
+	/**
+	 * In proxy mode, for a while after a profile save, the read asks the web app's server for a session check made
+	 * anew (see fresh-user-read). The API itself is never sent the parameter: in direct mode it answers the user as
+	 * they are.
+	 */
+	private freshReadParam(): Record<string, string> {
+		const isDirectMode = Boolean(GAUZY_API_BASE_SERVER_URL.value);
+		if (isDirectMode || !asksFreshUserRead()) {
+			return {};
+		}
+		return { [FRESH_USER_READ_PARAM]: '1' };
+	}
+
 	savePersonalSettings = async ({ userId, data }: { userId: string; data: any }) => {
-		return this.post<TUser>(`/user/${userId}`, { ...data });
+		const response = await this.post<TUser>(`/user/${userId}`, { ...data });
+		noteProfileSaved();
+		return response;
 	};
 
 	/**
@@ -108,6 +125,7 @@ class UserService extends APIService {
 	 */
 	updateUserPassword = async ({ userId, password }: { userId: string; password: string }): Promise<void> => {
 		await this.put<TUser>(`/user/${userId}`, { hash: password });
+		noteProfileSaved();
 	};
 
 	/**
@@ -129,6 +147,7 @@ class UserService extends APIService {
 	updateUserAvatar = async ({ userId, body }: { userId: string; body: Partial<TUser> }): Promise<TUser> => {
 		try {
 			const response = await this.put<TUser>(`/user/${userId}`, body);
+			noteProfileSaved();
 
 			// Validate API response using utility function
 			return validateApiResponse(userSchema, response.data, 'updateUserAvatar API response');

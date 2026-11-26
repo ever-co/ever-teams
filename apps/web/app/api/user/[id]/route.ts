@@ -1,4 +1,4 @@
-import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
+import { authenticatedGuard, sessionChecks } from '@/core/services/server/guards/authenticated-guard-app';
 import { getTaskCreator, updateUserAvatarRequest } from '@/core/services/server/requests';
 import { deleteUserRequest } from '@/core/services/server/requests/user';
 import { INextParams } from '@/core/types/interfaces/common/data-response';
@@ -57,6 +57,9 @@ export async function PUT(req: Request, props: INextParams) {
 			access_token || ''
 		);
 
+		// The session check this server keeps for a few seconds holds the user as they were: the read the app makes
+		// right after this save went through it, and the page kept showing the value just replaced (#5728)
+		sessionChecks.drop(access_token || '');
 		return $res(response.data);
 	} catch (error) {
 		return gauzyErrorResponse(error, 'The profile was not updated.');

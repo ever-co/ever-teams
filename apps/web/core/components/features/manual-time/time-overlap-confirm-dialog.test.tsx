@@ -81,6 +81,7 @@ function guardWith(entries: OverlappedEntry[], overrides: Partial<TimeOverlapGua
 		saveAfterCheck: jest.fn(),
 		isChecking: false,
 		hasCheckFailed: false,
+		isOverRunningTimer: false,
 		isConfirmOpen: true,
 		summary: { totalSeconds, entries },
 		confirm: jest.fn(),
@@ -156,6 +157,12 @@ describe('TimeOverlapCheckError', () => {
 		render(<TimeOverlapCheckError guard={guardWith([], { isConfirmOpen: false, hasCheckFailed: true })} />);
 
 		expect(screen.getByRole('alert').textContent).toBe('timeOverlap.CHECK_FAILED');
+	});
+
+	it('says the timer is running over the time, and to stop it or pick another time (#5724)', () => {
+		render(<TimeOverlapCheckError guard={guardWith([], { isConfirmOpen: false, isOverRunningTimer: true })} />);
+
+		expect(screen.getByRole('alert').textContent).toBe('manualTime.RUNNING_TIMER_OVERLAP');
 	});
 
 	it('shows nothing when the check went through', () => {

@@ -212,9 +212,14 @@ function buildData(fixture, scenario, requestUrl, requestTenantId) {
 		statuses
 	};
 	const today = new Date().toISOString().slice(0, 10);
+	// `planDate` puts the plan on another day: the person then has no plan for today
+	let planDate = today;
+	if (typeof scenario.planDate === 'string') {
+		planDate = scenario.planDate;
+	}
 	const plan = {
 		id: ids.plan,
-		date: today,
+		date: planDate,
 		workTimePlanned: 8,
 		status: 'ready',
 		employeeId: ids.employee,
@@ -317,6 +322,48 @@ function buildData(fixture, scenario, requestUrl, requestTenantId) {
 
 /** Marks a `routeResponse` answer that goes out with this HTTP status instead of 200 (symbol keys are not serialized). */
 const HTTP_STATUS = Symbol('http-status');
+
+/** The sites the fixture person signed in from, as Gauzy lists them (`GET /embed/grants`), for the `siteGrants` scenario. */
+const siteGrantsOfFixture = () => [
+	{ id: 'grant-notes', origin: 'https://notes.example.com', expiresAt: '2030-01-20T10:00:00.000Z' },
+	{ id: 'grant-wiki', origin: 'https://wiki.example.com', expiresAt: '2030-01-05T10:00:00.000Z' }
+];
+
+/**
+ * Four entries of today, one per review status and two people, as Gauzy lists them (`GET /timesheet/time-log`), for the
+ * `timeLogs` scenario: what Reports > Timesheets shows a manager.
+ */
+function timeLogsOfFixture(data) {
+	const day = new Date().toISOString().slice(0, 10);
+	const entryOf = (id, employee, status, hour) => ({
+		id,
+		startedAt: `${day}T${hour}:00:00.000Z`,
+		stoppedAt: `${day}T${hour}:45:00.000Z`,
+		duration: 2700,
+		logType: 'TRACKED',
+		source: 'TEAMS',
+		isBillable: true,
+		isRunning: false,
+		version: '1',
+		employeeId: employee.id,
+		employee,
+		taskId: data.task.id,
+		task: data.task,
+		projectId: data.project.id,
+		project: data.project,
+		timesheetId: `sheet-${id}`,
+		timesheet: { id: `sheet-${id}`, status },
+		organizationId: data.organization.id,
+		tenantId: data.organization.tenantId
+	});
+	const { self, teammate } = data.employees;
+	return [
+		entryOf('log-pending', teammate, 'PENDING', '08'),
+		entryOf('log-approved', self, 'APPROVED', '09'),
+		entryOf('log-denied', teammate, 'DENIED', '10'),
+		entryOf('log-in-review', self, 'IN REVIEW', '11')
+	];
+}
 
 /** An unsigned token shaped like Gauzy's: the web app only decodes its claims (`organizationId` since Gauzy #11316). */
 function syntheticToken(userId, organizationId, rotation) {
@@ -707,7 +754,10 @@ function routeResponse(
 	}
 	if (pathname === '/api/timesheet/time-log/time-limit') return [];
 	// A member's day (Work diary, Calendar, Timesheets) comes as plain lists: logs, ten-minute slots, apps and sites
-	if (method === 'GET' && pathname === '/api/timesheet/time-log') return [];
+	if (method === 'GET' && pathname === '/api/timesheet/time-log') {
+		if (state.scenario.timeLogs === true) return timeLogsOfFixture(data);
+		return [];
+	}
 	if (method === 'GET' && pathname === '/api/timesheet/statistics/time-slots') return [];
 	if (method === 'GET' && pathname === '/api/timesheet/activity') return [];
 	// The time-log reports (Reports › Actual and expected hours, Payments due, Project budget; the Projects page) are
@@ -756,6 +806,24 @@ function routeResponse(
 	}
 	if ((pathname === '/api/embed-credentials' || pathname === '/api/embed-allowed-origins') && method === 'GET') {
 		return [];
+	}
+	// The sites the signed-in person signed in from (Settings › Security, #5595; embeds.service.ts listSiteGrants and
+	// endSiteGrant). A Gauzy without the route answers 404, which stays the default: the `siteGrants` scenario turns
+	// the list on. Ending a site answers 204, and 404 for a sign-in that is already gone.
+	const siteGrantPath = /^\/api\/embed\/grants\/([^/]+)$/.exec(pathname);
+	const asksSiteGrants = pathname === '/api/embed/grants' || siteGrantPath !== null;
+	if (asksSiteGrants && state.scenario.siteGrants !== true) {
+		return { [HTTP_STATUS]: 404, statusCode: 404, message: 'Not Found' };
+	}
+	if (pathname === '/api/embed/grants' && method === 'GET') return state.siteGrants;
+	if (siteGrantPath && method === 'DELETE') {
+		const kept = state.siteGrants.filter((grant) => grant.id !== siteGrantPath[1]);
+		const wasListed = kept.length !== state.siteGrants.length;
+		state.siteGrants = kept;
+		if (!wasListed) {
+			return { [HTTP_STATUS]: 404, statusCode: 404, message: 'Not Found' };
+		}
+		return { [HTTP_STATUS]: 204 };
 	}
 	// Personal API tokens (Settings › Personal › API tokens; the settings navigation reads the switch on every settings
 	// page, core/hooks/settings/use-hidden-settings-entries.ts): the switch, and the tokens as the default pagination
@@ -943,6 +1011,7 @@ export async function createMockGauzyServer({ fixture, port = 3988 } = {}) {
 		receivedTokens: [],
 		notificationSetting: null,
 		appointments: [],
+		siteGrants: siteGrantsOfFixture(),
 		workspaceCreation: {
 			openings: 0,
 			tenant: null,
@@ -1106,6 +1175,7 @@ export async function createMockGauzyServer({ fixture, port = 3988 } = {}) {
 			state.receivedTokens = [];
 			state.notificationSetting = null;
 			state.appointments = [];
+			state.siteGrants = siteGrantsOfFixture();
 			state.workspaceCreation = {
 				openings: 0,
 				tenant: null,
