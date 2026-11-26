@@ -66,6 +66,26 @@ test('scopes fixture responses from the tenant header and models a non-manager r
 	assert.equal(user.role.name, 'EMPLOYEE');
 });
 
+test('names the fixture role apart from the manager flag, and ignores a name that is not upper case', async (context) => {
+	const server = await createMockGauzyServer({ fixture, port: 0 });
+	context.after(() => server.close());
+	const roleOf = async () => (await (await fetch(`${server.origin}/api/user/me`)).json()).role.name;
+	const isManager = async () => {
+		const team = await (await fetch(`${server.origin}/api/organization-team/${fixture.ids.teamA}`)).json();
+		return team.members.find((member) => member.employeeId === fixture.ids.employee)?.isManager;
+	};
+
+	assert.equal(await roleOf(), 'ADMIN');
+	server.setScenario({ roleName: 'SUPER_ADMIN' });
+	assert.equal(await roleOf(), 'SUPER_ADMIN');
+	assert.equal(await isManager(), true);
+	server.setScenario({ roleName: 'EMPLOYEE', manager: true });
+	assert.equal(await roleOf(), 'EMPLOYEE');
+	assert.equal(await isManager(), true);
+	server.setScenario({ roleName: 'super admin', manager: false });
+	assert.equal(await roleOf(), 'EMPLOYEE');
+});
+
 test('survives an aborted request body and continues serving deterministic traffic', async (context) => {
 	const server = await createMockGauzyServer({ fixture, port: 0 });
 	context.after(() => server.close());
@@ -101,7 +121,10 @@ test('survives an aborted request body and continues serving deterministic traff
 	const response = await fetch(`${server.origin}/api/user/me`);
 	assert.equal(response.status, 200);
 	assert.equal((await response.json()).id, fixture.ids.user);
-	assert.equal(server.requests().some((request) => request.path === '/api/tasks'), false);
+	assert.equal(
+		server.requests().some((request) => request.path === '/api/tasks'),
+		false
+	);
 });
 
 test('allows credentials only for the deterministic local browser origins', async (context) => {
@@ -120,4 +143,23 @@ test('allows credentials only for the deterministic local browser origins', asyn
 	});
 	assert.equal(untrusted.status, 403);
 	assert.equal(untrusted.headers.get('access-control-allow-origin'), null);
+});
+
+test('answers the active-task save with an update result, while other team-member writes keep their echo', async (context) => {
+	const server = await createMockGauzyServer({ fixture, port: 0 });
+	context.after(() => server.close());
+	const write = (path, payload) =>
+		fetch(`${server.origin}${path}`, {
+			method: 'PUT',
+			headers: { 'content-type': 'application/json' },
+			body: JSON.stringify(payload)
+		}).then((response) => response.json());
+
+	const saved = await write('/api/organization-team-employee/member-1/active-task', {
+		activeTaskId: fixture.ids.task
+	});
+	assert.deepEqual(saved, { affected: 1, generatedMaps: [], raw: [] });
+
+	const echoed = await write('/api/organization-team-employee/member-1', { isTrackingEnabled: true });
+	assert.deepEqual(echoed, { isTrackingEnabled: true });
 });

@@ -12,7 +12,11 @@
  * Never run this against a production API. Refuses api.ever.team for that reason.
  *
  * Usage:
- *   node apps/web/playwright/scripts/provision-demo-tenant.mjs [--fresh] [--label <name>]
+ *   node apps/web/playwright/scripts/provision-demo-tenant.mjs [--fresh] [--label <name>] [--email <address>]
+ *        [--register-new]
+ *   Without --fresh, a saved record is resumed: its account is signed into, a finished one (a tenantId recorded) is
+ *   reused as it is, and one registered but not yet confirmed is finished with the same credentials. A saved account
+ *   that cannot sign in stops the run — another account is only created when --register-new says so knowingly.
  *
  * Writes: E2E_DEMO_CREDENTIALS_FILE (default ~/.ever-teams/playwright-demo-tenant.json)
  * Prints: only ids and non-secret labels, never the password or a token.
@@ -38,6 +42,21 @@ const args = process.argv.slice(2);
 const fresh = args.includes('--fresh');
 const labelAt = args.indexOf('--label');
 const label = labelAt >= 0 ? args[labelAt + 1] : 'playwright-e2e';
+/**
+ * Create another account knowingly, instead of stopping when a saved pending account cannot sign in. Without this
+ * flag a run never registers over a saved account, because the saved one is the address somebody still has to
+ * confirm and the file still holds its password.
+ */
+const registerNew = args.includes('--register-new');
+const emailAt = args.indexOf('--email');
+/**
+ * An address the person running this can actually read. Measured on the demo API, a generated
+ * `<label>-<stamp>-<runId>@ever-teams.test` address is a dead end for the *signed-in* half of the live suite:
+ * `/auth/register` answers 201 with `isActive: false, tenantId: null, isEmailVerified: false`, and both password
+ * routes then answer 401. See `explainRegistration` below for what demo requires instead, and why only a real
+ * mailbox gets there.
+ */
+const emailOverride = emailAt >= 0 ? args[emailAt + 1] : undefined;
 
 async function call(method, path, { body, token, note } = {}) {
 	const url = `${API}/api${path}`;
@@ -65,6 +84,30 @@ async function call(method, path, { body, token, note } = {}) {
 }
 
 const unwrap = (payload) => payload?.data ?? payload;
+
+const WEB_BASE = process.env.E2E_DEMO_WEB_URL || 'https://demo.ever.team';
+
+/**
+ * The page a verification link lands on (`app/[locale]/(focus)/verify-email/page.tsx`, reached through
+ * `VERIFY_EMAIL_CALLBACK_PATH` in `app/api/auth/register/route.ts`). The API appends its own `email` and `token`
+ * parameters to it — this is only the base the app tells the API to use, printed so a person can recognise the
+ * link when it arrives.
+ */
+const verifyEmailPageUrl = () => `${WEB_BASE}/verify-email`;
+
+/** Owner-only, outside the repository, never containing a token. */
+function saveCredentials(record) {
+	mkdirSync(dirname(CREDENTIALS_FILE), { recursive: true, mode: 0o700 });
+	writeFileSync(CREDENTIALS_FILE, `${JSON.stringify(record, null, 2)}\n`, { encoding: 'utf8', mode: 0o600 });
+	try {
+		// `mode` only applies when the file is created; this keeps an overwritten file owner-only too.
+		// Windows ignores it.
+		chmodSync(CREDENTIALS_FILE, 0o600);
+	} catch {
+		/* best effort */
+	}
+	console.log(`credentials: ${CREDENTIALS_FILE}`);
+}
 
 /** A server-supplied value made safe to print on one line: no control characters (no forged log lines), no JWT. */
 const safeLog = (value) =>
@@ -98,46 +141,132 @@ async function signIn(email, password) {
 }
 
 async function main() {
+	/**
+	 * A saved record is resumable state, not a finished run (PR #5675, CodeRabbit's two findings on this file).
+	 *
+	 * It used to be a dead end and a hazard at once. A record whose account signs in but has no `tenantId` printed a
+	 * line and returned, so the documented rerun after the e-mail confirmation never reached the resource creation
+	 * below. A record whose account does *not* sign in fell straight through into registration: one more account on
+	 * the demo API, and the pending address's password gone from the only file that kept it.
+	 *
+	 * Now: an account that signs in without a tenant continues here with its own credentials, and an account that
+	 * cannot sign in stops the run unless `--register-new` says the operator wants another account knowingly.
+	 */
+	let resume;
 	if (!fresh && existsSync(CREDENTIALS_FILE)) {
 		const saved = JSON.parse(readFileSync(CREDENTIALS_FILE, 'utf8'));
 		try {
 			await signIn(saved.email, saved.password);
-			console.log(`reusing test tenant ${saved.tenantId} as ${saved.email}`);
-			console.log(JSON.stringify({ ...saved, password: undefined, token: undefined }, null, 2));
-			return;
+			if (saved.tenantId) {
+				console.log(`reusing test tenant ${saved.tenantId} as ${saved.email}`);
+				console.log(JSON.stringify({ ...saved, password: undefined, token: undefined }, null, 2));
+				return;
+			}
+			if (!saved.userId) {
+				console.error(
+					`the saved account ${saved.email} signs in, but the file records no user id, so its tenant cannot be ` +
+						'finished from here: run with --email <that address> --register-new for a fresh account instead.'
+				);
+				process.exit(1);
+			}
+			resume = { email: saved.email, password: saved.password, userId: saved.userId };
+			console.log(
+				`the saved account ${saved.email} signs in but has no tenant recorded (${saved.status ?? 'no status recorded'}) — ` +
+					'continuing with it, and the completed record replaces this one.'
+			);
 		} catch (error) {
-			console.log(`existing account no longer usable (${error.message}); provisioning a new one`);
+			console.error(
+				`the saved account ${saved.email} no longer signs in (${error.message}).` +
+					(saved.status ? ` Its recorded status is "${saved.status}".` : '') +
+					' Nothing is registered over it: confirm that address through the link its registration sent and run again ' +
+					'without --fresh, or pass --register-new to create another account knowingly — that overwrites this file.'
+			);
+			if (!registerNew) process.exit(1);
 		}
 	}
 
 	const stamp = new Date().toISOString().slice(0, 10).replace(/-/g, '');
 	const runId = randomBytes(3).toString('hex');
-	const email = `${label}-${stamp}-${runId}@ever-teams.test`;
-	const password = `E2e!${randomBytes(9).toString('base64url')}`;
+	const email = resume?.email ?? emailOverride ?? `${label}-${stamp}-${runId}@ever-teams.test`;
+	const password = resume?.password ?? `E2e!${randomBytes(9).toString('base64url')}`;
 
-	// Field names only: a register answer can carry a token, and a token is never printed.
-	const registered = await call('POST', '/auth/register', {
-		body: {
-			password,
-			confirmPassword: password,
-			user: {
-				firstName: 'Playwright',
-				lastName: `E2E ${runId}`,
-				email,
-				timeZone: 'Etc/UTC'
+	/** The account this run creates, or the saved account it is finishing. */
+	let user;
+	if (!resume) {
+		// Field names only: a register answer can carry a token, and a token is never printed.
+		const registered = await call('POST', '/auth/register', {
+			body: {
+				password,
+				confirmPassword: password,
+				user: {
+					firstName: 'Playwright',
+					lastName: `E2E ${runId}`,
+					email,
+					timeZone: 'Etc/UTC'
+				},
+				appEmailConfirmationUrl: verifyEmailPageUrl()
 			},
-			appEmailConfirmationUrl: 'https://demo.ever.team/verify-email'
-		},
-		note: 'register'
-	});
-	console.log(`register answered with: ${safeLog(Object.keys(registered ?? {}).join(', '))}`);
-	// Never a value that could be a token: only the outcome and its message, with any JWT scrubbed.
-	const notice = Array.isArray(registered?.message) ? registered.message.join('; ') : registered?.message;
-	console.log(
-		`register outcome: success=${safeLog(registered?.success ?? 'not stated')} message=${safeLog(notice).slice(0, 160)}`
-	);
+			note: 'register'
+		});
+		console.log(`register answered with: ${safeLog(Object.keys(registered ?? {}).join(', '))}`);
+		// Never a value that could be a token: only the outcome and its message, with any JWT scrubbed.
+		const notice = Array.isArray(registered?.message) ? registered.message.join('; ') : registered?.message;
+		console.log(
+			`register outcome: success=${safeLog(registered?.success ?? 'not stated')} message=${safeLog(notice).slice(0, 160)}`
+		);
 
-	const user = unwrap(registered);
+		user = unwrap(registered);
+
+		/**
+		 * What the demo API does with a self-registration, measured on 2026-11-21 rather than inferred: `POST
+		 * /auth/register` answers 201 with `isActive: false`, `tenantId: null` and `isEmailVerified: false`, and both
+		 * password routes then answer `401 {"message":"Unauthorized","statusCode":401}`. The app itself says why, in
+		 * `app/api/auth/register/route.ts`: Gauzy keeps a self-registration inactive until the link in its verification
+		 * e-mail is opened (owner decision 4, ever-co/ever-gauzy#11341); the route answers 201 `{verifyEmail: true}`,
+		 * stores the team name in a cookie, and the *sign-in after the confirmation* is what builds the workspace
+		 * (`finish-signup.ts`). So this script, which signs in with a password to go on and create a tenant, cannot
+		 * reach a signed-in tenant on its own — the confirmation link goes to a mailbox.
+		 *
+		 * Asking the API to verify it for us does not work either, and that was tested rather than assumed: a register
+		 * body carrying `user.isEmailVerified: true` came back `isEmailVerified: false`. There is no shortcut, which is
+		 * the answer we wanted.
+		 *
+		 * Stopping here, loudly, instead of letting the sign-in attempts fail with a message that blames the sign-in:
+		 * each run of this script registers a new account, and an account nobody can confirm is junk on the demo API.
+		 */
+		if (user?.isActive === false || user?.isEmailVerified === false) {
+			console.log(
+				`the account was created inactive: isActive=${JSON.stringify(user?.isActive)} ` +
+					`isEmailVerified=${JSON.stringify(user?.isEmailVerified)} tenantId=${JSON.stringify(user?.tenantId ?? null)}`
+			);
+			console.log(
+				`confirmation link target the API was told to use: ${verifyEmailPageUrl()} (the API appends its own email and token parameters)`
+			);
+			console.log(
+				'next step is not a script: open the verification e-mail sent to that address, then run this again ' +
+					'(without --fresh) — it reuses the saved account and retries the sign-in.'
+			);
+			console.log(
+				`registered with ${email}; credentials kept at ${CREDENTIALS_FILE} so the confirmation can be finished later`
+			);
+			saveCredentials({
+				apiUrl: API,
+				webUrl: process.env.E2E_DEMO_WEB_URL || 'https://demo.ever.team',
+				email,
+				password,
+				userId: user?.id,
+				status: 'registered, awaiting e-mail confirmation',
+				createdAt: new Date().toISOString()
+			});
+			process.exit(1);
+		}
+	} else {
+		console.log(`continuing with the saved account ${email}; nothing is registered.`);
+		// The saved account's id is all the steps below read (`user.id` for the employee and the record): without it a
+		// resumed run would create a tenant and an organization, then stop at the employee and leave them unfinished.
+		user = { id: resume.userId };
+	}
+
 	const login = await signIn(email, password);
 	const accessToken = login.token ?? login.access_token;
 	if (!accessToken) throw new Error('login returned no access token');

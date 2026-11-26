@@ -436,6 +436,12 @@ export const foreignOriginRoutes: ForeignOriginRoute[] = [
 		file: 'apps/web/app/api/embed/authorize/route.ts'
 	},
 	{
+		path: '/api/embed/grants/[id]',
+		verb: 'DELETE',
+		guard: 'proxy-helper',
+		file: 'apps/web/app/api/embed/grants/[id]/route.ts'
+	},
+	{
 		path: '/api/employee-appointment',
 		verb: 'POST',
 		guard: 'route',
