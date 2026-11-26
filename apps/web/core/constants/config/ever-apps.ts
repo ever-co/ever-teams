@@ -24,6 +24,12 @@ type EverAppEntry = Omit<EverApp, 'url' | 'domain'>;
 
 const CURRENT_EVER_APP_ID: EverAppId = 'teams';
 
+/** One catalog row: its line is `switchers.APP_LINE_<ID>` (checked against the English messages) and its logo file. */
+function entry(id: EverAppId, name: string, logoFile: string, status: EverAppStatus = 'available'): EverAppEntry {
+	const lineKey = `switchers.APP_LINE_${id.toUpperCase() as Uppercase<EverAppId>}` as const;
+	return { id, name, lineKey, logo: `/assets/ever-apps/${logoFile}`, status };
+}
+
 // Same list, order and lines in every Ever app and site (homelab docs/brand/EVER-SITES-UNIFIED-CHROME.md §4 and
 // §4b). Keep the copies in sync. Inside the apps the order is the shared shell's (Part A3 of the one-shell spec):
 // Ever Platform, Ever Works, Ever Teams, Ever Gauzy, Ever Rec, Ever Traduora, Ever Demand, then Ever Tech (Platform
@@ -31,63 +37,15 @@ const CURRENT_EVER_APP_ID: EverAppId = 'teams';
 // comes from the deployment (NEXT_PUBLIC_EVER_APP_LINKS), so this bundle names no Ever host (the egress audit's
 // static scan) and a self-hosted or rebranded deployment never sends its users to Ever's hosted apps.
 const EVER_APP_ENTRIES: ReadonlyArray<EverAppEntry> = [
-	{
-		id: 'platform',
-		name: 'Ever Platform',
-		lineKey: 'switchers.APP_LINE_PLATFORM',
-		logo: '/assets/ever-apps/platform.svg',
-		status: 'available'
-	},
-	{
-		id: 'works',
-		name: 'Ever Works',
-		lineKey: 'switchers.APP_LINE_WORKS',
-		logo: '/assets/ever-apps/works.svg',
-		status: 'available'
-	},
-	{
-		id: 'teams',
-		name: 'Ever Teams',
-		lineKey: 'switchers.APP_LINE_TEAMS',
-		logo: '/assets/ever-apps/teams.svg',
-		status: 'available'
-	},
-	{
-		id: 'gauzy',
-		name: 'Ever Gauzy',
-		lineKey: 'switchers.APP_LINE_GAUZY',
-		logo: '/assets/ever-apps/gauzy.svg',
-		status: 'available'
-	},
-	{
-		id: 'rec',
-		name: 'Ever Rec',
-		lineKey: 'switchers.APP_LINE_REC',
-		logo: '/assets/ever-apps/rec.svg',
-		status: 'available'
-	},
-	{
-		id: 'traduora',
-		name: 'Ever Traduora',
-		lineKey: 'switchers.APP_LINE_TRADUORA',
-		logo: '/assets/ever-apps/traduora.png',
-		status: 'available'
-	},
+	entry('platform', 'Ever Platform', 'platform.svg'),
+	entry('works', 'Ever Works', 'works.svg'),
+	entry('teams', 'Ever Teams', 'teams.svg'),
+	entry('gauzy', 'Ever Gauzy', 'gauzy.svg'),
+	entry('rec', 'Ever Rec', 'rec.svg'),
+	entry('traduora', 'Ever Traduora', 'traduora.png'),
 	// Coming soon: listed with its chip while the deployment gives it no link, a plain row once it does.
-	{
-		id: 'demand',
-		name: 'Ever Demand',
-		lineKey: 'switchers.APP_LINE_DEMAND',
-		logo: '/assets/ever-apps/demand.svg',
-		status: 'soon'
-	},
-	{
-		id: 'tech',
-		name: 'Ever Tech',
-		lineKey: 'switchers.APP_LINE_TECH',
-		logo: '/assets/ever-apps/tech.svg',
-		status: 'available'
-	}
+	entry('demand', 'Ever Demand', 'demand.svg', 'soon'),
+	entry('tech', 'Ever Tech', 'tech.svg')
 ];
 
 /** Where "+ Add" leads in Ever Platform: the page that adds an app, for whichever organization the person picks. */

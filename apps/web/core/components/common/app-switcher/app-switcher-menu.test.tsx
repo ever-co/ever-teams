@@ -22,37 +22,21 @@ jest.mock('next/link', () => {
 /** What the deployment gives, changed per case: "+ Add" shows only with a Platform link. */
 const mockDeployment = { addUrl: 'https://platform.example.com/apps?add=app' };
 
-jest.mock('@/core/constants/config/ever-apps', () => {
-	const app = (id: string, name: string, status = 'available') => {
-		const isLinked = id !== 'teams' && status !== 'soon';
-		return {
-			id,
-			name,
-			lineKey: `switchers.APP_LINE_${id.toUpperCase()}`,
-			logo: `/assets/ever-apps/${id}.svg`,
-			url: isLinked ? `https://${id}.example.com/` : '',
-			domain: isLinked ? `${id}.example.com` : '',
-			status
-		};
-	};
-	return {
-		HAS_EVER_APP_SWITCHER: true,
-		EVER_APPS: [
-			app('platform', 'Ever Platform'),
-			app('works', 'Ever Works'),
-			app('teams', 'Ever Teams'),
-			app('gauzy', 'Ever Gauzy'),
-			app('rec', 'Ever Rec'),
-			app('traduora', 'Ever Traduora'),
-			app('demand', 'Ever Demand', 'soon'),
-			app('tech', 'Ever Tech')
+jest.mock('@/core/constants/config/ever-apps', () =>
+	jest.requireActual('@/test/app-launcher/ever-apps-module').everAppsModule(
+		[
+			['platform', 'Ever Platform'],
+			['works', 'Ever Works'],
+			['teams', 'Ever Teams'],
+			['gauzy', 'Ever Gauzy'],
+			['rec', 'Ever Rec'],
+			['traduora', 'Ever Traduora'],
+			['demand', 'Ever Demand', 'soon'],
+			['tech', 'Ever Tech']
 		],
-		get EVER_APP_ADD_URL() {
-			return mockDeployment.addUrl;
-		},
-		isCurrentEverApp: (entry: { id: string }) => entry.id === 'teams'
-	};
-});
+		() => mockDeployment.addUrl
+	)
+);
 
 import { AppSwitcherMenu, MANAGE_APPS_HREF } from './app-switcher-menu';
 
