@@ -2278,6 +2278,8 @@
 				"WEEKLY_TREND_SUMMARY": "Letzte {weeks} Wochen: {created} erstellt, {completed} abgeschlossen",
 				"WEEKLY_TREND_WEEK": "Woche ab {date}: {created} erstellt, {completed} abgeschlossen",
 				"WEEKLY_TREND_UNDATED": "Abgeschlossene Aufgaben ohne Abschlussdatum werden nicht angezeigt: {count}",
+				"WEEKLY_PACE": "Tempo: {velocity, number} abgeschlossen pro Woche. Offene Aufgaben: {open}. Verbleibende Wochen in diesem Tempo: {weeks}",
+				"WEEKLY_PACE_BEYOND": "Tempo: {velocity, number} abgeschlossen pro Woche. Offene Aufgaben: {open}. Verbleibende Wochen in diesem Tempo: mehr als {weeks}",
 				"NO_ASSIGNEE": "Nicht zugewiesen",
 				"SHARE_OF": "{percent} % von {total}",
 				"TASKS_IN_TEAM": "Aufgaben dieses Projekts in {team}",

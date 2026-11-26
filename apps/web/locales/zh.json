@@ -2214,6 +2214,8 @@
 				"WEEKLY_TREND_SUMMARY": "最近 {weeks} 周：创建 {created} 个，完成 {completed} 个",
 				"WEEKLY_TREND_WEEK": "{date} 起的一周：创建 {created} 个，完成 {completed} 个",
 				"WEEKLY_TREND_UNDATED": "未显示没有完成日期的已完成任务：{count}",
+				"WEEKLY_PACE": "进度：每周完成 {velocity, number} 个。未完成任务：{open}。按此进度剩余周数：{weeks}",
+				"WEEKLY_PACE_BEYOND": "进度：每周完成 {velocity, number} 个。未完成任务：{open}。按此进度剩余周数：超过 {weeks}",
 				"NO_ASSIGNEE": "未分配",
 				"SHARE_OF": "{total} 个中的 {percent}%",
 				"TASKS_IN_TEAM": "{team} 中此项目的任务",

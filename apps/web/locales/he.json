@@ -2228,6 +2228,8 @@
 				"WEEKLY_TREND_SUMMARY": "{weeks} השבועות האחרונים: {created} נוצרו, {completed} הושלמו",
 				"WEEKLY_TREND_WEEK": "שבוע של {date}: {created} נוצרו, {completed} הושלמו",
 				"WEEKLY_TREND_UNDATED": "משימות שהושלמו ללא תאריך השלמה אינן מוצגות: {count}",
+				"WEEKLY_PACE": "קצב: {velocity, number} משימות הושלמו בשבוע. משימות פתוחות: {open}. שבועות שנותרו בקצב הזה: {weeks}",
+				"WEEKLY_PACE_BEYOND": "קצב: {velocity, number} משימות הושלמו בשבוע. משימות פתוחות: {open}. שבועות שנותרו בקצב הזה: יותר מ-{weeks}",
 				"NO_ASSIGNEE": "ללא אחראי",
 				"SHARE_OF": "{percent}% מתוך {total}",
 				"TASKS_IN_TEAM": "משימות הפרויקט ב-{team}",

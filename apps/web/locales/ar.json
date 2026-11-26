@@ -2228,6 +2228,8 @@
 				"WEEKLY_TREND_SUMMARY": "آخر {weeks} أسابيع: تم إنشاء {created}، وإكمال {completed}",
 				"WEEKLY_TREND_WEEK": "أسبوع {date}: تم إنشاء {created}، وإكمال {completed}",
 				"WEEKLY_TREND_UNDATED": "المهام المكتملة بلا تاريخ إكمال غير معروضة: {count}",
+				"WEEKLY_PACE": "الوتيرة: {velocity, number} مهام مكتملة أسبوعيًا. المهام المفتوحة: {open}. الأسابيع المتبقية بهذه الوتيرة: {weeks}",
+				"WEEKLY_PACE_BEYOND": "الوتيرة: {velocity, number} مهام مكتملة أسبوعيًا. المهام المفتوحة: {open}. الأسابيع المتبقية بهذه الوتيرة: أكثر من {weeks}",
 				"NO_ASSIGNEE": "بلا مكلَّف",
 				"SHARE_OF": "{percent}٪ من {total}",
 				"TASKS_IN_TEAM": "مهام هذا المشروع في {team}",

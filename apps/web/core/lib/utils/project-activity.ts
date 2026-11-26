@@ -107,6 +107,92 @@ export function projectActivityOf(
 	return { weeks, created, completed, peak, undatedDone };
 }
 
+/** Fewer complete weeks than this is too little history to call a pace. */
+export const MIN_FORECAST_WEEKS = 2;
+/** A finish further away than this is shown as "more than", not as a date nobody can trust. */
+export const MAX_FORECAST_WEEKS = 52;
+
+export interface ProjectForecast {
+	/** Tasks not yet done. */
+	open: number;
+	/** Tasks completed per week, over the complete weeks the project has existed in the window. */
+	velocity: number;
+	/** Whole weeks to finish the open tasks at that pace, never above `MAX_FORECAST_WEEKS`. */
+	weeksLeft: number;
+	/** True when the real estimate is above `MAX_FORECAST_WEEKS`. */
+	isBeyondHorizon: boolean;
+}
+
+/**
+ * How long the open tasks take at the pace of the recent weeks, or null when no honest estimate exists: nothing is open,
+ * nothing was completed, or the project has fewer than `MIN_FORECAST_WEEKS` complete weeks in the window. The pace counts
+ * complete weeks only (the running week would drag it down) and starts at the week of the project's first task (creation
+ * or resolution date) when that falls inside the window, so a young project is not averaged against weeks before it
+ * existed. If any task has no creation date the project's age is unknown and the whole window is used. Tasks done without a
+ * resolution date are not counted: the pace errs on the slow side.
+ */
+export function projectForecastOf(
+	tasks: ReadonlyArray<TTask>,
+	statuses: TTaskStatus[],
+	activity: ProjectActivity,
+	weekStartsOn: WeekStart = WEEK_STARTS_ON_MONDAY
+): ProjectForecast | null {
+	const { weeks } = activity;
+	if (weeks.length === 0) {
+		return null;
+	}
+	let open = 0;
+	let earliestTime = Number.POSITIVE_INFINITY;
+	let hasUndatedTask = false;
+	for (const task of tasks) {
+		const isDone = statusCategoryOf(task.status, statuses) === 'done';
+		if (!isDone) {
+			open += 1;
+		}
+		const createdAt = realDateOf(task.createdAt);
+		if (createdAt) {
+			earliestTime = Math.min(earliestTime, createdAt.getTime());
+		} else {
+			hasUndatedTask = true;
+		}
+		// A task finished before its recorded creation still proves the project was running by then.
+		const resolvedAt = isDone ? realDateOf(task.resolvedAt) : null;
+		if (resolvedAt) {
+			earliestTime = Math.min(earliestTime, resolvedAt.getTime());
+		}
+	}
+	if (open === 0) {
+		return null;
+	}
+	// A task with no creation date may be as old as the window: its history is kept, not cut at the dated tasks.
+	const firstIndex =
+		Number.isFinite(earliestTime) && !hasUndatedTask
+			? Math.min(
+					weeks.length - 1,
+					Math.max(0, differenceInCalendarWeeks(new Date(earliestTime), weeks[0].weekStart, { weekStartsOn }))
+				)
+			: 0;
+	const completeWeeks = weeks.slice(firstIndex, weeks.length - 1);
+	if (completeWeeks.length < MIN_FORECAST_WEEKS) {
+		return null;
+	}
+	const completed = completeWeeks.reduce((sum, week) => sum + week.completed, 0);
+	if (completed === 0) {
+		return null;
+	}
+	// Integer arithmetic keeps an exact division (6 open at 3 a week) from rounding up to an extra week.
+	const rawWeeks = Math.ceil((open * completeWeeks.length) / completed);
+	const pace = completed / completeWeeks.length;
+	return {
+		open,
+		// One decimal reads well, but a pace under 0.05 (1 task in 25 weeks = 0.04) would show as 0 next to an estimate
+		// that counts it: keep two significant digits there.
+		velocity: pace < 0.05 ? Number(pace.toPrecision(2)) : Math.round(pace * 10) / 10,
+		weeksLeft: Math.min(MAX_FORECAST_WEEKS, rawWeeks),
+		isBeyondHorizon: rawWeeks > MAX_FORECAST_WEEKS
+	};
+}
+
 /** Bar height in percent of the chart; a week with any task keeps a visible sliver, an empty week none. */
 export function activityBarPercentOf(count: number, peak: number): number {
 	if (count <= 0 || peak <= 0) {
