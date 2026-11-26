@@ -1,4 +1,3 @@
-import { atom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
 import { EVER_SI_PANEL_WIDTH } from '../ever-si-panel-width';
 
@@ -23,9 +22,3 @@ export const everSiPanelWidthAtom = atomWithStorage<number>(
 	undefined,
 	{ getOnInit: true }
 );
-
-/**
- * The conversation open in Ever SI, in memory only. The panel and the full page each mount their own chat, so
- * this is how moving from one to the other, or closing and reopening the panel, carries on the same conversation.
- */
-export const everSiSessionIdAtom = atom<string | null>(null);

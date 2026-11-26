@@ -1,9 +1,9 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from 'react';
-import { useChat } from '@ai-sdk/react';
-import { DefaultChatTransport, type UIMessage } from 'ai';
-import { useAtom, useAtomValue } from 'jotai';
+import { type Chat, useChat } from '@ai-sdk/react';
+import type { UIMessage } from 'ai';
+import { useAtomValue } from 'jotai';
 import { activeTeamIdState, activeWorkspaceIdState, userState } from '@/core/stores';
 import { useAiConfig } from '@/core/hooks/ai/use-ai-config';
 import { useServerAiAvailability } from '@/core/hooks/ai/use-server-ai-availability';
@@ -17,16 +17,10 @@ import {
 	createChatSession,
 	readChatHistory,
 	removeChatSession,
-	toChatUiMessages,
 	upsertChatSession,
 	writeChatHistory
 } from '@/core/components/features/chat-panel/chat-history';
-import { everSiSessionIdAtom } from '../atoms/ever-si-panel.atom';
-
-const CHAT_API = '/api/chat';
-
-/** The user's own AI settings travel with each request (`sendMessage` and `regenerate` options), not in the transport. */
-const CHAT_TRANSPORT = new DefaultChatTransport({ api: CHAT_API });
+import { closeEverSiChatsOutside, createEverSiChat, openEverSiChat, replaceEverSiChat } from './ever-si-chat-store';
 
 const NO_SCOPE_KEY = 'no-scope';
 
@@ -40,10 +34,6 @@ function isOnClient() {
 
 function isOnServer() {
 	return false;
-}
-
-function createSessionId() {
-	return `chat-${Date.now()}`;
 }
 
 function toRequestConfig(config: ChatConfig | null) {
@@ -74,27 +64,17 @@ function scopeKeyOf(scope: ChatHistoryScope | null) {
 
 type ScopeState = {
 	key: string;
-	sessionId: string;
+	/** The scope's open conversation, shared with the other Ever SI views (`ever-si-chat-store.ts`). */
+	chat: Chat<UIMessage>;
 	storedSessions: ChatSession[];
 };
 
-/** A fresh conversation, or the one named by `resumeId` when this scope still keeps it. */
-function createScopeState(scope: ChatHistoryScope | null, key: string, resumeId: string | null = null): ScopeState {
-	const storedSessions = readScopedHistory(scope);
-	const resumed = storedSessions.find((session) => session.id === resumeId);
+function createScopeState(scope: ChatHistoryScope | null, key: string): ScopeState {
 	return {
 		key,
-		sessionId: resumed?.id ?? createSessionId(),
-		storedSessions
+		chat: openEverSiChat(key, scope),
+		storedSessions: readScopedHistory(scope)
 	};
-}
-
-function messagesOfSession(sessions: ChatSession[], id: string): UIMessage[] | undefined {
-	const session = sessions.find((item) => item.id === id);
-	if (!session) {
-		return undefined;
-	}
-	return toChatUiMessages(session.messages);
 }
 
 function withCurrentSession(storedSessions: ChatSession[], messages: UIMessage[], sessionId: string) {
@@ -132,26 +112,19 @@ export function useAssistantChat() {
 	const { hasServerAi } = useServerAiAvailability();
 	const isConfigured = hasServerAi || hasUserConfig;
 
-	const [lastSessionId, setLastSessionId] = useAtom(everSiSessionIdAtom);
-	const [scopeState, setScopeState] = useState(() => createScopeState(historyScope, scopeKey, lastSessionId));
-	const [restoredMessages, setRestoredMessages] = useState(() =>
-		messagesOfSession(scopeState.storedSessions, scopeState.sessionId)
-	);
+	const [scopeState, setScopeState] = useState(() => createScopeState(historyScope, scopeKey));
 	const [input, setInput] = useState('');
 
 	if (scopeState.key !== scopeKey) {
 		setScopeState(createScopeState(historyScope, scopeKey));
-		setRestoredMessages(undefined);
 	}
 
 	const requestConfig = useMemo(() => toRequestConfig(config), [config]);
 
-	const chat = useChat({
-		id: scopeState.sessionId,
-		messages: restoredMessages,
-		transport: CHAT_TRANSPORT
-	});
-	const { messages, stop, setMessages, sendMessage, regenerate } = chat;
+	// An instance from outside: useChat neither recreates it nor stops it when this view unmounts.
+	const chat = useChat({ chat: scopeState.chat });
+	const { messages, sendMessage, regenerate } = chat;
+	const sessionId = scopeState.chat.id;
 
 	const submitInput = useCallback(() => {
 		const text = input.trim();
@@ -159,25 +132,23 @@ export function useAssistantChat() {
 			return;
 		}
 		setInput('');
-		// From its first message on, this is the conversation the panel and the full page carry on.
-		setLastSessionId(scopeState.sessionId);
 		void sendMessage({ text }, { body: { config: requestConfig } });
-	}, [input, requestConfig, scopeState.sessionId, sendMessage, setLastSessionId]);
+	}, [input, requestConfig, sendMessage]);
 
 	const retry = useCallback(() => {
 		void regenerate({ body: { config: requestConfig } });
 	}, [regenerate, requestConfig]);
 
 	const sessions = useMemo(
-		() => withCurrentSession(scopeState.storedSessions, messages, scopeState.sessionId),
-		[messages, scopeState]
+		() => withCurrentSession(scopeState.storedSessions, messages, sessionId),
+		[messages, scopeState.storedSessions, sessionId]
 	);
 
+	// Unmounting a view does not stop the answer: the panel, the phone sheet and the full page share it. A change of
+	// workspace, team or account does.
 	useEffect(() => {
-		return () => {
-			stop();
-		};
-	}, [scopeKey, stop]);
+		closeEverSiChatsOutside(scopeKey);
+	}, [scopeKey]);
 
 	useEffect(() => {
 		if (!historyScope) {
@@ -191,37 +162,36 @@ export function useAssistantChat() {
 	}, [historyScope, messages.length, scopeState.key, sessions]);
 
 	/** Deletes the open conversation from this browser's history (not only from the screen), then starts a new one. */
+	/** Opens `next` in every view of this scope, stopping the answer still running in the conversation it replaces. */
+	const switchTo = useCallback(
+		(next: Chat<UIMessage>, storedSessions: ChatSession[]) => {
+			replaceEverSiChat(scopeKey, next);
+			setScopeState((current) => ({ ...current, chat: next, storedSessions }));
+		},
+		[scopeKey]
+	);
+
+	/** Deletes the open conversation from this browser's history (not only from the screen), then starts a new one. */
 	const deleteConversation = useCallback(() => {
-		stop();
-		const remaining = removeChatSession(sessions, scopeState.sessionId);
+		const remaining = removeChatSession(sessions, sessionId);
 		if (historyScope) {
 			writeChatHistory(historyScope, remaining);
 		}
-		setMessages([]);
-		setRestoredMessages(undefined);
-		setLastSessionId(null);
-		setScopeState((current) => ({ ...current, sessionId: createSessionId(), storedSessions: remaining }));
-	}, [historyScope, scopeState.sessionId, sessions, setLastSessionId, setMessages, stop]);
+		switchTo(createEverSiChat(historyScope), remaining);
+	}, [historyScope, sessionId, sessions, switchTo]);
 
 	const startNewChat = useCallback(() => {
-		stop();
-		setRestoredMessages(undefined);
-		setLastSessionId(null);
-		setScopeState((current) => ({ ...current, sessionId: createSessionId(), storedSessions: sessions }));
-	}, [sessions, setLastSessionId, stop]);
+		switchTo(createEverSiChat(historyScope), sessions);
+	}, [historyScope, sessions, switchTo]);
 
 	const selectSession = useCallback(
 		(session: ChatSession) => {
-			stop();
-			const sessionMessages = toChatUiMessages(session.messages);
-			setRestoredMessages(sessionMessages);
-			setLastSessionId(session.id);
-			setScopeState((current) => ({ ...current, sessionId: session.id, storedSessions: sessions }));
+			switchTo(createEverSiChat(historyScope, session), sessions);
 		},
-		[sessions, setLastSessionId, stop]
+		[historyScope, sessions, switchTo]
 	);
 
-	const currentTitle = findSessionTitle(sessions, scopeState.sessionId);
+	const currentTitle = findSessionTitle(sessions, sessionId);
 	const isStreaming = chat.status === 'streaming';
 	const isWaitingForAnswer = chat.status === 'submitted';
 	const isBusy = isStreaming || isWaitingForAnswer;
@@ -239,7 +209,7 @@ export function useAssistantChat() {
 		saveConfig,
 		historyScope,
 		history: sessions,
-		sessionId: scopeState.sessionId,
+		sessionId,
 		currentTitle,
 		isStreaming,
 		isWaitingForAnswer,
