@@ -36,7 +36,7 @@ const CONTROL_SKELETON = 'h-8 shrink-0 animate-pulse rounded-full bg-foreground/
 
 /**
  * The controls of the top bar while the user loads, each at the size of the control it stands for (timer, What's new,
- * inbox, Collaborate, team switcher, shortcuts), so they fill in place instead of appearing one by one.
+ * inbox, Collaborate, team switcher, shortcuts, theme), so they fill in place instead of appearing one by one.
  */
 function HeaderSkeleton({ showTimer }: Readonly<{ showTimer: boolean }>) {
 	return (
@@ -46,6 +46,7 @@ function HeaderSkeleton({ showTimer }: Readonly<{ showTimer: boolean }>) {
 			<span className={cn(CONTROL_SKELETON, 'w-8')} />
 			<span className={cn(CONTROL_SKELETON, 'hidden w-[120px] md:block')} />
 			<span className={cn(CONTROL_SKELETON, 'hidden w-[160px] md:block')} />
+			<span className={cn(CONTROL_SKELETON, 'hidden w-8 md:block')} />
 			<span className={cn(CONTROL_SKELETON, 'hidden w-8 md:block')} />
 		</div>
 	);
