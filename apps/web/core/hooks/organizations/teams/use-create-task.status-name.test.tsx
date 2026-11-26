@@ -54,7 +54,9 @@ describe('useCreateTask, the description of a new task', () => {
 			});
 		});
 
-		expect(mockCreateTask).toHaveBeenCalledWith(expect.objectContaining({ description: '<p>Steps to reproduce</p>' }));
+		expect(mockCreateTask).toHaveBeenCalledWith(
+			expect.objectContaining({ description: '<p>Steps to reproduce</p>' })
+		);
 	});
 
 	it('puts a paragraph around plain text, and sends no description for none', async () => {
