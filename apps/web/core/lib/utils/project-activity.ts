@@ -169,10 +169,7 @@ export function projectForecastOf(
 		Number.isFinite(earliestTime) && !hasUndatedTask
 			? Math.min(
 					weeks.length - 1,
-					Math.max(
-						0,
-						differenceInCalendarWeeks(new Date(earliestTime), weeks[0].weekStart, { weekStartsOn })
-					)
+					Math.max(0, differenceInCalendarWeeks(new Date(earliestTime), weeks[0].weekStart, { weekStartsOn }))
 				)
 			: 0;
 	const completeWeeks = weeks.slice(firstIndex, weeks.length - 1);
