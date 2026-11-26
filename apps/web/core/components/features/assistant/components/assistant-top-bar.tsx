@@ -13,7 +13,7 @@ import {
 	DropdownMenuTrigger
 } from '@/core/components/common/dropdown-menu';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/core/components/common/tooltip';
-import { Check, ChevronDown, Compose, Settings, Trash } from '@/core/components/icons';
+import { Check, ChevronDown, Compose, History, Settings, Trash } from '@/core/components/icons';
 import type { ChatSession } from '@/core/components/features/chat-panel/chat-history';
 import { cn } from '@/core/lib/helpers';
 import { formatSessionTime } from '../assistant-helpers';
@@ -25,14 +25,15 @@ type AssistantTopBarProps = {
 	hasMessages: boolean;
 	isConfigured: boolean;
 	onNewChat: () => void;
-	onClearConversation: () => void;
+	onDeleteConversation: () => void;
 	onSelectSession: (session: ChatSession) => void;
 	onOpenConfig: () => void;
 };
 
 const menuRowRecipe = 'h-8 text-[13px]';
 
-function TopBarAction({
+/** A quiet icon button with its name as a tooltip, for the page's top bar and the Ever SI panel's header. */
+export function AssistantTopBarAction({
 	label,
 	onClick,
 	children,
@@ -92,34 +93,73 @@ function SessionRow({
 	);
 }
 
-function HistoryMenu({
+type AssistantHistoryMenuProps = Omit<AssistantTopBarProps, 'isConfigured' | 'onOpenConfig' | 'title'> & {
+	title: string;
+	/** The page names the conversation in its trigger; the narrow Ever SI panel shows a History icon instead. */
+	variant?: 'title' | 'icon';
+};
+
+function HistoryMenuTrigger({ title, variant }: Readonly<{ title: string; variant: 'title' | 'icon' }>) {
+	const t = useTranslations();
+	if (variant === 'icon') {
+		const label = t('chatView.HISTORY');
+		return (
+			<DropdownMenuTrigger asChild>
+				<Button
+					type="button"
+					variant="ghost"
+					size="icon-sm"
+					className="text-muted-foreground"
+					aria-label={label}
+					title={label}
+				>
+					<History aria-hidden="true" />
+				</Button>
+			</DropdownMenuTrigger>
+		);
+	}
+	return (
+		<DropdownMenuTrigger asChild>
+			<Button
+				type="button"
+				variant="ghost"
+				size="sm"
+				className="max-w-full min-w-0 shrink gap-1 px-2 text-[13px] font-medium"
+			>
+				<span className="truncate">{title}</span>
+				<ChevronDown className="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
+			</Button>
+		</DropdownMenuTrigger>
+	);
+}
+
+function menuAlignFor(variant: 'title' | 'icon') {
+	if (variant === 'icon') {
+		return 'end' as const;
+	}
+	return 'start' as const;
+}
+
+/** New chat, delete this conversation, and the recent ones this browser keeps (30 days after their last message). */
+export function AssistantHistoryMenu({
 	title,
 	sessions,
 	currentSessionId,
 	hasMessages,
 	onNewChat,
-	onClearConversation,
-	onSelectSession
-}: Omit<AssistantTopBarProps, 'isConfigured' | 'onOpenConfig' | 'title'> & { title: string }) {
+	onDeleteConversation,
+	onSelectSession,
+	variant = 'title'
+}: Readonly<AssistantHistoryMenuProps>) {
 	const t = useTranslations();
 	const locale = useLocale();
 	const hasSessions = sessions.length > 0;
 
 	return (
 		<DropdownMenu>
-			<DropdownMenuTrigger asChild>
-				<Button
-					type="button"
-					variant="ghost"
-					size="sm"
-					className="max-w-full min-w-0 shrink gap-1 px-2 text-[13px] font-medium"
-				>
-					<span className="truncate">{title}</span>
-					<ChevronDown className="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
-				</Button>
-			</DropdownMenuTrigger>
+			<HistoryMenuTrigger title={title} variant={variant} />
 			<DropdownMenuContent
-				align="start"
+				align={menuAlignFor(variant)}
 				className="w-[min(20rem,calc(100vw-2rem))] max-h-[min(26rem,var(--available-height))]"
 			>
 				<DropdownMenuItem className={menuRowRecipe} onClick={onNewChat}>
@@ -127,7 +167,7 @@ function HistoryMenu({
 					{t('chatView.NEW_CHAT')}
 				</DropdownMenuItem>
 				{hasMessages && (
-					<DropdownMenuItem className={menuRowRecipe} onClick={onClearConversation}>
+					<DropdownMenuItem className={menuRowRecipe} onClick={onDeleteConversation}>
 						<Trash aria-hidden="true" />
 						{t('chatView.CLEAR_CONVERSATION')}
 					</DropdownMenuItem>
@@ -169,7 +209,7 @@ export function AssistantTopBar({
 	hasMessages,
 	isConfigured,
 	onNewChat,
-	onClearConversation,
+	onDeleteConversation,
 	onSelectSession,
 	onOpenConfig
 }: Readonly<AssistantTopBarProps>) {
@@ -179,26 +219,26 @@ export function AssistantTopBar({
 
 	return (
 		<div className="flex min-w-0 items-center gap-1">
-			<HistoryMenu
+			<AssistantHistoryMenu
 				title={shownTitle}
 				sessions={sessions}
 				currentSessionId={currentSessionId}
 				hasMessages={hasMessages}
 				onNewChat={onNewChat}
-				onClearConversation={onClearConversation}
+				onDeleteConversation={onDeleteConversation}
 				onSelectSession={onSelectSession}
 			/>
 			<div className="ml-auto flex shrink-0 items-center gap-0.5">
-				<TopBarAction label={newChatLabel} onClick={onNewChat}>
+				<AssistantTopBarAction label={newChatLabel} onClick={onNewChat}>
 					<Compose />
-				</TopBarAction>
-				<TopBarAction
+				</AssistantTopBarAction>
+				<AssistantTopBarAction
 					label={t('chatView.CONFIGURATION')}
 					onClick={onOpenConfig}
 					className={cn(!isConfigured && 'text-destructive-ink')}
 				>
 					<Settings />
-				</TopBarAction>
+				</AssistantTopBarAction>
 			</div>
 		</div>
 	);

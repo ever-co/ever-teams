@@ -558,5 +558,17 @@
 	{
 		"id": "removed:navigation:apps/web/core/components/settings/pages/api-tokens/api-token-usage-section.tsx::constant=API_URL_PLACEHOLDER::#1",
 		"reason": "Moved, not removed, by the refactor of #5577 (358585c06): the placeholder shown when no API address is known is now the exported API_URL_PLACEHOLDER of apps/web/core/lib/utils/public-api-origin.ts, which this section reads through publicApiOriginOrPlaceholder. The page shows the same text, covered by api-tokens-settings-page.test.tsx and public-api-origin.test.ts."
+	},
+	{
+		"id": "removed:navigation:apps/web/core/components/layouts/app-sidebar.tsx::ASSISTANT_PATH=/assistant::#1",
+		"reason": "Moved, not removed, by the Ever SI change (spec A7): the sidebar row that linked to /assistant now opens the Ever SI panel, and lives in apps/web/core/components/layouts/ever-si-nav-item.tsx. It is still a link to /assistant there (on the full page itself and for a public team page's visitors), the path is EVER_SI_PATH of core/components/features/assistant/atoms/ever-si-panel.atom.ts, the command palette's Go to entry still goes to /assistant through it, and the panel's Open full page link too. Covered by ever-si-nav-item.test.tsx."
+	},
+	{
+		"id": "removed:navigation:apps/web/core/components/layouts/app-sidebar.tsx::constant=ASSISTANT_PATH::#1",
+		"reason": "Moved, not removed, by the Ever SI change (spec A7): the sidebar row that linked to /assistant now opens the Ever SI panel, and lives in apps/web/core/components/layouts/ever-si-nav-item.tsx. It is still a link to /assistant there (on the full page itself and for a public team page's visitors), the path is EVER_SI_PATH of core/components/features/assistant/atoms/ever-si-panel.atom.ts, the command palette's Go to entry still goes to /assistant through it, and the panel's Open full page link too. Covered by ever-si-nav-item.test.tsx."
+	},
+	{
+		"id": "removed:navigation:apps/web/core/components/layouts/app-sidebar.tsx::href=/assistant::#1",
+		"reason": "Moved, not removed, by the Ever SI change (spec A7): the sidebar row that linked to /assistant now opens the Ever SI panel, and lives in apps/web/core/components/layouts/ever-si-nav-item.tsx. It is still a link to /assistant there (on the full page itself and for a public team page's visitors), the path is EVER_SI_PATH of core/components/features/assistant/atoms/ever-si-panel.atom.ts, the command palette's Go to entry still goes to /assistant through it, and the panel's Open full page link too. Covered by ever-si-nav-item.test.tsx."
 	}
 ]
