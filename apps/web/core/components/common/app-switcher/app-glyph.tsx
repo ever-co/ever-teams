@@ -27,10 +27,7 @@ export function AppGlyph({
 	const glyphSize = GLYPH_SIZES[size];
 	if (!item.logo) {
 		return (
-			<span
-				aria-hidden="true"
-				className={cn(GLYPH_SHAPE, PLATE, glyphSize.className, className)}
-			>
+			<span aria-hidden="true" className={cn(GLYPH_SHAPE, PLATE, glyphSize.className, className)}>
 				{initialsOf(item.name)}
 			</span>
 		);
