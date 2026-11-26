@@ -19,8 +19,9 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # Size 8, not 4: `next dev` compiles every page on its first visit, which is most of this suite's time. On a size-4
-  # pod (2026-11-26) it ran about 0.8 min a test, 145 tests in about two hours; locally it takes 20 min.
+  # Size 8, not 4: `next dev` compiles every page on its first visit, which is most of this suite's time, and its memory
+  # grows as it does. On a size-4 pod (2026-11-26) it ran about 0.8 min a test (locally the suite takes 20 min) and the
+  # container reached its 36 GiB limit; size 8 allows 68 GiB.
   playwright-browser:
     runs-on: ${{ vars.RUNNER_LINUX_X64_8 || 'ubuntu-latest' }}
 
@@ -56,9 +57,34 @@ jobs:
         working-directory: apps/web
         run: node "$(node -p "require.resolve('@playwright/test/cli')")" install --with-deps --no-shell chromium
 
+      # In three parts, one after another, each with fresh servers. `next dev` grows with every page it compiles: in-cluster
+      # (2026-11-26) the job's container reached 35 GiB in one run, 13 GiB of it the dev server and the rest the RAM-disk
+      # checkout, and a busy build node's kernel ended it (OOMKilled at test 94 and at test 23). A fresh dev server per
+      # part keeps that growth to a third.
+      # --retries=1, here only (not in the config): under cluster load a cold page can miss a 20 s wait. A real failure
+      # fails both attempts and still fails the night; a load miss passes and shows as "flaky" in the log.
+      # Playwright empties apps/web/playwright/artifacts at the start of a run, so each part's report and traces move
+      # to artifacts-part-<n> before the next part starts.
       - name: Playwright mock browser suite
-        timeout-minutes: 150
-        run: yarn workspace @ever-teams/web pw
+        timeout-minutes: 180
+        shell: bash
+        run: |
+          failed=''
+          for part in 1 2 3; do
+            echo "::group::Playwright mock browser suite, part $part of 3"
+            if ! yarn workspace @ever-teams/web pw --shard="$part/3" --retries=1; then
+              failed="$failed $part"
+            fi
+            echo "::endgroup::"
+            bash apps/web/playwright/scripts/port-listeners.sh --stop 3030 3988 3989 3990 3991
+            if [ -d apps/web/playwright/artifacts ]; then
+              mv apps/web/playwright/artifacts "apps/web/playwright/artifacts-part-$part"
+            fi
+          done
+          if [ -n "$failed" ]; then
+            echo "::error::The mock browser suite failed in part(s):$failed"
+            exit 1
+          fi
 
       # Playwright stops its own process group only; `next dev`, which turbo starts in a session of its own, stays on
       # port 3030 (seen in-cluster after every route suite run). Nothing runs after this job, but the pod is freed clean.
@@ -66,13 +92,16 @@ jobs:
         if: always()
         run: bash apps/web/playwright/scripts/port-listeners.sh --stop 3030 3988 3989 3990 3991
 
-      # The JSON report, plus a trace, a screenshot and error-context.md for each failed test. In-cluster artifacts do
-      # not persist: the list reporter prints every failure in the step log too.
+      # Each part's JSON report, plus a trace, a screenshot and error-context.md for each failed test (artifacts/ holds
+      # the part a timeout cut short). In-cluster artifacts do not persist: the list reporter prints every failure in
+      # the step log too.
       - name: Upload Playwright report and traces
         if: always()
         uses: actions/upload-artifact@v6
         with:
           name: playwright-browser-${{ github.sha }}
-          path: apps/web/playwright/artifacts/
+          path: |
+            apps/web/playwright/artifacts-part-*/
+            apps/web/playwright/artifacts/
           if-no-files-found: warn
           retention-days: 14
