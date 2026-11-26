@@ -27,6 +27,7 @@ import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { NotificationBell } from '@/core/components/notifications/inbox/notification-bell';
 import { WhatsNewButton } from '@/core/components/whats-new/whats-new-button';
 import { HeaderAppSwitcher } from '@/core/components/common/app-switcher/header-app-switcher';
+import { ThemeToggleButton } from '@/core/components/common/theme-toggle-button';
 import { TrackingOffPill } from '@/core/components/timer/tracking-off-notice';
 
 const TEAM_DROPDOWN_HIDDEN_PATHS = new Set(['/task/[id]', '/profile/[memberId]']);
@@ -57,7 +58,10 @@ const teamsSettledAtom = atom((get) => {
 	return hasTeams || hasNoTeam;
 });
 
-/** The global controls at the end of the top bar: timer, inbox, collaborate, team switcher, shortcuts, apps, account on phones. */
+/**
+ * The global controls at the end of the top bar: timer, inbox, collaborate, team switcher, shortcuts, the theme, the
+ * App Launcher (when it sits here), and the account on phones.
+ */
 export function Navbar({
 	className,
 	showTimer,
@@ -140,6 +144,9 @@ export function Navbar({
 				)}
 
 				<KeyboardShortcuts />
+
+				{/* One icon for light and dark (spec A4). On phones the account menu beside it keeps its theme row. */}
+				<ThemeToggleButton />
 			</div>
 
 			<HeaderAppSwitcher />

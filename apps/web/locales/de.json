@@ -253,6 +253,8 @@
 		"DARK_MODE": "Dark Mode",
 		"THEME_LIGHT": "Hell",
 		"THEME_DARK": "Dunkel",
+		"SWITCH_TO_DARK_THEME": "Zum dunklen Design wechseln",
+		"SWITCH_TO_LIGHT_THEME": "Zum hellen Design wechseln",
 		"SETTINGS": "Einstellungen",
 		"PERSONAL": "Persönlich",
 		"USE_SETTING": "Einstellung verwenden",

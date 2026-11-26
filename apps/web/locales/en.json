@@ -278,6 +278,8 @@
 		"DARK_MODE": "Dark mode",
 		"THEME_LIGHT": "Light",
 		"THEME_DARK": "Dark",
+		"SWITCH_TO_DARK_THEME": "Switch to the dark theme",
+		"SWITCH_TO_LIGHT_THEME": "Switch to the light theme",
 		"SETTINGS": "Settings",
 		"PERSONAL": "Personal",
 		"USE_SETTING": "Use setting",

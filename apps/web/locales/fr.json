@@ -254,6 +254,8 @@
 		"DARK_MODE": "Mode sombre",
 		"THEME_LIGHT": "Clair",
 		"THEME_DARK": "Sombre",
+		"SWITCH_TO_DARK_THEME": "Passer au thème sombre",
+		"SWITCH_TO_LIGHT_THEME": "Passer au thème clair",
 		"SETTINGS": "Paramètres",
 		"PERSONAL": "Personnel",
 		"USE_SETTING": "Utiliser les paramètres",

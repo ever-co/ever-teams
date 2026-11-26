@@ -251,6 +251,8 @@
 		"DARK_MODE": "Modo oscuro",
 		"THEME_LIGHT": "Claro",
 		"THEME_DARK": "Oscuro",
+		"SWITCH_TO_DARK_THEME": "Cambiar al tema oscuro",
+		"SWITCH_TO_LIGHT_THEME": "Cambiar al tema claro",
 		"SETTINGS": "Ajustes",
 		"PERSONAL": "Personal",
 		"USE_SETTING": "Usar ajuste",

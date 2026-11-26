@@ -189,6 +189,8 @@
 		"DARK_MODE": "الوضع الداكن",
 		"THEME_LIGHT": "فاتح",
 		"THEME_DARK": "داكن",
+		"SWITCH_TO_DARK_THEME": "التبديل إلى المظهر الداكن",
+		"SWITCH_TO_LIGHT_THEME": "التبديل إلى المظهر الفاتح",
 		"SETTINGS": "الإعدادات",
 		"PERSONAL": "شخصي",
 		"USE_SETTING": "استخدام الإعداد",
