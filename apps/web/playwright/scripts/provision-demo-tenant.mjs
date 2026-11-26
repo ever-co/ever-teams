@@ -262,6 +262,9 @@ async function main() {
 		}
 	} else {
 		console.log(`continuing with the saved account ${email}; nothing is registered.`);
+		// The saved account's id is all the steps below read (`user.id` for the employee and the record): without it a
+		// resumed run would create a tenant and an organization, then stop at the employee and leave them unfinished.
+		user = { id: resume.userId };
 	}
 
 	const login = await signIn(email, password);

@@ -72,6 +72,8 @@ test.describe('a cross-site write is refused', () => {
 			// `proxy-helper` names the guard by the helper that runs it (forwardToGauzy), which is how most
 			// proxy routes are protected; `route` means the route file calls the guard itself.
 			const why = `${route.verb} ${route.path} (${route.guard} guard in ${route.file})`;
+			// Where the log stands before the two cross-site calls: every entry after this one came during them.
+			const logBefore = (await mock.requests()).length;
 
 			const anonymous = await api(path, {
 				method: route.verb,
@@ -95,6 +97,13 @@ test.describe('a cross-site write is refused', () => {
 				`${why}: the refusal must come before anything is asked of the API about ${path}; the mock recorded ${logOf(
 					asked
 				)} (whole log: ${logOf(await mock.requests())})`
+			).toEqual([]);
+			// …and no write at all, wherever it went: a route that forwards to another upstream path
+			// (`/api/timer/start` -> `/timesheet/timer/start`) never shows under `mock.calls(path)` above.
+			const during = (await mock.requests()).slice(logBefore);
+			expect(
+				during.filter((request) => request.method !== 'GET').map(triple),
+				`${why}: a refused cross-site write must not reach the API under any path; the mock recorded ${logOf(during)}`
 			).toEqual([]);
 
 			// The same call from this app's own origin is not refused *as cross-site*. It may still be
