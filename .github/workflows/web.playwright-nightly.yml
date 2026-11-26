@@ -35,13 +35,16 @@ jobs:
           node-version: '26.12.1'
           cache: 'yarn'
 
+      # The action probes the npm mirror (Verdaccio) on the build network's internal address and uses it when it
+      # answers. expect-vip is true on the cluster runners (the runner variable is set), where that address must
+      # answer, so an unreachable one is retried and warned about. Same inputs as web.before-merge.yml.
       - name: Configure Registry
         uses: ever-co/ever-gauzy/.github/actions/configure-registry@727973d766f3968d3f1184300af085872abcb20b
         with:
           verdaccio-registry: ${{ vars.VERDACCIO_REGISTRY }}
           verdaccio-token: ${{ secrets.VERDACCIO_TOKEN }}
           force-public: ${{ vars.VERDACCIO_FORCE_PUBLIC }}
-          expect-vip: ${{ vars.RUNNER_LINUX_X64_4 != '' }}
+          expect-vip: ${{ vars.RUNNER_LINUX_X64_8 != '' }}
 
       # No install scripts: the browser comes from the next step, as in web.before-merge.yml
       - name: Install Packages
@@ -65,7 +68,8 @@ jobs:
       # --retries=1, here only (not in the config): under cluster load a cold page can miss a 20 s wait. A real failure
       # fails both attempts and still fails the night; a load miss passes and shows as "flaky" in the log.
       # Playwright empties apps/web/playwright/artifacts at the start of a run, so each part's report and traces move
-      # to artifacts-part-<n> before the next part starts.
+      # to artifacts-part-<n> before the next part starts. A failed part does not stop the others: one night reports
+      # all three, and the step's last line names the parts that failed.
       - name: Playwright mock browser suite
         timeout-minutes: 180
         shell: bash
