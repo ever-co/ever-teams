@@ -19,6 +19,7 @@ import {
 	withChatSessionMessages,
 	writeChatHistory
 } from '@/core/components/features/chat-panel/chat-history';
+import { isChatScopeLive } from '@/core/components/features/chat-panel/chat-scope';
 import { createEverSiChat, openEverSiChat, replaceEverSiChat } from './ever-si-chat-store';
 
 const NO_SCOPE_KEY = 'no-scope';
@@ -123,16 +124,20 @@ export function useAssistantChat() {
 
 	const submitInput = useCallback(() => {
 		const text = input.trim();
-		if (!text) {
+		// A scope that ended (sign-out under way) takes no new question: the page is about to leave.
+		if (!text || !isChatScopeLive(scopeKey)) {
 			return;
 		}
 		setInput('');
 		void sendMessage({ text }, { body: { config: requestConfig } });
-	}, [input, requestConfig, sendMessage]);
+	}, [input, requestConfig, scopeKey, sendMessage]);
 
 	const retry = useCallback(() => {
+		if (!isChatScopeLive(scopeKey)) {
+			return;
+		}
 		void regenerate({ body: { config: requestConfig } });
-	}, [regenerate, requestConfig]);
+	}, [regenerate, requestConfig, scopeKey]);
 
 	const sessions = useMemo(
 		() => withCurrentSession(scopeState.storedSessions, messages, sessionId),
@@ -147,13 +152,14 @@ export function useAssistantChat() {
 			return;
 		}
 		const canPersist = canPersistChatHistory(scopeState.key, historyScope, messages.length);
-		if (!canPersist) {
+		// Sign-out clears the history before the page leaves: the last tokens of the stopped answer that still reach a
+		// mounted view must not write it back.
+		if (!canPersist || !isChatScopeLive(scopeState.key)) {
 			return;
 		}
 		writeChatHistory(historyScope, sessions);
 	}, [historyScope, messages.length, scopeState.key, sessions]);
 
-	/** Deletes the open conversation from this browser's history (not only from the screen), then starts a new one. */
 	/** Opens `next` in every view of this scope, stopping the answer still running in the conversation it replaces. */
 	const switchTo = useCallback(
 		(next: Chat<UIMessage>, storedSessions: ChatSession[]) => {

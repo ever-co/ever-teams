@@ -269,6 +269,27 @@ describe('Ever SI when a scope ends with no view open', () => {
 		expect(readChatHistory(scopeOf('user-sign-out'))).toEqual([]);
 		removeItem.mockRestore();
 	});
+
+	it('writes nothing back and sends nothing when sign-out ends the scope of a view still mounted', () => {
+		const store = signedInStore('user-sign-out-mounted');
+		const panel = mountView(store);
+		ask(panel, 'Summarize my day');
+		const chat = chatWithId(panel.result.current.sessionId);
+
+		act(() => clearChatHistoryForUser('user-sign-out-mounted'));
+		expect(chat.stop).toHaveBeenCalledTimes(1);
+
+		// The stopped answer's last tokens reach the view, still mounted while sign-out waits for its clean-ups.
+		chat.messages = [
+			...chat.messages.slice(0, 1),
+			{ id: `${chat.id}-answer`, role: 'assistant', parts: [{ type: 'text', text: 'Half an answer, stopped' }] }
+		];
+		panel.rerender();
+		expect(readChatHistory(scopeOf('user-sign-out-mounted'))).toEqual([]);
+
+		ask(panel, 'One more question');
+		expect(chat.sendMessage).toHaveBeenCalledTimes(1);
+	});
 });
 
 describe('Ever SI keeps the date of a conversation that is only reopened', () => {
