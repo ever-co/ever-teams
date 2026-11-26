@@ -158,7 +158,9 @@ function ManageRow({
 				<span className="min-w-0 truncate text-[13px] font-medium text-foreground">{name}</span>
 				<LauncherChips item={item} />
 				{item.domain && (
-					<span className="hidden min-w-0 truncate text-xs text-muted-foreground sm:inline">{item.domain}</span>
+					<span className="hidden min-w-0 truncate text-xs text-muted-foreground sm:inline">
+						{item.domain}
+					</span>
 				)}
 			</div>
 			<span className={CHECK_COLUMN} title={showTitle}>
@@ -265,7 +267,9 @@ function AddCustomAppForm({
 			</div>
 			<div className="flex flex-col gap-2 sm:flex-row sm:items-end">
 				<label htmlFor={nameId} className="flex min-w-0 flex-col gap-1.5 sm:w-44">
-					<span className="text-xs font-medium text-muted-foreground">{t('settings.preferences.ADD_APP_NAME')}</span>
+					<span className="text-xs font-medium text-muted-foreground">
+						{t('settings.preferences.ADD_APP_NAME')}
+					</span>
 					<Input
 						id={nameId}
 						value={name}
@@ -277,7 +281,9 @@ function AddCustomAppForm({
 					/>
 				</label>
 				<label htmlFor={urlId} className="flex min-w-0 flex-1 flex-col gap-1.5">
-					<span className="text-xs font-medium text-muted-foreground">{t('settings.preferences.ADD_APP_URL')}</span>
+					<span className="text-xs font-medium text-muted-foreground">
+						{t('settings.preferences.ADD_APP_URL')}
+					</span>
 					<Input
 						id={urlId}
 						type="url"
@@ -362,7 +368,10 @@ export function AppLauncherManage() {
 		<div ref={listRef}>
 			<div className="flex items-center justify-between gap-3 px-4 pt-3 pb-2">
 				<p className="text-xs text-muted-foreground tabular-nums">
-					{t('settings.preferences.MANAGE_APPS_PIN_COUNT', { count: pinCount, limit: APP_LAUNCHER_PIN_LIMIT })}
+					{t('settings.preferences.MANAGE_APPS_PIN_COUNT', {
+						count: pinCount,
+						limit: APP_LAUNCHER_PIN_LIMIT
+					})}
 				</p>
 				<p role="status" aria-live="polite" className="text-xs text-muted-foreground">
 					{announcement}

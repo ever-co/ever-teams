@@ -144,7 +144,9 @@ export function AppSwitcherMenu({ side, align, size, trigger, className }: Reado
 					<AppSection key={section.id} section={section} />
 				))}
 				<DropdownMenuSeparator />
-				<p className="px-2 py-1.5 text-xs text-pretty text-muted-foreground">{t('switchers.LAUNCHER_FOOTER')}</p>
+				<p className="px-2 py-1.5 text-xs text-pretty text-muted-foreground">
+					{t('switchers.LAUNCHER_FOOTER')}
+				</p>
 				<DropdownMenuItem asChild className="h-8 gap-2.5">
 					<Link href={MANAGE_APPS_HREF}>
 						<Settings className="size-4 text-muted-foreground" aria-hidden="true" />

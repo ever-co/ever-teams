@@ -74,7 +74,7 @@ describe('the App Launcher panel', () => {
 		expect(within(menu).queryByRole('group', { name: 'switchers.YOUR_APPS' })).toBeNull();
 	});
 
-	it("opens other apps in a new tab, marks the app you are in and lists Ever Demand as coming soon, not as a link", () => {
+	it('opens other apps in a new tab, marks the app you are in and lists Ever Demand as coming soon, not as a link', () => {
 		const menu = openLauncher();
 
 		const works = within(menu).getByRole('menuitem', { name: /Ever Works/ });
@@ -106,9 +106,11 @@ describe('the App Launcher panel', () => {
 		const pinned = within(menu).getByRole('group', { name: 'switchers.PINNED' });
 		expect(within(pinned).getByRole('menuitem', { name: /Ever Works/ })).toBeTruthy();
 		const yours = within(menu).getByRole('group', { name: 'switchers.YOUR_APPS' });
-		expect(within(yours).getByRole('menuitem', { name: /Grafana/ }).getAttribute('href')).toBe(
-			'https://grafana.example.com/'
-		);
+		expect(
+			within(yours)
+				.getByRole('menuitem', { name: /Grafana/ })
+				.getAttribute('href')
+		).toBe('https://grafana.example.com/');
 		expect(within(menu).queryByRole('menuitem', { name: /Ever Platform/ })).toBeNull();
 	});
 

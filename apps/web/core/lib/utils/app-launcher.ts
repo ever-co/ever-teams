@@ -225,7 +225,11 @@ export function withShown(preferences: AppLauncherPreferences, key: string, isSh
 }
 
 /** Pinning adds at the end of Pinned and shows the app; a seventh pin is refused (returns the same object). */
-export function withPinned(preferences: AppLauncherPreferences, key: string, isPinned: boolean): AppLauncherPreferences {
+export function withPinned(
+	preferences: AppLauncherPreferences,
+	key: string,
+	isPinned: boolean
+): AppLauncherPreferences {
 	if (!isPinned) {
 		return { ...preferences, pinned: without(preferences.pinned, key) };
 	}
