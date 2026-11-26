@@ -3,32 +3,37 @@ import { readRuntimeEnv } from '@/env-config';
 
 type EverAppId = 'gauzy' | 'teams' | 'works' | 'platform' | 'demand' | 'rec' | 'traduora';
 
+/** As Ever Platform's catalog (`GET /v1/products`): `soon` is listed with its chip, even without a link. */
+export type EverAppStatus = 'available' | 'beta' | 'soon';
+
 export interface EverApp {
 	id: EverAppId;
-	shortName: string;
+	/** The product's name, the same in every language and in every Ever app's launcher. */
+	name: string;
 	logo: string;
-	/** Empty for this app when the deployment gives it no link: its row is never a link. */
+	/** Empty for this app, and for an app that is coming soon, when the deployment gives it no link. */
 	url: string;
 	domain: string;
+	status: EverAppStatus;
 }
 
 type EverAppEntry = Omit<EverApp, 'url' | 'domain'>;
 
 const CURRENT_EVER_APP_ID: EverAppId = 'teams';
 
-// Same order and logos as the Gauzy app switcher (ever-gauzy
-// packages/ui-core/common/src/lib/constants/ever-apps.constants.ts): keep both lists in sync. Works ships the Teams
-// tile and Demand the Platform tile today, so those pairs look alike. No link lives here: each one comes from the
-// deployment (NEXT_PUBLIC_EVER_APP_LINKS), so this bundle names no Ever host (the egress audit's static scan) and a
-// self-hosted or rebranded deployment never sends its users to Ever's hosted apps.
+// The order and names of the shared shell (Part A3 of the one-shell spec): Ever Platform, Ever Works, Ever Teams,
+// Ever Gauzy, Ever Rec, Ever Traduora, then Ever Demand, coming soon. Every Ever app lists them alike (Platform from
+// its catalog, Works from platforms.json, Gauzy from ever-apps.constants.ts): keep them in step. No link lives
+// here: each one comes from the deployment (NEXT_PUBLIC_EVER_APP_LINKS), so this bundle names no Ever host (the
+// egress audit's static scan) and a self-hosted or rebranded deployment never sends its users to Ever's hosted apps.
 const EVER_APP_ENTRIES: ReadonlyArray<EverAppEntry> = [
-	{ id: 'platform', shortName: 'Platform', logo: '/assets/ever-apps/platform.svg' },
-	{ id: 'works', shortName: 'Works', logo: '/assets/ever-apps/works.svg' },
-	{ id: 'teams', shortName: 'Teams', logo: '/assets/ever-apps/teams.svg' },
-	{ id: 'gauzy', shortName: 'Gauzy', logo: '/assets/ever-apps/gauzy.svg' },
-	{ id: 'demand', shortName: 'Demand', logo: '/assets/ever-apps/demand.svg' },
-	{ id: 'rec', shortName: 'Rec', logo: '/assets/ever-apps/rec.svg' },
-	{ id: 'traduora', shortName: 'Traduora', logo: '/assets/ever-apps/traduora.png' }
+	{ id: 'platform', name: 'Ever Platform', logo: '/assets/ever-apps/platform.svg', status: 'available' },
+	{ id: 'works', name: 'Ever Works', logo: '/assets/ever-apps/works.svg', status: 'available' },
+	{ id: 'teams', name: 'Ever Teams', logo: '/assets/ever-apps/teams.svg', status: 'available' },
+	{ id: 'gauzy', name: 'Ever Gauzy', logo: '/assets/ever-apps/gauzy.svg', status: 'available' },
+	{ id: 'rec', name: 'Ever Rec', logo: '/assets/ever-apps/rec.svg', status: 'available' },
+	{ id: 'traduora', name: 'Ever Traduora', logo: '/assets/ever-apps/traduora.png', status: 'available' },
+	{ id: 'demand', name: 'Ever Demand', logo: '/assets/ever-apps/demand.svg', status: 'soon' }
 ];
 
 function parseHttpUrl(value: string): URL | null {
@@ -74,18 +79,20 @@ function withLink(entry: EverAppEntry): EverApp | null {
 	if (link) {
 		return { ...entry, url: link.href, domain: link.host };
 	}
-	if (entry.id === CURRENT_EVER_APP_ID) {
+	const isCurrent = entry.id === CURRENT_EVER_APP_ID;
+	const isComingSoon = entry.status === 'soon';
+	if (isCurrent || isComingSoon) {
 		return { ...entry, url: '', domain: '' };
 	}
 	return null;
 }
 
-const LINKED_EVER_APPS = EVER_APP_ENTRIES.map(withLink).filter((app): app is EverApp => app !== null);
+const LISTED_EVER_APPS = EVER_APP_ENTRIES.map(withLink).filter((app): app is EverApp => app !== null);
 
-/** The switcher, its rail and its setting show only when the deployment links at least one other app. */
-export const HAS_EVER_APP_SWITCHER = LINKED_EVER_APPS.some((app) => app.id !== CURRENT_EVER_APP_ID);
+/** The launcher, its rail and its settings show only when the deployment links at least one other app. */
+export const HAS_EVER_APP_SWITCHER = LISTED_EVER_APPS.some((app) => app.id !== CURRENT_EVER_APP_ID && app.url !== '');
 
-export const EVER_APPS: ReadonlyArray<EverApp> = HAS_EVER_APP_SWITCHER ? LINKED_EVER_APPS : [];
+export const EVER_APPS: ReadonlyArray<EverApp> = HAS_EVER_APP_SWITCHER ? LISTED_EVER_APPS : [];
 
 export function isCurrentEverApp(app: EverApp) {
 	return app.id === CURRENT_EVER_APP_ID;
