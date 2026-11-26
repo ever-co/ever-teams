@@ -1,0 +1,72 @@
+name: Web Playwright Nightly
+permissions:
+  contents: read
+
+# The Playwright mock browser suite (`pw`, apps/web/playwright/playwright.config.ts): the web app in Chromium against the
+# synthetic Gauzy API, no network. It is not in web.before-merge.yml: in-cluster that gate already runs its jobs one
+# after another in one pod, browser timing is the noisiest part under cluster load, and the Cypress browser-parity job
+# covers browser flows there. Once a day is enough to catch drift.
+#
+# Manual-only on purpose: GitHub Actions never runs it by itself. In-cluster, ever-co/k8s-gitops
+# apps/ci-builds/tools/policy-overrides.json (`schedules`) runs it every night on develop with event workflow_dispatch,
+# the way the Gauzy SDK generate.yml files run; a failed night sends the usual ci-builds failure mail. By hand:
+#   python scripts/ci-builds-run.py ever-co/ever-teams <branch> web.playwright-nightly.yml 4 --event workflow_dispatch
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
+
+jobs:
+  playwright-browser:
+    runs-on: ${{ vars.RUNNER_LINUX_X64_4 || 'ubuntu-latest' }}
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Use Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '26.12.1'
+          cache: 'yarn'
+
+      - name: Configure Registry
+        uses: ever-co/ever-gauzy/.github/actions/configure-registry@727973d766f3968d3f1184300af085872abcb20b
+        with:
+          verdaccio-registry: ${{ vars.VERDACCIO_REGISTRY }}
+          verdaccio-token: ${{ secrets.VERDACCIO_TOKEN }}
+          force-public: ${{ vars.VERDACCIO_FORCE_PUBLIC }}
+          expect-vip: ${{ vars.RUNNER_LINUX_X64_4 != '' }}
+
+      # No install scripts: the browser comes from the next step, as in web.before-merge.yml
+      - name: Install Packages
+        run: yarn install --network-timeout 1000000 --frozen-lockfile --ignore-scripts
+        env:
+          NODE_OPTIONS: '--dns-result-order=ipv4first'
+
+      # The config runs the full Chromium build (channel `chromium`), so the separate headless shell is not needed.
+      # --with-deps installs its system libraries (apt, through sudo unless the step runs as root).
+      - name: Install Chromium
+        run: yarn workspace @ever-teams/web playwright install --with-deps --no-shell chromium
+
+      - name: Playwright mock browser suite
+        timeout-minutes: 90
+        run: yarn workspace @ever-teams/web pw
+
+      # Playwright stops its own process group only; `next dev`, which turbo starts in a session of its own, stays on
+      # port 3030 (seen in-cluster after every route suite run). Nothing runs after this job, but the pod is freed clean.
+      - name: Free the suite's ports
+        if: always()
+        run: bash apps/web/playwright/scripts/port-listeners.sh --stop 3030 3988 3989 3990 3991
+
+      # The JSON report, plus a trace, a screenshot and error-context.md for each failed test. In-cluster artifacts do
+      # not persist: the list reporter prints every failure in the step log too.
+      - name: Upload Playwright report and traces
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: playwright-browser-${{ github.sha }}
+          path: apps/web/playwright/artifacts/
+          if-no-files-found: warn
+          retention-days: 14
