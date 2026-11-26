@@ -221,6 +221,19 @@ describe('projectForecastOf', () => {
 		expect(forecastOf(tasks)?.velocity).toBe(0.3);
 	});
 
+	it('keeps a positive pace when one task was done over the longest window', () => {
+		const tasks = [doneOn(new Date(2026, 9, 20)), taskOf({ status: 'todo', createdAt: OLD })];
+		const activity = projectActivityOf(tasks, STATUSES, NOW, MAX_ACTIVITY_WEEKS);
+
+		// 1 done over 25 complete weeks = 0.04 a week, which one decimal would show as 0; 1 open = 25 weeks.
+		expect(projectForecastOf(tasks, STATUSES, activity)).toEqual({
+			open: 1,
+			velocity: 0.04,
+			weeksLeft: 25,
+			isBeyondHorizon: false
+		});
+	});
+
 	it('starts the pace at the week of the first task when the project is younger than the window', () => {
 		const tasks = [
 			doneOn(new Date(2026, 10, 3), new Date(2026, 10, 2)),

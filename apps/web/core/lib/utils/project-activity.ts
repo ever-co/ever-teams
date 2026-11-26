@@ -185,9 +185,12 @@ export function projectForecastOf(
 	}
 	// Integer arithmetic keeps an exact division (6 open at 3 a week) from rounding up to an extra week.
 	const rawWeeks = Math.ceil((open * completeWeeks.length) / completed);
+	const pace = completed / completeWeeks.length;
 	return {
 		open,
-		velocity: Math.round((completed / completeWeeks.length) * 10) / 10,
+		// One decimal reads well, but a pace under 0.05 (1 task in 25 weeks = 0.04) would show as 0 next to an estimate
+		// that counts it: keep two significant digits there.
+		velocity: pace < 0.05 ? Number(pace.toPrecision(2)) : Math.round(pace * 10) / 10,
 		weeksLeft: Math.min(MAX_FORECAST_WEEKS, rawWeeks),
 		isBeyondHorizon: rawWeeks > MAX_FORECAST_WEEKS
 	};
