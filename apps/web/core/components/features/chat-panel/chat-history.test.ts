@@ -123,7 +123,11 @@ describe('chat history', () => {
 		});
 
 		it('drops only the expired conversations, in their order', () => {
-			const sessions = [sessionAt('today', NOW), sessionAt('old', NOW - 45 * DAY), sessionAt('week', NOW - 7 * DAY)];
+			const sessions = [
+				sessionAt('today', NOW),
+				sessionAt('old', NOW - 45 * DAY),
+				sessionAt('week', NOW - 7 * DAY)
+			];
 
 			expect(pruneExpiredChatSessions(sessions, NOW).map((session) => session.id)).toEqual(['today', 'week']);
 		});
@@ -163,7 +167,10 @@ describe('chat history', () => {
 		it('does not write expired conversations back', () => {
 			writeChatHistory(scope, [sessionAt('recent', NOW), sessionAt('expired', NOW - 31 * DAY)], NOW);
 
-			expect(storage.setItem).toHaveBeenCalledWith(chatHistoryKey(scope), JSON.stringify([sessionAt('recent', NOW)]));
+			expect(storage.setItem).toHaveBeenCalledWith(
+				chatHistoryKey(scope),
+				JSON.stringify([sessionAt('recent', NOW)])
+			);
 		});
 	});
 

@@ -8,12 +8,7 @@ import { useTranslations } from 'next-intl';
 import { useSidebar } from '@/core/components/common/sidebar';
 import { Sheet, SheetContent, SheetTitle } from '@/core/components/common/sheet';
 import { isPathActive } from '@/core/lib/utils/navigation-path';
-import {
-	EVER_SI_PANEL_ID,
-	EVER_SI_PATH,
-	everSiPanelOpenAtom,
-	everSiPanelWidthAtom
-} from './atoms/ever-si-panel.atom';
+import { EVER_SI_PANEL_ID, EVER_SI_PATH, everSiPanelOpenAtom, everSiPanelWidthAtom } from './atoms/ever-si-panel.atom';
 import { EVER_SI_PANEL_WIDTH, clampEverSiPanelWidth, maxEverSiPanelWidth } from './ever-si-panel-width';
 import { EverSiResizeHandle } from './components/ever-si-resize-handle';
 

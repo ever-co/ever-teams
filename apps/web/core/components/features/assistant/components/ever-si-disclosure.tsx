@@ -10,5 +10,9 @@ import { cn } from '@/core/lib/helpers';
  */
 export function EverSiDisclosure({ className }: Readonly<{ className?: string }>) {
 	const t = useTranslations();
-	return <p className={cn('text-center text-xs text-muted-foreground text-pretty', className)}>{t('chatView.DISCLOSURE')}</p>;
+	return (
+		<p className={cn('text-center text-xs text-muted-foreground text-pretty', className)}>
+			{t('chatView.DISCLOSURE')}
+		</p>
+	);
 }

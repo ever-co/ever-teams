@@ -54,7 +54,13 @@ function widthForKey(event: KeyboardEvent<HTMLDivElement>, width: number, maxWid
  * The edge between the Ever SI panel and the page, a window splitter: drag it, or focus it and use the Arrow keys
  * (Shift for bigger steps, Home and End for the bounds); a double-click brings back the standard width.
  */
-export function EverSiResizeHandle({ width, maxWidth, onPreview, onCommit, onReset }: Readonly<EverSiResizeHandleProps>) {
+export function EverSiResizeHandle({
+	width,
+	maxWidth,
+	onPreview,
+	onCommit,
+	onReset
+}: Readonly<EverSiResizeHandleProps>) {
 	const t = useTranslations();
 	const drag = useRef<DragState | null>(null);
 	const label = t('chatView.RESIZE_ASSISTANT');
