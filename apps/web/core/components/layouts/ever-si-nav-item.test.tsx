@@ -31,7 +31,7 @@ jest.mock('@/core/components/common/sidebar', () => ({
 	SidebarMenuButton: ({
 		asChild,
 		isActive,
-		tooltip: _tooltip,
+		tooltip,
 		children,
 		...props
 	}: {
@@ -41,10 +41,13 @@ jest.mock('@/core/components/common/sidebar', () => ({
 		children: ReactNode;
 	}) => {
 		if (asChild && isValidElement(children)) {
-			return cloneElement(children as ReactElement<Record<string, unknown>>, { 'data-active': isActive });
+			return cloneElement(children as ReactElement<Record<string, unknown>>, {
+				'data-active': isActive,
+				'data-tooltip': tooltip
+			});
 		}
 		return (
-			<button data-active={isActive} {...props}>
+			<button data-active={isActive} data-tooltip={tooltip} {...props}>
 				{children}
 			</button>
 		);
@@ -73,6 +76,8 @@ describe('Ever SI sidebar row', () => {
 		const row = screen.getByRole('button', { name: 'Ever SI' });
 		expect(row.getAttribute('aria-expanded')).toBe('false');
 		expect(row.getAttribute('aria-controls')).toBe('ever-si-panel');
+		// Its name is the tooltip of the icon-only sidebar
+		expect(row.getAttribute('data-tooltip')).toBe('Ever SI');
 		expect(screen.queryByRole('link')).toBeNull();
 	});
 
