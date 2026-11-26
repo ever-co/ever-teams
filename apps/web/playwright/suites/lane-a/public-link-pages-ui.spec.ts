@@ -1532,6 +1532,10 @@ test.describe('lane-a · /shared-report and /embed/authorize: what a person sees
 		// Both secrets the site is handed: the access token and the longer-lived renewal token.
 		const secrets = [SITE_TOKENS.token, SITE_TOKENS.renewalToken];
 		const atClose = await recordConsentWindowAtClose(context, secrets);
+		// Every request any page of this context sends from here on, whatever its origin: `stub.calls` holds only the
+		// stubbed mock paths, so a token appended to some other address would not be in it.
+		const requestUrls: string[] = [];
+		context.on('request', (request) => requestUrls.push(request.url()));
 		const popup = await openConsent(context, site, authorizeQuery(SITE_A, fixture.ids.organizationA));
 		await expect(popup.getByRole('button', { name: EMBED_ALLOW, exact: true })).toBeVisible({ timeout: 25_000 });
 
@@ -1583,9 +1587,10 @@ test.describe('lane-a · /shared-report and /embed/authorize: what a person sees
 			'a token reached the address'
 		).toEqual([]);
 		expect(
-			stub.calls.filter((call) => secrets.some((secret) => call.url.includes(secret))),
+			requestUrls.filter((url) => secrets.some((secret) => url.includes(secret))),
 			'a request URL carried a site token'
 		).toEqual([]);
+		expect(requestUrls.length, 'no request was recorded, so the URL check above saw nothing').toBeGreaterThan(0);
 		expect(closing.storageKeysHoldingSecret, 'the page stored a site token in web storage').toEqual([]);
 		expect(
 			closing.storageKeys.filter((key) => key.includes('embed')),
