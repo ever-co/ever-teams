@@ -33,6 +33,11 @@ export type ApiCall = (
 		headers?: Record<string, string>;
 		/** 0 keeps a redirect as the answer under test, instead of following it to the page it points at. */
 		maxRedirects?: number;
+		/**
+		 * Only for a whole page document: under `next dev` its first request compiles the route, which on a CI pod
+		 * took longer than the default 60 s. API routes keep the default (`upstream-outage.spec.ts` relies on it).
+		 */
+		timeout?: number;
 	}
 ) => Promise<APIResponse>;
 
@@ -98,7 +103,7 @@ export const test = base.extend<{
 				// Only when a case asks for it: in suites/api/page-gate.spec.ts the redirect itself is the answer
 				// under test, and by default Playwright follows it to the page it points at.
 				...(options.maxRedirects === undefined ? {} : { maxRedirects: options.maxRedirects }),
-				timeout: 60_000
+				timeout: options.timeout ?? 60_000
 			});
 		await use(call);
 	}
