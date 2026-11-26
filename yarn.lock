@@ -33384,10 +33384,10 @@ i18next@^24.2.2:
   dependencies:
     "@babel/runtime" "^7.26.10"
 
-i18next@^26.3.4:
-  version "26.3.4"
-  resolved "https://registry.yarnpkg.com/i18next/-/i18next-26.3.4.tgz#a2e8540b0a1a6004eba525c05faa89c256fb57c8"
-  integrity sha512-pa7m0d7pBDqGHZxljT+WPFeyFgQ7P7SciPPo1tTqYuO0z4sqADYhwnBESmmGp/wEof1inwdls/k8ZgTg8rxFHA==
+i18next@^27.2.9:
+  version "27.2.9"
+  resolved "https://registry.yarnpkg.com/i18next/-/i18next-27.2.9.tgz#2a0bef580497c8b97786c4bbd0f9a5aecc920643"
+  integrity sha512-GOWWofCGYPSPEzUKJnRLJSoHrSUDa/NzYWqAOJJDZUaM7faLPd9VABlbHDZ+jv8uadu/fq1wsHFfZP6+0tFPkg==
 
 iconv-lite@0.6, iconv-lite@0.6.3, iconv-lite@^0.6.2, iconv-lite@^0.6.3:
   version "0.6.3"
