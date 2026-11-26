@@ -10,7 +10,7 @@ permissions:
 # Manual-only on purpose: GitHub Actions never runs it by itself. In-cluster, ever-co/k8s-gitops
 # apps/ci-builds/tools/policy-overrides.json (`schedules`) runs it every night on develop with event workflow_dispatch,
 # the way the Gauzy SDK generate.yml files run; a failed night sends the usual ci-builds failure mail. By hand:
-#   python scripts/ci-builds-run.py ever-co/ever-teams <branch> web.playwright-nightly.yml 4 --event workflow_dispatch
+#   python scripts/ci-builds-run.py ever-co/ever-teams <branch> web.playwright-nightly.yml 8 --event workflow_dispatch
 on:
   workflow_dispatch:
 
@@ -19,8 +19,10 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # Size 8, not 4: `next dev` compiles every page on its first visit, which is most of this suite's time. On a size-4
+  # pod (2026-11-26) it ran about 0.8 min a test, 145 tests in about two hours; locally it takes 20 min.
   playwright-browser:
-    runs-on: ${{ vars.RUNNER_LINUX_X64_4 || 'ubuntu-latest' }}
+    runs-on: ${{ vars.RUNNER_LINUX_X64_8 || 'ubuntu-latest' }}
 
     steps:
       - uses: actions/checkout@v7
@@ -55,7 +57,7 @@ jobs:
         run: node "$(node -p "require.resolve('@playwright/test/cli')")" install --with-deps --no-shell chromium
 
       - name: Playwright mock browser suite
-        timeout-minutes: 90
+        timeout-minutes: 150
         run: yarn workspace @ever-teams/web pw
 
       # Playwright stops its own process group only; `next dev`, which turbo starts in a session of its own, stays on
