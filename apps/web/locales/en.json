@@ -3620,6 +3620,7 @@
 		"DEFAULT_MODEL": "Default model",
 		"RESIZE_ASSISTANT": "Resize Ever SI",
 		"OPEN_FULL_PAGE": "Open full page",
+		"DOCK_ASSISTANT": "Show Ever SI beside the page",
 		"DISCLOSURE": "You're chatting with Ever's SI assistant. It can make mistakes. We keep this conversation for 30 days. Delete it any time."
 	},
 	"taskMenus": {

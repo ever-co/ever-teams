@@ -1,9 +1,10 @@
 /** @jest-environment jsdom */
 import type { ReactNode } from 'react';
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { createStore, Provider } from 'jotai';
 import { EverSiPanel } from './ever-si-panel';
-import { everSiPanelOpenAtom, everSiPanelWidthAtom } from './atoms/ever-si-panel.atom';
+import { everSiPanelOpenAtom, everSiPanelWidthAtom, everSiReturnPathAtom } from './atoms/ever-si-panel.atom';
+import { everSiPanelModeOf } from './ever-si-panel-mode';
 import { EVER_SI_PANEL_WIDTH, clampEverSiPanelWidth, maxEverSiPanelWidth } from './ever-si-panel-width';
 
 const mockNavigation = { pathname: '/en/dashboard' };
@@ -13,14 +14,42 @@ jest.mock('next-intl', () => ({
 	useTranslations: () => (key: string) => key
 }));
 jest.mock('next/navigation', () => ({
-	usePathname: () => mockNavigation.pathname
+	usePathname: () => mockNavigation.pathname,
+	useRouter: () => ({ push: jest.fn() })
 }));
-// The chat body loads on demand in the app; here a stand-in shows where it goes and which title it gets.
+jest.mock('next/link', () => ({
+	__esModule: true,
+	default: ({ href, children, ...props }: { href: string; children: ReactNode }) => (
+		<a href={href} {...props}>
+			{children}
+		</a>
+	)
+}));
+// The chat body loads on demand in the app; here a stand-in shows where it goes, which title it gets, and passes
+// on its header's two actions.
 jest.mock('next/dynamic', () => ({
 	__esModule: true,
 	default: () =>
-		function EverSiPanelBodyStub({ title }: { title: ReactNode }) {
-			return <div data-testid="ever-si-body">{title}</div>;
+		function EverSiPanelBodyStub({
+			title,
+			onClose,
+			onOpenFullPage
+		}: {
+			title: ReactNode;
+			onClose: () => void;
+			onOpenFullPage: () => void;
+		}) {
+			return (
+				<div>
+					<div data-testid="ever-si-body">{title}</div>
+					<button type="button" onClick={onClose}>
+						header-close
+					</button>
+					<button type="button" onClick={onOpenFullPage}>
+						header-full-page
+					</button>
+				</div>
+			);
 		}
 }));
 jest.mock('@/core/components/common/sidebar', () => ({
@@ -214,5 +243,122 @@ describe('Ever SI panel', () => {
 		expect(screen.getByRole('dialog').id).toBe('ever-si-panel');
 		expect(screen.getByTestId('ever-si-body').textContent).toBe('chatView.ASSISTANT');
 		expect(screen.queryByRole('separator')).toBeNull();
+		expect(screen.queryByRole('button', { name: 'chatView.COLLAPSE_ASSISTANT' })).toBeNull();
+		expect(screen.queryByRole('link', { name: 'chatView.OPEN_FULL_PAGE' })).toBeNull();
+	});
+});
+
+describe('Ever SI sizes', () => {
+	it('is the full page there, the panel when open, and its button on the sidebar otherwise', () => {
+		expect(everSiPanelModeOf('/en/assistant', false)).toBe('expanded');
+		expect(everSiPanelModeOf('/assistant', true)).toBe('expanded');
+		expect(everSiPanelModeOf('/en/dashboard', true)).toBe('docked');
+		expect(everSiPanelModeOf('/en/dashboard', false)).toBe('collapsed');
+		expect(everSiPanelModeOf(null, false)).toBe('collapsed');
+	});
+});
+
+describe('Ever SI panel edge', () => {
+	function collapseButton() {
+		return screen.getByRole('button', { name: 'chatView.COLLAPSE_ASSISTANT' });
+	}
+
+	function fullPageLink() {
+		return screen.getByRole('link', { name: 'chatView.OPEN_FULL_PAGE' });
+	}
+
+	function isBefore(first: Node, second: Node) {
+		return Boolean(first.compareDocumentPosition(second) & Node.DOCUMENT_POSITION_FOLLOWING);
+	}
+
+	beforeEach(() => {
+		localStorage.clear();
+		mockNavigation.pathname = '/en/dashboard';
+		mockSidebar.isMobile = false;
+		Object.defineProperty(window, 'innerWidth', { configurable: true, value: 1024 });
+		window.history.replaceState(null, '', '/en/dashboard');
+	});
+
+	it('carries collapse, the grip and the full page, in that order', () => {
+		renderPanel(openStore());
+
+		expect(collapseButton().getAttribute('aria-controls')).toBe('ever-si-panel');
+		expect(collapseButton().getAttribute('aria-expanded')).toBe('true');
+		expect(fullPageLink().getAttribute('href')).toBe('/assistant');
+		expect(isBefore(collapseButton(), separator())).toBe(true);
+		expect(isBefore(separator(), fullPageLink())).toBe(true);
+	});
+
+	it('collapses to the button on the sidebar, where the focus goes too', () => {
+		const sidebarButton = document.createElement('button');
+		sidebarButton.id = 'ever-si-open-button';
+		document.body.append(sidebarButton);
+		const frames: FrameRequestCallback[] = [];
+		const requestFrame = jest.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
+			frames.push(callback);
+			return frames.length;
+		});
+
+		const store = renderPanel(openStore());
+		fireEvent.click(collapseButton());
+
+		expect(store.get(everSiPanelOpenAtom)).toBe(false);
+		expect(screen.queryByTestId('ever-si-body')).toBeNull();
+		expect(localStorage.getItem('ever-si-panel-open')).toBe('false');
+		frames.forEach((frame) => frame(0));
+		expect(document.activeElement).toBe(sidebarButton);
+
+		requestFrame.mockRestore();
+		sidebarButton.remove();
+	});
+
+	it("collapses from the header's close button the same way", () => {
+		const store = renderPanel(openStore());
+
+		fireEvent.click(screen.getByRole('button', { name: 'header-close' }));
+
+		expect(store.get(everSiPanelOpenAtom)).toBe(false);
+	});
+
+	it('stays open under the full page, and remembers the page it was widened from', () => {
+		const store = renderPanel(openStore());
+		// The page changed its query since the panel was shown (a filter, a tab): the way back keeps it.
+		window.history.replaceState(null, '', '/en/tasks?view=board');
+
+		fireEvent.click(fullPageLink());
+
+		expect(store.get(everSiPanelOpenAtom)).toBe(true);
+		expect(store.get(everSiReturnPathAtom)).toBe('/en/tasks?view=board');
+	});
+
+	it("does the same from the header's full-page link", () => {
+		const store = renderPanel(openStore());
+		window.history.replaceState(null, '', '/en/projects');
+
+		fireEvent.click(screen.getByRole('button', { name: 'header-full-page' }));
+
+		expect(store.get(everSiPanelOpenAtom)).toBe(true);
+		expect(store.get(everSiReturnPathAtom)).toBe('/en/projects');
+	});
+
+	it('closes on phones when the person goes to the full page, so no sheet waits over the next page', () => {
+		mockSidebar.isMobile = true;
+		const store = renderPanel(openStore());
+
+		fireEvent.click(screen.getByRole('button', { name: 'header-full-page' }));
+
+		expect(store.get(everSiPanelOpenAtom)).toBe(false);
+	});
+
+	it('remembers every page but the full page as the way back, open or not', () => {
+		window.history.replaceState(null, '', '/en/dashboard?team=7');
+		const store = renderPanel();
+		expect(store.get(everSiReturnPathAtom)).toBe('/en/dashboard?team=7');
+
+		cleanup();
+		mockNavigation.pathname = '/en/assistant';
+		window.history.replaceState(null, '', '/en/assistant');
+		const fullPageStore = renderPanel(openStore());
+		expect(fullPageStore.get(everSiReturnPathAtom)).toBeNull();
 	});
 });

@@ -3620,6 +3620,7 @@
 		"DEFAULT_MODEL": "Modelo predeterminado",
 		"RESIZE_ASSISTANT": "Cambiar el tamaño de Ever SI",
 		"OPEN_FULL_PAGE": "Abrir en página completa",
+		"DOCK_ASSISTANT": "Mostrar Ever SI junto a la página",
 		"DISCLOSURE": "Estás chateando con el asistente SI de Ever. Puede cometer errores. Guardamos esta conversación durante 30 días. Bórrala cuando quieras."
 	},
 	"taskMenus": {

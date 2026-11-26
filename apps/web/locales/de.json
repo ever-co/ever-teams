@@ -3620,6 +3620,7 @@
 		"DEFAULT_MODEL": "Standardmodell",
 		"RESIZE_ASSISTANT": "Größe von Ever SI ändern",
 		"OPEN_FULL_PAGE": "Als ganze Seite öffnen",
+		"DOCK_ASSISTANT": "Ever SI neben der Seite anzeigen",
 		"DISCLOSURE": "Sie chatten mit dem SI-Assistenten von Ever. Er kann Fehler machen. Wir bewahren dieses Gespräch 30 Tage lang auf. Sie können es jederzeit löschen."
 	},
 	"taskMenus": {

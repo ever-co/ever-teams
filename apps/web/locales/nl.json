@@ -3620,6 +3620,7 @@
 		"DEFAULT_MODEL": "Standaardmodel",
 		"RESIZE_ASSISTANT": "Grootte van Ever SI aanpassen",
 		"OPEN_FULL_PAGE": "Als volledige pagina openen",
+		"DOCK_ASSISTANT": "Ever SI naast de pagina tonen",
 		"DISCLOSURE": "U chat met de SI-assistent van Ever. Die kan fouten maken. We bewaren dit gesprek 30 dagen. Verwijder het wanneer u wilt."
 	},
 	"taskMenus": {

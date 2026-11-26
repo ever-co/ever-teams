@@ -43,8 +43,10 @@ function RowContent({ label }: Readonly<{ label: string }>) {
 }
 
 /**
- * The "Ever SI" row under Home (spec A7). It opens and closes the Ever SI panel beside the page instead of leaving
- * it; on `/assistant`, where the page is Ever SI, and for a public team page's visitors it stays a link to the page.
+ * The "Ever SI" row under Home (spec A7), on phones only. On desktop the menu has no such row: Ever SI opens from
+ * the button on the sidebar's edge (`EverSiOpenButton`) and is sized from its own edge. A phone's sidebar is a sheet
+ * with no edge to carry that button, so there the row stays: it opens and closes Ever SI over the page; on
+ * `/assistant`, where the page is Ever SI, and for a public team page's visitors it is a link to the page.
  */
 export function EverSiNavItem({ publicTeam = false }: Readonly<{ publicTeam?: boolean }>) {
 	const t = useTranslations();
@@ -54,6 +56,10 @@ export function EverSiNavItem({ publicTeam = false }: Readonly<{ publicTeam?: bo
 	const label = t('chatView.ASSISTANT');
 	const isOnFullPage = isPathActive(pathname, EVER_SI_PATH);
 	const isLink = isOnFullPage || publicTeam;
+
+	if (!isMobile) {
+		return null;
+	}
 
 	const togglePanel = () => {
 		const willOpen = !isOpen;

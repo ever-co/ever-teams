@@ -3620,6 +3620,7 @@
 		"DEFAULT_MODEL": "النموذج الافتراضي",
 		"RESIZE_ASSISTANT": "تغيير حجم Ever SI",
 		"OPEN_FULL_PAGE": "فتح في صفحة كاملة",
+		"DOCK_ASSISTANT": "عرض Ever SI بجانب الصفحة",
 		"DISCLOSURE": "أنت تتحدث مع مساعد SI من Ever. قد يخطئ. نحتفظ بهذه المحادثة لمدة 30 يومًا. احذفها في أي وقت."
 	},
 	"taskMenus": {

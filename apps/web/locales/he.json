@@ -3620,6 +3620,7 @@
 		"DEFAULT_MODEL": "מודל ברירת מחדל",
 		"RESIZE_ASSISTANT": "שנה את הגודל של Ever SI",
 		"OPEN_FULL_PAGE": "פתח בעמוד מלא",
+		"DOCK_ASSISTANT": "הצג את Ever SI לצד הדף",
 		"DISCLOSURE": "אתה משוחח עם עוזר ה-SI של Ever. הוא עלול לטעות. אנחנו שומרים את השיחה הזו 30 יום. אפשר למחוק אותה בכל עת."
 	},
 	"taskMenus": {

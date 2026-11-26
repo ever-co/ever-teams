@@ -20,9 +20,11 @@ type EverSiPanelBodyProps = {
 	/** The panel's name, as a heading on desktop or as the sheet's title on phones. */
 	title: ReactNode;
 	onClose: () => void;
+	/** Runs as the person follows the link to the full page; what it does to the panel is the surface's choice. */
+	onOpenFullPage: () => void;
 };
 
-/** The full page holds the same conversation; going there closes the panel, the page takes it over. */
+/** The full page holds the same conversation: the page takes it over, and the panel is not shown there. */
 function FullPageLink({ onNavigate }: Readonly<{ onNavigate: () => void }>) {
 	const t = useTranslations();
 	const label = t('chatView.OPEN_FULL_PAGE');
@@ -44,7 +46,7 @@ function FullPageLink({ onNavigate }: Readonly<{ onNavigate: () => void }>) {
  * Ever SI inside the panel: the conversation of the `/assistant` page (`useAssistantView`) under a compact header,
  * the composer at the foot and the disclosure line under it.
  */
-export function EverSiPanelBody({ title, onClose }: Readonly<EverSiPanelBodyProps>) {
+export function EverSiPanelBody({ title, onClose, onOpenFullPage }: Readonly<EverSiPanelBodyProps>) {
 	const t = useTranslations();
 	const {
 		chat,
@@ -81,7 +83,7 @@ export function EverSiPanelBody({ title, onClose }: Readonly<EverSiPanelBodyProp
 				<AssistantTopBarAction label={newChatLabel} onClick={chat.startNewChat}>
 					<Compose />
 				</AssistantTopBarAction>
-				<FullPageLink onNavigate={onClose} />
+				<FullPageLink onNavigate={onOpenFullPage} />
 				<AssistantTopBarAction label={t('chatView.COLLAPSE_ASSISTANT')} onClick={onClose}>
 					<X />
 				</AssistantTopBarAction>

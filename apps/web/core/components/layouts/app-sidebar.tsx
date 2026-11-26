@@ -54,6 +54,7 @@ import { LazySidebarCommandModal } from '@/core/components/optimized-components/
 import { NavHome } from '../nav-home';
 import { EverSiNavItem } from './ever-si-nav-item';
 import { EVER_SI_PATH } from '../features/assistant/atoms/ever-si-panel.atom';
+import { EverSiOpenButton } from '../features/assistant/components/ever-si-edge-controls';
 import { NavMain } from './nav-main';
 import { Suspense } from 'react';
 import { ModalSkeleton } from '@/core/components/common/skeleton/modal-skeleton';
@@ -548,6 +549,8 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 					)}
 				</SidebarFooter>
 				<SidebarRail />
+				{/* Ever SI, collapsed: its button on this edge opens the panel beside the page (desktop). */}
+				<EverSiOpenButton publicTeam={publicTeam} />
 			</Sidebar>
 
 			{showCreateTeamModal && (

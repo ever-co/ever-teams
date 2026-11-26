@@ -1,6 +1,6 @@
 /** @jest-environment jsdom */
 import { cloneElement, isValidElement, type ReactElement, type ReactNode } from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { createStore, Provider } from 'jotai';
 import { everSiPanelOpenAtom } from '@/core/components/features/assistant/atoms/ever-si-panel.atom';
 import { EverSiNavItem } from './ever-si-nav-item';
@@ -67,7 +67,30 @@ describe('Ever SI sidebar row', () => {
 	beforeEach(() => {
 		localStorage.clear();
 		mockNavigation.pathname = '/en/dashboard';
+		// The row is the phone's way into Ever SI; on desktop the button on the sidebar's edge is.
+		mockSidebar.isMobile = true;
+		mockSidebar.setOpenMobile.mockClear();
+	});
+
+	it('is not in the desktop menu, on any page', () => {
 		mockSidebar.isMobile = false;
+		const { container } = render(
+			<Provider store={createStore()}>
+				<EverSiNavItem />
+			</Provider>
+		);
+		expect(container.innerHTML).toBe('');
+
+		cleanup();
+		mockNavigation.pathname = '/en/assistant';
+		renderRow();
+		expect(screen.queryByRole('link')).toBeNull();
+		expect(screen.queryByRole('button')).toBeNull();
+
+		cleanup();
+		mockNavigation.pathname = '/en/dashboard';
+		renderRow(createStore(), true);
+		expect(screen.queryByRole('link')).toBeNull();
 	});
 
 	it('is a button named Ever SI that controls the panel', () => {
@@ -99,20 +122,15 @@ describe('Ever SI sidebar row', () => {
 		expect(row.getAttribute('data-active')).toBe('false');
 	});
 
-	it('closes the sidebar sheet on phones when it opens Ever SI full screen', () => {
-		mockSidebar.isMobile = true;
+	it('closes the sidebar sheet when it opens Ever SI full screen, and leaves it alone when it closes Ever SI', () => {
 		renderRow();
+		const row = screen.getByRole('button', { name: 'Ever SI' });
 
-		fireEvent.click(screen.getByRole('button', { name: 'Ever SI' }));
-
+		fireEvent.click(row);
 		expect(mockSidebar.setOpenMobile).toHaveBeenCalledWith(false);
-	});
 
-	it('leaves the sidebar sheet alone on desktop', () => {
-		renderRow();
-
-		fireEvent.click(screen.getByRole('button', { name: 'Ever SI' }));
-
+		mockSidebar.setOpenMobile.mockClear();
+		fireEvent.click(row);
 		expect(mockSidebar.setOpenMobile).not.toHaveBeenCalled();
 	});
 
