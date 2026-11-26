@@ -451,7 +451,13 @@ const waitForTokenAnswer = async (watch: ReturnType<typeof watchTokenRoute>, cou
 // 1. The route: the answer, the token inside it, the room it names, and its refusals
 // ======================================================================================
 
+const MEET_OFF =
+	process.env.E2E_MEET !== '1'
+		? 'needs a lane started with E2E_MEET=1 (test-servers.ts MEET_TEST): without it /api/auth/meet/jwt answers 500 "Server misconfigured"'
+		: '';
+
 apiTest.describe('lane-a · GET /api/auth/meet/jwt: the room a meeting token is minted for', () => {
+	apiTest.skip(Boolean(MEET_OFF), MEET_OFF);
 	apiTest(
 		'the control: 200 and exactly { token, room }, the link name with the session tenant on the end',
 		async ({ api, ids }) => {
@@ -851,6 +857,7 @@ apiTest.describe('lane-a · GET /api/auth/meet/jwt: the room a meeting token is 
 // ======================================================================================
 
 uiTest.describe('lane-a · /meet/jitsi: the room the page asks a token for, and the room it opens with it', () => {
+	uiTest.skip(Boolean(MEET_OFF), MEET_OFF);
 	uiTest(
 		'with no room in the address the page mints one itself: base64 of a 15-character nanoid, and one token request',
 		async ({ page, fixture, shield }) => {

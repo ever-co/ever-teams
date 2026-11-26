@@ -318,15 +318,14 @@ test.describe('lane-b · a download route whose upstream refuses with a status',
 		await mockReset();
 	});
 
-	test.beforeEach(async ({}, testInfo) => {
-		if (switchIsLive) return;
-		console.log(
-			'lane-b download-outage.spec.ts: this lane is running a mock with no per-path failure switch, so an ' +
-				'upstream *refusal* cannot be caused on a download route here (only a cut connection can, and it is ' +
-				'pinned in the describe above). Restart the lane on a `mock-gauzy-server.mjs` that answers ' +
-				'`scenario.fails` and re-run: these two cases then measure the refusal, and nothing before them changes.'
-		);
-		testInfo.skip();
+	// The mock in this repository answers `scenario.fails` (#5675), so a dead switch is a broken harness, not a
+	// reason to skip: these two cases fail loudly instead of reporting a quiet skip a green run would hide.
+	test.beforeEach(async () => {
+		expect(
+			switchIsLive,
+			'the mock ignored every `scenario.fails` arm on a download path: mock-gauzy-server.mjs no longer answers ' +
+				'the switch these two cases measure the refusal with'
+		).toBe(true);
 	});
 
 	test('the refusal status and body travel to the caller unchanged', async ({ api, mock }) => {

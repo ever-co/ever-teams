@@ -236,7 +236,7 @@ test.describe('lane-b · what the jar holds', () => {
 		).toEqual(['auth-active-project']);
 	});
 
-	test('an expired session is renewed by this mock rather than refused, and the jar is left alone', async ({
+	test('an expired session is renewed by this mock rather than refused: the jar is kept, its token replaced', async ({
 		anon,
 		fixture
 	}) => {

@@ -41,6 +41,15 @@ export const LANE_PORTS: Record<string, LanePorts> = {
 	'lane-d': { app: 3034, mock: 4006, platform: 4007, control: 4008, idp: 4009 }
 };
 
+/** A lane reuses a server already on its ports (see `laneServers`), except in CI. */
+const LANE_REUSE_SERVERS = !process.env.CI;
+
+/**
+ * The time zone a lane's browser and servers run in. The lane specs were measured in Europe/Madrid, and several pin
+ * what a browser outside UTC shows; `E2E_TIMEZONE` overrides it for a run that measures another zone on purpose.
+ */
+export const LANE_TIME_ZONE = process.env.E2E_TIMEZONE || 'Europe/Madrid';
+
 const selectedLane = process.env.E2E_LANE;
 const lane = selectedLane ? LANE_PORTS[selectedLane] : undefined;
 if (selectedLane && !lane) {
@@ -285,8 +294,10 @@ export function everIdServers(): WebServer[] {
  *
  * `options.everId` mounts the Ever ID routes in that lane's app (see `everIdServers` for why they need four
  * settings at all). `reuseExistingServer` is deliberately *on* here, unlike the canonical configs: a lane iterates
- * spec by spec through a night, and a cold Turbopack compile per iteration is minutes lost. A lane owns its ports
- * exclusively, so the server it reuses is its own.
+ * spec by spec through a night, and a cold Turbopack compile per iteration is minutes lost. It reuses *whatever*
+ * answers on its ports, though, and nothing checks whose server that is: on 2026-11-26 two sessions on one PC came
+ * within minutes of testing each other's worktrees through it. So it is off in CI (`LANE_REUSE_SERVERS`), where a
+ * leftover server is never the one a run wants.
  */
 export function laneServers(
 	laneName = selectedLane ?? '',
@@ -324,6 +335,7 @@ export function laneServers(
 		EVER_STATS_API_URL: origins.platform,
 		NEXT_PUBLIC_EVER_STATS_API_URL: origins.platform,
 		PLAYWRIGHT_LANE_DIST_DIR: `.next-lane-${ports.app}`,
+		TZ: LANE_TIME_ZONE,
 		...(options.everId
 			? {
 					EVER_ID_ISSUER_URL: origins.issuer,
@@ -339,13 +351,14 @@ export function laneServers(
 				command: 'node apps/web/playwright/backend.mjs',
 				port: ports.control,
 				timeout: 120_000,
-				reuseExistingServer: true,
+				reuseExistingServer: LANE_REUSE_SERVERS,
 				env: {
 					E2E_MOCK_API_PORT: `${ports.mock}`,
 					E2E_MOCK_PLATFORM_PORT: `${ports.platform}`,
 					E2E_CONTROL_PORT: `${ports.control}`,
 					E2E_EVER_ID_ISSUER_PORT: `${ports.idp}`,
 					E2E_EVER_ID_CLIENT_ID: EVER_ID_CLIENT_ID,
+					TZ: LANE_TIME_ZONE,
 					// The mock refuses a browser Origin it does not trust; a lane's browser comes from the lane's port.
 					E2E_TRUSTED_APP_ORIGINS: appOrigins.join(',')
 				},
@@ -362,7 +375,7 @@ export function laneServers(
 				command: `node ../../node_modules/next/dist/bin/next dev -p ${ports.app}`,
 				port: ports.app,
 				timeout: 900_000,
-				reuseExistingServer: true,
+				reuseExistingServer: LANE_REUSE_SERVERS,
 				env,
 				/**
 				 * `next dev` reads next.config.js from its working directory, so this is `apps/web` — one level up from

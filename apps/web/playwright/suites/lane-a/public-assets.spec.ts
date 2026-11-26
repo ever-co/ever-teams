@@ -415,8 +415,10 @@ test.describe('lane-a · a path segment is a file name or the request is refused
 			await api(`${ROUTE}/s1/s2/s3/s4/s5/s6/s7/s8/open.svg`, { anonymous: true })
 		);
 		expect(isBodiless404(nineAnswer), `nine segments answered ${describeAnswer(nineAnswer)}`).toBe(true);
-		// Only the nine-segment ask is being judged here; the eight-segment ask above is already accounted for.
-		const nineOnly = (await mock.requests()).filter((request) => request.path.includes('/public/s8'));
+		// Only the nine-segment ask is being judged here; the eight-segment ask above is already accounted for. A forwarded
+		// nine-segment ask would be logged as `/public/s1/…/s8/open.svg`, and `/s8/` is in no eight-segment path. (This
+		// filtered on `/public/s8`, which no forwarded path contains, so the check could not fail.)
+		const nineOnly = (await mock.requests()).filter((request) => request.path.includes('/s8/'));
 		expect(
 			nineOnly.map(triple),
 			`nine segments reached upstream (${logOf(nineOnly)}) — MAX_SEGMENTS is 8 (route.ts:23, :32)`

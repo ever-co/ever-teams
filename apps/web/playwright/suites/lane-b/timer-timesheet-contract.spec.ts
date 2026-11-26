@@ -85,10 +85,10 @@ import { logOf, parseAnswer, triples } from '../api/log-helpers';
  *   neither key (`:230-274`). Measured: a call carrying `logType[0]=TRACKED&logType[1]=IDLE&source=TEAMS&source=
  *   DESKTOP` reached `/api/timesheet/activity/report` with `organizationId, tenantId, startDate, endDate, shape` only.
  *   A report asked for one log type is therefore a report of all of them.
- * 5. **`GET /api/timer/timesheet/daily` asks its upstream path with a second `?` in it**: `getTaskTimesheetRequest`
- *   writes the path as `/timesheet/time-log?activityLevel?${query}` (`core/services/server/requests/
- *   timesheet.ts:75`), so the mock records a query whose first key is the pair `activityLevel?tenantId` — the marker
- *   `activityLevel` is glued to the first parameter instead of being one of its own.
+ * 5. **Fixed on develop (13a7e32e1f5, 2026-11-24): `GET /api/timer/timesheet/daily` asked its upstream path with a
+ *   second `?` in it.** `getTaskTimesheetRequest` wrote the path as `/timesheet/time-log?activityLevel?${query}`, so
+ *   the mock recorded a first key `activityLevel?tenantId`. The row below now pins the fixed query, which is what
+ *   turned this file red at merge: a pinned defect fails the day it is fixed, so update the row with the fix.
  * 6. **`GET /api/timesheet/time-log/report/weekly` forwards the literal text `undefined`** for its two scoping ids
  *   when the session carries none: the values come from the guard (`app/api/timesheet/time-log/report/weekly/
  *   route.ts:31`) and go through `new URLSearchParams({...})` (`requests/timesheet.ts:231-237`), which stringifies
@@ -685,13 +685,13 @@ const ROUTES: ContractRoute[] = [
 		app: () => `/api/timer/timesheet/daily?startDate=${START_DAY}&endDate=${END_DAY}`,
 		asks: (ids) => [
 			{
-				// Finding 5: `requests/timesheet.ts:75` joins the query onto the path with a second `?`, so the first
-				// recorded key is the pair `activityLevel?tenantId` rather than `tenantId` plus an `activityLevel`
+				// Finding 5, fixed on develop (13a7e32e1f5): the query is joined with one `?`, so `tenantId` is a key of
+				// its own again
 				method: 'GET',
 				path: UP.timeLog,
-				keys: ['activityLevel?tenantId', 'endDate', 'organizationId', 'startDate'],
+				keys: ['endDate', 'organizationId', 'startDate', 'tenantId'],
 				values: {
-					'activityLevel?tenantId': ids.tenantA,
+					tenantId: ids.tenantA,
 					organizationId: ids.organizationA,
 					startDate: START_DAY,
 					endDate: END_DAY
@@ -705,7 +705,7 @@ const ROUTES: ContractRoute[] = [
 				{
 					method: 'GET',
 					path: UP.timeLog,
-					keys: ['activityLevel?startDate', 'endDate'],
+					keys: ['endDate', 'startDate'],
 					absent: ['tenantId', 'organizationId']
 				}
 			]
