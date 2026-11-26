@@ -30,6 +30,42 @@ function MarkGlyph({ x, y }: Point) {
 	return <EverStar x={x - half} y={y - half} width={MARK_GLYPH_SIZE} height={MARK_GLYPH_SIZE} />;
 }
 
+const GRID_CELL = 3.5;
+const GRID_GAP = 1.5;
+
+/** The top bar's launcher button is an apps grid (spec A3), so its tile shows one where the star would be. */
+function GridGlyph({ x, y }: Point) {
+	const start = GRID_CELL + GRID_GAP / 2;
+	const cells = [
+		[x - start, y - start],
+		[x + GRID_GAP / 2, y - start],
+		[x - start, y + GRID_GAP / 2],
+		[x + GRID_GAP / 2, y + GRID_GAP / 2]
+	];
+	return (
+		<g>
+			{cells.map(([cellX, cellY]) => (
+				<rect
+					key={`${cellX}-${cellY}`}
+					x={cellX}
+					y={cellY}
+					width={GRID_CELL}
+					height={GRID_CELL}
+					rx={1}
+					className="fill-foreground/60"
+				/>
+			))}
+		</g>
+	);
+}
+
+function PlacementGlyph({ placement, point }: Readonly<{ placement: AppSwitcherPlacement; point: Point }>) {
+	if (placement === 'header') {
+		return <GridGlyph x={point.x} y={point.y} />;
+	}
+	return <MarkGlyph x={point.x} y={point.y} />;
+}
+
 function FloatingMenu({ x, y }: Point) {
 	return (
 		<g>
@@ -180,7 +216,7 @@ export function AppSwitcherPreview({ placement, className }: Readonly<IAppSwitch
 			{layout.hasRail && <Rail />}
 			<SidebarColumn x={layout.sidebarX} leavesRoomForGlyph={isSidebar} />
 			<PagePanel x={layout.panelX} leavesRoomForGlyph={isHeader} />
-			{layout.glyph && <MarkGlyph x={layout.glyph.x} y={layout.glyph.y} />}
+			{layout.glyph && <PlacementGlyph placement={placement} point={layout.glyph} />}
 			{layout.menu && <FloatingMenu x={layout.menu.x} y={layout.menu.y} />}
 		</svg>
 	);

@@ -48,6 +48,18 @@ function PreferencesSectionsSkeleton() {
 					</SettingsSurface>
 				</SettingsSection>
 			)}
+			{HAS_EVER_APP_SWITCHER && (
+				<SettingsSection
+					title={t('settings.preferences.SECTION_MANAGE_APPS')}
+					description={t('settings.preferences.SECTION_MANAGE_APPS_DESCRIPTION')}
+				>
+					<SettingsSurface>
+						<SettingsRowSkeleton labelWidth="w-28" control="switch" />
+						<SettingsRowSkeleton labelWidth="w-24" control="switch" />
+						<SettingsRowSkeleton labelWidth="w-32" control="switch" />
+					</SettingsSurface>
+				</SettingsSection>
+			)}
 			<SettingsSection title={t('settings.preferences.SECTION_REGION')}>
 				<SettingsSurface>
 					<SettingsRowSkeleton labelWidth="w-20" control="select" />
