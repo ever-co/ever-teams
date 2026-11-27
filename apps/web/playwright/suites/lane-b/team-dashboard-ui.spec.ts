@@ -35,6 +35,18 @@ import { MOCK_ORIGIN } from '../../test-servers';
  * resolved. Test 1 then asserts the browser resolved the very same zone, because the served rows and the period
  * windows the page sends have to be counted in one calendar; neither zone is ever hard-coded here.
  *
+ * **Checked to hold on any weekday (2026-11-27), walked through a Monday, a Tuesday, a Wednesday, a Sunday and the
+ * 1st of a month.** The served days stay inside the seven-day window the page opens on whatever the weekday is, so the
+ * day columns, the heat cells and the CSV rows follow them unchanged. What had to be re-derived: the picker's trigger
+ * and its `Selected` row, named by the first preset whose window equals the period (finding 15 — on a Sunday the
+ * seven days are also `common.THIS_WEEK` and their previous step is `common.LAST_WEEK`); the custom range, taken from
+ * the month the picker's grid opens on (`defaultMonth={value.from}`, the month of today − 6 — the previous month on
+ * the 1st-6th) rather than from today's month, with the time-log window derived from `requestRangeOf` + its one-day
+ * padding so it holds whether that range lies behind, across or ahead of today; and the week rows, read one month
+ * further back than `common.LAST_MONTH` — a period no served day can reach even when today − 2 falls inside last
+ * month (the 1st-3rd of a month). Day labels and period texts now carry the year exactly when the page does, whenever
+ * a window leaves the current year (finding 16).
+ *
  * **Never pinned:** the live "now" line of the day timeline and of the member sheet (measured `8:34 AM`, `8:47 AM`,
  * `8:58 AM`, `8:59 AM` across the probes — it is the clock), and anything about a running timer (the lane mock
  * answers none for this person).
@@ -124,12 +136,32 @@ import { MOCK_ORIGIN } from '../../test-servers';
  *     `rdp-day_outside` class (a style choice, untagged): the grid measured 42 day buttons including Oct 26–31 and
  *     Dec 1–6 (`showOutsideDays`) while `document.querySelectorAll('.rdp-day_outside')` counted `0` (`-8` S2), so a day
  *     number ≤ 6 appears on two buttons and nothing tells them apart. This file picks the 10th and the 14th of the
- *     month the grid opens on, which are never outside days.
+ *     month the grid opens on, which are never outside days — and the grid opens on `defaultMonth={value.from}`
+ *     (`period-picker.tsx:156`), the month of the **shown period's first day**, not the month today sits in: on the
+ *     1st-6th of a month the seven-day window starts in the month behind, and that is the month the calendar shows.
  * 13. **Removing a filter does not read anything again.** The unfiltered query is still fresh (`staleTime`), so the
  *     daily read count after a chip's Remove was the same as before it (`-10` S6: no new shape after the chip click).
  * 14. **The shell warns that the profile zone and the browser zone differ.** The mock's profile is UTC and this browser
  *     runs in `Europe/Madrid`, so a `role=output` notice ("Your profile uses UTC … Keep UTC / Use Europe/Madrid") is on
  *     the page in every run here (`-5` Q8). It is not a card; nothing here asserts it.
+ * 15. **The picker names a period by the first preset whose window it equals.** `presetOfPeriod`
+ *     (`dashboard-period.ts:109-116`) walks `DEFAULT_PERIOD_PRESETS` (today, yesterday, thisWeek, lastWeek, last7Days,
+ *     last14Days, thisMonth, lastMonth) in that order and returns the first period it equals, and both the trigger
+ *     (`period-picker.tsx:177-186`) and the row carrying the `Selected` mark follow it. A rolling seven-day window is
+ *     also `thisWeek` exactly when the week ends today — a Sunday — and its previous step is then `lastWeek`, so on
+ *     that one day the trigger reads `common.THIS_WEEK` / `common.LAST_WEEK` although the dates are the ones measured
+ *     here; on every other weekday it reads the dates. `clockOf` derives which of the two the day is.
+ * 16. **A day label or a period text carries the year once it leaves the current year.** `dayLabelOf`
+ *     (`team-slot-labels.ts:46-51`) switches a day of a past year to the `weekday + month + day + year` format, and
+ *     `formatPeriod`
+ *     (`dashboard-period.ts:147-164`) prints the range with the year when its two ends sit in different years or its
+ *     first day does not sit in the current one. A seven-day window does that whenever it reaches over a year end, so
+ *     the labels here are built with the same two rules rather than a year-less format.
+ * 17. **The chart draws one slot per day (week, month) of the shown period and drops every served day outside it.**
+ *     `chartBucketsOf` (`team.ts:527-560`) builds the slots from `daysOfPeriod(period)` first, then adds a row only
+ *     when its `dateKey` is one of those days. So a served day of today − 2 that lands in the previous month (the
+ *     1st-3rd of a month) is counted in `common.LAST_MONTH`'s week rows — which is why test 10 reads the week rows
+ *     one month further back, where no served day can ever reach.
  *
  * ## Not covered here
  *
@@ -383,28 +415,63 @@ function clockOf() {
 		moved.setDate(moved.getDate() + days);
 		return moved;
 	};
+	const year = now.getFullYear();
+	const month = now.getMonth();
 	const longDay = new Intl.DateTimeFormat('en', { weekday: 'long', month: 'short', day: 'numeric' });
+	// `slotFormatsOf`/`dayLabelOf` (`team-slot-labels.ts:21-51`): a day label carries the year whenever the day is not
+	// in the current year, which a seven-day window does whenever it reaches back over a year end.
+	const longDayWithYear = new Intl.DateTimeFormat('en', {
+		weekday: 'long',
+		month: 'short',
+		day: 'numeric',
+		year: 'numeric'
+	});
 	const shortDay = new Intl.DateTimeFormat('en', { weekday: 'short', month: 'short', day: 'numeric' });
 	const monthDay = new Intl.DateTimeFormat('en', { month: 'short', day: 'numeric' });
 	const hourName = new Intl.DateTimeFormat('en', { hour: 'numeric', hour12: true });
 	const clockTime = new Intl.DateTimeFormat('en', { hour: 'numeric', minute: '2-digit', hour12: true });
-	// `formatRange` separates with thin spaces (U+2009) around the dash; the page renders the very same range through
-	// the same API, and both sides are folded to plain spaces here so a comparison is a comparison of dates.
+	const isCurrentYear = (date: Date) => date.getFullYear() === year;
+	const longDayOf = (date: Date) => (isCurrentYear(date) ? longDay.format(date) : longDayWithYear.format(date));
+	/**
+	 * `formatPeriod` (`dashboard-period.ts:147-164`): the two day ends, with the year when the period straddles a year
+	 * end or starts in a past year. `formatRange` separates with thin spaces (U+2009) around the dash; the page renders
+	 * the very same range through the same API, and both sides are folded to plain spaces here so a comparison is a
+	 * comparison of dates.
+	 */
 	const range = (from: Date, to: Date) =>
-		new Intl.DateTimeFormat('en', { month: 'short', day: 'numeric' }).formatRange(from, to).replace(/\s+/g, ' ');
+		new Intl.DateTimeFormat(
+			'en',
+			from.getFullYear() !== to.getFullYear() || !isCurrentYear(from)
+				? { month: 'short', day: 'numeric', year: 'numeric' }
+				: { month: 'short', day: 'numeric' }
+		)
+			.formatRange(from, to)
+			.replace(/\s+/g, ' ');
 
-	const year = now.getFullYear();
-	const month = now.getMonth();
-	// The 10th and the 14th lie inside the month `defaultMonth={value.from}` opens on whatever today is, and
-	// `showOutsideDays` fills at most six cells on each side, so exactly one button carries each of those numbers.
-	const customFrom = new Date(year, month, 10, 0, 0, 0, 0);
-	const customTo = new Date(year, month, 14, 0, 0, 0, 0);
-	const customEnd = new Date(year, month, 14, 23, 59, 59, 999);
-	const customDays = Math.round((customEnd.getTime() - customFrom.getTime()) / 86_400_000);
+	/** `differenceInCalendarDays(to, from) + 1` (`dashboard-period.ts:130`): the length a period steps by, counted on the calendar. */
+	const daysInclusive = (from: Date, to: Date) => {
+		let count = 1;
+		for (const day = new Date(from); day < to; day.setDate(day.getDate() + 1)) count += 1;
+		return count;
+	};
+	// The picker's calendar opens on `defaultMonth={value.from}` (`period-picker.tsx:156`) — the month of the shown
+	// period's first day, i.e. the month of today − 6, which is the **previous** month whenever the seven-day window
+	// straddles a month end. The two picked days belong to that month, never to "whatever month today is in", and
+	// their numbers (10, 14) sit inside 7..24, the only numbers a `showOutsideDays` grid never repeats (finding 12).
+	const gridMonth = startOf(6);
+	const customFrom = new Date(gridMonth.getFullYear(), gridMonth.getMonth(), 10, 0, 0, 0, 0);
+	const customTo = new Date(gridMonth.getFullYear(), gridMonth.getMonth(), 14, 0, 0, 0, 0);
+	const customEnd = new Date(gridMonth.getFullYear(), gridMonth.getMonth(), 14, 23, 59, 59, 999);
+	const customDays = daysInclusive(customFrom, customTo);
 	const customPrevFrom = shift(customFrom, -customDays);
 	const customPrevTo = shift(customEnd, -customDays);
 	const monthFrom = new Date(year, month - 1, 1, 0, 0, 0, 0);
 	const monthTo = new Date(year, month, 0, 23, 59, 59, 999);
+	// One `Previous` step on `common.LAST_MONTH`: a whole month steps by month (`shiftPeriod`,
+	// `dashboard-period.ts:124-132`). No served day of this file can reach it (they are today, −1 and −2, and this
+	// month ends at the latest yesterday), so every week row of that period is provably empty on every date.
+	const prevMonthFrom = new Date(year, month - 2, 1, 0, 0, 0, 0);
+	const prevMonthTo = new Date(year, month - 1, 0, 23, 59, 59, 999);
 
 	const mondaysOf = (from: Date, to: Date) => {
 		const seen: Date[] = [];
@@ -416,16 +483,59 @@ function clockOf() {
 		return seen;
 	};
 
+	/** `weekOf(date, 1)` (`dashboard-period.ts:70-72`): the Monday-first week of a day, `TEAM_WEEK_STARTS_ON` (`team.ts:29`). */
+	const weekOf = (date: Date) => {
+		const from = shift(date, -((date.getDay() + 6) % 7));
+		from.setHours(0, 0, 0, 0);
+		const to = shift(from, 6);
+		to.setHours(23, 59, 59, 999);
+		return { from, to };
+	};
+	/** `isSamePeriod` (`dashboard-period.ts:87-90`): the same two day ends. */
+	const samePeriod = (first: { from: Date; to: Date }, second: { from: Date; to: Date }) =>
+		first.from.getTime() === second.from.getTime() && first.to.getTime() === second.to.getTime();
+	/**
+	 * What the picker's trigger (and the row it marks `Selected`) says about a period: `presetOfPeriod`
+	 * (`dashboard-period.ts:109-116`) returns the **first** preset whose window the period equals, in
+	 * `DEFAULT_PERIOD_PRESETS` order (today, yesterday, thisWeek, lastWeek, last7Days, last14Days, thisMonth,
+	 * lastMonth), and the trigger prints that label instead of the dates (`period-picker.tsx:177-186`). A rolling
+	 * seven-day window equals `thisWeek` exactly when the week ends today — a Sunday — and its previous step equals
+	 * `lastWeek` on that same day; on every other weekday neither matches, so the trigger shows the dates.
+	 */
+	const last7Period = { from: startOf(6), to: endOf(0) };
+	const prev7Period = { from: startOf(13), to: endOf(7) };
+	const last7Trigger = samePeriod(last7Period, weekOf(now))
+		? msg('common.THIS_WEEK')
+		: msg('common.FILTER_LAST_7_DAYS');
+	const prev7Trigger = samePeriod(prev7Period, weekOf(startOf(7)))
+		? msg('common.LAST_WEEK')
+		: range(startOf(13), endOf(7));
+	/**
+	 * The window the time-log read asks for: `requestRangeOf` keeps today inside the period
+	 * (`team-day.ts:482-488`) and `requestDaysOf` asks one more day on each side (`calendar-view.ts:207-211`), sent as
+	 * those days' bounds in the request's zone (`formatStartAndEndDateRange`, `format-date-range.ts:125-143`). Counted
+	 * from the period actually shown, so it holds whether that period lies behind today, across it or ahead of it.
+	 */
+	const logsWindowOf = (from: Date, to: Date) => ({
+		from: shift(new Date(Math.min(from.getTime(), startOf(0).getTime())), -1),
+		to: shift(new Date(Math.max(to.getTime(), endOf(0).getTime())), 1)
+	});
+	const initialLogs = logsWindowOf(last7Period.from, last7Period.to);
+	const customLogs = logsWindowOf(customFrom, customEnd);
+	const weeksOf = (from: Date, to: Date) =>
+		mondaysOf(from, to).map((monday) => msg('dashboard.team.chart.WEEK_OF', { date: monthDay.format(monday) }));
+
 	return {
 		timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
 		todayKey: key(now),
 		fromKey: key(startOf(6)),
-		longDays: [6, 5, 4, 3, 2, 1, 0].map((offset) => longDay.format(startOf(offset))),
+		longDays: [6, 5, 4, 3, 2, 1, 0].map((offset) => longDayOf(startOf(offset))),
 		todayLong: longDay.format(now),
 		todayWeekday: new Intl.DateTimeFormat('en', { weekday: 'long' }).format(now),
 		shortToday: shortDay.format(now),
 		last7Text: range(startOf(6), endOf(0)),
-		prev7Text: range(startOf(13), endOf(7)),
+		last7Trigger,
+		prev7Trigger,
 		prev7From: startOf(13).toISOString(),
 		prev7To: endOf(7).toISOString(),
 		twoWeeksText: range(startOf(13), endOf(0)),
@@ -433,20 +543,21 @@ function clockOf() {
 		monthText: range(monthFrom, monthTo),
 		monthFrom: monthFrom.toISOString(),
 		monthTo: monthTo.toISOString(),
-		monthWeeks: mondaysOf(monthFrom, monthTo).map((monday) =>
-			msg('dashboard.team.chart.WEEK_OF', { date: monthDay.format(monday) })
-		),
+		prevMonthText: range(prevMonthFrom, prevMonthTo),
+		prevMonthFrom: prevMonthFrom.toISOString(),
+		prevMonthTo: prevMonthTo.toISOString(),
+		prevMonthWeeks: weeksOf(prevMonthFrom, prevMonthTo),
 		dailyFrom: startOf(6).toISOString(),
 		dailyTo: endOf(0).toISOString(),
-		logsFrom: startOf(7).toISOString(),
-		// the logs window reaches one day past today, which is `endOf` of a negative offset
-		logsTo: endOf(-1).toISOString(),
+		logsFrom: initialLogs.from.toISOString(),
+		logsTo: initialLogs.to.toISOString(),
 		customFrom: customFrom.toISOString(),
 		customTo: customEnd.toISOString(),
 		customFromKey: key(customFrom),
 		customToKey: key(customTo),
 		customText: range(customFrom, customTo),
-		customLogsFrom: shift(customFrom, -1).toISOString(),
+		customLogsFrom: customLogs.from.toISOString(),
+		customLogsTo: customLogs.to.toISOString(),
 		customPrevText: range(customPrevFrom, customPrevTo),
 		customPrevFrom: customPrevFrom.toISOString(),
 		customPrevTo: customPrevTo.toISOString(),
@@ -788,7 +899,11 @@ async function pickPreset(page: Page, label: string) {
 	await row.click();
 }
 
-/** The 10th and the 14th of the month the grid opens on; neither is ever an outside day (`clockOf`, finding 12). */
+/**
+ * The 10th and the 14th of the month the grid opens on — `defaultMonth={value.from}`, the month of the shown period's
+ * first day, which is the month `clockOf` builds `customFrom`/`customTo` from. Neither day is ever an outside day
+ * (finding 12), and 10 and 14 are the numbers a `showOutsideDays` grid carries once.
+ */
 async function pickCustomRange(page: Page) {
 	await openPeriod(page);
 	const days = sheetOf(page).locator('button:not(.rdp-day_outside)');
@@ -1329,7 +1444,7 @@ test.describe('Team dashboard UI (lane-b)', () => {
 		await expect(
 			periodGroup(page).getByRole('button', { name: EN.dashboard.period.NEXT, exact: true })
 		).toHaveCount(1);
-		expect(await flatText(periodTrigger(page))).toBe(msg('common.FILTER_LAST_7_DAYS'));
+		await expect.poll(() => flatText(periodTrigger(page))).toBe(clock.last7Trigger);
 
 		await openPeriod(page);
 		const presets = [
@@ -1344,33 +1459,35 @@ test.describe('Team dashboard UI (lane-b)', () => {
 		];
 		const dialogText = flat(await sheetOf(page).first().innerText());
 		for (const key of presets) expect(dialogText).toContain(msg(key));
-		await expect(sheetOf(page).locator('button').filter({ hasText: clock.last7Text }).first()).toContainText(
-			'Selected'
-		);
+		// the row the picker marks selected is the row of the preset its trigger names (`clockOf`: on a Sunday that is
+		// `common.THIS_WEEK`, whose dates are the very same seven days; on every other weekday `common.FILTER_LAST_7_DAYS`)
+		const activePresetRow = sheetOf(page).locator('button').filter({ hasText: clock.last7Trigger }).first();
+		await expect(activePresetRow).toContainText(clock.last7Text);
+		await expect(activePresetRow).toContainText(msg('common.SELECTED'));
 
 		// Previous and Next step by the period's own length (`-3` P4)
 		await periodGroup(page).getByRole('button', { name: EN.dashboard.period.PREVIOUS, exact: true }).click();
-		expect(await flatText(periodTrigger(page))).toBe(clock.prev7Text);
-		expect(reads.paramsOf(DAILY).at(-1)?.startDate).toBe(clock.prev7From);
-		expect(reads.paramsOf(DAILY).at(-1)?.endDate).toBe(clock.prev7To);
+		await expect.poll(() => flatText(periodTrigger(page))).toBe(clock.prev7Trigger);
+		await expect.poll(() => reads.paramsOf(DAILY).at(-1)?.startDate).toBe(clock.prev7From);
+		await expect.poll(() => reads.paramsOf(DAILY).at(-1)?.endDate).toBe(clock.prev7To);
 		await periodGroup(page).getByRole('button', { name: EN.dashboard.period.NEXT, exact: true }).click();
-		expect(await flatText(periodTrigger(page))).toBe(msg('common.FILTER_LAST_7_DAYS'));
+		await expect.poll(() => flatText(periodTrigger(page))).toBe(clock.last7Trigger);
 		expect((await tableOf(card(page, T.cards.TIME_BY_DAY))).rows.map((row) => row[0])).toEqual(clock.longDays);
 
 		// 14 days: the split tabs only, no granularity tablist at all
 		await pickPreset(page, msg('common.LAST_TWO_WEEKS'));
-		expect(await flatText(periodTrigger(page))).toBe(msg('common.LAST_TWO_WEEKS'));
+		await expect.poll(() => flatText(periodTrigger(page))).toBe(msg('common.LAST_TWO_WEEKS'));
 		expect(await toolbarMeta(page)).toBe(
 			`${clock.twoWeeksText} · ${msg('dashboard.team.META_MEMBERS', { count: 3 })}`
 		);
-		expect(reads.paramsOf(DAILY).at(-1)?.startDate).toBe(clock.twoWeeksFrom);
+		await expect.poll(() => reads.paramsOf(DAILY).at(-1)?.startDate).toBe(clock.twoWeeksFrom);
 		expect(await tabsOf(page)).toEqual([{ aria: T.period.SPLIT, tabs: SPLIT_TABS }]);
 
 		// last month: a granularity tablist appears, and it offers Day and Week only
 		await pickPreset(page, msg('common.LAST_MONTH'));
-		expect(await flatText(periodTrigger(page))).toBe(msg('common.LAST_MONTH'));
-		expect(reads.paramsOf(DAILY).at(-1)?.startDate).toBe(clock.monthFrom);
-		expect(reads.paramsOf(DAILY).at(-1)?.endDate).toBe(clock.monthTo);
+		await expect.poll(() => flatText(periodTrigger(page))).toBe(msg('common.LAST_MONTH'));
+		await expect.poll(() => reads.paramsOf(DAILY).at(-1)?.startDate).toBe(clock.monthFrom);
+		await expect.poll(() => reads.paramsOf(DAILY).at(-1)?.endDate).toBe(clock.monthTo);
 		expect(await tabsOf(page)).toEqual([
 			{ aria: T.period.SPLIT, tabs: SPLIT_TABS },
 			{
@@ -1382,14 +1499,24 @@ test.describe('Team dashboard UI (lane-b)', () => {
 			}
 		]);
 
+		// One step back off a whole month, onto the month before last (`shiftPeriod` steps a whole month by months).
+		// `chartBucketsOf` (`team.ts:527-560`) draws one row per week the period holds and drops every served day
+		// outside it — the served days here are today, −1 and −2, which on the 1st-3rd of a month DO fall into
+		// `common.LAST_MONTH`, never into the month behind it. So every week row of this period is empty on every date.
+		await periodGroup(page).getByRole('button', { name: EN.dashboard.period.PREVIOUS, exact: true }).click();
+		await expect.poll(() => flatText(periodTrigger(page))).toBe(clock.prevMonthText);
+		await expect.poll(() => reads.paramsOf(DAILY).at(-1)?.startDate).toBe(clock.prevMonthFrom);
+		await expect.poll(() => reads.paramsOf(DAILY).at(-1)?.endDate).toBe(clock.prevMonthTo);
+
 		await page.getByRole('tab', { name: T.chart.WEEK, exact: true }).first().click();
 		const weeks = await tableOf(card(page, T.cards.TIME_BY_DAY));
-		expect(weeks.rows).toEqual(clock.monthWeeks.map((label) => [label, '0h 0m', '']));
+		expect(weeks.rows).toEqual(clock.prevMonthWeeks.map((label) => [label, '0h 0m', '']));
 
 		report('10 period', {
 			presets: presets.map((key) => msg(key)),
 			twoWeeks: clock.twoWeeksText,
 			lastMonth: clock.monthText,
+			monthBeforeLast: clock.prevMonthText,
 			weekRows: weeks.rows.map((row) => row[0])
 		});
 	});
@@ -1406,17 +1533,19 @@ test.describe('Team dashboard UI (lane-b)', () => {
 
 		await pickCustomRange(page);
 
-		expect(await flatText(periodTrigger(page))).toBe(clock.customText);
+		await expect.poll(() => flatText(periodTrigger(page))).toBe(clock.customText);
 		expect(await toolbarMeta(page)).toBe(
 			`${clock.customText} · ${msg('dashboard.team.META_MEMBERS', { count: 3 })}`
 		);
-		expect(reads.paramsOf(DAILY).at(-1)?.startDate).toBe(clock.customFrom);
-		expect(reads.paramsOf(DAILY).at(-1)?.endDate).toBe(clock.customTo);
-		expect(reads.paramsOf(COUNTS).at(-1)?.startDate).toBe(clock.customFrom);
-		expect(reads.paramsOf(COUNTS).at(-1)?.endDate).toBe(clock.customTo);
-		// the logs read keeps today inside its window even when the picked period does not (`-8` S2)
-		expect(reads.paramsOf(LOGS).at(-1)?.startDate).toBe(clock.customLogsFrom);
-		expect(reads.paramsOf(LOGS).at(-1)?.endDate).toBe(clock.logsTo);
+		await expect.poll(() => reads.paramsOf(DAILY).at(-1)?.startDate).toBe(clock.customFrom);
+		await expect.poll(() => reads.paramsOf(DAILY).at(-1)?.endDate).toBe(clock.customTo);
+		await expect.poll(() => reads.paramsOf(COUNTS).at(-1)?.startDate).toBe(clock.customFrom);
+		await expect.poll(() => reads.paramsOf(COUNTS).at(-1)?.endDate).toBe(clock.customTo);
+		// the logs read keeps today inside its window even when the picked period does not (`-8` S2): its two bounds are
+		// today's day and the picked range's outer end, one day padded on each side (`clockOf.logsWindowOf`), so this
+		// holds whether the picked range lies behind today, across it or ahead of it
+		await expect.poll(() => reads.paramsOf(LOGS).at(-1)?.startDate).toBe(clock.customLogsFrom);
+		await expect.poll(() => reads.paramsOf(LOGS).at(-1)?.endDate).toBe(clock.customLogsTo);
 
 		expect(await cardMeta(page, T.cards.TIME_BY_DAY)).toBe(clock.customText);
 		// today's cards stay today's, whatever the picked period says
@@ -1425,12 +1554,12 @@ test.describe('Team dashboard UI (lane-b)', () => {
 		);
 
 		await periodGroup(page).getByRole('button', { name: EN.dashboard.period.PREVIOUS, exact: true }).click();
-		expect(await flatText(periodTrigger(page))).toBe(clock.customPrevText);
-		expect(reads.paramsOf(DAILY).at(-1)?.startDate).toBe(clock.customPrevFrom);
-		expect(reads.paramsOf(DAILY).at(-1)?.endDate).toBe(clock.customPrevTo);
+		await expect.poll(() => flatText(periodTrigger(page))).toBe(clock.customPrevText);
+		await expect.poll(() => reads.paramsOf(DAILY).at(-1)?.startDate).toBe(clock.customPrevFrom);
+		await expect.poll(() => reads.paramsOf(DAILY).at(-1)?.endDate).toBe(clock.customPrevTo);
 
 		await periodGroup(page).getByRole('button', { name: EN.dashboard.period.NEXT, exact: true }).click();
-		expect(await flatText(periodTrigger(page))).toBe(clock.customText);
+		await expect.poll(() => flatText(periodTrigger(page))).toBe(clock.customText);
 
 		report('11 custom range', {
 			range: `${clock.customFromKey} → ${clock.customToKey}`,
@@ -1463,10 +1592,10 @@ test.describe('Team dashboard UI (lane-b)', () => {
 		await teamBox.click();
 		await closeFilterMenu(page);
 		expect(await chipsOf(page)).toEqual([msg('dashboard.team.filters.REMOVE', { value: fixture.names.teamA })]);
-		expect(reads.paramsOf(DAILY).at(-1)?.['teamIds[0]']).toBe(fixture.ids.teamA);
-		expect(reads.paramsOf(DAILY).at(-1)?.['includeTimeWithoutTeam']).toBe('true');
+		await expect.poll(() => reads.paramsOf(DAILY).at(-1)?.['teamIds[0]']).toBe(fixture.ids.teamA);
+		await expect.poll(() => reads.paramsOf(DAILY).at(-1)?.['includeTimeWithoutTeam']).toBe('true');
 		const teamPickParams = { ...reads.paramsOf(DAILY).at(-1) };
-		expect(reads.paramsOf(COUNTS).at(-1)?.['teamIds[0]']).toBe(fixture.ids.teamA);
+		await expect.poll(() => reads.paramsOf(COUNTS).at(-1)?.['teamIds[0]']).toBe(fixture.ids.teamA);
 
 		const dailyReadsBeforeRemove = reads.paramsOf(DAILY).length;
 		await filterChip(page, fixture.names.teamA).click();
@@ -1484,10 +1613,10 @@ test.describe('Team dashboard UI (lane-b)', () => {
 		await memberBox.click();
 		expect(await flatText(filterTrigger(page))).toBe(`${EN.common.FILTER} 1`);
 		expect(await chipsOf(page)).toEqual([msg('dashboard.team.filters.REMOVE', { value: fixture.names.teammate })]);
-		expect(reads.paramsOf(DAILY).at(-1)?.['employeeIds[0]']).toBe(fixture.ids.teammateEmployee);
+		await expect.poll(() => reads.paramsOf(DAILY).at(-1)?.['employeeIds[0]']).toBe(fixture.ids.teammateEmployee);
 		expect(reads.paramsOf(DAILY).at(-1)?.['teamIds[0]']).toBeUndefined();
-		expect(reads.paramsOf(COUNTS).at(-1)?.['employeeIds[0]']).toBe(fixture.ids.teammateEmployee);
-		expect(reads.paramsOf(LOGS).at(-1)?.['employeeIds[0]']).toBe(fixture.ids.teammateEmployee);
+		await expect.poll(() => reads.paramsOf(COUNTS).at(-1)?.['employeeIds[0]']).toBe(fixture.ids.teammateEmployee);
+		await expect.poll(() => reads.paramsOf(LOGS).at(-1)?.['employeeIds[0]']).toBe(fixture.ids.teammateEmployee);
 
 		expect(await cardText(page, T.figures.WORKING_NOW)).toContain(
 			`0 ${msg('dashboard.team.figures.OF_TOTAL', { total: 1 })}${T.figures.NOBODY_TRACKING}`
@@ -1706,7 +1835,8 @@ test.describe('Team dashboard UI (lane-b)', () => {
 		await expect(
 			page.getByRole('heading', { level: 1, name: EN.dashboard.TEAM_DASHBOARD, exact: true })
 		).toHaveCount(1);
-		const marks = await page.evaluate(() => performance.getEntriesByType('mark').map((mark) => mark.name));
+		// `window.performance`, written out so the browser's own global cannot be mistaken for a Node-side name
+		const marks = await page.evaluate(() => window.performance.getEntriesByType('mark').map((mark) => mark.name));
 		expect(marks).not.toContain('ever-teams:shell-ready');
 		await expect(card(page, T.heatmap.TITLE)).toHaveAttribute('aria-busy', 'true');
 		await expect(card(page, T.timeline.TITLE)).toHaveAttribute('aria-busy', 'true');
