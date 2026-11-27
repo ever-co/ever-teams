@@ -7,7 +7,7 @@ import { controlGroupRecipe } from '@/core/components/common/input';
 import { CircleAlert, Minus, Plus } from '@/core/components/icons';
 import { cn } from '@/core/lib/helpers';
 import { formatIntegerToHour } from '@/core/lib/helpers/index';
-import { oneHourLess, plannedHoursFromInput, plannedHoursText } from '@/core/lib/utils/daily-plan-editor';
+import { oneHourLess, oneHourMore, plannedHoursFromInput, plannedHoursText } from '@/core/lib/utils/daily-plan-editor';
 
 const SEGMENT_COUNT = 24;
 
@@ -52,6 +52,8 @@ export function PlanHoursStepper({ hours, canEdit, onChange }: Readonly<PlanHour
 	const hoursBeforeTyping = useRef(hours);
 	const isAtZero = hours <= 0;
 	const isLessDisabled = !canEdit || isAtZero;
+	// A plan cannot hold more than a day
+	const isMoreDisabled = !canEdit || oneHourMore(hours) === hours;
 	const shownText = typedText ?? plannedHoursText(hours);
 	const handleInput = (event: ChangeEvent<HTMLInputElement>) => {
 		const text = event.target.value;
@@ -107,8 +109,8 @@ export function PlanHoursStepper({ hours, canEdit, onChange }: Readonly<PlanHour
 			</label>
 			<button
 				type="button"
-				onClick={() => stepTo(hours + 1)}
-				disabled={!canEdit}
+				onClick={() => stepTo(oneHourMore(hours))}
+				disabled={isMoreDisabled}
 				aria-label={t('dailyPlan.editor.MORE_HOUR')}
 				className={STEP_BUTTON}
 			>

@@ -12,6 +12,7 @@ import { useUpdateDailyPlan } from '@/core/hooks/daily-plans/use-update-daily-pl
 import { cn } from '@/core/lib/helpers';
 import { hoursToHMM, parseStringInputToHours } from '@/core/lib/helpers/index';
 import { formatDurationShort } from '@/core/lib/utils/dashboard-figures';
+import { isPlannableHours } from '@/core/lib/utils/daily-plan-editor';
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
 import { TDailyPlan } from '@/core/types/schemas';
 
@@ -39,10 +40,7 @@ function isValidPlannedHours(hours: number | undefined, parseError: string | und
 	if (hours === undefined) {
 		return false;
 	}
-	if (!Number.isFinite(hours)) {
-		return false;
-	}
-	return hours >= 0;
+	return isPlannableHours(hours);
 }
 
 function plannedTimeTextOf(hours: number) {

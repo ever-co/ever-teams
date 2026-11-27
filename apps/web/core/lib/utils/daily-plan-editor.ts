@@ -141,17 +141,24 @@ export function otherPlanIdsByTask(tasks: TTask[], upcomingPlans: TDailyPlan[], 
 	return idsByTask;
 }
 
+/** A day has 24 hours: a plan cannot hold more time than that. */
+const MAX_PLANNED_HOURS_PER_DAY = 24;
+
+/** Whether `hours` is a time a plan can hold for one day: a finite number from none up to 24 hours. */
+export function isPlannableHours(hours: number | undefined): hours is number {
+	if (hours === undefined || !Number.isFinite(hours)) {
+		return false;
+	}
+	return hours >= 0 && hours <= MAX_PLANNED_HOURS_PER_DAY;
+}
+
 /**
  * The hours typed in the editor's Planned time, read like the Set hours box of the same plan reads them: 2,5, 2.5 and
- * 2:30 are all 2 h 30 min (#5713). Null for an entry that cannot be read.
+ * 2:30 are all 2 h 30 min (#5713). Null for an entry that cannot be read, or that is more than a day.
  */
 export function plannedHoursFromInput(raw: string): number | null {
 	const { hours, error } = parseStringInputToHours(raw);
-	if (error || hours === undefined) {
-		return null;
-	}
-	const isUsable = Number.isFinite(hours) && hours >= 0;
-	if (!isUsable) {
+	if (error || !isPlannableHours(hours)) {
 		return null;
 	}
 	return hours;
@@ -163,6 +170,14 @@ export function plannedHoursText(hours: number): string {
 		return String(hours);
 	}
 	return hoursToHMM(hours);
+}
+
+/** One hour more, never past a day: a plan that already holds more than a day is left as it is. */
+export function oneHourMore(hours: number): number {
+	if (hours >= MAX_PLANNED_HOURS_PER_DAY) {
+		return hours;
+	}
+	return Math.min(MAX_PLANNED_HOURS_PER_DAY, hours + 1);
 }
 
 /** One hour less, never below none: a plan of half an hour steps down to nothing. */
