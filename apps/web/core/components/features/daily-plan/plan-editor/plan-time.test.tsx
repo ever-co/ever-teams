@@ -45,14 +45,35 @@ describe('PlanHoursStepper (#5713)', () => {
 		expect(toast.warning).not.toHaveBeenCalled();
 	});
 
-	it('reads back the hours it wrote itself, past ninety-nine', () => {
-		const { field, saved } = renderStepper(100.5);
-		expect(field.value).toBe('100:30');
+	it('reads back the hours it wrote itself', () => {
+		const { field, saved } = renderStepper(23.5);
+		expect(field.value).toBe('23:30');
 
-		typeAndLeave(field, '100:45');
+		typeAndLeave(field, '23:45');
 
-		expect(saved.hours).toBe(100.75);
+		expect(saved.hours).toBe(23.75);
 		expect(toast.warning).not.toHaveBeenCalled();
+	});
+
+	it('refuses more than a day, and the plan keeps its hours', () => {
+		const { field, saved } = renderStepper(8);
+
+		typeAndLeave(field, '30');
+
+		expect(saved.hours).toBe(8);
+		expect(field.value).toBe('8');
+		expect(toast.warning).toHaveBeenCalledWith('toasts.plans.HOURS_INVALID', { id: 'plan-hours-invalid' });
+	});
+
+	it('stops adding hours at a day', () => {
+		const { field, saved } = renderStepper(23.5);
+		const more = screen.getByRole('button', { name: 'dailyPlan.editor.MORE_HOUR' });
+
+		fireEvent.click(more);
+
+		expect(saved.hours).toBe(24);
+		expect(field.value).toBe('24');
+		expect((more as HTMLButtonElement).disabled).toBe(true);
 	});
 
 	it('keeps what the person types while they type it', () => {
