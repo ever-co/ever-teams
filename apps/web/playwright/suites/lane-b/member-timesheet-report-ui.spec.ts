@@ -26,9 +26,21 @@ import { APP_ORIGIN, MOCK_ORIGIN } from '../../test-servers';
  * time dialog's fields, the bulk edit dialog), `-probe-8.log` (H2-H4: the overlap confirmation, a refused conflict
  * lookup, the bulk edit write) and `-probe-9.log` (H5-H6: the Add time dialog filled, and the dialog a member-only
  * role gets)). Every value asserted below is one those runs printed, or one this file's own `MEASURE` line printed on
- * a run that passed. Nothing here names today's date: served logs sit at day offsets from the day the run runs on
- * (`localDay`, `at`), every formatted string is rebuilt from the same offsets with the same `Intl` options the page
- * uses, and no case counts days back from today (test 4 picks the 10th and the 14th of the month the calendar opens on).
+ * a run that passed. Nothing here names today's date: the six served logs sit on the **Monday, Tuesday and Wednesday
+ * of `servedWeek`, a whole week before the one the page opens on**, and every day group, day label, sheet cell,
+ * month title, day column and period string below is rebuilt from those served values with the same `Intl` options the
+ * page uses. Checked to hold on any weekday (2026-11-27): because the period the tests walk is a whole week back, all
+ * seven of its days are past on a Monday as on a Sunday, no served log is ever a day after today, and the three served
+ * days are the same three calendar days whatever day the run runs on. That week is the one a month does **not** end
+ * inside — one step further back when a month ends inside the week directly behind the opened one — because the Month
+ * view grows the shown period to that month and the grown period stays, so a served week split across two months would
+ * leave part of the served logs outside every period walked after it. Tests that read the served logs step the page
+ * onto that week with `openServedWeek`, one `Previous period` click per whole week between them; test 1 (no served log
+ * at all), test 10b and the refused read of test 13 stay on the week the page opens on, and test 10 steps forward to it
+ * to read the entry its own POST wrote today. Test 4 walks the presets and then picks its custom range on the served
+ * month, from the days that month and the served logs actually hold. Coverage note:
+ * with every served day a week back, no day group here can carry the `DayName` **Yesterday** name (`timesheet-day-label.ts`)
+ * — the `Today` name is still pinned, in test 10's day group; the Yesterday branch is not pinned anywhere in this file.
  * The browser's own zone is read from the page (test 1 prints it) and never assumed: on this PC it resolved to
  * `Europe/Madrid` while the mock profile says `UTC` (`mock-gauzy-server.mjs:107`), which is why the shell shows its
  * "Your profile uses …" notice (`timeZoneNotice.TITLE`) on every visit — and why the page's read sends the **profile
@@ -218,7 +230,9 @@ import { APP_ORIGIN, MOCK_ORIGIN } from '../../test-servers';
  *     read still the next week's `startDate 2026-11-30T00:00:00.000Z`) — TanStack's cache answers it, so test 4 pins the
  *     period the page *shows* and prints the read count instead of asserting a request.
  * 23. **The period trigger is named by a preset when a preset covers the period, and by the period text otherwise.** On
- *     this week its accessible name was `common.THIS_WEEK` (`-0c.log` snapshot `button "This week"`); one week ahead,
+ *     this week its accessible name was `common.THIS_WEEK` (`-0c.log` snapshot `button "This week"`) and one week back it
+ *     is `common.LAST_WEEK` (the timesheet's preset list is `today, yesterday, thisWeek, lastWeek, last7Days, thisMonth,
+ *     lastMonth` — `timesheets-toolbar.tsx:17-25`); one week ahead,
  *     where no preset reaches, it was the period itself (`-0.log` / `-0c.log` `period group buttons`
  *     `["Previous period|", "|Nov 30 – Dec 6", "Next period|"]` — the middle button has no `aria-label`, so its name is
  *     its text). The calendar is therefore opened from the trigger's preset name and pinned to the month the *shown*
@@ -353,16 +367,10 @@ const report = (label: string, value: unknown) =>
 
 /* ------------------------------------------------------------------ the clock this file serves
 
-`localDay(0)` is the day the run runs on, at local noon; `at(offset, hour, minute)` is an instant on the local day
-`offset` days from it. Nothing here names a date. */
+`at(offset, hour, minute)` is an instant on the local day `offset` days from the day the run runs on, and `atOn` puts
+one on a named calendar day. Nothing here names a date. */
 
 const pad = (value: number) => String(value).padStart(2, '0');
-const localDay = (offset: number) => {
-	const day = new Date();
-	day.setHours(12, 0, 0, 0);
-	day.setDate(day.getDate() + offset);
-	return day;
-};
 const at = (offset: number, hour: number, minute = 0) => {
 	const day = new Date();
 	day.setHours(hour, minute, 0, 0);
@@ -377,6 +385,15 @@ const formatWith = (options: Intl.DateTimeFormatOptions) => new Intl.DateTimeFor
 const daysInMonthOf = (monthKey: string) => {
 	const [year, monthNumber] = monthKey.split('-').map(Number);
 	return new Date(year, monthNumber, 0).getDate();
+};
+/** Every calendar day of the `YYYY-MM` month `monthKey`, oldest first, as `YYYY-MM-DD` keys. */
+const dayKeysOfMonth = (monthKey: string) => {
+	const first = new Date(`${monthKey}-01T12:00:00Z`);
+	return Array.from({ length: daysInMonthOf(monthKey) }, (_, index) => {
+		const day = new Date(first);
+		day.setUTCDate(day.getUTCDate() + index);
+		return `${day.getUTCFullYear()}-${pad(day.getUTCMonth() + 1)}-${pad(day.getUTCDate())}`;
+	});
 };
 /** The calendar day an instant is on in `zone`, as `YYYY-MM-DD`. */
 const zoneDayKeyOf = (instant: Date | string, zone: string) =>
@@ -410,9 +427,14 @@ const weekOfZone = (zone: string, weeksFromNow = 0) => {
 	const part = (type: Intl.DateTimeFormatPartTypes) => parts.find((entry) => entry.type === type)?.value ?? '';
 	const today = new Date(`${part('year')}-${part('month')}-${part('day')}T12:00:00Z`);
 	const sinceMonday = (WEEKDAY_INDEX[part('weekday')] + 6) % 7;
-	const monday = new Date(today.getTime() - sinceMonday * 86_400_000);
-	monday.setUTCDate(monday.getUTCDate() + weeksFromNow * 7);
-	const sunday = new Date(monday.getTime() + 6 * 86_400_000);
+	const monday = new Date(today);
+	monday.setUTCDate(monday.getUTCDate() - sinceMonday + weeksFromNow * 7);
+	return weekOfMonday(monday);
+};
+/** The same shape `weekOfZone` returns, built from a Monday (a Date at UTC noon on that calendar day). */
+function weekOfMonday(monday: Date) {
+	const sunday = new Date(monday);
+	sunday.setUTCDate(sunday.getUTCDate() + 6);
 	const key = (day: Date) => `${day.getUTCFullYear()}-${pad(day.getUTCMonth() + 1)}-${pad(day.getUTCDate())}`;
 	return {
 		fromKey: key(monday),
@@ -422,7 +444,56 @@ const weekOfZone = (zone: string, weeksFromNow = 0) => {
 		fromDate: new Date(`${key(monday)}T12:00:00Z`),
 		toDate: new Date(`${key(sunday)}T12:00:00Z`)
 	};
+}
+type ServedWeek = ReturnType<typeof weekOfZone>;
+/** `week` moved by whole weeks, named by the same zone: `setUTCDate` on its own Monday, never a millisecond step. */
+const shiftWeek = (week: ServedWeek, weeks: number) => {
+	const monday = new Date(`${week.fromKey}T12:00:00Z`);
+	monday.setUTCDate(monday.getUTCDate() + weeks * 7);
+	return weekOfMonday(monday);
 };
+/** Whole `Next period` steps from the earlier week `from` to the later week `to` (0 when they are the same week). */
+const weeksForwardOf = (from: ServedWeek, to: ServedWeek) => {
+	const cursor = new Date(`${from.fromKey}T12:00:00Z`);
+	const target = new Date(`${to.fromKey}T12:00:00Z`);
+	let steps = 0;
+	while (cursor.getTime() < target.getTime()) {
+		cursor.setUTCDate(cursor.getUTCDate() + 7);
+		steps += 1;
+	}
+	return steps;
+};
+/** Whole `Previous period` steps from the week the page opens on to `week` (a positive count: `week` is in the past). */
+const weeksBackOf = (week: ServedWeek) => weeksForwardOf(week, weekOfZone('UTC'));
+/**
+ * The week the served logs live in: **a whole week before** the one the page opens on (`initialPeriodFor`,
+ * `use-timesheets-page.ts:158-162`), one step further back whenever that week is the one a month ends inside. Every
+ * one of its seven days is in the past whatever weekday the run runs on, so no served log is ever a day after today,
+ * and the same three calendar days of it are served on a Monday as on a Sunday. Its seven days lie in **one month**:
+ * the Month view grows the shown period to `startOfMonth(period.from) … endOfMonth(period.from)`
+ * (`periodForView`, `timesheets.ts:564-588`) and that period then *stays*, so a served week split across two months
+ * would leave part of the served logs outside every period walked after the Month view. A month boundary can sit
+ * inside one whole week only, so one extra step is always enough.
+ */
+const servedWeek = () => {
+	const oneBack = weekOfZone('UTC', -1);
+	return oneBack.fromKey.slice(0, 7) === oneBack.toKey.slice(0, 7) ? oneBack : weekOfZone('UTC', -2);
+};
+/** The seven calendar days of `week`, oldest first, as the `YYYY-MM-DD` keys its own zone names them by. */
+const dayKeysOf = (week: ServedWeek) =>
+	Array.from({ length: 7 }, (_, index) => {
+		const day = new Date(`${week.fromKey}T12:00:00Z`);
+		day.setUTCDate(day.getUTCDate() + index);
+		return `${day.getUTCFullYear()}-${pad(day.getUTCMonth() + 1)}-${pad(day.getUTCDate())}`;
+	});
+/** An instant on the calendar day `dayKey`, at `hour:minute` of the browser's own zone (the zone `at` builds in). */
+const atOn = (dayKey: string, hour: number, minute = 0) => {
+	const [year, month, day] = dayKey.split('-').map(Number);
+	return new Date(year, month - 1, day, hour, minute, 0, 0);
+};
+/** The day key a served log starts on, in the zone the page groups its days by. */
+const servedDayKeyOf = (log: ServedLog) => zoneDayKeyOf(String(log.startedAt), 'UTC');
+
 /** `formatPeriod` (`core/lib/utils/dashboard-period.ts:147-158`) read back in the zone the period's bounds are in. */
 const periodTextOf = (fromIso: string, toIso: string, zone: string) =>
 	flat(
@@ -496,19 +567,23 @@ const employeeOf = (id: string, fullName: string, userId: string) => ({
 });
 
 /**
- * Six logs of the fixture team, all inside the week the sheet opens on: two members, five statuses, one without a
- * task, one added by hand, one rejected with a reason, and a timesheet id per log (`sheet-<id>`).
+ * Six logs of the fixture team, all inside `week` (the week the tests step the page onto, `servedWeek`): two members,
+ * five statuses, one without a task, one added by hand, one rejected with a reason, and a timesheet id per log
+ * (`sheet-<id>`). Their days are the **Monday, Tuesday and Wednesday of that week** (`dayIndex`), never offsets from
+ * today: every one of them is then past on every weekday, and the newest served day (Wednesday, where `own-draft` and
+ * `teammate-inreview` sit) is the same weekday of the same week on a Monday as on a Sunday.
  */
-const servedLogs = (fixture: Fixture): ServedLog[] => {
+const servedLogs = (fixture: Fixture, week: ServedWeek = servedWeek()): ServedLog[] => {
 	const own = fixture.ids.employee;
 	const teammate = fixture.ids.teammateEmployee;
 	const project = { id: fixture.ids.project, name: PROJECT_NAME, color: '#22c55e' };
+	const weekDays = dayKeysOf(week);
 	const logOf = (options: {
 		id: string;
 		employeeId: string;
 		userId: string;
 		fullName: string;
-		offset: number;
+		dayIndex: number;
 		startHour: number;
 		startMinute: number;
 		seconds: number;
@@ -521,7 +596,7 @@ const servedLogs = (fixture: Fixture): ServedLog[] => {
 		logType?: string;
 		reason?: string;
 	}) => {
-		const startedAt = at(options.offset, options.startHour, options.startMinute);
+		const startedAt = atOn(weekDays[options.dayIndex], options.startHour, options.startMinute);
 		const stoppedAt = new Date(startedAt.getTime() + options.seconds * 1000);
 		return {
 			id: options.id,
@@ -552,7 +627,7 @@ const servedLogs = (fixture: Fixture): ServedLog[] => {
 			employeeId: own,
 			userId: fixture.ids.user,
 			fullName: fixture.names.user,
-			offset: -1,
+			dayIndex: 0,
 			startHour: 9,
 			startMinute: 0,
 			seconds: 7200,
@@ -568,7 +643,7 @@ const servedLogs = (fixture: Fixture): ServedLog[] => {
 			employeeId: own,
 			userId: fixture.ids.user,
 			fullName: fixture.names.user,
-			offset: -2,
+			dayIndex: 1,
 			startHour: 12,
 			startMinute: 15,
 			seconds: 3600,
@@ -585,7 +660,7 @@ const servedLogs = (fixture: Fixture): ServedLog[] => {
 			employeeId: teammate,
 			userId: fixture.ids.teammateUser,
 			fullName: fixture.names.teammate,
-			offset: -1,
+			dayIndex: 0,
 			startHour: 14,
 			startMinute: 0,
 			seconds: 5400,
@@ -602,7 +677,7 @@ const servedLogs = (fixture: Fixture): ServedLog[] => {
 			employeeId: teammate,
 			userId: fixture.ids.teammateUser,
 			fullName: fixture.names.teammate,
-			offset: -3,
+			dayIndex: 2,
 			startHour: 8,
 			startMinute: 30,
 			seconds: 1800,
@@ -614,7 +689,7 @@ const servedLogs = (fixture: Fixture): ServedLog[] => {
 			employeeId: own,
 			userId: fixture.ids.user,
 			fullName: fixture.names.user,
-			offset: -3,
+			dayIndex: 2,
 			startHour: 16,
 			startMinute: 0,
 			seconds: 2700,
@@ -628,7 +703,7 @@ const servedLogs = (fixture: Fixture): ServedLog[] => {
 			employeeId: teammate,
 			userId: fixture.ids.teammateUser,
 			fullName: fixture.names.teammate,
-			offset: -2,
+			dayIndex: 1,
 			startHour: 10,
 			startMinute: 30,
 			seconds: 5400,
@@ -780,9 +855,21 @@ async function serveTimesheetApi(page: Page, state: ServedState): Promise<Served
 			}
 
 			if (method === 'POST' && path === LOGS_PATH) {
+				const newId = `suite-new-${state.logs.length + 1}`;
+				// The answer names back the task and project the request named, exactly as the served logs carry them:
+				// a sheet row takes its title from its **latest** log (`weekSheetOf` → `rowIdentityOfLog(latestLogOf(…))`,
+				// `core/lib/utils/dashboards/timesheets.ts:1138-1146`), so a created log carrying no `task` would rename
+				// its whole row to `NO_TASK` whenever the written day is the row's newest one — which day that is depends
+				// on the served days, so it must never depend on it.
+				const namedTask = state.logs.find(
+					(log) => String(log.taskId ?? '') === String((body ?? {}).taskId ?? '')
+				);
+				const namedProject = state.logs.find(
+					(log) => String(log.projectId ?? '') === String((body ?? {}).projectId ?? '')
+				);
 				const created = {
 					...(body ?? {}),
-					id: `suite-new-${state.logs.length + 1}`,
+					id: newId,
 					duration: Math.round(
 						(new Date(String((body ?? {}).stoppedAt)).getTime() -
 							new Date(String((body ?? {}).startedAt)).getTime()) /
@@ -792,8 +879,10 @@ async function serveTimesheetApi(page: Page, state: ServedState): Promise<Served
 					logType: (body ?? {}).logType ?? 'MANUAL',
 					source: (body ?? {}).source ?? 'TEAMS',
 					employee: state.logs[0]?.employee,
-					timesheetId: `suite-new-${state.logs.length + 1}`,
-					timesheet: { id: `suite-new-${state.logs.length + 1}`, status: 'PENDING' }
+					task: namedTask?.task ?? null,
+					project: namedProject?.project ?? null,
+					timesheetId: newId,
+					timesheet: { id: newId, status: 'PENDING' }
 				};
 				state.logs = [...state.logs, created];
 				return route.fulfill({ status: 201, headers: jsonHeaders, body: JSON.stringify(created) });
@@ -817,13 +906,30 @@ async function serveTimesheetApi(page: Page, state: ServedState): Promise<Served
 
 const newStore = (
 	fixture: Fixture,
+	week: ServedWeek,
 	refusals: Record<string, number> = {},
 	conflicts: ServedLog[] = []
 ): ServedState => ({
-	logs: servedLogs(fixture),
+	logs: servedLogs(fixture, week),
 	refusals,
 	conflicts
 });
+
+/**
+ * Steps the page from the week it opens on onto the week the served logs live in, and waits until the read the page
+ * made names that week. One `Previous period` step per whole week between them (`servedWeek` is one back, two when a
+ * month ends inside the week one back), on every weekday.
+ */
+const openServedWeek = async (page: Page, api: ServedApi, week: ServedWeek) => {
+	const previousButton = page
+		.getByRole('group', { name: PERIOD.LABEL, exact: true })
+		.getByRole('button', { name: PERIOD.PREVIOUS, exact: true });
+	for (let step = weeksBackOf(week); step > 0; step -= 1) {
+		await previousButton.click({ timeout: 15_000 });
+	}
+	await expect.poll(() => api.reads(LOGS_PATH).at(-1)?.params['startDate'], { timeout: 30_000 }).toBe(week.from);
+	return week;
+};
 
 /** The store holds plain objects, so every nested read of a served log is a typed cast. */
 const taskTitleOf = (log: ServedLog, fallback: string) => {
@@ -1115,18 +1221,22 @@ test.describe('lane-b · Reports › the timesheet of a member: what a manager s
 		page,
 		fixture
 	}) => {
-		const state = newStore(fixture);
+		const week = servedWeek();
+		const state = newStore(fixture, week);
 		const api = await serveTimesheetApi(page, state);
 		await signInAndVisit(page, fixture, MEMBER_PAGE(fixture.ids.employee));
+		await openServedWeek(page, api, week);
 
 		await viewTabs(page).getByRole('tab', { name: T.VIEWS.LIST, exact: true }).click();
 		await expect(logRows(page)).toHaveCount(6, { timeout: 20_000 });
 
-		const week = weekOfZone('UTC');
 		const profileZone = api.reads(LOGS_PATH).at(-1)?.params['timeZone'] ?? 'UTC';
 		const periodText = periodTextOf(week.from, week.to, profileZone);
-		const logs = servedLogs(fixture);
+		const logs = servedLogs(fixture, week);
 		const totalSeconds = logs.reduce((sum, log) => sum + Number(log.duration), 0);
+		// The days the served logs name, newest first — the order the List groups them in, never days counted back
+		// from today.
+		const orderedDays = Array.from(new Set(logs.map(servedDayKeyOf))).sort((a, b) => b.localeCompare(a));
 		report('meta', await textOf(metaLine(page)));
 		await expect(metaLine(page)).toHaveText(
 			`${periodText} · ${durationOf(totalSeconds)} · ${copy(T.MEMBER_COUNT, { count: 2 })}`
@@ -1155,8 +1265,11 @@ test.describe('lane-b · Reports › the timesheet of a member: what a manager s
 
 		const rowTotal = await logRowTotal(page);
 		const logRowTotalCount = await logRows(page).count();
-		report('row counts', { all: rowTotal, logs: logRowTotalCount });
-		expect(rowTotal, 'a role=row count counts the day headers too (finding 5)').toBe(logRowTotalCount + 4);
+		report('row counts', { all: rowTotal, logs: logRowTotalCount, groups: orderedDays.length });
+		// one `columnheader` row plus one day-group row per day the served logs name (finding 5).
+		expect(rowTotal, 'a role=row count counts the day headers too (finding 5)').toBe(
+			logRowTotalCount + 1 + orderedDays.length
+		);
 
 		const dayRows = table(page)
 			.locator('[role=row]')
@@ -1169,9 +1282,8 @@ test.describe('lane-b · Reports › the timesheet of a member: what a manager s
 			)
 		);
 		report('day rows', dayTexts);
-		const dayKeyOf = (log: ServedLog) => zoneDayKeyOf(String(log.startedAt), 'UTC');
+		const dayKeyOf = servedDayKeyOf;
 		const logsOfDay = (key: string) => logs.filter((log) => dayKeyOf(log) === key);
-		const orderedDays = [localDay(-1), localDay(-2), localDay(-3)].map((day) => csvDayOf(day));
 		expect(dayTexts, 'the day groups are not newest first with their log count and total').toEqual(
 			orderedDays.map((key) => [
 				'',
@@ -1248,10 +1360,19 @@ test.describe('lane-b · Reports › the timesheet of a member: what a manager s
 		page,
 		fixture
 	}) => {
-		const state = newStore(fixture);
-		await serveTimesheetApi(page, state);
+		const week = servedWeek();
+		const state = newStore(fixture, week);
+		const api = await serveTimesheetApi(page, state);
 		await signInAndVisit(page, fixture, MEMBER_PAGE(fixture.ids.employee));
+		await openServedWeek(page, api, week);
 		await expect(statusStrip(page)).toBeVisible({ timeout: 30_000 });
+
+		// The diary's own days, read from the served logs: this member's tracked days, the newest of them (the day the
+		// strip opens on, `latestLogDayOf`), and a day of the shown week that holds none of them.
+		const ownLogs = servedLogs(fixture, week).filter((log) => String(log.employeeId) === fixture.ids.employee);
+		const ownDayKeys = Array.from(new Set(ownLogs.map(servedDayKeyOf)));
+		const newestOwnDayKey = ownDayKeys.slice().sort((a, b) => b.localeCompare(a))[0] ?? '';
+		const emptyWeekDayKey = dayKeysOf(week).find((key) => !ownDayKeys.includes(key)) ?? '';
 
 		const sheetView = (view: string) => viewTabs(page).getByRole('tab', { name: view, exact: true });
 		const treeOf = (page: Page) =>
@@ -1291,9 +1412,7 @@ test.describe('lane-b · Reports › the timesheet of a member: what a manager s
 		// `button "FM Fixture Manager 3h 45m Pending" [pressed]`, and the same two buttons in Screenshots on `-1.log`).
 		// `SHEET.PICK_MEMBER` is not one of them — what it is takes the `pick member control` measurement in the
 		// Screenshots part of this test.
-		const ownSeconds = servedLogs(fixture)
-			.filter((log) => String(log.employeeId) === fixture.ids.employee)
-			.reduce((sum, log) => sum + Number(log.duration), 0);
+		const ownSeconds = ownLogs.reduce((sum, log) => sum + Number(log.duration), 0);
 		const railButton = page.getByRole('button', {
 			name: `${initialsOf(memberName)} ${memberName} ${durationOf(ownSeconds)} ${T.STATUS.PENDING}`,
 			exact: true
@@ -1309,8 +1428,9 @@ test.describe('lane-b · Reports › the timesheet of a member: what a manager s
 		/* The four views are walked in the order the page can be walked in. Opening Month moves the period to its whole
 		   month (`periodForView`, finding 6) and the moved period **stays** when Week is opened again — `-0d.log` measured
 		   41 day groups (`Monday, Oct 26` onward) that way — so each view's own shape is read the moment it is opened,
-		   Week before Month is ever touched. */
-		for (const view of [T.VIEWS.LIST, T.VIEWS.WEEK, T.VIEWS.MONTH, T.VIEWS.SCREENSHOTS]) {
+		   Week and Screenshots on the plain week before Month is ever touched (Screenshots is walked twice: once on the
+		   week, once on the month the strip has to step through). */
+		for (const view of [T.VIEWS.LIST, T.VIEWS.WEEK, T.VIEWS.SCREENSHOTS, T.VIEWS.MONTH]) {
 			await sheetView(view).click();
 			await expect(sheetView(view)).toHaveAttribute('aria-selected', 'true');
 			const stored = await page.evaluate(() => window.localStorage.getItem('timesheets-view'));
@@ -1333,12 +1453,10 @@ test.describe('lane-b · Reports › the timesheet of a member: what a manager s
 				/* Week: one group per day of the period, in the period's own order — oldest day first (`-0f.log` received
 				   `Monday, Nov 23`, `Tuesday, Nov 24`, `Yesterday, Nov 25`, `Today, Nov 26`, `Friday, Nov 27`,
 				   `Saturday, Nov 28`, `Sunday, Nov 29`, i.e. every day of the shown week including the empty ones), with the
-				   newest log first inside each group. The seven days are built from the period the page reads, never counted
-				   back from today. */
-				const weekStart = weekOfZone('UTC').fromDate;
-				const weekDays = Array.from({ length: 7 }, (_, index) =>
-					dayLabelOf(new Date(weekStart.getTime() + index * 86_400_000), 'UTC')
-				);
+				   newest log first inside each group. The seven days are the seven days of the period the page reads
+				   (`dayKeysOf`), never counted back from today; because the period is a whole week back, no group here can
+				   carry the `Today` / `Yesterday` name (`DayName`, `timesheet-day-label.ts`). */
+				const weekDays = dayKeysOf(week).map((key) => dayLabelOf(`${key}T12:00:00Z`, 'UTC'));
 				expect(tree.groups, 'the week view does not group the period by day').toEqual([
 					PERIOD.LABEL,
 					T.STATUS_STRIP_LABEL,
@@ -1355,12 +1473,42 @@ test.describe('lane-b · Reports › the timesheet of a member: what a manager s
 				).toBe(true);
 			}
 
+			if (view === T.VIEWS.SCREENSHOTS) {
+				/* Screenshots on the plain week: `diaryStripDaysOf` shows the whole period while it is at most two weeks
+				   (`work-diary.ts:203-216`), so all seven days of the shown week are strip buttons and the strip needs no
+				   week stepping at all (`hasLongStripOf` is false → `diary-day-strip.tsx:53`, `:109`). The tracked day is
+				   the newest day the shown member's served logs name (`wantedDayOf` → `latestLogDayOf`,
+				   `timesheets-screenshots-view.tsx:100-104`); the no-time day is a day of the same week holding none of
+				   them. Both are read from the served logs, so this holds on every weekday. */
+				expect(tree.groups, 'Screenshots on the week kept the status strip').toEqual([PERIOD.LABEL]);
+				await expect(
+					page.getByRole('button', {
+						name: copy(T.diary.DAY_TRACKED, { day: longDayLabelOf(`${newestOwnDayKey}T12:00:00Z`, 'UTC') }),
+						exact: true
+					})
+				).toBeVisible();
+				await expect(
+					page.getByRole('button', {
+						name: copy(T.diary.DAY_NO_TIME, { day: longDayLabelOf(`${emptyWeekDayKey}T12:00:00Z`, 'UTC') }),
+						exact: true
+					})
+				).toBeVisible();
+				await expect(page.getByRole('button', { name: T.diary.PREVIOUS_WEEK, exact: true })).toHaveCount(0);
+				await expect(page.getByRole('button', { name: T.diary.NEXT_WEEK, exact: true })).toHaveCount(0);
+			}
+
 			if (view === T.VIEWS.MONTH) {
-				// Month: its section is named after the month the period moved to.
-				const monthLabel = formatWith({ month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date());
+				/* Month: `periodForView` grows the shown week to `startOfMonth(period.from) … endOfMonth(period.from)`
+				   (`timesheets.ts:580-585`), i.e. the month the period's own first day sits in — the served week's
+				   Monday, never today. */
+				const monthLabel = formatWith({ month: 'long', year: 'numeric', timeZone: 'UTC' }).format(
+					new Date(`${week.fromKey}T00:00:00Z`)
+				);
 				expect(tree.sections, 'the month view has no section named after the month').toContain(monthLabel);
 				await expect(
-					page.getByRole('button', { name: copy(T.OPEN_DAY, { day: dayLabelOf(localDay(-1), 'UTC') }) })
+					page.getByRole('button', {
+						name: copy(T.OPEN_DAY, { day: dayLabelOf(`${week.fromKey}T12:00:00Z`, 'UTC') })
+					})
 				).toBeVisible();
 			}
 		}
@@ -1388,7 +1536,7 @@ test.describe('lane-b · Reports › the timesheet of a member: what a manager s
 		expect(shotTree.groups, 'Screenshots kept the status strip').toEqual([PERIOD.LABEL]);
 		await expect(page.getByRole('navigation', { name: T.SHEET.MEMBERS_LABEL, exact: true })).toBeVisible();
 		const secondsOf = (memberId: string) =>
-			servedLogs(fixture)
+			servedLogs(fixture, week)
 				.filter((log) => String(log.employeeId) === memberId)
 				.reduce((sum, log) => sum + Number(log.duration), 0);
 		for (const [memberId, name] of [
@@ -1410,40 +1558,39 @@ test.describe('lane-b · Reports › the timesheet of a member: what a manager s
 				.getByRole('button', { name: copy(T.SHEET.PICK_MEMBER, { name: memberName }), exact: true })
 				.count()
 		});
-		await expect(
-			page.getByRole('button', {
-				name: copy(T.diary.DAY_TRACKED, { day: longDayLabelOf(localDay(-1), 'UTC') }),
-				exact: true
-			})
-		).toBeVisible();
-		await expect(
-			page.getByRole('button', {
-				name: copy(T.diary.DAY_NO_TIME, { day: longDayLabelOf(localDay(0), 'UTC') }),
-				exact: true
-			})
-		).toBeVisible();
+		/* The strip's tracked / no-time buttons were pinned in the Screenshots pass above, on the plain week. Here the
+		   period is the whole month Month moved it to, so the strip shows one week of it and steps week by week
+		   (`hasLongStripOf` → `diary-day-strip.tsx:44`, `:53`, `:109`): both step buttons are rendered, whatever day
+		   the run runs on. */
 		await expect(page.getByRole('button', { name: T.diary.PREVIOUS_WEEK, exact: true })).toBeVisible();
 		await expect(page.getByRole('button', { name: T.diary.NEXT_WEEK, exact: true })).toBeVisible();
 	});
 
 	// ------------------------------------------------- 4. the period picker
 
-	test('4 · previous and next period, the presets, and a custom range picked from the calendar on the 10th and the 14th', async ({
+	test('4 · previous and next period, the presets, and a custom range picked from the calendar on two empty days of the month', async ({
 		page,
 		fixture
 	}) => {
-		const state = newStore(fixture);
+		const week = servedWeek();
+		const state = newStore(fixture, week);
 		const api = await serveTimesheetApi(page, state);
 		await signInAndVisit(page, fixture, MEMBER_PAGE(fixture.ids.employee));
 		await viewTabs(page).getByRole('tab', { name: T.VIEWS.LIST, exact: true }).click();
+		// The week the page opens on holds none of the served logs (`servedWeek` is a whole week back), so the six rows
+		// appear `weeksBackOf(week)` `Previous period` steps away from it, on every weekday.
+		await expect(logRows(page)).toHaveCount(0, { timeout: 20_000 });
+		await openServedWeek(page, api, week);
 		await expect(logRows(page)).toHaveCount(6, { timeout: 20_000 });
 
 		const periodGroup = page.getByRole('group', { name: PERIOD.LABEL, exact: true });
+		const previousButton = periodGroup.getByRole('button', { name: PERIOD.PREVIOUS, exact: true });
+		const nextButton = periodGroup.getByRole('button', { name: PERIOD.NEXT, exact: true });
 		const readsBefore = api.reads(LOGS_PATH).length;
 
-		await periodGroup.getByRole('button', { name: PERIOD.PREVIOUS, exact: true }).click();
+		await previousButton.click();
 		await expect.poll(() => api.reads(LOGS_PATH).length, { timeout: 20_000 }).toBeGreaterThan(readsBefore);
-		const previous = weekOfZone('UTC', -1);
+		const previous = shiftWeek(week, -1);
 		const previousRead = api.reads(LOGS_PATH).at(-1);
 		report('previous period read', previousRead?.params);
 		expect(previousRead?.params['startDate']).toBe(previous.from);
@@ -1452,9 +1599,13 @@ test.describe('lane-b · Reports › the timesheet of a member: what a manager s
 		await expect(metaLine(page)).toContainText(previousPeriodText);
 		await expect(bodyRegion(page)).toContainText(copy(T.EMPTY_TITLE, { period: previousPeriodText }));
 
-		await periodGroup.getByRole('button', { name: PERIOD.NEXT, exact: true }).click();
-		await periodGroup.getByRole('button', { name: PERIOD.NEXT, exact: true }).click();
+		// `Next period` steps back over the served week and the week the page opened on, and one past the opened week —
+		// the week no preset names. The count is the whole weeks between the two, so it does not matter how far back the
+		// served week had to sit.
 		const next = weekOfZone('UTC', 1);
+		for (let step = weeksForwardOf(previous, next); step > 0; step -= 1) {
+			await nextButton.click();
+		}
 		await expect.poll(() => api.reads(LOGS_PATH).at(-1)?.params['startDate'], { timeout: 20_000 }).toBe(next.from);
 		report('next period read', api.reads(LOGS_PATH).at(-1)?.params);
 		// A period no preset names is shown as its own text: the trigger's accessible name was the period
@@ -1504,16 +1655,47 @@ test.describe('lane-b · Reports › the timesheet of a member: what a manager s
 			before: readsBeforeBack,
 			lastReadStartDate: api.reads(LOGS_PATH).at(-1)?.params['startDate'] ?? ''
 		});
+		// The week the page opened on holds none of the served logs, and this is that week again.
+		await expect(logRows(page)).toHaveCount(0, { timeout: 20_000 });
+
+		/* The calendar part is walked on the served week, never on the opened one. `servedWeek` is picked so that its
+		   seven days sit inside one month, so the period group names it with one period text and the picker it opens has
+		   one month to name; the week the page opens on can straddle a month end (`Oct 26 – Nov 1` on a run dated
+		   2026-11-01, `Nov 30 – Dec 6` on 2026-12-01), and what such a period makes the picker show was never measured.
+		   Steps back to a week the page already read send no new request (the `back to this week` measurement above), so
+		   what is pinned here is the period the page shows, not a read. */
+		for (let step = weeksBackOf(week); step > 0; step -= 1) {
+			await previousButton.click();
+		}
+		// Finding 23 again on the way: the trigger names the served week by the preset that covers it (`period-picker.tsx:76`
+		// → `presetOfPeriod`, and the timesheet's preset list is `today, yesterday, thisWeek, lastWeek, last7Days,
+		// thisMonth, lastMonth`), so a served week one step back is `common.LAST_WEEK` (the `Period` group of
+		// `s3-lane-b-weekday-member-timesheet-2.log`'s failure snapshot: `button "Last week"`) and only the
+		// two-weeks-back case — a month ending inside the week directly behind the opened one — is a period no preset
+		// names, printed as its own text.
+		const servedText = periodTextOf(week.from, week.to, 'UTC');
+		const servedTrigger = weeksBackOf(week) === 1 ? C.LAST_WEEK : servedText;
+		await expect(metaLine(page)).toContainText(servedText);
+		await expect(
+			periodGroup.getByRole('button', { name: servedTrigger, exact: true }),
+			'served week trigger'
+		).toHaveCount(1);
 		await expect(logRows(page)).toHaveCount(6, { timeout: 20_000 });
 
-		await openPeriodPicker(C.THIS_WEEK);
+		await openPeriodPicker(servedTrigger);
 		report('period panel items', await textsOf(page.locator('[role=menuitem]:visible, [role=option]:visible')));
 
-		// A custom range: the 10th and the 14th of the month the period's own read names, never days counted back from
-		// today. The grid is pinned to what that month contains, not to a day count that would move with the date: every
-		// day of `month` appears, and the grid is whole weeks (`-probe-2.log` Q13 printed 42 cells for 42 = 6 weeks, and
-		// one cell per day number, so the padding cells carry no number).
-		const month = shownWeek.fromKey.slice(0, 7);
+		/* A custom range: two days of the served month — the month the period the picker is open on starts in — chosen
+		   from what that month and the served logs actually hold: never days counted back from today, never fixed day
+		   numbers (the old 10th and 14th were inside the served days whenever the week landed on them). The two latest
+		   days of the month that are not after today and hold none of the served logs; when the served month lies
+		   entirely before today those are simply its two last days, and when it is today's month they are today and
+		   yesterday, because every served day is at least four days back (a month holds at least 28 days and this file
+		   serves at most 3 of them, so there are always two). The grid is pinned to what that month contains, not to a
+		   day count that would move with the date: every day of `month` appears, and the grid is whole weeks
+		   (`-probe-2.log` Q13 printed 42 cells for 42 = 6 whole weeks — and the padding days do carry their numbers, see
+		   the grid measurement below). */
+		const month = week.fromKey.slice(0, 7);
 		const picker = page.locator('[data-slot=popover-content]');
 		await expect(picker).toBeVisible({ timeout: 20_000 });
 		report('calendar month pickers', await textsOf(picker.locator('[role=combobox]')));
@@ -1545,22 +1727,56 @@ test.describe('lane-b · Reports › the timesheet of a member: what a manager s
 		});
 		expect(missing, `the calendar grid does not show every day of ${month}`).toEqual([]);
 		expect(cellTexts.length % 7, 'the calendar grid is not whole weeks').toBe(0);
-		for (const day of [10, 14]) {
-			await expect(cells.filter({ hasText: new RegExp(`^${day}$`) }), `day ${day} of the grid`).toHaveCount(1);
+		const monthKeys = dayKeysOfMonth(month);
+		const servedKeys = new Set(state.logs.map(servedDayKeyOf));
+		const pastFreeKeys = monthKeys.filter((key) => key <= zoneTodayKeyOf('UTC') && !servedKeys.has(key));
+		const rangeKeys =
+			pastFreeKeys.length >= 2
+				? pastFreeKeys.slice(-2)
+				: monthKeys.filter((key) => !servedKeys.has(key)).slice(-2);
+		/* A day number is **not** unique in the grid: the padding weeks are printed with their own numbers, so the grid of
+		   a November period measured `26 27 28 29 30 31 1 … 30 1 2 3 4 5 6` — 42 cells, the six tail days of October and
+		   the six head days of December included. A day is therefore found by its place in the grid: it starts on the
+		   Monday of the week that holds the month's 1st, and every cell after it is the next calendar day
+		   (`s3-lane-b-weekday-member-timesheet-3.log`'s own `calendar month` line, and `-probe-2.log` Q13's 42 = 6 whole
+		   weeks). Days near the month's ends — which is where this file's two range days land whenever the served month
+		   is today's month — are exactly the ones a `hasText` filter would match twice. */
+		const gridStart = new Date(`${month}-01T12:00:00Z`);
+		gridStart.setUTCDate(gridStart.getUTCDate() - ((gridStart.getUTCDay() + 6) % 7));
+		const indexOfDayKey = (key: string) => {
+			const cursor = new Date(gridStart);
+			const day = new Date(`${key}T12:00:00Z`);
+			let index = 0;
+			while (cursor.getTime() < day.getTime()) {
+				cursor.setUTCDate(cursor.getUTCDate() + 1);
+				index += 1;
+			}
+			return index;
+		};
+		const cellOf = (key: string) => cells.nth(indexOfDayKey(key));
+		report('custom range days', {
+			month,
+			rangeKeys,
+			pastFreeCount: pastFreeKeys.length,
+			gridStart: `${gridStart.getUTCFullYear()}-${pad(gridStart.getUTCMonth() + 1)}-${pad(gridStart.getUTCDate())}`,
+			rangeIndexes: rangeKeys.map(indexOfDayKey)
+		});
+		for (const key of rangeKeys) {
+			await expect(cellOf(key), `day ${key} of the grid`).toHaveText(new RegExp(`^${Number(key.slice(8))}$`));
 		}
 		const readsBeforeRange = api.reads(LOGS_PATH).length;
-		await cells.filter({ hasText: /^10$/ }).first().click();
+		await cellOf(rangeKeys[0]).click({ timeout: 15_000 });
 		await page.waitForTimeout(1_000); // a quiet window: it proves the half-open range sent no new read
-		report('after picking the 10th', { reads: api.reads(LOGS_PATH).length, before: readsBeforeRange });
+		report('after picking the range start', { reads: api.reads(LOGS_PATH).length, before: readsBeforeRange });
 		expect(api.reads(LOGS_PATH).length, 'a start day alone re-read the period').toBe(readsBeforeRange);
-		await cells.filter({ hasText: /^14$/ }).first().click();
+		await cellOf(rangeKeys[1]).click({ timeout: 15_000 });
 		await expect
 			.poll(() => api.reads(LOGS_PATH).at(-1)?.params['startDate'], { timeout: 20_000 })
-			.toBe(`${month}-10T00:00:00.000Z`);
+			.toBe(`${rangeKeys[0]}T00:00:00.000Z`);
 		const rangeRead = api.reads(LOGS_PATH).at(-1);
 		report('custom range read', rangeRead?.params);
-		expect(rangeRead?.params['endDate']).toBe(`${month}-14T23:59:59.999Z`);
-		const rangeText = periodTextOf(`${month}-10T00:00:00.000Z`, `${month}-14T23:59:59.999Z`, 'UTC');
+		expect(rangeRead?.params['endDate']).toBe(`${rangeKeys[1]}T23:59:59.999Z`);
+		const rangeText = periodTextOf(`${rangeKeys[0]}T00:00:00.000Z`, `${rangeKeys[1]}T23:59:59.999Z`, 'UTC');
 		await expect(metaLine(page)).toContainText(rangeText);
 		await expect(logRows(page)).toHaveCount(0, { timeout: 20_000 });
 		await expect(bodyRegion(page)).toContainText(copy(T.EMPTY_TITLE, { period: rangeText }));
@@ -1572,9 +1788,11 @@ test.describe('lane-b · Reports › the timesheet of a member: what a manager s
 		page,
 		fixture
 	}) => {
-		const state = newStore(fixture);
+		const week = servedWeek();
+		const state = newStore(fixture, week);
 		const api = await serveTimesheetApi(page, state);
 		await signInAndVisit(page, fixture, MEMBER_PAGE(fixture.ids.employee));
+		await openServedWeek(page, api, week);
 		await viewTabs(page).getByRole('tab', { name: T.VIEWS.LIST, exact: true }).click();
 		await expect(logRows(page)).toHaveCount(6, { timeout: 20_000 });
 		const readsAtOpen = api.reads(LOGS_PATH).length;
@@ -1589,7 +1807,7 @@ test.describe('lane-b · Reports › the timesheet of a member: what a manager s
 		await expect(logRows(page)).toHaveCount(0, { timeout: 15_000 });
 		const noMatchText = await textOf(bodyRegion(page));
 		report('no match text', noMatchText);
-		const periodText = periodTextOf(weekOfZone('UTC').from, weekOfZone('UTC').to, 'UTC');
+		const periodText = periodTextOf(week.from, week.to, 'UTC');
 		await expect(bodyRegion(page)).toContainText(T.NO_MATCH_TITLE);
 		await expect(bodyRegion(page)).toContainText(copy(T.NO_MATCH_MESSAGE, { period: periodText }));
 		await bodyRegion(page).getByRole('button', { name: C.CLEAR_FILTERS, exact: true }).click();
@@ -1670,9 +1888,11 @@ test.describe('lane-b · Reports › the timesheet of a member: what a manager s
 		page,
 		fixture
 	}) => {
-		const state = newStore(fixture);
+		const week = servedWeek();
+		const state = newStore(fixture, week);
 		const api = await serveTimesheetApi(page, state);
 		await signInAndVisit(page, fixture, MEMBER_PAGE(fixture.ids.employee));
+		await openServedWeek(page, api, week);
 		await viewTabs(page).getByRole('tab', { name: T.VIEWS.LIST, exact: true }).click();
 		await expect(logRows(page)).toHaveCount(6, { timeout: 20_000 });
 
@@ -1767,9 +1987,11 @@ test.describe('lane-b · Reports › the timesheet of a member: what a manager s
 		page,
 		fixture
 	}) => {
-		const state = newStore(fixture);
+		const week = servedWeek();
+		const state = newStore(fixture, week);
 		const api = await serveTimesheetApi(page, state);
 		await signInAndVisit(page, fixture, MEMBER_PAGE(fixture.ids.employee));
+		await openServedWeek(page, api, week);
 		await viewTabs(page).getByRole('tab', { name: T.VIEWS.LIST, exact: true }).click();
 		await expect(logRows(page)).toHaveCount(6, { timeout: 20_000 });
 
@@ -1820,7 +2042,6 @@ test.describe('lane-b · Reports › the timesheet of a member: what a manager s
 		report('bulk delete query', bulkCall?.search);
 		expect(queryValuesOf(bulkCall?.search ?? '', 'logIds')).toEqual(['own-pending', 'teammate-denied']);
 		await expect(logRows(page)).toHaveCount(3, { timeout: 20_000 });
-		const week = weekOfZone('UTC');
 		await expect(metaLine(page)).toHaveText(
 			`${periodTextOf(week.from, week.to, 'UTC')} · ${durationOf(3600 + 1800 + 5400)} · ${copy(T.MEMBER_COUNT, { count: 2 })}`
 		);
@@ -1833,9 +2054,11 @@ test.describe('lane-b · Reports › the timesheet of a member: what a manager s
 		page,
 		fixture
 	}) => {
-		const state = newStore(fixture);
+		const week = servedWeek();
+		const state = newStore(fixture, week);
 		const api = await serveTimesheetApi(page, state);
 		await signInAndVisit(page, fixture, MEMBER_PAGE(fixture.ids.employee));
+		await openServedWeek(page, api, week);
 		await viewTabs(page).getByRole('tab', { name: T.VIEWS.LIST, exact: true }).click();
 		await expect(logRows(page)).toHaveCount(6, { timeout: 20_000 });
 
@@ -1857,8 +2080,11 @@ test.describe('lane-b · Reports › the timesheet of a member: what a manager s
 		report('billable body', write);
 		expect(write?.method).toBe('PUT');
 		expect(write?.path).toBe(`${LOGS_PATH}/own-pending`);
-		const startedAt = at(-1, 9, 0);
-		const stoppedAt = new Date(startedAt.getTime() + 7200_000);
+		// The served log's own bounds, read back from the served data instead of from a day offset: `own-pending` is
+		// served on the served week's Monday at 09:00 for 2 h (`servedLogs`).
+		const servedOwnPending = servedLogs(fixture, week).find((log) => String(log.id) === 'own-pending');
+		const startedAt = new Date(String(servedOwnPending?.startedAt));
+		const stoppedAt = new Date(String(servedOwnPending?.stoppedAt));
 		expect(write?.body).toEqual({
 			startedAt: isoOf(startedAt),
 			stoppedAt: isoOf(stoppedAt),
@@ -1902,9 +2128,11 @@ test.describe('lane-b · Reports › the timesheet of a member: what a manager s
 		fixture,
 		shield
 	}) => {
-		const state = newStore(fixture);
+		const week = servedWeek();
+		const state = newStore(fixture, week);
 		const api = await serveTimesheetApi(page, state);
 		await signInAndVisit(page, fixture, MEMBER_PAGE(fixture.ids.employee));
+		await openServedWeek(page, api, week);
 		await viewTabs(page).getByRole('tab', { name: T.VIEWS.LIST, exact: true }).click();
 		await expect(logRows(page)).toHaveCount(6, { timeout: 20_000 });
 
@@ -1922,8 +2150,11 @@ test.describe('lane-b · Reports › the timesheet of a member: what a manager s
 		await expect(dialog).toContainText(EN.dailyPlan.TASK_TIME);
 		await expect(dialog).toContainText(EN.timer.labels.PICK_LABELS);
 		await expect(dialog).toContainText(C.NOTES);
-		const startedAt = at(-1, 9, 0);
-		const stoppedAt = new Date(startedAt.getTime() + 7200_000);
+		// The served log's own bounds, read back from the served data instead of from a day offset: `own-pending` is
+		// served on the served week's Monday at 09:00 for 2 h (`servedLogs`).
+		const servedOwnPending = servedLogs(fixture, week).find((log) => String(log.id) === 'own-pending');
+		const startedAt = new Date(String(servedOwnPending?.startedAt));
+		const stoppedAt = new Date(String(servedOwnPending?.stoppedAt));
 		report(
 			'edit dialog inputs',
 			await dialog.evaluate((node: Element) =>
@@ -2017,13 +2248,16 @@ test.describe('lane-b · Reports › the timesheet of a member: what a manager s
 
 		// An overlap holds the save behind a confirmation (`use-time-overlap-guard.ts`, `edit-task-modal.tsx:480`). The
 		// overlapping entry must sit on the edited log's own day: `-probe-7.log` G3 served it on today, nothing
-		// overlapped, and the save went straight through.
+		// overlapped, and the save went straight through. Its day is therefore the served draft log's own day, and its
+		// hours cross that log's start (`own-draft` is served 16:00–16:45).
+		const servedDraft = servedLogs(fixture, week).find((log) => String(log.id) === 'own-draft');
+		const draftDayKey = zoneDayKeyOf(String(servedDraft?.startedAt), 'UTC');
 		state.refusals = {};
 		state.conflicts = [
 			{
 				id: 'suite-conflict-draft',
-				startedAt: isoOf(at(-3, 16, 15)),
-				stoppedAt: isoOf(at(-3, 17, 0)),
+				startedAt: isoOf(atOn(draftDayKey, 16, 15)),
+				stoppedAt: isoOf(atOn(draftDayKey, 17, 0)),
 				isRunning: false,
 				taskId: 'suite-conflict-task',
 				task: { title: 'Suite conflict task' }
@@ -2079,9 +2313,11 @@ test.describe('lane-b · Reports › the timesheet of a member: what a manager s
 		page,
 		fixture
 	}) => {
-		const state = newStore(fixture);
+		const week = servedWeek();
+		const state = newStore(fixture, week);
 		const api = await serveTimesheetApi(page, state);
 		await signInAndVisit(page, fixture, MEMBER_PAGE(fixture.ids.employee));
+		await openServedWeek(page, api, week);
 		await viewTabs(page).getByRole('tab', { name: T.VIEWS.LIST, exact: true }).click();
 		await expect(logRows(page)).toHaveCount(6, { timeout: 20_000 });
 
@@ -2157,12 +2393,28 @@ test.describe('lane-b · Reports › the timesheet of a member: what a manager s
 		});
 		await expect.poll(() => dialogCount(page, C.ADD_TIME_ENTRY), { timeout: 20_000 }).toBe(0);
 
-		await expect(logRows(page)).toHaveCount(7, { timeout: 20_000 });
-		const week = weekOfZone('UTC');
+		// The entry was written on **today**, while the page is looking at a week that is entirely past: the shown
+		// period keeps its six logs and gains nothing, because a read is answered with what its `startDate` / `endDate`
+		// ask for (`serveTimesheetApi`, the same rule a real backend follows).
+		await expect(logRows(page)).toHaveCount(6, { timeout: 20_000 });
 		await expect(metaLine(page)).toHaveText(
-			`${periodTextOf(week.from, week.to, 'UTC')} · ${durationOf(31500)} · ${copy(T.MEMBER_COUNT, { count: 2 })}`
+			`${periodTextOf(week.from, week.to, 'UTC')} · ${durationOf(26100)} · ${copy(T.MEMBER_COUNT, { count: 2 })}`
 		);
-		// The new entry lands on **today** at the placement hour (`PLACEMENT_START_HOUR`), so it opens a new day group.
+		// `Next period` steps forward over every whole week between the served one and the opened one reach the week the
+		// entry was written in. There it is the only log of the period, on **today** at the placement hour
+		// (`PLACEMENT_START_HOUR`), in a day group of its own named Today.
+		const periodGroup = page.getByRole('group', { name: PERIOD.LABEL, exact: true });
+		const thisWeek = weekOfZone('UTC');
+		for (let step = weeksForwardOf(week, thisWeek); step > 0; step -= 1) {
+			await periodGroup.getByRole('button', { name: PERIOD.NEXT, exact: true }).click({ timeout: 15_000 });
+		}
+		await expect
+			.poll(() => api.reads(LOGS_PATH).at(-1)?.params['startDate'], { timeout: 30_000 })
+			.toBe(thisWeek.from);
+		await expect(logRows(page)).toHaveCount(1, { timeout: 20_000 });
+		await expect(metaLine(page)).toHaveText(
+			`${periodTextOf(thisWeek.from, thisWeek.to, 'UTC')} · ${durationOf(5400)} · ${copy(T.MEMBER_COUNT, { count: 1 })}`
+		);
 		const todayRow = table(page)
 			.locator('[role=row]')
 			.filter({
@@ -2179,7 +2431,8 @@ test.describe('lane-b · Reports › the timesheet of a member: what a manager s
 		page,
 		fixture
 	}) => {
-		const state = newStore(fixture);
+		const week = servedWeek();
+		const state = newStore(fixture, week);
 		await serveTimesheetApi(page, state);
 
 		await signInAndVisit(page, fixture, MEMBER_PAGE(fixture.ids.employee), { scenario: { roleName: 'EMPLOYEE' } });
@@ -2215,9 +2468,11 @@ test.describe('lane-b · Reports › the timesheet of a member: what a manager s
 		page,
 		fixture
 	}) => {
-		const state = newStore(fixture);
+		const week = servedWeek();
+		const state = newStore(fixture, week);
 		const api = await serveTimesheetApi(page, state);
 		await signInAndVisit(page, fixture, MEMBER_PAGE(fixture.ids.employee));
+		await openServedWeek(page, api, week);
 		await viewTabs(page).getByRole('tab', { name: T.VIEWS.LIST, exact: true }).click();
 		await expect(logRows(page)).toHaveCount(6, { timeout: 20_000 });
 
@@ -2256,7 +2511,7 @@ test.describe('lane-b · Reports › the timesheet of a member: what a manager s
 		report('bulk writes', bulkWrites);
 		expect(bulkWrites.length, 'a bulk edit over 2 chosen entries sent a different number of writes').toBe(2);
 		for (const id of ['own-pending', 'own-draft']) {
-			const log = servedLogs(fixture).find((entry) => String(entry.id) === id);
+			const log = servedLogs(fixture, week).find((entry) => String(entry.id) === id);
 			const write = api.writes().find((call) => call.path === `${LOGS_PATH}/${id}`);
 			report(`bulk body ${id}`, write?.body);
 			expect(write?.method).toBe('PUT');
@@ -2281,7 +2536,8 @@ test.describe('lane-b · Reports › the timesheet of a member: what a manager s
 		page,
 		fixture
 	}) => {
-		const state = newStore(fixture);
+		const week = servedWeek();
+		const state = newStore(fixture, week);
 		const api = await serveTimesheetApi(page, state);
 		// The sheet only hands a cell to a viewer `canWrite` covers: `ALLOW_MANUAL_TIME` on the viewer's own role and a
 		// write right on this member (`use-sheet-editing.ts:131-133`). The mock's role permissions do not carry
@@ -2293,6 +2549,7 @@ test.describe('lane-b · Reports › the timesheet of a member: what a manager s
 			scenario: { extraPermissions: [MANUAL_TIME_PERMISSION] }
 		});
 		await expect(statusStrip(page)).toBeVisible({ timeout: 30_000 });
+		await openServedWeek(page, api, week);
 
 		/* Which cells are open is `sheetLockOf` / `cellLockOf` (`core/lib/utils/dashboards/timesheet-sheet-edit.ts:478-511`)
 		   applied to the entries this file serves, never to a calendar, so the count below follows the served data and
@@ -2315,10 +2572,7 @@ test.describe('lane-b · Reports › the timesheet of a member: what a manager s
 				.filter((log) => statusLabelOf(log) === T.STATUS.APPROVED)
 				.map((log) => localDayKey(new Date(String(log.startedAt))))
 		);
-		const week = weekOfZone('UTC');
-		const weekKeys = Array.from({ length: 7 }, (_, index) =>
-			zoneDayKeyOf(new Date(week.fromDate.getTime() + index * 86_400_000), 'UTC')
-		);
+		const weekKeys = dayKeysOf(week);
 		const todayKey = localDayKey(new Date());
 		const openKeys = weekKeys.filter((key) => key <= todayKey && !approvedKeys.has(key));
 		const taskKeys = new Set(
@@ -2438,9 +2692,11 @@ test.describe('lane-b · Reports › the timesheet of a member: what a manager s
 	}) => {
 		// The other half — Export is disabled when the period has no log at all — is asserted in test 1 on the mock's own
 		// empty period (`-probe-3.log` R1), and refusing the read instead shows the error state, not the empty one.
-		const state = newStore(fixture);
-		await serveTimesheetApi(page, state);
+		const week = servedWeek();
+		const state = newStore(fixture, week);
+		const api = await serveTimesheetApi(page, state);
 		await signInAndVisit(page, fixture, MEMBER_PAGE(fixture.ids.employee));
+		await openServedWeek(page, api, week);
 		await viewTabs(page).getByRole('tab', { name: T.VIEWS.LIST, exact: true }).click();
 		await expect(logRows(page)).toHaveCount(6, { timeout: 30_000 });
 		await expect(exportButton(page)).toBeEnabled();
@@ -2451,7 +2707,6 @@ test.describe('lane-b · Reports › the timesheet of a member: what a manager s
 		const csvEvent = page.waitForEvent('download');
 		await openMenu(page).getByRole('menuitem', { name: T.EXPORT_CSV, exact: true }).click();
 		const csv = await csvEvent;
-		const week = weekOfZone('UTC');
 		expect(csv.suggestedFilename(), 'the CSV is not named after the prefix and the shown period').toBe(
 			`${FILE_PREFIX}-${week.fromKey}-${week.toKey}.csv`
 		);
@@ -2475,7 +2730,7 @@ test.describe('lane-b · Reports › the timesheet of a member: what a manager s
 				C.NOTES
 			].join(',')
 		);
-		const rows = servedLogs(fixture)
+		const rows = servedLogs(fixture, week)
 			.slice()
 			.sort((a, b) => `${String(a.startedAt)}`.localeCompare(String(b.startedAt)))
 			.map((log) => {
@@ -2506,7 +2761,8 @@ test.describe('lane-b · Reports › the timesheet of a member: what a manager s
 		fixture,
 		shield
 	}) => {
-		const state = newStore(fixture, { 'GET /api/timesheet/time-log': 500 });
+		const served = servedWeek();
+		const state = newStore(fixture, served, { 'GET /api/timesheet/time-log': 500 });
 		const api = await serveTimesheetApi(page, state);
 		await signInAndVisit(page, fixture, MEMBER_PAGE(fixture.ids.employee));
 
@@ -2522,8 +2778,8 @@ test.describe('lane-b · Reports › the timesheet of a member: what a manager s
 				(label) => `${label}${MISSING_VALUE}${MISSING_VALUE}`
 			)
 		);
-		const week = weekOfZone('UTC');
-		await expect(metaLine(page)).toHaveText(periodTextOf(week.from, week.to, 'UTC'));
+		const openedWeek = weekOfZone('UTC');
+		await expect(metaLine(page)).toHaveText(periodTextOf(openedWeek.from, openedWeek.to, 'UTC'));
 		await expect(exportButton(page)).toBeDisabled();
 		const readsBeforeRetry = api.reads(LOGS_PATH).length;
 		report('reads before retry', readsBeforeRetry);
@@ -2540,7 +2796,9 @@ test.describe('lane-b · Reports › the timesheet of a member: what a manager s
 		await bodyRegion(page).getByRole('button', { name: EN.pages.unauthorized.TRY_AGAIN, exact: true }).click();
 		await expect.poll(() => api.reads(LOGS_PATH).length, { timeout: 30_000 }).toBeGreaterThan(readsBeforeRetry);
 		// The page opens on the Sheet view (`viewOf`, `use-timesheets-page.ts:105-111`) and only the List's log rows carry
-		// `aria-selected`, so the recovered rows are read from the List view.
+		// `aria-selected`, so the recovered rows are read from the List view. They live in the week the served logs are
+		// in (`servedWeek`), the whole weeks `openServedWeek` steps back from the week the refused read was made in.
+		await openServedWeek(page, api, served);
 		await viewTabs(page).getByRole('tab', { name: T.VIEWS.LIST, exact: true }).click();
 		await expect(logRows(page)).toHaveCount(6, { timeout: 30_000 });
 		report('reads after retry', api.reads(LOGS_PATH).length);
