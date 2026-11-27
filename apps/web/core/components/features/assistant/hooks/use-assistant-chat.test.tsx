@@ -256,6 +256,37 @@ describe('Ever SI conversation across views', () => {
 
 		expect(view.result.current.sessionId).not.toBe(teamAChat.id);
 	});
+
+	it('empties the composer with the team in a view that stays mounted, and keeps nothing of it for the new team', () => {
+		const store = signedInStore('user-draft-mounted');
+		const view = mountView(store);
+		act(() => view.result.current.setInput('For team A only'));
+
+		// The person picks another team with the panel still open; the shell reports the new scope.
+		act(() => store.set(stores.activeTeamIdState, 'team-b'));
+		act(() => setLiveChatScope(chatHistoryKey(scopeOf('user-draft-mounted', 'team-b'))));
+		expect(view.result.current.input).toBe('');
+
+		// What is typed from here on is team B's, and only that comes back in the next view.
+		act(() => view.result.current.setInput('For team B'));
+		view.unmount();
+		expect(mountView(store).result.current.input).toBe('For team B');
+	});
+
+	it('brings the draft back in a view that mounted before the person was known', () => {
+		const store = signedInStore('user-draft-late');
+		const panel = mountView(store);
+		act(() => panel.result.current.setInput('Typed in the panel'));
+		panel.unmount();
+
+		// The full page mounts while the account is still loading, then the person is known.
+		act(() => store.set(stores.userState, null));
+		const page = mountView(store);
+		expect(page.result.current.input).toBe('');
+		act(() => store.set(stores.userState, { id: 'user-draft-late' }));
+
+		expect(page.result.current.input).toBe('Typed in the panel');
+	});
 });
 
 describe('Ever SI when a scope ends with no view open', () => {

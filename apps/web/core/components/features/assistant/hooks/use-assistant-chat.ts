@@ -121,6 +121,10 @@ export function useAssistantChat() {
 
 	if (scopeState.key !== scopeKey) {
 		setScopeState(createScopeState(historyScope, scopeKey));
+		// The composer changes with its conversation: what was typed for one team, workspace or account is not
+		// carried into the next one, which gets its own draft (none, unless this visit left one there). This is also
+		// what brings the draft back in a view that mounted before the person was known.
+		setInput(readEverSiDraft(scopeKey));
 	}
 
 	// Kept outside this view as it is typed, for the view that mounts next. A scope that ended (sign-out under way)
