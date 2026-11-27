@@ -65,6 +65,16 @@ import { MOCK_ORIGIN } from '../../test-servers';
  * (`mock-gauzy-server.mjs:107`), which is why the read this page sends names `Europe/Madrid` while the Timesheets
  * page names `UTC`.
  *
+ * **Checked to hold on any weekday (2026-11-27).** The days the display tests serve are picked from the week the
+ * calendar opens on (`displayDaysOf`, beside `mondayOffset`): its Monday and Tuesday when the run is a Wednesday..
+ * Sunday — the pair the accepted runs measured — and its Saturday and Sunday when the run is a Monday or a Tuesday,
+ * and never its today, because test 2 pins today's month cell as a plan-only cell and the day view of a day holding
+ * nothing, while a day of the week *before* the shown one is not always a cell of the 42-day month grid (that grid
+ * starts at the week holding the 1st). A day of the shown week that is after today is drawn and counted like any
+ * other (`s3-lane-a-weekday-calendarprobe-1.log`). The drag and split tests keep their own whole past day
+ * (`dragDayOffset` = yesterday, reached with `showWeekOf`, which steps back when yesterday sits in the week before),
+ * so every slot a drag lands on is behind the run on any weekday.
+ *
  * ## Which layer is real and which is served
  *
  * **Real:** this lane's app, the shell and its reads, NextAuth, and the mock's own fixtures — tenant, organization,
@@ -790,11 +800,27 @@ const mondayOffset = () => {
 	return -((weekday + 6) % 7);
 };
 /**
- * The two days the display tests serve their logs on: whole days *of the week the calendar opens on*
- * (`visibleRangeOf`, `calendar-view.ts:188-201`), so a run on any weekday draws them.
+ * The two days the display tests serve their logs on: two whole days **of the week the calendar opens on**
+ * (`visibleRangeOf`, `calendar-view.ts:188-201`) that are not the run's own day. Those two rules are what makes the
+ * pair hold on any weekday: a day of the shown week is a column of the week grid and a cell of the 42-day month grid
+ * on every weekday (a served day of the week before it is not — the month grid starts at the week holding the 1st, so
+ * on a run whose week starts on the 1st a previous-week day falls outside it), and the run's own day must stay free of
+ * served time because test 2 pins today's month cell as a plan-only cell (its `REACH` line) and the day view of a day
+ * holding nothing, and today is the one day of the shown week a run can never step around. On a Wednesday..Sunday the
+ * pair is the week's Monday and Tuesday, exactly as the accepted runs measured; on a Monday or a Tuesday those two
+ * would land on today, so the pair is the week's last two days instead. A day after today draws and counts the same
+ * way as a past one — measured with a served log on the shown week's Saturday and Sunday: each was printed in its own
+ * week column and in its own month cell, and both totals named them (`s3-lane-a-weekday-calendarprobe-1.log`
+ * "MEASURE week entries" / "MEASURE month cells of the three days" / "MEASURE month meta line" `4h 30m`). The drag and
+ * split tests keep their own whole past day (`dragDayOffset`), where every slot a drag can land on is behind the run.
  */
-const weekDayA = () => mondayOffset();
-const weekDayB = () => mondayOffset() + 1;
+const displayDaysOf = () => {
+	const week = Array.from({ length: 7 }, (_, index) => mondayOffset() + index);
+	const pastDays = week.filter((offset) => offset < 0);
+	return pastDays.length >= 2 ? [pastDays[0], pastDays[1]] : [week[5], week[6]];
+};
+const weekDayA = () => displayDaysOf()[0];
+const weekDayB = () => displayDaysOf()[1];
 /** The time the shown member has on one served day, as `calendarDaysOf` would total it (`calendar-view.ts:549-569`). */
 const daySecondsOf = (state: ServedState, employeeId: string, offset: number) =>
 	secondsOf(
