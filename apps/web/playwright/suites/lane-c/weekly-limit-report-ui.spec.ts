@@ -31,10 +31,25 @@ import { APP_ORIGIN, MOCK_ORIGIN } from '../../test-servers';
  * assertion printed the rest: `-1.log` (16 failed) the page snapshots behind findings 12 and 13, `-fix-1.log` (4 failed)
  * the CSV lines behind test 17 and 18 and the `filter({ has })` trap behind `memberRows`, `-fix-2.log` (2 failed) the
  * calendar `columnheader`s of finding 14 and the footer behaviour of finding 15. Every value asserted below is one those
- * runs printed. Served days are offsets from
- * the day the run runs on (`localDay`, the pattern of `suites/lane-c/payments-due-report-ui.spec.ts:290-328`), every
- * formatted string is rebuilt here from the same offsets and the same `Intl` options the page uses, and no case names
- * today's date. The browser zone (`Europe/Madrid` on this PC) is read from the page, never hard-coded.
+ * runs printed. Served days are days of the period the page draws — `periodDayOffsets` for the day view, the snapped
+ * period's own week columns for the weekly view — never a fixed count back from today, every formatted string is
+ * rebuilt here from those same days and the same `Intl` options the page uses, and no case names today's date. The
+ * browser zone (`Europe/Madrid` on this PC) is read from the page, never hard-coded.
+ *
+ * ## Checked to hold on any weekday (2026-11-27)
+ *
+ * Walked through a Monday, a Tuesday, a Wednesday and a Sunday, and through the 1st of a month, because this page's
+ * period is a whole month: the dates that broke were the month's first days (a served `localDay(-1)` / `-2` / `-3` is
+ * another month's day there, and `limitEntriesOf` `weekly-limit.ts:344-348` keeps only days the period holds, which
+ * empties rows, cells, totals and the CSV) and, for the three weekly tests (11, 12, 18), the dates whose week is the
+ * week holding the 1st (Tue 2026-12-01 .. Sun 2026-12-06, Sun 2026-11-01, Fri 2027-01-01 .. Sun 2027-01-03), where
+ * `weekStartOffset - 7` falls before the snapped period. Days and weeks are therefore picked from the shown period:
+ * `periodDayOffsets(count)` (the month's own days ending at today, carried on after today when the month has no
+ * earlier one) and `snappedWeekPeriod(...).from + 7 / + 14` (a snapped month period always covers ≥ 4 week columns).
+ * Test 4's Upcoming-cell count is computed from the served set, because a future column that *holds* time prints its
+ * time (`figuresOf` `limit-heatmap.tsx:161-174`). The arithmetic behind all of it is proven without a browser by
+ * `/d/Coding/.tmp/probe-weekday-c/period-weeks.mjs`; the rendering of a served day after today by
+ * `s3-lane-c-weekday-weeklylimit-probe-1.log`.
  *
  * ## Which layer is real and which is served
  *
@@ -376,8 +391,29 @@ const snappedWeekPeriod = (period: { from: Date; to: Date }, weekStart: number) 
 	const to = shiftDays(endOfLocalDay(period.to), 6 - backToWeekStart(period.to));
 	return { from, to };
 };
-/** The offset of the current week's first day, for a workspace with this week start. */
-const weekStartOffset = (weekStart: number) => -((new Date().getDay() - weekStart + 7) % 7);
+/**
+ * `count` days the daily view really draws: days of `monthPeriod()`, the period the page opens on. They end at
+ * today, and on the 1st or 2nd of a month — when the month has no earlier day left — they carry on *after* today
+ * instead, which the heatmap draws like any other day (`figuresOf` `limit-heatmap.tsx:161-174`: `CELL_UPCOMING`
+ * only where a future column holds no time). A day the shown period does not hold is dropped by `limitEntriesOf`
+ * (`weekly-limit.ts:344-348`), which is why `localDay(-1)` / `-2` / `-3` cannot be served days on the first days of
+ * a month. `count ≤ 3` and the shortest month is 28 days, so both bounds stay inside the month, whatever the weekday.
+ */
+const periodDayOffsets = (count: number) => {
+	const dayOfMonth = new Date().getDate();
+	const first = Math.max(1, dayOfMonth - count + 1);
+	const last = Math.max(dayOfMonth, count);
+	return Array.from({ length: last - first + 1 }, (_, index) => first + index - dayOfMonth);
+};
+/**
+ * The `localDay` offset that names a date picked out of a period: the difference of the two calendar days' UTC
+ * midnights, always an exact multiple of a day (a difference measured on the calendar, never a `± 24 h` step off
+ * `Date.now()`).
+ */
+const offsetOf = (day: Date) =>
+	(Date.UTC(day.getFullYear(), day.getMonth(), day.getDate()) -
+		Date.UTC(new Date().getFullYear(), new Date().getMonth(), new Date().getDate())) /
+	86_400_000;
 
 const formatWith = (options: Intl.DateTimeFormatOptions) => new Intl.DateTimeFormat(WORKSPACE_LOCALE, options);
 /** `formatPeriod` (`dashboard-period.ts:147-158`) with `yearFormatOptions(false)` — the year only shows off-year. */
@@ -829,24 +865,29 @@ test.describe('lane-c · Reports › Weekly limit: what a manager sees and what 
 		const managerName = fixture.names.user;
 		const teammateName = fixture.names.teammate;
 		const restrictedName = fixture.names.denied;
+		/* Three days of the month this page opens on (`periodDayOffsets`), not three days back from today: on the 1st
+		   or 2nd of a month the days back from today are not columns of the shown period, and `limitEntriesOf`
+		   (`weekly-limit.ts:344-348`) drops the answer rows for them. Which of the three is today moves with the run
+		   date; nothing in this test names a day, only the served seconds. */
+		const [dayA, dayB, dayC] = periodDayOffsets(3);
 		await serveReport(page, {
 			days: [
 				{
-					offset: -2,
+					offset: dayA,
 					entries: [
 						{ employeeId: manager, name: managerName, seconds: 9 * HOUR, limit: STANDARD_DAY_LIMIT },
 						{ employeeId: teammate, name: teammateName, seconds: 7.5 * HOUR, limit: STANDARD_DAY_LIMIT }
 					]
 				},
 				{
-					offset: -1,
+					offset: dayB,
 					entries: [
 						{ employeeId: manager, name: managerName, seconds: 2 * HOUR, limit: STANDARD_DAY_LIMIT },
 						{ employeeId: restricted, name: restrictedName, seconds: 4 * HOUR, limit: 0 }
 					]
 				},
 				{
-					offset: 0,
+					offset: dayC,
 					entries: [
 						{ employeeId: teammate, name: teammateName, seconds: 1 * HOUR, limit: STANDARD_DAY_LIMIT }
 					]
@@ -904,10 +945,16 @@ test.describe('lane-c · Reports › Weekly limit: what a manager sees and what 
 		const manager = fixture.ids.employee;
 		const teammate = fixture.ids.teammateEmployee;
 		const restricted = fixture.ids.deniedEmployee;
+		/* `dayA` carries 9 h (manager) and 7.5 h (teammate), `dayB` 2 h (manager) and 4 h (restricted, no limit of
+		   its own), `dayC` 1 h (teammate). The three are days of the month the page opens on, so every one of them is
+		   a column on any run date; on the 1st or 2nd `dayC` (and on the 1st also `dayB`) is *after* today, and a
+		   future column that holds time prints its time exactly like a past one (`figuresOf`
+		   `limit-heatmap.tsx:161-174`, measured `s3-lane-c-weekday-weeklylimit-probe-1.log`). */
+		const [offsetA, offsetB, offsetC] = periodDayOffsets(3);
 		await serveReport(page, {
 			days: [
 				{
-					offset: -2,
+					offset: offsetA,
 					entries: [
 						{ employeeId: manager, name: fixture.names.user, seconds: 9 * HOUR, limit: STANDARD_DAY_LIMIT },
 						{
@@ -919,14 +966,14 @@ test.describe('lane-c · Reports › Weekly limit: what a manager sees and what 
 					]
 				},
 				{
-					offset: -1,
+					offset: offsetB,
 					entries: [
 						{ employeeId: manager, name: fixture.names.user, seconds: 2 * HOUR, limit: STANDARD_DAY_LIMIT },
 						{ employeeId: restricted, name: fixture.names.denied, seconds: 4 * HOUR, limit: 0 }
 					]
 				},
 				{
-					offset: 0,
+					offset: offsetC,
 					entries: [
 						{
 							employeeId: teammate,
@@ -946,10 +993,30 @@ test.describe('lane-c · Reports › Weekly limit: what a manager sees and what 
 		for (let day = startOfLocalDay(period.from); day <= period.to; day = shiftDays(day, 1)) {
 			periodDays.push(day);
 		}
-		const upcomingColumns = periodDays.filter((day) => localDayKeyOf(day) > localDayKeyOf(localDay(0))).length;
-		const overDay = dayLabelOf(localDay(-2));
-		const halfDay = dayLabelOf(localDay(-1));
-		const today = dayLabelOf(localDay(0));
+		const dayA = localDay(offsetA);
+		const dayB = localDay(offsetB);
+		const dayC = localDay(offsetC);
+		const keyA = localDayKeyOf(dayA);
+		const keyB = localDayKeyOf(dayB);
+		const keyC = localDayKeyOf(dayC);
+		const overDay = dayLabelOf(dayA);
+		const halfDay = dayLabelOf(dayB);
+		const hourDay = dayLabelOf(dayC);
+		/* A column after today is `CELL_UPCOMING` only when it holds no time (`figuresOf`
+		   `limit-heatmap.tsx:161-174`), so a served day that is after today — which is what `periodDayOffsets` has to
+		   fall back to on the 1st or 2nd of a month — takes its own column out of that count, for its row only. */
+		const rowsServedOn = new Map([
+			[keyA, 2],
+			[keyB, 2],
+			[keyC, 1]
+		]);
+		const upcomingCells = periodDays.reduce(
+			(count, day) =>
+				localDayKeyOf(day) > localDayKeyOf(localDay(0))
+					? count + 3 - (rowsServedOn.get(localDayKeyOf(day)) ?? 0)
+					: count,
+			0
+		);
 
 		// every cell of the teammate's row, in column order (`probe-2.log` Q1-dom.gridcells)
 		expect(
@@ -958,11 +1025,11 @@ test.describe('lane-c · Reports › Weekly limit: what a manager sees and what 
 		).toEqual(
 			periodDays.map((day) => {
 				const key = localDayKeyOf(day);
-				if (key === localDayKeyOf(localDay(-2))) {
+				if (key === keyA) {
 					return `${overDay} · ${trackedOf(7.5 * HOUR)} of ${hoursOf(STANDARD_DAY_LIMIT)} · 94% · ${L.VERDICT_NEAR}`;
 				}
-				if (key === localDayKeyOf(localDay(0))) {
-					return `${today} · ${trackedOf(1 * HOUR)} of ${hoursOf(STANDARD_DAY_LIMIT)} · 13%`;
+				if (key === keyC) {
+					return `${hourDay} · ${trackedOf(1 * HOUR)} of ${hoursOf(STANDARD_DAY_LIMIT)} · 13%`;
 				}
 				if (localDayKeyOf(day) > localDayKeyOf(localDay(0))) {
 					return `${dayLabelOf(day)} · ${L.CELL_UPCOMING}`;
@@ -971,13 +1038,13 @@ test.describe('lane-c · Reports › Weekly limit: what a manager sees and what 
 			})
 		);
 
-		// the whole grid's time-holding cells (`probe-2.log` Q1-dom.gridcells)
+		// the whole grid's time-holding cells, row order then column order (`probe-2.log` Q1-dom.gridcells)
 		expect(await cellsWithTimeOf(page), 'the cells that hold time do not read as measured').toEqual([
 			`${overDay} · ${trackedOf(9 * HOUR)} of ${hoursOf(STANDARD_DAY_LIMIT)} · 113% · ${copy(L.REMAINING_OVER, { duration: trackedOf(HOUR) })}`,
 			`${halfDay} · ${trackedOf(2 * HOUR)} of ${hoursOf(STANDARD_DAY_LIMIT)} · 25%`,
 			`${halfDay} · ${trackedOf(4 * HOUR)} of ${hoursOf(STANDARD_DAY_LIMIT)} · 50%`,
 			`${overDay} · ${trackedOf(7.5 * HOUR)} of ${hoursOf(STANDARD_DAY_LIMIT)} · 94% · ${L.VERDICT_NEAR}`,
-			`${today} · ${trackedOf(1 * HOUR)} of ${hoursOf(STANDARD_DAY_LIMIT)} · 13%`
+			`${hourDay} · ${trackedOf(1 * HOUR)} of ${hoursOf(STANDARD_DAY_LIMIT)} · 13%`
 		]);
 
 		// the figure inside a cell is the clock form, and the cell is a `gridcell` (`cellFigureOf` `:228-233`)
@@ -1007,12 +1074,12 @@ test.describe('lane-c · Reports › Weekly limit: what a manager sees and what 
 							.filter((label) => label.endsWith(upcoming)).length,
 					L.CELL_UPCOMING
 				),
-			'the columns after today are not marked Upcoming'
-		).toBe(upcomingColumns * 3);
+			'a column after today that holds no time is not marked Upcoming, or a column that holds time is'
+		).toBe(upcomingCells);
 		report('cells', {
 			overDay,
 			halfDay,
-			today,
+			hourDay,
 			upcomingCells: await page
 				.locator('[data-heat-cell]')
 				.evaluateAll(
@@ -1038,10 +1105,14 @@ test.describe('lane-c · Reports › Weekly limit: what a manager sees and what 
 	}) => {
 		const manager = fixture.ids.employee;
 		const teammate = fixture.ids.teammateEmployee;
+		/* Two days of the shown month (`periodDayOffsets`): `localDay(-2)` / `localDay(-1)` fall in the previous month
+		   when the run is on the 1st or the 2nd, and the report keeps only days its period holds
+		   (`limitEntriesOf` `weekly-limit.ts:344-348`). */
+		const [offsetA, offsetB] = periodDayOffsets(2);
 		await serveReport(page, {
 			days: [
 				{
-					offset: -2,
+					offset: offsetA,
 					entries: [
 						{
 							employeeId: manager,
@@ -1058,7 +1129,7 @@ test.describe('lane-c · Reports › Weekly limit: what a manager sees and what 
 					]
 				},
 				{
-					offset: -1,
+					offset: offsetB,
 					entries: [
 						{ employeeId: manager, name: fixture.names.user, seconds: 12 * HOUR, limit: STANDARD_DAY_LIMIT }
 					]
@@ -1068,8 +1139,8 @@ test.describe('lane-c · Reports › Weekly limit: what a manager sees and what 
 		await signInAndVisit(page, fixture, PAGE_PATH);
 		await expect(memberRows(page), 'the rows did not arrive').toHaveCount(2);
 
-		const atLimitDay = dayLabelOf(localDay(-2));
-		const overDay = dayLabelOf(localDay(-1));
+		const atLimitDay = dayLabelOf(localDay(offsetA));
+		const overDay = dayLabelOf(localDay(offsetB));
 		// `probe-9.log` V1-dom.cellLabels, rebuilt on this run's days
 		expect(await cellsWithTimeOf(page), 'the verdict words and the percent do not print as measured').toEqual([
 			`${atLimitDay} · ${trackedOf(STANDARD_DAY_LIMIT)} of ${hoursOf(STANDARD_DAY_LIMIT)} · 100% · ${L.VERDICT_NEAR}`,
@@ -1113,10 +1184,12 @@ test.describe('lane-c · Reports › Weekly limit: what a manager sees and what 
 	}) => {
 		const manager = fixture.ids.employee;
 		const teammate = fixture.ids.teammateEmployee;
+		// one day of the shown month (`periodDayOffsets(1)` = today), never `localDay(-1)`, a previous month's day on the 1st
+		const [offsetDay] = periodDayOffsets(1);
 		await serveReport(page, {
 			days: [
 				{
-					offset: -1,
+					offset: offsetDay,
 					entries: [
 						{
 							employeeId: manager,
@@ -1137,7 +1210,7 @@ test.describe('lane-c · Reports › Weekly limit: what a manager sees and what 
 		await signInAndVisit(page, fixture, PAGE_PATH);
 		await expect(memberRows(page), 'the rows did not arrive').toHaveCount(2);
 
-		const day = dayLabelOf(localDay(-1));
+		const day = dayLabelOf(localDay(offsetDay));
 		// `probe-3.log` R4-shareCell, verbatim apart from the day
 		expect(
 			await cellsWithTimeOf(page),
@@ -1255,10 +1328,14 @@ test.describe('lane-c · Reports › Weekly limit: what a manager sees and what 
 		const manager = fixture.ids.employee;
 		const teammate = fixture.ids.teammateEmployee;
 		const restricted = fixture.ids.deniedEmployee;
+		/* Three days of the shown month (`periodDayOffsets`); `-3` is a previous month's day when the run is on the
+		   1st, 2nd or 3rd, and a day the period does not draw is dropped before the attention list is built
+		   (`limitEntriesOf` `weekly-limit.ts:344-348`), which would change every sum on these lines. */
+		const [dayA, dayB, dayC] = periodDayOffsets(3);
 		await serveReport(page, {
 			days: [
 				{
-					offset: -3,
+					offset: dayA,
 					entries: [
 						{
 							employeeId: manager,
@@ -1275,7 +1352,7 @@ test.describe('lane-c · Reports › Weekly limit: what a manager sees and what 
 					]
 				},
 				{
-					offset: -2,
+					offset: dayB,
 					entries: [
 						{ employeeId: manager, name: fixture.names.user, seconds: 9 * HOUR, limit: STANDARD_DAY_LIMIT },
 						{
@@ -1287,7 +1364,7 @@ test.describe('lane-c · Reports › Weekly limit: what a manager sees and what 
 					]
 				},
 				{
-					offset: -1,
+					offset: dayC,
 					entries: [
 						{
 							employeeId: manager,
@@ -1327,10 +1404,11 @@ test.describe('lane-c · Reports › Weekly limit: what a manager sees and what 
 		fixture,
 		shield
 	}) => {
+		// a day of the shown month, so the row exists on the 1st of a month too (`periodDayOffsets(1)` = today)
 		await serveReport(page, {
 			days: [
 				{
-					offset: -1,
+					offset: periodDayOffsets(1)[0],
 					entries: [
 						{
 							employeeId: fixture.ids.employee,
@@ -1370,10 +1448,12 @@ test.describe('lane-c · Reports › Weekly limit: what a manager sees and what 
 		const manager = fixture.ids.employee;
 		// the mock's organization carries no `standardWorkHoursPerDay`; without it the page would fall back to 8 h (`:217`)
 		const orgSeen = await serveOrganization(page, fixture.ids.organizationA, { standardWorkHoursPerDay: 0 });
+		// a day of the shown month (`periodDayOffsets(1)` = today), so the cell exists on the 1st of a month too
+		const offsetDay = periodDayOffsets(1)[0];
 		await serveReport(page, {
 			days: [
 				{
-					offset: -1,
+					offset: offsetDay,
 					entries: [{ employeeId: manager, name: fixture.names.user, seconds: 2 * HOUR, limit: 0 }]
 				}
 			]
@@ -1390,7 +1470,9 @@ test.describe('lane-c · Reports › Weekly limit: what a manager sees and what 
 		expect(
 			await cellsWithTimeOf(page),
 			'the cell without a limit is not CELL_TRACKED_NO_LIMIT (`figuresOf` `:161-174`)'
-		).toEqual([`${dayLabelOf(localDay(-1))} · ${copy(L.CELL_TRACKED_NO_LIMIT, { used: trackedOf(2 * HOUR) })}`]);
+		).toEqual([
+			`${dayLabelOf(localDay(offsetDay))} · ${copy(L.CELL_TRACKED_NO_LIMIT, { used: trackedOf(2 * HOUR) })}`
+		]);
 		expect(
 			await allTextsOf(page.getByRole('gridcell').filter({ hasText: /\/ / })),
 			'the row total without a limit does not read No limit'
@@ -1416,11 +1498,21 @@ test.describe('lane-c · Reports › Weekly limit: what a manager sees and what 
 		shield
 	}) => {
 		const manager = fixture.ids.employee;
-		const thisMonday = weekStartOffset(MONDAY);
+		/* Two weeks picked from the snapped period's own columns (its 2nd and its 3rd) plus a Thursday inside the first
+		   of them — never `weekStartOffset(MONDAY) - 7`, which on a date whose week is the week holding the 1st (Tue
+		   2026-12-01 .. Sun 2026-12-06, Sun 2026-11-01, Fri 2027-01-01 .. Sun 2027-01-03) lies *before* the period the
+		   weekly view snaps to, so `limitEntriesOf` (`weekly-limit.ts:344-348`) drops that week's 20 h. A month is ≥ 28
+		   days and both ends of a snapped period land on a week boundary, so the snapped month period always holds at
+		   least four week columns and indices 1 and 2 exist on every date (printed for each walked date by
+		   `/d/Coding/.tmp/probe-weekday-c/period-weeks.mjs`). */
+		const weekPeriod = snappedWeekPeriod(monthPeriod(), MONDAY);
+		const servedWeek = shiftDays(weekPeriod.from, 7);
+		const servedMidweek = shiftDays(servedWeek, 3);
+		const servedOverWeek = shiftDays(weekPeriod.from, 14);
 		const calls = await serveReport(page, {
 			days: [
 				{
-					offset: thisMonday - 7,
+					offset: offsetOf(servedWeek),
 					entries: [
 						{
 							employeeId: manager,
@@ -1432,13 +1524,13 @@ test.describe('lane-c · Reports › Weekly limit: what a manager sees and what 
 				},
 				// a row dated mid-week: `limitEntriesOf` `:337-356` keeps only a period's first day
 				{
-					offset: thisMonday - 4,
+					offset: offsetOf(servedMidweek),
 					entries: [
 						{ employeeId: manager, name: fixture.names.user, seconds: 5 * HOUR, limit: STANDARD_DAY_LIMIT }
 					]
 				},
 				{
-					offset: thisMonday,
+					offset: offsetOf(servedOverWeek),
 					entries: [
 						{
 							employeeId: manager,
@@ -1455,7 +1547,6 @@ test.describe('lane-c · Reports › Weekly limit: what a manager sees and what 
 		await durationTab(page, L.DURATION_WEEK).click();
 		await expect.poll(() => calls.length, { timeout: 20_000 }).toBeGreaterThanOrEqual(2);
 
-		const weekPeriod = snappedWeekPeriod(monthPeriod(), MONDAY);
 		const weekCall = lastOf(calls);
 		expect(
 			weekCall.params.duration,
@@ -1483,16 +1574,14 @@ test.describe('lane-c · Reports › Weekly limit: what a manager sees and what 
 			'the weekly header row is not one column per week of the snapped period'
 		).toEqual(headerTextsOf(columns));
 
-		// the served Thursday is nowhere, and the two Mondays are (`probe-3.log` R2)
-		const servedKeys = [thisMonday - 7, thisMonday - 4, thisMonday].map((offset) =>
-			localDayKeyOf(localDay(offset))
-		);
+		// the served Thursday is nowhere, and the two served Mondays are (`probe-3.log` R2)
+		const servedKeys = [servedWeek, servedMidweek, servedOverWeek].map(localDayKeyOf);
 		expect(
 			await cellsWithTimeOf(page),
 			'an answer row that is not a period start was shown, or a week limit is not five days (`addedItemOf` `:146-152`)'
 		).toEqual([
-			`${weekLabelOf(localDay(thisMonday - 7))} · ${trackedOf(20 * HOUR)} of ${hoursOf(STANDARD_WEEK_LIMIT)} · 50%`,
-			`${weekLabelOf(localDay(thisMonday))} · ${trackedOf(44 * HOUR)} of ${hoursOf(STANDARD_WEEK_LIMIT)} · 110% · ${copy(L.REMAINING_OVER, { duration: trackedOf(4 * HOUR) })}`
+			`${weekLabelOf(servedWeek)} · ${trackedOf(20 * HOUR)} of ${hoursOf(STANDARD_WEEK_LIMIT)} · 50%`,
+			`${weekLabelOf(servedOverWeek)} · ${trackedOf(44 * HOUR)} of ${hoursOf(STANDARD_WEEK_LIMIT)} · 110% · ${copy(L.REMAINING_OVER, { duration: trackedOf(4 * HOUR) })}`
 		]);
 		report('weekly-monday', {
 			served: servedKeys,
@@ -1523,24 +1612,32 @@ test.describe('lane-c · Reports › Weekly limit: what a manager sees and what 
 		const manager = fixture.ids.employee;
 		// the same rule `core/lib/utils/dashboards/weekly-limit-week-start.test.ts` pins for the pure functions
 		const orgSeen = await serveOrganization(page, fixture.ids.organizationA, { startWeekOn: 'SUNDAY' });
-		const thisSunday = weekStartOffset(SUNDAY);
-		// the same shape `probe-3.log` R1 served: one day in the previous Sunday week, then the current week's Sunday and Monday
+		/* Weeks picked from the snapped period's own columns (its 2nd and its 3rd), never from today: on a date whose
+		   Sunday week is the week holding the 1st (Tue 2026-12-01 .. Sat 2026-12-05) the Sunday week before it lies
+		   *before* the snapped period and its 2 h is dropped (`limitEntriesOf` `weekly-limit.ts:344-348`), and the row
+		   total below would read 7 h. Same shape `probe-3.log` R1 served: one day late in the first served Sunday week,
+		   then the Sunday and the Monday of the next one. */
+		const weekPeriod = snappedWeekPeriod(monthPeriod(), SUNDAY);
+		const servedPrevWeek = shiftDays(weekPeriod.from, 7);
+		const servedPrevWeekDay = shiftDays(servedPrevWeek, 6);
+		const servedWeek = shiftDays(weekPeriod.from, 14);
+		const servedWeekDay = shiftDays(servedWeek, 1);
 		const calls = await serveReport(page, {
 			days: [
 				{
-					offset: thisSunday - 6,
+					offset: offsetOf(servedPrevWeekDay),
 					entries: [
 						{ employeeId: manager, name: fixture.names.user, seconds: 2 * HOUR, limit: STANDARD_DAY_LIMIT }
 					]
 				},
 				{
-					offset: thisSunday,
+					offset: offsetOf(servedWeek),
 					entries: [
 						{ employeeId: manager, name: fixture.names.user, seconds: 3 * HOUR, limit: STANDARD_DAY_LIMIT }
 					]
 				},
 				{
-					offset: thisSunday + 1,
+					offset: offsetOf(servedWeekDay),
 					entries: [
 						{ employeeId: manager, name: fixture.names.user, seconds: 4 * HOUR, limit: STANDARD_DAY_LIMIT }
 					]
@@ -1553,7 +1650,6 @@ test.describe('lane-c · Reports › Weekly limit: what a manager sees and what 
 		await durationTab(page, L.DURATION_WEEK).click();
 		await expect.poll(() => calls.length, { timeout: 20_000 }).toBeGreaterThanOrEqual(2);
 
-		const weekPeriod = snappedWeekPeriod(monthPeriod(), SUNDAY);
 		const weekCall = lastOf(calls);
 		expect(
 			weekCall.params.duration,
@@ -1579,11 +1675,11 @@ test.describe('lane-c · Reports › Weekly limit: what a manager sees and what 
 			'the week columns do not start on the workspace week start'
 		).toEqual(headerTextsOf(columns));
 
-		// 2 h into the week that starts the Sunday before it, and 3 h + 4 h into the current one, against a 5 × 8 h week limit
-		// (`weeklyReportsOfDays` `:158-183`, `addedItemOf` `:146-152`; `probe-3.log` R1-dom.cellLabels)
+		// 2 h into the first served Sunday week (from its Saturday), 3 h + 4 h into the next one, against a 5 × 8 h week
+		// limit (`weeklyReportsOfDays` `:158-183`, `addedItemOf` `:146-152`; `probe-3.log` R1-dom.cellLabels)
 		expect(await cellsWithTimeOf(page), 'the served days were not added into the workspace weeks').toEqual([
-			`${weekLabelOf(localDay(thisSunday - 7))} · ${trackedOf(2 * HOUR)} of ${hoursOf(STANDARD_WEEK_LIMIT)} · 5%`,
-			`${weekLabelOf(localDay(thisSunday))} · ${trackedOf(7 * HOUR)} of ${hoursOf(STANDARD_WEEK_LIMIT)} · 18%`
+			`${weekLabelOf(servedPrevWeek)} · ${trackedOf(2 * HOUR)} of ${hoursOf(STANDARD_WEEK_LIMIT)} · 5%`,
+			`${weekLabelOf(servedWeek)} · ${trackedOf(7 * HOUR)} of ${hoursOf(STANDARD_WEEK_LIMIT)} · 18%`
 		]);
 		expect(
 			await allTextsOf(page.getByRole('rowheader')),
@@ -1736,11 +1832,13 @@ test.describe('lane-c · Reports › Weekly limit: what a manager sees and what 
 		shield
 	}) => {
 		const teammate = fixture.ids.teammateEmployee;
+		// a day of the shown month (`periodDayOffsets(1)` = today): `-2` is another month's day on the 1st and the 2nd
+		const offsetDay = periodDayOffsets(1)[0];
 		const calls = await serveReport(page, {
 			honourIds: true,
 			days: [
 				{
-					offset: -2,
+					offset: offsetDay,
 					entries: [
 						{
 							employeeId: fixture.ids.employee,
@@ -1871,11 +1969,13 @@ test.describe('lane-c · Reports › Weekly limit: what a manager sees and what 
 		shield
 	}) => {
 		const teammate = fixture.ids.teammateEmployee;
-		// the one row `probe-3.log` R5 exported, and the CSV it produced (`R5-csv`)
+		/* The one row `probe-3.log` R5 exported, and the CSV it produced (`R5-csv`), served on a day of the shown
+		   month (`periodDayOffsets(1)` = today) rather than `localDay(-2)`, which on the 1st or 2nd is not a column. */
+		const offsetDay = periodDayOffsets(1)[0];
 		const calls = await serveReport(page, {
 			days: [
 				{
-					offset: -2,
+					offset: offsetDay,
 					entries: [
 						{
 							employeeId: teammate,
@@ -1931,7 +2031,7 @@ test.describe('lane-c · Reports › Weekly limit: what a manager sees and what 
 			csvLines.slice(1),
 			'the CSV row is not the row the view shows, in the form `csvColumnsOf` writes it (`probe-3.log` R5-csv, `s3-lane-c-weeklylimit-fix-1.log` failure 3)'
 		).toEqual([
-			`${localDayKeyOf(localDay(-2))},${fixture.names.teammate},${clockOf(7.5 * HOUR)},${clockOf(STANDARD_DAY_LIMIT)},93.8,0:30,0:00,${L.VERDICT_NEAR},${L.LIMIT_SOURCE_MEMBER}`
+			`${localDayKeyOf(localDay(offsetDay))},${fixture.names.teammate},${clockOf(7.5 * HOUR)},${clockOf(STANDARD_DAY_LIMIT)},93.8,0:30,0:00,${L.VERDICT_NEAR},${L.LIMIT_SOURCE_MEMBER}`
 		]);
 
 		await exportButton(page).click();
@@ -1951,11 +2051,16 @@ test.describe('lane-c · Reports › Weekly limit: what a manager sees and what 
 		shield
 	}) => {
 		const manager = fixture.ids.employee;
-		const thisMonday = weekStartOffset(MONDAY);
+		/* The same two weeks test 11 serves — the snapped period's 2nd and its 3rd column — for the same reason:
+		   `weekStartOffset(MONDAY) - 7` is a week the weekly view does not draw on a date whose week is the week
+		   holding the 1st, and a week it does not draw is not written into the CSV either. */
+		const weekPeriod = snappedWeekPeriod(monthPeriod(), MONDAY);
+		const servedWeek = shiftDays(weekPeriod.from, 7);
+		const servedOverWeek = shiftDays(weekPeriod.from, 14);
 		const calls = await serveReport(page, {
 			days: [
 				{
-					offset: thisMonday - 7,
+					offset: offsetOf(servedWeek),
 					entries: [
 						{
 							employeeId: manager,
@@ -1966,7 +2071,7 @@ test.describe('lane-c · Reports › Weekly limit: what a manager sees and what 
 					]
 				},
 				{
-					offset: thisMonday,
+					offset: offsetOf(servedOverWeek),
 					entries: [
 						{
 							employeeId: manager,
@@ -1994,7 +2099,6 @@ test.describe('lane-c · Reports › Weekly limit: what a manager sees and what 
 		await page.getByRole('menuitem', { name: L.CSV, exact: true }).click();
 		const csv = await csvEvent;
 		const raw = readFileSync((await csv.path()) as string, 'utf8');
-		const weekPeriod = snappedWeekPeriod(monthPeriod(), MONDAY);
 		const header = [
 			L.CSV_WEEK_START,
 			L.CSV_WEEK_END,
@@ -2020,8 +2124,8 @@ test.describe('lane-c · Reports › Weekly limit: what a manager sees and what 
 			csvLines.slice(1),
 			'the weekly CSV rows are not the weeks of the view (`probe-4.log` S4-csv, `s3-lane-c-weeklylimit-fix-1.log` failure 4)'
 		).toEqual([
-			`${localDayKeyOf(localDay(thisMonday - 7))},${localDayKeyOf(shiftDays(localDay(thisMonday - 7), 6))},${fixture.names.user},${clockOf(20 * HOUR)},${clockOf(STANDARD_WEEK_LIMIT)},50,20:00,0:00,${L.VERDICT_WITHIN},${L.LIMIT_SOURCE_MEMBER}`,
-			`${localDayKeyOf(localDay(thisMonday))},${localDayKeyOf(shiftDays(localDay(thisMonday), 6))},${fixture.names.user},${clockOf(44 * HOUR)},${clockOf(STANDARD_WEEK_LIMIT)},110,0:00,4:00,${L.VERDICT_OVER},${L.LIMIT_SOURCE_MEMBER}`
+			`${localDayKeyOf(servedWeek)},${localDayKeyOf(shiftDays(servedWeek, 6))},${fixture.names.user},${clockOf(20 * HOUR)},${clockOf(STANDARD_WEEK_LIMIT)},50,20:00,0:00,${L.VERDICT_WITHIN},${L.LIMIT_SOURCE_MEMBER}`,
+			`${localDayKeyOf(servedOverWeek)},${localDayKeyOf(shiftDays(servedOverWeek, 6))},${fixture.names.user},${clockOf(44 * HOUR)},${clockOf(STANDARD_WEEK_LIMIT)},110,0:00,4:00,${L.VERDICT_OVER},${L.LIMIT_SOURCE_MEMBER}`
 		]);
 		expect(consoleFindings(shield), 'the weekly export logged a console error').toEqual([]);
 	});
