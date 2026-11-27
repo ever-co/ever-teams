@@ -34,7 +34,7 @@ function MissingKeyNotice({ onOpenConfig }: Readonly<{ onOpenConfig: () => void 
 }
 
 /** The full page (`/assistant`) or the Ever SI panel beside a page, where the heading sits under the panel's title. */
-export type AssistantSurface = 'page' | 'panel';
+type AssistantSurface = 'page' | 'panel';
 
 const WELCOME_SPACING: Record<AssistantSurface, string> = { page: 'pt-10 pb-6', panel: 'pt-8 pb-4' };
 const EXAMPLES_SPACING: Record<AssistantSurface, string> = { page: 'flex-1 pt-5 pb-10', panel: 'py-4' };

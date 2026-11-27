@@ -113,7 +113,7 @@ export function replaceEverSiChat(scopeKey: string, chat: Chat<UIMessage>) {
  * The person moved to another workspace or team, signed in as someone else or signed out: those answers stop, and
  * what was typed there and not sent is forgotten with them, so it never waits for whoever comes next.
  */
-export function closeEverSiChatsOutside(liveKey: string | null) {
+function closeEverSiChatsOutside(liveKey: string | null) {
 	for (const [key, chat] of openChats) {
 		if (key === liveKey) {
 			continue;

@@ -108,11 +108,11 @@ export function projectActivityOf(
 }
 
 /** Fewer complete weeks than this is too little history to call a pace. */
-export const MIN_FORECAST_WEEKS = 2;
+const MIN_FORECAST_WEEKS = 2;
 /** A finish further away than this is shown as "more than", not as a date nobody can trust. */
 export const MAX_FORECAST_WEEKS = 52;
 
-export interface ProjectForecast {
+interface ProjectForecast {
 	/** Tasks not yet done. */
 	open: number;
 	/** Tasks completed per week, over the complete weeks the project has existed in the window. */

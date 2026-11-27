@@ -596,8 +596,7 @@ test.describe('lane-b · the session token a download route accepts', () => {
 test.describe('lane-b · what the download proxy asks the upstream with', () => {
 	test('the credential that leaves is the session cookie token, hashed by the mock as its own', async ({
 		api,
-		cookies,
-		mock
+		cookies
 	}) => {
 		const cookie = cookies('A');
 		const response = await api(FILE, { headers: { cookie } });
