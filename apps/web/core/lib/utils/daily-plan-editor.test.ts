@@ -1,4 +1,10 @@
-import { isPlannableHours, oneHourLess, oneHourMore, plannedHoursFromInput, plannedHoursText } from './daily-plan-editor';
+import {
+	isPlannableHours,
+	oneHourLess,
+	oneHourMore,
+	plannedHoursFromInput,
+	plannedHoursText
+} from './daily-plan-editor';
 
 describe('plannedHoursFromInput (#5713)', () => {
 	it.each([
@@ -20,9 +26,12 @@ describe('plannedHoursFromInput (#5713)', () => {
 		expect(plannedHoursFromInput(typed)).toBeNull();
 	});
 
-	it.each([['24.5'], ['24:01'], ['25'], ['100:45'], ['9999'], ['1e3']])('refuses %p: it is more than a day', (typed) => {
-		expect(plannedHoursFromInput(typed)).toBeNull();
-	});
+	it.each([['24.5'], ['24:01'], ['25'], ['100:45'], ['9999'], ['1e3']])(
+		'refuses %p: it is more than a day',
+		(typed) => {
+			expect(plannedHoursFromInput(typed)).toBeNull();
+		}
+	);
 });
 
 describe('isPlannableHours', () => {
