@@ -14,7 +14,8 @@ import {
 	InformationCircle,
 	LogOut,
 	Moon,
-	Settings,
+	Preferences,
+	UserCircle,
 	Users
 } from '@/core/components/icons';
 import { TimerStatus, getTimerStatusValue } from '../timer/timer-status';
@@ -265,9 +266,10 @@ function TeamMark({ team }: Readonly<{ team: TOrganizationTeam | null }>) {
 }
 
 /**
- * The account menu: where to go, the preferences, then Log out alone and last in destructive ink. Opened from the
- * sidebar's foot it starts with the links, since the name and e-mail sit right under it; opened from the top bar's
- * avatar it starts with who is signed in.
+ * The account menu, in the order of the shared Ever shell (spec A6): Account and Preferences, then what Ever Teams
+ * adds (my tasks, my team, about), the quick theme and language rows, then Log out alone and last in destructive
+ * ink. Opened from the sidebar's foot it starts with the links, since the name and e-mail sit right under it;
+ * opened from the top bar's avatar it starts with who is signed in.
  */
 function UserNavMenu({ identity, showsIdentity }: Readonly<{ identity: AccountIdentity; showsIdentity: boolean }>) {
 	const { user, logOut } = useAuthenticateUser();
@@ -300,6 +302,23 @@ function UserNavMenu({ identity, showsIdentity }: Readonly<{ identity: AccountId
 
 			<ul className="flex w-full flex-col">
 				<li>
+					<Link href="/settings/personal" className={MENU_ROW}>
+						<UserCircle />
+						<span>{t('settings.groups.account')}</span>
+					</Link>
+				</li>
+				<li>
+					<Link href="/settings/personal/preferences" className={MENU_ROW}>
+						<Preferences />
+						<span>{t('settings.entries.preferences.TITLE')}</span>
+					</Link>
+				</li>
+			</ul>
+
+			<MenuSeparator />
+
+			<ul className="flex w-full flex-col">
+				<li>
 					<Link href={`/profile/${user?.id}?name=${name}`} className={MENU_ROW}>
 						<Briefcase />
 						<span>{t('common.MY_TASKS')}</span>
@@ -310,12 +329,6 @@ function UserNavMenu({ identity, showsIdentity }: Readonly<{ identity: AccountId
 						<Users />
 						<span className="shrink-0">{t('common.MY_TEAM')}</span>
 						<TeamMark team={identity.team} />
-					</Link>
-				</li>
-				<li>
-					<Link href="/settings/personal" className={MENU_ROW}>
-						<Settings />
-						<span>{t('common.SETTINGS')}</span>
 					</Link>
 				</li>
 				<li>

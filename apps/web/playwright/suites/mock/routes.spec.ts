@@ -8,7 +8,7 @@ import { devOverlayErrors } from '../../helpers';
  *   - the shell reaches its ready mark (hardVisit waits for it, so a hang here is a render failure)
  *   - nothing crashed: no uncaught page error, no app console error
  *   - no Next.js dev overlay appeared
- *   - the app was sent no 4xx/5xx by the API
+ *   - the app was sent no 4xx/5xx by the API, apart from the 404 of a path the case names as absent (`absentPaths`)
  *   - the route did not bounce the person to sign-in, to /unauthorized, or to the not-found page
  *   - the route asked the API for something (a route that renders while calling nothing is a stub)
  */
@@ -20,6 +20,12 @@ type RouteCase = {
 	path: (fixture: BootstrapFixture) => string;
 	/** Set before the visit; a route may legitimately need a scenario to render at all. */
 	scenario?: Record<string, unknown>;
+	/**
+	 * Mock paths the route reads that a supported Gauzy may not have, which the mock answers 404 by default (a Gauzy
+	 * without the route): that 404 is the page's answer, not an API failure. The console gate still holds, so the page
+	 * must take it quietly.
+	 */
+	absentPaths?: string[];
 };
 
 const ROUTES: RouteCase[] = [
@@ -59,7 +65,18 @@ const ROUTES: RouteCase[] = [
 	{ label: 'settings personal', path: () => `/settings/personal` },
 	{ label: 'settings personal notifications', path: () => `/settings/personal/notifications` },
 	{ label: 'settings personal preferences', path: () => `/settings/personal/preferences` },
-	{ label: 'settings personal security', path: () => `/settings/personal/security` },
+	// "Sites you signed in from" (#5595) reads GET /embed/grants: off by default on the mock, as on a Gauzy without the
+	// route, and listed with the `siteGrants` scenario
+	{
+		label: 'settings personal security',
+		path: () => `/settings/personal/security`,
+		absentPaths: ['/api/embed/grants']
+	},
+	{
+		label: 'settings personal security (sites signed in from)',
+		path: () => `/settings/personal/security`,
+		scenario: { siteGrants: true }
+	},
 	{ label: 'settings personal working hours', path: () => `/settings/personal/working-hours` },
 	{ label: 'settings personal api tokens', path: () => `/settings/personal/api-tokens` },
 	{ label: 'settings team', path: () => `/settings/team` },
@@ -103,7 +120,10 @@ for (const route of ROUTES) {
 		expect(page.url(), `landed on ${route.label}`).not.toMatch(/\/auth\/(passcode|password|signup|error)/);
 		expect(page.url(), `landed on ${route.label}`).not.toMatch(/\/unauthorized/);
 
-		expect(await mock.failures(), `API failures while loading ${route.label}`).toEqual([]);
+		const isAbsentPath = (request: { path: string; status: number }) =>
+			request.status === 404 && (route.absentPaths ?? []).includes(request.path);
+		const failures = (await mock.failures()).filter((request) => !isAbsentPath(request));
+		expect(failures, `API failures while loading ${route.label}`).toEqual([]);
 		expect((await mock.requests()).length, `${route.label} asked the API for its data`).toBeGreaterThan(0);
 
 		await expect(page.locator('body')).not.toHaveText('');

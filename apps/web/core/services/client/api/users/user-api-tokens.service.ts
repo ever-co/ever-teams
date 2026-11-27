@@ -16,9 +16,13 @@ import {
  * the app's `/api/user-api-tokens` twins, which have the same paths.
  */
 class UserApiTokensService extends APIService {
-	/** Whether this server has the tokens on (`GAUZY_USER_API_TOKENS_ENABLED`); an API without the route answers 404. */
+	/**
+	 * Whether this server has the tokens on (`GAUZY_USER_API_TOKENS_ENABLED`); an API without the route answers 404,
+	 * which `userApiTokensAvailabilityOf` reads as `disabled`. The settings navigation asks it on every settings page, so
+	 * that 404 stays out of the error log.
+	 */
 	readConfig = async (signal?: AbortSignal): Promise<TUserApiTokenConfig> => {
-		const response = await this.get<unknown>('/user-api-tokens/config', { signal });
+		const response = await this.get<unknown>('/user-api-tokens/config', { signal, quietStatuses: [404] });
 		return validateApiResponse(userApiTokenConfigSchema, response.data, 'userApiTokens.config API response');
 	};
 

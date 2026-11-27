@@ -7,7 +7,6 @@ import { TASK_BUILT_IN_VIEWS } from '@/core/types/interfaces/common/task-views';
 /** The saved views the sidebar lists (the first in sidebar order); All views has every one of them. */
 const SIDEBAR_SAVED_VIEWS_MAX = 8;
 import {
-	Bot,
 	Building,
 	Calendar,
 	Chart,
@@ -31,19 +30,13 @@ import {
 import {
 	Sidebar,
 	SidebarContent,
-	SidebarGroup,
 	SidebarHeader,
-	SidebarMenu,
-	SidebarMenuButton,
-	SidebarMenuItem,
 	SidebarRail,
 	SidebarTrigger,
 	SidebarFooter
 } from '@/core/components/common/sidebar';
-import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { isPathActive, stripLocalePrefix } from '@/core/lib/utils/navigation-path';
-import { NAV_ROW_ACTIVE_RECIPE, NAV_ROW_RECIPE } from './nav-row-recipe';
+import { stripLocalePrefix } from '@/core/lib/utils/navigation-path';
 import { cn } from '@/core/lib/helpers';
 import { isValidProjectForDisplay, projectBelongsToTeam } from '@/core/lib/helpers/type-guards';
 import { useModal } from '@/core/hooks';
@@ -59,6 +52,9 @@ import { useAppSwitcherPlacement } from '@/core/hooks/common/use-app-switcher-pl
 import { LazyCreateTeamModal } from '@/core/components/optimized-components/teams';
 import { LazySidebarCommandModal } from '@/core/components/optimized-components/common';
 import { NavHome } from '../nav-home';
+import { EverSiNavItem } from './ever-si-nav-item';
+import { EVER_SI_PATH } from '../features/assistant/atoms/ever-si-panel.atom';
+import { EverSiOpenButton } from '../features/assistant/components/ever-si-edge-controls';
 import { NavMain } from './nav-main';
 import { Suspense } from 'react';
 import { ModalSkeleton } from '@/core/components/common/skeleton/modal-skeleton';
@@ -76,7 +72,6 @@ import {
 } from './sidebar-projects';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { useIsEmailVerificationSatisfied } from '@/core/hooks/auth/use-email-verification-status';
-import { APP_NAME } from '@/core/constants/config/constants';
 import { GlobalAllPlansModal } from '../daily-plan';
 import { GlobalAssignTaskModal } from '../features/tasks/global-assign-task-modal';
 import { GlobalProjectActionModal } from '../features/projects/global-project-action-modal';
@@ -109,7 +104,7 @@ const MAX_SIDEBAR_PROJECTS = 5;
 /**
  * The sidebar sits on the window background (variant `inset`): the pages render in the rounded panel
  * beside it. Its header carries the workspace switcher with the collapse button, then the palette
- * search, the quick-create menu and the assistant; the account menu closes it at the foot.
+ * search, the quick-create menu and the Ever SI row; the account menu closes it at the foot.
  */
 export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	const { data: user } = useUserQuery();
@@ -504,7 +499,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 
 	// The command palette's "Go to" lists the pages of this sidebar from the entries above: one list, the same rules.
 	const firstLevelLinks = useMemo(
-		() => [...homeEntries, { title: t('chatView.ASSISTANT'), url: ASSISTANT_PATH }],
+		() => [...homeEntries, { title: t('chatView.ASSISTANT'), url: EVER_SI_PATH }],
 		[homeEntries, t]
 	);
 	const sidebarPages = useSidebarPages(firstLevelLinks, navMain);
@@ -537,7 +532,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 				<SidebarContent className="gap-0">
 					{showsSettingsNav && <SettingsNav />}
 					{!showsSettingsNav && <NavHome homeData={homeEntries} />}
-					{!showsSettingsNav && <AssistantNavItem />}
+					{!showsSettingsNav && <EverSiNavItem publicTeam={publicTeam} />}
 					{!showsSettingsNav && <NavMain items={navMain} />}
 				</SidebarContent>
 
@@ -554,6 +549,8 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 					)}
 				</SidebarFooter>
 				<SidebarRail />
+				{/* Ever SI, collapsed: its button on this edge opens the panel beside the page (desktop). */}
+				<EverSiOpenButton publicTeam={publicTeam} />
 			</Sidebar>
 
 			{showCreateTeamModal && (
@@ -584,52 +581,9 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	);
 }
 
-/** The assistant has a page of its own, like Linear's Agent: a nav row under Home. */
-function AssistantNavItem() {
-	const t = useTranslations();
-	const pathname = usePathname();
-	const label = t('chatView.OPEN_ASSISTANT', { appName: APP_NAME });
-	const isActive = isPathActive(pathname, ASSISTANT_PATH);
-
-	return (
-		<SidebarGroup className="-mt-3">
-			<SidebarMenu className="w-full gap-y-0.5 group-data-[collapsible=icon]:items-center">
-				<SidebarMenuItem>
-					<SidebarMenuButton
-						asChild
-						isActive={isActive}
-						tooltip={label}
-						className={cn(
-							NAV_ROW_RECIPE,
-							'group-data-[collapsible=icon]:justify-center',
-							isActive && NAV_ROW_ACTIVE_RECIPE
-						)}
-					>
-						<Link href={ASSISTANT_PATH} aria-current={ariaCurrentFor(isActive)}>
-							<Bot aria-hidden="true" />
-							<span className="truncate group-data-[collapsible=icon]:hidden">
-								{t('chatView.ASSISTANT')}
-							</span>
-						</Link>
-					</SidebarMenuButton>
-				</SidebarMenuItem>
-			</SidebarMenu>
-		</SidebarGroup>
-	);
-}
-
-const ASSISTANT_PATH = '/assistant';
-
 function trackedProjectIdOf(isTimerRunning: boolean, projectId: string | null | undefined) {
 	if (!isTimerRunning) {
 		return null;
 	}
 	return projectId ?? null;
-}
-
-function ariaCurrentFor(isActive: boolean) {
-	if (isActive) {
-		return 'page' as const;
-	}
-	return undefined;
 }

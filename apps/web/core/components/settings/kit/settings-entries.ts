@@ -64,10 +64,11 @@ export const TIME_IMPORT_SETTINGS_PATH = '/settings/team/import';
 export const SETTINGS_ENTRIES: ReadonlyArray<SettingsEntry> = [
 	{ id: 'profile', group: 'account', href: '/settings/personal', icon: UserCircle },
 	{ id: 'preferences', group: 'account', href: '/settings/personal/preferences', icon: Preferences },
-	{ id: 'workingHours', group: 'account', href: '/settings/personal/working-hours', icon: Clock },
+	// The shared Ever shell opens Account with Profile, Preferences, Notifications (spec A9); Teams' own pages follow.
 	{ id: 'notifications', group: 'account', href: '/settings/personal/notifications', icon: Bell },
 	// Shown once the platform answers the two-factor state: `useHiddenSettingsEntries` hides it on an API without it.
 	{ id: 'security', group: 'account', href: '/settings/personal/security', icon: Lock },
+	{ id: 'workingHours', group: 'account', href: '/settings/personal/working-hours', icon: Clock },
 	// Offered only while the server has personal API tokens on: `useHiddenSettingsEntries` hides it otherwise.
 	{ id: 'apiTokens', group: 'account', href: '/settings/personal/api-tokens', icon: Key },
 	{ id: 'workspaceGeneral', group: 'workspace', href: '/settings/workspace', icon: Building },

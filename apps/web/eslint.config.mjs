@@ -11,6 +11,10 @@ import unusedImportsPlugin from 'eslint-plugin-unused-imports';
  * eslint-suppressions.json, so every rule applies to new code while the backlog is burned down: see
  * "Linting" in README.md.
  */
+
+/** The files eslint-config-next registers its plugins for (import, react-hooks, jsx-a11y, @next/next): no `.cjs`. */
+const NEXT_FILES = ['**/*.{js,jsx,mjs,ts,tsx,mts,cts}'];
+
 const eslintConfig = [
 	{
 		ignores: ['**/.next/**', '**/build/**', '**/coverage/**', '**/dist/**', '**/node_modules/**', '**/out/**']
@@ -19,7 +23,8 @@ const eslintConfig = [
 	...nextVitals,
 	...nextTypescript,
 	{
-		files: ['**/*.config.js', '**/env.js'],
+		// CommonJS: the config files, and the `.cjs` scripts (playwright/scripts).
+		files: ['**/*.config.js', '**/env.js', '**/*.cjs'],
 		languageOptions: {
 			globals: {
 				__dirname: 'readonly',
@@ -66,6 +71,9 @@ const eslintConfig = [
 	{
 		// `lint` fails on any warning (--max-warnings=0), and eslint-suppressions.json only records errors: these
 		// rules, which eslint-config-next sets to warn and which have a backlog, are errors so it can be recorded.
+		// Only for the files eslint-config-next registers their plugins for (`NEXT_FILES`): on any other file, a
+		// `.cjs` script for one, ESLint cannot find the plugin of the rule and refuses to lint the whole project.
+		files: NEXT_FILES,
 		rules: {
 			'@next/next/no-head-element': 'error',
 			'@typescript-eslint/no-unused-expressions': 'error',

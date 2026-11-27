@@ -1,4 +1,4 @@
-import { formatIntegerToHour, formatTimeString, parseStringInputToHours } from './date-and-time';
+import { formatIntegerToHour, formatTimeString, parseStringInputToHours, secondsToTime } from './date-and-time';
 
 describe('formatIntegerToHour', () => {
 	it('formats whole hours without minutes', () => {
@@ -39,6 +39,26 @@ describe('formatIntegerToHour', () => {
 		// The weekly-limit report renders its own '-' and relies on formatTimeString for the magnitude
 		expect(formatTimeString(formatIntegerToHour(-5400 / 3600))).toBe('1h 30m');
 		expect(formatTimeString(formatIntegerToHour(-1800 / 3600))).toBe('30m');
+	});
+});
+
+describe('secondsToTime', () => {
+	it('splits whole seconds into hours, minutes and seconds', () => {
+		expect(secondsToTime(0)).toEqual({ hours: 0, minutes: 0, seconds: 0 });
+		expect(secondsToTime(59)).toEqual({ hours: 0, minutes: 0, seconds: 59 });
+		expect(secondsToTime(3661)).toEqual({ hours: 1, minutes: 1, seconds: 1 });
+		expect(secondsToTime(360000)).toEqual({ hours: 100, minutes: 0, seconds: 0 });
+	});
+
+	it('rounds a part of a second up, as before', () => {
+		expect(secondsToTime(10.4)).toEqual({ hours: 0, minutes: 0, seconds: 11 });
+		expect(secondsToTime(3600.5)).toEqual({ hours: 1, minutes: 0, seconds: 1 });
+	});
+
+	it('carries a part of a second that rounds up to 60 into the minute or the hour', () => {
+		expect(secondsToTime(59.2)).toEqual({ hours: 0, minutes: 1, seconds: 0 });
+		expect(secondsToTime(3599.2)).toEqual({ hours: 1, minutes: 0, seconds: 0 });
+		expect(secondsToTime(7199.9)).toEqual({ hours: 2, minutes: 0, seconds: 0 });
 	});
 });
 

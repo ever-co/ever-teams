@@ -1,8 +1,8 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from 'react';
-import { useChat } from '@ai-sdk/react';
-import { DefaultChatTransport, type UIMessage } from 'ai';
+import { type Chat, useChat } from '@ai-sdk/react';
+import type { UIMessage } from 'ai';
 import { useAtomValue } from 'jotai';
 import { activeTeamIdState, activeWorkspaceIdState, userState } from '@/core/stores';
 import { useAiConfig } from '@/core/hooks/ai/use-ai-config';
@@ -14,17 +14,19 @@ import {
 	type ChatSession,
 	canPersistChatHistory,
 	chatHistoryKey,
-	createChatSession,
 	readChatHistory,
-	toChatUiMessages,
-	upsertChatSession,
+	removeChatSession,
+	withChatSessionMessages,
 	writeChatHistory
 } from '@/core/components/features/chat-panel/chat-history';
-
-const CHAT_API = '/api/chat';
-
-/** The user's own AI settings travel with each request (`sendMessage` and `regenerate` options), not in the transport. */
-const CHAT_TRANSPORT = new DefaultChatTransport({ api: CHAT_API });
+import { isChatScopeLive } from '@/core/components/features/chat-panel/chat-scope';
+import {
+	createEverSiChat,
+	openEverSiChat,
+	readEverSiDraft,
+	replaceEverSiChat,
+	writeEverSiDraft
+} from './ever-si-chat-store';
 
 const NO_SCOPE_KEY = 'no-scope';
 
@@ -38,10 +40,6 @@ function isOnClient() {
 
 function isOnServer() {
 	return false;
-}
-
-function createSessionId() {
-	return `chat-${Date.now()}`;
 }
 
 function toRequestConfig(config: ChatConfig | null) {
@@ -72,25 +70,22 @@ function scopeKeyOf(scope: ChatHistoryScope | null) {
 
 type ScopeState = {
 	key: string;
-	sessionId: string;
+	/** The scope's open conversation, shared with the other Ever SI views (`ever-si-chat-store.ts`). */
+	chat: Chat<UIMessage>;
 	storedSessions: ChatSession[];
 };
 
 function createScopeState(scope: ChatHistoryScope | null, key: string): ScopeState {
 	return {
 		key,
-		sessionId: createSessionId(),
+		chat: openEverSiChat(key, scope),
 		storedSessions: readScopedHistory(scope)
 	};
 }
 
 function withCurrentSession(storedSessions: ChatSession[], messages: UIMessage[], sessionId: string) {
-	if (messages.length === 0) {
-		return storedSessions;
-	}
 	const historyMessages = messages as unknown as ChatHistoryMessage[];
-	const session = createChatSession(historyMessages, sessionId);
-	return upsertChatSession(storedSessions, session);
+	return withChatSessionMessages(storedSessions, sessionId, historyMessages);
 }
 
 function findSessionTitle(sessions: ChatSession[], id: string) {
@@ -120,80 +115,101 @@ export function useAssistantChat() {
 	const isConfigured = hasServerAi || hasUserConfig;
 
 	const [scopeState, setScopeState] = useState(() => createScopeState(historyScope, scopeKey));
-	const [restoredMessages, setRestoredMessages] = useState<UIMessage[] | undefined>(undefined);
-	const [input, setInput] = useState('');
+	// The composer starts from what was typed and not sent in the view shown before this one (the panel, the phone
+	// sheet or the full page): stepping between Ever SI's sizes must not lose it.
+	const [input, setInput] = useState(() => readEverSiDraft(scopeKey));
 
 	if (scopeState.key !== scopeKey) {
 		setScopeState(createScopeState(historyScope, scopeKey));
-		setRestoredMessages(undefined);
+		// The composer changes with its conversation: what was typed for one team, workspace or account is not
+		// carried into the next one, which gets its own draft (none, unless this visit left one there). This is also
+		// what brings the draft back in a view that mounted before the person was known.
+		setInput(readEverSiDraft(scopeKey));
 	}
+
+	// Kept outside this view as it is typed, for the view that mounts next. A scope that ended (sign-out under way)
+	// keeps nothing.
+	useEffect(() => {
+		if (isChatScopeLive(scopeKey)) {
+			writeEverSiDraft(scopeKey, input);
+		}
+	}, [input, scopeKey]);
 
 	const requestConfig = useMemo(() => toRequestConfig(config), [config]);
 
-	const chat = useChat({
-		id: scopeState.sessionId,
-		messages: restoredMessages,
-		transport: CHAT_TRANSPORT
-	});
-	const { messages, stop, setMessages, sendMessage, regenerate } = chat;
+	// An instance from outside: useChat neither recreates it nor stops it when this view unmounts.
+	const chat = useChat({ chat: scopeState.chat });
+	const { messages, sendMessage, regenerate } = chat;
+	const sessionId = scopeState.chat.id;
 
 	const submitInput = useCallback(() => {
 		const text = input.trim();
-		if (!text) {
+		// A scope that ended (sign-out under way) takes no new question: the page is about to leave.
+		if (!text || !isChatScopeLive(scopeKey)) {
 			return;
 		}
 		setInput('');
 		void sendMessage({ text }, { body: { config: requestConfig } });
-	}, [input, requestConfig, sendMessage]);
+	}, [input, requestConfig, scopeKey, sendMessage]);
 
 	const retry = useCallback(() => {
+		if (!isChatScopeLive(scopeKey)) {
+			return;
+		}
 		void regenerate({ body: { config: requestConfig } });
-	}, [regenerate, requestConfig]);
+	}, [regenerate, requestConfig, scopeKey]);
 
 	const sessions = useMemo(
-		() => withCurrentSession(scopeState.storedSessions, messages, scopeState.sessionId),
-		[messages, scopeState]
+		() => withCurrentSession(scopeState.storedSessions, messages, sessionId),
+		[messages, scopeState.storedSessions, sessionId]
 	);
 
-	useEffect(() => {
-		return () => {
-			stop();
-		};
-	}, [scopeKey, stop]);
+	// Unmounting a view does not stop the answer: the panel, the phone sheet and the full page share it. A change of
+	// workspace, team or account does, from the shell (useEverSiScopeWatcher), even with no view mounted.
 
 	useEffect(() => {
 		if (!historyScope) {
 			return;
 		}
 		const canPersist = canPersistChatHistory(scopeState.key, historyScope, messages.length);
-		if (!canPersist) {
+		// Sign-out clears the history before the page leaves: the last tokens of the stopped answer that still reach a
+		// mounted view must not write it back.
+		if (!canPersist || !isChatScopeLive(scopeState.key)) {
 			return;
 		}
 		writeChatHistory(historyScope, sessions);
 	}, [historyScope, messages.length, scopeState.key, sessions]);
 
-	const clearConversation = useCallback(() => {
-		stop();
-		setMessages([]);
-	}, [setMessages, stop]);
+	/** Opens `next` in every view of this scope, stopping the answer still running in the conversation it replaces. */
+	const switchTo = useCallback(
+		(next: Chat<UIMessage>, storedSessions: ChatSession[]) => {
+			replaceEverSiChat(scopeKey, next);
+			setScopeState((current) => ({ ...current, chat: next, storedSessions }));
+		},
+		[scopeKey]
+	);
+
+	/** Deletes the open conversation from this browser's history (not only from the screen), then starts a new one. */
+	const deleteConversation = useCallback(() => {
+		const remaining = removeChatSession(sessions, sessionId);
+		if (historyScope) {
+			writeChatHistory(historyScope, remaining);
+		}
+		switchTo(createEverSiChat(historyScope), remaining);
+	}, [historyScope, sessionId, sessions, switchTo]);
 
 	const startNewChat = useCallback(() => {
-		stop();
-		setRestoredMessages(undefined);
-		setScopeState((current) => ({ ...current, sessionId: createSessionId(), storedSessions: sessions }));
-	}, [sessions, stop]);
+		switchTo(createEverSiChat(historyScope), sessions);
+	}, [historyScope, sessions, switchTo]);
 
 	const selectSession = useCallback(
 		(session: ChatSession) => {
-			stop();
-			const sessionMessages = toChatUiMessages(session.messages);
-			setRestoredMessages(sessionMessages);
-			setScopeState((current) => ({ ...current, sessionId: session.id, storedSessions: sessions }));
+			switchTo(createEverSiChat(historyScope, session), sessions);
 		},
-		[sessions, stop]
+		[historyScope, sessions, switchTo]
 	);
 
-	const currentTitle = findSessionTitle(sessions, scopeState.sessionId);
+	const currentTitle = findSessionTitle(sessions, sessionId);
 	const isStreaming = chat.status === 'streaming';
 	const isWaitingForAnswer = chat.status === 'submitted';
 	const isBusy = isStreaming || isWaitingForAnswer;
@@ -211,12 +227,12 @@ export function useAssistantChat() {
 		saveConfig,
 		historyScope,
 		history: sessions,
-		sessionId: scopeState.sessionId,
+		sessionId,
 		currentTitle,
 		isStreaming,
 		isWaitingForAnswer,
 		isBusy,
-		clearConversation,
+		deleteConversation,
 		startNewChat,
 		selectSession
 	};

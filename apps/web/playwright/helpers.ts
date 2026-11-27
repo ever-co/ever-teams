@@ -88,6 +88,36 @@ export type MockScenario = {
 	connectHealth?: boolean;
 	connectConnected?: boolean;
 	delays?: Record<string, number>;
+	/**
+	 * A path this mock accepts and then cuts off mid-request: no headers, no body, nothing written. Addressed like
+	 * `delays` (`tenant:path`, then `tenant`, then `path`), the value being milliseconds to hold the socket open first
+	 * (`1` = at once). The call is recorded with `status: 0`, which is neither a refusal nor an answer — see
+	 * `cypress/support/mock-gauzy-server.mjs` and `suites/api/upstream-dropped.spec.ts`. `mockReset()` clears it.
+	 * The value is clamped to 0..30 000 ms by the mock (`MAX_DROP_MS`): an oversized, negative or non-numeric arm
+	 * reads as "no drop", because a lane must not be able to stall itself with a typo in a scenario.
+	 */
+	drops?: Record<string, number>;
+	/**
+	 * A path this mock answers with an HTTP refusal instead of its fixture: the value is the status (an integer from
+	 * 400 to 599; anything else answers normally), the body Gauzy's error shape `{ statusCode, message }`. Addressed
+	 * like `drops` (`tenant:path`, then `tenant`, then `path`). The route handler is skipped, so a refused write changes
+	 * no mock state, and the call is recorded with that status, so `failures()` counts it. `mockReset()` clears it.
+	 */
+	fails?: Record<string, number>;
+	/**
+	 * More enabled permissions for the fixture role, on top of its five (`TIME_TRACKER`, `ORG_TASK_ADD`,
+	 * `ORG_TASK_EDIT`, `ORG_INVITE_EDIT`, `ORG_EMPLOYEES_EDIT`): for routes that refuse this role before forwarding
+	 * (`refuseUnlessPermitted` — e.g. `canViewInvoices` needs `INVOICES_VIEW` and a rate-admin permission). Only
+	 * upper-case names count. Served by `/api/role-permissions/me`. `mockReset()` clears it.
+	 */
+	extraPermissions?: string[];
+	/**
+	 * The fixture role's name, apart from `manager` (which keeps deciding whether the member manages the team):
+	 * e.g. `SUPER_ADMIN`, the workspace owner, the only role offered the data export. Only an upper-case name counts;
+	 * unset answers `ADMIN`, or `EMPLOYEE` with `manager: false`. Served on the user's `role` and `/api/roles/options`.
+	 * `mockReset()` clears it.
+	 */
+	roleName?: string;
 	[key: string]: unknown;
 };
 
@@ -337,10 +367,50 @@ export async function devOverlayErrors(page: Page): Promise<string[]> {
 }
 
 /** Resolves once the app has marked its shell ready (the mark startup-performance waits on). */
+/**
+ * Waits for the app's own `ever-teams:shell-ready` mark, and when it never arrives it says which half failed.
+ *
+ * The mark is emitted in `core/components/layouts/app/init-state.tsx:282`, behind `criticalReady`
+ * (`init-state.tsx:251-258`): `workspaceReady` and then either `noTeams` or all of `teamReady`,
+ * `organizationTeamSuccess`, the task read's `querySuccess`, `timerOwner.statusResolved` and `plansReady`. That
+ * means a missing mark has two entirely different causes, and the old failure — a bare Playwright timeout on a
+ * `waitForFunction` — hid both:
+ *
+ * - `ever-teams:shell-bootstrap-start` (`init-state.tsx:270`) present but `shell-ready` absent → InitState
+ *   mounted and one of those critical reads never settled. Which one is answerable from the mock's request log
+ *   (`await mock.requests()`): look for the organization-teams read, the task list, the timer status, the plan
+ *   queries, and for a 4xx among them.
+ * - no `shell-bootstrap-start` either → the shell never mounted at all: wrong or refused session, a redirect away
+ *   from the route, or a user the app will not build a shell for. `app/[locale]/(main)/(teams)/team/[teamId]/
+ *   [profileLink]/page.tsx:130` renders `UnverifiedEmail` for a user whose address is not confirmed, and a lane
+ *   that signs in with an unverified mock person sees a page with no shell and no error anywhere — which is how
+ *   lane-b lost time on 2026-11-21 (its helper created `emailVerified: false`).
+ */
 export async function waitForShellReady(page: Page, timeout = 45_000): Promise<void> {
-	await page.waitForFunction(() => performance.getEntriesByName('ever-teams:shell-ready').length > 0, undefined, {
-		timeout
-	});
+	try {
+		await page.waitForFunction(() => performance.getEntriesByName('ever-teams:shell-ready').length > 0, undefined, {
+			timeout
+		});
+	} catch {
+		const marks = await page
+			.evaluate(() => performance.getEntriesByType('mark').map((entry) => entry.name))
+			.catch(() => [] as string[]);
+		const body = await page
+			.locator('body')
+			.innerText()
+			.then((text) => text.replace(/\s+/g, ' ').trim().slice(0, 500))
+			.catch(() => '<no body readable>');
+		// A nested template literal inside the one below is how this file briefly did not compile at all.
+		const diagnosis = marks.includes('ever-teams:shell-bootstrap-start')
+			? 'mounted (bootstrap-start marked), so a critical read never settled: look in `await mock.requests()` for the organization-teams, task-list, timer-status and plan reads, and for a 4xx among them (init-state.tsx:251-258).'
+			: 'never mounted, so no shell was built: check the session, the redirect and the user the app was handed (init-state.tsx:251-258 names everything the shell waits for).';
+		throw new Error(
+			`the shell never became ready at ${page.url()} within ${timeout} ms.\n` +
+				`  marks in this page: ${JSON.stringify(marks)}\n` +
+				`  InitState ${diagnosis}\n` +
+				`  the page says: ${body}`
+		);
+	}
 }
 
 /**
@@ -399,4 +469,39 @@ export async function rotateAccessToken(context: BrowserContext, fixture: Bootst
 			sameSite: 'Lax'
 		}
 	]);
+}
+
+/**
+ * A test-side switch for runtime deployment flags the lane's server does not set (for example
+ * `NEXT_PUBLIC_TASK_VIEWS_ENABLED`), for a spec that must not change what every other spec on the lane sees.
+ *
+ * `env-config.ts` `readInjectedRuntimeEnv()` reads the `__EVER_TEAMS_RUNTIME_ENV__` global before the
+ * `<html data-ever-teams-runtime-env>` payload. Before any page script runs, that global becomes the document's own
+ * payload plus `flags`, and it ignores the layout provider's later `installRuntimeEnv(env)`
+ * (`core/components/providers/runtime-env-provider.tsx`), which would otherwise put the server's payload back during
+ * hydration. Only the browser's `readRuntimeEnv` readers see the change: the server's markup is untouched, and
+ * components that read the RSC context (`useRuntimeEnvValue`) keep the server's values.
+ */
+export async function overrideRuntimeEnv(page: Page, flags: Record<string, string>): Promise<void> {
+	await page.addInitScript((overrides: Record<string, string>) => {
+		let cached: Record<string, string> | null = null;
+		const view = () => {
+			if (cached) return cached;
+			const raw = document.documentElement?.getAttribute('data-ever-teams-runtime-env') ?? '';
+			let base: Record<string, string> = {};
+			try {
+				base = raw ? (JSON.parse(raw) as Record<string, string>) : {};
+			} catch {
+				base = {};
+			}
+			cached = { ...base, ...overrides };
+			return cached;
+		};
+		Object.defineProperty(globalThis, '__EVER_TEAMS_RUNTIME_ENV__', {
+			configurable: true,
+			enumerable: false,
+			get: () => view(),
+			set: () => undefined
+		});
+	}, flags);
 }

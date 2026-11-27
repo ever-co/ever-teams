@@ -28,11 +28,15 @@ const orgQuery = (organizationId?: string | null) =>
 class EverConnectService extends APIService {
 	/**
 	 * `{connected}` from the paired API, or `null` when it has no Ever Platform module for this web app
-	 * (404) or does not accept this person (401): either way the connection parts stay hidden.
+	 * (404) or does not accept this person (401): either way the connection parts stay hidden. That 404 is the answer
+	 * of a supported API, so it stays out of the error log.
 	 */
 	health = async (options: ScopedReadOptions): Promise<IEverConnectHealth | null> => {
 		try {
-			const response = await this.get<IEverConnectHealth>('/ever-connect/health', scopedReadConfig(options));
+			const response = await this.get<IEverConnectHealth>('/ever-connect/health', {
+				...scopedReadConfig(options),
+				quietStatuses: [404]
+			});
 			return response.data && typeof response.data.connected === 'boolean' ? response.data : null;
 		} catch (error) {
 			const status = statusOf(error);

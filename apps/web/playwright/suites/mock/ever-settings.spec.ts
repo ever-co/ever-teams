@@ -64,7 +64,8 @@ test.describe('the Ever Platform settings section', () => {
 	test('hides the connection parts when the paired API answers no health, and keeps the statistics card', async ({
 		page,
 		fixture,
-		mock
+		mock,
+		shield
 	}) => {
 		const health: CapturedCall[] = [];
 		await capture(page, /\/api\/ever-connect\/health(\?.*)?$/, health);
@@ -83,6 +84,14 @@ test.describe('the Ever Platform settings section', () => {
 			reads.map((read) => read.status),
 			'the refusal came from the API, not from the page deciding on its own'
 		).toEqual([404]);
+		// A paired API without the module is a supported one: the read keeps its 404 out of the client's error log
+		// (`ever-connect.service.ts` health, `quietStatuses`)
+		expect(
+			shield
+				.consoleErrors()
+				.filter((line) => line.includes('[HttpClient]') && line.includes('/ever-connect/health')),
+			'the client logged the 404 of a paired API without the module as an error'
+		).toEqual([]);
 	});
 
 	test('shows who manages the statistics — and no switch, no payload — to someone who is not the operator', async ({

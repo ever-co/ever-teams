@@ -6,8 +6,10 @@ import {
 	activityWeeksCountOf,
 	DEFAULT_ACTIVITY_WEEKS,
 	MAX_ACTIVITY_WEEKS,
+	MAX_FORECAST_WEEKS,
 	MIN_ACTIVITY_WEEKS,
-	projectActivityOf
+	projectActivityOf,
+	projectForecastOf
 } from './project-activity';
 
 // Wednesday 11 November 2026, midday: the current week starts on Monday 9 November.
@@ -160,6 +162,157 @@ describe('projectActivityOf', () => {
 		const activity = projectActivityOf(tasks, statuses, NOW, 1);
 
 		expect(activity.completed).toBe(1);
+	});
+});
+
+describe('projectForecastOf', () => {
+	// Four weeks starting Monday 19 October; the last one (from 9 November) is the running week.
+	const WEEKS = 4;
+	const OLD = new Date(2026, 0, 5);
+
+	function doneOn(date: Date, createdAt: Date = OLD) {
+		return taskOf({ status: 'done', createdAt, resolvedAt: date });
+	}
+
+	function forecastOf(tasks: TTask[], weekStartsOn?: 0 | 1) {
+		const activity = projectActivityOf(tasks, STATUSES, NOW, WEEKS, weekStartsOn);
+		return projectForecastOf(tasks, STATUSES, activity, weekStartsOn);
+	}
+
+	it('divides the open tasks by the weekly pace of the complete weeks and rounds up to whole weeks', () => {
+		const tasks = [
+			doneOn(new Date(2026, 9, 20)),
+			doneOn(new Date(2026, 9, 27)),
+			doneOn(new Date(2026, 10, 3)),
+			doneOn(new Date(2026, 10, 4)),
+			taskOf({ status: 'todo', createdAt: OLD }),
+			taskOf({ status: 'in progress', createdAt: OLD }),
+			taskOf({ status: 'todo', createdAt: OLD })
+		];
+
+		// 4 done over 3 complete weeks = 1.3 a week; 3 open / (4 / 3) = 2.25 -> 3 weeks.
+		expect(forecastOf(tasks)).toEqual({ open: 3, velocity: 1.3, weeksLeft: 3, isBeyondHorizon: false });
+	});
+
+	it('does not add a week when the open tasks divide the pace exactly', () => {
+		const tasks = [
+			doneOn(new Date(2026, 9, 20)),
+			doneOn(new Date(2026, 9, 21)),
+			doneOn(new Date(2026, 9, 27)),
+			doneOn(new Date(2026, 9, 28)),
+			doneOn(new Date(2026, 10, 3)),
+			doneOn(new Date(2026, 10, 4)),
+			...Array.from({ length: 4 }, () => taskOf({ status: 'todo', createdAt: OLD }))
+		];
+
+		// 6 done over 3 weeks = 2 a week; 4 open = exactly 2 weeks.
+		expect(forecastOf(tasks)?.weeksLeft).toBe(2);
+	});
+
+	it('leaves the running week out of the pace', () => {
+		const tasks = [
+			doneOn(new Date(2026, 9, 20)),
+			doneOn(new Date(2026, 10, 10)),
+			doneOn(new Date(2026, 10, 11)),
+			doneOn(new Date(2026, 10, 11)),
+			taskOf({ status: 'todo', createdAt: OLD })
+		];
+
+		expect(forecastOf(tasks)?.velocity).toBe(0.3);
+	});
+
+	it('keeps a positive pace when one task was done over the longest window', () => {
+		const tasks = [doneOn(new Date(2026, 9, 20)), taskOf({ status: 'todo', createdAt: OLD })];
+		const activity = projectActivityOf(tasks, STATUSES, NOW, MAX_ACTIVITY_WEEKS);
+
+		// 1 done over 25 complete weeks = 0.04 a week, which one decimal would show as 0; 1 open = 25 weeks.
+		expect(projectForecastOf(tasks, STATUSES, activity)).toEqual({
+			open: 1,
+			velocity: 0.04,
+			weeksLeft: 25,
+			isBeyondHorizon: false
+		});
+	});
+
+	it('starts the pace at the week of the first task when the project is younger than the window', () => {
+		const tasks = [
+			doneOn(new Date(2026, 10, 3), new Date(2026, 10, 2)),
+			doneOn(new Date(2026, 10, 4), new Date(2026, 10, 2)),
+			taskOf({ status: 'todo', createdAt: new Date(2026, 10, 2) })
+		];
+
+		// Only the week of 2 November is complete and counted: not enough history for a pace.
+		expect(forecastOf(tasks)).toBeNull();
+		const older = [...tasks, taskOf({ status: 'todo', createdAt: new Date(2026, 9, 26) })];
+		// Two complete weeks (26 October and 2 November), 2 done: 1 a week, 2 open.
+		expect(forecastOf(older)).toEqual({ open: 2, velocity: 1, weeksLeft: 2, isBeyondHorizon: false });
+	});
+
+	it('keeps the whole window when a task has no creation date, instead of cutting at the dated tasks', () => {
+		const tasks = [
+			taskOf({ status: 'done', createdAt: null, resolvedAt: new Date(2026, 9, 20) }),
+			taskOf({ status: 'done', createdAt: null, resolvedAt: new Date(2026, 9, 27) }),
+			taskOf({ status: 'todo', createdAt: new Date(2026, 10, 2) })
+		];
+
+		// 2 done over the 3 complete weeks, 1 open: 0.7 a week, 2 weeks.
+		expect(forecastOf(tasks)).toEqual({ open: 1, velocity: 0.7, weeksLeft: 2, isBeyondHorizon: false });
+	});
+
+	it('keeps a completion from three weeks ago that has no creation date next to a task created last week', () => {
+		const tasks = [
+			taskOf({ status: 'done', resolvedAt: new Date(2026, 9, 21) }),
+			taskOf({ status: 'todo', createdAt: new Date(2026, 10, 2) })
+		];
+
+		expect(forecastOf(tasks)).toEqual({ open: 1, velocity: 0.3, weeksLeft: 3, isBeyondHorizon: false });
+	});
+
+	it('does not cut off completions that predate the recorded creation dates', () => {
+		const tasks = [
+			taskOf({ status: 'done', createdAt: new Date(2026, 10, 2), resolvedAt: new Date(2026, 9, 20) }),
+			taskOf({ status: 'done', createdAt: new Date(2026, 10, 2), resolvedAt: new Date(2026, 9, 27) }),
+			taskOf({ status: 'todo', createdAt: new Date(2026, 10, 2) })
+		];
+
+		expect(forecastOf(tasks)).toEqual({ open: 1, velocity: 0.7, weeksLeft: 2, isBeyondHorizon: false });
+	});
+
+	it('gives no forecast when nothing is open, nothing was completed, or there are no tasks', () => {
+		expect(forecastOf([])).toBeNull();
+		expect(forecastOf([doneOn(new Date(2026, 9, 20))])).toBeNull();
+		expect(forecastOf([taskOf({ status: 'todo', createdAt: OLD })])).toBeNull();
+	});
+
+	it('caps a distant finish and says it is beyond the horizon', () => {
+		const tasks = [
+			doneOn(new Date(2026, 9, 20)),
+			...Array.from({ length: 500 }, () => taskOf({ status: 'todo', createdAt: OLD }))
+		];
+
+		const forecast = forecastOf(tasks);
+
+		expect(forecast?.weeksLeft).toBe(MAX_FORECAST_WEEKS);
+		expect(forecast?.isBeyondHorizon).toBe(true);
+	});
+
+	it('does not count a done task without a resolution date towards the pace', () => {
+		const tasks = [
+			taskOf({ status: 'done', createdAt: OLD, resolvedAt: null }),
+			taskOf({ status: 'todo', createdAt: OLD })
+		];
+
+		expect(forecastOf(tasks)).toBeNull();
+	});
+
+	it('works with a workspace whose week starts on Sunday', () => {
+		const tasks = [
+			doneOn(new Date(2026, 9, 21)),
+			doneOn(new Date(2026, 10, 4)),
+			taskOf({ status: 'todo', createdAt: OLD })
+		];
+
+		expect(forecastOf(tasks, 0)).toEqual({ open: 1, velocity: 0.7, weeksLeft: 2, isBeyondHorizon: false });
 	});
 });
 

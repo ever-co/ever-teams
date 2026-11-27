@@ -7,7 +7,32 @@ import { URL } from 'node:url';
 
 const jsonClone = (value) => JSON.parse(JSON.stringify(value));
 const pagination = (items = []) => ({ items, total: items.length });
+/**
+ * The browser origins this mock answers. 3030 is the canonical app port — Cypress and the four Playwright configs.
+ * A lane (apps/web/playwright/test-servers.ts, `laneServers`) runs the app on its own port and names it here
+ * through `E2E_TRUSTED_APP_ORIGINS`; without that, a lane's browser is refused 403 by its own mock. Only a loopback
+ * origin is ever added, and only from an env var this repository's own launcher sets, so no run can widen the guard
+ * into answering a foreign Origin.
+ */
 const TRUSTED_BROWSER_ORIGINS = new Set(['http://127.0.0.1:3030', 'http://localhost:3030']);
+for (const entry of String(process.env.E2E_TRUSTED_APP_ORIGINS ?? '').split(',')) {
+	const origin = entry.trim();
+	// Anchored at both ends: an entry carrying a path, credentials or any host that is not loopback is not added at
+	// all, so this env var can name a lane's port and cannot name a machine.
+	if (/^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:\d{2,5})?$/.test(origin)) {
+		TRUSTED_BROWSER_ORIGINS.add(origin);
+	}
+}
+
+/**
+ * The longest a `drops` arm (`handleRequest`, below) may hold a socket open before cutting it.
+ *
+ * `drops` is written by a test, in milliseconds, and an unbounded value would park this mock's request handler — and
+ * the lane's test worker waiting behind it — for as long as the typo says. It is clamped into [0, MAX_DROP_MS], so a
+ * negative, NaN or absurd value reads as "no drop here" instead of "this run stalls". A suite that needs a *slow*
+ * upstream uses `delays`, which has its own handling.
+ */
+const MAX_DROP_MS = 30_000;
 
 function buildData(fixture, scenario, requestUrl, requestTenantId) {
 	const { ids, names } = fixture;
@@ -22,22 +47,38 @@ function buildData(fixture, scenario, requestUrl, requestTenantId) {
 	const organizationName = scopeB ? names.organizationB : names.organizationA;
 	const teamName = scopeB ? names.teamB : names.teamA;
 
-	const rolePermissions = [
-		'TIME_TRACKER',
-		'ORG_TASK_ADD',
-		'ORG_TASK_EDIT',
-		'ORG_INVITE_EDIT',
-		'ORG_EMPLOYEES_EDIT'
-	].map((permission, index) => ({
+	const basePermissions = ['TIME_TRACKER', 'ORG_TASK_ADD', 'ORG_TASK_EDIT', 'ORG_INVITE_EDIT', 'ORG_EMPLOYEES_EDIT'];
+	// `scenario.extraPermissions`: more enabled permissions for the fixture role, opt-in, for the routes and pages that
+	// refuse this role first (`refuseUnlessPermitted`: invoices, client rates…). Only upper-case permission names count,
+	// and a name the role already holds is not repeated; unset answers the five above, as before.
+	const extraPermissions = Array.isArray(scenario.extraPermissions)
+		? scenario.extraPermissions.filter(
+				(permission, index, list) =>
+					typeof permission === 'string' &&
+					/^[A-Z][A-Z_]*$/.test(permission) &&
+					!basePermissions.includes(permission) &&
+					list.indexOf(permission) === index
+			)
+		: [];
+	const rolePermissions = [...basePermissions, ...extraPermissions].map((permission, index) => ({
 		id: `dddddddd-dddd-4ddd-8ddd-${String(index + 1).padStart(12, '0')}`,
 		roleId: ids.role,
 		permission,
 		enabled: true,
 		tenantId
 	}));
+	// `scenario.roleName`: the fixture role's name on its own, for pages that ask for one role by name (the data export
+	// of the workspace is the workspace owner's, `SUPER_ADMIN`). Only an upper-case name counts; unset keeps the name
+	// `scenario.manager` picks, and the team-manager flag of the member below stays `scenario.manager`'s alone.
+	const roleName =
+		typeof scenario.roleName === 'string' && /^[A-Z][A-Z_]*$/.test(scenario.roleName)
+			? scenario.roleName
+			: scenario.manager === false
+				? 'EMPLOYEE'
+				: 'ADMIN';
 	const role = {
 		id: ids.role,
-		name: scenario.manager === false ? 'EMPLOYEE' : 'ADMIN',
+		name: roleName,
 		isSystem: true,
 		rolePermissions,
 		tenantId
@@ -777,6 +818,11 @@ function routeResponse(
 	// Where the caller stands against each time goal: a plain list (core/services/client/api/timesheets/
 	// time-goal.service.ts `progress`); the goals list itself is the default pagination
 	if (pathname === '/api/time-goals/progress' && method === 'GET') return [];
+	// A timer start ends by saving the member's active task, and the app reads that answer as an update result
+	// (core/services/client/api/organizations/teams/team-employee.service.ts, updateActiveTaskSchema): an echo of the
+	// body would be refused and show "The active task was not saved" after every start
+	if (/^\/api\/organization-team-employee\/[^/]+\/active-task$/.test(pathname) && method === 'PUT')
+		return { affected: 1, generatedMaps: [], raw: [] };
 	if (/^\/api\/organization-team-employee\//.test(pathname))
 		return body ?? { affected: 1, generatedMaps: [], raw: [] };
 	// Scheduled meetings (employee appointments): kept for the session, so a meeting scheduled shows in the agenda
@@ -1065,6 +1111,35 @@ export async function createMockGauzyServer({ fixture, port = 3988 } = {}) {
 				0
 		);
 		if (delayMs > 0) await new Promise((resolve) => setTimeout(resolve, delayMs));
+		/**
+		 * `drops`: a path this mock accepts and then cuts off — a connection opened, a request received, no answer
+		 * ever written, the way a front proxy or a dying process does it. Addressed exactly like `delays`
+		 * (`tenant:path`, then `tenant`, then `path`); the value is how many milliseconds to hold the socket open
+		 * first, `1` meaning "at once". Off unless a test arms it, and `reset()` clears it, as it clears `delays`.
+		 *
+		 * Why it exists: a suite can prove an app answered an outage, but only for the outages a test can cause. The
+		 * control API could make the upstream *slow* (`delays`) and could make it *refuse* (a status), and nothing
+		 * could leave the caller's `fetch` without an answer — so `core/services/server/forward-to-gauzy.ts`'s 502
+		 * "The Gauzy API is unreachable" and `gauzyPassThrough`'s 502 were unreachable from any run
+		 * (`playwright/suites/api/upstream-outage.spec.ts` says exactly that, and `suites/lane-b/PLAN.md` hit the
+		 * same branch by miswiring a lane and read it as an app answer).
+		 *
+		 * A dropped call is still recorded in the request log, with `status: 0` — a number no refusal and no upstream
+		 * answer writes. Recording it is the point: the log otherwise cannot tell "never asked" (no entry) from
+		 * "refused upstream" (a 4xx/5xx entry) from "asked, then the connection died" (this `0` entry), and
+		 * `playwright/api-fixtures.ts`'s `failures()` filters `status >= 400`, so a drop is never counted as a
+		 * refusal. The bearer is recorded too, because "the session had already left this app when the connection
+		 * died" is a fact a test needs to know and not a fact to discover later.
+		 */
+		const dropArm = Number(
+			state.scenario.drops?.[`${tenantId}:${requestUrl.pathname}`] ??
+				state.scenario.drops?.[tenantId] ??
+				state.scenario.drops?.[requestUrl.pathname] ??
+				0
+		);
+		// Clamped, not trusted: the arm is a test's own number, and a negative, NaN or oversized one is a typo that
+		// would otherwise stall this handler (see MAX_DROP_MS above). 0 means "answer this normally", as unset does.
+		const dropMs = Number.isFinite(dropArm) ? Math.min(Math.max(dropArm, 0), MAX_DROP_MS) : 0;
 		const body = await readJsonBody(request);
 		const data = buildData(
 			fixture,
@@ -1072,22 +1147,41 @@ export async function createMockGauzyServer({ fixture, port = 3988 } = {}) {
 			requestUrl,
 			typeof tenantId === 'string' ? tenantId : undefined
 		);
-		const everPlatform = everPlatformResponse(method, requestUrl.pathname, request, state, body);
-		const payload = everPlatform
-			? everPlatform.payload
-			: // The organization switch is authorized on the tenant-id HEADER only (a query value must not override it)
-				routeResponse(
-					method,
-					requestUrl.pathname,
-					requestUrl,
-					data,
-					fixture,
-					state,
-					body,
-					request.headers['tenant-id'],
-					request.headers['content-type']
-				);
-		const status = everPlatform ? everPlatform.status : (payload?.[HTTP_STATUS] ?? 200);
+		/**
+		 * `scenario.fails`: answer this call with an HTTP refusal instead of its fixture, keyed like `drops` and `delays`
+		 * (`tenant:path`, then `tenant`, then `path`), the value being the status. Opt-in: unset answers as before. Only
+		 * an integer from 400 to 599 arms it — anything else is a typo and answers normally, as an unset arm does. The
+		 * body is Gauzy's error shape, `{ statusCode, message }`; the route handler is skipped, so a refused write
+		 * changes nothing here, as a refused write changes nothing upstream. Logged with its status, so
+		 * `api-fixtures.ts` `failures()` counts it, unlike a drop.
+		 */
+		const failArm = Number(
+			state.scenario.fails?.[`${tenantId}:${requestUrl.pathname}`] ??
+				state.scenario.fails?.[tenantId] ??
+				state.scenario.fails?.[requestUrl.pathname] ??
+				0
+		);
+		const failStatus = Number.isInteger(failArm) && failArm >= 400 && failArm <= 599 ? failArm : 0;
+		const everPlatform = failStatus
+			? null
+			: everPlatformResponse(method, requestUrl.pathname, request, state, body);
+		const payload = failStatus
+			? { statusCode: failStatus, message: `Synthetic Gauzy refusal (${failStatus})` }
+			: everPlatform
+				? everPlatform.payload
+				: // The organization switch is authorized on the tenant-id HEADER only (a query value must not override it)
+					routeResponse(
+						method,
+						requestUrl.pathname,
+						requestUrl,
+						data,
+						fixture,
+						state,
+						body,
+						request.headers['tenant-id'],
+						request.headers['content-type']
+					);
+		const status = failStatus || (everPlatform ? everPlatform.status : (payload?.[HTTP_STATUS] ?? 200));
 		const endMs = performance.now() - state.startedAt;
 		// The web app's statistics reporter reads `state` every few seconds in the browser runs: counted, not
 		// recorded with the requests the pages make.
@@ -1100,7 +1194,8 @@ export async function createMockGauzyServer({ fixture, port = 3988 } = {}) {
 				query: requestUrl.searchParams.toString(),
 				startMs,
 				endMs,
-				status
+				// 0 for a call this mock cut off: no status may be recorded for a call that was never answered
+				status: dropMs > 0 ? 0 : status
 			});
 		}
 		// Which access token arrived, as its sha256, never the token: lets a test prove the app forwarded exactly the
@@ -1111,6 +1206,14 @@ export async function createMockGauzyServer({ fixture, port = 3988 } = {}) {
 				path: requestUrl.pathname,
 				sha256: createHash('sha256').update(bearer).digest('hex')
 			});
+		}
+		if (dropMs > 0) {
+			// Hold the socket open first when asked to (an upstream that dies mid-request is a different outage from an
+			// instant reset), then cut it: no headers, no body, nothing written. The caller's `fetch` rejects with a
+			// connection error — which is what this switch exists to cause.
+			if (dropMs > 1) await new Promise((resolve) => setTimeout(resolve, dropMs - 1));
+			request.socket?.destroy();
+			return;
 		}
 		response.writeHead(status, { ...cors, 'content-type': 'application/json; charset=utf-8' });
 		response.end(JSON.stringify(payload));
