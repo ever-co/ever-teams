@@ -84,7 +84,10 @@ class DocsService extends APIService {
 	count = async (query: IDocumentListQuery, signal?: AbortSignal): Promise<number> => {
 		const search = qs.stringify({ ...query, where: this.scope() }, { skipNulls: true });
 		// The Docs availability probe (`use-docs-availability.ts`): a 404 is the extension off
-		const response = await this.get<number>(`${BASE}/count?${search}`, { signal, quietStatuses: FEATURE_OFF_STATUSES });
+		const response = await this.get<number>(`${BASE}/count?${search}`, {
+			signal,
+			quietStatuses: FEATURE_OFF_STATUSES
+		});
 		return Number(response.data);
 	};
 
@@ -162,10 +165,13 @@ class DocsService extends APIService {
 	 * A platform without ranges answers 404 (its comments are on their blocks).
 	 */
 	commentAnchors = async (id: string, signal?: AbortSignal): Promise<IDocumentCommentAnchorList> => {
-		const response = await this.get<IDocumentCommentAnchorList>(`${BASE}/${path(id)}/comment-anchors?${this.scopedQuery()}`, {
-			signal,
-			quietStatuses: FEATURE_OFF_STATUSES
-		});
+		const response = await this.get<IDocumentCommentAnchorList>(
+			`${BASE}/${path(id)}/comment-anchors?${this.scopedQuery()}`,
+			{
+				signal,
+				quietStatuses: FEATURE_OFF_STATUSES
+			}
+		);
 		return response.data;
 	};
 
