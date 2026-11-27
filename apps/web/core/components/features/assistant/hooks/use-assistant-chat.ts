@@ -20,7 +20,13 @@ import {
 	writeChatHistory
 } from '@/core/components/features/chat-panel/chat-history';
 import { isChatScopeLive } from '@/core/components/features/chat-panel/chat-scope';
-import { createEverSiChat, openEverSiChat, replaceEverSiChat } from './ever-si-chat-store';
+import {
+	createEverSiChat,
+	openEverSiChat,
+	readEverSiDraft,
+	replaceEverSiChat,
+	writeEverSiDraft
+} from './ever-si-chat-store';
 
 const NO_SCOPE_KEY = 'no-scope';
 
@@ -109,11 +115,21 @@ export function useAssistantChat() {
 	const isConfigured = hasServerAi || hasUserConfig;
 
 	const [scopeState, setScopeState] = useState(() => createScopeState(historyScope, scopeKey));
-	const [input, setInput] = useState('');
+	// The composer starts from what was typed and not sent in the view shown before this one (the panel, the phone
+	// sheet or the full page): stepping between Ever SI's sizes must not lose it.
+	const [input, setInput] = useState(() => readEverSiDraft(scopeKey));
 
 	if (scopeState.key !== scopeKey) {
 		setScopeState(createScopeState(historyScope, scopeKey));
 	}
+
+	// Kept outside this view as it is typed, for the view that mounts next. A scope that ended (sign-out under way)
+	// keeps nothing.
+	useEffect(() => {
+		if (isChatScopeLive(scopeKey)) {
+			writeEverSiDraft(scopeKey, input);
+		}
+	}, [input, scopeKey]);
 
 	const requestConfig = useMemo(() => toRequestConfig(config), [config]);
 

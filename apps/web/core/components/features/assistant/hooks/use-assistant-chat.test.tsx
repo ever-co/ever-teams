@@ -169,6 +169,38 @@ describe('Ever SI conversation across views', () => {
 		expect(chat.stop).not.toHaveBeenCalled();
 	});
 
+	it('keeps what was typed and not sent when the view changes, and forgets it once it is sent', () => {
+		const store = signedInStore('user-draft');
+		const panel = mountView(store);
+		act(() => panel.result.current.setInput('Half a quest'));
+
+		// The panel is widened to the full page: its composer unmounts with the text still in it.
+		panel.unmount();
+		const page = mountView(store);
+		expect(page.result.current.input).toBe('Half a quest');
+
+		// Typed further on the page, then back to the panel
+		act(() => page.result.current.setInput('Half a question, finished'));
+		page.unmount();
+		const panelAgain = mountView(store);
+		expect(panelAgain.result.current.input).toBe('Half a question, finished');
+
+		act(() => panelAgain.result.current.submitInput());
+		expect(panelAgain.result.current.input).toBe('');
+		panelAgain.unmount();
+		expect(mountView(store).result.current.input).toBe('');
+	});
+
+	it('keeps an emptied composer empty in the next view', () => {
+		const store = signedInStore('user-draft-cleared');
+		const panel = mountView(store);
+		act(() => panel.result.current.setInput('Never mind'));
+		act(() => panel.result.current.setInput(''));
+		panel.unmount();
+
+		expect(mountView(store).result.current.input).toBe('');
+	});
+
 	it('lets an answer finish in the background when the panel closes, and saves it to the history', () => {
 		const store = signedInStore('user-closed');
 		const panel = mountView(store);
@@ -251,6 +283,42 @@ describe('Ever SI when a scope ends with no view open', () => {
 		act(() => teamAChat.finish({ messages: finished, isAbort: false }));
 		expect(readChatHistory(scopeOf('user-team-switch'))).toEqual(savedBefore);
 		expect(JSON.stringify(savedBefore)).not.toContain('The whole answer');
+	});
+
+	it('forgets what was typed for the team the person leaves, and shows none of it to the next team', () => {
+		const store = signedInStore('user-draft-team');
+		const panel = mountView(store);
+		act(() => panel.result.current.setInput('For team A only'));
+		panel.unmount();
+
+		// The shell reports the new team; no Ever SI view is mounted.
+		act(() => store.set(stores.activeTeamIdState, 'team-b'));
+		act(() => setLiveChatScope(chatHistoryKey(scopeOf('user-draft-team', 'team-b'))));
+		const teamBView = mountView(store);
+		expect(teamBView.result.current.input).toBe('');
+		teamBView.unmount();
+
+		// And back: the draft of team A went with its scope
+		act(() => store.set(stores.activeTeamIdState, 'team-a'));
+		act(() => setLiveChatScope(chatHistoryKey(scopeOf('user-draft-team'))));
+		expect(mountView(store).result.current.input).toBe('');
+	});
+
+	it('forgets what was typed when the person signs out, also under a view still mounted', () => {
+		const store = signedInStore('user-draft-sign-out');
+		const panel = mountView(store);
+		act(() => panel.result.current.setInput('Not for the next person'));
+
+		act(() => clearChatHistoryForUser('user-draft-sign-out'));
+		// The view is still mounted while sign-out waits for its clean-ups, and the person types on.
+		act(() => panel.result.current.setInput('Not for the next person either'));
+		panel.unmount();
+
+		// Whoever signs in next in this tab starts with an empty composer, and so would the same person.
+		const nextStore = signedInStore('user-draft-next');
+		expect(mountView(nextStore).result.current.input).toBe('');
+		act(() => setLiveChatScope(chatHistoryKey(scopeOf('user-draft-sign-out'))));
+		expect(mountView(store).result.current.input).toBe('');
 	});
 
 	it('stops the answer before sign-out clears the history, and writes nothing back after', () => {

@@ -25,6 +25,27 @@ const CHAT_TRANSPORT = new DefaultChatTransport({ api: CHAT_API });
  */
 const openChats = new Map<string, Chat<UIMessage>>();
 
+/**
+ * What the person has typed and not sent, per history scope, outside React for the same reason: each view has a
+ * composer of its own, and collapsing the panel, widening it to the full page or crossing the phone breakpoint
+ * unmounts the one being typed in. Kept for the visit only, as the open conversation is.
+ */
+const drafts = new Map<string, string>();
+
+/** The unsent text of this scope, for the composer of the view that mounts next. */
+export function readEverSiDraft(scopeKey: string) {
+	return drafts.get(scopeKey) ?? '';
+}
+
+/** The composer's text as it is typed; an empty composer keeps nothing. */
+export function writeEverSiDraft(scopeKey: string, text: string) {
+	if (text) {
+		drafts.set(scopeKey, text);
+		return;
+	}
+	drafts.delete(scopeKey);
+}
+
 /** Unique even for two conversations started in the same millisecond (New chat right after a first message). */
 function createSessionId() {
 	const [random] = crypto.getRandomValues(new Uint32Array(1));
@@ -88,7 +109,10 @@ export function replaceEverSiChat(scopeKey: string, chat: Chat<UIMessage>) {
 	}
 }
 
-/** The person moved to another workspace or team, signed in as someone else or signed out: those answers stop. */
+/**
+ * The person moved to another workspace or team, signed in as someone else or signed out: those answers stop, and
+ * what was typed there and not sent is forgotten with them, so it never waits for whoever comes next.
+ */
 export function closeEverSiChatsOutside(liveKey: string | null) {
 	for (const [key, chat] of openChats) {
 		if (key === liveKey) {
@@ -96,6 +120,11 @@ export function closeEverSiChatsOutside(liveKey: string | null) {
 		}
 		openChats.delete(key);
 		void chat.stop();
+	}
+	for (const key of drafts.keys()) {
+		if (key !== liveKey) {
+			drafts.delete(key);
+		}
 	}
 }
 

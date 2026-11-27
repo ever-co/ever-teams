@@ -5780,7 +5780,7 @@
 			"MANAGE_APPS_REORDER_HINT": "اسحب الصف من مقبضه أو استخدم أسهمه. وعند تحديد المقبض، يحرّك Alt+أعلى وAlt+أسفل الصف أيضًا.",
 			"MANAGE_APPS_REMOVE": "إزالة {name}",
 			"ADD_APP_TITLE": "أضف تطبيقك الخاص",
-			"ADD_APP_DESCRIPTION": "يظهر ضمن تطبيقاتك ويُفتح في علامة تبويب جديدة.",
+			"ADD_APP_DESCRIPTION": "يظهر ضمن تطبيقاتك ويُفتح في علامة التبويب نفسها.",
 			"ADD_APP_NAME": "الاسم",
 			"ADD_APP_URL": "العنوان",
 			"ADD_APP_SUBMIT": "إضافة التطبيق",

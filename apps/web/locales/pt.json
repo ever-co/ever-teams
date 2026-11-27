@@ -5780,7 +5780,7 @@
 			"MANAGE_APPS_REORDER_HINT": "Arraste uma linha pela alça ou use as setas dela. Com a alça selecionada, Alt+Seta para cima e Alt+Seta para baixo também movem a linha.",
 			"MANAGE_APPS_REMOVE": "Remover {name}",
 			"ADD_APP_TITLE": "Adicione seu próprio app",
-			"ADD_APP_DESCRIPTION": "Ele aparece em Seus apps e abre em uma nova aba.",
+			"ADD_APP_DESCRIPTION": "Ele aparece em Seus apps e abre na mesma aba.",
 			"ADD_APP_NAME": "Nome",
 			"ADD_APP_URL": "Endereço",
 			"ADD_APP_SUBMIT": "Adicionar app",

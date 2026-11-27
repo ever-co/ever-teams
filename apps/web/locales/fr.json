@@ -5780,7 +5780,7 @@
 			"MANAGE_APPS_REORDER_HINT": "Faites glisser une ligne par sa poignée ou utilisez ses flèches. Sur la poignée sélectionnée, Alt+Haut et Alt+Bas déplacent aussi la ligne.",
 			"MANAGE_APPS_REMOVE": "Retirer {name}",
 			"ADD_APP_TITLE": "Ajouter votre propre appli",
-			"ADD_APP_DESCRIPTION": "Elle s'affiche dans Vos applis et s'ouvre dans un nouvel onglet.",
+			"ADD_APP_DESCRIPTION": "Elle s'affiche dans Vos applis et s'ouvre dans le même onglet.",
 			"ADD_APP_NAME": "Nom",
 			"ADD_APP_URL": "Adresse",
 			"ADD_APP_SUBMIT": "Ajouter l'appli",
