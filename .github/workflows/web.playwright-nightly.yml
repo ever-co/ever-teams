@@ -1,0 +1,112 @@
+name: Web Playwright Nightly
+permissions:
+  contents: read
+
+# The Playwright mock browser suite (`pw`, apps/web/playwright/playwright.config.ts): the web app in Chromium against the
+# synthetic Gauzy API, no network. It is not in web.before-merge.yml: in-cluster that gate already runs its jobs one
+# after another in one pod, browser timing is the noisiest part under cluster load, and the Cypress browser-parity job
+# covers browser flows there. Once a day is enough to catch drift.
+#
+# Manual-only on purpose: GitHub Actions never runs it by itself. In-cluster, ever-co/k8s-gitops
+# apps/ci-builds/tools/policy-overrides.json (`schedules`) runs it every night on develop with event workflow_dispatch,
+# the way the Gauzy SDK generate.yml files run; a failed night sends the usual ci-builds failure mail. By hand, from a
+# checkout of the private ever-co/homelab repository (its scripts/ folder, with the cluster's kubeconfig in .config/):
+#   python scripts/ci-builds-run.py ever-co/ever-teams <branch> web.playwright-nightly.yml 8 --event workflow_dispatch
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
+
+jobs:
+  # Size 8, not 4: `next dev` compiles every page on its first visit, which is most of this suite's time, and its memory
+  # grows as it does. On a size-4 pod (2026-11-26) it ran about 0.8 min a test (locally the suite takes 20 min) and the
+  # container reached its 36 GiB limit; size 8 allows 68 GiB.
+  playwright-browser:
+    runs-on: ${{ vars.RUNNER_LINUX_X64_8 || 'ubuntu-latest' }}
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Use Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '26.12.1'
+          cache: 'yarn'
+
+      # The action probes the npm mirror (Verdaccio) on the build network's internal address and uses it when it
+      # answers. expect-vip is true on the cluster runners (the runner variable is set), where that address must
+      # answer, so an unreachable one is retried and warned about. Same inputs as web.before-merge.yml.
+      - name: Configure Registry
+        uses: ever-co/ever-gauzy/.github/actions/configure-registry@727973d766f3968d3f1184300af085872abcb20b
+        with:
+          verdaccio-registry: ${{ vars.VERDACCIO_REGISTRY }}
+          verdaccio-token: ${{ secrets.VERDACCIO_TOKEN }}
+          force-public: ${{ vars.VERDACCIO_FORCE_PUBLIC }}
+          expect-vip: ${{ vars.RUNNER_LINUX_X64_8 != '' }}
+
+      # No install scripts: the browser comes from the next step, as in web.before-merge.yml
+      - name: Install Packages
+        run: yarn install --network-timeout 1000000 --frozen-lockfile --ignore-scripts
+        env:
+          NODE_OPTIONS: '--dns-result-order=ipv4first'
+
+      # The config runs the full Chromium build (channel `chromium`), so the separate headless shell is not needed.
+      # --with-deps installs its system libraries (apt, through sudo unless the step runs as root). The CLI is resolved
+      # from apps/web on purpose: the repository root holds an older @playwright/test (another package's), whose browser
+      # build would not match the runner. Called through node, not `yarn ... install`, which SonarCloud (S6505) reads as
+      # a package install with lifecycle scripts on.
+      - name: Install Chromium
+        working-directory: apps/web
+        run: node "$(node -p "require.resolve('@playwright/test/cli')")" install --with-deps --no-shell chromium
+
+      # In three parts, one after another, each with fresh servers. `next dev` grows with every page it compiles: in-cluster
+      # (2026-11-26) the job's container reached 35 GiB in one run, 13 GiB of it the dev server and the rest the RAM-disk
+      # checkout, and a busy build node's kernel ended it (OOMKilled at test 94 and at test 23). A fresh dev server per
+      # part keeps that growth to a third.
+      # --retries=1, here only (not in the config): under cluster load a cold page can miss a 20 s wait. A real failure
+      # fails both attempts and still fails the night; a load miss passes and shows as "flaky" in the log.
+      # Playwright empties apps/web/playwright/artifacts at the start of a run, so each part's report and traces move
+      # to artifacts-part-<n> before the next part starts. A failed part does not stop the others: one night reports
+      # all three, and the step's last line names the parts that failed.
+      - name: Playwright mock browser suite
+        timeout-minutes: 180
+        shell: bash
+        run: |
+          failed=''
+          for part in 1 2 3; do
+            echo "::group::Playwright mock browser suite, part $part of 3"
+            if ! yarn workspace @ever-teams/web pw --shard="$part/3" --retries=1; then
+              failed="$failed $part"
+            fi
+            echo "::endgroup::"
+            bash apps/web/playwright/scripts/port-listeners.sh --stop 3030 3988 3989 3990 3991
+            if [ -d apps/web/playwright/artifacts ]; then
+              mv apps/web/playwright/artifacts "apps/web/playwright/artifacts-part-$part"
+            fi
+          done
+          if [ -n "$failed" ]; then
+            echo "::error::The mock browser suite failed in part(s):$failed"
+            exit 1
+          fi
+
+      # Playwright stops its own process group only; `next dev`, which turbo starts in a session of its own, stays on
+      # port 3030 (seen in-cluster after every route suite run). Nothing runs after this job, but the pod is freed clean.
+      - name: Free the suite's ports
+        if: always()
+        run: bash apps/web/playwright/scripts/port-listeners.sh --stop 3030 3988 3989 3990 3991
+
+      # Each part's JSON report, plus a trace, a screenshot and error-context.md for each failed test (artifacts/ holds
+      # the part a timeout cut short). In-cluster artifacts do not persist: the list reporter prints every failure in
+      # the step log too.
+      - name: Upload Playwright report and traces
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: playwright-browser-${{ github.sha }}
+          path: |
+            apps/web/playwright/artifacts-part-*/
+            apps/web/playwright/artifacts/
+          if-no-files-found: warn
+          retention-days: 14

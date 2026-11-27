@@ -15,6 +15,20 @@ RUN yarn install --network-timeout 1000000 --frozen-lockfile --non-interactive -
 ENV NEXT_BUILD_OUTPUT_TYPE=standalone
 RUN yarn turbo run build --filter=@ever-teams/example-nextjs-boilerplate
 
+# next/image needs sharp, and the monorepo install cannot provide one that loads. Storybook and plasmo pin
+# sharp 0.33, so yarn nests the libvips of Next's sharp (0.35) where the sharp binary's rpath does not
+# look, and /_next/image would serve the original files. Install the version Next resolves, flat, with npm
+# (apps/web's image also installs its sharp with npm); the runtime stage lays it over the traced copy.
+# sharp's `exports` hides ./package.json, so the version is read from the folder its entry resolves to.
+WORKDIR /app/packages/toolkit/examples/next-boilerplate-ixartz
+RUN version="$(node -p "const path = require('node:path'); \
+		let dir = path.dirname(require.resolve('sharp', { paths: [path.dirname(require.resolve('next/package.json'))] })); \
+		while (path.basename(dir) !== 'sharp' && dir !== path.dirname(dir)) dir = path.dirname(dir); \
+		JSON.parse(require('node:fs').readFileSync(path.join(dir, 'package.json'), 'utf8')).version")" \
+	&& npm install --prefix /sharp --omit=dev --no-save --no-package-lock --no-audit --no-fund --ignore-scripts \
+		"sharp@${version}" \
+	&& npm cache clean --force
+
 # Runtime: the traced server, its static assets and public/ only. Shipping the build stage (the whole
 # monorepo and its full install) made each demo image ~1.8 GB compressed, several GB on every worker.
 FROM node:${NODE_VERSION}-slim AS runner
@@ -23,6 +37,11 @@ WORKDIR /app
 COPY --from=build --chown=node:node /app/packages/toolkit/examples/next-boilerplate-ixartz/.next/standalone ./
 COPY --from=build --chown=node:node /app/packages/toolkit/examples/next-boilerplate-ixartz/.next/static ./packages/toolkit/examples/next-boilerplate-ixartz/.next/static
 COPY --from=build --chown=node:node /app/packages/toolkit/examples/next-boilerplate-ixartz/public ./packages/toolkit/examples/next-boilerplate-ixartz/public
+# The flat sharp from the build stage (see there), checked the way Next loads it, so a broken sharp fails
+# the image build instead of every /_next/image request.
+COPY --from=build --chown=node:node /sharp/node_modules/sharp /app/node_modules/sharp
+COPY --from=build --chown=node:node /sharp/node_modules/@img /app/node_modules/@img
+RUN node -e "require(require.resolve('sharp', { paths: ['/app/node_modules/next'] }))"
 # src/libs/DB.ts migrates from <cwd>/migrations at startup (a runtime path the tracer cannot see).
 COPY --from=build --chown=node:node /app/packages/toolkit/examples/next-boilerplate-ixartz/migrations ./packages/toolkit/examples/next-boilerplate-ixartz/migrations
 WORKDIR /app/packages/toolkit/examples/next-boilerplate-ixartz

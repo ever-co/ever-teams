@@ -50,6 +50,12 @@ export const LazyAppSidebar = dynamic(
 	}
 );
 
+// Client-only: whether the panel is open and how wide it is are read from this browser's storage on the first render.
+export const LazyEverSiPanel = dynamic(
+	() => import('../features/assistant/ever-si-panel').then((mod) => ({ default: mod.EverSiPanel })),
+	{ ssr: false }
+);
+
 export const LazySidebarCommandModal = dynamic(
 	() =>
 		import('../layouts/default-layout/header/sidebar-command-modal').then((mod) => ({

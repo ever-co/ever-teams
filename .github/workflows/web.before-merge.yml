@@ -126,7 +126,8 @@ jobs:
               failed="$failed $dir"
             fi
             echo "::endgroup::"
-            counts=$(grep -E '^ℹ (tests|pass|fail|skipped) ' "$log" | sed 's/^ℹ //' | paste -sd ',' - | sed 's/,/, /g')
+            # A suite killed before its summary prints no counts: grep finds nothing, which must not end the step here
+            counts=$(grep -E '^ℹ (tests|pass|fail|skipped) ' "$log" | sed 's/^ℹ //' | paste -sd ',' - | sed 's/,/, /g' || true)
             summary="$summary$dir: ${counts:-no summary}"$'\n'
           done
           echo "Kit test suites:"
@@ -269,3 +270,69 @@ jobs:
             artifacts/startup-candidate.json
             artifacts/startup-report.json
           if-no-files-found: warn
+
+  # The browser-free Playwright suites (apps/web/playwright/README.md): every Next.js route handler under apps/web/app/api
+  # (pw:api, including suites/api/manifests.spec.ts, which fails while the generated route lists are stale) and the Ever
+  # ID sign-in routes against a fake OpenID Connect issuer (pw:ever-id). Each config starts its own servers
+  # (playwright/test-servers.ts): the mock Gauzy backend on 127.0.0.1:3988-3991 and `next dev` on localhost:3030.
+  # No `needs`: the suites do not use the build. On Actions the job runs beside deploy; in-cluster, where every job of
+  # this file runs in one pod one at a time, it runs before browser-parity (which needs deploy), and
+  # `ci-builds-run.py ... --job playwright-routes` (in the private ever-co/homelab repository's scripts/) runs it alone.
+  playwright-routes:
+    runs-on: ${{ vars.RUNNER_LINUX_X64_4 || 'ubuntu-latest' }}
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Use Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '26.12.1'
+          cache: 'yarn'
+
+      - name: Configure Registry
+        uses: ever-co/ever-gauzy/.github/actions/configure-registry@727973d766f3968d3f1184300af085872abcb20b
+        with:
+          verdaccio-registry: ${{ vars.VERDACCIO_REGISTRY }}
+          verdaccio-token: ${{ secrets.VERDACCIO_TOKEN }}
+          force-public: ${{ vars.VERDACCIO_FORCE_PUBLIC }}
+          expect-vip: ${{ vars.RUNNER_LINUX_X64_4 != '' }}
+
+      # No browser and no install scripts needed: the suites call the app over HTTP
+      - name: Install Packages
+        id: install
+        run: yarn install --network-timeout 1000000 --frozen-lockfile --ignore-scripts
+        env:
+          NODE_OPTIONS: '--dns-result-order=ipv4first'
+
+      - name: Playwright route-handler suite
+        timeout-minutes: 60
+        run: yarn workspace @ever-teams/web pw:api
+
+      # The Ever ID config never reuses a server (reuseExistingServer: false): one the route-handler suite left on
+      # these ports would make it refuse to start, so stop it here rather than only list it
+      - name: Free the ports the route-handler suite left
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: bash apps/web/playwright/scripts/port-listeners.sh --stop 3030 3988 3989 3990 3991
+
+      # Runs even when the route-handler suite failed, so one run reports both
+      - name: Playwright Ever ID suite
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        timeout-minutes: 20
+        run: yarn workspace @ever-teams/web pw:ever-id
+
+      # In-cluster the Cypress job comes next in the same pod and needs these ports
+      - name: Free the suites' ports
+        if: always()
+        run: bash apps/web/playwright/scripts/port-listeners.sh --stop 3030 3988 3989 3990 3991
+
+      # The JSON reports and each failed test's error-context.md. In-cluster artifacts do not persist: the list
+      # reporter prints every failure in the step log too.
+      - name: Upload Playwright reports
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: playwright-routes-${{ github.sha }}
+          path: apps/web/playwright/artifacts/
+          if-no-files-found: warn
+          retention-days: 14

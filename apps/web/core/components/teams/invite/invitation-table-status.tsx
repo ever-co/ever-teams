@@ -33,8 +33,10 @@ export const InvitationTableStatus = ({ status, acceptJoinRequest, rejectJoinReq
 							size="icon-sm"
 							className="bg-success/10 text-success-foreground hover:bg-success/20 hover:text-success-foreground"
 							onClick={acceptJoinRequest}
+							aria-label={t('common.ACCEPT')}
+							title={t('common.ACCEPT')}
 						>
-							<CheckIcon className="size-4" />
+							<CheckIcon className="size-4" aria-hidden="true" />
 						</Button>
 						<Button
 							type="button"
@@ -42,8 +44,10 @@ export const InvitationTableStatus = ({ status, acceptJoinRequest, rejectJoinReq
 							size="icon-sm"
 							className="bg-destructive/10 text-destructive-ink hover:bg-destructive/20 hover:text-destructive-ink"
 							onClick={rejectJoinRequest}
+							aria-label={t('common.REJECT')}
+							title={t('common.REJECT')}
 						>
-							<CrossIcon className="size-4" />
+							<CrossIcon className="size-4" aria-hidden="true" />
 						</Button>
 					</div>
 				);

@@ -36,13 +36,15 @@ export function addHours(numOfHours: number, date = new Date()) {
 }
 
 export function secondsToTime(secs: number) {
-	const hours = Math.floor(secs / (60 * 60));
+	// Round up to a whole second before splitting: rounding only the seconds part would show 59.2 s as "60" seconds
+	// (00:00:60) instead of carrying it into the minute, and 3599.2 s as 00:59:60 instead of 01:00:00
+	const totalSeconds = Math.ceil(secs);
+	const hours = Math.floor(totalSeconds / (60 * 60));
 
-	const divisor_for_minutes = secs % (60 * 60);
+	const divisor_for_minutes = totalSeconds % (60 * 60);
 	const minutes = Math.floor(divisor_for_minutes / 60);
 
-	const divisor_for_seconds = divisor_for_minutes % 60;
-	const seconds = Math.ceil(divisor_for_seconds);
+	const seconds = divisor_for_minutes % 60;
 
 	return {
 		hours: hours,

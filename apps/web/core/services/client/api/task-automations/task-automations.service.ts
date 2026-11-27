@@ -24,10 +24,15 @@ class TaskAutomationsService extends APIService {
 		return qs.stringify({ organizationId, ...extra }, { skipNulls: true });
 	}
 
-	/** The built-in templates (also the availability probe: a platform without the plugin answers 404). */
+	/**
+	 * The built-in templates (also the availability probe: a platform without the plugin answers 404, which
+	 * `availabilityOfError` reads as `unavailable`). The settings navigation asks it on every settings page for a
+	 * manager, so that 404 stays out of the error log.
+	 */
 	templates = async (organizationId: string, signal?: AbortSignal): Promise<ITaskAutomationTemplate[]> => {
 		const response = await this.get<ITaskAutomationTemplate[]>(`${BASE}/templates?${this.organizationQuery(organizationId)}`, {
-			signal
+			signal,
+			quietStatuses: [404]
 		});
 		return response.data;
 	};

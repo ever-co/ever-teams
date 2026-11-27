@@ -1,5 +1,5 @@
 const path = require('node:path');
-const { PHASE_TEST } = require('next/constants');
+const { PHASE_DEVELOPMENT_SERVER, PHASE_TEST } = require('next/constants');
 const withNextIntl = require('next-intl/plugin')('./core/lib/i18n/request.ts');
 const { withSentryConfig } = require('@sentry/nextjs');
 const { parseImageHosts, serializeImageRemotePatterns } = require('./image-hosts');
@@ -223,7 +223,34 @@ const exportedConfig = isSentryEnabled
 
 // next/jest loads this file in PHASE_TEST (`yarn test:web`); every other phase gets the config above unchanged.
 module.exports = async (phase, context) => {
-	const resolvedConfig = typeof exportedConfig === 'function' ? await exportedConfig(phase, context) : exportedConfig;
+	let resolvedConfig = typeof exportedConfig === 'function' ? await exportedConfig(phase, context) : exportedConfig;
+	/**
+	 * The build directory of a Playwright lane (apps/web/playwright/test-servers.ts, `laneServers`).
+	 *
+	 * Next 16 allows one dev server per project directory — its lock is `<distDir>/dev/logs/next-development.log` —
+	 * so a second `next dev` started in apps/web for a parallel run exits with "Another next dev server is already
+	 * running". Each lane therefore gets its own distDir. Unset, nothing here changes: `yarn dev` keeps Next's own
+	 * `.next`.
+	 */
+	if (process.env.PLAYWRIGHT_LANE_DIST_DIR) {
+		/**
+		 * The value comes from this repo's own launcher, and it decides where Next writes a build. It is still checked,
+		 * because a mistyped one would put a lane's build outside apps/web — outside the lane-build entry of
+		 * apps/web/.gitignore, where it would look like source rather than build output. So: relative, no `..` segment, no
+		 * absolute path, or the lane is refused here with its own name in the message, instead of failing later as
+		 * Next's "Another next dev server is already running".
+		 */
+		const laneDistDir = process.env.PLAYWRIGHT_LANE_DIST_DIR;
+		// Only the name the launcher writes (`.next-lane-<port>`, the apps/web/.gitignore entry): any other value, even a
+		// relative one such as `.` or `core`, would let Next empty an app directory as its output folder.
+		if (!/^\.next-lane-\d{2,5}$/.test(laneDistDir)) {
+			throw new Error(`PLAYWRIGHT_LANE_DIST_DIR must be .next-lane-<port>: got ${laneDistDir}`);
+		}
+		// Lanes run `next dev` only; a build or `next start` keeps Next's own `.next` even if the variable leaked in.
+		if (phase === PHASE_DEVELOPMENT_SERVER) {
+			resolvedConfig = { ...resolvedConfig, distDir: laneDistDir };
+		}
+	}
 	if (phase !== PHASE_TEST) {
 		return resolvedConfig;
 	}

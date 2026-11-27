@@ -34,6 +34,45 @@ function renderCreateTask() {
 }
 
 /**
+ * The create form's rich editor and a copy of a task both hand over HTML: it used to be wrapped in a second paragraph,
+ * which the editor opens as an empty paragraph before the text and one after it.
+ */
+describe('useCreateTask, the description of a new task', () => {
+	beforeEach(() => {
+		mockCreateTask.mockReset();
+		mockCreateTask.mockResolvedValue({ data: { id: 'task-1' } });
+	});
+
+	it('keeps the HTML of a description as it is', async () => {
+		const { result } = renderCreateTask();
+
+		await act(async () => {
+			await result.current.createTask({
+				title: 'Draft the release notes',
+				taskStatusId: 'status-open',
+				description: '<p>Steps to reproduce</p>'
+			});
+		});
+
+		expect(mockCreateTask).toHaveBeenCalledWith(
+			expect.objectContaining({ description: '<p>Steps to reproduce</p>' })
+		);
+	});
+
+	it('puts a paragraph around plain text, and sends no description for none', async () => {
+		const { result } = renderCreateTask();
+
+		await act(async () => {
+			await result.current.createTask({ title: 'A', taskStatusId: 'status-open', description: 'Steps' });
+			await result.current.createTask({ title: 'B', taskStatusId: 'status-open', description: '' });
+		});
+
+		expect(mockCreateTask).toHaveBeenNthCalledWith(1, expect.objectContaining({ description: '<p>Steps</p>' }));
+		expect(mockCreateTask.mock.calls[1][0]).not.toHaveProperty('description');
+	});
+});
+
+/**
  * A task created with no status picked (#5682) was sent with the name of the first status of the list, "backlog", and
  * the record of another, "open": the list showed Backlog and the Kanban board put it in the Open lane.
  */

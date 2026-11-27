@@ -102,7 +102,10 @@ test.describe('the page gate for an anonymous visitor', () => {
 		// shell with no workspace (see suites/mock/auth.spec.ts), and every data call it makes carries no
 		// token, so a real API answers it 401. Pinned here so that adding a gate at the door — or removing
 		// the exemption — is a decision somebody has to make in the open, not a change that slips through.
-		const response = await api('/team/tasks', NO_SESSION);
+		// The first request compiles the whole tasks page under `next dev`: in the in-cluster run
+		// (nopush-pr5675-ever-teams-703b324-a5245) that took over 60 s, when /maintenance alone took 35 s.
+		test.setTimeout(240_000);
+		const response = await api('/team/tasks', { ...NO_SESSION, timeout: 200_000 });
 		expect(response.status(), '/team/tasks was gated at the door after all').toBe(200);
 	});
 

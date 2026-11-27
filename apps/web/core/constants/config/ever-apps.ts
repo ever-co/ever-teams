@@ -1,35 +1,55 @@
 // cspell:words traduora
+import type { DottedLanguageObjectStringPaths } from 'next-intl';
 import { readRuntimeEnv } from '@/env-config';
 
-type EverAppId = 'gauzy' | 'teams' | 'works' | 'platform' | 'demand' | 'rec' | 'traduora';
+type EverAppId = 'gauzy' | 'teams' | 'works' | 'platform' | 'demand' | 'rec' | 'traduora' | 'tech';
+
+/** As Ever Platform's catalog (`GET /v1/products`): `soon` is listed with its chip, even without a link. */
+export type EverAppStatus = 'available' | 'beta' | 'soon';
 
 export interface EverApp {
 	id: EverAppId;
-	shortName: string;
+	/** The product's name, the same in every language and in every Ever app's launcher. */
+	name: string;
+	/** The message key of the one line under the name: what the app does, in the reader's language. */
+	lineKey: DottedLanguageObjectStringPaths;
 	logo: string;
-	/** Empty for this app when the deployment gives it no link: its row is never a link. */
+	/** Empty for this app, and for an app that is coming soon, when the deployment gives it no link. */
 	url: string;
 	domain: string;
+	status: EverAppStatus;
 }
 
 type EverAppEntry = Omit<EverApp, 'url' | 'domain'>;
 
 const CURRENT_EVER_APP_ID: EverAppId = 'teams';
 
-// Same order and logos as the Gauzy app switcher (ever-gauzy
-// packages/ui-core/common/src/lib/constants/ever-apps.constants.ts): keep both lists in sync. Works ships the Teams
-// tile and Demand the Platform tile today, so those pairs look alike. No link lives here: each one comes from the
-// deployment (NEXT_PUBLIC_EVER_APP_LINKS), so this bundle names no Ever host (the egress audit's static scan) and a
-// self-hosted or rebranded deployment never sends its users to Ever's hosted apps.
+/** One catalog row: its line is `switchers.APP_LINE_<ID>` (checked against the English messages) and its logo file. */
+function entry(id: EverAppId, name: string, logoFile: string, status: EverAppStatus = 'available'): EverAppEntry {
+	const lineKey = `switchers.APP_LINE_${id.toUpperCase() as Uppercase<EverAppId>}` as const;
+	return { id, name, lineKey, logo: `/assets/ever-apps/${logoFile}`, status };
+}
+
+// Same list, order and lines in every Ever app and site (homelab docs/brand/EVER-SITES-UNIFIED-CHROME.md §4 and
+// §4b). Keep the copies in sync. Inside the apps the order is the shared shell's (Part A3 of the one-shell spec):
+// Ever Platform, Ever Works, Ever Teams, Ever Gauzy, Ever Rec, Ever Traduora, Ever Demand, then Ever Tech (Platform
+// from its catalog, Works from platforms.json, Gauzy from its ever-connect plugin). No link lives here: each one
+// comes from the deployment (NEXT_PUBLIC_EVER_APP_LINKS), so this bundle names no Ever host (the egress audit's
+// static scan) and a self-hosted or rebranded deployment never sends its users to Ever's hosted apps.
 const EVER_APP_ENTRIES: ReadonlyArray<EverAppEntry> = [
-	{ id: 'platform', shortName: 'Platform', logo: '/assets/ever-apps/platform.svg' },
-	{ id: 'works', shortName: 'Works', logo: '/assets/ever-apps/works.svg' },
-	{ id: 'teams', shortName: 'Teams', logo: '/assets/ever-apps/teams.svg' },
-	{ id: 'gauzy', shortName: 'Gauzy', logo: '/assets/ever-apps/gauzy.svg' },
-	{ id: 'demand', shortName: 'Demand', logo: '/assets/ever-apps/demand.svg' },
-	{ id: 'rec', shortName: 'Rec', logo: '/assets/ever-apps/rec.svg' },
-	{ id: 'traduora', shortName: 'Traduora', logo: '/assets/ever-apps/traduora.png' }
+	entry('platform', 'Ever Platform', 'platform.svg'),
+	entry('works', 'Ever Works', 'works.svg'),
+	entry('teams', 'Ever Teams', 'teams.svg'),
+	entry('gauzy', 'Ever Gauzy', 'gauzy.svg'),
+	entry('rec', 'Ever Rec', 'rec.svg'),
+	entry('traduora', 'Ever Traduora', 'traduora.png'),
+	// Coming soon: listed with its chip while the deployment gives it no link, a plain row once it does.
+	entry('demand', 'Ever Demand', 'demand.svg', 'soon'),
+	entry('tech', 'Ever Tech', 'tech.svg')
 ];
+
+/** Where "+ Add" leads in Ever Platform: the page that adds an app, for whichever organization the person picks. */
+const PLATFORM_ADD_APP_PATH = '/apps?add=app';
 
 function parseHttpUrl(value: string): URL | null {
 	try {
@@ -71,21 +91,41 @@ const EVER_APP_LINKS = parseEverAppLinks(
 
 function withLink(entry: EverAppEntry): EverApp | null {
 	const link = EVER_APP_LINKS.get(entry.id);
+	const isComingSoon = entry.status === 'soon';
 	if (link) {
-		return { ...entry, url: link.href, domain: link.host };
+		// A link means the app is there: "Soon" is only for an app the deployment cannot link yet.
+		let status = entry.status;
+		if (isComingSoon) {
+			status = 'available';
+		}
+		return { ...entry, status, url: link.href, domain: link.host };
 	}
-	if (entry.id === CURRENT_EVER_APP_ID) {
+	const isCurrent = entry.id === CURRENT_EVER_APP_ID;
+	if (isCurrent || isComingSoon) {
 		return { ...entry, url: '', domain: '' };
 	}
 	return null;
 }
 
-const LINKED_EVER_APPS = EVER_APP_ENTRIES.map(withLink).filter((app): app is EverApp => app !== null);
+const LISTED_EVER_APPS = EVER_APP_ENTRIES.map(withLink).filter((app): app is EverApp => app !== null);
 
-/** The switcher, its rail and its setting show only when the deployment links at least one other app. */
-export const HAS_EVER_APP_SWITCHER = LINKED_EVER_APPS.some((app) => app.id !== CURRENT_EVER_APP_ID);
+/** The launcher, its rail and its settings show only when the deployment links at least one other app. */
+export const HAS_EVER_APP_SWITCHER = LISTED_EVER_APPS.some((app) => app.id !== CURRENT_EVER_APP_ID && app.url !== '');
 
-export const EVER_APPS: ReadonlyArray<EverApp> = HAS_EVER_APP_SWITCHER ? LINKED_EVER_APPS : [];
+export const EVER_APPS: ReadonlyArray<EverApp> = HAS_EVER_APP_SWITCHER ? LISTED_EVER_APPS : [];
+
+function addAppUrlOf(platformLink: URL | undefined) {
+	if (!HAS_EVER_APP_SWITCHER || !platformLink) {
+		return '';
+	}
+	return new URL(PLATFORM_ADD_APP_PATH, platformLink).href;
+}
+
+/**
+ * The "+ Add" row: Ever Platform's page that adds an app of your own, in the Platform this deployment links. Empty
+ * (no row) without a Platform link, so a self-hosted deployment shows nothing Ever-specific.
+ */
+export const EVER_APP_ADD_URL = addAppUrlOf(EVER_APP_LINKS.get('platform'));
 
 export function isCurrentEverApp(app: EverApp) {
 	return app.id === CURRENT_EVER_APP_ID;

@@ -37,6 +37,7 @@ import { useTasksByEmployeeQuery } from './use-tasks-by-employee-query';
 import { EIssueType, ETaskPriority, ETaskSize } from '@/core/types/generics/enums/task';
 import { useTaskStatusesQuery } from '../../tasks/use-task-statuses-query';
 import { teamDefaultProjectId } from '@/core/lib/helpers/team-default-project';
+import { newTaskDescriptionOf } from '@/core/lib/utils/task-description-html';
 
 /**
  * A React hook that provides functionality for managing team tasks, including creating, updating, deleting, and fetching tasks.
@@ -331,6 +332,7 @@ export function useTeamTasks() {
 			projectId?: string | null;
 			members?: TEmployee[] | { id: string }[] | null;
 		}) => {
+			const descriptionHtml = newTaskDescriptionOf(description);
 			try {
 				const res = await createTaskMutateAsync({
 					title,
@@ -342,7 +344,7 @@ export function useTeamTasks() {
 					// Set Project Id to cookie
 					// TODO: Make it dynamic when we add Dropdown in Navbar
 					projectId,
-					...(description ? { description: `<p>${description}</p>` } : {}),
+					...(descriptionHtml ? { description: descriptionHtml } : {}),
 					members: members ?? [],
 					taskStatusId: taskStatusId
 				});

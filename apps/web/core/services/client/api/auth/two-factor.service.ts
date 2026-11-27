@@ -17,11 +17,15 @@ import { APIService } from '../../api.service';
  * calls that take one expect it, so it is shown as a wrong code and does not sign anyone out.
  */
 class TwoFactorService extends APIService {
-	/** The state of the signed-in person; the active organization says whether it asks its members for it. */
+	/**
+	 * The state of the signed-in person; the active organization says whether it asks its members for it. An API without
+	 * these routes answers 404, which `twoFactorStatusFailureOf` reads as `unsupported`. The settings navigation asks it
+	 * on every settings page, so that 404 stays out of the error log.
+	 */
 	getStatus = async (): Promise<ITwoFactorStatus> => {
 		const organizationId = getOrganizationIdCookie();
 		const query = organizationId ? `?organizationId=${encodeURIComponent(organizationId)}` : '';
-		const { data } = await this.get<ITwoFactorStatus>(`/auth/two-factor${query}`);
+		const { data } = await this.get<ITwoFactorStatus>(`/auth/two-factor${query}`, { quietStatuses: [404] });
 		return data;
 	};
 

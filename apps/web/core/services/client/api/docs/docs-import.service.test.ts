@@ -1,4 +1,6 @@
 import qs from 'qs';
+import { ApiErrorService } from '@/core/services/client/api-error.service';
+import { expectOnly404Quiet } from '@/test/api/refusing-client';
 import { DOCS_IMPORT_UPLOAD_TIMEOUT_MS, DOCS_PDF_DOWNLOAD_TIMEOUT_MS } from '@/core/lib/utils/docs-import';
 import { EDocumentVisibility } from '@/core/types/interfaces/common/docs';
 import { docsImportService } from './docs-import.service';
@@ -17,6 +19,18 @@ describe('docsImportService', () => {
 		expect(String(get.mock.calls[0][0])).toMatch(/^\/plugins\/docs\/imports\?/);
 		await docsImportService.probePdf();
 		expect(get.mock.calls[1][0]).toBe('/plugins/docs/exports/pdf');
+		// A 404 is how a probe hears the feature is off: both ask the client to keep it out of its error log
+		expect(get.mock.calls.map(([, config]) => config?.quietStatuses)).toEqual([[404], [404]]);
+	});
+
+	it.each([
+		['import', () => docsImportService.probeImport()],
+		['PDF export', () => docsImportService.probePdf()]
+	])('keeps the 404 of the %s probe, the feature off, out of the error log, and still logs a 500', async (_name, probe) => {
+		const notFound = await expectOnly404Quiet(docsImportService, probe);
+
+		// What `isFeatureOff` (use-docs-import.ts) reads as the feature off
+		expect(ApiErrorService.isApiError(notFound) && notFound.statusCode).toBe(404);
 	});
 
 	it('starts an import into a space: the file, the space and the team, with upload progress', async () => {

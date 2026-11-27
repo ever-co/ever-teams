@@ -99,6 +99,12 @@ export type APIConfig = AxiosRequestConfig<any> & {
 	 * handler (refresh, then sign-out) is not called, and the caller shows the refusal.
 	 */
 	expectedUnauthorized?: boolean;
+	/**
+	 * Statuses this call takes as an answer, not as a failure (a 404 from a Gauzy without the route): `APIService`
+	 * leaves them out of its error log, in direct and in proxy mode alike. Only the log: the call still fails with that
+	 * status for its caller to read, and a 401 still goes to the session handler.
+	 */
+	quietStatuses?: readonly number[];
 };
 
 async function apiConfig(config?: APIConfig) {

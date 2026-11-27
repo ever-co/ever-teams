@@ -5,13 +5,16 @@
  * the brand out ("Ever Teams Assistant") or translates it word by word ignores that. These
  * messages carry the `{appName}` placeholder instead, and every call site must pass `{ appName }`:
  * next-intl reports a formatting error (and renders the key) when a placeholder gets no value.
+ *
+ * The assistant is not named after the product any more: it is Ever SI in every Ever app (spec A7), a proper
+ * name that `ever-si-locales.test.ts` checks instead.
  */
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 
 const WEB_ROOT = resolve(__dirname, '../..');
 const LOCALES_DIRECTORY = join(WEB_ROOT, 'locales');
-const BRAND_MESSAGES = ['TITLE', 'chatView.ASSISTANT_NAME', 'chatView.OPEN_ASSISTANT'] as const;
+const BRAND_MESSAGES = ['TITLE'] as const;
 
 type Messages = { [key: string]: string | Messages };
 

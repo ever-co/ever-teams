@@ -23,6 +23,8 @@ const CREDENTIALS = '/embed-credentials';
 const ORIGINS = '/embed-allowed-origins';
 const SITE_AUTHORIZE = '/embed/authorize';
 const SITE_GRANTS = '/embed/grants';
+/** What a server with embeds off, or a Gauzy without the route, answers. */
+const NOT_FOUND = 404;
 
 /**
  * The API made the credential without the client it was asked to limit it to (an API that drops the field, behind a
@@ -76,10 +78,11 @@ class EmbedsService extends APIService {
 
 	/**
 	 * Whether the server has embeds on, and can limit a credential to one client; a 404 means off, a 403 that the person
-	 * is not an admin of the organization.
+	 * is not an admin of the organization. The settings navigation asks it on every settings page, so the 404 of a
+	 * server with embeds off stays out of the error log (`embedsAvailabilityOf` reads it as `disabled`).
 	 */
 	readConfig = async (signal?: AbortSignal): Promise<EmbedConfig> => {
-		const response = await this.get<unknown>(`${CREDENTIALS}/config`, { signal });
+		const response = await this.get<unknown>(`${CREDENTIALS}/config`, { signal, quietStatuses: [NOT_FOUND] });
 		return validateApiResponse(embedConfigSchema, response.data, 'embeds.config API response');
 	};
 
@@ -174,16 +177,20 @@ class EmbedsService extends APIService {
 
 	/**
 	 * The sites the signed-in person allowed to use their timer: Gauzy answers with this person's own only. A server
-	 * with embeds off, or without the route, answers 404.
+	 * with embeds off, or without the route, answers 404: the read fails with it and the section is not shown
+	 * (`isSiteGrantsUnavailable`), and that 404 stays out of the error log, since such a Gauzy is a supported one.
 	 */
 	listSiteGrants = async (signal?: AbortSignal): Promise<EmbedSiteGrant[]> => {
-		const response = await this.get<unknown>(SITE_GRANTS, { signal });
+		const response = await this.get<unknown>(SITE_GRANTS, { signal, quietStatuses: [NOT_FOUND] });
 		return validateApiResponse(embedSiteGrantListSchema, response.data, 'embeds.siteGrants API response');
 	};
 
-	/** Ends a site's sign-in: its next renewal is refused. A sign-in already gone answers 404. */
+	/**
+	 * Ends a site's sign-in: its next renewal is refused. A sign-in already gone answers 404: the call fails with it, the
+	 * section takes it as ended (`isSiteGrantAlreadyEnded`), and it stays out of the error log.
+	 */
 	endSiteGrant = async (id: string): Promise<void> => {
-		await this.delete(`${SITE_GRANTS}/${encodeURIComponent(id)}`);
+		await this.delete(`${SITE_GRANTS}/${encodeURIComponent(id)}`, { quietStatuses: [NOT_FOUND] });
 	};
 
 	/** Revokes a credential: its tokens are refused within 30 seconds. */

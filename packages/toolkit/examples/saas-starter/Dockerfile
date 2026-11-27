@@ -18,6 +18,20 @@ RUN yarn install --network-timeout 1000000 --frozen-lockfile --non-interactive -
 ENV NEXT_BUILD_OUTPUT_TYPE=standalone
 RUN yarn turbo run build --filter=@ever-teams/example-saas-starter
 
+# next/image needs sharp, and the monorepo install cannot provide one that loads. Storybook and plasmo pin
+# sharp 0.33, so yarn nests the libvips of Next's sharp (0.35) where the sharp binary's rpath does not
+# look, and /_next/image would serve the original files. Install the version Next resolves, flat, with npm
+# (apps/web's image also installs its sharp with npm); the runtime stage lays it over the traced copy.
+# sharp's `exports` hides ./package.json, so the version is read from the folder its entry resolves to.
+WORKDIR /app/packages/toolkit/examples/saas-starter
+RUN version="$(node -p "const path = require('node:path'); \
+		let dir = path.dirname(require.resolve('sharp', { paths: [path.dirname(require.resolve('next/package.json'))] })); \
+		while (path.basename(dir) !== 'sharp' && dir !== path.dirname(dir)) dir = path.dirname(dir); \
+		JSON.parse(require('node:fs').readFileSync(path.join(dir, 'package.json'), 'utf8')).version")" \
+	&& npm install --prefix /sharp --omit=dev --no-save --no-package-lock --no-audit --no-fund --ignore-scripts \
+		"sharp@${version}" \
+	&& npm cache clean --force
+
 # The deployment's init container runs `yarn db:migrate` (drizzle-kit migrate) from this image's WORKDIR,
 # which the standalone server does not need. Install only drizzle-kit, drizzle-orm and the postgres
 # driver, at the ranges saas-starter declares and the versions the monorepo yarn.lock pins.
@@ -43,6 +57,11 @@ WORKDIR /app
 COPY --from=build --chown=node:node /app/packages/toolkit/examples/saas-starter/.next/standalone ./
 COPY --from=build --chown=node:node /app/packages/toolkit/examples/saas-starter/.next/static ./packages/toolkit/examples/saas-starter/.next/static
 COPY --from=build --chown=node:node /app/packages/toolkit/examples/saas-starter/public ./packages/toolkit/examples/saas-starter/public
+# The flat sharp from the build stage (see there), checked the way Next loads it, so a broken sharp fails
+# the image build instead of every /_next/image request.
+COPY --from=build --chown=node:node /sharp/node_modules/sharp /app/node_modules/sharp
+COPY --from=build --chown=node:node /sharp/node_modules/@img /app/node_modules/@img
+RUN node -e "require(require.resolve('sharp', { paths: ['/app/node_modules/next'] }))"
 # Migrations: `yarn db:migrate` needs yarn (the slim image has none), drizzle-kit, its config and the SQL.
 ARG YARN_VERSION=1.22.22
 RUN npm install -g --ignore-scripts yarn@${YARN_VERSION} && npm cache clean --force

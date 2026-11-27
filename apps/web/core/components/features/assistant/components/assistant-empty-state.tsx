@@ -1,5 +1,6 @@
 'use client';
 
+import { useId } from 'react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { Bot, Key } from '@/core/components/icons';
@@ -11,7 +12,7 @@ import { PromptSuggestion } from '../prompt-kit/prompt-suggestion';
 function MissingKeyNotice({ onOpenConfig }: Readonly<{ onOpenConfig: () => void }>) {
 	const t = useTranslations();
 	return (
-		<div className="flex flex-col gap-3 rounded-xl bg-card p-3.5 text-left shadow-sm shadow-black/6.5 hairline-ring ring-border sm:flex-row sm:items-center">
+		<div className="flex flex-col gap-3 rounded-xl bg-card p-4 text-start shadow-sm shadow-black/6.5 hairline-ring ring-border @md:flex-row @md:items-center">
 			<div className="flex min-w-0 flex-1 items-start gap-3">
 				<span className="flex size-8 shrink-0 items-center justify-center rounded-lg text-muted-foreground keycap-3d">
 					<Key className="size-4" aria-hidden="true" />
@@ -23,7 +24,7 @@ function MissingKeyNotice({ onOpenConfig }: Readonly<{ onOpenConfig: () => void 
 			</div>
 			<Button
 				type="button"
-				className="shrink-0 self-start rounded-full text-[13px] sm:self-auto"
+				className="shrink-0 self-start rounded-full text-[13px] @md:self-auto"
 				onClick={onOpenConfig}
 			>
 				{t('chatView.CONFIGURE_BUTTON')}
@@ -32,21 +33,38 @@ function MissingKeyNotice({ onOpenConfig }: Readonly<{ onOpenConfig: () => void 
 	);
 }
 
+/** The full page (`/assistant`) or the Ever SI panel beside a page, where the heading sits under the panel's title. */
+type AssistantSurface = 'page' | 'panel';
+
+const WELCOME_SPACING: Record<AssistantSurface, string> = { page: 'pt-10 pb-6', panel: 'pt-8 pb-4' };
+const EXAMPLES_SPACING: Record<AssistantSurface, string> = { page: 'flex-1 pt-5 pb-10', panel: 'py-4' };
+const EXAMPLES_LABEL_TAG = { page: 'h2', panel: 'h3' } as const;
+
 type AssistantWelcomeProps = {
 	isConfigured: boolean;
 	onOpenConfig: () => void;
+	surface?: AssistantSurface;
 };
 
-export function AssistantWelcome({ isConfigured, onOpenConfig }: Readonly<AssistantWelcomeProps>) {
+function WelcomeTitle({ surface }: Readonly<{ surface: AssistantSurface }>) {
 	const t = useTranslations();
+	const title = t('chatView.EMPTY_TITLE');
+	if (surface === 'panel') {
+		return <h3 className="text-lg font-medium text-balance text-foreground">{title}</h3>;
+	}
+	return <h1 className="text-2xl font-medium text-balance text-foreground">{title}</h1>;
+}
+
+export function AssistantWelcome({ isConfigured, onOpenConfig, surface = 'page' }: Readonly<AssistantWelcomeProps>) {
 	return (
-		<div className="flex flex-1 flex-col justify-end px-4 pt-10 pb-6">
-			<div className={cn(ASSISTANT_COLUMN, 'flex flex-col gap-6')}>
+		<div className={cn('flex flex-1 flex-col justify-end px-4', WELCOME_SPACING[surface])}>
+			{/* The notice lays out by the room it has, the page's column or the panel, not by the window. */}
+			<div className={cn(ASSISTANT_COLUMN, 'flex flex-col gap-6 @container')}>
 				<div className="flex flex-col items-center gap-3 text-center">
 					<span className="flex size-9 items-center justify-center rounded-lg text-muted-foreground keycap-3d">
 						<Bot className="size-5" aria-hidden="true" />
 					</span>
-					<h1 className="text-2xl font-semibold text-balance text-foreground">{t('chatView.EMPTY_TITLE')}</h1>
+					<WelcomeTitle surface={surface} />
 				</div>
 				{!isConfigured && <MissingKeyNotice onOpenConfig={onOpenConfig} />}
 			</div>
@@ -56,16 +74,19 @@ export function AssistantWelcome({ isConfigured, onOpenConfig }: Readonly<Assist
 
 type AssistantExamplesProps = {
 	onPickExample: (prompt: string) => void;
+	surface?: AssistantSurface;
 };
 
-export function AssistantExamples({ onPickExample }: Readonly<AssistantExamplesProps>) {
+export function AssistantExamples({ onPickExample, surface = 'page' }: Readonly<AssistantExamplesProps>) {
 	const t = useTranslations();
+	const labelId = useId();
+	const LabelTag = EXAMPLES_LABEL_TAG[surface];
 	return (
-		<section aria-labelledby="assistant-examples-label" className="flex-1 px-4 pt-5 pb-10">
+		<section aria-labelledby={labelId} className={cn('px-4', EXAMPLES_SPACING[surface])}>
 			<div className={cn(ASSISTANT_COLUMN, 'flex flex-col items-center gap-3')}>
-				<h2 id="assistant-examples-label" className="text-[13px] text-muted-foreground">
+				<LabelTag id={labelId} className="text-[13px] text-muted-foreground">
 					{t('chatView.EXAMPLES_LABEL')}
-				</h2>
+				</LabelTag>
 				<div className="flex flex-wrap justify-center gap-2">
 					{ASSISTANT_EXAMPLES.map((example) => {
 						const ExampleIcon = example.icon;
