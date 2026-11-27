@@ -5780,7 +5780,7 @@
 			"MANAGE_APPS_REORDER_HINT": "Sleep een rij aan de greep of gebruik de pijlen. Op een geselecteerde greep verplaatsen Alt+Omhoog en Alt+Omlaag de rij ook.",
 			"MANAGE_APPS_REMOVE": "{name} verwijderen",
 			"ADD_APP_TITLE": "Je eigen app toevoegen",
-			"ADD_APP_DESCRIPTION": "Hij staat onder Jouw apps en opent in een nieuw tabblad.",
+			"ADD_APP_DESCRIPTION": "Hij staat onder Jouw apps en opent in hetzelfde tabblad.",
 			"ADD_APP_NAME": "Naam",
 			"ADD_APP_URL": "Adres",
 			"ADD_APP_SUBMIT": "App toevoegen",

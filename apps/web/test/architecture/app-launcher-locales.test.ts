@@ -133,6 +133,22 @@ describe('the App Launcher strings', () => {
 		expect(JSON.stringify(english.switchers)).not.toMatch(/new tab/i);
 	});
 
+	it('tells the person adding an app of their own that it opens in this tab, not in a new one', () => {
+		expect(valueAt(english, 'settings.preferences.ADD_APP_DESCRIPTION')).toBe(
+			'It shows under Your apps and opens in this tab.'
+		);
+		// The 12 translations said "a new tab" in their own words: none of those words is left.
+		const newTabWords =
+			// cspell:disable-next-line -- "a new tab" as the 12 other languages said it
+			/new tab|neuen Tab|pestaña nueva|nouvel onglet|nuova scheda|nieuw tabblad|nowej karcie|nova aba|новой вкладке|нов раздел|新标签页|تبويب جديدة|כרטיסייה חדשה/i;
+		for (const file of localeFiles) {
+			expect({ file, value: valueAt(read(file), 'settings.preferences.ADD_APP_DESCRIPTION') }).not.toEqual({
+				file,
+				value: expect.stringMatching(newTabWords)
+			});
+		}
+	});
+
 	it('calls it the App Launcher, never the app switcher', () => {
 		expect(valueAt(english, 'switchers.APP_LAUNCHER')).toBe('App Launcher');
 		expect(valueAt(english, 'settings.preferences.SECTION_APP_SWITCHER')).toBe('App Launcher');

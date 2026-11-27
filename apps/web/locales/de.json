@@ -5780,7 +5780,7 @@
 			"MANAGE_APPS_REORDER_HINT": "Ziehen Sie eine Zeile am Griff oder nutzen Sie ihre Pfeile. Auf dem ausgewählten Griff verschieben Alt+Nach-oben und Alt+Nach-unten die Zeile ebenfalls.",
 			"MANAGE_APPS_REMOVE": "{name} entfernen",
 			"ADD_APP_TITLE": "Eigene App hinzufügen",
-			"ADD_APP_DESCRIPTION": "Sie erscheint unter „Ihre Apps“ und öffnet sich in einem neuen Tab.",
+			"ADD_APP_DESCRIPTION": "Sie erscheint unter „Ihre Apps“ und öffnet sich im selben Tab.",
 			"ADD_APP_NAME": "Name",
 			"ADD_APP_URL": "Adresse",
 			"ADD_APP_SUBMIT": "App hinzufügen",

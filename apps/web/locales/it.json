@@ -5780,7 +5780,7 @@
 			"MANAGE_APPS_REORDER_HINT": "Trascina una riga dalla maniglia o usa le sue frecce. Con la maniglia selezionata, anche Alt+Su e Alt+Giù spostano la riga.",
 			"MANAGE_APPS_REMOVE": "Rimuovi {name}",
 			"ADD_APP_TITLE": "Aggiungi una tua app",
-			"ADD_APP_DESCRIPTION": "Compare in Le tue app e si apre in una nuova scheda.",
+			"ADD_APP_DESCRIPTION": "Compare in Le tue app e si apre nella stessa scheda.",
 			"ADD_APP_NAME": "Nome",
 			"ADD_APP_URL": "Indirizzo",
 			"ADD_APP_SUBMIT": "Aggiungi app",

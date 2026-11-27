@@ -5780,7 +5780,7 @@
 			"MANAGE_APPS_REORDER_HINT": "Drag a row by its handle or use its arrows. On a focused handle, Alt+Up and Alt+Down move the row too.",
 			"MANAGE_APPS_REMOVE": "Remove {name}",
 			"ADD_APP_TITLE": "Add your own app",
-			"ADD_APP_DESCRIPTION": "It shows under Your apps and opens in a new tab.",
+			"ADD_APP_DESCRIPTION": "It shows under Your apps and opens in this tab.",
 			"ADD_APP_NAME": "Name",
 			"ADD_APP_URL": "Address",
 			"ADD_APP_SUBMIT": "Add app",

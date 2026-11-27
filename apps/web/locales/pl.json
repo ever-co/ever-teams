@@ -5780,7 +5780,7 @@
 			"MANAGE_APPS_REORDER_HINT": "Przeciągnij wiersz za uchwyt albo użyj jego strzałek. Na zaznaczonym uchwycie Alt+Strzałka w górę i Alt+Strzałka w dół też przesuwają wiersz.",
 			"MANAGE_APPS_REMOVE": "Usuń {name}",
 			"ADD_APP_TITLE": "Dodaj własną aplikację",
-			"ADD_APP_DESCRIPTION": "Pojawi się w sekcji Twoje aplikacje i otworzy w nowej karcie.",
+			"ADD_APP_DESCRIPTION": "Pojawi się w sekcji Twoje aplikacje i otworzy w tej samej karcie.",
 			"ADD_APP_NAME": "Nazwa",
 			"ADD_APP_URL": "Adres",
 			"ADD_APP_SUBMIT": "Dodaj aplikację",

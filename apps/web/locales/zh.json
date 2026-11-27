@@ -5780,7 +5780,7 @@
 			"MANAGE_APPS_REORDER_HINT": "拖动行的手柄，或使用该行的箭头。选中手柄时，按 Alt+上 或 Alt+下 也能移动该行。",
 			"MANAGE_APPS_REMOVE": "移除 {name}",
 			"ADD_APP_TITLE": "添加你自己的应用",
-			"ADD_APP_DESCRIPTION": "它会显示在“你的应用”中，并在新标签页中打开。",
+			"ADD_APP_DESCRIPTION": "它会显示在“你的应用”中，并在当前标签页中打开。",
 			"ADD_APP_NAME": "名称",
 			"ADD_APP_URL": "地址",
 			"ADD_APP_SUBMIT": "添加应用",

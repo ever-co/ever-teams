@@ -5780,7 +5780,7 @@
 			"MANAGE_APPS_REORDER_HINT": "Arrastra una fila por su asa o usa sus flechas. Con el asa seleccionada, Alt+Arriba y Alt+Abajo también mueven la fila.",
 			"MANAGE_APPS_REMOVE": "Quitar {name}",
 			"ADD_APP_TITLE": "Añade tu propia app",
-			"ADD_APP_DESCRIPTION": "Aparece en Tus apps y se abre en una pestaña nueva.",
+			"ADD_APP_DESCRIPTION": "Aparece en Tus apps y se abre en esta misma pestaña.",
 			"ADD_APP_NAME": "Nombre",
 			"ADD_APP_URL": "Dirección",
 			"ADD_APP_SUBMIT": "Añadir app",
