@@ -564,10 +564,7 @@ test.describe('lane-a · /team/tasks/trash: what the trash page shows and what t
 			shield.consoleErrors().filter((line) => line.includes(quiet404)),
 			'the 404 of a platform without a trash was logged as an HTTP error'
 		).toEqual([]);
-		expect(
-			consoleFindings(shield, armed),
-			'besides the 400 line the page logged a console error'
-		).toEqual([]);
+		expect(consoleFindings(shield, armed), 'besides the 400 line the page logged a console error').toEqual([]);
 	});
 
 	// ------------------------------------------------ 3. an empty trash
