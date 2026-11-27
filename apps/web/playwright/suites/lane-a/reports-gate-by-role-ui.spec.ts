@@ -141,7 +141,7 @@ import {
  * ## Mock limits this file runs into (they are not app defects)
  *
  * - **`extraPermissions` cannot remove a permission** (`mock-gauzy-server.mjs:54-63` only appends to the five base
- *   ones), so "a role that holds none of `TIME_LOG_REPORT_PERMISSIONS`" is **not arammable**: `TIME_TRACKER` is always
+ *   ones), so "a role that holds none of `TIME_LOG_REPORT_PERMISSIONS`" is **not armable**: `TIME_TRACKER` is always
  *   served. The nearest arm the mock does have is 7b (`fails: { '/api/role-permissions/me': 500 }`), measured here as
  *   `useMyRolePermissionsQuery` keeping `myPermissions` empty (`core/hooks/roles/use-my-role-permissions-query.ts:30-39`)
  *   and the layout therefore never opening `time-and-activity` for the non-manager. That is a refused read, not a role
@@ -616,7 +616,7 @@ test.describe('lane-a · who each /reports page lets in: role name and team-mana
 
 		// With ALL_ORG_VIEW armed on top of the role's base TIME_TRACKER: still admitted (reports/layout.tsx:87 wants
 		// any one of TIME_LOG_REPORT_PERMISSIONS, report-access.ts:5-10). The arm that would CLOSE it for a role
-		// holding none of them is not arammable — `extraPermissions` only adds (mock-gauzy-server.mjs:54-63).
+		// holding none of them is not armable — `extraPermissions` only adds (mock-gauzy-server.mjs:54-63).
 		{
 			const visit = await openReport(page, mock, fixture, route, NOT_MANAGER_WITH_TIME_PERMISSION);
 			await expectAdmitted(page, mock, shield, '7a non-manager + ALL_ORG_VIEW', route, visit);
