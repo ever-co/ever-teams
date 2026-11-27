@@ -570,5 +570,9 @@
 	{
 		"id": "removed:navigation:apps/web/core/components/layouts/app-sidebar.tsx::href=/assistant::#1",
 		"reason": "Moved, not removed, by the Ever SI change (spec A7): the sidebar row that linked to /assistant now opens the Ever SI panel, and lives in apps/web/core/components/layouts/ever-si-nav-item.tsx. It is still a link to /assistant there (on the full page itself and for a public team page's visitors), the path is EVER_SI_PATH of core/components/features/assistant/atoms/ever-si-panel.atom.ts, the command palette's Go to entry still goes to /assistant through it, and the panel's Open full page link too. Covered by ever-si-nav-item.test.tsx."
+	},
+	{
+		"id": "removed:testNames:apps/web/core/components/common/app-switcher/app-switcher-menu.test.tsx::opens other apps in a new tab, marks the app you are in and lists Ever Demand as coming soon, not as a link::#1",
+		"reason": "Split by the same-tab App Launcher (owner, 2026-11-26: every app opens in the SAME tab; homelab brief HANDOVER-2026-11-26-ever-app-switcher-in-apps L1). The new-tab expectation is now its opposite, \"opens every other app in the same tab: a plain link, with no target, rel or new-tab text\"; the current app and Ever Demand as Soon are still checked by \"marks the app you are in, not as a link, and lists Ever Demand as coming soon without a link\", both in the same file."
 	}
 ]
