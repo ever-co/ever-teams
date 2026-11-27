@@ -420,6 +420,21 @@ describe("Ever SI's way back from the full page", () => {
 		expect(store.get(everSiPanelOpenAtom)).toBe(false);
 	});
 
+	it('opens the panel under the full page when a narrow window is widened past the breakpoint', () => {
+		Object.defineProperty(window, 'innerWidth', { configurable: true, value: 390 });
+		mockSidebar.isMobile = true;
+		goTo('/en/assistant');
+		const store = createStore();
+		const view = render(panelIn(store));
+		expect(store.get(everSiPanelOpenAtom)).toBe(false);
+
+		Object.defineProperty(window, 'innerWidth', { configurable: true, value: 1024 });
+		mockSidebar.isMobile = false;
+		view.rerender(panelIn(store));
+
+		expect(store.get(everSiPanelOpenAtom)).toBe(true);
+	});
+
 	it('leaves the panel closed under the full page for the visitors of a public team page', () => {
 		goTo('/en/assistant');
 

@@ -182,12 +182,13 @@ export function EverSiPanel({ publicTeam = false }: Readonly<{ publicTeam?: bool
 
 	// The full page is Ever SI at its widest, so leaving it is one step down, to the panel beside the next page,
 	// however the person came. Not on phones, where the panel is a sheet that would cover that page; the window is
-	// measured here because the sidebar's own `isMobile` is not known yet on the first render.
+	// measured here because the sidebar's own `isMobile` is not known yet on the first render. `isMobile` is only
+	// the reason to measure again: a window widened past the breakpoint while the full page is shown.
 	useEffect(() => {
 		if (isOnFullPage && !publicTeam && isDesktopViewport()) {
 			setIsOpen(true);
 		}
-	}, [isOnFullPage, publicTeam, setIsOpen]);
+	}, [isOnFullPage, publicTeam, isMobile, setIsOpen]);
 
 	if (publicTeam || mode !== 'docked') {
 		return null;
