@@ -13,10 +13,15 @@ import { AssistantExamples, AssistantWelcome } from './components/assistant-empt
 import { AssistantTopBar } from './components/assistant-top-bar';
 import { AssistantBodySkeleton, AssistantPageSkeleton } from './components/assistant-page-skeleton';
 import { EverSiDisclosure } from './components/ever-si-disclosure';
+import { useIsMobile } from '@/core/hooks/common/use-mobile';
+import { useHiddenChatwootBubble } from '@/core/components/integration/chatwoot/use-hidden-chatwoot-bubble';
 
 /** Ever SI on a page of its own; elsewhere it opens in the panel beside the page (`ever-si-panel.tsx`). */
 function AssistantPageContent() {
 	const t = useTranslations();
+	// On a phone the support bubble would sit on the composer's send button.
+	const isMobile = useIsMobile();
+	useHiddenChatwootBubble(isMobile);
 	const {
 		chat,
 		textareaRef,

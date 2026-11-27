@@ -8,6 +8,7 @@ import { useTranslations } from 'next-intl';
 import { useSidebar } from '@/core/components/common/sidebar';
 import { Sheet, SheetContent, SheetTitle } from '@/core/components/common/sheet';
 import { isPathActive } from '@/core/lib/utils/navigation-path';
+import { useHiddenChatwootBubble } from '@/core/components/integration/chatwoot/use-hidden-chatwoot-bubble';
 import { EVER_SI_PANEL_ID, EVER_SI_PATH, everSiPanelOpenAtom, everSiPanelWidthAtom } from './atoms/ever-si-panel.atom';
 import { EVER_SI_PANEL_WIDTH, clampEverSiPanelWidth, maxEverSiPanelWidth } from './ever-si-panel-width';
 import { EverSiResizeHandle } from './components/ever-si-resize-handle';
@@ -105,6 +106,8 @@ export function EverSiDesktopPanel({ onClose }: Readonly<EverSiSurfaceProps>) {
 /** Phones: Ever SI takes the whole screen, over the page, with its own close button. */
 function EverSiMobileLayer({ onClose }: Readonly<EverSiSurfaceProps>) {
 	const t = useTranslations();
+	// The support bubble would sit on the composer's send button while Ever SI takes the whole screen.
+	useHiddenChatwootBubble(true);
 	const handleOpenChange = useCallback(
 		(open: boolean) => {
 			if (!open) {
