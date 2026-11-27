@@ -236,31 +236,28 @@ describe('the trash list helpers', () => {
  * the list still fails with the status, and every other failure is still logged.
  */
 describe('taskTrashService — the answers that say the platform keeps no trash', () => {
-	const availability = (taskTrashService as unknown as { availability: Map<string, unknown> }).availability;
 	const refusing = refusingClient(taskTrashService);
-	beforeEach(() => {
-		taskDiscussionScope.mockReturnValue(scope);
-		availability.clear();
-	});
+	/** The probe remembers a clear answer per organization: each probe here asks for an organization of its own. */
+	const probeFor = (organizationId: string) => {
+		taskDiscussionScope.mockReturnValue({ ...scope, organizationId });
+		return taskTrashService.isAvailable();
+	};
 	afterEach(() => {
 		refusing.restore();
-		availability.clear();
 		taskDiscussionScope.mockReturnValue(null);
 		jest.restoreAllMocks();
 	});
 
 	it('probes a trash that is off (404) or a platform without the route (400) quietly, and still logs a 500', async () => {
 		const errorLog = refusing.refuse(404);
-		await expect(taskTrashService.isAvailable()).resolves.toBe(false);
-		availability.clear();
+		await expect(probeFor('organization-trash-off')).resolves.toBe(false);
 		refusing.refuse(400);
-		await expect(taskTrashService.isAvailable()).resolves.toBe(false);
+		await expect(probeFor('organization-no-route')).resolves.toBe(false);
 		expect(loggedStatuses(errorLog)).toEqual([]);
 
 		// A 5xx is no answer: the probe throws, is not remembered, and the failure is logged
-		availability.clear();
 		refusing.refuse(500);
-		expect(await failureOf(taskTrashService.isAvailable())).not.toBeNull();
+		expect(await failureOf(probeFor('organization-outage'))).not.toBeNull();
 		expect(loggedStatuses(errorLog)).toEqual([500]);
 	});
 
