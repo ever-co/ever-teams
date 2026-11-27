@@ -167,6 +167,55 @@ describe('a request whose address holds a secret (the token of a shared link)', 
 	});
 });
 
+describe('a status the request takes as its answer (quietStatuses)', () => {
+	/** Answers 404 for an address that ends with `missing`, 500 for one that ends with `down`, 200 otherwise. */
+	function answering(): AxiosAdapter {
+		return async (config) => {
+			const url = String(config.url);
+			const status = url.endsWith('missing') ? 404 : url.endsWith('down') ? 500 : 200;
+			const response = { config, data: {}, headers: {}, status, statusText: String(status) } as AxiosResponse;
+			if (status !== 200) {
+				throw new AxiosError('Request failed', 'ERR_BAD_RESPONSE', config, null, response);
+			}
+			return response;
+		};
+	}
+
+	function httpLoggerOf(service: APIService) {
+		return (service as unknown as { httpLogger: { logError: jest.Mock } }).httpLogger;
+	}
+
+	it('fails with that status but leaves it out of the error log, and logs every other status', async () => {
+		const service = new APIService('https://api.example.test', { enableLogging: true });
+		service.axiosInstance.defaults.adapter = answering();
+		const quiet = { quietStatuses: [404] } as APIConfig;
+
+		const missing = await service.axiosInstance.get('/embed/grants/missing', quiet).catch((error) => error);
+		expect(missing.response.status).toBe(404);
+		expect(httpLoggerOf(service).logError).not.toHaveBeenCalled();
+
+		await expect(service.axiosInstance.get('/embed/grants/down', quiet)).rejects.toBeTruthy();
+		expect(httpLoggerOf(service).logError).toHaveBeenCalledTimes(1);
+
+		await expect(service.axiosInstance.get('/embed/grants/missing')).rejects.toBeTruthy();
+		expect(httpLoggerOf(service).logError).toHaveBeenCalledTimes(2);
+	});
+
+	it('keeps it out of the error log of the proxy mode client too', async () => {
+		const { getAPI } = await import('./axios');
+		const proxyClient = await getAPI();
+		proxyClient.axiosInstance.defaults.adapter = answering();
+		httpLoggerOf(proxyClient).logError.mockClear();
+		const service = new APIService('', { enableLogging: true });
+
+		await expect(service.get('/embed/grants/missing', { quietStatuses: [404] })).rejects.toBeTruthy();
+		expect(httpLoggerOf(proxyClient).logError).not.toHaveBeenCalled();
+
+		await expect(service.get('/embed/grants/down', { quietStatuses: [404] })).rejects.toBeTruthy();
+		expect(httpLoggerOf(proxyClient).logError).toHaveBeenCalledTimes(1);
+	});
+});
+
 describe('requestBodyForLog', () => {
 	it('hides every password field and keeps the others', () => {
 		expect(requestBodyForLog({ email: 'a@b.co', password: 'p', confirmPassword: 'p', hash: 'h' })).toEqual({

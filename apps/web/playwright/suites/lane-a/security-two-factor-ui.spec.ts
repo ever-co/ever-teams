@@ -232,10 +232,9 @@ import { MOCK_ORIGIN } from '../../test-servers';
  * in every MEASURE line, and every other console error the app logs still fails this file. Since develop's #5595 the
  * same page also mounts "Sites you signed in from" (`core/components/settings/pages/security/allowed-sites-section.tsx`),
  * whose read answers 404 on this mock (the `siteGrants` scenario off, `mock-gauzy-server.mjs:855-863`): the section then
- * hides itself as meant (`:79`, `isSiteGrantsUnavailable`), but the client logs that expected 404 as
- * `[ERROR] [HttpClient] HTTP Error: GET /embed/grants 404` (`api.service.ts` `logError`, which has no way to be told a
- * status is expected). That line belongs to the section, which `suites/lane-b/allowed-sites.spec.ts` pins, so it is
- * excluded here too (`SITE_GRANTS_404`), and only that exact text. The same failed read also raises the dev-only
+ * hides itself as meant (`:79`, `isSiteGrantsUnavailable`). The read asks the client to keep that expected 404 out of
+ * its error log (`embeds.service.ts` `listSiteGrants`, `quietStatuses`), so it adds no console line and nothing is
+ * excluded for it here: a `[HttpClient]` line for it would fail this file. The same failed read still raises the dev-only
  * `DEV Query failed` toast of `core/components/common/dev-error-toaster.tsx:194-201` (every failed query, by design of
  * that tool), naming the query key `["embeds","site-grants",…]`: it shares the toaster with this page's own toasts, so
  * every toast count and text here reads `appToasts`, which leaves out that one toast by its key.
@@ -390,11 +389,8 @@ const report = (label: string, value: Record<string, unknown>) =>
  * console error the app logs still fails this file.
  */
 const SHELL_STORE_NOISE = 'The result of getSnapshot should be cached to avoid an infinite loop';
-/** What the silence assertions are allowed to be empty about: everything the app logged except these two lines. */
-/** The Allowed sites section's expected 404 on this mock, as the client logs it (see the header). */
-const SITE_GRANTS_404 = '[ERROR] [HttpClient] HTTP Error: GET /embed/grants 404 ';
-const consoleFindings = (shield: Shield) =>
-	shield.consoleErrors().filter((line) => !line.includes(SHELL_STORE_NOISE) && !line.includes(SITE_GRANTS_404));
+/** What the silence assertions are allowed to be empty about: everything the app logged except that one line. */
+const consoleFindings = (shield: Shield) => shield.consoleErrors().filter((line) => !line.includes(SHELL_STORE_NOISE));
 
 /**
  * This spec's own answers for every `/api/auth/two-factor*` call, as a queue per `METHOD path`, plus the browser's
