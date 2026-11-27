@@ -31,6 +31,19 @@ server hand-started in another terminal has whatever env that one happened to ha
 the real API), which is how a run can look healthy while it is testing the wrong server. `E2E_REUSE_SERVERS=1`
 reuses servers you started yourself with `test-servers.ts`'s environment.
 
+On Linux a run leaves `next dev` on port 3030 when it ends (seen in CI after every run; macOS is likely the same):
+turbo starts it in a session of its own, and Playwright stops only its own process group. Before the next run, end
+whatever still listens on the suites' ports, as CI does:
+
+```bash
+bash apps/web/playwright/scripts/port-listeners.sh --stop 3030 3988 3989 3990 3991
+```
+
+**In CI** (in-cluster, `ci-builds`): the server-route and Ever ID suites run in the web gate,
+`.github/workflows/web.before-merge.yml` job `playwright-routes`. The mock browser suite runs every night on
+develop, `.github/workflows/web.playwright-nightly.yml`, timed by `ever-co/k8s-gitops`
+`apps/ci-builds/tools/policy-overrides.json`. The live suite runs in no CI.
+
 ## A lane: a run beside the four above
 
 When suites are being *written* — one agent on time tracking, one on sign-in, one on route handlers — they

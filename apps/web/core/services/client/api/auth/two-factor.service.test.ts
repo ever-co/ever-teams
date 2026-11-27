@@ -8,6 +8,8 @@ jest.mock('@/core/lib/helpers/cookies', () => ({
 	getOrganizationIdCookie: () => 'organization 1'
 }));
 
+import { twoFactorStatusFailureOf } from '@/core/lib/auth/two-factor';
+import { expectOnly404Quiet } from '@/test/api/refusing-client';
 import { twoFactorService } from './two-factor.service';
 
 describe('twoFactorService', () => {
@@ -20,7 +22,13 @@ describe('twoFactorService', () => {
 
 		await twoFactorService.getStatus();
 
-		expect(get).toHaveBeenCalledWith('/auth/two-factor?organizationId=organization%201');
+		expect(get).toHaveBeenCalledWith('/auth/two-factor?organizationId=organization%201', { quietStatuses: [404] });
+	});
+
+	it('keeps the 404 of an API without these routes out of the error log, and still logs a 500', async () => {
+		const notFound = await expectOnly404Quiet(twoFactorService, () => twoFactorService.getStatus());
+
+		expect(twoFactorStatusFailureOf(notFound)).toBe('unsupported');
 	});
 
 	it('keeps the secret of a new setup out of the log', async () => {

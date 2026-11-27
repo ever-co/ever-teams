@@ -223,7 +223,9 @@ import { MOCK_ORIGIN } from '../../test-servers';
  *
  * `shield.consoleErrors()` is printed in every MEASURE line and asserted only where the app *must* stay silent (the
  * success paths). Refused reads are logged by the app itself (`[ERROR] [HttpClient] HTTP Error: GET /auth/two-factor…`,
- * asserted on the read-failure case, which is the opposite direction), and a dropped request adds the browser's own
+ * asserted on the read-failure case, which is the opposite direction), except a 404: an API without these routes is a
+ * supported one, and the read keeps that 404 out of the client's error log (`two-factor.service.ts` getStatus,
+ * `quietStatuses`), which the same case asserts as no line at all. A dropped request adds the browser's own
  * `Failed to load resource` line, which `playwright/helpers.ts:30-44` already filters as noise (`fixtures.ts:104`
  * applies that list). One more line is excluded from the silence assertions, for its exact text only: React's dev-mode
  * `The result of getSnapshot should be cached to avoid an infinite loop` — shell store noise that this file cannot
@@ -232,10 +234,9 @@ import { MOCK_ORIGIN } from '../../test-servers';
  * in every MEASURE line, and every other console error the app logs still fails this file. Since develop's #5595 the
  * same page also mounts "Sites you signed in from" (`core/components/settings/pages/security/allowed-sites-section.tsx`),
  * whose read answers 404 on this mock (the `siteGrants` scenario off, `mock-gauzy-server.mjs:855-863`): the section then
- * hides itself as meant (`:79`, `isSiteGrantsUnavailable`), but the client logs that expected 404 as
- * `[ERROR] [HttpClient] HTTP Error: GET /embed/grants 404` (`api.service.ts` `logError`, which has no way to be told a
- * status is expected). That line belongs to the section, which `suites/lane-b/allowed-sites.spec.ts` pins, so it is
- * excluded here too (`SITE_GRANTS_404`), and only that exact text. The same failed read also raises the dev-only
+ * hides itself as meant (`:79`, `isSiteGrantsUnavailable`). The read asks the client to keep that expected 404 out of
+ * its error log (`embeds.service.ts` `listSiteGrants`, `quietStatuses`), so it adds no console line and nothing is
+ * excluded for it here: a `[HttpClient]` line for it would fail this file. The same failed read still raises the dev-only
  * `DEV Query failed` toast of `core/components/common/dev-error-toaster.tsx:194-201` (every failed query, by design of
  * that tool), naming the query key `["embeds","site-grants",…]`: it shares the toaster with this page's own toasts, so
  * every toast count and text here reads `appToasts`, which leaves out that one toast by its key.
@@ -390,11 +391,8 @@ const report = (label: string, value: Record<string, unknown>) =>
  * console error the app logs still fails this file.
  */
 const SHELL_STORE_NOISE = 'The result of getSnapshot should be cached to avoid an infinite loop';
-/** What the silence assertions are allowed to be empty about: everything the app logged except these two lines. */
-/** The Allowed sites section's expected 404 on this mock, as the client logs it (see the header). */
-const SITE_GRANTS_404 = '[ERROR] [HttpClient] HTTP Error: GET /embed/grants 404 ';
-const consoleFindings = (shield: Shield) =>
-	shield.consoleErrors().filter((line) => !line.includes(SHELL_STORE_NOISE) && !line.includes(SITE_GRANTS_404));
+/** What the silence assertions are allowed to be empty about: everything the app logged except that one line. */
+const consoleFindings = (shield: Shield) => shield.consoleErrors().filter((line) => !line.includes(SHELL_STORE_NOISE));
 
 /**
  * This spec's own answers for every `/api/auth/two-factor*` call, as a queue per `METHOD path`, plus the browser's
@@ -1248,6 +1246,8 @@ test.describe('lane-a · Settings › Personal › Security: what two-factor aut
 			/** Set where a second read is the app's own doing too, depending on what mounted first (the 404 row). */
 			readsAtMost?: number;
 			navEntry: 'shown' | 'hidden';
+			/** Set where the read takes the refusal as its answer, so the client logs none of its reads (the 404 row). */
+			quiet?: true;
 		}> = [
 			{
 				label: '502',
@@ -1278,7 +1278,10 @@ test.describe('lane-a · Settings › Personal › Security: what two-factor aut
 				// lead runs (`s2-lead-2fa-a-4.log`), 1 in the others — both are the app as it is.
 				reads: 1,
 				readsAtMost: 2,
-				navEntry: 'hidden'
+				navEntry: 'hidden',
+				// An API without these routes is a supported one: the read keeps its 404 out of the client's error log
+				// (`two-factor.service.ts` getStatus, `quietStatuses`)
+				quiet: true
 			}
 		];
 
@@ -1330,12 +1333,14 @@ test.describe('lane-a · Settings › Personal › Security: what two-factor aut
 			expect(readSamples.join(','), `${one.label}: the reads did not stay at ${settledReads}`).toBe(
 				Array.from({ length: readSamples.length }, () => settledReads).join(',')
 			);
-			// The app logs every failed read itself (`api.service.ts:272-274`), so its own log lines count the reads too.
+			// The app logs every failed read itself (`api.service.ts` logError), so its own log lines count the reads too,
+			// except the reads of a refusal the read takes as its answer, which it logs none of.
 			const logged = shield.logMatching(/HTTP Error: GET \/auth\/two-factor/).slice(loggedBefore);
+			const loggedReads = one.quiet ? 0 : settledReads;
 			expect(
 				logged,
-				`${one.label}: the app did not log exactly the ${settledReads} failed reads it made`
-			).toHaveLength(settledReads);
+				`${one.label}: the app did not log exactly ${loggedReads} of the ${settledReads} failed reads it made`
+			).toHaveLength(loggedReads);
 			expect(await mock.calls(TWO_FACTOR_PREFIX), `${one.label}: a stubbed read reached the mock`).toEqual([]);
 
 			report(`10 read fails ${one.label}`, {

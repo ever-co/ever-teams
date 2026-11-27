@@ -5,7 +5,7 @@
  * exactly as before credentials could be limited to a client, one for a client names it, and one that adds members
  * says so.
  */
-import { InternalAxiosRequestConfig } from 'axios';
+import { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 
 jest.mock('@/core/lib/helpers/cookies', () => ({
 	getAccessTokenCookie: () => null,
@@ -26,6 +26,9 @@ jest.mock('@/core/services/client/axios', () => ({
 	getAPI: async () => ({ axiosInstance: mockFallback })
 }));
 
+import { errorStatusOf } from '@/core/lib/utils/error-feedback';
+import { isSiteGrantAlreadyEnded, isSiteGrantsUnavailable } from '@/core/lib/utils/embed-site-grants';
+import { expectOnly404Quiet } from '@/test/api/refusing-client';
 import { EmbedClientNotLimitedError, EmbedMembersNotAddedError, embedsService } from './embeds.service';
 
 const CREDENTIAL = {
@@ -83,6 +86,26 @@ function directRequests(data: unknown): InternalAxiosRequestConfig[] {
 		return { config, data, headers: {}, status: 200, statusText: 'OK' };
 	};
 	return sent;
+}
+
+/** Direct mode: every request the client sends is refused with `status`, in Gauzy's error shape. */
+function directRefusals(status: number): void {
+	setBaseUrl('https://api.example.test');
+	embedsService.axiosInstance.defaults.adapter = async (config) => {
+		const response = {
+			config,
+			data: { statusCode: status, message: 'Refused' },
+			headers: {},
+			status,
+			statusText: 'Refused'
+		} as AxiosResponse;
+		throw new AxiosError(`Request failed with status code ${status}`, 'ERR_BAD_RESPONSE', config, null, response);
+	};
+}
+
+/** The error log of the client (`APIService.logError` hands every error it logs to it). */
+function errorLog(): jest.Mock {
+	return (embedsService as unknown as { httpLogger: { logError: jest.Mock } }).httpLogger.logError;
 }
 
 describe('embedsService', () => {
@@ -367,6 +390,40 @@ describe('embedsService', () => {
 			expect(sent[0].url).toBe('/embed/grants');
 		});
 
+		it('fails the list of a Gauzy without the route with its 404, and keeps that 404 out of the error log', async () => {
+			directRefusals(404);
+
+			const error = await embedsService.listSiteGrants().then(
+				() => null,
+				(failure: unknown) => failure
+			);
+
+			expect(isSiteGrantsUnavailable(error)).toBe(true);
+			expect(errorLog()).not.toHaveBeenCalled();
+		});
+
+		it('still logs a list read that failed with another status', async () => {
+			directRefusals(500);
+
+			await expect(embedsService.listSiteGrants()).rejects.toBeTruthy();
+
+			expect(errorLog()).toHaveBeenCalledTimes(1);
+			expect(errorLog().mock.calls[0][0].response.status).toBe(500);
+		});
+
+		it('keeps the 404 of a config read, a server with embeds off, out of the error log, and still logs a 500', async () => {
+			const notFound = await expectOnly404Quiet(embedsService, () => embedsService.readConfig());
+
+			// The status `embedsAvailabilityOf` (use-embeds.ts) reads as `disabled`
+			expect(errorStatusOf(notFound)).toBe(404);
+		});
+
+		it('keeps the 404 of an end already done out of the error log, and still logs a 500', async () => {
+			const notFound = await expectOnly404Quiet(embedsService, () => embedsService.endSiteGrant('grant-1'));
+
+			expect(isSiteGrantAlreadyEnded(notFound)).toBe(true);
+		});
+
 		it('ends the sign-in from a site by its id, kept as one path segment', async () => {
 			const sent = directRequests(undefined);
 
@@ -473,6 +530,26 @@ describe('embedsService', () => {
 
 			expect(mockFallback.get.mock.calls[0][0]).toBe('/embed/grants');
 			expect(mockFallback.delete.mock.calls[0][0]).toBe('/embed/grants/grant-1');
+		});
+
+		it('asks this app’s client to keep the 404 of a Gauzy without the route out of its error log', async () => {
+			mockFallback.get.mockResolvedValue({ data: [], status: 200 });
+
+			await embedsService.listSiteGrants();
+
+			expect(mockFallback.get.mock.calls[0][1]).toEqual(expect.objectContaining({ quietStatuses: [404] }));
+		});
+
+		it('asks this app’s client to keep the 404 of a config read and of an end already done out of its log', async () => {
+			mockFallback.get.mockResolvedValue({ data: { enabled: true }, status: 200 });
+			mockFallback.delete.mockResolvedValue({ data: undefined, status: 204 });
+
+			await embedsService.readConfig();
+			await embedsService.endSiteGrant('grant-1');
+
+			expect(mockFallback.get.mock.calls[0][0]).toBe('/embed-credentials/config');
+			expect(mockFallback.get.mock.calls[0][1]).toEqual(expect.objectContaining({ quietStatuses: [404] }));
+			expect(mockFallback.delete.mock.calls[0][1]).toEqual(expect.objectContaining({ quietStatuses: [404] }));
 		});
 	});
 });

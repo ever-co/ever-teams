@@ -14,6 +14,16 @@ const LAUNCHER_KEYS = [
 	'switchers.LAUNCHER_FOOTER',
 	'switchers.MANAGE_APPS',
 	'switchers.APP_COMING_SOON',
+	'switchers.APP_LINE_PLATFORM',
+	'switchers.APP_LINE_WORKS',
+	'switchers.APP_LINE_TEAMS',
+	'switchers.APP_LINE_GAUZY',
+	'switchers.APP_LINE_REC',
+	'switchers.APP_LINE_TRADUORA',
+	'switchers.APP_LINE_DEMAND',
+	'switchers.APP_LINE_TECH',
+	'switchers.ADD_APP',
+	'switchers.ADD_APPS_IN_PLATFORM',
 	'settings.preferences.SECTION_APP_SWITCHER',
 	'settings.preferences.SECTION_MANAGE_APPS',
 	'settings.preferences.SECTION_MANAGE_APPS_DESCRIPTION',
@@ -48,6 +58,16 @@ const TRANSLATED_KEYS = [
 	'switchers.CHIP_CURRENT',
 	'switchers.LAUNCHER_FOOTER',
 	'switchers.MANAGE_APPS',
+	'switchers.APP_LINE_PLATFORM',
+	'switchers.APP_LINE_WORKS',
+	'switchers.APP_LINE_TEAMS',
+	'switchers.APP_LINE_GAUZY',
+	'switchers.APP_LINE_REC',
+	'switchers.APP_LINE_TRADUORA',
+	'switchers.APP_LINE_DEMAND',
+	'switchers.APP_LINE_TECH',
+	'switchers.ADD_APP',
+	'switchers.ADD_APPS_IN_PLATFORM',
 	'settings.preferences.SECTION_MANAGE_APPS_DESCRIPTION',
 	'settings.preferences.MANAGE_APPS_PIN_LIMIT',
 	'settings.preferences.MANAGE_APPS_REORDER_HINT',
@@ -99,6 +119,18 @@ describe('the App Launcher strings', () => {
 		for (const key of TRANSLATED_KEYS) {
 			expect({ key, value: valueAt(messages, key) }).not.toEqual({ key, value: valueAt(english, key) });
 		}
+	});
+
+	it.each(localeFiles)('%s has no "opens in a new tab" string left: every app opens in the same tab', (file) => {
+		const switchers = read(file).switchers as Messages;
+
+		expect(switchers.OPENS_IN_NEW_TAB).toBeUndefined();
+		expect(switchers.APP_OPENS_IN_NEW_TAB).toBeUndefined();
+	});
+
+	it('says nothing about a new tab in the footer', () => {
+		expect(valueAt(english, 'switchers.LAUNCHER_FOOTER')).toBe('You may need to sign in');
+		expect(JSON.stringify(english.switchers)).not.toMatch(/new tab/i);
 	});
 
 	it('calls it the App Launcher, never the app switcher', () => {

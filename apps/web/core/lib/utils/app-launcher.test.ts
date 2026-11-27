@@ -23,6 +23,7 @@ function app(id: EverApp['id'], name: string, status: EverApp['status'] = 'avail
 	return {
 		id,
 		name,
+		lineKey: `switchers.APP_LINE_${id.toUpperCase()}` as EverApp['lineKey'],
 		logo: `/assets/ever-apps/${id}.svg`,
 		url: isLinked ? `https://${id}.example.com/` : '',
 		domain: isLinked ? `${id}.example.com` : '',
@@ -69,6 +70,14 @@ describe('the App Launcher sections', () => {
 			ever: ['ever:platform', 'ever:teams', 'ever:demand'],
 			yours: ['custom:grafana']
 		});
+	});
+
+	it("gives an Ever app's row its line and an app of the person's own none", () => {
+		const preferences = withYourApp(DEFAULTS, 'Grafana', 'https://grafana.example.com', 'grafana');
+		const rows = panelSections(APPS, preferences).flatMap((section) => section.items);
+
+		expect(rows.find((row) => row.key === 'ever:works')?.lineKey).toBe('switchers.APP_LINE_WORKS');
+		expect(rows.find((row) => row.key === 'custom:grafana')?.lineKey).toBeNull();
 	});
 
 	it('leaves hidden apps out of the panel and the rail but keeps them in the editor', () => {

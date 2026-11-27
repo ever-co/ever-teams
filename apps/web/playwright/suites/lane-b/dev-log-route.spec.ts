@@ -894,11 +894,9 @@ const describeSecret = (value: unknown) => {
 };
 
 const SHELL_STORE_NOISE = 'The result of getSnapshot should be cached to avoid an infinite loop';
-const SITE_GRANTS_404 = '[ERROR] [HttpClient] HTTP Error: GET /embed/grants 404 ';
 const EMAIL_VERIFY_FAILURE = '[EmailVerificationService] Email verification validation failed:';
-/** What the silence assertions are allowed to be empty about: everything the app logged except these two lines. */
-const consoleFindings = (shield: Shield) =>
-	shield.consoleErrors().filter((line) => !line.includes(SHELL_STORE_NOISE) && !line.includes(SITE_GRANTS_404));
+/** What the silence assertions are allowed to be empty about: everything the app logged except the store noise. */
+const consoleFindings = (shield: Shield) => shield.consoleErrors().filter((line) => !line.includes(SHELL_STORE_NOISE));
 
 const SECURITY_PATH = '/settings/personal/security';
 
@@ -1028,7 +1026,7 @@ uiTest.describe('lane-b · what a signed-in page hands to POST /api/log', () => 
 	);
 
 	uiTest(
-		'the Security page logs the same shape, plus the two grants 404 entries this mock causes',
+		'the Security page logs the same shape, and nothing for the grants 404 this mock causes',
 		async ({ page, fixture, shield }) => {
 			const seen = watchLog(page);
 			await signInAndVisit(page, fixture, SECURITY_PATH);
@@ -1083,20 +1081,16 @@ uiTest.describe('lane-b · what a signed-in page hands to POST /api/log', () => 
 				'the logger logged its own route'
 			).toEqual([]);
 
-			// The grants read answers 404 on this mock (siteGrants off, `mock-gauzy-server.mjs`); the client logs the
-			// refusal as an ERROR entry (`api.service.ts` logError), twice because the section mounts twice.
+			// The grants read answers 404 on this mock (siteGrants off, `mock-gauzy-server.mjs`), as a Gauzy without the
+			// route does: the read takes that 404 as its answer (`embeds.service.ts` listSiteGrants, `quietStatuses`), so
+			// the client logs no ERROR entry for it (`api.service.ts` logError).
 			expect(
-				grantsEntries.length,
-				'the Security page did not log the two grants 404 entries this mock causes'
-			).toBe(2);
-			expect(
-				grantsEntries.filter((post) => post.level !== 'ERROR' || String(post.context) !== 'HttpClient').length,
-				'the grants entries were not the ERROR entries of the HttpClient this file measured'
-			).toBe(0);
-			expect(
-				consoleFindings(shield),
-				'the Security page logged a console error beyond the grants 404 and the store noise'
+				grantsEntries.map((post) => `${post.level} ${String(post.context)}`),
+				'the Security page logged the grants 404 a Gauzy without the route answers'
 			).toEqual([]);
+			expect(consoleFindings(shield), 'the Security page logged a console error beyond the store noise').toEqual(
+				[]
+			);
 		}
 	);
 });
