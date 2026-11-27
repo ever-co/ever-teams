@@ -11,6 +11,13 @@ import { MOCK_ORIGIN } from '../../test-servers';
  * (`fixture.names.user` = "Fixture Manager", `isManager: true`), so the manager-only figures are on screen; who may
  * open the page at all is `suites/lane-a/reports-gate-by-role-ui.spec.ts`.
  *
+ * **Checked to hold on any weekday (2026-11-27).** Every served day is named from the run's own browser clock: the
+ * period blocks serve `yesterday` and `today` and read their labels back from the same clock; test 6's week grid is
+ * opened on an explicit past period (`?from=` = Monday two weeks back, `?to=` = Wednesday of the week before this one,
+ * `weekGrid` in `browserClock`) and serves its days **from the columns of the week the grid opens on**, never as days
+ * counted back from today, so the drawn week, the period days inside it and the week behind it exist on a Monday, a
+ * Tuesday, a Sunday or the 1st of a month alike.
+ *
  * ## The code this file drives (every `file:line` read out of its file before it is named)
  *
  * - `app/[locale]/(main)/reports/time-and-activity/page.tsx:13` gates the page with `withAuthentication(TimeAndActivity…)`;
@@ -147,10 +154,11 @@ import { MOCK_ORIGIN } from '../../test-servers';
  *    is always open.
  * 8. **The week grid's empty day cells are two different things.** A day inside the period with no entry reads `0h`; a day
  *    the period does not cover is an empty cell whose column header carries `title` = `week.OUTSIDE_PERIOD`
- *    (`time-activity-week-grid.tsx:131`, `:196`, test 6): the drawn week `Nov 23 – 26` printed
- *    `0h / 0h / 2h 30m / 2h 0m` for the period days and three empty cells for the days it does not reach
- *    (`-2.log` "MEASURE 6 rows"), and the entry sitting on the period's first day appears as `0h 10m` only after the
- *    grid is walked back a week (test 6, `MEASURE 6 previous week rows`).
+ *    (`time-activity-week-grid.tsx:131`, `:196`, test 6): on the run of 2026-11-27 the grid opened on the week of
+ *    Monday `Nov 16` and printed `2h 30m / 0h / 2h 0m` on the three days its period covers, then four empty cells whose
+ *    headers were titled — `19 Thu`, `20 Fri`, `21 Sat`, `22 Sun` (`s3-lane-a-weekday-timeactivity-1.log`
+ *    "MEASURE 6 rows" / "MEASURE 6 titled columns") — and the entry sitting on the period's first day appeared as
+ *    `0h 10m`, as that week's whole total, only after the grid was walked back a week ("MEASURE 6 previous week rows").
  * 9. **`role="row"` is not the same as "a row is on screen".** While a block loads, the grid keeps mounted rows that hold
  *    no cell at all, so they would be counted as rows. Every row count in this file therefore counts only `role="row"`
  *    elements that hold a `rowheader`/`cell` (`gridRows` above): 0 for the mock-only page (`-2.log` test 1) and 3 for
@@ -486,15 +494,34 @@ function browserClock(page: Page) {
 		const previousFrom = from(-13);
 		const previousTo = to(-7);
 		const weekStart = weekStartDay < last7From ? last7From : weekStartDay;
-		const previousWeekStart = new Date(
-			weekStartDay.getFullYear(),
-			weekStartDay.getMonth(),
-			weekStartDay.getDate() - 7,
-			0,
-			0,
-			0,
-			0
-		);
+		/**
+		 * The period test 6 opens the week grid on, written into the link as `from`/`to` (`periodOfDays`
+		 * `time-activity-link.ts:69-80`, honoured by `period = linkedPeriod ?? defaultPeriod`
+		 * `use-time-activity-report.ts:380`): Monday two weeks back 00:00 to Wednesday of the week before this one
+		 * 23:59:59.999 — two whole Monday-start weeks, every day of them in the past on **any** weekday. The grid
+		 * always opens on the period's LAST week (`initialWeekIndexOf` `time-activity.ts:926-933`), so the drawn week is
+		 * never the current one and is never cut by today: its window is its first three days (`weekWindowOf` `:949-953`
+		 * → `use-time-activity-week.ts:121`), its four remaining days sit outside the period (`isInPeriod`
+		 * `use-time-activity-week.ts:83-98`), and its index in the period is 1, so the Previous week button is enabled
+		 * (`use-time-activity-week.ts:160`) and walks to the week that holds the period's first day. With the page's own
+		 * last-7-days period none of that holds on a Monday (only today is a period day of the drawn week) or on a
+		 * Sunday (all seven are, so no column is outside the period and the period is one week long, so the button is
+		 * disabled). Every step here is a `setDate` step from this week's Monday, so a month or a DST boundary in
+		 * between cannot move a day.
+		 */
+		const shiftDay = (date: Date, days: number) => {
+			const moved = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+			moved.setDate(moved.getDate() + days);
+			return moved;
+		};
+		const endOf = (date: Date) => new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59, 999);
+		const gridWeekStart = shiftDay(weekStartDay, -7);
+		const gridBackStart = shiftDay(weekStartDay, -14);
+		const gridPeriodTo = endOf(shiftDay(weekStartDay, -5));
+		const gridPeriodDayKeys: string[] = [];
+		for (let offset = 0; offset < 10; offset += 1) {
+			gridPeriodDayKeys.push(key(shiftDay(gridBackStart, offset)));
+		}
 		const customFrom = new Date(last7From.getFullYear(), last7From.getMonth(), 10, 0, 0, 0, 0);
 		const customTo = new Date(last7From.getFullYear(), last7From.getMonth(), 14, 23, 59, 59, 999);
 		const periodDays: Array<{ key: string; label: string }> = [];
@@ -517,27 +544,36 @@ function browserClock(page: Page) {
 			previousFromKey: key(previousFrom),
 			previousToKey: key(previousTo),
 			previousText: periodText(previousFrom, previousTo),
-			weekColumns: columnsOf(weekStartDay),
-			previousWeekColumns: columnsOf(previousWeekStart),
-			isoWeek: isoWeekOf(now),
 			/**
-			 * The period clipped to the current week is what the week grid reads: the read the switch to Week started
-			 * carried `startDate` = Monday 00:00 and `endDate` = today 23:59:59.999, both in the browser's zone
-			 * (`s3-lane-a-timeactivity-2.log` "MEASURE 3 weekly reads").
+			 * The period clipped to the current week is what the week grid reads on the page's own last-7-days period:
+			 * the read the switch to Week started carried `startDate` = Monday 00:00 and `endDate` = today
+			 * 23:59:59.999, both in the browser's zone (`s3-lane-a-timeactivity-2.log` "MEASURE 3 weekly reads").
 			 */
 			weekReadFrom: weekStart.toISOString(),
 			weekReadTo: last7To.toISOString(),
-			weekWindowText: periodText(weekStart, last7To),
-			previousWeekReadFrom: last7From.toISOString(),
-			previousWeekReadTo: new Date(
-				weekStartDay.getFullYear(),
-				weekStartDay.getMonth(),
-				weekStartDay.getDate() - 1,
-				23,
-				59,
-				59,
-				999
-			).toISOString(),
+			/** Everything test 6 needs about its own period and the two weeks the grid can walk between. */
+			weekGrid: {
+				fromKey: key(gridBackStart),
+				toKey: key(gridPeriodTo),
+				/** The week the grid opens on: the period's last week, never the current one. */
+				columns: columnsOf(gridWeekStart),
+				/** The week its Previous week button walks to. */
+				backColumns: columnsOf(gridBackStart),
+				/** Every day of the period: the columns inside it are the window, the rest are outside it. */
+				periodDayKeys: gridPeriodDayKeys,
+				/** The served days, picked from the drawn week itself: time on its first and third day, none on its second. */
+				servedFromKey: key(gridWeekStart),
+				emptyKey: key(shiftDay(gridWeekStart, 1)),
+				servedToKey: key(shiftDay(gridWeekStart, 2)),
+				/** The period's first day: a day of the week back, where only the walk reaches it. */
+				backDayKey: key(gridBackStart),
+				windowText: periodText(gridWeekStart, gridPeriodTo),
+				windowFrom: shiftDay(gridWeekStart, 0).toISOString(),
+				windowTo: gridPeriodTo.toISOString(),
+				backWindowFrom: shiftDay(gridBackStart, 0).toISOString(),
+				backWindowTo: endOf(shiftDay(gridBackStart, 6)).toISOString(),
+				isoWeek: isoWeekOf(gridWeekStart)
+			},
 			periodDays,
 			customFrom: customFrom.toISOString(),
 			customTo: customTo.toISOString(),
@@ -728,6 +764,28 @@ function servedWeekly(clock: Clock, fixture: BootstrapFixture): ServedWeekly {
 	];
 }
 
+/**
+ * Test 6's week grid, served on the days of the week the grid opens on (`clock.weekGrid`, picked from its own columns
+ * rather than counted back from today, so they are columns of the drawn week on any weekday): 9 000 s and 1 800 s on
+ * that week's first day, nothing on its second, 7 200 s and 0 s on its third, and 600 s on the period's first day,
+ * which sits in the week the Previous week button walks to. The seconds are the ones the earlier runs printed
+ * (`s3-lane-a-timeactivity-1.log` test 6, `-2.log` "MEASURE 6 rows"); only the days they sit on moved, so every cell
+ * and every total of this grid is the same printed string.
+ */
+function servedWeekGrid(clock: Clock, fixture: BootstrapFixture): ServedWeekly {
+	const { backDayKey, servedFromKey, servedToKey } = clock.weekGrid;
+	return [
+		{
+			employee: { id: fixture.ids.employee, fullName: fixture.names.user },
+			dates: { [backDayKey]: { sum: 600 }, [servedFromKey]: { sum: 9000 }, [servedToKey]: { sum: 7200 } }
+		},
+		{
+			employee: { id: fixture.ids.teammateEmployee, fullName: fixture.names.teammate },
+			dates: { [servedFromKey]: { sum: 1800 }, [servedToKey]: { sum: 0 } }
+		}
+	];
+}
+
 function servedScript(clock: Clock, fixture: BootstrapFixture): ReportScript {
 	return {
 		daily: servedRows(clock, fixture),
@@ -841,15 +899,22 @@ function serveReport(page: Page, script: ReportScript): void {
 	);
 }
 
-/** Routes first, cookies second, navigation last (`helpers.ts:439-470`); the clock is read before any of them. */
+/**
+ * Routes first, cookies second, navigation last (`helpers.ts:439-470`); the clock is read before any of them, so a path
+ * may be built from the same clock the served set is keyed to (test 6 names its own period in the link).
+ */
 async function openReport(
 	page: Page,
 	fixture: BootstrapFixture,
-	options: { script?: (clock: Clock) => ReportScript; path?: string } = {}
+	options: { script?: (clock: Clock) => ReportScript; path?: string | ((clock: Clock) => string) } = {}
 ): Promise<Clock> {
 	const clock = await browserClock(page);
 	if (options.script) serveReport(page, options.script(clock));
-	await signInAndVisit(page, fixture, options.path ?? PAGE_PATH);
+	await signInAndVisit(
+		page,
+		fixture,
+		typeof options.path === 'function' ? options.path(clock) : (options.path ?? PAGE_PATH)
+	);
 	await settle(page);
 	return clock;
 }
@@ -1499,29 +1564,38 @@ test.describe('lane-a · Reports › Time and activity: what the page shows and 
 		shield
 	}) => {
 		const calls = recordCalls(page, [WEEKLY_PATH]);
+		// Opened on `clock.weekGrid`'s own past period (see `browserClock`): two whole Monday-start weeks that are in
+		// the past on every weekday, so the drawn week, the days of it the period covers and the week behind it exist
+		// whatever day the run runs on.
 		const clock = await openReport(page, fixture, {
-			script: (c) => servedScript(c, fixture),
-			path: `${PAGE_PATH}?groupBy=week`
+			script: (c) => ({ ...servedScript(c, fixture), weekly: servedWeekGrid(c, fixture) }),
+			path: (c) => `${PAGE_PATH}?groupBy=week&from=${c.weekGrid.fromKey}&to=${c.weekGrid.toKey}`
 		});
+		const { weekGrid } = clock;
 
 		await expect(table(page, TA.week.TITLE)).toHaveCount(1);
 		// the grid's own header row holds `columnheader`s only, so `gridRows` never counts it: what it counts is the two
 		// member rows and the totals row (`s3-lane-a-timeactivity-1.log` test 6: 3, not 4)
 		await expect(gridRows(page, TA.week.TITLE)).toHaveCount(3);
-		// this served set puts its time on yesterday and today, so the week the grid draws has to hold both, and one of
-		// its period days has to carry none
-		const yesterdayIndex = clock.weekColumns.findIndex((column) => column.key === clock.yesterdayKey);
-		const emptyIndex = clock.weekColumns.findIndex(
-			(column) =>
-				column.key !== clock.yesterdayKey &&
-				column.key !== clock.todayKey &&
-				clock.periodDays.some((day) => day.key === column.key)
-		);
-		expect(yesterdayIndex, 'yesterday is not in the week the grid draws').toBeGreaterThanOrEqual(0);
-		expect(emptyIndex, 'every day of the drawn week carries served time').toBeGreaterThanOrEqual(0);
+		// The served days are columns of the drawn week itself, never days counted back from today. That week's window
+		// is its first three days (`weekWindowOf` `time-activity.ts:949-953`), served time sits on its first and its
+		// third, and its second carries nothing; its four remaining days are outside the period.
+		const periodKeys = new Set(weekGrid.periodDayKeys);
+		const servedIndex = weekGrid.columns.findIndex((column) => column.key === weekGrid.servedFromKey);
+		const emptyIndex = weekGrid.columns.findIndex((column) => column.key === weekGrid.emptyKey);
+		const lastServedIndex = weekGrid.columns.findIndex((column) => column.key === weekGrid.servedToKey);
+		const outsideColumns = weekGrid.columns.filter((column) => !periodKeys.has(column.key));
+		expect(
+			weekGrid.columns.filter((column) => periodKeys.has(column.key)).map((column) => column.key),
+			'the drawn week does not hold exactly the three period days this served set is keyed to'
+		).toEqual([weekGrid.servedFromKey, weekGrid.emptyKey, weekGrid.servedToKey]);
+		expect(servedIndex, 'the first served day is not the first column of the drawn week').toBe(0);
+		expect(emptyIndex, 'the day served with nothing is not the second column of the drawn week').toBe(1);
+		expect(lastServedIndex, 'the last served day is not the third column of the drawn week').toBe(2);
+		expect(outsideColumns.length, 'the drawn week holds no day outside the period to title').toBe(4);
 		// the entry on the period's first day is only reachable one week back, which is what the walk tests
 		expect(
-			clock.previousWeekColumns.some((column) => column.key === clock.firstPeriodDayKey),
+			weekGrid.backColumns.some((column) => column.key === weekGrid.backDayKey),
 			'the period first day is not in the week before the drawn one'
 		).toBe(true);
 
@@ -1529,13 +1603,13 @@ test.describe('lane-a · Reports › Time and activity: what the page shows and 
 			.poll(() => columnHeaders(page, TA.week.TITLE))
 			.toEqual([
 				EN.common.MEMBER,
-				...clock.weekColumns.map((column) => column.label),
+				...weekGrid.columns.map((column) => column.label),
 				EN.dashboard.team.export.TOTAL
 			]);
 		// Every cell of the served grid, cell by cell as the run printed it (`s3-lane-a-timeactivity-1.log` test 6):
 		// a day of the period with no entry reads `0h`, a day the period does not reach is an empty cell
 		// (`time-activity-week-grid.tsx:131`, `:196`), and a row's Total sums the days the grid read, not the period
-		// (`servedWeekly` puts 600 s on the period's first day, which is outside the week this grid draws).
+		// (`servedWeekGrid` puts 600 s on the period's first day, which is outside the week this grid draws).
 		// every duration this served set can print, each one printed by a run (`s3-lane-a-timeactivity-1.log` /
 		// `-2.log` "MEASURE 6 rows"); 16 200 s is the row total the grid sums for the manager's week
 		const gridCell = (seconds: number) =>
@@ -1549,13 +1623,15 @@ test.describe('lane-a · Reports › Time and activity: what the page shows and 
 				16200: '4h 30m',
 				18000: '5h 0m'
 			})[seconds] ?? `unprinted:${seconds}`;
-		const periodKeys = new Set(clock.periodDays.map((day) => day.key));
 		const managerDates: Record<string, number> = {
-			[clock.firstPeriodDayKey]: 600,
-			[clock.yesterdayKey]: 9000,
-			[clock.todayKey]: 7200
+			[weekGrid.backDayKey]: 600,
+			[weekGrid.servedFromKey]: 9000,
+			[weekGrid.servedToKey]: 7200
 		};
-		const mateDates: Record<string, number> = { [clock.yesterdayKey]: 1800, [clock.todayKey]: 0 };
+		const mateDates: Record<string, number> = {
+			[weekGrid.servedFromKey]: 1800,
+			[weekGrid.servedToKey]: 0
+		};
 		const datesOf = (...sets: Array<Record<string, number>>) => {
 			const merged: Record<string, number> = {};
 			for (const set of sets)
@@ -1564,9 +1640,9 @@ test.describe('lane-a · Reports › Time and activity: what the page shows and 
 		};
 		const gridRow = (subject: string, dates: Record<string, number>) => [
 			subject,
-			...clock.weekColumns.map((column) => (periodKeys.has(column.key) ? gridCell(dates[column.key] ?? 0) : '')),
+			...weekGrid.columns.map((column) => (periodKeys.has(column.key) ? gridCell(dates[column.key] ?? 0) : '')),
 			gridCell(
-				clock.weekColumns.reduce(
+				weekGrid.columns.reduce(
 					(sum, column) => sum + (periodKeys.has(column.key) ? (dates[column.key] ?? 0) : 0),
 					0
 				)
@@ -1585,21 +1661,24 @@ test.describe('lane-a · Reports › Time and activity: what the page shows and 
 		expect(manager.at(-1)).toBe('4h 30m');
 		expect(teammate.at(-1)).toBe('0h 30m');
 		expect(totals.at(-1)).toBe('5h 0m');
-		// the day an entry sits on, and a day of the period with no entry as `0h`
-		expect(manager[yesterdayIndex + 1]).toBe('2h 30m');
+		// the days served time sits on, and the day of the period served with nothing, as `0h`
+		expect(manager[servedIndex + 1]).toBe('2h 30m');
 		expect(manager[emptyIndex + 1]).toBe('0h');
+		expect(manager[lastServedIndex + 1]).toBe('2h 0m');
 
 		// a day the period does not cover: an empty column whose header is titled (`time-activity-week-grid.tsx:131`, `:196`)
 		const titled = await table(page, TA.week.TITLE).getByRole('columnheader').evaluateAll(pageTitledHeaders);
 		report('6 titled columns', titled);
-		expect(titled.length, 'no column outside the period was titled').toBeGreaterThan(0);
+		expect(titled.length, 'the titled columns are not the days of the drawn week outside the period').toBe(
+			outsideColumns.length
+		);
 		for (const [, title] of titled) expect(title).toBe(TA.week.OUTSIDE_PERIOD);
 
 		// the week the grid names, in its own group beside the period group
 		const weekGroup = page.getByRole('group', { name: TA.week.TITLE });
 		await expect(weekGroup).toHaveCount(1);
-		await expect(weekGroup).toContainText(clock.weekWindowText);
-		await expect(weekGroup).toContainText(weekNumber(clock.isoWeek));
+		await expect(weekGroup).toContainText(weekGrid.windowText);
+		await expect(weekGroup).toContainText(weekNumber(weekGrid.isoWeek));
 		const previousWeek = page.getByRole('button', { name: EN.timeActivity.PREVIOUS_WEEK, exact: true });
 		await expect(previousWeek).toBeEnabled();
 
@@ -1608,19 +1687,21 @@ test.describe('lane-a · Reports › Time and activity: what the page shows and 
 			.poll(() => columnHeaders(page, TA.week.TITLE))
 			.toEqual([
 				EN.common.MEMBER,
-				...clock.previousWeekColumns.map((column) => column.label),
+				...weekGrid.backColumns.map((column) => column.label),
 				EN.dashboard.team.export.TOTAL
 			]);
 		const walked = await rowTexts(page, TA.week.TITLE);
 		report('6 previous week rows', walked);
 		report('6 previous week reads', searches(calls, WEEKLY_PATH));
-		// the entry on the period's first day moved into view, as 0h 10m
-		expect((walked.find((cells) => cells[0].includes(fixture.names.user)) ?? []).join(' ')).toContain('0h 10m');
+		// the entry on the period's first day moved into view, as 0h 10m, and it is the only time that week holds
+		const walkedManager = walked.find((cells) => cells[0].includes(fixture.names.user)) ?? [];
+		expect(walkedManager.join(' ')).toContain('0h 10m');
+		expect(walkedManager.at(-1), 'the week back holds more time than the entry it shows').toBe('0h 10m');
 		await expect
 			.poll(() => ofPath(calls, WEEKLY_PATH).at(-1)?.params.get('startDate'))
-			.toBe(clock.previousWeekReadFrom);
+			.toBe(weekGrid.backWindowFrom);
 		const weekly = ofPath(calls, WEEKLY_PATH).at(-1);
-		expect(weekly?.params.get('endDate')).toBe(clock.previousWeekReadTo);
+		expect(weekly?.params.get('endDate')).toBe(weekGrid.backWindowTo);
 
 		// and the column toggles are inert here, with the note that says why (`time-activity-view-menu.tsx:104`, `:109-113`)
 		await viewButton(page).click();
