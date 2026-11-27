@@ -537,7 +537,9 @@ test.describe('lane-a · /team/tasks/trash: what the trash page shows and what t
 			.poll(() => served.shapes(), { timeout: 15_000 })
 			.toEqual([`GET ${TRASH_ROUTE}${listQuery(fixture)}`]);
 		expect((await mock.calls(TRASH_ROUTE)).length, 'the mock heard a call this file answered').toBe(0);
-		armed.push(armedHttpError('GET', `${LOGGED_ROUTE}${listQuery(fixture)}`, 404));
+		// The 404 is the page's answer (the trash off): the list read keeps it out of the error log
+		// (`task-trash.service.ts` `quietStatuses: [404]`), so no client line is excused for it
+		const quiet404 = armedHttpError('GET', `${LOGGED_ROUTE}${listQuery(fixture)}`, 404);
 
 		// the same page on a platform whose trash route does not exist at all: 400, the very shape `isAvailable` reads as "no trash"
 		served.reset({ items: [taskOf(1)], listRefusal: { status: 400, message: 'no such route' } });
@@ -559,8 +561,12 @@ test.describe('lane-a · /team/tasks/trash: what the trash page shows and what t
 			consoleErrors: shield.consoleErrors().map((line) => line.slice(-70))
 		});
 		expect(
+			shield.consoleErrors().filter((line) => line.includes(quiet404)),
+			'the 404 of a platform without a trash was logged as an HTTP error'
+		).toEqual([]);
+		expect(
 			consoleFindings(shield, armed),
-			'besides its own HTTP error lines the page logged a console error'
+			'besides the 400 line the page logged a console error'
 		).toEqual([]);
 	});
 

@@ -171,7 +171,12 @@ class ChatService extends APIService {
 	 * HTTP log lines print (a link can carry a share token).
 	 */
 	linkPreview = async (url: string, signal?: AbortSignal): Promise<IChatLinkPreview> => {
-		const response = await this.get<IChatLinkPreview>('/chat/link-preview', { signal, params: { url } });
+		// Its 404 (no route) is the answer that stops the page asking (`chat-link-preview.ts`), kept out of the error log
+		const response = await this.get<IChatLinkPreview>('/chat/link-preview', {
+			signal,
+			params: { url },
+			quietStatuses: [404]
+		});
 		return response.data;
 	};
 
@@ -180,7 +185,13 @@ class ChatService extends APIService {
 	 * link has none (204). Pictures off on the platform (404) and its pace (429, 503) are errors with their status.
 	 */
 	linkPreviewImage = async (url: string, signal?: AbortSignal): Promise<Blob | null> => {
-		const response = await this.get<Blob>('/chat/link-preview/image', { signal, params: { url }, responseType: 'blob' });
+		// Its 404 (pictures off) is the answer that stops every card asking (`use-chat-link-preview-picture.ts`), unlogged
+		const response = await this.get<Blob>('/chat/link-preview/image', {
+			signal,
+			params: { url },
+			responseType: 'blob',
+			quietStatuses: [404]
+		});
 		if (response.status === 204 || !response.data || response.data.size === 0) return null;
 		return response.data;
 	};

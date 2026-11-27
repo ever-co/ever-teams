@@ -30,6 +30,12 @@ const BASE = '/plugins/docs/documents';
 const path = (id: string) => encodeURIComponent(id);
 
 /**
+ * What a read of a platform feature that may be off answers while it is off (the Docs extension, its collaboration,
+ * comment ranges, live sessions): the caller's answer, not an error to log. Only the log: the read still fails with it.
+ */
+const FEATURE_OFF_STATUSES = [404] as const;
+
+/**
  * Client of the platform's documents (`/plugins/docs/documents`) for the Docs pages: the tree, one page with its
  * content, content saves with conflict detection, moves, the trash, versions and the records a page is attached
  * to. Both transports (this app's `/api/plugins/docs/*` proxies, or the platform directly).
@@ -77,7 +83,8 @@ class DocsService extends APIService {
 
 	count = async (query: IDocumentListQuery, signal?: AbortSignal): Promise<number> => {
 		const search = qs.stringify({ ...query, where: this.scope() }, { skipNulls: true });
-		const response = await this.get<number>(`${BASE}/count?${search}`, { signal });
+		// The Docs availability probe (`use-docs-availability.ts`): a 404 is the extension off
+		const response = await this.get<number>(`${BASE}/count?${search}`, { signal, quietStatuses: FEATURE_OFF_STATUSES });
 		return Number(response.data);
 	};
 
@@ -155,7 +162,10 @@ class DocsService extends APIService {
 	 * A platform without ranges answers 404 (its comments are on their blocks).
 	 */
 	commentAnchors = async (id: string, signal?: AbortSignal): Promise<IDocumentCommentAnchorList> => {
-		const response = await this.get<IDocumentCommentAnchorList>(`${BASE}/${path(id)}/comment-anchors?${this.scopedQuery()}`, { signal });
+		const response = await this.get<IDocumentCommentAnchorList>(`${BASE}/${path(id)}/comment-anchors?${this.scopedQuery()}`, {
+			signal,
+			quietStatuses: FEATURE_OFF_STATUSES
+		});
 		return response.data;
 	};
 
@@ -228,7 +238,10 @@ class DocsService extends APIService {
 
 	/** The spaces of the tree the reader sees; 404 while the platform's Docs collaboration is off. */
 	spaces = async (signal?: AbortSignal): Promise<IDocumentSpace[]> => {
-		const response = await this.get<IDocumentSpace[]>(`${BASE}/spaces?${this.scopedQuery()}`, { signal });
+		const response = await this.get<IDocumentSpace[]>(`${BASE}/spaces?${this.scopedQuery()}`, {
+			signal,
+			quietStatuses: FEATURE_OFF_STATUSES
+		});
 		return Array.isArray(response.data) ? response.data : [];
 	};
 
@@ -238,8 +251,12 @@ class DocsService extends APIService {
 		return response.data;
 	};
 
+	/** Whether the reader follows (and muted) the page; 404 while the platform's Docs collaboration is off. */
 	followState = async (id: string, signal?: AbortSignal): Promise<IDocumentFollowState> => {
-		const response = await this.get<IDocumentFollowState>(`${BASE}/${path(id)}/follow`, { signal });
+		const response = await this.get<IDocumentFollowState>(`${BASE}/${path(id)}/follow`, {
+			signal,
+			quietStatuses: FEATURE_OFF_STATUSES
+		});
 		return response.data;
 	};
 
@@ -253,7 +270,9 @@ class DocsService extends APIService {
 
 	/** Whether the platform serves live sessions of pages; 404 when it does not. */
 	liveStatus = async (): Promise<DocsLiveStatus> => {
-		const response = await this.get<DocsLiveStatus>('/plugins/docs/live/status');
+		const response = await this.get<DocsLiveStatus>('/plugins/docs/live/status', {
+			quietStatuses: FEATURE_OFF_STATUSES
+		});
 		return response.data;
 	};
 

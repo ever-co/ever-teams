@@ -1,5 +1,8 @@
 import qs from 'qs';
 import { DOCS_LIST_PAGE_SIZE, DOCS_TREE_MAX_PAGES, EDocumentKind, EDocumentVisibility, type IDocumentPage } from '@/core/types/interfaces/common/docs';
+import { availabilityFromError } from '@/core/hooks/docs/use-docs-availability';
+import { ApiErrorService } from '@/core/services/client/api-error.service';
+import { expectOnly404Quiet } from '@/test/api/refusing-client';
 import { docsService } from './docs.service';
 
 function page(id: string): IDocumentPage {
@@ -194,5 +197,34 @@ describe('docsService comment anchors', () => {
 		await expect(docsService.removeCommentAnchor('p1', 'c1')).resolves.toBe(true);
 
 		expect(String(remove.mock.calls[0][0]).split('?')[0]).toBe('/plugins/docs/documents/p1/comments/c1/anchor');
+	});
+});
+
+/**
+ * The reads whose 404 is a platform feature off: the Docs extension (the availability count), its collaboration (the
+ * spaces, the follow state), comment ranges and live sessions. The 404 is each caller's answer and stays out of the
+ * error log; any other failure still fails the read and is logged.
+ */
+describe('docsService reads of a feature the platform may have off', () => {
+	afterEach(() => jest.restoreAllMocks());
+
+	it.each([
+		['availability count', () => docsService.count({ kind: [EDocumentKind.PAGE], archived: 'exclude' })],
+		['spaces', () => docsService.spaces()],
+		['follow state', () => docsService.followState('p1')],
+		['comment ranges', () => docsService.commentAnchors('p1')],
+		['live status', () => docsService.liveStatus()]
+	])('keeps the 404 of the %s out of the error log, and still logs a 500', async (_name, read) => {
+		const notFound = await expectOnly404Quiet(docsService, read);
+
+		// What the callers read as the feature off: a 404 (`use-docs-collaboration.ts`, `use-docs-comments.ts`,
+		// `use-docs-live.ts`)
+		expect(ApiErrorService.isApiError(notFound) && notFound.statusCode).toBe(404);
+	});
+
+	it('reads the 404 of the availability count as Docs unavailable', async () => {
+		const notFound = await expectOnly404Quiet(docsService, () => docsService.count({ kind: [EDocumentKind.PAGE] }));
+
+		expect(availabilityFromError(notFound)).toBe('unavailable');
 	});
 });

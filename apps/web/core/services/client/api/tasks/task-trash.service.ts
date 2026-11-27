@@ -29,6 +29,8 @@ class TaskTrashService extends APIService {
 	 * is off, and a platform without the route answers 400: then a delete stays permanent, as the spec promises,
 	 * instead of hiding a task nobody could restore. Asked once per organization.
 	 *
+	 * Both answers (404, 400) are kept out of the error log: they are what the probe asks.
+	 *
 	 * @throws the probe's own failure when the platform gave no clear answer (a network error, a timeout, a 5xx): it
 	 * is not remembered, and the delete that asked stops there, so a passing glitch never deletes a task for good.
 	 */
@@ -38,7 +40,9 @@ class TaskTrashService extends APIService {
 		const key = `${scope.tenantId}:${scope.organizationId}`;
 		const known = this.availability.get(key);
 		if (known) return known;
-		const answer = this.get(`/tasks/trash?${qs.stringify({ ...scope, take: 1 })}`).then(
+		const answer = this.get(`/tasks/trash?${qs.stringify({ ...scope, take: 1 })}`, {
+			quietStatuses: [404, 400]
+		}).then(
 			() => true,
 			(error: unknown) => {
 				const status = trashHttpStatusOf(error);
@@ -52,7 +56,10 @@ class TaskTrashService extends APIService {
 		return answer;
 	};
 
-	/** A page of the trash, most recently deleted first. `skip` is a row offset. */
+	/**
+	 * A page of the trash, most recently deleted first. `skip` is a row offset. Its 404 (trash off) is the page's
+	 * `unavailable` (`trashStatusOf`), kept out of the error log; a 400 is still a load failure, and logged.
+	 */
 	list = async (
 		query: ITaskTrashQuery,
 		scope: IEntityRecordScope,
@@ -72,7 +79,10 @@ class TaskTrashService extends APIService {
 			},
 			{ skipNulls: true }
 		);
-		const response = await this.get<PaginationResponse<ITrashedTask>>(`/tasks/trash?${params}`, { signal });
+		const response = await this.get<PaginationResponse<ITrashedTask>>(`/tasks/trash?${params}`, {
+			signal,
+			quietStatuses: [404]
+		});
 		const data = response.data;
 
 		return { items: Array.isArray(data?.items) ? data.items : [], total: Number(data?.total) || 0 };

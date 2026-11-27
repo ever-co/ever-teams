@@ -37,12 +37,12 @@ export function isInboxDeliveryStatus(answer: unknown): answer is IInboxDelivery
 /**
  * Client of the platform's delivery status. The route exists only where the platform loads the Inbox's delivery
  * plugin; a 404, a failed read or an answer of another shape is `null`, which changes nothing on the page. Both
- * transports.
+ * transports. The 404 (no plugin) is the answer, kept out of the error log; another failure is still logged.
  */
 class InboxDeliveryService extends APIService {
 	status = async (): Promise<IInboxDeliveryStatus | null> => {
 		try {
-			const response = await this.get<unknown>('/inbox/delivery/status');
+			const response = await this.get<unknown>('/inbox/delivery/status', { quietStatuses: [404] });
 			return isInboxDeliveryStatus(response.data) ? response.data : null;
 		} catch {
 			return null;
