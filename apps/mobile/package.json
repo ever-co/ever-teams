@@ -110,7 +110,7 @@
 		"expo-updates": "~57.0.28",
 		"https-browserify": "^1.0.0",
 		"i18n-js": "3.8",
-		"i18next": "^23.14.0",
+		"i18next": "^27.2.9",
 		"intl-pluralrules": "^2.0.1",
 		"jotai": "^2.16.1",
 		"jwt-decode": "^4.0.0",
