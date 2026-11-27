@@ -18874,15 +18874,20 @@
     "@theme-ui/core" "^0.17.4"
     "@theme-ui/css" "^0.17.4"
 
-"@tiptap/core@3.32.2", "@tiptap/core@^3.31.3":
+"@tiptap/core@3.32.2":
   version "3.32.2"
   resolved "https://registry.yarnpkg.com/@tiptap/core/-/core-3.32.2.tgz#d25bf32076bf2a0d47c95874117c7f3477099608"
   integrity sha512-EitM8KY3agYfnp/bqhfxcaReVq4CUqVzMqoSIl7xSfYABTGYoTDtVXUdYSGutcCBFjc86BbXjrOlDlqkgC8BsQ==
 
 "@tiptap/core@^2.11.2", "@tiptap/core@^2.27.2":
   version "2.27.3"
-  resolved "https://registry.npmjs.org/@tiptap/core/-/core-2.27.3.tgz#316a64da2e248543967c2656f8a8290a4525cc12"
+  resolved "https://registry.yarnpkg.com/@tiptap/core/-/core-2.27.3.tgz#316a64da2e248543967c2656f8a8290a4525cc12"
   integrity sha512-a5LfRbLpfaGI3hbL/LPHUYHI0I+FQHdSHsy8L4YnVIuu3hXcm3QZgkWbpEGf8hCz8krk6zEiu0+iFOjTySU2FA==
+
+"@tiptap/core@^3.31.3":
+  version "3.35.1"
+  resolved "https://registry.yarnpkg.com/@tiptap/core/-/core-3.35.1.tgz#c49f1cc24a348aa8ccbaa46e651de524e741f037"
+  integrity sha512-pxyFhv/CesM+Flo8Tz9Ppv5pdOiwfmeDYMVd8JYvEF2zycrA1B7geu4BgFU06Ok+3aQH8g1SmE0mjrS9G9jjaQ==
 
 "@tiptap/extension-blockquote@3.32.2":
   version "3.32.2"
