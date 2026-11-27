@@ -289,6 +289,8 @@
 		"**/commitizen/lodash": "4.18.1",
 		"**/@lerna/legacy-package-management/minimatch": "3.1.5",
 		"**/@excalidraw/excalidraw/nanoid": "3.3.20",
+		"**/@excalidraw/mermaid-to-excalidraw/nanoid": "6.0.2",
+		"**/slate-serializers/nanoid": "6.0.2",
 		"**/@compodoc/compodoc/@angular-devkit/schematics/@angular-devkit/core/picomatch": "4.0.7",
 		"**/@ever-teams/example-nextjs-boilerplate/@sentry/nextjs/rollup": "3.30.0",
 		"**/@compodoc/compodoc/uuid": "11.1.1",
