@@ -1,4 +1,5 @@
-import { isInboxDeliveryStatus } from './inbox-delivery.service';
+import { loggedStatuses, refusingClient } from '@/test/api/refusing-client';
+import { inboxDeliveryService, isInboxDeliveryStatus } from './inbox-delivery.service';
 
 describe('isInboxDeliveryStatus', () => {
 	it('accepts the platform answer', () => {
@@ -26,5 +27,28 @@ describe('isInboxDeliveryStatus', () => {
 		expect(
 			isInboxDeliveryStatus({ email: { enabled: true, available: false }, push: { enabled: false, available: false } })
 		).toBe(false);
+	});
+});
+
+/**
+ * The status read as it leaves the client: a platform without the delivery plugin answers 404, which the read turns
+ * into `null` (nothing changes on the page) and keeps out of the error log. Any other failure is `null` too, as
+ * before, but is still logged.
+ */
+describe('inboxDeliveryService.status', () => {
+	const refusing = refusingClient(inboxDeliveryService);
+	afterEach(() => {
+		refusing.restore();
+		jest.restoreAllMocks();
+	});
+
+	it('answers null for a platform without the plugin and logs nothing, and still logs a 500', async () => {
+		const errorLog = refusing.refuse(404);
+		await expect(inboxDeliveryService.status()).resolves.toBeNull();
+		expect(loggedStatuses(errorLog)).toEqual([]);
+
+		refusing.refuse(500);
+		await expect(inboxDeliveryService.status()).resolves.toBeNull();
+		expect(loggedStatuses(errorLog)).toEqual([500]);
 	});
 });

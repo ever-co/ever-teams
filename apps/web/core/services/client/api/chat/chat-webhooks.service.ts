@@ -23,10 +23,14 @@ const SECRET_ANSWER = { secretResponse: true } as const;
  * once: the caller shows it and keeps it nowhere, and the development log of the API client leaves it out.
  */
 class ChatWebhooksService extends APIService {
-	/** The channel's webhooks, newest first, revoked ones included. */
+	/**
+	 * The channel's webhooks, newest first, revoked ones included. Its 404 (webhooks off) is the answer that hides the
+	 * entry (`webhooksAvailabilityOf`), kept out of the error log; the writes' 404 stays a failure the dialog words.
+	 */
 	list = async (conversationId: string, signal?: AbortSignal): Promise<IChatWebhook[]> => {
 		const response = await this.get<IChatWebhook[]>(`/chat/conversations/${path(conversationId)}/webhooks`, {
-			signal
+			signal,
+			quietStatuses: [404]
 		});
 		return Array.isArray(response.data) ? response.data : [];
 	};

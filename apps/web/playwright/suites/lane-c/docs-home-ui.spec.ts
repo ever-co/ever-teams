@@ -741,8 +741,12 @@ test.describe('lane-c · whether Docs is offered at all (use-docs-availability.t
 			'a refused probe is asked exactly once: "unavailable" is a decided answer'
 		).toBe(1);
 		expect(shield.pageErrors(), `the page threw: ${shield.pageErrors().join(' | ')}`).toEqual([]);
-		// The refusal reports itself once in the console (`[ERROR] [HttpClient] HTTP Error: GET /plugins/docs/…count`);
-		// that is the app naming a 404 it was told about, not a defect, so it is printed above rather than asserted away.
+		// The 404 is the probe's answer (Docs off), not a failure: the count read keeps it out of the client's error log
+		// (`docs.service.ts` `quietStatuses`), so no console error names a docs call.
+		expect(
+			docsConsoleErrors(shield),
+			`the 404 of a platform without Docs was logged: ${docsConsoleErrors(shield).join(' | ')}`
+		).toEqual([]);
 	});
 
 	test('D · the count answered 500 — the home as if Docs were available: no notice, no alert, no retry', async ({

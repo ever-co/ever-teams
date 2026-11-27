@@ -22,7 +22,11 @@ const segment = (value: string) => encodeURIComponent(value);
 class LinearIntegrationService extends APIService {
 	/** Whether the platform holds the OAuth application, and the organization's connection if any (404 where the plugin is off). */
 	status = async (organizationId: string, signal?: AbortSignal): Promise<ILinearStatus> => {
-		const response = await this.get<ILinearStatus>(`${BASE}/status?organizationId=${segment(organizationId)}`, { signal });
+		// A 404 is the provider off (`integrationProviderStatus` hides it): the answer, not an error to log
+		const response = await this.get<ILinearStatus>(`${BASE}/status?organizationId=${segment(organizationId)}`, {
+			signal,
+			quietStatuses: [404]
+		});
 		return response.data;
 	};
 

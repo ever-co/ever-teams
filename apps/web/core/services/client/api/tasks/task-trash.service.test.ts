@@ -4,6 +4,7 @@ import { taskService } from './task.service';
 import { nextTrashOffset, trashStatusOf } from '@/core/hooks/tasks/use-task-trash';
 import { trashDeleteFailureOf, trashedTaskNumberOf, trashedTaskPersonName } from '@/core/lib/utils/task-trash';
 import type { ITrashedTask } from '@/core/types/interfaces/task/task-trash';
+import { expectOnly404Quiet, failureOf, loggedStatuses, refusingClient } from '@/test/api/refusing-client';
 
 jest.mock('@/env-config', () => {
 	const actual = jest.requireActual('@/env-config');
@@ -226,5 +227,53 @@ describe('the trash list helpers', () => {
 		expect(trashedTaskPersonName({ firstName: 'Ann', lastName: 'Lee' })).toBe('Ann Lee');
 		expect(trashedTaskPersonName({ name: 'ann' })).toBe('ann');
 		expect(trashedTaskPersonName(null)).toBe('');
+	});
+});
+
+/**
+ * What the trash reads keep out of the error log: the probe's two "no trash" answers (404 the trash off, 400 a platform
+ * without the route) and the list's 404 (the page's `unavailable`). Only the log: the probe still answers false and
+ * the list still fails with the status, and every other failure is still logged.
+ */
+describe('taskTrashService — the answers that say the platform keeps no trash', () => {
+	const refusing = refusingClient(taskTrashService);
+	/** The probe remembers a clear answer per organization: each probe here asks for an organization of its own. */
+	const probeFor = (organizationId: string) => {
+		taskDiscussionScope.mockReturnValue({ ...scope, organizationId });
+		return taskTrashService.isAvailable();
+	};
+	afterEach(() => {
+		refusing.restore();
+		taskDiscussionScope.mockReturnValue(null);
+		jest.restoreAllMocks();
+	});
+
+	it('probes a trash that is off (404) or a platform without the route (400) quietly, and still logs a 500', async () => {
+		const errorLog = refusing.refuse(404);
+		await expect(probeFor('organization-trash-off')).resolves.toBe(false);
+		refusing.refuse(400);
+		await expect(probeFor('organization-no-route')).resolves.toBe(false);
+		expect(loggedStatuses(errorLog)).toEqual([]);
+
+		// A 5xx is no answer: the probe throws, is not remembered, and the failure is logged
+		refusing.refuse(500);
+		expect(await failureOf(probeFor('organization-outage'))).not.toBeNull();
+		expect(loggedStatuses(errorLog)).toEqual([500]);
+	});
+
+	it('keeps the list’s 404, the trash off, out of the error log, and still logs a 500', async () => {
+		const notFound = await expectOnly404Quiet(taskTrashService, () =>
+			taskTrashService.list({ organizationTeamId: 'team-1' }, scope)
+		);
+
+		expect(trashStatusOf(notFound)).toBe('unavailable');
+	});
+
+	it('still logs the list’s 400: the page shows it as a load failure', async () => {
+		const errorLog = refusing.refuse(400);
+		errorLog.mockClear();
+
+		expect(await failureOf(taskTrashService.list({ organizationTeamId: 'team-1' }, scope))).not.toBeNull();
+		expect(loggedStatuses(errorLog)).toEqual([400]);
 	});
 });

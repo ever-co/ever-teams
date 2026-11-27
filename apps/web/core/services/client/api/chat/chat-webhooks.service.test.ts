@@ -24,6 +24,8 @@ jest.mock('@/core/services/client/axios', () => ({
 	getAPI: async () => ({ axiosInstance: mockFallback })
 }));
 
+import { webhooksAvailabilityOf } from '@/core/lib/utils/chat-webhooks';
+import { expectOnly404Quiet, failureOf, loggedStatuses, refusingClient } from '@/test/api/refusing-client';
 import { chatWebhooksService } from './chat-webhooks.service';
 
 const WEBHOOK = {
@@ -135,6 +137,28 @@ describe('chatWebhooksService', () => {
 
 			expect(sent[0].url).toBe('/chat/conversations/..%2Fx/webhooks');
 			expect(sent[1].url).toBe('/chat/webhooks/..%2Fw1');
+		});
+	});
+
+	describe('a platform with webhooks off', () => {
+		it('keeps the 404 of the list out of the error log, and still logs a 500', async () => {
+			const notFound = await expectOnly404Quiet(chatWebhooksService, () => chatWebhooksService.list('c1'));
+
+			// What hides the conversation's Integrations entry (`use-chat-webhooks.ts`)
+			expect(webhooksAvailabilityOf({ isSuccess: false, isError: true, error: notFound })).toBe('off');
+		});
+
+		it('still logs the 404 of a write: the dialog words it as a failure', async () => {
+			const refusing = refusingClient(chatWebhooksService);
+			try {
+				const errorLog = refusing.refuse(404);
+				errorLog.mockClear();
+
+				expect(await failureOf(chatWebhooksService.revoke('w1'))).not.toBeNull();
+				expect(loggedStatuses(errorLog)).toEqual([404]);
+			} finally {
+				refusing.restore();
+			}
 		});
 	});
 

@@ -28,8 +28,10 @@ const segment = (value: string) => encodeURIComponent(value);
 class JiraIntegrationService extends APIService {
 	/** Whether the platform holds the OAuth app and takes webhooks, and the organization's connection if any (404 where the sync is off). */
 	status = async (organizationId: string, signal?: AbortSignal): Promise<IJiraStatus> => {
+		// A 404 is the sync off (`integrationProviderStatus` hides it): the answer, not an error to log
 		const response = await this.get<IJiraStatus>(`${BASE}/status?organizationId=${segment(organizationId)}`, {
-			signal
+			signal,
+			quietStatuses: [404]
 		});
 		return response.data;
 	};

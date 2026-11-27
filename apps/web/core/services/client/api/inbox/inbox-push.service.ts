@@ -18,18 +18,23 @@ export interface IInboxPushDeviceInput {
 	userAgent?: string | null;
 }
 
+/** What the two reads take as their answer where web push is off (404): kept out of the error log, still thrown. */
+const WEB_PUSH_OFF = { quietStatuses: [404] } as const;
+
 /**
  * Client of the platform's web push devices (`/inbox/push-subscriptions`): the VAPID public key a browser subscribes
- * with, and the signed-in person's own devices. The routes answer 404 where web push is off. Both transports.
+ * with, and the signed-in person's own devices. The routes answer 404 where web push is off: the two reads take it as
+ * that answer (`use-inbox-web-push.ts`: `unavailable`, no devices) and keep it out of the error log; the writes do
+ * not. Both transports.
  */
 class InboxPushService extends APIService {
 	publicKey = async (): Promise<string> => {
-		const response = await this.get<{ publicKey: string }>('/inbox/push-subscriptions/public-key');
+		const response = await this.get<{ publicKey: string }>('/inbox/push-subscriptions/public-key', WEB_PUSH_OFF);
 		return response.data.publicKey;
 	};
 
 	devices = async (): Promise<IInboxPushDevice[]> => {
-		const response = await this.get<IInboxPushDevice[]>('/inbox/push-subscriptions');
+		const response = await this.get<IInboxPushDevice[]>('/inbox/push-subscriptions', WEB_PUSH_OFF);
 		return response.data ?? [];
 	};
 
