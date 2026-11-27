@@ -477,8 +477,11 @@ jobs:
           # No [skip ci]: the commit travels develop -> stage -> main and must not suppress those pushes' workflows.
           # The subject keeps the marker the change detection above skips.
           git commit -m "ci: sdk version bump via changeset"
-          # The run attempt is part of the name, so a re-run after a failed publish pushes a branch of its own.
-          branch="ci/sdk-version-bump-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          # Every run pushes a branch of its own, so a re-run after a failed publish never collides with an earlier
+          # one. The run id and attempt alone are not enough: the in-cluster runner (act) sets both to 1 on every run,
+          # so each release pushed to the same ci/sdk-version-bump-1-1, still there from the last merged bump PR, and
+          # was rejected (non-fast-forward). The main commit and a UTC timestamp make the name unique everywhere.
+          branch="ci/sdk-version-bump-$(printf '%s' "$GITHUB_SHA" | cut -c1-8)-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-$(date -u +%Y%m%d%H%M%S)"
           git push origin "HEAD:refs/heads/${branch}"
           versions=$(git diff --name-only HEAD~1 HEAD -- 'packages/**/package.json' | while read -r f; do node -p "const p = require('./$f'); p.name + '@' + p.version"; done | tr '\n' ' ')
           echo "branch=${branch}" >> "$GITHUB_OUTPUT"
