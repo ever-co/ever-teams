@@ -1365,7 +1365,7 @@ test.describe('lane-c · the three "open the link from the e-mail" pages', () =>
 
 		measure('O · outage readings', {
 			cutStatuses: cut.map((call) => call.status),
-			fourtyThreeStatuses: refusals.map((call) => call.status),
+			fortyThreeStatuses: refusals.map((call) => call.status),
 			echoStatuses: echoes.map((call) => call.status),
 			echoRecordKeys: echoes.map((entry) => Object.keys(entry).sort()),
 			echoRecordHoldsToken: echoes.some((entry) => JSON.stringify(entry).includes('probe-echo-token')),
