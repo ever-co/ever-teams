@@ -45,9 +45,28 @@ import { APP_ORIGIN, MOCK_ORIGIN } from '../../test-servers';
  * inside the spec (`[lane-c actual-expected] MEASURE …`): `s3-lane-c-actualexpected-1.log`, `-check-1.log` (only the
  * cases whose locators were being fixed), `-2.log` and, on this PC, `-5.log` and the acceptance pair.
  * Served days are offsets from the day the run runs on (`localDay`, the pattern of
- * `suites/lane-c/weekly-limit-report-ui.spec.ts:330-340`), every figure and label is rebuilt here from the same
- * offsets with the same rules the page uses, and no case names today's date. The browser zone is read from the page
+ * `suites/lane-c/weekly-limit-report-ui.spec.ts:330-340`) **only where the shown period holds them**: the page opens on
+ * `This week` and builds every row from that week's own days (`planDaysOf` maps `daysOfPeriod(period)`,
+ * `actual-expected.ts:465-473`), so a case that stays on the default period serves `begunDayOffset()` — a day of the
+ * shown week — while a case that steps to `Last 7 days` may keep `-2` / `-1`, and one that steps to the next week
+ * serves next week's days. Every figure and label is rebuilt here from the same offsets with the same rules the page
+ * uses, and no case names today's date. The browser zone is read from the page
  * (`Intl.DateTimeFormat().resolvedOptions().timeZone`), never hard-coded.
+ *
+ * ## Checked to hold on any weekday (2026-11-27)
+ *
+ * Walked through a Monday, a Tuesday, a Wednesday and a Sunday, and through the 1st of a month (a Monday-first week
+ * may straddle two months, and the `Last 7 days` period always does on some dates). What broke was test 5 (`:1146`)
+ * and test 10 (`:1611`): both stay on the default `This week` period yet served `dayKey(-1)`, and on a **Monday**
+ * yesterday belongs to the week before — `planDaysOf` only draws the shown week's days, so their rows, figures and
+ * the chart row they look for (`chartRowsOf … find((row) => row[0] === chartDay)`) were absent. They now serve
+ * `begunDayOffset()` (`:347-357`): yesterday on Tuesday..Sunday, and the week's only begun day (today) on a Monday.
+ * Everything else holds as written: tests 1, 2, 4 pin the week through `weekOffsetsOf()` / `begunOffsetsOf()` /
+ * `aheadOffsetsOf()` and rebuild each figure from those counts, so a Monday (1 begun, 6 ahead) and a Sunday (7 begun)
+ * both compute; tests 6, 7, 8, 11 switch to `Last 7 days`, whose period always holds `-6 … 0`; test 3 pins the
+ * `Yesterday` preset, whose one-day period is yesterday itself; test 9 steps periods and picks its calendar range from
+ * the month the calendar names, and test 15 serves the next week, entirely ahead. Tests 12, 13, 14 assert only the
+ * refused/unparseable answer's notice, so their served dates are inert.
  *
  * ## Which layer is real and which is served
  *
@@ -325,6 +344,17 @@ const weekOffsetsOf = () => {
 /** `begunDaysOf` / `futureDaysOf` (`actual-expected.ts:253-259`): a day is in the future when its key is after today's. */
 const begunOffsetsOf = () => weekOffsetsOf().filter((offset) => dayKey(offset) <= todayKey());
 const aheadOffsetsOf = () => weekOffsetsOf().filter((offset) => dayKey(offset) > todayKey());
+/**
+ * The offset a one-day case can serve **inside the week this page opens on**: the begun day before today
+ * (yesterday, on Tuesday..Sunday), and when the shown week has none — a Monday, whose week has only today begun —
+ * that day. Every page row is built from the shown period's own days (`planDaysOf` maps `daysOfPeriod(period)`,
+ * `actual-expected.ts:465-473`), so a served day outside it prints nowhere: `dayKey(-1)` is the previous week's day
+ * on a Monday, which is why these cases cannot simply count back from today.
+ */
+const begunDayOffset = () => {
+	const begun = begunOffsetsOf();
+	return begun[begun.length - 2] ?? begun[0];
+};
 const shiftKey = (key: string, days: number) => {
 	const [year, month, day] = key.split('-').map(Number);
 	return dayKeyOf(new Date(year, month - 1, day + days, 12));
@@ -1117,17 +1147,21 @@ test.describe('lane-c · Reports › Actual & expected hours: figures, grouping,
 		const manager = fixture.ids.employee;
 		const teammate = fixture.ids.teammateEmployee;
 		const restricted = fixture.ids.deniedEmployee;
+		/* The page opens on `This week`, and every row here is built from that week's own days, so the served day is
+		   picked from it (`begunDayOffset`: yesterday on Tuesday..Sunday, today on a Monday — `dayKey(-1)` would be
+		   the Sunday of the week before, which this period does not draw). */
+		const servedDay = begunDayOffset();
 		const calls = await serveWeeklyReport(page, {
 			rows: [
-				{ employeeId: manager, fullName: 'Served Manager', dates: { [dayKey(-1)]: 1.5 * HOUR } },
-				{ employeeId: teammate, fullName: 'Served Teammate', dates: { [dayKey(-1)]: 2 * HOUR } },
-				{ employeeId: restricted, fullName: 'Served Restricted', dates: { [dayKey(-1)]: 0.5 * HOUR } }
+				{ employeeId: manager, fullName: 'Served Manager', dates: { [dayKey(servedDay)]: 1.5 * HOUR } },
+				{ employeeId: teammate, fullName: 'Served Teammate', dates: { [dayKey(servedDay)]: 2 * HOUR } },
+				{ employeeId: restricted, fullName: 'Served Restricted', dates: { [dayKey(servedDay)]: 0.5 * HOUR } }
 			]
 		});
 		await serveDailyPlans(page, [
-			{ date: dayKey(-1), employeeId: manager, workTimePlanned: 0, status: 'ready' },
+			{ date: dayKey(servedDay), employeeId: manager, workTimePlanned: 0, status: 'ready' },
 			{
-				date: dayKey(-1),
+				date: dayKey(servedDay),
 				employeeId: teammate,
 				workTimePlanned: 0,
 				status: 'ready',
@@ -1137,8 +1171,8 @@ test.describe('lane-c · Reports › Actual & expected hours: figures, grouping,
 		await signInAndVisit(page, fixture, PAGE_PATH);
 		await expect.poll(() => calls.length).toBeGreaterThanOrEqual(1);
 
-		const chartDay = chartDayLabelOf(-1);
-		const groupDay = groupDayLabelOf(-1);
+		const chartDay = chartDayLabelOf(servedDay);
+		const groupDay = groupDayLabelOf(servedDay);
 		const closedRows = [
 			`${C.MEMBER}${A.BULLET_COLUMN}${A.COLUMN_TRACKED_OF_PLANNED}${A.COLUMN_REACHED}`,
 			`FM${fixture.names.user}${A.PLAN_WITHOUT_TIME}1h 30m / ${MISSING_FIGURE}${MISSING_FIGURE}`,
@@ -1585,13 +1619,16 @@ test.describe('lane-c · Reports › Actual & expected hours: figures, grouping,
 		// only the manager carries tracked time, so a filtered answer proves the ids travelled (the manager's row
 		// disappears) and the restricted member, who has neither plan nor time, can reach the filtered empty state
 		// (`probe-4.log` S1-afterPick, S1-twoPicked, S1-filteredEmpty)
+		// served on a day of the week the page opens on (`begunDayOffset`), never on `dayKey(-1)`, which on a Monday is
+		// a day of the week before and prints nowhere on this page
+		const servedDay = begunDayOffset();
 		const calls = await serveWeeklyReport(page, {
 			honourIds: true,
-			rows: [{ employeeId: manager, fullName: 'Served Manager', dates: { [dayKey(-1)]: 9 * HOUR } }]
+			rows: [{ employeeId: manager, fullName: 'Served Manager', dates: { [dayKey(servedDay)]: 9 * HOUR } }]
 		});
 		await serveDailyPlans(page, [
-			{ date: dayKey(-1), employeeId: manager, workTimePlanned: 8, status: 'ready' },
-			{ date: dayKey(-1), employeeId: teammate, workTimePlanned: 4, status: 'ready' }
+			{ date: dayKey(servedDay), employeeId: manager, workTimePlanned: 8, status: 'ready' },
+			{ date: dayKey(servedDay), employeeId: teammate, workTimePlanned: 4, status: 'ready' }
 		]);
 		await signInAndVisit(page, fixture, PAGE_PATH);
 		await expect.poll(() => calls.length).toBeGreaterThanOrEqual(1);
