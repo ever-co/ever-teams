@@ -13,6 +13,7 @@ import { AssistantExamples, AssistantWelcome } from './components/assistant-empt
 import { AssistantTopBar } from './components/assistant-top-bar';
 import { AssistantBodySkeleton, AssistantPageSkeleton } from './components/assistant-page-skeleton';
 import { EverSiDisclosure } from './components/ever-si-disclosure';
+import { EverSiDockButton } from './components/ever-si-edge-controls';
 import { useIsMobile } from '@/core/hooks/common/use-mobile';
 import { useHiddenChatwootBubble } from '@/core/components/integration/chatwoot/use-hidden-chatwoot-bubble';
 
@@ -93,6 +94,8 @@ function AssistantPageContent() {
 					{isEmpty && <AssistantExamples onPickExample={pickExample} />}
 				</div>
 			)}
+			{/* The full page is Ever SI at its widest: its far edge leads back to the panel beside a page. */}
+			<EverSiDockButton />
 			<ChatConfigDialog
 				open={configOpen}
 				onOpenChange={setConfigOpen}

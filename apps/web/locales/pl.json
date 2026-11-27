@@ -3620,6 +3620,7 @@
 		"DEFAULT_MODEL": "Model domyślny",
 		"RESIZE_ASSISTANT": "Zmień rozmiar Ever SI",
 		"OPEN_FULL_PAGE": "Otwórz na całej stronie",
+		"DOCK_ASSISTANT": "Pokaż Ever SI obok strony",
 		"DISCLOSURE": "Rozmawiasz z asystentem SI firmy Ever. Może popełniać błędy. Przechowujemy tę rozmowę przez 30 dni. Możesz ją usunąć w każdej chwili."
 	},
 	"taskMenus": {

@@ -2,6 +2,7 @@
 
 import { useRef, type KeyboardEvent, type PointerEvent } from 'react';
 import { useTranslations } from 'next-intl';
+import { DragHandle } from '@/core/components/icons';
 import { EVER_SI_PANEL_ID } from '../atoms/ever-si-panel.atom';
 import { EVER_SI_PANEL_WIDTH } from '../ever-si-panel-width';
 
@@ -127,11 +128,18 @@ export function EverSiResizeHandle({
 			onKeyDown={handleKeyDown}
 			className="group/resize absolute inset-y-2 end-0 z-10 flex w-2 cursor-col-resize touch-none justify-center outline-none"
 		>
-			{/* The 8px gutter is the grip; a hairline shows in it on hover, and the focus colour for the keyboard. */}
+			{/* The whole 8px gutter drags; a hairline shows in it on hover, and the focus colour for the keyboard. */}
 			<span
 				aria-hidden="true"
 				className="h-full w-px bg-transparent transition-colors group-hover/resize:bg-foreground/15 group-focus-visible/resize:w-0.5 group-focus-visible/resize:bg-ring group-active/resize:bg-foreground/25"
 			/>
+			{/* The grip in its middle, between the edge's two buttons, shows that the edge moves. */}
+			<span
+				aria-hidden="true"
+				className="pointer-events-none absolute top-1/2 left-1/2 flex h-5 w-3 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-sm bg-background text-muted-foreground shadow-[0_1px_2px_rgb(0_0_0/0.05)] hairline-ring ring-foreground/12 transition-colors group-hover/resize:text-foreground group-focus-visible/resize:text-foreground group-focus-visible/resize:ring-ring dark:ring-foreground/15"
+			>
+				<DragHandle className="size-3" />
+			</span>
 		</div>
 	);
 }

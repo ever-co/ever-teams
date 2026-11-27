@@ -18,6 +18,7 @@ const NAMING_KEYS = [
 	'chatView.EXPAND_ASSISTANT',
 	'chatView.STANDARD_ASSISTANT_WIDTH',
 	'chatView.RESIZE_ASSISTANT',
+	'chatView.DOCK_ASSISTANT',
 	'chatView.ASK_PLACEHOLDER',
 	'chatView.COMPOSER_LABEL',
 	'chatView.NO_KEY_DESCRIPTION',

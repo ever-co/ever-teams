@@ -3620,6 +3620,7 @@
 		"DEFAULT_MODEL": "默认模型",
 		"RESIZE_ASSISTANT": "调整 Ever SI 宽度",
 		"OPEN_FULL_PAGE": "以整页打开",
+		"DOCK_ASSISTANT": "在页面旁显示 Ever SI",
 		"DISCLOSURE": "你正在与 Ever 的 SI 助手聊天。它可能会出错。我们会将此对话保留 30 天。你可以随时删除。"
 	},
 	"taskMenus": {
