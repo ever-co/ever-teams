@@ -32,6 +32,18 @@ import { APP_ORIGIN, MOCK_ORIGIN } from '../../test-servers';
  * on every visit. Findings 1, 6 and 10 were also re-printed by this spec's own whole-file runs
  * (`E:\Coding\.tmp\s3-lane-b-manualedits-1.log` …), each from its own `MEASURE` line.
  *
+ * Checked to hold on any weekday (2026-11-27): the served days stay offsets from the run's day, because this report
+ * groups the entries it was served rather than the days of the shown period (`groupsOf`,
+ * `core/lib/utils/dashboards/manual-time-edits.ts`), so no case here needs a served day to sit in the current week —
+ * except a **deletion**, which the page lists only when the deleted log's own day lies inside the shown period
+ * (`deletedOfPeriod` → `isWithin(entry.startedAt, from, to)`, `use-time-log-period-history.ts:62-82`). Tests 4 and 10
+ * therefore step the feed onto `common.FILTER_LAST_7_DAYS` (today-6 … today: every day of it past, every day this file
+ * serves inside it on a Monday as on a Sunday), and the history-read bounds and the export file names follow that
+ * window. Test 8's week step is `setDate` arithmetic (`shiftDay`), not 7 × 24 h, which in a zone with a DST night lands
+ * an hour off the midnight the read asks for; and the two served change instants that fell on the run's own day are
+ * taken from the run's clock (`EDITED_INSTANT`, `DELETED_INSTANT`), so a run that starts before them is never shown a
+ * change dated after it (whose relative tail would read `in 2 hours`, a form no entry prints).
+ *
  * ## Which layer is real and which is served
  *
  * **Real:** this lane's app, the shell and its reads, NextAuth, and the mock's own fixtures — the tenant, organization
@@ -383,6 +395,36 @@ const weekPeriod = () => {
 	return { from, to };
 };
 const isoOf = (date: Date) => date.toISOString();
+/** A calendar step of `days` on `day` (`setDate`, the way `addDays`/`subDays` step): the wall clock is kept, so a zone
+    with a DST night never shifts by the hour the clock jumped, which `7 * 86_400_000` would. */
+const shiftDay = (day: Date, days: number) => {
+	const shifted = new Date(day);
+	shifted.setDate(shifted.getDate() + days);
+	return shifted;
+};
+/**
+ * `periodOfPreset('last7Days')` (`core/lib/utils/dashboard-period.ts:92-93`): startOfDay(today − 6) … endOfDay(today),
+ * local. The two tests that serve a *deletion* step the page onto this window, because the page lists a deletion only
+ * when the deleted log's own day lies inside the shown period (`deletedOfPeriod` → `isWithin(entry.startedAt, from, to)`,
+ * `use-time-log-period-history.ts:62-82`) and the served deletion is of a log **two days back** — a day the week the
+ * page opens on does not reach on a Monday or a Tuesday. Every day of this window is past, and every day this file
+ * serves (today, yesterday, two and three days back) is inside it, on every weekday. On a Sunday it is the same period
+ * as `weekPeriod()`.
+ */
+const lastSevenDaysPeriod = () => {
+	const from = localDay(-6);
+	from.setHours(0, 0, 0, 0);
+	const to = localDay(0);
+	to.setHours(23, 59, 59, 999);
+	return { from, to };
+};
+/** A served change instant, `minutes` before the run started: no served change is ever dated after the moment the page
+    reads it (a run that starts before the served hour would otherwise be shown a change it has not seen yet, whose
+    relative tail reads `in 2 hours` — a form no entry ever prints, so `RELATIVE_TAIL` would not match it). */
+const minutesAgo = (minutes: number) => new Date(Date.now() - minutes * 60_000);
+/** The two served history instants that fell on the run's own day: the edit, and the deletion that follows it. */
+const EDITED_INSTANT = minutesAgo(95);
+const DELETED_INSTANT = minutesAgo(45);
 
 /* ------------------------------------------------------------------ the page's own formatting, rebuilt in Node */
 
@@ -721,7 +763,7 @@ const historyRows = (fixture: Fixture) => [
 		id: 'suite-row-updated',
 		entityId: 'suite-added-1',
 		action: 'Updated',
-		createdAt: isoOf(at(0, 7, 5)),
+		createdAt: isoOf(EDITED_INSTANT),
 		updatedFields: ['stoppedAt', 'duration'],
 		previousValues: [{ stoppedAt: isoOf(at(-1, 10, 0)) }, { duration: 3600 }],
 		updatedValues: [{ stoppedAt: isoOf(at(-1, 11, 0)) }, { duration: 7200 }],
@@ -735,7 +777,7 @@ const historyRows = (fixture: Fixture) => [
 		id: 'suite-row-deleted',
 		entityId: 'suite-gone',
 		action: 'Deleted',
-		createdAt: isoOf(at(0, 8, 0)),
+		createdAt: isoOf(DELETED_INSTANT),
 		updatedFields: ['startedAt', 'stoppedAt', 'employeeId', 'projectId', 'taskId', 'isBillable'],
 		previousValues: [
 			{ startedAt: isoOf(at(-2, 9, 0)) },
@@ -829,6 +871,15 @@ const feedEntries = (page: Page) => feedRegion(page).locator('li');
 const filterButton = (page: Page) => page.getByRole('button', { name: new RegExp(`^${C.FILTER}`) });
 const periodGroup = (page: Page) => page.getByRole('group', { name: PERIOD.LABEL, exact: true });
 const popover = (page: Page) => page.locator('[data-slot=popover-content]');
+/** The Period group's middle button is the picker trigger (`probe-2.log`: Previous, the active preset, Next). */
+const periodTrigger = (page: Page) => periodGroup(page).getByRole('button').nth(1);
+/** The preset rows of the open popover: the buttons of its first column, each carrying a `span` with its label. */
+const presetRows = (page: Page) => popover(page).locator('div').first().getByRole('button');
+/** Steps the page onto a named preset (`PRESET_LABELS`); the read it sends then names that preset's own range. */
+const openPreset = async (page: Page, label: string) => {
+	await periodTrigger(page).click();
+	await presetRows(page).filter({ hasText: label }).first().click();
+};
 const errorNotice = (page: Page) => page.locator('output').filter({ hasText: STATES.ERROR_TITLE });
 const groupingTab = (page: Page, label: string) => page.getByRole('tab', { name: label, exact: true });
 /**
@@ -1341,11 +1392,19 @@ test.describe('lane-b · Reports › Manual time edits: what a manager sees, and
 		page,
 		fixture
 	}) => {
-		await serveChangedLogs(page, { added: addedLogs(fixture), edited: editedLogs(fixture) });
+		const logs = await serveChangedLogs(page, { added: addedLogs(fixture), edited: editedLogs(fixture) });
 		await serveDailyReport(page, dailyAnswer(fixture));
 		const rows = historyRows(fixture);
+		/* The opened week and `common.FILTER_LAST_7_DAYS` (today-6 … today) are the same period on a Sunday only: then
+		   there is nothing to walk, no read for another period, and the 503-row pages answer the opened week itself.
+		   On every other day the first answer is for the week the page opens on, which this test walks away from
+		   before it pins anything (`openPreset` below), and the 503-row pages answer the period the test ends on. */
+		const opened = weekPeriod();
+		const period = lastSevenDaysPeriod();
+		const walks = isoOf(opened.from) !== isoOf(period.from);
 		const history = await serveHistory(page, {
 			pages: [
+				...(walks ? [{ items: [], total: 0 }] : []),
 				{ items: [...fillerRows(500), rows[0], rows[1]], total: 503 },
 				{ items: [rows[2]], total: 503 }
 			]
@@ -1355,7 +1414,7 @@ test.describe('lane-b · Reports › Manual time edits: what a manager sees, and
 				id: 'suite-panel-row',
 				entityId: 'suite-gone',
 				action: 'Updated',
-				createdAt: isoOf(at(0, 7, 5)),
+				createdAt: isoOf(EDITED_INSTANT),
 				updatedFields: ['stoppedAt', 'duration', 'taskId'],
 				previousValues: [{ stoppedAt: isoOf(at(-1, 10, 0)) }, { duration: 3600 }, { taskId: 'suite-old-task' }],
 				updatedValues: [{ stoppedAt: isoOf(at(-1, 11, 0)) }, { duration: 7200 }, { taskId: fixture.ids.task }],
@@ -1367,23 +1426,36 @@ test.describe('lane-b · Reports › Manual time edits: what a manager sees, and
 			}
 		]);
 		await signInAndVisit(page, fixture, PAGE_PATH);
-		await expect.poll(() => history.length, { timeout: 20_000 }).toBe(2);
+		/* The page opens on `common.THIS_WEEK`, and the served deletion is of a log whose own day is two days back
+		   (`historyRows`). A deletion only becomes an entry when that day lies inside the shown period
+		   (`deletedOfPeriod` → `isWithin(entry.startedAt, from, to)`, `use-time-log-period-history.ts:62-82`), and on a
+		   Monday or a Tuesday the week the page opened on does not reach two days back — the entry would be missing.
+		   The feed is therefore walked onto `common.FILTER_LAST_7_DAYS`, the window today-6 … today: every day this
+		   test serves is inside it on every weekday, and every one of its days is past (on a Sunday it is the opened
+		   week, `walks` above). */
+		await expect
+			.poll(() => history.some((call) => call.params.startDate === isoOf(opened.from)), { timeout: 20_000 })
+			.toBe(true);
+		if (walks) await openPreset(page, C.FILTER_LAST_7_DAYS);
+		await expect.poll(() => lastOf(logs).params.startDate, { timeout: 20_000 }).toBe(isoOf(period.from));
+		const periodHistory = () => history.filter((call) => call.params.startDate === isoOf(period.from));
+		await expect.poll(() => periodHistory().length, { timeout: 20_000 }).toBe(2);
 		await expectEntries(page, 5, 'the served logs and the served deletion did not become five entries');
 
 		// finding 4: `PAGE_SIZE = 500` and `page` counting from 1 (`time-log-history.service.ts:23`, `:55-86`)
 		expect(
-			history.map((call) => [call.params.take, call.params.skip]),
+			periodHistory().map((call) => [call.params.take, call.params.skip]),
 			'two calls did not ask for page 1 and page 2 of 500 rows'
 		).toEqual([
 			['500', '1'],
 			['500', '2']
 		]);
 		expect(
-			history.map((call) => [call.params.startDate, call.params.endDate, employeeIdsOf(call).length]),
+			periodHistory().map((call) => [call.params.startDate, call.params.endDate, employeeIdsOf(call).length]),
 			'the second call changed the range or the members it asked for'
 		).toEqual([
-			[isoOf(weekPeriod().from), isoOf(weekPeriod().to), 3],
-			[isoOf(weekPeriod().from), isoOf(weekPeriod().to), 3]
+			[isoOf(period.from), isoOf(period.to), 3],
+			[isoOf(period.from), isoOf(period.to), 3]
 		]);
 
 		const manager = fixture.names.user;
@@ -1401,7 +1473,7 @@ test.describe('lane-b · Reports › Manual time edits: what a manager sees, and
 		]);
 
 		const entries = await entriesOf(feedRegion(page).locator('li'));
-		const deletedBase = `${sentenceOf(M.FEED_DELETED, { name: manager, duration: durationOf(5400), task: 'Suite deleted task' }, manager)}${C.PRIVATE_PROJECT}${timeRangeOf(at(-2, 9), at(-2, 10, 30))}·${M.BILLABLE}Logged twice${copy(M.DELETED_AT, { when: editedAtOf(at(0, 8, 0)) })} · `;
+		const deletedBase = `${sentenceOf(M.FEED_DELETED, { name: manager, duration: durationOf(5400), task: 'Suite deleted task' }, manager)}${C.PRIVATE_PROJECT}${timeRangeOf(at(-2, 9), at(-2, 10, 30))}·${M.BILLABLE}Logged twice${copy(M.DELETED_AT, { when: editedAtOf(DELETED_INSTANT) })} · `;
 		const deletedIndex = entries.findIndex((line) => line.includes(M.DELETED));
 		// the entry's own text ends at its `History` toggle: `ChangeLine` renders the toggle inside itself
 		// (`manual-time-edit-entry.tsx:471-477` + `:326-352`), so the label is part of the `<li>`'s text
@@ -1457,7 +1529,7 @@ test.describe('lane-b · Reports › Manual time edits: what a manager sees, and
 		expect(await textOf(panelRegion), 'the panel does not name who edited, when, the reason and each field').toBe(
 			[
 				copy(SHEET.HISTORY.EDITED_BY, { name: manager }),
-				`·${copy(SHEET.HISTORY.WHEN, { date: shortDayOf(at(0, 7, 5)), time: clockOf(at(0, 7, 5)) })}`,
+				`·${copy(SHEET.HISTORY.WHEN, { date: shortDayOf(EDITED_INSTANT), time: clockOf(EDITED_INSTANT) })}`,
 				`${copy(SHEET.CHANGE.REASON_PREFIX)} Corrected the end`,
 				fieldLineOf(SHEET.COLUMNS.END, clockOf(at(-1, 10)), clockOf(at(-1, 11))),
 				fieldLineOf(SHEET.COLUMNS.DURATION, durationOf(3600), durationOf(7200)),
@@ -1470,7 +1542,7 @@ test.describe('lane-b · Reports › Manual time edits: what a manager sees, and
 		expect(panelLines[0], 'the panel is not one change item naming who, when, why and the fields').toBe(
 			[
 				copy(SHEET.HISTORY.EDITED_BY, { name: manager }),
-				`·${copy(SHEET.HISTORY.WHEN, { date: shortDayOf(at(0, 7, 5)), time: clockOf(at(0, 7, 5)) })}`,
+				`·${copy(SHEET.HISTORY.WHEN, { date: shortDayOf(EDITED_INSTANT), time: clockOf(EDITED_INSTANT) })}`,
 				`${copy(SHEET.CHANGE.REASON_PREFIX)} Corrected the end`,
 				fieldLineOf(SHEET.COLUMNS.END, clockOf(at(-1, 10)), clockOf(at(-1, 11))),
 				fieldLineOf(SHEET.COLUMNS.DURATION, durationOf(3600), durationOf(7200)),
@@ -1747,11 +1819,12 @@ test.describe('lane-b · Reports › Manual time edits: what a manager sees, and
 			PERIOD.NEXT
 		]);
 
-		// a step back: a whole week, read again
-		const previousWeek = {
-			from: new Date(week.from.getTime() - 7 * 86_400_000),
-			to: new Date(week.to.getTime() - 7 * 86_400_000)
-		};
+		/* A step back: a whole week, read again. `shiftPeriod` moves a week period with `addDays`
+		   (`dashboard-period.ts:124-132`), which keeps the wall clock, so the week before this one is its Monday and
+		   Sunday seven calendar days earlier — not their instants minus 7 × 24 h, which in a zone with a DST night
+		   (Europe/Madrid changes on the last Sunday of March and of October) lands an hour off the midnight this read
+		   asks for. */
+		const previousWeek = { from: shiftDay(week.from, -7), to: shiftDay(week.to, -7) };
 		await group.getByRole('button', { name: PERIOD.PREVIOUS, exact: true }).click();
 		await expect.poll(() => lastOf(logs).params.startDate, { timeout: 20_000 }).toBe(isoOf(previousWeek.from));
 		expect(lastOf(logs).params.endDate, 'the stepped read did not shift its whole range').toBe(
@@ -1994,14 +2067,20 @@ test.describe('lane-b · Reports › Manual time edits: what a manager sees, and
 		page,
 		fixture
 	}) => {
-		await serveChangedLogs(page, { added: addedLogs(fixture), edited: editedLogs(fixture) });
+		const logs = await serveChangedLogs(page, { added: addedLogs(fixture), edited: editedLogs(fixture) });
 		await serveDailyReport(page, dailyAnswer(fixture));
 		const rows = historyRows(fixture);
-		await serveHistory(page, { pages: [{ items: [rows[0], rows[1], rows[2]], total: 3 }] });
+		// `raw`: every history call answers the same three rows, whichever period asks for them, so the period this test
+		// walks onto is served the served deletion too.
+		await serveHistory(page, { raw: { items: rows, total: 3 } });
 		await signInAndVisit(page, fixture, PAGE_PATH);
+		// The same walk test 4 makes: the served deletion is an entry only inside a period that reaches the day its log
+		// was on, and `common.FILTER_LAST_7_DAYS` reaches it on every weekday where the opened week does not.
+		const period = lastSevenDaysPeriod();
+		await openPreset(page, C.FILTER_LAST_7_DAYS);
+		await expect.poll(() => lastOf(logs).params.startDate, { timeout: 20_000 }).toBe(isoOf(period.from));
 		await expectEntries(page, 5, 'the export had nothing to export');
 
-		const period = weekPeriod();
 		const fileBase = `manual-time-edits-${localDayKeyOf(period.from)}-${localDayKeyOf(period.to)}`;
 		await exportButton(page).click();
 		expect(await allTextsOf(page.getByRole('menuitem')), 'the export menu is not CSV then PDF').toEqual([
@@ -2026,7 +2105,7 @@ test.describe('lane-b · Reports › Manual time edits: what a manager sees, and
 		).toEqual([
 			`${localDayKeyOf(localDay(0))},${fixture.names.teammate},${SHEET.NO_PROJECT},${SHEET.NO_TASK},08:30,09:30,${csvDurationOf(3600)},Yes,,,,No,,`,
 			`${localDayKeyOf(localDay(-1))},${fixture.names.user},Fixture Project,${fixture.names.task},09:00,11:00,${csvDurationOf(7200)},Yes,,${beforeCell},${afterCell},Yes,,Forgot the timer`,
-			`${localDayKeyOf(localDay(-2))},${fixture.names.user},${C.PRIVATE_PROJECT},Suite deleted task,09:00,10:30,${csvDurationOf(5400)},No,${csvDateTimeOf(at(0, 8))},,${M.DELETED},Yes,,Logged twice`,
+			`${localDayKeyOf(localDay(-2))},${fixture.names.user},${C.PRIVATE_PROJECT},Suite deleted task,09:00,10:30,${csvDurationOf(5400)},No,${csvDateTimeOf(DELETED_INSTANT)},,${M.DELETED},Yes,,Logged twice`,
 			`${localDayKeyOf(localDay(-2))},${fixture.names.teammate},${SHEET.NO_PROJECT},Suite edited task,14:00,16:30,${csvDurationOf(9000)},No,${csvDateTimeOf(at(-1, 10, 12))},,,Yes,,`,
 			`${localDayKeyOf(localDay(-3))},${fixture.names.user},${SHEET.NO_PROJECT},${SHEET.NO_TASK},09:00,09:30,${csvDurationOf(1800)},Yes,,,,Yes,,`
 		]);
