@@ -226,7 +226,9 @@ import { MOCK_ORIGIN } from '../../test-servers';
  *   fails this file. The app's own fallback toast stayed silent in every refusal, which is also asserted. A **403** goes
  *   down the adapter's critical branch instead of that sentence —
  *   `[ERROR] [HttpClient] 🚨 CRITICAL: HTTP 403 Forbidden - <verb> <path> - Permission Denied`
- *   (`core/services/logs/logger-adapter.service.ts:189-199`), which `armedHttpError` names too.
+ *   (`core/services/logs/logger-adapter.service.ts:189-199`), which `armedHttpError` names too. The config read's
+ *   **404** is the one refusal told to the client as expected (`embeds.service.ts` readConfig, `quietStatuses`): a
+ *   server with embeds off is a supported one, so test 4 excuses no line for it.
  * - **A row's facts cannot be addressed one by one** (measured, no defect): every credential fact is drawn inside a span
  *   that also carries the `· ` beside it (`embeds-settings-page.tsx:349-354`), and a site's `ADDED_ON` line shares its
  *   element with the person sign-in switch (`:196-204`), so `getByText(<one fact>, { exact: true })` finds nothing on
@@ -905,9 +907,12 @@ test.describe('lane-b · Settings › Workspace › Embeds: what the page shows 
 				navEntry: await settingsNavEntry(page).count(),
 				consoleErrors: shield.consoleErrors()
 			});
+			// A 404 is the answer of a server with embeds off, a supported one: the read keeps it out of the client's error
+			// log (`embeds.service.ts` readConfig, `quietStatuses`), so nothing is excused for it. A 403 keeps its line.
+			const excused = item.status === 404 ? [] : [armedHttpError('GET', '/embed-credentials/config', item.status)];
 			expect(
-				consoleFindings(shield, [armedHttpError('GET', '/embed-credentials/config', item.status)]),
-				`${item.label}: besides its own HTTP error line the page logged a console error`
+				consoleFindings(shield, excused),
+				`${item.label}: besides the HTTP error line it is allowed, the page logged a console error`
 			).toEqual([]);
 		});
 	}

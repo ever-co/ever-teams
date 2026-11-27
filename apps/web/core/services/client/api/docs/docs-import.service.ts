@@ -27,10 +27,14 @@ export interface IDocsDownload {
 	disposition: string | null;
 }
 
+/** What a probe's route answers while its platform feature is off: the probe's answer, not an error to log. */
+const PROBE_QUIET_STATUSES = [404] as const;
+
 /**
  * Client of the platform's import of exported workspaces into Docs and of its PDF export (ever-gauzy
  * `docs-import-export`), through both transports (this app's `/api/plugins/docs/*` proxies, or the platform directly).
- * Both platform features are off by default, their routes then answering 404: the probes let the pages hide them.
+ * Both platform features are off by default, their routes then answering 404: the probes let the pages hide them, and
+ * keep that 404 out of the error log (`use-docs-import.ts` reads it as the feature off).
  */
 class DocsImportService extends APIService {
 	private scopedQuery(extra: Record<string, unknown> = {}) {
@@ -39,13 +43,19 @@ class DocsImportService extends APIService {
 
 	/** The reader's last imports and the largest zip the import takes; 404 while import is off. */
 	probeImport = async (signal?: AbortSignal): Promise<IDocumentImportList> => {
-		const response = await this.get<IDocumentImportList>(`/plugins/docs/imports?${this.scopedQuery()}`, { signal });
+		const response = await this.get<IDocumentImportList>(`/plugins/docs/imports?${this.scopedQuery()}`, {
+			signal,
+			quietStatuses: PROBE_QUIET_STATUSES
+		});
 		return response.data;
 	};
 
 	/** The PDF export's capabilities; 404 while it is off. */
 	probePdf = async (signal?: AbortSignal): Promise<IDocumentPdfExportCapabilities> => {
-		const response = await this.get<IDocumentPdfExportCapabilities>('/plugins/docs/exports/pdf', { signal });
+		const response = await this.get<IDocumentPdfExportCapabilities>('/plugins/docs/exports/pdf', {
+			signal,
+			quietStatuses: PROBE_QUIET_STATUSES
+		});
 		return response.data;
 	};
 

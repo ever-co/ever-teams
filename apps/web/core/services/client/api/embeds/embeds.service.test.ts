@@ -26,7 +26,9 @@ jest.mock('@/core/services/client/axios', () => ({
 	getAPI: async () => ({ axiosInstance: mockFallback })
 }));
 
-import { isSiteGrantsUnavailable } from '@/core/lib/utils/embed-site-grants';
+import { errorStatusOf } from '@/core/lib/utils/error-feedback';
+import { isSiteGrantAlreadyEnded, isSiteGrantsUnavailable } from '@/core/lib/utils/embed-site-grants';
+import { expectOnly404Quiet } from '@/test/api/refusing-client';
 import { EmbedClientNotLimitedError, EmbedMembersNotAddedError, embedsService } from './embeds.service';
 
 const CREDENTIAL = {
@@ -409,6 +411,19 @@ describe('embedsService', () => {
 			expect(errorLog().mock.calls[0][0].response.status).toBe(500);
 		});
 
+		it('keeps the 404 of a config read, a server with embeds off, out of the error log, and still logs a 500', async () => {
+			const notFound = await expectOnly404Quiet(embedsService, () => embedsService.readConfig());
+
+			// The status `embedsAvailabilityOf` (use-embeds.ts) reads as `disabled`
+			expect(errorStatusOf(notFound)).toBe(404);
+		});
+
+		it('keeps the 404 of an end already done out of the error log, and still logs a 500', async () => {
+			const notFound = await expectOnly404Quiet(embedsService, () => embedsService.endSiteGrant('grant-1'));
+
+			expect(isSiteGrantAlreadyEnded(notFound)).toBe(true);
+		});
+
 		it('ends the sign-in from a site by its id, kept as one path segment', async () => {
 			const sent = directRequests(undefined);
 
@@ -523,6 +538,18 @@ describe('embedsService', () => {
 			await embedsService.listSiteGrants();
 
 			expect(mockFallback.get.mock.calls[0][1]).toEqual(expect.objectContaining({ quietStatuses: [404] }));
+		});
+
+		it('asks this app’s client to keep the 404 of a config read and of an end already done out of its log', async () => {
+			mockFallback.get.mockResolvedValue({ data: { enabled: true }, status: 200 });
+			mockFallback.delete.mockResolvedValue({ data: undefined, status: 204 });
+
+			await embedsService.readConfig();
+			await embedsService.endSiteGrant('grant-1');
+
+			expect(mockFallback.get.mock.calls[0][0]).toBe('/embed-credentials/config');
+			expect(mockFallback.get.mock.calls[0][1]).toEqual(expect.objectContaining({ quietStatuses: [404] }));
+			expect(mockFallback.delete.mock.calls[0][1]).toEqual(expect.objectContaining({ quietStatuses: [404] }));
 		});
 	});
 });

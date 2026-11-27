@@ -78,10 +78,11 @@ class EmbedsService extends APIService {
 
 	/**
 	 * Whether the server has embeds on, and can limit a credential to one client; a 404 means off, a 403 that the person
-	 * is not an admin of the organization.
+	 * is not an admin of the organization. The settings navigation asks it on every settings page, so the 404 of a
+	 * server with embeds off stays out of the error log (`embedsAvailabilityOf` reads it as `disabled`).
 	 */
 	readConfig = async (signal?: AbortSignal): Promise<EmbedConfig> => {
-		const response = await this.get<unknown>(`${CREDENTIALS}/config`, { signal });
+		const response = await this.get<unknown>(`${CREDENTIALS}/config`, { signal, quietStatuses: [NOT_FOUND] });
 		return validateApiResponse(embedConfigSchema, response.data, 'embeds.config API response');
 	};
 
@@ -184,9 +185,12 @@ class EmbedsService extends APIService {
 		return validateApiResponse(embedSiteGrantListSchema, response.data, 'embeds.siteGrants API response');
 	};
 
-	/** Ends a site's sign-in: its next renewal is refused. A sign-in already gone answers 404. */
+	/**
+	 * Ends a site's sign-in: its next renewal is refused. A sign-in already gone answers 404: the call fails with it, the
+	 * section takes it as ended (`isSiteGrantAlreadyEnded`), and it stays out of the error log.
+	 */
 	endSiteGrant = async (id: string): Promise<void> => {
-		await this.delete(`${SITE_GRANTS}/${encodeURIComponent(id)}`);
+		await this.delete(`${SITE_GRANTS}/${encodeURIComponent(id)}`, { quietStatuses: [NOT_FOUND] });
 	};
 
 	/** Revokes a credential: its tokens are refused within 30 seconds. */

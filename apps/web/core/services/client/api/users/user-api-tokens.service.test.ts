@@ -7,6 +7,8 @@ jest.mock('@/core/constants/config/constants', () => ({
 	GAUZY_API_BASE_SERVER_URL: { value: undefined }
 }));
 
+import { errorStatusOf } from '@/core/lib/utils/error-feedback';
+import { expectOnly404Quiet } from '@/test/api/refusing-client';
 import { userApiTokensService } from './user-api-tokens.service';
 
 function answer(data: unknown, status = 200) {
@@ -45,7 +47,14 @@ describe('userApiTokensService.readConfig', () => {
 		const signal = new AbortController().signal;
 
 		await expect(userApiTokensService.readConfig(signal)).resolves.toEqual({ enabled: false });
-		expect(get).toHaveBeenCalledWith('/user-api-tokens/config', { signal });
+		expect(get).toHaveBeenCalledWith('/user-api-tokens/config', { signal, quietStatuses: [404] });
+	});
+
+	it('keeps the 404 of an API without the route out of the error log, and still logs a 500', async () => {
+		const notFound = await expectOnly404Quiet(userApiTokensService, () => userApiTokensService.readConfig());
+
+		// The status `userApiTokensAvailabilityOf` (use-user-api-tokens.ts) reads as `disabled`
+		expect(errorStatusOf(notFound)).toBe(404);
 	});
 
 	it('refuses an answer that does not say it', async () => {

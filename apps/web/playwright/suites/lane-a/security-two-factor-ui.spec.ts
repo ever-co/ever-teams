@@ -223,7 +223,9 @@ import { MOCK_ORIGIN } from '../../test-servers';
  *
  * `shield.consoleErrors()` is printed in every MEASURE line and asserted only where the app *must* stay silent (the
  * success paths). Refused reads are logged by the app itself (`[ERROR] [HttpClient] HTTP Error: GET /auth/two-factor…`,
- * asserted on the read-failure case, which is the opposite direction), and a dropped request adds the browser's own
+ * asserted on the read-failure case, which is the opposite direction), except a 404: an API without these routes is a
+ * supported one, and the read keeps that 404 out of the client's error log (`two-factor.service.ts` getStatus,
+ * `quietStatuses`), which the same case asserts as no line at all. A dropped request adds the browser's own
  * `Failed to load resource` line, which `playwright/helpers.ts:30-44` already filters as noise (`fixtures.ts:104`
  * applies that list). One more line is excluded from the silence assertions, for its exact text only: React's dev-mode
  * `The result of getSnapshot should be cached to avoid an infinite loop` — shell store noise that this file cannot
@@ -1244,6 +1246,8 @@ test.describe('lane-a · Settings › Personal › Security: what two-factor aut
 			/** Set where a second read is the app's own doing too, depending on what mounted first (the 404 row). */
 			readsAtMost?: number;
 			navEntry: 'shown' | 'hidden';
+			/** Set where the read takes the refusal as its answer, so the client logs none of its reads (the 404 row). */
+			quiet?: true;
 		}> = [
 			{
 				label: '502',
@@ -1274,7 +1278,10 @@ test.describe('lane-a · Settings › Personal › Security: what two-factor aut
 				// lead runs (`s2-lead-2fa-a-4.log`), 1 in the others — both are the app as it is.
 				reads: 1,
 				readsAtMost: 2,
-				navEntry: 'hidden'
+				navEntry: 'hidden',
+				// An API without these routes is a supported one: the read keeps its 404 out of the client's error log
+				// (`two-factor.service.ts` getStatus, `quietStatuses`)
+				quiet: true
 			}
 		];
 
@@ -1326,12 +1333,14 @@ test.describe('lane-a · Settings › Personal › Security: what two-factor aut
 			expect(readSamples.join(','), `${one.label}: the reads did not stay at ${settledReads}`).toBe(
 				Array.from({ length: readSamples.length }, () => settledReads).join(',')
 			);
-			// The app logs every failed read itself (`api.service.ts:272-274`), so its own log lines count the reads too.
+			// The app logs every failed read itself (`api.service.ts` logError), so its own log lines count the reads too,
+			// except the reads of a refusal the read takes as its answer, which it logs none of.
 			const logged = shield.logMatching(/HTTP Error: GET \/auth\/two-factor/).slice(loggedBefore);
+			const loggedReads = one.quiet ? 0 : settledReads;
 			expect(
 				logged,
-				`${one.label}: the app did not log exactly the ${settledReads} failed reads it made`
-			).toHaveLength(settledReads);
+				`${one.label}: the app did not log exactly ${loggedReads} of the ${settledReads} failed reads it made`
+			).toHaveLength(loggedReads);
 			expect(await mock.calls(TWO_FACTOR_PREFIX), `${one.label}: a stubbed read reached the mock`).toEqual([]);
 
 			report(`10 read fails ${one.label}`, {
