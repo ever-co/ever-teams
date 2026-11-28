@@ -18,6 +18,15 @@ export function noteProfileSaved(now: number = Date.now()): void {
 	lastProfileSaveAt = now;
 }
 
+/**
+ * Called once a stop of the timer was accepted. The stop turns the person's tracking flag off, and the user read
+ * answers that flag: read from an instance that still keeps the check made before the stop, the app took the flag
+ * for stuck and refused the next start (#5684). The same window applies as after a profile save.
+ */
+export function noteTimerStopped(now: number = Date.now()): void {
+	noteProfileSaved(now);
+}
+
 /** Whether a user read made now must ask for a check made anew. */
 export function asksFreshUserRead(now: number = Date.now()): boolean {
 	if (lastProfileSaveAt === null) {
