@@ -1,4 +1,39 @@
-import { formatIntegerToHour, formatTimeString, parseStringInputToHours, secondsToTime } from './date-and-time';
+import {
+	formatIntegerToHour,
+	formatSecondsAsHoursMinutes,
+	formatTimeString,
+	parseStringInputToHours,
+	secondsToTime
+} from './date-and-time';
+
+describe('formatSecondsAsHoursMinutes', () => {
+	it('reads the duration as seconds', () => {
+		expect(formatSecondsAsHoursMinutes(5400)).toBe('1h 30m');
+		expect(formatSecondsAsHoursMinutes(3900)).toBe('1h 05m');
+		expect(formatSecondsAsHoursMinutes(360000)).toBe('100h 00m');
+	});
+
+	it('reads a numeric string as seconds too', () => {
+		expect(formatSecondsAsHoursMinutes('5400')).toBe('1h 30m');
+	});
+
+	it('drops the seconds and any fraction left over, without showing a fractional minute', () => {
+		expect(formatSecondsAsHoursMinutes(59)).toBe('0h 00m');
+		expect(formatSecondsAsHoursMinutes(5399.9)).toBe('1h 29m');
+		expect(formatSecondsAsHoursMinutes(3600 + 320)).toBe('1h 05m');
+	});
+
+	it('gives 0h 0m for a missing, negative or unreadable duration', () => {
+		expect(formatSecondsAsHoursMinutes(0)).toBe('0h 0m');
+		expect(formatSecondsAsHoursMinutes(undefined)).toBe('0h 0m');
+		expect(formatSecondsAsHoursMinutes(null)).toBe('0h 0m');
+		expect(formatSecondsAsHoursMinutes('')).toBe('0h 0m');
+		expect(formatSecondsAsHoursMinutes('abc')).toBe('0h 0m');
+		expect(formatSecondsAsHoursMinutes(-60)).toBe('0h 0m');
+		expect(formatSecondsAsHoursMinutes(Number.NaN)).toBe('0h 0m');
+		expect(formatSecondsAsHoursMinutes(Number.POSITIVE_INFINITY)).toBe('0h 0m');
+	});
+});
 
 describe('formatIntegerToHour', () => {
 	it('formats whole hours without minutes', () => {

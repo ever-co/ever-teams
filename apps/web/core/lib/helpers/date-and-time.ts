@@ -309,6 +309,21 @@ export const formatDuration = (seconds: number): string => {
 };
 
 /**
+ * A duration in seconds as "Xh MMm" (e.g. 5400 -> "1h 30m"). Whole minutes only: the seconds left over are dropped,
+ * like the HH:mm cells of the report tables. A missing, negative or unreadable duration is "0h 0m".
+ */
+export function formatSecondsAsHoursMinutes(seconds: number | string | null | undefined): string {
+	const total = typeof seconds === 'string' ? Number.parseFloat(seconds) : seconds;
+	if (typeof total !== 'number' || !Number.isFinite(total) || total <= 0) return '0h 0m';
+
+	const totalMinutes = Math.floor(total / 60);
+	const hours = Math.floor(totalMinutes / 60);
+	const minutes = totalMinutes % 60;
+
+	return `${hours}h ${minutes.toString().padStart(2, '0')}m`;
+}
+
+/**
  *
  * @returns the default time zone
  */
