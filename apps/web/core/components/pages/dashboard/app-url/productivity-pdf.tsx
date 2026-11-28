@@ -6,6 +6,7 @@ import {
 	IEmployeeWithProjects,
 	IProjectWithActivity
 } from '@/core/types/interfaces/activity/activity-report';
+import { formatSecondsAsHoursMinutes } from '@/core/lib/helpers/date-and-time';
 
 // Register font for PDF
 Font.register({
@@ -326,13 +327,8 @@ export const ProductivityPDF = ({ data = [], title = 'Activity Report', startDat
 
 	const summary = calculateSummary(data);
 
-	const formatDuration = (duration: string | number) => {
-		if (!duration) return '0h 0m';
-		const minutes = typeof duration === 'string' ? parseInt(duration, 10) : duration;
-		const hours = Math.floor(minutes / 60);
-		const remainingMinutes = minutes % 60;
-		return `${hours}h ${remainingMinutes.toString().padStart(2, '0')}m`;
-	};
+	// The report's durations are seconds, as the on-screen table reads them
+	const formatDuration = formatSecondsAsHoursMinutes;
 
 	return (
 		<Document>
