@@ -3,6 +3,7 @@ import {
 	forgetProfileSave,
 	FRESH_USER_READ_WINDOW_MS,
 	noteProfileSaved,
+	noteTimerStopped,
 	requestAsksFreshUserRead
 } from './fresh-user-read';
 
@@ -25,6 +26,13 @@ describe('the user read after a profile save', () => {
 		noteProfileSaved(NOON);
 
 		expect(asksFreshUserRead(NOON + FRESH_USER_READ_WINDOW_MS - 1)).toBe(true);
+		expect(asksFreshUserRead(NOON + FRESH_USER_READ_WINDOW_MS)).toBe(false);
+	});
+
+	it('asks for a check made anew after a timer stop too, for the same while', () => {
+		noteTimerStopped(NOON);
+
+		expect(asksFreshUserRead(NOON + 200)).toBe(true);
 		expect(asksFreshUserRead(NOON + FRESH_USER_READ_WINDOW_MS)).toBe(false);
 	});
 
