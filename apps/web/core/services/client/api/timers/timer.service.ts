@@ -5,6 +5,7 @@ import qs from 'qs';
 import { APIService, getFallbackAPI } from '../../api.service';
 
 import { getActiveTaskIdCookie } from '@/core/lib/helpers/cookies';
+import { noteTimerStopped } from '@/core/lib/utils/fresh-user-read';
 import { getTodayPlanDay } from '@/core/lib/helpers/daily-plan-day';
 import {
 	isSentTimeSlotHeld,
@@ -234,12 +235,16 @@ class TimerService extends APIService {
 		}
 
 		const api = await getFallbackAPI();
-		return api.post<ITimerStatus>(`/timer/stop?${getTodayRangeQuery()}`, {
+		const stopped = await api.post<ITimerStatus>(`/timer/stop?${getTodayRangeQuery()}`, {
 			source,
 			...range,
 			...namedLog,
 			...notesField
 		});
+		// The user read that follows asks for a session check made anew, whichever instance of this app's server
+		// answers it: one that did not take the stop may still keep the person as tracking (#5684)
+		noteTimerStopped();
+		return stopped;
 	};
 
 	/** The route that moves the running timer's start: Gauzy's in direct mode, this app's proxy otherwise. */
